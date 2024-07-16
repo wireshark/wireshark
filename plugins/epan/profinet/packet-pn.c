@@ -674,7 +674,7 @@ dissect_pn_uint8(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 {
     uint8_t data;
 
-    data = tvb_get_guint8 (tvb, offset);
+    data = tvb_get_uint8 (tvb, offset);
     proto_tree_add_uint(tree, hfindex, tvb, offset, 1, data);
     if (pdata)
         *pdata = data;

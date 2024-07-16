@@ -221,7 +221,7 @@ static int dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 			{
 				case TLV_PROTO_VER:
 					/* get the protocol version */
-					tlv_value = tvb_get_guint8( tvb, offset );
+					tlv_value = tvb_get_uint8( tvb, offset );
 					/* add the description */
 					proto_item_append_text(ti, ": %d", tlv_value);
 					hf = hf_m2m_value_protocol_vers_uint8;
@@ -231,7 +231,7 @@ static int dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
 				case TLV_BURST_NUM:
 					/* get the burst number */
-					burst_number = tvb_get_guint8( tvb, offset );
+					burst_number = tvb_get_uint8( tvb, offset );
 					/* add the description */
 					proto_item_append_text(ti, ": %d", burst_number);
 					hf = hf_m2m_value_burst_num_uint8;
@@ -241,7 +241,7 @@ static int dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
 				case TLV_FRAG_TYPE:
 					/* add the description */
-					tlv_frag_type = tvb_get_guint8( tvb, offset );
+					tlv_frag_type = tvb_get_uint8( tvb, offset );
 					proto_item_append_text(ti, ": %s", val_to_str_const(tlv_frag_type, tlv_frag_type_name, "Unknown"));
 					hf = hf_m2m_value_frag_type_uint8;
 					encoding = ENC_BIG_ENDIAN;
@@ -250,7 +250,7 @@ static int dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
 				case TLV_FRAG_NUM:
 					/* get the fragment number */
-					tlv_frag_number = tvb_get_guint8( tvb, offset );
+					tlv_frag_number = tvb_get_uint8( tvb, offset );
 					/* add the description */
 					proto_item_append_text(ti, ": %d", tlv_frag_number);
 					hf = hf_m2m_value_frag_num_uint8;
@@ -308,7 +308,7 @@ static int dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
 				case TLV_CRC16_STATUS:
 					/* add the description */
-					tlv_value = tvb_get_guint8( tvb, offset );
+					tlv_value = tvb_get_uint8( tvb, offset );
 					proto_item_append_text(ti, ": %s", val_to_str_const(tlv_value, tlv_crc16_status, "Unknown"));
 					hf = hf_m2m_value_crc16_status_uint8;
 					encoding = ENC_BIG_ENDIAN;

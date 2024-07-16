@@ -226,7 +226,7 @@ static int dissect_mac_header_type_1_decoder(tvbuff_t *tvb, packet_info *pinfo, 
 		proto_tree_add_item(ti_tree, hf_mac_header_type_1_ec, tvb, offset, 3, ENC_BIG_ENDIAN);
 		proto_tree_add_item(ti_tree, hf_mac_header_type_1_type, tvb, offset, 3, ENC_BIG_ENDIAN);
 		/* Get the first byte */
-		first_byte = tvb_get_guint8(tvb, offset);
+		first_byte = tvb_get_uint8(tvb, offset);
 		/* get the sub Type */
 		sub_type = ((first_byte & WIMAX_MAC_HEADER_TYPE_1_SUB_TYPE_MASK)>>3);
 		if(sub_type < TYPE_I_SUBTYPE_MAX)

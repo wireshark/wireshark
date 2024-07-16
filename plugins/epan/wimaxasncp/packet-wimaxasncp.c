@@ -709,7 +709,7 @@ static void wimaxasncp_dissect_tlv_value(
             uint8_t      value;
             const char *s;
 
-            value = tvb_get_guint8(tvb, offset);
+            value = tvb_get_uint8(tvb, offset);
 
             s = wimaxasncp_get_enum_name(tlv_info, value);
 
@@ -858,7 +858,7 @@ static void wimaxasncp_dissect_tlv_value(
             uint8_t     value;
             unsigned    i;
 
-            value = tvb_get_guint8(tvb, offset);
+            value = tvb_get_uint8(tvb, offset);
 
             item = proto_tree_add_item(
                 tree, tlv_info->hf_value,
@@ -1082,7 +1082,7 @@ static void wimaxasncp_dissect_tlv_value(
         {
             uint8_t value;
 
-            value = tvb_get_guint8(tvb, offset);
+            value = tvb_get_uint8(tvb, offset);
 
             proto_tree_add_uint_format(
                 tree, tlv_info->hf_value,
@@ -1154,7 +1154,7 @@ static void wimaxasncp_dissect_tlv_value(
         {
             uint8_t value;
 
-            value = tvb_get_guint8(tvb, offset);
+            value = tvb_get_uint8(tvb, offset);
 
             proto_tree_add_uint_format(
                 tree, tlv_info->hf_value,
@@ -1575,11 +1575,11 @@ static void wimaxasncp_dissect_tlv_value(
         uint8_t eap_type = 0;
 
         /* Get code */
-        eap_code = tvb_get_guint8(tvb, offset);
+        eap_code = tvb_get_uint8(tvb, offset);
         if (eap_code == EAP_REQUEST || eap_code == EAP_RESPONSE)
         {
             /* Get type */
-            eap_type = tvb_get_guint8(tvb, offset + 4);
+            eap_type = tvb_get_uint8(tvb, offset + 4);
         }
 
         /* Add code and type to info column */
@@ -2131,7 +2131,7 @@ dissect_wimaxasncp(
 #endif
 
     /* We currently only support version 1. */
-    if (tvb_bytes_exist(tvb, 0, 1) && tvb_get_guint8(tvb, 0) != 1)
+    if (tvb_bytes_exist(tvb, 0, 1) && tvb_get_uint8(tvb, 0) != 1)
     {
         return 0;
     }
@@ -2196,7 +2196,7 @@ dissect_wimaxasncp(
      * ------------------------------------------------------------------------
      */
 
-    ui8 = tvb_get_guint8(tvb, offset);
+    ui8 = tvb_get_uint8(tvb, offset);
 
     if (tree)
     {
@@ -2264,7 +2264,7 @@ dissect_wimaxasncp(
      * ------------------------------------------------------------------------
      */
 
-    function_type = tvb_get_guint8(tvb, offset);
+    function_type = tvb_get_uint8(tvb, offset);
 
     function_type_name = match_ver_value_string(function_type,
         wimaxasncp_function_type_vals,
@@ -2299,7 +2299,7 @@ dissect_wimaxasncp(
      * ------------------------------------------------------------------------
      */
 
-    ui8 = tvb_get_guint8(tvb, offset);
+    ui8 = tvb_get_uint8(tvb, offset);
 
 
     /* --------------------------------------------------------------------

@@ -82,7 +82,7 @@ static int dissect_wimax_pdu_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 		/* get the length of the remainder */
 		length = tvb_reported_length_remaining(tvb, offset);
 		/* get the first byte at offset */
-		first_byte = tvb_get_guint8(tvb, offset);
+		first_byte = tvb_get_uint8(tvb, offset);
 		/* check for padding */
 		if(first_byte == WIMAX_PDU_PADDING_MASK)
 		{	/* Padding */
@@ -137,7 +137,7 @@ static int dissect_wimax_pdu_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 		/* calculate the MAC header HCS */
 		mac_hcs_calculated = wimax_mac_calc_crc8(tvb_get_ptr(tvb, offset, WIMAX_MAC_HEADER_INFO_FIELDS), WIMAX_MAC_HEADER_INFO_FIELDS);
 		/* get the Header Check Sequence (HCS) in the header */
-		mac_hcs = tvb_get_guint8(tvb, offset + WIMAX_MAC_HEADER_SIZE - 1);
+		mac_hcs = tvb_get_uint8(tvb, offset + WIMAX_MAC_HEADER_SIZE - 1);
 		/* verify the HCS */
 		if(mac_hcs != mac_hcs_calculated)
 		{
@@ -159,8 +159,8 @@ static int dissect_wimax_pdu_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 		if(!mac_ht)
 		{	/* Generic MAC Header with payload */
 			/* get the MAC length */
-			length = (tvb_get_guint8(tvb, offset+1) & WIMAX_MAC_HEADER_LENGTH_MSB_MASK);
-			length = ((length<<8) | tvb_get_guint8(tvb, offset+2));
+			length = (tvb_get_uint8(tvb, offset+1) & WIMAX_MAC_HEADER_LENGTH_MSB_MASK);
+			length = ((length<<8) | tvb_get_uint8(tvb, offset+2));
 		}
 		else	/* MAC signaling Headers or Bandwidth Request Headers */
 		{	/* set the mac length */

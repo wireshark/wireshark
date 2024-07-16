@@ -383,7 +383,7 @@ static int dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 				case DCD_DOWNLINK_BURST_PROFILE:
 				{	/* Downlink Burst Profile TLV (table 363)*/
 					/* get the DIUC */
-					dl_burst_diuc = (tvb_get_guint8(tvb, offset) & 0x0F);
+					dl_burst_diuc = (tvb_get_uint8(tvb, offset) & 0x0F);
 					/* display TLV info */
 					/* add TLV subtree */
 					proto_str = wmem_strdup_printf(pinfo->pool, "Downlink_Burst_Profile (DIUC=%u)", dl_burst_diuc);
@@ -562,7 +562,7 @@ static int dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 				{
 					tlv_item = add_tlv_subtree(&tlv_info, dcd_tree, hf_dcd_tlv_t_34_dl_region_definition, tvb, offset-tlv_value_offset, ENC_NA);
 					tlv_tree = proto_item_add_subtree(tlv_item, ett_mac_mgmt_msg_dcd_decoder);
-					dl_num_regions = tvb_get_guint8(tvb, offset);
+					dl_num_regions = tvb_get_uint8(tvb, offset);
 					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_34_dl_region_definition_num_region, tvb, offset, 1, ENC_BIG_ENDIAN);
 					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_34_dl_region_definition_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 					tlv_offset = offset;

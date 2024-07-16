@@ -106,7 +106,7 @@ static int dissect_mac_mgmt_msg_aas_fbck_req_decoder(tvbuff_t *tvb, packet_info 
 		/* move to next field */
 		offset++;
 		/* get the data type */
-		data_type = tvb_get_guint8(tvb, offset);
+		data_type = tvb_get_uint8(tvb, offset);
 		/* display the number of Frames */
 		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_number_of_frames, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* display the Data Type */
@@ -144,7 +144,7 @@ static int dissect_mac_mgmt_msg_aas_fbck_rsp_decoder(tvbuff_t *tvb, packet_info 
 		/* Display the AAS-FBCK-RSP message type */
 
 		/* get the data type */
-		data_type = tvb_get_guint8(tvb, offset);
+		data_type = tvb_get_uint8(tvb, offset);
 		/* Decode and display the AAS-FBCK-RSP message body */
 		/* display the reserved fields */
 		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_rsp_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);

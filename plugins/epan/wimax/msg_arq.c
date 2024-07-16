@@ -326,10 +326,10 @@ static int dissect_mac_mgmt_msg_arq_feedback_decoder(tvbuff_t *tvb, packet_info 
 		{
 			arq_feedback_ie_count++;
 			arq_cid = tvb_get_ntohs(tvb, offset);
-			arq_last = ((tvb_get_guint8(tvb, offset + 2) & 0x80) != 0);
-			arq_ack_type = (tvb_get_guint8(tvb, offset + 2) & 0x60) >> 5;
+			arq_last = ((tvb_get_uint8(tvb, offset + 2) & 0x80) != 0);
+			arq_ack_type = (tvb_get_uint8(tvb, offset + 2) & 0x60) >> 5;
 			arq_bsn = (tvb_get_ntohs(tvb, offset + 2) & 0x1FFC) >> 2;
-			arq_num_ack_maps = 1 + (tvb_get_guint8(tvb, offset + 3) & 0x03);
+			arq_num_ack_maps = 1 + (tvb_get_uint8(tvb, offset + 3) & 0x03);
 
 			arq_fb_item = proto_tree_add_protocol_format(arq_feedback_tree, proto_mac_mgmt_msg_arq_decoder, tvb, offset, tvb_len, "ARQ_Feedback_IE");
 			proto_item_append_text(arq_fb_item, ", CID: %u, %s ARQ feedback IE, %s, BSN: %u",
@@ -355,7 +355,7 @@ static int dissect_mac_mgmt_msg_arq_feedback_decoder(tvbuff_t *tvb, packet_info 
 						proto_tree_add_item(arq_fb_tree, hf_arq_selective_map, tvb, offset, 2, ENC_BIG_ENDIAN);
 					} else {
 						proto_tree_add_item(arq_fb_tree, hf_arq_seq_format, tvb, offset, 1, ENC_BIG_ENDIAN);
-						seq_format = (tvb_get_guint8(tvb, offset) & 0x80) >> 7;
+						seq_format = (tvb_get_uint8(tvb, offset) & 0x80) >> 7;
 						if (seq_format == 0) {
 							proto_tree_add_item(arq_fb_tree, hf_arq_0seq_ack_map, tvb, offset, 1, ENC_BIG_ENDIAN);
 							proto_tree_add_item(arq_fb_tree, hf_arq_0seq1_len, tvb, offset, 2, ENC_BIG_ENDIAN);

@@ -127,7 +127,7 @@ static int dissect_mac_mgmt_msg_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 	}
 
 	/* Get the payload type */
-	message_type = tvb_get_guint8(tvb, offset);
+	message_type = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(message_tree, hf_mac_mgmt_msg_type, tvb, offset, 1, ENC_NA);
 	mgt_msg_str = val_to_str_ext_const(message_type, &mgt_msg_abbrv_vals_ext, "Unknown");
 

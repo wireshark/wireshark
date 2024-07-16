@@ -209,10 +209,10 @@ static int dissect_mac_mgmt_msg_pmc_rsp_decoder(tvbuff_t *tvb, packet_info *pinf
 			proto_tree_add_item(pmc_rsp_tree, hf_pmc_req_pwr_control_mode_change, tvb, offset, 2, ENC_BIG_ENDIAN);
 		/* display the Power Adjust start frame */
 		proto_tree_add_item(pmc_rsp_tree, hf_pmc_rsp_start_frame, tvb, offset, 2, ENC_BIG_ENDIAN);
-		pwr_control_mode = 0xC0 & tvb_get_guint8(tvb, offset);
+		pwr_control_mode = 0xC0 & tvb_get_uint8(tvb, offset);
 		offset++;
 
-		value = tvb_get_gint8(tvb, offset);
+		value = tvb_get_int8(tvb, offset);
 		power_change = (float)0.25 * value;  /* 0.25dB incr */
 		/* Check if Power Control Mode is 0 */
 		if (pwr_control_mode == 0) {

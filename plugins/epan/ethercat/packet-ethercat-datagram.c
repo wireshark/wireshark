@@ -1262,8 +1262,8 @@ static int dissect_esc_register(packet_info* pinfo, proto_tree *tree, tvbuff_t *
 }
 static void init_EcParserHDR(EcParserHDR* pHdr, tvbuff_t *tvb, int offset)
 {
-   pHdr->cmd = tvb_get_guint8(tvb, offset++);
-   pHdr->idx = tvb_get_guint8(tvb, offset++);
+   pHdr->cmd = tvb_get_uint8(tvb, offset++);
+   pHdr->idx = tvb_get_uint8(tvb, offset++);
    pHdr->anAddrUnion.a.adp = tvb_get_letohs(tvb, offset); offset+=2;
    pHdr->anAddrUnion.a.ado = tvb_get_letohs(tvb, offset); offset+=2;
    pHdr->len = tvb_get_letohs(tvb, offset); offset+=2;

@@ -60,13 +60,13 @@ int getServiceNodeId(tvbuff_t *tvb, int offset)
     uint8_t EncodingMask;
     uint32_t Numeric = 0;
 
-    EncodingMask = tvb_get_guint8(tvb, offset);
+    EncodingMask = tvb_get_uint8(tvb, offset);
     offset++;
 
     switch(EncodingMask)
     {
     case 0x00: /* two byte node id */
-        Numeric = tvb_get_guint8(tvb, offset);
+        Numeric = tvb_get_uint8(tvb, offset);
         break;
     case 0x01: /* four byte node id */
         offset+=1;
@@ -95,14 +95,14 @@ int parseServiceNodeId(proto_tree *tree, tvbuff_t *tvb, int *pOffset)
     uint8_t EncodingMask;
     uint32_t Numeric = 0;
 
-    EncodingMask = tvb_get_guint8(tvb, iOffset);
+    EncodingMask = tvb_get_uint8(tvb, iOffset);
     proto_tree_add_item(tree, hf_opcua_nodeid_encodingmask, tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
     iOffset++;
 
     switch(EncodingMask)
     {
     case 0x00: /* two byte node id */
-        Numeric = tvb_get_guint8(tvb, iOffset);
+        Numeric = tvb_get_uint8(tvb, iOffset);
         proto_tree_add_item(tree, hf_opcua_app_numeric, tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
         iOffset+=1;
         break;

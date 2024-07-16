@@ -50,12 +50,12 @@ static void NvSummaryFormater(tvbuff_t *tvb, int offset, char *szText, int nMax)
    uint32_t nvOffset = offset;
 
    snprintf ( szText, nMax, "Network Vars from %d.%d.%d.%d.%d.%d - %d Var(s)",
-      tvb_get_guint8(tvb, nvOffset),
-      tvb_get_guint8(tvb, nvOffset+1),
-      tvb_get_guint8(tvb, nvOffset+2),
-      tvb_get_guint8(tvb, nvOffset+3),
-      tvb_get_guint8(tvb, nvOffset+4),
-      tvb_get_guint8(tvb, nvOffset+5),
+      tvb_get_uint8(tvb, nvOffset),
+      tvb_get_uint8(tvb, nvOffset+1),
+      tvb_get_uint8(tvb, nvOffset+2),
+      tvb_get_uint8(tvb, nvOffset+3),
+      tvb_get_uint8(tvb, nvOffset+4),
+      tvb_get_uint8(tvb, nvOffset+5),
       tvb_get_letohs(tvb, nvOffset+6));
 }
 
@@ -64,12 +64,12 @@ static void NvPublisherFormater(tvbuff_t *tvb, int offset, char *szText, int nMa
    uint32_t nvOffset = offset;
 
    snprintf ( szText, nMax, "Publisher %d.%d.%d.%d.%d.%d",
-      tvb_get_guint8(tvb, nvOffset),
-      tvb_get_guint8(tvb, nvOffset+1),
-      tvb_get_guint8(tvb, nvOffset+2),
-      tvb_get_guint8(tvb, nvOffset+3),
-      tvb_get_guint8(tvb, nvOffset+4),
-      tvb_get_guint8(tvb, nvOffset+5));
+      tvb_get_uint8(tvb, nvOffset),
+      tvb_get_uint8(tvb, nvOffset+1),
+      tvb_get_uint8(tvb, nvOffset+2),
+      tvb_get_uint8(tvb, nvOffset+3),
+      tvb_get_uint8(tvb, nvOffset+4),
+      tvb_get_uint8(tvb, nvOffset+5));
 }
 
 static void NvVarHeaderFormater(tvbuff_t *tvb, int offset, char *szText, int nMax)

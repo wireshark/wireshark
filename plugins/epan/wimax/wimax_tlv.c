@@ -30,9 +30,9 @@ int init_tlv_info(tlv_info_t *info, tvbuff_t *tvb, int offset)
 	unsigned tlv_len;
 
 	/* get TLV type */
-	info->type = (uint8_t)tvb_get_guint8( tvb, offset );
+	info->type = (uint8_t)tvb_get_uint8( tvb, offset );
 	/* get TLV length */
-	tlv_len = (unsigned)tvb_get_guint8( tvb, (offset + 1) );
+	tlv_len = (unsigned)tvb_get_uint8( tvb, (offset + 1) );
 	/* set the TLV value offset */
 	info->value_offset = 2;
 	/* adjust for multiple-byte TLV length */
@@ -50,7 +50,7 @@ int init_tlv_info(tlv_info_t *info, tvbuff_t *tvb, int offset)
 				info->length = 0;  /* no length */
 			break;
 			case 1:
-				info->length = (int32_t)tvb_get_guint8( tvb, (offset + 2) ); /* 8 bit */
+				info->length = (int32_t)tvb_get_uint8( tvb, (offset + 2) ); /* 8 bit */
 			break;
 			case 2:
 				info->length = (int32_t)tvb_get_ntohs( tvb, (offset + 2) ); /* 16 bit */

@@ -752,7 +752,7 @@ void parseLocalizedText(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
     subtree = proto_tree_add_subtree_format(tree, tvb, *pOffset, -1, ett_opcua_localizedtext, &ti, "%s: LocalizedText", szFieldName);
 
     /* parse encoding mask */
-    EncodingMask = tvb_get_guint8(tvb, iOffset);
+    EncodingMask = tvb_get_uint8(tvb, iOffset);
     proto_tree_add_bitmask(subtree, tvb, iOffset, hf_opcua_loctext_mask, ett_opcua_localizedtext_encodingmask, loctext_mask, ENC_LITTLE_ENDIAN);
     iOffset++;
 
@@ -871,7 +871,7 @@ void parseDiagnosticInfo(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, in
     p_add_proto_data(pinfo->pool, pinfo, proto_opcua, 0, GUINT_TO_POINTER(opcua_nested_count));
 
     /* parse encoding mask */
-    EncodingMask = tvb_get_guint8(tvb, iOffset);
+    EncodingMask = tvb_get_uint8(tvb, iOffset);
     proto_tree_add_bitmask(subtree, tvb, iOffset, hf_opcua_diag_mask, ett_opcua_diagnosticinfo_encodingmask, diag_mask, ENC_LITTLE_ENDIAN);
     iOffset++;
 
@@ -977,7 +977,7 @@ void parseDataValue(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pO
     int     iOffset = *pOffset;
     uint8_t EncodingMask;
 
-    EncodingMask = tvb_get_guint8(tvb, iOffset);
+    EncodingMask = tvb_get_uint8(tvb, iOffset);
     proto_tree_add_bitmask(subtree, tvb, iOffset, hf_opcua_datavalue_mask, ett_opcua_datavalue_encodingmask, datavalue_mask, ENC_LITTLE_ENDIAN);
     iOffset++;
 
@@ -1033,7 +1033,7 @@ void parseVariant(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOff
     opcua_nested_count++;
     p_add_proto_data(pinfo->pool, pinfo, proto_opcua, 0, GUINT_TO_POINTER(opcua_nested_count));
 
-    EncodingMask = tvb_get_guint8(tvb, iOffset);
+    EncodingMask = tvb_get_uint8(tvb, iOffset);
     proto_tree_add_item(subtree, hf_opcua_variant_encodingmask, tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
     iOffset++;
 
@@ -1240,7 +1240,7 @@ void parseNodeId(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffs
     int     iOffset = *pOffset;
     uint8_t EncodingMask;
 
-    EncodingMask = tvb_get_guint8(tvb, iOffset);
+    EncodingMask = tvb_get_uint8(tvb, iOffset);
     proto_tree_add_item(subtree, hf_opcua_nodeid_encodingmask, tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
     iOffset++;
 
@@ -1314,7 +1314,7 @@ void parseExtensionObject(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, i
     parseNodeId(extobj_tree, tvb, pinfo, &iOffset, "TypeId");
 
     /* parse encoding mask */
-    EncodingMask = tvb_get_guint8(tvb, iOffset);
+    EncodingMask = tvb_get_uint8(tvb, iOffset);
     proto_tree_add_bitmask(extobj_tree, tvb, iOffset, hf_opcua_extobj_mask, ett_opcua_extensionobject_encodingmask, extobj_mask, ENC_LITTLE_ENDIAN);
     iOffset++;
 
@@ -1343,7 +1343,7 @@ void parseExpandedNodeId(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, in
     int     iOffset = *pOffset;
     uint8_t EncodingMask;
 
-    EncodingMask = tvb_get_guint8(tvb, iOffset);
+    EncodingMask = tvb_get_uint8(tvb, iOffset);
     proto_tree_add_bitmask(subtree, tvb, iOffset, hf_opcua_expandednodeid_mask, ett_opcua_expandednodeid_encodingmask, expandednodeid_mask, ENC_LITTLE_ENDIAN);
     iOffset++;
 
@@ -1401,13 +1401,13 @@ uint32_t getExtensionObjectType(tvbuff_t *tvb, int *pOffset)
     uint8_t EncodingMask;
     uint32_t Numeric = 0;
 
-    EncodingMask = tvb_get_guint8(tvb, iOffset);
+    EncodingMask = tvb_get_uint8(tvb, iOffset);
     iOffset++;
 
     switch(EncodingMask)
     {
     case 0x00: /* two byte node id */
-        Numeric = tvb_get_guint8(tvb, iOffset);
+        Numeric = tvb_get_uint8(tvb, iOffset);
         /*iOffset+=1;*/
         break;
     case 0x01: /* four byte node id */
@@ -1442,7 +1442,7 @@ void parseNodeClassMask(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_,
       &hf_opcua_nodeClassMask_view,
       NULL};
 
-    uint8_t NodeClassMask = tvb_get_guint8(tvb, *pOffset);
+    uint8_t NodeClassMask = tvb_get_uint8(tvb, *pOffset);
     if(NodeClassMask == NODECLASSMASK_ALL)
     {
         proto_tree_add_item(tree, hf_opcua_nodeClassMask_all, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN);
@@ -1465,7 +1465,7 @@ void parseResultMask(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, in
       &hf_opcua_resultMask_typedefinition,
       NULL};
 
-    uint8_t ResultMask = tvb_get_guint8(tvb, *pOffset);
+    uint8_t ResultMask = tvb_get_uint8(tvb, *pOffset);
     if(ResultMask == RESULTMASK_ALL)
     {
         proto_tree_add_item(tree, hf_opcua_resultMask_all, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN);

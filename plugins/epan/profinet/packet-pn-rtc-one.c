@@ -264,7 +264,7 @@ packet_info *pinfo _U_, proto_tree *tree, uint8_t *drep _U_, int hfindex, int * 
         uint8_t    u8StatusByte;
         proto_item *sb_item;
 
-        u8StatusByte = tvb_get_guint8(tvb, offset);
+        u8StatusByte = tvb_get_uint8(tvb, offset);
 
         /* Add Status Byte subtree */
         sb_item = proto_tree_add_bitmask_with_flags(tree, tvb, offset, hfindex, ett_pn_io_ioxs, fields,
@@ -286,7 +286,7 @@ packet_info *pinfo _U_, proto_tree *tree, uint8_t *drep _U_, int hfindex, int * 
         uint8_t    u8ControlByte;
         proto_item *cb_item;
 
-        u8ControlByte = tvb_get_guint8(tvb, offset);
+        u8ControlByte = tvb_get_uint8(tvb, offset);
 
         /* Add Status Byte subtree */
         cb_item = proto_tree_add_bitmask_with_flags(tree, tvb, offset, hfindex, ett_pn_io_ioxs, fields,
@@ -309,7 +309,7 @@ dissect_PNIO_IOCS(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree 
         uint8_t     u8IOxS;
         proto_item *ioxs_item;
 
-        u8IOxS = tvb_get_guint8(tvb, offset);
+        u8IOxS = tvb_get_uint8(tvb, offset);
 
         /* Add ioxs subtree */
         ioxs_item = proto_tree_add_bitmask_with_flags(tree, tvb, offset, hfindex,
@@ -336,7 +336,7 @@ packet_info *pinfo _U_, proto_tree *tree, uint8_t *drep _U_, int hfindex, int * 
         uint8_t    u8IOxS;
         proto_item *ioxs_item;
 
-        u8IOxS = tvb_get_guint8(tvb, offset);
+        u8IOxS = tvb_get_uint8(tvb, offset);
 
         /* Add ioxs subtree */
         ioxs_item = proto_tree_add_bitmask_with_flags(tree, tvb, offset, hfindex,
@@ -364,7 +364,7 @@ int hfindex, uint8_t bytelength, uint64_t *pdata)
 
     switch (bytelength) {
     case 1:     /* 8 Bit Safety IO Data */
-        data = tvb_get_guint8(tvb, offset);
+        data = tvb_get_uint8(tvb, offset);
         if (pdata)
             *pdata = data;
         break;
@@ -642,7 +642,7 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
                             }
 
                             /* ---- Check for new PNIO data using togglebit ---- */
-                            statusbyte = tvb_get_guint8(tvb, offset);
+                            statusbyte = tvb_get_uint8(tvb, offset);
                             toggleBitSb = statusbyte & 0x20;     /* get ToggleBit of StatusByte */
 
                             if (io_data_object->lastToggleBit != toggleBitSb) {    /* ToggleBit has changed --> new Data incoming */
@@ -850,7 +850,7 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
                             }
 
                             /* ---- Check for new PNIO data using togglebit ---- */
-                            controlbyte = tvb_get_guint8(tvb, offset);
+                            controlbyte = tvb_get_uint8(tvb, offset);
                             toggleBitCb = controlbyte & 0x20;               /* get ToggleBit of Controlbyte */
 
                             if (io_data_object->lastToggleBit != toggleBitCb) {   /* ToggleBit has changed --> new Data incoming */
@@ -980,7 +980,7 @@ dissect_pn_pa_profile_status(tvbuff_t *tvb, int offset,
         proto_tree *status_tree;
         const char* quality_name = NULL;
 
-        u8status = tvb_get_guint8(tvb, offset);
+        u8status = tvb_get_uint8(tvb, offset);
         quality = (u8status >> 6u) & 0x3u;
 
         /* add status subtree */

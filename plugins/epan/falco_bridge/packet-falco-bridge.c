@@ -835,7 +835,7 @@ dissect_falco_bridge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
     uint32_t source_id = 0;
     if (pinfo->rec->rec_header.syscall_header.event_type == FALCO_PPME_PLUGINEVENT_E) {
-        source_id = tvb_get_guint32(tvb, 8, encoding);
+        source_id = tvb_get_uint32(tvb, 8, encoding);
     }
 
     bridge_info* bi = get_bridge_info(source_id);

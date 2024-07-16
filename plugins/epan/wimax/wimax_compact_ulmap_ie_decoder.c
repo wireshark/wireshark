@@ -377,7 +377,7 @@ unsigned wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tv
 	/* set the local offset */
 	ul_map_offset = offset;
 	/* Get the first byte */
-	byte = tvb_get_guint8(tvb, ul_map_offset);
+	byte = tvb_get_uint8(tvb, ul_map_offset);
 	/* get the ul-map type */
 	if(nibble_offset & 1)
 	{
@@ -515,7 +515,7 @@ unsigned wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tv
 			/* get the Nband */
 			if(max_logical_bands)
 			{	/* get and display the Nband */
-				nband = tvb_get_guint8(tvb, ul_map_offset);
+				nband = tvb_get_uint8(tvb, ul_map_offset);
 				length++;
 				if(nibble_offset & 1)
 				{
@@ -585,7 +585,7 @@ unsigned wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tv
 				length++;
 			}
 			/* Get the Allocation Mode */
-			byte = tvb_get_guint8(tvb, ul_map_offset);
+			byte = tvb_get_uint8(tvb, ul_map_offset);
 			if(nibble_offset & 1)
 			{
 				allocation_mode = ((byte & ALLOCATION_MODE_MASK_1) >> 2);
@@ -723,7 +723,7 @@ unsigned wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tv
 				/* move to next byte */
 				ul_map_offset++;
 				/* get the new byte */
-				byte = tvb_get_guint8(tvb, ul_map_offset);
+				byte = tvb_get_uint8(tvb, ul_map_offset);
 				/* get the UIUC */
 				uiuc = ((byte & MSB_NIBBLE_MASK) >> 4);
 				/* display the UIUC */
@@ -969,7 +969,7 @@ static unsigned wimax_compact_ulmap_rcid_ie_decoder(proto_tree *tree, packet_inf
 		}
 		else
 		{	/* Get the prefix bit */
-			prefix = (tvb_get_guint8(tvb, offset) & 0x08);
+			prefix = (tvb_get_uint8(tvb, offset) & 0x08);
 			/* display the prefix */
 			proto_tree_add_item(tree, hf_rcid_ie_prefix_1, tvb, offset, 2, ENC_BIG_ENDIAN);
 			if(prefix)
@@ -1006,7 +1006,7 @@ static unsigned wimax_compact_ulmap_rcid_ie_decoder(proto_tree *tree, packet_inf
 		}
 		else
 		{	/* Get the prefix bit */
-			prefix = (tvb_get_guint8(tvb, offset) & 0x08);
+			prefix = (tvb_get_uint8(tvb, offset) & 0x08);
 			/* display the prefix */
 			proto_tree_add_item(tree, hf_rcid_ie_prefix, tvb, offset, 2, ENC_BIG_ENDIAN);
 			if(prefix || (cid_type == CID_TYPE_RCID11))
@@ -1048,7 +1048,7 @@ static unsigned wimax_compact_ulmap_harq_control_ie_decoder(proto_tree *tree, pa
 	col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "HARQ Control IE");
 #endif
 	/* Get the first byte */
-	byte = tvb_get_guint8(tvb, offset);
+	byte = tvb_get_uint8(tvb, offset);
 	if(nibble_offset & 1)
 	{	/* Get the prefix bit */
 		prefix = (byte & 0x08);
@@ -1134,7 +1134,7 @@ static unsigned wimax_culmap_extension_ie_decoder(proto_tree *tree, packet_info 
 				/* display the HARQ mode */
 				proto_tree_add_item(tree, hf_culmap_extension_harq_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
 				/* Get the next byte */
-				tvb_value = tvb_get_guint8(tvb, offset);
+				tvb_value = tvb_get_uint8(tvb, offset);
 				/* get the HARQ mode */
 				harq_mode = ((tvb_value & MSB_NIBBLE_MASK) >> 4);
 			break;
@@ -1249,7 +1249,7 @@ unsigned wimax_extended_uiuc_dependent_ie_decoder(proto_tree *tree, packet_info 
 #endif
 
 	/* get the first byte */
-	byte =  tvb_get_guint8(tvb, offset);
+	byte =  tvb_get_uint8(tvb, offset);
 	if(nibble_offset & 1)
 	{	/* get the extended UIUC */
 		ext_uiuc = (byte & LSB_NIBBLE_MASK);
@@ -1258,7 +1258,7 @@ unsigned wimax_extended_uiuc_dependent_ie_decoder(proto_tree *tree, packet_info 
 		/* move to next byte */
 		offset++;
 		/* get the 2nd byte */
-		byte =  tvb_get_guint8(tvb, offset);
+		byte =  tvb_get_uint8(tvb, offset);
 		/* get the length */
 		length = ((byte & MSB_NIBBLE_MASK) >> 4);
 		/* display extended UIUC length */

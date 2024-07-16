@@ -39,14 +39,14 @@
 /* extract the nibble at the given nibble address 'n' of tvbuff_t 't' */
 #define TVB_NIB_NIBBLE(n,t) \
     (((n) & 1) \
-    ?  tvb_get_guint8((t), (n)/2) & NIBBLE_MASK \
-    : (tvb_get_guint8((t), (n)/2) >> 4) & NIBBLE_MASK)
+    ?  tvb_get_uint8((t), (n)/2) & NIBBLE_MASK \
+    : (tvb_get_uint8((t), (n)/2) >> 4) & NIBBLE_MASK)
 
 /* extract the byte at the given nibble address 'n' of tvbuff_t 't' */
 #define TVB_NIB_BYTE(n,t) \
     (n) & 1 \
     ? (tvb_get_ntohs((t), (n)/2) >> 4) & BYTE_MASK \
-    : tvb_get_guint8((t), (n)/2)
+    : tvb_get_uint8((t), (n)/2)
 
 /* extract 12 bits at the given nibble address */
 #define TVB_NIB_BITS12(n,t) \
@@ -61,7 +61,7 @@
 /* extract the word at the given nibble address 'n' of tvbuff_t 't' */
 #define TVB_NIB_LONG(n,t) \
     (n) & 1 \
-    ? (tvb_get_ntohl((t), (n)/2) << 4) | ((tvb_get_guint8((t), (n)/2 + 4) >> 4) & NIBBLE_MASK) \
+    ? (tvb_get_ntohl((t), (n)/2) << 4) | ((tvb_get_uint8((t), (n)/2 + 4) >> 4) & NIBBLE_MASK) \
     : tvb_get_ntohl((t), (n)/2)
 
 /* Only currently used with nib == 1 or 2 */
@@ -122,7 +122,7 @@
  * tvb ... tvbuff_t
  */
 #define TVB_BIT_BIT(bit, tvb) \
-    (( tvb_get_guint8(tvb, ADDR(bit)) >> SHIFT(bit,1) ) & 0x1)
+    (( tvb_get_uint8(tvb, ADDR(bit)) >> SHIFT(bit,1) ) & 0x1)
 
 /* extract bitfield up to 9 bits
  * bit ... bit address

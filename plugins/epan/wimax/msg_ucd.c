@@ -234,22 +234,22 @@ static int dissect_mac_mgmt_msg_ucd_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 		offset++;
 
 		/* get the ranging backoff start */
-		ucd_ranging_backoff_start = tvb_get_guint8(tvb, offset);
+		ucd_ranging_backoff_start = tvb_get_uint8(tvb, offset);
 		proto_tree_add_uint_format_value(ucd_tree, hf_ucd_ranging_backoff_start, tvb, offset, 1, (1 << ucd_ranging_backoff_start), "2^%u = %u", ucd_ranging_backoff_start, (1 << ucd_ranging_backoff_start));
 		offset++;
 
 		/* get the ranging backoff end */
-		ucd_ranging_backoff_end = tvb_get_guint8(tvb, offset);
+		ucd_ranging_backoff_end = tvb_get_uint8(tvb, offset);
 		proto_tree_add_uint_format_value(ucd_tree, hf_ucd_ranging_backoff_end, tvb, offset, 1, (1 << ucd_ranging_backoff_end), "2^%u = %u", ucd_ranging_backoff_end, (1 << ucd_ranging_backoff_end));
 		offset++;
 
 		/* get the request backoff start */
-		ucd_request_backoff_start = tvb_get_guint8(tvb, offset);
+		ucd_request_backoff_start = tvb_get_uint8(tvb, offset);
 		proto_tree_add_uint_format_value(ucd_tree, hf_ucd_request_backoff_start, tvb, offset, 1, (1 << ucd_request_backoff_start), "2^%u = %u", ucd_request_backoff_start, (1 << ucd_request_backoff_start));
 		offset++;
 
 		/* get the request backoff end */
-		ucd_request_backoff_end = tvb_get_guint8(tvb, offset);
+		ucd_request_backoff_end = tvb_get_uint8(tvb, offset);
 		proto_tree_add_uint_format_value(ucd_tree, hf_ucd_request_backoff_end, tvb, offset, 1, (1 << ucd_request_backoff_end), "2^%u = %u", ucd_request_backoff_end, (1 << ucd_request_backoff_end));
 		offset++;
 
@@ -330,7 +330,7 @@ static int dissect_mac_mgmt_msg_ucd_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 				case UCD_UPLINK_BURST_PROFILE:
 				{
 					/* get the UIUC */
-					ul_burst_uiuc = tvb_get_guint8(tvb, offset) & 0x0F;
+					ul_burst_uiuc = tvb_get_uint8(tvb, offset) & 0x0F;
 					/* add TLV subtree */
 					proto_str = wmem_strdup_printf(pinfo->pool, "Uplink Burst Profile (UIUC = %u)", ul_burst_uiuc);
 					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_ucd_decoder, ucd_tree, proto_mac_mgmt_msg_ucd_decoder, tvb, offset-tlv_value_offset, tlv_len, proto_str);
@@ -405,14 +405,14 @@ static int dissect_mac_mgmt_msg_ucd_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 				case UCD_TLV_T_7_HO_RANGING_START:
 				{
 					tlv_tree = add_tlv_subtree_no_item(&tlv_info, ucd_tree, hf_ucd_ho_ranging_start, tvb, offset-tlv_value_offset);
-					utemp = tvb_get_guint8(tvb, offset);
+					utemp = tvb_get_uint8(tvb, offset);
 					proto_tree_add_uint_format_value(tlv_tree, hf_ucd_ho_ranging_start, tvb, offset, tvb_len, utemp, "2^%u = %u", utemp, (1 << utemp));
 					break;
 				}
 				case UCD_TLV_T_8_RANGING_HO_END:
 				{
 					tlv_tree = add_tlv_subtree_no_item(&tlv_info, ucd_tree, hf_ucd_ho_ranging_end, tvb, offset-tlv_value_offset);
-					utemp = tvb_get_guint8(tvb, offset);
+					utemp = tvb_get_uint8(tvb, offset);
 					proto_tree_add_uint_format_value(tlv_tree, hf_ucd_ho_ranging_end, tvb, offset, tvb_len, utemp, "2^%u = %u", utemp, (1 << utemp));
 					break;
 				}
@@ -473,7 +473,7 @@ static int dissect_mac_mgmt_msg_ucd_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 				}
 				case UCD_TLV_T_176_SIZE_OF_CQICH_ID_FIELD:
 				{
-					utemp = tvb_get_guint8(tvb, offset);
+					utemp = tvb_get_uint8(tvb, offset);
 					cqich_id_size = 0;	/* Default is 0 */
 					if (utemp && utemp < 8) {
 					    /* Set for CQICH_Alloc_IE */
@@ -561,28 +561,28 @@ static int dissect_mac_mgmt_msg_ucd_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 				case UCD_TLV_T_198_INTIAL_RANGING_BACKOFF_START:
 				{
 					tlv_tree = add_tlv_subtree_no_item(&tlv_info, ucd_tree, hf_ucd_initial_range_backoff_start, tvb, offset-tlv_value_offset);
-					utemp = tvb_get_guint8(tvb, offset);
+					utemp = tvb_get_uint8(tvb, offset);
 					proto_tree_add_uint_format_value(tlv_tree, hf_ucd_initial_range_backoff_start, tvb, offset, tvb_len, utemp, "2^%u = %u", utemp, (1 << utemp));
 					break;
 				}
 				case UCD_TLV_T_199_INITIAL_RANGING_BACKOFF_END:
 				{
 					tlv_tree = add_tlv_subtree_no_item(&tlv_info, ucd_tree, hf_ucd_initial_range_backoff_end, tvb, offset-tlv_value_offset);
-					utemp = tvb_get_guint8(tvb, offset);
+					utemp = tvb_get_uint8(tvb, offset);
 					proto_tree_add_uint_format_value(tlv_tree, hf_ucd_initial_range_backoff_end, tvb, offset, tvb_len, utemp, "2^%u = %u", utemp, (1 << utemp));
 					break;
 				}
 				case UCD_TLV_T_200_BANDWIDTH_REQUESET_BACKOFF_START:
 				{
 					tlv_tree = add_tlv_subtree_no_item(&tlv_info, ucd_tree, hf_ucd_bandwidth_backoff_start, tvb, offset-tlv_value_offset);
-					utemp = tvb_get_guint8(tvb, offset);
+					utemp = tvb_get_uint8(tvb, offset);
 					proto_tree_add_uint_format_value(tlv_tree, hf_ucd_bandwidth_backoff_start, tvb, offset, tvb_len, utemp, "2^%u = %u", utemp, (1 << utemp));
 					break;
 				}
 				case UCD_TLV_T_201_BANDWIDTH_REQUEST_BACKOFF_END:
 				{
 					tlv_tree = add_tlv_subtree_no_item(&tlv_info, ucd_tree, hf_ucd_bandwidth_backoff_end, tvb, offset-tlv_value_offset);
-					utemp = tvb_get_guint8(tvb, offset);
+					utemp = tvb_get_uint8(tvb, offset);
 					proto_tree_add_uint_format_value(tlv_tree, hf_ucd_bandwidth_backoff_end, tvb, offset, tvb_len, utemp, "2^%u = %u", utemp, (1 << utemp));
 					break;
 				}
@@ -609,7 +609,7 @@ static int dissect_mac_mgmt_msg_ucd_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 				case UCD_PERIODIC_RANGING_BACKOFF_START:
 				{
 					tlv_tree = add_tlv_subtree_no_item(&tlv_info, ucd_tree, hf_ucd_periodic_ranging_backoff_start, tvb, offset-tlv_value_offset);
-					utemp = tvb_get_guint8(tvb, offset);
+					utemp = tvb_get_uint8(tvb, offset);
 					proto_tree_add_uint_format_value(tlv_tree, hf_ucd_periodic_ranging_backoff_start, tvb, offset, tvb_len, utemp, "2^%u = %u", utemp, (1 << utemp));
 					break;
 
@@ -617,7 +617,7 @@ static int dissect_mac_mgmt_msg_ucd_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 				case UCD_PERIODIC_RANGING_BACKOFF_END:
 				{
 					tlv_tree = add_tlv_subtree_no_item(&tlv_info, ucd_tree, hf_ucd_periodic_ranging_backoff_end, tvb, offset-tlv_value_offset);
-					utemp = tvb_get_guint8(tvb, offset);
+					utemp = tvb_get_uint8(tvb, offset);
 					proto_tree_add_uint_format_value(tlv_tree, hf_ucd_periodic_ranging_backoff_end, tvb, offset, tvb_len, utemp, "2^%u = %u", utemp, (1 << utemp));
 					break;
 				}

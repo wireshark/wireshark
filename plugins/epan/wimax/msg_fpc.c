@@ -61,7 +61,7 @@ static int dissect_mac_mgmt_msg_fpc_decoder(tvbuff_t *tvb, packet_info *pinfo _U
 		/* display the Number of stations */
 		proto_tree_add_item(fpc_tree, hf_fpc_number_of_stations, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-		number_stations = tvb_get_guint8(tvb, offset);
+		number_stations = tvb_get_uint8(tvb, offset);
 		offset++;
 		for (i = 0; ((i < number_stations) && (offset >= tvb_len)); i++ ) {
 			/* display the Basic CID*/
@@ -69,7 +69,7 @@ static int dissect_mac_mgmt_msg_fpc_decoder(tvbuff_t *tvb, packet_info *pinfo _U
 			offset += 2;
 
 			/* display the Power adjust value */
-			value = tvb_get_gint8(tvb, offset);
+			value = tvb_get_int8(tvb, offset);
 			power_change = (float)0.25 * value;  /* 0.25dB incr */
 
 			/* display the Power adjust value in dB */

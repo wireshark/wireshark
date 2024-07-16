@@ -64,7 +64,7 @@ static int dissect_wimax_hack_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 		/* add HARQ ACK Burst subtree */
 		hack_tree = proto_item_add_subtree(hack_item, ett_wimax_hack_decoder);
 		/* get the number of HARQ ACKs */
-		num_of_hacks =  tvb_get_guint8(tvb, offset);
+		num_of_hacks =  tvb_get_uint8(tvb, offset);
 		/* display the number of HARQ ACKs */
 		proto_tree_add_item(hack_tree, hf_hack_num_of_hacks, tvb, offset++, 1, ENC_BIG_ENDIAN);
 		/* display the HARQ ACKs */

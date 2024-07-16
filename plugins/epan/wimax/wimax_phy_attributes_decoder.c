@@ -98,7 +98,7 @@ static int dissect_wimax_phy_attributes_decoder(tvbuff_t *tvb, packet_info *pinf
 		/* display the number of slots */
 		proto_tree_add_item(phy_tree, hf_phy_attributes_num_of_slots, tvb, offset, 2, ENC_BIG_ENDIAN);
 		/* get the number of slots */
-/*		num_of_slots =  tvb_get_guint16(tvb, offset);*/
+/*		num_of_slots =  tvb_get_uint16(tvb, offset);*/
 		/* move to next field */
 		offset += 2;
 		/* display the physical subchannel list */

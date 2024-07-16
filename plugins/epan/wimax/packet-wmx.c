@@ -218,7 +218,7 @@ proto_tree *add_protocol_subtree(tlv_info_t *self, int idx, proto_tree *tree, in
 	switch (tlv_value_length)
 	{
 		case 1:
-			tlv_value = tvb_get_guint8(tvb, start+tlv_val_offset);
+			tlv_value = tvb_get_uint8(tvb, start+tlv_val_offset);
 			hex_fmt = tlv_val_1byte;
 			break;
 		case 2:

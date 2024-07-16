@@ -462,7 +462,7 @@ static ias_class_dissector_t class_dissector[] = { CLASS_DISSECTORS };
  */
 unsigned dissect_param_tuple(tvbuff_t* tvb, proto_tree* tree, unsigned offset)
 {
-    uint8_t len = tvb_get_guint8(tvb, offset + 1);
+    uint8_t len = tvb_get_uint8(tvb, offset + 1);
 
     if (tree)
         proto_tree_add_item(tree, hf_param_pi, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -498,7 +498,7 @@ static unsigned dissect_ttp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root,
     /* Make entries in Protocol column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "TTP");
 
-    head = tvb_get_guint8(tvb, offset);
+    head = tvb_get_uint8(tvb, offset);
 
     snprintf(buf, 128, ", Credit=%d", head & ~TTP_PARAMETERS);
     col_append_str(pinfo->cinfo, COL_INFO, buf);
@@ -551,13 +551,13 @@ static void dissect_iap_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* r
     /* Make entries in Protocol column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IAP");
 
-    op = tvb_get_guint8(tvb, offset) & IAP_OP;
+    op = tvb_get_uint8(tvb, offset) & IAP_OP;
 
     switch (op)
     {
         case GET_VALUE_BY_CLASS:
-            clen = MIN(tvb_get_guint8(tvb, offset + 1), 60);
-            alen = MIN(tvb_get_guint8(tvb, offset + 1 + 1 + clen), 60);
+            clen = MIN(tvb_get_uint8(tvb, offset + 1), 60);
+            alen = MIN(tvb_get_uint8(tvb, offset + 1 + 1 + clen), 60);
 
             /* create conversation entry */
             src = circuit_id ^ CMD_FRAME;
@@ -698,8 +698,8 @@ static void dissect_iap_result(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
     /* Make entries in Protocol column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IAP");
 
-    op      = tvb_get_guint8(tvb, offset) & IAP_OP;
-    retcode = tvb_get_guint8(tvb, offset + 1);
+    op      = tvb_get_uint8(tvb, offset) & IAP_OP;
+    retcode = tvb_get_uint8(tvb, offset + 1);
 
     src = circuit_id ^ CMD_FRAME;
     set_address(&srcaddr, irda_address_type, 1, &src);
@@ -740,7 +740,7 @@ static void dissect_iap_result(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
         case GET_VALUE_BY_CLASS:
             if (retcode == 0)
             {
-                switch (tvb_get_guint8(tvb, offset + 6))
+                switch (tvb_get_uint8(tvb, offset + 6))
                 {
                     case IAS_MISSING:
                         col_append_str(pinfo->cinfo, COL_INFO, ", Missing");
@@ -755,7 +755,7 @@ static void dissect_iap_result(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
                         break;
 
                     case IAS_STRING:
-                        n = tvb_get_guint8(tvb, offset + 8);
+                        n = tvb_get_uint8(tvb, offset + 8);
                         col_append_fstr(pinfo->cinfo, COL_INFO, ", \"%s\"", tvb_get_string_enc(pinfo->pool, tvb, offset + 9, n, ENC_ASCII));
                         break;
                     default:
@@ -799,7 +799,7 @@ static void dissect_iap_result(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
 
                     while ((offset < len) && (n < list_len))
                     {
-                        type = tvb_get_guint8(tvb, offset + 2);
+                        type = tvb_get_uint8(tvb, offset + 2);
                         switch (type)
                         {
                             case IAS_INTEGER:
@@ -811,7 +811,7 @@ static void dissect_iap_result(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
                                 break;
 
                             case IAS_STRING:
-                                attr_len = tvb_get_guint8(tvb, offset + 2 + 1 + 1) + 2;
+                                attr_len = tvb_get_uint8(tvb, offset + 2 + 1 + 1) + 2;
                                 break;
 
                             default:
@@ -875,7 +875,7 @@ static void dissect_iap_result(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
                     while (offset < len)
                     {
                         offset += 2;
-                        type = tvb_get_guint8(tvb, offset);
+                        type = tvb_get_uint8(tvb, offset);
                         offset++;
 
                         switch (type)
@@ -895,7 +895,7 @@ static void dissect_iap_result(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
                                 break;
 
                             case IAS_STRING:
-                                attr_len = tvb_get_guint8(tvb, offset + 1) + 2;
+                                attr_len = tvb_get_uint8(tvb, offset + 1) + 2;
                                 if (iap_conv && iap_conv->pattr_dissector)
                                     iap_conv->pattr_dissector->value_dissector(tvb, offset, pinfo, 0,
                                                                                n, type, circuit_id);
@@ -1046,11 +1046,11 @@ static void dissect_irlmp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, u
     /* Make entries in Protocol column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IrLMP");
 
-    dlsap = tvb_get_guint8(tvb, offset);
+    dlsap = tvb_get_uint8(tvb, offset);
     cbit  = dlsap & CONTROL_BIT;
     dlsap &= ~CONTROL_BIT;
 
-    slsap = tvb_get_guint8(tvb, offset+1) & ~CONTROL_BIT;
+    slsap = tvb_get_uint8(tvb, offset+1) & ~CONTROL_BIT;
 
     /* save Lsaps in pinfo */
     pinfo->srcport  = slsap;
@@ -1058,7 +1058,7 @@ static void dissect_irlmp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, u
 
     if (cbit != 0)
     {
-        opcode = tvb_get_guint8(tvb, offset+2);
+        opcode = tvb_get_uint8(tvb, offset+2);
 
         col_add_fstr(pinfo->cinfo, COL_INFO, "%d > %d, ", slsap, dlsap);
         col_append_str(pinfo->cinfo, COL_INFO, val_to_str(opcode, lmp_opcode_vals, "0x%02X"));
@@ -1066,7 +1066,7 @@ static void dissect_irlmp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, u
         {
             col_append_str(pinfo->cinfo, COL_INFO, " (");
             col_append_str(pinfo->cinfo, COL_INFO,
-                           val_to_str(tvb_get_guint8(tvb, offset+4), lmp_mode_vals, "0x%02X"));
+                           val_to_str(tvb_get_uint8(tvb, offset+4), lmp_mode_vals, "0x%02X"));
             col_append_str(pinfo->cinfo, COL_INFO, ")");
         }
     }
@@ -1264,17 +1264,17 @@ static unsigned dissect_negotiation(tvbuff_t* tvb, proto_tree* tree, unsigned of
 
     while (tvb_reported_length_remaining(tvb, offset) > 0)
     {
-        uint8_t p_len = tvb_get_guint8(tvb, offset + 1);
+        uint8_t p_len = tvb_get_uint8(tvb, offset + 1);
 
         if (tree)
         {
             ti = proto_tree_add_item(tree, hf_negotiation_param, tvb, offset, p_len + 2, ENC_NA);
             p_tree = proto_item_add_subtree(ti, ett_param[n]);
 
-            pv = tvb_get_guint8(tvb, offset+2);
+            pv = tvb_get_uint8(tvb, offset+2);
             buf[0] = 0;
 
-            switch (tvb_get_guint8(tvb, offset))
+            switch (tvb_get_uint8(tvb, offset))
             {
                 case PI_BAUD_RATE:
                     proto_item_append_text(ti, ": Baud Rate (");
@@ -1295,7 +1295,7 @@ static unsigned dissect_negotiation(tvbuff_t* tvb, proto_tree* tree, unsigned of
                         (void) g_strlcat(buf, ", 576000", 256);
                     if (pv & 0x80)
                         (void) g_strlcat(buf, ", 1152000", 256);
-                    if ((p_len > 1) && (tvb_get_guint8(tvb, offset+3) & 0x01))
+                    if ((p_len > 1) && (tvb_get_uint8(tvb, offset+3) & 0x01))
                         (void) g_strlcat(buf, ", 4000000", 256);
 
                     (void) g_strlcat(buf, " bps)", 256);
@@ -1506,7 +1506,7 @@ static void dissect_xid(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, pro
 
     if (is_command)
     {
-        s = tvb_get_guint8(tvb, offset);
+        s = tvb_get_uint8(tvb, offset);
         if (s == 0xFF)
             col_append_str(pinfo->cinfo, COL_INFO, ", s=final");
         else
@@ -1545,7 +1545,7 @@ static void dissect_xid(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, pro
 
         for (hints_len = 0;;)
         {
-            uint8_t hint = tvb_get_guint8(tvb, offset + hints_len++);
+            uint8_t hint = tvb_get_uint8(tvb, offset + hints_len++);
 
             if (hints_len == 1)
                 hint1 = hint;
@@ -1605,7 +1605,7 @@ static void dissect_xid(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, pro
             bool have_encoding;
             unsigned  encoding;
 
-            cset = tvb_get_guint8(tvb, offset);
+            cset = tvb_get_uint8(tvb, offset);
             if (root)
                 proto_tree_add_uint(lmp_tree, hf_lmp_xid_charset, tvb, offset, 1, cset);
             offset++;
@@ -1771,7 +1771,7 @@ static void dissect_irlap(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
     }
 
     /* decode values used for demuxing */
-    circuit_id = tvb_get_guint8(tvb, 0);
+    circuit_id = tvb_get_uint8(tvb, 0);
 
     /* initially set address columns to connection address */
     snprintf(addr, sizeof(addr)-1, "0x%02X", circuit_id >> 1);
@@ -1848,7 +1848,7 @@ static void dissect_irlap(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
                     proto_tree_add_uint(i_tree, hf_snrm_daddr, tvb, offset, 4, daddr);
                 offset += 4;
 
-                ca = tvb_get_guint8(tvb, offset);
+                ca = tvb_get_uint8(tvb, offset);
                 if (!is_response)
                 {
                     col_append_fstr(pinfo->cinfo, COL_INFO, ", ca=0x%02X",

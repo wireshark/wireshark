@@ -302,15 +302,15 @@ static void init_eoe_header(PETHERCAT_EOE_HEADER pEoE, tvbuff_t *tvb, int offset
 
 static void init_foe_header(PETHERCAT_FOE_HEADER pFoE, tvbuff_t *tvb, int offset)
 {
-   pFoE->OpMode = tvb_get_guint8(tvb, offset++);
-   pFoE->Reserved1 = tvb_get_guint8(tvb, offset++);
+   pFoE->OpMode = tvb_get_uint8(tvb, offset++);
+   pFoE->Reserved1 = tvb_get_uint8(tvb, offset++);
    pFoE->aFoeHeaderDataUnion.FileLength = tvb_get_letohl(tvb, offset);
 }
 
 static void init_soe_header(PETHERCAT_SOE_HEADER pSoE, tvbuff_t *tvb, int offset)
 {
-   pSoE->anSoeHeaderControlUnion.v2.Control = tvb_get_guint8(tvb, offset++);
-   pSoE->anSoeHeaderControlUnion.v2.Element = tvb_get_guint8(tvb, offset++);
+   pSoE->anSoeHeaderControlUnion.v2.Control = tvb_get_uint8(tvb, offset++);
+   pSoE->anSoeHeaderControlUnion.v2.Element = tvb_get_uint8(tvb, offset++);
    pSoE->anSoeHeaderDataUnion.FragmentsLeft = tvb_get_letohs(tvb, offset);
 }
 
@@ -321,16 +321,16 @@ static void init_coe_header(PETHERCAT_COE_HEADER pCoE, tvbuff_t *tvb, int offset
 
 static void init_sdo_header(PETHERCAT_SDO_HEADER pSdo, tvbuff_t *tvb, int offset)
 {
-   pSdo->anSdoHeaderUnion.CS = tvb_get_guint8(tvb, offset++);
+   pSdo->anSdoHeaderUnion.CS = tvb_get_uint8(tvb, offset++);
    pSdo->Index = tvb_get_letohs(tvb, offset);offset+=2;
-   pSdo->SubIndex = tvb_get_guint8(tvb, offset++);
+   pSdo->SubIndex = tvb_get_uint8(tvb, offset++);
    pSdo->Data = tvb_get_letohl(tvb, offset);
 }
 
 static void init_sdo_info_header(PETHERCAT_SDO_INFO_HEADER pInfo, tvbuff_t *tvb, int offset)
 {
-   pInfo->anSdoControlUnion.Control = tvb_get_guint8(tvb, offset++);
-   pInfo->Reserved = tvb_get_guint8(tvb, offset);
+   pInfo->anSdoControlUnion.Control = tvb_get_uint8(tvb, offset++);
+   pInfo->Reserved = tvb_get_uint8(tvb, offset);
    pInfo->FragmentsLeft = 2;
 }
 

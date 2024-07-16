@@ -2323,7 +2323,7 @@ int wimax_decode_dlmapc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tree
 	mac_len = length;
 	lennib = BYTE_TO_NIB(length);
 
-	ulmap_appended = (tvb_get_guint8(tvb, offset) >> 4) & 1; /* UL MAP appended? */
+	ulmap_appended = (tvb_get_uint8(tvb, offset) >> 4) & 1; /* UL MAP appended? */
 
 	/* display MAC Compressed DL-MAP and create subtree */
 	ti = proto_tree_add_protocol_format(base_tree, proto_mac_mgmt_msg_dlmap_decoder, tvb, offset, length, "Compressed DL-MAP (%u bytes)", length);
@@ -2346,7 +2346,7 @@ int wimax_decode_dlmapc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tree
 	proto_tree_add_item(tree, hf_dlmapc_secid,	tvb, offset+8, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_dlmap_ofdma_sym, tvb, offset+9, 1, ENC_BIG_ENDIAN); /* 2005 */
 	proto_tree_add_item(tree, hf_dlmapc_count,	tvb, offset+10,1, ENC_BIG_ENDIAN);
-	dl_ie_count = tvb_get_guint8(tvb, offset + 10);
+	dl_ie_count = tvb_get_uint8(tvb, offset + 10);
 	offset += 11;
 	nib = BYTE_TO_NIB(offset);
 

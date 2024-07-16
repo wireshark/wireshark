@@ -489,12 +489,12 @@ static int dissect_mac_mgmt_msg_rep_rsp_decoder(tvbuff_t *tvb, packet_info *pinf
 							case REP_RSP_REPORT_CINR_REPORT:
 								ti_item = add_tlv_subtree(&tlv_info, tlv_tree, hf_rep_rsp_report_type_cinr_report, tvb, (offset + tlv_offset)-get_tlv_value_offset(&tlv_info), ENC_NA);
 								ti_tree = proto_item_add_subtree(ti_item, ett_mac_mgmt_msg_rep_rsp_decoder);
-								db_val = tvb_get_guint8(tvb, offset + tlv_offset) - 20;
+								db_val = tvb_get_uint8(tvb, offset + tlv_offset) - 20;
 								if (db_val > 37)
 									db_val = 37;
 								proto_item_append_text(ti_item, " (%d dBm)", db_val);
 								ti = proto_tree_add_item(ti_tree, hf_rep_rsp_report_type_cinr_report_deviation, tvb, (offset + tlv_offset +1), 1, ENC_BIG_ENDIAN);
-								db_val = tvb_get_guint8(tvb, offset + tlv_offset + 1) - 20;
+								db_val = tvb_get_uint8(tvb, offset + tlv_offset + 1) - 20;
 								if (db_val > 37)
 									db_val = 37;
 								proto_item_append_text(ti, " (%d dBm)", db_val);
@@ -503,12 +503,12 @@ static int dissect_mac_mgmt_msg_rep_rsp_decoder(tvbuff_t *tvb, packet_info *pinf
 								ti_item = add_tlv_subtree(&tlv_info, tlv_tree, hf_rep_rsp_report_type_rssi_report, tvb, (offset + tlv_offset)-get_tlv_value_offset(&tlv_info), ENC_NA);
 								ti_tree = proto_item_add_subtree(ti_item, ett_mac_mgmt_msg_rep_rsp_decoder);
 								ti = proto_tree_add_item(ti_tree, hf_rep_rsp_report_type_rssi_report_mean, tvb, (offset + tlv_offset), 1, ENC_BIG_ENDIAN);
-								db_val = tvb_get_guint8(tvb, offset + tlv_offset) - 123;
+								db_val = tvb_get_uint8(tvb, offset + tlv_offset) - 123;
 								if (db_val > -40)
 									db_val = -40;
 								proto_item_append_text(ti, " (%d dBm)", db_val);
 								ti = proto_tree_add_item(ti_tree, hf_rep_rsp_report_type_rssi_report_deviation, tvb, (offset + tlv_offset +1), 1, ENC_BIG_ENDIAN);
-								db_val = tvb_get_guint8(tvb, offset + tlv_offset + 1) - 123;
+								db_val = tvb_get_uint8(tvb, offset + tlv_offset + 1) - 123;
 								if (db_val > -40)
 									db_val = -40;
 								proto_item_append_text(ti, " (%d dBm)", db_val);
@@ -814,7 +814,7 @@ static int dissect_mac_mgmt_msg_rep_rsp_decoder(tvbuff_t *tvb, packet_info *pinf
 				break;
 				case CURRENT_TX_POWER:
 					tlv_item = add_tlv_subtree(&tlv_info, rep_tree, hf_rep_rsp_current_transmitted_power, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
-					value = tvb_get_guint8(tvb, offset);
+					value = tvb_get_uint8(tvb, offset);
 					current_power = ((float)value - 128) / 2;
 					proto_item_append_text(tlv_item, " (%.1f dBm)", current_power);
 				break;

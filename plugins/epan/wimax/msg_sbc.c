@@ -605,10 +605,10 @@ static void sbc_tlv_decoder(tlv_info_t* tlv_info, int ett, proto_tree* sbc_tree,
 			tlv_item = add_tlv_subtree(tlv_info, sbc_tree, hf_sbc_max_transmit_power, tvb, tlv_offset, ENC_BIG_ENDIAN);
 			tlv_tree = proto_item_add_subtree(tlv_item, ett);
 			/* display the detail meanings of the TLV value */
-			power_bpsk = (float)(tvb_get_guint8(tvb, offset) - 128) / 2;
-			power_qpsk = (float)(tvb_get_guint8(tvb, (offset + 1)) - 128) / 2;
-			power_qam16 = (float)(tvb_get_guint8(tvb, (offset + 2)) - 128) / 2;
-			power_qam64 = (float)(tvb_get_guint8(tvb, (offset + 3)) - 128) / 2;
+			power_bpsk = (float)(tvb_get_uint8(tvb, offset) - 128) / 2;
+			power_qpsk = (float)(tvb_get_uint8(tvb, (offset + 1)) - 128) / 2;
+			power_qam16 = (float)(tvb_get_uint8(tvb, (offset + 2)) - 128) / 2;
+			power_qam64 = (float)(tvb_get_uint8(tvb, (offset + 3)) - 128) / 2;
 			proto_tree_add_float_format_value(tlv_tree, hf_sbc_bpsk, tvb, offset, 1, power_bpsk, "%.2f dBm", (double)power_bpsk);
 			proto_tree_add_float_format_value(tlv_tree, hf_sbc_qpsk, tvb, (offset + 1), 1, power_qpsk, "%.2f dBm", (double)power_qpsk);
 			proto_tree_add_float_format_value(tlv_tree, hf_sbc_qam16, tvb, (offset + 2), 1, power_qam16, "%.2f dBm", (double)power_qam16);
@@ -619,7 +619,7 @@ static void sbc_tlv_decoder(tlv_info_t* tlv_info, int ett, proto_tree* sbc_tree,
 			tlv_item = add_tlv_subtree(tlv_info, sbc_tree, hf_sbc_curr_transmit_power, tvb, tlv_offset, ENC_BIG_ENDIAN);
 			tlv_tree = proto_item_add_subtree(tlv_item, ett);
 			/* display the detail meanings of the TLV value */
-			value = tvb_get_guint8(tvb, offset);
+			value = tvb_get_uint8(tvb, offset);
 			current_power = (float)(value - 128) / 2;
 			proto_tree_add_float_format_value(tlv_tree, hf_sbc_current_transmitted_power, tvb, offset, 1, current_power, "%.2f dBm (Value: 0x%x)", (double)current_power, value);
 		break;
@@ -775,7 +775,7 @@ static void sbc_tlv_decoder(tlv_info_t* tlv_info, int ett, proto_tree* sbc_tree,
 		case SBC_PKM_FLOW_CONTROL:
 			/* add TLV subtree */
 			tlv_item = add_tlv_subtree(tlv_info, sbc_tree, hf_sbc_pkm_flow_control, tvb, tlv_offset, ENC_BIG_ENDIAN);
-			if(tvb_get_guint8(tvb, offset) == 0)
+			if(tvb_get_uint8(tvb, offset) == 0)
 				proto_item_append_text(tlv_item, " (default - no limit)");
 		break;
 		case SBC_AUTH_POLICY_SUPPORT:

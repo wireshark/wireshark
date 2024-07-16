@@ -2981,13 +2981,13 @@ dissect_CBA_Connection_Data(tvbuff_t *tvb,
     }
 
     /* add buffer header */
-    u8Version = tvb_get_guint8 (tvb, offset);
+    u8Version = tvb_get_uint8 (tvb, offset);
     if (conn_data_tree) {
         proto_tree_add_item(conn_data_tree, hf_cba_acco_cb_version, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     }
     offset += 1;
 
-    u8Flags = tvb_get_guint8 (tvb, offset);
+    u8Flags = tvb_get_uint8 (tvb, offset);
     if (conn_data_tree) {
         proto_tree_add_item(conn_data_tree, hf_cba_acco_cb_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     }
@@ -3091,7 +3091,7 @@ dissect_CBA_Connection_Data(tvbuff_t *tvb,
             u32ID = 0;
         }
 
-        u8QC = tvb_get_guint8 (tvb, offset);
+        u8QC = tvb_get_uint8 (tvb, offset);
         item = NULL;
         if (sub_tree) {
             item = proto_tree_add_item(sub_tree, hf_cba_acco_qc, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -3204,8 +3204,8 @@ dissect_CBA_Connection_Data_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         return false;
     }
 
-    u8Version = tvb_get_guint8 (tvb, 0);
-    u8Flags   = tvb_get_guint8 (tvb, 1);
+    u8Version = tvb_get_uint8 (tvb, 0);
+    u8Flags   = tvb_get_uint8 (tvb, 1);
 
     /* version and flags must be ok */
     if (u8Version != 0x11 || u8Flags != 0x00) {

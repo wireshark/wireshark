@@ -316,10 +316,10 @@ IsDFP_Frame(tvbuff_t *tvb, packet_info *pinfo, uint16_t u16FrameID)
     while (1) {
         u32SubStart = offset;
 
-        u8SFPosition = tvb_get_guint8(tvb, offset);
+        u8SFPosition = tvb_get_uint8(tvb, offset);
         offset += 1;
 
-        u8SFDataLength = tvb_get_guint8(tvb, offset);
+        u8SFDataLength = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         if (u8SFDataLength == 0) {
@@ -389,11 +389,11 @@ dissect_CSF_SDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
             sub_tree = proto_item_add_subtree(sub_item, ett_pn_rt_sf);
             u32SubStart = offset;
 
-            u8SFPosition = tvb_get_guint8(tvb, offset);
+            u8SFPosition = tvb_get_uint8(tvb, offset);
             proto_tree_add_uint(sub_tree, hf_pn_rt_sf_position, tvb, offset, 1, u8SFPosition);
             offset += 1;
 
-            u8SFDataLength = tvb_get_guint8(tvb, offset);
+            u8SFDataLength = tvb_get_uint8(tvb, offset);
             proto_tree_add_uint(sub_tree, hf_pn_rt_sf_data_length, tvb, offset, 1, u8SFDataLength);
             offset += 1;
 
@@ -403,11 +403,11 @@ dissect_CSF_SDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                 break;
             }
 
-            u8SFCycleCounter = tvb_get_guint8(tvb, offset);
+            u8SFCycleCounter = tvb_get_uint8(tvb, offset);
             proto_tree_add_uint(sub_tree, hf_pn_rt_sf_cycle_counter, tvb, offset, 1, u8SFCycleCounter);
             offset += 1;
 
-            u8SFDataStatus = tvb_get_guint8(tvb, offset);
+            u8SFDataStatus = tvb_get_uint8(tvb, offset);
             dissect_DataStatus(tvb, offset, sub_tree, pinfo, u8SFDataStatus);
             offset += 1;
 
@@ -496,14 +496,14 @@ dissect_FRAG_PDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         sub_item = proto_tree_add_item(tree, hf_pn_rt_frag, tvb, offset, 0, ENC_NA);
         sub_tree = proto_item_add_subtree(sub_item, ett_pn_rt_frag);
 
-        u8FragDataLength = tvb_get_guint8(tvb, offset);
+        u8FragDataLength = tvb_get_uint8(tvb, offset);
         proto_tree_add_uint(sub_tree, hf_pn_rt_frag_data_length, tvb, offset, 1, u8FragDataLength);
         offset += 1;
 
         status_item = proto_tree_add_item(sub_tree, hf_pn_rt_frag_status, tvb, offset, 1, ENC_NA);
         status_tree = proto_item_add_subtree(status_item, ett_pn_rt_frag_status);
 
-        u8FragStatus = tvb_get_guint8(tvb, offset);
+        u8FragStatus = tvb_get_uint8(tvb, offset);
         proto_tree_add_uint(status_tree, hf_pn_rt_frag_status_more_follows, tvb, offset, 1, u8FragStatus);
         proto_tree_add_uint(status_tree, hf_pn_rt_frag_status_error, tvb, offset, 1, u8FragStatus);
         proto_tree_add_uint(status_tree, hf_pn_rt_frag_status_fragment_number, tvb, offset, 1, u8FragStatus);
@@ -874,8 +874,8 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     if (bCyclic) {
         /* cyclic transfer has cycle counter, data status and transfer status fields at the end */
         u16CycleCounter  = tvb_get_ntohs(tvb, pdu_len - 4);
-        u8DataStatus     = tvb_get_guint8(tvb, pdu_len - 2);
-        u8TransferStatus = tvb_get_guint8(tvb, pdu_len - 1);
+        u8DataStatus     = tvb_get_uint8(tvb, pdu_len - 2);
+        u8TransferStatus = tvb_get_uint8(tvb, pdu_len - 1);
 
         snprintf (szFieldSummary, sizeof(szFieldSummary),
                 "%sID:0x%04x, Len:%4u, Cycle:%5u (%s,%s,%s,%s)",

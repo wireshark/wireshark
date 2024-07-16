@@ -407,7 +407,7 @@ static int dissect_mac_header_type_2_decoder(tvbuff_t *tvb, packet_info *pinfo, 
 		/* feedback type */
 		proto_tree_add_item(ti_tree, hf_mac_header_type_2_fb_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* Get the first byte */
-		first_byte = tvb_get_guint8(tvb, offset);
+		first_byte = tvb_get_uint8(tvb, offset);
 		/* get the CII field */
 		cii_bit = ((first_byte & WIMAX_MAC_HEADER_TYPE_2_CII)?1:0);
 		/* check the Type field */
@@ -714,7 +714,7 @@ static int dissect_mac_header_type_2_decoder(tvbuff_t *tvb, packet_info *pinfo, 
 			break;
 			case CL_MIMO_FB:
 				/* Get the MIMO type */
-				mimo_type = ((tvb_get_guint8(tvb, offset) & 0xC0) >> 6);
+				mimo_type = ((tvb_get_uint8(tvb, offset) & 0xC0) >> 6);
 				/* Decode and display the MIMO type */
 				proto_tree_add_item(ti_tree, hf_mac_header_type_2_cl_mimo_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 				if(mimo_type == 1)

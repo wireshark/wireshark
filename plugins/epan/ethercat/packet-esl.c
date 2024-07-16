@@ -203,12 +203,12 @@ static ref_time_frame_info ref_time_frame;
 
 static bool is_esl_header(tvbuff_t *tvb, int offset)
 {
-    return tvb_get_guint8(tvb, offset) == 0x01 &&
-        tvb_get_guint8(tvb, offset+1) == 0x01 &&
-        tvb_get_guint8(tvb, offset+2) == 0x05 &&
-        (tvb_get_guint8(tvb, offset+3) == 0x10 ||tvb_get_guint8(tvb, offset+3) == 0x11)&&
-        tvb_get_guint8(tvb, offset+4) == 0x00 &&
-        tvb_get_guint8(tvb, offset+5) == 0x00;
+    return tvb_get_uint8(tvb, offset) == 0x01 &&
+        tvb_get_uint8(tvb, offset+1) == 0x01 &&
+        tvb_get_uint8(tvb, offset+2) == 0x05 &&
+        (tvb_get_uint8(tvb, offset+3) == 0x10 ||tvb_get_uint8(tvb, offset+3) == 0x11)&&
+        tvb_get_uint8(tvb, offset+4) == 0x00 &&
+        tvb_get_uint8(tvb, offset+5) == 0x00;
 }
 
 static void modify_times(tvbuff_t *tvb, int offset, packet_info *pinfo)

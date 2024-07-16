@@ -317,7 +317,7 @@ static int dissect_mac_mgmt_msg_rng_rsp_decoder(tvbuff_t *tvb, packet_info *pinf
 				}
 				case RNG_RSP_POWER_LEVEL_ADJUST: {
 					sub_tree = add_tlv_subtree_no_item(&tlv_info, rng_rsp_tree, hf_rng_rsp_power_level_adjust, tvb, offset);
-					power_level_adjust = (float)(tvb_get_guint8(tvb, tlv_offset) / 4.0);
+					power_level_adjust = (float)(tvb_get_uint8(tvb, tlv_offset) / 4.0);
 					proto_tree_add_float_format_value(sub_tree, hf_rng_rsp_power_level_adjust, tvb, tlv_offset, 1,
 								power_level_adjust, " %.2f dB", power_level_adjust);
 					break;

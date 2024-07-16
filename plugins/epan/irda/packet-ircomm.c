@@ -172,7 +172,7 @@ static int dissect_cooked_ircomm(tvbuff_t* tvb, packet_info* pinfo, proto_tree* 
     /* Make entries in Protocol column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IrCOMM");
 
-    clen = tvb_get_guint8(tvb, offset);
+    clen = tvb_get_uint8(tvb, offset);
     len -= 1 + clen;
 
     if (len > 0)
@@ -249,7 +249,7 @@ static bool dissect_ircomm_parameters(tvbuff_t* tvb, unsigned offset, packet_inf
 
         while (offset < len)
         {
-            uint8_t p_len = tvb_get_guint8(tvb, offset + 1);
+            uint8_t p_len = tvb_get_uint8(tvb, offset + 1);
 
 
             ti = proto_tree_add_item(tree, hf_ircomm_param, tvb, offset, p_len + 2, ENC_NA);
@@ -257,12 +257,12 @@ static bool dissect_ircomm_parameters(tvbuff_t* tvb, unsigned offset, packet_inf
 
             buf[0] = 0;
 
-            switch (tvb_get_guint8(tvb, offset))
+            switch (tvb_get_uint8(tvb, offset))
             {
                 case IRCOMM_SERVICE_TYPE:
                     proto_item_append_text(ti, ": Service Type (");
 
-                    pv = tvb_get_guint8(tvb, offset+2);
+                    pv = tvb_get_uint8(tvb, offset+2);
                     if (pv & IRCOMM_3_WIRE_RAW)
                         (void) g_strlcat(buf, ", 3-Wire raw", 256);
                     if (pv & IRCOMM_3_WIRE)
@@ -284,7 +284,7 @@ static bool dissect_ircomm_parameters(tvbuff_t* tvb, unsigned offset, packet_inf
                 case IRCOMM_PORT_TYPE:
                     proto_item_append_text(ti, ": Port Type (");
 
-                    pv = tvb_get_guint8(tvb, offset+2);
+                    pv = tvb_get_uint8(tvb, offset+2);
                     if (pv & IRCOMM_SERIAL)
                         (void) g_strlcat(buf, ", serial", 256);
                     if (pv & IRCOMM_PARALLEL)

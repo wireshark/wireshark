@@ -165,12 +165,12 @@ dissect_unistim(tvbuff_t *tvb,packet_info *pinfo,proto_tree *tree,void *data _U_
    proto_tree *rudpm_tree=NULL;
 
    /* heuristic*/
-   switch(tvb_get_guint8(tvb,offset+4)) {/*rudp packet type 0,1,2 only */
+   switch(tvb_get_uint8(tvb,offset+4)) {/*rudp packet type 0,1,2 only */
       case 0x0:/*NAK*/
       case 0x1:/*ACK*/
          break;
       case 0x2:/*PAYLOAD*/
-         switch(tvb_get_guint8(tvb,offset+5)){/*payload type 0,1,2,3,ff only */
+         switch(tvb_get_uint8(tvb,offset+5)){/*payload type 0,1,2,3,ff only */
             case 0x0: /*NULL*/
             case 0x1: /*UNISTIM*/
             case 0x2: /*UNISTIM WITH TERM ID*/
@@ -217,9 +217,9 @@ dissect_unistim(tvbuff_t *tvb,packet_info *pinfo,proto_tree *tree,void *data _U_
 
    offset+=4;
    proto_tree_add_item(rudpm_tree,hf_unistim_packet_type,tvb,offset,1,ENC_BIG_ENDIAN);
-   uinfo->rudp_type = tvb_get_guint8(tvb,offset);
+   uinfo->rudp_type = tvb_get_uint8(tvb,offset);
 
-   switch(tvb_get_guint8(tvb,offset)) {
+   switch(tvb_get_uint8(tvb,offset)) {
       case 0x00:
          /*NAK*/
          col_add_fstr(pinfo->cinfo, COL_INFO, "NAK for seq -   0x%X",
@@ -250,7 +250,7 @@ static void
 dissect_payload(proto_tree *overall_unistim_tree,tvbuff_t *tvb, int offset, packet_info *pinfo){
    proto_item *ti;
    proto_tree *unistim_tree;
-   unsigned payload_proto=tvb_get_guint8(tvb,offset);
+   unsigned payload_proto=tvb_get_uint8(tvb,offset);
 
    /* Payload type for tap */
    uinfo->payload_type = payload_proto;
@@ -309,7 +309,7 @@ dissect_uftp_message(proto_tree *unistim_tree,packet_info *pinfo _U_,tvbuff_t *t
 
    msg_tree = proto_tree_add_subtree(unistim_tree,tvb,offset,-1,ett_unistim,NULL,"UFTP CMD");
 
-   command=tvb_get_guint8(tvb,offset);
+   command=tvb_get_uint8(tvb,offset);
 
    proto_tree_add_item(msg_tree,hf_uftp_command,tvb,offset,1,ENC_BIG_ENDIAN);
 
@@ -374,12 +374,12 @@ dissect_unistim_message(proto_tree *unistim_tree,packet_info *pinfo,tvbuff_t *tv
 
    msg_tree = proto_tree_add_subtree(unistim_tree,tvb,offset,-1,ett_unistim,&ti,"Unistim CMD");
 
-   addr=tvb_get_guint8(tvb,offset);
+   addr=tvb_get_uint8(tvb,offset);
 
    proto_tree_add_item(msg_tree,hf_unistim_cmd_add,tvb,offset,1,ENC_BIG_ENDIAN);
 
    offset+=1;
-   msg_len=tvb_get_guint8(tvb,offset);
+   msg_len=tvb_get_uint8(tvb,offset);
 
    if (msg_len<=2)
    {
@@ -485,7 +485,7 @@ dissect_basic_phone(proto_tree *msg_tree,
                     tvbuff_t *tvb,int offset, unsigned msg_len){
    unsigned basic_cmd;
 
-   basic_cmd=tvb_get_guint8(tvb,offset);
+   basic_cmd=tvb_get_uint8(tvb,offset);
 
    proto_tree_add_item(msg_tree,hf_basic_phone_cmd,tvb,offset,1,ENC_BIG_ENDIAN);
 
@@ -574,7 +574,7 @@ static int
 dissect_basic_switch(proto_tree *msg_tree,
                      tvbuff_t *tvb,int offset,unsigned msg_len){
    unsigned basic_cmd;
-   basic_cmd=tvb_get_guint8(tvb,offset);
+   basic_cmd=tvb_get_uint8(tvb,offset);
    proto_tree_add_item(msg_tree,hf_basic_switch_cmd,tvb,offset,1,ENC_BIG_ENDIAN);
    offset+=1;msg_len-=1;
    switch(basic_cmd){
@@ -656,7 +656,7 @@ dissect_broadcast_switch(proto_tree *msg_tree,
    unsigned year,month,day,hour,minute,second;
    proto_tree *date_tree;
    proto_tree *time_tree;
-   bcast_cmd=tvb_get_guint8(tvb,offset);
+   bcast_cmd=tvb_get_uint8(tvb,offset);
    proto_tree_add_item(msg_tree,hf_broadcast_switch_cmd,tvb,offset,1,ENC_BIG_ENDIAN);
    offset+=1;msg_len-=1;
    switch(bcast_cmd){
@@ -675,12 +675,12 @@ dissect_broadcast_switch(proto_tree *msg_tree,
          break;
       case 0x02:
    /*Time and Date Download*/
-         year=tvb_get_guint8(tvb,offset);
-         month=tvb_get_guint8(tvb,offset+1);
-         day=tvb_get_guint8(tvb,offset+2);
-         hour=tvb_get_guint8(tvb,offset+3);
-         minute=tvb_get_guint8(tvb,offset+4);
-         second=tvb_get_guint8(tvb,offset+5);
+         year=tvb_get_uint8(tvb,offset);
+         month=tvb_get_uint8(tvb,offset+1);
+         day=tvb_get_uint8(tvb,offset+2);
+         hour=tvb_get_uint8(tvb,offset+3);
+         minute=tvb_get_uint8(tvb,offset+4);
+         second=tvb_get_uint8(tvb,offset+5);
          date_tree=proto_tree_add_subtree_format(msg_tree,tvb,offset,3,ett_unistim,NULL,
                                         "Date %i/%i/%i",month,day,year%100);
          proto_tree_add_item(date_tree,hf_broadcast_year,tvb,offset,1,ENC_BIG_ENDIAN);
@@ -742,7 +742,7 @@ dissect_display_switch(proto_tree *msg_tree, packet_info *pinfo,
    unsigned address_byte;
    unsigned movement_byte;
    proto_tree *address_tree;
-   display_cmd=tvb_get_guint8(tvb,offset);
+   display_cmd=tvb_get_uint8(tvb,offset);
    proto_tree_add_item(msg_tree,hf_display_switch_cmd,tvb,offset,1,ENC_BIG_ENDIAN);
    offset+=1;msg_len-=1;
 
@@ -805,7 +805,7 @@ dissect_display_switch(proto_tree *msg_tree, packet_info *pinfo,
          break;
       case 0x0f:
    /*Clear Field*/
-         clear_mask=tvb_get_guint8(tvb,offset);
+         clear_mask=tvb_get_uint8(tvb,offset);
    /*need to know which paths to take*/
          proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_clear_numeric,
@@ -896,7 +896,7 @@ dissect_display_switch(proto_tree *msg_tree, packet_info *pinfo,
          break;
       case 0x10:
    /*Cursor Control*/
-         movement_byte=tvb_get_guint8(tvb,offset);
+         movement_byte=tvb_get_uint8(tvb,offset);
          proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_cursor_move_cmd,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_cursor_blink,tvb,offset,1,ENC_BIG_ENDIAN);
@@ -906,7 +906,7 @@ dissect_display_switch(proto_tree *msg_tree, packet_info *pinfo,
             break;
          }
          if((movement_byte&0x01)==0x01){
-            address_byte=tvb_get_guint8(tvb,offset);
+            address_byte=tvb_get_uint8(tvb,offset);
             proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
             proto_tree_add_item(msg_tree,hf_display_write_address_numeric,
                                 tvb,offset,1,ENC_BIG_ENDIAN);
@@ -968,7 +968,7 @@ dissect_display_switch(proto_tree *msg_tree, packet_info *pinfo,
          break;
       case 0x17:
    /*Time and Date Format*/
-         time_date_mask=tvb_get_guint8(tvb,offset);
+         time_date_mask=tvb_get_uint8(tvb,offset);
          if((time_date_mask&DISPLAY_USE_TIME_FORMAT)==DISPLAY_USE_TIME_FORMAT){
             proto_tree_add_item(msg_tree,hf_display_time_format,tvb,offset,1,ENC_BIG_ENDIAN);
          }
@@ -993,7 +993,7 @@ dissect_display_switch(proto_tree *msg_tree, packet_info *pinfo,
 #define F_TAG 4
          if((display_cmd&F_ADDR)==F_ADDR){
             address_tree=proto_tree_add_subtree(msg_tree,tvb,offset,0,ett_unistim,NULL,"Address Data");
-            address_byte=tvb_get_guint8(tvb,offset);
+            address_byte=tvb_get_uint8(tvb,offset);
             proto_tree_add_item(address_tree,hf_basic_bit_field,
                                 tvb,offset,1,ENC_BIG_ENDIAN);
             proto_tree_add_item(address_tree,hf_display_write_address_numeric,
@@ -1088,7 +1088,7 @@ dissect_display_switch(proto_tree *msg_tree, packet_info *pinfo,
          break;
       case 0x23:
    /*Highlighted Field Definition*/
-         highlight_cmd=tvb_get_guint8(tvb,offset);
+         highlight_cmd=tvb_get_uint8(tvb,offset);
          proto_tree_add_item(msg_tree,hf_display_cursor_numeric,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_cursor_context ,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_cursor_line,tvb,offset,1,ENC_BIG_ENDIAN);
@@ -1191,7 +1191,7 @@ dissect_display_phone(proto_tree *msg_tree,
                       tvbuff_t *tvb,int offset,unsigned msg_len){
    unsigned display_cmd;
    unsigned highlight_cmd;
-   display_cmd=tvb_get_guint8(tvb,offset);
+   display_cmd=tvb_get_uint8(tvb,offset);
    proto_tree_add_item(msg_tree,hf_display_phone_cmd,tvb,offset,1,ENC_BIG_ENDIAN);
    offset+=1;msg_len-=1;
    switch(display_cmd){
@@ -1238,7 +1238,7 @@ dissect_display_phone(proto_tree *msg_tree,
          break;
       case 0x03:
    /*Highlight Status On*/
-         highlight_cmd=tvb_get_guint8(tvb,offset);
+         highlight_cmd=tvb_get_uint8(tvb,offset);
          proto_tree_add_item(msg_tree,hf_display_cursor_numeric,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_cursor_context ,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_cursor_line,tvb,offset,1,ENC_BIG_ENDIAN);
@@ -1302,7 +1302,7 @@ static int
 dissect_key_indicator_switch(proto_tree *msg_tree,
                              tvbuff_t *tvb, int offset,unsigned msg_len){
    unsigned key_cmd;
-   key_cmd=tvb_get_guint8(tvb,offset);
+   key_cmd=tvb_get_uint8(tvb,offset);
    proto_tree_add_item(msg_tree,hf_key_switch_cmd,tvb,offset,1,ENC_BIG_ENDIAN);
    offset+=1;msg_len-=1;
    switch(key_cmd){
@@ -1420,17 +1420,17 @@ static int
 dissect_key_indicator_phone(proto_tree *msg_tree,
                             tvbuff_t *tvb,int offset, unsigned msg_len){
    unsigned key_cmd;
-   key_cmd=tvb_get_guint8(tvb,offset);
+   key_cmd=tvb_get_uint8(tvb,offset);
    proto_tree_add_item(msg_tree,hf_key_phone_cmd,tvb,offset,1,ENC_BIG_ENDIAN);
    offset+=1;msg_len-=1;
    switch(key_cmd){
       case 0x00:
    /*Key Event*/
          /* Set the tap info */
-         uinfo->key_state = tvb_get_guint8(tvb,offset);
+         uinfo->key_state = tvb_get_uint8(tvb,offset);
          uinfo->key_state >>= 6;
          /* Extract the key code */
-         uinfo->key_val = (tvb_get_guint8(tvb,offset) & 0x3F);
+         uinfo->key_val = (tvb_get_uint8(tvb,offset) & 0x3F);
 
          proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_key_code,tvb,offset,1,ENC_BIG_ENDIAN);
@@ -1517,7 +1517,7 @@ dissect_network_switch(proto_tree *msg_tree,
    unsigned network_cmd;
    unsigned string_len;
 
-   network_cmd=tvb_get_guint8(tvb,offset);
+   network_cmd=tvb_get_uint8(tvb,offset);
    proto_tree_add_item(msg_tree,hf_network_switch_cmd,tvb,offset,1,ENC_BIG_ENDIAN);
    offset+=1;msg_len-=1;
    switch(network_cmd){
@@ -1660,7 +1660,7 @@ dissect_expansion_switch(proto_tree *msg_tree,
    unsigned expansion_cmd;
 
 
-   expansion_cmd=tvb_get_guint8(tvb,offset);
+   expansion_cmd=tvb_get_uint8(tvb,offset);
    proto_tree_add_item(msg_tree,hf_expansion_switch_cmd,tvb,offset,1,ENC_BIG_ENDIAN);
    offset+=1; msg_len-=1;
    switch(expansion_cmd){
@@ -1707,10 +1707,10 @@ dissect_expansion_phone(proto_tree *msg_tree,
    unsigned expansion_cmd;
    unsigned key_number;
 
-   expansion_cmd=tvb_get_guint8(tvb,offset);
+   expansion_cmd=tvb_get_uint8(tvb,offset);
    proto_tree_add_item(msg_tree,hf_expansion_phone_cmd,tvb,offset,1,ENC_BIG_ENDIAN);
    offset+=1; msg_len-=1;
-   key_number=(tvb_get_guint8(tvb,offset))-64;
+   key_number=(tvb_get_uint8(tvb,offset))-64;
 
    switch(expansion_cmd){
       case 0x59:
@@ -1729,7 +1729,7 @@ dissect_network_phone(proto_tree *msg_tree,
    unsigned network_cmd;
    proto_tree *server_tree;
    unsigned i;
-   network_cmd=tvb_get_guint8(tvb,offset);
+   network_cmd=tvb_get_uint8(tvb,offset);
    proto_tree_add_item(msg_tree,hf_network_phone_cmd,tvb,offset,1,ENC_BIG_ENDIAN);
    offset+=1;msg_len-=1;
    switch(network_cmd){
@@ -1842,7 +1842,7 @@ dissect_audio_switch(proto_tree *msg_tree,packet_info *pinfo,
    unsigned apb_op_code;
    unsigned apb_data_len;
    unsigned vocoder_param;
-   audio_cmd=tvb_get_guint8(tvb,offset);
+   audio_cmd=tvb_get_uint8(tvb,offset);
    proto_tree_add_item(msg_tree,hf_audio_switch_cmd,tvb,offset,1,ENC_BIG_ENDIAN);
    offset+=1;msg_len-=1;
    switch(audio_cmd){
@@ -2050,13 +2050,13 @@ dissect_audio_switch(proto_tree *msg_tree,packet_info *pinfo,
          proto_tree_add_item(msg_tree,hf_audio_apb_number,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
          while(msg_len>0){
-            apb_op_code=tvb_get_guint8(tvb,offset);
+            apb_op_code=tvb_get_uint8(tvb,offset);
             proto_tree_add_item(msg_tree,hf_audio_apb_op_code,tvb,
                                 offset,1,ENC_BIG_ENDIAN);
             offset+=1;msg_len-=1;
             if(apb_op_code>0x39){
    /*should have a len + data*/
-               apb_data_len=tvb_get_guint8(tvb,offset);
+               apb_data_len=tvb_get_uint8(tvb,offset);
                proto_tree_add_item(msg_tree,hf_audio_apb_param_len,tvb,
                                    offset,1,ENC_BIG_ENDIAN);
                offset+=1;msg_len-=1;
@@ -2178,7 +2178,7 @@ dissect_audio_switch(proto_tree *msg_tree,packet_info *pinfo,
          offset+=1;msg_len-=1;
          while(msg_len>0){
             param_tree=proto_tree_add_subtree(msg_tree,tvb,offset,0,ett_unistim,NULL,"Param");
-            vocoder_param=tvb_get_guint8(tvb,offset);
+            vocoder_param=tvb_get_uint8(tvb,offset);
             proto_tree_add_item(param_tree,hf_basic_bit_field,
                                 tvb,offset,1,ENC_BIG_ENDIAN);
             proto_tree_add_item(param_tree,hf_audio_vocoder_param,
@@ -2278,7 +2278,7 @@ dissect_audio_phone(proto_tree *msg_tree,
    unsigned apb_data_len;
    unsigned stream_dir;
    unsigned stream_state;
-   audio_cmd=tvb_get_guint8(tvb,offset);
+   audio_cmd=tvb_get_uint8(tvb,offset);
    proto_tree_add_item(msg_tree,hf_audio_phone_cmd,tvb,offset,1,ENC_BIG_ENDIAN);
    offset+=1;msg_len-=1;
    switch(audio_cmd){
@@ -2415,12 +2415,12 @@ dissect_audio_phone(proto_tree *msg_tree,
          break;
       case 0x13:
    /*Audio Stream Status Report*/
-         stream_dir=tvb_get_guint8(tvb,offset);
+         stream_dir=tvb_get_uint8(tvb,offset);
          proto_tree_add_item(msg_tree,hf_audio_stream_direction_code,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
          proto_tree_add_item(msg_tree,hf_audio_mgr_stream_id,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
-         stream_state=tvb_get_guint8(tvb,offset);
+         stream_state=tvb_get_uint8(tvb,offset);
          proto_tree_add_item(msg_tree,hf_audio_stream_state,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
          if((AUDIO_STREAM_STATE&stream_state)!=AUDIO_STREAM_STATE)
@@ -2462,13 +2462,13 @@ dissect_audio_phone(proto_tree *msg_tree,
          proto_tree_add_item(msg_tree,hf_audio_apb_number,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
          while(msg_len>0){
-            apb_op_code=tvb_get_guint8(tvb,offset);
+            apb_op_code=tvb_get_uint8(tvb,offset);
             proto_tree_add_item(msg_tree,hf_audio_apb_op_code,tvb,
                                 offset,1,ENC_BIG_ENDIAN);
             offset+=1;msg_len-=1;
             if(apb_op_code>0x39){
                /*should have a len + data*/
-               apb_data_len=tvb_get_guint8(tvb,offset);
+               apb_data_len=tvb_get_uint8(tvb,offset);
                proto_tree_add_item(msg_tree,hf_audio_apb_param_len,tvb,
                                    offset,1,ENC_BIG_ENDIAN);
                offset+=1;msg_len-=1;

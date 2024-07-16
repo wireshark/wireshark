@@ -157,7 +157,7 @@ static int dissect_mac_mgmt_msg_aas_beam_rsp_decoder(tvbuff_t *tvb, packet_info 
 		/* move to next field */
 		offset++;
 		/* get the Measurement Report Type */
-		report_type = tvb_get_guint8(tvb, offset);
+		report_type = tvb_get_uint8(tvb, offset);
 		/* display the Feedback Request Number */
 		proto_tree_add_item(aas_beam_tree, hf_aas_beam_feedback_request_number, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* display the Measurement Report Type */

@@ -2216,7 +2216,7 @@ void wimax_service_flow_encodings_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 			break;
 			case SFE_UL_SCHEDULING:
 				/* TODO: Find a way to get the correct service type from the TLV */
-				tlv_value = tvb_get_guint8(tvb, offset);
+				tlv_value = tvb_get_uint8(tvb, offset);
 				set_service_type( tlv_value );
 				add_tlv_subtree(&tlv_info, tree, hf_sfe_ul_grant_scheduling, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
 			break;
@@ -2244,7 +2244,7 @@ void wimax_service_flow_encodings_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 			break;
 			case SFE_SDU_SIZE:
 				/* save the SDU size */
-				mac_sdu_length = tvb_get_guint8(tvb, offset);
+				mac_sdu_length = tvb_get_uint8(tvb, offset);
 				add_tlv_subtree(&tlv_info, tree, hf_sfe_sdu_size, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
 			break;
 			case SFE_TARGET_SAID:
@@ -2308,7 +2308,7 @@ void wimax_service_flow_encodings_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					tlv_item = add_tlv_subtree(&tlv_info, tree, hf_sfe_arq_block_size_cor2, tvb, offset-tlv_value_offset, ENC_BIG_ENDIAN);
 					/* add TLV subtree */
 					tlv_tree = proto_item_add_subtree(tlv_item, ett_wimax_service_flow_encodings);
-					value = tvb_get_guint8(tvb, offset);
+					value = tvb_get_uint8(tvb, offset);
 					tlv_item = proto_tree_add_item(tlv_tree, hf_sfe_arq_min_block_size, tvb, offset, 1, ENC_BIG_ENDIAN);
 					/* Size is 2^((value & 0x0F) + 4)) */
 					proto_item_append_text(tlv_item, " ( %d bytes )", 0x10 << (value & 0x0F));
@@ -3344,7 +3344,7 @@ unsigned wimax_common_tlv_encoding_decoder(tvbuff_t *tvb, packet_info *pinfo, pr
 			break;
 			case CURRENT_TX_POWER:
 				tlv_tree = add_tlv_subtree_no_item(&tlv_info, tree, hf_common_current_transmitted_power, tvb, offset-tlv_value_offset);
-				value = tvb_get_guint8(tvb, offset);
+				value = tvb_get_uint8(tvb, offset);
 				current_power = (float)((value - 128) / 2.0);
 				proto_tree_add_float_format_value(tlv_tree, hf_common_current_transmitted_power, tvb, offset, tvb_len, current_power, "%.2f dBm (Value: 0x%x)", current_power, value);
 			break;

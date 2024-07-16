@@ -78,9 +78,9 @@ unescape_data(tvbuff_t *tvb, packet_info *pinfo)
 
 		for (offset = 0; offset < length; )
 		{
-			uint8_t c = tvb_get_guint8(tvb, offset++);
+			uint8_t c = tvb_get_uint8(tvb, offset++);
 			if ((c == SIR_CE) && (offset < length))
-				c = SIR_ESCAPE(tvb_get_guint8(tvb, offset++));
+				c = SIR_ESCAPE(tvb_get_uint8(tvb, offset++));
 			*dst++ = c;
 		}
 

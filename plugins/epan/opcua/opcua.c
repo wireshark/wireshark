@@ -605,7 +605,7 @@ static int dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
             bParseService = true;
             offset = 3;
-            chunkType = tvb_get_guint8(tvb, offset); offset += 1;
+            chunkType = tvb_get_uint8(tvb, offset); offset += 1;
             offset += 4; /* message size */
             offset += 4; /* skip secure channel_id */
             parseSecurityHeader(transport_tree, tvb, &offset, &metadata); /* only token_id (4 byte) */

@@ -147,7 +147,7 @@ static int dissector_wimax_harq_map_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 		{
 			/* add the Padding info */
 			proto_item_append_text(parent_item, ",Padding");
-			proto_tree_add_protocol_format(harq_map_tree, proto_wimax_harq_map_decoder, tvb, offset, 1, "Padding Nibble: 0x%x", (tvb_get_guint8(tvb, offset) & LSB_NIBBLE_MASK));
+			proto_tree_add_protocol_format(harq_map_tree, proto_wimax_harq_map_decoder, tvb, offset, 1, "Padding Nibble: 0x%x", (tvb_get_uint8(tvb, offset) & LSB_NIBBLE_MASK));
 		}
 		/* add the CRC info */
 		proto_item_append_text(parent_item, ",CRC");

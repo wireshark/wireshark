@@ -643,7 +643,7 @@ static unsigned decode_packing_subheader(tvbuff_t *payload_tvb, packet_info *pin
 	generic_tree = proto_item_add_subtree(generic_item, ett_mac_pkt_subheader_decoder);
 	/* decode and display the Packing subheader */
 	/* Get the fragment type */
-	frag_type = (tvb_get_guint8(payload_tvb, payload_offset) & FRAGMENT_TYPE_MASK) >> 6;
+	frag_type = (tvb_get_uint8(payload_tvb, payload_offset) & FRAGMENT_TYPE_MASK) >> 6;
 	/* if ARQ Feedback payload is present */
 	if (arq_fb_payload)
 	{	/* get the frag length */
@@ -675,7 +675,7 @@ static unsigned decode_packing_subheader(tvbuff_t *payload_tvb, packet_info *pin
 		{	/* get the frag length */
 			frag_len = (tvb_get_ntohs(payload_tvb, payload_offset) & PACKING_SUBHEADER_LENGTH_MASK);
 			/* get the sequence number */
-			seq_number = (tvb_get_guint8(payload_tvb, payload_offset) & SEQ_NUMBER_MASK) >> 3;
+			seq_number = (tvb_get_uint8(payload_tvb, payload_offset) & SEQ_NUMBER_MASK) >> 3;
 			proto_tree_add_item(generic_tree, hf_mac_header_generic_packing_subhd_fc, payload_tvb, payload_offset, 2, ENC_BIG_ENDIAN);
 			proto_tree_add_item(generic_tree, hf_mac_header_generic_packing_subhd_fsn, payload_tvb, payload_offset, 2, ENC_BIG_ENDIAN);
 			proto_tree_add_item(generic_tree, hf_mac_header_generic_packing_subhd_len, payload_tvb, payload_offset, 2, ENC_BIG_ENDIAN);
@@ -751,7 +751,7 @@ static int dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo,
 	generic_tree = proto_item_add_subtree(generic_item, ett_mac_header_generic_decoder);
 	/* Decode and display the MAC header */
 	/* Get the first byte */
-	ubyte = tvb_get_guint8(tvb, offset);
+	ubyte = tvb_get_uint8(tvb, offset);
 	/* get the Header Type (HT) */
 	/*mac_ht = ((ubyte & WIMAX_MAC_HEADER_GENERIC_HT_MASK)?1:0); XX: not used ?? */
 	/* get the Encryption Control (EC) */
@@ -764,7 +764,7 @@ static int dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo,
 	arq_fb_payload = ((ubyte & GENERIC_SUB_TYPE_4)?1:0);
 	mesh_subheader = ((ubyte & GENERIC_SUB_TYPE_5)?1:0);
 	/* Get the 2nd byte */
-	ubyte = tvb_get_guint8(tvb, (offset+1));
+	ubyte = tvb_get_uint8(tvb, (offset+1));
 	/* get the Extended subheader field (ESF) */
 	mac_esf = ((ubyte & WIMAX_MAC_HEADER_GENERIC_ESF_MASK)?1:0);
 	/* get the CRC indicator (CI) */
@@ -932,7 +932,7 @@ static int dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo,
 		/* add Fragmentation subheader subtree */
 		generic_tree = proto_item_add_subtree(generic_item, ett_mac_frag_subheader_decoder);
 		/* Get the fragment type */
-		frag_type = (tvb_get_guint8(tvb, offset) & FRAGMENT_TYPE_MASK) >> 6;
+		frag_type = (tvb_get_uint8(tvb, offset) & FRAGMENT_TYPE_MASK) >> 6;
 		if (arq_fb_payload)
 		{	/* get the sequence number */
 			seq_number = (tvb_get_ntohs(tvb, offset) & SEQ_NUMBER_MASK_11) >> 3;
@@ -959,7 +959,7 @@ static int dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo,
 			}
 			else
 			{	/* get the sequence number */
-				seq_number = (tvb_get_guint8(tvb, offset) & SEQ_NUMBER_MASK) >> 3;
+				seq_number = (tvb_get_uint8(tvb, offset) & SEQ_NUMBER_MASK) >> 3;
 				/* decode and display the header */
 				proto_tree_add_item(generic_tree, hf_mac_header_generic_frag_subhd_fc, tvb, offset, 1, ENC_BIG_ENDIAN);
 				proto_tree_add_item(generic_tree, hf_mac_header_generic_frag_subhd_fsn, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1187,7 +1187,7 @@ static int dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo,
 							/* add payload subtree */
 							generic_tree = proto_item_add_subtree(generic_item, ett_mac_data_pdu_decoder);
 							/* check the data type */
-							if (tvb_get_guint8(payload_tvb, payload_offset) == IP_HEADER_BYTE)
+							if (tvb_get_uint8(payload_tvb, payload_offset) == IP_HEADER_BYTE)
 							{
 								if (mac_ip_handle)
 									call_dissector(mac_ip_handle, tvb_new_subset_length(payload_tvb, payload_offset, new_tvb_len), pinfo, generic_tree);
@@ -1255,7 +1255,7 @@ static int extended_subheader_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 	}
 
 	/* Get the length of the extended subheader group */
-	ext_length = tvb_get_guint8(tvb, offset);
+	ext_length = tvb_get_uint8(tvb, offset);
 	/* display subheader type */
 	ti = proto_tree_add_protocol_format(tree, proto_mac_header_generic_decoder, tvb, offset, length, "Extended subheader group (%u bytes)", ext_length);
 	/* add extended subheader subtree */
@@ -1263,7 +1263,7 @@ static int extended_subheader_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 	/* decode and display the extended subheaders */
 	for (i=1; i<ext_length;)
 	{	/* Get the extended subheader type */
-		ubyte = (tvb_get_guint8(tvb, (offset+i)) & EXTENDED_SUB_HEADER_TYPE_MASK);
+		ubyte = (tvb_get_uint8(tvb, (offset+i)) & EXTENDED_SUB_HEADER_TYPE_MASK);
 		/* decode and display the extended subheader type (MSB) */
 		proto_tree_add_item(sub_tree, hf_mac_header_generic_ext_subheader_rsv, tvb, (offset+i), 1, ENC_BIG_ENDIAN);
 		/* for downlink */

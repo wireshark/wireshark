@@ -50,7 +50,7 @@ static int dissect_wimax_ffb_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 		/* add Fast Feedback Burst subtree */
 		ffb_tree = proto_item_add_subtree(ffb_item, ett_wimax_ffb_decoder);
 		/* get the number of FFBs */
-		num_of_ffbs =  tvb_get_guint8(tvb, offset);
+		num_of_ffbs =  tvb_get_uint8(tvb, offset);
 		/* display the number of FFBs */
 		proto_tree_add_item(ffb_tree, hf_ffb_num_of_ffbs, tvb, offset++, 1, ENC_BIG_ENDIAN);
 		/* display the FFB type */

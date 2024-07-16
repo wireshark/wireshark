@@ -5156,7 +5156,7 @@ packet_info *pinfo, proto_tree *tree, uint8_t *drep)
     sub_item = proto_tree_add_item(tree, hf_pn_io_am_location, tvb, offset, 16, ENC_NA);
     sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_am_location);
 
-    am_location_structtype = tvb_get_guint8(tvb, offset+15);
+    am_location_structtype = tvb_get_uint8(tvb, offset+15);
     bit_offset = offset << 3;
 
     switch (am_location_structtype)
@@ -9225,7 +9225,7 @@ dissect_PDIRFrameData_block(tvbuff_t *tvb, int offset,
         offset = dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree, drep,
                              hf_pn_io_frame_details_reserved, &u8FrameDetails);
         /* TxPortGroup */
-        u8NumberOfTxPortGroups = tvb_get_guint8(tvb, offset);
+        u8NumberOfTxPortGroups = tvb_get_uint8(tvb, offset);
         sub_item = proto_tree_add_uint(ir_frame_data_tree, hf_pn_io_nr_of_tx_port_groups,
                              tvb, offset, 1, u8NumberOfTxPortGroups);
         offset++;
@@ -9687,8 +9687,8 @@ dissect_ARData_block(tvbuff_t *tvb, int offset,
                 offset = dissect_dcerpc_uint16(tvb, offset, pinfo, iocr_tree, drep,
                                 hf_pn_io_cycle_counter, &u16CycleCounter);
 
-                u8DataStatus = tvb_get_guint8(tvb, offset);
-                u8TransferStatus = tvb_get_guint8(tvb, offset+1);
+                u8DataStatus = tvb_get_uint8(tvb, offset);
+                u8TransferStatus = tvb_get_uint8(tvb, offset+1);
 
                 /* add data status subtree */
                 ds_item = proto_tree_add_uint_format(iocr_tree, hf_pn_io_data_status,
@@ -9835,8 +9835,8 @@ dissect_ARData_block(tvbuff_t *tvb, int offset,
                 offset = dissect_dcerpc_uint16(tvb, offset, pinfo, iocr_tree, drep,
                     hf_pn_io_cycle_counter, &u16CycleCounter);
 
-                u8DataStatus = tvb_get_guint8(tvb, offset);
-                u8TransferStatus = tvb_get_guint8(tvb, offset+1);
+                u8DataStatus = tvb_get_uint8(tvb, offset);
+                u8TransferStatus = tvb_get_uint8(tvb, offset+1);
 
                 /* add data status subtree */
                 ds_item = proto_tree_add_uint_format(iocr_tree, hf_pn_io_data_status,
@@ -10225,7 +10225,7 @@ dissect_PE_ServiceRequest_block(tvbuff_t* tvb, int offset,
                 int byte_length = 4;
 
                 /* depending on measurement ID we may encounter differing byte lengths for value */
-                u16MeasurementID = tvb_get_guint16(tvb, offset+2, ENC_BIG_ENDIAN);
+                u16MeasurementID = tvb_get_uint16(tvb, offset+2, ENC_BIG_ENDIAN);
                 if ((u16MeasurementID >= 210) && (u16MeasurementID <= 219)) {
                     byte_length = 8;
                 }
@@ -10567,7 +10567,7 @@ dissect_PE_ServiceResponse_block(tvbuff_t* tvb, int offset,
                     proto_tree *measurement_tree;
 
                     /* peek for structure length */
-                    u16StructureLength = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+                    u16StructureLength = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
                     measurement_item = proto_tree_add_item(pedata_tree, hf_pn_io_pe_measurement, tvb, offset,
                         u16StructureLength, ENC_NA);
                     measurement_tree = proto_item_add_subtree(measurement_item, ett_pn_io_pe_measurement_id);
@@ -11876,7 +11876,7 @@ dissect_SRInfoBlock_block(tvbuff_t *tvb, int offset,
     }
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_RedundancyDataHoldFactor, &u16RedundancyDataHoldFactor);
 
-    u32sr_properties = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+    u32sr_properties = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
     sub_item = proto_tree_add_item(tree, hf_pn_io_sr_properties, tvb, offset, 4, ENC_BIG_ENDIAN);
     sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_sr_properties);
 
@@ -12877,7 +12877,7 @@ dissect_CommunityName_block(tvbuff_t *tvb, int offset,
     proto_item* sub_tree;
 
     /* CommunityNameLength */
-    u8CommunityNameLength = tvb_get_guint8(tvb, offset);
+    u8CommunityNameLength = tvb_get_uint8(tvb, offset);
     sub_item = proto_tree_add_item(tree, hfindex, tvb, offset, u8CommunityNameLength + 1, ENC_NA);
     sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_snmp_command_name);
 
@@ -14881,7 +14881,7 @@ dissect_PNIO_IOxS(tvbuff_t *tvb, int offset,
         proto_item *ioxs_item;
         proto_tree *ioxs_tree;
 
-        u8IOxS = tvb_get_guint8(tvb, offset);
+        u8IOxS = tvb_get_uint8(tvb, offset);
 
         /* add ioxs subtree */
         ioxs_item = proto_tree_add_uint(tree, hfindex, tvb, offset, 1, u8IOxS);
