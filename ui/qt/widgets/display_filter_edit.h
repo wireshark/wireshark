@@ -30,8 +30,6 @@ class DisplayFilterEdit : public SyntaxLineEdit
 public:
     explicit DisplayFilterEdit(QWidget *parent = 0, DisplayFilterEditType type = DisplayFilterToEnter);
 
-    void enableBookmarks(bool enabled);
-
 protected:
     void paintEvent(QPaintEvent *evt);
     void resizeEvent(QResizeEvent *);
@@ -82,7 +80,6 @@ private:
     QString filter_word_preamble_;
     bool autocomplete_accepts_field_;
     QString style_sheet_;
-    bool bookmarks_enabled_;
 
     void setDefaultPlaceholderText();
     void buildCompletionList(const QString &field_word, const QString &preamble);

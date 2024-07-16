@@ -373,7 +373,6 @@ void SearchFrame::on_searchTypeComboBox_currentIndexChanged(int idx)
 
     // Enable completion only for display filter search.
     sf_ui_->searchLineEdit->allowCompletion(idx == df_search_);
-    sf_ui_->searchLineEdit->enableBookmarks(idx == df_search_);
 
     if (idx == df_search_) {
         sf_ui_->searchLineEdit->checkFilter();
