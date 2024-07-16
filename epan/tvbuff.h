@@ -316,8 +316,10 @@ WS_DLL_PUBLIC struct tvbuff *tvb_get_ds_tvb(tvbuff_t *tvb);
 /* All accessors will throw an exception if appropriate */
 
 WS_DLL_PUBLIC uint8_t tvb_get_uint8(tvbuff_t *tvb, const int offset);
+WS_DEPRECATED_X("Use tvb_get_uint8 instead")
 static inline uint8_t tvb_get_guint8(tvbuff_t *tvb, const int offset) { return tvb_get_uint8(tvb, offset); }
 WS_DLL_PUBLIC int8_t tvb_get_int8(tvbuff_t *tvb, const int offset);
+WS_DEPRECATED_X("Use tvb_get_int8 instead")
 static inline int8_t tvb_get_gint8(tvbuff_t *tvb, const int offset) { return tvb_get_int8(tvb, offset); }
 
 WS_DLL_PUBLIC uint16_t tvb_get_ntohs(tvbuff_t *tvb, const int offset);
@@ -357,32 +359,46 @@ WS_DLL_PUBLIC double tvb_get_letohieee_double(tvbuff_t *tvb,
     const int offset);
 
 WS_DLL_PUBLIC uint16_t tvb_get_uint16(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DEPRECATED_X("Use tvb_get_uint16 instead")
 static inline uint16_t tvb_get_guint16(tvbuff_t *tvb, const int offset, const unsigned encoding) { return tvb_get_uint16(tvb, offset, encoding); }
 WS_DLL_PUBLIC int16_t tvb_get_int16(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DEPRECATED_X("Use tvb_get_int16 instead")
 static inline int16_t tvb_get_gint16(tvbuff_t *tvb, const int offset, const unsigned encoding) { return tvb_get_int16(tvb, offset, encoding); }
 WS_DLL_PUBLIC uint32_t tvb_get_uint24(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DEPRECATED_X("Use tvb_get_uint24 instead")
 static inline uint32_t tvb_get_guint24(tvbuff_t *tvb, const int offset, const unsigned encoding) { return tvb_get_uint24(tvb, offset, encoding); }
 WS_DLL_PUBLIC int32_t tvb_get_int24(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DEPRECATED_X("Use tvb_get_int24 instead")
 static inline int32_t tvb_get_gint24(tvbuff_t *tvb, const int offset, const unsigned encoding) { return tvb_get_int24(tvb, offset, encoding); }
 WS_DLL_PUBLIC uint32_t tvb_get_uint32(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DEPRECATED_X("Use tvb_get_uint32 instead")
 static inline uint32_t tvb_get_guint32(tvbuff_t *tvb, const int offset, const unsigned encoding) { return tvb_get_uint32(tvb, offset, encoding); }
 WS_DLL_PUBLIC int32_t tvb_get_int32(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DEPRECATED_X("Use tvb_get_int32 instead")
 static inline int32_t tvb_get_gint32(tvbuff_t *tvb, const int offset, const unsigned encoding) { return tvb_get_int32(tvb, offset, encoding); }
 WS_DLL_PUBLIC uint64_t tvb_get_uint40(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DEPRECATED_X("Use tvb_get_uint40 instead")
 static inline uint64_t tvb_get_guint40(tvbuff_t *tvb, const int offset, const unsigned encoding) { return tvb_get_uint40(tvb, offset, encoding); }
 WS_DLL_PUBLIC int64_t tvb_get_int40(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DEPRECATED_X("Use tvb_get_int40 instead")
 static inline int64_t tvb_get_gint40(tvbuff_t *tvb, const int offset, const unsigned encoding) { return tvb_get_int40(tvb, offset, encoding); }
 WS_DLL_PUBLIC uint64_t tvb_get_uint48(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DEPRECATED_X("Use tvb_get_uint48 instead")
 static inline uint64_t tvb_get_guint48(tvbuff_t *tvb, const int offset, const unsigned encoding) { return tvb_get_uint48(tvb, offset, encoding); }
 WS_DLL_PUBLIC int64_t tvb_get_int48(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DEPRECATED_X("Use tvb_get_int48 instead")
 static inline int64_t tvb_get_gint48(tvbuff_t *tvb, const int offset, const unsigned encoding) { return tvb_get_int48(tvb, offset, encoding); }
 WS_DLL_PUBLIC uint64_t tvb_get_uint56(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DEPRECATED_X("Use tvb_get_uint56 instead")
 static inline uint64_t tvb_get_guint56(tvbuff_t *tvb, const int offset, const unsigned encoding) { return tvb_get_uint56(tvb, offset, encoding); }
 WS_DLL_PUBLIC int64_t tvb_get_int56(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DEPRECATED_X("Use tvb_get_int56 instead")
 static inline int64_t tvb_get_gint56(tvbuff_t *tvb, const int offset, const unsigned encoding) { return tvb_get_int56(tvb, offset, encoding); }
 WS_DLL_PUBLIC uint64_t tvb_get_uint64(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DEPRECATED_X("Use tvb_get_uint64 instead")
 static inline uint64_t tvb_get_guint64(tvbuff_t *tvb, const int offset, const unsigned encoding) {return tvb_get_uint64(tvb, offset, encoding); }
 WS_DLL_PUBLIC int64_t tvb_get_int64(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DEPRECATED_X("Use tvb_get_int64 instead")
 static inline int64_t tvb_get_gint64(tvbuff_t *tvb, const int offset, const unsigned encoding) { return tvb_get_int64(tvb, offset, encoding); }
 WS_DLL_PUBLIC float tvb_get_ieee_float(tvbuff_t *tvb, const int offset, const unsigned encoding);
 WS_DLL_PUBLIC double tvb_get_ieee_double(tvbuff_t *tvb, const int offset, const unsigned encoding);

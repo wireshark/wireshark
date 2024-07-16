@@ -125,15 +125,15 @@ test_PROTOABBREV(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_, void *da
         return false;
 
     /* 1) first byte must be 0x42 */
-    if ( tvb_get_guint8(tvb, 0) != 0x42 )
+    if ( tvb_get_uint8(tvb, 0) != 0x42 )
         return false;
 
     /* 2) second byte is a type field and only can contain values between 0x20-0x33 */
-    if ( tvb_get_guint8(tvb, 1) < 0x20 || tvb_get_guint8(tvb, 1) > 0x33 )
+    if ( tvb_get_uint8(tvb, 1) < 0x20 || tvb_get_uint8(tvb, 1) > 0x33 )
         return false;
 
     /* 3) third byte is a flag field, where the lower 4 bits always contain the value 0 */
-    if ( tvb_get_guint8(tvb, 2) & 0x0f )
+    if ( tvb_get_uint8(tvb, 2) & 0x0f )
         return false;
 
     /* 4) fourth and fifth bytes contains a 16 bit length field, where the value can't be longer than 10000 bytes */

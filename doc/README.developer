@@ -165,7 +165,7 @@ functions won't accept a size_t on LLP64:
     unsigned byte_after_greet;
 
     i = strlen(greeting);
-    byte_after_greet = tvb_get_guint8(tvb, i); /* Compiler warning */
+    byte_after_greet = tvb_get_uint8(tvb, i); /* Compiler warning */
 
 Try to use the appropriate data type when you can. When you can't, you
 will have to cast to a compatible data type, e.g.
@@ -175,7 +175,7 @@ will have to cast to a compatible data type, e.g.
     uint8_t byte_after_greet;
 
     i = strlen(greeting);
-    byte_after_greet = tvb_get_guint8(tvb, (int) i); /* OK */
+    byte_after_greet = tvb_get_uint8(tvb, (int) i); /* OK */
 
 or
 
@@ -184,7 +184,7 @@ or
     uint8_t byte_after_greet;
 
     i = (int) strlen(greeting);
-    byte_after_greet = tvb_get_guint8(tvb, i); /* OK */
+    byte_after_greet = tvb_get_uint8(tvb, i); /* OK */
 
 See https://unix.org/version2/whatsnew/lp64_wp.html for more
 information on the sizes of common types in different data models.

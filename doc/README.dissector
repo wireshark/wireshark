@@ -273,8 +273,11 @@ uint64_t tvb_get_bits64(tvbuff_t *tvb, unsigned bit_offset, const int no_of_bits
 Single-byte accessors for 8-bit unsigned integers (uint8_t) and 8-bit
 signed integers (int8_t):
 
-uint8_t tvb_get_guint8(tvbuff_t *tvb, const int offset);
-int8_t tvb_get_gint8(tvbuff_t *tvb, const int offset);
+uint8_t tvb_get_uint8(tvbuff_t *tvb, const int offset);
+int8_t tvb_get_int8(tvbuff_t *tvb, const int offset);
+
+These functions were previously named tvb_get_guint8 and tvb_get_int8. You
+can still use the old names but they have been deprecated.
 
 Network-to-host-order accessors:
 
@@ -371,38 +374,41 @@ Encoding-to_host-order accessors:
 
 16-bit unsigned (uint16_t) and signed (int16_t) integers:
 
-uint16_t tvb_get_guint16(tvbuff_t *tvb, const int offset, const unsigned encoding);
-int16_t tvb_get_gint16(tvbuff_t *tvb, const int offset, const unsigned encoding);
+uint16_t tvb_get_uint16(tvbuff_t *tvb, const int offset, const unsigned encoding);
+int16_t tvb_get_int16(tvbuff_t *tvb, const int offset, const unsigned encoding);
 
 24-bit unsigned and signed integers:
 
-uint32_t tvb_get_guint24(tvbuff_t *tvb, const int offset, const unsigned encoding);
-int32_t tvb_get_gint24(tvbuff_t *tvb, const int offset, const unsigned encoding);
+uint32_t tvb_get_uint24(tvbuff_t *tvb, const int offset, const unsigned encoding);
+int32_t tvb_get_int24(tvbuff_t *tvb, const int offset, const unsigned encoding);
 
 32-bit unsigned (uint32_t) and signed (int32_t) integers:
 
-uint32_t tvb_get_guint32(tvbuff_t *tvb, const int offset, const unsigned encoding);
-int32_t tvb_get_gint32(tvbuff_t *tvb, const int offset, const unsigned encoding);
+uint32_t tvb_get_uint32(tvbuff_t *tvb, const int offset, const unsigned encoding);
+int32_t tvb_get_int32(tvbuff_t *tvb, const int offset, const unsigned encoding);
 
 40-bit unsigned and signed integers:
 
-uint64_t tvb_get_guint40(tvbuff_t *tvb, const int offset, const unsigned encoding);
-int64_t tvb_get_gint40(tvbuff_t *tvb, const int offset, const unsigned encoding);
+uint64_t tvb_get_uint40(tvbuff_t *tvb, const int offset, const unsigned encoding);
+int64_t tvb_get_int40(tvbuff_t *tvb, const int offset, const unsigned encoding);
 
 48-bit unsigned and signed integers:
 
-uint64_t tvb_get_guint48(tvbuff_t *tvb, const int offset, const unsigned encoding);
-int64_t tvb_get_gint48(tvbuff_t *tvb, const int offset, const unsigned encoding);
+uint64_t tvb_get_uint48(tvbuff_t *tvb, const int offset, const unsigned encoding);
+int64_t tvb_get_int48(tvbuff_t *tvb, const int offset, const unsigned encoding);
 
 56-bit unsigned and signed integers:
 
-uint64_t tvb_get_guint56(tvbuff_t *tvb, const int offset, const unsigned encoding);
-int64_t tvb_get_gint56(tvbuff_t *tvb, const int offset, const unsigned encoding);
+uint64_t tvb_get_uint56(tvbuff_t *tvb, const int offset, const unsigned encoding);
+int64_t tvb_get_int56(tvbuff_t *tvb, const int offset, const unsigned encoding);
 
 64-bit unsigned (uint64_t) and signed (int64_t) integers:
 
-uint64_t tvb_get_guint64(tvbuff_t *tvb, const int offset, const unsigned encoding);
-int64_t tvb_get_gint64(tvbuff_t *tvb, const int offset, const unsigned encoding);
+uint64_t tvb_get_uint64(tvbuff_t *tvb, const int offset, const unsigned encoding);
+int64_t tvb_get_int64(tvbuff_t *tvb, const int offset, const unsigned encoding);
+
+These functions were previously named tvb_get_guintXX and tvb_get_gintXX. You
+can still use the old names but they have been deprecated.
 
 Single-precision and double-precision IEEE floating-point numbers:
 

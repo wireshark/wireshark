@@ -445,6 +445,12 @@ u-blox GNSS receivers
 * Plugins should provide a `plugin_describe()` function that returns an ORed
   list of flags consisting of the plugin types used (declared in wsutil/plugins.h).
 
+* The entire code base has been updated to use C99 types instead of GLib types.
+This includes changing occurrences `gboolean`, which is an integer, to C99's native `bool` type in many places.
+
+* The `tvb_get_guintX` and `tvb_get_gintX` functions in the tvbuff API have been renamed to `tvb_get_uintX` and `tvb_get_intX` (the GLib-style "g" has been removed).
+You can still use the old-style names, but they have been deprecated.
+
 == Getting Wireshark
 
 Wireshark source code and installation packages are available from
