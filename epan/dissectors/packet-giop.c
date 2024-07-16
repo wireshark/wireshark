@@ -1173,7 +1173,7 @@ static void add_sub_handle_repoid_to_comp_req_list(uint32_t fn, giop_sub_handle_
 
 /* giop_complete_reply_hash  "EQUAL" Functions */
 
-static int complete_reply_equal_fn(gconstpointer v, gconstpointer w) {
+static int complete_reply_equal_fn(const void *v, const void *w) {
   const struct complete_reply_hash_key *mk1 = (const struct complete_reply_hash_key *)v;
   const struct complete_reply_hash_key *mk2 = (const struct complete_reply_hash_key *)w;
 
@@ -1186,7 +1186,7 @@ static int complete_reply_equal_fn(gconstpointer v, gconstpointer w) {
 
 /* giop_complete_reply_hash "HASH" Functions */
 
-static uint32_t complete_reply_hash_fn(gconstpointer v) {
+static uint32_t complete_reply_hash_fn(const void *v) {
   uint32_t val;          /* init hash value */
   const struct complete_reply_hash_key *key = (const struct complete_reply_hash_key *)v;
 
@@ -1289,7 +1289,7 @@ static uint32_t get_mfn_from_fn_and_reqid(uint32_t fn, uint32_t reqid, address *
 
 /* Module Hash "EQUAL" Functions */
 
-static int giop_hash_module_equal(gconstpointer v, gconstpointer w) {
+static int giop_hash_module_equal(const void *v, const void *w) {
   const struct giop_module_key *mk1 = (const struct giop_module_key *)v;
   const struct giop_module_key *mk2 = (const struct giop_module_key *)w;
 
@@ -1302,7 +1302,7 @@ static int giop_hash_module_equal(gconstpointer v, gconstpointer w) {
 
 /* Module Hash "HASH" Functions */
 
-static uint32_t giop_hash_module_hash(gconstpointer v) {
+static uint32_t giop_hash_module_hash(const void *v) {
 
   int     i, len;
   uint32_t val = 0;              /* init hash value */
@@ -1387,7 +1387,7 @@ void register_giop_user_module(giop_sub_dissector_t *sub, const char *name, cons
 
 /* Object Key Hash "EQUAL" Functions */
 
-static int giop_hash_objkey_equal(gconstpointer v, gconstpointer w) {
+static int giop_hash_objkey_equal(const void *v, const void *w) {
   const struct giop_object_key *v1 = (const struct giop_object_key *)v;
   const struct giop_object_key *v2 = (const struct giop_object_key *)w;
 
@@ -1409,7 +1409,7 @@ static int giop_hash_objkey_equal(gconstpointer v, gconstpointer w) {
 
 /* Object Key Hash "HASH" Functions */
 
-static uint32_t giop_hash_objkey_hash(gconstpointer v) {
+static uint32_t giop_hash_objkey_hash(const void *v) {
   const struct giop_object_key *key = (const struct giop_object_key *)v;
 
   uint32_t i;

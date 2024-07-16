@@ -17,37 +17,37 @@
 
 typedef struct geonwheader
 {
-    guint8  gnw_ver;     /* Version */
-    guint8  gnw_lt;      /* Life time */
-    guint8  gnw_rhl;     /* Remaining Hop Limit */
-    guint8  gnw_proto;   /* Next header */
-    guint8  gnw_htype;   /* Header type */
-    guint8  gnw_tc;      /* Traffic class */
-    guint8  gnw_flags;   /* Flags */
-    guint8  gnw_mhl;     /* Remaining Hop Limit */
-    guint16 gnw_len;     /* Payload length */
-    guint32 gnw_sn;      /* Sequence number or MAX+1 */
-    guint32 gnw_tst;     /* TimeStamp */
+    uint8_t gnw_ver;     /* Version */
+    uint8_t gnw_lt;      /* Life time */
+    uint8_t gnw_rhl;     /* Remaining Hop Limit */
+    uint8_t gnw_proto;   /* Next header */
+    uint8_t gnw_htype;   /* Header type */
+    uint8_t gnw_tc;      /* Traffic class */
+    uint8_t gnw_flags;   /* Flags */
+    uint8_t gnw_mhl;     /* Remaining Hop Limit */
+    uint16_t gnw_len;     /* Payload length */
+    uint32_t gnw_sn;      /* Sequence number or MAX+1 */
+    uint32_t gnw_tst;     /* TimeStamp */
     address gnw_src;     /* source address */
     address gnw_dst;     /* destination address */
-    gint32  gnw_lat;     /* Latitude */
-    gint32  gnw_lon;     /* Longitude */
+    int32_t gnw_lat;     /* Latitude */
+    int32_t gnw_lon;     /* Longitude */
 } geonwheader;
 
 typedef struct btpaheader
 {
     address gnw_src;     /* source address */
     address gnw_dst;     /* destination address */
-    guint16 btp_psrc;     /* Source port */
-    guint16 btp_pdst;     /* Destination port */
+    uint16_t btp_psrc;     /* Source port */
+    uint16_t btp_pdst;     /* Destination port */
 } btpaheader;
 
 typedef struct btpbheader
 {
     address gnw_src;     /* source address */
     address gnw_dst;     /* destination address */
-    guint16 btp_pdst;     /* Destination port */
-    guint16 btp_idst;     /* Destination info */
+    uint16_t btp_pdst;     /* Destination port */
+    uint16_t btp_idst;     /* Destination info */
 } btpbheader;
 
 #endif /* __PACKET_GEONW_H__ */

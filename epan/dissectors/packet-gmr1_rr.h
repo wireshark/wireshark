@@ -22,7 +22,7 @@
 #define __PACKET_GMR1_RR_H__
 
 extern void
-gmr1_get_msg_rr_params(guint8 oct, int dcch, const gchar **msg_str,
+gmr1_get_msg_rr_params(uint8_t oct, int dcch, const char **msg_str,
                        int *ett_tree, int *hf_idx, gmr1_msg_func_t *msg_func_p);
 
 #endif /* __PACKET_GMR1_RR_H__ */

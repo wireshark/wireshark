@@ -30,15 +30,15 @@ void proto_register_gmr1_rach(void);
 static int proto_gmr1_rach;
 
 /* GMR-1 RACH subtrees */
-static gint ett_rach_msg;
-static gint ett_rach_kls1;
-static gint ett_rach_kls2;
-static gint ett_rach_gmprs_type1_kls2;
-static gint ett_rach_gmprs_type2_kls2;
-static gint ett_rach_est_cause;
-static gint ett_rach_dialed_num;
-static gint ett_rach_gps_pos;
-static gint ett_rach_gmprs_req_type;
+static int ett_rach_msg;
+static int ett_rach_kls1;
+static int ett_rach_kls2;
+static int ett_rach_gmprs_type1_kls2;
+static int ett_rach_gmprs_type2_kls2;
+static int ett_rach_est_cause;
+static int ett_rach_dialed_num;
+static int ett_rach_gps_pos;
+static int ett_rach_gmprs_req_type;
 
 /* Fields */
 static int hf_rach_prio;
@@ -159,7 +159,7 @@ dissect_gmr1_rach_kls1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 	proto_tree *tree = NULL;
 	proto_item *ec_item = NULL;
 	proto_tree *ec_tree = NULL;
-	guint8 ec;
+	uint8_t ec;
 
 	/* Tree */
 	tree = proto_tree_add_subtree(
@@ -240,18 +240,18 @@ static const true_false_string rach_gps_pos_cpi_tfs = {
 };
 
 static void
-rach_gps_pos_lat_fmt(gchar *s, guint32 v)
+rach_gps_pos_lat_fmt(char *s, uint32_t v)
 {
-	gint32 sv = v;
+	int32_t sv = v;
 
 	snprintf(s, ITEM_LABEL_LENGTH, "%.5f %s (%d)",
 	           abs(sv) / 2912.7f, sv < 0 ? "S" : "N", sv);
 }
 
 static void
-rach_gps_pos_long_fmt(gchar *s, guint32 v)
+rach_gps_pos_long_fmt(char *s, uint32_t v)
 {
-	gint32 sv = v;
+	int32_t sv = v;
 
 	snprintf(s, ITEM_LABEL_LENGTH, "%.5f %s (%d)",
 	           abs(sv) / 2912.70555f, sv < 0 ? "W" : "E", sv);
@@ -264,7 +264,7 @@ rach_gps_pos_long_fmt(gchar *s, guint32 v)
 static void
 dissect_gmr1_rach_gps_pos(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-	guint32 lat, lng;
+	uint32_t lat, lng;
 
 	/* Check for NULL */
 		/* Spec says that NULL is latitude == 0x40000 and longitude
@@ -299,7 +299,7 @@ dissect_gmr1_rach_gps_pos(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pro
 
 
 static void
-rach_sp_hplmn_id_fmt(gchar *s, guint32 v)
+rach_sp_hplmn_id_fmt(char *s, uint32_t v)
 {
 	if (v == 0xfffff) {
 		snprintf(s, ITEM_LABEL_LENGTH, "%05x (Null)", v);
@@ -319,7 +319,7 @@ static const value_string rach_pd_vals[] = {
 };
 
 static void
-rach_dialed_num_grp1234_fmt(gchar *s, guint32 v)
+rach_dialed_num_grp1234_fmt(char *s, uint32_t v)
 {
 	if (v <= 999) {
 		snprintf(s, ITEM_LABEL_LENGTH, "%03d", v);
@@ -340,7 +340,7 @@ rach_dialed_num_grp1234_fmt(gchar *s, guint32 v)
 }
 
 static void
-rach_dialed_num_grp5_fmt(gchar *s, guint32 v)
+rach_dialed_num_grp5_fmt(char *s, uint32_t v)
 {
 	if (v >= 1100 && v <= 1199) {
 		snprintf(s, ITEM_LABEL_LENGTH, "%02d (%d)", v - 1100, v);
@@ -352,7 +352,7 @@ rach_dialed_num_grp5_fmt(gchar *s, guint32 v)
 }
 
 static void
-rach_gps_timestamp_fmt(gchar *s, guint32 v)
+rach_gps_timestamp_fmt(char *s, uint32_t v)
 {
 	if (v == 0xffff) {
 		snprintf(s, ITEM_LABEL_LENGTH, ">= 65535 minutes or N/A (%04x)", v);
@@ -451,9 +451,9 @@ static const value_string rach_gmprs_req_type_pag_resp_vals[] = {
 };
 
 static int
-_parse_dialed_number(gchar *s, int slen, tvbuff_t *tvb, int offset)
+_parse_dialed_number(char *s, int slen, tvbuff_t *tvb, int offset)
 {
-	guint16 grp[5];
+	uint16_t grp[5];
 	int rv, i, done;
 
 	grp[0] = ((tvb_get_guint8(tvb, offset+0) & 0x3f) << 4) |
@@ -564,7 +564,7 @@ dissect_gmr1_rach_kls2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 
 	/* Is it a MO call ? */
 	if (is_moc) {
-		gchar s[32];
+		char s[32];
 
 		/* Dialed number */
 			/* Parse number */
@@ -658,7 +658,7 @@ dissect_gmprs_rach_type1_kls2(tvbuff_t *tvb, int offset,
 {
 	proto_tree *tree = NULL;
 	proto_tree *gps_pos_tree = NULL;
-	guint8 term_type;
+	uint8_t term_type;
 	int is_class_d;
 
 	/* Tree */
@@ -771,7 +771,7 @@ dissect_gmprs_rach_type2_kls2(tvbuff_t *tvb, int offset,
 {
 	proto_tree *tree = NULL;
 	proto_tree *gps_pos_tree = NULL;
-	guint8 req_type;
+	uint8_t req_type;
 
 	/* Tree */
 	tree = proto_tree_add_subtree(
@@ -875,7 +875,7 @@ dissect_gmr1_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	ies  = 0;
 
 	if (len == 18) {
-		guint8 ec = (tvb_get_guint8(tvb, 0) >> 1) & 0x1f;
+		uint8_t ec = (tvb_get_guint8(tvb, 0) >> 1) & 0x1f;
 
 		ies |= RACH_IE_CLASS1;
 
@@ -1156,7 +1156,7 @@ proto_register_gmr1_rach(void)
 		},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_rach_msg,
 		&ett_rach_kls1,
 		&ett_rach_kls2,

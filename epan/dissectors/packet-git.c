@@ -32,16 +32,16 @@ static int proto_git;
 static expert_field ei_git_bad_pkt_len;
 static expert_field ei_git_malformed;
 
-static gint ett_git;
+static int ett_git;
 
-static gint hf_git_protocol_version;
-static gint hf_git_packet_type;
-static gint hf_git_packet_len;
-static gint hf_git_packet_data;
-static gint hf_git_sideband_control_code;
-static gint hf_git_upload_pack_adv;
-static gint hf_git_upload_pack_req;
-static gint hf_git_upload_pack_res;
+static int hf_git_protocol_version;
+static int hf_git_packet_type;
+static int hf_git_packet_len;
+static int hf_git_packet_data;
+static int hf_git_sideband_control_code;
+static int hf_git_upload_pack_adv;
+static int hf_git_upload_pack_req;
+static int hf_git_upload_pack_res;
 
 #define PNAME  "Git Smart Protocol"
 #define PSNAME "Git"
@@ -75,20 +75,20 @@ static const value_string sideband_vals[] = {
 /* desegmentation of Git over TCP */
 static bool git_desegment = true;
 
-static gboolean get_packet_length(tvbuff_t *tvb, int offset,
-                                  guint16 *length)
+static bool get_packet_length(tvbuff_t *tvb, int offset,
+                                  uint16_t *length)
 {
-  guint8 *lenstr;
+  uint8_t *lenstr;
 
   lenstr = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4, ENC_ASCII);
 
   return (sscanf(lenstr, "%hx", length) == 1);
 }
 
-static guint
+static unsigned
 get_git_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
-  guint16 plen;
+  uint16_t plen;
 
   if (!get_packet_length(tvb, offset, &plen))
     return 0; /* No idea what this is */
@@ -110,15 +110,15 @@ get_git_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U
  * offset, and returns to the caller for subsequent processing of the
  * remainder of the data.
 */
-static gboolean
+static bool
 dissect_pkt_line(tvbuff_t *tvb, packet_info *pinfo, proto_tree *git_tree,
                  int *offset)
 {
-  guint16 plen;
+  uint16_t plen;
 
   // what type of pkt-line is it?
   if (!get_packet_length(tvb, *offset, &plen))
-    return FALSE;
+    return false;
   if (plen < 4) {   // a special packet (e.g., flush-pkt)
     proto_item *ti =
         proto_tree_add_uint(git_tree, hf_git_packet_type, tvb,
@@ -127,7 +127,7 @@ dissect_pkt_line(tvbuff_t *tvb, packet_info *pinfo, proto_tree *git_tree,
 
     if (!try_val_to_str(plen, packet_type_vals))
       expert_add_info(pinfo, ti, &ei_git_bad_pkt_len);
-    return TRUE;
+    return true;
   }
 
   proto_tree_add_uint(git_tree, hf_git_packet_len, tvb, *offset, 4, plen);
@@ -165,7 +165,7 @@ dissect_pkt_line(tvbuff_t *tvb, packet_info *pinfo, proto_tree *git_tree,
 
   proto_tree_add_item(git_tree, hf_git_packet_data, tvb, *offset, plen, ENC_NA);
   *offset += plen;
-  return TRUE;
+  return true;
 }
 
 static int
@@ -296,7 +296,7 @@ proto_register_git(void)
     },
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_git,
   };
 

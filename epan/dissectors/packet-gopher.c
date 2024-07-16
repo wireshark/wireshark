@@ -36,8 +36,8 @@ static int hf_gopher_di_port;
 static int hf_gopher_unknown;
 
 /* Initialize the subtree pointers */
-static gint ett_gopher;
-static gint ett_dir_item;
+static int ett_gopher;
+static int ett_dir_item;
 
 static dissector_handle_t gopher_handle;
 
@@ -67,8 +67,8 @@ static const value_string item_types[] = {
 
 static range_t *gopher_tcp_range;
 
-/* Returns TRUE if the packet is from a client */
-static gboolean
+/* Returns true if the packet is from a client */
+static bool
 is_client(packet_info *pinfo) {
     return value_is_in_range(gopher_tcp_range, pinfo->destport);
 }
@@ -76,36 +76,36 @@ is_client(packet_info *pinfo) {
 /* Name + Tab + Selector + Tab + Host + Tab + Port */
 #define MAX_DIR_LINE_LEN (70 + 1 + 255 + 1 + 255 + 1 + 5)
 #define MIN_DIR_LINE_LEN (0 + 1 + 0 + 1 + 1 + 1 + 1)
-static gboolean
-find_dir_tokens(tvbuff_t *tvb, gint name_start, gint *sel_start, gint *host_start, gint *port_start, gint *line_len, gint *next_offset) {
-    gint remain;
+static bool
+find_dir_tokens(tvbuff_t *tvb, int name_start, int *sel_start, int *host_start, int *port_start, int *line_len, int *next_offset) {
+    int remain;
 
     if (tvb_captured_length_remaining(tvb, name_start) < MIN_DIR_LINE_LEN)
-        return FALSE;
+        return false;
 
     if (! (sel_start && host_start && port_start && line_len && next_offset) )
-        return FALSE;
+        return false;
 
-    *line_len = tvb_find_line_end(tvb, name_start, MAX_DIR_LINE_LEN, next_offset, FALSE);
+    *line_len = tvb_find_line_end(tvb, name_start, MAX_DIR_LINE_LEN, next_offset, false);
     if (*line_len < MIN_DIR_LINE_LEN)
-        return FALSE;
+        return false;
 
     remain = *line_len;
     *sel_start = tvb_find_guint8(tvb, name_start, remain, '\t') + 1;
     if (*sel_start < name_start + 1)
-        return FALSE;
+        return false;
 
     remain -= *sel_start - name_start;
     *host_start = tvb_find_guint8(tvb, *sel_start, remain, '\t') + 1;
     if (*host_start < *sel_start + 1)
-        return FALSE;
+        return false;
 
     remain -= *host_start - *sel_start;
     *port_start = tvb_find_guint8(tvb, *host_start, remain, '\t') + 1;
     if (*port_start < *host_start + 1)
-        return FALSE;
+        return false;
 
-    return TRUE;
+    return true;
 }
 
 /* Dissect the packets */
@@ -114,19 +114,19 @@ static int
 dissect_gopher(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
     proto_item *ti;
     proto_tree *gopher_tree, *dir_tree = NULL;
-    gboolean client = is_client(pinfo);
-    gint line_len;
-    const gchar *request = "[Invalid request]";
-    gboolean is_dir = FALSE;
-    gint offset = 0, next_offset;
-    gint sel_start, host_start, port_start;
-    gchar *name;
+    bool client = is_client(pinfo);
+    int line_len;
+    const char *request = "[Invalid request]";
+    bool is_dir = false;
+    int offset = 0, next_offset;
+    int sel_start, host_start, port_start;
+    char *name;
 
     /* Fill in our protocol and info columns */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Gopher");
 
     if (client) {
-        line_len = tvb_find_line_end(tvb, 0, -1, NULL, FALSE);
+        line_len = tvb_find_line_end(tvb, 0, -1, NULL, false);
         if (line_len == 0) {
             request = "[Directory list]";
         } else if (line_len > 0) {
@@ -168,7 +168,7 @@ dissect_gopher(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                                     port_start - host_start - 1, ENC_ASCII);
                 proto_tree_add_item(dir_tree, hf_gopher_di_port, tvb, port_start,
                                     line_len - (port_start - offset - 1), ENC_ASCII);
-                is_dir = TRUE;
+                is_dir = true;
                 offset = next_offset;
             }
 
@@ -242,7 +242,7 @@ proto_register_gopher(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_gopher,
         &ett_dir_item
     };

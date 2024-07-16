@@ -66,7 +66,7 @@ static int hf_gnutella_push_index;
 static int hf_gnutella_push_ip;
 static int hf_gnutella_push_port;
 
-static gint ett_gnutella;
+static int ett_gnutella;
 
 #define GNUTELLA_TCP_PORT	6346
 
@@ -130,7 +130,7 @@ static gint ett_gnutella;
 #define GNUTELLA_HEADER_HOPS_OFFSET		18
 #define GNUTELLA_HEADER_SIZE_OFFSET		19
 
-static void dissect_gnutella_pong(tvbuff_t *tvb, guint offset, proto_tree *tree) {
+static void dissect_gnutella_pong(tvbuff_t *tvb, unsigned offset, proto_tree *tree) {
 
 	proto_tree_add_item(tree,
 		hf_gnutella_pong_port,
@@ -162,7 +162,7 @@ static void dissect_gnutella_pong(tvbuff_t *tvb, guint offset, proto_tree *tree)
 
 }
 
-static void dissect_gnutella_query(tvbuff_t *tvb, guint offset, proto_tree *tree, guint size) {
+static void dissect_gnutella_query(tvbuff_t *tvb, unsigned offset, proto_tree *tree, unsigned size) {
 
 	proto_tree_add_item(tree,
 		hf_gnutella_query_min_speed,
@@ -203,7 +203,7 @@ static void dissect_gnutella_query(tvbuff_t *tvb, guint offset, proto_tree *tree
 	}
 }
 
-static void dissect_gnutella_queryhit(tvbuff_t *tvb, guint offset, proto_tree *tree, guint size) {
+static void dissect_gnutella_queryhit(tvbuff_t *tvb, unsigned offset, proto_tree *tree, unsigned size) {
 
 	proto_tree *qhi, *hit_tree;
 	int hit_count, i;
@@ -349,7 +349,7 @@ static void dissect_gnutella_queryhit(tvbuff_t *tvb, guint offset, proto_tree *t
 
 }
 
-static void dissect_gnutella_push(tvbuff_t *tvb, guint offset, proto_tree *tree) {
+static void dissect_gnutella_push(tvbuff_t *tvb, unsigned offset, proto_tree *tree) {
 
 	proto_tree_add_item(tree,
 		hf_gnutella_push_servent_id,
@@ -381,11 +381,11 @@ static void dissect_gnutella_push(tvbuff_t *tvb, guint offset, proto_tree *tree)
 
 }
 
-static guint
+static unsigned
 get_gnutella_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                      int offset, void *data _U_)
 {
-	guint32 size;
+	uint32_t size;
 
 	size = tvb_get_letohl(
 		tvb,
@@ -409,8 +409,8 @@ static int dissect_gnutella_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	proto_tree *gnutella_header_tree, *gnutella_pong_tree;
 	proto_tree *gnutella_queryhit_tree, *gnutella_push_tree;
 	proto_tree *gnutella_query_tree;
-	guint8 payload_descriptor;
-	guint32 size = 0;
+	uint8_t payload_descriptor;
+	uint32_t size = 0;
 	const char *payload_descriptor_text;
 
 	if (tree) {
@@ -582,7 +582,7 @@ static int dissect_gnutella(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	proto_item *ti;
 	proto_tree *gnutella_tree = NULL;
-	guint32 size;
+	uint32_t size;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Gnutella");
 
@@ -625,7 +625,7 @@ static int dissect_gnutella(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 	}
 
-	tcp_dissect_pdus(tvb, pinfo, tree, TRUE, GNUTELLA_HEADER_SIZE_OFFSET+4,
+	tcp_dissect_pdus(tvb, pinfo, tree, true, GNUTELLA_HEADER_SIZE_OFFSET+4,
 	    get_gnutella_pdu_len, dissect_gnutella_pdu, data);
 	return tvb_captured_length(tvb);
 }
@@ -795,7 +795,7 @@ void proto_register_gnutella(void) {
 		},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_gnutella,
 	};
 

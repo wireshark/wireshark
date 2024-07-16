@@ -74,11 +74,11 @@ static int hf_cbch_reassembled_in;
 static int hf_cbch_reassembled_length;
 
 /* Initialize the subtree pointers */
-static gint ett_cbch_msg;
-static gint ett_schedule_msg;
-static gint ett_schedule_new_msg;
-static gint ett_cbch_fragment;
-static gint ett_cbch_fragments;
+static int ett_cbch_msg;
+static int ett_schedule_msg;
+static int ett_schedule_new_msg;
+static int ett_cbch_fragment;
+static int ett_cbch_fragments;
 
 static expert_field ei_gsm_cbch_sched_end_slot;
 static expert_field ei_gsm_cbch_seq_num_null;
@@ -122,11 +122,11 @@ static const range_string gsm_cbch_sched_begin_slot_rvals[] = {
 static void
 dissect_schedule_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree)
 {
-    guint       len, offset  = 0;
-    guint8      octet1, i, k = 0;
-    guint8      sched_begin, sched_end, new_slots[48];
-    gboolean    valid_message   = TRUE;
-    guint16     other_slots[48];
+    unsigned    len, offset  = 0;
+    uint8_t     octet1, i, k = 0;
+    uint8_t     sched_begin, sched_end, new_slots[48];
+    bool        valid_message   = true;
+    uint16_t    other_slots[48];
     proto_item *item            = NULL, *schedule_item = NULL;
     proto_tree *sched_tree      = NULL, *sched_subtree = NULL;
 
@@ -148,7 +148,7 @@ dissect_schedule_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree
         proto_tree_add_item(sched_tree, hf_gsm_cbch_sched_begin_slot, tvb, offset++, 1, ENC_BIG_ENDIAN);
         if ((sched_begin < 1) || (sched_begin > 48))
         {
-            valid_message = FALSE;
+            valid_message = false;
         }
         proto_tree_add_item(sched_tree, hf_gsm_cbch_sched_spare, tvb, offset, 1, ENC_BIG_ENDIAN);
         sched_end = tvb_get_guint8(tvb, offset);
@@ -156,7 +156,7 @@ dissect_schedule_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree
         if (sched_end < sched_begin)
         {
             expert_add_info(pinfo, slot_item, &ei_gsm_cbch_sched_end_slot);
-            valid_message = FALSE;
+            valid_message = false;
         }
 
         if (valid_message)
@@ -168,7 +168,7 @@ dissect_schedule_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree
             /* iterate over the octets */
             for (i=0; i<6; i++)
             {
-                guint8 j;
+                uint8_t j;
                 octet1 = tvb_get_guint8(tvb, offset++);
 
                 /* iterate over the bits */
@@ -190,8 +190,8 @@ dissect_schedule_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree
                 if ((octet1 & 0x80) == 0x80)
                 {
                     /* MDT 1 */
-                    guint8 octet2;
-                    guint16 msg_id;
+                    uint8_t octet2;
+                    uint16_t msg_id;
 
                     octet2 = tvb_get_guint8(tvb, offset + 1);
                     msg_id = ((octet1 &0x7F) << 8) + octet2;
@@ -272,8 +272,8 @@ dissect_schedule_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree
                     if ((offset+1)<len)
                     {
                         /* MDT 1 */
-                        guint8  octet2;
-                        guint16 msg_id;
+                        uint8_t octet2;
+                        uint16_t msg_id;
 
                         octet2 = tvb_get_guint8(tvb, offset + 1);
                         msg_id = ((octet1 &0x7F) << 8) + octet2;
@@ -346,8 +346,8 @@ static int
 dissect_cbch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data  _U_)
 {
     fragment_head *frag_data = NULL;
-    guint8         octet, lb, lpd, seq_num;
-    guint32        offset;
+    uint8_t        octet, lb, lpd, seq_num;
+    uint32_t       offset;
     proto_item    *cbch_item, *lpd_item, *seq_item;
     proto_tree    *cbch_tree;
     tvbuff_t      *reass_tvb = NULL, *msg_tvb = NULL;
@@ -381,7 +381,7 @@ dissect_cbch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data  _U
         {
         case 0x00:
         case 0x08:
-            pinfo->fragmented = TRUE;
+            pinfo->fragmented = true;
             /* we should have a unique ID for the reassembled page, but we don't really have anything from the protocol...
                The GSM frame number div 4 might be used for this, but it has not been passed to this layer and does not
                exist at all if the message is being passed over the RSL interface.
@@ -401,7 +401,7 @@ dissect_cbch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data  _U
         case 0x01:
         case 0x02:
         case 0x03:
-            pinfo->fragmented = TRUE;
+            pinfo->fragmented = true;
             offset++; /* step to beginning of payload */
             frag_data = fragment_add_seq_check(&cbch_block_reassembly_table,
                                                tvb, offset, pinfo, 0, NULL,
@@ -594,7 +594,7 @@ proto_register_gsm_cbch(void)
         };
 
 /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_cbch_msg,
         &ett_schedule_msg,
         &ett_schedule_new_msg,

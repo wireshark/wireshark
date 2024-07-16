@@ -118,30 +118,30 @@ static int hf_gmtrailer_origcrc;
 static int hf_gmtrailer_portid;
 static int hf_gmtrailer_timestamp;
 
-static gint ett_gmhdr;
-static gint ett_srcport;
-static gint ett_gmtrailer;
+static int ett_gmhdr;
+static int ett_srcport;
+static int ett_gmtrailer;
 
 static expert_field ei_gmhdr_field_length_invalid;
 static expert_field ei_gmhdr_len;
 
 static void
-dissect_gmtlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gmhdr_tree, guint offset, guint16 length)
+dissect_gmtlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gmhdr_tree, unsigned offset, uint16_t length)
 {
   proto_tree *ti;
   proto_tree *srcport_tree;
-  guint16     fl;
+  uint16_t    fl;
 
   while (length > 1) {
-    guint16 tl = tvb_get_ntohs(tvb, offset);
+    uint16_t tl = tvb_get_ntohs(tvb, offset);
     offset += 2; /* type + len */
     length -= 2;
 
     fl = tl & 0xff;
     switch (tl >> 8) {
       case GMHDR_FTYPE_SRCPORT_G: {
-        guint16 pid;
-        guint32 tv = tvb_get_ntohl(tvb, offset) >> 8; /* Only 24-bit field */
+        uint16_t pid;
+        uint32_t tv = tvb_get_ntohl(tvb, offset) >> 8; /* Only 24-bit field */
 
         if (fl != 3) {
           expert_add_info_format(pinfo, gmhdr_tree, &ei_gmhdr_field_length_invalid, "Field length %u invalid", fl);
@@ -218,11 +218,11 @@ static int
 dissect_gmhdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_tree *ti;
-  gint16      length;
-  guint16     encap_proto;
-  gboolean    is_802_2;
+  int16_t     length;
+  uint16_t    encap_proto;
+  bool        is_802_2;
   proto_tree *gmhdr_tree = NULL;
-  guint       offset = 0;
+  unsigned    offset = 0;
 
   length = tvb_get_guint8(tvb, offset); /* Length of the Gigamon header */
 
@@ -249,12 +249,12 @@ dissect_gmhdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
        straight 802.3 packet, so presumably the same applies for
        Ethernet GMHDR packets). A non-0xffff value means that there's an
        802.2 layer inside the GMHDR layer */
-    is_802_2 = TRUE;
+    is_802_2 = true;
 
     /* Don't throw an exception for this check (even a BoundsError) */
     if (tvb_captured_length_remaining(tvb, offset) >= 2) {
       if (tvb_get_ntohs(tvb, offset) == 0xffff) {
-        is_802_2 = FALSE;
+        is_802_2 = false;
       }
     }
 
@@ -281,11 +281,11 @@ static int
 dissect_gmtimestamp_trailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
   proto_tree *ti;
-  guint tvblen, trailer_len = 18;
+  unsigned tvblen, trailer_len = 18;
   proto_tree *gmtrailer_tree = NULL;
-  guint offset = 0;
-  guint32 orig_crc, new_crc, comp_crc;
-  guint16 port_num;
+  unsigned offset = 0;
+  uint32_t orig_crc, new_crc, comp_crc;
+  uint16_t port_num;
   nstime_t gmtimev;
 
   struct tm *tm = NULL;
@@ -348,10 +348,10 @@ static int
 dissect_gmtrailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   proto_tree *ti;
-  guint tvblen, length;
+  unsigned tvblen, length;
   proto_tree *gmhdr_tree = NULL;
-  guint offset;
-  guint16 cksum, comp_cksum, extra_trailer;
+  unsigned offset;
+  uint16_t cksum, comp_cksum, extra_trailer;
 
   /* See if this packet has a Gigamon trailer, if yes, then decode it */
   /* (Don't throw any exceptions while checking for the trailer).     */
@@ -483,11 +483,11 @@ proto_register_gmhdr(void)
         "Time Stamp", "gmtrailer.timestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
         NULL, 0x0, NULL, HFILL }},
   };
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_gmhdr,
     &ett_srcport
   };
-  static gint *gmtrailer_ett[] = {
+  static int *gmtrailer_ett[] = {
     &ett_gmtrailer,
   };
   static ei_register_info ei[] = {

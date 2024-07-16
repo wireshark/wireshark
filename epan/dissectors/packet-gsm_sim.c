@@ -1160,10 +1160,10 @@ static const value_string sw_vals[] = {
 	{ 0, NULL }
 };
 
-static const gchar *get_sw_string(wmem_allocator_t *scope, guint16 sw)
+static const char *get_sw_string(wmem_allocator_t *scope, uint16_t sw)
 {
-	guint8 sw1 = sw >> 8;
-	guint8 sw2 = sw & 0xFF;
+	uint8_t sw1 = sw >> 8;
+	uint8_t sw2 = sw & 0xFF;
 
 	switch (sw1) {
 	case 0x91:
@@ -1201,8 +1201,8 @@ dissect_bertlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	unsigned int pos = 0;
 
 	while (pos < tvb_reported_length(tvb)) {
-		guint8 tag;
-		guint32 len;
+		uint8_t tag;
+		uint32_t len;
 		tvbuff_t *subtvb;
 
 		proto_tree_add_item(tree, hf_cat_ber_tag, tvb, pos, 1, ENC_BIG_ENDIAN);
@@ -1234,7 +1234,7 @@ dissect_bertlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 		case 0xD1:	/* sms-pp download */
 		case 0xD6:	/* event download */
 		case 0xD7:	/* timer expiration */
-			call_dissector_with_data(sub_handle_cap, subtvb, pinfo, tree, GUINT_TO_POINTER((guint)tag));
+			call_dissector_with_data(sub_handle_cap, subtvb, pinfo, tree, GUINT_TO_POINTER((unsigned)tag));
 			break;
 		}
 
@@ -1288,10 +1288,10 @@ static const value_string sfi_vals[] = {
 };
 
 static int
-dissect_gsm_apdu(guint8 ins, guint8 p1, guint8 p2, guint8 p3, tvbuff_t *tvb,
-		 int offset, packet_info *pinfo, proto_tree *tree, gboolean isSIMtrace)
+dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint8_t p3, tvbuff_t *tvb,
+		 int offset, packet_info *pinfo, proto_tree *tree, bool isSIMtrace)
 {
-	guint16 g16;
+	uint16_t g16;
 	tvbuff_t *subtvb;
 	int i, start_offset;
 
@@ -1495,12 +1495,12 @@ dissect_gsm_apdu(guint8 ins, guint8 p1, guint8 p2, guint8 p3, tvbuff_t *tvb,
 	return offset;
 }
 
-static gint
-dissect_rsp_apdu_tvb(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, proto_tree *sim_tree)
+static int
+dissect_rsp_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, proto_tree *sim_tree)
 {
-	guint16 sw;
+	uint16_t sw;
 	proto_item *ti = NULL;
-	guint tvb_len = tvb_reported_length(tvb);
+	unsigned tvb_len = tvb_reported_length(tvb);
 
 	if (tree && !sim_tree) {
 		ti = proto_tree_add_item(tree, proto_gsm_sim, tvb, 0, -1, ENC_NA);
@@ -1538,14 +1538,14 @@ dissect_rsp_apdu_tvb(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree 
 	return offset;
 }
 
-static gint
-dissect_cmd_apdu_tvb(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, gboolean isSIMtrace)
+static int
+dissect_cmd_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, bool isSIMtrace)
 {
-	guint8 cla, ins, p1, p2, p3;
+	uint8_t cla, ins, p1, p2, p3;
 	proto_item *ti;
 	proto_tree *sim_tree = NULL;
-	gint rc = -1;
-	guint tvb_len = tvb_reported_length(tvb);
+	int rc = -1;
+	unsigned tvb_len = tvb_reported_length(tvb);
 
 	cla = tvb_get_guint8(tvb, offset);
 	ins = tvb_get_guint8(tvb, offset+1);
@@ -1608,7 +1608,7 @@ static int
 dissect_gsm_sim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM SIM");
-	dissect_cmd_apdu_tvb(tvb, 0, pinfo, tree, TRUE);
+	dissect_cmd_apdu_tvb(tvb, 0, pinfo, tree, true);
 	return tvb_captured_length(tvb);
 }
 
@@ -1616,7 +1616,7 @@ static int
 dissect_gsm_sim_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM SIM");
-	dissect_cmd_apdu_tvb(tvb, 0, pinfo, tree, FALSE);
+	dissect_cmd_apdu_tvb(tvb, 0, pinfo, tree, false);
 	return tvb_captured_length(tvb);
 }
 
@@ -3005,7 +3005,7 @@ proto_register_gsm_sim(void)
 			  FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL },
 		},
 	};
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_sim,
 		&ett_tprof_b1,
 		&ett_tprof_b2,

@@ -47,7 +47,7 @@ static dissector_handle_t gdb_handle;
 
 static int proto_gdb;
 
-static gint ett_gdb;
+static int ett_gdb;
 
 static int hf_gdb_ack;
 static int hf_gdb_start;
@@ -61,7 +61,7 @@ static void
 dissect_gdb_token(void *tvbparse_data, const void *wanted_data, tvbparse_elem_t *tok)
 {
     proto_tree *tree;
-    guint       token;
+    unsigned    token;
 
     if (!tok)   /* XXX - is this check necessary? */
         return;
@@ -146,9 +146,9 @@ dissect_gdb_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static int
 dissect_gdb_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    gint      offset=0, offset_start;
-    gint      pos;
-    guint     packet_len;
+    int       offset=0, offset_start;
+    int       pos;
+    unsigned  packet_len;
     tvbuff_t *packet_tvb;
 
     while (tvb_captured_length_remaining(tvb, offset) > 0) {
@@ -201,7 +201,7 @@ proto_register_gdb(void)
               NULL, 0, NULL, HFILL } }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_gdb
     };
 

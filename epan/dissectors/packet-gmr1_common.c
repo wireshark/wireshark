@@ -70,7 +70,7 @@ static const value_string gmr1_ie_common_strings[] = {
 };
 value_string_ext gmr1_ie_common_strings_ext = VALUE_STRING_EXT_INIT(gmr1_ie_common_strings);
 
-gint ett_gmr1_ie_common[NUM_GMR1_IE_COMMON];
+int ett_gmr1_ie_common[NUM_GMR1_IE_COMMON];
 
 /* Fields */
 int hf_gmr1_skip_ind;
@@ -233,7 +233,7 @@ elem_fcn gmr1_ie_common_func[NUM_GMR1_IE_COMMON] = {
 /* ------------------------------------------------------------------------ */
 
 void
-gmr1_get_msg_params(gmr1_pd_e pd, guint8 oct, const gchar **msg_str,
+gmr1_get_msg_params(gmr1_pd_e pd, uint8_t oct, const char **msg_str,
 		    int *ett_tree, int *hf_idx, gmr1_msg_func_t *msg_func_p)
 {
 	switch (pd) {

@@ -31,8 +31,8 @@ static int hf_gmr1_dtap_protocol_discriminator;
 static int hf_gmr1_dtap_message_elements;
 
 /* GMR-1 DTAP sub tree */
-static gint ett_gmr1_dtap;
-static gint ett_gmr1_pd;
+static int ett_gmr1_dtap;
+static int ett_gmr1_pd;
 
 /* Handoffs */
 static dissector_handle_t gsm_dtap_handle;
@@ -42,15 +42,15 @@ static dissector_handle_t dtap_handle;
 static int
 dissect_gmr1_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	guint32 len, offset;
+	uint32_t len, offset;
 	gmr1_msg_func_t msg_func;
-	const gchar *msg_str;
-	gint ett_tree;
+	const char *msg_str;
+	int ett_tree;
 	int hf_idx;
 	proto_item *dtap_item = NULL/*, *pd_item = NULL*/;
 	proto_tree *dtap_tree = NULL/*, *pd_tree = NULL*/;
-	guint32 oct[2];
-	guint8 pd;
+	uint32_t oct[2];
+	uint8_t pd;
 
 	/* Scan init */
 	len = tvb_captured_length(tvb);
@@ -149,7 +149,7 @@ proto_register_gmr1_dtap(void)
 		},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_gmr1_dtap,
 		&ett_gmr1_pd,
 	};

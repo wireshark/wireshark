@@ -49,11 +49,11 @@ dissect_gsmtap_log(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * d
 {
 	proto_item *ti;
 	proto_tree *log_tree;
-	gint offset = 0;
-	gint log_str_len;
-	guint log_pid, log_level, log_src_line;
+	int offset = 0;
+	int log_str_len;
+	unsigned log_pid, log_level, log_src_line;
 	const char *log_str;
-	const guint8 *log_ident, *log_subsys, *log_src_fname;
+	const uint8_t *log_ident, *log_subsys, *log_src_fname;
 
 	ti = proto_tree_add_item(tree, proto_gsmtap_log, tvb, 0, -1, ENC_NA);
 	log_tree = proto_item_add_subtree(ti, ett_gsmtap_log);
@@ -108,7 +108,7 @@ proto_register_gsmtap_log(void)
 		  FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_gsmtap_log,
 	};
 

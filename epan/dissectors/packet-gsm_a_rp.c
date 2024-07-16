@@ -81,7 +81,7 @@ static int hf_gsm_a_rp_message_elements;
 static int hf_gsm_a_rp_rp_message_reference;
 
 /* Initialize the subtree pointers */
-static gint ett_rp_msg;
+static int ett_rp_msg;
 
 static expert_field ei_gsm_a_rp_extraneous_data;
 static expert_field ei_gsm_a_rp_missing_mandatory_element;
@@ -94,15 +94,15 @@ static int proto_json;
 static proto_tree *g_tree;
 
 #define	NUM_GSM_RP_ELEM array_length(gsm_rp_elem_strings)
-gint ett_gsm_rp_elem[NUM_GSM_RP_ELEM];
+int ett_gsm_rp_elem[NUM_GSM_RP_ELEM];
 
 /*
  * [5] 8.2.3
  */
-static guint16
-de_rp_message_ref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+static uint16_t
+de_rp_message_ref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len _U_, char *add_string _U_, int string_len _U_)
 {
-	guint32	curr_offset;
+	uint32_t	curr_offset;
 
 	curr_offset = offset;
 
@@ -118,8 +118,8 @@ de_rp_message_ref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 /*
  * [5] 8.2.5.1
  */
-static guint16
-de_rp_orig_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len)
+static uint16_t
+de_rp_orig_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len, char *add_string, int string_len)
 {
 	return de_cld_party_bcd_num(tvb, tree, pinfo, offset, len, add_string, string_len);
 }
@@ -127,8 +127,8 @@ de_rp_orig_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
 /*
  * [5] 8.2.5.2
  */
-static guint16
-de_rp_dest_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len)
+static uint16_t
+de_rp_dest_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len, char *add_string, int string_len)
 {
 	return de_cld_party_bcd_num(tvb, tree, pinfo, offset, len, add_string, string_len);
 }
@@ -136,10 +136,10 @@ de_rp_dest_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
 /*
  * [5] 8.2.5.3
  */
-static guint16
-de_rp_user_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+static uint16_t
+de_rp_user_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len, char *add_string _U_, int string_len _U_)
 {
-	guint32	  curr_offset;
+	uint32_t	  curr_offset;
 	tvbuff_t *tpdu_tvb;
 
 	curr_offset = offset;
@@ -195,11 +195,11 @@ static value_string_ext gsm_rp_cause_vals_ext = VALUE_STRING_EXT_INIT(gsm_rp_cau
 
 static const true_false_string tfs_extended_no_extension = { "Extended", "No extension"};
 
-static guint16
-de_rp_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len)
+static uint16_t
+de_rp_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len, char *add_string, int string_len)
 {
-	guint8	oct;
-	guint32	curr_offset;
+	uint8_t	oct;
+	uint32_t	curr_offset;
 
 	curr_offset = offset;
 
@@ -224,7 +224,7 @@ de_rp_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
 	return curr_offset - offset;
 }
 
-guint16 (*rp_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len) = {
+uint16_t (*rp_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len, char *add_string, int string_len) = {
 	/* Short Message Service Information Elements [5] 8.2 */
 	de_rp_message_ref, /* RP-Message Reference */
 	de_rp_orig_addr,   /* RP-Originator Address */
@@ -240,11 +240,11 @@ guint16 (*rp_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gu
  * [5] 7.3.1.1
  */
 void
-rp_data_n_ms(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
+rp_data_n_ms(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len)
 {
-	guint32	curr_offset;
-	guint32	consumed;
-	guint	curr_len;
+	uint32_t	curr_offset;
+	uint32_t	consumed;
+	unsigned	curr_len;
 
 	curr_offset = offset;
 	curr_len = len;
@@ -266,11 +266,11 @@ rp_data_n_ms(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset
  * [5] 7.3.1.2
  */
 static void
-rp_data_ms_n(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
+rp_data_ms_n(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len)
 {
-	guint32	curr_offset;
-	guint32	consumed;
-	guint	curr_len;
+	uint32_t	curr_offset;
+	uint32_t	consumed;
+	unsigned	curr_len;
 
 	curr_offset = offset;
 	curr_len = len;
@@ -292,11 +292,11 @@ rp_data_ms_n(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset
  * [5] 7.3.2
  */
 static void
-rp_smma(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+rp_smma(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len)
 {
-	guint32	curr_offset;
-	guint32	consumed;
-	guint	curr_len;
+	uint32_t	curr_offset;
+	uint32_t	consumed;
+	unsigned	curr_len;
 
 	curr_offset = offset;
 	curr_len = len;
@@ -310,11 +310,11 @@ rp_smma(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset,
  * [5] 7.3.3
  */
 static void
-rp_ack_n_ms(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
+rp_ack_n_ms(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len)
 {
-	guint32	curr_offset;
-	guint32	consumed;
-	guint	curr_len;
+	uint32_t	curr_offset;
+	uint32_t	consumed;
+	unsigned	curr_len;
 
 	curr_offset = offset;
 	curr_len = len;
@@ -332,11 +332,11 @@ rp_ack_n_ms(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset,
  * [5] 7.3.3
  */
 static void
-rp_ack_ms_n(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
+rp_ack_ms_n(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len)
 {
-	guint32	curr_offset;
-	guint32	consumed;
-	guint	curr_len;
+	uint32_t	curr_offset;
+	uint32_t	consumed;
+	unsigned	curr_len;
 
 	curr_offset = offset;
 	curr_len = len;
@@ -354,11 +354,11 @@ rp_ack_ms_n(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset,
  * [5] 7.3.4
  */
 static void
-rp_error_n_ms(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
+rp_error_n_ms(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len)
 {
-	guint32	curr_offset;
-	guint32	consumed;
-	guint	curr_len;
+	uint32_t	curr_offset;
+	uint32_t	consumed;
+	unsigned	curr_len;
 
 	curr_offset = offset;
 	curr_len = len;
@@ -378,11 +378,11 @@ rp_error_n_ms(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offse
  * [5] 7.3.4
  */
 static void
-rp_error_ms_n(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
+rp_error_ms_n(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len)
 {
-	guint32	curr_offset;
-	guint32	consumed;
-	guint	curr_len;
+	uint32_t	curr_offset;
+	uint32_t	consumed;
+	unsigned	curr_len;
 
 	curr_offset = offset;
 	curr_len = len;
@@ -399,8 +399,8 @@ rp_error_ms_n(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offse
 }
 
 #define	NUM_GSM_RP_MSG array_length(gsm_rp_msg_strings)
-static gint ett_gsm_rp_msg[NUM_GSM_RP_MSG];
-static void (*rp_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len) = {
+static int ett_gsm_rp_msg[NUM_GSM_RP_MSG];
+static void (*rp_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len) = {
 	rp_data_ms_n,	/* RP-DATA (MS to Network) */
 	rp_data_n_ms,	/* RP-DATA (Network to MS) */
 	rp_ack_ms_n,	/* RP-ACK (MS to Network) */
@@ -416,13 +416,13 @@ static void (*rp_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo 
 static int
 dissect_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	guint8	     oct;
-	guint32	     offset, saved_offset;
-	guint32	     len;
-	gint	     idx;
+	uint8_t	     oct;
+	uint32_t	     offset, saved_offset;
+	uint32_t	     len;
+	int	     idx;
 	proto_item  *rp_item = NULL;
 	proto_tree  *rp_tree = NULL;
-	const gchar *str;
+	const char *str;
 
 	col_append_str(pinfo->cinfo, COL_INFO, "(RP) ");
 
@@ -438,7 +438,7 @@ dissect_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	 */
 	oct = tvb_get_guint8(tvb, offset++);
 
-	str = try_val_to_str_idx((guint32) oct, gsm_rp_msg_strings, &idx);
+	str = try_val_to_str_idx((uint32_t) oct, gsm_rp_msg_strings, &idx);
 
 	/*
 	 * create the protocol tree
@@ -535,8 +535,8 @@ dissect_rp_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 void
 proto_register_gsm_a_rp(void)
 {
-	guint i;
-	guint last_offset;
+	unsigned i;
+	unsigned last_offset;
 
 	/* Setup list of header fields */
 
@@ -570,7 +570,7 @@ proto_register_gsm_a_rp(void)
 
 	/* Setup protocol subtree array */
 #define	NUM_INDIVIDUAL_ELEMS	1
-	gint *ett[NUM_INDIVIDUAL_ELEMS +
+	int *ett[NUM_INDIVIDUAL_ELEMS +
 		  NUM_GSM_RP_MSG +
 		  NUM_GSM_RP_ELEM];
 

@@ -54,7 +54,7 @@ static int
 dissect_g723(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int offset = 0;
-	guint octet;
+	unsigned octet;
 
 	proto_item *ti;
 	proto_tree *g723_tree;
@@ -102,7 +102,7 @@ proto_register_g723(void)
 
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_g723,
 	};
 

@@ -100,10 +100,10 @@ dissect_abis_tfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 	proto_item *ti;
 	proto_tree *tfp_tree;
 	int offset = 0;
-	guint32 slot_rate, frame_bits, atsr, seq_nr;
-	guint8 ftype;
+	uint32_t slot_rate, frame_bits, atsr, seq_nr;
+	uint8_t ftype;
 	tvbuff_t *next_tvb;
-	gint len_remain;
+	int len_remain;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TFP");
 
@@ -210,7 +210,7 @@ proto_register_abis_tfp(void)
 			  NULL, HFILL }
 		},
 	};
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_tfp,
 	};
 

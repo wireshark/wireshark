@@ -537,10 +537,10 @@ enum abis_nm_nack_cause {
 
 /* Section 9.4.1 */
 struct abis_nm_channel {
-	guint8	attrib;
-	guint8	bts_port;
-	guint8	timeslot;
-	guint8	subslot;
+	uint8_t	attrib;
+	uint8_t	bts_port;
+	uint8_t	timeslot;
+	uint8_t	subslot;
 };
 
 /* Siemens BS-11 specific objects in the SiemensHW (0xA5) object class */
@@ -599,7 +599,7 @@ enum tlv_type {
 
 struct tlv_def {
 	enum tlv_type type;
-	guint8 fixed_len;
+	uint8_t fixed_len;
 };
 
 struct tlv_definition {
@@ -762,7 +762,7 @@ enum {
 };
 
 /* which A-bis OML dialect to use (preference) */
-static gint global_oml_dialect = OML_DIALECT_ETSI;
+static int global_oml_dialect = OML_DIALECT_ETSI;
 
 static proto_tree *top_tree;
 
@@ -1184,10 +1184,10 @@ static const enum_val_t oml_dialect_enumvals[] = {
 	{ NULL, NULL, 0 }
 };
 
-static void format_custom_msgtype(gchar *out, guint32 in)
+static void format_custom_msgtype(char *out, uint32_t in)
 {
-	const gchar *tmp = NULL;
-	gchar *tmp_str;
+	const char *tmp = NULL;
+	char *tmp_str;
 
 	switch (global_oml_dialect) {
 	case OML_DIALECT_SIEMENS:
@@ -1211,10 +1211,10 @@ static void format_custom_msgtype(gchar *out, guint32 in)
 	}
 }
 
-static void format_custom_attr(gchar *out, guint32 in)
+static void format_custom_attr(char *out, uint32_t in)
 {
-	const gchar *tmp = NULL;
-	gchar *tmp_str;
+	const char *tmp = NULL;
+	char *tmp_str;
 
 	switch (global_oml_dialect) {
 	case OML_DIALECT_SIEMENS:
@@ -1239,7 +1239,7 @@ static void format_custom_attr(gchar *out, guint32 in)
 }
 
 /* Interference level boundaries are coded as a binary presentation of -x dBm */
-static void format_interf_bound(gchar *buf, const guint32 in)
+static void format_interf_bound(char *buf, const uint32_t in)
 {
 	snprintf(buf, ITEM_LABEL_LENGTH, "-%u%s", in,
 		   unit_name_string_get_value(in, &units_dbm));
@@ -1407,7 +1407,7 @@ static struct tlv_definition nm_att_tlvdev_bs11;
 static struct tlv_definition nm_att_tlvdef_ipa;
 
 static const struct tlv_def *
-find_tlv_tag(guint8 tag)
+find_tlv_tag(uint8_t tag)
 {
 	const struct tlv_def *specific;
 
@@ -1432,11 +1432,11 @@ find_tlv_tag(guint8 tag)
 
 /* Parse the ip.access specific BCCH Information IE embedded into the Test
  * Report IE */
-static gint
+static int
 ipacc_tr_ie_bcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *att_tree,
 		 int offset)
 {
-	guint16 binfo_type;
+	uint16_t binfo_type;
 
 	binfo_type = tvb_get_ntohs(tvb, offset);
 	offset += 2;
@@ -1509,11 +1509,11 @@ ipacc_tr_ie_bcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *att_tree,
 
 /* Parse the ip.access specific Channel Usage IE embedded into the Test
  * Report IE */
-static gint
+static int
 ipacc_tr_ie_chan_usage(tvbuff_t *tvb, proto_tree *att_tree, int offset)
 {
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
-		guint16 result;
+		uint16_t result;
 
 		result = tvb_get_ntohs(tvb, offset);
 		proto_tree_add_uint(att_tree, hf_attr_ipa_tr_arfcn,
@@ -1526,17 +1526,17 @@ ipacc_tr_ie_chan_usage(tvbuff_t *tvb, proto_tree *att_tree, int offset)
 }
 
 /* Parse the ip.access specific format of the standard test report IE */
-static gint
+static int
 dissect_ipacc_test_rep(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
 {
-	gint offset = 0;
+	int offset = 0;
 
 	proto_tree_add_item(tree, hf_attr_ipa_test_res, tvb, offset++,
 			    1, ENC_BIG_ENDIAN);
 
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
-		guint8 ie;
-		guint16 len;
+		uint8_t ie;
+		uint16_t len;
 		proto_item *ti;
 		proto_tree *att_tree;
 
@@ -1566,7 +1566,7 @@ dissect_ipacc_test_rep(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
 }
 
 /* Dissect OML FOM Attributes after OML + FOM header */
-static gint
+static int
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_oml_attrs(tvbuff_t *tvb, int base_offs, int length,
 		  packet_info *pinfo, proto_tree *tree)
@@ -1574,9 +1574,9 @@ dissect_oml_attrs(tvbuff_t *tvb, int base_offs, int length,
 	int offset = base_offs;
 
 	while (offset - base_offs < length) {
-		guint i;
-		guint16 val16;
-		guint8 tag, val8;
+		unsigned i;
+		uint16_t val16;
+		uint8_t tag, val8;
 		unsigned int len, len_len, hlen;
 		const struct tlv_def *tdef;
 		proto_item *ti;
@@ -1755,7 +1755,7 @@ dissect_oml_attrs(tvbuff_t *tvb, int base_offs, int length,
 			break;
 		case NM_ATT_GET_ARI:
 			{
-				guint not_counted, loffset;
+				unsigned not_counted, loffset;
 				if (!len)
 					break;
 
@@ -1825,7 +1825,7 @@ dissect_oml_attrs(tvbuff_t *tvb, int base_offs, int length,
 			break;
 		case NM_ATT_IPACC_NV_FLAGS:
 			{
-				guint flags, mask;
+				unsigned flags, mask;
 				flags = tvb_get_guint8(tvb, offset);
 				mask = tvb_get_guint8(tvb, offset+1);
 				flags |= tvb_get_guint8(tvb, offset+2) << 8;
@@ -1941,10 +1941,10 @@ static int
 dissect_oml_fom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		int offset, proto_item *top_ti)
 {
-	guint8 msg_type, obj_class, bts_nr, trx_nr, ts_nr;
+	uint8_t msg_type, obj_class, bts_nr, trx_nr, ts_nr;
 	proto_item *ti;
 	proto_tree *fom_tree;
-	gchar formatted[ITEM_LABEL_LENGTH];
+	char formatted[ITEM_LABEL_LENGTH];
 
 	msg_type = tvb_get_guint8(tvb, offset);
 	obj_class = tvb_get_guint8(tvb, offset+1);
@@ -1972,13 +1972,13 @@ dissect_oml_fom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	return offset;
 }
 
-static const guint8 ipaccess_magic[] = "com.ipaccess";
+static const uint8_t ipaccess_magic[] = "com.ipaccess";
 
 static int
 dissect_oml_manuf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		  int offset, proto_item *top_ti)
 {
-	guint32 len;
+	uint32_t len;
 
 	proto_tree_add_item_ret_uint(tree, hf_oml_manuf_id_len, tvb,
 				     offset, 1, ENC_NA, &len);
@@ -2001,11 +2001,11 @@ dissect_abis_oml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 {
 	proto_item *ti;
 	proto_tree *oml_tree;
-	guint32 remain_len;
+	uint32_t remain_len;
 	int offset = 0;
 
-	guint8	    msg_disc = tvb_get_guint8(tvb, offset);
-	guint8	    len	     = tvb_get_guint8(tvb, offset+3);
+	uint8_t	    msg_disc = tvb_get_guint8(tvb, offset);
+	uint8_t	    len	     = tvb_get_guint8(tvb, offset+3);
 
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "OML");
@@ -2623,7 +2623,7 @@ proto_register_abis_oml(void)
 			  FT_UINT16, BASE_DEC, NULL, (1 << 7), NULL, HFILL }
 		},
 	};
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_oml,
 		&ett_oml_fom,
 		&ett_oml_fom_att,
@@ -2822,7 +2822,7 @@ proto_register_abis_oml(void)
 	prefs_register_enum_preference(oml_module, "oml_dialect",
 		    "A-bis OML dialect to be used",
 		    "Use ipaccess nanoBTS specific definitions for OML",
-		    &global_oml_dialect, oml_dialect_enumvals, TRUE);
+		    &global_oml_dialect, oml_dialect_enumvals, true);
 }
 
 /* This function is called once at startup and every time the user hits

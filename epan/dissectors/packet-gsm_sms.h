@@ -27,21 +27,21 @@ enum character_set {
  * (packet-ansi_637.c)
  */
 typedef struct {
-    guint16     sm_id;          /* message identifier */
-    guint16     frags;          /* total number of fragments */
-    guint16     frag;           /* fragment number */
-    guint16     port_src;       /* application port addressing scheme source port */
-    guint16     port_dst;       /* application port addressing scheme destination port */
+    uint16_t    sm_id;          /* message identifier */
+    uint16_t    frags;          /* total number of fragments */
+    uint16_t    frag;           /* fragment number */
+    uint16_t    port_src;       /* application port addressing scheme source port */
+    uint16_t    port_dst;       /* application port addressing scheme destination port */
 } gsm_sms_udh_fields_t;
 
-void dis_field_udh(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 *offset, guint32 *length,
-                   guint8 *udl, enum character_set cset, guint8 *fill_bits, gsm_sms_udh_fields_t *p_udh_fields);
+void dis_field_udh(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, uint32_t *offset, uint32_t *length,
+                   uint8_t *udl, enum character_set cset, uint8_t *fill_bits, gsm_sms_udh_fields_t *p_udh_fields);
 
-void dis_field_addr(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 *offset_p, const gchar *title);
+void dis_field_addr(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, uint32_t *offset_p, const char *title);
 
 /* Data structure that can be optionally given to gsm_sms dissector */
 typedef struct _gsm_sms_data_t {
-    gboolean stk_packing_required;
+    bool stk_packing_required;
 } gsm_sms_data_t;
 
 #endif

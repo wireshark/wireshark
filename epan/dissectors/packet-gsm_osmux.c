@@ -66,7 +66,7 @@ static const value_string amr_ft_names[] =
     {0, NULL}
 };
 
-static guint8 amr_ft_bytes[AMR_FT_MAX] = {12, 13, 15, 17, 19, 20, 26, 31, 5};
+static uint8_t amr_ft_bytes[AMR_FT_MAX] = {12, 13, 15, 17, 19, 20, 26, 31, 5};
 
 #define OSMUX_AMR_HEADER_LEN 4
 
@@ -90,28 +90,28 @@ static int hf_osmux_amr_cmr;
 static int hf_osmux_amr_data;
 
 /* Initialize the subtree pointers */
-static gint ett_osmux;
-static gint ett_osmux_ft_ctr;
-static gint ett_osmux_amr_ft_cmr;
+static int ett_osmux;
+static int ett_osmux_ft_ctr;
+static int ett_osmux_amr_ft_cmr;
 
 /* Stream handling */
 static wmem_map_t *osmux_stream_hash;
-static guint32 osmux_next_stream_id;
+static uint32_t osmux_next_stream_id;
 
 struct osmux_stream_key {
     address src;
     address dst;
     port_type ptype;
-    guint32 srcport;
-    guint32 destport;
-    guint32 cid;
+    uint32_t srcport;
+    uint32_t destport;
+    uint32_t cid;
 };
 
 struct osmux_stats_tree {
-    gint node_id;
-    gboolean amr_received;
-    guint32 last_seq;
-    guint32 prev_seq;
+    int node_id;
+    bool amr_received;
+    uint32_t last_seq;
+    uint32_t prev_seq;
     nstime_t prev_ts;
     double jitter;
 };
@@ -119,27 +119,27 @@ struct osmux_stats_tree {
 struct osmux_stream {
     struct osmux_stream_key *key;
     struct osmux_stats_tree stats;
-    guint32 id;
+    uint32_t id;
 };
 
 /* Tap structure of Osmux header */
 struct osmux_hdr {
-    gboolean rtp_m;
-    guint8 ft;
-    guint8 ctr;
-    gboolean amr_f;
-    gboolean amr_q;
-    guint8 seq;
-    guint8 circuit_id;
-    guint8 amr_cmr;
-    guint8 amr_ft;
-    gboolean is_old_dummy;
+    bool rtp_m;
+    uint8_t ft;
+    uint8_t ctr;
+    bool amr_f;
+    bool amr_q;
+    uint8_t seq;
+    uint8_t circuit_id;
+    uint8_t amr_cmr;
+    uint8_t amr_ft;
+    bool is_old_dummy;
     struct osmux_stream *stream;
 };
 
 /* Code to calculate AMR payload size */
-static guint8
-amr_ft_to_bytes(guint8 amr_ft)
+static uint8_t
+amr_ft_to_bytes(uint8_t amr_ft)
 {
     if (amr_ft >= AMR_FT_MAX) /* malformed packet ? */
         return 0;
@@ -149,8 +149,8 @@ amr_ft_to_bytes(guint8 amr_ft)
 /*
  * Hash Functions
  */
-static gint
-osmux_equal(gconstpointer v, gconstpointer w)
+static int
+osmux_equal(const void *v, const void *w)
 {
     const struct osmux_stream_key *v1 = (const struct osmux_stream_key *)v;
     const struct osmux_stream_key *v2 = (const struct osmux_stream_key *)w;
@@ -169,11 +169,11 @@ osmux_equal(gconstpointer v, gconstpointer w)
     return 0;
 }
 
-static guint
-osmux_hash (gconstpointer v)
+static unsigned
+osmux_hash (const void *v)
 {
     const struct osmux_stream_key *key = (const struct osmux_stream_key *)v;
-    guint hash_val;
+    unsigned hash_val;
     address tmp_addr;
 
     hash_val = 0;
@@ -198,9 +198,9 @@ osmux_hash (gconstpointer v)
 }
 
 
-static gchar* stream_str(struct osmux_stream *stream, packet_info* pinfo)
+static char* stream_str(struct osmux_stream *stream, packet_info* pinfo)
 {
-    gchar *ip_str, *ip2_str, *str;
+    char *ip_str, *ip2_str, *str;
 
     ip_str = address_to_str(NULL, &stream->key->src);
     ip2_str = address_to_str(NULL, &stream->key->dst);
@@ -214,7 +214,7 @@ static gchar* stream_str(struct osmux_stream *stream, packet_info* pinfo)
 }
 
 static struct osmux_stream *
-get_stream(packet_info *pinfo, guint32 cid)
+get_stream(packet_info *pinfo, uint32_t cid)
 {
     struct osmux_stream_key key, *new_key;
     struct osmux_stream *stream;
@@ -256,7 +256,7 @@ static void finish_process_pkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 }
 
 /* Code to actually dissect the packets */
-static gint
+static int
 dissect_osmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     static int * const ft_ctr_fields[] = {
@@ -283,10 +283,10 @@ dissect_osmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         struct osmux_hdr *osmuxh;
         proto_item *ti;
         proto_tree *osmux_tree = NULL;
-        guint8 ft_ctr;
-        guint64 amr_ft_cmr;
-        guint8 i;
-        guint32 size, temp;
+        uint8_t ft_ctr;
+        uint64_t amr_ft_cmr;
+        uint8_t i;
+        uint32_t size, temp;
 
         osmuxh = wmem_new0(pinfo->pool, struct osmux_hdr);
 
@@ -319,28 +319,28 @@ dissect_osmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
         /* Old versions of the protocol used to send dummy packets of only 2 bytes (control + cid):_*/
         if (ft_ctr == 0x23 && tvb_reported_length_remaining(tvb, offset - 1) == 2) {
-            osmuxh->is_old_dummy = TRUE;
+            osmuxh->is_old_dummy = true;
             proto_tree_add_item_ret_uint(osmux_tree, hf_osmux_circuit_id, tvb, offset, 1, ENC_BIG_ENDIAN, &temp);
-            osmuxh->circuit_id = (guint8)temp;
+            osmuxh->circuit_id = (uint8_t)temp;
             col_append_fstr(pinfo->cinfo, COL_INFO, "Old Dummy (CID %u)", osmuxh->circuit_id);
             finish_process_pkt(tvb,  pinfo, tree, osmuxh);
             return tvb_reported_length(tvb);
         }
 
         proto_tree_add_item_ret_uint(osmux_tree, hf_osmux_seq, tvb, offset, 1, ENC_BIG_ENDIAN, &temp);
-        osmuxh->seq = (guint8)temp;
+        osmuxh->seq = (uint8_t)temp;
         offset++;
 
         proto_tree_add_item_ret_uint(osmux_tree, hf_osmux_circuit_id, tvb, offset, 1, ENC_BIG_ENDIAN, &temp);
-        osmuxh->circuit_id = (guint8)temp;
+        osmuxh->circuit_id = (uint8_t)temp;
         offset++;
         col_append_fstr(pinfo->cinfo, COL_INFO, "(CID %u) ", osmuxh->circuit_id);
 
         proto_tree_add_bitmask_ret_uint64(osmux_tree, tvb, offset, hf_osmux_amr_ft_cmr,
                 ett_osmux_amr_ft_cmr, amr_ft_cmr_fields, ENC_BIG_ENDIAN, &amr_ft_cmr);
         offset++;
-        osmuxh->amr_ft = (guint32)(amr_ft_cmr & 0xf0) >> 4;
-        osmuxh->amr_cmr = (guint32)amr_ft_cmr & 0x0f;
+        osmuxh->amr_ft = (uint32_t)(amr_ft_cmr & 0xf0) >> 4;
+        osmuxh->amr_cmr = (uint32_t)amr_ft_cmr & 0x0f;
         size = amr_ft_to_bytes(osmuxh->amr_ft);
         for (i = 0; i < osmuxh->ctr + 1; i++) {
             proto_tree_add_item(osmux_tree, hf_osmux_amr_data, tvb, offset, size, ENC_NA);
@@ -353,24 +353,24 @@ dissect_osmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 }
 
 /* Statistics */
-static const gchar *st_str_total_pkts = "Osmux Total Packets";
-static const gchar *st_str_conn = "Osmux Streams";
-static const gchar *st_str_pkts = "Count: Osmux Packets";
-static const gchar *st_str_amr = "Count: AMR frames";
-static const gchar *st_str_rtp_m = "Field: RTP Marker (M)";
-static const gchar *st_str_seq_rep = "SeqNum Analysis: Consecutive Repeated";
-static const gchar *st_str_seq_lost = "SeqNum Analysis: Lost";
-static const gchar *st_str_seq_ord = "SeqNum Analysis: In Order";
-static const gchar *st_str_seq_ooo = "SeqNum Analysis: Out Of Order";
-static const gchar *st_str_jit_rtt = "Jitter Analysis: Relative Transmit Time [ms]";
-static const gchar *st_str_jit_rtt_abs = "Jitter Analysis: Relative Transmit Time (abs) [ms]";
-static const gchar *st_str_jit_jit = "Jitter Analysis: Jitter [ms]";
+static const char *st_str_total_pkts = "Osmux Total Packets";
+static const char *st_str_conn = "Osmux Streams";
+static const char *st_str_pkts = "Count: Osmux Packets";
+static const char *st_str_amr = "Count: AMR frames";
+static const char *st_str_rtp_m = "Field: RTP Marker (M)";
+static const char *st_str_seq_rep = "SeqNum Analysis: Consecutive Repeated";
+static const char *st_str_seq_lost = "SeqNum Analysis: Lost";
+static const char *st_str_seq_ord = "SeqNum Analysis: In Order";
+static const char *st_str_seq_ooo = "SeqNum Analysis: Out Of Order";
+static const char *st_str_jit_rtt = "Jitter Analysis: Relative Transmit Time [ms]";
+static const char *st_str_jit_rtt_abs = "Jitter Analysis: Relative Transmit Time (abs) [ms]";
+static const char *st_str_jit_jit = "Jitter Analysis: Jitter [ms]";
 
 static int st_osmux_stats = -1;
 static int st_osmux_stats_conn = -1;
 
 
-static void stream_hash_clean_stats(gpointer key _U_, gpointer value, gpointer user_data _U_) {
+static void stream_hash_clean_stats(void *key _U_, void *value, void *user_data _U_) {
     struct osmux_stream *stream = (struct osmux_stream *)value;
     memset(&stream->stats, 0, sizeof(struct osmux_stats_tree));
 }
@@ -385,8 +385,8 @@ static void osmux_stats_tree_init(stats_tree *st)
 static tap_packet_status osmux_stats_tree_packet(stats_tree *st,
         packet_info *pinfo, epan_dissect_t *edt _U_, const void *p _U_, tap_flags_t flags _U_)
 {
-    gchar* stream_name;
-    gchar* ft_name;
+    char* stream_name;
+    char* ft_name;
     const struct osmux_hdr *osmuxh = (const struct osmux_hdr*) p;
     struct osmux_stream *stream = osmuxh->stream;
 
@@ -422,17 +422,17 @@ static tap_packet_status osmux_stats_tree_packet(stats_tree *st,
             stream->stats.jitter = 0;
         } else {
             nstime_t diff_rx;
-            gint32 diff_rx_ms, diff_tx_ms, Dij;
-            guint32 abs_Dij;
+            int32_t diff_rx_ms, diff_tx_ms, Dij;
+            uint32_t abs_Dij;
             nstime_delta(&diff_rx, &pinfo->abs_ts, &stream->stats.prev_ts);
-            diff_rx_ms = (guint32) nstime_to_msec(&diff_rx);
+            diff_rx_ms = (uint32_t) nstime_to_msec(&diff_rx);
             diff_tx_ms = (osmuxh->seq - stream->stats.prev_seq)*(osmuxh->ctr+1)*20; /* SAMPLE RATE is 20msec/AMRframe */
             Dij = diff_rx_ms - diff_tx_ms;
             abs_Dij = Dij * ( Dij >= 0 ? 1 : -1 );
             stream->stats.jitter = stream->stats.jitter + ((double) abs_Dij - stream->stats.jitter)/16.0;
             avg_stat_node_add_value_int(st, st_str_jit_rtt, stream->stats.node_id, true, Dij);
             avg_stat_node_add_value_int(st, st_str_jit_rtt_abs, stream->stats.node_id, true, abs_Dij);
-            avg_stat_node_add_value_int(st, st_str_jit_jit, stream->stats.node_id, true, (gint) stream->stats.jitter);
+            avg_stat_node_add_value_int(st, st_str_jit_jit, stream->stats.node_id, true, (int) stream->stats.jitter);
         }
         stream->stats.prev_ts = pinfo->abs_ts;
         stream->stats.prev_seq = osmuxh->seq;
@@ -442,7 +442,7 @@ static tap_packet_status osmux_stats_tree_packet(stats_tree *st,
             /* normal case */
             tick_stat_node(st, st_str_seq_ord, stream->stats.node_id, true);
             stream->stats.last_seq = osmuxh->seq;
-            stream->stats.amr_received = TRUE;
+            stream->stats.amr_received = true;
         } else if (stream->stats.last_seq == osmuxh->seq) {
             /* Last packet is repeated */
             tick_stat_node(st, st_str_seq_rep, stream->stats.node_id, true);
@@ -535,7 +535,7 @@ void proto_register_osmux(void)
          },
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_osmux,
         &ett_osmux_ft_ctr,
         &ett_osmux_amr_ft_cmr,

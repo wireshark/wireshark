@@ -19,7 +19,7 @@ typedef struct _gssapi_oid_value {
 	int ett;
 	dissector_handle_t handle;
 	dissector_handle_t wrap_handle;
-	const gchar *comment;  /* For the comment */
+	const char *comment;  /* For the comment */
 } gssapi_oid_value;
 
 #define DECRYPT_GSSAPI_NORMAL   1
@@ -27,7 +27,7 @@ typedef struct _gssapi_oid_value {
 
 /**< Extra data for handling of decryption of GSSAPI wrapped tvbuffs.
 	Caller sets decrypt_gssapi_tvb if this service is requested.
-	If, on a successful return, gssapi_data_encrypted is FALSE, the wrapped
+	If, on a successful return, gssapi_data_encrypted is false, the wrapped
 	tvbuff was signed (i.e., an encrypted signature was present, to check
 	whether the data was modified by a man in the middle) but not sealed
 	(i.e., the data itself wasn't encrypted).
@@ -36,7 +36,7 @@ typedef struct _gssapi_oid_value {
 	tvb will be decrypted (DCERPC has the data before the gssapi blob).
 	In the latter case, gssapi_decrypted_tvb contains the decrypted data if
 	decryption is successful and is NULL if not.
-	If gssapi_data_encrypted is FALSE and gssapi_decrypted_tvb is not NULL,
+	If gssapi_data_encrypted is false and gssapi_decrypted_tvb is not NULL,
 	then it contains the plaintext data, for cases when the plaintext data
 	was followed by the checksum, e.g. KRB_TOKEN_CFX_WRAP (RFC 4121),
 	as the calling dissector cannot simply dissect all the data after
@@ -44,30 +44,30 @@ typedef struct _gssapi_oid_value {
 */
 typedef struct _gssapi_encrypt_info
 {
-	guint16 decrypt_gssapi_tvb;
+	uint16_t decrypt_gssapi_tvb;
 	tvbuff_t *gssapi_wrap_tvb;
 	tvbuff_t *gssapi_header_tvb;
 	tvbuff_t *gssapi_encrypted_tvb;
 	tvbuff_t *gssapi_trailer_tvb;
 	tvbuff_t *gssapi_decrypted_tvb;
-	gboolean gssapi_data_encrypted;
+	bool gssapi_data_encrypted;
 } gssapi_encrypt_info_t;
 
 /* Function prototypes */
 
 void
 gssapi_init_oid(const char *oid, int proto, int ett, dissector_handle_t handle,
-		dissector_handle_t wrap_handle, const gchar *comment);
+		dissector_handle_t wrap_handle, const char *comment);
 
 gssapi_oid_value *
-gssapi_lookup_oid_str(const gchar *oid_key);
+gssapi_lookup_oid_str(const char *oid_key);
 
 typedef struct _dcerpc_info dcerpc_info;
 typedef struct _dcerpc_auth_info dcerpc_auth_info;
 
 int wrap_dissect_gssapi_verf(tvbuff_t *tvb, int offset,
 			     packet_info *pinfo,
-			     proto_tree *tree, dcerpc_info *di, guint8 *drep);
+			     proto_tree *tree, dcerpc_info *di, uint8_t *drep);
 
 tvbuff_t *
 wrap_dissect_gssapi_payload(tvbuff_t *header_tvb _U_,

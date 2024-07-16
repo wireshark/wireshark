@@ -31,10 +31,10 @@ static int hf_gmrp_attribute_value_service_requirement;
 static int hf_gmrp_end_of_mark;
 
 /* Initialize the subtree pointers */
-static gint ett_gmrp;
-static gint ett_gmrp_message;
-static gint ett_gmrp_attribute_list;
-/*static gint ett_gmrp_attribute;*/
+static int ett_gmrp;
+static int ett_gmrp_message;
+static int ett_gmrp_attribute_list;
+/*static int ett_gmrp_attribute;*/
 
 static expert_field ei_gmrp_proto_id;
 
@@ -57,7 +57,7 @@ static const value_string attribute_type_vals[] = {
 
 /* The length of GMRP LeaveAll attribute should be 2 octets (one for length
  * and the other for event) */
-#define GMRP_LENGTH_LEAVEALL        (int)(sizeof(guint8)+sizeof(guint8))
+#define GMRP_LENGTH_LEAVEALL        (int)(sizeof(uint8_t)+sizeof(uint8_t))
 
 /* The length of GMRP attribute other than LeaveAll should be:
 *
@@ -66,8 +66,8 @@ static const value_string attribute_type_vals[] = {
 *  3 bytes for Service Requirement (1 for length, 1 for event, 1 for attribute value)
 *
  */
-#define GMRP_GROUP_MEMBERSHIP_NON_LEAVEALL      (int)(sizeof(guint8)+sizeof(guint8)+(6*sizeof(guint8)))
-#define GMRP_SERVICE_REQUIREMENT_NON_LEAVEALL   (int)(sizeof(guint8)+sizeof(guint8)+sizeof(guint8))
+#define GMRP_GROUP_MEMBERSHIP_NON_LEAVEALL      (int)(sizeof(uint8_t)+sizeof(uint8_t)+(6*sizeof(uint8_t)))
+#define GMRP_SERVICE_REQUIREMENT_NON_LEAVEALL   (int)(sizeof(uint8_t)+sizeof(uint8_t)+sizeof(uint8_t))
 
 /* Packet offset definitions */
 #define GARP_PROTOCOL_ID        0
@@ -97,9 +97,9 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 {
     proto_item   *ti;
     proto_tree   *gmrp_tree, *msg_tree, *attr_tree;
-    guint16       protocol_id;
-    guint8        octet;
-    guint8        attribute_type;
+    uint16_t      protocol_id;
+    uint8_t       octet;
+    uint8_t       attribute_type;
     int           msg_index, attr_index, offset = 0, length = tvb_reported_length(tvb);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "GMRP");
@@ -213,7 +213,7 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                 }
                 else
                 {
-                    guint8   event;
+                    uint8_t  event;
 
                     offset += 1;
                     length -= 1;
@@ -349,7 +349,7 @@ proto_register_gmrp(void)
 
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_gmrp,
         &ett_gmrp_message,
         &ett_gmrp_attribute_list

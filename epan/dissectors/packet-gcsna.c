@@ -23,10 +23,10 @@ static dissector_handle_t gcsna_handle;
 static dissector_handle_t cdma2k_handle;
 
 /* Function handlers for each message/information fields */
-static void gcsna_message_decode(proto_item *item, tvbuff_t *tvb, proto_tree *tree, guint *offset, proto_tree *mainTree, guint16 *noerror, packet_info *pinfo);
-static void gcsna_message_GCSNA1xCircuitService(proto_item *item, tvbuff_t *tvb, packet_info *pinfo, proto_tree *mainTree, proto_tree *tree, guint *offset);
-static void gcsna_message_GCSNAL2Ack(proto_item *item, tvbuff_t *tvb, proto_tree *tree, guint *offset);
-static void gcsna_message_GCSNAServiceReject(proto_item *item, tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void gcsna_message_decode(proto_item *item, tvbuff_t *tvb, proto_tree *tree, unsigned *offset, proto_tree *mainTree, uint16_t *noerror, packet_info *pinfo);
+static void gcsna_message_GCSNA1xCircuitService(proto_item *item, tvbuff_t *tvb, packet_info *pinfo, proto_tree *mainTree, proto_tree *tree, unsigned *offset);
+static void gcsna_message_GCSNAL2Ack(proto_item *item, tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
+static void gcsna_message_GCSNAServiceReject(proto_item *item, tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
 
 /*Initialize all the header parameters that are to be displayed*/
 static int proto_gcsna;
@@ -57,9 +57,9 @@ static int hf_gcsna_iwsidValue;
 static int hf_gcsna_unsupported_reject_seq;
 
 /* Toggle sub-tree items */
-static gint ett_gcsna_msghdr;
-static gint ett_gcsna_subtree;
-static gint ett_gcsna_option;
+static int ett_gcsna_msghdr;
+static int ett_gcsna_subtree;
+static int ett_gcsna_option;
 
 static expert_field ei_gcsna_error;
 
@@ -115,9 +115,9 @@ static const value_string gcsna_tru_false_values[] = {
 
 /* Decoder for all the information elements of A21 Message Type */
 static void
-gcsna_message_decode(proto_item *item, tvbuff_t *tvb, proto_tree *tree, guint *offset, proto_tree *mainTree, guint16 *noerror, packet_info *pinfo)
+gcsna_message_decode(proto_item *item, tvbuff_t *tvb, proto_tree *tree, unsigned *offset, proto_tree *mainTree, uint16_t *noerror, packet_info *pinfo)
 {
-    guint16 msgId = -1;
+    uint16_t msgId = -1;
     msgId = tvb_get_guint8(tvb, *offset);
     *offset += 1;
 
@@ -150,11 +150,11 @@ gcsna_message_decode(proto_item *item, tvbuff_t *tvb, proto_tree *tree, guint *o
 }
 
 static void
-gcsna_message_GCSNA1xCircuitService(proto_item *item, tvbuff_t *tvb, packet_info *pinfo, proto_tree *mainTree, proto_tree *tree, guint *offset)
+gcsna_message_GCSNA1xCircuitService(proto_item *item, tvbuff_t *tvb, packet_info *pinfo, proto_tree *mainTree, proto_tree *tree, unsigned *offset)
 {
-    guint16 alt_gcsna_incl = 0, num_alt_gcsna_opt = -1, iws_incl = 0;
-    guint8 num_res;
-    guint bit_offset = *offset * 8;
+    uint16_t alt_gcsna_incl = 0, num_alt_gcsna_opt = -1, iws_incl = 0;
+    uint8_t num_res;
+    unsigned bit_offset = *offset * 8;
     proto_tree *subtree = NULL;
     tvbuff_t *new_tvb;
 
@@ -224,7 +224,7 @@ gcsna_message_GCSNA1xCircuitService(proto_item *item, tvbuff_t *tvb, packet_info
 
 }
 
-static void gcsna_message_GCSNAL2Ack(proto_item *item, tvbuff_t *tvb, proto_tree *tree, guint *offset)
+static void gcsna_message_GCSNAL2Ack(proto_item *item, tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
     proto_tree *subtree = NULL;
 
@@ -235,9 +235,9 @@ static void gcsna_message_GCSNAL2Ack(proto_item *item, tvbuff_t *tvb, proto_tree
     *offset += 1;
 }
 
-static void gcsna_message_GCSNAServiceReject(proto_item *item, tvbuff_t *tvb, proto_tree *tree, guint *offset)
+static void gcsna_message_GCSNAServiceReject(proto_item *item, tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
-    guint16 cause_val = -1, num_fields = -1, l_offset = -1;
+    uint16_t cause_val = -1, num_fields = -1, l_offset = -1;
     proto_tree *subtree = NULL;
 
     item = proto_tree_add_item(tree, hf_gcsna_servicereject, tvb, *offset, 1, ENC_NA);
@@ -332,8 +332,8 @@ dissect_gcsna(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *dat
 
     proto_item *item = NULL;
 
-    guint32 offset = 0;
-    guint16 noerror = 1;
+    uint32_t offset = 0;
+    uint16_t noerror = 1;
 
 
     /*Add the protocol name to display*/
@@ -418,7 +418,7 @@ proto_register_gcsna(void)
     };
 
 
-    static gint *ett[] = {
+    static int *ett[] = {
             &ett_gcsna_msghdr,
             &ett_gcsna_subtree,
             &ett_gcsna_option

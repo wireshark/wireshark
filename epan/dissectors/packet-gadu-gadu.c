@@ -384,11 +384,11 @@ static const value_string gadu_gadu_pubdir_type_vals[] = {
 static dissector_handle_t xml_handle;
 
 struct gadu_gadu_conv_data {
-	guint32 uin;	/* uin from login packet */
+	uint32_t uin;	/* uin from login packet */
 };
 
 static struct gadu_gadu_conv_data *
-gadu_gadu_create_conversation(packet_info *pinfo, guint32 uin)
+gadu_gadu_create_conversation(packet_info *pinfo, uint32_t uin)
 {
 	conversation_t *conv;
 	struct gadu_gadu_conv_data *gg_conv;
@@ -416,7 +416,7 @@ gadu_gadu_get_conversation_data(packet_info *pinfo)
 	return NULL;
 }
 
-static gboolean
+static bool
 gadu_gadu_status_has_descr(int status)
 {
 	return
@@ -430,7 +430,7 @@ gadu_gadu_status_has_descr(int status)
 
 /* like tvb_strsize() but return maximum length instead of throwing exception */
 static int
-gadu_gadu_strsize(tvbuff_t *tvb, const gint abs_offset)
+gadu_gadu_strsize(tvbuff_t *tvb, const int abs_offset)
 {
 	int nul_offset;
 
@@ -456,7 +456,7 @@ dissect_gadu_gadu_uint32_string_utf8(tvbuff_t *tvb, int hfindex, proto_tree *tre
 {
 	const int org_offset = offset;
 
-	guint32 len;
+	uint32_t len;
 
 	len = tvb_get_letohl(tvb, offset);
 	offset += 4;
@@ -491,9 +491,9 @@ dissect_gadu_gadu_disconnect_ack(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tr
 }
 
 static void *
-_tvb_memcpy_reverse(tvbuff_t *tvb, void *target, gint offset, size_t length)
+_tvb_memcpy_reverse(tvbuff_t *tvb, void *target, int offset, size_t length)
 {
-	guint8 *t = (guint8 *) target;
+	uint8_t *t = (uint8_t *) target;
 
 	while (length > 0) {
 		length--;
@@ -508,7 +508,7 @@ dissect_gadu_gadu_login_protocol(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
 	proto_item *ti;
 
-	guint32 protocol;
+	uint32_t protocol;
 
 	protocol = tvb_get_letohl(tvb, offset) & 0xff;
 	proto_tree_add_item(tree, hf_gadu_gadu_login_protocol, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -524,8 +524,8 @@ dissect_gadu_gadu_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 {
 	proto_item *ti;
 
-	guint32 uin;
-	guint8 hash[4];
+	uint32_t uin;
+	uint8_t hash[4];
 
 	col_set_str(pinfo->cinfo, COL_INFO, "Login request (< 6.0)");
 
@@ -560,9 +560,9 @@ dissect_gadu_gadu_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 static int
 dissect_gadu_gadu_login_hash(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-	guint8 hash_type;
+	uint8_t hash_type;
 
-	guint8 hash[4];
+	uint8_t hash[4];
 	int i;
 
 	hash_type = tvb_get_guint8(tvb, offset);
@@ -604,7 +604,7 @@ dissect_gadu_gadu_login_hash(tvbuff_t *tvb, proto_tree *tree, int offset)
 static int
 dissect_gadu_gadu_login70(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-	guint32 uin;
+	uint32_t uin;
 
 	col_set_str(pinfo->cinfo, COL_INFO, "Login request (7.0)");
 
@@ -638,7 +638,7 @@ dissect_gadu_gadu_login70(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 static int
 dissect_gadu_gadu_login80(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-	guint32 uin;
+	uint32_t uin;
 
 	col_set_str(pinfo->cinfo, COL_INFO, "Login request (8.0)");
 
@@ -706,7 +706,7 @@ dissect_gadu_gadu_login80_failed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 static int
 dissect_gadu_gadu_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-	guint32 users_num;
+	uint32_t users_num;
 
 	col_set_str(pinfo->cinfo, COL_INFO, "Contact details");
 
@@ -718,7 +718,7 @@ dissect_gadu_gadu_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	offset += 4;
 
 	while (users_num--) {
-		guint32 attr_num;
+		uint32_t attr_num;
 
 		proto_tree_add_item(tree, hf_gadu_gadu_userdata_uin, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
@@ -727,7 +727,7 @@ dissect_gadu_gadu_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		offset += 4;
 
 		while (attr_num--) {
-			guint32 name_size, val_size;
+			uint32_t name_size, val_size;
 			char *name, *val;
 	/* name */
 			name_size = tvb_get_letohl(tvb, offset);
@@ -966,8 +966,8 @@ dissect_gadu_gadu_recv_msg_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 static int
 dissect_gadu_gadu_status60(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-	guint32 uin;
-	guint8 status;
+	uint32_t uin;
+	uint8_t status;
 
 	col_set_str(pinfo->cinfo, COL_INFO, "Receive status (6.0)");
 
@@ -1003,8 +1003,8 @@ dissect_gadu_gadu_status60(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 static int
 dissect_gadu_gadu_status77(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-	guint32 uin;
-	guint8 status;
+	uint32_t uin;
+	uint8_t status;
 
 	col_set_str(pinfo->cinfo, COL_INFO, "Receive status (7.7)");
 
@@ -1087,7 +1087,7 @@ dissect_gadu_gadu_notify_reply80(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tr
 static int
 dissect_gadu_gadu_new_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-	guint32 status;
+	uint32_t status;
 
 	col_set_str(pinfo->cinfo, COL_INFO, "New status (< 8.0)");
 
@@ -1144,7 +1144,7 @@ dissect_gadu_gadu_add_notify(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 static int
 dissect_gadu_gadu_notify105_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, char **puin)
 {
-	guint16 uin_len;
+	uint16_t uin_len;
 	char *uin;
 
 	proto_tree_add_item(tree, hf_gadu_gadu_data, tvb, offset, 1, ENC_NA); /* unknown 00 */
@@ -1200,7 +1200,7 @@ dissect_gadu_gadu_notify_common(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	proto_tree *contact_tree;
 
 	while (tvb_reported_length_remaining(tvb, offset) >= 4+1) {
-		guint32 uin = tvb_get_letohl(tvb, offset);
+		uint32_t uin = tvb_get_letohl(tvb, offset);
 
 		contact_tree = proto_tree_add_subtree_format(tree, tvb, offset, 5,
 								ett_gadu_gadu_contact, NULL, "Contact: %u", uin);
@@ -1303,7 +1303,7 @@ dissect_gadu_gadu_userlist_xml_compressed(tvbuff_t *tvb, packet_info *pinfo, pro
 static int
 dissect_gadu_gadu_userlist_request80(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-	guint8 type;
+	uint8_t type;
 	proto_item *ti;
 
 	col_set_str(pinfo->cinfo, COL_INFO, "Userlist request (8.0)");
@@ -1327,7 +1327,7 @@ dissect_gadu_gadu_userlist_request80(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 static int
 dissect_gadu_gadu_userlist_request100(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-	guint8 type, format;
+	uint8_t type, format;
 
 	col_set_str(pinfo->cinfo, COL_INFO, "Userlist request (10.0)");
 
@@ -1358,7 +1358,7 @@ dissect_gadu_gadu_userlist_request100(tvbuff_t *tvb, packet_info *pinfo, proto_t
 static int
 dissect_gadu_gadu_userlist_reply80(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-	guint8 type;
+	uint8_t type;
 
 	col_set_str(pinfo->cinfo, COL_INFO, "Userlist reply (8.0)");
 
@@ -1378,7 +1378,7 @@ dissect_gadu_gadu_userlist_reply80(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 static int
 dissect_gadu_gadu_userlist_reply100(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-	guint8 type, format;
+	uint8_t type, format;
 
 	col_set_str(pinfo->cinfo, COL_INFO, "Userlist reply (10.0)");
 
@@ -1550,7 +1550,7 @@ dissect_gadu_gadu_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 	proto_tree *gadu_gadu_tree = NULL;
 
 	int offset = 0;
-	guint32 pkt_type;
+	uint32_t pkt_type;
 
 	col_clear(pinfo->cinfo, COL_INFO); /* XXX, remove, add separator when multiple PDU */
 
@@ -1820,11 +1820,11 @@ dissect_gadu_gadu_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 	return tvb_captured_length(tvb);
 }
 
-static guint
+static unsigned
 get_gadu_gadu_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                       int offset, void *data _U_)
 {
-	guint32 len = tvb_get_letohl(tvb, offset + 4);
+	uint32_t len = tvb_get_letohl(tvb, offset + 4);
 
 	return len + 8;
 }
@@ -2152,7 +2152,7 @@ proto_register_gadu_gadu(void)
 		},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_gadu_gadu,
 		&ett_gadu_gadu_contact
 	};

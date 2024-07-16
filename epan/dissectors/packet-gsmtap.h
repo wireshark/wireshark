@@ -147,21 +147,21 @@
 /* This is the header as it is used by gsmtap-generating software.
  * It is not used by the wireshark dissector and provided for reference only.
 struct gsmtap_hdr {
-	guint8 version;		// version, set to 0x01 currently
-	guint8 hdr_len;		// length in number of 32bit words
-	guint8 type;		// see GSMTAP_TYPE_*
-	guint8 timeslot;	// timeslot (0..7 on Um)
+	uint8_t version;		// version, set to 0x01 currently
+	uint8_t hdr_len;		// length in number of 32bit words
+	uint8_t type;		// see GSMTAP_TYPE_*
+	uint8_t timeslot;	// timeslot (0..7 on Um)
 
-	guint16 arfcn;		// ARFCN (frequency)
-	gint8 signal_dbm;	// signal level in dBm
-	gint8 snr_db;		// signal/noise ratio in dB
+	uint16_t arfcn;		// ARFCN (frequency)
+	int8_t signal_dbm;	// signal level in dBm
+	int8_t snr_db;		// signal/noise ratio in dB
 
-	guint32 frame_number;	// GSM Frame Number (FN)
+	uint32_t frame_number;	// GSM Frame Number (FN)
 
-	guint8 sub_type;	// Type of burst/channel, see above
-	guint8 antenna_nr;	// Antenna Number
-	guint8 sub_slot;	// sub-slot within timeslot
-	guint8 res;		// reserved for future use (RFU)
+	uint8_t sub_type;	// Type of burst/channel, see above
+	uint8_t antenna_nr;	// Antenna Number
+	uint8_t sub_slot;	// sub-slot within timeslot
+	uint8_t res;		// reserved for future use (RFU)
 }
  */
 

@@ -32,8 +32,8 @@ void proto_register_gluster_cbk(void);
 void proto_reg_handoff_gluster_cbk(void);
 
 /* Initialize the protocol and registered fields */
-static gint proto_gluster_cbk;
-static gint proto_gluster_hndsk;
+static int proto_gluster_cbk;
+static int proto_gluster_hndsk;
 
 /* programs and procedures */
 static int hf_gluster_cbk_proc;
@@ -48,9 +48,9 @@ static int hf_gluster_hndsk_lk_ver;
 static int hf_gluster_hndsk_flags;
 
 /* Initialize the subtree pointers */
-static gint ett_gluster_cbk;
-static gint ett_gluster_cbk_flags;
-static gint ett_gluster_hndsk;
+static int ett_gluster_cbk;
+static int ett_gluster_cbk_flags;
+static int ett_gluster_hndsk;
 
 /* upcall, used for cache-invalidation etc. */
 static int hf_gluster_cbk_gfid;
@@ -384,7 +384,7 @@ proto_register_gluster_hndsk(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_gluster_hndsk
 	};
 
@@ -544,7 +544,7 @@ proto_register_gluster_cbk(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_gluster_cbk,
 		&ett_gluster_cbk_flags
 	};

@@ -31,32 +31,32 @@ static int hf_gift_response_arg;
 static int hf_gift_request_cmd;
 static int hf_gift_request_arg;
 
-static gint ett_gift;
-static gint ett_gift_cmd;
+static int ett_gift;
+static int ett_gift_cmd;
 
 static int
 dissect_gift(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item	*ti, *hidden_item;
 	proto_tree	*gift_tree, *cmd_tree;
-	gboolean	is_request;
-	gint            offset = 0;
-	const guchar    *line;
-	gint            next_offset;
+	bool	is_request;
+	int             offset = 0;
+	const unsigned char    *line;
+	int             next_offset;
 	int             linelen;
 	int             tokenlen;
-	const guchar    *next_token;
+	const unsigned char    *next_token;
 
 	/* set "Protocol" column text */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "giFT");
 
 	/* determine whether it is a request to or response from the server */
 	if (pinfo->match_uint == pinfo->destport)
-		is_request = TRUE;
+		is_request = true;
 	else
-		is_request = FALSE;
+		is_request = false;
 
-	linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+	linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, false);
 	line = tvb_get_ptr(tvb, offset, linelen);
 
 	/* set "Info" column text */
@@ -70,9 +70,9 @@ dissect_gift(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 		gift_tree = proto_item_add_subtree(ti, ett_gift);
 
 		if (is_request) {
-			hidden_item = proto_tree_add_boolean(gift_tree, hf_gift_request, tvb, 0, 0, TRUE);
+			hidden_item = proto_tree_add_boolean(gift_tree, hf_gift_request, tvb, 0, 0, true);
 		} else {
-			hidden_item = proto_tree_add_boolean(gift_tree, hf_gift_response, tvb, 0, 0, TRUE);
+			hidden_item = proto_tree_add_boolean(gift_tree, hf_gift_response, tvb, 0, 0, true);
 		}
 		proto_item_set_hidden(hidden_item);
 
@@ -88,7 +88,7 @@ dissect_gift(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 				proto_tree_add_string(cmd_tree, hf_gift_response_cmd, tvb, offset,
 						    tokenlen, format_text(pinfo->pool, line, tokenlen));
 			}
-			offset += (gint) (next_token - line);
+			offset += (int) (next_token - line);
 			linelen -= (int) (next_token - line);
 			line = next_token;
 		}
@@ -111,10 +111,10 @@ proto_register_gift(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_gift_response,
-			{ "Response", "gift.response", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "TRUE if giFT response", HFILL }
+			{ "Response", "gift.response", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "true if giFT response", HFILL }
 		},
 		{ &hf_gift_request,
-			{ "Request", "gift.request", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "TRUE if giFT request", HFILL }
+			{ "Request", "gift.request", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "true if giFT request", HFILL }
 		},
 		{ &hf_gift_response_cmd,
 			{ "Response Command", "gift.response_cmd", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
@@ -130,7 +130,7 @@ proto_register_gift(void)
 		},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_gift,
 		&ett_gift_cmd,
 	};

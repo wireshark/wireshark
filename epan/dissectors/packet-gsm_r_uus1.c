@@ -97,17 +97,17 @@ static int hf_gsm_r_uus1_alert_controller;
 static int hf_gsm_r_uus1_alert_controller_gref;
 
 /* Initialize the subtree pointers */
-static gint ett_gsm_r_uus1;
-static gint ett_gsm_r_uus1_pfn;
-static gint ett_gsm_r_uus1_chpc;
-static gint ett_gsm_r_uus1_chpc_cause;
-static gint ett_gsm_r_uus1_epfn;
-static gint ett_gsm_r_uus1_present_text_str;
-static gint ett_gsm_r_uus1_elda;
-static gint ett_gsm_r_uus1_elda_lat;
-static gint ett_gsm_r_uus1_elda_long;
-static gint ett_gsm_r_uus1_present_dsd_alarm;
-static gint ett_gsm_r_uus1_alert_controller;
+static int ett_gsm_r_uus1;
+static int ett_gsm_r_uus1_pfn;
+static int ett_gsm_r_uus1_chpc;
+static int ett_gsm_r_uus1_chpc_cause;
+static int ett_gsm_r_uus1_epfn;
+static int ett_gsm_r_uus1_present_text_str;
+static int ett_gsm_r_uus1_elda;
+static int ett_gsm_r_uus1_elda_lat;
+static int ett_gsm_r_uus1_elda_long;
+static int ett_gsm_r_uus1_present_dsd_alarm;
+static int ett_gsm_r_uus1_alert_controller;
 
 
 /* Preferences */
@@ -136,12 +136,12 @@ static const value_string gsm_r_uus1_tags[] = {
  * 5.1 Presentation of functional number
  *
  */
-static guint16
-de_gsm_r_uus1_pfn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset)
+static uint16_t
+de_gsm_r_uus1_pfn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset)
 {
-    guint32	curr_offset;
-    guint32	len;
-    const gchar *fn_str;
+    uint32_t	curr_offset;
+    uint32_t	len;
+    const char *fn_str;
     proto_item *item;
     proto_tree *sub_tree;
 
@@ -159,7 +159,7 @@ de_gsm_r_uus1_pfn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
     if(len == 0) {
         proto_item_append_text(item, ": No FN Available");
     }else {
-        fn_str = tvb_bcd_dig_to_str(pinfo->pool, tvb, offset+2, len, NULL, FALSE);
+        fn_str = tvb_bcd_dig_to_str(pinfo->pool, tvb, offset+2, len, NULL, false);
         proto_tree_add_string(sub_tree, hf_gsm_r_uus1_pfn_digits, tvb, curr_offset, len, fn_str);
         proto_item_append_text(item, ": %s", fn_str);
 
@@ -185,13 +185,13 @@ static const range_string gsm_r_uus1_chpc_priority_vals[] = {
     { 0, 0, NULL }
 };
 
-static guint16
-de_gsm_r_uus1_chpc_forward(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
+static uint16_t
+de_gsm_r_uus1_chpc_forward(tvbuff_t *tvb, proto_tree *tree, uint32_t offset)
 {
-    guint32	curr_offset;
-    guint32	len;
-    guint32 t_dur;
-    guint32 t_rel;
+    uint32_t	curr_offset;
+    uint32_t	len;
+    uint32_t t_dur;
+    uint32_t t_rel;
     proto_item *item;
     proto_tree *sub_tree;
 
@@ -255,8 +255,8 @@ static const range_string gsm_r_uus1_chpc_ack_cause_vals[] = {
     { 0, 0, NULL }
 };
 
-static guint16
-de_gsm_r_uus1_chpc_collect(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
+static uint16_t
+de_gsm_r_uus1_chpc_collect(tvbuff_t *tvb, proto_tree *tree, uint32_t offset)
 {
     proto_item *item;
     proto_tree *sub_tree;
@@ -276,10 +276,10 @@ de_gsm_r_uus1_chpc_collect(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
  * But I don't know how to verify message type.
  * That is why use length variable to find type of field
  */
-static guint16
-de_gsm_r_uus1_chpc(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
+static uint16_t
+de_gsm_r_uus1_chpc(tvbuff_t *tvb, proto_tree *tree, uint32_t offset)
 {
-    guint8 field_length;
+    uint8_t field_length;
     field_length = tvb_get_guint8(tvb, offset+1);
     if(field_length == 13)
         return de_gsm_r_uus1_chpc_forward(tvb, tree, offset);
@@ -291,11 +291,11 @@ de_gsm_r_uus1_chpc(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
  * 5.4 Enhanced presentation of functional number
  * (not implemented now)
  */
-static guint16
-de_gsm_r_uus1_epfn(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset)
+static uint16_t
+de_gsm_r_uus1_epfn(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset)
 {
-    guint32	curr_offset;
-    guint32	len;
+    uint32_t	curr_offset;
+    uint32_t	len;
     proto_item *item;
     proto_tree *sub_tree;
 
@@ -320,11 +320,11 @@ de_gsm_r_uus1_epfn(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
  * 5.5 Presentation of text strings
  * (not implemented now)
  */
-static guint16
-de_gsm_r_uus1_text_str(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset)
+static uint16_t
+de_gsm_r_uus1_text_str(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset)
 {
-    guint32	curr_offset;
-    guint32	len;
+    uint32_t	curr_offset;
+    uint32_t	len;
     proto_item *item;
     proto_tree *sub_tree;
 
@@ -368,24 +368,24 @@ static const value_string gsm_r_uus1_elda_scale_vals[] = {
 };
 
 
-static guint16
-de_gsm_r_uus1_elda(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset)
+static uint16_t
+de_gsm_r_uus1_elda(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset)
 {
-    guint32	curr_offset;
-    guint   bit_offset;
+    uint32_t	curr_offset;
+    unsigned   bit_offset;
 
-    guint32 val;
-    guint32 lat_deg_val;
-    guint32 lat_min_val;
-    guint32 lat_sec_val;
-    guint32 lat_hem_val;
+    uint32_t val;
+    uint32_t lat_deg_val;
+    uint32_t lat_min_val;
+    uint32_t lat_sec_val;
+    uint32_t lat_hem_val;
 
-    guint32 long_deg_val;
-    guint32 long_min_val;
-    guint32 long_sec_val;
-    guint32 long_hem_val;
+    uint32_t long_deg_val;
+    uint32_t long_min_val;
+    uint32_t long_sec_val;
+    uint32_t long_hem_val;
 
-    guint32 t_val;
+    uint32_t t_val;
 
     proto_item *item;
     proto_tree *sub_tree;
@@ -500,12 +500,12 @@ de_gsm_r_uus1_elda(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
  * 5.7 Notification DSD alarm condition
  *
  */
-static guint16
-de_gsm_r_uus1_dsd_alarm(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset)
+static uint16_t
+de_gsm_r_uus1_dsd_alarm(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset)
 {
-    guint32	curr_offset;
-    guint32	len;
-    const gchar *loco_engine_number;
+    uint32_t	curr_offset;
+    uint32_t	len;
+    const char *loco_engine_number;
     proto_item *item;
     proto_tree *sub_tree;
 
@@ -520,7 +520,7 @@ de_gsm_r_uus1_dsd_alarm(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     proto_tree_add_item(sub_tree, hf_gsm_r_uus1_elem_len, tvb, curr_offset+1, 1, ENC_NA);
     curr_offset += 2;
 
-    loco_engine_number = tvb_bcd_dig_to_str(pinfo->pool, tvb, offset+2, len, NULL, FALSE);
+    loco_engine_number = tvb_bcd_dig_to_str(pinfo->pool, tvb, offset+2, len, NULL, false);
     proto_tree_add_string(sub_tree, hf_gsm_r_uus1_present_dsd_alarm_loco_number, tvb, curr_offset, len, loco_engine_number);
     proto_item_append_text(item, ": %s", loco_engine_number);
     curr_offset += len;
@@ -533,11 +533,11 @@ de_gsm_r_uus1_dsd_alarm(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
  * 5.8 Notification of a request to alert a controller
  *
  */
-static guint16
-de_gsm_r_uus1_alert_controller(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset)
+static uint16_t
+de_gsm_r_uus1_alert_controller(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset)
 {
-    guint32	curr_offset;
-    guint32	len;
+    uint32_t	curr_offset;
+    uint32_t	len;
     proto_item *item;
     proto_tree *sub_tree;
     char       *gref_str;
@@ -564,9 +564,9 @@ de_gsm_r_uus1_alert_controller(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
 static int
 dissect_gsm_r_uus1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    guint8  elem_tag;
-    guint32	offset;
-    guint32	len;
+    uint8_t elem_tag;
+    uint32_t	offset;
+    uint32_t	len;
     proto_item   *gsm_r_uus1_item   = NULL;
     proto_tree   *gsm_r_uus1_tree   = NULL;
 
@@ -854,7 +854,7 @@ proto_register_gsm_r_uus1(void)
 
     expert_module_t* expert_gsm_r_uus1;
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_gsm_r_uus1,
         &ett_gsm_r_uus1_pfn,
         &ett_gsm_r_uus1_chpc,

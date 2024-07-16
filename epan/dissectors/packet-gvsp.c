@@ -448,16 +448,16 @@ void proto_reg_handoff_gvsp(void);
 /* Structure to hold GVSP packet information */
 typedef struct _gvsp_packet_info
 {
-    gint    chunk;
-    guint8  format;
-    guint16 status;
-    guint16 payloadtype;
-    guint64 blockid;
-    guint32 packetid;
-    gint    enhanced;
-    gint    flag_resendrangeerror;
-    gint    flag_previousblockdropped;
-    gint    flag_packetresend;
+    int     chunk;
+    uint8_t format;
+    uint16_t status;
+    uint16_t payloadtype;
+    uint64_t blockid;
+    uint32_t packetid;
+    int     enhanced;
+    int     flag_resendrangeerror;
+    int     flag_previousblockdropped;
+    int     flag_packetresend;
 } gvsp_packet_info;
 
 
@@ -1239,7 +1239,7 @@ static int * const gendc_part_header_flags_fields[] = {
     \brief Dissects the image dimensions
  */
 
-static void dissect_image_dimensions(proto_tree *gvsp_tree, tvbuff_t *tvb, gint offset, const guint encoding)
+static void dissect_image_dimensions(proto_tree *gvsp_tree, tvbuff_t *tvb, int offset, const unsigned encoding)
 {
     /* Size X */
     proto_tree_add_item(gvsp_tree, hf_gvsp_sizex, tvb, offset, 4, encoding);
@@ -1258,7 +1258,7 @@ static void dissect_image_dimensions(proto_tree *gvsp_tree, tvbuff_t *tvb, gint 
     \brief Dissects the image AOI
  */
 
-static void dissect_image_aoi(proto_tree *gvsp_tree, tvbuff_t *tvb, gint offset)
+static void dissect_image_aoi(proto_tree *gvsp_tree, tvbuff_t *tvb, int offset)
 {
     /* Size X */
     proto_tree_add_item(gvsp_tree, hf_gvsp_sizex, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1283,7 +1283,7 @@ static void dissect_image_aoi(proto_tree *gvsp_tree, tvbuff_t *tvb, gint offset)
     \brief Dissects the image leader
  */
 
-static gint dissect_image_leader(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
+static int dissect_image_leader(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
     /* Field info */
     proto_tree_add_bitmask(gvsp_tree, tvb, offset, hf_gvsp_fieldinfo,
@@ -1311,7 +1311,7 @@ static gint dissect_image_leader(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_in
     \brief Dissects the image trailer
  */
 
-static gint dissect_image_trailer(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
+static int dissect_image_trailer(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
     /* Payload type */
     proto_tree_add_item(gvsp_tree, hf_gvsp_payloadtype, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
@@ -1328,18 +1328,18 @@ static gint dissect_image_trailer(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_i
     \brief Dissects the multi-part trailer
  */
 
-static gint dissect_multi_part_trailer(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
+static int dissect_multi_part_trailer(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
-    gint part_count = tvb_reported_length_remaining(tvb, offset + 4) / GVSP_SIZE_OF_PART_INFO_TRAILER;
-    gint i = 0;
-    gint j = 0;
+    int part_count = tvb_reported_length_remaining(tvb, offset + 4) / GVSP_SIZE_OF_PART_INFO_TRAILER;
+    int i = 0;
+    int j = 0;
 
     /* Payload type */
     proto_tree_add_item(gvsp_tree, hf_gvsp_payloadtype, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 
     for (i = 0; i < part_count; i++)
     {
-        guint16 multi_part_data_type = tvb_get_ntohs(tvb, offset + 4 + i * GVSP_SIZE_OF_PART_INFO_TRAILER);
+        uint16_t multi_part_data_type = tvb_get_ntohs(tvb, offset + 4 + i * GVSP_SIZE_OF_PART_INFO_TRAILER);
 
         /* Add a tree per part */
         proto_tree* gvsp_part_tree = proto_tree_add_subtree(gvsp_tree, tvb, offset + 4 + i * GVSP_SIZE_OF_PART_INFO_TRAILER, GVSP_SIZE_OF_PART_INFO_TRAILER, ett_gvsp_partinfo_trailer, NULL, "Part Specific Data");
@@ -1383,7 +1383,7 @@ static gint dissect_multi_part_trailer(proto_tree *gvsp_tree, tvbuff_t *tvb, pac
     \brief Dissects the raw data leader
  */
 
-static gint dissect_raw_data_leader(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
+static int dissect_raw_data_leader(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
     /* Payload type */
     proto_tree_add_item(gvsp_tree, hf_gvsp_payloadtype, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
@@ -1403,9 +1403,9 @@ static gint dissect_raw_data_leader(proto_tree *gvsp_tree, tvbuff_t *tvb, packet
     \brief Dissects a file leader
  */
 
-static gint dissect_file_leader(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
+static int dissect_file_leader(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
-    guint file_length = 0;
+    unsigned file_length = 0;
 
     /* Payload type */
     proto_tree_add_item(gvsp_tree, hf_gvsp_payloadtype, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
@@ -1420,11 +1420,11 @@ static gint dissect_file_leader(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_inf
     file_length = tvb_strsize(tvb, offset + 20);
     proto_tree_add_item(gvsp_tree, hf_gvsp_filename, tvb, offset + 20, file_length, ENC_ASCII);
 
-    if (20 + file_length > G_MAXINT)
+    if (20 + file_length > INT_MAX)
         return -1;
 
     /* Return dissected byte count (for all-in dissection) */
-    return (gint)(20 + file_length);
+    return (int)(20 + file_length);
 }
 
 
@@ -1432,7 +1432,7 @@ static gint dissect_file_leader(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_inf
     \brief Dissects a chunk data leader
  */
 
-static gint dissect_chunk_data_leader(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
+static int dissect_chunk_data_leader(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
     /* Payload type */
     proto_tree_add_item(gvsp_tree, hf_gvsp_payloadtype, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
@@ -1449,7 +1449,7 @@ static gint dissect_chunk_data_leader(proto_tree *gvsp_tree, tvbuff_t *tvb, pack
     \brief Dissects a chunk data trailer
  */
 
-static gint dissect_chunk_data_trailer(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
+static int dissect_chunk_data_trailer(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
     /* Payload type */
     proto_tree_add_item(gvsp_tree, hf_gvsp_payloadtype, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
@@ -1466,7 +1466,7 @@ static gint dissect_chunk_data_trailer(proto_tree *gvsp_tree, tvbuff_t *tvb, pac
     \brief Dissects extended chunk data leader
  */
 
-static gint dissect_extended_chunk_data_leader(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
+static int dissect_extended_chunk_data_leader(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
     /* Field info */
     proto_tree_add_bitmask(gvsp_tree, tvb, offset, hf_gvsp_fieldinfo,
@@ -1496,7 +1496,7 @@ static gint dissect_extended_chunk_data_leader(proto_tree *gvsp_tree, tvbuff_t *
     \brief Dissects extended chunk data trailer
  */
 
-static gint dissect_extended_chunk_data_trailer(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
+static int dissect_extended_chunk_data_trailer(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
     /* Payload type */
     proto_tree_add_item(gvsp_tree, hf_gvsp_payloadtype, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
@@ -1519,7 +1519,7 @@ static gint dissect_extended_chunk_data_trailer(proto_tree *gvsp_tree, tvbuff_t 
     \brief Dissects a JPEG leader
  */
 
-static gint dissect_jpeg_leader(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
+static int dissect_jpeg_leader(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
     /* Field info */
     proto_tree_add_bitmask(gvsp_tree, tvb, offset, hf_gvsp_fieldinfo,
@@ -1552,7 +1552,7 @@ static gint dissect_jpeg_leader(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_inf
  \brief Dissects a H264 leader
  */
 
-static void dissect_h264_leader_common(proto_tree *gvsp_tree, tvbuff_t *tvb, gint offset, const guint encoding)
+static void dissect_h264_leader_common(proto_tree *gvsp_tree, tvbuff_t *tvb, int offset, const unsigned encoding)
 {
     /* profile_idc */
     proto_tree_add_item(gvsp_tree, hf_gvsp_profileidc, tvb, offset, 1, encoding);
@@ -1577,7 +1577,7 @@ static void dissect_h264_leader_common(proto_tree *gvsp_tree, tvbuff_t *tvb, gin
     proto_tree_add_item(gvsp_tree, hf_gvsp_sropinitbuftime, tvb, offset + 11, 4, encoding);
 }
 
-static gint dissect_h264_leader(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
+static int dissect_h264_leader(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
     /* Field info */
     proto_tree_add_bitmask(gvsp_tree, tvb, offset, hf_gvsp_fieldinfo,
@@ -1606,7 +1606,7 @@ static gint dissect_h264_leader(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_inf
     \brief Dissects the multi-zone image leader
  */
 
-static gint dissect_multizone_image_leader(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
+static int dissect_multizone_image_leader(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
     /* Field info */
     proto_tree_add_bitmask(gvsp_tree, tvb, offset, hf_gvsp_fieldinfo,
@@ -1637,15 +1637,15 @@ static gint dissect_multizone_image_leader(proto_tree *gvsp_tree, tvbuff_t *tvb,
     \brief Dissects the multi-part leader
  */
 
-static gint dissect_multi_part_leader(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
+static int dissect_multi_part_leader(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
     /* Get the number of parts from the header. As we are already looking at the beginning of the sixth DWORD here we must step back */
-    gint part_count_from_leader = tvb_get_guint8(tvb, offset - 13);
-    gint part_count_from_remaining_bytes = tvb_reported_length_remaining(tvb, offset + 12) / GVSP_SIZE_OF_PART_INFO_LEADER;
+    int part_count_from_leader = tvb_get_guint8(tvb, offset - 13);
+    int part_count_from_remaining_bytes = tvb_reported_length_remaining(tvb, offset + 12) / GVSP_SIZE_OF_PART_INFO_LEADER;
     /* In case the leader contains incorrect data rely on the number of reported bytes instead */
-    gint part_count = part_count_from_leader <= part_count_from_remaining_bytes ? part_count_from_leader : part_count_from_remaining_bytes;
-    gint i = 0;
-    gint j = 0;
+    int part_count = part_count_from_leader <= part_count_from_remaining_bytes ? part_count_from_leader : part_count_from_remaining_bytes;
+    int i = 0;
+    int j = 0;
 
     /* Payload type */
     proto_tree_add_item(gvsp_tree, hf_gvsp_payloadtype, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
@@ -1655,7 +1655,7 @@ static gint dissect_multi_part_leader(proto_tree *gvsp_tree, tvbuff_t *tvb, pack
 
     for (i = 0; i < part_count; i++)
     {
-        guint16 multi_part_data_type = tvb_get_ntohs(tvb, offset + 12 + i * GVSP_SIZE_OF_PART_INFO_LEADER);
+        uint16_t multi_part_data_type = tvb_get_ntohs(tvb, offset + 12 + i * GVSP_SIZE_OF_PART_INFO_LEADER);
         /* Add a tree per part */
         proto_tree* gvsp_part_tree = proto_tree_add_subtree(gvsp_tree, tvb, offset + 12 + i * GVSP_SIZE_OF_PART_INFO_LEADER, GVSP_SIZE_OF_PART_INFO_LEADER,
             ett_gvsp_partinfo_leader, NULL, "Part Specific Data");
@@ -1746,7 +1746,7 @@ static gint dissect_multi_part_leader(proto_tree *gvsp_tree, tvbuff_t *tvb, pack
     \brief Dissects the GenDC leader
  */
 
-static gint dissect_gendc_leader(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
+static int dissect_gendc_leader(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
     /* Payload type */
     proto_tree_add_item(gvsp_tree, hf_gvsp_payloadtype, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
@@ -1773,7 +1773,7 @@ static gint dissect_gendc_leader(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_in
     \brief Dissects a generic trailer (contains just the payload type)
  */
 
-static gint dissect_generic_trailer(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
+static int dissect_generic_trailer(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
     /* Payload type */
     proto_tree_add_item(gvsp_tree, hf_gvsp_payloadtype, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
@@ -1787,7 +1787,7 @@ static gint dissect_generic_trailer(proto_tree *gvsp_tree, tvbuff_t *tvb, packet
     \brief Dissects a generic trailer (contains just the payload type)
  */
 
-static gint dissect_extra_chunk_info(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
+static int dissect_extra_chunk_info(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
     /* Chunk data payload length */
     proto_tree_add_item(gvsp_tree, hf_gvsp_chunk_data_payload_length_hex, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1803,7 +1803,7 @@ static gint dissect_extra_chunk_info(proto_tree *gvsp_tree, tvbuff_t *tvb, packe
 /*
     \brief Check if a packet with given status has payload
  */
-static gboolean status_with_payload(gvsp_packet_info *info){
+static bool status_with_payload(gvsp_packet_info *info){
     return info->status == GEV_STATUS_SUCCESS || ( info->enhanced && info->status == GEV_STATUS_PACKET_RESEND);
 }
 
@@ -1811,7 +1811,7 @@ static gboolean status_with_payload(gvsp_packet_info *info){
     \brief Dissects a packet payload
  */
 
-static void dissect_packet_payload(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset, gvsp_packet_info *info)
+static void dissect_packet_payload(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset, gvsp_packet_info *info)
 {
     if (status_with_payload(info) && tvb_reported_length_remaining(tvb, offset))
     {
@@ -1824,7 +1824,7 @@ static void dissect_packet_payload(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_
     \brief Dissects a packet payload for H264
  */
 
-static void dissect_packet_payload_h264(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset, gvsp_packet_info *info)
+static void dissect_packet_payload_h264(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset, gvsp_packet_info *info)
 {
     if (status_with_payload(info) && tvb_reported_length_remaining(tvb, offset))
     {
@@ -1841,7 +1841,7 @@ static void dissect_packet_payload_h264(proto_tree *gvsp_tree, tvbuff_t *tvb, pa
     \brief Dissects a packet payload for multi-zone
  */
 
-static void dissect_packet_payload_multizone(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset, gvsp_packet_info *info)
+static void dissect_packet_payload_multizone(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset, gvsp_packet_info *info)
 {
     if (status_with_payload(info) && tvb_reported_length_remaining(tvb, offset))
     {
@@ -1862,7 +1862,7 @@ static void dissect_packet_payload_multizone(proto_tree *gvsp_tree, tvbuff_t *tv
     \brief Dissects a packet payload for multi-part
  */
 
-static void dissect_packet_payload_multipart(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset, gvsp_packet_info *info)
+static void dissect_packet_payload_multipart(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset, gvsp_packet_info *info)
 {
     if (status_with_payload(info) && tvb_reported_length_remaining(tvb, offset))
     {
@@ -1885,11 +1885,11 @@ static void dissect_packet_payload_multipart(proto_tree *gvsp_tree, tvbuff_t *tv
     \brief Dissects a payload packet for GenDC
  */
 
-static void dissect_packet_payload_gendc(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset, gvsp_packet_info *info)
+static void dissect_packet_payload_gendc(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset, gvsp_packet_info *info)
 {
     if (status_with_payload(info) && tvb_reported_length_remaining(tvb, offset))
     {
-        const guint8 data_flags = tvb_get_guint8(tvb, offset + 12);
+        const uint8_t data_flags = tvb_get_guint8(tvb, offset + 12);
 
         /* Data size */
         proto_tree_add_item(gvsp_tree, hf_gvsp_gendc_payload_data_size_v2_2, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1910,7 +1910,7 @@ static void dissect_packet_payload_gendc(proto_tree *gvsp_tree, tvbuff_t *tvb, p
 
         if ((data_flags & GENDC_DESCRIPTOR_FLAG) && (data_flags & GENDC_DESCRIPTOR_START_FLAG))
         {
-            const guint32 component_count = tvb_get_guint32(tvb, offset + 68, ENC_LITTLE_ENDIAN);
+            const uint32_t component_count = tvb_get_guint32(tvb, offset + 68, ENC_LITTLE_ENDIAN);
             proto_tree* gvsp_gendc_container_descriptor_tree = proto_tree_add_subtree(gvsp_tree, tvb, offset + 16, -1, ett_gvsp_gendc_container_descriptor, NULL, "GenDC Container Descriptor");
             proto_tree* gvsp_gendc_container_header_component_offsets_tree = 0;
 
@@ -1966,10 +1966,10 @@ static void dissect_packet_payload_gendc(proto_tree *gvsp_tree, tvbuff_t *tvb, p
 
             gvsp_gendc_container_header_component_offsets_tree = proto_tree_add_subtree(gvsp_gendc_container_descriptor_tree, tvb, offset + 72, 8 * component_count, ett_gvsp_gendc_container_header_component_offsets, NULL, "Component Offsets");
 
-            for (guint32 i = 0; i < component_count; i++)
+            for (uint32_t i = 0; i < component_count; i++)
             {
-                guint component_offset = offset + 16 + (gint)tvb_get_guint64(tvb, offset + 72 + 8 * i, ENC_LITTLE_ENDIAN);
-                guint16 part_count = tvb_get_guint16(tvb, component_offset + 46, ENC_LITTLE_ENDIAN);
+                unsigned component_offset = offset + 16 + (int)tvb_get_guint64(tvb, offset + 72 + 8 * i, ENC_LITTLE_ENDIAN);
+                uint16_t part_count = tvb_get_guint16(tvb, component_offset + 46, ENC_LITTLE_ENDIAN);
 
                 proto_tree* gvsp_gendc_component_header_tree = proto_tree_add_subtree(gvsp_gendc_container_descriptor_tree, tvb, offset + 16 + component_offset, -1, ett_gvsp_gendc_component_header, NULL, "Component Header");
                 proto_tree* gvsp_gendc_component_header_part_offsets_tree = 0;
@@ -2040,10 +2040,10 @@ static void dissect_packet_payload_gendc(proto_tree *gvsp_tree, tvbuff_t *tvb, p
 
                 gvsp_gendc_component_header_part_offsets_tree = proto_tree_add_subtree(gvsp_gendc_component_header_tree, tvb, component_offset + 48, 8 * part_count, ett_gvsp_gendc_part_offsets, NULL, "Part Offsets");
 
-                for (guint16 j = 0; j < part_count; j++)
+                for (uint16_t j = 0; j < part_count; j++)
                 {
-                    guint part_offset = offset + 16 + (gint)tvb_get_guint64(tvb, component_offset + 48 + 8 * j, ENC_LITTLE_ENDIAN);
-                    guint16 part_type = tvb_get_guint16(tvb, part_offset, ENC_LITTLE_ENDIAN);
+                    unsigned part_offset = offset + 16 + (int)tvb_get_guint64(tvb, component_offset + 48 + 8 * j, ENC_LITTLE_ENDIAN);
+                    uint16_t part_type = tvb_get_guint16(tvb, part_offset, ENC_LITTLE_ENDIAN);
 
                     proto_tree* gvsp_gendc_part_header_tree = proto_tree_add_subtree(gvsp_gendc_component_header_tree, tvb, offset + 16 + part_offset, -1, ett_gvsp_gendc_part_header, NULL, "Part Header");
 
@@ -2139,9 +2139,9 @@ static void dissect_packet_payload_gendc(proto_tree *gvsp_tree, tvbuff_t *tvb, p
     \brief Dissects an all in packet
  */
 
-static void dissect_packet_all_in(proto_tree *gvsp_tree, tvbuff_t *tvb, gint offset, packet_info *pinfo, gvsp_packet_info *info)
+static void dissect_packet_all_in(proto_tree *gvsp_tree, tvbuff_t *tvb, int offset, packet_info *pinfo, gvsp_packet_info *info)
 {
-    gint ret;
+    int ret;
 
     switch (info->payloadtype)
     {
@@ -2245,7 +2245,7 @@ static void dissect_packet_all_in(proto_tree *gvsp_tree, tvbuff_t *tvb, gint off
     \brief Dissects a leader packet
  */
 
-static void dissect_packet_leader(proto_tree *gvsp_tree, tvbuff_t *tvb, gint offset, packet_info *pinfo, gvsp_packet_info *info)
+static void dissect_packet_leader(proto_tree *gvsp_tree, tvbuff_t *tvb, int offset, packet_info *pinfo, gvsp_packet_info *info)
 {
     switch (info->payloadtype)
     {
@@ -2300,7 +2300,7 @@ static void dissect_packet_leader(proto_tree *gvsp_tree, tvbuff_t *tvb, gint off
     \brief Dissects a trailer packet
  */
 
-static void dissect_packet_trailer(proto_tree *gvsp_tree, tvbuff_t *tvb, gint offset, packet_info *pinfo, gvsp_packet_info *info)
+static void dissect_packet_trailer(proto_tree *gvsp_tree, tvbuff_t *tvb, int offset, packet_info *pinfo, gvsp_packet_info *info)
 {
     switch (info->payloadtype)
     {
@@ -2348,7 +2348,7 @@ static void dissect_packet_trailer(proto_tree *gvsp_tree, tvbuff_t *tvb, gint of
 static int dissect_gvsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item *ti = NULL;
-    gint offset = 0;
+    int offset = 0;
     proto_tree *gvsp_tree = NULL;
     gvsp_packet_info info;
 
@@ -2397,7 +2397,7 @@ static int dissect_gvsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     }
     else
     {
-        guint8 flags;
+        uint8_t flags;
         flags = tvb_get_guint8(tvb, offset + 1);
         info.flag_resendrangeerror = flags & 0x04;
         info.flag_previousblockdropped = flags & 0x02;
@@ -2454,7 +2454,7 @@ static int dissect_gvsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
     /* At this point offset is pointing to end of packet */
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "[Block ID: %" PRIu64 " Packet ID: %d] ", (guint64)info.blockid, info.packetid);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "[Block ID: %" PRIu64 " Packet ID: %d] ", (uint64_t)info.blockid, info.packetid);
 
     if (info.flag_resendrangeerror != 0)
     {
@@ -2535,8 +2535,8 @@ static int dissect_gvsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 static bool dissect_gvsp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     conversation_t *conversation = NULL;
-    guint16 status_code = 0;
-    guint8 format = 0;
+    uint16_t status_code = 0;
+    uint8_t format = 0;
 
     /* Verify packet size */
     if ((tvb_reported_length(tvb) <  GVSP_MIN_PACKET_SIZE) ||
@@ -2568,7 +2568,7 @@ static bool dissect_gvsp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         {
             if(format == GVSP_PACKET_LEADER && tvb_captured_length_remaining(tvb, 8) >= 2)
             {
-                guint32 payloadtype;
+                uint32_t payloadtype;
                 payloadtype = tvb_get_ntohs(tvb, 8);
                 payloadtype &= 0x3FFF;
                 if (try_val_to_str_ext(payloadtype, &payloadtypenames_ext) == NULL ){
@@ -3594,7 +3594,7 @@ void proto_register_gvsp(void)
         } },
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_gvsp,
         &ett_gvsp_flags,
         &ett_gvsp_header,

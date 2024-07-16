@@ -32,10 +32,10 @@ static int hf_gvcp_response_to;
    structure to hold info to remember between the requests and responses
 */
 typedef struct _gvcp_transaction_t {
-	guint32 req_frame;
-	guint32 rep_frame;
+	uint32_t req_frame;
+	uint32_t rep_frame;
 	wmem_array_t *addr_list;
-	guint32 addr_count;
+	uint32_t addr_count;
 } gvcp_transaction_t;
 
 wmem_array_t* gvcp_trans_array;
@@ -45,7 +45,7 @@ wmem_array_t* gvcp_trans_array;
 */
 typedef struct _gvcp_conv_info_t {
 	wmem_map_t *pdus;
-	guint32 extended_bootstrap_address[GVCP_MAX_STREAM_CHANNEL_COUNT];
+	uint32_t extended_bootstrap_address[GVCP_MAX_STREAM_CHANNEL_COUNT];
 } gvcp_conv_info_t;
 
 /*
@@ -859,9 +859,9 @@ static const value_string extendedbootstrapregisternames[] = {
 \brief Check is the current register access is into one of the extended stream channel registers
 */
 
-static gboolean is_extended_bootstrap_address(gvcp_conv_info_t *gvcp_info, guint32 addr, guint32* extended_bootstrap_address_offset)
+static bool is_extended_bootstrap_address(gvcp_conv_info_t *gvcp_info, uint32_t addr, uint32_t* extended_bootstrap_address_offset)
 {
-	gint stream_channel_count = 0;
+	int stream_channel_count = 0;
 	for (stream_channel_count = 0; stream_channel_count < GVCP_MAX_STREAM_CHANNEL_COUNT; stream_channel_count++)
 	{
 		if ((gvcp_info->extended_bootstrap_address[stream_channel_count] != 0) &&
@@ -872,10 +872,10 @@ static gboolean is_extended_bootstrap_address(gvcp_conv_info_t *gvcp_info, guint
 			{
 				*extended_bootstrap_address_offset = gvcp_info->extended_bootstrap_address[stream_channel_count];
 			}
-			return TRUE;
+			return true;
 		}
 	}
-	return FALSE;
+	return false;
 }
 
 
@@ -883,19 +883,19 @@ static gboolean is_extended_bootstrap_address(gvcp_conv_info_t *gvcp_info, guint
 \brief Returns a register name based on its address
 */
 
-static const gchar* get_register_name_from_address(guint32 addr, wmem_allocator_t *scope, gvcp_conv_info_t *gvcp_info, gboolean* is_custom_register)
+static const char* get_register_name_from_address(uint32_t addr, wmem_allocator_t *scope, gvcp_conv_info_t *gvcp_info, bool* is_custom_register)
 {
-	const gchar* address_string = NULL;
+	const char* address_string = NULL;
 
 	if (is_custom_register != NULL)
 	{
-		*is_custom_register = FALSE;
+		*is_custom_register = false;
 	}
 
 	address_string = try_val_to_str(addr, bootstrapregisternames);
 	if (!address_string)
 	{
-		guint32 extended_bootstrap_address_offset = 0;
+		uint32_t extended_bootstrap_address_offset = 0;
 		if (is_extended_bootstrap_address(gvcp_info, addr, &extended_bootstrap_address_offset))
 		{
 			address_string = try_val_to_str(addr - extended_bootstrap_address_offset, extendedbootstrapregisternames);
@@ -906,7 +906,7 @@ static const gchar* get_register_name_from_address(guint32 addr, wmem_allocator_
 			address_string = wmem_strdup_printf(scope, "[Addr:0x%08X]", addr);
 			if (is_custom_register != NULL)
 			{
-				*is_custom_register = TRUE;
+				*is_custom_register = true;
 			}
 		}
 	}
@@ -919,7 +919,7 @@ static const gchar* get_register_name_from_address(guint32 addr, wmem_allocator_
 \brief Attempts to dissect a bootstrap register
 */
 
-static int dissect_register(guint32 addr, proto_tree *branch, tvbuff_t *tvb, gint offset, gint length)
+static int dissect_register(uint32_t addr, proto_tree *branch, tvbuff_t *tvb, int offset, int length)
 {
 	switch (addr)
 	{
@@ -1271,7 +1271,7 @@ static int dissect_register(guint32 addr, proto_tree *branch, tvbuff_t *tvb, gin
 	case GVCP_SC_DESTINATION_ADDRESS(2):
 	case GVCP_SC_DESTINATION_ADDRESS(3):
 		{
-			guint32 value = 0;
+			uint32_t value = 0;
 			value = tvb_get_letohl(tvb, offset);
 			proto_tree_add_ipv4(branch, hf_gvcp_sc_destination_ip, tvb, offset, 4, value);
 		}
@@ -1429,7 +1429,7 @@ static int dissect_register(guint32 addr, proto_tree *branch, tvbuff_t *tvb, gin
 \brief Attempts to dissect an extended bootstrap register
 */
 
-static int dissect_extended_bootstrap_register(guint32 addr, proto_tree *branch, tvbuff_t *tvb, gint offset, gint length _U_)
+static int dissect_extended_bootstrap_register(uint32_t addr, proto_tree *branch, tvbuff_t *tvb, int offset, int length _U_)
 {
 	switch (addr)
 	{
@@ -1455,7 +1455,7 @@ static int dissect_extended_bootstrap_register(guint32 addr, proto_tree *branch,
 
 
 /* Attempts to dissect a bootstrap register (readmem context) */
-static int dissect_register_data(guint32 addr, proto_tree *branch, tvbuff_t *tvb, gint offset, gint length)
+static int dissect_register_data(uint32_t addr, proto_tree *branch, tvbuff_t *tvb, int offset, int length)
 {
 	switch (addr)
 	{
@@ -1527,12 +1527,12 @@ static int dissect_register_data(guint32 addr, proto_tree *branch, tvbuff_t *tvb
 \brief DISSECT: Force IP command
 */
 
-static void dissect_forceip_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint startoffset, gint length)
+static void dissect_forceip_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo _U_, int startoffset, int length)
 {
-	const gint mac_offset = startoffset + 2;
-	const gint ip_offset = startoffset + 20;
-	const gint mask_offset = startoffset + 36;
-	const gint gateway_offset = startoffset + 52;
+	const int mac_offset = startoffset + 2;
+	const int ip_offset = startoffset + 20;
+	const int mask_offset = startoffset + 36;
+	const int gateway_offset = startoffset + 52;
 
 	if (gvcp_telegram_tree != NULL)
 	{
@@ -1551,13 +1551,13 @@ static void dissect_forceip_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, p
 \brief DISSECT: Packet resend command
 */
 
-static void dissect_packetresend_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, gint startoffset, gint length, int extendedblockid)
+static void dissect_packetresend_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, int startoffset, int length, int extendedblockid)
 {
 
-	guint64 block_id = 0;
-	guint32 first_packet = 0;
-	guint32 last_packet = 0;
-	gint offset = startoffset;
+	uint64_t block_id = 0;
+	uint32_t first_packet = 0;
+	uint32_t last_packet = 0;
+	int offset = startoffset;
 
 	/* Get block ID to generate summary - supports 16 and 64 bits */
 	if (extendedblockid == 0)
@@ -1566,8 +1566,8 @@ static void dissect_packetresend_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *t
 	}
 	else
 	{
-		guint64 highid;
-		guint64 lowid;
+		uint64_t highid;
+		uint64_t lowid;
 		highid = tvb_get_ntohl(tvb, offset + 12);
 		lowid = tvb_get_ntohl(tvb, offset + 16);
 
@@ -1587,7 +1587,7 @@ static void dissect_packetresend_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *t
 		last_packet = tvb_get_ntohl(tvb, offset + 8);
 	}
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, "Block %" PRIu64 ", Packets %d->%d", (gint64)block_id, first_packet, last_packet);
+	col_append_fstr(pinfo->cinfo, COL_INFO, "Block %" PRIu64 ", Packets %d->%d", (int64_t)block_id, first_packet, last_packet);
 
 	if (gvcp_telegram_tree != NULL)
 	{
@@ -1623,15 +1623,15 @@ static void dissect_packetresend_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *t
 \brief DISSECT: Read register command
 */
 
-static void dissect_readreg_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, gint startoffset, gint length, gvcp_conv_info_t *gvcp_info, gvcp_transaction_t* gvcp_trans)
+static void dissect_readreg_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, int startoffset, int length, gvcp_conv_info_t *gvcp_info, gvcp_transaction_t* gvcp_trans)
 {
 	proto_item *item = NULL;
-	guint32 addr = 0;
-	const gchar* address_string = NULL;
-	gboolean is_custom_register = FALSE;
-	gint offset = startoffset;
-	gint i;
-	gint num_registers = length / 4;
+	uint32_t addr = 0;
+	const char* address_string = NULL;
+	bool is_custom_register = false;
+	int offset = startoffset;
+	int i;
+	int num_registers = length / 4;
 
 	addr = tvb_get_ntohl(tvb, offset);
 	address_string = get_register_name_from_address(addr, pinfo->pool, gvcp_info, &is_custom_register);
@@ -1647,7 +1647,7 @@ static void dissect_readreg_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, p
 
 	if (!pinfo->fd->visited)
 	{
-		gvcp_trans->addr_list = wmem_array_new(wmem_file_scope(), sizeof(guint32));
+		gvcp_trans->addr_list = wmem_array_new(wmem_file_scope(), sizeof(uint32_t));
 	}
 
 	/* Subtree Initialization for Payload Data: READREG_CMD */
@@ -1679,7 +1679,7 @@ static void dissect_readreg_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, p
 			}
 			else
 			{
-				guint32 extended_bootstrap_address_offset = 0;
+				uint32_t extended_bootstrap_address_offset = 0;
 				if (is_extended_bootstrap_address(gvcp_info, addr, &extended_bootstrap_address_offset))
 				{
 					dissect_extended_bootstrap_register(addr - extended_bootstrap_address_offset, gvcp_telegram_tree, tvb, offset, 4);
@@ -1703,16 +1703,16 @@ static void dissect_readreg_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, p
 \brief DISSECT: Write register command
 */
 
-static void dissect_writereg_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, gint startoffset, gint length, gvcp_conv_info_t *gvcp_info, gvcp_transaction_t* gvcp_trans)
+static void dissect_writereg_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, int startoffset, int length, gvcp_conv_info_t *gvcp_info, gvcp_transaction_t* gvcp_trans)
 {
-	gint offset = startoffset;
-	gint i;
+	int offset = startoffset;
+	int i;
 	proto_item *item = NULL;
-	guint32 addr = 0;
-	guint32 value = 0;
-	const gchar *address_string = NULL;
-	gboolean is_custom_register = FALSE;
-	gint num_registers = length / 8; /* divide by 8 because we are counting register-value pairs */
+	uint32_t addr = 0;
+	uint32_t value = 0;
+	const char *address_string = NULL;
+	bool is_custom_register = false;
+	int num_registers = length / 8; /* divide by 8 because we are counting register-value pairs */
 	proto_tree *subtree = NULL;
 
 	if (gvcp_trans)
@@ -1777,7 +1777,7 @@ static void dissect_writereg_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, 
 			}
 			else
 			{
-				guint32 extended_bootstrap_address_offset = 0;
+				uint32_t extended_bootstrap_address_offset = 0;
 				if (is_extended_bootstrap_address(gvcp_info, addr, &extended_bootstrap_address_offset))
 				{
 					/* Read the WRITEREG_CMD requested register address */
@@ -1811,11 +1811,11 @@ static void dissect_writereg_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, 
 \brief DISSECT: Read memory command
 */
 
-static void dissect_readmem_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, gint startoffset, gvcp_conv_info_t *gvcp_info)
+static void dissect_readmem_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, int startoffset, gvcp_conv_info_t *gvcp_info)
 {
-	guint32 addr = 0;
-	guint16 count = 0;
-	gint offset = startoffset;
+	uint32_t addr = 0;
+	uint16_t count = 0;
+	int offset = startoffset;
 
 	addr = tvb_get_ntohl(tvb, offset);
 	count = tvb_get_ntohs(tvb, offset + 6);    /* Number of bytes to read from memory */
@@ -1832,7 +1832,7 @@ static void dissect_readmem_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, p
 		}
 		else
 		{
-			guint32 extended_bootstrap_address_offset = 0;
+			uint32_t extended_bootstrap_address_offset = 0;
 			if (is_extended_bootstrap_address(gvcp_info, addr, &extended_bootstrap_address_offset))
 			{
 				dissect_extended_bootstrap_register(addr - extended_bootstrap_address_offset, gvcp_telegram_tree, tvb, offset, 4);
@@ -1852,11 +1852,11 @@ static void dissect_readmem_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, p
 \brief DISSECT: Write memory command
 */
 
-static void dissect_writemem_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, gint startoffset, gint length, gvcp_conv_info_t *gvcp_info, gvcp_transaction_t* gvcp_trans)
+static void dissect_writemem_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, int startoffset, int length, gvcp_conv_info_t *gvcp_info, gvcp_transaction_t* gvcp_trans)
 {
-	const gchar* address_string = NULL;
-	gboolean is_custom_register = FALSE;
-	guint32 addr = 0;
+	const char* address_string = NULL;
+	bool is_custom_register = false;
+	uint32_t addr = 0;
 
 	addr = tvb_get_ntohl(tvb, startoffset);
 	address_string = get_register_name_from_address(addr, pinfo->pool, gvcp_info, &is_custom_register);
@@ -1866,14 +1866,14 @@ static void dissect_writemem_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, 
 
 	if (gvcp_trans && (!pinfo->fd->visited))
 	{
-		gvcp_trans->addr_list = wmem_array_new(wmem_file_scope(), sizeof(guint32));
+		gvcp_trans->addr_list = wmem_array_new(wmem_file_scope(), sizeof(uint32_t));
 		wmem_array_append_one(gvcp_trans->addr_list, addr);
 	}
 
 	if (gvcp_telegram_tree != NULL)
 	{
-		guint offset;
-		guint byte_count;
+		unsigned offset;
+		unsigned byte_count;
 		offset = startoffset + 4;
 		byte_count = (length - 4);
 
@@ -1890,7 +1890,7 @@ static void dissect_writemem_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, 
 		}
 		else
 		{
-			guint32 extended_bootstrap_address_offset = 0;
+			uint32_t extended_bootstrap_address_offset = 0;
 			if (is_extended_bootstrap_address(gvcp_info, addr, &extended_bootstrap_address_offset))
 			{
 				dissect_extended_bootstrap_register(addr - extended_bootstrap_address_offset, gvcp_telegram_tree, tvb, offset, byte_count);
@@ -1909,10 +1909,10 @@ static void dissect_writemem_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, 
 \brief DISSECT: Event command
 */
 
-static void dissect_event_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, gint startoffset, gint length, gint extendedblockids)
+static void dissect_event_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, int startoffset, int length, int extendedblockids)
 {
-	gint32 eventid;
-	gint offset;
+	int32_t eventid;
+	int offset;
 	offset = startoffset;
 
 	/* Get event ID */
@@ -1923,8 +1923,8 @@ static void dissect_event_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, pac
 
 	if (gvcp_telegram_tree != NULL)
 	{
-		gint i;
-		gint event_count = 0;
+		int i;
+		int event_count = 0;
 
 		/* Compute event count based on data length */
 		if (extendedblockids == 0)
@@ -2000,11 +2000,11 @@ static void dissect_event_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, pac
 \brief DISSECT: Event data command
 */
 
-static void dissect_eventdata_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, gint startoffset, gint extendedblockids)
+static void dissect_eventdata_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, int startoffset, int extendedblockids)
 {
-	gint32 eventid;
-	gint offset;
-	gint data_length = 0;
+	int32_t eventid;
+	int offset;
+	int data_length = 0;
 	offset = startoffset;
 
 	while (tvb_captured_length_remaining(tvb, offset) > 12) /* At least enough bytes for and GEV 1.2 EVENTDATA_CMD with one byte of payload? */
@@ -2088,11 +2088,11 @@ static void dissect_eventdata_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb,
 \brief DISSECT: Action command
 */
 
-static void dissect_action_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint startoffset, gint scheduledactioncommand)
+static void dissect_action_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo _U_, int startoffset, int scheduledactioncommand)
 {
 	if (gvcp_telegram_tree != NULL)
 	{
-		gint offset;
+		int offset;
 		offset = startoffset;
 
 		/* Device key */
@@ -2117,13 +2117,13 @@ static void dissect_action_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, pa
 \brief DISSECT: Discovery acknowledge
 */
 
-static void dissect_discovery_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, gint startoffset, gint length)
+static void dissect_discovery_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, int startoffset, int length)
 {
 	proto_item *item = NULL;
-	gint offset;
-	const guint8* string_manufacturer_name = NULL;
-	const guint8* string_serial_number = NULL;
-	gint string_length = 0;
+	int offset;
+	const uint8_t* string_manufacturer_name = NULL;
+	const uint8_t* string_serial_number = NULL;
+	int string_length = 0;
 	proto_tree *tree = NULL;
 
 	offset = startoffset;
@@ -2193,22 +2193,22 @@ static void dissect_discovery_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb,
 \brief DISSECT: Read register acknowledge
 */
 
-static void dissect_readreg_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, gint startoffset, gint length, gvcp_conv_info_t *gvcp_info, gvcp_transaction_t *gvcp_trans)
+static void dissect_readreg_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, int startoffset, int length, gvcp_conv_info_t *gvcp_info, gvcp_transaction_t *gvcp_trans)
 {
-	guint i;
-	gboolean is_custom_register = FALSE;
-	const gchar* address_string = NULL;
-	guint num_registers;
-	gint offset;
-	gboolean valid_trans = FALSE;
-	guint addr_list_size = 0;
+	unsigned i;
+	bool is_custom_register = false;
+	const char* address_string = NULL;
+	unsigned num_registers;
+	int offset;
+	bool valid_trans = false;
+	unsigned addr_list_size = 0;
 
 	offset = startoffset;
 	num_registers = length / 4;
 
 	if (gvcp_trans && gvcp_trans->addr_list)
 	{
-		valid_trans = TRUE;
+		valid_trans = true;
 		addr_list_size = wmem_array_get_count(gvcp_trans->addr_list);
 	}
 
@@ -2222,7 +2222,7 @@ static void dissect_readreg_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, p
 		{
 			if (addr_list_size > 0)
 			{
-				address_string = get_register_name_from_address(*((guint32*)wmem_array_index(gvcp_trans->addr_list, 0)), pinfo->pool, gvcp_info, &is_custom_register);
+				address_string = get_register_name_from_address(*((uint32_t*)wmem_array_index(gvcp_trans->addr_list, 0)), pinfo->pool, gvcp_info, &is_custom_register);
 				col_append_str(pinfo->cinfo, COL_INFO, address_string);
 			}
 
@@ -2244,16 +2244,16 @@ static void dissect_readreg_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, p
 
 		for (i = 0; i < num_registers; i++)
 		{
-			guint32 curr_register = 0;
+			uint32_t curr_register = 0;
 
 			if (valid_trans && i < addr_list_size)
 			{
-				gint stream_channel_count = 0;
-				curr_register = *((guint32*)wmem_array_index(gvcp_trans->addr_list, i));
+				int stream_channel_count = 0;
+				curr_register = *((uint32_t*)wmem_array_index(gvcp_trans->addr_list, i));
 				address_string = get_register_name_from_address(curr_register, pinfo->pool, gvcp_info, &is_custom_register);
 				for (; stream_channel_count < GVCP_MAX_STREAM_CHANNEL_COUNT; stream_channel_count++)
 				{
-					if (curr_register == (guint32)GVCP_SC_EXTENDED_BOOTSTRAP_ADDRESS(stream_channel_count))
+					if (curr_register == (uint32_t)GVCP_SC_EXTENDED_BOOTSTRAP_ADDRESS(stream_channel_count))
 					{
 						gvcp_info->extended_bootstrap_address[stream_channel_count] = tvb_get_ntohl(tvb, offset);
 						break;
@@ -2262,7 +2262,7 @@ static void dissect_readreg_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, p
 
 				if (!is_custom_register) /* bootstrap register */
 				{
-					guint32 extended_bootstrap_address_offset = 0;
+					uint32_t extended_bootstrap_address_offset = 0;
 					if (is_extended_bootstrap_address(gvcp_info, curr_register, &extended_bootstrap_address_offset))
 					{
 						proto_tree_add_uint_format_value(gvcp_telegram_tree, hf_gvcp_readregcmd_extended_bootstrap_register, tvb, offset, 4, curr_register, "%s (0x%08X)", address_string, curr_register);
@@ -2295,10 +2295,10 @@ static void dissect_readreg_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, p
 \brief DISSECT: Write register acknowledge
 */
 
-static void dissect_writereg_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, gint startoffset, gvcp_transaction_t* gvcp_trans)
+static void dissect_writereg_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, int startoffset, gvcp_transaction_t* gvcp_trans)
 {
 	proto_item *item = NULL;
-	guint16 ack_index = 0;
+	uint16_t ack_index = 0;
 
 	if (gvcp_telegram_tree != NULL)
 	{
@@ -2309,7 +2309,7 @@ static void dissect_writereg_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, 
 
 	if (gvcp_trans)
 	{
-		gint num_registers = 0;
+		int num_registers = 0;
 
 		num_registers = gvcp_trans->addr_count;
 		if (num_registers > 1)
@@ -2337,13 +2337,13 @@ static void dissect_writereg_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, 
 \brief DISSECT: Read memory acknowledge
 */
 
-static void dissect_readmem_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, gint startoffset, gint length, gvcp_conv_info_t *gvcp_info)
+static void dissect_readmem_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, int startoffset, int length, gvcp_conv_info_t *gvcp_info)
 {
 	if (length > 0)
 	{
-		guint32 addr = 0;
-		const gchar *address_string = NULL;
-		gboolean is_custom_register = FALSE;
+		uint32_t addr = 0;
+		const char *address_string = NULL;
+		bool is_custom_register = false;
 
 		addr = tvb_get_ntohl(tvb, startoffset);
 		address_string = get_register_name_from_address(addr, pinfo->pool, gvcp_info, &is_custom_register);
@@ -2353,9 +2353,9 @@ static void dissect_readmem_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, p
 
 		if (gvcp_telegram_tree != NULL)
 		{
-			gint stream_channel_count = 0;
-			guint offset;
-			guint byte_count;
+			int stream_channel_count = 0;
+			unsigned offset;
+			unsigned byte_count;
 			offset = startoffset + 4;
 			byte_count = (length - 4);
 
@@ -2377,7 +2377,7 @@ static void dissect_readmem_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, p
 			}
 			else
 			{
-				guint32 extended_bootstrap_address_offset = 0;
+				uint32_t extended_bootstrap_address_offset = 0;
 				if (is_extended_bootstrap_address(gvcp_info, addr, &extended_bootstrap_address_offset))
 				{
 					dissect_extended_bootstrap_register(addr - extended_bootstrap_address_offset, gvcp_telegram_tree, tvb, offset, byte_count);
@@ -2397,14 +2397,14 @@ static void dissect_readmem_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, p
 \brief DISSECT: Write memory acknowledge
 */
 
-static void dissect_writemem_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, gint startoffset, gint length, gvcp_conv_info_t *gvcp_info, gvcp_transaction_t* gvcp_trans)
+static void dissect_writemem_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, int startoffset, int length, gvcp_conv_info_t *gvcp_info, gvcp_transaction_t* gvcp_trans)
 {
 	if (gvcp_trans && gvcp_trans->addr_list)
 	{
 		if (wmem_array_get_count(gvcp_trans->addr_list) > 0)
 		{
-			const gchar *address_string = NULL;
-			address_string = get_register_name_from_address((*((guint32*)wmem_array_index(gvcp_trans->addr_list, 0))), pinfo->pool, gvcp_info, NULL);
+			const char *address_string = NULL;
+			address_string = get_register_name_from_address((*((uint32_t*)wmem_array_index(gvcp_trans->addr_list, 0))), pinfo->pool, gvcp_info, NULL);
 			col_append_str(pinfo->cinfo, COL_INFO, address_string);
 		}
 	}
@@ -2428,7 +2428,7 @@ static void dissect_writemem_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, 
 \brief DISSECT: Pending acknowledge
 */
 
-static void dissect_pending_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint startoffset, gint length)
+static void dissect_pending_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo _U_, int startoffset, int length)
 {
 	if (gvcp_telegram_tree != NULL)
 	{
@@ -2445,20 +2445,20 @@ static void dissect_pending_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, p
 
 static int dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	gint offset = 0;
+	int offset = 0;
 	proto_tree *gvcp_tree = NULL;
 	proto_tree *gvcp_tree_flag = NULL;
 	proto_tree *gvcp_telegram_tree = NULL;
-	gint data_length = 0;
-	gint command = -1;
-	const gchar* command_string = NULL;
-	gint flags = -1;
-	gint extendedblockids = -1;
-	gint scheduledactioncommand = -1;
-	gint ack_code = -1;
-	const gchar* ack_string = NULL;
-	gint request_id = 0;
-	gchar key_code = 0;
+	int data_length = 0;
+	int command = -1;
+	const char* command_string = NULL;
+	int flags = -1;
+	int extendedblockids = -1;
+	int scheduledactioncommand = -1;
+	int ack_code = -1;
+	const char* ack_string = NULL;
+	int request_id = 0;
+	char key_code = 0;
 	proto_item *ti = NULL;
 	proto_item *item = NULL;
 	conversation_t *conversation = 0;
@@ -2471,7 +2471,7 @@ static int dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	}
 
 	/* check for valid key/ack code */
-	key_code = (gchar) tvb_get_guint8(tvb, offset);
+	key_code = (char) tvb_get_guint8(tvb, offset);
 	ack_code = tvb_get_ntohs(tvb, offset+2);
 	ack_string = try_val_to_str(ack_code, acknowledgenames);
 
@@ -2508,7 +2508,7 @@ static int dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 		offset++;
 
 		/* Add the flags */
-		flags = (gchar) tvb_get_guint8(tvb, offset);
+		flags = (char) tvb_get_guint8(tvb, offset);
 		item = proto_tree_add_item(gvcp_tree, hf_gvcp_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
 		gvcp_tree_flag  = proto_item_add_subtree(item, ett_gvcp_flags);
 		if (command == GVCP_ACTION_CMD)
@@ -2521,7 +2521,7 @@ static int dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 			(command == GVCP_PACKETRESEND_CMD))
 		{
 			proto_tree_add_item(gvcp_tree_flag, hf_gvcp_64bitid_flag_v2_0, tvb, offset, 1, ENC_BIG_ENDIAN);
-			flags = (gchar) tvb_get_guint8(tvb, offset );
+			flags = (char) tvb_get_guint8(tvb, offset );
 			extendedblockids = (flags & 0x10);
 		}
 		if ((command == GVCP_DISCOVERY_CMD) ||
@@ -2539,7 +2539,7 @@ static int dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	}
 	else /* ... or else it is an acknowledge */
 	{
-		gint status = tvb_get_ntohs(tvb, offset);
+		int status = tvb_get_ntohs(tvb, offset);
 		col_append_fstr(pinfo->cinfo, COL_INFO, "< %s %s",
 			ack_string, val_to_str(status, statusnames_short, "Unknown status (0x%04X)"));
 
@@ -2581,7 +2581,7 @@ static int dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	gvcp_info = (gvcp_conv_info_t*)conversation_get_proto_data(conversation, proto_gvcp);
 	if (!gvcp_info)
 	{
-		gint stream_channel_count = 0;
+		int stream_channel_count = 0;
 		gvcp_info = wmem_new(wmem_file_scope(), gvcp_conv_info_t);
 		gvcp_info->pdus = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
 		for (; stream_channel_count < GVCP_MAX_STREAM_CHANNEL_COUNT; stream_channel_count++)
@@ -2611,8 +2611,8 @@ static int dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 				gvcp_trans_array = (wmem_array_t*)wmem_map_lookup(gvcp_info->pdus, GUINT_TO_POINTER(request_id));
 				if (gvcp_trans_array)
 				{
-					gint i;
-					guint array_size = wmem_array_get_count(gvcp_trans_array);
+					int i;
+					unsigned array_size = wmem_array_get_count(gvcp_trans_array);
 					for (i = array_size-1; i >= 0; i--)
 					{
 						gvcp_trans = (gvcp_transaction_t*)wmem_array_index(gvcp_trans_array, i);
@@ -2643,8 +2643,8 @@ static int dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
 		if (gvcp_trans_array)
 		{
-			guint i;
-			guint array_size = wmem_array_get_count(gvcp_trans_array);
+			unsigned i;
+			unsigned array_size = wmem_array_get_count(gvcp_trans_array);
 
 			for (i = 0; i < array_size; ++i)
 			{
@@ -4303,7 +4303,7 @@ void proto_register_gvcp(void)
 		{ &hf_gvcp_readmemcmd_data_read, { "Data read", "gvcp.cmd.readmem.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_gvcp,
 		&ett_gvcp_cmd,
 		&ett_gvcp_flags,

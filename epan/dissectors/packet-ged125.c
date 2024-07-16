@@ -38,96 +38,96 @@ void proto_reg_handoff_ged125(void);
 
 static int proto_ged125;
 
-static gint hf_ged125_length;
-static gint hf_ged125_value;
-static gint hf_ged125_service_control_value;
-static gint hf_ged125_DialogueID_num;
-static gint hf_ged125_SendSeqNo_num;
-static gint hf_ged125_CurrentTime_num;
-static gint hf_ged125_TimeZoneDelta;
-static gint hf_ged125_OperationalStatus;
-static gint hf_ged125_StatusVariable;
-static gint hf_ged125_InvokeID;
-static gint hf_ged125_Status;
-static gint hf_ged125_VersionNumber;
-static gint hf_ged125_IdleTimeout;
-static gint hf_ged125_UseEventFeed;
-static gint hf_ged125_UsePolledFeed;
-static gint hf_ged125_UseCallRouting;
-static gint hf_ged125_UseTimeSynch;
-static gint hf_ged125_UseServiceControl;
-static gint hf_ged125_TrunkGroupID;
-static gint hf_ged125_TrunkCount;
-static gint hf_ged125_CallsInToday;
-static gint hf_ged125_CallsOutToday;
-static gint hf_ged125_InServiceTimeToday;
-static gint hf_ged125_InUseInboundTimeToday;
-static gint hf_ged125_InUseOutboundTimeToday;
-static gint hf_ged125_AllTrunksInUseTimeToday;
-static gint hf_ged125_TrunkNumber;
-static gint hf_ged125_TrunkStatus;
-static gint hf_ged125_ServiceID;
-static gint hf_ged125_AvailableNow;
-static gint hf_ged125_CallsInNow;
-static gint hf_ged125_CallsOutNow;
-static gint hf_ged125_CallsHandledToday;
-static gint hf_ged125_HandleTimeToday;
-static gint hf_ged125_DivertedInToday;
-static gint hf_ged125_DivertedOutToday;
-static gint hf_ged125_StartOfDay;
-static gint hf_ged125_InitDataTime;
-static gint hf_ged125_CallID;
-static gint hf_ged125_floating;
-static gint hf_ged125_floating_CauseCode;
-static gint hf_ged125_ServiceFeatures;
-static gint hf_ged125_floating_payload_strg;
-static gint hf_ged125_floating_payload_uint;
-static gint hf_ged125_floating_payload_bool;
-static gint hf_ged125_floating_payload_ECC_tag;
-static gint hf_ged125_ResultCode;
-static gint hf_ged125_LabelType;
-static gint hf_ged125_Cause_just_for_release_message;
-static gint hf_ged125_EventID;
-static gint hf_ged125_ErrorCode;
-static gint hf_ged125_InService;
-static gint hf_ged125_ServiceAvailable;
-static gint hf_ged125_RequestID;
-static gint hf_ged125_ToBeContinued;
-static gint hf_ged125_Barge_In_Allowed;
-static gint hf_ged125_floating_cause_code;
-static gint hf_ged125_DTMF_Termination_Key;
-static gint hf_ged125_No_Entry_Timeout;
-static gint hf_ged125_Interdigit_Timeout;
-static gint hf_ged125_Number_of_No_Entry_Tries;
-static gint hf_ged125_Number_of_Invalid_Entry_Tries;
-static gint hf_ged125_Min_Length;
-static gint hf_ged125_Max_Length;
-static gint hf_ged125_ASR_Allowed;
-static gint hf_ged125_DTMF_Menu_Keys;
-static gint hf_ged125_Microapp_Error_Code;
-static gint hf_ged125_ConferenceCallID;
-static gint hf_ged125_PrimaryCallID;
-static gint hf_ged125_SecondaryCallID;
-static gint hf_ged125_NewServiceID;
-static gint hf_ged125_NewCallID;
-static gint hf_ged125_simulator_reset_event;
-static gint hf_ged125_CrossRefID;
-static gint hf_ged125_VRUTimeLag;
-static gint hf_ged125_CallVarsMask;
-static gint hf_ged125_floating_payload_unspec;
-static gint hf_ged125_floating_uchar_array_index;
-static gint hf_ged125_floating_media_protocol;
-static gint hf_ged125_floating_library_designator;
-static gint hf_ged125_Data_Playback_Type;
-static gint hf_ged125_Data_Playback_Formats;
+static int hf_ged125_length;
+static int hf_ged125_value;
+static int hf_ged125_service_control_value;
+static int hf_ged125_DialogueID_num;
+static int hf_ged125_SendSeqNo_num;
+static int hf_ged125_CurrentTime_num;
+static int hf_ged125_TimeZoneDelta;
+static int hf_ged125_OperationalStatus;
+static int hf_ged125_StatusVariable;
+static int hf_ged125_InvokeID;
+static int hf_ged125_Status;
+static int hf_ged125_VersionNumber;
+static int hf_ged125_IdleTimeout;
+static int hf_ged125_UseEventFeed;
+static int hf_ged125_UsePolledFeed;
+static int hf_ged125_UseCallRouting;
+static int hf_ged125_UseTimeSynch;
+static int hf_ged125_UseServiceControl;
+static int hf_ged125_TrunkGroupID;
+static int hf_ged125_TrunkCount;
+static int hf_ged125_CallsInToday;
+static int hf_ged125_CallsOutToday;
+static int hf_ged125_InServiceTimeToday;
+static int hf_ged125_InUseInboundTimeToday;
+static int hf_ged125_InUseOutboundTimeToday;
+static int hf_ged125_AllTrunksInUseTimeToday;
+static int hf_ged125_TrunkNumber;
+static int hf_ged125_TrunkStatus;
+static int hf_ged125_ServiceID;
+static int hf_ged125_AvailableNow;
+static int hf_ged125_CallsInNow;
+static int hf_ged125_CallsOutNow;
+static int hf_ged125_CallsHandledToday;
+static int hf_ged125_HandleTimeToday;
+static int hf_ged125_DivertedInToday;
+static int hf_ged125_DivertedOutToday;
+static int hf_ged125_StartOfDay;
+static int hf_ged125_InitDataTime;
+static int hf_ged125_CallID;
+static int hf_ged125_floating;
+static int hf_ged125_floating_CauseCode;
+static int hf_ged125_ServiceFeatures;
+static int hf_ged125_floating_payload_strg;
+static int hf_ged125_floating_payload_uint;
+static int hf_ged125_floating_payload_bool;
+static int hf_ged125_floating_payload_ECC_tag;
+static int hf_ged125_ResultCode;
+static int hf_ged125_LabelType;
+static int hf_ged125_Cause_just_for_release_message;
+static int hf_ged125_EventID;
+static int hf_ged125_ErrorCode;
+static int hf_ged125_InService;
+static int hf_ged125_ServiceAvailable;
+static int hf_ged125_RequestID;
+static int hf_ged125_ToBeContinued;
+static int hf_ged125_Barge_In_Allowed;
+static int hf_ged125_floating_cause_code;
+static int hf_ged125_DTMF_Termination_Key;
+static int hf_ged125_No_Entry_Timeout;
+static int hf_ged125_Interdigit_Timeout;
+static int hf_ged125_Number_of_No_Entry_Tries;
+static int hf_ged125_Number_of_Invalid_Entry_Tries;
+static int hf_ged125_Min_Length;
+static int hf_ged125_Max_Length;
+static int hf_ged125_ASR_Allowed;
+static int hf_ged125_DTMF_Menu_Keys;
+static int hf_ged125_Microapp_Error_Code;
+static int hf_ged125_ConferenceCallID;
+static int hf_ged125_PrimaryCallID;
+static int hf_ged125_SecondaryCallID;
+static int hf_ged125_NewServiceID;
+static int hf_ged125_NewCallID;
+static int hf_ged125_simulator_reset_event;
+static int hf_ged125_CrossRefID;
+static int hf_ged125_VRUTimeLag;
+static int hf_ged125_CallVarsMask;
+static int hf_ged125_floating_payload_unspec;
+static int hf_ged125_floating_uchar_array_index;
+static int hf_ged125_floating_media_protocol;
+static int hf_ged125_floating_library_designator;
+static int hf_ged125_Data_Playback_Type;
+static int hf_ged125_Data_Playback_Formats;
 
-static gint ett_ged125;
-static gint ett_ged125_header;
-static gint ett_ged125_message;
-static gint ett_ged125_floating;
-static gint ett_ged125_float_field;
-static gint ett_ged125_service_control_header;
-static gint ett_ged125_service_control_data;
+static int ett_ged125;
+static int ett_ged125_header;
+static int ett_ged125_message;
+static int ett_ged125_floating;
+static int ett_ged125_float_field;
+static int ett_ged125_service_control_header;
+static int ett_ged125_service_control_data;
 
 static expert_field ei_ged125_OperationalStatus_normal;
 static expert_field ei_ged125_OperationalStatus_loss_redundant_component;
@@ -509,9 +509,9 @@ static const value_string floating_media_library_designator_vals[] = {
 };
 
 static void
-OperationalStatus_funk(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tree, gint* offset)
+OperationalStatus_funk(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tree, int* offset)
 {
-	guint32 value;
+	uint32_t value;
 	proto_item* ti;
 
 	value = tvb_get_ntohl(tvb, *offset);
@@ -533,7 +533,7 @@ OperationalStatus_funk(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tree, gint
 
 
 static void
-StatusVariable_funk(tvbuff_t* tvb, proto_tree* tree, gint* offset, const gint size)
+StatusVariable_funk(tvbuff_t* tvb, proto_tree* tree, int* offset, const int size)
 {
 	while(*offset+4 <= size)
 	{
@@ -543,9 +543,9 @@ StatusVariable_funk(tvbuff_t* tvb, proto_tree* tree, gint* offset, const gint si
 }
 
 static void
-trunk_funk_without_status(tvbuff_t* tvb, proto_tree* z_tree, gint* offset, const gint size)
+trunk_funk_without_status(tvbuff_t* tvb, proto_tree* z_tree, int* offset, const int size)
 {
-	gint count = 0;
+	int count = 0;
 
 	while(*offset+2 <= size && count < 1024)
 	{
@@ -556,9 +556,9 @@ trunk_funk_without_status(tvbuff_t* tvb, proto_tree* z_tree, gint* offset, const
 }
 
 static void
-trunk_funk(tvbuff_t* tvb, proto_tree* tree, gint* offset, const gint size)
+trunk_funk(tvbuff_t* tvb, proto_tree* tree, int* offset, const int size)
 {
-	guint16 count = 0;
+	uint16_t count = 0;
 
 	/* 1023 max trunks, the trunk loop(counting from 0 from 1023 is 1024)*/
 	while(*offset+4 <= size && count < 1024) {
@@ -572,9 +572,9 @@ trunk_funk(tvbuff_t* tvb, proto_tree* tree, gint* offset, const gint size)
 }
 
 static void
-Media_Specifier_dissect(tvbuff_t* tvb, proto_tree* tree, gint* offset, guint32 length)
+Media_Specifier_dissect(tvbuff_t* tvb, proto_tree* tree, int* offset, uint32_t length)
 {
-	guint8 media_protocol;
+	uint8_t media_protocol;
 
 	media_protocol = tvb_get_guint8(tvb, *offset);
 	proto_tree_add_item(tree, hf_ged125_floating_media_protocol, tvb, *offset, 1, ENC_NA|ENC_ASCII);
@@ -608,10 +608,10 @@ Media_Specifier_dissect(tvbuff_t* tvb, proto_tree* tree, gint* offset, guint32 l
 }
 
 static void
-floating_fields(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tree, gint offset, const gint size)
+floating_fields(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tree, int offset, const int size)
 {
-	gint32 length = 4;
-	guint32 floating_type;
+	int32_t length = 4;
+	uint32_t floating_type;
 	proto_tree *ged125_tree, *float_tree;
 	proto_item *ti;
 
@@ -708,11 +708,11 @@ floating_fields(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tree, gint offset
 
 static void
 service_control_dissect(tvbuff_t* tvb,proto_tree* msg_tree, proto_tree* ged125_tree, packet_info* pinfo,
-	gint* offset, const gint size)
+	int* offset, const int size)
 {
 	proto_item *ti;
 	proto_tree *service_tree, *data_tree;
-	guint32 mess_type, DialogueID, SendSeqNo;
+	uint32_t mess_type, DialogueID, SendSeqNo;
 
 	service_tree = proto_tree_add_subtree(msg_tree, tvb, *offset, 12,
 			ett_ged125_service_control_header, NULL, "Service-Control Header");
@@ -966,7 +966,7 @@ service_control_dissect(tvbuff_t* tvb,proto_tree* msg_tree, proto_tree* ged125_t
 	}
 }
 
-static guint
+static unsigned
 get_ged125_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                    int offset _U_, void *data _U_)
 {
@@ -977,11 +977,11 @@ get_ged125_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
 static int
 dissect_ged125_base_messages(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 {
-	gint size = tvb_reported_length(tvb);
+	int size = tvb_reported_length(tvb);
 	proto_item *ti, *message_item;
 	proto_tree *ged125_tree, *ged125_header_tree, *ged125_message_tree;
-	gint offset = 8; /*get to the fixed message, just outside of header*/
-	guint32 value,
+	int offset = 8; /*get to the fixed message, just outside of header*/
+	uint32_t value,
 			message_type = tvb_get_ntohl(tvb, 4);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "GED125");
@@ -1270,8 +1270,8 @@ dissect_ged125_base_messages(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree
 static int
 dissect_ged125(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	gint size;
-	guint32 message_type;
+	int size;
+	uint32_t message_type;
 
 	size = tvb_captured_length(tvb);
 
@@ -1707,7 +1707,7 @@ proto_register_ged125 (void)
 			"Array index of an ECC field", HFILL }}
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_ged125,
 		&ett_ged125_header,
 		&ett_ged125_message,

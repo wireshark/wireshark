@@ -31,7 +31,7 @@ static int hf_gsm_um_error;
 static int hf_gsm_um_timeshift;
 static int hf_gsm_um_l2_pseudo_len;
 
-static gint ett_gsm_um;
+static int ett_gsm_um;
 
 static dissector_handle_t gsm_um_handle;
 
@@ -44,7 +44,7 @@ static bool dcs1800_gsm = true;
 
 
 static void
-decode_arfcn(guint16 arfcn, const char **band, guint *uplink, guint *downlink)
+decode_arfcn(uint16_t arfcn, const char **band, unsigned *uplink, unsigned *downlink)
 {
 	/* Decode ARFCN to frequency using GSM 05.05 */
 	if( arfcn >= 1 && arfcn <= 124 ) {
@@ -155,7 +155,7 @@ dissect_gsm_um(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 		/* Show the other fields, if we have them (ie. downlink, BTS->MS) */
 		if( !pinfo->pseudo_header->gsm_um.uplink ) {
 			const char *band;
-			guint downlink, uplink;
+			unsigned downlink, uplink;
 
 			decode_arfcn(pinfo->pseudo_header->gsm_um.arfcn, &band, &uplink, &downlink);
 
@@ -185,7 +185,7 @@ dissect_gsm_um(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 		case GSM_UM_CHANNEL_AGCH:
 			if( !pinfo->pseudo_header->gsm_um.uplink ) {
 				tvbuff_t *next_tvb;
-				guint8 pseudo_len, len_left, len_byte;
+				uint8_t pseudo_len, len_left, len_byte;
 
 				len_left = tvb_reported_length(tvb);
 				len_byte = tvb_get_guint8(tvb, 0);
@@ -264,7 +264,7 @@ proto_register_gsm_um(void)
 		  NULL, GSM_UM_L2_PSEUDO_LEN, NULL, HFILL }}
 
 	};
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_gsm_um
 	};
 	module_t *gsm_um_module;

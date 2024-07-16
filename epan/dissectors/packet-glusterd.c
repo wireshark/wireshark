@@ -31,35 +31,35 @@ void proto_register_gluster_gd_mgmt(void);
 void proto_reg_handoff_gluster_gd_mgmt(void);
 
 /* Initialize the protocol and registered fields */
-static gint proto_glusterd;
-static gint proto_gd_mgmt;
-static gint proto_gd_brick;
-static gint proto_gd_friend;
+static int proto_glusterd;
+static int proto_gd_mgmt;
+static int proto_gd_brick;
+static int proto_gd_friend;
 
 /* programs and procedures */
-static gint hf_gd_mgmt_proc;
-static gint hf_gd_mgmt_2_proc;
-static gint hf_gd_mgmt_3_proc;
-static gint hf_gd_mgmt_brick_2_proc;
-static gint hf_glusterd_friend_proc;
+static int hf_gd_mgmt_proc;
+static int hf_gd_mgmt_2_proc;
+static int hf_gd_mgmt_3_proc;
+static int hf_gd_mgmt_brick_2_proc;
+static int hf_glusterd_friend_proc;
 
 /* fields used by multiple programs/procedures */
-static gint hf_glusterd_dict;
-static gint hf_glusterd_op;
-static gint hf_glusterd_op_ret;
-static gint hf_glusterd_op_errstr;
-static gint hf_glusterd_uuid;
-static gint hf_glusterd_tnx_id;
-static gint hf_glusterd_hostname;
-static gint hf_glusterd_port;
-static gint hf_glusterd_vols;
-static gint hf_glusterd_buf;
-static gint hf_glusterd_name;
+static int hf_glusterd_dict;
+static int hf_glusterd_op;
+static int hf_glusterd_op_ret;
+static int hf_glusterd_op_errstr;
+static int hf_glusterd_uuid;
+static int hf_glusterd_tnx_id;
+static int hf_glusterd_hostname;
+static int hf_glusterd_port;
+static int hf_glusterd_vols;
+static int hf_glusterd_buf;
+static int hf_glusterd_name;
 
 /* Initialize the subtree pointers */
-static gint ett_gd_mgmt;
-static gint ett_gd_brick;
-static gint ett_gd_friend;
+static int ett_gd_mgmt;
+static int ett_gd_brick;
+static int ett_gd_friend;
 
 /* the UUID is the same as a GlusterFS GFID, except it's encoded per byte */
 static int
@@ -861,7 +861,7 @@ proto_register_gluster_gd_mgmt(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_gd_mgmt,
 		&ett_gd_brick,
 		&ett_gd_friend

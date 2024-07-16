@@ -125,7 +125,7 @@ static const value_string rlp_xid_param_vals[] = {
 	{ 0, NULL }
 };
 
-static const guint32 rlp_fcs_table[256] = {
+static const uint32_t rlp_fcs_table[256] = {
 	0x00B29D2D, 0x00643A5B, 0x0044D87A, 0x00927F0C, 0x00051C38, 0x00D3BB4E, 0x00F3596F, 0x0025FE19,
 	0x008694BC, 0x005033CA, 0x0070D1EB, 0x00A6769D, 0x003115A9, 0x00E7B2DF, 0x00C750FE, 0x0011F788,
 	0x00DA8E0F, 0x000C2979, 0x002CCB58, 0x00FA6C2E, 0x006D0F1A, 0x00BBA86C, 0x009B4A4D, 0x004DED3B,
@@ -161,13 +161,13 @@ static const guint32 rlp_fcs_table[256] = {
 };
 
 /*! compute RLP FCS according to 3GPP TS 24.022 Section 4.4 */
-static guint32 rlp_fcs_compute(const guchar *in, size_t in_len)
+static uint32_t rlp_fcs_compute(const unsigned char *in, size_t in_len)
 {
-	guint32 divider = 0;
+	uint32_t divider = 0;
 	size_t i;
 
 	for (i = 0; i < in_len; i++) {
-		guchar input = in[i] ^ (divider & 0xff);
+		unsigned char input = in[i] ^ (divider & 0xff);
 		divider = (divider >> 8) ^ rlp_fcs_table[input];
 	}
 
@@ -175,13 +175,13 @@ static guint32 rlp_fcs_compute(const guchar *in, size_t in_len)
 }
 
 static int
-dissect_gsmrlp_xid(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_gsmrlp_xid(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-	gint cur;
+	int cur;
 
-	for (cur = offset; cur < (gint) tvb_reported_length(tvb);) {
-		guint8 len = tvb_get_guint8(tvb, cur) & 0x0f;
-		guint8 type = tvb_get_guint8(tvb, cur) >> 4;
+	for (cur = offset; cur < (int) tvb_reported_length(tvb);) {
+		uint8_t len = tvb_get_guint8(tvb, cur) & 0x0f;
+		uint8_t type = tvb_get_guint8(tvb, cur) >> 4;
 		proto_tree *xid_tree;
 
 		proto_tree_add_subtree_format(tree, tvb, cur, 1 + len, ett_gsmrlp_xid, &xid_tree, "XID Parameter: %s",
@@ -206,7 +206,7 @@ dissect_gsmrlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	int reported_len = tvb_reported_length(tvb);
 	proto_tree *rlp_tree;
 	proto_item *ti;
-	guint8 n_s, n_r;
+	uint8_t n_s, n_r;
 
 	/* we currently support the 16bit header of RLP v0 + v1 */
 
@@ -222,14 +222,14 @@ dissect_gsmrlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	proto_tree_add_item(rlp_tree, hf_gsmrlp_cr, tvb, 0, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(rlp_tree, hf_gsmrlp_pf, tvb, 1, 1, ENC_BIG_ENDIAN);
 	if (n_s == 0x3f) { /* U frame */
-		guint u_ftype;
+		unsigned u_ftype;
 		proto_tree_add_uint(rlp_tree, hf_gsmrlp_ftype, tvb, 0, 1, RLP_FT_U);
 		proto_tree_add_item_ret_uint(rlp_tree, hf_gsmrlp_u_ftype, tvb, 1, 1, ENC_BIG_ENDIAN, &u_ftype);
 		if ((n_r & 0x1f) == RLP_U_FT_XID)
 			dissect_gsmrlp_xid(tvb, 2, pinfo, rlp_tree);
 		proto_item_append_text(ti, " U-Frame: %s", val_to_str(u_ftype, rlp_ftype_u_vals, "Unknown 0x%02x"));
 	} else if (n_s == 0x3e) { /* S Frame */
-		guint s_ftype;
+		unsigned s_ftype;
 		proto_tree_add_uint(rlp_tree, hf_gsmrlp_ftype, tvb, 0, 1, RLP_FT_S);
 		proto_tree_add_item_ret_uint(rlp_tree, hf_gsmrlp_s_ftype, tvb, 0, 1, ENC_BIG_ENDIAN, &s_ftype);
 		proto_tree_add_uint(rlp_tree, hf_gsmrlp_n_r, tvb, 1, 1, n_r);
@@ -237,7 +237,7 @@ dissect_gsmrlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 				       val_to_str(s_ftype, rlp_ftype_s_vals, "Unknown 0x%02x"), n_s, n_r);
 	} else { /* IS Frame */
 		tvbuff_t *next_tvb;
-		guint s_ftype;
+		unsigned s_ftype;
 		int data_len;
 
 		proto_tree_add_uint(rlp_tree, hf_gsmrlp_ftype, tvb, 0, 1, RLP_FT_IS);
@@ -258,7 +258,7 @@ dissect_gsmrlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
 	/* FCS is always the last 3 bytes of the message */
 	tvb_ensure_bytes_exist(tvb, 0, reported_len - 3);
-	guint32 fcs_computed = rlp_fcs_compute(tvb_get_ptr(tvb, 0, reported_len - 3), reported_len - 3);
+	uint32_t fcs_computed = rlp_fcs_compute(tvb_get_ptr(tvb, 0, reported_len - 3), reported_len - 3);
 	proto_tree_add_checksum(rlp_tree, tvb, reported_len - 3, hf_gsmrlp_fcs, hf_gsmrlp_fcs_status,
 				&ei_gsmrlp_fcs_bad, pinfo, fcs_computed, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 
@@ -307,7 +307,7 @@ proto_register_gsmrlp(void)
 	      { "XID Parameter Value", "gsm_rlp.xid.param_value", FT_UINT8, BASE_DEC,
 		NULL, 0, NULL, HFILL }},
 	};
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_gsmrlp,
 		&ett_gsmrlp_xid,
 	};

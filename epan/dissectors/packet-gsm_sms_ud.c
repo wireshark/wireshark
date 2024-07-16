@@ -71,9 +71,9 @@ static int hf_gsm_sms_ud_reassembled_in;
 static int hf_gsm_sms_ud_reassembled_length;
 static int hf_gsm_sms_ud_short_msg;
 
-static gint ett_gsm_sms;
-static gint ett_gsm_sms_ud_fragment;
-static gint ett_gsm_sms_ud_fragments;
+static int ett_gsm_sms;
+static int ett_gsm_sms_ud_fragment;
+static int ett_gsm_sms_ud_fragments;
 
 /* Subdissector declarations */
 static dissector_table_t gsm_sms_dissector_table;
@@ -126,16 +126,16 @@ parse_gsm_sms_ud_message(proto_tree *sm_tree, tvbuff_t *tvb, packet_info *pinfo,
 {
     tvbuff_t      *sm_tvb                    = NULL;
     proto_tree    *top_tree;
-    guint          sm_len                    = tvb_reported_length(tvb);
-    guint32        i                         = 0;
+    unsigned       sm_len                    = tvb_reported_length(tvb);
+    uint32_t       i                         = 0;
     /* Multiple Messages UDH */
-    gboolean       is_fragmented             = FALSE;
+    bool           is_fragmented             = false;
     fragment_head *fd_sm                     = NULL;
-    gboolean       save_fragmented           = FALSE;
-    gboolean       try_gsm_sms_ud_reassemble = FALSE;
+    bool           save_fragmented           = false;
+    bool           try_gsm_sms_ud_reassemble = false;
     /* SMS Message reassembly */
-    gboolean       reassembled               = FALSE;
-    guint32        reassembled_in            = 0;
+    bool           reassembled               = false;
+    uint32_t       reassembled_in            = 0;
 
     gsm_sms_udh_fields_t *udh_fields = NULL;
     if (smpp_data) {
@@ -151,8 +151,8 @@ parse_gsm_sms_ud_message(proto_tree *sm_tree, tvbuff_t *tvb, packet_info *pinfo,
     if (smpp_data && smpp_data->udhi) {
         /* XXX: We don't handle different encodings in this dissector yet,
          * so just treat everything as 8-bit binary encoding. */
-        guint8 fill_bits = 0;
-        guint8 udl = sm_len;
+        uint8_t fill_bits = 0;
+        uint8_t udl = sm_len;
         dis_field_udh(tvb, pinfo, sm_tree, &i, &sm_len, &udl, OTHER, &fill_bits, udh_fields);
     }
 
@@ -160,7 +160,7 @@ parse_gsm_sms_ud_message(proto_tree *sm_tree, tvbuff_t *tvb, packet_info *pinfo,
         return; /* No more data */
 
     if (udh_fields->frags > 1) {
-        is_fragmented = TRUE;
+        is_fragmented = true;
     }
 
     /*
@@ -173,19 +173,19 @@ parse_gsm_sms_ud_message(proto_tree *sm_tree, tvbuff_t *tvb, packet_info *pinfo,
      */
     if (is_fragmented && udh_fields->frag != 0 && udh_fields->frags != 0 &&
         tvb_bytes_exist(tvb, i, sm_len)) {
-        try_gsm_sms_ud_reassemble = TRUE;
+        try_gsm_sms_ud_reassemble = true;
         save_fragmented = pinfo->fragmented;
-        pinfo->fragmented = TRUE;
+        pinfo->fragmented = true;
         fd_sm = fragment_add_seq_check(&sm_reassembly_table,
                 tvb, i,
                 pinfo,
-                udh_fields->sm_id,    /* guint32 ID for fragments belonging together */
+                udh_fields->sm_id,    /* uint32_t ID for fragments belonging together */
                 NULL,
-                udh_fields->frag-1,   /* guint32 fragment sequence number */
-                sm_len,               /* guint32 fragment length */
+                udh_fields->frag-1,   /* uint32_t fragment sequence number */
+                sm_len,               /* uint32_t fragment length */
                 (udh_fields->frag != udh_fields->frags));     /* More fragments? */
         if (fd_sm) {
-            reassembled    = TRUE;
+            reassembled    = true;
             reassembled_in = fd_sm->reassembled_in;
         }
         sm_tvb = process_reassembled_data(tvb, i, pinfo,
@@ -213,10 +213,10 @@ parse_gsm_sms_ud_message(proto_tree *sm_tree, tvbuff_t *tvb, packet_info *pinfo,
              *  - the preference "Always Try Dissection for 1st SM fragment"
              *    is switched on, and this is the SM's 1st fragment. */
             if (udh_fields->port_src || udh_fields->port_dst) {
-                gboolean disallow_write = FALSE; /* TRUE if we changed writability
+                bool disallow_write = false; /* true if we changed writability
                                     of the columns of the summary */
                 if (prevent_subdissectors_changing_columns && col_get_writable(pinfo->cinfo, -1)) {
-                    disallow_write = TRUE;
+                    disallow_write = true;
                     col_set_writable(pinfo->cinfo, -1, false);
                 }
 
@@ -364,7 +364,7 @@ proto_register_gsm_sms_ud(void)
         },
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
     &ett_gsm_sms,
     &ett_gsm_sms_ud_fragment,
     &ett_gsm_sms_ud_fragments,

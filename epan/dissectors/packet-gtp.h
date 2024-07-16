@@ -11,20 +11,20 @@
 #define __PACKET_GTP_H
 /*structure used to track responses to requests using sequence number*/
 typedef struct gtp_msg_hash_entry {
-    gboolean is_request;    /*TRUE/FALSE*/
-    guint32 req_frame;      /*frame with request */
+    bool is_request;    /*true/false*/
+    uint32_t req_frame;      /*frame with request */
     nstime_t req_time;      /*req time */
-    guint32 rep_frame;      /*frame with reply */
-    gint seq_nr;			/*sequence number*/
-	guint msgtype; 			/*messagetype*/
+    uint32_t rep_frame;      /*frame with reply */
+    int seq_nr;			/*sequence number*/
+	unsigned msgtype; 			/*messagetype*/
 } gtp_msg_hash_t;
 
 
 typedef struct _gtp_hdr {
-  guint8 flags;  /* GTP header flags */
-  guint8 message; /* Message type */
-  guint16 length; /* Length of header */
-  gint64 teid; /* Tunnel End-point ID */
+  uint8_t flags;  /* GTP header flags */
+  uint8_t message; /* Message type */
+  uint16_t length; /* Length of header */
+  int64_t teid; /* Tunnel End-point ID */
 } gtp_hdr_t;
 
 /* definitions of GTP messages */
@@ -149,15 +149,15 @@ typedef struct gtp_hdr_ext_info {
 
 
 /* Data structures to keep track of sessions */
-extern guint32 gtp_session_count;
+extern uint32_t gtp_session_count;
 extern bool g_gtp_session;
 
 typedef struct session_args {
     wmem_list_t *teid_list;
     wmem_list_t *ip_list;
-    guint32 last_teid;
+    uint32_t last_teid;
     address last_ip;
-    guint8 last_cause;
+    uint8_t last_cause;
 } session_args_t;
 
 /* Relation between frame -> session */
@@ -166,21 +166,21 @@ extern wmem_map_t* session_table;
 /* Relation between <teid,ip> -> frame */
 extern wmem_map_t* frame_map;
 
-guint32 get_frame(address ip, guint32 teid, guint32 *frame);
+uint32_t get_frame(address ip, uint32_t teid, uint32_t *frame);
 
-void remove_frame_info(guint32 f);
+void remove_frame_info(uint32_t f);
 
-void add_gtp_session(guint32 frame, guint32 session);
+void add_gtp_session(uint32_t frame, uint32_t session);
 
-gboolean teid_exists(guint32 teid, wmem_list_t *teid_list);
+bool teid_exists(uint32_t teid, wmem_list_t *teid_list);
 
-gboolean ip_exists(address ip, wmem_list_t *ip_list);
+bool ip_exists(address ip, wmem_list_t *ip_list);
 
-void fill_map(wmem_list_t *teid_list, wmem_list_t *ip_list, guint32 frame);
+void fill_map(wmem_list_t *teid_list, wmem_list_t *ip_list, uint32_t frame);
 
-gboolean is_cause_accepted(guint8 cause, guint32 version);
+bool is_cause_accepted(uint8_t cause, uint32_t version);
 
-int decode_qos_umts(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, const gchar * qos_str, guint8 type);
+int decode_qos_umts(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, const char * qos_str, uint8_t type);
 
 void dissect_gtp_uli(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
 

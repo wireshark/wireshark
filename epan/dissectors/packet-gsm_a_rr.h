@@ -18,6 +18,6 @@
 #ifndef __PACKET_GSM_A_RR_H__
 #define __PACKET_GSM_A_RR_H__
 
-extern gint f_k(gint k, gint *w, gint range);
+extern int f_k(int k, int *w, int range);
 
 #endif /* __PACKET_GSM_A_RR_H__ */

@@ -254,21 +254,21 @@ static int hf_geonw_dccmco_cbr_l_1_hop;
 static int hf_geonw_dccmco_output_power;
 static int hf_geonw_dccmco_reserved;
 
-static gint ett_geonw;
-static gint ett_geonw_bh;
-static gint ett_geonw_bh_lt;
-static gint ett_geonw_ch;
-static gint ett_geonw_ch_tc;
-static gint ett_geonw_sh;
-static gint ett_geonw_so;
-static gint ett_geonw_so_add;
-static gint ett_geonw_de;
-static gint ett_geonw_de_add;
-static gint ett_geonw_lsrq_add;
-static gint ett_geonw_analysis;
-static gint ett_geonw_dccmco;
-static gint ett_btpa;
-static gint ett_btpb;
+static int ett_geonw;
+static int ett_geonw_bh;
+static int ett_geonw_bh_lt;
+static int ett_geonw_ch;
+static int ett_geonw_ch_tc;
+static int ett_geonw_sh;
+static int ett_geonw_so;
+static int ett_geonw_so_add;
+static int ett_geonw_de;
+static int ett_geonw_de_add;
+static int ett_geonw_lsrq_add;
+static int ett_geonw_analysis;
+static int ett_geonw_dccmco;
+static int ett_btpa;
+static int ett_btpb;
 
 static int geonw_address_type = -1;
 
@@ -368,10 +368,10 @@ dissect_btpa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         high_port = dst_port;
     }
 
-    if (dissector_try_uint_new(btpa_subdissector_table, low_port, next_tvb, pinfo, tree, TRUE, NULL))
+    if (dissector_try_uint_new(btpa_subdissector_table, low_port, next_tvb, pinfo, tree, true, NULL))
         return tvb_captured_length(tvb);
 
-    if (dissector_try_uint_new(btpa_subdissector_table, high_port, next_tvb, pinfo, tree, TRUE, NULL))
+    if (dissector_try_uint_new(btpa_subdissector_table, high_port, next_tvb, pinfo, tree, true, NULL))
         return tvb_captured_length(tvb);
 
     if (dissector_try_heuristic(btpa_heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, NULL))
@@ -388,8 +388,8 @@ static int
 dissect_btpb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     heur_dtbl_entry_t *hdtbl_entry;
-    guint32 dst_port;
-    guint32 dst_info;
+    uint32_t dst_port;
+    uint32_t dst_info;
     struct btpbheader *btpbh;
 
     btpbh = wmem_new0(pinfo->pool, struct btpbheader);
@@ -419,7 +419,7 @@ dissect_btpb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     if (have_tap_listener(btpb_follow_tap))
         tap_queue_packet(btpb_follow_tap, pinfo, next_tvb);
 
-    if (dissector_try_uint_new(btpb_subdissector_table, dst_port, next_tvb, pinfo, tree, TRUE, NULL)) {
+    if (dissector_try_uint_new(btpb_subdissector_table, dst_port, next_tvb, pinfo, tree, true, NULL)) {
         return tvb_captured_length(tvb);
     }
     if (dissector_try_heuristic(btpb_heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, NULL)) {
@@ -437,8 +437,8 @@ dissect_btpb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
  */
 
 typedef struct _geonw_transaction_t {
-    guint32 rqst_frame;
-    guint32 resp_frame;
+    uint32_t rqst_frame;
+    uint32_t resp_frame;
     nstime_t rqst_time;
     nstime_t resp_time;
 } geonw_transaction_t;
@@ -448,8 +448,8 @@ typedef struct _geonw_conv_info_t {
     wmem_tree_t  *matched_pdus;
 } geonw_conv_info_t;
 
-static const gchar * get_geonw_name(const guint8 *addr);
-static const gchar* geonw_name_resolution_str(const address* addr);
+static const char * get_geonw_name(const uint8_t *addr);
+static const char* geonw_name_resolution_str(const address* addr);
 static int geonw_name_resolution_len(void);
 
 static geonw_transaction_t *transaction_start(packet_info * pinfo, proto_tree * tree);
@@ -466,14 +466,14 @@ struct hashgeonw;
 typedef struct hashgeonw hashgeonw_t;
 
 struct hashgeonw {
-    guint             status;
-    guint8            addr[8];
+    unsigned          status;
+    uint8_t           addr[8];
     char              hexaddr[28];
     char              resolved_name[MAXNAMELEN];
 
     // Node follow up used for duplication detection
-    guint32           timestamp;
-    guint32           sequence_number;
+    uint32_t          timestamp;
+    uint32_t          sequence_number;
 };
 
 
@@ -485,7 +485,7 @@ geonw_str_len(const address* addr _U_)
 }
 
 static int
-_geonw_to_str(const guint8* addrdata, gchar *buf, int buf_len _U_)
+_geonw_to_str(const uint8_t* addrdata, char *buf, int buf_len _U_)
 {
     address eth_addr;
 
@@ -500,7 +500,7 @@ _geonw_to_str(const guint8* addrdata, gchar *buf, int buf_len _U_)
     buf += (unsigned) strlen(buf);
     *buf++ = '.';
     // Country Code
-    guint32_to_str_buf(((guint32)(addrdata[0] & 0x03) << 8) + addrdata[1], buf, 23); // > 23
+    guint32_to_str_buf(((uint32_t)(addrdata[0] & 0x03) << 8) + addrdata[1], buf, 23); // > 23
     buf += (unsigned) strlen(buf);
     *buf++ = '.';
     // LL_ADDR
@@ -511,9 +511,9 @@ _geonw_to_str(const guint8* addrdata, gchar *buf, int buf_len _U_)
 }
 
 static int
-geonw_to_str(const address* addr, gchar *buf, int buf_len _U_)
+geonw_to_str(const address* addr, char *buf, int buf_len _U_)
 {
-    return _geonw_to_str((const guint8 *)addr->data, buf, buf_len);
+    return _geonw_to_str((const uint8_t *)addr->data, buf, buf_len);
 }
 
 static const char*
@@ -531,14 +531,14 @@ geonw_len(void)
     return 8;
 }
 
-static guint
-geonw_addr_hash(gconstpointer key)
+static unsigned
+geonw_addr_hash(const void *key)
 {
-    return wmem_strong_hash((const guint8 *)key, 8);
+    return wmem_strong_hash((const uint8_t *)key, 8);
 }
 
 static gboolean
-geonw_addr_cmp(gconstpointer a, gconstpointer b)
+geonw_addr_cmp(const void *a, const void *b)
 {
     return (memcmp(a, b, 8) == 0);
 }
@@ -566,11 +566,11 @@ static const value_string itss_type_small_names[] = {
 /* Resolve geonetworking address */
 static hashgeonw_t *
 geonw_addr_resolve(hashgeonw_t *tp) {
-    const guint8 *addr = tp->addr;
-    guint16 val;
+    const uint8_t *addr = tp->addr;
+    uint16_t val;
     char *rname = tp->resolved_name;
     address eth_addr;
-    guint8 l1, l2;
+    uint8_t l1, l2;
 
     // Initial or Manual
     if (addr[0] & 0x80)
@@ -583,22 +583,22 @@ geonw_addr_resolve(hashgeonw_t *tp) {
     const char *string = try_val_to_str(val, itss_type_small_names);
     if (string == NULL) {
         guint32_to_str_buf(val, rname, MAXNAMELEN-2);
-        l1 = (guint8) strlen(rname);
+        l1 = (uint8_t) strlen(rname);
     }
     else {
-        l1 = (guint8) g_strlcpy(rname, string, MAXNAMELEN-2);
+        l1 = (uint8_t) g_strlcpy(rname, string, MAXNAMELEN-2);
     }
     rname += l1;
     *rname++ = '.';
     // Country Code
-    val = ((guint32)(addr[0] & 0x03) << 8) + addr[1];
+    val = ((uint32_t)(addr[0] & 0x03) << 8) + addr[1];
     string = try_val_to_str(val, E164_ISO3166_country_code_short_value);
     if (string == NULL) {
         guint32_to_str_buf(val, rname, MAXNAMELEN-12);
-        l2 = (guint8) strlen(rname);
+        l2 = (uint8_t) strlen(rname);
     }
     else {
-        l2 = (guint8) g_strlcpy(rname, string, MAXNAMELEN-l1-3);
+        l2 = (uint8_t) g_strlcpy(rname, string, MAXNAMELEN-l1-3);
     }
     rname += l2;
     //l1 += l2;
@@ -615,7 +615,7 @@ geonw_addr_resolve(hashgeonw_t *tp) {
 }
 
 static hashgeonw_t *
-geonw_hash_new_entry(const guint8 *addr, gboolean resolve)
+geonw_hash_new_entry(const uint8_t *addr, bool resolve)
 {
     hashgeonw_t *tp;
 
@@ -637,7 +637,7 @@ geonw_hash_new_entry(const guint8 *addr, gboolean resolve)
 } /* geonw_hash_new_entry */
 
 static hashgeonw_t *
-geonw_name_lookup(const guint8 *addr, gboolean resolve)
+geonw_name_lookup(const uint8_t *addr, bool resolve)
 {
     hashgeonw_t  *tp;
 
@@ -655,11 +655,11 @@ geonw_name_lookup(const guint8 *addr, gboolean resolve)
 
 } /* geonw_name_lookup */
 
-const gchar *
-get_geonw_name(const guint8 *addr)
+const char *
+get_geonw_name(const uint8_t *addr)
 {
     hashgeonw_t *tp;
-    gboolean resolve = gbl_resolv_flags.network_name;
+    bool resolve = gbl_resolv_flags.network_name;
 
     tp = geonw_name_lookup(addr, resolve);
 
@@ -667,9 +667,9 @@ get_geonw_name(const guint8 *addr)
 
 } /* get_geonw_name */
 
-const gchar* geonw_name_resolution_str(const address* addr)
+const char* geonw_name_resolution_str(const address* addr)
 {
-    return get_geonw_name((const guint8 *)addr->data);
+    return get_geonw_name((const uint8_t *)addr->data);
 }
 
 int geonw_name_resolution_len(void)
@@ -718,7 +718,7 @@ static geonw_transaction_t *transaction_start(packet_info * pinfo, proto_tree * 
         wmem_stack_push(geonw_info->unmatched_pdus, (void *) geonw_trans);
     } else {
         /* Already visited this frame */
-        guint32 frame_num = pinfo->num;
+        uint32_t frame_num = pinfo->num;
 
         geonw_key[0].length = 1;
         geonw_key[0].key = &frame_num;
@@ -775,7 +775,7 @@ static geonw_transaction_t *transaction_end(packet_info * pinfo, proto_tree * tr
     }
 
     if (!PINFO_FD_VISITED(pinfo)) {
-        guint32 frame_num;
+        uint32_t frame_num;
 
         geonw_trans = (geonw_transaction_t *)wmem_stack_peek(geonw_info->unmatched_pdus);
         if (geonw_trans == NULL) {
@@ -803,7 +803,7 @@ static geonw_transaction_t *transaction_end(packet_info * pinfo, proto_tree * tr
         wmem_tree_insert32_array(geonw_info->matched_pdus, geonw_key, (void *) geonw_trans);
     } else {
         /* Already visited this frame */
-        guint32 frame_num = pinfo->num;
+        uint32_t frame_num = pinfo->num;
 
         geonw_key[0].length = 1;
         geonw_key[0].key = &frame_num;
@@ -838,8 +838,8 @@ static geonw_transaction_t *transaction_end(packet_info * pinfo, proto_tree * tr
 // Conversation data
 struct geonw_analysis {
     // Node follow up used for duplication detection
-    guint32           timestamp;
-    guint16           sequence_number;
+    uint32_t          timestamp;
+    uint16_t          sequence_number;
 };
 
 /*
@@ -1192,13 +1192,13 @@ static const value_string eccpoint_type_names[] = {
 
 // Dissects a length and returns the value
 // The encoding of the length shall use at most 7 bits set to 1. We support only 3... 0xfffffff should be enough though to encode a length
-static guint32
-dissect_sec_var_len(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree)
+static uint32_t
+dissect_sec_var_len(tvbuff_t *tvb, int *offset, packet_info *pinfo, proto_tree *tree)
 {
-    guint32 tmp_val;
-    guint32 var_len;
-    guint32 mask;
-    gint start = *offset;
+    uint32_t tmp_val;
+    uint32_t var_len;
+    uint32_t mask;
+    int start = *offset;
     proto_item *ti;
     proto_tree *subtree;
 
@@ -1224,12 +1224,12 @@ dissect_sec_var_len(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree 
 
 // IntX
 static int
-dissect_sec_intx(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree, int hf, guint32 *ret)
+dissect_sec_intx(tvbuff_t *tvb, int *offset, packet_info *pinfo, proto_tree *tree, int hf, uint32_t *ret)
 {
-    //guint8 var_len = 1;
-    guint64 tmp_val;
-    guint64 mask;
-    gint start = *offset;
+    //uint8_t var_len = 1;
+    uint64_t tmp_val;
+    uint64_t mask;
+    int start = *offset;
     proto_item *ti;
     proto_tree *subtree;
 
@@ -1254,7 +1254,7 @@ dissect_sec_intx(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tr
     }
     else {
         proto_tree_add_uint_bits_format_value(subtree, hf, tvb, (start << 3) + (*offset) - start,
-            (((*offset) - start) << 3) - ((*offset) - start), (guint32)tmp_val, ENC_BIG_ENDIAN, "%s(%u)", val64_to_str_const(tmp_val, ieee1609dot2_Psid_vals, "Unknown") , (guint32)tmp_val);
+            (((*offset) - start) << 3) - ((*offset) - start), (uint32_t)tmp_val, ENC_BIG_ENDIAN, "%s(%u)", val64_to_str_const(tmp_val, ieee1609dot2_Psid_vals, "Unknown") , (uint32_t)tmp_val);
     }
     // ETSI TS 103 097 V1.2.1: The encoding of the length shall use at most 7 bits set to 1.
     if (!mask)
@@ -1264,18 +1264,18 @@ dissect_sec_intx(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tr
         if(tmp_val & 0xffffffff00000000) {
             expert_add_info(pinfo, ti, &ei_geonw_intx_too_big);
         }
-        *ret = (guint32) tmp_val;
+        *ret = (uint32_t) tmp_val;
     }
 
     return (*offset) - start;
 }
 
 static int
-dissect_sec_eccpoint(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree, PublicKeyAlgorithm algorithm)
+dissect_sec_eccpoint(tvbuff_t *tvb, int *offset, packet_info *pinfo, proto_tree *tree, PublicKeyAlgorithm algorithm)
 {
-    guint32 tmp_val;
-    guint32 param_len;
-    guint32 start = *offset;
+    uint32_t tmp_val;
+    uint32_t param_len;
+    uint32_t start = *offset;
     proto_item *ti;
     proto_tree *subtree;
     int field_size = etsits103097_table_2[algorithm];
@@ -1307,11 +1307,11 @@ dissect_sec_eccpoint(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree
 }
 
 static int
-dissect_sec_publickey(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree)
+dissect_sec_publickey(tvbuff_t *tvb, int *offset, packet_info *pinfo, proto_tree *tree)
 {
-    guint32 tmp_val;
-    guint32 param_len;
-    gint start = *offset;
+    uint32_t tmp_val;
+    uint32_t param_len;
+    int start = *offset;
     proto_item *part_item;
     proto_tree *part_tree;
 
@@ -1341,11 +1341,11 @@ dissect_sec_publickey(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tre
 }
 
 static int
-dissect_sec_encryption_parameters(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree)
+dissect_sec_encryption_parameters(tvbuff_t *tvb, int *offset, packet_info *pinfo, proto_tree *tree)
 {
-    guint32 tmp_val;
-    guint32 param_len;
-    guint32 start = *offset;
+    uint32_t tmp_val;
+    uint32_t param_len;
+    uint32_t start = *offset;
     proto_item *part_item;
     proto_tree *part_tree;
 
@@ -1370,9 +1370,9 @@ dissect_sec_encryption_parameters(tvbuff_t *tvb, gint *offset, packet_info *pinf
 }
 
 static int
-dissect_sec_ecdsasignature(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree, PublicKeyAlgorithm algorithm)
+dissect_sec_ecdsasignature(tvbuff_t *tvb, int *offset, packet_info *pinfo, proto_tree *tree, PublicKeyAlgorithm algorithm)
 {
-    guint32 start = *offset;
+    uint32_t start = *offset;
     int field_size = etsits103097_table_2[algorithm];
 
     dissect_sec_eccpoint(tvb, offset, pinfo, tree, algorithm);
@@ -1382,11 +1382,11 @@ dissect_sec_ecdsasignature(tvbuff_t *tvb, gint *offset, packet_info *pinfo, prot
 }
 
 static int
-dissect_sec_signature(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree)
+dissect_sec_signature(tvbuff_t *tvb, int *offset, packet_info *pinfo, proto_tree *tree)
 {
-    gint start = *offset;
-    guint32 param_len;
-    guint32 tmp_val;
+    int start = *offset;
+    uint32_t param_len;
+    uint32_t tmp_val;
     proto_item *part_item;
     proto_tree *part_tree;
 
@@ -1410,7 +1410,7 @@ dissect_sec_signature(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tre
 }
 
 inline static int
-dissect_sec_2dlocation(tvbuff_t *tvb, gint *offset, proto_tree *tree)
+dissect_sec_2dlocation(tvbuff_t *tvb, int *offset, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_sgeonw_lat, tvb, *offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_sgeonw_lon, tvb, 4+*offset, 4, ENC_BIG_ENDIAN);
@@ -1421,10 +1421,10 @@ dissect_sec_2dlocation(tvbuff_t *tvb, gint *offset, proto_tree *tree)
 
 
 static int
-dissect_sec_subject_info(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree)
+dissect_sec_subject_info(tvbuff_t *tvb, int *offset, packet_info *pinfo, proto_tree *tree)
 {
-    guint32 param_len;
-    gint start = *offset;
+    uint32_t param_len;
+    int start = *offset;
     proto_item *ti;
     proto_item *part_item;
     proto_tree *part_tree;
@@ -1445,11 +1445,11 @@ dissect_sec_subject_info(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_
 }
 
 static int
-dissect_sec_itsaidssp(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree)
+dissect_sec_itsaidssp(tvbuff_t *tvb, int *offset, packet_info *pinfo, proto_tree *tree)
 {
-    gint start = *offset;
-    guint32 param_len;
-    guint32 appid;
+    int start = *offset;
+    uint32_t param_len;
+    uint32_t appid;
     proto_item *ti;
     proto_tree *subtree;
 
@@ -1473,9 +1473,9 @@ dissect_sec_itsaidssp(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tre
 static int hf_sgeonw_priority;
 
 static int
-dissect_sec_itsaidpriority(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree)
+dissect_sec_itsaidpriority(tvbuff_t *tvb, int *offset, packet_info *pinfo, proto_tree *tree)
 {
-    gint start = *offset;
+    int start = *offset;
 
     dissect_sec_intx(tvb, offset, pinfo, tree, hf_sgeonw_app_id, NULL);
     proto_tree_add_item(tree, hf_sgeonw_priority, tvb, *offset, 1, ENC_BIG_ENDIAN);
@@ -1485,10 +1485,10 @@ dissect_sec_itsaidpriority(tvbuff_t *tvb, gint *offset, packet_info *pinfo, prot
 }
 
 static int
-dissect_sec_itsaidpriorityssp(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree)
+dissect_sec_itsaidpriorityssp(tvbuff_t *tvb, int *offset, packet_info *pinfo, proto_tree *tree)
 {
-    gint start = *offset;
-    guint32 param_len;
+    int start = *offset;
+    uint32_t param_len;
     proto_item *ti;
 
     dissect_sec_intx(tvb, offset, pinfo, tree, hf_sgeonw_app_id, NULL);
@@ -1511,11 +1511,11 @@ static int hf_sgeonw_subject_assurance_reserved;
 static int hf_sgeonw_subject_assurance_confidence;
 
 static int
-dissect_sec_subject_attributes(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree, guint8 version)
+dissect_sec_subject_attributes(tvbuff_t *tvb, int *offset, packet_info *pinfo, proto_tree *tree, uint8_t version)
 {
-    gint start = *offset;
-    guint32 tmp_val;
-    guint32 param_len;
+    int start = *offset;
+    uint32_t tmp_val;
+    uint32_t param_len;
     proto_item *ti;
     proto_item *part_item;
     proto_tree *subtree;
@@ -1596,7 +1596,7 @@ dissect_sec_subject_attributes(tvbuff_t *tvb, gint *offset, packet_info *pinfo, 
 }
 
 static int
-dissect_sec_circularregion(tvbuff_t *tvb, gint *offset, proto_tree *tree)
+dissect_sec_circularregion(tvbuff_t *tvb, int *offset, proto_tree *tree)
 {
     dissect_sec_2dlocation(tvb, offset, tree);
     // uint16
@@ -1607,7 +1607,7 @@ dissect_sec_circularregion(tvbuff_t *tvb, gint *offset, proto_tree *tree)
 }
 
 static int
-dissect_sec_rectangularregion(tvbuff_t *tvb, gint *offset, proto_tree *tree)
+dissect_sec_rectangularregion(tvbuff_t *tvb, int *offset, proto_tree *tree)
 {
     dissect_sec_2dlocation(tvb, offset, tree);
     dissect_sec_2dlocation(tvb, offset, tree);
@@ -1616,11 +1616,11 @@ dissect_sec_rectangularregion(tvbuff_t *tvb, gint *offset, proto_tree *tree)
 }
 
 static int
-dissect_sec_polygonalregion(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree)
+dissect_sec_polygonalregion(tvbuff_t *tvb, int *offset, packet_info *pinfo, proto_tree *tree)
 {
-    gint start = *offset;
-    guint32 param_len;
-    guint32 tmp_val;
+    int start = *offset;
+    uint32_t param_len;
+    uint32_t tmp_val;
 
     tmp_val = dissect_sec_var_len(tvb, offset, pinfo, tree);
     while (tmp_val) {
@@ -1634,9 +1634,9 @@ dissect_sec_polygonalregion(tvbuff_t *tvb, gint *offset, packet_info *pinfo, pro
 }
 
 static int
-dissect_sec_identifiedregion(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree)
+dissect_sec_identifiedregion(tvbuff_t *tvb, int *offset, packet_info *pinfo, proto_tree *tree)
 {
-    gint start = *offset;
+    int start = *offset;
 
     proto_tree_add_item(tree, hf_sgeonw_region_dictionary, tvb, *offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_sgeonw_region_identifier, tvb, *offset, 2, ENC_BIG_ENDIAN);
@@ -1647,11 +1647,11 @@ dissect_sec_identifiedregion(tvbuff_t *tvb, gint *offset, packet_info *pinfo, pr
 }
 
 static int
-dissect_sec_geographicregion(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree)
+dissect_sec_geographicregion(tvbuff_t *tvb, int *offset, packet_info *pinfo, proto_tree *tree)
 {
-    gint start = *offset;
-    guint32 param_len;
-    guint32 tmp_val;
+    int start = *offset;
+    uint32_t param_len;
+    uint32_t tmp_val;
 
     proto_tree_add_item_ret_uint(tree, hf_sgeonw_region_type, tvb, *offset, 1, ENC_BIG_ENDIAN, &tmp_val);
     *offset += 1;
@@ -1690,11 +1690,11 @@ static const value_string sgeonw_duration_unit_names[] = {
 };
 
 static int
-dissect_sec_validity_restrictions(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree)
+dissect_sec_validity_restrictions(tvbuff_t *tvb, int *offset, packet_info *pinfo, proto_tree *tree)
 {
-    gint start = *offset;
-    guint32 tmp_val;
-    guint32 param_len;
+    int start = *offset;
+    uint32_t tmp_val;
+    uint32_t param_len;
     proto_item *ti;
     proto_tree *subtree;
 
@@ -1737,17 +1737,17 @@ dissect_sec_validity_restrictions(tvbuff_t *tvb, gint *offset, packet_info *pinf
     return (*offset) - start;
 }
 
-static int dissect_sec_signer_info(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree, guint8 version);
+static int dissect_sec_signer_info(tvbuff_t *tvb, int *offset, packet_info *pinfo, proto_tree *tree, uint8_t version);
 
 static int hf_sgeonw_certification_version;
 
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_sec_certificate(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree, guint8 version)
+dissect_sec_certificate(tvbuff_t *tvb, int *offset, packet_info *pinfo, proto_tree *tree, uint8_t version)
 {
-    guint32 tmp_val;
-    guint32 param_len;
-    gint start = *offset;
+    uint32_t tmp_val;
+    uint32_t param_len;
+    int start = *offset;
 
     proto_tree_add_item_ret_uint(tree, hf_sgeonw_certification_version, tvb, *offset, 1, ENC_BIG_ENDIAN, &tmp_val);
     *offset += 1;
@@ -1779,11 +1779,11 @@ dissect_sec_certificate(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_t
 
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_sec_signer_info(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree, guint8 version)
+dissect_sec_signer_info(tvbuff_t *tvb, int *offset, packet_info *pinfo, proto_tree *tree, uint8_t version)
 {
-    gint start = *offset;
-    guint32 tmp_val;
-    guint32 param_len;
+    int start = *offset;
+    uint32_t tmp_val;
+    uint32_t param_len;
     proto_item *ti;
     proto_tree *subtree;
     proto_item *tinner;
@@ -1853,10 +1853,10 @@ static int hf_sgeonw_auth_tag;
 // EciesNistP256EncryptedKey structure shall be preceded by an according
 // EncryptionParameters structure.
 static int
-dissect_sec_eciesnistp256entryptedkey(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree, PublicKeyAlgorithm pub_alg, SymmetricAlgorithm symm_alg, guint8 version)
+dissect_sec_eciesnistp256entryptedkey(tvbuff_t *tvb, int *offset, packet_info *pinfo, proto_tree *tree, PublicKeyAlgorithm pub_alg, SymmetricAlgorithm symm_alg, uint8_t version)
 {
-    gint start = *offset;
-    guint8 symm_key_len = etsits103097_table_4[symm_alg];
+    int start = *offset;
+    uint8_t symm_key_len = etsits103097_table_4[symm_alg];
 
     dissect_sec_eccpoint(tvb, offset, pinfo, tree, pub_alg);
     proto_tree_add_item(tree, hf_sgeonw_encrypted_key, tvb, *offset, symm_key_len, ENC_NA);
@@ -1869,11 +1869,11 @@ dissect_sec_eciesnistp256entryptedkey(tvbuff_t *tvb, gint *offset, packet_info *
 
 
 static int
-dissect_sec_recipient_info(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree, guint8 version)
+dissect_sec_recipient_info(tvbuff_t *tvb, int *offset, packet_info *pinfo, proto_tree *tree, uint8_t version)
 {
-    gint start = *offset;
-    guint32 tmp_val;
-    guint32 param_len;
+    int start = *offset;
+    uint32_t tmp_val;
+    uint32_t param_len;
 
     proto_tree_add_item(tree, hf_sgeonw_hashedid8, tvb, *offset, 8, ENC_NA);
     proto_tree_add_item_ret_uint(tree, hf_sgeonw_public_key_algorithm, tvb, 8+*offset, 1, ENC_BIG_ENDIAN, &tmp_val);
@@ -1896,11 +1896,11 @@ dissect_sec_recipient_info(tvbuff_t *tvb, gint *offset, packet_info *pinfo, prot
 
 
 static int
-dissect_sec_payload(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *part_tree)
+dissect_sec_payload(tvbuff_t *tvb, int *offset, packet_info *pinfo, proto_tree *part_tree)
 {
-    gint start = *offset;
-    guint32 tmp_val;
-    guint32 param_len;
+    int start = *offset;
+    uint32_t tmp_val;
+    uint32_t param_len;
     proto_tree *field_tree;
     proto_item *ti;
 
@@ -1944,19 +1944,19 @@ dissect_sec_payload(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree 
 
 
 static int
-dissect_secured_message(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_secured_message(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    guint32 msg_id; // Or Application ID, depending on version
-    guint8 version;
-    guint32 var_len;
+    uint32_t msg_id; // Or Application ID, depending on version
+    uint8_t version;
+    uint32_t var_len;
     proto_item *ti;
-    guint32 tmp_val;
-    guint32 param_len;
+    uint32_t tmp_val;
+    uint32_t param_len;
     proto_item *secmsg_item;
     proto_item *part_item;
     proto_tree *part_tree;
     proto_tree *field_tree;
-    gint sec_start = offset;
+    int sec_start = offset;
 
     // Secured message subtree
     secmsg_item = proto_tree_add_item(tree, hf_geonw_sec, tvb, offset, 0, ENC_NA); // Length cannot be determined now
@@ -1985,7 +1985,7 @@ dissect_secured_message(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tr
     var_len = dissect_sec_var_len(tvb, &offset, pinfo, part_tree);
     while (var_len > 0) {
 
-        guint32 start = offset;
+        uint32_t start = offset;
 
         ti = proto_tree_add_item(part_tree, hf_sgeonw_header_field, tvb, offset, 0, ENC_NA);
         field_tree = proto_item_add_subtree(ti, ett_sgeonw_field);
@@ -2073,7 +2073,7 @@ dissect_secured_message(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tr
         var_len = dissect_sec_var_len(tvb, &offset, pinfo, part_tree);
         while (var_len > 0) {
 
-            guint32 start = offset;
+            uint32_t start = offset;
 
             dissect_sec_payload(tvb, &offset, pinfo, part_tree);
             if (var_len < (offset-start))
@@ -2093,7 +2093,7 @@ dissect_secured_message(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tr
     var_len = dissect_sec_var_len(tvb, &offset, pinfo, part_tree);
     while (var_len > 0) {
 
-        guint32 start = offset;
+        uint32_t start = offset;
 
         ti = proto_tree_add_item(part_tree, hf_sgeonw_trailer_field, tvb, offset, 0, ENC_NA);
         field_tree = proto_item_add_subtree(ti, ett_sgeonw_field);
@@ -2135,24 +2135,24 @@ dissect_sgeonw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *da
 //   BH_NH_SECURED_PKT - skip and continue to Secured Packet
 // XXX COL_INFO to be improved
 static int
-dissect_geonw_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_, guint8 skip_bh)
+dissect_geonw_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_, uint8_t skip_bh)
 {
-    guint8 bh_next_header;
-    guint32 ch_next_header;
-    guint32 header_type;
-    guint32 rhl;
-    guint32 tmp_val;
-    gint offset = 0;
+    uint8_t bh_next_header;
+    uint32_t ch_next_header;
+    uint32_t header_type;
+    uint32_t rhl;
+    uint32_t tmp_val;
+    int offset = 0;
     proto_item *ti;
     proto_item *top_item;
     proto_item* rhl_ti = NULL;
-    gint hdr_len = 0;
-    guint32 payload_len = 0;
-    guint32 reserved;
-    guint32 timestamp;
-    guint32 sequence_number = SN_MAX + 1;
+    int hdr_len = 0;
+    uint32_t payload_len = 0;
+    uint32_t reserved;
+    uint32_t timestamp;
+    uint32_t sequence_number = SN_MAX + 1;
     struct geonwheader *geonwh;
-    gint32 latlon;
+    int32_t latlon;
 
     geonwh = wmem_new0(pinfo->pool, struct geonwheader);
 
@@ -2484,7 +2484,7 @@ dissect_geonw_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             // We do not try to consider GN_ADDR updates (due to duplicate address detection or anonymous setting)
             hashgeonw_t *tp = (hashgeonw_t *)wmem_map_lookup(geonw_hashtable, pinfo->net_src.data);
             if (tp == NULL) {
-                tp = geonw_hash_new_entry((const guint8 *)pinfo->net_src.data, FALSE);
+                tp = geonw_hash_new_entry((const uint8_t *)pinfo->net_src.data, false);
                 tp->sequence_number = sequence_number;
                 tp->timestamp = timestamp;
             } else {
@@ -2521,8 +2521,8 @@ dissect_geonw_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                      * 23                                                  # TST(P) not greater than TST(SO)
                      * 24  ENDIF
                      */
-                    if (((timestamp > tp->timestamp) && (((guint64)timestamp - (guint64)tp->timestamp) <= (guint64)TST_MAX/2)) ||
-                            ((tp->timestamp > timestamp) && (((guint64)tp->timestamp - (guint64)timestamp) > (guint64)TST_MAX/2))) {
+                    if (((timestamp > tp->timestamp) && (((uint64_t)timestamp - (uint64_t)tp->timestamp) <= (uint64_t)TST_MAX/2)) ||
+                            ((tp->timestamp > timestamp) && (((uint64_t)tp->timestamp - (uint64_t)timestamp) > (uint64_t)TST_MAX/2))) {
                                                                     // TST(P) is greater than TST(SO)
                         tp->sequence_number = sequence_number;
                         tp->timestamp = timestamp;                  // P is not a duplicate packet
@@ -2557,8 +2557,8 @@ dissect_geonw_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                      * 10                                      # P is a duplicate
                      * 11  ENDIF
                      */
-                    if (((timestamp > tp->timestamp) && (((guint64)timestamp - (guint64)tp->timestamp) <= (guint64)TST_MAX/2)) ||
-                            ((tp->timestamp > timestamp) && (((guint64)tp->timestamp - (guint64)timestamp) > (guint64)TST_MAX/2))) {
+                    if (((timestamp > tp->timestamp) && (((uint64_t)timestamp - (uint64_t)tp->timestamp) <= (uint64_t)TST_MAX/2)) ||
+                            ((tp->timestamp > timestamp) && (((uint64_t)tp->timestamp - (uint64_t)timestamp) > (uint64_t)TST_MAX/2))) {
                                                         // TST(P) is greater than TST(SO)
                         tp->timestamp = timestamp;      // P is not a duplicate packet
                     } else {
@@ -2767,50 +2767,50 @@ dissect_geonw_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
  * Decode_as
  */
 static void
-btpa_src_prompt(packet_info *pinfo _U_, gchar* result)
+btpa_src_prompt(packet_info *pinfo _U_, char* result)
 {
-    guint32 port = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, hf_btpa_srcport, pinfo->curr_layer_num));
+    uint32_t port = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, hf_btpa_srcport, pinfo->curr_layer_num));
 
     snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "source (%u%s)", port, UTF8_RIGHTWARDS_ARROW);
 }
 
-static gpointer
+static void *
 btpa_src_value(packet_info *pinfo _U_)
 {
     return p_get_proto_data(pinfo->pool, pinfo, hf_btpa_srcport, pinfo->curr_layer_num);
 }
 
 static void
-btpa_dst_prompt(packet_info *pinfo, gchar *result)
+btpa_dst_prompt(packet_info *pinfo, char *result)
 {
-    guint32 port = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, hf_btpa_dstport, pinfo->curr_layer_num));
+    uint32_t port = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, hf_btpa_dstport, pinfo->curr_layer_num));
 
     snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "destination (%s%u)", UTF8_RIGHTWARDS_ARROW, port);
 }
 
-static gpointer
+static void *
 btpa_dst_value(packet_info *pinfo)
 {
     return p_get_proto_data(pinfo->pool, pinfo, hf_btpa_dstport, pinfo->curr_layer_num);
 }
 
 static void
-btpa_both_prompt(packet_info *pinfo, gchar *result)
+btpa_both_prompt(packet_info *pinfo, char *result)
 {
-    guint32 srcport = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, hf_btpa_srcport, pinfo->curr_layer_num)),
+    uint32_t srcport = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, hf_btpa_srcport, pinfo->curr_layer_num)),
             destport = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, hf_btpa_dstport, pinfo->curr_layer_num));
     snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "both (%u%s%u)", srcport, UTF8_LEFT_RIGHT_ARROW, destport);
 }
 
 static void
-btpb_dst_prompt(packet_info *pinfo, gchar *result)
+btpb_dst_prompt(packet_info *pinfo, char *result)
 {
-    guint32 port = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, hf_btpb_dstport, pinfo->curr_layer_num));
+    uint32_t port = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, hf_btpb_dstport, pinfo->curr_layer_num));
 
     snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "destination (%s%u)", UTF8_RIGHTWARDS_ARROW, port);
 }
 
-static gpointer
+static void *
 btpb_dst_value(packet_info *pinfo)
 {
     return p_get_proto_data(pinfo->pool, pinfo, hf_btpb_dstport, pinfo->curr_layer_num);
@@ -2840,7 +2840,7 @@ proto_register_btpa(void)
             NULL, HFILL }},
 
     };
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_btpa,
     };
     proto_btpa = proto_register_protocol("BTP-A", "BTPA", "btpa");
@@ -2893,7 +2893,7 @@ proto_register_btpb(void)
             NULL, HFILL }},
 
     };
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_btpb,
     };
     proto_btpb = proto_register_protocol("BTP-B", "BTPB", "btpb");
@@ -2930,7 +2930,7 @@ proto_reg_handoff_btpb(void)
 
 // Display functions
 static void
-display_latitude( gchar *result, gint32 hexver )
+display_latitude( char *result, int32_t hexver )
 {
     snprintf( result, ITEM_LABEL_LENGTH, "%ud%u'%.2f\"%c (%d)",
             abs(hexver)/10000000,
@@ -2941,7 +2941,7 @@ display_latitude( gchar *result, gint32 hexver )
 }
 
 static void
-display_longitude( gchar *result, gint32 hexver )
+display_longitude( char *result, int32_t hexver )
 {
     snprintf( result, ITEM_LABEL_LENGTH, "%ud%u'%.2f\"%c (%d)",
             abs(hexver)/10000000,
@@ -2952,19 +2952,19 @@ display_longitude( gchar *result, gint32 hexver )
 }
 
 static void
-display_speed( gchar *result, gint32 hexver )
+display_speed( char *result, int32_t hexver )
 {
     snprintf( result, ITEM_LABEL_LENGTH, "%.2f m/s", hexver/100.);
 }
 
 static void
-display_heading( gchar *result, guint32 hexver )
+display_heading( char *result, uint32_t hexver )
 {
     snprintf( result, ITEM_LABEL_LENGTH, "%.1f degrees", hexver/10.);
 }
 
 static void
-display_elevation( gchar *result, gint32 hexver )
+display_elevation( char *result, int32_t hexver )
 {
     //  0x0000 to 0xEFFF: positive numbers with a range from 0 to +6 143,9 meters. All numbers above +6 143,9 are
     //  also represented by 0xEFFF.
@@ -3600,7 +3600,7 @@ proto_register_geonw(void)
         { &ei_sgeonw_bogus, { "geonw.sec.bogus", PI_MALFORMED, PI_ERROR, "Malformed message (check length)", EXPFILL }},
         { &ei_geonw_intx_too_big, { "geonw.intx_too_big", PI_MALFORMED, PI_ERROR, "IntX value exceeds 32 bits", EXPFILL }},
     };
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_geonw,
         &ett_geonw_bh,
         &ett_geonw_bh_lt,

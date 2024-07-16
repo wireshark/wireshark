@@ -60,9 +60,9 @@ static int hf_gearman_echo_text;
 static int hf_gearman_err_code;
 static int hf_gearman_err_text;
 
-static gint ett_gearman;
-static gint ett_gearman_command;
-static gint ett_gearman_content;
+static int ett_gearman;
+static int ett_gearman_command;
+static int ett_gearman_content;
 
 static expert_field ei_gearman_pkt_type_unknown;
 
@@ -70,10 +70,10 @@ static bool gearman_desegment  = true;
 
 static const int GEARMAN_COMMAND_HEADER_SIZE = 12;
 static const int GEARMAN_PORT = 4730;
-static const guchar *GEARMAN_MAGIC_CODE_REQUEST = "\0REQ";
-static const guchar *GEARMAN_MAGIC_CODE_RESPONSE = "\0RES";
+static const unsigned char *GEARMAN_MAGIC_CODE_REQUEST = "\0REQ";
+static const unsigned char *GEARMAN_MAGIC_CODE_RESPONSE = "\0RES";
 
-static const gchar *GEARMAN_MGR_CMDS[] = {
+static const char *GEARMAN_MGR_CMDS[] = {
   "workers",
   "status",
   "maxqueue",
@@ -178,7 +178,7 @@ static const value_string gearman_command_names[] = {
   { 0, NULL}
 };
 
-static guint
+static unsigned
 get_gearman_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
     return tvb_get_ntohl(tvb, offset+8)+GEARMAN_COMMAND_HEADER_SIZE;
@@ -187,10 +187,10 @@ get_gearman_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *dat
 static int
 dissect_binary_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  gint curr_offset;
+  int curr_offset;
   char *magic_code;
-  guint32 type, size;
-  guint len;
+  uint32_t type, size;
+  unsigned len;
   proto_item *content_item = NULL;
   proto_tree *content_tree = NULL;
 
@@ -553,7 +553,7 @@ dissect_management_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   ti = proto_tree_add_item(tree, proto_gearman, tvb, 0, -1, ENC_NA);
   gearman_tree = proto_item_add_subtree(ti, ett_gearman);
 
-  while ((linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE)) > 0)
+  while ((linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, false)) > 0)
   {
     for (i=0; i<GEARMAN_MGR_CMDS_COUNT; i++)
     {
@@ -563,7 +563,7 @@ dissect_management_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       if (cmdlen == linelen && 0 == tvb_strneql(tvb, offset, GEARMAN_MGR_CMDS[i], cmdlen))
       {
-        const guint8* cmdstr;
+        const uint8_t* cmdstr;
         proto_tree_add_item_ret_string(gearman_tree, hf_gearman_mgr_cmd, tvb, offset, cmdlen, ENC_ASCII|ENC_NA, pinfo->pool, &cmdstr);
         col_add_fstr(pinfo->cinfo, COL_INFO, "[MGR] %s", cmdstr);
         type = 1;
@@ -644,7 +644,7 @@ proto_register_gearman(void)
   };
 
   /* Setup protocol subtree array */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_gearman,
     &ett_gearman_command,
     &ett_gearman_content

@@ -56,20 +56,20 @@ extern int hf_gmr1_len;
 
 /* Message & IEs parsing */
 
-typedef void (*gmr1_msg_func_t)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint offset, gint len);
+typedef void (*gmr1_msg_func_t)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, int len);
 
 #define GMR1_IE_FUNC(fn_name)	\
-	static guint16 \
-	fn_name (tvbuff_t *tvb _U_, proto_tree *tree _U_, packet_info *pinfo _U_, guint32 offset _U_, guint len _U_, gchar *add_string _U_, int string_len _U_)
+	static uint16_t \
+	fn_name (tvbuff_t *tvb _U_, proto_tree *tree _U_, packet_info *pinfo _U_, uint32_t offset _U_, unsigned len _U_, char *add_string _U_, int string_len _U_)
 
 #define GMR1_MSG_FUNC(fn_name)	\
 	static void \
-	fn_name (tvbuff_t *tvb _U_, proto_tree *tree _U_, packet_info *pinfo _U_, gint offset, gint len)
+	fn_name (tvbuff_t *tvb _U_, proto_tree *tree _U_, packet_info *pinfo _U_, int offset, int len)
 
 #define GMR1_MSG_FUNC_BEGIN	\
-	gint curr_offset;	\
-	gint curr_len;		\
-	gint consumed;		\
+	int curr_offset;	\
+	int curr_len;		\
+	int consumed;		\
 				\
 	curr_offset = offset;	\
 	curr_len = len;		\
@@ -79,7 +79,7 @@ typedef void (*gmr1_msg_func_t)(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 
 
 extern void
-gmr1_get_msg_params(gmr1_pd_e pd, guint8 oct, const gchar **msg_str,
+gmr1_get_msg_params(gmr1_pd_e pd, uint8_t oct, const char **msg_str,
                     int *ett_tree, int *hf_idx, gmr1_msg_func_t *msg_func_p);
 
 

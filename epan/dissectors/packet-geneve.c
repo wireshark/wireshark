@@ -114,13 +114,13 @@ static const struct true_false_string tfs_geneve_gcp_direction = {
 };
 
 static const char *
-format_option_name(wmem_allocator_t *scope, guint16 opt_class, guint8 opt_type)
+format_option_name(wmem_allocator_t *scope, uint16_t opt_class, uint8_t opt_type)
 {
     const char *name;
 
     name = wmem_strdup_printf(scope,
                               "%s, Class: %s (0x%04x) Type: 0x%02x",
-                              val64_to_str_const(((guint64)opt_class << 8) | opt_type,
+                              val64_to_str_const(((uint64_t)opt_class << 8) | opt_type,
                                                  option_names, "Unknown"),
                               rval_to_str_const(opt_class, class_id_names, "Unknown"),
                               opt_class, opt_type);
@@ -130,12 +130,12 @@ format_option_name(wmem_allocator_t *scope, guint16 opt_class, guint8 opt_type)
 
 static void
 dissect_option(wmem_allocator_t *scope, tvbuff_t *tvb, proto_tree *opts_tree, int offset,
-               guint16 opt_class, guint8 opt_type, int len)
+               uint16_t opt_class, uint8_t opt_type, int len)
 {
     proto_item *opt_item, *type_item, *hidden_item, *flag_item;
     proto_tree *opt_tree, *flag_tree;
     const char *critical;
-    guint8 flags;
+    uint8_t flags;
 
     critical = opt_type & OPT_TYPE_CRITICAL ? "Critical" : "Non-critical";
 
@@ -174,7 +174,7 @@ dissect_option(wmem_allocator_t *scope, tvbuff_t *tvb, proto_tree *opts_tree, in
     proto_tree_add_uint(opt_tree, hf_geneve_option_length, tvb, offset, 1, len);
     offset += 1;
 
-    switch (((guint64)opt_class << 8) | opt_type) {
+    switch (((uint64_t)opt_class << 8) | opt_type) {
         case GENEVE_GCP_VNID:
             proto_tree_add_bits_item(opt_tree, hf_geneve_opt_gcp_vnid, tvb, offset * 8,
                                      28, ENC_BIG_ENDIAN);
@@ -204,9 +204,9 @@ dissect_geneve_options(tvbuff_t *tvb, packet_info *pinfo,
 {
     proto_item *opts_item;
     proto_tree *opts_tree;
-    guint16 opt_class;
-    guint8 opt_type;
-    guint8 opt_len;
+    uint16_t opt_class;
+    uint8_t opt_type;
+    uint8_t opt_len;
 
     opts_item = proto_tree_add_item(geneve_tree, hf_geneve_options, tvb,
                                     offset, len, ENC_NA);
@@ -242,10 +242,10 @@ dissect_geneve(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     proto_tree *geneve_tree;
     tvbuff_t *next_tvb;
     int offset = 0;
-    guint8 ver_opt;
-    guint8 ver;
-    guint8 flags;
-    guint16 proto_type;
+    uint8_t ver_opt;
+    uint8_t ver;
+    uint8_t flags;
+    uint16_t proto_type;
     int opts_len;
     static int * const flag_fields[] = {
         &hf_geneve_flag_oam,
@@ -441,7 +441,7 @@ proto_register_geneve(void)
         },
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_geneve,
         &ett_geneve_flags,
         &ett_geneve_options,

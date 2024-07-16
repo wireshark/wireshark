@@ -46,9 +46,9 @@ static int hf_gssapi_segment_count;
 static int hf_gssapi_reassembled_in;
 static int hf_gssapi_reassembled_length;
 
-static gint ett_gssapi;
-static gint ett_gssapi_segment;
-static gint ett_gssapi_segments;
+static int ett_gssapi;
+static int ett_gssapi_segment;
+static int ett_gssapi_segments;
 
 static expert_field ei_gssapi_unknown_header;
 
@@ -61,14 +61,14 @@ typedef struct _gssapi_conv_info_t {
 
 	wmem_tree_t *frags;
 
-	gboolean do_reassembly;  /* this field is used on first sequential scan of packets to help indicate when the next blob is a fragment continuing a previous one */
+	bool do_reassembly;  /* this field is used on first sequential scan of packets to help indicate when the next blob is a fragment continuing a previous one */
 	int first_frame;
 	int frag_offset;
 } gssapi_conv_info_t;
 
 typedef struct _gssapi_frag_info_t {
-	guint32 first_frame;
-	guint32 reassembled_in;
+	uint32_t first_frame;
+	uint32_t reassembled_in;
 } gssapi_frag_info_t;
 
 static const fragment_items gssapi_frag_items = {
@@ -105,8 +105,8 @@ static dissector_handle_t spnego_krb5_wrap_handle;
 
 static GHashTable *gssapi_oids;
 
-static gint
-gssapi_oid_equal(gconstpointer k1, gconstpointer k2)
+static int
+gssapi_oid_equal(const void *k1, const void *k2)
 {
 	const char *key1 = (const char *)k1;
 	const char *key2 = (const char *)k2;
@@ -114,11 +114,11 @@ gssapi_oid_equal(gconstpointer k1, gconstpointer k2)
 	return strcmp(key1, key2) == 0;
 }
 
-static guint
-gssapi_oid_hash(gconstpointer k)
+static unsigned
+gssapi_oid_hash(const void *k)
 {
 	const char *key = (const char *)k;
-	guint hash = 0, i;
+	unsigned hash = 0, i;
 
 	for (i = 0; key[i]; i++)
 		hash += key[i];
@@ -128,7 +128,7 @@ gssapi_oid_hash(gconstpointer k)
 
 void
 gssapi_init_oid(const char *oid, int proto, int ett, dissector_handle_t handle,
-		dissector_handle_t wrap_handle, const gchar *comment)
+		dissector_handle_t wrap_handle, const char *comment)
 {
 	char *key = g_strdup(oid);
 	gssapi_oid_value *value = (gssapi_oid_value *)g_malloc(sizeof(*value));
@@ -160,7 +160,7 @@ gssapi_lookup_oid_str(const char *oid_key)
 
 static int
 dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-		    gboolean is_verifier, gssapi_encrypt_info_t* encrypt_info)
+		    bool is_verifier, gssapi_encrypt_info_t* encrypt_info)
 {
 	proto_item *volatile item;
 	proto_tree *volatile subtree;
@@ -172,10 +172,10 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	tvbuff_t *oid_tvb;
 	int len, start_offset, oid_start_offset;
 	volatile int offset;
-	gint8 appclass;
+	int8_t appclass;
 	bool pc, ind_field;
-	gint32 tag;
-	guint32 len1;
+	int32_t tag;
+	uint32_t len1;
 	const char *oid;
 	fragment_head *fd_head=NULL;
 	gssapi_frag_info_t *fi;
@@ -184,13 +184,13 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	start_offset=0;
 	offset=0;
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 	/*
 	 * We don't know whether the data is encrypted, so say it's
 	 * not, for now.  The subdissector must set gssapi_data_encrypted
 	 * if it is.
 	 */
-	encrypt_info->gssapi_data_encrypted = FALSE;
+	encrypt_info->gssapi_data_encrypted = false;
 
 
 	/*
@@ -202,7 +202,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (!gss_info) {
 		gss_info = wmem_new(wmem_file_scope(), gssapi_conv_info_t);
 		gss_info->oid=NULL;
-		gss_info->do_reassembly=FALSE;
+		gss_info->do_reassembly=false;
 		gss_info->frags=wmem_tree_new(wmem_file_scope());
 
 		conversation_add_proto_data(conversation, proto_gssapi, gss_info);
@@ -243,7 +243,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			fd_head=fragment_add(&gssapi_reassembly_table,
 				tvb, 0, pinfo, fi->first_frame, NULL,
 				gss_info->frag_offset,
-				tvb_captured_length(tvb), TRUE);
+				tvb_captured_length(tvb), true);
 			gss_info->frag_offset+=tvb_captured_length(tvb);
 
 			/* we need more fragments */
@@ -252,7 +252,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			}
 
 			/* this blob is now fully reassembled */
-			gss_info->do_reassembly=FALSE;
+			gss_info->do_reassembly=false;
 			fi->reassembled_in=pinfo->num;
 
 			gss_tvb=tvb_new_chain(tvb, fd_head->tvb_data);
@@ -299,15 +299,15 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			}
 			/* Maybe it's new NTLMSSP payload */
 			if ((tvb_captured_length_remaining(gss_tvb, start_offset)>16) &&
-			   ((tvb_memeql(gss_tvb, start_offset, (const guint8*)"\x01\x00\x00\x00", 4) == 0))) {
+			   ((tvb_memeql(gss_tvb, start_offset, (const uint8_t*)"\x01\x00\x00\x00", 4) == 0))) {
 				return_offset = call_dissector(ntlmssp_payload_handle,
 							tvb_new_subset_remaining(gss_tvb, start_offset),
 							pinfo, subtree);
-				encrypt_info->gssapi_data_encrypted = TRUE;
+				encrypt_info->gssapi_data_encrypted = true;
 				goto done;
 			}
 			if ((tvb_captured_length_remaining(gss_tvb, start_offset)==16) &&
-			   ((tvb_memeql(gss_tvb, start_offset, (const guint8*)"\x01\x00\x00\x00", 4) == 0))) {
+			   ((tvb_memeql(gss_tvb, start_offset, (const uint8_t*)"\x01\x00\x00\x00", 4) == 0))) {
 				if( is_verifier ) {
 					return_offset = call_dissector(ntlmssp_verf_handle,
 									tvb_new_subset_remaining(gss_tvb, start_offset),
@@ -317,15 +317,15 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					return_offset = call_dissector_with_data(ntlmssp_data_only_handle,
 									tvb_new_subset_remaining(encrypt_info->gssapi_encrypted_tvb, 0),
 									pinfo, subtree, &encrypt_info->gssapi_decrypted_tvb);
-					encrypt_info->gssapi_data_encrypted = TRUE;
+					encrypt_info->gssapi_data_encrypted = true;
 				}
 				goto done;
 			}
 
 			/* Maybe it's new GSSKRB5 CFX Wrapping */
 			if ((tvb_captured_length_remaining(gss_tvb, start_offset)>2) &&
-			   ((tvb_memeql(gss_tvb, start_offset, (const guint8*)"\04\x04", 2) == 0) ||
-			    (tvb_memeql(gss_tvb, start_offset, (const guint8*)"\05\x04", 2) == 0))) {
+			   ((tvb_memeql(gss_tvb, start_offset, (const uint8_t*)"\04\x04", 2) == 0) ||
+			    (tvb_memeql(gss_tvb, start_offset, (const uint8_t*)"\05\x04", 2) == 0))) {
 				return_offset = call_dissector_with_data(spnego_krb5_wrap_handle,
 							tvb_new_subset_remaining(gss_tvb, start_offset),
 							pinfo, subtree, encrypt_info);
@@ -402,7 +402,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		/* Read oid */
 		oid_start_offset=offset;
-		offset=dissect_ber_object_identifier_str(FALSE, &asn1_ctx, subtree, gss_tvb, offset, hf_gssapi_oid, &oid);
+		offset=dissect_ber_object_identifier_str(false, &asn1_ctx, subtree, gss_tvb, offset, hf_gssapi_oid, &oid);
 		oidvalue = gssapi_lookup_oid_str(oid);
 
 
@@ -420,7 +420,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if( (!pinfo->fd->visited)
 		&&  (oidvalue)
 		&&  (tvb_captured_length(gss_tvb)==tvb_reported_length(gss_tvb))
-		&&  (len1>(guint32)tvb_captured_length_remaining(gss_tvb, oid_start_offset))
+		&&  (len1>(uint32_t)tvb_captured_length_remaining(gss_tvb, oid_start_offset))
 		&&  (gssapi_reassembly) ){
 			fi=wmem_new(wmem_file_scope(), gssapi_frag_info_t);
 			fi->first_frame=pinfo->num;
@@ -429,11 +429,11 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 			fragment_add(&gssapi_reassembly_table,
 				gss_tvb, 0, pinfo, pinfo->num, NULL,
-				0, tvb_captured_length(gss_tvb), TRUE);
+				0, tvb_captured_length(gss_tvb), true);
 			fragment_set_tot_len(&gssapi_reassembly_table,
 				pinfo, pinfo->num, NULL, len1+oid_start_offset);
 
-			gss_info->do_reassembly=TRUE;
+			gss_info->do_reassembly=true;
 			gss_info->first_frame=pinfo->num;
 			gss_info->frag_offset=tvb_captured_length(gss_tvb);
 			goto done;
@@ -515,7 +515,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static int
-dissect_gssapi_work_wrapper(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gssapi_encrypt_info_t* encrypt_info, gboolean is_verifier)
+dissect_gssapi_work_wrapper(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gssapi_encrypt_info_t* encrypt_info, bool is_verifier)
 {
 	int ret;
 	gssapi_encrypt_info_t pass_encrypt_info;
@@ -544,13 +544,13 @@ dissect_gssapi_work_wrapper(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static int
 dissect_gssapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	return dissect_gssapi_work_wrapper(tvb, pinfo, tree, (gssapi_encrypt_info_t*)data, FALSE);
+	return dissect_gssapi_work_wrapper(tvb, pinfo, tree, (gssapi_encrypt_info_t*)data, false);
 }
 
 static int
 dissect_gssapi_verf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	return dissect_gssapi_work_wrapper(tvb, pinfo, tree, (gssapi_encrypt_info_t*)data, TRUE);
+	return dissect_gssapi_work_wrapper(tvb, pinfo, tree, (gssapi_encrypt_info_t*)data, true);
 }
 
 static void
@@ -607,7 +607,7 @@ proto_register_gssapi(void)
 		  NULL, 0x0, "The total length of the reassembled payload", HFILL }},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_gssapi,
 		&ett_gssapi_segment,
 		&ett_gssapi_segments,
@@ -645,7 +645,7 @@ proto_register_gssapi(void)
 
 static int
 wrap_dissect_gssapi(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		    proto_tree *tree, dcerpc_info *di _U_, guint8 *drep _U_)
+		    proto_tree *tree, dcerpc_info *di _U_, uint8_t *drep _U_)
 {
 	tvbuff_t *auth_tvb;
 
@@ -658,7 +658,7 @@ wrap_dissect_gssapi(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 int
 wrap_dissect_gssapi_verf(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			 proto_tree *tree, dcerpc_info *di _U_, guint8 *drep _U_)
+			 proto_tree *tree, dcerpc_info *di _U_, uint8_t *drep _U_)
 {
 	tvbuff_t *auth_tvb;
 
