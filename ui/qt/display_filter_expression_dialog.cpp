@@ -142,8 +142,6 @@ DisplayFilterExpressionDialog::DisplayFilterExpressionDialog(QWidget *parent) :
 
     auto future = QtConcurrent::run(generateProtocolTreeItems);
 
-    ui->displayFilterLineEdit->enableBookmarks(false);
-    ui->displayFilterLineEdit->setPlaceholderText(tr("No display filter"));
     ui->fieldTreeWidget->setToolTip(ui->fieldLabel->toolTip());
     ui->searchLineEdit->setToolTip(ui->searchLabel->toolTip());
     ui->relationListWidget->setToolTip(ui->relationLabel->toolTip());

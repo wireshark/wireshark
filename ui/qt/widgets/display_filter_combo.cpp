@@ -54,12 +54,9 @@ DisplayFilterCombo::DisplayFilterCombo(QWidget *parent) :
     model->setSortRole(Qt::UserRole);
 
     connect(mainApp, &MainApplication::preferencesChanged, this, &DisplayFilterCombo::updateMaxCount);
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    // Ugly cast required in Qt5 to distinguish the two activated overloads
-    connect(this, QOverload<int>::of(&DisplayFilterCombo::activated), this, &DisplayFilterCombo::onActivated);
-#else
-    connect(this, &DisplayFilterCombo::activated, this, &DisplayFilterCombo::onActivated);
-#endif
+    // Ugly cast required (?)
+    // https://stackoverflow.com/questions/16794695/connecting-overloaded-signals-and-slots-in-qt-5
+    connect(this, static_cast<void (DisplayFilterCombo::*)(int)>(&DisplayFilterCombo::activated), this, &DisplayFilterCombo::onActivated);
 }
 
 extern "C" void dfilter_recent_combo_write_all(FILE *rf) {

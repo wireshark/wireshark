@@ -111,8 +111,6 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, DisplayFilterEditType type
     bookmark_button_->setVisible(false);
     bookmarks_enabled_ = true;
 
-    connect(bookmark_button_->menu(), &QMenu::aboutToShow, this, &DisplayFilterEdit::updateBookmarkMenu);
-
     // DisplayFilterToApply - the Main Window FilterComboBox
     // (always created before the app is initialized)
     if (type_ == DisplayFilterToApply) {
@@ -137,9 +135,14 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, DisplayFilterEditType type
     }
 
     connect(this, &DisplayFilterEdit::textChanged, this,
-            QOverload<const QString &>::of(&DisplayFilterEdit::checkFilter));
+            static_cast<void (DisplayFilterEdit::*)(const QString &)>(&DisplayFilterEdit::checkFilter));
 
-    connect(mainApp, &MainApplication::displayFilterListChanged, this, [=](){ checkFilter(); });
+    if (mainApp->isInitialized()) {
+        updateBookmarkMenu();
+    } else {
+        connect(mainApp, &MainApplication::appInitialized, this, &DisplayFilterEdit::updateBookmarkMenu);
+    }
+    connect(mainApp, &MainApplication::displayFilterListChanged, this, &DisplayFilterEdit::updateBookmarkMenu);
     connect(mainApp, &MainApplication::preferencesChanged, this, [=](){ checkFilter(); });
 }
 
@@ -342,7 +345,7 @@ void DisplayFilterEdit::paintEvent(QPaintEvent *evt) {
         }
 
         painter.drawLine(left_xpos, cr.top(), left_xpos, cr.bottom() + 1);
-        if (!text().isEmpty() && (clear_button_ || apply_button_))
+        if (!text().isEmpty())
             painter.drawLine(right_xpos, cr.top(), right_xpos, cr.bottom() + 1);
     }
 }
@@ -753,7 +756,7 @@ void DisplayFilterEdit::removeFilter()
         model.saveList();
     }
 
-    mainApp->emitAppSignal(MainApplication::DisplayFilterListChanged);
+    updateBookmarkMenu();
 }
 
 void DisplayFilterEdit::showFilters()
