@@ -55,12 +55,12 @@ get_form_key_value(wmem_allocator_t *pool, tvbuff_t *tvb, char **ptr, int offset
 				return -1;
 			}
 			offset++;
-			ch = tvb_get_guint8(tvb, offset);
+			ch = tvb_get_uint8(tvb, offset);
 			if (ws_xton(ch) == -1)
 				return -1;
 
 			offset++;
-			ch = tvb_get_guint8(tvb, offset);
+			ch = tvb_get_uint8(tvb, offset);
 			if (ws_xton(ch) == -1)
 				return -1;
 		} else if (ch != '+') {
@@ -91,10 +91,10 @@ get_form_key_value(wmem_allocator_t *pool, tvbuff_t *tvb, char **ptr, int offset
 			uint8_t ch1, ch2;
 
 			offset++;
-			ch1 = tvb_get_guint8(tvb, offset);
+			ch1 = tvb_get_uint8(tvb, offset);
 
 			offset++;
-			ch2 = tvb_get_guint8(tvb, offset);
+			ch2 = tvb_get_uint8(tvb, offset);
 
 			tmp[len] = ws_xton(ch1) << 4 | ws_xton(ch2);
 

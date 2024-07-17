@@ -679,7 +679,7 @@ dissect_mux_al_pdu( tvbuff_t *tvb, packet_info *pinfo, proto_tree *vc_tree,
             al_subitem = proto_tree_add_item(al_tree, hf_h223_al_payload, next_tvb, 0, -1, ENC_NA);
 
             calc_checksum = h223_al2_crc8bit(tvb);
-            real_checksum = tvb_get_guint8(tvb, len - 1);
+            real_checksum = tvb_get_uint8(tvb, len - 1);
 
             proto_tree_add_checksum(al_tree, tvb, len - 1, hf_h223_al2_crc, hf_h223_al2_crc_status, &ei_h223_al2_crc, pinfo, calc_checksum, ENC_NA, PROTO_CHECKSUM_VERIFY);
 
@@ -956,7 +956,7 @@ dissect_mux_pdu( tvbuff_t *tvb, packet_info *pinfo, uint32_t pkt_offset,
 
     switch(call_info->h223_level) {
         case 0: case 1:
-            raw_hdr = tvb_get_guint8(tvb,0);
+            raw_hdr = tvb_get_uint8(tvb,0);
             mc = (uint8_t)((raw_hdr>>1) & 0xf);
             end_of_mux_sdu = raw_hdr & 1;
             offset++;
@@ -1195,7 +1195,7 @@ dissect_mux_pdu_fragment( tvbuff_t *tvb, uint32_t start_offset,
 #endif
 
     while( more_frags && offset < tvb_reported_length( tvb )) {
-        uint8_t byte = tvb_get_guint8(tvb, offset++);
+        uint8_t byte = tvb_get_uint8(tvb, offset++);
 
         /* read a byte into the header buf, if necessary */
         if((offset-start_offset) <= 4) {

@@ -319,8 +319,8 @@ static const value_string hsrp2_md5_algorithm_vals[] = {
 static void
 process_hsrp_md5_tlv_sequence(tvbuff_t *tvb, proto_tree *hsrp_tree, unsigned offset)
 {
-        uint8_t type = tvb_get_guint8(tvb, offset);
-        uint8_t len = tvb_get_guint8(tvb, offset+1);
+        uint8_t type = tvb_get_uint8(tvb, offset);
+        uint8_t len = tvb_get_uint8(tvb, offset+1);
         proto_item *ti;
         proto_tree *md5_auth_tlv;
 
@@ -371,16 +371,16 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
                 col_set_str(pinfo->cinfo, COL_PROTOCOL, "HSRP");
 
-                opcode = tvb_get_guint8(tvb, 1);
+                opcode = tvb_get_uint8(tvb, 1);
                 col_set_str(pinfo->cinfo, COL_INFO,
                                      val_to_str_const(opcode, hsrp_opcode_vals, "Unknown"));
 
                 if (opcode < 3) {
-                        state = tvb_get_guint8(tvb, 2);
+                        state = tvb_get_uint8(tvb, 2);
                         col_append_fstr(pinfo->cinfo, COL_INFO, " (state %s)",
                                      val_to_str_const(state, hsrp_state_vals, "Unknown"));
                 } else if (opcode == 3) {
-                        state = tvb_get_guint8(tvb, 6);
+                        state = tvb_get_uint8(tvb, 6);
                         col_append_fstr(pinfo->cinfo, COL_INFO, " (state %s)",
                                         val_to_str_const(state, hsrp_adv_state_vals, "Unknown"));
                 }
@@ -396,13 +396,13 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                 if (opcode < 3) {
                         proto_tree_add_uint(hsrp_tree, hf_hsrp_state, tvb, offset, 1, state);
                         offset++;
-                        hellotime = tvb_get_guint8(tvb, offset);
+                        hellotime = tvb_get_uint8(tvb, offset);
                         proto_tree_add_uint_format_value(hsrp_tree, hf_hsrp_hellotime, tvb, offset, 1, hellotime,
                                            "%sDefault (%u)",
                                            (hellotime == HSRP_DEFAULT_HELLOTIME) ? "" : "Non-",
                                            hellotime);
                         offset++;
-                        holdtime = tvb_get_guint8(tvb, offset);
+                        holdtime = tvb_get_uint8(tvb, offset);
                         proto_tree_add_uint_format_value(hsrp_tree, hf_hsrp_holdtime, tvb, offset, 1, holdtime,
                                            "%sDefault (%u)",
                                            (holdtime == HSRP_DEFAULT_HOLDTIME) ? "" : "Non-",
@@ -444,8 +444,8 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                 /* is MD5 authentication being used with HSRPv1? */
                 if (tvb_captured_length(tvb) == 50) { /* 20 bytes of regular HSRP data + 30 bytes of authentication payload */
                         unsigned offset2 = offset + 4; /* this now points to the start of a possible TLV sequence */
-                        uint8_t type = tvb_get_guint8(tvb, offset2);
-                        uint8_t len = tvb_get_guint8(tvb, offset2+1);
+                        uint8_t type = tvb_get_uint8(tvb, offset2);
+                        uint8_t len = tvb_get_uint8(tvb, offset2+1);
                         if (type == 4 && len == 28) {
                                 /* MD5 Authentication TLV */
                                 if (tree) {
@@ -472,8 +472,8 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                 }
 
                 while (tvb_reported_length_remaining(tvb, offset) > 0) {
-                        type = tvb_get_guint8(tvb, offset);
-                        len = tvb_get_guint8(tvb, offset+1);
+                        type = tvb_get_uint8(tvb, offset);
+                        len = tvb_get_uint8(tvb, offset+1);
 
                         offset2 = offset;
                         if (type == 1 && len == 40) {
@@ -488,11 +488,11 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                 }
                                 offset+=2;
 
-                                opcode = tvb_get_guint8(tvb, offset+1);
+                                opcode = tvb_get_uint8(tvb, offset+1);
                                 col_add_str(pinfo->cinfo, COL_INFO,
                                                      val_to_str_const(opcode, hsrp2_opcode_vals, "Unknown"));
 
-                                state = tvb_get_guint8(tvb, offset+2);
+                                state = tvb_get_uint8(tvb, offset+2);
                                 col_append_fstr(pinfo->cinfo, COL_INFO, " (state %s)",
                                                 val_to_str_const(state, hsrp2_state_vals, "Unknown"));
 
@@ -505,7 +505,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                         offset++;
                                         proto_tree_add_uint(group_state_tlv, hf_hsrp2_state, tvb, offset, 1, state);
                                         offset++;
-                                        ipver = tvb_get_guint8(tvb, offset);
+                                        ipver = tvb_get_uint8(tvb, offset);
                                         proto_tree_add_uint(group_state_tlv, hf_hsrp2_ipversion, tvb, offset, 1, ipver);
                                         offset++;
                                         proto_tree_add_item(group_state_tlv, hf_hsrp2_group, tvb, offset, 2, ENC_BIG_ENDIAN);

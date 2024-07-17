@@ -199,7 +199,7 @@ dissect_data (tvbuff_t *tvb, proto_tree *hdfs_tree, unsigned offset) {
     /* we only want to parse the packet if it is not a heartbeat (random looking numbers are the decimal
        representation of sendHeartbeat */
     if (!(tvb_get_ntohl(tvb, offset - SEND_OFFSET) == SEND_DEC && tvb_get_ntohl(tvb, offset - HEAR_OFFSET) == HEAR_DEC &&
-          tvb_get_ntohl(tvb, offset - TBEA_OFFSET) == TBEA_DEC && tvb_get_guint8(tvb, offset - T_OFFSET) == T_DEC)) {
+          tvb_get_ntohl(tvb, offset - TBEA_OFFSET) == TBEA_DEC && tvb_get_uint8(tvb, offset - T_OFFSET) == T_DEC)) {
 
         /* get number of params */
         params = tvb_get_ntohl(tvb, offset);
@@ -291,7 +291,7 @@ dissect_resp_filestatus (tvbuff_t *tvb, proto_tree *hdfs_tree, int offset) {
 
 
     /* get length */
-    length = tvb_get_guint8 (tvb, offset);
+    length = tvb_get_uint8 (tvb, offset);
 
     /* owner name length */
     proto_tree_add_item(hdfs_tree, hf_hdfs_namelenone, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -302,7 +302,7 @@ dissect_resp_filestatus (tvbuff_t *tvb, proto_tree *hdfs_tree, int offset) {
     offset += length;
 
     /* get length */
-    length = tvb_get_guint8 (tvb, offset);
+    length = tvb_get_uint8 (tvb, offset);
 
     /* group name length */
     proto_tree_add_item(hdfs_tree, hf_hdfs_namelenone, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -325,7 +325,7 @@ dissect_block_info (tvbuff_t *tvb, proto_tree *hdfs_tree, int offset) {
 
     int length;
 
-    length = tvb_get_guint8(tvb, offset);
+    length = tvb_get_uint8(tvb, offset);
 
     /* identifier length */
     proto_tree_add_item(hdfs_tree, hf_hdfs_namelenone, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -335,7 +335,7 @@ dissect_block_info (tvbuff_t *tvb, proto_tree *hdfs_tree, int offset) {
     proto_tree_add_item(hdfs_tree, hf_hdfs_identifier, tvb, offset, length, ENC_ASCII);
     offset += length;
 
-    length = tvb_get_guint8(tvb, offset);
+    length = tvb_get_uint8(tvb, offset);
 
     /* password length */
     proto_tree_add_item(hdfs_tree, hf_hdfs_namelenone, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -345,7 +345,7 @@ dissect_block_info (tvbuff_t *tvb, proto_tree *hdfs_tree, int offset) {
     proto_tree_add_item(hdfs_tree, hf_hdfs_password, tvb, offset, length, ENC_ASCII);
     offset += length;
 
-    length = tvb_get_guint8(tvb, offset);
+    length = tvb_get_uint8(tvb, offset);
 
     /* kind length */
     proto_tree_add_item(hdfs_tree, hf_hdfs_namelenone, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -355,7 +355,7 @@ dissect_block_info (tvbuff_t *tvb, proto_tree *hdfs_tree, int offset) {
     proto_tree_add_item(hdfs_tree, hf_hdfs_kind, tvb, offset, length, ENC_ASCII);
     offset += length;
 
-    length = tvb_get_guint8(tvb, offset);
+    length = tvb_get_uint8(tvb, offset);
 
     /* service length */
     proto_tree_add_item(hdfs_tree, hf_hdfs_namelenone, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -446,7 +446,7 @@ dissect_block_info (tvbuff_t *tvb, proto_tree *hdfs_tree, int offset) {
     offset += 4;
 
 
-    length = tvb_get_guint8(tvb, offset);
+    length = tvb_get_uint8(tvb, offset);
 
     /* location rack length */
     proto_tree_add_item(hdfs_tree, hf_hdfs_namelenone, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -456,7 +456,7 @@ dissect_block_info (tvbuff_t *tvb, proto_tree *hdfs_tree, int offset) {
     proto_tree_add_item(hdfs_tree, hf_hdfs_rackloc, tvb, offset, length, ENC_ASCII);
     offset += length;
 
-    length = tvb_get_guint8(tvb, offset);
+    length = tvb_get_uint8(tvb, offset);
 
     /* hostname length */
     proto_tree_add_item(hdfs_tree, hf_hdfs_namelenone, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -466,7 +466,7 @@ dissect_block_info (tvbuff_t *tvb, proto_tree *hdfs_tree, int offset) {
     proto_tree_add_item(hdfs_tree, hf_hdfs_hostname, tvb, offset, length, ENC_ASCII);
     offset += length;
 
-    length = tvb_get_guint8(tvb, offset);
+    length = tvb_get_uint8(tvb, offset);
 
     /* admin state length */
     proto_tree_add_item(hdfs_tree, hf_hdfs_namelenone, tvb, offset, 1, ENC_BIG_ENDIAN);

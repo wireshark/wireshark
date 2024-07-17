@@ -909,7 +909,7 @@ more_rbsp_data(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo _U_, int 
     tvb_length = tvb_reported_length(tvb);
 
     for (i = byte_offset; i < tvb_length; i++) {
-        current_byte = tvb_get_guint8(tvb, i);
+        current_byte = tvb_get_uint8(tvb, i);
 
         if ((current_byte & significant_bits_mask) != 0) {
             return true;
@@ -1244,7 +1244,7 @@ dissect_h264_profile(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
     proto_tree_add_item(h264_profile_tree, hf_h264_profile_idc, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    constraint_set3_flag = (tvb_get_guint8(tvb, offset)&0x10)>>4;
+    constraint_set3_flag = (tvb_get_uint8(tvb, offset)&0x10)>>4;
     proto_tree_add_item(h264_profile_tree, hf_h264_constraint_set0_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(h264_profile_tree, hf_h264_constraint_set1_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(h264_profile_tree, hf_h264_constraint_set2_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1261,7 +1261,7 @@ dissect_h264_profile(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
      *    shall be set equal to 0.
      */
 
-    level_idc = tvb_get_guint8(tvb, offset);
+    level_idc = tvb_get_uint8(tvb, offset);
     level_item = proto_tree_add_item(h264_profile_tree, hf_h264_level_idc, tvb, offset, 1, ENC_BIG_ENDIAN);
     if ((level_idc == 11) && (constraint_set3_flag == 1)) {
         proto_item_append_text(level_item," [Level 1b (128kb/s)]");
@@ -1304,12 +1304,12 @@ dissect_h265_unescap_nal_unit(tvbuff_t *tvb, packet_info *pinfo, int offset)
     buff = (char *)wmem_alloc(pinfo->pool, length);
     for (i = 0; i < length; i++) {
         if ((i + 2 < length) && (tvb_get_ntoh24(tvb, offset) == 0x000003)) {
-            buff[NumBytesInRBSP++] = tvb_get_guint8(tvb, offset);
-            buff[NumBytesInRBSP++] = tvb_get_guint8(tvb, offset+1);
+            buff[NumBytesInRBSP++] = tvb_get_uint8(tvb, offset);
+            buff[NumBytesInRBSP++] = tvb_get_uint8(tvb, offset+1);
             i += 2;
             offset+=3;
         } else {
-            buff[ NumBytesInRBSP++] = tvb_get_guint8(tvb, offset);
+            buff[ NumBytesInRBSP++] = tvb_get_uint8(tvb, offset);
             offset++;
         }
     }
@@ -1444,12 +1444,12 @@ h264_user_data_unregistered(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo 
             proto_item_append_text (item, "  PRID %2d - %2d", (i+1)*8-1, i*8);
             offset++;
         }
-        p_flag = tvb_get_guint8 (tvb, offset);
+        p_flag = tvb_get_uint8 (tvb, offset);
         proto_tree_add_item (tree, hf_h264_sei_ms_layout_p, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
         if (p_flag == 1)
         {
-            ld_size = tvb_get_guint8 (tvb, offset);
+            ld_size = tvb_get_uint8 (tvb, offset);
             proto_tree_add_item (tree, hf_h264_sei_ms_layout_ldsize, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             /* MS Errata - Microsoft seems to be setting the LD size to 16 but then including 2 layer descriptions which should be 32
@@ -1483,7 +1483,7 @@ h264_user_data_unregistered(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo 
     {
         col_append_fstr(pinfo->cinfo, COL_INFO, ":MS_Cropping");
         proto_item_append_text(uuid_item,"  - Microsoft Cropping Info SEI Message");
-        num_crops = tvb_get_guint8 (tvb, offset);
+        num_crops = tvb_get_uint8 (tvb, offset);
         proto_tree_add_item (tree, hf_h264_sei_ms_crop_num_data, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
         proto_tree_add_item (tree, hf_h264_sei_ms_crop_info_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1730,11 +1730,11 @@ dissect_h264_seq_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info
     int         ScalingList4x4[6][16], ScalingList8x8[2][64];
 
     /* profile_idc 0 u(8) */
-    profile_idc = tvb_get_guint8(tvb, offset);
+    profile_idc = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_h264_profile_idc, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    constraint_set3_flag = (tvb_get_guint8(tvb, offset)&0x10)>>4;
+    constraint_set3_flag = (tvb_get_uint8(tvb, offset)&0x10)>>4;
     /* constraint_set0_flag 0 u(1) */
     proto_tree_add_item(tree, hf_h264_constraint_set0_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -1758,7 +1758,7 @@ dissect_h264_seq_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info
     offset++;
 
     /* level_idc 0 u(8) */
-    level_idc = tvb_get_guint8(tvb, offset);
+    level_idc = tvb_get_uint8(tvb, offset);
     level_item = proto_tree_add_item(tree, hf_h264_level_idc, tvb, offset, 1, ENC_BIG_ENDIAN);
     if ((level_idc == 11) && (constraint_set3_flag == 1)) {
         proto_item_append_text(level_item,"[Level 1b]");
@@ -2145,7 +2145,7 @@ dissect_h264_pacsi(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offs
 
     offset = dissect_h264_svc_nal_header_extension(tree, tvb, pinfo, offset);
 
-    pacsi_flags = tvb_get_guint8(tvb, offset);
+    pacsi_flags = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_h264_pacsi_x, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_h264_pacsi_y, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_h264_pacsi_t, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2404,7 +2404,7 @@ startover:
         }
     }
     /* Ref: 7.3.1 NAL unit syntax */
-    nal_unit_type = tvb_get_guint8(tvb, offset) & 0x1f;
+    nal_unit_type = tvb_get_uint8(tvb, offset) & 0x1f;
 
     /* forbidden_zero_bit All f(1) */
     proto_tree_add_item(h264_nal_tree, hf_h264_forbidden_zero_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2499,7 +2499,7 @@ dissect_h264_bytestream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         if (tvb_reported_length(tvb) < 4) {
             return 0;
         }
-        dword = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+        dword = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
         if ((dword >> 8) == 1 || dword == 1) {
             break;
         } else if (dword != 0) {
@@ -2513,7 +2513,7 @@ dissect_h264_bytestream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     h264_tree = proto_item_add_subtree(item, ett_h264);
 
     while (tvb_reported_length_remaining(tvb, offset)) {
-        dword = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+        dword = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
         if ((dword >> 8) != 1) {
             /* zero_byte */
             offset++;
@@ -2565,7 +2565,7 @@ dissect_h264(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.264");
 
-    type = tvb_get_guint8(tvb, offset)&0x1f;
+    type = tvb_get_uint8(tvb, offset)&0x1f;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
                     val_to_str(type, h264_type_summary_values, "Unknown Type (%u)"));
@@ -2604,15 +2604,15 @@ dissect_h264(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             proto_tree_add_item(fua_tree, hf_h264_end_bit,       tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(fua_tree, hf_h264_forbidden_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(fua_tree, hf_h264_nal_unit_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-            if ((tvb_get_guint8(tvb, offset)&0x80) == 0x80) {
-                type = tvb_get_guint8(tvb, offset)&0x1f;
+            if ((tvb_get_uint8(tvb, offset)&0x80) == 0x80) {
+                type = tvb_get_uint8(tvb, offset)&0x1f;
                 col_append_fstr(pinfo->cinfo, COL_INFO, " Start:%s",
                                 val_to_str(type, h264_type_summary_values, "Unknown Type (%u)"));
                 offset++;
             }
             else
             {
-                if ((tvb_get_guint8(tvb, offset)&0x40) == 0x40) {
+                if ((tvb_get_uint8(tvb, offset)&0x40) == 0x40) {
                     col_append_fstr(pinfo->cinfo, COL_INFO, " End");
                 }
                 return offset;

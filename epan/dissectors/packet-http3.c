@@ -518,7 +518,7 @@ try_get_quic_varint(tvbuff_t *tvb, int offset, uint64_t *value, int *lenvar)
     if (tvb_reported_length_remaining(tvb, offset) == 0) {
         return false;
     }
-    int len = 1 << (tvb_get_guint8(tvb, offset) >> 6);
+    int len = 1 << (tvb_get_uint8(tvb, offset) >> 6);
     if (tvb_reported_length_remaining(tvb, offset) < len) {
         return false;
     }
@@ -1621,7 +1621,7 @@ dissect_http3_qpack_encoder_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
         fin                  = false;
 
         TRY {
-            opcode = tvb_get_guint8(tvb, opcode_offset) & QPACK_OPCODE_MASK;
+            opcode = tvb_get_uint8(tvb, opcode_offset) & QPACK_OPCODE_MASK;
 
             ws_noisy("Decoding opcode=%" PRIu8 " decoded=%d remaining=%d", opcode, decoded, remaining);
 

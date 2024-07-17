@@ -96,7 +96,7 @@ dissect_hicp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     char* parameter_value = NULL;
 
 	/* Check that the packet does not start with the header of Secure Host IP Configuration Protocol (SHICP). */
-    if ((tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN) & 0xFFFE) == 0xABC0) {
+    if ((tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN) & 0xFFFE) == 0xABC0) {
         return 0;
     }
 

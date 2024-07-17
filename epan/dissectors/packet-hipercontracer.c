@@ -64,11 +64,11 @@ heur_dissect_hipercontracer(tvbuff_t *message_tvb, packet_info *pinfo, proto_tre
   const uint32_t magic = tvb_get_ntohl(message_tvb, 0);
 
   // Send TTL cannot be < 1
-  const uint8_t sendTTL = tvb_get_guint8(message_tvb, 4);
+  const uint8_t sendTTL = tvb_get_uint8(message_tvb, 4);
   if (sendTTL < 1)
     return false;
 
-  const uint8_t round = tvb_get_guint8(message_tvb, 5);
+  const uint8_t round = tvb_get_uint8(message_tvb, 5);
 
   const uint16_t checksumTweak = tvb_get_ntohs(message_tvb, 6);
 
@@ -128,8 +128,8 @@ heur_dissect_hipercontracer(tvbuff_t *message_tvb, packet_info *pinfo, proto_tre
   proto_tree_add_time(hipercontracer_tree, hf_send_timestamp, message_tvb, 8, 8, &t);
 
   col_append_fstr(pinfo->cinfo, COL_INFO, " (SendTTL=%u, Round=%u)",
-                  (unsigned int)tvb_get_guint8(message_tvb, 4),
-                  (unsigned int)tvb_get_guint8(message_tvb, 5));
+                  (unsigned int)tvb_get_uint8(message_tvb, 4),
+                  (unsigned int)tvb_get_uint8(message_tvb, 5));
 
   return tvb_reported_length(message_tvb);
 }

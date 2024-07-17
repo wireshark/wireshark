@@ -710,9 +710,9 @@ dissect_hislip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
 
     /*Get Message Type*/
-    hislip_data.messagetype = tvb_get_guint8(tvb, hislip_data.offset+2);
+    hislip_data.messagetype = tvb_get_uint8(tvb, hislip_data.offset+2);
     /*Get Control Code*/
-    hislip_data.controlcode = tvb_get_guint8(tvb, hislip_data.offset+3);
+    hislip_data.controlcode = tvb_get_uint8(tvb, hislip_data.offset+3);
     /*Get Message Parameter*/
     hislip_data.messageparameter = tvb_get_ntohl(tvb, hislip_data.offset+4);
     /*Get Payload Length*/

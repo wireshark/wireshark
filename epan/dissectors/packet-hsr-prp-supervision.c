@@ -96,13 +96,13 @@ dissect_hsr_prp_supervision(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
         /* TLV.type */
-        tlv_type = tvb_get_guint8(tvb, offset);
+        tlv_type = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(hsr_prp_supervision_tree, hf_hsr_prp_supervision_tlv_type,
                             tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
         /* TLV.length */
-        tlv_length = tvb_get_guint8(tvb, offset);
+        tlv_length = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(hsr_prp_supervision_tree, hf_hsr_prp_supervision_tlv_length,
                             tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;

@@ -84,11 +84,11 @@ dissect_hyperscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
   ti = proto_tree_add_item(tree, proto_hyperscsi, tvb, offset, -1, ENC_NA);
   hs_tree = proto_item_add_subtree(ti, ett_hyperscsi);
 
-  hs_hdr1 = tvb_get_guint8(tvb, offset);
+  hs_hdr1 = tvb_get_uint8(tvb, offset);
   offset++;
-  hs_hdr2 = tvb_get_guint8(tvb, offset);
+  hs_hdr2 = tvb_get_uint8(tvb, offset);
   offset++;
-  hs_hdr3 = tvb_get_guint8(tvb, offset);
+  hs_hdr3 = tvb_get_uint8(tvb, offset);
   offset++;
 
   hs_res = hs_hdr1 >> 4;
@@ -117,9 +117,9 @@ dissect_hyperscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
    * Now, add the PDU
    */
 
-  hs_ver = tvb_get_guint8(tvb, offset++);
+  hs_ver = tvb_get_uint8(tvb, offset++);
 
-  hs_cmd = tvb_get_guint8(tvb, offset);
+  hs_cmd = tvb_get_uint8(tvb, offset);
 
   hs_cmd &= OPCODE_MASK;
 

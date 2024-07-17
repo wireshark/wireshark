@@ -142,7 +142,7 @@ dissect_h263P( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
           data_item = proto_tree_add_item( h263P_tree, hf_h263P_payload, tvb, offset, -1, ENC_NA );
           h263P_data_tree = proto_item_add_subtree( data_item, ett_h263P_data );
           /* Startc code holds bit 17 -23 of the codeword */
-          startcode = tvb_get_guint8(tvb,offset)&0xfe;
+          startcode = tvb_get_uint8(tvb,offset)&0xfe;
           if (startcode & 0x80){
               /* All picture, slice, and EOSBS start codes
                * shall be byte aligned, and GOB and EOS start codes may be byte aligned.

@@ -2883,13 +2883,13 @@ dissect_h265_unescap_nal_unit(tvbuff_t *tvb, packet_info *pinfo, int offset)
 	buff = (char *)wmem_alloc(pinfo->pool, length);
 	for (i = 0; i < length; i++) {
 		if ((i + 2 < length) && (tvb_get_ntoh24(tvb, offset) == 0x000003)) {
-			buff[NumBytesInRBSP++] = tvb_get_guint8(tvb, offset);
-			buff[NumBytesInRBSP++] = tvb_get_guint8(tvb, offset + 1);
+			buff[NumBytesInRBSP++] = tvb_get_uint8(tvb, offset);
+			buff[NumBytesInRBSP++] = tvb_get_uint8(tvb, offset + 1);
 			i += 2;
 			offset += 3;
 		}
 		else {
-			buff[NumBytesInRBSP++] = tvb_get_guint8(tvb, offset);
+			buff[NumBytesInRBSP++] = tvb_get_uint8(tvb, offset);
 			offset++;
 		}
 	}
@@ -2909,7 +2909,7 @@ dissect_h265_format_specific_parameter(proto_tree *tree, tvbuff_t *tvb, packet_i
 	uint8_t    type;
 	tvbuff_t   *rbsp_tvb;
 
-	type = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN) >> 9 & 0x3F;
+	type = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN) >> 9 & 0x3F;
 
 	/* Unescape NAL unit */
 	rbsp_tvb = dissect_h265_unescap_nal_unit(tvb, pinfo, offset + 2);
@@ -2950,7 +2950,7 @@ dissect_h265(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	/* Make entries in Protocol column and Info column on summary display */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.265");
 
-	uint16_t h265_nalu_hextet = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+	uint16_t h265_nalu_hextet = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
 	type = h265_nalu_hextet >> 9 & 0x3F;
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
@@ -2993,15 +2993,15 @@ dissect_h265(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 			proto_tree_add_item(fua_tree, hf_h265_start_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(fua_tree, hf_h265_end_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(fua_tree, hf_h265_nal_unit_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-			if ((tvb_get_guint8(tvb, offset) & 0x80) == 0x80) {
-				type = tvb_get_guint8(tvb, offset) & 0x1f;
+			if ((tvb_get_uint8(tvb, offset) & 0x80) == 0x80) {
+				type = tvb_get_uint8(tvb, offset) & 0x1f;
 				col_append_fstr(pinfo->cinfo, COL_INFO, " Start:%s",
 					val_to_str(type, h265_type_summary_values, "Unknown Type (%u)"));
 				offset++;
 			}
 			else
 			{
-				if ((tvb_get_guint8(tvb, offset) & 0x40) == 0x40) {
+				if ((tvb_get_uint8(tvb, offset) & 0x40) == 0x40) {
 					col_append_fstr(pinfo->cinfo, COL_INFO, " End");
 				}
 				return offset;
@@ -3092,7 +3092,7 @@ dissect_h265_bytestream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	        if (tvb_reported_length(tvb) < 4) {
 			return 0;
 		}
-		dword = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+		dword = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
 		if ((dword >> 8) == 1 || dword == 1) {
 			break;
 		} else if (dword != 0) {
@@ -3105,7 +3105,7 @@ dissect_h265_bytestream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         col_clear(pinfo->cinfo, COL_INFO);
 
 	while (tvb_reported_length_remaining(tvb, offset)) {
-		dword = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+		dword = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
 		if ((dword >> 8) != 1) {
 			/* zero_byte */
 			offset++;

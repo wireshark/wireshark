@@ -91,7 +91,7 @@ dissect_homepna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     ti = proto_tree_add_item(tree, proto_homepna, tvb, 0, -1, ENC_NA);
     homepna_tree = proto_item_add_subtree(ti, ett_homepna);
 
-    if (tvb_get_guint8(tvb, offset) > 127)
+    if (tvb_get_uint8(tvb, offset) > 127)
         homepna_format = HOMEPNA_FORMAT_LONG;
 
     if (homepna_format == HOMEPNA_FORMAT_SHORT)

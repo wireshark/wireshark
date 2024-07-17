@@ -94,7 +94,7 @@ static bool dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         return false;
     }
 
-    if (!(tvb_get_guint8(tvb, 0) == 'S' && tvb_get_guint8(tvb, 1) == '5')) {
+    if (!(tvb_get_uint8(tvb, 0) == 'S' && tvb_get_uint8(tvb, 1) == '5')) {
         return false;
     }
 
@@ -107,7 +107,7 @@ static bool dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     proto_tree_add_item(h1_tree, hf_h1_header, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    h1_len = tvb_get_guint8(tvb, offset);
+    h1_len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(h1_tree, hf_h1_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_item_set_len(h1_ti, h1_len);
     offset++;
@@ -115,8 +115,8 @@ static bool dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     while (offset < h1_len) {
         offset_block_start = offset;
 
-        block_type = tvb_get_guint8(tvb, offset);
-        block_len = tvb_get_guint8(tvb, offset+1);
+        block_type = tvb_get_uint8(tvb, offset);
+        block_len = tvb_get_uint8(tvb, offset+1);
 
         if (!try_val_to_str(block_type, block_type_vals)) {
             /* XXX - should we skip unknown blocks? */
@@ -147,7 +147,7 @@ static bool dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 proto_tree_add_item(block_tree, hf_h1_opcode,
                         tvb, offset, 1, ENC_BIG_ENDIAN);
                 col_append_str (pinfo->cinfo, COL_INFO,
-                        val_to_str (tvb_get_guint8(tvb,  offset),
+                        val_to_str (tvb_get_uint8(tvb,  offset),
                         opcode_vals, "Unknown Opcode (0x%2.2x)"));
                 break;
 
@@ -155,14 +155,14 @@ static bool dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 proto_tree_add_item(block_tree, hf_h1_org, tvb,
                         offset, 1, ENC_BIG_ENDIAN);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-                        val_to_str (tvb_get_guint8(tvb,  offset),
+                        val_to_str (tvb_get_uint8(tvb,  offset),
                             org_vals,"Unknown Type (0x%2.2x)"));
                 offset++;
 
                 proto_tree_add_item(block_tree, hf_h1_dbnr, tvb,
                         offset, 1, ENC_BIG_ENDIAN);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " %d",
-                        tvb_get_guint8(tvb,  offset));
+                        tvb_get_uint8(tvb,  offset));
                 offset++;
 
                 proto_tree_add_item(block_tree, hf_h1_dwnr, tvb,
@@ -181,7 +181,7 @@ static bool dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 proto_tree_add_item(block_tree, hf_h1_response_value,
                         tvb, offset, 1, ENC_BIG_ENDIAN);
                 col_append_fstr (pinfo->cinfo, COL_INFO, " %s",
-                        val_to_str (tvb_get_guint8(tvb,  offset),
+                        val_to_str (tvb_get_uint8(tvb,  offset),
                             returncode_vals,"Unknown Returncode (0x%2.2x"));
                 break;
         }

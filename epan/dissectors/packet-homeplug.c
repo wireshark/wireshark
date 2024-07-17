@@ -467,7 +467,7 @@ static void dissect_homeplug_mctrl(ptvcursor_t * cursor)
 
   it = ptvcursor_add_no_advance(cursor, hf_homeplug_mctrl, 1, ENC_NA);
   /* Extract Number Of MAC Data Entries */
-  homeplug_ne = tvb_get_guint8(ptvcursor_tvbuff(cursor),
+  homeplug_ne = tvb_get_uint8(ptvcursor_tvbuff(cursor),
       ptvcursor_current_offset(cursor)) & HOMEPLUG_MCTRL_NE;
 
   ptvcursor_push_subtree(cursor, it, ett_homeplug_mctrl);
@@ -487,7 +487,7 @@ static void dissect_homeplug_mehdr(ptvcursor_t * cursor)
     return;
 
   it = ptvcursor_add_no_advance(cursor, hf_homeplug_mehdr, 1, ENC_NA);
-  homeplug_metype = tvb_get_guint8(ptvcursor_tvbuff(cursor),
+  homeplug_metype = tvb_get_uint8(ptvcursor_tvbuff(cursor),
       ptvcursor_current_offset(cursor)) & HOMEPLUG_MEHDR_METYPE;
 
   ptvcursor_push_subtree(cursor, it, ett_homeplug_mehdr);
@@ -504,7 +504,7 @@ static void dissect_homeplug_melen(ptvcursor_t * cursor)
   if (!ptvcursor_tree(cursor))
     return;
 
-  homeplug_melen = tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+  homeplug_melen = tvb_get_uint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_homeplug_melen, 1, ENC_BIG_ENDIAN);
 
 }
@@ -552,14 +552,14 @@ static void dissect_homeplug_cer(ptvcursor_t * cursor)
 
     ptvcursor_add_no_advance(cursor, hf_homeplug_cer_rate, 1, ENC_BIG_ENDIAN);
     ptvcursor_add_no_advance(cursor, hf_homeplug_cer_bp, 1, ENC_BIG_ENDIAN);
-    BP = tvb_get_guint8(ptvcursor_tvbuff(cursor),
+    BP = tvb_get_uint8(ptvcursor_tvbuff(cursor),
         ptvcursor_current_offset(cursor)) & HOMEPLUG_CER_BP;
     ptvcursor_add_no_advance(cursor, hf_homeplug_cer_mod, 1, ENC_BIG_ENDIAN);
     ptvcursor_add(cursor, hf_homeplug_cer_vt11, 1, ENC_BIG_ENDIAN);
     ptvcursor_add_no_advance(cursor, hf_homeplug_cer_rsvd2, 1, ENC_BIG_ENDIAN);
 
     if (BP) {
-      iNBDA = tvb_get_guint8(ptvcursor_tvbuff(cursor),
+      iNBDA = tvb_get_uint8(ptvcursor_tvbuff(cursor),
           ptvcursor_current_offset(cursor)) & HOMEPLUG_CER_NBDAS;
       ptvcursor_add(cursor, hf_homeplug_cer_nbdas, 1, ENC_BIG_ENDIAN);
       /* TODO : Check on iNBDA! INT51X1 up to 16 dba. But up to 32 for INT51X1 (Host/DTE) */
@@ -712,7 +712,7 @@ static void dissect_homeplug_loader(ptvcursor_t * cursor, packet_info * pinfo)
 
   ptvcursor_push_subtree(cursor, it, ett_homeplug_loader);
   {
-    mid = tvb_get_guint8(ptvcursor_tvbuff(cursor),
+    mid = tvb_get_uint8(ptvcursor_tvbuff(cursor),
                          ptvcursor_current_offset(cursor));
 
     length = tvb_get_ntohs(ptvcursor_tvbuff(cursor),
@@ -891,7 +891,7 @@ static void dissect_homeplug_hreq(ptvcursor_t * cursor, packet_info * pinfo)
 
   ptvcursor_push_subtree(cursor, it, ett_homeplug_hreq);
   {
-    mid = tvb_get_guint8(ptvcursor_tvbuff(cursor),
+    mid = tvb_get_uint8(ptvcursor_tvbuff(cursor),
                          ptvcursor_current_offset(cursor));
     length = tvb_get_ntohs(ptvcursor_tvbuff(cursor),
                            ptvcursor_current_offset(cursor) + 1);
@@ -961,7 +961,7 @@ static void dissect_homeplug_hrsp(ptvcursor_t * cursor, packet_info * pinfo)
 
   ptvcursor_push_subtree(cursor, it, ett_homeplug_hrsp);
   {
-    mid = tvb_get_guint8(ptvcursor_tvbuff(cursor),
+    mid = tvb_get_uint8(ptvcursor_tvbuff(cursor),
                          ptvcursor_current_offset(cursor));
     switch(mid) {
     case HOMEPLUG_MID_GDVR:
@@ -1094,7 +1094,7 @@ static void dissect_homeplug_bcn(ptvcursor_t * cursor)
     ptvcursor_add_no_advance(cursor, hf_homeplug_bcn_network, 1, ENC_BIG_ENDIAN);
     ptvcursor_add_no_advance(cursor, hf_homeplug_bcn_return, 1, ENC_BIG_ENDIAN);
     ptvcursor_add_no_advance(cursor, hf_homeplug_bcn_rsvd, 1, ENC_BIG_ENDIAN);
-    fbn = tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor))
+    fbn = tvb_get_uint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor))
         & HOMEPLUG_BCN_FBN;
     ptvcursor_add(cursor, hf_homeplug_bcn_fbn, 1, ENC_BIG_ENDIAN);
     while (i_bridge < 2) {
@@ -1102,7 +1102,7 @@ static void dissect_homeplug_bcn(ptvcursor_t * cursor)
           ett_homeplug_bridge, "Bridge #%d", fbn + i_bridge);
       {
         ptvcursor_add(cursor, hf_homeplug_bcn_brda, 6, ENC_NA);
-        num_das = tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+        num_das = tvb_get_uint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
         ptvcursor_add(cursor, hf_homeplug_bcn_bp_das, 1, ENC_BIG_ENDIAN);
         for (i_da = 0; i_da < num_das; i_da++) {
           ptvcursor_add(cursor, hf_homeplug_bcn_bp_da, 6, ENC_NA);
@@ -1130,7 +1130,7 @@ static void dissect_homeplug_bcl(ptvcursor_t * cursor)
     ptvcursor_add_no_advance(cursor, hf_homeplug_bcl_return, 1, ENC_BIG_ENDIAN);
     ptvcursor_add(cursor, hf_homeplug_bcl_rsvd, 1, ENC_BIG_ENDIAN);
 
-    num_das = tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+    num_das = tvb_get_uint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_homeplug_bcl_hprox_das, 1, ENC_BIG_ENDIAN);
 
     while (i_da < num_das) {
@@ -1149,7 +1149,7 @@ static void dissect_homeplug_bc(ptvcursor_t * cursor, packet_info * pinfo)
   if (!ptvcursor_tree(cursor))
     return;
 
-  network = tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor))
+  network = tvb_get_uint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor))
           & HOMEPLUG_BC_NETWORK;
 
   /* Append Network/Local specifier to info column */

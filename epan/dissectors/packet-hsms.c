@@ -192,8 +192,8 @@ dissect_secs_variable(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     int itemLength = 0;
 
     /* extract item format code and number of length bytes from byte #1 */
-    item_format_code = (tvb_get_guint8(tvb, *offset) & 0xFC) >> 2;
-    length_bytes = (tvb_get_guint8(tvb, *offset) & 0x3);
+    item_format_code = (tvb_get_uint8(tvb, *offset) & 0xFC) >> 2;
+    length_bytes = (tvb_get_uint8(tvb, *offset) & 0x3);
 
     /* extract item length in bytes */
     switch (length_bytes)
@@ -205,7 +205,7 @@ dissect_secs_variable(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         length = tvb_get_ntohs(tvb, *offset + 1);
         break;
     case 1:
-        length = tvb_get_guint8(tvb, *offset + 1);
+        length = tvb_get_uint8(tvb, *offset + 1);
         break;
     default:
         return -1;
@@ -370,10 +370,10 @@ dissect_hsms_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         return 0;
 
     sessionId = tvb_get_ntohs(tvb, 4);
-    byte2 = tvb_get_guint8(tvb, 6);
-    byte3 = tvb_get_guint8(tvb, 7);
-    pType = tvb_get_guint8(tvb, 8);
-    sType = tvb_get_guint8(tvb, 9);
+    byte2 = tvb_get_uint8(tvb, 6);
+    byte3 = tvb_get_uint8(tvb, 7);
+    pType = tvb_get_uint8(tvb, 8);
+    sType = tvb_get_uint8(tvb, 9);
 
     /* sTypes 8, 10 and 128+ are unused, 11-127 might be used for subsidiary standards */
     if ((sType == 8) || (sType == 10) || (sType > 127))

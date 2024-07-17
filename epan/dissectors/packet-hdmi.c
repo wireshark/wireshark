@@ -116,13 +116,13 @@ dissect_hdmi_edid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
             tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
 
-    week = tvb_get_guint8(tvb, offset);
+    week = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(edid_tree, hf_hdmi_edid_manf_week,
             tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
     year_hf = week == 255 ? hf_hdmi_edid_mod_year : hf_hdmi_edid_manf_year;
-    year = tvb_get_guint8(tvb, offset);
+    year = tvb_get_uint8(tvb, offset);
     yi = proto_tree_add_item(edid_tree, year_hf,
             tvb, offset, 1, ENC_LITTLE_ENDIAN);
     proto_item_append_text(yi, " (year %d)", 1990+year);
@@ -146,7 +146,7 @@ dissect_hdmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
     /* the I2C address in the first byte is always handled by the HDMI
        dissector, even if the packet contains HDCP data */
-    addr = tvb_get_guint8(tvb, 0);
+    addr = tvb_get_uint8(tvb, 0);
     if (!try_val_to_str(addr, hdmi_addr))
         return 0; /* no HDMI packet */
 

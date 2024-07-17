@@ -2743,7 +2743,7 @@ dissect_frame_padding(tvbuff_t *tvb, uint16_t *padding, proto_tree *http2_tree,
 
     if(flags & HTTP2_FLAGS_PADDED)
     {
-        *padding = tvb_get_guint8(tvb, offset); /* read a single octet */
+        *padding = tvb_get_uint8(tvb, offset); /* read a single octet */
         proto_tree_add_item(http2_tree, hf_http2_padding, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
         pad_len ++;
@@ -2768,7 +2768,7 @@ dissect_frame_prio(tvbuff_t *tvb, proto_tree *http2_tree, unsigned offset, uint8
         proto_tree_add_item(http2_tree, hf_http2_stream_dependency, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
         proto_tree_add_item(http2_tree, hf_http2_weight, tvb, offset, 1, ENC_BIG_ENDIAN);
-        weight = tvb_get_guint8(tvb, offset);
+        weight = tvb_get_uint8(tvb, offset);
         /* 6.2: Weight:  An 8-bit weight for the stream; Add one to the value to obtain a weight between 1 and 256 */
         ti = proto_tree_add_uint(http2_tree, hf_http2_weight_real, tvb, offset, 1, weight+1);
         proto_item_set_generated(ti);
@@ -2915,7 +2915,7 @@ dissect_body_data(proto_tree *tree, packet_info *pinfo, http2_session_t* h2sessi
              */
             int offset = 0;
             offset = tvb_skip_wsp(data_tvb, 0, length);
-            uint8_t oct = tvb_get_guint8(data_tvb, offset);
+            uint8_t oct = tvb_get_uint8(data_tvb, offset);
             if ((oct == 0x5b) || (oct == 0x7b)) {
                 /* Potential json */
                 const uint8_t* buf = tvb_get_string_enc(pinfo->pool, tvb, 0, length, ENC_ASCII);
@@ -4040,7 +4040,7 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     offset += 3;
 
     proto_tree_add_item(http2_tree, hf_http2_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-    type = tvb_get_guint8(tvb, offset);
+    type = tvb_get_uint8(tvb, offset);
 
     int type_idx;
     const char *type_str = try_val_to_str_idx(type, http2_type_vals, &type_idx);

@@ -635,7 +635,7 @@ static int dissect_h263_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		 *
 		 * Startc code holds bit 17 -23 of the codeword
 		 */
-		startcode = tvb_get_guint8(tvb,offset+2)&0xfe;
+		startcode = tvb_get_uint8(tvb,offset+2)&0xfe;
 		if (startcode & 0x80){
 			switch(startcode){
 			case 0xf8:

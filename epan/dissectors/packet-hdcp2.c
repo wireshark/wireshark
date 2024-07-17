@@ -137,10 +137,10 @@ dissect_hdcp2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
     /* do the plausibility checks before setting up anything */
 
-    /* make sure that tvb_get_guint8() won't throw an exception */
+    /* make sure that tvb_get_uint8() won't throw an exception */
     if (tvb_captured_length(tvb) < 1)
         return 0;
-    msg_id = tvb_get_guint8(tvb, 0);
+    msg_id = tvb_get_uint8(tvb, 0);
     if (msg_id > ID_MAX)
         return 0;
 
@@ -177,7 +177,7 @@ dissect_hdcp2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                         MSG_FIELD_TRANSMITTER_INFO_LENGTH);
             }
             ptvcursor_advance(cursor, 2);
-            version = tvb_get_guint8(tvb, ptvcursor_current_offset(cursor));
+            version = tvb_get_uint8(tvb, ptvcursor_current_offset(cursor));
             pi = proto_tree_add_item(ptvcursor_tree(cursor),
                     hf_hdcp2_tx_version, tvb, ptvcursor_current_offset(cursor),
                     1, ENC_BIG_ENDIAN);
@@ -192,7 +192,7 @@ dissect_hdcp2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
             ptvcursor_add(cursor, hf_hdcp2_tx_loc_precompute, 2, ENC_BIG_ENDIAN);
             break;
         case ID_AKE_SEND_CERT:
-            repeater = ((tvb_get_guint8(tvb, ptvcursor_current_offset(cursor))
+            repeater = ((tvb_get_uint8(tvb, ptvcursor_current_offset(cursor))
                         & 0x01) == 0x01);
             col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
                     repeater ? "repeater" : "no repeater");
@@ -223,7 +223,7 @@ dissect_hdcp2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                         MSG_FIELD_RECEIVER_INFO_LENGTH);
             }
             ptvcursor_advance(cursor, 2);
-            version = tvb_get_guint8(tvb, ptvcursor_current_offset(cursor));
+            version = tvb_get_uint8(tvb, ptvcursor_current_offset(cursor));
             pi = proto_tree_add_item(ptvcursor_tree(cursor),
                     hf_hdcp2_rx_version, tvb, ptvcursor_current_offset(cursor),
                     1, ENC_BIG_ENDIAN);

@@ -178,10 +178,10 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             switch(usb_conv_info->transfer_type)
             {
             case URB_CONTROL:
-                fragment_info->remaining_length = tvb_get_guint8(tvb, offset + 2) + 3;
+                fragment_info->remaining_length = tvb_get_uint8(tvb, offset + 2) + 3;
                 break;
             case URB_INTERRUPT:
-                fragment_info->remaining_length = tvb_get_guint8(tvb, offset + 1) + 2;
+                fragment_info->remaining_length = tvb_get_uint8(tvb, offset + 1) + 2;
                 break;
             case URB_BULK:
                 fragment_info->remaining_length = tvb_get_letohs(tvb, offset + 2) + 4;

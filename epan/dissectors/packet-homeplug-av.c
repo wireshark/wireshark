@@ -2444,11 +2444,11 @@ dissect_homeplug_av_mmhdr(ptvcursor_t *cursor, uint8_t *homeplug_av_mmver, uint1
 
     offset = 0;
 
-    mmv = tvb_get_guint8(ptvcursor_tvbuff(cursor),
+    mmv = tvb_get_uint8(ptvcursor_tvbuff(cursor),
                          ptvcursor_current_offset(cursor));
-    lsb = tvb_get_guint8(ptvcursor_tvbuff(cursor),
+    lsb = tvb_get_uint8(ptvcursor_tvbuff(cursor),
                          ptvcursor_current_offset(cursor) + 1);
-    msb = tvb_get_guint8(ptvcursor_tvbuff(cursor),
+    msb = tvb_get_uint8(ptvcursor_tvbuff(cursor),
                          ptvcursor_current_offset(cursor) + 2);
 
     *homeplug_av_mmver = mmv;
@@ -2458,7 +2458,7 @@ dissect_homeplug_av_mmhdr(ptvcursor_t *cursor, uint8_t *homeplug_av_mmver, uint1
         || homeplug_av_mmtype_msb_is_manufacturer(msb))
     {
         /* read three bytes of OUI */
-        *homeplug_av_oui = tvb_get_guint24(ptvcursor_tvbuff(cursor),
+        *homeplug_av_oui = tvb_get_uint24(ptvcursor_tvbuff(cursor),
                                            ptvcursor_current_offset(cursor)+homeplug_av_get_mmhdr_size(mmv),
                                            ENC_NA);
     }
@@ -3071,7 +3071,7 @@ dissect_homeplug_av_cc_disc_list_cnf(ptvcursor_t *cursor)
 
     ptvcursor_push_subtree(cursor, it, ett_homeplug_av_cc_disc_list_cnf);
     {
-        num_stas = tvb_get_guint8(ptvcursor_tvbuff(cursor),
+        num_stas = tvb_get_uint8(ptvcursor_tvbuff(cursor),
                                   ptvcursor_current_offset(cursor));
         ptvcursor_add(cursor, hf_homeplug_av_cc_disc_list_sta_cnt, 1, ENC_BIG_ENDIAN);
 
@@ -3079,7 +3079,7 @@ dissect_homeplug_av_cc_disc_list_cnf(ptvcursor_t *cursor)
             dissect_homeplug_av_cc_sta_info(cursor);
         }
 
-        num_nets = tvb_get_guint8(ptvcursor_tvbuff(cursor),
+        num_nets = tvb_get_uint8(ptvcursor_tvbuff(cursor),
                                   ptvcursor_current_offset(cursor));
         ptvcursor_add(cursor, hf_homeplug_av_cc_disc_list_net_cnt, 1, ENC_BIG_ENDIAN);
 
@@ -3105,7 +3105,7 @@ dissect_homeplug_av_cm_enc_pld_ind(ptvcursor_t *cursor)
     {
         ptvcursor_add(cursor, hf_homeplug_av_nw_info_peks, 1, ENC_BIG_ENDIAN);
         ptvcursor_add(cursor, hf_homeplug_av_cm_enc_pld_ind_avlns, 1, ENC_BIG_ENDIAN);
-        pid = tvb_get_guint8(ptvcursor_tvbuff(cursor),
+        pid = tvb_get_uint8(ptvcursor_tvbuff(cursor),
                              ptvcursor_current_offset(cursor));
         ptvcursor_add(cursor, hf_homeplug_av_nw_info_pid, 1, ENC_BIG_ENDIAN);
         ptvcursor_add(cursor, hf_homeplug_av_nw_info_prn, 2, ENC_LITTLE_ENDIAN);
@@ -3208,7 +3208,7 @@ dissect_homeplug_av_cm_get_key_req(ptvcursor_t *cursor)
     {
 
         ptvcursor_add(cursor, hf_homeplug_av_cm_get_key_req_type, 1, ENC_BIG_ENDIAN);
-        key_type = tvb_get_guint8(ptvcursor_tvbuff(cursor),
+        key_type = tvb_get_uint8(ptvcursor_tvbuff(cursor),
                                   ptvcursor_current_offset(cursor));
         ptvcursor_add(cursor, hf_homeplug_av_nw_info_key_type, 1, ENC_BIG_ENDIAN);
         ptvcursor_add(cursor, hf_homeplug_av_nw_info_nid, 7, ENC_NA);
@@ -3264,14 +3264,14 @@ dissect_homeplug_av_get_brg_infos_cnf(ptvcursor_t *cursor)
 
     ptvcursor_push_subtree(cursor, it, ett_homeplug_av_brg_infos_cnf);
     {
-        bridging = tvb_get_guint8(ptvcursor_tvbuff(cursor),
+        bridging = tvb_get_uint8(ptvcursor_tvbuff(cursor),
                                   ptvcursor_current_offset(cursor));
         ptvcursor_add(cursor, hf_homeplug_av_brg_infos_cnf_brd, 1, ENC_BIG_ENDIAN);
 
         if (bridging) {
             ptvcursor_add(cursor, hf_homeplug_av_brg_infos_cnf_btei, 1, ENC_BIG_ENDIAN);
 
-            num_stas = tvb_get_guint8(ptvcursor_tvbuff(cursor),
+            num_stas = tvb_get_uint8(ptvcursor_tvbuff(cursor),
                                       ptvcursor_current_offset(cursor));
             ptvcursor_add(cursor, hf_homeplug_av_brg_infos_cnf_num_stas, 1, ENC_BIG_ENDIAN);
 
@@ -3297,7 +3297,7 @@ dissect_homeplug_av_nw_infos_cnf(ptvcursor_t *cursor)
 
     ptvcursor_push_subtree(cursor, it, ett_homeplug_av_cm_nw_infos_cnf);
     {
-        num_avlns = tvb_get_guint8(ptvcursor_tvbuff(cursor),
+        num_avlns = tvb_get_uint8(ptvcursor_tvbuff(cursor),
                                    ptvcursor_current_offset(cursor));
         ptvcursor_add(cursor, hf_homeplug_av_nw_info_num_avlns, 1, ENC_BIG_ENDIAN);
 
@@ -3323,7 +3323,7 @@ dissect_homeplug_av_nw_stats_cnf(ptvcursor_t *cursor)
 
     ptvcursor_push_subtree(cursor, it, ett_homeplug_av_nw_stats_cnf);
     {
-        num_stas = tvb_get_guint8(ptvcursor_tvbuff(cursor),
+        num_stas = tvb_get_uint8(ptvcursor_tvbuff(cursor),
                                   ptvcursor_current_offset(cursor));
         ptvcursor_add(cursor, hf_homeplug_av_nw_info_num_stas, 1, ENC_BIG_ENDIAN);
 
@@ -3772,7 +3772,7 @@ dissect_homeplug_av_lnk_stats_rx(ptvcursor_t *cursor)
         ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_rx_pbs_fail, 8, ENC_LITTLE_ENDIAN);
         ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_rx_tb_pass, 8, ENC_LITTLE_ENDIAN);
         ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_rx_tb_fail, 8, ENC_LITTLE_ENDIAN);
-        num_rx_interval = tvb_get_guint8(ptvcursor_tvbuff(cursor),
+        num_rx_interval = tvb_get_uint8(ptvcursor_tvbuff(cursor),
                                          ptvcursor_current_offset(cursor));
         ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_rx_num_int, 1, ENC_BIG_ENDIAN);
 
@@ -3797,11 +3797,11 @@ dissect_homeplug_av_lnk_stats_cnf(ptvcursor_t *cursor)
 
     ptvcursor_push_subtree(cursor, it, ett_homeplug_av_lnk_stats_cnf);
     {
-        status = tvb_get_guint8(ptvcursor_tvbuff(cursor),
+        status = tvb_get_uint8(ptvcursor_tvbuff(cursor),
                                 ptvcursor_current_offset(cursor));
         ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_cnf_status, 1, ENC_BIG_ENDIAN);
 
-        direction = tvb_get_guint8(ptvcursor_tvbuff(cursor),
+        direction = tvb_get_uint8(ptvcursor_tvbuff(cursor),
                                    ptvcursor_current_offset(cursor));
         ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_cnf_dir, 1, ENC_BIG_ENDIAN);
 
@@ -3896,7 +3896,7 @@ dissect_homeplug_av_sniffer_ind(ptvcursor_t *cursor)
             offset = ptvcursor_current_offset(cursor);
             tvb = ptvcursor_tvbuff(cursor);
 
-            del_type = tvb_get_guint8(tvb, offset);
+            del_type = tvb_get_uint8(tvb, offset);
 
             /* bitmask - we only want 3 bits of del_type */
             uint8_t bitmask = 0x07;
@@ -3961,13 +3961,13 @@ dissect_homeplug_av_nw_info_cnf(ptvcursor_t *cursor, uint8_t homeplug_av_mmver)
         if (homeplug_av_mmver == HOMEPLUG_AV_MMVER_1_1)
             ptvcursor_add(cursor, hf_homeplug_av_reserved, 5, ENC_NA);
 
-        num_avlns = tvb_get_guint8(ptvcursor_tvbuff(cursor),
+        num_avlns = tvb_get_uint8(ptvcursor_tvbuff(cursor),
                                    ptvcursor_current_offset(cursor));
         ptvcursor_add(cursor, hf_homeplug_av_nw_info_num_avlns, 1, ENC_BIG_ENDIAN);
 
         if (num_avlns) {
             dissect_homeplug_av_nw_info_net(cursor, true, homeplug_av_mmver);
-            num_stas = tvb_get_guint8(ptvcursor_tvbuff(cursor),
+            num_stas = tvb_get_uint8(ptvcursor_tvbuff(cursor),
                                       ptvcursor_current_offset(cursor));
             ptvcursor_add(cursor, hf_homeplug_av_nw_info_num_stas, 1, ENC_BIG_ENDIAN);
 
@@ -4477,7 +4477,7 @@ dissect_homeplug_av_tone_map_carrier(ptvcursor_t *cursor, uint16_t num_carriers)
 
         ptvcursor_push_subtree(cursor, it, ett_homeplug_av_tone_map_carrier);
         {
-            hilo = tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+            hilo = tvb_get_uint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
             lo_bits = map_carrier2modbits[ (hilo & 0x0f) ];
             hi_bits = map_carrier2modbits[ (hilo & 0xf0) >> 4 ];
             if(lo_bits) num_act_carriers++;
@@ -4653,7 +4653,7 @@ dissect_homeplug_av_cc_set_tei_map_ind(ptvcursor_t *cursor) {
 
     ptvcursor_add(cursor, hf_homeplug_av_cc_set_tei_map_ind_mode, 1, ENC_NA);
 
-    numberOfSTA = tvb_get_guint8( ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+    numberOfSTA = tvb_get_uint8( ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_homeplug_av_cc_set_tei_map_ind_num, 1, ENC_NA);
 
     for ( iter = 0; iter < numberOfSTA; ++iter ) {
@@ -4684,11 +4684,11 @@ dissect_homeplug_av_gp_cm_slac_parm_req(ptvcursor_t *cursor) {
         return;
 
     ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_parm_apptype, 1, ENC_NA);
-    sectype = tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+    sectype = tvb_get_uint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_parm_sectype, 1, ENC_NA);
     ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_parm_runid, 8, ENC_NA);
     if (sectype == HOMEPLUG_AV_GP_SECURITY_TYPE_PUBLIC_KEY) {
-        cipher_size = tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+        cipher_size = tvb_get_uint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
         ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_parm_cipher_size, 1, ENC_NA);
         for (Counter = 0; Counter < cipher_size; ++Counter) {
             ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_parm_cipher, 2, ENC_LITTLE_ENDIAN);
@@ -4710,7 +4710,7 @@ dissect_homeplug_av_gp_cm_slac_parm_cnf(ptvcursor_t *cursor) {
     ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_parm_resptype, 1, ENC_NA);
     ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_parm_forwarding_sta, 6, ENC_NA);
     ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_parm_apptype, 1, ENC_NA);
-    sectype = tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+    sectype = tvb_get_uint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_parm_sectype, 1, ENC_NA);
     ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_parm_runid, 8, ENC_NA);
     if (sectype == HOMEPLUG_AV_GP_SECURITY_TYPE_PUBLIC_KEY) {
@@ -4728,7 +4728,7 @@ dissect_homeplug_av_gp_cm_atten_profile_ind(ptvcursor_t *cursor) {
         return;
 
     ptvcursor_add(cursor, hf_homeplug_av_gp_cm_atten_profile_ind_pev_mac, 6, ENC_NA);
-    group_size = tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+    group_size = tvb_get_uint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_homeplug_av_gp_cm_atten_profile_ind_num_groups, 1, ENC_NA);
     /* Skip reserved */
     ptvcursor_advance(cursor, 1);
@@ -4749,14 +4749,14 @@ dissect_homeplug_av_gp_cm_atten_char_ind(ptvcursor_t *cursor, packet_info *pinfo
 
     if (!ptvcursor_tree(cursor)) {
         ptvcursor_advance(cursor, 1);
-        sectype = tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+        sectype = tvb_get_uint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
         ptvcursor_advance(cursor, 1);
         if (sectype != HOMEPLUG_AV_GP_SECURITY_TYPE_PUBLIC_KEY) {
             ptvcursor_advance(cursor, 6+8+17+17+1);
-            numgroups = tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+            numgroups = tvb_get_uint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
             ptvcursor_advance(cursor, 1);
             for (Counter_groups = 0; Counter_groups < numgroups; ++Counter_groups) {
-                val = tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+                val = tvb_get_uint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
                 avg += val;
                 ptvcursor_advance(cursor,1);
             }
@@ -4767,7 +4767,7 @@ dissect_homeplug_av_gp_cm_atten_char_ind(ptvcursor_t *cursor, packet_info *pinfo
     }
 
     ptvcursor_add(cursor, hf_homeplug_av_gp_cm_atten_char_apptype, 1, ENC_NA);
-    sectype = tvb_get_guint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
+    sectype = tvb_get_uint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
 
     ptvcursor_add(cursor, hf_homeplug_av_gp_cm_atten_char_sectype, 1, ENC_NA);
 
@@ -4781,7 +4781,7 @@ dissect_homeplug_av_gp_cm_atten_char_ind(ptvcursor_t *cursor, packet_info *pinfo
 
         ptvcursor_add(cursor, hf_homeplug_av_gp_cm_atten_char_numsounds, 1, ENC_NA);
 
-        numgroups = tvb_get_guint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
+        numgroups = tvb_get_uint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
 
         it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_gp_cm_atten_char_profile, numgroups+1 , ENC_NA);
 
@@ -4789,7 +4789,7 @@ dissect_homeplug_av_gp_cm_atten_char_ind(ptvcursor_t *cursor, packet_info *pinfo
         {
             ptvcursor_add(cursor, hf_homeplug_av_gp_cm_atten_char_numgroups, 1, ENC_NA);
             for (Counter_groups = 0; Counter_groups < numgroups; ++Counter_groups) {
-                val = tvb_get_guint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
+                val = tvb_get_uint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
                 proto_tree_add_uint_format( ptvcursor_tree(cursor),
                                             hf_homeplug_av_gp_cm_atten_char_aag,
                                             ptvcursor_tvbuff(cursor),
@@ -4812,7 +4812,7 @@ dissect_homeplug_av_gp_cm_atten_char_rsp(ptvcursor_t *cursor) {
         return;
 
     ptvcursor_add(cursor, hf_homeplug_av_gp_cm_atten_char_apptype, 1, ENC_NA);
-    sectype = tvb_get_guint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
+    sectype = tvb_get_uint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
 
     ptvcursor_add(cursor, hf_homeplug_av_gp_cm_atten_char_sectype, 1, ENC_NA);
 
@@ -4836,7 +4836,7 @@ dissect_homeplug_av_gp_cm_start_atten_char_ind(ptvcursor_t *cursor) {
         return;
 
     ptvcursor_add(cursor, hf_homeplug_av_gp_cm_atten_char_apptype, 1, ENC_NA);
-    sectype = tvb_get_guint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
+    sectype = tvb_get_uint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
 
     ptvcursor_add(cursor, hf_homeplug_av_gp_cm_atten_char_sectype, 1, ENC_NA);
 
@@ -4859,10 +4859,10 @@ dissect_homeplug_av_gp_cm_mnbc_sound_ind(ptvcursor_t *cursor) {
     if (!ptvcursor_tree(cursor))
         return;
 
-    apptype = tvb_get_guint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
+    apptype = tvb_get_uint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_homeplug_av_gp_cm_mnbc_sound_apptype, 1, ENC_NA);
 
-    sectype = tvb_get_guint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
+    sectype = tvb_get_uint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_homeplug_av_gp_cm_mnbc_sound_sectype, 1, ENC_NA);
 
     if (sectype == HOMEPLUG_AV_GP_SECURITY_TYPE_PUBLIC_KEY) {
@@ -4888,7 +4888,7 @@ dissect_homeplug_av_gp_cm_validate_req(ptvcursor_t *cursor) {
     if (!ptvcursor_tree(cursor))
         return;
 
-    signaltype = tvb_get_guint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
+    signaltype = tvb_get_uint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_homeplug_av_gp_cm_validate_signaltype, 1, ENC_NA);
     switch (signaltype) {
     case HOMEPLUG_AV_GP_SIGNAL_TYPE_PEV_S2_TOGGLES:
@@ -4906,7 +4906,7 @@ dissect_homeplug_av_gp_cm_validate_cnf(ptvcursor_t *cursor) {
     if (!ptvcursor_tree(cursor))
         return;
 
-    signaltype = tvb_get_guint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
+    signaltype = tvb_get_uint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_homeplug_av_gp_cm_validate_signaltype, 1, ENC_NA);
     switch (signaltype) {
     case HOMEPLUG_AV_GP_SIGNAL_TYPE_PEV_S2_TOGGLES:
@@ -4926,13 +4926,13 @@ dissect_homeplug_av_gp_cm_slac_match_req(ptvcursor_t *cursor) {
     if (!ptvcursor_tree(cursor))
         return;
 
-    /* apptype = tvb_get_guint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor)); */
+    /* apptype = tvb_get_uint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor)); */
     ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_match_apptype, 1, ENC_NA);
 
-    sectype = tvb_get_guint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
+    sectype = tvb_get_uint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_match_sectype, 1, ENC_NA);
 
-    /* length = tvb_get_guint16(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor), ENC_LITTLE_ENDIAN); */
+    /* length = tvb_get_uint16(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor), ENC_LITTLE_ENDIAN); */
     ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_match_length, 2, ENC_LITTLE_ENDIAN);
 
     if (sectype == HOMEPLUG_AV_GP_SECURITY_TYPE_PUBLIC_KEY) {
@@ -4957,13 +4957,13 @@ dissect_homeplug_av_gp_cm_slac_match_cnf(ptvcursor_t *cursor) {
     if (!ptvcursor_tree(cursor))
         return;
 
-    //apptype = tvb_get_guint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
+    //apptype = tvb_get_uint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_match_apptype, 1, ENC_NA);
 
-    sectype = tvb_get_guint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
+    sectype = tvb_get_uint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_match_sectype, 1, ENC_NA);
 
-    //length = tvb_get_guint16(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor), ENC_LITTLE_ENDIAN);
+    //length = tvb_get_uint16(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor), ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_match_length, 2, ENC_LITTLE_ENDIAN);
 
     if (sectype == HOMEPLUG_AV_GP_SECURITY_TYPE_PUBLIC_KEY) {
@@ -4993,7 +4993,7 @@ dissect_homeplug_av_gp_cm_slac_user_data(ptvcursor_t *cursor) {
 
     for (;;) {
         /* Get Length and Type from TLV Header */
-        TypeLen = tvb_get_guint16(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor),ENC_LITTLE_ENDIAN);
+        TypeLen = tvb_get_uint16(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor),ENC_LITTLE_ENDIAN);
         Length = TypeLen & HOMEPLUG_AV_GP_CM_SLAC_USER_DATA_TLV_LENGTH_MASK;
         Type = TypeLen & HOMEPLUG_AV_GP_CM_SLAC_USER_DATA_TLV_TYPE_MASK;
         /* If type and length is null_type - don't add anything and exit */
@@ -5074,7 +5074,7 @@ dissect_homeplug_av_st_iotecha_stp_discover_tlv(ptvcursor_t *cursor) {
 
     for (;;) {
         /* Get Length and Type from TLV Header */
-        TypeLen = tvb_get_guint16(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor),ENC_LITTLE_ENDIAN);
+        TypeLen = tvb_get_uint16(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor),ENC_LITTLE_ENDIAN);
         Length = TypeLen & HOMEPLUG_AV_ST_IOTECHA_STP_DISCOVER_TLV_LENGTH_MASK;
         Type = TypeLen & HOMEPLUG_AV_ST_IOTECHA_STP_DISCOVER_TLV_TYPE_MASK;
         /* If type is null_type - don't add anything and exit */
@@ -5106,15 +5106,15 @@ dissect_homeplug_av_st_iotecha_stp_get_bss_tlv(ptvcursor_t *cursor, uint8_t coun
         return;
 
     for (Counter = 0; Counter < count; ++Counter) {
-        Type = tvb_get_guint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
+        Type = tvb_get_uint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
         if (Type == HOMEPLUG_AV_ST_IOTECHA_STP_GET_BSS_TYPE_BEGIN_BSS) {
             it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_st_iotecha_bss_entry, 0, ENC_NA);
             ptvcursor_push_subtree(cursor, it, ett_homeplug_av_st_iotecha_bss_entry);
             {
                 while (Type != HOMEPLUG_AV_ST_IOTECHA_STP_GET_BSS_TYPE_END_BSS) {
-                    Type = tvb_get_guint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
+                    Type = tvb_get_uint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
                     it = ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_bss_type, 1, ENC_NA);
-                    Length = tvb_get_guint16(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor), ENC_LITTLE_ENDIAN);
+                    Length = tvb_get_uint16(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor), ENC_LITTLE_ENDIAN);
                     /* If no data - skip fields */
                     if (Length) {
                         proto_item_append_text(it," Length: %d",Length);
@@ -5192,7 +5192,7 @@ dissect_homeplug_av_st_iotecha_stp_get_tei_list_cnf(ptvcursor_t *cursor) {
     if (!ptvcursor_tree(cursor))
         return;
 
-    TeiCount = tvb_get_guint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
+    TeiCount = tvb_get_uint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_tei_count, 1, ENC_NA);
     for (Counter = 0; Counter < TeiCount; ++Counter) {
         ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_tei, 1, ENC_NA);
@@ -5217,7 +5217,7 @@ dissect_homeplug_av_st_iotecha_stp_get_tei_snapshot_cnf(ptvcursor_t *cursor) {
     if (!ptvcursor_tree(cursor))
         return;
 
-    AddrCount = tvb_get_guint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
+    AddrCount = tvb_get_uint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_tei_snap_addr_count, 1, ENC_NA);
     ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_tei_snap_tei, 1, ENC_NA);
     for (Counter = 0; Counter < AddrCount; ++Counter) {
@@ -5234,7 +5234,7 @@ dissect_homeplug_av_st_iotecha_stp_get_bss_list_cnf(ptvcursor_t *cursor) {
     if (!ptvcursor_tree(cursor))
         return;
 
-    Count  = tvb_get_guint8( ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+    Count  = tvb_get_uint8( ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_bss_list_count, 1, ENC_NA);
     dissect_homeplug_av_st_iotecha_stp_get_bss_tlv(cursor, Count);
 }
@@ -5275,11 +5275,11 @@ dissect_homeplug_av_st_iotecha_stp_get_chanqual_report_ind(ptvcursor_t *cursor) 
     ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_chanqual_source, 1, ENC_NA);
     ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_chanqual_response_type, 1, ENC_NA);
     /* TMI */
-    tmi_count  = tvb_get_guint8( ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+    tmi_count  = tvb_get_uint8( ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_chanqual_tmi_count, 1, ENC_NA);
     ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_chanqual_tmi, tmi_count, ENC_NA);
     /* Intervals */
-    int_count = tvb_get_guint8( ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+    int_count = tvb_get_uint8( ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_chanqual_int_count, 1, ENC_NA);
 
     it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_st_iotecha_chanqual_int,
@@ -5326,7 +5326,7 @@ dissect_homeplug_av_st_iotecha_stp_mfct_update_stage_req(ptvcursor_t *cursor) {
     ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mfct_total_length, 2, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mfct_offset, 2, ENC_LITTLE_ENDIAN);
 
-    Length = tvb_get_guint16(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor),ENC_LITTLE_ENDIAN);
+    Length = tvb_get_uint16(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor),ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mfct_length, 2, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mfct_data, Length, ENC_NA);
 }
@@ -5396,8 +5396,8 @@ dissect_homeplug_av_st_iotecha_stp_mfct_get_keylist_cnf(ptvcursor_t *cursor) {
 
     while (tvb_reported_length_remaining(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor)) > 1 )
     {
-        if ((tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor)) == '\0')
-            && (tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor) + 1) == '\0'))
+        if ((tvb_get_uint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor)) == '\0')
+            && (tvb_get_uint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor) + 1) == '\0'))
             break;
         name_size = tvb_strsize(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
         ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mfct_name, name_size - 1, ENC_ASCII);
@@ -5424,8 +5424,8 @@ dissect_homeplug_av_st_iotecha_stp_cpstate_ind(ptvcursor_t *cursor, packet_info 
     uint8_t cp_state;
     uint8_t pwm_duty;
 
-    cp_state = tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-    pwm_duty = tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor)+1);
+    cp_state = tvb_get_uint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+    pwm_duty = tvb_get_uint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor)+1);
     col_add_fstr(pinfo->cinfo, COL_INFO, "CP State Change: %s, %d%%", val_to_str_const(cp_state, homeplug_av_st_iotecha_stp_cpstate_state_vals, "Unknown"), pwm_duty);
 
     if (!ptvcursor_tree(cursor))
@@ -5435,7 +5435,7 @@ dissect_homeplug_av_st_iotecha_stp_cpstate_ind(ptvcursor_t *cursor, packet_info 
     ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_cpstate_pwm_duty, 1, ENC_NA);
     ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_cpstate_pwm_freq, 2, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_cpstate_volatge, 2, ENC_LITTLE_ENDIAN);
-    bitmask = tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+    bitmask = tvb_get_uint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
     if (bitmask)
         ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_cpstate_adc_bitmask, 1, ENC_NA);
     else

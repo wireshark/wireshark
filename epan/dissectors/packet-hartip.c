@@ -893,12 +893,12 @@ dissect_cmd77(proto_tree *body_tree, tvbuff_t *tvb, int offset, int bodylen, int
        offset += dissect_byte(body_tree, hf_hartip_pt_req_tx_preamble_count, tvb, offset);
      }
 
-     delimiter = tvb_get_guint8(tvb, offset);
+     delimiter = tvb_get_uint8(tvb, offset);
      offset += dissect_byte(body_tree, hf_hartip_pt_rsp_embedded_cmd_delimiter, tvb, offset);
 
      if ((delimiter & 0x80) == 0) {
        uint8_t short_addr;
-       short_addr = tvb_get_guint8(tvb, offset);
+       short_addr = tvb_get_uint8(tvb, offset);
        short_addr &= 0x3F;
        proto_tree_add_uint(body_tree, hf_hartip_pt_rsp_poll_address, tvb, offset, 1, short_addr);
        offset += 1;
@@ -910,7 +910,7 @@ dissect_cmd77(proto_tree *body_tree, tvbuff_t *tvb, int offset, int bodylen, int
 
      offset += dissect_byte(body_tree, hf_hartip_pt_rsp_embedded_cmd,           tvb, offset);
 
-     byte_count = tvb_get_guint8(tvb, offset);
+     byte_count = tvb_get_uint8(tvb, offset);
      proto_tree_add_item(body_tree, hf_hartip_pt_rsp_command_byte_count, tvb, offset, 1, ENC_BIG_ENDIAN);
      offset += 1;
      length -= 6;
@@ -944,7 +944,7 @@ dissect_cmd178(proto_tree *body_tree, tvbuff_t *tvb, int offset, int bodylen)
    int     result;
 
    if (length >= 5) {
-     number_of_cmds = tvb_get_guint8(tvb, offset);
+     number_of_cmds = tvb_get_uint8(tvb, offset);
      proto_tree_add_uint(body_tree, hf_hartip_pt_rsp_number_of_commands, tvb, offset, 1, number_of_cmds);
      offset += 1;
      length -= 1;
@@ -958,7 +958,7 @@ dissect_cmd178(proto_tree *body_tree, tvbuff_t *tvb, int offset, int bodylen)
          offset += 2;
          length -= 2;
 
-         cmd_byte_count = tvb_get_guint8(tvb, offset);
+         cmd_byte_count = tvb_get_uint8(tvb, offset);
          proto_tree_add_item(body_tree, hf_hartip_pt_rsp_command_byte_count, tvb, offset, 1, ENC_BIG_ENDIAN);
          offset += 1;
          length -= 1;
@@ -1171,7 +1171,7 @@ dissect_pass_through(proto_tree *body_tree, tvbuff_t *tvb, int offset,
 
   /* find number of preambles */
   while (length > num_preambles) {
-    delimiter = tvb_get_guint8(tvb, offset + num_preambles);
+    delimiter = tvb_get_uint8(tvb, offset + num_preambles);
     if (delimiter != 0xFF)
       break;
 
@@ -1186,7 +1186,7 @@ dissect_pass_through(proto_tree *body_tree, tvbuff_t *tvb, int offset,
   }
 
   if (length > 0) {
-    delimiter = tvb_get_guint8(tvb, offset);
+    delimiter = tvb_get_uint8(tvb, offset);
 
     static int * const hartip_pt_delimiter_flag[] = {
         &hf_hartip_pt_delimiter_frame_type,
@@ -1216,7 +1216,7 @@ dissect_pass_through(proto_tree *body_tree, tvbuff_t *tvb, int offset,
 
   if (is_short == 1) {
     if (length > 0) {
-      short_addr = tvb_get_guint8(tvb, offset);
+      short_addr = tvb_get_uint8(tvb, offset);
       short_addr = short_addr & 0x3F;
       proto_tree_add_uint(body_tree, hf_hartip_pt_short_addr, tvb, offset, 1,
                                short_addr);
@@ -1241,7 +1241,7 @@ dissect_pass_through(proto_tree *body_tree, tvbuff_t *tvb, int offset,
   }
 
   if (length > 0) {
-    cmd = tvb_get_guint8(tvb, offset);
+    cmd = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(body_tree, hf_hartip_pt_command, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
@@ -1341,12 +1341,12 @@ dissect_hartip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   proto_tree_add_item(hdr_tree, hf_hartip_hdr_version, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
-  message_type = tvb_get_guint8(tvb, offset);
+  message_type = tvb_get_uint8(tvb, offset);
   msg_type_str = val_to_str(message_type, hartip_message_type_values, "Unknown message type %d");
   proto_tree_add_item(hdr_tree, hf_hartip_hdr_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
-  message_id = tvb_get_guint8(tvb, offset);
+  message_id = tvb_get_uint8(tvb, offset);
   msg_id_str = val_to_str(message_id, hartip_message_id_values, "Unknown message %d");
   proto_tree_add_item(hdr_tree, hf_hartip_hdr_message_id, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
@@ -1434,12 +1434,12 @@ dissect_hartip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                    void *data)
 {
   /* Simple heuristic check*/
-  const char * msg_str = try_val_to_str(tvb_get_guint8(tvb, 1), hartip_message_type_values);
+  const char * msg_str = try_val_to_str(tvb_get_uint8(tvb, 1), hartip_message_type_values);
   if (!msg_str) {
     return 0;
   }
 
-  msg_str = try_val_to_str(tvb_get_guint8(tvb, 2), hartip_message_id_values);
+  msg_str = try_val_to_str(tvb_get_uint8(tvb, 2), hartip_message_id_values);
   if (!msg_str) {
     return 0;
   }
@@ -1456,12 +1456,12 @@ dissect_hartip_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   int offset = 0;
 
   /* Simple heuristic check*/
-  const char * msg_str = try_val_to_str(tvb_get_guint8(tvb, 1), hartip_message_type_values);
+  const char * msg_str = try_val_to_str(tvb_get_uint8(tvb, 1), hartip_message_type_values);
   if (!msg_str) {
     return 0;
   }
 
-  msg_str = try_val_to_str(tvb_get_guint8(tvb, 2), hartip_message_id_values);
+  msg_str = try_val_to_str(tvb_get_uint8(tvb, 2), hartip_message_id_values);
   if (!msg_str) {
     return 0;
   }

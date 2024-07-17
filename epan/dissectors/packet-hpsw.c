@@ -226,7 +226,7 @@ dissect_hpsw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "HP");
     col_set_str(pinfo->cinfo, COL_INFO, "HP Switch Protocol");
 
-    version = tvb_get_guint8(tvb, 0);
+    version = tvb_get_uint8(tvb, 0);
 
     ti = proto_tree_add_item(tree, proto_hpsw, tvb, 0, -1, ENC_NA);
     hp_tree = proto_item_add_subtree(ti, ett_hpsw);
@@ -240,8 +240,8 @@ dissect_hpsw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     {
         uint8_t type, length;
 
-        type   = tvb_get_guint8(tvb, offset);
-        length = tvb_get_guint8(tvb, offset+1);
+        type   = tvb_get_uint8(tvb, offset);
+        length = tvb_get_uint8(tvb, offset+1);
 
         /* make sure still in valid tlv */
         if (( length < 1 ) || ( length > tvb_reported_length_remaining(tvb, offset+2)))

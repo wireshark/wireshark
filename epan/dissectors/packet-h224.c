@@ -190,7 +190,7 @@ dissect_h224_standard_clients_ids(tvbuff_t* tvb, proto_tree* tree, unsigned offs
     } else if (client_id == H224_NON_STANDARD_CLIENT_ID){
         proto_tree_add_item(tree, hf_h224_non_standard_client, tvb, offset, 1, ENC_NA);
         offset++;
-        manufacturer_code = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+        manufacturer_code = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_h224_country_code, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
         proto_tree_add_item(tree, hf_h224_extension, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -218,7 +218,7 @@ dissect_h224_cme_client_data(tvbuff_t* tvb, proto_tree* tree, unsigned offset)
 
     ext_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_h224, NULL,
                                       val_to_str_ext_const(H224_CME_CLIENT_ID, &h224_client_data_ext, "Unknown field"));
-    type = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+    type = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
     switch (type) {
         case CME_MSG_Client_List_Message:
             proto_tree_add_item(ext_tree, hf_h224_client_list_code, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -226,11 +226,11 @@ dissect_h224_cme_client_data(tvbuff_t* tvb, proto_tree* tree, unsigned offset)
             proto_tree_add_item(ext_tree, hf_h224_response_code, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             proto_tree_add_item(ext_tree, hf_h224_number_of_clients, tvb, offset, 1, ENC_BIG_ENDIAN);
-            num = tvb_get_guint8(tvb, offset);
+            num = tvb_get_uint8(tvb, offset);
             offset++;
             proto_tree_add_item(ext_tree, hf_h224_ex_caps_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
             for (int i = 0; i < num; i++) {
-                oct = tvb_get_guint8(tvb, offset);
+                oct = tvb_get_uint8(tvb, offset);
                 offset = dissect_h224_standard_clients_ids(tvb, ext_tree, offset, (oct & 0x7f));
             }
             break;
@@ -246,7 +246,7 @@ dissect_h224_cme_client_data(tvbuff_t* tvb, proto_tree* tree, unsigned offset)
             proto_tree_add_item(ext_tree, hf_h224_response_code, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             proto_tree_add_item(ext_tree, hf_h224_ex_caps_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
-            oct = tvb_get_guint8(tvb, offset);
+            oct = tvb_get_uint8(tvb, offset);
             offset = dissect_h224_standard_clients_ids(tvb, ext_tree, offset, oct);
             if ((oct & 0x7f) == 0x01) {
                 static int* const fecc_number_of_presets[] = {
@@ -257,7 +257,7 @@ dissect_h224_cme_client_data(tvbuff_t* tvb, proto_tree* tree, unsigned offset)
                 };
                 proto_tree_add_bitmask_list(ext_tree, tvb, offset, 1, fecc_number_of_presets, ENC_BIG_ENDIAN);
                 offset++;
-                oct = tvb_get_guint8(tvb, offset);
+                oct = tvb_get_uint8(tvb, offset);
                 static int* const fecc_vrs_capabilities[] = {
                         &hf_h224_vs_id,
                         &hf_h224_vs_reserved_b3,
@@ -296,7 +296,7 @@ dissect_h224_cme_client_data(tvbuff_t* tvb, proto_tree* tree, unsigned offset)
             proto_tree_add_item(ext_tree, hf_h224_response_code, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             proto_tree_add_item(ext_tree, hf_h224_ex_caps_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
-            oct = tvb_get_guint8(tvb, offset);
+            oct = tvb_get_uint8(tvb, offset);
             offset = dissect_h224_standard_clients_ids(tvb, ext_tree, offset, oct);
             break;
         default:
@@ -313,7 +313,7 @@ dissect_h224_fecc_client_data(tvbuff_t* tvb, proto_tree* tree, unsigned offset)
 
     ext_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_h224, NULL,
                                       val_to_str_ext_const(H224_FECC_CLIENT_ID, &h224_client_data_ext, "Unknown field"));
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(ext_tree, hf_h224_command_code, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     static int* const fecc_message_action[] = {
@@ -334,7 +334,7 @@ dissect_h224_fecc_client_data(tvbuff_t* tvb, proto_tree* tree, unsigned offset)
             proto_tree_add_bitmask_list(ext_tree, tvb, offset, 1, fecc_message_action, ENC_BIG_ENDIAN);
             offset++;
             proto_tree_add_item(ext_tree, hf_h224_message_reserved_b7b4, tvb, offset, 1, ENC_BIG_ENDIAN);
-            oct = tvb_get_guint8(tvb, offset);
+            oct = tvb_get_uint8(tvb, offset);
             timeout = (oct & 0x0f) ? (oct * TIMEOUT_INTERVALS) : MAX_TIMEOUT_VALUE;
             proto_tree_add_uint_format(ext_tree, hf_h224_message_timeout, tvb, offset, 1, oct,"%u (%u milliseconds)", oct, timeout);
             offset++;
@@ -436,7 +436,7 @@ dissect_h224(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_
     * - Extended Client ID – Two octets (0x7E, extended Client ID).
     * - Non-standard Client ID – Six octets (0x7F, country, manufacturer code, ID)
     */
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
     offset = dissect_h224_standard_clients_ids(tvb, h224_tree, offset, oct);
 
     static int* const h224_flags[] = {

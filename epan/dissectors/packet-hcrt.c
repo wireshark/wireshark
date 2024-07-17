@@ -257,7 +257,7 @@ static bool dissect_hcrt_message(tvbuff_t* tvb, packet_info* pinfo, proto_tree* 
     int type;
 
     /* Save byte 0 of current packet */
-    b0_current = tvb_get_guint8(tvb, *offset);
+    b0_current = tvb_get_uint8(tvb, *offset);
 
     /* Get details from header */
     adl = tvb_get_letohs(tvb, *offset + 2) & 0x0FFF;
@@ -306,7 +306,7 @@ static int dissect_hcrt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, voi
     col_clear(pinfo->cinfo, COL_INFO);
 
     /* Save byte 0 of first message. Will be checked against byte 0 of other messages */
-    b0_first = tvb_get_guint8(tvb, 0);
+    b0_first = tvb_get_uint8(tvb, 0);
 
     tag  = b0_first & 0x0F;
     type = (b0_first & 0x30) >> 4;

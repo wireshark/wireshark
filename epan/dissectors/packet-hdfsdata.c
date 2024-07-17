@@ -118,7 +118,7 @@ dissect_variable_length_long (tvbuff_t *tvb, proto_tree *hdfsdata_tree, int* off
   int byte_count = 1;
   int idx = 0;
   unsigned i = 0;
-  int8_t first_byte = tvb_get_guint8(tvb, *offset);
+  int8_t first_byte = tvb_get_uint8(tvb, *offset);
   unsigned size = 0;
 
   int len = decode_vint_size(first_byte);
@@ -129,7 +129,7 @@ dissect_variable_length_long (tvbuff_t *tvb, proto_tree *hdfsdata_tree, int* off
   }
 
   for  (idx = 0; idx < len-1; idx++) {
-    char b = tvb_get_guint8(tvb, *offset + byte_count);
+    char b = tvb_get_uint8(tvb, *offset + byte_count);
     byte_count++;
     i = i << 8;
     i = i | (b & 0xFF);
@@ -160,7 +160,7 @@ dissect_access_tokens(tvbuff_t *tvb, proto_tree *hdfsdata_tree, int *offset)
 {
   int len = 0;
 
-  len = tvb_get_guint8(tvb, *offset);
+  len = tvb_get_uint8(tvb, *offset);
   proto_tree_add_item(hdfsdata_tree, hf_hdfsdata_tokenlen, tvb, *offset, 1, ENC_BIG_ENDIAN);
   *offset += 1;
 
@@ -168,7 +168,7 @@ dissect_access_tokens(tvbuff_t *tvb, proto_tree *hdfsdata_tree, int *offset)
   proto_tree_add_item(hdfsdata_tree, hf_hdfsdata_tokenid, tvb, *offset, len, ENC_ASCII);
   *offset += len;
 
-  len = tvb_get_guint8(tvb, *offset);
+  len = tvb_get_uint8(tvb, *offset);
   proto_tree_add_item(hdfsdata_tree, hf_hdfsdata_tokenlen, tvb, *offset, 1, ENC_BIG_ENDIAN);
   *offset += 1;
 
@@ -176,7 +176,7 @@ dissect_access_tokens(tvbuff_t *tvb, proto_tree *hdfsdata_tree, int *offset)
   proto_tree_add_item(hdfsdata_tree, hf_hdfsdata_tokenpassword, tvb, *offset, len, ENC_ASCII);
   *offset += len;
 
-  len = tvb_get_guint8(tvb, *offset);
+  len = tvb_get_uint8(tvb, *offset);
   proto_tree_add_item(hdfsdata_tree, hf_hdfsdata_tokenlen, tvb, *offset, 1, ENC_BIG_ENDIAN);
   *offset += 1;
 
@@ -184,7 +184,7 @@ dissect_access_tokens(tvbuff_t *tvb, proto_tree *hdfsdata_tree, int *offset)
   proto_tree_add_item(hdfsdata_tree, hf_hdfsdata_tokentype, tvb, *offset, len, ENC_ASCII);
   *offset += len;
 
-  len = tvb_get_guint8(tvb, *offset);
+  len = tvb_get_uint8(tvb, *offset);
   proto_tree_add_item(hdfsdata_tree, hf_hdfsdata_tokenlen, tvb, *offset, 1, ENC_BIG_ENDIAN);
   *offset += 1;
 
@@ -224,7 +224,7 @@ dissect_read_response(tvbuff_t *tvb, proto_tree *hdfsdata_tree, int offset)
   chunksize = tvb_get_ntohl(tvb, CHUNKSIZE_START);
   if (chunksize == 0)   /* let's not divide by zero */
     return;
-  if (tvb_get_guint8(tvb, 2) == CRC) {
+  if (tvb_get_uint8(tvb, 2) == CRC) {
     len = (int)(CRC_SIZE * tvb_get_ntohl(tvb, offset - 4) *
       tvb_get_ntohl(tvb, offset - 8) / chunksize);
   }
@@ -316,7 +316,7 @@ dissect_header(tvbuff_t *tvb, proto_tree *hdfsdata_tree, int* offset){
   *offset += 2;
 
   /* 1 byte = command */
-  command = tvb_get_guint8(tvb, *offset);
+  command = tvb_get_uint8(tvb, *offset);
   proto_tree_add_item(hdfsdata_tree, hf_hdfsdata_cmd, tvb, *offset, 1, ENC_BIG_ENDIAN);
   *offset += 1;
 
@@ -373,8 +373,8 @@ get_hdfsdata_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void
 
   if (tvb_reported_length(tvb) <= 4 || tvb_reported_length(tvb) == END_PACKET_LEN
     || tvb_get_ntohl(tvb, 0) == tvb_reported_length(tvb) - WRITE_RESP_HEAD_LEN
-    || (tvb_reported_length(tvb) >= MIN_READ_REQ && tvb_get_guint8(tvb, 2) == READ_OP)
-    || (tvb_reported_length(tvb) >= MIN_WRITE_REQ && tvb_get_guint8(tvb, 2) == WRITE_OP)) {
+    || (tvb_reported_length(tvb) >= MIN_READ_REQ && tvb_get_uint8(tvb, 2) == READ_OP)
+    || (tvb_reported_length(tvb) >= MIN_WRITE_REQ && tvb_get_uint8(tvb, 2) == WRITE_OP)) {
 
     return tvb_reported_length(tvb);
   }
@@ -432,7 +432,7 @@ dissect_hdfsdata_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
     } else {
 
-      uint8_t op = tvb_get_guint8(tvb, 2);
+      uint8_t op = tvb_get_uint8(tvb, 2);
 
       /* READ  request */
       if ((tvb_reported_length(tvb)) >= MIN_READ_REQ && op == READ_OP) {
@@ -485,7 +485,7 @@ dissect_hdfsdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     tvb_get_ntohs(tvb, 0) == STATUS_SUCCESS);
 
   if (tvb_reported_length(tvb) >= 3)
-    op = tvb_get_guint8(tvb, 2);
+    op = tvb_get_uint8(tvb, 2);
 
   if (!only_packet && tvb_reported_length(tvb) != 4 && !(tvb_reported_length(tvb) >= MIN_READ_REQ && op == READ_OP) &&
     !(tvb_reported_length(tvb) >= MIN_WRITE_REQ && op == WRITE_OP) && !(tvb_reported_length(tvb) == END_PACKET_LEN &&

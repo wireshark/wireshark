@@ -436,10 +436,10 @@ static void
 hiqnet_display_vdobjectaddr(proto_tree *hiqnet_tree, int hf_hiqnet, tvbuff_t *tvb, int offset) {
     proto_tree_add_bytes_format_value(hiqnet_tree, hf_hiqnet, tvb, offset, 4, NULL,
         "%u.%u.%u.%u",
-        tvb_get_guint8(tvb, offset), /* Virtual Device address */
-        tvb_get_guint8(tvb, offset + 1), /* Object address part 1 */
-        tvb_get_guint8(tvb, offset + 2), /* Object address part 2 */
-        tvb_get_guint8(tvb, offset + 3)); /* Object address part 3 */
+        tvb_get_uint8(tvb, offset), /* Virtual Device address */
+        tvb_get_uint8(tvb, offset + 1), /* Object address part 1 */
+        tvb_get_uint8(tvb, offset + 2), /* Object address part 2 */
+        tvb_get_uint8(tvb, offset + 3)); /* Object address part 3 */
 }
 
 
@@ -480,7 +480,7 @@ hiqnet_display_rs232netinfo(proto_tree *hiqnet_payload_tree, tvbuff_t *tvb, int 
 static int
 hiqnet_display_netinfo(proto_tree *hiqnet_payload_tree, tvbuff_t *tvb, int offset) {
     unsigned netid = 0;
-    netid = tvb_get_guint8(tvb, offset);
+    netid = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_netid, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     if (netid == HIQNET_TCPIP_NET) {
@@ -639,15 +639,15 @@ dissect_hiqnet_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     col_clear(pinfo->cinfo,COL_INFO);
 
     srcdev = tvb_get_ntohs(tvb, 6);
-    srcvdaddr = tvb_get_guint8(tvb, 8);
-    srcob0addr = tvb_get_guint8(tvb, 9);
-    srcob1addr = tvb_get_guint8(tvb, 10);
-    srcob2addr = tvb_get_guint8(tvb, 11);
+    srcvdaddr = tvb_get_uint8(tvb, 8);
+    srcob0addr = tvb_get_uint8(tvb, 9);
+    srcob1addr = tvb_get_uint8(tvb, 10);
+    srcob2addr = tvb_get_uint8(tvb, 11);
     dstdev = tvb_get_ntohs(tvb, 12);
-    dstvdaddr = tvb_get_guint8(tvb, 14);
-    dstob0addr = tvb_get_guint8(tvb, 15);
-    dstob1addr = tvb_get_guint8(tvb, 16);
-    dstob2addr = tvb_get_guint8(tvb, 17);
+    dstvdaddr = tvb_get_uint8(tvb, 14);
+    dstob0addr = tvb_get_uint8(tvb, 15);
+    dstob1addr = tvb_get_uint8(tvb, 16);
+    dstob2addr = tvb_get_uint8(tvb, 17);
     messageid = tvb_get_ntohs(tvb, 18);
     col_add_fstr(pinfo->cinfo, COL_INFO, "Msg: %s, Src: %u.%u.%u.%u.%u, Dst: %u.%u.%u.%u.%u",
         val_to_str(messageid, messageidnames, "Unknown (0x%04x)"),
@@ -683,7 +683,7 @@ dissect_hiqnet_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         hiqnet_tree = proto_item_add_subtree(ti, ett_hiqnet);
 
         /* Header subtree */
-        headerlen =  tvb_get_guint8(tvb, 1);
+        headerlen =  tvb_get_uint8(tvb, 1);
         hiqnet_header_tree = proto_tree_add_subtree(hiqnet_tree, tvb, 0, headerlen, ett_hiqnet, NULL, "Header");
 
         /* Standard header */

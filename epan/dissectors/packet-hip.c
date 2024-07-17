@@ -443,14 +443,14 @@ dissect_hip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool udp
     newoffset = offset;
     /* hiph Proto */
     newoffset++;
-    hiph_hdr_len = tvb_get_guint8(tvb, newoffset);
+    hiph_hdr_len = tvb_get_uint8(tvb, newoffset);
     newoffset++;
-    hiph_packet_type = tvb_get_guint8(tvb, newoffset);
+    hiph_packet_type = tvb_get_uint8(tvb, newoffset);
     /* draft-ietf-shim6-proto-12 see section 5.3 */
     hiph_shim6_fixed_bit_p = (hiph_packet_type & HIP_SHIM6_FIXED_BIT_P_MASK) >> 7;
     hiph_packet_type = hiph_packet_type & HIP_PACKET_TYPE_MASK;
     newoffset++;
-    hiph_res_ver = tvb_get_guint8(tvb, newoffset);
+    hiph_res_ver = tvb_get_uint8(tvb, newoffset);
     /* divide to reserved and version and shim6_fixed_bit_s
         draft-ietf-shim6-proto-12 see section 5.3 */
     hiph_version = (hiph_res_ver & HIP_VERSION_MASK) >> 4;
@@ -632,7 +632,7 @@ dissect_hip_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_item *ti, i
                          * and type 2 locator from 20 bytes to be used as the top level
                          * tree_item for this subtree
                          */
-                        locator_type = tvb_get_guint8(tvb, newoffset + 1);
+                        locator_type = tvb_get_uint8(tvb, newoffset + 1);
                         if (locator_type == 0) {
                                 ti_loc = proto_tree_add_item(t, hf_hip_tlv_locator_address,
                                                              tvb, newoffset + 8, 16, ENC_NA);
@@ -645,8 +645,8 @@ dissect_hip_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_item *ti, i
                         } else {
                                 /* unknown or malformed locator type jumping over it */
                                 ti_loc = NULL;
-                                newoffset += (1 + tvb_get_guint8(tvb, newoffset + 2));
-                                tlv_len -= (1 + tvb_get_guint8(tvb, newoffset + 2));
+                                newoffset += (1 + tvb_get_uint8(tvb, newoffset + 2));
+                                tlv_len -= (1 + tvb_get_uint8(tvb, newoffset + 2));
                         }
                         if (locator_type <= 2) {
                                 ti_loc = proto_item_add_subtree(ti_loc, ett_hip_locator_data);
@@ -656,7 +656,7 @@ dissect_hip_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_item *ti, i
                                 newoffset++;
                                 /* Locator type */
 #if 0
-                                locator_type = tvb_get_guint8(tvb, newoffset);
+                                locator_type = tvb_get_uint8(tvb, newoffset);
 #endif
                                 proto_tree_add_item(ti_loc, hf_hip_tlv_locator_type, tvb, newoffset, 1, ENC_BIG_ENDIAN);
                                 newoffset++;
@@ -664,7 +664,7 @@ dissect_hip_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_item *ti, i
                                 proto_tree_add_item(ti_loc, hf_hip_tlv_locator_len, tvb, newoffset, 1, ENC_BIG_ENDIAN);
                                 newoffset++;
                                 /* Reserved includes the Preferred bit */
-                                reserved = tvb_get_guint8(tvb, newoffset);
+                                reserved = tvb_get_uint8(tvb, newoffset);
                                 proto_tree_add_uint_format_value(ti_loc, hf_hip_tlv_locator_reserved, tvb,
                                                            newoffset, 1, reserved,
                                                            "0x%x %s", reserved,
@@ -699,7 +699,7 @@ dissect_hip_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_item *ti, i
                                                             newoffset, 2, ENC_BIG_ENDIAN);
                                         newoffset += 2;
                                         /* Transport protocol */
-                                        transport_proto = tvb_get_guint8(tvb, newoffset);
+                                        transport_proto = tvb_get_uint8(tvb, newoffset);
                                         /* RFC 5770 section 5.6 */
                                         proto_tree_add_uint_format(ti_loc, hf_hip_tlv_locator_transport_protocol,
                                                                    tvb, newoffset, 1, transport_proto,
@@ -772,7 +772,7 @@ dissect_hip_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_item *ti, i
                 }
                 break;
         case PARAM_DIFFIE_HELLMAN:
-                n = tvb_get_guint8(tvb, newoffset);
+                n = tvb_get_uint8(tvb, newoffset);
                 /* First Group ID*/
                 proto_tree_add_uint_format(t, hf_hip_tlv_dh_group_id, tvb, newoffset,
                                            1, n, "%u (%s)", n,
@@ -916,7 +916,7 @@ dissect_hip_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_item *ti, i
                                     newoffset, 1,  hi_hdr);
                 newoffset += 1;
                 /* HDR Algorithm */
-                algorithm = tvb_get_guint8(tvb, newoffset);
+                algorithm = tvb_get_uint8(tvb, newoffset);
                 arg_item = proto_tree_add_uint(ti_tlv, hf_hip_tlv_host_id_hdr_alg, tvb,
                                     newoffset, 1, hi_hdr);
 
@@ -932,7 +932,7 @@ dissect_hip_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_item *ti, i
                         newoffset++; /* 12 + offset */
                         /* T */
                         proto_tree_add_item(t, hf_hip_tlv_host_id_t, tvb, newoffset, 1, ENC_BIG_ENDIAN);
-                        hi_t = tvb_get_guint8(tvb, newoffset);
+                        hi_t = tvb_get_uint8(tvb, newoffset);
                         newoffset++;
                         /* Q */
                         proto_tree_add_item(t, hf_hip_tlv_host_id_q, tvb, newoffset,
@@ -961,7 +961,7 @@ dissect_hip_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_item *ti, i
                          */
                         newoffset++; /* 12 + offset */
                         /* E len */
-                        e_len = tvb_get_guint8(tvb, newoffset);
+                        e_len = tvb_get_uint8(tvb, newoffset);
                         e_len_item = proto_tree_add_item(t, hf_hip_tlv_host_id_e_len, tvb, newoffset,
                                             (e_len > 255) ? 3 : 1, ENC_BIG_ENDIAN);
                         newoffset++;
@@ -1067,7 +1067,7 @@ dissect_hip_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_item *ti, i
                 }
                 /* Reg Type 1 ... n, Padding */
                 while (tlv_len > 0) {
-                        reg_type = tvb_get_guint8(tvb, newoffset);
+                        reg_type = tvb_get_uint8(tvb, newoffset);
                         proto_tree_add_uint_format(t, hf_hip_tlv_reg_type, tvb,
                                                    newoffset, 1, reg_type, "%u (%s)", reg_type,
                                                    val_to_str_const(reg_type, reg_type_vals, "Unknown"));
@@ -1087,7 +1087,7 @@ dissect_hip_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_item *ti, i
         case PARAM_HIP_SIGNATURE:
         case PARAM_HIP_SIGNATURE_2:
                 /* Signature algorithm */
-                n = tvb_get_guint8(tvb, offset+4);
+                n = tvb_get_uint8(tvb, offset+4);
                 proto_tree_add_uint_format(t, hf_hip_tlv_sig_alg, tvb, newoffset, 1,
                                            n, "%u (%s)", n,
                                            val_to_str_const(n, sig_alg_vals, "Unknown"));

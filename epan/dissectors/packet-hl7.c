@@ -696,15 +696,15 @@ parse_msh(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset,
     /* e.g. MSH|^~\&|||||||XZY^IJK|||||||\r */
     field_number = 1;
     offset += 3; // skip 'MSH'
-    msh->field_separator = tvb_get_guint8(tvb, offset);
+    msh->field_separator = tvb_get_uint8(tvb, offset);
     offset += 1;
-    msh->component_separator = tvb_get_guint8(tvb, offset);
+    msh->component_separator = tvb_get_uint8(tvb, offset);
     offset += 1;
-    msh->repetition_separator = tvb_get_guint8(tvb, offset);
+    msh->repetition_separator = tvb_get_uint8(tvb, offset);
     offset += 1;
-    msh->escape_character = tvb_get_guint8(tvb, offset);
+    msh->escape_character = tvb_get_uint8(tvb, offset);
     offset += 1;
-    msh->subcomponent_separator = tvb_get_guint8(tvb, offset);
+    msh->subcomponent_separator = tvb_get_uint8(tvb, offset);
     offset += 1;
     field_number++;
 
@@ -733,7 +733,7 @@ parse_msh(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset,
         }
         field_number++;
         offset = field_separator_offset + 1;
-        if (tvb_get_guint8(tvb, offset) == msh->field_separator) {
+        if (tvb_get_uint8(tvb, offset) == msh->field_separator) {
             /* skip the empty field '||' */
             continue;
         }
@@ -746,7 +746,7 @@ parse_msh(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset,
                                                   ENC_ASCII);
                 proto_item_set_hidden(hidden_item);
             }
-            if (tvb_get_guint8(tvb, offset + 3) == msh->component_separator) {
+            if (tvb_get_uint8(tvb, offset + 3) == msh->component_separator) {
                 tvb_get_raw_bytes_as_string(tvb, offset + 4, msh->trigger_event, 4);
                 if (tree) {
                     proto_item *hidden_item;
@@ -955,7 +955,7 @@ dissect_hl7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
          * transmission. If this is the case we display these trailing bytes
          * as 'Data' and we will dissect the next complete message.
          */
-        if (tvb_get_guint8(tvb, 0) != LLP_SOB) {
+        if (tvb_get_uint8(tvb, 0) != LLP_SOB) {
             tvbuff_t *new_tvb = tvb_new_subset_remaining(tvb, offset);
             call_data_dissector(new_tvb, pinfo, tree);
             return (offset + available);
@@ -980,7 +980,7 @@ dissect_hl7_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *
     /* heuristic is based on first 5 bytes analisys, we assume
        0x0B + "MSH|" is good enough */
     if ((tvb_reported_length_remaining(tvb, 0) < 5) ||
-        (tvb_get_guint8(tvb, 0) != LLP_SOB) ||
+        (tvb_get_uint8(tvb, 0) != LLP_SOB) ||
         (tvb_strncaseeql(tvb, 1, "MSH|", 4) != 0)) {
         return false;
     }

@@ -1305,7 +1305,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * If this is binary data then there's no point in doing all the string
 	 * operations below: they'll just be slow on this data.
 	 */
-	if (!g_ascii_isprint(tvb_get_guint8(tvb, offset))) {
+	if (!g_ascii_isprint(tvb_get_uint8(tvb, offset))) {
 		/*
 		 * But, if we've seen some real HTTP then we're sure this is
 		 * an HTTP conversation, and this is binary file data.

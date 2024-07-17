@@ -288,7 +288,7 @@ static int dissect_hazelcast_message(tvbuff_t *tvb, packet_info *pinfo _U_, prot
         return 0;
     }
 
-    version = tvb_get_guint8(tvb, 12);
+    version = tvb_get_uint8(tvb, 12);
     if ( version != 6 ) {
         col_set_str(pinfo->cinfo, COL_INFO, "Hazelcast unsupported version");
         return 12;
@@ -307,7 +307,7 @@ static int dissect_hazelcast_message(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 
 
     proto_tree_add_item(hcast_tree, hf_hazelcast_operation, tvb, offset, 1, ENC_BIG_ENDIAN);
-    operation = tvb_get_guint8(tvb, offset);
+    operation = tvb_get_uint8(tvb, offset);
     col_add_str(pinfo->cinfo, COL_INFO, val_to_str(operation, operationTypes, "Unknown (0x%02x)"));
     offset += 1;
 
@@ -316,7 +316,7 @@ static int dissect_hazelcast_message(tvbuff_t *tvb, packet_info *pinfo _U_, prot
     proto_tree_add_item(hcast_tree, hf_hazelcast_threadID, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    flags = tvb_get_guint8(tvb, offset);
+    flags = tvb_get_uint8(tvb, offset);
 
     tf = proto_tree_add_item(hcast_tree, hf_hazelcast_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
 

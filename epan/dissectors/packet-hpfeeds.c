@@ -109,7 +109,7 @@ dissect_hpfeeds_info_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, un
     proto_tree *data_subtree;
     uint8_t *strptr = NULL;
 
-    len = tvb_get_guint8(tvb, offset);
+    len = tvb_get_uint8(tvb, offset);
     /* don't move the offset yet as we need to get data after this operation */
     strptr = tvb_get_string_enc(pinfo->pool, tvb, offset + 1, len, ENC_ASCII);
     data_subtree = proto_tree_add_subtree_format(tree, tvb, offset, -1, ett_hpfeeds, NULL, "Broker: %s", strptr);
@@ -131,7 +131,7 @@ dissect_hpfeeds_auth_pdu(tvbuff_t *tvb, proto_tree *tree, unsigned offset)
 {
     uint8_t len = 0;
 
-    len = tvb_get_guint8(tvb, offset);
+    len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_hpfeeds_ident_len, tvb,
                     offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
@@ -146,9 +146,9 @@ dissect_hpfeeds_auth_pdu(tvbuff_t *tvb, proto_tree *tree, unsigned offset)
 static uint8_t*
 hpfeeds_get_channel_name(tvbuff_t* tvb, unsigned offset)
 {
-    uint8_t len = tvb_get_guint8(tvb, offset);
+    uint8_t len = tvb_get_uint8(tvb, offset);
     offset += len + 1;
-    len = tvb_get_guint8(tvb, offset);
+    len = tvb_get_uint8(tvb, offset);
     offset += 1;
     return tvb_get_string_enc(wmem_file_scope(), tvb, offset, len, ENC_ASCII);
 }
@@ -157,8 +157,8 @@ static unsigned
 hpfeeds_get_payload_size(tvbuff_t* tvb, unsigned offset)
 {
     unsigned message_len = tvb_get_ntohl(tvb, offset);
-    unsigned ident_len = tvb_get_guint8(tvb, offset + 5);
-    unsigned channel_len = tvb_get_guint8(tvb, offset + 6 + ident_len);
+    unsigned ident_len = tvb_get_uint8(tvb, offset + 5);
+    unsigned channel_len = tvb_get_uint8(tvb, offset + 6 + ident_len);
     return (message_len - 2 - ident_len - 1 - channel_len);
 }
 
@@ -172,12 +172,12 @@ dissect_hpfeeds_publish_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     const uint8_t *channelname = NULL;
     const char* save_match_string = NULL;
 
-    len = tvb_get_guint8(tvb, offset);
+    len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_hpfeeds_ident_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     proto_tree_add_item(tree, hf_hpfeeds_ident, tvb, offset, len, ENC_ASCII);
     offset += len;
-    len = tvb_get_guint8(tvb, offset);
+    len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_hpfeeds_chan_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -253,7 +253,7 @@ dissect_hpfeeds_subscribe_pdu(tvbuff_t *tvb, proto_tree *tree, unsigned offset)
 {
     uint8_t len = 0;
     /* get length of ident field */
-    len = tvb_get_guint8(tvb, offset);
+    len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_hpfeeds_ident_len, tvb, offset, 1,
         ENC_BIG_ENDIAN);
     offset += 1;
@@ -298,7 +298,7 @@ dissect_hpfeeds_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     offset += 4;
 
     /* Get opcode and write it */
-    opcode = tvb_get_guint8(tvb, offset);
+    opcode = tvb_get_uint8(tvb, offset);
 
     /* Clear out stuff in the info column */
     col_add_fstr(pinfo->cinfo, COL_INFO, "Type %s",

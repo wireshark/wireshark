@@ -98,7 +98,7 @@ dissect_hdcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     if (pinfo->p2p_dir==P2P_DIR_SENT) {
         /* transmitter sends data to the receiver */
 
-        reg = tvb_get_guint8(tvb, ptvcursor_current_offset(cursor));
+        reg = tvb_get_uint8(tvb, ptvcursor_current_offset(cursor));
         /* all values in HDCP are little endian */
         ptvcursor_add(cursor, hf_hdcp_reg, 1, ENC_LITTLE_ENDIAN);
 
