@@ -458,7 +458,7 @@ void proto_register_dcerpc_misc(void)
 	{ &hf_misc_GUID_time_mid,
 	  { "Time Mid", "misc.GUID.time_mid", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_misc_KRB5_EDATA_NTSTATUS_ntstatus,
-	  { "Ntstatus", "misc.KRB5_EDATA_NTSTATUS.ntstatus", FT_UINT32, BASE_HEX, VALS(NT_errors), 0, NULL, HFILL }},
+	  { "Ntstatus", "misc.KRB5_EDATA_NTSTATUS.ntstatus", FT_UINT32, BASE_HEX|BASE_EXT_STRING, &NT_errors_ext, 0, NULL, HFILL }},
 	{ &hf_misc_KRB5_EDATA_NTSTATUS_unknown1,
 	  { "Unknown1", "misc.KRB5_EDATA_NTSTATUS.unknown1", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_misc_KRB5_EDATA_NTSTATUS_unknown2,

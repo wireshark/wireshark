@@ -414,7 +414,7 @@ IWbemServices_dissect_iwbemservices_opnum0_response(tvbuff_t *tvb _U_, int offse
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_IWbemServices_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -439,7 +439,7 @@ IWbemServices_dissect_iwbemservices_opnum1_response(tvbuff_t *tvb _U_, int offse
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_IWbemServices_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -464,7 +464,7 @@ IWbemServices_dissect_iwbemservices_opnum2_response(tvbuff_t *tvb _U_, int offse
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_IWbemServices_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -489,7 +489,7 @@ IWbemServices_dissect_iwbemservices_OpenNamespace_response(tvbuff_t *tvb _U_, in
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_IWbemServices_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -514,7 +514,7 @@ IWbemServices_dissect_iwbemservices_CancelAsyncCall_response(tvbuff_t *tvb _U_, 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_IWbemServices_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -539,7 +539,7 @@ IWbemServices_dissect_iwbemservices_QueryObjectSink_response(tvbuff_t *tvb _U_, 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_IWbemServices_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -667,7 +667,7 @@ IWbemServices_dissect_GetObject_response(tvbuff_t *tvb _U_, int offset _U_, pack
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_IWbemServices_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -704,7 +704,7 @@ IWbemServices_dissect_iwbemservices_opnum7_response(tvbuff_t *tvb _U_, int offse
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_IWbemServices_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -729,7 +729,7 @@ IWbemServices_dissect_iwbemservices_opnum8_response(tvbuff_t *tvb _U_, int offse
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_IWbemServices_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -754,7 +754,7 @@ IWbemServices_dissect_iwbemservices_opnum9_response(tvbuff_t *tvb _U_, int offse
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_IWbemServices_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -779,7 +779,7 @@ IWbemServices_dissect_iwbemservices_opnum10_response(tvbuff_t *tvb _U_, int offs
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_IWbemServices_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -804,7 +804,7 @@ IWbemServices_dissect_iwbemservices_opnum11_response(tvbuff_t *tvb _U_, int offs
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_IWbemServices_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -829,7 +829,7 @@ IWbemServices_dissect_iwbemservices_opnum12_response(tvbuff_t *tvb _U_, int offs
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_IWbemServices_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -854,7 +854,7 @@ IWbemServices_dissect_iwbemservices_opnum13_response(tvbuff_t *tvb _U_, int offs
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_IWbemServices_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -879,7 +879,7 @@ IWbemServices_dissect_iwbemservices_opnum14_response(tvbuff_t *tvb _U_, int offs
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_IWbemServices_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -904,7 +904,7 @@ IWbemServices_dissect_iwbemservices_opnum15_response(tvbuff_t *tvb _U_, int offs
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_IWbemServices_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -929,7 +929,7 @@ IWbemServices_dissect_iwbemservices_opnum16_response(tvbuff_t *tvb _U_, int offs
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_IWbemServices_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -954,7 +954,7 @@ IWbemServices_dissect_iwbemservices_opnum17_response(tvbuff_t *tvb _U_, int offs
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_IWbemServices_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -979,7 +979,7 @@ IWbemServices_dissect_iwbemservices_opnum18_response(tvbuff_t *tvb _U_, int offs
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_IWbemServices_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -1004,7 +1004,7 @@ IWbemServices_dissect_iwbemservices_opnum19_response(tvbuff_t *tvb _U_, int offs
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_IWbemServices_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -1029,7 +1029,7 @@ IWbemServices_dissect_iwbemservices_opnum20_response(tvbuff_t *tvb _U_, int offs
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_IWbemServices_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -1054,7 +1054,7 @@ IWbemServices_dissect_iwbemservices_opnum21_response(tvbuff_t *tvb _U_, int offs
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_IWbemServices_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -1079,7 +1079,7 @@ IWbemServices_dissect_iwbemservices_opnum22_response(tvbuff_t *tvb _U_, int offs
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_IWbemServices_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -1104,7 +1104,7 @@ IWbemServices_dissect_iwbemservices_opnum23_response(tvbuff_t *tvb _U_, int offs
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_IWbemServices_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -1190,7 +1190,7 @@ IWbemServices_dissect_ExecMethod_response(tvbuff_t *tvb _U_, int offset _U_, pac
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_IWbemServices_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -1307,7 +1307,7 @@ void proto_register_dcerpc_IWbemServices(void)
 	{ &hf_IWbemServices_opnum,
 	  { "Operation", "IWbemServices.opnum", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_IWbemServices_werror,
-	  { "Windows Error", "IWbemServices.werror", FT_UINT32, BASE_HEX, VALS(WERR_errors), 0, NULL, HFILL }},
+	  { "Windows Error", "IWbemServices.werror", FT_UINT32, BASE_HEX|BASE_EXT_STRING, &WERR_errors_ext, 0, NULL, HFILL }},
 	};
 
 

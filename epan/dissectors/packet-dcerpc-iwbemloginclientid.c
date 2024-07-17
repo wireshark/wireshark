@@ -137,7 +137,7 @@ IWbemLoginClientID_dissect_iwbemloginclientid_opnum0_response(tvbuff_t *tvb _U_,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_IWbemLoginClientID_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -162,7 +162,7 @@ IWbemLoginClientID_dissect_iwbemloginclientid_opnum1_response(tvbuff_t *tvb _U_,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_IWbemLoginClientID_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -187,7 +187,7 @@ IWbemLoginClientID_dissect_iwbemloginclientid_opnum2_response(tvbuff_t *tvb _U_,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_IWbemLoginClientID_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -262,7 +262,7 @@ IWbemLoginClientID_dissect_SetClientInfo_response(tvbuff_t *tvb _U_, int offset 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_IWbemLoginClientID_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -311,7 +311,7 @@ void proto_register_dcerpc_IWbemLoginClientID(void)
 	{ &hf_IWbemLoginClientID_opnum,
 	  { "Operation", "IWbemLoginClientID.opnum", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_IWbemLoginClientID_werror,
-	  { "Windows Error", "IWbemLoginClientID.werror", FT_UINT32, BASE_HEX, VALS(WERR_errors), 0, NULL, HFILL }},
+	  { "Windows Error", "IWbemLoginClientID.werror", FT_UINT32, BASE_HEX|BASE_EXT_STRING, &WERR_errors_ext, 0, NULL, HFILL }},
 	};
 
 

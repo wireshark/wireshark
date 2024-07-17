@@ -1667,7 +1667,7 @@ iremotewinspool_dissect_winspool_AsyncOpenPrinter_response(tvbuff_t *tvb _U_, in
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -1809,7 +1809,7 @@ iremotewinspool_dissect_winspool_AsyncAddPrinter_response(tvbuff_t *tvb _U_, int
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -1887,7 +1887,7 @@ iremotewinspool_dissect_winspool_AsyncSetJob_response(tvbuff_t *tvb _U_, int off
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -2003,7 +2003,7 @@ iremotewinspool_dissect_winspool_AsyncGetJob_response(tvbuff_t *tvb _U_, int off
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -2150,7 +2150,7 @@ iremotewinspool_dissect_winspool_AsyncEnumJobs_response(tvbuff_t *tvb _U_, int o
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -2261,7 +2261,7 @@ iremotewinspool_dissect_winspool_AsyncAddJob_response(tvbuff_t *tvb _U_, int off
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -2311,7 +2311,7 @@ iremotewinspool_dissect_winspool_AsyncScheduleJob_response(tvbuff_t *tvb _U_, in
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -2348,7 +2348,7 @@ iremotewinspool_dissect_winspool_AsyncDeletePrinter_response(tvbuff_t *tvb _U_, 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -2443,7 +2443,7 @@ iremotewinspool_dissect_winspool_AsyncSetPrinter_response(tvbuff_t *tvb _U_, int
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -2552,7 +2552,7 @@ iremotewinspool_dissect_winspool_AsyncGetPrinter_response(tvbuff_t *tvb _U_, int
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -2630,7 +2630,7 @@ iremotewinspool_dissect_winspool_AsyncStartDocPrinter_response(tvbuff_t *tvb _U_
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -2667,7 +2667,7 @@ iremotewinspool_dissect_winspool_AsyncStartPagePrinter_response(tvbuff_t *tvb _U
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -2756,7 +2756,7 @@ iremotewinspool_dissect_winspool_AsyncWritePrinter_response(tvbuff_t *tvb _U_, i
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -2795,7 +2795,7 @@ iremotewinspool_dissect_winspool_AsyncEndPagePrinter_response(tvbuff_t *tvb _U_,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -2830,7 +2830,7 @@ iremotewinspool_dissect_winspool_AsyncEndDocPrinter_response(tvbuff_t *tvb _U_, 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -2865,7 +2865,7 @@ iremotewinspool_dissect_winspool_AsyncAbortPrinter_response(tvbuff_t *tvb _U_, i
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -2997,7 +2997,7 @@ iremotewinspool_dissect_winspool_AsyncGetPrinterData_response(tvbuff_t *tvb _U_,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -3153,7 +3153,7 @@ iremotewinspool_dissect_winspool_AsyncGetPrinterDataEx_response(tvbuff_t *tvb _U
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -3257,7 +3257,7 @@ iremotewinspool_dissect_winspool_AsyncSetPrinterData_response(tvbuff_t *tvb _U_,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -3383,7 +3383,7 @@ iremotewinspool_dissect_winspool_AsyncSetPrinterDataEx_response(tvbuff_t *tvb _U
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -3439,7 +3439,7 @@ iremotewinspool_dissect_winspool_AsyncClosePrinter_response(tvbuff_t *tvb _U_, i
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -3491,7 +3491,7 @@ iremotewinspool_dissect_winspool_AsyncAddForm_response(tvbuff_t *tvb _U_, int of
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -3548,7 +3548,7 @@ iremotewinspool_dissect_winspool_AsyncDeleteForm_response(tvbuff_t *tvb _U_, int
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -3671,7 +3671,7 @@ iremotewinspool_dissect_winspool_AsyncGetForm_response(tvbuff_t *tvb _U_, int of
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -3751,7 +3751,7 @@ iremotewinspool_dissect_winspool_AsyncSetForm_response(tvbuff_t *tvb _U_, int of
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -3876,7 +3876,7 @@ iremotewinspool_dissect_winspool_AsyncEnumForms_response(tvbuff_t *tvb _U_, int 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -4061,7 +4061,7 @@ iremotewinspool_dissect_winspool_AsyncGetPrinterDriver_response(tvbuff_t *tvb _U
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -4251,7 +4251,7 @@ iremotewinspool_dissect_winspool_AsyncEnumPrinterData_response(tvbuff_t *tvb _U_
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -4389,7 +4389,7 @@ iremotewinspool_dissect_winspool_AsyncEnumPrinterDataEx_response(tvbuff_t *tvb _
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -4505,7 +4505,7 @@ iremotewinspool_dissect_winspool_AsyncEnumPrinterKey_response(tvbuff_t *tvb _U_,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -4564,7 +4564,7 @@ iremotewinspool_dissect_winspool_AsyncDeletePrinterData_response(tvbuff_t *tvb _
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -4641,7 +4641,7 @@ iremotewinspool_dissect_winspool_AsyncDeletePrinterDataEx_response(tvbuff_t *tvb
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -4700,7 +4700,7 @@ iremotewinspool_dissect_winspool_AsyncDeletePrinterKey_response(tvbuff_t *tvb _U
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -4868,7 +4868,7 @@ iremotewinspool_dissect_winspool_AsyncXcvData_response(tvbuff_t *tvb _U_, int of
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -4978,7 +4978,7 @@ iremotewinspool_dissect_winspool_AsyncSendRecvBidiData_response(tvbuff_t *tvb _U
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -5054,7 +5054,7 @@ iremotewinspool_dissect_winspool_AsyncCreatePrinterIC_response(tvbuff_t *tvb _U_
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -5171,7 +5171,7 @@ iremotewinspool_dissect_winspool_AsyncPlayGdiScriptOnPrinterIC_response(tvbuff_t
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -5225,7 +5225,7 @@ iremotewinspool_dissect_winspool_AsyncDeletePrinterIC_response(tvbuff_t *tvb _U_
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -5366,7 +5366,7 @@ iremotewinspool_dissect_winspool_AsyncEnumPrinters_response(tvbuff_t *tvb _U_, i
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -5446,7 +5446,7 @@ iremotewinspool_dissect_winspool_AsyncAddPrinterDriver_response(tvbuff_t *tvb _U
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -5602,7 +5602,7 @@ iremotewinspool_dissect_winspool_AsyncEnumPrinterDrivers_response(tvbuff_t *tvb 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -5742,7 +5742,7 @@ iremotewinspool_dissect_winspool_AsyncGetPrinterDriverDirectory_response(tvbuff_
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -5836,7 +5836,7 @@ iremotewinspool_dissect_winspool_AsyncDeletePrinterDriver_response(tvbuff_t *tvb
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -5944,7 +5944,7 @@ iremotewinspool_dissect_winspool_AsyncDeletePrinterDriverEx_response(tvbuff_t *t
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -6058,7 +6058,7 @@ iremotewinspool_dissect_winspool_AsyncAddPrintProcessor_response(tvbuff_t *tvb _
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -6216,7 +6216,7 @@ iremotewinspool_dissect_winspool_AsyncEnumPrintProcessors_response(tvbuff_t *tvb
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -6356,7 +6356,7 @@ iremotewinspool_dissect_winspool_AsyncGetPrintProcessorDirectory_response(tvbuff
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -6496,7 +6496,7 @@ iremotewinspool_dissect_winspool_AsyncEnumPorts_response(tvbuff_t *tvb _U_, int 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -6634,7 +6634,7 @@ iremotewinspool_dissect_winspool_AsyncEnumMonitors_response(tvbuff_t *tvb _U_, i
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -6740,7 +6740,7 @@ iremotewinspool_dissect_winspool_AsyncAddPort_response(tvbuff_t *tvb _U_, int of
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -6829,7 +6829,7 @@ iremotewinspool_dissect_winspool_AsyncSetPort_response(tvbuff_t *tvb _U_, int of
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -6896,7 +6896,7 @@ iremotewinspool_dissect_winspool_AsyncAddMonitor_response(tvbuff_t *tvb _U_, int
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -6984,7 +6984,7 @@ iremotewinspool_dissect_winspool_AsyncDeleteMonitor_response(tvbuff_t *tvb _U_, 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -7074,7 +7074,7 @@ iremotewinspool_dissect_winspool_AsyncDeletePrintProcessor_response(tvbuff_t *tv
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -7230,7 +7230,7 @@ iremotewinspool_dissect_winspool_AsyncEnumPrintProcessorDatatypes_response(tvbuf
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -7344,7 +7344,7 @@ iremotewinspool_dissect_winspool_AsyncAddPerMachineConnection_response(tvbuff_t 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -7416,7 +7416,7 @@ iremotewinspool_dissect_winspool_AsyncDeletePerMachineConnection_response(tvbuff
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -7541,7 +7541,7 @@ iremotewinspool_dissect_winspool_AsyncEnumPerMachineConnections_response(tvbuff_
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -7617,7 +7617,7 @@ iremotewinspool_dissect_winspool_SyncRegisterForRemoteNotifications_response(tvb
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_hresult, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, HRES_errors, "Unknown HRES error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &HRES_errors_ext, "Unknown HRES error 0x%08x"));
 
 	return offset;
 }
@@ -7665,7 +7665,7 @@ iremotewinspool_dissect_winspool_SyncUnRegisterForRemoteNotifications_response(t
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_hresult, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, HRES_errors, "Unknown HRES error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &HRES_errors_ext, "Unknown HRES error 0x%08x"));
 
 	return offset;
 }
@@ -7745,7 +7745,7 @@ iremotewinspool_dissect_winspool_SyncRefreshRemoteNotifications_response(tvbuff_
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_hresult, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, HRES_errors, "Unknown HRES error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &HRES_errors_ext, "Unknown HRES error 0x%08x"));
 
 	return offset;
 }
@@ -7810,7 +7810,7 @@ iremotewinspool_dissect_winspool_AsyncGetRemoteNotifications_response(tvbuff_t *
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_hresult, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, HRES_errors, "Unknown HRES error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &HRES_errors_ext, "Unknown HRES error 0x%08x"));
 
 	return offset;
 }
@@ -7925,7 +7925,7 @@ iremotewinspool_dissect_winspool_AsyncInstallPrinterDriverFromPackage_response(t
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_hresult, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, HRES_errors, "Unknown HRES error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &HRES_errors_ext, "Unknown HRES error 0x%08x"));
 
 	return offset;
 }
@@ -8076,7 +8076,7 @@ iremotewinspool_dissect_winspool_AsyncUploadPrinterDriverPackage_response(tvbuff
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_hresult, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, HRES_errors, "Unknown HRES error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &HRES_errors_ext, "Unknown HRES error 0x%08x"));
 
 	return offset;
 }
@@ -8223,7 +8223,7 @@ iremotewinspool_dissect_winspool_AsyncGetCorePrinterDrivers_response(tvbuff_t *t
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_hresult, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, HRES_errors, "Unknown HRES error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &HRES_errors_ext, "Unknown HRES error 0x%08x"));
 
 	return offset;
 }
@@ -8344,7 +8344,7 @@ iremotewinspool_dissect_winspool_AsyncCorePrinterDriverInstalled_response(tvbuff
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_hresult, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, HRES_errors, "Unknown HRES error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &HRES_errors_ext, "Unknown HRES error 0x%08x"));
 
 	return offset;
 }
@@ -8515,7 +8515,7 @@ iremotewinspool_dissect_winspool_AsyncGetPrinterDriverPackagePath_response(tvbuf
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_hresult, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, HRES_errors, "Unknown HRES error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &HRES_errors_ext, "Unknown HRES error 0x%08x"));
 
 	return offset;
 }
@@ -8611,7 +8611,7 @@ iremotewinspool_dissect_winspool_AsyncDeletePrinterDriverPackage_response(tvbuff
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_hresult, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, HRES_errors, "Unknown HRES error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &HRES_errors_ext, "Unknown HRES error 0x%08x"));
 
 	return offset;
 }
@@ -8707,7 +8707,7 @@ iremotewinspool_dissect_winspool_AsyncReadPrinter_response(tvbuff_t *tvb _U_, in
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -8781,7 +8781,7 @@ iremotewinspool_dissect_winspool_AsyncResetPrinter_response(tvbuff_t *tvb _U_, i
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -8869,7 +8869,7 @@ iremotewinspool_dissect_winspool_AsyncGetJobNamedPropertyValue_response(tvbuff_t
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -8934,7 +8934,7 @@ iremotewinspool_dissect_winspool_AsyncSetJobNamedProperty_response(tvbuff_t *tvb
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -9002,7 +9002,7 @@ iremotewinspool_dissect_winspool_AsyncDeleteJobNamedProperty_response(tvbuff_t *
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -9106,7 +9106,7 @@ iremotewinspool_dissect_winspool_AsyncEnumJobNamedProperties_response(tvbuff_t *
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -9160,7 +9160,7 @@ iremotewinspool_dissect_winspool_AsyncLogJobInfoForBranchOffice_response(tvbuff_
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -9335,13 +9335,13 @@ void proto_register_dcerpc_iremotewinspool(void)
 {
 	static hf_register_info hf[] = {
 	{ &hf_iremotewinspool_hresult,
-	  { "HRES Windows Error", "iremotewinspool.hresult", FT_UINT32, BASE_HEX, VALS(HRES_errors), 0, NULL, HFILL }},
+	  { "HRES Windows Error", "iremotewinspool.hresult", FT_UINT32, BASE_HEX|BASE_EXT_STRING, &HRES_errors_ext, 0, NULL, HFILL }},
 	{ &hf_iremotewinspool_opnum,
 	  { "Operation", "iremotewinspool.opnum", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_iremotewinspool_sec_desc_buf_len,
 	  { "Sec Desc Buf Len", "iremotewinspool.sec_desc_buf_len", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_iremotewinspool_werror,
-	  { "Windows Error", "iremotewinspool.werror", FT_UINT32, BASE_HEX, VALS(WERR_errors), 0, NULL, HFILL }},
+	  { "Windows Error", "iremotewinspool.werror", FT_UINT32, BASE_HEX|BASE_EXT_STRING, &WERR_errors_ext, 0, NULL, HFILL }},
 	{ &hf_iremotewinspool_winspool_AsyncAbortPrinter_hPrinter,
 	  { "HPrinter", "iremotewinspool.winspool_AsyncAbortPrinter.hPrinter", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_iremotewinspool_winspool_AsyncAddForm_hPrinter,

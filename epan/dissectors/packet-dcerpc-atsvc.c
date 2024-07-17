@@ -841,7 +841,7 @@ atsvc_dissect_JobAdd_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_atsvc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -907,7 +907,7 @@ atsvc_dissect_JobDel_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_atsvc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -1026,7 +1026,7 @@ atsvc_dissect_JobEnum_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_atsvc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -1115,7 +1115,7 @@ atsvc_dissect_JobGetInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_info
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_atsvc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -1278,7 +1278,7 @@ void proto_register_dcerpc_atsvc(void)
 	{ &hf_atsvc_servername,
 	  { "Server", "atsvc.server", FT_STRING, BASE_NONE, NULL, 0, "Name of the server", HFILL }},
 	{ &hf_atsvc_status,
-	  { "NT Error", "atsvc.status", FT_UINT32, BASE_HEX, VALS(NT_errors), 0, NULL, HFILL }},
+	  { "NT Error", "atsvc.status", FT_UINT32, BASE_HEX|BASE_EXT_STRING, &NT_errors_ext, 0, NULL, HFILL }},
 	};
 
 

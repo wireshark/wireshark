@@ -1253,7 +1253,7 @@ browser_dissect_BrowserrServerEnum_response(tvbuff_t *tvb _U_, int offset _U_, p
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -1331,7 +1331,7 @@ browser_dissect_BrowserrDebugCall_response(tvbuff_t *tvb _U_, int offset _U_, pa
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -1421,7 +1421,7 @@ browser_dissect_BrowserrQueryOtherDomains_response(tvbuff_t *tvb _U_, int offset
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -1469,7 +1469,7 @@ browser_dissect_BrowserrResetNetlogonState_response(tvbuff_t *tvb _U_, int offse
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -1535,7 +1535,7 @@ browser_dissect_BrowserrDebugTrace_response(tvbuff_t *tvb _U_, int offset _U_, p
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -1611,7 +1611,7 @@ browser_dissect_BrowserrQueryStatistics_response(tvbuff_t *tvb _U_, int offset _
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -1657,7 +1657,7 @@ browser_dissect_BrowserrResetStatistics_response(tvbuff_t *tvb _U_, int offset _
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -1703,7 +1703,7 @@ browser_dissect_NetrBrowserStatisticsClear_response(tvbuff_t *tvb _U_, int offse
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -1778,7 +1778,7 @@ browser_dissect_NetrBrowserStatisticsGet_response(tvbuff_t *tvb _U_, int offset 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -1877,7 +1877,7 @@ browser_dissect_BrowserrSetNetlogonState_response(tvbuff_t *tvb _U_, int offset 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -1949,7 +1949,7 @@ browser_dissect_BrowserrQueryEmulatedDomains_response(tvbuff_t *tvb _U_, int off
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -2135,7 +2135,7 @@ browser_dissect_BrowserrServerEnumEx_response(tvbuff_t *tvb _U_, int offset _U_,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -2370,7 +2370,7 @@ void proto_register_dcerpc_browser(void)
 	{ &hf_browser_opnum,
 	  { "Operation", "browser.opnum", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_browser_werror,
-	  { "Windows Error", "browser.werror", FT_UINT32, BASE_HEX, VALS(WERR_errors), 0, NULL, HFILL }},
+	  { "Windows Error", "browser.werror", FT_UINT32, BASE_HEX|BASE_EXT_STRING, &WERR_errors_ext, 0, NULL, HFILL }},
 	};
 
 

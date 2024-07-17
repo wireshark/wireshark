@@ -43780,7 +43780,7 @@ mapi_dissect_EcDoConnect_response(tvbuff_t *tvb _U_, int offset _U_, packet_info
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_mapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -43846,7 +43846,7 @@ mapi_dissect_EcDoDisconnect_response(tvbuff_t *tvb _U_, int offset _U_, packet_i
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_mapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -43966,7 +43966,7 @@ mapi_dissect_EcDoRpc_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_mapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -44079,7 +44079,7 @@ mapi_dissect_EcGetMoreRpc_response(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_mapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -44237,7 +44237,7 @@ mapi_dissect_EcRRegisterPushNotification_response(tvbuff_t *tvb _U_, int offset 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_mapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -44313,7 +44313,7 @@ mapi_dissect_EcRUnregisterPushNotification_response(tvbuff_t *tvb _U_, int offse
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_mapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -44344,7 +44344,7 @@ mapi_dissect_EcDummyRpc_response(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_mapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -44430,7 +44430,7 @@ mapi_dissect_EcRGetDCName_response(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_mapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -44500,7 +44500,7 @@ mapi_dissect_EcRNetGetDCName_response(tvbuff_t *tvb _U_, int offset _U_, packet_
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_mapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -44670,7 +44670,7 @@ mapi_dissect_EcDoRpcExt_response(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_mapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -45030,7 +45030,7 @@ mapi_dissect_EcDoConnectEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_in
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_mapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -45258,7 +45258,7 @@ mapi_dissect_EcDoRpcExt2_response(tvbuff_t *tvb _U_, int offset _U_, packet_info
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_mapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -45335,7 +45335,7 @@ mapi_dissect_EcDoAsyncConnect_response(tvbuff_t *tvb _U_, int offset _U_, packet
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_mapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -45407,7 +45407,7 @@ mapi_dissect_EcDoAsyncWait_response(tvbuff_t *tvb _U_, int offset _U_, packet_in
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_mapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -45472,7 +45472,7 @@ mapi_dissect_EcDoAsyncConnectEx_response(tvbuff_t *tvb _U_, int offset _U_, pack
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_mapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -48415,7 +48415,7 @@ void proto_register_dcerpc_mapi(void)
 	{ &hf_mapi_ulMessageStatus_MSGSTATUS_TAGGED,
 	  { "MSGSTATUS TAGGED", "mapi.ulMessageStatus.MSGSTATUS_TAGGED", FT_BOOLEAN, 32, TFS(&ulMessageStatus_MSGSTATUS_TAGGED_tfs), ( 0x2 ), NULL, HFILL }},
 	{ &hf_mapi_werror,
-	  { "Windows Error", "mapi.werror", FT_UINT32, BASE_HEX, VALS(WERR_errors), 0, NULL, HFILL }},
+	  { "Windows Error", "mapi.werror", FT_UINT32, BASE_HEX|BASE_EXT_STRING, &WERR_errors_ext, 0, NULL, HFILL }},
 	};
 
 

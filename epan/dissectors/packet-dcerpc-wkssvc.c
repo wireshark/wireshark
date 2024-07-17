@@ -6752,7 +6752,7 @@ wkssvc_dissect_NetWkstaGetInfo_response(tvbuff_t *tvb _U_, int offset _U_, packe
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_wkssvc_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -6846,7 +6846,7 @@ wkssvc_dissect_NetWkstaSetInfo_response(tvbuff_t *tvb _U_, int offset _U_, packe
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_wkssvc_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -6967,7 +6967,7 @@ wkssvc_dissect_NetWkstaEnumUsers_response(tvbuff_t *tvb _U_, int offset _U_, pac
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_wkssvc_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -7048,7 +7048,7 @@ wkssvc_dissect_NetrWkstaUserGetInfo_response(tvbuff_t *tvb _U_, int offset _U_, 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_wkssvc_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -7142,7 +7142,7 @@ wkssvc_dissect_NetrWkstaUserSetInfo_response(tvbuff_t *tvb _U_, int offset _U_, 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_wkssvc_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -7263,7 +7263,7 @@ wkssvc_dissect_NetWkstaTransportEnum_response(tvbuff_t *tvb _U_, int offset _U_,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_wkssvc_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -7361,7 +7361,7 @@ wkssvc_dissect_NetrWkstaTransportAdd_response(tvbuff_t *tvb _U_, int offset _U_,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_wkssvc_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -7442,7 +7442,7 @@ wkssvc_dissect_NetrWkstaTransportDel_response(tvbuff_t *tvb _U_, int offset _U_,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_wkssvc_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -7538,7 +7538,7 @@ wkssvc_dissect_NetrUseAdd_response(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_wkssvc_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -7639,7 +7639,7 @@ wkssvc_dissect_NetrUseGetInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_wkssvc_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -7718,7 +7718,7 @@ wkssvc_dissect_NetrUseDel_response(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_wkssvc_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -7837,7 +7837,7 @@ wkssvc_dissect_NetrUseEnum_response(tvbuff_t *tvb _U_, int offset _U_, packet_in
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_wkssvc_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -7963,7 +7963,7 @@ wkssvc_dissect_NetrMessageBufferSend_response(tvbuff_t *tvb _U_, int offset _U_,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_wkssvc_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -8083,7 +8083,7 @@ wkssvc_dissect_NetrWorkstationStatisticsGet_response(tvbuff_t *tvb _U_, int offs
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_wkssvc_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -8135,7 +8135,7 @@ wkssvc_dissect_NetrLogonDomainNameAdd_response(tvbuff_t *tvb _U_, int offset _U_
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_wkssvc_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -8181,7 +8181,7 @@ wkssvc_dissect_NetrLogonDomainNameDel_response(tvbuff_t *tvb _U_, int offset _U_
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_wkssvc_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -8316,7 +8316,7 @@ wkssvc_dissect_NetrJoinDomain_response(tvbuff_t *tvb _U_, int offset _U_, packet
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_wkssvc_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -8421,7 +8421,7 @@ wkssvc_dissect_NetrUnjoinDomain_response(tvbuff_t *tvb _U_, int offset _U_, pack
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_wkssvc_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -8542,7 +8542,7 @@ wkssvc_dissect_NetrRenameMachineInDomain_response(tvbuff_t *tvb _U_, int offset 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_wkssvc_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -8665,7 +8665,7 @@ wkssvc_dissect_NetrValidateName_response(tvbuff_t *tvb _U_, int offset _U_, pack
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_wkssvc_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -8770,7 +8770,7 @@ wkssvc_dissect_NetrGetJoinInformation_response(tvbuff_t *tvb _U_, int offset _U_
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_wkssvc_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -8945,7 +8945,7 @@ wkssvc_dissect_NetrGetJoinableOus_response(tvbuff_t *tvb _U_, int offset _U_, pa
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_wkssvc_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -9085,7 +9085,7 @@ wkssvc_dissect_NetrJoinDomain2_response(tvbuff_t *tvb _U_, int offset _U_, packe
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_wkssvc_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -9187,7 +9187,7 @@ wkssvc_dissect_NetrUnjoinDomain2_response(tvbuff_t *tvb _U_, int offset _U_, pac
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_wkssvc_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -9305,7 +9305,7 @@ wkssvc_dissect_NetrRenameMachineInDomain2_response(tvbuff_t *tvb _U_, int offset
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_wkssvc_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -9425,7 +9425,7 @@ wkssvc_dissect_NetrValidateName2_response(tvbuff_t *tvb _U_, int offset _U_, pac
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_wkssvc_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -9603,7 +9603,7 @@ wkssvc_dissect_NetrGetJoinableOus2_response(tvbuff_t *tvb _U_, int offset _U_, p
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_wkssvc_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -9723,7 +9723,7 @@ wkssvc_dissect_NetrAddAlternateComputerName_response(tvbuff_t *tvb _U_, int offs
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_wkssvc_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -9843,7 +9843,7 @@ wkssvc_dissect_NetrRemoveAlternateComputerName_response(tvbuff_t *tvb _U_, int o
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_wkssvc_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -9963,7 +9963,7 @@ wkssvc_dissect_NetrSetPrimaryComputername_response(tvbuff_t *tvb _U_, int offset
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_wkssvc_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -10063,7 +10063,7 @@ wkssvc_dissect_NetrEnumerateComputerNames_response(tvbuff_t *tvb _U_, int offset
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_wkssvc_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -10162,7 +10162,7 @@ void proto_register_dcerpc_wkssvc(void)
 	{ &hf_wkssvc_platform_id,
 	  { "Platform Id", "wkssvc.platform_id", FT_UINT32, BASE_DEC, VALS(srvsvc_srvsvc_PlatformId_vals), 0, NULL, HFILL }},
 	{ &hf_wkssvc_werror,
-	  { "Windows Error", "wkssvc.werror", FT_UINT32, BASE_HEX, VALS(WERR_errors), 0, NULL, HFILL }},
+	  { "Windows Error", "wkssvc.werror", FT_UINT32, BASE_HEX|BASE_EXT_STRING, &WERR_errors_ext, 0, NULL, HFILL }},
 	{ &hf_wkssvc_wkssvc_ComputerNamesCtr_computer_name,
 	  { "Computer Name", "wkssvc.wkssvc_ComputerNamesCtr.computer_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_wkssvc_wkssvc_ComputerNamesCtr_count,

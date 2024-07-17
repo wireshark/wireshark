@@ -2842,7 +2842,7 @@ frsrpc_dissect_FrsSendCommPkt_response(tvbuff_t *tvb _U_, int offset _U_, packet
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_frsrpc_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -2966,7 +2966,7 @@ frsrpc_dissect_FrsVerifyPromotionParent_response(tvbuff_t *tvb _U_, int offset _
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_frsrpc_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -3274,7 +3274,7 @@ frsrpc_dissect_FrsStartPromotionParent_response(tvbuff_t *tvb _U_, int offset _U
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_frsrpc_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -3323,7 +3323,7 @@ frsrpc_dissect_FrsNOP_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_frsrpc_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -3842,7 +3842,7 @@ void proto_register_dcerpc_frsrpc(void)
 	{ &hf_frsrpc_opnum,
 	  { "Operation", "frsrpc.opnum", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_frsrpc_werror,
-	  { "Windows Error", "frsrpc.werror", FT_UINT32, BASE_HEX, VALS(WERR_errors), 0, NULL, HFILL }},
+	  { "Windows Error", "frsrpc.werror", FT_UINT32, BASE_HEX|BASE_EXT_STRING, &WERR_errors_ext, 0, NULL, HFILL }},
 	};
 
 

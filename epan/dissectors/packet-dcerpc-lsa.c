@@ -8378,7 +8378,7 @@ lsarpc_dissect_lsa_Close_response(tvbuff_t *tvb _U_, int offset _U_, packet_info
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -8421,7 +8421,7 @@ lsarpc_dissect_lsa_Delete_response(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -8513,7 +8513,7 @@ lsarpc_dissect_lsa_EnumPrivs_response(tvbuff_t *tvb _U_, int offset _U_, packet_
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -8597,7 +8597,7 @@ lsarpc_dissect_lsa_QuerySecurity_response(tvbuff_t *tvb _U_, int offset _U_, pac
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -8668,7 +8668,7 @@ lsarpc_dissect_lsa_SetSecObj_response(tvbuff_t *tvb _U_, int offset _U_, packet_
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -8699,7 +8699,7 @@ lsarpc_dissect_lsa_ChangePassword_response(tvbuff_t *tvb _U_, int offset _U_, pa
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -8786,7 +8786,7 @@ lsarpc_dissect_lsa_OpenPolicy_response(tvbuff_t *tvb _U_, int offset _U_, packet
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -8870,7 +8870,7 @@ lsarpc_dissect_lsa_QueryInfoPolicy_response(tvbuff_t *tvb _U_, int offset _U_, p
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -8941,7 +8941,7 @@ lsarpc_dissect_lsa_SetInfoPolicy_response(tvbuff_t *tvb _U_, int offset _U_, pac
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -8972,7 +8972,7 @@ lsarpc_dissect_lsa_ClearAuditLog_response(tvbuff_t *tvb _U_, int offset _U_, pac
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -9059,7 +9059,7 @@ lsarpc_dissect_lsa_CreateAccount_response(tvbuff_t *tvb _U_, int offset _U_, pac
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -9155,7 +9155,7 @@ lsarpc_dissect_lsa_EnumAccounts_response(tvbuff_t *tvb _U_, int offset _U_, pack
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -9248,7 +9248,7 @@ lsarpc_dissect_lsa_CreateTrustedDomain_response(tvbuff_t *tvb _U_, int offset _U
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -9344,7 +9344,7 @@ lsarpc_dissect_lsa_EnumTrustDom_response(tvbuff_t *tvb _U_, int offset _U_, pack
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -9478,7 +9478,7 @@ lsarpc_dissect_lsa_LookupNames_response(tvbuff_t *tvb _U_, int offset _U_, packe
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -9625,7 +9625,7 @@ lsarpc_dissect_lsa_LookupSids_response(tvbuff_t *tvb _U_, int offset _U_, packet
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -9714,7 +9714,7 @@ lsarpc_dissect_lsa_CreateSecret_response(tvbuff_t *tvb _U_, int offset _U_, pack
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -9807,7 +9807,7 @@ lsarpc_dissect_lsa_OpenAccount_response(tvbuff_t *tvb _U_, int offset _U_, packe
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -9882,7 +9882,7 @@ lsarpc_dissect_lsa_EnumPrivsAccount_response(tvbuff_t *tvb _U_, int offset _U_, 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -9942,7 +9942,7 @@ lsarpc_dissect_lsa_AddPrivilegesToAccount_response(tvbuff_t *tvb _U_, int offset
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -10013,7 +10013,7 @@ lsarpc_dissect_lsa_RemovePrivilegesFromAccount_response(tvbuff_t *tvb _U_, int o
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -10044,7 +10044,7 @@ lsarpc_dissect_lsa_GetQuotasForAccount_response(tvbuff_t *tvb _U_, int offset _U
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -10069,7 +10069,7 @@ lsarpc_dissect_lsa_SetQuotasForAccount_response(tvbuff_t *tvb _U_, int offset _U
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -10130,7 +10130,7 @@ lsarpc_dissect_lsa_GetSystemAccessAccount_response(tvbuff_t *tvb _U_, int offset
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -10182,7 +10182,7 @@ lsarpc_dissect_lsa_SetSystemAccessAccount_response(tvbuff_t *tvb _U_, int offset
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -10273,7 +10273,7 @@ lsarpc_dissect_lsa_OpenTrustedDomain_response(tvbuff_t *tvb _U_, int offset _U_,
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -10357,7 +10357,7 @@ lsarpc_dissect_lsa_QueryTrustedDomainInfo_response(tvbuff_t *tvb _U_, int offset
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -10428,7 +10428,7 @@ lsarpc_dissect_lsa_SetInformationTrustedDomain_response(tvbuff_t *tvb _U_, int o
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -10513,7 +10513,7 @@ lsarpc_dissect_lsa_OpenSecret_response(tvbuff_t *tvb _U_, int offset _U_, packet
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -10594,7 +10594,7 @@ lsarpc_dissect_lsa_SetSecret_response(tvbuff_t *tvb _U_, int offset _U_, packet_
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -10721,7 +10721,7 @@ lsarpc_dissect_lsa_QuerySecret_response(tvbuff_t *tvb _U_, int offset _U_, packe
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -10809,7 +10809,7 @@ lsarpc_dissect_lsa_LookupPrivValue_response(tvbuff_t *tvb _U_, int offset _U_, p
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -10899,7 +10899,7 @@ lsarpc_dissect_lsa_LookupPrivName_response(tvbuff_t *tvb _U_, int offset _U_, pa
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -11027,7 +11027,7 @@ lsarpc_dissect_lsa_LookupPrivDisplayName_response(tvbuff_t *tvb _U_, int offset 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -11079,7 +11079,7 @@ lsarpc_dissect_lsa_DeleteObject_response(tvbuff_t *tvb _U_, int offset _U_, pack
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -11159,7 +11159,7 @@ lsarpc_dissect_lsa_EnumAccountsWithUserRight_response(tvbuff_t *tvb _U_, int off
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -11241,7 +11241,7 @@ lsarpc_dissect_lsa_EnumAccountRights_response(tvbuff_t *tvb _U_, int offset _U_,
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -11320,7 +11320,7 @@ lsarpc_dissect_lsa_AddAccountRights_response(tvbuff_t *tvb _U_, int offset _U_, 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -11410,7 +11410,7 @@ lsarpc_dissect_lsa_RemoveAccountRights_response(tvbuff_t *tvb _U_, int offset _U
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -11513,7 +11513,7 @@ lsarpc_dissect_lsa_QueryTrustedDomainInfoBySid_response(tvbuff_t *tvb _U_, int o
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -11603,7 +11603,7 @@ lsarpc_dissect_lsa_SetTrustedDomainInfo_response(tvbuff_t *tvb _U_, int offset _
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -11669,7 +11669,7 @@ lsarpc_dissect_lsa_DeleteTrustedDomain_response(tvbuff_t *tvb _U_, int offset _U
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -11748,7 +11748,7 @@ lsarpc_dissect_lsa_StorePrivateData_response(tvbuff_t *tvb _U_, int offset _U_, 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -11840,7 +11840,7 @@ lsarpc_dissect_lsa_RetrievePrivateData_response(tvbuff_t *tvb _U_, int offset _U
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -11936,7 +11936,7 @@ lsarpc_dissect_lsa_OpenPolicy2_response(tvbuff_t *tvb _U_, int offset _U_, packe
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -12042,7 +12042,7 @@ lsarpc_dissect_lsa_GetUserName_response(tvbuff_t *tvb _U_, int offset _U_, packe
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -12126,7 +12126,7 @@ lsarpc_dissect_lsa_QueryInfoPolicy2_response(tvbuff_t *tvb _U_, int offset _U_, 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -12197,7 +12197,7 @@ lsarpc_dissect_lsa_SetInfoPolicy2_response(tvbuff_t *tvb _U_, int offset _U_, pa
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -12298,7 +12298,7 @@ lsarpc_dissect_lsa_QueryTrustedDomainInfoByName_response(tvbuff_t *tvb _U_, int 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -12388,7 +12388,7 @@ lsarpc_dissect_lsa_SetTrustedDomainInfoByName_response(tvbuff_t *tvb _U_, int of
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -12486,7 +12486,7 @@ lsarpc_dissect_lsa_EnumTrustedDomainsEx_response(tvbuff_t *tvb _U_, int offset _
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -12596,7 +12596,7 @@ lsarpc_dissect_lsa_CreateTrustedDomainEx_response(tvbuff_t *tvb _U_, int offset 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -12648,7 +12648,7 @@ lsarpc_dissect_lsa_CloseTrustedDomainEx_response(tvbuff_t *tvb _U_, int offset _
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -12728,7 +12728,7 @@ lsarpc_dissect_lsa_QueryDomainInformationPolicy_response(tvbuff_t *tvb _U_, int 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -12799,7 +12799,7 @@ lsarpc_dissect_lsa_SetDomainInformationPolicy_response(tvbuff_t *tvb _U_, int of
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -12884,7 +12884,7 @@ lsarpc_dissect_lsa_OpenTrustedDomainByName_response(tvbuff_t *tvb _U_, int offse
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -12915,7 +12915,7 @@ lsarpc_dissect_lsa_TestCall_response(tvbuff_t *tvb _U_, int offset _U_, packet_i
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -13068,7 +13068,7 @@ lsarpc_dissect_lsa_LookupSids2_response(tvbuff_t *tvb _U_, int offset _U_, packe
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -13228,7 +13228,7 @@ lsarpc_dissect_lsa_LookupNames2_response(tvbuff_t *tvb _U_, int offset _U_, pack
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -13348,7 +13348,7 @@ lsarpc_dissect_lsa_CreateTrustedDomainEx2_response(tvbuff_t *tvb _U_, int offset
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -13381,7 +13381,7 @@ lsarpc_dissect_lsa_CREDRWRITE_response(tvbuff_t *tvb _U_, int offset _U_, packet
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -13406,7 +13406,7 @@ lsarpc_dissect_lsa_CREDRREAD_response(tvbuff_t *tvb _U_, int offset _U_, packet_
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -13431,7 +13431,7 @@ lsarpc_dissect_lsa_CREDRENUMERATE_response(tvbuff_t *tvb _U_, int offset _U_, pa
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -13456,7 +13456,7 @@ lsarpc_dissect_lsa_CREDRWRITEDOMAINCREDENTIALS_response(tvbuff_t *tvb _U_, int o
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -13481,7 +13481,7 @@ lsarpc_dissect_lsa_CREDRREADDOMAINCREDENTIALS_response(tvbuff_t *tvb _U_, int of
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -13506,7 +13506,7 @@ lsarpc_dissect_lsa_CREDRDELETE_response(tvbuff_t *tvb _U_, int offset _U_, packe
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -13531,7 +13531,7 @@ lsarpc_dissect_lsa_CREDRGETTARGETINFO_response(tvbuff_t *tvb _U_, int offset _U_
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -13556,7 +13556,7 @@ lsarpc_dissect_lsa_CREDRPROFILELOADED_response(tvbuff_t *tvb _U_, int offset _U_
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -13710,7 +13710,7 @@ lsarpc_dissect_lsa_LookupNames3_response(tvbuff_t *tvb _U_, int offset _U_, pack
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -13751,7 +13751,7 @@ lsarpc_dissect_lsa_CREDRGETSESSIONTYPES_response(tvbuff_t *tvb _U_, int offset _
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -13776,7 +13776,7 @@ lsarpc_dissect_lsa_LSARREGISTERAUDITEVENT_response(tvbuff_t *tvb _U_, int offset
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -13801,7 +13801,7 @@ lsarpc_dissect_lsa_LSARGENAUDITEVENT_response(tvbuff_t *tvb _U_, int offset _U_,
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -13826,7 +13826,7 @@ lsarpc_dissect_lsa_LSARUNREGISTERAUDITEVENT_response(tvbuff_t *tvb _U_, int offs
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -13921,7 +13921,7 @@ lsarpc_dissect_lsa_lsaRQueryForestTrustInformation_response(tvbuff_t *tvb _U_, i
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -14048,7 +14048,7 @@ lsarpc_dissect_lsa_lsaRSetForestTrustInformation_response(tvbuff_t *tvb _U_, int
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -14083,7 +14083,7 @@ lsarpc_dissect_lsa_CREDRRENAME_response(tvbuff_t *tvb _U_, int offset _U_, packe
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -14219,7 +14219,7 @@ lsarpc_dissect_lsa_LookupSids3_response(tvbuff_t *tvb _U_, int offset _U_, packe
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -14360,7 +14360,7 @@ lsarpc_dissect_lsa_LookupNames4_response(tvbuff_t *tvb _U_, int offset _U_, pack
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -14399,7 +14399,7 @@ lsarpc_dissect_lsa_LSAROPENPOLICYSCE_response(tvbuff_t *tvb _U_, int offset _U_,
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -14424,7 +14424,7 @@ lsarpc_dissect_lsa_LSARADTREGISTERSECURITYEVENTSOURCE_response(tvbuff_t *tvb _U_
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -14449,7 +14449,7 @@ lsarpc_dissect_lsa_LSARADTUNREGISTERSECURITYEVENTSOURCE_response(tvbuff_t *tvb _
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -14474,7 +14474,7 @@ lsarpc_dissect_lsa_LSARADTREPORTSECURITYEVENT_response(tvbuff_t *tvb _U_, int of
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -15424,7 +15424,7 @@ lsarpc_dissect_lsa_CreateTrustedDomainEx3_response(tvbuff_t *tvb _U_, int offset
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -15588,7 +15588,7 @@ lsarpc_dissect_lsa_OpenPolicy3_response(tvbuff_t *tvb _U_, int offset _U_, packe
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -15711,7 +15711,7 @@ lsarpc_dissect_lsa_lsaRQueryForestTrustInformation2_response(tvbuff_t *tvb _U_, 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -15838,7 +15838,7 @@ lsarpc_dissect_lsa_lsaRSetForestTrustInformation2_response(tvbuff_t *tvb _U_, in
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -17229,7 +17229,7 @@ void proto_register_dcerpc_lsarpc(void)
 	{ &hf_lsarpc_secret_access_mask,
 	  { "Access Mask", "lsarpc.policy.access_mask", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_status,
-	  { "NT Error", "lsarpc.status", FT_UINT32, BASE_HEX, VALS(NT_errors), 0, NULL, HFILL }},
+	  { "NT Error", "lsarpc.status", FT_UINT32, BASE_HEX|BASE_EXT_STRING, &NT_errors_ext, 0, NULL, HFILL }},
 	};
 
 

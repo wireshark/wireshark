@@ -1057,7 +1057,7 @@ witness_dissect_GetInterfaceList_response(tvbuff_t *tvb _U_, int offset _U_, pac
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_witness_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -1170,7 +1170,7 @@ witness_dissect_Register_response(tvbuff_t *tvb _U_, int offset _U_, packet_info
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_witness_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -1211,7 +1211,7 @@ witness_dissect_UnRegister_response(tvbuff_t *tvb _U_, int offset _U_, packet_in
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_witness_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -1274,7 +1274,7 @@ witness_dissect_AsyncNotify_response(tvbuff_t *tvb _U_, int offset _U_, packet_i
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_witness_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -1427,7 +1427,7 @@ witness_dissect_RegisterEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_in
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_witness_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -1474,7 +1474,7 @@ void proto_register_dcerpc_witness(void)
 	{ &hf_witness_opnum,
 	  { "Operation", "witness.opnum", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_witness_werror,
-	  { "Windows Error", "witness.werror", FT_UINT32, BASE_HEX, VALS(WERR_errors), 0, NULL, HFILL }},
+	  { "Windows Error", "witness.werror", FT_UINT32, BASE_HEX|BASE_EXT_STRING, &WERR_errors_ext, 0, NULL, HFILL }},
 	{ &hf_witness_witness_AsyncNotify_context_handle,
 	  { "Context Handle", "witness.witness_AsyncNotify.context_handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_witness_witness_AsyncNotify_response,

@@ -17041,7 +17041,7 @@ drsuapi_dissect_DsBind_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -17089,7 +17089,7 @@ drsuapi_dissect_DsUnbind_response(tvbuff_t *tvb _U_, int offset _U_, packet_info
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -17158,7 +17158,7 @@ drsuapi_dissect_DsReplicaSync_response(tvbuff_t *tvb _U_, int offset _U_, packet
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -17271,7 +17271,7 @@ drsuapi_dissect_DsGetNCChanges_response(tvbuff_t *tvb _U_, int offset _U_, packe
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -17336,7 +17336,7 @@ drsuapi_dissect_DsReplicaUpdateRefs_response(tvbuff_t *tvb _U_, int offset _U_, 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -17401,7 +17401,7 @@ drsuapi_dissect_DsReplicaAdd_response(tvbuff_t *tvb _U_, int offset _U_, packet_
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -17466,7 +17466,7 @@ drsuapi_dissect_DsReplicaDel_response(tvbuff_t *tvb _U_, int offset _U_, packet_
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -17531,7 +17531,7 @@ drsuapi_dissect_DsReplicaMod_response(tvbuff_t *tvb _U_, int offset _U_, packet_
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -17562,7 +17562,7 @@ drsuapi_dissect_DRSUAPI_VERIFY_NAMES_response(tvbuff_t *tvb _U_, int offset _U_,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -17669,7 +17669,7 @@ drsuapi_dissect_DsGetMemberships_response(tvbuff_t *tvb _U_, int offset _U_, pac
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -17700,7 +17700,7 @@ drsuapi_dissect_DRSUAPI_INTER_DOMAIN_MOVE_response(tvbuff_t *tvb _U_, int offset
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -17807,7 +17807,7 @@ drsuapi_dissect_DsGetNT4ChangeLog_response(tvbuff_t *tvb _U_, int offset _U_, pa
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -17912,7 +17912,7 @@ drsuapi_dissect_DsCrackNames_response(tvbuff_t *tvb _U_, int offset _U_, packet_
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -18025,7 +18025,7 @@ drsuapi_dissect_DsWriteAccountSpn_response(tvbuff_t *tvb _U_, int offset _U_, pa
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -18138,7 +18138,7 @@ drsuapi_dissect_DsRemoveDSServer_response(tvbuff_t *tvb _U_, int offset _U_, pac
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -18169,7 +18169,7 @@ drsuapi_dissect_DRSUAPI_REMOVE_DS_DOMAIN_response(tvbuff_t *tvb _U_, int offset 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -18276,7 +18276,7 @@ drsuapi_dissect_DsGetDomainControllerInfo_response(tvbuff_t *tvb _U_, int offset
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -18389,7 +18389,7 @@ drsuapi_dissect_DsAddEntry_response(tvbuff_t *tvb _U_, int offset _U_, packet_in
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -18462,7 +18462,7 @@ drsuapi_dissect_DsExecuteKCC_response(tvbuff_t *tvb _U_, int offset _U_, packet_
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -18575,7 +18575,7 @@ drsuapi_dissect_DsReplicaGetInfo_response(tvbuff_t *tvb _U_, int offset _U_, pac
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -18606,7 +18606,7 @@ drsuapi_dissect_DRSUAPI_ADD_SID_HISTORY_response(tvbuff_t *tvb _U_, int offset _
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -18713,7 +18713,7 @@ drsuapi_dissect_DsGetMemberships2_response(tvbuff_t *tvb _U_, int offset _U_, pa
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -18744,7 +18744,7 @@ drsuapi_dissect_DRSUAPI_REPLICA_VERIFY_OBJECTS_response(tvbuff_t *tvb _U_, int o
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -18769,7 +18769,7 @@ drsuapi_dissect_DRSUAPI_GET_OBJECT_EXISTENCE_response(tvbuff_t *tvb _U_, int off
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -18876,7 +18876,7 @@ drsuapi_dissect_QuerySitesByCost_response(tvbuff_t *tvb _U_, int offset _U_, pac
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -18907,7 +18907,7 @@ drsuapi_dissect_InitDemotion_response(tvbuff_t *tvb _U_, int offset _U_, packet_
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -18932,7 +18932,7 @@ drsuapi_dissect_ReplicaDemotion_response(tvbuff_t *tvb _U_, int offset _U_, pack
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -18957,7 +18957,7 @@ drsuapi_dissect_FinishDemotion_response(tvbuff_t *tvb _U_, int offset _U_, packe
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -18982,7 +18982,7 @@ drsuapi_dissect_AddCloneDC_response(tvbuff_t *tvb _U_, int offset _U_, packet_in
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -19007,7 +19007,7 @@ drsuapi_dissect_WriteNgcKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_i
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -19114,7 +19114,7 @@ drsuapi_dissect_ReadNgcKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_in
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &WERR_errors_ext, "Unknown DOS error 0x%08x"));
 
 	return offset;
 }
@@ -19297,7 +19297,7 @@ void proto_register_dcerpc_drsuapi(void)
 	{ &hf_drsuapi_drsuapi_DsAddEntryCtr2_extended_data,
 	  { "Extended Data", "drsuapi.drsuapi_DsAddEntryCtr2.extended_data", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DsAddEntryCtr2_extended_err,
-	  { "Extended Err", "drsuapi.drsuapi_DsAddEntryCtr2.extended_err", FT_UINT32, BASE_HEX, VALS(WERR_errors), 0, NULL, HFILL }},
+	  { "Extended Err", "drsuapi.drsuapi_DsAddEntryCtr2.extended_err", FT_UINT32, BASE_HEX|BASE_EXT_STRING, &WERR_errors_ext, 0, NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DsAddEntryCtr2_id,
 	  { "Id", "drsuapi.drsuapi_DsAddEntryCtr2.id", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DsAddEntryCtr2_objects,
@@ -19323,7 +19323,7 @@ void proto_register_dcerpc_drsuapi(void)
 	{ &hf_drsuapi_drsuapi_DsAddEntryErrorInfoX_extended_data,
 	  { "Extended Data", "drsuapi.drsuapi_DsAddEntryErrorInfoX.extended_data", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DsAddEntryErrorInfoX_extended_err,
-	  { "Extended Err", "drsuapi.drsuapi_DsAddEntryErrorInfoX.extended_err", FT_UINT32, BASE_HEX, VALS(WERR_errors), 0, NULL, HFILL }},
+	  { "Extended Err", "drsuapi.drsuapi_DsAddEntryErrorInfoX.extended_err", FT_UINT32, BASE_HEX|BASE_EXT_STRING, &WERR_errors_ext, 0, NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DsAddEntryErrorInfoX_problem,
 	  { "Problem", "drsuapi.drsuapi_DsAddEntryErrorInfoX.problem", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DsAddEntryErrorInfo_Attr_V1_count,
@@ -19337,7 +19337,7 @@ void proto_register_dcerpc_drsuapi(void)
 	{ &hf_drsuapi_drsuapi_DsAddEntryErrorInfo_Name_V1_extended_data,
 	  { "Extended Data", "drsuapi.drsuapi_DsAddEntryErrorInfo_Name_V1.extended_data", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DsAddEntryErrorInfo_Name_V1_extended_err,
-	  { "Extended Err", "drsuapi.drsuapi_DsAddEntryErrorInfo_Name_V1.extended_err", FT_UINT32, BASE_HEX, VALS(WERR_errors), 0, NULL, HFILL }},
+	  { "Extended Err", "drsuapi.drsuapi_DsAddEntryErrorInfo_Name_V1.extended_err", FT_UINT32, BASE_HEX|BASE_EXT_STRING, &WERR_errors_ext, 0, NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DsAddEntryErrorInfo_Name_V1_id_matched,
 	  { "Id Matched", "drsuapi.drsuapi_DsAddEntryErrorInfo_Name_V1.id_matched", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DsAddEntryErrorInfo_Name_V1_problem,
@@ -19347,7 +19347,7 @@ void proto_register_dcerpc_drsuapi(void)
 	{ &hf_drsuapi_drsuapi_DsAddEntryErrorInfo_Referr_V1_extended_data,
 	  { "Extended Data", "drsuapi.drsuapi_DsAddEntryErrorInfo_Referr_V1.extended_data", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DsAddEntryErrorInfo_Referr_V1_extended_err,
-	  { "Extended Err", "drsuapi.drsuapi_DsAddEntryErrorInfo_Referr_V1.extended_err", FT_UINT32, BASE_HEX, VALS(WERR_errors), 0, NULL, HFILL }},
+	  { "Extended Err", "drsuapi.drsuapi_DsAddEntryErrorInfo_Referr_V1.extended_err", FT_UINT32, BASE_HEX|BASE_EXT_STRING, &WERR_errors_ext, 0, NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DsAddEntryErrorInfo_Referr_V1_refer,
 	  { "Refer", "drsuapi.drsuapi_DsAddEntryErrorInfo_Referr_V1.refer", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DsAddEntryErrorInfo_attr_err,
@@ -19387,7 +19387,7 @@ void proto_register_dcerpc_drsuapi(void)
 	{ &hf_drsuapi_drsuapi_DsAddEntry_AttrErr_V1_extended_data,
 	  { "Extended Data", "drsuapi.drsuapi_DsAddEntry_AttrErr_V1.extended_data", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DsAddEntry_AttrErr_V1_extended_err,
-	  { "Extended Err", "drsuapi.drsuapi_DsAddEntry_AttrErr_V1.extended_err", FT_UINT32, BASE_HEX, VALS(WERR_errors), 0, NULL, HFILL }},
+	  { "Extended Err", "drsuapi.drsuapi_DsAddEntry_AttrErr_V1.extended_err", FT_UINT32, BASE_HEX|BASE_EXT_STRING, &WERR_errors_ext, 0, NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DsAddEntry_AttrErr_V1_is_val_returned,
 	  { "Is Val Returned", "drsuapi.drsuapi_DsAddEntry_AttrErr_V1.is_val_returned", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DsAddEntry_AttrErr_V1_problem,
@@ -19397,7 +19397,7 @@ void proto_register_dcerpc_drsuapi(void)
 	{ &hf_drsuapi_drsuapi_DsAddEntry_ErrData_V1_info,
 	  { "Info", "drsuapi.drsuapi_DsAddEntry_ErrData_V1.info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DsAddEntry_ErrData_V1_status,
-	  { "Status", "drsuapi.drsuapi_DsAddEntry_ErrData_V1.status", FT_UINT32, BASE_HEX, VALS(WERR_errors), 0, NULL, HFILL }},
+	  { "Status", "drsuapi.drsuapi_DsAddEntry_ErrData_V1.status", FT_UINT32, BASE_HEX|BASE_EXT_STRING, &WERR_errors_ext, 0, NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DsAddEntry_ErrData_v1,
 	  { "V1", "drsuapi.drsuapi_DsAddEntry_ErrData.v1", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DsAddEntry_RefErrListItem_V1_addr_list,
@@ -19697,7 +19697,7 @@ void proto_register_dcerpc_drsuapi(void)
 	{ &hf_drsuapi_drsuapi_DsGetMembershipsCtr1_sids,
 	  { "Sids", "drsuapi.drsuapi_DsGetMembershipsCtr1.sids", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DsGetMembershipsCtr1_status,
-	  { "Status", "drsuapi.drsuapi_DsGetMembershipsCtr1.status", FT_UINT32, BASE_HEX, VALS(NT_errors), 0, NULL, HFILL }},
+	  { "Status", "drsuapi.drsuapi_DsGetMembershipsCtr1.status", FT_UINT32, BASE_HEX|BASE_EXT_STRING, &NT_errors_ext, 0, NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DsGetMembershipsCtr_ctr1,
 	  { "Ctr1", "drsuapi.drsuapi_DsGetMembershipsCtr.ctr1", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DsGetMembershipsRequest1_count,
@@ -19763,7 +19763,7 @@ void proto_register_dcerpc_drsuapi(void)
 	{ &hf_drsuapi_drsuapi_DsGetNCChangesCtr6___ndr_size,
 	  { "Ndr Size", "drsuapi.drsuapi_DsGetNCChangesCtr6.__ndr_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DsGetNCChangesCtr6_drs_error,
-	  { "Drs Error", "drsuapi.drsuapi_DsGetNCChangesCtr6.drs_error", FT_UINT32, BASE_HEX, VALS(WERR_errors), 0, NULL, HFILL }},
+	  { "Drs Error", "drsuapi.drsuapi_DsGetNCChangesCtr6.drs_error", FT_UINT32, BASE_HEX|BASE_EXT_STRING, &WERR_errors_ext, 0, NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DsGetNCChangesCtr6_extended_ret,
 	  { "Extended Ret", "drsuapi.drsuapi_DsGetNCChangesCtr6.extended_ret", FT_UINT32, BASE_HEX, VALS(drsuapi_drsuapi_DsExtendedError_vals), 0, NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DsGetNCChangesCtr6_first_object,
@@ -19955,7 +19955,7 @@ void proto_register_dcerpc_drsuapi(void)
 	{ &hf_drsuapi_drsuapi_DsGetNT4ChangeLogInfo1_sam_serial_number,
 	  { "Sam Serial Number", "drsuapi.drsuapi_DsGetNT4ChangeLogInfo1.sam_serial_number", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DsGetNT4ChangeLogInfo1_status,
-	  { "Status", "drsuapi.drsuapi_DsGetNT4ChangeLogInfo1.status", FT_UINT32, BASE_HEX, VALS(NT_errors), 0, NULL, HFILL }},
+	  { "Status", "drsuapi.drsuapi_DsGetNT4ChangeLogInfo1.status", FT_UINT32, BASE_HEX|BASE_EXT_STRING, &NT_errors_ext, 0, NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DsGetNT4ChangeLogInfo_info1,
 	  { "Info1", "drsuapi.drsuapi_DsGetNT4ChangeLogInfo.info1", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DsGetNT4ChangeLogRequest1_flags,
@@ -20325,7 +20325,7 @@ void proto_register_dcerpc_drsuapi(void)
 	{ &hf_drsuapi_drsuapi_DsReplicaKccDsaFailure_first_failure,
 	  { "First Failure", "drsuapi.drsuapi_DsReplicaKccDsaFailure.first_failure", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DsReplicaKccDsaFailure_last_result,
-	  { "Last Result", "drsuapi.drsuapi_DsReplicaKccDsaFailure.last_result", FT_UINT32, BASE_HEX, VALS(WERR_errors), 0, NULL, HFILL }},
+	  { "Last Result", "drsuapi.drsuapi_DsReplicaKccDsaFailure.last_result", FT_UINT32, BASE_HEX|BASE_EXT_STRING, &WERR_errors_ext, 0, NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DsReplicaKccDsaFailure_num_failures,
 	  { "Num Failures", "drsuapi.drsuapi_DsReplicaKccDsaFailure.num_failures", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DsReplicaKccDsaFailuresCtr_array,
@@ -20403,7 +20403,7 @@ void proto_register_dcerpc_drsuapi(void)
 	{ &hf_drsuapi_drsuapi_DsReplicaNeighbour_reserved,
 	  { "Reserved", "drsuapi.drsuapi_DsReplicaNeighbour.reserved", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DsReplicaNeighbour_result_last_attempt,
-	  { "Result Last Attempt", "drsuapi.drsuapi_DsReplicaNeighbour.result_last_attempt", FT_UINT32, BASE_HEX, VALS(WERR_errors), 0, NULL, HFILL }},
+	  { "Result Last Attempt", "drsuapi.drsuapi_DsReplicaNeighbour.result_last_attempt", FT_UINT32, BASE_HEX|BASE_EXT_STRING, &WERR_errors_ext, 0, NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DsReplicaNeighbour_source_dsa_address,
 	  { "Source Dsa Address", "drsuapi.drsuapi_DsReplicaNeighbour.source_dsa_address", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DsReplicaNeighbour_source_dsa_invocation_id,
@@ -20597,7 +20597,7 @@ void proto_register_dcerpc_drsuapi(void)
 	{ &hf_drsuapi_drsuapi_DsReplicaUpdateRefs_req,
 	  { "Req", "drsuapi.drsuapi_DsReplicaUpdateRefs.req", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DsSiteCostInfo_error_code,
-	  { "Error Code", "drsuapi.drsuapi_DsSiteCostInfo.error_code", FT_UINT32, BASE_HEX, VALS(WERR_errors), 0, NULL, HFILL }},
+	  { "Error Code", "drsuapi.drsuapi_DsSiteCostInfo.error_code", FT_UINT32, BASE_HEX|BASE_EXT_STRING, &WERR_errors_ext, 0, NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DsSiteCostInfo_site_cost,
 	  { "Site Cost", "drsuapi.drsuapi_DsSiteCostInfo.site_cost", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DsUnbind_bind_handle,
@@ -20615,7 +20615,7 @@ void proto_register_dcerpc_drsuapi(void)
 	{ &hf_drsuapi_drsuapi_DsWriteAccountSpnRequest_req1,
 	  { "Req1", "drsuapi.drsuapi_DsWriteAccountSpnRequest.req1", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DsWriteAccountSpnResult1_status,
-	  { "Status", "drsuapi.drsuapi_DsWriteAccountSpnResult1.status", FT_UINT32, BASE_HEX, VALS(WERR_errors), 0, NULL, HFILL }},
+	  { "Status", "drsuapi.drsuapi_DsWriteAccountSpnResult1.status", FT_UINT32, BASE_HEX|BASE_EXT_STRING, &WERR_errors_ext, 0, NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DsWriteAccountSpnResult_res1,
 	  { "Res1", "drsuapi.drsuapi_DsWriteAccountSpnResult.res1", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_drsuapi_drsuapi_DsWriteAccountSpn_bind_handle,
@@ -20777,7 +20777,7 @@ void proto_register_dcerpc_drsuapi(void)
 	{ &hf_drsuapi_opnum,
 	  { "Operation", "drsuapi.opnum", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_drsuapi_werror,
-	  { "Windows Error", "drsuapi.werror", FT_UINT32, BASE_HEX, VALS(WERR_errors), 0, NULL, HFILL }},
+	  { "Windows Error", "drsuapi.werror", FT_UINT32, BASE_HEX|BASE_EXT_STRING, &WERR_errors_ext, 0, NULL, HFILL }},
 	};
 
 

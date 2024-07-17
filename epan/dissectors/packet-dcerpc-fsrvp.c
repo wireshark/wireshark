@@ -428,7 +428,7 @@ fsrvp_dissect_GetSupportedVersion_response(tvbuff_t *tvb _U_, int offset _U_, pa
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_fsrvp_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -461,7 +461,7 @@ fsrvp_dissect_SetContext_response(tvbuff_t *tvb _U_, int offset _U_, packet_info
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_fsrvp_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -507,7 +507,7 @@ fsrvp_dissect_StartShadowCopySet_response(tvbuff_t *tvb _U_, int offset _U_, pac
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_fsrvp_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -582,7 +582,7 @@ fsrvp_dissect_AddToShadowCopySet_response(tvbuff_t *tvb _U_, int offset _U_, pac
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_fsrvp_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -617,7 +617,7 @@ fsrvp_dissect_CommitShadowCopySet_response(tvbuff_t *tvb _U_, int offset _U_, pa
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_fsrvp_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -652,7 +652,7 @@ fsrvp_dissect_ExposeShadowCopySet_response(tvbuff_t *tvb _U_, int offset _U_, pa
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_fsrvp_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -678,7 +678,7 @@ fsrvp_dissect_RecoveryCompleteShadowCopySet_response(tvbuff_t *tvb _U_, int offs
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_fsrvp_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -704,7 +704,7 @@ fsrvp_dissect_AbortShadowCopySet_response(tvbuff_t *tvb _U_, int offset _U_, pac
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_fsrvp_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -792,7 +792,7 @@ fsrvp_dissect_IsPathSupported_response(tvbuff_t *tvb _U_, int offset _U_, packet
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_fsrvp_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -878,7 +878,7 @@ fsrvp_dissect_IsPathShadowCopied_response(tvbuff_t *tvb _U_, int offset _U_, pac
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_fsrvp_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -971,7 +971,7 @@ fsrvp_dissect_GetShareMapping_response(tvbuff_t *tvb _U_, int offset _U_, packet
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_fsrvp_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -1026,7 +1026,7 @@ fsrvp_dissect_DeleteShareMapping_response(tvbuff_t *tvb _U_, int offset _U_, pac
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_fsrvp_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -1061,7 +1061,7 @@ fsrvp_dissect_PrepareShadowCopySet_response(tvbuff_t *tvb _U_, int offset _U_, p
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_fsrvp_status, &status);
 
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str_ext(status, &NT_errors_ext, "Unknown NT status 0x%08x"));
 
 	return offset;
 }
@@ -1177,7 +1177,7 @@ void proto_register_dcerpc_fsrvp(void)
 	{ &hf_fsrvp_opnum,
 	  { "Operation", "fsrvp.opnum", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_fsrvp_status,
-	  { "NT Error", "fsrvp.status", FT_UINT32, BASE_HEX, VALS(NT_errors), 0, NULL, HFILL }},
+	  { "NT Error", "fsrvp.status", FT_UINT32, BASE_HEX|BASE_EXT_STRING, &NT_errors_ext, 0, NULL, HFILL }},
 	};
 
 
