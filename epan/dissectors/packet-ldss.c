@@ -104,42 +104,42 @@ static const value_string ldss_compression_value[] = {
 /* Info about a broadcaster */
 typedef struct _ldss_broadcaster_t {
 	address addr;
-	guint16 port;
+	uint16_t port;
 } ldss_broadcaster_t;
 
 /* Info about a file */
 typedef struct _ldss_file_t {
-	guint8 *digest;
-	guint8 digest_type;
+	uint8_t *digest;
+	uint8_t digest_type;
 } ldss_file_t;
 
 /* Info about a broadcast packet */
 typedef struct _ldss_broadcast_t {
-	guint32 num;
+	uint32_t num;
 	nstime_t ts;
-	guint16 message_id;
-	guint16 message_detail;
-	guint16 port;
-	guint64 size;
-	guint64 offset;
-	guint8 compression;
+	uint16_t message_id;
+	uint16_t message_detail;
+	uint16_t port;
+	uint64_t size;
+	uint64_t offset;
+	uint8_t compression;
 	ldss_file_t *file;
 	ldss_broadcaster_t *broadcaster;
 } ldss_broadcast_t;
 
 /* Info about a file as seen in a file request */
 typedef struct _ldss_file_req_t {
-	guint32 num;
+	uint32_t num;
 	nstime_t ts;
-	guint64 size;
-	guint64 offset;
-	guint8 compression;
+	uint64_t size;
+	uint64_t offset;
+	uint8_t compression;
 	ldss_file_t *file;
 } ldss_file_request_t;
 
 /* Info attached to a file transfer conversation */
 typedef struct _ldss_transfer_info_t {
-	guint32 resp_num;
+	uint32_t resp_num;
 	nstime_t resp_ts;
 	/* Refers either to the file in the request (for pull)
 	 * or the file in the broadcast (for push) */
@@ -248,27 +248,27 @@ prepare_ldss_transfer_conv(ldss_broadcast_t *broadcast)
 static int
 dissect_ldss_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	guint16	messageID;
-	guint8 digest_type;
-	guint8 compression;
-	guint32 cookie;
-	guint8 *digest;
-	guint64	size;
-	guint64	offset;
-	guint32	targetTime;
-	guint16 port;
-	guint16	rate;
-	guint16 messageDetail = INFERRED_NONE;
+	uint16_t	messageID;
+	uint8_t digest_type;
+	uint8_t compression;
+	uint32_t cookie;
+	uint8_t *digest;
+	uint64_t	size;
+	uint64_t	offset;
+	uint32_t	targetTime;
+	uint16_t port;
+	uint16_t	rate;
+	uint16_t messageDetail = INFERRED_NONE;
 
 	proto_tree	*ti, *ldss_tree;
 
-	const gchar *packet_type, *packet_detail;
+	const char *packet_type, *packet_detail;
 
 	messageID   = tvb_get_ntohs  (tvb,  0);
-	digest_type = tvb_get_guint8 (tvb,  2);
-	compression = tvb_get_guint8 (tvb,  3);
+	digest_type = tvb_get_uint8 (tvb,  2);
+	compression = tvb_get_uint8 (tvb,  3);
 	cookie      = tvb_get_ntohl  (tvb,  4);
-	digest      = (guint8 *)tvb_memdup (wmem_file_scope(), tvb,  8, DIGEST_LEN);
+	digest      = (uint8_t *)tvb_memdup (wmem_file_scope(), tvb,  8, DIGEST_LEN);
 	size	    = tvb_get_ntoh64 (tvb, 40);
 	offset	    = tvb_get_ntoh64 (tvb, 48);
 	targetTime  = tvb_get_ntohl  (tvb, 56);
@@ -325,7 +325,7 @@ dissect_ldss_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_item(ldss_tree, hf_ldss_compression,
 			tvb, 3,	    1,	ENC_BIG_ENDIAN);
 	proto_tree_add_uint_format_value(ldss_tree, hf_ldss_cookie,
-			tvb, 4,	    4,	FALSE,
+			tvb, 4,	    4,	false,
 			"0x%x%s",
 			cookie,
 			(cookie == 0)
@@ -338,7 +338,7 @@ dissect_ldss_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_item(ldss_tree, hf_ldss_offset,
 			tvb, 48,    8,	ENC_BIG_ENDIAN);
 	proto_tree_add_uint_format_value(ldss_tree, hf_ldss_target_time,
-			tvb, 56,    4,	FALSE,
+			tvb, 56,    4,	false,
 			"%d:%02d:%02d",
 			(int)(targetTime / 3600),
 			(int)((targetTime / 60) % 60),
@@ -346,7 +346,7 @@ dissect_ldss_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_item(ldss_tree, hf_ldss_reserved_1,
 			tvb, 60,    4,	ENC_BIG_ENDIAN);
 	proto_tree_add_uint_format_value(ldss_tree, hf_ldss_port,
-			tvb, 64,    2,	FALSE,
+			tvb, 64,    2,	false,
 			"%d%s",
 			port,
 			(messageID == MESSAGE_ID_WILLSEND &&
@@ -357,7 +357,7 @@ dissect_ldss_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				? " - file can be pushed to this TCP port"
 				: ""));
 	proto_tree_add_uint_format_value(ldss_tree, hf_ldss_rate,
-			tvb, 66,    2,	FALSE,
+			tvb, 66,    2,	false,
 			"%ld",
 			(rate > 0)
 			? (long)floor(exp(rate * G_LN2 / 2048))
@@ -465,7 +465,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 		 * Start: 0
 		 * Compression: 0
 		 * (remote end sends the file identified by the digest) */
-		guint offset = 0;
+		unsigned offset = 0;
 
 		col_set_str(pinfo->cinfo, COL_INFO, "LDSS File Transfer (Requesting file - pull)");
 
@@ -484,12 +484,12 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 		/* Grab each line from the packet, there should be 4 but lets
 		 * not walk off the end looking for more. */
 		while (tvb_offset_exists(tvb, offset)) {
-			gint next_offset;
-			const guint8 *line;
+			int next_offset;
+			const uint8_t *line;
 			int linelen;
-			guint digest_type_len = 0;
+			unsigned digest_type_len = 0;
 
-			linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+			linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, false);
 
 			/* Include new-line in line */
 			line = tvb_get_string_enc(pinfo->pool, tvb, offset, linelen, ENC_ASCII);
@@ -533,7 +533,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 			else if (strncmp(line, "Compression: ", 13)==0) {
 				/* Sample compression line:
 				 * Compression: 0\n */
-				transfer_info->req->compression = (gint8)strtol(line+13, NULL, 10); /* XXX - bad cast */
+				transfer_info->req->compression = (int8_t)strtol(line+13, NULL, 10); /* XXX - bad cast */
 				ti = proto_tree_add_uint(line_tree, hf_ldss_compression,
 						tvb, offset+13, linelen-13, transfer_info->req->compression);
 				proto_item_set_generated(ti);
@@ -553,15 +553,15 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 					digest_bytes = g_byte_array_new();
 					hex_str_to_bytes(
 							tvb_get_ptr(tvb, offset+digest_type_len, linelen-digest_type_len),
-							digest_bytes, FALSE);
+							digest_bytes, false);
 
 					if(digest_bytes->len >= DIGEST_LEN)
 						digest_bytes->len = (DIGEST_LEN-1);
 					/* Ensure the digest is zero-padded */
-					transfer_info->file->digest = (guint8 *)wmem_alloc0(wmem_file_scope(), DIGEST_LEN);
+					transfer_info->file->digest = (uint8_t *)wmem_alloc0(wmem_file_scope(), DIGEST_LEN);
 					memcpy(transfer_info->file->digest, digest_bytes->data, digest_bytes->len);
 
-					g_byte_array_free(digest_bytes, TRUE);
+					g_byte_array_free(digest_bytes, true);
 				}
 
 				tii = proto_tree_add_uint(line_tree, hf_ldss_digest_type,
@@ -588,9 +588,9 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 	}
 	/* Remaining packets are the file response */
 	else {
-		guint64 size;
-		guint64 offset;
-		guint8 compression;
+		uint64_t size;
+		uint64_t offset;
+		uint8_t compression;
 
 		/* size, digest, compression come from the file request for a pull but
 		 * they come from the broadcast for a push. Pushes don't bother
@@ -732,10 +732,10 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 	return tvb_captured_length(tvb);
 }
 
-static gboolean
+static bool
 is_broadcast(address* addr)
 {
-	static const guint8 broadcast_addr_bytes[6] = {
+	static const uint8_t broadcast_addr_bytes[6] = {
 		0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
 	};
 	static const address broadcast_addr = ADDRESS_INIT(AT_ETHER, 6, broadcast_addr_bytes);
@@ -903,7 +903,7 @@ proto_register_ldss (void) {
 		}
 	};
 
-	static gint  *ett[] = { &ett_ldss_broadcast, &ett_ldss_transfer, &ett_ldss_transfer_req };
+	static int   *ett[] = { &ett_ldss_broadcast, &ett_ldss_transfer, &ett_ldss_transfer_req };
 
 	static ei_register_info ei[] = {
 		{ &ei_ldss_unrecognized_line, { "ldss.unrecognized_line", PI_PROTOCOL, PI_WARN, "Unrecognized line ignored", EXPFILL }},

@@ -32,29 +32,29 @@ static dissector_handle_t lwapp_handle;
 #define LWAPP_FLAGS_F 0x02
 #define LWAPP_FLAGS_FT 0x01
 
-static gint proto_lwapp;
-static gint proto_lwapp_l3;
-static gint proto_lwapp_control;
-static gint ett_lwapp;
-static gint ett_lwapp_l3;
-static gint ett_lwapp_flags;
-static gint ett_lwapp_control;
+static int proto_lwapp;
+static int proto_lwapp_l3;
+static int proto_lwapp_control;
+static int ett_lwapp;
+static int ett_lwapp_l3;
+static int ett_lwapp_flags;
+static int ett_lwapp_control;
 
-static gint hf_lwapp_version;
-static gint hf_lwapp_slotid;
-static gint hf_lwapp_flags;
-static gint hf_lwapp_flags_type;
-static gint hf_lwapp_flags_fragment;
-static gint hf_lwapp_flags_fragment_type;
-static gint hf_lwapp_fragment_id;
-static gint hf_lwapp_length;
-static gint hf_lwapp_rssi;
-static gint hf_lwapp_snr;
-/* static gint hf_lwapp_control; */
-static gint hf_lwapp_control_mac;
-static gint hf_lwapp_control_type;
-static gint hf_lwapp_control_seq_no;
-static gint hf_lwapp_control_length;
+static int hf_lwapp_version;
+static int hf_lwapp_slotid;
+static int hf_lwapp_flags;
+static int hf_lwapp_flags_type;
+static int hf_lwapp_flags_fragment;
+static int hf_lwapp_flags_fragment_type;
+static int hf_lwapp_fragment_id;
+static int hf_lwapp_length;
+static int hf_lwapp_rssi;
+static int hf_lwapp_snr;
+/* static int hf_lwapp_control; */
+static int hf_lwapp_control_mac;
+static int hf_lwapp_control_type;
+static int hf_lwapp_control_seq_no;
+static int hf_lwapp_control_length;
 
 #define LWAPP_MAX_NESTED_ENCAP 10
 
@@ -68,22 +68,22 @@ static dissector_handle_t wlan_bsfc_handle;
 static bool swap_frame_control;
 
 typedef struct {
-    guint8  flags;
-    guint8  fragmentId;
-    guint16 length;
-    guint8  rssi;
-    guint8  snr;
+    uint8_t flags;
+    uint8_t fragmentId;
+    uint16_t length;
+    uint8_t rssi;
+    uint8_t snr;
 } LWAPP_Header;
 
 typedef struct {
-    guint8   tag;
-    guint16  length;
+    uint8_t  tag;
+    uint16_t length;
 } CNTL_Data_Header;
 
 typedef struct {
-    guint8  type;
-    guint8  seqNo;
-    guint16 length;
+    uint8_t type;
+    uint8_t seqNo;
+    uint16_t length;
 } CNTL_Header;
 
 #if 0
@@ -259,7 +259,7 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item      *ti;
-    gint             offset=0;
+    int              offset=0;
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "LWAPP");
@@ -267,7 +267,7 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo,
                     "CNTL ");
 
     /* Copy our header */
-    tvb_memcpy(tvb, (guint8*) &header, offset, sizeof(header));
+    tvb_memcpy(tvb, (uint8_t*) &header, offset, sizeof(header));
 
     /*
      * Fix the length (network byte ordering), and set our version &
@@ -317,7 +317,7 @@ dissect_lwapp_l3(tvbuff_t *tvb, packet_info *pinfo,
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti;
     proto_tree *lwapp_tree;
-    gint        offset = 0;
+    int         offset = 0;
     tvbuff_t   *next_client;
 
     /* Make entries in Protocol column and Info column on summary display */
@@ -348,23 +348,23 @@ dissect_lwapp(tvbuff_t *tvb, packet_info *pinfo,
                         proto_tree *tree, void* data _U_)
 {
     LWAPP_Header header;
-    guint8       slotId;
-    guint8       version;
+    uint8_t      slotId;
+    uint8_t      version;
     proto_tree  *lwapp_tree;
     tvbuff_t    *next_client;
-    guint8       dest_mac[6];
-    guint8       have_destmac=0;
+    uint8_t      dest_mac[6];
+    uint8_t      have_destmac=0;
     static int * const flags[] = {
         &hf_lwapp_flags_type,
         &hf_lwapp_flags_fragment,
         &hf_lwapp_flags_fragment_type,
         NULL
     };
-    guint encap_nested_count;
+    unsigned encap_nested_count;
 
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item      *ti;
-    gint             offset=0;
+    int              offset=0;
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "LWAPP");
@@ -378,11 +378,11 @@ dissect_lwapp(tvbuff_t *tvb, packet_info *pinfo,
         have_destmac = 1;
 
         /* Copy our header */
-        tvb_memcpy(tvb, (guint8*) &header, offset + 6, sizeof(header));
+        tvb_memcpy(tvb, (uint8_t*) &header, offset + 6, sizeof(header));
     } else {
 
         /* Copy our header */
-        tvb_memcpy(tvb, (guint8*) &header, offset, sizeof(header));
+        tvb_memcpy(tvb, (uint8_t*) &header, offset, sizeof(header));
     }
 
 
@@ -514,7 +514,7 @@ proto_register_lwapp(void)
           { "Control Length","lwapp.control.length", FT_UINT16, BASE_DEC,
             NULL, 0x0, NULL, HFILL }},
     };
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_lwapp_l3,
         &ett_lwapp,
         &ett_lwapp_control,

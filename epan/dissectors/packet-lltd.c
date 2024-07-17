@@ -120,22 +120,22 @@ static int hf_lltd_qos_snapshot_bytes_sent;
 static int hf_lltd_qos_snapshot_packets_sent;
 
 
-static gint ett_lltd;
-static gint ett_base_header;
-static gint ett_discover_stations;
-static gint ett_tlv;
-static gint ett_tlv_item;
-static gint ett_characteristics;
-static gint ett_qos_characteristics;
-static gint ett_repeater_ap_lineage;
-static gint ett_emitee_descs;
-static gint ett_emitee_descs_item;
-static gint ett_recvee_descs;
-static gint ett_recvee_descs_item;
-static gint ett_qos_event_descs;
-static gint ett_qos_event_item;
-static gint ett_qos_snapshot_list;
-static gint ett_qos_snapshot_item;
+static int ett_lltd;
+static int ett_base_header;
+static int ett_discover_stations;
+static int ett_tlv;
+static int ett_tlv_item;
+static int ett_characteristics;
+static int ett_qos_characteristics;
+static int ett_repeater_ap_lineage;
+static int ett_emitee_descs;
+static int ett_emitee_descs_item;
+static int ett_recvee_descs;
+static int ett_recvee_descs_item;
+static int ett_qos_event_descs;
+static int ett_qos_event_item;
+static int ett_qos_snapshot_list;
+static int ett_qos_snapshot_item;
 
 static expert_field ei_lltd_tlv_length_invalid;
 static expert_field ei_lltd_too_many_paths;
@@ -310,26 +310,26 @@ static const true_false_string tfs_full_half_duplex = { "Full Duplex", "Half Dup
 
 
 static int
-dissect_lltd_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, gboolean* end)
+dissect_lltd_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, bool* end)
 {
-    guint8     type, length = 0;
+    uint8_t    type, length = 0;
     proto_item *tlv_item, *type_item;
     proto_tree *tlv_tree, *type_tree;
-    guint32 i, temp32;
+    uint32_t i, temp32;
 
-    type = tvb_get_guint8(tvb, offset);
+    type = tvb_get_uint8(tvb, offset);
     if (type == 0)
     {
         /* End of Property type doesn't have length */
         tlv_tree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_tlv_item, &tlv_item, "TLV Item (End of Property List)");
-        *end = TRUE;
+        *end = true;
     }
     else
     {
-        length = tvb_get_guint8(tvb, offset+1);
+        length = tvb_get_uint8(tvb, offset+1);
         tlv_tree = proto_tree_add_subtree_format(tree, tvb, offset, length+2, ett_tlv_item, &tlv_item,
                     "TLV Item (%s)", val_to_str(type, lltd_tlv_type_vals, "Unknown (0x%02x)"));
-        *end = FALSE;
+        *end = false;
     }
 
     proto_tree_add_item(tlv_tree, hf_lltd_tlv_type, tvb, offset, 1, ENC_NA);
@@ -340,7 +340,7 @@ dissect_lltd_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 of
     if ((type != 0) && (length > tvb_reported_length_remaining(tvb, offset+2)))
     {
         expert_add_info_format(pinfo, tlv_item, &ei_lltd_tlv_length_invalid, "TLV Length field too big");
-        *end = TRUE;
+        *end = true;
         return 2;
     }
 
@@ -549,12 +549,12 @@ dissect_lltd_discovery(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 {
     proto_item *header_item, *func_item;
     proto_tree *header_tree, *func_tree, *func_subtree;
-    guint8     func;
-    guint16    temp16;
-    gboolean   end_tlv = FALSE;
+    uint8_t    func;
+    uint16_t   temp16;
+    bool       end_tlv = false;
     int loop_offset, start_offset;
 
-    func = tvb_get_guint8(tvb, offset);
+    func = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_lltd_discovery_func, tvb, offset, 1, ENC_NA);
     col_add_str(pinfo->cinfo, COL_INFO, val_to_str(func, lltd_discovery_vals, "Unknown (0x%02x)"));
     offset++;
@@ -589,7 +589,7 @@ dissect_lltd_discovery(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
         func_tree = proto_tree_add_subtree(tree, tvb, offset+28, 0, ett_tlv, &func_item, "TLVs");
         start_offset = loop_offset = offset+28;
-        while ((end_tlv == FALSE) && (tvb_reported_length_remaining(tvb, loop_offset) >= 1))
+        while ((end_tlv == false) && (tvb_reported_length_remaining(tvb, loop_offset) >= 1))
         {
             loop_offset += dissect_lltd_tlv(tvb, pinfo, func_tree, loop_offset, &end_tlv);
         }
@@ -667,11 +667,11 @@ dissect_lltd_qos(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 {
     proto_item *header_item;
     proto_tree *header_tree, *func_tree, *func_subtree;
-    guint8     func;
-    guint16    seq_num, temp16;
+    uint8_t    func;
+    uint16_t   seq_num, temp16;
     int loop_offset;
 
-    func = tvb_get_guint8(tvb, offset);
+    func = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_lltd_qos_diag_func, tvb, offset, 1, ENC_NA);
     col_add_str(pinfo->cinfo, COL_INFO, val_to_str(func, lltd_qos_diag_vals, "Unknown (0x%02x)"));
     offset++;
@@ -743,7 +743,7 @@ dissect_lltd_qos(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
         proto_tree_add_item(tree, hf_lltd_qos_counter_result_byte_scale, tvb, offset+15, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_lltd_qos_counter_result_packet_scale, tvb, offset+16, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_lltd_qos_counter_result_history_size, tvb, offset+17, 1, ENC_BIG_ENDIAN);
-        temp16 = tvb_get_guint8(tvb, offset+17);
+        temp16 = tvb_get_uint8(tvb, offset+17);
         if (temp16 > 0)
         {
             func_tree = proto_tree_add_subtree(tree, tvb, offset+18, temp16*4, ett_qos_snapshot_list, NULL, "Snapshot List");
@@ -772,7 +772,7 @@ dissect_lltd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 {
     proto_item *ti;
     proto_tree *lltd_tree;
-    guint8     tos;
+    uint8_t    tos;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "LLTD");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -782,7 +782,7 @@ dissect_lltd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
     proto_tree_add_item(lltd_tree, hf_lltd_version, tvb, 0, 1, ENC_NA);
     proto_tree_add_item(lltd_tree, hf_lltd_type_of_service, tvb, 1, 1, ENC_NA);
-    tos = tvb_get_guint8(tvb, 1);
+    tos = tvb_get_uint8(tvb, 1);
     proto_tree_add_item(lltd_tree, hf_lltd_reserved, tvb, 2, 1, ENC_NA);
 
     switch(tos)
@@ -907,7 +907,7 @@ proto_register_lltd(void)
         { &hf_lltd_qos_snapshot_packets_sent, {"Packets Sent", "lltd.qos_snapshot.packets_sent", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }}
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_lltd,
         &ett_base_header,
         &ett_discover_stations,

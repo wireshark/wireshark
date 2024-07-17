@@ -28,23 +28,23 @@
 wmem_map_t *lls_slt_table;
 
 /* Hash functions */
-static gint
-lls_slt_key_equal(gconstpointer v, gconstpointer w)
+static int
+lls_slt_key_equal(const void *v, const void *w)
 {
     const lls_slt_key_t *v1 = (const lls_slt_key_t *)v;
     const lls_slt_key_t *v2 = (const lls_slt_key_t *)w;
-    gint result;
+    int result;
     result = (v1->src_ip == v2->src_ip &&
               v1->dst_ip == v2->dst_ip &&
               v1->dst_port == v2->dst_port);
     return result;
 }
 
-static guint
-lls_slt_key_hash(gconstpointer v)
+static unsigned
+lls_slt_key_hash(const void *v)
 {
     const lls_slt_key_t *key = (const lls_slt_key_t *)v;
-    guint hash_val = key->src_ip ^ key->dst_ip ^ (((guint32)(key->dst_port)) << 16);
+    unsigned hash_val = key->src_ip ^ key->dst_ip ^ (((uint32_t)(key->dst_port)) << 16);
     return hash_val;
 }
 
@@ -56,12 +56,12 @@ lls_check_init_slt_table(void) {
     }
 }
 
-static gchar *
+static char *
 xml_value_to_gchar(xml_frame_t *xml_frame, wmem_allocator_t *scope) {
-    gchar *value = NULL;
+    char *value = NULL;
     if (xml_frame->value != NULL) {
-        guint l = tvb_reported_length(xml_frame->value);
-        value = (gchar *)wmem_alloc0(scope, l + 1);
+        unsigned l = tvb_reported_length(xml_frame->value);
+        value = (char *)wmem_alloc0(scope, l + 1);
         tvb_memcpy(xml_frame->value, value, 0, l);
     }
     return value;
@@ -108,7 +108,7 @@ lls_extract_save_slt_table(packet_info *pinfo, dissector_handle_t xml_handle)
         slt_val.major_channel_num = -1;
         slt_val.minor_channel_num = -1;
         while (service_entry) {
-            gchar *value = xml_value_to_gchar(service_entry, pinfo->pool);
+            char *value = xml_value_to_gchar(service_entry, pinfo->pool);
             if (service_entry->type == XML_FRAME_ATTRIB && value != NULL) {
                 if(g_strcmp0("serviceId", service_entry->name_orig_case) == 0) {
                     ws_strtou16(value, NULL, &slt_val.service_id);
@@ -172,9 +172,9 @@ get_lls_slt_val(packet_info *pinfo) {
 
     /* Prepare for lookup in LLS SLT table */
     lls_slt_key_t slt_key;
-    slt_key.src_ip = *(guint32 *)pinfo->net_src.data;
-    slt_key.dst_ip = *(guint32 *)pinfo->net_dst.data;
-    slt_key.dst_port = (guint16)pinfo->destport;
+    slt_key.src_ip = *(uint32_t *)pinfo->net_src.data;
+    slt_key.dst_ip = *(uint32_t *)pinfo->net_dst.data;
+    slt_key.dst_port = (uint16_t)pinfo->destport;
 
     /* Try to lookup by src_ip + dst_ip + dst_port */
     lls_slt_value_t *slt_val = (lls_slt_value_t *)wmem_map_lookup(lls_slt_table, (const void *)(&slt_key));
@@ -192,33 +192,33 @@ get_lls_slt_val(packet_info *pinfo) {
 }
 
 /* Heuristics test. Checks if packet is ALC using LLS SLT table */
-gboolean
+bool
 test_alc_over_slt(packet_info *pinfo, tvbuff_t *tvb _U_, int offset _U_, void *data _U_)
 {
     lls_slt_value_t *slt_val = get_lls_slt_val(pinfo);
     if (slt_val == NULL)
-        return FALSE;
+        return false;
 
     if (slt_val->sls_protocol == 1) {
         /* slsProtocol=1 is ALC/LCT ROUTE/DASH */
-        return TRUE;
+        return true;
     } else {
         /* ACL/LCT is used only for ROUTE/DASH so return false */
-        return FALSE;
+        return false;
     }
 }
 
 /* Returns channel info or NULL if no info in SLT table*/
-gchar *
+char *
 get_slt_channel_info(packet_info *pinfo)
 {
     lls_slt_value_t *slt_val = get_lls_slt_val(pinfo);
     if (slt_val == NULL)
         return NULL;
 
-    gint32 major_channel_num = slt_val->major_channel_num;
-    gint32 minor_channel_num = slt_val->minor_channel_num;
-    gchar *ret;
+    int32_t major_channel_num = slt_val->major_channel_num;
+    int32_t minor_channel_num = slt_val->minor_channel_num;
+    char *ret;
     if (major_channel_num > 0 && minor_channel_num > 0) {
         ret = wmem_strdup_printf(pinfo->pool, "ServiceID: %u Channel: %d.%d", slt_val->service_id,
             major_channel_num, minor_channel_num);

@@ -34,34 +34,34 @@ static dissector_handle_t lbmpdm_tcp_dissector_handle;
 typedef struct
 {
     address addr1;
-    guint16 port1;
+    uint16_t port1;
     address addr2;
-    guint16 port2;
-    guint64 channel;
+    uint16_t port2;
+    uint64_t channel;
 } lbmtcp_transport_t;
 
 static void lbmtcp_order_key(lbmtcp_transport_t * transport)
 {
-    gboolean swap = FALSE;
+    bool swap = false;
     int compare;
 
     /* Order the key so that addr1:port1 <= addr2:port2 */
     compare = cmp_address(&(transport->addr1), &(transport->addr2));
     if (compare > 0)
     {
-        swap = TRUE;
+        swap = true;
     }
     else if (compare == 0)
     {
         if (transport->port1 > transport->port2)
         {
-            swap = TRUE;
+            swap = true;
         }
     }
     if (swap)
     {
         address addr;
-        guint16 port;
+        uint16_t port;
 
         copy_address_shallow(&addr, &(transport->addr1));
         copy_address_shallow(&(transport->addr2), &(transport->addr1));
@@ -72,7 +72,7 @@ static void lbmtcp_order_key(lbmtcp_transport_t * transport)
     }
 }
 
-static lbmtcp_transport_t * lbmtcp_transport_add(const address * address1, guint16 port1, const address * address2, guint16 port2, guint32 frame)
+static lbmtcp_transport_t * lbmtcp_transport_add(const address * address1, uint16_t port1, const address * address2, uint16_t port2, uint32_t frame)
 {
     lbmtcp_transport_t * entry;
     conversation_t * conv = NULL;
@@ -107,25 +107,25 @@ static lbmtcp_transport_t * lbmtcp_transport_add(const address * address1, guint
 #define LBMPDM_TCP_DEFAULT_PORT_HIGH 14390
 
 /* Global preferences variables (altered by the preferences dialog). */
-static guint32 global_lbmpdm_tcp_port_low   = LBMPDM_TCP_DEFAULT_PORT_LOW;
-static guint32 global_lbmpdm_tcp_port_high  = LBMPDM_TCP_DEFAULT_PORT_HIGH;
+static uint32_t global_lbmpdm_tcp_port_low   = LBMPDM_TCP_DEFAULT_PORT_LOW;
+static uint32_t global_lbmpdm_tcp_port_high  = LBMPDM_TCP_DEFAULT_PORT_HIGH;
 static bool global_lbmpdm_tcp_use_tag;
 
 /* Local preferences variables (used by the dissector). */
-static guint32 lbmpdm_tcp_port_low  = LBMPDM_TCP_DEFAULT_PORT_LOW;
-static guint32 lbmpdm_tcp_port_high = LBMPDM_TCP_DEFAULT_PORT_HIGH;
-static gboolean lbmpdm_tcp_use_tag;
+static uint32_t lbmpdm_tcp_port_low  = LBMPDM_TCP_DEFAULT_PORT_LOW;
+static uint32_t lbmpdm_tcp_port_high = LBMPDM_TCP_DEFAULT_PORT_HIGH;
+static bool lbmpdm_tcp_use_tag;
 
 /* Tag definitions. */
 typedef struct
 {
     char * name;
-    guint32 port_low;
-    guint32 port_high;
+    uint32_t port_low;
+    uint32_t port_high;
 } lbmpdm_tcp_tag_entry_t;
 
 static lbmpdm_tcp_tag_entry_t * lbmpdm_tcp_tag_entry;
-static guint lbmpdm_tcp_tag_count;
+static unsigned lbmpdm_tcp_tag_count;
 
 UAT_CSTRING_CB_DEF(lbmpdm_tcp_tag, name, lbmpdm_tcp_tag_entry_t)
 UAT_DEC_CB_DEF(lbmpdm_tcp_tag, port_low, lbmpdm_tcp_tag_entry_t)
@@ -148,7 +148,7 @@ static bool lbmpdm_tcp_tag_update_cb(void * record, char * * error_string)
     if (tag->name == NULL)
     {
         *error_string = g_strdup("Tag name can't be empty");
-        return FALSE;
+        return false;
     }
     else
     {
@@ -156,10 +156,10 @@ static bool lbmpdm_tcp_tag_update_cb(void * record, char * * error_string)
         if (tag->name[0] == 0)
         {
             *error_string = g_strdup("Tag name can't be empty");
-            return FALSE;
+            return false;
         }
     }
-    return TRUE;
+    return true;
 }
 
 static void * lbmpdm_tcp_tag_copy_cb(void * destination, const void * source, size_t length _U_)
@@ -186,7 +186,7 @@ static void lbmpdm_tcp_tag_free_cb(void * record)
 
 static const lbmpdm_tcp_tag_entry_t * lbmpdm_tcp_tag_locate(packet_info * pinfo)
 {
-    guint idx;
+    unsigned idx;
     const lbmpdm_tcp_tag_entry_t * tag = NULL;
 
     if (!lbmpdm_tcp_use_tag)
@@ -234,7 +234,7 @@ static int ett_lbmpdm_tcp;
 static int hf_lbmpdm_tcp_tag;
 static int hf_lbmpdm_tcp_channel;
 
-static guint get_lbmpdm_tcp_pdu_length(packet_info * pinfo _U_, tvbuff_t * tvb,
+static unsigned get_lbmpdm_tcp_pdu_length(packet_info * pinfo _U_, tvbuff_t * tvb,
                                        int offset, void *data _U_)
 {
     int encoding;
@@ -254,7 +254,7 @@ static int dissect_lbmpdm_tcp_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tre
     proto_item * ti = NULL;
     lbmtcp_transport_t * transport = NULL;
     char * tag_name = NULL;
-    guint64 channel = LBM_CHANNEL_NO_CHANNEL;
+    uint64_t channel = LBM_CHANNEL_NO_CHANNEL;
 
     if (lbmpdm_tcp_use_tag)
     {
@@ -310,7 +310,7 @@ static int dissect_lbmpdm_tcp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * 
         col_add_fstr(pinfo->cinfo, COL_INFO, "[Tag: %s]", tag_name);
     }
     col_set_fence(pinfo->cinfo, COL_INFO);
-    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, lbmpdm_get_minimum_length(), /* Need at least the msglen */
+    tcp_dissect_pdus(tvb, pinfo, tree, true, lbmpdm_get_minimum_length(), /* Need at least the msglen */
         get_lbmpdm_tcp_pdu_length, dissect_lbmpdm_tcp_pdu, NULL);
     return tvb_captured_length(tvb);
 }
@@ -368,7 +368,7 @@ void proto_register_lbmpdm_tcp(void)
         { &hf_lbmpdm_tcp_channel,
             { "Channel ID", "lbmpdm_tcp.channel", FT_UINT64, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
     };
-    static gint * ett[] =
+    static int * ett[] =
     {
         &ett_lbmpdm_tcp,
     };
@@ -403,7 +403,7 @@ void proto_register_lbmpdm_tcp(void)
     tag_uat = uat_new("LBMPDM-TCP tag definitions",
         sizeof(lbmpdm_tcp_tag_entry_t),
         "lbmpdm_tcp_domains",
-        TRUE,
+        true,
         (void * *)&lbmpdm_tcp_tag_entry,
         &lbmpdm_tcp_tag_count,
         UAT_AFFECTS_DISSECTION,
@@ -426,7 +426,7 @@ void proto_register_lbmpdm_tcp(void)
 /* The registration hand-off routine */
 void proto_reg_handoff_lbmpdm_tcp(void)
 {
-    static gboolean already_registered = FALSE;
+    static bool already_registered = false;
 
     if (!already_registered)
     {
@@ -443,7 +443,7 @@ void proto_reg_handoff_lbmpdm_tcp(void)
 
     lbmpdm_tcp_use_tag = global_lbmpdm_tcp_use_tag;
 
-    already_registered = TRUE;
+    already_registered = true;
 }
 
 /*

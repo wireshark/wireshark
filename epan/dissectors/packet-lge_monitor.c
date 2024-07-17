@@ -55,7 +55,7 @@ static int
 dissect_lge_monitor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int offset = 0;
-	guint32 lge_monitor_proto_id;
+	uint32_t lge_monitor_proto_id;
 	tvbuff_t* next_tvb = NULL;
 	proto_tree* header_tree;
 
@@ -140,7 +140,7 @@ proto_register_lge_monitor(void)
 	};
 
 /* Setup protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_lge_monitor,
 		&ett_lge_header
 	};

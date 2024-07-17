@@ -179,13 +179,13 @@ const value_string Link16_NPG_Strings[] = {
 
 static int proto_link16;
 
-static gint hf_link16_wordformat;
-static gint hf_link16_label;
-static gint hf_link16_sublabel;
-static gint hf_link16_mli;
-static gint hf_link16_contlabel;
+static int hf_link16_wordformat;
+static int hf_link16_label;
+static int hf_link16_sublabel;
+static int hf_link16_mli;
+static int hf_link16_contlabel;
 
-static gint ett_link16;
+static int ett_link16;
 
 static int * const link16_initial_word_fields[] = {
     &hf_link16_wordformat,
@@ -218,8 +218,8 @@ static int dissect_link16(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     Link16State *state = (Link16State *)data;
     proto_item *link16_item = NULL;
     proto_tree *link16_tree = NULL;
-    guint16 cache;
-    guint8 wordformat, contlabel;
+    uint16_t cache;
+    uint8_t wordformat, contlabel;
 
     if (!state)
         REPORT_DISSECTOR_BUG("Link 16 dissector state missing");
@@ -282,7 +282,7 @@ void proto_register_link16(void)
           { "Continuation Word Label", "link16.contlabel", FT_UINT16, BASE_DEC, NULL, 0x7C,
             NULL, HFILL }}
     };
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_link16,
     };
 

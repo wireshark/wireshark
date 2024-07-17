@@ -41,7 +41,7 @@ static int lbtrm_tap_handle = -1;
 
 static const address lbtrm_null_address = ADDRESS_INIT_NONE;
 
-static lbtrm_transport_t * lbtrm_transport_unicast_find(const address * source_address, guint16 source_port, guint32 session_id, guint32 frame)
+static lbtrm_transport_t * lbtrm_transport_unicast_find(const address * source_address, uint16_t source_port, uint32_t session_id, uint32_t frame)
 {
     lbtrm_transport_t * transport = NULL;
     conversation_t * conv = NULL;
@@ -63,7 +63,7 @@ static lbtrm_transport_t * lbtrm_transport_unicast_find(const address * source_a
     return (transport);
 }
 
-static void lbtrm_transport_unicast_add(const address * source_address, guint16 source_port, guint32 session_id, guint32 frame, lbtrm_transport_t * transport)
+static void lbtrm_transport_unicast_add(const address * source_address, uint16_t source_port, uint32_t session_id, uint32_t frame, lbtrm_transport_t * transport)
 {
     conversation_t * conv = NULL;
     wmem_tree_t * session_tree = NULL;
@@ -87,7 +87,7 @@ static void lbtrm_transport_unicast_add(const address * source_address, guint16 
     }
 }
 
-static lbtrm_transport_t * lbtrm_transport_find(const address * source_address, guint16 source_port, guint32 session_id, const address * multicast_group, guint16 dest_port, guint32 frame)
+static lbtrm_transport_t * lbtrm_transport_find(const address * source_address, uint16_t source_port, uint32_t session_id, const address * multicast_group, uint16_t dest_port, uint32_t frame)
 {
     lbtrm_transport_t * entry = NULL;
     wmem_tree_t * session_tree = NULL;
@@ -109,7 +109,7 @@ static lbtrm_transport_t * lbtrm_transport_find(const address * source_address, 
     return (entry);
 }
 
-lbtrm_transport_t * lbtrm_transport_add(const address * source_address, guint16 source_port, guint32 session_id, const address * multicast_group, guint16 dest_port, guint32 frame)
+lbtrm_transport_t * lbtrm_transport_add(const address * source_address, uint16_t source_port, uint32_t session_id, const address * multicast_group, uint16_t dest_port, uint32_t frame)
 {
     lbtrm_transport_t * entry;
     conversation_t * conv = NULL;
@@ -157,7 +157,7 @@ lbtrm_transport_t * lbtrm_transport_add(const address * source_address, guint16 
     return (entry);
 }
 
-static lbm_transport_sqn_t * lbtrm_transport_sqn_find(lbtrm_transport_t * transport, guint8 type, guint32 sqn)
+static lbm_transport_sqn_t * lbtrm_transport_sqn_find(lbtrm_transport_t * transport, uint8_t type, uint32_t sqn)
 {
     lbm_transport_sqn_t * sqn_entry = NULL;
 
@@ -203,12 +203,12 @@ static lbm_transport_sqn_t * lbtrm_transport_sqn_add(lbtrm_transport_t * transpo
     return (sqn_entry);
 }
 
-static lbm_transport_frame_t * lbtrm_transport_frame_find(lbtrm_transport_t * transport, guint32 frame)
+static lbm_transport_frame_t * lbtrm_transport_frame_find(lbtrm_transport_t * transport, uint32_t frame)
 {
     return ((lbm_transport_frame_t *) wmem_tree_lookup32(transport->frame, frame));
 }
 
-static lbm_transport_frame_t * lbtrm_transport_frame_add(lbtrm_transport_t * transport, guint8 type, guint32 frame, guint32 sqn, gboolean retransmission)
+static lbm_transport_frame_t * lbtrm_transport_frame_add(lbtrm_transport_t * transport, uint8_t type, uint32_t frame, uint32_t sqn, bool retransmission)
 {
     lbm_transport_sqn_t * dup_sqn_entry = NULL;
     lbm_transport_frame_t * frame_entry = NULL;
@@ -242,7 +242,7 @@ static lbm_transport_frame_t * lbtrm_transport_frame_add(lbtrm_transport_t * tra
                         /* Out of order */
                         if (dup_sqn_entry != NULL)
                         {
-                            frame_entry->duplicate = TRUE;
+                            frame_entry->duplicate = true;
                         }
                         if (frame_entry->sqn != transport->data_high_sqn)
                         {
@@ -280,7 +280,7 @@ static lbm_transport_frame_t * lbtrm_transport_frame_add(lbtrm_transport_t * tra
                     dup_sqn_entry = lbtrm_transport_sqn_find(transport, type, frame_entry->sqn);
                     if (dup_sqn_entry != NULL)
                     {
-                        frame_entry->duplicate = TRUE;
+                        frame_entry->duplicate = true;
                     }
                     if (frame_entry->sqn != transport->sm_high_sqn)
                     {
@@ -325,14 +325,14 @@ static lbm_transport_frame_t * lbtrm_transport_frame_add(lbtrm_transport_t * tra
     return (frame_entry);
 }
 
-static char * lbtrm_transport_source_string_format(wmem_allocator_t *pool, const address * source_address, guint16 source_port, guint32 session_id, const address * multicast_group, guint16 dest_port)
+static char * lbtrm_transport_source_string_format(wmem_allocator_t *pool, const address * source_address, uint16_t source_port, uint32_t session_id, const address * multicast_group, uint16_t dest_port)
 {
     /* Returns a packet-scoped string. */
     return (wmem_strdup_printf(pool, "LBTRM:%s:%" PRIu16 ":%08x:%s:%" PRIu16, address_to_str(pool, source_address), source_port, session_id,
             address_to_str(pool, multicast_group), dest_port));
 }
 
-char * lbtrm_transport_source_string(const address * source_address, guint16 source_port, guint32 session_id, const address * multicast_group, guint16 dest_port)
+char * lbtrm_transport_source_string(const address * source_address, uint16_t source_port, uint32_t session_id, const address * multicast_group, uint16_t dest_port)
 {
     /* Returns a file-scoped string. */
     return lbtrm_transport_source_string_format(wmem_file_scope(), source_address, source_port, session_id, multicast_group, dest_port);
@@ -364,7 +364,7 @@ typedef struct
 #define L_LBTRM_HDR_T_UCAST_PORT SIZEOF(lbtrm_hdr_t, ucast_port)
 #define O_LBTRM_HDR_T_SESSION_ID OFFSETOF(lbtrm_hdr_t, session_id)
 #define L_LBTRM_HDR_T_SESSION_ID SIZEOF(lbtrm_hdr_t, session_id)
-#define L_LBTRM_HDR_T (gint) (sizeof(lbtrm_hdr_t))
+#define L_LBTRM_HDR_T (int) (sizeof(lbtrm_hdr_t))
 
 #define LBTRM_VERSION 0x00
 #define LBTRM_HDR_VER(x) (x >> 4)
@@ -391,7 +391,7 @@ typedef struct
 #define L_LBTRM_DATA_HDR_T_FLAGS_TGSZ SIZEOF(lbtrm_data_hdr_t, flags_tgsz)
 #define O_LBTRM_DATA_HDR_T_FEC_SYMBOL OFFSETOF(lbtrm_data_hdr_t, fec_symbol)
 #define L_LBTRM_DATA_HDR_T_FEC_SYMBOL SIZEOF(lbtrm_data_hdr_t, fec_symbol)
-#define L_LBTRM_DATA_HDR_T (gint) (sizeof(lbtrm_data_hdr_t))
+#define L_LBTRM_DATA_HDR_T (int) (sizeof(lbtrm_data_hdr_t))
 
 #define LBTRM_DATA_UNICAST_NAKS_FLAG 0x80
 #define LBTRM_MULTICAST_NAKS_FLAG 0x40
@@ -423,7 +423,7 @@ typedef struct
 #define L_LBTRM_SM_HDR_T_FLAGS_TGSZ SIZEOF(lbtrm_sm_hdr_t, flags_tgsz)
 #define O_LBTRM_SM_HDR_T_RESERVED OFFSETOF(lbtrm_sm_hdr_t, reserved)
 #define L_LBTRM_SM_HDR_T_RESERVED SIZEOF(lbtrm_sm_hdr_t, reserved)
-#define L_LBTRM_SM_HDR_T (gint) (sizeof(lbtrm_sm_hdr_t))
+#define L_LBTRM_SM_HDR_T (int) (sizeof(lbtrm_sm_hdr_t))
 
 #define LBTRM_SM_UNICAST_NAKS_FLAG 0x80
 #define LBTRM_SM_FLAGS(x) (x >> 4)
@@ -439,7 +439,7 @@ typedef struct
 #define L_LBTRM_NAK_HDR_T_NUM_NAKS SIZEOF(lbtrm_nak_hdr_t, num_naks)
 #define O_LBTRM_NAK_HDR_T_FORMAT OFFSETOF(lbtrm_nak_hdr_t, format)
 #define L_LBTRM_NAK_HDR_T_FORMAT SIZEOF(lbtrm_nak_hdr_t, format)
-#define L_LBTRM_NAK_HDR_T (gint) (sizeof(lbtrm_nak_hdr_t))
+#define L_LBTRM_NAK_HDR_T (int) (sizeof(lbtrm_nak_hdr_t))
 
 #define LBTRM_NAK_SELECTIVE_FORMAT 0x0
 #define LBTRM_NAK_PARITY_FORMAT 0x1
@@ -462,7 +462,7 @@ typedef struct
 #define L_LBTRM_NCF_HDR_T_RESERVED SIZEOF(lbtrm_ncf_hdr_t, reserved)
 #define O_LBTRM_NCF_HDR_T_REASON_FORMAT OFFSETOF(lbtrm_ncf_hdr_t, reason_format)
 #define L_LBTRM_NCF_HDR_T_REASON_FORMAT SIZEOF(lbtrm_ncf_hdr_t, reason_format)
-#define L_LBTRM_NCF_HDR_T (gint) (sizeof(lbtrm_ncf_hdr_t))
+#define L_LBTRM_NCF_HDR_T (int) (sizeof(lbtrm_ncf_hdr_t))
 
 #define LBTRM_NCF_SELECTIVE_FORMAT 0x0
 #define LBTRM_NCF_PARITY_FORMAT 0x1
@@ -484,7 +484,7 @@ typedef struct
 #define L_LBTRM_BASIC_OPT_T_HDR_LEN SIZEOF(lbtrm_basic_opt_t, hdr_len)
 #define O_LBTRM_BASIC_OPT_T_RES OFFSETOF(lbtrm_basic_opt_t, res)
 #define L_LBTRM_BASIC_OPT_T_RES SIZEOF(lbtrm_basic_opt_t, res)
-#define L_LBTRM_BASIC_OPT_T (gint) (sizeof(lbtrm_basic_opt_t))
+#define L_LBTRM_BASIC_OPT_T (int) (sizeof(lbtrm_basic_opt_t))
 
 #define LBTRM_NHDR_DATA 0x0
 
@@ -549,12 +549,12 @@ static const value_string lbtrm_next_header[] =
 /* Global preferences variables (altered by the preferences dialog). */
 static const char * global_lbtrm_mc_address_low = LBTRM_DEFAULT_MC_ADDRESS_LOW;
 static const char * global_lbtrm_mc_address_high = LBTRM_DEFAULT_MC_ADDRESS_HIGH;
-static guint32 global_lbtrm_dest_port_low = LBTRM_DEFAULT_DPORT_LOW;
-static guint32 global_lbtrm_dest_port_high = LBTRM_DEFAULT_DPORT_HIGH;
-static guint32 global_lbtrm_src_port_low = LBTRM_DEFAULT_SPORT_LOW;
-static guint32 global_lbtrm_src_port_high = LBTRM_DEFAULT_SPORT_HIGH;
-static guint32 global_mim_incoming_dest_port = MIM_DEFAULT_INCOMING_DPORT;
-static guint32 global_mim_outgoing_dest_port = MIM_DEFAULT_OUTGOING_DPORT;
+static uint32_t global_lbtrm_dest_port_low = LBTRM_DEFAULT_DPORT_LOW;
+static uint32_t global_lbtrm_dest_port_high = LBTRM_DEFAULT_DPORT_HIGH;
+static uint32_t global_lbtrm_src_port_low = LBTRM_DEFAULT_SPORT_LOW;
+static uint32_t global_lbtrm_src_port_high = LBTRM_DEFAULT_SPORT_HIGH;
+static uint32_t global_mim_incoming_dest_port = MIM_DEFAULT_INCOMING_DPORT;
+static uint32_t global_mim_outgoing_dest_port = MIM_DEFAULT_OUTGOING_DPORT;
 static const char * global_mim_incoming_mc_address = MIM_DEFAULT_MC_INCOMING_ADDRESS;
 static const char * global_mim_outgoing_mc_address = MIM_DEFAULT_MC_OUTGOING_ADDRESS;
 static bool global_lbtrm_expert_separate_naks;
@@ -563,20 +563,20 @@ static bool global_lbtrm_use_tag;
 static bool global_lbtrm_sequence_analysis;
 
 /* Local preferences variables (used by the dissector). */
-static guint32 lbtrm_mc_address_low_host;
-static guint32 lbtrm_mc_address_high_host;
-static guint32 lbtrm_dest_port_low = LBTRM_DEFAULT_DPORT_LOW;
-static guint32 lbtrm_dest_port_high = LBTRM_DEFAULT_DPORT_HIGH;
-static guint32 lbtrm_src_port_low = LBTRM_DEFAULT_SPORT_LOW;
-static guint32 lbtrm_src_port_high = LBTRM_DEFAULT_SPORT_HIGH;
-static guint32 mim_incoming_dest_port = MIM_DEFAULT_INCOMING_DPORT;
-static guint32 mim_outgoing_dest_port = MIM_DEFAULT_OUTGOING_DPORT;
-static guint32 mim_incoming_mc_address_host;
-static guint32 mim_outgoing_mc_address_host;
-static gboolean lbtrm_expert_separate_naks;
-static gboolean lbtrm_expert_separate_ncfs;
-static gboolean lbtrm_use_tag;
-static gboolean lbtrm_sequence_analysis;
+static uint32_t lbtrm_mc_address_low_host;
+static uint32_t lbtrm_mc_address_high_host;
+static uint32_t lbtrm_dest_port_low = LBTRM_DEFAULT_DPORT_LOW;
+static uint32_t lbtrm_dest_port_high = LBTRM_DEFAULT_DPORT_HIGH;
+static uint32_t lbtrm_src_port_low = LBTRM_DEFAULT_SPORT_LOW;
+static uint32_t lbtrm_src_port_high = LBTRM_DEFAULT_SPORT_HIGH;
+static uint32_t mim_incoming_dest_port = MIM_DEFAULT_INCOMING_DPORT;
+static uint32_t mim_outgoing_dest_port = MIM_DEFAULT_OUTGOING_DPORT;
+static uint32_t mim_incoming_mc_address_host;
+static uint32_t mim_outgoing_mc_address_host;
+static bool lbtrm_expert_separate_naks;
+static bool lbtrm_expert_separate_ncfs;
+static bool lbtrm_use_tag;
+static bool lbtrm_sequence_analysis;
 
 /*----------------------------------------------------------------------------*/
 /* Tag management.                                                            */
@@ -585,23 +585,23 @@ typedef struct
 {
     char * name;
     char * mc_address_low;
-    guint32 mc_address_low_val_h;
+    uint32_t mc_address_low_val_h;
     char * mc_address_high;
-    guint32 mc_address_high_val_h;
-    guint32 dport_low;
-    guint32 dport_high;
-    guint32 sport_low;
-    guint32 sport_high;
-    guint32 mim_incoming_dport;
-    guint32 mim_outgoing_dport;
+    uint32_t mc_address_high_val_h;
+    uint32_t dport_low;
+    uint32_t dport_high;
+    uint32_t sport_low;
+    uint32_t sport_high;
+    uint32_t mim_incoming_dport;
+    uint32_t mim_outgoing_dport;
     char * mim_mc_incoming_address;
-    guint32 mim_mc_incoming_address_val_h;
+    uint32_t mim_mc_incoming_address_val_h;
     char * mim_mc_outgoing_address;
-    guint32 mim_mc_outgoing_address_val_h;
+    uint32_t mim_mc_outgoing_address_val_h;
 } lbtrm_tag_entry_t;
 
 static lbtrm_tag_entry_t * lbtrm_tag_entry;
-static guint lbtrm_tag_count;
+static unsigned lbtrm_tag_count;
 
 UAT_CSTRING_CB_DEF(lbtrm_tag, name, lbtrm_tag_entry_t)
 UAT_IPV4_MC_CB_DEF(lbtrm_tag, mc_address_low, lbtrm_tag_entry_t)
@@ -640,7 +640,7 @@ static bool lbtrm_tag_update_cb(void * record, char * * error_string)
     if (tag->name == NULL)
     {
         *error_string = g_strdup("Tag name can't be empty");
-        return FALSE;
+        return false;
     }
     else
     {
@@ -648,10 +648,10 @@ static bool lbtrm_tag_update_cb(void * record, char * * error_string)
         if (tag->name[0] == 0)
         {
             *error_string = g_strdup("Tag name can't be empty");
-            return FALSE;
+            return false;
         }
     }
-    return TRUE;
+    return true;
 }
 
 static void * lbtrm_tag_copy_cb(void * destination, const void * source, size_t length _U_)
@@ -710,9 +710,9 @@ static void lbtrm_tag_free_cb(void * record)
 
 static char * lbtrm_tag_find(packet_info * pinfo)
 {
-    guint idx;
+    unsigned idx;
     lbtrm_tag_entry_t * tag = NULL;
-    guint32 dest_addr_h;
+    uint32_t dest_addr_h;
 
     if (!lbtrm_use_tag)
     {
@@ -770,18 +770,18 @@ static char * lbtrm_tag_find(packet_info * pinfo)
 /*----------------------------------------------------------------------------*/
 
 /* Dissector tree handles */
-static gint ett_lbtrm;
-static gint ett_lbtrm_hdr;
-static gint ett_lbtrm_data;
-static gint ett_lbtrm_data_flags_fec_type;
-static gint ett_lbtrm_sm;
-static gint ett_lbtrm_sm_flags_fec_type;
-static gint ett_lbtrm_nak;
-static gint ett_lbtrm_nak_list;
-static gint ett_lbtrm_ncf;
-static gint ett_lbtrm_ncf_list;
-static gint ett_lbtrm_transport;
-static gint ett_lbtrm_transport_sqn;
+static int ett_lbtrm;
+static int ett_lbtrm_hdr;
+static int ett_lbtrm_data;
+static int ett_lbtrm_data_flags_fec_type;
+static int ett_lbtrm_sm;
+static int ett_lbtrm_sm_flags_fec_type;
+static int ett_lbtrm_nak;
+static int ett_lbtrm_nak_list;
+static int ett_lbtrm_ncf;
+static int ett_lbtrm_ncf_list;
+static int ett_lbtrm_transport;
+static int ett_lbtrm_transport_sqn;
 
 /* Dissector field handles */
 static int hf_lbtrm_channel;
@@ -861,7 +861,7 @@ static expert_field ei_lbtrm_analysis_sm_dup;
 /*----------------------------------------------------------------------------*/
 /* LBT-RM data payload dissection functions.                                  */
 /*----------------------------------------------------------------------------*/
-static int dissect_lbtrm_data_contents(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, const char * tag_name, guint64 channel)
+static int dissect_lbtrm_data_contents(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, const char * tag_name, uint64_t channel)
 {
     tvbuff_t * next_tvb;
 
@@ -902,8 +902,8 @@ static int dissect_lbtrm_ncf_list(tvbuff_t * tvb, int offset, packet_info * pinf
 static int dissect_lbtrm_ncf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, lbm_lbtrm_tap_info_t * tap_info)
 {
     int len = 0;
-    guint16 num_ncfs;
-    guint8 reason;
+    uint16_t num_ncfs;
+    uint8_t reason;
     proto_tree * ncf_tree = NULL;
     proto_item * ncf_item = NULL;
     proto_item * reason_item = NULL;
@@ -911,7 +911,7 @@ static int dissect_lbtrm_ncf(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
     ncf_item = proto_tree_add_item(tree, hf_lbtrm_ncf, tvb, offset, -1, ENC_NA);
     ncf_tree = proto_item_add_subtree(ncf_item, ett_lbtrm_ncf);
     num_ncfs = tvb_get_ntohs(tvb, offset + O_LBTRM_NCF_HDR_T_NUM_NCFS);
-    reason = tvb_get_guint8(tvb, offset + O_LBTRM_NCF_HDR_T_REASON_FORMAT);
+    reason = tvb_get_uint8(tvb, offset + O_LBTRM_NCF_HDR_T_REASON_FORMAT);
     proto_tree_add_item(ncf_tree, hf_lbtrm_ncf_trail_sqn, tvb, offset + O_LBTRM_NCF_HDR_T_TRAIL_SQN, L_LBTRM_NCF_HDR_T_TRAIL_SQN, ENC_BIG_ENDIAN);
     proto_tree_add_item(ncf_tree, hf_lbtrm_ncf_num_ncfs, tvb, offset + O_LBTRM_NCF_HDR_T_NUM_NCFS, L_LBTRM_NCF_HDR_T_NUM_NCFS, ENC_BIG_ENDIAN);
     proto_tree_add_item(ncf_tree, hf_lbtrm_ncf_reserved, tvb, offset + O_LBTRM_NCF_HDR_T_RESERVED, L_LBTRM_NCF_HDR_T_RESERVED, ENC_BIG_ENDIAN);
@@ -924,7 +924,7 @@ static int dissect_lbtrm_ncf(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
     }
     tap_info->ncf_reason = LBTRM_NCF_HDR_REASON(reason);
     tap_info->num_sqns = num_ncfs;
-    tap_info->sqns = wmem_alloc_array(pinfo->pool, guint32, num_ncfs);
+    tap_info->sqns = wmem_alloc_array(pinfo->pool, uint32_t, num_ncfs);
     len += dissect_lbtrm_ncf_list(tvb, offset + len, pinfo, ncf_tree, num_ncfs, LBTRM_NCF_HDR_REASON(reason), tap_info);
     proto_item_set_len(ncf_item, len);
     return (len);
@@ -963,7 +963,7 @@ static int dissect_lbtrm_nak_list(tvbuff_t * tvb, int offset, packet_info * pinf
 static int dissect_lbtrm_nak(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, lbm_lbtrm_tap_info_t * tap_info)
 {
     int len = 0;
-    guint16 num_naks;
+    uint16_t num_naks;
     proto_tree * nak_tree = NULL;
     proto_item * nak_item = NULL;
 
@@ -978,7 +978,7 @@ static int dissect_lbtrm_nak(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
         expert_add_info(pinfo, nak_item, &ei_lbtrm_analysis_nak);
     }
     tap_info->num_sqns = num_naks;
-    tap_info->sqns = wmem_alloc_array(pinfo->pool, guint32, num_naks);
+    tap_info->sqns = wmem_alloc_array(pinfo->pool, uint32_t, num_naks);
     len += dissect_lbtrm_nak_list(tvb, offset + len, pinfo, nak_tree, num_naks, tap_info);
     proto_item_set_len(nak_item, len);
     return (len);
@@ -987,7 +987,7 @@ static int dissect_lbtrm_nak(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
 /*----------------------------------------------------------------------------*/
 /* LBT-RM session message packet dissection functions.                        */
 /*----------------------------------------------------------------------------*/
-static int dissect_lbtrm_sm(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, guint32 * sequence, lbm_lbtrm_tap_info_t * tap_info)
+static int dissect_lbtrm_sm(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, uint32_t * sequence, lbm_lbtrm_tap_info_t * tap_info)
 {
     proto_tree * sm_tree = NULL;
     proto_item * sm_item = NULL;
@@ -997,7 +997,7 @@ static int dissect_lbtrm_sm(tvbuff_t * tvb, int offset, packet_info * pinfo, pro
         NULL
     };
     proto_item * sm_sqn_item = NULL;
-    guint32 sqn;
+    uint32_t sqn;
 
     sm_item = proto_tree_add_item(tree, hf_lbtrm_sm, tvb, offset, L_LBTRM_SM_HDR_T, ENC_NA);
     sm_tree = proto_item_add_subtree(sm_item, ett_lbtrm_sm);
@@ -1020,7 +1020,7 @@ static int dissect_lbtrm_sm(tvbuff_t * tvb, int offset, packet_info * pinfo, pro
 /*----------------------------------------------------------------------------*/
 /* LBT-RM data packet dissection functions.                                   */
 /*----------------------------------------------------------------------------*/
-static int dissect_lbtrm_data(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, guint32 * sequence, gboolean * retransmission, lbm_lbtrm_tap_info_t * tap_info)
+static int dissect_lbtrm_data(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, uint32_t * sequence, bool * retransmission, lbm_lbtrm_tap_info_t * tap_info)
 {
     proto_tree * data_tree = NULL;
     proto_item * data_item = NULL;
@@ -1031,15 +1031,15 @@ static int dissect_lbtrm_data(tvbuff_t * tvb, int offset, packet_info * pinfo, p
         NULL
     };
     proto_item * sqn_item = NULL;
-    guint8 flags_val;
-    guint32 sqn;
-    gboolean is_retransmission = FALSE;
+    uint8_t flags_val;
+    uint32_t sqn;
+    bool is_retransmission = false;
 
     data_item = proto_tree_add_item(tree, hf_lbtrm_data, tvb, offset, L_LBTRM_DATA_HDR_T, ENC_NA);
     data_tree = proto_item_add_subtree(data_item, ett_lbtrm_data);
     sqn_item = proto_tree_add_item(data_tree, hf_lbtrm_data_sqn, tvb, offset + O_LBTRM_DATA_HDR_T_SQN, L_LBTRM_DATA_HDR_T_SQN, ENC_BIG_ENDIAN);
     proto_tree_add_item(data_tree, hf_lbtrm_data_trail_sqn, tvb, offset + O_LBTRM_DATA_HDR_T_TRAIL_SQN, L_LBTRM_DATA_HDR_T_TRAIL_SQN, ENC_BIG_ENDIAN);
-    flags_val = tvb_get_guint8(tvb, offset + O_LBTRM_DATA_HDR_T_FLAGS_FEC_TYPE);
+    flags_val = tvb_get_uint8(tvb, offset + O_LBTRM_DATA_HDR_T_FLAGS_FEC_TYPE);
     proto_tree_add_bitmask(data_tree, tvb, offset + O_LBTRM_DATA_HDR_T_FLAGS_FEC_TYPE, hf_lbtrm_data_flags_fec_type, ett_lbtrm_data_flags_fec_type, flags, ENC_BIG_ENDIAN);
     proto_tree_add_item(data_tree, hf_lbtrm_data_flags_tgsz, tvb, offset + O_LBTRM_DATA_HDR_T_FLAGS_TGSZ, L_LBTRM_DATA_HDR_T_FLAGS_TGSZ, ENC_BIG_ENDIAN);
     proto_tree_add_item(data_tree, hf_lbtrm_data_fec_symbol, tvb, offset + O_LBTRM_DATA_HDR_T_FEC_SYMBOL, L_LBTRM_DATA_HDR_T_FEC_SYMBOL, ENC_BIG_ENDIAN);
@@ -1050,7 +1050,7 @@ static int dissect_lbtrm_data(tvbuff_t * tvb, int offset, packet_info * pinfo, p
     }
     if ((flags_val & LBTRM_DATA_RETRANSMISSION_FLAG) != 0)
     {
-        is_retransmission = TRUE;
+        is_retransmission = true;
         expert_add_info_format(pinfo, sqn_item, &ei_lbtrm_analysis_rx, "RX 0x%08x", sqn);
     }
     if (retransmission != NULL)
@@ -1069,7 +1069,7 @@ typedef struct
 {
     proto_tree * tree;
     tvbuff_t * tvb;
-    guint32 current_frame;
+    uint32_t current_frame;
 } lbtrm_sqn_frame_list_callback_data_t;
 
 static bool dissect_lbtrm_sqn_frame_list_callback(const void *key _U_, void * frame, void * user_data)
@@ -1090,7 +1090,7 @@ static bool dissect_lbtrm_sqn_frame_list_callback(const void *key _U_, void * fr
         }
         proto_item_set_generated(transport_item);
     }
-    return FALSE;
+    return false;
 }
 
 static int dissect_lbtrm(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * user_data _U_)
@@ -1098,26 +1098,26 @@ static int dissect_lbtrm(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     proto_tree * lbtrm_tree = NULL;
     proto_item * lbtrm_item;
     int offset = 0;
-    guint8 next_hdr = 0;
+    uint8_t next_hdr = 0;
     char * tag_name = NULL;
     int dissected_len = 0;
     int total_dissected_len = 0;
     proto_tree * hdr_tree = NULL;
     proto_item * hdr_item = NULL;
-    guint16 src_port = 0;
-    guint32 session_id = 0;
-    guint16 dest_port = 0;
+    uint16_t src_port = 0;
+    uint32_t session_id = 0;
+    uint16_t dest_port = 0;
     lbtrm_transport_t * transport = NULL;
     proto_tree * transport_tree = NULL;
     proto_item * transport_item = NULL;
-    guint32 sequence = 0;
-    gboolean retransmission = FALSE;
-    guint8 packet_type = 0;
-    guint64 channel = LBM_CHANNEL_NO_CHANNEL;
-    guint8 ver_type = 0;
-    guint8 flags_fec_type = 0;
-    guint16 num_naks = 0;
-    guint16 num_ncfs = 0;
+    uint32_t sequence = 0;
+    bool retransmission = false;
+    uint8_t packet_type = 0;
+    uint64_t channel = LBM_CHANNEL_NO_CHANNEL;
+    uint8_t ver_type = 0;
+    uint8_t flags_fec_type = 0;
+    uint16_t num_naks = 0;
+    uint16_t num_ncfs = 0;
     lbm_lbtrm_tap_info_t * tapinfo = NULL;
     proto_item * header_type_item = NULL;
 
@@ -1133,9 +1133,9 @@ static int dissect_lbtrm(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     }
     col_set_fence(pinfo->cinfo, COL_INFO);
 
-    ver_type = tvb_get_guint8(tvb, O_LBTRM_HDR_T_VER_TYPE);
+    ver_type = tvb_get_uint8(tvb, O_LBTRM_HDR_T_VER_TYPE);
     packet_type = LBTRM_HDR_TYPE(ver_type);
-    next_hdr = tvb_get_guint8(tvb, O_LBTRM_HDR_T_NEXT_HDR);
+    next_hdr = tvb_get_uint8(tvb, O_LBTRM_HDR_T_NEXT_HDR);
     src_port = tvb_get_ntohs(tvb, O_LBTRM_HDR_T_UCAST_PORT);
     session_id = tvb_get_ntohl(tvb, O_LBTRM_HDR_T_SESSION_ID);
     if (tag_name != NULL)
@@ -1210,7 +1210,7 @@ static int dissect_lbtrm(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     {
         case LBTRM_PACKET_TYPE_DATA:
             sequence = tvb_get_ntohl(tvb, L_LBTRM_HDR_T + O_LBTRM_DATA_HDR_T_SQN);
-            flags_fec_type = tvb_get_guint8(tvb, L_LBTRM_HDR_T + O_LBTRM_DATA_HDR_T_FLAGS_FEC_TYPE);
+            flags_fec_type = tvb_get_uint8(tvb, L_LBTRM_HDR_T + O_LBTRM_DATA_HDR_T_FLAGS_FEC_TYPE);
             if ((flags_fec_type & LBTRM_DATA_RETRANSMISSION_FLAG) != 0)
             {
                 col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "DATA(RX) sqn 0x%x Port %" PRIu16 " ID 0x%08x", sequence, src_port, session_id);
@@ -1265,10 +1265,10 @@ static int dissect_lbtrm(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     offset += dissected_len;
     while (next_hdr != LBTRM_NHDR_DATA)
     {
-        guint8 hdrlen = 0;
+        uint8_t hdrlen = 0;
 
-        next_hdr = tvb_get_guint8(tvb, offset + O_LBTRM_BASIC_OPT_T_NEXT_HDR);
-        hdrlen = tvb_get_guint8(tvb, offset + O_LBTRM_BASIC_OPT_T_HDR_LEN);
+        next_hdr = tvb_get_uint8(tvb, offset + O_LBTRM_BASIC_OPT_T_NEXT_HDR);
+        hdrlen = tvb_get_uint8(tvb, offset + O_LBTRM_BASIC_OPT_T_HDR_LEN);
         if (hdrlen == 0)
         {
             break;
@@ -1344,7 +1344,7 @@ static int dissect_lbtrm(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
                             }
                             if (frame->retransmission)
                             {
-                                transport_item = proto_tree_add_boolean(transport_tree, hf_lbtrm_analysis_data_retransmission, tvb, 0, 0, TRUE);
+                                transport_item = proto_tree_add_boolean(transport_tree, hf_lbtrm_analysis_data_retransmission, tvb, 0, 0, true);
                                 proto_item_set_generated(transport_item);
                                 expert_add_info(pinfo, transport_item, &ei_lbtrm_analysis_data_rx);
                             }
@@ -1362,7 +1362,7 @@ static int dissect_lbtrm(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
                             }
                             if (frame->duplicate)
                             {
-                                transport_item = proto_tree_add_boolean(transport_tree, hf_lbtrm_analysis_data_duplicate, tvb, 0, 0, TRUE);
+                                transport_item = proto_tree_add_boolean(transport_tree, hf_lbtrm_analysis_data_duplicate, tvb, 0, 0, true);
                                 proto_item_set_generated(transport_item);
                                 expert_add_info(pinfo, transport_item, &ei_lbtrm_analysis_data_dup);
                             }
@@ -1410,7 +1410,7 @@ static int dissect_lbtrm(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
                             }
                             if (frame->duplicate)
                             {
-                                transport_item = proto_tree_add_boolean(transport_tree, hf_lbtrm_analysis_sm_duplicate, tvb, 0, 0, TRUE);
+                                transport_item = proto_tree_add_boolean(transport_tree, hf_lbtrm_analysis_sm_duplicate, tvb, 0, 0, true);
                                 proto_item_set_generated(transport_item);
                                 expert_add_info(pinfo, transport_item, &ei_lbtrm_analysis_sm_dup);
                             }
@@ -1460,12 +1460,12 @@ static int dissect_lbtrm(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
 static bool test_lbtrm_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * user_data)
 {
-    guint32 dest_addr_h;
-    gboolean valid_packet = FALSE;
-    guint8 ver_type = 0;
-    guint8 packet_type = 0;
-    guint8 packet_ver = 0;
-    guint8 next_hdr = 0;
+    uint32_t dest_addr_h;
+    bool valid_packet = false;
+    uint8_t ver_type = 0;
+    uint8_t packet_type = 0;
+    uint8_t packet_ver = 0;
+    uint8_t next_hdr = 0;
 
     /* Must be a UDP packet. */
     if (pinfo->ptype != PT_UDP)
@@ -1481,7 +1481,7 @@ static bool test_lbtrm_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * 
     {
         return false;
     }
-    ver_type = tvb_get_guint8(tvb, O_LBTRM_HDR_T_VER_TYPE);
+    ver_type = tvb_get_uint8(tvb, O_LBTRM_HDR_T_VER_TYPE);
     packet_type = LBTRM_HDR_TYPE(ver_type);
     switch (packet_type)
     {
@@ -1498,7 +1498,7 @@ static bool test_lbtrm_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * 
     {
         return false;
     }
-    next_hdr = tvb_get_guint8(tvb, O_LBTRM_HDR_T_NEXT_HDR);
+    next_hdr = tvb_get_uint8(tvb, O_LBTRM_HDR_T_NEXT_HDR);
     if (next_hdr != LBTRM_NHDR_DATA)
     {
         return false;
@@ -1507,7 +1507,7 @@ static bool test_lbtrm_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * 
     {
         if (lbtrm_tag_find(pinfo) != NULL)
         {
-            valid_packet = TRUE;
+            valid_packet = true;
         }
     }
     else
@@ -1524,7 +1524,7 @@ static bool test_lbtrm_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * 
                 if ((pinfo->destport >= lbtrm_dest_port_low) && (pinfo->destport <= lbtrm_dest_port_high))
                 {
                     /* Must be one of ours. */
-                    valid_packet = TRUE;
+                    valid_packet = true;
                 }
             }
             else if ((dest_addr_h == mim_incoming_mc_address_host) || (dest_addr_h == mim_outgoing_mc_address_host))
@@ -1534,7 +1534,7 @@ static bool test_lbtrm_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * 
                     || ((dest_addr_h == mim_outgoing_mc_address_host) && (pinfo->destport == mim_outgoing_dest_port)))
                 {
                     /* Must be one of ours. */
-                    valid_packet = TRUE;
+                    valid_packet = true;
                 }
             }
         }
@@ -1543,7 +1543,7 @@ static bool test_lbtrm_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * 
             /* Not multicast, might be a unicast UDP NAK. Check the destination port. */
             if ((pinfo->destport >= lbtrm_src_port_low) && (pinfo->destport <= lbtrm_src_port_high))
             {
-                valid_packet = TRUE;
+                valid_packet = true;
             }
         }
     }
@@ -1675,7 +1675,7 @@ void proto_register_lbtrm(void)
         { &hf_lbtrm_analysis_sm_duplicate,
             { "Duplicate SM frame", "lbtrm.transport.sm_duplicate", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL } },
     };
-    static gint * ett[] =
+    static int * ett[] =
     {
         &ett_lbtrm,
         &ett_lbtrm_hdr,
@@ -1708,7 +1708,7 @@ void proto_register_lbtrm(void)
         { &ei_lbtrm_analysis_sm_dup, { "lbtrm.analysis.sm.dup", PI_SEQUENCE, PI_NOTE, "Duplicate SM", EXPFILL } },
     };
     module_t * lbtrm_module;
-    guint32 addr;
+    uint32_t addr;
     uat_t * tag_uat;
     expert_module_t * expert_lbtrm;
 
@@ -1827,7 +1827,7 @@ void proto_register_lbtrm(void)
     tag_uat = uat_new("LBT-RM tag definitions",
         sizeof(lbtrm_tag_entry_t),
         "lbtrm_domains",
-        TRUE,
+        true,
         (void * *)&lbtrm_tag_entry,
         &lbtrm_tag_count,
         UAT_AFFECTS_DISSECTION,
@@ -1850,10 +1850,10 @@ void proto_register_lbtrm(void)
 /* The registration hand-off routine */
 void proto_reg_handoff_lbtrm(void)
 {
-    static gboolean already_registered = FALSE;
-    guint32 addr;
-    guint32 dest_addr_h_low;
-    guint32 dest_addr_h_high;
+    static bool already_registered = false;
+    uint32_t addr;
+    uint32_t dest_addr_h_low;
+    uint32_t dest_addr_h_high;
 
     if (!already_registered)
     {
@@ -1903,7 +1903,7 @@ void proto_reg_handoff_lbtrm(void)
 
     lbtrm_use_tag = global_lbtrm_use_tag;
 
-    already_registered = TRUE;
+    already_registered = true;
 }
 
 /*

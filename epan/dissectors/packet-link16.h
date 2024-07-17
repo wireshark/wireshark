@@ -12,9 +12,9 @@
 extern const value_string Link16_NPG_Strings[];
 
 typedef struct {
-    gint label;
-    gint sublabel;
-    gint extension;
+    int label;
+    int sublabel;
+    int extension;
 } Link16State;
 
 #endif /* __PACKET_LINK16_H__ */

@@ -34,8 +34,8 @@ static int hf_li5g_pld;
 /* the min header length */
 #define LI_5G_HEADER_LEN_MIN 40
 
-static gint ett_li5g;
-static gint ett_attrContents[LI_5G_ATTR_TYPE_MAX];
+static int ett_li5g;
+static int ett_attrContents[LI_5G_ATTR_TYPE_MAX];
 static int hf_li5g_attrContents[LI_5G_ATTR_TYPE_MAX];
 static dissector_handle_t li5g_handle;
 
@@ -114,14 +114,14 @@ dissect_li5g(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     proto_item  *ti, *attr_ti;
     tvbuff_t    *payload_tvb;
     int offset = LI_5G_HEADER_LEN_MIN, hf_attr = -1;
-    guint32 headerLen, payloadLen, pduType;
-    guint16 payloadFormat, attrType, attrLen;
+    uint32_t headerLen, payloadLen, pduType;
+    uint16_t payloadFormat, attrType, attrLen;
     const char* info;
 
     address src_addr;
     address dst_addr;
-    guint32 src_port;
-    guint32 dst_port;
+    uint32_t src_port;
+    uint32_t dst_port;
 
     headerLen = tvb_get_ntohl(tvb, 4);
     payloadLen = tvb_get_ntohl(tvb, 8);
@@ -267,7 +267,7 @@ proto_register_li5g(void)
         { &hf_li5g_pld, { "Payload", "li5g.pld", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_li5g,
         &ett_attrContents[1],
         &ett_attrContents[2],

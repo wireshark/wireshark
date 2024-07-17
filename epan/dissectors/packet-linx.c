@@ -59,7 +59,7 @@ static int hf_linx_main_version;
 static int hf_linx_main_reserved;
 static int hf_linx_main_connection;
 static int hf_linx_main_bundle;
-static int hf_linx_main_pkgsize;
+static int hf_linx_main_pkg_size;
 
 /* UDATA */
 static int hf_linx_udata_reserved;
@@ -133,13 +133,13 @@ static int hf_linx_tcp_payload;
 
 static int rlnh_version;
 
-static gint ett_linx;
-static gint ett_linx_multicore;
-static gint ett_linx_main;
-static gint ett_linx_error;
-static gint ett_linx_udata;
-static gint ett_linx_ack;
-static gint ett_linx_tcp;
+static int ett_linx;
+static int ett_linx_multicore;
+static int ett_linx_main;
+static int ett_linx_error;
+static int ett_linx_udata;
+static int ett_linx_ack;
+static int ett_linx_tcp;
 
 static expert_field ei_linx_version;
 static expert_field ei_linx_rlnh_msg;
@@ -269,7 +269,7 @@ static const value_string linx_conn_cmd[] = {
 static int
 dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	guint32 dword;
+	uint32_t dword;
 	int	offset = 0;
 	int	nexthdr;
 	int	thishdr;
@@ -347,7 +347,7 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 		proto_tree_add_item(main_header_tree, hf_linx_main_reserved  , tvb, offset, 4, ENC_BIG_ENDIAN);
 		proto_tree_add_item(main_header_tree, hf_linx_main_connection, tvb, offset, 4, ENC_BIG_ENDIAN);
 		proto_tree_add_item(main_header_tree, hf_linx_main_bundle    , tvb, offset, 4, ENC_BIG_ENDIAN);
-		proto_tree_add_item(main_header_tree, hf_linx_main_pkgsize   , tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(main_header_tree, hf_linx_main_pkg_size  , tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 
 		/* Supports version 2 and 3 so far */
@@ -661,7 +661,7 @@ proto_register_linx(void)
 		{ &hf_linx_main_bundle, /* in ETHCM_MAIN */
 			{ "Bundle", "linx.bundle", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00004000, NULL, HFILL },
 		},
-		{ &hf_linx_main_pkgsize, /* in ETHCM_MAIN */
+		{ &hf_linx_main_pkg_size, /* in ETHCM_MAIN */
 			{ "Package Size", "linx.pcksize", FT_UINT32, BASE_DEC, NULL, 0x00003fff, NULL, HFILL },
 		},
 		{ &hf_linx_udata_reserved, /* in ETHCM_UDATA */
@@ -785,7 +785,7 @@ proto_register_linx(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_linx,
 		&ett_linx_multicore,
 		&ett_linx_main,
@@ -831,7 +831,7 @@ proto_reg_handoff_linx(void)
 static int
 dissect_linx_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	guint32 dword;
+	uint32_t dword;
 	int offset = 0;
 	proto_item *ti, *ver_item, *msg_item;
 	proto_tree *linx_tcp_tree;
@@ -1030,7 +1030,7 @@ proto_register_linx_tcp(void)
 		}
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_linx_tcp,
 	};
 

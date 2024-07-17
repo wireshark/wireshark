@@ -27,11 +27,11 @@ static int hf_lpd_client_code;
 static int hf_lpd_printer_option;
 static int hf_lpd_response_code;
 
-static gint ett_lpd;
+static int ett_lpd;
 
 enum lpr_type { request, response, unknown };
 
-static gint find_printer_string(tvbuff_t *tvb, int offset);
+static int find_printer_string(tvbuff_t *tvb, int offset);
 
 /* This information comes from the LPRng HOWTO, which also describes
 	RFC 1179. http://www.astart.com/lprng/LPRng-HOWTO.html */
@@ -61,14 +61,14 @@ dissect_lpd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	proto_tree	*lpd_tree;
 	proto_item	*ti, *hidden_item;
 	enum lpr_type	lpr_packet_type;
-	guint8		code;
-	gint		printer_len;
+	uint8_t		code;
+	int		printer_len;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LPD");
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	/* rfc1179 states that all responses are 1 byte long */
-	code = tvb_get_guint8(tvb, 0);
+	code = tvb_get_uint8(tvb, 0);
 	if (tvb_reported_length(tvb) == 1) {
 		lpr_packet_type = response;
 	}
@@ -94,10 +94,10 @@ dissect_lpd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
 		if (lpr_packet_type == response) {
 		  hidden_item = proto_tree_add_boolean(lpd_tree, hf_lpd_response,
-		  				tvb, 0, 0, TRUE);
+						tvb, 0, 0, true);
 		} else {
 		  hidden_item = proto_tree_add_boolean(lpd_tree, hf_lpd_request,
-		  				tvb, 0, 0, TRUE);
+						tvb, 0, 0, true);
 		}
 		proto_item_set_hidden(hidden_item);
 
@@ -129,7 +129,7 @@ dissect_lpd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 }
 
 
-static gint
+static int
 find_printer_string(tvbuff_t *tvb, int offset)
 {
 	int	i;
@@ -151,12 +151,12 @@ proto_register_lpd(void)
 		{ &hf_lpd_response,
 		  { "Response",           "lpd.response",
 		    FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-		    "TRUE if LPD response", HFILL }},
+		    "true if LPD response", HFILL }},
 
 		{ &hf_lpd_request,
 		  { "Request",            "lpd.request",
 		    FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-		    "TRUE if LPD request", HFILL }},
+		    "true if LPD request", HFILL }},
 
 		{ &hf_lpd_client_code,
 		  { "Client code",            "lpd.client_code",
@@ -173,7 +173,7 @@ proto_register_lpd(void)
 		    FT_UINT8, BASE_DEC, VALS(lpd_server_code), 0x0,
 		    NULL, HFILL }},
 	};
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_lpd,
 	};
 

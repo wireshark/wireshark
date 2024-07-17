@@ -44,8 +44,8 @@ static int hf_lmi_dlci_low;
 static int hf_lmi_new;
 static int hf_lmi_act;
 
-static gint ett_lmi;
-static gint ett_lmi_ele;
+static int ett_lmi;
+static int ett_lmi_ele;
 
 #ifdef _OLD_
 /*
@@ -128,8 +128,8 @@ dissect_lmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     proto_tree    *lmi_tree, *lmi_subtree;
     proto_item    *ti;
     int           offset = 2, len;
-    guint8        msg_type;
-    guint8        ele_id;
+    uint8_t       msg_type;
+    uint8_t       ele_id;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "LMI");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -139,7 +139,7 @@ dissect_lmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     proto_tree_add_item(lmi_tree, hf_lmi_call_ref, tvb, 0, 1, ENC_BIG_ENDIAN);
 
-    msg_type = tvb_get_guint8( tvb, 1);
+    msg_type = tvb_get_uint8( tvb, 1);
     col_add_str(pinfo->cinfo, COL_INFO,
             val_to_str(msg_type, msg_type_str, "Unknown message type (0x%02x)"));
 
@@ -147,8 +147,8 @@ dissect_lmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     /* Display the LMI elements */
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
-        ele_id = tvb_get_guint8( tvb, offset);
-        len =  tvb_get_guint8( tvb, offset + 1);
+        ele_id = tvb_get_uint8( tvb, offset);
+        len =  tvb_get_uint8( tvb, offset + 1);
 
         lmi_subtree = proto_tree_add_subtree_format(lmi_tree, tvb, offset, len + 2,
                 ett_lmi_ele, NULL, "Information Element: %s",
@@ -212,7 +212,7 @@ proto_register_lmi(void)
             { "DLCI Active","lmi.dlci_act", FT_UINT8, BASE_DEC, VALS(pvc_status_act_str), 0x02,
                 "DLCI Active Flag", HFILL }},
     };
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_lmi,
         &ett_lmi_ele,
     };

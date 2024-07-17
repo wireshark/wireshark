@@ -180,22 +180,22 @@ static int * const hfx_lorawan_join_accept_dlsettings[] = {
 	NULL
 };
 
-static gint ett_lorawan;
-static gint ett_lorawan_mac_header;
-static gint ett_lorawan_mac_commands;
-static gint ett_lorawan_mac_command;
-static gint ett_lorawan_mac_command_link_check_ans;
-static gint ett_lorawan_mac_command_link_adr_req_channel;
-static gint ett_lorawan_mac_command_rx_setup_ans;
-static gint ett_lorawan_mac_command_new_channel_ans;
-static gint ett_lorawan_join_request;
-static gint ett_lorawan_join_accept;
-static gint ett_lorawan_join_accept_dlsettings;
-static gint ett_lorawan_frame_header;
-static gint ett_lorawan_frame_header_control;
-static gint ett_lorawan_frame_payload_decrypted;
-static gint ett_lorawan_beacon;
-static gint ett_lorawan_beacon_gwspecific;
+static int ett_lorawan;
+static int ett_lorawan_mac_header;
+static int ett_lorawan_mac_commands;
+static int ett_lorawan_mac_command;
+static int ett_lorawan_mac_command_link_check_ans;
+static int ett_lorawan_mac_command_link_adr_req_channel;
+static int ett_lorawan_mac_command_rx_setup_ans;
+static int ett_lorawan_mac_command_new_channel_ans;
+static int ett_lorawan_join_request;
+static int ett_lorawan_join_accept;
+static int ett_lorawan_join_accept_dlsettings;
+static int ett_lorawan_frame_header;
+static int ett_lorawan_frame_header_control;
+static int ett_lorawan_frame_payload_decrypted;
+static int ett_lorawan_beacon;
+static int ett_lorawan_beacon_gwspecific;
 
 #define LORAWAN_MAC_FTYPE_MASK						0xE0
 #define LORAWAN_MAC_FTYPE(ftype)					(((ftype) & LORAWAN_MAC_FTYPE_MASK) >> 5)
@@ -354,31 +354,31 @@ static const value_string lorawan_mac_downlink_commandnames[] = {
 
 
 typedef struct _root_keys_t {
-	gchar		*deveui_string;
-	gchar		*appkey_string;
+	char		*deveui_string;
+	char		*appkey_string;
 	GByteArray	*deveui;
 	GByteArray	*appkey;
 } root_key_t;
 
 typedef struct _session_keys_t {
-	gchar		*dev_addr_string;
-	gchar		*nwkskey_string;
-	gchar		*appskey_string;
-	guint32		dev_addr;
+	char		*dev_addr_string;
+	char		*nwkskey_string;
+	char		*appskey_string;
+	uint32_t		dev_addr;
 	GByteArray	*nwkskey;
 	GByteArray	*appskey;
 } session_key_t;
 
 static root_key_t *root_keys;
 static session_key_t *session_keys;
-static guint root_num_keys;
-static guint session_num_keys;
+static unsigned root_num_keys;
+static unsigned session_num_keys;
 
 static void
 byte_array_reverse(GByteArray *arr)
 {
-	for (guint i = 0; i < arr->len / 2; i++) {
-		gint8 b = arr->data[i];
+	for (unsigned i = 0; i < arr->len / 2; i++) {
+		int8_t b = arr->data[i];
 		arr->data[i] = arr->data[(arr->len - 1) - i];
 		arr->data[(arr->len - 1) - i] = b;
 	}
@@ -391,39 +391,39 @@ root_keys_update_cb(void *r, char **err)
 
 	if (rec->deveui_string == NULL) {
 		*err = g_strdup("End-device identifier can't be empty");
-		return FALSE;
+		return false;
 	}
 	if (!rec->deveui) {
 		rec->deveui = g_byte_array_new();
 	}
-	if (!hex_str_to_bytes(rec->deveui_string, rec->deveui, FALSE)) {
+	if (!hex_str_to_bytes(rec->deveui_string, rec->deveui, false)) {
 		*err = g_strdup("End-device identifier must be hexadecimal");
-		return FALSE;
+		return false;
 	}
 	if (rec->deveui->len != 8) {
 		*err = g_strdup("End-device identifier must be 8 bytes hexadecimal");
-		return FALSE;
+		return false;
 	}
 	byte_array_reverse(rec->deveui);
 
 	if (rec->appkey_string == NULL) {
 		*err = g_strdup("Application key can't be empty");
-		return FALSE;
+		return false;
 	}
 	if (!rec->appkey) {
 		rec->appkey = g_byte_array_new();
 	}
-	if (!hex_str_to_bytes(rec->appkey_string, rec->appkey, FALSE)) {
+	if (!hex_str_to_bytes(rec->appkey_string, rec->appkey, false)) {
 		*err = g_strdup("Application key must be hexadecimal");
-		return FALSE;
+		return false;
 	}
 	if (rec->appkey->len != 16) {
 		*err = g_strdup("Application key must be 16 bytes hexadecimal");
-		return FALSE;
+		return false;
 	}
 
 	*err = NULL;
-	return TRUE;
+	return true;
 }
 
 static void *
@@ -435,7 +435,7 @@ root_keys_copy_cb(void *n, const void *o, size_t siz _U_)
 	if (old_rec->deveui_string) {
 		new_rec->deveui_string = g_strdup(old_rec->deveui_string);
 		new_rec->deveui = g_byte_array_new();
-		hex_str_to_bytes(new_rec->deveui_string, new_rec->deveui, FALSE);
+		hex_str_to_bytes(new_rec->deveui_string, new_rec->deveui, false);
 		byte_array_reverse(new_rec->deveui);
 	} else {
 		new_rec->deveui_string = NULL;
@@ -445,7 +445,7 @@ root_keys_copy_cb(void *n, const void *o, size_t siz _U_)
 	if (old_rec->appkey_string) {
 		new_rec->appkey_string = g_strdup(old_rec->appkey_string);
 		new_rec->appkey = g_byte_array_new();
-		hex_str_to_bytes(new_rec->appkey_string, new_rec->appkey, FALSE);
+		hex_str_to_bytes(new_rec->appkey_string, new_rec->appkey, false);
 	}
 	else {
 		new_rec->appkey_string = NULL;
@@ -461,9 +461,9 @@ root_keys_free_cb(void *r)
 	root_key_t *rec = (root_key_t*)r;
 
 	g_free(rec->deveui_string);
-	g_byte_array_free(rec->deveui, TRUE);
+	g_byte_array_free(rec->deveui, true);
 	g_free(rec->appkey_string);
-	g_byte_array_free(rec->appkey, TRUE);
+	g_byte_array_free(rec->appkey, true);
 }
 
 static bool
@@ -473,57 +473,57 @@ session_keys_update_cb(void *r, char **err)
 
 	if (rec->dev_addr_string == NULL) {
 		*err = g_strdup("Device address can't be empty");
-		return FALSE;
+		return false;
 	}
 	GByteArray *addr = g_byte_array_new();
-	if (!hex_str_to_bytes(rec->dev_addr_string, addr, FALSE)) {
-		g_byte_array_free(addr, TRUE);
+	if (!hex_str_to_bytes(rec->dev_addr_string, addr, false)) {
+		g_byte_array_free(addr, true);
 		*err = g_strdup("Device address must be hexadecimal");
-		return FALSE;
+		return false;
 	}
 	if (addr->len != 4) {
-		g_byte_array_free(addr, TRUE);
+		g_byte_array_free(addr, true);
 		*err = g_strdup("Device address must be 4 bytes hexadecimal");
-		return FALSE;
+		return false;
 	}
 	byte_array_reverse(addr);
 	memcpy(&rec->dev_addr, addr->data, sizeof(rec->dev_addr));
-	g_byte_array_free(addr, TRUE);
+	g_byte_array_free(addr, true);
 
 	if (rec->nwkskey_string == NULL) {
 		*err = g_strdup("Network session key can't be empty");
-		return FALSE;
+		return false;
 	}
 	if (!rec->nwkskey) {
 		rec->nwkskey = g_byte_array_new();
 	}
-	if (!hex_str_to_bytes(rec->nwkskey_string, rec->nwkskey, FALSE)) {
+	if (!hex_str_to_bytes(rec->nwkskey_string, rec->nwkskey, false)) {
 		*err = g_strdup("Network session key must be hexadecimal");
-		return FALSE;
+		return false;
 	}
 	if (rec->nwkskey->len != 16) {
 		*err = g_strdup("Network session key must be 16 bytes hexadecimal");
-		return FALSE;
+		return false;
 	}
 
 	if (rec->appskey_string == NULL) {
 		*err = g_strdup("Application session key can't be empty");
-		return FALSE;
+		return false;
 	}
 	if (!rec->appskey) {
 		rec->appskey = g_byte_array_new();
 	}
-	if (!hex_str_to_bytes(rec->appskey_string, rec->appskey, FALSE)) {
+	if (!hex_str_to_bytes(rec->appskey_string, rec->appskey, false)) {
 		*err = g_strdup("Application session key must be hexadecimal");
-		return FALSE;
+		return false;
 	}
 	if (rec->appskey->len != 16) {
 		*err = g_strdup("Application session key must be 16 bytes hexadecimal");
-		return FALSE;
+		return false;
 	}
 
 	*err = NULL;
-	return TRUE;
+	return true;
 }
 
 static void *
@@ -535,7 +535,7 @@ session_keys_copy_cb(void *n, const void *o, size_t siz _U_)
 	if (old_rec->dev_addr_string) {
 		new_rec->dev_addr_string = g_strdup(old_rec->dev_addr_string);
 		GByteArray *addr = g_byte_array_new();
-		if (hex_str_to_bytes(new_rec->dev_addr_string, addr, FALSE)) {
+		if (hex_str_to_bytes(new_rec->dev_addr_string, addr, false)) {
 			if (addr->len == 4) {
 				byte_array_reverse(addr);
 				memcpy(&new_rec->dev_addr, addr->data, sizeof(new_rec->dev_addr));
@@ -543,7 +543,7 @@ session_keys_copy_cb(void *n, const void *o, size_t siz _U_)
 				new_rec->dev_addr = 0;
 			}
 		}
-		g_byte_array_free(addr, TRUE);
+		g_byte_array_free(addr, true);
 	} else {
 		new_rec->dev_addr_string = NULL;
 		new_rec->dev_addr = 0;
@@ -552,7 +552,7 @@ session_keys_copy_cb(void *n, const void *o, size_t siz _U_)
 	if (old_rec->nwkskey_string) {
 		new_rec->nwkskey_string = g_strdup(old_rec->nwkskey_string);
 		new_rec->nwkskey = g_byte_array_new();
-		hex_str_to_bytes(new_rec->nwkskey_string, new_rec->nwkskey, FALSE);
+		hex_str_to_bytes(new_rec->nwkskey_string, new_rec->nwkskey, false);
 	} else {
 		new_rec->nwkskey_string = NULL;
 		new_rec->nwkskey = NULL;
@@ -561,7 +561,7 @@ session_keys_copy_cb(void *n, const void *o, size_t siz _U_)
 	if (old_rec->appskey_string) {
 		new_rec->appskey_string = g_strdup(old_rec->appskey_string);
 		new_rec->appskey = g_byte_array_new();
-		hex_str_to_bytes(new_rec->appskey_string, new_rec->appskey, FALSE);
+		hex_str_to_bytes(new_rec->appskey_string, new_rec->appskey, false);
 	} else {
 		new_rec->appskey_string = NULL;
 		new_rec->appskey = NULL;
@@ -577,9 +577,9 @@ session_keys_free_cb(void *r)
 
 	g_free(rec->dev_addr_string);
 	g_free(rec->nwkskey_string);
-	g_byte_array_free(rec->nwkskey, TRUE);
+	g_byte_array_free(rec->nwkskey, true);
 	g_free(rec->appskey_string);
-	g_byte_array_free(rec->appskey, TRUE);
+	g_byte_array_free(rec->appskey, true);
 }
 
 UAT_CSTRING_CB_DEF(root_keys, deveui_string, root_key_t)
@@ -589,9 +589,9 @@ UAT_CSTRING_CB_DEF(session_keys, nwkskey_string, session_key_t)
 UAT_CSTRING_CB_DEF(session_keys, appskey_string, session_key_t)
 
 static session_key_t *
-get_session_key(guint32 dev_addr)
+get_session_key(uint32_t dev_addr)
 {
-	guint i;
+	unsigned i;
 	for (i = 0; i < session_num_keys; i++) {
 		if (session_keys[i].dev_addr == dev_addr) {
 			return &session_keys[i];
@@ -601,9 +601,9 @@ get_session_key(guint32 dev_addr)
 }
 
 static root_key_t *
-get_root_key(const guint8 *deveui)
+get_root_key(const uint8_t *deveui)
 {
-	guint i;
+	unsigned i;
 	for (i = 0; i < root_num_keys; i++) {
 		if (root_keys[i].deveui != NULL && memcmp(root_keys[i].deveui->data, deveui, 8) == 0) {
 			return &root_keys[i];
@@ -612,15 +612,15 @@ get_root_key(const guint8 *deveui)
 	return NULL;
 }
 
-static guint32
-calculate_mic(const guint8 *in, guint8 length, const guint8 *key)
+static uint32_t
+calculate_mic(const uint8_t *in, uint8_t length, const uint8_t *key)
 {
 	/*
 	 * cmac = aes128_cmac(key, in)
 	 * MIC = cmac[0..3]
 	 */
 	gcry_mac_hd_t mac_hd;
-	guint32 mac;
+	uint32_t mac;
 	size_t read_digest_length = 4;
 
 	if (gcry_mac_open(&mac_hd, GCRY_MAC_CMAC_AES, 0, NULL)) {
@@ -646,10 +646,10 @@ calculate_mic(const guint8 *in, guint8 length, const guint8 *key)
 }
 
 static nstime_t
-gps_to_utctime(const guint32 gpstime)
+gps_to_utctime(const uint32_t gpstime)
 {
 	nstime_t utctime;
-	utctime.secs = (guint64)gpstime;
+	utctime.secs = (uint64_t)gpstime;
 	utctime.secs += 315964800; /* difference between Unix epoch and GPS epoch */
 	utctime.secs -= 18; /* leap seconds valid after 2017-01-01 */
 	utctime.nsecs = 0;
@@ -657,82 +657,82 @@ gps_to_utctime(const guint32 gpstime)
 }
 
 static void
-cf_coords_lat_custom(gchar *buffer, guint32 value)
+cf_coords_lat_custom(char *buffer, uint32_t value)
 {
-	gint32 coord_int = (value < 0x00800000) ? ((gint32)value) : ((gint32)value - 0x01000000);
-	gdouble coord_double = coord_int * 90. / 0x00800000;
+	int32_t coord_int = (value < 0x00800000) ? ((int32_t)value) : ((int32_t)value - 0x01000000);
+	double coord_double = coord_int * 90. / 0x00800000;
 
 	snprintf(buffer, ITEM_LABEL_LENGTH, "%.5f%c", fabs(coord_double), (coord_double >= 0) ? 'N' : 'S');
 }
 
 static void
-cf_coords_lng_custom(gchar *buffer, guint32 value)
+cf_coords_lng_custom(char *buffer, uint32_t value)
 {
-	gint32 coord_int = (value < 0x00800000) ? ((gint32)value) : ((gint32)value - 0x01000000);
-	gdouble coord_double = coord_int * 180. / 0x00800000;
+	int32_t coord_int = (value < 0x00800000) ? ((int32_t)value) : ((int32_t)value - 0x01000000);
+	double coord_double = coord_int * 180. / 0x00800000;
 
 	snprintf(buffer, ITEM_LABEL_LENGTH, "%.5f%c", fabs(coord_double), (coord_double >= 0) ? 'E' : 'W');
 }
 
-static gboolean
-aes128_lorawan_encrypt(const guint8 *key, const guint8 *data_in, guint8 *data_out, gint length)
+static bool
+aes128_lorawan_encrypt(const uint8_t *key, const uint8_t *data_in, uint8_t *data_out, int length)
 {
 	gcry_cipher_hd_t cipher;
 	if (gcry_cipher_open(&cipher, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_ECB, 0)) {
-		return FALSE;
+		return false;
 	}
 	if (gcry_cipher_setkey(cipher, key, LORAWAN_AES_BLOCK_LENGTH)) {
 		gcry_cipher_close(cipher);
-		return FALSE;
+		return false;
 	}
 	if (gcry_cipher_encrypt(cipher, data_out, length, data_in, length)) {
 		gcry_cipher_close(cipher);
-		return FALSE;
+		return false;
 	}
 	gcry_cipher_close(cipher);
-	return TRUE;
+	return true;
 }
 
 /* length should be a multiple of 16, in should be padded to get to a multiple of 16 */
-static gboolean
-decrypt_lorawan_frame_payload(const guint8 *in, gint length, guint8 *out, const guint8 * key, guint8 dir, guint32 dev_addr, guint32 fcnt)
+static bool
+decrypt_lorawan_frame_payload(const uint8_t *in, int length, uint8_t *out, const uint8_t * key, uint8_t dir, uint32_t dev_addr, uint32_t fcnt)
 {
 	gcry_cipher_hd_t cipher;
-	guint8 iv[LORAWAN_AES_BLOCK_LENGTH] = {0x01, 0x00, 0x00, 0x00, 0x00, dir, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01};
+	uint8_t iv[LORAWAN_AES_BLOCK_LENGTH] = {0x01, 0x00, 0x00, 0x00, 0x00, dir, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01};
 	memcpy(iv + 6, &dev_addr, 4);
 	memcpy(iv + 10, &fcnt, 4);
 	if (gcry_cipher_open(&cipher, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CTR, 0)) {
-		return FALSE;
+		return false;
 	}
 	if (gcry_cipher_setkey(cipher, key, LORAWAN_AES_BLOCK_LENGTH)) {
 		gcry_cipher_close(cipher);
-		return FALSE;
+		return false;
 	}
 	if (gcry_cipher_setctr(cipher, iv, 16)) {
 		gcry_cipher_close(cipher);
-		return FALSE;
+		return false;
 	}
 	if (gcry_cipher_encrypt(cipher, out, length, in, length)) {
 		gcry_cipher_close(cipher);
-		return FALSE;
+		return false;
 	}
 	gcry_cipher_close(cipher);
-	return TRUE;
+	return true;
 }
 
 static int
-dissect_lorawan_mac_commands(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, gboolean uplink)
+dissect_lorawan_mac_commands(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, bool uplink)
 {
 	proto_item *ti, *tf;
 	proto_tree *mac_command_tree, *field_tree;
-	guint8 command;
-	gint32 current_offset = 0;
+	uint8_t command;
+	int32_t current_offset = 0;
 
 	ti = proto_tree_add_item(tree, hf_lorawan_mac_commands_type, tvb, 0, -1, ENC_NA);
 	mac_command_tree = proto_item_add_subtree(ti, ett_lorawan_mac_commands);
 
 	do {
-		command = tvb_get_guint8(tvb, current_offset);
+		command = tvb_get_uint8(tvb, current_offset);
 		if (uplink) {
 			tf = proto_tree_add_item(mac_command_tree, hf_lorawan_mac_command_uplink_type, tvb, current_offset, 1, ENC_NA);
 			current_offset++;
@@ -898,9 +898,9 @@ dissect_lorawan_beacon(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _
 {
 	proto_item *ti;
 	proto_tree *gwspecific_tree;
-	gint32 current_offset = 0;
-	guint length = tvb_reported_length(tvb);
-	guint16 calc_crc1, calc_crc2;
+	int32_t current_offset = 0;
+	unsigned length = tvb_reported_length(tvb);
+	uint16_t calc_crc1, calc_crc2;
 	nstime_t utctime;
 
 	proto_tree_add_string(tree, hf_lorawan_msgtype_type, tvb, current_offset, 0, val_to_str_const(LORAWAN_MAC_BEACON, lorawan_ftypenames, "RFU"));
@@ -916,7 +916,7 @@ dissect_lorawan_beacon(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _
 		proto_tree_add_item(tree, hf_lorawan_beacon_rfu1_type, tvb, current_offset, 3, ENC_NA);
 		current_offset += 3;
 	}
-	utctime = gps_to_utctime(tvb_get_guint32(tvb, current_offset, ENC_LITTLE_ENDIAN));
+	utctime = gps_to_utctime(tvb_get_uint32(tvb, current_offset, ENC_LITTLE_ENDIAN));
 	proto_tree_add_time(tree, hf_lorawan_beacon_time_type, tvb, current_offset, 4, &utctime);
 	current_offset += 4;
 	proto_tree_add_checksum(tree, tvb, current_offset, hf_lorawan_beacon_crc1_type, hf_lorawan_beacon_crc1_status_type, NULL, pinfo, calc_crc1, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
@@ -945,7 +945,7 @@ dissect_lorawan_join_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 {
 	proto_item *tf;
 	proto_tree *field_tree;
-	gint32 current_offset = 1;
+	int32_t current_offset = 1;
 
 	tf = proto_tree_add_item(tree, hf_lorawan_join_request_type, tvb, current_offset, 18, ENC_NA);
 	field_tree = proto_item_add_subtree(tf, ett_lorawan_join_request);
@@ -978,10 +978,10 @@ dissect_lorawan_join_accept(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 {
 	proto_item *tf;
 	proto_tree *field_tree;
-	gint32 current_offset = 1;
+	int32_t current_offset = 1;
 	root_key_t *root_key = NULL;
 
-	gint length = tvb_captured_length_remaining(tvb, current_offset);
+	int length = tvb_captured_length_remaining(tvb, current_offset);
 	tf = proto_tree_add_item(tree, hf_lorawan_join_accept_type, tvb, current_offset, 12, ENC_NA);
 	field_tree = proto_item_add_subtree(tf, ett_lorawan_join_accept);
 
@@ -993,12 +993,12 @@ dissect_lorawan_join_accept(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	}
 
 	/* Iterate through all available root keys for Join-Accept */
-	guint8 *decrypted_buffer = (guint8 *)wmem_alloc0(pinfo->pool, length);
-	guint8 *mic_buffer = (guint8 *)wmem_alloc0(pinfo->pool, length - 4 + 1);
-	guint32 mic_check;
-	for (guint key_idx = 0; key_idx < root_num_keys; key_idx++) {
+	uint8_t *decrypted_buffer = (uint8_t *)wmem_alloc0(pinfo->pool, length);
+	uint8_t *mic_buffer = (uint8_t *)wmem_alloc0(pinfo->pool, length - 4 + 1);
+	uint32_t mic_check;
+	for (unsigned key_idx = 0; key_idx < root_num_keys; key_idx++) {
 		if (aes128_lorawan_encrypt(root_keys[key_idx].appkey->data, tvb_get_ptr(tvb, current_offset, length), decrypted_buffer, length)) {
-			mic_buffer[0] = tvb_get_guint8(tvb, current_offset - 1); // unencrypted MHDR
+			mic_buffer[0] = tvb_get_uint8(tvb, current_offset - 1); // unencrypted MHDR
 			memcpy(&mic_buffer[1], decrypted_buffer, length - 4); // decrypted Join-Accept
 			memcpy(&mic_check, &decrypted_buffer[length - 4], 4); // decrypted MIC
 
@@ -1041,24 +1041,24 @@ dissect_lorawan_join_accept(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 }
 
 static int
-dissect_lorawan_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, gboolean uplink)
+dissect_lorawan_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, bool uplink)
 {
 	proto_item *ti = NULL, *tf;
 	proto_tree *field_tree;
-	gint32 current_offset = 1;
-	guint8 fopts_length = (tvb_get_guint8(tvb, current_offset + 4) & LORAWAN_FRAME_FOPTSLEN_MASK);
-	guint8 fport = 0;
+	int32_t current_offset = 1;
+	uint8_t fopts_length = (tvb_get_uint8(tvb, current_offset + 4) & LORAWAN_FRAME_FOPTSLEN_MASK);
+	uint8_t fport = 0;
 
 	/* Frame header */
 	tf = proto_tree_add_item(tree, hf_lorawan_frame_header_type, tvb, current_offset, 7 + fopts_length, ENC_NA);
 	field_tree = proto_item_add_subtree(tf, ett_lorawan_frame_header);
 	proto_tree_add_item(field_tree, hf_lorawan_frame_header_address_type, tvb, current_offset, 4, ENC_LITTLE_ENDIAN);
-	guint32 dev_address = tvb_get_guint32(tvb, current_offset, ENC_LITTLE_ENDIAN);
+	uint32_t dev_address = tvb_get_uint32(tvb, current_offset, ENC_LITTLE_ENDIAN);
 	current_offset += 4;
 	proto_tree_add_bitmask(field_tree, tvb, current_offset, hf_lorawan_frame_header_frame_control_type, ett_lorawan_frame_header_control, hfx_lorawan_frame_header_frame_control, ENC_NA);
 	current_offset++;
 	proto_tree_add_item(field_tree, hf_lorawan_frame_header_frame_counter_type, tvb, current_offset, 2, ENC_LITTLE_ENDIAN);
-	guint32 fcnt = tvb_get_guint16(tvb, current_offset, ENC_LITTLE_ENDIAN);
+	uint32_t fcnt = tvb_get_uint16(tvb, current_offset, ENC_LITTLE_ENDIAN);
 	current_offset += 2;
 
 	/*
@@ -1075,7 +1075,7 @@ dissect_lorawan_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_
 	if (tvb_captured_length_remaining(tvb, current_offset) > 4) {
 		/* FPort present */
 		proto_tree_add_item(tree, hf_lorawan_frame_fport_type, tvb, current_offset, 1, ENC_NA);
-		fport = tvb_get_guint8(tvb, current_offset);
+		fport = tvb_get_uint8(tvb, current_offset);
 		current_offset++;
 	}
 
@@ -1083,16 +1083,16 @@ dissect_lorawan_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_
 		/* TODO?: error, not allowed */
 	}
 
-	guint8 frmpayload_length = tvb_captured_length_remaining(tvb, current_offset) - 4;
+	uint8_t frmpayload_length = tvb_captured_length_remaining(tvb, current_offset) - 4;
 	if (frmpayload_length > 0) {
 		ti = proto_tree_add_item(tree, hf_lorawan_frame_payload_type, tvb, current_offset, frmpayload_length, ENC_NA);
 	}
 
 	session_key_t *session_key = get_session_key(dev_address);
 	if (session_key && frmpayload_length > 0) {
-		guint8 padded_length = LORAWAN_AES_PADDEDSIZE(frmpayload_length);
-		guint8 *decrypted_buffer = (guint8 *)wmem_alloc0(pinfo->pool, padded_length);
-		guint8 *encrypted_buffer = (guint8 *)wmem_alloc0(pinfo->pool, padded_length);
+		uint8_t padded_length = LORAWAN_AES_PADDEDSIZE(frmpayload_length);
+		uint8_t *decrypted_buffer = (uint8_t *)wmem_alloc0(pinfo->pool, padded_length);
+		uint8_t *encrypted_buffer = (uint8_t *)wmem_alloc0(pinfo->pool, padded_length);
 		tvb_memcpy(tvb, encrypted_buffer, current_offset, frmpayload_length);
 		if (decrypt_lorawan_frame_payload(encrypted_buffer, padded_length, decrypted_buffer, (fport == 0) ? session_key->nwkskey->data : session_key->appskey->data, !uplink, dev_address, fcnt)) {
 			tvbuff_t *next_tvb = tvb_new_child_real_data(tvb, decrypted_buffer, frmpayload_length, frmpayload_length);
@@ -1123,8 +1123,8 @@ dissect_lorawan_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_
 	 * B0 = 0x49 | 0x00 | 0x00 | 0x00 | 0x00 | dir | devAddr | fcntup/fcntdown | len(msg)
 	 */
 	if (session_key) {
-		gint frame_length = current_offset;
-		guint8 *msg = (guint8 *)wmem_alloc0(pinfo->pool, frame_length + 16);
+		int frame_length = current_offset;
+		uint8_t *msg = (uint8_t *)wmem_alloc0(pinfo->pool, frame_length + 16);
 		msg[0] = 0x49;
 		msg[5] = uplink ? 0 : 1;
 		memcpy(msg + 6, &dev_address, 4);
@@ -1146,7 +1146,7 @@ dissect_lorawan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *d
 {
 	proto_item *ti, *tf;
 	proto_tree *lorawan_tree, *field_tree;
-	gint32 current_offset = 0;
+	int32_t current_offset = 0;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LoRaWAN");
 	col_clear(pinfo->cinfo,COL_INFO);
@@ -1156,22 +1156,22 @@ dissect_lorawan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *d
 	/* Detect and dissect Class-B beacon frames
 	 * common mark: beacon is 17B or 19B long and begins with 2 bytes of zeroed RFU
 	 */
-	guint16 classb_rfu = tvb_get_guint16(tvb, current_offset, ENC_LITTLE_ENDIAN);
-	guint classb_length = tvb_reported_length(tvb);
+	uint16_t classb_rfu = tvb_get_uint16(tvb, current_offset, ENC_LITTLE_ENDIAN);
+	unsigned classb_length = tvb_reported_length(tvb);
 	if (classb_rfu == 0x0000 && (classb_length == 17 || classb_length == 19)) {
 		return dissect_lorawan_beacon(tvb, pinfo, lorawan_tree);
 	}
 
 	/* MAC header */
-	guint8 mac_ftype = LORAWAN_MAC_FTYPE(tvb_get_guint8(tvb, current_offset));
+	uint8_t mac_ftype = LORAWAN_MAC_FTYPE(tvb_get_uint8(tvb, current_offset));
 	proto_tree_add_string(lorawan_tree, hf_lorawan_msgtype_type, tvb, current_offset, 0, val_to_str_const(mac_ftype, lorawan_ftypenames, "RFU"));
 	tf = proto_tree_add_item(lorawan_tree, hf_lorawan_mac_header_type, tvb, current_offset, 1, ENC_NA);
 	proto_item_append_text(tf, " (Message Type: %s, Major Version: %s)",
 						   val_to_str_const(mac_ftype, lorawan_ftypenames, "RFU"),
-						   val_to_str_const(LORAWAN_MAC_MAJOR(tvb_get_guint8(tvb, current_offset)), lorawan_majornames, "RFU"));
+						   val_to_str_const(LORAWAN_MAC_MAJOR(tvb_get_uint8(tvb, current_offset)), lorawan_majornames, "RFU"));
 
 	/* Validate MHDR fields for LoRaWAN packet, do not dissect malformed packets */
-	if ((tvb_get_guint8(tvb, current_offset) & (LORAWAN_MAC_MAJOR_MASK | LORAWAN_MAC_RFU_MASK)) != LORAWAN_MAC_MAJOR_R1) {
+	if ((tvb_get_uint8(tvb, current_offset) & (LORAWAN_MAC_MAJOR_MASK | LORAWAN_MAC_RFU_MASK)) != LORAWAN_MAC_MAJOR_R1) {
 		expert_add_info(pinfo, lorawan_tree, &ei_lorawan_mhdr_error);
 		mac_ftype = LORAWAN_MAC_FTYPE_RFU;
 	}
@@ -1810,7 +1810,7 @@ proto_register_lorawan(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_lorawan,
 		&ett_lorawan_mac_header,
 		&ett_lorawan_mac_commands,
@@ -1868,7 +1868,7 @@ proto_register_lorawan(void)
 	uat_t *root_keys_uat = uat_new("LoRaWAN Root Keys",
 		sizeof(root_key_t),
 		"root_keys_lorawan",
-		TRUE,
+		true,
 		&root_keys,
 		&root_num_keys,
 		UAT_AFFECTS_DISSECTION | UAT_AFFECTS_FIELDS,
@@ -1883,7 +1883,7 @@ proto_register_lorawan(void)
 	uat_t *session_keys_uat = uat_new("LoRaWAN Session Keys",
 		sizeof(session_key_t),
 		"session_keys_lorawan",
-		TRUE,
+		true,
 		&session_keys,
 		&session_num_keys,
 		UAT_AFFECTS_DISSECTION | UAT_AFFECTS_FIELDS,

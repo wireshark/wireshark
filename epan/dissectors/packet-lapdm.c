@@ -88,12 +88,12 @@ static int hf_lapdm_fragment_count;
 static int hf_lapdm_reassembled_in;
 static int hf_lapdm_reassembled_length;
 
-static gint ett_lapdm;
-static gint ett_lapdm_address;
-static gint ett_lapdm_control;
-static gint ett_lapdm_length;
-static gint ett_lapdm_fragment;
-static gint ett_lapdm_fragments;
+static int ett_lapdm;
+static int ett_lapdm_address;
+static int ett_lapdm_control;
+static int ett_lapdm_length;
+static int ett_lapdm_fragment;
+static int ett_lapdm_fragments;
 
 static reassembly_table lapdm_reassembly_table;
 
@@ -194,14 +194,14 @@ static const fragment_items lapdm_frag_items = {
     "fragments"
 };
 
-static gboolean hdr_has_length(enum lapdm_hdr_type hdr_type)
+static bool hdr_has_length(enum lapdm_hdr_type hdr_type)
 {
     switch (hdr_type) {
     case LAPDM_HDR_FMT_A:
     case LAPDM_HDR_FMT_B:
-        return TRUE;
+        return true;
     default:
-        return FALSE;
+        return false;
     }
 }
 
@@ -211,14 +211,14 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     proto_tree *lapdm_tree, *addr_tree, *length_tree;
     proto_item *lapdm_ti, *addr_ti, *length_ti;
-    guint8 addr, length, header_len, cr, sapi, len, n_s;
+    uint8_t addr, length, header_len, cr, sapi, len, n_s;
     int control;
-    gboolean m;
+    bool m;
     tvbuff_t *payload;
     int available_length;
-    gboolean is_response = FALSE;
+    bool is_response = false;
     enum lapdm_hdr_type hdr_type = LAPDM_HDR_FMT_B;
-    gboolean is_acch = FALSE, is_ui_frame = FALSE;
+    bool is_acch = false, is_ui_frame = false;
 
     if (data) {
         lapdm_data_t *ld = (lapdm_data_t *) data;
@@ -229,7 +229,7 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     if (tvb_captured_length(tvb) < LAPDM_HEADER_LEN_B4)
         return 0;
 
-    control = tvb_get_guint8(tvb, 1);
+    control = tvb_get_uint8(tvb, 1);
     is_ui_frame = (control & XDLC_S_U_MASK) == XDLC_U && (control & XDLC_U_MODIFIER_MASK) == XDLC_UI;
 
     /* only downlink UI SACCH frames use B4 header format */
@@ -244,19 +244,19 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         if (tvb_captured_length(tvb) < header_len)
             return 0;
 
-        length = tvb_get_guint8(tvb, 2);
+        length = tvb_get_uint8(tvb, 2);
     }
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "LAPDm");
 
-    addr = tvb_get_guint8(tvb, 0);
+    addr = tvb_get_uint8(tvb, 0);
 
     cr = addr & LAPDM_CR;
     if (pinfo->p2p_dir == P2P_DIR_RECV) {
-        is_response = cr ? FALSE : TRUE;
+        is_response = cr ? false : true;
     }
     else if (pinfo->p2p_dir == P2P_DIR_SENT) {
-        is_response = cr ? TRUE : FALSE;
+        is_response = cr ? true : false;
     }
 
     if (tree) {
@@ -278,7 +278,7 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
     control = dissect_xdlc_control(tvb, 1, pinfo, lapdm_tree, hf_lapdm_control,
                                    ett_lapdm_control, &lapdm_cf_items, NULL /* LAPDm doesn't support extended */, NULL, NULL,
-                                   is_response, FALSE, FALSE);
+                                   is_response, false, false);
 
     /* dissect length field (if present) */
     if (tree && hdr_has_length(hdr_type)) {
@@ -316,8 +316,8 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     {
         fragment_head *fd_m = NULL;
         tvbuff_t *reassembled = NULL;
-        guint32 fragment_id;
-        gboolean save_fragmented = pinfo->fragmented, add_frag;
+        uint32_t fragment_id;
+        bool save_fragmented = pinfo->fragmented, add_frag;
 
         pinfo->fragmented = m;
 
@@ -327,15 +327,15 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         if (!PINFO_FD_VISITED(pinfo)) {
             /* Check if new N(S) is equal to previous N(S) (to avoid adding retransmissions in reassembly table)
                As GUINT_TO_POINTER macro does not allow to differentiate NULL from 0, use 1-8 range instead of 0-7 */
-            guint *p_last_n_s = (guint*)wmem_map_lookup(lapdm_last_n_s_map, GUINT_TO_POINTER(fragment_id));
-            if (GPOINTER_TO_UINT(p_last_n_s) == (guint)(n_s+1)) {
-                add_frag = FALSE;
+            unsigned *p_last_n_s = (unsigned*)wmem_map_lookup(lapdm_last_n_s_map, GUINT_TO_POINTER(fragment_id));
+            if (GPOINTER_TO_UINT(p_last_n_s) == (unsigned)(n_s+1)) {
+                add_frag = false;
             } else {
-                add_frag = TRUE;
+                add_frag = true;
                 wmem_map_insert(lapdm_last_n_s_map, GUINT_TO_POINTER(fragment_id), GUINT_TO_POINTER(n_s+1));
             }
         } else {
-            add_frag = TRUE;
+            add_frag = true;
         }
 
         if (add_frag) {
@@ -345,10 +345,10 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             */
             fd_m = fragment_add_seq_next (&lapdm_reassembly_table, payload, 0,
                                         pinfo,
-                                        fragment_id, /* guint32 ID for fragments belonging together */
+                                        fragment_id, /* uint32_t ID for fragments belonging together */
                                         NULL,
-                                        /*n_s guint32 fragment sequence number */
-                                        len, /* guint32 fragment length */
+                                        /*n_s uint32_t fragment sequence number */
+                                        len, /* uint32_t fragment length */
                                         m); /* More fragments? */
 
             reassembled = process_reassembled_data(payload, 0, pinfo,
@@ -387,7 +387,7 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     {
         if (!PINFO_FD_VISITED(pinfo) && ((control & XDLC_S_U_MASK) == XDLC_U) && ((control & XDLC_U_MODIFIER_MASK) == XDLC_SABM)) {
             /* SABM frame; reset the last N(S) to an invalid value */
-            guint32 fragment_id = (conversation_get_id_from_elements(pinfo, CONVERSATION_GSMTAP, USE_LAST_ENDPOINT) << 4) | (sapi << 1) | pinfo->p2p_dir;
+            uint32_t fragment_id = (conversation_get_id_from_elements(pinfo, CONVERSATION_GSMTAP, USE_LAST_ENDPOINT) << 4) | (sapi << 1) | pinfo->p2p_dir;
             wmem_map_insert(lapdm_last_n_s_map, GUINT_TO_POINTER(fragment_id), GUINT_TO_POINTER(0));
         }
 
@@ -529,7 +529,7 @@ proto_register_lapdm(void)
             NULL, 0x00, "The total length of the reassembled payload", HFILL }}
 
     };
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_lapdm,
         &ett_lapdm_address,
         &ett_lapdm_control,

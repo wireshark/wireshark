@@ -41,7 +41,7 @@ typedef struct
 
 static const address lbttcp_null_address = ADDRESS_INIT_NONE;
 
-lbttcp_transport_t * lbttcp_transport_find(const address * source_address, guint16 source_port, guint32 session_id, guint32 frame)
+lbttcp_transport_t * lbttcp_transport_find(const address * source_address, uint16_t source_port, uint32_t session_id, uint32_t frame)
 {
     lbttcp_transport_t * entry = NULL;
     conversation_t * conv = NULL;
@@ -59,7 +59,7 @@ lbttcp_transport_t * lbttcp_transport_find(const address * source_address, guint
     return (entry);
 }
 
-static lbttcp_transport_t * lbttcp_transport_create(const address * source_address, guint16 source_port, guint32 session_id)
+static lbttcp_transport_t * lbttcp_transport_create(const address * source_address, uint16_t source_port, uint32_t session_id)
 {
     lbttcp_transport_t * transport = NULL;
 
@@ -73,7 +73,7 @@ static lbttcp_transport_t * lbttcp_transport_create(const address * source_addre
     return (transport);
 }
 
-lbttcp_transport_t * lbttcp_transport_add(const address * source_address, guint16 source_port, guint32 session_id, guint32 frame)
+lbttcp_transport_t * lbttcp_transport_add(const address * source_address, uint16_t source_port, uint32_t session_id, uint32_t frame)
 {
     lbttcp_transport_t * entry = NULL;
     conversation_t * conv = NULL;
@@ -103,7 +103,7 @@ lbttcp_transport_t * lbttcp_transport_add(const address * source_address, guint1
     return (entry);
 }
 
-static lbttcp_client_transport_t * lbttcp_client_transport_find(lbttcp_transport_t * transport, const address * receiver_address, guint16 receiver_port, guint32 frame)
+static lbttcp_client_transport_t * lbttcp_client_transport_find(lbttcp_transport_t * transport, const address * receiver_address, uint16_t receiver_port, uint32_t frame)
 {
     lbttcp_client_transport_t * entry = NULL;
     conversation_t * client_conv = NULL;
@@ -126,7 +126,7 @@ static lbttcp_client_transport_t * lbttcp_client_transport_find(lbttcp_transport
     return (entry);
 }
 
-static lbttcp_client_transport_t * lbttcp_client_transport_add(lbttcp_transport_t * transport, const address * receiver_address, guint16 receiver_port, guint32 frame)
+static lbttcp_client_transport_t * lbttcp_client_transport_add(lbttcp_transport_t * transport, const address * receiver_address, uint16_t receiver_port, uint32_t frame)
 {
     lbttcp_client_transport_t * entry;
     conversation_t * client_conv = NULL;
@@ -167,7 +167,7 @@ static lbttcp_client_transport_t * lbttcp_client_transport_add(lbttcp_transport_
     return (entry);
 }
 
-char * lbttcp_transport_source_string(const address * source_address, guint16 source_port, guint32 session_id)
+char * lbttcp_transport_source_string(const address * source_address, uint16_t source_port, uint32_t session_id)
 {
     char * bufptr = NULL;
 
@@ -182,7 +182,7 @@ char * lbttcp_transport_source_string(const address * source_address, guint16 so
     return (bufptr);
 }
 
-gboolean lbttcp_transport_sid_find(const address * source_address, guint16 source_port, guint32 frame, guint32 * session_id)
+bool lbttcp_transport_sid_find(const address * source_address, uint16_t source_port, uint32_t frame, uint32_t * session_id)
 {
     conversation_t * conv = NULL;
     lbttcp_transport_conv_data_t * conv_data = NULL;
@@ -191,27 +191,27 @@ gboolean lbttcp_transport_sid_find(const address * source_address, guint16 sourc
     conv = find_conversation(frame, source_address, &lbttcp_null_address, CONVERSATION_TCP, source_port, 0, 0);
     if (conv == NULL)
     {
-        return FALSE;
+        return false;
     }
     conv_data = (lbttcp_transport_conv_data_t *) conversation_get_proto_data(conv, proto_lbttcp);
     if (conv_data == NULL)
     {
-        return FALSE;
+        return false;
     }
     if (conv_data->frame_tree == NULL)
     {
-        return FALSE;
+        return false;
     }
     transport = (lbttcp_transport_t *)wmem_tree_lookup32_le(conv_data->frame_tree, frame);
     if (transport == NULL)
     {
-        return FALSE;
+        return false;
     }
     *session_id = transport->session_id;
-    return TRUE;
+    return true;
 }
 
-void lbttcp_transport_sid_add(const address * source_address, guint16 source_port, guint32 frame, guint32 session_id)
+void lbttcp_transport_sid_add(const address * source_address, uint16_t source_port, uint32_t frame, uint32_t session_id)
 {
     conversation_t * conv = NULL;
     lbttcp_transport_conv_data_t * conv_data = NULL;
@@ -260,37 +260,37 @@ void lbttcp_transport_sid_add(const address * source_address, guint16 source_por
 #define LBTTCP_DEFAULT_STORE_PORT_HIGH 0
 
 /* Global preferences variables (altered by the preferences dialog). */
-static guint32 global_lbttcp_source_port_low = LBTTCP_DEFAULT_SOURCE_PORT_LOW;
-static guint32 global_lbttcp_source_port_high  = LBTTCP_DEFAULT_SOURCE_PORT_HIGH;
-static guint32 global_lbttcp_request_port_low = LBTTCP_DEFAULT_REQUEST_PORT_LOW;
-static guint32 global_lbttcp_request_port_high = LBTTCP_DEFAULT_REQUEST_PORT_HIGH;
-static guint32 global_lbttcp_store_port_low = LBTTCP_DEFAULT_STORE_PORT_LOW;
-static guint32 global_lbttcp_store_port_high = LBTTCP_DEFAULT_STORE_PORT_HIGH;
+static uint32_t global_lbttcp_source_port_low = LBTTCP_DEFAULT_SOURCE_PORT_LOW;
+static uint32_t global_lbttcp_source_port_high  = LBTTCP_DEFAULT_SOURCE_PORT_HIGH;
+static uint32_t global_lbttcp_request_port_low = LBTTCP_DEFAULT_REQUEST_PORT_LOW;
+static uint32_t global_lbttcp_request_port_high = LBTTCP_DEFAULT_REQUEST_PORT_HIGH;
+static uint32_t global_lbttcp_store_port_low = LBTTCP_DEFAULT_STORE_PORT_LOW;
+static uint32_t global_lbttcp_store_port_high = LBTTCP_DEFAULT_STORE_PORT_HIGH;
 static bool global_lbttcp_use_tag;
 
 /* Local preferences variables (used by the dissector). */
-static guint32 lbttcp_source_port_low = LBTTCP_DEFAULT_SOURCE_PORT_LOW;
-static guint32 lbttcp_source_port_high = LBTTCP_DEFAULT_SOURCE_PORT_HIGH;
-static guint32 lbttcp_request_port_low = LBTTCP_DEFAULT_REQUEST_PORT_LOW;
-static guint32 lbttcp_request_port_high = LBTTCP_DEFAULT_REQUEST_PORT_HIGH;
-static guint32 lbttcp_store_port_low = LBTTCP_DEFAULT_STORE_PORT_LOW;
-static guint32 lbttcp_store_port_high = LBTTCP_DEFAULT_STORE_PORT_HIGH;
-static gboolean lbttcp_use_tag;
+static uint32_t lbttcp_source_port_low = LBTTCP_DEFAULT_SOURCE_PORT_LOW;
+static uint32_t lbttcp_source_port_high = LBTTCP_DEFAULT_SOURCE_PORT_HIGH;
+static uint32_t lbttcp_request_port_low = LBTTCP_DEFAULT_REQUEST_PORT_LOW;
+static uint32_t lbttcp_request_port_high = LBTTCP_DEFAULT_REQUEST_PORT_HIGH;
+static uint32_t lbttcp_store_port_low = LBTTCP_DEFAULT_STORE_PORT_LOW;
+static uint32_t lbttcp_store_port_high = LBTTCP_DEFAULT_STORE_PORT_HIGH;
+static bool lbttcp_use_tag;
 
 /* Tag definitions. */
 typedef struct
 {
     char * name;
-    guint32 source_port_low;
-    guint32 source_port_high;
-    guint32 request_port_low;
-    guint32 request_port_high;
-    guint32 store_port_low;
-    guint32 store_port_high;
+    uint32_t source_port_low;
+    uint32_t source_port_high;
+    uint32_t request_port_low;
+    uint32_t request_port_high;
+    uint32_t store_port_low;
+    uint32_t store_port_high;
 } lbttcp_tag_entry_t;
 
 static lbttcp_tag_entry_t * lbttcp_tag_entry;
-static guint lbttcp_tag_count;
+static unsigned lbttcp_tag_count;
 
 UAT_CSTRING_CB_DEF(lbttcp_tag, name, lbttcp_tag_entry_t)
 UAT_DEC_CB_DEF(lbttcp_tag, source_port_low, lbttcp_tag_entry_t)
@@ -321,7 +321,7 @@ static bool lbttcp_tag_update_cb(void * record, char * * error_string)
     if (tag->name == NULL)
     {
         *error_string = g_strdup("Tag name can't be empty");
-        return FALSE;
+        return false;
     }
     else
     {
@@ -329,10 +329,10 @@ static bool lbttcp_tag_update_cb(void * record, char * * error_string)
         if (tag->name[0] == 0)
         {
             *error_string = g_strdup("Tag name can't be empty");
-            return FALSE;
+            return false;
         }
     }
-    return TRUE;
+    return true;
 }
 
 static void * lbttcp_tag_copy_cb(void * destination, const void * source, size_t length _U_)
@@ -363,7 +363,7 @@ static void lbttcp_tag_free_cb(void * record)
 
 static const lbttcp_tag_entry_t * lbttcp_tag_locate(packet_info * pinfo)
 {
-    guint idx;
+    unsigned idx;
     const lbttcp_tag_entry_t * tag = NULL;
 
     if (!lbttcp_use_tag)
@@ -409,8 +409,8 @@ static char * lbttcp_tag_find(packet_info * pinfo)
 /*----------------------------------------------------------------------------*/
 
 /* Dissector tree handles */
-static gint ett_lbttcp;
-static gint ett_lbttcp_channel;
+static int ett_lbttcp;
+static int ett_lbttcp_channel;
 
 /* Dissector field handles */
 static int hf_lbttcp_tag;
@@ -418,49 +418,49 @@ static int hf_lbttcp_channel;
 static int hf_lbttcp_channel_id;
 static int hf_lbttcp_channel_client;
 
-static gboolean lbttcp_packet_is_transport_source(packet_info * pinfo, const lbttcp_tag_entry_t * tag)
+static bool lbttcp_packet_is_transport_source(packet_info * pinfo, const lbttcp_tag_entry_t * tag)
 {
-    gboolean is_transport_source_packet = FALSE;
+    bool is_transport_source_packet = false;
 
     if (tag == NULL)
     {
         if ((pinfo->srcport >= lbttcp_source_port_low) && (pinfo->srcport <= lbttcp_source_port_high))
         {
-            is_transport_source_packet = TRUE;
+            is_transport_source_packet = true;
         }
     }
     else
     {
         if ((pinfo->srcport >= tag->source_port_low) && (pinfo->srcport <= tag->source_port_high))
         {
-            is_transport_source_packet = TRUE;
+            is_transport_source_packet = true;
         }
     }
     return (is_transport_source_packet);
 }
 
-static gboolean lbttcp_packet_is_transport_client(packet_info * pinfo, const lbttcp_tag_entry_t * tag)
+static bool lbttcp_packet_is_transport_client(packet_info * pinfo, const lbttcp_tag_entry_t * tag)
 {
-    gboolean is_transport_client_packet = FALSE;
+    bool is_transport_client_packet = false;
 
     if (tag == NULL)
     {
         if ((pinfo->destport >= lbttcp_source_port_low) && (pinfo->destport <= lbttcp_source_port_high))
         {
-            is_transport_client_packet = TRUE;
+            is_transport_client_packet = true;
         }
     }
     else
     {
         if ((pinfo->destport >= tag->source_port_low) && (pinfo->destport <= tag->source_port_high))
         {
-            is_transport_client_packet = TRUE;
+            is_transport_client_packet = true;
         }
     }
     return (is_transport_client_packet);
 }
 
-static guint get_lbttcp_pdu_length(packet_info * pinfo _U_, tvbuff_t * tvb,
+static unsigned get_lbttcp_pdu_length(packet_info * pinfo _U_, tvbuff_t * tvb,
                                    int offset, void *data _U_)
 {
     return lbmc_get_message_length(tvb, offset);
@@ -473,10 +473,10 @@ static int dissect_lbttcp_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * 
     char * tag_name = NULL;
     int len_dissected;
     const lbttcp_tag_entry_t * tag = NULL;
-    guint64 channel = LBM_CHANNEL_NO_CHANNEL;
-    guint32 client_id = 0;
-    gboolean from_source = FALSE;
-    gboolean transport_packet = FALSE;
+    uint64_t channel = LBM_CHANNEL_NO_CHANNEL;
+    uint32_t client_id = 0;
+    bool from_source = false;
+    bool transport_packet = false;
 
     if (lbttcp_use_tag)
     {
@@ -501,21 +501,21 @@ static int dissect_lbttcp_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * 
     }
     if (lbttcp_packet_is_transport_source(pinfo, tag))
     {
-        from_source = TRUE;
-        transport_packet = TRUE;
+        from_source = true;
+        transport_packet = true;
     }
     else if (lbttcp_packet_is_transport_client(pinfo, tag))
     {
-        from_source = FALSE;
-        transport_packet = TRUE;
+        from_source = false;
+        transport_packet = true;
     }
     if (transport_packet)
     {
         address source_address;
         address client_address;
-        guint16 srcport;
-        guint16 clntport;
-        guint32 sid = 0;
+        uint16_t srcport;
+        uint16_t clntport;
+        uint32_t sid = 0;
         lbttcp_transport_t * transport = NULL;
         lbttcp_client_transport_t * client = NULL;
 
@@ -627,7 +627,7 @@ static int dissect_lbttcp_real(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
         col_add_fstr(pinfo->cinfo, COL_INFO, "[Tag: %s]", tag_name);
     }
     col_set_fence(pinfo->cinfo, COL_INFO);
-    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, lbmc_get_minimum_length(), /* Need at least the msglen */
+    tcp_dissect_pdus(tvb, pinfo, tree, true, lbmc_get_minimum_length(), /* Need at least the msglen */
         get_lbttcp_pdu_length, dissect_lbttcp_pdu, NULL);
 
     return tvb_captured_length(tvb);
@@ -701,7 +701,7 @@ void proto_register_lbttcp(void)
         { &hf_lbttcp_channel_client,
             { "Channel Client", "lbttcp.channel.client", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     };
-    static gint * ett[] =
+    static int * ett[] =
     {
         &ett_lbttcp,
         &ett_lbttcp_channel
@@ -767,7 +767,7 @@ void proto_register_lbttcp(void)
     tag_uat = uat_new("LBT-TCP tag definitions",
         sizeof(lbttcp_tag_entry_t),
         "lbttcp_domains",
-        TRUE,
+        true,
         (void * *)&lbttcp_tag_entry,
         &lbttcp_tag_count,
         UAT_AFFECTS_DISSECTION,
@@ -788,7 +788,7 @@ void proto_register_lbttcp(void)
 /* The registration hand-off routine */
 void proto_reg_handoff_lbttcp(void)
 {
-    static gboolean already_registered = FALSE;
+    static bool already_registered = false;
 
     if (!already_registered)
     {
@@ -819,7 +819,7 @@ void proto_reg_handoff_lbttcp(void)
 
     lbttcp_use_tag = global_lbttcp_use_tag;
 
-    already_registered = TRUE;
+    already_registered = true;
 }
 
 /*

@@ -275,14 +275,14 @@ static int hf_lat_service_name;
 static int hf_lat_service_description;
 static int hf_lat_unknown_command_data;
 
-static gint ett_lat;
-static gint ett_data_b_slot_control_flags;
-static gint ett_lat_attention_slot_control_flags;
-static gint ett_lat_command_modifier;
-static gint ett_lat_entry_status;
-static gint ett_lat_response_status;
-static gint ett_lat_src_node_status;
-static gint ett_lat_srvc_status;
+static int ett_lat;
+static int ett_data_b_slot_control_flags;
+static int ett_lat_attention_slot_control_flags;
+static int ett_lat_command_modifier;
+static int ett_lat_entry_status;
+static int ett_lat_response_status;
+static int ett_lat_src_node_status;
+static int ett_lat_srvc_status;
 
 static expert_field ei_slot_data_len_invalid;
 static expert_field ei_entry_length_too_short;
@@ -328,9 +328,9 @@ static void dissect_lat_response_information(tvbuff_t *tvb, int offset,
 static int dissect_lat_string(tvbuff_t *tvb, int offset, int hf,
     proto_tree *tree);
 
-static guint dissect_lat_header(tvbuff_t *tvb, int offset, proto_tree *tree);
+static unsigned dissect_lat_header(tvbuff_t *tvb, int offset, proto_tree *tree);
 
-static void dissect_lat_slots(tvbuff_t *tvb, int offset, guint nbr_slots,
+static void dissect_lat_slots(tvbuff_t *tvb, int offset, unsigned nbr_slots,
     proto_tree *tree, packet_info *pinfo);
 
 static int
@@ -339,12 +339,12 @@ dissect_lat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	int offset = 0;
 	proto_item *ti;
 	proto_tree *lat_tree = NULL;
-	guint8 command;
+	uint8_t command;
 
 	col_add_str(pinfo->cinfo, COL_PROTOCOL, "LAT");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	command = tvb_get_guint8(tvb, offset) >> 2;
+	command = tvb_get_uint8(tvb, offset) >> 2;
 
 	col_add_str(pinfo->cinfo, COL_INFO,
 	    val_to_str(command, msg_typ_vals, "Unknown command (%u)"));
@@ -411,10 +411,10 @@ dissect_lat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 /*
  * Virtual circuit message header.
  */
-static guint
+static unsigned
 dissect_lat_header(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-	guint32 nbr_slots;
+	uint32_t nbr_slots;
 
 	proto_tree_add_item_ret_uint(tree, hf_lat_nbr_slots, tvb, offset, 1,
 	    ENC_LITTLE_ENDIAN, &nbr_slots);
@@ -438,9 +438,9 @@ dissect_lat_header(tvbuff_t *tvb, int offset, proto_tree *tree)
 static void
 dissect_lat_start(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-	guint8 timer;
-	guint32 param_code;
-	guint32 param_len;
+	uint8_t timer;
+	uint32_t param_code;
+	uint32_t param_len;
 
 	dissect_lat_header(tvb, offset, tree);
 	offset += 1 + 2 + 2 + 1 + 1;
@@ -454,7 +454,7 @@ dissect_lat_start(tvbuff_t *tvb, int offset, proto_tree *tree)
 	offset += 1;
 	proto_tree_add_item(tree, hf_lat_nbr_dl_bufs, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
-	timer = tvb_get_guint8(tvb, offset);
+	timer = tvb_get_uint8(tvb, offset);
 	proto_tree_add_uint_format_value(tree, hf_lat_server_circuit_timer, tvb,
 	    offset, 1, timer, "%u milliseconds", timer*10);
 	offset += 1;
@@ -485,7 +485,7 @@ static void
 dissect_lat_run(tvbuff_t *tvb, int offset, proto_tree *tree,
     packet_info *pinfo)
 {
-	guint8 nbr_slots;
+	uint8_t nbr_slots;
 
 	nbr_slots = dissect_lat_header(tvb, offset, tree);
 	offset += 1 + 2 + 2 + 1 + 1;
@@ -535,9 +535,9 @@ static const value_string reason_code_vals[] = {
 static int
 dissect_lat_channel_char(proto_tree *tree, int hf, tvbuff_t *tvb, int offset)
 {
-	guint8 character;
+	uint8_t character;
 
-	character = tvb_get_guint8(tvb, offset);
+	character = tvb_get_uint8(tvb, offset);
 	if (g_ascii_isprint(character)) {
 		proto_tree_add_uint_format_value(tree, hf, tvb, offset, 1,
 		    character, "'%c'", character);
@@ -580,11 +580,11 @@ static const value_string start_slot_class_1_param_code_vals[] = {
 
 static int
 dissect_lat_terminal_parameters(tvbuff_t *tvb, int offset,
-    guint32 slot_byte_count, proto_item *length_ti, proto_tree *tree,
+    uint32_t slot_byte_count, proto_item *length_ti, proto_tree *tree,
     packet_info *pinfo)
 {
-	guint32 param_code;
-	guint32 param_len;
+	uint32_t param_code;
+	uint32_t param_len;
 	int length_dissected = 0;
 
 	for (;;) {
@@ -619,20 +619,20 @@ end_slot:
 }
 
 static void
-dissect_lat_slots(tvbuff_t *tvb, int offset, guint nbr_slots, proto_tree *tree,
+dissect_lat_slots(tvbuff_t *tvb, int offset, unsigned nbr_slots, proto_tree *tree,
     packet_info *pinfo)
 {
-	guint i;
+	unsigned i;
 	proto_item *length_ti;
-	guint32 slot_byte_count;
-	guint32 slot_type_byte;
+	uint32_t slot_byte_count;
+	uint32_t slot_type_byte;
 	int slot_padding;
-	guint32 start_slot_service_class;
-	guint32 name_len;
+	uint32_t start_slot_service_class;
+	uint32_t name_len;
 	int length_dissected;
-	guint32 param_code;
-	guint32 param_len;
-	guint32 mbz;
+	uint32_t param_code;
+	uint32_t param_len;
+	uint32_t mbz;
 	proto_item *mbz_ti;
 
 	for (i = 0; i < nbr_slots; i++) {
@@ -649,7 +649,7 @@ dissect_lat_slots(tvbuff_t *tvb, int offset, guint nbr_slots, proto_tree *tree,
 		offset += 1;
 		slot_padding = slot_byte_count & 1;
 
-		slot_type_byte = tvb_get_guint8(tvb, offset);
+		slot_type_byte = tvb_get_uint8(tvb, offset);
 		switch (slot_type_byte >> 4) {
 
 		case START_SLOT:
@@ -679,7 +679,7 @@ dissect_lat_slots(tvbuff_t *tvb, int offset, guint nbr_slots, proto_tree *tree,
 			slot_byte_count -= 1;
 
 			CHECK_SLOT_DATA_BOUNDS(1);
-			name_len = tvb_get_guint8(tvb, offset);
+			name_len = tvb_get_uint8(tvb, offset);
 			CHECK_SLOT_DATA_BOUNDS(1 + name_len);
 			proto_tree_add_item(tree, hf_lat_start_slot_obj_srvc,
 			    tvb, offset, 1, ENC_ASCII|ENC_LITTLE_ENDIAN);
@@ -687,7 +687,7 @@ dissect_lat_slots(tvbuff_t *tvb, int offset, guint nbr_slots, proto_tree *tree,
 			slot_byte_count -= 1 + name_len;
 
 			CHECK_SLOT_DATA_BOUNDS(1);
-			name_len = tvb_get_guint8(tvb, offset);
+			name_len = tvb_get_uint8(tvb, offset);
 			CHECK_SLOT_DATA_BOUNDS(1 + name_len);
 			proto_tree_add_item(tree, hf_lat_start_slot_subj_dscr,
 			    tvb, offset, 1, ENC_ASCII|ENC_LITTLE_ENDIAN);
@@ -911,13 +911,13 @@ static const value_string node_status_vals[] = {
 static void
 dissect_lat_service_announcement(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-	guint8 timer;
-	guint32 node_group_len;
-	guint32 service_name_count;
-	guint32 node_service_len;
-	guint i;
+	uint8_t timer;
+	uint32_t node_group_len;
+	uint32_t service_name_count;
+	uint32_t node_service_len;
+	unsigned i;
 
-	timer = tvb_get_guint8(tvb, offset);
+	timer = tvb_get_uint8(tvb, offset);
 	proto_tree_add_uint_format_value(tree, hf_lat_server_circuit_timer, tvb,
 	    offset, 1, timer, "%u milliseconds", timer*10);
 	offset += 1;
@@ -943,7 +943,7 @@ dissect_lat_service_announcement(tvbuff_t *tvb, int offset, proto_tree *tree)
 	proto_tree_add_item(tree, hf_lat_data_link_rcv_frame_size, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
-	timer = tvb_get_guint8(tvb, offset);
+	timer = tvb_get_uint8(tvb, offset);
 	proto_tree_add_uint_format(tree, hf_lat_node_multicast_timer, tvb,
 	    offset, 1, timer, "Multicast timer: %u seconds", timer);
 	offset += 1;
@@ -990,9 +990,9 @@ dissect_lat_service_announcement(tvbuff_t *tvb, int offset, proto_tree *tree)
 static void
 dissect_lat_command(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-	guint32 subj_group_len;
-	guint32 param_code;
-	guint32 param_len;
+	uint32_t subj_group_len;
+	uint32_t param_code;
+	uint32_t param_len;
 
 	proto_tree_add_item(tree, hf_lat_prtcl_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
@@ -1062,9 +1062,9 @@ static void
 dissect_lat_status(tvbuff_t *tvb, int offset, proto_tree *tree,
     packet_info *pinfo)
 {
-	guint32 entries_counter;
-	guint32 subj_node_name_len;
-	guint i;
+	uint32_t entries_counter;
+	uint32_t subj_node_name_len;
+	unsigned i;
 
 	proto_tree_add_item(tree, hf_lat_prtcl_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
@@ -1104,12 +1104,12 @@ dissect_lat_status(tvbuff_t *tvb, int offset, proto_tree *tree,
 
 	for (i = 0; i < entries_counter; i++) {
 		proto_item *entry_length_ti;
-		guint32 entry_length;
-		guint entry_padding;
-		guint64 entry_status;
+		uint32_t entry_length;
+		unsigned entry_padding;
+		uint64_t entry_status;
 		proto_item *mbz_ti;
-		guint32 mbz;
-		guint name_len;
+		uint32_t mbz;
+		unsigned name_len;
 
 		entry_length_ti = proto_tree_add_item_ret_uint(tree, hf_lat_entry_length, tvb, offset, 1,
 		    ENC_LITTLE_ENDIAN, &entry_length);
@@ -1200,7 +1200,7 @@ dissect_lat_status(tvbuff_t *tvb, int offset, proto_tree *tree,
 			expert_add_info(pinfo, entry_length_ti, &ei_entry_length_too_short);
 			goto end_entry;
 		}
-		name_len = tvb_get_guint8(tvb, offset);
+		name_len = tvb_get_uint8(tvb, offset);
 		if (entry_length < 1 + name_len) {
 			expert_add_info(pinfo, entry_length_ti, &ei_entry_length_too_short);
 			offset += entry_length;
@@ -1215,7 +1215,7 @@ dissect_lat_status(tvbuff_t *tvb, int offset, proto_tree *tree,
 			expert_add_info(pinfo, entry_length_ti, &ei_entry_length_too_short);
 			goto end_entry;
 		}
-		name_len = tvb_get_guint8(tvb, offset);
+		name_len = tvb_get_uint8(tvb, offset);
 		if (entry_length < 1 + name_len) {
 			expert_add_info(pinfo, entry_length_ti, &ei_entry_length_too_short);
 			offset += entry_length;
@@ -1230,7 +1230,7 @@ dissect_lat_status(tvbuff_t *tvb, int offset, proto_tree *tree,
 			expert_add_info(pinfo, entry_length_ti, &ei_entry_length_too_short);
 			goto end_entry;
 		}
-		name_len = tvb_get_guint8(tvb, offset);
+		name_len = tvb_get_uint8(tvb, offset);
 		if (entry_length < 1 + name_len) {
 			expert_add_info(pinfo, entry_length_ti, &ei_entry_length_too_short);
 			offset += entry_length;
@@ -1246,8 +1246,8 @@ dissect_lat_status(tvbuff_t *tvb, int offset, proto_tree *tree,
 		offset += entry_padding;
 	}
 	for (;;) {
-		guint32 param_code;
-		guint32 param_len;
+		uint32_t param_code;
+		uint32_t param_len;
 
 		proto_tree_add_item_ret_uint(tree, hf_lat_param_code, tvb, offset, 1, ENC_LITTLE_ENDIAN, &param_code);
 		offset += 1;
@@ -1263,7 +1263,7 @@ dissect_lat_status(tvbuff_t *tvb, int offset, proto_tree *tree,
 static void
 dissect_lat_solicit_information(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-	guint32 src_node_group_len;
+	uint32_t src_node_group_len;
 
 	proto_tree_add_item(tree, hf_lat_prtcl_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
@@ -1304,8 +1304,8 @@ dissect_lat_solicit_information(tvbuff_t *tvb, int offset, proto_tree *tree)
 	offset = dissect_lat_string(tvb, offset, hf_lat_dst_srvc_name, tree);
 
 	for (;;) {
-		guint32 param_code;
-		guint32 param_len;
+		uint32_t param_code;
+		uint32_t param_len;
 
 		proto_tree_add_item_ret_uint(tree, hf_lat_param_code, tvb, offset, 1, ENC_LITTLE_ENDIAN, &param_code);
 		offset += 1;
@@ -1322,9 +1322,9 @@ static void
 dissect_lat_response_information(tvbuff_t *tvb, int offset, proto_tree *tree,
     packet_info *pinfo)
 {
-	guint32 srvc_count;
-	guint32 src_node_group_len;
-	guint i;
+	uint32_t srvc_count;
+	uint32_t src_node_group_len;
+	unsigned i;
 
 	proto_tree_add_item(tree, hf_lat_prtcl_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
@@ -1382,11 +1382,11 @@ dissect_lat_response_information(tvbuff_t *tvb, int offset, proto_tree *tree,
 
 	for (i = 0; i < srvc_count; i++) {
 		proto_item *srvc_entry_len_ti;
-		guint32 srvc_entry_len;
-		guint32 srvc_class_len;
-		guint j;
-		guint32 srvc_group_len;
-		guint string_len;
+		uint32_t srvc_entry_len;
+		uint32_t srvc_class_len;
+		unsigned j;
+		uint32_t srvc_group_len;
+		unsigned string_len;
 
 		srvc_entry_len_ti = proto_tree_add_item_ret_uint(tree, hf_lat_srvc_entry_len,
 		    tvb, offset, 1, ENC_LITTLE_ENDIAN, &srvc_entry_len);
@@ -1453,7 +1453,7 @@ dissect_lat_response_information(tvbuff_t *tvb, int offset, proto_tree *tree,
 			expert_add_info(pinfo, srvc_entry_len_ti, &ei_srvc_entry_len_too_short);
 			goto end_entry;
 		}
-		string_len = tvb_get_guint8(tvb, offset);
+		string_len = tvb_get_uint8(tvb, offset);
 		if (srvc_entry_len < 1 + string_len) {
 			expert_add_info(pinfo, srvc_entry_len_ti, &ei_srvc_entry_len_too_short);
 			offset += srvc_entry_len;
@@ -1468,7 +1468,7 @@ dissect_lat_response_information(tvbuff_t *tvb, int offset, proto_tree *tree,
 			expert_add_info(pinfo, srvc_entry_len_ti, &ei_srvc_entry_len_too_short);
 			goto end_entry;
 		}
-		string_len = tvb_get_guint8(tvb, offset);
+		string_len = tvb_get_uint8(tvb, offset);
 		if (srvc_entry_len < 1 + string_len) {
 			expert_add_info(pinfo, srvc_entry_len_ti, &ei_srvc_entry_len_too_short);
 			offset += srvc_entry_len;
@@ -1485,8 +1485,8 @@ dissect_lat_response_information(tvbuff_t *tvb, int offset, proto_tree *tree,
 	}
 
 	for (;;) {
-		guint32 param_code;
-		guint32 param_len;
+		uint32_t param_code;
+		uint32_t param_len;
 
 		proto_tree_add_item_ret_uint(tree, hf_lat_param_code, tvb, offset, 1, ENC_LITTLE_ENDIAN, &param_code);
 		offset += 1;
@@ -1502,7 +1502,7 @@ dissect_lat_response_information(tvbuff_t *tvb, int offset, proto_tree *tree,
 static int
 dissect_lat_string(tvbuff_t *tvb, int offset, int hf, proto_tree *tree)
 {
-	gint item_length;
+	int item_length;
 
 	proto_tree_add_item_ret_length(tree, hf, tvb, offset, 1, ENC_ASCII|ENC_LITTLE_ENDIAN, &item_length);
 	return offset + item_length;
@@ -2066,7 +2066,7 @@ proto_register_lat(void)
 		{ "Unknown command data", "lat.unknown_command_data", FT_BYTES,
 		  BASE_NONE, NULL, 0x0, NULL, HFILL}},
 	};
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_lat,
 		&ett_data_b_slot_control_flags,
 		&ett_lat_attention_slot_control_flags,

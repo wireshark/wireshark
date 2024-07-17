@@ -32,13 +32,13 @@ void proto_register_lbmpdm(void);
 /*------------*/
 typedef struct lbmpdm_msg_hdr_stct_t
 {
-    guint32 magic;
-    guint8 ver_type;
-    guint8 next_hdr;
-    guint8 def_major_ver;
-    guint8 def_minor_ver;
-    guint32 def_id;
-    guint32 len;
+    uint32_t magic;
+    uint8_t ver_type;
+    uint8_t next_hdr;
+    uint8_t def_major_ver;
+    uint8_t def_minor_ver;
+    uint32_t def_id;
+    uint32_t len;
 } lbmpdm_msg_hdr_t;
 #define O_LBMPDM_MSG_HDR_T_MAGIC OFFSETOF(lbmpdm_msg_hdr_t, magic)
 #define L_LBMPDM_MSG_HDR_T_MAGIC SIZEOF(lbmpdm_msg_hdr_t, magic)
@@ -54,17 +54,17 @@ typedef struct lbmpdm_msg_hdr_stct_t
 #define L_LBMPDM_MSG_HDR_T_DEF_ID SIZEOF(lbmpdm_msg_hdr_t, def_id)
 #define O_LBMPDM_MSG_HDR_T_LEN OFFSETOF(lbmpdm_msg_hdr_t, len)
 #define L_LBMPDM_MSG_HDR_T_LEN SIZEOF(lbmpdm_msg_hdr_t, len)
-#define L_LBMPDM_MSG_HDR_T (gint) sizeof(lbmpdm_msg_hdr_t)
+#define L_LBMPDM_MSG_HDR_T (int) sizeof(lbmpdm_msg_hdr_t)
 
 /*---------------------*/
 /* PDM segment header. */
 /*---------------------*/
 typedef struct lbmpdm_seg_hdr_stct_t
 {
-    guint8 next_hdr;
-    guint8 flags;
-    guint16 res;
-    guint32 len;
+    uint8_t next_hdr;
+    uint8_t flags;
+    uint16_t res;
+    uint32_t len;
 } lbmpdm_seg_hdr_t;
 #define O_LBMPDM_SEG_HDR_T_NEXT_HDR OFFSETOF(lbmpdm_seg_hdr_t, next_hdr)
 #define L_LBMPDM_SEG_HDR_T_NEXT_HDR SIZEOF(lbmpdm_seg_hdr_t, next_hdr)
@@ -74,21 +74,21 @@ typedef struct lbmpdm_seg_hdr_stct_t
 #define L_LBMPDM_SEG_HDR_T_RES SIZEOF(lbmpdm_seg_hdr_t, res)
 #define O_LBMPDM_SEG_HDR_T_LEN OFFSETOF(lbmpdm_seg_hdr_t, len)
 #define L_LBMPDM_SEG_HDR_T_LEN SIZEOF(lbmpdm_seg_hdr_t, len)
-#define L_LBMPDM_SEG_HDR_T (gint) sizeof(lbmpdm_seg_hdr_t)
+#define L_LBMPDM_SEG_HDR_T (int) sizeof(lbmpdm_seg_hdr_t)
 
 /*--------------------------------*/
 /* PDM definition segment header. */
 /*--------------------------------*/
 typedef struct lbmpdm_defn_stct_t
 {
-    gint32 id;
-    gint32 num_fields;
-    guint8 field_names_type;
-    guint8 finalized;
-    guint8 msg_vers_major;
-    guint8 msg_vers_minor;
-    guint32 fixed_req_section_len;
-    guint32 field_info_len;
+    int32_t id;
+    int32_t num_fields;
+    uint8_t field_names_type;
+    uint8_t finalized;
+    uint8_t msg_vers_major;
+    uint8_t msg_vers_minor;
+    uint32_t fixed_req_section_len;
+    uint32_t field_info_len;
 } lbmpdm_defn_t;
 #define O_LBMPDM_DEFN_T_ID OFFSETOF(lbmpdm_defn_t, id)
 #define L_LBMPDM_DEFN_T_ID SIZEOF(lbmpdm_defn_t, id)
@@ -106,21 +106,21 @@ typedef struct lbmpdm_defn_stct_t
 #define L_LBMPDM_DEFN_T_FIXED_REQ_SECTION_LEN SIZEOF(lbmpdm_defn_t, fixed_req_section_len)
 #define O_LBMPDM_DEFN_T_FIELD_INFO_LEN OFFSETOF(lbmpdm_defn_t, field_info_len)
 #define L_LBMPDM_DEFN_T_FIELD_INFO_LEN SIZEOF(lbmpdm_defn_t, field_info_len)
-#define L_LBMPDM_DEFN_T (gint) sizeof(lbmpdm_defn_t)
+#define L_LBMPDM_DEFN_T (int) sizeof(lbmpdm_defn_t)
 
 /*----------------------------*/
 /* PDM definition field info. */
 /*----------------------------*/
 typedef struct lbmpdm_field_info_stct_t
 {
-    guint32 id;
-    guint32 len;
-    guint32 fixed_str_len;
-    guint32 num_arr_elem;
-    guint8 req;
-    guint8 fixed;
-    gint32 fld_int_name;
-    gint32 str_name_len;
+    uint32_t id;
+    uint32_t len;
+    uint32_t fixed_str_len;
+    uint32_t num_arr_elem;
+    uint8_t req;
+    uint8_t fixed;
+    int32_t fld_int_name;
+    int32_t str_name_len;
     /* NUL-terminated field name, if str_name_len != 0 */
     /* int16_t fld_type */
 } lbmpdm_field_info_t;
@@ -141,21 +141,21 @@ typedef struct lbmpdm_field_info_stct_t
 #define O_LBMPDM_FIELD_INFO_T_STR_NAME_LEN (O_LBMPDM_FIELD_INFO_T_FLD_INT_NAME + L_LBMPDM_FIELD_INFO_T_FLD_INT_NAME)
 #define L_LBMPDM_FIELD_INFO_T_STR_NAME_LEN 4
 #define L_LBMPDM_FIELD_INFO_T (O_LBMPDM_FIELD_INFO_T_STR_NAME_LEN + L_LBMPDM_FIELD_INFO_T_STR_NAME_LEN)
-#define L_LBMPDM_FIELD_INFO_T_INT_NAME (gint) (L_LBMPDM_FIELD_INFO_T + 2)
+#define L_LBMPDM_FIELD_INFO_T_INT_NAME (int) (L_LBMPDM_FIELD_INFO_T + 2)
 
 /*---------------------------------*/
 /* PDM offset table segment entry. */
 /*---------------------------------*/
 typedef struct
 {
-    guint32 id;
-    guint32 offset;
+    uint32_t id;
+    uint32_t offset;
 } lbmpdm_offset_entry_t;
 #define O_LBMPDM_OFFSET_ENTRY_T_ID OFFSETOF(lbmpdm_offset_entry_t, id)
 #define L_LBMPDM_OFFSET_ENTRY_T_ID SIZEOF(lbmpdm_offset_entry_t, id)
 #define O_LBMPDM_OFFSET_ENTRY_T_OFFSET OFFSETOF(lbmpdm_offset_entry_t, offset)
 #define L_LBMPDM_OFFSET_ENTRY_T_OFFSET SIZEOF(lbmpdm_offset_entry_t, offset)
-#define L_LBMPDM_OFFSET_ENTRY_T (gint) sizeof(lbmpdm_offset_entry_t)
+#define L_LBMPDM_OFFSET_ENTRY_T (int) sizeof(lbmpdm_offset_entry_t)
 
 /*-----------------------------------*/
 /* Header types (value of next_hdr). */
@@ -233,9 +233,9 @@ typedef struct
 
 typedef struct
 {
-    guint32 num_flds;
-    gint32 * min_set_offset;
-    gint32 * offset_list;
+    uint32_t num_flds;
+    int32_t * min_set_offset;
+    int32_t * offset_list;
 } lbmpdm_offset_table_t;
 
 struct lbmpdm_definition_field_t_stct;
@@ -246,16 +246,16 @@ typedef struct lbmpdm_definition_t_stct lbmpdm_definition_t;
 
 struct lbmpdm_definition_field_t_stct
 {
-    guint32 id;
-    guint32 len;
-    guint32 fixed_string_len;
-    guint32 num_array_elem;
-    guint8 required;
-    guint8 fixed;
-    guint16 field_type;
-    guint16 base_type;
-    gint32 field_int_name;
-    guint32 field_string_name_len;
+    uint32_t id;
+    uint32_t len;
+    uint32_t fixed_string_len;
+    uint32_t num_array_elem;
+    uint8_t required;
+    uint8_t fixed;
+    uint16_t field_type;
+    uint16_t base_type;
+    int32_t field_int_name;
+    uint32_t field_string_name_len;
     char * field_string_name;
     int fixed_required_offset;
     lbmpdm_definition_field_t * next_fixed_required;
@@ -264,25 +264,25 @@ struct lbmpdm_definition_field_t_stct
 
 struct lbmpdm_definition_t_stct
 {
-    guint64 channel;
-    guint32 id;
-    guint8 vers_major;
-    guint8 vers_minor;
-    gint32 num_fields;
-    guint8 field_names_type;
-    guint8 finalized;
-    guint32 fixed_req_section_len;
-    guint32 fixed_required_count;
+    uint64_t channel;
+    uint32_t id;
+    uint8_t vers_major;
+    uint8_t vers_minor;
+    int32_t num_fields;
+    uint8_t field_names_type;
+    uint8_t finalized;
+    uint32_t fixed_req_section_len;
+    uint32_t fixed_required_count;
     lbmpdm_definition_field_t * first_fixed_required;
     wmem_tree_t * field_list;
 };
 
 typedef struct
 {
-    guint64 channel;
-    guint32 msg_def_id;
-    guint8 ver_major;
-    guint8 ver_minor;
+    uint64_t channel;
+    uint32_t msg_def_id;
+    uint8_t ver_major;
+    uint8_t ver_minor;
     lbmpdm_offset_table_t * offset_table;
 } lbmpdm_msg_definition_id_t;
 
@@ -370,12 +370,12 @@ static int hf_lbmpdm_field_value_blob;
 static int hf_lbmpdm_field_value_message;
 
 /* Protocol trees */
-static gint ett_lbmpdm;
-static gint ett_lbmpdm_segments;
-static gint ett_lbmpdm_segment;
-static gint ett_lbmpdm_offset_entry;
-static gint ett_lbmpdm_segment_def_field;
-static gint ett_lbmpdm_field;
+static int ett_lbmpdm;
+static int ett_lbmpdm_segments;
+static int ett_lbmpdm_segment;
+static int ett_lbmpdm_offset_entry;
+static int ett_lbmpdm_segment_def_field;
+static int ett_lbmpdm_field;
 
 /*----------------------------------------------------------------------------*/
 /* Value translation tables.                                                  */
@@ -457,19 +457,19 @@ static const value_string lbmpdm_field_fixed_length[] =
 
 static int lbmpdm_get_segment_length(tvbuff_t * tvb, int offset, int encoding, int * data_length)
 {
-    guint32 datalen = 0;
+    uint32_t datalen = 0;
     int seglen = 0;
 
-    datalen = tvb_get_guint32(tvb, offset + O_LBMPDM_SEG_HDR_T_LEN, encoding);
+    datalen = tvb_get_uint32(tvb, offset + O_LBMPDM_SEG_HDR_T_LEN, encoding);
     seglen = ((int)datalen) + L_LBMPDM_SEG_HDR_T;
     *data_length = (int) datalen;
     return (seglen);
 }
 
-static void lbmpdm_definition_build_key(guint32 * key_value, wmem_tree_key_t * key, guint64 channel, guint32 id, guint8 version_major, guint8 version_minor)
+static void lbmpdm_definition_build_key(uint32_t * key_value, wmem_tree_key_t * key, uint64_t channel, uint32_t id, uint8_t version_major, uint8_t version_minor)
 {
-    key_value[LBMPDM_DEFINITION_KEY_ELEMENT_CHANNEL_HIGH] = (guint32) ((channel >> 32) & 0xffffffff);
-    key_value[LBMPDM_DEFINITION_KEY_ELEMENT_CHANNEL_LOW] = (guint32) (channel & 0xffffffff);
+    key_value[LBMPDM_DEFINITION_KEY_ELEMENT_CHANNEL_HIGH] = (uint32_t) ((channel >> 32) & 0xffffffff);
+    key_value[LBMPDM_DEFINITION_KEY_ELEMENT_CHANNEL_LOW] = (uint32_t) (channel & 0xffffffff);
     key_value[LBMPDM_DEFINITION_KEY_ELEMENT_ID] = id;
     key_value[LBMPDM_DEFINITION_KEY_ELEMENT_VERS_MAJOR] = version_major;
     key_value[LBMPDM_DEFINITION_KEY_ELEMENT_VERS_MINOR] = version_minor;
@@ -479,10 +479,10 @@ static void lbmpdm_definition_build_key(guint32 * key_value, wmem_tree_key_t * k
     key[1].key = NULL;
 }
 
-static lbmpdm_definition_t * lbmpdm_definition_find(guint64 channel, guint32 ID, guint8 version_major, guint8 version_minor)
+static lbmpdm_definition_t * lbmpdm_definition_find(uint64_t channel, uint32_t ID, uint8_t version_major, uint8_t version_minor)
 {
     lbmpdm_definition_t * entry = NULL;
-    guint32 keyval[LBMPDM_DEFINITION_KEY_ELEMENT_COUNT];
+    uint32_t keyval[LBMPDM_DEFINITION_KEY_ELEMENT_COUNT];
     wmem_tree_key_t tkey[2];
 
     lbmpdm_definition_build_key(keyval, tkey, channel, ID, version_major, version_minor);
@@ -490,10 +490,10 @@ static lbmpdm_definition_t * lbmpdm_definition_find(guint64 channel, guint32 ID,
     return (entry);
 }
 
-static lbmpdm_definition_t * lbmpdm_definition_add(guint64 channel, guint32 id, guint8 version_major, guint8 version_minor)
+static lbmpdm_definition_t * lbmpdm_definition_add(uint64_t channel, uint32_t id, uint8_t version_major, uint8_t version_minor)
 {
     lbmpdm_definition_t * entry = NULL;
-    guint32 keyval[LBMPDM_DEFINITION_KEY_ELEMENT_COUNT];
+    uint32_t keyval[LBMPDM_DEFINITION_KEY_ELEMENT_COUNT];
     wmem_tree_key_t tkey[2];
 
     entry = lbmpdm_definition_find(channel, id, version_major, version_minor);
@@ -512,7 +512,7 @@ static lbmpdm_definition_t * lbmpdm_definition_add(guint64 channel, guint32 id, 
     return (entry);
 }
 
-static lbmpdm_definition_field_t * lbmpdm_definition_field_find(lbmpdm_definition_t * definition, guint32 id)
+static lbmpdm_definition_field_t * lbmpdm_definition_field_find(lbmpdm_definition_t * definition, uint32_t id)
 {
     lbmpdm_definition_field_t * entry = NULL;
 
@@ -520,7 +520,7 @@ static lbmpdm_definition_field_t * lbmpdm_definition_field_find(lbmpdm_definitio
     return (entry);
 }
 
-static lbmpdm_definition_field_t * lbmpdm_definition_field_add(lbmpdm_definition_t * definition, guint32 id)
+static lbmpdm_definition_field_t * lbmpdm_definition_field_add(lbmpdm_definition_t * definition, uint32_t id)
 {
     lbmpdm_definition_field_t * entry = NULL;
 
@@ -539,7 +539,7 @@ static lbmpdm_definition_field_t * lbmpdm_definition_field_add(lbmpdm_definition
 /*----------------------------------------------------------------------------*/
 /* Dissection functions.                                                      */
 /*----------------------------------------------------------------------------*/
-static void dissect_field_value(tvbuff_t * tvb, int offset, proto_tree * tree, guint16 field_type, int field_length, int encoding)
+static void dissect_field_value(tvbuff_t * tvb, int offset, proto_tree * tree, uint16_t field_type, int field_length, int encoding)
 {
     switch (field_type)
     {
@@ -578,14 +578,14 @@ static void dissect_field_value(tvbuff_t * tvb, int offset, proto_tree * tree, g
             break;
         case PDM_TYPE_DECIMAL:
             {
-                gint64 mantissa;
-                gint8 exponent;
-                gint64 whole = 0;
-                guint64 fraction = 0;
-                gint8 shift_count;
+                int64_t mantissa;
+                int8_t exponent;
+                int64_t whole = 0;
+                uint64_t fraction = 0;
+                int8_t shift_count;
 
-                exponent = tvb_get_gint8(tvb, offset);
-                mantissa = tvb_get_gint64(tvb, offset + 1, encoding);
+                exponent = tvb_get_int8(tvb, offset);
+                mantissa = tvb_get_int64(tvb, offset + 1, encoding);
                 if (exponent >= 0)
                 {
                     whole = mantissa;
@@ -600,7 +600,7 @@ static void dissect_field_value(tvbuff_t * tvb, int offset, proto_tree * tree, g
                 }
                 else
                 {
-                    guint64 divisor = 1;
+                    uint64_t divisor = 1;
                     int decimal_digits = -exponent;
                     shift_count = decimal_digits;
                     while (shift_count > 0)
@@ -632,8 +632,8 @@ static void dissect_field_value(tvbuff_t * tvb, int offset, proto_tree * tree, g
             {
                 nstime_t timestamp;
 
-                timestamp.secs = (time_t)tvb_get_guint32(tvb, offset, encoding);
-                timestamp.nsecs = (int)(tvb_get_guint32(tvb, offset + 4, encoding) * 1000);
+                timestamp.secs = (time_t)tvb_get_uint32(tvb, offset, encoding);
+                timestamp.nsecs = (int)(tvb_get_uint32(tvb, offset + 4, encoding) * 1000);
                 proto_tree_add_time(tree, hf_lbmpdm_field_value_timestamp, tvb, offset, field_length, &timestamp);
             }
             break;
@@ -660,14 +660,14 @@ static void dissect_field_value(tvbuff_t * tvb, int offset, proto_tree * tree, g
     }
 }
 
-static int dissect_field(tvbuff_t * tvb, int offset, proto_tree * tree, lbmpdm_definition_field_t * field, gboolean string_field_names, int encoding)
+static int dissect_field(tvbuff_t * tvb, int offset, proto_tree * tree, lbmpdm_definition_field_t * field, bool string_field_names, int encoding)
 {
     proto_item * field_item = NULL;
     proto_tree * field_tree = NULL;
     proto_item * ti = NULL;
     int ofs = offset;
-    guint32 element_count = 0;
-    guint32 idx;
+    uint32_t element_count = 0;
+    uint32_t idx;
     int len_dissected = 0;
 
     field_item = proto_tree_add_item(tree, hf_lbmpdm_field, tvb, offset, field->len, ENC_NA);
@@ -702,16 +702,16 @@ static int dissect_field(tvbuff_t * tvb, int offset, proto_tree * tree, lbmpdm_d
     for (idx = 0; idx < element_count; ++idx)
     {
         /* field_len is length of the entire entry, including any length prefix. */
-        guint32 field_len = field->len / element_count;
+        uint32_t field_len = field->len / element_count;
         /* value_len is the length of the data only. */
-        guint32 value_len = field_len;
+        uint32_t value_len = field_len;
         /* value_offset is the offset of the actual value. */
         int value_offset = ofs;
 
         if (field->fixed == PDM_DEFN_VARIABLE_LENGTH_FIELD)
         {
             proto_tree_add_item(field_tree, hf_lbmpdm_field_length, tvb, ofs, 4, encoding);
-            value_len = tvb_get_guint32(tvb, ofs, encoding);
+            value_len = tvb_get_uint32(tvb, ofs, encoding);
             field_len = value_len + 4;
             value_offset += 4;
         }
@@ -753,16 +753,16 @@ static int dissect_segment_data(tvbuff_t * tvb, int offset, packet_info * pinfo 
     {
         int fld_offset = offset + L_LBMPDM_SEG_HDR_T;
         lbmpdm_definition_field_t * field = NULL;
-        gboolean string_field_names = FALSE;
-        guint32 idx;
+        bool string_field_names = false;
+        uint32_t idx;
 
         if (def->field_names_type == PDM_DEFN_STR_FIELD_NAMES)
         {
-            string_field_names = TRUE;
+            string_field_names = true;
         }
         else
         {
-            string_field_names = FALSE;
+            string_field_names = false;
         }
 
         /* Handle any fixed required fields first. */
@@ -773,7 +773,7 @@ static int dissect_segment_data(tvbuff_t * tvb, int offset, packet_info * pinfo 
         /* Step through the offset table. */
         for (idx = 0; idx < id->offset_table->num_flds; ++idx)
         {
-            gint32 ofs = id->offset_table->offset_list[idx];
+            int32_t ofs = id->offset_table->offset_list[idx];
             if (ofs != -1)
             {
                 field = lbmpdm_definition_field_find(def, idx);
@@ -796,10 +796,10 @@ static int dissect_segment_ofstable(tvbuff_t * tvb, int offset, packet_info * pi
     int ofs = 0;
     int field_count = 0;
     int idx;
-    gint32 * id_list = NULL;
-    gint32 * ofs_list = NULL;
-    gint32 max_index = -1;
-    gint32 min_offset = G_MAXINT32;
+    int32_t * id_list = NULL;
+    int32_t * ofs_list = NULL;
+    int32_t max_index = -1;
+    int32_t min_offset = INT32_MAX;
     lbmpdm_offset_table_t * ofs_table = NULL;
 
     seglen = lbmpdm_get_segment_length(tvb, offset, encoding, &datalen);
@@ -810,8 +810,8 @@ static int dissect_segment_ofstable(tvbuff_t * tvb, int offset, packet_info * pi
     proto_tree_add_item(subtree, hf_lbmpdm_segment_res, tvb, offset + O_LBMPDM_SEG_HDR_T_RES, L_LBMPDM_SEG_HDR_T_RES, encoding);
     proto_tree_add_item(subtree, hf_lbmpdm_segment_len, tvb, offset + O_LBMPDM_SEG_HDR_T_LEN, L_LBMPDM_SEG_HDR_T_LEN, encoding);
     field_count = datalen / L_LBMPDM_OFFSET_ENTRY_T;
-    id_list = wmem_alloc_array(pinfo->pool, gint32, field_count);
-    ofs_list = wmem_alloc_array(pinfo->pool, gint32, field_count);
+    id_list = wmem_alloc_array(pinfo->pool, int32_t, field_count);
+    ofs_list = wmem_alloc_array(pinfo->pool, int32_t, field_count);
     for (idx = 0; idx < field_count; ++idx)
     {
         id_list[idx] = -1;
@@ -826,9 +826,9 @@ static int dissect_segment_ofstable(tvbuff_t * tvb, int offset, packet_info * pi
         offset_item = proto_tree_add_item(subtree, hf_lbmpdm_offset_entry, tvb, ofs, L_LBMPDM_OFFSET_ENTRY_T, ENC_NA);
         offset_tree = proto_item_add_subtree(offset_item, ett_lbmpdm_offset_entry);
         proto_tree_add_item(offset_tree, hf_lbmpdm_offset_entry_id, tvb, ofs + O_LBMPDM_OFFSET_ENTRY_T_ID, L_LBMPDM_OFFSET_ENTRY_T_ID, encoding);
-        id_list[idx] = (gint32)tvb_get_guint32(tvb, ofs + O_LBMPDM_OFFSET_ENTRY_T_ID, encoding);
+        id_list[idx] = (int32_t)tvb_get_uint32(tvb, ofs + O_LBMPDM_OFFSET_ENTRY_T_ID, encoding);
         proto_tree_add_item(offset_tree, hf_lbmpdm_offset_entry_offset, tvb, ofs + O_LBMPDM_OFFSET_ENTRY_T_OFFSET, L_LBMPDM_OFFSET_ENTRY_T_OFFSET, encoding);
-        ofs_list[idx] = (gint32)tvb_get_guint32(tvb, ofs + O_LBMPDM_OFFSET_ENTRY_T_OFFSET, encoding);
+        ofs_list[idx] = (int32_t)tvb_get_uint32(tvb, ofs + O_LBMPDM_OFFSET_ENTRY_T_OFFSET, encoding);
         if (id_list[idx] < 0 || ofs_list[idx] < 0) {
             THROW(ReportedBoundsError);
         }
@@ -844,7 +844,7 @@ static int dissect_segment_ofstable(tvbuff_t * tvb, int offset, packet_info * pi
     ofs_table = wmem_new(pinfo->pool, lbmpdm_offset_table_t);
     ofs_table->num_flds = max_index + 1;
     ofs_table->min_set_offset = NULL;
-    ofs_table->offset_list = wmem_alloc_array(pinfo->pool, gint32, ofs_table->num_flds);
+    ofs_table->offset_list = wmem_alloc_array(pinfo->pool, int32_t, ofs_table->num_flds);
     for (idx = 0; idx < (int)ofs_table->num_flds; ++idx)
     {
         ofs_table->offset_list[idx] = -1;
@@ -864,26 +864,26 @@ static int dissect_segment_ofstable(tvbuff_t * tvb, int offset, packet_info * pi
     return (seglen);
 }
 
-static int dissect_segment_defn(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, guint64 channel, int encoding)
+static int dissect_segment_defn(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, uint64_t channel, int encoding)
 {
     proto_item * subtree_item = NULL;
     proto_tree * subtree = NULL;
     int seglen = 0;
     int ofs = 0;
-    gboolean string_field_name = FALSE;
+    bool string_field_name = false;
     int remaining_datalen = 0;
-    guint32 num_fields = 0;
+    uint32_t num_fields = 0;
     lbmpdm_definition_t * def = NULL;
-    gboolean add_definition = FALSE;
-    guint32 def_id = 0;
-    guint8 vers_major = 0;
-    guint8 vers_minor = 0;
+    bool add_definition = false;
+    uint32_t def_id = 0;
+    uint8_t vers_major = 0;
+    uint8_t vers_minor = 0;
     lbmpdm_definition_field_t * last_fixed_required_field = NULL;
 
     seglen = lbmpdm_get_segment_length(tvb, offset, encoding, &remaining_datalen);
     if (pinfo->fd->visited == 0)
     {
-        add_definition = TRUE;
+        add_definition = true;
     }
     subtree_item = proto_tree_add_none_format(tree, hf_lbmpdm_segment, tvb, offset, seglen, "Definition Segment");
     subtree = proto_item_add_subtree(subtree_item, ett_lbmpdm_segment);
@@ -893,21 +893,21 @@ static int dissect_segment_defn(tvbuff_t * tvb, int offset, packet_info * pinfo,
     proto_tree_add_item(subtree, hf_lbmpdm_segment_len, tvb, offset + O_LBMPDM_SEG_HDR_T_LEN, L_LBMPDM_SEG_HDR_T_LEN, encoding);
     ofs = offset + L_LBMPDM_SEG_HDR_T;
     proto_tree_add_item(subtree, hf_lbmpdm_segment_def_id, tvb, ofs + O_LBMPDM_DEFN_T_ID, L_LBMPDM_DEFN_T_ID, encoding);
-    def_id = tvb_get_guint32(tvb, ofs + O_LBMPDM_DEFN_T_ID, encoding);
+    def_id = tvb_get_uint32(tvb, ofs + O_LBMPDM_DEFN_T_ID, encoding);
     proto_tree_add_item(subtree, hf_lbmpdm_segment_def_num_fields, tvb, ofs + O_LBMPDM_DEFN_T_NUM_FIELDS, L_LBMPDM_DEFN_T_NUM_FIELDS, encoding);
     proto_tree_add_item(subtree, hf_lbmpdm_segment_def_field_names_type, tvb, ofs + O_LBMPDM_DEFN_T_FIELD_NAMES_TYPE, L_LBMPDM_DEFN_T_FIELD_NAMES_TYPE, encoding);
     proto_tree_add_item(subtree, hf_lbmpdm_segment_def_finalized, tvb, ofs + O_LBMPDM_DEFN_T_FINALIZED, L_LBMPDM_DEFN_T_FINALIZED, encoding);
     proto_tree_add_item(subtree, hf_lbmpdm_segment_def_msg_vers_major, tvb, ofs + O_LBMPDM_DEFN_T_MSG_VERS_MAJOR, L_LBMPDM_DEFN_T_MSG_VERS_MAJOR, encoding);
-    vers_major = tvb_get_guint8(tvb, ofs + O_LBMPDM_DEFN_T_MSG_VERS_MAJOR);
+    vers_major = tvb_get_uint8(tvb, ofs + O_LBMPDM_DEFN_T_MSG_VERS_MAJOR);
     proto_tree_add_item(subtree, hf_lbmpdm_segment_def_msg_vers_minor, tvb, ofs + O_LBMPDM_DEFN_T_MSG_VERS_MINOR, L_LBMPDM_DEFN_T_MSG_VERS_MINOR, encoding);
-    vers_minor = tvb_get_guint8(tvb, ofs + O_LBMPDM_DEFN_T_MSG_VERS_MINOR);
+    vers_minor = tvb_get_uint8(tvb, ofs + O_LBMPDM_DEFN_T_MSG_VERS_MINOR);
     proto_tree_add_item(subtree, hf_lbmpdm_segment_def_fixed_req_section_len, tvb, ofs + O_LBMPDM_DEFN_T_FIXED_REQ_SECTION_LEN, L_LBMPDM_DEFN_T_FIXED_REQ_SECTION_LEN, encoding);
     proto_tree_add_item(subtree, hf_lbmpdm_segment_def_field_info_len, tvb, ofs + O_LBMPDM_DEFN_T_FIELD_INFO_LEN, L_LBMPDM_DEFN_T_FIELD_INFO_LEN, encoding);
-    if (tvb_get_guint8(tvb, ofs + O_LBMPDM_DEFN_T_FIELD_NAMES_TYPE) == PDM_DEFN_STR_FIELD_NAMES)
+    if (tvb_get_uint8(tvb, ofs + O_LBMPDM_DEFN_T_FIELD_NAMES_TYPE) == PDM_DEFN_STR_FIELD_NAMES)
     {
-        string_field_name = TRUE;
+        string_field_name = true;
     }
-    num_fields = tvb_get_guint32(tvb, ofs + O_LBMPDM_DEFN_T_NUM_FIELDS, encoding);
+    num_fields = tvb_get_uint32(tvb, ofs + O_LBMPDM_DEFN_T_NUM_FIELDS, encoding);
     if (add_definition)
     {
         def = lbmpdm_definition_find(channel, def_id, vers_major, vers_minor);
@@ -915,8 +915,8 @@ static int dissect_segment_defn(tvbuff_t * tvb, int offset, packet_info * pinfo,
         {
             def = lbmpdm_definition_add(channel, def_id, vers_major, vers_minor);
             def->num_fields = num_fields;
-            def->field_names_type = tvb_get_guint8(tvb, ofs + O_LBMPDM_DEFN_T_FIELD_NAMES_TYPE);
-            def->fixed_req_section_len = tvb_get_guint32(tvb, ofs + O_LBMPDM_DEFN_T_FIXED_REQ_SECTION_LEN, encoding);
+            def->field_names_type = tvb_get_uint8(tvb, ofs + O_LBMPDM_DEFN_T_FIELD_NAMES_TYPE);
+            def->fixed_req_section_len = tvb_get_uint32(tvb, ofs + O_LBMPDM_DEFN_T_FIXED_REQ_SECTION_LEN, encoding);
             def->first_fixed_required = NULL;
             def->fixed_required_count = 0;
         }
@@ -927,15 +927,15 @@ static int dissect_segment_defn(tvbuff_t * tvb, int offset, packet_info * pinfo,
     {
         proto_item * field_item = NULL;
         proto_tree * field_tree = NULL;
-        guint32 def_len = L_LBMPDM_FIELD_INFO_T_INT_NAME;
+        uint32_t def_len = L_LBMPDM_FIELD_INFO_T_INT_NAME;
         int def_ofs = 0;
         int type_ofs = L_LBMPDM_FIELD_INFO_T;
-        guint32 string_name_len = 0;
+        uint32_t string_name_len = 0;
         int string_name_ofs = -1;
 
         if (string_field_name)
         {
-            def_len = tvb_get_guint32(tvb, ofs, encoding) + 4;
+            def_len = tvb_get_uint32(tvb, ofs, encoding) + 4;
         }
         field_item = proto_tree_add_item(subtree, hf_lbmpdm_segment_def_field, tvb, ofs, def_len, ENC_NA);
         field_tree = proto_item_add_subtree(field_item, ett_lbmpdm_segment_def_field);
@@ -955,7 +955,7 @@ static int dissect_segment_defn(tvbuff_t * tvb, int offset, packet_info * pinfo,
         proto_tree_add_item(field_tree, hf_lbmpdm_segment_def_field_str_name_len, tvb, ofs + def_ofs + O_LBMPDM_FIELD_INFO_T_STR_NAME_LEN, L_LBMPDM_FIELD_INFO_T_STR_NAME_LEN, encoding);
         if (string_field_name)
         {
-            string_name_len = tvb_get_guint32(tvb, ofs + def_ofs + O_LBMPDM_FIELD_INFO_T_STR_NAME_LEN, encoding);
+            string_name_len = tvb_get_uint32(tvb, ofs + def_ofs + O_LBMPDM_FIELD_INFO_T_STR_NAME_LEN, encoding);
             if (string_name_len > 0)
             {
                 string_name_ofs = ofs + def_ofs + L_LBMPDM_FIELD_INFO_T;
@@ -967,21 +967,21 @@ static int dissect_segment_defn(tvbuff_t * tvb, int offset, packet_info * pinfo,
         if (add_definition && (def != NULL))
         {
             lbmpdm_definition_field_t * field = NULL;
-            guint32 field_id;
+            uint32_t field_id;
 
-            field_id = tvb_get_guint32(tvb, ofs + def_ofs + O_LBMPDM_FIELD_INFO_T_ID, encoding);
+            field_id = tvb_get_uint32(tvb, ofs + def_ofs + O_LBMPDM_FIELD_INFO_T_ID, encoding);
             field = lbmpdm_definition_field_find(def, field_id);
             if (field == NULL)
             {
                 field = lbmpdm_definition_field_add(def, field_id);
                 if (field != NULL)
                 {
-                    field->len = tvb_get_guint32(tvb, ofs + def_ofs + O_LBMPDM_FIELD_INFO_T_LEN, encoding);
-                    field->fixed_string_len = tvb_get_guint32(tvb, ofs + def_ofs + O_LBMPDM_FIELD_INFO_T_FIXED_STR_LEN, encoding);
-                    field->num_array_elem = tvb_get_guint32(tvb, ofs + def_ofs + O_LBMPDM_FIELD_INFO_T_NUM_ARR_ELEM, encoding);
-                    field->required = tvb_get_guint8(tvb, ofs + def_ofs + O_LBMPDM_FIELD_INFO_T_REQ);
-                    field->fixed = tvb_get_guint8(tvb, ofs + def_ofs + O_LBMPDM_FIELD_INFO_T_FIXED);
-                    field->field_int_name = tvb_get_guint32(tvb, ofs + def_ofs + O_LBMPDM_FIELD_INFO_T_FLD_INT_NAME, encoding);
+                    field->len = tvb_get_uint32(tvb, ofs + def_ofs + O_LBMPDM_FIELD_INFO_T_LEN, encoding);
+                    field->fixed_string_len = tvb_get_uint32(tvb, ofs + def_ofs + O_LBMPDM_FIELD_INFO_T_FIXED_STR_LEN, encoding);
+                    field->num_array_elem = tvb_get_uint32(tvb, ofs + def_ofs + O_LBMPDM_FIELD_INFO_T_NUM_ARR_ELEM, encoding);
+                    field->required = tvb_get_uint8(tvb, ofs + def_ofs + O_LBMPDM_FIELD_INFO_T_REQ);
+                    field->fixed = tvb_get_uint8(tvb, ofs + def_ofs + O_LBMPDM_FIELD_INFO_T_FIXED);
+                    field->field_int_name = tvb_get_uint32(tvb, ofs + def_ofs + O_LBMPDM_FIELD_INFO_T_FLD_INT_NAME, encoding);
                     if (string_field_name && (string_name_len > 0))
                     {
                         field->field_string_name_len = string_name_len;
@@ -992,7 +992,7 @@ static int dissect_segment_defn(tvbuff_t * tvb, int offset, packet_info * pinfo,
                         field->field_string_name_len = 0;
                         field->field_string_name = NULL;
                     }
-                    field->field_type = tvb_get_guint16(tvb, ofs + type_ofs, encoding);
+                    field->field_type = tvb_get_uint16(tvb, ofs + type_ofs, encoding);
                     switch (field->field_type)
                     {
                         case PDM_TYPE_BOOLEAN:
@@ -1116,18 +1116,18 @@ static int dissect_segment_unknown(tvbuff_t * tvb, int offset, packet_info * pin
     return (seglen);
 }
 
-static gboolean check_lbmpdm_encoding(tvbuff_t * tvb, int offset, int * encoding)
+static bool check_lbmpdm_encoding(tvbuff_t * tvb, int offset, int * encoding)
 {
-    guint8 magic_byte_1;
-    guint8 magic_byte_2;
-    guint8 magic_byte_3;
-    guint8 magic_byte_4;
-    gboolean result = TRUE;
+    uint8_t magic_byte_1;
+    uint8_t magic_byte_2;
+    uint8_t magic_byte_3;
+    uint8_t magic_byte_4;
+    bool result = true;
 
-    magic_byte_1 = tvb_get_guint8(tvb, offset);
-    magic_byte_2 = tvb_get_guint8(tvb, offset + 1);
-    magic_byte_3 = tvb_get_guint8(tvb, offset + 2);
-    magic_byte_4 = tvb_get_guint8(tvb, offset + 3);
+    magic_byte_1 = tvb_get_uint8(tvb, offset);
+    magic_byte_2 = tvb_get_uint8(tvb, offset + 1);
+    magic_byte_3 = tvb_get_uint8(tvb, offset + 2);
+    magic_byte_4 = tvb_get_uint8(tvb, offset + 3);
     if ((magic_byte_1 == PDM_MSG_HDR_BE_MAGIC_BYTE_1) && (magic_byte_2 == PDM_MSG_HDR_BE_MAGIC_BYTE_2)
         && (magic_byte_3 == PDM_MSG_HDR_BE_MAGIC_BYTE_3) && (magic_byte_4 == PDM_MSG_HDR_BE_MAGIC_BYTE_4))
     {
@@ -1140,25 +1140,25 @@ static gboolean check_lbmpdm_encoding(tvbuff_t * tvb, int offset, int * encoding
     }
     else
     {
-        result = FALSE;
+        result = false;
     }
     return (result);
 }
 
-gboolean lbmpdm_verify_payload(tvbuff_t * tvb, int offset, int * encoding, int * length)
+bool lbmpdm_verify_payload(tvbuff_t * tvb, int offset, int * encoding, int * length)
 {
-    guint8 next_header;
-    guint32 len = 0;
+    uint8_t next_header;
+    uint32_t len = 0;
 
     if (!tvb_bytes_exist(tvb, offset, L_LBMPDM_MSG_HDR_T))
     {
-        return FALSE;
+        return false;
     }
     if (!check_lbmpdm_encoding(tvb, offset, encoding))
     {
-        return FALSE;
+        return false;
     }
-    next_header = tvb_get_guint8(tvb, offset + O_LBMPDM_MSG_HDR_T_NEXT_HDR);
+    next_header = tvb_get_uint8(tvb, offset + O_LBMPDM_MSG_HDR_T_NEXT_HDR);
     switch (next_header)
     {
         case PDM_HDR_TYPE_DATA:
@@ -1167,26 +1167,26 @@ gboolean lbmpdm_verify_payload(tvbuff_t * tvb, int offset, int * encoding, int *
         case PDM_HDR_TYPE_EOM:
             break;
         default:
-            return FALSE;
+            return false;
             break;
     }
-    len = tvb_get_guint32(tvb, offset + O_LBMPDM_MSG_HDR_T_LEN, *encoding);
-    if (len > G_MAXINT)
+    len = tvb_get_uint32(tvb, offset + O_LBMPDM_MSG_HDR_T_LEN, *encoding);
+    if (len > INT_MAX)
     {
-        return FALSE;
+        return false;
     }
     *length = (int)len;
-    return TRUE;
+    return true;
 }
 
-int lbmpdm_dissect_lbmpdm_payload(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, guint64 channel)
+int lbmpdm_dissect_lbmpdm_payload(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, uint64_t channel)
 {
     proto_item * subtree_item = NULL;
     proto_tree * subtree = NULL;
     proto_item * segments_item = NULL;
     proto_tree * segments_tree = NULL;
     proto_item * pi = NULL;
-    guint8 next_hdr;
+    uint8_t next_hdr;
     int dissected_len = 0;
     int encoding;
     int msglen = 0;
@@ -1194,7 +1194,7 @@ int lbmpdm_dissect_lbmpdm_payload(tvbuff_t * tvb, int offset, packet_info * pinf
     int ofs = 0;
     int segment_len = 0;
     int datalen = 0;
-    guint32 raw_msglen = 0;
+    uint32_t raw_msglen = 0;
     lbmpdm_msg_definition_id_t msgid;
 
     if (!lbmpdm_verify_payload(tvb, offset, &encoding, &raw_msglen))
@@ -1215,27 +1215,27 @@ int lbmpdm_dissect_lbmpdm_payload(tvbuff_t * tvb, int offset, packet_info * pinf
     proto_tree_add_item(subtree, hf_lbmpdm_type, tvb, offset + O_LBMPDM_MSG_HDR_T_VER_TYPE, L_LBMPDM_MSG_HDR_T_VER_TYPE, encoding);
     proto_tree_add_item(subtree, hf_lbmpdm_next_hdr, tvb, offset + O_LBMPDM_MSG_HDR_T_NEXT_HDR, L_LBMPDM_MSG_HDR_T_NEXT_HDR, encoding);
     proto_tree_add_item(subtree, hf_lbmpdm_def_major_ver, tvb, offset + O_LBMPDM_MSG_HDR_T_DEF_MAJOR_VER, L_LBMPDM_MSG_HDR_T_DEF_MAJOR_VER, encoding);
-    msgid.ver_major = tvb_get_guint8(tvb, offset + O_LBMPDM_MSG_HDR_T_DEF_MAJOR_VER);
+    msgid.ver_major = tvb_get_uint8(tvb, offset + O_LBMPDM_MSG_HDR_T_DEF_MAJOR_VER);
     proto_tree_add_item(subtree, hf_lbmpdm_def_minor_ver, tvb, offset + O_LBMPDM_MSG_HDR_T_DEF_MINOR_VER, L_LBMPDM_MSG_HDR_T_DEF_MINOR_VER, encoding);
-    msgid.ver_minor = tvb_get_guint8(tvb, offset + O_LBMPDM_MSG_HDR_T_DEF_MINOR_VER);
+    msgid.ver_minor = tvb_get_uint8(tvb, offset + O_LBMPDM_MSG_HDR_T_DEF_MINOR_VER);
     proto_tree_add_item(subtree, hf_lbmpdm_def_id, tvb, offset + O_LBMPDM_MSG_HDR_T_DEF_ID, L_LBMPDM_MSG_HDR_T_DEF_ID, encoding);
-    msgid.msg_def_id = tvb_get_guint32(tvb, offset + O_LBMPDM_MSG_HDR_T_DEF_ID, encoding);
+    msgid.msg_def_id = tvb_get_uint32(tvb, offset + O_LBMPDM_MSG_HDR_T_DEF_ID, encoding);
     proto_tree_add_item(subtree, hf_lbmpdm_len, tvb, offset + O_LBMPDM_MSG_HDR_T_LEN, L_LBMPDM_MSG_HDR_T_LEN, encoding);
 
-    next_hdr = tvb_get_guint8(tvb, offset + O_LBMPDM_MSG_HDR_T_NEXT_HDR);
+    next_hdr = tvb_get_uint8(tvb, offset + O_LBMPDM_MSG_HDR_T_NEXT_HDR);
     len_remaining = msglen - L_LBMPDM_MSG_HDR_T;
     ofs = offset + L_LBMPDM_MSG_HDR_T;
     dissected_len = L_LBMPDM_MSG_HDR_T;
     datalen = msglen - L_LBMPDM_MSG_HDR_T;
     if (len_remaining > 0)
     {
-        guint8 this_hdr = next_hdr;
+        uint8_t this_hdr = next_hdr;
 
         segments_item = proto_tree_add_item(subtree, hf_lbmpdm_segments, tvb, ofs, datalen, encoding);
         segments_tree = proto_item_add_subtree(segments_item, ett_lbmpdm_segments);
         while ((this_hdr != PDM_HDR_TYPE_EOM) && (len_remaining >= L_LBMPDM_SEG_HDR_T))
         {
-            next_hdr = tvb_get_guint8(tvb, ofs + O_LBMPDM_SEG_HDR_T_NEXT_HDR);
+            next_hdr = tvb_get_uint8(tvb, ofs + O_LBMPDM_SEG_HDR_T_NEXT_HDR);
             switch (this_hdr)
             {
                 case PDM_HDR_TYPE_DATA:
@@ -1401,7 +1401,7 @@ void proto_register_lbmpdm(void)
         { &hf_lbmpdm_field_value_message,
             { "MESSAGE Value", "lbmpdm.field.value_message", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } }
     };
-    static gint * ett[] =
+    static int * ett[] =
     {
         &ett_lbmpdm,
         &ett_lbmpdm_segments,

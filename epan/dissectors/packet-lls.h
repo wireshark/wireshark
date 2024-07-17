@@ -14,23 +14,23 @@
 #define __PACKET_LLS_H__
 
 typedef struct {
-    guint32 src_ip;
-    guint32 dst_ip;
-    guint16 dst_port;
+    uint32_t src_ip;
+    uint32_t dst_ip;
+    uint16_t dst_port;
 } lls_slt_key_t;
 
 typedef struct {
-    guint8 service_category;
-    guint8 sls_protocol;
-    guint16 service_id;
-    gint32 major_channel_num;
-    gint32 minor_channel_num;
+    uint8_t service_category;
+    uint8_t sls_protocol;
+    uint16_t service_id;
+    int32_t major_channel_num;
+    int32_t minor_channel_num;
 } lls_slt_value_t;
 
 /* SLT Table Routines */
 
 void lls_extract_save_slt_table(packet_info *pinfo, dissector_handle_t xml_handle);
-gboolean test_alc_over_slt(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data);
-gchar *get_slt_channel_info(packet_info *pinfo);
+bool test_alc_over_slt(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data);
+char *get_slt_channel_info(packet_info *pinfo);
 
 #endif

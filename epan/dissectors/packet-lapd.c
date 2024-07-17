@@ -64,10 +64,10 @@ static int hf_lapd_ftype_s_u_ext;
 static int hf_lapd_checksum;
 static int hf_lapd_checksum_status;
 
-static gint ett_lapd;
-static gint ett_lapd_address;
-static gint ett_lapd_control;
-static gint ett_lapd_checksum;
+static int ett_lapd;
+static int ett_lapd_address;
+static int ett_lapd_control;
+static int ett_lapd_checksum;
 
 static expert_field ei_lapd_abort;
 static expert_field ei_lapd_checksum_bad;
@@ -161,7 +161,7 @@ typedef struct lapd_byte_state {
 } lapd_byte_state_t;
 
 typedef struct lapd_ppi {
-	gboolean		has_crc; 		/* CRC is captured with LAPD the frames */
+	bool		has_crc; 		/* CRC is captured with LAPD the frames */
 	lapd_byte_state_t	start_byte_state; 	/* LAPD bitstream byte state at the beginning of processing the packet */
 } lapd_ppi_t;
 
@@ -181,15 +181,15 @@ fill_lapd_byte_state(lapd_byte_state_t *ptr, enum lapd_bitstream_states state, c
 typedef struct lapd_convo_data {
 	address		addr_a;
 	address		addr_b;
-	guint32		port_a;
-	guint32		port_b;
+	uint32_t		port_a;
+	uint32_t		port_b;
 	lapd_byte_state_t	*byte_state_a;
 	lapd_byte_state_t	*byte_state_b;
 } lapd_convo_data_t;
 
 
 static void
-dissect_lapd_full(tvbuff_t*, packet_info*, proto_tree*, guint32);
+dissect_lapd_full(tvbuff_t*, packet_info*, proto_tree*, uint32_t);
 
 /* got new LAPD frame byte */
 static void new_byte(char full_byte, char data[], int *data_len) {
@@ -202,7 +202,7 @@ static void new_byte(char full_byte, char data[], int *data_len) {
 }
 
 static void
-lapd_log_abort(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, const char *msg)
+lapd_log_abort(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, const char *msg)
 {
 	proto_item *ti;
 
@@ -223,12 +223,12 @@ lapd_log_abort(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset
 static int
 dissect_lapd_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dissector_data _U_)
 {
-	guint8		byte, full_byte = 0x00, bit_offset = 0;
-	gboolean	bit;
-	guint8		i, ones = 0, data[MAX_LAPD_PACKET_LEN];
+	uint8_t		byte, full_byte = 0x00, bit_offset = 0;
+	bool	bit;
+	uint8_t		i, ones = 0, data[MAX_LAPD_PACKET_LEN];
 	int		data_len = 0;
-	gint		offset = 0, available;
-	guint8		*buff;
+	int		offset = 0, available;
+	uint8_t		*buff;
 	tvbuff_t	*new_tvb;
 
 	enum lapd_bitstream_states state = OUT_OF_SYNC;
@@ -236,7 +236,7 @@ dissect_lapd_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 	conversation_t		*conversation = NULL;
 	lapd_convo_data_t	*convo_data = NULL;
 	lapd_byte_state_t	*lapd_byte_state, *prev_byte_state = NULL;
-	gboolean		forward_stream = TRUE;
+	bool		forward_stream = true;
 
 	/* get remaining data from previous packets */
 	conversation = find_or_create_conversation(pinfo);
@@ -260,14 +260,14 @@ dissect_lapd_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 					&& convo_data-> port_a == pinfo->srcport
 					&& convo_data-> port_b == pinfo->destport) {
 				/* "forward" direction */
-				forward_stream = TRUE;
+				forward_stream = true;
 				prev_byte_state = convo_data->byte_state_a;
 			} else if (addresses_equal(&convo_data-> addr_b, &pinfo->src)
 					&& addresses_equal(&convo_data->addr_a, &pinfo->dst)
 					&& convo_data-> port_b == pinfo->srcport
 					&& convo_data-> port_a == pinfo->destport) {
 				/* "backward" direction */
-				forward_stream = FALSE;
+				forward_stream = false;
 				prev_byte_state = convo_data->byte_state_b;
 			}
 		}
@@ -285,10 +285,10 @@ dissect_lapd_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 	/* Consume tvb bytes */
 	available = tvb_reported_length_remaining(tvb, offset);
 	while (offset < available) {
-		byte = tvb_get_guint8(tvb,offset);
+		byte = tvb_get_uint8(tvb,offset);
 		offset++;
 		for (i=0; i < 8; i++) { /* cycle through bits */
-			bit = byte & (0x80 >> i) ? TRUE : FALSE;
+			bit = byte & (0x80 >> i) ? true : false;
 
 			/* consume a bit */
 			if (bit) {
@@ -298,7 +298,7 @@ dissect_lapd_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 				if (ones == 5 && state == DATA) {
 					/* we don't increase bit_offset, it is an inserted zero */
 				} else if (ones == 6 && state == DATA) { /* probably starting flag sequence */
-					buff = (guint8 *)wmem_memdup(pinfo->pool, data, data_len);
+					buff = (uint8_t *)wmem_memdup(pinfo->pool, data, data_len);
 					/* Allocate new tvb for the LAPD frame */
 					new_tvb = tvb_new_child_real_data(tvb, buff, data_len, data_len);
 					add_new_data_source(pinfo, new_tvb, "Decoded LAPD bitstream");
@@ -365,7 +365,7 @@ dissect_lapd_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 		if (NULL == p_get_proto_data(wmem_file_scope(), pinfo, proto_lapd, 0)) {
 			/* Per packet information */
 			lapd_ppi = wmem_new(wmem_file_scope(), lapd_ppi_t);
-			lapd_ppi->has_crc = TRUE;
+			lapd_ppi->has_crc = true;
 			if (prev_byte_state)
 				fill_lapd_byte_state(&lapd_ppi->start_byte_state, prev_byte_state->state,
 						prev_byte_state->full_byte, prev_byte_state->bit_offset,
@@ -410,7 +410,7 @@ dissect_lapd_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 static int
 dissect_linux_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	guint32 flags = LAPD_HAS_LINUX_SLL | LAPD_HAS_DIRECTION;
+	uint32_t flags = LAPD_HAS_LINUX_SLL | LAPD_HAS_DIRECTION;
 
 	/* frame is captured via libpcap */
 	if (pinfo->pseudo_header->lapd.pkttype == 4 /*PACKET_OUTGOING*/) {
@@ -466,7 +466,7 @@ static int
 dissect_lapd_phdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	struct isdn_phdr *isdn = (struct isdn_phdr *)data;
-	guint32 flags = LAPD_HAS_DIRECTION;
+	uint32_t flags = LAPD_HAS_DIRECTION;
 
 	if (isdn->uton)
 		flags |= LAPD_USER_TO_NETWORK;
@@ -480,8 +480,8 @@ dissect_lapd_phdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 static int
 dissect_lapd_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	guint32 flags;
-	guint32 lapd_flags = 0;
+	uint32_t flags;
+	uint32_t lapd_flags = 0;
 
 	/*
 	 * If we have direction flags, we have a direction;
@@ -517,14 +517,14 @@ dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 }
 
 static void
-dissect_lapd_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 flags)
+dissect_lapd_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t flags)
 {
 	proto_tree	*lapd_tree, *addr_tree;
 	proto_item	*lapd_ti, *addr_ti;
-	guint16		control;
+	uint16_t		control;
 	int		lapd_header_len, checksum_offset;
-	guint16		addr, cr, sapi, tei;
-	gboolean	is_response = 0;
+	uint16_t		addr, cr, sapi, tei;
+	bool	is_response = 0;
 	tvbuff_t	*next_tvb;
 	const char	*srcname = "?";
 	const char	*dstname = "?";
@@ -544,7 +544,7 @@ dissect_lapd_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 f
 
 	if (flags & LAPD_HAS_DIRECTION) {
 		if (flags & LAPD_USER_TO_NETWORK) {
-			is_response = cr ? TRUE : FALSE;
+			is_response = cr ? true : false;
 			if (flags & LAPD_HAS_LINUX_SLL) {
 				srcname = (flags & LAPD_USER_IS_REMOTE) ?
 				    "Remote User" : "Local User";
@@ -555,7 +555,7 @@ dissect_lapd_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 f
 				dstname = "Network";
 			}
 		} else {
-			is_response = cr ? FALSE : TRUE;
+			is_response = cr ? false : true;
 			if (flags & LAPD_HAS_LINUX_SLL) {
 				srcname = (flags & LAPD_NETWORK_IS_REMOTE) ?
 				    "Remote Network" : "Local Network";
@@ -610,8 +610,8 @@ dissect_lapd_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 f
 
 	control = dissect_xdlc_control(tvb, 2, pinfo, lapd_tree, hf_lapd_control,
 	    ett_lapd_control, &lapd_cf_items, &lapd_cf_items_ext, NULL, NULL,
-	    is_response, TRUE, FALSE);
-	lapd_header_len += XDLC_CONTROL_LEN(control, TRUE);
+	    is_response, true, false);
+	lapd_header_len += XDLC_CONTROL_LEN(control, true);
 
 	if (tree)
 		proto_item_set_len(lapd_ti, lapd_header_len);
@@ -745,7 +745,7 @@ proto_register_lapd(void)
 		  { "Checksum Status", "lapd.checksum.status", FT_UINT8, BASE_NONE,
 		    VALS(proto_checksum_vals), 0x0, NULL, HFILL }},
 	};
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_lapd,
 		&ett_lapd_address,
 		&ett_lapd_control,

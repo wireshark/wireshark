@@ -58,9 +58,9 @@ static int hf_lin_err_invalidid;
 static int hf_lin_err_overflow;
 static int hf_lin_event_id;
 
-static gint ett_lin;
-static gint ett_lin_pid;
-static gint ett_errors;
+static int ett_lin;
+static int ett_lin_pid;
+static int ett_errors;
 
 static int * const error_fields[] = {
     &hf_lin_err_overflow,
@@ -114,9 +114,9 @@ void proto_register_lin(void);
 
 /* Interface Config UAT */
 typedef struct _interface_config {
-    guint     interface_id;
-    gchar    *interface_name;
-    guint     bus_id;
+    unsigned  interface_id;
+    char     *interface_name;
+    unsigned  bus_id;
 } interface_config_t;
 
 #define DATAFILE_LIN_INTERFACE_MAPPING "LIN_interface_mapping"
@@ -124,7 +124,7 @@ typedef struct _interface_config {
 static GHashTable *data_lin_interfaces_by_id;
 static GHashTable *data_lin_interfaces_by_name;
 static interface_config_t* interface_configs;
-static guint interface_config_num;
+static unsigned interface_config_num;
 
 UAT_HEX_CB_DEF(interface_configs, interface_id, interface_config_t)
 UAT_CSTRING_CB_DEF(interface_configs, interface_name, interface_config_t)
@@ -148,16 +148,16 @@ update_interface_config(void *r, char **err) {
     if (rec->interface_id > 0xffffffff) {
         *err = ws_strdup_printf("We currently only support 32 bit identifiers (ID: 0x%x  Name: %s)",
                                rec->interface_id, rec->interface_name);
-        return FALSE;
+        return false;
     }
 
     if (rec->bus_id > 0xffff) {
         *err = ws_strdup_printf("We currently only support 16 bit bus identifiers (ID: 0x%x  Name: %s  Bus-ID: 0x%x)",
                                 rec->interface_id, rec->interface_name, rec->bus_id);
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 static void
@@ -186,9 +186,9 @@ ht_lookup_interface_config_by_id(unsigned int identifier) {
 }
 
 static interface_config_t *
-ht_lookup_interface_config_by_name(const gchar *name) {
+ht_lookup_interface_config_by_name(const char *name) {
     interface_config_t *tmp = NULL;
-    gchar              *key = NULL;
+    char               *key = NULL;
 
     if (interface_configs == NULL) {
         return NULL;
@@ -202,15 +202,15 @@ ht_lookup_interface_config_by_name(const gchar *name) {
 }
 
 static void
-lin_free_key(gpointer key) {
+lin_free_key(void *key) {
     wmem_free(wmem_epan_scope(), key);
 }
 
 static void
 post_update_lin_interfaces_cb(void) {
-    guint  i;
+    unsigned  i;
     int   *key_id = NULL;
-    gchar *key_name = NULL;
+    char *key_name = NULL;
 
     /* destroy old hash tables, if they exist */
     if (data_lin_interfaces_by_id) {
@@ -250,13 +250,13 @@ post_update_lin_interfaces_cb(void) {
  * - interface_name = ""    and interface_id matches
  */
 
-static guint
+static unsigned
 get_bus_id(packet_info *pinfo) {
     if (!(pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)) {
         return 0;
     }
 
-    guint32             interface_id = pinfo->rec->rec_header.packet_header.interface_id;
+    uint32_t            interface_id = pinfo->rec->rec_header.packet_header.interface_id;
     unsigned            section_number = pinfo->rec->presence_flags & WTAP_HAS_SECTION_NUMBER ? pinfo->rec->section_number : 0;
     const char         *interface_name = epan_get_interface_name(pinfo->epan, interface_id, section_number);
     interface_config_t *tmp = NULL;
@@ -283,17 +283,17 @@ get_bus_id(packet_info *pinfo) {
 
 /* Senders and Receivers UAT */
 typedef struct _sender_receiver_config {
-    guint     bus_id;
-    guint     lin_id;
-    gchar    *sender_name;
-    gchar    *receiver_name;
+    unsigned  bus_id;
+    unsigned  lin_id;
+    char     *sender_name;
+    char     *receiver_name;
 } sender_receiver_config_t;
 
 #define DATAFILE_LIN_SENDER_RECEIVER "LIN_senders_receivers"
 
 static GHashTable *data_sender_receiver;
 static sender_receiver_config_t* sender_receiver_configs;
-static guint sender_receiver_config_num;
+static unsigned sender_receiver_config_num;
 
 UAT_HEX_CB_DEF(sender_receiver_configs, bus_id, sender_receiver_config_t)
 UAT_HEX_CB_DEF(sender_receiver_configs, lin_id, sender_receiver_config_t)
@@ -318,15 +318,15 @@ update_sender_receiver_config(void *r, char **err) {
 
     if (rec->lin_id > 0x3f) {
         *err = ws_strdup_printf("LIN IDs need to be between 0x00 and 0x3f (Bus ID: %i  LIN ID: %i)", rec->bus_id, rec->lin_id);
-        return FALSE;
+        return false;
     }
 
     if (rec->bus_id > 0xffff) {
         *err = ws_strdup_printf("We currently only support 16 bit bus identifiers (Bus ID: %i  LIN ID: %i)", rec->bus_id, rec->lin_id);
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 static void
@@ -339,15 +339,15 @@ free_sender_receiver_config_cb(void *r) {
     rec->receiver_name = NULL;
 }
 
-static guint64
-sender_receiver_key(guint16 bus_id, guint32 lin_id) {
-    return ((guint64)bus_id << 32) | lin_id;
+static uint64_t
+sender_receiver_key(uint16_t bus_id, uint32_t lin_id) {
+    return ((uint64_t)bus_id << 32) | lin_id;
 }
 
 static sender_receiver_config_t *
-ht_lookup_sender_receiver_config(guint16 bus_id, guint32 lin_id) {
+ht_lookup_sender_receiver_config(uint16_t bus_id, uint32_t lin_id) {
     sender_receiver_config_t *tmp = NULL;
-    guint64                   key = 0;
+    uint64_t                  key = 0;
 
     if (sender_receiver_configs == NULL) {
         return NULL;
@@ -365,14 +365,14 @@ ht_lookup_sender_receiver_config(guint16 bus_id, guint32 lin_id) {
 }
 
 static void
-sender_receiver_free_key(gpointer key) {
+sender_receiver_free_key(void *key) {
     wmem_free(wmem_epan_scope(), key);
 }
 
 static void
 post_update_sender_receiver_cb(void) {
-    guint    i;
-    guint64 *key_id = NULL;
+    unsigned i;
+    uint64_t *key_id = NULL;
 
     /* destroy old hash table, if it exist */
     if (data_sender_receiver) {
@@ -388,13 +388,13 @@ post_update_sender_receiver_cb(void) {
     }
 
     for (i = 0; i < sender_receiver_config_num; i++) {
-        key_id = wmem_new(wmem_epan_scope(), guint64);
+        key_id = wmem_new(wmem_epan_scope(), uint64_t);
         *key_id = sender_receiver_key(sender_receiver_configs[i].bus_id, sender_receiver_configs[i].lin_id);
         g_hash_table_insert(data_sender_receiver, key_id, &sender_receiver_configs[i]);
     }
 }
 
-gboolean
+bool
 lin_set_source_and_destination_columns(packet_info* pinfo, lin_info_t *lininfo) {
     sender_receiver_config_t *tmp = ht_lookup_sender_receiver_config(lininfo->bus_id, lininfo->id);
 
@@ -422,10 +422,10 @@ dissect_lin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     proto_tree *lin_id_tree;
     tvbuff_t   *next_tvb;
 
-    guint payload_length;
-    guint msg_type;
+    unsigned payload_length;
+    unsigned msg_type;
     lin_info_t lininfo;
-    guint64 errors;
+    uint64_t errors;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, LIN_NAME);
     col_clear(pinfo->cinfo, COL_INFO);
@@ -449,7 +449,7 @@ dissect_lin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
         proto_tree_add_item(lin_tree, hf_lin_checksum, tvb, 6, 1, ENC_BIG_ENDIAN);
 
-        lininfo.bus_id = (guint16)get_bus_id(pinfo);
+        lininfo.bus_id = (uint16_t)get_bus_id(pinfo);
         lininfo.len = 0;
         lin_set_source_and_destination_columns(pinfo, &lininfo);
     }
@@ -465,7 +465,7 @@ dissect_lin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     switch (msg_type) {
     case LIN_MSG_TYPE_EVENT: {
-        guint event_id;
+        unsigned event_id;
         proto_tree_add_item_ret_uint(lin_tree, hf_lin_event_id, tvb, 8, 4, ENC_BIG_ENDIAN, &event_id);
         col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", val_to_str(event_id, lin_event_type_names, "0x%08x"));
         proto_item_set_end(ti_root, tvb, 12);
@@ -477,11 +477,11 @@ dissect_lin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         if (payload_length > 0) {
             next_tvb = tvb_new_subset_length(tvb, 8, payload_length);
             proto_item_set_end(ti_root, tvb, 8 + payload_length);
-            lininfo.len = (guint16)payload_length;
+            lininfo.len = (uint16_t)payload_length;
 
-            guint32 bus_frame_id = lininfo.id | (lininfo.bus_id << 16);
-            if (!dissector_try_uint_new(subdissector_table, bus_frame_id, next_tvb, pinfo, tree, TRUE, &lininfo)) {
-                if (!dissector_try_uint_new(subdissector_table, lininfo.id, next_tvb, pinfo, tree, TRUE, &lininfo)) {
+            uint32_t bus_frame_id = lininfo.id | (lininfo.bus_id << 16);
+            if (!dissector_try_uint_new(subdissector_table, bus_frame_id, next_tvb, pinfo, tree, true, &lininfo)) {
+                if (!dissector_try_uint_new(subdissector_table, lininfo.id, next_tvb, pinfo, tree, true, &lininfo)) {
                     if (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &heur_dtbl_entry, &lininfo)) {
                         call_data_dissector(next_tvb, pinfo, tree);
                     }
@@ -563,7 +563,7 @@ proto_register_lin(void) {
             FT_UINT32, BASE_HEX_DEC, VALS(lin_event_type_names), 0x00, NULL, HFILL }},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_lin,
         &ett_lin_pid,
         &ett_errors,
@@ -591,7 +591,7 @@ proto_register_lin(void) {
     lin_interface_uat = uat_new("LIN Interface Mapping",
         sizeof(interface_config_t),             /* record size           */
         DATAFILE_LIN_INTERFACE_MAPPING,         /* filename              */
-        TRUE,                                   /* from profile          */
+        true,                                   /* from profile          */
         (void**)&interface_configs,             /* data_ptr              */
         &interface_config_num,                  /* numitems_ptr          */
         UAT_AFFECTS_DISSECTION,                 /* but not fields        */
@@ -618,7 +618,7 @@ proto_register_lin(void) {
     sender_receiver_uat = uat_new("Sender Receiver Config",
         sizeof(sender_receiver_config_t),       /* record size           */
         DATAFILE_LIN_SENDER_RECEIVER,           /* filename              */
-        TRUE,                                   /* from profile          */
+        true,                                   /* from profile          */
         (void**)&sender_receiver_configs,       /* data_ptr              */
         &sender_receiver_config_num,            /* numitems_ptr          */
         UAT_AFFECTS_DISSECTION,                 /* but not fields        */

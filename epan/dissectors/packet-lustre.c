@@ -724,110 +724,110 @@ static int hf_lustre_lfsck_reply_padding;
 static int hf_lustre_lfsck_reply_repaired;
 
 /* Ett declarations */
-static gint ett_lustre;
-static gint ett_lustre_lustre_handle_cookie;
-static gint ett_lustre_lustre_msg_v1;
-static gint ett_lustre_lustre_handle_v1;
-static gint ett_lustre_lustre_msg_v2;
-static gint ett_lustre_ptlrpc_body;
-static gint ett_lustre_lustre_handle_v2;
-static gint ett_lustre_obd_connect_data;
-static gint ett_lustre_lov_ost_data_v1;
-static gint ett_lustre_obd_statfs;
-static gint ett_lustre_obd_ioobj;
-static gint ett_lustre_niobuf_remote;
-static gint ett_lustre_rcs;
-static gint ett_lustre_fid_array;
-static gint ett_lustre_ost_lvb;
-static gint ett_lustre_lu_fid;
-static gint ett_lustre_mdc_swap_layouts;
-static gint ett_lustre_mdt_body;
-static gint ett_lustre_mdt_rec_reint;
-static gint ett_lustre_obd_quotactl;
-static gint ett_lustre_obd_dqinfo;
-static gint ett_lustre_obd_dqblk;
-static gint ett_lustre_quota_adjust_qunit;
-static gint ett_lustre_lov_desc;
-static gint ett_lustre_obd_uuid;
-static gint ett_lustre_ldlm_res_id;
-static gint ett_lustre_ldlm_extent;
-static gint ett_lustre_ldlm_inodebits;
-static gint ett_lustre_ldlm_flock;
-static gint ett_lustre_ldlm_intent_opc;
-static gint ett_lustre_ldlm_resource_desc;
-static gint ett_lustre_ldlm_lock_desc;
-static gint ett_lustre_ldlm_request;
-static gint ett_lustre_lustre_handle;
-static gint ett_lustre_ldlm_reply;
-static gint ett_lustre_ldlm_gl_barrier_desc;
-static gint ett_lustre_ldlm_gl_lquota_desc;
-static gint ett_lustre_mgs_target_info;
-static gint ett_lustre_mgs_config_body;
-static gint ett_lustre_mgs_config_res;
-static gint ett_lustre_llog_rec;
-static gint ett_lustre_llog_rec_hdr;
-static gint ett_lustre_llog_rec_tail;
-static gint ett_lustre_llog_logid_rec;
-static gint ett_lustre_llog_logid;
-static gint ett_lustre_lmv_mds_md;
-static gint ett_lustre_lmv_user_md_v1;
-static gint ett_lustre_lmv_user_mds_data;
-static gint ett_lustre_lov_mds_md;
-static gint ett_lustre_llog_unlink_rec;
-static gint ett_lustre_llog_unlink64_rec;
-static gint ett_lustre_llog_setattr_rec;
-static gint ett_lustre_llog_setattr64_rec;
-static gint ett_lustre_llog_size_change_rec;
-static gint ett_lustre_llog_gen_rec;
-static gint ett_lustre_llog_changelog_rec;
-static gint ett_lustre_llog_log_hdr;
-static gint ett_lustre_llog_hdr_flags;
-static gint ett_lustre_llog_cookie;
-static gint ett_lustre_llogd_body;
-static gint ett_lustre_llogd_conn_body;
-static gint ett_lustre_llog_gen;
-static gint ett_lustre_changelog_rec;
-static gint ett_lustre_lustre_cfg;
-static gint ett_lustre_cfg_marker;
-static gint ett_lustre_obdo;
-static gint ett_lustre_ost_body;
-static gint ett_lustre_ldlm_lock_flags;
-static gint ett_lustre_seq_range;
-static gint ett_lustre_mdt_ioepoch;
-static gint ett_lustre_capa;
-static gint ett_lustre_idx_info;
-static gint ett_lustre_close_data;
-static gint ett_lustre_acl;
-static gint ett_lustre_ladvise_hdr;
-static gint ett_lustre_ladvise;
-static gint ett_lustre_hsm_request;
-static gint ett_lustre_hsm_archive;
-static gint ett_lustre_hsm_current_action;
-static gint ett_lustre_hsm_user_item;
-static gint ett_lustre_hsm_extent;
-static gint ett_lustre_hsm_state_set;
-static gint ett_lustre_hsm_progress;
-static gint ett_lustre_hsm_user_state;
-static gint ett_lustre_quota_body;
-static gint ett_lustre_lquota_id;
-static gint ett_lustre_layout_intent;
-static gint ett_lustre_xattrs;
-static gint ett_lustre_xattr_item;
-static gint ett_lustre_ost_id;
-static gint ett_lustre_ost_id_oi;
-static gint ett_lustre_ost_layout;
-static gint ett_lustre_eadata;
-static gint ett_lustre_out_update_header;
-static gint ett_lustre_out_update_header_data;
-static gint ett_lustre_out_update_buffer;
-static gint ett_lustre_obj_update_reply;
-static gint ett_lustre_obj_update_result;
-static gint ett_lustre_object_update_request;
-static gint ett_lustre_object_update;
-static gint ett_lustre_object_update_param;
-static gint ett_lustre_lfsck_request;
-static gint ett_lustre_lfsck_reply;
-static gint ett_lustre_barrier_lvb;
+static int ett_lustre;
+static int ett_lustre_lustre_handle_cookie;
+static int ett_lustre_lustre_msg_v1;
+static int ett_lustre_lustre_handle_v1;
+static int ett_lustre_lustre_msg_v2;
+static int ett_lustre_ptlrpc_body;
+static int ett_lustre_lustre_handle_v2;
+static int ett_lustre_obd_connect_data;
+static int ett_lustre_lov_ost_data_v1;
+static int ett_lustre_obd_statfs;
+static int ett_lustre_obd_ioobj;
+static int ett_lustre_niobuf_remote;
+static int ett_lustre_rcs;
+static int ett_lustre_fid_array;
+static int ett_lustre_ost_lvb;
+static int ett_lustre_lu_fid;
+static int ett_lustre_mdc_swap_layouts;
+static int ett_lustre_mdt_body;
+static int ett_lustre_mdt_rec_reint;
+static int ett_lustre_obd_quotactl;
+static int ett_lustre_obd_dqinfo;
+static int ett_lustre_obd_dqblk;
+static int ett_lustre_quota_adjust_qunit;
+static int ett_lustre_lov_desc;
+static int ett_lustre_obd_uuid;
+static int ett_lustre_ldlm_res_id;
+static int ett_lustre_ldlm_extent;
+static int ett_lustre_ldlm_inodebits;
+static int ett_lustre_ldlm_flock;
+static int ett_lustre_ldlm_intent_opc;
+static int ett_lustre_ldlm_resource_desc;
+static int ett_lustre_ldlm_lock_desc;
+static int ett_lustre_ldlm_request;
+static int ett_lustre_lustre_handle;
+static int ett_lustre_ldlm_reply;
+static int ett_lustre_ldlm_gl_barrier_desc;
+static int ett_lustre_ldlm_gl_lquota_desc;
+static int ett_lustre_mgs_target_info;
+static int ett_lustre_mgs_config_body;
+static int ett_lustre_mgs_config_res;
+static int ett_lustre_llog_rec;
+static int ett_lustre_llog_rec_hdr;
+static int ett_lustre_llog_rec_tail;
+static int ett_lustre_llog_logid_rec;
+static int ett_lustre_llog_logid;
+static int ett_lustre_lmv_mds_md;
+static int ett_lustre_lmv_user_md_v1;
+static int ett_lustre_lmv_user_mds_data;
+static int ett_lustre_lov_mds_md;
+static int ett_lustre_llog_unlink_rec;
+static int ett_lustre_llog_unlink64_rec;
+static int ett_lustre_llog_setattr_rec;
+static int ett_lustre_llog_setattr64_rec;
+static int ett_lustre_llog_size_change_rec;
+static int ett_lustre_llog_gen_rec;
+static int ett_lustre_llog_changelog_rec;
+static int ett_lustre_llog_log_hdr;
+static int ett_lustre_llog_hdr_flags;
+static int ett_lustre_llog_cookie;
+static int ett_lustre_llogd_body;
+static int ett_lustre_llogd_conn_body;
+static int ett_lustre_llog_gen;
+static int ett_lustre_changelog_rec;
+static int ett_lustre_lustre_cfg;
+static int ett_lustre_cfg_marker;
+static int ett_lustre_obdo;
+static int ett_lustre_ost_body;
+static int ett_lustre_ldlm_lock_flags;
+static int ett_lustre_seq_range;
+static int ett_lustre_mdt_ioepoch;
+static int ett_lustre_capa;
+static int ett_lustre_idx_info;
+static int ett_lustre_close_data;
+static int ett_lustre_acl;
+static int ett_lustre_ladvise_hdr;
+static int ett_lustre_ladvise;
+static int ett_lustre_hsm_request;
+static int ett_lustre_hsm_archive;
+static int ett_lustre_hsm_current_action;
+static int ett_lustre_hsm_user_item;
+static int ett_lustre_hsm_extent;
+static int ett_lustre_hsm_state_set;
+static int ett_lustre_hsm_progress;
+static int ett_lustre_hsm_user_state;
+static int ett_lustre_quota_body;
+static int ett_lustre_lquota_id;
+static int ett_lustre_layout_intent;
+static int ett_lustre_xattrs;
+static int ett_lustre_xattr_item;
+static int ett_lustre_ost_id;
+static int ett_lustre_ost_id_oi;
+static int ett_lustre_ost_layout;
+static int ett_lustre_eadata;
+static int ett_lustre_out_update_header;
+static int ett_lustre_out_update_header_data;
+static int ett_lustre_out_update_buffer;
+static int ett_lustre_obj_update_reply;
+static int ett_lustre_obj_update_result;
+static int ett_lustre_object_update_request;
+static int ett_lustre_object_update;
+static int ett_lustre_object_update_param;
+static int ett_lustre_lfsck_request;
+static int ett_lustre_lfsck_reply;
+static int ett_lustre_barrier_lvb;
 
 static expert_field ei_lustre_buflen;
 static expert_field ei_lustre_badopc;
@@ -1621,7 +1621,7 @@ VALUE_STRING_ARRAY2(lfsck_type_vals);
 static int
 add_extra_padding(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree * tree)
 {
-    guint32 padding_len;
+    uint32_t padding_len;
 
     padding_len = buffer_padding_length(offset);
     if (padding_len) {
@@ -1643,9 +1643,9 @@ typedef struct _lustre_conv_info_t {
 } lustre_conv_info_t;
 
 typedef struct lustre_trans {
-    guint32 opcode;
-    guint64 sub_opcode; /* i.e. intent, reint */
-    guint64 match_bits;
+    uint32_t opcode;
+    uint64_t sub_opcode; /* i.e. intent, reint */
+    uint64_t match_bits;
 } lustre_trans_t;
 
 static lustre_trans_t *
@@ -1697,10 +1697,10 @@ lustre_get_trans(packet_info *pinfo, struct lnet_trans_info *info)
 \********************************************************************/
 
 static int
-display_buffer_data(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *parent_tree, guint32 buf_num, const gchar *msg)
+display_buffer_data(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, uint32_t buf_num, const char *msg)
 {
     proto_item *item;
-    guint32 data_len;
+    uint32_t data_len;
 
     data_len = LUSTRE_BUFFER_LEN(buf_num);
     if (data_len == 0)
@@ -1718,9 +1718,9 @@ display_buffer_data(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *
 }
 
 static int
-display_buffer_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gint offset, int hf_index, guint32 buf_num)
+display_buffer_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset, int hf_index, uint32_t buf_num)
 {
-    guint32 string_len;
+    uint32_t string_len;
 
     string_len = LUSTRE_BUFFER_LEN(buf_num);
     if (string_len == 0)
@@ -1741,9 +1741,9 @@ display_buffer_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree
 \********************************************************************/
 
 static void
-lustre_fmt_ver( gchar *result, guint32 version )
+lustre_fmt_ver( char *result, uint32_t version )
 {
-   guint32 major, minor, patch, fix;
+   uint32_t major, minor, patch, fix;
 
     fix = version & 0xff;
     version >>= 8;
@@ -1756,7 +1756,7 @@ lustre_fmt_ver( gchar *result, guint32 version )
 }
 
 static int
-dissect_struct_lustre_handle(tvbuff_t *tvb, gint offset, proto_tree *parent_tree, int hf_index)
+dissect_struct_lustre_handle(tvbuff_t *tvb, int offset, proto_tree *parent_tree, int hf_index)
 {
     proto_tree *tree;
     proto_item *item;
@@ -1775,8 +1775,8 @@ dissect_struct_lu_fid(tvbuff_t *tvb, int offset, proto_tree *parent_tree, int hf
 {
     proto_tree *tree;
     proto_item *item;
-    guint64 seq;
-    guint32 val;
+    uint64_t seq;
+    uint32_t val;
 
     /* struct lu_fid { */
     /*     __u64 f_seq; */
@@ -1890,7 +1890,7 @@ dissect_struct_obdo(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 {
     proto_tree *tree;
     proto_item *item;
-    gint old_offset;
+    int old_offset;
 
     old_offset = offset;
 
@@ -2049,7 +2049,7 @@ dissect_struct_llog_rec_hdr(tvbuff_t *tvb, int offset, proto_tree *parent_tree, 
 {
     proto_tree *tree;
     proto_item *item;
-    guint32 ind, type;
+    uint32_t ind, type;
 
     item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 16, ENC_NA);
     tree = proto_item_add_subtree(item, ett_lustre_llog_rec_hdr);
@@ -2119,8 +2119,8 @@ dissect_struct_object_update(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 {
     proto_tree *tree, *ptree;
     proto_item *item;
-    guint count, i, len;
-    gint old_offset;
+    unsigned count, i, len;
+    int old_offset;
 
     old_offset = offset;
 
@@ -2180,7 +2180,7 @@ dissect_struct_object_update_request(tvbuff_t *tvb, int offset, packet_info *pin
 {
     proto_tree *tree;
     proto_item *item;
-    guint count, i, magic;
+    unsigned count, i, magic;
     int old_offset;
 
     old_offset = offset;
@@ -2268,7 +2268,7 @@ dissect_struct_changelog_rec(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 {
     proto_tree *tree;
     proto_item *item;
-    guint namelen, flags, type;
+    unsigned namelen, flags, type;
     int old_offset = offset;
 
     /* struct changelog_rec { */
@@ -2381,7 +2381,7 @@ dissect_struct_lustre_cfg(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
     proto_tree *tree;
     proto_item *item;
     int old_offset, buf_offset;
-    guint count, i, cmd, len;
+    unsigned count, i, cmd, len;
 
     old_offset = offset;
 
@@ -2454,12 +2454,12 @@ dissect_struct_lustre_cfg(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
  *
  */
 static int
-dissect_struct_ldlm_lock_desc(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint64 *ltype)
+dissect_struct_ldlm_lock_desc(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, uint64_t *ltype)
 {
     proto_tree *tree, *res_tree, *id_tree, *l_tree;
     proto_item *item;
-    gint i;
-    guint32 type;
+    int i;
+    uint32_t type;
 
     /* struct ldlm_lock_desc { */
     /*     struct ldlm_resource_desc l_resource; */
@@ -2589,11 +2589,11 @@ dissect_struct_ldlm_lock_desc(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 }
 
 static int
-dissect_struct_seq_range(tvbuff_t *tvb, int offset, proto_tree *parent_tree, guint buf_num)
+dissect_struct_seq_range(tvbuff_t *tvb, int offset, proto_tree *parent_tree, unsigned buf_num)
 {
     proto_tree *tree;
     proto_item *item;
-    gint data_len;
+    int data_len;
 
     data_len = LUSTRE_BUFFER_LEN(buf_num);
     if (data_len == 0)
@@ -2622,11 +2622,11 @@ dissect_struct_seq_range(tvbuff_t *tvb, int offset, proto_tree *parent_tree, gui
 }
 
 static int
-dissect_struct_ldlm_gl_barrier_desc(tvbuff_t *tvb, int offset, proto_tree *parent_tree, guint buf_num)
+dissect_struct_ldlm_gl_barrier_desc(tvbuff_t *tvb, int offset, proto_tree *parent_tree, unsigned buf_num)
 {
     proto_tree *tree;
     proto_item *item;
-    guint data_len;
+    unsigned data_len;
 
     data_len = LUSTRE_BUFFER_LEN(buf_num);
     if (data_len == 0)
@@ -2652,11 +2652,11 @@ dissect_struct_ldlm_gl_barrier_desc(tvbuff_t *tvb, int offset, proto_tree *paren
 }
 
 static int
-dissect_struct_ldlm_gl_lquota_desc(tvbuff_t *tvb, int offset, proto_tree *parent_tree, guint buf_num)
+dissect_struct_ldlm_gl_lquota_desc(tvbuff_t *tvb, int offset, proto_tree *parent_tree, unsigned buf_num)
 {
     proto_tree *tree;
     proto_item *item;
-    guint data_len;
+    unsigned data_len;
 
     data_len = LUSTRE_BUFFER_LEN(buf_num);
     if (data_len == 0)
@@ -2693,9 +2693,9 @@ dissect_struct_ldlm_gl_lquota_desc(tvbuff_t *tvb, int offset, proto_tree *parent
 }
 
 static int
-dissect_struct_ldlm_gl_desc(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, lustre_trans_t *trans, guint buf_num)
+dissect_struct_ldlm_gl_desc(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, lustre_trans_t *trans, unsigned buf_num)
 {
-    guint data_len;
+    unsigned data_len;
     int old_offset;
 
     data_len = LUSTRE_BUFFER_LEN(buf_num);
@@ -2730,11 +2730,11 @@ dissect_struct_ldlm_gl_desc(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 }
 
 static int
-dissect_struct_ldlm_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint64 *type, guint buf_num)
+dissect_struct_ldlm_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, uint64_t *type, unsigned buf_num)
 {
     proto_tree *tree;
     proto_item *item;
-    guint old_offset, data_len, count, i;
+    unsigned old_offset, data_len, count, i;
 
     data_len = LUSTRE_BUFFER_LEN(buf_num);
     if (data_len == 0)
@@ -2771,11 +2771,11 @@ dissect_struct_ldlm_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 }
 
 static int
-dissect_struct_ldlm_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint64 *type, guint buf_num)
+dissect_struct_ldlm_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, uint64_t *type, unsigned buf_num)
 {
     proto_tree *tree;
     proto_item *item;
-    gint data_len;
+    int data_len;
 
     data_len = LUSTRE_BUFFER_LEN(buf_num);
     if (data_len == 0)
@@ -2879,11 +2879,11 @@ dissect_struct_mgs_config_res(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 }
 
 static int
-dissect_struct_mgs_target_info(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, guint32 buf_num)
+dissect_struct_mgs_target_info(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, uint32_t buf_num)
 {
     proto_tree *tree;
     proto_item *item;
-    guint32 data_len, old_offset, i, count;
+    uint32_t data_len, old_offset, i, count;
 
     data_len = LUSTRE_BUFFER_LEN(buf_num);
     if (data_len == 0)
@@ -2949,7 +2949,7 @@ dissect_struct_mgs_target_info(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
 \********************************************************************/
 
 static int
-dissect_struct_acl(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint32 buf_num)
+dissect_struct_acl(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, uint32_t buf_num)
 {
     proto_tree *tree;
     proto_item *item;
@@ -2971,7 +2971,7 @@ dissect_struct_acl(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *pa
 }
 
 static int
-dissect_struct_mdt_ioepoch(tvbuff_t *tvb, int offset, proto_tree *parent_tree, guint32 buf_num)
+dissect_struct_mdt_ioepoch(tvbuff_t *tvb, int offset, proto_tree *parent_tree, uint32_t buf_num)
 {
     proto_tree *tree;
     proto_item *item;
@@ -3004,7 +3004,7 @@ dissect_struct_mdt_ioepoch(tvbuff_t *tvb, int offset, proto_tree *parent_tree, g
 }
 
 static int
-dissect_struct_close_data(tvbuff_t *tvb, int offset, proto_tree *parent_tree, guint32 buf_num)
+dissect_struct_close_data(tvbuff_t *tvb, int offset, proto_tree *parent_tree, uint32_t buf_num)
 {
     proto_tree *tree;
     proto_item *item;
@@ -3036,11 +3036,11 @@ dissect_struct_close_data(tvbuff_t *tvb, int offset, proto_tree *parent_tree, gu
 }
 
 static int
-dissect_struct_mdt_rec_reint(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint buf_num)
+dissect_struct_mdt_rec_reint(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, unsigned buf_num)
 {
     proto_tree *tree;
     proto_tree *item;
-    guint data_len, opcode;
+    unsigned data_len, opcode;
 
     data_len = LUSTRE_BUFFER_LEN(buf_num);
     if (data_len == 0)
@@ -3221,11 +3221,11 @@ dissect_struct_mdt_rec_reint(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 }
 
 static int
-dissect_struct_lmv_mds_md_v1(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *parent_tree, guint buf_num)
+dissect_struct_lmv_mds_md_v1(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *parent_tree, unsigned buf_num)
 {
     proto_tree *tree;
     proto_item *item;
-    guint old_offset, count, i, magic;
+    unsigned old_offset, count, i, magic;
 
     count = LUSTRE_BUFFER_LEN(buf_num);
 
@@ -3307,11 +3307,11 @@ dissect_struct_lmv_user_mds_data(tvbuff_t *tvb, int offset, proto_tree *parent_t
 }
 
 static int
-dissect_struct_lmv_user_md(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, guint buf_num)
+dissect_struct_lmv_user_md(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, unsigned buf_num)
 {
     proto_tree *tree;
     proto_item *item;
-    guint old_offset, buf_len, i, magic, count;
+    unsigned old_offset, buf_len, i, magic, count;
 
     buf_len = LUSTRE_BUFFER_LEN(buf_num);
 
@@ -3359,7 +3359,7 @@ dissect_struct_lmv_user_md(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_
     proto_tree_add_item(tree, hf_lustre_lmv_user_md_v1_pool_name, tvb, offset, 16, ENC_ASCII);
     offset += 16;
 
-    if (buf_len + old_offset >= (guint)offset + 24) {
+    if (buf_len + old_offset >= (unsigned)offset + 24) {
         for (i = 0; i < count && magic == LMV_USER_MAGIC; ++i)
             offset = dissect_struct_lmv_user_mds_data(tvb, offset, tree, hf_lustre_lmv_user_md_v1_objects);
     } else {
@@ -3374,12 +3374,12 @@ dissect_struct_lmv_user_md(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_
 }
 
 static int
-dissect_struct_lov_mds_md(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint buf_num)
+dissect_struct_lov_mds_md(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, unsigned buf_num)
 {
     proto_tree *tree, *ost_tree;
     proto_item *item, *lov_item;
-    guint data_len, old_offset, stripe_count, i;
-    guint32 magic;
+    unsigned data_len, old_offset, stripe_count, i;
+    uint32_t magic;
 
     old_offset = offset;
     data_len = LUSTRE_BUFFER_LEN(buf_num);
@@ -3482,11 +3482,11 @@ dissect_struct_lov_mds_md(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 }
 
 static int
-dissect_struct_llog_cookie_array(tvbuff_t *tvb, int offset, proto_tree *parent_tree, guint buf_num)
+dissect_struct_llog_cookie_array(tvbuff_t *tvb, int offset, proto_tree *parent_tree, unsigned buf_num)
 {
     proto_tree *tree;
     proto_item *item;
-    guint data_len, i;
+    unsigned data_len, i;
 
     data_len = LUSTRE_BUFFER_LEN(buf_num);
 
@@ -3515,11 +3515,11 @@ dissect_struct_llog_cookie_array(tvbuff_t *tvb, int offset, proto_tree *parent_t
 }
 
 static int
-dissect_struct_mdc_swap_layouts(tvbuff_t *tvb, int offset, proto_tree *parent_tree, guint buf_num)
+dissect_struct_mdc_swap_layouts(tvbuff_t *tvb, int offset, proto_tree *parent_tree, unsigned buf_num)
 {
     proto_tree *tree;
     proto_item *item;
-    guint data_len;
+    unsigned data_len;
 
     data_len = LUSTRE_BUFFER_LEN(buf_num);
 
@@ -3626,11 +3626,11 @@ dissect_struct_hsm_progress(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 }
 
 static int
-dissect_struct_hsm_user_state(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint buf_num)
+dissect_struct_hsm_user_state(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, unsigned buf_num)
 {
     proto_tree *tree;
     proto_item *item;
-    guint data_len;
+    unsigned data_len;
 
     data_len = LUSTRE_BUFFER_LEN(buf_num);
     if (data_len == 0)
@@ -3672,11 +3672,11 @@ dissect_struct_hsm_user_state(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 }
 
 static int
-dissect_struct_hsm_state_set(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint buf_num)
+dissect_struct_hsm_state_set(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, unsigned buf_num)
 {
     proto_tree *tree;
     proto_item *item;
-    guint data_len;
+    unsigned data_len;
 
     data_len = LUSTRE_BUFFER_LEN(buf_num);
     if (data_len == 0)
@@ -3710,11 +3710,11 @@ dissect_struct_hsm_state_set(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 }
 
 static int
-dissect_struct_hsm_user_item_array(tvbuff_t *tvb, int offset, proto_tree *parent_tree, guint buf_num)
+dissect_struct_hsm_user_item_array(tvbuff_t *tvb, int offset, proto_tree *parent_tree, unsigned buf_num)
 {
     proto_tree *tree;
     proto_item *item;
-    guint data_len, i;
+    unsigned data_len, i;
 
     data_len = LUSTRE_BUFFER_LEN(buf_num);
     if (data_len == 0)
@@ -3737,11 +3737,11 @@ dissect_struct_hsm_user_item_array(tvbuff_t *tvb, int offset, proto_tree *parent
 }
 
 static int
-dissect_struct_hsm_current_action(tvbuff_t *tvb, int offset, proto_tree *parent_tree, guint buf_num)
+dissect_struct_hsm_current_action(tvbuff_t *tvb, int offset, proto_tree *parent_tree, unsigned buf_num)
 {
     proto_tree *tree;
     proto_item *item;
-    guint data_len;
+    unsigned data_len;
 
     data_len = LUSTRE_BUFFER_LEN(buf_num);
     if (data_len == 0)
@@ -3769,11 +3769,11 @@ dissect_struct_hsm_current_action(tvbuff_t *tvb, int offset, proto_tree *parent_
 }
 
 static int
-dissect_hsm_archive(tvbuff_t *tvb, int offset, proto_tree *parent_tree, guint buf_num)
+dissect_hsm_archive(tvbuff_t *tvb, int offset, proto_tree *parent_tree, unsigned buf_num)
 {
     proto_tree *tree;
     proto_item *item;
-    guint data_len, i;
+    unsigned data_len, i;
 
     data_len = LUSTRE_BUFFER_LEN(buf_num);
 
@@ -3797,12 +3797,12 @@ dissect_hsm_archive(tvbuff_t *tvb, int offset, proto_tree *parent_tree, guint bu
  */
 
 static int
-dissect_struct_out_update_header(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint buf_num)
+dissect_struct_out_update_header(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, unsigned buf_num)
 {
     proto_tree *tree, *data_tree;
     proto_item *item;
-    guint i, count, magic, length;
-    gint old_offset, data_len;
+    unsigned i, count, magic, length;
+    int old_offset, data_len;
 
     old_offset = offset;
 
@@ -3864,11 +3864,11 @@ dissect_struct_out_update_header(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 
 static int
-dissect_struct_out_update_buffer(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint buf_num)
+dissect_struct_out_update_buffer(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, unsigned buf_num)
 {
     proto_tree *tree;
     proto_item *item;
-    guint data_len, i;
+    unsigned data_len, i;
     int old_offset;
 
     old_offset = offset;
@@ -3904,7 +3904,7 @@ dissect_struct_obj_update_result(tvbuff_t *tvb, int offset, proto_tree *parent_t
 {
     proto_tree *tree;
     proto_item *item;
-    guint data_len;
+    unsigned data_len;
     int old_offset;
 
     old_offset = offset;
@@ -3933,11 +3933,11 @@ dissect_struct_obj_update_result(tvbuff_t *tvb, int offset, proto_tree *parent_t
 }
 
 static int
-dissect_struct_obj_update_reply(tvbuff_t *tvb, int offset, packet_info * pinfo, proto_tree *parent_tree, guint buf_num)
+dissect_struct_obj_update_reply(tvbuff_t *tvb, int offset, packet_info * pinfo, proto_tree *parent_tree, unsigned buf_num)
 {
     proto_tree *tree;
     proto_item *item;
-    guint data_len, i, magic, count;
+    unsigned data_len, i, magic, count;
     int old_offset;
 
     data_len = LUSTRE_BUFFER_LEN(buf_num);
@@ -3977,7 +3977,7 @@ dissect_struct_obj_update_reply(tvbuff_t *tvb, int offset, packet_info * pinfo, 
         offset = dissect_struct_obj_update_result(tvb, offset, tree);
     }
 
-    if (data_len > (guint)(offset-old_offset)) {
+    if (data_len > (unsigned)(offset-old_offset)) {
         expert_add_info(pinfo, tree, &ei_lustre_buflen);
         offset = old_offset + data_len;
     }
@@ -3993,11 +3993,11 @@ dissect_struct_obj_update_reply(tvbuff_t *tvb, int offset, packet_info * pinfo, 
  */
 
 static int
-dissect_struct_obd_ioobj(tvbuff_t *tvb, int offset, proto_tree *parent_tree, guint buf_num)
+dissect_struct_obd_ioobj(tvbuff_t *tvb, int offset, proto_tree *parent_tree, unsigned buf_num)
 {
     proto_tree *tree;
     proto_item *item;
-    guint data_len, i;
+    unsigned data_len, i;
 
     data_len = LUSTRE_BUFFER_LEN(buf_num);
 
@@ -4027,11 +4027,11 @@ dissect_struct_obd_ioobj(tvbuff_t *tvb, int offset, proto_tree *parent_tree, gui
 }
 
 static int
-dissect_struct_niobuf_remote(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint buf_num)
+dissect_struct_niobuf_remote(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, unsigned buf_num)
 {
     proto_tree *tree;
     proto_item *item;
-    guint data_len, i;
+    unsigned data_len, i;
 
     data_len = LUSTRE_BUFFER_LEN(buf_num);
 
@@ -4059,11 +4059,11 @@ dissect_struct_niobuf_remote(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 }
 
 static int
-dissect_rc_array(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint buf_num)
+dissect_rc_array(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, unsigned buf_num)
 {
     proto_tree *tree;
     proto_item *item;
-    guint data_len, i;
+    unsigned data_len, i;
 
     data_len = LUSTRE_BUFFER_LEN(buf_num);
 
@@ -4079,11 +4079,11 @@ dissect_rc_array(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *pare
 }
 
 static int
-dissect_struct_fid_array(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint buf_num)
+dissect_struct_fid_array(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, unsigned buf_num)
 {
     proto_tree *tree;
     proto_item *item;
-    guint data_len, i, num;
+    unsigned data_len, i, num;
 
     data_len = LUSTRE_BUFFER_LEN(buf_num);
     if (data_len == 0)
@@ -4102,11 +4102,11 @@ dissect_struct_fid_array(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 }
 
 static int
-dissect_struct_quota_body(tvbuff_t *tvb, int offset, proto_tree *parent_tree, guint buf_num)
+dissect_struct_quota_body(tvbuff_t *tvb, int offset, proto_tree *parent_tree, unsigned buf_num)
 {
     proto_tree *tree;
     proto_item *item;
-    guint data_len;
+    unsigned data_len;
 
     data_len = LUSTRE_BUFFER_LEN(buf_num);
     if (data_len == 0)
@@ -4240,7 +4240,7 @@ dissect_struct_lu_ladvise_hdr(tvbuff_t *tvb, int offset,  packet_info *pinfo, pr
 {
     proto_tree *tree;
     proto_item *item;
-    guint32 val;
+    uint32_t val;
 
     /* struct ladvise_hdr { */
     /*     __u32            lah_magic;    /\* LADVISE_MAGIC *\/ */
@@ -4325,12 +4325,12 @@ dissect_struct_lu_ladvise(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
  * because they're needed to dissect further buffers.
  */
 static int
-dissect_struct_ptlrpc_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gint offset, guint buf_len,
-                           lustre_trans_t *trans, guint32 *pb_type)
+dissect_struct_ptlrpc_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset, unsigned buf_len,
+                           lustre_trans_t *trans, uint32_t *pb_type)
 {
     proto_tree *tree;
     proto_item *item;
-    guint32 pb_version, opcode, i, old_offset;
+    uint32_t pb_version, opcode, i, old_offset;
 
     old_offset = offset;
 
@@ -4446,7 +4446,7 @@ dissect_struct_ptlrpc_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent
 }
 
 static int
-dissect_struct_ost_lvb(tvbuff_t *tvb, int offset, proto_tree *parent_tree, guint32 buf_num)
+dissect_struct_ost_lvb(tvbuff_t *tvb, int offset, proto_tree *parent_tree, uint32_t buf_num)
 {
     proto_tree *tree;
     proto_item *item;
@@ -4494,7 +4494,7 @@ dissect_struct_ost_lvb(tvbuff_t *tvb, int offset, proto_tree *parent_tree, guint
 }
 
 static int
-dissect_struct_capa(tvbuff_t *tvb, int offset, proto_tree *parent_tree, guint32 buf_num)
+dissect_struct_capa(tvbuff_t *tvb, int offset, proto_tree *parent_tree, uint32_t buf_num)
 {
     proto_tree *tree;
     proto_item *item;
@@ -4542,7 +4542,7 @@ dissect_struct_capa(tvbuff_t *tvb, int offset, proto_tree *parent_tree, guint32 
 }
 
 static int
-dissect_struct_llogd_body(tvbuff_t *tvb, int offset, proto_tree *parent_tree, guint32 buf_num)
+dissect_struct_llogd_body(tvbuff_t *tvb, int offset, proto_tree *parent_tree, uint32_t buf_num)
 {
     proto_tree *tree;
     proto_item *item;
@@ -4592,7 +4592,7 @@ dissect_struct_llogd_body(tvbuff_t *tvb, int offset, proto_tree *parent_tree, gu
 }
 
 static int
-dissect_struct_llogd_conn_body(tvbuff_t *tvb, int offset, proto_tree *parent_tree, guint32 buf_num)
+dissect_struct_llogd_conn_body(tvbuff_t *tvb, int offset, proto_tree *parent_tree, uint32_t buf_num)
 {
     proto_tree *tree;
     proto_item *item;
@@ -4621,11 +4621,11 @@ dissect_struct_llogd_conn_body(tvbuff_t *tvb, int offset, proto_tree *parent_tre
 }
 
 static int
-dissect_struct_llog_log_hdr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint32 buf_num)
+dissect_struct_llog_log_hdr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, uint32_t buf_num)
 {
     proto_tree *tree;
     proto_item *item;
-    guint32 len, data_len, old_offset, i;
+    uint32_t len, data_len, old_offset, i;
 
     static int * const flags[] = {
         &hf_lustre_llog_hdr_flag_zap_when_empty,
@@ -4708,7 +4708,7 @@ dissect_struct_llog_log_hdr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 }
 
 static int
-dissect_struct_idx_info(tvbuff_t *tvb, int offset, proto_tree *parent_tree, guint32 buf_num)
+dissect_struct_idx_info(tvbuff_t *tvb, int offset, proto_tree *parent_tree, uint32_t buf_num)
 {
     proto_tree *tree;
     proto_item *item;
@@ -4777,10 +4777,10 @@ dissect_struct_idx_info(tvbuff_t *tvb, int offset, proto_tree *parent_tree, guin
 }
 
 static int
-dissect_struct_ldlm_intent(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *parent_tree, lustre_trans_t *trans, guint32 buf_num)
+dissect_struct_ldlm_intent(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, lustre_trans_t *trans, uint32_t buf_num)
 {
     //proto_tree *tree;
-    guint32 data_len;
+    uint32_t data_len;
 
     static int * const flags[] = {
          &hf_lustre_ldlm_intent_opc_open,
@@ -4846,7 +4846,7 @@ dissect_struct_ldlm_intent(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto
 }
 
 static int
-dissect_struct_quota_adjust_qunit(tvbuff_t *tvb, int offset, proto_tree *parent_tree, guint32 buf_num)
+dissect_struct_quota_adjust_qunit(tvbuff_t *tvb, int offset, proto_tree *parent_tree, uint32_t buf_num)
 {
     proto_tree *tree;
     proto_item *item;
@@ -4882,7 +4882,7 @@ dissect_struct_quota_adjust_qunit(tvbuff_t *tvb, int offset, proto_tree *parent_
 }
 
 static int
-dissect_xattr_buffers(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, guint32 buff_num)
+dissect_xattr_buffers(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, uint32_t buff_num)
 {
     /* ldlm_intent_getxattr_server : [eadata][eavals][eavals_lens] *
      * array length == sizeof(eavals_lens)/sizeof(uint32)
@@ -4946,7 +4946,7 @@ dissect_xattr_buffers(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
 }
 
 static int
-dissect_struct_barrier_lvb(tvbuff_t *tvb, int offset, proto_tree *parent_tree, guint32 buf_num)
+dissect_struct_barrier_lvb(tvbuff_t *tvb, int offset, proto_tree *parent_tree, uint32_t buf_num)
 {
     proto_tree *tree;
     proto_item *item;
@@ -4976,9 +4976,9 @@ dissect_struct_barrier_lvb(tvbuff_t *tvb, int offset, proto_tree *parent_tree, g
 }
 
 static int
-dissect_struct_eadata(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *parent_tree, guint32 buf_num)
+dissect_struct_eadata(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, uint32_t buf_num)
 {
-    guint32 data_len;
+    uint32_t data_len;
 
     data_len = LUSTRE_BUFFER_LEN(buf_num);
     if (data_len == 0)
@@ -4993,11 +4993,11 @@ dissect_struct_eadata(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree
 }
 
 static int
-dissect_struct_layout_intent(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *parent_tree, guint32 buf_num)
+dissect_struct_layout_intent(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, uint32_t buf_num)
 {
     proto_tree *tree;
     proto_item *item;
-    guint32 data_len;
+    uint32_t data_len;
 
     data_len = LUSTRE_BUFFER_LEN(buf_num);
     if (data_len == 0)
@@ -5033,7 +5033,7 @@ dissect_struct_ost_body(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 {
     proto_tree *tree;
     proto_item *item;
-    gint old_offset;
+    int old_offset;
 
     old_offset = offset;
 
@@ -5051,11 +5051,11 @@ dissect_struct_ost_body(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 }
 
 static int
-dissect_struct_mdt_body(tvbuff_t *tvb, int offset, proto_tree *parent_tree, guint32 buf_num)
+dissect_struct_mdt_body(tvbuff_t *tvb, int offset, proto_tree *parent_tree, uint32_t buf_num)
 {
     proto_tree *tree;
     proto_item *item;
-    guint32 data_len;
+    uint32_t data_len;
 
     data_len = LUSTRE_BUFFER_LEN(buf_num);
     if (data_len == 0)
@@ -5171,11 +5171,11 @@ dissect_struct_mdt_body(tvbuff_t *tvb, int offset, proto_tree *parent_tree, guin
 }
 
 static int
-dissect_struct_obd_statfs(tvbuff_t *tvb, gint offset, proto_tree *parent_tree)
+dissect_struct_obd_statfs(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 {
     proto_tree *tree;
     proto_item *item;
-    guint32 i;
+    uint32_t i;
 
     item = proto_tree_add_item(parent_tree, hf_lustre_obd_statfs, tvb, offset, 144, ENC_NA);
     tree = proto_item_add_subtree(item, ett_lustre_obd_statfs);
@@ -5243,8 +5243,8 @@ dissect_struct_obd_connect_data(tvbuff_t *tvb, int offset, packet_info *pinfo _U
 {
     proto_tree *tree;
     proto_item *item;
-    guint32 version;
-    gint old_offset, len;
+    uint32_t version;
+    int old_offset, len;
 
     old_offset = offset;
     item = proto_tree_add_item(parent_tree, hf_lustre_obd_connect_data, tvb, offset, -1, ENC_NA);
@@ -5366,12 +5366,12 @@ dissect_struct_obd_connect_data(tvbuff_t *tvb, int offset, packet_info *pinfo _U
 }
 
 static int
-dissect_struct_lfsck_request(tvbuff_t *tvb, int offset, proto_tree *parent_tree, guint32 buf_num)
+dissect_struct_lfsck_request(tvbuff_t *tvb, int offset, proto_tree *parent_tree, uint32_t buf_num)
 {
     proto_tree *tree;
     proto_item *item;
     int data_len;
-    guint32 valid;
+    uint32_t valid;
 
     data_len = LUSTRE_BUFFER_LEN(buf_num);
     if (data_len == 0)
@@ -5442,7 +5442,7 @@ dissect_struct_lfsck_request(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 }
 
 static int
-dissect_struct_lfsck_reply(tvbuff_t *tvb, int offset, proto_tree *parent_tree, guint32 buf_num)
+dissect_struct_lfsck_reply(tvbuff_t *tvb, int offset, proto_tree *parent_tree, uint32_t buf_num)
 {
     proto_tree *tree;
     proto_item *item;
@@ -5466,11 +5466,11 @@ dissect_struct_lfsck_reply(tvbuff_t *tvb, int offset, proto_tree *parent_tree, g
 }
 
 static int
-dissect_llog_eadata(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint32 buf_num)
+dissect_llog_eadata(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, uint32_t buf_num)
 {
     proto_tree *tree;
     proto_item *item;
-    guint32 data_len, opcode, len, old_offset;
+    uint32_t data_len, opcode, len, old_offset;
 
     data_len = LUSTRE_BUFFER_LEN(buf_num);
     if (data_len == 0)
@@ -5772,7 +5772,7 @@ dissect_generic_connect(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 \********************************************************************/
 
 static int
-process_opcode_ost(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, lustre_trans_t *trans, guint32 pb_type)
+process_opcode_ost(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, lustre_trans_t *trans, uint32_t pb_type)
 {
     switch (trans->opcode){
     case OST_REPLY: /* obsolete so nothing */
@@ -6030,7 +6030,7 @@ process_opcode_reint_rep(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 }
 
 static int
-process_opcode_mds(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree * tree, lustre_trans_t *trans, guint32 pb_type)
+process_opcode_mds(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree * tree, lustre_trans_t *trans, uint32_t pb_type)
 {
     switch (trans->opcode) {
     case MDS_GETATTR_NAME:
@@ -6433,7 +6433,7 @@ process_ldlm_intent_rep(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 }
 
 static int
-process_opcode_ldlm(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree * tree, lustre_trans_t *trans, guint32 pb_type)
+process_opcode_ldlm(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree * tree, lustre_trans_t *trans, uint32_t pb_type)
 {
     if (pb_type == PTL_RPC_MSG_REQUEST)
         switch (trans->opcode) {
@@ -6504,7 +6504,7 @@ process_opcode_ldlm(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree * 
 }
 
 static int
-process_opcode_mgs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, lustre_trans_t *trans, guint32 pb_type)
+process_opcode_mgs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, lustre_trans_t *trans, uint32_t pb_type)
 {
     switch (trans->opcode){
     case MGS_CONNECT:
@@ -6551,7 +6551,7 @@ process_opcode_mgs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 
 
 static int
-process_opcode_obd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, lustre_trans_t *trans, guint32 pb_type)
+process_opcode_obd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, lustre_trans_t *trans, uint32_t pb_type)
 {
     switch (trans->opcode) {
     case OBD_PING:
@@ -6578,7 +6578,7 @@ process_opcode_obd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 }
 
 static int
-process_opcode_llog(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, lustre_trans_t *trans, guint32 pb_type)
+process_opcode_llog(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, lustre_trans_t *trans, uint32_t pb_type)
 {
     switch (trans->opcode) {
     case LLOG_ORIGIN_HANDLE_CREATE:
@@ -6635,7 +6635,7 @@ process_opcode_llog(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 }
 
 static int
-process_opcode_quota(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, lustre_trans_t *trans, guint32 pb_type)
+process_opcode_quota(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, lustre_trans_t *trans, uint32_t pb_type)
 {
     switch (trans->opcode) {
     case QUOTA_DQACQ:
@@ -6653,7 +6653,7 @@ process_opcode_quota(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 }
 
 static int
-process_opcode_seq(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, lustre_trans_t *trans, guint32 pb_type)
+process_opcode_seq(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, lustre_trans_t *trans, uint32_t pb_type)
 {
     int buffer = LUSTRE_REC_OFF;
     switch (trans->opcode) {
@@ -6676,7 +6676,7 @@ process_opcode_seq(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 }
 
 static int
-process_opcode_fld(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, lustre_trans_t *trans, guint32 pb_type)
+process_opcode_fld(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, lustre_trans_t *trans, uint32_t pb_type)
 {
     int buffer = LUSTRE_REC_OFF;
     switch (trans->opcode) {
@@ -6707,7 +6707,7 @@ process_opcode_fld(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 }
 
 static int
-process_opcode_out_update(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, lustre_trans_t *trans, guint32 pb_type)
+process_opcode_out_update(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, lustre_trans_t *trans, uint32_t pb_type)
 {
     int buffer = LUSTRE_REC_OFF;
     switch (trans->opcode) {
@@ -6728,7 +6728,7 @@ process_opcode_out_update(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 }
 
 static int
-process_opcode_lfsck(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, lustre_trans_t *trans, guint32 pb_type)
+process_opcode_lfsck(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, lustre_trans_t *trans, uint32_t pb_type)
 {
     int buffer = LUSTRE_REC_OFF;
     switch (trans->opcode) {
@@ -6760,7 +6760,7 @@ process_opcode_lfsck(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 /* process lustre opcode :
    check if opcode is in range_opcode, and call the corresponding opcode process function */
 static int
-lustre_opcode_process(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree * tree, lustre_trans_t *trans, guint32 pb_type)
+lustre_opcode_process(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree * tree, lustre_trans_t *trans, uint32_t pb_type)
 {
     /* No more buffers to process */
     if (LUSTRE_BUFCOUNT == 1)
@@ -6825,7 +6825,7 @@ static int
 dissect_struct_msg_v1(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, lustre_trans_t *trans)
 {
     //proto_item *item = NULL;
-    guint32 bufcount, i;
+    uint32_t bufcount, i;
     int old_offset;
 
     old_offset = offset;
@@ -6889,12 +6889,12 @@ dissect_struct_msg_v1(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
 static int
 dissect_struct_msg_v2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, lustre_trans_t *trans)
 {
-    guint32 bufcount;
+    uint32_t bufcount;
     int old_offset;
-    guint32 i;
-    guint32 buf_len_offset;
-    guint32 current_buf_len;
-    guint32 pb_type;
+    uint32_t i;
+    uint32_t buf_len_offset;
+    uint32_t current_buf_len;
+    uint32_t pb_type;
 
     old_offset = offset;
 
@@ -6959,8 +6959,8 @@ dissect_struct_msg_v2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 static int
 dissect_lustre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    guint32 magic_number;
-    guint offset = 0;
+    uint32_t magic_number;
+    unsigned offset = 0;
     proto_item *ti  = NULL;
     proto_tree *lustre_tree = NULL;
     struct lnet_trans_info *info = (struct lnet_trans_info *)data;
@@ -8704,7 +8704,7 @@ proto_register_lustre(void)
           { "name", "lustre.name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL}},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_lustre,
         &ett_lustre_lustre_handle_cookie,
         &ett_lustre_lustre_msg_v1,

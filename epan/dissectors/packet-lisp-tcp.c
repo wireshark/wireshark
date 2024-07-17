@@ -38,7 +38,7 @@ void proto_reg_handoff_lisp_tcp(void);
 /* Registration refresh message flags */
 #define REFRESH_FLAG_R      0x8000
 
-static gboolean lisp_tcp_desegment = TRUE;
+static bool lisp_tcp_desegment = true;
 
 /* Initialize the protocol and registered fields */
 static int proto_lisp_tcp;
@@ -76,10 +76,10 @@ static int hf_lisp_tcp_message_rid;
 static int hf_lisp_tcp_message_end_marker;
 
 /* Initialize the subtree pointers */
-static gint ett_lisp_tcp;
-static gint ett_lisp_tcp_lcaf;
-static gint ett_lisp_tcp_eid_prefix;
-static gint ett_lisp_tcp_map_register;
+static int ett_lisp_tcp;
+static int ett_lisp_tcp_lcaf;
+static int ett_lisp_tcp_eid_prefix;
+static int ett_lisp_tcp_map_register;
 
 /* Initialize expert fields */
 static expert_field ei_lisp_tcp_undecoded;
@@ -137,17 +137,17 @@ static const value_string lisp_tcp_registration_refresh_scope[] = {
  * Dissector for EID prefixes
  */
 
-static guint
+static unsigned
 dissect_lisp_tcp_message_eid_prefix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *message_tree,
-        guint offset, proto_item *tim)
+        unsigned offset, proto_item *tim)
 {
     proto_tree *prefix_tree, *lcaf_tree;
-    gint str_len;
-    guint8 prefix_length;
-    guint16 prefix_afi, addr_len = 0;
-    const gchar *prefix;
+    int str_len;
+    uint8_t prefix_length;
+    uint16_t prefix_afi, addr_len = 0;
+    const char *prefix;
 
-    prefix_length = tvb_get_guint8(tvb, offset);
+    prefix_length = tvb_get_uint8(tvb, offset);
     prefix_afi = tvb_get_ntohs(tvb, offset + 1);
 
     prefix = get_addr_str(tvb, pinfo, offset + 3, prefix_afi, &addr_len);
@@ -204,21 +204,21 @@ dissect_lisp_tcp_message_eid_prefix(tvbuff_t *tvb, packet_info *pinfo, proto_tre
  * Dissector for Reliable Transport messages
  */
 
-static guint
+static unsigned
 dissect_lisp_tcp_reliable_transport_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *message_tree,
-        guint offset, guint16 type, guint16 data_len, proto_item *tim)
+        unsigned offset, uint16_t type, uint16_t data_len, proto_item *tim)
 {
-    guint initial_offset = offset;
+    unsigned initial_offset = offset;
     proto_tree *map_register_tree;
-    guint8 reject_reason, scope, err;
-    guint16 refresh_flags, offending_msg_type;
+    uint8_t reject_reason, scope, err;
+    uint16_t refresh_flags, offending_msg_type;
 
     switch (type) {
 
     /* Error Notification */
     case TRANSPORT_BASE:
         /* Error code (1 byte) */
-        err = tvb_get_guint8(tvb, offset);
+        err = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(message_tree, hf_lisp_tcp_message_err_code, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
         data_len -= 1;
@@ -259,7 +259,7 @@ dissect_lisp_tcp_reliable_transport_message(tvbuff_t *tvb, packet_info *pinfo, p
         /* Map-Register */
         map_register_tree = proto_tree_add_subtree(message_tree, tvb, offset, data_len,
                 ett_lisp_tcp_map_register, NULL, "Map-Register");
-        offset = dissect_lisp_map_register(tvb, pinfo, map_register_tree, offset, tim, FALSE);
+        offset = dissect_lisp_map_register(tvb, pinfo, map_register_tree, offset, tim, false);
         data_len -= offset - initial_offset;
         break;
 
@@ -273,7 +273,7 @@ dissect_lisp_tcp_reliable_transport_message(tvbuff_t *tvb, packet_info *pinfo, p
     /* Registration Reject */
     case TRANSPORT_BASE + 3:
         /* Reason (1 byte) */
-        reject_reason = tvb_get_guint8(tvb, offset);
+        reject_reason = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(message_tree, hf_lisp_tcp_message_registration_reject_reason, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
         proto_item_append_text(tim, ", Reason: %s",
@@ -291,7 +291,7 @@ dissect_lisp_tcp_reliable_transport_message(tvbuff_t *tvb, packet_info *pinfo, p
     /* Registration Refresh */
     case TRANSPORT_BASE + 4:
         /* Reason (1 byte) */
-        scope = tvb_get_guint8(tvb, offset);
+        scope = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(message_tree, hf_lisp_tcp_message_registration_refresh_scope, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
         proto_item_append_text(tim, ", Scope: %s",
@@ -331,7 +331,7 @@ dissect_lisp_tcp_reliable_transport_message(tvbuff_t *tvb, packet_info *pinfo, p
         offset += LISP_SITEID_LEN;
 
         /* Mapping Record */
-        offset = dissect_lisp_mapping(tvb, pinfo, message_tree, 0, 1, FALSE, offset, tim);
+        offset = dissect_lisp_mapping(tvb, pinfo, message_tree, 0, 1, false, offset, tim);
         data_len -= offset - initial_offset;
         break;
     }
@@ -350,14 +350,14 @@ dissect_lisp_tcp_reliable_transport_message(tvbuff_t *tvb, packet_info *pinfo, p
  * Dissector for Membership messages
  */
 
-static guint
+static unsigned
 dissect_lisp_tcp_membership_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *message_tree,
-        guint offset, guint16 type, guint16 data_len, proto_item *tim)
+        unsigned offset, uint16_t type, uint16_t data_len, proto_item *tim)
 {
-    guint32 iid, sid, rid;
-    guint8 err;
-    guint64 siteid;
-    guint16 afi;
+    uint32_t iid, sid, rid;
+    uint8_t err;
+    uint64_t siteid;
+    uint16_t afi;
 
     /* EID AFI (2 bytes) */
     proto_tree_add_item(message_tree, hf_lisp_tcp_message_eid_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -384,7 +384,7 @@ dissect_lisp_tcp_membership_message(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
         if (type == MEMBERSHIP_BASE + 2) {
             /* Error code (1 byte) */
-            err = tvb_get_guint8(tvb, offset);
+            err = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(message_tree, hf_lisp_tcp_message_err, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
             data_len -= 1;
@@ -456,9 +456,9 @@ dissect_lisp_tcp_membership_message(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 static int
 dissect_lisp_tcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    guint offset = 0;
-    guint16 type, len, data_len;
-    guint32 id, marker;
+    unsigned offset = 0;
+    uint16_t type, len, data_len;
+    uint32_t id, marker;
     proto_item *tim, *til, *tiem;
     proto_tree *message_tree;
 
@@ -523,11 +523,11 @@ dissect_lisp_tcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
  * Get message length, needed by tcp_dissect_pdus()
  */
 
-static guint
+static unsigned
 get_lisp_tcp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                          int offset, void *data _U_)
 {
-    guint16 mlen;
+    uint16_t mlen;
 
     /* Get length of membership message */
     mlen = tvb_get_ntohs(tvb, offset + 2);
@@ -666,7 +666,7 @@ proto_register_lisp_tcp(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_lisp_tcp,
         &ett_lisp_tcp_lcaf,
         &ett_lisp_tcp_eid_prefix,

@@ -21,7 +21,7 @@ void dissect_snap(tvbuff_t *, int, packet_info *, proto_tree *,
  * Add an entry for a new OUI.
  */
 WS_DLL_PUBLIC
-void llc_add_oui(guint32, const char *, const char *, hf_register_info *, const int);
+void llc_add_oui(uint32_t, const char *, const char *, hf_register_info *, const int);
 
 /*
  * SNAP information about the PID for a particular OUI:
@@ -38,6 +38,6 @@ typedef struct {
  * Return the oui_info_t for the PID for a particular OUI value, or NULL
  * if there isn't one.
  */
-oui_info_t *get_snap_oui_info(guint32);
+oui_info_t *get_snap_oui_info(uint32_t);
 
 #endif

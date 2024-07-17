@@ -1073,15 +1073,15 @@ static const true_false_string tlv_upstr_sbit_vals = {
 #define PW_PSN_PW_EGRESS_TRANS_FAULT    0x00000010
 
 static void
-dissect_subtlv_interface_parameters(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem, int *interface_parameters_hf[]);
+dissect_subtlv_interface_parameters(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int rem, int *interface_parameters_hf[]);
 
 static void
-dissect_genpwid_fec_aai_type2_parameter(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem);
+dissect_genpwid_fec_aai_type2_parameter(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree, int rem);
 
 /* Dissect FEC TLV */
 
 static void
-dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
+dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree, int rem)
 {
     static int *interface_params_header_fields[] = {
         &hf_ldp_tlv_fec_vc_intparam_length ,
@@ -1127,20 +1127,20 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
 
     proto_tree *ti, *ti2, *val_tree, *fec_tree=NULL;
     proto_tree *agi_tree=NULL, *saii_tree=NULL, *taii_tree=NULL;
-    guint16     family, ix=1, ax;
-    guint16     op_length = tvb_get_bits16(tvb, ((offset+8)*8), 16, ENC_BIG_ENDIAN);
-    guint8      addr_size=0, *addr, implemented, prefix_len_octets, prefix_len, host_len, vc_len;
-    guint8      intparam_len, aai_type = 0;
-    guint32     pwid_len, agi_aii_len;
+    uint16_t    family, ix=1, ax;
+    uint16_t    op_length = tvb_get_bits16(tvb, ((offset+8)*8), 16, ENC_BIG_ENDIAN);
+    uint8_t     addr_size=0, *addr, implemented, prefix_len_octets, prefix_len, host_len, vc_len;
+    uint8_t     intparam_len, aai_type = 0;
+    uint32_t    pwid_len, agi_aii_len;
     const char *str;
-    guint8 gen_fec_id_len = 0;
+    uint8_t gen_fec_id_len = 0;
     address_type addr_type;
     address      addr_str;
 
     val_tree=proto_tree_add_subtree(tree, tvb, offset, rem, ett_ldp_tlv_val, NULL, "FEC Elements");
 
     while (rem > 0){
-        switch (tvb_get_guint8(tvb, offset)) {
+        switch (tvb_get_uint8(tvb, offset)) {
         case WILDCARD_FEC:
         case CRLSP_FEC:
             fec_tree = proto_tree_add_subtree_format(val_tree, tvb, offset, 1,
@@ -1156,7 +1156,7 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
                 return;
             }
             family=tvb_get_ntohs(tvb, offset+1);
-            prefix_len=tvb_get_guint8(tvb, offset+3);
+            prefix_len=tvb_get_uint8(tvb, offset+3);
             prefix_len_octets=(prefix_len+7)/8;
 
             implemented=1;
@@ -1175,7 +1175,7 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
             }
 
             if ( !implemented ) {
-                guint16 noctets;
+                uint16_t noctets;
 
                 noctets= rem>4+prefix_len_octets?4+prefix_len_octets:rem;
                 proto_tree_add_expert(val_tree, pinfo, &ei_ldp_address_family_not_implemented, tvb, offset, noctets);
@@ -1211,10 +1211,10 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
                 break;
             }
 
-            addr=(guint8 *)wmem_alloc0(pinfo->pool, addr_size);
+            addr=(uint8_t *)wmem_alloc0(pinfo->pool, addr_size);
 
             for(ax=0; ax+1 <= prefix_len_octets; ax++)
-                addr[ax]=tvb_get_guint8(tvb, offset+ax);
+                addr[ax]=tvb_get_uint8(tvb, offset+ax);
             if ( prefix_len % 8 )
                 addr[ax-1] = addr[ax-1]&(0xFF<<(8-prefix_len%8));
 
@@ -1233,7 +1233,7 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
                 return;
             }
             family=tvb_get_ntohs(tvb, offset+1);
-            host_len=tvb_get_guint8(tvb, offset+3);
+            host_len=tvb_get_uint8(tvb, offset+3);
 
             implemented=1;
             switch(family) {
@@ -1251,7 +1251,7 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
             }
 
             if ( !implemented ) {
-                guint16 noctets;
+                uint16_t noctets;
 
                 noctets= rem>4+host_len?4+host_len:rem;
                 proto_tree_add_expert(val_tree, pinfo, &ei_ldp_address_family_not_implemented, tvb, offset, noctets);
@@ -1286,10 +1286,10 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
                 break;
             }
 
-            addr=(guint8 *)wmem_alloc0(pinfo->pool, addr_size);
+            addr=(uint8_t *)wmem_alloc0(pinfo->pool, addr_size);
 
             for(ax=0; ax+1 <= host_len; ax++)
-                addr[ax]=tvb_get_guint8(tvb, offset+ax);
+                addr[ax]=tvb_get_uint8(tvb, offset+ax);
 
             set_address(&addr_str, addr_type, addr_size, addr);
             str = address_to_str(pinfo->pool, &addr_str);
@@ -1305,7 +1305,7 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
                 proto_tree_add_expert_format(val_tree, pinfo, &ei_ldp_tlv_fec, tvb, offset, rem, "Error in FEC Element %u", ix);
                 return;
             }
-            vc_len = tvb_get_guint8 (tvb, offset+3);
+            vc_len = tvb_get_uint8 (tvb, offset+3);
 
 
             fec_tree = proto_tree_add_subtree_format(val_tree, tvb, offset, 8+vc_len, ett_ldp_fec, &ti, "FEC Element %u", ix);
@@ -1330,7 +1330,7 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
             offset += 4;
 
             while ( (vc_len > 1) && (rem > 1) ) {   /* enough to include id and length */
-                intparam_len = tvb_get_guint8(tvb, offset+1);
+                intparam_len = tvb_get_uint8(tvb, offset+1);
                 if (intparam_len < 2){ /* At least Type and Len, protect against len = 0 */
                     proto_tree_add_expert(fec_tree, pinfo, &ei_ldp_malformed_interface_parameter, tvb, offset +1, 1);
                     return;
@@ -1355,7 +1355,7 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
                 proto_tree_add_expert_format(val_tree, pinfo, &ei_ldp_tlv_fec, tvb, offset, rem, "Error in FEC Element %u", ix);
                 return;
             }
-            vc_len = tvb_get_guint8 (tvb, offset+3);
+            vc_len = tvb_get_uint8 (tvb, offset+3);
 
             /* Add the FEC to the tree */
             fec_tree = proto_tree_add_subtree_format(val_tree, tvb, offset, 8+vc_len, ett_ldp_fec, NULL, "FEC Element %u", ix);
@@ -1367,7 +1367,7 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
             offset += 4;
 
             if ( (vc_len > 1) && ( rem > 1 ) ) { /* there is enough room for AGI */
-                gen_fec_id_len = tvb_get_guint8 (tvb, offset+1);
+                gen_fec_id_len = tvb_get_uint8 (tvb, offset+1);
                 /* Add AGI to the tree */
                 agi_tree = proto_tree_add_subtree_format(fec_tree, tvb, offset, 2 + gen_fec_id_len, ett_ldp_gen_agi, NULL, "AGI");
                 proto_tree_add_item(agi_tree, hf_ldp_tlv_fec_gen_agi_type,tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1386,9 +1386,9 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
             }
 
             if ( (vc_len > 1) && ( rem > 1 ) ) { /* there is enough room for SAII */
-                gen_fec_id_len = tvb_get_guint8 (tvb, offset+1);
+                gen_fec_id_len = tvb_get_uint8 (tvb, offset+1);
                 /* Add SAII to the tree */
-                aai_type = tvb_get_guint8(tvb, offset);
+                aai_type = tvb_get_uint8(tvb, offset);
                 if ( aai_type == 2 && gen_fec_id_len != 12)
                 {
                     /* According to RFC 5003, for Type 2 AAI, the length should be 12 bytes */
@@ -1441,9 +1441,9 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
             }
 
             if ( (vc_len > 1) && ( rem > 1 ) ) { /* there is enough room for TAII */
-                gen_fec_id_len = tvb_get_guint8 (tvb, offset+1);
+                gen_fec_id_len = tvb_get_uint8 (tvb, offset+1);
                 /* Add TAII to the tree */
-                aai_type = tvb_get_guint8(tvb, offset);
+                aai_type = tvb_get_uint8(tvb, offset);
                 if ( aai_type == 2 && gen_fec_id_len != 12)
                 {
                     /* According to RFC 5003, for Type 2 AAI, the length should be 12 bytes */
@@ -1506,7 +1506,7 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
                 return;
             }
 
-            fec_tree = proto_tree_add_subtree_format(val_tree, tvb, offset, 4+tvb_get_guint8 (tvb, offset+1),
+            fec_tree = proto_tree_add_subtree_format(val_tree, tvb, offset, 4+tvb_get_uint8 (tvb, offset+1),
                                                             ett_ldp_fec, NULL, "FEC Element %u", ix);
             proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_wc, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
@@ -1535,7 +1535,7 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
                 return;
             }
 
-            fec_tree = proto_tree_add_subtree_format(val_tree, tvb, offset, 8+tvb_get_guint8 (tvb, offset+3),
+            fec_tree = proto_tree_add_subtree_format(val_tree, tvb, offset, 8+tvb_get_uint8 (tvb, offset+3),
                                                             ett_ldp_fec, NULL, "FEC Element %u", ix);
             proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_wc, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_pw_controlword, tvb, offset+1, 1, ENC_BIG_ENDIAN);
@@ -1553,14 +1553,14 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
             }
 
             while ( (pwid_len > 1) && (rem > 1) ) {   /* enough to include id and length */
-                intparam_len = tvb_get_guint8(tvb, offset+1);
+                intparam_len = tvb_get_uint8(tvb, offset+1);
                 if (intparam_len < 2){ /* At least Type and Len, protect against len = 0 */
                     proto_tree_add_expert(fec_tree, pinfo, &ei_ldp_malformed_interface_parameter, tvb, offset +1, 1);
                     return;
                 }
 
-                if ( ((guint32)intparam_len > pwid_len) && (rem -intparam_len) <0 ) { /* error condition */
-                    proto_tree_add_expert(fec_tree, pinfo, &ei_ldp_malformed_data, tvb, offset +2, MIN(pwid_len,(guint32)rem));
+                if ( ((uint32_t)intparam_len > pwid_len) && (rem -intparam_len) <0 ) { /* error condition */
+                    proto_tree_add_expert(fec_tree, pinfo, &ei_ldp_malformed_data, tvb, offset +2, MIN(pwid_len,(uint32_t)rem));
                     return;
                 }
                 dissect_subtlv_interface_parameters(tvb, offset, fec_tree, intparam_len, interface_params_header_fields);
@@ -1582,7 +1582,7 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
                 return;
             }
 
-            fec_tree = proto_tree_add_subtree_format(val_tree, tvb, offset, 4+tvb_get_guint8 (tvb, offset+3),
+            fec_tree = proto_tree_add_subtree_format(val_tree, tvb, offset, 4+tvb_get_uint8 (tvb, offset+3),
                                                             ett_ldp_fec, NULL, "FEC Element %u", ix);
             proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_wc, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_pw_controlword, tvb, offset+1, 1, ENC_BIG_ENDIAN);
@@ -1646,11 +1646,11 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
 /* Dissect Address List TLV */
 
 static void
-dissect_tlv_address_list(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
+dissect_tlv_address_list(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree, int rem)
 {
     proto_tree *val_tree;
-    guint16     family, ix;
-    guint8      addr_size, *addr;
+    uint16_t    family, ix;
+    uint8_t     addr_size, *addr;
     const char *str;
     address_type addr_type;
     address      addr_str;
@@ -1682,7 +1682,7 @@ dissect_tlv_address_list(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_
     offset+=2; rem-=2;
     val_tree=proto_tree_add_subtree(tree, tvb, offset, rem, ett_ldp_tlv_val, NULL, "Addresses");
 
-    addr=(guint8 *)wmem_alloc(pinfo->pool, addr_size);
+    addr=(uint8_t *)wmem_alloc(pinfo->pool, addr_size);
 
     for(ix=1; rem >= addr_size; ix++, offset += addr_size,
             rem -= addr_size) {
@@ -1703,11 +1703,11 @@ dissect_tlv_address_list(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_
 /* Dissect Path Vector TLV */
 
 static void
-dissect_tlv_path_vector(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
+dissect_tlv_path_vector(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree, int rem)
 {
     proto_tree *val_tree;
-    guint8      ix;
-    guint32 addr;
+    uint8_t     ix;
+    uint32_t addr;
 
     val_tree=proto_tree_add_subtree(tree, tvb, offset, rem, ett_ldp_tlv_val, NULL, "LSR IDs");
 
@@ -1725,7 +1725,7 @@ dissect_tlv_path_vector(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_t
 /* Dissect ATM Label TLV */
 
 static void
-dissect_tlv_atm_label(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
+dissect_tlv_atm_label(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree, int rem)
 {
     proto_tree *val_tree;
 
@@ -1745,10 +1745,10 @@ dissect_tlv_atm_label(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tre
 /* Dissect FRAME RELAY Label TLV */
 
 static void
-dissect_tlv_frame_label(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
+dissect_tlv_frame_label(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree, int rem)
 {
     proto_tree *val_tree;
-    guint8      len;
+    uint8_t     len;
 
     if (rem != 4){
         proto_tree_add_expert_format(tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset, rem,
@@ -1758,7 +1758,7 @@ dissect_tlv_frame_label(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_t
     }
     val_tree=proto_tree_add_subtree(tree, tvb, offset, rem, ett_ldp_tlv_val, NULL, "Frame Relay Label");
 
-    len=(guint8)(tvb_get_ntohs(tvb, offset)>>7) & 0x03;
+    len=(uint8_t)(tvb_get_ntohs(tvb, offset)>>7) & 0x03;
     proto_tree_add_uint_format_value(val_tree, hf_ldp_tlv_fr_label_len, tvb, offset, 2, len,
                                "%s (%u)", val_to_str_const(len, tlv_fr_len_vals, "Unknown Length"), len);
 
@@ -1769,10 +1769,10 @@ dissect_tlv_frame_label(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_t
 /* Dissect STATUS TLV */
 
 static void
-dissect_tlv_status(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
+dissect_tlv_status(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree, int rem)
 {
     proto_tree *val_tree;
-    guint32     data;
+    uint32_t    data;
 
     if (rem != 10){
         proto_tree_add_expert_format(tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset, rem,
@@ -1797,7 +1797,7 @@ dissect_tlv_status(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *
 /* Dissect Returned PDU TLV */
 
 static void
-dissect_tlv_returned_pdu(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
+dissect_tlv_returned_pdu(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree, int rem)
 {
     proto_tree *val_tree;
 
@@ -1825,10 +1825,10 @@ dissect_tlv_returned_pdu(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_
 /* Dissect Returned MESSAGE TLV */
 
 static void
-dissect_tlv_returned_message(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
+dissect_tlv_returned_message(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree, int rem)
 {
     proto_tree *val_tree;
-    guint16     type;
+    uint16_t    type;
 
     if (rem < 4) {
         proto_tree_add_expert_format(tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset, rem,
@@ -1874,9 +1874,9 @@ dissect_tlv_returned_message(tvbuff_t *tvb, packet_info *pinfo, guint offset, pr
 
 static void
 #if 0
-dissect_tlv_common_hello_parms(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
+dissect_tlv_common_hello_parms(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree, int rem)
 #else
-dissect_tlv_common_hello_parms(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree)
+dissect_tlv_common_hello_parms(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree)
 #endif
 {
 #if 0
@@ -1884,7 +1884,7 @@ dissect_tlv_common_hello_parms(tvbuff_t *tvb, packet_info *pinfo, guint offset, 
 #endif
     proto_tree *val_tree;
     proto_item *gtsm_flag_item;
-    guint16 gtsm_flag_buffer;
+    uint16_t gtsm_flag_buffer;
 #if 0
     ti = proto_tree_add_item(tree, hf_ldp_tlv_value, tvb, offset, rem, ENC_NA);
     val_tree = proto_item_add_subtree(ti, ett_ldp_tlv_val);
@@ -1918,7 +1918,7 @@ dissect_tlv_common_hello_parms(tvbuff_t *tvb, packet_info *pinfo, guint offset, 
 /* Dissect MAC TLV */
 
 static void
-dissect_tlv_mac(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
+dissect_tlv_mac(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree, int rem)
 {
     proto_tree   *val_tree;
 
@@ -1936,7 +1936,7 @@ dissect_tlv_mac(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
 /* Dissect the common session params */
 
 static void
-dissect_tlv_common_session_parms(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
+dissect_tlv_common_session_parms(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree, int rem)
 {
     proto_tree *val_tree;
 
@@ -1974,10 +1974,10 @@ dissect_tlv_common_session_parms(tvbuff_t *tvb, packet_info *pinfo, guint offset
 /* Dissect the atm session params */
 
 static void
-dissect_tlv_atm_session_parms(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
+dissect_tlv_atm_session_parms(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree, int rem)
 {
     proto_tree *val_tree, *lbl_tree;
-    guint8      numlr, ix;
+    uint8_t     numlr, ix;
 
     if (rem < 4) {
         proto_tree_add_expert_format(tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset, rem,
@@ -1991,7 +1991,7 @@ dissect_tlv_atm_session_parms(tvbuff_t *tvb, packet_info *pinfo, guint offset, p
     proto_tree_add_item(val_tree, hf_ldp_tlv_sess_atm_merge,tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /*get the number of label ranges*/
-    numlr=(tvb_get_guint8(tvb, offset)>>2) & 0x0F;
+    numlr=(tvb_get_uint8(tvb, offset)>>2) & 0x0F;
     proto_tree_add_uint_format(val_tree, hf_ldp_tlv_sess_atm_lr,
                                tvb, offset, 1, numlr, "Number of Label Range components: %u",
                                numlr);
@@ -2033,10 +2033,10 @@ dissect_tlv_atm_session_parms(tvbuff_t *tvb, packet_info *pinfo, guint offset, p
 /* Dissect the frame relay session params */
 
 static void
-dissect_tlv_frame_relay_session_parms(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
+dissect_tlv_frame_relay_session_parms(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree, int rem)
 {
     proto_tree *val_tree, *lbl_tree;
-    guint8      numlr, ix, len;
+    uint8_t     numlr, ix, len;
 
     if(rem < 4) {
         proto_tree_add_expert_format(tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset, rem,
@@ -2051,7 +2051,7 @@ dissect_tlv_frame_relay_session_parms(tvbuff_t *tvb, packet_info *pinfo, guint o
                         tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /*get the number of label ranges*/
-    numlr=(tvb_get_guint8(tvb, offset)>>2) & 0x0F;
+    numlr=(tvb_get_uint8(tvb, offset)>>2) & 0x0F;
     proto_tree_add_uint_format(val_tree, hf_ldp_tlv_sess_fr_lr,
                                tvb, offset, 1, numlr, "Number of Label Range components: %u",
                                numlr);
@@ -2070,7 +2070,7 @@ dissect_tlv_frame_relay_session_parms(tvbuff_t *tvb, packet_info *pinfo, guint o
         lbl_tree=proto_tree_add_subtree_format(val_tree, tvb, offset, 8,
                                ett_ldp_tlv_val, NULL, "Frame Relay Label Range Component %u", ix);
 
-        len=(guint8)(tvb_get_ntohs(tvb, offset)>>7) & 0x03;
+        len=(uint8_t)(tvb_get_ntohs(tvb, offset)>>7) & 0x03;
         proto_tree_add_uint_format_value(lbl_tree, hf_ldp_tlv_sess_fr_len, tvb, offset, 2, len,
                                    "%s (%u)", val_to_str_const(len, tlv_fr_len_vals, "Unknown Length"), len);
 
@@ -2088,10 +2088,10 @@ dissect_tlv_frame_relay_session_parms(tvbuff_t *tvb, packet_info *pinfo, guint o
 /* Dissect the Fault Tolerant (FT) Session TLV */
 
 static void
-dissect_tlv_ft_session(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
+dissect_tlv_ft_session(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree, int rem)
 {
     proto_tree *ti, *val_tree, *flags_tree;
-    guint16 flags;
+    uint16_t flags;
 
     if(rem != 12){
         /* error, length must be 12 bytes */
@@ -2130,7 +2130,7 @@ dissect_tlv_ft_session(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tr
 }
 
 static void
-dissect_tlv_lspid(tvbuff_t *tvb, packet_info *pinfo, guint offset,proto_tree *tree, int rem)
+dissect_tlv_lspid(tvbuff_t *tvb, packet_info *pinfo, unsigned offset,proto_tree *tree, int rem)
 {
     proto_tree *val_tree;
 
@@ -2154,7 +2154,7 @@ dissect_tlv_lspid(tvbuff_t *tvb, packet_info *pinfo, guint offset,proto_tree *tr
 }
 
 static void
-dissect_tlv_er_hop_ipv4(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
+dissect_tlv_er_hop_ipv4(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree, int rem)
 {
     proto_tree *val_tree;
 
@@ -2179,7 +2179,7 @@ dissect_tlv_er_hop_ipv4(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_t
 }
 
 static void
-dissect_tlv_er_hop_ipv6(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
+dissect_tlv_er_hop_ipv6(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree, int rem)
 {
     proto_tree *val_tree;
 
@@ -2204,7 +2204,7 @@ dissect_tlv_er_hop_ipv6(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_t
 }
 
 static void
-dissect_tlv_er_hop_as(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
+dissect_tlv_er_hop_as(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree, int rem)
 {
     proto_tree *val_tree;
 
@@ -2226,7 +2226,7 @@ dissect_tlv_er_hop_as(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tre
 }
 
 static void
-dissect_tlv_er_hop_lspid(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
+dissect_tlv_er_hop_lspid(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree, int rem)
 {
     proto_tree *val_tree;
 
@@ -2251,10 +2251,10 @@ dissect_tlv_er_hop_lspid(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_
 }
 
 static void
-dissect_tlv_traffic(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
+dissect_tlv_traffic(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree, int rem)
 {
     proto_tree *val_tree;
-    guint8  val_8;
+    uint8_t val_8;
     float   val_f;
     proto_item *pi;
 
@@ -2286,7 +2286,7 @@ dissect_tlv_traffic(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree 
 
         /* weight */
         pi = proto_tree_add_item(val_tree, hf_ldp_tlv_weight, tvb, offset, 1, ENC_BIG_ENDIAN);
-        val_8 = tvb_get_guint8(tvb, offset);
+        val_8 = tvb_get_uint8(tvb, offset);
         if (val_8 == 0)
             proto_item_set_text(pi, "Weight: Not applicable");
         offset ++;
@@ -2323,7 +2323,7 @@ dissect_tlv_traffic(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree 
 }
 
 static void
-dissect_tlv_route_pinning(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
+dissect_tlv_route_pinning(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree, int rem)
 {
     proto_tree *val_tree;
 
@@ -2343,7 +2343,7 @@ dissect_tlv_route_pinning(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto
 
 
 static void
-dissect_tlv_resource_class(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
+dissect_tlv_resource_class(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree, int rem)
 {
     proto_tree *val_tree;
 
@@ -2363,7 +2363,7 @@ dissect_tlv_resource_class(tvbuff_t *tvb, packet_info *pinfo, guint offset, prot
 
 
 static void
-dissect_tlv_preemption(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
+dissect_tlv_preemption(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree, int rem)
 {
     proto_tree *val_tree;
 
@@ -2386,7 +2386,7 @@ dissect_tlv_preemption(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tr
 
 
 static void
-dissect_tlv_diffserv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
+dissect_tlv_diffserv(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree, int rem)
 {
     static int *hfindexes[] = {
         &hf_ldp_tlv_diffserv_map,
@@ -2397,7 +2397,7 @@ dissect_tlv_diffserv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree
         &hf_ldp_tlv_diffserv_phbid_bit14,
         &hf_ldp_tlv_diffserv_phbid_bit15
     };
-    static gint *etts[] = {
+    static int *etts[] = {
         &ett_ldp_diffserv_map,
         &ett_ldp_diffserv_map_phbid
     };
@@ -2409,13 +2409,13 @@ dissect_tlv_diffserv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree
         return;
     }
     proto_tree_add_uint(tree, hf_ldp_tlv_diffserv_type, tvb, offset, 1,
-                        type = tvb_get_guint8(tvb, offset));
+                        type = tvb_get_uint8(tvb, offset));
     type = (type >> 7) + 1;
     if (type == 1) {
         /* E-LSP */
         offset += 3;
         proto_tree_add_uint(tree, hf_ldp_tlv_diffserv_mapnb, tvb, offset,
-                            1, mapnb = tvb_get_guint8(tvb, offset) & 15);
+                            1, mapnb = tvb_get_uint8(tvb, offset) & 15);
         offset += 1;
         for (count = 0; count < mapnb; count++) {
             dissect_diffserv_mpls_common(tvb, tree, type, offset, hfindexes, etts);
@@ -2430,11 +2430,11 @@ dissect_tlv_diffserv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree
 
 
 static int
-dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem);
+dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree, int rem);
 
 static void
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_tlv_er(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
+dissect_tlv_er(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree, int rem)
 {
     proto_tree *val_tree;
     int len;
@@ -2452,14 +2452,14 @@ dissect_tlv_er(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree
 
 
 static void
-dissect_tlv_pw_status(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem);
+dissect_tlv_pw_status(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree, int rem);
 
 static void
-dissect_tlv_pw_grouping(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem);
+dissect_tlv_pw_grouping(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int rem);
 
 /* Dissect Upstream Label Assignment Capability TLV */
 static void
-dissect_tlv_upstrm_lbl_ass_cap(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
+dissect_tlv_upstrm_lbl_ass_cap(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree, int rem)
 {
     proto_tree *val_tree;
 
@@ -2477,7 +2477,7 @@ dissect_tlv_upstrm_lbl_ass_cap(tvbuff_t *tvb, packet_info *pinfo, guint offset, 
 }
 /*Dissect Upstream Assigned Label Request TLV*/
 static void
-dissect_tlv_upstrm_ass_lbl_req(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
+dissect_tlv_upstrm_ass_lbl_req(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree, int rem)
 {
     if ( rem != 4)
     {
@@ -2493,7 +2493,7 @@ dissect_tlv_upstrm_ass_lbl_req(tvbuff_t *tvb, packet_info *pinfo, guint offset, 
 
 /*Dissect Upstream Assigned Label TLV*/
 static void
-dissect_tlv_upstrm_ass_lbl(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
+dissect_tlv_upstrm_ass_lbl(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree, int rem)
 {
     proto_tree *val_tree;
 
@@ -2516,7 +2516,7 @@ dissect_tlv_upstrm_ass_lbl(tvbuff_t *tvb, packet_info *pinfo, guint offset, prot
 /*Dissect IPv4 Interface ID TLV*/
 static void
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_tlv_ipv4_interface_id(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
+dissect_tlv_ipv4_interface_id(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree, int rem)
 {
     proto_tree *val_tree, *sub_tree;
 
@@ -2549,7 +2549,7 @@ dissect_tlv_ipv4_interface_id(tvbuff_t *tvb, packet_info *pinfo, guint offset, p
 }
 /*Dissect IP Multicast Tunnel TLV*/
 static void
-dissect_tlv_ip_multicast_tunnel(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+dissect_tlv_ip_multicast_tunnel(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int rem)
 {
     proto_tree *val_tree;
 
@@ -2561,7 +2561,7 @@ dissect_tlv_ip_multicast_tunnel(tvbuff_t *tvb, guint offset, proto_tree *tree, i
 
 static void
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_tlv_mpls_context_lbl(tvbuff_t *tvb,packet_info *pinfo, guint offset, proto_tree *tree, int rem)
+dissect_tlv_mpls_context_lbl(tvbuff_t *tvb,packet_info *pinfo, unsigned offset, proto_tree *tree, int rem)
 {
     proto_tree *val_tree;
 
@@ -2571,10 +2571,10 @@ dissect_tlv_mpls_context_lbl(tvbuff_t *tvb,packet_info *pinfo, guint offset, pro
 }
 
 static void
-dissect_tlv_ldp_p2mp_lsp(tvbuff_t *tvb, guint offset, proto_tree *tree)
+dissect_tlv_ldp_p2mp_lsp(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
-    guint16 addr_length = tvb_get_bits16(tvb, ((offset+3)*8), 8, ENC_BIG_ENDIAN);
-    guint16 opcode_length = tvb_get_bits16(tvb, ((offset + 4 + addr_length)*8), 16, ENC_BIG_ENDIAN);
+    uint16_t addr_length = tvb_get_bits16(tvb, ((offset+3)*8), 8, ENC_BIG_ENDIAN);
+    uint16_t opcode_length = tvb_get_bits16(tvb, ((offset + 4 + addr_length)*8), 16, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(tree, hf_ldp_tlv_ldp_p2mp_lsptype, tvb,offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_ldp_tlv_ldp_p2mp_addrfam, tvb,offset + 1, 2, ENC_BIG_ENDIAN);
@@ -2585,7 +2585,7 @@ dissect_tlv_ldp_p2mp_lsp(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 static void
-dissect_tlv_rsvp_te_p2mp_lsp(tvbuff_t *tvb, guint offset, proto_tree *tree)
+dissect_tlv_rsvp_te_p2mp_lsp(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
 
     proto_tree_add_item(tree, hf_ldp_tlv_rsvp_te_p2mp_id, tvb,offset, 4, ENC_BIG_ENDIAN);
@@ -2598,9 +2598,9 @@ dissect_tlv_rsvp_te_p2mp_lsp(tvbuff_t *tvb, guint offset, proto_tree *tree)
 
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
+dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree, int rem)
 {
-    guint16 type, typebak;
+    uint16_t type, typebak;
     int length;
 
     length=tvb_reported_length_remaining(tvb, offset);
@@ -2687,7 +2687,7 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, i
                                     "Error processing Generic Label TLV: length is %d, should be 4",
                                     length);
             else {
-                guint32 label=tvb_get_ntohl(tvb, offset+4) & 0x000FFFFF;
+                uint32_t label=tvb_get_ntohl(tvb, offset+4) & 0x000FFFFF;
 
                 proto_tree_add_uint(tlv_tree, hf_ldp_tlv_generic_label,
                                            tvb, offset+4, length, label);
@@ -2724,7 +2724,7 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, i
             break;
 
         case TLV_EXTENDED_STATUS:
-            if( length != 4 ) /*error, need only status_code(guint32)*/
+            if( length != 4 ) /*error, need only status_code(uint32_t)*/
                 proto_tree_add_expert_format(tlv_tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset + 4, length,
                                     "Error processing Extended Status TLV: length is %d, should be 4",
                                     length);
@@ -2760,7 +2760,7 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, i
             break;
 
         case TLV_CONFIGURATION_SEQUENCE_NUMBER:
-            if( length != 4 ) /*error, need only seq_num(guint32)*/
+            if( length != 4 ) /*error, need only seq_num(uint32_t)*/
                 proto_tree_add_expert_format(tlv_tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset + 4, length,
                                     "Error processing Configuration Sequence Number TLV: length is %d, should be 4",
                                     length);
@@ -2951,7 +2951,7 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, i
             int vc_len = length;
             offset += 4;
             while ( (vc_len > 1) && (rem > 1) ) {       /* enough to include id and length */
-                int intparam_len = tvb_get_guint8(tvb, offset+1);
+                int intparam_len = tvb_get_uint8(tvb, offset+1);
                 if (intparam_len < 2){ /* At least Type and Len, protect against len = 0 */
                     proto_tree_add_expert(tlv_tree, pinfo, &ei_ldp_malformed_interface_parameter, tvb, offset +1, 1);
                     break;
@@ -3014,10 +3014,10 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, i
 /* Dissect a Message and return the number of bytes consumed ... */
 
 static int
-dissect_msg(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
+dissect_msg(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree)
 {
-    guint16     type, typebak;
-    guint8      extra=0;
+    uint16_t    type, typebak;
+    uint8_t     extra=0;
     int length, rem, ao=0, co;
     proto_tree *msg_tree = NULL;
 
@@ -3193,7 +3193,7 @@ dissect_ldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 }
 
 static void
-dissect_tlv_pw_status(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
+dissect_tlv_pw_status(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree, int rem)
 {
     proto_tree *ti, *val_tree;
 
@@ -3216,13 +3216,13 @@ dissect_tlv_pw_status(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tre
 }
 
 static void
-dissect_tlv_pw_grouping(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem _U_)
+dissect_tlv_pw_grouping(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int rem _U_)
 {
     proto_tree_add_item(tree,hf_ldp_tlv_pw_grouping_value,tvb,offset,4,ENC_BIG_ENDIAN);
 }
 
 static void
-dissect_subtlv_interface_parameters(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem, int *interface_parameters_hf[])
+dissect_subtlv_interface_parameters(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int rem, int *interface_parameters_hf[])
 {
 #if 0
     static int interface_parameters_hf[] = {
@@ -3271,11 +3271,11 @@ dissect_subtlv_interface_parameters(tvbuff_t *tvb, guint offset, proto_tree *tre
     proto_tree *cepopt_tree=NULL, *vccvtype_tree=NULL;
     proto_tree *vcintparam_tree = proto_tree_add_subtree(tree, tvb, offset, rem, ett_ldp_fec_vc_interfaceparam, &ti, "Interface Parameter");
 
-    guint8  intparam_len = rem;
+    uint8_t intparam_len = rem;
     proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[3],tvb,offset,1,ENC_BIG_ENDIAN);
     proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[0],tvb, offset+1, 1, ENC_BIG_ENDIAN);
 
-    switch (tvb_get_guint8(tvb, offset)) {
+    switch (tvb_get_uint8(tvb, offset)) {
     case FEC_VC_INTERFACEPARAM_MTU:
         proto_item_append_text(ti,": MTU %u", tvb_get_ntohs(tvb,offset+2));
         proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[1],tvb, offset+2, 2, ENC_BIG_ENDIAN);
@@ -3371,7 +3371,7 @@ dissect_subtlv_interface_parameters(tvbuff_t *tvb, guint offset, proto_tree *tre
 }
 
 static void
-dissect_genpwid_fec_aai_type2_parameter(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
+dissect_genpwid_fec_aai_type2_parameter(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree, int rem)
 {
     proto_tree *aai_param_tree = proto_tree_add_subtree(tree, tvb, offset, rem, ett_ldp_gen_aai_type2, NULL, "AAI");
     /* check if the remaining length is 12 bytes or not... */
@@ -3392,10 +3392,10 @@ dissect_genpwid_fec_aai_type2_parameter(tvbuff_t *tvb, packet_info *pinfo, guint
 static int
 dissect_ldp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    volatile gboolean   first = TRUE;
+    volatile bool       first = true;
     volatile int        offset = 0;
     int                 length_remaining;
-    guint16             plen;
+    uint16_t            plen;
     int                 length;
     tvbuff_t *volatile  next_tvb;
     while (tvb_reported_length_remaining(tvb, offset) != 0) {
@@ -3426,7 +3426,7 @@ dissect_ldp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
                  */
                 return 0;
             }
-            first = FALSE;
+            first = false;
         }
 
         /*
@@ -3447,7 +3447,7 @@ dissect_ldp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
                  */
                 pinfo->desegment_offset = offset;
                 pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
-                return -((gint32) pinfo->desegment_len);
+                return -((int32_t) pinfo->desegment_len);
             }
         }
 
@@ -3474,7 +3474,7 @@ dissect_ldp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
                  */
                 pinfo->desegment_offset = offset;
                 pinfo->desegment_len = (plen + 4) - length_remaining;
-                return -((gint32) pinfo->desegment_len);
+                return -((int32_t) pinfo->desegment_len);
             }
         }
 
@@ -4552,7 +4552,7 @@ proto_register_ldp(void)
             NULL, 0x0, NULL, HFILL }},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_ldp,
         &ett_ldp_header,
         &ett_ldp_ldpid,

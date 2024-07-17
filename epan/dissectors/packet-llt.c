@@ -26,7 +26,7 @@ static const value_string message_type_vs[] = {
 };
 
 /* Variables for our preferences */
-static guint preference_alternate_ethertype = 0x0;
+static unsigned preference_alternate_ethertype = 0x0;
 
 /* Initialize the protocol and registered fields */
 static int proto_llt;
@@ -40,7 +40,7 @@ static int hf_llt_dst_node_id;
 static int hf_llt_src_node_id;
 
 /* Initialize the subtree pointers */
-static gint ett_llt;
+static int ett_llt;
 
 /* Code to actually dissect the packets */
 static int
@@ -49,13 +49,13 @@ dissect_llt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	/* Set up structures needed to add the protocol subtree and manage it */
 	proto_item *ti;
 	proto_tree *llt_tree;
-	guint8 message_type;
-        guint16 magic;
+	uint8_t message_type;
+        uint16_t magic;
 
 	/* Make entries in Protocol column and Info column on summary display */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LLT");
 
-	magic = tvb_get_guint16(tvb, 0, ENC_BIG_ENDIAN);
+	magic = tvb_get_uint16(tvb, 0, ENC_BIG_ENDIAN);
 	if(magic == 0x0602){ /* v2 ? */
 
 		ti = proto_tree_add_item(tree, proto_llt, tvb, 0, -1, ENC_NA);
@@ -66,7 +66,7 @@ dissect_llt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 		proto_tree_add_item(llt_tree, hf_llt_src_node_id, tvb, 8, 1, ENC_LITTLE_ENDIAN);
 
 	} else {
-		message_type = tvb_get_guint8(tvb, 3);
+		message_type = tvb_get_uint8(tvb, 3);
 
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Message type: %s", val_to_str(message_type, message_type_vs, "Unknown (0x%02x)"));
 
@@ -121,7 +121,7 @@ proto_register_llt(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_llt,
 	};
 
@@ -148,12 +148,12 @@ proto_register_llt(void)
 void
 proto_reg_handoff_llt(void)
 {
-	static gboolean initialized = FALSE;
-	static guint preference_alternate_ethertype_last;
+	static bool initialized = false;
+	static unsigned preference_alternate_ethertype_last;
 
 	if (!initialized) {
 		dissector_add_uint("ethertype", ETHERTYPE_LLT, llt_handle);
-		initialized = TRUE;
+		initialized = true;
 	} else {
 		if (preference_alternate_ethertype_last != 0x0) {
 			dissector_delete_uint("ethertype", preference_alternate_ethertype_last, llt_handle);

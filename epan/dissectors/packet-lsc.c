@@ -114,7 +114,7 @@ static int hf_lsc_scale_denom;
 static int hf_lsc_mode;
 
 /* Initialize the subtree pointers */
-static gint ett_lsc;
+static int ett_lsc;
 
 static dissector_handle_t lsc_udp_handle;
 static dissector_handle_t lsc_tcp_handle;
@@ -125,9 +125,9 @@ dissect_lsc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 {
   proto_item *ti;
   proto_tree *lsc_tree;
-  guint8 op_code;
-  guint32 stream;
-  guint expected_len;
+  uint8_t op_code;
+  uint32_t stream;
+  unsigned expected_len;
 
   /* Too little data? */
   if (tvb_captured_length(tvb) < LSC_MIN_LEN)
@@ -138,7 +138,7 @@ dissect_lsc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
   col_clear(pinfo->cinfo, COL_INFO);
 
   /* Get the op code */
-  op_code = tvb_get_guint8(tvb, 2);
+  op_code = tvb_get_uint8(tvb, 2);
   /* And the stream handle */
   stream = tvb_get_ntohl(tvb, 4);
 
@@ -254,14 +254,14 @@ dissect_lsc_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 }
 
 /* Determine length of LSC message */
-static guint
+static unsigned
 get_lsc_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
-  guint8 op_code;
-  guint pdu_len;
+  uint8_t op_code;
+  unsigned pdu_len;
 
   /* Get the op code */
-  op_code = tvb_get_guint8(tvb, offset + 2);
+  op_code = tvb_get_uint8(tvb, offset + 2);
 
   switch (op_code)
     {
@@ -305,7 +305,7 @@ get_lsc_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U
 static int
 dissect_lsc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-  tcp_dissect_pdus(tvb, pinfo, tree, TRUE, LSC_OPCODE_LEN, get_lsc_pdu_len,
+  tcp_dissect_pdus(tvb, pinfo, tree, true, LSC_OPCODE_LEN, get_lsc_pdu_len,
                    dissect_lsc_common, data);
   return tvb_captured_length(tvb);
 }
@@ -374,7 +374,7 @@ proto_register_lsc(void)
   };
 
   /* Setup protocol subtree array */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_lsc,
   };
 

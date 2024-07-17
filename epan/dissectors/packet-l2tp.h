@@ -11,7 +11,7 @@
 #define __PACKET_L2TP_H__
 
 typedef struct _l2tp_cntrl_data {
-	guint32     ccid;
+	uint32_t    ccid;
 	int         msg_type;
 } l2tp_cntrl_data_t;
 

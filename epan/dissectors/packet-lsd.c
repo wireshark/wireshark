@@ -31,22 +31,22 @@ static int hf_lsd_port;
 static int hf_lsd_infohash;
 static int hf_lsd_cookie;
 
-static gint ett_lsd;
+static int ett_lsd;
 
 static expert_field ei_lsd_field;
 
-static gboolean
+static bool
 parse_string_field(proto_tree *tree, int hf, packet_info *pinfo, tvbuff_t *tvb, int offset, int* next_offset, int* linelen)
 {
-  guint8 *str;
+  uint8_t *str;
   header_field_info* hf_info = proto_registrar_get_nth(hf);
-  gchar **field_and_value;
+  char **field_and_value;
   proto_item* ti;
-  gchar *p;
+  char *p;
 
-  *linelen = tvb_find_line_end(tvb, offset, -1, next_offset, FALSE);
+  *linelen = tvb_find_line_end(tvb, offset, -1, next_offset, false);
   if (*linelen < 0)
-    return FALSE;
+    return false;
 
   str = tvb_get_string_enc(pinfo->pool, tvb, offset, *linelen, ENC_ASCII);
   if (g_ascii_strncasecmp(str, hf_info->name, strlen(hf_info->name)) == 0)
@@ -57,13 +57,13 @@ parse_string_field(proto_tree *tree, int hf, packet_info *pinfo, tvbuff_t *tvb, 
         while(g_ascii_isspace(*p))
           p++;
         proto_tree_add_string(tree, hf, tvb, offset, *linelen, p);
-        return TRUE;
+        return true;
       }
   }
   ti = proto_tree_add_string_format(tree, hf, tvb, offset, *linelen, str, "%s", str);
   expert_add_info_format(pinfo, ti, &ei_lsd_field, "%s field malformed", hf_info->name);
 
-  return TRUE;
+  return true;
 }
 
 static int
@@ -72,12 +72,12 @@ dissect_lsd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   proto_item *ti = NULL;
   proto_tree *lsd_tree;
   int offset = 0, next_offset = 0, linelen;
-  guint8 *str;
-  gchar **field_and_value;
-  guint16 port;
-  gboolean valid;
+  uint8_t *str;
+  char **field_and_value;
+  uint16_t port;
+  bool valid;
 
-  linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+  linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, false);
   if (linelen < 0)
       return 0;
 
@@ -95,7 +95,7 @@ dissect_lsd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
       return offset+linelen;
 
   offset = next_offset;
-  linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+  linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, false);
   if (linelen < 0)
       return offset+linelen;
   str = tvb_get_string_enc(pinfo->pool, tvb, offset, linelen, ENC_ASCII);
@@ -121,7 +121,7 @@ dissect_lsd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
       return offset+linelen;
 
   offset = next_offset;
-  linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+  linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, false);
   if (linelen < 0)
       return offset+linelen;
   /* Cookie is optional */
@@ -172,7 +172,7 @@ proto_register_lsd(void)
     },
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_lsd,
   };
 

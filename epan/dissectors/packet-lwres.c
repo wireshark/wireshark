@@ -187,8 +187,8 @@ static const value_string message_types_values[] = {
 
 static void dissect_getnamebyaddr_request(tvbuff_t* tvb, packet_info *pinfo, proto_tree* lwres_tree)
 {
-    guint32 flags,family;
-    guint   addrlen, slen;
+    uint32_t flags,family;
+    unsigned   addrlen, slen;
     const char* addrs;
 
     proto_tree* nba_request_tree;
@@ -221,9 +221,9 @@ static void dissect_getnamebyaddr_request(tvbuff_t* tvb, packet_info *pinfo, pro
 
 static void dissect_getnamebyaddr_response(tvbuff_t* tvb, packet_info *pinfo, proto_tree* lwres_tree)
 {
-    guint32 i, offset;
-    guint16 naliases,realnamelen,aliaslen;
-    gchar *aliasname;
+    uint32_t i, offset;
+    uint16_t naliases,realnamelen,aliaslen;
+    char *aliasname;
 
     proto_tree* nba_resp_tree;
     proto_tree* alias_tree;
@@ -296,7 +296,7 @@ static void dissect_getnamebyaddr_response(tvbuff_t* tvb, packet_info *pinfo, pr
 
 static void dissect_getaddrsbyname_request(tvbuff_t* tvb, proto_tree* lwres_tree)
 {
-    guint16 namelen;
+    uint16_t namelen;
 
     proto_tree* adn_request_tree;
 
@@ -314,21 +314,21 @@ static void dissect_getaddrsbyname_request(tvbuff_t* tvb, proto_tree* lwres_tree
                 hf_adn_flags,
                 tvb,
                 LWRES_LWPACKET_LENGTH+0,
-                sizeof(guint32),
+                sizeof(uint32_t),
                 ENC_BIG_ENDIAN);
 
     proto_tree_add_item(adn_request_tree,
                 hf_adn_addrtype,
                 tvb,
                 LWRES_LWPACKET_LENGTH+4,
-                sizeof(guint32),
+                sizeof(uint32_t),
                 ENC_BIG_ENDIAN);
 
     proto_tree_add_item(adn_request_tree,
                 hf_adn_namelen,
                 tvb,
                 LWRES_LWPACKET_LENGTH+8,
-                sizeof(guint16),
+                sizeof(uint16_t),
                 ENC_BIG_ENDIAN);
 
     proto_tree_add_item(adn_request_tree,
@@ -343,11 +343,11 @@ static void dissect_getaddrsbyname_request(tvbuff_t* tvb, proto_tree* lwres_tree
 
 static void dissect_getaddrsbyname_response(tvbuff_t* tvb, packet_info *pinfo, proto_tree* lwres_tree)
 {
-    guint32 family ,i, offset;
-    guint16 naliases, naddrs, realnamelen, length, aliaslen;
-    const gchar* addrs;
-    guint slen;
-    gchar *aliasname;
+    uint32_t family ,i, offset;
+    uint16_t naliases, naddrs, realnamelen, length, aliaslen;
+    const char* addrs;
+    unsigned slen;
+    char *aliasname;
 
     proto_tree *adn_resp_tree;
     proto_tree *alias_tree;
@@ -430,10 +430,10 @@ static void dissect_getaddrsbyname_response(tvbuff_t* tvb, packet_info *pinfo, p
 
 }
 
-static void dissect_a_records(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tree,guint32 nrec,int offset)
+static void dissect_a_records(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tree,uint32_t nrec,int offset)
 {
-    guint32 i, curr;
-    const gchar* addrs;
+    uint32_t i, curr;
+    const char* addrs;
     proto_tree* a_rec_tree;
     proto_tree* addr_tree;
 
@@ -441,13 +441,13 @@ static void dissect_a_records(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tre
         return;
 
     a_rec_tree = proto_tree_add_subtree(tree,tvb,offset,
-                (int)((sizeof(guint32) + sizeof(guint16)) * nrec),
+                (int)((sizeof(uint32_t) + sizeof(uint16_t)) * nrec),
                 ett_a_rec, NULL, "A records");
 
     for(i=0; i<nrec; i++)
     {
 
-        curr = offset + (int)((sizeof(guint32)+sizeof(guint16)) * i);
+        curr = offset + (int)((sizeof(uint32_t)+sizeof(uint16_t)) * i);
 
         addrs = tvb_ip_to_str(pinfo->pool, tvb, curr+2);
 
@@ -455,20 +455,20 @@ static void dissect_a_records(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tre
                             6, ett_a_rec_addr, NULL, "Address %s", addrs);
 
         proto_tree_add_item(addr_tree, hf_a_rec_len, tvb, curr,
-                    sizeof(guint16), ENC_BIG_ENDIAN);
+                    sizeof(uint16_t), ENC_BIG_ENDIAN);
 
         proto_tree_add_item(addr_tree, hf_a_record, tvb, curr + 2, 4, ENC_BIG_ENDIAN);
     }
 
 }
 
-static void dissect_srv_records(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tree,guint32 nrec,int offset)
+static void dissect_srv_records(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tree,uint32_t nrec,int offset)
 {
-    guint32 i, curr;
-    guint16 /*len, namelen,*/ priority, weight, port;
-    gint dlen;
-    guint used_bytes;
-    const gchar *dname;
+    uint32_t i, curr;
+    uint16_t /*len, namelen,*/ priority, weight, port;
+    int dlen;
+    unsigned used_bytes;
+    const char *dname;
 
     proto_item* srv_rec_tree, *rec_tree;
 
@@ -529,14 +529,14 @@ static void dissect_srv_records(tvbuff_t* tvb, packet_info *pinfo, proto_tree* t
 
 }
 
-static void dissect_mx_records(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tree, guint32 nrec, int offset)
+static void dissect_mx_records(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tree, uint32_t nrec, int offset)
 {
 
-    guint i, curr;
-    guint priority;
-    gint dlen;
-    guint used_bytes;
-    const gchar *dname;
+    unsigned i, curr;
+    unsigned priority;
+    int dlen;
+    unsigned used_bytes;
+    const char *dname;
 
     proto_tree* mx_rec_tree, *rec_tree;
 
@@ -581,12 +581,12 @@ static void dissect_mx_records(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tr
 
 }
 
-static void dissect_ns_records(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tree, guint32 nrec, int offset)
+static void dissect_ns_records(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tree, uint32_t nrec, int offset)
 {
-    guint i, curr;
-    gint dlen;
-    const gchar *dname;
-    guint used_bytes;
+    unsigned i, curr;
+    int dlen;
+    const char *dname;
+    unsigned used_bytes;
 
     proto_tree* ns_rec_tree, *rec_tree;
 
@@ -622,7 +622,7 @@ static void dissect_ns_records(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tr
 
 static void dissect_rdata_request(tvbuff_t* tvb, proto_tree* lwres_tree)
 {
-    guint16 namelen;
+    uint16_t namelen;
 
     proto_tree* rdata_request_tree;
 
@@ -638,28 +638,28 @@ static void dissect_rdata_request(tvbuff_t* tvb, proto_tree* lwres_tree)
             hf_rflags,
             tvb,
             LWRES_LWPACKET_LENGTH+0,
-            sizeof(guint32),
+            sizeof(uint32_t),
             ENC_BIG_ENDIAN);
 
     proto_tree_add_item(rdata_request_tree,
             hf_rdclass,
             tvb,
             LWRES_LWPACKET_LENGTH+4,
-            sizeof(guint16),
+            sizeof(uint16_t),
             ENC_BIG_ENDIAN);
 
     proto_tree_add_item(rdata_request_tree,
             hf_rdtype,
             tvb,
             LWRES_LWPACKET_LENGTH+6,
-            sizeof(guint16),
+            sizeof(uint16_t),
             ENC_BIG_ENDIAN);
 
     proto_tree_add_item(rdata_request_tree,
             hf_namelen,
             tvb,
             LWRES_LWPACKET_LENGTH+8,
-            sizeof(guint16),
+            sizeof(uint16_t),
             ENC_BIG_ENDIAN);
 
     proto_tree_add_item(rdata_request_tree,
@@ -673,8 +673,8 @@ static void dissect_rdata_request(tvbuff_t* tvb, proto_tree* lwres_tree)
 
 static void dissect_rdata_response(tvbuff_t* tvb, packet_info *pinfo, proto_tree* lwres_tree)
 {
-    guint offset;
-    guint rdtype, nrdatas, realnamelen;
+    unsigned offset;
+    unsigned rdtype, nrdatas, realnamelen;
 
     proto_tree* rdata_resp_tree;
 
@@ -693,49 +693,49 @@ static void dissect_rdata_response(tvbuff_t* tvb, packet_info *pinfo, proto_tree
                         hf_rflags,
                         tvb,
                         LWRES_LWPACKET_LENGTH+0,
-                        sizeof(guint32),
+                        sizeof(uint32_t),
                         ENC_BIG_ENDIAN);
 
     proto_tree_add_item(rdata_resp_tree,
                         hf_rdclass,
                         tvb,
                         LWRES_LWPACKET_LENGTH+4,
-                        sizeof(guint16),
+                        sizeof(uint16_t),
                         ENC_BIG_ENDIAN);
 
     proto_tree_add_item(rdata_resp_tree,
                         hf_rdtype,
                         tvb,
                         LWRES_LWPACKET_LENGTH+6,
-                        sizeof(guint16),
+                        sizeof(uint16_t),
                         ENC_BIG_ENDIAN);
 
     proto_tree_add_item(rdata_resp_tree,
             hf_ttl,
             tvb,
             LWRES_LWPACKET_LENGTH+8,
-            sizeof(guint32),
+            sizeof(uint32_t),
             ENC_BIG_ENDIAN);
 
     proto_tree_add_item(rdata_resp_tree,
             hf_nrdatas,
             tvb,
             LWRES_LWPACKET_LENGTH+12,
-            sizeof(guint16),
+            sizeof(uint16_t),
             ENC_BIG_ENDIAN);
 
     proto_tree_add_item(rdata_resp_tree,
             hf_nsigs,
             tvb,
             LWRES_LWPACKET_LENGTH+14,
-            sizeof(guint16),
+            sizeof(uint16_t),
             ENC_BIG_ENDIAN);
 
     proto_tree_add_item(rdata_resp_tree,
             hf_realnamelen,
             tvb,
             LWRES_LWPACKET_LENGTH+16,
-            sizeof(guint16),
+            sizeof(uint16_t),
             ENC_BIG_ENDIAN);
 
     proto_tree_add_item(rdata_resp_tree,
@@ -768,7 +768,7 @@ static void dissect_rdata_response(tvbuff_t* tvb, packet_info *pinfo, proto_tree
 
 static void dissect_noop(tvbuff_t* tvb, proto_tree* lwres_tree)
 {
-    guint16 datalen;
+    uint16_t datalen;
 
     proto_tree* noop_tree;
 
@@ -780,7 +780,7 @@ static void dissect_noop(tvbuff_t* tvb, proto_tree* lwres_tree)
     noop_tree = proto_tree_add_subtree(lwres_tree, tvb, LWRES_LWPACKET_LENGTH, 10, ett_noop, NULL, "Noop record");
 
     proto_tree_add_uint(noop_tree, hf_length, tvb,
-                LWRES_LWPACKET_LENGTH, sizeof(guint16), datalen);
+                LWRES_LWPACKET_LENGTH, sizeof(uint16_t), datalen);
 
     tvb_ensure_bytes_exist(tvb, LWRES_LWPACKET_LENGTH, datalen);
 
@@ -813,9 +813,9 @@ static void dissect_getrdatabyname(tvbuff_t* tvb, packet_info *pinfo _U_, proto_
 static int
 dissect_lwres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    guint16 version, flags, authtype, authlength ;
-    guint32 length, opcode, result, recvlength, serial;
-    guint32 message_type;
+    uint16_t version, flags, authtype, authlength ;
+    uint32_t length, opcode, result, recvlength, serial;
+    uint32_t message_type;
 
     proto_item* lwres_item;
     proto_tree* lwres_tree;
@@ -837,7 +837,7 @@ dissect_lwres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     {
         col_add_fstr(pinfo->cinfo, COL_INFO,
             "%s, opcode=%s, serial=0x%x, result=%s",
-                val_to_str_const((guint32)message_type,message_types_values,"unknown"),
+                val_to_str_const((uint32_t)message_type,message_types_values,"unknown"),
                 val_to_str_const(opcode, opcode_values, "unknown"),
                 serial,
                 val_to_str_const(result,result_values,"unknown"));
@@ -846,7 +846,7 @@ dissect_lwres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     {
         col_add_fstr(pinfo->cinfo, COL_INFO,
                 "%s, opcode=%s, serial=0x%x",
-                val_to_str_const((guint32)message_type,message_types_values,"unknown"),
+                val_to_str_const((uint32_t)message_type,message_types_values,"unknown"),
                 val_to_str_const(opcode, opcode_values, "unknown"),
         serial);
     }
@@ -861,7 +861,7 @@ dissect_lwres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
             hf_length,
             tvb,
             LW_LENGTH_OFFSET,
-            sizeof(guint32),
+            sizeof(uint32_t),
             length);
 
 
@@ -869,7 +869,7 @@ dissect_lwres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                 hf_version,
                 tvb,
                 LW_VERSION_OFFSET,
-                sizeof(guint16),
+                sizeof(uint16_t),
                 version);
 
 
@@ -879,49 +879,49 @@ dissect_lwres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                 hf_flags,
                 tvb,
                 LW_PKTFLASG_OFFSET,
-                sizeof(guint16),
+                sizeof(uint16_t),
                 flags);
 
     proto_tree_add_uint(lwres_tree,
                 hf_serial,
                 tvb,
                 LW_SERIAL_OFFSET,
-                sizeof(guint32),
+                sizeof(uint32_t),
                 serial);
 
     proto_tree_add_uint(lwres_tree,
                 hf_opcode,
                 tvb,
                 LW_OPCODE_OFFSET,
-                sizeof(guint32),
+                sizeof(uint32_t),
                 opcode);
 
     proto_tree_add_uint(lwres_tree,
                 hf_result,
                 tvb,
                 LW_RESULT_OFFSET,
-                sizeof(guint32),
+                sizeof(uint32_t),
                 result);
 
     proto_tree_add_uint(lwres_tree,
                 hf_recvlen,
                 tvb,
                 LW_RECVLEN_OFFSET,
-                sizeof(guint32),
+                sizeof(uint32_t),
                 recvlength);
 
     proto_tree_add_uint(lwres_tree,
                 hf_authtype,
                 tvb,
                 LW_AUTHTYPE_OFFSET,
-                sizeof(guint16),
+                sizeof(uint16_t),
                 authtype);
 
     proto_tree_add_uint(lwres_tree,
                 hf_authlen,
                 tvb,
                 LW_AUTHLEN_OFFSET,
-                sizeof(guint16),
+                sizeof(uint16_t),
                 authlength);
 
     if(!result)
@@ -1103,7 +1103,7 @@ proto_register_lwres(void)
         /* Add more fields here */
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_lwres,
         &ett_rdata_req,
         &ett_rdata_resp,

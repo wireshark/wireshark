@@ -32,11 +32,11 @@ void proto_reg_handoff_lls(void);
 void proto_register_lls(void);
 
 static int proto_lls;
-static gint ett_lls;
-static gint ett_lls_smt_entry;
-static gint ett_lls_smt_signature;
-static gint ett_lls_table_payload;
-static gint ett_lls_table_payload_xml;
+static int ett_lls;
+static int ett_lls_smt_entry;
+static int ett_lls_smt_signature;
+static int ett_lls_table_payload;
+static int ett_lls_table_payload_xml;
 
 static dissector_handle_t lls_handle;
 static dissector_handle_t xml_handle;
@@ -92,7 +92,7 @@ static int hf_lls_smt_signature;
 
 
 static void
-dissect_lls_table_payload(guint8 lls_table_id, tvbuff_t *tvb, packet_info *pinfo, gint offset, gint len, proto_tree *tree)
+dissect_lls_table_payload(uint8_t lls_table_id, tvbuff_t *tvb, packet_info *pinfo, int offset, int len, proto_tree *tree)
 {
     proto_item *ti = proto_tree_add_item(tree, hf_lls_table_payload, tvb, offset, len, ENC_NA);
 
@@ -105,10 +105,10 @@ dissect_lls_table_payload(guint8 lls_table_id, tvbuff_t *tvb, packet_info *pinfo
     tvbuff_t *uncompress_tvb = tvb_uncompress_zlib(tvb, offset, len);
     proto_tree *xml_tree = NULL;
     if (uncompress_tvb) {
-        const gchar *table_type_short = val_to_str_const(lls_table_id, hf_lls_table_type_short_vals, "Unknown");
-        gchar *source_name = wmem_strdup_printf(pinfo->pool, "Table ID %u (%s)", lls_table_id, table_type_short);
+        const char *table_type_short = val_to_str_const(lls_table_id, hf_lls_table_type_short_vals, "Unknown");
+        char *source_name = wmem_strdup_printf(pinfo->pool, "Table ID %u (%s)", lls_table_id, table_type_short);
         add_new_data_source(pinfo, uncompress_tvb, source_name);
-        guint decomp_length = tvb_captured_length(uncompress_tvb);
+        unsigned decomp_length = tvb_captured_length(uncompress_tvb);
 
         proto_item *ti_uncomp = proto_tree_add_item(uncompress_tree, hf_lls_table_payload_uncompressed, uncompress_tvb, 0, decomp_length, ENC_ASCII);
         proto_item_set_generated(ti_uncomp);
@@ -135,9 +135,9 @@ dissect_lls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     proto_item *ti = proto_tree_add_item(tree, proto_lls, tvb, 0, -1, ENC_NA);
     proto_tree *lls_tree = proto_item_add_subtree(ti, ett_lls);
 
-    gint offset = 0;
+    int offset = 0;
 
-    guint8 lls_table_id = tvb_get_guint8(tvb, offset);
+    uint8_t lls_table_id = tvb_get_uint8(tvb, offset);
     col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(lls_table_id, hf_lls_table_type_vals, "Unknown"));
     proto_tree_add_item(lls_tree, hf_lls_table_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
@@ -145,7 +145,7 @@ dissect_lls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     proto_tree_add_item(lls_tree, hf_lls_group_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    guint16 lls_group_count = tvb_get_guint8(tvb, offset) + 1;
+    uint16_t lls_group_count = tvb_get_uint8(tvb, offset) + 1;
     PROTO_ITEM_SET_GENERATED(
         proto_tree_add_uint(lls_tree, hf_lls_group_count, tvb, offset, 1, lls_group_count)
     );
@@ -155,17 +155,17 @@ dissect_lls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     offset++;
 
     if (lls_table_id == LLS_TABLE_TYPE_SIGNED_MULTI_TABLE) {
-        guint8 smt_payload_count = tvb_get_guint8(tvb, offset);
+        uint8_t smt_payload_count = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(lls_tree, hf_lls_smt_payload_count, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
-        for(guint8 i = 0; i < smt_payload_count; i++) {
-            guint16 smt_entry_payload_length = tvb_get_guint16(tvb, offset + 2, ENC_BIG_ENDIAN);
+        for(uint8_t i = 0; i < smt_payload_count; i++) {
+            uint16_t smt_entry_payload_length = tvb_get_uint16(tvb, offset + 2, ENC_BIG_ENDIAN);
             proto_item *smt_entry_item = proto_tree_add_item(lls_tree, hf_lls_smt_entry, tvb, offset, smt_entry_payload_length + 4, ENC_NA);
             proto_tree *smt_entry_tree = proto_item_add_subtree(smt_entry_item, ett_lls_smt_entry);
 
-            guint8 smt_entry_table_id = tvb_get_guint8(tvb, offset);
-            const gchar *table_type_short = val_to_str_const(smt_entry_table_id, hf_lls_table_type_short_vals, "Unknown");
+            uint8_t smt_entry_table_id = tvb_get_uint8(tvb, offset);
+            const char *table_type_short = val_to_str_const(smt_entry_table_id, hf_lls_table_type_short_vals, "Unknown");
             proto_item_append_text(smt_entry_item, " (%u) Table ID=%u (%s)", i, smt_entry_table_id, table_type_short);
             col_append_fstr(pinfo->cinfo, COL_INFO, "/%s", table_type_short);
             proto_tree_add_item(smt_entry_tree, hf_lls_table_id, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -181,7 +181,7 @@ dissect_lls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             offset += smt_entry_payload_length;
         }
 
-        guint16 smt_signature_length = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+        uint16_t smt_signature_length = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
         proto_tree_add_item(lls_tree, hf_lls_smt_signature_length, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
@@ -191,8 +191,8 @@ dissect_lls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             tvbuff_t *cms_tvb = tvb_new_subset_length(tvb, offset, smt_signature_length);
 
             /* CMS dissector removes useful info from Protocol and Info columns so store it */
-            gchar *col_info_text = wmem_strdup(pinfo->pool, col_get_text(pinfo->cinfo, COL_INFO));
-            gchar *col_protocol_text = wmem_strdup(pinfo->pool, col_get_text(pinfo->cinfo, COL_PROTOCOL));
+            char *col_info_text = wmem_strdup(pinfo->pool, col_get_text(pinfo->cinfo, COL_INFO));
+            char *col_protocol_text = wmem_strdup(pinfo->pool, col_get_text(pinfo->cinfo, COL_PROTOCOL));
 
             call_dissector(cms_handle, cms_tvb, pinfo, cms_tree);
 
@@ -201,7 +201,7 @@ dissect_lls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             col_set_str(pinfo->cinfo, COL_PROTOCOL, col_protocol_text);
         }
     } else {
-        gint table_payload_length = tvb_captured_length(tvb) - 4;
+        int table_payload_length = tvb_captured_length(tvb) - 4;
         dissect_lls_table_payload(lls_table_id, tvb, pinfo, offset, table_payload_length, lls_tree);
     }
 
@@ -262,7 +262,7 @@ proto_register_lls(void)
         } },
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_lls,
         &ett_lls_smt_entry,
         &ett_lls_table_payload,

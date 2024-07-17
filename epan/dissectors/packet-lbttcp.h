@@ -16,26 +16,26 @@
 typedef struct
 {
     address source_address;
-    guint16 source_port;
-    guint32 session_id;
-    guint64 channel;
-    guint32 next_client_id;
+    uint16_t source_port;
+    uint32_t session_id;
+    uint64_t channel;
+    uint32_t next_client_id;
     wmem_list_t * client_list;
 } lbttcp_transport_t;
 
 typedef struct
 {
     address receiver_address;
-    guint16 receiver_port;
-    guint32 id;
+    uint16_t receiver_port;
+    uint32_t id;
     lbttcp_transport_t * transport;
 } lbttcp_client_transport_t;
 
-lbttcp_transport_t * lbttcp_transport_find(const address * source_address, guint16 source_port, guint32 session_id, guint32 frame);
-lbttcp_transport_t * lbttcp_transport_add(const address * source_address, guint16 source_port, guint32 session_id, guint32 frame);
-char * lbttcp_transport_source_string(const address * source_address, guint16 source_port, guint32 session_id);
-gboolean lbttcp_transport_sid_find(const address * source_address, guint16 source_port, guint32 frame, guint32 * session_id);
-void lbttcp_transport_sid_add(const address * source_address, guint16 source_port, guint32 frame, guint32 session_id);
+lbttcp_transport_t * lbttcp_transport_find(const address * source_address, uint16_t source_port, uint32_t session_id, uint32_t frame);
+lbttcp_transport_t * lbttcp_transport_add(const address * source_address, uint16_t source_port, uint32_t session_id, uint32_t frame);
+char * lbttcp_transport_source_string(const address * source_address, uint16_t source_port, uint32_t session_id);
+bool lbttcp_transport_sid_find(const address * source_address, uint16_t source_port, uint32_t frame, uint32_t * session_id);
+void lbttcp_transport_sid_add(const address * source_address, uint16_t source_port, uint32_t frame, uint32_t session_id);
 
 #endif
 

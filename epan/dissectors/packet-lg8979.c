@@ -135,11 +135,11 @@ static int hf_lg8979_disallowed_func;
 static int hf_lg8979_crc16;
 
 /* Initialize the subtree pointers */
-static gint ett_lg8979;
-static gint ett_lg8979_flags;
-static gint ett_lg8979_funccode;
-static gint ett_lg8979_point;
-static gint ett_lg8979_ts;
+static int ett_lg8979;
+static int ett_lg8979_flags;
+static int ett_lg8979_funccode;
+static int ett_lg8979_point;
+static int ett_lg8979_ts;
 
 /* Globals for L&G 8979 Protocol Preferences */
 static bool lg8979_desegment = true;
@@ -350,7 +350,7 @@ static const value_string lg8979_pul_output_rl_vals[] = {
 static int
 classify_lg8979_packet(tvbuff_t *tvb)
 {
-    guint8 func, len, data_len, flags;
+    uint8_t func, len, data_len, flags;
 
     len = tvb_reported_length(tvb);
     /* If TVB length is equal to 5, this is classified as a 'short response message' */
@@ -362,7 +362,7 @@ classify_lg8979_packet(tvbuff_t *tvb)
     /* If TVB length is greater than 5, let's dig deeper */
     if (len > 5) {
 
-        flags = tvb_get_guint8(tvb, 1);
+        flags = tvb_get_uint8(tvb, 1);
 
         /* Flags vary between message types, so let's try those first to determine the message direction  */
         /* If both bit 3 and bit 4 are set, this is almost certainly a RTU->Master message */
@@ -374,8 +374,8 @@ classify_lg8979_packet(tvbuff_t *tvb)
             return LG8979_DIR_RTU_TO_MASTER;
         }
 
-        func = tvb_get_guint8(tvb, 3) & 0x7F;
-        data_len = tvb_get_guint8(tvb, 4);
+        func = tvb_get_uint8(tvb, 3) & 0x7F;
+        data_len = tvb_get_uint8(tvb, 4);
 
         /* If we have more data in the tvb then should be there, this is a stacked RTU->Master response */
         if (len > (data_len + 5 + 2)) {
@@ -477,12 +477,12 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     proto_tree    *lg8979_tree, *lg8979_fc_tree = NULL;
     proto_tree    *lg8979_point_tree = NULL, *lg8979_ts_tree = NULL;
     int           offset = 0;
-    guint8        rtu_addr, func, packet_type, data_len, ptnum8, tripclose, rl, exp_code, num_chassis;
-    guint8        ts_mon, ts_day, ts_hr, ts_min, ts_sec;
-    guint16       ptnum, ptval, ana12_val;
-    guint16       ts_ms;
-    gint          num_points = 0, cnt = 0, cnt1 = 0;
-    gboolean      shr, new_status, change;
+    uint8_t       rtu_addr, func, packet_type, data_len, ptnum8, tripclose, rl, exp_code, num_chassis;
+    uint8_t       ts_mon, ts_day, ts_hr, ts_min, ts_sec;
+    uint16_t      ptnum, ptval, ana12_val;
+    uint16_t      ts_ms;
+    int           num_points = 0, cnt = 0, cnt1 = 0;
+    bool          shr, new_status, change;
 
     /* Make entries in Protocol column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "L&G 8979");
@@ -510,13 +510,13 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
         col_add_str(pinfo->cinfo, COL_INFO, "Master -> RTU");
 
         /* Add Flags to Protocol Tree */
-        shr = tvb_get_guint8(tvb, offset) & 0x80;
+        shr = tvb_get_uint8(tvb, offset) & 0x80;
 
         proto_tree_add_bitmask(lg8979_tree, tvb, offset, hf_lg8979_flags, ett_lg8979_flags, request_flags, ENC_LITTLE_ENDIAN);
         offset += 1;
 
         /* Add RTU Address to Protocol Tree */
-        rtu_addr = tvb_get_guint8(tvb, offset);
+        rtu_addr = tvb_get_uint8(tvb, offset);
         col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Address: %d", rtu_addr);
 
         proto_tree_add_item(lg8979_tree, hf_lg8979_address, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -525,7 +525,7 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
         if (!shr) {
             /* Add Function Code & last Mark Block to Protocol Tree */
             /* Function code is 7 lower bits of byte , LMB is 8th bit*/
-            func = tvb_get_guint8(tvb, offset) & 0x7f;
+            func = tvb_get_uint8(tvb, offset) & 0x7f;
 
             col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
                                 val_to_str_const(func, lg8979_funccode_vals, "Unknown Function Code"));
@@ -539,7 +539,7 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
             proto_tree_add_item(lg8979_fc_tree, hf_lg8979_funccode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
 
-            data_len = tvb_get_guint8(tvb, offset);
+            data_len = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(lg8979_tree, hf_lg8979_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
 
@@ -581,8 +581,8 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                 case LG8979_FC_SBO_SELECT:
 
                     /* Get 8-bit point number and trip/close command-code */
-                    ptnum = tvb_get_guint8(tvb, offset);
-                    tripclose = (tvb_get_guint8(tvb, offset+1) & 0x80) >> 7;
+                    ptnum = tvb_get_uint8(tvb, offset);
+                    tripclose = (tvb_get_uint8(tvb, offset+1) & 0x80) >> 7;
 
                     lg8979_point_tree = proto_tree_add_subtree_format(
                         lg8979_tree, tvb, offset, 2,
@@ -606,7 +606,7 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                 case LG8979_FC_SBO_OPERATE:
 
                     /* Get 8-bit point number */
-                    ptnum = tvb_get_guint8(tvb, offset);
+                    ptnum = tvb_get_uint8(tvb, offset);
 
                     /* Update the Information Column with Command Details */
                     col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Output: %u", ptnum);
@@ -628,8 +628,8 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                 /* Function Code 25 Pulse Output */
                 case LG8979_FC_PUL_OUTPUT:
 
-                    ptnum = tvb_get_guint8(tvb, offset);
-                    rl = (tvb_get_guint8(tvb, offset+1) & 0x80) >> 7;
+                    ptnum = tvb_get_uint8(tvb, offset);
+                    rl = (tvb_get_uint8(tvb, offset+1) & 0x80) >> 7;
 
                     lg8979_point_tree = proto_tree_add_subtree_format(lg8979_tree, tvb, offset, 2,
                                         ett_lg8979_point, NULL, "Pulse Output, Pt.Num: %u, Code: %s",
@@ -647,11 +647,11 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                 case LG8979_FC_TIME_SYNC:
 
                     /* Add 7-byte time-sync value to tree */
-                    ts_mon = tvb_get_guint8(tvb, offset);
-                    ts_day = tvb_get_guint8(tvb, offset+1);
-                    ts_hr  = tvb_get_guint8(tvb, offset+2);
-                    ts_min = tvb_get_guint8(tvb, offset+3);
-                    ts_sec = tvb_get_guint8(tvb, offset+4);
+                    ts_mon = tvb_get_uint8(tvb, offset);
+                    ts_day = tvb_get_uint8(tvb, offset+1);
+                    ts_hr  = tvb_get_uint8(tvb, offset+2);
+                    ts_min = tvb_get_uint8(tvb, offset+3);
+                    ts_sec = tvb_get_uint8(tvb, offset+4);
                     ts_ms  = tvb_get_letohs(tvb, offset+5);
 
                     lg8979_ts_tree = proto_tree_add_subtree_format(lg8979_tree, tvb, offset, 7, ett_lg8979_ts, NULL,
@@ -685,7 +685,7 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
                     for (cnt=0; cnt<num_points; cnt++) {
 
-                        ptval = tvb_get_guint8(tvb, offset);
+                        ptval = tvb_get_uint8(tvb, offset);
                         proto_tree_add_uint_format(lg8979_tree, hf_lg8979_ang_deadband, tvb, offset, 1,
                                                    ptnum, "Point Number %u: New Deadband: %u", ptnum, ptval);
                         ptnum  += 1;
@@ -719,7 +719,7 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
                     for (cnt=0; cnt<num_points; cnt++) {
 
-                        ptnum8 = tvb_get_guint8(tvb, offset);
+                        ptnum8 = tvb_get_uint8(tvb, offset);
                         ptval  = tvb_get_letohs(tvb, offset+1);
                         proto_tree_add_uint_format(lg8979_tree, hf_lg8979_acc_preset, tvb, offset, 3,
                                                    ptnum8, "Acc Point Number %u: Preset: %u", ptnum8, ptval);
@@ -754,13 +754,13 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
         col_add_str(pinfo->cinfo, COL_INFO, "RTU -> Master");
 
         /* Retrieve and add Flags to Protocol Tree */
-        shr = tvb_get_guint8(tvb, offset) & 0x80;
+        shr = tvb_get_uint8(tvb, offset) & 0x80;
 
         proto_tree_add_bitmask(lg8979_tree, tvb, offset, hf_lg8979_flags, ett_lg8979_flags, response_flags, ENC_LITTLE_ENDIAN);
         offset += 1;
 
         /* Add RTU Address to Protocol Tree */
-        rtu_addr = tvb_get_guint8(tvb, offset);
+        rtu_addr = tvb_get_uint8(tvb, offset);
         col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Address: %d", rtu_addr);
 
         proto_tree_add_item(lg8979_tree, hf_lg8979_address, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -771,7 +771,7 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
             /* Add Function Code & last Mark Block to Protocol Tree */
             /* Function code is 7 lower bits of byte , LMB is 8th bit*/
-            func = tvb_get_guint8(tvb, offset) & 0x7f;
+            func = tvb_get_uint8(tvb, offset) & 0x7f;
             col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
                                 val_to_str_const(func, lg8979_funccode_vals, "Unknown Function Code"));
 
@@ -783,7 +783,7 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
             proto_tree_add_item(lg8979_fc_tree, hf_lg8979_funccode,  tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
 
-            data_len = tvb_get_guint8(tvb, offset);
+            data_len = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(lg8979_tree, hf_lg8979_length, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
 
@@ -797,8 +797,8 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
                     for (cnt=0; cnt<num_points; cnt++) {
 
-                        ptnum = ( tvb_get_guint8(tvb, offset) | ((tvb_get_guint8(tvb, offset+1) & 0x0F) << 8) );
-                        ptval = ( ((tvb_get_guint8(tvb, offset+1) & 0xF0) >> 4) | (tvb_get_guint8(tvb, offset+2) << 4) );
+                        ptnum = ( tvb_get_uint8(tvb, offset) | ((tvb_get_uint8(tvb, offset+1) & 0x0F) << 8) );
+                        ptval = ( ((tvb_get_uint8(tvb, offset+1) & 0xF0) >> 4) | (tvb_get_uint8(tvb, offset+2) << 4) );
                         proto_tree_add_uint_format(lg8979_tree, hf_lg8979_ang_point, tvb, offset, 3, ptnum,
                                                    "Point Number %u: %u", ptnum, ptval);
                         offset += 3;
@@ -834,7 +834,7 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                     for (cnt=0; cnt < num_points; cnt++) {
                         if (cnt%2 == 0) {
 
-                            ana12_val = ( tvb_get_guint8(tvb, offset) | ((tvb_get_guint8(tvb, offset+1) & 0x0F) << 8) );
+                            ana12_val = ( tvb_get_uint8(tvb, offset) | ((tvb_get_uint8(tvb, offset+1) & 0x0F) << 8) );
                             proto_tree_add_uint_format(lg8979_tree, hf_lg8979_ang_point, tvb, offset, 2, ptnum,
                                                        "Point Number %u: %u", ptnum, ana12_val);
                             offset += 1;
@@ -846,7 +846,7 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                         }
                         else {
 
-                            ana12_val = ( ((tvb_get_guint8(tvb, offset) & 0xF0) >> 4) | (tvb_get_guint8(tvb, offset+1) << 4) );
+                            ana12_val = ( ((tvb_get_uint8(tvb, offset) & 0xF0) >> 4) | (tvb_get_uint8(tvb, offset+1) << 4) );
                             proto_tree_add_uint_format(lg8979_tree, hf_lg8979_ang_point, tvb, offset, 2, ptnum,
                                                        "Point Number %u: %u", ptnum, ana12_val);
                             offset += 2;
@@ -864,16 +864,16 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                     offset += 2;
 
                     /* Retrieve the 0 and -90% references */
-                    ana12_val = ( tvb_get_guint8(tvb, offset) | ((tvb_get_guint8(tvb, offset+1) & 0x0F) << 8) );
+                    ana12_val = ( tvb_get_uint8(tvb, offset) | ((tvb_get_uint8(tvb, offset+1) & 0x0F) << 8) );
                     proto_tree_add_uint(lg8979_tree, hf_lg8979_adc_ref_zero, tvb, offset, 2, ana12_val);
 
-                    ana12_val = ( ((tvb_get_guint8(tvb, offset+1) & 0xF0) >> 4) | (tvb_get_guint8(tvb, offset+2) << 4) );
+                    ana12_val = ( ((tvb_get_uint8(tvb, offset+1) & 0xF0) >> 4) | (tvb_get_uint8(tvb, offset+2) << 4) );
                     proto_tree_add_uint(lg8979_tree, hf_lg8979_adc_ref_neg90, tvb, offset+1, 2, ana12_val);
 
                     offset += 3;
 
                     /* Retrieve the +90% reference */
-                    ana12_val = ( tvb_get_guint8(tvb, offset) | ((tvb_get_guint8(tvb, offset+1) & 0x0F) << 8) );
+                    ana12_val = ( tvb_get_uint8(tvb, offset) | ((tvb_get_uint8(tvb, offset+1) & 0x0F) << 8) );
                     proto_tree_add_uint(lg8979_tree, hf_lg8979_adc_ref_pos90, tvb, offset, 2, ana12_val);
                     offset += 2;
 
@@ -887,8 +887,8 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                     for (cnt=0; cnt<num_points; cnt++) {
                         /* Get 12-bit point number and new status / change bits */
                         ptnum = tvb_get_letohs(tvb, offset) & 0xFFF;
-                        new_status = (tvb_get_guint8(tvb, offset+1) & 0x80) >> 7;
-                        change = (tvb_get_guint8(tvb, offset+1) & 0x40) >> 6;
+                        new_status = (tvb_get_uint8(tvb, offset+1) & 0x80) >> 7;
+                        change = (tvb_get_uint8(tvb, offset+1) & 0x40) >> 6;
 
                         lg8979_point_tree = proto_tree_add_subtree_format(lg8979_tree, tvb, offset, 2, ett_lg8979_point, NULL,
                            "Indication Change Report, Point Number: %u, Status: %u, Change %u", ptnum, new_status, change);
@@ -951,8 +951,8 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                     for (cnt=0; cnt<num_points; cnt++) {
                         /* Get 12-bit point number and new status / change bits */
                         ptnum = tvb_get_letohs(tvb, offset) & 0xFFF;
-                        new_status = (tvb_get_guint8(tvb, offset+1) & 0x80) >> 7;
-                        change = (tvb_get_guint8(tvb, offset+1) & 0x40) >> 6;
+                        new_status = (tvb_get_uint8(tvb, offset+1) & 0x80) >> 7;
+                        change = (tvb_get_uint8(tvb, offset+1) & 0x40) >> 6;
 
                         lg8979_point_tree = proto_tree_add_subtree_format(lg8979_tree, tvb, offset, 2, ett_lg8979_point, NULL,
                            "SOE Change Report, Point Number: %u, Status: %u, Change %u", ptnum, new_status, change);
@@ -1010,7 +1010,7 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                 /* Function Code 11 Digital Input Force Report */
                 case LG8979_FC_DIG_FRCRPT:
 
-                    ptnum8 = tvb_get_guint8(tvb, offset);
+                    ptnum8 = tvb_get_uint8(tvb, offset);
                     proto_tree_add_item(lg8979_tree, hf_lg8979_start_ptnum8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                     offset += 1;
 
@@ -1051,7 +1051,7 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                 case LG8979_FC_ACC_CHGRPT:
                 case LG8979_FC_ACC_FRCRPT:
 
-                    ptnum8 = tvb_get_guint8(tvb, offset);
+                    ptnum8 = tvb_get_uint8(tvb, offset);
                     proto_tree_add_item(lg8979_tree, hf_lg8979_start_ptnum8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                     offset += 1;
 
@@ -1080,7 +1080,7 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
                         /* Get 12-bit point number and new status bit */
                         ptnum = tvb_get_letohs(tvb, offset) & 0xFFF;
-                        new_status = (tvb_get_guint8(tvb, offset+1) & 0x80) >> 7;
+                        new_status = (tvb_get_uint8(tvb, offset+1) & 0x80) >> 7;
 
                         lg8979_point_tree = proto_tree_add_subtree_format(lg8979_tree, tvb, offset, 9, ett_lg8979_point, NULL,
                            "SOE Log Change Report, Point Number: %u, New Status: %u", ptnum, new_status);
@@ -1091,11 +1091,11 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                         offset += 2;
 
                         /* Add 7-byte time-stamp to tree */
-                        ts_mon = tvb_get_guint8(tvb, offset);
-                        ts_day = tvb_get_guint8(tvb, offset+1);
-                        ts_hr = tvb_get_guint8(tvb, offset+2);
-                        ts_min = tvb_get_guint8(tvb, offset+3);
-                        ts_sec = tvb_get_guint8(tvb, offset+4);
+                        ts_mon = tvb_get_uint8(tvb, offset);
+                        ts_day = tvb_get_uint8(tvb, offset+1);
+                        ts_hr = tvb_get_uint8(tvb, offset+2);
+                        ts_min = tvb_get_uint8(tvb, offset+3);
+                        ts_sec = tvb_get_uint8(tvb, offset+4);
                         ts_ms = tvb_get_letohs(tvb, offset+5);
 
                         lg8979_ts_tree = proto_tree_add_subtree_format(lg8979_point_tree, tvb, offset, 7, ett_lg8979_ts, NULL,
@@ -1116,8 +1116,8 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                 case LG8979_FC_SBO_SELECT:
 
                     /* Get 8-bit point number and trip/close command-code */
-                    ptnum = tvb_get_guint8(tvb, offset);
-                    tripclose = (tvb_get_guint8(tvb, offset+1) & 0x80) >> 7;
+                    ptnum = tvb_get_uint8(tvb, offset);
+                    tripclose = (tvb_get_uint8(tvb, offset+1) & 0x80) >> 7;
 
                     lg8979_point_tree = proto_tree_add_subtree_format(
                         lg8979_tree, tvb, offset, 2,
@@ -1141,7 +1141,7 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                 case LG8979_FC_SBO_OPERATE:
 
                     /* Get 8-bit point number */
-                    ptnum = tvb_get_guint8(tvb, offset);
+                    ptnum = tvb_get_uint8(tvb, offset);
 
                     /* Update the Information Column with Command Details */
                     col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Output: %u", ptnum);
@@ -1155,7 +1155,7 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                 case LG8979_FC_RTU_CONFIG:
 
                     /* Number of IO Chassis */
-                    num_chassis = tvb_get_guint8(tvb, offset);
+                    num_chassis = tvb_get_uint8(tvb, offset);
                     proto_tree_add_item(lg8979_tree, hf_lg8979_rtucfg_num_chassis, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                     offset += 1;
 
@@ -1193,7 +1193,7 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                 /* If the code byte is 0x09 (Function Code), the parameter byte is the value of the disallowed function code */
                 case LG8979_FC_EXP_RPT:
 
-                    exp_code = tvb_get_guint8(tvb, offset);
+                    exp_code = tvb_get_uint8(tvb, offset);
 
                     proto_tree_add_item(lg8979_tree, hf_lg8979_exprpt_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                     proto_tree_add_item(lg8979_tree, hf_lg8979_exprpt_parm, tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
@@ -1229,11 +1229,11 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 /******************************************************************************************************/
 /* Return length of L&G 8979 Protocol over TCP message (used for re-assembly)                         */
 /******************************************************************************************************/
-static guint
+static unsigned
 get_lg8979_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_, void *data _U_)
 {
 
-    guint len;
+    unsigned len;
     len = tvb_reported_length(tvb);  /* XXX: should really be some minimum length ?? */
 
     return len;
@@ -1246,10 +1246,10 @@ static int
 dissect_lg8979_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 
-    gint length = tvb_reported_length(tvb);
+    int length = tvb_reported_length(tvb);
 
     /* Check for a L&G8979 packet.  It should begin with 0xFF */
-    if(length < 2 || tvb_get_guint8(tvb, 0) != 0xFF) {
+    if(length < 2 || tvb_get_uint8(tvb, 0) != 0xFF) {
         /* Not a L&G 8979 Protocol packet, just happened to use the same port */
         return 0;
     }
@@ -1267,10 +1267,10 @@ dissect_lg8979_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 static int
 dissect_lg8979_simple(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    gint length = tvb_reported_length(tvb);
+    int length = tvb_reported_length(tvb);
 
     /* Check for a L&G8979 packet.  It should begin with 0xFF */
-    if(length < 2 || tvb_get_guint8(tvb, 0) != 0xFF) {
+    if(length < 2 || tvb_get_uint8(tvb, 0) != 0xFF) {
         /* Not a L&G 8979 Protocol packet ... */
         return 0;
     }
@@ -1518,7 +1518,7 @@ proto_register_lg8979(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_lg8979,
         &ett_lg8979_flags,
         &ett_lg8979_funccode,
@@ -1542,7 +1542,7 @@ proto_register_lg8979(void)
     /* Register required preferences for L&G 8979 register decoding */
     lg8979_module = prefs_register_protocol(proto_lg8979, NULL);
 
-    /*  L&G 8979 - Desegmentmentation; defaults to TRUE for TCP desegmentation*/
+    /*  L&G 8979 - Desegmentmentation; defaults to true for TCP desegmentation*/
     prefs_register_bool_preference(lg8979_module, "desegment",
                                   "Desegment all L&G 8979 Protocol packets spanning multiple TCP segments",
                                   "Whether the L&G 8979 dissector should desegment all messages spanning multiple TCP segments",

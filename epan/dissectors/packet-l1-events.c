@@ -29,23 +29,23 @@ static dissector_handle_t l1_events_handle;
  */
 
 /* Filterable header fields */
-static gint proto_l1_events;
+static int proto_l1_events;
 
 /* Subtrees */
-static gint ett_l1_events;
+static int ett_l1_events;
 
 static int
 dissect_l1_events(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree	*subtree;
 	proto_item	*ti;
-	gint		offset = 0, next_offset;
-	gint		len;
+	int		offset = 0, next_offset;
+	int		len;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Layer1");
 	col_set_str(pinfo->cinfo, COL_DEF_SRC,
 			    pinfo->pseudo_header->l1event.uton? "TE" : "NT");
-	len = tvb_find_line_end(tvb, 0, -1, &next_offset, FALSE);
+	len = tvb_find_line_end(tvb, 0, -1, &next_offset, false);
 	if(len>0)
 		col_add_str(pinfo->cinfo, COL_INFO, tvb_format_text(pinfo->pool, tvb, 0, len));
 
@@ -64,7 +64,7 @@ dissect_l1_events(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 			 * as "iso-10646-ucs-2", or might require other
 			 * special processing.
 			 */
-			len = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+			len = tvb_find_line_end(tvb, offset, -1, &next_offset, false);
 			if (len == -1)
 				break;
 
@@ -83,7 +83,7 @@ dissect_l1_events(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 void
 proto_register_l1_events(void)
 {
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_l1_events,
 	};
 

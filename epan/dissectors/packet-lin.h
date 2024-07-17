@@ -20,14 +20,14 @@
 
 /* bus_id 0 means ANY Bus */
 struct lin_info {
-    guint32 id;
-    guint16 bus_id;
-    guint16 len;
+    uint32_t id;
+    uint16_t bus_id;
+    uint16_t len;
 };
 
 typedef struct lin_info lin_info_t;
 
-gboolean lin_set_source_and_destination_columns(packet_info* pinfo, lin_info_t *lininfo);
+bool lin_set_source_and_destination_columns(packet_info* pinfo, lin_info_t *lininfo);
 
 #endif /* __PACKET_LIN_H__ */
 

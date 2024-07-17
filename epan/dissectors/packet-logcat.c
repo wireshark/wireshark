@@ -35,14 +35,14 @@ static int hf_logcat_priority;
 static int hf_logcat_tag;
 static int hf_logcat_log;
 
-static gint ett_logcat;
-static gint ett_logcat_timestamp;
-static gint ett_logcat_log;
+static int ett_logcat;
+static int ett_logcat_timestamp;
+static int ett_logcat_log;
 
 static dissector_handle_t logcat_handle;
 static dissector_handle_t data_text_lines_handle;
 
-static gint exported_pdu_tap = -1;
+static int exported_pdu_tap = -1;
 
 static expert_field ei_invalid_payload_length;
 
@@ -64,9 +64,9 @@ const value_string priority_vals[] = {
 void proto_register_logcat(void);
 void proto_reg_handoff_logcat(void);
 
-static gint detect_version(tvbuff_t *tvb, gint offset) {
-    guint16         payload_length;
-    guint16         try_header_size;
+static int detect_version(tvbuff_t *tvb, int offset) {
+    uint16_t        payload_length;
+    uint16_t        try_header_size;
 
     payload_length  = tvb_get_letohs(tvb, offset);
     try_header_size = tvb_get_letohs(tvb, offset + 2);
@@ -83,17 +83,17 @@ static gint detect_version(tvbuff_t *tvb, gint offset) {
 static int
 dissect_logcat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    gint         offset = 0;
+    int          offset = 0;
     proto_tree  *maintree;
     proto_item  *mainitem;
     proto_tree  *subtree;
     proto_item  *subitem;
-    guint16      length;
-    guint16      check_length;
-    guint32      string_length;
-    gint         logger_version;
-    guint8      *log;
-    gchar       *c;
+    uint16_t     length;
+    uint16_t     check_length;
+    uint32_t     string_length;
+    int          logger_version;
+    uint8_t     *log;
+    char        *c;
     tvbuff_t    *next_tvb;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Logcat");
@@ -262,7 +262,7 @@ proto_register_logcat(void)
         }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_logcat,
         &ett_logcat_timestamp,
         &ett_logcat_log

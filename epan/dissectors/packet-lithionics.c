@@ -59,8 +59,8 @@ static int hf_lithionics_system_status_overcurrent_state;
 static int hf_lithionics_system_status_reserved;
 static int hf_lithionics_temination;
 
-static gint ett_lithionics;
-static gint ett_lithionics_system_status;
+static int ett_lithionics;
+static int ett_lithionics_system_status;
 
 static int* const system_status_flags[] = {
 	&hf_lithionics_system_status_high_voltage_state,
@@ -111,7 +111,7 @@ dissect_lithionics(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	int				offset = 0;
 	char*			str;
 	float			f;
-	guint32			value;
+	uint32_t			value;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Lithionics");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -120,7 +120,7 @@ dissect_lithionics(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	lithionics_tree = proto_item_add_subtree(ti, ett_lithionics);
 
 	//just put the whole packet string (minus newlines) in the Info column
-	col_set_str(pinfo->cinfo, COL_INFO, (const gchar*)tvb_get_string_enc(pinfo->pool, tvb, offset, tvb_reported_length_remaining(tvb, offset)-2, ENC_ASCII));
+	col_set_str(pinfo->cinfo, COL_INFO, (const char*)tvb_get_string_enc(pinfo->pool, tvb, offset, tvb_reported_length_remaining(tvb, offset)-2, ENC_ASCII));
 
 	str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset + 1, 1, ENC_ASCII);
 	if (!ws_strtou32(str, NULL, &value))
@@ -284,7 +284,7 @@ proto_register_lithionics(void)
 
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_lithionics,
 		&ett_lithionics_system_status,
 	};

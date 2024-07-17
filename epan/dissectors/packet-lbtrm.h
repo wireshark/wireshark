@@ -16,11 +16,11 @@
 typedef struct
 {
     address source_address;
-    guint16 source_port;
-    guint32 session_id;
+    uint16_t source_port;
+    uint32_t session_id;
     address multicast_group;
-    guint16 dest_port;
-    guint64 channel;
+    uint16_t dest_port;
+    uint64_t channel;
     wmem_tree_t * frame;
     lbm_transport_frame_t * last_frame;
     lbm_transport_frame_t * last_data_frame;
@@ -29,12 +29,12 @@ typedef struct
     lbm_transport_frame_t * last_ncf_frame;
     wmem_tree_t * data_sqn;
     wmem_tree_t * sm_sqn;
-    guint32 data_high_sqn;
-    guint32 sm_high_sqn;
+    uint32_t data_high_sqn;
+    uint32_t sm_high_sqn;
 } lbtrm_transport_t;
 
-lbtrm_transport_t * lbtrm_transport_add(const address * source_address, guint16 source_port, guint32 session_id, const address * multicast_group, guint16 dest_port, guint32 frame);
-char * lbtrm_transport_source_string(const address * source_address, guint16 source_port, guint32 session_id, const address * multicast_group, guint16 dest_port);
+lbtrm_transport_t * lbtrm_transport_add(const address * source_address, uint16_t source_port, uint32_t session_id, const address * multicast_group, uint16_t dest_port, uint32_t frame);
+char * lbtrm_transport_source_string(const address * source_address, uint16_t source_port, uint32_t session_id, const address * multicast_group, uint16_t dest_port);
 
 #endif
 

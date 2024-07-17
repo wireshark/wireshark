@@ -22,11 +22,11 @@
 
 #define LISP_CONTROL_PORT   4342
 
-const gchar * get_addr_str(tvbuff_t *tvb, packet_info *pinfo, gint offset, guint16 afi, guint16 *addr_len);
-int dissect_lcaf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, proto_item *tip);
+const char * get_addr_str(tvbuff_t *tvb, packet_info *pinfo, int offset, uint16_t afi, uint16_t *addr_len);
+int dissect_lcaf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_item *tip);
 int dissect_lisp_mapping(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree,
-        guint8 rec_cnt, int rec, gboolean referral, gint offset, proto_item *tim);
-gint dissect_lisp_map_register(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree,
-        gint offset, proto_item *tim, gboolean keep_going);
+        uint8_t rec_cnt, int rec, bool referral, int offset, proto_item *tim);
+int dissect_lisp_map_register(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree,
+        int offset, proto_item *tim, bool keep_going);
 
 #endif /* __PACKET_LISP_H__ */

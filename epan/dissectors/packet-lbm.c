@@ -77,42 +77,42 @@ void proto_register_lbm(void)
   Special values are used as placeholders to indicate an as-yet-unknown transport or stream TCP channel.
 */
 
-static guint64 lbm_next_channel_value = 1;
+static uint64_t lbm_next_channel_value = 1;
 
-#define LBM_CHANNEL_TYPE_MASK G_GUINT64_CONSTANT(0x00000000000000ff)
-#define LBM_CHANNEL_VALUE_LIMIT_MASK G_GUINT64_CONSTANT(0x000ffffffffffffff)
-#define LBM_CHANNEL_MAX_VALUE G_GUINT64_CONSTANT(0x000ffffffffffffe)
+#define LBM_CHANNEL_TYPE_MASK UINT64_C(0x00000000000000ff)
+#define LBM_CHANNEL_VALUE_LIMIT_MASK UINT64_C(0x000ffffffffffffff)
+#define LBM_CHANNEL_MAX_VALUE UINT64_C(0x000ffffffffffffe)
 
-#define LBM_CHANNEL_VALUE_UNKNOWN G_GUINT64_CONSTANT(0xfffffffffffff000)
-#define LBM_CHANNEL_VALUE_UNKNOWN_SOURCE G_GUINT64_CONSTANT(0xfffffffffffff100)
-#define LBM_CHANNEL_VALUE_UNKNOWN_CLIENT G_GUINT64_CONSTANT(0xfffffffffffff200)
+#define LBM_CHANNEL_VALUE_UNKNOWN UINT64_C(0xfffffffffffff000)
+#define LBM_CHANNEL_VALUE_UNKNOWN_SOURCE UINT64_C(0xfffffffffffff100)
+#define LBM_CHANNEL_VALUE_UNKNOWN_CLIENT UINT64_C(0xfffffffffffff200)
 #define LBM_CHANNEL_UNKNOWN_TRANSPORT_SOURCE_LBTTCP (LBM_CHANNEL_VALUE_UNKNOWN_SOURCE | LBM_CHANNEL_TRANSPORT_LBTTCP)
 #define LBM_CHANNEL_UNKNOWN_TRANSPORT_CLIENT_LBTTCP (LBM_CHANNEL_VALUE_UNKNOWN_CLIENT | LBM_CHANNEL_TRANSPORT_LBTTCP)
 #define LBM_CHANNEL_UNKNOWN_STREAM_TCP (LBM_CHANNEL_VALUE_UNKNOWN | LBM_CHANNEL_STREAM_TCP)
 
-#define LBM_CHANNEL_TYPE(ch) ((guint8)(ch & LBM_CHANNEL_TYPE_MASK))
+#define LBM_CHANNEL_TYPE(ch) ((uint8_t)(ch & LBM_CHANNEL_TYPE_MASK))
 
 void lbm_channel_reset(void)
 {
     lbm_next_channel_value = 1;
 }
 
-guint64 lbm_channel_assign(guint8 channel_type)
+uint64_t lbm_channel_assign(uint8_t channel_type)
 {
-    guint64 ch;
-    guint64 ch_counter = lbm_next_channel_value++;
+    uint64_t ch;
+    uint64_t ch_counter = lbm_next_channel_value++;
 
     if (lbm_next_channel_value == LBM_CHANNEL_MAX_VALUE)
     {
         lbm_next_channel_value = 1;
     }
-    ch = ((guint64)((ch_counter & LBM_CHANNEL_VALUE_LIMIT_MASK) << LBM_CHANNEL_VALUE_SHIFT_COUNT)) | channel_type;
+    ch = ((uint64_t)((ch_counter & LBM_CHANNEL_VALUE_LIMIT_MASK) << LBM_CHANNEL_VALUE_SHIFT_COUNT)) | channel_type;
     return (ch);
 }
 
-gboolean lbm_channel_is_transport(guint64 channel)
+bool lbm_channel_is_transport(uint64_t channel)
 {
-    guint8 ch_type;
+    uint8_t ch_type;
 
     ch_type = LBM_CHANNEL_TYPE(channel);
     switch (ch_type)
@@ -123,70 +123,70 @@ gboolean lbm_channel_is_transport(guint64 channel)
         case LBM_CHANNEL_TRANSPORT_LBTIPC:
         case LBM_CHANNEL_TRANSPORT_LBTRDMA:
         case LBM_CHANNEL_TRANSPORT_LBTSMX:
-            return TRUE;
+            return true;
             break;
         default:
             break;
     }
-    return FALSE;
+    return false;
 }
 
-guint8 lbm_channel_type(guint64 channel)
+uint8_t lbm_channel_type(uint64_t channel)
 {
-    guint8 ch_type;
+    uint8_t ch_type;
 
     ch_type = LBM_CHANNEL_TYPE(channel);
     return (ch_type);
 }
 
-guint64 lbm_channel_assign_unknown_transport_source_lbttcp(void)
+uint64_t lbm_channel_assign_unknown_transport_source_lbttcp(void)
 {
     return (LBM_CHANNEL_UNKNOWN_TRANSPORT_SOURCE_LBTTCP);
 }
 
-guint64 lbm_channel_assign_unknown_transport_client_lbttcp(void)
+uint64_t lbm_channel_assign_unknown_transport_client_lbttcp(void)
 {
     return (LBM_CHANNEL_UNKNOWN_TRANSPORT_CLIENT_LBTTCP);
 }
 
-guint64 lbm_channel_assign_unknown_stream_tcp(void)
+uint64_t lbm_channel_assign_unknown_stream_tcp(void)
 {
     return (LBM_CHANNEL_UNKNOWN_STREAM_TCP);
 }
 
-gboolean lbm_channel_is_unknown_transport_lbttcp(guint64 channel)
+bool lbm_channel_is_unknown_transport_lbttcp(uint64_t channel)
 {
     return (lbm_channel_is_unknown_transport_source_lbttcp(channel) || lbm_channel_is_unknown_transport_client_lbttcp(channel));
 }
 
-gboolean lbm_channel_is_unknown_transport_source_lbttcp(guint64 channel)
+bool lbm_channel_is_unknown_transport_source_lbttcp(uint64_t channel)
 {
     if (channel == LBM_CHANNEL_UNKNOWN_TRANSPORT_SOURCE_LBTTCP)
     {
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
-gboolean lbm_channel_is_unknown_transport_client_lbttcp(guint64 channel)
+bool lbm_channel_is_unknown_transport_client_lbttcp(uint64_t channel)
 {
     if (channel == LBM_CHANNEL_UNKNOWN_TRANSPORT_CLIENT_LBTTCP)
     {
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
-gboolean lbm_channel_is_unknown_stream_tcp(guint64 channel)
+bool lbm_channel_is_unknown_stream_tcp(uint64_t channel)
 {
     if (channel == LBM_CHANNEL_UNKNOWN_STREAM_TCP)
     {
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
-gboolean lbm_channel_is_known(guint64 channel)
+bool lbm_channel_is_known(uint64_t channel)
 {
     return (!lbm_channel_is_unknown_transport_lbttcp(channel) && !lbm_channel_is_unknown_stream_tcp(channel));
 }
@@ -194,7 +194,7 @@ gboolean lbm_channel_is_known(guint64 channel)
 /*----------------------------------------------------------------------------*/
 /* Frame/SQN interface.                                                       */
 /*----------------------------------------------------------------------------*/
-lbm_transport_frame_t * lbm_transport_frame_add(wmem_tree_t * list, guint8 type, guint32 frame, guint32 sqn, gboolean retransmission)
+lbm_transport_frame_t * lbm_transport_frame_add(wmem_tree_t * list, uint8_t type, uint32_t frame, uint32_t sqn, bool retransmission)
 {
     lbm_transport_frame_t * frame_entry = NULL;
 
@@ -215,7 +215,7 @@ lbm_transport_frame_t * lbm_transport_frame_add(wmem_tree_t * list, guint8 type,
     frame_entry->retransmission = retransmission;
     frame_entry->sqn_gap = 0;
     frame_entry->ooo_gap = 0;
-    frame_entry->duplicate = FALSE;
+    frame_entry->duplicate = false;
     wmem_tree_insert32(list, frame, (void *) frame_entry);
     return (frame_entry);
 }
@@ -259,8 +259,8 @@ typedef struct lbm_topic_t_stct lbm_topic_t;
 
 typedef struct
 {
-    guint64 channel;
-    guint32 topic_idx;
+    uint64_t channel;
+    uint32_t topic_idx;
     lbm_topic_t * topic;
 } lbm_topic_key_t;
 
@@ -275,10 +275,10 @@ void lbm_topic_init(void)
     lbm_topic_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 }
 
-static void lbm_topic_build_key(guint32 * key_value, wmem_tree_key_t * key, guint64 channel, guint32 topic_index)
+static void lbm_topic_build_key(uint32_t * key_value, wmem_tree_key_t * key, uint64_t channel, uint32_t topic_index)
 {
-    key_value[LBM_TOPIC_KEY_ELEMENT_CHANNEL_HIGH] = (guint32) ((channel >> 32) & 0xffffffff);
-    key_value[LBM_TOPIC_KEY_ELEMENT_CHANNEL_LOW] = (guint32) (channel & 0xffffffff);
+    key_value[LBM_TOPIC_KEY_ELEMENT_CHANNEL_HIGH] = (uint32_t) ((channel >> 32) & 0xffffffff);
+    key_value[LBM_TOPIC_KEY_ELEMENT_CHANNEL_LOW] = (uint32_t) (channel & 0xffffffff);
     key_value[LBM_TOPIC_KEY_ELEMENT_TOPIC_INDEX] = topic_index;
     key[0].length = LBM_TOPIC_KEY_ELEMENT_COUNT;
     key[0].key = key_value;
@@ -286,10 +286,10 @@ static void lbm_topic_build_key(guint32 * key_value, wmem_tree_key_t * key, guin
     key[1].key = NULL;
 }
 
-static lbm_topic_t * lbm_topic_locate(guint64 channel, guint32 topic_index)
+static lbm_topic_t * lbm_topic_locate(uint64_t channel, uint32_t topic_index)
 {
     lbm_topic_t * entry = NULL;
-    guint32 keyval[LBM_TOPIC_KEY_ELEMENT_COUNT];
+    uint32_t keyval[LBM_TOPIC_KEY_ELEMENT_COUNT];
     wmem_tree_key_t tkey[2];
 
     lbm_topic_build_key(keyval, tkey, channel, topic_index);
@@ -297,7 +297,7 @@ static lbm_topic_t * lbm_topic_locate(guint64 channel, guint32 topic_index)
     return (entry);
 }
 
-const char * lbm_topic_find(guint64 channel, guint32 topic_index)
+const char * lbm_topic_find(uint64_t channel, uint32_t topic_index)
 {
     lbm_topic_t * entry = NULL;
     const char * topic = NULL;
@@ -310,10 +310,10 @@ const char * lbm_topic_find(guint64 channel, guint32 topic_index)
     return (topic);
 }
 
-void lbm_topic_add(guint64 channel, guint32 topic_index, const char * name)
+void lbm_topic_add(uint64_t channel, uint32_t topic_index, const char * name)
 {
     lbm_topic_t * entry;
-    guint32 keyval[LBM_TOPIC_KEY_ELEMENT_COUNT];
+    uint32_t keyval[LBM_TOPIC_KEY_ELEMENT_COUNT];
     wmem_tree_key_t tkey[2];
 
     entry = lbm_topic_locate(channel, topic_index);

@@ -22,7 +22,7 @@ static int proto_lapbether;
 
 static int hf_lapbether_length;
 
-static gint ett_lapbether;
+static int ett_lapbether;
 
 static dissector_handle_t lapbether_handle;
 static dissector_handle_t lapb_handle;
@@ -37,7 +37,7 @@ dissect_lapbether(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "LAPBETHER");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    len = tvb_get_guint8(tvb, 0) + tvb_get_guint8(tvb, 1) * 256;
+    len = tvb_get_uint8(tvb, 0) + tvb_get_uint8(tvb, 1) * 256;
 
     if (tree) {
 
@@ -65,7 +65,7 @@ proto_register_lapbether(void)
           "LAPBEther Length Field", HFILL }},
 
     };
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_lapbether,
     };
 

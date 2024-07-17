@@ -90,12 +90,12 @@
 #include <winsock2.h>
 #endif
 
-typedef guint8 lbm_uint8_t;
-typedef guint16 lbm_uint16_t;
-typedef guint32 lbm_uint32_t;
-typedef guint64 lbm_uint64_t;
-#define SIZEOF(TYPE, MEMBER) (gint)(sizeof(((TYPE *)0)->MEMBER))
-#define OFFSETOF(TYPE, MEMBER) (gint)(offsetof(TYPE, MEMBER))
+typedef uint8_t lbm_uint8_t;
+typedef uint16_t lbm_uint16_t;
+typedef uint32_t lbm_uint32_t;
+typedef uint64_t lbm_uint64_t;
+#define SIZEOF(TYPE, MEMBER) (int)(sizeof(((TYPE *)0)->MEMBER))
+#define OFFSETOF(TYPE, MEMBER) (int)(offsetof(TYPE, MEMBER))
 #define STRINGIZE(a) #a
 #define MAKESTRING(a) STRINGIZE(a)
 #define LBM_OTID_BLOCK_SZ 32
@@ -106,17 +106,17 @@ typedef guint64 lbm_uint64_t;
 #define UAT_IPV4_CB_DEF(basename,field_name,rec_t) \
     static bool basename ## _ ## field_name ## _chk_cb(void * u1 _U_, const char * strptr, unsigned len _U_, const void * u2 _U_, const void * u3 _U_, char ** err) \
     { \
-        guint32 addr; \
+        uint32_t addr; \
         if (!ws_inet_pton4(strptr, &addr)) \
         { \
             *err = g_strdup("invalid address"); \
-            return FALSE; \
+            return false; \
         } \
-        return TRUE; \
+        return true; \
     } \
     static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, const void* u1 _U_, const void* u2 _U_) \
     { \
-        guint32 addr; \
+        uint32_t addr; \
         char* new_buf = g_strndup(buf,len); \
         g_free((((rec_t*)rec)->field_name)); \
         (((rec_t*)rec)->field_name) = new_buf; \
@@ -144,22 +144,22 @@ typedef guint64 lbm_uint64_t;
 #define UAT_IPV4_MC_CB_DEF(basename,field_name,rec_t) \
     static bool basename ## _ ## field_name ## _chk_cb(void * u1 _U_, const char * strptr, unsigned len _U_, const void * u2 _U_, const void * u3 _U_, char ** err) \
     { \
-        guint32 addr; \
+        uint32_t addr; \
         if (!ws_inet_pton4(strptr, &addr)) \
         { \
             *err = g_strdup("invalid address"); \
-            return FALSE; \
+            return false; \
         } \
         if (!IN_MULTICAST(g_ntohl(addr)) && (g_ntohl(addr) != 0)) \
         { \
             *err = g_strdup("invalid multicast address"); \
-            return FALSE; \
+            return false; \
         } \
-        return TRUE; \
+        return true; \
     } \
     static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, const void* u1 _U_, const void* u2 _U_) \
     { \
-        guint32 addr; \
+        uint32_t addr; \
         char* new_buf = g_strndup(buf,len); \
         g_free((((rec_t*)rec)->field_name)); \
         (((rec_t*)rec)->field_name) = new_buf; \
@@ -185,14 +185,14 @@ typedef guint64 lbm_uint64_t;
 
 typedef struct
 {
-    guint32 domain;
+    uint32_t domain;
     address addr;
-    guint16 port;
+    uint16_t port;
 } lbm_uim_stream_destination_t;
 
 typedef struct
 {
-    guint8 ctxinst[LBM_CONTEXT_INSTANCE_BLOCK_SZ];
+    uint8_t ctxinst[LBM_CONTEXT_INSTANCE_BLOCK_SZ];
 } lbm_uim_stream_ctxinst_t;
 
 typedef enum
@@ -213,59 +213,59 @@ typedef struct
 
 typedef struct
 {
-    guint64 channel;
-    guint32 substream_id;
-    guint32 bytes;
+    uint64_t channel;
+    uint32_t substream_id;
+    uint32_t bytes;
     lbm_uim_stream_endpoint_t endpoint_a;
     lbm_uim_stream_endpoint_t endpoint_b;
 } lbm_uim_stream_tap_info_t;
 
 typedef struct
 {
-    gchar * transport;
-    guint8 type;
-    gboolean retransmission;
-    guint32 sqn;
-    guint8 ncf_reason;
-    guint16 num_sqns;
-    guint32 * sqns;
+    char * transport;
+    uint8_t type;
+    bool retransmission;
+    uint32_t sqn;
+    uint8_t ncf_reason;
+    uint16_t num_sqns;
+    uint32_t * sqns;
 } lbm_lbtrm_tap_info_t;
 
 typedef struct
 {
-    gchar * transport;
-    guint8 type;
-    gboolean retransmission;
-    guint32 sqn;
-    guint8 ncf_reason;
-    guint16 num_sqns;
-    guint16 creq_type;
-    guint16 rst_type;
-    guint32 * sqns;
+    char * transport;
+    uint8_t type;
+    bool retransmission;
+    uint32_t sqn;
+    uint8_t ncf_reason;
+    uint16_t num_sqns;
+    uint16_t creq_type;
+    uint16_t rst_type;
+    uint32_t * sqns;
 } lbm_lbtru_tap_info_t;
 
 typedef struct
 {
-    guint16 size;
-    guint8 topic_length;
-    guint8 source_length;
-    guint32 topic_index;
+    uint16_t size;
+    uint8_t topic_length;
+    uint8_t source_length;
+    uint32_t topic_index;
     char topic[256];
     char source[256];
 } lbm_lbmr_topic_advertisement_tap_info_t;
 
 typedef struct
 {
-    guint16 size;
-    guint8 topic_length;
+    uint16_t size;
+    uint8_t topic_length;
     char topic[256];
 } lbm_lbmr_topic_query_tap_info_t;
 
 typedef struct
 {
-    guint16 size;
-    guint8 type;
-    guint8 pattern_length;
+    uint16_t size;
+    uint8_t type;
+    uint8_t pattern_length;
     char pattern[256];
 } lbm_lbmr_pattern_query_tap_info_t;
 
@@ -274,18 +274,18 @@ typedef struct
 
 typedef struct
 {
-    guint16 size;
-    guint16 port;
-    guint8 queue_length;
-    guint8 topic_length;
+    uint16_t size;
+    uint16_t port;
+    uint8_t queue_length;
+    uint8_t topic_length;
     char queue[256];
     char topic[256];
 } lbm_lbmr_queue_advertisement_tap_info_t;
 
 typedef struct
 {
-    guint16 size;
-    guint8 queue_length;
+    uint16_t size;
+    uint8_t queue_length;
     char queue[256];
 } lbm_lbmr_queue_query_tap_info_t;
 
@@ -327,12 +327,12 @@ typedef struct
 /* LBT-RU RST reasons */
 #define LBTRU_RST_REASON_DEFAULT 0x0
 
-gboolean lbmc_test_lbmc_header(tvbuff_t * tvb, int offset);
-int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, const char * tag_name, guint64 channel);
+bool lbmc_test_lbmc_header(tvbuff_t * tvb, int offset);
+int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, const char * tag_name, uint64_t channel);
 int lbmc_get_minimum_length(void);
-guint16 lbmc_get_message_length(tvbuff_t * tvb, int offset);
-gboolean lbmpdm_verify_payload(tvbuff_t * tvb, int offset, int * encoding, int * length);
-int lbmpdm_dissect_lbmpdm_payload(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, guint64 channel);
+uint16_t lbmc_get_message_length(tvbuff_t * tvb, int offset);
+bool lbmpdm_verify_payload(tvbuff_t * tvb, int offset, int * encoding, int * length);
+int lbmpdm_dissect_lbmpdm_payload(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, uint64_t channel);
 int lbmpdm_get_minimum_length(void);
 int lbmr_dissect_umq_qmgmt(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
 
@@ -343,7 +343,7 @@ extern const value_string lbm_wildcard_pattern_type_short[];
 /*----------------------------------------------------------------------------*/
 /* Channel interface.                                                         */
 /*----------------------------------------------------------------------------*/
-#define LBM_CHANNEL_NO_CHANNEL (~((guint64) 0))
+#define LBM_CHANNEL_NO_CHANNEL (~((uint64_t) 0))
 
 #define LBM_CHANNEL_TRANSPORT_LBTTCP 0x00
 #define LBM_CHANNEL_TRANSPORT_LBTRU 0x01
@@ -354,21 +354,21 @@ extern const value_string lbm_wildcard_pattern_type_short[];
 #define LBM_CHANNEL_STREAM_TCP 0x10
 #define LBM_CHANNEL_TCP 0x20
 
-#define LBM_CHANNEL_VALUE_MASK G_GUINT64_CONSTANT(0xfffffffffffff000)
+#define LBM_CHANNEL_VALUE_MASK UINT64_C(0xfffffffffffff000)
 #define LBM_CHANNEL_VALUE_SHIFT_COUNT 12
 
 void lbm_channel_reset(void);
-guint64 lbm_channel_assign(guint8 channel_type);
-gboolean lbm_channel_is_transport(guint64 channel);
-guint8 lbm_channel_type(guint64 channel);
-guint64 lbm_channel_assign_unknown_transport_source_lbttcp(void);
-guint64 lbm_channel_assign_unknown_transport_client_lbttcp(void);
-guint64 lbm_channel_assign_unknown_stream_tcp(void);
-gboolean lbm_channel_is_unknown_transport_lbttcp(guint64 channel);
-gboolean lbm_channel_is_unknown_transport_source_lbttcp(guint64 channel);
-gboolean lbm_channel_is_unknown_transport_client_lbttcp(guint64 channel);
-gboolean lbm_channel_is_unknown_stream_tcp(guint64 channel);
-gboolean lbm_channel_is_known(guint64 channel);
+uint64_t lbm_channel_assign(uint8_t channel_type);
+bool lbm_channel_is_transport(uint64_t channel);
+uint8_t lbm_channel_type(uint64_t channel);
+uint64_t lbm_channel_assign_unknown_transport_source_lbttcp(void);
+uint64_t lbm_channel_assign_unknown_transport_client_lbttcp(void);
+uint64_t lbm_channel_assign_unknown_stream_tcp(void);
+bool lbm_channel_is_unknown_transport_lbttcp(uint64_t channel);
+bool lbm_channel_is_unknown_transport_source_lbttcp(uint64_t channel);
+bool lbm_channel_is_unknown_transport_client_lbttcp(uint64_t channel);
+bool lbm_channel_is_unknown_stream_tcp(uint64_t channel);
+bool lbm_channel_is_known(uint64_t channel);
 
 #define LBM_CHANNEL_ID(ch) ((ch & LBM_CHANNEL_VALUE_MASK) >> LBM_CHANNEL_VALUE_SHIFT_COUNT)
 
@@ -377,41 +377,41 @@ gboolean lbm_channel_is_known(guint64 channel);
 /*----------------------------------------------------------------------------*/
 typedef struct
 {
-    guint32 frame;
-    guint8 type;
-    guint32 sqn;
-    guint32 previous_frame;
-    guint32 previous_type_frame;
-    guint32 next_frame;
-    guint32 next_type_frame;
-    gboolean retransmission;
-    guint32 sqn_gap;
-    guint32 ooo_gap;
-    gboolean duplicate;
+    uint32_t frame;
+    uint8_t type;
+    uint32_t sqn;
+    uint32_t previous_frame;
+    uint32_t previous_type_frame;
+    uint32_t next_frame;
+    uint32_t next_type_frame;
+    bool retransmission;
+    uint32_t sqn_gap;
+    uint32_t ooo_gap;
+    bool duplicate;
 } lbm_transport_frame_t;
 
 typedef struct
 {
-    guint32 frame;
-    gboolean retransmission;
+    uint32_t frame;
+    bool retransmission;
 } lbm_transport_sqn_frame_t;
 
 typedef struct
 {
-    guint32 sqn;
-    guint32 frame_count;
+    uint32_t sqn;
+    uint32_t frame_count;
     wmem_tree_t * frame;  /* List of lbm_transport_sqn_frame_t */
 } lbm_transport_sqn_t;
 
-lbm_transport_frame_t * lbm_transport_frame_add(wmem_tree_t * list, guint8 type, guint32 frame, guint32 sqn, gboolean retransmission);
+lbm_transport_frame_t * lbm_transport_frame_add(wmem_tree_t * list, uint8_t type, uint32_t frame, uint32_t sqn, bool retransmission);
 lbm_transport_sqn_t * lbm_transport_sqn_add(wmem_tree_t * list, lbm_transport_frame_t * frame);
 
 /*----------------------------------------------------------------------------*/
 /* Topic interface.                                                           */
 /*----------------------------------------------------------------------------*/
 void lbm_topic_init(void);
-const char * lbm_topic_find(guint64 channel, guint32 topic_index);
-void lbm_topic_add(guint64 channel, guint32 topic_index, const char * name);
+const char * lbm_topic_find(uint64_t channel, uint32_t topic_index);
+void lbm_topic_add(uint64_t channel, uint32_t topic_index, const char * name);
 
 #endif
 

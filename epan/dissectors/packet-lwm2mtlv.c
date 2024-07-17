@@ -58,13 +58,13 @@ static int hf_lwm2mtlv_resource_instance;
 static int hf_lwm2mtlv_resource_array;
 static int hf_lwm2mtlv_resource;
 
-static gint ett_lwm2mtlv;
-static gint ett_lwm2mtlv_header;
-static gint ett_lwm2mtlv_resource;
-static gint ett_lwm2mtlv_resource_instance;
-static gint ett_lwm2mtlv_resource_array;
-static gint ett_lwm2mtlv_object_instance;
-static gint ett_lwm2mtlv_location_velocity;
+static int ett_lwm2mtlv;
+static int ett_lwm2mtlv_header;
+static int ett_lwm2mtlv_resource;
+static int ett_lwm2mtlv_resource_instance;
+static int ett_lwm2mtlv_resource_array;
+static int ett_lwm2mtlv_object_instance;
+static int ett_lwm2mtlv_location_velocity;
 
 typedef enum {
 	OBJECT_INSTANCE   = 0,
@@ -97,31 +97,31 @@ static const value_string length_type[] = {
 
 typedef struct
 {
-	guint type;
-	guint length_of_identifier;
-	guint length_of_length;
-	guint length_of_value;
-	guint identifier;
-	guint length;
-	guint totalLength;
+	unsigned type;
+	unsigned length_of_identifier;
+	unsigned length_of_length;
+	unsigned length_of_value;
+	unsigned identifier;
+	unsigned length;
+	unsigned totalLength;
 } lwm2mElement_t;
 
 typedef struct _lwm2m_object_name_t {
-	guint   object_id;
+	unsigned   object_id;
 	char   *name;
 } lwm2m_object_name_t;
 
 typedef struct _lwm2m_resource_t {
-	guint   object_id;
-	guint   resource_id;
+	unsigned   object_id;
+	unsigned   resource_id;
 	char   *name;
-	guint   data_type;
-	gint   *hf_id;
-	gint    ett_id;
+	unsigned   data_type;
+	int    *hf_id;
+	int     ett_id;
 	char   *field_name;
 } lwm2m_resource_t;
 
-static void parseArrayOfElements(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree, gint object_id, gint resource_id);
+static void parseArrayOfElements(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree, int object_id, int resource_id);
 
 /* RESOURCE_FILL initializes all the dynamic fields in a lwm2m_resource_t. */
 #define RESOURCE_FILL NULL, -1, NULL
@@ -299,14 +299,14 @@ static lwm2m_resource_t lwm2m_oma_resources[] =
 	{ 21, 4, "HMAC Algorithm", DATA_TYPE_INTEGER, RESOURCE_FILL },
 	{ 21, 5, "Master Salt", DATA_TYPE_STRING, RESOURCE_FILL },
 };
-static const guint num_lwm2m_oma_resources = array_length(lwm2m_oma_resources);
+static const unsigned num_lwm2m_oma_resources = array_length(lwm2m_oma_resources);
 
 typedef struct _lwm2m_allocated_fields_t {
 	hf_register_info *hf;
-	guint             hf_size;
+	unsigned          hf_size;
 	GArray           *ett;
 	lwm2m_resource_t *float_resources;
-	guint             num_float_resources;
+	unsigned          num_float_resources;
 } lwm2m_allocated_fields_t;
 
 static lwm2m_allocated_fields_t oma_allocated_fields;
@@ -314,9 +314,9 @@ static lwm2m_allocated_fields_t uat_allocated_fields;
 
 /* LwM2M Objects defined by User */
 static lwm2m_object_name_t *lwm2m_uat_object_names;
-static guint num_lwm2m_uat_object_names;
+static unsigned num_lwm2m_uat_object_names;
 static lwm2m_resource_t *lwm2m_uat_resources;
-static guint num_lwm2m_uat_resources;
+static unsigned num_lwm2m_uat_resources;
 
 static bool lwm2m_object_name_update_cb(void *record, char **error)
 {
@@ -324,17 +324,17 @@ static bool lwm2m_object_name_update_cb(void *record, char **error)
 
 	if (rec->name == NULL) {
 		*error = g_strdup("Object Name can't be empty");
-		return FALSE;
+		return false;
 	}
 
 	g_strstrip(rec->name);
 	if (rec->name[0] == 0) {
 		*error = g_strdup("Object Name can't be empty");
-		return FALSE;
+		return false;
 	}
 
 	*error = NULL;
-	return TRUE;
+	return true;
 }
 
 static void *lwm2m_object_name_copy_cb(void *dest, const void *source, size_t len _U_)
@@ -365,13 +365,13 @@ static bool lwm2m_resource_update_cb(void *record, char **error)
 
 	if (rec->name == NULL) {
 		*error = g_strdup("Resource Name can't be empty");
-		return FALSE;
+		return false;
 	}
 
 	g_strstrip(rec->name);
 	if (rec->name[0] == 0) {
 		*error = g_strdup("Resource Name can't be empty");
-		return FALSE;
+		return false;
 	}
 
 	g_free(rec->field_name);
@@ -386,11 +386,11 @@ static bool lwm2m_resource_update_cb(void *record, char **error)
 	c = proto_check_field_name(rec->field_name);
 	if (c) {
 		*error = ws_strdup_printf("Resource Name can't contain '%c'", c);
-		return FALSE;
+		return false;
 	}
 
 	*error = NULL;
-	return TRUE;
+	return true;
 }
 
 static void *lwm2m_resource_copy_cb(void *dest, const void *source, size_t len _U_)
@@ -415,12 +415,12 @@ static void lwm2m_resource_free_cb(void *record)
 	g_free(rec->field_name);
 }
 
-static void lwm2m_add_resource(lwm2m_resource_t *resource, hf_register_info *hf, gboolean float_as_double)
+static void lwm2m_add_resource(lwm2m_resource_t *resource, hf_register_info *hf, bool float_as_double)
 {
-	gchar *resource_abbrev;
-	gint *hf_id;
+	char *resource_abbrev;
+	int *hf_id;
 
-	hf_id = g_new(gint,1);
+	hf_id = g_new(int,1);
 	*hf_id = -1;
 
 	if (resource->field_name) {
@@ -481,12 +481,12 @@ static void lwm2m_add_resource(lwm2m_resource_t *resource, hf_register_info *hf,
 	HFILL_INIT(*hf);
 }
 
-static void lwm2m_allocate_fields(lwm2m_allocated_fields_t *fields, lwm2m_resource_t *lwm2m_resources, guint num_lwm2m_resources)
+static void lwm2m_allocate_fields(lwm2m_allocated_fields_t *fields, lwm2m_resource_t *lwm2m_resources, unsigned num_lwm2m_resources)
 {
-	guint resource_index;
+	unsigned resource_index;
 
 	fields->num_float_resources = 0;
-	for (guint i = 0; i < num_lwm2m_resources; i++) {
+	for (unsigned i = 0; i < num_lwm2m_resources; i++) {
 		if (lwm2m_resources[i].data_type == DATA_TYPE_FLOAT) {
 			fields->num_float_resources++;
 		}
@@ -494,28 +494,28 @@ static void lwm2m_allocate_fields(lwm2m_allocated_fields_t *fields, lwm2m_resour
 
 	fields->hf_size = num_lwm2m_resources + fields->num_float_resources;
 	fields->hf = g_new0(hf_register_info, fields->hf_size);
-	fields->ett = g_array_new(TRUE, TRUE, sizeof(gint*));
+	fields->ett = g_array_new(true, true, sizeof(int*));
 	fields->float_resources = g_new0(lwm2m_resource_t, fields->num_float_resources);
 
 	resource_index = 0;
-	for (guint i = 0; i < num_lwm2m_resources; i++) {
-		gint *ettp = &(lwm2m_resources[i].ett_id);
-		lwm2m_add_resource(&lwm2m_resources[i], &fields->hf[i], FALSE);
+	for (unsigned i = 0; i < num_lwm2m_resources; i++) {
+		int *ettp = &(lwm2m_resources[i].ett_id);
+		lwm2m_add_resource(&lwm2m_resources[i], &fields->hf[i], false);
 		g_array_append_val(fields->ett, ettp);
 
 		/* 8 bytes Float is handled as Double, allocate a separate resource for FT_DOUBLE */
 		if (lwm2m_resources[i].data_type == DATA_TYPE_FLOAT) {
-			guint hf_index = num_lwm2m_resources + resource_index;
+			unsigned hf_index = num_lwm2m_resources + resource_index;
 			memcpy(&fields->float_resources[resource_index], &lwm2m_resources[i], sizeof(lwm2m_resource_t));
-			lwm2m_add_resource(&fields->float_resources[resource_index++], &fields->hf[hf_index], TRUE);
+			lwm2m_add_resource(&fields->float_resources[resource_index++], &fields->hf[hf_index], true);
 		}
 	}
 
 	proto_register_field_array(proto_lwm2mtlv, fields->hf, fields->hf_size);
-	proto_register_subtree_array((gint**)(void*)fields->ett->data, fields->ett->len);
+	proto_register_subtree_array((int**)(void*)fields->ett->data, fields->ett->len);
 
 	resource_index = 0;
-	for (guint i = 0; i < num_lwm2m_resources; i++) {
+	for (unsigned i = 0; i < num_lwm2m_resources; i++) {
 		/* Reuse the same ETT for Float and Double resources */
 		if (lwm2m_resources[i].data_type == DATA_TYPE_FLOAT) {
 			fields->float_resources[resource_index++].ett_id = lwm2m_resources[i].ett_id;
@@ -523,12 +523,12 @@ static void lwm2m_allocate_fields(lwm2m_allocated_fields_t *fields, lwm2m_resour
 	}
 }
 
-static const lwm2m_resource_t *lwm2m_search_float_resources(guint object_id, guint resource_id,
+static const lwm2m_resource_t *lwm2m_search_float_resources(unsigned object_id, unsigned resource_id,
 						     const lwm2m_allocated_fields_t *fields)
 {
 	const lwm2m_resource_t *resource = NULL;
 
-	for (guint i = 0; i < fields->num_float_resources; i++) {
+	for (unsigned i = 0; i < fields->num_float_resources; i++) {
 		if ((object_id == fields->float_resources[i].object_id) &&
 		    (resource_id == fields->float_resources[i].resource_id))
 		{
@@ -540,13 +540,13 @@ static const lwm2m_resource_t *lwm2m_search_float_resources(guint object_id, gui
 	return resource;
 }
 
-static const lwm2m_resource_t *lwm2m_search_fields(guint object_id, guint resource_id, guint length_of_value,
+static const lwm2m_resource_t *lwm2m_search_fields(unsigned object_id, unsigned resource_id, unsigned length_of_value,
 					    const lwm2m_allocated_fields_t *fields,
-					    const lwm2m_resource_t *lwm2m_resources, guint num_lwm2m_resources)
+					    const lwm2m_resource_t *lwm2m_resources, unsigned num_lwm2m_resources)
 {
 	const lwm2m_resource_t *resource = NULL;
 
-	for (guint i = 0; i < num_lwm2m_resources; i++) {
+	for (unsigned i = 0; i < num_lwm2m_resources; i++) {
 		if ((object_id == lwm2m_resources[i].object_id) &&
 		    (resource_id == lwm2m_resources[i].resource_id))
 		{
@@ -567,7 +567,7 @@ static void lwm2m_free_fields(lwm2m_allocated_fields_t *fields)
 {
 	if (fields->hf) {
 		/* Deregister all fields */
-		for (guint i = 0; i < fields->hf_size; i++) {
+		for (unsigned i = 0; i < fields->hf_size; i++) {
 			proto_deregister_field(proto_lwm2mtlv, *(fields->hf[i].p_id));
 			g_free (fields->hf[i].p_id);
 		}
@@ -578,7 +578,7 @@ static void lwm2m_free_fields(lwm2m_allocated_fields_t *fields)
 	}
 
 	if (fields->ett) {
-		g_array_free(fields->ett, TRUE);
+		g_array_free(fields->ett, true);
 		fields->ett = NULL;
 	}
 
@@ -603,13 +603,13 @@ static void lwm2m_resource_reset_cb(void)
 	lwm2m_free_fields(&uat_allocated_fields);
 }
 
-static gint64
-decodeVariableInt(tvbuff_t *tvb, const gint offset, const guint length)
+static int64_t
+decodeVariableInt(tvbuff_t *tvb, const int offset, const unsigned length)
 {
 	switch(length)
 	{
 	case 1:
-		return tvb_get_gint8(tvb, offset);
+		return tvb_get_int8(tvb, offset);
 	case 2:
 		return tvb_get_ntohis(tvb, offset);
 	case 3:
@@ -632,7 +632,7 @@ decodeVariableInt(tvbuff_t *tvb, const gint offset, const guint length)
 UAT_DEC_CB_DEF(resource, object_id, lwm2m_resource_t)
 UAT_DEC_CB_DEF(resource, resource_id, lwm2m_resource_t)
 UAT_CSTRING_CB_DEF(resource, name, lwm2m_resource_t)
-UAT_VS_DEF(resource, data_type, lwm2m_resource_t, guint, DATA_TYPE_NONE, "None")
+UAT_VS_DEF(resource, data_type, lwm2m_resource_t, unsigned, DATA_TYPE_NONE, "None")
 
 static void
 addTlvHeaderElements(tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *element)
@@ -659,7 +659,7 @@ addTlvHeaderTree(tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *element)
 	proto_item *item = NULL;
 	proto_tree *header_tree = NULL;
 
-	guint valueOffset = 1 + element->length_of_identifier + element->length_of_length;
+	unsigned valueOffset = 1 + element->length_of_identifier + element->length_of_length;
 
 	item = proto_tree_add_item(tlv_tree, hf_lwm2mtlv_header, tvb, 0, valueOffset, ENC_NA);
 	header_tree = proto_item_add_subtree(item, ett_lwm2mtlv_header);
@@ -670,8 +670,8 @@ static proto_tree*
 addElementTree(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *element, const lwm2m_resource_t *resource)
 {
 	proto_item *item = NULL;
-	gchar *identifier = NULL;
-	gint ett_id;
+	char *identifier = NULL;
+	int ett_id;
 
 	if (resource) {
 		identifier = wmem_strdup_printf(pinfo->pool, "[%02u] %s", element->identifier, resource->name);
@@ -709,7 +709,7 @@ addElementTree(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mEle
 static void
 addValueInterpretations(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *element, const lwm2m_resource_t *resource)
 {
-	guint valueOffset;
+	unsigned valueOffset;
 	if ( element->length_of_value == 0 ) return;
 
 	valueOffset = 1 + element->length_of_identifier + element->length_of_length;
@@ -719,7 +719,7 @@ addValueInterpretations(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree,
 		case DATA_TYPE_STRING:
 		case DATA_TYPE_CORELNK:
 		{
-			const guint8 *strval;
+			const uint8_t *strval;
 			proto_tree_add_item_ret_string(tlv_tree, *resource->hf_id, tvb, valueOffset, element->length_of_value, ENC_UTF_8, pinfo->pool, &strval);
 			proto_item_append_text(tlv_tree, ": %s", format_text(pinfo->pool, strval, strlen(strval)));
 			break;
@@ -730,7 +730,7 @@ addValueInterpretations(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree,
 			break;
 		case DATA_TYPE_UNSIGNED_INTEGER:
 		{
-			guint64 value;
+			uint64_t value;
 			proto_tree_add_item_ret_uint64(tlv_tree, *resource->hf_id, tvb, valueOffset, element->length_of_value, ENC_BIG_ENDIAN, &value);
 			proto_item_append_text(tlv_tree, ": %" PRIu64, value);
 			break;
@@ -756,13 +756,13 @@ addValueInterpretations(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree,
 			ts.secs = (time_t)decodeVariableInt(tvb, valueOffset, element->length_of_value);
 			ts.nsecs = 0;
 			proto_tree_add_time(tlv_tree, *resource->hf_id, tvb, valueOffset, element->length_of_value, &ts);
-			proto_item_append_text(tlv_tree, ": %s", abs_time_to_str(pinfo->pool, &ts, ABSOLUTE_TIME_LOCAL, FALSE));
+			proto_item_append_text(tlv_tree, ": %s", abs_time_to_str(pinfo->pool, &ts, ABSOLUTE_TIME_LOCAL, false));
 			break;
 		}
 		case DATA_TYPE_OBJLNK:
 		{
-			guint16 lnk1 = tvb_get_guint16(tvb, valueOffset, ENC_BIG_ENDIAN);
-			guint16 lnk2 = tvb_get_guint16(tvb, valueOffset + 2, ENC_BIG_ENDIAN);
+			uint16_t lnk1 = tvb_get_uint16(tvb, valueOffset, ENC_BIG_ENDIAN);
+			uint16_t lnk2 = tvb_get_uint16(tvb, valueOffset + 2, ENC_BIG_ENDIAN);
 			proto_tree_add_bytes_format(tlv_tree, *resource->hf_id, tvb, valueOffset, element->length_of_value, NULL, "%u:%u", lnk1, lnk2);
 			proto_item_append_text(tlv_tree, ": %u:%u", lnk1, lnk2);
 			break;
@@ -782,7 +782,7 @@ addValueInterpretations(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree,
 		}
 		}
 	} else {
-		guint8 *str = tvb_get_string_enc(pinfo->pool, tvb, valueOffset, element->length_of_value, ENC_UTF_8);
+		uint8_t *str = tvb_get_string_enc(pinfo->pool, tvb, valueOffset, element->length_of_value, ENC_UTF_8);
 		if (isprint_utf8_string(str, element->length_of_value)) {
 			proto_tree_add_item(tlv_tree, hf_lwm2mtlv_value_string, tvb, valueOffset, element->length_of_value, ENC_UTF_8);
 		} else {
@@ -794,7 +794,7 @@ addValueInterpretations(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree,
 		case 0x01:
 			proto_tree_add_item(tlv_tree, hf_lwm2mtlv_value_integer, tvb, valueOffset, element->length_of_value, ENC_BIG_ENDIAN);
 			proto_tree_add_item(tlv_tree, hf_lwm2mtlv_value_unsigned_integer, tvb, valueOffset, element->length_of_value, ENC_BIG_ENDIAN);
-			if (tvb_get_guint8(tvb, valueOffset) < 2) {
+			if (tvb_get_uint8(tvb, valueOffset) < 2) {
 				proto_tree_add_item(tlv_tree, hf_lwm2mtlv_value_boolean, tvb, valueOffset, element->length_of_value, ENC_BIG_ENDIAN);
 			}
 			break;
@@ -821,9 +821,9 @@ addValueInterpretations(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree,
 
 static void
 // NOLINTNEXTLINE(misc-no-recursion)
-addValueTree(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *element, gint object_id, gint resource_id, const lwm2m_resource_t *resource)
+addValueTree(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *element, int object_id, int resource_id, const lwm2m_resource_t *resource)
 {
-	guint valueOffset = 1 + element->length_of_identifier + element->length_of_length;
+	unsigned valueOffset = 1 + element->length_of_identifier + element->length_of_length;
 
 	if (resource && (element->type == RESOURCE || element->type == RESOURCE_ARRAY)) {
 		proto_item *ti = proto_tree_add_string(tlv_tree, hf_lwm2mtlv_resource_name, tvb, 0, 0, resource->name);
@@ -841,7 +841,7 @@ addValueTree(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mEleme
 
 static void
 // NOLINTNEXTLINE(misc-no-recursion)
-addTlvElement(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *element, gint object_id, gint resource_id)
+addTlvElement(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *element, int object_id, int resource_id)
 {
 	proto_tree *element_tree = NULL;
 	const lwm2m_resource_t *resource = NULL;
@@ -863,13 +863,13 @@ addTlvElement(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElem
 	addValueTree(pinfo, tvb, element_tree, element, object_id, resource_id, resource);
 }
 
-static guint64
-decodeVariableUInt(tvbuff_t *tvb, const gint offset, const guint length)
+static uint64_t
+decodeVariableUInt(tvbuff_t *tvb, const int offset, const unsigned length)
 {
 	switch(length)
 	{
 	case 1:
-		return tvb_get_guint8(tvb, offset);
+		return tvb_get_uint8(tvb, offset);
 	case 2:
 		return tvb_get_ntohs(tvb, offset);
 	case 3:
@@ -889,18 +889,18 @@ decodeVariableUInt(tvbuff_t *tvb, const gint offset, const guint length)
 	}
 }
 
-static guint parseTLVHeader(tvbuff_t *tvb, lwm2mElement_t *element)
+static unsigned parseTLVHeader(tvbuff_t *tvb, lwm2mElement_t *element)
 {
-	guint type_field = tvb_get_guint8(tvb, 0);
+	unsigned type_field = tvb_get_uint8(tvb, 0);
 	element->type                 = (( type_field >> 6 ) & 0x03 );
 	element->length_of_identifier = (( type_field >> 5 ) & 0x01 ) + 1;
 	element->length_of_length     = (( type_field >> 3 ) & 0x03 );
 	element->length_of_value      = (( type_field >> 0 ) & 0x07 );
 
 	/* It is ok to shorten identifier and length_of_value, they are never more than 24 bits long */
-	element->identifier = (guint) decodeVariableUInt(tvb, 1, element->length_of_identifier);
+	element->identifier = (unsigned) decodeVariableUInt(tvb, 1, element->length_of_identifier);
 	if ( element->length_of_length > 0 ) {
-		element->length_of_value = (guint) decodeVariableUInt(tvb, 1 + element->length_of_identifier, element->length_of_length);
+		element->length_of_value = (unsigned) decodeVariableUInt(tvb, 1 + element->length_of_identifier, element->length_of_length);
 	}
 
 	element->totalLength = 1 + element->length_of_identifier + element->length_of_length + element->length_of_value;
@@ -909,12 +909,12 @@ static guint parseTLVHeader(tvbuff_t *tvb, lwm2mElement_t *element)
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
-static void parseArrayOfElements(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree, gint object_id, gint resource_id)
+static void parseArrayOfElements(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree, int object_id, int resource_id)
 {
-	guint length;
-	guint offset = 0;
-	guint elementLength = 0;
-	guint element_count = 0;
+	unsigned length;
+	unsigned offset = 0;
+	unsigned elementLength = 0;
+	unsigned element_count = 0;
 	lwm2mElement_t element;
 
 	length = tvb_reported_length(tvb);
@@ -924,7 +924,7 @@ static void parseArrayOfElements(packet_info *pinfo, tvbuff_t *tvb, proto_tree *
 		tvbuff_t* sub = tvb_new_subset_length(tvb, offset, length);
 		elementLength = parseTLVHeader(sub, &element);
 		if (element.type == RESOURCE || element.type == RESOURCE_ARRAY) {
-			resource_id = (gint)element.identifier;
+			resource_id = (int)element.identifier;
 		}
 		addTlvElement(pinfo, sub, tlv_tree, &element, object_id, resource_id);
 		element_count++;
@@ -947,11 +947,11 @@ dissect_lwm2mtlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 	proto_tree* lwm2mtlv_tree;
 	proto_item* lwm2mtlv_item;
 	media_content_info_t *content_info = (media_content_info_t *) data;
-	gint object_id = -1;
-	gint resource_id = -1;
+	int object_id = -1;
+	int resource_id = -1;
 
 	if (content_info && content_info->media_str && content_info->media_str[0]) {
-		gchar **ids = wmem_strsplit(pinfo->pool, content_info->media_str, "/", 5);
+		char **ids = wmem_strsplit(pinfo->pool, content_info->media_str, "/", 5);
 
 		/* URI path is defined as:
 		 *  ids[1] = Object ID
@@ -960,10 +960,10 @@ dissect_lwm2mtlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 		 *  ids[4] = Resource Instance
 		 */
 		if (ids && ids[0] && ids[1]) {
-			object_id = (gint)strtol(ids[1], NULL, 10);
+			object_id = (int)strtol(ids[1], NULL, 10);
 
 			if (ids[2] && ids[3]) {
-				resource_id = (gint)strtol(ids[1], NULL, 10);
+				resource_id = (int)strtol(ids[1], NULL, 10);
 			}
 		}
 	}
@@ -973,10 +973,10 @@ dissect_lwm2mtlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 		lwm2mtlv_tree = proto_item_add_subtree(lwm2mtlv_item, ett_lwm2mtlv);
 
 		if (object_id != -1) {
-			const gchar *object_name = NULL;
+			const char *object_name = NULL;
 
-			for (guint i = 0; i < num_lwm2m_uat_object_names; i++) {
-				if ((guint)object_id == lwm2m_uat_object_names[i].object_id) {
+			for (unsigned i = 0; i < num_lwm2m_uat_object_names; i++) {
+				if ((unsigned)object_id == lwm2m_uat_object_names[i].object_id) {
 					object_name = lwm2m_uat_object_names[i].name;
 					break;
 				}
@@ -1118,7 +1118,7 @@ void proto_register_lwm2mtlv(void)
 		},
 	};
 
-	static gint* ett[] = {
+	static int* ett[] = {
 		&ett_lwm2mtlv,
 		&ett_lwm2mtlv_header,
 		&ett_lwm2mtlv_resource,
@@ -1145,7 +1145,7 @@ void proto_register_lwm2mtlv(void)
 	uat_t *object_name_uat = uat_new("User Object Names",
 	                                 sizeof(lwm2m_object_name_t),
 	                                 "lwm2m_object_names",
-	                                 TRUE,
+	                                 true,
 	                                 &lwm2m_uat_object_names,
 	                                 &num_lwm2m_uat_object_names,
 	                                 UAT_AFFECTS_DISSECTION,
@@ -1160,7 +1160,7 @@ void proto_register_lwm2mtlv(void)
 	uat_t *resource_uat = uat_new("User Resource Names",
 	                              sizeof(lwm2m_resource_t),
 	                              "lwm2m_resource_names",
-	                              TRUE,
+	                              true,
 	                              &lwm2m_uat_resources,
 	                              &num_lwm2m_uat_resources,
 	                              UAT_AFFECTS_DISSECTION|UAT_AFFECTS_FIELDS,

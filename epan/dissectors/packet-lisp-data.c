@@ -56,9 +56,9 @@ static int hf_lisp_data_lsb;
 static int hf_lisp_data_lsb8;
 
 /* Initialize the subtree pointers */
-static gint ett_lisp_data;
-static gint ett_lisp_data_flags;
-static gint ett_lisp_data_mapver;
+static int ett_lisp_data;
+static int ett_lisp_data_flags;
+static int ett_lisp_data_mapver;
 
 static expert_field ei_lisp_data_flags_en_invalid;
 static expert_field ei_lisp_data_flags_nv_invalid;
@@ -72,9 +72,9 @@ static dissector_handle_t lisp_data_handle;
 static int
 dissect_lisp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    gint        offset = 0;
-    guint8      flags;
-    guint8      ip_ver;
+    int         offset = 0;
+    uint8_t     flags;
+    uint8_t     ip_ver;
     tvbuff_t   *next_tvb;
     proto_item *ti;
     proto_item *tif;
@@ -118,7 +118,7 @@ dissect_lisp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     proto_tree_add_item(lisp_data_flags_tree,
             hf_lisp_data_flags_res, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-    flags = tvb_get_guint8(tvb, offset);
+    flags = tvb_get_uint8(tvb, offset);
     offset += 1;
 
     if (flags&LISP_DATA_FLAG_E && !(flags&LISP_DATA_FLAG_N)) {
@@ -242,7 +242,7 @@ proto_register_lisp_data(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_lisp_data,
         &ett_lisp_data_flags,
         &ett_lisp_data_mapver

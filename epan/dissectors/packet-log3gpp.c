@@ -71,11 +71,11 @@ static const value_string direction_vals[] = {
     { 0,   NULL },
 };
 /* Pseudo header functions*/
-typedef gboolean (*pseudo_hdr_func_ptr_t) (char *, packet_info *pinfo, guint16, packet_direction_t);
+typedef bool (*pseudo_hdr_func_ptr_t) (char *, packet_info *pinfo, uint16_t, packet_direction_t);
 
-static gboolean lte_mac_pseudo_hdr(char *, packet_info *pinfo, guint16, packet_direction_t);
-static gboolean lte_rlc_pseudo_hdr(char *, packet_info *pinfo, guint16, packet_direction_t);
-static gboolean lte_pdcp_pseudo_hdr(char *, packet_info *pinfo, guint16, packet_direction_t);
+static bool lte_mac_pseudo_hdr(char *, packet_info *pinfo, uint16_t, packet_direction_t);
+static bool lte_rlc_pseudo_hdr(char *, packet_info *pinfo, uint16_t, packet_direction_t);
+static bool lte_pdcp_pseudo_hdr(char *, packet_info *pinfo, uint16_t, packet_direction_t);
 
 typedef struct
 {
@@ -237,8 +237,8 @@ update_dissector_name(const char* protocol_name, packet_direction_t direction, c
  * RNTI type (M): "NO_RNTI" or "P_RNTI" or "RA_RNTI" or "C_RNTI" or "SI_RNT" followed by rnti value in decimal format
  * subframe number (M): "SFN" followed by the subframe number in decimal format
  */
-static gboolean
-lte_mac_pseudo_hdr(char* option_str, packet_info* pinfo, guint16 length, packet_direction_t direction)
+static bool
+lte_mac_pseudo_hdr(char* option_str, packet_info* pinfo, uint16_t length, packet_direction_t direction)
 {
     struct mac_lte_info* p_mac_lte_info;
     char* par_opt_field;
@@ -354,8 +354,8 @@ lte_mac_pseudo_hdr(char* option_str, packet_info* pinfo, guint16 length, packet_
  * UM Sequence nb length (O): "SN_5b" or "SN_10b"
  */
 
-static gboolean
-lte_rlc_pseudo_hdr(char* option_str, packet_info* pinfo, guint16 length, packet_direction_t direction)
+static bool
+lte_rlc_pseudo_hdr(char* option_str, packet_info* pinfo, uint16_t length, packet_direction_t direction)
 {
     struct rlc_lte_info* p_rlc_lte_info;
     char* par_opt_field;
@@ -459,8 +459,8 @@ lte_rlc_pseudo_hdr(char* option_str, packet_info* pinfo, guint16 length, packet_
  * Plane: "SRB" or "DRB"
  * Sequence number length: "SN_7b" or "SN_12b"
  */
-static gboolean
-lte_pdcp_pseudo_hdr(char* option_str, packet_info* pinfo, guint16 length _U_, packet_direction_t direction)
+static bool
+lte_pdcp_pseudo_hdr(char* option_str, packet_info* pinfo, uint16_t length _U_, packet_direction_t direction)
 {
     struct pdcp_lte_info* p_pdcp_lte_info;
     char* par_opt_field;
@@ -538,20 +538,20 @@ dissect_log3gpp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
 {
     proto_tree* prot3gpp_tree = NULL;
     proto_item* ti = NULL;
-    gint        offset = 0;
-    gint        protocol_name_start;
-    gint        protocol_name_length;
-    gint        protocol_option_start;
-    gint        protocol_option_length;
-    gint        timestamp_start;
-    gint        timestamp_length;
+    int         offset = 0;
+    int         protocol_name_start;
+    int         protocol_name_length;
+    int         protocol_option_start;
+    int         protocol_option_length;
+    int         timestamp_start;
+    int         timestamp_length;
     packet_direction_t      direction;
     tvbuff_t* next_tvb;
     dissector_handle_t protocol_handle = 0;
     int sub_dissector_result = 0;
     char* protocol_name;
     char* protocol_option;
-    gboolean is_hex_data;
+    bool is_hex_data;
 
     /* Clear Info */
     col_clear(pinfo->cinfo, COL_INFO);
@@ -585,7 +585,7 @@ dissect_log3gpp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
     offset += protocol_name_length;
 
     /* Direction */
-    direction = (packet_direction_t)tvb_get_guint8(tvb, offset);
+    direction = (packet_direction_t)tvb_get_uint8(tvb, offset);
     if (prot3gpp_tree) {
         proto_tree_add_item(prot3gpp_tree, hf_log3gpp_direction, tvb, offset, 1, ENC_BIG_ENDIAN);
     }
@@ -689,15 +689,15 @@ dissect_log3gpp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
 /******************************************************************************/
 void proto_reg_handoff_log3gpp(void)
 {
-    static gboolean init = FALSE;
+    static bool init = false;
 
-    if (init == FALSE)
+    if (init == false)
     {
         dissector_handle_t log3gpp_handle;
 
         log3gpp_handle = find_dissector("prot3gpp");
         dissector_add_uint("wtap_encap", WTAP_ENCAP_LOG_3GPP, log3gpp_handle);
-        init = TRUE;
+        init = true;
     }
     if (lte_rrc_prot_version == REL8)
     {
@@ -783,7 +783,7 @@ void proto_register_log3gpp(void)
         },
     };
 
-    static gint *ett[] =
+    static int *ett[] =
     {
         &ett_log3gpp
     };
@@ -803,7 +803,7 @@ void proto_register_log3gpp(void)
                                    "If they are present they should be listed here.",
                                    &lte_rrc_prot_version,
                                    lte_rrc_dissector_version,
-                                   FALSE);
+                                   false);
 
     prefs_register_enum_preference(log3gpp_module,
                                    "nas_eps_release_version",
@@ -812,7 +812,7 @@ void proto_register_log3gpp(void)
                                    "If they are present they should be listed here.",
                                    &nas_eps_prot_version,
                                    nas_eps_dissector_version,
-                                   FALSE);
+                                   false);
 
     /* Allow dissector to find be found by name. */
     register_dissector("prot3gpp", dissect_log3gpp, proto_log3gpp);

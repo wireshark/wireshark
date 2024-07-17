@@ -84,9 +84,9 @@ void proto_register_lwm(void);
 void proto_reg_handoff_lwm(void);
 
 /* User string with the decryption key. */
-static const gchar *lwmes_key_str;
-static gboolean     lwmes_key_valid;
-static guint8       lwmes_key[16];
+static const char *lwmes_key_str;
+static bool         lwmes_key_valid;
+static uint8_t      lwmes_key[16];
 
 /* Dissection Routines. */
 static int  dissect_lwm                       (tvbuff_t *, packet_info *, proto_tree *, void *data);
@@ -125,10 +125,10 @@ static int hf_lwm_cmd_forwlinkquality;
 static int hf_lwm_cmd_revlinkquality;
 
 /* Initialize protocol subtrees. */
-static gint ett_lwm;
-static gint ett_lwm_fcf;
-static gint ett_lwm_cmd_tree;
-static gint ett_lwm_multi_tree;
+static int ett_lwm;
+static int ett_lwm_fcf;
+static int ett_lwm_cmd_tree;
+static int ett_lwm_multi_tree;
 
 static expert_field ei_lwm_mal_error;
 static expert_field ei_lwm_n_src_broad;
@@ -169,10 +169,10 @@ static const value_string lwm_cmd_multi_names[] = {
 static bool
 dissect_lwm_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    guint8 endpt, srcep, dstep;
+    uint8_t endpt, srcep, dstep;
 
     /* 1) first byte must have bits 0000xxxx */
-    if(tvb_get_guint8(tvb, 0) & LWM_FCF_RESERVED)
+    if(tvb_get_uint8(tvb, 0) & LWM_FCF_RESERVED)
         return false;
 
     /* The header should be at least long enough for the base header. */
@@ -180,7 +180,7 @@ dissect_lwm_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         return false;
 
     /* The endpoints should either both be zero, or both non-zero. */
-    endpt = tvb_get_guint8(tvb, 6);
+    endpt = tvb_get_uint8(tvb, 6);
     srcep = (endpt & LWM_SRC_ENDP_MASK) >> LWM_SRC_ENDP_OFFSET;
     dstep = (endpt & LWM_DST_ENDP_MASK) >> LWM_DST_ENDP_OFFSET;
     if ((srcep == 0) && (dstep != 0))
@@ -207,19 +207,19 @@ dissect_lwm_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
  */
 static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    guint       lwm_header_len;
+    unsigned    lwm_header_len;
 
-    guint8      lwm_fcf;
-    gboolean    lwm_fcf_security;
-    gboolean    lwm_fcf_multicast;
+    uint8_t     lwm_fcf;
+    bool        lwm_fcf_security;
+    bool        lwm_fcf_multicast;
 
 
-    guint8      lwm_seq;
-    guint16     lwm_src_addr;
-    guint16     lwm_dst_addr;
-    guint8      lwm_endp_field;
-    guint8      lwm_src_endp;
-    guint8      lwm_dst_endp;
+    uint8_t     lwm_seq;
+    uint16_t    lwm_src_addr;
+    uint16_t    lwm_dst_addr;
+    uint8_t     lwm_endp_field;
+    uint8_t     lwm_src_endp;
+    uint8_t     lwm_dst_endp;
 
     proto_tree *lwm_tree        = NULL;
     proto_item *ti_proto        = NULL;
@@ -255,7 +255,7 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     /*--------------------------------------------------*/
 
     /*Frame control fields*/
-    lwm_fcf = tvb_get_guint8(tvb, 0);
+    lwm_fcf = tvb_get_uint8(tvb, 0);
 
     lwm_fcf_security  = (lwm_fcf & LWM_FCF_SEC_EN);
     lwm_fcf_multicast = (lwm_fcf & LWM_FCF_MULTICAST);
@@ -274,7 +274,7 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     }
 
     /*Sequence number*/
-    lwm_seq = tvb_get_guint8(tvb, 1);
+    lwm_seq = tvb_get_uint8(tvb, 1);
     proto_item_append_text(ti_proto, ", Sequence Number: %i", lwm_seq);
     proto_tree_add_uint(lwm_tree, hf_lwm_seq, tvb, 1, 1, lwm_seq);
 
@@ -322,7 +322,7 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Nwk_Dst: 0x%04x, Nwk_Src: 0x%04x", lwm_dst_addr, lwm_src_addr);
 
     /*Endpoints*/
-    lwm_endp_field = tvb_get_guint8(tvb, 6);
+    lwm_endp_field = tvb_get_uint8(tvb, 6);
     lwm_src_endp   = (lwm_endp_field & LWM_SRC_ENDP_MASK) >> LWM_SRC_ENDP_OFFSET;
     lwm_dst_endp   = (lwm_endp_field & LWM_DST_ENDP_MASK) >> LWM_DST_ENDP_OFFSET;
 
@@ -355,7 +355,7 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
         if(tree){
             proto_tree *multi_tree;
-            guint16     lwm_multi_header;
+            uint16_t    lwm_multi_header;
 
             lwm_multi_header =  tvb_get_letohs(tvb, 7);
             multi_tree = proto_tree_add_subtree(lwm_tree, tvb, 7, 2, ett_lwm_multi_tree, NULL, "Multicast Header");
@@ -392,9 +392,9 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
     /*Encrypted data*/
     if(lwm_fcf_security){
-        guint rlen;
-        gint  start;
-        guint32 lwm_mic;
+        unsigned rlen;
+        int   start;
+        uint32_t lwm_mic;
 
         /*MIC field*/
         rlen = tvb_reported_length(new_tvb);
@@ -405,32 +405,32 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         if(lwmes_key_valid)
         {
             ieee802154_packet *ieee_packet = NULL;
-            gint payload_length = 0;
-            gint length = 0;
-            gint payload_offset = 0;
-            guint8 block;
+            int payload_length = 0;
+            int length = 0;
+            int payload_offset = 0;
+            uint8_t block;
             tvbuff_t *decrypted_tvb;
             gcry_cipher_hd_t cypher_hd;
-            guint8* vector = NULL;
-            guint8* text =NULL;
-            guint8* text_dec =NULL;
-            guint8 i;
-            guint32 vmic;
-            guint32 nwkSecurityVector[4];
+            uint8_t* vector = NULL;
+            uint8_t* text =NULL;
+            uint8_t* text_dec =NULL;
+            uint8_t i;
+            uint32_t vmic;
+            uint32_t nwkSecurityVector[4];
             int gcrypt_err;
 
             ieee_packet = (ieee802154_packet *)data;
 
             memset(&nwkSecurityVector, 0, sizeof(nwkSecurityVector));
             nwkSecurityVector[0] = lwm_seq;
-            nwkSecurityVector[1] = ((guint32)lwm_dst_addr<< 16) | lwm_dst_endp;
-            nwkSecurityVector[2]= ((guint32) lwm_src_addr<< 16) | lwm_src_endp;
-            nwkSecurityVector[3] = ((guint32)ieee_packet->dst_pan << 16) | (guint8)lwm_fcf;
+            nwkSecurityVector[1] = ((uint32_t)lwm_dst_addr<< 16) | lwm_dst_endp;
+            nwkSecurityVector[2]= ((uint32_t) lwm_src_addr<< 16) | lwm_src_endp;
+            nwkSecurityVector[3] = ((uint32_t)ieee_packet->dst_pan << 16) | (uint8_t)lwm_fcf;
 
             payload_length=tvb_reported_length(new_tvb) - LWM_MIC_LEN;
 
             /* ECB - Nwk security vector*/
-            text = (guint8 *)tvb_memdup(pinfo->pool, new_tvb, 0, payload_length);
+            text = (uint8_t *)tvb_memdup(pinfo->pool, new_tvb, 0, payload_length);
             payload_offset=0;
 
             gcrypt_err = gcry_cipher_open(&cypher_hd, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_ECB, 0);
@@ -438,10 +438,10 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             while(payload_length>0)
             {
                 if(gcrypt_err == 0) {
-                    gcrypt_err = gcry_cipher_setkey(cypher_hd,(guint8 *)lwmes_key, 16);
+                    gcrypt_err = gcry_cipher_setkey(cypher_hd,(uint8_t *)lwmes_key, 16);
                 }
                 if(gcrypt_err == 0) {
-                    gcrypt_err = gcry_cipher_encrypt(cypher_hd,(guint8 *)nwkSecurityVector,16,(guint8 *)nwkSecurityVector,16);
+                    gcrypt_err = gcry_cipher_encrypt(cypher_hd,(uint8_t *)nwkSecurityVector,16,(uint8_t *)nwkSecurityVector,16);
                 }
 
                 if(gcrypt_err)
@@ -455,7 +455,7 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 }
 
                 text_dec = &text[payload_offset];
-                vector = (guint8 *)nwkSecurityVector;
+                vector = (uint8_t *)nwkSecurityVector;
                 block =  (payload_length < 16) ? payload_length : 16;
 
                 for (i = 0; i < block; i++)
@@ -511,15 +511,15 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     /*stack command endpoint 0 and not secured*/
     else if( (lwm_src_endp == 0) && (lwm_dst_endp == 0) ){
         proto_tree *lwm_cmd_tree;
-        guint8      lwm_cmd;
-        guint       len;
+        uint8_t     lwm_cmd;
+        unsigned    len;
 
         /*----------------------------------------------------------------------*/
         /*                                                                      */
         /*  Call command dissector (depends on value of first byte of payload)  */
         /*                                                                      */
         /*----------------------------------------------------------------------*/
-        lwm_cmd = tvb_get_guint8(new_tvb, 0);
+        lwm_cmd = tvb_get_uint8(new_tvb, 0);
 
         col_clear(pinfo->cinfo, COL_INFO);  /*XXX: why ?*/
         col_add_str(pinfo->cinfo, COL_INFO,
@@ -592,10 +592,10 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
  */
 static int dissect_lwm_cmd_frame_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lwm_cmd_tree)
 {
-    guint8 lwm_seq;
+    uint8_t lwm_seq;
 
     /*Get fields*/
-    lwm_seq = tvb_get_guint8(tvb, 1);
+    lwm_seq = tvb_get_uint8(tvb, 1);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Sequence number: %d", lwm_seq);
 
@@ -631,7 +631,7 @@ static int dissect_lwm_cmd_frame_route_err(tvbuff_t *tvb, packet_info *pinfo _U_
         proto_tree_add_item(lwm_cmd_tree, hf_lwm_cmd_route_src, tvb, 1, 2, ENC_LITTLE_ENDIAN);
         ti = proto_tree_add_item(lwm_cmd_tree, hf_lwm_cmd_route_dst, tvb, 3, 2, ENC_LITTLE_ENDIAN);
 
-        if(tvb_get_guint8(tvb, 5) == LWM_CMD_MULTI_ADDR_TRUE){
+        if(tvb_get_uint8(tvb, 5) == LWM_CMD_MULTI_ADDR_TRUE){
             proto_item_append_text(ti, " %s", LWM_MULTI_GROUP_STRING);
         }else{
             proto_item_append_text(ti, " %s", LWM_MULTI_UNICAST_STRING);
@@ -662,12 +662,12 @@ static int dissect_lwm_cmd_frame_route_req(tvbuff_t *tvb, packet_info *pinfo _U_
 {
     if(lwm_cmd_tree){
         proto_item *ti;
-        guint8      lwm_linkqual;
+        uint8_t     lwm_linkqual;
 
         proto_tree_add_item(lwm_cmd_tree, hf_lwm_cmd_route_src, tvb, 1, 2, ENC_LITTLE_ENDIAN);
         ti = proto_tree_add_item(lwm_cmd_tree, hf_lwm_cmd_route_dst, tvb, 3, 2, ENC_LITTLE_ENDIAN);
 
-        if(tvb_get_guint8(tvb, 5) == LWM_CMD_MULTI_ADDR_TRUE){
+        if(tvb_get_uint8(tvb, 5) == LWM_CMD_MULTI_ADDR_TRUE){
             proto_item_append_text(ti, " %s", LWM_MULTI_GROUP_STRING);
         }else{
             proto_item_append_text(ti, " %s", LWM_MULTI_UNICAST_STRING);
@@ -675,7 +675,7 @@ static int dissect_lwm_cmd_frame_route_req(tvbuff_t *tvb, packet_info *pinfo _U_
 
         proto_tree_add_item(lwm_cmd_tree, hf_lwm_cmd_route_multi, tvb, 5, 1, ENC_NA);
 
-        lwm_linkqual  = tvb_get_guint8(tvb, 6);
+        lwm_linkqual  = tvb_get_uint8(tvb, 6);
         ti = proto_tree_add_uint(lwm_cmd_tree, hf_lwm_cmd_linkquality, tvb, 6, 1, lwm_linkqual);
         if(lwm_linkqual == 255){
             proto_item_append_text(ti, " %s", LWM_CMD_LINKQ_STRING);
@@ -704,12 +704,12 @@ static int dissect_lwm_cmd_frame_route_reply(tvbuff_t *tvb, packet_info *pinfo _
 {
     if(lwm_cmd_tree){
         proto_item *ti;
-        guint8      lwm_revlinkqual;
+        uint8_t     lwm_revlinkqual;
 
         proto_tree_add_item(lwm_cmd_tree, hf_lwm_cmd_route_src, tvb, 1, 2, ENC_LITTLE_ENDIAN);
         ti = proto_tree_add_item(lwm_cmd_tree, hf_lwm_cmd_route_dst, tvb, 3, 2, ENC_LITTLE_ENDIAN);
 
-        if(tvb_get_guint8(tvb, 5) == LWM_CMD_MULTI_ADDR_TRUE){
+        if(tvb_get_uint8(tvb, 5) == LWM_CMD_MULTI_ADDR_TRUE){
             proto_item_append_text(ti, " %s", LWM_MULTI_GROUP_STRING);
         }else{
             proto_item_append_text(ti, " %s", LWM_MULTI_UNICAST_STRING);
@@ -718,7 +718,7 @@ static int dissect_lwm_cmd_frame_route_reply(tvbuff_t *tvb, packet_info *pinfo _
         proto_tree_add_item(lwm_cmd_tree, hf_lwm_cmd_route_multi, tvb, 5, 1, ENC_NA);
         proto_tree_add_item(lwm_cmd_tree, hf_lwm_cmd_forwlinkquality, tvb, 6, 1, ENC_NA);
 
-        lwm_revlinkqual = tvb_get_guint8(tvb, 7);
+        lwm_revlinkqual = tvb_get_uint8(tvb, 7);
         ti = proto_tree_add_uint(lwm_cmd_tree, hf_lwm_cmd_revlinkquality, tvb, 7, 1, lwm_revlinkqual);
         if(lwm_revlinkqual == 255){
             proto_item_append_text(ti, " %s", LWM_CMD_LINKQ_STRING);
@@ -866,7 +866,7 @@ void proto_register_lwm(void)
     };
 
     /* Subtrees */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_lwm,
         &ett_lwm_fcf,
         &ett_lwm_multi_tree,
@@ -921,25 +921,25 @@ void proto_register_lwm(void)
  */
 void proto_reg_handoff_lwm(void)
 {
-    static gboolean initialized = FALSE;
+    static bool initialized = false;
     GByteArray      *bytes;
-    gboolean         res;
+    bool             res;
 
     if (!initialized) {
         /* Register our dissector with IEEE 802.15.4 */
         dissector_add_for_decode_as(IEEE802154_PROTOABBREV_WPAN_PANID, lwm_handle);
         heur_dissector_add(IEEE802154_PROTOABBREV_WPAN, dissect_lwm_heur, "Lightweight Mesh over IEEE 802.15.4", "lwm_wlan", proto_lwm, HEURISTIC_ENABLE);
 
-        initialized = TRUE;
+        initialized = true;
     }
     /* Convert key to raw bytes */
     bytes = g_byte_array_new();
-    res = hex_str_to_bytes(lwmes_key_str, bytes, FALSE);
+    res = hex_str_to_bytes(lwmes_key_str, bytes, false);
     lwmes_key_valid = (res && bytes->len >= IEEE802154_CIPHER_SIZE);
     if (lwmes_key_valid) {
         memcpy(lwmes_key, bytes->data, IEEE802154_CIPHER_SIZE);
     }
-    g_byte_array_free(bytes, TRUE);
+    g_byte_array_free(bytes, true);
 
 } /* proto_reg_handoff_lwm */
 
