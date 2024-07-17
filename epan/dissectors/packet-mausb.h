@@ -17,44 +17,44 @@
 /** Common header fields, per section 6.2.1 */
 struct mausb_header {
     /* DWORD 0 */
-    guint8   ver_flags;
-    guint8   type;
-    guint16  length;
+    uint8_t  ver_flags;
+    uint8_t  type;
+    uint16_t length;
     /* DWORD 1 */
-    guint16  handle;
-    guint8   ma_dev_addr;
-    guint8   mass_id;
+    uint16_t handle;
+    uint8_t  ma_dev_addr;
+    uint8_t  mass_id;
     /* DWORD 2 */
-    guint8   status;
+    uint8_t  status;
     union {
-        guint16 token;
+        uint16_t token;
         struct {
-            guint8   eps_tflags;
+            uint8_t  eps_tflags;
             union {
-                guint16  stream_id;
-                guint16  num_headers_iflags;
+                uint16_t stream_id;
+                uint16_t num_headers_iflags;
             } u1;
             /* DWORD 3 */
-            guint32  seq_num; /* Note: only 24 bits used */
-            guint8   req_id;
+            uint32_t seq_num; /* Note: only 24 bits used */
+            uint8_t  req_id;
             /* DWORD 4 */
             union {
-                guint32  credit;
-                guint32  present_time_num_seg;
+                uint32_t credit;
+                uint32_t present_time_num_seg;
             } u2;
             /* DWORD 5 */
-            guint32  timestamp;
+            uint32_t timestamp;
             /* DWORD 6 */
-            guint32  tx_dly; /* Note: if no timestamp, tx_dly will be in DWORD 5 */
+            uint32_t tx_dly; /* Note: if no timestamp, tx_dly will be in DWORD 5 */
         } s;
     } u;
 };
 
-gboolean mausb_is_from_host(struct mausb_header *header);
-guint8 mausb_ep_handle_ep_d(guint16 handle);
-guint8 mausb_ep_handle_ep_num(guint16 handle);
-guint8 mausb_ep_handle_dev_addr(guint16 handle);
-guint8 mausb_ep_handle_bus_num(guint16 handle);
+bool mausb_is_from_host(struct mausb_header *header);
+uint8_t mausb_ep_handle_ep_d(uint16_t handle);
+uint8_t mausb_ep_handle_ep_num(uint16_t handle);
+uint8_t mausb_ep_handle_dev_addr(uint16_t handle);
+uint8_t mausb_ep_handle_bus_num(uint16_t handle);
 
 void mausb_set_usb_conv_info(usb_conv_info_t *usb_conv_info,
                              struct mausb_header *header);

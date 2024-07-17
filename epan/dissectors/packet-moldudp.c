@@ -40,28 +40,28 @@ static int hf_moldudp_msgdata;
 #define MOLDUDP_HEARTBEAT 0x0000
 
 /* Initialize the subtree pointers */
-static gint ett_moldudp;
-static gint ett_moldudp_msgblk;
+static int ett_moldudp;
+static int ett_moldudp_msgblk;
 
 static expert_field ei_moldudp_msglen_invalid;
 static expert_field ei_moldudp_count_invalid;
 
 static dissector_table_t moldudp_payload_table;
 
-static void moldudp_prompt(packet_info *pinfo _U_, gchar* result)
+static void moldudp_prompt(packet_info *pinfo _U_, char* result)
 {
     snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Payload as");
 }
 
 /* Code to dissect a message block */
-static guint
+static unsigned
 dissect_moldudp_msgblk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        guint offset, guint32 sequence)
+        unsigned offset, uint32_t sequence)
 {
     proto_item *ti;
     proto_tree *blk_tree;
-    guint16     msglen, real_msglen, whole_len;
-    guint       remaining;
+    uint16_t    msglen, real_msglen, whole_len;
+    unsigned    remaining;
     tvbuff_t*   next_tvb;
 
     if (tvb_reported_length(tvb) - offset < MOLDUDP_MSGLEN_LEN)
@@ -108,7 +108,7 @@ dissect_moldudp_msgblk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* Functionality for choosing subdissector is controlled through Decode As as MoldUDP doesn't
        have a unique identifier to determine subdissector */
     next_tvb = tvb_new_subset_length(tvb, offset, real_msglen);
-    if (!dissector_try_payload_new(moldudp_payload_table, next_tvb, pinfo, tree, FALSE, NULL))
+    if (!dissector_try_payload_new(moldudp_payload_table, next_tvb, pinfo, tree, false, NULL))
     {
         proto_tree_add_item(blk_tree, hf_moldudp_msgdata,
                 tvb, offset, real_msglen, ENC_NA);
@@ -123,9 +123,9 @@ dissect_moldudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 {
     proto_item *ti;
     proto_tree *moldudp_tree;
-    guint       offset            = 0;
-    guint16     count, real_count = 0;
-    guint32     sequence;
+    unsigned    offset            = 0;
+    uint16_t    count, real_count = 0;
+    uint32_t    sequence;
 
     /* Check that there's enough data */
     if (tvb_reported_length(tvb) < (MOLDUDP_SESSION_LEN  +
@@ -222,7 +222,7 @@ proto_register_moldudp(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_moldudp,
         &ett_moldudp_msgblk
     };

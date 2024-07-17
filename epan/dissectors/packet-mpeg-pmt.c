@@ -38,8 +38,8 @@ static int hf_mpeg_pmt_stream_elementary_pid;
 static int hf_mpeg_pmt_stream_reserved2;
 static int hf_mpeg_pmt_stream_es_info_length;
 
-static gint ett_mpeg_pmt;
-static gint ett_mpeg_pmt_stream;
+static int ett_mpeg_pmt;
+static int ett_mpeg_pmt_stream;
 
 static dissector_handle_t mpeg_pmt_handle;
 
@@ -102,10 +102,10 @@ static int
 dissect_mpeg_pmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 
-    guint   offset = 0, length = 0;
-    guint   prog_info_len, es_info_len;
-    guint32 stream_type;
-    guint16 pid;
+    unsigned   offset = 0, length = 0;
+    unsigned   prog_info_len, es_info_len;
+    uint32_t stream_type;
+    uint16_t pid;
     bool current;
 
     proto_item *ti;
@@ -263,7 +263,7 @@ proto_register_mpeg_pmt(void)
 
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_mpeg_pmt,
         &ett_mpeg_pmt_stream,
     };

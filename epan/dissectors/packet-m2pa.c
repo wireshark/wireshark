@@ -57,8 +57,8 @@ static int hf_pri_prio;
 static int hf_pri_spare;
 static int hf_undecode_data;
 
-static gint ett_m2pa;
-static gint ett_m2pa_li;
+static int ett_m2pa;
+static int ett_m2pa_li;
 
 static expert_field ei_undecode_data;
 static expert_field ei_length;
@@ -72,7 +72,7 @@ typedef enum {
   M2PA_RFC4165 = 3
 } Version_Type;
 
-static gint m2pa_version = M2PA_RFC4165;
+static int m2pa_version = M2PA_RFC4165;
 
 #define VERSION_LENGTH         1
 #define SPARE_LENGTH           1
@@ -144,7 +144,7 @@ static const value_string message_type_values[] = {
 static void
 dissect_v2_header(tvbuff_t *header_tvb, packet_info *pinfo, proto_tree *m2pa_tree)
 {
-  guint16 message_type;
+  uint16_t message_type;
 
   message_type  = tvb_get_ntohs(header_tvb, V2_TYPE_OFFSET);
 
@@ -159,9 +159,9 @@ dissect_v2_header(tvbuff_t *header_tvb, packet_info *pinfo, proto_tree *m2pa_tre
 static void
 dissect_v8_header(tvbuff_t *header_tvb, packet_info *pinfo, proto_tree *m2pa_tree)
 {
-  guint8 message_type;
+  uint8_t message_type;
 
-  message_type  = tvb_get_guint8(header_tvb, V8_TYPE_OFFSET);
+  message_type  = tvb_get_uint8(header_tvb, V8_TYPE_OFFSET);
 
   col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(message_type, v8_message_type_values, "Unknown"));
 
@@ -179,9 +179,9 @@ dissect_v8_header(tvbuff_t *header_tvb, packet_info *pinfo, proto_tree *m2pa_tre
 static void
 dissect_header(tvbuff_t *header_tvb, packet_info *pinfo, proto_tree *m2pa_tree)
 {
-  guint8 message_type;
+  uint8_t message_type;
 
-  message_type  = tvb_get_guint8(header_tvb, V8_TYPE_OFFSET);
+  message_type  = tvb_get_uint8(header_tvb, V8_TYPE_OFFSET);
 
   col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(message_type, v8_message_type_values, "Unknown"));
 
@@ -304,7 +304,7 @@ static const value_string v8_link_status_values[] = {
 static void
 dissect_v8_link_status_message(tvbuff_t *message_data_tvb, packet_info *pinfo, proto_tree *m2pa_tree)
 {
-  guint16 filler_length;
+  uint16_t filler_length;
 
   col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ", val_to_str_const(tvb_get_ntohl(message_data_tvb, STATUS_OFFSET), v8_link_status_values, "Unknown"));
 
@@ -330,7 +330,7 @@ static const value_string link_status_values[] = {
 static void
 dissect_link_status_message(tvbuff_t *message_data_tvb, packet_info *pinfo, proto_tree *m2pa_tree)
 {
-  guint16 filler_length;
+  uint16_t filler_length;
 
   col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ", val_to_str_const(tvb_get_ntohl(message_data_tvb, STATUS_OFFSET), link_status_values, "Unknown"));
 
@@ -344,7 +344,7 @@ dissect_link_status_message(tvbuff_t *message_data_tvb, packet_info *pinfo, prot
 static void
 dissect_unknown_message(tvbuff_t *message_data_tvb, proto_tree *m2pa_tree)
 {
-  guint length;
+  unsigned length;
 
   length = tvb_reported_length(message_data_tvb);
   if (length > 0)
@@ -356,12 +356,12 @@ dissect_unknown_message(tvbuff_t *message_data_tvb, proto_tree *m2pa_tree)
 static void
 dissect_v2_message_data(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *m2pa_item, proto_tree *m2pa_tree, proto_tree *tree)
 {
-  guint32 message_data_length;
-  guint16 type;
+  uint32_t message_data_length;
+  uint16_t type;
   tvbuff_t *message_data_tvb;
 
   message_data_length = tvb_get_ntohl(message_tvb, V2_LENGTH_OFFSET);
-  if (message_data_length < 1 || message_data_length > G_MAXINT) {
+  if (message_data_length < 1 || message_data_length > INT_MAX) {
     proto_tree_add_expert_format(m2pa_tree, pinfo, &ei_length, message_tvb, V2_LENGTH_OFFSET, 4,
         "Invalid message data length: %u", message_data_length);
     return;
@@ -387,18 +387,18 @@ dissect_v2_message_data(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *m
 static void
 dissect_v8_message_data(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *m2pa_item, proto_tree *m2pa_tree, proto_tree *tree)
 {
-  guint32 message_data_length;
-  guint8 type;
+  uint32_t message_data_length;
+  uint8_t type;
   tvbuff_t *message_data_tvb;
 
   message_data_length = tvb_get_ntohl(message_tvb, V8_LENGTH_OFFSET) - V8_HEADER_LENGTH;
-  if (message_data_length < 1 || message_data_length > G_MAXINT) {
+  if (message_data_length < 1 || message_data_length > INT_MAX) {
     proto_tree_add_expert_format(m2pa_tree, pinfo, &ei_length, message_tvb, V8_LENGTH_OFFSET, 4,
         "Invalid message data length: %u", message_data_length);
     return;
   }
   message_data_tvb    = tvb_new_subset_length(message_tvb, V8_MESSAGE_DATA_OFFSET, message_data_length);
-  type                = tvb_get_guint8(message_tvb, V8_TYPE_OFFSET);
+  type                = tvb_get_uint8(message_tvb, V8_TYPE_OFFSET);
 
 
   switch(type) {
@@ -418,14 +418,14 @@ dissect_v8_message_data(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *m
 static void
 dissect_message_data(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *m2pa_item, proto_tree *m2pa_tree, proto_tree *tree)
 {
-  guint32 length, message_data_length, actual_length;
-  guint8 type;
+  uint32_t length, message_data_length, actual_length;
+  uint8_t type;
   tvbuff_t *message_data_tvb;
 
   length              = tvb_get_ntohl(message_tvb, LENGTH_OFFSET);
   message_data_length = length - HEADER_LENGTH;
   message_data_tvb    = tvb_new_subset_length(message_tvb, MESSAGE_DATA_OFFSET, message_data_length);
-  type                = tvb_get_guint8(message_tvb, TYPE_OFFSET);
+  type                = tvb_get_uint8(message_tvb, TYPE_OFFSET);
 
 
   switch(type) {
@@ -536,7 +536,7 @@ proto_register_m2pa(void)
     { &hf_undecode_data,{ "Undecoded data", "m2pa.undecoded_data", FT_BYTES,  BASE_NONE, NULL,                          0x0,                 NULL, HFILL} }
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_m2pa,
     &ett_m2pa_li
   };
@@ -567,7 +567,7 @@ proto_register_m2pa(void)
 
   m2pa_module = prefs_register_protocol(proto_m2pa, NULL);
 
-  prefs_register_enum_preference(m2pa_module, "version", "M2PA version", "Version used by Wireshark", &m2pa_version, m2pa_version_options, FALSE);
+  prefs_register_enum_preference(m2pa_module, "version", "M2PA version", "Version used by Wireshark", &m2pa_version, m2pa_version_options, false);
 }
 
 void

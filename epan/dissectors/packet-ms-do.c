@@ -64,11 +64,11 @@ static int hf_do_piece_response_size;
 // "HeapSpraying"
 static int hf_do_heap_spraying;
 
-static gint ett_do;
-static gint ett_do_handshake;
-static gint ett_do_message;
-static gint ett_do_bitfield;
-static gint ett_do_bitfield_single;
+static int ett_do;
+static int ett_do_handshake;
+static int ett_do_message;
+static int ett_do_bitfield;
+static int ett_do_bitfield_single;
 
 static expert_field ei_do_invalid_message_id;
 static expert_field ei_do_invalid_message_length;
@@ -104,7 +104,7 @@ static const value_string message_types[] = {
 
 static value_string_ext message_types_ext = VALUE_STRING_EXT_INIT(message_types);
 
-typedef bool (*do_dissect_callback_t)(tvbuff_t*, packet_info*, proto_tree*, uint32_t, uint8_t, guint*);
+typedef bool (*do_dissect_callback_t)(tvbuff_t*, packet_info*, proto_tree*, uint32_t, uint8_t, unsigned*);
 
 static const char*
 do_get_direction_str(packet_info* pinfo)
@@ -126,10 +126,10 @@ do_get_direction_str(packet_info* pinfo)
 
 /**
 * Function attempts to identify a handshake and if so, parses it.
-* If not returns FALSE.
+* If not returns false.
 */
 static bool
-dissect_do_handshake(tvbuff_t* tvb, packet_info* pinfo, proto_tree* do_tree, guint* offset_ptr)
+dissect_do_handshake(tvbuff_t* tvb, packet_info* pinfo, proto_tree* do_tree, unsigned* offset_ptr)
 {
     uint8_t protocol_name_length = 0;
     uint32_t calculated_length = 0;
@@ -144,11 +144,11 @@ dissect_do_handshake(tvbuff_t* tvb, packet_info* pinfo, proto_tree* do_tree, gui
     cases where the sniff begins in the middle without any handhsakes.
     As anyway that approach requires heuristically verifying for handshakes in the middle
     let's just do that every time without preserving a complex context. */
-    protocol_name_length = tvb_get_guint8(tvb, *offset_ptr);
+    protocol_name_length = tvb_get_uint8(tvb, *offset_ptr);
     calculated_length = 1 + protocol_name_length + 8 + 32 + 16 + 4;
     if (calculated_length != tvb_reported_length(tvb))
     {
-        return FALSE;
+        return false;
     }
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "Handshake Message (%s)", do_get_direction_str(pinfo));
@@ -171,7 +171,7 @@ dissect_do_handshake(tvbuff_t* tvb, packet_info* pinfo, proto_tree* do_tree, gui
     proto_tree_add_item(handshake_tree, hf_do_peer_id_suffix, tvb, *offset_ptr, 4, ENC_BIG_ENDIAN);
     *offset_ptr += 4;
 
-    return TRUE;
+    return true;
 }
 
 static const char*
@@ -214,7 +214,7 @@ do_message_id_to_hfindex(uint8_t message_id)
 * Add a subtree for a single message and add the message header into it.
 */
 static proto_tree*
-do_add_message_tree(tvbuff_t* tvb, proto_tree* tree, uint8_t message_id, uint32_t message_full_size, guint* offset_ptr)
+do_add_message_tree(tvbuff_t* tvb, proto_tree* tree, uint8_t message_id, uint32_t message_full_size, unsigned* offset_ptr)
 {
     proto_item* message_item = NULL;
     proto_tree* message_tree = NULL;
@@ -234,7 +234,7 @@ do_add_message_tree(tvbuff_t* tvb, proto_tree* tree, uint8_t message_id, uint32_
 * Add KeepAlive message into tree.
 */
 static void
-dissect_do_keepalive(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset_ptr)
+dissect_do_keepalive(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, unsigned* offset_ptr)
 {
     proto_item* message_item = NULL;
     proto_tree* message_tree = NULL;
@@ -251,26 +251,26 @@ dissect_do_keepalive(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint*
 * Callback to add a message without variables, this is used for multiple simple messages.
 */
 static bool
-dissect_do_empty_message(tvbuff_t* tvb, packet_info* pinfo, proto_tree* message_tree, uint32_t message_size, uint8_t message_id, guint* offset_ptr)
+dissect_do_empty_message(tvbuff_t* tvb, packet_info* pinfo, proto_tree* message_tree, uint32_t message_size, uint8_t message_id, unsigned* offset_ptr)
 {
     if (1 != message_size)
     {
         proto_tree_add_expert_format(message_tree, pinfo, &ei_do_invalid_message_length, tvb, *offset_ptr, message_size - 1,
             "Invalid message size: %u instead of %u", message_size, 1);
         *offset_ptr += message_size - 1;
-        return FALSE;
+        return false;
     }
 
     col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, do_message_id_to_str(message_id));
 
-    return TRUE;
+    return true;
 }
 
 /**
 * Callback to add a Have message.
 */
 static bool
-dissect_do_have(tvbuff_t* tvb, packet_info* pinfo, proto_tree* message_tree, uint32_t message_size, uint8_t message_id, guint* offset_ptr)
+dissect_do_have(tvbuff_t* tvb, packet_info* pinfo, proto_tree* message_tree, uint32_t message_size, uint8_t message_id, unsigned* offset_ptr)
 {
     uint32_t piece_index = -1;
 
@@ -279,21 +279,21 @@ dissect_do_have(tvbuff_t* tvb, packet_info* pinfo, proto_tree* message_tree, uin
         proto_tree_add_expert_format(message_tree, pinfo, &ei_do_invalid_message_length, tvb, *offset_ptr, message_size - 1,
             "Invalid message size: %u instead of %u", message_size, 5);
         *offset_ptr += message_size - 1;
-        return FALSE;
+        return false;
     }
     proto_tree_add_item_ret_uint(message_tree, hf_do_piece_index, tvb, *offset_ptr, 4, ENC_BIG_ENDIAN, &piece_index);
     *offset_ptr += 4;
 
     col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s (piece %u)", do_message_id_to_str(message_id), piece_index);
 
-    return TRUE;
+    return true;
 }
 
 /**
 * Callback to add a BitField message.
 */
 static bool
-dissect_do_bitfield(tvbuff_t* tvb, packet_info* pinfo, proto_tree* message_tree, uint32_t message_size, _U_ uint8_t message_id, guint* offset_ptr)
+dissect_do_bitfield(tvbuff_t* tvb, packet_info* pinfo, proto_tree* message_tree, uint32_t message_size, _U_ uint8_t message_id, unsigned* offset_ptr)
 {
     proto_item* bitfield_item = NULL;
     proto_tree* bitfield_tree = NULL;
@@ -304,7 +304,7 @@ dissect_do_bitfield(tvbuff_t* tvb, packet_info* pinfo, proto_tree* message_tree,
     uint32_t byte_index = 0;
     uint32_t bit_index = 0;
     uint8_t current_byte = 0;
-    bool has_piece = FALSE;
+    bool has_piece = false;
     uint32_t piece_index = 0;
 
     bitfield_size = message_size - 1;
@@ -314,14 +314,14 @@ dissect_do_bitfield(tvbuff_t* tvb, packet_info* pinfo, proto_tree* message_tree,
 
     for (byte_index = 0; byte_index < bitfield_size; byte_index++)
     {
-        current_byte = tvb_get_guint8(tvb, *offset_ptr);
+        current_byte = tvb_get_uint8(tvb, *offset_ptr);
         for (bit_index = 0; bit_index < 8; bit_index++)
         {
-            has_piece = FALSE;
+            has_piece = false;
             // Simplified from dosvc.dll!CBitField::_IsSet
             if (current_byte & (1 << (7 - bit_index)))
             {
-                has_piece = TRUE;
+                has_piece = true;
                 total_has++;
             }
             piece_index = 8 * byte_index + bit_index;
@@ -338,14 +338,14 @@ dissect_do_bitfield(tvbuff_t* tvb, packet_info* pinfo, proto_tree* message_tree,
     col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s (has %u of %u pieces)",
         do_message_id_to_str(message_id), total_has, bitfield_size * 8);
 
-    return TRUE;
+    return true;
 }
 
 /**
 * Callback to add a Request or Cancel message.
 */
 static bool
-dissect_do_request_cancel(tvbuff_t* tvb, _U_ packet_info* pinfo, proto_tree* message_tree, uint32_t message_size, uint8_t message_id, guint* offset_ptr)
+dissect_do_request_cancel(tvbuff_t* tvb, _U_ packet_info* pinfo, proto_tree* message_tree, uint32_t message_size, uint8_t message_id, unsigned* offset_ptr)
 {
     uint32_t piece_index = 0;
     uint32_t piece_start_offset = 0;
@@ -369,14 +369,14 @@ dissect_do_request_cancel(tvbuff_t* tvb, _U_ packet_info* pinfo, proto_tree* mes
     col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s (piece %u; offset 0x%x; size 0x%x)",
         do_message_id_to_str(message_id), piece_index, piece_start_offset, piece_size);
 
-    return TRUE;
+    return true;
 }
 
 /**
 * Callback to add a Piece message.
 */
 static bool
-dissect_do_piece(tvbuff_t* tvb, _U_ packet_info* pinfo, proto_tree* message_tree, uint32_t message_size, uint8_t message_id, guint* offset_ptr)
+dissect_do_piece(tvbuff_t* tvb, _U_ packet_info* pinfo, proto_tree* message_tree, uint32_t message_size, uint8_t message_id, unsigned* offset_ptr)
 {
     proto_item* pi = NULL;
     uint32_t piece_index = 0;
@@ -390,7 +390,7 @@ dissect_do_piece(tvbuff_t* tvb, _U_ packet_info* pinfo, proto_tree* message_tree
         proto_tree_add_expert_format(message_tree, pinfo, &ei_do_invalid_message_length, tvb, *offset_ptr, message_size - 1,
             "Invalid message size: message size %u must be larger than 9", message_size);
         *offset_ptr += message_size - 1;
-        return FALSE;
+        return false;
     }
     proto_tree_add_item_ret_uint(message_tree, hf_do_piece_index, tvb, *offset_ptr, 4, ENC_BIG_ENDIAN, &piece_index);
     *offset_ptr += 4;
@@ -404,21 +404,21 @@ dissect_do_piece(tvbuff_t* tvb, _U_ packet_info* pinfo, proto_tree* message_tree
     col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s (piece %u; offset 0x%x; size 0x%x)",
         do_message_id_to_str(message_id), piece_index, piece_start_offset, piece_size);
 
-    return TRUE;
+    return true;
 }
 
 /**
 * Callback to add a "HeapSpraying" message.
 */
 static bool
-dissect_do_heap_spraying(tvbuff_t* tvb, packet_info* pinfo, proto_tree* message_tree, uint32_t message_size, _U_ uint8_t message_id, guint* offset_ptr)
+dissect_do_heap_spraying(tvbuff_t* tvb, packet_info* pinfo, proto_tree* message_tree, uint32_t message_size, _U_ uint8_t message_id, unsigned* offset_ptr)
 {
     proto_tree_add_item(message_tree, hf_do_heap_spraying, tvb, *offset_ptr, message_size - 1, ENC_NA);
     *offset_ptr += message_size - 1;
 
     col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, do_message_id_to_str(message_id));
 
-    return TRUE;
+    return true;
 }
 
 /**
@@ -426,14 +426,14 @@ dissect_do_heap_spraying(tvbuff_t* tvb, packet_info* pinfo, proto_tree* message_
 * Just adds its size (which we have from the message header) to the offset.
 */
 static bool
-dissect_do_unkown_message(tvbuff_t* tvb, packet_info* pinfo, proto_tree* message_tree, uint32_t message_size, uint8_t message_id, guint* offset_ptr)
+dissect_do_unkown_message(tvbuff_t* tvb, packet_info* pinfo, proto_tree* message_tree, uint32_t message_size, uint8_t message_id, unsigned* offset_ptr)
 {
     proto_tree_add_expert_format(message_tree, pinfo, &ei_do_invalid_message_id, tvb, *offset_ptr, message_size - 1,
         "Unknown message ID: %u", message_id);
 
     *offset_ptr += message_size - 1;
 
-    return TRUE;
+    return true;
 }
 
 static do_dissect_callback_t
@@ -463,13 +463,13 @@ message_id_to_callback(uint8_t message_id)
 }
 
 /**
-* Parse a single message, on success return TRUE.
-* If TRUE is returned but *desegment_len_ptr is non-zero, the message wasn't parsed as more bytes are required.
+* Parse a single message, on success return true.
+* If true is returned but *desegment_len_ptr is non-zero, the message wasn't parsed as more bytes are required.
 */
 static bool
-dissect_do_message(tvbuff_t* tvb, packet_info* pinfo, proto_tree* do_tree, guint* offset_ptr, guint* desegment_len_ptr)
+dissect_do_message(tvbuff_t* tvb, packet_info* pinfo, proto_tree* do_tree, unsigned* offset_ptr, unsigned* desegment_len_ptr)
 {
-    guint buffer_size = 0;
+    unsigned buffer_size = 0;
     uint32_t message_size = 0;
     uint32_t message_full_size = 0;
     uint8_t message_id = -1;
@@ -481,36 +481,36 @@ dissect_do_message(tvbuff_t* tvb, packet_info* pinfo, proto_tree* do_tree, guint
     if (buffer_size < 4)
     {
         *desegment_len_ptr = 4 - buffer_size;
-        return TRUE;
+        return true;
     }
 
-    message_size = tvb_get_guint32(tvb, *offset_ptr, ENC_BIG_ENDIAN);
+    message_size = tvb_get_uint32(tvb, *offset_ptr, ENC_BIG_ENDIAN);
 
     // KeepAlive case
     if (0 == message_size)
     {
         dissect_do_keepalive(tvb, pinfo, do_tree, offset_ptr);
-        return TRUE;
+        return true;
     }
 
     if (buffer_size < message_size + 4)
     {
         // Message size (4 bytes) + required size - current size
         *desegment_len_ptr = 4 + message_size - buffer_size;
-        return TRUE;
+        return true;
     }
 
-    message_id = tvb_get_guint8(tvb, *offset_ptr + 4);
+    message_id = tvb_get_uint8(tvb, *offset_ptr + 4);
     message_full_size = sizeof(message_size) + message_size;
 
     message_tree = do_add_message_tree(tvb, do_tree, message_id, message_full_size, offset_ptr);
 
     if (!(*message_id_to_callback(message_id))(tvb, pinfo, message_tree, message_size, message_id, offset_ptr))
     {
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 static int
@@ -520,8 +520,8 @@ dissect_do(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, _U_ void* data)
     proto_tree* do_tree = NULL;
 
     // Using GLib types instead of standard interface to match existing API.
-    guint offset = 0;
-    guint32 desegment_len = 0;
+    unsigned offset = 0;
+    uint32_t desegment_len = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MS-DO");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -719,7 +719,7 @@ proto_register_do(void)
         },
     };
 
-    static gint* ett[] = {
+    static int* ett[] = {
         &ett_do,
         &ett_do_handshake,
         &ett_do_message,
@@ -747,12 +747,12 @@ proto_register_do(void)
 void
 proto_reg_handoff_do(void)
 {
-    static gboolean initialized = FALSE;
+    static bool initialized = false;
 
     if (!initialized)
     {
         dissector_add_uint("tcp.port", DO_PORT, do_handle);
 
-        initialized = TRUE;
+        initialized = true;
     }
 }

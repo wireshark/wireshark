@@ -24,28 +24,28 @@ typedef struct mac_3gpp_tap_info {
     uint8_t  rat;
 
     /* Info from context */
-    guint16  rnti;
-    guint16  ueid;
-    guint8   rntiType;
-    guint8   isPredefinedData;
-    gboolean crcStatusValid;
+    uint16_t rnti;
+    uint16_t ueid;
+    uint8_t  rntiType;
+    uint8_t  isPredefinedData;
+    bool crcStatusValid;
     int      crcStatus;  // mac_lte_crc_status
-    guint8   direction;
+    uint8_t  direction;
 
-    guint8   isPHYRetx;
-    guint16  ueInTTI;
+    uint8_t  isPHYRetx;
+    uint16_t ueInTTI;
     nstime_t mac_time;
 
     /* Number of bytes (which part is used depends upon context settings) */
-    guint32  single_number_of_bytes;
-    guint32  bytes_for_lcid[MAC_3GPP_DATA_LCID_COUNT_MAX];
-    guint32  sdus_for_lcid[MAC_3GPP_DATA_LCID_COUNT_MAX];
-    guint8   number_of_rars;
-    guint8   number_of_paging_ids;
+    uint32_t single_number_of_bytes;
+    uint32_t bytes_for_lcid[MAC_3GPP_DATA_LCID_COUNT_MAX];
+    uint32_t sdus_for_lcid[MAC_3GPP_DATA_LCID_COUNT_MAX];
+    uint8_t  number_of_rars;
+    uint8_t  number_of_paging_ids;
 
     /* Number of padding bytes includes padding subheaders and trailing padding */
-    guint16  padding_bytes;
-    guint16  raw_length;
+    uint16_t padding_bytes;
+    uint16_t raw_length;
 } mac_3gpp_tap_info;
 
 /*

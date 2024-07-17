@@ -106,19 +106,19 @@ static expert_field ei_mka_undecoded;
 static expert_field ei_unexpected_data;
 static expert_field ei_mka_unimplemented;
 
-static gint ett_mka;
-static gint ett_mka_basic_param_set;
-static gint ett_mka_peer_list_set;
-static gint ett_mka_sak_use_set;
-static gint ett_mka_distributed_sak_set;
-static gint ett_mka_distributed_cak_set;
-static gint ett_mka_kmd_set;
-static gint ett_mka_announcement_set;
-static gint ett_mka_xpn_set;
-static gint ett_mka_unknown_set;
-static gint ett_mka_icv_set;
-static gint ett_mka_tlv;
-static gint ett_mka_cipher_suite_entry;
+static int ett_mka;
+static int ett_mka_basic_param_set;
+static int ett_mka_peer_list_set;
+static int ett_mka_sak_use_set;
+static int ett_mka_distributed_sak_set;
+static int ett_mka_distributed_cak_set;
+static int ett_mka_kmd_set;
+static int ett_mka_announcement_set;
+static int ett_mka_xpn_set;
+static int ett_mka_unknown_set;
+static int ett_mka_icv_set;
+static int ett_mka_tlv;
+static int ett_mka_cipher_suite_entry;
 
 static const value_string param_set_type_vals[] = {
   { LIVE_PEER_LIST_TYPE,       "Live Peer List" },
@@ -155,11 +155,11 @@ static const value_string confidentiality_offset_vals[] = {
 };
 
 static const val64_string macsec_cipher_suite_vals[] = {
-  { G_GINT64_CONSTANT(0x0080020001000001),           "GCM-AES-128" }, // Original, incorrect value in IEEE 802.1AE-2006 and IEEE 802.1X-2010
-  { G_GINT64_CONSTANT(0x0080C20001000001),           "GCM-AES-128" },
-  { G_GINT64_CONSTANT(0x0080C20001000002),           "GCM-AES-256" },
-  { G_GINT64_CONSTANT(0x0080C20001000003),           "GCM-AES-XPN-128" },
-  { G_GINT64_CONSTANT(0x0080C20001000004),           "GCM-AES-XPN-256" },
+  { INT64_C(0x0080020001000001),           "GCM-AES-128" }, // Original, incorrect value in IEEE 802.1AE-2006 and IEEE 802.1X-2010
+  { INT64_C(0x0080C20001000001),           "GCM-AES-128" },
+  { INT64_C(0x0080C20001000002),           "GCM-AES-256" },
+  { INT64_C(0x0080C20001000003),           "GCM-AES-XPN-128" },
+  { INT64_C(0x0080C20001000004),           "GCM-AES-XPN-256" },
   { 0, NULL }
 };
 
@@ -183,30 +183,30 @@ static const value_string macsec_tlvs[] = {
 
 typedef struct _mka_ckn_info_key {
   /* CKN: a byte array of 0 to 32 bytes. */
-  guchar *ckn;
-  guint ckn_len;
+  unsigned char *ckn;
+  unsigned ckn_len;
 } mka_ckn_info_key_t;
 
 typedef struct _mka_ckn_info {
   mka_ckn_info_key_t key;
-  gchar *name;
+  char *name;
 } mka_ckn_info_t;
 
 static mka_ckn_info_t *mka_ckn_uat_data;
-static guint num_mka_ckn_uat_data;
+static unsigned num_mka_ckn_uat_data;
 static GHashTable *ht_mka_ckn;
 
 UAT_BUFFER_CB_DEF(mka_ckn_uat_data, ckn, mka_ckn_info_t, key.ckn, key.ckn_len)
 UAT_CSTRING_CB_DEF(mka_ckn_uat_data, name, mka_ckn_info_t)
 
-static guint
-ckn_key_hash_func(gconstpointer k) {
+static unsigned
+ckn_key_hash_func(const void *k) {
   const mka_ckn_info_key_t *key = (const mka_ckn_info_key_t *)k;
   size_t i;
-  guint hash = 0;
-  guint8 *tmp = (guint8 *)key->ckn;
+  unsigned hash = 0;
+  uint8_t *tmp = (uint8_t *)key->ckn;
 
-  /* Reduce to guint32 by XOR */
+  /* Reduce to uint32_t by XOR */
   for (i = 0; i < key->ckn_len; i++) {
     hash ^= tmp[i] << 8 * (i % 4);
   }
@@ -214,8 +214,8 @@ ckn_key_hash_func(gconstpointer k) {
   return hash;
 }
 
-static gint
-ckn_key_equal_func(gconstpointer c1, gconstpointer c2) {
+static int
+ckn_key_equal_func(const void *c1, const void *c2) {
   const mka_ckn_info_key_t *ckn1 = (const mka_ckn_info_key_t *)c1;
   const mka_ckn_info_key_t *ckn2 = (const mka_ckn_info_key_t *)c2;
   if (ckn1->ckn_len != ckn2->ckn_len) return 0;
@@ -230,7 +230,7 @@ ckn_info_copy_cb(void *n, const void *o, size_t size _U_) {
   const mka_ckn_info_t *old_rec = (const mka_ckn_info_t *)o;
 
   new_rec->key.ckn_len = old_rec->key.ckn_len;
-  new_rec->key.ckn = (guchar *)g_memdup2(old_rec->key.ckn, old_rec->key.ckn_len);
+  new_rec->key.ckn = (unsigned char *)g_memdup2(old_rec->key.ckn, old_rec->key.ckn_len);
   new_rec->key.ckn_len = old_rec->key.ckn_len;
   new_rec->name = g_strdup(old_rec->name);
 
@@ -243,10 +243,10 @@ ckn_info_update_cb(void *r, char **err) {
 
   if (rec->key.ckn_len == 0 || rec->key.ckn_len > 32) {
     *err = ws_strdup_printf("Invalid CKN length! CKNs need to be between 1 and 32 bytes.");
-    return FALSE;
+    return false;
   }
 
-  return TRUE;
+  return true;
 }
 
 static void
@@ -266,7 +266,7 @@ ckn_info_reset_cb(void) {
 
 static void
 ckn_info_post_update_cb(void) {
-  guint i;
+  unsigned i;
 
   ckn_info_reset_cb();
 
@@ -277,8 +277,8 @@ ckn_info_post_update_cb(void) {
   }
 }
 
-static const gchar *
-ckn_info_lookup(guint8 ckn[], guint32 ckn_len) {
+static const char *
+ckn_info_lookup(uint8_t ckn[], uint32_t ckn_len) {
   mka_ckn_info_key_t tmp_key = { .ckn = ckn, .ckn_len = ckn_len };
 
   if (ht_mka_ckn == NULL) {
@@ -295,14 +295,14 @@ ckn_info_lookup(guint8 ckn[], guint32 ckn_len) {
 }
 
 static void
-mka_add_ckn_info(proto_tree *tree, tvbuff_t *tvb, int offset, guint16 ckn_len) {
+mka_add_ckn_info(proto_tree *tree, tvbuff_t *tvb, int offset, uint16_t ckn_len) {
   proto_item *ti;
 
-  guint8 cak_name[32]; /* Only accept CKN between 1 and 32 bytes! */
+  uint8_t cak_name[32]; /* Only accept CKN between 1 and 32 bytes! */
   if (1 <= ckn_len && ckn_len <= 32) {
     tvb_memcpy(tvb, cak_name, offset, ckn_len);
 
-    const gchar *tmp_string = ckn_info_lookup(cak_name, ckn_len);
+    const char *tmp_string = ckn_info_lookup(cak_name, ckn_len);
     if (tmp_string != NULL) {
       ti = proto_tree_add_string(tree, hf_mka_cak_name_info, tvb, offset, ckn_len, tmp_string);
       proto_item_set_generated(ti);
@@ -317,8 +317,8 @@ dissect_basic_paramset(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, 
   int offset = *offset_ptr;
   proto_tree *basic_param_set_tree;
   proto_tree *ti;
-  guint16 basic_param_set_len;
-  guint16 cak_len;
+  uint16_t basic_param_set_len;
+  uint16_t cak_len;
 
   basic_param_set_len = (tvb_get_ntohs(tvb, offset + 2)) & 0x0fff;
   ti = proto_tree_add_item(mka_tree, hf_mka_basic_param_set, tvb, offset, basic_param_set_len + 4, ENC_NA);
@@ -339,7 +339,7 @@ dissect_basic_paramset(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, 
   proto_tree_add_item(basic_param_set_tree, hf_mka_macsec_capability,
                       tvb, offset, 1, ENC_BIG_ENDIAN);
 
-  if (tvb_get_guint8(tvb, offset) & 0x80)
+  if (tvb_get_uint8(tvb, offset) & 0x80)
   {
     col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Key Server");
   }
@@ -383,15 +383,15 @@ dissect_basic_paramset(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, 
 }
 
 static void
-dissect_peer_list(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, int *offset_ptr, gboolean key_server_ssci_flag)
+dissect_peer_list(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, int *offset_ptr, bool key_server_ssci_flag)
 {
   int offset = *offset_ptr;
   proto_tree *peer_list_set_tree;
   proto_tree *ti;
   int hf_peer;
-  gint16 peer_list_len;
+  int16_t peer_list_len;
 
-  if (tvb_get_guint8(tvb, offset) == LIVE_PEER_LIST_TYPE) {
+  if (tvb_get_uint8(tvb, offset) == LIVE_PEER_LIST_TYPE) {
     hf_peer = hf_mka_live_peer_list_set;
   } else {
     hf_peer = hf_mka_potential_peer_list_set;
@@ -451,7 +451,7 @@ dissect_sak_use(proto_tree *mka_tree, packet_info *pinfo _U_, tvbuff_t *tvb, int
   int offset = *offset_ptr;
   proto_tree *sak_use_set_tree;
   proto_tree *ti;
-  guint16 sak_use_len;
+  uint16_t sak_use_len;
 
   sak_use_len = (tvb_get_ntohs(tvb, offset + 2)) & 0x0fff;
   ti = proto_tree_add_item(mka_tree, hf_mka_macsec_sak_use_set, tvb, offset, sak_use_len + 4, ENC_NA);
@@ -537,7 +537,7 @@ static void
 dissect_distributed_sak(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, int *offset_ptr)
 {
   int offset = *offset_ptr;
-  guint16 distributed_sak_len;
+  uint16_t distributed_sak_len;
   proto_tree *distributed_sak_tree;
   proto_tree *ti;
 
@@ -609,10 +609,10 @@ static void
 dissect_distributed_cak(proto_tree *mka_tree, packet_info *pinfo _U_, tvbuff_t *tvb, int *offset_ptr)
 {
   int offset = *offset_ptr;
-  guint16 distributed_cak_len;
+  uint16_t distributed_cak_len;
   proto_tree *distributed_cak_tree;
   proto_tree *ti;
-  guint16 cak_len;
+  uint16_t cak_len;
 
   distributed_cak_len = (tvb_get_ntohs(tvb, offset + 2)) & 0x0fff;
   ti = proto_tree_add_item(mka_tree, hf_mka_distributed_cak_set, tvb, offset, distributed_cak_len + 4, ENC_NA);
@@ -652,7 +652,7 @@ static void
 dissect_kmd(proto_tree *mka_tree, packet_info *pinfo _U_, tvbuff_t *tvb, int *offset_ptr)
 {
   int offset = *offset_ptr;
-  guint16 kmd_len;
+  uint16_t kmd_len;
   proto_tree *kmd_set_tree;
   proto_tree *ti;
 
@@ -679,7 +679,7 @@ static void
 dissect_announcement(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, int *offset_ptr)
 {
   int offset = *offset_ptr;
-  guint16 announcement_len;
+  uint16_t announcement_len;
   proto_tree *announcement_set_tree;
   proto_tree *ti;
   int offset2;
@@ -700,9 +700,9 @@ dissect_announcement(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, in
   offset2 = 0;
   while (offset2 + 2 <= announcement_len) {
     proto_tree *tlv_tree;
-    guint8 tlv_type = ((tvb_get_guint8(tvb, offset + offset2)) & 0xfe ) >> 1;
-    guint16 tlv_length = (tvb_get_ntohs(tvb, offset + offset2)) & 0x01ff;
-    guint16 tlv_item_offset;
+    uint8_t tlv_type = ((tvb_get_uint8(tvb, offset + offset2)) & 0xfe ) >> 1;
+    uint16_t tlv_length = (tvb_get_ntohs(tvb, offset + offset2)) & 0x01ff;
+    uint16_t tlv_item_offset;
 
     if (offset2 + 2 + tlv_length > announcement_len) {
       break;
@@ -722,8 +722,8 @@ dissect_announcement(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, in
         tlv_item_offset = 0;
         while (tlv_item_offset + 10 <= tlv_length) {
           proto_tree *cipher_suite_entry;
-          guint64 cipher_suite_id = tvb_get_guint64(tvb, offset + offset2 + tlv_item_offset + 2, ENC_BIG_ENDIAN);
-          guint16 cipher_suite_cap = tvb_get_guint16(tvb, offset + offset2 + tlv_item_offset, ENC_BIG_ENDIAN) & 0x0003;
+          uint64_t cipher_suite_id = tvb_get_uint64(tvb, offset + offset2 + tlv_item_offset + 2, ENC_BIG_ENDIAN);
+          uint16_t cipher_suite_cap = tvb_get_uint16(tvb, offset + offset2 + tlv_item_offset, ENC_BIG_ENDIAN) & 0x0003;
 
           ti = proto_tree_add_none_format(tlv_tree, hf_mka_tlv_entry, tvb, offset + offset2, tlv_length + 2, "Cipher Suite: %s, %s",
                                           val64_to_str(cipher_suite_id, macsec_cipher_suite_vals, "Unknown Cipher Suite (0x%" PRIx64 ")"),
@@ -770,7 +770,7 @@ static void
 dissect_xpn(proto_tree *mka_tree, packet_info *pinfo _U_, tvbuff_t *tvb, int *offset_ptr)
 {
   int offset = *offset_ptr;
-  guint16 xpn_len;
+  uint16_t xpn_len;
   proto_tree *xpn_set_tree;
   proto_tree *ti;
 
@@ -802,7 +802,7 @@ dissect_xpn(proto_tree *mka_tree, packet_info *pinfo _U_, tvbuff_t *tvb, int *of
 }
 
 static void
-dissect_icv(proto_tree *mka_tree, packet_info *pinfo _U_, tvbuff_t *tvb, int *offset_ptr, guint16 *icv_len)
+dissect_icv(proto_tree *mka_tree, packet_info *pinfo _U_, tvbuff_t *tvb, int *offset_ptr, uint16_t *icv_len)
 {
   int offset = *offset_ptr;
   proto_tree *icv_set_tree;
@@ -827,7 +827,7 @@ static void
 dissect_unknown_param_set(proto_tree *mka_tree, packet_info *pinfo _U_, tvbuff_t *tvb, int *offset_ptr)
 {
   int offset = *offset_ptr;
-  guint16 param_set_len;
+  uint16_t param_set_len;
   proto_tree *param_set_tree;
   proto_tree *ti;
 
@@ -864,8 +864,8 @@ static int
 dissect_mka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   int         offset = 0;
-  guint8      mka_version_type;
-  guint16     icv_len = 16; // Default ICV length, see IEEE 802.1X-2010, Section 11.11
+  uint8_t     mka_version_type;
+  uint16_t    icv_len = 16; // Default ICV length, see IEEE 802.1X-2010, Section 11.11
   proto_tree *ti;
   proto_tree *mka_tree;
 
@@ -880,7 +880,7 @@ dissect_mka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
    * The 802.1Xbx-2014 spec specifies support for MKA version 2.
    * The 802.1Xck-2018 spec specifies support for MKA version 3.
    */
-  mka_version_type = tvb_get_guint8(tvb, offset);
+  mka_version_type = tvb_get_uint8(tvb, offset);
   if ((mka_version_type < 1) || (mka_version_type > 3)) {
     expert_add_info(pinfo, ti, &ei_unexpected_data);
   }
@@ -892,8 +892,8 @@ dissect_mka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
   while(tvb_reported_length_remaining(tvb, offset) > icv_len) {
     col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s",
-                        val_to_str_const(tvb_get_guint8(tvb, offset), param_set_type_vals, "Unknown"));
-    switch (tvb_get_guint8(tvb, offset)) {
+                        val_to_str_const(tvb_get_uint8(tvb, offset), param_set_type_vals, "Unknown"));
+    switch (tvb_get_uint8(tvb, offset)) {
     case LIVE_PEER_LIST_TYPE:
     case POTENTIAL_PEER_LIST_TYPE:
       dissect_peer_list(mka_tree, pinfo, tvb, &offset, (mka_version_type == 3));
@@ -1248,7 +1248,7 @@ proto_register_mka(void)
         NULL, HFILL }},
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_mka,
     &ett_mka_basic_param_set,
     &ett_mka_peer_list_set,
@@ -1285,7 +1285,7 @@ proto_register_mka(void)
   mka_ckn_info_uat = uat_new("CKN Info",
     sizeof(mka_ckn_info_t),                 /* record size           */
     DATAFILE_CKN_INFO,                      /* filename              */
-    TRUE,                                   /* from profile          */
+    true,                                   /* from profile          */
     (void **) &mka_ckn_uat_data,            /* data_ptr              */
     &num_mka_ckn_uat_data,                  /* numitems_ptr          */
     UAT_AFFECTS_DISSECTION,                 /* but not fields        */

@@ -51,7 +51,7 @@ static int hf_rtp_mpg_data;
 
 
 /* MPEG-1 fields defining a sub tree */
-static gint ett_mpg;
+static int ett_mpg;
 
 static const value_string rtp_mpg_picture_types_vals[] =
 {
@@ -302,7 +302,7 @@ proto_register_mpeg1(void)
 
 	};
 
-	static gint *ett[] =
+	static int *ett[] =
 	{
 		&ett_mpg,
 	};

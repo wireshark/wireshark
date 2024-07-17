@@ -36,11 +36,11 @@ void proto_reg_handoff_metamako(void);
 
 /* FCS Options */
 static bool metamako_check_fcs = true;
-static gint metamako_fcs_len = -1; /* By default, try to autodetect the FCS. */
+static int metamako_fcs_len = -1; /* By default, try to autodetect the FCS. */
 /* Heuristic Options */
-static gint metamako_trailer_present = -1; /* By default, try to autodetect the trailer. */
+static int metamako_trailer_present = -1; /* By default, try to autodetect the trailer. */
 static range_t* metamako_trailer_secs_bounds;
-static guint metamako_trailer_days_diff_limit = TRAILER_DAYS_DIFF_LIMIT_DFLT;
+static unsigned metamako_trailer_days_diff_limit = TRAILER_DAYS_DIFF_LIMIT_DFLT;
 
 /* Protocols and Header Fields */
 static int proto_metamako;
@@ -89,10 +89,10 @@ static int hf_metamako_flags_ts_degraded;
 static int hf_metamako_flags_control_block_type;
 static int hf_metamako_reserved;
 
-static gint ett_metamako;
-static gint ett_metamako_timestamp;
-static gint ett_metamako_extensions;
-static gint ett_metamako_flags;
+static int ett_metamako;
+static int ett_metamako_timestamp;
+static int ett_metamako_extensions;
+static int ett_metamako_flags;
 
 static const enum_val_t metamako_fcs_vals[] = {
   {"heuristic", "According to heuristic", -1},
@@ -133,7 +133,7 @@ static int* const flags[] = {
 static expert_field ei_metamako_fcs_bad;
 
 static void
-sub_nanos_base_custom(gchar* result, guint32 value)
+sub_nanos_base_custom(char* result, uint32_t value)
 {
   double temp_double;
   temp_double = ((double)value) / (1ULL << 24);
@@ -149,7 +149,7 @@ validate_metamako_timestamp(nstime_t* metamako_time, packet_info* pinfo)
     return 0;
 
   /* Check that the seconds in the trailer timestamp are in the user-specified bounds. */
-  if (!value_is_in_range(metamako_trailer_secs_bounds, (guint32)metamako_time->secs))
+  if (!value_is_in_range(metamako_trailer_secs_bounds, (uint32_t)metamako_time->secs))
     return 0;
 
   /* Check that the number of days between the trailer timestamp
@@ -171,33 +171,33 @@ validate_metamako_timestamp(nstime_t* metamako_time, packet_info* pinfo)
 static int
 dissect_metamako(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 {
-  guint         i, i_start, i_end, j;
+  unsigned      i, i_start, i_end, j;
 
   proto_tree*   ti, * parent, * item;
   proto_tree*   metamako_tree, * timestamp_tree;
   proto_tree*   extensions_tree;
 
-  guint         offset = 0;
+  unsigned      offset = 0;
 
-  guint         captured_trailer_bytes;
-  guint         metamako_trailer_bytes;
-  guint         trailer_min_length;
-  gboolean      trailer_valid;
-  gboolean      has_fcs;
+  unsigned      captured_trailer_bytes;
+  unsigned      metamako_trailer_bytes;
+  unsigned      trailer_min_length;
+  bool          trailer_valid;
+  bool          has_fcs;
 
   nstime_t      metamako_time, time_diff, time_rel;
-  guint         metamako_meta;
+  unsigned      metamako_meta;
 
-  guint         metamako_tlv_count;
-  guint         metamako_tlv_firstword;
-  guint         metamako_tlv_len;
-  guint         metamako_tlv_tag;
-  guint         metamako_tlv_pos;
-  guint         metamako_tlv_bytes;
+  unsigned      metamako_tlv_count;
+  unsigned      metamako_tlv_firstword;
+  unsigned      metamako_tlv_len;
+  unsigned      metamako_tlv_tag;
+  unsigned      metamako_tlv_pos;
+  unsigned      metamako_tlv_bytes;
 
-  guint8        metamako_srcport;
-  guint16       metamako_srcdevice;
-  guint8        metamako_flags;
+  uint8_t       metamako_srcport;
+  uint16_t      metamako_srcdevice;
+  uint8_t       metamako_flags;
 
   struct tm*    tmp;
 
@@ -239,7 +239,7 @@ dissect_metamako(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data
     return 0;
 
   /* Adjust the state of the loop variables to account for the user options. */
-  trailer_valid = FALSE;
+  trailer_valid = false;
   i_start = metamako_fcs_len == 4 ? 1 : 0;
   i_end = metamako_fcs_len == 0 ? 1 : 2;
 
@@ -310,7 +310,7 @@ dissect_metamako(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data
         /* This byte offset is the beginning of the Metamako trailer. */
         offset = metamako_trailer_bytes;
         /* If we've made it this far, it appears we've got a valid trailer. */
-        trailer_valid = TRUE;
+        trailer_valid = true;
       }
     }
   }
@@ -396,7 +396,7 @@ dissect_metamako(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data
         proto_item_set_text(item, "Unknown Tag [0x%05" PRIx32 "]: ", metamako_tlv_tag);
         /* Iterate through the data appending as we go */
         for (j = 0; j < metamako_tlv_bytes; j++) {
-          proto_item_append_text(item, "%02" PRIx8, tvb_get_guint8(tvb, metamako_tlv_pos + 4 + j));
+          proto_item_append_text(item, "%02" PRIx8, tvb_get_uint8(tvb, metamako_tlv_pos + 4 + j));
           if ((28 + j * 2) >= ITEM_LABEL_LENGTH) {
             proto_item_append_text(item, "...");
             break;
@@ -445,16 +445,16 @@ dissect_metamako(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data
   offset += 2;
 
   /* Source port */
-  metamako_srcport = tvb_get_guint8(tvb, offset);
+  metamako_srcport = tvb_get_uint8(tvb, offset);
   proto_tree_add_item(metamako_tree, hf_metamako_src_port, tvb, offset, 1, ENC_BIG_ENDIAN);
   proto_item_append_text(ti, ", Source Port: %d", metamako_srcport);
   offset++;
 
   if (has_fcs) {
-    guint32 sent_fcs = tvb_get_ntohl(tvb, offset);
+    uint32_t sent_fcs = tvb_get_ntohl(tvb, offset);
     if (metamako_check_fcs) {
       tvbuff_t* parent_tvb = tvb_get_ds_tvb(tvb);
-      guint32 fcs = crc32_802_tvb(parent_tvb, tvb_captured_length(parent_tvb) - 4);
+      uint32_t fcs = crc32_802_tvb(parent_tvb, tvb_captured_length(parent_tvb) - 4);
       proto_tree_add_checksum(tree, tvb, offset, hf_metamako_fcs, hf_metamako_fcs_status, &ei_metamako_fcs_bad, pinfo, fcs, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 
       if (fcs != sent_fcs) {
@@ -591,7 +591,7 @@ proto_register_metamako(void)
         NULL, HFILL }},
   };
 
-  static gint* ett[] = {
+  static int* ett[] = {
     &ett_metamako,
     &ett_metamako_extensions,
     &ett_metamako_timestamp,
@@ -640,7 +640,7 @@ proto_register_metamako(void)
     "Assume packets have a Metamako trailer",
     "This option can override the trailer detection heuristic so that the Metamako "
     "trailer is either never or always present.",
-    &metamako_trailer_present, metamako_trailer_present_vals, FALSE);
+    &metamako_trailer_present, metamako_trailer_present_vals, false);
 
   prefs_register_enum_preference(metamako_module, "fcs",
     "Assume packets have FCS",
@@ -649,7 +649,7 @@ proto_register_metamako(void)
     "The Metamako dissector attempts to guess whether a captured packet has an FCS, "
     "but it cannot always guess correctly. This option can override that heuristic "
     "and assume that the FCS is either never or always present.",
-    &metamako_fcs_len, metamako_fcs_vals, FALSE);
+    &metamako_fcs_len, metamako_fcs_vals, false);
 
   prefs_register_bool_preference(metamako_module, "check_fcs",
     "Validate the Ethernet checksum if possible",

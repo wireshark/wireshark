@@ -420,38 +420,38 @@ static int hf_net_caps_es;
 static int hf_net_caps_mihcap;
 
 /*trees and subtrees...*/
-static gint ett_mih;
-static gint ett_ver_flags;
-static gint ett_mid;
-static gint ett_tlv;
-static gint ett_cmd_bitmap;
-static gint ett_event_bitmap;
-static gint ett_mob_mgt_bitmap;
-static gint ett_cfg_mtd_bitmap;
-static gint ett_iq_type_bitmap;
-static gint ett_trans_list_bitmap;
-static gint ett_dev_states_bitmap;
-static gint ett_mihcap_bitmap;
-static gint ett_net_caps_bitmap;
-static gint ett_ac_attr_bitmap;
-static gint ett_subtype_eth_bitmap;
-static gint ett_subtype_wireless_other_bitmap;
-static gint ett_subtype_ieee80211_bitmap;
-static gint ett_subtype_umts_bitmap;
-static gint ett_subtype_cdma2000_bitmap;
-static gint ett_subtype_ieee80216_bitmap;
-static gint ett_min_pk_tx_delay;
-static gint ett_avg_pk_tx_delay;
-static gint ett_max_pk_tx_delay;
-static gint ett_pk_delay_jitter;
-static gint ett_pk_loss_rate;
-static gint ett_list_prefer_link;
-static gint ett_ip_dhcp_server;
-static gint ett_fn_agent;
-static gint ett_access_router;
-static gint ett_link_states_req;
-static gint ett_link_desc_req;
-static gint ett_dev_states_resp;
+static int ett_mih;
+static int ett_ver_flags;
+static int ett_mid;
+static int ett_tlv;
+static int ett_cmd_bitmap;
+static int ett_event_bitmap;
+static int ett_mob_mgt_bitmap;
+static int ett_cfg_mtd_bitmap;
+static int ett_iq_type_bitmap;
+static int ett_trans_list_bitmap;
+static int ett_dev_states_bitmap;
+static int ett_mihcap_bitmap;
+static int ett_net_caps_bitmap;
+static int ett_ac_attr_bitmap;
+static int ett_subtype_eth_bitmap;
+static int ett_subtype_wireless_other_bitmap;
+static int ett_subtype_ieee80211_bitmap;
+static int ett_subtype_umts_bitmap;
+static int ett_subtype_cdma2000_bitmap;
+static int ett_subtype_ieee80216_bitmap;
+static int ett_min_pk_tx_delay;
+static int ett_avg_pk_tx_delay;
+static int ett_max_pk_tx_delay;
+static int ett_pk_delay_jitter;
+static int ett_pk_loss_rate;
+static int ett_list_prefer_link;
+static int ett_ip_dhcp_server;
+static int ett_fn_agent;
+static int ett_access_router;
+static int ett_link_states_req;
+static int ett_link_desc_req;
+static int ett_dev_states_resp;
 
 /*field definitions of evt, cmd, mob mgmt, ip cfg, iq type */
 static int * const event_fields[] = {
@@ -933,42 +933,42 @@ static const value_string typevaluenames[] = {
 {0, NULL}
 };
 
-static gint16 dissect_mih_list(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree, gint16 (*base_dissect)(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree))
+static int16_t dissect_mih_list(tvbuff_t *tvb, int16_t offset, proto_tree *tlv_tree, int16_t (*base_dissect)(tvbuff_t *tvb, int16_t offset, proto_tree *tlv_tree))
 {
-        guint8 i = 0;
-        guint8 list_len = tvb_get_guint8(tvb, offset);
+        uint8_t i = 0;
+        uint8_t list_len = tvb_get_uint8(tvb, offset);
         offset ++;
         for(i=0; i < list_len; i++)
                 offset = base_dissect(tvb, offset, tlv_tree);
         return (offset);
 }
 
-static gint16 dissect_ip_addr(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree)
+static int16_t dissect_ip_addr(tvbuff_t *tvb, int16_t offset, proto_tree *tlv_tree)
 {
-        guint16 addr_type = tvb_get_ntohs(tvb, offset);
-        guint8 len = 0;
+        uint16_t addr_type = tvb_get_ntohs(tvb, offset);
+        uint8_t len = 0;
         if(addr_type == 1 )
         {
                 /*IPv4 Addr*/
-                len = tvb_get_guint8(tvb, offset + 3);
+                len = tvb_get_uint8(tvb, offset + 3);
                 proto_tree_add_item(tlv_tree, hf_ipv4_addr, tvb, offset+2, len, ENC_BIG_ENDIAN);
                 return (offset+3+len);
         }
         if(addr_type == 2)
         {
                 /*IPv6 Addr*/
-                len = tvb_get_guint8(tvb, offset + 3);
+                len = tvb_get_uint8(tvb, offset + 3);
                 proto_tree_add_item(tlv_tree,hf_ipv6_addr, tvb, offset+2, len, ENC_NA);
                 return (offset+3+len);
         }
         else
         {
-                len = tvb_get_guint8(tvb, offset + 3);
+                len = tvb_get_uint8(tvb, offset + 3);
                 return (offset+3+len);
         }
 }
 
-static gint16 dissect_qos_val(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree)
+static int16_t dissect_qos_val(tvbuff_t *tvb, int16_t offset, proto_tree *tlv_tree)
 {
         proto_tree_add_item(tlv_tree, hf_cos_id, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++ ;
@@ -977,10 +977,10 @@ static gint16 dissect_qos_val(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree
         return (offset);
 }
 
-static gint16 dissect_link_addr(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree )
+static int16_t dissect_link_addr(tvbuff_t *tvb, int16_t offset, proto_tree *tlv_tree )
 {
-        guint8 link_addr_choice = tvb_get_guint8(tvb, offset);
-        guint8 len = 0;
+        uint8_t link_addr_choice = tvb_get_uint8(tvb, offset);
+        uint8_t len = 0;
 
         proto_tree_add_item(tlv_tree, hf_link_addr_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         switch (link_addr_choice)
@@ -988,7 +988,7 @@ static gint16 dissect_link_addr(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tr
         case 0 : /*MAC_ADDR*/
                 proto_tree_add_item(tlv_tree, hf_link_transport_addr_type, tvb, offset+1, 2, ENC_BIG_ENDIAN);
                 if(tvb_get_ntohs(tvb, offset+1) == 0x06)
-                        proto_tree_add_item(tlv_tree, hf_mac_addr, tvb, offset+4, tvb_get_guint8(tvb, offset+3), ENC_NA);
+                        proto_tree_add_item(tlv_tree, hf_mac_addr, tvb, offset+4, tvb_get_uint8(tvb, offset+3), ENC_NA);
                 return (offset + 10);
 
         case 1 :/*3GPP_3G_CELL_ID*/
@@ -1005,24 +1005,24 @@ static gint16 dissect_link_addr(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tr
         case 3 :/*3GPP_ADDR*/
         case 4 :/*3GPP2_ADDR*/
         case 5 :/*OTHER_L2_ADDR*/
-                len = tvb_get_guint8(tvb, offset+1);
+                len = tvb_get_uint8(tvb, offset+1);
                 proto_tree_add_item(tlv_tree, hf_link_addr_string, tvb, offset+2, len, ENC_ASCII);
                 return (offset + 2 + len);
         }
         return 0;
 }
 
-static gint16 dissect_tsp_container(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree)
+static int16_t dissect_tsp_container(tvbuff_t *tvb, int16_t offset, proto_tree *tlv_tree)
 {
-        guint8 len = 0;
-        if(tvb_get_guint8(tvb, offset) == 1)
+        uint8_t len = 0;
+        if(tvb_get_uint8(tvb, offset) == 1)
         {
                 proto_tree_add_item(tlv_tree, hf_predef_cfg_id, tvb, offset+1, 1, ENC_BIG_ENDIAN);
                 return (offset + 2);
         }
-        else if(tvb_get_guint8(tvb, offset) == 2)
+        else if(tvb_get_uint8(tvb, offset) == 2)
         {
-                len = tvb_get_guint8(tvb, offset+1);
+                len = tvb_get_uint8(tvb, offset+1);
                 proto_tree_add_item(tlv_tree, hf_tsp_carrier, tvb, offset+2, len, ENC_ASCII);
                 return (offset + len + 2);
         }
@@ -1030,22 +1030,22 @@ static gint16 dissect_tsp_container(tvbuff_t *tvb, gint16 offset, proto_tree *tl
                 return (offset + 1);
 }
 
-static gint16 dissect_iq_rdf_data(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree)
+static int16_t dissect_iq_rdf_data(tvbuff_t *tvb, int16_t offset, proto_tree *tlv_tree)
 {
-        guint8 len = 0;
-        if(tvb_get_guint8(tvb, offset))
+        uint8_t len = 0;
+        if(tvb_get_uint8(tvb, offset))
         {
-                len = tvb_get_guint8(tvb, offset+1);
+                len = tvb_get_uint8(tvb, offset+1);
                 proto_tree_add_item(tlv_tree, hf_rdf_mime_type, tvb, offset+2, len, ENC_ASCII);
                 offset += len + 1;
         }
         offset++;
-        len = tvb_get_guint8(tvb, offset);
+        len = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(tlv_tree, hf_rdf_data, tvb, offset+1, len, ENC_ASCII);
         return (offset+len+1);
 }
 
-static gint16 dissect_qos_list(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree)
+static int16_t dissect_qos_list(tvbuff_t *tvb, int16_t offset, proto_tree *tlv_tree)
 {
         proto_tree *subtree;
 
@@ -1064,15 +1064,15 @@ static gint16 dissect_qos_list(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tre
         return (offset);
 }
 
-static gint16 dissect_dev_states(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree)
+static int16_t dissect_dev_states(tvbuff_t *tvb, int16_t offset, proto_tree *tlv_tree)
 {
-        guint8 len = 0;
+        uint8_t len = 0;
         proto_item *item;
         proto_tree *sub_tree;
 
         item = proto_tree_add_item(tlv_tree, hf_dev_states_resp, tvb, offset, 1, ENC_BIG_ENDIAN);
         sub_tree = proto_item_add_subtree(item, ett_dev_states_resp);
-        if(tvb_get_guint8(tvb, offset))
+        if(tvb_get_uint8(tvb, offset))
         {
                 /*BATT_LEVEL*/
                 offset++;
@@ -1083,26 +1083,26 @@ static gint16 dissect_dev_states(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_t
         {
                 /*DEVICE INFO*/
                 offset++;
-                len = tvb_get_guint8(tvb, offset);
+                len = tvb_get_uint8(tvb, offset);
                 proto_tree_add_item(sub_tree, hf_dev_info, tvb, offset+1, len, ENC_ASCII);
                 return (offset + len + 1);
 
         }
 }
 
-static gint16 dissect_net_type(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree)
+static int16_t dissect_net_type(tvbuff_t *tvb, int16_t offset, proto_tree *tlv_tree)
 {
-        guint8 len = 0;
-        guint8 type = 0;
-        if(!tvb_get_guint8(tvb, offset))
+        uint8_t len = 0;
+        uint8_t type = 0;
+        if(!tvb_get_uint8(tvb, offset))
         {
                 /*LINK_TYPE*/
-                type = tvb_get_guint8(tvb, offset+1);
+                type = tvb_get_uint8(tvb, offset+1);
                 proto_tree_add_item(tlv_tree, hf_link_type, tvb, offset+1, 1, ENC_BIG_ENDIAN);
                 offset += 1;
         }
         offset += 1;
-        if(!tvb_get_guint8(tvb, offset))
+        if(!tvb_get_uint8(tvb, offset))
         {
                 /*LINK_SUBTYPE*/
                 switch (type)
@@ -1136,24 +1136,24 @@ static gint16 dissect_net_type(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tre
         }
         /*1 (identifier) = 1 bit*/
         offset += 1;
-        if(!tvb_get_guint8(tvb, offset))
+        if(!tvb_get_uint8(tvb, offset))
         {
                 /*TYPE_EXT*/
-                len = tvb_get_guint8(tvb, offset+1);
+                len = tvb_get_uint8(tvb, offset+1);
                 proto_tree_add_item(tlv_tree, hf_link_type_ext, tvb, offset+2, len, ENC_ASCII);
                 offset += len + 2;
         }
         return (offset);
 }
 
-static gint16 dissect_net_type_addr(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree)
+static int16_t dissect_net_type_addr(tvbuff_t *tvb, int16_t offset, proto_tree *tlv_tree)
 {
         offset = dissect_net_type(tvb, offset, tlv_tree);
         offset = dissect_link_addr(tvb, offset, tlv_tree);
         return (offset) ;
 }
 
-static gint16 dissect_mbb_ho_supp(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree)
+static int16_t dissect_mbb_ho_supp(tvbuff_t *tvb, int16_t offset, proto_tree *tlv_tree)
 {
         offset = dissect_net_type(tvb, offset, tlv_tree);
         offset = dissect_net_type(tvb, offset, tlv_tree);
@@ -1162,22 +1162,22 @@ static gint16 dissect_mbb_ho_supp(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_
         return (offset);
 }
 
-static gint16 dissect_tgt_net_info(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree)
+static int16_t dissect_tgt_net_info(tvbuff_t *tvb, int16_t offset, proto_tree *tlv_tree)
 {
-        guint8 len = 0;
-        if(!tvb_get_guint8(tvb, offset))
+        uint8_t len = 0;
+        if(!tvb_get_uint8(tvb, offset))
         {
                 offset +=1;
 
                 /*NETWORK_ID*/
-                len = tvb_get_guint8(tvb, offset);
+                len = tvb_get_uint8(tvb, offset);
                 proto_tree_add_item(tlv_tree, hf_network_id, tvb, offset+1, len, ENC_ASCII);
                 offset += len + 2;
-                if(!tvb_get_guint8(tvb, offset))
+                if(!tvb_get_uint8(tvb, offset))
                 {
                         /*NET_AUX_ID*/
                         offset +=1;
-                        len = tvb_get_guint8(tvb, offset);
+                        len = tvb_get_uint8(tvb, offset);
                         proto_tree_add_item(tlv_tree, hf_net_aux_id, tvb, offset+1, len, ENC_ASCII);
                         return (offset + 1);
                 }
@@ -1192,10 +1192,10 @@ static gint16 dissect_tgt_net_info(tvbuff_t *tvb, gint16 offset, proto_tree *tlv
         }
 }
 
-static gint16 dissect_link_id(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree)
+static int16_t dissect_link_id(tvbuff_t *tvb, int16_t offset, proto_tree *tlv_tree)
 {
 
-        gint16 next_offset = 0;
+        int16_t next_offset = 0;
 
         /*LINK_TYPE*/
         proto_tree_add_item(tlv_tree, hf_link_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1203,21 +1203,21 @@ static gint16 dissect_link_id(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree
         return (next_offset);
 }
 
-static gint16 dissect_link_poa(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree)
+static int16_t dissect_link_poa(tvbuff_t *tvb, int16_t offset, proto_tree *tlv_tree)
 {
         offset = dissect_link_id(tvb, offset, tlv_tree);
         offset = dissect_mih_list(tvb, offset, tlv_tree, dissect_link_addr);
         return (offset);
 }
 
-static gint16 dissect_rq_result(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree)
+static int16_t dissect_rq_result(tvbuff_t *tvb, int16_t offset, proto_tree *tlv_tree)
 {
         proto_tree *subtree;
         subtree = proto_tree_add_subtree(tlv_tree, tvb, offset, 1, ett_list_prefer_link, NULL, "List of preferred links");
         offset = dissect_link_poa(tvb, offset, subtree);
         offset = dissect_qos_list(tvb, offset, tlv_tree);
         offset++;
-        switch(tvb_get_guint8(tvb, offset-1))
+        switch(tvb_get_uint8(tvb, offset-1))
         {
                 case 1:
                         proto_tree_add_item(tlv_tree, hf_ip_methods_supported, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1229,7 +1229,7 @@ static gint16 dissect_rq_result(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tr
                         break;
         }
         offset++;
-        switch(tvb_get_guint8(tvb, offset-1))
+        switch(tvb_get_uint8(tvb, offset-1))
         {
                 case 1:
                         proto_tree_add_item(tlv_tree, hf_ip_dhcp_services, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1240,7 +1240,7 @@ static gint16 dissect_rq_result(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tr
                         break;
         }
         offset++;
-        switch(tvb_get_guint8(tvb, offset-1))
+        switch(tvb_get_uint8(tvb, offset-1))
         {
                 case 1:
                         proto_tree_add_item(tlv_tree, hf_fn_agent, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1251,7 +1251,7 @@ static gint16 dissect_rq_result(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tr
                         break;
         }
         offset++;
-        switch(tvb_get_guint8(tvb, offset-1))
+        switch(tvb_get_uint8(tvb, offset-1))
         {
                 case 1:
                         proto_tree_add_item(tlv_tree, hf_access_router, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1264,24 +1264,24 @@ static gint16 dissect_rq_result(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tr
         return (offset+1);
 }
 
-static gint16 dissect_link_det_info(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree)
+static int16_t dissect_link_det_info(tvbuff_t *tvb, int16_t offset, proto_tree *tlv_tree)
 {
-        guint8 len = 0;
+        uint8_t len = 0;
         offset = dissect_link_id(tvb, offset, tlv_tree);
-        if(tvb_get_guint8(tvb, offset))
+        if(tvb_get_uint8(tvb, offset))
         {
                 offset++;
                 offset = dissect_link_addr(tvb, offset, tlv_tree);
                 offset --;
         }
         offset++;
-        len = tvb_get_guint8(tvb, offset);
+        len = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(tlv_tree, hf_network_id, tvb, offset+1, len, ENC_ASCII);
         offset += len + 1;
-        len = tvb_get_guint8(tvb, offset);
+        len = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(tlv_tree, hf_net_aux_id, tvb, offset+1, len, ENC_ASCII);
         offset += len + 1;
-        if(tvb_get_guint8(tvb, offset))
+        if(tvb_get_uint8(tvb, offset))
                 proto_tree_add_item(tlv_tree, hf_sig_strength_per, tvb, offset+1, 1, ENC_BIG_ENDIAN);
         else
                 proto_tree_add_item(tlv_tree, hf_sig_strength_dbm, tvb, offset+1, 1, ENC_BIG_ENDIAN);
@@ -1297,26 +1297,26 @@ static gint16 dissect_link_det_info(tvbuff_t *tvb, gint16 offset, proto_tree *tl
         return (offset);
 }
 
-static gint16 dissect_link_scan_rsp(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree)
+static int16_t dissect_link_scan_rsp(tvbuff_t *tvb, int16_t offset, proto_tree *tlv_tree)
 {
-        guint8 len = 0;
+        uint8_t len = 0;
         offset = dissect_link_addr(tvb, offset, tlv_tree);
-        len = tvb_get_guint8(tvb, offset);
+        len = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(tlv_tree, hf_network_id, tvb, offset+1, len, ENC_ASCII);
         offset = offset + len + 1;
-        if(tvb_get_guint8(tvb, offset))
+        if(tvb_get_uint8(tvb, offset))
                 proto_tree_add_item(tlv_tree, hf_sig_strength_per, tvb, offset+1, 1, ENC_BIG_ENDIAN);
         else
                 proto_tree_add_item(tlv_tree, hf_sig_strength_dbm, tvb, offset+1, 1, ENC_BIG_ENDIAN);
         return offset+2;
 }
 
-static gint16 dissect_link_action_rsp(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree)
+static int16_t dissect_link_action_rsp(tvbuff_t *tvb, int16_t offset, proto_tree *tlv_tree)
 {
         offset = dissect_link_id(tvb, offset, tlv_tree);
         proto_tree_add_item(tlv_tree, hf_link_ac_result, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
-        if(tvb_get_guint8(tvb, offset))
+        if(tvb_get_uint8(tvb, offset))
         {
                 offset = dissect_mih_list(tvb, offset+1, tlv_tree, dissect_link_scan_rsp);
                 return offset;
@@ -1326,10 +1326,10 @@ static gint16 dissect_link_action_rsp(tvbuff_t *tvb, gint16 offset, proto_tree *
 
 }
 
-static gint16 dissect_link_action_req(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree)
+static int16_t dissect_link_action_req(tvbuff_t *tvb, int16_t offset, proto_tree *tlv_tree)
 {
         offset = dissect_link_id(tvb, offset, tlv_tree);
-        if(tvb_get_guint8(tvb, offset))
+        if(tvb_get_uint8(tvb, offset))
         {
                 offset = dissect_link_addr(tvb, offset+1, tlv_tree);
         }
@@ -1345,9 +1345,9 @@ static gint16 dissect_link_action_req(tvbuff_t *tvb, gint16 offset, proto_tree *
         return (offset+2);
 }
 
-static gint16 dissect_link_states_rsp(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree)
+static int16_t dissect_link_states_rsp(tvbuff_t *tvb, int16_t offset, proto_tree *tlv_tree)
 {
-        if(!tvb_get_guint8(tvb, offset))
+        if(!tvb_get_uint8(tvb, offset))
         {
                 proto_tree_add_item(tlv_tree, hf_op_mode, tvb, offset+1, 1, ENC_BIG_ENDIAN);
                 offset += 2;
@@ -1360,9 +1360,9 @@ static gint16 dissect_link_states_rsp(tvbuff_t *tvb, gint16 offset, proto_tree *
         return (offset);
 }
 
-static gint16 dissect_link_param_type(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree)
+static int16_t dissect_link_param_type(tvbuff_t *tvb, int16_t offset, proto_tree *tlv_tree)
 {
-        guint8 type = tvb_get_guint8(tvb, offset);
+        uint8_t type = tvb_get_uint8(tvb, offset);
         offset++;
 
         /*LINK_PARAM_TYPE*/
@@ -1419,12 +1419,12 @@ static gint16 dissect_link_param_type(tvbuff_t *tvb, gint16 offset, proto_tree *
         return (offset+1);
 }
 
-static void dissect_link_status_req(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree)
+static void dissect_link_status_req(tvbuff_t *tvb, int16_t offset, proto_tree *tlv_tree)
 {
         proto_tree *subtree;
 
         /*LINK_STATES_REQ*/
-        guint16 temp = tvb_get_ntohs(tvb, offset);
+        uint16_t temp = tvb_get_ntohs(tvb, offset);
         if(!temp)
         {
                 subtree = proto_tree_add_subtree(tlv_tree, tvb, offset, 3, ett_link_states_req, NULL, "LINK_STATES_REQ: ");
@@ -1451,7 +1451,7 @@ static void dissect_link_status_req(tvbuff_t *tvb, gint16 offset, proto_tree *tl
                 proto_tree_add_item(subtree, hf_num_queue, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
-static gint16 dissect_link_cfg_status(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree)
+static int16_t dissect_link_cfg_status(tvbuff_t *tvb, int16_t offset, proto_tree *tlv_tree)
 {
         offset = dissect_link_param_type(tvb, offset, tlv_tree);
         proto_tree_add_item(tlv_tree, hf_threshold_val, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1462,11 +1462,11 @@ static gint16 dissect_link_cfg_status(tvbuff_t *tvb, gint16 offset, proto_tree *
         return (offset+1);
 }
 
-static gint16 dissect_link_param(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree)
+static int16_t dissect_link_param(tvbuff_t *tvb, int16_t offset, proto_tree *tlv_tree)
 {
         /*LINK_PARAM_TYPE*/
         offset = dissect_link_param_type(tvb, offset, tlv_tree);
-        if(!tvb_get_guint8(tvb, offset))
+        if(!tvb_get_uint8(tvb, offset))
         {
                 offset ++;
                 /*LINK_PARAM_VALUE*/
@@ -1478,7 +1478,7 @@ static gint16 dissect_link_param(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_t
                 proto_tree *subtree;
                 offset ++;
                 /*QOS_PARAM_VALUE*/
-                switch(tvb_get_guint8(tvb, offset))
+                switch(tvb_get_uint8(tvb, offset))
                 {
                         case 0:
                                 proto_tree_add_item(tlv_tree, hf_num_cos, tvb, offset+1, 1, ENC_BIG_ENDIAN);
@@ -1509,11 +1509,11 @@ static gint16 dissect_link_param(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_t
         return offset;
 }
 
-static gint16 dissect_link_param_rpt(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree)
+static int16_t dissect_link_param_rpt(tvbuff_t *tvb, int16_t offset, proto_tree *tlv_tree)
 {
         /*LINK_PARAM*/
         offset = dissect_link_param(tvb, offset, tlv_tree);
-        if(tvb_get_guint8(tvb, offset))
+        if(tvb_get_uint8(tvb, offset))
         {
                 /*Threshold*/
                 offset++;
@@ -1526,16 +1526,16 @@ static gint16 dissect_link_param_rpt(tvbuff_t *tvb, gint16 offset, proto_tree *t
                 return (offset+1);
 }
 
-static gint16 dissect_link_desc_rsp(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree)
+static int16_t dissect_link_desc_rsp(tvbuff_t *tvb, int16_t offset, proto_tree *tlv_tree)
 {
-        if(!tvb_get_guint8(tvb, offset))
+        if(!tvb_get_uint8(tvb, offset))
                 proto_tree_add_item(tlv_tree, hf_num_cos, tvb, offset+1, 1, ENC_BIG_ENDIAN);
         else
                 proto_tree_add_item(tlv_tree, hf_num_queue, tvb, offset+1, 1, ENC_BIG_ENDIAN);
         return (offset+2);
 }
 
-static gint16 dissect_status_list(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree)
+static int16_t dissect_status_list(tvbuff_t *tvb, int16_t offset, proto_tree *tlv_tree)
 {
         /*LINK_ID*/
         offset = dissect_link_id(tvb, offset, tlv_tree);
@@ -1551,26 +1551,26 @@ static gint16 dissect_status_list(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_
         return offset;
 }
 
-static gint16 dissect_link_det_cfg(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree)
+static int16_t dissect_link_det_cfg(tvbuff_t *tvb, int16_t offset, proto_tree *tlv_tree)
 {
-        guint8 len = 0;
-        if(tvb_get_guint8(tvb, offset))
+        uint8_t len = 0;
+        if(tvb_get_uint8(tvb, offset))
         {
-                len = tvb_get_guint8(tvb, offset+1);
+                len = tvb_get_uint8(tvb, offset+1);
                 proto_tree_add_item(tlv_tree, hf_network_id, tvb, offset+2, len, ENC_ASCII);
                 offset += len + 1;
         }
         offset++;
-        if(tvb_get_guint8(tvb, offset))
+        if(tvb_get_uint8(tvb, offset))
         {
-                if(tvb_get_guint8(tvb, offset+1))
+                if(tvb_get_uint8(tvb, offset+1))
                         proto_tree_add_item(tlv_tree, hf_sig_strength_per, tvb, offset+2, 1, ENC_BIG_ENDIAN);
                 else
                         proto_tree_add_item(tlv_tree, hf_sig_strength_dbm, tvb, offset+2, 1, ENC_BIG_ENDIAN);
                 offset += 2;
         }
         offset++;
-        if(tvb_get_guint8(tvb, offset))
+        if(tvb_get_uint8(tvb, offset))
         {
                 proto_tree_add_item(tlv_tree, hf_link_data_rate, tvb, offset+1,4, ENC_BIG_ENDIAN);
                 offset += 4;
@@ -1578,10 +1578,10 @@ static gint16 dissect_link_det_cfg(tvbuff_t *tvb, gint16 offset, proto_tree *tlv
         return (offset+1);
 }
 
-static gint16 dissect_link_cfg_param(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree)
+static int16_t dissect_link_cfg_param(tvbuff_t *tvb, int16_t offset, proto_tree *tlv_tree)
 {
         offset = dissect_link_param_type(tvb, offset, tlv_tree);
-        if(tvb_get_guint8(tvb, offset))
+        if(tvb_get_uint8(tvb, offset))
         {
                 proto_tree_add_item(tlv_tree, hf_time_interval, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
@@ -1595,24 +1595,24 @@ static gint16 dissect_link_cfg_param(tvbuff_t *tvb, gint16 offset, proto_tree *t
         return (offset+1) ;
 }
 
-static gint16 dissect_mih_evt_cfg_info(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree)
+static int16_t dissect_mih_evt_cfg_info(tvbuff_t *tvb, int16_t offset, proto_tree *tlv_tree)
 {
         offset = dissect_mih_list(tvb, offset, tlv_tree, dissect_link_det_cfg);
         offset = dissect_mih_list(tvb, offset, tlv_tree, dissect_link_cfg_param);
         return offset;
 }
 
-static void dissect_mih_tlv(tvbuff_t *tvb,int offset, proto_tree *tlv_tree, guint8 type, guint32 length)
+static void dissect_mih_tlv(tvbuff_t *tvb,int offset, proto_tree *tlv_tree, uint8_t type, uint32_t length)
 {
 
-        guint8 mihf_id_len = 0;
+        uint8_t mihf_id_len = 0;
         char mihf_id_first_char = 0;
-        guint8 i = 0;
-        guint8 len = 0;
+        uint8_t i = 0;
+        uint8_t len = 0;
 
         tvbuff_t *volatile tvb_mihf_id = NULL;
         tvbuff_t* tvb_temp = NULL;
-        volatile gboolean composite_error = FALSE;
+        volatile bool composite_error = false;
 
         /*For Value fields*/
         switch (type)
@@ -1621,7 +1621,7 @@ static void dissect_mih_tlv(tvbuff_t *tvb,int offset, proto_tree *tlv_tree, guin
                 case DEST_MIHF_ID :
                 case MN_MIHF_ID :
                         /*MIHF ID*/
-                        mihf_id_len = tvb_get_guint8(tvb, offset);
+                        mihf_id_len = tvb_get_uint8(tvb, offset);
                         /*taken from the 802.21 standard:
                         If L2 communication is used then MIHF_ID is the NAI-encoded linklayer
                         address (LINK_ADDR) of the entity that hosts the MIH services.
@@ -1629,7 +1629,7 @@ static void dissect_mih_tlv(tvbuff_t *tvb,int offset, proto_tree *tlv_tree, guin
                         of binary-encoded IP4_ADDR, IP6_ADDR and LINK_ADDR data is
                         encoded in the username part of the NAI as "\" followed by the octet
                         value.*/
-                        mihf_id_first_char = (char)tvb_get_guint8(tvb, offset+1);
+                        mihf_id_first_char = (char)tvb_get_uint8(tvb, offset+1);
                         if(mihf_id_first_char!='\\')
                                 proto_tree_add_item(tlv_tree, hf_mihf_id, tvb, offset+1, mihf_id_len, ENC_ASCII);
                         else
@@ -1650,7 +1650,7 @@ static void dissect_mih_tlv(tvbuff_t *tvb,int offset, proto_tree *tlv_tree, guin
                                         }
                                         CATCH_ALL
                                         {
-                                                composite_error = TRUE;
+                                                composite_error = true;
                                         }
                                         ENDTRY;
 
@@ -1892,9 +1892,9 @@ static void dissect_mih_tlv(tvbuff_t *tvb,int offset, proto_tree *tlv_tree, guin
 
                 case IQ_RDF_SCHM_LIST :
                         /*IQ_RDF_SCHM*/
-                        for(i=0; i < tvb_get_guint8(tvb, offset); i++)
+                        for(i=0; i < tvb_get_uint8(tvb, offset); i++)
                         {
-                                len = tvb_get_guint8(tvb, offset+1);
+                                len = tvb_get_uint8(tvb, offset+1);
                                 proto_tree_add_item(tlv_tree, hf_rdf_sch, tvb, offset+2, len, ENC_ASCII);
                                 offset += len;
                         }
@@ -1912,9 +1912,9 @@ static void dissect_mih_tlv(tvbuff_t *tvb,int offset, proto_tree *tlv_tree, guin
 
                 case IR_SCHM_URL_LIST :
                         /*IR_SCHM_URL*/
-                        for(i=0; i < tvb_get_guint8(tvb, offset); i++)
+                        for(i=0; i < tvb_get_uint8(tvb, offset); i++)
                         {
-                                len = tvb_get_guint8(tvb, offset+1);
+                                len = tvb_get_uint8(tvb, offset+1);
                                 proto_tree_add_item(tlv_tree, hf_rdf_sch_url, tvb, offset+2, len, ENC_ASCII);
                                 offset += len;
                         }
@@ -1988,17 +1988,17 @@ static int dissect_mih(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         proto_item *item = NULL;
         proto_tree *mih_tree = NULL;
         proto_tree *ver_flags_tree = NULL;
-        guint8 serviceid = 0;
-        guint8 opcode = 0;
-        guint8 service = 0;
-        guint16 action = 0;
-        gint32 payload_length = 0;
-        guint64 len = 0;
-        guint8 len_of_len = 0;
-        guint8 type = 0;
+        uint8_t serviceid = 0;
+        uint8_t opcode = 0;
+        uint8_t service = 0;
+        uint16_t action = 0;
+        int32_t payload_length = 0;
+        uint64_t len = 0;
+        uint8_t len_of_len = 0;
+        uint8_t type = 0;
         proto_tree *mid_tree = NULL;
         proto_tree *tlv_tree = NULL;
-        guint8 fragment = 0;
+        uint8_t fragment = 0;
 
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "MIH");
         col_clear(pinfo->cinfo,COL_INFO);
@@ -2018,7 +2018,7 @@ static int dissect_mih(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 proto_tree_add_item(ver_flags_tree, hf_mih_uir, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(ver_flags_tree, hf_mih_more_frag, tvb, offset, 1, ENC_BIG_ENDIAN);
         }
-        fragment = tvb_get_guint8(tvb, offset);
+        fragment = tvb_get_uint8(tvb, offset);
         fragment = fragment << 7;
 
         offset += 1;
@@ -2031,17 +2031,17 @@ static int dissect_mih(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 /*for MIH message ID*/
                 item = proto_tree_add_item(mih_tree, hf_mih_mid, tvb, offset + 1, 2, ENC_BIG_ENDIAN);
         }
-        fragment = fragment + (tvb_get_guint8(tvb, offset)>>1);
+        fragment = fragment + (tvb_get_uint8(tvb, offset)>>1);
         offset += 1;
         mid_tree = proto_item_add_subtree(item, ett_mid);
-        serviceid = tvb_get_guint8(tvb, offset);
+        serviceid = tvb_get_uint8(tvb, offset);
         serviceid = serviceid & 0xF0;
         serviceid >>= 4;
         proto_tree_add_item(mid_tree, hf_mih_service_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 
         /*filling the info column with the service type...*/
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(serviceid, servicevalues, "Unknown"));
-        opcode = tvb_get_guint8(tvb, offset);
+        opcode = tvb_get_uint8(tvb, offset);
         opcode = opcode & 0x0C;
         opcode >>= 2;
         if(mid_tree)
@@ -2051,7 +2051,7 @@ static int dissect_mih(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(opcode, opcodevalues, "Unknown"));
 
         /*check for type of service..*/
-        service = tvb_get_guint8(tvb, offset);
+        service = tvb_get_uint8(tvb, offset);
         service = service & 0xF0;
         service >>= 4;
 
@@ -2112,17 +2112,17 @@ static int dissect_mih(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 /*cases 2 and 3 can be logically programmed as the same condition since the whole octet is used to represent the len_of_len parameter. */
 
                 /*code for testing if length is less than or equal to 128*/
-                len = tvb_get_guint8(tvb, offset+1);
+                len = tvb_get_uint8(tvb, offset+1);
                 if(len > 128)
                 {
                         /*length is greater than 128 => len of len is greater than 1 byte*/
                         /*Expanding conditions where the length values can be from 1- 8 octets long*/
                         /*TODO: this assumes the maximum value length is 2^64. If larger data types are used, we have to implement our own tvb_get function*/
-                        len_of_len = (guint8)len - 128;
+                        len_of_len = (uint8_t)len - 128;
                         switch (len_of_len) /*depending on the detected length , we read a different amount of bytes from the tvb buffer*/
                         {
                                 case 1:
-                                        len = tvb_get_guint8(tvb, offset+2);
+                                        len = tvb_get_uint8(tvb, offset+2);
                                         break;
                                 case 2:
                                         len = tvb_get_ntohs(tvb, offset+2);
@@ -2153,15 +2153,15 @@ static int dissect_mih(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
 
                 /*TODO: TLVs greater than the payload_length are fragmented, and currently not parsed*/
-                if(len <= (guint64)payload_length)
+                if(len <= (uint64_t)payload_length)
                 {
                         /*for type...*/
-                        tlv_tree = proto_tree_add_subtree_format(mih_tree, tvb, offset, 1 + len_of_len + (guint32)len, ett_tlv, NULL,
-                                                "MIH TLV : %s", val_to_str_const(tvb_get_guint8(tvb, offset), typevaluenames, "UNKNOWN"));
+                        tlv_tree = proto_tree_add_subtree_format(mih_tree, tvb, offset, 1 + len_of_len + (uint32_t)len, ett_tlv, NULL,
+                                                "MIH TLV : %s", val_to_str_const(tvb_get_uint8(tvb, offset), typevaluenames, "UNKNOWN"));
                         if(tlv_tree)
                         {
                                 proto_tree_add_item(tlv_tree, hf_mih_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-                                type = tvb_get_guint8(tvb, offset);
+                                type = tvb_get_uint8(tvb, offset);
 
                                 /*for length...*/
                                 if(len_of_len == 1)
@@ -2178,10 +2178,10 @@ static int dissect_mih(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
                         /*For Value fields*/
                         /*TODO: this assumes the maximum value length is 2^32. Dissecting bigger data fields would require breaking the data into chunks*/
-                        if(len < (G_GUINT64_CONSTANT(1) << 32)){  /* XXX: always true ? see above */
-                                dissect_mih_tlv(tvb, offset, tlv_tree, type, (guint32)len);
-                                offset += (guint32)len;
-                                payload_length -= (1 + len_of_len + (guint32)len);
+                        if(len < (UINT64_C(1) << 32)){  /* XXX: always true ? see above */
+                                dissect_mih_tlv(tvb, offset, tlv_tree, type, (uint32_t)len);
+                                offset += (uint32_t)len;
+                                payload_length -= (1 + len_of_len + (uint32_t)len);
                         }else{
                             return offset;
                         }
@@ -4819,7 +4819,7 @@ void proto_register_mih(void)
         };
 
         /* Setup protocol subtree array */
-        static gint *ett[] =
+        static int *ett[] =
         {
                 &ett_mih,
                 &ett_ver_flags,

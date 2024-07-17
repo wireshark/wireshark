@@ -103,7 +103,7 @@ static int hf_mvrp_vector_attribute; /* VectorAttribute is a group of fields */
 static int hf_mvrp_vector_header;
 static int hf_mvrp_leave_all_event;
 static int hf_mvrp_number_of_values;
-static gint ett_vector_header;
+static int ett_vector_header;
 static int * const vector_header_fields[] = {
     &hf_mvrp_leave_all_event,
     &hf_mvrp_number_of_values,
@@ -117,11 +117,11 @@ static int hf_mvrp_three_packed_event;
 static int hf_mvrp_end_mark;
 
 /* Initialize the subtree pointers */
-static gint ett_mvrp;
-static gint ett_msg;
-static gint ett_attr_list;
-static gint ett_vect_attr;
-static gint ett_first_value;
+static int ett_mvrp;
+static int ett_msg;
+static int ett_attr_list;
+static int ett_vect_attr;
+static int ett_first_value;
 
 
 
@@ -163,32 +163,32 @@ dissect_mvrp_common2(proto_tree *vect_attr_tree, tvbuff_t *tvb, int msg_offset)
  *
  * dissect one or more ThreePackedEvents
  */
-static guint
-dissect_mvrp_three_packed_event(proto_tree *vect_attr_tree, tvbuff_t *tvb, guint offset, guint16 number_of_values)
+static unsigned
+dissect_mvrp_three_packed_event(proto_tree *vect_attr_tree, tvbuff_t *tvb, unsigned offset, uint16_t number_of_values)
 {
-    guint counter;
+    unsigned counter;
 
     for ( counter = 0; counter < number_of_values; ) {
-        guint8 value;
-        guint8 three_packed_event[3];
+        uint8_t value;
+        uint8_t three_packed_event[3];
 
-        value = tvb_get_guint8(tvb, offset);
+        value = tvb_get_uint8(tvb, offset);
         three_packed_event[0] = value / 36;
         value -= 36 * three_packed_event[0];
         three_packed_event[1] = value / 6;
         value -=  6 * three_packed_event[1];
         three_packed_event[2] = value;
 
-        proto_tree_add_uint(vect_attr_tree, hf_mvrp_three_packed_event, tvb, offset, sizeof(guint8),
+        proto_tree_add_uint(vect_attr_tree, hf_mvrp_three_packed_event, tvb, offset, sizeof(uint8_t),
                             three_packed_event[0]);
         counter++;
         if ( counter < number_of_values ) {
-            proto_tree_add_uint(vect_attr_tree, hf_mvrp_three_packed_event, tvb, offset, sizeof(guint8),
+            proto_tree_add_uint(vect_attr_tree, hf_mvrp_three_packed_event, tvb, offset, sizeof(uint8_t),
                                 three_packed_event[1]);
             counter++;
         }
         if ( counter < number_of_values ) {
-            proto_tree_add_uint(vect_attr_tree, hf_mvrp_three_packed_event, tvb, offset, sizeof(guint8),
+            proto_tree_add_uint(vect_attr_tree, hf_mvrp_three_packed_event, tvb, offset, sizeof(uint8_t),
                                 three_packed_event[2]);
             counter++;
         }
@@ -215,10 +215,10 @@ dissect_mvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     col_set_str(pinfo->cinfo, COL_INFO, "Multiple VLAN Registration Protocol");
 
     if (tree) {
-        guint8 attribute_type;
-        guint8 attribute_length;
-        guint16 number_of_values;
-        guint offset = 0;
+        uint8_t attribute_type;
+        uint8_t attribute_length;
+        uint16_t number_of_values;
+        unsigned offset = 0;
         unsigned int vect_attr_len;
         unsigned int msg_offset;  /* Use when handling multiple messages.  This points to current msg being decoded. */
         unsigned int vect_offset; /* Use when handling multiple vector attributes.  This points to the current vector attribute being decoded. */
@@ -236,8 +236,8 @@ dissect_mvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         msg_offset = 0;
         while (MVRP_ATTRIBUTE_TYPE_OFFSET + msg_offset < tvb_reported_length(tvb) && tvb_get_ntohs(tvb, MVRP_ATTRIBUTE_TYPE_OFFSET + msg_offset) != MVRP_END_MARK) {
 
-            attribute_type = tvb_get_guint8(tvb, MVRP_ATTRIBUTE_TYPE_OFFSET + msg_offset);
-            attribute_length = tvb_get_guint8(tvb, MVRP_ATTRIBUTE_LENGTH_OFFSET + msg_offset);
+            attribute_type = tvb_get_uint8(tvb, MVRP_ATTRIBUTE_TYPE_OFFSET + msg_offset);
+            attribute_length = tvb_get_uint8(tvb, MVRP_ATTRIBUTE_LENGTH_OFFSET + msg_offset);
 
             /* MVRP Message is a group of fields
              *
@@ -399,7 +399,7 @@ proto_register_mrp_mvrp(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_mvrp,
         &ett_msg,
         &ett_attr_list,

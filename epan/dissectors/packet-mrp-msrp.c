@@ -218,7 +218,7 @@ static int hf_msrp_vector_attribute; /* VectorAttribute is a group of fields */
 static int hf_msrp_vector_header;
 static int hf_msrp_leave_all_event;
 static int hf_msrp_number_of_values;
-static gint ett_vector_header;
+static int ett_vector_header;
 static int * const vector_header_fields[] = {
     &hf_msrp_leave_all_event,
     &hf_msrp_number_of_values,
@@ -235,7 +235,7 @@ static int hf_msrp_priority_and_rank;
 static int hf_msrp_priority;
 static int hf_msrp_rank;
 static int hf_msrp_reserved;
-static gint ett_priority_and_rank;
+static int ett_priority_and_rank;
 static int * const priority_and_rank_fields[] = {
     &hf_msrp_priority,
     &hf_msrp_rank,
@@ -257,11 +257,11 @@ static int hf_msrp_four_packed_event;
 static int hf_msrp_end_mark;
 
 /* Initialize the subtree pointers */
-static gint ett_msrp;
-static gint ett_msg;
-static gint ett_attr_list;
-static gint ett_vect_attr;
-static gint ett_first_value;
+static int ett_msrp;
+static int ett_msg;
+static int ett_attr_list;
+static int ett_vect_attr;
+static int ett_first_value;
 
 static expert_field ei_msrp_attribute_type;
 
@@ -353,32 +353,32 @@ dissect_msrp_talker_failed(proto_tree *first_value_tree, tvbuff_t *tvb, int msg_
  *
  * dissect one or more ThreePackedEvents
  */
-static guint
-dissect_msrp_three_packed_event(proto_tree *vect_attr_tree, tvbuff_t *tvb, guint offset, guint16 number_of_values)
+static unsigned
+dissect_msrp_three_packed_event(proto_tree *vect_attr_tree, tvbuff_t *tvb, unsigned offset, uint16_t number_of_values)
 {
-    guint counter;
+    unsigned counter;
 
     for ( counter = 0; counter < number_of_values; ) {
-        guint8 value;
-        guint8 three_packed_event[3];
+        uint8_t value;
+        uint8_t three_packed_event[3];
 
-        value = tvb_get_guint8(tvb, offset);
+        value = tvb_get_uint8(tvb, offset);
         three_packed_event[0] = value / 36;
         value -= 36 * three_packed_event[0];
         three_packed_event[1] = value / 6;
         value -=  6 * three_packed_event[1];
         three_packed_event[2] = value;
 
-        proto_tree_add_uint(vect_attr_tree, hf_msrp_three_packed_event, tvb, offset, sizeof(guint8),
+        proto_tree_add_uint(vect_attr_tree, hf_msrp_three_packed_event, tvb, offset, sizeof(uint8_t),
                             three_packed_event[0]);
         counter++;
         if ( counter < number_of_values ) {
-            proto_tree_add_uint(vect_attr_tree, hf_msrp_three_packed_event, tvb, offset, sizeof(guint8),
+            proto_tree_add_uint(vect_attr_tree, hf_msrp_three_packed_event, tvb, offset, sizeof(uint8_t),
                                 three_packed_event[1]);
             counter++;
         }
         if ( counter < number_of_values ) {
-            proto_tree_add_uint(vect_attr_tree, hf_msrp_three_packed_event, tvb, offset, sizeof(guint8),
+            proto_tree_add_uint(vect_attr_tree, hf_msrp_three_packed_event, tvb, offset, sizeof(uint8_t),
                                 three_packed_event[2]);
             counter++;
         }
@@ -393,36 +393,36 @@ dissect_msrp_three_packed_event(proto_tree *vect_attr_tree, tvbuff_t *tvb, guint
  *
  * dissect one or more FourPackedEvents
  */
-static guint
-dissect_msrp_four_packed_event(proto_tree *vect_attr_tree, tvbuff_t *tvb, guint offset, guint16 number_of_values)
+static unsigned
+dissect_msrp_four_packed_event(proto_tree *vect_attr_tree, tvbuff_t *tvb, unsigned offset, uint16_t number_of_values)
 {
-    guint counter;
+    unsigned counter;
 
     for ( counter = 0; counter < number_of_values; ) {
-        guint8 value;
-        guint8 four_packed_event[4];
+        uint8_t value;
+        uint8_t four_packed_event[4];
 
-        value = tvb_get_guint8(tvb, offset);
+        value = tvb_get_uint8(tvb, offset);
         four_packed_event[0] = (value & 0xc0) >> 6;
         four_packed_event[1] = (value & 0x30) >> 4;
         four_packed_event[2] = (value & 0x0c) >> 2;
         four_packed_event[3] = (value & 0x03);
 
-        proto_tree_add_uint(vect_attr_tree, hf_msrp_four_packed_event, tvb, offset, sizeof(guint8),
+        proto_tree_add_uint(vect_attr_tree, hf_msrp_four_packed_event, tvb, offset, sizeof(uint8_t),
                             four_packed_event[0]);
         counter++;
         if ( counter < number_of_values ) {
-            proto_tree_add_uint(vect_attr_tree, hf_msrp_four_packed_event, tvb, offset, sizeof(guint8),
+            proto_tree_add_uint(vect_attr_tree, hf_msrp_four_packed_event, tvb, offset, sizeof(uint8_t),
                                 four_packed_event[1]);
             counter++;
         }
         if ( counter < number_of_values ) {
-            proto_tree_add_uint(vect_attr_tree, hf_msrp_four_packed_event, tvb, offset, sizeof(guint8),
+            proto_tree_add_uint(vect_attr_tree, hf_msrp_four_packed_event, tvb, offset, sizeof(uint8_t),
                                 four_packed_event[2]);
             counter++;
         }
         if ( counter < number_of_values ) {
-            proto_tree_add_uint(vect_attr_tree, hf_msrp_four_packed_event, tvb, offset, sizeof(guint8),
+            proto_tree_add_uint(vect_attr_tree, hf_msrp_four_packed_event, tvb, offset, sizeof(uint8_t),
                                 four_packed_event[3]);
             counter++;
         }
@@ -450,11 +450,11 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     col_set_str(pinfo->cinfo, COL_INFO, "Multiple Stream Reservation Protocol");
 
     if (tree) {
-        guint8 attribute_type;
-        guint8 attribute_length;
-        guint16 number_of_values;
-        guint16 attribute_list_length;
-        guint offset = 0;
+        uint8_t attribute_type;
+        uint8_t attribute_length;
+        uint16_t number_of_values;
+        uint16_t attribute_list_length;
+        unsigned offset = 0;
         int vect_attr_len;
         int msg_length;  /* Length of MSRP/MRP Message */
         int msg_offset;  /* Use when handling multiple messages.  This points to current msg being decoded. */
@@ -473,8 +473,8 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         msg_offset = 0;
         while (tvb_get_ntohs(tvb, MSRP_ATTRIBUTE_TYPE_OFFSET + msg_offset) != MSRP_END_MARK) {
 
-            attribute_type = tvb_get_guint8(tvb, MSRP_ATTRIBUTE_TYPE_OFFSET + msg_offset);
-            attribute_length = tvb_get_guint8(tvb, MSRP_ATTRIBUTE_LENGTH_OFFSET + msg_offset);
+            attribute_type = tvb_get_uint8(tvb, MSRP_ATTRIBUTE_TYPE_OFFSET + msg_offset);
+            attribute_length = tvb_get_uint8(tvb, MSRP_ATTRIBUTE_LENGTH_OFFSET + msg_offset);
             attribute_list_length = tvb_get_ntohs(tvb, MSRP_ATTRIBUTE_LIST_LENGTH_OFFSET + msg_offset);
 
             /* MSRP Message is a group of fields
@@ -747,7 +747,7 @@ proto_register_mrp_msrp(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_msrp,
         &ett_msg,
         &ett_attr_list,

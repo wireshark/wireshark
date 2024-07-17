@@ -163,16 +163,16 @@ static int hf_mle_tlv_link_forward_series_flags;
 /* End of New support */
 
 
-static gint ett_mle;
-static gint ett_mle_tlv;
-static gint ett_mle_neighbor;
-static gint ett_mle_router;
-static gint ett_mle_addr_reg;
-static gint ett_mle_conn_flg;
-static gint ett_mle_thread_nwd;
-static gint ett_mle_auxiliary_security;
-static gint ett_mle_aux_sec_control;
-static gint ett_mle_aux_sec_key_id;
+static int ett_mle;
+static int ett_mle_tlv;
+static int ett_mle_neighbor;
+static int ett_mle_router;
+static int ett_mle_addr_reg;
+static int ett_mle_conn_flg;
+static int ett_mle_thread_nwd;
+static int ett_mle_auxiliary_security;
+static int ett_mle_aux_sec_control;
+static int ett_mle_aux_sec_key_id;
 
 static expert_field ei_mle_cbc_mac_failed;
 static expert_field ei_mle_packet_too_small;
@@ -473,7 +473,7 @@ static const true_false_string mle_tlv_addr_reg_iid_type = {
  *  PARAMETERS
  *      tvbuff_t *tvb               - IEEE 802.15.4 packet.
  *      packet_info * pinfo         - Packet info structure.
- *      guint offset                - Offset where the ciphertext 'c' starts.
+ *      unsigned offset                - Offset where the ciphertext 'c' starts.
  *      ieee802154_packet *packet   - IEEE 802.15.4 packet information.
  *      ws_decrypt_status *status   - status of decryption returned through here on failure.
  *  RETURNS
@@ -482,18 +482,18 @@ static const true_false_string mle_tlv_addr_reg_iid_type = {
  */
 static tvbuff_t *
 dissect_mle_decrypt(tvbuff_t * tvb,
-                    guint offset,
+                    unsigned offset,
                     packet_info * pinfo,
                     ieee802154_packet * packet,
                     ieee802154_decrypt_info_t* decrypt_info)
 {
     tvbuff_t *          ptext_tvb;
-    gboolean            have_mic = FALSE;
-    guint64             srcAddr;
+    bool                have_mic = false;
+    uint64_t            srcAddr;
     unsigned char       tmp[16];
-    guint               M;
-    gint                captured_len;
-    gint                reported_len;
+    unsigned            M;
+    int                 captured_len;
+    int                 reported_len;
 
     *decrypt_info->rx_mic_length = 0;
     memset(decrypt_info->rx_mic, 0, 16);
@@ -546,11 +546,11 @@ dissect_mle_decrypt(tvbuff_t * tvb,
      *=====================================================
      */
     /* Create the CCM* initial block for decryption (Adata=0, M=0, counter=0). */
-    ccm_init_block(tmp, FALSE, 0, srcAddr, packet->frame_counter, packet->security_level, 0, NULL);
+    ccm_init_block(tmp, false, 0, srcAddr, packet->frame_counter, packet->security_level, 0, NULL);
 
     /* Decrypt the ciphertext, and place the plaintext in a new tvb. */
     if (IEEE802154_IS_ENCRYPTED(packet->security_level) && captured_len) {
-        gchar *text;
+        char *text;
 
         /*
          * Make a copy of the ciphertext in heap memory.
@@ -558,7 +558,7 @@ dissect_mle_decrypt(tvbuff_t * tvb,
          * We will decrypt the message in-place and then use the buffer as the
          * real data for the new tvb.
          */
-        text = (gchar *)tvb_memdup(pinfo->pool, tvb, offset, captured_len);
+        text = (char *)tvb_memdup(pinfo->pool, tvb, offset, captured_len);
 
         /* Perform CTR-mode transformation. Try both the likely key and the alternate key */
         if (!ccm_ctr_encrypt(decrypt_info->key, tmp, decrypt_info->rx_mic, text, captured_len)) {
@@ -567,7 +567,7 @@ dissect_mle_decrypt(tvbuff_t * tvb,
         }
 
         /* Create a tvbuff for the plaintext. */
-        ptext_tvb = tvb_new_real_data((const guint8 *)text, captured_len, reported_len);
+        ptext_tvb = tvb_new_real_data((const uint8_t *)text, captured_len, reported_len);
         tvb_set_child_real_data_tvbuff(tvb, ptext_tvb);
         add_new_data_source(pinfo, ptext_tvb, "Decrypted MLE payload");
         *decrypt_info->status = DECRYPT_PACKET_SUCCEEDED;
@@ -594,9 +594,9 @@ dissect_mle_decrypt(tvbuff_t * tvb,
     /* We can only verify the message if the MIC wasn't truncated. */
     if (have_mic) {
         unsigned char           dec_mic[16];
-        guint                   l_m = captured_len;
-        guint                   l_a;
-        guint8                  d_a[256];
+        unsigned                l_m = captured_len;
+        unsigned                l_a;
+        uint8_t                 d_a[256];
 
         DISSECTOR_ASSERT(pinfo->src.len == 16);
         DISSECTOR_ASSERT(pinfo->dst.len == 16);
@@ -613,7 +613,7 @@ dissect_mle_decrypt(tvbuff_t * tvb,
         }
 
         /* Create the CCM* initial block for authentication (Adata!=0, M!=0, counter=l(m)). */
-        ccm_init_block(tmp, TRUE, M, srcAddr, packet->frame_counter, packet->security_level, l_m, NULL);
+        ccm_init_block(tmp, true, M, srcAddr, packet->frame_counter, packet->security_level, l_m, NULL);
 
         /* Compute CBC-MAC authentication tag. */
         /*
@@ -638,7 +638,7 @@ dissect_mle_decrypt(tvbuff_t * tvb,
     return ptext_tvb;
 } /* dissect_mle_decrypt */
 
-void register_mle_key_hash_handler(guint hash_identifier, ieee802154_set_key_func key_func)
+void register_mle_key_hash_handler(unsigned hash_identifier, ieee802154_set_key_func key_func)
 {
     /* Ensure no duplication */
     DISSECTOR_ASSERT(wmem_tree_lookup32(mle_key_hash_handlers, hash_identifier) == NULL);
@@ -647,7 +647,7 @@ void register_mle_key_hash_handler(guint hash_identifier, ieee802154_set_key_fun
 }
 
 /* Set MLE key function. */
-static guint ieee802154_set_mle_key(ieee802154_packet *packet, unsigned char *key, unsigned char *alt_key, ieee802154_key_t *uat_key)
+static unsigned ieee802154_set_mle_key(ieee802154_packet *packet, unsigned char *key, unsigned char *alt_key, ieee802154_key_t *uat_key)
 {
     ieee802154_set_key_func func = (ieee802154_set_key_func)wmem_tree_lookup32(mle_key_hash_handlers, uat_key->hash_type);
 
@@ -672,26 +672,26 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     proto_tree              *volatile mle_tree = NULL;
     proto_item              *volatile proto_root = NULL;
 
-    guint                   offset = 0;
-    guint                   aux_header_offset = 0;
+    unsigned                offset = 0;
+    unsigned                aux_header_offset = 0;
     ieee802154_decrypt_status status;
 
     proto_item              *ti;
     proto_item              *mic_item = NULL;
     proto_tree              *header_tree = NULL;
-    guint8                  security_suite;
-    guint                   aux_length = 0;
+    uint8_t                 security_suite;
+    unsigned                aux_length = 0;
     ieee802154_packet       *packet;
     ieee802154_packet       *original_packet;
     ieee802154_decrypt_info_t decrypt_info;
     ieee802154_hints_t      *ieee_hints;
-    gboolean                mic_ok=TRUE;
+    bool                    mic_ok=true;
 
     unsigned char           rx_mic[16];
     unsigned int            rx_mic_len = 0;
 
-    guint8                  cmd;
-    guint8                  tlv_type, tlv_len;
+    uint8_t                 cmd;
+    uint8_t                 tlv_type, tlv_len;
     proto_tree              *tlv_tree;
 
     ieee_hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_ieee802154, 0);
@@ -723,7 +723,7 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     /* Parse the security suite field. */
     /* Security Suite Field */
-    security_suite = tvb_get_guint8(tvb, offset);
+    security_suite = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(mle_tree, hf_mle_security_suite, tvb, offset, 1, ENC_NA);
     offset++;
 
@@ -767,8 +767,8 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     /* Get the unencrypted data if decryption failed.  */
     if (!payload_tvb) {
         /* Deal with possible truncation and the FCS field at the end. */
-        gint reported_len = tvb_reported_length_remaining(tvb, offset);
-        gint captured_len = tvb_captured_length_remaining(tvb, offset);
+        int reported_len = tvb_reported_length_remaining(tvb, offset);
+        int captured_len = tvb_captured_length_remaining(tvb, offset);
         if (reported_len < captured_len) captured_len = reported_len;
         payload_tvb = tvb_new_subset_length_caplen(tvb, offset, captured_len, reported_len);
     }
@@ -803,7 +803,7 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
          * probably didn't decrypt the packet right (eg: wrong key).
          */
         if (IEEE802154_IS_ENCRYPTED(packet->security_level)) {
-            mic_ok = FALSE;
+            mic_ok = false;
         }
         break;
     case DECRYPT_NOT_ENCRYPTED:
@@ -824,7 +824,7 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     /* MLE Command */
     proto_tree_add_item(mle_tree, hf_mle_command, payload_tvb, offset, 1, ENC_BIG_ENDIAN);
 
-    cmd = tvb_get_guint8(payload_tvb, offset);
+    cmd = tvb_get_uint8(payload_tvb, offset);
     col_add_str(pinfo->cinfo, COL_INFO, val_to_str(cmd, mle_command_vals, "Unknown (%x)"));
 
     offset++;
@@ -834,14 +834,14 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
         /* Get the length ahead of time to pass to next function so we can highlight
            proper amount of bytes */
-        tlv_len = tvb_get_guint8(payload_tvb, offset+1);
+        tlv_len = tvb_get_uint8(payload_tvb, offset+1);
 
         ti = proto_tree_add_item(mle_tree, hf_mle_tlv, payload_tvb, offset, tlv_len+2, ENC_NA);
         tlv_tree = proto_item_add_subtree(ti, ett_mle_tlv);
 
         /* Type */
         proto_tree_add_item(tlv_tree, hf_mle_tlv_type, payload_tvb, offset, 1, ENC_NA);
-        tlv_type = tvb_get_guint8(payload_tvb, offset);
+        tlv_type = tvb_get_uint8(payload_tvb, offset);
         offset++;
 
         /* Add value name to value root label */
@@ -854,8 +854,8 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         switch(tlv_type){
             case MLE_TLV_SOURCE_ADDRESS:
                 {
-                    gboolean haveShortTLV = FALSE;
-                    guint16 shortAddr = 0;
+                    bool haveShortTLV = false;
+                    uint16_t shortAddr = 0;
 
                     if (!((tlv_len == 2) || (tlv_len == 8))) {
                         /* TLV Length must be 2 or 8 */
@@ -864,15 +864,15 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                         offset += tlv_len;
                     } else {
                         if (tlv_len == 2) {
-                            haveShortTLV = TRUE;
+                            haveShortTLV = true;
                             shortAddr = tvb_get_ntohs(payload_tvb, offset);
                         }
 
                         proto_tree_add_item(tlv_tree, hf_mle_tlv_source_addr, payload_tvb, offset, tlv_len, ENC_NA);
                         proto_item_append_text(ti, " = ");
                         while (tlv_len) {
-                            guint8 addr;
-                            addr = tvb_get_guint8(payload_tvb, offset);
+                            uint8_t addr;
+                            addr = tvb_get_uint8(payload_tvb, offset);
                             proto_item_append_text(ti, "%02x", addr);
                             if (--tlv_len) {
                                 proto_item_append_text(ti, ":");
@@ -890,9 +890,9 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
             case MLE_TLV_MODE:
                 if (tlv_len == 1) {
-                    guint8 capability;
+                    uint8_t capability;
 
-                    capability = tvb_get_guint8(payload_tvb, offset);
+                    capability = tvb_get_uint8(payload_tvb, offset);
                     proto_item_append_text(ti, " = %02x)", capability);
                     /* Get and display capability info. (blatantly plagiarised from packet-ieee802154.c */
                     proto_tree_add_bits_item(tlv_tree, hf_mle_tlv_mode_reserved1, payload_tvb, (offset * 8) + 0, 4, ENC_NA);//R1
@@ -915,7 +915,7 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                     expert_add_info(pinfo, proto_root, &ei_mle_tlv_length_failed);
                     proto_tree_add_item(tlv_tree, hf_mle_tlv_unknown, payload_tvb, offset, tlv_len, ENC_NA);
                 } else {
-                    guint32 to_data = 0;
+                    uint32_t to_data = 0;
                     proto_tree_add_item_ret_uint(tlv_tree, hf_mle_tlv_timeout, payload_tvb, offset, 4, ENC_BIG_ENDIAN, &to_data);
                     proto_item_append_text(ti, " = %u", to_data);
                 }
@@ -946,7 +946,7 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                     expert_add_info(pinfo, proto_root, &ei_mle_tlv_length_failed);
                     proto_tree_add_item(tlv_tree, hf_mle_tlv_unknown, payload_tvb, offset, tlv_len, ENC_NA);
                 } else {
-                    guint32 cntr;
+                    uint32_t cntr;
 
                     if (tlv_type == MLE_TLV_LINK_LAYER_FRAME_COUNTER) {
                         proto_tree_add_item_ret_uint(tlv_tree, hf_mle_tlv_ll_frm_cntr, payload_tvb, offset, tlv_len, ENC_BIG_ENDIAN, &cntr);
@@ -961,8 +961,8 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
             case MLE_TLV_LINK_QUALITY:
                 {
-                    guint numNeighbors;
-                    guint8 size = tvb_get_guint8(payload_tvb, offset) & LQI_FLAGS_SIZE;
+                    unsigned numNeighbors;
+                    uint8_t size = tvb_get_uint8(payload_tvb, offset) & LQI_FLAGS_SIZE;
                     proto_tree *neig_tree;
                     proto_tree_add_item(tlv_tree, hf_mle_tlv_lqi_c, payload_tvb, offset, 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item(tlv_tree, hf_mle_tlv_lqi_size, payload_tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1011,7 +1011,7 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
             case MLE_TLV_NETWORK_PARAMETER:
                 {
-                    guint8 param_id = tvb_get_guint8(payload_tvb, offset);
+                    uint8_t param_id = tvb_get_uint8(payload_tvb, offset);
 
                     proto_item_append_text(ti, " = %s)", val_to_str(param_id, mle_tlv_nwk_param_vals, "Unknown (%d)"));
 
@@ -1048,9 +1048,9 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             case MLE_TLV_ROUTE64:
                 {
                     proto_tree *rtr_tree;
-                    guint i, j;
-                    guint8 count;
-                    guint64 id_mask, test_mask;
+                    unsigned i, j;
+                    uint8_t count;
+                    uint64_t id_mask, test_mask;
 
                     proto_item_append_text(ti, ")");
                     proto_tree_add_item(tlv_tree, hf_mle_tlv_route64_id_seq, payload_tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1059,7 +1059,7 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                     /* Count number of table entries */
                     count = 0;
                     for (i = 0; i < 8; i++) { /* TODO magic - number of routers/8 */
-                        guint8 id_mask_octet = tvb_get_guint8(payload_tvb, offset + i);
+                        uint8_t id_mask_octet = tvb_get_uint8(payload_tvb, offset + i);
                         for (j = 0; j < 8; j++) {
                             if (id_mask_octet & (1 << j)) {
                                 count++;
@@ -1092,7 +1092,7 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                         /* Add subtrees */
                         for (i = 0; i < count; i++) {
                             /* Find first bit set */
-                            for (j = 0, test_mask = (G_GUINT64_CONSTANT(1) << 63); test_mask != 1; test_mask >>= 1, j++) {
+                            for (j = 0, test_mask = (UINT64_C(1) << 63); test_mask != 1; test_mask >>= 1, j++) {
                                 if (test_mask & id_mask) {
                                     id_mask &= ~test_mask;
                                     break;
@@ -1117,15 +1117,15 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                     expert_add_info(pinfo, proto_root, &ei_mle_tlv_length_failed);
                     proto_tree_add_item(tlv_tree, hf_mle_tlv_unknown, payload_tvb, offset, tlv_len, ENC_NA);
                 } else {
-                    guint16 addr16 = tvb_get_ntohs(payload_tvb, offset);
+                    uint16_t addr16 = tvb_get_ntohs(payload_tvb, offset);
                     proto_item_append_text(ti, " = ");
                     {
-                        guint8 a16_len = 2; /* Fix it at 2 */
-                        guint stroffset = offset;
+                        uint8_t a16_len = 2; /* Fix it at 2 */
+                        unsigned stroffset = offset;
 
                         while (a16_len) {
-                            guint8 a16_data;
-                            a16_data = tvb_get_guint8(payload_tvb, stroffset);
+                            uint8_t a16_data;
+                            a16_data = tvb_get_uint8(payload_tvb, stroffset);
                             proto_item_append_text(ti, "%02x", a16_data);
                             if (--a16_len) {
                                 proto_item_append_text(ti, ":");
@@ -1206,9 +1206,9 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                     expert_add_info(pinfo, proto_root, &ei_mle_tlv_length_failed);
                     proto_tree_add_item(tlv_tree, hf_mle_tlv_unknown, payload_tvb, offset, tlv_len, ENC_NA);
                 } else {
-                    guint8 mask;
+                    uint8_t mask;
 
-                    mask = tvb_get_guint8(payload_tvb, offset);
+                    mask = tvb_get_uint8(payload_tvb, offset);
                     proto_item_append_text(ti, " = %02x)", mask);
                     proto_tree_add_item(tlv_tree, hf_mle_tlv_scan_mask_r, payload_tvb, offset, 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item(tlv_tree, hf_mle_tlv_scan_mask_e, payload_tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1258,9 +1258,9 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                     expert_add_info(pinfo, proto_root, &ei_mle_tlv_length_failed);
                     proto_tree_add_item(tlv_tree, hf_mle_tlv_unknown, payload_tvb, offset, tlv_len, ENC_NA);
                 } else {
-                    guint8 link_margin;
+                    uint8_t link_margin;
 
-                    link_margin = tvb_get_guint8(payload_tvb, offset);
+                    link_margin = tvb_get_uint8(payload_tvb, offset);
                     proto_item_append_text(ti, " = %udB)", link_margin);
                     proto_tree_add_item(tlv_tree, hf_mle_tlv_link_margin, payload_tvb, offset, tlv_len, ENC_BIG_ENDIAN);
                 }
@@ -1274,9 +1274,9 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                     expert_add_info(pinfo, proto_root, &ei_mle_tlv_length_failed);
                     proto_tree_add_item(tlv_tree, hf_mle_tlv_unknown, payload_tvb, offset, tlv_len, ENC_NA);
                 } else {
-                    guint8 stat;
+                    uint8_t stat;
 
-                    stat = tvb_get_guint8(payload_tvb, offset);
+                    stat = tvb_get_uint8(payload_tvb, offset);
                     proto_item_append_text(ti, " = %d)", stat);
                     proto_tree_add_item(tlv_tree, hf_mle_tlv_status, payload_tvb, offset, tlv_len, ENC_BIG_ENDIAN);
                 }
@@ -1290,7 +1290,7 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                     expert_add_info(pinfo, proto_root, &ei_mle_tlv_length_failed);
                     proto_tree_add_item(tlv_tree, hf_mle_tlv_unknown, payload_tvb, offset, tlv_len, ENC_NA);
                 } else {
-                    guint16 version;
+                    uint16_t version;
 
                     version = tvb_get_ntohs(payload_tvb, offset);
                     proto_item_append_text(ti, " = %d)", version);
@@ -1301,16 +1301,16 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
             case MLE_TLV_ADDRESS_REGISTRATION:
                 {
-                    guint8 iid_type, i;
-                    guint8 entries = 0;
-                    gint16 check_len = tlv_len;
-                    guint check_offset = offset;
+                    uint8_t iid_type, i;
+                    uint8_t entries = 0;
+                    int16_t check_len = tlv_len;
+                    unsigned check_offset = offset;
 
                     /* Check consistency of entries */
                     while (check_len > 0) {
-                        guint8 ar_len;
+                        uint8_t ar_len;
 
-                        iid_type = tvb_get_guint8(payload_tvb, check_offset);
+                        iid_type = tvb_get_uint8(payload_tvb, check_offset);
                         if (iid_type & ADDR_REG_MASK_IID_TYPE_MASK) {
                             ar_len = 9;
                         } else {
@@ -1333,7 +1333,7 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
                             ti = proto_tree_add_item(tlv_tree, hf_mle_tlv_addr_reg_entry, payload_tvb, offset, 1, ENC_NA);
                             ar_tree = proto_item_add_subtree(ti, ett_mle_addr_reg);
-                            iid_type = tvb_get_guint8(payload_tvb, offset);
+                            iid_type = tvb_get_uint8(payload_tvb, offset);
                             if (iid_type & ADDR_REG_MASK_IID_TYPE_MASK) {
                                 proto_tree_add_item(ar_tree, hf_mle_tlv_addr_reg_iid_type, payload_tvb, offset, 1, ENC_BIG_ENDIAN);
                                 proto_tree_add_item(ar_tree, hf_mle_tlv_addr_reg_cid, payload_tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1432,7 +1432,7 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                     proto_tree_add_item(tlv_tree, hf_mle_tlv_unknown, payload_tvb, offset, tlv_len, ENC_NA);
                 } else {
                     /*  CSL synchronized timeout */
-                    guint32 to_data = 0;
+                    uint32_t to_data = 0;
                     proto_tree_add_item_ret_uint(tlv_tree, hf_mle_tlv_csl_synchronied_timeout, payload_tvb, offset, 4, ENC_BIG_ENDIAN, &to_data);
                     proto_item_append_text(ti, " = %u", to_data);
                 }
@@ -1459,20 +1459,20 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 proto_item_append_text(ti, ")");
                 proto_item *sub_item;
                 proto_tree *sub_tree;
-                guint8 metrics_tlv;
+                uint8_t metrics_tlv;
                 while (tvb_offset_exists(payload_tvb, offset)) {
-                    guint8 sub_tlv = tvb_get_guint8(payload_tvb, offset);
+                    uint8_t sub_tlv = tvb_get_uint8(payload_tvb, offset);
 
                     sub_tree = proto_tree_add_subtree(tlv_tree, payload_tvb, offset, -1, 1, &sub_item, "Sub TLV");
                     sub_item = proto_tree_add_item(sub_tree, hf_mle_tlv_link_sub_tlv, payload_tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset++;
                     /* Length */
                     proto_tree_add_item(sub_tree, hf_mle_tlv_length, payload_tvb, offset, 1, ENC_BIG_ENDIAN);
-                    guint8 length_sub_tlv = tvb_get_guint8(payload_tvb,offset);
+                    uint8_t length_sub_tlv = tvb_get_uint8(payload_tvb,offset);
                     offset++;
                     switch (sub_tlv) {
                     case LINK_METRICS_REPORT_SUB_TLV:
-                        metrics_tlv = tvb_get_guint8(payload_tvb, offset);
+                        metrics_tlv = tvb_get_uint8(payload_tvb, offset);
                         /* Type ID Flags */
                         proto_tree_add_bits_item(sub_tree, hf_mle_tlv_metric_type_id_flags_e, payload_tvb, (offset * 8) + 0, 1, ENC_NA);//E
                         proto_tree_add_bits_item(sub_tree, hf_mle_tlv_metric_type_id_flags_l, payload_tvb, (offset * 8) + 1, 1, ENC_NA);//L
@@ -1505,7 +1505,7 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                         proto_tree_add_item(sub_tree, hf_mle_tlv_link_forward_series, payload_tvb, offset, 1, ENC_NA);
                         offset++;
                         proto_tree_add_item(sub_tree, hf_mle_tlv_link_forward_series_flags, payload_tvb, offset, 1, ENC_NA);
-                        guint8 forward_series_flag = tvb_get_guint8(payload_tvb, offset);
+                        uint8_t forward_series_flag = tvb_get_uint8(payload_tvb, offset);
                         offset++;
                         if (forward_series_flag > 0)
                         {
@@ -1551,7 +1551,7 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                     proto_tree_add_item(tlv_tree, hf_mle_tlv_unknown, payload_tvb, offset, tlv_len, ENC_NA);
                 }
                 else {
-                    guint16 interval;
+                    uint16_t interval;
 
                     interval = tvb_get_ntohs(payload_tvb, offset);
                     proto_item_append_text(ti, " = %d)", interval);
@@ -2404,7 +2404,7 @@ proto_register_mle(void)
 
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_mle,
     &ett_mle_auxiliary_security,
     &ett_mle_aux_sec_control,

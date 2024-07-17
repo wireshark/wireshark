@@ -276,7 +276,7 @@ one_bit
 static int
 dissect_mp4ves_next_start_code(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int bit_offset)
 {
-	guint8 zero_bit;
+	uint8_t zero_bit;
 	int start_bit_offset;
 
 	start_bit_offset = bit_offset;
@@ -319,7 +319,7 @@ video_signal_type() {
 static int
 dissect_mp4ves_visual_object_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int bit_offset)
 {
-	guint8 video_signal_type, colour_description;
+	uint8_t video_signal_type, colour_description;
 
 	video_signal_type = tvb_get_bits8(tvb,bit_offset,1);
 	proto_tree_add_bits_item(tree, hf_mp4ves_video_signal_type, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
@@ -383,10 +383,10 @@ static const value_string mp4ves_video_object_layer_shape_vals[] = {
 static int
 dissect_mp4ves_VideoObjectLayer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int bit_offset)
 {
-	guint32 dword;
+	uint32_t dword;
 	int current_bit_offset;
-	guint8 octet, is_object_layer_identifier, aspect_ratio_info, vol_control_parameters, vbv_parameters;
-	guint8 video_object_layer_shape, video_object_layer_verid = 0;
+	uint8_t octet, is_object_layer_identifier, aspect_ratio_info, vol_control_parameters, vbv_parameters;
+	uint8_t video_object_layer_shape, video_object_layer_verid = 0;
 
 	/* if(next_bits() == video_object_layer_start_code) { */
 	dword = tvb_get_bits32(tvb,bit_offset, 24, ENC_BIG_ENDIAN);
@@ -532,9 +532,9 @@ VisualObject() {
 static int
 dissect_mp4ves_VisualObject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int bit_offset)
 {
-	guint8 is_visual_object_identifier, visual_object_type;
-	guint32 dword;
-	guint8 octet;
+	uint8_t is_visual_object_identifier, visual_object_type;
+	uint32_t dword;
+	uint8_t octet;
 
 	is_visual_object_identifier = tvb_get_bits8(tvb,bit_offset,1);
 	proto_tree_add_bits_item(tree, hf_mp4ves_is_visual_object_identifier, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
@@ -599,7 +599,7 @@ dissect_mp4ves_VisualObject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static int
 dissect_mp4ves_VisualObjectSequence(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int bit_offset)
 {
-	guint32 dword;
+	uint32_t dword;
 
 	/*VisualObjectSequence() {
 	do {
@@ -674,7 +674,7 @@ dissect_mp4ves(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	int bit_offset = 0;
 	proto_item *item;
 	proto_tree *mp4ves_tree;
-	guint32 dword;
+	uint32_t dword;
 
 	/* Make entries in Protocol column and Info column on summary display */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MP4V-ES");
@@ -778,8 +778,8 @@ static int
 dissect_mp4ves_par_profile(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void *data)
 {
 	int offset = 0;
-	guint16 lvl;
-	const gchar *p = NULL;
+	uint16_t lvl;
+	const char *p = NULL;
 	asn1_ctx_t *actx;
 
 	/* Reject the packet if data is NULL */
@@ -800,8 +800,8 @@ static int
 dissect_mp4ves_par_video_object_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void *data)
 {
 	int offset = 0;
-	guint16 lvl;
-	const gchar *p = NULL;
+	uint16_t lvl;
+	const char *p = NULL;
 	asn1_ctx_t *actx;
 
 	/* Reject the packet if data is NULL */
@@ -836,8 +836,8 @@ dissect_mp4ves_par_decoderConfigurationInformation(tvbuff_t *tvb, packet_info *p
 }
 
 typedef struct _mp4ves_capability_t {
-	const gchar *id;
-	const gchar *name;
+	const char *id;
+	const char *name;
 	dissector_t content_pdu;
 } mp4ves_capability_t;
 
@@ -851,7 +851,7 @@ static mp4ves_capability_t mp4ves_capability_tab[] = {
 	{ NULL, NULL, NULL },
 };
 
-static mp4ves_capability_t *find_cap(const gchar *id) {
+static mp4ves_capability_t *find_cap(const char *id) {
 	mp4ves_capability_t *ftr = NULL;
 	mp4ves_capability_t *f;
 
@@ -981,7 +981,7 @@ proto_register_mp4ves(void)
 	};
 
 /* Setup protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_mp4ves,
 		&ett_mp4ves_config,
 	};

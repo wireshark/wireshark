@@ -45,12 +45,12 @@ static int hf_msgpack_ext_fixext;
 static int hf_msgpack_ext_type;
 static int hf_msgpack_ext_bytes;
 
-static gint ett_msgpack;
-static gint ett_msgpack_string;
-static gint ett_msgpack_array;
-static gint ett_msgpack_map;
-static gint ett_msgpack_map_elem;
-static gint ett_msgpack_ext;
+static int ett_msgpack;
+static int ett_msgpack_string;
+static int ett_msgpack_array;
+static int ett_msgpack_map;
+static int ett_msgpack_map_elem;
+static int ett_msgpack_ext;
 
 static expert_field ei_msgpack_unsupported;
 
@@ -65,16 +65,16 @@ static const value_string msgpack_ext_fixtexts[] = {
 
 static void dissect_msgpack_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data, int* offset, char** value);
 
-static void dissect_msgpack_integer(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tree, guint8 type, void* data, int* offset, char** value)
+static void dissect_msgpack_integer(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tree, uint8_t type, void* data, int* offset, char** value)
 {
-	guint8 uint8;
-	guint16 uint16;
-	guint32 uint32;
-	guint64 uint64;
-	gint8 int8;
-	gint16 int16;
-	gint32 int32;
-	gint64 int64;
+	uint8_t uint8;
+	uint16_t uint16;
+	uint32_t uint32;
+	uint64_t uint64;
+	int8_t int8;
+	int16_t int16;
+	int32_t int32;
+	int64_t int64;
 	char* label;
 
 	label = (data ? (char*)data : "MsgPack Integer");
@@ -97,7 +97,7 @@ static void dissect_msgpack_integer(tvbuff_t* tvb, packet_info *pinfo, proto_tre
 
 	switch (type) {
 		case 0xcc:
-			uint8 = tvb_get_guint8(tvb, *offset + 1);
+			uint8 = tvb_get_uint8(tvb, *offset + 1);
 			proto_tree_add_uint_format(tree, hf_msgpack_uint_8, tvb, *offset, 2, uint8, "%s: %u", label, uint8);
 			if (value)
 				*value = wmem_strdup_printf(pinfo->pool, "%u", uint8);
@@ -125,7 +125,7 @@ static void dissect_msgpack_integer(tvbuff_t* tvb, packet_info *pinfo, proto_tre
 			*offset += 9;
 			break;
 		case 0xd0:
-			int8 = tvb_get_gint8(tvb, *offset + 1);
+			int8 = tvb_get_int8(tvb, *offset + 1);
 			proto_tree_add_int(tree, hf_msgpack_int_8, tvb, *offset, 2, int8);
 			if (value)
 				*value = wmem_strdup_printf(pinfo->pool, "%d", int8);
@@ -158,14 +158,14 @@ static void dissect_msgpack_integer(tvbuff_t* tvb, packet_info *pinfo, proto_tre
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
-static void dissect_msgpack_map(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint8 type, void* data, int* offset, char** value)
+static void dissect_msgpack_map(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, uint8_t type, void* data, int* offset, char** value)
 {
 	proto_tree* subtree;
 	proto_tree* map_subtree;
 	proto_item* ti;
-	guint8 len;
+	uint8_t len;
 	char* label;
-	guint i;
+	unsigned i;
 
 	len = type & 0x0F;
 
@@ -190,13 +190,13 @@ static void dissect_msgpack_map(tvbuff_t* tvb, packet_info* pinfo, proto_tree* t
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
-static void dissect_msgpack_array(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint8 type, void* data, int* offset, char** value)
+static void dissect_msgpack_array(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, uint8_t type, void* data, int* offset, char** value)
 {
 	proto_tree* subtree;
 	proto_item* ti;
-	guint8 len;
+	uint8_t len;
 	char* label;
-	guint i;
+	unsigned i;
 
 	len = type & 0x0F;
 
@@ -216,8 +216,8 @@ static void dissect_msgpack_array(tvbuff_t* tvb, packet_info* pinfo, proto_tree*
 
 static void dissect_msgpack_string(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int type, void* data, int* offset, char** value)
 {
-	guint32 len = 0;
-	guint32 lensize = 0;
+	uint32_t len = 0;
+	uint32_t lensize = 0;
 	char* label;
 	proto_item* ti;
 	proto_tree* subtree;
@@ -228,7 +228,7 @@ static void dissect_msgpack_string(tvbuff_t* tvb, packet_info* pinfo, proto_tree
 		lensize = 0;
 	}
 	if (type == 0xd9) {
-		len = tvb_get_guint8(tvb, *offset + 1);
+		len = tvb_get_uint8(tvb, *offset + 1);
 		lensize = 1;
 	}
 	if (type == 0xda) {
@@ -291,9 +291,9 @@ static void dissect_msgpack_ext(tvbuff_t* tvb, proto_tree* tree, int type, void*
 {
 	char* label;
 	int bytes;
-	const guint8* start;
+	const uint8_t* start;
 	proto_tree* ext_tree;
-	guint offset_start = *offset;
+	unsigned offset_start = *offset;
 
 	label = (data ? (char*)data : "Ext");
 
@@ -306,7 +306,7 @@ static void dissect_msgpack_ext(tvbuff_t* tvb, proto_tree* tree, int type, void*
 		proto_tree_add_item(ext_tree, hf_msgpack_ext_type, tvb, *offset, 1, ENC_NA);
 		*offset += 1;
 		bytes = 1 << (type - 0xd4);
-		start = (const guint8*)tvb_get_ptr(tvb, *offset, bytes);
+		start = (const uint8_t*)tvb_get_ptr(tvb, *offset, bytes);
 		proto_tree_add_bytes(ext_tree, hf_msgpack_ext_bytes, tvb, *offset, bytes, start);
 		if (value)
 			*value = bytes_to_hexstr(*value, start, bytes);
@@ -319,9 +319,9 @@ static void dissect_msgpack_ext(tvbuff_t* tvb, proto_tree* tree, int type, void*
 // NOLINTNEXTLINE(misc-no-recursion)
 static void dissect_msgpack_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data, int* offset, char** value)
 {
-	guint8 type;
+	uint8_t type;
 
-	type = tvb_get_guint8(tvb, *offset);
+	type = tvb_get_uint8(tvb, *offset);
 
 	// Nil
 	if (type == 0xc0) {
@@ -446,7 +446,7 @@ void proto_register_msgpack(void)
 		}
 	};
 
-	static gint* ett[] = {
+	static int* ett[] = {
 		&ett_msgpack,
 		&ett_msgpack_string,
 		&ett_msgpack_array,

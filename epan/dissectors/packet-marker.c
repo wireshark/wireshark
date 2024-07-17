@@ -55,15 +55,15 @@ static expert_field ei_marker_wrong_tlv_length;
 static expert_field ei_marker_wrong_pad_value;
 
 /* Initialise the subtree pointers */
-static gint ett_marker;
+static int ett_marker;
 
 static int
 dissect_marker(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     int           offset = 0;
-    guint         tlv_type, tlv_length;
-    guint         port, transactionid, pad;
-    const gchar  *sysidstr;
+    unsigned      tlv_type, tlv_length;
+    unsigned      port, transactionid, pad;
+    const char   *sysidstr;
 
     proto_tree *marker_tree;
     proto_item *marker_item, *tlv_type_item, *tlv_length_item, *pad_item;
@@ -192,7 +192,7 @@ proto_register_marker(void)
 
     /* Setup protocol subtree array */
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_marker,
     };
 

@@ -1229,60 +1229,60 @@ static int hf_mip6_opt_dmnp_dmnp_ipv4;
 static int hf_mip6_opt_dmnp_dmnp_ipv6;
 
 /* Initialize the subtree pointers */
-static gint ett_mip6;
-static gint ett_mip6_opt_pad1;
-static gint ett_mip6_opt_padn;
-static gint ett_mip6_opts;
-static gint ett_mip6_opt_bra;
-static gint ett_mip6_opt_acoa;
-static gint ett_mip6_opt_ni;
-static gint ett_mip6_opt_bad;
-static gint ett_mip6_nemo_opt_mnp;
-static gint ett_fmip6_opt_lla;
-static gint ett_mip6_opt_mnid;
-static gint ett_mip6_opt_auth;
-static gint ett_mip6_opt_mesgid;
-static gint ett_mip6_opt_cgapr;
-static gint ett_mip6_opt_cgar;
-static gint ett_mip6_opt_sign;
-static gint ett_mip6_opt_phkt;
-static gint ett_mip6_opt_mocoti;
-static gint ett_mip6_opt_mocot;
-static gint ett_mip6_opt_dnsu;
-static gint ett_mip6_opt_em;
-static gint ett_mip6_opt_vsm;
-static gint ett_mip6_opt_ssm;
-static gint ett_mip6_opt_badff;
-static gint ett_mip6_opt_unknown;
-static gint ett_pmip6_opt_hnp;
-static gint ett_pmip6_opt_hi;
-static gint ett_pmip6_opt_att;
-static gint ett_pmip6_opt_mnlli;
-static gint ett_pmip6_opt_lla;
-static gint ett_pmip6_opt_ts;
-static gint ett_pmip6_opt_rc;
-static gint ett_mip6_opt_ipv4ha;
-static gint ett_mip6_opt_ipv4aa;
-static gint ett_mip6_opt_natd;
-static gint ett_mip6_opt_ipv4coa;
-static gint ett_pmip6_opt_grek;
-static gint ett_pmip6_opt_mhipv6ap;
-static gint ett_pmip6_opt_bi;
-static gint ett_mip6_opt_ipv4hareq;
-static gint ett_mip6_opt_ipv4harep;
-static gint ett_mip6_opt_ipv4dra;
-static gint ett_mip6_opt_ipv4dsm;
-static gint ett_mip6_opt_cr;
-static gint ett_mip6_opt_lmaa;
-static gint ett_mip6_opt_recap;
-static gint ett_mip6_opt_redir;
-static gint ett_mip6_opt_load_inf;
-static gint ett_mip6_opt_alt_ip4;
-static gint ett_mip6_opt_mng;
-static gint ett_mip6_opt_mag_ipv6;
-static gint ett_mip6_opt_acc_net_id;
-static gint ett_mip6_sub_opt_acc_net_id;
-static gint ett_mip6_opt_dmnp;
+static int ett_mip6;
+static int ett_mip6_opt_pad1;
+static int ett_mip6_opt_padn;
+static int ett_mip6_opts;
+static int ett_mip6_opt_bra;
+static int ett_mip6_opt_acoa;
+static int ett_mip6_opt_ni;
+static int ett_mip6_opt_bad;
+static int ett_mip6_nemo_opt_mnp;
+static int ett_fmip6_opt_lla;
+static int ett_mip6_opt_mnid;
+static int ett_mip6_opt_auth;
+static int ett_mip6_opt_mesgid;
+static int ett_mip6_opt_cgapr;
+static int ett_mip6_opt_cgar;
+static int ett_mip6_opt_sign;
+static int ett_mip6_opt_phkt;
+static int ett_mip6_opt_mocoti;
+static int ett_mip6_opt_mocot;
+static int ett_mip6_opt_dnsu;
+static int ett_mip6_opt_em;
+static int ett_mip6_opt_vsm;
+static int ett_mip6_opt_ssm;
+static int ett_mip6_opt_badff;
+static int ett_mip6_opt_unknown;
+static int ett_pmip6_opt_hnp;
+static int ett_pmip6_opt_hi;
+static int ett_pmip6_opt_att;
+static int ett_pmip6_opt_mnlli;
+static int ett_pmip6_opt_lla;
+static int ett_pmip6_opt_ts;
+static int ett_pmip6_opt_rc;
+static int ett_mip6_opt_ipv4ha;
+static int ett_mip6_opt_ipv4aa;
+static int ett_mip6_opt_natd;
+static int ett_mip6_opt_ipv4coa;
+static int ett_pmip6_opt_grek;
+static int ett_pmip6_opt_mhipv6ap;
+static int ett_pmip6_opt_bi;
+static int ett_mip6_opt_ipv4hareq;
+static int ett_mip6_opt_ipv4harep;
+static int ett_mip6_opt_ipv4dra;
+static int ett_mip6_opt_ipv4dsm;
+static int ett_mip6_opt_cr;
+static int ett_mip6_opt_lmaa;
+static int ett_mip6_opt_recap;
+static int ett_mip6_opt_redir;
+static int ett_mip6_opt_load_inf;
+static int ett_mip6_opt_alt_ip4;
+static int ett_mip6_opt_mng;
+static int ett_mip6_opt_mag_ipv6;
+static int ett_mip6_opt_acc_net_id;
+static int ett_mip6_sub_opt_acc_net_id;
+static int ett_mip6_opt_dmnp;
 
 static expert_field ei_mip6_ie_not_dissected;
 static expert_field ei_mip6_ani_type_not_dissected;
@@ -1422,7 +1422,7 @@ dissect_mip6_bu(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
         proto_tree_add_item(data_tree, hf_pmip6_bu_b_flag, tvb,
                 MIP6_BU_FLAGS_OFF, MIP6_BU_FLAGS_LEN, ENC_BIG_ENDIAN);
 
-        if ((tvb_get_guint8(tvb, MIP6_BU_FLAGS_OFF) & 0x0004 ) == 0x0004)
+        if ((tvb_get_uint8(tvb, MIP6_BU_FLAGS_OFF) & 0x0004 ) == 0x0004)
             proto_nemo = 1;
 
         lifetime = tvb_get_ntohs(tvb, MIP6_BU_LIFETIME_OFF);
@@ -1458,7 +1458,7 @@ dissect_mip6_ba(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
                 MIP6_BA_FLAGS_OFF, MIP6_BA_FLAGS_LEN, ENC_BIG_ENDIAN);
         proto_tree_add_item(data_tree, hf_pmip6_ba_b_flag, tvb,
                 MIP6_BA_FLAGS_OFF, MIP6_BA_FLAGS_LEN, ENC_BIG_ENDIAN);
-        if ((tvb_get_guint8(tvb, MIP6_BA_FLAGS_OFF) & 0x0040 ) == 0x0040)
+        if ((tvb_get_uint8(tvb, MIP6_BA_FLAGS_OFF) & 0x0040 ) == 0x0040)
             proto_nemo = 1;
 
         proto_tree_add_item(data_tree, hf_mip6_ba_seqnr, tvb,
@@ -1521,15 +1521,15 @@ dissect_mip6_be(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
 static int
 dissect_mip6_has(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
 {
-    guint num_addrs, len;
+    unsigned num_addrs, len;
 
-    num_addrs = tvb_get_guint8(tvb, MIP6_DATA_OFF);
+    num_addrs = tvb_get_uint8(tvb, MIP6_DATA_OFF);
     len = 2 + num_addrs * 16;
 
     if (mip6_tree) {
         proto_tree *data_tree;
-        gint off;
-        guint i;
+        int off;
+        unsigned i;
 
         data_tree = proto_tree_add_subtree(mip6_tree, tvb, MIP6_DATA_OFF,
                 len, ett_mip6, NULL, "Home Agent Switch");
@@ -1653,9 +1653,9 @@ dissect_mip6_hack(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
 static int
 dissect_mip6_unknown(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
 {
-    guint hdr_len, data_len;
+    unsigned hdr_len, data_len;
 
-    hdr_len = (tvb_get_guint8(tvb, MIP6_HLEN_OFF) + 1) * 8;
+    hdr_len = (tvb_get_uint8(tvb, MIP6_HLEN_OFF) + 1) * 8;
     data_len = hdr_len - MIP6_DATA_OFF;
 
     proto_tree_add_item(mip6_tree, hf_mip6_unknown_type_data, tvb, MIP6_DATA_OFF, data_len, ENC_NA);
@@ -1739,9 +1739,9 @@ dissect_pmip6_bri(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
 #define ACKNOWLEDGE 2
 
     proto_tree *field_tree;
-    guint8      br_type;
+    uint8_t     br_type;
 
-    br_type = tvb_get_guint8(tvb, PMIP6_BRI_BRTYPE_OFF);
+    br_type = tvb_get_uint8(tvb, PMIP6_BRI_BRTYPE_OFF);
 
     /* Branch between BR Indication and BR Acknowledge */
     if ( br_type == INDICATION )
@@ -1830,7 +1830,7 @@ dissect_pmip6_bri(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
 */
 
 static int
-dissect_pmip6_lri(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_, gint offset)
+dissect_pmip6_lri(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_, int offset)
 {
     proto_tree_add_item(mip6_tree, hf_pmip6_lri_sequence, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -1865,7 +1865,7 @@ dissect_pmip6_lri(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_, 
 */
 
 static int
-dissect_pmip6_lra(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_, gint offset)
+dissect_pmip6_lra(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_, int offset)
 {
     proto_tree_add_item(mip6_tree, hf_pmip6_lra_sequence, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -1908,19 +1908,19 @@ dissect_mip6_opt_vsm_3gpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     proto_item *hdr_item = tree;
     int    len = tvb_reported_length(tvb);
     int offset = 0;
-    guint8 sub_type, m_flag;
+    uint8_t sub_type, m_flag;
     tvbuff_t *next_tvb;
-    gchar *mei_str;
+    char *mei_str;
     char *digit_str;
-    gchar *mcc_mnc_str;
-    gchar *imsi_str;
+    char *mcc_mnc_str;
+    char *imsi_str;
 
     /* offset points to the sub type */
-    sub_type = tvb_get_guint8(tvb,offset);
+    sub_type = tvb_get_uint8(tvb,offset);
     proto_tree_add_item(tree, hf_mip6_vsm_subtype_3gpp, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_item_append_text(hdr_item, " %s", val_to_str_ext_const(sub_type, &mip6_vsm_subtype_3gpp_value_ext, "<unknown>"));
     offset++;
-    m_flag = tvb_get_guint8(tvb,offset) & 0x01;
+    m_flag = tvb_get_uint8(tvb,offset) & 0x01;
     proto_tree_add_item(tree, hf_mip6_opt_3gpp_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_mip6_opt_3gpp_flag_m, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
@@ -2009,7 +2009,7 @@ dissect_mip6_opt_vsm_3gpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         break;
     /* 13, Serving Network */
     case 13:
-        mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, offset, E212_NONE, TRUE);
+        mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, offset, E212_NONE, true);
         proto_item_append_text(hdr_item," %s", mcc_mnc_str);
         break;
     /* 14, APN Restriction */
@@ -2053,7 +2053,7 @@ dissect_mip6_opt_vsm_3gpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 }
 
 static proto_tree*
-mip6_fixed_option_header(proto_tree* tree, packet_info *pinfo, tvbuff_t *tvb, int proto, int ett, proto_item** ti, guint len, guint optlen)
+mip6_fixed_option_header(proto_tree* tree, packet_info *pinfo, tvbuff_t *tvb, int proto, int ett, proto_item** ti, unsigned len, unsigned optlen)
 {
     proto_tree *field_tree;
     proto_item *tf;
@@ -2075,7 +2075,7 @@ mip6_fixed_option_header(proto_tree* tree, packet_info *pinfo, tvbuff_t *tvb, in
 }
 
 static proto_tree*
-mip6_var_option_header(proto_tree* tree, packet_info *pinfo, tvbuff_t *tvb, int proto, int ett, proto_item** ti, guint len, guint optlen)
+mip6_var_option_header(proto_tree* tree, packet_info *pinfo, tvbuff_t *tvb, int proto, int ett, proto_item** ti, unsigned len, unsigned optlen)
 {
     proto_tree *field_tree;
     proto_item *tf;
@@ -2191,7 +2191,7 @@ dissect_mip6_network_prefix_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     proto_item* ti;
     int option_len = tvb_reported_length(tvb)-2;
     int offset = 3;
-    guint32 prefix_len;
+    uint32_t prefix_len;
 
     field_tree = mip6_fixed_option_header(tree, pinfo, tvb, proto, ett, &ti, option_len, optlen);
 
@@ -2258,7 +2258,7 @@ dissect_mip6_opt_mnid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
     proto_item* ti;
     int option_len = tvb_reported_length(tvb)-2;
     int offset = 2;
-    const guint8 *str;
+    const uint8_t *str;
 
     opt_tree = mip6_var_option_header(tree, pinfo, tvb, proto_mip6_option_mnid, ett_mip6_opt_mnid, &ti, option_len, MIP6_MNID_MINLEN);
 
@@ -2490,7 +2490,7 @@ dissect_mip6_opt_vsm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     int option_len = tvb_reported_length(tvb)-2;
     int offset = 2;
     tvbuff_t *next_tvb;
-    guint32 vendorid;
+    uint32_t vendorid;
 
     opt_tree = mip6_var_option_header(tree, pinfo, tvb, proto_mip6_option_vsm, ett_mip6_opt_vsm, &ti, option_len, MIP6_VSM_MINLEN);
 
@@ -2522,7 +2522,7 @@ dissect_mip6_opt_ssm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     proto_item* ti;
     int option_len = tvb_reported_length(tvb)-2;
     int offset = 2;
-    guint8 *apn = NULL;
+    uint8_t *apn = NULL;
     int     name_len;
 
     opt_tree = mip6_var_option_header(tree, pinfo, tvb, proto_mip6_option_ssm, ett_mip6_opt_ssm, &ti, option_len, MIP6_SSM_MINLEN);
@@ -2549,7 +2549,7 @@ dissect_mip6_opt_ssm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
      */
 
     if (option_len > 0) {
-        name_len = tvb_get_guint8(tvb, offset);
+        name_len = tvb_get_uint8(tvb, offset);
 
         /* As can be seen above, RFC 5149 "allows" the use of UTF-8 encoded
          * strings, but the 3GPP chose to encode as other APN fields,
@@ -2614,7 +2614,7 @@ dissect_pmip6_opt_hi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     proto_item* ti;
     int option_len = tvb_reported_length(tvb)-2;
     int offset = 2;
-    guint32 hi;
+    uint32_t hi;
 
     opt_tree = mip6_fixed_option_header(tree, pinfo, tvb, proto_mip6_option_hi, ett_pmip6_opt_hi, &ti, option_len, PMIP6_HI_LEN);
 
@@ -2645,14 +2645,14 @@ dissect_pmip6_opt_att(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
     proto_item* ti;
     int option_len = tvb_reported_length(tvb)-2;
     int offset = 2;
-    guint32 att;
+    uint32_t att;
 
     opt_tree = mip6_fixed_option_header(tree, pinfo, tvb, proto_mip6_option_att, ett_pmip6_opt_att, &ti, option_len, PMIP6_ATT_LEN);
 
     proto_tree_add_item(opt_tree, hf_pmip6_att_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    att = tvb_get_guint8(tvb,offset);
+    att = tvb_get_uint8(tvb,offset);
     proto_tree_add_item_ret_uint(opt_tree, hf_pmip6_att_att, tvb,
             offset, PMIP6_ATT_ATT_LEN, ENC_BIG_ENDIAN, &att);
     proto_item_append_text(ti, ": %s", val_to_str_ext_const(att, &pmip6_att_att_value_ext, "<unknown>"));
@@ -2844,7 +2844,7 @@ dissect_pmip6_opt_natd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     int option_len = tvb_reported_length(tvb)-2;
     int offset = 2;
     proto_item *item;
-    guint32     refresh_time;
+    uint32_t    refresh_time;
 
     opt_tree = mip6_fixed_option_header(tree, pinfo, tvb, proto_mip6_option_natd, ett_mip6_opt_natd, &ti, option_len, MIP6_NATD_LEN);
 
@@ -2909,7 +2909,7 @@ dissect_pmip6_opt_grek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     proto_item* ti;
     int option_len = tvb_reported_length(tvb)-2;
     int offset = 2;
-    guint32 key;
+    uint32_t key;
 
     opt_tree = mip6_var_option_header(tree, pinfo, tvb, proto_mip6_option_grek, ett_pmip6_opt_grek, &ti, option_len, PMIP6_GREK_MIN_LEN);
 
@@ -2950,14 +2950,14 @@ dissect_pmip6_opt_mhipv6ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     proto_item* ti;
     int option_len = tvb_reported_length(tvb)-2;
     int offset = 2;
-    guint8 prefix_l;
+    uint8_t prefix_l;
 
     opt_tree = mip6_fixed_option_header(tree, pinfo, tvb, proto_mip6_option_mhipv6ap, ett_pmip6_opt_mhipv6ap, &ti, option_len, MIP6_MHIPV6AP_LEN);
 
     proto_tree_add_item(opt_tree, hf_mip6_opt_mhipv6ap_opt_code, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    prefix_l = tvb_get_guint8(tvb,offset);
+    prefix_l = tvb_get_uint8(tvb,offset);
     proto_tree_add_item(opt_tree, hf_mip6_opt_mhipv6ap_prefix_l, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
@@ -3032,7 +3032,7 @@ dissect_pmip6_opt_ipv4hareq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int option_len = tvb_reported_length(tvb)-2;
     int offset = 2;
     proto_item *item;
-    guint32     dword;
+    uint32_t    dword;
 
     opt_tree = mip6_fixed_option_header(tree, pinfo, tvb, proto_mip6_option_ipv4hareq, ett_mip6_opt_ipv4hareq, &ti, option_len, MIP6_IPV4HAREQ_LEN);
 
@@ -3074,7 +3074,7 @@ dissect_pmip6_opt_ipv4harep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item* ti;
     int option_len = tvb_reported_length(tvb)-2;
     int offset = 2;
-    guint32 status;
+    uint32_t status;
 
     opt_tree = mip6_fixed_option_header(tree, pinfo, tvb, proto_mip6_option_ipv4harep, ett_mip6_opt_ipv4harep, &ti, option_len, MIP6_IPV4HAREP_LEN);
 
@@ -3177,8 +3177,8 @@ dissect_pmip6_opt_cr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     proto_item* ti;
     int option_len = tvb_reported_length(tvb)-2;
     int offset = 2;
-    guint8  req_type, req_length;
-    guint32 vendorid;
+    uint8_t req_type, req_length;
+    uint32_t vendorid;
 
     opt_tree = mip6_var_option_header(tree, pinfo, tvb, proto_mip6_option_cr, ett_mip6_opt_cr, &ti, option_len, MIP6_CR_MIN_LEN);
 
@@ -3186,11 +3186,11 @@ dissect_pmip6_opt_cr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     offset += 2;
 
     while (offset-2 < option_len) {
-        req_type = tvb_get_guint8(tvb,offset);
+        req_type = tvb_get_uint8(tvb,offset);
         proto_tree_add_item(opt_tree, hf_mip6_cr_req_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
-        req_length = tvb_get_guint8(tvb,offset);
+        req_length = tvb_get_uint8(tvb,offset);
         proto_tree_add_item(opt_tree, hf_mip6_cr_req_length, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
@@ -3233,11 +3233,11 @@ dissect_pmip6_opt_lmaa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     proto_item* ti;
     int option_len = tvb_reported_length(tvb)-2;
     int offset = 2;
-    guint8 opt_code;
+    uint8_t opt_code;
 
     opt_tree = mip6_var_option_header(tree, pinfo, tvb, proto_mip6_option_lmaa, ett_mip6_opt_lmaa, &ti, option_len, MIP6_LMAA_MIN_LEN);
 
-    opt_code = tvb_get_guint8(tvb,offset);
+    opt_code = tvb_get_uint8(tvb,offset);
     proto_tree_add_item(opt_tree, hf_mip6_lmaa_opt_code, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -3280,7 +3280,7 @@ dissect_pmip6_opt_redir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     proto_item* ti;
     int option_len = tvb_reported_length(tvb)-2;
     int offset = 2;
-    guint16 flag;
+    uint16_t flag;
 
     opt_tree = mip6_var_option_header(tree, pinfo, tvb, proto_mip6_option_redir, ett_mip6_opt_redir, &ti, option_len, MIP6_REDIR_MIN_LEN);
 
@@ -3361,7 +3361,7 @@ dissect_pmip6_opt_mng(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
     int option_len = tvb_reported_length(tvb)-2;
     int offset = 2;
     proto_item *item;
-    guint32     mng_id;
+    uint32_t    mng_id;
 
     opt_tree = mip6_fixed_option_header(tree, pinfo, tvb, proto_mip6_option_mng, ett_mip6_opt_mng, &ti, option_len, MIP6_MNG_LEN);
 
@@ -3475,7 +3475,7 @@ static const value_string mip6_opt_acc_net_id_sub_opt_op_id_type[] = {
 };
 
 static float
-degrees_convert_fixed_to_float(guint value)
+degrees_convert_fixed_to_float(unsigned value)
 {
     if (!value)
         return 0;
@@ -3503,11 +3503,11 @@ degrees_convert_fixed_to_float(guint value)
     }
 
     /* Cast to a signed value, and divide by 32768; do a floating-point divide */
-    return ((float)(gint)value) / 32768.0f;
+    return ((float)(int)value) / 32768.0f;
 }
 
 static void
-degrees_base_custom(gchar *str, guint degrees)
+degrees_base_custom(char *str, unsigned degrees)
 {
     snprintf(str, ITEM_LABEL_LENGTH, "%f", degrees_convert_fixed_to_float(degrees) );
 }
@@ -3518,12 +3518,12 @@ dissect_pmip6_opt_acc_net_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     proto_tree* opt_tree;
     proto_item *ti;
     proto_tree *subopt_tree;
-    gint16 sub_opt_len;
-    guint8 sub_opt, e_bit, net_name_len, ap_name_len;
-    const guint8 *ap_name;
+    int16_t sub_opt_len;
+    uint8_t sub_opt, e_bit, net_name_len, ap_name_len;
+    const uint8_t *ap_name;
     int option_len = tvb_reported_length(tvb)-2;
     int offset = 2;
-    gint offset_end = tvb_reported_length(tvb);
+    int offset_end = tvb_reported_length(tvb);
 
     opt_tree = mip6_var_option_header(tree, pinfo, tvb, proto_mip6_option_acc_net_id, ett_mip6_opt_acc_net_id, &ti, option_len, MIP6_ACC_NET_ID_MIN_LEN);
 
@@ -3532,11 +3532,11 @@ dissect_pmip6_opt_acc_net_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         subopt_tree = proto_item_add_subtree(ti, ett_mip6_sub_opt_acc_net_id);
 
         proto_tree_add_item(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt, tvb, offset, 1, ENC_BIG_ENDIAN);
-        sub_opt = tvb_get_guint8(tvb,offset);
+        sub_opt = tvb_get_uint8(tvb,offset);
         offset++;
 
         proto_tree_add_item(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
-        sub_opt_len = tvb_get_guint8(tvb,offset);
+        sub_opt_len = tvb_get_uint8(tvb,offset);
         offset++;
 
         proto_item_append_text(ti, ": %s (t=%d,l=%d)", val_to_str(sub_opt, mmip6_opt_acc_net_id_sub_opt_vals, "Unknown ANI Type (%02d)"), sub_opt, sub_opt_len);
@@ -3555,16 +3555,16 @@ dissect_pmip6_opt_acc_net_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                | AP-Name Len   |        Access-Point Name                      ~
                +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
             */
-            e_bit = tvb_get_guint8(tvb,offset);
+            e_bit = tvb_get_uint8(tvb,offset);
             proto_tree_add_item(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt_e_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
 
-            net_name_len = tvb_get_guint8(tvb,offset);
+            net_name_len = tvb_get_uint8(tvb,offset);
             proto_tree_add_item(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt_net_name_len, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
 
             if(e_bit == 0x80){
-                const guint8* name;
+                const uint8_t* name;
                 proto_tree_add_item_ret_string(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt_net_name, tvb, offset, net_name_len, ENC_BIG_ENDIAN|ENC_UTF_8, pinfo->pool, &name);
                 proto_item_append_text(ti, " Network Name: %s", name);
             }else{
@@ -3572,7 +3572,7 @@ dissect_pmip6_opt_acc_net_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             };
             offset = offset+net_name_len;
 
-            ap_name_len = tvb_get_guint8(tvb,offset);
+            ap_name_len = tvb_get_uint8(tvb,offset);
             proto_tree_add_item(subopt_tree, hf_mip6_opt_acc_net_id_sub_opt_ap_name_len, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
 
@@ -3651,7 +3651,7 @@ dissect_mip6_opt_dmnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
     proto_item* ti;
     int option_len = tvb_reported_length(tvb)-2;
     int offset = 2;
-    guint8 prefix_len;
+    uint8_t prefix_len;
 
     opt_tree = mip6_var_option_header(tree, pinfo, tvb, proto_mip6_option_dmnp, ett_mip6_opt_dmnp, &ti, option_len, MIP6_DMNP_MIN_LEN);
 
@@ -3663,7 +3663,7 @@ dissect_mip6_opt_dmnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
     offset++;
     proto_tree_add_item(opt_tree, hf_mip6_opt_dmnp_prefix_len, tvb,
                         offset, 1, ENC_BIG_ENDIAN);
-    prefix_len = tvb_get_guint8(tvb, offset);
+    prefix_len = tvb_get_uint8(tvb, offset);
 
     offset++;
 
@@ -3698,19 +3698,19 @@ dissect_mip6_opt_dmnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
  * however, are passed a length that *does* include them.
  */
 static void
-dissect_mipv6_options(tvbuff_t *tvb, int offset, guint length,
+dissect_mipv6_options(tvbuff_t *tvb, int offset, unsigned length,
               int eol, packet_info *pinfo, proto_tree *opt_tree)
 {
-    guchar          opt;
+    unsigned char   opt;
     const char     *name;
-    guint           len;
+    unsigned        len;
     dissector_handle_t option_dissector;
     tvbuff_t       *next_tvb;
     proto_item     *ti;
     proto_tree     *unknown_tree;
 
-    while ((gint)length > 0) {
-        opt = tvb_get_guint8(tvb, offset);
+    while ((int)length > 0) {
+        opt = tvb_get_uint8(tvb, offset);
         --length;      /* account for type byte */
 
         if (opt == MIP6_PAD1) {
@@ -3738,7 +3738,7 @@ dissect_mipv6_options(tvbuff_t *tvb, int offset, guint length,
                 return;
             }
 
-            len = tvb_get_guint8(tvb, offset + 1);  /* Size specified in option */
+            len = tvb_get_uint8(tvb, offset + 1);  /* Size specified in option */
             --length;    /* account for length byte */
 
             if (len > length) {
@@ -3788,8 +3788,8 @@ static int
 dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_tree *mip6_tree, *root_tree;
-    guint8      type, pproto;
-    guint       len, offset = 0, start_offset = offset;
+    uint8_t     type, pproto;
+    unsigned    len, offset = 0, start_offset = offset;
     proto_item *ti, *header_item;
     tvbuff_t   *next_tvb;
 
@@ -3797,8 +3797,8 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MIPv6");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    len = (tvb_get_guint8(tvb, MIP6_HLEN_OFF) + 1) * 8;
-    pproto = tvb_get_guint8(tvb, MIP6_PROTO_OFF);
+    len = (tvb_get_uint8(tvb, MIP6_HLEN_OFF) + 1) * 8;
+    pproto = tvb_get_uint8(tvb, MIP6_PROTO_OFF);
 
     root_tree = p_ipv6_pinfo_select_root(pinfo, tree);
     p_ipv6_pinfo_add_len(pinfo, len);
@@ -3812,9 +3812,9 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     header_item = proto_tree_add_uint_format_value(mip6_tree, hf_mip6_hlen, tvb,
                 MIP6_HLEN_OFF, 1,
-                tvb_get_guint8(tvb, MIP6_HLEN_OFF),
+                tvb_get_uint8(tvb, MIP6_HLEN_OFF),
                 "%u (%u bytes)",
-                tvb_get_guint8(tvb, MIP6_HLEN_OFF),
+                tvb_get_uint8(tvb, MIP6_HLEN_OFF),
                 len);
 
     proto_tree_add_item(mip6_tree, hf_mip6_mhtype, tvb,
@@ -3827,7 +3827,7 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 
     /* Process mobility header */
-    type = tvb_get_guint8(tvb, MIP6_TYPE_OFF);
+    type = tvb_get_uint8(tvb, MIP6_TYPE_OFF);
     col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext(type, &mip6_mh_types_ext, "Unknown Mobility Header (%u)"));
     switch (type) {
     case MIP6_BRR:
@@ -5059,7 +5059,7 @@ proto_register_mip6(void)
 };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_mip6,
         &ett_mip6_opts,
         &ett_mip6_opt_pad1,

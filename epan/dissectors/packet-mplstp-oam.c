@@ -28,10 +28,10 @@ static dissector_handle_t mplstp_lock_handle;
 static dissector_handle_t mplstp_fm_handle;
 
 /* MPLS-TP FM protocol specific variables */
-static gint proto_mplstp_fm;
-static gint ett_mplstp_fm;
-static gint ett_mplstp_fm_flags;
-static gint ett_mplstp_fm_tlv_tree;
+static int proto_mplstp_fm;
+static int ett_mplstp_fm;
+static int ett_mplstp_fm_flags;
+static int ett_mplstp_fm_tlv_tree;
 
 static int hf_mplstp_fm_version;
 
@@ -57,8 +57,8 @@ static const value_string fm_msg_type[] = {
 };
 
 /* MPLS-TP Lock protocol specific variables */
-static gint proto_mplstp_lock;
-static gint ett_mplstp_lock;
+static int proto_mplstp_lock;
+static int ett_mplstp_lock;
 
 static int hf_mplstp_lock_version;
 static int hf_mplstp_lock_reserved;
@@ -70,7 +70,7 @@ dissect_mplstp_fm_tlv (tvbuff_t *tvb, proto_tree *tree)
   proto_item *ti;
   proto_tree *fm_tlv_tree;
 
-  guint offset = 0;
+  unsigned offset = 0;
 
   if (!tree)
     return;
@@ -113,7 +113,7 @@ dissect_mplstp_lock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
   proto_tree *lock_tree;
   tvbuff_t   *next_tvb;
 
-  guint8      offset = 0;
+  uint8_t     offset = 0;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "MPLS-TP LI");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -154,13 +154,13 @@ dissect_mplstp_fm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
    proto_item *ti, *ti_flags;
    proto_tree *fm_tree, *fm_flags;
 
-   gint   offset = 0;
-   guint8 tlv_len;
+   int    offset = 0;
+   uint8_t tlv_len;
 
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "MPLS-TP FM");
    col_clear(pinfo->cinfo, COL_INFO);
 
-   tlv_len = tvb_get_guint8 (tvb, (offset + 4));
+   tlv_len = tvb_get_uint8 (tvb, (offset + 4));
 
    if (!tree)
      return tvb_captured_length(tvb);
@@ -227,7 +227,7 @@ proto_register_mplstp_lock(void)
       BASE_DEC, NULL, 0x0, NULL, HFILL }},
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_mplstp_lock,
   };
 
@@ -313,7 +313,7 @@ proto_register_mplstp_fm(void)
     },
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_mplstp_fm,
     &ett_mplstp_fm_tlv_tree,
     &ett_mplstp_fm_flags,

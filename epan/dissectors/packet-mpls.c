@@ -61,15 +61,15 @@
 void proto_register_mpls(void);
 void proto_reg_handoff_mpls(void);
 
-static gint proto_mpls;
-static gint proto_pw_ach;
-static gint proto_pw_ach_mcc;
-static gint proto_pw_mcw;
+static int proto_mpls;
+static int proto_pw_ach;
+static int proto_pw_ach_mcc;
+static int proto_pw_mcw;
 
-static gint ett_mpls;
-static gint ett_mpls_pw_ach;
-static gint ett_mpls_pw_ach_mcc;
-static gint ett_mpls_pw_mcw;
+static int ett_mpls;
+static int ett_mpls_pw_ach;
+static int ett_mpls_pw_ach_mcc;
+static int ett_mpls_pw_mcw;
 static char PW_ACH[50] = "PW Associated Channel Header";
 
 const value_string special_labels[] = {
@@ -211,35 +211,35 @@ static dissector_table_t mpls_subdissector_table;
 static dissector_table_t mpls_pfn_subdissector_table;
 static heur_dissector_list_t mpls_heur_subdissector_list;
 
-static void mpls_prompt(packet_info *pinfo, gchar* result)
+static void mpls_prompt(packet_info *pinfo, char* result)
 {
     snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Data after label %u as",
         GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_mpls, 0)));
 }
 
-static gpointer mpls_value(packet_info *pinfo)
+static void *mpls_value(packet_info *pinfo)
 {
     return p_get_proto_data(pinfo->pool, pinfo, proto_mpls, 0);
 }
 
-static void mpls_pfn_prompt(packet_info *pinfo, gchar* result)
+static void mpls_pfn_prompt(packet_info *pinfo, char* result)
 {
     snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Data after post-stack first nibble %u as",
         GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_mpls, 1)));
 }
 
-static gpointer mpls_pfn_value(packet_info *pinfo)
+static void *mpls_pfn_value(packet_info *pinfo)
 {
     return p_get_proto_data(pinfo->pool, pinfo, proto_mpls, 1);
 }
 
-static void pw_ach_prompt(packet_info *pinfo, gchar* result)
+static void pw_ach_prompt(packet_info *pinfo, char* result)
 {
     snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Channel type 0x%x as",
         GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_pw_ach, 0)));
 }
 
-static gpointer pw_ach_value(packet_info *pinfo)
+static void *pw_ach_value(packet_info *pinfo)
 {
     return p_get_proto_data(pinfo->pool, pinfo, proto_pw_ach, 0);
 }
@@ -252,17 +252,17 @@ static gpointer pw_ach_value(packet_info *pinfo)
  */
 void
 decode_mpls_label(tvbuff_t *tvb, int offset,
-                       guint32  *label, guint8 *exp,
-                       guint8   *bos, guint8 *ttl)
+                       uint32_t *label, uint8_t *exp,
+                       uint8_t  *bos, uint8_t *ttl)
 {
-    guint8 octet0 = tvb_get_guint8(tvb, offset+0);
-    guint8 octet1 = tvb_get_guint8(tvb, offset+1);
-    guint8 octet2 = tvb_get_guint8(tvb, offset+2);
+    uint8_t octet0 = tvb_get_uint8(tvb, offset+0);
+    uint8_t octet1 = tvb_get_uint8(tvb, offset+1);
+    uint8_t octet2 = tvb_get_uint8(tvb, offset+2);
 
     *label = (octet0 << 12) + (octet1 << 4) + ((octet2 >> 4) & 0xff);
     *exp = (octet2 >> 1) & 0x7;
     *bos = (octet2 & 0x1);
-    *ttl = tvb_get_guint8(tvb, offset+3);
+    *ttl = tvb_get_uint8(tvb, offset+3);
 }
 
 /*
@@ -275,7 +275,7 @@ dissect_pw_ach_mcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     tvbuff_t   *next_tvb;
     proto_tree *mpls_pw_ach_mcc_tree;
     proto_item *ti;
-    guint32     pid;
+    uint32_t    pid;
 
     ti = proto_tree_add_item(tree, proto_pw_ach_mcc, tvb, 0,2, ENC_NA);
     mpls_pw_ach_mcc_tree = proto_item_add_subtree(ti, ett_mpls_pw_ach_mcc);
@@ -298,7 +298,7 @@ static int
 dissect_pw_ach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     tvbuff_t   *next_tvb;
-    guint       channel_type;
+    unsigned    channel_type;
 
     if (tvb_reported_length_remaining(tvb, 0) < 4) {
         proto_tree_add_expert(tree, pinfo, &ei_mpls_pw_ach_error_processing_message, tvb, 0, -1);
@@ -311,7 +311,7 @@ dissect_pw_ach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     if (tree) {
         proto_tree *mpls_pw_ach_tree;
         proto_item *ti;
-        guint16     res;
+        uint16_t    res;
 
         ti = proto_tree_add_item(tree, proto_pw_ach, tvb, 0, 4, ENC_NA);
         mpls_pw_ach_tree = proto_item_add_subtree(ti, ett_mpls_pw_ach);
@@ -319,7 +319,7 @@ dissect_pw_ach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
         proto_tree_add_item(mpls_pw_ach_tree, hf_mpls_pw_ach_ver,
                             tvb, 0, 1, ENC_BIG_ENDIAN);
 
-        res = tvb_get_guint8(tvb, 1);
+        res = tvb_get_uint8(tvb, 1);
         ti = proto_tree_add_uint(mpls_pw_ach_tree, hf_mpls_pw_ach_res,
                                         tvb, 1, 1, res);
         if (res != 0)
@@ -346,12 +346,12 @@ dissect_pw_ach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     return tvb_captured_length(tvb);
 }
 
-gboolean
+bool
 dissect_try_cw_first_nibble( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 {
-    guint8 nibble;
+    uint8_t nibble;
 
-    nibble = (tvb_get_guint8(tvb, 0 ) >> 4) & 0x0F;
+    nibble = (tvb_get_uint8(tvb, 0 ) >> 4) & 0x0F;
     switch ( nibble )
     {
         case 6:
@@ -360,25 +360,25 @@ dissect_try_cw_first_nibble( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
              * word, with the packet's first nibble being 6.
              */
             call_dissector(dissector_ipv6, tvb, pinfo, tree);
-            return TRUE;
+            return true;
         case 4:
             /*
              * XXX - this could be from an pseudo-wire without a control
              * word, with the packet's first nibble being 4.
              */
             call_dissector(dissector_ip, tvb, pinfo, tree);
-            return TRUE;
+            return true;
         case 1:
             /*
              * XXX - this could be from an pseudo-wire without a control
              * word, with the packet's first nibble being 1.
              */
             call_dissector(dissector_pw_ach, tvb, pinfo, tree );
-            return TRUE;
+            return true;
         default:
             break;
     }
-    return FALSE;
+    return false;
 }
 
 /*
@@ -421,13 +421,13 @@ static int
 dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     int       offset = 0;
-    guint32   label  = MPLS_LABEL_INVALID;
-    guint8    exp;
-    guint8    bos;
-    guint8    ttl;
+    uint32_t  label  = MPLS_LABEL_INVALID;
+    uint8_t   exp;
+    uint8_t   bos;
+    uint8_t   ttl;
     tvbuff_t *next_tvb;
     int       found;
-    guint8    first_nibble;
+    uint8_t   first_nibble;
     struct mplsinfo mplsinfo;
     heur_dtbl_entry_t *hdtbl_entry;
     dissector_handle_t payload_handle;
@@ -507,7 +507,7 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             break;
     }
 
-    first_nibble = (tvb_get_guint8(tvb, offset) >> 4) & 0x0F;
+    first_nibble = (tvb_get_uint8(tvb, offset) >> 4) & 0x0F;
     p_add_proto_data(pinfo->pool, pinfo, proto_mpls, 1, GUINT_TO_POINTER(first_nibble));
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -517,7 +517,7 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
      * If so, use it.
      */
     found = dissector_try_uint_new(mpls_subdissector_table, label,
-                               next_tvb, pinfo, tree, FALSE, &mplsinfo);
+                               next_tvb, pinfo, tree, false, &mplsinfo);
     if (found) {
         /* Yes, there is. */
         return tvb_captured_length(tvb);
@@ -539,7 +539,7 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
      * https://datatracker.ietf.org/doc/html/draft-ietf-mpls-1stnibble-06
      */
     if (dissector_try_uint_new(mpls_pfn_subdissector_table, first_nibble,
-        next_tvb, pinfo, tree, FALSE, &mplsinfo)) {
+        next_tvb, pinfo, tree, false, &mplsinfo)) {
 
         payload_handle = dissector_get_uint_handle(mpls_pfn_subdissector_table, first_nibble);
         if (payload_handle == dissector_ip || payload_handle == dissector_ipv6) {
@@ -644,7 +644,7 @@ proto_register_mpls(void)
         },
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_mpls,
         &ett_mpls_pw_ach,
         &ett_mpls_pw_ach_mcc,

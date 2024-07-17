@@ -38,8 +38,8 @@ enum packet_direction_state_mtp2 {FORWARD, BACKWARD};
 
 /* structure for telling the bitstream dissector if it shall use a mtp2_flag_search value from the prev. packet */
 typedef struct mtp2_flag_search {
-  gboolean      set;            /* shows if the mtp2_flag_search value is valid, needed to be set in the dissect function */
-  guint8        mtp2_flag_search;    /* mtp2_flag_search value itself */
+  bool          set;            /* shows if the mtp2_flag_search value is valid, needed to be set in the dissect function */
+  uint8_t       mtp2_flag_search;    /* mtp2_flag_search value itself */
 } mtp2_mtp2_flag_search_t;
 
 /* Possible states of the state machine for decoding the MTP2 bitstream */
@@ -48,7 +48,7 @@ enum mtp2_bitstream_states {OUT_OF_SYNC, FLAGS, DATA};
 /* data type for chained list of found MTP2 packets in RTP stream */
 typedef struct mtp2_recognized_packet {
   tvbuff_t                *data;              /* data of the actual packet */
-  guint8                  unalignment_offset; /* !=0 signals if this packet was not a multiple of 8 bits in the stream */
+  uint8_t                 unalignment_offset; /* !=0 signals if this packet was not a multiple of 8 bits in the stream */
 } mtp2_recognized_packet_t;
 
 /* structure used in mtp2_dissect_tvb_res
@@ -56,8 +56,8 @@ typedef struct mtp2_recognized_packet {
 typedef struct mtp2_remain_data {
   tvbuff_t        *before_first_flag;              /* data found before the first flag */
   tvbuff_t        *after_last_flag;                /* data found after the last flag */
-  guint8          before_fh_unalignment_offset;    /* !=0 signals if the before_fh data was not a multiple of 8 bits in the stream */
-  gboolean        before_fh_frame_reset;           /* signals if there was a frame reset in the data before the 1st flag */
+  uint8_t         before_fh_unalignment_offset;    /* !=0 signals if the before_fh data was not a multiple of 8 bits in the stream */
+  bool            before_fh_frame_reset;           /* signals if there was a frame reset in the data before the 1st flag */
 } mtp2_remain_data_t;
 
 
@@ -66,31 +66,31 @@ typedef struct mtp2_dissect_tvb_res {
   mtp2_remain_data_t              mtp2_remain_data;       /* stores the tvbuffs found before 1st and after last flags in the packet */
   mtp2_mtp2_flag_search_t         mtp2_flag_search;       /* this contains the mtp2_flag_search's value at the end of the packet dissection */
   wmem_list_t                     *found_packets;         /* contains the packets found in tvbuff */
-  guint8                          data_buff;              /* to store the data_buff value */
-  guint8                          data_buff_offset;       /* to store the data_buff_offset value */
-  guint8                          last_flag_beginning_offset_for_align_check;     /* the offset of the last flag's beginning have to be stored */
-  gboolean                        flag_found;             /* boolean value to sign if there was a flag in the RTP packet or not */
+  uint8_t                         data_buff;              /* to store the data_buff value */
+  uint8_t                         data_buff_offset;       /* to store the data_buff_offset value */
+  uint8_t                         last_flag_beginning_offset_for_align_check;     /* the offset of the last flag's beginning have to be stored */
+  bool                            flag_found;             /* boolean value to sign if there was a flag in the RTP packet or not */
   enum mtp2_bitstream_states      state;                  /* to store the value of the state of the dissection after finish */
 } mtp2_dissect_tvb_res_t;
 
 /* mtp2 per-packet data */
 typedef struct mtp2_ppd {
   mtp2_mtp2_flag_search_t         mtp2_flag_search;                               /* flag search needed to pass to dissect_mtp2_tvb - it was derived from the prev. packet in the same direction */
-  guint8                          data_buff;                                      /* data buff needed to pass to dissect_mtp2_tvb - it was derived from the prev. packet in the same direction */
-  guint8                          data_buff_offset;                               /* data buff offset needed to pass to dissect_mtp2_tvb - it was derived from the prev. packet in the same direction */
-  guint8                          last_flag_beginning_offset_for_align_check;     /* variable for align check, stores the last flag's beginning's offset */
-  guint32                         reass_seq_num_for_reass_check_before_fh;        /* this is the id (reass_seq_num) which should be used for looking up reassembled data found before the first flag */
-  guint32                         reass_seq_num_for_reass_check_after_lh;         /* this is the id (reass_seq_num) which should be used for looking up reassembled data found after the last flag */
+  uint8_t                         data_buff;                                      /* data buff needed to pass to dissect_mtp2_tvb - it was derived from the prev. packet in the same direction */
+  uint8_t                         data_buff_offset;                               /* data buff offset needed to pass to dissect_mtp2_tvb - it was derived from the prev. packet in the same direction */
+  uint8_t                         last_flag_beginning_offset_for_align_check;     /* variable for align check, stores the last flag's beginning's offset */
+  uint32_t                        reass_seq_num_for_reass_check_before_fh;        /* this is the id (reass_seq_num) which should be used for looking up reassembled data found before the first flag */
+  uint32_t                        reass_seq_num_for_reass_check_after_lh;         /* this is the id (reass_seq_num) which should be used for looking up reassembled data found after the last flag */
   enum mtp2_bitstream_states      state;                                          /* state needed to pass to dissect_mtp2_tvb - it was derived from the prev. packet in the same direction */
 } mtp2_ppd_t;
 
 /* conversation data about the previous packet in the conversation (in one direction) */
 typedef struct mtp2_convo_data_prev_packet {
   mtp2_mtp2_flag_search_t       mtp2_flag_search;       /* storing the prev. packet's flag search */
-  guint8                        data_buff;              /* storing the prev. packet's data buffer */
-  guint8                        data_buff_offset;       /* storing the prev. packet's data buffer offset */
-  guint8                        last_flag_beginning_offset_for_align_check;     /* storing the prev. packet's last flag's offset */
-  guint32                       reass_seq_num;          /* storing the prev. packet's reassemble seq. num */
+  uint8_t                       data_buff;              /* storing the prev. packet's data buffer */
+  uint8_t                       data_buff_offset;       /* storing the prev. packet's data buffer offset */
+  uint8_t                       last_flag_beginning_offset_for_align_check;     /* storing the prev. packet's last flag's offset */
+  uint32_t                      reass_seq_num;          /* storing the prev. packet's reassemble seq. num */
   enum mtp2_bitstream_states    state;                  /* storing the prev. packet's state in the forward direction */
 } mtp2_convo_data_prev_packet_t;
 
@@ -98,8 +98,8 @@ typedef struct mtp2_convo_data_prev_packet {
 typedef struct mtp2_convo_data {
   address         addr_a;                               /* storing the first packet's originating address */
   address         addr_b;                               /* storing the first packet's terminating address */
-  guint32         port_a;                               /* storing the first packet's originating port */
-  guint32         port_b;                               /* storing the first packet's terminating port */
+  uint32_t        port_a;                               /* storing the first packet's originating port */
+  uint32_t        port_b;                               /* storing the first packet's terminating port */
   mtp2_convo_data_prev_packet_t   *forward;             /* storing needed info about the prev. packet's in forward direction */
   mtp2_convo_data_prev_packet_t   *backward;            /* storing needed info about the prev. packet's in backward direction */
 } mtp2_convo_data_t;
@@ -137,8 +137,8 @@ static int hf_mtp2_fragment_error;
 static int hf_mtp2_fragment_count;
 static int hf_mtp2_reassembled_in;
 static int hf_mtp2_reassembled_length;
-static gint ett_mtp2_fragment;
-static gint ett_mtp2_fragments;
+static int ett_mtp2_fragment;
+static int ett_mtp2_fragments;
 
 /* local static const needed for reassembly */
 static const fragment_items mtp2_frag_items = {
@@ -168,7 +168,7 @@ static expert_field ei_mtp2_checksum_error;
 static expert_field ei_mtp2_li_bad;
 
 /* Initialize the subtree pointers */
-static gint ett_mtp2;
+static int ett_mtp2;
 
 static bool use_extended_sequence_numbers_default;
 static bool capture_contains_fcs_crc_default;
@@ -178,7 +178,7 @@ static bool capture_contains_fcs_crc_default;
  * source and destination IP addresses
  * therefore if there are multiple streams between 2 IP end-points
  * the reassemble sequence numbers can conflict if they are based on conversations */
-static guint32    mtp2_absolute_reass_seq_num;
+static uint32_t   mtp2_absolute_reass_seq_num;
 
 #define BSN_BIB_LENGTH          1
 #define FSN_FIB_LENGTH          1
@@ -237,9 +237,9 @@ start_dissect_bitstream_packet: 2120
 #endif
 
 static void
-dissect_mtp2_header(tvbuff_t *su_tvb, packet_info *pinfo, proto_item *mtp2_tree, gboolean use_extended_sequence_numbers, gboolean validate_crc, guint32 *li)
+dissect_mtp2_header(tvbuff_t *su_tvb, packet_info *pinfo, proto_item *mtp2_tree, bool use_extended_sequence_numbers, bool validate_crc, uint32_t *li)
 {
-  guint reported_len;
+  unsigned reported_len;
   proto_item *li_item;
 
   if (use_extended_sequence_numbers) {
@@ -294,10 +294,10 @@ dissect_mtp2_header(tvbuff_t *su_tvb, packet_info *pinfo, proto_item *mtp2_tree,
 * DETAILS : Calculate a new FCS-16 given the current FCS-16 and the new data.
 *******************************************************************************
 */
-static guint16
+static uint16_t
 mtp2_fcs16(tvbuff_t * tvbuff)
 {
-  guint len = tvb_reported_length(tvbuff)-2;
+  unsigned len = tvb_reported_length(tvbuff)-2;
 
   /* Check for Invalid Length */
   if (len == 0)
@@ -312,7 +312,7 @@ static tvbuff_t *
 mtp2_decode_crc16(tvbuff_t *tvb, proto_tree *fh_tree, packet_info *pinfo)
 {
   tvbuff_t   *next_tvb;
-  gint       len, reported_len;
+  int        len, reported_len;
   int proto_offset=0;
 
   /*
@@ -396,10 +396,10 @@ static const value_string status_field_acro_vals[] = {
 
 static void
 dissect_mtp2_lssu(tvbuff_t *su_tvb, packet_info *pinfo, proto_item *mtp2_tree,
-                  gboolean use_extended_sequence_numbers)
+                  bool use_extended_sequence_numbers)
 {
-  guint8 sf = 0xFF;
-  guint8 sf_offset, sf_extra_offset;
+  uint8_t sf = 0xFF;
+  uint8_t sf_offset, sf_extra_offset;
 
   if (use_extended_sequence_numbers) {
     sf_offset = EXTENDED_SF_OFFSET;
@@ -410,13 +410,13 @@ dissect_mtp2_lssu(tvbuff_t *su_tvb, packet_info *pinfo, proto_item *mtp2_tree,
   }
 
   proto_tree_add_item(mtp2_tree, hf_mtp2_sf, su_tvb, sf_offset, SF_LENGTH, ENC_LITTLE_ENDIAN);
-  sf = tvb_get_guint8(su_tvb, SF_OFFSET);
+  sf = tvb_get_uint8(su_tvb, SF_OFFSET);
 
   /*  If the LI is 2 then there is an extra octet following the standard SF
    *  field but it is not defined what this octet is.
    *  (In any case the first byte of the SF always has the same meaning.)
    */
-  if ((tvb_get_guint8(su_tvb, LI_OFFSET) & LI_MASK) == 2)
+  if ((tvb_get_uint8(su_tvb, LI_OFFSET) & LI_MASK) == 2)
     proto_tree_add_item(mtp2_tree, hf_mtp2_sf_extra, su_tvb, sf_extra_offset, SF_EXTRA_LENGTH, ENC_LITTLE_ENDIAN);
 
   col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(sf, status_field_acro_vals, "Unknown"));
@@ -424,9 +424,9 @@ dissect_mtp2_lssu(tvbuff_t *su_tvb, packet_info *pinfo, proto_item *mtp2_tree,
 
 static void
 dissect_mtp2_msu(tvbuff_t *su_tvb, packet_info *pinfo, proto_item *mtp2_item,
-                 proto_item *tree, gboolean use_extended_sequence_numbers)
+                 proto_item *tree, bool use_extended_sequence_numbers)
 {
-  gint sif_sio_length;
+  int sif_sio_length;
   tvbuff_t *sif_sio_tvb;
 
   col_set_str(pinfo->cinfo, COL_INFO, "MSU ");
@@ -450,10 +450,10 @@ dissect_mtp2_msu(tvbuff_t *su_tvb, packet_info *pinfo, proto_item *mtp2_item,
 
 static void
 dissect_mtp2_su(tvbuff_t *su_tvb, packet_info *pinfo, proto_item *mtp2_item,
-                proto_item *mtp2_tree, proto_tree *tree, gboolean validate_crc,
-                gboolean use_extended_sequence_numbers)
+                proto_item *mtp2_tree, proto_tree *tree, bool validate_crc,
+                bool use_extended_sequence_numbers)
 {
-  guint32 li=0;
+  uint32_t li=0;
   tvbuff_t  *next_tvb = NULL;
 
   dissect_mtp2_header(su_tvb, pinfo, mtp2_tree, use_extended_sequence_numbers, validate_crc, &li);
@@ -480,7 +480,7 @@ dissect_mtp2_su(tvbuff_t *su_tvb, packet_info *pinfo, proto_item *mtp2_item,
 
 static void
 dissect_mtp2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                    gboolean validate_crc, gboolean use_extended_sequence_numbers)
+                    bool validate_crc, bool use_extended_sequence_numbers)
 {
   proto_item *mtp2_item;
   proto_tree *mtp2_tree;
@@ -499,9 +499,9 @@ static int
 dissect_mtp2_with_phdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   if (pinfo->pseudo_header->mtp2.annex_a_used == MTP2_ANNEX_A_USED_UNKNOWN)
-    dissect_mtp2_common(tvb, pinfo, tree, FALSE, use_extended_sequence_numbers_default);
+    dissect_mtp2_common(tvb, pinfo, tree, false, use_extended_sequence_numbers_default);
   else
-    dissect_mtp2_common(tvb, pinfo, tree, FALSE,
+    dissect_mtp2_common(tvb, pinfo, tree, false,
                         (pinfo->pseudo_header->mtp2.annex_a_used == MTP2_ANNEX_A_USED));
 
   return tvb_captured_length(tvb);
@@ -514,7 +514,7 @@ dissect_mtp2_with_phdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 static int
 dissect_mtp2_with_crc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  dissect_mtp2_common(tvb, pinfo, tree, TRUE, use_extended_sequence_numbers_default);
+  dissect_mtp2_common(tvb, pinfo, tree, true, use_extended_sequence_numbers_default);
   return tvb_captured_length(tvb);
 }
 
@@ -529,39 +529,39 @@ dissect_mtp2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   return tvb_captured_length(tvb);
 }
 
-/*  get one bit of a guint8 byte
+/*  get one bit of a uint8_t byte
 *   based on the order set in the preferences
 *   reverse_bit_order_mtp2 = false: as the Q.703 states
 *   reverse_bit_order_mtp2 = true: just the opposite
 */
-static gboolean
-get_bit(guint8 byte, guint8 bit)
+static bool
+get_bit(uint8_t byte, uint8_t bit)
 {
-  if (reverse_bit_order_mtp2 == FALSE) {
-    return byte & ((0x80 >> (bit-1))) ? TRUE : FALSE;
+  if (reverse_bit_order_mtp2 == false) {
+    return byte & ((0x80 >> (bit-1))) ? true : false;
   } else {
-    return byte & ((0x01 << (bit-1))) ? TRUE : FALSE;
+    return byte & ((0x01 << (bit-1))) ? true : false;
   }
 }
 
 /* store new byte of an MTP2 frame in an array
  * after the whole packet is stored the array will be used to construct a new tvb */
 static void
-new_byte(char full_byte, guint8 **data, guint8 *data_len)
+new_byte(char full_byte, uint8_t **data, uint8_t *data_len)
 {
-  guint8  *new_data = NULL;
+  uint8_t *new_data = NULL;
   int     i = 0;
 
   if ((*data_len) == 0) {
     /* if data was never stored in this buffer before */
-    *data = wmem_new(wmem_packet_scope(), guint8);
+    *data = wmem_new(wmem_packet_scope(), uint8_t);
     (**data) = full_byte;
     (*data_len)++;
   } else {
     /* if this buffer is used -> create a completely new one
      * note, that after the dissection of this packet
      * the old data will be freed automatically (because of the wmem_alloc) */
-    new_data = (guint8 *)wmem_alloc(wmem_packet_scope(), sizeof(guint8)*((*data_len)+1));
+    new_data = (uint8_t *)wmem_alloc(wmem_packet_scope(), sizeof(uint8_t)*((*data_len)+1));
     /* copy the old one's content */
     for (i = 0;i<(*data_len);i++) {
       *(new_data+i) = *((*data)+i);
@@ -581,11 +581,11 @@ new_byte(char full_byte, guint8 **data, guint8 *data_len)
 static void debug(char *format, ...) G_GNUC_PRINTF(1, 2);
 static void debug(char *format, ...)
 {
-  guint32 max_buffer_length = 256;
-  gchar *buffer = NULL;
+  uint32_t max_buffer_length = 256;
+  char *buffer = NULL;
   va_list args;
 
-  buffer = (gchar *) wmem_alloc(wmem_packet_scope(), max_buffer_length);
+  buffer = (char *) wmem_alloc(wmem_packet_scope(), max_buffer_length);
   buffer[0] = '\0';
 
   va_start(args,format);
@@ -619,7 +619,7 @@ get_direction_state(packet_info *pinfo, mtp2_convo_data_t *convo_data)
 
 /* prepares the data to be stored as found packet in wmem_list */
 static mtp2_recognized_packet_t*
-prepare_data_for_found_packet(tvbuff_t *tvb, guint8 unalignment_offset)
+prepare_data_for_found_packet(tvbuff_t *tvb, uint8_t unalignment_offset)
 {
   mtp2_recognized_packet_t *packet;
 
@@ -635,10 +635,10 @@ prepare_data_for_found_packet(tvbuff_t *tvb, guint8 unalignment_offset)
  * sets the mtp2_flag_search, data_buffer, it's offset and the state to the one which was stored
  * at the end of the previous packet's dissection in the same direction */
 static mtp2_dissect_tvb_res_t*
-dissect_mtp2_tvb(tvbuff_t* tvb, mtp2_mtp2_flag_search_t back_mtp2_flag_search, guint8 back_data_buff, guint8 back_data_buff_offset,
-    enum mtp2_bitstream_states back_state, guint8 back_last_flag_beginning_offset_for_align_check)
+dissect_mtp2_tvb(tvbuff_t* tvb, mtp2_mtp2_flag_search_t back_mtp2_flag_search, uint8_t back_data_buff, uint8_t back_data_buff_offset,
+    enum mtp2_bitstream_states back_state, uint8_t back_last_flag_beginning_offset_for_align_check)
 {
-  guint8        mtp2_flag_search = 0x00,                        /* this helps to detect the flags in the bitstream */
+  uint8_t       mtp2_flag_search = 0x00,                        /* this helps to detect the flags in the bitstream */
                 data_buff = 0x00,                               /* buffer to store the found bits without the stuffed zeros */
                 data_buff_offset = 0,                           /* index of the data_buff_offset, where to store the next bit */
                 available_bytes_in_rtp_payload = 0,             /* stores the tvb's length which need to be analyzed */
@@ -647,10 +647,10 @@ dissect_mtp2_tvb(tvbuff_t* tvb, mtp2_mtp2_flag_search_t back_mtp2_flag_search, g
                 data_len = 0,                                   /* the length of the array where the data_buff's are stored */
                 flag_beginning_offset_for_align_check = 0;      /* this stores the offset of the fist bit in a flag */
 #ifdef MTP2_BITSTREAM_DEBUG
-  gboolean      zero_skip0 = 0,                                 /* needed for debug output */
+  bool          zero_skip0 = 0,                                 /* needed for debug output */
                 zero_skip1 = 0,                                 /* needed for debug output */
-                flag = FALSE,                                   /* needed for debug to print flag found message. reset at every new octet read from tvb */
-                frame_reset = FALSE;                            /* needed for debug, informs about a frame reset */
+                flag = false,                                   /* needed for debug to print flag found message. reset at every new octet read from tvb */
+                frame_reset = false;                            /* needed for debug, informs about a frame reset */
 #endif
   enum mtp2_bitstream_states    state = OUT_OF_SYNC;            /* actual state of the dissection */
   tvbuff_t                      *new_tvb = NULL;                /* tvbuff which stores the assembled data from the data pointer */
@@ -660,14 +660,14 @@ dissect_mtp2_tvb(tvbuff_t* tvb, mtp2_mtp2_flag_search_t back_mtp2_flag_search, g
   result = wmem_new(wmem_packet_scope(), mtp2_dissect_tvb_res_t);
   result->mtp2_remain_data.before_first_flag = NULL;
   result->mtp2_remain_data.before_fh_unalignment_offset = 0;
-  result->mtp2_remain_data.before_fh_frame_reset = FALSE;
+  result->mtp2_remain_data.before_fh_frame_reset = false;
   result->mtp2_remain_data.after_last_flag = NULL;
   result->found_packets = wmem_list_new(wmem_packet_scope());
-  result->flag_found = FALSE;
+  result->flag_found = false;
   result->last_flag_beginning_offset_for_align_check = 0;
 
   /* set the mtp2_flag_search if it is set */
-  if (back_mtp2_flag_search.set == TRUE) {
+  if (back_mtp2_flag_search.set == true) {
     mtp2_flag_search = back_mtp2_flag_search.mtp2_flag_search;
   }
   /* set every other variables from the prev. packet's end in the same direction */
@@ -682,15 +682,15 @@ dissect_mtp2_tvb(tvbuff_t* tvb, mtp2_mtp2_flag_search_t back_mtp2_flag_search, g
   /* walk through the tvb in means of octets */
   while (offset < available_bytes_in_rtp_payload) {
     /* get actual packet's byte */
-    guint8 byte = tvb_get_guint8(tvb,offset);
+    uint8_t byte = tvb_get_uint8(tvb,offset);
     /* for every bit in the byte */
-    for (guint8 i=1; i <= 8; i++) {
+    for (uint8_t i=1; i <= 8; i++) {
       /* get the bit's boolean value got from byte[i] */
-      gboolean bit = get_bit(byte, i);
+      bool bit = get_bit(byte, i);
 
 #ifdef MTP2_BITSTREAM_DEBUG
       /* in case of debug, print just the pure RTP payload, not the previous packet's end */
-      debug("%u",(bit==FALSE?0:1));
+      debug("%u",(bit==false?0:1));
 #endif
 
       /* update the mtp2_flag_search */
@@ -731,7 +731,7 @@ dissect_mtp2_tvb(tvbuff_t* tvb, mtp2_mtp2_flag_search_t back_mtp2_flag_search, g
       }
       /* we have a flag */
       if (mtp2_flag_search == 0x7E &&
-          !(offset == 0 && i < 8 && back_mtp2_flag_search.set == FALSE))
+          !(offset == 0 && i < 8 && back_mtp2_flag_search.set == false))
         /* the second part of the '&&' is not to recognize the 1111110x pattern as flag in the beginning of the 1st packet in every direction
          * the 1111110 would be shifted into the mtp2_flag_search variable, this has a 0x00 initial value
          * so after shifting 7 bits, the value of mtp2_flag_search would be 01111110 however there was no leading 0*/
@@ -740,7 +740,7 @@ dissect_mtp2_tvb(tvbuff_t* tvb, mtp2_mtp2_flag_search_t back_mtp2_flag_search, g
         state = FLAGS;
         /* if before this flag, we found some real packet related bytes */
         if (data_len != 0) {
-          guint8 unaligned_packet_offset = 0; /* !=0 signals if the packet just found was not a multiple of 8 bits in the bitstream */
+          uint8_t unaligned_packet_offset = 0; /* !=0 signals if the packet just found was not a multiple of 8 bits in the bitstream */
           /* here we check if the just found MTP2 packet is unaligned or not
            * 0 is not valid value meaning the flag_beginning_offset_for_align_check was not set at the beginning of the func.
            * if flag_beginning_offset_for_align_check != i, we have an unaligned packet */
@@ -754,11 +754,11 @@ dissect_mtp2_tvb(tvbuff_t* tvb, mtp2_mtp2_flag_search_t back_mtp2_flag_search, g
             data_buff_offset = 0;
           }
           /* fill the temporary buffer with data */
-          guint8 *buff = (guint8 *) wmem_memdup(wmem_packet_scope(), found_data_buff_byte, data_len);
+          uint8_t *buff = (uint8_t *) wmem_memdup(wmem_packet_scope(), found_data_buff_byte, data_len);
           /* Allocate new tvb for the proto frame */
           new_tvb = tvb_new_child_real_data(tvb, buff, data_len, data_len);
           /* if there were no flags before, we've found the bytes before the first flag */
-          if (result->flag_found == FALSE) {
+          if (result->flag_found == false) {
             /* this tvb is the one we found before the 1st flag */
             result->mtp2_remain_data.before_first_flag = new_tvb;
             /* if the bytes before the first flag was unaligned -> the calling function needs this info */
@@ -775,10 +775,10 @@ dissect_mtp2_tvb(tvbuff_t* tvb, mtp2_mtp2_flag_search_t back_mtp2_flag_search, g
         flag_beginning_offset_for_align_check = i;
 #ifdef MTP2_BITSTREAM_DEBUG
         /* for local debug purposes */
-        flag = TRUE;
+        flag = true;
 #endif
-        /* set the result found in the result to TRUE */
-        result->flag_found = TRUE;
+        /* set the result found in the result to true */
+        result->flag_found = true;
         /* 7 consecutive 1s => out of sync */
       } else if (mtp2_flag_search == 0x7F || mtp2_flag_search == 0xFE || mtp2_flag_search == 0xFF) {
         /* set the state and clear everything */
@@ -788,10 +788,10 @@ dissect_mtp2_tvb(tvbuff_t* tvb, mtp2_mtp2_flag_search_t back_mtp2_flag_search, g
         data_buff = 0x00;
         data_buff_offset = 0;
 #ifdef MTP2_BITSTREAM_DEBUG
-        frame_reset = TRUE;
+        frame_reset = true;
 #endif
-        if (result->flag_found == FALSE)
-          result->mtp2_remain_data.before_fh_frame_reset = TRUE;
+        if (result->flag_found == false)
+          result->mtp2_remain_data.before_fh_frame_reset = true;
       }
     }
 
@@ -816,8 +816,8 @@ dissect_mtp2_tvb(tvbuff_t* tvb, mtp2_mtp2_flag_search_t back_mtp2_flag_search, g
     zero_skip0 = 0;
     zero_skip1 = 0;
     /* set the debug variables as well */
-    flag = FALSE;
-    frame_reset = FALSE;
+    flag = false;
+    frame_reset = false;
 #endif
     /* increment tvb offset */
     offset++;
@@ -825,7 +825,7 @@ dissect_mtp2_tvb(tvbuff_t* tvb, mtp2_mtp2_flag_search_t back_mtp2_flag_search, g
 
   if (data_len != 0) {
     /* fill the temporary buffer with data */
-    guint8 * buff = (guint8 *) wmem_memdup(wmem_packet_scope(), found_data_buff_byte, data_len);
+    uint8_t * buff = (uint8_t *) wmem_memdup(wmem_packet_scope(), found_data_buff_byte, data_len);
     /* Allocate new tvb for the MTP2 frame */
     new_tvb = tvb_new_child_real_data(tvb, buff, data_len, data_len);
     /* this tvb is the one we found after the last flag */
@@ -836,7 +836,7 @@ dissect_mtp2_tvb(tvbuff_t* tvb, mtp2_mtp2_flag_search_t back_mtp2_flag_search, g
    * we have to add a 0 length tvb with the flag "no more packets" */
   if (result->mtp2_remain_data.before_first_flag == NULL) {
     /* fill the temporary buffer with data */
-    guint8 *buff = (guint8 *) wmem_memdup(wmem_packet_scope(), found_data_buff_byte, 0);
+    uint8_t *buff = (uint8_t *) wmem_memdup(wmem_packet_scope(), found_data_buff_byte, 0);
     /* Allocate new tvb for the MTP2 frame */
     new_tvb = tvb_new_child_real_data(tvb, buff, 0, 0);
     /* this tvb is the one we found after the last flag */
@@ -845,12 +845,12 @@ dissect_mtp2_tvb(tvbuff_t* tvb, mtp2_mtp2_flag_search_t back_mtp2_flag_search, g
 
   /* don't set mtp2_flag_search and other stuff if the packet ended in out_of_sync */
   if (state != OUT_OF_SYNC) {
-    result->mtp2_flag_search.set = TRUE;
+    result->mtp2_flag_search.set = true;
     result->mtp2_flag_search.mtp2_flag_search = mtp2_flag_search;
     result->data_buff = data_buff;
     result->data_buff_offset = data_buff_offset;
   } else {
-    result->mtp2_flag_search.set = FALSE;
+    result->mtp2_flag_search.set = false;
     result->mtp2_flag_search.mtp2_flag_search = result->data_buff = result->data_buff_offset = 0x00;
   }
 
@@ -865,7 +865,7 @@ dissect_mtp2_tvb(tvbuff_t* tvb, mtp2_mtp2_flag_search_t back_mtp2_flag_search, g
 }
 
 /* function to get a new reass. sequence number  */
-static guint32
+static uint32_t
 get_new_reass_seq_num(void)
 {
   /* fail if it reached the max value */
@@ -878,7 +878,7 @@ get_new_reass_seq_num(void)
 
 /* sign if the packet is unaligned in proto tree */
 static void
-issue_unaligned_info(proto_tree *tree, tvbuff_t *tvb, guint8 unalignment_offset)
+issue_unaligned_info(proto_tree *tree, tvbuff_t *tvb, uint8_t unalignment_offset)
 {
   proto_tree_add_none_format(tree, hf_mtp2_unexpect_end, tvb, 0, tvb_reported_length_remaining(tvb,0),
       "[Packet ended in the middle of an octet. Octet: last, Offset: %u]",
@@ -910,7 +910,7 @@ set_ppd_fields_based_on_convo_directon_data(mtp2_ppd_t *mtp2_ppd, mtp2_convo_dat
 
 /* set convo data based on dissection result and reass_seq_num */
 static void
-set_direction_fields_based_on_result_and_reass_seq_num(mtp2_convo_data_prev_packet_t *direction_data, mtp2_dissect_tvb_res_t *result, guint32 reass_seq_num)
+set_direction_fields_based_on_result_and_reass_seq_num(mtp2_convo_data_prev_packet_t *direction_data, mtp2_dissect_tvb_res_t *result, uint32_t reass_seq_num)
 {
   direction_data->mtp2_flag_search = result->mtp2_flag_search;
   direction_data->data_buff = result->data_buff;
@@ -924,7 +924,7 @@ set_direction_fields_based_on_result_and_reass_seq_num(mtp2_convo_data_prev_pack
 static int
 dissect_mtp2_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * user_data _U_)
 {
-  guint32                               reass_seq_num = 0;                      /* reassemble sequence number at the beginning of this packet's dissection */
+  uint32_t                              reass_seq_num = 0;                      /* reassemble sequence number at the beginning of this packet's dissection */
   conversation_t                        *conversation = NULL;                   /* conversation of the mtp2 dissection */
   mtp2_convo_data_t                     *convo_data = NULL;                     /* conversation data of the mtp2 dissection */
   mtp2_dissect_tvb_res_t                *result = NULL;                         /* variable to store the result of dissect_mtp2_tvb */
@@ -954,7 +954,7 @@ dissect_mtp2_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     convo_data->port_b = pinfo->destport;
     convo_data->forward = wmem_new(wmem_file_scope(), mtp2_convo_data_prev_packet_t);
     convo_data->backward = wmem_new(wmem_file_scope(), mtp2_convo_data_prev_packet_t);
-    convo_data->forward->mtp2_flag_search.set = convo_data->backward->mtp2_flag_search.set= FALSE;
+    convo_data->forward->mtp2_flag_search.set = convo_data->backward->mtp2_flag_search.set= false;
     convo_data->forward->mtp2_flag_search.mtp2_flag_search = convo_data->backward->mtp2_flag_search.mtp2_flag_search = 0x00;
     convo_data->forward->data_buff = convo_data->backward->data_buff = 0x00;
     convo_data->forward->data_buff_offset = convo_data->backward->data_buff_offset = 0;
@@ -1004,11 +1004,11 @@ dissect_mtp2_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
   /* if this is the first time, do the reassemble things
    * else just check for reassembled data */
-  if (pinfo->fd->visited == FALSE) {
+  if (pinfo->fd->visited == false) {
     /* if there was a flag in this tvb, the data found before the 1st flag
      * have to be treated differently than the data found after the last flag
      * this means we need to use different reass_seq_num when adding them to the reass. handler */
-    if (result->flag_found == TRUE) {
+    if (result->flag_found == true) {
       /* add the data found before the first flag with the same reass_seq_num as the
        * data found after the last flag in the previous packet in this direction */
       fragment_add_seq_next(&mtp2_reassembly_table, /* bookkeeping table */
@@ -1018,7 +1018,7 @@ dissect_mtp2_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
           mtp2_ppd->reass_seq_num_for_reass_check_before_fh, /* sequence number of the fragment stream */
           NULL, /* additional data to identify the segment */
           tvb_reported_length_remaining(result->mtp2_remain_data.before_first_flag, 0), /* length is the whole tvb's length */
-          FALSE); /* there are no more fragments */
+          false); /* there are no more fragments */
 
       /* get a new reass seq num for the data found after the last flag */
       mtp2_ppd->reass_seq_num_for_reass_check_after_lh = reass_seq_num = get_new_reass_seq_num();
@@ -1032,7 +1032,7 @@ dissect_mtp2_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             mtp2_ppd->reass_seq_num_for_reass_check_after_lh, /* sequence number of the fragment stream */
             NULL, /* additional data to identify the segment */
             tvb_reported_length_remaining(result->mtp2_remain_data.after_last_flag, 0), /* length is the whole tvb's length */
-            TRUE); /* there are more fragments */
+            true); /* there are more fragments */
       }
     } else {
       /* here the increment of the reass_seq_num is not needed because this RTP frame was completely part
@@ -1046,7 +1046,7 @@ dissect_mtp2_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             mtp2_ppd->reass_seq_num_for_reass_check_before_fh, /* sequence number of the fragment stream */
             NULL, /* additional data to identify the segment */
             tvb_reported_length_remaining(result->mtp2_remain_data.after_last_flag, 0), /* length is the whole tvb's length */
-            TRUE); /* there are more fragments */
+            true); /* there are more fragments */
       }
     }
     /* store the values in convo_data
@@ -1067,7 +1067,7 @@ dissect_mtp2_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     tvbuff_t            *new_tvb = NULL;
     fragment_head       *frag_msg_before_fh = NULL;
     fragment_head       *frag_msg_after_lh = NULL;
-    gchar               *col_info_str = NULL;           /* char array to store temporary string for col info update */
+    char                *col_info_str = NULL;           /* char array to store temporary string for col info update */
 
     /* get the fragment data both for before first and after last flags */
     /* before first flag */
@@ -1095,7 +1095,7 @@ dissect_mtp2_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
       if (new_tvb != NULL && tvb_reported_length_remaining(new_tvb, 0) > 0) {
 
         /* if there was a frame reset before the first flag */
-        if (result->mtp2_remain_data.before_fh_frame_reset == TRUE) {
+        if (result->mtp2_remain_data.before_fh_frame_reset == true) {
           /* issue frame reset */
           issue_frame_reset_info(tree, new_tvb);
           /* prepare col_info string */
@@ -1112,7 +1112,7 @@ dissect_mtp2_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     /* if there were packets found */
     if (wmem_list_count(result->found_packets) != 0) {
       /* boolean variable to help to print proper col_info if unaligned packet is found */
-      gboolean was_unaligned_packet = FALSE;
+      bool was_unaligned_packet = false;
       /* pointer walking through the list of found packets */
       wmem_list_frame_t *recognized_packet = wmem_list_head(result->found_packets);
 
@@ -1125,11 +1125,11 @@ dissect_mtp2_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         if (recognized_packet_data->unalignment_offset == 0) {
           /* pass the data to the mtp2 dissector */
           add_new_data_source(pinfo, recognized_packet_data->data, "MTP2 packet");
-          dissect_mtp2_common(recognized_packet_data->data, pinfo, tree, FALSE, use_extended_sequence_numbers_default);
+          dissect_mtp2_common(recognized_packet_data->data, pinfo, tree, false, use_extended_sequence_numbers_default);
         } else {
           add_new_data_source(pinfo, recognized_packet_data->data, "MTP2 packet [Unaligned]");
           issue_unaligned_info(tree, recognized_packet_data->data, recognized_packet_data->unalignment_offset);
-          was_unaligned_packet = TRUE;
+          was_unaligned_packet = true;
         }
 
         /* increment the pointer */
@@ -1246,7 +1246,7 @@ proto_register_mtp2(void)
         FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } }
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_mtp2,
     /* extend ett with the fragment fields */
     &ett_mtp2_fragment,

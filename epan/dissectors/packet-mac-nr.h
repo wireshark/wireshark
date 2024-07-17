@@ -30,25 +30,25 @@
 typedef struct mac_nr_info
 {
     /* Needed for decode */
-    guint8          radioType;
-    guint8          direction;
-    guint8          rntiType;
+    uint8_t         radioType;
+    uint8_t         direction;
+    uint8_t         rntiType;
 
     /* Extra info to display */
-    guint16         rnti;
-    guint16         ueid;
-    guint8          harqid;
+    uint16_t        rnti;
+    uint16_t        ueid;
+    uint8_t         harqid;
 
     /* Will these be included in the ME PHR report? */
-    guint8          phr_type2_othercell;
+    uint8_t         phr_type2_othercell;
 
     /* Timing info */
-    gboolean        sfnSlotInfoPresent;
-    guint16         sysframeNumber;
-    guint16         slotNumber;
+    bool            sfnSlotInfoPresent;
+    uint16_t        sysframeNumber;
+    uint16_t        slotNumber;
 
     /* Length of DL PDU or UL grant size in bytes */
-    guint16         length;
+    uint16_t        length;
 
 } mac_nr_info;
 
@@ -100,7 +100,7 @@ void set_mac_nr_proto_data(packet_info *pinfo, mac_nr_info *p_mac_nr_info);
 /* 2 bytes, deprecated, do not use it */
 
 #define MAC_NR_PHR_TYPE2_OTHERCELL_TAG 0x05
-/* 1 byte, TRUE/FALSE */
+/* 1 byte, true/false */
 
 #define MAC_NR_HARQID                  0x06
 /* 1 byte */
@@ -117,22 +117,22 @@ void set_mac_nr_proto_data(packet_info *pinfo, mac_nr_info *p_mac_nr_info);
 /* Some are optional, and may not be seen (e.g. on reestablishment) */
 typedef struct nr_drb_mac_rlc_mapping_t
 {
-    gboolean   active;              /* Is set while inside RLC-BearerConfig or DRB-ToAddMod */
-    guint16    ueid;                /* Mandatory */
-    gboolean   is_drb;              /* Mandatory */
-    guint8     rbid;                /* Mandatory */
+    bool       active;              /* Is set while inside RLC-BearerConfig or DRB-ToAddMod */
+    uint16_t   ueid;                /* Mandatory */
+    bool       is_drb;              /* Mandatory */
+    uint8_t    rbid;                /* Mandatory */
 
-    gboolean   lcid_present;
-    guint8     lcid;                /* Part of LogicalChannelConfig - optional */
-    gboolean   rlcMode_present;
-    guint8     rlcMode;             /* Part of RLC config - optional */
+    bool       lcid_present;
+    uint8_t    lcid;                /* Part of LogicalChannelConfig - optional */
+    bool       rlcMode_present;
+    uint8_t    rlcMode;             /* Part of RLC config - optional */
 
-    guint8     tempDirection;       /* So know direction of next SN length... */
+    uint8_t    tempDirection;       /* So know direction of next SN length... */
 
-    gboolean   rlcUlSnLength_present;
-    guint8     rlcUlSnLength;        /* Part of RLC config - optional */
-    gboolean   rlcDlSnLength_present;
-    guint8     rlcDlSnLength;        /* Part of RLC config - optional */
+    bool       rlcUlSnLength_present;
+    uint8_t    rlcUlSnLength;        /* Part of RLC config - optional */
+    bool       rlcDlSnLength_present;
+    uint8_t    rlcDlSnLength;        /* Part of RLC config - optional */
 } nr_drb_mac_rlc_mapping_t;
 
 
@@ -140,13 +140,13 @@ typedef struct nr_drb_mac_rlc_mapping_t
    configuration protocol (i.e. RRC) */
 void set_mac_nr_bearer_mapping(nr_drb_mac_rlc_mapping_t *drb_mapping);
 
-void set_mac_nr_srb3_in_use(guint16 ueid);
-void set_mac_nr_srb4_in_use(guint16 ueid);
+void set_mac_nr_srb3_in_use(uint16_t ueid);
+void set_mac_nr_srb4_in_use(uint16_t ueid);
 
 
 /* Function to attempt to populate p_mac_lte_info using framing definition above */
-gboolean dissect_mac_nr_context_fields(struct mac_nr_info  *p_mac_nr_info, tvbuff_t *tvb,
-                                       packet_info *pinfo, proto_tree *tree, gint *p_offset);
+bool dissect_mac_nr_context_fields(struct mac_nr_info  *p_mac_nr_info, tvbuff_t *tvb,
+                                       packet_info *pinfo, proto_tree *tree, int *p_offset);
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

@@ -61,31 +61,31 @@ enum vType {
 };
 
 struct data_blob {
-	guint8 *data;
-	guint32 size;
+	uint8_t *data;
+	uint32_t size;
 };
 
 struct data_str {
 	const char *str;
-	guint32 len;
+	uint32_t len;
 };
 
 struct vt_decimal {
-	guint32 hi, lo, mid;
+	uint32_t hi, lo, mid;
 };
 
 
 struct vt_vector {
-	guint32 len;
+	uint32_t len;
 	union  {
-		gint8 *vt_i1;
-		guint8 *vt_ui1;
-		gint16 *vt_i2;
-		guint16 *vt_ui2, *vt_bool;
-		gint32 *vt_i4;
-		guint32 *vt_ui4, *vt_error;
-		gint64 *vt_i8, *vt_cy, *vt_filetime;
-		guint64 *vt_ui8;
+		int8_t *vt_i1;
+		uint8_t *vt_ui1;
+		int16_t *vt_i2;
+		uint16_t *vt_ui2, *vt_bool;
+		int32_t *vt_i4;
+		uint32_t *vt_ui4, *vt_error;
+		int64_t *vt_i8, *vt_cy, *vt_filetime;
+		uint64_t *vt_ui8;
 		float *vt_r4;
 		double *vt_r8, *vt_date;
 		e_guid_t *vt_clsid;
@@ -95,27 +95,27 @@ struct vt_vector {
 };
 
 struct SAFEARRAYBOUNDS {
-	guint32 cElements, lLbound;
+	uint32_t cElements, lLbound;
 };
 
 struct vt_array {
 	struct vt_vector vData;
-	guint16 cDims, fFeature;
-	guint32 cbElements;
+	uint16_t cDims, fFeature;
+	uint32_t cbElements;
 
 	struct SAFEARRAYBOUNDS *Rgsabound;
 };
 
 union vt_single
 {
-	gint8 vt_i1;
-	guint8 vt_ui1;
-	gint16 vt_i2;
-	guint16 vt_ui2, vt_bool;
-	gint32 vt_i4, vt_int;
-	guint32 vt_ui4, vt_uint, vt_error;
-	gint64 vt_i8, vt_cy, vt_filetime;
-	guint64 vt_ui8;
+	int8_t vt_i1;
+	uint8_t vt_ui1;
+	int16_t vt_i2;
+	uint16_t vt_ui2, vt_bool;
+	int32_t vt_i4, vt_int;
+	uint32_t vt_ui4, vt_uint, vt_error;
+	int64_t vt_i8, vt_cy, vt_filetime;
+	uint64_t vt_ui8;
 	double vt_r8, vt_date;
 	e_guid_t vt_clsid;
 	float vt_r4;
@@ -141,9 +141,9 @@ struct vtype_data {
 
 /* 2.2.1.1 */
 struct CBaseStorageVariant {
-	guint16 vType; /* value enum vType */
-	guint16 vData1;
-	guint16 vData2;
+	uint16_t vType; /* value enum vType */
+	uint16_t vData1;
+	uint16_t vData2;
 	union vValue vValue;
 
 	struct vtype_data *type;
@@ -201,29 +201,29 @@ struct CFullPropSpec {
 	e_guid_t guid;
 	enum PRSPEC_Kind kind;
 	union {
-		guint32 propid;
-		const guint8 *name;
+		uint32_t propid;
+		const uint8_t *name;
 	} u;
 };
 
 /* 2.2.1.7 */
 struct CPropertyRestriction {
-	guint32 relop; /*with value enum relop*/
+	uint32_t relop; /*with value enum relop*/
 	struct CFullPropSpec property;
 	struct CBaseStorageVariant prval;
-	guint32 lcid;
+	uint32_t lcid;
 };
 
 /* 2.2.1.6 */
 struct CNodeRestriction {
-	guint32 cNode;
+	uint32_t cNode;
 	struct CRestriction *paNode;
 };
 
 /* 2.2.1.17 */
 struct CRestriction {
 	enum rType ulType;
-	guint32 Weight;
+	uint32_t Weight;
 	union {
 		struct CNodeRestriction *RTAnd, *RTOr, *RTProximity, *RTPhrase;
 		struct CRestriction *RTNot;
@@ -248,21 +248,21 @@ struct CCoercionRestriction {
 /* 2.2.1.3 */
 struct CContentRestriction {
 	struct CFullPropSpec property;
-	const guint8 *phrase;
-	guint32 lcid;
-	guint32 method;
+	const uint8_t *phrase;
+	uint32_t lcid;
+	uint32_t method;
 };
 
 /* 2.2.1.8 */
 struct CReuseWhere /*Restriction*/ {
-	guint32 whereId;
+	uint32_t whereId;
 };
 
 /* 2.2.1.5 */
 struct CNatLanguageRestriction {
 	struct CFullPropSpec property;
-	const guint8 *phrase;
-	guint32 lcid;
+	const uint8_t *phrase;
+	uint32_t lcid;
 };
 
 #define PROP_LENGTH 255
@@ -301,16 +301,16 @@ static const value_string DBAGGTTYPE[] = {
 /* 2.2.1.44 */
 struct CTableColumn {
 	/*struct CFullPropSpec propspec;*/
-	guint32 vtype;
-	guint8  aggregateused;
-	guint8  aggregatetype;
-	guint8  valueused;
-	guint16 valueoffset;
-	guint16 valuesize;
-	guint8  statusused;
-	guint16 statusoffset;
-	guint8  lengthused;
-	guint16 lengthoffset;
+	uint32_t vtype;
+	uint8_t aggregateused;
+	uint8_t aggregatetype;
+	uint8_t valueused;
+	uint16_t valueoffset;
+	uint16_t valuesize;
+	uint8_t statusused;
+	uint16_t statusoffset;
+	uint8_t lengthused;
+	uint16_t lengthoffset;
 	char name[PROP_LENGTH];
 };
 /* Minimum size in bytes on the wire CTableColumn can be */
@@ -321,34 +321,34 @@ struct CTableColumn {
 /* 2.2.3.10 */
 
 struct CPMSetBindingsIn {
-	guint32 hcursor;
-	guint32 brow;
-	guint32 bbindingdesc;
-	guint32 dummy;
-	guint32 ccolumns;
+	uint32_t hcursor;
+	uint32_t brow;
+	uint32_t bbindingdesc;
+	uint32_t dummy;
+	uint32_t ccolumns;
 	struct CTableColumn *acolumns;
 };
 
 struct vector_or_array_64 {
-	guint64 count;
-	guint64 array_address;
+	uint64_t count;
+	uint64_t array_address;
 };
 
 struct vector_or_array_32 {
-	guint32 count;
-	guint32 array_address;
+	uint32_t count;
+	uint32_t array_address;
 };
 
 /* 2.2.1.42 */
 struct CRowVariant {
-	guint16 vtype;
-	guint16 reserved1;
-	guint32 reserved2;
+	uint16_t vtype;
+	uint16_t reserved1;
+	uint32_t reserved2;
 	union {
-		guint8  byte;
-		guint16 shortw;
-		guint32 longw;
-		guint64 hyperw;
+		uint8_t byte;
+		uint16_t shortw;
+		uint32_t longw;
+		uint64_t hyperw;
 		union {
 		    struct vector_or_array_64 i64;
 		    struct vector_or_array_32 i32;
@@ -589,80 +589,80 @@ static int hf_mswsp_msg_cpmsetscopestatisics_dwindexitems;
 static int hf_mswsp_msg_cpmsetscopestatisics_dwoutstandingadds;
 static int hf_mswsp_msg_cpmsetscopestatisics_dwoutstandingmodifies;
 
-static gint ett_mswsp;
-static gint ett_mswsp_hdr;
-static gint ett_mswsp_msg;
-static gint ett_mswsp_pad;
+static int ett_mswsp;
+static int ett_mswsp_hdr;
+static int ett_mswsp_msg;
+static int ett_mswsp_pad;
 
-static gint ett_mswsp_property_restriction;
-static gint ett_CRestrictionArray;
-static gint ett_CBaseStorageVariant;
-static gint ett_CBaseStorageVariant_Vector;
-static gint ett_CBaseStorageVariant_Array;
-static gint ett_CDbColId;
-static gint ett_GUID;
-static gint ett_CDbProp;
-static gint ett_CDbPropSet;
-static gint ett_CDbPropSet_Array;
-static gint ett_CRestriction;
-static gint ett_CNodeRestriction;
-static gint ett_CPropertyRestriction;
-static gint ett_CCoercionRestriction;
-static gint ett_CContentRestriction;
-static gint ett_RANGEBOUNDARY;
-static gint ett_CRangeCategSpec;
-static gint ett_CCategSpec;
-static gint ett_CAggregSpec;
-static gint ett_CAggregSet;
-static gint ett_CCategorizationSpec;
-static gint ett_CAggregSortKey;
-static gint ett_CSortAggregSet;
-static gint ett_CInGroupSortAggregSet;
-static gint ett_CInGroupSortAggregSets;
-static gint ett_CRowsetProperties;
-static gint ett_CFullPropSpec;
-static gint ett_CPidMapper;
-static gint ett_CSort;
-static gint ett_CSortSet;
-static gint ett_CNatLanguageRestriction;
-static gint ett_CColumnGroup;
-static gint ett_CColumnGroupArray;
-static gint ett_LCID;
-static gint ett_CTableColumn;
-static gint ett_Array;
-static gint ett_SeekDescription;
-static gint ett_CRowsSeekNext;
-static gint ett_CRowsSeekAt;
-static gint ett_CRowsSeekAtRatio;
-static gint ett_CRowsSeekByBookmark;
-static gint ett_GetRowsRow;
-static gint ett_GetRowsColumn;
-static gint ett_CRowVariant;
-static gint ett_CRowVariant_Vector;
-static gint ett_mswsp_bool_options;
-static gint ett_mswsp_uin32_array;
-static gint ett_mswsp_msg_padding;
-static gint ett_mswsp_msg_creusewhere;
+static int ett_mswsp_property_restriction;
+static int ett_CRestrictionArray;
+static int ett_CBaseStorageVariant;
+static int ett_CBaseStorageVariant_Vector;
+static int ett_CBaseStorageVariant_Array;
+static int ett_CDbColId;
+static int ett_GUID;
+static int ett_CDbProp;
+static int ett_CDbPropSet;
+static int ett_CDbPropSet_Array;
+static int ett_CRestriction;
+static int ett_CNodeRestriction;
+static int ett_CPropertyRestriction;
+static int ett_CCoercionRestriction;
+static int ett_CContentRestriction;
+static int ett_RANGEBOUNDARY;
+static int ett_CRangeCategSpec;
+static int ett_CCategSpec;
+static int ett_CAggregSpec;
+static int ett_CAggregSet;
+static int ett_CCategorizationSpec;
+static int ett_CAggregSortKey;
+static int ett_CSortAggregSet;
+static int ett_CInGroupSortAggregSet;
+static int ett_CInGroupSortAggregSets;
+static int ett_CRowsetProperties;
+static int ett_CFullPropSpec;
+static int ett_CPidMapper;
+static int ett_CSort;
+static int ett_CSortSet;
+static int ett_CNatLanguageRestriction;
+static int ett_CColumnGroup;
+static int ett_CColumnGroupArray;
+static int ett_LCID;
+static int ett_CTableColumn;
+static int ett_Array;
+static int ett_SeekDescription;
+static int ett_CRowsSeekNext;
+static int ett_CRowsSeekAt;
+static int ett_CRowsSeekAtRatio;
+static int ett_CRowsSeekByBookmark;
+static int ett_GetRowsRow;
+static int ett_GetRowsColumn;
+static int ett_CRowVariant;
+static int ett_CRowVariant_Vector;
+static int ett_mswsp_bool_options;
+static int ett_mswsp_uin32_array;
+static int ett_mswsp_msg_padding;
+static int ett_mswsp_msg_creusewhere;
 
-static struct vtype_data *vType_get_type(guint16 t);
+static struct vtype_data *vType_get_type(uint16_t t);
 
 /* conversation related data */
 struct rows_data {
-	guint32 ulclientbase;
-	guint32 cbreserved;
+	uint32_t ulclientbase;
+	uint32_t cbreserved;
 };
 
 
 struct message_data {
-	guint32 fid;
-	guint frame;
-	guint16 msg_id;
-	gboolean is_request;
+	uint32_t fid;
+	unsigned frame;
+	uint16_t msg_id;
+	bool is_request;
 	int smb_level;
 	union {
 		struct CPMSetBindingsIn bindingsin;/* CPMBindingIn request */
 		struct rows_data rowsin; /*CPMGetRowsIn request*/
-		guint32 version; /*CPMConnectIn request/respose */
+		uint32_t version; /*CPMConnectIn request/respose */
 	} content;
 };
 
@@ -670,7 +670,7 @@ struct mswsp_ct {
 	GSList *GSL_message_data;
 };
 
-static gint msg_data_find(struct message_data *a, struct message_data *b)
+static int msg_data_find(struct message_data *a, struct message_data *b)
 {
 	if (a->fid == b->fid
 		&& a->frame == b->frame
@@ -686,7 +686,7 @@ static  smb_fid_info_t *find_fid_info(smb_info_t *si)
 	smb_fid_info_t *fid_info = NULL;
 	smb_transact_info_t *tri = (smb_transact_info_t *)((si->sip && (si->sip->extra_info_type == SMB_EI_TRI)) ? si->sip->extra_info : NULL);
 	GSList *iter;
-	guint32 fid = 0;
+	uint32_t fid = 0;
 
 	if (tri == NULL) {
 		/* fallback to try search visited RWINFO (for AndX request/response) */
@@ -711,13 +711,13 @@ static  smb_fid_info_t *find_fid_info(smb_info_t *si)
 	return fid_info;
 }
 
-static gboolean get_fid_and_frame(packet_info *pinfo, guint32 *fid, guint *frame,
+static bool get_fid_and_frame(packet_info *pinfo, uint32_t *fid, unsigned *frame,
 							  void *data)
 {
-	gboolean result = TRUE;
+	bool result = true;
 	int *p_smb_level = (int*)p_get_proto_data(wmem_file_scope(), pinfo, proto_mswsp, 0);
 	if (!p_smb_level) {
-		return FALSE;
+		return false;
 	}
 	*frame = pinfo->num;
 	if (*p_smb_level == SMB1) {
@@ -725,24 +725,24 @@ static gboolean get_fid_and_frame(packet_info *pinfo, guint32 *fid, guint *frame
 		smb_fid_info_t *info;
 		info = find_fid_info(si);
 		if (!info) {
-			return FALSE;
+			return false;
 		}
 		*fid = info->fid;
 	} else {
 		smb2_info_t *si2 = (smb2_info_t*)data;
-		guint32     open_frame = 0, close_frame = 0;
+		uint32_t    open_frame = 0, close_frame = 0;
 		char       *fid_name = NULL;
 		if (si2->saved) {
 			dcerpc_fetch_polhnd_data(&si2->saved->policy_hnd, &fid_name, NULL, &open_frame, &close_frame, pinfo->num);
 			*fid = open_frame;
 		} else {
-			result = FALSE;
+			result = false;
 		}
 	}
 	return result;
 }
 
-static struct message_data *find_or_create_message_data(struct mswsp_ct *conv_data, packet_info *pinfo, guint16 msg_id, gboolean is_request, void *data)
+static struct message_data *find_or_create_message_data(struct mswsp_ct *conv_data, packet_info *pinfo, uint16_t msg_id, bool is_request, void *data)
 {
 	struct message_data to_find;
 	struct message_data* msg_data = NULL;
@@ -786,10 +786,10 @@ static struct mswsp_ct *get_create_converstation_data(packet_info *pinfo)
 }
 
 static struct message_data *
-find_matching_request_by_fid(struct mswsp_ct *ct, packet_info *pinfo, guint32 msg, gboolean in, void *private_data)
+find_matching_request_by_fid(struct mswsp_ct *ct, packet_info *pinfo, uint32_t msg, bool in, void *private_data)
 {
-	guint32 fid = 0;
-	guint frame = 0;
+	uint32_t fid = 0;
+	unsigned frame = 0;
 	GSList *iter;
 	int *p_smb_level = (int*)p_get_proto_data(wmem_file_scope(), pinfo, proto_mswsp, 0);
 
@@ -810,7 +810,7 @@ static struct CPMSetBindingsIn *
 find_binding_msg_data(struct mswsp_ct *ct, packet_info *pinfo, void *private_data)
 {
 	struct CPMSetBindingsIn *result = NULL;
-	struct message_data *data = find_matching_request_by_fid(ct, pinfo, 0xD0, TRUE, private_data);
+	struct message_data *data = find_matching_request_by_fid(ct, pinfo, 0xD0, true, private_data);
 	if (data) {
 		result = &data->content.bindingsin;
 	}
@@ -821,29 +821,29 @@ static struct rows_data *
 find_rowsin_msg_data(struct mswsp_ct *ct, packet_info *pinfo, void *private_data)
 {
 	struct rows_data *result = NULL;
-	struct message_data *data = find_matching_request_by_fid(ct, pinfo, 0xCC, TRUE, private_data);
+	struct message_data *data = find_matching_request_by_fid(ct, pinfo, 0xCC, true, private_data);
 	if (data) {
 		result = &data->content.rowsin;
 	}
 	return result;
 }
 
-static gboolean is_64bit_mode(struct mswsp_ct *ct, packet_info *pinfo, gboolean *result, void *private_data)
+static bool is_64bit_mode(struct mswsp_ct *ct, packet_info *pinfo, bool *result, void *private_data)
 {
-	guint32 client_ver = 0;
-	guint32 server_ver = 0;
+	uint32_t client_ver = 0;
+	uint32_t server_ver = 0;
 	struct message_data *data = find_matching_request_by_fid(ct, pinfo, 0xC8,
-								TRUE, private_data);
+								true, private_data);
 	if (data) {
 		client_ver = data->content.version;
-		data = find_matching_request_by_fid(ct, pinfo, 0xC8, FALSE, private_data);
+		data = find_matching_request_by_fid(ct, pinfo, 0xC8, false, private_data);
 		if (data) {
 			server_ver = data->content.version;
 			*result = (server_ver & 0xffff0000) && (client_ver & 0xffff0000);
-			return TRUE;
+			return true;
 		}
 	}
-	return FALSE;
+	return false;
 }
 
 #define eSequential			0x00000001
@@ -2980,9 +2980,9 @@ static void get_name_from_fullpropspec(struct CFullPropSpec *v, char *out, int b
 }
 
 /******************************************************************************/
-static int parse_uin32_array(tvbuff_t *tvb, int offset, proto_tree *tree, guint32 count, const char *fmt, ...)
+static int parse_uin32_array(tvbuff_t *tvb, int offset, proto_tree *tree, uint32_t count, const char *fmt, ...)
 {
-	guint32 v, i;
+	uint32_t v, i;
 	proto_item *item;
 	const char *txt;
 	va_list ap;
@@ -3062,7 +3062,7 @@ static int parse_lcid(tvbuff_t *tvb, int offset, proto_tree *parent_tree, const 
 {
 	proto_item *item;
 	proto_tree *tree;
-	guint32 lcid;
+	uint32_t lcid;
 
 	lcid = tvb_get_letohl(tvb, offset);
 	item = proto_tree_add_uint_format(parent_tree, hf_mswsp_lcid, tvb, offset, 4, lcid, "%s: 0x%x", text, lcid);
@@ -3182,7 +3182,7 @@ static int parse_CTableColumn(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 
 static int parse_CSort(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree _U_, const char *fmt, ...)
 {
-	guint32 col, ord, ind;
+	uint32_t col, ord, ind;
 
 	proto_item *item;
 	proto_tree *tree;
@@ -3214,7 +3214,7 @@ static int parse_CSort(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto
 
 static int parse_CSortSet(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *fmt, ...)
 {
-	guint32 count, i;
+	uint32_t count, i;
 
 	proto_item *item;
 	proto_tree *tree;
@@ -3251,7 +3251,7 @@ static int parse_CTableColumn(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 	enum vType vtype_valhi = VT_EMPTY;
 	struct CFullPropSpec v;
 	const char *txt;
-	guint8 used;
+	uint8_t used;
 
 	const char *modifier = "";
 	va_start(ap, fmt);
@@ -3284,17 +3284,17 @@ static int parse_CTableColumn(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 		proto_tree_add_string_format_value(tree, hf_mswsp_ctablecolumn_vtype, tvb, offset, 4, type->str, "%s%s", type->str, modifier);
 	offset += 4;
 
-	used = tvb_get_guint8(tvb, offset);
+	used = tvb_get_uint8(tvb, offset);
 	col->aggregateused = used;
 	proto_tree_add_uint(tree, hf_mswsp_ctablecolumn_aggused, tvb, offset, 1, used);
 	offset += 1;
 
 	if (used) {
-		col->aggregatetype = tvb_get_guint8(tvb, offset);
+		col->aggregatetype = tvb_get_uint8(tvb, offset);
 		proto_tree_add_string(tree, hf_mswsp_ctablecolumn_aggtype, tvb, offset, 1, val_to_str(col->aggregatetype, DBAGGTTYPE, "(Unknown: 0x%x)"));
 		offset += 1;
 	}
-	col->valueused = tvb_get_guint8(tvb, offset);
+	col->valueused = tvb_get_uint8(tvb, offset);
 	used = col->valueused;
 	proto_tree_add_uint(tree, hf_mswsp_ctablecolumn_valused, tvb, offset, 1, used);
 	offset += 1;
@@ -3311,7 +3311,7 @@ static int parse_CTableColumn(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 		offset += 2;
 	}
 
-	used = tvb_get_guint8(tvb, offset);
+	used = tvb_get_uint8(tvb, offset);
 	col->statusused = used;
 	proto_tree_add_uint(tree, hf_mswsp_ctablecolumn_statused, tvb, offset, 1, used);
 	offset += 1;
@@ -3324,7 +3324,7 @@ static int parse_CTableColumn(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 		offset += 2;
 	}
 
-	used = tvb_get_guint8(tvb, offset);
+	used = tvb_get_uint8(tvb, offset);
 	proto_tree_add_uint(tree, hf_mswsp_ctablecolumn_lenused, tvb, offset, 1, used);
 	col->lengthused = used;
 	offset += 1;
@@ -3349,7 +3349,7 @@ static int parse_PRSPEC_Kind(tvbuff_t *tvb, int offset, proto_tree *tree, enum P
 		{0, NULL}
 	};
 
-	gint32 kind = tvb_get_letohl(tvb, offset);
+	int32_t kind = tvb_get_letohl(tvb, offset);
 	DISSECTOR_ASSERT(kind < (PRSPEC_PROPID + 1));
 	if (kind) {
 		*prspec = PRSPEC_PROPID;
@@ -3435,11 +3435,11 @@ static const value_string PR_VALS[] = {
 	{0, NULL}
 };
 
-static int parse_relop(tvbuff_t *tvb, int offset,  proto_tree *tree, guint32 *relop, const char **str)
+static int parse_relop(tvbuff_t *tvb, int offset,  proto_tree *tree, uint32_t *relop, const char **str)
 {
 	const char *str1 = NULL, *str2 = NULL;
-	guint32 tmp = tvb_get_letohl(tvb, offset);
-	guint32 modifier = (tmp & 0xF00);
+	uint32_t tmp = tvb_get_letohl(tvb, offset);
+	uint32_t modifier = (tmp & 0xF00);
 	DISSECTOR_ASSERT((tmp & 0xf) < PRSomeBits +1);
 
 	switch(tmp & 0xf) {
@@ -3485,7 +3485,7 @@ static int parse_relop(tvbuff_t *tvb, int offset,  proto_tree *tree, guint32 *re
 				*relop |= PRAny;
 				break;
 			default:
-				DISSECTOR_ASSERT(FALSE);
+				DISSECTOR_ASSERT(false);
 				break;
 		}
 		str1 = try_val_to_str((modifier), PR_VALS);
@@ -3561,7 +3561,7 @@ static int parse_CContentRestriction(tvbuff_t *tvb, int offset, proto_tree *pare
 	proto_tree *tree;
 	proto_item *item;
 	va_list ap;
-	guint32 cc;
+	uint32_t cc;
 	const char *txt;
 
 
@@ -3600,7 +3600,7 @@ int parse_CNatLanguageRestriction(tvbuff_t *tvb, int offset, proto_tree *parent_
 	proto_tree *tree;
 	proto_item *item;
 	va_list ap;
-	guint32 cc;
+	uint32_t cc;
 	const char *txt;
 
 
@@ -3679,7 +3679,7 @@ static const value_string RT_VALS[] =  {
 static int parse_rType(tvbuff_t *tvb, int offset, proto_tree *tree, enum rType *rtype, const char **str)
 {
 	const char *txt = NULL;
-	guint32 type = tvb_get_letohl(tvb, offset);
+	uint32_t type = tvb_get_letohl(tvb, offset);
 	switch(type) {
 		case RTNone:
 			*rtype = RTNone;
@@ -3736,7 +3736,7 @@ static int parse_rType(tvbuff_t *tvb, int offset, proto_tree *tree, enum rType *
 			*rtype = RTInternalProp;
 			break;
 		default:
-			DISSECTOR_ASSERT(FALSE);
+			DISSECTOR_ASSERT(false);
 			break;
 	}
 	txt = val_to_str(*rtype, RT_VALS, "0x%.8x");
@@ -3830,7 +3830,7 @@ static int parse_CRestriction(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 
 static int parse_CRestrictionArray(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *fmt, ...)
 {
-	guint8 present, count;
+	uint8_t present, count;
 
 	proto_tree *tree;
 	proto_item *item;
@@ -3844,11 +3844,11 @@ static int parse_CRestrictionArray(tvbuff_t *tvb, packet_info *pinfo, int offset
 
 	pad_tree = tree;
 
-	count = tvb_get_guint8(tvb, offset);
+	count = tvb_get_uint8(tvb, offset);
 	proto_tree_add_uint(tree, hf_mswsp_crestrictarray_count, tvb, offset, 1, count);
 	offset += 1;
 
-	present = tvb_get_guint8(tvb, offset);
+	present = tvb_get_uint8(tvb, offset);
 	proto_tree_add_uint(tree, hf_mswsp_crestrictarray_present, tvb, offset, 1, present);
 	offset += 1;
 
@@ -3905,28 +3905,28 @@ static int vvalue_tvb_get0(tvbuff_t *tvb _U_, int offset _U_, void *val _U_)
 
 static int vvalue_tvb_get1(tvbuff_t *tvb, int offset, void *val)
 {
-	guint8 *ui1 = (guint8*)val;
-	*ui1 = tvb_get_guint8(tvb, offset);
+	uint8_t *ui1 = (uint8_t*)val;
+	*ui1 = tvb_get_uint8(tvb, offset);
 	return 1;
 }
 
 static int vvalue_tvb_get2(tvbuff_t *tvb, int offset, void *val)
 {
-	guint16 *ui2 = (guint16*)val;
+	uint16_t *ui2 = (uint16_t*)val;
 	*ui2 = tvb_get_letohs(tvb, offset);
 	return 2;
 }
 
 static int vvalue_tvb_get4(tvbuff_t *tvb, int offset, void *val)
 {
-	guint32 *ui4 = (guint32*)val;
+	uint32_t *ui4 = (uint32_t*)val;
 	*ui4 = tvb_get_letohl(tvb, offset);
 	return 4;
 }
 
 static int vvalue_tvb_get8(tvbuff_t *tvb, int offset, void *val)
 {
-	guint64 *ui8 = (guint64*)val;
+	uint64_t *ui8 = (uint64_t*)val;
 	*ui8 = tvb_get_letoh64(tvb, offset);
 	return 8;
 }
@@ -3934,10 +3934,10 @@ static int vvalue_tvb_get8(tvbuff_t *tvb, int offset, void *val)
 static int vvalue_tvb_blob(tvbuff_t *tvb, int offset, void *val)
 {
 	struct data_blob *blob = (struct data_blob*)val;
-	guint32 len = tvb_get_letohl(tvb, offset);
+	uint32_t len = tvb_get_letohl(tvb, offset);
 
 	blob->size = len;
-	blob->data = (guint8*)tvb_memdup(wmem_packet_scope(), tvb, offset + 4, len);
+	blob->data = (uint8_t*)tvb_memdup(wmem_packet_scope(), tvb, offset + 4, len);
 
 	return 4 + len;
 }
@@ -3945,7 +3945,7 @@ static int vvalue_tvb_blob(tvbuff_t *tvb, int offset, void *val)
 static int vvalue_tvb_lpstr(tvbuff_t *tvb, int offset, void *val)
 {
 	struct data_str *str = (struct data_str*)val;
-	gint len;
+	int len;
 
 	str->len = tvb_get_letohl(tvb, offset);
 	str->str = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset + 4, &len,
@@ -3957,7 +3957,7 @@ static int vvalue_tvb_lpstr(tvbuff_t *tvb, int offset, void *val)
 static int vvalue_tvb_lpwstr_len(tvbuff_t *tvb, int offset, int length, void *val)
 {
 	struct data_str *str = (struct data_str*)val;
-	const gchar *ptr;
+	const char *ptr;
 	int len;
 
 	if (length == 0) {
@@ -3984,14 +3984,14 @@ static int vvalue_tvb_lpwstr(tvbuff_t *tvb, int offset, void *val)
 
 /* Maximum sane vector size. Arbitrary. */
 #define MAX_VT_VECTOR_SIZE 5000
-static int vvalue_tvb_vector_internal(tvbuff_t *tvb, int offset, struct vt_vector *val, struct vtype_data *type, guint num)
+static int vvalue_tvb_vector_internal(tvbuff_t *tvb, int offset, struct vt_vector *val, struct vtype_data *type, unsigned num)
 {
 	const int offset_in = offset;
-	const gboolean varsize = (type->size == -1);
-	const guint elsize = varsize ? (guint)sizeof(struct data_blob) : (guint)type->size;
-	guint8 *data;
+	const bool varsize = (type->size == -1);
+	const unsigned elsize = varsize ? (unsigned)sizeof(struct data_blob) : (unsigned)type->size;
+	uint8_t *data;
 	int len;
-	guint i;
+	unsigned i;
 
 	/*
 	 * Make sure we actually *have* the data we're going to fetch
@@ -4012,7 +4012,7 @@ static int vvalue_tvb_vector_internal(tvbuff_t *tvb, int offset, struct vt_vecto
 	/*
 	 * OK, it exists; allocate a buffer into which to fetch it.
 	 */
-	data = (guint8*)wmem_alloc(wmem_packet_scope(), elsize * num);
+	data = (uint8_t*)wmem_alloc(wmem_packet_scope(), elsize * num);
 
 	val->len = num;
 	val->u.vt_ui1 = data;
@@ -4034,7 +4034,7 @@ static int vvalue_tvb_vector_internal(tvbuff_t *tvb, int offset, struct vt_vecto
 
 static int vvalue_tvb_vector(tvbuff_t *tvb, int offset, struct vt_vector *val, struct vtype_data *type)
 {
-	const guint num = tvb_get_letohl(tvb, offset);
+	const unsigned num = tvb_get_letohl(tvb, offset);
 	return 4 + vvalue_tvb_vector_internal(tvb, offset+4, val, type, num);
 }
 
@@ -4043,49 +4043,49 @@ static void vvalue_strbuf_append_null(wmem_strbuf_t *strbuf _U_, void *ptr _U_)
 
 static void vvalue_strbuf_append_i1(wmem_strbuf_t *strbuf, void *ptr)
 {
-	gint8 i1 = *(gint8*)ptr;
+	int8_t i1 = *(int8_t*)ptr;
 	wmem_strbuf_append_printf(strbuf, "%d", (int)i1);
 }
 
 static void vvalue_strbuf_append_i2(wmem_strbuf_t *strbuf, void *ptr)
 {
-	gint16 i2 = *(gint16*)ptr;
+	int16_t i2 = *(int16_t*)ptr;
 	wmem_strbuf_append_printf(strbuf, "%d", (int)i2);
 }
 
 static void vvalue_strbuf_append_i4(wmem_strbuf_t *strbuf, void *ptr)
 {
-	gint32 i4 = *(gint32*)ptr;
+	int32_t i4 = *(int32_t*)ptr;
 	wmem_strbuf_append_printf(strbuf, "%d", i4);
 }
 
 static void vvalue_strbuf_append_i8(wmem_strbuf_t *strbuf, void *ptr)
 {
-	gint64 i8 = *(gint64*)ptr;
+	int64_t i8 = *(int64_t*)ptr;
 	wmem_strbuf_append_printf(strbuf, "%" PRId64, i8);
 }
 
 static void vvalue_strbuf_append_ui1(wmem_strbuf_t *strbuf, void *ptr)
 {
-	guint8 ui1 = *(guint8*)ptr;
+	uint8_t ui1 = *(uint8_t*)ptr;
 	wmem_strbuf_append_printf(strbuf, "%u", (unsigned)ui1);
 }
 
 static void vvalue_strbuf_append_ui2(wmem_strbuf_t *strbuf, void *ptr)
 {
-	guint16 ui2 = *(guint16*)ptr;
+	uint16_t ui2 = *(uint16_t*)ptr;
 	wmem_strbuf_append_printf(strbuf, "%u", (unsigned)ui2);
 }
 
 static void vvalue_strbuf_append_ui4(wmem_strbuf_t *strbuf, void *ptr)
 {
-	guint32 ui4 = *(guint32*)ptr;
+	uint32_t ui4 = *(uint32_t*)ptr;
 	wmem_strbuf_append_printf(strbuf, "%d", ui4);
 }
 
 static void vvalue_strbuf_append_ui8(wmem_strbuf_t *strbuf, void *ptr)
 {
-	guint64 ui8 = *(guint64*)ptr;
+	uint64_t ui8 = *(uint64_t*)ptr;
 	wmem_strbuf_append_printf(strbuf, "%" PRIu64, ui8);
 }
 
@@ -4115,7 +4115,7 @@ static void vvalue_strbuf_append_blob(wmem_strbuf_t *strbuf, void *ptr)
 
 static void vvalue_strbuf_append_bool(wmem_strbuf_t *strbuf, void *ptr)
 {
-	guint16 val = *(guint*)ptr;
+	uint16_t val = *(unsigned*)ptr;
 	switch (val) {
 	case 0:
 		wmem_strbuf_append(strbuf, "False");
@@ -4132,7 +4132,7 @@ static void vvalue_strbuf_append_vector(wmem_strbuf_t *strbuf, struct vt_vector 
 {
 	const int elsize = (type->size == -1) ? (int)sizeof(struct data_blob) : type->size;
 	unsigned i;
-	guint8 *data = val.u.vt_ui1;
+	uint8_t *data = val.u.vt_ui1;
 	wmem_strbuf_append_c(strbuf, '[');
 	for (i=0; i<val.len; i++) {
 		if (i>0) {
@@ -4175,7 +4175,7 @@ static struct vtype_data VT_TYPE[] = {
 	{VT_CLSID,             "VT_CLSID",             16, NULL, NULL, NULL}
 };
 
-static struct vtype_data *vType_get_type(guint16 t)
+static struct vtype_data *vType_get_type(uint16_t t)
 {
 	unsigned i;
 	t = (t & 0xFF);
@@ -4187,7 +4187,7 @@ static struct vtype_data *vType_get_type(guint16 t)
 	return NULL;
 }
 
-static const char *str_CBaseStorageVariant(struct CBaseStorageVariant *value, gboolean print_type)
+static const char *str_CBaseStorageVariant(struct CBaseStorageVariant *value, bool print_type)
 {
 
 	wmem_strbuf_t *strbuf = wmem_strbuf_new(wmem_packet_scope(), "");
@@ -4252,11 +4252,11 @@ static int parse_CBaseStorageVariant(tvbuff_t *tvb, packet_info *pinfo, int offs
 	ti_type = proto_tree_add_string(tree, hf_mswsp_cbasestorvariant_vtype, tvb, offset, 2, value->type->str);
 	offset += 2;
 
-	value->vData1 = tvb_get_guint8(tvb, offset);
+	value->vData1 = tvb_get_uint8(tvb, offset);
 	proto_tree_add_uint(tree, hf_mswsp_cbasestorvariant_vdata1, tvb, offset, 1, value->vData1);
 	offset += 1;
 
-	value->vData2 = tvb_get_guint8(tvb, offset);
+	value->vData2 = tvb_get_uint8(tvb, offset);
 	proto_tree_add_uint(tree, hf_mswsp_cbasestorvariant_vdata2, tvb, offset, 1, value->vData2);
 	offset += 1;
 
@@ -4280,8 +4280,8 @@ static int parse_CBaseStorageVariant(tvbuff_t *tvb, packet_info *pinfo, int offs
 		offset += len;
 		break;
 	case VT_ARRAY: {
-		guint16 cDims, fFeatures;
-		guint32 cbElements, cElements, lLbound;
+		uint16_t cDims, fFeatures;
+		uint32_t cbElements, cElements, lLbound;
 		int num = 1;
 
 		proto_item_append_text(ti_type, "|VT_ARRAY");
@@ -4316,8 +4316,8 @@ static int parse_CBaseStorageVariant(tvbuff_t *tvb, packet_info *pinfo, int offs
 	proto_item_set_end(ti, tvb, offset);
 	proto_item_set_end(ti_val, tvb, offset);
 
-	proto_item_append_text(ti_val, " %s", str_CBaseStorageVariant(value, FALSE));
-	proto_item_append_text(ti, " %s", str_CBaseStorageVariant(value, TRUE));
+	proto_item_append_text(ti_val, " %s", str_CBaseStorageVariant(value, false));
+	proto_item_append_text(ti, " %s", str_CBaseStorageVariant(value, true));
 
 	return offset;
 }
@@ -4329,7 +4329,7 @@ enum {
 
 static int parse_CDbColId(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *text)
 {
-	guint32 eKind, ulId;
+	uint32_t eKind, ulId;
 	e_guid_t guid;
 	const char *str;
 	static const char *KIND[] = {"DBKIND_GUID_NAME", "DBKIND_GUID_PROPID"};
@@ -4372,7 +4372,7 @@ static int parse_CDbProp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tr
 {
 	static const value_string EMPTY_VS[] = {{0, NULL}};
 	const value_string *vs = (propset && propset->id_map) ? propset->id_map : EMPTY_VS;
-	guint32 id, opt, status;
+	uint32_t id, opt, status;
 	struct CBaseStorageVariant value;
 	proto_item *item;
 	proto_tree *tree;
@@ -4403,7 +4403,7 @@ static int parse_CDbProp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tr
 
 	offset = parse_CBaseStorageVariant(tvb, pinfo, offset, tree, pad_tree, &value, "vValue");
 
-	str = str_CBaseStorageVariant(&value, TRUE);
+	str = str_CBaseStorageVariant(&value, true);
 	proto_item_append_text(item, " %s", str);
 	proto_item_set_end(item, tvb, offset);
 
@@ -4456,7 +4456,7 @@ static int parse_CDbPropSet(tvbuff_t *tvb, packet_info *pinfo, int offset, proto
 static int parse_PropertySetArray(tvbuff_t *tvb, packet_info *pinfo, int offset, int size_offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *fmt, ...)
 {
 	const int offset_in = offset;
-	guint32 size, num;
+	uint32_t size, num;
 	int i;
 	proto_tree *tree;
 	proto_item *item;
@@ -4489,7 +4489,7 @@ static int parse_PropertySetArray(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 int parse_CColumnSet(tvbuff_t *tvb, int offset, proto_tree *tree, const char *fmt, ...)
 {
-	guint32 count, v, i;
+	uint32_t count, v, i;
 	proto_item *item;
 	const char *txt;
 	va_list ap;
@@ -4519,8 +4519,8 @@ int parse_CColumnSet(tvbuff_t *tvb, int offset, proto_tree *tree, const char *fm
 /* 2.2.1.23 RANGEBOUNDARY */
 int parse_RANGEBOUNDARY(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *fmt, ...)
 {
-	guint32 ulType;
-	guint8 labelPresent;
+	uint32_t ulType;
+	uint8_t labelPresent;
 	proto_item *item;
 	proto_tree *tree;
 	const char *txt;
@@ -4540,13 +4540,13 @@ int parse_RANGEBOUNDARY(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tre
 	ZERO_STRUCT(prval);
 	offset = parse_CBaseStorageVariant(tvb, pinfo, offset, tree, pad_tree, &prval, "prVal");
 
-	labelPresent = tvb_get_guint8(tvb, offset);
+	labelPresent = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(tree, hf_mswsp_rangeboundry_labelpresent, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
 	if (labelPresent) {
-		guint32 ccLabel;
-		const guint8* label;
+		uint32_t ccLabel;
+		const uint8_t* label;
 		offset = parse_padding(tvb, offset, 4, pad_tree, "paddingLabelPresent");
 
 		ccLabel = tvb_get_letohl(tvb, offset);
@@ -4558,7 +4558,7 @@ int parse_RANGEBOUNDARY(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tre
 		offset += 2*ccLabel;
 	}
 
-	proto_item_append_text(item, " Val: %s", str_CBaseStorageVariant(&prval, TRUE));
+	proto_item_append_text(item, " Val: %s", str_CBaseStorageVariant(&prval, true));
 
 	proto_item_set_end(item, tvb, offset);
 	return offset;
@@ -4573,7 +4573,7 @@ int parse_CRangeCategSpec(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_t
 	va_list ap;
 	unsigned i;
 	const char *txt;
-	guint32 cRange;
+	uint32_t cRange;
 
 	va_start(ap, fmt);
 	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
@@ -4602,7 +4602,7 @@ int parse_CCategSpec(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *
 	proto_tree *tree;
 
 	va_list ap;
-	guint32 type;
+	uint32_t type;
 	const char *txt;
 	va_start(ap, fmt);
 	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
@@ -4635,7 +4635,7 @@ static int parse_CAggregSpec(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 	proto_item *item;
 	proto_tree *tree;
 	va_list ap;
-	guint32 type, ccAlias, idColumn;
+	uint32_t type, ccAlias, idColumn;
 	const char *txt;
 
 	va_start(ap, fmt);
@@ -4680,7 +4680,7 @@ static int parse_CAggregSpec(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 /* 2.2.1.24 CAggregSet */
 static int parse_CAggregSet(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *fmt, ...)
 {
-	guint32 cCount, i;
+	uint32_t cCount, i;
 	proto_item *item;
 	proto_tree *tree;
 	const char *txt;
@@ -4708,7 +4708,7 @@ static int parse_CAggregSet(tvbuff_t *tvb, int offset, proto_tree *parent_tree, 
 /* 2.2.1.27 CAggregSortKey */
 static int parse_CAggregSortKey(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *fmt, ...)
 {
-	guint32 order;
+	uint32_t order;
 	proto_item *item;
 	proto_tree *tree;
 	const char *txt;
@@ -4734,7 +4734,7 @@ static int parse_CAggregSortKey(tvbuff_t *tvb, int offset, proto_tree *parent_tr
 /* 2.2.1.26 CSortAggregSet */
 static int parse_CSortAggregSet(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *fmt, ...)
 {
-	guint32 cCount, i;
+	uint32_t cCount, i;
 	proto_item *item;
 	proto_tree *tree;
 	const char *txt;
@@ -4767,7 +4767,7 @@ enum CInGroupSortAggregSet_type {
 
 static int parse_CInGroupSortAggregSet_type(tvbuff_t *tvb, int offset, proto_tree *tree, enum CInGroupSortAggregSet_type *type)
 {
-	guint8 tmp = tvb_get_guint8(tvb, offset);
+	uint8_t tmp = tvb_get_uint8(tvb, offset);
 	switch(tmp) {
 		case GroupIdDefault:
 			*type = GroupIdDefault;
@@ -4782,7 +4782,7 @@ static int parse_CInGroupSortAggregSet_type(tvbuff_t *tvb, int offset, proto_tre
 			*type = GroupIdValue;
 			break;
 		default:
-			DISSECTOR_ASSERT(FALSE);
+			DISSECTOR_ASSERT(false);
 			break;
 	}
 	proto_tree_add_uint(tree, hf_mswsp_cingroupsortaggregset_type, tvb, offset, 1, *type);
@@ -4821,7 +4821,7 @@ static int parse_CInGroupSortAggregSet(tvbuff_t *tvb, packet_info *pinfo, int of
 /* 2.2.1.28 CInGroupSortAggregSets */
 static int parse_CInGroupSortAggregSets(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, proto_tree *pad_tree, const char *fmt, ...)
 {
-	guint32 cCount, i;
+	uint32_t cCount, i;
 	proto_item *item;
 	proto_tree *tree;
 	const char *txt;
@@ -4935,7 +4935,7 @@ int parse_CPidMapper(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto_t
 	proto_item *item;
 	proto_tree *tree;
 	va_list ap;
-	guint32 count, i;
+	uint32_t count, i;
 	const char *txt;
 
 	va_start(ap, fmt);
@@ -4970,7 +4970,7 @@ int parse_CColumnGroup(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto
 	proto_item *item, *ti;
 	va_list ap;
 	const char *txt;
-	guint32 count, groupPid, i;
+	uint32_t count, groupPid, i;
 
 	va_start(ap, fmt);
 	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
@@ -4993,7 +4993,7 @@ int parse_CColumnGroup(tvbuff_t *tvb, int offset, proto_tree *parent_tree, proto
 
 	for (i=0; i<count; i++) {
 		/* 2.2.1.36 SProperty */
-		guint32 pid, weight;
+		uint32_t pid, weight;
 		pid = tvb_get_letohl(tvb, offset);
 		weight = tvb_get_letohl(tvb, offset + 4);
 		proto_tree_add_uint_format(tree, hf_mswsp_ccolumngroup_pid, tvb, offset, 8, pid, "Props[%u]: pid: %u weight: %u", i, pid, weight);
@@ -5012,7 +5012,7 @@ int parse_CColumnGroupArray(tvbuff_t *tvb, int offset, proto_tree *parent_tree, 
 	va_list ap;
 	const char *txt;
 
-	guint32 count, i;
+	uint32_t count, i;
 
 	va_start(ap, fmt);
 	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
@@ -5032,9 +5032,9 @@ int parse_CColumnGroupArray(tvbuff_t *tvb, int offset, proto_tree *parent_tree, 
 	return offset;
 }
 
-static int parse_UInt32Array(tvbuff_t *tvb, int offset, proto_tree *parent_tree, guint32 count, const char *item_name, const char *fmt, ...)
+static int parse_UInt32Array(tvbuff_t *tvb, int offset, proto_tree *parent_tree, uint32_t count, const char *item_name, const char *fmt, ...)
 {
-	guint32 v, i;
+	uint32_t v, i;
 	proto_tree *tree;
 	proto_item *item;
 	const char *txt;
@@ -5138,7 +5138,7 @@ static int parse_CRowSeekByBookmark(tvbuff_t *tvb, int offset, proto_tree *paren
 {
 	proto_tree *tree;
 	proto_item *item;
-	guint32 num;
+	uint32_t num;
 	const char *txt;
 	va_list ap;
 
@@ -5173,7 +5173,7 @@ static int get_fixed_vtype_dataize(enum vType vtype)
 	return -1;
 }
 
-static int parse_CRowVariantArrayInfo(tvbuff_t *tvb, int offset, proto_tree *tree, gboolean is_64bit, struct CRowVariant *variant)
+static int parse_CRowVariantArrayInfo(tvbuff_t *tvb, int offset, proto_tree *tree, bool is_64bit, struct CRowVariant *variant)
 {
 	if (is_64bit) {
 		variant->content.array_vector.i64.count =
@@ -5196,10 +5196,10 @@ static int parse_CRowVariantArrayInfo(tvbuff_t *tvb, int offset, proto_tree *tre
 	return offset;
 }
 
-static int parse_VariantColVector(tvbuff_t *tvb, int offset, proto_tree *tree, guint64 base_address, gboolean is_64bit, struct CRowVariant *variant, struct vtype_data *vt_list_type)
+static int parse_VariantColVector(tvbuff_t *tvb, int offset, proto_tree *tree, uint64_t base_address, bool is_64bit, struct CRowVariant *variant, struct vtype_data *vt_list_type)
 {
-	guint32 i = 0;
-	guint64 count = 0;
+	uint32_t i = 0;
+	uint64_t count = 0;
 	int buf_offset = 0;
 	proto_tree *sub_tree;
 	wmem_strbuf_t *strbuf;
@@ -5216,8 +5216,8 @@ static int parse_VariantColVector(tvbuff_t *tvb, int offset, proto_tree *tree, g
 	}
 	sub_tree = proto_tree_add_subtree(tree, tvb, buf_offset, 0, ett_CRowVariant_Vector, NULL, "values");
 	for (i = 0; i < count; i++) {
-		guint64 item_address = 0;
-		gint address_of_address = 0;
+		uint64_t item_address = 0;
+		int address_of_address = 0;
 		int size;
 		union vt_single value;
 		int len;
@@ -5229,7 +5229,7 @@ static int parse_VariantColVector(tvbuff_t *tvb, int offset, proto_tree *tree, g
 		} else {
 			size = 4;
 			item_address = tvb_get_letohl(tvb, buf_offset + (i * size));
-			proto_tree_add_uint_format(sub_tree, hf_mswsp_rowvariant_item_address32, tvb, address_of_address, size, (guint32)item_address, "address[%d] 0x%x", i, (guint32)item_address);
+			proto_tree_add_uint_format(sub_tree, hf_mswsp_rowvariant_item_address32, tvb, address_of_address, size, (uint32_t)item_address, "address[%d] 0x%x", i, (uint32_t)item_address);
 		}
 		strbuf = wmem_strbuf_new(wmem_packet_scope(), "");
 		if (vt_list_type->size == -1) {
@@ -5250,12 +5250,12 @@ static int parse_VariantColVector(tvbuff_t *tvb, int offset, proto_tree *tree, g
 			vt_list_type->tvb_get(tvb, (int)(item_address - base_address), &value);
 			vt_list_type->strbuf_append(strbuf, &value);
 		}
-		proto_tree_add_string(sub_tree, hf_mswsp_rowvariant_item_value, tvb, (gint)(item_address - base_address), len, wmem_strbuf_get_str(strbuf));
+		proto_tree_add_string(sub_tree, hf_mswsp_rowvariant_item_value, tvb, (int)(item_address - base_address), len, wmem_strbuf_get_str(strbuf));
 	}
 	return offset;
 }
 
-static int parse_VariantCol(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, guint64 base_address, guint32 length _U_, gboolean is_64bit, struct CRowVariant *variant, const char *fmt, ...)
+static int parse_VariantCol(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, uint64_t base_address, uint32_t length _U_, bool is_64bit, struct CRowVariant *variant, const char *fmt, ...)
 {
 	proto_tree *tree;
 	proto_item *item, *ti_type;
@@ -5264,7 +5264,7 @@ static int parse_VariantCol(tvbuff_t *tvb, packet_info *pinfo, int offset, proto
 	struct vtype_data *vt_type;
 	const char *modifier = "", *txt;
 	int size;
-	guint16 vtype_high;
+	uint16_t vtype_high;
 
 	va_start(ap, fmt);
 	txt = wmem_strdup_vprintf(wmem_packet_scope(), fmt, ap);
@@ -5323,7 +5323,7 @@ static int parse_VariantCol(tvbuff_t *tvb, packet_info *pinfo, int offset, proto
 			vt_type->strbuf_append(strbuf, &variant->content);
 			proto_tree_add_string_format_value(tree, hf_mswsp_rowvariant_item_value, tvb, offset, size, desc, "%s: %s", desc, wmem_strbuf_get_str(strbuf));
 		} else {
-			gint64 value_address;
+			int64_t value_address;
 			int buf_offset = offset;
 			int len;
 			union vt_single non_fixed_size_val;
@@ -5337,24 +5337,24 @@ static int parse_VariantCol(tvbuff_t *tvb, packet_info *pinfo, int offset, proto
 				variant->content.longw = tvb_get_letohl(tvb, offset);
 				offset += 4;
 				value_address = variant->content.longw;
-				proto_tree_add_uint(tree, hf_mswsp_rowvariant_item_address32, tvb, buf_offset, 4, (guint32)value_address);
+				proto_tree_add_uint(tree, hf_mswsp_rowvariant_item_address32, tvb, buf_offset, 4, (uint32_t)value_address);
 			}
 
 			len = vt_type->tvb_get_value_only(tvb, (int)(value_address - base_address), 0, &non_fixed_size_val);
 			vt_type->strbuf_append(strbuf, &non_fixed_size_val);
-			proto_tree_add_string(tree, hf_mswsp_rowvariant_item_value, tvb, (gint)(value_address - base_address), len, wmem_strbuf_get_str(strbuf));
+			proto_tree_add_string(tree, hf_mswsp_rowvariant_item_value, tvb, (int)(value_address - base_address), len, wmem_strbuf_get_str(strbuf));
 		}
 	}
 
 	return offset;
 }
 
-static int parse_RowsBufferCol(tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 row, guint32 col, struct CPMSetBindingsIn *bindingsin, struct rows_data *rowsin, gboolean b_is_64bit, proto_tree *parent_tree, const char *fmt, ...)
+static int parse_RowsBufferCol(tvbuff_t *tvb, packet_info *pinfo, int offset, uint32_t row, uint32_t col, struct CPMSetBindingsIn *bindingsin, struct rows_data *rowsin, bool b_is_64bit, proto_tree *parent_tree, const char *fmt, ...)
 {
 	proto_tree *tree;
 	proto_item *item;
-	guint32 buf_start = offset;
-	guint32 buf_offset = buf_start + (row * bindingsin->brow);
+	uint32_t buf_start = offset;
+	uint32_t buf_offset = buf_start + (row * bindingsin->brow);
 	struct CTableColumn *pcol = &bindingsin->acolumns[col];
 
 	static const value_string STATUS[] = {
@@ -5374,7 +5374,7 @@ static int parse_RowsBufferCol(tvbuff_t *tvb, packet_info *pinfo, int offset, gu
     proto_item_append_text(item, " (%s)", pcol->name);
 	if (pcol->statusused) {
 		int tmp_offset = buf_offset + pcol->statusoffset;
-		proto_tree_add_string(tree, hf_mswsp_ctablecolumn_status, tvb, tmp_offset, 1, val_to_str(tvb_get_guint8(tvb, tmp_offset), STATUS, "(Invalid: 0x%x)"));
+		proto_tree_add_string(tree, hf_mswsp_ctablecolumn_status, tvb, tmp_offset, 1, val_to_str(tvb_get_uint8(tvb, tmp_offset), STATUS, "(Invalid: 0x%x)"));
 	}
 	if (pcol->lengthused) {
 		int tmp_offset = buf_offset + pcol->lengthoffset;
@@ -5383,8 +5383,8 @@ static int parse_RowsBufferCol(tvbuff_t *tvb, packet_info *pinfo, int offset, gu
 	if (pcol->valueused) {
 		int tmp_offset = buf_offset + pcol->valueoffset;
 		struct CRowVariant variant;
-		guint32 len = pcol->valuesize;
-		guint64 base_address = rowsin->ulclientbase;/*( + rowsin->cbreserved;*/
+		uint32_t len = pcol->valuesize;
+		uint64_t base_address = rowsin->ulclientbase;/*( + rowsin->cbreserved;*/
 		ZERO_STRUCT(variant);
 
 		if (pcol->lengthused) {
@@ -5397,11 +5397,11 @@ static int parse_RowsBufferCol(tvbuff_t *tvb, packet_info *pinfo, int offset, gu
 	return offset;
 }
 
-static int parse_RowsBuffer(tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 num_rows, struct CPMSetBindingsIn *bindingsin, struct rows_data *rowsin, gboolean is64bit, proto_tree *parent_tree, const char *fmt, ...)
+static int parse_RowsBuffer(tvbuff_t *tvb, packet_info *pinfo, int offset, uint32_t num_rows, struct CPMSetBindingsIn *bindingsin, struct rows_data *rowsin, bool is64bit, proto_tree *parent_tree, const char *fmt, ...)
 {
 	proto_tree *tree;
 	proto_item *item;
-	guint32 num;
+	uint32_t num;
 	const char *txt;
 	va_list ap;
 
@@ -5412,7 +5412,7 @@ static int parse_RowsBuffer(tvbuff_t *tvb, packet_info *pinfo, int offset, guint
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_GetRowsRow, &item, txt);
 
 	for (num = 0; num < num_rows; ++num) {
-		guint32 col;
+		uint32_t col;
 		proto_tree *row_tree;
 		row_tree = proto_tree_add_subtree_format(tree, tvb, offset, 0, ett_GetRowsRow, NULL, "Row[%d]", num);
 		for (col = 0; col < bindingsin->ccolumns; col++) {
@@ -5423,13 +5423,13 @@ static int parse_RowsBuffer(tvbuff_t *tvb, packet_info *pinfo, int offset, guint
 }
 /* Code to actually dissect the packets */
 
-static int dissect_CPMConnect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolean in, void *private_data)
+static int dissect_CPMConnect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, bool in, void *private_data)
 {
 	proto_item *ti;
 	proto_tree *tree;
-	gint offset = 16;
-	guint len;
-	guint32 version;
+	int offset = 16;
+	unsigned len;
+	uint32_t version;
 	struct message_data *data = NULL;
 	struct mswsp_ct *ct = NULL;
 
@@ -5452,7 +5452,7 @@ static int dissect_CPMConnect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *par
 	offset += 4;
 
 	if (in) {
-		guint32 blob_size1_off, blob_size2_off;
+		uint32_t blob_size1_off, blob_size2_off;
 		proto_tree *pad_tree;
 
 		pad_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_mswsp_pad, &ti, "Padding");
@@ -5503,15 +5503,15 @@ static int dissect_CPMConnect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *par
 	return tvb_reported_length(tvb);
 }
 
-static int dissect_CPMDisconnect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, gboolean in _U_, void *data _U_)
+static int dissect_CPMDisconnect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, bool in _U_, void *data _U_)
 {
 	col_append_str(pinfo->cinfo, COL_INFO, "Disconnect");
 	return tvb_reported_length(tvb);
 }
 
-static int dissect_CPMCreateQuery(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolean in, void *data _U_)
+static int dissect_CPMCreateQuery(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, bool in, void *data _U_)
 {
-	gint offset = 16;
+	int offset = 16;
 	proto_item *item;
 	proto_tree *tree;
 
@@ -5524,12 +5524,12 @@ static int dissect_CPMCreateQuery(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	if (in) {
 		proto_item *ti;
 		proto_tree *pad_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_mswsp_pad, &ti, "Padding");
-		guint8 CColumnSetPresent, CRestrictionPresent, CSortSetPresent, CCategorizationSetPresent;
-		guint32 size = tvb_get_letohl(tvb, offset);
+		uint8_t CColumnSetPresent, CRestrictionPresent, CSortSetPresent, CCategorizationSetPresent;
+		uint32_t size = tvb_get_letohl(tvb, offset);
 		proto_tree_add_uint(tree, hf_mswsp_msg_cpmcreatequery_size, tvb, offset, 4, size);
 		offset += 4;
 
-		CColumnSetPresent = tvb_get_guint8(tvb, offset);
+		CColumnSetPresent = tvb_get_uint8(tvb, offset);
 		proto_tree_add_item(tree, hf_mswsp_msg_cpmcreatequery_ccolumnsetpresent, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
 
@@ -5539,7 +5539,7 @@ static int dissect_CPMCreateQuery(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 			offset = parse_CColumnSet(tvb, offset, tree, "CColumnSet");
 		}
 
-		CRestrictionPresent = tvb_get_guint8(tvb, offset);
+		CRestrictionPresent = tvb_get_uint8(tvb, offset);
 		proto_tree_add_item(tree, hf_mswsp_msg_cpmcreatequery_crestrictionpresent, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
 
@@ -5547,7 +5547,7 @@ static int dissect_CPMCreateQuery(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 			offset = parse_CRestrictionArray(tvb, pinfo, offset, tree, pad_tree, "RestrictionArray");
 		}
 
-		CSortSetPresent = tvb_get_guint8(tvb, offset);
+		CSortSetPresent = tvb_get_uint8(tvb, offset);
 		proto_tree_add_item(tree, hf_mswsp_msg_cpmcreatequery_csortpresent, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
 
@@ -5557,12 +5557,12 @@ static int dissect_CPMCreateQuery(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 		}
 
-		CCategorizationSetPresent = tvb_get_guint8(tvb, offset);
+		CCategorizationSetPresent = tvb_get_uint8(tvb, offset);
 		proto_tree_add_item(tree, hf_mswsp_msg_cpmcreatequery_ccategpresent, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
 
 		if (CCategorizationSetPresent) {
-			guint32 count, i;
+			uint32_t count, i;
 			offset = parse_padding(tvb, offset, 4, pad_tree, "paddingCCategorizationSetPresent");
 			/* 2.2.1.19 CCategorizationSet */
 			count = tvb_get_letohl(tvb, offset);
@@ -5596,20 +5596,20 @@ static int dissect_CPMCreateQuery(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	return tvb_reported_length(tvb);
 }
 
-static int dissect_CPMFreeCursor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, gboolean in _U_, void *data _U_)
+static int dissect_CPMFreeCursor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, bool in _U_, void *data _U_)
 {
 	col_append_str(pinfo->cinfo, COL_INFO, "FreeCursor");
 	return tvb_reported_length(tvb);
 }
 
-static int dissect_CPMGetRows(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolean in, void *private_data)
+static int dissect_CPMGetRows(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, bool in, void *private_data)
 {
 	struct mswsp_ct *ct = NULL;
-	gint offset = 16;
+	int offset = 16;
 	proto_item *item;
 	proto_tree *tree;
 	proto_tree *seek_tree;
-	guint32 eType = 0;
+	uint32_t eType = 0;
 
 	item = proto_tree_add_item(parent_tree, hf_mswsp_msg, tvb, offset, in ? 0 : -1, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_mswsp_msg);
@@ -5688,14 +5688,14 @@ static int dissect_CPMGetRows(tvbuff_t *tvb, packet_info *pinfo, proto_tree *par
 		 * requests
 		 */
 		/* find the preceding SetBinding data */
-		guint32 num_rows = 0;
+		uint32_t num_rows = 0;
 		proto_item *ti;
 		proto_tree *pad_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_mswsp_pad, &ti, "Padding");
 		struct CPMSetBindingsIn *bindingsin = find_binding_msg_data(ct, pinfo,
 											  private_data);
 		struct rows_data *rowsin = find_rowsin_msg_data(ct, pinfo, private_data);
-		gboolean b_64bit_mode = FALSE;
-		gboolean b_has_arch = is_64bit_mode(ct, pinfo, &b_64bit_mode, private_data);
+		bool b_64bit_mode = false;
+		bool b_has_arch = is_64bit_mode(ct, pinfo, &b_64bit_mode, private_data);
 		num_rows = tvb_get_letohl(tvb, offset);
 		proto_tree_add_item(tree, hf_mswsp_msg_cpmgetrows_crowsreturned, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
@@ -5733,7 +5733,7 @@ static int dissect_CPMGetRows(tvbuff_t *tvb, packet_info *pinfo, proto_tree *par
 								   "paddingRows");
 			parse_RowsBuffer(tvb, pinfo, offset, num_rows, bindingsin, rowsin, b_64bit_mode, tree, "Rows");
 		} else {
-			gint nbytes = tvb_reported_length_remaining(tvb, offset);
+			int nbytes = tvb_reported_length_remaining(tvb, offset);
 			proto_tree_add_expert_format(tree, pinfo, &ei_missing_msg_context, tvb, offset, nbytes, "Undissected %d bytes (due to missing preceding msg(s))", nbytes);
 		}
 	}
@@ -5742,9 +5742,9 @@ static int dissect_CPMGetRows(tvbuff_t *tvb, packet_info *pinfo, proto_tree *par
 
 }
 
-static int dissect_CPMRatioFinished(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolean in, void *data _U_)
+static int dissect_CPMRatioFinished(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, bool in, void *data _U_)
 {
-	gint offset = 16;
+	int offset = 16;
 	proto_item *item;
 	proto_tree *tree;
 	col_append_str(pinfo->cinfo, COL_INFO, "RatioFinished");
@@ -5768,9 +5768,9 @@ static int dissect_CPMRatioFinished(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	return tvb_reported_length(tvb);
 }
 
-static int dissect_CPMCompareBmk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolean in, void *data _U_)
+static int dissect_CPMCompareBmk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, bool in, void *data _U_)
 {
-	gint offset = 16;
+	int offset = 16;
 	proto_item *item;
 	proto_tree *tree;
 
@@ -5793,9 +5793,9 @@ static int dissect_CPMCompareBmk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	return tvb_reported_length(tvb);
 }
 
-static int dissect_CPMGetApproximatePosition(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolean in, void *data _U_)
+static int dissect_CPMGetApproximatePosition(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, bool in, void *data _U_)
 {
-	gint offset = 16;
+	int offset = 16;
 	proto_item *item;
 	proto_tree *tree;
 
@@ -5819,9 +5819,9 @@ static int dissect_CPMGetApproximatePosition(tvbuff_t *tvb, packet_info *pinfo, 
 }
 
 /* 2.2.3.10 */
-static int dissect_CPMSetBindings(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolean in, void *private_data)
+static int dissect_CPMSetBindings(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, bool in, void *private_data)
 {
-	gint offset = 16;
+	int offset = 16;
 	struct CPMSetBindingsIn request;
 
 	col_append_str(pinfo->cinfo, COL_INFO, "SetBindings");
@@ -5831,8 +5831,8 @@ static int dissect_CPMSetBindings(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		struct message_data *data = NULL;
 		proto_item *ti;
 		proto_tree *tree, *pad_tree;
-		guint32 size, num, n;
-		gint64 column_size;
+		uint32_t size, num, n;
+		int64_t column_size;
 
 		ti = proto_tree_add_item(parent_tree, hf_mswsp_msg, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(ti, ett_mswsp_msg);
@@ -5891,15 +5891,15 @@ static int dissect_CPMSetBindings(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	return tvb_reported_length(tvb);
 }
 
-static int dissect_CPMGetNotify(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, gboolean in _U_, void *data _U_)
+static int dissect_CPMGetNotify(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, bool in _U_, void *data _U_)
 {
 	col_append_str(pinfo->cinfo, COL_INFO, "GetNotify");
 	return tvb_reported_length(tvb);
 }
 
-static int dissect_CPMSendNotifyOut(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolean in _U_, void *data _U_)
+static int dissect_CPMSendNotifyOut(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, bool in _U_, void *data _U_)
 {
-	gint offset = 16;
+	int offset = 16;
 	proto_item *item;
 	proto_tree *tree;
 
@@ -5911,9 +5911,9 @@ static int dissect_CPMSendNotifyOut(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	return tvb_reported_length(tvb);
 }
 
-static int dissect_CPMGetQueryStatus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolean in, void *data _U_)
+static int dissect_CPMGetQueryStatus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, bool in, void *data _U_)
 {
-	gint offset = 16;
+	int offset = 16;
 	proto_item *item;
 	proto_tree *tree;
 
@@ -5934,9 +5934,9 @@ static int dissect_CPMGetQueryStatus(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 	return tvb_reported_length(tvb);
 }
 
-static int dissect_CPMCiState(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolean in, void *data _U_)
+static int dissect_CPMCiState(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, bool in, void *data _U_)
 {
-	gint offset = 16;
+	int offset = 16;
 	proto_item *item;
 	proto_tree *tree;
 
@@ -5979,9 +5979,9 @@ static int dissect_CPMCiState(tvbuff_t *tvb, packet_info *pinfo, proto_tree *par
 	return tvb_reported_length(tvb);
 }
 
-static int dissect_CPMFetchValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolean in, void *data _U_)
+static int dissect_CPMFetchValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, bool in, void *data _U_)
 {
-	gint offset = 16;
+	int offset = 16;
 	proto_item *item;
 	proto_tree *tree, *pad_tree;
 	col_append_str(pinfo->cinfo, COL_INFO, "FetchValue");
@@ -6003,7 +6003,7 @@ static int dissect_CPMFetchValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 									 "PropSpec");
 		parse_padding(tvb, offset, 4, pad_tree,"_padding");
 	} else {
-		guint32 cbValue = tvb_get_letohl(tvb, offset);
+		uint32_t cbValue = tvb_get_letohl(tvb, offset);
 		proto_tree_add_item(tree, hf_mswsp_msg_cpmfetchvalue_cbvalue, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 		proto_tree_add_item(tree, hf_mswsp_msg_cpmfetchvalue_fmoreexists, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -6015,9 +6015,9 @@ static int dissect_CPMFetchValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	return tvb_reported_length(tvb);
 }
 
-static int dissect_CPMGetQueryStatusEx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolean in, void *data _U_)
+static int dissect_CPMGetQueryStatusEx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, bool in, void *data _U_)
 {
-	gint offset = 16;
+	int offset = 16;
 	proto_item *item;
 	proto_tree *tree;
 
@@ -6057,9 +6057,9 @@ static int dissect_CPMGetQueryStatusEx(tvbuff_t *tvb, packet_info *pinfo, proto_
 	return tvb_reported_length(tvb);
 }
 
-static int dissect_CPMRestartPosition(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolean in, void *data _U_)
+static int dissect_CPMRestartPosition(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, bool in, void *data _U_)
 {
-	gint offset = 16;
+	int offset = 16;
 	proto_item *item;
 	proto_tree *tree;
 
@@ -6078,15 +6078,15 @@ static int dissect_CPMRestartPosition(tvbuff_t *tvb, packet_info *pinfo, proto_t
 	return tvb_reported_length(tvb);
 }
 
-static int dissect_CPMSetCatState(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, gboolean in _U_, void *data _U_)
+static int dissect_CPMSetCatState(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, bool in _U_, void *data _U_)
 {
 	col_append_str(pinfo->cinfo, COL_INFO, "SetCatState");
 	return tvb_reported_length(tvb);
 }
 
-static int dissect_CPMGetRowsetNotify(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolean in, void *data _U_)
+static int dissect_CPMGetRowsetNotify(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, bool in, void *data _U_)
 {
-	gint offset = 16;
+	int offset = 16;
 	proto_item *item;
 	proto_tree *tree;
 	col_append_str(pinfo->cinfo, COL_INFO, "GetRowsetNotify");
@@ -6123,9 +6123,9 @@ static int dissect_CPMGetRowsetNotify(tvbuff_t *tvb, packet_info *pinfo, proto_t
 	return tvb_reported_length(tvb);
 }
 
-static int dissect_CPMFindIndices(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolean in, void *data _U_)
+static int dissect_CPMFindIndices(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, bool in, void *data _U_)
 {
-	gint offset = 16;
+	int offset = 16;
 	proto_item *item;
 	proto_tree *tree;
 	col_append_str(pinfo->cinfo, COL_INFO, "FindIndices");
@@ -6134,8 +6134,8 @@ static int dissect_CPMFindIndices(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	proto_item_set_text(item, "FindIndices%s", in ? "In" : "Out");
 
 	if (in) {
-		guint32 cWids;
-		guint32 cDepthPrev;
+		uint32_t cWids;
+		uint32_t cDepthPrev;
 		cWids = tvb_get_letohl(tvb, offset);
 		proto_tree_add_uint(tree, hf_mswsp_msg_cpmfindindices_cwids, tvb, offset, 4, cWids);
 		offset += 4;
@@ -6145,7 +6145,7 @@ static int dissect_CPMFindIndices(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		offset = parse_uin32_array(tvb, offset, tree, cWids, "pwids");
 		parse_uin32_array(tvb, offset, tree, cDepthPrev, "prgiRowPrev");
 	} else {
-		guint32 cDepthNext;
+		uint32_t cDepthNext;
 		cDepthNext = tvb_get_letohl(tvb, offset);
 		proto_tree_add_uint(tree, hf_mswsp_msg_cpmfindindices_cdepthnext, tvb, offset, 4, cDepthNext);
 		offset += 4;
@@ -6154,9 +6154,9 @@ static int dissect_CPMFindIndices(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	return tvb_reported_length(tvb);
 }
 
-static int dissect_CPMSetScopePrioritization(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolean in, void *data _U_)
+static int dissect_CPMSetScopePrioritization(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, bool in, void *data _U_)
 {
-	gint offset = 16;
+	int offset = 16;
 	proto_item *item;
 	proto_tree *tree;
 
@@ -6173,10 +6173,10 @@ static int dissect_CPMSetScopePrioritization(tvbuff_t *tvb, packet_info *pinfo, 
 	return tvb_reported_length(tvb);
 }
 
-static int dissect_CPMGetScopeStatistics(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolean in, void *data _U_)
+static int dissect_CPMGetScopeStatistics(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, bool in, void *data _U_)
 {
 
-	gint offset = 16;
+	int offset = 16;
 	proto_item *item;
 	proto_tree *tree;
 
@@ -6228,13 +6228,13 @@ static const value_string msg_ids[] = {
 
 
 static int
-dissect_mswsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean in, void *data)
+dissect_mswsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool in, void *data)
 {
 	proto_tree *mswsp_tree = NULL;
 	proto_tree *hdr_tree;
 	proto_item *ti, *hti;
-	guint32 msg;
-	guint32 status;
+	uint32_t msg;
+	uint32_t status;
 
 
 	if (tvb_reported_length(tvb) < 16) {
@@ -7922,7 +7922,7 @@ proto_register_mswsp(void)
 		}
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_mswsp,
 		&ett_mswsp_hdr,
 		&ett_mswsp_msg,
@@ -7999,7 +7999,7 @@ proto_register_mswsp(void)
 static int dissect_mswsp_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	smb_info_t *si = (smb_info_t*)data;
-	gboolean in = si->request;
+	bool in = si->request;
 
 	smb_fid_info_t *fid_info = NULL;
 	fid_info = find_fid_info(si);
@@ -8025,9 +8025,9 @@ dissect_mswsp_smb_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 static int dissect_mswsp_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	smb2_info_t *si = (smb2_info_t*)data;
-	gboolean in;
+	bool in;
 	char* fid_name = NULL;
-	guint32     open_frame = 0, close_frame = 0;
+	uint32_t    open_frame = 0, close_frame = 0;
 
 	if (!si) {
 		return 0;

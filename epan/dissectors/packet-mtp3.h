@@ -19,7 +19,7 @@ typedef enum {
 } Standard_Type;
 #define HEURISTIC_FAILED_STANDARD 0xffff
 
-extern gint mtp3_standard;
+extern int mtp3_standard;
 extern bool mtp3_heuristic_standard;
 
 WS_DLL_PUBLIC const value_string mtp3_standard_vals[];
@@ -34,15 +34,15 @@ typedef enum {
 
 typedef struct _mtp3_addr_pc_t {
   Standard_Type		type;
-  guint32		pc;
-  guint8		ni;
+  uint32_t		pc;
+  uint8_t		ni;
 } mtp3_addr_pc_t;
 
 typedef struct _mtp3_tap_rec_t {
   mtp3_addr_pc_t	addr_opc;
   mtp3_addr_pc_t	addr_dpc;
-  guint8		mtp3_si_code;
-  guint16		size;
+  uint8_t		mtp3_si_code;
+  uint16_t		size;
 } mtp3_tap_rec_t;
 
 #define ITU_PC_LENGTH     2
@@ -66,9 +66,9 @@ typedef struct _mtp3_tap_rec_t {
 extern "C" {
 #endif /* __cplusplus */
 
-extern gchar*   mtp3_pc_to_str(const guint32 pc);
-extern gboolean mtp3_pc_structured(void);
-extern guint32  mtp3_pc_hash(const mtp3_addr_pc_t *addr_pc_p);
+extern char*   mtp3_pc_to_str(const uint32_t pc);
+extern bool mtp3_pc_structured(void);
+extern uint32_t mtp3_pc_hash(const mtp3_addr_pc_t *addr_pc_p);
 extern int mtp3_addr_len(void);
 
 #ifdef __PROTO_H__
@@ -77,8 +77,8 @@ extern int mtp3_addr_len(void);
  * needed by to_str.c, so just don't prototype it there (or anywhere
  * without proto.h).
  */
-extern void dissect_mtp3_3byte_pc(tvbuff_t *tvb, guint offset,
-				  proto_tree *tree, gint ett_pc,
+extern void dissect_mtp3_3byte_pc(tvbuff_t *tvb, unsigned offset,
+				  proto_tree *tree, int ett_pc,
 				  int hf_pc_string, int hf_pc_network,
 				  int hf_pc_cluster, int hf_pc_member,
 				  int hf_dpc, int hf_pc);

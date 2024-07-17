@@ -22,7 +22,7 @@ static int hf_mesh_ttl;
 static int hf_mesh_e2eseq;
 
 /* Initialize the subtree pointers */
-static gint ett_mesh;
+static int ett_mesh;
 
 /* Code to actually dissect the packets */
 static int
@@ -31,8 +31,8 @@ dissect_mesh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
   /* Set up structures needed to add the protocol subtree and manage it */
   proto_item *ti;
   proto_tree *mesh_tree;
-  guint8 mesh_ttl;
-  guint16 mesh_e2eseq;
+  uint8_t mesh_ttl;
+  uint16_t mesh_e2eseq;
 
   /* Make entries in Protocol column and Info column on summary display */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "Mesh");
@@ -42,7 +42,7 @@ dissect_mesh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     mesh_tree = proto_item_add_subtree(ti, ett_mesh);
 
     /* add an item to the subtree, see section 1.6 for more information */
-    mesh_ttl = tvb_get_guint8(tvb, 2);
+    mesh_ttl = tvb_get_uint8(tvb, 2);
     proto_tree_add_uint(mesh_tree, hf_mesh_ttl, tvb, 2, 1, mesh_ttl);
 
     mesh_e2eseq = tvb_get_ntohs(tvb, 3);
@@ -75,7 +75,7 @@ proto_register_mesh(void)
   };
 
   /* Setup protocol subtree array */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_mesh
   };
 

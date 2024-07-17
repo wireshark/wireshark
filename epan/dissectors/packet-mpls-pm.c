@@ -35,15 +35,15 @@ void proto_reg_handoff_mpls_pm(void);
 #define MPLS_PM_DFLAGS_RES  0x30
 #define MPLS_PM_DFLAGS_MASK 0xF0
 
-static gint proto_mpls_pm_dlm;
-static gint proto_mpls_pm_ilm;
-static gint proto_mpls_pm_dm;
-static gint proto_mpls_pm_dlm_dm;
-static gint proto_mpls_pm_ilm_dm;
+static int proto_mpls_pm_dlm;
+static int proto_mpls_pm_ilm;
+static int proto_mpls_pm_dm;
+static int proto_mpls_pm_dlm_dm;
+static int proto_mpls_pm_ilm_dm;
 
-static gint ett_mpls_pm;
-static gint ett_mpls_pm_flags;
-static gint ett_mpls_pm_dflags;
+static int ett_mpls_pm;
+static int ett_mpls_pm_flags;
+static int ett_mpls_pm_dflags;
 
 static int hf_mpls_pm_version;
 static int hf_mpls_pm_flags;
@@ -189,8 +189,8 @@ static const range_string mpls_pm_time_stamp_format_rvals[] = {
 
 static void
 mpls_pm_dissect_counter(tvbuff_t *tvb, proto_tree *pm_tree,
-                        guint32 offset, gboolean query, gboolean bflag,
-                        guint8 i)
+                        uint32_t offset, bool query, bool bflag,
+                        uint8_t i)
 {
     proto_item *ti;
     /*
@@ -198,7 +198,7 @@ mpls_pm_dissect_counter(tvbuff_t *tvb, proto_tree *pm_tree,
      *  fields represent octet counts.  Otherwise Counter 1-4 fields
      *  represent packet counts
      */
-    const gchar *unit = bflag ? "octets" : "packets";
+    const char *unit = bflag ? "octets" : "packets";
 
     if (query) {
         switch (i) {
@@ -254,8 +254,8 @@ mpls_pm_dissect_counter(tvbuff_t *tvb, proto_tree *pm_tree,
 
 static void
 mpls_pm_dissect_timestamp(tvbuff_t *tvb, proto_tree *pm_tree,
-                          guint32 offset, guint8 qtf, guint8 rtf,
-                          gboolean query, guint8 i)
+                          uint32_t offset, uint8_t qtf, uint8_t rtf,
+                          bool query, uint8_t i)
 {
     if (query) {
         /*
@@ -455,17 +455,17 @@ mpls_pm_dissect_timestamp(tvbuff_t *tvb, proto_tree *pm_tree,
 
 static void
 mpls_pm_build_cinfo(tvbuff_t *tvb, packet_info *pinfo, const char *str_pmt,
-                    gboolean *query, gboolean *response,
-                    gboolean *class_specific,
-                    guint32  *sid, guint8 *code)
+                    bool *query, bool *response,
+                    bool *class_specific,
+                    uint32_t *sid, uint8_t *code)
 {
     col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "MPLS PM (%s)", str_pmt);
     col_clear(pinfo->cinfo, COL_INFO);
 
-    *response = (tvb_get_guint8(tvb, 0) & 0x08) ? TRUE : FALSE;
-    *class_specific = (tvb_get_guint8(tvb, 0) & 0x04) ? TRUE : FALSE;
+    *response = (tvb_get_uint8(tvb, 0) & 0x08) ? true : false;
+    *class_specific = (tvb_get_uint8(tvb, 0) & 0x04) ? true : false;
     *query = !(*response);
-    *code = tvb_get_guint8(tvb, 1);
+    *code = tvb_get_uint8(tvb, 1);
 
     if (!(*class_specific)) {
         /*
@@ -494,21 +494,21 @@ mpls_pm_build_cinfo(tvbuff_t *tvb, packet_info *pinfo, const char *str_pmt,
 /* FF: the message formats for direct and inferred LM are identical */
 static void
 dissect_mpls_pm_loss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                     guint8 pmt)
+                     uint8_t pmt)
 {
     proto_item *ti             = NULL;
     proto_tree *pm_tree;
     proto_tree *pm_tree_flags;
     proto_tree *pm_tree_dflags;
-    guint32     offset         = 0;
-    gboolean    query          = 0;
-    gboolean    response       = 0;
-    gboolean    class_specific = 0;
-    guint32     sid            = 0;
-    guint8      code           = 0;
-    guint8      otf;
-    gboolean    bflag;
-    guint8      i;
+    uint32_t    offset         = 0;
+    bool        query          = 0;
+    bool        response       = 0;
+    bool        class_specific = 0;
+    uint32_t    sid            = 0;
+    uint8_t     code           = 0;
+    uint8_t     otf;
+    bool        bflag;
+    uint8_t     i;
 
     mpls_pm_build_cinfo(tvb, pinfo,
                         val_to_str_const(pmt, pmt_vals, ""),
@@ -562,13 +562,13 @@ dissect_mpls_pm_loss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     pm_tree_dflags = proto_item_add_subtree(ti, ett_mpls_pm_dflags);
     proto_tree_add_item(pm_tree_dflags, hf_mpls_pm_dflags_x, tvb,
                         offset, 1, ENC_NA);
-    bflag = (tvb_get_guint8(tvb, offset) & 0x40) ? TRUE : FALSE;
+    bflag = (tvb_get_uint8(tvb, offset) & 0x40) ? true : false;
     proto_tree_add_item(pm_tree_dflags, hf_mpls_pm_dflags_b, tvb,
                         offset, 1, ENC_NA);
     proto_tree_add_item(pm_tree_dflags, hf_mpls_pm_dflags_res, tvb,
                         offset, 1, ENC_NA);
 
-    otf = tvb_get_guint8(tvb, offset) & 0x0F;
+    otf = tvb_get_uint8(tvb, offset) & 0x0F;
     proto_tree_add_item(pm_tree, hf_mpls_pm_otf, tvb,
                         offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
@@ -636,15 +636,15 @@ dissect_mpls_pm_delay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
     proto_item *ti;
     proto_tree *pm_tree;
     proto_tree *pm_tree_flags;
-    guint32     offset         = 0;
-    gboolean    query          = 0;
-    gboolean    response       = 0;
-    gboolean    class_specific = 0;
-    guint32     sid            = 0;
-    guint8      code           = 0;
-    guint8      qtf;
-    guint8      rtf;
-    guint8      i;
+    uint32_t    offset         = 0;
+    bool        query          = 0;
+    bool        response       = 0;
+    bool        class_specific = 0;
+    uint32_t    sid            = 0;
+    uint8_t     code           = 0;
+    uint8_t     qtf;
+    uint8_t     rtf;
+    uint8_t     i;
 
     mpls_pm_build_cinfo(tvb, pinfo,
                         "DM",
@@ -682,11 +682,11 @@ dissect_mpls_pm_delay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
     offset += 2;
 
     /* qtf, rtf */
-    qtf = (tvb_get_guint8(tvb, offset) & 0xF0) >> 4;
+    qtf = (tvb_get_uint8(tvb, offset) & 0xF0) >> 4;
     proto_tree_add_item(pm_tree, hf_mpls_pm_qtf, tvb,
                         offset, 1, ENC_BIG_ENDIAN);
 
-    rtf = tvb_get_guint8(tvb, offset) & 0x0F;
+    rtf = tvb_get_uint8(tvb, offset) & 0x0F;
     proto_tree_add_item(pm_tree, hf_mpls_pm_rtf, tvb,
                         offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
@@ -715,22 +715,22 @@ dissect_mpls_pm_delay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 
 static void
 dissect_mpls_pm_combined(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                         guint8 pmt)
+                         uint8_t pmt)
 {
     proto_item *ti             = NULL;
     proto_tree *pm_tree;
     proto_tree *pm_tree_flags;
     proto_tree *pm_tree_dflags;
-    guint32     offset         = 0;
-    gboolean    query          = 0;
-    gboolean    response       = 0;
-    gboolean    class_specific = 0;
-    guint32     sid            = 0;
-    guint8      code           = 0;
-    guint8      qtf;
-    guint8      rtf;
-    gboolean    bflag;
-    guint8      i;
+    uint32_t    offset         = 0;
+    bool        query          = 0;
+    bool        response       = 0;
+    bool        class_specific = 0;
+    uint32_t    sid            = 0;
+    uint8_t     code           = 0;
+    uint8_t     qtf;
+    uint8_t     rtf;
+    bool        bflag;
+    uint8_t     i;
 
     mpls_pm_build_cinfo(tvb, pinfo,
                         val_to_str_const(pmt, pmt_vals, ""),
@@ -784,7 +784,7 @@ dissect_mpls_pm_combined(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     pm_tree_dflags = proto_item_add_subtree(ti, ett_mpls_pm_dflags);
     proto_tree_add_item(pm_tree_dflags, hf_mpls_pm_dflags_x, tvb,
                         offset, 1, ENC_NA);
-    bflag = (tvb_get_guint8(tvb, offset) & 0x40) ? TRUE : FALSE;
+    bflag = (tvb_get_uint8(tvb, offset) & 0x40) ? true : false;
     proto_tree_add_item(pm_tree_dflags, hf_mpls_pm_dflags_b, tvb,
                         offset, 1, ENC_NA);
     proto_tree_add_item(pm_tree_dflags, hf_mpls_pm_dflags_res, tvb,
@@ -794,13 +794,13 @@ dissect_mpls_pm_combined(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * FF: the roles of the OTF and Origin Timestamp fields for LM are
      * here played by the QTF and Timestamp 1 fields, respectively.
      */
-    qtf = tvb_get_guint8(tvb, offset) & 0x0F;
+    qtf = tvb_get_uint8(tvb, offset) & 0x0F;
     proto_tree_add_item(pm_tree, hf_mpls_pm_qtf_combined, tvb,
                         offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     /* rtf, rptf */
-    rtf = tvb_get_guint8(tvb, offset) & 0xF0 >> 4;
+    rtf = tvb_get_uint8(tvb, offset) & 0xF0 >> 4;
     proto_tree_add_item(pm_tree, hf_mpls_pm_rtf_combined, tvb,
                         offset, 1, ENC_BIG_ENDIAN);
 
@@ -1435,7 +1435,7 @@ proto_register_mpls_pm(void)
         }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_mpls_pm,
         &ett_mpls_pm_flags,
         &ett_mpls_pm_dflags

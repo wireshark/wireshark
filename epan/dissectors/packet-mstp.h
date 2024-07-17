@@ -17,8 +17,8 @@
  * @param val BACnet MS/TP Frame value
  * @return constant C String with MS/TP Frame Type
  */
-const gchar *
-mstp_frame_type_text(guint32 val);
+const char *
+mstp_frame_type_text(uint32_t val);
 
 /**
  * Dissects the BACnet MS/TP packet after the preamble,
@@ -31,7 +31,7 @@ mstp_frame_type_text(guint32 val);
  * @param offset the offset in the tvb
  */
 void
-dissect_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *subtree, gint offset);
+dissect_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *subtree, int offset);
 
 #endif /* __MSTP_H__ */
 

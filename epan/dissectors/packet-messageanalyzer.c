@@ -166,16 +166,16 @@ static int hf_ipv6_dst_host;
 
 
 /* Initialize the subtree pointers */
-static gint ett_ma_wfp_capture_v4;
-static gint ett_ma_wfp_capture_v6;
-static gint ett_ma_wfp_capture_auth;
-static gint ett_etw_wfp_capture;
-static gint ett_etw_ndis;
-static gint ett_etw_ndis_dest;
-static gint ett_etw_ndis_layer;
-static gint ett_etw_ndis_keyword;
-static gint ett_etw_ndis_packet_metadata;
-static gint ett_etw_ndis_oob_data;
+static int ett_ma_wfp_capture_v4;
+static int ett_ma_wfp_capture_v6;
+static int ett_ma_wfp_capture_auth;
+static int ett_etw_wfp_capture;
+static int ett_etw_ndis;
+static int ett_etw_ndis_dest;
+static int ett_etw_ndis_layer;
+static int ett_etw_ndis_keyword;
+static int ett_etw_ndis_packet_metadata;
+static int ett_etw_ndis_oob_data;
 
 static dissector_handle_t ma_wfp_capture_v4_handle;
 static dissector_handle_t ma_wfp_capture2_v4_handle;
@@ -193,7 +193,7 @@ static void
 add_ipv4_src_address(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, proto_item* parent_item)
 {
 	proto_item *item;
-	guint32 addr;
+	uint32_t addr;
 
 	set_address_tvb(&pinfo->net_src, AT_IPv4, 4, tvb, offset);
 	copy_address_shallow(&pinfo->src, &pinfo->net_src);
@@ -223,7 +223,7 @@ static void
 add_ipv4_dst_address(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, proto_item* parent_item)
 {
 	proto_item *item;
-	guint32 addr;
+	uint32_t addr;
 
 	set_address_tvb(&pinfo->net_dst, AT_IPv4, 4, tvb, offset);
 	copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
@@ -309,7 +309,7 @@ dissect_ma_wfp_capture_v4_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	proto_item *ti;
 	proto_tree *wfp_tree;
 	int offset = 0;
-	guint32 ip_proto, payload_length;
+	uint32_t ip_proto, payload_length;
 	tvbuff_t *next_tvb;
 
 	ti = proto_tree_add_item(tree, proto, tvb, 0, -1, ENC_NA);
@@ -338,7 +338,7 @@ dissect_ma_wfp_capture_v4_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 	next_tvb = tvb_new_subset_remaining(tvb, offset);
 
-	if (!dissector_try_uint_new(ip_dissector_table, ip_proto, next_tvb, pinfo, tree, TRUE, NULL)) {
+	if (!dissector_try_uint_new(ip_dissector_table, ip_proto, next_tvb, pinfo, tree, true, NULL)) {
 		call_data_dissector(next_tvb, pinfo, tree);
 	}
 
@@ -369,7 +369,7 @@ dissect_ma_wfp_capture_v6_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	proto_item *ti;
 	proto_tree *wfp_tree;
 	int offset = 0;
-	guint32 ip_proto, payload_length;
+	uint32_t ip_proto, payload_length;
 	tvbuff_t *next_tvb;
 
 	ti = proto_tree_add_item(tree, proto, tvb, 0, -1, ENC_NA);
@@ -398,7 +398,7 @@ dissect_ma_wfp_capture_v6_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 	proto_item_set_len(ti, offset);
 
-	if (!dissector_try_uint_new(ip_dissector_table, ip_proto, next_tvb, pinfo, tree, TRUE, NULL)) {
+	if (!dissector_try_uint_new(ip_dissector_table, ip_proto, next_tvb, pinfo, tree, true, NULL)) {
 		call_data_dissector(next_tvb, pinfo, tree);
 	}
 
@@ -429,7 +429,7 @@ dissect_ma_wfp_capture_auth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	proto_item *ti;
 	proto_tree *wfp_tree;
 	int offset = 0;
-	guint32 length, ip_proto;
+	uint32_t length, ip_proto;
 
 	ti = proto_tree_add_item(tree, proto, tvb, 0, -1, ENC_NA);
 	wfp_tree = proto_item_add_subtree(ti, ett_ma_wfp_capture_auth);
@@ -566,7 +566,7 @@ dissect_etw_wfp_capture(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	proto_tree *etw_tree;
 	int offset = 0;
 	struct netmon_provider_id_data *provider_id_data = (struct netmon_provider_id_data*)data;
-	guint length;
+	unsigned length;
 
 	DISSECTOR_ASSERT(provider_id_data != NULL);
 
@@ -749,32 +749,32 @@ static const value_string etw_ndis_wifi_phytype_vals[] = {
 };
 
 
-#define ETW_NDIS_KEYWORD_ETHERNET8023       G_GUINT64_CONSTANT(0x0000000000000001)
-#define ETW_NDIS_KEYWORD_RESERVED1          G_GUINT64_CONSTANT(0x00000000000001FE)
-#define ETW_NDIS_KEYWORD_WIRELESS_WAN       G_GUINT64_CONSTANT(0x0000000000000200)
-#define ETW_NDIS_KEYWORD_RESERVED2          G_GUINT64_CONSTANT(0x0000000000007C00)
-#define ETW_NDIS_KEYWORD_TUNNEL             G_GUINT64_CONSTANT(0x0000000000008000)
-#define ETW_NDIS_KEYWORD_NATIVE_80211       G_GUINT64_CONSTANT(0x0000000000010000)
-#define ETW_NDIS_KEYWORD_RESERVED3          G_GUINT64_CONSTANT(0x0000000000FE0000)
-#define ETW_NDIS_KEYWORD_VM_SWITCH          G_GUINT64_CONSTANT(0x0000000001000000)
-#define ETW_NDIS_KEYWORD_RESERVED4          G_GUINT64_CONSTANT(0x000000003E000000)
-#define ETW_NDIS_KEYWORD_PACKET_START       G_GUINT64_CONSTANT(0x0000000040000000)
-#define ETW_NDIS_KEYWORD_PACKET_END         G_GUINT64_CONSTANT(0x0000000080000000)
-#define ETW_NDIS_KEYWORD_SEND_PATH          G_GUINT64_CONSTANT(0x0000000100000000)
-#define ETW_NDIS_KEYWORD_RECV_PATH          G_GUINT64_CONSTANT(0x0000000200000000)
-#define ETW_NDIS_KEYWORD_L3_CONN_PATH       G_GUINT64_CONSTANT(0x0000000400000000)
-#define ETW_NDIS_KEYWORD_L2_CONN_PATH       G_GUINT64_CONSTANT(0x0000000800000000)
-#define ETW_NDIS_KEYWORD_CLOSE_PATH         G_GUINT64_CONSTANT(0x0000001000000000)
-#define ETW_NDIS_KEYWORD_AUTHENTICATION     G_GUINT64_CONSTANT(0x0000002000000000)
-#define ETW_NDIS_KEYWORD_CONFIGURATION      G_GUINT64_CONSTANT(0x0000004000000000)
-#define ETW_NDIS_KEYWORD_GLOBAL             G_GUINT64_CONSTANT(0x0000008000000000)
-#define ETW_NDIS_KEYWORD_DROPPED            G_GUINT64_CONSTANT(0x0000010000000000)
-#define ETW_NDIS_KEYWORD_PII_PRESENT        G_GUINT64_CONSTANT(0x0000020000000000)
-#define ETW_NDIS_KEYWORD_PACKET             G_GUINT64_CONSTANT(0x0000040000000000)
-#define ETW_NDIS_KEYWORD_ADDRESS            G_GUINT64_CONSTANT(0x0000080000000000)
-#define ETW_NDIS_KEYWORD_STD_TEMPLATE_HINT  G_GUINT64_CONSTANT(0x0000100000000000)
-#define ETW_NDIS_KEYWORD_STATE_TRANSITION   G_GUINT64_CONSTANT(0x0000200000000000)
-#define ETW_NDIS_KEYWORD_RESERVED5          G_GUINT64_CONSTANT(0xFFFFC00000000000)
+#define ETW_NDIS_KEYWORD_ETHERNET8023       UINT64_C(0x0000000000000001)
+#define ETW_NDIS_KEYWORD_RESERVED1          UINT64_C(0x00000000000001FE)
+#define ETW_NDIS_KEYWORD_WIRELESS_WAN       UINT64_C(0x0000000000000200)
+#define ETW_NDIS_KEYWORD_RESERVED2          UINT64_C(0x0000000000007C00)
+#define ETW_NDIS_KEYWORD_TUNNEL             UINT64_C(0x0000000000008000)
+#define ETW_NDIS_KEYWORD_NATIVE_80211       UINT64_C(0x0000000000010000)
+#define ETW_NDIS_KEYWORD_RESERVED3          UINT64_C(0x0000000000FE0000)
+#define ETW_NDIS_KEYWORD_VM_SWITCH          UINT64_C(0x0000000001000000)
+#define ETW_NDIS_KEYWORD_RESERVED4          UINT64_C(0x000000003E000000)
+#define ETW_NDIS_KEYWORD_PACKET_START       UINT64_C(0x0000000040000000)
+#define ETW_NDIS_KEYWORD_PACKET_END         UINT64_C(0x0000000080000000)
+#define ETW_NDIS_KEYWORD_SEND_PATH          UINT64_C(0x0000000100000000)
+#define ETW_NDIS_KEYWORD_RECV_PATH          UINT64_C(0x0000000200000000)
+#define ETW_NDIS_KEYWORD_L3_CONN_PATH       UINT64_C(0x0000000400000000)
+#define ETW_NDIS_KEYWORD_L2_CONN_PATH       UINT64_C(0x0000000800000000)
+#define ETW_NDIS_KEYWORD_CLOSE_PATH         UINT64_C(0x0000001000000000)
+#define ETW_NDIS_KEYWORD_AUTHENTICATION     UINT64_C(0x0000002000000000)
+#define ETW_NDIS_KEYWORD_CONFIGURATION      UINT64_C(0x0000004000000000)
+#define ETW_NDIS_KEYWORD_GLOBAL             UINT64_C(0x0000008000000000)
+#define ETW_NDIS_KEYWORD_DROPPED            UINT64_C(0x0000010000000000)
+#define ETW_NDIS_KEYWORD_PII_PRESENT        UINT64_C(0x0000020000000000)
+#define ETW_NDIS_KEYWORD_PACKET             UINT64_C(0x0000040000000000)
+#define ETW_NDIS_KEYWORD_ADDRESS            UINT64_C(0x0000080000000000)
+#define ETW_NDIS_KEYWORD_STD_TEMPLATE_HINT  UINT64_C(0x0000100000000000)
+#define ETW_NDIS_KEYWORD_STATE_TRANSITION   UINT64_C(0x0000200000000000)
+#define ETW_NDIS_KEYWORD_RESERVED5          UINT64_C(0xFFFFC00000000000)
 
 static void
 etw_ndis_packet_metadata(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
@@ -782,7 +782,7 @@ etw_ndis_packet_metadata(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, in
 	int start_offset = offset;
 	proto_tree* metadata_tree;
 	proto_item* metadata_item;
-	guint32 revision, length;
+	uint32_t revision, length;
 
 	metadata_tree = proto_tree_add_subtree(tree, tvb, offset, 4, ett_etw_ndis_packet_metadata, &metadata_item, "WiFiMetadata");
 
@@ -795,8 +795,8 @@ etw_ndis_packet_metadata(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, in
 
 	if (revision == 1)
 	{
-		guint32 phytype, channel, rate;
-		gint32 rssi;
+		uint32_t phytype, channel, rate;
+		int32_t rssi;
 
 		proto_tree_add_item(metadata_tree, hf_etw_ndis_packet_metadata_wifi_flags, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
@@ -822,7 +822,7 @@ etw_ndis_packet_metadata(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, in
 		offset += 2;
 		proto_tree_add_item_ret_int(metadata_tree, hf_etw_ndis_packet_metadata_wifi_rssi, tvb, offset, 4, ENC_LITTLE_ENDIAN, &rssi);
 		offset += 4;
-		rate = tvb_get_guint8(tvb, offset);
+		rate = tvb_get_uint8(tvb, offset);
 		proto_tree_add_uint_format_value(metadata_tree, hf_etw_ndis_packet_metadata_wifi_datarate, tvb, offset, 1, rate, "%u.%u Mbps", rate / 2, rate % 2 > 0 ? 5 : 0);
 		offset += 1;
 		col_append_fstr(pinfo->cinfo, COL_INFO, ": RSSI = %d dBm, Rate = %u.%u Mbps", rssi, rate / 2, rate % 2 > 0 ? 5 : 0);
@@ -844,7 +844,7 @@ dissect_etw_ndis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 	proto_tree *etw_tree, *dest_tree, *layer_tree, *oob_tree;
 	int offset = 0, dest_start, layer_start;
 	struct netmon_provider_id_data *provider_id_data = (struct netmon_provider_id_data*)data;
-	guint i, length;
+	unsigned i, length;
 	tvbuff_t *next_tvb;
 
 	static int * const keyword_fields[] = {
@@ -1011,7 +1011,7 @@ dissect_etw_ndis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 		proto_tree_add_item_ret_uint(etw_tree, hf_etw_ndis_oob_data_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &length);
 		offset += 4;
 
-		if ((gint)length == tvb_reported_length_remaining(tvb, offset))
+		if ((int)length == tvb_reported_length_remaining(tvb, offset))
 		{
 			oob_tree = proto_tree_add_subtree(etw_tree, tvb, offset, length, ett_etw_ndis_oob_data, NULL, "OOB Data");
 
@@ -1663,7 +1663,7 @@ void proto_register_message_analyzer(void)
 		},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_ma_wfp_capture_v4,
 		&ett_ma_wfp_capture_v6,
 		&ett_ma_wfp_capture_auth,

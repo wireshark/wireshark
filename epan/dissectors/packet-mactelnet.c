@@ -25,33 +25,33 @@ void proto_reg_handoff_mactelnet(void);
 #define PROTO_TAG_MACTELNET "MAC-Telnet"
 
 /* Initialize the protocol and registered fields */
-static gint proto_mactelnet;
-static gint hf_mactelnet_control_packet;
-static gint hf_mactelnet_type;
-static gint hf_mactelnet_protocolver;
-static gint hf_mactelnet_source_mac;
-static gint hf_mactelnet_destination_mac;
-static gint hf_mactelnet_session_id;
-static gint hf_mactelnet_client_type;
-static gint hf_mactelnet_databytes;
-static gint hf_mactelnet_datatype;
-static gint hf_mactelnet_control;
-static gint hf_mactelnet_control_length;
-static gint hf_mactelnet_control_encryption_key;
-static gint hf_mactelnet_control_password;
-static gint hf_mactelnet_control_username;
-static gint hf_mactelnet_control_terminal;
-static gint hf_mactelnet_control_width;
-static gint hf_mactelnet_control_height;
+static int proto_mactelnet;
+static int hf_mactelnet_control_packet;
+static int hf_mactelnet_type;
+static int hf_mactelnet_protocolver;
+static int hf_mactelnet_source_mac;
+static int hf_mactelnet_destination_mac;
+static int hf_mactelnet_session_id;
+static int hf_mactelnet_client_type;
+static int hf_mactelnet_databytes;
+static int hf_mactelnet_datatype;
+static int hf_mactelnet_control;
+static int hf_mactelnet_control_length;
+static int hf_mactelnet_control_encryption_key;
+static int hf_mactelnet_control_password;
+static int hf_mactelnet_control_username;
+static int hf_mactelnet_control_terminal;
+static int hf_mactelnet_control_width;
+static int hf_mactelnet_control_height;
 
 #define MACTELNET_UDP_PORT      20561 /* Not IANA registered */
 
 /* Control packet definition */
-static const guint32 control_packet = 0x563412FF;
+static const uint32_t control_packet = 0x563412FF;
 
 /* Initialize the subtree pointers */
-static gint ett_mactelnet;
-static gint ett_mactelnet_control;
+static int ett_mactelnet;
+static int ett_mactelnet_control;
 
 /* Packet types */
 static const value_string packettypenames[] = {
@@ -95,14 +95,14 @@ dissect_mactelnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     int         foundping   = -1;
     int         foundclient = -1;
     int         foundserver = -1;
-    guint16     type;
+    uint16_t    type;
 
     /* Check that there's enough data */
     if (tvb_captured_length(tvb) < 18)
         return 0;
 
     /*  Get the type byte */
-    type = tvb_get_guint8(tvb, 1);
+    type = tvb_get_uint8(tvb, 1);
 
     if ((type == 4) || (type == 5)) { /* Ping */
         foundping = 1;
@@ -137,7 +137,7 @@ dissect_mactelnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         );
 
     if (tree) {
-        guint32 offset = 0;
+        uint32_t offset = 0;
 
         /* create display subtree for the protocol */
         mactelnet_item = proto_tree_add_item(tree, proto_mactelnet, tvb, 0, -1, ENC_NA);
@@ -194,8 +194,8 @@ dissect_mactelnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         if (type == 1) {
             while(tvb_reported_length_remaining(tvb, offset) > 0) {
                 if ((tvb_reported_length_remaining(tvb, offset) > 4) && (tvb_get_ntohl(tvb, offset) == control_packet)) {
-                    guint8  datatype;
-                    guint32 datalength;
+                    uint8_t datatype;
+                    uint32_t datalength;
 
                     /* Add subtree for control packet */
                     mactelnet_control_item = proto_tree_add_item(mactelnet_tree, hf_mactelnet_control, tvb, offset, -1, ENC_NA);
@@ -205,7 +205,7 @@ dissect_mactelnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                     offset += 4;
 
                     /* Control packet type (1) */
-                    datatype = tvb_get_guint8(tvb, offset);
+                    datatype = tvb_get_uint8(tvb, offset);
                     proto_tree_add_item(mactelnet_control_tree, hf_mactelnet_datatype, tvb, offset, 1, ENC_NA);
                     offset += 1;
 
@@ -354,7 +354,7 @@ proto_register_mactelnet(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_mactelnet,
         &ett_mactelnet_control,
     };

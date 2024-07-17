@@ -63,30 +63,30 @@
 /*
  * Used to read a date provided in MJD format into a utc_time structure
  */
-extern gint
-packet_mpeg_sect_mjd_to_utc_time(tvbuff_t *tvb, gint offset, nstime_t *utc_time);
+extern int
+packet_mpeg_sect_mjd_to_utc_time(tvbuff_t *tvb, int offset, nstime_t *utc_time);
 
 /*
  *  Used to process the 'standard' mpeg section header that is described below
  *  and populate the data into the tree
  */
-extern guint
-packet_mpeg_sect_header(tvbuff_t *tvb, guint offset,
-			proto_tree *tree, guint *sect_len, bool *ssi);
+extern unsigned
+packet_mpeg_sect_header(tvbuff_t *tvb, unsigned offset,
+			proto_tree *tree, unsigned *sect_len, bool *ssi);
 
 /*
  *  Used to return all the values & items for 'strict' processing of the
  *  sub-dissectors that make use of this dissector
  */
-extern guint
-packet_mpeg_sect_header_extra(tvbuff_t *tvb, guint offset, proto_tree *tree,
-				guint *sect_len, guint *reserved, bool *ssi,
+extern unsigned
+packet_mpeg_sect_header_extra(tvbuff_t *tvb, unsigned offset, proto_tree *tree,
+				unsigned *sect_len, unsigned *reserved, bool *ssi,
 				proto_item **items);
 
 /*
  *  Used to process the mpeg CRC information & report errors found with it.
  */
-extern guint
+extern unsigned
 packet_mpeg_sect_crc(tvbuff_t *tvb, packet_info *pinfo,
-						proto_tree *tree, guint start, guint end);
+						proto_tree *tree, unsigned start, unsigned end);
 #endif

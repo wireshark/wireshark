@@ -32,8 +32,8 @@ static int hf_mpeg_pat_program_reserved;
 static int hf_mpeg_pat_program_map_pid;
 
 
-static gint ett_mpeg_pat;
-static gint ett_mpeg_pat_prog;
+static int ett_mpeg_pat;
+static int ett_mpeg_pat_prog;
 
 #define MPEG_PAT_RESERVED_MASK                    0xC0
 #define MPEG_PAT_VERSION_NUMBER_MASK              0x3E
@@ -45,8 +45,8 @@ static gint ett_mpeg_pat_prog;
 static int
 dissect_mpeg_pat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    guint offset = 0, length = 0;
-    guint16 prog_num, prog_pid;
+    unsigned offset = 0, length = 0;
+    uint16_t prog_num, prog_pid;
 
     proto_item *ti;
     proto_tree *mpeg_pat_tree;
@@ -153,7 +153,7 @@ proto_register_mpeg_pat(void)
 
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_mpeg_pat,
         &ett_mpeg_pat_prog
     };

@@ -36,7 +36,7 @@
 void proto_register_m3ua(void);
 void proto_reg_handoff_m3ua(void);
 
-static gint m3ua_pref_mtp3_standard;
+static int m3ua_pref_mtp3_standard;
 
 #define SCTP_PORT_M3UA         2905
 #define TCP_PORT_M3UA          2905
@@ -294,11 +294,11 @@ static int hf_heuristic_standard;
 static int m3ua_tap;
 
 /* Initialize the subtree pointers */
-static gint ett_m3ua;
-static gint ett_parameter;
-static gint ett_mtp3_equiv;
-static gint ett_q708_opc;
-static gint ett_q708_dpc;
+static int ett_m3ua;
+static int ett_parameter;
+static int ett_mtp3_equiv;
+static int ett_q708_opc;
+static int ett_q708_dpc;
 
 static module_t *m3ua_module;
 static dissector_handle_t mtp3_handle;
@@ -318,7 +318,7 @@ typedef enum {
   M3UA_RFC
 } Version_Type;
 
-static gint version = M3UA_RFC;
+static int version = M3UA_RFC;
 
 
 
@@ -328,11 +328,11 @@ dissect_parameters(tvbuff_t *, packet_info *, proto_tree *, proto_tree *);
 static void
 dissect_v5_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tree *m3ua_tree)
 {
-  guint8  message_class, message_type;
+  uint8_t message_class, message_type;
 
   /* Extract the common header */
-  message_class  = tvb_get_guint8(common_header_tvb, MESSAGE_CLASS_OFFSET);
-  message_type   = tvb_get_guint8(common_header_tvb, MESSAGE_TYPE_OFFSET);
+  message_class  = tvb_get_uint8(common_header_tvb, MESSAGE_CLASS_OFFSET);
+  message_type   = tvb_get_uint8(common_header_tvb, MESSAGE_TYPE_OFFSET);
 
   col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(message_class * 256 + message_type, v5_message_class_type_acro_values, "reserved"));
 
@@ -350,11 +350,11 @@ dissect_v5_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_
 static void
 dissect_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tree *m3ua_tree)
 {
-  guint8  message_class, message_type;
+  uint8_t message_class, message_type;
 
   /* Extract the common header */
-  message_class  = tvb_get_guint8(common_header_tvb, MESSAGE_CLASS_OFFSET);
-  message_type   = tvb_get_guint8(common_header_tvb, MESSAGE_TYPE_OFFSET);
+  message_class  = tvb_get_uint8(common_header_tvb, MESSAGE_CLASS_OFFSET);
+  message_type   = tvb_get_uint8(common_header_tvb, MESSAGE_TYPE_OFFSET);
 
   col_add_fstr(pinfo->cinfo, COL_INFO,"%s ", val_to_str_const(message_class * 256 + message_type, message_class_type_acro_values, "reserved"));
 
@@ -384,7 +384,7 @@ dissect_network_appearance_parameter(tvbuff_t *parameter_tvb, proto_tree *parame
 static void
 dissect_v5_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, proto_item *parameter_item)
 {
-  guint16 length, protocol_data_length;
+  uint16_t length, protocol_data_length;
   tvbuff_t *payload_tvb;
 
   length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
@@ -400,7 +400,7 @@ dissect_v5_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, 
 static void
 dissect_info_string_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  guint16 info_string_length;
+  uint16_t info_string_length;
 
   info_string_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
   proto_tree_add_item(parameter_tree, hf_info_string, parameter_tvb, INFO_STRING_OFFSET, info_string_length, ENC_ASCII);
@@ -418,8 +418,8 @@ dissect_info_string_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto
 static void
 dissect_affected_destinations_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  guint16 number_of_destinations, destination_number;
-  gint destination_offset;
+  uint16_t number_of_destinations, destination_number;
+  int destination_offset;
   proto_item *item;
 
   number_of_destinations = (tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH) >> 2;
@@ -439,8 +439,8 @@ dissect_affected_destinations_parameter(tvbuff_t *parameter_tvb, proto_tree *par
 static void
 dissect_routing_context_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  guint16 number_of_contexts, context_number;
-  gint context_offset;
+  uint16_t number_of_contexts, context_number;
+  int context_offset;
 
   number_of_contexts = (tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH) >> 2;
   context_offset = PARAMETER_VALUE_OFFSET;
@@ -456,7 +456,7 @@ dissect_routing_context_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter
 static void
 dissect_diagnostic_information_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  guint16 diag_info_length;
+  uint16_t diag_info_length;
 
   diag_info_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
   proto_tree_add_item(parameter_tree, hf_diagnostic_information, parameter_tvb, DIAGNOSTIC_INFO_OFFSET, diag_info_length, ENC_NA);
@@ -468,7 +468,7 @@ dissect_diagnostic_information_parameter(tvbuff_t *parameter_tvb, proto_tree *pa
 static void
 dissect_heartbeat_data_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  guint16 heartbeat_data_length;
+  uint16_t heartbeat_data_length;
 
   heartbeat_data_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
   proto_tree_add_item(parameter_tree, hf_heartbeat_data, parameter_tvb, HEARTBEAT_DATA_OFFSET, heartbeat_data_length, ENC_NA);
@@ -743,7 +743,7 @@ static const value_string v567_status_type_info_values[] = {
 static void
 dissect_v567_status_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  guint16 status_type, status_info;
+  uint16_t status_type, status_info;
 
   status_type = tvb_get_ntohs(parameter_tvb, STATUS_TYPE_OFFSET);
   status_info = tvb_get_ntohs(parameter_tvb, STATUS_INFO_OFFSET);
@@ -768,7 +768,7 @@ static const value_string status_type_info_values[] = {
 static void
 dissect_status_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  guint16 status_type, status_info;
+  uint16_t status_type, status_info;
 
   status_type = tvb_get_ntohs(parameter_tvb, STATUS_TYPE_OFFSET);
   status_info = tvb_get_ntohs(parameter_tvb, STATUS_INFO_OFFSET);
@@ -798,7 +798,7 @@ dissect_congestion_indication_parameter(tvbuff_t *parameter_tvb, proto_tree *par
 {
   proto_tree_add_item(parameter_tree, hf_congestion_reserved, parameter_tvb, CONG_IND_RESERVED_OFFSET, CONG_IND_RESERVED_LENGTH, ENC_NA);
   proto_tree_add_item(parameter_tree, hf_congestion_level,    parameter_tvb, CONG_IND_LEVEL_OFFSET,    CONG_IND_LEVEL_LENGTH,    ENC_BIG_ENDIAN);
-  proto_item_append_text(parameter_item, " (%s)", val_to_str_const(tvb_get_guint8(parameter_tvb, CONG_IND_LEVEL_OFFSET), congestion_level_values, "unknown"));
+  proto_item_append_text(parameter_item, " (%s)", val_to_str_const(tvb_get_uint8(parameter_tvb, CONG_IND_LEVEL_OFFSET), congestion_level_values, "unknown"));
 }
 
 #define ASP_IDENTIFIER_OFFSET PARAMETER_VALUE_OFFSET
@@ -816,7 +816,7 @@ dissect_asp_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_
 static void
 dissect_protocol_data_1_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, proto_item *parameter_item)
 {
-  guint16 protocol_data_length;
+  uint16_t protocol_data_length;
   tvbuff_t *payload_tvb;
 
   protocol_data_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
@@ -833,7 +833,7 @@ dissect_protocol_data_1_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, p
 static void
 dissect_protocol_data_2_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  guint16 protocol_data_length;
+  uint16_t protocol_data_length;
   tvbuff_t *payload_tvb;
 
   protocol_data_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH - LI_OCTETT_LENGTH;
@@ -869,7 +869,7 @@ static void
 dissect_routing_key_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *parameter_tree)
 {
   tvbuff_t *parameters_tvb;
-  guint16 length, parameters_length;
+  uint16_t length, parameters_length;
 
   length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   parameters_length = length - PARAMETER_HEADER_LENGTH;
@@ -910,7 +910,7 @@ static void
 dissect_registration_result_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *parameter_tree)
 {
   tvbuff_t *parameters_tvb;
-  guint16 length, parameters_length;
+  uint16_t length, parameters_length;
 
   length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   parameters_length = length - PARAMETER_HEADER_LENGTH;
@@ -944,7 +944,7 @@ static void
 dissect_deregistration_result_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *parameter_tree)
 {
   tvbuff_t *parameters_tvb;
-  guint16 length, parameters_length;
+  uint16_t length, parameters_length;
 
   length            = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   parameters_length = length - PARAMETER_HEADER_LENGTH;
@@ -986,8 +986,8 @@ dissect_destination_point_code_parameter(tvbuff_t *parameter_tvb, proto_tree *pa
 static void
 dissect_service_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  guint16 length, number_of_sis, si_number;
-  gint si_offset;
+  uint16_t length, number_of_sis, si_number;
+  int si_offset;
 
   length        = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   number_of_sis = length - PARAMETER_HEADER_LENGTH;
@@ -1005,8 +1005,8 @@ dissect_service_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parame
 static void
 dissect_subsystem_numbers_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  guint16 length, number_of_ssns, ssn_number;
-  gint ssn_offset;
+  uint16_t length, number_of_ssns, ssn_number;
+  int ssn_offset;
 
   length         = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   number_of_ssns = length - PARAMETER_HEADER_LENGTH;
@@ -1029,8 +1029,8 @@ dissect_subsystem_numbers_parameter(tvbuff_t *parameter_tvb, proto_tree *paramet
 static void
 dissect_originating_point_code_list_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  guint16 length, number_of_point_codes, point_code_number;
-  gint point_code_offset;
+  uint16_t length, number_of_point_codes, point_code_number;
+  int point_code_offset;
   proto_item *item;
 
   length                = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
@@ -1060,12 +1060,12 @@ dissect_originating_point_code_list_parameter(tvbuff_t *parameter_tvb, proto_tre
 static void
 dissect_circuit_range_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  guint16 length, number_of_point_codes, point_code_number, cic_low, cic_high;
-  guint32 pc;
-  gint point_code_offset;
+  uint16_t length, number_of_point_codes, point_code_number, cic_low, cic_high;
+  uint32_t pc;
+  int point_code_offset;
   proto_item *pc_item, *cic_range_item;
   proto_tree *cic_range_tree;
-  gchar *pc_string;
+  char *pc_string;
 
   length                = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   number_of_point_codes = (length - PARAMETER_HEADER_LENGTH) / CIC_RANGE_LENGTH;
@@ -1109,8 +1109,8 @@ dissect_circuit_range_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_t
 #define DATA_SLS_OFFSET   (DATA_MP_OFFSET  + DATA_MP_LENGTH)
 #define DATA_ULP_OFFSET   (DATA_SLS_OFFSET + DATA_SLS_LENGTH)
 
-static guint
-m3ua_heur_mtp3_standard(tvbuff_t *tvb, packet_info *pinfo, guint32 opc, guint32 dpc, guint8 si)
+static unsigned
+m3ua_heur_mtp3_standard(tvbuff_t *tvb, packet_info *pinfo, uint32_t opc, uint32_t dpc, uint8_t si)
 {
   switch (si) {
   case MTP_SI_SCCP:
@@ -1153,18 +1153,18 @@ m3ua_reset_mtp3_standard(void)
 static void
 dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  guint16 ulp_length;
+  uint16_t ulp_length;
   tvbuff_t *payload_tvb;
   proto_item *item, *gen_item;
   mtp3_tap_rec_t* mtp3_tap;
   proto_tree *q708_tree;
-  gint heuristic_standard;
-  guint8 si;
-  guint32 opc, dpc;
+  int heuristic_standard;
+  uint8_t si;
+  uint32_t opc, dpc;
 
   mtp3_tap = wmem_new0(pinfo->pool, mtp3_tap_rec_t);
 
-  si = tvb_get_guint8(parameter_tvb, DATA_SI_OFFSET);
+  si = tvb_get_uint8(parameter_tvb, DATA_SI_OFFSET);
   ulp_length  = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH - DATA_HDR_LENGTH;
   payload_tvb = tvb_new_subset_length(parameter_tvb, DATA_ULP_OFFSET, ulp_length);
   dpc = tvb_get_ntohl(parameter_tvb, DATA_DPC_OFFSET);
@@ -1193,16 +1193,16 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pro
 
   mtp3_tap->addr_dpc.type = (Standard_Type)mtp3_standard;
   mtp3_tap->addr_dpc.pc = dpc;
-  mtp3_tap->addr_dpc.ni = tvb_get_guint8(parameter_tvb, DATA_NI_OFFSET);
-  set_address(&pinfo->dst, ss7pc_address_type, sizeof(mtp3_addr_pc_t), (guint8 *) &mtp3_tap->addr_dpc);
+  mtp3_tap->addr_dpc.ni = tvb_get_uint8(parameter_tvb, DATA_NI_OFFSET);
+  set_address(&pinfo->dst, ss7pc_address_type, sizeof(mtp3_addr_pc_t), (uint8_t *) &mtp3_tap->addr_dpc);
 
 
   mtp3_tap->addr_opc.type = (Standard_Type)mtp3_standard;
   mtp3_tap->addr_opc.pc = opc;
-  mtp3_tap->addr_opc.ni = tvb_get_guint8(parameter_tvb, DATA_NI_OFFSET);
-  set_address(&pinfo->src, ss7pc_address_type, sizeof(mtp3_addr_pc_t), (guint8 *) &mtp3_tap->addr_opc);
+  mtp3_tap->addr_opc.ni = tvb_get_uint8(parameter_tvb, DATA_NI_OFFSET);
+  set_address(&pinfo->src, ss7pc_address_type, sizeof(mtp3_addr_pc_t), (uint8_t *) &mtp3_tap->addr_opc);
 
-  mtp3_tap->mtp3_si_code = tvb_get_guint8(parameter_tvb, DATA_SI_OFFSET);
+  mtp3_tap->mtp3_si_code = tvb_get_uint8(parameter_tvb, DATA_SI_OFFSET);
   mtp3_tap->size = 0;
 
   tap_queue_packet(m3ua_tap, pinfo, mtp3_tap);
@@ -1254,7 +1254,7 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pro
   }/* parameter_tree */
 
   payload_tvb = tvb_new_subset_length(parameter_tvb, DATA_ULP_OFFSET, ulp_length);
-  if (!dissector_try_uint(si_dissector_table, tvb_get_guint8(parameter_tvb, DATA_SI_OFFSET), payload_tvb, pinfo, tree))
+  if (!dissector_try_uint(si_dissector_table, tvb_get_uint8(parameter_tvb, DATA_SI_OFFSET), payload_tvb, pinfo, tree))
     call_data_dissector(payload_tvb, pinfo, tree);
 
   mtp3_standard = m3ua_pref_mtp3_standard;
@@ -1320,7 +1320,7 @@ static void
 dissect_registration_results_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *parameter_tree)
 {
   tvbuff_t *parameters_tvb;
-  guint16 parameters_length;
+  uint16_t parameters_length;
 
   parameters_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
   parameters_tvb    = tvb_new_subset_length(parameter_tvb, PARAMETER_VALUE_OFFSET, parameters_length);
@@ -1332,7 +1332,7 @@ static void
 dissect_deregistration_results_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *parameter_tree)
 {
   tvbuff_t *parameters_tvb;
-  guint16 parameters_length;
+  uint16_t parameters_length;
 
   parameters_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
   parameters_tvb    = tvb_new_subset_length(parameter_tvb, PARAMETER_VALUE_OFFSET, parameters_length);
@@ -1342,7 +1342,7 @@ dissect_deregistration_results_parameter(tvbuff_t *parameter_tvb, packet_info *p
 static void
 dissect_unknown_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  guint16 tag, parameter_value_length;
+  uint16_t tag, parameter_value_length;
 
   tag                    = tvb_get_ntohs(parameter_tvb, PARAMETER_TAG_OFFSET);
   parameter_value_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
@@ -1383,7 +1383,7 @@ static const value_string v5_parameter_tag_values[] = {
 static void
 dissect_v5_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *m3ua_tree)
 {
-  guint16 tag, length, padding_length;
+  uint16_t tag, length, padding_length;
   proto_item *parameter_item;
   proto_tree *parameter_tree;
 
@@ -1511,7 +1511,7 @@ static void
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_v6_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *m3ua_tree)
 {
-  guint16 tag, length, padding_length;
+  uint16_t tag, length, padding_length;
   proto_item *parameter_item;
   proto_tree *parameter_tree;
 
@@ -1679,7 +1679,7 @@ static void
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_v7_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *m3ua_tree)
 {
-  guint16 tag, length, padding_length;
+  uint16_t tag, length, padding_length;
   proto_item *parameter_item;
   proto_tree *parameter_tree;
 
@@ -1846,7 +1846,7 @@ static void
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *m3ua_tree)
 {
-  guint16 tag, length, padding_length;
+  uint16_t tag, length, padding_length;
   proto_item *parameter_item;
   proto_tree *parameter_tree;
 
@@ -1956,7 +1956,7 @@ static void
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *m3ua_tree)
 {
-  gint offset, length, total_length, remaining_length;
+  int offset, length, total_length, remaining_length;
   tvbuff_t *parameter_tvb;
 
   offset = 0;
@@ -2040,7 +2040,7 @@ dissect_m3ua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void* 
   return tvb_captured_length(message_tvb);
 }
 
-static guint
+static unsigned
 get_dissect_m3ua_tcp_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                          int offset, void *data _U_)
 {
@@ -2138,7 +2138,7 @@ proto_register_m3ua(void)
   };
 
   /* Setup protocol subtree array */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_m3ua,
     &ett_parameter,
     &ett_mtp3_equiv,
@@ -2160,7 +2160,7 @@ proto_register_m3ua(void)
   m3ua_tcp_handle = register_dissector_with_description("m3ua.tcp", "M3UA over TCP", dissect_m3ua_tcp, proto_m3ua);
 
   m3ua_module = prefs_register_protocol(proto_m3ua, NULL);
-  prefs_register_enum_preference(m3ua_module, "version", "M3UA Version", "Version used by Wireshark", &version, options, FALSE);
+  prefs_register_enum_preference(m3ua_module, "version", "M3UA Version", "Version used by Wireshark", &version, options, false);
   prefs_register_static_text_preference(m3ua_module, "text_mtp3_standard", "The SS7 standard used can be changed in the MTP3 preferences", "The SS7 standard used can be changed in the MTP3 preferences");
   prefs_register_bool_preference(m3ua_module, "desegment",
                                  "Desegment all M3UA messages spanning multiple TCP segments",

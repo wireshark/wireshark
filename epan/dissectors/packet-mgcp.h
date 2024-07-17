@@ -24,29 +24,29 @@ typedef struct _mgcp_info_t
 {
 	mgcp_type_t mgcp_type;
 	char code[5];
-	guint32 transid;
+	uint32_t transid;
 	nstime_t req_time;
-	gboolean is_duplicate;
-	gboolean request_available;
-	guint32 req_num; /* frame number request seen */
-	gchar *endpointId;
-	gchar *observedEvents;
-	guint32 rspcode;
-	gchar *signalReq;
-	gboolean hasDigitMap;
-	gboolean is_osmux;
+	bool is_duplicate;
+	bool request_available;
+	uint32_t req_num; /* frame number request seen */
+	char *endpointId;
+	char *observedEvents;
+	uint32_t rspcode;
+	char *signalReq;
+	bool hasDigitMap;
+	bool is_osmux;
 } mgcp_info_t;
 
 /* Item of request list */
 typedef struct _mgcp_call_t
 {
-	guint32 transid;
+	uint32_t transid;
 	char code[5];
-	guint32 req_num; /* frame number request seen */
-	guint32 rsp_num; /* frame number response seen */
-	guint32 rspcode;
+	uint32_t req_num; /* frame number request seen */
+	uint32_t rsp_num; /* frame number response seen */
+	uint32_t rspcode;
 	nstime_t req_time;
-	gboolean responded;
+	bool responded;
 } mgcp_call_t;
 
 /*

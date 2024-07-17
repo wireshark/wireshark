@@ -48,11 +48,11 @@ typedef struct _msrcp_conv_info_t {
 } msrcp_conv_info_t;
 
 typedef struct _msrcp_transaction_t {
-    guint32 req_frame;
-    guint32 rep_frame;
+    uint32_t req_frame;
+    uint32_t rep_frame;
     nstime_t req_time;
-    guint32 seq;
-    gboolean matched;
+    uint32_t seq;
+    bool matched;
 } msrcp_transaction_t;
 
 static int proto_msrcp;
@@ -70,8 +70,8 @@ static int hf_msrcp_ext_next_header;
 static int hf_msrcp_ext_len;
 static int hf_msrcp_ext_res;
 
-static gint ett_msrcp;
-static gint ett_msrcp_nxt;
+static int ett_msrcp;
+static int ett_msrcp_nxt;
 
 static expert_field ei_msrcp_no_resp;
 
@@ -98,13 +98,13 @@ dissect_msrcp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U
             SrcAddr:        16 bytes
             DstAddr:        16 bytes
     */
-    guint tree_offset = 0;
+    unsigned tree_offset = 0;
 
     proto_tree* msrcp_tree, * nxt_tree;
     proto_item* ti, * nxt_ti;
     tvbuff_t* next_tvb;
-    guint32         seq;
-    guint16         type;
+    uint32_t        seq;
+    uint16_t        type;
 
     // variables for our expert analysis
     conversation_t* conv = NULL;
@@ -112,8 +112,8 @@ dissect_msrcp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U
     msrcp_transaction_t* msrcp_trans = NULL;
     wmem_tree_key_t  key[3];
 
-    type = tvb_get_guint8(tvb, MSRCP_OFFSET_TYPE);
-    seq = tvb_get_guint32(tvb, MSRCP_OFFSET_SEQ, ENC_LITTLE_ENDIAN);
+    type = tvb_get_uint8(tvb, MSRCP_OFFSET_TYPE);
+    seq = tvb_get_uint32(tvb, MSRCP_OFFSET_SEQ, ENC_LITTLE_ENDIAN);
 
     conv = find_or_create_conversation(pinfo);
     msrcp_info = (msrcp_conv_info_t*)conversation_get_proto_data(conv, proto_msrcp);
@@ -141,7 +141,7 @@ dissect_msrcp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U
                 msrcp_trans->rep_frame = 0;
                 msrcp_trans->req_time = pinfo->abs_ts;
                 msrcp_trans->seq = seq;
-                msrcp_trans->matched = FALSE;
+                msrcp_trans->matched = false;
                 wmem_tree_insert32_array(msrcp_info->pdus, key, (void*)msrcp_trans);
             }
             else
@@ -156,7 +156,7 @@ dissect_msrcp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U
                     else if (msrcp_trans->rep_frame == 0)
                     {
                         msrcp_trans->rep_frame = pinfo->num;
-                        msrcp_trans->matched = TRUE;
+                        msrcp_trans->matched = true;
                     }
                 }
             }
@@ -186,7 +186,7 @@ dissect_msrcp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U
             msrcp_trans->req_frame = 0;
             msrcp_trans->rep_frame = 0;
             msrcp_trans->req_time = pinfo->abs_ts;
-            msrcp_trans->matched = FALSE;
+            msrcp_trans->matched = false;
         }
     }
 
@@ -341,7 +341,7 @@ proto_register_msrcp(void)
     },
     };
 
-    static gint* ett[] = {
+    static int* ett[] = {
             &ett_msrcp,
             &ett_msrcp_nxt
     };

@@ -45,7 +45,7 @@ static dissector_handle_t msnms_handle;
 static int proto_msnms;
 /* static int hf_msnms_command; */
 
-static gint ett_msnms;
+static int ett_msnms;
 
 #define TCP_PORT_MSNMS    1863
 
@@ -54,12 +54,12 @@ dissect_msnms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 {
     proto_tree   *msnms_tree;
     proto_item   *ti;
-    gint          offset = 0;
-    const guchar *line;
-    gint          next_offset;
+    int           offset = 0;
+    const unsigned char *line;
+    int           next_offset;
     int           linelen;
     /* int              tokenlen; */
-    /* const guchar     *next_token; */
+    /* const unsigned char     *next_token; */
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MSNMS");
 
@@ -70,7 +70,7 @@ dissect_msnms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
      * not longer than what's in the buffer, so the "tvb_get_ptr()"
      * call won't throw an exception.
      */
-    linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+    linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, false);
     line = tvb_get_ptr(tvb, offset, linelen);
 
 
@@ -94,7 +94,7 @@ dissect_msnms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
              * Find the end of the line.
              */
             tvb_find_line_end(tvb, offset, -1,
-                              &next_offset, FALSE);
+                              &next_offset, false);
 
             /*
              * Put this line.
@@ -109,7 +109,7 @@ dissect_msnms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 void
 proto_register_msnms(void)
 {
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_msnms,
     };
 

@@ -74,7 +74,7 @@ static int ett_maap;
 static int
 dissect_maap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    guint8      maap_msg_type;
+    uint8_t     maap_msg_type;
     proto_item *maap_item     = NULL;
     proto_tree *maap_tree     = NULL;
 
@@ -82,7 +82,7 @@ dissect_maap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     col_clear(pinfo->cinfo, COL_INFO);
 
     /* The maap msg type will be handy in a moment */
-    maap_msg_type = tvb_get_guint8(tvb, MAAP_MSG_TYPE_OFFSET);
+    maap_msg_type = tvb_get_uint8(tvb, MAAP_MSG_TYPE_OFFSET);
     maap_msg_type &= 0x0f;
 
     /* Display the name of the packet type in the info column. */
@@ -183,7 +183,7 @@ proto_register_maap(void)
     }; /* end of static hf_register_info hf[] = */
 
     /* Setup protocol subtree array */
-    static gint *ett[] = { &ett_maap };
+    static int *ett[] = { &ett_maap };
 
     /* Register the protocol name and description */
     proto_maap = proto_register_protocol (

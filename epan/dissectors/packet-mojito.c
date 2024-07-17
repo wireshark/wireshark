@@ -92,26 +92,26 @@ static int hf_mojito_priorityflag;
 static int hf_mojito_opcode_data;
 
 /* Initialize the subtree pointers */
-static gint ett_mojito;
-static gint ett_mojito_header;
-static gint ett_mojito_header_version;
-static gint ett_mojito_contact;
-static gint ett_mojito_contact_version;
-static gint ett_mojito_socket_address;
-static gint ett_mojito_flags;
-static gint ett_mojito_bigint;
-static gint ett_mojito_opcode;
-static gint ett_mojito_dht_version;
-static gint ett_mojito_dht;
-static gint ett_mojito_status_code;
-static gint ett_mojito_kuids;
+static int ett_mojito;
+static int ett_mojito_header;
+static int ett_mojito_header_version;
+static int ett_mojito_contact;
+static int ett_mojito_contact_version;
+static int ett_mojito_socket_address;
+static int ett_mojito_flags;
+static int ett_mojito_bigint;
+static int ett_mojito_opcode;
+static int ett_mojito_dht_version;
+static int ett_mojito_dht;
+static int ett_mojito_status_code;
+static int ett_mojito_kuids;
 
 static expert_field ei_mojito_socketaddress_unknown;
 static expert_field ei_mojito_bigint_unsupported;
 
 typedef struct mojito_header_data {
-	guint8 opcode;
-	guint32 payloadlength;
+	uint8_t opcode;
+	uint32_t payloadlength;
 } mojito_header_data_t;
 
 /* Values for OPCode Flags */
@@ -175,14 +175,14 @@ dissect_mojito_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		int offset, const char *title)
 {
 	int         offset_start;
-	guint8      socket_address_version;
+	uint8_t     socket_address_version;
 	proto_tree *socket_tree;
 	proto_item *socket_item;
 
 	offset_start = offset;
 
 	/* new subtree for socket address*/
-	socket_address_version = tvb_get_guint8(tvb, offset);
+	socket_address_version = tvb_get_uint8(tvb, offset);
 	socket_tree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_mojito_socket_address, &socket_item, title);
 
 	proto_tree_add_item(socket_tree, hf_mojito_socketaddress_version, tvb, offset, 1, ENC_NA);
@@ -287,7 +287,7 @@ dissect_mojito_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree_add_item(header_tree, hf_mojito_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
-	header_data->opcode = tvb_get_guint8(tvb, offset);
+	header_data->opcode = tvb_get_uint8(tvb, offset);
 	col_add_str(pinfo->cinfo, COL_INFO, val_to_str_const(header_data->opcode, opcodeflags, "Unknown"));
 	proto_tree_add_item(header_tree, hf_mojito_opcode, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
@@ -337,7 +337,7 @@ dissect_mojito_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static void
 dissect_mojito_ping_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-	guint8      bigintlen;
+	uint8_t     bigintlen;
 	proto_tree *bigint_tree;
 	proto_item *bigint_item;
 
@@ -350,7 +350,7 @@ dissect_mojito_ping_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	}
 
 	/* BigInt subtree */
-	bigintlen = tvb_get_guint8(tvb, offset);
+	bigintlen = tvb_get_uint8(tvb, offset);
 	bigint_tree = proto_tree_add_subtree(tree, tvb, offset, bigintlen + 1, ett_mojito_bigint, &bigint_item, "Estimated DHT size");
 
 	proto_tree_add_item(bigint_tree, hf_mojito_bigintegerlen, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -387,9 +387,9 @@ dissect_mojito_store_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 {
 	proto_tree *dht_tree, *version_tree;
 	proto_item *dht_item, *version_item;
-	guint8      ii, contactcount;
-	guint8      sectokenlen = tvb_get_guint8(tvb, offset);
-	guint16     dhtvaluelength;
+	uint8_t     ii, contactcount;
+	uint8_t     sectokenlen = tvb_get_uint8(tvb, offset);
+	uint16_t    dhtvaluelength;
 	int         contact_offset, start_offset;
 
 	proto_tree_add_item(tree, hf_mojito_sectokenlen, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -400,7 +400,7 @@ dissect_mojito_store_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	/* Contact count */
 	proto_tree_add_item(tree, hf_mojito_dhtvaluecount, tvb, offset, 1, ENC_BIG_ENDIAN);
-	contactcount = tvb_get_guint8(tvb, offset);
+	contactcount = tvb_get_uint8(tvb, offset);
 	offset += 1;
 
 	/* For each Contact, display the info */
@@ -444,8 +444,8 @@ dissect_mojito_store_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 {
 	proto_tree *sc_tree;
 	proto_item *sc_item;
-	guint8      ii, contactcount = tvb_get_guint8(tvb, offset);
-	guint16     dhtvaluelength;
+	uint8_t     ii, contactcount = tvb_get_uint8(tvb, offset);
+	uint16_t    dhtvaluelength;
 	int         start_offset;
 
 	proto_tree_add_item(tree, hf_mojito_storestatuscode_count, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -486,8 +486,8 @@ dissect_mojito_store_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 static void
 dissect_mojito_find_node_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-	guint8 ii, contactcount;
-	guint8 sectokenlen = tvb_get_guint8(tvb, offset);
+	uint8_t ii, contactcount;
+	uint8_t sectokenlen = tvb_get_uint8(tvb, offset);
 	int    contact_offset;
 
 	proto_tree_add_item(tree, hf_mojito_sectokenlen, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -496,7 +496,7 @@ dissect_mojito_find_node_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	proto_tree_add_item(tree, hf_mojito_sectoken, tvb, offset, sectokenlen, ENC_NA);
 	offset += sectokenlen;
 
-	contactcount = tvb_get_guint8(tvb, offset);
+	contactcount = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(tree, hf_mojito_contactcount, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
@@ -514,7 +514,7 @@ static void
 dissect_mojito_find_value_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
 	proto_tree *kuid_tree;
-	guint8      i, kuidcount;
+	uint8_t     i, kuidcount;
 
 	if (!tree)
 		return;
@@ -522,7 +522,7 @@ dissect_mojito_find_value_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 	proto_tree_add_item(tree, hf_mojito_target_kuid, tvb, offset, 20, ENC_NA);
 	offset += 20;
 
-	kuidcount = tvb_get_guint8(tvb, offset);
+	kuidcount = tvb_get_uint8(tvb, offset);
 
 	kuid_tree = proto_tree_add_subtree(tree, tvb, offset, (20 * kuidcount) + 1, ett_mojito_kuids, NULL, "Secondary KUID\'s");
 
@@ -545,14 +545,14 @@ dissect_mojito_find_value_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 {
 	proto_tree *dht_tree, *version_tree, *kuid_tree;
 	proto_item *dht_item, *version_item;
-	guint16     dhtvaluelength;
+	uint16_t    dhtvaluelength;
 	int         contact_offset, start_offset;
-	guint8      ii, dhtvaluescount, kuidcount;
+	uint8_t     ii, dhtvaluescount, kuidcount;
 
 	proto_tree_add_item(tree, hf_mojito_requestload, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
-	dhtvaluescount = tvb_get_guint8(tvb, offset);
+	dhtvaluescount = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(tree, hf_mojito_dhtvaluecount, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
@@ -595,7 +595,7 @@ dissect_mojito_find_value_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	}
 
 	/*KUID Count */
-	kuidcount = tvb_get_guint8(tvb, offset);
+	kuidcount = tvb_get_uint8(tvb, offset);
 	kuid_tree = proto_tree_add_subtree(tree, tvb, offset, (20 * kuidcount) + 1, ett_mojito_kuids, NULL, "Secondary KUID\'s");
 	proto_tree_add_item(kuid_tree, hf_mojito_kuidcount, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
@@ -614,7 +614,7 @@ dissect_mojito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	proto_tree           *mojito_tree, *opcode_tree;
 	proto_item           *ti;
 	mojito_header_data_t  header_data;
-	gint                  offset = 0;
+	int                   offset = 0;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Mojito");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -685,7 +685,7 @@ static bool dissect_mojito_heuristic (tvbuff_t *tvb, packet_info *pinfo, proto_t
 	  (tvb_get_letohl(tvb, 20) + 23) == tvb_length(tvb)
 	*/
 	if ((tvb_captured_length(tvb) >= 60) &&
-	    (tvb_get_guint8(tvb, 16) == 68) &&
+	    (tvb_get_uint8(tvb, 16) == 68) &&
 	    ((tvb_get_letohl(tvb, 19) + 23) == tvb_reported_length(tvb)))
 	{
 		dissect_mojito(tvb, pinfo, tree, data);
@@ -981,7 +981,7 @@ proto_register_mojito(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_mojito,
 		&ett_mojito_header,
 		&ett_mojito_header_version,

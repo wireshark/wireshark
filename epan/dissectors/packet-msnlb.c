@@ -70,17 +70,17 @@ static int hf_msnlb_host_unknown;
 static int hf_msnlb_padding;
 static int hf_msnlb_extended_hb_unknown;
 
-static gint ett_msnlb;
-static gint ett_msnlb_signature;
-static gint ett_msnlb_teamingcfg;
-static gint ett_msnlb_portruleconfiguration;
-static gint ett_msnlb_currentmap;
-static gint ett_msnlb_newmap;
-static gint ett_msnlb_idlemap;
-static gint ett_msnlb_readymap;
-static gint ett_msnlb_loadweights;
-static gint ett_msnlb_reserved;
-static gint ett_msnlb_extended_hb;
+static int ett_msnlb;
+static int ett_msnlb_signature;
+static int ett_msnlb_teamingcfg;
+static int ett_msnlb_portruleconfiguration;
+static int ett_msnlb_currentmap;
+static int ett_msnlb_newmap;
+static int ett_msnlb_idlemap;
+static int ett_msnlb_readymap;
+static int ett_msnlb_loadweights;
+static int ett_msnlb_reserved;
+static int ett_msnlb_extended_hb;
 
 #define NLB_CLUSTER_MEMBERSHIP_HB 0xC0DE01BF
 #define NLB_EXTENDED_HB 0xC0DE01C0
@@ -108,7 +108,7 @@ static const value_string nlb_address_family_vals[] = {
 static true_false_string tfs_reverse_normal = { "Reverse", "Normal" };
 
 static void
-version_base_custom(gchar *result, guint32 version)
+version_base_custom(char *result, uint32_t version)
 {
   snprintf(result, ITEM_LABEL_LENGTH, "%d.%d", (version  >> 8) & 0xFF, (version & 0xFF));
 }
@@ -118,8 +118,8 @@ dissect_msnlb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 {
   proto_item  *ti;
   proto_tree  *msnlb_tree = NULL, *msnlb_subtree;
-  guint16     offset = 0;
-  guint32     signature;
+  uint16_t    offset = 0;
+  uint32_t    signature;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "MS NLB");
 
@@ -153,7 +153,7 @@ dissect_msnlb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
   switch(signature){
     case NLB_CLUSTER_MEMBERSHIP_HB:{
-      guint32 i;
+      uint32_t i;
       proto_tree *teamingcfg_tree, *subtree;
 
       proto_tree_add_item(msnlb_subtree, hf_msnlb_myhostid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -252,14 +252,14 @@ dissect_msnlb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     }
     break;
     case NLB_EXTENDED_HB:{
-      guint8 hb_type;
+      uint8_t hb_type;
       proto_tree *hb_tree;
       while (tvb_reported_length_remaining(tvb, offset) > 0) {
         ti = proto_tree_add_item(msnlb_subtree, hf_msnlb_extended_hb, tvb, offset, -1, ENC_NA);
         hb_tree = proto_item_add_subtree(ti, ett_msnlb_extended_hb);
 
         proto_tree_add_item(hb_tree, hf_msnlb_extended_hb_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        hb_type = tvb_get_guint8(tvb, offset);
+        hb_type = tvb_get_uint8(tvb, offset);
         proto_item_append_text(ti, " - %s", val_to_str(hb_type, nlb_extended_hb_type_vals, "Unknown (%u)"));
         offset += 1;
 
@@ -278,7 +278,7 @@ dissect_msnlb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
             }
           break;
           case 2:{ /* IP */
-            guint16 address_family;
+            uint16_t address_family;
             proto_tree_add_item(hb_tree, hf_msnlb_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
             proto_tree_add_item(hb_tree, hf_msnlb_reserved, tvb, offset, 2, ENC_NA);
@@ -598,7 +598,7 @@ proto_register_msnlb(void)
     }
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_msnlb,
     &ett_msnlb_signature,
     &ett_msnlb_teamingcfg,

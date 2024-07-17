@@ -351,19 +351,19 @@ static int hf_dsmcc_un_sess_nsap_sel;
 static int hf_etv_module_abs_path;
 static int hf_etv_dii_authority;
 
-static gint ett_dsmcc;
-static gint ett_dsmcc_payload;
-static gint ett_dsmcc_header;
-static gint ett_dsmcc_adaptation_header;
-static gint ett_dsmcc_message_id;
-static gint ett_dsmcc_transaction_id;
-static gint ett_dsmcc_heading;
-static gint ett_dsmcc_rsrc_number;
-static gint ett_dsmcc_rsrc_association_tag;
-static gint ett_dsmcc_rsrc_flags;
-static gint ett_dsmcc_compat;
-static gint ett_dsmcc_compat_sub_desc;
-static gint ett_dsmcc_dii_module;
+static int ett_dsmcc;
+static int ett_dsmcc_payload;
+static int ett_dsmcc_header;
+static int ett_dsmcc_adaptation_header;
+static int ett_dsmcc_message_id;
+static int ett_dsmcc_transaction_id;
+static int ett_dsmcc_heading;
+static int ett_dsmcc_rsrc_number;
+static int ett_dsmcc_rsrc_association_tag;
+static int ett_dsmcc_rsrc_flags;
+static int ett_dsmcc_compat;
+static int ett_dsmcc_compat_sub_desc;
+static int ett_dsmcc_dii_module;
 
 static expert_field ei_dsmcc_invalid_value;
 static expert_field ei_dsmcc_crc_invalid;
@@ -947,11 +947,11 @@ static int * const bf_rsrc_flags[] = {
 };
 
 /* Table J.3 E.164 NSAP */
-static guint
+static unsigned
 dissect_dsmcc_un_session_nsap(
-        tvbuff_t *tvb, guint offset, packet_info *pinfo _U_, proto_tree *sub_tree)
+        tvbuff_t *tvb, unsigned offset, packet_info *pinfo _U_, proto_tree *sub_tree)
 {
-    guint offset_start;
+    unsigned offset_start;
 
     offset_start = offset;
     proto_tree_add_item(sub_tree, hf_dsmcc_un_sess_nsap_afi, tvb, offset, 1, ENC_NA);
@@ -969,12 +969,12 @@ dissect_dsmcc_un_session_nsap(
 }
 
 /* 4-58 SessionId */
-static guint
+static unsigned
 dissect_dsmcc_un_session_id(
-        tvbuff_t *tvb, guint offset, packet_info *pinfo _U_, proto_tree *sub_tree)
+        tvbuff_t *tvb, unsigned offset, packet_info *pinfo _U_, proto_tree *sub_tree)
 {
     proto_tree *sub_sub_tree;
-    guint       offset_start;
+    unsigned    offset_start;
 
     offset_start = offset;
 
@@ -994,20 +994,20 @@ static void
 dissect_dsmcc_adaptation_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     tvbuff_t   *sub_tvb;
-    guint       offset = 0;
+    unsigned    offset = 0;
     proto_item *pi;
     proto_tree *sub_tree;
     proto_tree *sub_sub_tree;
-    guint8      type, tmp;
-    guint16     ca_len;
+    uint8_t     type, tmp;
+    uint16_t    ca_len;
 
-    type = tvb_get_guint8(tvb, offset);
+    type = tvb_get_uint8(tvb, offset);
 
     if (1 == type) {
         sub_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_dsmcc_adaptation_header, NULL, "Adaptation Header");
         proto_tree_add_item(sub_tree, hf_dsmcc_adaptation_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
-        tmp = tvb_get_guint8(tvb, offset);
+        tmp = tvb_get_uint8(tvb, offset);
         pi = proto_tree_add_item(sub_tree, hf_dsmcc_adaptation_ca_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
         if (0xff != tmp) {
             expert_add_info_format(pinfo, pi, &ei_dsmcc_invalid_value, "Invalid value - should be 0xff");
@@ -1024,7 +1024,7 @@ dissect_dsmcc_adaptation_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         sub_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_dsmcc_adaptation_header, NULL, "Adaptation Header");
         proto_tree_add_item(sub_tree, hf_dsmcc_adaptation_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
-        tmp = tvb_get_guint8(tvb, offset);
+        tmp = tvb_get_uint8(tvb, offset);
         pi = proto_tree_add_item(sub_tree, hf_dsmcc_adaptation_user_id_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
         if (0xff != tmp) {
             expert_add_info_format(pinfo, pi, &ei_dsmcc_invalid_value, "Invalid value - should be 0xff");
@@ -1039,21 +1039,21 @@ dissect_dsmcc_adaptation_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 }
 
 /* Table 2-1 DSM-CC Message Header Format */
-static guint
-dissect_dsmcc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, gboolean download_header)
+static unsigned
+dissect_dsmcc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, bool download_header)
 {
     tvbuff_t   *sub_tvb;
     proto_item *pi;
     proto_tree *sub_tree;
-    guint8      prot_disc, adaptation_len;
-    guint       reserved, offset_start;
+    uint8_t     prot_disc, adaptation_len;
+    unsigned    reserved, offset_start;
     int         msg_id, tx_id;
 
     offset_start = offset;
 
-    prot_disc = tvb_get_guint8(tvb, offset);
-    reserved = tvb_get_guint8(tvb, 8+offset);
-    adaptation_len = tvb_get_guint8(tvb, 9+offset);
+    prot_disc = tvb_get_uint8(tvb, offset);
+    reserved = tvb_get_uint8(tvb, 8+offset);
+    adaptation_len = tvb_get_uint8(tvb, 9+offset);
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, 12+adaptation_len, ett_dsmcc_header, NULL, "DSM-CC Header");
     pi = proto_tree_add_item(sub_tree, hf_dsmcc_protocol_discriminator, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1063,7 +1063,7 @@ dissect_dsmcc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
     offset += 1;
     proto_tree_add_item(sub_tree, hf_dsmcc_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
-    if (TRUE == download_header) {
+    if (true == download_header) {
         msg_id = hf_dsmcc_dd_message_id;
         tx_id = hf_dsmcc_dd_download_id;
         proto_tree_add_item(sub_tree, msg_id, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1099,13 +1099,13 @@ dissect_dsmcc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
     return offset-offset_start;
 }
 
-static guint
+static unsigned
 dissect_dsmcc_dii_compat_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        guint offset)
+        unsigned offset)
 {
-    gint        i, j;
-    guint8      sub_count, sub_len;
-    guint16     len, count;
+    int         i, j;
+    uint8_t     sub_count, sub_len;
+    uint16_t    len, count;
     proto_tree *compat_tree;
     proto_tree *desc_sub_tree;
 
@@ -1133,12 +1133,12 @@ dissect_dsmcc_dii_compat_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             proto_tree_add_item(compat_tree, hf_desc_version, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
-            sub_count = tvb_get_guint8(tvb, offset);
+            sub_count = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(compat_tree, hf_desc_sub_desc_count, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
 
             for (j = 0; j < sub_count; j++) {
-                sub_len = tvb_get_guint8(tvb, offset+1);
+                sub_len = tvb_get_uint8(tvb, offset+1);
 
                 desc_sub_tree = proto_tree_add_subtree(compat_tree, tvb, offset, sub_len+2,
                                             ett_dsmcc_compat_sub_desc, NULL, "Sub Descriptor");
@@ -1161,11 +1161,11 @@ dissect_dsmcc_dii_compat_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 static void
 dissect_dsmcc_dii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        guint offset)
+        unsigned offset)
 {
-    guint16     modules, module_id, private_data_len;
-    guint8      module_info_len, module_version;
-    guint       i, module_size;
+    uint16_t    modules, module_id, private_data_len;
+    uint8_t     module_info_len, module_version;
+    unsigned    i, module_size;
     proto_tree *mod_tree;
 
     proto_tree_add_item(tree, hf_dsmcc_dii_download_id, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1188,7 +1188,7 @@ dissect_dsmcc_dii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     for (i = 0; i < modules; i++ ) {
         module_id = tvb_get_ntohs(tvb, offset);
         module_size = tvb_get_ntohl(tvb, 2+offset);
-        module_version = tvb_get_guint8(tvb, 6+offset);
+        module_version = tvb_get_uint8(tvb, 6+offset);
 
         mod_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
                 ett_dsmcc_dii_module, NULL, "Module Id: 0x%x, Version: %u, Size: %u",
@@ -1200,7 +1200,7 @@ dissect_dsmcc_dii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item(mod_tree, hf_dsmcc_dii_module_version, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset +=1;
 
-        module_info_len = tvb_get_guint8(tvb, offset);
+        module_info_len = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(mod_tree, hf_dsmcc_dii_module_info_length, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset +=1;
         if (0 < module_info_len) {
@@ -1224,17 +1224,17 @@ dissect_dsmcc_dii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 static void
 dissect_dsmcc_ddb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-            proto_tree *top_tree, guint offset)
+            proto_tree *top_tree, unsigned offset)
 {
     tvbuff_t   *sub_tvb;
     proto_item *pi;
-    guint8      reserved;
+    uint8_t     reserved;
 
     proto_tree_add_item(tree, hf_dsmcc_ddb_module_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
     proto_tree_add_item(tree, hf_dsmcc_ddb_version, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset +=1;
-    reserved = tvb_get_guint8(tvb, offset);
+    reserved = tvb_get_uint8(tvb, offset);
     pi = proto_tree_add_item(tree, hf_dsmcc_ddb_reserved, tvb,
         offset, 1, ENC_BIG_ENDIAN);
     if (0xff != reserved) {
@@ -1254,8 +1254,8 @@ static void
 dissect_dsmcc_un_download(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *top_tree)
 {
     proto_tree *sub_tree;
-    guint16    msg_id;
-    guint      offset = 0;
+    uint16_t   msg_id;
+    unsigned   offset = 0;
 
     msg_id = tvb_get_ntohs(tvb, offset+2);
 
@@ -1265,11 +1265,11 @@ dissect_dsmcc_un_download(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
     switch (msg_id) {
         case 0x1001:
         case 0x1002:
-            offset += dissect_dsmcc_header(tvb, pinfo, sub_tree, offset, FALSE);
+            offset += dissect_dsmcc_header(tvb, pinfo, sub_tree, offset, false);
             dissect_dsmcc_dii(tvb, pinfo, sub_tree, offset);
             break;
         case 0x1003:
-            offset += dissect_dsmcc_header(tvb, pinfo, sub_tree, offset, TRUE);
+            offset += dissect_dsmcc_header(tvb, pinfo, sub_tree, offset, true);
             dissect_dsmcc_ddb(tvb, pinfo, sub_tree, top_tree, offset);
             break;
         case 0x1004:
@@ -1287,12 +1287,12 @@ dissect_dsmcc_un_download(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
 }
 
 /* table 4-71 dsmccResourceDescriptorValue format*/
-static guint
+static unsigned
 dissect_dsmcc_un_session_resource_value(
-        tvbuff_t *tvb, guint offset, packet_info *pinfo _U_, proto_tree *sub_tree, guint value_len)
+        tvbuff_t *tvb, unsigned offset, packet_info *pinfo _U_, proto_tree *sub_tree, unsigned value_len)
 {
-    guint32  i, counter, resource_value_type;
-    guint    offset_start;
+    uint32_t i, counter, resource_value_type;
+    unsigned offset_start;
 
     offset_start = offset;
 
@@ -1325,18 +1325,18 @@ dissect_dsmcc_un_session_resource_value(
 }
 
 
-static guint
+static unsigned
 dissect_dsmcc_un_session_resources(
-        tvbuff_t *tvb, guint offset, packet_info *pinfo _U_, proto_tree *sub_tree)
+        tvbuff_t *tvb, unsigned offset, packet_info *pinfo _U_, proto_tree *sub_tree)
 {
     proto_tree  *pi;
     proto_tree  *sub_sub_tree;
     proto_tree  *sub_sub_sub_tree;
     proto_tree  *sub_sub_sub_sub_tree;
     proto_tree  *rsrc_tree;
-    guint32      i, j, counter, resource_count;
-    guint16      tmp, resource_type, data_fields_length, counter_ca;
-    guint        offset_start;
+    uint32_t     i, j, counter, resource_count;
+    uint16_t     tmp, resource_type, data_fields_length, counter_ca;
+    unsigned     offset_start;
 
     offset_start = offset;
 
@@ -1352,7 +1352,7 @@ dissect_dsmcc_un_session_resources(
         proto_tree_add_item(sub_sub_sub_tree, hf_dsmcc_un_sess_rsrc_request_id, tvb, offset, 2, ENC_NA);
         offset += 2;
         proto_tree_add_item(sub_sub_sub_tree, hf_dsmcc_un_sess_rsrc_descriptor_type, tvb, offset, 2, ENC_BIG_ENDIAN);
-        resource_type = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+        resource_type = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
         offset += 2;
         proto_tree_add_bitmask_with_flags(sub_sub_sub_tree, tvb, offset, hf_dsmcc_un_sess_rsrc_number, ett_dsmcc_rsrc_number, bf_rsrc_number, ENC_BIG_ENDIAN, BMT_NO_APPEND);
         offset += 2;
@@ -1363,7 +1363,7 @@ dissect_dsmcc_un_session_resources(
         proto_tree_add_item(sub_sub_sub_tree, hf_dsmcc_un_sess_rsrc_status, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
         proto_tree_add_item(sub_sub_sub_tree, hf_dsmcc_un_sess_rsrc_desc_data_fields_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-        data_fields_length = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+        data_fields_length = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
         offset += 2;
         proto_tree_add_item(sub_sub_sub_tree, hf_dsmcc_un_sess_rsrc_data_field_count, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
@@ -1579,7 +1579,7 @@ dissect_dsmcc_un_session_resources(
                 break;
             /* User Defined - Headend ID */
             case RSRC_HEADEND_ID:
-                tmp = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+                tmp = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
                 pi = proto_tree_add_item(sub_sub_sub_tree, hf_dsmcc_un_sess_rsrc_headend_flag, tvb, offset, 2, ENC_BIG_ENDIAN);
                 if ((tmp == 0) || (tmp > 4)) {
                     expert_add_info_format(pinfo, pi, &ei_dsmcc_invalid_value, "Invalid value - should be values 1 to 4");
@@ -1609,7 +1609,7 @@ dissect_dsmcc_un_session_resources(
                 rsrc_tree = proto_tree_add_subtree(sub_sub_sub_tree, tvb, offset, 0, ett_dsmcc_heading, NULL, "Client CA System ID:");
                 offset += dissect_dsmcc_un_session_resource_value(tvb, offset, pinfo, rsrc_tree, 2);
                 proto_tree_add_item(sub_sub_sub_tree, hf_dsmcc_un_sess_rsrc_client_ca_info_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-                counter_ca = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+                counter_ca = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
                 offset += 2;
                 if (counter_ca > 0)
                 {
@@ -1665,12 +1665,12 @@ dissect_dsmcc_un_session_resources(
 }
 
 /* UserData() is vendor proprietary, therefore not dissected. */
-static guint
+static unsigned
 dissect_dsmcc_un_session_user_data(
-        tvbuff_t *tvb, guint offset, packet_info *pinfo _U_, proto_tree *tree)
+        tvbuff_t *tvb, unsigned offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-    guint   offset_start;
-    guint16 uu_len, priv_len;
+    unsigned   offset_start;
+    uint16_t uu_len, priv_len;
 
     offset_start = offset;
 
@@ -1703,9 +1703,9 @@ dissect_dsmcc_un_session(tvbuff_t *tvb, packet_info *pinfo,
     proto_item  *pi;
     proto_tree  *sub_tree;
     proto_tree  *sub_sub_tree;
-    guint32     i, counter;
-    guint16     msg_id;
-    guint       offset = 0;
+    uint32_t    i, counter;
+    uint16_t    msg_id;
+    unsigned    offset = 0;
 
     msg_id = tvb_get_ntohs(tvb, offset+2);
 
@@ -1715,7 +1715,7 @@ dissect_dsmcc_un_session(tvbuff_t *tvb, packet_info *pinfo,
     col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
             val_to_str(msg_id, dsmcc_un_sess_message_id_vals, "0x%x"));
 
-    offset += dissect_dsmcc_header(tvb, pinfo, sub_tree, offset, FALSE);
+    offset += dissect_dsmcc_header(tvb, pinfo, sub_tree, offset, false);
 
     switch (msg_id) {
 
@@ -2204,10 +2204,10 @@ static void
 dissect_dsmcc_un(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_tree *top_tree)
 {
-    guint8 type;
+    uint8_t type;
 
     /* dsmccMessageHeader.dsmccType */
-    type = tvb_get_guint8(tvb, 1);
+    type = tvb_get_uint8(tvb, 1);
 
     switch (type) {
         case 1: /* user-to-network configuration */
@@ -2236,21 +2236,21 @@ dissect_dsmcc_ts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree_in, void *d
 {
     proto_item *pi;
     proto_tree *tree;
-    guint       crc_len;
-    guint8      tid;
-    guint16     sect_len;
-    guint32     crc, calculated_crc;
+    unsigned    crc_len;
+    uint8_t     tid;
+    uint16_t    sect_len;
+    uint32_t    crc, calculated_crc;
     const char *label;
     tvbuff_t   *sub_tvb;
-    guint16     ssi;
-    guint       offset = 0;
+    uint16_t    ssi;
+    unsigned    offset = 0;
 
     pi = proto_tree_add_item(tree_in, proto_dsmcc, tvb, 0, -1, ENC_NA);
     tree = proto_item_add_subtree(pi, ett_dsmcc);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DSM-CC");
 
-    tid = tvb_get_guint8(tvb, offset);
+    tid = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_dsmcc_table_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset +=1;
     ssi = tvb_get_ntohs(tvb, offset);
@@ -2333,7 +2333,7 @@ static int dissect_dsmcc_tcp(tvbuff_t *tvb, packet_info *pinfo,
     proto_item *pi;
     proto_tree *sub_tree;
 
-    if (tvb_get_guint8(tvb, 0) != DSMCC_PROT_DISC)
+    if (tvb_get_uint8(tvb, 0) != DSMCC_PROT_DISC)
         return 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DSM-CC");
@@ -2354,7 +2354,7 @@ static int dissect_dsmcc_udp(tvbuff_t *tvb, packet_info *pinfo,
     proto_item *pi;
     proto_tree *sub_tree;
 
-    if (tvb_get_guint8(tvb, 0) != DSMCC_PROT_DISC)
+    if (tvb_get_uint8(tvb, 0) != DSMCC_PROT_DISC)
         return 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DSM-CC");
@@ -3250,7 +3250,7 @@ proto_register_dsmcc(void)
         /* table J.3 NSAP - end */
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_dsmcc,
         &ett_dsmcc_payload,
         &ett_dsmcc_adaptation_header,

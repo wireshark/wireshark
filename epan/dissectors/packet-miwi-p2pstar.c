@@ -114,17 +114,17 @@ void proto_reg_handoff_miwi_p2pstar(void);
 #define MIWI_MAC_FRAME_RESERVED         0x04
 
 /* User string with the decryption key. */
-//static const gchar *miwi_p2pstar_key_str = NULL;
+//static const char *miwi_p2pstar_key_str = NULL;
 
 /*  Initialize protocol and registered fields. */
 static int proto_miwi_p2pstar;
 
 /* Initialize protocol subtrees. */
-static gint ett_miwi_p2pstar;
-static gint ett_miwi_p2pstar_fcf;
-static gint ett_miwi_p2pstar_cmd_tree;
-static gint ett_miwi_p2pstar_cap_info;
-static gint ett_miwi_fcs;
+static int ett_miwi_p2pstar;
+static int ett_miwi_p2pstar_fcf;
+static int ett_miwi_p2pstar_cmd_tree;
+static int ett_miwi_p2pstar_cap_info;
+static int ett_miwi_fcs;
 
 static dissector_handle_t miwi_p2pstar_handle;
 
@@ -209,14 +209,14 @@ static expert_field ei_miwi_invalid_panid_compression2;
 static unsigned int miwi_ethertype = 0x809A;
 
 /* boolean value set if the FCS must be ok before payload is dissected */
-static bool miwi_fcs_ok = TRUE;
+static bool miwi_fcs_ok = true;
 
 /* boolean value set to enable ack tracking */
-static bool miwi_ack_tracking = FALSE;
+static bool miwi_ack_tracking = false;
 
 /* Preferences for 2003 security */
-//static gint miwi_sec_suite = SECURITY_LEVEL_ENC_MIC_64;
-//static gboolean miwi_extend_auth = TRUE;
+//static int miwi_sec_suite = SECURITY_LEVEL_ENC_MIC_64;
+//static bool miwi_extend_auth = true;
 
 //static wmem_tree_t* mac_key_hash_handlers;
 
@@ -227,9 +227,9 @@ static bool miwi_ack_tracking = FALSE;
 static ieee802154_map_tab_t miwi_map = {NULL, NULL};
 
 //static ieee802154_key_t *miwi_keys = NULL;
-//static guint num_miwi_keys = 0;
+//static unsigned num_miwi_keys = 0;
 
-static gint miwi_fcs_type = MIWI_P2PSTAR_FCS_16_BIT;
+static int miwi_fcs_type = MIWI_P2PSTAR_FCS_16_BIT;
 
 static int* const fields[] = {
     &hf_miwi_fcf_frame_type,
@@ -313,25 +313,25 @@ static const value_string miwi_p2pstar_conn_status[] = {
  * @param tvb the IEEE 802.15.4 frame from the FCF up to and including the FCS
  * @return if the computed FCS matches the transmitted FCS
  */
-static gboolean
-is_fcs_ok(tvbuff_t *tvb, guint fcs_len)
+static bool
+is_fcs_ok(tvbuff_t *tvb, unsigned fcs_len)
 {
     if(fcs_len == 2){
         /* The FCS is in the last two bytes of the packet. */
-        guint16 fcs = tvb_get_letohs(tvb, tvb_reported_length(tvb)-2);
-        guint16 fcs_calc = (guint16) miwi_crc_tvb(tvb, tvb_reported_length(tvb)-2);
+        uint16_t fcs = tvb_get_letohs(tvb, tvb_reported_length(tvb)-2);
+        uint16_t fcs_calc = (uint16_t) miwi_crc_tvb(tvb, tvb_reported_length(tvb)-2);
         return fcs == fcs_calc;
     }
     else{
         /* The FCS is in the last four bytes of the packet. */
-        guint32 fcs = tvb_get_letohl(tvb, tvb_reported_length(tvb)-4);
-        guint32 fcs_calc = miwi_crc32_tvb(tvb, tvb_reported_length(tvb)-4);
+        uint32_t fcs = tvb_get_letohl(tvb, tvb_reported_length(tvb)-4);
+        uint32_t fcs_calc = miwi_crc32_tvb(tvb, tvb_reported_length(tvb)-4);
         return fcs == fcs_calc;
     }
 }/* is_fcs_ok */
 
 /* Returns the prompt string for the Decode-As dialog. */
-static void miwi_da_prompt(packet_info *pinfo _U_, gchar* result)
+static void miwi_da_prompt(packet_info *pinfo _U_, char* result)
 {
     ieee802154_hints_t *hints;
     hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_miwi_p2pstar, 0);
@@ -341,18 +341,18 @@ static void miwi_da_prompt(packet_info *pinfo _U_, gchar* result)
         snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "MIWI P2P STAR PAN Unknown");
 }/* miwi_da_prompt */
 /* Returns the value to index the panid decode table with (source PAN)*/
-static gpointer miwi_da_value(packet_info *pinfo _U_)
+static void *miwi_da_value(packet_info *pinfo _U_)
 {
     ieee802154_hints_t *hints;
     hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_miwi_p2pstar, 0);
     if(hints)
-        return GUINT_TO_POINTER((guint)(hints->src_pan));
+        return GUINT_TO_POINTER((unsigned)(hints->src_pan));
     else
         return NULL;
 }/* miwi_da_value */
-static int miwi_short_address_to_str(const address* addr, gchar *buf, int buf_len)
+static int miwi_short_address_to_str(const address* addr, char *buf, int buf_len)
 {
-    guint16 miwi_short_addr = pletoh16(addr->data);
+    uint16_t miwi_short_addr = pletoh16(addr->data);
 
     if (miwi_short_addr == 0xffff)
     {
@@ -367,7 +367,7 @@ static int miwi_short_address_to_str(const address* addr, gchar *buf, int buf_le
 
     return 7;
 } /* miwi_short_address_to_str */
-static int miwi_short_to_str(guint16 miwi_short_addr, gchar *buf, int buf_len)
+static int miwi_short_to_str(uint16_t miwi_short_addr, char *buf, int buf_len)
 {
     if(miwi_short_addr == 0xffff)
     {
@@ -398,7 +398,7 @@ static int miwi_short_address_len(void)
  *
 */
 #if 0
-static guint miwi_get_bit_field(guint input, guint mask)
+static unsigned miwi_get_bit_field(unsigned input, unsigned mask)
 {
     /* Sanity Check, don't want infinite loops. */
     if(mask == 0) return 0;
@@ -413,9 +413,9 @@ static guint miwi_get_bit_field(guint input, guint mask)
 
 /* Return the length in octets for the user configured
  * FCS/metadata following the PHY Payload */
-static guint miwi_fcs_type_len(guint i)
+static unsigned miwi_fcs_type_len(unsigned i)
 {
-    guint fcs_type_lengths[] = { 2, 2, 4 };
+    unsigned fcs_type_lengths[] = { 2, 2, 4 };
     if(i < array_length(fcs_type_lengths)){
         return fcs_type_lengths[i];
     }
@@ -424,7 +424,7 @@ static guint miwi_fcs_type_len(guint i)
 
 #if 0
 /* Set MAC key function. */
-static guint miwi_set_mac_key(miwi_packet *packet, unsigned char *key, unsigned char *alt_key, ieee802154_key_t *uat_key)
+static unsigned miwi_set_mac_key(miwi_packet *packet, unsigned char *key, unsigned char *alt_key, ieee802154_key_t *uat_key)
 {
     ieee802154_set_key_func func = (ieee802154_set_key_func)wmem_tree_lookup32(mac_key_hash_handlers, uat_key->hash_type);
 
@@ -453,12 +453,12 @@ static guint miwi_set_mac_key(miwi_packet *packet, unsigned char *key, unsigned 
  *
  */
 static void
-dissect_miwi_fcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, miwi_packet *packet, guint *offset)
+dissect_miwi_fcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, miwi_packet *packet, unsigned *offset)
 {
-    guint16     miwi_fcf;
+    uint16_t    miwi_fcf;
 
     /*Frame control fields*/
-    miwi_fcf = tvb_get_letohs(tvb, (const gint)*offset);
+    miwi_fcf = tvb_get_letohs(tvb, (const int)*offset);
     packet->frame_type = (miwi_fcf & MIWI_MAC_FCF_FRAME_TYPE);
     packet->security_enable = (miwi_fcf & MIWI_MAC_FCF_SECURITY_EN) >> 3;
     packet->frame_pending = (miwi_fcf & MIWI_MAC_FCF_FRAME_PENDING) >> 4;
@@ -472,7 +472,7 @@ dissect_miwi_fcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, miwi_packe
     proto_item_append_text(tree, " %s", val_to_str_const(packet->frame_type, miwi_mac_frame_types, "Reserved"));
     col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(packet->frame_type, miwi_mac_frame_types, "Reserved"));
 
-    proto_tree_add_bitmask(tree, tvb,(const gint)*offset, hf_miwi_fcf,
+    proto_tree_add_bitmask(tree, tvb,(const int)*offset, hf_miwi_fcf,
                ett_miwi_p2pstar_fcf, fields, ENC_LITTLE_ENDIAN);
 
     *offset += 2;
@@ -489,9 +489,9 @@ dissect_miwi_fcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, miwi_packe
  */
 
 static void
-dissect_miwi_connect_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, miwi_packet *packet, guint *offset)
+dissect_miwi_connect_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, miwi_packet *packet, unsigned *offset)
 {
-    guint8 cap,oper_chan;
+    uint8_t cap,oper_chan;
     proto_tree *subtree;
     static int* const capability[] = {
         &hf_miwi_cap_info_rcv_on_idle,
@@ -505,12 +505,12 @@ dissect_miwi_connect_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, mi
     /* Create a subtree for this command frame. */
     subtree = proto_tree_add_subtree(tree, tvb, *offset, 1,ett_miwi_p2pstar_cmd_tree, NULL,
                     val_to_str_const(packet->command_id, miwi_p2pstar_cmd_names, "Unknown Command"));
-    oper_chan = tvb_get_guint8(tvb, *offset);
+    oper_chan = tvb_get_uint8(tvb, *offset);
     proto_tree_add_uint(subtree, hf_miwi_oper_chan, tvb, *offset, 1, oper_chan);
     *offset += 1;
 
     /* Get and display capability info. */
-    cap = tvb_get_guint8(tvb, *offset);
+    cap = tvb_get_uint8(tvb, *offset);
     proto_tree_add_uint(subtree, hf_miwi_cap_info, tvb, *offset, 1, cap);
     proto_tree_add_bitmask_list(subtree, tvb, *offset, 1, capability, ENC_NA);
     *offset += 1;
@@ -531,12 +531,12 @@ dissect_miwi_connect_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, mi
  * @param offset offset into the tvb to find the packet information.
  */
 static void
-dissect_miwi_connect_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, miwi_packet *packet, guint *offset)
+dissect_miwi_connect_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, miwi_packet *packet, unsigned *offset)
 {
     proto_tree *subtree;
     proto_item *ti;
-    guint8      status;
-    guint8 cap;
+    uint8_t     status;
+    uint8_t cap;
     static int* const capability[] = {
         &hf_miwi_cap_info_rcv_on_idle,
         &hf_miwi_cap_info_rqst_data_on_wp,
@@ -548,10 +548,10 @@ dissect_miwi_connect_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, mi
 
     /* Create a subtree for this command frame. */
     subtree = proto_tree_add_subtree(tree, tvb, *offset, 3, ett_miwi_p2pstar_cmd_tree, NULL,
-                    val_to_str_const((const guint32)packet->command_id, miwi_p2pstar_cmd_names, "Unknown Command"));
+                    val_to_str_const((const uint32_t)packet->command_id, miwi_p2pstar_cmd_names, "Unknown Command"));
 
     /* Get and display the status. */
-    status = tvb_get_guint8(tvb, *offset);
+    status = tvb_get_uint8(tvb, *offset);
     if(tree){
         ti = proto_tree_add_uint(subtree, hf_miwi_conn_res_status, tvb, *offset, 1, status);
         proto_item_append_text(ti, "%s", val_to_str_const(status, miwi_p2pstar_conn_status, " (Reserved)"));
@@ -581,7 +581,7 @@ dissect_miwi_connect_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, mi
     }
 
     /* Get and display capability info. */
-    cap = tvb_get_guint8(tvb, *offset);
+    cap = tvb_get_uint8(tvb, *offset);
     proto_tree_add_uint(subtree, hf_miwi_cap_info, tvb, *offset, 1, cap);
     proto_tree_add_bitmask_list(subtree, tvb, *offset, 1, capability, ENC_NA);
     *offset += 1;
@@ -601,21 +601,21 @@ dissect_miwi_connect_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, mi
  * @param offset offset into the tvb to find the packet information.
  */
 static void
-dissect_miwi_channel_hop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, miwi_packet *packet, guint *offset)
+dissect_miwi_channel_hop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, miwi_packet *packet, unsigned *offset)
 {
-    guint8 current_op_channel,dst_channel_to_jump_to;
+    uint8_t current_op_channel,dst_channel_to_jump_to;
     proto_tree *subtree;
     proto_item *ti;
 
     /* Create a subtree for this command frame. */
     subtree = proto_tree_add_subtree(tree, tvb, *offset, 1,ett_miwi_p2pstar_cmd_tree, NULL,
                     val_to_str_const(packet->command_id, miwi_p2pstar_cmd_names, "Unknown Command"));
-    current_op_channel = tvb_get_guint8(tvb, *offset);
+    current_op_channel = tvb_get_uint8(tvb, *offset);
     ti = proto_tree_add_uint(subtree, hf_miwi_current_op_channel, tvb, *offset, 1, current_op_channel);
     proto_item_append_text(ti, ", Current Operating Channel: %i", current_op_channel);
    *offset +=1;
 
-    dst_channel_to_jump_to = tvb_get_guint8(tvb, *offset);
+    dst_channel_to_jump_to = tvb_get_uint8(tvb, *offset);
     ti = proto_tree_add_uint(subtree, hf_miwi_dst_channel_to_jump_to, tvb, *offset, 1, dst_channel_to_jump_to);
     proto_item_append_text(ti, ", Destination Channel to Jump to: %i", dst_channel_to_jump_to);
     *offset +=1;
@@ -636,16 +636,16 @@ dissect_miwi_channel_hop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, mi
  * @param offset offset into the tvb to find the packet information.
  */
 static void
-dissect_miwi_connect_removal_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, miwi_packet *packet, guint *offset)
+dissect_miwi_connect_removal_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, miwi_packet *packet, unsigned *offset)
 {
-    guint8 conn_rmv_res_status;
+    uint8_t conn_rmv_res_status;
     proto_tree *subtree;
     proto_item *ti;
 
    /* Create a subtree for this command frame. */
     subtree = proto_tree_add_subtree(tree, tvb, *offset, 1,ett_miwi_p2pstar_cmd_tree, NULL,
                     val_to_str_const(packet->command_id, miwi_p2pstar_cmd_names, "Unknown Command"));
-    conn_rmv_res_status = tvb_get_guint8(tvb, *offset);
+    conn_rmv_res_status = tvb_get_uint8(tvb, *offset);
     ti = proto_tree_add_uint(subtree, hf_miwi_conn_rmv_res_status, tvb, *offset, 1, conn_rmv_res_status);
     *offset +=1;
     if(conn_rmv_res_status == 0x00){
@@ -669,16 +669,16 @@ dissect_miwi_connect_removal_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
  * @param offset offset into the tvb to find the packet information.
  */
 static void
-dissect_miwi_active_scan_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, miwi_packet *packet, guint *offset)
+dissect_miwi_active_scan_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, miwi_packet *packet, unsigned *offset)
 {
-    guint8 scan_cur_chan;
+    uint8_t scan_cur_chan;
     proto_tree *subtree;
     proto_item *ti;
 
    /* Create a subtree for this command frame. */
     subtree = proto_tree_add_subtree(tree, tvb, *offset, 1,ett_miwi_p2pstar_cmd_tree, NULL,
                     val_to_str_const(packet->command_id, miwi_p2pstar_cmd_names, "Unknown Command"));
-    scan_cur_chan = tvb_get_guint8(tvb, *offset);
+    scan_cur_chan = tvb_get_uint8(tvb, *offset);
     ti = proto_tree_add_uint(subtree, hf_miwi_current_op_channel, tvb, *offset, 1, scan_cur_chan);
     proto_item_append_text(ti, ", Current operating Channel %i", scan_cur_chan);
     *offset +=1;
@@ -699,9 +699,9 @@ dissect_miwi_active_scan_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
  */
 
 static void
-dissect_miwi_active_scan_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, miwi_packet *packet, guint *offset)
+dissect_miwi_active_scan_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, miwi_packet *packet, unsigned *offset)
 {
-    guint8 cap,scan_res_node_id;
+    uint8_t cap,scan_res_node_id;
     proto_tree *subtree;
     static int* const capability[] = {
         &hf_miwi_cap_info_rcv_on_idle,
@@ -717,12 +717,12 @@ dissect_miwi_active_scan_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                     val_to_str_const(packet->command_id, miwi_p2pstar_cmd_names, "Unknown Command"));
 
     /* Get and display capability info. */
-    cap = tvb_get_guint8(tvb, *offset);
+    cap = tvb_get_uint8(tvb, *offset);
     proto_tree_add_uint(subtree, hf_miwi_cap_info, tvb, *offset, 1, cap);
     proto_tree_add_bitmask_list(subtree, tvb, *offset, 1, capability, ENC_NA);
     *offset += 1;
 
-    scan_res_node_id = tvb_get_guint8(tvb, *offset);
+    scan_res_node_id = tvb_get_uint8(tvb, *offset);
     proto_tree_add_uint(subtree, hf_miwi_oper_chan, tvb, *offset, 1, scan_res_node_id);
     *offset += 1;
 
@@ -741,15 +741,15 @@ dissect_miwi_active_scan_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
  * @param offset offset into the tvb to find the packet information.
  */
 static void
-dissect_miwi_fwd_packet_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, miwi_packet *packet, guint *offset)
+dissect_miwi_fwd_packet_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, miwi_packet *packet, unsigned *offset)
 {
-    guint8 fwd_pkt_dst_addr;
+    uint8_t fwd_pkt_dst_addr;
     proto_tree *subtree;
 
    /* Create a subtree for this command frame. */
     subtree = proto_tree_add_subtree(tree, tvb, *offset, 1,ett_miwi_p2pstar_cmd_tree, NULL,
                     val_to_str_const(packet->command_id, miwi_p2pstar_cmd_names, "Unknown Command"));
-    fwd_pkt_dst_addr = tvb_get_guint8(tvb, *offset);
+    fwd_pkt_dst_addr = tvb_get_uint8(tvb, *offset);
     proto_tree_add_uint(subtree, hf_miwi_fwd_pkt_dst_addr, tvb, *offset, 1, fwd_pkt_dst_addr);
     *offset +=1;
 
@@ -769,15 +769,15 @@ dissect_miwi_fwd_packet_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  */
 
 static void
-dissect_miwi_connect_tbl_bcast_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, miwi_packet *packet, guint *offset)
+dissect_miwi_connect_tbl_bcast_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, miwi_packet *packet, unsigned *offset)
 {
-    guint8 conn_tbl_size;
+    uint8_t conn_tbl_size;
     proto_tree *subtree;
 
    /* Create a subtree for this command frame. */
     subtree = proto_tree_add_subtree(tree, tvb, *offset, 1,ett_miwi_p2pstar_cmd_tree, NULL,
                     val_to_str_const(packet->command_id, miwi_p2pstar_cmd_names, "Unknown Command"));
-    conn_tbl_size = tvb_get_guint8(tvb, *offset);
+    conn_tbl_size = tvb_get_uint8(tvb, *offset);
     proto_tree_add_uint(subtree, hf_miwi_conn_tbl_size, tvb, *offset, 1, conn_tbl_size);
     *offset +=1;
 
@@ -797,9 +797,9 @@ dissect_miwi_connect_tbl_bcast_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree
  * @param offset offset into the tvb to find the packet information.
  */
 static void
-dissect_miwi_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, miwi_packet *packet, guint *offset)
+dissect_miwi_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, miwi_packet *packet, unsigned *offset)
 {
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_const((const guint32)packet->command_id, miwi_p2pstar_cmd_names, "Unknown Command"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_const((const uint32_t)packet->command_id, miwi_p2pstar_cmd_names, "Unknown Command"));
 
     switch (packet->command_id){
         case MIWI_P2P_CMD_CONN_REQ:
@@ -850,16 +850,16 @@ dissect_miwi_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, miwi_p
  * @param created_header_tree new tree to parse the MiWi packet .
  * @param parsed_info Miwi P2P Star packet information
  */
-static guint
+static unsigned
 miwi_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree **created_header_tree, miwi_packet **parsed_info)
 {
     proto_tree              *miwi_tree = NULL;
     proto_item              *proto_root = NULL;
     proto_item              *hidden_item;
     proto_item              *ti;
-    guint                   offset = 0;
-    gboolean                dstPanPresent = FALSE;
-    gboolean                srcPanPresent = FALSE;
+    unsigned                offset = 0;
+    bool                    dstPanPresent = false;
+    bool                    srcPanPresent = false;
     miwi_packet      *packet = wmem_new0(wmem_packet_scope(), miwi_packet);
     ieee802154_short_addr   addr16;
     ieee802154_hints_t     *ieee_hints;
@@ -897,7 +897,7 @@ miwi_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
 
     /* Sequence Number */
     /* IEEE 802.15.4 Sequence Number Suppression */
-    packet->seqno = tvb_get_guint8(tvb, offset);
+    packet->seqno = tvb_get_uint8(tvb, offset);
     proto_tree_add_uint(miwi_tree, hf_miwi_seq, tvb, offset, 1, packet->seqno);
     /* For Ack packets display this in the root. */
     if(packet->frame_type == IEEE802154_FCF_ACK){
@@ -939,12 +939,12 @@ miwi_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
         if((packet->dst_addr_mode != IEEE802154_FCF_ADDR_NONE) && /* if both destination and source */
             (packet->src_addr_mode != IEEE802154_FCF_ADDR_NONE)){ /* addressing information is present */
             if(packet->pan_id_compression == 1){ /* PAN IDs are identical */
-                dstPanPresent = TRUE;
-                srcPanPresent = FALSE; /* source PAN ID is omitted */
+                dstPanPresent = true;
+                srcPanPresent = false; /* source PAN ID is omitted */
             }
             else{ /* PAN IDs are different, both shall be included in the frame */
-                dstPanPresent = TRUE;
-                srcPanPresent = TRUE;
+                dstPanPresent = true;
+                srcPanPresent = true;
             }
         }
         else{
@@ -956,18 +956,18 @@ miwi_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
                 /* only either the destination or the source addressing information is present */
                 if((packet->dst_addr_mode != IEEE802154_FCF_ADDR_NONE) &&        /*   Present   */
                     (packet->src_addr_mode == IEEE802154_FCF_ADDR_NONE)){        /* Not Present */
-                    dstPanPresent = TRUE;
-                    srcPanPresent = FALSE;
+                    dstPanPresent = true;
+                    srcPanPresent = false;
                 }
                 else if((packet->dst_addr_mode == IEEE802154_FCF_ADDR_NONE) &&   /* Not Present */
                          (packet->src_addr_mode != IEEE802154_FCF_ADDR_NONE)){   /*   Present   */
-                    dstPanPresent = FALSE;
-                    srcPanPresent = TRUE;
+                    dstPanPresent = false;
+                    srcPanPresent = true;
                 }
                 else if((packet->dst_addr_mode == IEEE802154_FCF_ADDR_NONE) &&   /* Not Present */
                          (packet->src_addr_mode == IEEE802154_FCF_ADDR_NONE)){   /* Not Present */
-                    dstPanPresent = FALSE;
-                    srcPanPresent = FALSE;
+                    dstPanPresent = false;
+                    srcPanPresent = false;
                 }
                 else{
                     expert_add_info(pinfo, proto_root, &ei_miwi_invalid_addressing);
@@ -1011,99 +1011,99 @@ miwi_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
             if((packet->dst_addr_mode == IEEE802154_FCF_ADDR_NONE) &&      /* Not Present */
                 (packet->src_addr_mode == IEEE802154_FCF_ADDR_NONE) &&      /* Not Present */
                 (packet->pan_id_compression == 0)){
-                        dstPanPresent = FALSE;
-                        srcPanPresent = FALSE;
+                        dstPanPresent = false;
+                        srcPanPresent = false;
             }
             /* Row 2 */
             else if((packet->dst_addr_mode == IEEE802154_FCF_ADDR_NONE) && /* Not Present */
                      (packet->src_addr_mode == IEEE802154_FCF_ADDR_NONE) && /* Not Present */
                      (packet->pan_id_compression == 1)){
-                        dstPanPresent = TRUE;
-                        srcPanPresent = FALSE;
+                        dstPanPresent = true;
+                        srcPanPresent = false;
             }
             /* Row 3 */
             else if((packet->dst_addr_mode != IEEE802154_FCF_ADDR_NONE) && /*  Present    */
                      (packet->src_addr_mode == IEEE802154_FCF_ADDR_NONE) && /* Not Present */
                      (packet->pan_id_compression == 0)){
-                        dstPanPresent = TRUE;
-                        srcPanPresent = FALSE;
+                        dstPanPresent = true;
+                        srcPanPresent = false;
             }
             /* Row 4 */
             else if((packet->dst_addr_mode != IEEE802154_FCF_ADDR_NONE) && /*  Present    */
                      (packet->src_addr_mode == IEEE802154_FCF_ADDR_NONE) && /* Not Present */
                      (packet->pan_id_compression == 1)){
-                        dstPanPresent = FALSE;
-                        srcPanPresent = FALSE;
+                        dstPanPresent = false;
+                        srcPanPresent = false;
             }
             /* Row 5 */
             else if((packet->dst_addr_mode == IEEE802154_FCF_ADDR_NONE) && /* Not Present */
                      (packet->src_addr_mode != IEEE802154_FCF_ADDR_NONE) && /*  Present    */
                      (packet->pan_id_compression == 0)){
-                        dstPanPresent = FALSE;
-                        srcPanPresent = TRUE;
+                        dstPanPresent = false;
+                        srcPanPresent = true;
             }
             /* Row 6 */
             else if((packet->dst_addr_mode == IEEE802154_FCF_ADDR_NONE) && /* Not Present */
                      (packet->src_addr_mode != IEEE802154_FCF_ADDR_NONE) && /*  Present    */
                      (packet->pan_id_compression == 1)){
-                        dstPanPresent = FALSE;
-                        srcPanPresent = FALSE;
+                        dstPanPresent = false;
+                        srcPanPresent = false;
             }
             /* Row 7 */
             else if((packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT) && /*  Extended    */
                      (packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT) && /*  Extended    */
                      (packet->pan_id_compression == 0)){
-                        dstPanPresent = TRUE;
-                        srcPanPresent = FALSE;
+                        dstPanPresent = true;
+                        srcPanPresent = false;
             }
             /* Row 8 */
             else if((packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT) && /*  Extended    */
                      (packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT) && /*  Extended    */
                      (packet->pan_id_compression == 1)){
-                        dstPanPresent = FALSE;
-                        srcPanPresent = FALSE;
+                        dstPanPresent = false;
+                        srcPanPresent = false;
             }
             /* Row 9 */
             else if((packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT) && /*  Short     */
                      (packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT) && /*  Short     */
                      (packet->pan_id_compression == 0)){
-                        dstPanPresent = TRUE;
-                        srcPanPresent = TRUE;
+                        dstPanPresent = true;
+                        srcPanPresent = true;
             }
             /* Row 10 */
             else if((packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT) && /*  Short    */
                      (packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT) &&   /*  Extended */
                      (packet->pan_id_compression == 0)){
-                        dstPanPresent = TRUE;
-                        srcPanPresent = TRUE;
+                        dstPanPresent = true;
+                        srcPanPresent = true;
             }
             /* Row 11 */
             else if((packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT)   &&   /*  Extended */
                      (packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT) &&   /*  Short    */
                      (packet->pan_id_compression == 0)){
-                        dstPanPresent = TRUE;
-                        srcPanPresent = TRUE;
+                        dstPanPresent = true;
+                        srcPanPresent = true;
             }
             /* Row 12 */
             else if((packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT) &&   /*  Short    */
                      (packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT)   &&   /*  Extended */
                      (packet->pan_id_compression == 1)){
-                        dstPanPresent = TRUE;
-                        srcPanPresent = FALSE;
+                        dstPanPresent = true;
+                        srcPanPresent = false;
             }
             /* Row 13 */
             else if((packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT)   &&   /*  Extended */
                      (packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT) &&   /*  Short    */
                      (packet->pan_id_compression == 1)){
-                        dstPanPresent = TRUE;
-                        srcPanPresent = FALSE;
+                        dstPanPresent = true;
+                        srcPanPresent = false;
             }
             /* Row 14 */
             else if((packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT) &&   /*  Short    */
                      (packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT) &&   /*  Short    */
                      (packet->pan_id_compression == 1)){
-                        dstPanPresent = TRUE;
-                        srcPanPresent = FALSE;
+                        dstPanPresent = true;
+                        srcPanPresent = false;
             }
             else{
                 expert_add_info(pinfo, proto_root, &ei_miwi_invalid_panid_compression2);
@@ -1111,8 +1111,8 @@ miwi_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
             }
         }
         else{ /* Frame Type is neither Beacon, Data, Ack, nor Command: PAN ID Compression is not used */
-            dstPanPresent = FALSE; /* no PAN ID will */
-            srcPanPresent = FALSE; /* be present     */
+            dstPanPresent = false; /* no PAN ID will */
+            srcPanPresent = false; /* be present     */
         }
     }
     else{
@@ -1127,7 +1127,7 @@ miwi_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
 
     /* Destination PAN Id */
     if(dstPanPresent){
-        gchar* pan_id = (gchar *)wmem_new(pinfo->pool, guint64);
+        char* pan_id = (char *)wmem_new(pinfo->pool, uint64_t);
 
         packet->dst_pan = tvb_get_letohs(tvb, offset);
         miwi_short_to_str(packet->dst_pan,pan_id,10);
@@ -1139,7 +1139,7 @@ miwi_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
 
     /* Destination Address  */
     if(packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT){
-        gchar* dst_addr = (gchar *)wmem_new(pinfo->pool, guint64);
+        char* dst_addr = (char *)wmem_new(pinfo->pool, uint64_t);
 
         /* Get the address. */
         packet->dst16 = tvb_get_letohs(tvb, offset);
@@ -1163,7 +1163,7 @@ miwi_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
         offset += 2;
     }
     else if(packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT){
-        guint64 *p_addr = (guint64 *)wmem_new(pinfo->pool, guint64);
+        uint64_t *p_addr = (uint64_t *)wmem_new(pinfo->pool, uint64_t);
 
         /* Get the address */
         packet->dst64 = tvb_get_letoh64(tvb, offset);
@@ -1191,7 +1191,7 @@ miwi_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
 
     /* Source PAN Id */
     if(srcPanPresent){
-        gchar* pan_id = (gchar *)wmem_new(pinfo->pool, guint64);
+        char* pan_id = (char *)wmem_new(pinfo->pool, uint64_t);
         packet->src_pan = tvb_get_letohs(tvb, offset);
         miwi_short_to_str(packet->src_pan,pan_id,10);
         col_append_fstr(pinfo->cinfo, COL_INFO, ", Src Pan ID: %s", pan_id);
@@ -1212,7 +1212,7 @@ miwi_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
 
     /* Source Address */
     if(packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT){
-        gchar* src_addr = (gchar *)wmem_new(pinfo->pool, guint64);
+        char* src_addr = (char *)wmem_new(pinfo->pool, uint64_t);
 
         /* Get the address. */
         packet->src16 = tvb_get_letohs(tvb, offset);
@@ -1268,7 +1268,7 @@ miwi_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
         offset += 2;
     }
     else if(packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT){
-        guint64 *p_addr = (guint64 *)wmem_new(pinfo->pool, guint64);
+        uint64_t *p_addr = (uint64_t *)wmem_new(pinfo->pool, uint64_t);
 
         /* Get the address. */
         packet->src64 = tvb_get_letoh64(tvb, offset);
@@ -1304,7 +1304,7 @@ miwi_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
              * and is thus not encrypted. For IEEE802.15.4-2012e and later the command id is considered to be
              * part of the payload, is encrypted, and follows the payload IEs. Thus we only parse the command id
              * here for 2006 and earlier frames. */
-            packet->command_id = tvb_get_guint8(tvb, offset);
+            packet->command_id = tvb_get_uint8(tvb, offset);
             if(tree){
                 proto_tree_add_uint(miwi_tree, hf_miwi_cmd_id, tvb, offset, 1, packet->command_id);
             }
@@ -1321,10 +1321,10 @@ miwi_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
  * @param pinfo pointer to packet information fields
  * @param ieee802154_tree pointer to the protocol tree
  * @param packet Miwi P2P Star packet information
- * @param fcs_ok set to FALSE to indicate FCS verification failed
+ * @param fcs_ok set to false to indicate FCS verification failed
  * @param offset offset into the tvb to find the packet information.
  */
-static guint miwi_dissect_frame_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ieee802154_tree, miwi_packet *packet, gboolean fcs_ok, guint *offset)
+static unsigned miwi_dissect_frame_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ieee802154_tree, miwi_packet *packet, bool fcs_ok, unsigned *offset)
 {
     tvbuff_t *payload_tvb = tvb;
     proto_tree *tree = proto_tree_get_parent_tree(ieee802154_tree);
@@ -1385,14 +1385,14 @@ static guint miwi_dissect_frame_payload(tvbuff_t *tvb, packet_info *pinfo, proto
  * @param tvb the MiWi P2P Star frame tvb
  * @param ieee802154_tree the MiWi P2P Star protocol tree
  * @param fcs_len length of the FCS field
- * @param fcs_ok set to FALSE to indicate FCS verification failed
+ * @param fcs_ok set to false to indicate FCS verification failed
  */
 static void
-miwi_dissect_fcs(tvbuff_t *tvb, proto_tree *ieee802154_tree, guint fcs_len, gboolean fcs_ok)
+miwi_dissect_fcs(tvbuff_t *tvb, proto_tree *ieee802154_tree, unsigned fcs_len, bool fcs_ok)
 {
     proto_item *ti;
     /* The FCS should be the last bytes of the reported packet. */
-    guint offset = tvb_reported_length(tvb)-fcs_len;
+    unsigned offset = tvb_reported_length(tvb)-fcs_len;
     /* Dissect the FCS only if it exists (captures which don't or can't get the
      * FCS will simply truncate the packet to omit it, but should still set the
      * reported length to cover the original packet length), so if the snapshot
@@ -1400,7 +1400,7 @@ miwi_dissect_fcs(tvbuff_t *tvb, proto_tree *ieee802154_tree, guint fcs_len, gboo
      */
     if(ieee802154_tree){
         if(fcs_len == 2){
-            guint16     fcs = tvb_get_letohs(tvb, offset);
+            uint16_t    fcs = tvb_get_letohs(tvb, offset);
 
             ti = proto_tree_add_uint(ieee802154_tree, hf_miwi_fcs, tvb, offset, 2, fcs);
             if(fcs_ok){
@@ -1410,7 +1410,7 @@ miwi_dissect_fcs(tvbuff_t *tvb, proto_tree *ieee802154_tree, guint fcs_len, gboo
                 proto_item_append_text(ti, " (Incorrect, expected FCS=0x%04x)", miwi_crc_tvb(tvb, offset));
             }
             /* To Help with filtering, add the fcs_ok field to the tree.  */
-            ti = proto_tree_add_boolean(ieee802154_tree, hf_miwi_fcs_ok, tvb, offset, 2, (guint32) fcs_ok);
+            ti = proto_tree_add_boolean(ieee802154_tree, hf_miwi_fcs_ok, tvb, offset, 2, (uint32_t) fcs_ok);
             proto_item_set_hidden(ti);
         }
     }
@@ -1432,14 +1432,14 @@ miwi_dissect_fcs(tvbuff_t *tvb, proto_tree *ieee802154_tree, guint fcs_len, gboo
  * @param fcs_len length of the FCS field
  */
 static void
-dissect_miwi_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint fcs_len)
+dissect_miwi_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned fcs_len)
 {
     proto_tree *miwi_tree;
     miwi_packet *packet;
-    //gboolean fcs_present;
-    gboolean fcs_ok;
+    //bool fcs_present;
+    bool fcs_ok;
     tvbuff_t* no_fcs_tvb;
-    guint  offset = 0;
+    unsigned  offset = 0;
 
     if(fcs_len != 0){
         /*
@@ -1448,7 +1448,7 @@ dissect_miwi_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint f
          * Do we have the entire packet, and does it have enough data for
          * the FCS/metadata?
          */
-        guint reported_len = tvb_reported_length(tvb);
+        unsigned reported_len = tvb_reported_length(tvb);
 
         if(reported_len < fcs_len){
             /*
@@ -1456,8 +1456,8 @@ dissect_miwi_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint f
              * for the FCS/metadata.  Pretend it doesn't have one.
              */
             no_fcs_tvb = tvb;
-            //fcs_present = FALSE;
-            fcs_ok = TRUE;  // assume OK if not present
+            //fcs_present = false;
+            fcs_ok = true;  // assume OK if not present
         } else{
             /*
              * The packet is claimed to have enough data for the
@@ -1480,7 +1480,7 @@ dissect_miwi_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint f
                  * If we have an FCS, check it.
                  * If we have metadata, check its "FCS OK" flag.
                  */
-                //fcs_present = TRUE;
+                //fcs_present = true;
                 fcs_ok = is_fcs_ok(tvb, fcs_len);
             } else{
                 /*
@@ -1511,17 +1511,17 @@ dissect_miwi_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint f
                  * length but that doesn't include the FCS/metadata.
                  * Let's hope that rarely happens.
                  */
-                //fcs_present = FALSE;
-                fcs_ok = TRUE;  // assume OK if not present
+                //fcs_present = false;
+                fcs_ok = true;  // assume OK if not present
             }
         }
     } else{
         no_fcs_tvb = tvb;
-        //fcs_present = FALSE;
-        fcs_ok = TRUE;  // assume OK if not present
+        //fcs_present = false;
+        fcs_ok = true;  // assume OK if not present
     }
 
-    guint mhr_len = miwi_dissect_header(no_fcs_tvb, pinfo, tree, &miwi_tree, &packet);
+    unsigned mhr_len = miwi_dissect_header(no_fcs_tvb, pinfo, tree, &miwi_tree, &packet);
     offset = mhr_len;
     if(!mhr_len || tvb_reported_length_remaining(no_fcs_tvb, mhr_len) < 0 ){
         return;
@@ -1547,11 +1547,11 @@ dissect_miwi_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint f
 static int
 dissect_miwi_p2pstar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    guint fcs_len;
+    unsigned fcs_len;
 
     /* Set the default FCS length based on the FCS type in the configuration */
   //  fcs_len = miwi_fcs_type_len(miwi_fcs_type);
-   // guint offset = 0;
+   // unsigned offset = 0;
     proto_tree              *miwi_tree = NULL;
     proto_item              *proto_root = NULL;
    // miwi_packet      *packet = wmem_new0(wmem_packet_scope(), miwi_packet);
@@ -1590,10 +1590,10 @@ static bool
 dissect_miwi_p2pstar_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 #if 0
-    guint8 endpt, srcep, dstep;
+    uint8_t endpt, srcep, dstep;
 
     /* 1) first byte must have bits 0000xxxx */
-    if(tvb_get_guint8(tvb, 0) & LWM_FCF_RESERVED)
+    if(tvb_get_uint8(tvb, 0) & LWM_FCF_RESERVED)
         return (false);
 
     /* The header should be at least long enough for the base header. */
@@ -1601,7 +1601,7 @@ dissect_miwi_p2pstar_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         return (false);
 
     /* The endpoints should either both be zero, or both non-zero. */
-    endpt = tvb_get_guint8(tvb, 6);
+    endpt = tvb_get_uint8(tvb, 6);
     srcep = (endpt & LWM_SRC_ENDP_MASK) >> LWM_SRC_ENDP_OFFSET;
     dstep = (endpt & LWM_DST_ENDP_MASK) >> LWM_DST_ENDP_OFFSET;
     if ((srcep == 0) && (dstep != 0))
@@ -1782,7 +1782,7 @@ void proto_register_miwi_p2pstar(void)
 
 
     /* Subtrees */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_miwi_p2pstar,
         &ett_miwi_p2pstar_fcf,
         &ett_miwi_p2pstar_cmd_tree,
@@ -1839,7 +1839,7 @@ void proto_register_miwi_p2pstar(void)
     prefs_register_enum_preference(miwi_p2pstar_module, "fcs_format",
                                    "FCS format",
                                    "The FCS format in the captured payload",
-                                   &miwi_fcs_type, fcs_type_vals, FALSE);
+                                   &miwi_fcs_type, fcs_type_vals, false);
     prefs_register_bool_preference(miwi_p2pstar_module, "miwi_fcs_ok",
                                    "Dissect only good FCS",
                                    "Dissect payload only if FCS is valid.",
@@ -1869,13 +1869,13 @@ void proto_register_miwi_p2pstar(void)
 void proto_reg_handoff_miwi_p2pstar(void)
 {
 #if 0
-    static gboolean            prefs_initialized = FALSE;
+    static bool                prefs_initialized = false;
     static unsigned int        old_miwi_ethertype;
 
     if(!prefs_initialized){
         dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE802_15_4, miwi_p2pstar_handle);
 
-        prefs_initialized = TRUE;
+        prefs_initialized = true;
     } else{
         dissector_delete_uint("ethertype", old_miwi_ethertype, miwi_p2pstar_handle);
     }

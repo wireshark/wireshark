@@ -73,18 +73,18 @@ enum {
  * (data parameter).
  */
 struct mplsinfo {
-    guint32 label; /* last mpls label in label stack */
-    guint8  exp;   /* former EXP bits of last mpls shim in stack */
-    guint8  bos;   /* BOS bit of last mpls shim in stack */
-    guint8  ttl;   /* TTL bits of last mpls shim in stack */
+    uint32_t label; /* last mpls label in label stack */
+    uint8_t exp;   /* former EXP bits of last mpls shim in stack */
+    uint8_t bos;   /* BOS bit of last mpls shim in stack */
+    uint8_t ttl;   /* TTL bits of last mpls shim in stack */
 };
 
 extern const value_string special_labels[];
 extern void decode_mpls_label(tvbuff_t *tvb, int offset,
-                              guint32 *label, guint8 *exp,
-                              guint8 *bos, guint8 *ttl);
+                              uint32_t *label, uint8_t *exp,
+                              uint8_t *bos, uint8_t *ttl);
 
-extern gboolean dissect_try_cw_first_nibble(tvbuff_t *tvb, packet_info *pinfo,
+extern bool dissect_try_cw_first_nibble(tvbuff_t *tvb, packet_info *pinfo,
                                             proto_tree *tree );
 
 #endif

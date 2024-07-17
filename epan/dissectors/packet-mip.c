@@ -120,11 +120,11 @@ static int hf_mip_mne_prefix;
 static int hf_mip_mne_reserved;
 
 /* Initialize the subtree pointers */
-static gint ett_mip;
-static gint ett_mip_flags;
-static gint ett_mip_ext;
-static gint ett_mip_exts;
-static gint ett_mip_pmipv4_ext;
+static int ett_mip;
+static int ett_mip_flags;
+static int ett_mip_ext;
+static int ett_mip_exts;
+static int ett_mip_pmipv4_ext;
 
 static expert_field ei_mip_data_not_dissected;
 
@@ -479,7 +479,7 @@ static int
 dissect_mip_priv_ext_3gpp2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
   int offset = 0;
-  guint16 type;
+  uint16_t type;
   int length = tvb_reported_length(tvb);
 
   type = tvb_get_ntohs(tvb,offset);
@@ -527,13 +527,13 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info
   proto_tree   *exts_tree=NULL;
   proto_tree   *ext_tree;
   proto_tree   *pmipv4_tree;
-  gint          ext_len;
-  guint8        ext_type;
-  guint8        ext_subtype=0;
-  guint8        pmipv4skipext_subscriberid_type;
-  gint          hdrLen;
-  guint32       cvse_vendor_id;
-  guint16       cvse_3gpp2_type;
+  int           ext_len;
+  uint8_t       ext_type;
+  uint8_t       ext_subtype=0;
+  uint8_t       pmipv4skipext_subscriberid_type;
+  int           hdrLen;
+  uint32_t      cvse_vendor_id;
+  uint16_t      cvse_3gpp2_type;
   int           cvse_local_offset= 0;
   int           nvse_local_offset= 0;
   int           mne_local_offset= 0;
@@ -545,13 +545,13 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info
   while (tvb_reported_length_remaining(tvb, offset) > 0) {
 
     /* Get our extension info */
-    ext_type = tvb_get_guint8(tvb, offset);
+    ext_type = tvb_get_uint8(tvb, offset);
     if (ext_type == GEN_AUTH_EXT || ext_type == PMIPv4_NON_SKIP_EXT) {
       /*
        * Very nasty . . breaks normal extensions, since the length is
        * in the wrong place :(
        */
-      ext_subtype = tvb_get_guint8(tvb, offset + 1);
+      ext_subtype = tvb_get_uint8(tvb, offset + 1);
       ext_len = tvb_get_ntohs(tvb, offset + 2);
       hdrLen = 4;
     }
@@ -564,7 +564,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info
       hdrLen = 4;
     }
     else {
-      ext_len = tvb_get_guint8(tvb, offset + 1);
+      ext_len = tvb_get_uint8(tvb, offset + 1);
       hdrLen = 2;
     }
 
@@ -699,7 +699,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info
       break;
     case PMIPv4_SKIP_EXT:   /* draft-leung-mip4-proxy-mode */
       /* sub-type */
-      ext_subtype = tvb_get_guint8(tvb, offset);
+      ext_subtype = tvb_get_uint8(tvb, offset);
       pmipv4_tree = proto_tree_add_subtree_format(ext_tree, tvb, offset, ext_len,
                    ett_mip_pmipv4_ext, NULL, "PMIPv4 Sub-Type: %s",
                    val_to_str(ext_subtype, mip_pmipv4skipext_stypes, "Unknown Sub-Type %u"));
@@ -711,7 +711,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info
         proto_tree_add_item(pmipv4_tree, hf_mip_pmipv4skipext_deviceid_type, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(pmipv4_tree, hf_mip_pmipv4skipext_deviceid_id, tvb, offset + 2, ext_len - 2, ENC_NA);
       } else if (ext_subtype == PMIPv4_SKIPEXT_STYPE_SUBSCRIBER_ID) {
-        pmipv4skipext_subscriberid_type = tvb_get_guint8(tvb, offset + 1);
+        pmipv4skipext_subscriberid_type = tvb_get_uint8(tvb, offset + 1);
         proto_tree_add_uint(pmipv4_tree, hf_mip_pmipv4skipext_subscriberid_type, tvb, offset + 1, 1, pmipv4skipext_subscriberid_type);
         if (pmipv4skipext_subscriberid_type == 1) {
           proto_tree_add_item(pmipv4_tree, hf_mip_pmipv4skipext_subscriberid_id, tvb, offset + 2, ext_len - 2, ENC_NA);
@@ -764,7 +764,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info
     case OLD_NVSE_EXT:      /* RFC 3115 */
     case NVSE_EXT:          /* RFC 3115 */
       {
-          guint32 nvse_vendor_org_id;
+          uint32_t nvse_vendor_org_id;
           tvbuff_t *next_tvb;
 
           proto_tree_add_item(ext_tree, hf_mip_nvse_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -791,9 +791,9 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info
 
     case MNE_EXT:          /* RFC 5177 */
       {
-        guint8 sub_type;
+        uint8_t sub_type;
 
-        sub_type = tvb_get_guint8(tvb, offset);
+        sub_type = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(ext_tree, hf_mip_mne_sub_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         mne_local_offset = offset+1;
         switch (sub_type) {
@@ -837,8 +837,8 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   /* Set up structures we will need to add the protocol subtree and manage it */
   proto_item    *ti;
   proto_tree    *mip_tree=NULL;
-  guint8         type;
-  gint           offset=0;
+  uint8_t        type;
+  int            offset=0;
   tvbuff_t      *next_tvb;
 
   /* Make entries in Protocol column and Info column on summary display */
@@ -846,7 +846,7 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "MobileIP");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  type = tvb_get_guint8(tvb, offset);
+  type = tvb_get_uint8(tvb, offset);
   switch (type) {
   case MIP_REGISTRATION_REQUEST:
     col_add_fstr(pinfo->cinfo, COL_INFO,
@@ -908,7 +908,7 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                "Reg Reply: HoA=%s HA=%s, Code=%u",
                tvb_ip_to_str(pinfo->pool, tvb, 4),
                tvb_ip_to_str(pinfo->pool, tvb, 8),
-               tvb_get_guint8(tvb,1));
+               tvb_get_uint8(tvb,1));
 
     if (tree) {
       /* Add Subtree */
@@ -944,7 +944,7 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     break;
   case MIP_NATT_TUNNEL_DATA:
     col_add_fstr(pinfo->cinfo, COL_INFO, "Tunnel Data: Next Header=%u",
-               tvb_get_guint8(tvb,1));
+               tvb_get_uint8(tvb,1));
 
     if (tree) {
       /* Add Subtree */
@@ -1530,7 +1530,7 @@ void proto_register_mip(void)
   };
 
   /* Setup protocol subtree array */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_mip,
     &ett_mip_flags,
     &ett_mip_ext,

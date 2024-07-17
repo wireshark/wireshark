@@ -574,110 +574,110 @@ static const value_string mausb_cancel_transfer_status_string[] = {
 
 /*** Packet parsing helper functions ***/
 
-gboolean mausb_is_from_host(struct mausb_header *header)
+bool mausb_is_from_host(struct mausb_header *header)
 {
     return (MAUSB_FLAG_HOST << MAUSB_FLAG_OFFSET) & header->ver_flags;
 }
 
-static gboolean mausb_is_mgmt_pkt(struct mausb_header *header)
+static bool mausb_is_mgmt_pkt(struct mausb_header *header)
 {
     return MAUSB_PKT_TYPE_MGMT == (header->type & MAUSB_PKT_TYPE_MASK);
 }
 
-static gboolean mausb_is_data_pkt(struct mausb_header *header)
+static bool mausb_is_data_pkt(struct mausb_header *header)
 {
     return MAUSB_PKT_TYPE_DATA == (header->type & MAUSB_PKT_TYPE_MASK);
 }
 
-static gboolean mausb_is_transfer_req(struct mausb_header *header)
+static bool mausb_is_transfer_req(struct mausb_header *header)
 {
     return TransferReq == header->type;
 }
 
-static gboolean mausb_is_transfer_ack(struct mausb_header *header)
+static bool mausb_is_transfer_ack(struct mausb_header *header)
 {
     return TransferAck == header->type;
 }
 
-static gint8 mausb_tx_type(struct mausb_header *header)
+static int8_t mausb_tx_type(struct mausb_header *header)
 {
     return (header->u.s.eps_tflags >> MAUSB_TFLAG_OFFSET) & MAUSB_TFLAG_TRANSFER_TYPE;
 }
 
-static gboolean mausb_is_iso_pkt(struct mausb_header *header)
+static bool mausb_is_iso_pkt(struct mausb_header *header)
 {
     return MAUSB_TX_TYPE_ISOC == mausb_tx_type(header);
 }
 
-static gboolean mausb_has_timestamp(struct mausb_header *header)
+static bool mausb_has_timestamp(struct mausb_header *header)
 {
     return (MAUSB_FLAG_TIMESTAMP << MAUSB_FLAG_OFFSET) & header->ver_flags;
 }
 
-static gboolean mausb_has_mtd(struct mausb_header *header)
+static bool mausb_has_mtd(struct mausb_header *header)
 {
     return (MAUSB_IFLAG_MTD << MAUSB_IFLAG_OFFSET) & header->u.s.u1.num_headers_iflags;
 }
 
-static gboolean mausb_has_setup_data(struct mausb_header *header)
+static bool mausb_has_setup_data(struct mausb_header *header)
 {
     if ((TransferReq == header->type ) &&
         (mausb_is_from_host(header)) &&
         (0 == header->u.s.seq_num) &&
         (MAUSB_TX_TYPE_CTRL == mausb_tx_type(header))) {
 
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
-static gboolean mausb_is_setup_response(struct mausb_header *header)
+static bool mausb_is_setup_response(struct mausb_header *header)
 {
     if ((TransferResp == header->type) &&
         (!mausb_is_from_host(header)) &&
         (MAUSB_TX_TYPE_CTRL == mausb_tx_type(header))) {
 
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 /*** EP Handle parsing helper functions */
 
-guint8 mausb_ep_handle_ep_d(guint16 handle) {
+uint8_t mausb_ep_handle_ep_d(uint16_t handle) {
     return (handle & MAUSB_EP_HANDLE_D) >> MAUSB_EP_HANDLE_D_OFFSET;
 }
 
-guint8 mausb_ep_handle_ep_num(guint16 handle) {
+uint8_t mausb_ep_handle_ep_num(uint16_t handle) {
     return (handle & MAUSB_EP_HANDLE_EP_NUM) >> MAUSB_EP_HANDLE_EP_NUM_OFFSET;
 }
 
-guint8 mausb_ep_handle_dev_addr(guint16 handle) {
+uint8_t mausb_ep_handle_dev_addr(uint16_t handle) {
     return (handle & MAUSB_EP_HANDLE_DEV_ADDR) >> MAUSB_EP_HANDLE_DEV_ADDR_OFFSET;
 }
 
-guint8 mausb_ep_handle_bus_num(guint16 handle) {
+uint8_t mausb_ep_handle_bus_num(uint16_t handle) {
     return (handle & MAUSB_EP_HANDLE_BUS_NUM) >> MAUSB_EP_HANDLE_BUS_NUM_OFFSET;
 }
 
 /* returns the length field of the MAUSB packet */
-static guint mausb_get_pkt_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+static unsigned mausb_get_pkt_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                                int offset, void *data _U_)
 {
     return tvb_get_letohs(tvb, offset + 2);
 }
 
 /* Initialize the subtree pointers */
-static gint ett_mausb;
-static gint ett_mausb_flags;
-static gint ett_mausb_ep_handle;
-static gint ett_mausb_tflags;
-static gint ett_mausb_iflags;
-static gint ett_mausb_present_time;
-static gint ett_mausb_timestamp;
-static gint ett_mgmt;
-static gint ett_dev_cap;
-static gint ett_clear_transfers_block;
+static int ett_mausb;
+static int ett_mausb_flags;
+static int ett_mausb_ep_handle;
+static int ett_mausb_tflags;
+static int ett_mausb_iflags;
+static int ett_mausb_present_time;
+static int ett_mausb_timestamp;
+static int ett_mgmt;
+static int ett_dev_cap;
+static int ett_clear_transfers_block;
 
 
 #define USB_DT_EP_SIZE              7
@@ -708,18 +708,18 @@ static gint ett_clear_transfers_block;
 
 
 /* Dissects an individual Device Capability Descriptor */
-static guint16 dissect_mausb_dev_cap_desc(proto_tree *tree, tvbuff_t *tvb,
-                                          packet_info *pinfo, gint16 offset)
+static uint16_t dissect_mausb_dev_cap_desc(proto_tree *tree, tvbuff_t *tvb,
+                                          packet_info *pinfo, int16_t offset)
 {
-    guint8 desc_len;
-    guint8 cap_type;
-    gint16 desc_offset;
+    uint8_t desc_len;
+    uint8_t cap_type;
+    int16_t desc_offset;
     proto_item *len_field;
     proto_tree *dev_cap_tree;
 
     desc_offset = offset;
-    desc_len = tvb_get_guint8(tvb, desc_offset);
-    cap_type = tvb_get_guint8(tvb, desc_offset + 1);
+    desc_len = tvb_get_uint8(tvb, desc_offset);
+    cap_type = tvb_get_uint8(tvb, desc_offset + 1);
 
     dev_cap_tree = proto_tree_add_subtree(tree, tvb, desc_offset, desc_len,
         ett_dev_cap, NULL,
@@ -764,14 +764,14 @@ static guint16 dissect_mausb_dev_cap_desc(proto_tree *tree, tvbuff_t *tvb,
 /* Dissects a MAUSB capability response packet
  * also dissects Capability Descriptors
  */
-static guint16 dissect_mausb_mgmt_pkt_cap_resp(struct mausb_header *header,
-       proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint16 offset)
+static uint16_t dissect_mausb_mgmt_pkt_cap_resp(struct mausb_header *header,
+       proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int16_t offset)
 {
 
-    guint desc_len;
-    guint8 desc_count;
+    unsigned desc_len;
+    uint8_t desc_count;
     proto_item *len_field;
-    guint16 loop_offset;
+    uint16_t loop_offset;
     int i;
 
     /* Fields present in all CapResp packets */
@@ -791,7 +791,7 @@ static guint16 dissect_mausb_mgmt_pkt_cap_resp(struct mausb_header *header,
 
     proto_tree_add_item(tree, hf_mausb_cap_resp_desc_count,
         tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    desc_count = tvb_get_guint8(tvb, offset);
+    desc_count = tvb_get_uint8(tvb, offset);
     offset += 1;
 
     len_field = proto_tree_add_item(tree, hf_mausb_cap_resp_desc_len,
@@ -832,7 +832,7 @@ static guint16 dissect_mausb_mgmt_pkt_cap_resp(struct mausb_header *header,
 }
 
 /* Dissects a MAUSB endpoint handle */
-static gint dissect_ep_handle(proto_tree *tree, tvbuff_t *tvb, gint offset)
+static int dissect_ep_handle(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
 
     proto_item *ti;
@@ -857,7 +857,7 @@ static gint dissect_ep_handle(proto_tree *tree, tvbuff_t *tvb, gint offset)
 
 /* dissects presentation time & subfields */
 static void dissect_mausb_present_time(proto_tree *tree, tvbuff_t *tvb,
-            gint offset)
+            int offset)
 {
     proto_item *ti;
     proto_tree *present_time_tree;
@@ -874,7 +874,7 @@ static void dissect_mausb_present_time(proto_tree *tree, tvbuff_t *tvb,
 }
 
 static void dissect_mausb_timestamp(proto_tree *tree, tvbuff_t *tvb,
-            gint offset)
+            int offset)
 {
     proto_item *ti;
     proto_tree *timestamp_tree;
@@ -891,10 +891,10 @@ static void dissect_mausb_timestamp(proto_tree *tree, tvbuff_t *tvb,
 }
 
 /* gets the size of the endpoint descriptors in a EPHandleReq packet */
-static guint8 mausb_get_size_ep_des(tvbuff_t *tvb, gint offset)
+static uint8_t mausb_get_size_ep_des(tvbuff_t *tvb, int offset)
 {
-    guint8 size_ep_des = 0;
-    guint16 temp_buffer = 0; /* for storing the offset data */
+    uint8_t size_ep_des = 0;
+    uint16_t temp_buffer = 0; /* for storing the offset data */
 
     /* grab the 2 bytes with the size field */
     temp_buffer = tvb_get_letohs(tvb, offset);
@@ -907,8 +907,8 @@ static guint8 mausb_get_size_ep_des(tvbuff_t *tvb, gint offset)
 }
 
 /* dissect an individual block for ClearTransfers */
-static guint16 dissect_clear_transfers_block(proto_tree *tree,
-               tvbuff_t *tvb, gint16 offset, gboolean req)
+static uint16_t dissect_clear_transfers_block(proto_tree *tree,
+               tvbuff_t *tvb, int16_t offset, bool req)
 {
     proto_item *ti;
     proto_tree *block_tree;
@@ -974,13 +974,13 @@ static guint16 dissect_clear_transfers_block(proto_tree *tree,
 }
 
 /* dissects portions of a MA USB packet specific to ClearTransfers packets */
-static guint16 dissect_mausb_mgmt_pkt_clear_transfers(proto_tree *tree,
-               tvbuff_t *tvb, gint16 offset, gboolean req)
+static uint16_t dissect_mausb_mgmt_pkt_clear_transfers(proto_tree *tree,
+               tvbuff_t *tvb, int16_t offset, bool req)
 {
-    guint8 num_block;
+    uint8_t num_block;
     int i;
 
-    num_block = tvb_get_guint8(tvb, offset);
+    num_block = tvb_get_uint8(tvb, offset);
     if (req) {
         /* Number of entries */
         proto_tree_add_item(tree, hf_mausb_clear_transfers_req_num, tvb,
@@ -1012,21 +1012,21 @@ static guint16 dissect_mausb_mgmt_pkt_clear_transfers(proto_tree *tree,
 }
 
 /* dissects portions of a MA USB packet specific to Endpoint Handle Request packets */
-static guint16 dissect_mausb_mgmt_pkt_ep_handle( proto_tree *tree, tvbuff_t *tvb,
-            packet_info *pinfo, gint16 start, gboolean req, gboolean del)
+static uint16_t dissect_mausb_mgmt_pkt_ep_handle( proto_tree *tree, tvbuff_t *tvb,
+            packet_info *pinfo, int16_t start, bool req, bool del)
 {
     usb_conv_info_t usb_conv_info;
     proto_item *size_field = NULL;
-    guint16 offset = start;
-    guint16 loop_offset;
-    guint8 num_ep;
-    guint8 size_ep_des;
-    guint8 last_ep_type = ENDPOINT_TYPE_NOT_SET;
+    uint16_t offset = start;
+    uint16_t loop_offset;
+    uint8_t num_ep;
+    uint8_t size_ep_des;
+    uint8_t last_ep_type = ENDPOINT_TYPE_NOT_SET;
     int i;
 
     memset(&usb_conv_info,  0, sizeof(usb_conv_info_t));
 
-    num_ep = tvb_get_guint8(tvb, offset) & MAUSB_MGMT_NUM_EP_DES_MASK;
+    num_ep = tvb_get_uint8(tvb, offset) & MAUSB_MGMT_NUM_EP_DES_MASK;
 
     if (!del) {
         proto_tree_add_item(tree, hf_mausb_mgmt_ep_des_num, tvb,
@@ -1169,11 +1169,11 @@ static guint16 dissect_mausb_mgmt_pkt_ep_handle( proto_tree *tree, tvbuff_t *tvb
 }
 
 /* dissects portions of a MA USB packet specific to CancelTransfer packets */
-static guint16 dissect_mausb_mgmt_pkt_cancel_transfer( proto_tree *tree,
-        tvbuff_t *tvb, gint offset, gboolean req)
+static uint16_t dissect_mausb_mgmt_pkt_cancel_transfer( proto_tree *tree,
+        tvbuff_t *tvb, int offset, bool req)
 {
 
-    guint8 status;
+    uint8_t status;
 
     offset += dissect_ep_handle(tree, tvb, offset);
 
@@ -1193,7 +1193,7 @@ static guint16 dissect_mausb_mgmt_pkt_cancel_transfer( proto_tree *tree,
         return offset;
     } /* else resp */
 
-    status = tvb_get_guint8(tvb, offset) |
+    status = tvb_get_uint8(tvb, offset) |
                        MAUSB_CANCEL_TRANSFER_STATUS_MASK;
 
     proto_tree_add_item(tree, hf_mausb_cancel_transfer_status, tvb, offset, 3,
@@ -1230,15 +1230,15 @@ static guint16 dissect_mausb_mgmt_pkt_cancel_transfer( proto_tree *tree,
 }
 
 /* dissects portions of a MA USB packet specific to particular management packets */
-static guint16 dissect_mausb_mgmt_pkt_flds(struct mausb_header *header,
+static uint16_t dissect_mausb_mgmt_pkt_flds(struct mausb_header *header,
         proto_tree *tree, tvbuff_t *tvb,
-        packet_info *pinfo, gint16 start)
+        packet_info *pinfo, int16_t start)
 {
 
     proto_item *ti;
     proto_tree *mgmt_tree;
-    guint16 offset = start;
-    gint type_spec_len = tvb_reported_length(tvb) - start;
+    uint16_t offset = start;
+    int type_spec_len = tvb_reported_length(tvb) - start;
 
     if (0 > type_spec_len) {
         expert_add_info(pinfo, tree, &ei_mgmt_type_spec_len_short);
@@ -1258,12 +1258,12 @@ static guint16 dissect_mausb_mgmt_pkt_flds(struct mausb_header *header,
         break;
     case EPHandleReq:
         offset = dissect_mausb_mgmt_pkt_ep_handle(mgmt_tree, tvb, pinfo,
-                                                  offset, TRUE, FALSE);
+                                                  offset, true, false);
     break;
 
     case EPHandleResp:
         offset = dissect_mausb_mgmt_pkt_ep_handle(mgmt_tree, tvb, pinfo,
-                                                  offset, FALSE, FALSE);
+                                                  offset, false, false);
     break;
 
     /* TODO: Dissect type-specific management packet fields */
@@ -1278,18 +1278,18 @@ static guint16 dissect_mausb_mgmt_pkt_flds(struct mausb_header *header,
         offset += type_spec_len;
         break;
     case ClearTransfersReq:
-        offset = dissect_mausb_mgmt_pkt_clear_transfers(mgmt_tree, tvb, offset, TRUE);
+        offset = dissect_mausb_mgmt_pkt_clear_transfers(mgmt_tree, tvb, offset, true);
         break;
     case ClearTransfersResp:
-        offset = dissect_mausb_mgmt_pkt_clear_transfers(mgmt_tree, tvb, offset, FALSE);
+        offset = dissect_mausb_mgmt_pkt_clear_transfers(mgmt_tree, tvb, offset, false);
         break;
     case EPHandleDeleteReq:
         offset = dissect_mausb_mgmt_pkt_ep_handle(mgmt_tree, tvb, pinfo,
-                                                  offset, TRUE, TRUE);
+                                                  offset, true, true);
     break;
     case EPHandleDeleteResp:
         offset = dissect_mausb_mgmt_pkt_ep_handle(mgmt_tree, tvb, pinfo,
-                                                  offset, FALSE, TRUE);
+                                                  offset, false, true);
     break;
     case ModifyEP0Resp:
     case EPCloseStreamResp:
@@ -1317,11 +1317,11 @@ static guint16 dissect_mausb_mgmt_pkt_flds(struct mausb_header *header,
 
     case CancelTransferReq:
         offset = dissect_mausb_mgmt_pkt_cancel_transfer(mgmt_tree, tvb, offset,
-                                                        TRUE);
+                                                        true);
         break;
     case CancelTransferResp:
         offset = dissect_mausb_mgmt_pkt_cancel_transfer(mgmt_tree, tvb, offset,
-                                                        FALSE);
+                                                        false);
         break;
     case EPOpenStreamReq:
 
@@ -1395,18 +1395,18 @@ void mausb_set_usb_conv_info(usb_conv_info_t *usb_conv_info,
 
 /* Used to detect multiple MA Packets in a single TCP packet */
 /* Not used for MA Packets in SNAP Packets */
-static gint mausb_num_pdus;
+static int mausb_num_pdus;
 
 
 /* dissect fields common to all MAUSB packet types */
 static int
-dissect_mausb_pkt_common(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+dissect_mausb_pkt_common(tvbuff_t *tvb, int offset, packet_info *pinfo,
         proto_tree *mausb_tree, struct mausb_header *header)
 {
     proto_item *len_field;
 
     /* MAUSB Protocol Version */
-    header->ver_flags = tvb_get_guint8(tvb, offset);
+    header->ver_flags = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(mausb_tree, hf_mausb_version, tvb,
             offset, 1, ENC_LITTLE_ENDIAN);
 
@@ -1416,7 +1416,7 @@ dissect_mausb_pkt_common(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     offset += 1;
 
     /* Packet Type */
-    header->type = tvb_get_guint8(tvb, offset);
+    header->type = tvb_get_uint8(tvb, offset);
     col_append_str(pinfo->cinfo, COL_INFO, val_to_str(header->type, mausb_type_string, "%d"));
     proto_tree_add_item(mausb_tree, hf_mausb_type, tvb,
             offset, 1, ENC_LITTLE_ENDIAN);
@@ -1446,19 +1446,19 @@ dissect_mausb_pkt_common(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     }
 
     /* MA Device Address */
-    header->ma_dev_addr = tvb_get_guint8(tvb, offset);
+    header->ma_dev_addr = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(mausb_tree, hf_mausb_ma_dev_addr, tvb,
             offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
     /* SSID */
-    header->mass_id = tvb_get_guint8(tvb, offset);
+    header->mass_id = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(mausb_tree, hf_mausb_ssid, tvb,
             offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
     /* Status */
-    header->status = tvb_get_guint8(tvb, offset);
+    header->status = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(mausb_tree, hf_mausb_status, tvb,
             offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
@@ -1468,11 +1468,11 @@ dissect_mausb_pkt_common(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 /* dissect datapacket specific values */
 static int
-dissect_mausb_pkt_data(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+dissect_mausb_pkt_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
         proto_tree *mausb_tree, struct mausb_header *header)
 {
     /* EPS */
-    header->u.s.eps_tflags = tvb_get_guint8(tvb, offset);
+    header->u.s.eps_tflags = tvb_get_uint8(tvb, offset);
     if (mausb_is_from_host(header)) {
         proto_tree_add_item(mausb_tree, hf_mausb_eps_rsvd, tvb,
             offset, 1, ENC_LITTLE_ENDIAN);
@@ -1512,7 +1512,7 @@ dissect_mausb_pkt_data(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     offset += 3;
 
     /* Request ID */
-    header->u.s.req_id = tvb_get_guint8(tvb, offset);
+    header->u.s.req_id = tvb_get_uint8(tvb, offset);
     col_append_fstr(pinfo->cinfo, COL_INFO, " ReqID=%u", header->u.s.req_id);
     proto_tree_add_item(mausb_tree, hf_mausb_req_id, tvb,
         offset, 1, ENC_LITTLE_ENDIAN);
@@ -1565,7 +1565,7 @@ dissect_mausb_pkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree *mausb_tree;
     /* Other misc. local variables. */
     struct mausb_header header;
-    gint offset = 0;
+    int offset = 0;
 
     memset(&header, 0, sizeof(struct mausb_header));
 
@@ -1632,7 +1632,7 @@ dissect_mausb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     mausb_num_pdus = 0;
 
-    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, MAUSB_MIN_LENGTH,
+    tcp_dissect_pdus(tvb, pinfo, tree, true, MAUSB_MIN_LENGTH,
             mausb_get_pkt_len, dissect_mausb_pkt, data);
 
     if (1 < mausb_num_pdus) {
@@ -2192,7 +2192,7 @@ proto_register_mausb(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_mausb,
         &ett_mausb_flags,
         &ett_mausb_ep_handle,

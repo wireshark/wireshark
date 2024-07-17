@@ -143,20 +143,20 @@ static int * const flags_hf_flags[] = {
   NULL
 };
 
-static gint ett_monero;
-static gint ett_payload;
-static gint ett_struct;
-static gint ett_flags;
+static int ett_monero;
+static int ett_payload;
+static int ett_struct;
+static int ett_flags;
 
 static bool monero_desegment  = true;
 
 static expert_field ei_monero_type_unknown;
 
-static guint
+static unsigned
 get_monero_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb,
                        int offset, void *data _U_)
 {
-  guint32 length;
+  uint32_t length;
   length = MONERO_HEADER_LENGTH;
 
   /* add payload length */
@@ -166,43 +166,43 @@ get_monero_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb,
 }
 
 static void
-get_varint(tvbuff_t *tvb, const gint offset, guint8 *length, guint64 *ret)
+get_varint(tvbuff_t *tvb, const int offset, uint8_t *length, uint64_t *ret)
 {
-  guint8 flag = tvb_get_guint8(tvb, offset) & 0x03;
+  uint8_t flag = tvb_get_uint8(tvb, offset) & 0x03;
 
   switch (flag)
   {
   case 0:
-    *ret = tvb_get_guint8(tvb, offset) >> 2;
+    *ret = tvb_get_uint8(tvb, offset) >> 2;
     *length = 1;
     break;
   case 1:
-    *ret = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN) >> 2;
+    *ret = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN) >> 2;
     *length = 2;
     break;
   case 2:
-    *ret = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN) >> 2;
+    *ret = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN) >> 2;
     *length = 4;
     break;
   case 3:
-    *ret = tvb_get_guint64(tvb, offset, ENC_LITTLE_ENDIAN) >> 2;
+    *ret = tvb_get_uint64(tvb, offset, ENC_LITTLE_ENDIAN) >> 2;
     *length = 8;
     break;
   }
 }
 
-static int dissect_encoded_value(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *ti, int offset, guint32 type);
+static int dissect_encoded_value(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *ti, int offset, uint32_t type);
 
 // we are parsing generic data structures, recursion is a first class citizen here
 // NOLINTNEXTLINE(misc-no-recursion)
 static int dissect_encoded_dictionary(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-  guint8        length;
-  guint64       count;
+  uint8_t       length;
+  uint64_t      count;
   proto_item   *sti;
   proto_tree   *stree;
-  guint32       type;
-  const guint8* key;
+  uint32_t      type;
+  const uint8_t* key;
 
   // number of keys in the dictionary
   get_varint(tvb, offset, &length, &count);
@@ -214,7 +214,7 @@ static int dissect_encoded_dictionary(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     stree = proto_item_add_subtree(sti, ett_payload);
 
     // key
-    length = tvb_get_guint8(tvb, offset);
+    length = tvb_get_uint8(tvb, offset);
     offset += 1;
     proto_tree_add_item_ret_string(stree, hf_monero_payload_item_key, tvb, offset, length, ENC_ASCII|ENC_NA, pinfo->pool, &key);
     if(key)
@@ -236,11 +236,11 @@ static int dissect_encoded_dictionary(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 
 // we are parsing generic data structures, recursion is a first class citizen here
 // NOLINTNEXTLINE(misc-no-recursion)
-static int dissect_encoded_value(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *ti, int offset, guint32 type)
+static int dissect_encoded_value(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *ti, int offset, uint32_t type)
 {
-  guint8        length;
-  guint64       size;
-  guint64       string_length;
+  uint8_t       length;
+  uint64_t      size;
+  uint64_t      string_length;
   proto_item   *struct_ti;
   proto_tree   *struct_tree;
 
@@ -320,7 +320,7 @@ static int dissect_encoded_value(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
       proto_tree_add_int64(tree, hf_monero_payload_item_length, tvb, offset, length, string_length);
       offset += length;
 
-      proto_tree_add_item(tree, hf_monero_payload_item_value_string, tvb, offset, (gint) string_length, ENC_NA);
+      proto_tree_add_item(tree, hf_monero_payload_item_value_string, tvb, offset, (int) string_length, ENC_NA);
       offset += string_length;
       break;
 
@@ -355,10 +355,10 @@ static int dissect_monero_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 {
   proto_item   *ti, *payload_ti;
   proto_tree   *payload_tree;
-  guint32       command;
-  const gchar*  command_label;
-  guint64       length;
-  guint32       offset = 0;
+  uint32_t      command;
+  const char*  command_label;
+  uint64_t      length;
+  uint32_t      offset = 0;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "Monero");
 
@@ -379,9 +379,9 @@ static int dissect_monero_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
   col_add_str(pinfo->cinfo, COL_INFO, command_label);
 
   /* data payload */
-  payload_ti = proto_tree_add_item(tree, hf_monero_payload, tvb, offset, (gint) length, ENC_NA);
+  payload_ti = proto_tree_add_item(tree, hf_monero_payload, tvb, offset, (int) length, ENC_NA);
   payload_tree = proto_item_add_subtree(payload_ti, ett_payload);
-  dissect_encoded_payload(tvb_new_subset_length(tvb, offset, (gint) length), pinfo, payload_tree);
+  dissect_encoded_payload(tvb_new_subset_length(tvb, offset, (int) length), pinfo, payload_tree);
   // offset += size;
 
   return tvb_reported_length(tvb);
@@ -400,7 +400,7 @@ dissect_monero(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 static bool
 dissect_monero_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-  guint64 signature;
+  uint64_t signature;
   conversation_t *conversation;
 
   if (tvb_captured_length(tvb) < 8)
@@ -584,7 +584,7 @@ proto_register_monero(void)
     },
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_monero,
     &ett_payload,
     &ett_struct,

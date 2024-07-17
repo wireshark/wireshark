@@ -92,46 +92,46 @@ typedef enum mac_lte_nb_mode {
 typedef struct mac_lte_info
 {
     /* Needed for decode */
-    guint8          radioType;
-    guint8          direction;
-    guint8          rntiType;
+    uint8_t         radioType;
+    uint8_t         direction;
+    uint8_t         rntiType;
 
     /* Extra info to display */
-    guint16         rnti;
-    guint16         ueid;
+    uint16_t        rnti;
+    uint16_t        ueid;
 
     /* Timing info */
-    guint16         sysframeNumber;
-    guint16         subframeNumber;
-    gboolean        sfnSfInfoPresent;
+    uint16_t        sysframeNumber;
+    uint16_t        subframeNumber;
+    bool            sfnSfInfoPresent;
 
     /* Optional field. More interesting for TDD (FDD is always -4 subframeNumber) */
-    gboolean        subframeNumberOfGrantPresent;
-    guint16         subframeNumberOfGrant;
+    bool            subframeNumberOfGrantPresent;
+    uint16_t        subframeNumberOfGrant;
 
     /* Flag set only if doing PHY-level data test - i.e. there may not be a
        well-formed MAC PDU so just show as raw data */
-    gboolean        isPredefinedData;
+    bool            isPredefinedData;
 
     /* Length of DL PDU or UL grant size in bytes */
-    guint16         length;
+    uint16_t        length;
 
     /* 0=newTx, 1=first-retx, etc */
-    guint8          reTxCount;
-    guint8          isPHICHNACK; /* FALSE=PDCCH retx grant, TRUE=PHICH NACK */
+    uint8_t         reTxCount;
+    uint8_t         isPHICHNACK; /* false=PDCCH retx grant, true=PHICH NACK */
 
     /* UL only.  Indicates if the R10 extendedBSR-Sizes parameter is set */
-    gboolean        isExtendedBSRSizes;
+    bool            isExtendedBSRSizes;
 
     /* UL only.  Indicates if the R10 simultaneousPUCCH-PUSCH parameter is set for PCell */
-    gboolean        isSimultPUCCHPUSCHPCell;
+    bool            isSimultPUCCHPUSCHPCell;
 
     /* UL only.  Indicates if the R10 extendedBSR-Sizes parameter is set for PSCell */
-    gboolean        isSimultPUCCHPUSCHPSCell;
+    bool            isSimultPUCCHPUSCHPSCell;
 
     /* Status of CRC check. For UE it is DL only. For eNodeB it is UL
        only. For an analyzer, it is present for both DL and UL. */
-    gboolean        crcStatusValid;
+    bool            crcStatusValid;
     mac_lte_crc_status crcStatus;
 
     /* Carrier ID */
@@ -147,49 +147,49 @@ typedef struct mac_lte_info
     mac_lte_nb_mode nbMode;
 
     /* UL only, for now used for CE mode A RAR decoding */
-    guint8          nUlRb;
+    uint8_t         nUlRb;
 
     /* More Physical layer info (see direction above for which side of union to use) */
     union {
         struct mac_lte_ul_phy_info
         {
-            guint8 present;  /* Remaining UL fields are present and should be displayed */
-            guint8 modulation_type;
-            guint8 tbs_index;
-            guint8 resource_block_length;
-            guint8 resource_block_start;
-            guint8 harq_id;
-            gboolean ndi;
+            uint8_t present;  /* Remaining UL fields are present and should be displayed */
+            uint8_t modulation_type;
+            uint8_t tbs_index;
+            uint8_t resource_block_length;
+            uint8_t resource_block_start;
+            uint8_t harq_id;
+            bool ndi;
         } ul_info;
         struct mac_lte_dl_phy_info
         {
-            guint8 present; /* Remaining DL fields are present and should be displayed */
-            guint8 dci_format;
-            guint8 resource_allocation_type;
-            guint8 aggregation_level;
-            guint8 mcs_index;
-            guint8 redundancy_version_index;
-            guint8 resource_block_length;
-            guint8 harq_id;
-            gboolean ndi;
-            guint8   transport_block;  /* 0..1 */
+            uint8_t present; /* Remaining DL fields are present and should be displayed */
+            uint8_t dci_format;
+            uint8_t resource_allocation_type;
+            uint8_t aggregation_level;
+            uint8_t mcs_index;
+            uint8_t redundancy_version_index;
+            uint8_t resource_block_length;
+            uint8_t harq_id;
+            bool ndi;
+            uint8_t  transport_block;  /* 0..1 */
         } dl_info;
     } detailed_phy_info;
 
     /* Relating to out-of-band events */
     /* N.B. dissector will only look to these fields if length is 0... */
     mac_lte_oob_event  oob_event;
-    guint8             rapid;
-    guint8             rach_attempt_number;
+    uint8_t            rapid;
+    uint8_t            rach_attempt_number;
     #define MAX_SRs 20
-    guint16            number_of_srs;
-    guint16            oob_ueid[MAX_SRs];
-    guint16            oob_rnti[MAX_SRs];
+    uint16_t           number_of_srs;
+    uint16_t           oob_ueid[MAX_SRs];
+    uint16_t           oob_rnti[MAX_SRs];
 } mac_lte_info;
 
 
 /* Accessor function to check if a frame was considered to be ReTx */
-bool is_mac_lte_frame_retx(packet_info *pinfo, guint8 direction);
+bool is_mac_lte_frame_retx(packet_info *pinfo, uint8_t direction);
 
 /**********************************************************************/
 /* UDP framing format                                                 */
@@ -286,22 +286,22 @@ bool is_mac_lte_frame_retx(packet_info *pinfo, guint8 direction);
 /* Some are optional, and may not be seen (e.g. on reestablishment) */
 typedef struct drb_mapping_t
 {
-    guint16    ueid;                /* Mandatory */
-    guint8     drbid;               /* Mandatory */
-    gboolean   lcid_present;
-    guint8     lcid;                /* Part of LogicalChannelConfig - optional */
-    gboolean   rlcMode_present;
-    guint8     rlcMode;             /* Part of RLC config - optional */
-    gboolean   rlc_ul_ext_li_field; /* Part of RLC config - optional */
-    gboolean   rlc_dl_ext_li_field; /* Part of RLC config - optional */
-    gboolean   rlc_ul_ext_am_sn;    /* Part of RLC config - optional */
-    gboolean   rlc_dl_ext_am_sn;    /* Part of RLC config - optional */
-    gboolean   um_sn_length_present;
-    guint8     um_sn_length;        /* Part of RLC config - optional */
-    gboolean   ul_priority_present;
-    guint8     ul_priority;         /* Part of LogicalChannelConfig - optional */
-    gboolean   pdcp_sn_size_present;
-    guint8     pdcp_sn_size;        /* Part of pdcp-Config - optional */
+    uint16_t   ueid;                /* Mandatory */
+    uint8_t    drbid;               /* Mandatory */
+    bool       lcid_present;
+    uint8_t    lcid;                /* Part of LogicalChannelConfig - optional */
+    bool       rlcMode_present;
+    uint8_t    rlcMode;             /* Part of RLC config - optional */
+    bool       rlc_ul_ext_li_field; /* Part of RLC config - optional */
+    bool       rlc_dl_ext_li_field; /* Part of RLC config - optional */
+    bool       rlc_ul_ext_am_sn;    /* Part of RLC config - optional */
+    bool       rlc_dl_ext_am_sn;    /* Part of RLC config - optional */
+    bool       um_sn_length_present;
+    uint8_t    um_sn_length;        /* Part of RLC config - optional */
+    bool       ul_priority_present;
+    uint8_t    ul_priority;         /* Part of LogicalChannelConfig - optional */
+    bool       pdcp_sn_size_present;
+    uint8_t    pdcp_sn_size;        /* Part of pdcp-Config - optional */
 } drb_mapping_t;
 
 
@@ -310,43 +310,43 @@ typedef struct drb_mapping_t
 void set_mac_lte_channel_mapping(drb_mapping_t *drb_mapping);
 
 /* Return mode of bearer, or 0 if not found/known */
-guint8 get_mac_lte_channel_mode(guint16 ueid, guint8 drbid);
+uint8_t get_mac_lte_channel_mode(uint16_t ueid, uint8_t drbid);
 
 /* Dedicated DRX config. Used to verify that a sensible config is given.
    Also, beginning to configure MAC with this config and (optionally) show
    DRX config and state (cycles/timers) attached to each UL/DL PDU! */
 typedef struct drx_config_t {
-    gboolean    configured;
-    guint32     frameNum;
-    guint32     previousFrameNum;
+    bool        configured;
+    uint32_t    frameNum;
+    uint32_t    previousFrameNum;
 
-    guint32     onDurationTimer;
-    guint32     inactivityTimer;
-    guint32     retransmissionTimer;
-    guint32     longCycle;
-    guint32     cycleOffset;
+    uint32_t    onDurationTimer;
+    uint32_t    inactivityTimer;
+    uint32_t    retransmissionTimer;
+    uint32_t    longCycle;
+    uint32_t    cycleOffset;
     /* Optional Short cycle */
-    gboolean    shortCycleConfigured;
-    guint32     shortCycle;
-    guint32     shortCycleTimer;
+    bool        shortCycleConfigured;
+    uint32_t    shortCycle;
+    uint32_t    shortCycleTimer;
 } drx_config_t;
 
 /* Functions to set/release up dedicated DRX config */
-void set_mac_lte_drx_config(guint16 ueid, drx_config_t *drx_config, packet_info *pinfo);
-void set_mac_lte_drx_config_release(guint16 ueid,  packet_info *pinfo);
+void set_mac_lte_drx_config(uint16_t ueid, drx_config_t *drx_config, packet_info *pinfo);
+void set_mac_lte_drx_config_release(uint16_t ueid,  packet_info *pinfo);
 
 /* RRC can tell this dissector which RAPIDs are Group A, Group A&B */
-void set_mac_lte_rapid_ranges(guint groupA, guint all_RA);
+void set_mac_lte_rapid_ranges(unsigned groupA, unsigned all_RA);
 
 /* RRC can indicate whether extended BSR sizes are used */
-void set_mac_lte_extended_bsr_sizes(guint16 ueid, gboolean use_ext_bsr_sizes, packet_info *pinfo);
+void set_mac_lte_extended_bsr_sizes(uint16_t ueid, bool use_ext_bsr_sizes, packet_info *pinfo);
 
 /* RRC can indicate whether simultaneous PUCCH/PUSCH is used */
 typedef enum {
     SIMULT_PUCCH_PUSCH_PCELL = 0,
     SIMULT_PUCCH_PUSCH_PSCELL
 } simult_pucch_pusch_cell_type;
-void set_mac_lte_simult_pucch_pusch(guint16 ueid, simult_pucch_pusch_cell_type cell_type, gboolean use_simult_pucch_pusch, packet_info *pinfo);
+void set_mac_lte_simult_pucch_pusch(uint16_t ueid, simult_pucch_pusch_cell_type cell_type, bool use_simult_pucch_pusch, packet_info *pinfo);
 
 /* Functions to be called from outside this module (e.g. in a plugin, where mac_lte_info
    isn't available) to get/set per-packet data */
@@ -356,8 +356,8 @@ WS_DLL_PUBLIC
 void set_mac_lte_proto_data(packet_info *pinfo, mac_lte_info *p_mac_lte_info);
 
 /* Function to attempt to populate p_mac_lte_info using framing definition above */
-gboolean dissect_mac_lte_context_fields(struct mac_lte_info  *p_mac_lte_info, tvbuff_t *tvb,
-                                        packet_info *pinfo, proto_tree *tree, gint *p_offset);
+bool dissect_mac_lte_context_fields(struct mac_lte_info  *p_mac_lte_info, tvbuff_t *tvb,
+                                        packet_info *pinfo, proto_tree *tree, int *p_offset);
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

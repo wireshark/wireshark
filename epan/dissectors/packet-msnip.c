@@ -74,10 +74,10 @@ static const value_string msnip_rec_types[] = {
 static int
 dissect_msnip_rmr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
 {
-	guint8 count;
+	uint8_t count;
 
 	/* group count */
-	count = tvb_get_guint8(tvb, offset);
+	count = tvb_get_uint8(tvb, offset);
 	proto_tree_add_uint(parent_tree, hf_count, tvb, offset, 1, count);
 	offset += 1;
 
@@ -88,7 +88,7 @@ dissect_msnip_rmr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, in
 	while (count--) {
 		proto_tree *tree;
 		proto_item *item;
-		guint8 rec_type;
+		uint8_t rec_type;
 		int old_offset = offset;
 
 		item = proto_tree_add_item(parent_tree, hf_groups,
@@ -96,7 +96,7 @@ dissect_msnip_rmr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, in
 		tree = proto_item_add_subtree(item, ett_groups);
 
 		/* record type */
-		rec_type = tvb_get_guint8(tvb, offset);
+		rec_type = tvb_get_uint8(tvb, offset);
 		proto_tree_add_uint(tree, hf_rec_type, tvb, offset, 1, rec_type);
 		offset += 1;
 
@@ -146,10 +146,10 @@ dissect_msnip_is(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 static int
 dissect_msnip_gm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
 {
-	guint8 count;
+	uint8_t count;
 
 	/* group count */
-	count = tvb_get_guint8(tvb, offset);
+	count = tvb_get_uint8(tvb, offset);
 	proto_tree_add_uint(parent_tree, hf_count, tvb, offset, 1, count);
 	offset += 1;
 
@@ -164,7 +164,7 @@ dissect_msnip_gm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 	while (count--) {
 		proto_tree *tree;
 		proto_item *item;
-		guint8 masklen;
+		uint8_t masklen;
 		int old_offset = offset;
 
 		item = proto_tree_add_item(parent_tree, hf_groups,
@@ -176,7 +176,7 @@ dissect_msnip_gm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 		offset += 4;
 
 		/* mask length */
-		masklen = tvb_get_guint8(tvb, offset);
+		masklen = tvb_get_uint8(tvb, offset);
 		proto_tree_add_uint(tree, hf_mask, tvb,
 			offset, 1, masklen);
 		offset += 1;
@@ -202,9 +202,9 @@ dissect_msnip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 {
 	proto_tree *tree;
 	proto_item *item;
-	guint8 type;
+	uint8_t type;
 	int offset = 0;
-	guint32 dst = g_htonl(MC_ALL_IGMPV3_ROUTERS);
+	uint32_t dst = g_htonl(MC_ALL_IGMPV3_ROUTERS);
 
 	/* Shouldn't be destined for us */
 	if ((pinfo->dst.type != AT_IPv4) || memcmp(pinfo->dst.data, &dst, 4))
@@ -216,7 +216,7 @@ dissect_msnip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 	item = proto_tree_add_item(parent_tree, proto_msnip, tvb, offset, -1, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_msnip);
 
-	type = tvb_get_guint8(tvb, offset);
+	type = tvb_get_uint8(tvb, offset);
 	col_add_str(pinfo->cinfo, COL_INFO,
 			val_to_str(type, msnip_types,
 				"Unknown Type:0x%02x"));
@@ -294,7 +294,7 @@ proto_register_msnip(void)
 			  VALS(msnip_rec_types), 0, "MSNIP Record Type", HFILL }},
 
 	};
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_msnip,
 		&ett_groups,
 	};

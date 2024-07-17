@@ -375,11 +375,11 @@ static expert_field ei_mrcpv2_Content_Length_invalid;
 #define TCP_DEFAULT_RANGE "6075, 30000-30200" /* Not IANA registered */
 
 /* Initialize the subtree pointers */
-static gint ett_mrcpv2;
-static gint ett_Request_Line;
-static gint ett_Response_Line;
-static gint ett_Event_Line;
-static gint ett_Status_Code;
+static int ett_mrcpv2;
+static int ett_Request_Line;
+static int ett_Response_Line;
+static int ett_Event_Line;
+static int ett_Status_Code;
 
 /* format status code description */
 static const string_string status_code_vals[] = {
@@ -409,18 +409,18 @@ dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti;
     proto_tree *mrcpv2_tree;
-    gint next_offset, linelen;
-    gint tvb_len;
-    gint pdu_size;
-    gint offset;
-    gint value_offset;
-    gint str_len;
-    gchar *header_name;
-    gchar *header_value;
+    int next_offset, linelen;
+    int tvb_len;
+    int pdu_size;
+    int offset;
+    int value_offset;
+    int str_len;
+    char *header_name;
+    char *header_value;
     LINE_TYPE line_type = UNKNOWN_LINE;
     HEADER_TYPE header_type;
-    gint colon_offset;
-    gint content_length;
+    int colon_offset;
+    int content_length;
     const value_string *p = NULL;
     proto_item *line_item = NULL;
     proto_item *request_line_item = NULL;
@@ -429,13 +429,13 @@ dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *status_code_item = NULL;
     proto_item *pi = NULL;
 
-    gint sp_start;
-    gint sp_end;
-    guint8 *field1;
-    guint8 *field2;
-    guint8 *field3;
-    guint8 *field4;
-    guint8 *field5 = NULL;
+    int sp_start;
+    int sp_end;
+    uint8_t *field1;
+    uint8_t *field2;
+    uint8_t *field3;
+    uint8_t *field4;
+    uint8_t *field5 = NULL;
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MRCPv2");
@@ -447,7 +447,7 @@ dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     mrcpv2_tree = proto_item_add_subtree(ti, ett_mrcpv2);
 
     /* get first line */
-    linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+    linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, false);
 
     /*  find out MRCP message type:
 
@@ -513,20 +513,20 @@ dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         line_item = proto_tree_add_item(mrcpv2_tree, hf_mrcpv2_Request_Line, tvb, offset, linelen, ENC_UTF_8);
         request_line_item = proto_item_add_subtree(line_item, ett_Request_Line);
         /* version */
-        str_len = (gint)strlen(field1);
+        str_len = (int)strlen(field1);
         proto_tree_add_item(request_line_item, hf_mrcpv2_version, tvb, offset, str_len, ENC_UTF_8);
         offset += str_len + 1; /* add SP */
         /* message length */
-        str_len = (gint)strlen(field2);
+        str_len = (int)strlen(field2);
         proto_tree_add_item(request_line_item, hf_mrcpv2_message_length, tvb, offset, str_len, ENC_UTF_8);
         offset += str_len + 1; /* add SP */
         /* method name */
         col_append_str(pinfo->cinfo, COL_INFO, field3);
-        str_len = (gint)strlen(field3);
+        str_len = (int)strlen(field3);
         proto_tree_add_item(request_line_item, hf_mrcpv2_Method, tvb, offset, str_len, ENC_UTF_8);
         offset += str_len + 1; /* add SP */
         /* request ID */
-        str_len = (gint)strlen(field4);
+        str_len = (int)strlen(field4);
         proto_tree_add_item(request_line_item, hf_mrcpv2_request_id, tvb, offset, str_len, ENC_UTF_8);
         /*offset += str_len + 2;*/ /* add CRLF */
     }
@@ -537,26 +537,26 @@ dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         line_item = proto_tree_add_item(mrcpv2_tree, hf_mrcpv2_Response_Line, tvb, offset, linelen, ENC_UTF_8);
         response_line_item = proto_item_add_subtree(line_item, ett_Response_Line);
         /* version */
-        str_len = (gint)strlen(field1);
+        str_len = (int)strlen(field1);
         proto_tree_add_item(response_line_item, hf_mrcpv2_version, tvb, offset, str_len, ENC_UTF_8);
         offset += str_len + 1; /* add SP */
         /* message length */
-        str_len = (gint)strlen(field2);
+        str_len = (int)strlen(field2);
         proto_tree_add_item(response_line_item, hf_mrcpv2_message_length, tvb, offset, str_len, ENC_UTF_8);
         offset += str_len + 1; /* add SP */
         /* request ID */
-        str_len = (gint)strlen(field3);
+        str_len = (int)strlen(field3);
         proto_tree_add_item(response_line_item, hf_mrcpv2_request_id, tvb, offset, str_len, ENC_UTF_8);
         offset += str_len + 1; /* add SP */
         /* status code */
-        str_len = (gint)strlen(field4);
+        str_len = (int)strlen(field4);
         status_code_item = proto_tree_add_item(response_line_item, hf_mrcpv2_status_code, tvb, offset,
             str_len, ENC_UTF_8);
         proto_item_append_text(status_code_item, " %s", str_to_str(field4, status_code_vals, "Unknown Status Code"));
         offset += str_len + 1; /* add SP */
         /* request state */
         col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) %s", field4, field5);
-        str_len = (gint)strlen(field5);
+        str_len = (int)strlen(field5);
         proto_tree_add_item(response_line_item, hf_mrcpv2_request_state, tvb, offset, str_len, ENC_UTF_8);
         /*offset += str_len + 2;*/ /* add CRLF */
     }
@@ -567,24 +567,24 @@ dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         line_item = proto_tree_add_item(mrcpv2_tree, hf_mrcpv2_Event_Line, tvb, offset, linelen, ENC_UTF_8);
         event_line_item = proto_item_add_subtree(line_item, ett_Event_Line);
         /* version */
-        str_len = (gint)strlen(field1);
+        str_len = (int)strlen(field1);
         proto_tree_add_item(event_line_item, hf_mrcpv2_version, tvb, offset, str_len, ENC_UTF_8);
         offset += str_len + 1; /* add SP */
         /* message length */
-        str_len = (gint)strlen(field2);
+        str_len = (int)strlen(field2);
         proto_tree_add_item(event_line_item, hf_mrcpv2_message_length, tvb, offset, str_len, ENC_UTF_8);
         offset += str_len + 1; /* add SP */
         /* event name */
         col_append_str(pinfo->cinfo, COL_INFO, field3);
-        str_len = (gint)strlen(field3);
+        str_len = (int)strlen(field3);
         proto_tree_add_item(event_line_item, hf_mrcpv2_Event, tvb, offset, str_len, ENC_UTF_8);
         offset += str_len + 1; /* add SP */
         /* request ID */
-        str_len = (gint)strlen(field4);
+        str_len = (int)strlen(field4);
         proto_tree_add_item(event_line_item, hf_mrcpv2_request_id, tvb, offset, str_len, ENC_UTF_8);
         offset += str_len + 1; /* add SP */
         /* request state */
-        str_len = (gint)strlen(field5);
+        str_len = (int)strlen(field5);
         proto_tree_add_item(event_line_item, hf_mrcpv2_request_state, tvb, offset, str_len, ENC_UTF_8);
         /*offset += str_len + 2;*/ /* add CRLF */
     }
@@ -605,7 +605,7 @@ dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         {
             /* get next line */
             offset = next_offset;
-            linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+            linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, false);
 
             /* blank line separates msg header and msg body */
             if (linelen == 0)
@@ -950,13 +950,13 @@ dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 /* get the length of the MRCP message */
-static guint
+static unsigned
 get_mrcpv2_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
-    gint len_start;
-    gint len_end;
-    guint8 *msg_len;
-    guint num_msg_len = 0;
+    int len_start;
+    int len_end;
+    uint8_t *msg_len;
+    unsigned num_msg_len = 0;
 
     /* first string is version */
     len_start = tvb_find_guint8(tvb, offset, MRCPV2_MIN_PDU_LEN, ' ');
@@ -984,14 +984,14 @@ dissect_mrcpv2_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 static int
 dissect_mrcpv2_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    gint len;
-    gint value_size;
-    guint8 *version;
-    guint8 *major;
-    guint8 *minor;
-    gint slash_offset;
-    gint dot_offset;
-    gint sp_offset;
+    int len;
+    int value_size;
+    uint8_t *version;
+    uint8_t *major;
+    uint8_t *minor;
+    int slash_offset;
+    int dot_offset;
+    int sp_offset;
     int value;
 
     len = tvb_captured_length(tvb);
@@ -1033,7 +1033,7 @@ dissect_mrcpv2_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         return 0;
 
     /* if we are here, then we have MRCP v 2.0 protocol, so proceed with the dissection */
-    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, MRCPV2_MIN_PDU_LEN,
+    tcp_dissect_pdus(tvb, pinfo, tree, true, MRCPV2_MIN_PDU_LEN,
                     get_mrcpv2_pdu_len,
                     dissect_mrcpv2_tcp_pdu, data);
     return len;
@@ -1488,7 +1488,7 @@ proto_register_mrcpv2(void)
         "Content Length must be a string containing an integer", EXPFILL }}
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_mrcpv2,
         &ett_Request_Line,
         &ett_Response_Line,

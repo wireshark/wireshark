@@ -27,7 +27,7 @@ static int hf_mpeg_ca_current_next_indicator;
 static int hf_mpeg_ca_section_number;
 static int hf_mpeg_ca_last_section_number;
 
-static gint ett_mpeg_ca;
+static int ett_mpeg_ca;
 
 #define MPEG_CA_RESERVED_MASK                   0xFFFFC0
 #define MPEG_CA_VERSION_NUMBER_MASK             0x00003E
@@ -36,7 +36,7 @@ static gint ett_mpeg_ca;
 static int
 dissect_mpeg_ca(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    guint offset = 0, length = 0;
+    unsigned offset = 0, length = 0;
 
     proto_item *ti;
     proto_tree *mpeg_ca_tree;
@@ -111,7 +111,7 @@ proto_register_mpeg_ca(void)
 
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_mpeg_ca,
     };
 

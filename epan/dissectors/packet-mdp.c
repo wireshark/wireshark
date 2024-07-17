@@ -36,8 +36,8 @@ static int hf_mdp_type_six;
 static int hf_mdp_type_seven;
 static int hf_mdp_data;
 
-static gint ett_mdp;
-static gint ett_mdp_tlv;
+static int ett_mdp;
+static int ett_mdp_tlv;
 
 static dissector_handle_t mdp_handle;
 
@@ -58,8 +58,8 @@ dissect_mdp(tvbuff_t *mdp_tvb, packet_info *pinfo, proto_tree *tree, void *data 
 {
     proto_tree  *mdp_tree, *tlv_tree;
     proto_item  *mdp_item, *tlv_item;
-    guint32     mdp_type, mdp_length;
-    gint offset = 0;
+    uint32_t    mdp_type, mdp_length;
+    int offset = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MDP");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -127,7 +127,7 @@ proto_register_mdp(void)
         { &hf_mdp_data, {"Unknown Data", "mdp.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }}
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_mdp,
         &ett_mdp_tlv
     };

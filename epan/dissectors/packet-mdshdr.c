@@ -35,9 +35,9 @@ void proto_reg_handoff_mdshdr(void);
 #define MDSHDR_VSAN_OFFSET               13
 
 /* Two size definitions are sufficient */
-#define MDSHDR_SIZE_BYTE                 sizeof(gchar)
-#define MDSHDR_SIZE_INT16                sizeof(guint16)
-#define MDSHDR_SIZE_INT32                sizeof(guint32)
+#define MDSHDR_SIZE_BYTE                 sizeof(char)
+#define MDSHDR_SIZE_INT16                sizeof(uint16_t)
+#define MDSHDR_SIZE_INT32                sizeof(uint32_t)
 
 /* Other miscellaneous defines; can't rely on sizeof structs */
 #define MDSHDR_MAX_VERSION                0
@@ -81,9 +81,9 @@ static int hf_mdshdr_span;
 static int hf_mdshdr_fccrc;
 
 /* Initialize the subtree pointers */
-static gint ett_mdshdr;
-static gint ett_mdshdr_hdr;
-static gint ett_mdshdr_trlr;
+static int ett_mdshdr;
+static int ett_mdshdr_hdr;
+static int ett_mdshdr_trlr;
 
 static dissector_handle_t mdshdr_handle;
 static dissector_handle_t fc_dissector_handle;
@@ -127,9 +127,9 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     proto_item *hidden_item;
     proto_tree *mdshdr_tree_main, *mdshdr_tree_hdr, *mdshdr_tree_trlr;
     int         offset        = 0;
-    guint       pktlen;
+    unsigned    pktlen;
     tvbuff_t   *next_tvb;
-    guint8      sof, eof;
+    uint8_t     sof, eof;
     int         trailer_start = 0; /*0 means "no trailer found"*/
     fc_data_t fc_data;
 
@@ -137,7 +137,7 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
     col_clear(pinfo->cinfo, COL_INFO);
 
-    sof     = tvb_get_guint8(tvb, offset+MDSHDR_SOF_OFFSET) & 0x0F;
+    sof     = tvb_get_uint8(tvb, offset+MDSHDR_SOF_OFFSET) & 0x0F;
     pktlen  = tvb_get_ntohs(tvb, offset+MDSHDR_PKTLEN_OFFSET) & 0x1FFF;
 
     /* The Mdshdr trailer is at the end of the frame */
@@ -146,7 +146,7 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
         && (pktlen >= MDSHDR_TRAILER_SIZE))  {
         trailer_start = MDSHDR_HEADER_SIZE + pktlen - MDSHDR_TRAILER_SIZE;
 
-        eof = tvb_get_guint8(tvb, trailer_start);
+        eof = tvb_get_uint8(tvb, trailer_start);
         tvb_set_reported_length(tvb, MDSHDR_HEADER_SIZE+pktlen);
     }
     else {
@@ -271,7 +271,7 @@ proto_register_mdshdr(void)
     };
 
 /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_mdshdr,
         &ett_mdshdr_hdr,
         &ett_mdshdr_trlr
@@ -300,8 +300,8 @@ proto_register_mdshdr(void)
 void
 proto_reg_handoff_mdshdr(void)
 {
-    static gboolean           registered_for_zero_etype = FALSE;
-    static gboolean           mdshdr_prefs_initialized  = FALSE;
+    static bool               registered_for_zero_etype = false;
+    static bool               mdshdr_prefs_initialized  = false;
 
     if (!mdshdr_prefs_initialized) {
         /*
@@ -313,7 +313,7 @@ proto_reg_handoff_mdshdr(void)
          */
         dissector_add_uint("ethertype", ETHERTYPE_FCFT, mdshdr_handle);
         fc_dissector_handle = find_dissector_add_dependency("fc", proto_mdshdr);
-        mdshdr_prefs_initialized = TRUE;
+        mdshdr_prefs_initialized = true;
     }
 
     /*
@@ -328,7 +328,7 @@ proto_reg_handoff_mdshdr(void)
          */
         if (!registered_for_zero_etype) {
             dissector_add_uint("ethertype", ETHERTYPE_UNK, mdshdr_handle);
-            registered_for_zero_etype = TRUE;
+            registered_for_zero_etype = true;
         }
     } else {
         /*
@@ -338,7 +338,7 @@ proto_reg_handoff_mdshdr(void)
          */
         if (registered_for_zero_etype) {
             dissector_delete_uint("ethertype", ETHERTYPE_UNK, mdshdr_handle);
-            registered_for_zero_etype = FALSE;
+            registered_for_zero_etype = false;
         }
     }
 }

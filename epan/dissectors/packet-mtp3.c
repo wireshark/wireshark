@@ -84,11 +84,11 @@ static int hf_mtp3_japan_5_bit_sls_spare;
 static int hf_mtp3_heuristic_standard;
 
 /* Initialize the subtree pointers */
-static gint ett_mtp3;
-static gint ett_mtp3_sio;
-static gint ett_mtp3_label;
-static gint ett_mtp3_label_dpc;
-static gint ett_mtp3_label_opc;
+static int ett_mtp3;
+static int ett_mtp3_sio;
+static int ett_mtp3_label;
+static int ett_mtp3_label_dpc;
+static int ett_mtp3_label_opc;
 
 static dissector_table_t mtp3_sio_dissector_table;
 
@@ -106,15 +106,15 @@ typedef enum {
   JAPAN_PC_STRUCTURE_3_4_4_5 = 3
 } JAPAN_PC_Structure_Type;
 
-static gint itu_pc_structure   = ITU_PC_STRUCTURE_NONE;
-static gint japan_pc_structure = JAPAN_PC_STRUCTURE_NONE;
+static int itu_pc_structure   = ITU_PC_STRUCTURE_NONE;
+static int japan_pc_structure = JAPAN_PC_STRUCTURE_NONE;
 
 #include "packet-mtp3.h"
 
-gint mtp3_standard = ITU_STANDARD;
+int mtp3_standard = ITU_STANDARD;
 bool mtp3_heuristic_standard;
 
-static gint pref_mtp3_standard;
+static int pref_mtp3_standard;
 
 const value_string mtp3_standard_vals[] = {
   { ITU_STANDARD,         "ITU_STANDARD" },
@@ -127,7 +127,7 @@ const value_string mtp3_standard_vals[] = {
 static bool mtp3_use_ansi_5_bit_sls;
 static bool mtp3_use_japan_5_bit_sls;
 static bool mtp3_show_itu_priority;
-static gint mtp3_addr_fmt = MTP3_ADDR_FMT_DASHED;
+static int mtp3_addr_fmt = MTP3_ADDR_FMT_DASHED;
 
 #define SIO_LENGTH                1
 #define SLS_LENGTH                1
@@ -226,7 +226,7 @@ const value_string mtp3_network_indicator_vals[] = {
  */
 
 static void
-mtp3_pc_to_str_buf(const guint32 pc, gchar *buf, int buf_len)
+mtp3_pc_to_str_buf(const uint32_t pc, char *buf, int buf_len)
 {
   switch (mtp3_standard)
   {
@@ -275,25 +275,25 @@ mtp3_pc_to_str_buf(const guint32 pc, gchar *buf, int buf_len)
 
 #define MAX_STRUCTURED_PC_LENGTH 20
 
-gchar *
-mtp3_pc_to_str(const guint32 pc)
+char *
+mtp3_pc_to_str(const uint32_t pc)
 {
-  gchar *str;
+  char *str;
 
-  str=(gchar *)wmem_alloc(wmem_packet_scope(), MAX_STRUCTURED_PC_LENGTH);
+  str=(char *)wmem_alloc(wmem_packet_scope(), MAX_STRUCTURED_PC_LENGTH);
   mtp3_pc_to_str_buf(pc, str, MAX_STRUCTURED_PC_LENGTH);
   return str;
 }
 
-gboolean
+bool
 mtp3_pc_structured(void)
 {
   if ((mtp3_standard == ITU_STANDARD) && (itu_pc_structure == ITU_PC_STRUCTURE_NONE))
-    return FALSE;
+    return false;
   else if ((mtp3_standard == JAPAN_STANDARD) && (japan_pc_structure == JAPAN_PC_STRUCTURE_NONE))
-    return FALSE;
+    return false;
   else
-    return TRUE;
+    return true;
 }
 
 /*
@@ -302,7 +302,7 @@ mtp3_pc_structured(void)
 
 static void
 mtp3_addr_to_str_buf(const mtp3_addr_pc_t  *addr_pc_p,
-                     gchar *buf, int buf_len)
+                     char *buf, int buf_len)
 {
   switch (mtp3_addr_fmt)
   {
@@ -379,9 +379,9 @@ mtp3_addr_to_str_buf(const mtp3_addr_pc_t  *addr_pc_p,
   }
 }
 
-guint32
+uint32_t
 mtp3_pc_hash(const mtp3_addr_pc_t *addr_pc_p) {
-  guint32 pc;
+  uint32_t pc;
 
   switch (addr_pc_p->type)
   {
@@ -397,7 +397,7 @@ mtp3_pc_hash(const mtp3_addr_pc_t *addr_pc_p) {
   return pc;
 }
 
-static int mtp3_addr_to_str(const address* addr, gchar *buf, int buf_len)
+static int mtp3_addr_to_str(const address* addr, char *buf, int buf_len)
 {
     mtp3_addr_to_str_buf((const mtp3_addr_pc_t *)addr->data, buf, buf_len);
     return (int)(strlen(buf)+1);
@@ -421,16 +421,16 @@ int mtp3_addr_len(void)
     return sizeof(mtp3_addr_pc_t);
 }
 
-static const gchar* mtp3_addr_name_res_str(const address* addr)
+static const char* mtp3_addr_name_res_str(const address* addr)
 {
     const mtp3_addr_pc_t *mtp3_addr = (const mtp3_addr_pc_t *)addr->data;
-    const gchar *tmp;
+    const char *tmp;
 
     tmp = get_hostname_ss7pc(mtp3_addr->ni, mtp3_addr->pc);
 
     if (tmp[0] == '\0') {
-        gchar* str;
-        str = (gchar *)wmem_alloc(NULL, MAXNAMELEN);
+        char* str;
+        str = (char *)wmem_alloc(NULL, MAXNAMELEN);
         mtp3_addr_to_str_buf(mtp3_addr, str, MAXNAMELEN);
         fill_unresolved_ss7pc(str, mtp3_addr->ni, mtp3_addr->pc);
         wmem_free(NULL, str);
@@ -450,10 +450,10 @@ static int mtp3_addr_name_res_len(void)
 
 /*  Common function for dissecting 3-byte (ANSI or China) PCs. */
 void
-dissect_mtp3_3byte_pc(tvbuff_t *tvb, guint offset, proto_tree *tree, gint ett_pc, int hf_pc_string, int hf_pc_network,
+dissect_mtp3_3byte_pc(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int ett_pc, int hf_pc_string, int hf_pc_network,
                       int hf_pc_cluster, int hf_pc_member, int hf_dpc, int hf_pc)
 {
-  guint32 pc;
+  uint32_t pc;
   proto_item *pc_item, *hidden_item;
   proto_tree *pc_tree;
   char pc_string[MAX_STRUCTURED_PC_LENGTH];
@@ -498,12 +498,12 @@ static void
 dissect_mtp3_sio(tvbuff_t *tvb, proto_tree *mtp3_tree,
                  mtp3_addr_pc_t *mtp3_addr_opc, mtp3_addr_pc_t *mtp3_addr_dpc)
 {
-  guint8 sio;
+  uint8_t sio;
   proto_tree *sio_tree;
 
   sio_tree = proto_tree_add_subtree(mtp3_tree, tvb, SIO_OFFSET, SIO_LENGTH, ett_mtp3_sio, NULL, "Service information octet");
 
-  sio = tvb_get_guint8(tvb, SIO_OFFSET);
+  sio = tvb_get_uint8(tvb, SIO_OFFSET);
   proto_tree_add_uint(sio_tree, hf_mtp3_network_indicator, tvb, SIO_OFFSET, SIO_LENGTH, sio);
 
   mtp3_addr_opc->ni = (sio & NETWORK_INDICATOR_MASK) >> 6;
@@ -535,7 +535,7 @@ static void
 dissect_mtp3_routing_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_tree,
                            mtp3_addr_pc_t *mtp3_addr_opc, mtp3_addr_pc_t *mtp3_addr_dpc)
 {
-  guint32 label, dpc, opc;
+  uint32_t label, dpc, opc;
   proto_item *label_dpc_item, *label_opc_item;
   proto_item *hidden_item;
   proto_tree *label_tree;
@@ -652,21 +652,21 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_t
 
   mtp3_addr_opc->type = (Standard_Type)mtp3_standard;
   mtp3_addr_opc->pc = opc;
-  set_address(&pinfo->src, mtp3_address_type, mtp3_addr_len(), (guint8 *) mtp3_addr_opc);
+  set_address(&pinfo->src, mtp3_address_type, mtp3_addr_len(), (uint8_t *) mtp3_addr_opc);
 
   mtp3_addr_dpc->type = (Standard_Type)mtp3_standard;
   mtp3_addr_dpc->pc = dpc;
-  set_address(&pinfo->dst, mtp3_address_type, mtp3_addr_len(), (guint8 *) mtp3_addr_dpc);
+  set_address(&pinfo->dst, mtp3_address_type, mtp3_addr_len(), (uint8_t *) mtp3_addr_dpc);
 }
 
 static void
 dissect_mtp3_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  guint8 sio;
-  guint8 service_indicator;
+  uint8_t sio;
+  uint8_t service_indicator;
   tvbuff_t *payload_tvb = NULL;
 
-  sio               = tvb_get_guint8(tvb, SIO_OFFSET);
+  sio               = tvb_get_uint8(tvb, SIO_OFFSET);
   service_indicator = sio & SERVICE_INDICATOR_MASK;
 
   switch (mtp3_standard) {
@@ -690,8 +690,8 @@ dissect_mtp3_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     call_data_dissector(payload_tvb, pinfo, tree);
 }
 
-static guint
-heur_mtp3_standard(tvbuff_t *tvb, packet_info *pinfo, guint8 si)
+static unsigned
+heur_mtp3_standard(tvbuff_t *tvb, packet_info *pinfo, uint8_t si)
 {
   tvbuff_t *payload;
 
@@ -735,8 +735,8 @@ static int
 dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   mtp3_tap_rec_t* tap_rec = wmem_new0(pinfo->pool, mtp3_tap_rec_t);
-  gint heuristic_standard;
-  guint8 si;
+  int heuristic_standard;
+  uint8_t si;
   mtp3_addr_pc_t* mtp3_addr_dpc;
   mtp3_addr_pc_t* mtp3_addr_opc;
 
@@ -748,7 +748,7 @@ dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
   mtp3_item = proto_tree_add_item(tree, proto_mtp3, tvb, 0, -1, ENC_NA);
 
-  si = tvb_get_guint8(tvb, SIO_OFFSET) & SERVICE_INDICATOR_MASK;
+  si = tvb_get_uint8(tvb, SIO_OFFSET) & SERVICE_INDICATOR_MASK;
   if (mtp3_heuristic_standard) {
     heuristic_standard = heur_mtp3_standard(tvb, pinfo, si);
     if (heuristic_standard == HEURISTIC_FAILED_STANDARD) {
@@ -801,7 +801,7 @@ dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   memcpy(&(tap_rec->addr_opc), mtp3_addr_opc, sizeof(mtp3_addr_pc_t));
   memcpy(&(tap_rec->addr_dpc), mtp3_addr_dpc, sizeof(mtp3_addr_pc_t));
 
-  tap_rec->mtp3_si_code = (tvb_get_guint8(tvb, SIO_OFFSET) & SERVICE_INDICATOR_MASK);
+  tap_rec->mtp3_si_code = (tvb_get_uint8(tvb, SIO_OFFSET) & SERVICE_INDICATOR_MASK);
   tap_rec->size = tvb_reported_length(tvb);
 
   tap_queue_packet(mtp3_tap, pinfo, tap_rec);
@@ -856,12 +856,12 @@ mtp3_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
 {
   stat_data_t* stat_data = (stat_data_t*)tapdata;
   const mtp3_tap_rec_t  *m3tr = (const mtp3_tap_rec_t *)m3tr_ptr;
-  gboolean found = FALSE;
-  guint element;
+  bool found = false;
+  unsigned element;
   stat_tap_table* table;
   stat_tap_table_item_type* item_data;
-  guint msu_count;
-  guint byte_count;
+  unsigned msu_count;
+  unsigned byte_count;
   double avg_bytes = 0.0;
 
   if (m3tr->mtp3_si_code >= MTP3_NUM_SI_CODE)
@@ -890,7 +890,7 @@ mtp3_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
       {
         if (m3tr->mtp3_si_code == si_data->user_data.uint_value)
         {
-          found = TRUE;
+          found = true;
           break;
         }
       }
@@ -965,7 +965,7 @@ mtp3_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
 static void
 mtp3_stat_reset(stat_tap_table* table)
 {
-  guint element;
+  unsigned element;
   stat_tap_table_item_type* item_data;
 
   for (element = 0; element < table->num_elements; element++)
@@ -981,7 +981,7 @@ mtp3_stat_reset(stat_tap_table* table)
 }
 
 static void
-mtp3_stat_free_table_item(stat_tap_table* table _U_, guint row _U_, guint column, stat_tap_table_item_type* field_data)
+mtp3_stat_free_table_item(stat_tap_table* table _U_, unsigned row _U_, unsigned column, stat_tap_table_item_type* field_data)
 {
   switch(column) {
     case OPC_COLUMN:
@@ -1039,7 +1039,7 @@ proto_register_mtp3(void)
   };
 
   /* Setup protocol subtree array */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_mtp3,
     &ett_mtp3_sio,
     &ett_mtp3_label,
@@ -1079,7 +1079,7 @@ proto_register_mtp3(void)
   };
 
   static tap_param mtp3_stat_params[] = {
-    { PARAM_FILTER, "filter", "Filter", NULL, TRUE }
+    { PARAM_FILTER, "filter", "Filter", NULL, true }
   };
 
   static stat_tap_table_ui mtp3_stat_table = {
@@ -1126,15 +1126,15 @@ proto_register_mtp3(void)
 
   prefs_register_enum_preference(mtp3_module, "standard", "MTP3 standard",
          "The SS7 standard used in MTP3 packets",
-         &mtp3_standard, mtp3_options, FALSE);
+         &mtp3_standard, mtp3_options, false);
 
   prefs_register_enum_preference(mtp3_module, "itu_pc_structure", "ITU Pointcode structure",
          "The structure of the pointcodes in ITU networks",
-         &itu_pc_structure, itu_pc_structures, FALSE);
+         &itu_pc_structure, itu_pc_structures, false);
 
   prefs_register_enum_preference(mtp3_module, "japan_pc_structure", "Japan Pointcode structure",
          "The structure of the pointcodes in Japan networks",
-         &japan_pc_structure, japan_pc_structures, FALSE);
+         &japan_pc_structure, japan_pc_structures, false);
 
   prefs_register_bool_preference(mtp3_module, "ansi_5_bit_sls",
          "Use 5-bit SLS (ANSI only)",
@@ -1148,7 +1148,7 @@ proto_register_mtp3(void)
 
   prefs_register_enum_preference(mtp3_module, "addr_format", "Address Format",
          "Format for point code in the address columns",
-         &mtp3_addr_fmt, mtp3_addr_fmt_str_e, FALSE);
+         &mtp3_addr_fmt, mtp3_addr_fmt_str_e, false);
 
   prefs_register_bool_preference(mtp3_module, "itu_priority",
          "Show MSU priority (national option, ITU and China ITU only)",

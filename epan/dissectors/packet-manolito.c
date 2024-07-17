@@ -34,7 +34,7 @@ static int hf_manolito_options;
 static int hf_manolito_string;
 static int hf_manolito_integer;
 
-static gint ett_manolito;
+static int ett_manolito;
 
 static expert_field ei_manolito_type;
 
@@ -70,10 +70,10 @@ static value_string_ext field_longname_ext = VALUE_STRING_EXT_INIT(field_longnam
 static int
 dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dissector_data _U_)
 {
-	gint offset = 0;
+	int offset = 0;
 	proto_item *ti;
 	proto_tree *manolito_tree;
-	gchar *packet_type = NULL;
+	char *packet_type = NULL;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MANOLITO");
 
@@ -117,11 +117,11 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* diss
 	/* (that many bytes) data follows; else is raw data. */
 	do
 	{
-		guint16     field_name;        /* 16-bit field name */
-		guint8      dtype;             /* data-type */
-		guint8      length;            /* length */
+		uint16_t    field_name;        /* 16-bit field name */
+		uint8_t     dtype;             /* data-type */
+		uint8_t     length;            /* length */
 		int         start;             /* field starting location */
-		guint8     *field_name_str;
+		uint8_t    *field_name_str;
 
 		start = offset;
 
@@ -147,13 +147,13 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* diss
 		offset += 2;
 
 		/* 1-byte data type */
-		dtype = tvb_get_guint8(tvb, offset);
+		dtype = tvb_get_uint8(tvb, offset);
 		offset++;
-		length = tvb_get_guint8(tvb, offset);
+		length = tvb_get_uint8(tvb, offset);
 		offset++;
 
 		if (dtype == MANOLITO_STRING) {
-			guint8 *str;
+			uint8_t *str;
 
 			str = tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_ASCII);
 			proto_tree_add_string_format(manolito_tree, hf_manolito_string, tvb, start,
@@ -164,8 +164,8 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* diss
 			offset += length;
 		}
 		else if (dtype == MANOLITO_INTEGER) {
-			gboolean len_ok = TRUE;
-			guint64 n = 0;
+			bool len_ok = true;
+			uint64_t n = 0;
 
 			/* integers can be up to 5 bytes */
 			switch(length)
@@ -183,11 +183,11 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* diss
 					n = tvb_get_ntohs(tvb, offset);
 					break;
 				case 1:
-					n = tvb_get_guint8(tvb, offset);
+					n = tvb_get_uint8(tvb, offset);
 					break;
 
 				default:
-					len_ok = FALSE;
+					len_ok = false;
 			}
 
 			if (len_ok) {
@@ -262,7 +262,7 @@ proto_register_manolito(void)
 		},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_manolito,
 	};
 

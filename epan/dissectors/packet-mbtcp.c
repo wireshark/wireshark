@@ -146,17 +146,17 @@ static int hf_mbrtu_crc16;
 static int hf_mbrtu_crc16_status;
 
 /* Initialize the subtree pointers */
-static gint ett_mbtcp;
-static gint ett_mbrtu;
-static gint ett_modbus_hdr;
-static gint ett_group_hdr;
-static gint ett_events;
-static gint ett_events_recv;
-static gint ett_events_send;
-static gint ett_device_id_objects;
-static gint ett_device_id_object_items;
-static gint ett_bit;
-static gint ett_register;
+static int ett_mbtcp;
+static int ett_mbrtu;
+static int ett_modbus_hdr;
+static int ett_group_hdr;
+static int ett_events;
+static int ett_events_recv;
+static int ett_events_send;
+static int ett_device_id_objects;
+static int ett_device_id_object_items;
+static int ett_bit;
+static int ett_register;
 
 static expert_field ei_mbrtu_crc16_incorrect;
 static expert_field ei_modbus_data_decode;
@@ -185,16 +185,16 @@ static range_t *global_mbus_udp_rtu_ports = PORT_MBRTU; /* 0, by default     */
 static bool mbrtu_crc;
 
 /* Globals for Modbus Preferences */
-static gint global_mbus_register_format = MODBUS_PREF_REGISTER_FORMAT_UINT16;
+static int global_mbus_register_format = MODBUS_PREF_REGISTER_FORMAT_UINT16;
 
 typedef struct {
-    guint8  function_code;
-    gint    register_format;
-    guint16 reg_base;
-    guint16 num_reg;
-    guint32 req_frame_num;
+    uint8_t function_code;
+    int     register_format;
+    uint16_t reg_base;
+    uint16_t num_reg;
+    uint32_t req_frame_num;
     nstime_t req_time;
-    gboolean request_found;
+    bool request_found;
 } modbus_pkt_info_t;
 
 static int
@@ -219,9 +219,9 @@ classify_mbtcp_packet(packet_info *pinfo, range_t *ports)
 static int
 classify_mbrtu_packet(packet_info *pinfo, tvbuff_t *tvb, range_t *ports)
 {
-    guint8 func, len;
+    uint8_t func, len;
 
-    func = tvb_get_guint8(tvb, 1);
+    func = tvb_get_uint8(tvb, 1);
     len = tvb_reported_length(tvb);
 
     /* see if nature of packets can be derived from src/dst ports */
@@ -246,7 +246,7 @@ classify_mbrtu_packet(packet_info *pinfo, tvbuff_t *tvb, range_t *ports)
                 /* If this is, in fact, a response then the data byte count will be 3 */
                 /* This will correctly identify all messages except for those that are discrete or coil polls */
                 /* where the base address range happens to have 0x03 in the upper 16-bit address register     */
-                if (tvb_get_guint8(tvb, 2) == 3) {
+                if (tvb_get_uint8(tvb, 2) == 3) {
                     return RESPONSE_PACKET;
                 }
                 else {
@@ -419,16 +419,16 @@ dissect_mbtcp_pdu_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
     const char    *func_string;
     const char    *pkt_type_str = "";
     const char    *err_str = "";
-    guint16       transaction_id, protocol_id, len;
-    guint8        unit_id, function_code, exception_code, subfunction_code;
+    uint16_t      transaction_id, protocol_id, len;
+    uint8_t       unit_id, function_code, exception_code, subfunction_code;
     modbus_data_t modbus_data;
 
     transaction_id = tvb_get_ntohs(tvb, 0);
     protocol_id = tvb_get_ntohs(tvb, 2);
     len = tvb_get_ntohs(tvb, 4);
 
-    unit_id = tvb_get_guint8(tvb, 6);
-    function_code = tvb_get_guint8(tvb, 7) & 0x7F;
+    unit_id = tvb_get_uint8(tvb, 6);
+    function_code = tvb_get_uint8(tvb, 7) & 0x7F;
 
     offset = 0;
 
@@ -454,15 +454,15 @@ dissect_mbtcp_pdu_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
     }
 
     /* Find exception - last bit set in function code */
-    if (tvb_get_guint8(tvb, 7) & 0x80) {
-        exception_code = tvb_get_guint8(tvb, offset + 8);
+    if (tvb_get_uint8(tvb, 7) & 0x80) {
+        exception_code = tvb_get_uint8(tvb, offset + 8);
     }
     else {
         exception_code = 0;
     }
 
     if ((function_code == ENCAP_INTERFACE_TRANSP) && (exception_code == 0))  {
-        func_string = val_to_str_const(tvb_get_guint8(tvb, offset + 8), encap_interface_code_vals, "Encapsulated Interface Transport");
+        func_string = val_to_str_const(tvb_get_uint8(tvb, offset + 8), encap_interface_code_vals, "Encapsulated Interface Transport");
         subfunction_code = 1;
     }
     else if ((function_code == DIAGNOSTICS) && (exception_code == 0))  {
@@ -562,8 +562,8 @@ dissect_mbrtu_pdu_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ra
     const char    *func_string;
     const char    *pkt_type_str = "";
     const char    *err_str = "";
-    guint16       len, calc_crc16;
-    guint8        unit_id, function_code, exception_code, subfunction_code;
+    uint16_t      len, calc_crc16;
+    uint8_t       unit_id, function_code, exception_code, subfunction_code;
     modbus_data_t modbus_data;
 
     /* Make entries in Protocol column on summary display */
@@ -572,8 +572,8 @@ dissect_mbrtu_pdu_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ra
 
     len = tvb_reported_length(tvb);
 
-    unit_id = tvb_get_guint8(tvb, 0);
-    function_code = tvb_get_guint8(tvb, 1) & 0x7F;
+    unit_id = tvb_get_uint8(tvb, 0);
+    function_code = tvb_get_uint8(tvb, 1) & 0x7F;
 
     offset = 0;
 
@@ -599,15 +599,15 @@ dissect_mbrtu_pdu_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ra
     }
 
     /* Find exception - last bit set in function code */
-    if (tvb_get_guint8(tvb, 1) & 0x80) {
-        exception_code = tvb_get_guint8(tvb, offset + 2);
+    if (tvb_get_uint8(tvb, 1) & 0x80) {
+        exception_code = tvb_get_uint8(tvb, offset + 2);
     }
     else {
         exception_code = 0;
     }
 
     if ((function_code == ENCAP_INTERFACE_TRANSP) && (exception_code == 0))  {
-        func_string = val_to_str_const(tvb_get_guint8(tvb, offset + 2), encap_interface_code_vals, "Encapsulated Interface Transport");
+        func_string = val_to_str_const(tvb_get_uint8(tvb, offset + 2), encap_interface_code_vals, "Encapsulated Interface Transport");
         subfunction_code = 1;
     }
     else if ((function_code == DIAGNOSTICS) && (exception_code == 0))  {
@@ -692,10 +692,10 @@ dissect_mbrtu_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 }
 
 /* Return length of Modbus/TCP message */
-static guint
+static unsigned
 get_mbtcp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
-    guint16 plen;
+    uint16_t plen;
 
     /*
      * Get the length of the data from the encapsulation header.
@@ -710,14 +710,14 @@ get_mbtcp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data 
 }
 
 /* Return length of Modbus RTU over TCP message */
-static guint
+static unsigned
 get_mbrtu_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                   int offset _U_, void *data _U_)
 {
     int packet_type;
-    guint8 function_code;
+    uint8_t function_code;
 
-    function_code = tvb_get_guint8(tvb, 1);
+    function_code = tvb_get_uint8(tvb, 1);
 
     /* Modbus RTU requests do not contain a length field but they are typically a consistent size.
        Responses do contain a usable 'length' byte at offset 2
@@ -740,7 +740,7 @@ get_mbrtu_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                     break;
                 case WRITE_MULT_REGS:
                 case WRITE_MULT_COILS:
-                    return tvb_get_guint8(tvb, 6) + 9; /* Reported size does not include 2 header, 4 FC15/16-specific, 1 size byte or 2 CRC16 bytes */
+                    return tvb_get_uint8(tvb, 6) + 9; /* Reported size does not include 2 header, 4 FC15/16-specific, 1 size byte or 2 CRC16 bytes */
                     break;
                 default :
                     return tvb_captured_length(tvb);  /* Fall back on tvb length */
@@ -757,7 +757,7 @@ get_mbrtu_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                 case READ_DISCRETE_INPUTS:
                 case READ_HOLDING_REGS:
                 case READ_INPUT_REGS:
-                    return tvb_get_guint8(tvb, 2) + 5;  /* Reported size does not include 2 header, 1 size byte, 2 CRC16 bytes */
+                    return tvb_get_uint8(tvb, 2) + 5;  /* Reported size does not include 2 header, 1 size byte, 2 CRC16 bytes */
                     break;
                 case WRITE_SINGLE_COIL: /* Response messages of FC5/6/15/16 are always 8 bytes */
                 case WRITE_SINGLE_REG:
@@ -853,7 +853,7 @@ dissect_mbrtu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     /* For Modbus RTU mode, confirm that the first byte is a valid address (non-zero), */
     /* so we can eliminate false-positives on Modbus TCP messages loaded as RTU       */
-    if(tvb_get_guint8(tvb, 0) == 0 )
+    if(tvb_get_uint8(tvb, 0) == 0 )
         return 0;
 
     /* build up protocol tree and iterate over multiple packets */
@@ -879,17 +879,17 @@ dissect_mbrtu_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 /* Code to allow further dissection of Modbus data payload */
 /* Common to both Modbus/TCP and Modbus RTU dissectors     */
 static void
-dissect_modbus_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 function_code,
-                    gint payload_start, gint payload_len, gint register_format, guint16 reg_base, guint16 num_reg)
+dissect_modbus_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint8_t function_code,
+                    int payload_start, int payload_len, int register_format, uint16_t reg_base, uint16_t num_reg)
 {
-    gint reported_len, data_offset;
-    guint8   data8, ii;
-    gboolean data_bool;
-    gint16  data16s;
-    gint32  data32s;
-    guint16 data16, modflt_lo, modflt_hi, reg_num=reg_base;
-    guint32 data32, modflt_comb;
-    gfloat data_float, modfloat;
+    int reported_len, data_offset;
+    uint8_t  data8, ii;
+    bool data_bool;
+    int16_t data16s;
+    int32_t data32s;
+    uint16_t data16, modflt_lo, modflt_hi, reg_num=reg_base;
+    uint32_t data32, modflt_comb;
+    float data_float, modfloat;
     proto_tree    *bit_tree = NULL;
     proto_item    *bitnum_ti = NULL;
     proto_item    *regnum_ti = NULL;
@@ -931,7 +931,7 @@ dissect_modbus_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 
         case WRITE_MULT_COILS:
             /* The bit data is packed, 8 bits per byte of data, loop over each bit */
             while (data_offset < payload_len) {
-                data8 = tvb_get_guint8(next_tvb, data_offset);
+                data8 = tvb_get_uint8(next_tvb, data_offset);
                 for (ii = 0; ii < 8; ii++) {
                     data_bool = (data8 & (1 << ii)) > 0;
                     bit_tree = proto_tree_add_subtree_format(tree, next_tvb, data_offset, 1,
@@ -1032,7 +1032,7 @@ dissect_modbus_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 
 
                         modflt_lo = tvb_get_ntohs(next_tvb, data_offset);
                         modflt_hi = tvb_get_ntohs(next_tvb, data_offset+2);
-                        modflt_comb = (guint32)(modflt_hi<<16) | modflt_lo;
+                        modflt_comb = (uint32_t)(modflt_hi<<16) | modflt_lo;
                         memcpy(&modfloat, &modflt_comb, 4);
 
                         register_tree = proto_tree_add_subtree_format( tree, next_tvb, data_offset, 4,
@@ -1064,13 +1064,13 @@ dissect_modbus_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 
 
 /* Code to dissect Modbus request message */
 static int
-dissect_modbus_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *modbus_tree, guint8 function_code, gint payload_start, gint payload_len, modbus_pkt_info_t *pkt_info)
+dissect_modbus_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *modbus_tree, uint8_t function_code, int payload_start, int payload_len, modbus_pkt_info_t *pkt_info)
 {
     proto_tree    *group_tree;
-    gint          byte_cnt, num_reg, group_offset, ii;
-    guint8        mei_code;
-    guint16       reg_base=0, diagnostic_code;
-    guint32       group_byte_cnt, group_word_cnt;
+    int           byte_cnt, num_reg, group_offset, ii;
+    uint8_t       mei_code;
+    uint16_t      reg_base=0, diagnostic_code;
+    uint32_t      group_byte_cnt, group_word_cnt;
 
     if (!pkt_info) {
         return 0;
@@ -1144,7 +1144,7 @@ dissect_modbus_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *modbus_tre
             num_reg = tvb_get_ntohs(tvb, payload_start + 2);
             proto_tree_add_item(modbus_tree, hf_modbus_reference, tvb, payload_start, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(modbus_tree, hf_modbus_bitcnt, tvb, payload_start + 2, 2, ENC_BIG_ENDIAN);
-            byte_cnt = (guint32)tvb_get_guint8(tvb, payload_start + 4);
+            byte_cnt = (uint32_t)tvb_get_uint8(tvb, payload_start + 4);
             proto_tree_add_uint(modbus_tree, hf_modbus_bytecnt, tvb, payload_start + 4, 1, byte_cnt);
             dissect_modbus_data(tvb, pinfo, modbus_tree, function_code, payload_start + 5, byte_cnt, pkt_info->register_format, reg_base, num_reg);
             break;
@@ -1153,13 +1153,13 @@ dissect_modbus_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *modbus_tre
             reg_base = tvb_get_ntohs(tvb, payload_start);
             proto_tree_add_item(modbus_tree, hf_modbus_reference, tvb, payload_start, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(modbus_tree, hf_modbus_wordcnt, tvb, payload_start + 2, 2, ENC_BIG_ENDIAN);
-            byte_cnt = (guint32)tvb_get_guint8(tvb, payload_start + 4);
+            byte_cnt = (uint32_t)tvb_get_uint8(tvb, payload_start + 4);
             proto_tree_add_uint(modbus_tree, hf_modbus_bytecnt, tvb, payload_start + 4, 1, byte_cnt);
             dissect_modbus_data(tvb, pinfo, modbus_tree, function_code, payload_start + 5, byte_cnt, pkt_info->register_format, reg_base, 0);
             break;
 
         case READ_FILE_RECORD:
-            byte_cnt = (guint32)tvb_get_guint8(tvb, payload_start);
+            byte_cnt = (uint32_t)tvb_get_uint8(tvb, payload_start);
             proto_tree_add_uint(modbus_tree, hf_modbus_bytecnt, tvb, payload_start, 1,
                     byte_cnt);
 
@@ -1176,7 +1176,7 @@ dissect_modbus_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *modbus_tre
             break;
 
         case WRITE_FILE_RECORD:
-            byte_cnt = (guint32)tvb_get_guint8(tvb, payload_start);
+            byte_cnt = (uint32_t)tvb_get_uint8(tvb, payload_start);
             proto_tree_add_uint(modbus_tree, hf_modbus_bytecnt, tvb, payload_start, 1, byte_cnt);
 
             /* add subtrees to describe each group of packet */
@@ -1208,7 +1208,7 @@ dissect_modbus_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *modbus_tre
             proto_tree_add_item(modbus_tree, hf_modbus_readwordcnt, tvb, payload_start + 2, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(modbus_tree, hf_modbus_writeref, tvb, payload_start + 4, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(modbus_tree, hf_modbus_writewordcnt, tvb, payload_start + 6, 2, ENC_BIG_ENDIAN);
-            byte_cnt = (guint32)tvb_get_guint8(tvb, payload_start + 8);
+            byte_cnt = (uint32_t)tvb_get_uint8(tvb, payload_start + 8);
             proto_tree_add_uint(modbus_tree, hf_modbus_bytecnt, tvb, payload_start + 8, 1, byte_cnt);
             dissect_modbus_data(tvb, pinfo, modbus_tree, function_code, payload_start + 9, byte_cnt, pkt_info->register_format, reg_base, 0);
             break;
@@ -1219,7 +1219,7 @@ dissect_modbus_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *modbus_tre
 
         case ENCAP_INTERFACE_TRANSP:
             proto_tree_add_item(modbus_tree, hf_modbus_mei, tvb, payload_start, 1, ENC_BIG_ENDIAN);
-            mei_code = tvb_get_guint8(tvb, payload_start);
+            mei_code = tvb_get_uint8(tvb, payload_start);
             switch (mei_code)
             {
                 case READ_DEVICE_ID:
@@ -1250,15 +1250,15 @@ dissect_modbus_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *modbus_tre
 
 /* Code to dissect Modbus Response message */
 static int
-dissect_modbus_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *modbus_tree, guint8 function_code, gint payload_start, gint payload_len, modbus_pkt_info_t *pkt_info)
+dissect_modbus_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *modbus_tree, uint8_t function_code, int payload_start, int payload_len, modbus_pkt_info_t *pkt_info)
 {
 
     proto_tree    *group_tree, *event_tree, *event_item_tree, *device_objects_tree, *device_objects_item_tree;
     proto_item    *mei;
-    gint          byte_cnt, group_offset, event_index, object_index, object_len, num_objects, ii;
-    guint8        object_type, mei_code, event_code;
-    guint16       diagnostic_code, num_reg;
-    guint32       group_byte_cnt, group_word_cnt;
+    int           byte_cnt, group_offset, event_index, object_index, object_len, num_objects, ii;
+    uint8_t       object_type, mei_code, event_code;
+    uint16_t      diagnostic_code, num_reg;
+    uint32_t      group_byte_cnt, group_word_cnt;
 
     nstime_t      response_time;
     proto_item    *request_frame_item, *response_time_item;
@@ -1269,7 +1269,7 @@ dissect_modbus_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *modbus_tr
 
     num_reg = pkt_info->num_reg;
 
-    if (pkt_info->request_found == TRUE) {
+    if (pkt_info->request_found == true) {
         request_frame_item = proto_tree_add_uint(modbus_tree, hf_modbus_request_frame, tvb, 0, 0, pkt_info->req_frame_num);
         proto_item_set_generated(request_frame_item);
 
@@ -1282,7 +1282,7 @@ dissect_modbus_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *modbus_tr
 
         case READ_COILS:
         case READ_DISCRETE_INPUTS:
-            byte_cnt = (guint32)tvb_get_guint8(tvb, payload_start);
+            byte_cnt = (uint32_t)tvb_get_uint8(tvb, payload_start);
             proto_tree_add_uint(modbus_tree, hf_modbus_bytecnt, tvb, payload_start, 1, byte_cnt);
             //if the request wasn't found set number of coils based on byte count
             if (!pkt_info->request_found)
@@ -1292,7 +1292,7 @@ dissect_modbus_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *modbus_tr
 
         case READ_HOLDING_REGS:
         case READ_INPUT_REGS:
-            byte_cnt = (guint32)tvb_get_guint8(tvb, payload_start);
+            byte_cnt = (uint32_t)tvb_get_uint8(tvb, payload_start);
             proto_tree_add_uint(modbus_tree, hf_modbus_bytecnt, tvb, payload_start, 1, byte_cnt);
             dissect_modbus_data(tvb, pinfo, modbus_tree, function_code, payload_start + 1, byte_cnt, pkt_info->register_format, pkt_info->reg_base, 0);
             break;
@@ -1372,7 +1372,7 @@ dissect_modbus_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *modbus_tr
             break;
 
         case GET_COMM_EVENT_LOG:
-            byte_cnt = (guint32)tvb_get_guint8(tvb, payload_start);
+            byte_cnt = (uint32_t)tvb_get_uint8(tvb, payload_start);
             proto_tree_add_uint(modbus_tree, hf_modbus_bytecnt, tvb, payload_start, 1, byte_cnt);
             proto_tree_add_item(modbus_tree, hf_modbus_status, tvb, payload_start+1, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(modbus_tree, hf_modbus_event_count, tvb, payload_start+3, 2, ENC_BIG_ENDIAN);
@@ -1382,7 +1382,7 @@ dissect_modbus_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *modbus_tr
                 event_index = 0;
                 event_tree = proto_tree_add_subtree(modbus_tree, tvb, payload_start+7, byte_cnt, ett_events, NULL, "Events");
                 while (byte_cnt > 0) {
-                    event_code = tvb_get_guint8(tvb, payload_start+7+event_index);
+                    event_code = tvb_get_uint8(tvb, payload_start+7+event_index);
                     if (event_code == 0) {
                         proto_tree_add_uint_format(event_tree, hf_modbus_event, tvb, payload_start+7+event_index, 1, event_code, "Initiated Communication Restart");
                     }
@@ -1444,7 +1444,7 @@ dissect_modbus_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *modbus_tr
             break;
 
         case READ_FILE_RECORD:
-            byte_cnt = (guint32)tvb_get_guint8(tvb, payload_start);
+            byte_cnt = (uint32_t)tvb_get_uint8(tvb, payload_start);
             proto_tree_add_uint(modbus_tree, hf_modbus_bytecnt, tvb, payload_start, 1,
                     byte_cnt);
 
@@ -1452,7 +1452,7 @@ dissect_modbus_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *modbus_tr
             group_offset = payload_start + 1;
             ii = 0;
             while (byte_cnt > 0) {
-                group_byte_cnt = (guint32)tvb_get_guint8(tvb, group_offset);
+                group_byte_cnt = (uint32_t)tvb_get_uint8(tvb, group_offset);
                 group_tree = proto_tree_add_subtree_format( modbus_tree, tvb, group_offset, group_byte_cnt + 1,
                         ett_group_hdr, NULL, "Group %u", ii);
                 proto_tree_add_uint(group_tree, hf_modbus_bytecnt, tvb, group_offset, 1,
@@ -1466,7 +1466,7 @@ dissect_modbus_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *modbus_tr
             break;
 
         case WRITE_FILE_RECORD:   /* Normal response is echo of request */
-            byte_cnt = (guint32)tvb_get_guint8(tvb, payload_start);
+            byte_cnt = (uint32_t)tvb_get_uint8(tvb, payload_start);
             proto_tree_add_uint(modbus_tree, hf_modbus_bytecnt, tvb, payload_start, 1, byte_cnt);
 
             /* add subtrees to describe each group of packet */
@@ -1494,13 +1494,13 @@ dissect_modbus_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *modbus_tr
             break;
 
         case READ_WRITE_REG:
-            byte_cnt = (guint32)tvb_get_guint8(tvb, payload_start);
+            byte_cnt = (uint32_t)tvb_get_uint8(tvb, payload_start);
             proto_tree_add_uint(modbus_tree, hf_modbus_bytecnt, tvb, payload_start, 1, byte_cnt);
             dissect_modbus_data(tvb, pinfo, modbus_tree, function_code, payload_start + 1, byte_cnt, pkt_info->register_format, pkt_info->reg_base, 0);
             break;
 
         case READ_FIFO_QUEUE:
-            byte_cnt = (guint32)tvb_get_ntohs(tvb, payload_start);
+            byte_cnt = (uint32_t)tvb_get_ntohs(tvb, payload_start);
             proto_tree_add_uint(modbus_tree, hf_modbus_lbytecnt, tvb, payload_start, 2, byte_cnt);
             proto_tree_add_item(modbus_tree, hf_modbus_wordcnt, tvb, payload_start + 2, 2, ENC_BIG_ENDIAN);
             dissect_modbus_data(tvb, pinfo, modbus_tree, function_code, payload_start + 4, byte_cnt - 2, pkt_info->register_format, pkt_info->reg_base, 0);
@@ -1508,7 +1508,7 @@ dissect_modbus_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *modbus_tr
 
         case ENCAP_INTERFACE_TRANSP:
             proto_tree_add_item(modbus_tree, hf_modbus_mei, tvb, payload_start, 1, ENC_BIG_ENDIAN);
-            mei_code = tvb_get_guint8(tvb, payload_start);
+            mei_code = tvb_get_uint8(tvb, payload_start);
             switch (mei_code)
             {
                 case READ_DEVICE_ID:
@@ -1516,7 +1516,7 @@ dissect_modbus_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *modbus_tr
                     proto_tree_add_item(modbus_tree, hf_modbus_conformity_level, tvb, payload_start+2, 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item(modbus_tree, hf_modbus_more_follows, tvb, payload_start+3, 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item(modbus_tree, hf_modbus_next_object_id, tvb, payload_start+4, 1, ENC_BIG_ENDIAN);
-                    num_objects = tvb_get_guint8(tvb, payload_start+5);
+                    num_objects = tvb_get_uint8(tvb, payload_start+5);
                     proto_tree_add_uint(modbus_tree, hf_modbus_num_objects, tvb, payload_start+5, 1, num_objects);
                     device_objects_tree = proto_tree_add_subtree(modbus_tree, tvb, payload_start+6, payload_len-6,
                                                                     ett_device_id_objects, NULL, "Objects");
@@ -1527,8 +1527,8 @@ dissect_modbus_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *modbus_tr
                         /* add each "object item" as its own subtree */
 
                         /* compute length of object */
-                        object_type = tvb_get_guint8(tvb, payload_start+6+object_index);
-                        object_len = tvb_get_guint8(tvb, payload_start+6+object_index+1);
+                        object_type = tvb_get_uint8(tvb, payload_start+6+object_index);
+                        object_len = tvb_get_uint8(tvb, payload_start+6+object_index+1);
 
                         device_objects_item_tree = proto_tree_add_subtree_format(device_objects_tree, tvb, payload_start+6+object_index, 2+object_len,
                                                     ett_device_id_object_items, NULL, "Object #%d", ii+1);
@@ -1581,10 +1581,10 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_item          *mi;
     int                 offset = 0;
     modbus_data_t       *modbus_data = (modbus_data_t*)data;
-    gint                payload_start, payload_len, len;
-    guint8              function_code, exception_code;
+    int                 payload_start, payload_len, len;
+    uint8_t             function_code, exception_code;
     modbus_pkt_info_t   *pkt_info;
-    guint32             conv_key;
+    uint32_t            conv_key;
 
     /* Reject the packet if data passed from the mbrtu or mbtcp dissector is NULL */
     if (modbus_data == NULL)
@@ -1600,12 +1600,12 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     mi = proto_tree_add_protocol_format(tree, proto_modbus, tvb, offset, len, "Modbus");
     modbus_tree = proto_item_add_subtree(mi, ett_modbus_hdr);
 
-    function_code = tvb_get_guint8(tvb, offset) & 0x7F;
+    function_code = tvb_get_uint8(tvb, offset) & 0x7F;
     proto_tree_add_item(modbus_tree, hf_modbus_functioncode, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* Conversation support */
     /* Use a combination of unit and transaction-id as key for identifying a request to a response*/
-    conv_key = (guint32)modbus_data->mbtcp_transid | ((guint32)modbus_data->unit_id << 16);
+    conv_key = (uint32_t)modbus_data->mbtcp_transid | ((uint32_t)modbus_data->unit_id << 16);
     if (!pinfo->fd->visited) {
         conversation_t       *conversation = NULL;
         modbus_conversation  *modbus_conv_data = NULL;
@@ -1627,7 +1627,7 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         if (modbus_data->packet_type == QUERY_PACKET) {
             /*create the modbus_request frame. It holds the request information.*/
             modbus_request_info_t    *frame_ptr = wmem_new0(wmem_file_scope(), modbus_request_info_t);
-            gint captured_length = tvb_captured_length(tvb);
+            int captured_length = tvb_captured_length(tvb);
 
             /* load information into the modbus request frame */
             frame_ptr->fnum = pinfo->num;
@@ -1644,10 +1644,10 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             wmem_list_prepend(modbus_conv_data->modbus_request_frame_data, frame_ptr);
         }
         else if (modbus_data->packet_type == RESPONSE_PACKET) {
-            guint8                req_function_code;
-            guint16               req_transaction_id;
-            guint8                req_unit_id;
-            guint32               req_frame_num;
+            uint8_t               req_function_code;
+            uint16_t              req_transaction_id;
+            uint8_t               req_unit_id;
+            uint32_t              req_frame_num;
             modbus_request_info_t *request_data;
 
             wmem_list_frame_t *frame = wmem_list_head(modbus_conv_data->modbus_request_frame_data);
@@ -1664,7 +1664,7 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     (req_transaction_id == modbus_data->mbtcp_transid) && (req_unit_id == modbus_data->unit_id)) {
                     pkt_info->reg_base = request_data->base_address;
                     pkt_info->num_reg = request_data->num_reg;
-                    pkt_info->request_found = TRUE;
+                    pkt_info->request_found = true;
                     pkt_info->req_frame_num = req_frame_num;
                     pkt_info->req_time = request_data->req_time;
                 }
@@ -1682,8 +1682,8 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
 
     /* Find exception - last bit set in function code */
-    if (tvb_get_guint8(tvb, offset) & 0x80 ) {
-        exception_code = tvb_get_guint8(tvb, offset+1);
+    if (tvb_get_uint8(tvb, offset) & 0x80 ) {
+        exception_code = tvb_get_uint8(tvb, offset+1);
     }
     else {
         exception_code = 0;
@@ -2141,7 +2141,7 @@ proto_register_modbus(void)
         };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_mbtcp,
         &ett_mbrtu,
         &ett_modbus_hdr,
@@ -2203,19 +2203,19 @@ proto_register_modbus(void)
     mbrtu_module = prefs_register_protocol(proto_mbrtu, apply_mbrtu_prefs);
     modbus_module = prefs_register_protocol(proto_modbus, NULL);
 
-    /* Modbus RTU Preference - Desegment, defaults to TRUE for TCP desegmentation */
+    /* Modbus RTU Preference - Desegment, defaults to true for TCP desegmentation */
     prefs_register_bool_preference(mbtcp_module, "desegment",
                                   "Desegment all Modbus RTU packets spanning multiple TCP segments",
                                   "Whether the Modbus RTU dissector should desegment all messages spanning multiple TCP segments",
                                   &mbtcp_desegment);
 
-    /* Modbus RTU Preference - Desegment, defaults to TRUE for TCP desegmentation */
+    /* Modbus RTU Preference - Desegment, defaults to true for TCP desegmentation */
     prefs_register_bool_preference(mbrtu_module, "desegment",
                                   "Desegment all Modbus RTU packets spanning multiple TCP segments",
                                   "Whether the Modbus RTU dissector should desegment all messages spanning multiple TCP segments",
                                   &mbrtu_desegment);
 
-    /* Modbus RTU Preference - CRC verification, defaults to FALSE (no verification)*/
+    /* Modbus RTU Preference - CRC verification, defaults to false (no verification)*/
     prefs_register_bool_preference(mbrtu_module, "crc_verification",
                                   "Validate CRC",
                                   "Whether to validate the CRC",
@@ -2227,7 +2227,7 @@ proto_register_modbus(void)
                                     "Register Format",
                                     &global_mbus_register_format,
                                     mbus_register_format,
-                                    FALSE);
+                                    false);
 
     /* Obsolete Preferences */
     prefs_register_obsolete_preference(mbtcp_module, "mbus_register_addr_type");

@@ -17,18 +17,18 @@
 #define GET_VALSV(A) mq_##A##_vals
 #define GET_VALSV2(A) GET_VALSV(A)
 #define DEF_VALSX(A) extern value_string GET_VALSV(A)[]
- /* This Macro is used to cast a value_string to a const gchar *
+ /* This Macro is used to cast a value_string to a const char *
  *  Used in value_string MQCFINT_Parse, because this value_string
  *  don't return a string for a specific value, but a value_string
  *  that can be used in another call to try_val_to_str
  */
-#define GET_VALSP(F) (const gchar *)GET_VALSV(F)
+#define GET_VALSP(F) (const char *)GET_VALSV(F)
 #define DEF_VALSB(A) static const value_string GET_VALSV(A)[] = \
 {
 #define DEF_VALSBX(A) value_string GET_VALSV(A)[] = \
 {
-#define DEF_VALS1(A)    { (guint32)MQ_##A, #A }
-#define DEF_VALS2(A, B) { (guint32)MQ_##A, B }
+#define DEF_VALS1(A)    { (uint32_t)MQ_##A, #A }
+#define DEF_VALS2(A, B) { (uint32_t)MQ_##A, B }
 #define DEF_VALSE \
 { 0, NULL } \
 }
@@ -43,11 +43,11 @@
 /* | BASE_RANGE_STRING, GET_VALRV(RVALS(aaa)) */
 #define GET_VALRV(A) mq_##A##_rvals
 #define DEF_VALRX(A) extern const range_string GET_VALRV(A)[]
-#define GET_VALRP(F) (gchar *)GET_VALRV(F)
+#define GET_VALRP(F) (char *)GET_VALRV(F)
 #define DEF_VALRB(A) const range_string GET_VALRV(A)[] = \
 {
-#define DEF_VALR1(A)       { (guint32)MQ_##A, (guint32)MQ_##A, #A }
-#define DEF_VALR3(A, B, C) { (guint32)MQ_##A, (guint32)MQ_##B, C }
+#define DEF_VALR1(A)       { (uint32_t)MQ_##A, (uint32_t)MQ_##A, #A }
+#define DEF_VALR3(A, B, C) { (uint32_t)MQ_##A, (uint32_t)MQ_##B, C }
 #define DEF_VALRE \
 { 0, 0, NULL } \
 }
@@ -489,28 +489,28 @@
 
 typedef struct _mq_ccsid_t
 {
-    guint32 encod;
-    guint32 ccsid;
+    uint32_t encod;
+    uint32_t ccsid;
 } mq_ccsid_t;
 
 typedef struct _mq_parm_t
 {
-    guint32    mq_convID;
-    guint32    mq_rqstID;
-    guint32    mq_strucID;
-    guint32    mq_int_enc;
-    guint32    mq_str_enc;
-    guint32    mq_FAPLvl;
-    guint32    mq_API_Len;
-    guint32    mq_API_CC;
-    guint32    mq_API_RC;
-    guint32    mq_API_Hdl;
-    guint32    mq_MsgTotLen;
-    guint32    mq_MsgActLen;
-    guint32    mq_AsyMsgRsn;
-    guint8     mq_ctlf1;
-    guint8     mq_ctlf2;
-    guint8     mq_opcode;
+    uint32_t   mq_convID;
+    uint32_t   mq_rqstID;
+    uint32_t   mq_strucID;
+    uint32_t   mq_int_enc;
+    uint32_t   mq_str_enc;
+    uint32_t   mq_FAPLvl;
+    uint32_t   mq_API_Len;
+    uint32_t   mq_API_CC;
+    uint32_t   mq_API_RC;
+    uint32_t   mq_API_Hdl;
+    uint32_t   mq_MsgTotLen;
+    uint32_t   mq_MsgActLen;
+    uint32_t   mq_AsyMsgRsn;
+    uint8_t    mq_ctlf1;
+    uint8_t    mq_ctlf2;
+    uint8_t    mq_opcode;
     mq_ccsid_t mq_tsh_ccsid;
     mq_ccsid_t mq_id_ccsid;
     mq_ccsid_t mq_md_ccsid;
@@ -518,10 +518,10 @@ typedef struct _mq_parm_t
     mq_ccsid_t mq_head_ccsid;
     mq_ccsid_t mq_msgreq_ccsid;
     mq_ccsid_t mq_cur_ccsid;
-    guint8     mq_format[8];
-    gint32     iOfsEnc;     /* Offset to Message encoding */
-    gint32     iOfsCcs;     /* Offset to Message character set */
-    gint32     iOfsFmt;     /* Offset to Message format */
+    uint8_t    mq_format[8];
+    int32_t    iOfsEnc;     /* Offset to Message encoding */
+    int32_t    iOfsCcs;     /* Offset to Message character set */
+    int32_t    iOfsFmt;     /* Offset to Message format */
 } mq_parm_t;
 
 #define MQ_MQCA_XR_VERSION2 2120
@@ -5608,12 +5608,12 @@ typedef struct _mq_parm_t
 
 #endif
 
-extern gint32  strip_trailing_blanks(guint8 *a_str, guint32 a_size);
-extern const guint8* dissect_mqpcf_parm_getintval(guint uPrm, guint uVal);
-extern guint32 dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tree,
-    guint offset, guint32 uCount, guint bLittleEndian, gboolean bParse);
+extern int32_t strip_trailing_blanks(uint8_t *a_str, uint32_t a_size);
+extern const uint8_t* dissect_mqpcf_parm_getintval(unsigned uPrm, unsigned uVal);
+extern uint32_t dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tree,
+    unsigned offset, uint32_t uCount, unsigned bLittleEndian, bool bParse);
 extern int dissect_mqpcf_parm_grp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* mq_tree,
-    guint offset, guint bLittleEndian, gboolean bParse);
+    unsigned offset, unsigned bLittleEndian, bool bParse);
 
 DEF_VALSX(mqcc);
 

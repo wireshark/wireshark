@@ -33,7 +33,7 @@
 void proto_register_mpls_y1711(void);
 void proto_reg_handoff_mpls_y1711(void);
 
-static gint proto_mpls_y1711;
+static int proto_mpls_y1711;
 
 static int hf_mpls_y1711_function_type;
 /* static int hf_mpls_y1711_ttsi; */
@@ -45,7 +45,7 @@ static int hf_mpls_y1711_bip16;
 static int hf_mpls_y1711_lsr_id;
 static int hf_mpls_y1711_lsp_id;
 
-static gint ett_mpls_y1711;
+static int ett_mpls_y1711;
 
 /* Generated from convert_proto_tree_add_text.pl */
 static expert_field ei_mpls_y1711_padding_not_ff;
@@ -107,8 +107,8 @@ dissect_mpls_y1711(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     int              functype;
     tvbuff_t        *data_tvb;
 
-    static const guint8 allone[]  = { 0xff, 0xff };
-    static const guint8 allzero[] = { 0x00, 0x00, 0x00, 0x00, 0x00,
+    static const uint8_t allone[]  = { 0xff, 0xff };
+    static const uint8_t allzero[] = { 0x00, 0x00, 0x00, 0x00, 0x00,
                                       0x00, 0x00, 0x00, 0x00, 0x00,
                                       0x00, 0x00, 0x00, 0x00, 0x00,
                                       0x00, 0x00, 0x00, 0x00, 0x00 };
@@ -118,7 +118,7 @@ dissect_mpls_y1711(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         return 0;
     mplsinfo = (struct mplsinfo *)data;
 
-    functype = tvb_get_guint8(tvb, offset);
+    functype = tvb_get_uint8(tvb, offset);
     col_append_fstr(pinfo->cinfo, COL_INFO, " (Y.1711: %s)",
                     (functype == 0x01) ? "CV" :
                     (functype == 0x02) ? "FDI" :
@@ -156,7 +156,7 @@ dissect_mpls_y1711(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         proto_tree_add_expert(mpls_y1711_tree, pinfo, &ei_mpls_y1711_ttl_not_one, tvb, offset - 1, 1);
 
     /* starting dissection */
-    functype = tvb_get_guint8(tvb, offset);
+    functype = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(mpls_y1711_tree, hf_mpls_y1711_function_type, tvb,
                         offset, 1,
                         ENC_LITTLE_ENDIAN);
@@ -357,7 +357,7 @@ proto_register_mpls_y1711(void)
       { &hf_mpls_y1711_lsp_id, { "LSP ID", "mpls_y1711.lsp_id", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_mpls_y1711
     };
 

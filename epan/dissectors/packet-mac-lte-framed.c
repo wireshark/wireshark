@@ -26,10 +26,10 @@ extern int proto_mac_lte;
 static int dissect_mac_lte_framed(tvbuff_t *tvb, packet_info *pinfo,
                                    proto_tree *tree, void* data _U_)
 {
-    gint                 offset = 0;
+    int                  offset = 0;
     struct mac_lte_info  *p_mac_lte_info;
     tvbuff_t             *mac_tvb;
-    gboolean             infoAlreadySet = FALSE;
+    bool                 infoAlreadySet = false;
 
     /* Need to find enabled mac-lte dissector */
     dissector_handle_t   mac_lte_handle = find_dissector("mac-lte");
@@ -52,10 +52,10 @@ static int dissect_mac_lte_framed(tvbuff_t *tvb, packet_info *pinfo,
     if (p_mac_lte_info == NULL) {
         /* Allocate new info struct for this frame */
         p_mac_lte_info = wmem_new0(wmem_file_scope(), struct mac_lte_info);
-        infoAlreadySet = FALSE;
+        infoAlreadySet = false;
     }
     else {
-        infoAlreadySet = TRUE;
+        infoAlreadySet = true;
     }
 
     /* Dissect the fields to populate p_mac_lte */

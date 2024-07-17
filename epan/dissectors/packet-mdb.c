@@ -241,10 +241,10 @@ static const value_string mdb_cgw_resp[] = {
     { 0, NULL }
 };
 
-static void dissect_mdb_ack(tvbuff_t *tvb, gint offset,
+static void dissect_mdb_ack(tvbuff_t *tvb, int offset,
         packet_info *pinfo, proto_tree *tree)
 {
-    guint32 ack;
+    uint32_t ack;
 
     proto_tree_add_item_ret_uint(tree, hf_mdb_ack, tvb, offset, 1,
                 ENC_BIG_ENDIAN, &ack);
@@ -252,7 +252,7 @@ static void dissect_mdb_ack(tvbuff_t *tvb, gint offset,
             val_to_str_const(ack, mdb_ack, "Invalid ack byte"));
 }
 
-static void mdb_set_addrs(guint8 event, guint8 addr, packet_info *pinfo)
+static void mdb_set_addrs(uint8_t event, uint8_t addr, packet_info *pinfo)
 {
     const char *periph = val_to_str(addr, mdb_addr, "Unknown (0x%02x)");
 
@@ -270,11 +270,11 @@ static void mdb_set_addrs(guint8 event, guint8 addr, packet_info *pinfo)
     }
 }
 
-static void dissect_mdb_cl_setup(tvbuff_t *tvb, gint offset,
+static void dissect_mdb_cl_setup(tvbuff_t *tvb, int offset,
         packet_info *pinfo, proto_tree *tree)
 {
-    guint32 sub_cmd, price;
-    const gchar *s;
+    uint32_t sub_cmd, price;
+    const char *s;
     proto_item *pi;
 
     proto_tree_add_item_ret_uint(tree, hf_mdb_cl_setup_sub,
@@ -334,11 +334,11 @@ static void dissect_mdb_cl_setup(tvbuff_t *tvb, gint offset,
     }
 }
 
-static void dissect_mdb_cl_vend(tvbuff_t *tvb, gint offset,
+static void dissect_mdb_cl_vend(tvbuff_t *tvb, int offset,
         packet_info *pinfo, proto_tree *tree)
 {
-    guint32 sub_cmd, price, item;
-    const gchar *s;
+    uint32_t sub_cmd, price, item;
+    const char *s;
 
     proto_tree_add_item_ret_uint(tree, hf_mdb_cl_vend_sub, tvb, offset, 1,
             ENC_BIG_ENDIAN, &sub_cmd);
@@ -368,8 +368,8 @@ static void dissect_mdb_cl_vend(tvbuff_t *tvb, gint offset,
     }
 }
 
-static gint
-dissect_mdb_cl_id_fields(tvbuff_t *tvb, gint offset, proto_tree *tree)
+static int
+dissect_mdb_cl_id_fields(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_mdb_cl_manuf_code, tvb, offset, 3, ENC_ASCII);
     offset += 3;
@@ -383,11 +383,11 @@ dissect_mdb_cl_id_fields(tvbuff_t *tvb, gint offset, proto_tree *tree)
     return offset;
 }
 
-static void dissect_mdb_cl_expns(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+static void dissect_mdb_cl_expns(tvbuff_t *tvb, int offset, packet_info *pinfo,
         proto_tree *tree)
 {
-    guint32 sub_cmd;
-    const gchar *s;
+    uint32_t sub_cmd;
+    const char *s;
 
     proto_tree_add_item_ret_uint(tree, hf_mdb_cl_expns_sub,
                     tvb, offset, 1, ENC_BIG_ENDIAN, &sub_cmd);
@@ -409,7 +409,7 @@ static void dissect_mdb_cl_expns(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     }
 }
 
-static void dissect_mdb_cl_rd_cfg_data(tvbuff_t *tvb, gint offset,
+static void dissect_mdb_cl_rd_cfg_data(tvbuff_t *tvb, int offset,
         packet_info *pinfo _U_, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_mdb_cl_feat_lvl, tvb, offset, 1,
@@ -425,14 +425,14 @@ static void dissect_mdb_cl_rd_cfg_data(tvbuff_t *tvb, gint offset,
             ENC_TIME_SECS | ENC_BIG_ENDIAN);
 }
 
-static void dissect_mdb_mst_per_cl( tvbuff_t *tvb, gint offset, gint len _U_,
+static void dissect_mdb_mst_per_cl( tvbuff_t *tvb, int offset, int len _U_,
         packet_info *pinfo, proto_tree *tree, proto_item *cmd_it,
-        guint8 addr_byte)
+        uint8_t addr_byte)
 {
-    guint8 cmd = addr_byte & 0x07; /* the 3-bit command */
+    uint8_t cmd = addr_byte & 0x07; /* the 3-bit command */
     proto_tree *cl_tree;
-    guint32 sub_cmd;
-    const gchar *s;
+    uint32_t sub_cmd;
+    const char *s;
 
     s = val_to_str_const(cmd, mdb_cl_cmd, "Unknown");
     proto_item_append_text(cmd_it, " (%s)", s);
@@ -462,11 +462,11 @@ static void dissect_mdb_mst_per_cl( tvbuff_t *tvb, gint offset, gint len _U_,
         col_set_str(pinfo->cinfo, COL_INFO, s);
 }
 
-static void dissect_mdb_per_mst_cl( tvbuff_t *tvb, gint offset,
-        gint len _U_, packet_info *pinfo, proto_tree *tree)
+static void dissect_mdb_per_mst_cl( tvbuff_t *tvb, int offset,
+        int len _U_, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *cl_tree;
-    guint32 cl_resp;
+    uint32_t cl_resp;
 
     cl_tree = proto_tree_add_subtree(tree, tvb, offset, len, ett_mdb_cl,
             NULL, "Cashless");
@@ -495,11 +495,11 @@ static void dissect_mdb_per_mst_cl( tvbuff_t *tvb, gint offset,
     }
 }
 
-static void dissect_mdb_cgw_report(tvbuff_t *tvb, gint offset,
+static void dissect_mdb_cgw_report(tvbuff_t *tvb, int offset,
         packet_info *pinfo, proto_tree *tree)
 {
-    guint32 sub_cmd;
-    const gchar *s;
+    uint32_t sub_cmd;
+    const char *s;
 
     proto_tree_add_item_ret_uint(tree, hf_mdb_cgw_report_sub,
                     tvb, offset, 1, ENC_BIG_ENDIAN, &sub_cmd);
@@ -527,11 +527,11 @@ static void dissect_mdb_cgw_report(tvbuff_t *tvb, gint offset,
     }
 }
 
-static void dissect_mdb_cgw_expns(tvbuff_t *tvb, gint offset,
+static void dissect_mdb_cgw_expns(tvbuff_t *tvb, int offset,
         packet_info *pinfo, proto_tree *tree)
 {
-    guint32 sub_cmd;
-    const gchar *s;
+    uint32_t sub_cmd;
+    const char *s;
 
     proto_tree_add_item_ret_uint(tree, hf_mdb_cgw_expns_sub,
                     tvb, offset, 1, ENC_BIG_ENDIAN, &sub_cmd);
@@ -549,12 +549,12 @@ static void dissect_mdb_cgw_expns(tvbuff_t *tvb, gint offset,
     }
 }
 
-static void dissect_mdb_mst_per_cgw( tvbuff_t *tvb, gint offset, gint len,
+static void dissect_mdb_mst_per_cgw( tvbuff_t *tvb, int offset, int len,
         packet_info *pinfo, proto_tree *tree, proto_item *cmd_it,
-        guint8 addr_cmd_byte)
+        uint8_t addr_cmd_byte)
 {
     proto_tree *cgw_tree;
-    const gchar *s;
+    const char *s;
 
     s = val_to_str_const(addr_cmd_byte, mdb_cgw_addr_cmd, "Unknown");
     proto_item_append_text(cmd_it, " (%s)", s);
@@ -583,11 +583,11 @@ static void dissect_mdb_mst_per_cgw( tvbuff_t *tvb, gint offset, gint len,
     }
 }
 
-static void dissect_mdb_per_mst_cgw( tvbuff_t *tvb, gint offset,
-        gint len, packet_info *pinfo _U_, proto_tree *tree)
+static void dissect_mdb_per_mst_cgw( tvbuff_t *tvb, int offset,
+        int len, packet_info *pinfo _U_, proto_tree *tree)
 {
     proto_tree *cgw_tree;
-    guint32 cgw_resp;
+    uint32_t cgw_resp;
 
     cgw_tree = proto_tree_add_subtree(tree, tvb, offset, len, ett_mdb_cgw,
             NULL, "Communications Gateway");
@@ -624,12 +624,12 @@ static void dissect_mdb_per_mst_cgw( tvbuff_t *tvb, gint offset,
     }
 }
 
-static void dissect_mdb_mst_per(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+static void dissect_mdb_mst_per(tvbuff_t *tvb, int offset, packet_info *pinfo,
         proto_tree *tree)
 {
-    guint8 addr_byte, addr;
-    gint mst_per_len;
-    guint data_len;
+    uint8_t addr_byte, addr;
+    int mst_per_len;
+    unsigned data_len;
     proto_item *cmd_it;
 
     mst_per_len = tvb_reported_length_remaining(tvb, offset);
@@ -662,7 +662,7 @@ static void dissect_mdb_mst_per(tvbuff_t *tvb, gint offset, packet_info *pinfo,
      *
      * In this dissector, we try to use the same values as the specification.
      */
-    addr_byte = tvb_get_guint8(tvb, offset);
+    addr_byte = tvb_get_uint8(tvb, offset);
     addr = addr_byte & 0xF8;
     proto_tree_add_uint_bits_format_value(tree, hf_mdb_addr,
             tvb, 8*offset, 5, addr, ENC_BIG_ENDIAN, "0x%02x", addr);
@@ -696,11 +696,11 @@ static void dissect_mdb_mst_per(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     proto_tree_add_item(tree, hf_mdb_chk, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
-static void dissect_mdb_per_mst(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-        proto_tree *tree, guint8 addr)
+static void dissect_mdb_per_mst(tvbuff_t *tvb, int offset, packet_info *pinfo,
+        proto_tree *tree, uint8_t addr)
 {
-    gint per_mst_len;
-    guint data_len;
+    int per_mst_len;
+    unsigned data_len;
 
     /*
      * A packet from peripheral to master is either a single ACK/NAK byte or
@@ -739,8 +739,8 @@ static void dissect_mdb_per_mst(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 static int dissect_mdb(tvbuff_t *tvb,
         packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    gint offset = 0, offset_ver, offset_evt;
-    guint8 version, event, addr;
+    int offset = 0, offset_ver, offset_evt;
+    uint8_t version, event, addr;
     proto_tree *mdb_tree, *hdr_tree;
     proto_item *tree_ti, *hdr_ti;
 
@@ -749,12 +749,12 @@ static int dissect_mdb(tvbuff_t *tvb,
         return 0;
 
     offset_ver = offset;
-    version = tvb_get_guint8(tvb, offset++);
+    version = tvb_get_uint8(tvb, offset++);
     if (version != 0)
         return 0;
 
     offset_evt = offset;
-    event = tvb_get_guint8(tvb, offset++);
+    event = tvb_get_uint8(tvb, offset++);
     if (!try_val_to_str(event, mdb_event))
         return 0;
 
@@ -777,7 +777,7 @@ static int dissect_mdb(tvbuff_t *tvb,
        pseudo header. */
     if (event == MDB_EVT_DATA_PER_MST) {
         /* See the comment in dissect_mdb_mst_per about MDB addresses. */
-        addr = tvb_get_guint8(tvb, offset) & 0xF8;
+        addr = tvb_get_uint8(tvb, offset) & 0xF8;
         proto_tree_add_uint_bits_format_value(hdr_tree, hf_mdb_addr,
                 tvb, 8*offset, 5, addr, ENC_BIG_ENDIAN, "0x%02x", addr);
         offset++;
@@ -802,7 +802,7 @@ void proto_register_mdb(void)
 {
     expert_module_t* expert_mdb;
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_mdb,
         &ett_mdb_hdr,
         &ett_mdb_cl,

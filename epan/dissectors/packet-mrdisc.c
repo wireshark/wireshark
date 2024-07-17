@@ -76,7 +76,7 @@ static const value_string mrdisc_options[] = {
 static int
 dissect_mrdisc_mra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
 {
-	guint16 num;
+	uint16_t num;
 
 	/* Advertising Interval */
 	proto_tree_add_item(parent_tree, hf_advint, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -99,18 +99,18 @@ dissect_mrdisc_mra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, i
 	while (num--) {
 		proto_tree *tree;
 		proto_item *item;
-		guint8 type,len;
+		uint8_t type,len;
 		int old_offset = offset;
 
 		item = proto_tree_add_item(parent_tree, hf_options,
 			tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_options);
 
-		type = tvb_get_guint8(tvb, offset);
+		type = tvb_get_uint8(tvb, offset);
 		proto_tree_add_uint(tree, hf_option, tvb, offset, 1, type);
 		offset += 1;
 
-		len = tvb_get_guint8(tvb, offset);
+		len = tvb_get_uint8(tvb, offset);
 		proto_tree_add_uint(tree, hf_option_len, tvb, offset, 1, len);
 		offset += 1;
 
@@ -165,9 +165,9 @@ dissect_mrdisc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void*
 {
 	proto_tree *tree;
 	proto_item *item;
-	guint8 type;
+	uint8_t type;
 	int offset = 0;
-	guint32 dst = g_htonl(MC_ALL_ROUTERS);
+	uint32_t dst = g_htonl(MC_ALL_ROUTERS);
 
 	/* Shouldn't be destined for us */
 	if ((pinfo->dst.type != AT_IPv4) || memcmp(pinfo->dst.data, &dst, 4))
@@ -179,7 +179,7 @@ dissect_mrdisc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void*
 	item = proto_tree_add_item(parent_tree, proto_mrdisc, tvb, offset, 0, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_mrdisc);
 
-	type = tvb_get_guint8(tvb, offset);
+	type = tvb_get_uint8(tvb, offset);
 	col_add_str(pinfo->cinfo, COL_INFO,
 			val_to_str(type, mrdisc_types,
 				"Unknown Type:0x%02x"));
@@ -251,7 +251,7 @@ proto_register_mrdisc(void)
 			  NULL, 0, "MRDISC Unknown Option Data", HFILL }},
 
 	};
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_mrdisc,
 		&ett_options,
 	};

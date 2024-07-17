@@ -72,9 +72,9 @@ static int hf_multipart_last_boundary;
 static int hf_multipart_preamble;
 
 /* Initialize the subtree pointers */
-static gint ett_multipart;
-static gint ett_multipart_main;
-static gint ett_multipart_body;
+static int ett_multipart;
+static int ett_multipart_main;
+static int ett_multipart_body;
 
 /* Generated from convert_proto_tree_add_text.pl */
 static expert_field ei_multipart_no_required_parameter;
@@ -113,10 +113,10 @@ static const multipart_header_t multipart_headers[] = {
 #define POS_ORIGINALCONTENT             9
 
 /* Initialize the header fields */
-static gint hf_multipart_type;
-static gint hf_multipart_part;
-static gint hf_multipart_sec_token_len;
-static gint hf_header_array[array_length(multipart_headers)];
+static int hf_multipart_type;
+static int hf_multipart_part;
+static int hf_multipart_sec_token_len;
+static int hf_header_array[array_length(multipart_headers)];
 
 /* Define media_type/Content type table */
 static dissector_table_t media_type_dissector_table;
@@ -139,31 +139,31 @@ static bool uncompress_data = true;
 typedef struct {
     const char *type; /* Type of multipart */
     char *boundary; /* Boundary string (enclosing quotes removed if any) */
-    guint boundary_length; /* Length of the boundary string */
+    unsigned boundary_length; /* Length of the boundary string */
     char *protocol; /* Protocol string if encrypted multipart (enclosing quotes removed if any) */
-    guint protocol_length; /* Length of the protocol string  */
+    unsigned protocol_length; /* Length of the protocol string  */
     char *orig_content_type; /* Content-Type of original message */
     char *orig_parameters; /* Parameters for Content-Type of original message */
 } multipart_info_t;
 
 
 
-static gint
-find_first_boundary(tvbuff_t *tvb, gint start, const guint8 *boundary,
-        gint boundary_len, gint *boundary_line_len, gboolean *last_boundary);
-static gint
-find_next_boundary(tvbuff_t *tvb, gint start, const guint8 *boundary,
-        gint boundary_len, gint *boundary_line_len, gboolean *last_boundary);
-static gint
+static int
+find_first_boundary(tvbuff_t *tvb, int start, const uint8_t *boundary,
+        int boundary_len, int *boundary_line_len, bool *last_boundary);
+static int
+find_next_boundary(tvbuff_t *tvb, int start, const uint8_t *boundary,
+        int boundary_len, int *boundary_line_len, bool *last_boundary);
+static int
 process_preamble(proto_tree *tree, tvbuff_t *tvb, multipart_info_t *m_info,
-        gboolean *last_boundary);
-static gint
+        bool *last_boundary);
+static int
 process_body_part(proto_tree *tree, tvbuff_t *tvb,
         media_content_info_t *input_content_info, multipart_info_t *m_info,
-        packet_info *pinfo, gint start, gint idx,
-        gboolean *last_boundary);
-static gint
-is_known_multipart_header(const char *header_str, guint len);
+        packet_info *pinfo, int start, int idx,
+        bool *last_boundary);
+static int
+is_known_multipart_header(const char *header_str, unsigned len);
 
 
 /* Return a tvb that contains the binary representation of a base64
@@ -192,14 +192,14 @@ base64_decode(packet_info *pinfo, tvbuff_t *b64_tvb, char *name)
  * Return the cleaned-up RFC2822 header (buffer must be freed).
  */
 static char *
-unfold_and_compact_mime_header(wmem_allocator_t *pool, const char *lines, gint *first_colon_offset)
+unfold_and_compact_mime_header(wmem_allocator_t *pool, const char *lines, int *first_colon_offset)
 {
     const char *p = lines;
     char c;
     char *ret, *q;
     char sep_seen = 0; /* Did we see a separator ":;," */
-    char lws = FALSE; /* Did we see LWS (incl. folding) */
-    gint colon = -1;
+    char lws = false; /* Did we see LWS (incl. folding) */
+    int colon = -1;
 
     if (! lines) return NULL;
 
@@ -209,50 +209,50 @@ unfold_and_compact_mime_header(wmem_allocator_t *pool, const char *lines, gint *
 
     while (c) {
         if (c == ':') {
-            lws = FALSE; /* Prevent leading LWS from showing up */
+            lws = false; /* Prevent leading LWS from showing up */
             if (colon == -1) {/* First colon */
-                colon = (gint) (q - ret);
+                colon = (int) (q - ret);
             }
             *(q++) = sep_seen = c;
             p++;
         } else if (c == ';' || c == ',' || c == '=') {
-            lws = FALSE; /* Prevent leading LWS from showing up */
+            lws = false; /* Prevent leading LWS from showing up */
             *(q++) = sep_seen = c;
             p++;
         } else if (c == ' ' || c == '\t') {
-            lws = TRUE;
+            lws = true;
             p++;
         } else if (c == '\n') {
-            lws = FALSE; /* Skip trailing LWS */
+            lws = false; /* Skip trailing LWS */
             if ((c = *(p+1))) {
                 if (c == ' ' || c == '\t') { /* Header unfolding */
-                    lws = TRUE;
+                    lws = true;
                     p += 2;
                 } else {
                     *q = c = 0; /* Stop */
                 }
             }
         } else if (c == '\r') {
-            lws = FALSE;
+            lws = false;
             if ((c = *(p+1))) {
                 if (c == '\n') {
                     if ((c = *(p+2))) {
                         if (c == ' ' || c == '\t') { /* Header unfolding */
-                            lws = TRUE;
+                            lws = true;
                             p += 3;
                         } else {
                             *q = c = 0; /* Stop */
                         }
                     }
                 } else if (c == ' ' || c == '\t') { /* Header unfolding */
-                    lws = TRUE;
+                    lws = true;
                     p += 2;
                 } else {
                     *q = c = 0; /* Stop */
                 }
             }
         } else if (c == '"') { /* Start of quoted-string */
-            lws = FALSE;
+            lws = false;
             *(q++) = c;
             while (c) {
                 c = *(q++) = *(++p);
@@ -279,7 +279,7 @@ unfold_and_compact_mime_header(wmem_allocator_t *pool, const char *lines, gint *
                     *(q++) = ' ';
                 }
             }
-            lws = FALSE;
+            lws = false;
             *(q++) = c;
             p++; /* OK */
         }
@@ -309,7 +309,7 @@ get_multipart_info(packet_info *pinfo, media_content_info_t *content_info)
     multipart_info_t *m_info = NULL;
     const char *type = pinfo->match_string;
     char *parameters;
-    gint dummy;
+    int dummy;
 
     /*
      * We need both a content type AND parameters
@@ -346,10 +346,10 @@ get_multipart_info(packet_info *pinfo, media_content_info_t *content_info)
     m_info = wmem_new(pinfo->pool, multipart_info_t);
     m_info->type = type;
     m_info->boundary = start_boundary;
-    m_info->boundary_length = (guint)strlen(start_boundary);
+    m_info->boundary_length = (unsigned)strlen(start_boundary);
     if(start_protocol) {
         m_info->protocol = start_protocol;
-        m_info->protocol_length = (guint)strlen(start_protocol);
+        m_info->protocol_length = (unsigned)strlen(start_protocol);
     } else {
         m_info->protocol = NULL;
         m_info->protocol_length = -1;
@@ -366,29 +366,29 @@ get_multipart_info(packet_info *pinfo, media_content_info_t *content_info)
  *
  * Return the offset to the 1st byte of the boundary delimiter line.
  * Set boundary_line_len to the length of the entire boundary delimiter.
- * Set last_boundary to TRUE if we've seen the last-boundary delimiter.
+ * Set last_boundary to true if we've seen the last-boundary delimiter.
  */
-static gint
-find_first_boundary(tvbuff_t *tvb, gint start, const guint8 *boundary,
-        gint boundary_len, gint *boundary_line_len, gboolean *last_boundary)
+static int
+find_first_boundary(tvbuff_t *tvb, int start, const uint8_t *boundary,
+        int boundary_len, int *boundary_line_len, bool *last_boundary)
 {
-    gint offset = start, next_offset, line_len, boundary_start;
+    int offset = start, next_offset, line_len, boundary_start;
 
     while (tvb_offset_exists(tvb, offset + 2 + boundary_len)) {
         boundary_start = offset;
-        if (((tvb_strneql(tvb, offset, (const guint8 *)"--", 2) == 0)
+        if (((tvb_strneql(tvb, offset, (const uint8_t *)"--", 2) == 0)
                     && (tvb_strneql(tvb, offset + 2, boundary,  boundary_len) == 0)))
         {
             /* Boundary string; now check if last */
             if ((tvb_reported_length_remaining(tvb, offset + 2 + boundary_len + 2) >= 0)
                     && (tvb_strneql(tvb, offset + 2 + boundary_len,
-                            (const guint8 *)"--", 2) == 0)) {
-                *last_boundary = TRUE;
+                            (const uint8_t *)"--", 2) == 0)) {
+                *last_boundary = true;
             } else {
-                *last_boundary = FALSE;
+                *last_boundary = false;
             }
             /* Look for line end of the boundary line */
-            line_len =  tvb_find_line_end(tvb, offset, -1, &offset, FALSE);
+            line_len =  tvb_find_line_end(tvb, offset, -1, &offset, false);
             if (line_len == -1) {
                 *boundary_line_len = -1;
             } else {
@@ -396,7 +396,7 @@ find_first_boundary(tvbuff_t *tvb, gint start, const guint8 *boundary,
             }
             return boundary_start;
         }
-        line_len =  tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+        line_len =  tvb_find_line_end(tvb, offset, -1, &next_offset, false);
         if (line_len == -1) {
             return -1;
         }
@@ -412,33 +412,33 @@ find_first_boundary(tvbuff_t *tvb, gint start, const guint8 *boundary,
  *
  * Return the offset to the 1st byte of the boundary delimiter line.
  * Set boundary_line_len to the length of the entire boundary delimiter.
- * Set last_boundary to TRUE if we've seen the last-boundary delimiter.
+ * Set last_boundary to true if we've seen the last-boundary delimiter.
  */
-static gint
-find_next_boundary(tvbuff_t *tvb, gint start, const guint8 *boundary,
-        gint boundary_len, gint *boundary_line_len, gboolean *last_boundary)
+static int
+find_next_boundary(tvbuff_t *tvb, int start, const uint8_t *boundary,
+        int boundary_len, int *boundary_line_len, bool *last_boundary)
 {
-    gint offset = start, next_offset, line_len, boundary_start;
+    int offset = start, next_offset, line_len, boundary_start;
 
     while (tvb_offset_exists(tvb, offset + 2 + boundary_len)) {
-        line_len =  tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+        line_len =  tvb_find_line_end(tvb, offset, -1, &next_offset, false);
         if (line_len == -1) {
             return -1;
         }
         boundary_start = offset + line_len;
-        if (((tvb_strneql(tvb, next_offset, (const guint8 *)"--", 2) == 0)
+        if (((tvb_strneql(tvb, next_offset, (const uint8_t *)"--", 2) == 0)
                     && (tvb_strneql(tvb, next_offset + 2, boundary, boundary_len) == 0)))
         {
             /* Boundary string; now check if last */
             if ((tvb_reported_length_remaining(tvb, next_offset + 2 + boundary_len + 2) >= 0)
                     && (tvb_strneql(tvb, next_offset + 2 + boundary_len,
-                            (const guint8 *)"--", 2) == 0)) {
-                *last_boundary = TRUE;
+                            (const uint8_t *)"--", 2) == 0)) {
+                *last_boundary = true;
             } else {
-                *last_boundary = FALSE;
+                *last_boundary = false;
             }
             /* Look for line end of the boundary line */
-            line_len =  tvb_find_line_end(tvb, next_offset, -1, &offset, FALSE);
+            line_len =  tvb_find_line_end(tvb, next_offset, -1, &offset, false);
             if (line_len == -1) {
                 *boundary_line_len = -1;
             } else {
@@ -446,13 +446,13 @@ find_next_boundary(tvbuff_t *tvb, gint start, const guint8 *boundary,
             }
             return boundary_start;
         /* check if last before CRLF; some ignore the standard, so there is no CRLF before the boundary */
-        } else if ((tvb_strneql(tvb, boundary_start - 2, (const guint8 *)"--", 2) == 0)
+        } else if ((tvb_strneql(tvb, boundary_start - 2, (const uint8_t *)"--", 2) == 0)
                     && (tvb_strneql(tvb, boundary_start - (2 + boundary_len), boundary, boundary_len) == 0)
                     && (tvb_strneql(tvb, boundary_start - (2 + boundary_len + 2),
-                            (const guint8 *)"--", 2) == 0)) {
+                            (const uint8_t *)"--", 2) == 0)) {
             boundary_start -= 2 + boundary_len + 2;
             *boundary_line_len = next_offset - boundary_start;
-            *last_boundary = TRUE;
+            *last_boundary = true;
             return boundary_start;
         }
         offset = next_offset;
@@ -467,14 +467,14 @@ find_next_boundary(tvbuff_t *tvb, gint start, const guint8 *boundary,
  *
  * Return the offset to the start of the first body-part.
  */
-static gint
+static int
 process_preamble(proto_tree *tree, tvbuff_t *tvb, multipart_info_t *m_info,
-        gboolean *last_boundary)
+        bool *last_boundary)
 {
-    gint boundary_start, boundary_line_len;
+    int boundary_start, boundary_line_len;
 
-    const guint8 *boundary = (guint8 *)m_info->boundary;
-    gint boundary_len = m_info->boundary_length;
+    const uint8_t *boundary = (uint8_t *)m_info->boundary;
+    int boundary_len = m_info->boundary_length;
 
     boundary_start = find_first_boundary(tvb, 0, boundary, boundary_len,
             &boundary_line_len, last_boundary);
@@ -483,7 +483,7 @@ process_preamble(proto_tree *tree, tvbuff_t *tvb, multipart_info_t *m_info,
         return boundary_start + boundary_line_len;
     } else if (boundary_start > 0) {
         if (boundary_line_len > 0) {
-            gint body_part_start = boundary_start + boundary_line_len;
+            int body_part_start = boundary_start + boundary_line_len;
             proto_tree_add_item(tree, hf_multipart_preamble, tvb, 0, boundary_start, ENC_NA);
             proto_tree_add_item(tree, hf_multipart_first_boundary, tvb, boundary_start, boundary_line_len, ENC_NA|ENC_ASCII);
             return body_part_start;
@@ -496,8 +496,8 @@ static void
 dissect_kerberos_encrypted_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gssapi_encrypt_info_t* encrypt)
 {
     tvbuff_t *kerberos_tvb;
-    gint offset = 0, len;
-    guint8 *data;
+    int offset = 0, len;
+    uint8_t *data;
 
     proto_tree_add_item(tree, hf_multipart_sec_token_len, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
@@ -505,7 +505,7 @@ dissect_kerberos_encrypted_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
     DISSECTOR_ASSERT(tvb_bytes_exist(tvb, offset, len));
 
-    data = (guint8 *)tvb_memdup(pinfo->pool, tvb, offset, len);
+    data = (uint8_t *)tvb_memdup(pinfo->pool, tvb, offset, len);
     kerberos_tvb = tvb_new_child_real_data(tvb, data, len, len);
 
     add_new_data_source(pinfo, kerberos_tvb, "Kerberos Data");
@@ -521,30 +521,30 @@ dissect_kerberos_encrypted_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree
  *
  * Return the offset to the start of the next body-part.
  */
-static gint
+static int
 process_body_part(proto_tree *tree, tvbuff_t *tvb,
         media_content_info_t *input_content_info, multipart_info_t *m_info,
-        packet_info *pinfo, gint start, gint idx,
-        gboolean *last_boundary)
+        packet_info *pinfo, int start, int idx,
+        bool *last_boundary)
 {
     proto_tree *subtree;
     proto_item *ti;
-    gint offset = start, next_offset = 0;
+    int offset = start, next_offset = 0;
     media_content_info_t content_info = { input_content_info->type, NULL, NULL, NULL };
-    gint body_start, boundary_start, boundary_line_len;
+    int body_start, boundary_start, boundary_line_len;
 
-    gchar *content_type_str = NULL;
-    gchar *content_trans_encoding_str = NULL;
+    char *content_type_str = NULL;
+    char *content_trans_encoding_str = NULL;
 #if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
-    gchar *content_encoding_str = NULL;
+    char *content_encoding_str = NULL;
 #endif
     char *filename = NULL;
     char *mimetypename = NULL;
     bool last_field = false;
-    gboolean is_raw_data = FALSE;
+    bool is_raw_data = false;
 
-    const guint8 *boundary = (guint8 *)m_info->boundary;
-    gint boundary_len = m_info->boundary_length;
+    const uint8_t *boundary = (uint8_t *)m_info->boundary;
+    int boundary_len = m_info->boundary_length;
 
     ti = proto_tree_add_item(tree, hf_multipart_part, tvb, start, 0, ENC_ASCII);
     subtree = proto_item_add_subtree(ti, ett_multipart_body);
@@ -563,7 +563,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
 
     while (!last_field)
     {
-        gint colon_offset;
+        int colon_offset;
         char *hdr_str;
         char *header_str;
 
@@ -584,7 +584,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
         } else if((next_offset-2) == boundary_start) {
             /* if CRLF is the start of next boundary it belongs to the boundary and not the field,
                so it's the last field without CRLF */
-            last_field = TRUE;
+            last_field = true;
             next_offset -= 2;
         } else if (next_offset > boundary_start) {
             /* if there is no CRLF between last field and next boundary - trim it! */
@@ -600,7 +600,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
             next_offset = offset;
             break;
         } else {
-            gint hf_index;
+            int hf_index;
 
             hf_index = is_known_multipart_header(header_str, colon_offset);
 
@@ -664,7 +664,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
 
                             if(strncmp(content_type_str, "application/octet-stream",
                                     sizeof("application/octet-stream")-1) == 0) {
-                                is_raw_data = TRUE;
+                                is_raw_data = true;
                             }
 
                             /* there are only 2 body parts possible and each part has specific content types */
@@ -725,7 +725,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
      */
 
     {
-        gint body_len = boundary_start - body_start;
+        int body_len = boundary_start - body_start;
         tvbuff_t *tmp_tvb = tvb_new_subset_length(tvb, body_start, body_len);
         /*
          * If multipart subtype is encrypted the protcol string was set.
@@ -748,7 +748,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
 
             if(encrypt.gssapi_decrypted_tvb){
                     tmp_tvb = encrypt.gssapi_decrypted_tvb;
-                    is_raw_data = FALSE;
+                    is_raw_data = false;
                     content_type_str = m_info->orig_content_type;
                     content_info.media_str = m_info->orig_parameters;
             } else if(encrypt.gssapi_encrypted_tvb) {
@@ -763,7 +763,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
             /*
              * subdissection
              */
-            gboolean dissected;
+            bool dissected;
 
             /*
              * Try and remove any content transfer encoding so that each sub-dissector
@@ -818,7 +818,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
             call_data_dissector(tmp_tvb, pinfo, subtree);
         }
         proto_item_set_len(ti, boundary_start - start);
-        if (*last_boundary == TRUE) {
+        if (*last_boundary == true) {
            proto_tree_add_item(tree, hf_multipart_last_boundary, tvb, boundary_start, boundary_line_len, ENC_NA|ENC_ASCII);
         } else {
            proto_tree_add_item(tree, hf_multipart_boundary, tvb, boundary_start, boundary_line_len, ENC_NA|ENC_ASCII);
@@ -839,9 +839,9 @@ static int dissect_multipart(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     proto_item *type_ti;
     media_content_info_t *content_info = (media_content_info_t *)data;
     multipart_info_t *m_info = get_multipart_info(pinfo, content_info);
-    gint header_start = 0;
-    gint body_index = 0;
-    gboolean last_boundary = FALSE;
+    int header_start = 0;
+    int body_index = 0;
+    bool last_boundary = false;
 
     if (m_info == NULL) {
         /*
@@ -881,7 +881,7 @@ static int dissect_multipart(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     /*
      * Process the encapsulated bodies
      */
-    while (last_boundary == FALSE) {
+    while (last_boundary == false) {
         header_start = process_body_part(subtree, tvb, content_info, m_info,
                 pinfo, header_start, body_index++, &last_boundary);
         if (header_start == -1) {
@@ -899,10 +899,10 @@ static int dissect_multipart(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 }
 
 /* Returns index of method in multipart_headers */
-static gint
-is_known_multipart_header(const char *header_str, guint len)
+static int
+is_known_multipart_header(const char *header_str, unsigned len)
 {
-    guint i;
+    unsigned i;
 
     for (i = 1; i < array_length(multipart_headers); i++) {
         if (len == strlen(multipart_headers[i].name) &&
@@ -1034,7 +1034,7 @@ proto_register_multipart(void)
     /*
      * Setup protocol subtree array
      */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_multipart,
         &ett_multipart_main,
         &ett_multipart_body,

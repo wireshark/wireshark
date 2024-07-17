@@ -179,9 +179,9 @@ static int hf_mqttsn_control_info;
 static int hf_mqttsn_wireless_node_id;
 
 /* Initialize subtree pointers. */
-static gint ett_mqttsn_hdr;
-static gint ett_mqttsn_msg;
-static gint ett_mqttsn_flags;
+static int ett_mqttsn_hdr;
+static int ett_mqttsn_msg;
+static int ett_mqttsn_flags;
 
 /* Dissect a single MQTT-SN packet. */
 // NOLINTNEXTLINE(misc-no-recursion)
@@ -189,11 +189,11 @@ static void dissect_mqttsn_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 {
     /* Various variables. */
     int long_hdr_len = 0;
-    guint8 mqttsn_msg_type_id;
-    guint16 mqttsn_msg_len;
+    uint8_t mqttsn_msg_type_id;
+    uint16_t mqttsn_msg_len;
 
     /* Get the message length. */
-    mqttsn_msg_len = tvb_get_guint8(tvb, offset);
+    mqttsn_msg_len = tvb_get_uint8(tvb, offset);
 
     /* If the message length is equal to 1 then the next two bytes define the real message length. */
     if (mqttsn_msg_len == 1)
@@ -206,7 +206,7 @@ static void dissect_mqttsn_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     mqttsn_msg_len += offset;
 
     /* Get the message type id (in byte 1 or 3 - depending on the message length). */
-    mqttsn_msg_type_id = tvb_get_guint8(tvb, offset + (long_hdr_len ? 3 : 1));
+    mqttsn_msg_type_id = tvb_get_uint8(tvb, offset + (long_hdr_len ? 3 : 1));
 
     if (tree)
     {
@@ -495,15 +495,15 @@ static int dissect_mqttsn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 {
     /* Various variables. */
     int offset = 0;
-    guint8 mqttsn_msg_type_id;
+    uint8_t mqttsn_msg_type_id;
 
     /*
      * If the value in byte 0 is unequal to 1 then the value defines the
      * message length and the message type id is contained in byte 1.
      */
-    if (tvb_get_guint8(tvb, 0) != 1)
+    if (tvb_get_uint8(tvb, 0) != 1)
     {
-        mqttsn_msg_type_id = tvb_get_guint8(tvb, 1);
+        mqttsn_msg_type_id = tvb_get_uint8(tvb, 1);
     }
     /*
      * If the value in byte 0 is equal to 1 then the next two bytes define
@@ -511,7 +511,7 @@ static int dissect_mqttsn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
      */
     else
     {
-        mqttsn_msg_type_id = tvb_get_guint8(tvb, 3);
+        mqttsn_msg_type_id = tvb_get_uint8(tvb, 3);
     }
 
     /* Add the protcol name to the protocol column. */
@@ -668,7 +668,7 @@ void proto_register_mqttsn(void)
     };
 
     /* Setup protocol subtree arrays. */
-    static gint* ett_mqttsn[] = {
+    static int* ett_mqttsn[] = {
         &ett_mqttsn_hdr,
         &ett_mqttsn_msg,
         &ett_mqttsn_flags

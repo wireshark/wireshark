@@ -14,6 +14,6 @@
 
 #include "packet-ieee802154.h"
 
-extern void register_mle_key_hash_handler(guint hash_identifier, ieee802154_set_key_func key_func);
+extern void register_mle_key_hash_handler(unsigned hash_identifier, ieee802154_set_key_func key_func);
 
 #endif

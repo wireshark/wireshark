@@ -41,8 +41,8 @@ static int hf_moldudp64_msgdata;
 #define MOLDUDP64_ENDOFSESS 0xFFFF
 
 /* Initialize the subtree pointers */
-static gint ett_moldudp64;
-static gint ett_moldudp64_msgblk;
+static int ett_moldudp64;
+static int ett_moldudp64_msgblk;
 
 static expert_field ei_moldudp64_msglen_invalid;
 static expert_field ei_moldudp64_end_of_session_extra;
@@ -51,20 +51,20 @@ static expert_field ei_moldudp64_request;
 
 static dissector_table_t moldudp64_payload_table;
 
-static void moldudp64_prompt(packet_info *pinfo _U_, gchar* result)
+static void moldudp64_prompt(packet_info *pinfo _U_, char* result)
 {
     snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Payload as");
 }
 
 /* Code to dissect a message block */
-static guint
+static unsigned
 dissect_moldudp64_msgblk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        guint offset, guint64 sequence)
+        unsigned offset, uint64_t sequence)
 {
     proto_item *ti;
     proto_tree *blk_tree;
-    guint16     msglen, real_msglen, whole_len;
-    gint        remaining;
+    uint16_t    msglen, real_msglen, whole_len;
+    int         remaining;
     tvbuff_t*   next_tvb;
 
     if (tvb_captured_length_remaining(tvb, offset) < MOLDUDP64_MSGLEN_LEN)
@@ -105,7 +105,7 @@ dissect_moldudp64_msgblk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += MOLDUDP64_MSGLEN_LEN;
 
     next_tvb = tvb_new_subset_length(tvb, offset, real_msglen);
-    if (!dissector_try_payload_new(moldudp64_payload_table, next_tvb, pinfo, tree, FALSE, NULL))
+    if (!dissector_try_payload_new(moldudp64_payload_table, next_tvb, pinfo, tree, false, NULL))
     {
         proto_tree_add_item(blk_tree, hf_moldudp64_msgdata, tvb, offset, real_msglen, ENC_NA);
     }
@@ -119,9 +119,9 @@ dissect_moldudp64(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 {
     proto_item *ti;
     proto_tree *moldudp64_tree;
-    guint       offset            = 0;
-    guint16     count, real_count = 0;
-    guint64     sequence;
+    unsigned    offset            = 0;
+    uint16_t    count, real_count = 0;
+    uint64_t    sequence;
 
     /* Check that there's enough data */
     if (tvb_reported_length(tvb) < (MOLDUDP64_SESSION_LEN  +
@@ -232,7 +232,7 @@ proto_register_moldudp64(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_moldudp64,
         &ett_moldudp64_msgblk
     };

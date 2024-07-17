@@ -67,8 +67,8 @@ static int hf_macsec_ICV_check_success;
 static int hf_macsec_decrypted_data;
 
 /* Initialize the subtree pointers */
-static gint ett_macsec;
-static gint ett_macsec_tci;
+static int ett_macsec;
+static int ett_macsec_tci;
 
 /* Decrypting payload buffer */
 static uint8_t macsec_payload[MAX_PAYLOAD_LEN];
@@ -76,15 +76,15 @@ static uint8_t macsec_payload[MAX_PAYLOAD_LEN];
 /* AAD buffer */
 static uint8_t aad[MAX_PAYLOAD_LEN];
 
-static const gchar *psk = NULL;
+static const char *psk = NULL;
 static unsigned char *psk_bin = NULL;
 
 /* convert a 0-terminated preference key_string that contains a hex number
  *  into its binary representation
  * e.g. key_string "abcd" will be converted into two bytes 0xab, 0xcd
  * return the number of binary bytes or -1 for error */
-static gint
-pref_key_string_to_bin(const gchar *key_string, unsigned char **key_bin)
+static int
+pref_key_string_to_bin(const char *key_string, unsigned char **key_bin)
 {
     int key_string_len;
     int i, j;
@@ -122,13 +122,13 @@ static int dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     unsigned    sectag_length, data_length, short_length, icv_length;
     unsigned    fcs_length = 0;
     unsigned    data_offset, icv_offset;
-    guint8      tci_an_field;
+    uint8_t     tci_an_field;
 
     int         icv_check_success = PROTO_CHECKSUM_E_BAD;
     bool        key_provided = false;
     bool        encrypted = false;
-    guint       payload_len;
-    guint       offset;
+    unsigned    payload_len;
+    unsigned    offset;
 
     gcry_cipher_hd_t handle = 0;
 
@@ -156,7 +156,7 @@ static int dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         key_provided = true;
     }
 
-    tci_an_field = tvb_get_guint8(tvb, 0);
+    tci_an_field = tvb_get_uint8(tvb, 0);
 
     /* if the frame is an encrypted MACsec frame, remember that */
     if (((tci_an_field & TCI_E_MASK) == TCI_E_MASK) || ((tci_an_field & TCI_C_MASK) == TCI_C_MASK)) {
@@ -181,7 +181,7 @@ static int dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     }
 
     /* short length field: 1..47 bytes, 0 means 48 bytes or more */
-    short_length = (guint32)tvb_get_guint8(tvb, 1);
+    short_length = (uint32_t)tvb_get_uint8(tvb, 1);
 
     /* Get the payload section */
     if (short_length != 0) {
@@ -283,7 +283,7 @@ static int dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
             /* For authenticated and encrypted data, the AAD is always 28 bytes and consists of the
             header data and security tag. */
-            const guint8 *buf = tvb_get_ptr(tvb, 0, SECTAG_LEN_WITH_SC);
+            const uint8_t *buf = tvb_get_ptr(tvb, 0, SECTAG_LEN_WITH_SC);
 
             memcpy(aad, header, ETHHDR_LEN);
             memcpy(aad + ETHHDR_LEN, buf, SECTAG_LEN_WITH_SC);
@@ -306,7 +306,7 @@ static int dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
         } else {
             /* the frame length for the AAD is the complete frame including ethernet header but without the ICV */
-            guint frame_len = (ETHHDR_LEN + tvb_captured_length(tvb)) - ICV_LEN;
+            unsigned frame_len = (ETHHDR_LEN + tvb_captured_length(tvb)) - ICV_LEN;
 
             // For authenticated-only data, the aad is the frame minus the ICV
             // We have to build the AAD since the incoming TVB payload does not have the Ethernet header.
@@ -357,7 +357,7 @@ out:
         if (encrypted) {
             tvbuff_t *plain_tvb;
 
-            plain_tvb = tvb_new_child_real_data(next_tvb, (guint8 *)wmem_memdup(pinfo->pool, macsec_payload, payload_len),
+            plain_tvb = tvb_new_child_real_data(next_tvb, (uint8_t *)wmem_memdup(pinfo->pool, macsec_payload, payload_len),
                                                 payload_len, payload_len);
             ethertype_data.etype = tvb_get_ntohs(plain_tvb, 0);
 
@@ -389,7 +389,7 @@ out:
     /* If the frame decoded, or was not encrypted, continue dissection */
     if ((PROTO_CHECKSUM_E_GOOD == icv_check_success) || (false == encrypted)) {
         /* help eth padding calculation by subtracting length of the sectag, ethertype, icv, and fcs */
-        gint pkt_len_saved = pinfo->fd->pkt_len;
+        int pkt_len_saved = pinfo->fd->pkt_len;
 
         pinfo->fd->pkt_len -= (sectag_length + 2 + icv_length + fcs_length);
 
@@ -503,7 +503,7 @@ proto_register_macsec(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_macsec,
         &ett_macsec_tci
     };

@@ -58,9 +58,9 @@ static int hf_reg_ack_port;
 static int hf_reg_time;
 static int hf_reg_ack_time;
 
-static gint ett_macctrl;
-static gint ett_macctrl_cbfc_enbv;
-static gint ett_macctrl_cbfc_pause_times;
+static int ett_macctrl;
+static int ett_macctrl_cbfc_enbv;
+static int ett_macctrl_cbfc_pause_times;
 
 static expert_field ei_macctrl_opcode;
 static expert_field ei_macctrl_cbfc_enbv;
@@ -116,7 +116,7 @@ static const value_string reg_flags_vals[] = {
   { 0, NULL }
 };
 
-static const guint8 dst_addr[] = {0x01, 0x80, 0xC2, 0x00, 0x00, 0x01};
+static const uint8_t dst_addr[] = {0x01, 0x80, 0xC2, 0x00, 0x00, 0x01};
 static const address macctrl_dst_address = ADDRESS_INIT(AT_ETHER, 6, dst_addr);
 
 static int
@@ -125,10 +125,10 @@ dissect_macctrl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
   proto_item *ti, *opcode_item;
   proto_tree *macctrl_tree = NULL;
   proto_tree *pause_times_tree = NULL;
-  guint16     opcode;
-  guint16     pause_time;
+  uint16_t    opcode;
+  uint16_t    pause_time;
   int i;
-  gint offset = 0;
+  int offset = 0;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAC CTRL");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -223,7 +223,7 @@ dissect_macctrl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
       ti = proto_tree_add_bitmask(macctrl_tree, tvb, offset, hf_macctrl_cbfc_enbv,
                              ett_macctrl_cbfc_enbv, macctrl_cbfc_enbv_list, ENC_BIG_ENDIAN);
-      if (tvb_get_guint8(tvb, offset) != 0) {
+      if (tvb_get_uint8(tvb, offset) != 0) {
         expert_add_info(pinfo, ti, &ei_macctrl_cbfc_enbv);
       }
       offset += 2;
@@ -356,7 +356,7 @@ proto_register_macctrl(void)
         NULL, 0x0, NULL, HFILL }}
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
         &ett_macctrl,
         &ett_macctrl_cbfc_enbv,
         &ett_macctrl_cbfc_pause_times

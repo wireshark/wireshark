@@ -25,8 +25,8 @@
 void proto_register_media(void);
 
 static int proto_media;
-static gint hf_media_type;
-static gint ett_media;
+static int hf_media_type;
+static int ett_media;
 static heur_dissector_list_t heur_subdissector_list;
 
 static int
@@ -80,7 +80,7 @@ proto_register_media(void)
           FT_BYTES, BASE_NONE, NULL, 0,
           NULL, HFILL }},
     };
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_media
     };
 

@@ -18,12 +18,12 @@
 #define MBIM_COMMAND_SET   1
 
 struct mbim_info {
-    guint32 req_frame;
-    guint32 resp_frame;
-    guint32 cmd_type;
+    uint32_t req_frame;
+    uint32_t resp_frame;
+    uint32_t cmd_type;
 };
 
-typedef void (*mbim_dissect_fct) (tvbuff_t *, packet_info *, proto_tree *, gint /* offset */, struct mbim_info *);
+typedef void (*mbim_dissect_fct) (tvbuff_t *, packet_info *, proto_tree *, int /* offset */, struct mbim_info *);
 
 /* Structure listing the dissection function to be called for a given CID */
 struct mbim_cid_dissect {
@@ -36,9 +36,9 @@ struct mbim_cid_dissect {
 /* Structure handling the description of the UUID extension to be registered */
 struct mbim_uuid_ext {
     /* UUID value stored in network byte order */
-    guint32 uuid[4];
+    uint32_t uuid[4];
     /* UUID name to be displayed during dissection */
-    const gchar *uuid_name;
+    const char *uuid_name;
     /* value_string array containing the CID list for this UUID */
     const value_string *uuid_cid_list;
     /* Array of the dissection functions per CID. Pointers can be NULL when no dissection is expected */

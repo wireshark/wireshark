@@ -23,7 +23,7 @@ static int hf_mpeg_descriptor_tag;
 static int hf_mpeg_descriptor_length;
 static int hf_mpeg_descriptor_data;
 
-static gint ett_mpeg_descriptor;
+static int ett_mpeg_descriptor;
 
 static const value_string mpeg_descriptor_tag_vals[] = {
     /* From ISO/IEC 13818-1 */
@@ -204,12 +204,12 @@ static const value_string mpeg_descr_video_stream_multiple_frame_rate_flag_vals[
 };
 
 static void
-proto_mpeg_descriptor_dissect_video_stream(tvbuff_t *tvb, guint offset, proto_tree *tree)
+proto_mpeg_descriptor_dissect_video_stream(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
 
-    guint8 mpeg1_only_flag;
+    uint8_t mpeg1_only_flag;
 
-    mpeg1_only_flag = tvb_get_guint8(tvb, offset) & MPEG_DESCR_VIDEO_STREAM_MPEG1_ONLY_FLAG_MASK;
+    mpeg1_only_flag = tvb_get_uint8(tvb, offset) & MPEG_DESCR_VIDEO_STREAM_MPEG1_ONLY_FLAG_MASK;
     proto_tree_add_item(tree, hf_mpeg_descr_video_stream_multiple_frame_rate_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_mpeg_descr_video_stream_frame_rate_code, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_mpeg_descr_video_stream_mpeg1_only_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -265,7 +265,7 @@ static const value_string mpeg_descr_audio_stream_variable_rate_audio_indicator_
 };
 
 static void
-proto_mpeg_descriptor_dissect_audio_stream(tvbuff_t *tvb, guint offset, proto_tree *tree)
+proto_mpeg_descriptor_dissect_audio_stream(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_mpeg_descr_audio_stream_free_format_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_mpeg_descr_audio_stream_id, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -478,9 +478,9 @@ static int hf_mpeg_descr_reg_form_id;
 static int hf_mpeg_descr_reg_add_id_inf;
 
 static void
-proto_mpeg_descriptor_dissect_registration(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+proto_mpeg_descriptor_dissect_registration(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
 {
-    guint  offset_start;
+    unsigned  offset_start;
 
     offset_start = offset;
     proto_tree_add_item(tree, hf_mpeg_descr_reg_form_id, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -506,7 +506,7 @@ static const value_string mpeg_descr_data_stream_alignment_vals[] = {
 };
 
 static void
-proto_mpeg_descriptor_dissect_data_stream_alignment(tvbuff_t *tvb, guint offset, proto_tree *tree)
+proto_mpeg_descriptor_dissect_data_stream_alignment(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_mpeg_descr_data_stream_alignment, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
@@ -521,7 +521,7 @@ static int hf_mpeg_descr_ca_private;
 #define MPEG_DESCR_CA_PID_MASK      0x1FFF
 
 static void
-proto_mpeg_descriptor_dissect_ca(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+proto_mpeg_descriptor_dissect_ca(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_mpeg_descr_ca_system_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -549,7 +549,7 @@ static const value_string mpeg_descr_iso639_type_vals[] = {
 };
 
 static void
-proto_mpeg_descriptor_dissect_iso639(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+proto_mpeg_descriptor_dissect_iso639(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
 {
     if (len > 1)
         proto_tree_add_item(tree, hf_mpeg_descr_iso639_lang, tvb, offset, len - 1, ENC_ASCII);
@@ -571,7 +571,7 @@ static int hf_mpeg_descr_system_clock_reserved2;
 #define MPEG_DESCR_SYSTEM_CLOCK_RESERVED2_MASK                          0x1F
 
 static void
-proto_mpeg_descriptor_dissect_system_clock(tvbuff_t *tvb, guint offset, proto_tree *tree)
+proto_mpeg_descriptor_dissect_system_clock(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_mpeg_descr_system_clock_external_clock_reference_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_mpeg_descr_system_clock_reserved1, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -590,11 +590,11 @@ static int hf_mpeg_descr_max_bitrate;
 #define MPEG_DESCR_MAX_BITRATE_MASK     0x3FFFFF
 
 static void
-proto_mpeg_descriptor_dissect_max_bitrate(tvbuff_t *tvb, guint offset, proto_tree *tree)
+proto_mpeg_descriptor_dissect_max_bitrate(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     proto_item *rate_item;
 
-    guint32 rate;
+    uint32_t rate;
 
     proto_tree_add_item(tree, hf_mpeg_descr_max_bitrate_reserved, tvb, offset, 3, ENC_BIG_ENDIAN);
     rate = tvb_get_ntoh24(tvb, offset) & MPEG_DESCR_MAX_BITRATE_MASK;
@@ -614,11 +614,11 @@ static int hf_mpeg_descr_smoothing_buffer_size;
 #define MPEG_DESCR_SMOOTHING_BUFFER_SIZE_MASK       0x3FFFFF
 
 static void
-proto_mpeg_descriptor_dissect_smoothing_buffer(tvbuff_t *tvb, guint offset, proto_tree *tree)
+proto_mpeg_descriptor_dissect_smoothing_buffer(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     proto_item *leak_rate_item;
 
-    guint32 leak_rate;
+    uint32_t leak_rate;
 
     proto_tree_add_item(tree, hf_mpeg_descr_smoothing_buffer_reserved1, tvb, offset, 3, ENC_BIG_ENDIAN);
     leak_rate = tvb_get_ntoh24(tvb, offset) & MPEG_DESCR_SMOOTHING_BUFFER_LEAK_RATE_MASK;
@@ -639,7 +639,7 @@ static int hf_mpeg_descr_std_leak_valid;
 #define MPEG_DESCR_STD_LEAK_VALID_MASK  0x01
 
 static void
-proto_mpeg_descriptor_dissect_std(tvbuff_t *tvb, guint offset, proto_tree *tree)
+proto_mpeg_descriptor_dissect_std(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_mpeg_descr_std_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_mpeg_descr_std_leak_valid, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -667,16 +667,16 @@ static const value_string mpeg_descr_carousel_identifier_format_id_vals[] = {
 };
 
 static void
-proto_mpeg_descriptor_dissect_carousel_identifier(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+proto_mpeg_descriptor_dissect_carousel_identifier(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
 {
-    guint  key_len;
-    guint8 format_id;
-    guint  private_len = 0;
+    unsigned  key_len;
+    uint8_t format_id;
+    unsigned  private_len = 0;
 
     proto_tree_add_item(tree, hf_mpeg_descr_carousel_identifier_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    format_id = tvb_get_guint8(tvb, offset);
+    format_id = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_mpeg_descr_carousel_identifier_format_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -702,7 +702,7 @@ proto_mpeg_descriptor_dissect_carousel_identifier(tvbuff_t *tvb, guint offset, g
         proto_tree_add_item(tree, hf_mpeg_descr_carousel_identifier_timeout, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        key_len = tvb_get_guint8(tvb, offset);
+        key_len = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(tree, hf_mpeg_descr_carousel_identifier_object_key_len, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
@@ -732,11 +732,11 @@ static int hf_mpeg_descr_association_tag_selector_bytes;
 static int hf_mpeg_descr_association_tag_private_bytes;
 
 static void
-proto_mpeg_descriptor_dissect_association_tag(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+proto_mpeg_descriptor_dissect_association_tag(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
 {
-    guint   end = offset + len;
-    guint16 use;
-    guint8  selector_len;
+    unsigned   end = offset + len;
+    uint16_t use;
+    uint8_t selector_len;
 
     proto_tree_add_item(tree, hf_mpeg_descr_association_tag, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -745,7 +745,7 @@ proto_mpeg_descriptor_dissect_association_tag(tvbuff_t *tvb, guint offset, guint
     proto_tree_add_item(tree, hf_mpeg_descr_association_tag_use, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    selector_len = tvb_get_guint8(tvb, offset);
+    selector_len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_mpeg_descr_association_tag_selector_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset ++;
 
@@ -787,7 +787,7 @@ static int hf_mpeg_descr_avc_vid_reserved;
 #define MPEG_DESCR_AVC_VID_RESERVED_MASK                0x3F
 
 static void
-proto_mpeg_descriptor_dissect_avc_vid(tvbuff_t *tvb, guint offset, proto_tree *tree)
+proto_mpeg_descriptor_dissect_avc_vid(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_mpeg_descr_avc_vid_profile_idc, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
@@ -811,10 +811,10 @@ static int hf_mpeg_descr_network_name_encoding;
 static int hf_mpeg_descr_network_name_descriptor;
 
 static void
-proto_mpeg_descriptor_dissect_network_name(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+proto_mpeg_descriptor_dissect_network_name(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
 {
     dvb_encoding_e  encoding;
-    guint enc_len = dvb_analyze_string_charset(tvb, offset, len, &encoding);
+    unsigned enc_len = dvb_analyze_string_charset(tvb, offset, len, &encoding);
     dvb_add_chartbl(tree, hf_mpeg_descr_network_name_encoding, tvb, offset, enc_len, encoding);
 
     proto_tree_add_item(tree, hf_mpeg_descr_network_name_descriptor, tvb, offset+enc_len, len-enc_len, dvb_enc_to_item_enc(encoding));
@@ -824,13 +824,13 @@ proto_mpeg_descriptor_dissect_network_name(tvbuff_t *tvb, guint offset, guint le
 static int hf_mpeg_descr_service_list_id;
 static int hf_mpeg_descr_service_list_type;
 
-static gint ett_mpeg_descriptor_service_list;
+static int ett_mpeg_descriptor_service_list;
 
 static void
-proto_mpeg_descriptor_dissect_service_list(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+proto_mpeg_descriptor_dissect_service_list(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
 {
-    guint   end = offset + len;
-    guint16 svc_id;
+    unsigned   end = offset + len;
+    uint16_t svc_id;
 
     proto_tree *svc_tree;
 
@@ -853,7 +853,7 @@ proto_mpeg_descriptor_dissect_service_list(tvbuff_t *tvb, guint offset, guint le
 static int hf_mpeg_descr_stuffing;
 
 static void
-proto_mpeg_descriptor_stuffing(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+proto_mpeg_descriptor_stuffing(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_mpeg_descr_stuffing, tvb, offset, len, ENC_NA);
 }
@@ -937,28 +937,28 @@ static value_string_ext mpeg_descr_satellite_delivery_fec_inner_vals_ext =
     VALUE_STRING_EXT_INIT(mpeg_descr_satellite_delivery_fec_inner_vals);
 
 static void
-proto_mpeg_descriptor_dissect_satellite_delivery(tvbuff_t *tvb, guint offset, proto_tree *tree)
+proto_mpeg_descriptor_dissect_satellite_delivery(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
 
     double frequency, symbol_rate;
     float orbital_position;
-    guint8  modulation_system;
+    uint8_t modulation_system;
 
-    frequency = MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset)) * 10.0 +
-                MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset+1)) / 10.0 +
-                MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset+2)) / 1000.0 +
-                MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset+3)) / 100000.0;
+    frequency = MPEG_SECT_BCD44_TO_DEC(tvb_get_uint8(tvb, offset)) * 10.0 +
+                MPEG_SECT_BCD44_TO_DEC(tvb_get_uint8(tvb, offset+1)) / 10.0 +
+                MPEG_SECT_BCD44_TO_DEC(tvb_get_uint8(tvb, offset+2)) / 1000.0 +
+                MPEG_SECT_BCD44_TO_DEC(tvb_get_uint8(tvb, offset+3)) / 100000.0;
     proto_tree_add_double(tree, hf_mpeg_descr_satellite_delivery_frequency,
             tvb, offset, 4, frequency);
     offset += 4;
 
-    orbital_position = MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset)) * 10.0f +
-                       MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset+1)) / 10.0f;
+    orbital_position = MPEG_SECT_BCD44_TO_DEC(tvb_get_uint8(tvb, offset)) * 10.0f +
+                       MPEG_SECT_BCD44_TO_DEC(tvb_get_uint8(tvb, offset+1)) / 10.0f;
     proto_tree_add_float(tree, hf_mpeg_descr_satellite_delivery_orbital_position,
             tvb, offset, 2, orbital_position);
     offset += 2;
 
-    modulation_system = tvb_get_guint8(tvb, offset) & MPEG_DESCR_SATELLITE_DELIVERY_MODULATION_SYSTEM_MASK;
+    modulation_system = tvb_get_uint8(tvb, offset) & MPEG_DESCR_SATELLITE_DELIVERY_MODULATION_SYSTEM_MASK;
 
     proto_tree_add_item(tree, hf_mpeg_descr_satellite_delivery_west_east_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_mpeg_descr_satellite_delivery_polarization, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -970,11 +970,11 @@ proto_mpeg_descriptor_dissect_satellite_delivery(tvbuff_t *tvb, guint offset, pr
     proto_tree_add_item(tree, hf_mpeg_descr_satellite_delivery_modulation_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    symbol_rate = MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset)) * 10.0 +
-                  MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset+1)) / 10.0 +
-                  MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset+2)) / 1000.0 +
+    symbol_rate = MPEG_SECT_BCD44_TO_DEC(tvb_get_uint8(tvb, offset)) * 10.0 +
+                  MPEG_SECT_BCD44_TO_DEC(tvb_get_uint8(tvb, offset+1)) / 10.0 +
+                  MPEG_SECT_BCD44_TO_DEC(tvb_get_uint8(tvb, offset+2)) / 1000.0 +
                   /* symbol rate is 28 bits, only the upper 4 bits of this byte are used */
-                  MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset+3)>>4) / 10000.0;
+                  MPEG_SECT_BCD44_TO_DEC(tvb_get_uint8(tvb, offset+3)>>4) / 10000.0;
     proto_tree_add_double_format_value(tree, hf_mpeg_descr_satellite_delivery_symbol_rate,
             tvb, offset, 4, symbol_rate, "%3.4f MSym/s", symbol_rate);
     offset += 3;
@@ -1032,14 +1032,14 @@ static const value_string mpeg_descr_cable_delivery_fec_inner_vals[] = {
 static value_string_ext mpeg_descr_cable_delivery_fec_inner_vals_ext = VALUE_STRING_EXT_INIT(mpeg_descr_cable_delivery_fec_inner_vals);
 
 static void
-proto_mpeg_descriptor_dissect_cable_delivery(tvbuff_t *tvb, guint offset, proto_tree *tree) {
+proto_mpeg_descriptor_dissect_cable_delivery(tvbuff_t *tvb, unsigned offset, proto_tree *tree) {
 
     double frequency, symbol_rate;
 
-    frequency = MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset)) * 100.0 +
-                MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset+1)) +
-                MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset+2)) / 100.0 +
-                MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset+3)) / 10000.0;
+    frequency = MPEG_SECT_BCD44_TO_DEC(tvb_get_uint8(tvb, offset)) * 100.0 +
+                MPEG_SECT_BCD44_TO_DEC(tvb_get_uint8(tvb, offset+1)) +
+                MPEG_SECT_BCD44_TO_DEC(tvb_get_uint8(tvb, offset+2)) / 100.0 +
+                MPEG_SECT_BCD44_TO_DEC(tvb_get_uint8(tvb, offset+3)) / 10000.0;
     proto_tree_add_double_format_value(tree, hf_mpeg_descr_cable_delivery_frequency,
             tvb, offset, 4, frequency, "%4.4f MHz", frequency);
     offset += 4;
@@ -1051,11 +1051,11 @@ proto_mpeg_descriptor_dissect_cable_delivery(tvbuff_t *tvb, guint offset, proto_
     proto_tree_add_item(tree, hf_mpeg_descr_cable_delivery_modulation, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    symbol_rate = MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset)) * 10.0 +
-                  MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset+1)) / 10.0 +
-                  MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset+2)) / 1000.0 +
+    symbol_rate = MPEG_SECT_BCD44_TO_DEC(tvb_get_uint8(tvb, offset)) * 10.0 +
+                  MPEG_SECT_BCD44_TO_DEC(tvb_get_uint8(tvb, offset+1)) / 10.0 +
+                  MPEG_SECT_BCD44_TO_DEC(tvb_get_uint8(tvb, offset+2)) / 1000.0 +
                   /* symbol rate is 28 bits, only the upper 4 bits of this byte are used */
-                  MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset+3)>>4) / 10000.0;
+                  MPEG_SECT_BCD44_TO_DEC(tvb_get_uint8(tvb, offset+3)>>4) / 10000.0;
     proto_tree_add_double_format_value(tree, hf_mpeg_descr_cable_delivery_symbol_rate,
             tvb, offset, 4, symbol_rate, "%3.4f MSymbol/s", symbol_rate);
     offset += 3;
@@ -1076,7 +1076,7 @@ static int hf_mpeg_descr_vbi_data_reserved2;
 #define MPEG_DESCR_VBI_DATA_FIELD_PARITY_MASK   0x20
 #define MPEG_DESCR_VBI_DATA_LINE_OFFSET_MASK    0x1F
 
-static gint ett_mpeg_descriptor_vbi_data_service;
+static int ett_mpeg_descriptor_vbi_data_service;
 
 static const value_string mpeg_descr_vbi_data_service_id_vals[] = {
 
@@ -1100,17 +1100,17 @@ static const value_string mpeg_descr_vbi_data_field_parity_vals[] = {
 };
 
 static void
-proto_mpeg_descriptor_dissect_vbi_data(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+proto_mpeg_descriptor_dissect_vbi_data(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
 {
 
-    guint8 svc_id, svc_len;
-    guint  end = offset + len, svc_end;
+    uint8_t svc_id, svc_len;
+    unsigned  end = offset + len, svc_end;
 
     proto_tree *svc_tree;
 
     while (offset < end) {
-        svc_id  = tvb_get_guint8(tvb, offset);
-        svc_len = tvb_get_guint8(tvb, offset + 1);
+        svc_id  = tvb_get_uint8(tvb, offset);
+        svc_len = tvb_get_uint8(tvb, offset + 1);
         svc_tree = proto_tree_add_subtree_format(tree, tvb, offset, svc_len + 2,
                     ett_mpeg_descriptor_vbi_data_service, NULL, "Service 0x%02x", svc_id);
 
@@ -1149,10 +1149,10 @@ static int hf_mpeg_descr_bouquet_name_encoding;
 static int hf_mpeg_descr_bouquet_name;
 
 static void
-proto_mpeg_descriptor_dissect_bouquet_name(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+proto_mpeg_descriptor_dissect_bouquet_name(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
 {
     dvb_encoding_e  encoding;
-    guint enc_len = dvb_analyze_string_charset(tvb, offset, len, &encoding);
+    unsigned enc_len = dvb_analyze_string_charset(tvb, offset, len, &encoding);
     dvb_add_chartbl(tree, hf_mpeg_descr_bouquet_name_encoding, tvb, offset, enc_len, encoding);
 
     proto_tree_add_item(tree, hf_mpeg_descr_bouquet_name, tvb, offset+enc_len, len-enc_len, dvb_enc_to_item_enc(encoding));
@@ -1206,16 +1206,16 @@ static const value_string mpeg_descr_service_type_vals[] = {
 value_string_ext mpeg_descr_service_type_vals_ext = VALUE_STRING_EXT_INIT(mpeg_descr_service_type_vals);
 
 static void
-proto_mpeg_descriptor_dissect_service(tvbuff_t *tvb, guint offset, proto_tree *tree)
+proto_mpeg_descriptor_dissect_service(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
-    guint8          prov_len, name_len;
-    guint           enc_len;
+    uint8_t         prov_len, name_len;
+    unsigned        enc_len;
     dvb_encoding_e  encoding;
 
     proto_tree_add_item(tree, hf_mpeg_descr_service_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    prov_len = tvb_get_guint8(tvb, offset);
+    prov_len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_mpeg_descr_service_provider_name_length, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -1228,7 +1228,7 @@ proto_mpeg_descriptor_dissect_service(tvbuff_t *tvb, guint offset, proto_tree *t
     }
     offset += prov_len;
 
-    name_len = tvb_get_guint8(tvb, offset);
+    name_len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_mpeg_descr_service_name_length, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -1247,7 +1247,7 @@ static int hf_mpeg_descr_country_availability_flag;
 static int hf_mpeg_descr_country_availability_reserved_future_use;
 static int hf_mpeg_descr_country_availability_country_code;
 
-static gint ett_mpeg_descriptor_country_availability_countries;
+static int ett_mpeg_descriptor_country_availability_countries;
 
 #define MPEG_DESCR_COUNTRY_AVAILABILITY_FLAG_MASK           0x80
 #define MPEG_DESCR_COUNTRY_AVAILABILITY_RESERVED_MASK       0x7F
@@ -1260,9 +1260,9 @@ static const value_string mpeg_descr_country_availability_flag_vals[] = {
 };
 
 static void
-proto_mpeg_descriptor_dissect_country_availability_descriptor(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+proto_mpeg_descriptor_dissect_country_availability_descriptor(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
 {
-    guint end = offset+len;
+    unsigned end = offset+len;
 
     proto_tree *countries_tree;
 
@@ -1303,7 +1303,7 @@ static int hf_mpeg_descr_linkage_population_id_mask;
 
 static int hf_mpeg_descr_linkage_private_data_byte;
 
-static gint ett_mpeg_descriptor_linkage_population_id;
+static int ett_mpeg_descriptor_linkage_population_id;
 
 #define MPEG_DESCR_LINKAGE_HAND_OVER_TYPE_MASK  0xF0
 #define MPEG_DESCR_LINKAGE_HAND_OVER_TYPE_SHIFT 0x04
@@ -1366,13 +1366,13 @@ static const value_string mpeg_descr_linkage_event_simulcast_vals[] = {
 };
 
 static void
-proto_mpeg_descriptor_dissect_linkage(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+proto_mpeg_descriptor_dissect_linkage(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
 {
 
-    guint8  linkage_type, hand_over_type, origin_type;
-    guint   end = offset + len;
-    guint   population_id_loop_count;
-    guint16 population_id_base, population_id_mask;
+    uint8_t linkage_type, hand_over_type, origin_type;
+    unsigned   end = offset + len;
+    unsigned   population_id_loop_count;
+    uint16_t population_id_base, population_id_mask;
 
     proto_item *pi;
     proto_tree *population_tree;
@@ -1387,15 +1387,15 @@ proto_mpeg_descriptor_dissect_linkage(tvbuff_t *tvb, guint offset, guint len, pr
     offset += 2;
 
     proto_tree_add_item(tree, hf_mpeg_descr_linkage_linkage_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-    linkage_type = tvb_get_guint8(tvb, offset);
+    linkage_type = tvb_get_uint8(tvb, offset);
     offset += 1;
 
     if (linkage_type == 0x08) {
         proto_tree_add_item(tree, hf_mpeg_descr_linkage_hand_over_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_mpeg_descr_linkage_reserved1, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_mpeg_descr_linkage_origin_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-        hand_over_type = (tvb_get_guint8(tvb, offset) & MPEG_DESCR_LINKAGE_HAND_OVER_TYPE_MASK) >> MPEG_DESCR_LINKAGE_HAND_OVER_TYPE_SHIFT;
-        origin_type = tvb_get_guint8(tvb, offset) & MPEG_DESCR_LINKAGE_ORIGIN_TYPE_MASK;
+        hand_over_type = (tvb_get_uint8(tvb, offset) & MPEG_DESCR_LINKAGE_HAND_OVER_TYPE_MASK) >> MPEG_DESCR_LINKAGE_HAND_OVER_TYPE_SHIFT;
+        origin_type = tvb_get_uint8(tvb, offset) & MPEG_DESCR_LINKAGE_ORIGIN_TYPE_MASK;
         offset += 1;
 
         if ((hand_over_type == 1) || (hand_over_type == 2) || (hand_over_type == 3)) {
@@ -1426,7 +1426,7 @@ proto_mpeg_descriptor_dissect_linkage(tvbuff_t *tvb, guint offset, guint len, pr
         proto_tree_add_item(tree, hf_mpeg_descr_linkage_interactive_network_id, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
-        population_id_loop_count = tvb_get_guint8(tvb, offset) + 1;
+        population_id_loop_count = tvb_get_uint8(tvb, offset) + 1;
         proto_tree_add_item(tree, hf_mpeg_descr_linkage_population_id_loop_count, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
@@ -1456,19 +1456,19 @@ static int hf_mpeg_descr_nvod_reference_tsid;
 static int hf_mpeg_descr_nvod_reference_onid;
 static int hf_mpeg_descr_nvod_reference_sid;
 
-static gint ett_mpeg_descriptor_nvod_reference_triplet;
+static int ett_mpeg_descriptor_nvod_reference_triplet;
 
 static void
-proto_mpeg_descriptor_dissect_nvod_reference(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+proto_mpeg_descriptor_dissect_nvod_reference(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
 {
-    guint end = offset + len;
+    unsigned end = offset + len;
 
     proto_tree * triplet_tree;
 
     while (offset < end) {
-        guint tsid = tvb_get_guint16(tvb, offset + 0, ENC_BIG_ENDIAN);
-        guint onid = tvb_get_guint16(tvb, offset + 2, ENC_BIG_ENDIAN);
-        guint sid  = tvb_get_guint16(tvb, offset + 4, ENC_BIG_ENDIAN);
+        unsigned tsid = tvb_get_uint16(tvb, offset + 0, ENC_BIG_ENDIAN);
+        unsigned onid = tvb_get_uint16(tvb, offset + 2, ENC_BIG_ENDIAN);
+        unsigned sid  = tvb_get_uint16(tvb, offset + 4, ENC_BIG_ENDIAN);
 
         triplet_tree = proto_tree_add_subtree_format(tree, tvb, offset, 6, ett_mpeg_descriptor_nvod_reference_triplet, NULL, "NVOD Service Triplet (0x%04X:0x%04X:0x%04X)", tsid, onid, sid);
 
@@ -1487,7 +1487,7 @@ proto_mpeg_descriptor_dissect_nvod_reference(tvbuff_t *tvb, guint offset, guint 
 static int hf_mpeg_descr_time_shifted_service_id;
 
 static void
-proto_mpeg_descriptor_dissect_time_shifted_service(tvbuff_t *tvb, guint offset, proto_tree *tree)
+proto_mpeg_descriptor_dissect_time_shifted_service(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_mpeg_descr_time_shifted_service_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 }
@@ -1502,16 +1502,16 @@ static int hf_mpeg_descr_short_event_text_encoding;
 static int hf_mpeg_descr_short_event_text;
 
 static void
-proto_mpeg_descriptor_dissect_short_event(tvbuff_t *tvb, guint offset, proto_tree *tree)
+proto_mpeg_descriptor_dissect_short_event(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
-    guint8          name_len, text_len;
-    guint           enc_len;
+    uint8_t         name_len, text_len;
+    unsigned        enc_len;
     dvb_encoding_e  encoding;
 
     proto_tree_add_item(tree, hf_mpeg_descr_short_event_lang_code, tvb, offset, 3, ENC_ASCII);
     offset += 3;
 
-    name_len = tvb_get_guint8(tvb, offset);
+    name_len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_mpeg_descr_short_event_name_length, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -1523,7 +1523,7 @@ proto_mpeg_descriptor_dissect_short_event(tvbuff_t *tvb, guint offset, proto_tre
     }
     offset += name_len;
 
-    text_len = tvb_get_guint8(tvb, offset);
+    text_len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_mpeg_descr_short_event_text_length, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -1551,16 +1551,16 @@ static int hf_mpeg_descr_extended_event_text;
 #define MPEG_DESCR_EXTENDED_EVENT_DESCRIPTOR_NUMBER_MASK    0xF0
 #define MPEG_DESCR_EXTENDED_EVENT_LAST_DESCRIPTOR_NUMBER_MASK   0x0F
 
-static gint ett_mpeg_descriptor_extended_event_item;
+static int ett_mpeg_descriptor_extended_event_item;
 
 static void
-proto_mpeg_descriptor_dissect_extended_event(tvbuff_t *tvb, guint offset, proto_tree *tree)
+proto_mpeg_descriptor_dissect_extended_event(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
 
-    guint8          items_len, item_descr_len, item_len, text_len;
-    guint           items_end;
+    uint8_t         items_len, item_descr_len, item_len, text_len;
+    unsigned        items_end;
     proto_tree     *item_tree;
-    guint           enc_len;
+    unsigned        enc_len;
     dvb_encoding_e  encoding;
 
     proto_tree_add_item(tree, hf_mpeg_descr_extended_event_descriptor_number, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1570,7 +1570,7 @@ proto_mpeg_descriptor_dissect_extended_event(tvbuff_t *tvb, guint offset, proto_
     proto_tree_add_item(tree, hf_mpeg_descr_extended_event_lang_code, tvb, offset, 3, ENC_ASCII);
     offset += 3;
 
-    items_len = tvb_get_guint8(tvb, offset);
+    items_len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_mpeg_descr_extended_event_length_of_items, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -1579,14 +1579,14 @@ proto_mpeg_descriptor_dissect_extended_event(tvbuff_t *tvb, guint offset, proto_
     while (offset < items_end) {
         item_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_mpeg_descriptor_extended_event_item, NULL, "Item");
 
-        item_descr_len = tvb_get_guint8(tvb, offset);
+        item_descr_len = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(item_tree, hf_mpeg_descr_extended_event_item_description_length, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
         proto_tree_add_item(item_tree, hf_mpeg_descr_extended_event_item_description_char, tvb, offset, item_descr_len, ENC_ASCII);
         offset += item_descr_len;
 
-        item_len = tvb_get_guint8(tvb, offset);
+        item_len = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(item_tree, hf_mpeg_descr_extended_event_item_length, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
@@ -1594,7 +1594,7 @@ proto_mpeg_descriptor_dissect_extended_event(tvbuff_t *tvb, guint offset, proto_
         offset += item_len;
     }
 
-    text_len = tvb_get_guint8(tvb, offset);
+    text_len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_mpeg_descr_extended_event_text_length, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -1612,7 +1612,7 @@ static int hf_mpeg_descr_time_shifted_event_reference_service_id;
 static int hf_mpeg_descr_time_shifted_event_reference_event_id;
 
 static void
-proto_mpeg_descriptor_dissect_time_shifted_event(tvbuff_t *tvb, guint offset, proto_tree *tree)
+proto_mpeg_descriptor_dissect_time_shifted_event(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_mpeg_descr_time_shifted_event_reference_service_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -1662,7 +1662,7 @@ static int hf_mpeg_descr_component_nga_bits_b10_channel_layout;
 #define MPEG_DESCR_COMPONENT_NGA_BITS_B2_MASK    0x0004
 #define MPEG_DESCR_COMPONENT_NGA_BITS_B10_MASK   0x0003
 
-static gint ett_mpeg_descriptor_component_content_type;
+static int ett_mpeg_descriptor_component_content_type;
 
 static const value_string mpeg_descr_component_stream_content_vals[] = {
 
@@ -1850,21 +1850,21 @@ HDR with HLG10 up to 7680x4320@60Hz)" },
 static value_string_ext mpeg_descr_component_high_content_type_vals_ext = VALUE_STRING_EXT_INIT(mpeg_descr_component_high_content_type_vals);
 
 static void
-proto_mpeg_descriptor_dissect_component(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+proto_mpeg_descriptor_dissect_component(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
 {
 
     proto_item *cti;
     proto_tree *content_type_tree;
-    guint end = offset + len;
+    unsigned end = offset + len;
 
     if (len < 6) {
         return;
     }
 
-    guint stream_content     = tvb_get_bits8(tvb, offset * 8 + 4, 4);
+    unsigned stream_content     = tvb_get_bits8(tvb, offset * 8 + 4, 4);
 
     if (stream_content >= 0x09) {
-        guint stream_content_ext = tvb_get_bits8(tvb, offset * 8, 4);
+        unsigned stream_content_ext = tvb_get_bits8(tvb, offset * 8, 4);
 
         cti = proto_tree_add_item(tree, hf_mpeg_descr_component_high_stream_content_n_component_type, tvb, offset, 2, ENC_BIG_ENDIAN);
         content_type_tree = proto_item_add_subtree(cti, ett_mpeg_descriptor_component_content_type);
@@ -1910,7 +1910,7 @@ mpeg_descr_component_tail:
     if (offset < end)
     {
         dvb_encoding_e  encoding;
-        guint enc_len = dvb_analyze_string_charset(tvb, offset, end - offset, &encoding);
+        unsigned enc_len = dvb_analyze_string_charset(tvb, offset, end - offset, &encoding);
         dvb_add_chartbl(tree, hf_mpeg_descr_component_text_encoding, tvb, offset, enc_len, encoding);
 
         proto_tree_add_item(tree, hf_mpeg_descr_component_text, tvb, offset+enc_len, end-offset-enc_len, dvb_enc_to_item_enc(encoding));
@@ -1945,8 +1945,8 @@ static int hf_mpeg_descr_mosaic_event_id;
 #define MPEG_DESCR_MOSAIC_RESERVED3_MASK                0xC0
 #define MPEG_DESCR_MOSAIC_ELEMENTARY_CELL_ID_MASK       0x3F
 
-static gint ett_mpeg_descriptor_mosaic_logical_cell;
-static gint ett_mpeg_descriptor_mosaic_elementary_cells;
+static int ett_mpeg_descriptor_mosaic_logical_cell;
+static int ett_mpeg_descriptor_mosaic_elementary_cells;
 
 static const value_string mpeg_descr_mosaic_number_of_e_cells_vals[] = {
     { 0x00, "One cell" },
@@ -1982,17 +1982,17 @@ static const range_string mpeg_descr_mosaic_cell_linkage_info_vals[] = {
     { 0x00, 0x00, NULL }
 };
 
-static guint
-proto_mpeg_descriptor_dissect_mosaic_measure_l_cell_len(tvbuff_t *tvb, guint offset)
+static unsigned
+proto_mpeg_descriptor_dissect_mosaic_measure_l_cell_len(tvbuff_t *tvb, unsigned offset)
 {
-    guint l_offset = offset;
+    unsigned l_offset = offset;
 
     l_offset += 2;
-    guint8 elementary_cell_field_length = tvb_get_guint8(tvb, l_offset);
+    uint8_t elementary_cell_field_length = tvb_get_uint8(tvb, l_offset);
     l_offset += 1;
     l_offset += elementary_cell_field_length;
 
-    guint8 cell_linkage_info = tvb_get_guint8(tvb, l_offset);
+    uint8_t cell_linkage_info = tvb_get_uint8(tvb, l_offset);
     l_offset += 1;
 
     switch (cell_linkage_info) {
@@ -2012,9 +2012,9 @@ proto_mpeg_descriptor_dissect_mosaic_measure_l_cell_len(tvbuff_t *tvb, guint off
 }
 
 static void
-proto_mpeg_descriptor_dissect_mosaic(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+proto_mpeg_descriptor_dissect_mosaic(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
 {
-    guint end = offset + len;
+    unsigned end = offset + len;
 
     proto_tree_add_item(tree, hf_mpeg_descr_mosaic_mosaic_entry_point, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_mpeg_descr_mosaic_number_of_horizontal_elementary_cells, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2023,16 +2023,16 @@ proto_mpeg_descriptor_dissect_mosaic(tvbuff_t *tvb, guint offset, guint len, pro
     offset += 1;
 
     while (offset < end) {
-        guint l_cell_len = proto_mpeg_descriptor_dissect_mosaic_measure_l_cell_len(tvb, offset);
+        unsigned l_cell_len = proto_mpeg_descriptor_dissect_mosaic_measure_l_cell_len(tvb, offset);
 
-        guint8 logical_cell_id = tvb_get_bits(tvb, offset*8, 6, ENC_BIG_ENDIAN);
+        uint8_t logical_cell_id = tvb_get_bits(tvb, offset*8, 6, ENC_BIG_ENDIAN);
         proto_tree *cell_tree = proto_tree_add_subtree_format(tree, tvb, offset, l_cell_len, ett_mpeg_descriptor_mosaic_logical_cell, NULL, "Logical Cell 0x%02x", logical_cell_id);
         proto_tree_add_item(cell_tree, hf_mpeg_descr_mosaic_logical_cell_id, tvb, offset, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(cell_tree, hf_mpeg_descr_mosaic_reserved_future_use2, tvb, offset, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(cell_tree, hf_mpeg_descr_mosaic_logical_cell_presentation_info, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
-        guint8 elementary_cell_field_length = tvb_get_guint8(tvb, offset);
+        uint8_t elementary_cell_field_length = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(cell_tree, hf_mpeg_descr_mosaic_elementary_cell_field_length, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
@@ -2047,7 +2047,7 @@ proto_mpeg_descriptor_dissect_mosaic(tvbuff_t *tvb, guint offset, guint len, pro
             elementary_cell_field_length -= 1;
         }
 
-        guint8 cell_linkage_info = tvb_get_guint8(tvb, offset);
+        uint8_t cell_linkage_info = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(cell_tree, hf_mpeg_descr_mosaic_cell_linkage_info, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
@@ -2081,7 +2081,7 @@ proto_mpeg_descriptor_dissect_mosaic(tvbuff_t *tvb, guint offset, guint len, pro
 static int hf_mpeg_descr_stream_identifier_component_tag;
 
 static void
-proto_mpeg_descriptor_dissect_stream_identifier(tvbuff_t *tvb, guint offset, proto_tree *tree)
+proto_mpeg_descriptor_dissect_stream_identifier(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_mpeg_descr_stream_identifier_component_tag, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
@@ -2090,9 +2090,9 @@ proto_mpeg_descriptor_dissect_stream_identifier(tvbuff_t *tvb, guint offset, pro
 static int hf_mpeg_descr_ca_identifier_system_id;
 
 static void
-proto_mpeg_descriptor_dissect_ca_identifier(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+proto_mpeg_descriptor_dissect_ca_identifier(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
 {
-    guint end = offset + len;
+    unsigned end = offset + len;
 
     while (offset < end) {
         proto_tree_add_item(tree, hf_mpeg_descr_ca_identifier_system_id, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2110,7 +2110,7 @@ static int hf_mpeg_descr_content_user_byte;
 #define MPEG_DESCR_CONTENT_NIBBLE_LEVEL_1_MASK  0xF0
 #define MPEG_DESCR_CONTENT_NIBBLE_LEVEL_2_MASK  0x0F
 
-static gint ett_mpeg_descriptor_content_nibble;
+static int ett_mpeg_descriptor_content_nibble;
 
 static const value_string mpeg_descr_content_nibble_vals[] = {
 
@@ -2238,12 +2238,12 @@ static const value_string mpeg_descr_content_nibble_level_1_vals[] = {
 static value_string_ext mpeg_descr_content_nibble_level_1_vals_ext = VALUE_STRING_EXT_INIT(mpeg_descr_content_nibble_level_1_vals);
 
 static void
-proto_mpeg_descriptor_dissect_content(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+proto_mpeg_descriptor_dissect_content(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
 {
     proto_item *ni;
     proto_tree *nibble_tree;
 
-    guint end = offset + len;
+    unsigned end = offset + len;
 
     while (offset < end) {
         ni = proto_tree_add_item(tree, hf_mpeg_descr_content_nibble, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2287,7 +2287,7 @@ static value_string_ext mpeg_descr_parental_rating_vals_ext = VALUE_STRING_EXT_I
 
 
 static void
-proto_mpeg_descriptor_dissect_parental_rating(tvbuff_t *tvb, guint offset, proto_tree *tree)
+proto_mpeg_descriptor_dissect_parental_rating(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_mpeg_descr_parental_rating_country_code, tvb, offset, 3, ENC_ASCII);
     offset += 3;
@@ -2317,9 +2317,9 @@ static const value_string mpeg_descr_teletext_type_vals[] = {
 };
 
 static void
-proto_mpeg_descriptor_dissect_teletext(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+proto_mpeg_descriptor_dissect_teletext(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
 {
-    guint end = offset + len;
+    unsigned end = offset + len;
 
     while (offset < end) {
         proto_tree_add_item(tree, hf_mpeg_descr_teletext_lang_code, tvb, offset, 3, ENC_ASCII);
@@ -2376,16 +2376,16 @@ static const range_string mpeg_descr_telephone_connection_type_vals[] = {
     { 0, 0, NULL }
 };
 
-static gint ett_mpeg_descriptor_telephone_number;
+static int ett_mpeg_descriptor_telephone_number;
 
 static void
-proto_mpeg_descriptor_dissect_telephone(tvbuff_t *tvb, guint offset, proto_tree *tree)
+proto_mpeg_descriptor_dissect_telephone(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
-    guint32 country_prefix_length;
-    guint32 international_area_code_length;
-    guint32 operator_code_length;
-    guint32 national_area_code_length;
-    guint32 core_number_length;
+    uint32_t country_prefix_length;
+    uint32_t international_area_code_length;
+    uint32_t operator_code_length;
+    uint32_t national_area_code_length;
+    uint32_t core_number_length;
 
     proto_item * ni;
     proto_tree * number_tree;
@@ -2406,7 +2406,7 @@ proto_mpeg_descriptor_dissect_telephone(tvbuff_t *tvb, guint offset, proto_tree 
     proto_tree_add_item_ret_uint(tree, hf_mpeg_descr_telephone_core_number_length, tvb, offset, 1, ENC_BIG_ENDIAN, &core_number_length);
     offset += 1;
 
-    guint32 number_l = country_prefix_length + international_area_code_length + operator_code_length + national_area_code_length + core_number_length;
+    uint32_t number_l = country_prefix_length + international_area_code_length + operator_code_length + national_area_code_length + core_number_length;
 
     if (number_l == 0) return;
     ni = proto_tree_add_item(tree, hf_mpeg_descr_telephone_number, tvb, offset, number_l, ENC_ISO_8859_1);
@@ -2457,10 +2457,10 @@ static const value_string mpeg_descr_local_time_offset_polarity_vals[] = {
 };
 
 static void
-proto_mpeg_descriptor_dissect_local_time_offset(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+proto_mpeg_descriptor_dissect_local_time_offset(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
 {
-    guint    end = offset + len;
-    guint8   hour, min;
+    unsigned end = offset + len;
+    uint8_t  hour, min;
     nstime_t local_time_offset, time_of_change, next_time_offset;
 
     while (offset < end) {
@@ -2472,8 +2472,8 @@ proto_mpeg_descriptor_dissect_local_time_offset(tvbuff_t *tvb, guint offset, gui
         proto_tree_add_item(tree, hf_mpeg_descr_local_time_offset_polarity, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        hour = MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset));
-        min = MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset+1));
+        hour = MPEG_SECT_BCD44_TO_DEC(tvb_get_uint8(tvb, offset));
+        min = MPEG_SECT_BCD44_TO_DEC(tvb_get_uint8(tvb, offset+1));
         nstime_set_zero(&local_time_offset);
         local_time_offset.secs = hour*60*60 + min*60;
         proto_tree_add_time_format_value(tree, hf_mpeg_descr_local_time_offset_offset,
@@ -2488,8 +2488,8 @@ proto_mpeg_descriptor_dissect_local_time_offset(tvbuff_t *tvb, guint offset, gui
         }
         offset += 5;
 
-        hour = MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset));
-        min = MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset+1));
+        hour = MPEG_SECT_BCD44_TO_DEC(tvb_get_uint8(tvb, offset));
+        min = MPEG_SECT_BCD44_TO_DEC(tvb_get_uint8(tvb, offset+1));
         nstime_set_zero(&next_time_offset);
         next_time_offset.secs = hour*60*60 + min*60;
         proto_tree_add_time_format_value(tree, hf_mpeg_descr_local_time_offset_next_time_offset,
@@ -2528,9 +2528,9 @@ static const value_string mpeg_descr_subtitling_type_vals[] = {
 static value_string_ext mpeg_descr_subtitling_type_vals_ext = VALUE_STRING_EXT_INIT(mpeg_descr_subtitling_type_vals);
 
 static void
-proto_mpeg_descriptor_dissect_subtitling(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+proto_mpeg_descriptor_dissect_subtitling(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
 {
-    guint end = offset + len;
+    unsigned end = offset + len;
 
     while (offset < end) {
         proto_tree_add_item(tree, hf_mpeg_descr_subtitling_lang_code, tvb, offset, 3, ENC_ASCII);
@@ -2663,16 +2663,16 @@ static const value_string mpeg_descr_terrestrial_delivery_transmission_mode_vals
 };
 
 static void
-proto_mpeg_descriptor_dissect_terrestrial_delivery(tvbuff_t *tvb, guint offset, proto_tree *tree)
+proto_mpeg_descriptor_dissect_terrestrial_delivery(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
-    guint64 centre_freq;
+    uint64_t centre_freq;
 
     /* the descriptor stores the centre frequency in units of 10Hz (so
        that they can get away with 32bits), we're using Hz here */
     centre_freq = tvb_get_ntohl(tvb, offset) * 10;
 
     proto_tree_add_uint64_format_value(tree, hf_mpeg_descr_terrestrial_delivery_centre_frequency, tvb, offset, 4,
-        centre_freq, "%d.%06d MHz", (guint)centre_freq/(1000*1000), (guint)centre_freq%(1000*1000));
+        centre_freq, "%d.%06d MHz", (unsigned)centre_freq/(1000*1000), (unsigned)centre_freq%(1000*1000));
     offset += 4;
 
     proto_tree_add_item(tree, hf_mpeg_descr_terrestrial_delivery_bandwidth, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2703,20 +2703,20 @@ static int hf_mpeg_descr_multilng_network_name_desc_name_length;
 static int hf_mpeg_descr_multilng_network_name_desc_name_encoding;
 static int hf_mpeg_descr_multilng_network_name_desc_name;
 
-static gint ett_mpeg_descriptor_multilng_network_name_desc_lng;
+static int ett_mpeg_descriptor_multilng_network_name_desc_lng;
 
-static guint
-proto_mpeg_descriptor_dissect_multilng_network_name_desc_measure_lng_len(tvbuff_t *tvb, guint offset, guint len)
+static unsigned
+proto_mpeg_descriptor_dissect_multilng_network_name_desc_measure_lng_len(tvbuff_t *tvb, unsigned offset, unsigned len)
 {
-    guint l_offset = offset;
-    guint cnt = len;
+    unsigned l_offset = offset;
+    unsigned cnt = len;
 
     if (cnt < 3) return l_offset - offset;
     cnt      -= 3;
     l_offset += 3;
 
     if (cnt < 1) return l_offset - offset;
-    guint network_name_length = tvb_get_guint8(tvb, l_offset);
+    unsigned network_name_length = tvb_get_uint8(tvb, l_offset);
     cnt      -= 1;
     l_offset += 1;
 
@@ -2727,9 +2727,9 @@ proto_mpeg_descriptor_dissect_multilng_network_name_desc_measure_lng_len(tvbuff_
 }
 
 static void
-proto_mpeg_descriptor_dissect_multilng_network_name_desc(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+proto_mpeg_descriptor_dissect_multilng_network_name_desc(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
 {
-    guint cnt = len;
+    unsigned cnt = len;
 
     while (cnt > 0)
     {
@@ -2738,7 +2738,7 @@ proto_mpeg_descriptor_dissect_multilng_network_name_desc(tvbuff_t *tvb, guint of
         proto_item * lng_item;
 
         if (cnt < 3) return;
-        guint lng_len = proto_mpeg_descriptor_dissect_multilng_network_name_desc_measure_lng_len(tvb, offset, cnt);
+        unsigned lng_len = proto_mpeg_descriptor_dissect_multilng_network_name_desc_measure_lng_len(tvb, offset, cnt);
         lng_tree = proto_tree_add_subtree(tree, tvb, offset, lng_len,
                     ett_mpeg_descriptor_multilng_network_name_desc_lng, &lng_item, NULL);
 
@@ -2749,7 +2749,7 @@ proto_mpeg_descriptor_dissect_multilng_network_name_desc(tvbuff_t *tvb, guint of
         cnt    -= 3;
 
         if (cnt < 1) return;
-        guint network_name_length = tvb_get_guint8(tvb, offset);
+        unsigned network_name_length = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(lng_tree, hf_mpeg_descr_multilng_network_name_desc_name_length, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
         cnt    -= 1;
@@ -2757,7 +2757,7 @@ proto_mpeg_descriptor_dissect_multilng_network_name_desc(tvbuff_t *tvb, guint of
         network_name_length = MIN(network_name_length, cnt);
         if (cnt < network_name_length) return;
         dvb_encoding_e  encoding;
-        guint enc_len = dvb_analyze_string_charset(tvb, offset, network_name_length, &encoding);
+        unsigned enc_len = dvb_analyze_string_charset(tvb, offset, network_name_length, &encoding);
         dvb_add_chartbl(lng_tree, hf_mpeg_descr_multilng_network_name_desc_name_encoding, tvb, offset, enc_len, encoding);
 
         proto_tree_add_item(lng_tree, hf_mpeg_descr_multilng_network_name_desc_name, tvb, offset+enc_len, network_name_length-enc_len, dvb_enc_to_item_enc(encoding));
@@ -2772,20 +2772,20 @@ static int hf_mpeg_descr_multilng_bouquet_name_desc_name_length;
 static int hf_mpeg_descr_multilng_bouquet_name_desc_name_encoding;
 static int hf_mpeg_descr_multilng_bouquet_name_desc_name;
 
-static gint ett_mpeg_descriptor_multilng_bouquet_name_desc_lng;
+static int ett_mpeg_descriptor_multilng_bouquet_name_desc_lng;
 
-static guint
-proto_mpeg_descriptor_dissect_multilng_bouquet_name_desc_measure_lng_len(tvbuff_t *tvb, guint offset, guint len)
+static unsigned
+proto_mpeg_descriptor_dissect_multilng_bouquet_name_desc_measure_lng_len(tvbuff_t *tvb, unsigned offset, unsigned len)
 {
-    guint l_offset = offset;
-    guint cnt = len;
+    unsigned l_offset = offset;
+    unsigned cnt = len;
 
     if (cnt < 3) return l_offset - offset;
     cnt      -= 3;
     l_offset += 3;
 
     if (cnt < 1) return l_offset - offset;
-    guint bouquet_name_length = tvb_get_guint8(tvb, l_offset);
+    unsigned bouquet_name_length = tvb_get_uint8(tvb, l_offset);
     cnt      -= 1;
     l_offset += 1;
 
@@ -2796,9 +2796,9 @@ proto_mpeg_descriptor_dissect_multilng_bouquet_name_desc_measure_lng_len(tvbuff_
 }
 
 static void
-proto_mpeg_descriptor_dissect_multilng_bouquet_name_desc(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+proto_mpeg_descriptor_dissect_multilng_bouquet_name_desc(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
 {
-    guint cnt = len;
+    unsigned cnt = len;
 
     while (cnt > 0)
     {
@@ -2807,7 +2807,7 @@ proto_mpeg_descriptor_dissect_multilng_bouquet_name_desc(tvbuff_t *tvb, guint of
         proto_item * lng_item;
 
         if (cnt < 3) return;
-        guint lng_len = proto_mpeg_descriptor_dissect_multilng_bouquet_name_desc_measure_lng_len(tvb, offset, cnt);
+        unsigned lng_len = proto_mpeg_descriptor_dissect_multilng_bouquet_name_desc_measure_lng_len(tvb, offset, cnt);
         lng_tree = proto_tree_add_subtree(tree, tvb, offset, lng_len,
                     ett_mpeg_descriptor_multilng_bouquet_name_desc_lng, &lng_item, NULL);
 
@@ -2818,7 +2818,7 @@ proto_mpeg_descriptor_dissect_multilng_bouquet_name_desc(tvbuff_t *tvb, guint of
         cnt    -= 3;
 
         if (cnt < 1) return;
-        guint bouquet_name_length = tvb_get_guint8(tvb, offset);
+        unsigned bouquet_name_length = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(lng_tree, hf_mpeg_descr_multilng_bouquet_name_desc_name_length, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
         cnt    -= 1;
@@ -2826,7 +2826,7 @@ proto_mpeg_descriptor_dissect_multilng_bouquet_name_desc(tvbuff_t *tvb, guint of
         bouquet_name_length = MIN(bouquet_name_length, cnt);
         if (cnt < bouquet_name_length) return;
         dvb_encoding_e  encoding;
-        guint enc_len = dvb_analyze_string_charset(tvb, offset, bouquet_name_length, &encoding);
+        unsigned enc_len = dvb_analyze_string_charset(tvb, offset, bouquet_name_length, &encoding);
         dvb_add_chartbl(lng_tree, hf_mpeg_descr_multilng_bouquet_name_desc_name_encoding, tvb, offset, enc_len, encoding);
 
         proto_tree_add_item(lng_tree, hf_mpeg_descr_multilng_bouquet_name_desc_name, tvb, offset+enc_len, bouquet_name_length-enc_len, dvb_enc_to_item_enc(encoding));
@@ -2844,20 +2844,20 @@ static int hf_mpeg_descr_multilng_srv_name_desc_service_name_length;
 static int hf_mpeg_descr_multilng_srv_name_desc_service_name_encoding;
 static int hf_mpeg_descr_multilng_srv_name_desc_service_name;
 
-static gint ett_mpeg_descriptor_multilng_srv_name_desc_lng;
+static int ett_mpeg_descriptor_multilng_srv_name_desc_lng;
 
-static guint
-proto_mpeg_descriptor_dissect_multilng_srv_name_desc_measure_lng_len(tvbuff_t *tvb, guint offset, guint len)
+static unsigned
+proto_mpeg_descriptor_dissect_multilng_srv_name_desc_measure_lng_len(tvbuff_t *tvb, unsigned offset, unsigned len)
 {
-    guint l_offset = offset;
-    guint cnt = len;
+    unsigned l_offset = offset;
+    unsigned cnt = len;
 
     if (cnt < 3) return l_offset - offset;
     cnt      -= 3;
     l_offset += 3;
 
     if (cnt < 1) return l_offset - offset;
-    guint service_provider_name_length = tvb_get_guint8(tvb, l_offset);
+    unsigned service_provider_name_length = tvb_get_uint8(tvb, l_offset);
     cnt      -= 1;
     l_offset += 1;
 
@@ -2866,7 +2866,7 @@ proto_mpeg_descriptor_dissect_multilng_srv_name_desc_measure_lng_len(tvbuff_t *t
     l_offset += service_provider_name_length;
 
     if (cnt < 1) return l_offset - offset;
-    guint service_name_length = tvb_get_guint8(tvb, l_offset);
+    unsigned service_name_length = tvb_get_uint8(tvb, l_offset);
     cnt      -= 1;
     l_offset += 1;
 
@@ -2877,9 +2877,9 @@ proto_mpeg_descriptor_dissect_multilng_srv_name_desc_measure_lng_len(tvbuff_t *t
 }
 
 static void
-proto_mpeg_descriptor_dissect_multilng_srv_name_desc(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+proto_mpeg_descriptor_dissect_multilng_srv_name_desc(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
 {
-    guint cnt = len;
+    unsigned cnt = len;
 
     while (cnt > 0)
     {
@@ -2888,7 +2888,7 @@ proto_mpeg_descriptor_dissect_multilng_srv_name_desc(tvbuff_t *tvb, guint offset
         proto_item * lng_item;
 
         if (cnt < 3) return;
-        guint lng_len = proto_mpeg_descriptor_dissect_multilng_srv_name_desc_measure_lng_len(tvb, offset, cnt);
+        unsigned lng_len = proto_mpeg_descriptor_dissect_multilng_srv_name_desc_measure_lng_len(tvb, offset, cnt);
         lng_tree = proto_tree_add_subtree(tree, tvb, offset, lng_len,
                     ett_mpeg_descriptor_multilng_srv_name_desc_lng, &lng_item, NULL);
 
@@ -2899,7 +2899,7 @@ proto_mpeg_descriptor_dissect_multilng_srv_name_desc(tvbuff_t *tvb, guint offset
         cnt    -= 3;
 
         if (cnt < 1) return;
-        guint service_provider_name_length = tvb_get_guint8(tvb, offset);
+        unsigned service_provider_name_length = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(lng_tree, hf_mpeg_descr_multilng_srv_name_desc_service_provider_name_length, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
         cnt    -= 1;
@@ -2907,7 +2907,7 @@ proto_mpeg_descriptor_dissect_multilng_srv_name_desc(tvbuff_t *tvb, guint offset
         service_provider_name_length = MIN(service_provider_name_length, cnt);
         if (cnt < service_provider_name_length) return;
         dvb_encoding_e  encoding;
-        guint enc_len = dvb_analyze_string_charset(tvb, offset, service_provider_name_length, &encoding);
+        unsigned enc_len = dvb_analyze_string_charset(tvb, offset, service_provider_name_length, &encoding);
         dvb_add_chartbl(lng_tree, hf_mpeg_descr_multilng_srv_name_desc_service_provider_name_encoding, tvb, offset, enc_len, encoding);
 
         proto_tree_add_item(lng_tree, hf_mpeg_descr_multilng_srv_name_desc_service_provider_name, tvb, offset+enc_len, service_provider_name_length-enc_len, dvb_enc_to_item_enc(encoding));
@@ -2915,7 +2915,7 @@ proto_mpeg_descriptor_dissect_multilng_srv_name_desc(tvbuff_t *tvb, guint offset
         cnt    -= service_provider_name_length;
 
         if (cnt < 1) return;
-        guint service_name_length = tvb_get_guint8(tvb, offset);
+        unsigned service_name_length = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(lng_tree, hf_mpeg_descr_multilng_srv_name_desc_service_name_length, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
         cnt    -= 1;
@@ -2938,20 +2938,20 @@ static int hf_mpeg_descr_multilng_component_desc_text_length;
 static int hf_mpeg_descr_multilng_component_desc_text_encoding;
 static int hf_mpeg_descr_multilng_component_desc_text;
 
-static gint ett_mpeg_descriptor_multilng_component_desc_lng;
+static int ett_mpeg_descriptor_multilng_component_desc_lng;
 
-static guint
-proto_mpeg_descriptor_dissect_multilng_component_desc_measure_lng_len(tvbuff_t *tvb, guint offset, guint len)
+static unsigned
+proto_mpeg_descriptor_dissect_multilng_component_desc_measure_lng_len(tvbuff_t *tvb, unsigned offset, unsigned len)
 {
-    guint l_offset = offset;
-    guint cnt = len;
+    unsigned l_offset = offset;
+    unsigned cnt = len;
 
     if (cnt < 3) return l_offset - offset;
     cnt      -= 3;
     l_offset += 3;
 
     if (cnt < 1) return l_offset - offset;
-    guint text_length = tvb_get_guint8(tvb, l_offset);
+    unsigned text_length = tvb_get_uint8(tvb, l_offset);
     cnt      -= 1;
     l_offset += 1;
 
@@ -2962,9 +2962,9 @@ proto_mpeg_descriptor_dissect_multilng_component_desc_measure_lng_len(tvbuff_t *
 }
 
 static void
-proto_mpeg_descriptor_dissect_multilng_component_desc(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+proto_mpeg_descriptor_dissect_multilng_component_desc(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
 {
-    guint cnt = len;
+    unsigned cnt = len;
 
     if (cnt < 1) return;
     proto_tree_add_item(tree, hf_mpeg_descr_multilng_component_desc_tag, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2978,7 +2978,7 @@ proto_mpeg_descriptor_dissect_multilng_component_desc(tvbuff_t *tvb, guint offse
         proto_item * lng_item;
 
         if (cnt < 3) return;
-        guint lng_len = proto_mpeg_descriptor_dissect_multilng_component_desc_measure_lng_len(tvb, offset, cnt);
+        unsigned lng_len = proto_mpeg_descriptor_dissect_multilng_component_desc_measure_lng_len(tvb, offset, cnt);
         lng_tree = proto_tree_add_subtree(tree, tvb, offset, lng_len,
                     ett_mpeg_descriptor_multilng_component_desc_lng, &lng_item, NULL);
 
@@ -2989,7 +2989,7 @@ proto_mpeg_descriptor_dissect_multilng_component_desc(tvbuff_t *tvb, guint offse
         cnt    -= 3;
 
         if (cnt < 1) return;
-        guint text_length = tvb_get_guint8(tvb, offset);
+        unsigned text_length = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(lng_tree, hf_mpeg_descr_multilng_component_desc_text_length, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
         cnt    -= 1;
@@ -2997,7 +2997,7 @@ proto_mpeg_descriptor_dissect_multilng_component_desc(tvbuff_t *tvb, guint offse
         text_length = MIN(text_length, cnt);
         if (cnt < text_length) return;
         dvb_encoding_e  encoding;
-        guint enc_len = dvb_analyze_string_charset(tvb, offset, text_length, &encoding);
+        unsigned enc_len = dvb_analyze_string_charset(tvb, offset, text_length, &encoding);
         dvb_add_chartbl(lng_tree, hf_mpeg_descr_multilng_component_desc_text_encoding, tvb, offset, enc_len, encoding);
 
         proto_tree_add_item(lng_tree, hf_mpeg_descr_multilng_component_desc_text, tvb, offset+enc_len, text_length-enc_len, dvb_enc_to_item_enc(encoding));
@@ -3025,7 +3025,7 @@ static const value_string mpeg_descr_data_specifier_id_vals[] = {
 };
 
 static void
-proto_mpeg_descriptor_dissect_private_data_specifier(tvbuff_t *tvb, guint offset, proto_tree *tree)
+proto_mpeg_descriptor_dissect_private_data_specifier(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_mpeg_descr_private_data_specifier_id, tvb, offset, 4, ENC_BIG_ENDIAN);
 }
@@ -3115,7 +3115,7 @@ static const value_string mpeg_descr_ssb_sb_leak_rate_vals[] = {
 };
 
 static void
-proto_mpeg_descriptor_dissect_short_smoothing_buffer(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+proto_mpeg_descriptor_dissect_short_smoothing_buffer(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_mpeg_descr_short_smoothing_buffer_sb_size, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_mpeg_descr_short_smoothing_buffer_sb_leak_rate, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3142,13 +3142,13 @@ static int hf_mpeg_descr_partial_transport_stream_maximum_overall_smoothing_buff
 #define PARTIAL_TRANSPORT_STREAM_DESCR_MAXIMUM_SMOOTHING_BUFF_MASK   0x3FFF
 
 static void
-proto_mpeg_descriptor_dissect_partial_transport_stream(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+proto_mpeg_descriptor_dissect_partial_transport_stream(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
 {
-    guint cnt = len;
+    unsigned cnt = len;
 
     if (cnt < 3) return;
     proto_tree_add_item(tree, hf_mpeg_descr_partial_transport_stream_reserved_future_use1, tvb, offset, 3, ENC_BIG_ENDIAN);
-    guint rate = tvb_get_guint24(tvb, offset, ENC_NA) & PARTIAL_TRANSPORT_STREAM_DESCR_PEAK_RATE_MASK;
+    unsigned rate = tvb_get_uint24(tvb, offset, ENC_NA) & PARTIAL_TRANSPORT_STREAM_DESCR_PEAK_RATE_MASK;
     proto_tree_add_uint_bits_format_value(tree, hf_mpeg_descr_partial_transport_stream_peak_rate, tvb, (offset*8)+2,
     22, rate, ENC_BIG_ENDIAN, "%u bits/s", rate*400);
     offset += 3;
@@ -3156,7 +3156,7 @@ proto_mpeg_descriptor_dissect_partial_transport_stream(tvbuff_t *tvb, guint offs
 
     if (cnt < 3) return;
     proto_tree_add_item(tree, hf_mpeg_descr_partial_transport_stream_reserved_future_use2, tvb, offset, 3, ENC_BIG_ENDIAN);
-    rate = tvb_get_guint24(tvb, offset, ENC_BIG_ENDIAN) & PARTIAL_TRANSPORT_STREAM_DESCR_MINIMUM_SMOOTHING_RATE_MASK;
+    rate = tvb_get_uint24(tvb, offset, ENC_BIG_ENDIAN) & PARTIAL_TRANSPORT_STREAM_DESCR_MINIMUM_SMOOTHING_RATE_MASK;
     proto_tree_add_uint_bits_format_value(tree, hf_mpeg_descr_partial_transport_stream_minimum_overall_smoothing_rate, tvb,
     (offset*8)+2, 22, rate, ENC_BIG_ENDIAN, (rate==0x3FFFFFu)?"Underfined (0x3FFFFF)":"%u bits/s", rate*400u);
     offset += 3;
@@ -3164,7 +3164,7 @@ proto_mpeg_descriptor_dissect_partial_transport_stream(tvbuff_t *tvb, guint offs
 
     if (cnt < 2) return;
     proto_tree_add_item(tree, hf_mpeg_descr_partial_transport_stream_reserved_future_use3, tvb, offset, 2, ENC_BIG_ENDIAN);
-    guint buffer = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN) & PARTIAL_TRANSPORT_STREAM_DESCR_MAXIMUM_SMOOTHING_BUFF_MASK;
+    unsigned buffer = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN) & PARTIAL_TRANSPORT_STREAM_DESCR_MAXIMUM_SMOOTHING_BUFF_MASK;
     proto_tree_add_uint_bits_format_value(tree, hf_mpeg_descr_partial_transport_stream_maximum_overall_smoothing_buffer, tvb,
     (offset*8)+2, 14, buffer, ENC_BIG_ENDIAN, (buffer==0x3FFFu)?"Underfined (0x3FFF)":"%u bytes", buffer);
 }
@@ -3203,10 +3203,10 @@ static const value_string mpeg_descr_data_bcast_id_vals[] = {
 value_string_ext mpeg_descr_data_bcast_id_vals_ext = VALUE_STRING_EXT_INIT(mpeg_descr_data_bcast_id_vals);
 
 static void
-proto_mpeg_descriptor_dissect_data_bcast(tvbuff_t *tvb, guint offset, proto_tree *tree)
+proto_mpeg_descriptor_dissect_data_bcast(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
 
-    guint8 selector_len, text_len;
+    uint8_t selector_len, text_len;
 
     proto_tree_add_item(tree, hf_mpeg_descr_data_bcast_bcast_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -3214,7 +3214,7 @@ proto_mpeg_descriptor_dissect_data_bcast(tvbuff_t *tvb, guint offset, proto_tree
     proto_tree_add_item(tree, hf_mpeg_descr_data_bcast_component_tag, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    selector_len = tvb_get_guint8(tvb, offset);
+    selector_len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_mpeg_descr_data_bcast_selector_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -3226,7 +3226,7 @@ proto_mpeg_descriptor_dissect_data_bcast(tvbuff_t *tvb, guint offset, proto_tree
     proto_tree_add_item(tree, hf_mpeg_descr_data_bcast_lang_code, tvb, offset, 3, ENC_ASCII);
     offset += 3;
 
-    text_len = tvb_get_guint8(tvb, offset);
+    text_len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_mpeg_descr_data_bcast_text_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -3239,7 +3239,7 @@ static int hf_mpeg_descr_data_bcast_id_bcast_id;
 static int hf_mpeg_descr_data_bcast_id_id_selector_bytes;
 
 static void
-proto_mpeg_descriptor_dissect_data_bcast_id(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+proto_mpeg_descriptor_dissect_data_bcast_id(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_mpeg_descr_data_bcast_id_bcast_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -3263,10 +3263,10 @@ static int hf_mpeg_descr_pdc_minute;
 #define MPEG_DESCR_PDC_HOUR_MASK        0x0007C0
 #define MPEG_DESCR_PDC_MINUTE_MASK      0x00003F
 
-static gint ett_mpeg_descriptor_pdc_pil;
+static int ett_mpeg_descriptor_pdc_pil;
 
 static void
-proto_mpeg_descriptor_dissect_pdc(tvbuff_t *tvb, guint offset, proto_tree *tree)
+proto_mpeg_descriptor_dissect_pdc(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     proto_item * pi;
     proto_tree * pil_tree;
@@ -3295,7 +3295,7 @@ static int hf_mpeg_descr_ac3_mainid;
 static int hf_mpeg_descr_ac3_asvc;
 static int hf_mpeg_descr_ac3_additional_info;
 
-static gint ett_mpeg_descriptor_ac3_component_type;
+static int ett_mpeg_descriptor_ac3_component_type;
 
 #define MPEG_DESCR_AC3_COMPONENT_TYPE_FLAG_MASK 0x80
 #define MPEG_DESCR_AC3_BSID_FLAG_MASK           0x40
@@ -3367,14 +3367,14 @@ static const value_string mpeg_descr_ac3_component_type_number_of_channels_flags
 };
 
 static void
-proto_mpeg_descriptor_dissect_ac3(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+proto_mpeg_descriptor_dissect_ac3(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
 {
-    guint  end = offset + len;
-    guint8 flags, component_type;
+    unsigned  end = offset + len;
+    uint8_t flags, component_type;
 
     proto_tree *component_type_tree;
 
-    flags = tvb_get_guint8(tvb, offset);
+    flags = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_mpeg_descr_ac3_component_type_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_mpeg_descr_ac3_bsid_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_mpeg_descr_ac3_mainid_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3383,7 +3383,7 @@ proto_mpeg_descriptor_dissect_ac3(tvbuff_t *tvb, guint offset, guint len, proto_
     offset += 1;
 
     if (flags & MPEG_DESCR_AC3_COMPONENT_TYPE_FLAG_MASK) {
-        component_type = tvb_get_guint8(tvb, offset);
+        component_type = tvb_get_uint8(tvb, offset);
         component_type_tree = proto_tree_add_subtree_format(tree, tvb, offset, 3,
                     ett_mpeg_descriptor_ac3_component_type, NULL, "Component Type 0x%02x", component_type);
         proto_tree_add_item(component_type_tree, hf_mpeg_descr_ac3_component_type_reserved_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3417,9 +3417,9 @@ static int hf_mpeg_descr_app_sig_app_type;
 static int hf_mpeg_descr_app_sig_ait_ver;
 
 static void
-proto_mpeg_descriptor_dissect_app_sig(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+proto_mpeg_descriptor_dissect_app_sig(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
 {
-    guint  offset_start;
+    unsigned  offset_start;
 
     offset_start = offset;
     while ((offset - offset_start) < len) {
@@ -3434,7 +3434,7 @@ proto_mpeg_descriptor_dissect_app_sig(tvbuff_t *tvb, guint offset, guint len, pr
 static int hf_mpeg_descr_service_identifier;
 
 static void
-proto_mpeg_descriptor_dissect_service_identifier(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+proto_mpeg_descriptor_dissect_service_identifier(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_mpeg_descr_service_identifier, tvb, offset, len, ENC_ASCII);
 }
@@ -3447,7 +3447,7 @@ static int hf_mpeg_descr_service_availability_cell_id;
 #define MPEG_DESCR_SRV_AVAIL_FLAG_MASK      0x80
 #define MPEG_DESCR_SRV_AVAIL_RESERVED_MASK  0x7F
 
-static gint ett_mpeg_descriptor_srv_avail_cells;
+static int ett_mpeg_descriptor_srv_avail_cells;
 
 static const value_string mpeg_descr_srv_avail_flag_vals[] = {
     { 0x0, "Service is unavailable on the cells" },
@@ -3457,9 +3457,9 @@ static const value_string mpeg_descr_srv_avail_flag_vals[] = {
 };
 
 static void
-proto_mpeg_descriptor_dissect_service_availability(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+proto_mpeg_descriptor_dissect_service_availability(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
 {
-    guint end = offset + len;
+    unsigned end = offset + len;
 
     proto_tree * cells_tree;
 
@@ -3479,7 +3479,7 @@ proto_mpeg_descriptor_dissect_service_availability(tvbuff_t *tvb, guint offset, 
 static int hf_mpeg_descr_default_authority_name;
 
 static void
-proto_mpeg_descriptor_dissect_default_authority(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+proto_mpeg_descriptor_dissect_default_authority(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_mpeg_descr_default_authority_name, tvb, offset, len, ENC_ASCII);
 }
@@ -3489,7 +3489,7 @@ static int hf_mpeg_descr_tva_id;
 static int hf_mpeg_descr_tva_reserved;
 static int hf_mpeg_descr_tva_running_status;
 
-static gint ett_mpeg_descriptor_tva;
+static int ett_mpeg_descriptor_tva;
 
 #define MPEG_DESCR_TVA_RESREVED_MASK        0xF8
 #define MPEG_DESCR_TVA_RUNNING_STATUS_MASK  0x07
@@ -3507,15 +3507,15 @@ static const value_string mpeg_descr_tva_running_status_vals[] = {
 };
 
 static void
-proto_mpeg_descriptor_dissect_tva_id(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+proto_mpeg_descriptor_dissect_tva_id(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
 {
-    guint end = offset + len;
-    guint tva_cnt = 0;
+    unsigned end = offset + len;
+    unsigned tva_cnt = 0;
 
     proto_tree * tva_tree;
 
     while (offset < end) {
-        guint id = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+        unsigned id = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
         tva_tree = proto_tree_add_subtree_format(tree, tvb, offset, 3, ett_mpeg_descriptor_tva, NULL, "TVA %u (0x%04X)", tva_cnt, id);
         proto_tree_add_item(tva_tree, hf_mpeg_descr_tva_id, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
@@ -3537,7 +3537,7 @@ static int hf_mpeg_descr_content_identifier_cird_ref;
 #define MPEG_DESCR_CONTENT_IDENTIFIER_CRID_TYPE_MASK        0xFC
 #define MPEG_DESCR_CONTENT_IDENTIFIER_CRID_LOCATION_MASK    0x03
 
-static gint ett_mpeg_descriptor_content_identifier_crid;
+static int ett_mpeg_descriptor_content_identifier_crid;
 
 static const value_string mpeg_descr_content_identifier_crid_type_vals[] = {
     { 0x00, "No type defined" },
@@ -3556,20 +3556,20 @@ static const value_string mpeg_descr_content_identifier_crid_location_vals[] = {
 };
 
 static void
-proto_mpeg_descriptor_dissect_content_identifier(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+proto_mpeg_descriptor_dissect_content_identifier(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
 {
-    guint  end = offset + len, crid_len;
-    guint8 crid, crid_location, crid_type;
+    unsigned  end = offset + len, crid_len;
+    uint8_t crid, crid_location, crid_type;
 
     proto_tree *crid_tree;
 
     while (offset < end) {
-        crid = tvb_get_guint8(tvb, offset);
+        crid = tvb_get_uint8(tvb, offset);
         crid_type = (crid & MPEG_DESCR_CONTENT_IDENTIFIER_CRID_TYPE_MASK) >> 2;
         crid_location = crid & MPEG_DESCR_CONTENT_IDENTIFIER_CRID_LOCATION_MASK;
 
         if (crid_location == 0) {
-            crid_len = 2 + tvb_get_guint8(tvb, offset + 1);
+            crid_len = 2 + tvb_get_uint8(tvb, offset + 1);
         } else if (crid_location == 1) {
             crid_len = 3;
         } else {
@@ -3584,7 +3584,7 @@ proto_mpeg_descriptor_dissect_content_identifier(tvbuff_t *tvb, guint offset, gu
         offset += 1;
 
         if (crid_location == 0x00) {
-            crid_len = tvb_get_guint8(tvb, offset);
+            crid_len = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(crid_tree, hf_mpeg_descr_content_identifier_crid_length, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
 
@@ -3616,7 +3616,7 @@ static const range_string mpeg_descr_xait_update_policy_vals[] = {
 };
 
 static void
-proto_mpeg_descriptor_dissect_xait(tvbuff_t *tvb, guint offset, proto_tree *tree) {
+proto_mpeg_descriptor_dissect_xait(tvbuff_t *tvb, unsigned offset, proto_tree *tree) {
     proto_tree_add_item(tree, hf_mpeg_descr_xait_onid, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
@@ -3652,7 +3652,7 @@ static const true_false_string tfs_fta_do_not_scramble = { "Scrambling shall not
 static const true_false_string tfs_fta_do_not_apply_revocation = { "Content revocation process shall not be applied", "Content revocation process shall be applied" };
 
 static void
-proto_mpeg_descriptor_dissect_fta(tvbuff_t *tvb, guint offset, proto_tree *tree) {
+proto_mpeg_descriptor_dissect_fta(tvbuff_t *tvb, unsigned offset, proto_tree *tree) {
     proto_tree_add_item(tree, hf_mpeg_descr_fta_user_defined, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_mpeg_descr_fta_reserved_future_use, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_mpeg_descr_fta_do_not_scramble, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3719,16 +3719,16 @@ static const value_string supp_audio_ed_cla[] = {
 
 
 static void
-proto_mpeg_descriptor_dissect_extension(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+proto_mpeg_descriptor_dissect_extension(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
 {
-    guint     offset_start;
-    guint8    tag_ext;
-    gboolean  lang_code_present;
-    guint     already_dissected;
+    unsigned  offset_start;
+    uint8_t   tag_ext;
+    bool      lang_code_present;
+    unsigned  already_dissected;
 
     offset_start = offset;
 
-    tag_ext = tvb_get_guint8(tvb, offset);
+    tag_ext = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_mpeg_descr_extension_tag_extension, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -3736,7 +3736,7 @@ proto_mpeg_descriptor_dissect_extension(tvbuff_t *tvb, guint offset, guint len, 
         case EXT_TAG_SUPP_AUDIO:
             proto_tree_add_item(tree, hf_mpeg_descr_extension_supp_audio_mix_type, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_mpeg_descr_extension_supp_audio_ed_cla, tvb, offset, 1, ENC_BIG_ENDIAN);
-            lang_code_present = ((tvb_get_guint8(tvb, offset) & 0x01) == 0x01);
+            lang_code_present = ((tvb_get_uint8(tvb, offset) & 0x01) == 0x01);
             proto_tree_add_item(tree, hf_mpeg_descr_extension_supp_audio_lang_code_present, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
             if (lang_code_present) {
@@ -3878,10 +3878,10 @@ static const value_string mpeg_descr_ac3_sysa_priority_vals[] = {
 /* According to ATSC A/52, Annex A, there are two separate ATSC descriptors.  "System A" is used
    by ATSC, and "System B" is used by DVB.  See A/52 Sec A.4.1 for the System A definition */
 static void
-proto_mpeg_descriptor_dissect_ac3_system_a(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+proto_mpeg_descriptor_dissect_ac3_system_a(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
 {
-    guint  end = offset + len;
-    guint8 bsmod_chans_fullsvc, bsmod, num_channels, textlen, lang;
+    unsigned  end = offset + len;
+    uint8_t bsmod_chans_fullsvc, bsmod, num_channels, textlen, lang;
 
     proto_tree_add_item(tree, hf_mpeg_descr_ac3_sysa_srate, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_mpeg_descr_ac3_sysa_bsid, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3892,7 +3892,7 @@ proto_mpeg_descriptor_dissect_ac3_system_a(tvbuff_t *tvb, guint offset, guint le
     proto_tree_add_item(tree, hf_mpeg_descr_ac3_sysa_surround, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    bsmod_chans_fullsvc = tvb_get_guint8(tvb, offset);
+    bsmod_chans_fullsvc = tvb_get_uint8(tvb, offset);
     bsmod = (bsmod_chans_fullsvc & 0xe0) >> 5;
     num_channels = (bsmod_chans_fullsvc & 0x1e) >> 1;
     proto_tree_add_item(tree, hf_mpeg_descr_ac3_sysa_bsmod, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3926,7 +3926,7 @@ proto_mpeg_descriptor_dissect_ac3_system_a(tvbuff_t *tvb, guint offset, guint le
 
     if (offset >= end) return;
 
-    textlen = tvb_get_guint8(tvb, offset) >> 1;
+    textlen = tvb_get_uint8(tvb, offset) >> 1;
     proto_tree_add_item(tree, hf_mpeg_descr_ac3_sysa_textlen, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_mpeg_descr_ac3_sysa_textcode, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
@@ -3934,7 +3934,7 @@ proto_mpeg_descriptor_dissect_ac3_system_a(tvbuff_t *tvb, guint offset, guint le
 
     if (offset >= end) return;
 
-    lang = tvb_get_guint8(tvb, offset);
+    lang = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_mpeg_descr_ac3_sysa_lang1, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_mpeg_descr_ac3_sysa_lang2, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
@@ -3963,22 +3963,22 @@ static int hf_mpeg_descr_nordig_lcd_v1_service_list_visible_service_flag;
 static int hf_mpeg_descr_nordig_lcd_v1_service_list_reserved;
 static int hf_mpeg_descr_nordig_lcd_v1_service_list_logical_channel_number;
 
-static gint ett_mpeg_descriptor_nordig_lcd_v1_service_list;
+static int ett_mpeg_descriptor_nordig_lcd_v1_service_list;
 
 #define MPEG_DESCR_NORDIG_LCD_V1_VISIBLE_SERVICE_FLAG_MASK 0x8000
 #define MPEG_DESCR_NORDIG_LCD_V1_RESERVED_MASK             0x4000
 #define MPEG_DESCR_NORDIG_LCD_V1_LCN_MASK                  0x3fff
 
 static void
-proto_mpeg_descriptor_dissect_nordig_lcd_v1(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+proto_mpeg_descriptor_dissect_nordig_lcd_v1(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
 {
-    guint   end    = offset + len;
+    unsigned   end    = offset + len;
 
     if (len%4 != 0) {
         return;
     }
 
-    guint16 svc_id;
+    uint16_t svc_id;
     proto_tree * svc_tree;
 
     while (offset < end) {
@@ -3999,37 +3999,37 @@ proto_mpeg_descriptor_dissect_nordig_lcd_v1(tvbuff_t *tvb, guint offset, guint l
 }
 
 /* 0x87 NorDig Logical Channel Descriptor (version 2) */
-static gint hf_mpeg_descr_nordig_lcd_v2_channel_list_id;
-static gint hf_mpeg_descr_nordig_lcd_v2_channel_list_name_length;
-static gint hf_mpeg_descr_nordig_lcd_v2_channel_list_name_encoding;
-static gint hf_mpeg_descr_nordig_lcd_v2_channel_list_name;
-static gint hf_mpeg_descr_nordig_lcd_v2_country_code;
-static gint hf_mpeg_descr_nordig_lcd_v2_descriptor_length;
-static gint hf_mpeg_descr_nordig_lcd_v2_service_id;
-static gint hf_mpeg_descr_nordig_lcd_v2_visible_service_flag;
-static gint hf_mpeg_descr_nordig_lcd_v2_reserved;
-static gint hf_mpeg_descr_nordig_lcd_v2_logical_channel_number;
+static int hf_mpeg_descr_nordig_lcd_v2_channel_list_id;
+static int hf_mpeg_descr_nordig_lcd_v2_channel_list_name_length;
+static int hf_mpeg_descr_nordig_lcd_v2_channel_list_name_encoding;
+static int hf_mpeg_descr_nordig_lcd_v2_channel_list_name;
+static int hf_mpeg_descr_nordig_lcd_v2_country_code;
+static int hf_mpeg_descr_nordig_lcd_v2_descriptor_length;
+static int hf_mpeg_descr_nordig_lcd_v2_service_id;
+static int hf_mpeg_descr_nordig_lcd_v2_visible_service_flag;
+static int hf_mpeg_descr_nordig_lcd_v2_reserved;
+static int hf_mpeg_descr_nordig_lcd_v2_logical_channel_number;
 
-static gint ett_mpeg_descriptor_nordig_lcd_v2_channel_list_list;
-static gint ett_mpeg_descriptor_nordig_lcd_v2_service_list;
+static int ett_mpeg_descriptor_nordig_lcd_v2_channel_list_list;
+static int ett_mpeg_descriptor_nordig_lcd_v2_service_list;
 
 #define MPEG_DESCR_NORDIG_LCD_V2_VISIBLE_SERVICE_FLAG_MASK 0x8000
 #define MPEG_DESCR_NORDIG_LCD_V2_RESERVED_MASK             0x7c00
 #define MPEG_DESCR_NORDIG_LCD_V2_LCN_MASK                  0x03ff
 
 static int
-proto_mpeg_descriptor_dissect_nordig_lcd_v2_measure_ch_list(tvbuff_t *tvb, guint offset, guint len)
+proto_mpeg_descriptor_dissect_nordig_lcd_v2_measure_ch_list(tvbuff_t *tvb, unsigned offset, unsigned len)
 {
-    guint l_offset = offset;
+    unsigned l_offset = offset;
     if (len < 2) {
         return len;
     }
-    guint8 channel_list_name_length = tvb_get_guint8(tvb, l_offset + 1);
+    uint8_t channel_list_name_length = tvb_get_uint8(tvb, l_offset + 1);
     l_offset += 2 + channel_list_name_length + 4;
     if (l_offset > offset + len) {
         return len;
     }
-    guint8 descriptor_len = tvb_get_guint8(tvb, l_offset - 1);
+    uint8_t descriptor_len = tvb_get_uint8(tvb, l_offset - 1);
     l_offset += descriptor_len;
     if (l_offset > offset + len) {
         return len;
@@ -4039,20 +4039,20 @@ proto_mpeg_descriptor_dissect_nordig_lcd_v2_measure_ch_list(tvbuff_t *tvb, guint
 }
 
 static void
-proto_mpeg_descriptor_dissect_nordig_lcd_v2(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+proto_mpeg_descriptor_dissect_nordig_lcd_v2(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
 {
-    guint   cnt    = len;
-    guint   end    = offset + len;
+    unsigned   cnt    = len;
+    unsigned   end    = offset + len;
 
     proto_tree * channel_list_tree;
 
     while (cnt > 0) {
         int ch_list_len = proto_mpeg_descriptor_dissect_nordig_lcd_v2_measure_ch_list(tvb, offset, end - offset);
-        guint8  channel_list_id;
-        guint8  channel_list_name_length;
-        guint8  descriptor_length;
+        uint8_t channel_list_id;
+        uint8_t channel_list_name_length;
+        uint8_t descriptor_length;
 
-        channel_list_id = tvb_get_guint8(tvb, offset);
+        channel_list_id = tvb_get_uint8(tvb, offset);
         channel_list_tree = proto_tree_add_subtree_format(tree, tvb, offset, ch_list_len,
                     ett_mpeg_descriptor_nordig_lcd_v2_channel_list_list, NULL, "Channel list 0x%02x", channel_list_id);
         proto_tree_add_item(channel_list_tree, hf_mpeg_descr_nordig_lcd_v2_channel_list_id, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -4060,14 +4060,14 @@ proto_mpeg_descriptor_dissect_nordig_lcd_v2(tvbuff_t *tvb, guint offset, guint l
         cnt    -= 1;
 
         if (cnt < 1) return;
-        channel_list_name_length = tvb_get_guint8(tvb, offset);
+        channel_list_name_length = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(channel_list_tree, hf_mpeg_descr_nordig_lcd_v2_channel_list_name_length, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
         cnt    -= 1;
 
         channel_list_name_length = MIN(cnt, channel_list_name_length);
         dvb_encoding_e  encoding;
-        guint enc_len = dvb_analyze_string_charset(tvb, offset, channel_list_name_length, &encoding);
+        unsigned enc_len = dvb_analyze_string_charset(tvb, offset, channel_list_name_length, &encoding);
         dvb_add_chartbl(channel_list_tree, hf_mpeg_descr_nordig_lcd_v2_channel_list_name_encoding, tvb, offset, enc_len, encoding);
 
         proto_tree_add_item(channel_list_tree, hf_mpeg_descr_nordig_lcd_v2_channel_list_name, tvb, offset+enc_len, channel_list_name_length-enc_len, dvb_enc_to_item_enc(encoding));
@@ -4080,14 +4080,14 @@ proto_mpeg_descriptor_dissect_nordig_lcd_v2(tvbuff_t *tvb, guint offset, guint l
         cnt    -= 3;
 
         if (cnt < 1) return;
-        descriptor_length = tvb_get_guint8(tvb, offset);
+        descriptor_length = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(channel_list_tree, hf_mpeg_descr_nordig_lcd_v2_descriptor_length, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
         cnt    -= 1;
 
         descriptor_length = MIN(descriptor_length, cnt);
         while (descriptor_length > 0) {
-            guint16 svc_id;
+            uint16_t svc_id;
             proto_tree * svc_tree;
 
             if (cnt < 2) return;
@@ -4178,12 +4178,12 @@ static int hf_mpeg_descr_logon_initialize_rbdc_timeout;
 
 /* ETSI EN 301 790 - 8.5.5.10.4 Logon Initialize descriptor */
 static void
-proto_mpeg_descriptor_dissect_logon_initialize(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+proto_mpeg_descriptor_dissect_logon_initialize(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
 {
 
-    guint   end    = offset + len;
-    guint8  flags;
-    guint16 flags2;
+    unsigned   end    = offset + len;
+    uint8_t flags;
+    uint16_t flags2;
 
     if (len >= 1)
     {
@@ -4211,7 +4211,7 @@ proto_mpeg_descriptor_dissect_logon_initialize(tvbuff_t *tvb, guint offset, guin
 
     if (len >= 5)
     {
-        flags = tvb_get_guint8(tvb, offset);
+        flags = tvb_get_uint8(tvb, offset);
 
         proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_capacity_type_flag_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_capacity_type_flag,          tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -4289,9 +4289,9 @@ proto_mpeg_descriptor_dissect_logon_initialize(tvbuff_t *tvb, guint offset, guin
 static int hf_mpeg_descr_rcs_content_table_id;
 
 static void
-proto_mpeg_descriptor_dissect_rcs_content(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+proto_mpeg_descriptor_dissect_rcs_content(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
 {
-    guint end = offset + len;
+    unsigned end = offset + len;
 
     while (offset < end) {
         proto_tree_add_item(tree, hf_mpeg_descr_rcs_content_table_id, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -4338,18 +4338,18 @@ static int hf_mpeg_descr_ciplus_prot_brand_id;
 static const true_false_string tfs_prot_noprot = { "CI+ protection required", "CI+ protection not required" };
 
 
-static guint
-proto_mpeg_descriptor_dissect_private_ciplus(tvbuff_t *tvb, guint offset, proto_tree *tree)
+static unsigned
+proto_mpeg_descriptor_dissect_private_ciplus(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
-    guint        offset_start;
-    guint8       tag, len;
-    const gchar *tag_str;
+    unsigned     offset_start;
+    uint8_t      tag, len;
+    const char *tag_str;
     proto_item  *di;
     proto_tree  *descriptor_tree;
 
     offset_start=offset;
 
-    tag = tvb_get_guint8(tvb, offset);
+    tag = tvb_get_uint8(tvb, offset);
     tag_str = try_val_to_str(tag, mpeg_descriptor_ciplus_tag_vals);
     if (!tag_str)
         return 0;
@@ -4361,7 +4361,7 @@ proto_mpeg_descriptor_dissect_private_ciplus(tvbuff_t *tvb, guint offset, proto_
             tvb, offset, 1, tag, "Descriptor Tag: %s (0x%02x)", tag_str, tag);
     offset += 1;
 
-    len = tvb_get_guint8(tvb, offset);
+    len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(descriptor_tree, hf_mpeg_descriptor_length, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -4379,7 +4379,7 @@ proto_mpeg_descriptor_dissect_private_ciplus(tvbuff_t *tvb, guint offset, proto_
         offset += len-offset;
     }
     else if (tag==CIPLUS_DESC_TAG_SVC) {
-        guint8  str_len_byte;
+        uint8_t str_len_byte;
 
         proto_tree_add_item(descriptor_tree, hf_mpeg_descr_ciplus_svc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
@@ -4392,26 +4392,26 @@ proto_mpeg_descriptor_dissect_private_ciplus(tvbuff_t *tvb, guint offset, proto_
         proto_tree_add_item(descriptor_tree, hf_mpeg_descr_ciplus_svc_lcn, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
-        str_len_byte = tvb_get_guint8(tvb, offset);
+        str_len_byte = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(descriptor_tree, hf_mpeg_descr_ciplus_svc_prov_name, tvb, offset, 1, ENC_ASCII|ENC_BIG_ENDIAN);
         offset += 1+str_len_byte;
 
-        str_len_byte = tvb_get_guint8(tvb, offset);
+        str_len_byte = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(descriptor_tree, hf_mpeg_descr_ciplus_svc_name, tvb, offset, 1, ENC_ASCII|ENC_BIG_ENDIAN);
         offset += 1+str_len_byte;
     }
     else if (tag==CIPLUS_DESC_TAG_PROT) {
-        gboolean  match_brand_flag;
-        guint8    num_brands, i;
-        guint     remaining;
+        bool      match_brand_flag;
+        uint8_t   num_brands, i;
+        unsigned  remaining;
 
         proto_tree_add_item(descriptor_tree, hf_mpeg_descr_ciplus_prot_free_ci_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
-        match_brand_flag = ((tvb_get_guint8(tvb, offset) & 0x40) == 0x40);
+        match_brand_flag = ((tvb_get_uint8(tvb, offset) & 0x40) == 0x40);
         proto_tree_add_item(descriptor_tree, hf_mpeg_descr_ciplus_prot_match_brand_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
         if (match_brand_flag) {
-            num_brands = tvb_get_guint8(tvb, offset);
+            num_brands = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(descriptor_tree, hf_mpeg_descr_ciplus_prot_num_entries, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             for (i=0; i<num_brands; i++) {
@@ -4434,15 +4434,15 @@ proto_mpeg_descriptor_dissect_private_ciplus(tvbuff_t *tvb, guint offset, proto_
 
 /* Common dissector */
 
-guint
-proto_mpeg_descriptor_dissect(tvbuff_t *tvb, guint offset, proto_tree *tree)
+unsigned
+proto_mpeg_descriptor_dissect(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
-    guint       tag, len;
+    unsigned    tag, len;
 
     proto_tree *descriptor_tree;
 
-    tag = tvb_get_guint8(tvb, offset);
-    len = tvb_get_guint8(tvb, offset + 1);
+    tag = tvb_get_uint8(tvb, offset);
+    len = tvb_get_uint8(tvb, offset + 1);
 
     descriptor_tree = proto_tree_add_subtree_format(tree, tvb, offset, len + 2,
                         ett_mpeg_descriptor, NULL, "Descriptor Tag=0x%02x", tag);
@@ -4660,20 +4660,20 @@ proto_mpeg_descriptor_dissect(tvbuff_t *tvb, guint offset, proto_tree *tree)
 
 /* dissect a descriptor loop consisting of one or more descriptors
    take into account the contexts defined a private data specifier descriptors */
-guint
-proto_mpeg_descriptor_loop_dissect(tvbuff_t *tvb, guint offset, guint loop_len, proto_tree *tree)
+unsigned
+proto_mpeg_descriptor_loop_dissect(tvbuff_t *tvb, unsigned offset, unsigned loop_len, proto_tree *tree)
 {
     /* we use the reserved value to indicate that no private context is active */
-    guint32 private_data_specifier = PRIVATE_DATA_SPECIFIER_RESERVED;
-    guint   offset_start;
-    guint   desc_len;
-    guint8  tag;
+    uint32_t private_data_specifier = PRIVATE_DATA_SPECIFIER_RESERVED;
+    unsigned   offset_start;
+    unsigned   desc_len;
+    uint8_t tag;
 
     offset_start = offset;
 
     while ((offset - offset_start) < loop_len) {
         /* don't increment offset in our pre-checks */
-        tag = tvb_get_guint8(tvb, offset);
+        tag = tvb_get_uint8(tvb, offset);
         if (tag == 0x5F) {
             /* we have a private data specifier descriptor: get the private data specifier */
             /* offset+1 is length byte, offset+2 is start of payload */
@@ -6884,7 +6884,7 @@ proto_register_mpeg_descriptor(void)
         } }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_mpeg_descriptor,
         &ett_mpeg_descriptor_extended_event_item,
         &ett_mpeg_descriptor_component_content_type,
