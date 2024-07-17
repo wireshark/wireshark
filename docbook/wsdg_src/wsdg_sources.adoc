@@ -636,7 +636,7 @@ For the steps below we’ll pretend that your username is “henry.perry”.
 
 . Sign in to {wireshark-gitlab-project-url} by clicking “Sign in / Register” in the upper right corner of the web page and following the login instructions.
 
-. https://docs.gitlab.com/ee/user/ssh.html/[Add an SSH key to your account] as described in the GitLab documentation.
+. https://docs.gitlab.com/ee/user/ssh.html[Add an SSH key to your account] as described in the GitLab documentation.
 
 . Make sure you have a clone of the main repository as described in <<ChSrcGit>>.
 
