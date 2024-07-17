@@ -352,7 +352,7 @@ bacnet_dissect_sec_wrapper(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	int len;
 
 	/* get control octet from wrapper */
-	bacnet_wrapper_control = tvb_get_guint8(tvb, offset);
+	bacnet_wrapper_control = tvb_get_uint8(tvb, offset);
 	if (pis_net_msg_flg)
 		*pis_net_msg_flg = (bacnet_wrapper_control & BAC_WRAPPER_CONTROL_NET) != 0;
 
@@ -390,7 +390,7 @@ bacnet_dissect_sec_wrapper(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 			tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
-		bacnet_dlen = tvb_get_guint8(tvb, offset);
+		bacnet_dlen = tvb_get_uint8(tvb, offset);
 		proto_tree_add_item(tree, hf_bacnet_wrapper_dlen,
 			tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
@@ -404,7 +404,7 @@ bacnet_dissect_sec_wrapper(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 			tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
-		bacnet_dlen = tvb_get_guint8(tvb, offset);
+		bacnet_dlen = tvb_get_uint8(tvb, offset);
 		proto_tree_add_item(tree, hf_bacnet_wrapper_slen,
 			tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
@@ -416,7 +416,7 @@ bacnet_dissect_sec_wrapper(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
 		/* additional authentication data is optional */
 		if ((bacnet_wrapper_control & BAC_WRAPPER_AUTHD_PRESENT) != 0) {
-			bacnet_dlen = tvb_get_guint8(tvb, offset);
+			bacnet_dlen = tvb_get_uint8(tvb, offset);
 			proto_tree_add_item(tree, hf_bacnet_wrapper_auth_mech,
 				tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
@@ -431,7 +431,7 @@ bacnet_dissect_sec_wrapper(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
 			/* extra authentication data present if authentication mechanism != 0 */
 			if (bacnet_dlen != 0) {
-				bacnet_len = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+				bacnet_len = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
 				proto_tree_add_item(tree, hf_bacnet_wrapper_auth_len,
 					tvb, offset, 2, ENC_BIG_ENDIAN);
 				offset += 2;
@@ -498,8 +498,8 @@ dissect_bacnet_npdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BACnet-NPDU");
 	col_set_str(pinfo->cinfo, COL_INFO, "Building Automation and Control Network NPDU");
 
-	bacnet_version = tvb_get_guint8(tvb, offset);
-	bacnet_control = tvb_get_guint8(tvb, offset+1);
+	bacnet_version = tvb_get_uint8(tvb, offset);
+	bacnet_control = tvb_get_uint8(tvb, offset+1);
 
 	/* I don't know the length of the NPDU yet; Setting the length after dissection */
 	ti = proto_tree_add_item(tree, proto_bacnet, tvb, 0, -1, ENC_NA);
@@ -518,7 +518,7 @@ dissect_bacnet_npdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 		proto_tree_add_item(bacnet_tree, hf_bacnet_dnet,
 			tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
-		bacnet_dlen = tvb_get_guint8(tvb, offset);
+		bacnet_dlen = tvb_get_uint8(tvb, offset);
 		/* DLEN = 0 is broadcast on dest.network */
 		if( bacnet_dlen == 0) {
 			/* append to hf_bacnet_dlen: broadcast */
@@ -567,7 +567,7 @@ dissect_bacnet_npdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 		proto_tree_add_item(bacnet_tree, hf_bacnet_snet,
 			tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
-		bacnet_slen = tvb_get_guint8(tvb, offset);
+		bacnet_slen = tvb_get_uint8(tvb, offset);
 		if( bacnet_slen == 0) { /* SLEN = 0 invalid */
 			proto_tree_add_uint_format_value(bacnet_tree,
 			    hf_bacnet_slen, tvb, offset, 1, bacnet_slen,
@@ -619,7 +619,7 @@ dissect_bacnet_npdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 	}
 	/* Network Layer Message Type */
 	if (bacnet_control & BAC_CONTROL_NET) {
-		bacnet_mesgtyp =  tvb_get_guint8(tvb, offset);
+		bacnet_mesgtyp =  tvb_get_uint8(tvb, offset);
 		proto_tree_add_uint(bacnet_tree, hf_bacnet_mesgtyp, tvb, offset, 1, bacnet_mesgtyp);
 		/* Put the NPDU Type in the info column */
 		col_add_str(pinfo->cinfo, COL_INFO, rval_to_str_const(bacnet_mesgtyp, bacnet_msgtype_rvals, "Unknown"));
@@ -658,7 +658,7 @@ dissect_bacnet_npdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 		/* Initialize-Routing-Table */
 		case BAC_NET_INIT_RTAB:
 		case BAC_NET_INIT_RTAB_ACK:
-			bacnet_rportnum = tvb_get_guint8(tvb, offset);
+			bacnet_rportnum = tvb_get_uint8(tvb, offset);
 			/* number of ports */
 			proto_tree_add_item(bacnet_tree, hf_bacnet_rportnum,
 				tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -673,7 +673,7 @@ dissect_bacnet_npdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 					tvb, offset, 1, ENC_BIG_ENDIAN);
 					offset ++;
 					/* Port Info Length */
-					bacnet_pinfolen = tvb_get_guint8(tvb, offset);
+					bacnet_pinfolen = tvb_get_uint8(tvb, offset);
 					proto_tree_add_item(bacnet_tree, hf_bacnet_pinfolen,
 					tvb, offset, 1, ENC_BIG_ENDIAN);
 					offset ++;
@@ -741,7 +741,7 @@ dissect_bacnet_npdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 				return tvb_captured_length(tvb);
 			}
 			/* get payload length */
-			bacnet_len = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+			bacnet_len = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
 			proto_tree_add_item(tree, hf_bacnet_security_msg_len,
 				tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
@@ -770,7 +770,7 @@ dissect_bacnet_npdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 				return tvb_captured_length(tvb);
 			}
 
-			bacnet_responsecode = tvb_get_guint8(tvb, offset);
+			bacnet_responsecode = tvb_get_uint8(tvb, offset);
 			proto_tree_add_item(tree, hf_bacnet_security_response_code,
 				tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
@@ -822,7 +822,7 @@ dissect_bacnet_npdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 				offset++;
 				break;
 			case 0x0E: /* incorrectKey */
-				bacnet_responsecode = tvb_get_guint8(tvb, offset);
+				bacnet_responsecode = tvb_get_uint8(tvb, offset);
 				offset++;
 				while (tvb_reported_length_remaining(tvb, offset) > 1 && bacnet_responsecode > 0) {
 					proto_tree_add_item(tree, hf_bacnet_security_response_key_algo,
@@ -895,7 +895,7 @@ dissect_bacnet_npdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 				return tvb_captured_length(tvb);
 			}
 
-			bacnet_update_control = tvb_get_guint8(tvb, offset);
+			bacnet_update_control = tvb_get_uint8(tvb, offset);
 			proto_tree_add_bitmask(tree, tvb, offset, hf_bacnet_update_control,
 				ett_bacnet_update_control, update_control_flags, ENC_NA);
 			offset++;
@@ -915,7 +915,7 @@ dissect_bacnet_npdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 			if (bacnet_update_control & BAC_UPDATE_CONTROL_SET1_PARAMS_PRESENT) {
 				uint8_t keycount;
 
-				keycount = tvb_get_guint8(tvb, offset);
+				keycount = tvb_get_uint8(tvb, offset);
 				offset++;
 
 				for (i = 0; tvb_reported_length_remaining(tvb, offset) > 1 && i < keycount; i++)	{
@@ -926,7 +926,7 @@ dissect_bacnet_npdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 						tvb, offset, 1, ENC_BIG_ENDIAN);
 					offset++;
 
-					bacnet_dlen = tvb_get_guint8(tvb, offset);
+					bacnet_dlen = tvb_get_uint8(tvb, offset);
 					offset++;
 
 					proto_tree_add_item(tree,
@@ -951,7 +951,7 @@ dissect_bacnet_npdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 			if (bacnet_update_control & BAC_UPDATE_CONTROL_SET2_PARAMS_PRESENT) {
 				uint8_t keycount;
 
-				keycount = tvb_get_guint8(tvb, offset);
+				keycount = tvb_get_uint8(tvb, offset);
 				offset++;
 
 				for (i = 0; tvb_reported_length_remaining(tvb, offset) > 1 && i < keycount; i++)	{
@@ -962,7 +962,7 @@ dissect_bacnet_npdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 						tvb, offset, 1, ENC_BIG_ENDIAN);
 					offset++;
 
-					bacnet_dlen = tvb_get_guint8(tvb, offset);
+					bacnet_dlen = tvb_get_uint8(tvb, offset);
 					offset++;
 
 					proto_tree_add_item(tree,
@@ -990,7 +990,7 @@ dissect_bacnet_npdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 				tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 
-			bacnet_dlen = tvb_get_guint8(tvb, offset);
+			bacnet_dlen = tvb_get_uint8(tvb, offset);
 			offset++;
 
 			proto_tree_add_item(tree,
@@ -1009,7 +1009,7 @@ dissect_bacnet_npdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 				return tvb_captured_length(tvb);
 			}
 
-			keycount = tvb_get_guint8(tvb, offset);
+			keycount = tvb_get_uint8(tvb, offset);
 			offset++;
 			while (tvb_reported_length_remaining(tvb, offset) > 1 && keycount > 0) {
 				proto_tree_add_item(tree, hf_bacnet_security_master_key_algo,
@@ -1034,7 +1034,7 @@ dissect_bacnet_npdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 				tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 
-			bacnet_dlen = tvb_get_guint8(tvb, offset);
+			bacnet_dlen = tvb_get_uint8(tvb, offset);
 			offset++;
 
 			proto_tree_add_item(tree,

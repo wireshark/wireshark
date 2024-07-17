@@ -7190,7 +7190,7 @@ object_id_instance(uint32_t object_identifier)
 static unsigned
 fTagNo(tvbuff_t *tvb, unsigned offset)
 {
-    return (unsigned)(tvb_get_guint8(tvb, offset) >> 4);
+    return (unsigned)(tvb_get_uint8(tvb, offset) >> 4);
 }
 
 static bool
@@ -7200,7 +7200,7 @@ fUnsigned32(tvbuff_t *tvb, unsigned offset, uint32_t lvt, uint32_t *val)
 
     switch (lvt) {
     case 1:
-        *val = tvb_get_guint8(tvb, offset);
+        *val = tvb_get_uint8(tvb, offset);
         break;
     case 2:
         *val = tvb_get_ntohs(tvb, offset);
@@ -7229,7 +7229,7 @@ fUnsigned64(tvbuff_t *tvb, unsigned offset, uint32_t lvt, uint64_t *val)
     if (lvt && (lvt <= 8)) {
         valid = true;
         for (i = 0; i < lvt; i++) {
-            data = tvb_get_guint8(tvb, offset+i);
+            data = tvb_get_uint8(tvb, offset+i);
             value = (value << 8) + data;
         }
         *val = value;
@@ -7255,13 +7255,13 @@ fSigned64(tvbuff_t *tvb, unsigned offset, uint32_t lvt, int64_t *val)
     /* we can only handle 7 bytes for a 64-bit value due to signed-ness */
     if (lvt && (lvt <= 7)) {
         valid = true;
-        data = tvb_get_guint8(tvb, offset);
+        data = tvb_get_uint8(tvb, offset);
         if ((data & 0x80) != 0)
             value = (~UINT64_C(0) << 8) | data;
         else
             value = data;
         for (i = 1; i < lvt; i++) {
-            data = tvb_get_guint8(tvb, offset+i);
+            data = tvb_get_uint8(tvb, offset+i);
             value = ((uint64_t)value << 8) | data;
         }
         *val = value;
@@ -7282,7 +7282,7 @@ fTagHeaderTree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     unsigned    lvt_offset;     /* used for tree display of lvt */
 
     lvt_offset = offset;
-    tag        = tvb_get_guint8(tvb, offset);
+    tag        = tvb_get_uint8(tvb, offset);
     *tag_info  = 0;
     *lvt       = tag & 0x07;
 
@@ -7292,11 +7292,11 @@ fTagHeaderTree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (tag_is_context_specific(tag)) *tag_info = tag & 0x0F;
     *tag_no = tag >> 4;
     if (tag_is_extended_tag_number(tag)) {
-        *tag_no = tvb_get_guint8(tvb, offset + tag_len++);
+        *tag_no = tvb_get_uint8(tvb, offset + tag_len++);
     }
     if (tag_is_extended_value(tag)) {       /* length is more than 4 Bytes */
         lvt_offset += tag_len;
-        value = tvb_get_guint8(tvb, lvt_offset);
+        value = tvb_get_uint8(tvb, lvt_offset);
         tag_len++;
         if (value == 254) { /* length is encoded with 16 Bits */
             *lvt = tvb_get_ntohs(tvb, lvt_offset+1);
@@ -7406,7 +7406,7 @@ fBooleanTag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset
 
     fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
     if (tag_info && lvt == 1) {
-        lvt = tvb_get_guint8(tvb, offset+1);
+        lvt = tvb_get_uint8(tvb, offset+1);
         ++bool_len;
     }
 
@@ -7617,7 +7617,7 @@ fPresentValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offs
             break;
         case BACAPP_PRESENT_VALUE_BOOL:
             if (tag_info && lvt == 1) {
-                lvt = tvb_get_guint8(tvb, offset+1);
+                lvt = tvb_get_uint8(tvb, offset+1);
                 bool_len++;
             }
             tree_item = proto_tree_add_boolean(tree, hf_bacapp_present_value_bool, tvb, offset, bool_len, lvt);
@@ -7849,9 +7849,9 @@ fWeekNDay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
     proto_tree *subtree;
 
     tag_len = fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
-    month = tvb_get_guint8(tvb, offset+tag_len);
-    weekOfMonth = tvb_get_guint8(tvb, offset+tag_len+1);
-    dayOfWeek = tvb_get_guint8(tvb, offset+tag_len+2);
+    month = tvb_get_uint8(tvb, offset+tag_len);
+    weekOfMonth = tvb_get_uint8(tvb, offset+tag_len+1);
+    dayOfWeek = tvb_get_uint8(tvb, offset+tag_len+2);
     subtree = proto_tree_add_subtree_format(tree, tvb, offset, lvt+tag_len,
                  ett_bacapp_tag, NULL, "%s %s, %s",
                  val_to_str(month, months, "month (%d) not found"),
@@ -7872,10 +7872,10 @@ fDate(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, cons
     proto_tree *subtree;
 
     tag_len = fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
-    year    = tvb_get_guint8(tvb, offset+tag_len);
-    month   = tvb_get_guint8(tvb, offset+tag_len+1);
-    day     = tvb_get_guint8(tvb, offset+tag_len+2);
-    weekday = tvb_get_guint8(tvb, offset+tag_len+3);
+    year    = tvb_get_uint8(tvb, offset+tag_len);
+    month   = tvb_get_uint8(tvb, offset+tag_len+1);
+    day     = tvb_get_uint8(tvb, offset+tag_len+2);
+    weekday = tvb_get_uint8(tvb, offset+tag_len+3);
     if ((year == 255) && (day == 255) && (month == 255) && (weekday == 255)) {
         subtree = proto_tree_add_subtree_format(tree, tvb, offset, lvt+tag_len,
             ett_bacapp_tag, NULL,
@@ -7913,10 +7913,10 @@ fTime(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, cons
     proto_tree *subtree;
 
     tag_len = fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
-    hour    = tvb_get_guint8(tvb, offset+tag_len);
-    minute  = tvb_get_guint8(tvb, offset+tag_len+1);
-    second  = tvb_get_guint8(tvb, offset+tag_len+2);
-    msec    = tvb_get_guint8(tvb, offset+tag_len+3);
+    hour    = tvb_get_uint8(tvb, offset+tag_len);
+    minute  = tvb_get_uint8(tvb, offset+tag_len+1);
+    second  = tvb_get_uint8(tvb, offset+tag_len+2);
+    msec    = tvb_get_uint8(tvb, offset+tag_len+3);
     if ((hour == 255) && (minute == 255) && (second == 255) && (msec == 255))
         subtree = proto_tree_add_subtree_format(tree, tvb, offset,
             lvt+tag_len, ett_bacapp_tag, NULL,
@@ -8613,7 +8613,7 @@ fCharacterStringBase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
         offs = fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
         offset += offs;
 
-        character_set = tvb_get_guint8(tvb, offset);
+        character_set = tvb_get_uint8(tvb, offset);
         offset++;
         lvt--;
 
@@ -8743,12 +8743,12 @@ fBitStringTagVSBase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigne
     offs = fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
     numberOfBytes = lvt-1; /* Ignore byte for unused bit count */
     offset += offs;
-    unused  = tvb_get_guint8(tvb, offset); /* get the unused Bits */
+    unused  = tvb_get_uint8(tvb, offset); /* get the unused Bits */
 
     memset(bf_arr, 0, sizeof(bf_arr));
     skip = 0;
     for (i = 0; i < numberOfBytes; i++) {
-        tmp = tvb_get_guint8(tvb, (offset)+i + 1);
+        tmp = tvb_get_uint8(tvb, (offset)+i + 1);
         if (i == numberOfBytes - 1) { skip = unused; }
         for (j = 0; j < 8 - skip; j++) {
             bf_arr[MIN(sizeof(bf_arr) - 2, (i * 8) + j)] = tmp & (1 << (7 - j)) ? 'T' : 'F';
@@ -8770,7 +8770,7 @@ fBitStringTagVSBase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigne
     memset(bf_arr, 0, sizeof(bf_arr));
     skip = 0;
     for (i = 0; i < numberOfBytes; i++) {
-        tmp = tvb_get_guint8(tvb, (offset)+i+1);
+        tmp = tvb_get_uint8(tvb, (offset)+i+1);
         if (i == numberOfBytes-1) { skip = unused; }
         for (j = 0; j < 8-skip; j++) {
             if (src != NULL) {
@@ -16080,15 +16080,15 @@ fStartConfirmed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *bacapp_tree, 
     unsigned    extra = 2;
 
     bacapp_seq = 0;
-    tmp = tvb_get_gint8(tvb, offset);
+    tmp = tvb_get_int8(tvb, offset);
     bacapp_flags = tmp & 0x0f;
 
     if (ack == 0) {
         extra = 3;
     }
-    *svc = tvb_get_gint8(tvb, offset+extra);
+    *svc = tvb_get_int8(tvb, offset+extra);
     if (bacapp_flags & 0x08)
-        *svc = tvb_get_gint8(tvb, offset+extra+2);
+        *svc = tvb_get_int8(tvb, offset+extra+2);
 
     proto_tree_add_item(bacapp_tree, hf_bacapp_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     tc = proto_tree_add_item(bacapp_tree, hf_bacapp_pduflags, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -16106,7 +16106,7 @@ fStartConfirmed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *bacapp_tree, 
     offset++;
     proto_tree_add_item(bacapp_tree, hf_bacapp_invoke_id, tvb, offset++, 1, ENC_BIG_ENDIAN);
     if (bacapp_flags & 0x08) {
-        bacapp_seq = tvb_get_guint8(tvb, offset);
+        bacapp_seq = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(bacapp_tree, hf_bacapp_sequence_number, tvb,
             offset++, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(bacapp_tree, hf_bacapp_window_size, tvb,
@@ -16145,7 +16145,7 @@ fUnconfirmedRequestPDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bacapp_tre
 
     proto_tree_add_item(bacapp_tree, hf_bacapp_type, tvb, offset++, 1, ENC_BIG_ENDIAN);
 
-    tmp = tvb_get_guint8(tvb, offset);
+    tmp = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(bacapp_tree, hf_bacapp_uservice, tvb,
         offset++, 1, ENC_BIG_ENDIAN);
     /* Service Request follows... Variable Encoding 20.2ff */
@@ -16459,7 +16459,7 @@ fErrorPDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bacapp_tree, unsigned o
 
     proto_tree_add_item(bacapp_tree_control, hf_bacapp_invoke_id, tvb,
                 offset++, 1, ENC_BIG_ENDIAN);
-    tmp = tvb_get_guint8(tvb, offset);
+    tmp = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(bacapp_tree_control, hf_bacapp_service, tvb,
                  offset++, 1, ENC_BIG_ENDIAN);
     /* Error Handling follows... */
@@ -16509,7 +16509,7 @@ do_the_dissection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     uint8_t flag, bacapp_type;
     unsigned  offset = 0;
 
-    flag = tvb_get_gint8(tvb, 0);
+    flag = tvb_get_int8(tvb, 0);
     bacapp_type = (flag >> 4) & 0x0f;
 
     if (tvb == NULL) {
@@ -16575,7 +16575,7 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BACnet-APDU");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    flag = tvb_get_guint8(tvb, 0);
+    flag = tvb_get_uint8(tvb, 0);
     bacapp_type = (flag >> 4) & 0x0f;
 
     /* show some descriptive text in the INFO column */
@@ -16593,15 +16593,15 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
         if (flag & BACAPP_SEGMENTED_REQUEST) {
             fragment = true;
             ack = 0;
-            /* bacapp_apdu_size = fGetMaxAPDUSize(tvb_get_guint8(tvb, offset + 1)); */ /* has 16 values, reserved are 50 Bytes */
-            bacapp_invoke_id = tvb_get_guint8(tvb, offset + 2);
-            bacapp_seqno = tvb_get_guint8(tvb, offset + 3);
-            /* bacapp_prop_win_size = tvb_get_guint8(tvb, offset + 4); */
-            bacapp_service = tvb_get_guint8(tvb, offset + 5);
+            /* bacapp_apdu_size = fGetMaxAPDUSize(tvb_get_uint8(tvb, offset + 1)); */ /* has 16 values, reserved are 50 Bytes */
+            bacapp_invoke_id = tvb_get_uint8(tvb, offset + 2);
+            bacapp_seqno = tvb_get_uint8(tvb, offset + 3);
+            /* bacapp_prop_win_size = tvb_get_uint8(tvb, offset + 4); */
+            bacapp_service = tvb_get_uint8(tvb, offset + 5);
             data_offset = 6;
         } else {
-            bacapp_invoke_id = tvb_get_guint8(tvb, offset + 2);
-            bacapp_service = tvb_get_guint8(tvb, offset + 3);
+            bacapp_invoke_id = tvb_get_uint8(tvb, offset + 2);
+            bacapp_service = tvb_get_uint8(tvb, offset + 3);
         }
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s[%3u] ",
                         val_to_str_const(bacapp_service,
@@ -16620,7 +16620,7 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                              confsreqstr, NULL));
         break;
     case BACAPP_TYPE_UNCONFIRMED_SERVICE_REQUEST:
-        bacapp_service = tvb_get_guint8(tvb, offset + 1);
+        bacapp_service = tvb_get_uint8(tvb, offset + 1);
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
                         val_to_str_const(bacapp_service,
                                          BACnetUnconfirmedServiceChoice,
@@ -16634,8 +16634,8 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                              uconfsreqstr, NULL));
         break;
     case BACAPP_TYPE_SIMPLE_ACK:
-        bacapp_invoke_id = tvb_get_guint8(tvb, offset + 1);
-        bacapp_service = tvb_get_guint8(tvb, offset + 2);
+        bacapp_invoke_id = tvb_get_uint8(tvb, offset + 1);
+        bacapp_service = tvb_get_uint8(tvb, offset + 2);
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s[%3u] ", /* "original-invokeID" replaced */
                         val_to_str_const(bacapp_service,
                                          BACnetConfirmedServiceChoice,
@@ -16659,14 +16659,14 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
             fragment = true;
             ack = 1;
             /* bacapp_apdu_size = fGetMaxAPDUSize(0); */ /* has minimum of 50 Bytes */
-            bacapp_invoke_id = tvb_get_guint8(tvb, offset + 1);
-            bacapp_seqno = tvb_get_guint8(tvb, offset + 2);
-            /* bacapp_prop_win_size = tvb_get_guint8(tvb, offset + 3); */
-            bacapp_service = tvb_get_guint8(tvb, offset + 4);
+            bacapp_invoke_id = tvb_get_uint8(tvb, offset + 1);
+            bacapp_seqno = tvb_get_uint8(tvb, offset + 2);
+            /* bacapp_prop_win_size = tvb_get_uint8(tvb, offset + 3); */
+            bacapp_service = tvb_get_uint8(tvb, offset + 4);
             data_offset = 5;
         } else {
-            bacapp_invoke_id = tvb_get_guint8(tvb, offset + 1);
-            bacapp_service = tvb_get_guint8(tvb, offset + 2);
+            bacapp_invoke_id = tvb_get_uint8(tvb, offset + 1);
+            bacapp_service = tvb_get_uint8(tvb, offset + 2);
         }
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s[%3u] ", /* "original-invokeID" replaced */
                         val_to_str_const(bacapp_service,
@@ -16688,8 +16688,8 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
         /* nothing more to add */
         break;
     case BACAPP_TYPE_ERROR:
-        bacapp_invoke_id = tvb_get_guint8(tvb, offset + 1);
-        bacapp_service = tvb_get_guint8(tvb, offset + 2);
+        bacapp_invoke_id = tvb_get_uint8(tvb, offset + 1);
+        bacapp_service = tvb_get_uint8(tvb, offset + 2);
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s[%3u] ", /* "original-invokeID" replaced */
                         val_to_str_const(bacapp_service,
                                          BACnetConfirmedServiceChoice,
@@ -16708,8 +16708,8 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                              NULL));
         break;
     case BACAPP_TYPE_REJECT:
-        bacapp_invoke_id = tvb_get_guint8(tvb, offset + 1);
-        bacapp_reason = tvb_get_guint8(tvb, offset + 2);
+        bacapp_invoke_id = tvb_get_uint8(tvb, offset + 1);
+        bacapp_reason = tvb_get_uint8(tvb, offset + 2);
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s[%3u] ", /* "original-invokeID" replaced */
                         val_to_split_str(bacapp_reason,
                                          64,
@@ -16729,8 +16729,8 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                              NULL));
         break;
     case BACAPP_TYPE_ABORT:
-        bacapp_invoke_id = tvb_get_guint8(tvb, offset + 1);
-        bacapp_reason = tvb_get_guint8(tvb, offset + 2);
+        bacapp_invoke_id = tvb_get_uint8(tvb, offset + 1);
+        bacapp_reason = tvb_get_uint8(tvb, offset + 2);
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s[%3u] ", /* "original-invokeID" replaced */
                         val_to_split_str(bacapp_reason,
                                          64,

@@ -4253,7 +4253,7 @@ get_request(tvbuff_t *tvb, int offset, packet_info *pinfo, uint8_t opcode,
       case 0x01: /* Error Response */
           if (tvb_captured_length_remaining(tvb, offset) < 1)
               return NULL;
-          opcode = tvb_get_guint8(tvb, 1) + 1;
+          opcode = tvb_get_uint8(tvb, 1) + 1;
           /* FALL THROUGH */
       case 0x03: /* Exchange MTU Response */
       case 0x05: /* Find Information Response */
@@ -4287,7 +4287,7 @@ get_request(tvbuff_t *tvb, int offset, packet_info *pinfo, uint8_t opcode,
     case 0x01: /* Error Response */
         if (tvb_captured_length_remaining(tvb, offset) < 1)
             return NULL;
-        opcode = tvb_get_guint8(tvb, 1) + 1;
+        opcode = tvb_get_uint8(tvb, 1) + 1;
         /* FALL THROUGH */
     case 0x03: /* Exchange MTU Response */
     case 0x05: /* Find Information Response */
@@ -4607,7 +4607,7 @@ dissect_handle(proto_tree *tree, packet_info *pinfo, int hf,
 
     if (handle == HANDLE_TVB) {
         handle_item = proto_tree_add_item(tree, hf, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        handle = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        handle = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
     } else if (handle >= 0 && handle <= UINT16_MAX) {
         handle_item = proto_tree_add_uint(tree, hf, tvb, 0, 0, handle);
         proto_item_set_generated(handle_item);
@@ -4819,12 +4819,12 @@ add_item_btatt_timestamp(proto_tree *tree, int hf_index, tvbuff_t *tvb, unsigned
     sub_tree = proto_item_add_subtree(sub_item, ett_btatt_list);
 
     proto_item_append_text(sub_item, ": %04u-%02u-%02u %02u:%02u:%02u",
-        tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN),
-        tvb_get_guint8(tvb, offset + 2),
-        tvb_get_guint8(tvb, offset + 3),
-        tvb_get_guint8(tvb, offset + 4),
-        tvb_get_guint8(tvb, offset + 5),
-        tvb_get_guint8(tvb, offset + 6));
+        tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN),
+        tvb_get_uint8(tvb, offset + 2),
+        tvb_get_uint8(tvb, offset + 3),
+        tvb_get_uint8(tvb, offset + 4),
+        tvb_get_uint8(tvb, offset + 5),
+        tvb_get_uint8(tvb, offset + 6));
 
    return add_item_btatt_time(sub_tree, tvb, offset);
 }
@@ -4948,7 +4948,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             break;
 
         offset = dissect_handle(tree, pinfo, hf_btatt_included_service_handle, tvb, offset, bluetooth_data, NULL, HANDLE_TVB, att_data->opcode);
-        sub_handle = tvb_get_guint16(tvb, offset - 2, ENC_LITTLE_ENDIAN);
+        sub_handle = tvb_get_uint16(tvb, offset - 2, ENC_LITTLE_ENDIAN);
 
         proto_tree_add_item(tree, hf_btatt_ending_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
@@ -4977,12 +4977,12 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         offset += 1;
 
         offset = dissect_handle(tree, pinfo, hf_btatt_characteristic_value_handle, tvb, offset, bluetooth_data, NULL, HANDLE_TVB, att_data->opcode);
-        sub_handle = tvb_get_guint16(tvb, offset - 2, ENC_LITTLE_ENDIAN);
+        sub_handle = tvb_get_uint16(tvb, offset - 2, ENC_LITTLE_ENDIAN);
 
         if (tvb_reported_length_remaining(tvb, offset) == 16) {
             proto_tree_add_item(tree, hf_btatt_uuid128, tvb, offset, 16, ENC_NA);
             sub_uuid = get_bluetooth_uuid(tvb, offset, 16);
-            proto_item_append_text(patron_item, ", Characteristic Handle: 0x%04x, UUID128: %s", tvb_get_guint16(tvb, offset - 2, ENC_LITTLE_ENDIAN), print_bluetooth_uuid(pinfo->pool, &sub_uuid));
+            proto_item_append_text(patron_item, ", Characteristic Handle: 0x%04x, UUID128: %s", tvb_get_uint16(tvb, offset - 2, ENC_LITTLE_ENDIAN), print_bluetooth_uuid(pinfo->pool, &sub_uuid));
             offset += 16;
 
             col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", print_bluetooth_uuid(pinfo->pool, &sub_uuid));
@@ -5045,7 +5045,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             break;
 
         proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_characteristic_configuration_client, ett_btatt_value, hfx_btatt_characteristic_configuration_client, ENC_LITTLE_ENDIAN);
-        value = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        value = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
         offset += 2;
 
         {
@@ -5265,7 +5265,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         offset += 2;
 
         proto_tree_add_item(tree, hf_btatt_characteristic_presentation_namespace, tvb, offset, 1, ENC_NA);
-        value = tvb_get_guint8(tvb, offset);
+        value = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         if (value == 0x01) /* Bluetooth SIG */
@@ -5390,7 +5390,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             break;
 
         proto_tree_add_item(tree, hf_btatt_value_trigger_setting_condition, tvb, offset, 1, ENC_NA);
-        value = tvb_get_guint8(tvb, offset);
+        value = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         if (value >= 1 && value <= 3) {
@@ -5460,7 +5460,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             break;
 
         proto_tree_add_item(tree, hf_btatt_time_trigger_setting_condition, tvb, offset, 1, ENC_NA);
-        value = tvb_get_guint8(tvb, offset);
+        value = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         if (value == 0) {
@@ -5487,7 +5487,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-        switch ((tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN) & 0xFFC0) >> 6) {
+        switch ((tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN) & 0xFFC0) >> 6) {
         case 0x003: /* Watch */
             hfs = hfx_btatt_appearance_watch;
             break;
@@ -5862,7 +5862,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             break;
 
         proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_glucose_measurement_flags, ett_btatt_value, hfx_btatt_glucose_measurement_flags, ENC_NA);
-        flags = tvb_get_guint8(tvb, offset);
+        flags = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         proto_tree_add_item(tree, hf_btatt_glucose_measurement_sequence_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -5962,7 +5962,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             break;
 
         proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_temperature_measurement_flags, ett_btatt_value, hfx_btatt_temperature_measurement_flags, ENC_NA);
-        flags = tvb_get_guint8(tvb, offset);
+        flags = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         if (flags & 0x01) {
@@ -6184,7 +6184,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             break;
 
         proto_tree_add_item(tree, hf_btatt_regulatory_certification_data_list_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        count = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        count = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
         list_length += 2;
         offset += 2;
 
@@ -6209,12 +6209,12 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             offset += 1;
 
             proto_tree_add_item(sub_tree, hf_btatt_regulatory_certification_data_list_item_body_structure_type, tvb, offset, 1, ENC_NA);
-            item_type = tvb_get_guint8(tvb, offset);
+            item_type = tvb_get_uint8(tvb, offset);
             list_length += 1;
             offset += 1;
 
             list_length_item = proto_tree_add_item(sub_tree, hf_btatt_regulatory_certification_data_list_item_body_structure_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            item_length = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+            item_length = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
             list_length += 2 + item_length;
             offset += 2;
 
@@ -6234,13 +6234,13 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
 
                 if (item_length > 2) {
                     proto_tree_add_item(authorizing_body_data_tree, hf_btatt_regulatory_certification_data_list_item_authorizing_body_data_certification_data_list_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                    certification_data_list_count = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+                    certification_data_list_count = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
                     offset += 2;
                 }
 
                 if (item_length > 4) {
                     proto_tree_add_item(authorizing_body_data_tree, hf_btatt_regulatory_certification_data_list_item_authorizing_body_data_certification_data_list_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                    certification_data_list_length = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+                    certification_data_list_length = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
                     offset += 2;
                 }
 
@@ -6366,7 +6366,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             break;
 
         proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_glucose_measurement_context_flags, ett_btatt_value, hfx_btatt_glucose_measurement_context_flags, ENC_NA);
-        flags = tvb_get_guint8(tvb, offset);
+        flags = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         proto_tree_add_item(tree, hf_btatt_glucose_measurement_context_sequence_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -6443,7 +6443,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             break;
 
         proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_blood_pressure_measurement_flags, ett_btatt_value, hfx_btatt_blood_pressure_measurement_flags, ENC_NA);
-        flags = tvb_get_guint8(tvb, offset);
+        flags = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         if (flags & 0x01) {
@@ -6496,7 +6496,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             break;
 
         proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_heart_rate_measurement_flags, ett_btatt_value, hfx_btatt_heart_rate_measurement_flags, ENC_NA);
-        flags = tvb_get_guint8(tvb, offset);
+        flags = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         if (flags & 0x01) {
@@ -6865,7 +6865,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             break;
 
         proto_tree_add_item(tree, hf_btatt_pnp_id_vendor_id_source, tvb, offset, 1, ENC_NA);
-        value = tvb_get_guint8(tvb, offset);
+        value = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         if (value == 1)
@@ -6914,11 +6914,11 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             break;
 
         proto_tree_add_item(tree, hf_btatt_record_access_control_point_opcode, tvb, offset, 1, ENC_NA);
-        opcode = tvb_get_guint8(tvb, offset);
+        opcode = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         proto_tree_add_item(tree, hf_btatt_record_access_control_point_operator, tvb, offset, 1, ENC_NA);
-        operator_value = tvb_get_guint8(tvb, offset);
+        operator_value = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         sub_item = proto_tree_add_item(tree, hf_btatt_record_access_control_point_operand, tvb, offset, 0, ENC_NA);
@@ -6939,7 +6939,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
                 break;
             case 2: /* Less than or equal to */
                 proto_tree_add_item(sub_tree, hf_btatt_record_access_control_point_operand_filter_type, tvb, offset, 1, ENC_NA);
-                value = tvb_get_guint8(tvb, offset);
+                value = tvb_get_uint8(tvb, offset);
                 offset += 1;
 
                 if (value == 0x01) /* Time offset */ {
@@ -6953,7 +6953,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
                 break;
             case 3: /* Greater than or equal to */
                 proto_tree_add_item(sub_tree, hf_btatt_record_access_control_point_operand_filter_type, tvb, offset, 1, ENC_NA);
-                value = tvb_get_guint8(tvb, offset);
+                value = tvb_get_uint8(tvb, offset);
                 offset += 1;
 
                 if (value == 0x01) /* Time offset */ {
@@ -6967,7 +6967,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
                 break;
             case 4: /* Within range of (inclusive) */
                 proto_tree_add_item(sub_tree, hf_btatt_record_access_control_point_operand_filter_type, tvb, offset, 1, ENC_NA);
-                value = tvb_get_guint8(tvb, offset);
+                value = tvb_get_uint8(tvb, offset);
                 offset += 1;
 
                 if (value == 0x01) /* Time offset */ {
@@ -7018,7 +7018,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             break;
 
         proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_rsc_measurement_flags, ett_btatt_value, hfx_btatt_rsc_measurement_flags, ENC_NA);
-        flags = tvb_get_guint8(tvb, offset);
+        flags = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         proto_tree_add_item(tree, hf_btatt_rsc_measurement_instantaneous_speed, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -7067,7 +7067,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             break;
 
         proto_tree_add_item(tree, hf_btatt_sc_control_point_opcode, tvb, offset, 1, ENC_NA);
-        opcode = tvb_get_guint8(tvb, offset);
+        opcode = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         switch (opcode) {
@@ -7083,13 +7083,13 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             break;
         case 16: /* Response Code */
             proto_tree_add_item(tree, hf_btatt_sc_control_point_request_opcode, tvb, offset, 1, ENC_NA);
-            value = tvb_get_guint8(tvb, offset);
+            value = tvb_get_uint8(tvb, offset);
             offset += 1;
 
             proto_tree_add_item(tree, hf_btatt_sc_control_point_response_value, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            if (value == 0x04 && tvb_get_guint8(tvb, offset) == 0x01) { /* Request Supported Sensor Locations */
+            if (value == 0x04 && tvb_get_uint8(tvb, offset) == 0x01) { /* Request Supported Sensor Locations */
                 while (tvb_captured_length_remaining(tvb, offset)) {
                     proto_tree_add_item(tree, hf_btatt_sensor_location, tvb, offset, 1, ENC_NA);
                     offset += 1;
@@ -7184,7 +7184,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             break;
 
         proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_csc_measurement_flags, ett_btatt_value, hfx_btatt_csc_measurement_flags, ENC_NA);
-        flags = tvb_get_guint8(tvb, offset);
+        flags = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         if (flags & 0x01) {
@@ -7251,7 +7251,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             break;
 
         proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_plx_spot_check_measurement_flags, ett_btatt_value, hfx_btatt_plx_spot_check_measurement_flags, ENC_NA);
-        flags = tvb_get_guint8(tvb, offset);
+        flags = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         sub_item = proto_tree_add_item(tree, hf_btatt_plx_spo2pr_spot_check, tvb, offset, 4, ENC_NA);
@@ -7297,7 +7297,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             break;
 
         proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_plx_continuous_measurement_flags, ett_btatt_value, hfx_btatt_plx_continuous_measurement_flags, ENC_NA);
-        flags = tvb_get_guint8(tvb, offset);
+        flags = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         sub_item = proto_tree_add_item(tree, hf_btatt_plx_spo2pr_normal, tvb, offset, 4, ENC_NA);
@@ -7360,7 +7360,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             break;
 
         proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_plx_features_supported_features, ett_btatt_value, hfx_btatt_plx_features_supported_features, ENC_LITTLE_ENDIAN);
-        flags = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        flags = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
         offset += 2;
 
         if (flags & 0x01) {
@@ -7384,7 +7384,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             break;
 
         proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_cycling_power_measurement_flags, ett_btatt_value, hfx_btatt_cycling_power_measurement_flags, ENC_LITTLE_ENDIAN);
-        flags = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        flags = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
         offset += 2;
 
         proto_tree_add_item(tree, hf_btatt_cycling_power_measurement_instantaneous_power, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -7463,7 +7463,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             break;
 
         proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_cycling_power_vector_flags, ett_btatt_value, hfx_btatt_cycling_power_vector_flags, ENC_NA);
-        flags = tvb_get_guint8(tvb, offset);
+        flags = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         if (flags & 0x01) {
@@ -7523,7 +7523,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             break;
 
         proto_tree_add_item(tree, hf_btatt_cycling_power_control_point_opcode, tvb, offset, 1, ENC_NA);
-        opcode = tvb_get_guint8(tvb, offset);
+        opcode = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         switch (opcode) {
@@ -7580,7 +7580,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             proto_tree_add_item(tree, hf_btatt_cycling_power_control_point_response_value, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            switch (tvb_get_guint8(tvb, offset - 2)) {
+            switch (tvb_get_uint8(tvb, offset - 2)) {
             case  1: /* Set Cumulative Value */
             case  2: /* Update Sensor Location */
             case  4: /* Set Crank Length */
@@ -7592,7 +7592,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
 
                 break;
             case  3: /* Request Supported Sensor Locations */
-                if (tvb_get_guint8(tvb, offset - 1) == 0x01) /* Success */ {
+                if (tvb_get_uint8(tvb, offset - 1) == 0x01) /* Success */ {
                     while (tvb_captured_length_remaining(tvb, offset)) {
                         proto_tree_add_item(tree, hf_btatt_sensor_location, tvb, offset, 1, ENC_NA);
                         offset += 1;
@@ -7601,49 +7601,49 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
 
                 break;
             case  5: /* Request Crank Length */
-                if (tvb_get_guint8(tvb, offset - 1) == 0x01) /* Success */ {
+                if (tvb_get_uint8(tvb, offset - 1) == 0x01) /* Success */ {
                     proto_tree_add_item(tree, hf_btatt_cycling_power_control_point_crank_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                     offset += 2;
                 }
 
                 break;
             case  7: /* Request Chain Length */
-                if (tvb_get_guint8(tvb, offset - 1) == 0x01) /* Success */ {
+                if (tvb_get_uint8(tvb, offset - 1) == 0x01) /* Success */ {
                     proto_tree_add_item(tree, hf_btatt_cycling_power_control_point_chain_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                     offset += 2;
                 }
 
                 break;
             case  9: /* Request Chain Weight */
-                if (tvb_get_guint8(tvb, offset - 1) == 0x01) /* Success */ {
+                if (tvb_get_uint8(tvb, offset - 1) == 0x01) /* Success */ {
                     proto_tree_add_item(tree, hf_btatt_cycling_power_control_point_chain_weight, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                     offset += 2;
                 }
 
                 break;
             case 11: /* Request Span Length */
-                if (tvb_get_guint8(tvb, offset - 1) == 0x01) /* Success */ {
+                if (tvb_get_uint8(tvb, offset - 1) == 0x01) /* Success */ {
                     proto_tree_add_item(tree, hf_btatt_cycling_power_control_point_span_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                     offset += 2;
                 }
 
                 break;
             case 12: /* Start Offset Compensation */
-                if (tvb_get_guint8(tvb, offset - 1) == 0x01) /* Success */ {
+                if (tvb_get_uint8(tvb, offset - 1) == 0x01) /* Success */ {
                     proto_tree_add_item(tree, hf_btatt_cycling_power_control_point_start_offset_compensation, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                     offset += 2;
                 }
 
                 break;
             case 14: /* Request Sampling Rate */
-                if (tvb_get_guint8(tvb, offset - 1) == 0x01) /* Success */ {
+                if (tvb_get_uint8(tvb, offset - 1) == 0x01) /* Success */ {
                     proto_tree_add_item(tree, hf_btatt_cycling_power_control_point_sampling_rate, tvb, offset, 1, ENC_NA);
                     offset += 1;
                 }
 
                 break;
             case 15: /* Request Factory Calibration Date */
-                if (tvb_get_guint8(tvb, offset - 1) == 0x01) /* Success */ {
+                if (tvb_get_uint8(tvb, offset - 1) == 0x01) /* Success */ {
                     offset = add_item_btatt_timestamp(tree, hf_btatt_cycling_power_control_point_factory_calibration_date, tvb, offset);
                 }
 
@@ -7663,7 +7663,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             break;
 
         proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_location_and_speed_flags, ett_btatt_value, hfx_btatt_location_and_speed_flags, ENC_LITTLE_ENDIAN);
-        flags = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        flags = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
         offset += 2;
 
         if (flags & 0x01) {
@@ -7714,7 +7714,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             break;
 
         proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_navigation_flags, ett_btatt_value, hfx_btatt_navigation_flags, ENC_LITTLE_ENDIAN);
-        flags = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        flags = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
         offset += 2;
 
         proto_tree_add_item(tree, hf_btatt_navigation_bearing, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -7751,7 +7751,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             break;
 
         proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_position_quality_flags, ett_btatt_value, hfx_btatt_position_quality_flags, ENC_LITTLE_ENDIAN);
-        flags = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        flags = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
         offset += 2;
 
         if (flags & 0x01) {
@@ -7819,7 +7819,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             break;
 
         proto_tree_add_item(tree, hf_btatt_ln_control_point_opcode, tvb, offset, 1, ENC_NA);
-        opcode = tvb_get_guint8(tvb, offset);
+        opcode = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         switch (opcode) {
@@ -7865,7 +7865,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             proto_tree_add_item(tree, hf_btatt_ln_control_point_response_value, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            switch (tvb_get_guint8(tvb, offset - 2)) {
+            switch (tvb_get_uint8(tvb, offset - 2)) {
             case  1: /* Set Cumulative Value */
             case  2: /* Mask Location and Speed Characteristic Content */
             case  3: /* Navigation Control */
@@ -8705,7 +8705,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             break;
 
         proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_body_composition_measurement_flags, ett_btatt_value, hfx_btatt_body_composition_measurement_flags, ENC_LITTLE_ENDIAN);
-        flags = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        flags = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
         offset += 2;
 
         proto_tree_add_item(tree, hf_btatt_body_composition_measurement_body_fat_percentage, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -8799,7 +8799,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             break;
 
         proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_weight_measurement_flags, ett_btatt_value, hfx_btatt_weight_measurement_flags, ENC_NA);
-        flags = tvb_get_guint8(tvb, offset);
+        flags = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         if (flags & 0x01)
@@ -8858,13 +8858,13 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             break;
 
         proto_tree_add_item(tree, hf_btatt_user_control_point_opcode, tvb, offset, 1, ENC_NA);
-        opcode = tvb_get_guint8(tvb, offset);
+        opcode = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         switch (opcode) {
         case 0x01: /* Register New User */
             sub_item = proto_tree_add_item(tree, hf_btatt_user_control_point_consent_code, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            value =  tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+            value =  tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
             if (value > 9999)
                 expert_add_info(pinfo, sub_item, &ei_btatt_consent_out_of_bounds);
             offset += 2;
@@ -8875,7 +8875,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             offset += 1;
 
             sub_item = proto_tree_add_item(tree, hf_btatt_user_control_point_consent_code, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            value =  tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+            value =  tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
             if (value > 9999)
                 expert_add_info(pinfo, sub_item, &ei_btatt_consent_out_of_bounds);
             offset += 2;
@@ -8891,7 +8891,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             proto_tree_add_item(tree, hf_btatt_user_control_point_response_value, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            if (tvb_get_guint8(tvb, offset - 2) == 0x01 && tvb_get_guint8(tvb, offset - 1) == 0x01) { /* Register New User && Success */
+            if (tvb_get_uint8(tvb, offset - 2) == 0x01 && tvb_get_uint8(tvb, offset - 1) == 0x01) { /* Register New User && Success */
                 proto_tree_add_item(tree, hf_btatt_user_index, tvb, offset, 1, ENC_NA);
                 offset += 1;
             }
@@ -8993,14 +8993,14 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             break;
 
         proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_bond_management_feature, ett_btatt_value, hfx_btatt_bond_management_feature, ENC_LITTLE_ENDIAN);
-        flags = tvb_get_guint24(tvb, offset, ENC_LITTLE_ENDIAN);
+        flags = tvb_get_uint24(tvb, offset, ENC_LITTLE_ENDIAN);
         offset += 3;
 
         if (flags & 0x800000) {
             do {
                 proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_bond_management_feature_nth, ett_btatt_value, hfx_btatt_bond_management_feature_nth, ENC_LITTLE_ENDIAN);
                 offset += 1;
-            } while (tvb_get_guint8(tvb, offset - 1) & 0x80);
+            } while (tvb_get_uint8(tvb, offset - 1) & 0x80);
         }
 
         break;
@@ -9027,12 +9027,12 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             break;
 
         sub_item = proto_tree_add_item(tree, hf_btatt_cgm_measurement_size, tvb, offset, 1, ENC_NA);
-        if (tvb_get_guint8(tvb, offset) >= 6)
+        if (tvb_get_uint8(tvb, offset) >= 6)
             expert_add_info(pinfo, sub_item, &ei_btatt_cgm_size_too_small);
         offset += 1;
 
         proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_cgm_measurement_flags, ett_btatt_value, hfx_btatt_cgm_measurement_flags, ENC_NA);
-        flags = tvb_get_guint8(tvb, offset);
+        flags = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         proto_tree_add_item(tree, hf_btatt_cgm_measurement_glucose_concentration, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -9208,7 +9208,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             break;
 
         proto_tree_add_item(tree, hf_btatt_cgm_specific_ops_control_point_opcode, tvb, offset, 1, ENC_NA);
-        opcode = tvb_get_guint8(tvb, offset);
+        opcode = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         sub_item = proto_tree_add_item(tree, hf_btatt_cgm_specific_ops_control_point_operand, tvb, offset, 0, ENC_NA);
@@ -9291,7 +9291,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             proto_tree_add_item(sub_tree, hf_btatt_cgm_specific_ops_control_point_response_code, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            switch (tvb_get_guint8(tvb, offset - 2)) {
+            switch (tvb_get_uint8(tvb, offset - 2)) {
             case  1: /* Set CGM Communication Interval */
             case  2: /* Get CGM Communication Interval */
             case  4: /* Set Glucose Calibration Value */
@@ -9794,7 +9794,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             break;
 
         proto_tree_add_item(tree, hf_btatt_ots_action_opcode, tvb, offset, 1, ENC_NA);
-        opcode = tvb_get_guint8(tvb, offset);
+        opcode = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         switch (opcode) {
@@ -9834,7 +9834,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             proto_tree_add_item(tree, hf_btatt_ots_action_result_code, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            switch (tvb_get_guint8(tvb, offset)) {
+            switch (tvb_get_uint8(tvb, offset)) {
             case 0x01: /* Create  */
             case 0x02: /* Delete  */
             case 0x05: /* Read */
@@ -9872,7 +9872,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             break;
 
         proto_tree_add_item(tree, hf_btatt_ots_list_opcode, tvb, offset, 1, ENC_NA);
-        opcode = tvb_get_guint8(tvb, offset);
+        opcode = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         switch (opcode) {
@@ -9901,7 +9901,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             proto_tree_add_item(tree, hf_btatt_ots_list_result_code, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            switch (tvb_get_guint8(tvb, offset - 2)) {
+            switch (tvb_get_uint8(tvb, offset - 2)) {
             case 0x01: /* First */
             case 0x02: /* Last */
             case 0x03: /* Previous */
@@ -9933,7 +9933,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
 
         proto_tree_add_item(tree, hf_btatt_ots_filter, tvb, offset, 1, ENC_NA);
         offset += 1;
-        switch (tvb_get_guint8(tvb, offset - 1)) {
+        switch (tvb_get_uint8(tvb, offset - 1)) {
         case 0x00: /* No Filter */
         case 0x0A: /* Marked Objects */
             /* none */
@@ -10453,7 +10453,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             break;
 
         proto_tree_add_item(tree, hf_btatt_volume_control_point_procedure, tvb, offset, 1, ENC_NA);
-        opcode = tvb_get_guint8(tvb, offset);
+        opcode = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         /* All procedures must have change counter */
@@ -10821,7 +10821,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         expert_add_info(pinfo, main_item, &ei_btatt_mtu_exceeded);
 
     proto_tree_add_bitmask_with_flags(main_tree, tvb, offset, hf_btatt_opcode, ett_btatt_opcode,  hfx_btatt_opcode, ENC_NA, BMT_NO_APPEND);
-    opcode = tvb_get_guint8(tvb, 0);
+    opcode = tvb_get_uint8(tvb, 0);
     att_data.opcode = opcode;
     offset++;
     request_data = get_request(tvb, offset, pinfo, opcode, bluetooth_data);
@@ -10835,13 +10835,13 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         int                  hfx_btatt_error_code = hf_btatt_error_code;
 
         proto_tree_add_bitmask_with_flags(main_tree, tvb, offset, hf_btatt_req_opcode_in_error, ett_btatt_opcode,  hfx_btatt_opcode, ENC_NA, BMT_NO_APPEND);
-        request_opcode = tvb_get_guint8(tvb, offset);
+        request_opcode = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         offset = dissect_handle(main_tree, pinfo, hf_btatt_handle_in_error, tvb, offset, bluetooth_data, NULL, HANDLE_TVB, opcode);
         handle = tvb_get_letohs(tvb, offset - 2);
 
-        error_code = tvb_get_guint8(tvb, offset);
+        error_code = tvb_get_uint8(tvb, offset);
 
         if (error_code >= 0x80 && error_code <= 0x9F) {
             service_uuid = get_service_uuid_from_handle(pinfo, handle, opcode, bluetooth_data);
@@ -10955,7 +10955,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         if (!pinfo->fd->visited && bluetooth_data) {
             union request_parameters_union  request_parameters;
 
-            request_parameters.mtu.mtu = tvb_get_guint16(tvb, offset - 2, ENC_LITTLE_ENDIAN);
+            request_parameters.mtu.mtu = tvb_get_uint16(tvb, offset - 2, ENC_LITTLE_ENDIAN);
 
             save_request(pinfo, opcode, request_parameters, bluetooth_data);
         }
@@ -10968,7 +10968,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         if (!pinfo->fd->visited && request_data && bluetooth_data) {
             unsigned new_mtu;
 
-            new_mtu = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+            new_mtu = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
             if (new_mtu > request_data->parameters.mtu.mtu)
                 new_mtu = request_data->parameters.mtu.mtu;
             save_mtu(pinfo, bluetooth_data, new_mtu);
@@ -10988,8 +10988,8 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         if (!pinfo->fd->visited && bluetooth_data) {
             union request_parameters_union  request_parameters;
 
-            request_parameters.find_information.starting_handle = tvb_get_guint16(tvb, offset - 4, ENC_LITTLE_ENDIAN);
-            request_parameters.find_information.ending_handle   = tvb_get_guint16(tvb, offset - 2, ENC_LITTLE_ENDIAN);
+            request_parameters.find_information.starting_handle = tvb_get_uint16(tvb, offset - 4, ENC_LITTLE_ENDIAN);
+            request_parameters.find_information.ending_handle   = tvb_get_uint16(tvb, offset - 2, ENC_LITTLE_ENDIAN);
 
             save_request(pinfo, opcode, request_parameters, bluetooth_data);
         }
@@ -11001,7 +11001,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             uint8_t format;
 
             sub_item = proto_tree_add_item(main_tree, hf_btatt_uuid_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            format = tvb_get_guint8(tvb, offset);
+            format = tvb_get_uint8(tvb, offset);
             offset += 1;
 
             if (format == 1) {
@@ -11010,7 +11010,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     sub_tree = proto_item_add_subtree(sub_item, ett_btatt_list);
 
                     offset = dissect_handle(sub_tree, pinfo, hf_btatt_handle, tvb, offset, bluetooth_data, NULL, HANDLE_TVB, opcode);
-                    handle = tvb_get_guint16(tvb, offset - 2, ENC_LITTLE_ENDIAN);
+                    handle = tvb_get_uint16(tvb, offset - 2, ENC_LITTLE_ENDIAN);
 
                     proto_tree_add_item(sub_tree, hf_btatt_uuid16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                     uuid = get_bluetooth_uuid(tvb, offset, 2);
@@ -11030,7 +11030,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     sub_tree = proto_item_add_subtree(sub_item, ett_btatt_list);
 
                     offset = dissect_handle(sub_tree, pinfo, hf_btatt_handle, tvb, offset, bluetooth_data, NULL, HANDLE_TVB, opcode);
-                    handle = tvb_get_guint16(tvb, offset - 2, ENC_LITTLE_ENDIAN);
+                    handle = tvb_get_uint16(tvb, offset - 2, ENC_LITTLE_ENDIAN);
 
                     proto_tree_add_item(sub_tree, hf_btatt_uuid128, tvb, offset, 16, ENC_NA);
                     uuid = get_bluetooth_uuid(tvb, offset, 16);
@@ -11070,8 +11070,8 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         if (!pinfo->fd->visited && bluetooth_data) {
             union request_parameters_union  request_parameters;
 
-            request_parameters.read_by_type.starting_handle = tvb_get_guint16(tvb, offset - 6, ENC_LITTLE_ENDIAN);
-            request_parameters.read_by_type.ending_handle   = tvb_get_guint16(tvb, offset - 4, ENC_LITTLE_ENDIAN);
+            request_parameters.read_by_type.starting_handle = tvb_get_uint16(tvb, offset - 6, ENC_LITTLE_ENDIAN);
+            request_parameters.read_by_type.ending_handle   = tvb_get_uint16(tvb, offset - 4, ENC_LITTLE_ENDIAN);
             request_parameters.read_by_type.uuid = uuid;
 
             save_request(pinfo, opcode, request_parameters, bluetooth_data);
@@ -11096,7 +11096,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
             if (request_data)
                 save_handle(pinfo, request_data->parameters.read_by_type.uuid,
-                        tvb_get_guint16(tvb, offset - 4, ENC_LITTLE_ENDIAN),
+                        tvb_get_uint16(tvb, offset - 4, ENC_LITTLE_ENDIAN),
                         ATTRIBUTE_TYPE_OTHER, bluetooth_data);
 
         }
@@ -11120,8 +11120,8 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             if (!pinfo->fd->visited && bluetooth_data) {
                 union request_parameters_union  request_parameters;
 
-                request_parameters.read_by_type.starting_handle = tvb_get_guint16(tvb, offset - 6, ENC_LITTLE_ENDIAN);
-                request_parameters.read_by_type.ending_handle   = tvb_get_guint16(tvb, offset - 4, ENC_LITTLE_ENDIAN);
+                request_parameters.read_by_type.starting_handle = tvb_get_uint16(tvb, offset - 6, ENC_LITTLE_ENDIAN);
+                request_parameters.read_by_type.ending_handle   = tvb_get_uint16(tvb, offset - 4, ENC_LITTLE_ENDIAN);
                 request_parameters.read_by_type.uuid = get_bluetooth_uuid(tvb, offset - 2, 2);
 
                 save_request(pinfo, opcode, request_parameters, bluetooth_data);
@@ -11135,8 +11135,8 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             if (!pinfo->fd->visited && bluetooth_data) {
                 union request_parameters_union  request_parameters;
 
-                request_parameters.read_by_type.starting_handle = tvb_get_guint16(tvb, offset - 20, ENC_LITTLE_ENDIAN);
-                request_parameters.read_by_type.ending_handle   = tvb_get_guint16(tvb, offset - 18, ENC_LITTLE_ENDIAN);
+                request_parameters.read_by_type.starting_handle = tvb_get_uint16(tvb, offset - 20, ENC_LITTLE_ENDIAN);
+                request_parameters.read_by_type.ending_handle   = tvb_get_uint16(tvb, offset - 18, ENC_LITTLE_ENDIAN);
                 request_parameters.read_by_type.uuid = get_bluetooth_uuid(tvb, offset - 16, 16);
 
                 save_request(pinfo, opcode, request_parameters, bluetooth_data);
@@ -11151,7 +11151,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     case 0x09: /* Read By Type Response */
         {
-            uint8_t length = tvb_get_guint8(tvb, offset);
+            uint8_t length = tvb_get_uint8(tvb, offset);
 
             proto_tree_add_item(main_tree, hf_btatt_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
@@ -11170,14 +11170,14 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
                     if (request_data) {
                         save_handle(pinfo, request_data->parameters.read_by_type.uuid,
-                                tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN),
+                                tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN),
                                 ATTRIBUTE_TYPE_OTHER, bluetooth_data);
                     }
 
                     offset = dissect_handle(sub_tree, pinfo, hf_btatt_handle, tvb, offset, bluetooth_data, NULL, HANDLE_TVB, opcode);
 
                     if (request_data) {
-                        offset = dissect_attribute_value(sub_tree, sub_item, pinfo, tvb, offset, length - 2, tvb_get_guint16(tvb, offset - 2, ENC_LITTLE_ENDIAN), request_data->parameters.read_by_type.uuid, &att_data);
+                        offset = dissect_attribute_value(sub_tree, sub_item, pinfo, tvb, offset, length - 2, tvb_get_uint16(tvb, offset - 2, ENC_LITTLE_ENDIAN), request_data->parameters.read_by_type.uuid, &att_data);
                     } else {
                         proto_tree_add_item(sub_tree, hf_btatt_value, tvb, offset, length - 2, ENC_NA);
                         offset += length - 2;
@@ -11252,7 +11252,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             union request_parameters_union  request_parameters;
 
             request_parameters.read_write.handle = handle;
-            request_parameters.read_write.offset = tvb_get_guint16(tvb, offset - 2, ENC_LITTLE_ENDIAN);
+            request_parameters.read_write.offset = tvb_get_uint16(tvb, offset - 2, ENC_LITTLE_ENDIAN);
 
             save_request(pinfo, opcode, request_parameters, bluetooth_data);
         }
@@ -11344,7 +11344,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     uint16_t length;
                     if (remain < 2)
                         break;
-                    length = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+                    length = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
                     offset+=2;
                     if (length <= 0)
                         continue;
@@ -11367,7 +11367,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     case 0x11: /* Read By Group Type Response */
         {
-            uint8_t length = tvb_get_guint8(tvb, offset);
+            uint8_t length = tvb_get_uint8(tvb, offset);
 
             proto_tree_add_item(main_tree, hf_btatt_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
@@ -11383,7 +11383,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     sub_tree = proto_item_add_subtree(sub_item, ett_btatt_list);
 
                     offset = dissect_handle(sub_tree, pinfo, hf_btatt_handle, tvb, offset, bluetooth_data, NULL, HANDLE_TVB, opcode);
-                    handle = tvb_get_guint16(tvb, offset - 2, ENC_LITTLE_ENDIAN);
+                    handle = tvb_get_uint16(tvb, offset - 2, ENC_LITTLE_ENDIAN);
 
                     proto_tree_add_item(sub_tree, hf_btatt_group_end_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                     offset += 2;
@@ -11411,7 +11411,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         offset = dissect_handle(main_tree, pinfo, hf_btatt_handle, tvb, offset, bluetooth_data, &uuid, HANDLE_TVB, opcode);
         handle = tvb_get_letohs(tvb, offset - 2);
         col_append_info_by_handle(pinfo, handle, opcode, bluetooth_data);
-        offset = dissect_attribute_value(main_tree, NULL, pinfo, tvb, offset, tvb_captured_length_remaining(tvb, offset), tvb_get_guint16(tvb, offset - 2, ENC_LITTLE_ENDIAN), uuid, &att_data);
+        offset = dissect_attribute_value(main_tree, NULL, pinfo, tvb, offset, tvb_captured_length_remaining(tvb, offset), tvb_get_uint16(tvb, offset - 2, ENC_LITTLE_ENDIAN), uuid, &att_data);
         if (!pinfo->fd->visited && bluetooth_data && (opcode == 0x12 || opcode == 0x1d)) {
             union request_parameters_union  request_parameters;
 
@@ -11455,8 +11455,8 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         }
         if (!pinfo->fd->visited && request_data && bluetooth_data && opcode == 0x16)
             save_value_fragment(pinfo, tvb, offset,
-                    tvb_get_guint16(tvb, offset - 4, ENC_LITTLE_ENDIAN),
-                    tvb_get_guint16(tvb, offset - 2, ENC_LITTLE_ENDIAN),
+                    tvb_get_uint16(tvb, offset - 4, ENC_LITTLE_ENDIAN),
+                    tvb_get_uint16(tvb, offset - 2, ENC_LITTLE_ENDIAN),
                     bluetooth_data);
 
         /* XXX: How to detect there is max data in frame and it is last fragment?
@@ -11485,7 +11485,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     case 0x18: /* Execute Write Request */
         col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-                        val_to_str_const(tvb_get_guint8(tvb, offset), flags_vals, "<unknown>"));
+                        val_to_str_const(tvb_get_uint8(tvb, offset), flags_vals, "<unknown>"));
         proto_tree_add_item(main_tree, hf_btatt_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
 
@@ -11594,7 +11594,7 @@ dissect_btgatt_nordic_dfu_control_point(tvbuff_t *tvb, packet_info *pinfo, proto
         return -1;
 
     proto_tree_add_item(tree, hf_gatt_nordic_dfu_control_point_opcode, tvb, offset, 1, ENC_NA);
-    opcode = tvb_get_guint8(tvb, offset);
+    opcode = tvb_get_uint8(tvb, offset);
     offset += 1;
 
     switch (opcode) {
@@ -11625,11 +11625,11 @@ dissect_btgatt_nordic_dfu_control_point(tvbuff_t *tvb, packet_info *pinfo, proto
         break;
     case 0x10: /* Response Code */
         proto_tree_add_item(tree, hf_gatt_nordic_dfu_control_point_request_opcode, tvb, offset, 1, ENC_NA);
-        request_opcode = tvb_get_guint8(tvb, offset);
+        request_opcode = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         proto_tree_add_item(tree, hf_gatt_nordic_dfu_control_point_response_value, tvb, offset, 1, ENC_NA);
-        status = tvb_get_guint8(tvb, offset);
+        status = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         if (request_opcode == 0x07 && status == 0x01) { /* Report Received Image Size && Success */
@@ -11677,9 +11677,9 @@ dissect_btgatt_microbit_accelerometer_data(tvbuff_t *tvb, packet_info *pinfo _U_
     if (bluetooth_gatt_has_no_parameter(att_data->opcode))
         return -1;
 
-    x_axis = (double) (int) tvb_get_gint16(tvb, offset, ENC_LITTLE_ENDIAN) / 1000.0;
-    y_axis = (double) (int) tvb_get_gint16(tvb, offset+2, ENC_LITTLE_ENDIAN) / 1000.0;
-    z_axis = (double) (int) tvb_get_gint16(tvb, offset+4, ENC_LITTLE_ENDIAN) / 1000.0;
+    x_axis = (double) (int) tvb_get_int16(tvb, offset, ENC_LITTLE_ENDIAN) / 1000.0;
+    y_axis = (double) (int) tvb_get_int16(tvb, offset+2, ENC_LITTLE_ENDIAN) / 1000.0;
+    z_axis = (double) (int) tvb_get_int16(tvb, offset+4, ENC_LITTLE_ENDIAN) / 1000.0;
 
     sub_item = proto_tree_add_item(tree, hf_gatt_microbit_accelerometer_data, tvb, 0, tvb_captured_length(tvb), ENC_NA);
     sub_tree = proto_item_add_subtree(sub_item, ett_btgatt_microbit_accelerometer);
@@ -11722,9 +11722,9 @@ dissect_btgatt_microbit_magnetometer_data(tvbuff_t *tvb, packet_info *pinfo _U_,
     if (bluetooth_gatt_has_no_parameter(att_data->opcode))
         return -1;
 
-    x_axis = (double) (int) tvb_get_gint16(tvb, offset, ENC_LITTLE_ENDIAN) / 1000.0;
-    y_axis = (double) (int) tvb_get_gint16(tvb, offset+2, ENC_LITTLE_ENDIAN) / 1000.0;
-    z_axis = (double) (int) tvb_get_gint16(tvb, offset+4, ENC_LITTLE_ENDIAN) / 1000.0;
+    x_axis = (double) (int) tvb_get_int16(tvb, offset, ENC_LITTLE_ENDIAN) / 1000.0;
+    y_axis = (double) (int) tvb_get_int16(tvb, offset+2, ENC_LITTLE_ENDIAN) / 1000.0;
+    z_axis = (double) (int) tvb_get_int16(tvb, offset+4, ENC_LITTLE_ENDIAN) / 1000.0;
 
     sub_item = proto_tree_add_item(tree, hf_gatt_microbit_magnetometer_data, tvb, 0, tvb_captured_length(tvb), ENC_NA);
     sub_tree = proto_item_add_subtree(sub_item, ett_btgatt_microbit_magnetometer);
@@ -11822,7 +11822,7 @@ dissect_btgatt_microbit_pin_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
         offset++;
 
         /* The micro:bit has a 10 bit ADC but values are compressed to 8 bits with a loss of resolution. */
-        value = tvb_get_guint8(tvb, offset) * 4;
+        value = tvb_get_uint8(tvb, offset) * 4;
         proto_tree_add_uint(sub_tree, hf_gatt_microbit_pin_value, tvb, offset, 1, value);
         offset++;
 
@@ -17537,7 +17537,7 @@ proto_reg_handoff_btatt(void)
 
         dissector_add_for_decode_as("btatt.handle", handle_tmp);
     }
-    g_string_free(uuid_str, TRUE);
+    g_string_free(uuid_str, true);
 }
 
 void

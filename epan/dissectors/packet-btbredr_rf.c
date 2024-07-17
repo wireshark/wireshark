@@ -512,7 +512,7 @@ check_crc(uint8_t uap, tvbuff_t *tvb, int offset, int len)
     uint16_t crc = reverse_bits(uap);
     crc <<= 8;
     for (; len > 0; --len, ++offset) {
-        crc ^= tvb_get_guint8(tvb, offset) & 0xff;
+        crc ^= tvb_get_uint8(tvb, offset) & 0xff;
         for (unsigned i = 0; i < 8; ++i) {
             uint16_t x = crc & 1;
             crc >>= 1;
@@ -700,7 +700,7 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BT BR/EDR RF");
 
     if (tvb_captured_length(tvb) >= 21) {
-        flags = tvb_get_guint16(tvb, 20, ENC_LITTLE_ENDIAN);
+        flags = tvb_get_uint16(tvb, 20, ENC_LITTLE_ENDIAN);
     } else {
         flags = 0;
     }
@@ -729,13 +729,13 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     proto_tree_add_item(btbredr_rf_tree, hf_access_address_offenses, tvb, offset, 1, ENC_NA);
     offset += 1;
 
-    payload_and_transport = tvb_get_guint8(tvb, offset);
+    payload_and_transport = tvb_get_uint8(tvb, offset);
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "Transport: %s (%s), RF Channel: %s%2u",
             val_to_str_const(payload_and_transport >> 4, payload_transport_rate_transport_vals, "Unknown"),
             val_to_str_const(payload_and_transport & 0xF, payload_transport_rate_payload_abbrev_vals, "Unknown"),
             (flags & FLAGS_RF_CHANNEL_ALIASING) ? "~" : "",
-            tvb_get_guint8(tvb, 0));
+            tvb_get_uint8(tvb, 0));
 
     if (payload_and_transport == 0xFF)
         proto_tree_add_item(btbredr_rf_tree, hf_payload_transport_rate_ignored, tvb, offset, 1, ENC_NA);
@@ -750,7 +750,7 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     offset += 2;
 
     proto_tree_add_item(btbredr_rf_tree, hf_lower_address_part, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    lap = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN) & 0xffffff;
+    lap = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN) & 0xffffff;
     offset += 4;
 
     if (!is_reserved_lap(lap)) {
@@ -781,7 +781,7 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
     if (flags & FLAGS_REFERENCE_UPPER_ADDRES_PART_VALID) {
         hf_x = hf_reference_upper_addres_part;
-        uap = tvb_get_guint8(tvb, offset);
+        uap = tvb_get_uint8(tvb, offset);
     } else {
         hf_x = hf_invalid_reference_upper_addres_part;
     }
@@ -789,7 +789,7 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     offset += 1;
 
     {
-        uint32_t hdr = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
+        uint32_t hdr = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
         bool have_uap = device_info || !!(flags & FLAGS_REFERENCE_UPPER_ADDRES_PART_VALID);
         bool is_inquiry = is_reserved_lap(lap);
         bool is_inquiry_fhs = is_inquiry && (((hdr >> 3) & 0x0f) == 2);
@@ -821,56 +821,56 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
         proto_tree_add_item(header_tree, hf_packet_header_reserved, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(header_tree, hf_packet_header_broken_lt_addr, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        ltaddr = (tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN) >> 15) & 7;
-        arqn = (tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN) >> 9) & 1;
-        seqn = (tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN) >> 8) & 1;
+        ltaddr = (tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN) >> 15) & 7;
+        arqn = (tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN) >> 9) & 1;
+        seqn = (tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN) >> 8) & 1;
 
         if (payload_and_transport == (TRANSPORT_SCO | PAYLOAD_BR)) {
             proto_tree_add_item(header_tree, hf_packet_header_broken_type_sco_br, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
-            packet_type = (tvb_get_guint8(tvb, offset + 1) >> 3) & 0xF;
+            packet_type = (tvb_get_uint8(tvb, offset + 1) >> 3) & 0xF;
             packet_type_str = val_to_str_const(packet_type, packet_type_sco_br_vals, "Unknown");
             packet_type_table = packet_type_sco_br_table;
         } else if (payload_and_transport == (TRANSPORT_eSCO | PAYLOAD_BR)) {
             proto_tree_add_item(header_tree, hf_packet_header_broken_type_esco_br, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
-            packet_type = (tvb_get_guint8(tvb, offset + 1) >> 3) & 0xF;
+            packet_type = (tvb_get_uint8(tvb, offset + 1) >> 3) & 0xF;
             packet_type_str = val_to_str_const(packet_type, packet_type_esco_br_vals, "Unknown");
             packet_type_table = packet_type_esco_br_table;
         } else if (payload_and_transport == (TRANSPORT_eSCO | PAYLOAD_EDR_2) || payload_and_transport == (TRANSPORT_eSCO | PAYLOAD_EDR_3)) {
             proto_tree_add_item(header_tree, hf_packet_header_broken_type_esco_edr, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
-            packet_type = (tvb_get_guint8(tvb, offset + 1) >> 3) & 0xF;
+            packet_type = (tvb_get_uint8(tvb, offset + 1) >> 3) & 0xF;
             packet_type_str = val_to_str_const(packet_type, packet_type_esco_edr_vals, "Unknown");
             packet_type_table = packet_type_esco_edr_table;
         } else if (payload_and_transport == (TRANSPORT_ACL | PAYLOAD_BR)) {
             proto_tree_add_item(header_tree, hf_packet_header_broken_type_acl_br, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
-            packet_type = (tvb_get_guint8(tvb, offset + 1) >> 3) & 0xF;
+            packet_type = (tvb_get_uint8(tvb, offset + 1) >> 3) & 0xF;
             packet_type_str = val_to_str_const(packet_type, packet_type_acl_br_vals, "Unknown");
             packet_type_table = packet_type_acl_br_table;
         } else if (payload_and_transport == (TRANSPORT_ACL | PAYLOAD_EDR_2) || payload_and_transport == (TRANSPORT_ACL | PAYLOAD_EDR_3)) {
             proto_tree_add_item(header_tree, hf_packet_header_broken_type_acl_edr, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
-            packet_type = (tvb_get_guint8(tvb, offset + 1) >> 3) & 0xF;
+            packet_type = (tvb_get_uint8(tvb, offset + 1) >> 3) & 0xF;
             packet_type_str = val_to_str_const(packet_type, packet_type_acl_edr_vals, "Unknown");
             packet_type_table = packet_type_acl_edr_table;
         } else if (payload_and_transport == (TRANSPORT_CPB | PAYLOAD_BR)) {
             proto_tree_add_item(header_tree, hf_packet_header_broken_type_cpb_br, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
-            packet_type = (tvb_get_guint8(tvb, offset + 1) >> 3) & 0xF;
+            packet_type = (tvb_get_uint8(tvb, offset + 1) >> 3) & 0xF;
             packet_type_str = val_to_str_const(packet_type, packet_type_cpb_br_vals, "Unknown");
             packet_type_table = packet_type_cpb_br_table;
         } else if (payload_and_transport == (TRANSPORT_CPB | PAYLOAD_EDR_2) || payload_and_transport == (TRANSPORT_ACL | PAYLOAD_EDR_3)) {
             proto_tree_add_item(header_tree, hf_packet_header_broken_type_cpb_edr, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
-            packet_type = (tvb_get_guint8(tvb, offset + 1) >> 3) & 0xF;
+            packet_type = (tvb_get_uint8(tvb, offset + 1) >> 3) & 0xF;
             packet_type_str = val_to_str_const(packet_type, packet_type_cpb_edr_vals, "Unknown");
             packet_type_table = packet_type_cpb_edr_table;
         } else if ((payload_and_transport >> 4) == TRANSPORT_ANY) {
             proto_tree_add_item(header_tree, hf_packet_header_broken_type_any, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
-            packet_type = (tvb_get_guint8(tvb, offset + 1) >> 3) & 0xF;
+            packet_type = (tvb_get_uint8(tvb, offset + 1) >> 3) & 0xF;
             packet_type_str = val_to_str_const(packet_type, packet_type_any_vals, "Unknown");
         } else {
             proto_tree_add_item(header_tree, hf_packet_header_broken_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -886,56 +886,56 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         header_tree = proto_item_add_subtree(header_item, ett_bluetooth_header);
 
         proto_tree_add_item(header_tree, hf_packet_header_lt_addr, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        ltaddr = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN) & 7;
-        arqn = (tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN) >> 8) & 1;
-        seqn = (tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN) >> 9) & 1;
+        ltaddr = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN) & 7;
+        arqn = (tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN) >> 8) & 1;
+        seqn = (tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN) >> 9) & 1;
 
         if (payload_and_transport == (TRANSPORT_SCO | PAYLOAD_BR)) {
             proto_tree_add_item(header_tree, hf_packet_header_type_sco_br, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
-            packet_type = (tvb_get_guint8(tvb, offset) >> 3) & 0xF;
+            packet_type = (tvb_get_uint8(tvb, offset) >> 3) & 0xF;
             packet_type_str = val_to_str_const(packet_type, packet_type_sco_br_vals, "Unknown");
             packet_type_table = packet_type_sco_br_table;
         } else if (payload_and_transport == (TRANSPORT_eSCO | PAYLOAD_BR)) {
             proto_tree_add_item(header_tree, hf_packet_header_type_esco_br, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
-            packet_type = (tvb_get_guint8(tvb, offset) >> 3) & 0xF;
+            packet_type = (tvb_get_uint8(tvb, offset) >> 3) & 0xF;
             packet_type_str = val_to_str_const(packet_type, packet_type_esco_br_vals, "Unknown");
             packet_type_table = packet_type_esco_br_table;
         } else if (payload_and_transport == (TRANSPORT_eSCO | PAYLOAD_EDR_2) || payload_and_transport == (TRANSPORT_eSCO | PAYLOAD_EDR_3)) {
             proto_tree_add_item(header_tree, hf_packet_header_type_esco_edr, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
-            packet_type = (tvb_get_guint8(tvb, offset) >> 3) & 0xF;
+            packet_type = (tvb_get_uint8(tvb, offset) >> 3) & 0xF;
             packet_type_str = val_to_str_const(packet_type, packet_type_esco_edr_vals, "Unknown");
             packet_type_table = packet_type_esco_edr_table;
         } else if (payload_and_transport == (TRANSPORT_ACL | PAYLOAD_BR)) {
             proto_tree_add_item(header_tree, hf_packet_header_type_acl_br, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
-            packet_type = (tvb_get_guint8(tvb, offset) >> 3) & 0xF;
+            packet_type = (tvb_get_uint8(tvb, offset) >> 3) & 0xF;
             packet_type_str = val_to_str_const(packet_type, packet_type_acl_br_vals, "Unknown");
             packet_type_table = packet_type_acl_br_table;
         } else if (payload_and_transport == (TRANSPORT_ACL | PAYLOAD_EDR_2) || payload_and_transport == (TRANSPORT_ACL | PAYLOAD_EDR_3)) {
             proto_tree_add_item(header_tree, hf_packet_header_type_acl_edr, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
-            packet_type = (tvb_get_guint8(tvb, offset) >> 3) & 0xF;
+            packet_type = (tvb_get_uint8(tvb, offset) >> 3) & 0xF;
             packet_type_str = val_to_str_const(packet_type, packet_type_acl_edr_vals, "Unknown");
             packet_type_table = packet_type_acl_edr_table;
         } else if (payload_and_transport == (TRANSPORT_CPB | PAYLOAD_BR)) {
             proto_tree_add_item(header_tree, hf_packet_header_type_cpb_br, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
-            packet_type = (tvb_get_guint8(tvb, offset) >> 3) & 0xF;
+            packet_type = (tvb_get_uint8(tvb, offset) >> 3) & 0xF;
             packet_type_str = val_to_str_const(packet_type, packet_type_cpb_br_vals, "Unknown");
             packet_type_table = packet_type_cpb_br_table;
         } else if (payload_and_transport == (TRANSPORT_CPB | PAYLOAD_EDR_2) || payload_and_transport == (TRANSPORT_ACL | PAYLOAD_EDR_3)) {
             proto_tree_add_item(header_tree, hf_packet_header_type_cpb_edr, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
-            packet_type = (tvb_get_guint8(tvb, offset) >> 3) & 0xF;
+            packet_type = (tvb_get_uint8(tvb, offset) >> 3) & 0xF;
             packet_type_str = val_to_str_const(packet_type, packet_type_cpb_edr_vals, "Unknown");
             packet_type_table = packet_type_cpb_edr_table;
         } else if ((payload_and_transport >> 4) == TRANSPORT_ANY) {
             proto_tree_add_item(header_tree, hf_packet_header_type_any, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
-            packet_type = (tvb_get_guint8(tvb, offset) >> 3) & 0xF;
+            packet_type = (tvb_get_uint8(tvb, offset) >> 3) & 0xF;
             packet_type_str = val_to_str_const(packet_type, packet_type_any_vals, "Unknown");
         } else {
             proto_tree_add_item(header_tree, hf_packet_header_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -996,7 +996,7 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     flags_item = proto_tree_add_item(btbredr_rf_tree, hf_flags, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     flags_tree = proto_item_add_subtree(flags_item, ett_flags);
 
-    flags = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+    flags = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
 
     reserved_item = proto_tree_add_item(flags_tree, hf_flags_reserved_15_14, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     if (flags & 0xC000) {
@@ -1022,13 +1022,13 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
     if ((flags & (FLAGS_SIGNAL_POWER_VALID | FLAGS_NOISE_POWER_VALID)) == (FLAGS_SIGNAL_POWER_VALID | FLAGS_NOISE_POWER_VALID)) {
         col_append_fstr(pinfo->cinfo, COL_INFO, " (SP: %4i, NP: %4i)",
-                (int)tvb_get_gint8(tvb, 1), (int)tvb_get_gint8(tvb, 2));
+                (int)tvb_get_int8(tvb, 1), (int)tvb_get_int8(tvb, 2));
     } else if (flags & FLAGS_SIGNAL_POWER_VALID) {
         col_append_fstr(pinfo->cinfo, COL_INFO, " (SP: %4i)",
-                (int)tvb_get_gint8(tvb, 1));
+                (int)tvb_get_int8(tvb, 1));
     } else if (flags & FLAGS_NOISE_POWER_VALID) {
         col_append_fstr(pinfo->cinfo, COL_INFO, " (NP: %4i)",
-                (int)tvb_get_gint8(tvb, 2));
+                (int)tvb_get_int8(tvb, 2));
     }
 
    if (flags & FLAGS_PACKET_HEADER_AND_BR_EDR_PAYLOAD_DEWHITENED)
@@ -1568,7 +1568,7 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                            if (len < data_header) {
                                error = true;
                            } else if (data_header == 1) {
-                               uint8_t hdr = tvb_get_guint8(tvb, offset);
+                               uint8_t hdr = tvb_get_uint8(tvb, offset);
                                llid = hdr & 3;
                                hdr >>= 3;
                                hdr &= 0x1f;
@@ -1578,7 +1578,7 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                                else
                                    data_length = hdr;
                            } else if (data_header == 2) {
-                               uint16_t hdr = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+                               uint16_t hdr = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
                                llid = hdr & 3;
                                hdr >>= 3;
                                hdr &= 0x3ff;
@@ -1859,21 +1859,21 @@ dissect_btbredr_fhs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     proto_tree_add_item(btbredr_fhs_tree, hf_fhs_reserved, tvb, offset, 8, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(btbredr_fhs_tree, hf_fhs_sr, tvb, offset, 8, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(btbredr_fhs_tree, hf_fhs_sp, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-    parity_lap_eir_sp_sr = tvb_get_guint64(tvb, offset, ENC_LITTLE_ENDIAN);
+    parity_lap_eir_sp_sr = tvb_get_uint64(tvb, offset, ENC_LITTLE_ENDIAN);
     lap = (parity_lap_eir_sp_sr >> 34) & 0xffffff;
     offset += 8;
     proto_tree_add_item(btbredr_fhs_tree, hf_fhs_uap, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    uap = tvb_get_guint8(tvb, offset);
+    uap = tvb_get_uint8(tvb, offset);
     offset += 1;
     proto_tree_add_item(btbredr_fhs_tree, hf_fhs_nap, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    nap = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+    nap = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
     offset += 2;
     proto_tree_add_item(btbredr_fhs_tree, hf_fhs_class, tvb, offset, 3, ENC_LITTLE_ENDIAN);
     offset += 3;
     proto_tree_add_item(btbredr_fhs_tree, hf_fhs_ltaddr, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(btbredr_fhs_tree, hf_fhs_clk, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(btbredr_fhs_tree, hf_fhs_pagescanmode, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    ltaddr_clk_pgscan = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
+    ltaddr_clk_pgscan = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
     offset += 4;
     ltaddr = ltaddr_clk_pgscan & 0x00000007;
 

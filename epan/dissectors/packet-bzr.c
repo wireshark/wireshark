@@ -92,7 +92,7 @@ get_bzr_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
         return -1;
 
     while (tvb_reported_length_remaining(tvb, offset + len) > 0) {
-        cmd = tvb_get_guint8(tvb, offset + len);
+        cmd = tvb_get_uint8(tvb, offset + len);
         len += 1;
 
         switch (cmd) {
@@ -170,7 +170,7 @@ dissect_body(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
     uint8_t cmd = 0;
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
-        cmd = tvb_get_guint8(tvb, offset);
+        cmd = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(tree, hf_bzr_packet_kind, tvb, offset, 1, ENC_ASCII|ENC_NA);
         offset += 1;
 

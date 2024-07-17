@@ -181,11 +181,11 @@ dissect_bt_tracker_extension(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *t
   int32_t tot_length;
 
   while (offset < (int)tvb_reported_length(tvb)) {
-    extension_type = tvb_get_guint8(tvb, offset);
+    extension_type = tvb_get_uint8(tvb, offset);
 
     tot_length = 1;
     if (extension_type == EXT_URLDATA) {
-      tot_length += 1 + tvb_get_guint8(tvb, offset + 1);
+      tot_length += 1 + tvb_get_uint8(tvb, offset + 1);
     } else if (extension_type >= EXT_MAX) {
       tot_length = -1;
     }

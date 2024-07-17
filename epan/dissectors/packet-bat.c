@@ -178,7 +178,7 @@ static int dissect_bat_batman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BAT_BATMAN");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	version = tvb_get_guint8(tvb, 0);
+	version = tvb_get_uint8(tvb, 0);
 	switch (version) {
 	case 5:
 		while (tvb_reported_length_remaining(tvb, offset) > 0) {
@@ -227,18 +227,18 @@ static int dissect_bat_batman_v5(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 	batman_packeth = wmem_new(pinfo->pool, struct batman_packet_v5);
 
-	batman_packeth->version = tvb_get_guint8(tvb, offset+0);
-	batman_packeth->flags = tvb_get_guint8(tvb, offset+1);
-	batman_packeth->ttl = tvb_get_guint8(tvb, offset+2);
-	batman_packeth->gwflags = tvb_get_guint8(tvb, offset+3);
+	batman_packeth->version = tvb_get_uint8(tvb, offset+0);
+	batman_packeth->flags = tvb_get_uint8(tvb, offset+1);
+	batman_packeth->ttl = tvb_get_uint8(tvb, offset+2);
+	batman_packeth->gwflags = tvb_get_uint8(tvb, offset+3);
 	batman_packeth->seqno = tvb_get_ntohs(tvb, offset+4);
 	batman_packeth->gwport = tvb_get_ntohs(tvb, offset+6);
 	orig = tvb_get_ipv4(tvb, offset+8);
 	set_address_tvb(&batman_packeth->orig, AT_IPv4, 4, tvb, offset+8);
 	old_orig = tvb_get_ipv4(tvb, offset+12);
 	set_address_tvb(&batman_packeth->old_orig, AT_IPv4, 4, tvb, offset+12);
-	batman_packeth->tq = tvb_get_guint8(tvb, offset+16);
-	batman_packeth->hna_len = tvb_get_guint8(tvb, offset+17);
+	batman_packeth->tq = tvb_get_uint8(tvb, offset+16);
+	batman_packeth->hna_len = tvb_get_uint8(tvb, offset+17);
 
 	/* Set info column */
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Seq=%u", batman_packeth->seqno);
@@ -308,7 +308,7 @@ static void dissect_bat_hna(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	uint8_t hna_netmask;
 
 	hna = tvb_get_ipv4(tvb, 0);
-	hna_netmask = tvb_get_guint8(tvb, 4);
+	hna_netmask = tvb_get_uint8(tvb, 4);
 
 
 	/* Set tree info */
@@ -342,7 +342,7 @@ static int dissect_bat_gw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 	int offset = 0;
 
 	gw_packeth = wmem_new(pinfo->pool, struct gw_packet);
-	gw_packeth->type = tvb_get_guint8(tvb, 0);
+	gw_packeth->type = tvb_get_uint8(tvb, 0);
 
 	switch (gw_packeth->type) {
 		case TUNNEL_IP_INVALID:
@@ -413,7 +413,7 @@ static int dissect_bat_vis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	/* set protocol name */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BAT_VIS");
 
-	version = tvb_get_guint8(tvb, 4);
+	version = tvb_get_uint8(tvb, 4);
 	switch (version) {
 	case 22:
 		dissect_bat_vis_v22(tvb, pinfo, tree);
@@ -443,8 +443,8 @@ static void dissect_bat_vis_v22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 	sender_ip = tvb_get_ipv4(tvb, 0);
 	set_address_tvb(&vis_packeth->sender_ip, AT_IPv4, 4, tvb, 0);
-	vis_packeth->version = tvb_get_guint8(tvb, 4);
-	vis_packeth->gw_class = tvb_get_guint8(tvb, 5);
+	vis_packeth->version = tvb_get_uint8(tvb, 4);
+	vis_packeth->gw_class = tvb_get_uint8(tvb, 5);
 	vis_packeth->tq_max = tvb_get_ntohs(tvb, 6);
 
 	/* set protocol name */
@@ -516,7 +516,7 @@ static void dissect_vis_entry_v22(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 	uint32_t ip;
 
 	vis_datah = wmem_new(pinfo->pool, struct vis_data_v22);
-	vis_datah->type = tvb_get_guint8(tvb, 0);
+	vis_datah->type = tvb_get_uint8(tvb, 0);
 	vis_datah->data = tvb_get_ntohs(tvb, 1);
 	ip = tvb_get_ipv4(tvb, 3);
 	set_address_tvb(&vis_datah->ip, AT_IPv4, 4, tvb, 3);
@@ -564,9 +564,9 @@ static void dissect_bat_vis_v23(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 	sender_ip = tvb_get_ipv4(tvb, 0);
 	set_address_tvb(&vis_packeth->sender_ip, AT_IPv4, 4, tvb, 0);
-	vis_packeth->version = tvb_get_guint8(tvb, 4);
-	vis_packeth->gw_class = tvb_get_guint8(tvb, 5);
-	vis_packeth->tq_max = tvb_get_guint8(tvb, 6);
+	vis_packeth->version = tvb_get_uint8(tvb, 4);
+	vis_packeth->gw_class = tvb_get_uint8(tvb, 5);
+	vis_packeth->tq_max = tvb_get_uint8(tvb, 6);
 
 	/* set protocol name */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BAT_VIS");
@@ -637,8 +637,8 @@ static void dissect_vis_entry_v23(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 	uint32_t ip;
 
 	vis_datah = wmem_new(pinfo->pool, struct vis_data_v23);
-	vis_datah->type = tvb_get_guint8(tvb, 0);
-	vis_datah->data = tvb_get_guint8(tvb, 1);
+	vis_datah->type = tvb_get_uint8(tvb, 0);
+	vis_datah->data = tvb_get_uint8(tvb, 1);
 	ip = tvb_get_ipv4(tvb, 2);
 	set_address_tvb(&vis_datah->ip, AT_IPv4, 4, tvb, 2);
 

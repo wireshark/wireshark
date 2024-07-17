@@ -218,11 +218,11 @@ dissect_btmesh_pbadv_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     item = proto_tree_add_item(tree, proto_btmesh_pbadv, tvb, offset, -1, ENC_NA);
     sub_tree = proto_item_add_subtree(item, ett_btmesh_pbadv);
 
-    uint32_t pbadv_link_id = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+    uint32_t pbadv_link_id = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
     proto_tree_add_item(sub_tree, hf_btmesh_pbadv_linkid, tvb, offset, 4, ENC_NA);
     offset += 4;
 
-    uint8_t pbadv_trnumber = tvb_get_guint8(tvb, offset);
+    uint8_t pbadv_trnumber = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sub_tree, hf_btmesh_pbadv_trnumber, tvb, offset, 1, ENC_NA);
     offset += 1;
 
@@ -233,7 +233,7 @@ dissect_btmesh_pbadv_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     sub_tree_generic_provisioning = proto_tree_add_subtree(sub_tree, tvb, offset, -1, ett_btmesh_generic_provisioning, &ti, "Generic Provisioning PDU");
 
     proto_tree_add_item(sub_tree_generic_provisioning, hf_btmesh_generic_provisioning_control_format, tvb, offset, 1, ENC_NA);
-    uint8_t gpcf = tvb_get_guint8(tvb, offset) & 0x03;
+    uint8_t gpcf = tvb_get_uint8(tvb, offset) & 0x03;
 
     col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(gpcf, btmesh_generic_provisioning_control_format, "Unknown PDU"));
 
@@ -244,9 +244,9 @@ dissect_btmesh_pbadv_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         //Transaction Start
         case TRANSACTION_START:
             proto_tree_add_item(sub_tree_generic_provisioning, hf_btmesh_gpcf_segn, tvb, offset, 1, ENC_NA);
-            segn = (tvb_get_guint8(tvb, offset) & 0xFC) >> 2;
+            segn = (tvb_get_uint8(tvb, offset) & 0xFC) >> 2;
             offset += 1;
-            total_length = (uint32_t)tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+            total_length = (uint32_t)tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
             proto_tree_add_item(sub_tree_generic_provisioning, hf_btmesh_gpcf_total_length, tvb, offset, 2, ENC_NA);
             offset += 2;
             proto_tree_add_item(sub_tree_generic_provisioning, hf_btmesh_gpcf_fcs, tvb, offset, 1, ENC_NA);
@@ -296,7 +296,7 @@ dissect_btmesh_pbadv_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         //Transaction Continuation
         case TRANSACTION_CONTINUATION:
             proto_tree_add_item(sub_tree_generic_provisioning, hf_btmesh_gpcf_segment_index, tvb, offset, 1, ENC_NA);
-            segment_index = (tvb_get_guint8(tvb, offset) & 0xFC) >> 2;
+            segment_index = (tvb_get_uint8(tvb, offset) & 0xFC) >> 2;
             defragment = true;
             offset += 1;
             //Segmentation
@@ -315,7 +315,7 @@ dissect_btmesh_pbadv_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         //Provisioning Bearer Control
         case PROVISIONING_BEARER_CONTROL:
             proto_tree_add_item(sub_tree_generic_provisioning, hf_btmesh_gpcf_bearer_opcode, tvb, offset, 1, ENC_NA);
-            gpcf_bearer_opcode = (tvb_get_guint8(tvb, offset) & 0xFC) >> 2;
+            gpcf_bearer_opcode = (tvb_get_uint8(tvb, offset) & 0xFC) >> 2;
             offset += 1;
             switch(gpcf_bearer_opcode) {
                 case LINK_OPEN:

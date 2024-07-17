@@ -58,7 +58,7 @@ static int dissect_bctp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, voi
 	proto_item* pi = proto_tree_add_item(tree, proto_bctp, tvb,0,2, ENC_NA);
 	proto_tree* pt = proto_item_add_subtree(pi,ett_bctp);
 	tvbuff_t* sub_tvb = tvb_new_subset_remaining(tvb, 2);
-	uint8_t tpi = tvb_get_guint8(tvb,1) & 0x3f;
+	uint8_t tpi = tvb_get_uint8(tvb,1) & 0x3f;
 
 	proto_tree_add_item(pt, hf_bctp_bvei, tvb,0,2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(pt, hf_bctp_bvi, tvb,0,2, ENC_BIG_ENDIAN);

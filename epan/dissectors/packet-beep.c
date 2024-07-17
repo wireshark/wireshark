@@ -197,7 +197,7 @@ dissect_beep_more(tvbuff_t *tvb, packet_info *pinfo, int offset,
 {
   proto_item *hidden_item;
   int ret = 0;
-  uint8_t more = tvb_get_guint8(tvb, offset);
+  uint8_t more = tvb_get_uint8(tvb, offset);
 
   hidden_item = proto_tree_add_item(tree, hf_beep_more, tvb, offset, 1, ENC_ASCII|ENC_NA);
   proto_item_set_hidden(hidden_item);
@@ -233,7 +233,7 @@ static int num_len(tvbuff_t *tvb, int offset)
 {
   unsigned int i = 0;
 
-  while (g_ascii_isdigit(tvb_get_guint8(tvb, offset + i))) i++;
+  while (g_ascii_isdigit(tvb_get_uint8(tvb, offset + i))) i++;
 
   return i;
 
@@ -257,22 +257,22 @@ check_term(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree)
    * dissection ... so-be-it!
    */
 
-  if ((tvb_get_guint8(tvb, offset) == 0x0d &&
-       tvb_get_guint8(tvb, offset + 1) == 0x0a)){ /* Correct terminator */
+  if ((tvb_get_uint8(tvb, offset) == 0x0d &&
+       tvb_get_uint8(tvb, offset + 1) == 0x0a)){ /* Correct terminator */
 
     proto_tree_add_item(tree, hf_beep_crlf_terminator, tvb, offset, 2, ENC_NA);
     return 2;
 
   }
 
-  if ((tvb_get_guint8(tvb, offset) == 0x0d) && !global_beep_strict_term) {
+  if ((tvb_get_uint8(tvb, offset) == 0x0d) && !global_beep_strict_term) {
 
     proto_tree_add_expert(tree, pinfo, &ei_beep_cr_terminator, tvb, offset, 1);
     return 1;
 
   }
 
-  if ((tvb_get_guint8(tvb, offset) == 0x0a) && !global_beep_strict_term) {
+  if ((tvb_get_uint8(tvb, offset) == 0x0a) && !global_beep_strict_term) {
 
     proto_tree_add_expert(tree, pinfo, &ei_beep_lf_terminator, tvb, offset, 1);
     return 1;
@@ -297,8 +297,8 @@ static int header_len(tvbuff_t *tvb, int offset)
 
   while (1) {
 
-    if ((sc = tvb_get_guint8(tvb, offset + i)) == 0x0d
-        && tvb_get_guint8(tvb, offset + i + 1) == 0x0a)
+    if ((sc = tvb_get_uint8(tvb, offset + i)) == 0x0d
+        && tvb_get_uint8(tvb, offset + i + 1) == 0x0a)
       return i;   /* Done here ... */
 
     if (!global_beep_strict_term && (sc == 0x0d || sc == 0x0a))

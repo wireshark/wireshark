@@ -118,7 +118,7 @@ dissect_btmcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     }
 
     pitem = proto_tree_add_item(main_tree, hf_btmcap_op_code, tvb, offset, 1, ENC_BIG_ENDIAN);
-    op_code = tvb_get_guint8(tvb, offset);
+    op_code = tvb_get_uint8(tvb, offset);
     offset += 1;
 
     col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const(op_code, op_code_vals, "Unknown Op Code"));
@@ -160,7 +160,7 @@ dissect_btmcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 if (op_code == 0x01) {
                     /* only MD_CREATE_MDL_REQ */
                     pitem = proto_tree_add_item(main_tree, hf_btmcap_mdep_id, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    mdep_id = tvb_get_guint8(tvb, offset);
+                    mdep_id = tvb_get_uint8(tvb, offset);
                     offset += 1;
 
                     if (mdep_id <= 0x7F) {
@@ -214,7 +214,7 @@ dissect_btmcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         /* isResponse */
 
         proto_tree_add_item(main_tree, hf_btmcap_response_code, tvb, offset, 1, ENC_BIG_ENDIAN);
-        response_code = tvb_get_guint8(tvb, offset);
+        response_code = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         col_append_fstr(pinfo->cinfo, COL_INFO, " - %s", val_to_str_const(response_code, response_code_vals, "Unknown ResponseCode"));

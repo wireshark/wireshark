@@ -993,7 +993,7 @@ btle_crc(tvbuff_t *tvb, const uint8_t payload_len, const uint32_t crc_init)
     uint32_t state = crc_init;
     uint8_t bytes_to_go = 2+payload_len; /* PDU includes header and payload */
     while( bytes_to_go-- ) {
-        uint8_t byte   = tvb_get_guint8(tvb, offset++);
+        uint8_t byte   = tvb_get_uint8(tvb, offset++);
         uint8_t nibble = (byte & 0xf);
         uint8_t byte_index  = ((state >> 16) & 0xf0) | nibble;
         state  = ((state << 4) ^ btle_crc_next_state_flips[byte_index]) & 0xffffff;
@@ -1163,7 +1163,7 @@ dissect_periodic_sync_ind(tvbuff_t *tvb, proto_tree *btle_tree, int offset, pack
     offset += 2;
 
     /* Sync Info */
-    sf = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+    sf = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
 
     item = proto_tree_add_item_ret_uint(btle_tree, hf_control_sync_info_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN, &sync_offset);
     proto_tree_add_item(btle_tree, hf_control_sync_info_offset_units, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -1851,16 +1851,16 @@ dissect_ad_eir(tvbuff_t *tvb, uint32_t interface_id, uint32_t adapter_id, uint32
         uint8_t opcode;
         if (remain < 1)
             break;
-        length = tvb_get_guint8(tvb, offset);
+        length = tvb_get_uint8(tvb, offset);
         ++offset;
         if (length <= 0)
             continue;
         --remain;
         if (remain < length)
             break;
-        opcode = tvb_get_guint8(tvb, offset);
+        opcode = tvb_get_uint8(tvb, offset);
         if (opcode == 0x2c && length >= 34) {
-            unsigned seed_access_address = tvb_get_guint32(tvb, offset + 14, ENC_LITTLE_ENDIAN);
+            unsigned seed_access_address = tvb_get_uint32(tvb, offset + 14, ENC_LITTLE_ENDIAN);
             uint32_t trunc_seed_access_address = seed_access_address & 0x0041ffff;
             broadcastiso_connection_info_t *nconnection_info;
             wmem_tree_key_t key[5];
@@ -2095,7 +2095,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         advertising_header_item = proto_tree_add_item(btle_tree, hf_advertising_header, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         advertising_header_tree = proto_item_add_subtree(advertising_header_item, ett_advertising_header);
 
-        header = tvb_get_guint8(tvb, offset);
+        header = tvb_get_uint8(tvb, offset);
         pdu_type = header & 0x0F;
 
         switch (pdu_type) {
@@ -2111,7 +2111,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         case 0x08: /* AUX_CONNECT_RSP */
         {
             /* 0 + header, 1 = len, 2 = ext_len/adv-mode, 3 = flags */
-            uint8_t ext_header_flags = tvb_get_guint8(tvb, offset + 3);
+            uint8_t ext_header_flags = tvb_get_uint8(tvb, offset + 3);
 
             ch_sel_valid = false;
             tx_add_valid = (ext_header_flags & 0x01) != 0;
@@ -2407,7 +2407,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             bool adi_present = false;
             bool aux_pointer_present = false;
 
-            tmp = tvb_get_guint8(tvb, offset);
+            tmp = tvb_get_uint8(tvb, offset);
             ext_header_len = acad_len = tmp & 0x3F;
 
             ext_header_item = proto_tree_add_item(btle_tree, hf_extended_advertising_header, tvb, offset, ext_header_len + 1, ENC_NA);
@@ -2422,7 +2422,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 ext_flags_tree = proto_item_add_subtree(ext_flags_item, ett_extended_advertising_flags);
 
                 proto_tree_add_bitmask_list(ext_flags_tree, tvb, offset, 1, hfx_extended_advertising_flags, ENC_NA);
-                flags = tvb_get_guint8(tvb, offset);
+                flags = tvb_get_uint8(tvb, offset);
                 offset += 1;
 
                 acad_len -= 1;
@@ -2498,7 +2498,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 proto_tree_add_item(sub_tree, hf_extended_advertising_aux_ptr_channel, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 proto_tree_add_item(sub_tree, hf_extended_advertising_aux_ptr_ca, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 proto_tree_add_item(sub_tree, hf_extended_advertising_aux_ptr_offset_units, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-                tmp = tvb_get_guint8(tvb, offset);
+                tmp = tvb_get_uint8(tvb, offset);
                 offset += 1;
 
                 item = proto_tree_add_item_ret_uint(sub_tree, hf_extended_advertising_aux_ptr_aux_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN, &aux_offset);
@@ -2524,7 +2524,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 if (!pinfo->fd->visited) {
                     connection_parameter_info_t *connection_parameter_info;
 
-                    connection_access_address = tvb_get_guint32(tvb, offset + 9, ENC_LITTLE_ENDIAN);
+                    connection_access_address = tvb_get_uint32(tvb, offset + 9, ENC_LITTLE_ENDIAN);
 
                     key[0].length = 1;
                     key[0].key = &interface_id;
@@ -2562,7 +2562,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     wmem_tree_insert32_array(connection_parameter_info_tree, key, connection_parameter_info);
                 }
 
-                sf = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+                sf = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
 
                 item = proto_tree_add_item_ret_uint(sync_info_tree, hf_extended_advertising_sync_info_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN, &sync_offset);
                 proto_tree_add_item(sync_info_tree, hf_extended_advertising_sync_info_offset_units, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -2800,7 +2800,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         key[3].length = 0;
         key[3].key = NULL;
 
-        oct = tvb_get_guint8(tvb, offset);
+        oct = tvb_get_uint8(tvb, offset);
         wmem_tree = (wmem_tree_t *) wmem_tree_lookup32_array(connection_info_tree, key);
         if (wmem_tree) {
             connection_info = (connection_info_t *) wmem_tree_lookup32_le(wmem_tree, pinfo->num);
@@ -3152,7 +3152,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             break;
         case 0x03: /* Control PDU */
             control_proc_item = proto_tree_add_item(btle_tree, hf_control_opcode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            control_opcode = tvb_get_guint8(tvb, offset);
+            control_opcode = tvb_get_uint8(tvb, offset);
             offset += 1;
 
             col_add_fstr(pinfo->cinfo, COL_INFO, "Control Opcode: %s",
@@ -4103,7 +4103,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     connection_info_t *nconnection_info;
                     connection_parameter_info_t *connection_parameter_info;
 
-                    connection_access_address = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
+                    connection_access_address = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
 
                     key[0].length = 1;
                     key[0].key = &interface_id;
@@ -4421,7 +4421,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         data_header_tree = proto_item_add_subtree(data_header_item, ett_data_header);
 
         proto_tree_add_item(data_header_tree, hf_data_header_llid_broadcastiso, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        llid = tvb_get_guint8(tvb, offset) & 0x03;
+        llid = tvb_get_uint8(tvb, offset) & 0x03;
         proto_tree_add_item(data_header_tree, hf_data_header_control_subevent_sequence_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(data_header_tree, hf_data_header_control_subevent_transmission_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(data_header_tree, hf_data_header_rfu_67, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -4442,7 +4442,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         case 0x03: /* BIG Control PDU */
             proto_tree_add_item(btle_tree, hf_big_control_opcode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            control_opcode = tvb_get_guint8(tvb, offset);
+            control_opcode = tvb_get_uint8(tvb, offset);
             offset += 1;
 
             col_add_fstr(pinfo->cinfo, COL_INFO, "BIG Control Opcode: %s",

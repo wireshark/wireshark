@@ -84,11 +84,11 @@ dissect_bier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data
     }
 
     /* This nibble is ignored in non-MPLS */
-    if (((tvb_get_guint8(tvb, 0) >> 4) & 0xF) != 0x5) {
+    if (((tvb_get_uint8(tvb, 0) >> 4) & 0xF) != 0x5) {
         return 0;
     }
 
-    uint8_t bsl = (tvb_get_guint8(tvb, 1) >> 4) & 0xF;
+    uint8_t bsl = (tvb_get_uint8(tvb, 1) >> 4) & 0xF;
     if (bsl == 0 || bsl > 7) {
         return 0;
     }

@@ -665,7 +665,7 @@ dissect_version_4_primary_header(packet_info *pinfo, proto_tree *primary_tree, t
     proto_tree *srr_flag_tree, *proc_flag_tree, *cos_flag_tree;
 
     /* Primary Header Processing Flags */
-    *pri_hdr_procflags = tvb_get_guint8(tvb, offset);
+    *pri_hdr_procflags = tvb_get_uint8(tvb, offset);
     ti = proto_tree_add_item(primary_tree, hf_bundle_procflags, tvb,
                                                 offset, 1, ENC_BIG_ENDIAN);
     proc_flag_tree = proto_item_add_subtree(ti, ett_proc_flags);
@@ -1083,7 +1083,7 @@ dissect_payload_header(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
         };
         uint8_t     procflags;
 
-        procflags = tvb_get_guint8(tvb, offset);
+        procflags = tvb_get_uint8(tvb, offset);
         if (procflags & HEADER_PROCFLAGS_LAST_HEADER) {
             *lastheader = true;
         }
@@ -1200,7 +1200,7 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo
     *success = false;
     admin_record_tree = proto_tree_add_subtree(primary_tree, tvb, offset, -1,
                         ett_admin_record, &admin_record_item, "Administrative Record");
-    record_type = tvb_get_guint8(tvb, offset);
+    record_type = tvb_get_uint8(tvb, offset);
 
     proto_tree_add_item(admin_record_tree, hf_bundle_admin_record_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -1215,7 +1215,7 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo
         ++offset;
 
         /* Decode Bundle Status Report Flags */
-        status = tvb_get_guint8(tvb, offset);
+        status = tvb_get_uint8(tvb, offset);
         status_flag_item = proto_tree_add_item(admin_record_tree,
                                 hf_bundle_admin_statflags, tvb, offset, 1, ENC_BIG_ENDIAN);
         status_flag_tree = proto_item_add_subtree(status_flag_item,
@@ -1489,7 +1489,7 @@ display_extension_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
     proto_tree   *block_flag_tree;
     proto_item   *block_flag_item;
 
-    type = tvb_get_guint8(tvb, offset);
+    type = tvb_get_uint8(tvb, offset);
     block_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_metadata_hdr, &block_item, "Extension Block");
 
     proto_tree_add_item(block_tree, hf_bundle_block_type_code, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1809,7 +1809,7 @@ display_extension_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
         }
 
         /* flags byte */
-        flags = (int)tvb_get_guint8(tvb, offset);
+        flags = (int)tvb_get_uint8(tvb, offset);
         proto_tree_add_bitmask(block_tree, tvb, offset, hf_ecos_flags, ett_block_flags, ecos_flags_fields, ENC_BIG_ENDIAN);
         offset += 1;
 
@@ -1896,7 +1896,7 @@ dissect_bpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     char       *bundle_custodian = NULL;
 
 
-    version = tvb_get_guint8(tvb, offset);  /* Primary Header Version */
+    version = tvb_get_uint8(tvb, offset);  /* Primary Header Version */
     if ((version != 4) && (version != 5) && (version != 6)) {
         return 0;
     }
@@ -1938,7 +1938,7 @@ dissect_bpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     while (lastheader == false) {
         uint8_t next_header_type;
 
-        next_header_type = tvb_get_guint8(tvb, offset);
+        next_header_type = tvb_get_uint8(tvb, offset);
         if (next_header_type == BUNDLE_BLOCK_TYPE_PAYLOAD) {
 
             /*
@@ -1964,7 +1964,7 @@ dissect_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     {
         // Primary Header Version octet
-        uint8_t version = tvb_get_guint8(tvb, offset);
+        uint8_t version = tvb_get_uint8(tvb, offset);
         if ((version == 4) || (version == 5) || (version == 6)) {
             return call_dissector(bpv6_handle, tvb, pinfo, tree);
         }

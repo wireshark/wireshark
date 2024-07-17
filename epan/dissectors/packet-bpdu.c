@@ -403,15 +403,15 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_bpdu_p
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "STP"); /* Spanning Tree Protocol */
   col_clear(pinfo->cinfo, COL_INFO);
 
-  bpdu_type = tvb_get_guint8(tvb, BPDU_TYPE);
+  bpdu_type = tvb_get_uint8(tvb, BPDU_TYPE);
 
-  protocol_version_identifier = tvb_get_guint8(tvb, BPDU_VERSION_IDENTIFIER);
+  protocol_version_identifier = tvb_get_uint8(tvb, BPDU_VERSION_IDENTIFIER);
 
   switch (bpdu_type) {
 
   case BPDU_TYPE_CONF:
   case BPDU_TYPE_RST:
-    flags = tvb_get_guint8(tvb, BPDU_FLAGS);
+    flags = tvb_get_uint8(tvb, BPDU_FLAGS);
     root_identifier_bridge_priority = tvb_get_ntohs(tvb,BPDU_ROOT_IDENTIFIER);
     if (bpdu_use_system_id_extensions ) {
       root_identifier_system_id_extension = root_identifier_bridge_priority & 0x0fff;
@@ -631,7 +631,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_bpdu_p
     }
 
     /* RST or MST BPDU */
-    version_1_length = tvb_get_guint8(tvb, BPDU_VERSION_1_LENGTH);
+    version_1_length = tvb_get_uint8(tvb, BPDU_VERSION_1_LENGTH);
     proto_tree_add_uint(bpdu_tree, hf_bpdu_version_1_length, tvb,
                         BPDU_VERSION_1_LENGTH, 1, version_1_length);
     /* Is this an MST BPDU? */
@@ -655,7 +655,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_bpdu_p
        * field BPDU_MST_CONFIG_FORMAT_SELECTOR as a length-field
        * for the MSTI data.
        */
-      config_format_selector = tvb_get_guint8(tvb, BPDU_MST_CONFIG_FORMAT_SELECTOR);
+      config_format_selector = tvb_get_uint8(tvb, BPDU_MST_CONFIG_FORMAT_SELECTOR);
       if (version_3_length != 0) {
         msti_format = MSTI_FORMAT_IEEE_8021S;
         if (version_3_length >= VERSION_3_STATIC_LENGTH) {
@@ -821,10 +821,10 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_bpdu_p
         switch(msti_format) {
 
         case MSTI_FORMAT_IEEE_8021S:
-          msti_regional_root_mstid = tvb_get_guint8(tvb,  offset+ MSTI_REGIONAL_ROOT);
+          msti_regional_root_mstid = tvb_get_uint8(tvb,  offset+ MSTI_REGIONAL_ROOT);
           msti_regional_root_priority = (msti_regional_root_mstid &0xf0) << 8;
           msti_regional_root_mstid = ((msti_regional_root_mstid & 0x0f) << 8) +
-                                     tvb_get_guint8(tvb,  offset+ MSTI_REGIONAL_ROOT+1);
+                                     tvb_get_uint8(tvb,  offset+ MSTI_REGIONAL_ROOT+1);
           msti_regional_root_mac_str = tvb_ether_to_str(pinfo->pool, tvb, offset + MSTI_REGIONAL_ROOT + 2);
 
           msti_tree = proto_tree_add_subtree_format(mstp_tree, tvb, offset, 16, ett_msti, NULL,
@@ -845,8 +845,8 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_bpdu_p
           proto_tree_add_item(msti_tree, hf_bpdu_msti_internal_root_path_cost, tvb,
                               offset+MSTI_INTERNAL_ROOT_PATH_COST, 4, ENC_BIG_ENDIAN);
 
-          msti_bridge_identifier_priority = tvb_get_guint8(tvb, offset+MSTI_BRIDGE_IDENTIFIER_PRIORITY) >> 4;
-          msti_port_identifier_priority = tvb_get_guint8(tvb, offset+MSTI_PORT_IDENTIFIER_PRIORITY) >> 4;
+          msti_bridge_identifier_priority = tvb_get_uint8(tvb, offset+MSTI_BRIDGE_IDENTIFIER_PRIORITY) >> 4;
+          msti_port_identifier_priority = tvb_get_uint8(tvb, offset+MSTI_PORT_IDENTIFIER_PRIORITY) >> 4;
 
           proto_tree_add_uint(msti_tree, hf_bpdu_msti_bridge_identifier_priority, tvb,
                               offset+MSTI_BRIDGE_IDENTIFIER_PRIORITY, 1,
@@ -863,10 +863,10 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_bpdu_p
           break;
 
         case MSTI_FORMAT_ALTERNATIVE:
-          msti_regional_root_mstid = tvb_get_guint8(tvb,  offset+ ALT_MSTI_REGIONAL_ROOT);
+          msti_regional_root_mstid = tvb_get_uint8(tvb,  offset+ ALT_MSTI_REGIONAL_ROOT);
           msti_regional_root_priority = (msti_regional_root_mstid &0xf0) << 8;
           msti_regional_root_mstid = ((msti_regional_root_mstid & 0x0f) << 8) +
-                                     tvb_get_guint8(tvb,  offset+ ALT_MSTI_REGIONAL_ROOT+1);
+                                     tvb_get_uint8(tvb,  offset+ ALT_MSTI_REGIONAL_ROOT+1);
           msti_regional_root_mac_str = tvb_ether_to_str(pinfo->pool, tvb, offset+ ALT_MSTI_REGIONAL_ROOT + 2);
 
           msti_tree = proto_tree_add_subtree_format(mstp_tree, tvb, offset, 16, ett_msti, NULL,
@@ -957,7 +957,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_bpdu_p
           agreement_tree = proto_tree_add_subtree(spt_tree, tvb, spt_offset,
                                                -1, ett_agreement, &agreement_item, "Agreement Data");
 
-          spt_agree_data = tvb_get_guint8(tvb, spt_offset);
+          spt_agree_data = tvb_get_uint8(tvb, spt_offset);
 
           sep = initial_sep;
           proto_item_append_text(agreement_item, "%sAN: %d", sep, (spt_agree_data & 0x03));

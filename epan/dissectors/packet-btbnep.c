@@ -150,7 +150,7 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
     unsigned     i_item;
 
     proto_tree_add_item(tree, hf_btbnep_control_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-    control_type = tvb_get_guint8(tvb, offset);
+    control_type = tvb_get_uint8(tvb, offset);
     offset += 1;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " - %s", val_to_str_const(control_type, control_type_vals,  "Unknown type"));
@@ -158,7 +158,7 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
     switch(control_type) {
         case 0x00: /* Command Not Understood */
             proto_tree_add_item(tree, hf_btbnep_unknown_control_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-            unknown_control_type = tvb_get_guint8(tvb, offset);
+            unknown_control_type = tvb_get_uint8(tvb, offset);
             offset += 1;
 
             col_append_fstr(pinfo->cinfo, COL_INFO, " - Unknown(%s)", val_to_str_const(unknown_control_type, control_type_vals,  "Unknown type"));
@@ -166,7 +166,7 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
             break;
         case 0x01: /* Setup Connection Request */
             proto_tree_add_item(tree, hf_btbnep_uuid_size, tvb, offset, 1, ENC_BIG_ENDIAN);
-            uuid_size = tvb_get_guint8(tvb, offset);
+            uuid_size = tvb_get_uint8(tvb, offset);
             offset += 1;
 
             pitem = proto_tree_add_item(tree, hf_btbnep_destination_service_uuid, tvb, offset, uuid_size, ENC_NA);
@@ -247,7 +247,7 @@ dissect_extension(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offse
 
     proto_tree_add_item(tree, hf_btbnep_extension_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_btbnep_extension_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
-    type = tvb_get_guint8(tvb, offset);
+    type = tvb_get_uint8(tvb, offset);
     extension_flag = type & 0x01;
     extension_type = type >> 1;
     offset += 1;
@@ -303,7 +303,7 @@ dissect_btbnep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     proto_tree_add_item(btbnep_tree, hf_btbnep_extension_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(btbnep_tree, hf_btbnep_bnep_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-    bnep_type = tvb_get_guint8(tvb, offset);
+    bnep_type = tvb_get_uint8(tvb, offset);
     extension_flag = bnep_type & 0x80;
     bnep_type = bnep_type & 0x7F;
     offset += 1;
@@ -329,7 +329,7 @@ dissect_btbnep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
         addr_item = proto_tree_add_item(btbnep_tree, hf_btbnep_src, tvb, offset, FT_ETHER_LEN, ENC_NA);
         addr_tree = proto_item_add_subtree(addr_item, ett_addr);
-        if (tvb_get_guint8(tvb, offset) & 0x01) {
+        if (tvb_get_uint8(tvb, offset) & 0x01) {
             expert_add_info(pinfo, addr_item, &ei_btbnep_src_not_group_address);
         }
 

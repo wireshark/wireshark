@@ -3608,7 +3608,7 @@ btmesh_deobfuscate(tvbuff_t *tvb, packet_info *pinfo, int offset _U_, uat_btmesh
     gcry_cipher_close(cipher_hd);
 
     for ( i = 0; i < 6; i++) {
-        plaintextnetworkheader[i] = tvb_get_guint8(tvb, i + 1) ^ pecb[i];
+        plaintextnetworkheader[i] = tvb_get_uint8(tvb, i + 1) ^ pecb[i];
     }
 
     de_obf_tvb = tvb_new_child_real_data(tvb, plaintextnetworkheader, 6, 6);
@@ -4784,12 +4784,12 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_btmesh_model_layer, NULL, "Model Layer");
 
-    opcode = tvb_get_guint8(tvb, offset);
+    opcode = tvb_get_uint8(tvb, offset);
     if (opcode & 0x80) {
         if (opcode & 0x40) {
             /* Vendor opcode */
             proto_tree_add_item(sub_tree, hf_btmesh_model_layer_vendor_opcode, tvb, offset, 1, ENC_NA);
-            vendor = tvb_get_guint16(tvb, offset + 1, ENC_LITTLE_ENDIAN);
+            vendor = tvb_get_uint16(tvb, offset + 1, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(sub_tree, hf_btmesh_model_layer_vendor, tvb, offset + 1, 2, ENC_LITTLE_ENDIAN);
             payload_tvb = tvb_new_subset_remaining(tvb, offset);
             col_set_str(pinfo->cinfo, COL_INFO, "Access Message - Vendor Opcode");
@@ -4847,8 +4847,8 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         /* Elements */
         element = 1;
         while (tvb_reported_length_remaining(tvb, offset) > 2) {
-            nums = tvb_get_guint8(tvb, offset + 2 );
-            numv = tvb_get_guint8(tvb, offset + 2 + 1);
+            nums = tvb_get_uint8(tvb, offset + 2 );
+            numv = tvb_get_uint8(tvb, offset + 2 + 1);
             element_sub_tree = proto_tree_add_subtree_format(sub_tree, tvb, offset, 4 + nums * 2 + numv * 4, ett_btmesh_config_model_element, NULL, "Element #%u", element);
             proto_tree_add_item(element_sub_tree, hf_btmesh_config_composition_data_status_loc, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset+=2;
@@ -4974,12 +4974,12 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         appkeylist_tree = proto_tree_add_subtree(sub_tree, tvb, offset, tvb_reported_length_remaining(tvb, offset), ett_btmesh_config_model_appkey_list, NULL, "AppKeyIndexes");
         while (tvb_reported_length_remaining(tvb, offset) >= 2) {
             if (tvb_reported_length_remaining(tvb, offset) >= 3) {
-                appkeyindexes = tvb_get_guint24(tvb, offset, ENC_LITTLE_ENDIAN);
+                appkeyindexes = tvb_get_uint24(tvb, offset, ENC_LITTLE_ENDIAN);
                 proto_tree_add_uint(appkeylist_tree, hf_btmesh_config_appkey_list_appkeyindex, tvb, offset, 2, appkeyindexes & 0x000FFF);
                 proto_tree_add_uint(appkeylist_tree, hf_btmesh_config_appkey_list_appkeyindex, tvb, offset + 1, 2, (appkeyindexes >> 12 ) & 0x000FFF);
                 offset+=3;
             } else {
-                appkeyindexes = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+                appkeyindexes = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
                 proto_tree_add_uint(appkeylist_tree, hf_btmesh_config_appkey_list_appkeyindex, tvb, offset, 2, appkeyindexes & 0x0FFF);
                 proto_tree_add_uint(appkeylist_tree, hf_btmesh_config_appkey_list_appkeyindex_rfu, tvb, offset, 2, (appkeyindexes >> 12 ) & 0xF);
                 offset+=2;
@@ -5502,12 +5502,12 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         netkeylist_tree = proto_tree_add_subtree(sub_tree, tvb, offset, tvb_reported_length_remaining(tvb, offset), ett_btmesh_config_model_netkey_list, NULL, "NetKeyIndexes");
         while (tvb_reported_length_remaining(tvb, offset) >= 2) {
             if (tvb_reported_length_remaining(tvb, offset) >= 3) {
-                netkeyindexes = tvb_get_guint24(tvb, offset, ENC_LITTLE_ENDIAN);
+                netkeyindexes = tvb_get_uint24(tvb, offset, ENC_LITTLE_ENDIAN);
                 proto_tree_add_uint(netkeylist_tree, hf_btmesh_config_netkey_list_netkeyindex, tvb, offset, 2, netkeyindexes & 0x000FFF);
                 proto_tree_add_uint(netkeylist_tree, hf_btmesh_config_netkey_list_netkeyindex, tvb, offset + 1, 2, (netkeyindexes >> 12 ) & 0x000FFF);
                 offset+=3;
             } else {
-                netkeyindexes = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+                netkeyindexes = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
                 proto_tree_add_uint(netkeylist_tree, hf_btmesh_config_netkey_list_netkeyindex, tvb, offset, 2, netkeyindexes & 0x0FFF);
                 proto_tree_add_uint(netkeylist_tree, hf_btmesh_config_netkey_list_netkeyindex_rfu, tvb, offset, 2, (netkeyindexes >> 12 ) & 0xF);
                 offset+=2;
@@ -5579,12 +5579,12 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         appkeylist_tree = proto_tree_add_subtree(sub_tree, tvb, offset, tvb_reported_length_remaining(tvb, offset), ett_btmesh_config_model_appkey_list, NULL, "AppKeyIndexes");
         while (tvb_reported_length_remaining(tvb, offset) >= 2) {
             if (tvb_reported_length_remaining(tvb, offset) >= 3) {
-                appkeyindexes = tvb_get_guint24(tvb, offset, ENC_LITTLE_ENDIAN);
+                appkeyindexes = tvb_get_uint24(tvb, offset, ENC_LITTLE_ENDIAN);
                 proto_tree_add_uint(appkeylist_tree, hf_btmesh_config_sig_model_app_list_appkeyindex, tvb, offset, 2, appkeyindexes & 0x000FFF);
                 proto_tree_add_uint(appkeylist_tree, hf_btmesh_config_sig_model_app_list_appkeyindex, tvb, offset + 1, 2, (appkeyindexes >> 12 ) & 0x000FFF);
                 offset+=3;
             } else {
-                appkeyindexes = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+                appkeyindexes = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
                 proto_tree_add_uint(appkeylist_tree, hf_btmesh_config_sig_model_app_list_appkeyindex, tvb, offset, 2, appkeyindexes & 0x0FFF);
                 proto_tree_add_uint(appkeylist_tree, hf_btmesh_config_sig_model_app_list_appkeyindex_rfu, tvb, offset, 2, (appkeyindexes >> 12 ) & 0xF);
                 offset+=2;
@@ -5607,12 +5607,12 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         appkeylist_tree = proto_tree_add_subtree(sub_tree, tvb, offset, tvb_reported_length_remaining(tvb, offset), ett_btmesh_config_model_appkey_list, NULL, "AppKeyIndexes");
         while (tvb_reported_length_remaining(tvb, offset) >= 2) {
             if (tvb_reported_length_remaining(tvb, offset) >= 3) {
-                appkeyindexes = tvb_get_guint24(tvb, offset, ENC_LITTLE_ENDIAN);
+                appkeyindexes = tvb_get_uint24(tvb, offset, ENC_LITTLE_ENDIAN);
                 proto_tree_add_uint(appkeylist_tree, hf_btmesh_config_vendor_model_app_list_appkeyindex, tvb, offset, 2, appkeyindexes & 0x000FFF);
                 proto_tree_add_uint(appkeylist_tree, hf_btmesh_config_vendor_model_app_list_appkeyindex, tvb, offset + 1, 2, (appkeyindexes >> 12 ) & 0x000FFF);
                 offset+=3;
             } else {
-                appkeyindexes = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+                appkeyindexes = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
                 proto_tree_add_uint(appkeylist_tree, hf_btmesh_config_vendor_model_app_list_appkeyindex, tvb, offset, 2, appkeyindexes & 0x0FFF);
                 proto_tree_add_uint(appkeylist_tree, hf_btmesh_config_vendor_model_app_list_appkeyindex_rfu, tvb, offset, 2, (appkeyindexes >> 12 ) & 0xF);
                 offset+=2;
@@ -6305,19 +6305,19 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         break;
     case LIGHT_LC_PROPERTY_SET:
         proto_tree_add_item(sub_tree, hf_btmesh_light_lc_property_set_light_lc_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        property_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        property_id = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
         offset+=2;
         offset+=dissect_btmesh_property(sub_tree, hf_btmesh_light_lc_property_set_light_lc_property_value, tvb, offset, property_id, PROPERTY_LENGTH_NO_HINT);
         break;
     case LIGHT_LC_PROPERTY_SET_UNACKNOWLEDGED:
         proto_tree_add_item(sub_tree, hf_btmesh_light_lc_property_set_unacknowledged_light_lc_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        property_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        property_id = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
         offset+=2;
         offset+=dissect_btmesh_property(sub_tree, hf_btmesh_light_lc_property_set_unacknowledged_light_lc_property_value, tvb, offset, property_id, PROPERTY_LENGTH_NO_HINT);
         break;
     case LIGHT_LC_PROPERTY_STATUS:
         proto_tree_add_item(sub_tree, hf_btmesh_light_lc_property_status_light_lc_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        property_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        property_id = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
         offset+=2;
         offset+=dissect_btmesh_property(sub_tree, hf_btmesh_light_lc_property_status_light_lc_property_value, tvb, offset, property_id, PROPERTY_LENGTH_NO_HINT);
         break;
@@ -7098,7 +7098,7 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         break;
     case GENERIC_MANUFACTURER_PROPERTY_STATUS:
         proto_tree_add_item(sub_tree, hf_btmesh_generic_manufacturer_property_status_manufacturer_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        property_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        property_id = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
         offset+=2;
         // Optional
         if (tvb_reported_length_remaining(tvb, offset) > 0) {
@@ -7122,7 +7122,7 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         break;
     case GENERIC_ADMIN_PROPERTY_SET:
         proto_tree_add_item(sub_tree, hf_btmesh_generic_admin_property_set_admin_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        property_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        property_id = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
         offset+=2;
         proto_tree_add_item(sub_tree, hf_btmesh_generic_admin_property_set_admin_user_access, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
@@ -7130,7 +7130,7 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         break;
     case GENERIC_ADMIN_PROPERTY_SET_UNACKNOWLEDGED:
         proto_tree_add_item(sub_tree, hf_btmesh_generic_admin_property_set_unacknowledged_admin_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        property_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        property_id = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
         offset+=2;
         proto_tree_add_item(sub_tree, hf_btmesh_generic_admin_property_set_unacknowledged_admin_user_access, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
@@ -7138,7 +7138,7 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         break;
     case GENERIC_ADMIN_PROPERTY_STATUS:
         proto_tree_add_item(sub_tree, hf_btmesh_generic_admin_property_status_admin_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        property_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        property_id = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
         offset+=2;
         // Optional
         if (tvb_reported_length_remaining(tvb, offset) > 0) {
@@ -7162,19 +7162,19 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         break;
     case GENERIC_USER_PROPERTY_SET:
         proto_tree_add_item(sub_tree, hf_btmesh_generic_user_property_set_user_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        property_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        property_id = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
         offset+=2;
         offset+=dissect_btmesh_property(sub_tree, hf_btmesh_generic_user_property_set_user_property_value, tvb, offset, property_id, PROPERTY_LENGTH_NO_HINT);
         break;
     case GENERIC_USER_PROPERTY_SET_UNACKNOWLEDGED:
         proto_tree_add_item(sub_tree, hf_btmesh_generic_user_property_set_unacknowledged_user_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        property_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        property_id = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
         offset+=2;
         offset+=dissect_btmesh_property(sub_tree, hf_btmesh_generic_user_property_set_unacknowledged_user_property_value, tvb, offset, property_id, PROPERTY_LENGTH_NO_HINT);
         break;
     case GENERIC_USER_PROPERTY_STATUS:
         proto_tree_add_item(sub_tree, hf_btmesh_generic_user_property_status_user_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        property_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        property_id = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
         offset+=2;
         // Optional
         if (tvb_reported_length_remaining(tvb, offset) > 0) {
@@ -7227,32 +7227,32 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         break;
     case SENSOR_CADENCE_SET:
         proto_tree_add_item(sub_tree, hf_btmesh_sensor_cadence_set_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        property_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        property_id = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
         offset+=2;
         proto_tree_add_item(sub_tree, hf_btmesh_sensor_cadence_set_fast_cadence_period_divisor, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(sub_tree, hf_btmesh_sensor_cadence_set_status_trigger_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        trigger_type = tvb_get_guint8(tvb, offset) >> 7;
+        trigger_type = tvb_get_uint8(tvb, offset) >> 7;
         offset++;
         offset+=dissect_sensor_cadence(sub_tree, tvb, offset, property_id, trigger_type, &sensor_cadence_set_hfs);
         break;
     case SENSOR_CADENCE_SET_UNACKNOWLEDGED:
         proto_tree_add_item(sub_tree, hf_btmesh_sensor_cadence_set_unacknowledged_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        property_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        property_id = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
         offset+=2;
         proto_tree_add_item(sub_tree, hf_btmesh_sensor_cadence_set_unacknowledged_fast_cadence_period_divisor, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(sub_tree, hf_btmesh_sensor_cadence_set_unacknowledged_status_trigger_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        trigger_type = tvb_get_guint8(tvb, offset) >> 7;
+        trigger_type = tvb_get_uint8(tvb, offset) >> 7;
         offset++;
 
         offset+=dissect_sensor_cadence(sub_tree, tvb, offset, property_id, trigger_type, &sensor_cadence_set_unacknowledged_hfs);
         break;
     case SENSOR_CADENCE_STATUS:
         proto_tree_add_item(sub_tree, hf_btmesh_sensor_cadence_status_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        property_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        property_id = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
         offset+=2;
         proto_tree_add_item(sub_tree, hf_btmesh_sensor_cadence_status_fast_cadence_period_divisor, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(sub_tree, hf_btmesh_sensor_cadence_status_status_trigger_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        trigger_type = tvb_get_guint8(tvb, offset) >> 7;
+        trigger_type = tvb_get_uint8(tvb, offset) >> 7;
         offset++;
         offset+=dissect_sensor_cadence(sub_tree, tvb, offset, property_id, trigger_type, &sensor_cadence_status_hfs);
         break;
@@ -7282,7 +7282,7 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         proto_tree_add_item(sub_tree, hf_btmesh_sensor_setting_set_sensor_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset+=2;
         proto_tree_add_item(sub_tree, hf_btmesh_sensor_setting_set_sensor_setting_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        property_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        property_id = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
         offset+=2;
         offset+=dissect_btmesh_property(sub_tree, hf_btmesh_sensor_setting_set_sensor_setting_raw, tvb, offset, property_id, PROPERTY_LENGTH_NO_HINT);
         break;
@@ -7290,7 +7290,7 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         proto_tree_add_item(sub_tree, hf_btmesh_sensor_setting_set_unacknowledged_sensor_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset+=2;
         proto_tree_add_item(sub_tree, hf_btmesh_sensor_setting_set_unacknowledged_sensor_setting_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        property_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        property_id = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
         offset+=2;
         offset+=dissect_btmesh_property(sub_tree, hf_btmesh_sensor_setting_set_unacknowledged_sensor_setting_raw, tvb, offset, property_id, PROPERTY_LENGTH_NO_HINT);
         break;
@@ -7298,7 +7298,7 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         proto_tree_add_item(sub_tree, hf_btmesh_sensor_setting_status_sensor_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset+=2;
         proto_tree_add_item(sub_tree, hf_btmesh_sensor_setting_status_sensor_setting_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        property_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        property_id = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
         offset+=2;
         //Optional
         if (tvb_reported_length_remaining(tvb, offset) > 0) {
@@ -7333,19 +7333,19 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         break;
     case SENSOR_COLUMN_GET:
         proto_tree_add_item(sub_tree, hf_btmesh_sensor_column_get_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        property_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        property_id = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
         offset+=2;
         offset+=dissect_columns_raw_value(sub_tree, tvb, offset, property_id, &sensor_column_get_hfs);
         break;
     case SENSOR_COLUMN_STATUS:
         proto_tree_add_item(sub_tree, hf_btmesh_sensor_column_status_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        property_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        property_id = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
         offset+=2;
         offset+=dissect_property_raw_value_entry(sub_tree, tvb, offset, property_id, &sensor_column_status_hfs);
         break;
     case SENSOR_SERIES_GET:
         proto_tree_add_item(sub_tree, hf_btmesh_sensor_series_get_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        property_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        property_id = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
         offset+=2;
         // Optional
         if (tvb_reported_length_remaining(tvb, offset) > 0) {
@@ -7355,7 +7355,7 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     case SENSOR_SERIES_STATUS:
         //first property_id is manadatory
         proto_tree_add_item(sub_tree, hf_btmesh_sensor_series_status_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        property_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        property_id = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
         offset+=2;
         //Optional, dissect one or more values
         while (tvb_reported_length_remaining(tvb, offset) > 0) {
@@ -7937,7 +7937,7 @@ btmesh_network_find_key_and_decrypt(tvbuff_t *tvb, packet_info *pinfo, uint8_t *
     uint64_t ccm_lengths[3];
     int enc_offset;
 
-    nid = tvb_get_guint8(tvb, offset) & 0x7f;
+    nid = tvb_get_uint8(tvb, offset) & 0x7f;
 
     /* Get the next record to try */
     for (i = 0; i < num_btmesh_uat; i++) {
@@ -7949,7 +7949,7 @@ btmesh_network_find_key_and_decrypt(tvbuff_t *tvb, packet_info *pinfo, uint8_t *
             if (de_obf_tvb == NULL) {
                 continue;
             }
-            net_mic_size = (((tvb_get_guint8(de_obf_tvb, 0) & 0x80) >> 7 ) + 1 ) * 4; /* CTL */
+            net_mic_size = (((tvb_get_uint8(de_obf_tvb, 0) & 0x80) >> 7 ) + 1 ) * 4; /* CTL */
             offset +=6;
 
             (*enc_data_len) = tvb_reported_length(tvb) - offset - net_mic_size;

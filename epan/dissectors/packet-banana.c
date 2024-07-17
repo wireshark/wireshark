@@ -123,7 +123,7 @@ dissect_banana_element(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
     /* Accumulate our value/length 'til we hit a valid type */
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
-        byte = tvb_get_guint8(tvb, offset);
+        byte = tvb_get_uint8(tvb, offset);
         offset++;
 
         if (byte & 0x80) {
@@ -220,7 +220,7 @@ dissect_banana(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Banana");
 
     while (tvb_reported_length_remaining(tvb, offset) > 0 && offset < MAX_ELEMENT_VAL_LEN) {
-        byte = tvb_get_guint8(tvb, offset);
+        byte = tvb_get_uint8(tvb, offset);
         if (is_element(byte))
             break;
         offset++;

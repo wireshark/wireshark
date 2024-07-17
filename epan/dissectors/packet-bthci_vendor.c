@@ -437,7 +437,7 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         }
 
         proto_tree_add_item(main_tree, hf_broadcom_parameter_length, tvb, offset, 1, ENC_NA);
-        length = tvb_get_guint8(tvb, offset);
+        length = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         switch(ocf) {
@@ -608,7 +608,7 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             break;
         case 0x007E: /* Enable WBS */
             proto_tree_add_item(main_tree, hf_broadcom_codec_state, tvb, offset, 1, ENC_NA);
-            status = tvb_get_guint8(tvb, offset);
+            status = tvb_get_uint8(tvb, offset);
             offset += 1;
 
             if (status == 0x01) { /* Enable */
@@ -618,7 +618,7 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             break;
         case 0x0154: /* LE Multi Advertising */
             proto_tree_add_item(main_tree, hf_broadcom_le_multi_advertising_subcode, tvb, offset, 1, ENC_NA);
-            subcode = tvb_get_guint8(tvb, offset);
+            subcode = tvb_get_uint8(tvb, offset);
             offset += 1;
 
             switch (subcode) {
@@ -685,7 +685,7 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             break;
         case 0x0156: /* LE Batch Scan */
             proto_tree_add_item(main_tree, hf_broadcom_le_batch_scan_subcode, tvb, offset, 1, ENC_NA);
-            subcode = tvb_get_guint8(tvb, offset);
+            subcode = tvb_get_uint8(tvb, offset);
             offset += 1;
 
             switch (subcode) {
@@ -732,11 +732,11 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             break;
         case 0x0157: /* LE Advertising Filter */
             proto_tree_add_item(main_tree, hf_broadcom_le_advertising_filter_subcode, tvb, offset, 1, ENC_NA);
-            subcode = tvb_get_guint8(tvb, offset);
+            subcode = tvb_get_uint8(tvb, offset);
             offset += 1;
 
             proto_tree_add_item(main_tree, hf_broadcom_le_scan_condition, tvb, offset, 1, ENC_NA);
-            condition = tvb_get_guint8(tvb, offset);
+            condition = tvb_get_uint8(tvb, offset);
             offset += 1;
 
             proto_tree_add_item(main_tree, hf_broadcom_le_filter_index, tvb, offset, 1, ENC_NA);
@@ -802,7 +802,7 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI_EVT_BROADCOM");
         col_add_fstr(pinfo->cinfo, COL_INFO, "Rcvd Broadcom ");
 
-        event_code = tvb_get_guint8(tvb, offset);
+        event_code = tvb_get_uint8(tvb, offset);
         description = val_to_str_ext(event_code, &bthci_evt_evt_code_vals_ext, "Unknown 0x%08x");
         col_append_str(pinfo->cinfo, COL_INFO, description);
         proto_tree_add_item(main_tree, hf_broadcom_event_code, tvb, offset, 1, ENC_NA);
@@ -825,7 +825,7 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         }
 
         proto_tree_add_item(main_tree, hf_broadcom_parameter_length, tvb, offset, 1, ENC_NA);
-        length = tvb_get_guint8(tvb, offset);
+        length = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         switch (event_code) {
@@ -866,7 +866,7 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             }
 
             proto_tree_add_item(main_tree, hf_broadcom_status, tvb, offset, 1, ENC_NA);
-            status = tvb_get_guint8(tvb, offset);
+            status = tvb_get_uint8(tvb, offset);
             offset += 1;
 
             switch (ocf) {
@@ -930,7 +930,7 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                 break;
             case 0x0156: /* LE Batch Scan */
                 proto_tree_add_item(main_tree, hf_broadcom_le_batch_scan_subcode, tvb, offset, 1, ENC_NA);
-                subcode = tvb_get_guint8(tvb, offset);
+                subcode = tvb_get_uint8(tvb, offset);
                 offset += 1;
 
                 if (subcode == 0x04 && status == STATUS_SUCCESS) { /* Read Results*/
@@ -1946,7 +1946,7 @@ dissect_bthci_vendor_intel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         }
 
         proto_tree_add_item(main_tree, hf_intel_parameter_length, tvb, offset, 1, ENC_NA);
-        length = tvb_get_guint8(tvb, offset);
+        length = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         offset_parameters = offset;
@@ -2073,7 +2073,7 @@ dissect_bthci_vendor_intel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                 uint8_t ddc_config_length;
 
                 proto_tree_add_item(main_tree, hf_intel_ddc_config_length, tvb, offset, 1, ENC_NA);
-                ddc_config_length = tvb_get_guint8(tvb, offset);
+                ddc_config_length = tvb_get_uint8(tvb, offset);
                 offset += 1;
 
                 proto_tree_add_item(main_tree, hf_intel_identifier, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -2096,8 +2096,8 @@ dissect_bthci_vendor_intel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             proto_tree_add_item(main_tree, hf_intel_mem_length, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            proto_tree_add_item(main_tree, hf_intel_data, tvb, offset, tvb_get_guint8(tvb, offset - 1), ENC_NA);
-            offset += tvb_get_guint8(tvb, offset - 1);
+            proto_tree_add_item(main_tree, hf_intel_data, tvb, offset, tvb_get_uint8(tvb, offset - 1), ENC_NA);
+            offset += tvb_get_uint8(tvb, offset - 1);
 
             break;
         default:
@@ -2119,7 +2119,7 @@ dissect_bthci_vendor_intel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI_EVT_INTEL");
         col_add_fstr(pinfo->cinfo, COL_INFO, "Rcvd Intel ");
 
-        event_code = tvb_get_guint8(tvb, offset);
+        event_code = tvb_get_uint8(tvb, offset);
 
         if (try_val_to_str(event_code, intel_event_code_vals))
             description = val_to_str(event_code, intel_event_code_vals, "Unknown 0x%08x");
@@ -2146,7 +2146,7 @@ dissect_bthci_vendor_intel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         }
 
         proto_tree_add_item(main_tree, hf_intel_parameter_length, tvb, offset, 1, ENC_NA);
-        length = tvb_get_guint8(tvb, offset);
+        length = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         offset_parameters = offset;
@@ -2189,7 +2189,7 @@ dissect_bthci_vendor_intel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             }
 
             proto_tree_add_item(main_tree, hf_intel_status, tvb, offset, 1, ENC_NA);
-            status = tvb_get_guint8(tvb, offset);
+            status = tvb_get_uint8(tvb, offset);
             offset += 1;
 
             switch (ocf) {
@@ -2371,7 +2371,7 @@ dissect_bthci_vendor_intel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             break;
         case 0x17: /* Link PDU Trace */
             proto_tree_add_item(main_tree, hf_intel_link_pdu_trace_type, tvb, offset, 1, ENC_NA);
-            type = tvb_get_guint8(tvb, offset);
+            type = tvb_get_uint8(tvb, offset);
             offset += 1;
 
             proto_tree_add_item(main_tree, hf_intel_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);

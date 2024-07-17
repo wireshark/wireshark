@@ -765,11 +765,11 @@ dissect_sep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
     direction = (pinfo->p2p_dir == P2P_DIR_SENT) ? P2P_DIR_RECV : P2P_DIR_SENT;
     items = tvb_reported_length_remaining(tvb, offset) / 2;
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
-        seid = tvb_get_guint8(tvb, offset);
+        seid = tvb_get_uint8(tvb, offset);
         in_use = seid & 0x02;
         seid = seid >> 2;
-        media_type = tvb_get_guint8(tvb, offset + 1) >> 4;
-        type = (tvb_get_guint8(tvb, offset + 1) & 0x08) >> 3;
+        media_type = tvb_get_uint8(tvb, offset + 1) >> 4;
+        type = (tvb_get_uint8(tvb, offset + 1) & 0x08) >> 3;
         sep_item = proto_tree_add_none_format(tree, hf_btavdtp_acp_sep, tvb, offset, 2, "ACP SEP [%u - %s %s] item %u/%u",
                 seid, val_to_str_const(media_type, media_type_vals, "unknown"),
                 val_to_str_const(type, sep_type_vals, "unknown"), i_sep, items);
@@ -858,13 +858,13 @@ dissect_codec(tvbuff_t *tvb, packet_info *pinfo, proto_item *service_item, proto
                     proto_tree_add_item(tree, hf_btavdtp_sbc_allocation_method_loudness, tvb, offset + 1, 1, ENC_NA);
 
                     pitem = proto_tree_add_item(tree, hf_btavdtp_sbc_min_bitpool, tvb, offset + 2, 1, ENC_NA);
-                    value = tvb_get_guint8(tvb, offset + 2);
+                    value = tvb_get_uint8(tvb, offset + 2);
                     if (value < 2 || value > 250) {
                         expert_add_info(pinfo, pitem, &ei_btavdtp_sbc_min_bitpool_out_of_range);
                     }
 
                     pitem = proto_tree_add_item(tree, hf_btavdtp_sbc_max_bitpool, tvb, offset + 3, 1, ENC_NA);
-                    value = tvb_get_guint8(tvb, offset + 3);
+                    value = tvb_get_uint8(tvb, offset + 3);
                     if (value < 2 || value > 250) {
                         expert_add_info(pinfo, pitem, &ei_btavdtp_sbc_max_bitpool_out_of_range);
                     }
@@ -1034,7 +1034,7 @@ dissect_codec(tvbuff_t *tvb, packet_info *pinfo, proto_item *service_item, proto
                                 proto_item_append_text(service_item, " (%s -",
                                     val_to_str_const(value, vendor_apt_codec_vals, "unknown codec"));
 
-                                value = tvb_get_guint8(tvb, offset + 6);
+                                value = tvb_get_uint8(tvb, offset + 6);
                                 if (value) {
                                     col_append_fstr(pinfo->cinfo, COL_INFO, "%s%s%s%s%s,%s%s%s%s%s)",
                                         (value & 0x80) ? " 16000" : "",
@@ -1090,8 +1090,8 @@ dissect_codec(tvbuff_t *tvb, packet_info *pinfo, proto_item *service_item, proto
                                 proto_item_append_text(service_item, " (%s -",
                                     val_to_str_const(value, vendor_ldac_codec_vals, "unknown codec"));
 
-                                value = tvb_get_guint8(tvb, offset + 6);
-                                value2 = tvb_get_guint8(tvb, offset + 7);
+                                value = tvb_get_uint8(tvb, offset + 6);
+                                value2 = tvb_get_uint8(tvb, offset + 7);
                                 if (value != 0 && value2 != 0) {
                                     col_append_fstr(pinfo->cinfo, COL_INFO, "%s%s%s%s%s%s,%s%s%s)",
                                         (value & 0x20) ? " 44100" : "",
@@ -1208,8 +1208,8 @@ dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
         *configuration_offset = 0;
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
-        service_category = tvb_get_guint8(tvb, offset);
-        losc = tvb_get_guint8(tvb, offset + 1);
+        service_category = tvb_get_uint8(tvb, offset);
+        losc = tvb_get_uint8(tvb, offset + 1);
         service_item = proto_tree_add_none_format(capabilities_tree, hf_btavdtp_service, tvb, offset, 2 + losc, "Service: %s", val_to_str_const(service_category, service_category_vals, "RFD"));
         service_tree = proto_item_add_subtree(service_item, ett_btavdtp_service);
 
@@ -1226,13 +1226,13 @@ dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
                 /* losc should be 0 */
                 break;
             case SERVICE_CATEGORY_RECOVERY:
-                recovery_type = tvb_get_guint8(tvb, offset);
+                recovery_type = tvb_get_uint8(tvb, offset);
                 pitem = proto_tree_add_item(service_tree, hf_btavdtp_recovery_type, tvb, offset, 1, ENC_NA);
                 proto_item_append_text(pitem, " (%s)", val_to_str_const(recovery_type, recovery_type_vals, "RFD"));
                 offset += 1;
                 losc -= 1;
 
-                maximum_recovery_window_size = tvb_get_guint8(tvb, offset);
+                maximum_recovery_window_size = tvb_get_uint8(tvb, offset);
                 pitem = proto_tree_add_item(service_tree, hf_btavdtp_maximum_recovery_window_size, tvb, offset, 1, ENC_NA);
                 if (maximum_recovery_window_size == 0x00) {
                     proto_item_append_text(pitem, " (Forbidden)");
@@ -1242,7 +1242,7 @@ dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
                 offset += 1;
                 losc -= 1;
 
-                maximum_number_of_media_packet_in_parity_code = tvb_get_guint8(tvb, offset);
+                maximum_number_of_media_packet_in_parity_code = tvb_get_uint8(tvb, offset);
                 proto_tree_add_item(service_tree, hf_btavdtp_maximum_number_of_media_packet_in_parity_code, tvb, offset, 1, ENC_NA);
                 pitem = proto_tree_add_item(service_tree, hf_btavdtp_maximum_recovery_window_size, tvb, offset, 1, ENC_NA);
                 if (maximum_number_of_media_packet_in_parity_code == 0x00) {
@@ -1259,13 +1259,13 @@ dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
                 if (configuration_offset)
                     *configuration_offset = offset;
 
-                media_type = tvb_get_guint8(tvb, offset) >> 4;
+                media_type = tvb_get_uint8(tvb, offset) >> 4;
                 proto_tree_add_item(service_tree, hf_btavdtp_media_codec_media_type, tvb, offset, 1, ENC_NA);
                 proto_tree_add_item(service_tree, hf_btavdtp_media_codec_rfa , tvb, offset, 1, ENC_NA);
                 offset += 1;
                 losc -= 1;
 
-                media_codec_type = tvb_get_guint8(tvb, offset);
+                media_codec_type = tvb_get_uint8(tvb, offset);
                 if (codec) {
                     *codec = media_codec_type;
                 }
@@ -1396,7 +1396,7 @@ dissect_seid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
     proto_item  *seid_item     = NULL;
     uint32_t     direction;
 
-    seid = tvb_get_guint8(tvb, offset) >> 2;
+    seid = tvb_get_uint8(tvb, offset) >> 2;
     if (sep_seid) {
         *sep_seid = seid;
     }
@@ -1745,8 +1745,8 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     btavdtp_tree = proto_item_add_subtree(ti, ett_btavdtp);
 
     /* AVDTP signaling*/
-    message_type = (tvb_get_guint8(tvb, offset) & AVDTP_MESSAGE_TYPE_MASK);
-    packet_type = (tvb_get_guint8(tvb, offset) & AVDTP_PACKET_TYPE_MASK) >> 2;
+    message_type = (tvb_get_uint8(tvb, offset) & AVDTP_MESSAGE_TYPE_MASK);
+    packet_type = (tvb_get_uint8(tvb, offset) & AVDTP_PACKET_TYPE_MASK) >> 2;
 
     signal_item = proto_tree_add_item(btavdtp_tree, hf_btavdtp_signal, tvb, offset,
             (packet_type == PACKET_TYPE_START) ? 3 : 2, ENC_NA);
@@ -1767,7 +1767,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_tree_add_item(signal_tree, hf_btavdtp_rfa0,         tvb, offset, 1, ENC_NA);
     proto_tree_add_item(signal_tree, hf_btavdtp_signal_id,    tvb, offset, 1, ENC_NA);
 
-    signal_id   = tvb_get_guint8(tvb, offset) & AVDTP_SIGNAL_ID_MASK;
+    signal_id   = tvb_get_uint8(tvb, offset) & AVDTP_SIGNAL_ID_MASK;
     proto_item_append_text(signal_item, ": %s (%s)",
             val_to_str_const(signal_id, signal_id_vals, "Unknown signal"),
             val_to_str_const(message_type, message_type_vals, "Unknown message type"));
@@ -3202,13 +3202,13 @@ dissect_ldac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     proto_tree_add_item(ldac_tree, hf_ldac_last_packet,      tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(ldac_tree, hf_ldac_rfa,              tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(ldac_tree, hf_ldac_number_of_frames, tvb, offset, 1, ENC_BIG_ENDIAN);
-    number_of_frames = tvb_get_guint8(tvb, offset) & 0x0F;
+    number_of_frames = tvb_get_uint8(tvb, offset) & 0x0F;
     offset += 1;
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
         available = tvb_reported_length_remaining(tvb, offset);
 
-        syncword = tvb_get_guint8(tvb, offset);
+        syncword = tvb_get_uint8(tvb, offset);
         if (syncword != 0xAA) {
             rtree = proto_tree_add_subtree_format(ldac_tree, tvb, offset, 1,
                     ett_ldac_list, NULL, "Frame: %3u/%3u", counter, number_of_frames);
@@ -3219,7 +3219,7 @@ dissect_ldac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         }
 
         if (available > 1)  {
-            byte = tvb_get_guint8(tvb, offset + 1);
+            byte = tvb_get_uint8(tvb, offset + 1);
             frequency = (byte & 0xE0) >> 5;
             cci = (byte & 0x18)>> 3;
             frame_length = byte & 0x07;
@@ -3230,7 +3230,7 @@ dissect_ldac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         }
 
         if (available > 2)  {
-            byte = tvb_get_guint8(tvb, offset + 2);
+            byte = tvb_get_uint8(tvb, offset + 2);
             frame_length |= (byte & 0xFC) >> 2;
             frame_length +=1;
         } else {

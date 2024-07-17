@@ -103,7 +103,7 @@ dissect_btmesh_beacon_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     item = proto_tree_add_item(tree, proto_btmesh_beacon, tvb, offset, -1, ENC_NA);
     sub_tree = proto_item_add_subtree(item, ett_btmesh_beacon);
 
-    uint8_t beacon_type = tvb_get_guint8(tvb, offset);
+    uint8_t beacon_type = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sub_tree, hf_btmesh_beacon_type, tvb, offset, 1, ENC_NA);
     offset += 1;
 
@@ -142,7 +142,7 @@ dissect_btmesh_beacon_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             proto_tree_add_item(oob_tree, hf_btmesh_beacon_oob_on_paper, tvb, offset, 2, ENC_NA);
             proto_tree_add_item(oob_tree, hf_btmesh_beacon_oob_inside_manual, tvb, offset, 2, ENC_NA);
             proto_tree_add_item(oob_tree, hf_btmesh_beacon_oob_on_device, tvb, offset, 2, ENC_NA);
-            rfu_bits16 = (tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN) & 0x0780) >> 7;
+            rfu_bits16 = (tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN) & 0x0780) >> 7;
             if (rfu_bits16 != 0) {
                 //RFU bits should be 0
                 proto_tree_add_expert(oob_tree, pinfo, &ei_btmesh_beacon_rfu_not_zero, tvb, offset, -1);
@@ -163,7 +163,7 @@ dissect_btmesh_beacon_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             proto_tree_add_item(flags_tree, hf_btmesh_beacon_flags_key_refresh, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(flags_tree, hf_btmesh_beacon_flags_iv_update, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(flags_tree, hf_btmesh_beacon_flags_rfu, tvb, offset, 1, ENC_NA);
-            rfu_bits8 = tvb_get_guint8(tvb, offset) >> 2;
+            rfu_bits8 = tvb_get_uint8(tvb, offset) >> 2;
             if (rfu_bits8 != 0) {
                 //RFU bits should be 0
                 proto_tree_add_expert(flags_tree, pinfo, &ei_btmesh_beacon_rfu_not_zero, tvb, offset, -1);

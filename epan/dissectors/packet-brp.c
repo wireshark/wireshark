@@ -120,7 +120,7 @@ dissect_brp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     proto_tree *brp_tree    = NULL;
     int         offset      = 0;
     uint8_t     type        = 0;
-    uint8_t     packet_type = tvb_get_guint8(tvb, 0);
+    uint8_t     packet_type = tvb_get_uint8(tvb, 0);
 
     /* If there is a "tree" requested, we handle that request. */
 
@@ -138,8 +138,8 @@ dissect_brp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         brp_item = proto_tree_add_item( tree, proto_brp, tvb, 0, -1, ENC_NA );
         brp_tree = proto_item_add_subtree( brp_item, ett_brp);
 
-        /* We use tvb_get_guint8 to get our type value out. */
-        type = tvb_get_guint8(tvb, offset);
+        /* We use tvb_get_uint8 to get our type value out. */
+        type = tvb_get_uint8(tvb, offset);
         offset += 0;
 
         brp_item = proto_tree_add_item( brp_tree, hf_brp_type, tvb, offset, 1, ENC_BIG_ENDIAN );

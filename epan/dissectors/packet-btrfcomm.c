@@ -291,7 +291,7 @@ get_le_multi_byte_value(tvbuff_t *tvb, int offset, proto_tree *tree, uint32_t *v
     int     start_offset = offset;
 
     do {
-        byte = tvb_get_guint8(tvb, offset);
+        byte = tvb_get_uint8(tvb, offset);
         offset += 1;
         val |= ((byte >> 1) & 0xff) << (bc++ * 7);
     } while (((byte & 0x1) == 0) && (bc <= 4));
@@ -320,7 +320,7 @@ dissect_ctrl_pn(proto_tree *t, tvbuff_t *tvb, int offset, uint8_t *mcc_channel)
     proto_tree_add_item(t, hf_mcc_pn_zeros_padding, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
     /* mcc dlci */
-    mcc_dlci = tvb_get_guint8(tvb, offset) & 0x3f;
+    mcc_dlci = tvb_get_uint8(tvb, offset) & 0x3f;
     *mcc_channel = mcc_dlci >> 1;
 
     dlci_item = proto_tree_add_item(t, hf_mcc_pn_dlci, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -331,7 +331,7 @@ dissect_ctrl_pn(proto_tree *t, tvbuff_t *tvb, int offset, uint8_t *mcc_channel)
     proto_tree_add_item(dlci_tree, hf_mcc_pn_direction, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
-    flags = tvb_get_guint8(tvb, offset);
+    flags = tvb_get_uint8(tvb, offset);
 
     ti = proto_tree_add_none_format(t, hf_mcc_pn_parameters, tvb, offset, 1, "I1-I4: 0x%x, C1-C4: 0x%x", flags & 0xf, (flags >> 4) & 0xf);
     st = proto_item_add_subtree(ti, ett_ctrl_pn_ci);
@@ -346,7 +346,7 @@ dissect_ctrl_pn(proto_tree *t, tvbuff_t *tvb, int offset, uint8_t *mcc_channel)
 
     /* Ack timer */
     item = proto_tree_add_item(t, hf_acknowledgement_timer_t1, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_item_append_text(item, "(%d ms)", (uint32_t)tvb_get_guint8(tvb, offset) * 100);
+    proto_item_append_text(item, "(%d ms)", (uint32_t)tvb_get_uint8(tvb, offset) * 100);
     offset += 1;
 
     /* max frame size */
@@ -376,7 +376,7 @@ dissect_ctrl_msc(proto_tree *t, tvbuff_t *tvb, int offset, int length, uint8_t *
     uint8_t     status;
     int         start_offset;
 
-    mcc_dlci = tvb_get_guint8(tvb, offset) >> 2;
+    mcc_dlci = tvb_get_uint8(tvb, offset) >> 2;
     *mcc_channel = mcc_dlci >> 1;
 
     dlci_item = proto_tree_add_item(t, hf_mcc_dlci, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -392,7 +392,7 @@ dissect_ctrl_msc(proto_tree *t, tvbuff_t *tvb, int offset, int length, uint8_t *
     offset += 1;
 
     start_offset = offset;
-    status       = tvb_get_guint8(tvb, offset);
+    status       = tvb_get_uint8(tvb, offset);
     it = proto_tree_add_none_format(t, hf_msc_parameters, tvb, offset, 1, "V.24 Signals: FC = %d, RTC = %d, RTR = %d, IC = %d, DV = %d", (status >> 1) & 1,
                  (status >> 2) & 1, (status >> 3) & 1,
                  (status >> 6) & 1, (status >> 7) & 1);
@@ -425,7 +425,7 @@ dissect_btrfcomm_address(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tr
     proto_item *dlci_item = NULL;
     uint8_t     dlci, cr_flag, ea_flag, flags, channel;
 
-    flags = tvb_get_guint8(tvb, offset);
+    flags = tvb_get_uint8(tvb, offset);
 
     ea_flag = flags & 0x01;
     if (ea_flagp) {
@@ -476,7 +476,7 @@ dissect_btrfcomm_control(tvbuff_t *tvb, int offset, proto_tree *tree, uint8_t *p
     proto_tree *hctl_tree;
     uint8_t     frame_type, pf_flag, flags;
 
-    flags = tvb_get_guint8(tvb, offset);
+    flags = tvb_get_uint8(tvb, offset);
 
     pf_flag = (flags & 0x10) ? 1 : 0;
     if (pf_flagp) {
@@ -507,14 +507,14 @@ dissect_btrfcomm_payload_length(tvbuff_t *tvb, int offset, proto_tree *tree, uin
     uint16_t frame_len;
     int     start_offset = offset;
 
-    frame_len = tvb_get_guint8(tvb, offset);
+    frame_len = tvb_get_uint8(tvb, offset);
     offset += 1;
 
     if (frame_len & 0x01) {
         frame_len >>= 1; /* 0 - 127 */
     } else {
         frame_len >>= 1; /* 128 - ... */
-        frame_len |= (tvb_get_guint8(tvb, offset)) << 7;
+        frame_len |= (tvb_get_uint8(tvb, offset)) << 7;
         offset += 1;
     }
 
@@ -536,7 +536,7 @@ dissect_btrfcomm_MccType(tvbuff_t *tvb, int offset, proto_tree *tree, uint8_t *m
     uint8_t     flags, mcc_cr_flag, mcc_ea_flag;
     uint32_t    mcc_type;
 
-    flags = tvb_get_guint8(tvb, offset);
+    flags = tvb_get_uint8(tvb, offset);
 
     mcc_cr_flag = (flags & 0x2) ? 1 : 0;
     if (mcc_cr_flagp) {
@@ -779,7 +779,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             dissect_ctrl_pn(ctrl_tree, tvb, offset, &mcc_channel);
             break;
         case 0x24: /* Remote Port Negotiation */
-            mcc_dlci = tvb_get_guint8(tvb, offset) >> 2;
+            mcc_dlci = tvb_get_uint8(tvb, offset) >> 2;
             mcc_channel = mcc_dlci >> 1;
 
             dlci_item = proto_tree_add_item(ctrl_tree, hf_mcc_dlci, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -1201,7 +1201,7 @@ dissect_btdun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
     is_at_cmd = true;
     for(i = 0; i < length && is_at_cmd; i++) {
-        is_at_cmd = tvb_get_guint8(tvb, i) < 0x7d;
+        is_at_cmd = tvb_get_uint8(tvb, i) < 0x7d;
     }
 
     if (is_at_cmd) {
@@ -1281,7 +1281,7 @@ dissect_btspp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     length = MIN(length, 60);
     ascii_only = true;
     for(i = 0; i < length && ascii_only; i++) {
-        ascii_only = tvb_get_guint8(tvb, i) < 0x80;
+        ascii_only = tvb_get_uint8(tvb, i) < 0x80;
     }
 
     if (ascii_only) {

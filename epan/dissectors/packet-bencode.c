@@ -57,7 +57,7 @@ static int dissect_bencoding_str(tvbuff_t *tvb, packet_info *pinfo,
    used = 0;
 
    while (length >= 1) {
-      ch = tvb_get_guint8(tvb, offset + used);
+      ch = tvb_get_uint8(tvb, offset + used);
       length--;
       used++;
 
@@ -120,7 +120,7 @@ static int dissect_bencoding_int(tvbuff_t *tvb, packet_info *pinfo,
    used = 1;
 
    while (length >= 1) {
-      ch = tvb_get_guint8(tvb, offset + used);
+      ch = tvb_get_uint8(tvb, offset + used);
       length--;
       used++;
 
@@ -183,7 +183,7 @@ static int dissect_bencoding_rec(tvbuff_t *tvb, packet_info *pinfo,
       return length;
    }
 
-   op = tvb_get_guint8(tvb, offset);
+   op = tvb_get_uint8(tvb, offset);
    oplen = length;
 
    switch (op) {
@@ -195,7 +195,7 @@ static int dissect_bencoding_rec(tvbuff_t *tvb, packet_info *pinfo,
       length--;
 
       while (length >= 1) {
-         op = tvb_get_guint8(tvb, offset + used);
+         op = tvb_get_uint8(tvb, offset + used);
 
          if (op == 'e') {
             return used + 1;
@@ -243,7 +243,7 @@ static int dissect_bencoding_rec(tvbuff_t *tvb, packet_info *pinfo,
 
       increment_dissection_depth(pinfo);
       while (length >= 1) {
-         op = tvb_get_guint8(tvb, offset + used);
+         op = tvb_get_uint8(tvb, offset + used);
 
          if (op == 'e') {
             return used + 1;

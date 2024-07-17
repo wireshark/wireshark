@@ -94,7 +94,7 @@ dissect_bmc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     bit_reversed_tvb = tvb_new_child_real_data(tvb, reversing_buffer, len, len);
     add_new_data_source(pinfo, bit_reversed_tvb, "Bit-reversed Data");
 
-    message_type = tvb_get_guint8(bit_reversed_tvb, offset);
+    message_type = tvb_get_uint8(bit_reversed_tvb, offset);
     proto_tree_add_item(bmc_tree, hf_bmc_message_type, bit_reversed_tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     col_add_str(pinfo->cinfo, COL_INFO, val_to_str(message_type, message_type_vals,"Reserved 0x%02x"));
@@ -158,7 +158,7 @@ dissect_bmc_schedule_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     proto_tree_add_item(tree, hf_bmc_offset_to_begin_ctch_bs_index, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    length_of_cbs_schedule_period = tvb_get_guint8(tvb,offset);
+    length_of_cbs_schedule_period = tvb_get_uint8(tvb,offset);
     proto_tree_add_item(tree, hf_bmc_length_of_cbs_schedule_period, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -176,7 +176,7 @@ dissect_bmc_schedule_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     bit=1;
     for (i=0; i<new_message_bitmap_len; i++) {
         for(; bit<=length_of_cbs_schedule_period; bit++) {
-            message_description_type = tvb_get_guint8(tvb,offset);
+            message_description_type = tvb_get_uint8(tvb,offset);
             proto_tree_add_uint_format(message_description_tree, hf_bmc_message_description_type,
                                        tvb, offset, 1, message_description_type,
                                        "Message %d Message Description Type: %s (%d)",
@@ -199,11 +199,11 @@ dissect_bmc_schedule_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     proto_item_set_len(ti, offset-saved_offset);
 
     if (tvb_reported_length_remaining(tvb,offset)) {
-        future_extension_bitmap = tvb_get_guint8(tvb,offset);
+        future_extension_bitmap = tvb_get_uint8(tvb,offset);
         proto_tree_add_item(tree, hf_bmc_future_extension_bitmap, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
         if (future_extension_bitmap & 0x01) {
-            length_of_serial_number_list = tvb_get_guint8(tvb,offset);
+            length_of_serial_number_list = tvb_get_uint8(tvb,offset);
             proto_tree_add_item(tree, hf_bmc_length_of_serial_number_list, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
 

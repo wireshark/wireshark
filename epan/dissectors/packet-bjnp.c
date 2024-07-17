@@ -80,7 +80,7 @@ static int dissect_bjnp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
   char       *info;
 
   /* If it does not start with a printable character it's not BJNP */
-  if(!g_ascii_isprint(tvb_get_guint8(tvb, 0)))
+  if(!g_ascii_isprint(tvb_get_uint8(tvb, 0)))
     return 0;
 
   col_set_str (pinfo->cinfo, COL_PROTOCOL, PSNAME);
@@ -92,11 +92,11 @@ static int dissect_bjnp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
   proto_tree_add_item (bjnp_tree, hf_bjnp_id, tvb, offset, 4, ENC_ASCII);
   offset += 4;
 
-  dev_type = tvb_get_guint8 (tvb, offset);
+  dev_type = tvb_get_uint8 (tvb, offset);
   proto_tree_add_item (bjnp_tree, hf_dev_type, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset++;
 
-  cmd_code = tvb_get_guint8 (tvb, offset);
+  cmd_code = tvb_get_uint8 (tvb, offset);
   proto_tree_add_item (bjnp_tree, hf_cmd_code, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset++;
 

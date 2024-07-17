@@ -298,7 +298,7 @@ dissect_bfcp_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 	{
 
 		attr_start_offset = offset;
-		first_byte = tvb_get_guint8(tvb, offset);
+		first_byte = tvb_get_uint8(tvb, offset);
 
 		/* Padding so continue to next attribute */
 		if (first_byte == 0){
@@ -323,7 +323,7 @@ dissect_bfcp_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 	 */
 
 		item = proto_tree_add_item(bfcp_attr_tree, hf_bfcp_attribute_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-		length = tvb_get_guint8(tvb, offset);
+		length = tvb_get_uint8(tvb, offset);
 		/* At least Type, M bit and Length fields */
 		if (length < 2){
 			expert_add_info_format(pinfo, item, &ei_bfcp_attribute_length_too_small,
@@ -520,7 +520,7 @@ dissect_bfcp_heur_check(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree 
 		return false;
 
 	/* Check version and reserved bits in first byte */
-	first_byte = tvb_get_guint8(tvb, 0);
+	first_byte = tvb_get_uint8(tvb, 0);
 
 	/* If first_byte of bfcp_packet is a combination of the
 	 * version, the R-bit and the F-bit. The value must be:
@@ -530,7 +530,7 @@ dissect_bfcp_heur_check(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree 
 	if ((first_byte != 0x20) && (first_byte != 0x30) && (first_byte != 0x40) && (first_byte != 0x48) && (first_byte != 0x50) && (first_byte != 0x58))
 		return false;
 
-	primitive = tvb_get_guint8(tvb, 1);
+	primitive = tvb_get_uint8(tvb, 1);
 
 	if ((primitive < 1) || (primitive > 18))
 		return false;
@@ -557,7 +557,7 @@ dissect_bfcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	if (!dissect_bfcp_heur_check(tvb, pinfo, tree, data))
 		return 0;
 
-	primitive = tvb_get_guint8(tvb, 1);
+	primitive = tvb_get_uint8(tvb, 1);
 	str = try_val_to_str(primitive, map_bfcp_primitive);
 
 	/* Make entries in Protocol column and Info column on summary display*/

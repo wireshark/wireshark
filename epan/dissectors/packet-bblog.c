@@ -293,7 +293,7 @@ dissect_bblog_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     uint8_t pru;
     uint8_t timer_type, timer_event;
 
-    event_identifier = tvb_get_guint8(tvb, 25);
+    event_identifier = tvb_get_uint8(tvb, 25);
     flex1 = tvb_get_letohl(tvb, 140);
     flex2 = tvb_get_letohl(tvb, 144);
     switch (event_identifier) {

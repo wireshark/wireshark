@@ -1300,7 +1300,7 @@ get_type_length(tvbuff_t *tvb, int offset, int *length)
     int     size  = 0;
     uint8_t byte;
 
-    byte = tvb_get_guint8(tvb, offset);
+    byte = tvb_get_uint8(tvb, offset);
     offset += 1;
 
     switch (byte & 0x07) {
@@ -1320,7 +1320,7 @@ get_type_length(tvbuff_t *tvb, int offset, int *length)
         size = 16;
         break;
     case 5:
-        size = tvb_get_guint8(tvb, offset);
+        size = tvb_get_uint8(tvb, offset);
         offset += 1;
         break;
     case 6:
@@ -1349,7 +1349,7 @@ get_uint_by_size(tvbuff_t *tvb, int off, int size)
 {
     switch (size) {
     case 0:
-        return tvb_get_guint8(tvb, off);
+        return tvb_get_uint8(tvb, off);
     case 1:
         return tvb_get_ntohs(tvb, off);
     case 2:
@@ -1365,7 +1365,7 @@ get_int_by_size(tvbuff_t *tvb, int off, int size)
 {
     switch (size) {
     case 0:
-        return tvb_get_guint8(tvb, off);
+        return tvb_get_uint8(tvb, off);
     case 1:
         return tvb_get_ntohs(tvb, off);
     case 2:
@@ -1426,7 +1426,7 @@ dissect_continuation_state(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         proto_tree_add_expert(tree, pinfo, &ei_btsdp_continuation_state_none, tvb, offset, -1);
     } else if (length > 17) {
         proto_tree_add_expert(tree, pinfo, &ei_btsdp_continuation_state_large, tvb, offset, -1);
-    } else if (length == 1 && tvb_get_guint8(tvb, offset) == 0x00) {
+    } else if (length == 1 && tvb_get_uint8(tvb, offset) == 0x00) {
         proto_tree_add_none_format(tree, hf_continuation_state, tvb,
                 offset, -1, "Continuation State: no (00)");
     } else {
@@ -1435,7 +1435,7 @@ dissect_continuation_state(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         uint8_t      i_data;
         uint8_t      continuation_state_length;
 
-        continuation_state_length = tvb_get_guint8(tvb, offset);
+        continuation_state_length = tvb_get_uint8(tvb, offset);
         cont_item = proto_tree_add_none_format(tree, hf_continuation_state, tvb, offset,
                 1 + continuation_state_length, "Continuation State: yes (");
         cont_tree = proto_item_add_subtree(cont_item, ett_btsdp_continuation_state);
@@ -1446,12 +1446,12 @@ dissect_continuation_state(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                 continuation_state_length, ENC_NA);
 
         for (i_data = 0; i_data < continuation_state_length - 1; ++i_data) {
-            data = tvb_get_guint8(tvb, offset);
+            data = tvb_get_uint8(tvb, offset);
             proto_item_append_text(cont_item, "%02X ", data);
             offset += 1;
         }
 
-        data = tvb_get_guint8(tvb, offset);
+        data = tvb_get_uint8(tvb, offset);
         proto_item_append_text(cont_item, "%02X)", data);
         offset += 1;
     }
@@ -1528,7 +1528,7 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
         return offset;
     } else if (length > 17) {
         return offset;
-    } else if (length == 1 && tvb_get_guint8(tvb, offset) == 0x00) {
+    } else if (length == 1 && tvb_get_uint8(tvb, offset) == 0x00) {
         if (is_continued) *is_continued = false;
 
         if (!pinfo->fd->visited) {
@@ -1680,7 +1680,7 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
         char        *continuation_state_buffer;
         unsigned     continuation_state_length;
 
-        continuation_state_length = tvb_get_guint8(tvb, offset);
+        continuation_state_length = tvb_get_uint8(tvb, offset);
         offset++;
 
         continuation_state_buffer = tvb_bytes_to_str(wmem_file_scope(), tvb, offset, continuation_state_length);
@@ -1901,7 +1901,7 @@ dissect_data_element(proto_tree *tree, proto_tree **next_tree,
     uint8_t     size;
 
     new_offset = get_type_length(tvb, offset, &length) - 1;
-    type = tvb_get_guint8(tvb, offset);
+    type = tvb_get_uint8(tvb, offset);
     size = type & 0x07;
     type = type >> 3;
 
@@ -2163,7 +2163,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
     *pinfo_buf = info_buf;
 
 
-    byte         = tvb_get_guint8(tvb, offset);
+    byte         = tvb_get_uint8(tvb, offset);
     type         = (byte >> 3) & 0x1f;
     size_index   = byte & 0x07;
 
@@ -2214,7 +2214,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     break;
                 case 0x204:
                     proto_tree_add_item(next_tree, hf_did_primary_record, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    primary_record = tvb_get_guint8(tvb, offset);
+                    primary_record = tvb_get_uint8(tvb, offset);
                     wmem_strbuf_append(info_buf, primary_record ? "true" : "false");
                     break;
                 case 0x205:
@@ -2278,7 +2278,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                         dissect_data_element(next_tree, &entry_tree, pinfo, tvb, list_offset);
                         list_offset = get_type_length(tvb, list_offset, &list_length);
                         proto_tree_add_item(entry_tree, hf_synch_supported_data_store, tvb, list_offset, 1, ENC_BIG_ENDIAN);
-                        value = tvb_get_guint8(tvb, list_offset);
+                        value = tvb_get_uint8(tvb, list_offset);
 
                         wmem_strbuf_append_printf(info_buf, "%s ", val_to_str_const(value, synch_supported_data_store_vals, "Unknown"));
                         list_offset += list_length;
@@ -2292,7 +2292,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             switch (attribute) {
                 case 0x311:
                     proto_tree_add_item(next_tree, hf_ctp_external_network, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    value = tvb_get_guint8(tvb, offset);
+                    value = tvb_get_uint8(tvb, offset);
 
                     wmem_strbuf_append(info_buf, val_to_str_const(value, ctp_external_network_vals, "Unknown"));
                 break;
@@ -2367,7 +2367,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             switch (attribute) {
                 case 0x302:
                     proto_tree_add_item(next_tree, hf_hsp_remote_audio_volume_control, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    value = tvb_get_guint8(tvb, offset);
+                    value = tvb_get_uint8(tvb, offset);
                     wmem_strbuf_append(info_buf, value ? "true" : "false");
                     break;
                 default:
@@ -2397,7 +2397,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     break;
                 case 0x314:
                     proto_tree_add_bitmask_with_flags(next_tree, tvb, offset, hf_pbap_pse_supported_repositories, ett_btsdp_supported_features,  hfx_pbap_pse_supported_repositories, ENC_NA, BMT_NO_APPEND);
-                    supported_features = tvb_get_guint8(tvb, offset);
+                    supported_features = tvb_get_uint8(tvb, offset);
 
                     wmem_strbuf_append_printf(info_buf, "%s%s%s%s",
                             (supported_features & 0x01) ? "LocalPhonebook " : "",
@@ -2407,7 +2407,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     break;
                 case 0x317:
                     proto_tree_add_bitmask_with_flags(next_tree, tvb, offset, hf_pbap_pse_supported_features, ett_btsdp_supported_features,  hfx_pbap_pse_supported_features, ENC_NA, BMT_NO_APPEND);
-                    supported_features = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+                    supported_features = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
                     wmem_strbuf_append_printf(info_buf, "%s%s%s%s%s%s%s%s%s%s",
                             (supported_features & 0x001) ? "Download " : "",
                             (supported_features & 0x002) ? "Browsing " : "",
@@ -2428,22 +2428,22 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             switch (attribute) {
                 case 0x302:
                     proto_tree_add_item(next_tree, hf_fax_support_class_1, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    supported_features = tvb_get_guint8(tvb, offset);
+                    supported_features = tvb_get_uint8(tvb, offset);
                     wmem_strbuf_append(info_buf, supported_features ? "true" : "false");
                     break;
                 case 0x303:
                     proto_tree_add_item(next_tree, hf_fax_support_class_2, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    supported_features = tvb_get_guint8(tvb, offset);
+                    supported_features = tvb_get_uint8(tvb, offset);
                     wmem_strbuf_append(info_buf, supported_features ? "true" : "false");
                     break;
                 case 0x304:
                     proto_tree_add_item(next_tree, hf_fax_support_class_2_vendor, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    supported_features = tvb_get_guint8(tvb, offset);
+                    supported_features = tvb_get_uint8(tvb, offset);
                     wmem_strbuf_append(info_buf, supported_features ? "true" : "false");
                     break;
                 case 0x305:
                     proto_tree_add_item(next_tree, hf_fax_support_audio_feedback, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    supported_features = tvb_get_guint8(tvb, offset);
+                    supported_features = tvb_get_uint8(tvb, offset);
                     wmem_strbuf_append(info_buf, supported_features ? "true" : "false");
                     break;
                 default:
@@ -2475,7 +2475,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     break;
                 case 0x315:
                     proto_tree_add_item(next_tree, hf_map_mas_instance_id, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    value = tvb_get_guint8(tvb, offset);
+                    value = tvb_get_uint8(tvb, offset);
                     wmem_strbuf_append_printf(info_buf, "%u (0x%02x)", value, value);
                     break;
                 case 0x316:
@@ -2485,7 +2485,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     proto_tree_add_item(next_tree, hf_map_mas_supported_message_types_sms_gsm, tvb, offset, 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item(next_tree, hf_map_mas_supported_message_types_email, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-                    supported_features = tvb_get_guint8(tvb, offset);
+                    supported_features = tvb_get_uint8(tvb, offset);
                     wmem_strbuf_append_printf(info_buf, "%s%s%s%s",
                             (supported_features & 0x01) ? "Email " : "",
                             (supported_features & 0x02) ? "SMS_GSM " : "",
@@ -2494,7 +2494,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     break;
                 case 0x317:
                     proto_tree_add_bitmask_with_flags(next_tree, tvb, offset, hf_map_supported_features, ett_btsdp_supported_features,  hfx_map_supported_features, ENC_NA, BMT_NO_APPEND);
-                    supported_features = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+                    supported_features = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
                     wmem_strbuf_append_printf(info_buf, "%s%s%s%s%s%s%s",
                             (supported_features & 0x01) ? "NotificationRegistration Feature " : "",
                             (supported_features & 0x02) ? "NotificationFeature " : "",
@@ -2519,7 +2519,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     break;
                 case 0x317:
                     proto_tree_add_bitmask_with_flags(next_tree, tvb, offset, hf_map_supported_features, ett_btsdp_supported_features,  hfx_map_supported_features, ENC_NA, BMT_NO_APPEND);
-                    supported_features = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+                    supported_features = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
                     wmem_strbuf_append_printf(info_buf, "%s%s%s%s%s%s%s",
                             (supported_features & 0x01) ? "NotificationRegistration Feature " : "",
                             (supported_features & 0x02) ? "NotificationFeature " : "",
@@ -2566,7 +2566,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     break;
                 case 0x307:
                     proto_tree_add_item(next_tree, hf_wap_gateway, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    value = tvb_get_guint8(tvb, offset);
+                    value = tvb_get_uint8(tvb, offset);
                     wmem_strbuf_append(info_buf, val_to_str_const(value, wap_gateway_vals, "Unknown"));
                     break;
                 case 0x308:
@@ -2575,7 +2575,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     break;
                 case 0x309:
                     proto_tree_add_item(next_tree, hf_wap_stack_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    value = tvb_get_guint8(tvb, offset);
+                    value = tvb_get_uint8(tvb, offset);
                     wmem_strbuf_append(info_buf, val_to_str_const(value, wap_stack_type_vals, "Unknown"));
                     break;
                 default:
@@ -2604,7 +2604,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                         entry_offset = new_offset;
 
                         proto_tree_add_item(next_tree, hf_hdp_supported_features_mdep_id, tvb, entry_offset, 1, ENC_BIG_ENDIAN);
-                        mdep_id = tvb_get_guint8(tvb, entry_offset);
+                        mdep_id = tvb_get_uint8(tvb, entry_offset);
                         proto_item_append_text(entry_item, ": %u (0x%02x)", mdep_id, mdep_id);
                         entry_offset += length;
 
@@ -2631,7 +2631,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                         proto_item_set_len(entry_item, (new_offset - entry_offset) + length);
                         entry_offset = new_offset;
                         proto_tree_add_item(next_tree, hf_hdp_supported_features_mdep_role, tvb, entry_offset, 1, ENC_BIG_ENDIAN);
-                        value = tvb_get_guint8(tvb, entry_offset);
+                        value = tvb_get_uint8(tvb, entry_offset);
                         wmem_strbuf_append_printf(info_buf, "MDEP ID: %u (Role: %s) ", mdep_id, val_to_str_const(value, hdp_mdep_role_vals ,"Unknown"));
                         proto_item_append_text(entry_item, ": %s", val_to_str_const(value, hdp_mdep_role_vals ,"Unknown"));
                         entry_offset += length;
@@ -2658,7 +2658,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     break;
                 case 0x301:
                     proto_tree_add_item(next_tree, hf_hdp_data_exchange, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    value = tvb_get_guint8(tvb, offset);
+                    value = tvb_get_uint8(tvb, offset);
                     wmem_strbuf_append(info_buf, val_to_str_const(value, hdp_data_exchange_specification_vals, "Unknown"));
                     break;
                 case 0x302:
@@ -2669,7 +2669,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     proto_tree_add_item(next_tree, hf_hdp_support_procedure_reconnect_initiation, tvb, offset, 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item(next_tree, hf_hdp_support_procedure_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-                    supported_features = tvb_get_guint8(tvb, offset);
+                    supported_features = tvb_get_uint8(tvb, offset);
                     wmem_strbuf_append_printf(info_buf, "%s%s%s%s",
                             (supported_features & 0x02) ? "ReconnectInitiation " : "",
                             (supported_features & 0x04) ? "ReconnectAcceptance " : "",
@@ -2756,7 +2756,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                         dissect_data_element(next_tree, &entry_tree, pinfo, tvb, list_offset);
                         list_offset = get_type_length(tvb, list_offset, &list_length);
                         proto_tree_add_item(entry_tree, hf_opp_supported_format, tvb, list_offset, 1, ENC_BIG_ENDIAN);
-                        value = tvb_get_guint8(tvb, list_offset);
+                        value = tvb_get_uint8(tvb, list_offset);
 
                         wmem_strbuf_append_printf(info_buf, "%s ", val_to_str_const(value, opp_supported_format_vals, "Unknown"));
                         list_offset += list_length;
@@ -2770,7 +2770,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             switch (attribute) {
                 case 0x305:
                     proto_tree_add_item(next_tree, hf_dun_support_audio_feedback, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    supported_features = tvb_get_guint8(tvb, offset);
+                    supported_features = tvb_get_uint8(tvb, offset);
                     wmem_strbuf_append(info_buf, supported_features ? "true" : "false");
                     break;
                 case 0x306:
@@ -2809,7 +2809,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             switch (attribute) {
                 case 0x301:
                     proto_tree_add_item(next_tree, hf_hfp_gw_network, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    value = tvb_get_guint8(tvb, offset);
+                    value = tvb_get_uint8(tvb, offset);
                     wmem_strbuf_append(info_buf, val_to_str_const(value, hfp_gw_network_vals, "Unknown"));
                     break;
                 case 0x311:
@@ -2850,24 +2850,24 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     proto_tree_add_item(next_tree, hf_hid_device_subclass_type, tvb, offset, 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item(next_tree, hf_hid_device_subclass_subtype, tvb, offset, 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item(next_tree, hf_hid_device_subclass_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    value = tvb_get_guint8(tvb, offset);
+                    value = tvb_get_uint8(tvb, offset);
                     wmem_strbuf_append_printf(info_buf, "%s, %s",
                             val_to_str_const(value >> 6, hid_device_subclass_type_vals, "Unknown"),
                             val_to_str_const(((value & 0x3C) >> 2) , hid_device_subclass_subtype_vals, "Unknown"));
                     break;
                 case 0x203:
                     proto_tree_add_item(next_tree, hf_hid_country_code, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    value = tvb_get_guint8(tvb, offset);
+                    value = tvb_get_uint8(tvb, offset);
                     wmem_strbuf_append(info_buf, val_to_str_const(value, hid_country_code_vals, "Unknown"));
                     break;
                 case 0x204:
                     proto_tree_add_item(next_tree, hf_hid_virtual_cable, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    value = tvb_get_guint8(tvb, offset);
+                    value = tvb_get_uint8(tvb, offset);
                     wmem_strbuf_append(info_buf, value ? "true" : "false");
                     break;
                 case 0x205:
                     proto_tree_add_item(next_tree, hf_hid_reconnect_initiate, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    value = tvb_get_guint8(tvb, offset);
+                    value = tvb_get_uint8(tvb, offset);
                     wmem_strbuf_append(info_buf, value ? "true" : "false");
                     break;
                 case 0x206:
@@ -2883,7 +2883,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                         dissect_data_element(sub_tree, &last_tree, pinfo, tvb, list_offset);
                         list_offset = get_type_length(tvb, list_offset, &entry_length);
                         proto_tree_add_item(last_tree, hf_hid_descriptor_list_type, tvb, list_offset, 1, ENC_BIG_ENDIAN);
-                        value = tvb_get_guint8(tvb, list_offset);
+                        value = tvb_get_uint8(tvb, list_offset);
                         wmem_strbuf_append(info_buf, val_to_str_const(value, descriptor_list_type_vals, "Unknown"));
                         proto_item_append_text(entry_item, ": %s", val_to_str_const(value, descriptor_list_type_vals, "Unknown"));
                         list_offset += entry_length;
@@ -2935,17 +2935,17 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     break;
                 case 0x208:
                     proto_tree_add_item(next_tree, hf_hid_sdp_disable, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    value = tvb_get_guint8(tvb, offset);
+                    value = tvb_get_uint8(tvb, offset);
                     wmem_strbuf_append(info_buf, value ? "true" : "false");
                     break;
                 case 0x209:
                     proto_tree_add_item(next_tree, hf_hid_battery_power, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    value = tvb_get_guint8(tvb, offset);
+                    value = tvb_get_uint8(tvb, offset);
                     wmem_strbuf_append(info_buf, value ? "true" : "false");
                     break;
                 case 0x20A:
                     proto_tree_add_item(next_tree, hf_hid_remote_wake, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    value = tvb_get_guint8(tvb, offset);
+                    value = tvb_get_uint8(tvb, offset);
                     wmem_strbuf_append(info_buf, value ? "true" : "false");
                     break;
                 case 0x20B:
@@ -2960,12 +2960,12 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     break;
                 case 0x20D:
                     proto_tree_add_item(next_tree, hf_hid_normally_connectable, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    value = tvb_get_guint8(tvb, offset);
+                    value = tvb_get_uint8(tvb, offset);
                     wmem_strbuf_append(info_buf, value ? "true" : "false");
                     break;
                 case 0x20E:
                     proto_tree_add_item(next_tree, hf_hid_boot_device, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    value = tvb_get_guint8(tvb, offset);
+                    value = tvb_get_uint8(tvb, offset);
                     wmem_strbuf_append(info_buf, value ? "true" : "false");
                     break;
                 case 0x20F:
@@ -2998,7 +2998,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     proto_tree_add_item(next_tree, hf_bip_supported_capabilities_printing, tvb, offset, 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item(next_tree, hf_bip_supported_capabilities_capturing, tvb, offset, 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item(next_tree, hf_bip_supported_capabilities_genering_imaging, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    value = tvb_get_guint8(tvb, offset);
+                    value = tvb_get_uint8(tvb, offset);
 
                     wmem_strbuf_append_printf(info_buf, "%s%s%s%s",
                             (value & 0x01) ? "GeneringImaging " : "",
@@ -3156,7 +3156,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     break;
                 case 0x356:
                     proto_tree_add_item(next_tree, hf_bpp_color_supported, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    value = tvb_get_guint8(tvb, offset);
+                    value = tvb_get_uint8(tvb, offset);
                     wmem_strbuf_append(info_buf, value ? "true" : "false");
                     break;
                 case 0x358:
@@ -3173,7 +3173,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     break;
                 case 0x35E:
                     proto_tree_add_item(next_tree, hf_bpp_duplex_supported, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    value = tvb_get_guint8(tvb, offset);
+                    value = tvb_get_uint8(tvb, offset);
                     wmem_strbuf_append(info_buf, value ? "true" : "false");
                     break;
                 case 0x360:
@@ -3192,7 +3192,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     break;
                 case 0x366:
                     proto_tree_add_item(next_tree, hf_bpp_enhanced_layout_supported, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    value = tvb_get_guint8(tvb, offset);
+                    value = tvb_get_uint8(tvb, offset);
                     wmem_strbuf_append(info_buf, value ? "true" : "false");
                     break;
                 case 0x368:
@@ -3201,12 +3201,12 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     break;
                 case 0x370:
                     proto_tree_add_item(next_tree, hf_bpp_reference_printing_rui_supported, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    value = tvb_get_guint8(tvb, offset);
+                    value = tvb_get_uint8(tvb, offset);
                     wmem_strbuf_append(info_buf, value ? "true" : "false");
                     break;
                 case 0x372:
                     proto_tree_add_item(next_tree, hf_bpp_direct_printing_rui_supported, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    value = tvb_get_guint8(tvb, offset);
+                    value = tvb_get_uint8(tvb, offset);
                     wmem_strbuf_append(info_buf, value ? "true" : "false");
                     break;
                 case 0x374:
@@ -3248,7 +3248,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             switch (attribute) {
                 case 0x315:
                     proto_tree_add_item(next_tree, hf_ctn_instance_id, tvb, offset, 1, ENC_NA);
-                    value = tvb_get_guint8(tvb, offset);
+                    value = tvb_get_uint8(tvb, offset);
                     wmem_strbuf_append_printf(info_buf, "%u (0x%02x)", value, value);
 
                     break;
@@ -3389,7 +3389,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             break;
         case 0x008:
             proto_tree_add_item(next_tree, hf_sdp_service_availability, tvb, offset, 1, ENC_BIG_ENDIAN);
-            value = tvb_get_guint8(tvb, offset);
+            value = tvb_get_uint8(tvb, offset);
             wmem_strbuf_append_printf(info_buf, "0x%02x (%u)", value, value);
             break;
         case 0x009:
@@ -3511,7 +3511,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         break;
     }
     case 5: {
-        uint8_t var = tvb_get_guint8(tvb, offset);
+        uint8_t var = tvb_get_uint8(tvb, offset);
 
         proto_tree_add_item(next_tree, hf_data_element_value_boolean, tvb, offset, size, ENC_BIG_ENDIAN);
         wmem_strbuf_append_printf(info_buf, "%s ", var ? "true" : "false");
@@ -3589,7 +3589,7 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, int offset,
     int                  old_offset;
     uint8_t              type;
 
-    type = tvb_get_guint8(tvb, offset);
+    type = tvb_get_uint8(tvb, offset);
     id = tvb_get_ntohs(tvb, offset + 1);
 
     switch (uuid.bt_uuid) {
@@ -4519,7 +4519,7 @@ dissect_btsdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     }
 
     proto_tree_add_item(st, hf_pdu_id, tvb, offset, 1, ENC_BIG_ENDIAN);
-    pdu_id = tvb_get_guint8(tvb, offset);
+    pdu_id = tvb_get_uint8(tvb, offset);
     offset += 1;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",

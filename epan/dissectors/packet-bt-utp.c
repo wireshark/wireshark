@@ -694,11 +694,11 @@ get_utp_version(tvbuff_t *tvb) {
     return -1;
   }
 
-  v1_ver_type = tvb_get_guint8(tvb, 0);
-  ext = tvb_get_guint8(tvb, 1);
+  v1_ver_type = tvb_get_uint8(tvb, 0);
+  ext = tvb_get_uint8(tvb, 1);
   if (((v1_ver_type & 0x0f) == 1) && ((v1_ver_type>>4) < ST_NUM_STATES) &&
       (ext < EXT_NUM_EXT)) {
-    window = tvb_get_guint32(tvb, 12, ENC_BIG_ENDIAN);
+    window = tvb_get_uint32(tvb, 12, ENC_BIG_ENDIAN);
     if (window > max_window_size) {
       return -1;
     }
@@ -709,8 +709,8 @@ get_utp_version(tvbuff_t *tvb) {
     if (len < V0_FIXED_HDR_SIZE) {
       return -1;
     }
-    v0_flags = tvb_get_guint8(tvb, 18);
-    ext = tvb_get_guint8(tvb, 17);
+    v0_flags = tvb_get_uint8(tvb, 18);
+    ext = tvb_get_uint8(tvb, 17);
     if ((v0_flags < ST_NUM_STATES) && (ext < EXT_NUM_EXT)) {
       ver = 0;
       offset = V0_FIXED_HDR_SIZE;
@@ -734,8 +734,8 @@ get_utp_version(tvbuff_t *tvb) {
     if (len < offset + 2) {
       return -1;
     }
-    ext = tvb_get_guint8(tvb, offset);
-    ext_len = tvb_get_guint8(tvb, offset+1);
+    ext = tvb_get_uint8(tvb, offset);
+    ext_len = tvb_get_uint8(tvb, offset+1);
     if (ext >= EXT_NUM_EXT || ext_len < 4) {
       return -1;
     }
@@ -769,7 +769,7 @@ dissect_utp_header_v0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
   proto_tree_add_item_ret_uint(tree, hf_bt_utp_wnd_size_v0, tvb, offset, 1, ENC_BIG_ENDIAN, &win);
   offset += 1;
   proto_tree_add_item(tree, hf_bt_utp_next_extension_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-  *extension_type = tvb_get_guint8(tvb, offset);
+  *extension_type = tvb_get_uint8(tvb, offset);
   offset += 1;
   proto_tree_add_item_ret_uint(tree, hf_bt_utp_flags, tvb, offset, 1, ENC_BIG_ENDIAN, &type);
   offset += 1;
@@ -820,7 +820,7 @@ dissect_utp_header_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
   proto_tree_add_item_ret_uint(tree, hf_bt_utp_type, tvb, offset, 1, ENC_BIG_ENDIAN, &type);
   offset += 1;
   proto_tree_add_item(tree, hf_bt_utp_next_extension_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-  *extension_type = tvb_get_guint8(tvb, offset);
+  *extension_type = tvb_get_uint8(tvb, offset);
   offset += 1;
   proto_tree_add_item_ret_uint(tree, hf_bt_utp_connection_id_v1, tvb, offset, 2, ENC_BIG_ENDIAN, &connection);
   offset += 2;

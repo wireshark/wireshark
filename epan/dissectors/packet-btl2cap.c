@@ -1405,7 +1405,7 @@ dissect_movechanrequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
     proto_tree_add_item(tree, hf_btl2cap_icid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
-    ctrl_id = tvb_get_guint8(tvb, offset);
+    ctrl_id = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_btl2cap_dcontroller, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
@@ -1428,8 +1428,8 @@ dissect_options(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *t
     }
 
     while (length > 0) {
-        option_type   = tvb_get_guint8(tvb, offset);
-        option_length = tvb_get_guint8(tvb, offset + 1);
+        option_type   = tvb_get_uint8(tvb, offset);
+        option_length = tvb_get_uint8(tvb, offset + 1);
 
         ti_option = proto_tree_add_none_format(tree,
                 hf_btl2cap_option, tvb,
@@ -1484,8 +1484,8 @@ dissect_options(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *t
             case 0x04: /* Retransmission and Flow Control*/
                 if (config_data)
                 {
-                    config_data->mode     = tvb_get_guint8(tvb, offset);
-                    config_data->txwindow = tvb_get_guint8(tvb, offset + 1);
+                    config_data->mode     = tvb_get_uint8(tvb, offset);
+                    config_data->txwindow = tvb_get_uint8(tvb, offset + 1);
                 }
                 proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_retransmissionmode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset += 1;
@@ -2811,11 +2811,11 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     "Command: ");
             btl2cap_cmd_tree = proto_item_add_subtree(ti_command, ett_btl2cap_cmd);
 
-            cmd_code = tvb_get_guint8(tvb, offset);
+            cmd_code = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_cmd_code,   tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
 
-            cmd_ident = tvb_get_guint8(tvb, offset);
+            cmd_ident = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_cmd_ident,  tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
 

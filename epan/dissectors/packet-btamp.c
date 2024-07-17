@@ -402,7 +402,7 @@ dissect_btamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
             "Command: ");
     btamp_cmd_tree = proto_item_add_subtree(ti_command, ett_btamp_cmd);
 
-    cmd_code = tvb_get_guint8(tvb, offset);
+    cmd_code = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(btamp_cmd_tree, hf_btamp_cmd_code,   tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 

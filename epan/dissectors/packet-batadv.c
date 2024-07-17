@@ -922,7 +922,7 @@ static int dissect_batadv_plugin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	version = tvb_get_guint8(tvb, 1);
+	version = tvb_get_uint8(tvb, 1);
 	if (version < 15)
 		dissect_batadv_v5(tvb, pinfo, tree);
 	else
@@ -935,7 +935,7 @@ static void dissect_batadv_v5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 {
 	uint8_t type;
 
-	type = tvb_get_guint8(tvb, 0);
+	type = tvb_get_uint8(tvb, 0);
 
 	switch (type) {
 	case BATADV_PACKET_V5:
@@ -988,7 +988,7 @@ static void dissect_batadv_v15(tvbuff_t *tvb, packet_info *pinfo,
 {
 	uint8_t type;
 
-	type = tvb_get_guint8(tvb, 0);
+	type = tvb_get_uint8(tvb, 0);
 
 	switch (type) {
 	case BATADV_IV_OGM_V15:
@@ -1047,7 +1047,7 @@ static void dissect_batadv_batman(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	/* set protocol name */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BATADV_BATMAN");
 
-	version = tvb_get_guint8(tvb, 1);
+	version = tvb_get_uint8(tvb, 1);
 	switch (version) {
 	case 5:
 	case 6:
@@ -1123,26 +1123,26 @@ static int dissect_batadv_batman_v5(tvbuff_t *tvb, int offset, packet_info *pinf
 
 	batman_packeth = wmem_new(pinfo->pool, struct batman_packet_v5);
 
-	type = tvb_get_guint8(tvb, offset+0);
-	batman_packeth->version = tvb_get_guint8(tvb, offset+1);
+	type = tvb_get_uint8(tvb, offset+0);
+	batman_packeth->version = tvb_get_uint8(tvb, offset+1);
 
 	/* don't interpret padding as B.A.T.M.A.N. advanced packet */
 	if (batman_packeth->version == 0 || type != BATADV_PACKET_V5) {
 		return -1;
 	}
 
-	batman_packeth->flags = tvb_get_guint8(tvb, offset+2);
-	batman_packeth->ttl = tvb_get_guint8(tvb, offset+3);
-	batman_packeth->gwflags = tvb_get_guint8(tvb, offset+4);
-	batman_packeth->tq = tvb_get_guint8(tvb, offset+5);
+	batman_packeth->flags = tvb_get_uint8(tvb, offset+2);
+	batman_packeth->ttl = tvb_get_uint8(tvb, offset+3);
+	batman_packeth->gwflags = tvb_get_uint8(tvb, offset+4);
+	batman_packeth->tq = tvb_get_uint8(tvb, offset+5);
 	batman_packeth->seqno = tvb_get_ntohs(tvb, offset+6);
 	set_address_tvb(&batman_packeth->orig, AT_ETHER, 6, tvb, offset+8);
 	copy_address_shallow(&pinfo->dl_src, &batman_packeth->orig);
 	copy_address_shallow(&pinfo->src, &batman_packeth->orig);
 	set_address_tvb(&batman_packeth->prev_sender, AT_ETHER, 6, tvb, offset+14);
 
-	batman_packeth->num_tt = tvb_get_guint8(tvb, offset+20);
-	batman_packeth->pad = tvb_get_guint8(tvb, offset+21);
+	batman_packeth->num_tt = tvb_get_uint8(tvb, offset+20);
+	batman_packeth->pad = tvb_get_uint8(tvb, offset+21);
 
 	/* Set info column */
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Seq=%u", batman_packeth->seqno);
@@ -1218,23 +1218,23 @@ static int dissect_batadv_batman_v7(tvbuff_t *tvb, int offset, packet_info *pinf
 
 	batman_packeth = wmem_new(pinfo->pool, struct batman_packet_v7);
 
-	type = tvb_get_guint8(tvb, offset+0);
-	batman_packeth->version = tvb_get_guint8(tvb, offset+1);
+	type = tvb_get_uint8(tvb, offset+0);
+	batman_packeth->version = tvb_get_uint8(tvb, offset+1);
 
 	/* don't interpret padding as B.A.T.M.A.N. advanced packet */
 	if (batman_packeth->version == 0 || type != BATADV_PACKET_V5) {
 		return -1;
 	}
 
-	batman_packeth->flags = tvb_get_guint8(tvb, offset+2);
-	batman_packeth->tq = tvb_get_guint8(tvb, offset+3);
+	batman_packeth->flags = tvb_get_uint8(tvb, offset+2);
+	batman_packeth->tq = tvb_get_uint8(tvb, offset+3);
 	batman_packeth->seqno = tvb_get_ntohs(tvb, offset+4);
 	set_address_tvb(&batman_packeth->orig, AT_ETHER, 6, tvb, offset+6);
 	copy_address_shallow(&pinfo->dl_src, &batman_packeth->orig);
 	copy_address_shallow(&pinfo->src, &batman_packeth->orig);
 	set_address_tvb(&batman_packeth->prev_sender, AT_ETHER, 6, tvb, offset+12);
-	batman_packeth->ttl = tvb_get_guint8(tvb, offset+18);
-	batman_packeth->num_tt = tvb_get_guint8(tvb, offset+19);
+	batman_packeth->ttl = tvb_get_uint8(tvb, offset+18);
+	batman_packeth->num_tt = tvb_get_uint8(tvb, offset+19);
 
 	/* Set info column */
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Seq=%u", batman_packeth->seqno);
@@ -1303,24 +1303,24 @@ static int dissect_batadv_batman_v9(tvbuff_t *tvb, int offset, packet_info *pinf
 
 	batman_packeth = wmem_new(pinfo->pool, struct batman_packet_v9);
 
-	type = tvb_get_guint8(tvb, offset+0);
-	batman_packeth->version = tvb_get_guint8(tvb, offset+1);
+	type = tvb_get_uint8(tvb, offset+0);
+	batman_packeth->version = tvb_get_uint8(tvb, offset+1);
 
 	/* don't interpret padding as B.A.T.M.A.N. advanced packet */
 	if (batman_packeth->version == 0 || type != BATADV_PACKET_V5) {
 		return -1;
 	}
 
-	batman_packeth->flags = tvb_get_guint8(tvb, offset+2);
-	batman_packeth->tq = tvb_get_guint8(tvb, offset+3);
+	batman_packeth->flags = tvb_get_uint8(tvb, offset+2);
+	batman_packeth->tq = tvb_get_uint8(tvb, offset+3);
 	batman_packeth->seqno = tvb_get_ntohs(tvb, offset+4);
 	set_address_tvb(&batman_packeth->orig, AT_ETHER, 6, tvb, offset+6);
 	copy_address_shallow(&pinfo->dl_src, &batman_packeth->orig);
 	copy_address_shallow(&pinfo->src, &batman_packeth->orig);
 	set_address_tvb(&batman_packeth->prev_sender, AT_ETHER, 6, tvb, offset+12);
-	batman_packeth->ttl = tvb_get_guint8(tvb, offset+18);
-	batman_packeth->num_tt = tvb_get_guint8(tvb, offset+19);
-	batman_packeth->gwflags = tvb_get_guint8(tvb, offset+20);
+	batman_packeth->ttl = tvb_get_uint8(tvb, offset+18);
+	batman_packeth->num_tt = tvb_get_uint8(tvb, offset+19);
+	batman_packeth->gwflags = tvb_get_uint8(tvb, offset+20);
 
 	/* Set info column */
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Seq=%u", batman_packeth->seqno);
@@ -1396,24 +1396,24 @@ static int dissect_batadv_batman_v10(tvbuff_t *tvb, int offset, packet_info *pin
 
 	batman_packeth = wmem_new(pinfo->pool, struct batman_packet_v10);
 
-	type = tvb_get_guint8(tvb, offset+0);
-	batman_packeth->version = tvb_get_guint8(tvb, offset+1);
+	type = tvb_get_uint8(tvb, offset+0);
+	batman_packeth->version = tvb_get_uint8(tvb, offset+1);
 
 	/* don't interpret padding as B.A.T.M.A.N. advanced packet */
 	if (batman_packeth->version == 0 || type != BATADV_PACKET_V5) {
 		return -1;
 	}
 
-	batman_packeth->flags = tvb_get_guint8(tvb, offset+2);
-	batman_packeth->tq = tvb_get_guint8(tvb, offset+3);
+	batman_packeth->flags = tvb_get_uint8(tvb, offset+2);
+	batman_packeth->tq = tvb_get_uint8(tvb, offset+3);
 	batman_packeth->seqno = tvb_get_ntohl(tvb, offset+4);
 	set_address_tvb(&batman_packeth->orig, AT_ETHER, 6, tvb, offset+8);
 	copy_address_shallow(&pinfo->dl_src, &batman_packeth->orig);
 	copy_address_shallow(&pinfo->src, &batman_packeth->orig);
 	set_address_tvb(&batman_packeth->prev_sender, AT_ETHER, 6, tvb, offset+14);
-	batman_packeth->ttl = tvb_get_guint8(tvb, offset+20);
-	batman_packeth->num_tt = tvb_get_guint8(tvb, offset+21);
-	batman_packeth->gwflags = tvb_get_guint8(tvb, offset+22);
+	batman_packeth->ttl = tvb_get_uint8(tvb, offset+20);
+	batman_packeth->num_tt = tvb_get_uint8(tvb, offset+21);
+	batman_packeth->gwflags = tvb_get_uint8(tvb, offset+22);
 
 	/* Set info column */
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Seq=%u", batman_packeth->seqno);
@@ -1489,23 +1489,23 @@ static int dissect_batadv_batman_v11(tvbuff_t *tvb, int offset, packet_info *pin
 
 	batman_packeth = wmem_new(pinfo->pool, struct batman_packet_v11);
 
-	type = tvb_get_guint8(tvb, offset+0);
-	batman_packeth->version = tvb_get_guint8(tvb, offset+1);
+	type = tvb_get_uint8(tvb, offset+0);
+	batman_packeth->version = tvb_get_uint8(tvb, offset+1);
 
 	/* don't interpret padding as B.A.T.M.A.N. advanced packet */
 	if (batman_packeth->version == 0 || type != BATADV_PACKET_V5) {
 		return -1;
 	}
 
-	batman_packeth->flags = tvb_get_guint8(tvb, offset+2);
-	batman_packeth->tq = tvb_get_guint8(tvb, offset+3);
+	batman_packeth->flags = tvb_get_uint8(tvb, offset+2);
+	batman_packeth->tq = tvb_get_uint8(tvb, offset+3);
 	batman_packeth->seqno = tvb_get_ntohl(tvb, offset+4);
 	set_address_tvb(&batman_packeth->orig, AT_ETHER, 6, tvb, offset+8);
 	copy_address_shallow(&pinfo->dl_src, &batman_packeth->orig);
 	copy_address_shallow(&pinfo->src, &batman_packeth->orig);
 	set_address_tvb(&batman_packeth->prev_sender, AT_ETHER, 6, tvb, offset+14);
-	batman_packeth->ttl = tvb_get_guint8(tvb, offset+20);
-	batman_packeth->num_tt = tvb_get_guint8(tvb, offset+21);
+	batman_packeth->ttl = tvb_get_uint8(tvb, offset+20);
+	batman_packeth->num_tt = tvb_get_uint8(tvb, offset+21);
 
 	/* Set info column */
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Seq=%u", batman_packeth->seqno);
@@ -1575,25 +1575,25 @@ static int dissect_batadv_batman_v14(tvbuff_t *tvb, int offset, packet_info *pin
 
 	batman_packeth = wmem_new(pinfo->pool, struct batman_packet_v14);
 
-	type = tvb_get_guint8(tvb, offset+0);
-	batman_packeth->version = tvb_get_guint8(tvb, offset+1);
+	type = tvb_get_uint8(tvb, offset+0);
+	batman_packeth->version = tvb_get_uint8(tvb, offset+1);
 
 	/* don't interpret padding as B.A.T.M.A.N. advanced packet */
 	if (batman_packeth->version == 0 || type != BATADV_PACKET_V5) {
 		return -1;
 	}
 
-	batman_packeth->ttl = tvb_get_guint8(tvb, offset+2);
-	batman_packeth->flags = tvb_get_guint8(tvb, offset+3);
+	batman_packeth->ttl = tvb_get_uint8(tvb, offset+2);
+	batman_packeth->flags = tvb_get_uint8(tvb, offset+3);
 	batman_packeth->seqno = tvb_get_ntohl(tvb, offset+4);
 	set_address_tvb(&batman_packeth->orig, AT_ETHER, 6, tvb, offset+8);
 	copy_address_shallow(&pinfo->dl_src, &batman_packeth->orig);
 	copy_address_shallow(&pinfo->src, &batman_packeth->orig);
 	set_address_tvb(&batman_packeth->prev_sender, AT_ETHER, 6, tvb, offset+14);
-	batman_packeth->gw_flags = tvb_get_guint8(tvb, offset+20);
-	batman_packeth->tq = tvb_get_guint8(tvb, offset+21);
-	batman_packeth->tt_num_changes = tvb_get_guint8(tvb, offset+22);
-	batman_packeth->ttvn = tvb_get_guint8(tvb, offset+23);
+	batman_packeth->gw_flags = tvb_get_uint8(tvb, offset+20);
+	batman_packeth->tq = tvb_get_uint8(tvb, offset+21);
+	batman_packeth->tt_num_changes = tvb_get_uint8(tvb, offset+22);
+	batman_packeth->ttvn = tvb_get_uint8(tvb, offset+23);
 	batman_packeth->tt_crc = tvb_get_ntohs(tvb, offset+24);
 
 	/* Set info column */
@@ -1675,7 +1675,7 @@ static void dissect_batadv_iv_ogm(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	/* set protocol name */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BATADV_IV_OGM");
 
-	version = tvb_get_guint8(tvb, 1);
+	version = tvb_get_uint8(tvb, 1);
 	switch (version) {
 	case 15:
 		while (offset != -1 &&
@@ -1705,8 +1705,8 @@ static int dissect_batadv_iv_ogm_v15(tvbuff_t *tvb, int offset,
 		NULL
 	};
 
-	type = tvb_get_guint8(tvb, offset+0);
-	version = tvb_get_guint8(tvb, offset+1);
+	type = tvb_get_uint8(tvb, offset+0);
+	version = tvb_get_uint8(tvb, offset+1);
 
 	/* don't interpret padding as B.A.T.M.A.N. advanced packet */
 	if (version == 0 || type != BATADV_IV_OGM_V15)
@@ -1726,7 +1726,7 @@ static int dissect_batadv_iv_ogm_v15(tvbuff_t *tvb, int offset,
 	batadv_iv_ogm_tree = proto_item_add_subtree(ti, ett_batadv_iv_ogm);
 
 	/* items */
-	iv_ogm_packeth->packet_type = tvb_get_guint8(tvb, offset);
+	iv_ogm_packeth->packet_type = tvb_get_uint8(tvb, offset);
 	proto_tree_add_uint_format_value(batadv_iv_ogm_tree,
 					 hf_batadv_packet_type,
 					 tvb, offset, 1, BATADV_IV_OGM_V15,
@@ -1734,17 +1734,17 @@ static int dissect_batadv_iv_ogm_v15(tvbuff_t *tvb, int offset,
 					 BATADV_IV_OGM_V15);
 	offset += 1;
 
-	iv_ogm_packeth->version = tvb_get_guint8(tvb, offset);
+	iv_ogm_packeth->version = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(batadv_iv_ogm_tree, hf_batadv_iv_ogm_version, tvb,
 			    offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	iv_ogm_packeth->ttl = tvb_get_guint8(tvb, offset);
+	iv_ogm_packeth->ttl = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(batadv_iv_ogm_tree, hf_batadv_iv_ogm_ttl, tvb,
 			    offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	iv_ogm_packeth->flags = tvb_get_guint8(tvb, offset);
+	iv_ogm_packeth->flags = tvb_get_uint8(tvb, offset);
 	proto_tree_add_bitmask(batadv_iv_ogm_tree, tvb, offset,
 			       hf_batadv_iv_ogm_flags, ett_batadv_iv_ogm_flags,
 			       flags, ENC_NA);
@@ -1769,10 +1769,10 @@ static int dissect_batadv_iv_ogm_v15(tvbuff_t *tvb, int offset,
 	offset += 6;
 
 	/* Skip 1 byte of padding. */
-	iv_ogm_packeth->reserved = tvb_get_guint8(tvb, offset);
+	iv_ogm_packeth->reserved = tvb_get_uint8(tvb, offset);
 	offset += 1;
 
-	iv_ogm_packeth->tq = tvb_get_guint8(tvb, offset);
+	iv_ogm_packeth->tq = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(batadv_iv_ogm_tree, hf_batadv_iv_ogm_tq, tvb,
 			    offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
@@ -1821,7 +1821,7 @@ static void dissect_batadv_bcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	/* set protocol name */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BATADV_BCAST");
 
-	version = tvb_get_guint8(tvb, 1);
+	version = tvb_get_uint8(tvb, 1);
 	switch (version) {
 	case 6:
 	case 7:
@@ -1858,7 +1858,7 @@ static void dissect_batadv_bcast_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 	bcast_packeth = wmem_new(pinfo->pool, struct bcast_packet_v6);
 
-	bcast_packeth->version = tvb_get_guint8(tvb, 1);
+	bcast_packeth->version = tvb_get_uint8(tvb, 1);
 	set_address_tvb(&bcast_packeth->orig, AT_ETHER, 6, tvb, 2);
 	copy_address_shallow(&pinfo->dl_src, &bcast_packeth->orig);
 	copy_address_shallow(&pinfo->src, &bcast_packeth->orig);
@@ -1912,11 +1912,11 @@ static void dissect_batadv_bcast_v10(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
 	bcast_packeth = wmem_new(pinfo->pool, struct bcast_packet_v10);
 
-	bcast_packeth->version = tvb_get_guint8(tvb, 1);
+	bcast_packeth->version = tvb_get_uint8(tvb, 1);
 	set_address_tvb(&bcast_packeth->orig, AT_ETHER, 6, tvb, 2);
 	copy_address_shallow(&pinfo->dl_src, &bcast_packeth->orig);
 	copy_address_shallow(&pinfo->src, &bcast_packeth->orig);
-	bcast_packeth->ttl = tvb_get_guint8(tvb, 8);
+	bcast_packeth->ttl = tvb_get_uint8(tvb, 8);
 	bcast_packeth->seqno = tvb_get_ntohl(tvb, 9);
 
 	/* Set info column */
@@ -1971,10 +1971,10 @@ static void dissect_batadv_bcast_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
 	bcast_packeth = wmem_new(pinfo->pool, struct bcast_packet_v14);
 
-	bcast_packeth->packet_type = tvb_get_guint8(tvb, 0);
-	bcast_packeth->version = tvb_get_guint8(tvb, 1);
-	bcast_packeth->ttl = tvb_get_guint8(tvb, 2);
-	bcast_packeth->reserved = tvb_get_guint8(tvb, 3);
+	bcast_packeth->packet_type = tvb_get_uint8(tvb, 0);
+	bcast_packeth->version = tvb_get_uint8(tvb, 1);
+	bcast_packeth->ttl = tvb_get_uint8(tvb, 2);
+	bcast_packeth->reserved = tvb_get_uint8(tvb, 3);
 	bcast_packeth->seqno = tvb_get_ntohl(tvb, 4);
 	set_address_tvb(&bcast_packeth->orig, AT_ETHER, 6, tvb, 8);
 	copy_address_shallow(&pinfo->dl_src, &bcast_packeth->orig);
@@ -2033,7 +2033,7 @@ static void dissect_batadv_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	/* set protocol name */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BATADV_ICMP");
 
-	version = tvb_get_guint8(tvb, 1);
+	version = tvb_get_uint8(tvb, 1);
 	switch (version) {
 	case 6:
 		dissect_batadv_icmp_v6(tvb, pinfo, tree);
@@ -2071,8 +2071,8 @@ static void dissect_batadv_icmp_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 	icmp_packeth = wmem_new(pinfo->pool, struct icmp_packet_v6);
 
-	icmp_packeth->version = tvb_get_guint8(tvb, 1);
-	icmp_packeth->msg_type = tvb_get_guint8(tvb, 2);
+	icmp_packeth->version = tvb_get_uint8(tvb, 1);
+	icmp_packeth->msg_type = tvb_get_uint8(tvb, 2);
 	set_address_tvb(&icmp_packeth->dst, AT_ETHER, 6, tvb, 3);
 	set_address_tvb(&icmp_packeth->orig, AT_ETHER, 6, tvb, 9);
 
@@ -2081,8 +2081,8 @@ static void dissect_batadv_icmp_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	copy_address_shallow(&pinfo->dl_dst, &icmp_packeth->dst);
 	copy_address_shallow(&pinfo->dst, &icmp_packeth->dst);
 
-	icmp_packeth->ttl = tvb_get_guint8(tvb, 15);
-	icmp_packeth->uid = tvb_get_guint8(tvb, 16);
+	icmp_packeth->ttl = tvb_get_uint8(tvb, 15);
+	icmp_packeth->uid = tvb_get_uint8(tvb, 16);
 	icmp_packeth->seqno = tvb_get_ntohs(tvb, 17);
 
 	/* Set info column */
@@ -2138,7 +2138,7 @@ dissect_batadv_icmp_rr(packet_info *pinfo, proto_tree *batadv_icmp_tree, tvbuff_
 	proto_tree *field_tree;
 	int ptr, i;
 
-	ptr = tvb_get_guint8(tvb, offset);
+	ptr = tvb_get_uint8(tvb, offset);
 	if (ptr < 1 || ptr > BAT_RR_LEN)
 		return;
 
@@ -2194,9 +2194,9 @@ static void dissect_batadv_icmp_v7(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 	icmp_packeth = wmem_new(pinfo->pool, struct icmp_packet_v7);
 
-	icmp_packeth->version = tvb_get_guint8(tvb, 1);
-	icmp_packeth->msg_type = tvb_get_guint8(tvb, 2);
-	icmp_packeth->ttl = tvb_get_guint8(tvb, 3);
+	icmp_packeth->version = tvb_get_uint8(tvb, 1);
+	icmp_packeth->msg_type = tvb_get_uint8(tvb, 2);
+	icmp_packeth->ttl = tvb_get_uint8(tvb, 3);
 	set_address_tvb(&icmp_packeth->dst, AT_ETHER, 6, tvb, 4);
 	set_address_tvb(&icmp_packeth->orig, AT_ETHER, 6, tvb, 10);
 
@@ -2206,7 +2206,7 @@ static void dissect_batadv_icmp_v7(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	copy_address_shallow(&pinfo->dst, &icmp_packeth->dst);
 
 	icmp_packeth->seqno = tvb_get_ntohs(tvb, 16);
-	icmp_packeth->uid = tvb_get_guint8(tvb, 17);
+	icmp_packeth->uid = tvb_get_uint8(tvb, 17);
 
 	/* Set info column */
 	col_add_fstr(pinfo->cinfo, COL_INFO, "[%s] Seq=%u",
@@ -2274,9 +2274,9 @@ static void dissect_batadv_icmp_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 	icmp_packeth = wmem_new(pinfo->pool, struct icmp_packet_v14);
 
-	icmp_packeth->version = tvb_get_guint8(tvb, 1);
-	icmp_packeth->ttl = tvb_get_guint8(tvb, 2);
-	icmp_packeth->msg_type = tvb_get_guint8(tvb, 3);
+	icmp_packeth->version = tvb_get_uint8(tvb, 1);
+	icmp_packeth->ttl = tvb_get_uint8(tvb, 2);
+	icmp_packeth->msg_type = tvb_get_uint8(tvb, 3);
 	set_address_tvb(&icmp_packeth->dst, AT_ETHER, 6, tvb, 4);
 	set_address_tvb(&icmp_packeth->orig, AT_ETHER, 6, tvb, 10);
 
@@ -2286,8 +2286,8 @@ static void dissect_batadv_icmp_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	copy_address_shallow(&pinfo->dst, &icmp_packeth->dst);
 
 	icmp_packeth->seqno = tvb_get_ntohs(tvb, 16);
-	icmp_packeth->uid = tvb_get_guint8(tvb, 17);
-	icmp_packeth->reserved = tvb_get_guint8(tvb, 18);
+	icmp_packeth->uid = tvb_get_uint8(tvb, 17);
+	icmp_packeth->reserved = tvb_get_uint8(tvb, 18);
 
 	/* Set info column */
 	col_add_fstr(pinfo->cinfo, COL_INFO, "[%s] Seq=%u",
@@ -2372,7 +2372,7 @@ static void dissect_batadv_icmp_tp_v15(tvbuff_t *tvb, packet_info *pinfo,
 	batadv_icmp_tree = proto_item_add_subtree(ti, ett_batadv_icmp);
 
 	/* items */
-	icmp_packeth->packet_type = tvb_get_guint8(tvb, offset);
+	icmp_packeth->packet_type = tvb_get_uint8(tvb, offset);
 	proto_tree_add_uint_format_value(batadv_icmp_tree,
 					 hf_batadv_packet_type, tvb,
 					 offset, 1, icmp_packeth->packet_type,
@@ -2380,17 +2380,17 @@ static void dissect_batadv_icmp_tp_v15(tvbuff_t *tvb, packet_info *pinfo,
 					 icmp_packeth->packet_type);
 	offset += 1;
 
-	icmp_packeth->version = tvb_get_guint8(tvb, offset);
+	icmp_packeth->version = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_version, tvb,
 			    offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	icmp_packeth->ttl = tvb_get_guint8(tvb, offset);
+	icmp_packeth->ttl = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_ttl, tvb, offset,
 			    1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	icmp_packeth->msg_type = tvb_get_guint8(tvb, offset);
+	icmp_packeth->msg_type = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item_ret_uint(batadv_icmp_tree, hf_batadv_icmp_msg_type,
 				     tvb, offset, 1, ENC_BIG_ENDIAN, &msg_type);
 	col_add_fstr(pinfo->cinfo, COL_INFO, "[%s]",
@@ -2413,12 +2413,12 @@ static void dissect_batadv_icmp_tp_v15(tvbuff_t *tvb, packet_info *pinfo,
 			    6, ENC_NA);
 	offset += 6;
 
-	icmp_packeth->uid = tvb_get_guint8(tvb, offset);
+	icmp_packeth->uid = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_uid, tvb, offset,
 			    1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	icmp_packeth->subtype = tvb_get_guint8(tvb, offset);
+	icmp_packeth->subtype = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_tp_subtype, tvb,
 			    offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
@@ -2475,7 +2475,7 @@ static void dissect_batadv_icmp_simple_v15(tvbuff_t *tvb, packet_info *pinfo,
 	batadv_icmp_tree = proto_item_add_subtree(ti, ett_batadv_icmp);
 
 	/* items */
-	icmp_packeth->packet_type = tvb_get_guint8(tvb, offset);
+	icmp_packeth->packet_type = tvb_get_uint8(tvb, offset);
 	proto_tree_add_uint_format_value(batadv_icmp_tree,
 					 hf_batadv_packet_type, tvb,
 					 offset, 1, icmp_packeth->packet_type,
@@ -2483,17 +2483,17 @@ static void dissect_batadv_icmp_simple_v15(tvbuff_t *tvb, packet_info *pinfo,
 					 icmp_packeth->packet_type);
 	offset += 1;
 
-	icmp_packeth->version = tvb_get_guint8(tvb, offset);
+	icmp_packeth->version = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_version, tvb,
 			    offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	icmp_packeth->ttl = tvb_get_guint8(tvb, offset);
+	icmp_packeth->ttl = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_ttl, tvb, offset,
 			    1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	icmp_packeth->msg_type = tvb_get_guint8(tvb, offset);
+	icmp_packeth->msg_type = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item_ret_uint(batadv_icmp_tree, hf_batadv_icmp_msg_type,
 				     tvb, offset, 1, ENC_BIG_ENDIAN, &msg_type);
 	col_add_fstr(pinfo->cinfo, COL_INFO, "[%s]",
@@ -2516,12 +2516,12 @@ static void dissect_batadv_icmp_simple_v15(tvbuff_t *tvb, packet_info *pinfo,
 			    6, ENC_NA);
 	offset += 6;
 
-	icmp_packeth->uid = tvb_get_guint8(tvb, offset);
+	icmp_packeth->uid = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_uid, tvb, offset,
 			    1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	icmp_packeth->rr_ptr = tvb_get_guint8(tvb, offset);
+	icmp_packeth->rr_ptr = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_rr_pointer, tvb,
 			    offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
@@ -2554,7 +2554,7 @@ static void dissect_batadv_icmp_v15(tvbuff_t *tvb, packet_info *pinfo,
 {
 	uint8_t msg_type;
 
-	msg_type = tvb_get_guint8(tvb, 3);
+	msg_type = tvb_get_uint8(tvb, 3);
 	switch (msg_type) {
 	case BATADV_TP:
 		dissect_batadv_icmp_tp_v15(tvb, pinfo, tree);
@@ -2572,7 +2572,7 @@ static void dissect_batadv_unicast(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	/* set protocol name */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BATADV_UNICAST");
 
-	version = tvb_get_guint8(tvb, 1);
+	version = tvb_get_uint8(tvb, 1);
 	switch (version) {
 	case 6:
 	case 7:
@@ -2607,12 +2607,12 @@ static void dissect_batadv_unicast_v6(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
 	unicast_packeth = wmem_new(pinfo->pool, struct unicast_packet_v6);
 
-	unicast_packeth->version = tvb_get_guint8(tvb, 1);
+	unicast_packeth->version = tvb_get_uint8(tvb, 1);
 	set_address_tvb(&unicast_packeth->dest, AT_ETHER, 6, tvb, 2);
 	copy_address_shallow(&pinfo->dl_dst, &unicast_packeth->dest);
 	copy_address_shallow(&pinfo->dst, &unicast_packeth->dest);
 
-	unicast_packeth->ttl = tvb_get_guint8(tvb, 8);
+	unicast_packeth->ttl = tvb_get_uint8(tvb, 8);
 
 	/* Set info column */
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -2663,10 +2663,10 @@ static void dissect_batadv_unicast_v14(tvbuff_t *tvb, packet_info *pinfo, proto_
 
 	unicast_packeth = wmem_new(pinfo->pool, struct unicast_packet_v14);
 
-	unicast_packeth->packet_type = tvb_get_guint8(tvb, 0);
-	unicast_packeth->version = tvb_get_guint8(tvb, 1);
-	unicast_packeth->ttl = tvb_get_guint8(tvb, 2);
-	unicast_packeth->ttvn = tvb_get_guint8(tvb, 3);
+	unicast_packeth->packet_type = tvb_get_uint8(tvb, 0);
+	unicast_packeth->version = tvb_get_uint8(tvb, 1);
+	unicast_packeth->ttl = tvb_get_uint8(tvb, 2);
+	unicast_packeth->ttvn = tvb_get_uint8(tvb, 3);
 	set_address_tvb(&unicast_packeth->dest, AT_ETHER, 6, tvb, 4);
 	copy_address_shallow(&pinfo->dl_dst, &unicast_packeth->dest);
 	copy_address_shallow(&pinfo->dst, &unicast_packeth->dest);
@@ -2722,7 +2722,7 @@ static void dissect_batadv_unicast_4addr(tvbuff_t *tvb, packet_info *pinfo, prot
 	/* set protocol name */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BATADV_UNICAST_4ADDR");
 
-	version = tvb_get_guint8(tvb, 1);
+	version = tvb_get_uint8(tvb, 1);
 	switch (version) {
 	case 14:
 	case 15:
@@ -2747,10 +2747,10 @@ static void dissect_batadv_unicast_4addr_v14(tvbuff_t *tvb, packet_info *pinfo, 
 
 	unicast_4addr_packeth = wmem_new(pinfo->pool, struct unicast_4addr_packet_v14);
 
-	unicast_4addr_packeth->packet_type = tvb_get_guint8(tvb, 0);
-	unicast_4addr_packeth->version = tvb_get_guint8(tvb, 1);
-	unicast_4addr_packeth->ttl = tvb_get_guint8(tvb, 2);
-	unicast_4addr_packeth->ttvn = tvb_get_guint8(tvb, 3);
+	unicast_4addr_packeth->packet_type = tvb_get_uint8(tvb, 0);
+	unicast_4addr_packeth->version = tvb_get_uint8(tvb, 1);
+	unicast_4addr_packeth->ttl = tvb_get_uint8(tvb, 2);
+	unicast_4addr_packeth->ttvn = tvb_get_uint8(tvb, 3);
 	set_address_tvb(&unicast_4addr_packeth->dest, AT_ETHER, 6, tvb, 4);
 	copy_address_shallow(&pinfo->dl_dst, &unicast_4addr_packeth->dest);
 	copy_address_shallow(&pinfo->dst, &unicast_4addr_packeth->dest);
@@ -2758,8 +2758,8 @@ static void dissect_batadv_unicast_4addr_v14(tvbuff_t *tvb, packet_info *pinfo, 
 	set_address_tvb(&unicast_4addr_packeth->src, AT_ETHER, 6, tvb, 10);
 	copy_address_shallow(&pinfo->dl_src, &unicast_4addr_packeth->src);
 	copy_address_shallow(&pinfo->src, &unicast_4addr_packeth->src);
-	unicast_4addr_packeth->subtype = tvb_get_guint8(tvb, 16);
-	unicast_4addr_packeth->reserved = tvb_get_guint8(tvb, 17);
+	unicast_4addr_packeth->subtype = tvb_get_uint8(tvb, 16);
+	unicast_4addr_packeth->reserved = tvb_get_uint8(tvb, 17);
 
 	/* Set info column */
 	col_add_str(pinfo->cinfo, COL_INFO,
@@ -2821,7 +2821,7 @@ static void dissect_batadv_unicast_frag(tvbuff_t *tvb, packet_info *pinfo, proto
 	/* set protocol name */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BATADV_UNICAST_FRAG");
 
-	version = tvb_get_guint8(tvb, 1);
+	version = tvb_get_uint8(tvb, 1);
 	switch (version) {
 	case 12:
 	case 13:
@@ -2855,12 +2855,12 @@ static void dissect_batadv_unicast_frag_v12(tvbuff_t *tvb, packet_info *pinfo, p
 
 	unicast_frag_packeth = wmem_new(pinfo->pool, struct unicast_frag_packet_v12);
 
-	unicast_frag_packeth->version = tvb_get_guint8(tvb, 1);
+	unicast_frag_packeth->version = tvb_get_uint8(tvb, 1);
 	set_address_tvb(&unicast_frag_packeth->dest, AT_ETHER, 6, tvb, 2);
 	copy_address_shallow(&pinfo->dl_dst, &unicast_frag_packeth->dest);
 	copy_address_shallow(&pinfo->dst, &unicast_frag_packeth->dest);
-	unicast_frag_packeth->ttl = tvb_get_guint8(tvb, 8);
-	unicast_frag_packeth->flags = tvb_get_guint8(tvb, 9);
+	unicast_frag_packeth->ttl = tvb_get_uint8(tvb, 8);
+	unicast_frag_packeth->flags = tvb_get_uint8(tvb, 9);
 	set_address_tvb(&unicast_frag_packeth->orig, AT_ETHER, 6, tvb, 10);
 	copy_address_shallow(&pinfo->dl_src, &unicast_frag_packeth->orig);
 	copy_address_shallow(&pinfo->src, &unicast_frag_packeth->orig);
@@ -2944,14 +2944,14 @@ static void dissect_batadv_unicast_frag_v14(tvbuff_t *tvb, packet_info *pinfo, p
 
 	unicast_frag_packeth = wmem_new(pinfo->pool, struct unicast_frag_packet_v14);
 
-	unicast_frag_packeth->version = tvb_get_guint8(tvb, 1);
-	unicast_frag_packeth->ttl = tvb_get_guint8(tvb, 2);
-	unicast_frag_packeth->ttvn = tvb_get_guint8(tvb, 3);
+	unicast_frag_packeth->version = tvb_get_uint8(tvb, 1);
+	unicast_frag_packeth->ttl = tvb_get_uint8(tvb, 2);
+	unicast_frag_packeth->ttvn = tvb_get_uint8(tvb, 3);
 	set_address_tvb(&unicast_frag_packeth->dest, AT_ETHER, 6, tvb, 4);
 	copy_address_shallow(&pinfo->dl_dst, &unicast_frag_packeth->dest);
 	copy_address_shallow(&pinfo->dst, &unicast_frag_packeth->dest);
-	unicast_frag_packeth->flags = tvb_get_guint8(tvb, 10);
-	unicast_frag_packeth->align = tvb_get_guint8(tvb, 11);
+	unicast_frag_packeth->flags = tvb_get_uint8(tvb, 10);
+	unicast_frag_packeth->align = tvb_get_uint8(tvb, 11);
 	set_address_tvb(&unicast_frag_packeth->orig, AT_ETHER, 6, tvb, 12);
 	copy_address_shallow(&pinfo->dl_src, &unicast_frag_packeth->orig);
 	copy_address_shallow(&pinfo->src, &unicast_frag_packeth->orig);
@@ -3058,7 +3058,7 @@ static void dissect_batadv_unicast_frag_v15(tvbuff_t *tvb, packet_info *pinfo,
 							  ett_batadv_unicast_frag);
 
 	/* items */
-	unicast_frag_packeth->packet_type = tvb_get_guint8(tvb, offset);
+	unicast_frag_packeth->packet_type = tvb_get_uint8(tvb, offset);
 	proto_tree_add_uint_format_value(batadv_unicast_frag_tree,
 					 hf_batadv_packet_type, tvb, offset, 1,
 					 unicast_frag_packeth->packet_type,
@@ -3066,19 +3066,19 @@ static void dissect_batadv_unicast_frag_v15(tvbuff_t *tvb, packet_info *pinfo,
 					 unicast_frag_packeth->packet_type);
 	offset += 1;
 
-	unicast_frag_packeth->version = tvb_get_guint8(tvb, offset);
+	unicast_frag_packeth->version = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(batadv_unicast_frag_tree,
 			    hf_batadv_unicast_frag_version, tvb, offset, 1,
 			    ENC_BIG_ENDIAN);
 	offset += 1;
 
-	unicast_frag_packeth->ttl = tvb_get_guint8(tvb, offset);
+	unicast_frag_packeth->ttl = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(batadv_unicast_frag_tree,
 			    hf_batadv_unicast_frag_ttl, tvb, offset, 1,
 			    ENC_BIG_ENDIAN);
 	offset += 1;
 
-	unicast_frag_packeth->no = tvb_get_guint8(tvb, offset);
+	unicast_frag_packeth->no = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(batadv_unicast_frag_tree, hf_batadv_unicast_frag_no,
 			    tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -3153,7 +3153,7 @@ static void dissect_batadv_vis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	/* set protocol name */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BATADV_VIS");
 
-	version = tvb_get_guint8(tvb, 1);
+	version = tvb_get_uint8(tvb, 1);
 	switch (version) {
 	case 6:
 	case 7:
@@ -3190,11 +3190,11 @@ static void dissect_batadv_vis_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 	vis_packeth = wmem_new(pinfo->pool, struct vis_packet_v6);
 
-	vis_packeth->version = tvb_get_guint8(tvb, 1);
-	vis_packeth->vis_type = tvb_get_guint8(tvb, 2);
-	vis_packeth->seqno = tvb_get_guint8(tvb, 3);
-	vis_packeth->entries = tvb_get_guint8(tvb, 4);
-	vis_packeth->ttl = tvb_get_guint8(tvb, 5);
+	vis_packeth->version = tvb_get_uint8(tvb, 1);
+	vis_packeth->vis_type = tvb_get_uint8(tvb, 2);
+	vis_packeth->seqno = tvb_get_uint8(tvb, 3);
+	vis_packeth->entries = tvb_get_uint8(tvb, 4);
+	vis_packeth->ttl = tvb_get_uint8(tvb, 5);
 
 	set_address_tvb(&vis_packeth->vis_orig, AT_ETHER, 6, tvb, 6);
 	copy_address_shallow(&pinfo->src, &vis_packeth->vis_orig);
@@ -3306,11 +3306,11 @@ static void dissect_batadv_vis_v10(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 	vis_packeth = wmem_new(pinfo->pool, struct vis_packet_v10);
 
-	vis_packeth->version = tvb_get_guint8(tvb, 1);
-	vis_packeth->vis_type = tvb_get_guint8(tvb, 2);
-	vis_packeth->entries = tvb_get_guint8(tvb, 3);
+	vis_packeth->version = tvb_get_uint8(tvb, 1);
+	vis_packeth->vis_type = tvb_get_uint8(tvb, 2);
+	vis_packeth->entries = tvb_get_uint8(tvb, 3);
 	vis_packeth->seqno = tvb_get_ntohl(tvb, 4);
-	vis_packeth->ttl = tvb_get_guint8(tvb, 8);
+	vis_packeth->ttl = tvb_get_uint8(tvb, 8);
 
 	set_address_tvb(&vis_packeth->vis_orig, AT_ETHER, 6, tvb, 9);
 	copy_address_shallow(&pinfo->src, &vis_packeth->vis_orig);
@@ -3398,12 +3398,12 @@ static void dissect_batadv_vis_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 	vis_packeth = wmem_new(pinfo->pool, struct vis_packet_v14);
 
-	vis_packeth->version = tvb_get_guint8(tvb, 1);
-	vis_packeth->ttl = tvb_get_guint8(tvb, 2);
-	vis_packeth->vis_type = tvb_get_guint8(tvb, 3);
+	vis_packeth->version = tvb_get_uint8(tvb, 1);
+	vis_packeth->ttl = tvb_get_uint8(tvb, 2);
+	vis_packeth->vis_type = tvb_get_uint8(tvb, 3);
 	vis_packeth->seqno = tvb_get_ntohl(tvb, 4);
-	vis_packeth->entries = tvb_get_guint8(tvb, 8);
-	vis_packeth->reserved = tvb_get_guint8(tvb, 9);
+	vis_packeth->entries = tvb_get_uint8(tvb, 8);
+	vis_packeth->reserved = tvb_get_uint8(tvb, 9);
 
 	set_address_tvb(&vis_packeth->vis_orig, AT_ETHER, 6, tvb, 10);
 	copy_address_shallow(&pinfo->src, &vis_packeth->vis_orig);
@@ -3517,7 +3517,7 @@ static void dissect_batadv_tt_query(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	/* set protocol name */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BATADV_TT_QUERY");
 
-	version = tvb_get_guint8(tvb, 1);
+	version = tvb_get_uint8(tvb, 1);
 	switch (version) {
 	case 14:
 		dissect_batadv_tt_query_v14(tvb, pinfo, tree);
@@ -3542,9 +3542,9 @@ static void dissect_batadv_tt_query_v14(tvbuff_t *tvb, packet_info *pinfo, proto
 
 	tt_query_packeth = wmem_new(pinfo->pool, struct tt_query_packet_v14);
 
-	tt_query_packeth->version = tvb_get_guint8(tvb, 1);
-	tt_query_packeth->ttl = tvb_get_guint8(tvb, 2);
-	tt_query_packeth->flags = tvb_get_guint8(tvb, 3);
+	tt_query_packeth->version = tvb_get_uint8(tvb, 1);
+	tt_query_packeth->ttl = tvb_get_uint8(tvb, 2);
+	tt_query_packeth->flags = tvb_get_uint8(tvb, 3);
 
 	set_address_tvb(&tt_query_packeth->dst, AT_ETHER, 6, tvb, 4);
 	copy_address_shallow(&pinfo->dl_dst, &tt_query_packeth->dst);
@@ -3554,7 +3554,7 @@ static void dissect_batadv_tt_query_v14(tvbuff_t *tvb, packet_info *pinfo, proto
 	copy_address_shallow(&pinfo->dl_src, &tt_query_packeth->src);
 	copy_address_shallow(&pinfo->src, &tt_query_packeth->src);
 
-	tt_query_packeth->ttvn = tvb_get_guint8(tvb, 16);
+	tt_query_packeth->ttvn = tvb_get_uint8(tvb, 16);
 	tt_query_packeth->tt_data = tvb_get_ntohs(tvb, 17);
 
 	tt_type = TT_TYPE_MASK & tt_query_packeth->flags;
@@ -3663,7 +3663,7 @@ static void dissect_batadv_roam_adv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	/* set protocol name */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BATADV_ROAM_ADV");
 
-	version = tvb_get_guint8(tvb, 1);
+	version = tvb_get_uint8(tvb, 1);
 	switch (version) {
 	case 14:
 		dissect_batadv_roam_adv_v14(tvb, pinfo, tree);
@@ -3687,8 +3687,8 @@ static void dissect_batadv_roam_adv_v14(tvbuff_t *tvb, packet_info *pinfo, proto
 
 	roam_adv_packeth = wmem_new(pinfo->pool, struct roam_adv_packet_v14);
 
-	roam_adv_packeth->version = tvb_get_guint8(tvb, 1);
-	roam_adv_packeth->ttl = tvb_get_guint8(tvb, 2);
+	roam_adv_packeth->version = tvb_get_uint8(tvb, 1);
+	roam_adv_packeth->ttl = tvb_get_uint8(tvb, 2);
 	set_address_tvb(&roam_adv_packeth->dst, AT_ETHER, 6, tvb, 4);
 	copy_address_shallow(&pinfo->dl_dst, &roam_adv_packeth->dst);
 	copy_address_shallow(&pinfo->dst, &roam_adv_packeth->dst);
@@ -3750,7 +3750,7 @@ static void dissect_batadv_coded(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	/* set protocol name */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BATADV_CODED");
 
-	version = tvb_get_guint8(tvb, 1);
+	version = tvb_get_uint8(tvb, 1);
 	switch (version) {
 	case 15:
 		dissect_batadv_coded_v15(tvb, pinfo, tree);
@@ -3783,7 +3783,7 @@ static void dissect_batadv_coded_v15(tvbuff_t *tvb, packet_info *pinfo,
 	batadv_coded_tree = proto_item_add_subtree(ti, ett_batadv_coded);
 
 	/* items */
-	coded_packeth->packet_type = tvb_get_guint8(tvb, offset);
+	coded_packeth->packet_type = tvb_get_uint8(tvb, offset);
 	proto_tree_add_uint_format_value(batadv_coded_tree,
 					 hf_batadv_packet_type,
 					 tvb, offset, 1,
@@ -3792,17 +3792,17 @@ static void dissect_batadv_coded_v15(tvbuff_t *tvb, packet_info *pinfo,
 					 coded_packeth->packet_type);
 	offset += 1;
 
-	coded_packeth->version = tvb_get_guint8(tvb, offset);
+	coded_packeth->version = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(batadv_coded_tree, hf_batadv_coded_version, tvb,
 			    offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	coded_packeth->ttl = tvb_get_guint8(tvb, offset);
+	coded_packeth->ttl = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(batadv_coded_tree, hf_batadv_coded_ttl, tvb, offset,
 			    1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	coded_packeth->first_ttvn = tvb_get_guint8(tvb, offset);
+	coded_packeth->first_ttvn = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(batadv_coded_tree, hf_batadv_coded_first_ttvn, tvb,
 			    offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
@@ -3826,12 +3826,12 @@ static void dissect_batadv_coded_v15(tvbuff_t *tvb, packet_info *pinfo,
 			    offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
-	coded_packeth->second_ttl = tvb_get_guint8(tvb, offset);
+	coded_packeth->second_ttl = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(batadv_coded_tree, hf_batadv_coded_second_ttl, tvb,
 			    offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	coded_packeth->second_ttvn = tvb_get_guint8(tvb, offset);
+	coded_packeth->second_ttvn = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(batadv_coded_tree, hf_batadv_coded_second_ttvn, tvb,
 			    offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
@@ -3883,7 +3883,7 @@ static void dissect_batadv_elp(tvbuff_t *tvb, packet_info *pinfo,
 	/* set protocol name */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BATADV_ELP");
 
-	version = tvb_get_guint8(tvb, 1);
+	version = tvb_get_uint8(tvb, 1);
 	switch (version) {
 	case 15:
 		dissect_batadv_elp_v15(tvb, pinfo, tree);
@@ -3917,7 +3917,7 @@ static void dissect_batadv_elp_v15(tvbuff_t *tvb, packet_info *pinfo,
 	batadv_elp_tree = proto_item_add_subtree(ti, ett_batadv_elp);
 
 	/* items */
-	elp_packeth->packet_type = tvb_get_guint8(tvb, offset);
+	elp_packeth->packet_type = tvb_get_uint8(tvb, offset);
 	proto_tree_add_uint_format_value(batadv_elp_tree,
 					 hf_batadv_packet_type,
 					 tvb, offset, 1,
@@ -3926,7 +3926,7 @@ static void dissect_batadv_elp_v15(tvbuff_t *tvb, packet_info *pinfo,
 					 elp_packeth->packet_type);
 	offset += 1;
 
-	elp_packeth->version = tvb_get_guint8(tvb, offset);
+	elp_packeth->version = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(batadv_elp_tree, hf_batadv_elp_version, tvb,
 			    offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
@@ -3970,7 +3970,7 @@ static void dissect_batadv_ogm2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	/* set protocol name */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BATADV_OGM2");
 
-	version = tvb_get_guint8(tvb, 1);
+	version = tvb_get_uint8(tvb, 1);
 	switch (version) {
 	case 15:
 		while (offset != -1 &&
@@ -4002,8 +4002,8 @@ static int dissect_batadv_ogm2_v15(tvbuff_t *tvb, int offset,
 	};
 #endif
 
-	type = tvb_get_guint8(tvb, offset+0);
-	version = tvb_get_guint8(tvb, offset+1);
+	type = tvb_get_uint8(tvb, offset+0);
+	version = tvb_get_uint8(tvb, offset+1);
 
 	/* don't interpret padding as B.A.T.M.A.N. advanced packet */
 	if (version == 0 || type != BATADV_OGM2_V15)
@@ -4021,7 +4021,7 @@ static int dissect_batadv_ogm2_v15(tvbuff_t *tvb, int offset,
 	batadv_ogm2_tree = proto_item_add_subtree(ti, ett_batadv_ogm2);
 
 	/* items */
-	ogm2_packeth->packet_type = tvb_get_guint8(tvb, offset);
+	ogm2_packeth->packet_type = tvb_get_uint8(tvb, offset);
 	proto_tree_add_uint_format_value(batadv_ogm2_tree,
 					 hf_batadv_packet_type,
 					 tvb, offset, 1, BATADV_OGM2_V15,
@@ -4029,17 +4029,17 @@ static int dissect_batadv_ogm2_v15(tvbuff_t *tvb, int offset,
 					 BATADV_OGM2_V15);
 	offset += 1;
 
-	ogm2_packeth->version = tvb_get_guint8(tvb, offset);
+	ogm2_packeth->version = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(batadv_ogm2_tree, hf_batadv_ogm2_version, tvb,
 			    offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	ogm2_packeth->ttl = tvb_get_guint8(tvb, offset);
+	ogm2_packeth->ttl = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(batadv_ogm2_tree, hf_batadv_ogm2_ttl, tvb,
 			    offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	ogm2_packeth->flags = tvb_get_guint8(tvb, offset);
+	ogm2_packeth->flags = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(batadv_ogm2_tree, hf_batadv_ogm2_flags, tvb,
 			    offset, 1, ENC_NA);
 	offset += 1;
@@ -4095,7 +4095,7 @@ static void dissect_batadv_unicast_tvlv(tvbuff_t *tvb, packet_info *pinfo, proto
 	/* set protocol name */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BATADV_UNICAST_TVLV");
 
-	version = tvb_get_guint8(tvb, 1);
+	version = tvb_get_uint8(tvb, 1);
 	switch (version) {
 	case 15:
 		dissect_batadv_unicast_tvlv_v15(tvb, pinfo, tree);
@@ -4134,7 +4134,7 @@ static void dissect_batadv_unicast_tvlv_v15(tvbuff_t *tvb, packet_info *pinfo,
 	batadv_unicast_tvlv_tree = proto_item_add_subtree(ti, ett_batadv_unicast_tvlv);
 
 	/* items */
-	unicast_tvlv_packeth->packet_type = tvb_get_guint8(tvb, offset);
+	unicast_tvlv_packeth->packet_type = tvb_get_uint8(tvb, offset);
 	proto_tree_add_uint_format_value(batadv_unicast_tvlv_tree,
 					 hf_batadv_packet_type, tvb, offset, 1,
 					 unicast_tvlv_packeth->packet_type,
@@ -4142,13 +4142,13 @@ static void dissect_batadv_unicast_tvlv_v15(tvbuff_t *tvb, packet_info *pinfo,
 					 unicast_tvlv_packeth->packet_type);
 	offset += 1;
 
-	unicast_tvlv_packeth->version = tvb_get_guint8(tvb, offset);
+	unicast_tvlv_packeth->version = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(batadv_unicast_tvlv_tree,
 			    hf_batadv_unicast_tvlv_version, tvb, offset, 1,
 			    ENC_BIG_ENDIAN);
 	offset += 1;
 
-	unicast_tvlv_packeth->ttl = tvb_get_guint8(tvb, offset);
+	unicast_tvlv_packeth->ttl = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(batadv_unicast_tvlv_tree,
 			    hf_batadv_unicast_tvlv_ttl, tvb, offset, 1,
 			    ENC_BIG_ENDIAN);
@@ -4208,8 +4208,8 @@ static void dissect_batadv_tvlv_v15(tvbuff_t *tvb, packet_info *pinfo,
 
 	while (offset != -1 && tvb_reported_length_remaining(tvb, offset) >= 4) {
 
-		type = tvb_get_guint8(tvb, offset + 0);
-		version = tvb_get_guint8(tvb, offset + 1);
+		type = tvb_get_uint8(tvb, offset + 0);
+		version = tvb_get_uint8(tvb, offset + 1);
 		length = tvb_get_ntohs(tvb, offset + 2) + 4;
 		next_tvb = tvb_new_subset_length(tvb, offset, length);
 
@@ -4402,7 +4402,7 @@ static void dissect_batadv_tvlv_v15_tt(tvbuff_t *tvb, packet_info *pinfo,
 	uint8_t tt_flags;
 	int changes_offset;
 
-	tt_flags = tvb_get_guint8(tvb, offset);
+	tt_flags = tvb_get_uint8(tvb, offset);
 
 	if (version != 0x01) {
 		proto_tree_add_expert_format(

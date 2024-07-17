@@ -56,10 +56,10 @@ dissect_bp_address(tvbuff_t *tvb, int offset, proto_tree *tree, int hfindex)
 
 	switch(type){
 	case 1:
-		ipaddr = ((tvb_get_guint8(tvb, offset+3 )&0xff)<<24)
-			|((tvb_get_guint8(tvb, offset+7 )&0xff)<<16)
-			|((tvb_get_guint8(tvb, offset+11)&0xff)<<8 )
-			|((tvb_get_guint8(tvb, offset+15)&0xff) );
+		ipaddr = ((tvb_get_uint8(tvb, offset+3 )&0xff)<<24)
+			|((tvb_get_uint8(tvb, offset+7 )&0xff)<<16)
+			|((tvb_get_uint8(tvb, offset+11)&0xff)<<8 )
+			|((tvb_get_uint8(tvb, offset+15)&0xff) );
 		proto_tree_add_ipv4(tree, hfindex, tvb,
 			offset, 16, g_ntohl(ipaddr));
 		offset += 16;

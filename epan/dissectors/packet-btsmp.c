@@ -181,7 +181,7 @@ dissect_btsmp_auth_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
     col_append_str(pinfo->cinfo, COL_INFO, "AuthReq: ");
     proto_tree_add_bitmask(tree, tvb, offset, hf_btsmp_authreq, ett_btsmp_auth_req, hfx_btsmp_authreq, ENC_LITTLE_ENDIAN);
 
-    value = tvb_get_guint8(tvb, offset);
+    value = tvb_get_uint8(tvb, offset);
 
     ph = val_to_str_const(value & 0x03, bonding_flag_vals, "<unknown>");
     col_append_sep_str(pinfo->cinfo, COL_INFO, "", ph);
@@ -212,7 +212,7 @@ dissect_btsmp_key_dist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
         proto_tree_add_bitmask(tree, tvb, offset, hf_btsmp_responder_key_distribution, ett_btsmp_key_dist, hfx_btsmp_key_distribution, ENC_LITTLE_ENDIAN);
     }
 
-    value = tvb_get_guint8(tvb, offset);
+    value = tvb_get_uint8(tvb, offset);
 
     if (value & 0x01) {
         col_append_str(pinfo->cinfo, COL_INFO, "LTK");
@@ -285,7 +285,7 @@ dissect_btsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         return false;
 
     proto_tree_add_item(st, hf_btsmp_opcode, tvb, 0, 1, ENC_LITTLE_ENDIAN);
-    opcode = tvb_get_guint8(tvb, 0);
+    opcode = tvb_get_uint8(tvb, 0);
     offset++;
 
     col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const(opcode, opcode_vals, "<unknown>"));
@@ -323,7 +323,7 @@ dissect_btsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     case 0x05: /* Pairing Failed */
         proto_tree_add_item(st, hf_btsmp_reason, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", val_to_str_const(tvb_get_guint8(tvb, offset), reason_vals, "<unknown>"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", val_to_str_const(tvb_get_uint8(tvb, offset), reason_vals, "<unknown>"));
         offset++;
         break;
 
@@ -382,7 +382,7 @@ dissect_btsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         break;
     case 0x0E: /* Pairing Keypress Notification */
         proto_tree_add_item(st, hf_btsmp_notification_type, tvb, offset, 1, ENC_NA);
-        col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", val_to_str_const(tvb_get_guint8(tvb, offset), notification_type_vals, "<unknown>"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", val_to_str_const(tvb_get_uint8(tvb, offset), notification_type_vals, "<unknown>"));
         offset += 1;
 
         break;

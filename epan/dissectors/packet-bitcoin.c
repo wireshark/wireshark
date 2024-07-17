@@ -385,7 +385,7 @@ get_varint(tvbuff_t *tvb, const int offset, int *length, uint64_t *ret)
   /* Note: just throw an exception if not enough  bytes are available in the tvbuff */
 
   /* calculate variable length */
-  value = tvb_get_guint8(tvb, offset);
+  value = tvb_get_uint8(tvb, offset);
   if (value < 0xfd)
   {
     *length = 1;
@@ -647,7 +647,7 @@ dissect_bitcoin_msg_addrv2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     proto_item_set_len(sti_services, length);
     offset += length;
 
-    network = tvb_get_guint8(tvb, offset);
+    network = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(subtree, hf_msg_addrv2_network, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
@@ -890,7 +890,7 @@ dissect_bitcoin_msg_tx_common(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo
 
   /* If present, "flag" always starts with 0x00. */
   /* Otherwise we proceed straight to "in_count". */
-  uint8_t flag = tvb_get_guint8(tvb, offset);
+  uint8_t flag = tvb_get_uint8(tvb, offset);
   if (flag == 0) {
     proto_tree_add_item(tree, hf_msg_tx_flag, tvb, offset, 2, ENC_NA);
     offset += 2;

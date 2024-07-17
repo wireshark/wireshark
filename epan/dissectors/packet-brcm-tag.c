@@ -93,7 +93,7 @@ dissect_brcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
    /* Check if we have enough data to process the header */
    if (check_tvb_length(cursor, BRCM_TAG_LEN) != TVB_LEN_SHORTEST) {
-      opcode_mr_mo = tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+      opcode_mr_mo = tvb_get_uint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
       opcode = (opcode_mr_mo >> BRCM_TAG_OPCODE_SHIFT) & BRCM_TAG_OPCODE_MASK;
 
       ptvcursor_add_no_advance(cursor, hf_brcm_tag_opcode, 1, ENC_NA);

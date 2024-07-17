@@ -920,7 +920,7 @@ de_bssgp_flush_action(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, u
     curr_offset = offset;
 
     /* Action value */
-    oct = tvb_get_guint8(tvb,curr_offset);
+    oct = tvb_get_uint8(tvb,curr_offset);
     proto_tree_add_item(tree, hf_bssgp_flush_action, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset+=1;
     if (add_string)
@@ -977,7 +977,7 @@ de_bssgp_llc_frames_disc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
     curr_offset = offset;
 
     /* Action value */
-    oct = tvb_get_guint8(tvb,curr_offset);
+    oct = tvb_get_uint8(tvb,curr_offset);
     proto_tree_add_item(tree, hf_bssgp_llc_frames_disc, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset+=1;
 
@@ -1166,7 +1166,7 @@ de_bssgp_qos_profile(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32
     if (peak_bit_rate == 0) {
         proto_tree_add_uint_format_value(tree, hf_bssgp_peak_bit_rate, tvb, curr_offset, 2, peak_bit_rate, "Best effort");
     }else{
-        rate_gran = tvb_get_guint8(tvb, curr_offset+2)&0xc0;
+        rate_gran = tvb_get_uint8(tvb, curr_offset+2)&0xc0;
         switch(rate_gran){
             case 0:
                 /* 100 bits/s increments */
@@ -1207,7 +1207,7 @@ de_bssgp_qos_profile(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32
     proto_tree_add_item(tree, hf_bssgp_cr_bit, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_bssgp_t_bit, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_bssgp_a_bit, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    precedence = tvb_get_guint8(tvb, curr_offset) & 0x7;
+    precedence = tvb_get_uint8(tvb, curr_offset) & 0x7;
     pre_item = proto_tree_add_item(tree, hf_bssgp_precedence, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     if(link_dir == P2P_DIR_DL){
         proto_item_append_text(pre_item, " %s", val_to_str_const((uint32_t)precedence, bssgp_precedence_dl, "Radio Priority Unknown(Radio priority 3)"));
@@ -1724,7 +1724,7 @@ de_bssgp_rim_app_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uin
     curr_offset = offset;
 
     /* RIM Application Identity */
-    g_rim_application_identity = tvb_get_guint8(tvb, curr_offset);
+    g_rim_application_identity = tvb_get_uint8(tvb, curr_offset);
     proto_tree_add_item(tree, hf_bssgp_rim_app_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
@@ -1855,10 +1855,10 @@ de_bssgp_ran_information_app_cont_unit(tvbuff_t *tvb, proto_tree *tree, packet_i
             /* Reporting Cell Identifier */
             curr_offset = curr_offset + de_bssgp_cell_id(tvb, tree, pinfo, curr_offset, len, add_string, string_len);
             /* Number of SI/PSI */
-            num_items = tvb_get_guint8(tvb,curr_offset)>>1;
+            num_items = tvb_get_uint8(tvb,curr_offset)>>1;
             proto_tree_add_item(tree, hf_bssgp_num_si_psi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
             /* Type */
-            type = tvb_get_guint8(tvb,curr_offset)&0x01;
+            type = tvb_get_uint8(tvb,curr_offset)&0x01;
             proto_tree_add_item(tree, hf_bssgp_si_psi_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
             curr_offset++;
             /* Octet 12-n SI/PSI */
@@ -1886,7 +1886,7 @@ de_bssgp_ran_information_app_cont_unit(tvbuff_t *tvb, proto_tree *tree, packet_i
                 proto_tree      *si_tree;
 
                 for (i=0; i < num_items; i++){
-                    oct = tvb_get_guint8(tvb,curr_offset);
+                    oct = tvb_get_uint8(tvb,curr_offset);
                     get_rr_msg_params(oct, &msg_str, &ett_tree, &hf_idx, &msg_fcn_p);
                     si_item2 = proto_tree_add_bytes_format(tree, hf_bssgp_si_item, tvb, curr_offset, 21, NULL, "SI item %u ",i+1);
                     si_item = proto_tree_add_item(tree, hf_idx, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
@@ -1926,7 +1926,7 @@ de_bssgp_ran_information_app_cont_unit(tvbuff_t *tvb, proto_tree *tree, packet_i
         case 4:
             /* 11.3.63.2.4 RAN-INFORMATION Application Container for the SON Transfer Application */
             /* Octet 3 Spare RAT discriminator */
-            rat_type = tvb_get_guint8(tvb,curr_offset) & 0x0f;
+            rat_type = tvb_get_uint8(tvb,curr_offset) & 0x0f;
             proto_tree_add_item(tree, hf_bssgp_rat_discriminator, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
             curr_offset++;
             /* Octet 4-m Reporting Cell Identifier */
@@ -2212,7 +2212,7 @@ de_bssgp_pfc_flow_ctrl(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint
 
     curr_offset = offset;
 
-    num_pfc = tvb_get_guint8(tvb, curr_offset);
+    num_pfc = tvb_get_uint8(tvb, curr_offset);
     if (num_pfc < 12) {
         proto_tree_add_uint(tree, hf_bssgp_num_pfc, tvb, curr_offset, 1, num_pfc);
     }else {
@@ -2288,7 +2288,7 @@ de_bssgp_rim_routing_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, ui
      */
 
     /* RIM Routing Address discriminator */
-    oct  = tvb_get_guint8(tvb,curr_offset);
+    oct  = tvb_get_uint8(tvb,curr_offset);
     ti = proto_tree_add_item(tree, hf_bssgp_ra_discriminator, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
     switch(oct){
@@ -2475,7 +2475,7 @@ de_bssgp_mbms_ra_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint3
     curr_offset = offset;
 
     /* octet 3 Number of Routing Area Identifications Spare Spare Spare Spare */
-    num_ra_ids = tvb_get_guint8(tvb,curr_offset) >> 4;
+    num_ra_ids = tvb_get_uint8(tvb,curr_offset) >> 4;
     proto_tree_add_item(tree, hf_bssgp_mbms_num_ra_ids, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
     /* octet 4 - 11 Routing Area Identification 1 (etc)*/
@@ -2583,7 +2583,7 @@ de_bssgp_pfcs_to_be_set_up_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 
     curr_offset = offset;
 
-    num_pfc = tvb_get_guint8(tvb, curr_offset);
+    num_pfc = tvb_get_uint8(tvb, curr_offset);
     if (num_pfc < 12) {
         proto_tree_add_uint(tree, hf_bssgp_num_pfc, tvb, curr_offset, 1, num_pfc);
     }else {
@@ -2657,7 +2657,7 @@ de_bssgp_list_of_setup_pfcs(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 
     curr_offset = offset;
 
-    num_pfc = tvb_get_guint8(tvb, curr_offset);
+    num_pfc = tvb_get_uint8(tvb, curr_offset);
     if (num_pfc < 12) {
         proto_tree_add_uint(tree, hf_bssgp_num_pfc, tvb, curr_offset, 1, num_pfc);
     }else {
@@ -2882,7 +2882,7 @@ de_bssgp_time_to_MBMS_data_tran(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
     curr_offset = offset;
 
     /* 0 = 1s etc */
-    value = tvb_get_guint8(tvb,curr_offset) + 1;
+    value = tvb_get_uint8(tvb,curr_offset) + 1;
     proto_tree_add_uint(tree, hf_bssgp_time_to_MBMS_data_tran, tvb, curr_offset, 1, value);
 
     return len;
@@ -2976,7 +2976,7 @@ de_bssgp_sipsi_container(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
 
     curr_offset = offset;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
     num = oct >>1;
     type = oct & 1;
     proto_tree_add_item(tree, hf_bssgp_num_si_psi, tvb, curr_offset, 1, ENC_NA);
@@ -3013,7 +3013,7 @@ de_bssgp_active_pfcs_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, u
 
     curr_offset = offset;
 
-    num_pfc = tvb_get_guint8(tvb, curr_offset);
+    num_pfc = tvb_get_uint8(tvb, curr_offset);
     if (num_pfc < 12) {
         proto_tree_add_uint(tree, hf_bssgp_num_pfc, tvb, curr_offset, 1, num_pfc);
     }else {
@@ -3199,7 +3199,7 @@ de_bssgp_sub_prof_id_f_rat_freq_prio(tvbuff_t *tvb, proto_tree *tree, packet_inf
      * The Subscriber Profile ID for RAT/Frequency priority is given by
      * the indicated value +1.
      */
-    value = tvb_get_guint8(tvb,curr_offset) + 1;
+    value = tvb_get_uint8(tvb,curr_offset) + 1;
     proto_tree_add_uint(tree, hf_bssgp_sub_prof_id_f_rat_freq_prio, tvb, curr_offset, 1, value);
     curr_offset++;
 
@@ -6874,7 +6874,7 @@ dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     col_clear(pinfo->cinfo, COL_INFO);
 
 
-    g_pdu_type = tvb_get_guint8(tvb,offset);
+    g_pdu_type = tvb_get_uint8(tvb,offset);
     ti = proto_tree_add_item(tree, proto_bssgp, tvb, 0, -1, ENC_NA);
     bssgp_tree = proto_item_add_subtree(ti, ett_bssgp);
 

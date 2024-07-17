@@ -71,7 +71,7 @@ dissect_bt3ds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     }
 
     sub_item = proto_tree_add_item(main_tree, hf_message_opcode, tvb, offset, 1, ENC_BIG_ENDIAN);
-    value = tvb_get_guint8(tvb, offset);
+    value = tvb_get_uint8(tvb, offset);
     if (value > 0)
         expert_add_info(pinfo, sub_item, &ei_message_opcode_reserved);
     offset += 1;
@@ -81,13 +81,13 @@ dissect_bt3ds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     sub_item = proto_tree_add_item(main_tree, hf_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(main_tree, hf_user_request_for_battery_level_display, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(main_tree, hf_association_notification, tvb, offset, 1, ENC_BIG_ENDIAN);
-    value = tvb_get_guint8(tvb, offset) >> 2;
+    value = tvb_get_uint8(tvb, offset) >> 2;
     if (value != 0)
         expert_add_info(pinfo, sub_item, &ei_reserved);
     offset += 1;
 
     sub_item = proto_tree_add_item(main_tree, hf_battery_level, tvb, offset, 1, ENC_BIG_ENDIAN);
-    value = tvb_get_guint8(tvb, offset);
+    value = tvb_get_uint8(tvb, offset);
     if (value >= 101 && value <= 254)
         expert_add_info(pinfo, sub_item, &ei_battery_level_reserved);
     else if (value == 255)

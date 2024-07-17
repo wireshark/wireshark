@@ -525,8 +525,8 @@ dissect_ipv4_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
 	offset = 0;
 
-	bvlc_type = tvb_get_guint8(tvb, offset);
-	bvlc_function = tvb_get_guint8(tvb, offset + 1);
+	bvlc_type = tvb_get_uint8(tvb, offset);
+	bvlc_function = tvb_get_uint8(tvb, offset + 1);
 	packet_length = tvb_get_ntohs(tvb, offset + 2);
 	length_remaining = tvb_reported_length_remaining(tvb, offset);
 
@@ -724,8 +724,8 @@ dissect_ipv6_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
 	offset = 0;
 
-	bvlc_type = tvb_get_guint8(tvb, offset);
-	bvlc_function = tvb_get_guint8(tvb, offset + 1);
+	bvlc_type = tvb_get_uint8(tvb, offset);
+	bvlc_function = tvb_get_uint8(tvb, offset + 1);
 	packet_length = tvb_get_ntohs(tvb, offset + 2);
 	length_remaining = tvb_reported_length_remaining(tvb, offset);
 
@@ -889,7 +889,7 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 	uint8_t bvlc_type;
 	unsigned ret = 0;
 
-	bvlc_type = tvb_get_guint8(tvb, 0);
+	bvlc_type = tvb_get_uint8(tvb, 0);
 
 	/*
 	 * Simple sanity check - make sure the type is one we know about.
@@ -943,9 +943,9 @@ dissect_bscvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 		return 0; /* reject */
 
 	/* Fix part of the header first */
-	bvlc_function = tvb_get_guint8(tvb, offset++);
-	bvlc_control = tvb_get_guint8(tvb, offset++);
-	bvlc_message_id = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+	bvlc_function = tvb_get_uint8(tvb, offset++);
+	bvlc_control = tvb_get_uint8(tvb, offset++);
+	bvlc_message_id = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	/* Variable part of the header next */
@@ -962,7 +962,7 @@ dissect_bscvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 		bMoreFlag = true;
 
 		while(tvb_reported_length_remaining(tvb, bvlc_length) > 0 &&
-		      (hdr_byte = tvb_get_guint8(tvb, bvlc_length)) != 0 && bMoreFlag)
+		      (hdr_byte = tvb_get_uint8(tvb, bvlc_length)) != 0 && bMoreFlag)
 		{
 			/* get flags and type... */
 			bMoreFlag= (hdr_byte & BSCVLC_HEADER_OPTION_MORE_OPTIONS);
@@ -971,8 +971,8 @@ dissect_bscvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
 			if(bDataFlag)
 			{
-				npdu_length = (int)(tvb_get_guint8(tvb, bvlc_length++) << 8);
-				npdu_length += (int)tvb_get_guint8(tvb, bvlc_length++);
+				npdu_length = (int)(tvb_get_uint8(tvb, bvlc_length++) << 8);
+				npdu_length += (int)tvb_get_uint8(tvb, bvlc_length++);
 				bvlc_length += npdu_length;
 			}
 		}
@@ -983,7 +983,7 @@ dissect_bscvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 		bMoreFlag = true;
 
 		while(tvb_reported_length_remaining(tvb, bvlc_length) > 0 &&
-		      (hdr_byte = tvb_get_guint8(tvb, bvlc_length)) != 0 && bMoreFlag)
+		      (hdr_byte = tvb_get_uint8(tvb, bvlc_length)) != 0 && bMoreFlag)
 		{
 			/* get flags and type... */
 			bMoreFlag= (hdr_byte & BSCVLC_HEADER_OPTION_MORE_OPTIONS);
@@ -992,8 +992,8 @@ dissect_bscvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
 			if(bDataFlag)
 			{
-				npdu_length = (int)(tvb_get_guint8(tvb, bvlc_length++) << 8);
-				npdu_length += (int)tvb_get_guint8(tvb, bvlc_length++);
+				npdu_length = (int)(tvb_get_uint8(tvb, bvlc_length++) << 8);
+				npdu_length += (int)tvb_get_uint8(tvb, bvlc_length++);
 				bvlc_length += npdu_length;
 			}
 		}
@@ -1055,7 +1055,7 @@ dissect_bscvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	if ((bvlc_control & BSCVLC_CONTROL_ORIG_ADDRESS) != 0)
 	{
 		for(idx = 0; idx < 6; idx++)
-			snprintf(&mac_buffer[idx * 2], sizeof(mac_buffer) - (idx * 2), "%02X", tvb_get_guint8(tvb, offset + idx));
+			snprintf(&mac_buffer[idx * 2], sizeof(mac_buffer) - (idx * 2), "%02X", tvb_get_uint8(tvb, offset + idx));
 		col_append_fstr(pinfo->cinfo, COL_INFO, " SMAC %s", mac_buffer);
 
 		proto_tree_add_item(bvlc_tree, hf_bscvlc_orig_vmac, tvb, offset, 6, ENC_NA);
@@ -1065,7 +1065,7 @@ dissect_bscvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	if ((bvlc_control & BSCVLC_CONTROL_DEST_ADDRESS) != 0)
 	{
 		for(idx = 0; idx < 6; idx++)
-			snprintf(&mac_buffer[idx * 2],  sizeof(mac_buffer) - (idx * 2), "%02X", tvb_get_guint8(tvb, offset + idx));
+			snprintf(&mac_buffer[idx * 2],  sizeof(mac_buffer) - (idx * 2), "%02X", tvb_get_uint8(tvb, offset + idx));
 		col_append_fstr(pinfo->cinfo, COL_INFO, " DMAC %s", mac_buffer);
 
 		proto_tree_add_item(bvlc_tree, hf_bscvlc_dest_vmac, tvb, offset, 6, ENC_NA);
@@ -1077,7 +1077,7 @@ dissect_bscvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 		bMoreFlag = true;
 
 		while(tvb_reported_length_remaining(tvb, offset) > 0 &&
-		      (hdr_byte = tvb_get_guint8(tvb, offset)) != 0 && bMoreFlag)
+		      (hdr_byte = tvb_get_uint8(tvb, offset)) != 0 && bMoreFlag)
 		{
 			/* get flags and type... */
 			bMoreFlag= (hdr_byte & BSCVLC_HEADER_OPTION_MORE_OPTIONS);
@@ -1088,8 +1088,8 @@ dissect_bscvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
 			if(bDataFlag)
 			{
-				npdu_length = (int)(tvb_get_guint8(tvb, offset++) << 8);
-				npdu_length += (int)tvb_get_guint8(tvb, offset++);
+				npdu_length = (int)(tvb_get_uint8(tvb, offset++) << 8);
+				npdu_length += (int)tvb_get_uint8(tvb, offset++);
 				offset += npdu_length;
 			}
 
@@ -1111,7 +1111,7 @@ dissect_bscvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 		bMoreFlag = true;
 
 		while(tvb_reported_length_remaining(tvb, offset) > 0 &&
-		      (hdr_byte = tvb_get_guint8(tvb, offset)) != 0 && bMoreFlag)
+		      (hdr_byte = tvb_get_uint8(tvb, offset)) != 0 && bMoreFlag)
 		{
 			/* get flags and type... */
 			bMoreFlag= (hdr_byte & BSCVLC_HEADER_OPTION_MORE_OPTIONS);
@@ -1122,8 +1122,8 @@ dissect_bscvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
 			if(bDataFlag)
 			{
-				npdu_length = (int)(tvb_get_guint8(tvb, offset++) << 8);
-				npdu_length += (int)tvb_get_guint8(tvb, offset++);
+				npdu_length = (int)(tvb_get_uint8(tvb, offset++) << 8);
+				npdu_length += (int)tvb_get_uint8(tvb, offset++);
 				offset += npdu_length;
 			}
 
@@ -1157,7 +1157,7 @@ dissect_bscvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 		offset++;
 		proto_tree_add_item(subtree, hf_bscvlc_result, tvb,
 				offset, 1, ENC_NA);
-		bvlc_result = tvb_get_guint8(tvb, offset);
+		bvlc_result = tvb_get_uint8(tvb, offset);
 		offset++;
 
 		col_append_fstr(pinfo->cinfo, COL_INFO, " %s",

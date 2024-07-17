@@ -568,7 +568,7 @@ static void bmpv4_dissect_tlvs(proto_tree *tree, tvbuff_t *tvb, int offset, pack
             case BMPv4_TLV_TYPE_BGP_CAP_ADDPATH:
             case BMPv4_TLV_TYPE_BGP_CAP_MULTIPLE_LBL: {
 
-                uint16_t cap_value = tvb_get_guint8(tvb, offset);
+                uint16_t cap_value = tvb_get_uint8(tvb, offset);
                 if (cap_value != 0 && cap_value != 1) {
                     expert_add_info(pinfo, tlv_tree, &ei_bmpv4_tlv_wrong_cap_value);
                 }
@@ -615,7 +615,7 @@ dissect_bmp_peer_down_notification(tvbuff_t *tvb, proto_tree *tree, packet_info 
 {
     uint8_t down_reason;
 
-    down_reason = tvb_get_guint8(tvb, offset);
+    down_reason = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_peer_down_reason, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -639,7 +639,7 @@ dissect_bmp_peer_down_notification(tvbuff_t *tvb, proto_tree *tree, packet_info 
             tlv_item = proto_tree_add_item(tree, hf_peer_state_tlv, tvb, offset, 2 + 2, ENC_NA);
             tlv_tree = proto_item_add_subtree(tlv_item, ett_bmp_peer_state_tlv);
 
-            type = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+            type = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
 
             /* unknown tlv type, and we support other types with version 4 so let v4 dissect it */
             if (try_val_to_str(type, peer_down_tlv_typevals) == NULL && is_v4) {
@@ -1002,7 +1002,7 @@ dissect_bmp_peer_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int
     proto_tree_add_item_ret_uint(peer_hdr_subtree, hf_peer_type, tvb, offset, 1, ENC_BIG_ENDIAN, &type);
     offset += 1;
 
-    flags = tvb_get_guint8(tvb, offset);
+    flags = tvb_get_uint8(tvb, offset);
 
     if (type == BMP_PEER_LOC_RIB_INSTANCE) {
         proto_tree_add_bitmask(peer_hdr_subtree, tvb, offset, hf_peer_flags, ett_bmp_peer_flags, peer_flags_loc_rib, ENC_NA);
@@ -1238,7 +1238,7 @@ dissect_bmp_route_policy_event(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
                     NULL
                 };
 
-                flags = tvb_get_guint8(tvb, offset);
+                flags = tvb_get_uint8(tvb, offset);
                 proto_tree_add_bitmask(tlv_tree, tvb, offset, hf_route_policy_tlv_policy_flags, ett_bmp_route_policy_tlv_policy_flags, route_policy_tlv_policy_flags, ENC_NA);
                 offset += 1;
                 proto_tree_add_item_ret_uint(tlv_tree, hf_route_policy_tlv_policy_count, tvb, offset, 1, ENC_BIG_ENDIAN, &policy_count);
@@ -1372,7 +1372,7 @@ dissect_bmp_route_policy(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, in
         NULL
     };
 
-    flags = tvb_get_guint8(tvb, offset);
+    flags = tvb_get_uint8(tvb, offset);
 
     proto_tree_add_bitmask(tree, tvb, offset, hf_route_policy_flags, ett_bmp_route_policy_flags, route_policy_flags, ENC_NA);
     offset += 1;
@@ -1440,7 +1440,7 @@ dissect_bmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BMP");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    bmp_type = tvb_get_guint8(tvb, 5);
+    bmp_type = tvb_get_uint8(tvb, 5);
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "Type: %s",
             val_to_str(bmp_type, bmp_typevals, "Unknown (0x%02x)"));

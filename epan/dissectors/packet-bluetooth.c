@@ -5085,12 +5085,12 @@ dissect_bd_addr(int hf_bd_addr, packet_info *pinfo, proto_tree *tree,
 {
     uint8_t bd_addr[6];
 
-    bd_addr[5] = tvb_get_guint8(tvb, offset);
-    bd_addr[4] = tvb_get_guint8(tvb, offset + 1);
-    bd_addr[3] = tvb_get_guint8(tvb, offset + 2);
-    bd_addr[2] = tvb_get_guint8(tvb, offset + 3);
-    bd_addr[1] = tvb_get_guint8(tvb, offset + 4);
-    bd_addr[0] = tvb_get_guint8(tvb, offset + 5);
+    bd_addr[5] = tvb_get_uint8(tvb, offset);
+    bd_addr[4] = tvb_get_uint8(tvb, offset + 1);
+    bd_addr[3] = tvb_get_uint8(tvb, offset + 2);
+    bd_addr[2] = tvb_get_uint8(tvb, offset + 3);
+    bd_addr[1] = tvb_get_uint8(tvb, offset + 4);
+    bd_addr[0] = tvb_get_uint8(tvb, offset + 5);
 
     proto_tree_add_ether(tree, hf_bd_addr, tvb, offset, 6, bd_addr);
     offset += 6;
@@ -5138,10 +5138,10 @@ save_local_device_name_from_eir_ad(tvbuff_t *tvb, int offset, packet_info *pinfo
     if (!(!pinfo->fd->visited && bluetooth_data)) return;
 
     while (i < size) {
-        length = tvb_get_guint8(tvb, offset + i);
+        length = tvb_get_uint8(tvb, offset + i);
         if (length == 0) break;
 
-        switch(tvb_get_guint8(tvb, offset + i + 1)) {
+        switch(tvb_get_uint8(tvb, offset + i + 1)) {
         case 0x08: /* Device Name, shortened */
         case 0x09: /* Device Name, full */
             name = tvb_get_string_enc(pinfo->pool, tvb, offset + i + 2, length - 1, ENC_ASCII);
@@ -5279,37 +5279,37 @@ get_bluetooth_uuid(tvbuff_t *tvb, int offset, int size)
     }
 
     if (size == 2) {
-        uuid.data[0] = tvb_get_guint8(tvb, offset + 1);
-        uuid.data[1] = tvb_get_guint8(tvb, offset);
+        uuid.data[0] = tvb_get_uint8(tvb, offset + 1);
+        uuid.data[1] = tvb_get_uint8(tvb, offset);
 
         uuid.bt_uuid = uuid.data[1] | uuid.data[0] << 8;
     } else if (size == 4) {
-        uuid.data[0] = tvb_get_guint8(tvb, offset + 3);
-        uuid.data[1] = tvb_get_guint8(tvb, offset + 2);
-        uuid.data[2] = tvb_get_guint8(tvb, offset + 1);
-        uuid.data[3] = tvb_get_guint8(tvb, offset);
+        uuid.data[0] = tvb_get_uint8(tvb, offset + 3);
+        uuid.data[1] = tvb_get_uint8(tvb, offset + 2);
+        uuid.data[2] = tvb_get_uint8(tvb, offset + 1);
+        uuid.data[3] = tvb_get_uint8(tvb, offset);
 
         if (uuid.data[0] == 0x00 && uuid.data[1] == 0x00) {
             uuid.bt_uuid = uuid.data[3] | uuid.data[2] << 8;
             size = 2;
         }
     } else {
-        uuid.data[0] = tvb_get_guint8(tvb, offset + 15);
-        uuid.data[1] = tvb_get_guint8(tvb, offset + 14);
-        uuid.data[2] = tvb_get_guint8(tvb, offset + 13);
-        uuid.data[3] = tvb_get_guint8(tvb, offset + 12);
-        uuid.data[4] = tvb_get_guint8(tvb, offset + 11);
-        uuid.data[5] = tvb_get_guint8(tvb, offset + 10);
-        uuid.data[6] = tvb_get_guint8(tvb, offset + 9);
-        uuid.data[7] = tvb_get_guint8(tvb, offset + 8);
-        uuid.data[8] = tvb_get_guint8(tvb, offset + 7);
-        uuid.data[9] = tvb_get_guint8(tvb, offset + 6);
-        uuid.data[10] = tvb_get_guint8(tvb, offset + 5);
-        uuid.data[11] = tvb_get_guint8(tvb, offset + 4);
-        uuid.data[12] = tvb_get_guint8(tvb, offset + 3);
-        uuid.data[13] = tvb_get_guint8(tvb, offset + 2);
-        uuid.data[14] = tvb_get_guint8(tvb, offset + 1);
-        uuid.data[15] = tvb_get_guint8(tvb, offset);
+        uuid.data[0] = tvb_get_uint8(tvb, offset + 15);
+        uuid.data[1] = tvb_get_uint8(tvb, offset + 14);
+        uuid.data[2] = tvb_get_uint8(tvb, offset + 13);
+        uuid.data[3] = tvb_get_uint8(tvb, offset + 12);
+        uuid.data[4] = tvb_get_uint8(tvb, offset + 11);
+        uuid.data[5] = tvb_get_uint8(tvb, offset + 10);
+        uuid.data[6] = tvb_get_uint8(tvb, offset + 9);
+        uuid.data[7] = tvb_get_uint8(tvb, offset + 8);
+        uuid.data[8] = tvb_get_uint8(tvb, offset + 7);
+        uuid.data[9] = tvb_get_uint8(tvb, offset + 6);
+        uuid.data[10] = tvb_get_uint8(tvb, offset + 5);
+        uuid.data[11] = tvb_get_uint8(tvb, offset + 4);
+        uuid.data[12] = tvb_get_uint8(tvb, offset + 3);
+        uuid.data[13] = tvb_get_uint8(tvb, offset + 2);
+        uuid.data[14] = tvb_get_uint8(tvb, offset + 1);
+        uuid.data[15] = tvb_get_uint8(tvb, offset);
 
         if (uuid.data[0] == 0x00 && uuid.data[1] == 0x00 &&
             uuid.data[4]  == 0x00 && uuid.data[5]  == 0x00 && uuid.data[6]  == 0x10 &&

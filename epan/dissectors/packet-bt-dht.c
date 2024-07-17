@@ -104,7 +104,7 @@ bencoded_string_length(packet_info *pinfo, tvbuff_t *tvb, unsigned *offset_ptr, 
   offset = *offset_ptr;
   start = offset;
 
-  while(tvb_get_guint8(tvb, offset) != ':' && --remaining)
+  while(tvb_get_uint8(tvb, offset) != ':' && --remaining)
     ++offset;
 
   if (remaining && ws_strtou32(tvb_get_string_enc(pinfo->pool, tvb, start, offset-start, ENC_ASCII),
@@ -160,13 +160,13 @@ dissect_bencoded_int(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
   if (remaining < 3)
     return 0;
 
-  if (tvb_get_guint8(tvb, offset) != 'i')
+  if (tvb_get_uint8(tvb, offset) != 'i')
     return 0;
 
   offset += 1;
   remaining -= 1;
   start_offset = offset;
-  while (tvb_get_guint8(tvb, offset) != 'e' && --remaining)
+  while (tvb_get_uint8(tvb, offset) != 'e' && --remaining)
     offset += 1;
 
   if (remaining == 0)
@@ -202,13 +202,13 @@ dissect_bencoded_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
   ti = proto_tree_add_none_format( tree, hf_bencoded_list, tvb, offset, 0, "%s: list...", label );
   sub_tree = proto_item_add_subtree( ti, ett_bencoded_list);
 
-  if (tvb_get_guint8(tvb, offset) != 'l')
+  if (tvb_get_uint8(tvb, offset) != 'l')
     return 0;
   offset += 1;
 
   while (tvb_captured_length_remaining(tvb, offset) > 0)
   {
-    one_byte = tvb_get_guint8(tvb, offset);
+    one_byte = tvb_get_uint8(tvb, offset);
     if (one_byte == 'e')
       break;
 
@@ -302,7 +302,7 @@ dissect_bt_dht_values(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
   offset += 1;
 
   /* dissect bt-dht values */
-  while( tvb_get_guint8(tvb,offset)!='e' )
+  while( tvb_get_uint8(tvb,offset)!='e' )
   {
     if (!bencoded_string_length(pinfo, tvb, &offset, &string_len))
     {
@@ -347,7 +347,7 @@ dissect_bt_dht_values(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
     offset += string_len;
   }
 
-  if (tvb_get_guint8(tvb,offset)=='e') { /* list ending delimiter */
+  if (tvb_get_uint8(tvb,offset)=='e') { /* list ending delimiter */
     proto_tree_add_item(sub_tree, hf_bencoded_list_terminator, tvb, offset, 1, ENC_ASCII);
     offset++;
   }
@@ -457,7 +457,7 @@ dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return 0;
 
   /* If it is a dict, then just do recursion */
-  switch( tvb_get_guint8(tvb,offset) )
+  switch( tvb_get_uint8(tvb,offset) )
   {
   case 'd':
     offset = dissect_bencoded_dict( tvb, pinfo, sub_tree, offset, "Value" );
@@ -580,12 +580,12 @@ dissect_bencoded_dict(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
     sub_tree = proto_item_add_subtree( ti, ett_bencoded_dict);
   }
 
-  if (tvb_get_guint8(tvb, offset) != 'd')
+  if (tvb_get_uint8(tvb, offset) != 'd')
     return 0;
   offset += 1;
 
   while (tvb_captured_length_remaining(tvb, offset) > 0) {
-    if (tvb_get_guint8(tvb, offset) == 'e')
+    if (tvb_get_uint8(tvb, offset) == 'e')
       break;
 
     offset = dissect_bencoded_dict_entry( tvb, pinfo, sub_tree, offset );

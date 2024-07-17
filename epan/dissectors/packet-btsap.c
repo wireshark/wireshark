@@ -181,7 +181,7 @@ dissect_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
     uint8_t      status_change;
     uint8_t      transport_protocol;
 
-    parameter_id = tvb_get_guint8(tvb, offset);
+    parameter_id = tvb_get_uint8(tvb, offset);
     parameter_length = tvb_get_ntohs(tvb, offset + 2);
     parameter_padding_length = parameter_length % 4;
     if (parameter_padding_length > 0)
@@ -216,7 +216,7 @@ dissect_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
             break;
         case 0x01: /* ConnectionStatus */
             proto_tree_add_item(ptree, hf_btsap_parameter_connection_status, tvb, offset, 1, ENC_BIG_ENDIAN);
-            connection_status = tvb_get_guint8(tvb, offset);
+            connection_status = tvb_get_uint8(tvb, offset);
             proto_item_append_text(parameter_item, "%s", val_to_str_const(connection_status, connection_status_vals, "Unknown"));
             col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", val_to_str_const(connection_status, connection_status_vals, "Unknown"));
             length = 1;
@@ -224,7 +224,7 @@ dissect_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
             break;
         case 0x02: /* ResultCode */
             proto_tree_add_item(ptree, hf_btsap_parameter_result_code, tvb, offset, 1, ENC_BIG_ENDIAN);
-            result_code = tvb_get_guint8(tvb, offset);
+            result_code = tvb_get_uint8(tvb, offset);
             proto_item_append_text(parameter_item, "%s", val_to_str_const(result_code, result_code_vals, "Unknown"));
             col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", val_to_str_const(result_code, result_code_vals, "Unknown"));
             length = 1;
@@ -232,7 +232,7 @@ dissect_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
             break;
         case 0x03: /* DisconnectionType */
             proto_tree_add_item(ptree, hf_btsap_parameter_disconnection_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-            disconnection_type = tvb_get_guint8(tvb, offset);
+            disconnection_type = tvb_get_uint8(tvb, offset);
             proto_item_append_text(parameter_item, "%s", val_to_str_const(disconnection_type, disconnection_type_vals, "Unknown"));
             col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", val_to_str_const(disconnection_type, disconnection_type_vals, "Unknown"));
             length = 1;
@@ -308,7 +308,7 @@ dissect_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
             break;
         case 0x08: /* StatusChange */
             proto_tree_add_item(ptree, hf_btsap_parameter_status_change, tvb, offset, 1, ENC_BIG_ENDIAN);
-            status_change = tvb_get_guint8(tvb, offset);
+            status_change = tvb_get_uint8(tvb, offset);
             proto_item_append_text(parameter_item, "%s", val_to_str_const(status_change, status_change_vals, "Unknown"));
             col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", val_to_str_const(status_change, status_change_vals, "Unknown"));
             length = 1;
@@ -316,7 +316,7 @@ dissect_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
             break;
         case 0x09: /* TransportProtocol */
             proto_tree_add_item(ptree, hf_btsap_parameter_transport_protocol, tvb, offset, 1, ENC_BIG_ENDIAN);
-            transport_protocol = tvb_get_guint8(tvb, offset);
+            transport_protocol = tvb_get_uint8(tvb, offset);
             proto_item_append_text(parameter_item, "%u", transport_protocol);
             col_append_fstr(pinfo->cinfo, COL_INFO, ": %u", transport_protocol);
             length = 1;
@@ -400,12 +400,12 @@ dissect_btsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     }
 
     proto_tree_add_item(btsap_tree, hf_btsap_header_msg_id, tvb, offset, 1, ENC_BIG_ENDIAN);
-    msg_id = tvb_get_guint8(tvb, offset);
+    msg_id = tvb_get_uint8(tvb, offset);
     col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const(msg_id, msg_id_vals, "Unknown MsgID"));
     offset += 1;
 
     proto_tree_add_item(btsap_tree, hf_btsap_header_number_of_parameters, tvb, offset, 1, ENC_BIG_ENDIAN);
-    number_of_parameters = tvb_get_guint8(tvb, offset);
+    number_of_parameters = tvb_get_uint8(tvb, offset);
     offset += 1;
 
     proto_tree_add_item(btsap_tree, hf_btsap_header_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -452,7 +452,7 @@ dissect_btsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
             required_parameters = 1;
             for (i_parameter = 0; i_parameter < number_of_parameters; ++i_parameter) {
                 if (parameters[i_parameter] == PARAMETER_CONNECTION_STATUS) {
-                    if (tvb_get_guint8(tvb, parameter_offsets[i_parameter]) != 0x00) {
+                    if (tvb_get_uint8(tvb, parameter_offsets[i_parameter]) != 0x00) {
                         for (i_next_parameter = 0; i_next_parameter < number_of_parameters; ++i_next_parameter) {
                             if (parameters[i_next_parameter] == PARAMETER_MAX_MSG_SIZE) {
                                 ++parameters_check;
@@ -485,7 +485,7 @@ dissect_btsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
             required_parameters = 1;
             for (i_parameter = 0; i_parameter < number_of_parameters; ++i_parameter) {
                 if (parameters[i_parameter] == PARAMETER_RESULT_CODE) {
-                    if (tvb_get_guint8(tvb, parameter_offsets[i_parameter]) == 0x00) {
+                    if (tvb_get_uint8(tvb, parameter_offsets[i_parameter]) == 0x00) {
                         for (i_next_parameter = 0; i_next_parameter < number_of_parameters; ++i_next_parameter) {
                             if (parameters[i_next_parameter] == PARAMETER_RESPONSE_APDU) {
                                 ++parameters_check;
@@ -502,7 +502,7 @@ dissect_btsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
             required_parameters = 1;
             for (i_parameter = 0; i_parameter < number_of_parameters; ++i_parameter) {
                 if (parameters[i_parameter] == PARAMETER_RESULT_CODE) {
-                    if (tvb_get_guint8(tvb, parameter_offsets[i_parameter]) == 0x00) {
+                    if (tvb_get_uint8(tvb, parameter_offsets[i_parameter]) == 0x00) {
                         for (i_next_parameter = 0; i_next_parameter < number_of_parameters; ++i_next_parameter) {
                             if (parameters[i_next_parameter] == PARAMETER_ATR) {
                                 ++parameters_check;
@@ -519,7 +519,7 @@ dissect_btsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
             required_parameters = 1;
             for (i_parameter = 0; i_parameter < number_of_parameters; ++i_parameter) {
                 if (parameters[i_parameter] == PARAMETER_RESULT_CODE) {
-                    if (tvb_get_guint8(tvb, parameter_offsets[i_parameter]) == 0x00) {
+                    if (tvb_get_uint8(tvb, parameter_offsets[i_parameter]) == 0x00) {
                         for (i_next_parameter = 0; i_next_parameter < number_of_parameters; ++i_next_parameter) {
                             if (parameters[i_next_parameter] == PARAMETER_CARD_READER_STATUS) {
                                 ++parameters_check;

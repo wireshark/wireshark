@@ -355,7 +355,7 @@ dissect_bcp_sync_data(proto_tree *bcp_tree, tvbuff_t *tvb)
 
     bcp_subtree = proto_tree_add_subtree_format(bcp_tree, tvb, offset, len, ett_bcp_data, NULL,
                                              "BCP Sync Data: Identify=%s",
-                                             BOOLSTR(tvb_get_guint8(tvb, offset + 9)));
+                                             BOOLSTR(tvb_get_uint8(tvb, offset + 9)));
     proto_tree_add_item(bcp_subtree, hf_bcp_sync_starttime, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     proto_tree_add_item(bcp_subtree, hf_bcp_sync_cycletime, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -416,7 +416,7 @@ dissect_bcp_block_header(proto_tree *bcp_tree, tvbuff_t *tvb, unsigned offset,
 {
     proto_tree *bcp_subtree = NULL;
 
-    *cmd = tvb_get_guint8(tvb, offset + 6);
+    *cmd = tvb_get_uint8(tvb, offset + 6);
     *len = tvb_get_ntohs(tvb, offset + 12);
 
     bcp_subtree = proto_tree_add_subtree_format(bcp_tree, tvb, offset, BCP_BLOCK_HDR_LEN, ett_bcp_blockheader, NULL,
@@ -461,8 +461,8 @@ dissect_bcp_protocol_header(proto_tree *bcp_tree, tvbuff_t *tvb,
 {
     proto_tree *bcp_subtree = NULL;
 
-    *flags = tvb_get_guint8(tvb, offset + 2);
-    *blocknb = tvb_get_guint8(tvb, offset + 3);
+    *flags = tvb_get_uint8(tvb, offset + 2);
+    *blocknb = tvb_get_uint8(tvb, offset + 3);
     *segcode = tvb_get_ntohs(tvb, offset + 4);
 
     bcp_subtree = proto_tree_add_subtree_format(bcp_tree, tvb, 0, BCP_PROTOCOL_HDR_LEN, ett_bcp_header, NULL,

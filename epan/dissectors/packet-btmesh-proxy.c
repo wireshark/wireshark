@@ -312,8 +312,8 @@ dissect_btmesh_proxy_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     proto_tree_add_item(sub_tree, hf_btmesh_proxy_sar, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(sub_tree, hf_btmesh_proxy_type, tvb, offset, 1, ENC_NA);
 
-    uint8_t proxy_sar = (tvb_get_guint8(tvb, offset) & 0xC0 ) >> 6;
-    uint8_t proxy_type = tvb_get_guint8(tvb, offset) & 0x3F;
+    uint8_t proxy_sar = (tvb_get_uint8(tvb, offset) & 0xC0 ) >> 6;
+    uint8_t proxy_type = tvb_get_uint8(tvb, offset) & 0x3F;
     offset += 1;
     uint32_t length = tvb_reported_length(tvb) - offset;
 

@@ -166,7 +166,7 @@ dissect_brdwlk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
     col_clear(pinfo->cinfo, COL_INFO);
 
-    sof = (tvb_get_guint8(tvb, offset) & 0xF0) >> 4;
+    sof = (tvb_get_uint8(tvb, offset) & 0xF0) >> 4;
 
     fc_data.sof_eof = 0;
     if ((sof == FCM_DELIM_SOFI3) || (sof == FCM_DELIM_SOFI2) || (sof == FCM_DELIM_SOFI1)
@@ -264,10 +264,10 @@ dissect_brdwlk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
         packet_count = pkt_cnt;
 
-        error=tvb_get_guint8(tvb, offset+2);
+        error=tvb_get_uint8(tvb, offset+2);
         dissect_brdwlk_err(brdwlk_tree, tvb, offset+2);
 
-        eof = tvb_get_guint8(tvb, offset+3);
+        eof = tvb_get_uint8(tvb, offset+3);
         if (eof != FCM_DELIM_EOFN) {
             fc_data.sof_eof |= FC_DATA_EOF_LAST_FRAME;
         }

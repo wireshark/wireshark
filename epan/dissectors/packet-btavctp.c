@@ -149,13 +149,13 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_tree_add_item(btavctp_tree, hf_btavctp_transaction,  tvb, offset, 1, ENC_BIG_ENDIAN);
     pitem = proto_tree_add_item(btavctp_tree, hf_btavctp_packet_type,  tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(btavctp_tree, hf_btavctp_cr,  tvb, offset, 1, ENC_BIG_ENDIAN);
-    transaction = tvb_get_guint8(tvb, offset) >> 4;
-    packet_type = (tvb_get_guint8(tvb, offset) & 0x0C) >> 2;
-    cr = (tvb_get_guint8(tvb, offset) & 0x02) >> 1 ;
+    transaction = tvb_get_uint8(tvb, offset) >> 4;
+    packet_type = (tvb_get_uint8(tvb, offset) & 0x0C) >> 2;
+    cr = (tvb_get_uint8(tvb, offset) & 0x02) >> 1 ;
 
     if (packet_type == PACKET_TYPE_SINGLE || packet_type == PACKET_TYPE_START) {
         ipid_item = proto_tree_add_item(btavctp_tree, hf_btavctp_ipid,  tvb, offset, 1, ENC_BIG_ENDIAN);
-        ipid = tvb_get_guint8(tvb, offset) & 0x01;
+        ipid = tvb_get_uint8(tvb, offset) & 0x01;
     } else {
         proto_tree_add_item(btavctp_tree, hf_btavctp_rfa,  tvb, offset, 1, ENC_BIG_ENDIAN);
     }
@@ -163,7 +163,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     if (packet_type == PACKET_TYPE_START) {
         proto_tree_add_item(btavctp_tree, hf_btavctp_number_of_packets,  tvb, offset, 1, ENC_BIG_ENDIAN);
-        number_of_packets = tvb_get_guint8(tvb, offset);
+        number_of_packets = tvb_get_uint8(tvb, offset);
         offset++;
     }
 
