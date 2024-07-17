@@ -218,6 +218,56 @@ wmem_list_insert_sorted(wmem_list_t *list, void* data, GCompareFunc func)
     new_frame->next->prev = new_frame;
 }
 
+void
+wmem_list_append_sorted(wmem_list_t *list, void* data, GCompareFunc func)
+{
+    wmem_list_frame_t *new_frame;
+    wmem_list_frame_t *cur;
+    wmem_list_frame_t *next;
+
+    new_frame = wmem_new(list->allocator, wmem_list_frame_t);
+    new_frame->data = data;
+    new_frame->next = NULL;
+    new_frame->prev = NULL;
+
+    list->count++;
+
+    if (!list->head) {
+        list->head = new_frame;
+        list->tail = new_frame;
+        return;
+    }
+
+    cur = list->tail;
+
+    /* best case scenario: append */
+    if (func(cur->data, data) <= 0) {
+        cur->next = new_frame;
+        new_frame->prev = cur;
+        list->tail = new_frame;
+        return;
+    }
+
+    do {
+        next = cur;
+        cur = cur->prev;
+    } while (cur && func(cur->data, data) >= 0);
+
+    /* worst case scenario: prepend */
+    if (!cur) {
+        next->prev = new_frame;
+        new_frame->next = next;
+        list->head = new_frame;
+        return;
+    }
+
+    /* ordinary case: insert */
+    new_frame->next = next;
+    new_frame->prev = cur;
+    new_frame->prev->next = new_frame;
+    new_frame->next->prev = new_frame;
+}
+
 wmem_list_t *
 wmem_list_new(wmem_allocator_t *allocator)
 {

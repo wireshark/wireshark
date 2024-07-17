@@ -91,6 +91,13 @@ WS_DLL_PUBLIC
 void
 wmem_list_insert_sorted(wmem_list_t *list, void* data, GCompareFunc func);
 
+/*
+ * Appender Insertion (start search from the tail)
+ */
+WS_DLL_PUBLIC
+void
+wmem_list_append_sorted(wmem_list_t *list, void* data, GCompareFunc func);
+
 
 WS_DLL_PUBLIC
 wmem_list_t *

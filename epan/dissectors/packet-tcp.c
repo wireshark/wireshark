@@ -4604,7 +4604,7 @@ again:
             /* We only enter here if dissect_tcp set can_desegment,
              * which means that these bytes exist. */
             fd->data = tvb_memdup(wmem_file_scope(), tvb, offset, fd->len);
-            wmem_list_insert_sorted(tcpd->fwd->ooo_segments, fd, compare_ooo_segment_item);
+            wmem_list_append_sorted(tcpd->fwd->ooo_segments, fd, compare_ooo_segment_item);
         }
         ipfd_head = NULL;
     } else {
