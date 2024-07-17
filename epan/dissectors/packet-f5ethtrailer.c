@@ -3584,7 +3584,7 @@ proto_init_f5ethtrailer(void)
             "ip", &tap_ip_enabled, NULL, TL_REQUIRES_NOTHING, NULL, ip_tap_pkt, NULL, NULL);
         if (error_string) {
             ws_warning("Unable to register tap \"ip\" for f5ethtrailer: %s", error_string->str);
-            g_string_free(error_string, true);
+            g_string_free(error_string, TRUE);
         } else {
             tap_ip_enabled = true;
         }
@@ -3592,7 +3592,7 @@ proto_init_f5ethtrailer(void)
             "ipv6", &tap_ipv6_enabled, NULL, TL_REQUIRES_NOTHING, NULL, ipv6_tap_pkt, NULL, NULL);
         if (error_string) {
             ws_warning("Unable to register tap \"ipv6\" for f5ethtrailer: %s", error_string->str);
-            g_string_free(error_string, true);
+            g_string_free(error_string, TRUE);
         } else {
             tap_ipv6_enabled = true;
         }
@@ -3600,7 +3600,7 @@ proto_init_f5ethtrailer(void)
             "tcp", &tap_tcp_enabled, NULL, TL_REQUIRES_NOTHING, NULL, tcp_tap_pkt, NULL, NULL);
         if (error_string) {
             ws_warning("Unable to register tap \"tcp\" for f5ethtrailer: %s", error_string->str);
-            g_string_free(error_string, true);
+            g_string_free(error_string, TRUE);
         } else {
             tap_tcp_enabled = true;
         }
