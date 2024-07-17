@@ -939,10 +939,15 @@ static const fragment_items iec60870_frag_items = {
 static int ett_iec60870_101;
 static int ett_iec60870_101_ctrlfield;
 
+static expert_field ei_iec101_frame_mismatch;
+static expert_field ei_iec101_length_mismatch;
+static expert_field ei_iec101_stopchar_invalid;
+
 /* Frame Format */
 #define IEC101_VAR_LEN        0x68
 #define IEC101_FIXED_LEN      0x10
 #define IEC101_SINGLE_CHAR    0xE5
+#define IEC101_STOP_CHAR      0x16
 
 static const value_string iec60870_101_frame_vals[] = {
 	{ IEC101_VAR_LEN,         "Variable Length" },
@@ -2765,10 +2770,10 @@ static int
 dissect_iec60870_101(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 /* Set up structures needed to add the protocol subtree and manage it */
-	proto_item	*iec101_item, *ctrlfield_item;
+	proto_item	*iec101_item, *ctrlfield_item, *expert_item;
 	proto_tree	*iec101_tree, *ctrlfield_tree;
-	uint8_t		frametype, ctrlfield_prm;
-	uint32_t		linkaddr, data_len;
+	uint8_t		ctrlfield_prm;
+	uint32_t	frametype, linkaddr, data_len, stopchar;
 	int		offset = 0;
 	struct      asdu_parms parms;
 
@@ -2780,8 +2785,7 @@ dissect_iec60870_101(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	iec101_tree = proto_item_add_subtree(iec101_item, ett_iec60870_101);
 
 	/* Add Frame Format to Protocol Tree */
-	proto_tree_add_item(iec101_tree, hf_iec60870_101_frame, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-	frametype = tvb_get_uint8(tvb, 0);
+	proto_tree_add_item_ret_uint(iec101_tree, hf_iec60870_101_frame, tvb, offset, 1, ENC_LITTLE_ENDIAN, &frametype);
 	offset += 1;
 
 	/* If this is a single character frame, there is nothing left to do... */
@@ -2791,10 +2795,20 @@ dissect_iec60870_101(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
 	if (frametype == IEC101_VAR_LEN) {
 		proto_tree_add_item(iec101_tree, hf_iec60870_101_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-		proto_tree_add_item_ret_uint(iec101_tree, hf_iec60870_101_num_user_octets, tvb, offset+1, 1, ENC_LITTLE_ENDIAN, &data_len);
+		expert_item = proto_tree_add_item_ret_uint(iec101_tree, hf_iec60870_101_num_user_octets, tvb, offset+1, 1, ENC_LITTLE_ENDIAN, &data_len);
+		if (data_len != tvb_get_uint8(tvb, offset)) {
+			expert_add_info(pinfo, expert_item, &ei_iec101_length_mismatch);
+			col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
+			return tvb_captured_length(tvb);
+		}
 		/* do not include the ctrl field and link address bytes in the length passed to the asdu dissector */
 		data_len -= 1 + global_iec60870_link_addr_len;
-		proto_tree_add_item(iec101_tree, hf_iec60870_101_frame, tvb, offset+2, 1, ENC_LITTLE_ENDIAN);
+		expert_item = proto_tree_add_item_ret_uint(iec101_tree, hf_iec60870_101_frame, tvb, offset+2, 1, ENC_LITTLE_ENDIAN, &frametype);
+		if (frametype != IEC101_VAR_LEN) {
+			expert_add_info(pinfo, expert_item, &ei_iec101_frame_mismatch);
+			col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
+			return tvb_captured_length(tvb);
+		}
 		offset += 3;
 	}
 
@@ -2837,7 +2851,10 @@ dissect_iec60870_101(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	}
 
 	proto_tree_add_item(iec101_tree, hf_iec60870_101_checksum, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(iec101_tree, hf_iec60870_101_stopchar, tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
+	expert_item = proto_tree_add_item_ret_uint(iec101_tree, hf_iec60870_101_stopchar, tvb, offset+1, 1, ENC_LITTLE_ENDIAN, &stopchar);
+	if (stopchar != IEC101_STOP_CHAR) {
+		expert_add_info(pinfo, expert_item, &ei_iec101_stopchar_invalid);
+	}
 	offset += 2;
 
 	return offset;
@@ -3491,7 +3508,23 @@ get_iec101_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_, void *data
 			len = global_iec60870_link_addr_len + 4;
 			break;
 		case IEC101_VAR_LEN:
-			len = tvb_get_uint8(tvb, offset+1) + 6;
+			if (tvb_captured_length_remaining(tvb, offset) < 3) {
+				/* We need another segment. */
+				return 0;
+			}
+			len = tvb_get_uint8(tvb, offset + 1) + 6;
+			/* If the copy of the length or start byte is wrong,
+			 * we have errors. Take the entire remaining length
+			 * and the dissector will show the error. We'll try
+			 * to start a new PDU in a later packet. We can't
+			 * really reject the packet at this point.
+			 */
+			if (len != (unsigned)tvb_get_uint8(tvb, offset + 2) + 6) {
+				len = tvb_reported_length_remaining(tvb, offset);
+			}
+			if (tvb_get_uint8(tvb, offset+3) != IEC101_VAR_LEN) {
+				len = tvb_reported_length_remaining(tvb, offset);
+			}
 			break;
 	}
 
@@ -3508,6 +3541,7 @@ dissect_iec60870_101_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 	unsigned type = tvb_get_uint8(tvb, 0);
 
 	/* Check that this is actually a IEC 60870-5-101 packet. */
+	/* Note we are guaranteed to get one byte here, not necessarily more. */
 	switch (type) {
 		case IEC101_SINGLE_CHAR:
 		case IEC101_FIXED_LEN:
@@ -3562,7 +3596,14 @@ proto_register_iec60870_101(void)
 		&ett_iec60870_101_ctrlfield,
 	};
 
+	static ei_register_info ei_101[] = {
+		{ &ei_iec101_frame_mismatch, { "iec60870_101.header.mismatch", PI_MALFORMED, PI_ERROR, "Variable Length frames must have two matching start bytes (0x68)", EXPFILL }},
+		{ &ei_iec101_length_mismatch, { "iec60870_101.length.mismatch", PI_MALFORMED, PI_ERROR, "Variable Length frames must have two matching length bytes", EXPFILL }},
+		{ &ei_iec101_stopchar_invalid, { "iec60870_101.stopchar.invalid", PI_PROTOCOL, PI_WARN, "Stop character must be 0x16", EXPFILL }},
+	};
+
 	module_t *iec60870_101_module;
+	expert_module_t* expert_iec60870_101;
 
 	/* Register the protocol name and description */
 	proto_iec60870_101 = proto_register_protocol("IEC 60870-5-101", "IEC 60870-5-101", "iec60870_101");
@@ -3570,6 +3611,9 @@ proto_register_iec60870_101(void)
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_iec60870_101, iec60870_101_hf, array_length(iec60870_101_hf));
 	proto_register_subtree_array(ett_serial, array_length(ett_serial));
+
+	expert_iec60870_101 = expert_register_protocol(proto_iec60870_101);
+	expert_register_field_array(expert_iec60870_101, ei_101, array_length(ei_101));
 
 	iec60870_101_handle = register_dissector("iec60870_101", dissect_iec60870_101_tcp, proto_iec60870_101);
 
