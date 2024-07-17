@@ -21,7 +21,7 @@ static int proto_newmail;
 static int hf_newmail_payload;
 
 /* Initialize the subtree pointers */
-static gint ett_newmail;
+static int ett_newmail;
 
 static dissector_handle_t newmail_handle;
 
@@ -65,7 +65,7 @@ proto_register_newmail(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_newmail,
 	};
 

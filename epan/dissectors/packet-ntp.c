@@ -646,10 +646,10 @@ static const value_string ntp_ext_field_types[] = {
 
 
 typedef struct {
-	guint32 req_frame;
-	guint32 resp_frame;
+	uint32_t req_frame;
+	uint32_t resp_frame;
 	nstime_t req_time;
-	guint32 seq;
+	uint32_t seq;
 } ntp_trans_info_t;
 
 typedef struct {
@@ -956,21 +956,21 @@ static int hf_ntppriv_mode7_fudgeval_flags;
 static int hf_ntppriv_mode7_ippeerlimit;
 static int hf_ntppriv_mode7_restrict_flags;
 
-static gint ett_ntp;
-static gint ett_ntp_flags;
-static gint ett_ntp_ext;
-static gint ett_ntp_ext_flags;
-static gint ett_ntpctrl_flags2;
-static gint ett_ntpctrl_status;
-static gint ett_ntpctrl_data;
-static gint ett_ntpctrl_item;
-static gint ett_ntppriv_auth_seq;
-static gint ett_mode7_item;
-static gint ett_ntp_authenticator;
-static gint ett_ntppriv_peer_list_flags;
-static gint ett_ntppriv_config_flags;
-static gint ett_ntppriv_sys_flag_flags;
-static gint ett_ntppriv_reset_stats_flags;
+static int ett_ntp;
+static int ett_ntp_flags;
+static int ett_ntp_ext;
+static int ett_ntp_ext_flags;
+static int ett_ntpctrl_flags2;
+static int ett_ntpctrl_status;
+static int ett_ntpctrl_data;
+static int ett_ntpctrl_item;
+static int ett_ntppriv_auth_seq;
+static int ett_mode7_item;
+static int ett_ntp_authenticator;
+static int ett_ntppriv_peer_list_flags;
+static int ett_ntppriv_config_flags;
+static int ett_ntppriv_sys_flag_flags;
+static int ett_ntppriv_reset_stats_flags;
 
 static expert_field ei_ntp_ext;
 
@@ -1079,9 +1079,9 @@ static tvbparse_wanted_t *want_ignore;
 * dissection of the next packet occurs.
 */
 const char *
-tvb_ntp_fmt_ts_sec(tvbuff_t *tvb, gint offset)
+tvb_ntp_fmt_ts_sec(tvbuff_t *tvb, int offset)
 {
-	guint32 tempstmp;
+	uint32_t tempstmp;
 	time_t temptime;
 	struct tm *bd;
 	char *buff;
@@ -1114,9 +1114,9 @@ tvb_ntp_fmt_ts_sec(tvbuff_t *tvb, gint offset)
 }
 
 void
-ntp_to_nstime(tvbuff_t *tvb, gint offset, nstime_t *nstime)
+ntp_to_nstime(tvbuff_t *tvb, int offset, nstime_t *nstime)
 {
-	guint32 tempstmp;
+	uint32_t tempstmp;
 
 	/* We need a temporary variable here so the unsigned math
 	 * works correctly (for years > 2036 according to RFC 2030
@@ -1137,7 +1137,7 @@ dissect_ntp_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, int off
 {
 	proto_tree *ext_tree;
 	proto_item *tf;
-	guint16 extlen;
+	uint16_t extlen;
 	int value_length;
 
 	extlen = tvb_get_ntohs(tvb, offset+2);
@@ -1178,24 +1178,24 @@ dissect_ntp_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, int off
 static void
 dissect_ntp_std(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, ntp_conv_info_t *ntp_conv)
 {
-	guint8 stratum;
-	gint8 ppoll;
-	gint8 precision;
-	guint32 rootdelay;
+	uint8_t stratum;
+	int8_t ppoll;
+	int8_t precision;
+	uint32_t rootdelay;
 	double rootdelay_double;
-	guint32 rootdispersion;
+	uint32_t rootdispersion;
 	double rootdispersion_double;
-	guint32 refid_addr;
-	gchar *buff;
+	uint32_t refid_addr;
+	char *buff;
 	int i;
 	int efs_end;
-	guint16 last_extlen = 0;
+	uint16_t last_extlen = 0;
 	int macofs;
-	guint maclen;
+	unsigned maclen;
 	ntp_trans_info_t *ntp_trans;
 	wmem_tree_key_t key[3];
-	guint64 flags;
-	guint32 seq;
+	uint64_t flags;
+	uint32_t seq;
 
 	proto_tree_add_bitmask_ret_uint64(ntp_tree, tvb, 0, hf_ntp_flags, ett_ntp_flags,
 	                                  ntp_header_fields, ENC_NA, &flags);
@@ -1247,13 +1247,13 @@ dissect_ntp_std(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, ntp_con
 	/* Stratum, 1byte field represents distance from primary source
 	 */
 	proto_tree_add_item(ntp_tree, hf_ntp_stratum, tvb, 1, 1, ENC_NA);
-	stratum = tvb_get_guint8(tvb, 1);
+	stratum = tvb_get_uint8(tvb, 1);
 
 	/* Poll interval, 1byte field indicating the maximum interval
 	 * between successive messages, in seconds to the nearest
 	 * power of two.
 	 */
-	ppoll = tvb_get_gint8(tvb, 2);
+	ppoll = tvb_get_int8(tvb, 2);
 	proto_tree_add_int_format_value(ntp_tree, hf_ntp_ppoll, tvb, 2, 1,
 		ppoll, ppoll >= 0 ? "%d (%.0f seconds)" : "%d (%5.3f seconds)",
 		ppoll, pow(2, ppoll));
@@ -1261,7 +1261,7 @@ dissect_ntp_std(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, ntp_con
 	/* Precision, 1 byte field indicating the precision of the
 	 * local clock, in seconds to the nearest power of two.
 	 */
-	precision = tvb_get_gint8(tvb, 3);
+	precision = tvb_get_int8(tvb, 3);
 	proto_tree_add_int_format_value(ntp_tree, hf_ntp_precision, tvb, 3, 1,
 		precision, "%d (%11.9f seconds)", precision, pow(2, precision));
 
@@ -1290,7 +1290,7 @@ dissect_ntp_std(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, ntp_con
 	 * But, all V3 and V4 servers set this to IP address of their
 	 * higher level server. My decision was to resolve this address.
 	 */
-	buff = (gchar *)wmem_alloc(pinfo->pool, NTP_TS_SIZE);
+	buff = (char *)wmem_alloc(pinfo->pool, NTP_TS_SIZE);
 	if (stratum == 0) {
 		snprintf (buff, NTP_TS_SIZE, "Unidentified Kiss-o\'-Death message '%s'",
 			tvb_get_string_enc(pinfo->pool, tvb, 12, 4, ENC_ASCII));
@@ -1305,7 +1305,7 @@ dissect_ntp_std(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, ntp_con
 		snprintf (buff, NTP_TS_SIZE, "Unidentified reference source '%s'",
 			tvb_get_string_enc(pinfo->pool, tvb, 12, 4, ENC_ASCII));
 		for (i = 0; primary_sources[i].id; i++) {
-			if (tvb_memeql(tvb, 12, (const guint8*)primary_sources[i].id, 4) == 0) {
+			if (tvb_memeql(tvb, 12, (const uint8_t*)primary_sources[i].id, 4) == 0) {
 				snprintf(buff, NTP_TS_SIZE, "%s",
 					primary_sources[i].data);
 				break;
@@ -1368,7 +1368,7 @@ dissect_ntp_std(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, ntp_con
 	 */
 	efs_end = 48;
 	while (tvb_reported_length_remaining(tvb, efs_end) >= 16) {
-		guint16 extlen = tvb_get_ntohs(tvb, efs_end + 2);
+		uint16_t extlen = tvb_get_ntohs(tvb, efs_end + 2);
 		if (extlen < 16) {
 			break;
 		}
@@ -1410,16 +1410,16 @@ dissect_ntp_std(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, ntp_con
 static void
 dissect_ntp_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, ntp_conv_info_t *ntp_conv)
 {
-	guint8 flags2;
+	uint8_t flags2;
 	proto_tree *data_tree, *item_tree, *auth_tree;
 	proto_item *td, *ti;
-	guint16 associd;
-	guint16 datalen;
-	guint16 data_offset;
-	gint length_remaining;
-	gboolean auth_diss = FALSE;
+	uint16_t associd;
+	uint16_t datalen;
+	uint16_t data_offset;
+	int length_remaining;
+	bool auth_diss = false;
 	ntp_trans_info_t *ntp_trans;
-	guint32 seq;
+	uint32_t seq;
 	wmem_tree_key_t key[3];
 
 	tvbparse_t *tt;
@@ -1434,7 +1434,7 @@ dissect_ntp_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 	};
 	proto_tree_add_bitmask(ntp_tree, tvb, 0, hf_ntp_flags, ett_ntp_flags, ntp_header_fields, ENC_NA);
 	proto_tree_add_bitmask(ntp_tree, tvb, 1, hf_ntpctrl_flags2, ett_ntpctrl_flags2, ntpctrl_flags, ENC_NA);
-	flags2 = tvb_get_guint8(tvb, 1);
+	flags2 = tvb_get_uint8(tvb, 1);
 
 	proto_tree_add_item_ret_uint(ntp_tree, hf_ntpctrl_sequence, tvb, 2, 2, ENC_BIG_ENDIAN, &seq);
 	key[0].length = 1;
@@ -1610,19 +1610,19 @@ dissect_ntp_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 		case NTPCTRL_OP_CONFIGURE:
 		case NTPCTRL_OP_SAVECONFIG:
 			proto_tree_add_item(data_tree, hf_ntpctrl_configuration, tvb, data_offset, datalen, ENC_ASCII);
-			auth_diss = TRUE;
+			auth_diss = true;
 			break;
 		case NTPCTRL_OP_READ_MRU:
 			proto_tree_add_item(data_tree, hf_ntpctrl_mru, tvb, data_offset, datalen, ENC_ASCII);
-			auth_diss = TRUE;
+			auth_diss = true;
 			break;
 		case NTPCTRL_OP_READ_ORDLIST_A:
 			proto_tree_add_item(data_tree, hf_ntpctrl_ordlist, tvb, data_offset, datalen, ENC_ASCII);
-			auth_diss = TRUE;
+			auth_diss = true;
 			break;
 		case NTPCTRL_OP_REQ_NONCE:
 			proto_tree_add_item(data_tree, hf_ntpctrl_nonce, tvb, data_offset, datalen, ENC_ASCII);
-			auth_diss = TRUE;
+			auth_diss = true;
 			break;
 		/* these opcodes doesn't carry any data: NTPCTRL_OP_SETTRAP, NTPCTRL_OP_UNSETTRAP, NTPCTRL_OP_UNSPEC */
 		}
@@ -1631,9 +1631,9 @@ dissect_ntp_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 	data_offset = 12+datalen;
 
 	/* Check if there is authentication */
-	if (((flags2 & NTPCTRL_R_MASK) == 0) || auth_diss == TRUE)
+	if (((flags2 & NTPCTRL_R_MASK) == 0) || auth_diss == true)
 	{
-		gint padding_length;
+		int padding_length;
 
 		length_remaining = tvb_reported_length_remaining(tvb, data_offset);
 		/* Check padding presence */
@@ -1715,11 +1715,11 @@ init_parser(void)
 static void
 dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, ntp_conv_info_t *ntp_conv)
 {
-	guint32 impl, reqcode;
-	guint64 flags, auth_seq;
+	uint32_t impl, reqcode;
+	uint64_t flags, auth_seq;
 	ntp_trans_info_t *ntp_trans;
 	wmem_tree_key_t key[3];
-	guint32 seq;
+	uint32_t seq;
 
 	static int * const priv_flags[] = {
 		&hf_ntppriv_flags_r,
@@ -1794,12 +1794,12 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 
 	if (impl == XNTPD) {
 
-		guint64 numitems;
-		guint64 itemsize;
-		guint16 offset;
-		guint i;
+		uint64_t numitems;
+		uint64_t itemsize;
+		uint16_t offset;
+		unsigned i;
 
-		guint32 v6_flag = 0;
+		uint32_t v6_flag = 0;
 
 		proto_item *mode7_item;
 		proto_tree *mode7_item_tree = NULL;
@@ -1809,12 +1809,12 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 		proto_tree_add_bits_item(ntp_tree, hf_ntppriv_mbz, tvb, 48, 4, ENC_BIG_ENDIAN);
 		proto_tree_add_bits_ret_val(ntp_tree, hf_ntppriv_itemsize, tvb, 52, 12, &itemsize, ENC_BIG_ENDIAN);
 
-		for (i = 0; i < (guint16)numitems; i++) {
+		for (i = 0; i < (uint16_t)numitems; i++) {
 
-			offset = 8 + (guint16)itemsize * i;
+			offset = 8 + (uint16_t)itemsize * i;
 
 			if ((reqcode != PRIV_RC_MON_GETLIST) && (reqcode != PRIV_RC_MON_GETLIST_1)) {
-				mode7_item = proto_tree_add_string_format(ntp_tree, hf_ntppriv_mode7_item, tvb, offset,(gint)itemsize,
+				mode7_item = proto_tree_add_string_format(ntp_tree, hf_ntppriv_mode7_item, tvb, offset,(int)itemsize,
 					"", "%s Item", val_to_str_ext_const(reqcode, &priv_rc_types_ext, "Unknown") );
 				mode7_item_tree = proto_item_add_subtree(mode7_item, ett_mode7_item);
 			}
@@ -1824,7 +1824,7 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 			case PRIV_RC_MON_GETLIST_1:
 
 				mode7_item = proto_tree_add_string_format(ntp_tree, hf_ntppriv_mode7_item, tvb, offset,
-					(gint)itemsize, "Monlist Item", "Monlist item: address: %s:%u",
+					(int)itemsize, "Monlist Item", "Monlist item: address: %s:%u",
 					tvb_ip_to_str(pinfo->pool, tvb, offset + 16), tvb_get_ntohs(tvb, offset + ((reqcode == PRIV_RC_MON_GETLIST_1) ? 28 : 20)));
 				mode7_item_tree = proto_item_add_subtree(mode7_item, ett_mode7_item);
 
@@ -2215,7 +2215,7 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 				offset += 4;
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_demobilizations, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_hashcount, tvb, offset, (gint)itemsize - 20, ENC_NA);
+				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_hashcount, tvb, offset, (int)itemsize - 20, ENC_NA);
 				break;
 
 			case PRIV_RC_LOOP_INFO:
@@ -2607,7 +2607,7 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 	}
 	if ((flags & NTPPRIV_R_MASK) == 0 && (auth_seq & NTPPRIV_AUTH_MASK)) {
 		/* request message with authentication bit */
-		gint len;
+		int len;
 		proto_tree_add_item(ntp_tree, hf_ntppriv_tstamp, tvb, 184, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
 		proto_tree_add_item(ntp_tree, hf_ntp_keyid, tvb, 192, 4, ENC_NA);
 		len = tvb_reported_length_remaining(tvb, 196);
@@ -2626,7 +2626,7 @@ dissect_ntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree *ntp_tree;
 	proto_item *ti = NULL;
-	guint8 flags;
+	uint8_t flags;
 	conversation_t *conversation;
 	ntp_conv_info_t *ntp_conv;
 	void (*dissector)(tvbuff_t *, packet_info *, proto_tree *, ntp_conv_info_t *);
@@ -2635,7 +2635,7 @@ dissect_ntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	flags = tvb_get_guint8(tvb, 0);
+	flags = tvb_get_uint8(tvb, 0);
 	switch (flags & NTP_MODE_MASK) {
 	default:
 		dissector = dissect_ntp_std;
@@ -3563,7 +3563,7 @@ proto_register_ntp(void)
 		/* Todo */
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_ntp,
 		&ett_ntp_flags,
 		&ett_ntp_ext,

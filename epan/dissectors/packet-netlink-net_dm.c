@@ -92,7 +92,7 @@ enum ws_net_dm_origin {
 
 struct netlink_net_dm_info {
 	packet_info *pinfo;
-	guint16 protocol; /* protocol for packet payload */
+	uint16_t protocol; /* protocol for packet payload */
 };
 
 static dissector_handle_t netlink_net_dm_handle;
@@ -125,13 +125,13 @@ static int hf_net_dm_timestamp;
 static int hf_net_dm_trunc_len;
 static int hf_net_dm_reason;
 
-static gint ett_net_dm;
-static gint ett_net_dm_attrs;
-static gint ett_net_dm_attrs_in_port;
-static gint ett_net_dm_attrs_stats;
-static gint ett_net_dm_attrs_hw_stats;
-static gint ett_net_dm_attrs_hw_entries;
-static gint ett_net_dm_attrs_hw_entry;
+static int ett_net_dm;
+static int ett_net_dm_attrs;
+static int ett_net_dm_attrs_in_port;
+static int ett_net_dm_attrs_stats;
+static int ett_net_dm_attrs_hw_stats;
+static int ett_net_dm_attrs_hw_entries;
+static int ett_net_dm_attrs_hw_entry;
 
 static const value_string ws_net_dm_commands_vals[] = {
 	{ WS_NET_DM_CMD_UNSPEC,			"Unspecified command" },
@@ -206,8 +206,8 @@ static int
 dissect_net_dm_attrs_port(tvbuff_t *tvb, void *data _U_, struct packet_netlink_data *nl_data, proto_tree *tree, int nla_type, int offset, int len)
 {
 	enum ws_net_dm_attrs_port type = (enum ws_net_dm_attrs_port) nla_type & NLA_TYPE_MASK;
-	const guint8 *str;
-	guint32 value;
+	const uint8_t *str;
+	uint32_t value;
 
 	switch (type) {
 	case WS_NET_DM_ATTR_PORT_NETDEV_IFINDEX:
@@ -242,13 +242,13 @@ dissect_net_dm_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_d
 {
 	enum ws_net_dm_attrs type = (enum ws_net_dm_attrs) nla_type & NLA_TYPE_MASK;
 	struct netlink_net_dm_info *info = (struct netlink_net_dm_info *) data;
-	guint64 pc, timestamp;
+	uint64_t pc, timestamp;
 	nstime_t ts_nstime;
-	guint32 value;
-	guint16 protocol;
+	uint32_t value;
+	uint16_t protocol;
 	static dissector_table_t dissector_table;
 	tvbuff_t *next_tvb;
-	const guint8 *str;
+	const uint8_t *str;
 
 	switch (type) {
 	case WS_NET_DM_ATTR_ALERT_MODE:
@@ -267,13 +267,13 @@ dissect_net_dm_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_d
 		return dissect_netlink_attributes(tvb, hf_net_dm_attrs_port, ett_net_dm_attrs_in_port, info, nl_data, tree, offset, len,
 						  dissect_net_dm_attrs_port);
 	case WS_NET_DM_ATTR_TIMESTAMP:
-		timestamp = tvb_get_guint64(tvb, offset, nl_data->encoding);
+		timestamp = tvb_get_uint64(tvb, offset, nl_data->encoding);
 		ts_nstime.secs = timestamp / 1000000000;
 		ts_nstime.nsecs = timestamp % 1000000000;
 		proto_tree_add_time(tree, hf_net_dm_timestamp, tvb, offset, 8, &ts_nstime);
 		return 1;
 	case WS_NET_DM_ATTR_PROTO:
-		info->protocol = tvb_get_guint16(tvb, offset, nl_data->encoding);
+		info->protocol = tvb_get_uint16(tvb, offset, nl_data->encoding);
 
 		proto_tree_add_item(tree, hf_net_dm_proto, tvb, offset, len, nl_data->encoding);
 		return 1;
@@ -295,7 +295,7 @@ dissect_net_dm_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_d
 			*
 			* If it's too short to be Ethernet, then for sure we don't have an Ethernet payload.
 			*/
-			if (len >= 14 && tvb_get_guint16(tvb, offset + 12, ENC_BIG_ENDIAN) == info->protocol) {
+			if (len >= 14 && tvb_get_uint16(tvb, offset + 12, ENC_BIG_ENDIAN) == info->protocol) {
 				protocol = LINUX_SLL_P_ETHERNET;
 			} else {
 				dissector_table = ethertype_table;
@@ -518,7 +518,7 @@ proto_register_netlink_net_dm(void)
 		},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_net_dm,
 		&ett_net_dm_attrs,
 		&ett_net_dm_attrs_in_port,

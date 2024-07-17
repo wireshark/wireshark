@@ -29,8 +29,8 @@ static int hf_nb_rtpmux_cmp_rtp_timestamp;
 static int hf_nb_rtpmux_cmp_rtp_data;
 
 /* Initialize the subtree pointers */
-static gint ett_nb_rtpmux;
-static gint ett_nb_rtpmux_cmp_rtp_hdr;
+static int ett_nb_rtpmux;
+static int ett_nb_rtpmux_cmp_rtp_hdr;
 
 static dissector_handle_t nb_rtpmux_handle;
 static dissector_handle_t rtpdissector;
@@ -42,7 +42,7 @@ dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     proto_item *ti;
     proto_tree *nb_rtpmux_tree, *nb_rtpmux_cmp_rtp_tree;
     unsigned int offset = 0;
-    gboolean first_rtp_payload_seen = FALSE;
+    bool first_rtp_payload_seen = false;
 
     /*  First, if at all possible, do some heuristics to check if the packet cannot
      *  possibly belong to your protocol.  This is especially important for
@@ -83,19 +83,19 @@ dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     /* create display subtree for the protocol */
     while (offset < tvb_reported_length(tvb)-5)
     {
-        guint16 dstport, srcport;
+        uint16_t dstport, srcport;
         unsigned int length;
-        gint captured_length;
+        int captured_length;
         tvbuff_t *next_tvb;
-        gboolean tbit;
+        bool tbit;
 
-        length = tvb_get_guint8(tvb, offset+2);
+        length = tvb_get_uint8(tvb, offset+2);
         ti = proto_tree_add_item(tree, proto_nb_rtpmux, tvb, offset, length+5, ENC_NA);
         nb_rtpmux_tree = proto_item_add_subtree(ti, ett_nb_rtpmux);
 
         /* T bit */
         proto_tree_add_item(nb_rtpmux_tree, hf_nb_rtpmux_compressed, tvb, offset, 2, ENC_BIG_ENDIAN);
-        tbit = tvb_get_guint8(tvb,offset)>>7;
+        tbit = tvb_get_uint8(tvb,offset)>>7;
         if(tbit == 1){
             /* 6.4.2.4 Transport Format for multiplexing with RTP header compression */
             dstport = (tvb_get_ntohs(tvb, offset) & 0x7fff) << 1;
@@ -136,7 +136,7 @@ dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                 if (rtpdissector)
                 {
                     captured_length = tvb_reported_length_remaining(tvb, offset + 5);
-                    if (captured_length > (gint)length)
+                    if (captured_length > (int)length)
                         captured_length = length;
                     next_tvb = tvb_new_subset_length_caplen(tvb, offset+5, captured_length,
                                               length);
@@ -151,7 +151,7 @@ dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
                     call_dissector(rtpdissector, next_tvb, pinfo, nb_rtpmux_tree);
 
-                    first_rtp_payload_seen = TRUE;
+                    first_rtp_payload_seen = true;
                 }
                 else
                 {
@@ -224,7 +224,7 @@ proto_register_nb_rtpmux(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_nb_rtpmux,
         &ett_nb_rtpmux_cmp_rtp_hdr
     };

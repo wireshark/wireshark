@@ -2053,39 +2053,39 @@ static uint32_t check_offset_addition(uint32_t offset, uint32_t value, proto_tre
 
 /* Hash Functions */
 static gboolean
-ncp_equal(gconstpointer v, gconstpointer v2)
+ncp_equal(const void *v, const void *v2)
 {
     const ncp_req_hash_key *val1 = (const ncp_req_hash_key*)v;
     const ncp_req_hash_key *val2 = (const ncp_req_hash_key*)v2;
 
     if (val1->conversation == val2->conversation &&
         val1->nw_sequence_long  == val2->nw_sequence_long ) {
-        return true;
+        return TRUE;
     }
-    return false;
+    return FALSE;
 }
 
 static gboolean
-ncp_eid_equal(gconstpointer v, gconstpointer v2)
+ncp_eid_equal(const void *v, const void *v2)
 {
     const ncp_req_eid_hash_key *val1 = (const ncp_req_eid_hash_key*)v;
     const ncp_req_eid_hash_key *val2 = (const ncp_req_eid_hash_key*)v2;
 
     if (val1->nw_eid == val2->nw_eid ) {
-        return true;
+        return TRUE;
     }
-    return false;
+    return FALSE;
 }
 
 static unsigned
-ncp_hash(gconstpointer v)
+ncp_hash(const void *v)
 {
     const ncp_req_hash_key *ncp_key = (const ncp_req_hash_key*)v;
     return GPOINTER_TO_UINT(ncp_key->conversation) + ncp_key->nw_sequence_long;
 }
 
 static unsigned
-ncp_eid_hash(gconstpointer v)
+ncp_eid_hash(const void *v)
 {
     const ncp_req_eid_hash_key *ncp_eid_key = (const ncp_req_eid_hash_key*)v;
     return GPOINTER_TO_UINT(ncp_eid_key->nw_eid);
@@ -2340,32 +2340,32 @@ add_ptvc_field(packet_info* pinfo, ptvcursor_t *ptvc, const ptvc_record *rec, bo
         switch(rec->length)
         {
         case 1:
-            value32 = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
+            value32 = tvb_get_uint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
             *ret_value = value32;
             break;
         case 2:
-            value32 = tvb_get_guint16(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), rec->endianness);
+            value32 = tvb_get_uint16(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), rec->endianness);
             *ret_value = value32;
             break;
         case 3:
-            value32 = tvb_get_guint24(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), rec->endianness);
+            value32 = tvb_get_uint24(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), rec->endianness);
             *ret_value = value32;
             break;
         case 4:
-            value32 = tvb_get_guint32(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), rec->endianness);
+            value32 = tvb_get_uint32(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), rec->endianness);
             *ret_value = value32;
             break;
         case 5:
-            value64 = tvb_get_guint40(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), rec->endianness);
+            value64 = tvb_get_uint40(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), rec->endianness);
             break;
         case 6:
-            value64 = tvb_get_guint48(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), rec->endianness);
+            value64 = tvb_get_uint48(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), rec->endianness);
             break;
         case 7:
-            value64 = tvb_get_guint56(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), rec->endianness);
+            value64 = tvb_get_uint56(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), rec->endianness);
             break;
         case 8:
-            value64 = tvb_get_guint64(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), rec->endianness);
+            value64 = tvb_get_uint64(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), rec->endianness);
             break;
         default:
             DISSECTOR_ASSERT(false);
@@ -2402,16 +2402,16 @@ add_ptvc_field(packet_info* pinfo, ptvcursor_t *ptvc, const ptvc_record *rec, bo
             switch(rec->length)
             {
             case 1:
-                length = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
+                length = tvb_get_uint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
                 break;
             case 2:
-                length = tvb_get_guint16(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), rec->endianness);
+                length = tvb_get_uint16(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), rec->endianness);
                 break;
             case 3:
-                length = tvb_get_guint24(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), rec->endianness);
+                length = tvb_get_uint24(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), rec->endianness);
                 break;
             case 4:
-                length = tvb_get_guint32(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), rec->endianness);
+                length = tvb_get_uint32(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), rec->endianness);
                 break;
             default:
                 DISSECTOR_ASSERT(false);
@@ -2774,7 +2774,7 @@ get_string(tvbuff_t* tvb, unsigned offset, unsigned str_length)
 
     for ( i = 0; i < (int)str_length; i++ )
     {
-        c_char = tvb_get_guint8(tvb, offset );
+        c_char = tvb_get_uint8(tvb, offset );
         if (c_char<0x20 || c_char>0x7e)
         {
             if (c_char != 0x00)
@@ -2821,7 +2821,7 @@ static void ncp1633_reply_expert_func(ptvcursor_t *ptvc, packet_info *pinfo, con
 
         object_id = tvb_get_letohl(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc)+126);
         ptvcursor_advance(ptvc, 134);
-        volume_name_len = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
+        volume_name_len = tvb_get_uint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
         ptvcursor_advance(ptvc, 1);
         volume_name = tvb_get_string_enc(pinfo->pool, ptvcursor_tvbuff(ptvc),
                                 ptvcursor_current_offset(ptvc), volume_name_len, ENC_ASCII);
@@ -2842,17 +2842,17 @@ static void ncp1711_reply_expert_func(ptvcursor_t *ptvc, packet_info *pinfo, con
         fsname = tvb_get_string_enc(pinfo->pool, ptvcursor_tvbuff(ptvc),
                                 ptvcursor_current_offset(ptvc), 48, ENC_ASCII);
         ptvcursor_advance(ptvc, 48);
-        maj_ver = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
+        maj_ver = tvb_get_uint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
         ptvcursor_advance(ptvc, 1);
-        min_ver = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
+        min_ver = tvb_get_uint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
         ptvcursor_advance(ptvc, 25); /* Skip unimportant fields */
         prod_rev = tvb_get_ntohs(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
         ptvcursor_advance(ptvc, 2);
-        os_lang = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
+        os_lang = tvb_get_uint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
         ptvcursor_advance(ptvc, 2);
-        serv_type = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
+        serv_type = tvb_get_uint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
         ptvcursor_advance(ptvc, 1);
-        kernel = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
+        kernel = tvb_get_uint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
         ptvcursor_advance(ptvc, 1);
 
         expert_add_info_format(pinfo, NULL, &ei_ncp_server, "Server %s, version %d.%d, support pack %d, language %d, server type %s, kernel %s", fsname,
@@ -2886,22 +2886,22 @@ static void file_rights_expert_func(ptvcursor_t *ptvc, packet_info *pinfo, const
                 {
                 case 1:
                 case 32:
-                    oaction = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc)+1);
+                    oaction = tvb_get_uint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc)+1);
                     ptvcursor_advance(ptvc, 12);
                     rights = tvb_get_ntohs(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
                     ptvcursor_advance(ptvc, 8);
-                    path_count = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
+                    path_count = tvb_get_uint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
                     ptvcursor_advance(ptvc, 1);
                     filename = tvb_get_string_enc(pinfo->pool, ptvcursor_tvbuff(ptvc),
                                 ptvcursor_current_offset(ptvc), path_count, ENC_ASCII);
                     break;
                 case 33:
                 case 30:
-                    oaction = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc)+2);
+                    oaction = tvb_get_uint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc)+2);
                     ptvcursor_advance(ptvc, 16);
                     rights = tvb_get_ntohs(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
                     ptvcursor_advance(ptvc, 8);
-                    path_count = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
+                    path_count = tvb_get_uint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
                     ptvcursor_advance(ptvc, 1);
                     filename = tvb_get_string_enc(pinfo->pool, ptvcursor_tvbuff(ptvc),
                                     ptvcursor_current_offset(ptvc), path_count, ENC_ASCII);
@@ -2912,22 +2912,22 @@ static void file_rights_expert_func(ptvcursor_t *ptvc, packet_info *pinfo, const
                 {
                 case 1:
                 case 32:
-                    oaction = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc)+1);
+                    oaction = tvb_get_uint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc)+1);
                     ptvcursor_advance(ptvc, 12);
                     rights = tvb_get_ntohs(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
                     ptvcursor_advance(ptvc, 14);
-                    path_count = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
+                    path_count = tvb_get_uint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
                     ptvcursor_advance(ptvc, 1);
                     filename = tvb_get_string_enc(pinfo->pool, ptvcursor_tvbuff(ptvc),
                                     ptvcursor_current_offset(ptvc), path_count, ENC_ASCII);
                     break;
                 case 33:
                 case 30:
-                    oaction = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc)+2);
+                    oaction = tvb_get_uint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc)+2);
                     ptvcursor_advance(ptvc, 16);
                     rights = tvb_get_ntohs(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
                     ptvcursor_advance(ptvc, 14);
-                    path_count = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
+                    path_count = tvb_get_uint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
                     ptvcursor_advance(ptvc, 1);
                     filename = tvb_get_string_enc(pinfo->pool, ptvcursor_tvbuff(ptvc),
                                     ptvcursor_current_offset(ptvc), path_count, ENC_ASCII);
@@ -2948,7 +2948,7 @@ static void file_rights_expert_func(ptvcursor_t *ptvc, packet_info *pinfo, const
                 filehandle = tvb_bytes_to_str(pinfo->pool, ptvcursor_tvbuff(ptvc),
                                                 ptvcursor_current_offset(ptvc), 4);
                 ptvcursor_advance(ptvc, 4);
-                oaction = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
+                oaction = tvb_get_uint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
 
                 if (ncp_rec->subfunc == 1) {
                     expert_add_info_format(pinfo, NULL, &ei_ncp_file_handle, "%s - File handle %s",
@@ -2958,7 +2958,7 @@ static void file_rights_expert_func(ptvcursor_t *ptvc, packet_info *pinfo, const
                 else
                 {
                     ptvcursor_advance(ptvc, 1);
-                    oplockflg = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
+                    oplockflg = tvb_get_uint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
                     expert_add_info_format(pinfo, NULL, &ei_ncp_file_handle, "%s - File handle %s, %s",
                                            val_to_str(oaction & 0x8f, open_create_action_vals, "Unknown: %d"),
                                            filehandle,
@@ -2978,7 +2978,7 @@ static void ncp5722_request_expert_func(ptvcursor_t *ptvc, packet_info *pinfo, c
 
         filehandle = tvb_get_ntohl(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
         ptvcursor_advance(ptvc, 4);
-        cc_function = tvb_get_guint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
+        cc_function = tvb_get_uint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
 
         expert_add_info_format(pinfo, NULL, &ei_ncp_op_lock_handle, "Op-lock on handle %08x - %s", filehandle,
                                 val_to_str(cc_function, ncp_cc_function_vals, "Unknown: %d"));
@@ -3044,7 +3044,7 @@ print_nds_values(proto_tree *vtree, packet_info* pinfo, tvbuff_t *tvb, uint32_t 
 
     voffset = vvalues->voffset;
 #if 0
-    if(tvb_get_guint8(tvb, voffset) == 0x00)
+    if(tvb_get_uint8(tvb, voffset) == 0x00)
     {
         voffset = voffset+2;
     }
@@ -3088,7 +3088,7 @@ print_nds_values(proto_tree *vtree, packet_info* pinfo, tvbuff_t *tvb, uint32_t 
             break;
         case 0x00000007:        /* Boolean */
             voffset+=4;                            /* this is always just a parameter count of 1, so ignore */
-            value1 = tvb_get_guint8(tvb, voffset); /* Boolean value */
+            value1 = tvb_get_uint8(tvb, voffset); /* Boolean value */
             if (value1==0)
             {
                 vvalues->vstring = "False";
@@ -6097,12 +6097,12 @@ dissect_ncp_89_6_request(tvbuff_t *tvb, proto_tree *volatile ncp_tree, uint32_t 
     offset += 1;
     proto_tree_add_item(ncp_tree, hf_ncp_reserved5, tvb, offset, 5, ENC_NA);
     offset += 5;
-    count = tvb_get_guint8(tvb, offset);
+    count = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(ncp_tree, hf_ncp_path_count, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
     for (i=0; i < count; i++) {
         if (datatype == 0) {
-            string_len = (tvb_get_guint8(tvb, offset))+1;
+            string_len = (tvb_get_uint8(tvb, offset))+1;
             proto_tree_add_item(ncp_tree, hf_ncp_directory_path, tvb, offset+1, string_len-1, ENC_ASCII|ENC_NA);
         }
         else
@@ -6130,13 +6130,13 @@ dissect_ncp_123_11_reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree, ncp_req_h
          * Unknown what these 8 bytes represent */
         loffset += 8;
     }
-    string_len = tvb_get_guint8(tvb, loffset);
+    string_len = tvb_get_uint8(tvb, loffset);
     proto_tree_add_item(ncp_tree, hf_ncp_file_name_12, tvb, loffset+1, string_len, ENC_ASCII|ENC_NA);
     loffset += string_len+1;
-    string_len = tvb_get_guint8(tvb, loffset);
+    string_len = tvb_get_uint8(tvb, loffset);
     proto_tree_add_item(ncp_tree, hf_ncp_name12, tvb, loffset+1, string_len, ENC_ASCII|ENC_NA);
     loffset += string_len+1;
-    string_len = tvb_get_guint8(tvb, loffset);
+    string_len = tvb_get_uint8(tvb, loffset);
     proto_tree_add_item(ncp_tree, hf_ncp_copyright, tvb, loffset+1, string_len, ENC_ASCII|ENC_NA);
 }
 
@@ -6155,7 +6155,7 @@ dissect_ncp_123_17_reply(tvbuff_t *tvb, packet_info* pinfo, proto_tree *volatile
     {
         atree = proto_tree_add_subtree_format(ncp_tree, tvb, loffset, -1, ett_ncp, &aitem, "Network Address - %u", x);
 
-        addr_type = tvb_get_guint8(tvb, loffset);
+        addr_type = tvb_get_uint8(tvb, loffset);
         proto_tree_add_item(atree, hf_ncp_transport_type, tvb, loffset, 1, ENC_LITTLE_ENDIAN);
         /* The address type is one byte of a 4 byte value. The next 4 bytes are
          * the length of the address. Since we already know the length based upon
@@ -6245,8 +6245,8 @@ dissect_ncp_8x20req(tvbuff_t *tvb, proto_tree *volatile ncp_tree, uint32_t offse
      */
     if (func == 0x57)
     {
-        string_len = tvb_get_guint8(tvb, offset);
-        str_length = tvb_get_guint8(tvb, offset);
+        string_len = tvb_get_uint8(tvb, offset);
+        str_length = tvb_get_uint8(tvb, offset);
     }
     else
     {
@@ -6268,7 +6268,7 @@ dissect_ncp_8x20req(tvbuff_t *tvb, proto_tree *volatile ncp_tree, uint32_t offse
      */
     for ( i = 0; i <= (int)str_length; i++ )
     {
-        c_char = tvb_get_guint8(tvb, buffer_offset );
+        c_char = tvb_get_uint8(tvb, buffer_offset );
         if (c_char<0x20 || c_char>0x7e)
         {
             /* Not printable ASCII */
@@ -6285,7 +6285,7 @@ dissect_ncp_8x20req(tvbuff_t *tvb, proto_tree *volatile ncp_tree, uint32_t offse
                  */
                 buffer_offset++;
                 length_remaining--;
-                c_char = tvb_get_guint8(tvb, buffer_offset);
+                c_char = tvb_get_uint8(tvb, buffer_offset);
                 if (c_char == '?')
                 {
                     wmem_strbuf_append_c(string_buf, '?');
@@ -6341,12 +6341,12 @@ dissect_ncp_8x20req(tvbuff_t *tvb, proto_tree *volatile ncp_tree, uint32_t offse
                  */
                 buffer_offset++;
                 length_remaining--;
-                c_char = tvb_get_guint8(tvb, buffer_offset);
+                c_char = tvb_get_uint8(tvb, buffer_offset);
                 if (c_char == 0xa3)
                 {
                     buffer_offset++;
                     length_remaining--;
-                    c_char = tvb_get_guint8(tvb, buffer_offset);
+                    c_char = tvb_get_uint8(tvb, buffer_offset);
                     if (c_char == 0xbb)
                     {
                         wmem_strbuf_append_c(string_buf, '?');
@@ -6676,7 +6676,7 @@ dissect_ncp_8x20reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *volatile nc
             btree = proto_tree_add_subtree(atree, tvb, loffset, -1, ett_ncp, &bitem, "DOS Name");
 
             if (ncp_rec->func == 0x57) {
-                str_length = tvb_get_guint8(tvb, loffset);
+                str_length = tvb_get_uint8(tvb, loffset);
                 loffset += 1;
             }
             else
@@ -6742,7 +6742,7 @@ dissect_ncp_8x20reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *volatile nc
         }
         /* We always return the file name */
         if (ncp_rec->func == 0x57) {
-            str_length = tvb_get_guint8(tvb, loffset);
+            str_length = tvb_get_uint8(tvb, loffset);
             loffset += 1;
         }
         else
@@ -6769,7 +6769,7 @@ dissect_ncp_123_62_reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree)
     const char * param_string;
     int ret_len;
 
-    cmd_type = tvb_get_guint8(tvb, 8+16);
+    cmd_type = tvb_get_uint8(tvb, 8+16);
     param_string = (const char *)tvb_get_stringz_enc(wmem_packet_scope(), tvb, 8+24, &ret_len, ENC_ASCII);
 
     switch (cmd_type) {
@@ -7142,15 +7142,15 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
         }
         break;
     case NCP_SERVICE_REQUEST:
-        func = tvb_get_guint8(tvb, 6);
+        func = tvb_get_uint8(tvb, 6);
         requires_subfunc = ncp_requires_subfunc(func);
         has_length = ncp_has_length_parameter(func);
         if (requires_subfunc) {
             if (has_length) {
-                subfunc = tvb_get_guint8(tvb, 9);
+                subfunc = tvb_get_uint8(tvb, 9);
             }
             else {
-                subfunc = tvb_get_guint8(tvb, 7);
+                subfunc = tvb_get_uint8(tvb, 7);
             }
         }
         ncp_rec = ncp_record_find(func, subfunc);
@@ -7429,7 +7429,7 @@ dissect_nds_ping_reply(tvbuff_t *tvb, packet_info *pinfo _U_,
     int        i;
     nstime_t   ns;
 
-    ping_version = tvb_get_guint8(tvb, 8);
+    ping_version = tvb_get_uint8(tvb, 8);
     proto_tree_add_item(ncp_tree, hf_ping_version, tvb, 8, 1, ENC_NA);
     if (ping_version == 9) {
         nds_string_len = tvb_get_ntohl(tvb, 9);
@@ -7506,7 +7506,7 @@ dissect_nds_ping_reply(tvbuff_t *tvb, packet_info *pinfo _U_,
                     nds_offset += 4;
                     break;
                 case 0x00010000:
-                    if(tvb_get_guint8(tvb, nds_offset) == 0x00)
+                    if(tvb_get_uint8(tvb, nds_offset) == 0x00)
                     {
                         nds_offset += 2;
                     }
@@ -7517,7 +7517,7 @@ dissect_nds_ping_reply(tvbuff_t *tvb, packet_info *pinfo _U_,
                     nds_offset += align_4(tvb, nds_offset);
                     break;
                 case 0x00020000:
-                    if(tvb_get_guint8(tvb, nds_offset) == 0x00)
+                    if(tvb_get_uint8(tvb, nds_offset) == 0x00)
                     {
                         nds_offset += 2;
                     }
@@ -7528,7 +7528,7 @@ dissect_nds_ping_reply(tvbuff_t *tvb, packet_info *pinfo _U_,
                     nds_offset += align_4(tvb, nds_offset);
                     break;
                 case 0x00040000:
-                    if(tvb_get_guint8(tvb, nds_offset) == 0x00)
+                    if(tvb_get_uint8(tvb, nds_offset) == 0x00)
                     {
                         nds_offset += 2;
                     }
@@ -7539,7 +7539,7 @@ dissect_nds_ping_reply(tvbuff_t *tvb, packet_info *pinfo _U_,
                     nds_offset += align_4(tvb, nds_offset);
                     break;
                 case 0x00080000:
-                    if(tvb_get_guint8(tvb, nds_offset) == 0x00)
+                    if(tvb_get_uint8(tvb, nds_offset) == 0x00)
                     {
                         nds_offset += 2;
                     }
@@ -7550,7 +7550,7 @@ dissect_nds_ping_reply(tvbuff_t *tvb, packet_info *pinfo _U_,
                     nds_offset += align_4(tvb, nds_offset);
                     break;
                 case 0x00100000:
-                    if(tvb_get_guint8(tvb, nds_offset) == 0x00)
+                    if(tvb_get_uint8(tvb, nds_offset) == 0x00)
                     {
                         nds_offset += 2;
                     }
@@ -7748,7 +7748,7 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
         process_multivalues(ncp_tree, tvb, pinfo, &temp_value);
         break;
     case 0x04:
-        temp_value.vvalue = tvb_get_guint8(tvb, nds_offset);
+        temp_value.vvalue = tvb_get_uint8(tvb, nds_offset);
         if (temp_value.vvalue == 0)
         {
             proto_tree_add_uint_format_value(ncp_tree, hf_nds_compare_results, tvb, nds_offset, 1, temp_value.vvalue, "Did Not Match");
@@ -8112,7 +8112,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
      * but each non-zero value has a different meaning. And the same value
      * can have different meanings, depending on the ncp.func (and ncp.subfunc)
      * value. */
-    completion_code = tvb_get_guint8(tvb, 6);
+    completion_code = tvb_get_uint8(tvb, 6);
     if (completion_code == 0) {
         if(type == NCP_POSITIVE_ACK)
         {
@@ -8190,7 +8190,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                completion_code, error_string);
     }
 
-    conn_stat = tvb_get_guint8(tvb, 7);
+    conn_stat = tvb_get_uint8(tvb, 7);
     expert_item = proto_tree_add_item(ncp_tree, hf_ncp_connection_status, tvb,
                                       7, 1, ENC_NA);
     if (conn_stat != 0 && conn_stat != 0x40 ) {
@@ -8333,8 +8333,8 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
     uint32_t                 version, value1;
     nds_val                  temp_value;
 
-    func = tvb_get_guint8(tvb, 6);
-    subfunc = tvb_get_guint8(tvb, 7);
+    func = tvb_get_uint8(tvb, 6);
+    subfunc = tvb_get_uint8(tvb, 7);
 
     ncp_rec = ncp_record_find(func, subfunc);
     if (ncp_rec) {
@@ -8399,11 +8399,11 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
     /* Get NDS Verb */
     if (nds_frag == 0xffffffff) {
         /* First fragment or only fragment. */
-        nds_verb = tvb_get_guint8(tvb, 24);
+        nds_verb = tvb_get_uint8(tvb, 24);
         if (nds_verb == 0xfe)
         {
             nds_version = nds_verb;
-            nds_verb = tvb_get_guint8(tvb, 32);
+            nds_verb = tvb_get_uint8(tvb, 32);
             foffset = 36;
         }
         else
@@ -9433,8 +9433,8 @@ dissect_ping_req(tvbuff_t *tvb, packet_info *pinfo,
     }
 #endif
 
-    func = tvb_get_guint8(tvb, 6);
-    subfunc = tvb_get_guint8(tvb, 7);
+    func = tvb_get_uint8(tvb, 6);
+    subfunc = tvb_get_uint8(tvb, 7);
 
     ncp_rec = ncp_record_find(func, subfunc);
 

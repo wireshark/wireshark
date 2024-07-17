@@ -267,22 +267,22 @@ static int hf_ns_clu_clflags_dfd;
 static int hf_ns_clu_clflags_fr;
 static int hf_ns_clu_clflags_fp;
 
-static gint ett_ns;
-static gint ett_ns_flags;
-static gint ett_ns_activity_flags;
-static gint ett_ns_tcpdebug;
-static gint ett_ns_tcpdebug2;
-static gint ett_ns_trcdbg;
-static gint ett_ns_httpInfo;
-static gint ett_ns_tcpcc;
-static gint ett_ns_inforec;
-static gint ett_ns_sslrec;
-static gint ett_ns_mptcprec;
-static gint ett_ns_vmnamerec;
-static gint ett_ns_clusterrec;
-static gint ett_ns_clu_clflags;
-static gint ett_ns_unknownrec;
-static gint ett_ns_capflags;
+static int ett_ns;
+static int ett_ns_flags;
+static int ett_ns_activity_flags;
+static int ett_ns_tcpdebug;
+static int ett_ns_tcpdebug2;
+static int ett_ns_trcdbg;
+static int ett_ns_httpInfo;
+static int ett_ns_tcpcc;
+static int ett_ns_inforec;
+static int ett_ns_sslrec;
+static int ett_ns_mptcprec;
+static int ett_ns_vmnamerec;
+static int ett_ns_clusterrec;
+static int ett_ns_clu_clflags;
+static int ett_ns_unknownrec;
+static int ett_ns_capflags;
 
 static int hf_ns_snd_cwnd;
 static int hf_ns_realtime_rtt;
@@ -466,9 +466,9 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 	proto_item	*ti;
 	struct nstr_phdr *pnstr = &(pinfo->pseudo_header->nstr);
 	tvbuff_t	*next_tvb_eth_client;
-	guint8		src_vmname_len = 0, dst_vmname_len = 0;
-	guint8		variable_ns_len = 0;
-	guint32		vlan;
+	uint8_t		src_vmname_len = 0, dst_vmname_len = 0;
+	uint8_t		variable_ns_len = 0;
+	uint32_t		vlan;
 	static int * const activity_flags[] = {
 		&hf_ns_activity_perf_collection,
 		&hf_ns_activity_pcb_zombie,
@@ -483,8 +483,8 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 	case NSPR_HEADER_VERSION205:
 	case NSPR_HEADER_VERSION300:
 	case NSPR_HEADER_VERSION206:
-		src_vmname_len = tvb_get_guint8(tvb,pnstr->src_vmname_len_offset);
-		dst_vmname_len = tvb_get_guint8(tvb,pnstr->dst_vmname_len_offset);
+		src_vmname_len = tvb_get_uint8(tvb,pnstr->src_vmname_len_offset);
+		dst_vmname_len = tvb_get_uint8(tvb,pnstr->dst_vmname_len_offset);
 		variable_ns_len = src_vmname_len + dst_vmname_len;
 		pnstr->eth_offset += variable_ns_len;
 		break;
@@ -571,7 +571,7 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 			proto_tree_add_bitmask(ns_tree, tvb, pnstr->ns_activity_offset, hf_ns_capflags, ett_ns_capflags, cap_flags, ENC_LITTLE_ENDIAN);
 
 			proto_tree_add_item(ns_tree, hf_ns_errorcode, tvb, NSPR_V35_ERROR_CODE_OFFSET, 1, ENC_LITTLE_ENDIAN);
-			error_code = tvb_get_guint8(tvb, NSPR_V35_ERROR_CODE_OFFSET);
+			error_code = tvb_get_uint8(tvb, NSPR_V35_ERROR_CODE_OFFSET);
 			proto_tree_add_item(ns_tree, hf_ns_app, tvb, NSPR_V35_APP_OFFSET, 1, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(ns_tree, hf_ns_coreid, tvb, pnstr->coreid_offset, 2, ENC_LITTLE_ENDIAN);
 
@@ -608,32 +608,32 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 	return tvb_captured_length(tvb);
 }
 
-static gboolean no_record_header(int rec_type)
+static bool no_record_header(int rec_type)
 {
 	switch(rec_type)
 	{
 	case NSREC_ETHERNET:
 	case NSREC_HTTP:
 	case NSREC_NULL:
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 static void add35records(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *ns_tree)
 {
 	tvbuff_t  *next_tvb;
-	guint     nsheaderlen=0;
-	guint8    ssl_internal=0;
-	guint		offset;
+	unsigned  nsheaderlen=0;
+	uint8_t   ssl_internal=0;
+	unsigned		offset;
 	int flavour_value = 0;
 	int app_value = 0;
 	int morerecs=1;
 	int loopcount=0;
 	int reclen = 0, nextrec = 0;
-	int cur_record=tvb_get_guint8(tvb, NSPR_V35_NEXT_RECORD_OFFSET);
-	gboolean record_header;
+	int cur_record=tvb_get_uint8(tvb, NSPR_V35_NEXT_RECORD_OFFSET);
+	bool record_header;
 	proto_tree* subtree;
 	proto_item* subitem;
 	unsigned int tcp_mode = 0;
@@ -669,7 +669,7 @@ static void add35records(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pr
 		if (record_header)
 		{
 			reclen = tvb_get_letohs(tvb,offset);
-			nextrec = tvb_get_guint8(tvb,offset+2);
+			nextrec = tvb_get_uint8(tvb,offset+2);
 		}
 
 		switch (cur_record){
@@ -718,7 +718,7 @@ static void add35records(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pr
 			proto_tree_add_item(subtree, hf_ns_tcpdbg2_ts_recent, tvb, offset + 31, 4, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(subtree, hf_ns_tcpdbg2_tcp_cfgsndbuf, tvb, offset + 35, 4, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(subtree, hf_ns_tcpdbg2_tcp_flvr, tvb, offset + 39, 1, ENC_LITTLE_ENDIAN);
-			flavour_value = tvb_get_guint8(tvb, offset + 39);
+			flavour_value = tvb_get_uint8(tvb, offset + 39);
 
 			offset += reclen;
 			cur_record = nextrec;
@@ -727,8 +727,8 @@ static void add35records(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pr
 			/* Add tcpdebug2 subtree */
 			subitem = proto_tree_add_item(ns_tree, hf_ns_trcdbg, tvb, offset, reclen, ENC_NA);
 			subtree = proto_item_add_subtree(subitem, ett_ns_trcdbg);
-			app_value = tvb_get_guint8(tvb, NSPR_V35_APP_OFFSET);
-			tcp_mode = tvb_get_guint32(tvb, offset + 59, ENC_LITTLE_ENDIAN);
+			app_value = tvb_get_uint8(tvb, NSPR_V35_APP_OFFSET);
+			tcp_mode = tvb_get_uint32(tvb, offset + 59, ENC_LITTLE_ENDIAN);
 			switch(tcp_mode)
 			{
 				case TRCDBG_PRR:
@@ -902,8 +902,8 @@ static void add35records(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pr
 				break;
 			case NSREC_VMNAMES:
 			{
-				gint srcvmnamelen = tvb_get_guint8(tvb,offset+3);
-				gint dstvmnamelen = tvb_get_guint8(tvb,offset+4);
+				int srcvmnamelen = tvb_get_uint8(tvb,offset+3);
+				int dstvmnamelen = tvb_get_uint8(tvb,offset+4);
 				subitem = proto_tree_add_item(ns_tree, hf_ns_vmnamerec, tvb, offset, reclen, ENC_NA);
 				subtree = proto_item_add_subtree(subitem, ett_ns_vmnamerec);
 				proto_tree_add_item(subtree, hf_ns_vmnamerec_srcvmname, tvb, offset+5,
@@ -1835,7 +1835,7 @@ proto_register_ns(void)
 
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_ns,
 		&ett_ns_flags,
 		&ett_ns_activity_flags,

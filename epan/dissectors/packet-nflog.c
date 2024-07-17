@@ -103,12 +103,12 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
     tvbuff_t *next_tvb = NULL;
     int pf;
-    guint16 hw_protocol = 0;
+    uint16_t hw_protocol = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NFLOG");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    pf = tvb_get_guint8(tvb, 0);
+    pf = tvb_get_uint8(tvb, 0);
 
     /* Header */
     if (proto_field_is_referenced(tree, proto_nflog)) {
@@ -128,9 +128,9 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     offset = start_tlv_offset;
     /* TLVs */
     while (tvb_reported_length_remaining(tvb, offset) >= 4) {
-        guint16 tlv_len = tvb_get_h_uint16(tvb, offset + 0);
-        guint16 tlv_type;
-        guint16 value_len;
+        uint16_t tlv_len = tvb_get_h_uint16(tvb, offset + 0);
+        uint16_t tlv_type;
+        uint16_t value_len;
 
         proto_tree *tlv_tree;
 
@@ -142,7 +142,7 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         tlv_type = (tvb_get_h_uint16(tvb, offset + 2) & 0x7fff);
 
         if (nflog_tree) {
-            gboolean handled = FALSE;
+            bool handled = false;
 
             ti = proto_tree_add_bytes_format(nflog_tree, hf_nflog_tlv,
                              tvb, offset, tlv_len, NULL,
@@ -160,47 +160,47 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                                     tvb, offset + 4, 2, ENC_BIG_ENDIAN);
                         proto_tree_add_item(tlv_tree, hf_nflog_tlv_hook,
                                     tvb, offset + 6, 1, ENC_NA);
-                        handled = TRUE;
+                        handled = true;
                     }
                     break;
 
                 case WS_NFULA_IFINDEX_INDEV:
                     if (value_len == 4) {
                         proto_tree_add_item(tlv_tree, hf_nflog_tlv_ifindex_indev, tvb, offset + 4, value_len, ENC_BIG_ENDIAN);
-                        handled = TRUE;
+                        handled = true;
                     }
                     break;
 
                 case WS_NFULA_IFINDEX_OUTDEV:
                     if (value_len == 4) {
                         proto_tree_add_item(tlv_tree, hf_nflog_tlv_ifindex_outdev, tvb, offset + 4, value_len, ENC_BIG_ENDIAN);
-                        handled = TRUE;
+                        handled = true;
                     }
                     break;
 
                 case WS_NFULA_IFINDEX_PHYSINDEV:
                     if (value_len == 4) {
                         proto_tree_add_item(tlv_tree, hf_nflog_tlv_ifindex_physindev, tvb, offset + 4, value_len, ENC_BIG_ENDIAN);
-                        handled = TRUE;
+                        handled = true;
                     }
                     break;
 
                 case WS_NFULA_IFINDEX_PHYSOUTDEV:
                     if (value_len == 4) {
                         proto_tree_add_item(tlv_tree, hf_nflog_tlv_ifindex_physoutdev, tvb, offset + 4, value_len, ENC_BIG_ENDIAN);
-                        handled = TRUE;
+                        handled = true;
                     }
                     break;
 
                 case WS_NFULA_PAYLOAD:
-                    handled = TRUE;
+                    handled = true;
                     break;
 
                 case WS_NFULA_PREFIX:
                     if (value_len >= 1) {
                         proto_tree_add_item(tlv_tree, hf_nflog_tlv_prefix,
                                     tvb, offset + 4, value_len, ENC_ASCII);
-                        handled = TRUE;
+                        handled = true;
                     }
                     break;
 
@@ -208,7 +208,7 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                     if (value_len == 4) {
                         proto_tree_add_item(tlv_tree, hf_nflog_tlv_uid,
                                     tvb, offset + 4, value_len, ENC_BIG_ENDIAN);
-                        handled = TRUE;
+                        handled = true;
                     }
                     break;
 
@@ -216,7 +216,7 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                     if (value_len == 4) {
                         proto_tree_add_item(tlv_tree, hf_nflog_tlv_gid,
                                     tvb, offset + 4, value_len, ENC_BIG_ENDIAN);
-                        handled = TRUE;
+                        handled = true;
                     }
                     break;
 
@@ -231,7 +231,7 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                         proto_tree_add_item(tlv_tree, hf_nflog_tlv_timestamp,
                                     tvb, offset + 4, value_len,
                                     ENC_TIME_SECS_USECS|ENC_BIG_ENDIAN);
-                        handled = TRUE;
+                        handled = true;
                     }
                     break;
             }
@@ -361,7 +361,7 @@ proto_register_nflog(void)
         },
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_nflog,
         &ett_nflog_tlv
     };

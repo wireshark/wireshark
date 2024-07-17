@@ -18,7 +18,7 @@ void proto_register_mwmtp(void);
 void proto_reg_handoff_nwmtp(void);
 
 static dissector_handle_t mtp_handle;
-static gint proto_nwmtp;
+static int proto_nwmtp;
 
 static int hf_nwmtp_transp_type;
 static int hf_nwmtp_user_context;
@@ -27,7 +27,7 @@ static int hf_nwmtp_data_index;
 static int hf_nwmtp_data_length;
 
 /* subtree pointer */
-static gint ett_mwmtp;
+static int ett_mwmtp;
 
 static dissector_handle_t nwmtp_handle;
 
@@ -54,20 +54,20 @@ static const value_string nwmtp_data_type_vals[] = {
 
 static int dissect_nwmtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	gint offset = 0;
+	int offset = 0;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NW MTP");
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
-		const gchar *type;
+		const char *type;
 		proto_item *ti;
 		proto_item *nwmtp_tree;
-		guint32 len;
+		uint32_t len;
 		tvbuff_t *next_tvb;
 
 		/* update the info column */
-		type = val_to_str_const(tvb_get_guint8(tvb, offset + 1),
+		type = val_to_str_const(tvb_get_uint8(tvb, offset + 1),
 					nwmtp_data_type_vals, "Unknown");
 		col_set_str(pinfo->cinfo, COL_INFO, type);
 
@@ -98,8 +98,8 @@ static int dissect_nwmtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 		 * safe than sorry. See
 		 * https://gitlab.com/wireshark/wireshark/-/issues/8169
 		 */
-		DISSECTOR_ASSERT(len < G_MAXUINT32 - 11);
-		DISSECTOR_ASSERT((guint64)offset + len + 12 < G_MAXINT);
+		DISSECTOR_ASSERT(len < UINT32_MAX - 11);
+		DISSECTOR_ASSERT((uint64_t)offset + len + 12 < INT_MAX);
 		offset += len + 12;
 	}
 
@@ -136,7 +136,7 @@ void proto_register_mwmtp(void)
 		},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_mwmtp,
 	};
 

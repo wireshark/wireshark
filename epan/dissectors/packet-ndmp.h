@@ -12,7 +12,7 @@
 #ifndef __PACKET_NDMP_H__
 #define __PACKET_NDMP_H__
 
-extern gboolean check_if_ndmp(tvbuff_t *tvb, packet_info *pinfo);
+extern bool check_if_ndmp(tvbuff_t *tvb, packet_info *pinfo);
 
 #endif /* packet-ndmp.h */
 

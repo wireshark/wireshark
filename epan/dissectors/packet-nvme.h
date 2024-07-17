@@ -30,64 +30,64 @@ struct nvme_q_ctx {
     wmem_tree_t *data_requests;
     wmem_tree_t *data_responses;
     wmem_tree_t *data_offsets;
-    guint16     qid;
+    uint16_t    qid;
 };
 
 #define NVME_CMD_MAX_TRS (16)
 
 struct nvme_cmd_ctx {
-    guint32 cmd_pkt_num;  /* pkt number of the cmd */
-    guint32 cqe_pkt_num;  /* pkt number of the cqe */
+    uint32_t cmd_pkt_num;  /* pkt number of the cmd */
+    uint32_t cqe_pkt_num;  /* pkt number of the cqe */
 
-    guint32 data_req_pkt_num;
-    guint32 data_tr_pkt_num[NVME_CMD_MAX_TRS];
-    guint32 first_tr_psn;
+    uint32_t data_req_pkt_num;
+    uint32_t data_tr_pkt_num[NVME_CMD_MAX_TRS];
+    uint32_t first_tr_psn;
 
     nstime_t cmd_start_time;
     nstime_t cmd_end_time;
-    guint32 tr_bytes;   /* bytes transferred so far */
-    gboolean fabric;     /* indicate whether cmd fabric type or not */
+    uint32_t tr_bytes;   /* bytes transferred so far */
+    bool fabric;     /* indicate whether cmd fabric type or not */
 
     union {
         struct {
-            guint16 cns;
+            uint16_t cns;
         } cmd_identify;
         struct {
-            guint records;
-            guint tr_rcrd_id;
-            guint tr_off;
-            guint tr_sub_entries;
-            guint16 lsi;
-            guint8 lid;
-            guint8 lsp;
-            guint64 off;
-            guint8 uid_idx;
+            unsigned records;
+            unsigned tr_rcrd_id;
+            unsigned tr_off;
+            unsigned tr_sub_entries;
+            uint16_t lsi;
+            uint8_t lid;
+            uint8_t lsp;
+            uint64_t off;
+            uint8_t uid_idx;
         } get_logpage;
         struct {
-            guint8 fid;
+            uint8_t fid;
         } set_features;
         struct {
             union {
                 struct {
-                    guint8 offset;
+                    uint8_t offset;
                 } prop_get;
                 struct {
                     uint16_t qid;
                 } cnct;
             };
-            guint8 fctype; /* fabric cmd type */
+            uint8_t fctype; /* fabric cmd type */
         } fabric_cmd;
     } cmd_ctx;
-    guint8  opcode;
+    uint8_t opcode;
 };
 
 extern int hf_nvmeof_cmd_pkt;
 extern int hf_nvmeof_data_req;
 
-const gchar *get_nvmeof_cmd_string(guint8 fctype);
+const char *get_nvmeof_cmd_string(uint8_t fctype);
 
 void
-nvme_publish_qid(proto_tree *tree, int field_index, guint16 qid);
+nvme_publish_qid(proto_tree *tree, int field_index, uint16_t qid);
 
 void
 nvme_publish_cmd_latency(proto_tree *tree, struct nvme_cmd_ctx *cmd_ctx,
@@ -106,33 +106,33 @@ nvme_publish_to_data_resp_link(proto_tree *tree, tvbuff_t *tvb,
                              int hf_index, struct nvme_cmd_ctx *cmd_ctx);
 void
 nvme_publish_link(proto_tree *tree, tvbuff_t *tvb, int hf_index,
-                             guint32 pkt_no, gboolean zero_ok);
+                             uint32_t pkt_no, bool zero_ok);
 
 void nvme_update_cmd_end_info(packet_info *pinfo, struct nvme_cmd_ctx *cmd_ctx);
 
 void
 nvme_add_cmd_to_pending_list(packet_info *pinfo, struct nvme_q_ctx *q_ctx,
                              struct nvme_cmd_ctx *cmd_ctx,
-                             void *ctx, guint16 cmd_id);
-void* nvme_lookup_cmd_in_pending_list(struct nvme_q_ctx *q_ctx, guint16 cmd_id);
+                             void *ctx, uint16_t cmd_id);
+void* nvme_lookup_cmd_in_pending_list(struct nvme_q_ctx *q_ctx, uint16_t cmd_id);
 
 struct keyed_data_req
 {
-    guint64 addr;
-    guint32 key;
-    guint32 size;
+    uint64_t addr;
+    uint32_t key;
+    uint32_t size;
 };
 
 void
 dissect_nvmeof_fabric_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *nvme_tree,
-                                struct nvme_q_ctx *q_ctx, struct nvme_cmd_ctx *cmd, guint off, gboolean link_data_req);
+                                struct nvme_q_ctx *q_ctx, struct nvme_cmd_ctx *cmd, unsigned off, bool link_data_req);
 void
 dissect_nvmeof_cmd_data(tvbuff_t *data_tvb, packet_info *pinfo, proto_tree *data_tree,
-                                 guint pkt_off, struct nvme_q_ctx *q_ctx, struct nvme_cmd_ctx *cmd, guint len);
+                                 unsigned pkt_off, struct nvme_q_ctx *q_ctx, struct nvme_cmd_ctx *cmd, unsigned len);
 void
 dissect_nvmeof_fabric_cqe(tvbuff_t *nvme_tvb, packet_info *pinfo,
                         proto_tree *nvme_tree,
-                        struct nvme_cmd_ctx *cmd_ctx, guint off);
+                        struct nvme_cmd_ctx *cmd_ctx, unsigned off);
 
 void
 nvme_add_data_request(struct nvme_q_ctx *q_ctx, struct nvme_cmd_ctx *cmd_ctx,
@@ -143,26 +143,26 @@ nvme_lookup_data_request(struct nvme_q_ctx *q_ctx, struct keyed_data_req *req);
 
 void
 nvme_add_data_tr_pkt(struct nvme_q_ctx *q_ctx,
-                       struct nvme_cmd_ctx *cmd_ctx, guint32 rkey, guint32 frame_num);
+                       struct nvme_cmd_ctx *cmd_ctx, uint32_t rkey, uint32_t frame_num);
 struct nvme_cmd_ctx*
 nvme_lookup_data_tr_pkt(struct nvme_q_ctx *q_ctx,
-                          guint32 rkey, guint32 frame_num);
+                          uint32_t rkey, uint32_t frame_num);
 
 void
-nvme_add_data_tr_off(struct nvme_q_ctx *q_ctx, guint32 off, guint32 frame_num);
+nvme_add_data_tr_off(struct nvme_q_ctx *q_ctx, uint32_t off, uint32_t frame_num);
 
-guint32
-nvme_lookup_data_tr_off(struct nvme_q_ctx *q_ctx, guint32 frame_num);
+uint32_t
+nvme_lookup_data_tr_off(struct nvme_q_ctx *q_ctx, uint32_t frame_num);
 
 void
 nvme_add_cmd_cqe_to_done_list(struct nvme_q_ctx *q_ctx,
-                              struct nvme_cmd_ctx *cmd_ctx, guint16 cmd_id);
+                              struct nvme_cmd_ctx *cmd_ctx, uint16_t cmd_id);
 void*
 nvme_lookup_cmd_in_done_list(packet_info *pinfo, struct nvme_q_ctx *q_ctx,
-                             guint16 cmd_id);
+                             uint16_t cmd_id);
 
 void dissect_nvme_cmd_sgl(tvbuff_t *cmd_tvb, proto_tree *cmd_tree, int field_index,
-                 struct nvme_q_ctx *q_ctx, struct nvme_cmd_ctx *cmd_ctx, guint cmd_off, gboolean visited);
+                 struct nvme_q_ctx *q_ctx, struct nvme_cmd_ctx *cmd_ctx, unsigned cmd_off, bool visited);
 
 void
 dissect_nvme_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *root_tree,
@@ -172,7 +172,7 @@ void nvme_update_transfer_request(packet_info *pinfo, struct nvme_cmd_ctx *cmd_c
 
 void
 dissect_nvme_data_response(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *root_tree,
-                 struct nvme_q_ctx *q_ctx, struct nvme_cmd_ctx *cmd_ctx, guint len, gboolean is_inline);
+                 struct nvme_q_ctx *q_ctx, struct nvme_cmd_ctx *cmd_ctx, unsigned len, bool is_inline);
 
 void
 dissect_nvme_cqe(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *root_tree,
@@ -182,8 +182,8 @@ dissect_nvme_cqe(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *root_tree,
  * Returns string representation of opcode according
  * to opcode and queue id
  */
-const gchar *
-nvme_get_opcode_string(guint8  opcode, guint16 qid);
+const char *
+nvme_get_opcode_string(uint8_t opcode, uint16_t qid);
 
 /*
  * Tells if opcode can be an opcode of io queue.
@@ -191,7 +191,7 @@ nvme_get_opcode_string(guint8  opcode, guint16 qid);
  * command was not recorded
  */
 int
-nvme_is_io_queue_opcode(guint8  opcode);
+nvme_is_io_queue_opcode(uint8_t opcode);
 
 #endif
 

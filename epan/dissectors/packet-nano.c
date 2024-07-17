@@ -73,17 +73,17 @@ static int hf_nano_bulk_pull_block_type;
 static int hf_nano_frontier_account;
 static int hf_nano_frontier_head_hash;
 
-static gint ett_nano;
-static gint ett_nano_header;
-static gint ett_nano_extensions;
-static gint ett_nano_peers;
-static gint ett_nano_peer_details[8];
-static gint ett_nano_block;
-static gint ett_nano_vote;
-static gint ett_nano_bulk_pull;
-static gint ett_nano_frontier_req;
-static gint ett_nano_bulk_pull_blocks;
-static gint ett_nano_frontier;
+static int ett_nano;
+static int ett_nano_header;
+static int ett_nano_extensions;
+static int ett_nano_peers;
+static int ett_nano_peer_details[8];
+static int ett_nano_block;
+static int ett_nano_vote;
+static int ett_nano_bulk_pull;
+static int ett_nano_frontier_req;
+static int ett_nano_bulk_pull_blocks;
+static int ett_nano_frontier;
 
 #define NANO_PACKET_TYPE_INVALID 0
 #define NANO_PACKET_TYPE_NOT_A_TYPE 1
@@ -160,7 +160,7 @@ static const value_string nano_bulk_pull_blocks_mode_strings[] = {
 // Nano bootstrap session state
 struct nano_session_state {
     int client_packet_type;
-    guint32 server_port;
+    uint32_t server_port;
 };
 
 
@@ -171,8 +171,8 @@ static int dissect_nano_keepalive(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     proto_tree *peer_tree, *peer_entry_tree;
     int i, peers;
     ws_in6_addr ip_addr;
-    guint32 port;
-    gchar buf[100];
+    uint32_t port;
+    char buf[100];
 
     peer_tree = proto_tree_add_subtree(nano_tree, tvb, offset, 8*(16+2), ett_nano_peers, NULL, "Peer List");
 
@@ -351,7 +351,7 @@ static int dissect_nano_vote(tvbuff_t *tvb, proto_tree *nano_tree, int offset)
 
 // dissect a Nano protocol header, fills in the values
 // for nano_packet_type, nano_block_type
-static int dissect_nano_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *nano_tree, int offset, guint *nano_packet_type, guint64 *extensions)
+static int dissect_nano_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *nano_tree, int offset, unsigned *nano_packet_type, uint64_t *extensions)
 {
     proto_tree *header_tree;
     char *nano_magic_number;
@@ -390,8 +390,8 @@ static int dissect_nano(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 {
     proto_item *ti;
     proto_tree *nano_tree;
-    guint nano_packet_type, nano_block_type, offset;
-    guint64 extensions;
+    unsigned nano_packet_type, nano_block_type, offset;
+    uint64_t extensions;
 
     /* Check that the packet is long enough for it to belong to us. */
     if (tvb_reported_length(tvb) < NANO_HEADER_LENGTH)
@@ -415,7 +415,7 @@ static int dissect_nano(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         case NANO_PACKET_TYPE_CONFIRM_ACK:
 
             // set the INFO header with more information
-            nano_block_type = (guint)((extensions >> 8) & 0xF);
+            nano_block_type = (unsigned)((extensions >> 8) & 0xF);
             col_add_fstr(pinfo->cinfo, COL_INFO, "%s (%s)",
                     val_to_str_const(nano_packet_type, VALS(nano_packet_type_strings), " "),
                     val_to_str(nano_block_type, VALS(nano_block_type_strings), "Unknown (%d)"));
@@ -454,7 +454,7 @@ static int dissect_nano(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 }
 
 // determine the length of a nano bootstrap message (client)
-static guint get_nano_tcp_client_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
+static unsigned get_nano_tcp_client_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
     int nano_packet_type, nano_block_type;
     struct nano_session_state *session_state;
@@ -463,7 +463,7 @@ static guint get_nano_tcp_client_message_len(packet_info *pinfo _U_, tvbuff_t *t
     if (session_state->client_packet_type == NANO_PACKET_TYPE_BULK_PUSH) {
         // we're in the middle of a bulk push, so we expect a block type (uint8) and a block
 
-        nano_block_type = tvb_get_guint8(tvb, offset);
+        nano_block_type = tvb_get_uint8(tvb, offset);
         switch (nano_block_type) {
             case NANO_BLOCK_TYPE_NOT_A_BLOCK:
                 return 1;
@@ -488,7 +488,7 @@ static guint get_nano_tcp_client_message_len(packet_info *pinfo _U_, tvbuff_t *t
         return 0;
     }
 
-    nano_packet_type = tvb_get_guint8(tvb, offset + 5);
+    nano_packet_type = tvb_get_uint8(tvb, offset + 5);
 
     switch (nano_packet_type) {
         case NANO_PACKET_TYPE_BULK_PULL:
@@ -565,7 +565,7 @@ static int dissect_nano_bulk_pull_blocks(tvbuff_t *tvb, proto_tree *nano_tree, i
 static int dissect_nano_tcp_client_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _U_)
 {
     int offset, nano_packet_type, nano_block_type;
-    guint64 extensions;
+    uint64_t extensions;
     struct nano_session_state *session_state;
 
     session_state = (struct nano_session_state *)data;
@@ -623,7 +623,7 @@ static int dissect_nano_tcp_client_message(tvbuff_t *tvb, packet_info *pinfo, pr
 }
 
 // determine the length of a nano bootstrap message (server)
-static guint get_nano_tcp_server_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
+static unsigned get_nano_tcp_server_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
     int nano_block_type;
     struct nano_session_state *session_state;
@@ -634,7 +634,7 @@ static guint get_nano_tcp_server_message_len(packet_info *pinfo _U_, tvbuff_t *t
         session_state->client_packet_type == NANO_PACKET_TYPE_BULK_PULL_BLOCKS) {
         // we're in response to a bulk pull (blocks), so we expect a block type (uint8) and a block
 
-        nano_block_type = tvb_get_guint8(tvb, offset);
+        nano_block_type = tvb_get_uint8(tvb, offset);
         switch (nano_block_type) {
             case NANO_BLOCK_TYPE_NOT_A_BLOCK:
                 return 1;
@@ -774,42 +774,42 @@ static int dissect_nano_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (is_client) {
         // Nano bootstrap client
-        tcp_dissect_pdus(tvb, pinfo, nano_tree, TRUE, 1, get_nano_tcp_client_message_len, dissect_nano_tcp_client_message, session_state);
+        tcp_dissect_pdus(tvb, pinfo, nano_tree, true, 1, get_nano_tcp_client_message_len, dissect_nano_tcp_client_message, session_state);
 
     } else {
         // Nano bootstrap server
-        tcp_dissect_pdus(tvb, pinfo, nano_tree, TRUE, 1, get_nano_tcp_server_message_len, dissect_nano_tcp_server_message, session_state);
+        tcp_dissect_pdus(tvb, pinfo, nano_tree, true, 1, get_nano_tcp_server_message_len, dissect_nano_tcp_server_message, session_state);
     }
 
     return tvb_captured_length(tvb);
 }
 
 /* Heuristics test */
-static gboolean test_nano(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_, void *data _U_)
+static bool test_nano(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_, void *data _U_)
 {
     // if it's not a complete header length, it's not Nano.
     if (tvb_captured_length(tvb) < NANO_HEADER_LENGTH)
-        return FALSE;
+        return false;
 
     // first byte must be 'R', second byte 'A' or 'B' or 'C'
-    if (tvb_get_guint8(tvb, 0) != (guint8) 'R')
-        return FALSE;
+    if (tvb_get_uint8(tvb, 0) != (uint8_t) 'R')
+        return false;
 
-    char network = (char) tvb_get_guint8(tvb, 1);
+    char network = (char) tvb_get_uint8(tvb, 1);
     if (network != 'A' && network != 'B' && network != 'C')
-        return FALSE;
+        return false;
 
-    guint8 version_max = tvb_get_guint8(tvb, 2);
-    guint8 version_using = tvb_get_guint8(tvb, 3);
-    guint8 version_min = tvb_get_guint8(tvb, 4);
+    uint8_t version_max = tvb_get_uint8(tvb, 2);
+    uint8_t version_using = tvb_get_uint8(tvb, 3);
+    uint8_t version_min = tvb_get_uint8(tvb, 4);
     if (version_max > 30 || version_max < version_using || version_using < version_min)
-        return FALSE;
+        return false;
 
-    guint8 ptype = tvb_get_guint8(tvb, 5);
+    uint8_t ptype = tvb_get_uint8(tvb, 5);
     if (ptype > 15)
-        return FALSE;
+        return false;
 
-    return TRUE;
+    return true;
 }
 
 static bool dissect_nano_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
@@ -1028,7 +1028,7 @@ void proto_register_nano(void)
         }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_nano,
         &ett_nano_header,
         &ett_nano_extensions,

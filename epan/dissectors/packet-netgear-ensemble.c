@@ -38,17 +38,17 @@ static int hf_nge_mac;
 static int hf_nge_ip;
 static int hf_nge_uuid;
 
-static gint ett_nge;
-static gint ett_nge_lv;
-static gint ett_nge_ensemble;
+static int ett_nge;
+static int ett_nge_lv;
+static int ett_nge_ensemble;
 
 
 static void
 dissect_nge_esemble(tvbuff_t *tvb,proto_tree *tree, int offset)
 {
-    guint strLen=0;
+    unsigned strLen=0;
 
-    guint32 length = tvb_get_guint32(tvb, offset,ENC_BIG_ENDIAN);
+    uint32_t length = tvb_get_uint32(tvb, offset,ENC_BIG_ENDIAN);
     proto_tree *ensemble_tree = proto_tree_add_subtree(tree, tvb, offset, length+4, ett_nge_ensemble, NULL,"Ensemble");
 
     proto_tree_add_uint(ensemble_tree, hf_nge_tlv_length, tvb, offset, 4, length);
@@ -185,7 +185,7 @@ proto_register_nge(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_nge,
         &ett_nge_lv,
         &ett_nge_ensemble

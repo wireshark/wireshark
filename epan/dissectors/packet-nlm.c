@@ -70,8 +70,8 @@ static int hf_nlm_request_in;
 static int hf_nlm_reply_in;
 static int hf_nlm_time;
 
-static gint ett_nlm;
-static gint ett_nlm_lock;
+static int ett_nlm;
+static int ett_nlm_lock;
 
 
 
@@ -91,7 +91,7 @@ typedef struct _nlm_msg_res_unmatched_data {
 	int req_frame;
 	nstime_t ns;
 	int cookie_len;
-	const guint8 *cookie;
+	const uint8_t *cookie;
 } nlm_msg_res_unmatched_data;
 
 typedef struct _nlm_msg_res_matched_data {
@@ -100,11 +100,11 @@ typedef struct _nlm_msg_res_matched_data {
 	nstime_t ns;
 } nlm_msg_res_matched_data;
 
-static guint
-nlm_msg_res_unmatched_hash(gconstpointer k)
+static unsigned
+nlm_msg_res_unmatched_hash(const void *k)
 {
 	const nlm_msg_res_unmatched_data *umd = (const nlm_msg_res_unmatched_data *)k;
-	guint8 hash=0;
+	uint8_t hash=0;
 	int i;
 
 	for(i=0;i<umd->cookie_len;i++){
@@ -113,16 +113,16 @@ nlm_msg_res_unmatched_hash(gconstpointer k)
 
 	return hash;
 }
-static guint
-nlm_msg_res_matched_hash(gconstpointer k)
+static unsigned
+nlm_msg_res_matched_hash(const void *k)
 {
-	guint hash = GPOINTER_TO_UINT(k);
+	unsigned hash = GPOINTER_TO_UINT(k);
 
 	return hash;
 }
 
-static gint
-nlm_msg_res_unmatched_equal(gconstpointer k1, gconstpointer k2)
+static int
+nlm_msg_res_unmatched_equal(const void *k1, const void *k2)
 {
 	const nlm_msg_res_unmatched_data *umd1 = (const nlm_msg_res_unmatched_data *)k1;
 	const nlm_msg_res_unmatched_data *umd2 = (const nlm_msg_res_unmatched_data *)k2;
@@ -133,11 +133,11 @@ nlm_msg_res_unmatched_equal(gconstpointer k1, gconstpointer k2)
 
 	return (memcmp(umd1->cookie, umd2->cookie, umd1->cookie_len) == 0);
 }
-static gint
-nlm_msg_res_matched_equal(gconstpointer k1, gconstpointer k2)
+static int
+nlm_msg_res_matched_equal(const void *k1, const void *k2)
 {
-	guint mk1 = GPOINTER_TO_UINT(k1);
-	guint mk2 = GPOINTER_TO_UINT(k2);
+	unsigned mk1 = GPOINTER_TO_UINT(k1);
+	unsigned mk2 = GPOINTER_TO_UINT(k2);
 
 	return mk1==mk2;
 }
@@ -199,7 +199,7 @@ nlm_register_unmatched_res(packet_info *pinfo, tvbuff_t *tvb, int offset)
 	umd.cookie=tvb_get_ptr(tvb, offset+4, -1);
 
 	/* have we seen this cookie before? */
-	old_umd=(nlm_msg_res_unmatched_data *)wmem_map_lookup(nlm_msg_res_unmatched, (gconstpointer)&umd);
+	old_umd=(nlm_msg_res_unmatched_data *)wmem_map_lookup(nlm_msg_res_unmatched, (const void *)&umd);
 	if(old_umd){
 		nlm_msg_res_matched_data *md_req, *md_rep;
 
@@ -226,12 +226,12 @@ nlm_register_unmatched_msg(packet_info *pinfo, tvbuff_t *tvb, int offset)
 	umd->req_frame = pinfo->num;
 	umd->ns = pinfo->abs_ts;
 	umd->cookie_len = tvb_get_ntohl(tvb, offset);
-	umd->cookie = (const guint8 *)tvb_memdup(wmem_file_scope(), tvb, offset+4, umd->cookie_len);
+	umd->cookie = (const uint8_t *)tvb_memdup(wmem_file_scope(), tvb, offset+4, umd->cookie_len);
 
 	/* remove any old duplicates */
 	old_umd=(nlm_msg_res_unmatched_data *)wmem_map_lookup(nlm_msg_res_unmatched, umd);
 	if(old_umd){
-		wmem_map_remove(nlm_msg_res_unmatched, (gconstpointer)old_umd);
+		wmem_map_remove(nlm_msg_res_unmatched, (const void *)old_umd);
 	}
 
 	/* add new one */
@@ -311,8 +311,8 @@ dissect_lock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int version, i
 {
 	proto_item* lock_item = NULL;
 	proto_tree* lock_tree = NULL;
-	guint32 fh_hash, svid;
-	guint64 start_offset=0, end_offset=0;
+	uint32_t fh_hash, svid;
+	uint64_t start_offset=0, end_offset=0;
 
 	if (tree) {
 		lock_item = proto_tree_add_item(tree, hf_nlm_lock, tvb,
@@ -557,7 +557,7 @@ dissect_nlm_share(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	proto_item* lock_item = NULL;
 	proto_tree* lock_tree = NULL;
-	guint32 fh_hash;
+	uint32_t fh_hash;
 
 	offset = dissect_rpc_data(tvb, tree, hf_nlm_cookie, offset);
 
@@ -589,7 +589,7 @@ static int
 dissect_nlm_shareres(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		     proto_tree *tree, int version _U_)
 {
-	guint32 nlm_stat;
+	uint32_t nlm_stat;
 
 	offset = dissect_rpc_data(tvb, tree, hf_nlm_cookie, offset);
 	nlm_stat = tvb_get_ntohl(tvb, offset);
@@ -623,7 +623,7 @@ static int
 dissect_nlm_gen_reply(tvbuff_t *tvb, packet_info *pinfo _U_,
 		      proto_tree *tree, void* data)
 {
-	guint32 nlm_stat;
+	uint32_t nlm_stat;
 	int offset = 0;
 
 	if(nlm_match_msgres){
@@ -1148,7 +1148,7 @@ proto_register_nlm(void)
 
 		};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_nlm,
 		&ett_nlm_lock,
 	};

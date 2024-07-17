@@ -287,13 +287,13 @@ static value_string_ext v8_agg_ext = VALUE_STRING_EXT_INIT(v8_agg);
    A value of 0 will be unlimited.
 */
 #define V9_TMPLT_MAX_FIELDS_DEF   60
-static guint v9_tmplt_max_fields = V9_TMPLT_MAX_FIELDS_DEF;
+static unsigned v9_tmplt_max_fields = V9_TMPLT_MAX_FIELDS_DEF;
 
 typedef struct _v9_v10_tmplt_entry {
-    guint16      type;
-    guint16      length;
-    guint32      pen;
-    const gchar *pen_str;
+    uint16_t     type;
+    uint16_t     length;
+    uint32_t     pen;
+    const char *pen_str;
 } v9_v10_tmplt_entry_t;
 
 typedef enum {
@@ -317,15 +317,15 @@ typedef enum {
 
 typedef struct _v9_v10_tmplt {
     /* For linking back to show where fields were defined */
-    guint32  template_frame_number;
+    uint32_t template_frame_number;
     address  src_addr;
-    guint32  src_port;
+    uint32_t src_port;
     address  dst_addr;
-    guint32  dst_port;
-    guint32  src_id;   /* SourceID in NetFlow V9, Observation Domain ID in IPFIX */
-    guint16  tmplt_id;
-    guint    length;
-    guint16  field_count[TF_NUM];                /* 0:scopes; 1:entries  */
+    uint32_t dst_port;
+    uint32_t src_id;   /* SourceID in NetFlow V9, Observation Domain ID in IPFIX */
+    uint16_t tmplt_id;
+    unsigned length;
+    uint16_t field_count[TF_NUM];                /* 0:scopes; 1:entries  */
     v9_v10_tmplt_entry_t *fields_p[TF_NUM_EXT];  /* 0:scopes; 1:entries; n:vendor_entries  */
 } v9_v10_tmplt_t;
 
@@ -4127,13 +4127,13 @@ proto_tree_add_mpls_label(proto_tree *pdutree, tvbuff_t *tvb, int offset, int le
     proto_tree *mpls_tree;
     proto_item *ti;
     if( length == 3) {
-        guint8 b0 = tvb_get_guint8(tvb, offset);
-        guint8 b1 = tvb_get_guint8(tvb, offset + 1);
-        guint8 b2 = tvb_get_guint8(tvb, offset + 2);
+        uint8_t b0 = tvb_get_uint8(tvb, offset);
+        uint8_t b1 = tvb_get_uint8(tvb, offset + 1);
+        uint8_t b2 = tvb_get_uint8(tvb, offset + 2);
 
-        guint32  label = (b0<<12) + (b1<<4) + (b2>>4);
-        guint8   exp   = (b2>>1) & 0x7;
-        guint8   bos   =  b2     & 0x1;
+        uint32_t label = (b0<<12) + (b1<<4) + (b2>>4);
+        uint8_t  exp   = (b2>>1) & 0x7;
+        uint8_t  bos   =  b2     & 0x1;
 
         mpls_tree = proto_tree_add_subtree_format(pdutree, tvb, offset, length, ett_mpls_label, &ti,
                                                   "MPLS-Label%d: %u exp-bits: %u %s",
@@ -4152,39 +4152,39 @@ proto_tree_add_mpls_label(proto_tree *pdutree, tvbuff_t *tvb, int offset, int le
 
 
 typedef struct _hdrinfo_t {
-    guint8  vspec;
-    guint32 src_id;            /* SourceID in NetFlow V9, Observation Domain ID in IPFIX */
+    uint8_t vspec;
+    uint32_t src_id;            /* SourceID in NetFlow V9, Observation Domain ID in IPFIX */
     time_t  export_time_secs;  /* secs since epoch */
 } hdrinfo_t;
 
 typedef int     dissect_pdu_t(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
-                              hdrinfo_t *hdrinfo_p, guint32 *flows_seen);
+                              hdrinfo_t *hdrinfo_p, uint32_t *flows_seen);
 
 static int      dissect_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
-                            hdrinfo_t *hdrinfo_p, guint32 *flows_seen);
+                            hdrinfo_t *hdrinfo_p, uint32_t *flows_seen);
 static int      dissect_v8_aggpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree,
-                                  int offset, hdrinfo_t *hdrinfo_p, guint32 *flows_seen);
+                                  int offset, hdrinfo_t *hdrinfo_p, uint32_t *flows_seen);
 static int      dissect_v8_flowpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree,
-                                   int offset, hdrinfo_t *hdrinfo_p, guint32 *flows_seen);
+                                   int offset, hdrinfo_t *hdrinfo_p, uint32_t *flows_seen);
 static int      dissect_v9_v10_flowset(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree,
-                                   int offset, hdrinfo_t *hdrinfo_p, guint32 *flows_seen);
+                                   int offset, hdrinfo_t *hdrinfo_p, uint32_t *flows_seen);
 static int      dissect_v9_v10_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree,
-                                int offset, guint16 id, guint length, hdrinfo_t *hdrinfo_p,
-                                guint32 *flows_seen);
-static guint    dissect_v9_v10_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree,
+                                int offset, uint16_t id, unsigned length, hdrinfo_t *hdrinfo_p,
+                                uint32_t *flows_seen);
+static unsigned dissect_v9_v10_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree,
                                int offset, v9_v10_tmplt_t *tmplt_p, hdrinfo_t *hdrinfo_p,
-                               guint32 *flows_seen);
-static guint    dissect_v9_pdu_scope(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree,
+                               uint32_t *flows_seen);
+static unsigned dissect_v9_pdu_scope(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree,
                                int offset, v9_v10_tmplt_t *tmplt_p);
-static guint    dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree,
+static unsigned dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree,
                                         int offset, v9_v10_tmplt_t *tmplt_p, hdrinfo_t *hdrinfo_p,
                                         v9_v10_tmplt_fields_type_t fields_type);
 static int      dissect_v9_v10_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree,
-                                                int offset, int len, hdrinfo_t *hdrinfo_p, guint16 flowset_id);
+                                                int offset, int len, hdrinfo_t *hdrinfo_p, uint16_t flowset_id);
 static int      dissect_v9_v10_data_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree,
-                                    int offset, int len, hdrinfo_t *hdrinfo_p, guint16 flowset_id);
+                                    int offset, int len, hdrinfo_t *hdrinfo_p, uint16_t flowset_id);
 
-static const gchar *getprefix(wmem_allocator_t *pool, const guint32 *address, unsigned prefix);
+static const char *getprefix(wmem_allocator_t *pool, const uint32_t *address, unsigned prefix);
 
 static int      flow_process_ints(proto_tree *pdutree, tvbuff_t *tvb,
                                   int offset);
@@ -4197,7 +4197,7 @@ static int      flow_process_aspair(proto_tree *pdutree, tvbuff_t *tvb,
 static int      flow_process_sizecount(proto_tree *pdutree, tvbuff_t *tvb,
                                        int offset);
 
-static v9_v10_tmplt_t *v9_v10_tmplt_build_key(v9_v10_tmplt_t *tmplt_p, packet_info *pinfo, guint32 src_id, guint16 tmplt_id);
+static v9_v10_tmplt_t *v9_v10_tmplt_build_key(v9_v10_tmplt_t *tmplt_p, packet_info *pinfo, uint32_t src_id, uint16_t tmplt_id);
 
 
 static int
@@ -4211,7 +4211,7 @@ flow_process_textfield(proto_tree *pdutree, tvbuff_t *tvb, int offset, int bytes
 
 
 static int
-pen_to_type_hf_list(guint32 pen) {
+pen_to_type_hf_list(uint32_t pen) {
     switch (pen) {
     case VENDOR_PLIXER:
         return TF_PLIXER;
@@ -4248,14 +4248,14 @@ pen_to_type_hf_list(guint32 pen) {
    map for each template/set ID inside the domain state? */
 
 typedef struct netflow_domain_state_t {
-    gboolean sequence_number_set;
-    guint32 current_sequence_number;
-    guint32 current_frame_number;
+    bool sequence_number_set;
+    uint32_t current_sequence_number;
+    uint32_t current_frame_number;
 } netflow_domain_state_t;
 
 /* On first pass, check ongoing sequence of observation domain, and only store a result
    if the sequence number is not as expected */
-static void store_sequence_analysis_info(guint32 domain_id, guint32 seqnum, unsigned int version, guint32 new_flows,
+static void store_sequence_analysis_info(uint32_t domain_id, uint32_t seqnum, unsigned int version, uint32_t new_flows,
                                          packet_info *pinfo)
 {
     /* Find current domain info */
@@ -4295,12 +4295,12 @@ static void store_sequence_analysis_info(guint32 domain_id, guint32 seqnum, unsi
     /* Update domain info for the next frame to consult.
        Add flows(data records) for all protocol versions except for 9, which just counts exported frames */
     domain_state->current_sequence_number = seqnum + ((version == 9) ? 1 : new_flows);
-    domain_state->sequence_number_set = TRUE;
+    domain_state->sequence_number_set = true;
     domain_state->current_frame_number = pinfo->num;
 }
 
 /* Check for result stored indicating that sequence number wasn't as expected, and show in tree */
-static void show_sequence_analysis_info(guint32 domain_id, guint32 seqnum,
+static void show_sequence_analysis_info(uint32_t domain_id, uint32_t seqnum,
                                         packet_info *pinfo, tvbuff_t *tvb,
                                         proto_item *flow_sequence_ti, proto_tree *tree)
 {
@@ -4329,8 +4329,8 @@ static void show_sequence_analysis_info(guint32 domain_id, guint32 seqnum,
 
 /* Try to look up the transport name given the pen_type, ip_protocol and port_number.
    If found, append to port number item */
-static void netflow_add_transport_info(packet_info *pinfo, guint64 pen_type, guint8 ip_protocol,
-                                       guint16 port_number, proto_item *ti)
+static void netflow_add_transport_info(packet_info *pinfo, uint64_t pen_type, uint8_t ip_protocol,
+                                       uint16_t port_number, proto_item *ti)
 {
     const char *port_str;
 
@@ -4365,13 +4365,13 @@ dissect_netflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     proto_tree     *timetree, *pdutree;
     unsigned int    pduret, ver, pdus, x;
     hdrinfo_t       hdrinfo;
-    guint32         flow_sequence = 0; /* TODO: could be part of hdrinfo struct? */
+    uint32_t        flow_sequence = 0; /* TODO: could be part of hdrinfo struct? */
     proto_item      *flow_sequence_ti = NULL;
-    gint            flow_len = -1;    /* v10 only */
-    guint           available, pdusize, offset = 0;
+    int             flow_len = -1;    /* v10 only */
+    unsigned        available, pdusize, offset = 0;
     nstime_t        ts;
     dissect_pdu_t  *pduptr;
-    guint32         flows_seen = 0;
+    uint32_t        flows_seen = 0;
 
     ipfix_debug("dissect_netflow: start");
 
@@ -4443,7 +4443,7 @@ dissect_netflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
                         "total: %u (v%u) record%s", pdus, ver,
                         plurality(pdus, "", "s"));
     } else if (ver == 10) {
-        gint remaining = tvb_reported_length_remaining(tvb, offset) + 4;
+        int remaining = tvb_reported_length_remaining(tvb, offset) + 4;
 
         if(remaining == flow_len)
             col_add_fstr(pinfo->cinfo, COL_INFO, "IPFIX flow (%4d bytes)",
@@ -4466,7 +4466,7 @@ dissect_netflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         return tvb_reported_length(tvb);
 
     if(ver != 10) {
-        guint32 sysuptime = tvb_get_ntohl(tvb, offset);
+        uint32_t sysuptime = tvb_get_ntohl(tvb, offset);
         nstime_t nsuptime;
 
         nsuptime.secs = sysuptime / 1000;
@@ -4529,7 +4529,7 @@ dissect_netflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         offset += 4;
     }
     if (ver == 8) {
-        hdrinfo.vspec = tvb_get_guint8(tvb, offset);
+        hdrinfo.vspec = tvb_get_uint8(tvb, offset);
         switch (hdrinfo.vspec) {
         case V8PDU_AS_METHOD:
             pdusize = V8PDU_AS_SIZE;
@@ -4696,8 +4696,8 @@ flow_process_timeperiod(proto_tree *pdutree, tvbuff_t *tvb, int offset)
     nstime_t    ts_start, ts_end;
     int         offset_s, offset_e;
     nstime_t    ts_delta;
-    guint32     msec_start, msec_end;
-    guint32     msec_delta;
+    uint32_t    msec_start, msec_end;
+    uint32_t    msec_delta;
     proto_tree *timetree;
     proto_item *timeitem;
 
@@ -4759,10 +4759,10 @@ flow_process_sizecount(proto_tree *pdutree, tvbuff_t *tvb, int offset)
 
 static int
 dissect_v8_flowpdu(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *pdutree, int offset,
-                   hdrinfo_t *hdrinfo_p, guint32 *flows_seen _U_)
+                   hdrinfo_t *hdrinfo_p, uint32_t *flows_seen _U_)
 {
     int      startoffset = offset;
-    guint8   verspec;
+    uint8_t  verspec;
 
     proto_tree_add_item(pdutree, hf_cflow_dstaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
@@ -4819,10 +4819,10 @@ dissect_v8_flowpdu(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *pdutre
 
 static int
 dissect_v8_aggpdu(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *pdutree, int offset,
-                  hdrinfo_t *hdrinfo_p, guint32 *flows_seen _U_)
+                  hdrinfo_t *hdrinfo_p, uint32_t *flows_seen _U_)
 {
     int      startoffset = offset;
-    guint8   verspec;
+    uint8_t  verspec;
     int      local_cflow_as;   /* hf_cflow_srcas     || hf_cflow_dstas    */
     int      local_cflow_net;  /* hf_cflow_srcnet    || hf_cflow_dstnet   */
     int      local_cflow_int;  /* hf_cflow_outputint || hf_cflow_inputint */
@@ -4957,12 +4957,12 @@ dissect_v8_aggpdu(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *pdutree
 
 static int
 dissect_v9_v10_flowset(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, int offset,
-                       hdrinfo_t *hdrinfo_p, guint32 *flows_seen)
+                       hdrinfo_t *hdrinfo_p, uint32_t *flows_seen)
 {
     proto_item *pi;
     int     length;
-    guint16 flowset_id;
-    guint8  ver;
+    uint16_t flowset_id;
+    uint8_t ver;
 
     ver = hdrinfo_p->vspec;
 
@@ -4997,7 +4997,7 @@ dissect_v9_v10_flowset(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, i
     default:
         if (flowset_id >= FLOWSET_ID_DATA_MIN) {
             col_append_fstr(pinfo->cinfo, COL_INFO, " [Data:%u]", flowset_id);
-            dissect_v9_v10_data(tvb, pinfo, pdutree, offset, flowset_id, (guint)length - 4, hdrinfo_p, flows_seen);
+            dissect_v9_v10_data(tvb, pinfo, pdutree, offset, flowset_id, (unsigned)length - 4, hdrinfo_p, flows_seen);
         }
         break;
     }
@@ -5007,12 +5007,12 @@ dissect_v9_v10_flowset(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, i
 
 static int
 dissect_v9_v10_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, int offset,
-                    guint16 id, guint length, hdrinfo_t *hdrinfo_p, guint32 *flows_seen)
+                    uint16_t id, unsigned length, hdrinfo_t *hdrinfo_p, uint32_t *flows_seen)
 {
     v9_v10_tmplt_t *tmplt_p;
     v9_v10_tmplt_t  tmplt_key;
     proto_tree     *data_tree;
-    guint           pdu_len;
+    unsigned        pdu_len;
 
     if (length == 0) {
         expert_add_info(pinfo, proto_tree_get_parent(pdutree), &ei_cflow_no_flow_information);
@@ -5082,9 +5082,9 @@ dissect_v9_v10_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, int 
 #define GOT_TCP_UDP (GOT_BASE | GOT_LOCAL_PORT | GOT_REMOTE_PORT)
 #define GOT_ICMP    (GOT_BASE | GOT_IPv4_ID    | GOT_ICMP_ID)
 
-static guint
+static unsigned
 dissect_v9_v10_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, int offset,
-                   v9_v10_tmplt_t *tmplt_p, hdrinfo_t *hdrinfo_p, guint32 *flows_seen)
+                   v9_v10_tmplt_t *tmplt_p, hdrinfo_t *hdrinfo_p, uint32_t *flows_seen)
 {
     int orig_offset = offset;
 
@@ -5100,10 +5100,10 @@ dissect_v9_v10_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, int o
 
     /* Inc number of flows seen in this overall PDU */
     (*flows_seen)++;
-    return (guint) (offset - orig_offset);
+    return (unsigned) (offset - orig_offset);
 }
 
-static guint
+static unsigned
 dissect_v9_pdu_scope(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pdutree, int offset,
                      v9_v10_tmplt_t *tmplt_p)
 {
@@ -5115,8 +5115,8 @@ dissect_v9_pdu_scope(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pdutree,
     orig_offset = offset;
 
     for(i = 0; i < tmplt_p->field_count[TF_SCOPES]; i++) {
-        guint16 type   = tmplt_p->fields_p[TF_SCOPES][i].type;
-        guint16 length = tmplt_p->fields_p[TF_SCOPES][i].length;
+        uint16_t type   = tmplt_p->fields_p[TF_SCOPES][i].type;
+        uint16_t length = tmplt_p->fields_p[TF_SCOPES][i].length;
         if (length == 0) { /* XXX: Zero length fields probably shouldn't be included in the cached template */
             /* YYY: Maybe.  If you don't cache the zero length fields can you still compare that you actually  */
             /*      have the same template with the same ID. */
@@ -5151,7 +5151,7 @@ dissect_v9_pdu_scope(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pdutree,
         }
         offset += length;
     }
-    return (guint) (offset - orig_offset);
+    return (unsigned) (offset - orig_offset);
 }
 
 /* Type of duration being calculated for a flow. */
@@ -5169,11 +5169,11 @@ enum duration_type_e {
 static void
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_v10_pdu_subtemplate_list(tvbuff_t* tvb, packet_info* pinfo, proto_item* pduitem, int offset,
-                                 guint16 length, hdrinfo_t* hdrinfo_p)
+                                 uint16_t length, hdrinfo_t* hdrinfo_p)
 {
     int            start_offset = offset;
     int            end_offset   = offset + length;
-    guint32        semantic, subtemplate_id;
+    uint32_t       semantic, subtemplate_id;
     v9_v10_tmplt_t *subtmplt_p;
     v9_v10_tmplt_t  tmplt_key;
     proto_tree     *pdutree = proto_item_add_subtree(pduitem, ett_subtemplate_list);
@@ -5191,7 +5191,7 @@ dissect_v10_pdu_subtemplate_list(tvbuff_t* tvb, packet_info* pinfo, proto_item* 
         proto_item *ti;
         int        count = 1;
         proto_tree *sub_tree;
-        guint      consumed;
+        unsigned   consumed;
 
         /* Provide a link back to template frame */
         ti = proto_tree_add_uint(pdutree, hf_template_frame, tvb,
@@ -5230,7 +5230,7 @@ dissect_v10_pdu_subtemplate_list(tvbuff_t* tvb, packet_info* pinfo, proto_item* 
     }
 }
 
-static guint
+static unsigned
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, int offset,
                         v9_v10_tmplt_t *tmplt_p, hdrinfo_t *hdrinfo_p, v9_v10_tmplt_fields_type_t fields_type)
@@ -5240,21 +5240,21 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
     nstime_t              ts_start[2][duration_type_max], ts_end[2][duration_type_max];
     int                   offset_s[2][duration_type_max], offset_e[2][duration_type_max];
     nstime_t              ts;
-    guint32               msec_start[2][duration_type_max], msec_end[2][duration_type_max];
-    gint                  duration_type;
-    guint32               msec_delta;
+    uint32_t              msec_start[2][duration_type_max], msec_end[2][duration_type_max];
+    int                   duration_type;
+    uint32_t              msec_delta;
     nstime_t              ts_delta;
-    guint32               usec;
+    uint32_t              usec;
     int                   i, j;
 
     address               local_addr, remote_addr;
-    guint16               local_port = 0, remote_port = 0/*, ipv4_id = 0, icmp_id = 0*/;
-    guint32               uid = 0, pid = 0;
+    uint16_t              local_port = 0, remote_port = 0/*, ipv4_id = 0, icmp_id = 0*/;
+    uint32_t              uid = 0, pid = 0;
     int                   uname_len;
-    gchar                *uname_str = NULL;
+    char                 *uname_str = NULL;
     int                   cmd_len;
-    gchar                *cmd_str = NULL;
-    guint16               got_flags = 0;
+    char                 *cmd_str = NULL;
+    uint16_t              got_flags = 0;
 
     int                   string_len_short = 0;
     int                   string_len_long = 0;
@@ -5262,31 +5262,31 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
     proto_tree           *string_tree;
     proto_tree           *dl_frame_sec_tree;
     proto_tree           *juniper_resilincy_tree;
-    guint32               cpid, cpdesc;
+    uint32_t              cpid, cpdesc;
 
-    gchar                *gen_str = NULL;
+    char                 *gen_str = NULL;
     int                   gen_str_offset = 0;
 
     proto_item           *ti;
     proto_item           *cti;
-    guint16               count;
+    uint16_t              count;
     v9_v10_tmplt_entry_t *entries_p;
     proto_tree           *fwdstattree;
 
-    gboolean             cace_pie_seen = FALSE,
-                         plixer_pie_seen = FALSE,
-                         ntop_pie_seen = FALSE,
-                         ixia_pie_seen = FALSE,
-                         netscaler_pie_seen = FALSE,
-                         barracuda_pie_seen = FALSE,
-                         gigamon_pie_seen = FALSE,
-                         cisco_pie_seen = FALSE,
-                         niagara_networks_pie_seen = FALSE,
-                         juniper_networks_pie_seen = FALSE;
+    bool                 cace_pie_seen = false,
+                         plixer_pie_seen = false,
+                         ntop_pie_seen = false,
+                         ixia_pie_seen = false,
+                         netscaler_pie_seen = false,
+                         barracuda_pie_seen = false,
+                         gigamon_pie_seen = false,
+                         cisco_pie_seen = false,
+                         niagara_networks_pie_seen = false,
+                         juniper_networks_pie_seen = false;
 
 
-    guint8       ip_protocol = 0;
-    guint16      port_number;
+    uint8_t      ip_protocol = 0;
+    uint16_t     port_number;
 
     entries_p = tmplt_p->fields_p[fields_type];
     if (entries_p == NULL) {
@@ -5305,12 +5305,12 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
     }
 
     for (i = 0; i < count; i++) {
-        guint64      pen_type;
-        guint16      type;
-        guint16      masked_type;
-        guint16      length;
-        guint32      pen;
-        const gchar *pen_str;
+        uint64_t     pen_type;
+        uint16_t     type;
+        uint16_t     masked_type;
+        uint16_t     length;
+        uint32_t     pen;
+        const char *pen_str;
         int          vstr_len;
 
         type    = entries_p[i].type;
@@ -5331,7 +5331,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
         vstr_len = 0;
         if (length == VARIABLE_LENGTH) {
             vstr_len = 1;
-            string_len_short = length = tvb_get_guint8(tvb, offset);
+            string_len_short = length = tvb_get_uint8(tvb, offset);
             if (length == 255) {
                 vstr_len = 3;
                 string_len_long = length = tvb_get_ntohs(tvb, offset+1);
@@ -5361,9 +5361,9 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             if (pen == REVPEN) { /* reverse PEN */
                 rev = 1;
             } else if (pen == 0) {
-                pen_type = (G_GUINT64_CONSTANT(0xffff) << 16) | pen_type;  /* hack to force "unknown" */
+                pen_type = (UINT64_C(0xffff) << 16) | pen_type;  /* hack to force "unknown" */
             } else {
-                pen_type = (((guint64)pen) << 16) | pen_type;
+                pen_type = (((uint64_t)pen) << 16) | pen_type;
             }
         }
 
@@ -5374,70 +5374,70 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
                 if (!cace_pie_seen) {
                     proto_item *pie_cace_ti = proto_tree_add_item(pdutree, hf_pie_cace, tvb, 0, 0, ENC_NA);
                     proto_item_set_hidden(pie_cace_ti);
-                    cace_pie_seen = TRUE;
+                    cace_pie_seen = true;
                 }
                 break;
             case VENDOR_PLIXER:
                 if (!plixer_pie_seen) {
                     proto_item *pie_plixer_ti = proto_tree_add_item(pdutree, hf_pie_plixer, tvb, 0, 0, ENC_NA);
                     proto_item_set_hidden(pie_plixer_ti);
-                    plixer_pie_seen = TRUE;
+                    plixer_pie_seen = true;
                 }
                 break;
             case VENDOR_NTOP:
                 if (!ntop_pie_seen) {
                     proto_item *pie_ntop_ti = proto_tree_add_item(pdutree, hf_pie_ntop, tvb, 0, 0, ENC_NA);
                     proto_item_set_hidden(pie_ntop_ti);
-                    ntop_pie_seen = TRUE;
+                    ntop_pie_seen = true;
                 }
                 break;
             case VENDOR_IXIA:
                 if (!ixia_pie_seen) {
                     proto_item *pie_ixia_ti = proto_tree_add_item(pdutree, hf_pie_ixia, tvb, 0, 0, ENC_NA);
                     proto_item_set_hidden(pie_ixia_ti);
-                    ixia_pie_seen = TRUE;
+                    ixia_pie_seen = true;
                 }
                 break;
             case VENDOR_NETSCALER:
                 if (!netscaler_pie_seen) {
                     proto_item *pie_netscaler_ti = proto_tree_add_item(pdutree, hf_pie_netscaler, tvb, 0, 0, ENC_NA);
                     proto_item_set_hidden(pie_netscaler_ti);
-                    netscaler_pie_seen = TRUE;
+                    netscaler_pie_seen = true;
                 }
                 break;
             case VENDOR_BARRACUDA:
                 if (!barracuda_pie_seen) {
                     proto_item *pie_barracuda_ti = proto_tree_add_item(pdutree, hf_pie_barracuda, tvb, 0, 0, ENC_NA);
                     proto_item_set_hidden(pie_barracuda_ti);
-                    barracuda_pie_seen = TRUE;
+                    barracuda_pie_seen = true;
                 }
                 break;
             case VENDOR_GIGAMON:
                 if (!gigamon_pie_seen) {
                     proto_item *pie_gigamon_ti = proto_tree_add_item(pdutree, hf_pie_gigamon, tvb, 0, 0, ENC_NA);
                     proto_item_set_hidden(pie_gigamon_ti);
-                    gigamon_pie_seen = TRUE;
+                    gigamon_pie_seen = true;
                 }
                 break;
             case VENDOR_CISCO:
                 if (!cisco_pie_seen) {
                     proto_item *pie_cisco_ti = proto_tree_add_item(pdutree, hf_pie_cisco, tvb, 0, 0, ENC_NA);
                     proto_item_set_hidden(pie_cisco_ti);
-                    cisco_pie_seen = TRUE;
+                    cisco_pie_seen = true;
                 }
                 break;
             case VENDOR_NIAGARA_NETWORKS:
                 if (!niagara_networks_pie_seen) {
                     proto_item *pie_niagara_networks_ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks, tvb, 0, 0, ENC_NA);
                     proto_item_set_hidden(pie_niagara_networks_ti);
-                    niagara_networks_pie_seen = TRUE;
+                    niagara_networks_pie_seen = true;
                 }
                 break;
             case VENDOR_JUNIPER:
                 if(!juniper_networks_pie_seen) {
                     proto_item *pie_juniper_ti = proto_tree_add_item(pdutree, hf_pie_juniper, tvb, 0, 0, ENC_NA);
                     proto_item_set_hidden(pie_juniper_ti);
-                    juniper_networks_pie_seen = TRUE;
+                    juniper_networks_pie_seen = true;
                 }
                 break;
 
@@ -5466,7 +5466,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case 4: /* proto */
             /* Store this to help with possible port transport lookup */
-            ip_protocol = tvb_get_guint8(tvb, offset);
+            ip_protocol = tvb_get_uint8(tvb, offset);
             ti = proto_tree_add_item(pdutree, hf_cflow_prot,
                                      tvb, offset, length, ENC_BIG_ENDIAN);
             break;
@@ -5568,7 +5568,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
 
         case 21: /* last switched */
-            duration_type = (gint)duration_type_switched;
+            duration_type = (int)duration_type_switched;
             offset_e[rev][duration_type] = offset;
             msec_end[rev][duration_type] = tvb_get_ntohl(tvb, offset);
             ts_end[rev][duration_type].secs = msec_end[rev][duration_type] / 1000;
@@ -5576,7 +5576,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             goto timestamp_common;
             break;
         case 22: /* first switched */
-            duration_type = (gint)duration_type_switched;
+            duration_type = (int)duration_type_switched;
             offset_s[rev][duration_type] = offset;
             msec_start[rev][duration_type] = tvb_get_ntohl(tvb, offset);
             ts_start[rev][duration_type].secs = msec_start[rev][duration_type] / 1000;
@@ -5585,7 +5585,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
 
         case 150: /*  flowStartSeconds */
-            duration_type = (gint)duration_type_seconds;
+            duration_type = (int)duration_type_seconds;
             offset_s[rev][duration_type] = offset;
             ts_start[rev][duration_type].secs = tvb_get_ntohl(tvb, offset);
             ts_start[rev][duration_type].nsecs = 0;
@@ -5593,7 +5593,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
 
         case 151: /*  flowEndSeconds */
-            duration_type = (gint)duration_type_seconds;
+            duration_type = (int)duration_type_seconds;
             offset_e[rev][duration_type] = offset;
             ts_end[rev][duration_type].secs = tvb_get_ntohl(tvb, offset);
             ts_end[rev][duration_type].nsecs = 0;
@@ -5601,7 +5601,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
 
         case 152: /*  flowStartMilliseconds: 64-bit integer */
-            duration_type = (gint)duration_type_milliseconds;
+            duration_type = (int)duration_type_milliseconds;
             offset_s[rev][duration_type] = offset;
             ts_start[rev][duration_type].secs = (time_t)(tvb_get_ntoh64(tvb, offset)/1000);
             ts_start[rev][duration_type].nsecs = (int)(tvb_get_ntoh64(tvb, offset)%1000) * 1000000;
@@ -5609,7 +5609,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
 
         case 153: /*  flowEndMilliseconds; 64-bit integer */
-            duration_type = (gint)duration_type_milliseconds;
+            duration_type = (int)duration_type_milliseconds;
             offset_e[rev][duration_type] = offset;
             ts_end[rev][duration_type].secs  = (time_t)(tvb_get_ntoh64(tvb, offset)/1000);
             ts_end[rev][duration_type].nsecs = (int)(tvb_get_ntoh64(tvb, offset)%1000) * 1000000;
@@ -5617,7 +5617,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
 
         case 154: /*  flowStartMicroseconds: 64-bit NTP format */
-            duration_type = (gint)duration_type_microseconds;
+            duration_type = (int)duration_type_microseconds;
             offset_s[rev][duration_type] = offset;
             ntp_to_nstime(tvb, offset, &ts_start[rev][duration_type]);
             goto timestamp_common;
@@ -5625,7 +5625,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case 155: /*  flowEndMicroseconds: 64-bit NTP format */
             /*  XXX: Not tested ...                    */
-            duration_type = (gint)duration_type_microseconds;
+            duration_type = (int)duration_type_microseconds;
             offset_e[rev][duration_type] = offset;
             ntp_to_nstime(tvb, offset, &ts_end[rev][duration_type]);
             goto timestamp_common;
@@ -5633,7 +5633,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case 156: /*  flowStartNanoseconds: 64-bit NTP format */
             /*  XXX: Not tested ...                     */
-            duration_type = (gint)duration_type_nanoseconds;
+            duration_type = (int)duration_type_nanoseconds;
             offset_s[rev][duration_type] = offset;
             ntp_to_nstime(tvb, offset, &ts_start[rev][duration_type]);
             goto timestamp_common;
@@ -5641,7 +5641,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case 157: /*  flowEndNanoseconds: 64-bit NTP format */
             /*  XXX: Not tested ...                   */
-            duration_type = (gint)duration_type_nanoseconds;
+            duration_type = (int)duration_type_nanoseconds;
             offset_e[rev][duration_type] = offset;
             ntp_to_nstime(tvb, offset, &ts_end[rev][duration_type]);
             goto timestamp_common;
@@ -5650,22 +5650,22 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
         case 158: /*  flowStartDeltaMicroseconds: 32-bit integer; negative time offset   */
             /*   relative to the export time specified in the IPFIX Message Header */
             /*  XXX: Not tested ...                                                */
-            duration_type = (gint)duration_type_delta_milliseconds;
+            duration_type = (int)duration_type_delta_milliseconds;
             offset_s[rev][duration_type]       = offset;
             usec                = tvb_get_ntohl(tvb, offset);
-            ts_start[rev][duration_type].secs  = (time_t)(((guint64)(hdrinfo_p->export_time_secs)*1000000 - usec) / 1000000);
-            ts_start[rev][duration_type].nsecs = (int)(((guint64)(hdrinfo_p->export_time_secs)*1000000 - usec) % 1000000) * 1000;
+            ts_start[rev][duration_type].secs  = (time_t)(((uint64_t)(hdrinfo_p->export_time_secs)*1000000 - usec) / 1000000);
+            ts_start[rev][duration_type].nsecs = (int)(((uint64_t)(hdrinfo_p->export_time_secs)*1000000 - usec) % 1000000) * 1000;
             goto timestamp_common;
             break;
 
         case 159: /*  flowEndDeltaMicroseconds: 32-bit integer; negative time offset     */
             /*   relative to the export time specified in the IPFIX Message Header */
             /*  XXX: Not tested ...                                                */
-            duration_type = (gint)duration_type_delta_milliseconds;
+            duration_type = (int)duration_type_delta_milliseconds;
             offset_e[rev][duration_type] = offset;
             usec          = tvb_get_ntohl(tvb, offset);
-            ts_end[rev][duration_type].secs  = (time_t)(((guint64)(hdrinfo_p->export_time_secs)*1000000 - usec) / 1000000);
-            ts_end[rev][duration_type].nsecs = (int)(((guint64)(hdrinfo_p->export_time_secs)*1000000 - usec) % 1000000) * 1000;
+            ts_end[rev][duration_type].secs  = (time_t)(((uint64_t)(hdrinfo_p->export_time_secs)*1000000 - usec) / 1000000);
+            ts_end[rev][duration_type].nsecs = (int)(((uint64_t)(hdrinfo_p->export_time_secs)*1000000 - usec) % 1000000) * 1000;
 
             /* This code executed for all timestamp fields above  */
             /* Since bug 11295, cope with multiple durations in one flow - not really sure if it makes sense... */
@@ -6026,13 +6026,13 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
              * the 2 left bits giving the status and the 6
              * remaining bits giving the reason code. */
 
-            guint8              forwarding_status;
+            uint8_t             forwarding_status;
             const value_string *x_vs;
             int                 x_hf;
 
             fwdstattree = proto_tree_add_subtree(pdutree, tvb, offset, length, ett_fwdstat, NULL, "Forwarding Status");
 
-            forwarding_status = tvb_get_guint8(tvb, offset)>>6;
+            forwarding_status = tvb_get_uint8(tvb, offset)>>6;
             switch(forwarding_status) {
             default:
             case FORWARDING_STATUS_UNKNOWN:
@@ -6063,7 +6063,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             if (length == 1) {
                 proto_item_append_text(ti, ": %s", val_to_str_const(forwarding_status,
                                                                     v9_forwarding_status, "(Unknown)"));
-                proto_item_append_text(ti, ": %s", val_to_str_const((tvb_get_guint8(tvb, offset)&0x3F),
+                proto_item_append_text(ti, ": %s", val_to_str_const((tvb_get_uint8(tvb, offset)&0x3F),
                                                                     x_vs, "(Unknown)"));
             };
         }
@@ -7011,7 +7011,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case 315: /* Data Link Frame Section */
             {
-                gboolean save_writable;
+                bool save_writable;
                 address save_dl_src, save_dl_dst, save_net_src, save_net_dst, save_src, save_dst;
                 ti = proto_tree_add_item(pdutree, hf_cflow_data_link_frame_section,
                         tvb, offset, length, ENC_NA);
@@ -7212,7 +7212,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case 341: /* informationElementName */
             {
-                const guint8 *string;
+                const uint8_t *string;
                 ti = proto_tree_add_item_ret_string(pdutree, hf_cflow_information_element_name,
                                          tvb, offset, length, ENC_UTF_8|ENC_NA, pinfo->pool, &string);
                 /* Add name of element to root for this flow */
@@ -8156,7 +8156,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             }
             break;
         case 37041: /* transport_payload_type */
-            if (tvb_get_guint8(tvb, offset) == 0xFF) {
+            if (tvb_get_uint8(tvb, offset) == 0xFF) {
                 ti = proto_tree_add_item(pdutree, hf_cflow_transport_rtp_payload_type_string,
                                          tvb, offset, length, ENC_BIG_ENDIAN);
             } else {
@@ -8165,7 +8165,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             }
             break;
         case 37071: /* bytes_out_of_order */
-            if (tvb_get_ntoh64(tvb, offset) == G_GUINT64_CONSTANT(0xFFFFFFFFFFFFFFFF)) {
+            if (tvb_get_ntoh64(tvb, offset) == UINT64_C(0xFFFFFFFFFFFFFFFF)) {
                 /* need to add custom code to show "Not Measured"  */
                 proto_tree_add_expert_format(pdutree, NULL, &ei_transport_bytes_out_of_order,
                                              tvb, offset, 8,
@@ -8353,7 +8353,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
 
         case VENDOR_CACE << 16 | 10: /* caceLocalProcessUserName */
-            uname_len = tvb_get_guint8(tvb, offset);
+            uname_len = tvb_get_uint8(tvb, offset);
             uname_str = tvb_format_text(pinfo->pool, tvb, offset+1, uname_len);
             proto_tree_add_item(pdutree, hf_pie_cace_local_username_len,
                                 tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -8364,7 +8364,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
 
         case VENDOR_CACE << 16 | 11: /* caceLocalProcessCommand */
-            cmd_len = tvb_get_guint8(tvb, offset);
+            cmd_len = tvb_get_uint8(tvb, offset);
             cmd_str = tvb_format_text(pinfo->pool, tvb, offset+1, cmd_len);
             proto_tree_add_item(pdutree, hf_pie_cace_local_cmd_len,
                                 tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -10458,7 +10458,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case ((VENDOR_IXIA << 16) | 111):
             {
-            const guint8 *string;
+            const uint8_t *string;
             ti = proto_tree_add_item_ret_string(pdutree, hf_pie_ixia_l7_application_name,
                                      tvb, offset, length, ENC_ASCII|ENC_NA, pinfo->pool, &string);
             proto_item_append_text(pdutree, " (%s)", string);
@@ -12831,7 +12831,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
     /* If only "start" or "end" time, show it here */
     /* XXX: length is actually 8 if millisec, microsec, nanosec time */
     for (i = 0; i < 2; i++) {
-        for (j=0; j < (gint)duration_type_max; j++) {
+        for (j=0; j < (int)duration_type_max; j++) {
             if (!(offset_s[i][j] && offset_e[i][j])) {
                 if (offset_s[i][j]) {
                     if (msec_start[i][j]) {
@@ -12863,7 +12863,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
         add_udp_process_info(pinfo->num, &local_addr, &remote_addr, local_port, remote_port, uid, pid, uname_str, cmd_str);
     }
 
-    return (guint) (offset - orig_offset);
+    return (unsigned) (offset - orig_offset);
 
 }
 
@@ -12925,10 +12925,10 @@ dissect_v9_v10_template_fields(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
     count = tmplt_p->field_count[fields_type];
     for(i=0; i<count; i++) {
-        guint16      type;
-        guint16      length;
-        guint32      pen;
-        const gchar *pen_str;
+        uint16_t     type;
+        uint16_t     length;
+        uint32_t     pen;
+        const char *pen_str;
         proto_tree  *field_tree;
         proto_item  *field_item;
         proto_item  *ti;
@@ -13016,7 +13016,7 @@ dissect_v9_v10_template_fields(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 /* Options Template Dissection */
 static int
 dissect_v9_v10_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, int offset, int length,
-                                hdrinfo_t *hdrinfo_p, guint16 flowset_id)
+                                hdrinfo_t *hdrinfo_p, uint16_t flowset_id)
 {
     int remaining;
     proto_item_append_text(pdutree, " (Options Template): ");
@@ -13029,9 +13029,9 @@ dissect_v9_v10_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
         proto_tree     *tmplt_tree;
         proto_item     *tmplt_item;
         proto_item     *ti;
-        guint16         id;
-        guint16         option_scope_field_count;
-        guint16         option_field_count;
+        uint16_t        id;
+        uint16_t        option_scope_field_count;
+        uint16_t        option_field_count;
         int             orig_offset;
 
         orig_offset = offset;
@@ -13062,7 +13062,7 @@ dissect_v9_v10_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
                                      tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
         } else { /* IPFIX (V10) */
-            guint16 option_total_field_count;
+            uint16_t option_total_field_count;
 
             option_total_field_count = tvb_get_ntohs(tvb, offset);
             proto_tree_add_item(tmplt_tree,
@@ -13141,7 +13141,7 @@ dissect_v9_v10_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
                 tmplt.fields_p[TF_SCOPES]  = (v9_v10_tmplt_entry_t *)wmem_alloc0(wmem_file_scope(), option_scope_field_count *sizeof(v9_v10_tmplt_entry_t));
                 tmplt.fields_p[TF_ENTRIES] = (v9_v10_tmplt_entry_t *)wmem_alloc0(wmem_file_scope(), option_field_count       *sizeof(v9_v10_tmplt_entry_t));
                 break;
-            } while (FALSE);
+            } while (false);
         }
 
         offset = dissect_v9_v10_template_fields(tvb, pinfo, tmplt_tree, offset,
@@ -13174,7 +13174,7 @@ dissect_v9_v10_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
 /* Data Template Dissection */
 static int
 dissect_v9_v10_data_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, int offset, int length,
-                             hdrinfo_t *hdrinfo_p, guint16 flowset_id _U_)
+                             hdrinfo_t *hdrinfo_p, uint16_t flowset_id _U_)
 {
     int remaining;
 
@@ -13194,8 +13194,8 @@ dissect_v9_v10_data_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdut
         v9_v10_tmplt_t  tmplt;
         proto_tree     *tmplt_tree;
         proto_item     *ti;
-        guint16         id;
-        guint16         count;
+        uint16_t        id;
+        uint16_t        count;
         int             orig_offset;
 
         orig_offset = offset;
@@ -13208,7 +13208,7 @@ dissect_v9_v10_data_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdut
         count = tvb_get_ntohs(tvb, offset + 2);
 
         tmplt_tree = proto_tree_add_subtree_format(pdutree, tvb, offset,
-                                         4 + 4 * count /* hdrsiz + count*2*(sizeof guint16)*/,
+                                         4 + 4 * count /* hdrsiz + count*2*(sizeof uint16_t)*/,
                                          ett_template, NULL, "Template (Id = %u, Count = %u)", id, count);
 
         proto_tree_add_item(tmplt_tree, hf_cflow_template_id, tvb,
@@ -13251,7 +13251,7 @@ dissect_v9_v10_data_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdut
                 }
                 tmplt.fields_p[TF_ENTRIES] = (v9_v10_tmplt_entry_t *)wmem_alloc0(wmem_file_scope(), count * sizeof(v9_v10_tmplt_entry_t));
                 break;
-            } while (FALSE);
+            } while (false);
         }
         offset = dissect_v9_v10_template_fields(tvb, pinfo, tmplt_tree, offset,
                                                 hdrinfo_p, &tmplt, TF_ENTRIES);
@@ -13288,7 +13288,7 @@ dissect_v9_v10_data_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdut
 
 /* build temporary key */
 /* Note: address at *(pinfo->net_???.data) is *not* copied */
-static v9_v10_tmplt_t *v9_v10_tmplt_build_key(v9_v10_tmplt_t *tmplt_p, packet_info *pinfo, guint32 src_id, guint16 tmplt_id)
+static v9_v10_tmplt_t *v9_v10_tmplt_build_key(v9_v10_tmplt_t *tmplt_p, packet_info *pinfo, uint32_t src_id, uint16_t tmplt_id)
 {
     set_address(&tmplt_p->src_addr, pinfo->net_src.type, pinfo->net_src.len, pinfo->net_src.data); /* lookup only! */
     tmplt_p->src_port  = pinfo->srcport;
@@ -13300,7 +13300,7 @@ static v9_v10_tmplt_t *v9_v10_tmplt_build_key(v9_v10_tmplt_t *tmplt_p, packet_in
 }
 
 static gboolean
-v9_v10_tmplt_table_equal(gconstpointer k1, gconstpointer k2)
+v9_v10_tmplt_table_equal(const void *k1, const void *k2)
 {
     const v9_v10_tmplt_t *ta = (const v9_v10_tmplt_t *)k1;
     const v9_v10_tmplt_t *tb = (const v9_v10_tmplt_t *)k2;
@@ -13315,11 +13315,11 @@ v9_v10_tmplt_table_equal(gconstpointer k1, gconstpointer k2)
         );
 }
 
-static guint
-v9_v10_tmplt_table_hash(gconstpointer k)
+static unsigned
+v9_v10_tmplt_table_hash(const void *k)
 {
     const v9_v10_tmplt_t *tmplt_p = (const v9_v10_tmplt_t *)k;
-    guint32               val;
+    uint32_t              val;
 
     val = tmplt_p->src_id + (tmplt_p->tmplt_id << 9) + tmplt_p->src_port + tmplt_p->dst_port;
 
@@ -13335,13 +13335,13 @@ v9_v10_tmplt_table_hash(gconstpointer k)
  */
 
 static int
-dissect_pdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pdutree, int offset, hdrinfo_t *hdrinfo_p, guint32 *flows_seen _U_)
+dissect_pdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pdutree, int offset, hdrinfo_t *hdrinfo_p, uint32_t *flows_seen _U_)
 {
     int             startoffset = offset;
-    guint32         srcaddr, dstaddr;
-    guint8          mask;
+    uint32_t        srcaddr, dstaddr;
+    uint8_t         mask;
     nstime_t        ts;
-    guint8          ver;
+    uint8_t         ver;
 
     memset(&ts, 0, sizeof(ts));
 
@@ -13397,14 +13397,14 @@ dissect_pdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pdutree, int offs
 
         offset = flow_process_aspair(pdutree, tvb, offset);
 
-        mask = tvb_get_guint8(tvb, offset);
+        mask = tvb_get_uint8(tvb, offset);
         proto_tree_add_uint_format_value(pdutree, hf_cflow_srcmask, tvb, offset++, 1,
                                          mask,
                                          "%u (prefix: %s/%u)",
                                          mask, getprefix(pinfo->pool, &srcaddr, mask),
                                          mask != 0 ? mask : 32);
 
-        mask = tvb_get_guint8(tvb, offset);
+        mask = tvb_get_uint8(tvb, offset);
         proto_tree_add_uint_format_value(pdutree, hf_cflow_dstmask, tvb, offset++, 1,
                                          mask,
                                          "%u (prefix: %s/%u)",
@@ -13422,10 +13422,10 @@ dissect_pdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pdutree, int offs
     return (offset - startoffset);
 }
 
-static const gchar   *
-getprefix(wmem_allocator_t *pool, const guint32 *addr, unsigned prefix)
+static const char    *
+getprefix(wmem_allocator_t *pool, const uint32_t *addr, unsigned prefix)
 {
-    guint32 gprefix;
+    uint32_t gprefix;
     address prefix_addr;
 
     if (prefix == 0) {
@@ -22133,7 +22133,7 @@ proto_register_netflow(void)
         },
     };
 
-    static gint    *ett[] = {
+    static int     *ett[] = {
         &ett_netflow,
         &ett_unixtime,
         &ett_flow,
@@ -22245,11 +22245,11 @@ proto_register_netflow(void)
     v9_v10_tmplt_table = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), v9_v10_tmplt_table_hash, v9_v10_tmplt_table_equal);
 }
 
-static guint
+static unsigned
 get_netflow_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
     unsigned int    ver;
-    guint16         plen;
+    uint16_t        plen;
 
     ver = tvb_get_ntohs(tvb, offset);
     if (ver == 10) {
@@ -22273,7 +22273,7 @@ dissect_tcp_netflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
  * protocol/port association
  */
 static void
-ipfix_delete_callback(guint32 port, gpointer ptr _U_)
+ipfix_delete_callback(uint32_t port, void *ptr _U_)
 {
     if ( port ) {
         dissector_delete_uint("udp.port",  port, netflow_handle);
@@ -22282,7 +22282,7 @@ ipfix_delete_callback(guint32 port, gpointer ptr _U_)
 }
 
 static void
-ipfix_add_callback(guint32 port, gpointer ptr _U_)
+ipfix_add_callback(uint32_t port, void *ptr _U_)
 {
     if ( port ) {
         dissector_add_uint("udp.port",  port, netflow_handle);
@@ -22293,7 +22293,7 @@ ipfix_add_callback(guint32 port, gpointer ptr _U_)
 void
 proto_reg_handoff_netflow(void)
 {
-    static gboolean  netflow_prefs_initialized = FALSE;
+    static bool      netflow_prefs_initialized = false;
     static range_t  *netflow_ports;
     static range_t  *ipfix_ports;
 
@@ -22301,7 +22301,7 @@ proto_reg_handoff_netflow(void)
         /* Find eth_handle used for IE315*/
         eth_handle = find_dissector ("eth_withoutfcs");
 
-        netflow_prefs_initialized = TRUE;
+        netflow_prefs_initialized = true;
         dissector_add_uint("wtap_encap", WTAP_ENCAP_RAW_IPFIX, netflow_handle);
         dissector_add_uint_range_with_preference("tcp.port", IPFIX_UDP_PORTS, netflow_tcp_handle);
     } else {

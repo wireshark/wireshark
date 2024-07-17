@@ -251,7 +251,7 @@ static int hf_ndp_backplane_type;
 static int hf_ndp_state;
 static int hf_ndp_number_of_links;
 
-static gint ett_ndp;
+static int ett_ndp;
 
 static dissector_handle_t ndp_handle;
 
@@ -266,7 +266,7 @@ dissect_ndp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
 	hello_type = "";
 	if (pinfo->dl_dst.type == AT_ETHER) {
-		const guint8 *dstmac = (const guint8 *)pinfo->dl_dst.data;
+		const uint8_t *dstmac = (const uint8_t *)pinfo->dl_dst.data;
 
 		switch (dstmac[5]) {
 
@@ -346,7 +346,7 @@ proto_register_ndp(void)
 		    "Number of interconnect ports", HFILL }},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_ndp,
 	};
 	proto_ndp = proto_register_protocol("Nortel Discovery Protocol", "NDP", "ndp");

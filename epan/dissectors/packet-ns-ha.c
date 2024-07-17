@@ -19,8 +19,8 @@ void proto_reg_handoff_ns_ha(void);
 static dissector_handle_t nsha_handle;
 
 static int proto_ns_ha;
-static gint ett_nsha;
-static gint ett_nsha_flags;
+static int ett_nsha;
+static int ett_nsha_flags;
 
 static int hf_nsha_signature;
 static int hf_nsha_version;
@@ -112,10 +112,10 @@ static int * const ha_flags[] = {
 static int
 dissect_ns_ha(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	guint32 offset = 0, master_state=0;
+	uint32_t offset = 0, master_state=0;
 	proto_item *ti;
 	proto_tree *ns_ha_tree;
-	guint32 version, state;
+	uint32_t version, state;
 
 	/* It is Netscaler HA heartbeat packet. */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NS-HA");
@@ -272,7 +272,7 @@ proto_register_ns_ha(void)
 
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_nsha,
 		&ett_nsha_flags,
 	};

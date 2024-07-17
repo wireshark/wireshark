@@ -208,15 +208,15 @@ extern void nfs_name_snoop_add_name(int xid, tvbuff_t *tvb, int name_offset, int
 	                                int parent_offset, int parent_len, const char *name);
 extern bool nfs_fhandle_reqrep_matching;
 extern int dissect_fhandle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
-                           const char *name, guint32 *hash, rpc_call_info_value *civ);
+                           const char *name, uint32_t *hash, rpc_call_info_value *civ);
 extern void dissect_fhandle_hidden(packet_info *pinfo, proto_tree *tree, int frame);
 extern int dissect_nfs3_fh(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
-                           const char *name, guint32 *hash, rpc_call_info_value *civ);
+                           const char *name, uint32_t *hash, rpc_call_info_value *civ);
 extern int dissect_nfs3_post_op_attr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 	                                 const char* name);
 extern int dissect_nfs2_fattr(tvbuff_t *tvb, int offset, proto_tree *tree, const char* name);
 extern proto_tree* display_access_items(tvbuff_t* tvb, int offset, packet_info* pinfo,
-	                                    proto_tree* tree, guint32 amask, char mtype, int version,
+	                                    proto_tree* tree, uint32_t amask, char mtype, int version,
 										wmem_strbuf_t* optext, const char* label);
 extern int dissect_access_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree* tree,
                                 int version, wmem_strbuf_t *optext, rpc_call_info_value *civ);

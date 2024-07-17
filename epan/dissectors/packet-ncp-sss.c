@@ -18,7 +18,7 @@
 
 void proto_register_sss(void);
 
-static gint ett_sss;
+static int ett_sss;
 
 static int proto_sss;
 static int hf_sss_buffer_size;
@@ -137,15 +137,15 @@ static const value_string sss_errors_enum[] = {
 
 
 static void
-process_flags(proto_tree *sss_tree, tvbuff_t *tvb, guint32 foffset)
+process_flags(proto_tree *sss_tree, tvbuff_t *tvb, uint32_t foffset)
 {
-    gchar                   flags_str[1024];
-    const gchar            *sep;
+    char                    flags_str[1024];
+    const char             *sep;
     proto_item             *tinew;
     proto_tree             *flags_tree;
-    guint32                 i;
-    guint32                 bvalue = 0;
-    guint32                 flags = 0;
+    uint32_t                i;
+    uint32_t                bvalue = 0;
+    uint32_t                flags = 0;
 
     bvalue = 0x00000001;
     flags_str[0]='\0';
@@ -388,14 +388,14 @@ find_delimiter(tvbuff_t *tvb, int foffset)
 }
 
 static int
-sss_string(tvbuff_t* tvb, int hfinfo, proto_tree *sss_tree, int offset, gboolean little, guint32 length)
+sss_string(tvbuff_t* tvb, int hfinfo, proto_tree *sss_tree, int offset, bool little, uint32_t length)
 {
     int     foffset = offset;
-    guint32 str_length;
+    uint32_t str_length;
     char    buffer[1024];
-    guint32 i;
-    guint8  c_char;
-    gint length_remaining;
+    uint32_t i;
+    uint8_t c_char;
+    int length_remaining;
 
     if (length==0) {
         if (little) {
@@ -411,7 +411,7 @@ sss_string(tvbuff_t* tvb, int hfinfo, proto_tree *sss_tree, int offset, gboolean
     if (length_remaining <= 0) {
         return foffset;
     }
-    if (str_length > (guint)length_remaining || str_length > (sizeof(buffer)-1)) {
+    if (str_length > (unsigned)length_remaining || str_length > (sizeof(buffer)-1)) {
         proto_tree_add_string(sss_tree, hfinfo, tvb, foffset,
             length_remaining + 4, "<String too long to process>");
         foffset += length_remaining;
@@ -422,7 +422,7 @@ sss_string(tvbuff_t* tvb, int hfinfo, proto_tree *sss_tree, int offset, gboolean
         return foffset;
     }
     for ( i = 0; i < str_length; i++ ) {
-        c_char = tvb_get_guint8(tvb, foffset);
+        c_char = tvb_get_uint8(tvb, foffset);
         if (g_ascii_isprint(c_char)) {
             buffer[i] = c_char;
         } else {
@@ -455,10 +455,10 @@ sss_string(tvbuff_t* tvb, int hfinfo, proto_tree *sss_tree, int offset, gboolean
 void
 dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp_req_hash_value *request_value)
 {
-    guint8              /*func,*/ subfunc = 0;
-    guint32             subverb=0;
-    guint32             msg_length=0;
-    guint32             foffset= 0;
+    uint8_t             /*func,*/ subfunc = 0;
+    uint32_t            subverb=0;
+    uint32_t            msg_length=0;
+    uint32_t            foffset= 0;
     proto_tree          *atree;
     proto_item          *aitem;
 
@@ -467,9 +467,9 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
         return;
     }
     foffset = 6;
-    /*func = tvb_get_guint8(tvb, foffset);*/
+    /*func = tvb_get_uint8(tvb, foffset);*/
     foffset += 1;
-    subfunc = tvb_get_guint8(tvb, foffset);
+    subfunc = tvb_get_uint8(tvb, foffset);
     foffset += 1;
 
     /* Fill in the PROTOCOL & INFO  columns. */
@@ -509,10 +509,10 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
             switch (subverb) {
             case 0:
                 foffset += 4;
-                /*foffset =*/ sss_string(tvb, hf_sss_user, atree, foffset, TRUE, 0);
+                /*foffset =*/ sss_string(tvb, hf_sss_user, atree, foffset, true, 0);
                 break;
             case 1:
-                foffset = sss_string(tvb, hf_sss_secret, atree, foffset, TRUE, 0);
+                foffset = sss_string(tvb, hf_sss_secret, atree, foffset, true, 0);
                 msg_length = tvb_get_letohl(tvb, foffset);
                 foffset += (msg_length+4);   /* Unsure of what this length and parameter are */
                 /* A bad secret of length greater then 256 characters will cause frag
@@ -520,16 +520,16 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
                    So check to make sure we still have data in the packet anytime
                    we read a secret. */
                 if (tvb_reported_length_remaining(tvb, foffset) > 4) {
-                    /*foffset =*/ sss_string(tvb, hf_sss_user, atree, foffset, TRUE, 0);
+                    /*foffset =*/ sss_string(tvb, hf_sss_user, atree, foffset, true, 0);
                 }
                 break;
             case 2:
                 foffset += 4;
-                foffset = sss_string(tvb, hf_sss_secret, atree, foffset, TRUE, 0);
+                foffset = sss_string(tvb, hf_sss_secret, atree, foffset, true, 0);
                 if (tvb_reported_length_remaining(tvb, foffset) > 4) {
                     msg_length = tvb_get_letohl(tvb, foffset);
                     foffset += 4;
-                    if (tvb_captured_length_remaining(tvb, foffset) < (gint) msg_length) {
+                    if (tvb_captured_length_remaining(tvb, foffset) < (int) msg_length) {
                         proto_tree_add_item(atree, hf_sss_enc_data, tvb, foffset, -1, ENC_NA);
                     } else {
                         proto_tree_add_item(atree, hf_sss_enc_data, tvb, foffset, msg_length, ENC_NA);
@@ -538,17 +538,17 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
                 break;
             case 3:
             case 4:
-                foffset = sss_string(tvb, hf_sss_secret, atree, foffset, TRUE, 0);
+                foffset = sss_string(tvb, hf_sss_secret, atree, foffset, true, 0);
                 if (tvb_reported_length_remaining(tvb, foffset) > 4) {
-                    /*foffset =*/ sss_string(tvb, hf_sss_user, atree, foffset, TRUE, 0);
+                    /*foffset =*/ sss_string(tvb, hf_sss_user, atree, foffset, true, 0);
                 }
                 break;
             case 5:
                 break;
             case 6:
-                foffset = sss_string(tvb, hf_sss_secret, atree, foffset, TRUE, 0);
+                foffset = sss_string(tvb, hf_sss_secret, atree, foffset, true, 0);
                 if (tvb_reported_length_remaining(tvb, foffset) > 4) {
-                    /*foffset =*/ sss_string(tvb, hf_sss_user, atree, foffset, TRUE, 0);
+                    /*foffset =*/ sss_string(tvb, hf_sss_user, atree, foffset, true, 0);
                 }
                 break;
             case 7:
@@ -583,16 +583,16 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
 }
 
 void
-dissect_sss_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guint8 subfunc, ncp_req_hash_value *request_value)
+dissect_sss_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, uint8_t subfunc, ncp_req_hash_value *request_value)
 {
-    guint32             foffset=0;
-    guint32             subverb=0;
-    guint32             msg_length=0;
-    guint32             return_code=0;
-    guint32             number_of_items=0;
-    gint32              length_of_string=0;
-    guint32             i = 0;
-    const gchar         *str;
+    uint32_t            foffset=0;
+    uint32_t            subverb=0;
+    uint32_t            msg_length=0;
+    uint32_t            return_code=0;
+    uint32_t            number_of_items=0;
+    int32_t             length_of_string=0;
+    uint32_t            i = 0;
+    const char          *str;
 
     proto_tree          *atree;
     proto_item          *expert_item;
@@ -646,7 +646,7 @@ dissect_sss_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guint
                             if (length_of_string > tvb_reported_length_remaining(tvb, foffset)) {
                                 return;
                             }
-                            foffset = sss_string(tvb, hf_sss_secret, atree, foffset, TRUE, length_of_string);
+                            foffset = sss_string(tvb, hf_sss_secret, atree, foffset, true, length_of_string);
                             if (tvb_reported_length_remaining(tvb, foffset) < 8) {
                                 return;
                             }
@@ -812,7 +812,7 @@ proto_register_sss(void)
         { "Not Defined", "sss.bit32", FT_BOOLEAN, 32, NULL, 0x80000000, NULL, HFILL }}
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_sss
     };
 

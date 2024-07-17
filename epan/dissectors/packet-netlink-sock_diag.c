@@ -253,7 +253,7 @@ _tvb_check_if_zeros(tvbuff_t *tvb, int offset, int len)
 {
 	/* padding, all bytes should be 0, if not display as unknown */
 	while (len >= 0) {
-		if (tvb_get_guint8(tvb, offset) != 0)
+		if (tvb_get_uint8(tvb, offset) != 0)
 			return 1;
 
 		offset++;
@@ -286,7 +286,7 @@ dissect_sock_diag_meminfo(proto_tree *tree, netlink_sock_diag_info_t *info _U_, 
 		/* XXX BACKLOG */
 	};
 
-	guint i;
+	unsigned i;
 
 	if (len == 0 || (len % 4) != 0)
 		return 0;
@@ -308,7 +308,7 @@ dissect_sock_diag_meminfo(proto_tree *tree, netlink_sock_diag_info_t *info _U_, 
 static void
 sock_diag_proto_tree_add_cookie(proto_tree *tree, netlink_sock_diag_info_t *info _U_, struct packet_netlink_data *nl_data _U_, tvbuff_t *tvb, int offset)
 {
-	guint64 cookie;
+	uint64_t cookie;
 
 	cookie = tvb_get_letohl(tvb, offset + 4);
 	cookie <<= 32;
@@ -330,7 +330,7 @@ static const value_string netlink_sock_diag_shutdown_flags_vals[] = {
 static void
 sock_diag_proto_tree_add_shutdown(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	guint8 how = tvb_get_guint8(tvb, offset);
+	uint8_t how = tvb_get_uint8(tvb, offset);
 
 	proto_tree_add_item(tree, hf_netlink_sock_diag_shutdown, tvb, offset, 1, ENC_NA);
 
@@ -362,7 +362,7 @@ dissect_netlink_unix_sock_diag_reply_attrs(tvbuff_t *tvb, void *data, struct pac
 			const char *name;
 
 			/* XXX make it nicer */
-			if (len > 0 && tvb_get_guint8(tvb, offset) == '\0') {
+			if (len > 0 && tvb_get_uint8(tvb, offset) == '\0') {
 				name = wmem_strconcat(wmem_packet_scope(),
 					"@",
 					tvb_get_string_enc(wmem_packet_scope(), tvb, offset+1, len-1, ENC_ASCII | ENC_NA),
@@ -377,7 +377,7 @@ dissect_netlink_unix_sock_diag_reply_attrs(tvbuff_t *tvb, void *data, struct pac
 
 		case WS_UNIX_DIAG_PEER:
 			if (len == 4) {
-				guint32 value;
+				uint32_t value;
 				proto_tree_add_item_ret_uint(tree, hf_netlink_sock_diag_unix_peer_inode, tvb, offset, 4, nl_data->encoding, &value);
 				proto_item_append_text(tree, ": Peer inode %u", value);
 				return 1;
@@ -618,9 +618,9 @@ dissect_sock_diag_inet_sockid(tvbuff_t *tvb, netlink_sock_diag_info_t *info, str
 static int
 dissect_sock_diag_inet_reply(tvbuff_t *tvb, netlink_sock_diag_info_t *info, struct packet_netlink_data *nl_data, proto_tree *tree, int offset)
 {
-	guint8 af_family;
+	uint8_t af_family;
 
-	af_family = tvb_get_guint8(tvb, offset);
+	af_family = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(tree, hf_netlink_sock_diag_family, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
@@ -655,9 +655,9 @@ dissect_sock_diag_inet_reply(tvbuff_t *tvb, netlink_sock_diag_info_t *info, stru
 static int
 dissect_sock_diag_inet_request(tvbuff_t *tvb, netlink_sock_diag_info_t *info, struct packet_netlink_data *nl_data, proto_tree *tree, int offset)
 {
-	guint8 af_family;
+	uint8_t af_family;
 
-	af_family = tvb_get_guint8(tvb, offset);
+	af_family = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(tree, hf_netlink_sock_diag_family, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
@@ -720,7 +720,7 @@ dissect_sock_diag_netlink_reply(tvbuff_t *tvb, netlink_sock_diag_info_t *info, s
 	offset += 1;
 
 	/* ti = */ proto_tree_add_item(tree, hf_netlink_sock_diag_type, tvb, offset, 1, ENC_NA);
-	switch (tvb_get_guint8(tvb, offset)) {
+	switch (tvb_get_uint8(tvb, offset)) {
 		case WS_SOCK_DGRAM:
 		case WS_SOCK_RAW:
 			break;
@@ -911,10 +911,10 @@ dissect_sock_diag_packet_request(tvbuff_t *tvb, netlink_sock_diag_info_t *info, 
 static int
 dissect_sock_diag_by_family(tvbuff_t *tvb, netlink_sock_diag_info_t *info, struct packet_netlink_data *nl_data, proto_tree *tree, int offset)
 {
-	const gboolean is_req = (info->pinfo->p2p_dir == P2P_DIR_SENT);
-	guint8 af_family;
+	const bool is_req = (info->pinfo->p2p_dir == P2P_DIR_SENT);
+	uint8_t af_family;
 
-	af_family = tvb_get_guint8(tvb, offset);
+	af_family = tvb_get_uint8(tvb, offset);
 
 	switch (af_family) {
 		case LINUX_AF_LOCAL:
@@ -1266,7 +1266,7 @@ proto_register_netlink_sock_diag(void)
 		},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_netlink_sock_diag,
 		&ett_netlink_sock_diag_show,
 		&ett_netlink_sock_diag_attr

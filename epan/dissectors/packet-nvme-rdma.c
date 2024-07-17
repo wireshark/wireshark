@@ -95,8 +95,8 @@ struct nvme_rdma_q_ctx {
     struct nvme_q_ctx n_q_ctx;
     struct {
         struct nvme_rdma_cmd_ctx *cmd_ctx;
-        guint32 first_psn;
-        guint32 psn;
+        uint32_t first_psn;
+        uint32_t psn;
     } rdma_ctx;
 };
 
@@ -146,8 +146,8 @@ static int hf_nvmeof_cmd_qid;
 
 
 /* Initialize the subtree pointers */
-static gint ett_cm;
-static gint ett_data;
+static int ett_cm;
+static int ett_data;
 
 static range_t *gPORT_RANGE;
 
@@ -167,7 +167,7 @@ static conversation_infiniband_data *get_conversion_data(conversation_t *conv)
     if ((conv_data->service_id & SID_MASK) != SID_ULP_TCP)
         return NULL;   /* the service id doesn't match that of TCP ULP - nothing for us to do here */
 
-    if (!(value_is_in_range(gPORT_RANGE, (guint32)(conv_data->service_id & SID_PORT_MASK))))
+    if (!(value_is_in_range(gPORT_RANGE, (uint32_t)(conv_data->service_id & SID_PORT_MASK))))
         return NULL;   /* the port doesn't match that of NVM Express Fabrics - nothing for us to do here */
     return conv_data;
 }
@@ -196,11 +196,11 @@ find_ib_conversation(packet_info *pinfo, conversation_infiniband_data **uni_conv
                              CONVERSATION_IBQP, pinfo->srcport, pinfo->destport, 0);
 }
 
-static guint16 find_nvme_qid(packet_info *pinfo)
+static uint16_t find_nvme_qid(packet_info *pinfo)
 {
     conversation_t *conv;
     conversation_infiniband_data *conv_data;
-    guint16 qid;
+    uint16_t qid;
 
     conv = find_conversation(pinfo->num, &pinfo->dst, &pinfo->dst,
                              CONVERSATION_IBQP, pinfo->destport, pinfo->destport,
@@ -212,7 +212,7 @@ static guint16 find_nvme_qid(packet_info *pinfo)
     if (!conv_data)
         return 0;
 
-    if (conv_data->client_to_server == FALSE) {
+    if (conv_data->client_to_server == false) {
         memcpy(&qid, &conv_data->mad_private_data[178], 2);
         return qid;
     }
@@ -232,7 +232,7 @@ static struct nvme_rdma_q_ctx*
 find_add_q_ctx(packet_info *pinfo, conversation_t *conv)
 {
     struct nvme_rdma_q_ctx *q_ctx;
-    guint16 qid;
+    uint16_t qid;
 
     q_ctx = (struct nvme_rdma_q_ctx*)conversation_get_proto_data(conv, proto_nvme_rdma);
     if (!q_ctx) {
@@ -262,12 +262,12 @@ find_ib_cm_conversation(packet_info *pinfo)
     return get_conversion_data(conv);
 }
 
-static void add_rdma_cm_qid(gchar *result, guint32 val)
+static void add_rdma_cm_qid(char *result, uint32_t val)
 {
     snprintf(result, ITEM_LABEL_LENGTH, "%x (%s)", val, val ? "IOQ" : "AQ");
 }
 
-static void add_zero_base(gchar *result, guint32 val)
+static void add_zero_base(char *result, uint32_t val)
 {
     snprintf(result, ITEM_LABEL_LENGTH, "%u", val+1);
 }
@@ -332,7 +332,7 @@ static void dissect_rdma_cm_rej_packet(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static bool dissect_rdma_cm_packet(tvbuff_t *tvb, proto_tree *tree,
-                                  guint16 cm_attribute_id)
+                                  uint16_t cm_attribute_id)
 {
     switch (cm_attribute_id) {
     case ATTR_CM_REQ:
@@ -372,7 +372,7 @@ dissect_nvme_ib_cm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 static struct nvme_rdma_cmd_ctx*
 bind_cmd_to_qctx(packet_info *pinfo, struct nvme_q_ctx *q_ctx,
-                 guint16 cmd_id)
+                 uint16_t cmd_id)
 {
    struct nvme_rdma_cmd_ctx *ctx;
 
@@ -400,28 +400,28 @@ dissect_nvme_rdma_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *root_t
                       proto_tree *nvme_tree, struct nvme_rdma_q_ctx *q_ctx)
 {
     struct nvme_rdma_cmd_ctx *cmd_ctx;
-    guint16 cmd_id;
-    guint8 opcode;
+    uint16_t cmd_id;
+    uint8_t opcode;
 
-    opcode = tvb_get_guint8(nvme_tvb, 0);
-    cmd_id = tvb_get_guint16(nvme_tvb, 2, ENC_LITTLE_ENDIAN);
+    opcode = tvb_get_uint8(nvme_tvb, 0);
+    cmd_id = tvb_get_uint16(nvme_tvb, 2, ENC_LITTLE_ENDIAN);
     cmd_ctx = bind_cmd_to_qctx(pinfo, &q_ctx->n_q_ctx, cmd_id);
     if (opcode == NVME_FABRIC_OPC) {
-        cmd_ctx->n_cmd_ctx.fabric = TRUE;
-        dissect_nvmeof_fabric_cmd(nvme_tvb, pinfo, nvme_tree, &q_ctx->n_q_ctx, &cmd_ctx->n_cmd_ctx, 0, TRUE);
+        cmd_ctx->n_cmd_ctx.fabric = true;
+        dissect_nvmeof_fabric_cmd(nvme_tvb, pinfo, nvme_tree, &q_ctx->n_q_ctx, &cmd_ctx->n_cmd_ctx, 0, true);
     } else {
-        cmd_ctx->n_cmd_ctx.fabric = FALSE;
+        cmd_ctx->n_cmd_ctx.fabric = false;
         dissect_nvme_cmd(nvme_tvb, pinfo, root_tree, &q_ctx->n_q_ctx, &cmd_ctx->n_cmd_ctx);
     }
 }
 
 static void dissect_rdma_read_transfer(tvbuff_t *data_tvb, packet_info *pinfo, proto_tree *data_tree,
-                       struct nvme_rdma_q_ctx *q_ctx, struct nvme_rdma_cmd_ctx *rdma_cmd, guint len)
+                       struct nvme_rdma_q_ctx *q_ctx, struct nvme_rdma_cmd_ctx *rdma_cmd, unsigned len)
 {
-    if (rdma_cmd->n_cmd_ctx.fabric == TRUE)
+    if (rdma_cmd->n_cmd_ctx.fabric == true)
         dissect_nvmeof_cmd_data(data_tvb, pinfo, data_tree, 0, &q_ctx->n_q_ctx, &rdma_cmd->n_cmd_ctx, len);
     else
-        dissect_nvme_data_response(data_tvb, pinfo, data_tree, &q_ctx->n_q_ctx, &rdma_cmd->n_cmd_ctx, len, FALSE);
+        dissect_nvme_data_response(data_tvb, pinfo, data_tree, &q_ctx->n_q_ctx, &rdma_cmd->n_cmd_ctx, len, false);
 }
 
 static void
@@ -429,7 +429,7 @@ dissect_nvme_from_host(tvbuff_t *nvme_tvb, packet_info *pinfo,
                        proto_tree *root_tree, proto_tree *nvme_tree,
                        struct infinibandinfo *info,
                        struct nvme_rdma_q_ctx *q_ctx,
-                       guint len)
+                       unsigned len)
 
 {
     switch (info->opCode) {
@@ -439,7 +439,7 @@ dissect_nvme_from_host(tvbuff_t *nvme_tvb, packet_info *pinfo,
     case RC_RDMA_READ_RESPONSE_ONLY:
     {
         struct nvme_cmd_ctx *cmd = NULL;
-        guint idx = 0;
+        unsigned idx = 0;
         if (info->opCode == RC_RDMA_READ_RESPONSE_FIRST || info->opCode == RC_RDMA_READ_RESPONSE_ONLY) {
             cmd = nvme_lookup_data_tr_pkt(&q_ctx->n_q_ctx, 0, info->packet_seq_num);
             if (cmd && !PINFO_FD_VISITED(pinfo)) {
@@ -472,9 +472,9 @@ dissect_nvme_from_host(tvbuff_t *nvme_tvb, packet_info *pinfo,
             nvme_publish_to_cmd_link(rdma_tree, nvme_tvb, hf_nvmeof_cmd_pkt, cmd);
             nvme_publish_to_data_req_link(rdma_tree, nvme_tvb, hf_nvmeof_data_req, cmd);
             if (idx && (idx-1) < NVME_CMD_MAX_TRS)
-                nvme_publish_link(rdma_tree, nvme_tvb, hf_nvmeof_read_from_host_prev , cmd->data_tr_pkt_num[idx-1], FALSE);
+                nvme_publish_link(rdma_tree, nvme_tvb, hf_nvmeof_read_from_host_prev , cmd->data_tr_pkt_num[idx-1], false);
             if ((idx + 1) < NVME_CMD_MAX_TRS)
-                nvme_publish_link(rdma_tree, nvme_tvb, hf_nvmeof_read_from_host_next , cmd->data_tr_pkt_num[idx+1], FALSE);
+                nvme_publish_link(rdma_tree, nvme_tvb, hf_nvmeof_read_from_host_next , cmd->data_tr_pkt_num[idx+1], false);
 
             dissect_rdma_read_transfer(nvme_tvb, pinfo, rdma_tree, q_ctx, nvme_cmd_to_nvme_rdma_cmd(cmd), len);
             if (!PINFO_FD_VISITED(pinfo))
@@ -505,9 +505,9 @@ dissect_nvme_rdma_cqe(tvbuff_t *nvme_tvb, packet_info *pinfo,
                       struct nvme_rdma_q_ctx *q_ctx)
 {
     struct nvme_rdma_cmd_ctx *cmd_ctx;
-    guint16 cmd_id;
+    uint16_t cmd_id;
 
-    cmd_id = tvb_get_guint16(nvme_tvb, 12, ENC_LITTLE_ENDIAN);
+    cmd_id = tvb_get_uint16(nvme_tvb, 12, ENC_LITTLE_ENDIAN);
 
     if (!PINFO_FD_VISITED(pinfo)) {
 
@@ -547,7 +547,7 @@ static void
 dissect_nvme_to_host(tvbuff_t *nvme_tvb, packet_info *pinfo,
                      proto_tree *root_tree, proto_tree *nvme_tree,
                      struct infinibandinfo *info,
-                     struct nvme_rdma_q_ctx *q_ctx, guint len)
+                     struct nvme_rdma_q_ctx *q_ctx, unsigned len)
 {
     switch (info->opCode) {
     case RC_RDMA_READ_REQUEST:
@@ -595,7 +595,7 @@ dissect_nvme_to_host(tvbuff_t *nvme_tvb, packet_info *pinfo,
     case RC_RDMA_WRITE_MIDDLE:
     {
         struct nvme_cmd_ctx *cmd = NULL;
-        guint idx = 0;
+        unsigned idx = 0;
         if (info->opCode == RC_RDMA_WRITE_ONLY || info->opCode == RC_RDMA_WRITE_FIRST) {
             struct keyed_data_req req = {
                 .addr = info->reth_remote_address,
@@ -634,10 +634,10 @@ dissect_nvme_to_host(tvbuff_t *nvme_tvb, packet_info *pinfo,
             proto_tree *rdma_tree = proto_item_add_subtree(ti, ett_data);
             nvme_publish_to_cmd_link(rdma_tree, nvme_tvb, hf_nvmeof_cmd_pkt, cmd);
             if (idx && (idx-1) < NVME_CMD_MAX_TRS)
-                nvme_publish_link(rdma_tree, nvme_tvb, hf_nvmeof_write_to_host_prev , cmd->data_tr_pkt_num[idx-1], FALSE);
+                nvme_publish_link(rdma_tree, nvme_tvb, hf_nvmeof_write_to_host_prev , cmd->data_tr_pkt_num[idx-1], false);
             if ((idx + 1) < NVME_CMD_MAX_TRS)
-                nvme_publish_link(rdma_tree, nvme_tvb, hf_nvmeof_write_to_host_next , cmd->data_tr_pkt_num[idx+1], FALSE);
-            dissect_nvme_data_response(nvme_tvb, pinfo, root_tree, &q_ctx->n_q_ctx, cmd, len, FALSE);
+                nvme_publish_link(rdma_tree, nvme_tvb, hf_nvmeof_write_to_host_next , cmd->data_tr_pkt_num[idx+1], false);
+            dissect_nvme_data_response(nvme_tvb, pinfo, root_tree, &q_ctx->n_q_ctx, cmd, len, false);
             if (!PINFO_FD_VISITED(pinfo))
                  cmd->tr_bytes += len;
         } else {
@@ -661,7 +661,7 @@ dissect_nvme_ib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_tree *nvme_tree;
     proto_item *ti;
     struct nvme_rdma_q_ctx *q_ctx;
-    guint len = tvb_reported_length(tvb);
+    unsigned len = tvb_reported_length(tvb);
 
     conv = find_ib_conversation(pinfo, &conv_data);
     if (!conv)
@@ -795,7 +795,7 @@ proto_register_nvme_rdma(void)
               "Qid on which command is issued", HFILL }
         },
     };
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_cm,
         &ett_data,
     };

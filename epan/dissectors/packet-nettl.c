@@ -47,7 +47,7 @@ static dissector_table_t tcp_subdissector_table;
 
 /* Initialize the subtree pointers */
 
-static gint ett_nettl;
+static int ett_nettl;
 
 /* General declarations and macros */
 
@@ -304,7 +304,7 @@ proto_register_nettl(void)
 
     /* Setup protocol subtree array */
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_nettl
     };
 

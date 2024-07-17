@@ -209,20 +209,20 @@ static int hf_ncsi_mlnx_gama_mac; /*Allocated MC MAC address */
 
 
 
-static gint ett_ncsi;
-static gint ett_ncsi_type;
-static gint ett_ncsi_chan;
-static gint ett_ncsi_payload;
-static gint ett_ncsi_lstat;
-static gint ett_ncsi_cap_flag;
-static gint ett_ncsi_cap_bf;
-static gint ett_ncsi_cap_mf;
-static gint ett_ncsi_cap_aen;
-static gint ett_ncsi_cap_vmode;
-static gint ett_ncsi_ls;
-static gint ett_ncsi_mlnx;
-static gint ett_ncsi_mlnx_sms;
-static gint ett_ncsi_mlnx_ifm;
+static int ett_ncsi;
+static int ett_ncsi_type;
+static int ett_ncsi_chan;
+static int ett_ncsi_payload;
+static int ett_ncsi_lstat;
+static int ett_ncsi_cap_flag;
+static int ett_ncsi_cap_bf;
+static int ett_ncsi_cap_mf;
+static int ett_ncsi_cap_aen;
+static int ett_ncsi_cap_vmode;
+static int ett_ncsi_ls;
+static int ett_ncsi_mlnx;
+static int ett_ncsi_mlnx_sms;
+static int ett_ncsi_mlnx_ifm;
 
 #define NCSI_MIN_LENGTH 8
 
@@ -462,7 +462,7 @@ ncsi_proto_tree_add_lstat(tvbuff_t *tvb, proto_tree *tree, int offset)
 static void
 dissect_ncsi_aen(tvbuff_t *tvb, proto_tree *tree)
 {
-    guint8 type = tvb_get_guint8(tvb, 19);
+    uint8_t type = tvb_get_uint8(tvb, 19);
 	proto_item *pi;
 
     pi = proto_tree_add_item(tree, hf_ncsi_aen_type, tvb, 19, 1, ENC_NA);
@@ -511,16 +511,16 @@ dissect_ncsi_aen(tvbuff_t *tvb, proto_tree *tree)
 
 #define HEXSTR(x) (((x) < 10)? '0' + (x): 'A' + ((x) - 10))
 
-static const gchar *
-ncsi_bcd_dig_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset)
+static const char *
+ncsi_bcd_dig_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset)
 {
-    guint8  octet;
+    uint8_t octet;
     int     i;
     char    digit_str[16]; /* MM.mm.uu.aa.bb */
     int     str_offset = 0;
 
     for (i = 0 ; i < 3; i++) {
-        octet = tvb_get_guint8(tvb, offset + i);
+        octet = tvb_get_uint8(tvb, offset + i);
 
         if (octet == 0xff) {
             break;
@@ -535,12 +535,12 @@ ncsi_bcd_dig_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset)
 
     }
 
-    octet = tvb_get_guint8(tvb, offset + 3);
+    octet = tvb_get_uint8(tvb, offset + 3);
     if (octet) {
         digit_str[str_offset++] = '.';
         digit_str[str_offset++] = octet;
 
-        octet = tvb_get_guint8(tvb, offset + 7);
+        octet = tvb_get_uint8(tvb, offset + 7);
         if (octet) {
             digit_str[str_offset++] = '.';
             digit_str[str_offset++] = octet;
@@ -554,11 +554,11 @@ ncsi_bcd_dig_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset)
 }
 
 
-static const gchar *
-ncsi_fw_version(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset)
+static const char *
+ncsi_fw_version(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset)
 {
     int     length = 16; /* hh.hh.hh.hh */
-    guint8  octet;
+    uint8_t octet;
     int     i;
     char   *ver_str;
     int     str_offset = 0;
@@ -567,7 +567,7 @@ ncsi_fw_version(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset)
     ver_str = (char *)wmem_alloc(scope, length);
 
     for (i = 0 ; i < 4; i++) {
-        octet = tvb_get_guint8(tvb, offset + i);
+        octet = tvb_get_uint8(tvb, offset + i);
 
         if (i != 0) {
             ver_str[str_offset++] = '.';
@@ -692,7 +692,7 @@ dissect_ncsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     proto_tree *ncsi_tree, *ncsi_payload_tree;
     proto_item *ti, *pti;
-    guint8 type, plen, poffset;
+    uint8_t type, plen, poffset;
 
     static int * const type_masked_fields[] = {
         &hf_ncsi_type_code_masked,
@@ -713,20 +713,20 @@ dissect_ncsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NCSI");
 
-    type = tvb_get_guint8(tvb, 4);
-    plen = tvb_get_guint8(tvb, 7);
+    type = tvb_get_uint8(tvb, 4);
+    plen = tvb_get_uint8(tvb, 7);
 
     col_clear(pinfo->cinfo, COL_INFO);
     if (type == 0xff) {
         col_add_fstr(pinfo->cinfo, COL_INFO,
                 "Async Event Notification, chan 0x%02x",
-                tvb_get_guint8(tvb, 5));
+                tvb_get_uint8(tvb, 5));
     } else {
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s, id 0x%02x, chan 0x%02x",
                 val_to_str(type & 0x7f, ncsi_type_vals, "Unknown type 0x%02x"),
                 type & 0x80 ? "response" : "request ",
-                tvb_get_guint8(tvb, 3),
-                tvb_get_guint8(tvb, 5));
+                tvb_get_uint8(tvb, 3),
+                tvb_get_uint8(tvb, 5));
     }
 
 
@@ -818,13 +818,13 @@ dissect_ncsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item(ncsi_payload_tree, hf_ncsi_oem_id, tvb,
                 16 + poffset, 4, ENC_NA);
 
-        if (tvb_get_guint32(tvb, 16 + poffset, ENC_BIG_ENDIAN) == NCSI_OEM_MLX) {
+        if (tvb_get_uint32(tvb, 16 + poffset, ENC_BIG_ENDIAN) == NCSI_OEM_MLX) {
             proto_item *opti;
             proto_tree *oem_payload_tree;
-            guint mlnx_cmd, mlnx_param;
+            unsigned mlnx_cmd, mlnx_param;
 
-            mlnx_cmd = tvb_get_guint8(tvb, 16 + poffset + 5);
-            mlnx_param = tvb_get_guint8(tvb, 16 + poffset + 6);
+            mlnx_cmd = tvb_get_uint8(tvb, 16 + poffset + 5);
+            mlnx_param = tvb_get_uint8(tvb, 16 + poffset + 6);
             /* OEM payload tree */
             oem_payload_tree = proto_tree_add_subtree(ncsi_payload_tree, tvb, 16 + poffset + 4, plen - poffset - 4, ett_ncsi_mlnx, &opti, "Mellanox OEM");
 
@@ -902,10 +902,10 @@ dissect_ncsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         break;
     case NCSI_TYPE_VER | 0x80:
         if (plen >= 40) { /*  We got complete payload*/
-            const gchar *ver_str;
+            const char *ver_str;
             proto_tree  *ncsi_ver_tree;
-            gchar *fw_name;
-            guint16 vid, did, svid, ssid;
+            char *fw_name;
+            uint16_t vid, did, svid, ssid;
 
             ncsi_ver_tree = proto_tree_add_subtree(ncsi_payload_tree, tvb, 20,
                             plen - 4, ett_ncsi_payload, NULL, "Version ID");
@@ -916,10 +916,10 @@ dissect_ncsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_tree_add_string(ncsi_ver_tree, hf_ncsi_fw_name, tvb, 28, 12, fw_name);
             proto_tree_add_string(ncsi_ver_tree, hf_ncsi_fw_ver, tvb, 40, 4, ncsi_fw_version(pinfo->pool, tvb, 40));
 
-            vid = tvb_get_guint16(tvb, 46, ENC_BIG_ENDIAN);
-            did = tvb_get_guint16(tvb, 44, ENC_BIG_ENDIAN);
-            svid = tvb_get_guint16(tvb, 50, ENC_BIG_ENDIAN);
-            ssid = tvb_get_guint16(tvb, 48, ENC_BIG_ENDIAN);
+            vid = tvb_get_uint16(tvb, 46, ENC_BIG_ENDIAN);
+            did = tvb_get_uint16(tvb, 44, ENC_BIG_ENDIAN);
+            svid = tvb_get_uint16(tvb, 50, ENC_BIG_ENDIAN);
+            ssid = tvb_get_uint16(tvb, 48, ENC_BIG_ENDIAN);
 
             proto_tree_add_string(ncsi_ver_tree, hf_ncsi_pci_vid, tvb,  46, 2, pci_id_str(vid, 0xffff, 0xffff, 0xffff));
             proto_tree_add_string(ncsi_ver_tree, hf_ncsi_pci_did, tvb,  44, 2, pci_id_str(vid, did, 0xffff, 0xffff));
@@ -1637,7 +1637,7 @@ proto_register_ncsi(void)
 	/* *INDENT-ON* */
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_ncsi,
         &ett_ncsi_type,
         &ett_ncsi_chan,

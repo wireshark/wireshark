@@ -52,15 +52,15 @@ static int hf_negoex_checksum;
 static int hf_negoex_errorcode;
 static int hf_negoex_data;
 
-static gint ett_negoex;
-static gint ett_negoex_msg;
-static gint ett_negoex_hdr;
-static gint ett_negoex_authscheme_vector;
-static gint ett_negoex_extension_vector;
-static gint ett_negoex_exchange;
-static gint ett_negoex_checksum;
-static gint ett_negoex_checksum_vector;
-static gint ett_negoex_byte_vector;
+static int ett_negoex;
+static int ett_negoex_msg;
+static int ett_negoex_hdr;
+static int ett_negoex_authscheme_vector;
+static int ett_negoex_extension_vector;
+static int ett_negoex_exchange;
+static int ett_negoex_checksum;
+static int ett_negoex_checksum_vector;
+static int ett_negoex_byte_vector;
 
 static dissector_handle_t negoex_handle;
 
@@ -108,9 +108,9 @@ static void
 dissect_negoex_alert_message(tvbuff_t *tvb,
                              packet_info *pinfo _U_,
                              proto_tree *tree,
-                             guint32 start_off)
+                             uint32_t start_off)
 {
-  guint32 offset;
+  uint32_t offset;
 
   offset = start_off;
 
@@ -132,11 +132,11 @@ static void
 dissect_negoex_verify_message(tvbuff_t *tvb,
                               packet_info *pinfo _U_,
                               proto_tree *tree,
-                              guint32 start_off)
+                              uint32_t start_off)
 {
-  guint32 offset;
-  guint32 checksum_vector_offset;
-  guint32 checksum_vector_count;
+  uint32_t offset;
+  uint32_t checksum_vector_offset;
+  uint32_t checksum_vector_count;
   proto_tree *checksum;
   proto_tree *checksum_vector;
 
@@ -191,11 +191,11 @@ static void
 dissect_negoex_exchange_message(tvbuff_t *tvb,
                                 packet_info *pinfo _U_,
                                 proto_tree *tree,
-                                guint32 start_off)
+                                uint32_t start_off)
 {
-  guint32 offset;
-  guint32 exchange_vector_offset;
-  guint32 exchange_vector_count;
+  uint32_t offset;
+  uint32_t exchange_vector_offset;
+  uint32_t exchange_vector_count;
   proto_tree *exchange_vector;
 
   offset = start_off;
@@ -240,16 +240,16 @@ static void
 dissect_negoex_nego_message(tvbuff_t *tvb,
                             packet_info *pinfo _U_,
                             proto_tree *tree,
-                            guint32 start_off)
+                            uint32_t start_off)
 {
-  volatile guint32 offset;
-  guint32 authscheme_vector_offset;
-  guint16 authscheme_vector_count;
-  guint32 extension_vector_offset;
-  guint32 extension_vector_count;
+  volatile uint32_t offset;
+  uint32_t authscheme_vector_offset;
+  uint16_t authscheme_vector_count;
+  uint32_t extension_vector_offset;
+  uint32_t extension_vector_count;
   proto_tree *authscheme_vector;
   proto_tree *extension_vector;
-  guint32 i;
+  uint32_t i;
 
   offset = start_off;
 
@@ -307,7 +307,7 @@ dissect_negoex_nego_message(tvbuff_t *tvb,
     offset += 2;
 
     for (i = 0; i < extension_vector_count; i++) {
-      guint32 byte_vector_offset, byte_vector_count;
+      uint32_t byte_vector_offset, byte_vector_count;
       proto_tree *bv_tree;
 
       /*
@@ -334,19 +334,19 @@ dissect_negoex_nego_message(tvbuff_t *tvb,
 static int
 dissect_negoex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  volatile guint32 offset;
+  volatile uint32_t offset;
   proto_tree * volatile negoex_tree;
   proto_item *tf;
-  volatile gboolean done;
-  guint32 payload_len;
-  guint32 message_len;
-  guint32 message_type;
-  guint32 header_len;
+  volatile bool done;
+  uint32_t payload_len;
+  uint32_t message_len;
+  uint32_t message_type;
+  uint32_t header_len;
 
   offset = 0;
   negoex_tree = NULL;
   tf = NULL;
-  done = FALSE;
+  done = false;
   payload_len = tvb_reported_length(tvb);
 
   /* Set up the initial NEGOEX payload */
@@ -365,7 +365,7 @@ dissect_negoex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     proto_tree *negoex_hdr_tree;
     proto_item *msg;
     tvbuff_t *msg_tvb;
-    guint32 start_offset;
+    uint32_t start_offset;
 
     start_offset = offset;
 
@@ -485,7 +485,7 @@ dissect_negoex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
         ;
 
     } CATCH_NONFATAL_ERRORS {
-      done = TRUE;
+      done = true;
       show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
     } ENDTRY;
   }
@@ -584,7 +584,7 @@ proto_register_negoex(void)
         NULL, 0x0, NULL, HFILL}},
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_negoex,
     &ett_negoex_msg,
     &ett_negoex_hdr,

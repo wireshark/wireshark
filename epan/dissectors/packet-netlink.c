@@ -105,11 +105,11 @@ static int hf_netlink_hdr_seq;
 static int hf_netlink_hdr_type;
 static int hf_netlink_padding;
 
-static gint ett_netlink_cooked;
-static gint ett_netlink_msghdr;
-static gint ett_netlink_msg;
-static gint ett_netlink_hdr_flags;
-static gint ett_netlink_attr_type;
+static int ett_netlink_cooked;
+static int ett_netlink_msghdr;
+static int ett_netlink_msg;
+static int ett_netlink_hdr_flags;
+static int ett_netlink_attr_type;
 
 static dissector_table_t netlink_dissector_table;
 
@@ -160,7 +160,7 @@ dissect_netlink_attributes_common(tvbuff_t *tvb, int hf_type, int ett_tree, int 
 {
 	int encoding;
 	int padding = (4 - offset) & 3;
-	guint data_length;
+	unsigned data_length;
 	header_field_info *hfi_type;
 
 	DISSECTOR_ASSERT(nl_data);
@@ -184,12 +184,12 @@ dissect_netlink_attributes_common(tvbuff_t *tvb, int hf_type, int ett_tree, int 
 	data_length = length;
 
 	while (data_length >= 4) {
-		guint rta_len, rta_type, type;
+		unsigned rta_len, rta_type, type;
 
 		proto_item *ti, *type_item;
 		proto_tree *attr_tree, *type_tree;
 
-		rta_len = tvb_get_guint16(tvb, offset, encoding);
+		rta_len = tvb_get_uint16(tvb, offset, encoding);
 		if (rta_len < 4) {
 			/* XXX invalid expert */
 			break;
@@ -203,7 +203,7 @@ dissect_netlink_attributes_common(tvbuff_t *tvb, int hf_type, int ett_tree, int 
 		proto_tree_add_item(attr_tree, hf_netlink_attr_len, tvb, offset, 2, encoding);
 		offset += 2;
 
-		rta_type = tvb_get_guint16(tvb, offset, encoding);
+		rta_type = tvb_get_uint16(tvb, offset, encoding);
 		if (ett_attrib <= 0) {
 			/* List of attributes */
 			type = rta_type & NLA_TYPE_MASK;
@@ -272,7 +272,7 @@ dissect_netlink_attributes_common(tvbuff_t *tvb, int hf_type, int ett_tree, int 
 		}
 
 		/* Assume offset already aligned, next offset is rta_len plus alignment. */
-		guint signalled_len = rta_len;
+		unsigned signalled_len = rta_len;
 		rta_len = MIN(WS_ROUNDUP_4(rta_len), data_length);
 		/* Possible padding following attr */
 		if (rta_len > signalled_len) {
@@ -313,8 +313,8 @@ dissect_netlink_attributes_array(tvbuff_t *tvb, int hf_type, int ett_array, int 
 int
 dissect_netlink_header(tvbuff_t *tvb, proto_tree *tree, int offset, int encoding, int hf_type, proto_item **pi_type)
 {
-	guint16 hdr_flags;
-	guint16 hdr_type;
+	uint16_t hdr_flags;
+	uint16_t hdr_type;
 	proto_tree *fh_hdr;
 	proto_item *pi;
 	header_field_info *hfi_type;
@@ -324,7 +324,7 @@ dissect_netlink_header(tvbuff_t *tvb, proto_tree *tree, int offset, int encoding
 	proto_tree_add_item(fh_hdr, hf_netlink_hdr_len, tvb, offset, 4, encoding);
 	offset += 4;
 
-	hdr_type = tvb_get_guint16(tvb, offset, encoding);
+	hdr_type = tvb_get_uint16(tvb, offset, encoding);
 	if (hdr_type < WS_NLMSG_MIN_TYPE) {
 		/* Reserved control messages. */
 		hf_type = hf_netlink_hdr_type;
@@ -353,7 +353,7 @@ dissect_netlink_header(tvbuff_t *tvb, proto_tree *tree, int offset, int encoding
 	}
 	offset += 2;
 
-	hdr_flags = tvb_get_guint16(tvb, offset, encoding);
+	hdr_flags = tvb_get_uint16(tvb, offset, encoding);
 	if ((hdr_flags & WS_NLM_F_REQUEST) && (hdr_flags & 0x0f00)) {
 		/* TODO detect based on the protocol family and message type
 		 * whether this is a GET, NEW or regular request. */
@@ -398,14 +398,14 @@ dissect_netlink_error(tvbuff_t *tvb, proto_tree *tree, int offset, int encoding)
 static int
 dissect_netlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	guint16     protocol, hatype;
+	uint16_t    protocol, hatype;
 	proto_item *ti;
 	tvbuff_t   *next_tvb;
 	proto_tree *fh_tree;
 
 	int offset = 0;
 	int encoding;
-	guint len_rem, len_le, len_be;
+	unsigned len_rem, len_le, len_be;
 
 	hatype = tvb_get_ntohs(tvb, 2);
 	if (hatype != ARPHRD_NETLINK)
@@ -455,13 +455,13 @@ dissect_netlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 
 	while (tvb_reported_length_remaining(tvb, offset) >= 16) {
 		int pkt_end_offset;
-		guint16 msg_type;
-		guint32 pkt_len;
-		guint32 port_id;
+		uint16_t msg_type;
+		uint32_t pkt_len;
+		uint32_t port_id;
 		proto_tree *fh_msg;
-		gboolean dissected = FALSE;
+		bool dissected = false;
 
-		pkt_len = tvb_get_guint32(tvb, offset, encoding);
+		pkt_len = tvb_get_uint32(tvb, offset, encoding);
 
 		pkt_end_offset = offset + pkt_len;
 
@@ -481,8 +481,8 @@ dissect_netlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 		}
 
 		/* message type field comes after length field. */
-		msg_type = tvb_get_guint16(tvb, offset + 4, encoding);
-		port_id = tvb_get_guint32(tvb, offset + 12, encoding);
+		msg_type = tvb_get_uint16(tvb, offset + 4, encoding);
+		port_id = tvb_get_uint32(tvb, offset + 12, encoding);
 
 		/* Since we have no original direction in the packet coming from
 		 * the monitor port we have to derive it from the port_id
@@ -504,8 +504,8 @@ dissect_netlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 
 			next_tvb = tvb_new_subset_length(tvb, offset, pkt_len);
 
-			if (dissector_try_uint_new(netlink_dissector_table, protocol, next_tvb, pinfo, tree, TRUE, &nl_data)) {
-				dissected = TRUE;
+			if (dissector_try_uint_new(netlink_dissector_table, protocol, next_tvb, pinfo, tree, true, &nl_data)) {
+				dissected = true;
 			}
 		}
 
@@ -677,7 +677,7 @@ proto_register_netlink(void)
 		},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_netlink_cooked,
 		&ett_netlink_msghdr,
 		&ett_netlink_msg,

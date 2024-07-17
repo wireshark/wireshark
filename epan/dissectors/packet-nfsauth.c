@@ -20,7 +20,7 @@ void proto_reg_handoff_nfsauth(void);
 static int proto_nfsauth;
 static int hf_nfsauth_procedure_v1;
 
-static gint ett_nfsauth;
+static int ett_nfsauth;
 
 #define NFSAUTH_PROGRAM	100231
 
@@ -53,7 +53,7 @@ proto_register_nfsauth(void)
 			VALS(nfsauth1_proc_vals), 0, NULL, HFILL }},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_nfsauth,
 	};
 

@@ -11,7 +11,7 @@
 #ifndef PACKET_NTP_H
 #define PACKET_NTP_H
 
-extern const char *tvb_ntp_fmt_ts_sec(tvbuff_t *tvb, gint offset);
-extern void ntp_to_nstime(tvbuff_t *tvb, gint offset, nstime_t *nstime);
+extern const char *tvb_ntp_fmt_ts_sec(tvbuff_t *tvb, int offset);
+extern void ntp_to_nstime(tvbuff_t *tvb, int offset, nstime_t *nstime);
 
 #endif

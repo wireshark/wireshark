@@ -411,7 +411,7 @@ static uint8_t calculate_checksum(tvbuff_t *tvb, const int start, const int leng
     uint8_t checksum = 0;
     for (int i = start; i < start + length; i++)
     {
-        checksum ^= tvb_get_guint8(tvb, i);
+        checksum ^= tvb_get_uint8(tvb, i);
     }
     return checksum;
 }
@@ -944,7 +944,7 @@ dissect_nmea0183(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     proto_tree *nmea0183_tree = proto_item_add_subtree(ti, ett_nmea0183);
 
     /* Start delimiter */
-    if (tvb_get_guint8(tvb, offset) != '$')
+    if (tvb_get_uint8(tvb, offset) != '$')
     {
         expert_add_info(pinfo, nmea0183_tree, &ei_nmea0183_invalid_first_character);
     }
@@ -1036,8 +1036,8 @@ dissect_nmea0183(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
     /* End of line */
     if (tvb_captured_length_remaining(tvb, offset) < 2 ||
-        tvb_get_guint8(tvb, offset) != '\r' ||
-        tvb_get_guint8(tvb, offset + 1) != '\n')
+        tvb_get_uint8(tvb, offset) != '\r' ||
+        tvb_get_uint8(tvb, offset + 1) != '\n')
     {
         expert_add_info(pinfo, nmea0183_tree, &ei_nmea0183_invalid_end_of_line);
     }

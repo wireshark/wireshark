@@ -325,32 +325,32 @@ static int hf_netmon_process_private_page_count;
 static int hf_netmon_process_directory_table_base32;
 
 
-static gint ett_netmon_header;
-static gint ett_netmon_event;
-static gint ett_netmon_event_desc;
-static gint ett_netmon_event_flags;
-static gint ett_netmon_event_property;
-static gint ett_netmon_event_extended_data;
-static gint ett_netmon_filter;
-static gint ett_netmon_network_info;
-static gint ett_netmon_network_info_list;
-static gint ett_netmon_network_info_adapter;
-static gint ett_netmon_system_trace;
-static gint ett_netmon_event_buffer_context;
-static gint ett_netmon_process;
-static gint ett_netmon_sid;
-static gint ett_netmon_system_config;
+static int ett_netmon_header;
+static int ett_netmon_event;
+static int ett_netmon_event_desc;
+static int ett_netmon_event_flags;
+static int ett_netmon_event_property;
+static int ett_netmon_event_extended_data;
+static int ett_netmon_filter;
+static int ett_netmon_network_info;
+static int ett_netmon_network_info_list;
+static int ett_netmon_network_info_adapter;
+static int ett_netmon_system_trace;
+static int ett_netmon_event_buffer_context;
+static int ett_netmon_process;
+static int ett_netmon_sid;
+static int ett_netmon_system_config;
 
 static expert_field ei_netmon_process_user_sid;
 
 static dissector_table_t wtap_encap_table;
 
 void
-netmon_etl_field(proto_tree *tree, tvbuff_t *tvb, int* offset, int hf, guint16 flags)
+netmon_etl_field(proto_tree *tree, tvbuff_t *tvb, int* offset, int hf, uint16_t flags)
 {
 	if (flags & EVENT_HEADER_FLAG_64_BIT_HEADER) {
 		/* XXX - This seems to be how values are displayed in Network Monitor */
-		guint64 value = tvb_get_letoh64(tvb, *offset) & 0xFFFFFFFF;
+		uint64_t value = tvb_get_letoh64(tvb, *offset) & 0xFFFFFFFF;
 		proto_tree_add_uint64(tree, hf, tvb, *offset, 8, value);
 		(*offset) += 8;
 	} else {
@@ -361,12 +361,12 @@ netmon_etl_field(proto_tree *tree, tvbuff_t *tvb, int* offset, int hf, guint16 f
 
 void
 netmon_sid_field(proto_tree *tree, tvbuff_t *tvb, int* offset, packet_info *pinfo,
-				int hf_revision, int hf_subauthority_count, int hf_sid_id, int hf_sid_authority, expert_field* invalid_sid, gboolean conformant _U_)
+				int hf_revision, int hf_subauthority_count, int hf_sid_id, int hf_sid_authority, expert_field* invalid_sid, bool conformant _U_)
 {
 	proto_item *ti, *sid_item;
 	proto_tree *sid_tree;
 	int start_offset = *offset;
-	guint32 i, revision, count;
+	uint32_t i, revision, count;
 
 	sid_tree = proto_tree_add_subtree(tree, tvb, *offset, 2, ett_netmon_sid, &sid_item, "SID");
 
@@ -402,7 +402,7 @@ dissect_netmon_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 	proto_item *ti;
 	proto_tree *header_tree;
 	union wtap_pseudo_header temp_header;
-	gchar *comment;
+	char *comment;
 
 	ti = proto_tree_add_item(tree, proto_netmon_header, tvb, 0, 0, ENC_NA);
 	header_tree = proto_item_add_subtree(ti, ett_netmon_header);
@@ -444,7 +444,7 @@ dissect_netmon_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 	}
 
 	if (!dissector_try_uint_new(wtap_encap_table,
-		pinfo->pseudo_header->netmon.sub_encap, tvb, pinfo, tree, TRUE,
+		pinfo->pseudo_header->netmon.sub_encap, tvb, pinfo, tree, true,
 		(void *)pinfo->pseudo_header)) {
 		call_data_dissector(tvb, pinfo, tree);
 	}
@@ -458,7 +458,7 @@ dissect_netmon_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	proto_item *ti, *extended_data_item;
 	proto_tree *event_tree, *event_desc_tree, *extended_data_tree, *buffer_context_tree;
 	int offset = 0, extended_data_count_offset;
-	guint32 i, thread_id, process_id, extended_data_count, extended_data_size, user_data_size;
+	uint32_t i, thread_id, process_id, extended_data_count, extended_data_size, user_data_size;
 	nstime_t timestamp;
 	tvbuff_t *provider_id_tvb;
 	guid_key provider_guid;
@@ -522,14 +522,14 @@ dissect_netmon_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	event_desc_tree = proto_tree_add_subtree(event_tree, tvb, offset, 16, ett_netmon_event_desc, NULL, "Event Descriptor");
 	proto_tree_add_item_ret_uint(event_desc_tree, hf_netmon_event_event_desc_id, tvb, offset, 2, ENC_LITTLE_ENDIAN, &provider_id_data.event_id);
 	offset += 2;
-	provider_id_data.event_version = tvb_get_guint8(tvb, offset);
+	provider_id_data.event_version = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(event_desc_tree, hf_netmon_event_event_desc_version, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 	proto_tree_add_item(event_desc_tree, hf_netmon_event_event_desc_channel, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 	proto_tree_add_item(event_desc_tree, hf_netmon_event_event_desc_level, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
-	provider_id_data.opcode = tvb_get_guint8(tvb, offset);
+	provider_id_data.opcode = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(event_desc_tree, hf_netmon_event_event_desc_opcode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 	proto_tree_add_item(event_desc_tree, hf_netmon_event_event_desc_task, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -588,7 +588,7 @@ dissect_netmon_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	}
 
 	provider_id_tvb = tvb_new_subset_remaining(tvb, offset);
-	if (!dissector_try_guid_new(provider_id_table, &provider_guid, provider_id_tvb, pinfo, tree, TRUE, &provider_id_data))
+	if (!dissector_try_guid_new(provider_id_table, &provider_guid, provider_id_tvb, pinfo, tree, true, &provider_id_data))
 	{
 		proto_tree_add_item(event_tree, hf_netmon_event_user_data, tvb, offset, user_data_size, ENC_NA);
 		offset += user_data_size;
@@ -604,8 +604,8 @@ dissect_netmon_filter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 	proto_item *ti;
 	proto_tree *filter_tree;
 	int offset = 0;
-	guint length;
-	const guint8* filter;
+	unsigned length;
+	const uint8_t* filter;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NetMon Filter");
 	/* Clear out stuff in the info column */
@@ -640,8 +640,8 @@ dissect_netmon_network_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_item *ti, *list_item, *adapter_item;
 	proto_tree *network_info_tree, *list_tree, *adapter_tree;
 	int offset = 0, list_start_offset, adapter_start_offset;
-	guint adapter, adapter_count, length;
-	guint64 link_speed;
+	unsigned adapter, adapter_count, length;
+	uint64_t link_speed;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NetMon Network Info");
 	/* Clear out stuff in the info column */
@@ -666,7 +666,7 @@ dissect_netmon_network_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		list_tree = proto_tree_add_subtree(network_info_tree, tvb, offset, 1, ett_netmon_network_info_list, &list_item, "NetworkInfo");
 		for (adapter = 1; adapter <= adapter_count; adapter++)
 		{
-			guint32 loop, ipv4_count, ipv6_count, gateway_count, dhcp_server_count, dns_ipv4_count, dns_ipv6_count;
+			uint32_t loop, ipv4_count, ipv6_count, gateway_count, dhcp_server_count, dns_ipv4_count, dns_ipv6_count;
 
 			adapter_start_offset = offset;
 			adapter_tree = proto_tree_add_subtree_format(list_tree, tvb, offset, 1, ett_netmon_network_info_adapter, &adapter_item, "Adapter #%d", adapter);
@@ -774,9 +774,9 @@ dissect_netmon_system_trace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree *system_tree;
 	int offset = 0;
 	struct netmon_provider_id_data *provider_id_data = (struct netmon_provider_id_data*)data;
-	guint length;
+	unsigned length;
 	nstime_t timestamp;
-	guint64 raw_timestamp;
+	uint64_t raw_timestamp;
 
 	DISSECTOR_ASSERT(provider_id_data != NULL);
 
@@ -893,9 +893,9 @@ dissect_netmon_system_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	proto_tree *system_tree;
 	int offset = 0;
 	struct netmon_provider_id_data *provider_id_data = (struct netmon_provider_id_data*)data;
-	guint length;
-	guint32 field1, field2;
-	const guint8 *str_field1, *str_field2, *str_field3, *str_field4;
+	unsigned length;
+	uint32_t field1, field2;
+	const uint8_t *str_field1, *str_field2, *str_field3, *str_field4;
 
 	DISSECTOR_ASSERT(provider_id_data != NULL);
 
@@ -1655,8 +1655,8 @@ dissect_netmon_process(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 	proto_tree *process_tree;
 	int offset = 0;
 	struct netmon_provider_id_data *provider_id_data = (struct netmon_provider_id_data*)data;
-	guint length;
-	const guint8 *filename;
+	unsigned length;
+	const uint8_t *filename;
 
 	DISSECTOR_ASSERT(provider_id_data != NULL);
 
@@ -1681,7 +1681,7 @@ dissect_netmon_process(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 			offset += 4;
 			netmon_sid_field(process_tree, tvb, &offset, pinfo, hf_netmon_process_user_sid_revision,
 							hf_netmon_process_user_sid_subauth_count, hf_netmon_process_user_sid_id, hf_netmon_process_user_sid_authority,
-							&ei_netmon_process_user_sid, FALSE);
+							&ei_netmon_process_user_sid, false);
 			length = tvb_strsize(tvb, offset);
 			proto_tree_add_item_ret_string(process_tree, hf_netmon_process_image_file_name, tvb, offset, length, ENC_NA|ENC_ASCII,
 							pinfo->pool, &filename);
@@ -1709,7 +1709,7 @@ dissect_netmon_process(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 			offset += 4;
 			netmon_sid_field(process_tree, tvb, &offset, pinfo, hf_netmon_process_user_sid_revision,
 							hf_netmon_process_user_sid_subauth_count, hf_netmon_process_user_sid_id, hf_netmon_process_user_sid_authority,
-							&ei_netmon_process_user_sid, FALSE);
+							&ei_netmon_process_user_sid, false);
 			length = tvb_strsize(tvb, offset);
 			proto_tree_add_item_ret_string(process_tree, hf_netmon_process_image_file_name, tvb, offset, length, ENC_NA|ENC_ASCII,
 							pinfo->pool, &filename);
@@ -1747,7 +1747,7 @@ dissect_netmon_process(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 			}
 			netmon_sid_field(process_tree, tvb, &offset, pinfo, hf_netmon_process_user_sid_revision,
 							hf_netmon_process_user_sid_subauth_count, hf_netmon_process_user_sid_id, hf_netmon_process_user_sid_authority,
-							&ei_netmon_process_user_sid, FALSE);
+							&ei_netmon_process_user_sid, false);
 			length = tvb_strsize(tvb, offset);
 			proto_tree_add_item_ret_string(process_tree, hf_netmon_process_image_file_name, tvb, offset, length, ENC_NA|ENC_ASCII,
 							pinfo->pool, &filename);
@@ -1830,7 +1830,7 @@ dissect_netmon_process(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 			}
 			netmon_sid_field(process_tree, tvb, &offset, pinfo, hf_netmon_process_user_sid_revision,
 							hf_netmon_process_user_sid_subauth_count, hf_netmon_process_user_sid_id, hf_netmon_process_user_sid_authority,
-							&ei_netmon_process_user_sid, FALSE);
+							&ei_netmon_process_user_sid, false);
 			length = tvb_strsize(tvb, offset);
 			proto_tree_add_item_ret_string(process_tree, hf_netmon_process_image_file_name, tvb, offset, length, ENC_NA|ENC_ASCII,
 							pinfo->pool, &filename);
@@ -2816,7 +2816,7 @@ void proto_register_netmon(void)
 		},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_netmon_header,
 		&ett_netmon_event,
 		&ett_netmon_event_desc,

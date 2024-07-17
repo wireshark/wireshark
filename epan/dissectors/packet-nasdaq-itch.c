@@ -103,7 +103,7 @@ static const value_string round_lots_only_val[] = {
 static int proto_nasdaq_itch;
 
 /* Initialize the subtree pointers */
-static gint ett_nasdaq_itch;
+static int ett_nasdaq_itch;
 
 static int hf_nasdaq_itch_version;
 
@@ -140,7 +140,7 @@ static int
 order_ref_number(tvbuff_t *tvb, packet_info *pinfo, proto_tree *nasdaq_itch_tree, int offset)
 {
   const char *str_value = tvb_get_string_enc(pinfo->pool, tvb, offset, 9, ENC_ASCII);
-  guint32     value     = (guint32)strtoul(str_value, NULL, 10);
+  uint32_t    value     = (uint32_t)strtoul(str_value, NULL, 10);
 
   proto_tree_add_uint(nasdaq_itch_tree, hf_nasdaq_itch_order_reference, tvb, offset, 9, value);
   col_append_fstr(pinfo->cinfo, COL_INFO, "%u ", value);
@@ -154,11 +154,11 @@ time_stamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *nasdaq_itch_tree, int 
 {
 
   if (nasdaq_itch_tree) {
-      guint32     ms, val;
+      uint32_t    ms, val;
       const char *display   = "";
       const char *str_value = tvb_get_string_enc(pinfo->pool, tvb, offset, size, ENC_ASCII);
 
-      ms = val = (guint32)strtoul(str_value, NULL, 10);
+      ms = val = (uint32_t)strtoul(str_value, NULL, 10);
       switch (size) {
       case 3:
           display = wmem_strdup_printf(pinfo->pool, " %03u" , val);
@@ -180,10 +180,10 @@ time_stamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *nasdaq_itch_tree, int 
 static int
 number_of_shares(tvbuff_t *tvb, packet_info *pinfo, proto_tree *nasdaq_itch_tree, int id, int offset, int big)
 {
-  gint size = (big) ? 10 : 6;
+  int size = (big) ? 10 : 6;
   const char *str_value = tvb_get_string_enc(pinfo->pool, tvb, offset, size, ENC_ASCII);
 
-  guint32 value = (guint32)strtoul(str_value, NULL, 10);
+  uint32_t value = (uint32_t)strtoul(str_value, NULL, 10);
 
   proto_tree_add_uint(nasdaq_itch_tree, id, tvb, offset, size, value);
   col_append_fstr(pinfo->cinfo, COL_INFO, "qty %u ", value);
@@ -195,10 +195,10 @@ number_of_shares(tvbuff_t *tvb, packet_info *pinfo, proto_tree *nasdaq_itch_tree
 static int
 price(tvbuff_t *tvb, packet_info *pinfo, proto_tree *nasdaq_itch_tree, int id, int offset, int big)
 {
-  gint size = (big) ? 19 : 10;
+  int size = (big) ? 19 : 10;
 
   const char *str_value = tvb_get_string_enc(pinfo->pool, tvb, offset, size, ENC_ASCII);
-  gdouble     value     = guint64_to_gdouble(g_ascii_strtoull(str_value, NULL, 10))/((big)?1000000.0:10000.0);
+  double      value     = guint64_to_gdouble(g_ascii_strtoull(str_value, NULL, 10))/((big)?1000000.0:10000.0);
 
   proto_tree_add_double(nasdaq_itch_tree, id, tvb, offset, size, value);
   col_append_fstr(pinfo->cinfo, COL_INFO, "price %g ", value);
@@ -222,11 +222,11 @@ stock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *nasdaq_itch_tree, int offse
 static int
 order(tvbuff_t *tvb, packet_info *pinfo, proto_tree *nasdaq_itch_tree, int offset, int big)
 {
-  guint8 value;
+  uint8_t value;
 
   offset = order_ref_number(tvb, pinfo, nasdaq_itch_tree, offset);
 
-  value = tvb_get_guint8(tvb, offset);
+  value = tvb_get_uint8(tvb, offset);
 
   col_append_fstr(pinfo->cinfo, COL_INFO, "%c ", value);
   proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_buy_sell, tvb, offset, 1, ENC_ASCII);
@@ -259,18 +259,18 @@ dissect_nasdaq_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 {
   proto_item  *ti;
   proto_tree  *nasdaq_itch_tree = NULL;
-  guint8       nasdaq_itch_type;
+  uint8_t      nasdaq_itch_type;
   int          offset           = 0;
   int          version          = 3;
   int          big              = 0;
-  const gchar *rep;
+  const char *rep;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "Nasdaq-ITCH");
 
-  nasdaq_itch_type = tvb_get_guint8(tvb, offset);
+  nasdaq_itch_type = tvb_get_uint8(tvb, offset);
   if (nasdaq_itch_type >= '0' && nasdaq_itch_type <= '9') {
     version = 2;
-    nasdaq_itch_type = tvb_get_guint8(tvb, offset +8);
+    nasdaq_itch_type = tvb_get_uint8(tvb, offset +8);
   }
 
   if ((!nasdaq_itch_chi_x || version == 3) && strchr(chix_msg, nasdaq_itch_type)) {
@@ -563,7 +563,7 @@ proto_register_nasdaq_itch(void)
   };
 
 /* Setup protocol subtree array */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_nasdaq_itch
   };
 

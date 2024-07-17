@@ -134,26 +134,26 @@ static int hf_nisplus_dticks;
 static int hf_nisplus_aticks;
 static int hf_nisplus_cticks;
 
-static gint ett_nisplus;
-static gint ett_nisplus_object;
-static gint ett_nisplus_oid;
-static gint ett_nisplus_directory;
-static gint ett_nisplus_directory_mask;
-static gint ett_nisplus_access_mask;
-static gint ett_nisplus_server;
-static gint ett_nisplus_endpoint;
-static gint ett_nisplus_link;
-static gint ett_nisplus_attr;
-static gint ett_nisplus_entry;
-static gint ett_nisplus_entry_col;
-static gint ett_nisplus_entry_mask;
-static gint ett_nisplus_table;
-static gint ett_nisplus_table_col;
-static gint ett_nisplus_table_col_mask;
-static gint ett_nisplus_group;
-static gint ett_nisplus_grps;
-static gint ett_nisplus_tag;
-static gint ett_nisplus_log_entry;
+static int ett_nisplus;
+static int ett_nisplus_object;
+static int ett_nisplus_oid;
+static int ett_nisplus_directory;
+static int ett_nisplus_directory_mask;
+static int ett_nisplus_access_mask;
+static int ett_nisplus_server;
+static int ett_nisplus_endpoint;
+static int ett_nisplus_link;
+static int ett_nisplus_attr;
+static int ett_nisplus_entry;
+static int ett_nisplus_entry_col;
+static int ett_nisplus_entry_mask;
+static int ett_nisplus_table;
+static int ett_nisplus_table_col;
+static int ett_nisplus_table_col_mask;
+static int ett_nisplus_group;
+static int ett_nisplus_grps;
+static int ett_nisplus_tag;
+static int ett_nisplus_log_entry;
 
 
 #define NIS_MASK_TABLE_BINARY   0x00000001
@@ -624,7 +624,7 @@ dissect_nisplus_object(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 {
 	proto_item* lock_item = NULL;
 	proto_tree* lock_tree = NULL;
-	gint32	type;
+	int32_t	type;
 	int old_offset = offset;
 
 	lock_item = proto_tree_add_item(tree, hf_nisplus_object, tvb,
@@ -1789,7 +1789,7 @@ proto_register_nis(void)
 
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_nisplus,
 		&ett_nisplus_object,
 		&ett_nisplus_oid,
@@ -1839,8 +1839,8 @@ static int hf_nispluscb_procedure_v1;
 static int hf_nispluscb_entries;
 static int hf_nispluscb_entry;
 
-static gint ett_nispluscb;
-static gint ett_nispluscb_entry;
+static int ett_nispluscb;
+static int ett_nispluscb_entry;
 
 static int
 dissect_cb_entry(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
@@ -1907,7 +1907,7 @@ proto_register_niscb(void)
 
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_nispluscb,
 		&ett_nispluscb_entry,
 	};

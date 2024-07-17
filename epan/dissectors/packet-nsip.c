@@ -63,12 +63,12 @@ static int hf_nsip_ns_pdu;
 static int hf_nsip_ns_sdu;
 
 /* Initialize the subtree pointers */
-static gint ett_nsip;
-static gint ett_nsip_control_bits;
-static gint ett_nsip_reset_flag;
-static gint ett_nsip_end_flag;
-static gint ett_nsip_ip_element;
-static gint ett_nsip_ip_element_list;
+static int ett_nsip;
+static int ett_nsip_control_bits;
+static int ett_nsip_reset_flag;
+static int ett_nsip_end_flag;
+static int ett_nsip_ip_element;
+static int ett_nsip_ip_element_list;
 
 /* PDU type coding, v5.3.0, table 10.3.7.1, p 51 */
 #define NSIP_PDU_NS_UNITDATA        0x00
@@ -222,14 +222,14 @@ static const value_string ip_address_type_vals[] = {
 static dissector_handle_t bssgp_handle;
 static dissector_handle_t nsip_handle;
 
-static gboolean nsip_is_recursive;
+static bool nsip_is_recursive;
 
 typedef struct {
-  guint8        iei;
-  guint8        presence_req;
+  uint8_t       iei;
+  uint8_t       presence_req;
   int           format;
-  guint16       value_length; /* in bytes */
-  guint16       total_length; /* as specified, or 0 if unspecified */
+  uint16_t      value_length; /* in bytes */
+  uint16_t      total_length; /* as specified, or 0 if unspecified */
 } nsip_ie_t;
 
 typedef struct {
@@ -253,12 +253,12 @@ static nsip_ip_element_info_t ipv6_element = { NSIP_IP_VERSION_6, 16, 20 };
 static void
 get_value_length(nsip_ie_t *ie, build_info_t *bi) {
   /* length indicator in bit 8, 0 => two bytes, 1 => one byte */
-  const guint8 MASK_LENGTH_INDICATOR = 0x80;
-  const guint8 MASK_ONE_BYTE_LENGTH = 0x7f;
-  guint8 length_len;
-  guint16 length;
+  const uint8_t MASK_LENGTH_INDICATOR = 0x80;
+  const uint8_t MASK_ONE_BYTE_LENGTH = 0x7f;
+  uint8_t length_len;
+  uint16_t length;
 
-  length = tvb_get_guint8(bi->tvb, bi->offset);
+  length = tvb_get_uint8(bi->tvb, bi->offset);
   length_len = 1;
 
   if (length & MASK_LENGTH_INDICATOR) {
@@ -267,7 +267,7 @@ get_value_length(nsip_ie_t *ie, build_info_t *bi) {
   else {
     length_len++;
     length <<= 8;
-    length |= tvb_get_guint8(bi->tvb, bi->offset+1);
+    length |= tvb_get_uint8(bi->tvb, bi->offset+1);
   }
   ie->value_length = length;
   ie->total_length += length_len + length;
@@ -276,7 +276,7 @@ get_value_length(nsip_ie_t *ie, build_info_t *bi) {
 
 static int
 check_correct_iei(nsip_ie_t *ie, build_info_t *bi) {
-  guint8 fetched_iei = tvb_get_guint8(bi->tvb, bi->offset);
+  uint8_t fetched_iei = tvb_get_uint8(bi->tvb, bi->offset);
 
 #if NSIP_DEBUG
   if (fetched_iei != ie->iei) {
@@ -293,9 +293,9 @@ check_correct_iei(nsip_ie_t *ie, build_info_t *bi) {
 
 static void
 decode_iei_cause(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
-  guint8 cause;
+  uint8_t cause;
 
-  cause = tvb_get_guint8(bi->tvb, bi->offset);
+  cause = tvb_get_uint8(bi->tvb, bi->offset);
   proto_tree_add_uint(bi->nsip_tree, hf_nsip_cause,
       bi->tvb, ie_start_offset, ie->total_length,
       cause);
@@ -311,7 +311,7 @@ decode_iei_cause(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
 
 static void
 decode_iei_ns_vci(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
-  guint16 ns_vci;
+  uint16_t ns_vci;
 
   ns_vci = tvb_get_ntohs(bi->tvb, bi->offset);
 
@@ -334,9 +334,9 @@ decode_iei_ns_pdu(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
                       "NS PDU (%u bytes)", ie->value_length);
   next_tvb = tvb_new_subset_length_caplen(bi->tvb, bi->offset, ie->value_length, -1);
   if (nsip_handle) {
-    gboolean was_recursive;
+    bool was_recursive;
     was_recursive = nsip_is_recursive;
-    nsip_is_recursive = TRUE;
+    nsip_is_recursive = true;
     call_dissector(nsip_handle, next_tvb, bi->pinfo, bi->nsip_tree);
     nsip_is_recursive = was_recursive;
   }
@@ -345,7 +345,7 @@ decode_iei_ns_pdu(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
 
 static void
 decode_iei_nsei(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
-  guint16 nsei = tvb_get_ntohs(bi->tvb, bi->offset);
+  uint16_t nsei = tvb_get_ntohs(bi->tvb, bi->offset);
 
   proto_tree_add_uint(bi->nsip_tree, hf_nsip_nsei, bi->tvb,
                       ie_start_offset, ie->total_length, nsei);
@@ -359,7 +359,7 @@ decode_iei_nsei(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
 
 static void
 decode_iei_bvci(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
-  guint16 bvci = tvb_get_ntohs(bi->tvb, bi->offset);
+  uint16_t bvci = tvb_get_ntohs(bi->tvb, bi->offset);
 
   proto_tree_add_uint(bi->nsip_tree, hf_nsip_bvci, bi->tvb,
                       ie_start_offset, ie->total_length, bvci);
@@ -372,7 +372,7 @@ decode_iei_bvci(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
 
 static proto_item *
 decode_ip_element(nsip_ip_element_info_t *element, build_info_t *bi, proto_tree * element_tree) {
-  guint16 udp_port;
+  uint16_t udp_port;
   proto_item *tf;
   proto_tree *field_tree;
 
@@ -448,7 +448,7 @@ decode_ip_elements(nsip_ip_element_info_t *element, nsip_ie_t *ie, build_info_t 
 
 static void
 decode_iei_max_num_ns_vc(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
- guint16 num_ns_vc;
+ uint16_t num_ns_vc;
 
  if (bi->nsip_tree) {
    num_ns_vc = tvb_get_ntohs(bi->tvb, bi->offset);
@@ -462,7 +462,7 @@ decode_iei_max_num_ns_vc(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
 
 static void
 decode_iei_num_ip4_endpoints(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
-  guint16 num_endpoints;
+  uint16_t num_endpoints;
 
   if (bi->nsip_tree) {
     num_endpoints = tvb_get_ntohs(bi->tvb, bi->offset);
@@ -476,7 +476,7 @@ decode_iei_num_ip4_endpoints(nsip_ie_t *ie, build_info_t *bi, int ie_start_offse
 
 static void
 decode_iei_num_ip6_endpoints(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
-  guint16 num_endpoints;
+  uint16_t num_endpoints;
 
   if (bi->nsip_tree) {
     num_endpoints = tvb_get_ntohs(bi->tvb, bi->offset);
@@ -490,14 +490,14 @@ decode_iei_num_ip6_endpoints(nsip_ie_t *ie, build_info_t *bi, int ie_start_offse
 
 static void
 decode_iei_reset_flag(nsip_ie_t *ie _U_, build_info_t *bi, int ie_start_offset _U_) {
-  guint8 flag;
+  uint8_t flag;
   static int * const reset_flags[] = {
     &hf_nsip_reset_flag_bit,
     &hf_nsip_reset_flag_spare,
     NULL
   };
 
-  flag = tvb_get_guint8(bi->tvb, bi->offset);
+  flag = tvb_get_uint8(bi->tvb, bi->offset);
   proto_tree_add_bitmask(bi->nsip_tree,  bi->tvb, bi->offset, hf_nsip_reset_flag,
                            ett_nsip_reset_flag, reset_flags, ENC_NA);
 
@@ -509,11 +509,11 @@ decode_iei_reset_flag(nsip_ie_t *ie _U_, build_info_t *bi, int ie_start_offset _
 
 static void
 decode_iei_ip_address(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
-  guint8 addr_type;
-  guint32 ip4_addr;
+  uint8_t addr_type;
+  uint32_t ip4_addr;
   ws_in6_addr ip6_addr;
 
-  addr_type = tvb_get_guint8(bi->tvb, bi->offset);
+  addr_type = tvb_get_uint8(bi->tvb, bi->offset);
   proto_tree_add_item(bi->nsip_tree, hf_nsip_ip_address_type,
                           bi->tvb, bi->offset, 1, ENC_BIG_ENDIAN);
   switch (addr_type) {
@@ -539,8 +539,8 @@ decode_iei_ip_address(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
 
 static void
 decode_iei_transaction_id(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
-  guint8 id;
-  id = tvb_get_guint8(bi->tvb, bi->offset);
+  uint8_t id;
+  id = tvb_get_uint8(bi->tvb, bi->offset);
   proto_tree_add_uint(bi->nsip_tree, hf_nsip_transaction_id,
                       bi->tvb, ie_start_offset, ie->total_length, id);
   col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, NSIP_SEP,
@@ -563,7 +563,7 @@ decode_iei_end_flag(nsip_ie_t *ie _U_, build_info_t *bi, int ie_start_offset) {
 
 static void
 decode_iei_control_bits(nsip_ie_t *ie _U_, build_info_t *bi, int ie_start_offset) {
-  guint8 control_bits;
+  uint8_t control_bits;
   static int * const flags[] = {
     &hf_nsip_control_bits_r,
     &hf_nsip_control_bits_c,
@@ -571,7 +571,7 @@ decode_iei_control_bits(nsip_ie_t *ie _U_, build_info_t *bi, int ie_start_offset
     NULL
   };
 
-  control_bits = tvb_get_guint8(bi->tvb, bi->offset);
+  control_bits = tvb_get_uint8(bi->tvb, bi->offset);
   proto_tree_add_bitmask(bi->nsip_tree, bi->tvb, ie_start_offset, hf_nsip_control_bits,
                          ett_nsip_control_bits, flags, ENC_NA);
   bi->offset++;
@@ -677,7 +677,7 @@ decode_pdu_ns_unitdata(build_info_t *bi) {
     { 0, NSIP_IE_PRESENCE_M, NSIP_IE_FORMAT_V, 0, 0 },
     /* NS SDU, length unknown */
   };
-  gint sdu_length;
+  int sdu_length;
 
   decode_iei_control_bits(ies, bi, bi->offset);
   decode_pdu_general(&ies[1], 1, bi);
@@ -853,7 +853,7 @@ decode_pdu_sns_size_ack(build_info_t *bi) {
 }
 
 static void
-decode_pdu(guint8 pdu_type, build_info_t *bi, packet_info *pinfo) {
+decode_pdu(uint8_t pdu_type, build_info_t *bi, packet_info *pinfo) {
   switch (pdu_type) {
   case NSIP_PDU_NS_UNITDATA:
     decode_pdu_ns_unitdata(bi);
@@ -871,7 +871,7 @@ decode_pdu(guint8 pdu_type, build_info_t *bi, packet_info *pinfo) {
     decode_pdu_ns_block_ack(bi);
     break;
   case NSIP_PDU_NS_STATUS:
-    pinfo->flags.in_error_pkt = TRUE;
+    pinfo->flags.in_error_pkt = true;
     decode_pdu_ns_status(bi);
     break;
   case NSIP_PDU_SNS_ACK:
@@ -909,7 +909,7 @@ decode_pdu(guint8 pdu_type, build_info_t *bi, packet_info *pinfo) {
 
 static int
 dissect_nsip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
-  guint8 pdu_type;
+  uint8_t pdu_type;
   build_info_t bi = { NULL, 0, NULL, NULL, NULL, NULL };
   proto_tree *nsip_tree;
 
@@ -922,7 +922,7 @@ dissect_nsip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     col_clear(pinfo->cinfo, COL_INFO);
   }
 
-  pdu_type = tvb_get_guint8(tvb, 0);
+  pdu_type = tvb_get_uint8(tvb, 0);
   bi.offset++;
 
   if (tree) {
@@ -1116,7 +1116,7 @@ proto_register_nsip(void)
   };
 
   /* Setup protocol subtree array */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_nsip,
     &ett_nsip_control_bits,
     &ett_nsip_reset_flag,

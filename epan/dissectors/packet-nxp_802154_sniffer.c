@@ -41,16 +41,16 @@ static int hf_nxp_802154_sniffer_channel;
 static int hf_nxp_802154_sniffer_lqi;
 static int hf_nxp_802154_sniffer_length;
 
-static gint ett_nxp_802154_sniffer;
+static int ett_nxp_802154_sniffer;
 
 static dissector_handle_t nxp_802154_sniffer_handle;
 static dissector_handle_t ieee802154_handle;
 
-static gboolean
-test_nxp_802154_sniffer(tvbuff_t *tvb, guint offset)
+static bool
+test_nxp_802154_sniffer(tvbuff_t *tvb, unsigned offset)
 {
-    volatile gboolean valid = TRUE;
-    guint8 channel, frame_len;
+    volatile bool valid = true;
+    uint8_t channel, frame_len;
 
     TRY {
         /* Skip Timestamp */
@@ -61,23 +61,23 @@ test_nxp_802154_sniffer(tvbuff_t *tvb, guint offset)
         /* Channel must be between 11 and 26 (2.4 GHz PHY)
          * XXX: In the future the channels below 11 (868 and 915 MHz PHY)
          * might be possible */
-        channel = tvb_get_guint8(tvb, offset);
+        channel = tvb_get_uint8(tvb, offset);
         if (channel < 11 || channel > 26) {
-            valid = FALSE;
+            valid = false;
         }
         /* Skip LQI, it can take any value from 0x00 to 0xff */
         offset += 2;
-        frame_len = tvb_get_guint8(tvb, offset);
+        frame_len = tvb_get_uint8(tvb, offset);
         if (frame_len < IEEE802154_FCS_LEN || frame_len > IEEE802154_PHY_LENGTH_MASK) {
-            valid = FALSE;
+            valid = false;
         }
         offset += 1;
         if (tvb_reported_length_remaining(tvb, offset) != frame_len) {
-            valid = FALSE;
+            valid = false;
         }
     }
     CATCH_BOUNDS_ERRORS {
-        valid = FALSE;
+        valid = false;
     }
     ENDTRY;
 
@@ -89,8 +89,8 @@ dissect_nxp_802154_sniffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 {
     proto_item *ti;
     proto_tree *nxp_802154_sniffer_tree;
-    guint offset = 0;
-    guint snifferidlen;
+    unsigned offset = 0;
+    unsigned snifferidlen;
 
     tvbuff_t *ieee802154_tvb;
 
@@ -151,7 +151,7 @@ proto_register_nxp_802154_sniffer(void)
           { "Length",                           "nxp_802154_sniffer.length",    FT_UINT8,   BASE_DEC,   NULL, 0x0, NULL, HFILL } },
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
        &ett_nxp_802154_sniffer,
     };
 

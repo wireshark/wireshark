@@ -35,8 +35,8 @@ static int ett_data_flags;
 static int ett_results_flags;
 static int ett_onoffarray;
 
-static guint64 npm_total_msgs;
-static guint64 npm_total_bytes;
+static uint64_t npm_total_msgs;
+static uint64_t npm_total_bytes;
 
 
 #define PPID_NETPERFMETER_CONTROL_LEGACY   0x29097605
@@ -279,8 +279,8 @@ static hf_register_info hf[] = {
 
 
 typedef struct _tap_npm_rec_t {
-  guint8      type;
-  guint16     size;
+  uint8_t     type;
+  uint16_t    size;
   const char* type_string;
 } tap_npm_rec_t;
 
@@ -299,12 +299,12 @@ dissect_npm_acknowledge_message(tvbuff_t *message_tvb, proto_tree *message_tree)
 static void
 dissect_npm_add_flow_message(tvbuff_t *message_tvb, proto_tree *message_tree, proto_item *flags_item)
 {
-  guint32      retranstrials;
+  uint32_t     retranstrials;
   proto_item*  onoffitem;
   proto_tree*  onofftree;
   proto_tree*  flags_tree;
-  guint16      onoffevents;
-  guint32      onoffvalue;
+  uint16_t     onoffevents;
+  uint32_t     onoffvalue;
   unsigned int i;
 
   flags_tree = proto_item_add_subtree(flags_item, ett_addflow_flags);
@@ -353,9 +353,9 @@ dissect_npm_add_flow_message(tvbuff_t *message_tvb, proto_tree *message_tree, pr
   if (onoffevents > 0) {
      onofftree = proto_item_add_subtree(onoffitem, ett_onoffarray);
     for(i = 0;i < onoffevents;i++) {
-      onoffvalue = tvb_get_ntohl(message_tvb, 144 + (int)(sizeof(guint32) * i));
+      onoffvalue = tvb_get_ntohl(message_tvb, 144 + (int)(sizeof(uint32_t) * i));
       proto_tree_add_uint_format(onofftree, hf_addflow_onoffeventarray, message_tvb,
-                                 144 + (int)(sizeof(guint32) * i), (int)sizeof(guint32),
+                                 144 + (int)(sizeof(uint32_t) * i), (int)sizeof(uint32_t),
                                  onoffvalue, "%1.3f s: set to %s", onoffvalue / 1000.0, (i & 1) ? "OFF" : "ON");
     }
   }
@@ -391,8 +391,8 @@ static void
 dissect_npm_data_message(tvbuff_t *message_tvb, proto_tree *message_tree, proto_item *flags_item)
 {
   proto_tree*   flags_tree;
-  const guint16 message_length = tvb_get_ntohs(message_tvb, 2);
-  guint64       timestamp;
+  const uint16_t message_length = tvb_get_ntohs(message_tvb, 2);
+  uint64_t      timestamp;
   nstime_t      t;
 
   flags_tree = proto_item_add_subtree(flags_item, ett_data_flags);
@@ -449,7 +449,7 @@ dissect_npm_results_message(tvbuff_t *message_tvb, proto_tree *message_tree, pro
   flags_tree = proto_item_add_subtree(flags_item, ett_data_flags);
   proto_tree_add_item(flags_tree, hf_results_flag_eof, message_tvb, 1, 1, ENC_BIG_ENDIAN);
 
-  const guint16 message_length = tvb_get_ntohs(message_tvb, 2);
+  const uint16_t message_length = tvb_get_ntohs(message_tvb, 2);
   if (message_length > 4) {
     proto_tree_add_item(message_tree, hf_results_data, message_tvb, 4, message_length - 4, ENC_NA);
   }
@@ -462,7 +462,7 @@ dissect_npm_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *npm_t
   proto_tree* flags_tree;
 
   tap_npm_rec_t* tap_rec = wmem_new0(pinfo->pool, tap_npm_rec_t);
-  tap_rec->type        = tvb_get_guint8(message_tvb, 0);
+  tap_rec->type        = tvb_get_uint8(message_tvb, 0);
   tap_rec->size        = tvb_get_ntohs(message_tvb, 2);
   tap_rec->type_string = val_to_str_const(tap_rec->type, message_type_values, "Unknown NetPerfMeter message type");
   tap_queue_packet(tap_npm, pinfo, tap_rec);
@@ -520,27 +520,27 @@ dissect_npm(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *d
   };
   /* dissect the message */
   dissect_npm_message(message_tvb, pinfo, npm_tree);
-  return TRUE;
+  return true;
 }
 
 
 static bool
 dissect_npm_heur(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  const guint length = tvb_captured_length(message_tvb);
+  const unsigned length = tvb_captured_length(message_tvb);
   if (length < 4)
     return false;
 
   /* For TCP, UDP or DCCP:
       Type must either be NETPERFMETER_DATA or NETPERFMETER_IDENTIFY_FLOW */
-  const guint8 type = tvb_get_guint8(message_tvb, 0);
+  const uint8_t type = tvb_get_uint8(message_tvb, 0);
   switch(type) {
     case NETPERFMETER_DATA:
       if (length < 48 + 8)
         return false;
       /* Identify NetPerfMeter flow by payload pattern */
       for(int i = 0; i < 8; i++) {
-        guint8 d = tvb_get_guint8(message_tvb, 48 + i);
+        uint8_t d = tvb_get_uint8(message_tvb, 48 + i);
         if( (d != 30 + i) && (d != 127 - i) )
           return false;
       }
@@ -645,9 +645,9 @@ npm_stat_packet(void* tapdata, packet_info* pinfo _U_, epan_dissect_t* edt _U_, 
   const tap_npm_rec_t*      tap_rec   = (const tap_npm_rec_t*)data;
   stat_tap_table*           table;
   stat_tap_table_item_type* msg_data;
-  gint                      idx;
-  guint64                   messages;
-  guint64                   bytes;
+  int                       idx;
+  uint64_t                  messages;
+  uint64_t                  bytes;
   int                       i         = 0;
   double                    firstSeen = -1.0;
   double                    lastSeen  = -1.0;
@@ -675,9 +675,9 @@ npm_stat_packet(void* tapdata, packet_info* pinfo _U_, epan_dissect_t* edt _U_, 
   /* Update messages and bytes share */
   while (message_type_values[i].strptr) {
     msg_data = stat_tap_get_field_data(table, i, MESSAGES_COLUMN);
-    const guint m = msg_data->value.uint_value;
+    const unsigned m = msg_data->value.uint_value;
     msg_data = stat_tap_get_field_data(table, i, BYTES_COLUMN);
-    const guint b = msg_data->value.uint_value;
+    const unsigned b = msg_data->value.uint_value;
 
     msg_data = stat_tap_get_field_data(table, i, MESSAGES_SHARE_COLUMN);
     msg_data->type = TABLE_ITEM_FLOAT;
@@ -735,7 +735,7 @@ npm_stat_packet(void* tapdata, packet_info* pinfo _U_, epan_dissect_t* edt _U_, 
 static void
 npm_stat_reset(stat_tap_table* table)
 {
-  guint element;
+  unsigned element;
   stat_tap_table_item_type* item_data;
 
   for (element = 0; element < table->num_elements; element++) {
@@ -792,7 +792,7 @@ void
 proto_register_npm(void)
 {
   /* Setup protocol subtree array */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_npm,
     &ett_addflow_flags,
     &ett_identifyflow_flags,
@@ -803,7 +803,7 @@ proto_register_npm(void)
   };
 
   static tap_param npm_stat_params[] = {
-    { PARAM_FILTER, "filter", "Filter", NULL, TRUE }
+    { PARAM_FILTER, "filter", "Filter", NULL, true }
   };
 
   static stat_tap_table_ui npm_stat_table = {

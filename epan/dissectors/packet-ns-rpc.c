@@ -17,7 +17,7 @@ void proto_register_ns_rpc(void);
 void proto_reg_handoff_ns_rpc(void);
 
 static int proto_ns_rpc;
-static gint ett_nsrpc;
+static int ett_nsrpc;
 
 static int hf_nsrpc_dlen;
 static int hf_nsrpc_cmd;
@@ -1115,8 +1115,8 @@ static value_string_ext ns_rpc_rioctl_vals_ext = VALUE_STRING_EXT_INIT(ns_rpc_ri
 static int
 dissect_ns_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	guint16 rpc_errcode;
-	guint32 datalen, rpc_cmd, remote_ioctl;
+	uint16_t rpc_errcode;
+	uint32_t datalen, rpc_cmd, remote_ioctl;
 	int offset = 0;
 	proto_item *ti;
 	proto_tree *ns_rpc_tree;
@@ -1164,7 +1164,7 @@ dissect_ns_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 static bool
 dissect_ns_rpc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-	static const guint8 ns_rpc_sig[2] = { 0xA5, 0xA5 };
+	static const uint8_t ns_rpc_sig[2] = { 0xA5, 0xA5 };
 
 	/* Check the signature */
 	if (tvb_memeql(tvb, 4, ns_rpc_sig, sizeof ns_rpc_sig) != 0)
@@ -1195,7 +1195,7 @@ proto_register_ns_rpc(void)
 			NULL, HFILL }},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_nsrpc,
 	};
 

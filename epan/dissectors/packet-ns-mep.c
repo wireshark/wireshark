@@ -22,9 +22,9 @@ static dissector_handle_t nsmep_handle;
 
 static int proto_ns_mep;
 
-static gint ett_nsmep;
-static gint ett_nsmep_mfu;
-static gint ett_nsmep_nwu;
+static int ett_nsmep;
+static int ett_nsmep_mfu;
+static int ett_nsmep_nwu;
 
 static int hf_nsmep_majver;
 static int hf_nsmep_minver;
@@ -209,17 +209,17 @@ static const value_string value_site_persistence[] = {
 
 /* XXX - for informational purposes only */
 typedef struct nsgslb_dom_info {
-	guint32 public_ip;
-	guint16	public_port;
-	guint16 protocol;
-	guint8	domainlen;
-	guint8	prefixlen;
-	guint8	cookiedomlen;
-	guint8	site_persistence;
-	guint8	cookietimeout;
-	guint8	vidlen;
-	guint8 flags;
-	guint16 reserved;
+	uint32_t public_ip;
+	uint16_t	public_port;
+	uint16_t protocol;
+	uint8_t	domainlen;
+	uint8_t	prefixlen;
+	uint8_t	cookiedomlen;
+	uint8_t	site_persistence;
+	uint8_t	cookietimeout;
+	uint8_t	vidlen;
+	uint8_t flags;
+	uint16_t reserved;
 }nsgslb_dom_info_t;
 
 /*gslb domain info flag values */
@@ -230,12 +230,12 @@ typedef struct nsgslb_dom_info {
 static void
 dissect_ns_mep_v02xx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	guint32 maj_ver, min_ver, mesgtype, mesglen, errcode;
-	guint32 public_port, svctype, domainlen;
+	uint32_t maj_ver, min_ver, mesgtype, mesglen, errcode;
+	uint32_t public_port, svctype, domainlen;
 	proto_item *ti;
 	proto_tree *ns_mep_tree;
 	int offset = 0, start_offset;
-	gchar* version_str;
+	char* version_str;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NS-MEP");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -454,7 +454,7 @@ dissect_ns_mep_v02xx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	{
 		proto_item *tf;
 		proto_tree *ns_mep_di_tree;
-		guint32 prefixlen, cookiedomlen, flags, vidlen;
+		uint32_t prefixlen, cookiedomlen, flags, vidlen;
 
 		while (tvb_reported_length_remaining(tvb, offset) >= NS_GSLB_DOM_INFO_MIN_SIZE)
 		{
@@ -627,12 +627,12 @@ dissect_ns_mep_v02xx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static int
 dissect_ns_mep_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	guint16 ver;
-	guint8 maj_ver, min_ver;
+	uint16_t ver;
+	uint8_t maj_ver, min_ver;
 
 	ver = tvb_get_letohs(tvb, 0);
-	maj_ver = tvb_get_guint8(tvb, 0);
-	min_ver = tvb_get_guint8(tvb, 1);
+	maj_ver = tvb_get_uint8(tvb, 0);
+	min_ver = tvb_get_uint8(tvb, 1);
 	switch(ver)
 	{
 	case 0x0001:
@@ -656,7 +656,7 @@ dissect_ns_mep_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	return tvb_captured_length(tvb);
 }
 
-static guint
+static unsigned
 get_ns_mep_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
 	/* Get the length of the data from the header. */
@@ -666,7 +666,7 @@ get_ns_mep_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data
 static int
 dissect_ns_mep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	guint16 ns_rpc_sig;
+	uint16_t ns_rpc_sig;
 
 	if (tvb_reported_length(tvb) >= 6)
 	{
@@ -681,7 +681,7 @@ dissect_ns_mep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 		}
 	}
 
-	tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 6, get_ns_mep_pdu_len, dissect_ns_mep_pdu, data);
+	tcp_dissect_pdus(tvb, pinfo, tree, true, 6, get_ns_mep_pdu_len, dissect_ns_mep_pdu, data);
 	return tvb_captured_length(tvb);
 }
 
@@ -860,7 +860,7 @@ proto_register_ns_mep(void)
 			NULL, HFILL }},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_nsmep,
 		&ett_nsmep_mfu,
 		&ett_nsmep_nwu,

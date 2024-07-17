@@ -118,11 +118,11 @@ static int hf_ncp_burst_command;
 static int hf_ncp_burst_file_handle;
 static int hf_ncp_burst_reserved;
 
-gint ett_ncp;
-gint ett_nds;
-gint ett_nds_segments;
-gint ett_nds_segment;
-static gint ett_ncp_system_flags;
+int ett_ncp;
+int ett_nds;
+int ett_nds_segments;
+int ett_nds_segment;
+static int ett_ncp_system_flags;
 
 static expert_field ei_ncp_oplock_handle;
 static expert_field ei_ncp_new_server_session;
@@ -148,14 +148,14 @@ static bool ncp_desegment = true;
 #define NCPIP_RPLY      0x744e6350      /* "tNcP" */
 
 struct ncp_ip_header {
-    guint32 signature;
-    guint32 length;
+    uint32_t signature;
+    uint32_t length;
 };
 
 /* This header only appears on NCP over IP request packets */
 struct ncp_ip_rqhdr {
-    guint32 version;
-    guint32 rplybufsize;
+    uint32_t version;
+    uint32_t rplybufsize;
 };
 
 static const value_string ncp_sigchar_vals[] = {
@@ -483,11 +483,11 @@ ncpstat_init(struct register_srt* srt _U_, GArray* srt_array)
 static tap_packet_status
 ncpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prv, tap_flags_t flags _U_)
 {
-    guint i = 0;
+    unsigned i = 0;
     srt_stat_table *ncp_srt_table;
     srt_data_t *data = (srt_data_t *)pss;
     const ncp_req_hash_value *request_val=(const ncp_req_hash_value *)prv;
-    gchar* tmp_str;
+    char* tmp_str;
 
     /* if we haven't seen the request, just ignore it */
     if(!request_val || request_val->ncp_rec==0){
@@ -658,8 +658,8 @@ ncpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 
 typedef struct {
     conversation_t *conversation;
-    guint32         nwconnection;
-    guint8          nwtask;
+    uint32_t        nwconnection;
+    uint8_t         nwtask;
 } mncp_rhash_key;
 
 /* Store the packet number for the start of the NCP session.
@@ -670,14 +670,14 @@ typedef struct {
  * Operating Systems.
  */
 typedef struct {
-    guint32  session_start_packet_num;
+    uint32_t session_start_packet_num;
 } mncp_rhash_value;
 
 static GHashTable *mncp_rhash;
 
 /* Hash Functions */
-static gint
-mncp_equal(gconstpointer v, gconstpointer v2)
+static int
+mncp_equal(const void *v, const void *v2)
 {
     const mncp_rhash_key *val1 = (const mncp_rhash_key*)v;
     const mncp_rhash_key *val2 = (const mncp_rhash_key*)v2;
@@ -688,8 +688,8 @@ mncp_equal(gconstpointer v, gconstpointer v2)
     return 0;
 }
 
-static guint
-mncp_hash(gconstpointer v)
+static unsigned
+mncp_hash(const void *v)
 {
     const mncp_rhash_key *mncp_key = (const mncp_rhash_key*)v;
     return GPOINTER_TO_UINT(mncp_key->conversation)+mncp_key->nwconnection+mncp_key->nwtask;
@@ -710,7 +710,7 @@ mncp_cleanup_protocol(void)
 }
 
 static mncp_rhash_value*
-mncp_hash_insert(conversation_t *conversation, guint32 nwconnection, guint8 nwtask, packet_info *pinfo)
+mncp_hash_insert(conversation_t *conversation, uint32_t nwconnection, uint8_t nwtask, packet_info *pinfo)
 {
     mncp_rhash_key      *key;
     mncp_rhash_value    *value;
@@ -737,7 +737,7 @@ mncp_hash_insert(conversation_t *conversation, guint32 nwconnection, guint8 nwta
 
 /* Returns the ncp_rec*, or NULL if not found. */
 static mncp_rhash_value*
-mncp_hash_lookup(conversation_t *conversation, guint32 nwconnection, guint8 nwtask)
+mncp_hash_lookup(conversation_t *conversation, uint32_t nwconnection, uint8_t nwtask)
 {
     mncp_rhash_key        key;
 
@@ -765,7 +765,7 @@ ncp_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, 
     hash->flags = flags;
 
     const struct ncp_common_header *ncph=(const struct ncp_common_header *)vip;
-    guint32 connection;
+    uint32_t connection;
 
     connection = (ncph->conn_high * 256)+ncph->conn_low;
     if (connection < 65535) {
@@ -793,8 +793,8 @@ ncp_endpoint_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, cons
     /* Take two "add" passes per packet, adding for each direction, ensures that all
     packets are counted properly (even if address is sending to itself)
     XXX - this could probably be done more efficiently inside endpoint_table */
-    add_endpoint_table_data(hash, &pinfo->src, 0, TRUE, 1, pinfo->fd->pkt_len, &ncp_endpoint_dissector_info, ENDPOINT_NCP);
-    add_endpoint_table_data(hash, &pinfo->dst, 0, FALSE, 1, pinfo->fd->pkt_len, &ncp_endpoint_dissector_info, ENDPOINT_NCP);
+    add_endpoint_table_data(hash, &pinfo->src, 0, true, 1, pinfo->fd->pkt_len, &ncp_endpoint_dissector_info, ENDPOINT_NCP);
+    add_endpoint_table_data(hash, &pinfo->dst, 0, false, 1, pinfo->fd->pkt_len, &ncp_endpoint_dissector_info, ENDPOINT_NCP);
 
     return TAP_PACKET_REDRAW;
 }
@@ -815,26 +815,26 @@ static const unsigned char lip_echo_magic[LIP_ECHO_MAGIC_LEN] = {
 
 static void
 dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    gboolean is_tcp)
+    bool is_tcp)
 {
     proto_tree            *ncp_tree = NULL;
     proto_item            *ti;
     struct ncp_ip_header  ncpiph;
     struct ncp_ip_rqhdr   ncpiphrq;
-    gboolean              is_lip_echo_allocate_slot = FALSE;
-    guint16               ncp_burst_seqno, ncp_ack_seqno;
-    guint16               flags = 0;
+    bool                  is_lip_echo_allocate_slot = false;
+    uint16_t              ncp_burst_seqno, ncp_ack_seqno;
+    uint16_t              flags = 0;
     proto_tree            *flags_tree = NULL;
     int                   hdr_offset = 0;
     int                   commhdr = 0;
     int                   offset = 0;
-    gint                  length_remaining;
+    int                   length_remaining;
     tvbuff_t              *next_tvb;
-    guint32               ncp_burst_command, burst_len, burst_off, burst_file;
-    guint8                subfunction;
-    guint32               nw_connection = 0, data_offset;
-    guint16               data_len = 0;
-    guint16               missing_fraglist_count = 0;
+    uint32_t              ncp_burst_command, burst_len, burst_off, burst_file;
+    uint8_t               subfunction;
+    uint32_t              nw_connection = 0, data_offset;
+    uint16_t              data_len = 0;
+    uint16_t              missing_fraglist_count = 0;
     mncp_rhash_value      *request_value = NULL;
     conversation_t        *conversation;
 
@@ -876,10 +876,10 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     header.type         = tvb_get_ntohs(tvb, commhdr);
-    header.sequence     = tvb_get_guint8(tvb, commhdr+2);
-    header.conn_low     = tvb_get_guint8(tvb, commhdr+3);
-    header.task         = tvb_get_guint8(tvb, commhdr+4);
-    header.conn_high    = tvb_get_guint8(tvb, commhdr+5);
+    header.sequence     = tvb_get_uint8(tvb, commhdr+2);
+    header.conn_low     = tvb_get_uint8(tvb, commhdr+3);
+    header.task         = tvb_get_uint8(tvb, commhdr+4);
+    header.conn_high    = tvb_get_uint8(tvb, commhdr+5);
     proto_tree_add_uint(ncp_tree, hf_ncp_type, tvb, commhdr, 2, header.type);
     nw_connection = (header.conn_high*256)+header.conn_low;
 
@@ -888,7 +888,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * connection.
      */
     conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-        CONVERSATION_NCP, (guint32) pinfo->srcport, (guint32) pinfo->destport,
+        CONVERSATION_NCP, (uint32_t) pinfo->srcport, (uint32_t) pinfo->destport,
         0);
     if ((ncpiph.length & 0x80000000) || ncpiph.signature == NCPIP_RPLY) {
         /* First time through we will record the initial connection and task
@@ -912,7 +912,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                  * - create a new one.
                  */
                 conversation = conversation_new(pinfo->num, &pinfo->src,
-                    &pinfo->dst, CONVERSATION_NCP, (guint32) pinfo->srcport, (guint32) pinfo->destport, 0);
+                    &pinfo->dst, CONVERSATION_NCP, (uint32_t) pinfo->srcport, (uint32_t) pinfo->destport, 0);
                 mncp_hash_insert(conversation, nw_connection, header.task, pinfo);
             }
             /* If this is a request packet then we
@@ -954,7 +954,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                  * - create a new one.
                  */
                 conversation = conversation_new(pinfo->num, &pinfo->src,
-                    &pinfo->dst, CONVERSATION_NCP, (guint32) pinfo->srcport, (guint32) pinfo->destport, 0);
+                    &pinfo->dst, CONVERSATION_NCP, (uint32_t) pinfo->srcport, (uint32_t) pinfo->destport, 0);
                 mncp_hash_insert(conversation, nw_connection, header.task, pinfo);
             }
             /* find the record telling us the request
@@ -986,7 +986,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item(ncp_tree, hf_ncp_task, tvb, commhdr + 4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(ncp_tree, hf_ncp_oplock_flag, tvb, commhdr + 9, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(ncp_tree, hf_ncp_oplock_handle, tvb, commhdr + 10, 4, ENC_BIG_ENDIAN);
-        if ((tvb_get_guint8(tvb, commhdr+9)==0x24) && ncp_echo_file) {
+        if ((tvb_get_uint8(tvb, commhdr+9)==0x24) && ncp_echo_file) {
             expert_add_info_format(pinfo, NULL, &ei_ncp_oplock_handle, "Server requesting station to clear oplock on handle - %08x", tvb_get_ntohl(tvb, commhdr+10));
         }
         break;
@@ -1038,7 +1038,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          *    0: Write successful
          *    4: Write error
          */
-        flags = tvb_get_guint8(tvb, commhdr + 2);
+        flags = tvb_get_uint8(tvb, commhdr + 2);
 
         ti = proto_tree_add_uint(ncp_tree, hf_ncp_system_flags,
             tvb, commhdr + 2, 1, flags);
@@ -1163,7 +1163,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     burst_len, burst_off, burst_file);
             break;
         } else {
-            if (tvb_get_guint8(tvb, commhdr + 2) & 0x10) {
+            if (tvb_get_uint8(tvb, commhdr + 2) & 0x10) {
                 col_set_str(pinfo->cinfo, COL_INFO, "End of Burst");
             }
         }
@@ -1174,7 +1174,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (length_remaining >= LIP_ECHO_MAGIC_LEN &&
             tvb_memeql(tvb, commhdr+4, lip_echo_magic, LIP_ECHO_MAGIC_LEN) == 0) {
             /* This is a LIP Echo. */
-            is_lip_echo_allocate_slot = TRUE;
+            is_lip_echo_allocate_slot = true;
             col_set_str(pinfo->cinfo, COL_INFO, "LIP Echo");
         }
         /* fall through */
@@ -1215,14 +1215,14 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     case NCP_DEALLOCATE_SLOT:    /* Deallocate Slot Request */
         next_tvb = tvb_new_subset_remaining(tvb, commhdr);
         dissect_ncp_request(next_tvb, pinfo, nw_connection,
-            header.sequence, header.type, FALSE, ncp_tree);
+            header.sequence, header.type, false, ncp_tree);
         break;
 
     case NCP_SERVICE_REQUEST:    /* Server NCP Request */
     case NCP_BROADCAST_SLOT:    /* Server Broadcast Packet */
         next_tvb = tvb_new_subset_remaining(tvb, commhdr);
-        if (tvb_get_guint8(tvb, commhdr+6) == 0x68) {
-            subfunction = tvb_get_guint8(tvb, commhdr+7);
+        if (tvb_get_uint8(tvb, commhdr+6) == 0x68) {
+            subfunction = tvb_get_uint8(tvb, commhdr+7);
             switch (subfunction) {
 
             case 0x02:    /* NDS Frag Packet to decode */
@@ -1240,12 +1240,12 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             default:
                 dissect_ncp_request(next_tvb, pinfo,
                     nw_connection, header.sequence,
-                    header.type, FALSE, ncp_tree);
+                    header.type, false, ncp_tree);
                 break;
              }
         } else {
             dissect_ncp_request(next_tvb, pinfo, nw_connection,
-                header.sequence, header.type, FALSE, ncp_tree);
+                header.sequence, header.type, false, ncp_tree);
         }
         break;
 
@@ -1340,14 +1340,14 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static int
 dissect_ncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    dissect_ncp_common(tvb, pinfo, tree, FALSE);
+    dissect_ncp_common(tvb, pinfo, tree, false);
     return tvb_captured_length(tvb);
 }
 
-static guint
+static unsigned
 get_ncp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
-    guint32 signature;
+    uint32_t signature;
 
     /*
      * Check the NCP-over-TCP header signature, to make sure it's there.
@@ -1370,7 +1370,7 @@ get_ncp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U
 static int
 dissect_ncp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    dissect_ncp_common(tvb, pinfo, tree, TRUE);
+    dissect_ncp_common(tvb, pinfo, tree, true);
     return tvb_captured_length(tvb);
 }
 
@@ -1552,7 +1552,7 @@ proto_register_ncp(void)
           { "Reserved",                         "ncp.burst_reserved",
             FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }}
     };
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_ncp,
         &ett_ncp_system_flags,
         &ett_nds,
@@ -1617,7 +1617,7 @@ proto_register_ncp(void)
     ncp_tap.stat=register_tap("ncp_srt");
     ncp_tap.hdr=register_tap("ncp");
 
-    register_conversation_table(proto_ncp, FALSE, ncp_conversation_packet, ncp_endpoint_packet);
+    register_conversation_table(proto_ncp, false, ncp_conversation_packet, ncp_endpoint_packet);
     register_srt_table(proto_ncp, "ncp_srt", 24, ncpstat_packet, ncpstat_init, NULL);
 }
 

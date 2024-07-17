@@ -17,6 +17,6 @@ void
 dissect_nmas_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp_req_hash_value *request_value);
 
 void
-dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guint8 func, guint8 subfunc, ncp_req_hash_value	*request_value);
+dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, uint8_t func, uint8_t subfunc, ncp_req_hash_value	*request_value);
 
 #endif

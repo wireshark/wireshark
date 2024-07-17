@@ -31,7 +31,7 @@ static int hf_netdump_info;
 static int hf_netdump_version;
 
 /* Initialize the subtree pointers */
-static gint ett_netdump;
+static int ett_netdump;
 
 static const value_string command_names[] = {
 	{ 0, "COMM_NONE" },
@@ -100,7 +100,7 @@ dissect_netdump(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 void proto_register_netdump(void)
 {
 	/* Setup protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_netdump
 	};
 

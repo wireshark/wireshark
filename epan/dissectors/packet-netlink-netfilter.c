@@ -19,7 +19,7 @@ void proto_reg_handoff_netlink_netfilter(void);
 
 typedef struct {
 	packet_info *pinfo;
-	guint16 hw_protocol; /* protocol for NFQUEUE packet payloads. */
+	uint16_t hw_protocol; /* protocol for NFQUEUE packet payloads. */
 } netlink_netfilter_info_t;
 
 
@@ -1180,7 +1180,7 @@ dissect_nfq_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_data
 
 		case WS_NFQA_HWADDR:
 			if (len >= 4) {
-				guint16 addrlen;
+				uint16_t addrlen;
 
 				proto_tree_add_item(tree, hf_nfq_hwaddr_len, tvb, offset, 2, ENC_BIG_ENDIAN);
 				addrlen = tvb_get_ntohs(tvb, offset);
@@ -1563,7 +1563,7 @@ dissect_ipset_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_da
 		case WS_IPSET_ATTR_DATA:
 			/* See ipset lib/PROTOCOL, CADT attributes only follow for some commands */
 			if (nla_type & NLA_F_NESTED) {
-				guint16 command = nl_data->type & 0xffff;
+				uint16_t command = nl_data->type & 0xffff;
 
 				if (command == WS_IPSET_CMD_CREATE ||
 				    command == WS_IPSET_CMD_LIST ||
@@ -2222,7 +2222,7 @@ proto_register_netlink_netfilter(void)
 		}
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_netlink_netfilter,
 		&ett_nfct_attr,
 		&ett_nfct_help_attr,

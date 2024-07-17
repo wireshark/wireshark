@@ -50,9 +50,9 @@ static int hf_nbipx_opcode;
 static int hf_nbipx_name_type;
 static int hf_nbipx_messageid;
 
-static gint ett_nbipx;
-static gint ett_nbipx_conn_ctrl;
-static gint ett_nbipx_name_type_flags;
+static int ett_nbipx;
+static int ett_nbipx_conn_ctrl;
+static int ett_nbipx_name_type_flags;
 
 static void dissect_conn_control(tvbuff_t *tvb, int offset, proto_tree *tree);
 
@@ -270,16 +270,16 @@ dissect_netbios_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static int
 dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-	gboolean	has_routes;
+	bool	has_routes;
 	proto_tree	*nbipx_tree = NULL;
 	proto_item	*ti = NULL;
 	int		offset = 0;
-	guint8		packet_type;
+	uint8_t		packet_type;
 	proto_tree	*name_type_flag_tree;
 	proto_item	*tf;
 	char		name[(NETBIOS_NAME_LEN - 1)*4 + 1];
 	int		name_type;
-	gboolean	has_payload;
+	bool	has_payload;
 	tvbuff_t	*next_tvb;
 	ipxhdr_t *ipxh;
 
@@ -296,7 +296,7 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 		 * This is a WAN Broadcast packet; we assume it will have
 		 * 8 IPX addresses at the beginning.
 		 */
-		has_routes = TRUE;
+		has_routes = true;
 	} else {
 		/*
 		 * This isn't a WAN Broadcast packet, but it still might
@@ -312,9 +312,9 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 		 * know how to interpret this packet, so we can't dissect
 		 * it anyway.
 		 */
-		has_routes = FALSE;	/* start out assuming it doesn't */
+		has_routes = false;	/* start out assuming it doesn't */
 		if (tvb_reported_length(tvb) == 50) {
-			packet_type = tvb_get_guint8(tvb, offset + 32 + 1);
+			packet_type = tvb_get_uint8(tvb, offset + 32 + 1);
 			switch (packet_type) {
 
 			case NBIPX_FIND_NAME:
@@ -322,7 +322,7 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 			case NBIPX_CHECK_NAME:
 			case NBIPX_NAME_IN_USE:
 			case NBIPX_DEREGISTER_NAME:
-				has_routes = TRUE;
+				has_routes = true;
 				break;
 			}
 		}
@@ -340,7 +340,7 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 		offset += 32;
 	}
 
-	packet_type = tvb_get_guint8(tvb, offset + 1);
+	packet_type = tvb_get_uint8(tvb, offset + 1);
 
 	switch (packet_type) {
 
@@ -376,7 +376,7 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 		/*
 		 * No payload to be interpreted by another protocol.
 		 */
-		has_payload = FALSE;
+		has_payload = false;
 		break;
 
 	case NBIPX_SESSION_DATA:
@@ -418,7 +418,7 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 		/*
 		 * We may have payload to dissect.
 		 */
-		has_payload = TRUE;
+		has_payload = true;
 		break;
 
 	case NBIPX_DIRECTED_DATAGRAM:
@@ -444,7 +444,7 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 		/*
 		 * We may have payload to dissect.
 		 */
-		has_payload = TRUE;
+		has_payload = true;
 		break;
 
 	default:
@@ -465,7 +465,7 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 		/*
 		 * We don't know what the rest of the packet is.
 		 */
-		has_payload = FALSE;
+		has_payload = false;
 	}
 
 	/*
@@ -630,7 +630,7 @@ proto_register_nbipx(void)
 		},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_nbipx,
 		&ett_nbipx_conn_ctrl,
 		&ett_nbipx_name_type_flags,
@@ -731,8 +731,8 @@ proto_reg_handoff_nbipx(void)
  */
 static int proto_nmpi;
 
-static gint ett_nmpi;
-static gint ett_nmpi_name_type_flags;
+static int ett_nmpi;
+static int ett_nmpi_name_type_flags;
 
 
 static int
@@ -741,7 +741,7 @@ dissect_nmpi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	proto_tree	*nmpi_tree = NULL;
 	proto_item	*ti;
 	int		offset = 0;
-	guint8		opcode;
+	uint8_t		opcode;
 	char		name[(NETBIOS_NAME_LEN - 1)*4 + 1];
 	int		name_type;
 	char		node_name[(NETBIOS_NAME_LEN - 1)*4 + 1];
@@ -763,7 +763,7 @@ dissect_nmpi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	/*
 	 * XXX - we don't use "node_name" or "node_name_type".
 	 */
-	opcode = tvb_get_guint8(tvb, offset);
+	opcode = tvb_get_uint8(tvb, offset);
 	name_type = get_netbios_name(tvb, offset+4, name, (NETBIOS_NAME_LEN - 1)*4 + 1);
 	/*node_name_type = */get_netbios_name(tvb, offset+20, node_name, (NETBIOS_NAME_LEN - 1)*4 + 1);
 
@@ -841,7 +841,7 @@ proto_register_nmpi(void)
 		{ &variable,
 		{ "Name",           "nmpi.abbreviation", TYPE, VALS_POINTER }},
 	}; */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_nmpi,
 		&ett_nmpi_name_type_flags,
 	};

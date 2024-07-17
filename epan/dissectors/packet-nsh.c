@@ -67,7 +67,7 @@ static int hf_nsh_metadata;
 
 static expert_field ei_nsh_length_invalid;
 
-static gint ett_nsh;
+static int ett_nsh;
 
 static dissector_table_t subdissector_table;
 
@@ -93,7 +93,7 @@ static void
 dissect_nsh_md_type_2(tvbuff_t *tvb, proto_tree *nsh_tree, int offset, int nsh_bytes_len)
 {
 
-	guint32 type2_metadata_len = 0;
+	uint32_t type2_metadata_len = 0;
 	int pad_len;
 
 	while (offset < nsh_bytes_len) {
@@ -130,7 +130,7 @@ dissect_nsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
 	int offset = 0;
 	int md_type = -1;
-	guint32 nsh_bytes_len;
+	uint32_t nsh_bytes_len;
 	int nsh_next_proto = -1;
 	proto_item *length_pi;
 	tvbuff_t *next_tvb;
@@ -158,10 +158,10 @@ dissect_nsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	proto_item_set_len(ti, nsh_bytes_len);
 
 
-	md_type = tvb_get_guint8(tvb, offset + 2);
+	md_type = tvb_get_uint8(tvb, offset + 2);
 	proto_tree_add_item(nsh_tree, hf_nsh_md_type, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
 
-	nsh_next_proto = tvb_get_guint8(tvb, offset + 3);
+	nsh_next_proto = tvb_get_uint8(tvb, offset + 3);
 	proto_tree_add_item(nsh_tree, hf_nsh_next_proto, tvb, offset + 3, 1, ENC_BIG_ENDIAN);
 
 	/*NSH Service Path Header */
@@ -338,7 +338,7 @@ proto_register_nsh(void)
 	};
 
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_nsh,
 	};
 

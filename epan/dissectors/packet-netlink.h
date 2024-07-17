@@ -95,10 +95,10 @@ extern const value_string netfilter_hooks_vals[];
 #define PACKET_NETLINK_MAGIC 0x4A5ACCCE
 
 struct packet_netlink_data {
-	guint32 magic; /* PACKET_NETLINK_MAGIC */
+	uint32_t magic; /* PACKET_NETLINK_MAGIC */
 
 	int encoding;
-	guint16 type;
+	uint16_t type;
 };
 
 /**
@@ -136,7 +136,7 @@ typedef struct {
 	proto_tree     *genl_tree;
 
 	/* fields from genlmsghdr */
-	guint8 	        cmd; /* Command number */
+	uint8_t 	        cmd; /* Command number */
 
 	/* XXX This should contain a family version number as well. */
 } genl_info_t;

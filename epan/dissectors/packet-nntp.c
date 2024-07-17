@@ -22,7 +22,7 @@ static int proto_nntp;
 static int hf_nntp_response;
 static int hf_nntp_request;
 
-static gint ett_nntp;
+static int ett_nntp;
 
 static dissector_handle_t nntp_handle;
 static dissector_handle_t tls_handle;
@@ -31,18 +31,18 @@ static dissector_handle_t tls_handle;
 
 /* State of NNTP conversation */
 typedef struct nntp_conversation_t {
-	gboolean tls_requested;
+	bool tls_requested;
 } nntp_conversation_t;
 
 static int
 dissect_nntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	const gchar     *type;
+	const char      *type;
 	proto_tree	*nntp_tree;
 	proto_item	*ti;
-	gint		offset = 0;
-	gint		next_offset;
-	const guchar    *line;
+	int		offset = 0;
+	int		next_offset;
+	const unsigned char    *line;
 	int		linelen;
 	conversation_t  *conversation;
 	nntp_conversation_t *session_state;
@@ -51,7 +51,7 @@ dissect_nntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	session_state = (nntp_conversation_t *)conversation_get_proto_data(conversation, proto_nntp);
 	if (!session_state) {
 		session_state = wmem_new0(wmem_file_scope(), nntp_conversation_t);
-		session_state->tls_requested = FALSE;
+		session_state->tls_requested = false;
 		conversation_add_proto_data(conversation, proto_nntp, session_state);
 	}
 
@@ -70,7 +70,7 @@ dissect_nntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	 * is not longer than what's in the buffer, so the
 	 * "tvb_get_ptr()" call won't throw an exception.
 	 */
-	linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+	linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, false);
 	line    = tvb_get_ptr(tvb, offset, linelen);
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s", type,
 		    tvb_format_text(pinfo->pool, tvb, offset, linelen));
@@ -79,20 +79,20 @@ dissect_nntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	nntp_tree = proto_item_add_subtree(ti, ett_nntp);
 
 	if (pinfo->match_uint == pinfo->destport) {
-		ti = proto_tree_add_boolean(nntp_tree, hf_nntp_request, tvb, 0, 0, TRUE);
+		ti = proto_tree_add_boolean(nntp_tree, hf_nntp_request, tvb, 0, 0, true);
 
 		if (line && g_ascii_strncasecmp(line, "STARTTLS", 8) == 0) {
-			session_state->tls_requested = TRUE;
+			session_state->tls_requested = true;
 		}
 	} else {
-		ti = proto_tree_add_boolean(nntp_tree, hf_nntp_response, tvb, 0, 0, TRUE);
+		ti = proto_tree_add_boolean(nntp_tree, hf_nntp_response, tvb, 0, 0, true);
 
 		if (session_state->tls_requested) {
 			if (line && g_ascii_strncasecmp(line, "382", 3) == 0) {
 				/* STARTTLS command accepted */
 				ssl_starttls_ack(tls_handle, pinfo, nntp_handle);
 			}
-			session_state->tls_requested = FALSE;
+			session_state->tls_requested = false;
 		}
 	}
 	proto_item_set_hidden(ti);
@@ -109,7 +109,7 @@ dissect_nntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 		/*
 		 * Find the end of the line.
 		 */
-		tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+		tvb_find_line_end(tvb, offset, -1, &next_offset, false);
 
 		/*
 		 * Put this line.
@@ -125,17 +125,17 @@ void
 proto_register_nntp(void)
 {
 	static hf_register_info hf[] = {
-	    { &hf_nntp_response,
-	      { "Response",           "nntp.response",
+		{ &hf_nntp_response,
+		{ "Response",           "nntp.response",
 		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	      	"TRUE if NNTP response", HFILL }},
+			"true if NNTP response", HFILL }},
 
-	    { &hf_nntp_request,
-	      { "Request",            "nntp.request",
+		{ &hf_nntp_request,
+		{ "Request",            "nntp.request",
 		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	      	"TRUE if NNTP request", HFILL }}
+			"true if NNTP request", HFILL }}
 	};
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_nntp,
 	};
 

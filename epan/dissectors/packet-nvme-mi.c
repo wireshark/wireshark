@@ -74,11 +74,11 @@ static int hf_nvme_mi_response_to;
 static int hf_nvme_mi_response_time;
 
 
-static gint ett_nvme_mi;
-static gint ett_nvme_mi_hdr;
-static gint ett_nvme_mi_mi;
-static gint ett_nvme_mi_admin;
-static gint ett_nvme_mi_admin_flags;
+static int ett_nvme_mi;
+static int ett_nvme_mi_hdr;
+static int ett_nvme_mi_mi;
+static int ett_nvme_mi_admin;
+static int ett_nvme_mi_admin_flags;
 
 enum nvme_mi_type {
     NVME_MI_TYPE_CONTROL = 0x0,
@@ -88,11 +88,11 @@ enum nvme_mi_type {
 };
 
 struct nvme_mi_command {
-    gboolean            init;
+    bool                init;
     enum nvme_mi_type   type;
-    guint               opcode;
-    guint32             req_frame;
-    guint32             resp_frame;
+    unsigned            opcode;
+    uint32_t            req_frame;
+    uint32_t            resp_frame;
     nstime_t            req_time;
 };
 
@@ -276,13 +276,13 @@ dissect_nvme_mi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     proto_tree *nvme_mi_tree, *nvme_mi_hdr_tree;
     struct nvme_mi_conv_info *mi_conv;
-    guint len, payload_len, type;
+    unsigned len, payload_len, type;
     bool resp, mic_enabled;
     proto_item *ti, *it2;
     conversation_t *conv;
     tvbuff_t *sub_tvb;
-    guint32 mic = 0;
-    guint csi;
+    uint32_t mic = 0;
+    unsigned csi;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NVMe-MI");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -612,7 +612,7 @@ proto_register_nvme_mi(void)
     };
 
     /* protocol subtree */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_nvme_mi,
         &ett_nvme_mi_hdr,
         &ett_nvme_mi_mi,

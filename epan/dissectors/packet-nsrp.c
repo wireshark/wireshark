@@ -132,7 +132,7 @@ static const value_string nsrp_encflag_vals[] = {
 
 
 /* Initialize the subtree pointers */
-static gint ett_nsrp;
+static int ett_nsrp;
 
 /* Code to actually dissect the packets */
 static int
@@ -140,8 +140,8 @@ dissect_nsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 {
     proto_item  *ti;
     proto_tree  *nsrp_tree = NULL;
-    gint        offset = 0;
-    guint8      msgtype = 0;
+    int         offset = 0;
+    uint8_t     msgtype = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NSRP");
 
@@ -155,7 +155,7 @@ dissect_nsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         proto_tree_add_item(nsrp_tree, hf_nsrp_version, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        msgtype = tvb_get_guint8(tvb, offset);
+        msgtype = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(nsrp_tree, hf_nsrp_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
@@ -484,7 +484,7 @@ proto_register_nsrp(void)
         }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_nsrp
     };
 

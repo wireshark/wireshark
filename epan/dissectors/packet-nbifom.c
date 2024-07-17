@@ -67,10 +67,10 @@ static int hf_nbifom_routing_rule_end_dst_port_range;
 static int hf_nbifom_routing_rule_tos;
 static int hf_nbifom_routing_rule_flow_label;
 
-static gint ett_nbifom;
-static gint ett_nbifom_param_contents;
-static gint ett_nbifom_routing_rule;
-static gint ett_nbifom_routing_rule_flags;
+static int ett_nbifom;
+static int ett_nbifom_param_contents;
+static int ett_nbifom_routing_rule;
+static int ett_nbifom_routing_rule_flags;
 
 static const value_string nbifom_param_id_ue_to_nw_vals[] = {
     { 0x00, "Not assigned" },
@@ -168,15 +168,15 @@ static const value_string nbifom_op_code_vals[] = {
 };
 
 static void
-dissect_nbifom_routing_rules(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset, guint32 params_content_len)
+dissect_nbifom_routing_rules(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, uint32_t params_content_len)
 {
-    gint curr_offset = offset;
-    guint32 i = 0, routing_rule_len;
+    int curr_offset = offset;
+    uint32_t i = 0, routing_rule_len;
     proto_item *item;
     proto_tree *subtree;
-    guint64 flags;
+    uint64_t flags;
 
-    while ((curr_offset - offset) < (gint)params_content_len) {
+    while ((curr_offset - offset) < (int)params_content_len) {
         static int * const flags1[] = {
             &hf_nbifom_routing_rule_routing_access,
             &hf_nbifom_routing_rule_spare,
@@ -280,9 +280,9 @@ dissect_nbifom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 {
     proto_item *item;
     proto_tree *nbifom_tree, *subtree;
-    gint reported_len = tvb_reported_length(tvb);
-    gint offset = 0, saved_offset;
-    guint32 param_id, param_contents_len;
+    int reported_len = tvb_reported_length(tvb);
+    int offset = 0, saved_offset;
+    uint32_t param_id, param_contents_len;
     int hf_nbifom_param_id = pinfo->link_dir == P2P_DIR_UL ? hf_nbifom_param_id_ul : hf_nbifom_param_id_dl;
 
     col_append_sep_str(pinfo->cinfo, COL_PROTOCOL, "/", "NBIFOM");
@@ -347,7 +347,7 @@ dissect_nbifom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         default:
             break;
         }
-        if ((offset - saved_offset) < (gint)param_contents_len) {
+        if ((offset - saved_offset) < (int)param_contents_len) {
             proto_tree_add_item(subtree, hf_nbifom_param_contents_rem_bytes, tvb, offset, param_contents_len - (offset - saved_offset), ENC_NA);
         }
         offset = saved_offset + param_contents_len;
@@ -509,7 +509,7 @@ proto_register_nbifom(void)
               NULL, 0x0fffff, NULL, HFILL }}
     };
 
-    static gint *nbifom_subtrees[] = {
+    static int *nbifom_subtrees[] = {
         &ett_nbifom,
         &ett_nbifom_param_contents,
         &ett_nbifom_routing_rule,

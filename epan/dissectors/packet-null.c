@@ -32,7 +32,7 @@ static int proto_null;
 static int hf_null_etype;
 static int hf_null_family;
 
-static gint ett_null;
+static int ett_null;
 
 /* Null/loopback structs and definitions */
 
@@ -55,9 +55,9 @@ static dissector_handle_t ppp_hdlc_handle;
 static capture_dissector_handle_t ppp_hdlc_cap_handle;
 
 static bool
-capture_null( const guchar *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_ )
+capture_null( const unsigned char *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_ )
 {
-  guint32 null_header;
+  uint32_t null_header;
 
   /*
    * BSD drivers that use DLT_NULL - including the FreeBSD 3.2 ISDN-for-BSD
@@ -242,7 +242,7 @@ capture_null( const guchar *pd, int offset _U_, int len, capture_packet_info_t *
    * Furthermore, the third hex digit from the bottom would be <
    */
   if (!BYTES_ARE_IN_FRAME(0, len, 2))
-    return FALSE;
+    return false;
 
   if (pd[0] == 0xFF && pd[1] == 0x03) {
     /*
@@ -254,7 +254,7 @@ capture_null( const guchar *pd, int offset _U_, int len, capture_packet_info_t *
      * Treat it as a normal DLT_NULL header.
      */
     if (!BYTES_ARE_IN_FRAME(0, len, (int)sizeof(null_header)))
-      return FALSE;
+      return false;
 
     memcpy((char *)&null_header, (const char *)&pd[0], sizeof(null_header));
 
@@ -309,13 +309,13 @@ capture_null( const guchar *pd, int offset _U_, int len, capture_packet_info_t *
       return try_capture_dissector("null.bsd", null_header, pd, 4, len, cpinfo, pseudo_header);
   }
 
-  return FALSE;
+  return false;
 }
 
 static int
 dissect_null(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  guint32       null_header;
+  uint32_t      null_header;
   proto_tree    *fh_tree;
   proto_item    *ti;
   tvbuff_t      *next_tvb;
@@ -393,12 +393,12 @@ dissect_null(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         ti = proto_tree_add_item(tree, proto_null, tvb, 0, 4, ENC_NA);
         fh_tree = proto_item_add_subtree(ti, ett_null);
         proto_tree_add_uint(fh_tree, hf_null_etype, tvb, 0, 4,
-          (guint16) null_header);
+          (uint16_t) null_header);
       }
 
       next_tvb = tvb_new_subset_remaining(tvb, 4);
       if (!dissector_try_uint(ethertype_dissector_table,
-            (guint16) null_header, next_tvb, pinfo, tree))
+            (uint16_t) null_header, next_tvb, pinfo, tree))
         call_data_dissector(next_tvb, pinfo, tree);
     } else {
       /* populate a tree in the second pane with the status of the link
@@ -427,7 +427,7 @@ dissect_null(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 static int
 dissect_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  guint32       loop_family;
+  uint32_t      loop_family;
   proto_tree    *fh_tree;
   proto_item    *ti;
   tvbuff_t      *next_tvb;
@@ -471,7 +471,7 @@ proto_register_null(void)
       { "Family",       "null.family", FT_UINT32, BASE_DEC, VALS(family_vals), 0x0,
         NULL, HFILL }}
   };
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_null,
   };
 

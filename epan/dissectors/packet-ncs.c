@@ -21,7 +21,7 @@ void proto_reg_handoff_ncs(void);
 
 static dissector_handle_t ncs_handle;
 
-static gint ett_ncs;
+static int ett_ncs;
 
 static int proto_ncs;
 
@@ -59,7 +59,7 @@ proto_register_ncs(void)
         NULL, HFILL }},
 
   };
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_ncs,
   };
 

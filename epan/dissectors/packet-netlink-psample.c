@@ -55,7 +55,7 @@ enum ws_psample_attrs {
 
 struct netlink_psample_info {
 	packet_info *pinfo;
-	guint16 protocol; /* protocol for packet payload */
+	uint16_t protocol; /* protocol for packet payload */
 };
 
 static int proto_netlink_psample;
@@ -79,8 +79,8 @@ static int hf_psample_sample_rate;
 static int hf_psample_timestamp;
 static int hf_psample_tunnel;
 
-static gint ett_psample;
-static gint ett_psample_attrs;
+static int ett_psample;
+static int ett_psample_attrs;
 
 static const value_string ws_psample_commands_vals[] = {
 	{ WS_PSAMPLE_CMD_SAMPLE,		"Sample" },
@@ -118,10 +118,10 @@ dissect_psample_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_
 {
 	enum ws_psample_attrs type = (enum ws_psample_attrs) nla_type & NLA_TYPE_MASK;
 	struct netlink_psample_info *info = (struct netlink_psample_info *) data;
-	guint64 value64, timestamp;
+	uint64_t value64, timestamp;
 	nstime_t ts_nstime;
 	tvbuff_t *next_tvb;
-	guint32 value;
+	uint32_t value;
 
 	switch (type) {
 	case WS_PSAMPLE_ATTR_IIFINDEX:
@@ -173,13 +173,13 @@ dissect_psample_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_
 		proto_item_append_text(tree, ": %"PRIu64, value64);
 		return 1;
 	case WS_PSAMPLE_ATTR_TIMESTAMP:
-		timestamp = tvb_get_guint64(tvb, offset, nl_data->encoding);
+		timestamp = tvb_get_uint64(tvb, offset, nl_data->encoding);
 		ts_nstime.secs = timestamp / 1000000000;
 		ts_nstime.nsecs = timestamp % 1000000000;
 		proto_tree_add_time(tree, hf_psample_timestamp, tvb, offset, 8, &ts_nstime);
 		return 1;
 	case WS_PSAMPLE_ATTR_PROTO:
-		info->protocol = tvb_get_guint16(tvb, offset, nl_data->encoding);
+		info->protocol = tvb_get_uint16(tvb, offset, nl_data->encoding);
 		/* This attribute encodes 'skb->protocol' and if it is greater
 		 * than or equal to 1536 (0x0600), then it is an Ethertype and
 		 * we need to treat the packet as Ethernet.
@@ -307,7 +307,7 @@ proto_register_netlink_psample(void)
 		},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_psample,
 		&ett_psample_attrs,
 	};
