@@ -181,7 +181,7 @@ dissect_task_mgmt_flags(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *t
 
     uint8_t flags;
 
-    flags = tvb_get_guint8(tvb, offset);
+    flags = tvb_get_uint8(tvb, offset);
     item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_fcp_taskmgmt,
                                    ett_fcp_taskmgmt, mgmt_flags, ENC_NA, BMT_NO_FALSE|BMT_NO_TFS);
 
@@ -277,7 +277,7 @@ dissect_rsp_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
         NULL
     };
 
-    flags = tvb_get_guint8(tvb, offset);
+    flags = tvb_get_uint8(tvb, offset);
     if (flags & 0x80) {
         item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_fcp_rspflags,
                                    ett_fcp_rsp_flags, resid_present_flags, ENC_NA, BMT_NO_FALSE|BMT_NO_TFS);
@@ -304,13 +304,13 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
     fcp_proto_data_t *proto_data;
 
     /* Determine the length of the FCP part of the packet */
-    flags = tvb_get_guint8(tvb, offset+10);
+    flags = tvb_get_uint8(tvb, offset+10);
     if (flags) {
-        add_len = tvb_get_guint8(tvb, offset+11) & 0x7C;
+        add_len = tvb_get_uint8(tvb, offset+11) & 0x7C;
         add_len = add_len >> 2;
     }
 
-    lun0 = tvb_get_guint8(tvb, offset);
+    lun0 = tvb_get_uint8(tvb, offset);
 
     /* Display single-level LUNs in decimal for clarity */
     /* I'm taking a shortcut here by assuming that if the first byte of the
@@ -319,13 +319,13 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
      */
     if (lun0) {
       proto_tree_add_item(tree, hf_fcp_multilun, tvb, offset, 8, ENC_NA);
-      lun = tvb_get_guint8(tvb, offset) & 0x3f;
+      lun = tvb_get_uint8(tvb, offset) & 0x3f;
       lun <<= 8;
-      lun |= tvb_get_guint8(tvb, offset+1);
+      lun |= tvb_get_uint8(tvb, offset+1);
     } else {
       proto_tree_add_item(tree, hf_fcp_singlelun, tvb, offset+1,
                           1, ENC_BIG_ENDIAN);
-      lun = tvb_get_guint8(tvb, offset+1);
+      lun = tvb_get_uint8(tvb, offset+1);
     }
 
     if (!pinfo->fd->visited) {
@@ -377,7 +377,7 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
     proto_tree_add_item(tree, hf_fcp_taskattr, tvb, offset+9, 1, ENC_BIG_ENDIAN);
     dissect_task_mgmt_flags(pinfo, tree, tvb, offset+10);
     proto_tree_add_item(tree, hf_fcp_addlcdblen, tvb, offset+11, 1, ENC_BIG_ENDIAN);
-    rwflags = tvb_get_guint8(tvb, offset+11);
+    rwflags = tvb_get_uint8(tvb, offset+11);
     if (request_data->itlq) {
         if (rwflags & 0x02) {
             request_data->itlq->task_flags |= SCSI_DATA_READ;
@@ -466,7 +466,7 @@ dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, prot
     itl_nexus_t itl;
     itlq_nexus_t empty_itlq;
 
-    status = tvb_get_guint8(tvb, offset+11);
+    status = tvb_get_uint8(tvb, offset+11);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ":%s",
                          val_to_str(status, scsi_status_val, "0x%x"));
@@ -500,7 +500,7 @@ dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, prot
     offset += 2;
 
     /* flags */
-    flags = tvb_get_guint8(tvb, offset);
+    flags = tvb_get_uint8(tvb, offset);
     dissect_rsp_flags(tree, tvb, offset);
     offset += 1;
 
@@ -509,7 +509,7 @@ dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, prot
 
     /* scsi status code */
     proto_tree_add_item(tree, hf_fcp_scsistatus, tvb, offset, 1, ENC_BIG_ENDIAN);
-    dissect_scsi_rsp(tvb, pinfo, parent_tree, (request_data != NULL) ? request_data->itlq : &empty_itlq, &itl, tvb_get_guint8(tvb, offset));
+    dissect_scsi_rsp(tvb, pinfo, parent_tree, (request_data != NULL) ? request_data->itlq : &empty_itlq, &itl, tvb_get_uint8(tvb, offset));
     offset += 1;
 
     /* residual count */
@@ -602,7 +602,7 @@ dissect_fcp_els(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, fc_hdr *fch
 {
     uint8_t op;
 
-    op = tvb_get_guint8(tvb, 0);
+    op = tvb_get_uint8(tvb, 0);
     col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext(op, &fc_els_proto_val_ext, "0x%x"));
     proto_tree_add_item(tree, hf_fcp_els_op, tvb, 0, 1, ENC_NA);
 

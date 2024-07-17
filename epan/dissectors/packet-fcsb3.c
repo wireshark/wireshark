@@ -404,8 +404,8 @@ static void get_fc_sbccs_conv_data (tvbuff_t *tvb, unsigned offset,
 {
     *ch_cu_id  = *dev_addr = *ccw = 0;
 
-    *ch_cu_id  = (tvb_get_guint8 (tvb, offset+1)) << 8;
-    *ch_cu_id |= tvb_get_guint8 (tvb, offset+3);
+    *ch_cu_id  = (tvb_get_uint8 (tvb, offset+1)) << 8;
+    *ch_cu_id |= tvb_get_uint8 (tvb, offset+3);
     *dev_addr  = tvb_get_ntohs (tvb, offset+4);
     *ccw       = tvb_get_ntohs (tvb, offset+10);
 }
@@ -440,10 +440,10 @@ dissect_fc_sbccs_sb3_iu_hdr (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                                      FC_SBCCS_IU_HDR_SIZE, ett_fc_sbccs, NULL, "IU Header");
         offset += FC_SBCCS_SB3_HDR_SIZE;
 
-        iui = tvb_get_guint8 (tvb, offset);
+        iui = tvb_get_uint8 (tvb, offset);
         dissect_iui_flags(iuhdr_tree, tvb, offset, iui);
 
-        dhflags = tvb_get_guint8 (tvb, offset+1);
+        dhflags = tvb_get_uint8 (tvb, offset+1);
         dissect_dh_flags(iuhdr_tree, tvb, offset+1, dhflags);
 
         proto_tree_add_item (iuhdr_tree, hf_sbccs_ccw, tvb, offset+2, 2, ENC_BIG_ENDIAN);
@@ -468,20 +468,20 @@ static void dissect_fc_sbccs_dib_cmd_hdr (tvbuff_t *tvb, packet_info *pinfo,
     uint8_t flags;
 
     col_append_fstr (pinfo->cinfo, COL_INFO,
-                         ": %s", val_to_str (tvb_get_guint8 (tvb, offset),
+                         ": %s", val_to_str (tvb_get_uint8 (tvb, offset),
                                              fc_sbccs_dib_cmd_val,
                                              "0x%x"));
 
     if (tree) {
         proto_tree_add_item (tree, hf_sbccs_dib_ccw_cmd, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-        flags = tvb_get_guint8 (tvb, offset+1);
+        flags = tvb_get_uint8 (tvb, offset+1);
         dissect_ccw_flags(tree, tvb, offset+1, flags);
 
         proto_tree_add_item (tree, hf_sbccs_dib_ccw_cnt, tvb, offset+2, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item (tree, hf_sbccs_dib_ioprio, tvb, offset+5, 1, ENC_BIG_ENDIAN);
 
-        flags = tvb_get_guint8 (tvb, offset+7);
+        flags = tvb_get_uint8 (tvb, offset+7);
         dissect_cmd_flags(tree, tvb, offset+7, flags);
 
         proto_tree_add_item (tree, hf_sbccs_dib_iucnt, tvb, offset+9, 1, ENC_BIG_ENDIAN);
@@ -500,12 +500,12 @@ static void dissect_fc_sbccs_dib_status_hdr (tvbuff_t *tvb, packet_info *pinfo,
     uint16_t  supp_status_cnt = 0;
 
     if (tree) {
-        flags = tvb_get_guint8 (tvb, offset);
+        flags = tvb_get_uint8 (tvb, offset);
         rv_valid = flags & 0x1; /* if residual count is valid */
         qparam_valid = (((flags & 0xE0) >> 5) == 0x1); /* From the FFC field */
         dissect_status_flags(tree, tvb, offset, flags);
 
-        flags = tvb_get_guint8 (tvb, offset+1);
+        flags = tvb_get_uint8 (tvb, offset+1);
         dissect_status(pinfo, tree, tvb, offset+1, flags);
 
         if (rv_valid) {
@@ -543,7 +543,7 @@ static void dissect_fc_sbccs_dib_ctl_hdr (tvbuff_t *tvb, packet_info *pinfo,
 {
     uint8_t ctlfn;
 
-    ctlfn = tvb_get_guint8 (tvb, offset);
+    ctlfn = tvb_get_uint8 (tvb, offset);
     col_append_fstr (pinfo->cinfo, COL_INFO,
                          ": %s",
                          val_to_str (ctlfn,
@@ -593,12 +593,12 @@ static void dissect_fc_sbccs_dib_link_hdr (tvbuff_t *tvb, packet_info *pinfo,
 
     col_append_fstr (pinfo->cinfo, COL_INFO,
                          ": %s",
-                         val_to_str (tvb_get_guint8 (tvb, offset+1),
+                         val_to_str (tvb_get_uint8 (tvb, offset+1),
                                      fc_sbccs_dib_link_ctl_fn_val,
                                      "0x%x"));
 
     if (tree) {
-        link_ctl = tvb_get_guint8 (tvb, offset+1);
+        link_ctl = tvb_get_uint8 (tvb, offset+1);
         proto_tree_add_item (tree, hf_sbccs_dib_linkctlfn, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 
         ctl_info = tvb_get_ntohs (tvb, offset+2);

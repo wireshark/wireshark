@@ -137,15 +137,15 @@ dissect_fcct (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FC_CT");
 
     /*
-      cthdr.revision = tvb_get_guint8 (tvb, offset++);
+      cthdr.revision = tvb_get_uint8 (tvb, offset++);
       cthdr.in_id = tvb_get_ntoh24 (tvb, offset);
       offset += 3;
 
-      cthdr.gstype = tvb_get_guint8 (tvb, offset++);
-      cthdr.options = tvb_get_guint8 (tvb, offset++);
+      cthdr.gstype = tvb_get_uint8 (tvb, offset++);
+      cthdr.options = tvb_get_uint8 (tvb, offset++);
     */
     tvb_memcpy (tvb, (uint8_t *)&cthdr, offset, FCCT_PRMBL_SIZE);
-    cthdr.revision = tvb_get_guint8 (tvb, offset++);
+    cthdr.revision = tvb_get_uint8 (tvb, offset++);
     cthdr.in_id = tvb_get_ntoh24 (tvb, offset);
     cthdr.opcode = g_ntohs (cthdr.opcode);
     cthdr.maxres_size = g_ntohs (cthdr.maxres_size);

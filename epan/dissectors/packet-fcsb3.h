@@ -54,7 +54,7 @@
 static inline unsigned get_fc_sbccs_iu_type (tvbuff_t *tvb, unsigned offset)
 {
     /* This is in the IUI field of the IU header */
-    return (tvb_get_guint8 (tvb, offset+FC_SBCCS_SB3_HDR_SIZE) & 0x7);
+    return (tvb_get_uint8 (tvb, offset+FC_SBCCS_SB3_HDR_SIZE) & 0x7);
 }
 
 #endif

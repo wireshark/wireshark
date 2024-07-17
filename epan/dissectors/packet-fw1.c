@@ -140,12 +140,12 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   col_clear(pinfo->cinfo, COL_INFO);
 
   /* fetch info to local variable */
-  direction = tvb_get_guint8(tvb, 0);
+  direction = tvb_get_uint8(tvb, 0);
 
   if (!fw1_iflist_with_chain)
     chain = ' ';
   else
-    chain = tvb_get_guint8(tvb, 1);
+    chain = tvb_get_uint8(tvb, 1);
 
   if (fw1_with_uuid)
     iface_len = 6;

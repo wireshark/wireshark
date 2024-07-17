@@ -406,7 +406,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /*
      * OK, fetch the address field - keep going until we get an EA bit.
      */
-    fr_octet = tvb_get_guint8(tvb, offset);
+    fr_octet = tvb_get_uint8(tvb, offset);
 
     if (fr_octet & FRELAY_EA) {
       /*
@@ -439,7 +439,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
        * The second octet contains 4 more bits of DLCI, as well as FECN,
        * BECN, and DE.
        */
-      fr_octet = tvb_get_guint8(tvb, offset);
+      fr_octet = tvb_get_uint8(tvb, offset);
       addr = (addr << 4) | ((fr_octet & FRELAY_SECOND_DLCI) >> 4);
       proto_tree_add_bitmask(fr_tree, tvb, offset, hf_fr_second_addr_octet,
                                          ett_fr_address, second_address_bits, ENC_NA);
@@ -453,7 +453,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          * and lower DLCI or DL-CORE control plus the DLCI or DL-CORE
          * control indicator flag if EA is set.
          */
-        fr_octet = tvb_get_guint8(tvb, offset);
+        fr_octet = tvb_get_uint8(tvb, offset);
         if (!(fr_octet & FRELAY_EA)) {
           /*
            * 7 more bits of DLCI.
@@ -462,7 +462,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_bitmask(fr_tree, tvb, offset, hf_fr_third_addr_octet,
                                          ett_fr_address, third_address_bits, ENC_NA);
           offset++;
-          fr_octet = tvb_get_guint8(tvb, offset);
+          fr_octet = tvb_get_uint8(tvb, offset);
           while (!(fr_octet & FRELAY_EA)) {
             /*
              * Bogus!  More than 4 octets of address.
@@ -470,7 +470,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_tree_add_expert_format(fr_tree, pinfo, &ei_fr_bogus_address, tvb, offset, 1,
                                  "Bogus extra address octet");
             offset++;
-            fr_octet = tvb_get_guint8(tvb, offset);
+            fr_octet = tvb_get_uint8(tvb, offset);
           }
         }
 
@@ -513,7 +513,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   case FRF_3_2:
     encap_is_frf_3_2 = false;
-    fr_ctrl = tvb_get_guint8(tvb, offset);
+    fr_ctrl = tvb_get_uint8(tvb, offset);
     if (fr_ctrl == XDLC_U) {
       /*
        * It looks like an RFC 2427-encapsulation frame, with the
@@ -579,11 +579,11 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          * See if we have a dissector for the putative NLPID.
          */
         nlpid_offset = offset;
-        control = tvb_get_guint8(tvb, nlpid_offset);
+        control = tvb_get_uint8(tvb, nlpid_offset);
         if (control == 0) {
           /* Presumably a padding octet; the NLPID would be in the next octet. */
           nlpid_offset++;
-          control = tvb_get_guint8(tvb, nlpid_offset);
+          control = tvb_get_uint8(tvb, nlpid_offset);
         }
         switch (control & 0x03) {
 
@@ -615,7 +615,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           break;
         }
         if (tvb_bytes_exist(tvb, nlpid_offset, 1)) {
-          fr_nlpid = tvb_get_guint8(tvb, nlpid_offset);
+          fr_nlpid = tvb_get_uint8(tvb, nlpid_offset);
           sub_dissector = dissector_get_uint_handle(fr_osinl_subdissector_table,
                                                     fr_nlpid);
           if (sub_dissector != NULL)
@@ -681,7 +681,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   case GPRS_NS:
     if (addr == 0) {
-      fr_ctrl = tvb_get_guint8(tvb, offset);
+      fr_ctrl = tvb_get_uint8(tvb, offset);
       control = dissect_xdlc_control(tvb, offset, pinfo, fr_tree,
                                      hf_fr_control, ett_fr_control,
                                      &fr_cf_items, &fr_cf_items_ext,
@@ -763,7 +763,7 @@ dissect_fr_nlpid(tvbuff_t *tvb, int offset, packet_info *pinfo,
    * the OSI PDU.
    */
   proto_item_set_end(ti, tvb, offset);
-  fr_nlpid = tvb_get_guint8 (tvb,offset);
+  fr_nlpid = tvb_get_uint8 (tvb,offset);
   if (fr_nlpid == 0) {
     proto_tree_add_uint_format(fr_tree, hf_fr_nlpid, tvb, offset, 1, fr_nlpid, "Padding");
     offset++;
@@ -771,7 +771,7 @@ dissect_fr_nlpid(tvbuff_t *tvb, int offset, packet_info *pinfo,
       /* Include the padding in the top-level protocol tree item. */
       proto_item_set_end(ti, tvb, offset);
     }
-    fr_nlpid=tvb_get_guint8( tvb,offset);
+    fr_nlpid=tvb_get_uint8( tvb,offset);
   }
 
   /*

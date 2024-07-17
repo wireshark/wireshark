@@ -601,14 +601,14 @@ dissect_fc_vft(proto_tree *parent_tree,
     uint16_t vf_id;
     uint8_t hop_ct;
 
-    rctl = tvb_get_guint8(tvb, offset);
-    type = tvb_get_guint8(tvb, offset + 1);
+    rctl = tvb_get_uint8(tvb, offset);
+    type = tvb_get_uint8(tvb, offset + 1);
     ver = (type >> 6) & 3;
     type = (type >> 2) & 0xf;
     vf_id = tvb_get_ntohs(tvb, offset + 2);
     pri = (vf_id >> 13) & 7;
     vf_id = (vf_id >> 1) & 0xfff;
-    hop_ct = tvb_get_guint8(tvb, offset + 4);
+    hop_ct = tvb_get_uint8(tvb, offset + 4);
 
     item = proto_tree_add_uint_format_value(parent_tree, hf_fc_vft, tvb, offset,
             8, vf_id, "VF_ID %d Pri %d Hop Count %d",
@@ -695,7 +695,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FC");
 
-    fchdr->r_ctl = tvb_get_guint8 (tvb, offset);
+    fchdr->r_ctl = tvb_get_uint8 (tvb, offset);
     fchdr->fc_ex = NULL;
 
     /*
@@ -708,7 +708,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_
     if (fchdr->r_ctl == FC_RCTL_VFT) {
         vft_offset = offset;
         offset += 8;
-        fchdr->r_ctl = tvb_get_guint8 (tvb, offset);
+        fchdr->r_ctl = tvb_get_uint8 (tvb, offset);
     }
 
     /* Each fc endpoint pair gets its own TCP session in iFCP but
@@ -729,15 +729,15 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_
     set_address(&fchdr->d_id, pinfo->dst.type, pinfo->dst.len, pinfo->dst.data);
     set_address(&fchdr->s_id, pinfo->src.type, pinfo->src.len, pinfo->src.data);
 
-    fchdr->cs_ctl = tvb_get_guint8 (tvb, offset+4);
-    fchdr->type  = tvb_get_guint8 (tvb, offset+8);
+    fchdr->cs_ctl = tvb_get_uint8 (tvb, offset+4);
+    fchdr->type  = tvb_get_uint8 (tvb, offset+8);
     fchdr->fctl=tvb_get_ntoh24(tvb,offset+9);
     fchdr->seqcnt = tvb_get_ntohs (tvb, offset+14);
     fchdr->oxid=tvb_get_ntohs(tvb,offset+16);
     fchdr->rxid=tvb_get_ntohs(tvb,offset+18);
     fchdr->relative_offset=0;
     param = tvb_get_ntohl (tvb, offset+20);
-    seq_id = tvb_get_guint8 (tvb, offset+12);
+    seq_id = tvb_get_uint8 (tvb, offset+12);
 
     /* set up a conversation and conversation data */
     /* TODO treat the fc address  s_id==00.00.00 as a wildcard matching anything */
@@ -928,7 +928,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_
 
     proto_tree_add_item (fc_tree, hf_fc_seqid, tvb, offset+12, 1, ENC_BIG_ENDIAN);
 
-    df_ctl = tvb_get_guint8(tvb, offset+13);
+    df_ctl = tvb_get_uint8(tvb, offset+13);
 
     proto_tree_add_uint (fc_tree, hf_fc_dfctl, tvb, offset+13, 1, df_ctl);
     proto_tree_add_uint (fc_tree, hf_fc_seqcnt, tvb, offset+14, 2, fchdr->seqcnt);

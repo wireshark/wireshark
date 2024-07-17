@@ -97,7 +97,7 @@ dissect_nv_pairs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fcgi_tree, int o
       char *name;
       char *value;
 
-      namelen = tvb_get_guint8(tvb, offset);
+      namelen = tvb_get_uint8(tvb, offset);
       if ((namelen & 0x80) == 0) {
          offset += 1;
       } else {
@@ -105,7 +105,7 @@ dissect_nv_pairs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fcgi_tree, int o
          offset += 4;
       }
 
-      valuelen = tvb_get_guint8(tvb, offset);
+      valuelen = tvb_get_uint8(tvb, offset);
       if ((valuelen & 0x80) == 0) {
          offset += 1;
       } else {
@@ -216,7 +216,7 @@ dissect_fcgi_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
    int offset = 0;
    uint8_t type;
 
-   type = tvb_get_guint8(tvb, 1);
+   type = tvb_get_uint8(tvb, 1);
 
    /* When there are multiple FCGI records in a TCP frame the following code */
    /* will append the type for each record to COL_INFO.                      */
@@ -254,7 +254,7 @@ dissect_fcgi_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
       proto_tree_add_item(fcgi_tree, hf_fcgi_content_length, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
 
-      plen = tvb_get_guint8(tvb, offset);
+      plen = tvb_get_uint8(tvb, offset);
       proto_tree_add_item(fcgi_tree, hf_fcgi_padding_length, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset += 1;
 
@@ -306,7 +306,7 @@ dissect_fcgi_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 static unsigned
 get_fcgi_record_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
-   return 8 + tvb_get_ntohs(tvb, offset + 4) + tvb_get_guint8(tvb, offset + 6);
+   return 8 + tvb_get_ntohs(tvb, offset + 4) + tvb_get_uint8(tvb, offset + 6);
 }
 
 static int

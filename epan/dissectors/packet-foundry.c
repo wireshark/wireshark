@@ -198,7 +198,7 @@ dissect_vlanmap_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, p
 	for (vlan = 1; vlan <= (unsigned)length*8; vlan++) {
 		byteoffset = (vlan - voffset) / 8;
 		bitoffset = (vlan - voffset) % 8;
-		if (tvb_get_guint8(tvb, offset + byteoffset) & (1 << bitoffset)) {
+		if (tvb_get_uint8(tvb, offset + byteoffset) & (1 << bitoffset)) {
 
 			proto_tree_add_uint(vlanmap_tree, hf_fdp_vlanmap_vlan, tvb,
 				offset + byteoffset, 1, vlan);

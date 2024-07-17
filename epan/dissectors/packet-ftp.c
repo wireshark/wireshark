@@ -1623,7 +1623,7 @@ dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     /* Check the first few chars to see whether it looks like a text file or output */
     check_chars = MIN(20, data_length);
     for (i=0; i < check_chars; i++) {
-        uint8_t c = tvb_get_guint8(tvb, i);
+        uint8_t c = tvb_get_uint8(tvb, i);
         if (c!='\r' && c!='\n' && !g_ascii_isprint(c)) {
             is_text = false;
             break;

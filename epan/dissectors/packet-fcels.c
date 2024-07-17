@@ -1250,7 +1250,7 @@ dissect_fcels_rps (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     uint8_t flag;
     proto_tree *rps_tree;
 
-    flag = tvb_get_guint8 (tvb, offset);
+    flag = tvb_get_uint8 (tvb, offset);
 
     if (tree) {
         rps_tree = proto_item_add_subtree (ti, ett_fcels_rps);
@@ -1428,7 +1428,7 @@ dissect_fcels_rnft (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         }
         else {
             proto_tree_add_item(rnft_tree, hf_fcels_rnft_payload_len, tvb, offset+2, 2, ENC_BIG_ENDIAN);
-            numrec = tvb_get_guint8 (tvb, offset+5);
+            numrec = tvb_get_uint8 (tvb, offset+5);
             proto_tree_add_item(rnft_tree, hf_fcels_rnft_list_length, tvb, offset+5, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(rnft_tree, hf_fcels_rnft_index_of_first_rec_in_list, tvb, offset+7, 1, ENC_BIG_ENDIAN);
             offset = 8;
@@ -1504,11 +1504,11 @@ dissect_fcels_prlilo_payload (tvbuff_t *tvb, packet_info *pinfo _U_,
         svcpg_tree = proto_tree_add_subtree_format(prli_tree, tvb, offset, 16,
                                      ett_fcels_prli_svcpg, NULL, "Service Parameter Page %u", i);
 
-        type = tvb_get_guint8 (tvb, offset);
+        type = tvb_get_uint8 (tvb, offset);
         proto_tree_add_item(svcpg_tree, hf_fcels_prlilo_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(svcpg_tree, hf_fcels_prlilo_type_code_extension, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 
-        flag = tvb_get_guint8 (tvb, offset+2);
+        flag = tvb_get_uint8 (tvb, offset+2);
         dissect_prlilo_flags (svcpg_tree, tvb, offset+2, flag, opcode);
 
         if (!isreq && (opcode != FC_ELS_TPRLO)) {
@@ -1581,7 +1581,7 @@ dissect_fcels_lirr (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         proto_tree_add_item (lirr_tree, hf_fcels_opcode, tvb, offset-4, 1, ENC_BIG_ENDIAN);
 
         proto_tree_add_item(lirr_tree, hf_fcels_lirr_regn_function, tvb, offset, 1, ENC_BIG_ENDIAN);
-        lirr_fmt = tvb_get_guint8 (tvb, offset+1);
+        lirr_fmt = tvb_get_uint8 (tvb, offset+1);
         if (!lirr_fmt) {
             /* This scheme is resorted to because the value 0 has a string in
              * the value_string that is not what we want displayed here.
@@ -1731,7 +1731,7 @@ dissect_fcels_rnid (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             /* We only decode responses to nodeid fmt DF */
             proto_tree_add_item (rnid_tree, hf_fcels_nodeidfmt, tvb, offset+4,
                                  1, ENC_BIG_ENDIAN);
-            clen = tvb_get_guint8 (tvb, offset+5);
+            clen = tvb_get_uint8 (tvb, offset+5);
             proto_tree_add_item(rnid_tree, hf_fcels_common_identification_data_length, tvb, offset+5, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item (rnid_tree, hf_fcels_spidlen, tvb, offset+7,
                                  1, ENC_BIG_ENDIAN);
@@ -1741,7 +1741,7 @@ dissect_fcels_rnid (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                 proto_tree_add_item (rnid_tree, hf_fcels_fnname, tvb,
                                        offset+16, 8, ENC_NA);
             }
-            if (tvb_get_guint8 (tvb, offset+4) == 0xDF) {
+            if (tvb_get_uint8 (tvb, offset+4) == 0xDF) {
                 /* Decode the Specific Node ID Format as this is known */
                 proto_tree_add_item (rnid_tree, hf_fcels_vendoruniq, tvb,
                                      offset+24, 16, ENC_NA);
@@ -1825,7 +1825,7 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     /* col_clear(pinfo->cinfo, COL_INFO);  XXX: It seems to me that COL_INFO should be cleared here ?? */
 
     /* decoding of this is done by each individual opcode handler */
-    opcode = tvb_get_guint8 (tvb, 0);
+    opcode = tvb_get_uint8 (tvb, 0);
 
     if (tree) {
         ti = proto_tree_add_protocol_format (tree, proto_fcels, tvb, 0,

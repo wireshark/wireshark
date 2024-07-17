@@ -113,7 +113,7 @@ fcoe_get_eof(tvbuff_t *tvb, int eof_offset)
         return NULL;
     }
 
-    eof = tvb_get_guint8(tvb, eof_offset);
+    eof = tvb_get_uint8(tvb, eof_offset);
     eof_str = try_val_to_str(eof, fcoe_eof_vals);
     return eof_str;
 }
@@ -147,7 +147,7 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
      * In the newer version, byte 1 is reserved and always zero.  In the old
      * version, it'll never be zero.
      */
-    if (tvb_get_guint8(tvb, 1)) {
+    if (tvb_get_uint8(tvb, 1)) {
         header_len = 2;
         len_sof = tvb_get_ntohs(tvb, 0);
         frame_len = ((len_sof & 0x3ff0) >> 2) - 4;
@@ -160,7 +160,7 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         eof_offset = header_len + frame_len + 4;
         eof_str = "none";
         if (tvb_bytes_exist(tvb, eof_offset, 1)) {
-            eof = tvb_get_guint8(tvb, eof_offset);
+            eof = tvb_get_uint8(tvb, eof_offset);
             eof_str = val_to_str(eof, fcoe_eof_vals, "0x%x");
         }
         /* Old format has a length field, so we can help the Ethernet dissector
@@ -169,14 +169,14 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     } else {
         frame_len = tvb_reported_length_remaining(tvb, 0) -
           FCOE_HEADER_LEN - FCOE_TRAILER_LEN;
-        sof = tvb_get_guint8(tvb, FCOE_HEADER_LEN - 1);
+        sof = tvb_get_uint8(tvb, FCOE_HEADER_LEN - 1);
 
         /*
          * Only version 0 is defined at this point.
          * Don't print the version in the short summary if it is zero.
          */
         ver = "";
-        version = tvb_get_guint8(tvb, 0) >> 4;
+        version = tvb_get_uint8(tvb, 0) >> 4;
         if (version != 0)
             ver = wmem_strdup_printf(pinfo->pool, ver, "ver %d ", version);
 
@@ -192,7 +192,7 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                 if (tvb_bytes_exist(tvb, eof_offset, 1)) {
                     /* Hmm, we have enough bytes to look for the EOF
                      * but it's an unexpected value. */
-                    eof = tvb_get_guint8(tvb, eof_offset);
+                    eof = tvb_get_uint8(tvb, eof_offset);
                     eof_str = wmem_strdup_printf(pinfo->pool, "0x%x", eof);
                 } else {
                     /* We just didn't capture enough to get the EOF */
@@ -239,7 +239,7 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     fcoe_tree = proto_item_add_subtree(ti, ett_fcoe);
     proto_tree_add_uint(fcoe_tree, hf_fcoe_ver, tvb, 0, 1, version);
-    if (tvb_get_guint8(tvb, 1)) {
+    if (tvb_get_uint8(tvb, 1)) {
         proto_tree_add_uint(fcoe_tree, hf_fcoe_len, tvb, 0, 2, frame_len);
     }
     proto_tree_add_uint(fcoe_tree, hf_fcoe_sof, tvb,

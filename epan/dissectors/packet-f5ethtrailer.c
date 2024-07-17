@@ -1659,7 +1659,7 @@ dissect_high_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
     }
 
     /* Add in the high order structures. */
-    ipproto = tvb_get_guint8(tvb, o);
+    ipproto = tvb_get_uint8(tvb, o);
     proto_tree_add_item(tree, hf_peer_ipproto, tvb, o, 1, ENC_BIG_ENDIAN);
     o += 1;
     proto_tree_add_item(tree, hf_peer_vlan, tvb, o, 2, ENC_BIG_ENDIAN);
@@ -1768,19 +1768,19 @@ dissect_med_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigne
         if (trailer_length < F5_MEDV1_LENMIN) { /* too small */
             return 0;
         }
-        rstcauselen = tvb_get_guint8(tvb, offset + F5_MEDV1_LENMIN - 1);
+        rstcauselen = tvb_get_uint8(tvb, offset + F5_MEDV1_LENMIN - 1);
         /* check size is valid */
         if (rstcauselen + F5_MEDV1_LENMIN != trailer_length) {
             return 0;
         }
         if (rstcauselen)
-            rstcausever = (tvb_get_guint8(tvb, offset + F5_MEDV1_LENMIN) & 0xfe) >> 1;
+            rstcausever = (tvb_get_uint8(tvb, offset + F5_MEDV1_LENMIN) & 0xfe) >> 1;
         /* If we want the RST cause in the summary, we need to do it here,
          * before the tree check below */
         if (rstcauselen && rstcause_in_info) {
             if (rstcausever == 0x00) {
                 col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "[F5RST%s: %s]",
-                    tvb_get_guint8(tvb, offset + F5_MEDV1_LENMIN) & 0x01 ? "(peer)" : "",
+                    tvb_get_uint8(tvb, offset + F5_MEDV1_LENMIN) & 0x01 ? "(peer)" : "",
                     tvb_get_string_enc(pinfo->pool, tvb, offset + F5_MEDV1_LENMIN + 9,
                         rstcauselen - 9, ENC_ASCII));
             }
@@ -1790,19 +1790,19 @@ dissect_med_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigne
         if (trailer_length < F5_MEDV2_LENMIN) { /* too small */
             return 0;
         }
-        rstcauselen = tvb_get_guint8(tvb, offset + F5_MEDV2_LENMIN - 1);
+        rstcauselen = tvb_get_uint8(tvb, offset + F5_MEDV2_LENMIN - 1);
         /* check size is valid */
         if (rstcauselen + F5_MEDV2_LENMIN != trailer_length) {
             return 0;
         }
         if (rstcauselen)
-            rstcausever = (tvb_get_guint8(tvb, offset + F5_MEDV2_LENMIN) & 0x0fe) >> 1;
+            rstcausever = (tvb_get_uint8(tvb, offset + F5_MEDV2_LENMIN) & 0x0fe) >> 1;
         /* If we want the RST cause in the summary, we need to do it here,
          * before the tree check below */
         if (rstcauselen && rstcause_in_info) {
             if (rstcausever == 0x00) {
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "[F5RST%s: %s]",
-                tvb_get_guint8(tvb, offset + F5_MEDV2_LENMIN) & 0x01 ? "(peer)" : "",
+                tvb_get_uint8(tvb, offset + F5_MEDV2_LENMIN) & 0x01 ? "(peer)" : "",
                     tvb_get_string_enc(pinfo->pool, tvb, offset + F5_MEDV2_LENMIN + 9,
                         rstcauselen - 9, ENC_ASCII));
             }
@@ -1812,19 +1812,19 @@ dissect_med_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigne
         if (trailer_length < F5_MEDV3_LENMIN) { /* too small */
             return 0;
         }
-        rstcauselen = tvb_get_gint8(tvb, offset + F5_MEDV3_LENMIN -1);
+        rstcauselen = tvb_get_int8(tvb, offset + F5_MEDV3_LENMIN -1);
         /* check size is valid */
         if (rstcauselen + F5_MEDV3_LENMIN != trailer_length) {
             return 0;
         }
         if (rstcauselen)
-            rstcausever = (tvb_get_gint8(tvb, offset + F5_MEDV3_LENMIN) & 0xfe) >>1;
+            rstcausever = (tvb_get_int8(tvb, offset + F5_MEDV3_LENMIN) & 0xfe) >>1;
         /* If we want the RST cause in the summary, we need to do it here,
          * before the tree check below */
         if (rstcauselen && rstcause_in_info) {
             if (rstcausever == 0x00) {
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "[F5RST%s: %s]",
-                tvb_get_gint8(tvb, offset + F5_MEDV3_LENMIN) & 0x01 ? "(peer)" : "",
+                tvb_get_int8(tvb, offset + F5_MEDV3_LENMIN) & 0x01 ? "(peer)" : "",
                     tvb_get_string_enc(pinfo->pool, tvb, offset + F5_MEDV3_LENMIN + 9,
                         rstcauselen - 9, ENC_ASCII));
             }
@@ -1910,7 +1910,7 @@ dissect_med_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigne
             startcause = o;
             switch (rstcausever) {
             case 0x00:
-                rstcausepeer = tvb_get_guint8(tvb, o) & 0x1;
+                rstcausepeer = tvb_get_uint8(tvb, o) & 0x1;
 
                 proto_tree_add_item(rc_tree, hf_rstcause_ver, tvb, o, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(rc_tree, hf_rstcause_peer, tvb, o, 1, ENC_BIG_ENDIAN);
@@ -1973,22 +1973,22 @@ dissect_low_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigne
             return 0;
         }
         if (trailer_length == F5_LOWV94_LEN) {
-            slot_display       = tvb_get_guint8(tvb, offset + F5_OFF_LOW_SLOT);
+            slot_display       = tvb_get_uint8(tvb, offset + F5_OFF_LOW_SLOT);
             slot_display_field = hf_slot0;
             /* Analysis doesn't care about the virtual name, only populate if there is a tap
              * active */
             if (have_tap_listener(tap_f5ethtrailer)
-                && tvb_get_guint8(tvb, offset + (F5_LOWV94_LEN - 16)) != 0) {
+                && tvb_get_uint8(tvb, offset + (F5_LOWV94_LEN - 16)) != 0) {
                 tdata->virtual_name = tvb_get_string_enc(pinfo->pool, tvb,
                     offset + (F5_LOWV94_LEN - 16), 16, ENC_ASCII);
             }
         } else {
-            slot_display       = tvb_get_guint8(tvb, offset + F5_OFF_LOW_SLOT) + 1;
+            slot_display       = tvb_get_uint8(tvb, offset + F5_OFF_LOW_SLOT) + 1;
             slot_display_field = hf_slot1;
             /* Analysis doesn't care about the virtual name, only populate if there is a tap
              * active */
             if (have_tap_listener(tap_f5ethtrailer)
-                && tvb_get_guint8(tvb, offset + (F5_LOWV10_LEN - 16)) != 0) {
+                && tvb_get_uint8(tvb, offset + (F5_LOWV10_LEN - 16)) != 0) {
                 tdata->virtual_name = tvb_get_string_enc(pinfo->pool, tvb,
                     offset + (F5_LOWV10_LEN - 16), 16, ENC_ASCII);
             }
@@ -1998,12 +1998,12 @@ dissect_low_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigne
         if (trailer_length < F5_LOWV1_LENMIN) { /* too small */
             return 0;
         }
-        vipnamelen = tvb_get_guint8(tvb, offset + F5_LOWV1_LENMIN - 1);
+        vipnamelen = tvb_get_uint8(tvb, offset + F5_LOWV1_LENMIN - 1);
         /* check size is valid */
         if (vipnamelen + F5_LOWV1_LENMIN != trailer_length) {
             return 0;
         }
-        slot_display       = tvb_get_guint8(tvb, offset + F5_OFF_LOW_SLOT) + 1;
+        slot_display       = tvb_get_uint8(tvb, offset + F5_OFF_LOW_SLOT) + 1;
         slot_display_field = hf_slot1;
         /* Analysis doesn't care about the virtual name, only populate if there is a tap active
          */
@@ -2016,9 +2016,9 @@ dissect_low_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigne
         return 0;
     }
 
-    ingress        = tvb_get_guint8(tvb, offset + F5_OFF_LOW_ING);
+    ingress        = tvb_get_uint8(tvb, offset + F5_OFF_LOW_ING);
     tdata->ingress = ingress == 0 ? 0 : 1;
-    tmm            = tvb_get_guint8(tvb, offset + F5_OFF_LOW_TMM);
+    tmm            = tvb_get_uint8(tvb, offset + F5_OFF_LOW_TMM);
     if (tmm < F5ETH_TAP_TMM_MAX && slot_display < F5ETH_TAP_SLOT_MAX) {
         tdata->tmm  = tmm;
         tdata->slot = slot_display;
@@ -2168,7 +2168,7 @@ dissect_dpt_trailer_noise_high(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     }
 
     /* Add in the high order structures. */
-    ipproto = tvb_get_guint8(tvb, o);
+    ipproto = tvb_get_uint8(tvb, o);
     proto_tree_add_item(tree, hf_peer_ipproto, tvb, o, 1, ENC_BIG_ENDIAN);
     o += 1;
     proto_tree_add_item(tree, hf_peer_vlan, tvb, o, 2, ENC_BIG_ENDIAN);
@@ -2276,7 +2276,7 @@ dissect_dpt_trailer_noise_med(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     o                = F5_DPT_V1_TLV_HDR_LEN;
     tdata->noise_med = 1;
-    rstcauselen      = tvb_get_guint8(tvb, o + F5_MEDV4_LENMIN - 1);
+    rstcauselen      = tvb_get_uint8(tvb, o + F5_MEDV4_LENMIN - 1);
     /* Check for an invalid reset cause length and do not try to reference any of the data if it is
      * bad
      */
@@ -2286,13 +2286,13 @@ dissect_dpt_trailer_noise_med(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         rstcauselen = 0;
     }
     if (rstcauselen)
-        rstcausever = (tvb_get_guint8(tvb, o + F5_MEDV4_LENMIN) & 0xfe) >> 1;
+        rstcausever = (tvb_get_uint8(tvb, o + F5_MEDV4_LENMIN) & 0xfe) >> 1;
     /* If we want the RST cause in the summary, we need to do it here,
      * before the tree check below */
     if (rstcauselen && rstcause_in_info) {
         if (rstcausever == 0x00) {
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "[F5RST%s: %s]",
-                tvb_get_guint8(tvb, o + F5_MEDV4_LENMIN) & 0x01 ? "(peer)" : "",
+                tvb_get_uint8(tvb, o + F5_MEDV4_LENMIN) & 0x01 ? "(peer)" : "",
                 tvb_get_string_enc(
                     pinfo->pool, tvb, o + F5_MEDV4_LENMIN + 9, rstcauselen - 9, ENC_ASCII));
         }
@@ -2357,7 +2357,7 @@ dissect_dpt_trailer_noise_med(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         startcause = o;
         switch (rstcausever) {
         case 0x00:
-            rstcausepeer = tvb_get_guint8(tvb, o) & 0x1;
+            rstcausepeer = tvb_get_uint8(tvb, o) & 0x1;
             proto_tree_add_item(rc_tree, hf_rstcause_ver, tvb, o, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(rc_tree, hf_rstcause_peer, tvb, o, 1, ENC_BIG_ENDIAN);
             o += 1;
@@ -2437,7 +2437,7 @@ dissect_dpt_trailer_noise_low(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     tdata->noise_low = 1;
 
     /* Direction */
-    flags = tvb_get_guint8(tvb, offset);
+    flags = tvb_get_uint8(tvb, offset);
     if (ver == 2) {
         ingress = flags;
     } else {
@@ -2463,12 +2463,12 @@ dissect_dpt_trailer_noise_low(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     offset += 1;
 
     /* Slot */
-    slot_display = tvb_get_guint8(tvb, offset) + 1;
+    slot_display = tvb_get_uint8(tvb, offset) + 1;
     proto_tree_add_uint(tree, hf_slot1, tvb, offset, 1, slot_display);
     offset += 1;
 
     /* TMM */
-    tmm = tvb_get_guint8(tvb, offset);
+    tmm = tvb_get_uint8(tvb, offset);
     if (tmm < F5ETH_TAP_TMM_MAX && slot_display < F5ETH_TAP_SLOT_MAX) {
         tdata->tmm  = tmm;
         tdata->slot = slot_display;
@@ -2483,7 +2483,7 @@ dissect_dpt_trailer_noise_low(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     if (ver < 4) {        /* Low noise versions 2 and 3 */
         /* VIP Name */
-        int viplen = tvb_get_guint8(tvb, offset);
+        int viplen = tvb_get_uint8(tvb, offset);
         /* Make sure VIP Name Length does not extend past the TVB */
         if (tvb_reported_length_remaining(tvb, offset) < viplen) {
             pi = proto_tree_add_item(tree, hf_vip, tvb, offset, 0, ENC_ASCII);
@@ -2520,7 +2520,7 @@ dissect_dpt_trailer_noise_low(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
          * <type><len><string><type><len><string>
          */
 
-        int data_len = tvb_get_gint8(tvb, offset);
+        int data_len = tvb_get_int8(tvb, offset);
         pi = proto_tree_add_item(tree, hf_data, tvb, offset, 1, ENC_NA);
         proto_item_set_text(pi, "Associated config object names");
         ti = proto_item_add_subtree(pi, ett_f5ethtrailer_obj_names);
@@ -2541,8 +2541,8 @@ dissect_dpt_trailer_noise_low(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             int field_name_len_idx;
             int field_name_idx;
             char *text_format;
-            uint8_t t = tvb_get_guint8(data_tvb, data_off);
-            uint8_t l = tvb_get_guint8(data_tvb, data_off + 1);
+            uint8_t t = tvb_get_uint8(data_tvb, data_off);
+            uint8_t l = tvb_get_uint8(data_tvb, data_off + 1);
 
             switch (t) {
             case 0: /* Virtual Server */
@@ -2764,14 +2764,14 @@ dissect_old_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
      */
     while (tvb_reported_length_remaining(tvb, offset) >= F5_MIN_SANE) {
         /* length field does not include the type and length bytes.  Add them back in */
-        uint8_t len = tvb_get_guint8(tvb, offset + F5_OFF_LENGTH) + F5_OFF_VERSION;
+        uint8_t len = tvb_get_uint8(tvb, offset + F5_OFF_LENGTH) + F5_OFF_VERSION;
         if (len > tvb_reported_length_remaining(tvb, offset)
             || len < F5_MIN_SANE || len > F5_MAX_SANE) {
             /* Invalid length - either a malformed trailer, corrupt packet, or not f5ethtrailer */
             return offset;
         }
-        uint8_t type = tvb_get_guint8(tvb, offset);
-        uint8_t ver = tvb_get_guint8(tvb, offset + F5_OFF_VERSION);
+        uint8_t type = tvb_get_uint8(tvb, offset);
+        uint8_t ver = tvb_get_uint8(tvb, offset + F5_OFF_VERSION);
 
         /* Parse out the specified trailer. */
         proto_tree *type_tree   = NULL;
@@ -2872,7 +2872,7 @@ dissect_f5ethtrailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
        was able to append f5ethtrailer.  In many cases (and should be) this padding is zeros.
        The f5ethtrailer does not start with a zero, so trim off any leading zeros before
        looking for an f5ethtrailer. */
-    while (tvb_offset_exists(tvb, offset) && tvb_get_gint8(tvb, offset) == 0) {
+    while (tvb_offset_exists(tvb, offset) && tvb_get_int8(tvb, offset) == 0) {
         offset++;
     }
 
@@ -2923,9 +2923,9 @@ dissect_f5ethtrailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         unsigned tlv_type, tlv_length, tlv_ver;
 
         /* Check for old format trailers */
-        tlv_type = tvb_get_guint8(tvb, offset);
-        tlv_length = tvb_get_guint8(tvb, offset + F5_OFF_LENGTH) + F5_OFF_VERSION;
-        tlv_ver = tvb_get_guint8(tvb, offset + F5_OFF_VERSION);
+        tlv_type = tvb_get_uint8(tvb, offset);
+        tlv_length = tvb_get_uint8(tvb, offset + F5_OFF_LENGTH) + F5_OFF_VERSION;
+        tlv_ver = tvb_get_uint8(tvb, offset + F5_OFF_VERSION);
 
         if ( tlv_length <= trailer_length && tlv_type >= F5TYPE_LOW && tlv_type <= F5TYPE_HIGH &&
             tlv_length >= F5_MIN_SANE && tlv_length <= F5_MAX_SANE &&
@@ -3343,7 +3343,7 @@ dissect_dpt_trailer_tls_type2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
         o = F5_DPT_V1_TLV_HDR_LEN;
 
-        secret_len = tvb_get_guint8(tvb, o);
+        secret_len = tvb_get_uint8(tvb, o);
         /* Add our fields */
         pi = proto_tree_add_item(tree, hf_f5tls_secret_len, tvb, o, 1, ENC_NA);
         o += 1;

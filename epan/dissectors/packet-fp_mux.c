@@ -192,7 +192,7 @@ static int dissect_fp_mux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         }
         else {
             /* Not extended - Length is 7 bits */
-            length = tvb_get_guint8(tvb, offset) & 0x7F;
+            length = tvb_get_uint8(tvb, offset) & 0x7F;
             length_field_size = 1;
         }
         proto_tree_add_uint(fpmux_tree, hf_fpmux_length, tvb, offset, length_field_size, length);
@@ -267,7 +267,7 @@ static bool heur_dissect_fp_mux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         if(total_length < offset + 2) {
             return false;
         }
-        ext_flag = ((tvb_get_guint8(tvb, offset + 2)&0x80)==0x80);
+        ext_flag = ((tvb_get_uint8(tvb, offset + 2)&0x80)==0x80);
         header_length = ext_flag ? 4 : 3;
 
         if(total_length < offset + header_length) {
@@ -282,7 +282,7 @@ static bool heur_dissect_fp_mux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         }
         else {
             /* Not extended - Length is 7 bits */
-            length = tvb_get_guint8(tvb, offset) & 0x7F;
+            length = tvb_get_uint8(tvb, offset) & 0x7F;
             length_field_size = 1;
         }
 

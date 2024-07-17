@@ -1146,14 +1146,14 @@ dissect_ftdi_ft(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             uint8_t      hvalue;
             uint8_t      lindex;
 
-            brequest = tvb_get_guint8(tvb, offset);
+            brequest = tvb_get_uint8(tvb, offset);
             col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
                 val_to_str_ext_const(brequest, &request_vals_ext, "Unknown"));
             proto_tree_add_item(main_tree, hf_setup_brequest, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
 
-            hvalue = tvb_get_guint8(tvb, offset + 1);
-            lindex = tvb_get_guint8(tvb, offset + 2);
+            hvalue = tvb_get_uint8(tvb, offset + 1);
+            lindex = tvb_get_uint8(tvb, offset + 2);
 
             switch (brequest)
             {

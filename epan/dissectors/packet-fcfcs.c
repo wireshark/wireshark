@@ -373,7 +373,7 @@ dissect_fcfcs_gplnl (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 
     if (tree) {
         if (isreq) {
-            len = tvb_get_guint8 (tvb, offset);
+            len = tvb_get_uint8 (tvb, offset);
             proto_tree_add_uint(tree, hf_fcs_platformname_len, tvb, offset, 1, len);
             proto_tree_add_item (tree, hf_fcs_platformname, tvb, offset+1,
                                  len, ENC_NA);
@@ -398,7 +398,7 @@ dissect_fcfcs_gplt (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 
     if (tree) {
         if (isreq) {
-            len = tvb_get_guint8 (tvb, offset);
+            len = tvb_get_uint8 (tvb, offset);
             proto_tree_add_uint(tree, hf_fcs_platformname_len, tvb, offset, 1, len);
             proto_tree_add_item (tree, hf_fcs_platformname, tvb, offset+1,
                                  len, ENC_NA);
@@ -418,7 +418,7 @@ dissect_fcfcs_gplml (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 
     if (tree) {
         if (isreq) {
-            len = tvb_get_guint8 (tvb, offset);
+            len = tvb_get_uint8 (tvb, offset);
             proto_tree_add_uint(tree, hf_fcs_platformname_len, tvb, offset, 1, len);
             proto_tree_add_item (tree, hf_fcs_platformname, tvb, offset+1,
                                  len, ENC_NA);
@@ -445,7 +445,7 @@ dissect_fcfcs_gnpl (tvbuff_t *tvb, proto_tree *tree, bool isreq)
             proto_tree_add_item (tree, hf_fcs_platformnname, tvb, offset, 8, ENC_NA);
         }
         else {
-            len = tvb_get_guint8 (tvb, offset);
+            len = tvb_get_uint8 (tvb, offset);
             proto_tree_add_uint (tree, hf_fcs_platformname_len, tvb, offset, 1, len);
             proto_tree_add_item (tree, hf_fcs_platformname, tvb, offset+1,
                                  len, ENC_NA);
@@ -464,7 +464,7 @@ dissect_fcfcs_gpnl (tvbuff_t *tvb, proto_tree *tree, bool isreq)
             proto_tree_add_item_ret_uint(tree, hf_fcfcs_num_platform_name_entries, tvb, offset, 4, ENC_BIG_ENDIAN, &numelem);
             offset += 4;
             for (i = 0; i < numelem; i++) {
-                len = tvb_get_guint8 (tvb, offset);
+                len = tvb_get_uint8 (tvb, offset);
                 proto_tree_add_uint (tree, hf_fcs_platformname_len, tvb, offset, 1, len);
                 proto_tree_add_item (tree, hf_fcs_platformname, tvb, offset+1,
                                      len, ENC_NA);
@@ -495,7 +495,7 @@ dissect_fcfcs_rpl (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 
     if (tree) {
         if (isreq) {
-            len = tvb_get_guint8 (tvb, offset);
+            len = tvb_get_uint8 (tvb, offset);
             proto_tree_add_uint (tree, hf_fcs_platformname_len, tvb, offset, 1, len);
             proto_tree_add_item (tree, hf_fcs_platformname, tvb, offset+1,
                                  len, ENC_NA);
@@ -526,7 +526,7 @@ dissect_fcfcs_rpln (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 
     if (tree) {
         if (isreq) {
-            len = tvb_get_guint8 (tvb, offset);
+            len = tvb_get_uint8 (tvb, offset);
             proto_tree_add_uint (tree, hf_fcs_platformname_len, tvb, offset, 1, len);
             proto_tree_add_item (tree, hf_fcs_platformname, tvb, offset+1,
                                  len, ENC_NA);
@@ -544,7 +544,7 @@ dissect_fcfcs_rplt (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 
     if (tree) {
         if (isreq) {
-            len = tvb_get_guint8 (tvb, offset);
+            len = tvb_get_uint8 (tvb, offset);
             proto_tree_add_uint (tree, hf_fcs_platformname_len, tvb, offset, 1, len);
             proto_tree_add_item (tree, hf_fcs_platformname, tvb, offset+1,
                                  len, ENC_NA);
@@ -562,7 +562,7 @@ dissect_fcfcs_rplm (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 
     if (tree) {
         if (isreq) {
-            len = tvb_get_guint8 (tvb, offset);
+            len = tvb_get_uint8 (tvb, offset);
             proto_tree_add_uint (tree, hf_fcs_platformname_len, tvb, offset, 1, len);
             proto_tree_add_item (tree, hf_fcs_platformname, tvb, offset+1,
                                  len, ENC_NA);
@@ -580,7 +580,7 @@ dissect_fcfcs_dpl (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 
     if (tree) {
         if (isreq) {
-            len = tvb_get_guint8 (tvb, offset);
+            len = tvb_get_uint8 (tvb, offset);
             proto_tree_add_uint (tree, hf_fcs_platformname_len, tvb, offset, 1, len);
             proto_tree_add_item (tree, hf_fcs_platformname, tvb, offset+1,
                                  len, ENC_NA);
@@ -608,7 +608,7 @@ dissect_fcfcs_dplml (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 
     if (tree) {
         if (isreq) {
-            len = tvb_get_guint8 (tvb, offset);
+            len = tvb_get_uint8 (tvb, offset);
             proto_tree_add_uint (tree, hf_fcs_platformname_len, tvb, offset, 1, len);
             proto_tree_add_item (tree, hf_fcs_platformname, tvb, offset+1,
                                  len, ENC_NA);
@@ -630,7 +630,7 @@ dissect_fcfcs_gcap (tvbuff_t *tvb, proto_tree *tree, bool isreq)
 
             offset += 4;
             for (i = 0; i < numrec; i++) {
-                subtype = tvb_get_guint8 (tvb, offset);
+                subtype = tvb_get_uint8 (tvb, offset);
                 proto_tree_add_uint (tree, hf_fcs_mgmt_subtype, tvb, offset,
                                      1, subtype);
 
@@ -695,7 +695,7 @@ dissect_fcfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     fcfcs_tree = proto_item_add_subtree (ti, ett_fcfcs);
 
     tvb_memcpy (tvb, (uint8_t *)&cthdr, offset, FCCT_PRMBL_SIZE);
-    cthdr.revision = tvb_get_guint8 (tvb, offset);
+    cthdr.revision = tvb_get_uint8 (tvb, offset);
     cthdr.in_id = tvb_get_ntoh24 (tvb, offset+1);
     cthdr.opcode = g_ntohs (cthdr.opcode);
     opcode = tvb_get_ntohs (tvb, offset+8);

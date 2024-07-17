@@ -324,7 +324,7 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "FDDI");
 
-  fddihdr->fc = tvb_get_guint8(tvb, FDDI_P_FC + FDDI_PADDING);
+  fddihdr->fc = tvb_get_uint8(tvb, FDDI_P_FC + FDDI_PADDING);
   fc_str = fddifc_to_str(fddihdr->fc);
 
   col_add_str(pinfo->cinfo, COL_INFO, fc_str);

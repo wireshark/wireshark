@@ -117,7 +117,7 @@ dissect_fcfzs_zoneset(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int o
      */
 
         /* Zoneset Name */
-        len = tvb_get_guint8(tvb, offset);
+        len = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(tree, hf_fcfzs_zonesetnmlen, tvb, offset,
                             1, ENC_BIG_ENDIAN);
         offset += 4;
@@ -136,7 +136,7 @@ dissect_fcfzs_zoneset(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int o
 
         /* For each zone... */
         for (i = 0; i < numzones; i++) {
-            len = tvb_get_guint8(tvb, offset);
+            len = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(tree, hf_fcfzs_zonenmlen, tvb, offset,
                                 1, ENC_BIG_ENDIAN);
             offset += 4;
@@ -155,7 +155,7 @@ dissect_fcfzs_zoneset(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int o
             for (j = 0; j < nummbrs; j++) {
                 ti = proto_tree_add_item(tree, hf_fcfzs_mbrtype, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-                switch (tvb_get_guint8(tvb, offset)) {
+                switch (tvb_get_uint8(tvb, offset)) {
                 case FC_FZS_ZONEMBR_PWWN:
                 case FC_FZS_ZONEMBR_NWWN:
                     proto_tree_add_item(tree, hf_fcfzs_mbrid_fcwwn, tvb,
@@ -247,7 +247,7 @@ dissect_fcfzs_gzsn(tvbuff_t *tvb, proto_tree *tree, bool isreq)
 
             offset += 4;
             for (i = 0; i < numrec; i++) {
-                len = tvb_get_guint8(tvb, offset);
+                len = tvb_get_uint8(tvb, offset);
                 proto_tree_add_item(tree, hf_fcfzs_zonesetnmlen, tvb, offset,
                                     1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tree, hf_fcfzs_zonesetname, tvb, offset+1,
@@ -269,7 +269,7 @@ dissect_fcfzs_gzd(tvbuff_t *tvb, proto_tree *tree, bool isreq)
 
     if (tree) {
         if (isreq) {
-            len = tvb_get_guint8(tvb, offset);
+            len = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(tree, hf_fcfzs_zonesetnmlen, tvb, offset,
                                 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_fcfzs_zonesetname, tvb, offset+1,
@@ -283,7 +283,7 @@ dissect_fcfzs_gzd(tvbuff_t *tvb, proto_tree *tree, bool isreq)
 
             offset += 4;
             for (i = 0; i < numrec; i++) {
-                len = tvb_get_guint8(tvb, offset);
+                len = tvb_get_uint8(tvb, offset);
                 proto_tree_add_item(tree, hf_fcfzs_zonenmlen, tvb, offset,
                                     1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tree, hf_fcfzs_zonename, tvb, offset+1,
@@ -305,7 +305,7 @@ dissect_fcfzs_gzm(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, bool isre
     proto_item* ti;
 
         if (isreq) {
-            len = tvb_get_guint8(tvb, offset);
+            len = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(tree, hf_fcfzs_zonenmlen, tvb, offset,
                                 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_fcfzs_zonename, tvb, offset+1,
@@ -319,7 +319,7 @@ dissect_fcfzs_gzm(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, bool isre
             offset += 4;
             for (i = 0; i < numrec; i++) {
                 ti = proto_tree_add_item(tree, hf_fcfzs_mbrtype, tvb, offset, 1, ENC_BIG_ENDIAN);
-                switch (tvb_get_guint8(tvb, offset)) {
+                switch (tvb_get_uint8(tvb, offset)) {
                 case FC_FZS_ZONEMBR_PWWN:
                 case FC_FZS_ZONEMBR_NWWN:
                     proto_tree_add_item(tree, hf_fcfzs_mbrid_fcwwn, tvb,
@@ -358,7 +358,7 @@ dissect_fcfzs_gzs(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, bool isre
     int len;
 
     if (isreq) {
-        len = tvb_get_guint8(tvb, offset);
+        len = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(tree, hf_fcfzs_zonesetnmlen, tvb, offset,
                             1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_fcfzs_zonesetname, tvb, offset+4,
@@ -397,7 +397,7 @@ dissect_fcfzs_arzs(tvbuff_t *tvb, proto_tree *tree, bool isreq)
 
     if (tree) {
         if (isreq) {
-            len = tvb_get_guint8(tvb, offset);
+            len = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(tree, hf_fcfzs_zonesetnmlen, tvb, offset,
                                 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_fcfzs_zonesetname, tvb, offset+4,
@@ -421,7 +421,7 @@ dissect_fcfzs_arzm(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, bool isr
     proto_item* ti;
 
         if (isreq) {
-            len = tvb_get_guint8(tvb, offset);
+            len = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(tree, hf_fcfzs_zonenmlen, tvb, offset,
                                 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_fcfzs_zonename, tvb, offset+1,
@@ -435,7 +435,7 @@ dissect_fcfzs_arzm(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, bool isr
             offset += len;
             for (i = 0; i < numrec; i++) {
                 ti = proto_tree_add_item(tree, hf_fcfzs_mbrtype, tvb, offset, 1, ENC_BIG_ENDIAN);
-                switch (tvb_get_guint8(tvb, offset)) {
+                switch (tvb_get_uint8(tvb, offset)) {
                 case FC_FZS_ZONEMBR_PWWN:
                 case FC_FZS_ZONEMBR_NWWN:
                     proto_tree_add_item(tree, hf_fcfzs_mbrid_fcwwn, tvb,
@@ -465,7 +465,7 @@ dissect_fcfzs_arzd(tvbuff_t *tvb, proto_tree *tree, bool isreq)
 
     if (tree) {
         if (isreq) {
-            len = tvb_get_guint8(tvb, offset);
+            len = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(tree, hf_fcfzs_zonesetnmlen, tvb, offset,
                                 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_fcfzs_zonesetname, tvb, offset+4,
@@ -473,7 +473,7 @@ dissect_fcfzs_arzd(tvbuff_t *tvb, proto_tree *tree, bool isreq)
             len += (len % 4);
             offset += len;
 
-            len = tvb_get_guint8(tvb, offset);
+            len = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(tree, hf_fcfzs_zonenmlen, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_fcfzs_zonename, tvb, offset+4,
                                 len, ENC_ASCII);
@@ -520,7 +520,7 @@ dissect_fcfzs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
 
     tvb_memcpy(tvb, (uint8_t *)&cthdr, offset, FCCT_PRMBL_SIZE);
-    cthdr.revision = tvb_get_guint8(tvb, offset+1);
+    cthdr.revision = tvb_get_uint8(tvb, offset+1);
     cthdr.in_id = tvb_get_ntoh24(tvb, offset);
     cthdr.opcode = g_ntohs(cthdr.opcode);
     opcode = cthdr.opcode;

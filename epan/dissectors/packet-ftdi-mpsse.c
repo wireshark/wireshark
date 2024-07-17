@@ -510,7 +510,7 @@ dissect_data_shifting_command_parameters(uint8_t cmd, tvbuff_t *tvb, packet_info
 
     if (IS_DATA_SHIFTING_BYTE_MODE(cmd))
     {
-        length = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        length = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
         proto_tree_add_uint_format(tree, hf_mpsse_length_uint16, tvb, offset, 2, length, "Length: %d byte%s", length + 1, plurality(length + 1, "", "s"));
         offset += 2;
 
@@ -522,7 +522,7 @@ dissect_data_shifting_command_parameters(uint8_t cmd, tvbuff_t *tvb, packet_info
     }
     else
     {
-        length = tvb_get_guint8(tvb, offset);
+        length = tvb_get_uint8(tvb, offset);
         proto_tree_add_uint_format(tree, hf_mpsse_length_uint8, tvb, offset, 1, length, "Length: %d bit%s", length + 1, plurality(length + 1, "", "s"));
         offset += 1;
 
@@ -678,7 +678,7 @@ dissect_clock_parameters(uint8_t cmd _U_, tvbuff_t *tvb, packet_info *pinfo _U_,
 static int
 dissect_clock_n_bits_parameters(uint8_t cmd _U_, tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, ftdi_mpsse_info_t *mpsse_info _U_)
 {
-    uint32_t length = tvb_get_guint8(tvb, offset);
+    uint32_t length = tvb_get_uint8(tvb, offset);
     proto_tree_add_uint_format(tree, hf_mpsse_length_uint8, tvb, offset, 1, length, "Length: %d clock%s", length + 1, plurality(length + 1, "", "s"));
     return 1;
 }
@@ -686,7 +686,7 @@ dissect_clock_n_bits_parameters(uint8_t cmd _U_, tvbuff_t *tvb, packet_info *pin
 static int
 dissect_clock_n_times_8_bits_parameters(uint8_t cmd _U_, tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, ftdi_mpsse_info_t *mpsse_info _U_)
 {
-    uint32_t length = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+    uint32_t length = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
     proto_tree_add_uint_format(tree, hf_mpsse_length_uint16, tvb, offset, 2, length, "Length: %d clocks", (length + 1) * 8);
     return 2;
 }
@@ -893,7 +893,7 @@ static int estimated_command_parameters_length(uint8_t cmd, tvbuff_t *tvb, packe
             {
                 if (tvb_reported_length_remaining(tvb, offset) >= 2)
                 {
-                    data_length = (int32_t)tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN) + 1;
+                    data_length = (int32_t)tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN) + 1;
                     parameters_length += data_length;
                 }
                 /* else length is not available already so the caller will know that reassembly is needed */
@@ -997,7 +997,7 @@ dissect_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
     proto_item  *cmd_with_parameters;
     proto_tree  *cmd_tree;
 
-    cmd = tvb_get_guint8(tvb, offset);
+    cmd = tvb_get_uint8(tvb, offset);
     cmd_str = get_command_string(cmd, mpsse_info);
     parameters_length = estimated_command_parameters_length(cmd, tvb, pinfo, offset + 1, mpsse_info, cmd_data);
     if (tvb_reported_length_remaining(tvb, offset + 1) < parameters_length)
@@ -1193,9 +1193,9 @@ dissect_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
         /* Look for Bad Command response in data */
         while (tvb_reported_length_remaining(tvb, offset) >= 2)
         {
-            if (tvb_get_guint8(tvb, offset) == BAD_COMMAND_SYNC_CODE)
+            if (tvb_get_uint8(tvb, offset) == BAD_COMMAND_SYNC_CODE)
             {
-                if (tvb_get_guint8(tvb, offset + 1) == cmd_data->cmd)
+                if (tvb_get_uint8(tvb, offset + 1) == cmd_data->cmd)
                 {
                     found = true;
                     break;
@@ -1206,7 +1206,7 @@ dissect_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 
         if (!found)
         {
-            if (tvb_get_guint8(tvb, offset) == BAD_COMMAND_SYNC_CODE)
+            if (tvb_get_uint8(tvb, offset) == BAD_COMMAND_SYNC_CODE)
             {
                 /* Request reassembly only if there is chance it will help */
                 request_reassembly = true;

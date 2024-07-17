@@ -195,18 +195,18 @@ get_preamble_length(tvbuff_t *tvb) {
 
     uint32_t offset = 0;
 
-    if( 0x50 == tvb_get_guint8(tvb, offset) )
+    if( 0x50 == tvb_get_uint8(tvb, offset) )
     {
         //First octet contains preamble alignment bits. Ignore it.
         offset = 1;
     }
 
-    while( tvb_get_guint8(tvb, offset) == Octet_0x55 && ( offset + 2 < tvb_reported_length(tvb) ) )
+    while( tvb_get_uint8(tvb, offset) == Octet_0x55 && ( offset + 2 < tvb_reported_length(tvb) ) )
     {
         offset++;
     }
 
-    uint8_t smd1 = tvb_get_guint8(tvb, offset);
+    uint8_t smd1 = tvb_get_uint8(tvb, offset);
 
     switch (smd1) {
         case SMD_PP_Start_0:
@@ -230,7 +230,7 @@ get_preamble_length(tvbuff_t *tvb) {
 static fpp_crc_t
 get_crc_stat(tvbuff_t *tvb, uint32_t crc, uint32_t mcrc) {
     fpp_crc_t crc_val;
-    uint32_t received_crc = tvb_get_guint32(tvb, tvb_reported_length(tvb) - FPP_CRC_LENGTH, ENC_BIG_ENDIAN);
+    uint32_t received_crc = tvb_get_uint32(tvb, tvb_reported_length(tvb) - FPP_CRC_LENGTH, ENC_BIG_ENDIAN);
 
     if (received_crc == crc) {
         crc_val = CRC_CRC;
@@ -245,7 +245,7 @@ get_crc_stat(tvbuff_t *tvb, uint32_t crc, uint32_t mcrc) {
 static fpp_crc_t
 get_express_crc_stat(tvbuff_t *tvb, uint32_t express_crc) {
     fpp_crc_t crc_val;
-    uint32_t received_crc = tvb_get_guint32(tvb, tvb_reported_length(tvb) - FPP_CRC_LENGTH, ENC_BIG_ENDIAN);
+    uint32_t received_crc = tvb_get_uint32(tvb, tvb_reported_length(tvb) - FPP_CRC_LENGTH, ENC_BIG_ENDIAN);
 
     if (received_crc == express_crc) {
         crc_val = CRC_CRC;
@@ -261,19 +261,19 @@ get_packet_type(tvbuff_t *tvb) {
 
     uint32_t offset = 0;
 
-    if( 0x50 == tvb_get_guint8(tvb, offset) )
+    if( 0x50 == tvb_get_uint8(tvb, offset) )
     {
         //First octet contains preamble alignment bits. Ignore it.
         offset = 1;
     }
 
-    while( tvb_get_guint8(tvb, offset) == Octet_0x55 && ( offset + 2 < tvb_reported_length(tvb) ) )
+    while( tvb_get_uint8(tvb, offset) == Octet_0x55 && ( offset + 2 < tvb_reported_length(tvb) ) )
     {
         offset++;
     }
 
-    uint8_t smd1 = tvb_get_guint8(tvb, offset);
-    uint8_t smd2 = tvb_get_guint8(tvb, offset + 1);
+    uint8_t smd1 = tvb_get_uint8(tvb, offset);
+    uint8_t smd2 = tvb_get_uint8(tvb, offset + 1);
 
     switch (smd1) {
         case SMD_PP_Start_0:
@@ -323,15 +323,15 @@ col_fstr_process(tvbuff_t *tvb, packet_info *pinfo, fpp_crc_t crc_val) {
             break;
         case FPP_Packet_Init:
             if (crc_val == CRC_CRC)
-                col_add_str(pinfo->cinfo, COL_INFO, try_val_to_str(tvb_get_guint8(tvb, preamble_length-1), preemptive_delim_desc));
+                col_add_str(pinfo->cinfo, COL_INFO, try_val_to_str(tvb_get_uint8(tvb, preamble_length-1), preemptive_delim_desc));
             else if (crc_val == CRC_mCRC)
-                col_add_str(pinfo->cinfo, COL_INFO, try_val_to_str(tvb_get_guint8(tvb, preamble_length-1), initial_delim_desc));
+                col_add_str(pinfo->cinfo, COL_INFO, try_val_to_str(tvb_get_uint8(tvb, preamble_length-1), initial_delim_desc));
             else
-                col_add_str(pinfo->cinfo, COL_INFO, try_val_to_str(tvb_get_guint8(tvb, preamble_length-1), corrupted_delim_desc));
+                col_add_str(pinfo->cinfo, COL_INFO, try_val_to_str(tvb_get_uint8(tvb, preamble_length-1), corrupted_delim_desc));
             break;
         case FPP_Packet_Cont:
-            col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s", try_val_to_str(tvb_get_guint8(tvb, preamble_length-2), continuation_delim_desc),
-                                                          try_val_to_str(tvb_get_guint8(tvb, preamble_length-1), frag_count_delim_desc));
+            col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s", try_val_to_str(tvb_get_uint8(tvb, preamble_length-2), continuation_delim_desc),
+                                                          try_val_to_str(tvb_get_uint8(tvb, preamble_length-1), frag_count_delim_desc));
             break;
         default:
             break;
@@ -443,8 +443,8 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     unsigned preamble_bit_length = preamble_length * 8;
     bool preamble_unaligned = false;
 
-    uint8_t smd1 = tvb_get_guint8(tvb, preamble_length - 2);
-    uint8_t smd2 = tvb_get_guint8(tvb, preamble_length - 1);
+    uint8_t smd1 = tvb_get_uint8(tvb, preamble_length - 2);
+    uint8_t smd2 = tvb_get_uint8(tvb, preamble_length - 1);
 
     unsigned crc_offset = tvb_reported_length(tvb) - FPP_CRC_LENGTH;
     int frag_size = tvb_reported_length(tvb) - preamble_length - FPP_CRC_LENGTH;
@@ -471,7 +471,7 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     /* Create a tree for the preamble. */
     proto_item *ti_preamble = proto_tree_add_item(tree, hf_fpp_preamble, tvb, 0, preamble_length, ENC_NA);
 
-    if( 0x50 == tvb_get_guint8(tvb, 0) )
+    if( 0x50 == tvb_get_uint8(tvb, 0) )
     {
         //First octet contains preamble alignment bits.
         preamble_bit_length -= 4;
@@ -500,13 +500,13 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     {
         proto_item *ti_smd = proto_tree_add_item(fpp_preamble_tree, hf_fpp_preamble_smd, tvb, preamble_length - 2, 1, ENC_BIG_ENDIAN);
         proto_item *ti_fragcnt = proto_tree_add_item(fpp_preamble_tree, hf_fpp_preamble_frag_count, tvb, preamble_length - 1, 1, ENC_BIG_ENDIAN);
-        proto_item_append_text(ti_smd, " %s", try_val_to_str(tvb_get_guint8(tvb, preamble_length-2), delim_desc) );
-        proto_item_append_text(ti_fragcnt, " %s", try_val_to_str(tvb_get_guint8(tvb, preamble_length-1), frag_count_delim_desc) );
+        proto_item_append_text(ti_smd, " %s", try_val_to_str(tvb_get_uint8(tvb, preamble_length-2), delim_desc) );
+        proto_item_append_text(ti_fragcnt, " %s", try_val_to_str(tvb_get_uint8(tvb, preamble_length-1), frag_count_delim_desc) );
     }
     else
     {
         proto_item *ti_smd = proto_tree_add_item(fpp_preamble_tree, hf_fpp_preamble_smd, tvb, preamble_length - 1, 1, ENC_BIG_ENDIAN);
-        proto_item_append_text(ti_smd, " %s", try_val_to_str(tvb_get_guint8(tvb, preamble_length-1), delim_desc) );
+        proto_item_append_text(ti_smd, " %s", try_val_to_str(tvb_get_uint8(tvb, preamble_length-1), delim_desc) );
     }
 
     prev_crc = 0;
@@ -718,7 +718,7 @@ dissect_express(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t cr
     proto_item *ti_preamble = proto_tree_add_item(tree, hf_fpp_preamble, tvb, offset, preamble_length, ENC_NA);
     offset += preamble_length;
 
-    if( 0x50 == tvb_get_guint8(tvb, 0) )
+    if( 0x50 == tvb_get_uint8(tvb, 0) )
     {
         //First octet contains preamble alignment bits.
         preamble_bit_length -= 4;

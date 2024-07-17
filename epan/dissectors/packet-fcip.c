@@ -223,8 +223,8 @@ NXT_BYTE: while (bytes_remaining) {
 
         /* Valid EOF check */
         if (tvb_bytes_exist (tvb, offset+(frame_len-1)*4, 4)) {
-            eof = (fcip_eof_t)tvb_get_guint8 (tvb, offset+(frame_len-1)*4);
-            eofc = (fcip_eof_t)tvb_get_guint8 (tvb, offset+(frame_len-1)*4+2);
+            eof = (fcip_eof_t)tvb_get_uint8 (tvb, offset+(frame_len-1)*4);
+            eofc = (fcip_eof_t)tvb_get_uint8 (tvb, offset+(frame_len-1)*4+2);
 
             if ((eof != FCIP_EOFn) && (eof != FCIP_EOFt) && (eof != FCIP_EOFrt)
                 && (eof != FCIP_EOFdt) && (eof != FCIP_EOFni) &&
@@ -236,8 +236,8 @@ NXT_BYTE: while (bytes_remaining) {
             }
 
             if ((eof != ~eofc) ||
-                (eof != tvb_get_guint8 (tvb, offset+(frame_len-1)*4+1)) ||
-                (eofc != tvb_get_guint8 (tvb, offset+(frame_len-1)*4+3))) {
+                (eof != tvb_get_uint8 (tvb, offset+(frame_len-1)*4+1)) ||
+                (eofc != tvb_get_uint8 (tvb, offset+(frame_len-1)*4+3))) {
                 offset++;
                 bytes_remaining--;
                 goto NXT_BYTE;
@@ -245,8 +245,8 @@ NXT_BYTE: while (bytes_remaining) {
         }
 
         /* Test d */
-        if ((tvb_get_guint8 (tvb, offset+9) != 0) ||
-            (tvb_get_guint8 (tvb, offset+11) != 0xFF)) {
+        if ((tvb_get_uint8 (tvb, offset+9) != 0) ||
+            (tvb_get_uint8 (tvb, offset+11) != 0xFF)) {
             /* Failed */
             offset++;
             bytes_remaining--;
@@ -304,7 +304,7 @@ NXT_BYTE: while (bytes_remaining) {
 static void
 dissect_fcencap_header (tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-    uint8_t protocol = tvb_get_guint8 (tvb, offset);
+    uint8_t protocol = tvb_get_uint8 (tvb, offset);
 
     if (tree) {
         proto_tree_add_uint (tree, hf_fcip_protocol, tvb, offset, 1, protocol);
@@ -405,7 +405,7 @@ dissect_fcip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             }
         }
 
-        pflags = tvb_get_guint8 (tvb, start+8);
+        pflags = tvb_get_uint8 (tvb, start+8);
 
         if (tree) {
             if (FCIP_IS_SF (pflags)) {
@@ -414,8 +414,8 @@ dissect_fcip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                                      "FCIP");
             }
             else if (tvb_bytes_exist (tvb, offset, offset+frame_len-4)) {
-                sof = tvb_get_guint8 (tvb, offset+FCIP_ENCAP_HEADER_LEN);
-                eof = tvb_get_guint8 (tvb, offset+frame_len - 4);
+                sof = tvb_get_uint8 (tvb, offset+FCIP_ENCAP_HEADER_LEN);
+                eof = tvb_get_uint8 (tvb, offset+frame_len - 4);
 
                 ti = proto_tree_add_protocol_format (tree, proto_fcip, tvb, 0,
                                                      FCIP_ENCAP_HEADER_LEN,
@@ -426,7 +426,7 @@ dissect_fcip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                                                  "0x%x"));
             }
             else {
-                sof = tvb_get_guint8 (tvb, offset+FCIP_ENCAP_HEADER_LEN);
+                sof = tvb_get_uint8 (tvb, offset+FCIP_ENCAP_HEADER_LEN);
 
                 ti = proto_tree_add_protocol_format (tree, proto_fcip, tvb, 0,
                                                      FCIP_ENCAP_HEADER_LEN,

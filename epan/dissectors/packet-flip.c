@@ -309,7 +309,7 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
         tvbuff_t *chksum_tvb;
 
-        ext_hdr_type = tvb_get_guint8(flip_tvb, offset);
+        ext_hdr_type = tvb_get_uint8(flip_tvb, offset);
 
         switch (ext_hdr_type) {
         case FLIP_CHKSUM:

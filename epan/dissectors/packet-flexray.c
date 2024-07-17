@@ -334,7 +334,7 @@ dissect_flexray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         ti = proto_tree_add_bitmask(flexray_tree, tvb, 1, hf_flexray_error_flags_field, ett_flexray_error_flags, error_fields, ENC_BIG_ENDIAN);
         error_flags_tree = proto_item_add_subtree(ti, ett_flexray_error_flags);
 
-        uint8_t error_flags = tvb_get_guint8(tvb, 1) & 0x1f;
+        uint8_t error_flags = tvb_get_uint8(tvb, 1) & 0x1f;
         if (error_flags) {
             expert_add_info(pinfo, error_flags_tree, &ei_flexray_error_flag);
             call_subdissector = false;

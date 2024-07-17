@@ -2039,13 +2039,13 @@ dissect_ff_msg_fda_open_sess_err(tvbuff_t *tvb, int offset,
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
         ett_ff_fda_open_sess_err, NULL, "FDA Open Session Error");
 
-    ErrorClass = tvb_get_guint8(tvb, offset);
+    ErrorClass = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sub_tree,
         hf_ff_fda_open_sess_err_err_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 
-    ErrorCode = tvb_get_guint8(tvb, offset);
+    ErrorCode = tvb_get_uint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
     proto_tree_add_uint_format_value(sub_tree, hf_ff_fda_open_sess_err_err_code,
         tvb, offset, 1, ErrorCode,
@@ -2142,13 +2142,13 @@ dissect_ff_msg_fda_idle_err(tvbuff_t *tvb, int offset,
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
         ett_ff_fda_idle_err, NULL, "FDA Idle Error");
 
-    ErrorClass = tvb_get_guint8(tvb, offset);
+    ErrorClass = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sub_tree,
         hf_ff_fda_idle_err_err_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 
-    ErrorCode = tvb_get_guint8(tvb, offset);
+    ErrorCode = tvb_get_uint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
     proto_tree_add_uint_format_value(sub_tree, hf_ff_fda_idle_err_err_code,
         tvb, offset, 1, ErrorCode,
@@ -2735,13 +2735,13 @@ dissect_ff_msg_sm_id_err(tvbuff_t *tvb, int offset,
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ff_sm_id_err, NULL, "SM Identify Error");
 
-    ErrorClass = tvb_get_guint8(tvb, offset);
+    ErrorClass = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sub_tree,
         hf_ff_sm_id_err_err_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 
-    ErrorCode = tvb_get_guint8(tvb, offset);
+    ErrorCode = tvb_get_uint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
     proto_tree_add_uint_format_value(sub_tree, hf_ff_sm_id_err_err_code,
         tvb, offset, 1, ErrorCode,
@@ -2857,13 +2857,13 @@ dissect_ff_msg_sm_clear_addr_err(tvbuff_t *tvb, int offset,
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
         ett_ff_sm_clear_addr_err, NULL, "SM Clear Address Error");
 
-    ErrorClass = tvb_get_guint8(tvb, offset);
+    ErrorClass = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sub_tree,
         hf_ff_sm_clear_addr_err_err_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 
-    ErrorCode = tvb_get_guint8(tvb, offset);
+    ErrorCode = tvb_get_uint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
     proto_tree_add_uint_format_value(sub_tree, hf_ff_sm_clear_addr_err_err_code,
         tvb, offset, 1, ErrorCode,
@@ -3080,13 +3080,13 @@ dissect_ff_msg_sm_set_assign_info_err(tvbuff_t *tvb, int offset,
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
         ett_ff_sm_set_assign_info_err, NULL, "SM Set Assignment Info Error");
 
-    ErrorClass = tvb_get_guint8(tvb, offset);
+    ErrorClass = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sub_tree,
         hf_ff_sm_set_assign_info_err_err_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 
-    ErrorCode = tvb_get_guint8(tvb, offset);
+    ErrorCode = tvb_get_uint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
     proto_tree_add_uint_format_value(sub_tree,
         hf_ff_sm_set_assign_info_err_err_code,
@@ -3194,13 +3194,13 @@ dissect_ff_msg_sm_clear_assign_info_err(tvbuff_t *tvb, int offset,
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
         ett_ff_sm_clear_assign_info_err, NULL, "SM Clear Assignment Info Error");
 
-    ErrorClass = tvb_get_guint8(tvb, offset);
+    ErrorClass = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sub_tree,
         hf_ff_sm_clear_assign_info_err_err_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 
-    ErrorCode = tvb_get_guint8(tvb, offset);
+    ErrorCode = tvb_get_uint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
     proto_tree_add_uint_format_value(sub_tree,
         hf_ff_sm_clear_assign_info_err_err_code,
@@ -3666,13 +3666,13 @@ dissect_ff_msg_fms_init_err(tvbuff_t *tvb, int offset,
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ff_fms_init_err, NULL, "FMS Initiate Error");
 
-    ErrorClass = tvb_get_guint8(tvb, offset);
+    ErrorClass = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sub_tree,
         hf_ff_fms_init_err_err_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 
-    ErrorCode = tvb_get_guint8(tvb, offset);
+    ErrorCode = tvb_get_uint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
     proto_tree_add_uint_format_value(sub_tree, hf_ff_fms_init_err_err_code,
         tvb, offset, 1, ErrorCode,
@@ -3830,13 +3830,13 @@ dissect_ff_msg_fms_status_err(tvbuff_t *tvb, int offset,
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ff_fms_status_err, NULL, "FMS Status Error");
 
-    ErrorClass = tvb_get_guint8(tvb, offset);
+    ErrorClass = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sub_tree,
         hf_ff_fms_status_err_err_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 
-    ErrorCode = tvb_get_guint8(tvb, offset);
+    ErrorCode = tvb_get_uint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
     proto_tree_add_uint_format_value(sub_tree, hf_ff_fms_status_err_err_code,
         tvb, offset, 1, ErrorCode,
@@ -3993,13 +3993,13 @@ dissect_ff_msg_fms_id_err(tvbuff_t *tvb, int offset,
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ff_fms_id_err, NULL, "FMS Identify Error");
 
-    ErrorClass = tvb_get_guint8(tvb, offset);
+    ErrorClass = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sub_tree,
         hf_ff_fms_id_err_err_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 
-    ErrorCode = tvb_get_guint8(tvb, offset);
+    ErrorCode = tvb_get_uint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
     proto_tree_add_uint_format_value(sub_tree, hf_ff_fms_id_err_err_code,
         tvb, offset, 1, ErrorCode,
@@ -4128,13 +4128,13 @@ dissect_ff_msg_fms_get_od_err(tvbuff_t *tvb, int offset,
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ff_fms_get_od_err, NULL, "FMS Get OD Error");
 
-    ErrorClass = tvb_get_guint8(tvb, offset);
+    ErrorClass = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sub_tree,
         hf_ff_fms_get_od_err_err_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 
-    ErrorCode = tvb_get_guint8(tvb, offset);
+    ErrorCode = tvb_get_uint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
     proto_tree_add_uint_format_value(sub_tree, hf_ff_fms_get_od_err_err_code,
         tvb, offset, 1, ErrorCode,
@@ -4240,13 +4240,13 @@ dissect_ff_msg_fms_init_put_od_err(tvbuff_t *tvb, int offset,
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
         ett_ff_fms_init_put_od_err, NULL, "FMS Initiate Put OD Error");
 
-    ErrorClass = tvb_get_guint8(tvb, offset);
+    ErrorClass = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sub_tree,
         hf_ff_fms_init_put_od_err_err_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 
-    ErrorCode = tvb_get_guint8(tvb, offset);
+    ErrorCode = tvb_get_uint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
     proto_tree_add_uint_format_value(sub_tree, hf_ff_fms_init_put_od_err_err_code,
         tvb, offset, 1, ErrorCode,
@@ -4348,13 +4348,13 @@ dissect_ff_msg_fms_put_od_err(tvbuff_t *tvb, int offset,
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
         ett_ff_fms_put_od_err, NULL, "FMS Put OD Error");
 
-    ErrorClass = tvb_get_guint8(tvb, offset);
+    ErrorClass = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sub_tree,
         hf_ff_fms_put_od_err_err_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 
-    ErrorCode = tvb_get_guint8(tvb, offset);
+    ErrorCode = tvb_get_uint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
     proto_tree_add_uint_format_value(sub_tree, hf_ff_fms_put_od_err_err_code,
         tvb, offset, 1, ErrorCode,
@@ -4456,13 +4456,13 @@ dissect_ff_msg_fms_terminate_put_od_err(tvbuff_t *tvb, int offset,
     offset += 4;
     length -= 4;
 
-    ErrorClass = tvb_get_guint8(tvb, offset);
+    ErrorClass = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sub_tree,
         hf_ff_fms_terminate_put_od_err_err_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 
-    ErrorCode = tvb_get_guint8(tvb, offset);
+    ErrorCode = tvb_get_uint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
     proto_tree_add_uint_format_value(sub_tree,
         hf_ff_fms_terminate_put_od_err_err_code,
@@ -4570,13 +4570,13 @@ dissect_ff_msg_fms_generic_init_download_sequence_err(
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
         ett_ff_fms_gen_init_download_seq_err, NULL, "FMS Generic Initiate Download Sequence Error");
 
-    ErrorClass = tvb_get_guint8(tvb, offset);
+    ErrorClass = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sub_tree,
         hf_ff_fms_gen_init_download_seq_err_err_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 
-    ErrorCode = tvb_get_guint8(tvb, offset);
+    ErrorCode = tvb_get_uint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
     proto_tree_add_uint_format_value(sub_tree,
         hf_ff_fms_gen_init_download_seq_err_err_code,
@@ -4693,13 +4693,13 @@ dissect_ff_msg_fms_generic_download_segment_err(
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
         ett_ff_fms_gen_download_seg_err, NULL, "FMS Generic Download Segment Error");
 
-    ErrorClass = tvb_get_guint8(tvb, offset);
+    ErrorClass = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sub_tree,
         hf_ff_fms_gen_download_seg_err_err_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 
-    ErrorCode = tvb_get_guint8(tvb, offset);
+    ErrorCode = tvb_get_uint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
     proto_tree_add_uint_format_value(sub_tree,
         hf_ff_fms_gen_download_seg_err_err_code,
@@ -4817,14 +4817,14 @@ dissect_ff_msg_fms_generic_terminate_download_sequence_err(
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
         ett_ff_fms_gen_terminate_download_seq_err, NULL, "FMS Generic Terminate Download Sequence Error");
 
-    ErrorClass = tvb_get_guint8(tvb, offset);
+    ErrorClass = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sub_tree,
         hf_ff_fms_gen_terminate_download_seq_err_err_class,
         tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 
-    ErrorCode = tvb_get_guint8(tvb, offset);
+    ErrorCode = tvb_get_uint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
     proto_tree_add_uint_format_value(sub_tree,
         hf_ff_fms_gen_terminate_download_seq_err_err_code,
@@ -4932,13 +4932,13 @@ dissect_ff_msg_fms_init_download_sequence_err(
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
         ett_ff_fms_init_download_seq_err, NULL, "FMS Initiate Download Sequence Error");
 
-    ErrorClass = tvb_get_guint8(tvb, offset);
+    ErrorClass = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sub_tree,
         hf_ff_fms_init_download_seq_err_err_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 
-    ErrorCode = tvb_get_guint8(tvb, offset);
+    ErrorCode = tvb_get_uint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
     proto_tree_add_uint_format_value(sub_tree,
         hf_ff_fms_init_download_seq_err_err_code,
@@ -5051,13 +5051,13 @@ dissect_ff_msg_fms_download_segment_err(tvbuff_t *tvb, int offset,
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
         ett_ff_fms_download_seg_err, NULL, "FMS Download Segment Error");
 
-    ErrorClass = tvb_get_guint8(tvb, offset);
+    ErrorClass = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sub_tree,
         hf_ff_fms_download_seg_err_err_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 
-    ErrorCode = tvb_get_guint8(tvb, offset);
+    ErrorCode = tvb_get_uint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
     proto_tree_add_uint_format_value(sub_tree, hf_ff_fms_download_seg_err_err_code,
         tvb, offset, 1, ErrorCode,
@@ -5173,13 +5173,13 @@ dissect_ff_msg_fms_terminate_download_sequence_err(
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
         ett_ff_fms_terminate_download_seq_err, NULL, "FMS Terminate Download Sequence Error");
 
-    ErrorClass = tvb_get_guint8(tvb, offset);
+    ErrorClass = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sub_tree,
         hf_ff_fms_terminate_download_seq_err_err_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 
-    ErrorCode = tvb_get_guint8(tvb, offset);
+    ErrorCode = tvb_get_uint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
     proto_tree_add_uint_format_value(sub_tree,
         hf_ff_fms_terminate_download_seq_err_err_code,
@@ -5287,13 +5287,13 @@ dissect_ff_msg_fms_init_upload_seq_err(
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
         ett_ff_fms_init_upload_seq_err, NULL, "FMS Initiate Upload Sequence Error");
 
-    ErrorClass = tvb_get_guint8(tvb, offset);
+    ErrorClass = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sub_tree,
         hf_ff_fms_init_upload_seq_err_err_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 
-    ErrorCode = tvb_get_guint8(tvb, offset);
+    ErrorCode = tvb_get_uint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
     proto_tree_add_uint_format_value(sub_tree, hf_ff_fms_init_upload_seq_err_err_code,
         tvb, offset, 1, ErrorCode,
@@ -5404,13 +5404,13 @@ dissect_ff_msg_fms_upload_segment_err(tvbuff_t *tvb, int offset,
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
         ett_ff_fms_upload_seg_err, NULL, "FMS Upload Segment Error");
 
-    ErrorClass = tvb_get_guint8(tvb, offset);
+    ErrorClass = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sub_tree,
         hf_ff_fms_upload_seg_err_err_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 
-    ErrorCode = tvb_get_guint8(tvb, offset);
+    ErrorCode = tvb_get_uint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
     proto_tree_add_uint_format_value(sub_tree, hf_ff_fms_upload_seg_err_err_code,
         tvb, offset, 1, ErrorCode,
@@ -5516,13 +5516,13 @@ dissect_ff_msg_fms_terminate_upload_seq_err(
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
         ett_ff_fms_terminate_upload_seq_err, NULL, "FMS Terminate Upload Sequence Error");
 
-    ErrorClass = tvb_get_guint8(tvb, offset);
+    ErrorClass = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sub_tree,
         hf_ff_fms_terminate_upload_seq_err_err_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 
-    ErrorCode = tvb_get_guint8(tvb, offset);
+    ErrorCode = tvb_get_uint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
     proto_tree_add_uint_format_value(sub_tree,
         hf_ff_fms_terminate_upload_seq_err_err_code,
@@ -5632,13 +5632,13 @@ dissect_ff_msg_fms_req_dom_download_err(
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
         ett_ff_fms_req_dom_download_err, NULL, "FMS Request Domain Download Error");
 
-    ErrorClass = tvb_get_guint8(tvb, offset);
+    ErrorClass = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sub_tree,
         hf_ff_fms_req_dom_download_err_err_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 
-    ErrorCode = tvb_get_guint8(tvb, offset);
+    ErrorCode = tvb_get_uint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
     proto_tree_add_uint_format_value(sub_tree,
         hf_ff_fms_req_dom_download_err_err_code,
@@ -5747,13 +5747,13 @@ dissect_ff_msg_fms_req_dom_upload_err(
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
         ett_ff_fms_req_dom_upload_err, NULL, "FMS Request Domain Upload Error");
 
-    ErrorClass = tvb_get_guint8(tvb, offset);
+    ErrorClass = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sub_tree,
         hf_ff_fms_req_dom_upload_err_err_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 
-    ErrorCode = tvb_get_guint8(tvb, offset);
+    ErrorCode = tvb_get_uint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
     proto_tree_add_uint_format_value(sub_tree, hf_ff_fms_req_dom_upload_err_err_code,
         tvb, offset, 1, ErrorCode,
@@ -5905,13 +5905,13 @@ dissect_ff_msg_fms_create_pi_err(tvbuff_t *tvb, int offset,
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
         ett_ff_fms_create_pi_err, NULL, "FMS Create Program Invocation Error");
 
-    ErrorClass = tvb_get_guint8(tvb, offset);
+    ErrorClass = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sub_tree,
         hf_ff_fms_create_pi_err_err_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 
-    ErrorCode = tvb_get_guint8(tvb, offset);
+    ErrorCode = tvb_get_uint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
     proto_tree_add_uint_format_value(sub_tree, hf_ff_fms_create_pi_err_err_code,
         tvb, offset, 1, ErrorCode,
@@ -6014,13 +6014,13 @@ dissect_ff_msg_fms_del_pi_err(tvbuff_t *tvb, int offset,
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
         ett_ff_fms_del_pi_err, NULL, "FMS Delete Program Invocation Error");
 
-    ErrorClass = tvb_get_guint8(tvb, offset);
+    ErrorClass = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sub_tree,
         hf_ff_fms_del_pi_err_err_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 
-    ErrorCode = tvb_get_guint8(tvb, offset);
+    ErrorCode = tvb_get_uint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
     proto_tree_add_uint_format_value(sub_tree, hf_ff_fms_del_pi_err_err_code,
         tvb, offset, 1, ErrorCode,
@@ -6130,13 +6130,13 @@ dissect_ff_msg_fms_start_pi_err(tvbuff_t *tvb, int offset,
     offset += 3;
     length -= 3;
 
-    ErrorClass = tvb_get_guint8(tvb, offset);
+    ErrorClass = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sub_tree,
         hf_ff_fms_start_err_err_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 
-    ErrorCode = tvb_get_guint8(tvb, offset);
+    ErrorCode = tvb_get_uint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
     proto_tree_add_uint_format_value(sub_tree, hf_ff_fms_start_err_err_code,
         tvb, offset, 1, ErrorCode,
@@ -6245,13 +6245,13 @@ dissect_ff_msg_fms_stop_pi_err(tvbuff_t *tvb, int offset,
     offset += 3;
     length -= 3;
 
-    ErrorClass = tvb_get_guint8(tvb, offset);
+    ErrorClass = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sub_tree,
         hf_ff_fms_stop_err_err_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 
-    ErrorCode = tvb_get_guint8(tvb, offset);
+    ErrorCode = tvb_get_uint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
     proto_tree_add_uint_format_value(sub_tree, hf_ff_fms_stop_err_err_code,
         tvb, offset, 1, ErrorCode,
@@ -6360,13 +6360,13 @@ dissect_ff_msg_fms_resume_pi_err(tvbuff_t *tvb, int offset,
     offset += 3;
     length -= 3;
 
-    ErrorClass = tvb_get_guint8(tvb, offset);
+    ErrorClass = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sub_tree,
         hf_ff_fms_resume_err_err_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 
-    ErrorCode = tvb_get_guint8(tvb, offset);
+    ErrorCode = tvb_get_uint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
     proto_tree_add_uint_format_value(sub_tree, hf_ff_fms_resume_err_err_code,
         tvb, offset, 1, ErrorCode,
@@ -6475,13 +6475,13 @@ dissect_ff_msg_fms_reset_pi_err(tvbuff_t *tvb, int offset,
     offset += 3;
     length -= 3;
 
-    ErrorClass = tvb_get_guint8(tvb, offset);
+    ErrorClass = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sub_tree,
         hf_ff_fms_reset_err_err_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 
-    ErrorCode = tvb_get_guint8(tvb, offset);
+    ErrorCode = tvb_get_uint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
     proto_tree_add_uint_format_value(sub_tree, hf_ff_fms_reset_err_err_code,
         tvb, offset, 1, ErrorCode,
@@ -6581,13 +6581,13 @@ dissect_ff_msg_fms_kill_pi_err(tvbuff_t *tvb, int offset,
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ff_fms_kill_err, NULL, "FMS Kill Error");
 
-    ErrorClass = tvb_get_guint8(tvb, offset);
+    ErrorClass = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sub_tree,
         hf_ff_fms_kill_err_err_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 
-    ErrorCode = tvb_get_guint8(tvb, offset);
+    ErrorCode = tvb_get_uint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
     proto_tree_add_uint_format_value(sub_tree, hf_ff_fms_kill_err_err_code,
         tvb, offset, 1, ErrorCode,
@@ -6684,13 +6684,13 @@ dissect_ff_msg_fms_read_err(tvbuff_t *tvb, int offset,
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ff_fms_read_err, NULL, "FMS Read Error");
 
-    ErrorClass = tvb_get_guint8(tvb, offset);
+    ErrorClass = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sub_tree,
         hf_ff_fms_read_err_err_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 
-    ErrorCode = tvb_get_guint8(tvb, offset);
+    ErrorCode = tvb_get_uint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
     proto_tree_add_uint_format_value(sub_tree, hf_ff_fms_read_err_err_code,
         tvb, offset, 1, ErrorCode,
@@ -6795,13 +6795,13 @@ dissect_ff_msg_fms_read_subindex_err(tvbuff_t *tvb, int offset,
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
         ett_ff_fms_read_with_subidx_err, NULL, "FMS Read with Subindex Error");
 
-    ErrorClass = tvb_get_guint8(tvb, offset);
+    ErrorClass = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sub_tree,
         hf_ff_fms_read_with_subidx_err_err_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 
-    ErrorCode = tvb_get_guint8(tvb, offset);
+    ErrorCode = tvb_get_uint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
     proto_tree_add_uint_format_value(sub_tree,
         hf_ff_fms_read_with_subidx_err_err_code,
@@ -6903,13 +6903,13 @@ dissect_ff_msg_fms_write_err(tvbuff_t *tvb, int offset,
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ff_fms_write_err, NULL, "FMS Write Error");
 
-    ErrorClass = tvb_get_guint8(tvb, offset);
+    ErrorClass = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sub_tree,
         hf_ff_fms_write_err_err_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 
-    ErrorCode = tvb_get_guint8(tvb, offset);
+    ErrorCode = tvb_get_uint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
     proto_tree_add_uint_format_value(sub_tree, hf_ff_fms_write_err_err_code,
         tvb, offset, 1, ErrorCode,
@@ -7016,13 +7016,13 @@ dissect_ff_msg_fms_write_subindex_err(tvbuff_t *tvb, int offset,
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
         ett_ff_fms_write_with_subidx_err, NULL, "FMS Write with Subindex Error");
 
-    ErrorClass = tvb_get_guint8(tvb, offset);
+    ErrorClass = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sub_tree,
         hf_ff_fms_write_with_subidx_err_err_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 
-    ErrorCode = tvb_get_guint8(tvb, offset);
+    ErrorCode = tvb_get_uint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
     proto_tree_add_uint_format_value(sub_tree,
         hf_ff_fms_write_with_subidx_err_err_code,
@@ -7163,13 +7163,13 @@ dissect_ff_msg_fms_def_variable_list_err(tvbuff_t *tvb, int offset,
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
         ett_ff_fms_def_variable_list_err, NULL, "FMS Define Variable List Error");
 
-    ErrorClass = tvb_get_guint8(tvb, offset);
+    ErrorClass = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sub_tree,
         hf_ff_fms_def_variable_list_err_err_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 
-    ErrorCode = tvb_get_guint8(tvb, offset);
+    ErrorCode = tvb_get_uint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
     proto_tree_add_uint_format_value(sub_tree,
         hf_ff_fms_def_variable_list_err_err_code,
@@ -7273,13 +7273,13 @@ dissect_ff_msg_fms_del_variable_list_err(tvbuff_t *tvb, int offset,
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
         ett_ff_fms_del_variable_list_err, NULL, "FMS Delete Variable List Error");
 
-    ErrorClass = tvb_get_guint8(tvb, offset);
+    ErrorClass = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sub_tree,
         hf_ff_fms_del_variable_list_err_err_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 
-    ErrorCode = tvb_get_guint8(tvb, offset);
+    ErrorCode = tvb_get_uint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
     proto_tree_add_uint_format_value(sub_tree,
         hf_ff_fms_del_variable_list_err_err_code,
@@ -7572,14 +7572,14 @@ dissect_ff_msg_fms_alter_alter_ev_condition_monitoring_err(
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
         ett_ff_fms_alter_ev_condition_monitoring_err, NULL, "FMS Alter Event Condition Monitoring Error");
 
-    ErrorClass = tvb_get_guint8(tvb, offset);
+    ErrorClass = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sub_tree,
         hf_ff_fms_alter_ev_condition_monitoring_err_err_class,
         tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 
-    ErrorCode = tvb_get_guint8(tvb, offset);
+    ErrorCode = tvb_get_uint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
     proto_tree_add_uint_format_value(sub_tree,
         hf_ff_fms_alter_ev_condition_monitoring_err_err_code,
@@ -7692,13 +7692,13 @@ dissect_ff_msg_fms_ack_ev_notification_err(
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
         ett_ff_fms_ack_ev_notification_err, NULL, "FMS Acknowledge Event Notification Error");
 
-    ErrorClass = tvb_get_guint8(tvb, offset);
+    ErrorClass = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sub_tree,
         hf_ff_fms_ack_ev_notification_err_err_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 
-    ErrorCode = tvb_get_guint8(tvb, offset);
+    ErrorCode = tvb_get_uint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
     proto_tree_add_uint_format_value(sub_tree,
         hf_ff_fms_ack_ev_notification_err_err_code,
@@ -7819,7 +7819,7 @@ dissect_ff_msg_lr_get_info_rsp(
     offset += 4;
     length -= 4;
 
-    MaxMsgNumDiff = tvb_get_guint8(tvb, offset);
+    MaxMsgNumDiff = tvb_get_uint8(tvb, offset);
     switch (MaxMsgNumDiff) {
         case 0:
         case 1:
@@ -7910,13 +7910,13 @@ dissect_ff_msg_lr_get_info_err(
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
         ett_ff_lr_get_info_err, NULL, "LAN Redundancy Get Information Error");
 
-    ErrorClass = tvb_get_guint8(tvb, offset);
+    ErrorClass = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sub_tree,
         hf_ff_lr_get_info_err_err_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 
-    ErrorCode = tvb_get_guint8(tvb, offset);
+    ErrorCode = tvb_get_uint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
     proto_tree_add_uint_format_value(sub_tree, hf_ff_lr_get_info_err_err_code,
         tvb, offset, 1, ErrorCode,
@@ -8009,7 +8009,7 @@ dissect_ff_msg_lr_put_info_req(
     offset += 4;
     length -= 4;
 
-    MaxMsgNumDiff = tvb_get_guint8(tvb, offset);
+    MaxMsgNumDiff = tvb_get_uint8(tvb, offset);
     switch (MaxMsgNumDiff) {
         case 0:
         case 1:
@@ -8144,7 +8144,7 @@ dissect_ff_msg_lr_put_info_rsp(
     offset += 4;
     length -= 4;
 
-    MaxMsgNumDiff = tvb_get_guint8(tvb, offset);
+    MaxMsgNumDiff = tvb_get_uint8(tvb, offset);
     switch (MaxMsgNumDiff) {
         case 0:
         case 1:
@@ -8235,13 +8235,13 @@ dissect_ff_msg_lr_put_info_err(
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
         ett_ff_lr_put_info_err, NULL, "LAN Redundancy Put Information Error");
 
-    ErrorClass = tvb_get_guint8(tvb, offset);
+    ErrorClass = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sub_tree,
         hf_ff_lr_put_info_err_err_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 
-    ErrorCode = tvb_get_guint8(tvb, offset);
+    ErrorCode = tvb_get_uint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
     proto_tree_add_uint_format_value(sub_tree, hf_ff_lr_put_info_err_err_code,
         tvb, offset, 1, ErrorCode,
@@ -8419,13 +8419,13 @@ dissect_ff_msg_lr_get_statistics_err(
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, length,
         ett_ff_lr_get_statistics_err, NULL, "LAN Redundancy Get Statistics Error");
 
-    ErrorClass = tvb_get_guint8(tvb, offset);
+    ErrorClass = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sub_tree,
         hf_ff_lr_get_statistics_err_err_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 
-    ErrorCode = tvb_get_guint8(tvb, offset);
+    ErrorCode = tvb_get_uint8(tvb, offset);
     error_code = val_to_str_err_code(ErrorClass, ErrorCode);
     proto_tree_add_uint_format_value(sub_tree,
         hf_ff_lr_get_statistics_err_err_code,
@@ -10995,9 +10995,9 @@ dissect_ff(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FF");
 
-    Options         = tvb_get_guint8(tvb, 1);
-    ProtocolAndType = tvb_get_guint8(tvb, 2);
-    Service         = tvb_get_guint8(tvb, 3);
+    Options         = tvb_get_uint8(tvb, 1);
+    ProtocolAndType = tvb_get_uint8(tvb, 2);
+    Service         = tvb_get_uint8(tvb, 3);
     FDAAddress      = tvb_get_ntohl(tvb, 4);
     length          = tvb_get_ntohl(tvb, 8);
 

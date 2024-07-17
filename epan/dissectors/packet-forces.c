@@ -497,7 +497,7 @@ dissect_forces(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t off
     proto_tree_add_item(forces_main_header_tree, hf_forces_version, tvb, 0, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(forces_main_header_tree, hf_forces_rsvd,    tvb, 0, 1, ENC_BIG_ENDIAN);
 
-    message_type = tvb_get_guint8(tvb, offset+1);
+    message_type = tvb_get_uint8(tvb, offset+1);
     proto_tree_add_item( forces_main_header_tree, hf_forces_messagetype, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 
     length_count = tvb_get_ntohs(tvb, offset+2) * 4;  /*multiply 4 DWORD*/

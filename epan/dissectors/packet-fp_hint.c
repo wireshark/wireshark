@@ -154,11 +154,11 @@ static uint16_t assign_rb_info(tvbuff_t *tvb, packet_info *pinfo, uint16_t offse
 
     while (i < rbcnt) {
         urnti = tvb_get_letohl(tvb, offset);
-        next_byte = tvb_get_guint8(tvb, offset + 4);
+        next_byte = tvb_get_uint8(tvb, offset + 4);
         rlc_mode = next_byte & 0x3;
         content = (next_byte >> 2) & 0x3;
         rb_id = next_byte >> 4;
-        next_byte = tvb_get_guint8(tvb, offset + 5);
+        next_byte = tvb_get_uint8(tvb, offset + 5);
         rb_id |= (next_byte & 0x01) << 4;
         ctmux = (next_byte >> 1) & 0x1;
         ciphered = (next_byte >> 2) & 0x1;
@@ -272,7 +272,7 @@ static void assign_fph_rach(tvbuff_t *tvb, packet_info *pinfo, uint16_t offset, 
     fpi->chan_num_tbs[0] = blkcnt;
 
     offset += 4;
-    rbcnt = tvb_get_guint8(tvb, offset); offset++;
+    rbcnt = tvb_get_uint8(tvb, offset); offset++;
     if (rbcnt > 0)
         /*offset =*/ assign_rb_info(tvb, pinfo, offset, rbcnt, tree);
 }
@@ -287,7 +287,7 @@ static void assign_fph_dch(tvbuff_t *tvb, packet_info *pinfo, uint16_t offset, f
     proto_item *pi;
 
     fpi->channel = CHANNEL_DCH;
-    cnt = tvb_get_guint8(tvb, offset); offset++;
+    cnt = tvb_get_uint8(tvb, offset); offset++;
 
     if (tree)
         proto_tree_add_uint(tree, hf_fph_chcnt, tvb, offset-1, 1, cnt);
@@ -322,7 +322,7 @@ static void assign_fph_dch(tvbuff_t *tvb, packet_info *pinfo, uint16_t offset, f
         }
         i++;
     }
-    rbcnt = tvb_get_guint8(tvb, offset); offset++;
+    rbcnt = tvb_get_uint8(tvb, offset); offset++;
     if (rbcnt > 0)
         /*offset =*/ assign_rb_info(tvb, pinfo, offset, rbcnt, tree);
 }
@@ -344,7 +344,7 @@ static void assign_fph_fach(tvbuff_t *tvb, packet_info *pinfo, uint16_t offset, 
     fpi->chan_num_tbs[0] = blkcnt;
 
     offset += 4;
-    rbcnt = tvb_get_guint8(tvb, offset); offset++;
+    rbcnt = tvb_get_uint8(tvb, offset); offset++;
     if (rbcnt > 0)
         /*offset =*/ assign_rb_info(tvb, pinfo, offset, rbcnt, tree);
 }
@@ -353,7 +353,7 @@ static void assign_fph_hsdsch(tvbuff_t *tvb, packet_info *pinfo, uint16_t offset
 {
     uint8_t rbcnt, hsdsch_info;
 
-    hsdsch_info = tvb_get_guint8(tvb, offset);
+    hsdsch_info = tvb_get_uint8(tvb, offset);
     fpi->hsdsch_entity = hsdsch_info & 0x08 ? ehs : hs;
     fpi->channel = CHANNEL_HSDSCH;
 
@@ -365,7 +365,7 @@ static void assign_fph_hsdsch(tvbuff_t *tvb, packet_info *pinfo, uint16_t offset
     }
 
     offset++;
-    rbcnt = tvb_get_guint8(tvb, offset); offset++;
+    rbcnt = tvb_get_uint8(tvb, offset); offset++;
     if (rbcnt > 0)
         /*offset =*/ assign_rb_info(tvb, pinfo, offset, rbcnt, tree);
 }
@@ -379,19 +379,19 @@ static void assign_fph_edch(tvbuff_t *tvb, packet_info *pinfo, uint16_t offset, 
     proto_tree *subtree = NULL;
 
     fpi->channel = CHANNEL_EDCH;
-    macdflow_id = tvb_get_guint8(tvb, offset);
+    macdflow_id = tvb_get_uint8(tvb, offset);
 
     if (tree) {
         proto_tree_add_uint(tree, hf_fph_macdflowid, tvb, offset, 1, macdflow_id);
     }
 
     offset++;
-    maces_cnt = tvb_get_guint8(tvb, offset); offset++;
+    maces_cnt = tvb_get_uint8(tvb, offset); offset++;
 
     fpi->no_ddi_entries = maces_cnt;
     while (i < maces_cnt) {
-        ddi = tvb_get_guint8(tvb, offset++);
-        logical = tvb_get_guint8(tvb, offset++);
+        ddi = tvb_get_uint8(tvb, offset++);
+        logical = tvb_get_uint8(tvb, offset++);
         maces_size = tvb_get_letohs(tvb, offset);
         offset += 2;
         fpi->edch_ddi[i] = ddi;
@@ -413,7 +413,7 @@ static void assign_fph_edch(tvbuff_t *tvb, packet_info *pinfo, uint16_t offset, 
     }
 
 
-    rbcnt = tvb_get_guint8(tvb, offset); offset++;
+    rbcnt = tvb_get_uint8(tvb, offset); offset++;
     if (rbcnt > 0)
         /*offset =*/ assign_rb_info(tvb, pinfo, offset, rbcnt, tree);
 }
@@ -490,8 +490,8 @@ static int dissect_fp_hint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FP Hint");
 
     hdrlen = tvb_get_letohs(tvb, 0);
-    frame_type = tvb_get_guint8(tvb, 2);
-    channel_type = tvb_get_guint8(tvb, 3);
+    frame_type = tvb_get_uint8(tvb, 2);
+    channel_type = tvb_get_uint8(tvb, 3);
 
     if (tree) {
         ti = proto_tree_add_item(tree, proto_fp_hint, tvb, 0, hdrlen, ENC_NA);

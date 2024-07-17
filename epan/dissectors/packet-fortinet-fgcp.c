@@ -99,7 +99,7 @@ dissect_fortinet_fgcp_hb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "Cluster: %s(%u) - monitor: %s - SN: %s",
                 tvb_get_string_enc(pinfo->pool, tvb, offset+4, 32, ENC_ASCII), /* Group Name*/
-                tvb_get_guint16(tvb, (offset+4+32+2), ENC_LITTLE_ENDIAN),  /* Group ID*/
+                tvb_get_uint16(tvb, (offset+4+32+2), ENC_LITTLE_ENDIAN),  /* Group ID*/
                 tvb_get_string_enc(pinfo->pool, tvb, offset+4+32+2+14, 16, ENC_ASCII), /* Port */
                 tvb_get_string_enc(pinfo->pool, tvb, offset+4+32+2+14+16+2+2, 16, ENC_ASCII) /* Serial Number */);
 
@@ -124,7 +124,7 @@ dissect_fortinet_fgcp_hb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     proto_tree_add_bitmask(fortinet_hb_tree, tvb, offset, hf_fortinet_fgcp_hb_flag, ett_fortinet_fgcp_hb_flag,
                            fortinet_fgcp_hb_flag, ENC_NA);
-    flags =  tvb_get_guint8(tvb, offset);
+    flags =  tvb_get_uint8(tvb, offset);
     offset += 1;
 
     /* Group Name */

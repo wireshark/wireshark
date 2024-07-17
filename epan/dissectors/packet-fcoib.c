@@ -131,22 +131,22 @@ dissect_fcoib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
      * Don't print the version in the short summary if it is zero.
      */
     ver = "";
-    version = tvb_get_guint8(tvb, 0 + FCOIB_VER_OFFSET) >> 4;
+    version = tvb_get_uint8(tvb, 0 + FCOIB_VER_OFFSET) >> 4;
     if (version != 0)
         ver = wmem_strdup_printf(pinfo->pool, ver, "ver %d ", version);
 
     if (tvb_bytes_exist(tvb, 0, 1))
-        sig = tvb_get_guint8(tvb, 0) >> 6;
+        sig = tvb_get_uint8(tvb, 0) >> 6;
 
     eof_str = "none";
     if (tvb_bytes_exist(tvb, eof_offset, 1)) {
-        eof = tvb_get_guint8(tvb, eof_offset);
+        eof = tvb_get_uint8(tvb, eof_offset);
         eof_str = val_to_str(eof, fcoib_eof_vals, "0x%x");
     }
 
     sof_str = "none";
     if (tvb_bytes_exist(tvb, sof_offset, 1)) {
-        sof = tvb_get_guint8(tvb, sof_offset);
+        sof = tvb_get_uint8(tvb, sof_offset);
         sof_str = val_to_str(sof, fcoib_sof_vals, "0x%x");
     }
 
@@ -249,11 +249,11 @@ dissect_fcoib_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     /* we start off with some basic heuristics checks to make sure this could be a FCoIB packet */
 
     if (tvb_bytes_exist(tvb, 0, 1))
-        sig = tvb_get_guint8(tvb, 0) >> 6;
+        sig = tvb_get_uint8(tvb, 0) >> 6;
     if (tvb_bytes_exist(tvb, eof_offset, 1))
-        eof = tvb_get_guint8(tvb, eof_offset);
+        eof = tvb_get_uint8(tvb, eof_offset);
     if (tvb_bytes_exist(tvb, sof_offset, 1))
-        sof = tvb_get_guint8(tvb, sof_offset);
+        sof = tvb_get_uint8(tvb, sof_offset);
 
     if (sig != 1)
         return false;   /* the sig field in the FCoIB Encap. header MUST be 2'b01*/

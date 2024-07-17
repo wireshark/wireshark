@@ -369,7 +369,7 @@ static int dissect_fcsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     proto_tree *fcsp_tree = NULL;
 
     /* Make entry in the Info column on summary display */
-    opcode = tvb_get_guint8(tvb, 2);
+    opcode = tvb_get_uint8(tvb, 2);
 
     col_add_str(pinfo->cinfo, COL_INFO,
                      val_to_str(opcode, fcauth_msgcode_vals, "0x%x"));
