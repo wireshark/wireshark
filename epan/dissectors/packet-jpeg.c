@@ -70,7 +70,7 @@ static int hf_rtp_jpeg_restart_hdr_interval;
 static int hf_rtp_jpeg_restart_hdr_l;
 
 /* JPEG fields defining a sub tree */
-static gint ett_jpeg;
+static int ett_jpeg;
 
 static int
 dissect_jpeg( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_ )
@@ -80,12 +80,12 @@ dissect_jpeg( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 	proto_tree *main_hdr_tree = NULL;
 	proto_tree *restart_hdr_tree = NULL;
 	proto_tree *qtable_hdr_tree = NULL;
-	guint32 fragment_offset = 0;
-	guint16 len = 0;
-	guint8 type = 0;
-	guint8 q = 0;
-	gint h = 0;
-	gint w = 0;
+	uint32_t fragment_offset = 0;
+	uint16_t len = 0;
+	uint8_t type = 0;
+	uint8_t q = 0;
+	int h = 0;
+	int w = 0;
 
 	unsigned int offset       = 0;
 
@@ -106,15 +106,15 @@ dissect_jpeg( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 		fragment_offset = tvb_get_ntoh24(tvb, offset);
 		offset += 3;
 		proto_tree_add_item(main_hdr_tree, hf_rtp_jpeg_main_hdr_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-		type = tvb_get_guint8(tvb, offset);
+		type = tvb_get_uint8(tvb, offset);
 		offset += 1;
 		proto_tree_add_item(main_hdr_tree, hf_rtp_jpeg_main_hdr_q, tvb, offset, 1, ENC_BIG_ENDIAN);
-		q = tvb_get_guint8(tvb, offset);
+		q = tvb_get_uint8(tvb, offset);
 		offset += 1;
-		w = tvb_get_guint8(tvb, offset) * 8;
+		w = tvb_get_uint8(tvb, offset) * 8;
 		proto_tree_add_uint(main_hdr_tree, hf_rtp_jpeg_main_hdr_width, tvb, offset, 1, w);
 		offset += 1;
-		h = tvb_get_guint8(tvb, offset) * 8;
+		h = tvb_get_uint8(tvb, offset) * 8;
 		proto_tree_add_uint(main_hdr_tree, hf_rtp_jpeg_main_hdr_height, tvb, offset, 1, h);
 		offset += 1;
 
@@ -248,7 +248,7 @@ proto_register_jpeg(void)
 		},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_jpeg,
 	};
 

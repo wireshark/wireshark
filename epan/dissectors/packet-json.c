@@ -569,7 +569,7 @@ dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	{
 		while (offset < buffer_length)
 		{
-			uint8_t current_character = tvb_get_guint8(tvb, offset);
+			uint8_t current_character = tvb_get_uint8(tvb, offset);
 			if (current_character == '[' || current_character == '{')
 			{
 				break;

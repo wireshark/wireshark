@@ -33,7 +33,7 @@ static dissector_handle_t jmirror_handle;
 static int proto_jmirror;
 static int hf_jmirror_mid;
 static int hf_jmirror_sid;
-static gint ett_jmirror;
+static int ett_jmirror;
 
 /* Handles which point to the packet dissectors */
 static dissector_handle_t ipv4_handle;
@@ -62,10 +62,10 @@ get_heuristic_handle(tvbuff_t *tvb)
 		return NULL;   /* Not enough bytes for heuristic test */
 
 	/* Filter for IPv4 and IPv6 packets */
-	byte0 = tvb_get_guint8(tvb, offset + 0);
-	byte1 = tvb_get_guint8(tvb, offset + 1);
-	byte2 = tvb_get_guint8(tvb, offset + 2);
-	byte3 = tvb_get_guint8(tvb, offset + 3);
+	byte0 = tvb_get_uint8(tvb, offset + 0);
+	byte1 = tvb_get_uint8(tvb, offset + 1);
+	byte2 = tvb_get_uint8(tvb, offset + 2);
+	byte3 = tvb_get_uint8(tvb, offset + 3);
 
 	/* Look for IPv4 with standard header length */
 	if ( byte0 == 0x45 && ipv4_handle )
@@ -156,7 +156,7 @@ proto_register_jmirror(void)
 		    "Unique identifier of the user session", HFILL }
 		}
 	};
-	static gint *jmirror_ett[] = {
+	static int *jmirror_ett[] = {
 		&ett_jmirror
 	};
 

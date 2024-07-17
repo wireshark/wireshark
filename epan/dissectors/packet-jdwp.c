@@ -93,7 +93,7 @@ static int hf_jdwp_commandset_event;
 static int hf_jdwp_errorcode;
 static int hf_jdwp_data;
 
-static gint ett_jdwp;
+static int ett_jdwp;
 
 static expert_field ei_jdwp_hlen_invalid;
 static expert_field ei_jdwp_flags_invalid;
@@ -370,7 +370,7 @@ static const value_string error_codes[] = {
 };
 
 /* determine PDU length of protocol JDWP */
-static guint
+static unsigned
 get_jdwp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
   /* Handshake messages don't contain the length field and
@@ -385,7 +385,7 @@ get_jdwp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *da
   /* All other packets are either a Command or a Reply, of different lengths
    * and this length is indicated on the 4 first bytes
    */
-  return (guint)tvb_get_ntohl(tvb, offset);
+  return (unsigned)tvb_get_ntohl(tvb, offset);
 }
 
 static int
@@ -394,17 +394,17 @@ dissect_jdwp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
   int offset = 0;
 
   /* packet type can take 3 values (handshake, command, reply) */
-  gint packet_type;
+  int packet_type;
 
   /* length */
-  gint32 hlen = 0;
+  int32_t hlen = 0;
 
   /* flag can take 2 values (0, 128) */
-  guint32 flags;
+  uint32_t flags;
 
   /* fields that need to be remembered */
-  guint32 mem_commandset = -1;
-  guint32 mem_errorcode = -1;
+  uint32_t mem_commandset = -1;
+  uint32_t mem_errorcode = -1;
 
   /* Check that there's enough data */
   if (tvb_reported_length(tvb) < JDWP_MIN_LENGTH)
@@ -601,7 +601,7 @@ dissect_jdwp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 static int
 dissect_jdwp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-  tcp_dissect_pdus(tvb, pinfo, tree, TRUE, FRAME_HEADER_LEN,
+  tcp_dissect_pdus(tvb, pinfo, tree, true, FRAME_HEADER_LEN,
                    get_jdwp_message_len, dissect_jdwp_message, data);
   return tvb_captured_length(tvb);
 }
@@ -720,7 +720,7 @@ proto_register_jdwp(void)
     { &ei_jdwp_flags_invalid, { "jdwp.flags.invalid", PI_MALFORMED, PI_ERROR, "Decode aborted: invalid flags value", EXPFILL }}
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_jdwp
   };
 

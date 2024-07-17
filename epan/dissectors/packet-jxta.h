@@ -28,7 +28,7 @@
 typedef struct jxta_tap_header {
     address src_address;
     address dest_address;
-    guint32 size;
+    uint32_t size;
 } jxta_tap_header;
 
 #endif
