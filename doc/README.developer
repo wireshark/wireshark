@@ -208,14 +208,8 @@ the macros in <inttypes.h>, for example:
     proto_tree_add_uint64_format_value(tree, hf_uint64, tvb, offset, len,
                                        val, "%" PRIu64, val);
 
-For GLib routines, and only those, you can choose whichever format style
-you prefer:
-
-    uint64_t val = UINT64_C(1);
-    char *str1 = g_string_printf("%" G_GUINT64_FORMAT, val);
-    char *str2 = g_string_printf("%" PRIu64, val);
-
-These format macros will be the same modulo any GLib bugs.
+GLib provides the G_GUINT64_FORMAT and G_GINT64_FORMAT specifiers for
+64-bit integral types. You should use PRIu64 and PRId64 instead.
 
 When specifying an integral constant that doesn't fit in 32 bits, don't
 use "LL" at the end of the constant - not all compilers use "LL" for

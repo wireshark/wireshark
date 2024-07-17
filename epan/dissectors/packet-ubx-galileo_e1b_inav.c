@@ -84,22 +84,22 @@ static const value_string GAL_SSP[] = {
 };
 
 /* Format mean anomaly at reference time */
-static void fmt_m0(gchar *label, gint64 c) {
-    snprintf(label, ITEM_LABEL_LENGTH, "%" G_GINT64_FORMAT " * 2^-31 semi-circles", c);
+static void fmt_m0(char *label, int64_t c) {
+    snprintf(label, ITEM_LABEL_LENGTH, "%" PRId64 " * 2^-31 semi-circles", c);
 }
 
 /* Format eccentricity */
-static void fmt_e(gchar *label, guint64 c) {
-    snprintf(label, ITEM_LABEL_LENGTH, "%" G_GUINT64_FORMAT " * 2^-33", c);
+static void fmt_e(char *label, uint64_t c) {
+    snprintf(label, ITEM_LABEL_LENGTH, "%" PRIu64 " * 2^-33", c);
 }
 
 /* Format square root of the semi-major axis */
-static void fmt_sqrt_a(gchar *label, guint64 c) {
-    snprintf(label, ITEM_LABEL_LENGTH, "%" G_GUINT64_FORMAT " * 2^-19 " UTF8_SQUARE_ROOT "m", c);
+static void fmt_sqrt_a(char *label, uint64_t c) {
+    snprintf(label, ITEM_LABEL_LENGTH, "%" PRIu64 " * 2^-19 " UTF8_SQUARE_ROOT "m", c);
 }
 
 /* Format ephemeris reference time */
-static void fmt_t0e(gchar *label, guint32 c) {
+static void fmt_t0e(char *label, uint32_t c) {
     c = c * 60;
     snprintf(label, ITEM_LABEL_LENGTH, "%ds", c);
 }
@@ -109,9 +109,9 @@ static int dissect_ubx_gal_inav(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     tvbuff_t *next_tvb;
 
     bool sar_start, sar_long_rlm;
-    guint32 inav_type, page_type;
-    guint64 data_122_67, data_66_17, data_16_1;
-    guint8 *word;
+    uint32_t inav_type, page_type;
+    uint64_t data_122_67, data_66_17, data_16_1;
+    uint8_t *word;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Galileo E1-B I/NAV");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -173,9 +173,9 @@ static int dissect_ubx_gal_inav(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         word = wmem_alloc(pinfo->pool, 16);
         phton16(word + 14, data_16_1);
         phton64(word + 6, data_66_17);
-        phton64(word, (((guint64) inav_type) << 58) | (data_122_67 << 2) | (data_66_17 >> 48));
+        phton64(word, (((uint64_t) inav_type) << 58) | (data_122_67 << 2) | (data_66_17 >> 48));
 
-        next_tvb = tvb_new_child_real_data(tvb, (guint8 *)word, 16, 16);
+        next_tvb = tvb_new_child_real_data(tvb, (uint8_t *)word, 16, 16);
         add_new_data_source(pinfo, next_tvb, "Galileo I/NAV Word");
 
         // handoff to appropriate dissector
@@ -261,7 +261,7 @@ void proto_register_ubx_gal_inav(void) {
         {&hf_ubx_gal_inav_word1_reserved,{"Reserved",                                 "gal_inav.word1.reserved", FT_UINT8,  BASE_HEX, NULL, 0x03, NULL, HFILL}},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_ubx_gal_inav,
         &ett_ubx_gal_inav_sar,
     };
