@@ -1168,7 +1168,6 @@ bool lbmpdm_verify_payload(tvbuff_t * tvb, int offset, int * encoding, int * len
             break;
         default:
             return false;
-            break;
     }
     len = tvb_get_uint32(tvb, offset + O_LBMPDM_MSG_HDR_T_LEN, *encoding);
     if (len > INT_MAX)

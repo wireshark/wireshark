@@ -157,7 +157,6 @@ quiet_gcrypt_logger (void *dummy _U_, int level, const char *format, va_list arg
 	case GCRY_LOG_DEBUG:
 	case GCRY_LOG_INFO:
 		return;
-		break;
 	case GCRY_LOG_WARN:
 	case GCRY_LOG_BUG:
 		log_level = LOG_LEVEL_WARNING;

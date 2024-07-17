@@ -195,7 +195,6 @@ static lbm_transport_sqn_t * lbtrm_transport_sqn_add(lbtrm_transport_t * transpo
         case LBTRM_PACKET_TYPE_NCF:
         default:
             return (NULL);
-            break;
     }
 
     /* Add the sqn. */
@@ -1259,7 +1258,6 @@ static int dissect_lbtrm(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
             break;
         default:
             return (total_dissected_len);
-            break;
     }
     total_dissected_len += dissected_len;
     offset += dissected_len;

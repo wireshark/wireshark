@@ -4416,7 +4416,6 @@ gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int s
             gcrp->is_request = true;
             wmem_map_insert(gtp_info->unmatched, gcrp, gcrp);
             return NULL;
-            break;
         case GTP_MSG_ECHO_RESP:
         case GTP_MSG_CREATE_PDP_RESP:
         case GTP_MSG_UPDATE_PDP_RESP:

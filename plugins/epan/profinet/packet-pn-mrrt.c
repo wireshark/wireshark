@@ -122,7 +122,6 @@ dissect_PNMRRT_PDU(tvbuff_t *tvb, int offset,
             col_append_str(pinfo->cinfo, COL_INFO, "End");
             proto_item_append_text(item, "End");
             return offset;
-            break;
         case 0x01:
             offset = dissect_PNMRRT_Common(tvb, offset, pinfo, tree, item, length);
             break;

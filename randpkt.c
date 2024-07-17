@@ -238,7 +238,6 @@ main(int argc, char *argv[])
                     case 'F':
                         list_capture_types();
                         return WS_EXIT_INVALID_OPTION;
-                        break;
                 }
                 /* FALLTHROUGH */
 

@@ -3364,7 +3364,6 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 */
 		expert_add_info(pinfo, item, &ei_snmp_version_unknown);
 		return length_remaining;
-		break;
 	}
 
 	/* There may be appended data after the SNMP data, so treat as raw

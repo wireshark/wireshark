@@ -1153,7 +1153,6 @@ static int check_control_digest(l2tpv3_tunnel_t *tunnel,
             break;
         default:
             return 1;
-            break;
     }
 
     return tvb_memeql(tvb, idx + 1, digest, avp_len - 1);

@@ -22373,7 +22373,6 @@ const char* gsm_map_opr_code(uint32_t val, proto_item *item) {
     /* FALLTHRU */
   default:
     return val_to_str_ext_const(val, &gsm_old_GSMMAPOperationLocalvalue_vals_ext, "Unknown GSM-MAP opcode");
-    break;
   }
 }
 
@@ -22570,7 +22569,6 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     break;
   case 38: /*forwardCheckSS-Indication*/
     return offset;
-    break;
   case 39: /*prepareGroupCall*/
     offset=dissect_gsm_map_gr_PrepareGroupCallArg(false, tvb, offset, actx, tree, -1);
     break;

@@ -855,7 +855,6 @@ ldap_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, un
         lcrp->is_request=true;
         wmem_map_insert(ldap_info->unmatched, lcrp, lcrp);
         return NULL;
-        break;
       case LDAP_RES_BIND:
       case LDAP_RES_SEARCH_ENTRY:
       case LDAP_RES_SEARCH_REF:

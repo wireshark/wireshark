@@ -6004,7 +6004,6 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
             wtap_dump_params_cleanup(&params);
 
             return CF_WRITE_ABORTED;
-            break;
 
         case PSP_FAILED:
             /* Error while saving. */

@@ -166,7 +166,6 @@ bool AStringListListSortFilterProxyModel::filterAcceptsRow(int sourceRow, const 
                 break;
             case FilterNone:
                 return true;
-                break;
             default:
                 compareFunc = AContainsB;
                 break;

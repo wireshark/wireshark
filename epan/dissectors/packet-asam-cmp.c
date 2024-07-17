@@ -1644,7 +1644,6 @@ dissect_asam_cmp_ctrl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
         proto_item_set_end(ti_msg_payload, tvb, offset + asam_cmp_ctrl_msg_payload_length);
 
         return tvb_reported_length_remaining(tvb, offset_orig);
-        break;
 
     case CMP_CTRL_MSG_DSR_CTRL_MSG:
         col_append_str(pinfo->cinfo, COL_INFO, " (Data Sink Ready)");
@@ -1684,7 +1683,6 @@ dissect_asam_cmp_ctrl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
 
         /* we changed the payload length, so lets skip the length check by leaving */
         return (offset + asam_cmp_ctrl_msg_payload_length) - offset_orig;
-        break;
 
     default:
         if (asam_cmp_ctrl_msg_payload_length > 0) {
@@ -1865,7 +1863,6 @@ dissect_asam_cmp_status_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_
         proto_item_set_end(ti_msg_payload, tvb, offset + asam_cmp_status_msg_payload_length);
 
         return tvb_reported_length_remaining(tvb, offset_orig);
-        break;
 
     case CMP_STATUS_MSG_CM_STAT_MSG:
         col_append_str(pinfo->cinfo, COL_INFO, " (CM)");

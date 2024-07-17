@@ -882,13 +882,10 @@ QVariant PacketListModel::data(const QModelIndex &d_index, int role) const
         switch(recent_get_column_xalign(d_index.column())) {
         case COLUMN_XALIGN_RIGHT:
             return Qt::AlignRight;
-            break;
         case COLUMN_XALIGN_CENTER:
             return Qt::AlignCenter;
-            break;
         case COLUMN_XALIGN_LEFT:
             return Qt::AlignLeft;
-            break;
         case COLUMN_XALIGN_DEFAULT:
         default:
             if (right_justify_column(d_index.column(), cap_file_)) {

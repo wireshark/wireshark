@@ -719,11 +719,9 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
             case 'E':
                 list_encap_types();
                 return WS_EXIT_INVALID_OPTION;
-                break;
             case 'F':
                 list_capture_types();
                 return WS_EXIT_INVALID_OPTION;
-                break;
             }
             /* FALLTHROUGH */
 

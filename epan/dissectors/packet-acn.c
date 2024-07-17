@@ -5073,7 +5073,6 @@ dissect_acn_dmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
           default:
             /* OUCH */
             return pdu_start + pdu_length;
-            break;
         }
 
         /* virtual */

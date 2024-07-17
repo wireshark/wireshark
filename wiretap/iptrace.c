@@ -811,7 +811,6 @@ wtap_encap_ift(unsigned int  ift)
 			/* Infiniband*/
 			case IPTRACE_IFT_IB:
 				return WTAP_ENCAP_INFINIBAND;
-				break;
 
 			/* Host Fabric Interface */
 			case IPTRACE_IFT_HF:
@@ -825,7 +824,6 @@ wtap_encap_ift(unsigned int  ift)
 				have to figure out which field in the iptrace file
 				encodes it. */
 				return WTAP_ENCAP_RAW_IP;
-				break;
 
 			default:
 				return WTAP_ENCAP_UNKNOWN;

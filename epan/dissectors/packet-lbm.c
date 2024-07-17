@@ -124,7 +124,6 @@ bool lbm_channel_is_transport(uint64_t channel)
         case LBM_CHANNEL_TRANSPORT_LBTRDMA:
         case LBM_CHANNEL_TRANSPORT_LBTSMX:
             return true;
-            break;
         default:
             break;
     }

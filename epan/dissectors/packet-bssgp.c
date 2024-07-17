@@ -1978,7 +1978,6 @@ de_bssgp_ran_information_app_cont_unit(tvbuff_t *tvb, proto_tree *tree, packet_i
                 case 4:
                     /* RAN-INFORMATION/End PDU*/
                     return curr_offset-offset;
-                    break;
                 default:
                     break;
                 }

@@ -751,7 +751,6 @@ get_bool_value(const char *bool_str)
         case 'F':
         case '0':
             return false;
-            break;
         default:
             return true;
     }

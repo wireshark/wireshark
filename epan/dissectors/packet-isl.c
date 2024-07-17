@@ -98,7 +98,6 @@ capture_isl(const unsigned char *pd, int offset, int len, capture_packet_info_t 
   case TYPE_TR:
     offset += 14+17;    /* skip the header */
     return call_capture_dissector(tr_cap_handle, pd, offset, len, cpinfo, pseudo_header);
-    break;
   }
 
   return false;

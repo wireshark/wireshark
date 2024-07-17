@@ -1971,7 +1971,6 @@ execute_next_instruction:
             return decomp_tvb;
         }
         return NULL;
-        break;
 
     case SIGCOMP_INSTR_AND: /* 1 AND ($operand_1, %operand_2) */
         if (show_instr_detail_level == 2 ) {
@@ -4572,7 +4571,6 @@ execute_next_instruction:
         proto_tree_add_uint(udvm_tree, hf_sigcomp_max_udvm_cycles, bytecode_tvb, 0, 0, maximum_UDVM_cycles);
         proto_tree_add_uint(udvm_tree, hf_sigcomp_used_udvm_cycles, bytecode_tvb, 0, 0, used_udvm_cycles);
         return decomp_tvb;
-        break;
 
     default:
         expert_add_info_format(pinfo, addr_item, &ei_sigcomp_invalid_instruction,

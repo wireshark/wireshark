@@ -3428,7 +3428,6 @@ static int dissect_someip_payload_peek_length_of_length(proto_tree *tree, packet
         }
 
         return tmp_string_config->length_of_length;
-        break;
 
     case SOMEIP_PAYLOAD_PARAMETER_DATA_TYPE_ARRAY:
         tmp_array_config = get_array_config(id_ref);
@@ -3442,7 +3441,6 @@ static int dissect_someip_payload_peek_length_of_length(proto_tree *tree, packet
         }
 
         return tmp_array_config->dims[0].length_of_length;
-        break;
 
     case SOMEIP_PAYLOAD_PARAMETER_DATA_TYPE_STRUCT:
         tmp_struct_config = get_struct_config(id_ref);
@@ -3451,7 +3449,6 @@ static int dissect_someip_payload_peek_length_of_length(proto_tree *tree, packet
         }
 
         return tmp_struct_config->length_of_length;
-        break;
 
     case SOMEIP_PAYLOAD_PARAMETER_DATA_TYPE_UNION:
         tmp_union_config = get_union_config(id_ref);
@@ -3460,7 +3457,6 @@ static int dissect_someip_payload_peek_length_of_length(proto_tree *tree, packet
         }
 
         return tmp_union_config->length_of_length;
-        break;
 
     case SOMEIP_PAYLOAD_PARAMETER_DATA_TYPE_TYPEDEF:
     case SOMEIP_PAYLOAD_PARAMETER_DATA_TYPE_BASE_TYPE:

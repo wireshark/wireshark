@@ -135,7 +135,6 @@ public:
             default:
                 // Fall back to string comparison
                 return QTreeWidgetItem::operator <(other);
-                break;
         }
     }
 };

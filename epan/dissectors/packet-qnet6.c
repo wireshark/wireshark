@@ -3151,7 +3151,6 @@ dissect_qnet6_kif_msgsend_msg(tvbuff_t * tvb, packet_info * pinfo, proto_tree * 
                   && rlen >= 4)
                 ret = dissect_qnet6_kif_msgsend_msg(tvb, pinfo, stree, poffset, encoding);
               return ret;
-              break;
             default:
               switch (extra_type)
                 {

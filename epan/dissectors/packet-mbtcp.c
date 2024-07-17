@@ -737,14 +737,11 @@ get_mbrtu_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                 case WRITE_SINGLE_COIL:
                 case WRITE_SINGLE_REG:
                     return 8;
-                    break;
                 case WRITE_MULT_REGS:
                 case WRITE_MULT_COILS:
                     return tvb_get_uint8(tvb, 6) + 9; /* Reported size does not include 2 header, 4 FC15/16-specific, 1 size byte or 2 CRC16 bytes */
-                    break;
                 default :
                     return tvb_captured_length(tvb);  /* Fall back on tvb length */
-                    break;
             }
         case RESPONSE_PACKET :
             /* The 'exception' bit is set, so this is a 5-byte response */
@@ -758,21 +755,17 @@ get_mbrtu_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                 case READ_HOLDING_REGS:
                 case READ_INPUT_REGS:
                     return tvb_get_uint8(tvb, 2) + 5;  /* Reported size does not include 2 header, 1 size byte, 2 CRC16 bytes */
-                    break;
                 case WRITE_SINGLE_COIL: /* Response messages of FC5/6/15/16 are always 8 bytes */
                 case WRITE_SINGLE_REG:
                 case WRITE_MULT_REGS:
                 case WRITE_MULT_COILS:
                     return 8;
-                    break;
                 default :
                     return tvb_captured_length(tvb);  /* Fall back on tvb length */
-                    break;
             }
         case CANNOT_CLASSIFY :
         default :
             return tvb_captured_length(tvb);  /* Fall back on tvb length */
-            break;
     }
 
 }

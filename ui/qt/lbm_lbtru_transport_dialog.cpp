@@ -1135,7 +1135,6 @@ void LBMLBTRUReceiverTransportEntry::processPacket(const packet_info * pinfo, co
             break;
         default:
             return;
-            break;
     }
     fillItem();
 }

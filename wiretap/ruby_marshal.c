@@ -46,7 +46,6 @@ static bool is_ruby_marshal(const uint8_t* filebuf)
         case ';':
         case '@':
             return true;
-            break;
         default:
             return false;
     }

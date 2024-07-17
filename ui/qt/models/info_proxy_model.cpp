@@ -57,7 +57,6 @@ QVariant InfoProxyModel::data (const QModelIndex &index, int role) const
     {
     case Qt::DisplayRole:
         return infos_.at(ifIdx);
-        break;
     case Qt::FontRole:
         QFont font = QIdentityProxyModel::data(index, Qt::FontRole).value<QFont>();
         font.setItalic(true);

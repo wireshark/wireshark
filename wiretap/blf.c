@@ -3291,7 +3291,6 @@ blf_read_apptextmessage(blf_params_t *params, int *err, char **err_info, int64_t
         g_strfreev(tokens);
         g_free(text);
         return BLF_APPTEXT_CHANNEL;
-        break;
     }
     case BLF_APPTEXT_METADATA:
         if (metadata_cont) {
@@ -3322,7 +3321,6 @@ blf_read_apptextmessage(blf_params_t *params, int *err, char **err_info, int64_t
         /* Override the timestamp with 0 for metadata objects. Thay can only occur at the beginning of the file, and they usually alrady have a timestamp of 0. */
         blf_init_rec(params, 0, 0, WTAP_ENCAP_WIRESHARK_UPPER_PDU, 0, UINT16_MAX, (uint32_t)ws_buffer_length(params->buf), (uint32_t)ws_buffer_length(params->buf));
         return BLF_APPTEXT_METADATA;
-        break;
     case BLF_APPTEXT_COMMENT:
     case BLF_APPTEXT_ATTACHMENT:
     case BLF_APPTEXT_TRACELINE:
@@ -3359,12 +3357,10 @@ blf_read_apptextmessage(blf_params_t *params, int *err, char **err_info, int64_t
             g_free(info_line);
         }
         return apptextheader.source;
-        break;
     }
     default:
         g_free(text);
         return BLF_APPTEXT_CHANNEL; /* Cheat - no block to write */;
-        break;
     }
     return BLF_APPTEXT_CHANNEL; /* Cheat - no block to write */
 }
@@ -3593,7 +3589,6 @@ blf_read_block(blf_params_t *params, int64_t start_pos, int *err, char **err_inf
             *err_info = ws_strdup_printf("blf: unknown header type %u", header.header_type);
             ws_debug("unknown header type");
             return false;
-            break;
         }
 
         if (metadata_cont && header.object_type != BLF_OBJTYPE_APP_TEXT) {
@@ -3611,119 +3606,90 @@ blf_read_block(blf_params_t *params, int64_t start_pos, int *err, char **err_inf
             *err_info = ws_strdup_printf("blf: log container in log container not supported");
             ws_debug("log container in log container not supported");
             return false;
-            break;
 
         case BLF_OBJTYPE_ETHERNET_FRAME:
             return blf_read_ethernetframe(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp);
-            break;
 
         case BLF_OBJTYPE_ETHERNET_FRAME_EX:
             return blf_read_ethernetframe_ext(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp, false);
-            break;
 
         case BLF_OBJTYPE_ETHERNET_RX_ERROR:
             return blf_read_ethernet_rxerror(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp);
-            break;
 
         case BLF_OBJTYPE_ETHERNET_ERROR_EX:
             return blf_read_ethernetframe_ext(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp, true);
-            break;
 
         case BLF_OBJTYPE_WLAN_FRAME:
             return blf_read_wlanframe(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp);
-            break;
 
         case BLF_OBJTYPE_CAN_MESSAGE:
             return blf_read_canmessage(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp, false);
-            break;
 
         case BLF_OBJTYPE_CAN_ERROR:
             return blf_read_canerror(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp, false);
-            break;
 
         case BLF_OBJTYPE_CAN_OVERLOAD:
             return blf_read_canerror(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp, true);
-            break;
 
         case BLF_OBJTYPE_CAN_MESSAGE2:
             return blf_read_canmessage(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp, true);
-            break;
 
         case BLF_OBJTYPE_CAN_ERROR_EXT:
             return blf_read_canerrorext(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp);
-            break;
 
         case BLF_OBJTYPE_CAN_FD_MESSAGE:
             return blf_read_canfdmessage(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp);
-            break;
 
         case BLF_OBJTYPE_CAN_FD_MESSAGE_64:
             return blf_read_canfdmessage64(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp);
-            break;
 
         case BLF_OBJTYPE_CAN_FD_ERROR_64:
             return blf_read_canfderror64(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp);
-            break;
 
         case BLF_OBJTYPE_FLEXRAY_DATA:
             return blf_read_flexraydata(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp);
-            break;
 
         case BLF_OBJTYPE_FLEXRAY_MESSAGE:
             return blf_read_flexraymessage(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp);
-            break;
 
         case BLF_OBJTYPE_FLEXRAY_RCVMESSAGE:
             return blf_read_flexrayrcvmessageex(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp, false);
-            break;
 
         case BLF_OBJTYPE_FLEXRAY_RCVMESSAGE_EX:
             return blf_read_flexrayrcvmessageex(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp, true);
-            break;
 
         case BLF_OBJTYPE_LIN_MESSAGE:
             return blf_read_linmessage(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp, false);
-            break;
 
         case BLF_OBJTYPE_LIN_CRC_ERROR:
             return blf_read_linmessage(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp, true);
-            break;
 
         case BLF_OBJTYPE_LIN_RCV_ERROR:
             return blf_read_linrcverror(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp);
-            break;
 
         case BLF_OBJTYPE_LIN_SND_ERROR:
             return blf_read_linsenderror(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp);
-            break;
 
         case BLF_OBJTYPE_LIN_WAKEUP:
             return blf_read_linwakeupevent(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp);
-            break;
 
         case BLF_OBJTYPE_LIN_MESSAGE2:
             return blf_read_linmessage2(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp, object_version);
-            break;
 
         case BLF_OBJTYPE_LIN_CRC_ERROR2:
             return blf_read_lincrcerror2(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp, object_version);
-            break;
 
         case BLF_OBJTYPE_LIN_RCV_ERROR2:
             return blf_read_linrcverror2(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp, object_version);
-            break;
 
         case BLF_OBJTYPE_LIN_SND_ERROR2:
             return blf_read_linsenderror2(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp, object_version);
-            break;
 
         case BLF_OBJTYPE_LIN_WAKEUP2:
             return blf_read_linwakeupevent2(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp);
-            break;
 
         case BLF_OBJTYPE_LIN_SLEEP:
             return blf_read_linsleepmodeevent(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp);
-            break;
 
         case BLF_OBJTYPE_APP_TEXT:
         {
@@ -3748,13 +3714,11 @@ blf_read_block(blf_params_t *params, int64_t start_pos, int *err, char **err_inf
             switch (result) {
                 case BLF_APPTEXT_FAILED:
                     return false;
-                    break;
                 case BLF_APPTEXT_COMMENT:
                 case BLF_APPTEXT_METADATA:
                 case BLF_APPTEXT_ATTACHMENT:
                 case BLF_APPTEXT_TRACELINE:
                     return true;
-                    break;
                 case BLF_APPTEXT_CHANNEL:
                 case BLF_APPTEXT_CONT:
                 default:
@@ -3767,11 +3731,9 @@ blf_read_block(blf_params_t *params, int64_t start_pos, int *err, char **err_inf
 
         case BLF_OBJTYPE_ETHERNET_STATUS:
             return blf_read_ethernet_status(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp, object_version);
-            break;
 
         case BLF_OBJTYPE_ETHERNET_PHY_STATE:
             return blf_read_ethernet_phystate(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp);
-            break;
 
         case BLF_OBJTYPE_ENV_INTEGER:
         case BLF_OBJTYPE_ENV_DOUBLE:

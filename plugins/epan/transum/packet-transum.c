@@ -528,27 +528,21 @@ static RRPD *find_latest_rrpd(RRPD *in_rrpd)
     {
     case RTE_CALC_DCERPC:
         return find_latest_rrpd_dcerpc(in_rrpd);
-        break;
 
     case RTE_CALC_DNS:
         return find_latest_rrpd_dns(in_rrpd);
-        break;
 
     case RTE_CALC_GTCP:
         return find_latest_rrpd_gtcp(in_rrpd);
-        break;
 
     case RTE_CALC_GUDP:
         return find_latest_rrpd_gudp(in_rrpd);
-        break;
 
     case RTE_CALC_SMB2:
         return find_latest_rrpd_smb2(in_rrpd);
-        break;
 
     case RTE_CALC_SYN:
         return find_latest_rrpd_syn(in_rrpd);
-        break;
     }
 
     return NULL;

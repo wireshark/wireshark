@@ -233,21 +233,16 @@ get_byte_length(uint8_t typecode)
   case ETCH_TC_MIN_TINY_INT:
   case ETCH_TC_MAX_TINY_INT:
     return  0;
-    break;
   case ETCH_TC_BYTE:
     return  1;
-    break;
   case ETCH_TC_SHORT:
     return  2;
-    break;
   case ETCH_TC_INT:
   case ETCH_TC_FLOAT:
     return  4;
-    break;
   case ETCH_TC_LONG:
   case ETCH_TC_DOUBLE:
     return  8;
-    break;
   case ETCH_TC_BYTES:
   case ETCH_TC_ARRAY:
   case ETCH_TC_STRING:
@@ -255,10 +250,8 @@ get_byte_length(uint8_t typecode)
   case ETCH_TC_CUSTOM:
   case ETCH_TC_ANY:
     return  -1;
-    break;
   default:
     return 0;
-    break;
   }
 }
 

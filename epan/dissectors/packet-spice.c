@@ -1600,7 +1600,6 @@ static const gchar* get_message_type_string(const guint16 message_type, const sp
             break;
         case SPICE_CHANNEL_PLAYBACK:
             return val_to_str_const(message_type, spice_msg_playback_vs, "Unknown playback channel server message");
-            break;
         case SPICE_CHANNEL_RECORD:
             if (client_message) {
                 return val_to_str_const(message_type, spice_msgc_record_vs, "Unknown record channel client message");
@@ -3172,7 +3171,6 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                          "Spice %s", val_to_str_const(spice_info->channel_type,channel_types_vs, "Unknown"));
             spice_info->next_state = SPICE_LINK_SERVER;
             return pdu_len;
-            break;
         case SPICE_LINK_SERVER:
             avail = tvb_reported_length(tvb);
             pdu_len = sizeof_SpiceLinkHeader;
@@ -3189,7 +3187,6 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                 spice_info->next_state = SPICE_CLIENT_AUTH_SELECT;
             }
             return pdu_len;
-            break;
         case SPICE_CLIENT_AUTH_SELECT:
             if (spice_info->destport != pinfo->destport) { /* ignore anything from the server, wait for data from client */
                 expert_add_info(pinfo, ti, &ei_spice_expected_from_client);
@@ -3215,7 +3212,6 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                     break;
             }
             return 4;
-            break;
         case SPICE_SASL_INIT_FROM_SERVER:
             offset = 0;
             avail = tvb_reported_length_remaining(tvb, offset);
@@ -3269,7 +3265,6 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                 }
             }
             return pdu_len;
-            break;
         case SPICE_SASL_START_FROM_SERVER:
         case SPICE_SASL_STEP_FROM_SERVER:
             offset = 0;
@@ -3296,7 +3291,6 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                 spice_info->next_state = SPICE_SASL_STEP_FROM_SERVER_CONT;
             }
             return pdu_len;
-            break;
         case SPICE_SASL_START_FROM_SERVER_CONT:
         case SPICE_SASL_STEP_FROM_SERVER_CONT:
             offset = 0;
@@ -3319,7 +3313,6 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                 }
             }
             return 1;
-            break;
         case SPICE_SASL_STEP_TO_SERVER:
             offset = 0;
             while (offset < tvb_reported_length(tvb)) {
@@ -3348,7 +3341,6 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                 }
             }
             return pdu_len;
-            break;
         case SPICE_SASL_DATA:
             offset = 0;
             while (offset < tvb_reported_length(tvb)) {
@@ -3373,7 +3365,6 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                 offset += (pdu_len - 4);
             }
             return pdu_len;
-            break;
         case SPICE_DATA:
             offset = 0;
             while (offset < tvb_reported_length(tvb)) {
@@ -3414,7 +3405,6 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
             proto_tree_add_item(spice_tree, hf_ticket_client, tvb, 0, 128, ENC_NA);
             spice_info->next_state = SPICE_TICKET_SERVER;
             return 128;
-            break;
         case SPICE_TICKET_SERVER:
             if (spice_info->destport != pinfo->srcport) /* ignore anything from the client, wait for ticket from server */
                 break;
@@ -3429,7 +3419,6 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                 spice_info->next_state = SPICE_DATA;
             }
             return pdu_len;
-            break;
         default:
             break;
     }

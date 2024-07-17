@@ -200,7 +200,6 @@ dissect_banana_element(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
             break;
         default:
             return 0;
-            break;
     }
     return offset - start_offset;
 }

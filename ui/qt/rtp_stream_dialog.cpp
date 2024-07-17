@@ -269,7 +269,6 @@ public:
             rtpstream_info_calc_free(&calc1);
             rtpstream_info_calc_free(&calc2);
             return ret;
-            break;
         case min_delta_col_:
             return stream_info_->rtp_stats.min_delta < other_rstwi.stream_info_->rtp_stats.min_delta;
         case mean_delta_col_:

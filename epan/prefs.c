@@ -1308,13 +1308,10 @@ bool prefs_get_bool_value(pref_t *pref, pref_source_t source)
     {
     case pref_default:
         return pref->default_val.boolval;
-        break;
     case pref_stashed:
         return pref->stashed_val.boolval;
-        break;
     case pref_current:
         return *pref->varp.boolp;
-        break;
     default:
         ws_assert_not_reached();
         break;
@@ -1391,13 +1388,10 @@ int prefs_get_enum_value(pref_t *pref, pref_source_t source)
     {
     case pref_default:
         return pref->default_val.enumval;
-        break;
     case pref_stashed:
         return pref->stashed_val.enumval;
-        break;
     case pref_current:
         return *pref->varp.enump;
-        break;
     default:
         ws_assert_not_reached();
         break;
@@ -1765,10 +1759,8 @@ range_t* prefs_get_range_value_real(pref_t *pref, pref_source_t source)
         return pref->default_val.range;
     case pref_stashed:
         return pref->stashed_val.range;
-        break;
     case pref_current:
         return *pref->varp.range;
-        break;
     default:
         ws_assert_not_reached();
         break;
@@ -1906,10 +1898,8 @@ color_t* prefs_get_color_value(pref_t *pref, pref_source_t source)
         return &pref->default_val.color;
     case pref_stashed:
         return &pref->stashed_val.color;
-        break;
     case pref_current:
         return pref->varp.colorp;
-        break;
     default:
         ws_assert_not_reached();
         break;
@@ -5109,13 +5099,10 @@ unsigned prefs_get_uint_value_real(pref_t *pref, pref_source_t source)
     {
     case pref_default:
         return pref->default_val.uint;
-        break;
     case pref_stashed:
         return pref->stashed_val.uint;
-        break;
     case pref_current:
         return *pref->varp.uint;
-        break;
     default:
         ws_assert_not_reached();
         break;

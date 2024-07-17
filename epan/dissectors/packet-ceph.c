@@ -6971,7 +6971,6 @@ unsigned c_pdu_end(tvbuff_t *tvb, packet_info *pinfo, unsigned off, c_pkt_data *
 				   + tvb_get_letohl(tvb, off+C_CONNECT_REPLY_OFF_OFFLEN);
 		case C_TAG_CLOSE:
 			return off;
-			break;
 		case C_TAG_MSG:
 		{
 			uint32_t front_len, middle_len, data_len;

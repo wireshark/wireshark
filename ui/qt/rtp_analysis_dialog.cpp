@@ -193,22 +193,16 @@ public:
         switch (treeWidget()->sortColumn()) {
         case (packet_col_):
             return frame_num_ < other_row->frame_num_;
-            break;
         case (sequence_col_):
             return sequence_num_ < other_row->sequence_num_;
-            break;
         case (delta_col_):
             return delta_ < other_row->delta_;
-            break;
         case (jitter_col_):
             return jitter_ < other_row->jitter_;
-            break;
         case (skew_col_):
             return skew_ < other_row->skew_;
-            break;
         case (bandwidth_col_):
             return bandwidth_ < other_row->bandwidth_;
-            break;
         default:
             break;
         }

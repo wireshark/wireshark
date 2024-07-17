@@ -239,7 +239,6 @@ QVariant EnabledProtocolsModel::data(const QModelIndex &index, int role) const
         break;
     case DATA_PROTOCOL_TYPE:
         return QVariant::fromValue(item->type());
-        break;
     default:
     break;
     }

@@ -449,15 +449,12 @@ classify_lg8979_packet(tvbuff_t *tvb)
             case LG8979_FC_CONT_REQUEST:
 
                 return LG8979_DIR_MASTER_TO_RTU;
-                break;
 
             case LG8979_FC_EXP_RPT:
                 return LG8979_DIR_RTU_TO_MASTER;
-                break;
 
             default:
                 return LG8979_DIR_INDETERMINATE;
-                break;
         }
     }
 

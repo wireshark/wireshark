@@ -10101,7 +10101,6 @@ pfcp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int 
             pcrp->is_request = true;
             wmem_map_insert(pfcp_info->unmatched, pcrp, pcrp);
             return NULL;
-            break;
         case PFCP_MSG_HEARTBEAT_RESPONSE:
         case PFCP_MSG_PFD_MANAGEMENT_RESPONSE:
         case PFCP_MSG_ASSOCIATION_SETUP_RESPONSE:

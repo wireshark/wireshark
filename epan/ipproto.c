@@ -272,7 +272,6 @@ static bool ipv6_exthdr_check(int proto)
     case IP_PROTO_HIP:          /* Host Identity Protocol */
     case IP_PROTO_SHIM6:        /* Shim6 Protocol */
         return true;
-        break;
     default:
         break;
     }

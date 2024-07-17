@@ -1800,7 +1800,6 @@ dissect_llrp_impinj_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *par
         break;
     default:
         return suboffset;
-        break;
     }
     /* Each custom parameters ends with optional custom parameter, disscect it */
     return dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end, 0);

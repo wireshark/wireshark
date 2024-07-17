@@ -1269,7 +1269,6 @@ static void dissect_auth_verf(packet_info *pinfo,
                                      "Don't know how to dissect authentication data for %s pdu type",
                                      val_to_str(hdr->ptype, pckt_vals, "Unknown (%u)"));
         return;
-        break;
     }
 
     if (fn)

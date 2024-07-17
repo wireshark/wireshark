@@ -262,7 +262,6 @@ uat_wep_key_record_update_cb(void* r, char** err)
       default:
         *err = g_strdup("Invalid key format");
         return false;
-        break;
     }
   } else {
     if (*err == NULL) {

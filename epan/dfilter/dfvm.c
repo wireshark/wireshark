@@ -309,7 +309,6 @@ value_type_tostr(dfvm_value_t *v, bool show_ftype)
 			break;
 		default:
 			return ws_strdup("");
-			break;
 	}
 	return ws_strdup_printf(" <%s>", s);
 }

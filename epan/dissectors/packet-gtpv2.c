@@ -9251,7 +9251,6 @@ gtpv2_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int
             gcrp->is_request = true;
             wmem_map_insert(gtpv2_info->unmatched, gcrp, gcrp);
             return NULL;
-            break;
         case GTPV2_CREATE_SESSION_RESPONSE:
         case GTPV2_CREATE_BEARER_RESPONSE:
         case GTPV2_UPDATE_BEARER_RESPONSE:

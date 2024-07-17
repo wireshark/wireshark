@@ -288,14 +288,12 @@ test_type_length(uint16_t type, uint32_t length)
          return false;
       }
       return true;
-      break;
 
    case BITTORRENT_MESSAGE_PORT:
       if (length != 3) {
          return false;
       }
       return true;
-      break;
 
    case BITTORRENT_MESSAGE_HAVE:
    case BITT_FAST_EX_SUGGEST_PIECE:
@@ -304,7 +302,6 @@ test_type_length(uint16_t type, uint32_t length)
          return false;
       }
       return true;
-      break;
 
    case BITTORRENT_MESSAGE_REQUEST:
    case BITTORRENT_MESSAGE_CANCEL:
@@ -313,7 +310,6 @@ test_type_length(uint16_t type, uint32_t length)
          return false;
       }
       return true;
-      break;
 
    /* Now to the messages that can have variable and longer lengths. */
 
@@ -331,7 +327,6 @@ test_type_length(uint16_t type, uint32_t length)
          return false;
       }
       return true;
-      break;
 
    case BITTORRENT_MESSAGE_CHOKE:
       /* Choke could be an Azureus message instead, which could be any
@@ -364,7 +359,6 @@ test_type_length(uint16_t type, uint32_t length)
          return false;
       }
       return true;
-      break;
 
    default:
       if (!try_val_to_str(type, bittorrent_messages)) {

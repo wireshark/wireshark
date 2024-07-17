@@ -2177,7 +2177,6 @@ static bool dissect_atn_ulcs_heur(
         /* or an ACSE PDU */
             dissect_atn_ulcs(tvb, pinfo, tree, (void*) false);
             return true;
-            break;
         default:  /* no or unsupported PDU */
             break;
     }

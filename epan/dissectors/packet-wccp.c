@@ -1049,7 +1049,6 @@ dissect_wccp2_web_cache_identity_element(tvbuff_t *tvb, int offset, gint length,
   case WCCP2_WEB_CACHE_ASSIGNMENT_DATA_TYPE_NOT_PRESENT:
     proto_tree_add_item(info_tree, hf_assignment_no_data, tvb, offset, 2, ENC_NA);
     return length;
-    break;
   case WCCP2_WEB_CACHE_ASSIGNMENT_DATA_TYPE_EXTENDED:
     return dissect_wccp2_extended_assignment_data_element(tvb,offset,length,pinfo,info_tree, addr_table);
   }

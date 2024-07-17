@@ -6250,7 +6250,6 @@ int dissect_cip_string_type(packet_info *pinfo, proto_tree *tree, proto_item *it
     default:
         // Unsupported.
         return total_len;
-        break;
     }
 
     if (total_len < (int)(string_size + string_size_field_len))

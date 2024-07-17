@@ -621,7 +621,6 @@ get_timestamp_column_longest_string(const int type, const int precision)
     case(TS_NOT_SET):
         /* This should not happen. */
         return "0000.000000";
-        break;
     default:
         ws_assert_not_reached();
     }
@@ -648,37 +647,26 @@ get_column_longest_string(const int format)
   switch (format) {
     case COL_NUMBER:
       return "0000000";
-      break;
     case COL_CLS_TIME:
       return get_timestamp_column_longest_string(timestamp_get_type(), timestamp_get_precision());
-      break;
     case COL_ABS_YMD_TIME:
       return get_timestamp_column_longest_string(TS_ABSOLUTE_WITH_YMD, timestamp_get_precision());
-      break;
     case COL_ABS_YDOY_TIME:
       return get_timestamp_column_longest_string(TS_ABSOLUTE_WITH_YDOY, timestamp_get_precision());
-      break;
     case COL_UTC_YMD_TIME:
       return get_timestamp_column_longest_string(TS_UTC_WITH_YMD, timestamp_get_precision());
-      break;
     case COL_UTC_YDOY_TIME:
       return get_timestamp_column_longest_string(TS_UTC_WITH_YDOY, timestamp_get_precision());
-      break;
     case COL_ABS_TIME:
       return get_timestamp_column_longest_string(TS_ABSOLUTE, timestamp_get_precision());
-      break;
     case COL_UTC_TIME:
       return get_timestamp_column_longest_string(TS_UTC, timestamp_get_precision());
-      break;
     case COL_REL_TIME:
       return get_timestamp_column_longest_string(TS_RELATIVE, timestamp_get_precision());
-      break;
     case COL_DELTA_TIME:
       return get_timestamp_column_longest_string(TS_DELTA, timestamp_get_precision());
-      break;
     case COL_DELTA_TIME_DIS:
       return get_timestamp_column_longest_string(TS_DELTA_DIS, timestamp_get_precision());
-      break;
     case COL_DEF_SRC:
     case COL_RES_SRC:
     case COL_UNRES_SRC:
@@ -698,7 +686,6 @@ get_column_longest_string(const int format)
     case COL_RES_NET_DST:
     case COL_UNRES_NET_DST:
       return "00000000.000000000000"; /* IPX-style */
-      break;
     case COL_DEF_SRC_PORT:
     case COL_RES_SRC_PORT:
     case COL_UNRES_SRC_PORT:
@@ -706,40 +693,28 @@ get_column_longest_string(const int format)
     case COL_RES_DST_PORT:
     case COL_UNRES_DST_PORT:
       return "000000";
-      break;
     case COL_PROTOCOL:
       return "Protocol";    /* not the longest, but the longest is too long */
-      break;
     case COL_PACKET_LENGTH:
       return "00000";
-      break;
     case COL_CUMULATIVE_BYTES:
       return "00000000";
-      break;
     case COL_IF_DIR:
       return "i 00000000 I";
-      break;
     case COL_TX_RATE:
       return "108.0";
-      break;
     case COL_RSSI:
       return "100";
-      break;
     case COL_DSCP_VALUE:
       return "AAA BBB";    /* not the longest, but the longest is too long */
-      break;
     case COL_EXPERT:
       return "ERROR";
-      break;
     case COL_FREQ_CHAN:
       return "9999 MHz [A 999]";
-      break;
     case COL_CUSTOM:
       return "0000000000";  /* not the longest, but the longest is too long */
-      break;
     default: /* COL_INFO */
       return "Source port: kerberos-master  Destination port: kerberos-master";
-      break;
   }
 }
 

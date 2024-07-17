@@ -476,7 +476,6 @@ dissect_PNMRP_PDU(tvbuff_t *tvb, int offset,
         case 0x00:
             /* no content */
             return offset;
-            break;
         case 0x01:
             offset = dissect_PNMRP_Common(new_tvb, offset, pinfo, sub_tree, sub_item);
             break;

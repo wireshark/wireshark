@@ -1826,10 +1826,8 @@ dnp3_al_empty_obj(uint16_t al_obj)
     case AL_OBJ_CLASS2:
     case AL_OBJ_CLASS3:
       return true;
-      break;
     default:
       return false;
-      break;
   }
 }
 

@@ -237,7 +237,6 @@ static lbm_transport_sqn_t * lbtru_client_transport_sqn_add(lbtru_client_transpo
         case LBTRU_PACKET_TYPE_RST:
         default:
             return (NULL);
-            break;
     }
 
     /* Add the sqn. */
@@ -1247,7 +1246,6 @@ static int dissect_lbtru(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ",  "Unknown (0x%02x)", LBTRU_HDR_TYPE(ver_type));
             expert_add_info_format(pinfo, type_item, &ei_lbtru_analysis_unknown_type, "Unrecognized type 0x%02x", LBTRU_HDR_TYPE(ver_type));
             return (total_dissected_len);
-            break;
     }
 
     /* Handle the flags_or_res field. */

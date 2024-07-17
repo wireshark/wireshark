@@ -6245,7 +6245,6 @@ dissect_r3_cmdmfg_forceoptions (tvbuff_t *tvb, uint32_t start_offset, uint32_t l
       default :
         expert_add_info_format(pinfo, force_item_item, &ei_r3_malformed_length, "Invalid length for Forceoptions State entry");
         return;  /* quit */
-        break;
     }
 
     i += step;

@@ -1356,7 +1356,6 @@ dissect_omron_fins_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *omron_t
                 expert_add_info_format(pinfo, ti, &ei_omron_command_code, "Unknown Response Command-Code");
             }
             return tvb_captured_length(tvb);
-            break;
 
         case 0x0801:
             /* command data length = 0 or > 0 is OK;  */

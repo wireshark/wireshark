@@ -724,7 +724,6 @@ canopen_detect_msg_type(unsigned function_code, unsigned node_id)
     switch (function_code) {
         case FC_NMT:
             return MT_NMT_CTRL;
-            break;
         case FC_SYNC:
             if (node_id == 0) {
                 return MT_SYNC;
@@ -734,40 +733,28 @@ canopen_detect_msg_type(unsigned function_code, unsigned node_id)
             break;
         case FC_TIME_STAMP:
             return MT_TIME_STAMP;
-            break;
         case FC_PDO1_TX:
             return MT_PDO;
-            break;
         case FC_PDO1_RX:
             return MT_PDO;
-            break;
         case FC_PDO2_TX:
             return MT_PDO;
-            break;
         case FC_PDO2_RX:
             return MT_PDO;
-            break;
         case FC_PDO3_TX:
             return MT_PDO;
-            break;
         case FC_PDO3_RX:
             return MT_PDO;
-            break;
         case FC_PDO4_TX:
             return MT_PDO;
-            break;
         case FC_PDO4_RX:
             return MT_PDO;
-            break;
         case FC_DEFAULT_SDO_TX:
             return MT_SDO;
-            break;
         case FC_DEFAULT_SDO_RX:
             return MT_SDO;
-            break;
         case FC_NMT_ERR_CONTROL:
             return MT_NMT_ERR_CTRL;
-            break;
         case LSS_MASTER_CAN_ID >> 7:
             if (node_id == (LSS_MASTER_CAN_ID & 0x7F)) {
                 return MT_LSS_MASTER;
@@ -775,10 +762,8 @@ canopen_detect_msg_type(unsigned function_code, unsigned node_id)
                 return MT_LSS_SLAVE;
             }
             return MT_UNKNOWN;
-            break;
         default:
             return MT_UNKNOWN;
-            break;
     }
 }
 

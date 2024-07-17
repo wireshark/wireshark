@@ -13138,7 +13138,6 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
 		proto_item_fill_label(PITEM_FINFO(pi), lbl_str);
 		proto_item_set_text(pi, "%s", lbl_str);
 		return pi;
-		break;
 
 	/* TODO: should handle FT_UINT_BYTES ? */
 
@@ -13148,7 +13147,6 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
 				     hf_field->type,
 				     ftype_name(hf_field->type));
 		return NULL;
-		break;
 	}
 
 	proto_item_set_text(pi, "%s = %s", bf_str, lbl_str);
@@ -13328,7 +13326,6 @@ proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hfindex, tvbu
 				     hf_field->type,
 				     ftype_name(hf_field->type));
 		return NULL;
-		break;
 	}
 	proto_item_set_text(pi, "%s = %s", bf_str, lbl_str);
 	return pi;
@@ -13492,7 +13489,6 @@ _proto_tree_add_bits_format_value(proto_tree *tree, const int hfindex,
 				     hf_field->type,
 				     ftype_name(hf_field->type));
 		return NULL;
-		break;
 	}
 }
 
@@ -13544,7 +13540,6 @@ proto_tree_add_uint_bits_format_value(proto_tree *tree, const int hfindex,
 			REPORT_DISSECTOR_BUG("field %s is not of type FT_UINT8, FT_UINT16, FT_UINT24, or FT_UINT32",
 			    hf_field->abbrev);
 			return NULL;
-			break;
 	}
 
 	CREATE_VALUE_STRING(tree, dst, format, ap);
@@ -13578,7 +13573,6 @@ proto_tree_add_uint64_bits_format_value(proto_tree *tree, const int hfindex,
 			REPORT_DISSECTOR_BUG("field %s is not of type FT_UINT40, FT_UINT48, FT_UINT56, or FT_UINT64",
 			    hf_field->abbrev);
 			return NULL;
-			break;
 	}
 
 	CREATE_VALUE_STRING(tree, dst, format, ap);
@@ -13634,7 +13628,6 @@ proto_tree_add_int_bits_format_value(proto_tree *tree, const int hfindex,
 			REPORT_DISSECTOR_BUG("field %s is not of type FT_INT8, FT_INT16, FT_INT24, or FT_INT32",
 			    hf_field->abbrev);
 			return NULL;
-			break;
 	}
 
 	CREATE_VALUE_STRING(tree, dst, format, ap);
@@ -13668,7 +13661,6 @@ proto_tree_add_int64_bits_format_value(proto_tree *tree, const int hfindex,
 			REPORT_DISSECTOR_BUG("field %s is not of type FT_INT40, FT_INT48, FT_INT56, or FT_INT64",
 			    hf_field->abbrev);
 			return NULL;
-			break;
 	}
 
 	CREATE_VALUE_STRING(tree, dst, format, ap);

@@ -3403,7 +3403,6 @@ dissect_struct_lov_mds_md(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
     case LMV_MAGIC_V1:
     case LMV_MAGIC_STRIPE: /* this uses struct lmv_mds_md, but without fids */
         return dissect_struct_lmv_mds_md_v1(tvb, pinfo, offset, parent_tree, buf_num);
-        break;
     default:
         // This is for speculative processing of LDLM Intent Reply
         // IT_LAYOUT, and thus not an error

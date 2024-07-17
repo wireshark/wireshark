@@ -1580,22 +1580,16 @@ uds_sa_subfunction_to_string(guint8 subf) {
     switch (uds_sa_subfunction_to_type(subf)) {
     case UDS_SA_TYPES_RESERVED:
         return "Reserved";
-        break;
     case UDS_SA_TYPES_SUPPLIER:
         return "System Supplier Specific";
-        break;
     case UDS_SA_TYPES_REQUEST_SEED:
         return "Request Seed";
-        break;
     case UDS_SA_TYPES_SEND_KEY:
         return "Send Key";
-        break;
     case UDS_SA_TYPES_REQUEST_SEED_ISO26021:
         return "Request Seed ISO26021";
-        break;
     case UDS_SA_TYPES_SEND_KEY_ISO26021:
         return "Send Key ISO26021";
-        break;
     }
 
     return "Unknown";
@@ -2217,19 +2211,15 @@ dissect_uds_certificates_into_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     switch (uds_certificate_decoding_config) {
     case ber_cert_single_false:
         return dissect_x509af_Certificate(FALSE, sub_tvb, 0, &asn1_ctx, cert_tree, hf_uds_signedCertificate);
-        break;
 
     case ber_cert_single_true:
         return dissect_x509af_Certificate(TRUE, sub_tvb, 0, &asn1_ctx, cert_tree, hf_uds_signedCertificate);
-        break;
 
     case ber_cert_multi_false:
         return dissect_x509af_Certificates(FALSE, sub_tvb, 0, &asn1_ctx, cert_tree, hf_uds_signedCertificate);
-        break;
 
     case ber_cert_multi_true:
         return dissect_x509af_Certificates(TRUE, sub_tvb, 0, &asn1_ctx, cert_tree, hf_uds_signedCertificate);
-        break;
     }
 
     return 0;
