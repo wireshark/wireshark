@@ -1,6 +1,6 @@
 // Common attributes
 
-:wireshark-version: 4.3.0
+:wireshark-version: 4.3.1
 :logray-version: 0.9.0
 
 // Required for btn, kbd:, and menu: macros.
