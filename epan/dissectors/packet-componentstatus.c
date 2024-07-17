@@ -220,7 +220,7 @@ dissect_componentstatusprotocol_message(tvbuff_t *message_tvb, packet_info *pinf
   nstime_t    t;
 
   tap_componentstatusprotocol_rec_t* tap_rec = wmem_new0(pinfo->pool, tap_componentstatusprotocol_rec_t);
-  tap_rec->type        = tvb_get_guint8(message_tvb, 0);
+  tap_rec->type        = tvb_get_uint8(message_tvb, 0);
   tap_rec->size        = tvb_get_ntohs(message_tvb, 2);
   tap_rec->type_string = val_to_str_const(tap_rec->type, message_type_values, "Unknown ComponentStatusProtocol message type");
   tap_queue_packet(tap_componentstatusprotocol, pinfo, tap_rec);
@@ -262,7 +262,7 @@ dissect_componentstatusprotocol(tvbuff_t *message_tvb, packet_info *pinfo, proto
     return 0;
 
   /* Check, if this packet really contains a ComponentStatusProtocol message */
-  type = tvb_get_guint8(message_tvb, 0);
+  type = tvb_get_uint8(message_tvb, 0);
   if (type != COMPONENTSTATUS_REPORT) {
     return 0;
   }

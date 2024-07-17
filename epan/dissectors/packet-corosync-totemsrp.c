@@ -821,11 +821,11 @@ dissect_corosync_totemsrp0(tvbuff_t *tvb,
     return 0;
 
   /* message header */
-  message_header__type = tvb_get_guint8(tvb, 0);
+  message_header__type = tvb_get_uint8(tvb, 0);
   if (message_header__type > 5)
     return 0;
 
-  message_header__encapsulated = tvb_get_guint8(tvb, 1);
+  message_header__encapsulated = tvb_get_uint8(tvb, 1);
 
   /* message_header -- byte order checking */
   endian_test = tvb_get_ntohs(tvb, 2);

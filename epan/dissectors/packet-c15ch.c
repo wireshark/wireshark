@@ -4136,7 +4136,7 @@ static void add_digits_string(int hf, tvbuff_t *tvb, proto_tree *tree,
     ch_buff = (char *) wmem_alloc(wmem_packet_scope(), num_digits + 1); /*include space for terminating null*/
     for ( curr_offset = first_offset, buff_index = 0; buff_index < num_digits; curr_offset++, buff_index++ )
     {
-        curr_digit = tvb_get_guint8(tvb, curr_offset);
+        curr_digit = tvb_get_uint8(tvb, curr_offset);
 
         if ( curr_digit < 10 )
         {
@@ -4200,7 +4200,7 @@ static void add_digits_string_info_col(tvbuff_t *tvb,
     ch_buff = (char *) wmem_alloc(pinfo->pool, num_digits + 1); /*include space for terminating null*/
     for ( i = 0; i < num_digits; i++ )
     {
-        unsigned curr_digit = tvb_get_guint8(tvb, i + first_offset);
+        unsigned curr_digit = tvb_get_uint8(tvb, i + first_offset);
 
         if ( curr_digit < 10 )
         {
@@ -4376,14 +4376,14 @@ static int dissect_c15ch_ama(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     uint8_t call_type_val = 0;
     uint8_t dialed_num_digits;
 
-    call_type_val = tvb_get_guint8(tvb, 40);
+    call_type_val = tvb_get_uint8(tvb, 40);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Call Type: %s",
         val_to_str_ext(call_type_val, &ama_call_types_ext, "Unknown %d"));
     if (tree)
     {
         ti = proto_tree_add_item(tree, hf_c15ch_ama, tvb, 0, 41, ENC_NA);
         c15ch_ama_tree = proto_item_add_subtree(ti, ett_c15ch_second_level);
-        dialed_num_digits = tvb_get_guint8(tvb, 11);
+        dialed_num_digits = tvb_get_uint8(tvb, 11);
         proto_tree_add_item(c15ch_ama_tree, hf_c15ch_ama_call_code,
                             tvb, 0, 1, ENC_BIG_ENDIAN);
         add_digits_string(hf_c15ch_ama_orig_digits, tvb, c15ch_ama_tree,
@@ -4604,8 +4604,8 @@ static int dissect_c15ch_echo_cancel(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     char * loc_string = NULL;
 
 
-    old_l2_mode_val = tvb_get_guint8(tvb, 8);
-    new_l2_mode_val = tvb_get_guint8(tvb, 9);
+    old_l2_mode_val = tvb_get_uint8(tvb, 8);
+    new_l2_mode_val = tvb_get_uint8(tvb, 9);
 
     switch( old_l2_mode_val )
     {
@@ -4674,7 +4674,7 @@ static int dissect_c15ch_echo_cancel(tvbuff_t *tvb, packet_info *pinfo, proto_tr
                             tvb, 0, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_ni_tn_tree, hf_c15ch_echo_cancel_tn,
                             tvb, 4, 4, ENC_BIG_ENDIAN);
-        valid_tone_id = tvb_get_guint8( tvb, 10 );
+        valid_tone_id = tvb_get_uint8( tvb, 10 );
         if ( valid_tone_id )
         {
             proto_tree_add_item(c15ch_echo_cancel_tree, hf_c15ch_echo_cancel_tone_id, tvb, 11, 4, ENC_BIG_ENDIAN);
@@ -4749,7 +4749,7 @@ static int dissect_c15ch_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     uint8_t msgtype_value = 0;
     tvbuff_t * next_tvb;
 
-    msgtype_value = tvb_get_guint8(tvb, 1);
+    msgtype_value = tvb_get_uint8(tvb, 1);
 
     col_clear(pinfo->cinfo, COL_INFO);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Msg Type: %s",
@@ -5081,8 +5081,8 @@ static int dissect_c15ch_ntwk_conn(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
     uint8_t path_type_val = 0;
     uint8_t conn_type_val = 0;
-    path_type_val = tvb_get_guint8(tvb, 0);
-    conn_type_val = tvb_get_guint8(tvb, 1);
+    path_type_val = tvb_get_uint8(tvb, 0);
+    conn_type_val = tvb_get_uint8(tvb, 1);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Path Type: %s",
         val_to_str(path_type_val, ett_c15ch_ntwk_conn_path_types, "Unknown %d") );
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Conn Type: %s",
@@ -5108,10 +5108,10 @@ static int dissect_c15ch_ntwk_conn(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         add_string_field( c15ch_ntwk_conn_tree, tvb, str_start, max_str_len, hf_c15ch_ntwk_conn_fromsite );
 
         /* old location and pm, pc, slot, loop*/
-        from_pm_val = tvb_get_guint8( tvb, 8 );
-        from_pc_val = tvb_get_guint8( tvb, 9 );
-        from_loop_val = tvb_get_guint8( tvb, 10 );
-        from_slot_val = tvb_get_guint8( tvb, 11 );
+        from_pm_val = tvb_get_uint8( tvb, 8 );
+        from_pc_val = tvb_get_uint8( tvb, 9 );
+        from_loop_val = tvb_get_uint8( tvb, 10 );
+        from_slot_val = tvb_get_uint8( tvb, 11 );
         from_loc_string = wmem_strdup_printf(pinfo->pool, "%d  %d  %d  %d", from_pm_val, from_pc_val, from_loop_val, from_slot_val );
         ti = proto_tree_add_string(c15ch_ntwk_conn_tree, hf_c15ch_ntwk_conn_fromlocation, tvb, 8, (11 - 8) + 1,
                                 from_loc_string);
@@ -5148,10 +5148,10 @@ static int dissect_c15ch_ntwk_conn(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         add_string_field( c15ch_ntwk_conn_tree, tvb, str_start, max_str_len, hf_c15ch_ntwk_conn_tosite );
 
         /* new location and pm, pc, slot, loop*/
-        to_pm_val = tvb_get_guint8( tvb, 31 );
-        to_pc_val = tvb_get_guint8( tvb, 32 );
-        to_loop_val = tvb_get_guint8( tvb, 33 );
-        to_slot_val = tvb_get_guint8( tvb, 34 );
+        to_pm_val = tvb_get_uint8( tvb, 31 );
+        to_pc_val = tvb_get_uint8( tvb, 32 );
+        to_loop_val = tvb_get_uint8( tvb, 33 );
+        to_slot_val = tvb_get_uint8( tvb, 34 );
         to_loc_string = wmem_strdup_printf(pinfo->pool, "%d  %d  %d  %d", to_pm_val, to_pc_val, to_loop_val, to_slot_val );
         ti = proto_tree_add_string(c15ch_ntwk_conn_tree, hf_c15ch_ntwk_conn_tolocation, tvb, 31, (34 - 31) + 1,
                                 to_loc_string);
@@ -5181,7 +5181,7 @@ static int dissect_c15ch_orig(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     uint8_t num_upn_digits;
     uint8_t num_rnp_digits;
 
-    num_dn_digits = tvb_get_guint8(tvb, 12);
+    num_dn_digits = tvb_get_uint8(tvb, 12);
 
     col_append_str(pinfo->cinfo, COL_INFO, ", DN: ");
     add_digits_string_info_col( tvb, 13, num_dn_digits, pinfo);
@@ -5190,8 +5190,8 @@ static int dissect_c15ch_orig(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     {
         ti = proto_tree_add_item(tree, hf_c15ch_orig, tvb, 0, 73, ENC_NA);
         c15ch_orig_tree = proto_item_add_subtree(ti, ett_c15ch_second_level);
-        num_upn_digits = tvb_get_guint8(tvb, 28);
-        num_rnp_digits = tvb_get_guint8(tvb, 49);
+        num_upn_digits = tvb_get_uint8(tvb, 28);
+        num_rnp_digits = tvb_get_uint8(tvb, 49);
         proto_tree_add_item(c15ch_orig_tree, hf_c15ch_orig_tnblocktype,
                             tvb, 0, 4, ENC_BIG_ENDIAN);
 
@@ -5473,7 +5473,7 @@ static int dissect_c15ch_q931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     tvbuff_t * next_tvb;
     uint8_t bytes_to_skip;
 
-    direction = tvb_get_guint8(tvb, 0);
+    direction = tvb_get_uint8(tvb, 0);
 
     if (direction > 1)
     {
@@ -5601,7 +5601,7 @@ static int dissect_c15ch_qos(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                             tvb, 94, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(c15ch_qos_tree, hf_c15ch_qos_tenth_sec,
                             tvb, 95, 1, ENC_BIG_ENDIAN);
-        year_val = 2000 + ( (uint32_t) tvb_get_guint8( tvb, 96 ) ) ;
+        year_val = 2000 + ( (uint32_t) tvb_get_uint8( tvb, 96 ) ) ;
         proto_tree_add_uint(c15ch_qos_tree, hf_c15ch_qos_year, tvb, 96, 1, year_val);
         proto_tree_add_item(c15ch_qos_tree, hf_c15ch_qos_month,
                             tvb, 97, 1, ENC_BIG_ENDIAN);
@@ -5659,7 +5659,7 @@ static int dissect_c15ch_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     uint8_t direction;
     tvbuff_t * next_tvb;
 
-    direction = tvb_get_guint8(tvb, 0);
+    direction = tvb_get_uint8(tvb, 0);
     if (tree)
     {
 
@@ -5740,7 +5740,7 @@ static int dissect_c15ch_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     uint8_t local_ssn_val = 0;
 
-    local_ssn_val = tvb_get_guint8(tvb, 4);
+    local_ssn_val = tvb_get_uint8(tvb, 4);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Local SSN: %s",
         val_to_str(local_ssn_val, c15ch_tcap_local_ssn_types, "Unknown %d"));
     if (tree)
@@ -5952,9 +5952,9 @@ static int dissect_c15ch_inc_gwe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     bool task_in_range = true;
     bool fiat_index_in_range = true;
 
-    task_num = tvb_get_guint8(tvb,  8);
-    fiat_num = tvb_get_guint8(tvb,  9);
-    type_num = tvb_get_guint8(tvb, 10);
+    task_num = tvb_get_uint8(tvb,  8);
+    fiat_num = tvb_get_uint8(tvb,  9);
+    type_num = tvb_get_uint8(tvb, 10);
 
     if ( task_num > LAST_TASK_TYPE_INDEX )
     {    /* this happens for unknown task types */
@@ -6039,7 +6039,7 @@ static int dissect_c15ch_inc_gwe_admn_dn(tvbuff_t *tvb, packet_info *pinfo _U_, 
     {
         ti = proto_tree_add_item(tree, hf_c15ch_inc_gwe_admn_dn, tvb, 0, 37, ENC_NA);
         c15ch_inc_gwe_admn_dn_tree = proto_item_add_subtree(ti, ett_c15ch_third_level_inc_gwe);
-        num_digits = tvb_get_guint8(tvb, 4);
+        num_digits = tvb_get_uint8(tvb, 4);
         proto_tree_add_item(c15ch_inc_gwe_admn_dn_tree, hf_c15ch_inc_gwe_admn_dn_ip_gwe_sua_hndl,
                             tvb, 0, 4, ENC_BIG_ENDIAN);
         add_digits_string(hf_c15ch_inc_gwe_admn_dn_ip_gwe_digits, tvb, c15ch_inc_gwe_admn_dn_tree,
@@ -6185,7 +6185,7 @@ static int dissect_c15ch_inc_gwe_cl_redir(tvbuff_t *tvb, packet_info *pinfo _U_,
     {
         ti = proto_tree_add_item(tree, hf_c15ch_inc_gwe_cl_redir, tvb, 0, 24, ENC_NA);
         c15ch_inc_gwe_cl_redir_tree = proto_item_add_subtree(ti, ett_c15ch_third_level_inc_gwe);
-        redir_num_digits = tvb_get_guint8(tvb, 8);
+        redir_num_digits = tvb_get_uint8(tvb, 8);
         proto_tree_add_item(c15ch_inc_gwe_cl_redir_tree, hf_c15ch_inc_gwe_cl_redir_ip_gwe_sua_hndl,
                             tvb, 0, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(c15ch_inc_gwe_cl_redir_tree, hf_c15ch_inc_gwe_cl_redir_ip_gwe_conn_num,
@@ -6208,7 +6208,7 @@ static int dissect_c15ch_inc_gwe_cl_refer(tvbuff_t *tvb, packet_info *pinfo _U_,
     {
         ti = proto_tree_add_item(tree, hf_c15ch_inc_gwe_cl_refer, tvb, 0, 49, ENC_NA);
         c15ch_inc_gwe_cl_refer_tree = proto_item_add_subtree(ti, ett_c15ch_third_level_inc_gwe);
-        trgt_num_digits = tvb_get_guint8(tvb, 8);
+        trgt_num_digits = tvb_get_uint8(tvb, 8);
         proto_tree_add_item(c15ch_inc_gwe_cl_refer_tree, hf_c15ch_inc_gwe_cl_refer_ip_gwe_sua_hndl,
                             tvb, 0, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(c15ch_inc_gwe_cl_refer_tree, hf_c15ch_inc_gwe_cl_refer_ip_gwe_conn_num,
@@ -6256,7 +6256,7 @@ static int dissect_c15ch_inc_gwe_cl_setup(tvbuff_t *tvb, packet_info *pinfo _U_,
 
     uint8_t num_digits;
 
-    num_digits = tvb_get_guint8(tvb, 4);
+    num_digits = tvb_get_uint8(tvb, 4);
 
     if (tree)
     {
@@ -6357,7 +6357,7 @@ static int dissect_c15ch_inc_gwe_notify(tvbuff_t *tvb, packet_info *pinfo _U_, p
 
     uint8_t num_digits;
 
-    num_digits = tvb_get_guint8(tvb, 4);
+    num_digits = tvb_get_uint8(tvb, 4);
 
     if (tree)
     {
@@ -6414,25 +6414,25 @@ static int dissect_c15ch_inc_gwe_ptrk_setup(tvbuff_t *tvb, packet_info *pinfo _U
         ti = proto_tree_add_item(tree, hf_c15ch_inc_gwe_ptrk_setup, tvb, 0, 172, ENC_NA);
         c15ch_inc_gwe_ptrk_setup_tree = proto_item_add_subtree(ti, ett_c15ch_third_level_inc_gwe);
         /* CLED */
-        cled_num_digits = tvb_get_guint8(tvb, 4);
+        cled_num_digits = tvb_get_uint8(tvb, 4);
 
         /* CLNG */
-        clng_num_digits = tvb_get_guint8(tvb, 46);
+        clng_num_digits = tvb_get_uint8(tvb, 46);
 
         /* REDIR */
-        redir_num_digits = tvb_get_guint8(tvb, 85);
+        redir_num_digits = tvb_get_uint8(tvb, 85);
 
         /* OCN */
-        ocn_num_digits = tvb_get_guint8(tvb, 103);
+        ocn_num_digits = tvb_get_uint8(tvb, 103);
 
         /* CHRG */
-        chrg_num_digits = tvb_get_guint8(tvb, 119);
+        chrg_num_digits = tvb_get_uint8(tvb, 119);
 
         /* RN */
-        rn_num_digits = tvb_get_guint8(tvb, 133);
+        rn_num_digits = tvb_get_uint8(tvb, 133);
 
         /* CIC */
-        cic_num_digits = tvb_get_guint8(tvb, 166);
+        cic_num_digits = tvb_get_uint8(tvb, 166);
 
         proto_tree_add_item(c15ch_inc_gwe_ptrk_setup_tree, hf_c15ch_inc_gwe_ptrk_setup_ip_gwe_sua_hndl,
                             tvb, 0, 4, ENC_BIG_ENDIAN);
@@ -6652,8 +6652,8 @@ static int dissect_c15ch_out_gwe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     uint8_t msg_type;
     tvbuff_t * next_tvb;
 
-    msg_type = tvb_get_guint8(tvb, 8);
-    data_type = tvb_get_guint8(tvb, 14);
+    msg_type = tvb_get_uint8(tvb, 8);
+    data_type = tvb_get_uint8(tvb, 14);
     col_clear(pinfo->cinfo, COL_INFO);
     col_add_fstr(pinfo->cinfo, COL_INFO, "Type: OUT_GWE, Msg Subtype: %s",
         val_to_str_ext(msg_type, &c15_out_gwe_msg_types_ext, "Unknown Msg Subtype: %d") );
@@ -6850,13 +6850,13 @@ static int dissect_c15ch_out_gwe_call_setup(tvbuff_t *tvb, packet_info *pinfo _U
         ti = proto_tree_add_item(tree,  hf_c15ch_out_gwe_call_setup, tvb, 0, 60, ENC_NA);
         c15ch_out_gwe_call_setup_tree = proto_item_add_subtree(ti, ett_c15ch_third_level_out_gwe);
         /* redir */
-        redir_num_digits = tvb_get_guint8(tvb, 12);
+        redir_num_digits = tvb_get_uint8(tvb, 12);
 
         /* ocn  */
-        ocn_num_digits = tvb_get_guint8(tvb, 30);
+        ocn_num_digits = tvb_get_uint8(tvb, 30);
 
         /* chrg  */
-        chrg_num_digits = tvb_get_guint8(tvb, 46);
+        chrg_num_digits = tvb_get_uint8(tvb, 46);
 
         proto_tree_add_item(c15ch_out_gwe_call_setup_tree, hf_c15ch_out_gwe_call_setup_conn_num,
                             tvb, 0, 4, ENC_BIG_ENDIAN);
@@ -7237,7 +7237,7 @@ static int dissect_c15ch_tone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     tvbuff_t * next_tvb;
     uint32_t retv = 0;
 
-    msg_type = tvb_get_guint8(tvb, 0);
+    msg_type = tvb_get_uint8(tvb, 0);
     col_clear(pinfo->cinfo, COL_INFO);
     col_add_fstr(pinfo->cinfo, COL_INFO, "Type: TONE, Msg Subtype: %s",
         val_to_str(msg_type, c15_tone_msg_types, "Unknown Msg Subtype: %d") );
@@ -7345,7 +7345,7 @@ static int dissect_c15ch_tone_opls(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     proto_tree * to_ni_tn_tree = NULL;
 
     uint8_t num_digits;
-    num_digits = tvb_get_guint8(tvb, 12);
+    num_digits = tvb_get_uint8(tvb, 12);
 
     if (tree)
     {

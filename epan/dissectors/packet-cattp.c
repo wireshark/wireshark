@@ -125,7 +125,7 @@ dissect_cattp_synpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cattp_tree, 
     proto_tree_add_item(cattp_tree, hf_cattp_maxsdu, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    idlen = tvb_get_guint8(tvb, offset);
+    idlen = tvb_get_uint8(tvb, offset);
     idi = proto_tree_add_uint(cattp_tree, hf_cattp_idlen, tvb, offset, 1, idlen);
     offset += 1;
 
@@ -136,7 +136,7 @@ dissect_cattp_synpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cattp_tree, 
     if (idlen > 0) {
         uint8_t first_id_byte;
 
-        first_id_byte = tvb_get_guint8(tvb, offset);
+        first_id_byte = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(id_tree, hf_cattp_identification, tvb, offset, idlen, ENC_NA);
 
         /* Optional code. Checks whether identification field may be an ICCID.
@@ -152,7 +152,7 @@ dissect_cattp_synpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cattp_tree, 
             for (i = 0; i < idlen; i++) {
                 uint8_t c, n;
 
-                c = tvb_get_guint8(tvb, offset + i);
+                c = tvb_get_uint8(tvb, offset + i);
                 n = ((c & 0xF0) >> 4) + ((c & 0x0F) << 4);
                 wmem_strbuf_append_printf(buf, "%02X", n);
             }
@@ -198,7 +198,7 @@ dissect_cattp_rstpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cattp_tree, 
     uint8_t      rc;
     const char *rc_str;
 
-    rc = tvb_get_guint8(tvb, offset); /* reason code of RST */
+    rc = tvb_get_uint8(tvb, offset); /* reason code of RST */
     rc_str = val_to_str(rc, cattp_reset_reason, "Unknown reason code: 0x%02x");
     col_append_fstr(pinfo->cinfo, COL_INFO, " Reason=\"%s\" ", rc_str);
 
@@ -224,7 +224,7 @@ dissect_cattp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     /* Clear out stuff in the info column */
     col_clear(pinfo->cinfo, COL_INFO);
 
-    hlen = tvb_get_guint8(tvb, 3); /* lookahead header len. */
+    hlen = tvb_get_uint8(tvb, 3); /* lookahead header len. */
 
     offset = 0;
     ti = proto_tree_add_protocol_format(tree, proto_cattp, tvb, offset, hlen,
@@ -233,7 +233,7 @@ dissect_cattp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     cattp_tree = proto_item_add_subtree(ti, ett_cattp);
 
     /* render flags tree */
-    first_byte = tvb_get_guint8(tvb, offset);
+    first_byte = tvb_get_uint8(tvb, offset);
     flags = first_byte & M_FLAGS; /* discard version from first byte for flags */
     ver   = first_byte & M_VERSION; /* discard flags for version */
     proto_tree_add_bitmask(cattp_tree, tvb, offset, hf_cattp_flags, ett_cattp_flags, cattp_flags, ENC_BIG_ENDIAN);
@@ -326,7 +326,7 @@ dissect_cattp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         uint8_t flags, ver, hlen;
         uint16_t plen;
 
-        hlen = tvb_get_guint8(tvb, 3); /* header len  */
+        hlen = tvb_get_uint8(tvb, 3); /* header len  */
         plen = tvb_get_ntohs(tvb, 8);  /* payload len */
 
         if (hlen+plen != tvb_reported_length(tvb)) /* check if data length is ok. */
@@ -334,11 +334,11 @@ dissect_cattp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
         /* ETSI TS 102 127 V15.0.0 and earlier releases say explicitly that
            the version bits must be 0. */
-        ver = tvb_get_guint8(tvb, 0) & M_VERSION;
+        ver = tvb_get_uint8(tvb, 0) & M_VERSION;
         if (ver != 0)
             return false;
 
-        flags = tvb_get_guint8(tvb, 0) & M_FLAGS;
+        flags = tvb_get_uint8(tvb, 0) & M_FLAGS;
         if ( (flags & M_PDU_SYN) == F_SYN ||
              (flags & M_PDU_RST) == F_RST ||
              (flags & M_PDU_ACK) == F_ACK ) { /* check if flag combi is valid */

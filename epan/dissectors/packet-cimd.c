@@ -683,7 +683,7 @@ dissect_cimd_operation(tvbuff_t *tvb, proto_tree *tree, int etxp, uint16_t check
   proto_tree_add_uint(cimd_tree, hf_cimd_packet_number_indicator, tvb, CIMD_PN_OFFSET, CIMD_PN_LENGTH, PN);
 
   offset = CIMD_PN_OFFSET + CIMD_PN_LENGTH;
-  while (offset < etxp && tvb_get_guint8(tvb, offset) == CIMD_DELIM)
+  while (offset < etxp && tvb_get_uint8(tvb, offset) == CIMD_DELIM)
   {
     endOffset = tvb_find_guint8(tvb, offset + 1, etxp, CIMD_DELIM);
     if (endOffset == -1)
@@ -723,9 +723,9 @@ dissect_cimd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   OC = (uint8_t)strtoul(tvb_get_string_enc(pinfo->pool, tvb, CIMD_OC_OFFSET, CIMD_OC_LENGTH, ENC_ASCII), NULL, 10);
   PN = (uint8_t)strtoul(tvb_get_string_enc(pinfo->pool, tvb, CIMD_PN_OFFSET, CIMD_PN_LENGTH, ENC_ASCII), NULL, 10);
 
-  last1 = tvb_get_guint8(tvb, etxp - 1);
-  last2 = tvb_get_guint8(tvb, etxp - 2);
-  last3 = tvb_get_guint8(tvb, etxp - 3);
+  last1 = tvb_get_uint8(tvb, etxp - 1);
+  last2 = tvb_get_uint8(tvb, etxp - 2);
+  last3 = tvb_get_uint8(tvb, etxp - 3);
 
   if (last1 == CIMD_DELIM) {
     /* valid packet, CC is missing */
@@ -735,7 +735,7 @@ dissect_cimd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     checksum = (uint16_t)strtoul(tvb_get_string_enc(pinfo->pool, tvb, etxp - 2, 2, ENC_ASCII), NULL, 16);
     for (; offset < (etxp - 2); offset++)
     {
-      pkt_check += tvb_get_guint8(tvb, offset);
+      pkt_check += tvb_get_uint8(tvb, offset);
       pkt_check &= 0xFF;
     }
     checksumIsValid = (checksum == pkt_check);
@@ -768,7 +768,7 @@ dissect_cimd_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
   if (tvb_captured_length(tvb) < CIMD_MIN_LENGTH)
     return false;
 
-  if (tvb_get_guint8(tvb, 0) != CIMD_STX)
+  if (tvb_get_uint8(tvb, 0) != CIMD_STX)
     return false;
 
   etxp = tvb_find_guint8(tvb, CIMD_OC_OFFSET, -1, CIMD_ETX);
@@ -782,10 +782,10 @@ dissect_cimd_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
   if (try_val_to_str(opcode, vals_hdr_OC) == NULL)
     return false;
 
-  if (tvb_get_guint8(tvb, CIMD_OC_OFFSET + CIMD_OC_LENGTH) != CIMD_COLON)
+  if (tvb_get_uint8(tvb, CIMD_OC_OFFSET + CIMD_OC_LENGTH) != CIMD_COLON)
     return false;
 
-  if (tvb_get_guint8(tvb, CIMD_PN_OFFSET + CIMD_PN_LENGTH) != CIMD_DELIM)
+  if (tvb_get_uint8(tvb, CIMD_PN_OFFSET + CIMD_PN_LENGTH) != CIMD_DELIM)
     return false;
 
   /* Ok, looks like a valid packet, go dissect. */

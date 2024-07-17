@@ -3797,7 +3797,7 @@ static int cigi_byte_order = ENC_BIG_ENDIAN;
 static float
 cigi_get_fixed_point(tvbuff_t *tvb, int offset, const unsigned encoding)
 {
-    int16_t fixed = tvb_get_guint16(tvb, offset, encoding);
+    int16_t fixed = tvb_get_uint16(tvb, offset, encoding);
     return fixed / 128.0F;
 }
 
@@ -3820,9 +3820,9 @@ packet_is_cigi(tvbuff_t *tvb)
         return false;
     }
 
-    packet_id = tvb_get_guint8(tvb, 0);
-    packet_size = tvb_get_guint8(tvb, 1);
-    cigi_version_local = tvb_get_guint8(tvb, 2);
+    packet_id = tvb_get_uint8(tvb, 0);
+    packet_size = tvb_get_uint8(tvb, 1);
+    cigi_version_local = tvb_get_uint8(tvb, 2);
     switch ( cigi_version_local ) {
 
         case CIGI_VERSION_1:
@@ -3837,7 +3837,7 @@ packet_is_cigi(tvbuff_t *tvb)
                         /* Not enough data available to check */
                         return false;
                     }
-                    ig_mode = (tvb_get_guint8(tvb, 4) & 0xc0) >> 6;
+                    ig_mode = (tvb_get_uint8(tvb, 4) & 0xc0) >> 6;
                     if ( ig_mode > 2 ) {
                         return false;
                     }
@@ -3864,7 +3864,7 @@ packet_is_cigi(tvbuff_t *tvb)
                         /* Not enough data available to check */
                         return false;
                     }
-                    ig_mode = (tvb_get_guint8(tvb, 4) & 0xc0) >> 6;
+                    ig_mode = (tvb_get_uint8(tvb, 4) & 0xc0) >> 6;
                     if ( ig_mode > 2 ) {
                         return false;
                     }
@@ -3899,7 +3899,7 @@ packet_is_cigi(tvbuff_t *tvb)
                         return false;
                     }
 
-                    ig_mode = (tvb_get_guint8(tvb, 4) & 0x03);
+                    ig_mode = (tvb_get_uint8(tvb, 4) & 0x03);
                     if ( ig_mode > 2 ) {
                         return false;
                     }
@@ -3944,7 +3944,7 @@ packet_is_cigi(tvbuff_t *tvb)
                 return false;
             }
             //test if it's CIGI version 4
-            if (tvb_get_guint8(tvb, 4) != CIGI_VERSION_4)
+            if (tvb_get_uint8(tvb, 4) != CIGI_VERSION_4)
                 return false;
 
             /* CIGI 4 requires that the first packet is always the IG Control or SOF */
@@ -3952,12 +3952,12 @@ packet_is_cigi(tvbuff_t *tvb)
             //PacketSize If the parser detects a zero in the "leftmost" byte, then the message is in Big Endian byte
             if (packet_id == 0) {
                 /* Big Endian */
-                packet_size = tvb_get_guint16(tvb, 0, ENC_BIG_ENDIAN);
-                packet_id = tvb_get_guint16(tvb, 2, ENC_BIG_ENDIAN);
+                packet_size = tvb_get_uint16(tvb, 0, ENC_BIG_ENDIAN);
+                packet_id = tvb_get_uint16(tvb, 2, ENC_BIG_ENDIAN);
             } else if (packet_size == 0) {
                 /* Little Endian */
-                packet_size = tvb_get_guint16(tvb, 0, ENC_LITTLE_ENDIAN);
-                packet_id = tvb_get_guint16(tvb, 2, ENC_LITTLE_ENDIAN);
+                packet_size = tvb_get_uint16(tvb, 0, ENC_LITTLE_ENDIAN);
+                packet_id = tvb_get_uint16(tvb, 2, ENC_LITTLE_ENDIAN);
             } else {
                 return false;
             }
@@ -3973,7 +3973,7 @@ packet_is_cigi(tvbuff_t *tvb)
                     return false;
                 }
 
-                ig_mode = (tvb_get_guint8(tvb, 7) & 0x03);
+                ig_mode = (tvb_get_uint8(tvb, 7) & 0x03);
                 if (ig_mode > 2) {
                     return false;
                 }
@@ -4048,10 +4048,10 @@ dissect_cigi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
     if ((tvb_get_ntohs(tvb, 0) & 0xFF00) == 0) {
-        packet_id = tvb_get_guint16(tvb, 2, ENC_BIG_ENDIAN);     //packet_id is not at the same location
+        packet_id = tvb_get_uint16(tvb, 2, ENC_BIG_ENDIAN);     //packet_id is not at the same location
     }
     else {
-        packet_id = tvb_get_guint16(tvb, 2, ENC_LITTLE_ENDIAN);
+        packet_id = tvb_get_uint16(tvb, 2, ENC_LITTLE_ENDIAN);
     }
 
     /* Make entries in Protocol column and Info column on summary display */
@@ -4061,10 +4061,10 @@ dissect_cigi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * XXX - If another version of cigi is added to this dissector be sure to
      * place the IG Control and SOF packet id's in this comparison. */
     if ( ( packet_id == CIGI2_PACKET_ID_IG_CONTROL || packet_id == CIGI2_PACKET_ID_START_OF_FRAME || packet_id == CIGI3_PACKET_ID_IG_CONTROL || packet_id == CIGI3_PACKET_ID_START_OF_FRAME ) && global_cigi_version == CIGI_VERSION_FROM_PACKET ) {
-        cigi_version = tvb_get_guint8(tvb, 2);
+        cigi_version = tvb_get_uint8(tvb, 2);
     }
     else if ((packet_id == CIGI4_PACKET_ID_IG_CONTROL || packet_id == CIGI4_PACKET_ID_START_OF_FRAME) && global_cigi_version == CIGI_VERSION_FROM_PACKET) {
-        cigi_version = tvb_get_guint8(tvb, 4);
+        cigi_version = tvb_get_uint8(tvb, 4);
     }
 
     /* Format the Info String */
@@ -4145,8 +4145,8 @@ cigi_add_tree(tvbuff_t *tvb, proto_tree *cigi_tree)
      * a new packet to dissect. */
     while ( offset < length ) {
 
-        packet_id = tvb_get_guint8(tvb, offset);
-        packet_size = tvb_get_guint8(tvb, offset + 1);
+        packet_id = tvb_get_uint8(tvb, offset);
+        packet_size = tvb_get_uint8(tvb, offset + 1);
         data_size = packet_size;
 
         /* a cigi packet must be at least 2 bytes long
@@ -4158,7 +4158,7 @@ cigi_add_tree(tvbuff_t *tvb, proto_tree *cigi_tree)
          * Since we have no cigi version we assume that packet id 1 is the
          * IG Control and packet id 101 is the Start of Frame. */
         if ( ( packet_id == 1 || packet_id == 101 ) && global_cigi_version == CIGI_VERSION_FROM_PACKET ) {
-            cigi_version = tvb_get_guint8(tvb, 2);
+            cigi_version = tvb_get_uint8(tvb, 2);
         }
 
         /* Add the subtree for the packet */
@@ -4196,7 +4196,7 @@ cigi_add_data(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
     uint8_t packet_size = 0;
 
-    packet_size = tvb_get_guint8(tvb, offset-1);
+    packet_size = tvb_get_uint8(tvb, offset-1);
 
     /* A cigi packet cannot be less than 2 bytes ( because every cigi packet
      * has a packet id (1 byte) and a packet size (1 byte) ). */
@@ -4233,12 +4233,12 @@ cigi2_add_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cigi_tree)
      * a new packet to dissect. */
     while ( offset < length ) {
 
-        packet_id = tvb_get_guint8(tvb, offset);
-        packet_size = tvb_get_guint8(tvb, offset + 1);
+        packet_id = tvb_get_uint8(tvb, offset);
+        packet_size = tvb_get_uint8(tvb, offset + 1);
 
         /* If we have the start of frame or IG Control packet set the version */
         if ( ( packet_id == CIGI2_PACKET_ID_IG_CONTROL || packet_id == CIGI2_PACKET_ID_START_OF_FRAME ) && global_cigi_version == CIGI_VERSION_FROM_PACKET ) {
-            cigi_version = tvb_get_guint8(tvb, 2);
+            cigi_version = tvb_get_uint8(tvb, 2);
         }
 
         /* Add the subtree for the packet */
@@ -4459,20 +4459,20 @@ cigi3_add_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cigi_tree)
      * a new packet to dissect. */
     while ( offset < length ) {
 
-        packet_id = tvb_get_guint8(tvb, offset);
-        packet_size = tvb_get_guint8(tvb, offset + 1);
+        packet_id = tvb_get_uint8(tvb, offset);
+        packet_size = tvb_get_uint8(tvb, offset + 1);
         byte_swap = tvb_get_ntohs(tvb, offset + 6);
 
         /* If we have the start of frame or IG Control packet set the version */
         if ( ( packet_id == CIGI3_PACKET_ID_IG_CONTROL || packet_id == CIGI3_PACKET_ID_START_OF_FRAME ) && global_cigi_version == CIGI_VERSION_FROM_PACKET ) {
-            cigi_version = tvb_get_guint8(tvb, 2);
+            cigi_version = tvb_get_uint8(tvb, 2);
 
             /* CIGI Minor Version first appeared in CIGI 3.2. Note: It is in a
              * different location in IG Control vs Start of Frame. */
             if ( packet_size == CIGI3_2_PACKET_SIZE_IG_CONTROL && packet_id == CIGI3_PACKET_ID_IG_CONTROL ) {
-               cigi_minor_version = tvb_get_guint8(tvb, 4) >> 4;
+               cigi_minor_version = tvb_get_uint8(tvb, 4) >> 4;
             } else if ( packet_size == CIGI3_2_PACKET_SIZE_START_OF_FRAME && packet_id == CIGI3_PACKET_ID_START_OF_FRAME ) {
-               cigi_minor_version = tvb_get_guint8(tvb, 5) >> 4;
+               cigi_minor_version = tvb_get_uint8(tvb, 5) >> 4;
             } else {
                /* CIGI version prior to 3.2 */
                cigi_minor_version = 0;
@@ -5602,7 +5602,7 @@ cigi2_add_image_generator_message(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
     uint8_t packet_size = 0;
 
-    packet_size = tvb_get_guint8(tvb, offset-1);
+    packet_size = tvb_get_uint8(tvb, offset-1);
 
     /* An image generator packet cannot be less than 4 bytes ( because every cigi packet
      * has a packet id (1 byte) and a packet size (1 byte) ). */
@@ -7928,7 +7928,7 @@ cigi3_3_add_symbol_text_definition(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
     uint8_t packet_size = 0;
 
-    packet_size = tvb_get_guint8(tvb, offset-1);
+    packet_size = tvb_get_uint8(tvb, offset-1);
 
     /* A symbol text definition packet cannot be less than 16 bytes. */
     if ( packet_size < 16 )
@@ -7959,7 +7959,7 @@ cigi4_add_symbol_text_definition(tvbuff_t* tvb, proto_tree* tree, int offset)
 {
     uint8_t packet_size = 0;
 
-    packet_size = tvb_get_guint8(tvb, offset - 4);
+    packet_size = tvb_get_uint8(tvb, offset - 4);
 
     /* A symbol text definition packet cannot be less than 16 bytes. */
     if (packet_size < 16)
@@ -7991,7 +7991,7 @@ cigi3_3_add_symbol_circle_definition(tvbuff_t *tvb, proto_tree *tree, int offset
     uint8_t packet_size = 0;
     int ncircles,c;
 
-    packet_size = tvb_get_guint8(tvb, offset-1);
+    packet_size = tvb_get_uint8(tvb, offset-1);
 
     /* A symbol text definition packet cannot be less than 16 bytes. */
     if ( packet_size < 16 )
@@ -8047,7 +8047,7 @@ cigi4_add_symbol_circle_definition(tvbuff_t* tvb, proto_tree* tree, int offset)
     uint8_t packet_size = 0;
     int ncircles, c;
 
-    packet_size = tvb_get_guint8(tvb, offset - 4);
+    packet_size = tvb_get_uint8(tvb, offset - 4);
 
     /* A symbol text definition packet cannot be less than 16 bytes. */
     if (packet_size < 16)
@@ -8104,7 +8104,7 @@ cigi3_3_add_symbol_line_definition(tvbuff_t *tvb, proto_tree *tree, int offset)
     uint8_t packet_size = 0;
     int nvertices,v;
 
-    packet_size = tvb_get_guint8(tvb, offset-1);
+    packet_size = tvb_get_uint8(tvb, offset-1);
 
     /* A symbol text definition packet cannot be less than 16 bytes. */
     if ( packet_size < 16 )
@@ -8148,7 +8148,7 @@ cigi4_add_symbol_polygon_definition(tvbuff_t* tvb, proto_tree* tree, int offset)
     uint8_t packet_size = 0;
     int nvertices, v;
 
-    packet_size = tvb_get_guint8(tvb, offset - 4);
+    packet_size = tvb_get_uint8(tvb, offset - 4);
 
     /* A symbol text definition packet cannot be less than 16 bytes. */
     if (packet_size < 16)
@@ -8350,11 +8350,11 @@ cigi3_3_add_short_symbol_control(tvbuff_t *tvb, proto_tree *tree, int offset)
     proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_inherit_color, tvb, offset, 1, cigi_byte_order);
     offset += 2;
 
-    select1 = tvb_get_guint8(tvb, offset);
+    select1 = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_attribute_select1, tvb, offset, 1, cigi_byte_order);
     offset += 1;
 
-    select2 = tvb_get_guint8(tvb, offset);
+    select2 = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_attribute_select2, tvb, offset, 1, cigi_byte_order);
     offset++;
 
@@ -8470,7 +8470,7 @@ cigi4_add_symbol_circle_textured(tvbuff_t* tvb, proto_tree* tree, int offset)
     uint8_t packet_size = 0;
     int ncircles, c;
 
-    packet_size = tvb_get_guint8(tvb, offset - 4);
+    packet_size = tvb_get_uint8(tvb, offset - 4);
 
     /* A symbol text definition packet cannot be less than 16 bytes. */
     if (packet_size < 16)
@@ -8537,7 +8537,7 @@ cigi4_add_symbol_polygon_textured(tvbuff_t* tvb, proto_tree* tree, int offset)
     uint8_t packet_size = 0;
     int nvertices, v;
 
-    packet_size = tvb_get_guint8(tvb, offset - 4);
+    packet_size = tvb_get_uint8(tvb, offset - 4);
 
     /* A symbol text definition packet cannot be less than 16 bytes. */
     if (packet_size < 16)
@@ -9573,7 +9573,7 @@ cigi3_add_image_generator_message(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
     uint8_t packet_size = 0;
 
-    packet_size = tvb_get_guint8(tvb, offset-1);
+    packet_size = tvb_get_uint8(tvb, offset-1);
 
     /* An image generator packet cannot be less than 4 bytes ( because every cigi packet
      * has a packet id (1 byte) and a packet size (1 byte) ). */
@@ -9595,7 +9595,7 @@ cigi4_add_image_generator_message(tvbuff_t* tvb, proto_tree* tree, int offset)
 {
     uint8_t packet_size = 0;
 
-    packet_size = tvb_get_guint8(tvb, offset - 4);
+    packet_size = tvb_get_uint8(tvb, offset - 4);
 
     /* An image generator packet cannot be less than 4 bytes ( because every cigi packet
      * has a packet id (2 byte) and a packet size (2 byte) ). */
@@ -9616,7 +9616,7 @@ static int
 cigi_add_locally_defined(tvbuff_t* tvb, proto_tree* tree, int offset) {
     uint8_t packet_size = 0;
 
-    packet_size = tvb_get_guint8(tvb, offset - 4);
+    packet_size = tvb_get_uint8(tvb, offset - 4);
 
     /* An image generator packet cannot be less than 4 bytes ( because every cigi packet
      * has a packet id (2 byte) and a packet size (2 byte) ). */
@@ -9634,7 +9634,7 @@ static int
 cigi_add_registered(tvbuff_t* tvb, proto_tree* tree, int offset) {
     uint8_t packet_size = 0;
 
-    packet_size = tvb_get_guint8(tvb, offset - 4);
+    packet_size = tvb_get_uint8(tvb, offset - 4);
 
     /* An image generator packet cannot be less than 4 bytes ( because every cigi packet
      * has a packet id (2 byte) and a packet size (2 byte) ). */
@@ -9682,16 +9682,16 @@ cigi4_add_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cigi_tree)
                 cigi_byte_order = ENC_LITTLE_ENDIAN;
             }
         //}
-        packet_id = tvb_get_guint16(tvb, offset + 2, cigi_byte_order);
-        packet_size = tvb_get_guint16(tvb, offset, cigi_byte_order);
+        packet_id = tvb_get_uint16(tvb, offset + 2, cigi_byte_order);
+        packet_size = tvb_get_uint16(tvb, offset, cigi_byte_order);
 
         /* If we have the start of frame or IG Control packet set the version */
         if ( ( packet_id == CIGI4_PACKET_ID_IG_CONTROL || packet_id == CIGI4_PACKET_ID_START_OF_FRAME ) && global_cigi_version == CIGI_VERSION_FROM_PACKET ) {
-            cigi_version = tvb_get_guint8(tvb, 4);
+            cigi_version = tvb_get_uint8(tvb, 4);
 
             if (( packet_size == CIGI4_PACKET_SIZE_IG_CONTROL && packet_id == CIGI4_PACKET_ID_IG_CONTROL ) ||
                 ( packet_size == CIGI4_PACKET_SIZE_START_OF_FRAME && packet_id == CIGI4_PACKET_ID_START_OF_FRAME )) {
-               cigi_minor_version = tvb_get_guint8(tvb, 7) >> 4;
+               cigi_minor_version = tvb_get_uint8(tvb, 7) >> 4;
             } else {
                cigi_minor_version = 0;
             }

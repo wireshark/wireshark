@@ -108,7 +108,7 @@ dissect_sender_array(proto_tree *clique_rm_tree, int hf_header, int ett_header,
   proto_tree *tree;
 
 
-  count = tvb_get_guint8(tvb, offset);
+  count = tvb_get_uint8(tvb, offset);
   len   = 1 + 4 * count;
   ti    = proto_tree_add_item(clique_rm_tree, hf_header, tvb, offset, 1, ENC_BIG_ENDIAN);
   proto_item_set_len(ti, len);
@@ -148,7 +148,7 @@ dissect_depends(proto_tree *clique_rm_tree, tvbuff_t *tvb, int offset)
   unsigned    ii, count;
   int         len;
 
-  count = tvb_get_guint8(tvb, offset);
+  count = tvb_get_uint8(tvb, offset);
   len   = 1 + count * 8;
 
   ti = proto_tree_add_item(clique_rm_tree,
@@ -226,7 +226,7 @@ dissect_unreliable_packet(proto_tree *clique_rm_tree, uint8_t type, tvbuff_t *tv
           hf_clique_rm_whois_request_id, tvb, offset, 4, ENC_BIG_ENDIAN);
         break;
       case PACKET_TYPE_WHOIS_REPLY:
-        len = tvb_get_guint8(tvb, offset);
+        len = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(clique_rm_tree,
           hf_clique_rm_whois_reply_name_length, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
@@ -269,12 +269,12 @@ dissect_clique_rm_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     return false;
   offset += 6;
 
-  version = tvb_get_guint8(tvb, offset);
+  version = tvb_get_uint8(tvb, offset);
   if (version != 1)
     return false;
   offset++;
 
-  type = tvb_get_guint8(tvb, offset);
+  type = tvb_get_uint8(tvb, offset);
   offset++;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "Clique-rm");

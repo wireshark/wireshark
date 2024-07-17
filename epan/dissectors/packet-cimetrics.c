@@ -50,9 +50,9 @@ dissect_cimetrics_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 #endif
 
 #ifdef BACNET_MSTP_SUMMARY_IN_TREE
-	mstp_frame_type = tvb_get_guint8(tvb, offset+3);
-	mstp_frame_destination = tvb_get_guint8(tvb, offset+4);
-	mstp_frame_source = tvb_get_guint8(tvb, offset+5);
+	mstp_frame_type = tvb_get_uint8(tvb, offset+3);
+	mstp_frame_destination = tvb_get_uint8(tvb, offset+4);
+	mstp_frame_source = tvb_get_uint8(tvb, offset+5);
 	ti = proto_tree_add_protocol_format(tree,
 		proto_cimetrics_mstp, tvb, offset, 9,
 		"BACnet MS/TP, Src (%u), Dst (%u), %s",

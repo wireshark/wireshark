@@ -90,7 +90,7 @@ dissect_cwids(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 		proto_tree_add_item(cwids_tree, hf_cwids_unknown1, tvb, offset, 1, ENC_NA);
 		offset += 1;
 		phdr.has_channel = true;
-		phdr.channel = tvb_get_guint8(tvb, offset);
+		phdr.channel = tvb_get_uint8(tvb, offset);
 		proto_tree_add_item(cwids_tree, hf_cwids_channel, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 		proto_tree_add_item(cwids_tree, hf_cwids_unknown2, tvb, offset, 6, ENC_NA);

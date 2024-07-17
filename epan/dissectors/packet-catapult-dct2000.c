@@ -390,7 +390,7 @@ static bool find_ipprim_data_offset(tvbuff_t *tvb, int *data_offset, uint8_t dir
     int    offset = *data_offset;
 
     /* Get the ipprim command code. */
-    uint8_t tag = tvb_get_guint8(tvb, offset++);
+    uint8_t tag = tvb_get_uint8(tvb, offset++);
 
     /* Only accept UDP or TCP data request or indication */
     switch (tag) {
@@ -409,7 +409,7 @@ static bool find_ipprim_data_offset(tvbuff_t *tvb, int *data_offset, uint8_t dir
     /* Skip any other TLC fields before reach payload */
     while (tvb_reported_length_remaining(tvb, offset) > 2) {
         /* Look at next tag */
-        tag = tvb_get_guint8(tvb, offset++);
+        tag = tvb_get_uint8(tvb, offset++);
 
         /* Is this the data payload we're expecting? */
         if (((tag == 0x34) && (*type_of_port == PT_UDP)) ||
@@ -420,7 +420,7 @@ static bool find_ipprim_data_offset(tvbuff_t *tvb, int *data_offset, uint8_t dir
         }
         else {
             /* Read length in next byte */
-            length = tvb_get_guint8(tvb, offset++);
+            length = tvb_get_uint8(tvb, offset++);
 
             if (tag == 0x31 && length >=4) {
                 /* Remote IP address */
@@ -497,7 +497,7 @@ static bool find_sctpprim_variant1_data_offset(tvbuff_t *tvb, int *data_offset,
     int offset = *data_offset;
 
     /* Get the sctpprim command code. */
-    uint8_t first_tag = tvb_get_guint8(tvb, offset++);
+    uint8_t first_tag = tvb_get_uint8(tvb, offset++);
     uint8_t tag;
     uint8_t first_length_byte;
 
@@ -510,13 +510,13 @@ static bool find_sctpprim_variant1_data_offset(tvbuff_t *tvb, int *data_offset,
             return false;
     }
 
-    first_length_byte = tvb_get_guint8(tvb, offset);
+    first_length_byte = tvb_get_uint8(tvb, offset);
     offset += skipASNLength(first_length_byte);
 
     /* Skip any other fields before reach payload */
     while (tvb_reported_length_remaining(tvb, offset) > 2) {
         /* Look at next tag */
-        tag = tvb_get_guint8(tvb, offset++);
+        tag = tvb_get_uint8(tvb, offset++);
 
         /* Is this the data payload we're expecting? */
         if (tag == 0x19) {
@@ -761,7 +761,7 @@ static void dissect_rlc_umts(tvbuff_t *tvb, int offset,
     dissector_handle_t  rlc_umts_handle = 0;
 
     /* Top-level opcode */
-    tag = tvb_get_guint8(tvb, offset++);
+    tag = tvb_get_uint8(tvb, offset++);
     switch (tag) {
         case 0xc0:    /* mac data request */
         case 0xc1:    /* mac data indication */
@@ -774,7 +774,7 @@ static void dissect_rlc_umts(tvbuff_t *tvb, int offset,
 
     /* Keep going until reach data tag or end of frame */
     while ((tag != 0x41) && tvb_reported_length_remaining(tvb, offset)) { /* i.e. Data */
-        tag = tvb_get_guint8(tvb, offset++);
+        tag = tvb_get_uint8(tvb, offset++);
         switch (tag) {
             case 0x72:  /* UE Id */
                 ueid = tvb_get_ntohl(tvb, offset);
@@ -785,7 +785,7 @@ static void dissect_rlc_umts(tvbuff_t *tvb, int offset,
                 break;
             case 0xa2:  /* RBID */
                 offset++;  /* skip length */
-                rbid = tvb_get_guint8(tvb, offset);
+                rbid = tvb_get_uint8(tvb, offset);
                 proto_tree_add_item(tree, hf_catapult_dct2000_rbid, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset++;
                 rbid_set = true;
@@ -807,12 +807,12 @@ static void dissect_rlc_umts(tvbuff_t *tvb, int offset,
                 break;
 
             case 0x41:  /* Data !!! */
-                offset += skipASNLength(tvb_get_guint8(tvb, offset));
+                offset += skipASNLength(tvb_get_uint8(tvb, offset));
                 break;
 
             default:
                 /* For other fields, just skip length and following data */
-                length = tvb_get_guint8(tvb, offset++);
+                length = tvb_get_uint8(tvb, offset++);
                 switch (tag) {
                     case 0x42:   /* Buffer Occupancy */
                         proto_tree_add_item(tree, hf_catapult_dct2000_buffer_occupancy, tvb, offset, length, ENC_BIG_ENDIAN);
@@ -887,7 +887,7 @@ static char* get_key(tvbuff_t*tvb, int offset)
 {
     static char key[33];
     for (int n=0; n < 16; n++) {
-        snprintf(&key[n*2], 33-(n*2), "%02x", tvb_get_guint8(tvb, offset+n));
+        snprintf(&key[n*2], 33-(n*2), "%02x", tvb_get_uint8(tvb, offset+n));
     }
     return key;
 }
@@ -909,7 +909,7 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, int offset,
     tvbuff_t           *rrc_tvb;
 
     /* Top-level opcode */
-    opcode = tvb_get_guint8(tvb, offset++);
+    opcode = tvb_get_uint8(tvb, offset++);
     switch (opcode) {
         case 0x00:    /* Data_Req_UE */
         case 0x05:    /* Data_Req_UE_SM */
@@ -929,10 +929,10 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, int offset,
     }
 
     /* Skip length */
-    offset += skipASNLength(tvb_get_guint8(tvb, offset));
+    offset += skipASNLength(tvb_get_uint8(tvb, offset));
 
     /* Get next tag */
-    tag = tvb_get_guint8(tvb, offset++);
+    tag = tvb_get_uint8(tvb, offset++);
     switch (tag) {
         case 0x12:    /* UE_Id_LCId */
         {
@@ -948,13 +948,13 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, int offset,
             offset += 2;
 
             /* Get tag of channel type */
-            tag = tvb_get_guint8(tvb, offset++);
+            tag = tvb_get_uint8(tvb, offset++);
 
             switch (tag) {
                 case 0:
                     offset++;
                     col_append_fstr(pinfo->cinfo, COL_INFO, " SRB:%u",
-                                    tvb_get_guint8(tvb, offset));
+                                    tvb_get_uint8(tvb, offset));
                     proto_tree_add_item(tree, hf_catapult_dct2000_srbid,
                                         tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset++;
@@ -962,7 +962,7 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, int offset,
                 case 1:
                     offset++;
                     col_append_fstr(pinfo->cinfo, COL_INFO, " DRB:%u",
-                                    tvb_get_guint8(tvb, offset));
+                                    tvb_get_uint8(tvb, offset));
                     proto_tree_add_item(tree, hf_catapult_dct2000_drbid,
                                         tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset++;
@@ -992,7 +992,7 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, int offset,
             /* Logical channel type */
             proto_tree_add_item(tree, hf_catapult_dct2000_rlc_channel_type,
                                 tvb, offset, 1, ENC_BIG_ENDIAN);
-            logicalChannelType = (LogicalChannelType)tvb_get_guint8(tvb, offset);
+            logicalChannelType = (LogicalChannelType)tvb_get_uint8(tvb, offset);
             offset++;
 
             /* Won't be seen if RRC decoder is called... */
@@ -1008,7 +1008,7 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, int offset,
                     offset++;
 
                     /* Transport channel type */
-                    bcch_transport = tvb_get_guint8(tvb, offset);
+                    bcch_transport = tvb_get_uint8(tvb, offset);
                     proto_tree_add_item(tree, hf_catapult_dct2000_bcch_transport,
                                         tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset++;
@@ -1035,7 +1035,7 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, int offset,
     }
 
     /* Optional Carrier Id */
-    if (tvb_get_guint8(tvb, offset)==0x1e) {
+    if (tvb_get_uint8(tvb, offset)==0x1e) {
         offset += 2;  /* tag + len of 1 */
         proto_tree_add_item(tree, hf_catapult_dct2000_carrier_id,
                             tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1043,7 +1043,7 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, int offset,
     }
 
     /* Optional Carrier Type */
-    if (tvb_get_guint8(tvb, offset)==0x20) {
+    if (tvb_get_uint8(tvb, offset)==0x20) {
         offset += 2;
         proto_tree_add_item(tree, hf_catapult_dct2000_carrier_type,
                             tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1051,7 +1051,7 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, int offset,
     }
 
     /* Optional Cell Group */
-    if (tvb_get_guint8(tvb, offset)==0x22) {
+    if (tvb_get_uint8(tvb, offset)==0x22) {
         offset += 2;
         proto_tree_add_item(tree, hf_catapult_dct2000_cell_group,
                             tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1066,7 +1066,7 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, int offset,
         /* Data_Req_UE_SM - SecurityMode Params */
         /* N.B. DRB keys do not get configured here.. */
         offset++;  /* tag */
-        uint8_t len = tvb_get_guint8(tvb, offset++); /* length */
+        uint8_t len = tvb_get_uint8(tvb, offset++); /* length */
 
         /* Uplink Sec Mode */
         proto_item *sc_ti;
@@ -1087,7 +1087,7 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, int offset,
             offset++;  /* tag Should be 0x21 */
             offset++; /* len */
 
-            tag = tvb_get_guint8(tvb, offset++);
+            tag = tvb_get_uint8(tvb, offset++);
             if (tag == 0x25) {
                 /* Cell Group Id */
                 offset++;
@@ -1099,7 +1099,7 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, int offset,
             if (tag == 0x2) {
                 uint32_t cipher_algorithm;
 
-                len = tvb_get_guint8(tvb, offset++);
+                len = tvb_get_uint8(tvb, offset++);
 
                 /* Cipher algorithm (required) */
                 offset += 2; /* Skip tag and length */
@@ -1134,7 +1134,7 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, int offset,
             /* Skip tag */
             offset++;
 
-            len = tvb_get_guint8(tvb, offset++);
+            len = tvb_get_uint8(tvb, offset++);
 
             /* Integrity algorithm (required) */
             offset += 2; /* Skip tag and length */
@@ -1166,13 +1166,13 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, int offset,
     if (!tvb_reported_length_remaining(tvb, offset)) {
         return;
     }
-    tag = tvb_get_guint8(tvb, offset++);
+    tag = tvb_get_uint8(tvb, offset++);
     if (tag != 0xaa) {
         return;
     }
 
     /* Skip length */
-    offset += skipASNLength(tvb_get_guint8(tvb, offset));
+    offset += skipASNLength(tvb_get_uint8(tvb, offset));
 
     /* Look up dissector handle corresponding to direction and channel type */
     if (isUplink) {
@@ -1297,7 +1297,7 @@ static void dissect_ccpri_lte(tvbuff_t *tvb, int offset,
 
     /* Top-level opcode */
     proto_tree_add_item(tree, hf_catapult_dct2000_lte_ccpri_opcode, tvb, offset, 1, ENC_BIG_ENDIAN);
-    opcode = tvb_get_guint8(tvb, offset++);
+    opcode = tvb_get_uint8(tvb, offset++);
 
     /* Skip 2-byte length field */
     offset += 2;
@@ -1310,7 +1310,7 @@ static void dissect_ccpri_lte(tvbuff_t *tvb, int offset,
     /* Status (ind only) */
     if (opcode == 2) {
         proto_item *ti;
-        uint8_t status = tvb_get_guint8(tvb, offset);
+        uint8_t status = tvb_get_uint8(tvb, offset);
         ti = proto_tree_add_item(tree, hf_catapult_dct2000_lte_ccpri_status,
                                  tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
@@ -1327,7 +1327,7 @@ static void dissect_ccpri_lte(tvbuff_t *tvb, int offset,
     offset++;
 
     /* Data tag must follow */
-    tag = tvb_get_guint8(tvb, offset++);
+    tag = tvb_get_uint8(tvb, offset++);
     if (tag != 2) {
         return;
     }
@@ -1371,7 +1371,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, int offset,
     }
 
     /* Top-level opcode */
-    opcode = tvb_get_guint8(tvb, offset);
+    opcode = tvb_get_uint8(tvb, offset);
     if (tree) {
         proto_tree_add_item(tree, hf_catapult_dct2000_rlc_op, tvb, offset, 1, ENC_BIG_ENDIAN);
     }
@@ -1401,7 +1401,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, int offset,
         case RLC_TR_DATA_IND:
 
             /* Get next tag */
-            tag = tvb_get_guint8(tvb, offset++);
+            tag = tvb_get_uint8(tvb, offset++);
             switch (tag) {
                 case 0x10:    /* UE_Id_LCId */
 
@@ -1421,12 +1421,12 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, int offset,
                     offset += 2;
 
                     /* Get tag of channel type */
-                    tag = tvb_get_guint8(tvb, offset++);
+                    tag = tvb_get_uint8(tvb, offset++);
 
                     switch (tag) {
                         case 0:
                             offset++;
-                            channelId = tvb_get_guint8(tvb, offset);
+                            channelId = tvb_get_uint8(tvb, offset);
                             col_append_fstr(pinfo->cinfo, COL_INFO, " SRB:%u",
                                             channelId);
                             proto_tree_add_item(tree, hf_catapult_dct2000_srbid,
@@ -1435,7 +1435,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, int offset,
                             break;
                         case 1:
                             offset++;
-                            channelId = tvb_get_guint8(tvb, offset);
+                            channelId = tvb_get_uint8(tvb, offset);
                             col_append_fstr(pinfo->cinfo, COL_INFO, " DRB:%u",
                                             channelId);
                             proto_tree_add_item(tree, hf_catapult_dct2000_drbid,
@@ -1464,7 +1464,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, int offset,
                     /* Logical channel type */
                     proto_tree_add_item(tree, hf_catapult_dct2000_rlc_channel_type,
                                         tvb, offset, 1, ENC_BIG_ENDIAN);
-                    p_pdcp_lte_info->channelType = (LogicalChannelType)tvb_get_guint8(tvb, offset++);
+                    p_pdcp_lte_info->channelType = (LogicalChannelType)tvb_get_uint8(tvb, offset++);
                     col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
                                     val_to_str_const(p_pdcp_lte_info->channelType, rlc_logical_channel_vals,
                                                      "UNKNOWN-CHANNEL"));
@@ -1475,7 +1475,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, int offset,
                             offset++;
 
                             /* Transport channel type */
-                            p_pdcp_lte_info->BCCHTransport = (BCCHTransportType)tvb_get_guint8(tvb, offset);
+                            p_pdcp_lte_info->BCCHTransport = (BCCHTransportType)tvb_get_uint8(tvb, offset);
                             proto_tree_add_item(tree, hf_catapult_dct2000_bcch_transport,
                                                 tvb, offset, 1, ENC_BIG_ENDIAN);
                             offset++;
@@ -1505,7 +1505,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, int offset,
             }
 
             /* Other optional fields may follow */
-            tag = tvb_get_guint8(tvb, offset++);
+            tag = tvb_get_uint8(tvb, offset++);
             while ((tag != 0x41) && (tvb_reported_length_remaining(tvb, offset) > 2)) {
 
                 if (tag == 0x35) {
@@ -1530,7 +1530,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, int offset,
                     offset++;
                 }
 
-                tag = tvb_get_guint8(tvb, offset++);
+                tag = tvb_get_uint8(tvb, offset++);
             }
 
 
@@ -2235,7 +2235,7 @@ static void dissect_tty_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             /* Write hex out to new string */
             for (n=0; n < tty_string_length; n++) {
                 idx += snprintf(hex_string+idx, 3, "%02x",
-                                  tvb_get_guint8(tvb, offset+n));
+                                  tvb_get_uint8(tvb, offset+n));
             }
             string = hex_string;
         }
@@ -2445,7 +2445,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     offset += context_length;
 
     /* Context port number */
-    port_number = tvb_get_guint8(tvb, offset);
+    port_number = tvb_get_uint8(tvb, offset);
     if (dct2000_tree) {
         proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_port_number, tvb,
                             offset, 1, ENC_BIG_ENDIAN);
@@ -2516,7 +2516,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
 
     /* Direction */
-    direction = tvb_get_guint8(tvb, offset);
+    direction = tvb_get_uint8(tvb, offset);
     if (dct2000_tree) {
         proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_direction, tvb,
                             offset, 1, ENC_BIG_ENDIAN);
@@ -2527,7 +2527,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     if (!is_comment && !is_sprint) {
         proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_encap, tvb, offset, 1, ENC_BIG_ENDIAN);
     }
-    encap = tvb_get_guint8(tvb, offset);
+    encap = tvb_get_uint8(tvb, offset);
     offset++;
 
     /* Add useful details to protocol tree label */
@@ -2605,7 +2605,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
              (strcmp(protocol_name, "nas_rrc_r13_lte") == 0) ||
              (strcmp(protocol_name, "nas_rrc_r15_5gnr") == 0)) {
         bool nas_body_found = true;
-        uint8_t opcode = tvb_get_guint8(tvb, offset);
+        uint8_t opcode = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(tree, hf_catapult_dct2000_lte_nas_rrc_opcode,
                             tvb, offset++, 1, ENC_BIG_ENDIAN);
 
@@ -2672,14 +2672,14 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
     /* NR NAS for S1AP */
     else if (strcmp(protocol_name, "nas_s1ap_r15_5gnr") == 0) {
-        uint8_t opcode = tvb_get_guint8(tvb, offset);
+        uint8_t opcode = tvb_get_uint8(tvb, offset);
         if (opcode <= NAS_S1AP_DATA_IND) {
             /* Opcode tag (only interested in ones that carry NAS PDU) */
             proto_tree_add_item(tree, hf_catapult_dct2000_nr_nas_s1ap_opcode,
                                 tvb, offset++, 1, ENC_BIG_ENDIAN);
 
             /* Skip overall length */
-            offset += skipASNLength(tvb_get_guint8(tvb, offset));
+            offset += skipASNLength(tvb_get_uint8(tvb, offset));
 
             /* UE Id. Skip tag and fixed length */
             offset += 2;

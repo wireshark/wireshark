@@ -123,7 +123,7 @@ dissect_sta_ack(tvbuff_t * const tvb, packet_info * const pinfo, proto_tree * co
     /* parse each data channel bond...
      * format is 6-byte mac addr + 1 byte ssid string length + ssid string
      */
-    ssid_len = tvb_get_guint8(tvb, offset + 6); /* +6 = skip over mac address */
+    ssid_len = tvb_get_uint8(tvb, offset + 6); /* +6 = skip over mac address */
     if (ssid_len > SSID_MAX_LENGTH) {
       expert_add_info(pinfo, ti, &ei_cl3dcw_ssid_too_big);
     }
@@ -186,7 +186,7 @@ dissect_ap_accept_sta(tvbuff_t * const tvb, packet_info * const pinfo, proto_tre
 
   offset = 1;
   while (data_ssid_count--) {
-    ssid_len = tvb_get_guint8(tvb, offset);
+    ssid_len = tvb_get_uint8(tvb, offset);
     if (ssid_len > SSID_MAX_LENGTH) {
       expert_add_info(pinfo, ti, &ei_cl3dcw_ssid_too_big);
     }
@@ -236,7 +236,7 @@ dissect_cl3dcw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *da
 
   /* parse the header fields */
   total_dcw_message_len = 1;
-  type = tvb_get_guint8(tvb, 0);
+  type = tvb_get_uint8(tvb, 0);
 
   /* setup the "packet summary view" fields */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "CL3-DCW");

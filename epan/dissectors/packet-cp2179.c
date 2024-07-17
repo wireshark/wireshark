@@ -409,7 +409,7 @@ dissect_request_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
     offset += 2;
 
     /* Report the function code */
-    function_code = tvb_get_guint8(tvb, offset) & 0x3f;
+    function_code = tvb_get_uint8(tvb, offset) & 0x3f;
     cp2179_fc_tree = proto_tree_add_subtree_format(cp2179_proto_tree, tvb, offset, 1, ett_cp2179_fc, NULL,
                "Function Code: %s (0x%02x)", val_to_str_const(function_code, FunctionCodenames, "Unknown Function Code"), function_code);
 
@@ -427,7 +427,7 @@ dissect_request_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
 
         case BASIC_SCAN_REQUEST:
         case SCAN_INCLUSIVE_16_ANALOG_REQUEST:
-            req_command_code = tvb_get_guint8(tvb, offset);
+            req_command_code = tvb_get_uint8(tvb, offset);
             /* Update Info column with useful information of Command Code Type */
             col_append_fstr(pinfo->cinfo, COL_INFO, " [ %s ]", val_to_str_ext_const(req_command_code, &cp2179_CommandCodeNames_ext, "Unknown Command Code"));
             proto_tree_add_item(cp2179_proto_tree, hf_cp2179_command_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -542,7 +542,7 @@ dissect_response_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int 
 
     /*The response always echos the function code in request, except when the RTU can't perform the required function.
     It may set the NOP or RST bit. Bit 0 to bit 5 is the field for function codes. Bit 6 is NOP bit. Bit 7 is RST bit. */
-    function_code = tvb_get_guint8(tvb, offset);
+    function_code = tvb_get_uint8(tvb, offset);
 
     cp2179_fc_tree = proto_tree_add_subtree_format(cp2179_proto_tree, tvb, offset, 1, ett_cp2179_fc, NULL,
                "Function Code: %s (0x%02x)", val_to_str_const(function_code, FunctionCodenames, "Unknown Function Code"), function_code);
@@ -720,7 +720,7 @@ dissect_response_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int 
                     proto_tree_add_item(cp2179_proto_tree, hf_cp2179_timetag_moredata, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                     proto_tree_add_item(cp2179_proto_tree, hf_cp2179_timetag_numsets, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
-                    num_records = tvb_get_guint8(tvb, offset) & 0x7F;
+                    num_records = tvb_get_uint8(tvb, offset) & 0x7F;
                     offset += 1;
 
                     if (num_records == 0 || numberofcharacters <= 1)
@@ -784,16 +784,16 @@ static request_frame* copy_request_frame(tvbuff_t *tvb  )
 
     /* update the data within the structure frame */
     frame->address_word = tvb_get_letohs(tvb, offset); offset +=2;
-    frame->function_code = tvb_get_guint8(tvb, offset); offset +=1;
-    frame->commmand_code = tvb_get_guint8(tvb, offset); offset +=1;
+    frame->function_code = tvb_get_uint8(tvb, offset); offset +=1;
+    frame->commmand_code = tvb_get_uint8(tvb, offset); offset +=1;
     frame->numberofcharacters = tvb_get_letohs(tvb, offset);offset +=2;
 
     /*Keep track of the request data field in a request.
       Such as SCAN INCLUSIVE request contains a Start Sequence Number and an Ending Sequence Number. */
     if (frame->function_code == SCAN_INCLUSIVE) {
         uint8_t startpt, endpt;
-        startpt = tvb_get_guint8(tvb, offset);
-        endpt = tvb_get_guint8(tvb, offset+1);
+        startpt = tvb_get_uint8(tvb, offset);
+        endpt = tvb_get_uint8(tvb, offset+1);
         num_objects = (endpt - startpt) + 1;
         frame->requested_points = (uint8_t *)wmem_alloc(wmem_file_scope(), num_objects * sizeof(uint8_t));
 
@@ -809,7 +809,7 @@ static request_frame* copy_request_frame(tvbuff_t *tvb  )
         num_objects = frame->numberofcharacters;
         frame->requested_points = (uint8_t *)wmem_alloc(wmem_file_scope(), num_objects * sizeof(uint8_t));
         for (idx = 0; idx < num_objects; idx++) {
-            frame->requested_points[idx] = tvb_get_guint8(tvb, offset);
+            frame->requested_points[idx] = tvb_get_uint8(tvb, offset);
             offset += 1;
         }
 
@@ -838,8 +838,8 @@ classify_message_type(tvbuff_t *tvb)
 
     /* The response always echos the function code from the request, except when the RTU can't perform the required function.
        It may set the NOP or RST bit. Bit 0 to bit 5 is the field for function codes. Bit 6 is NOP bit. Bit 7 is RST bit. */
-    function_code = tvb_get_guint8(tvb, 2);
-    command_code = tvb_get_guint8(tvb, 3);
+    function_code = tvb_get_uint8(tvb, 2);
+    command_code = tvb_get_uint8(tvb, 3);
 
     /* We still don't know what type of message this is, request or response                       */
     /* Get the 'number of characters' value, for both request frames (offset 4) and response frames (offset 5) */

@@ -148,7 +148,7 @@ dissect_mcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 				offset, data_length, "Too few bytes left for TLV (%u < 2)", data_length - offset);
 			break;
 		}
-		tlv_type = tvb_get_guint8(tvb, offset);
+		tlv_type = tvb_get_uint8(tvb, offset);
 		// HACK: Interestring version handling
 		use_tlv = tlv_type;
 		if (data_length == 62) {
@@ -158,7 +158,7 @@ dissect_mcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 			}
 		}
 
-		tlv_length = tvb_get_guint8(tvb, offset + 1);
+		tlv_length = tvb_get_uint8(tvb, offset + 1);
 
 		if (strict_mode) {
 			tlv_tree = proto_tree_add_subtree_format(mcp_tree, tvb, offset, tlv_length + 2,

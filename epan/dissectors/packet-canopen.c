@@ -1033,7 +1033,7 @@ dissect_lss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *canopen_type_tree, un
             hf_canopen_lss_cs, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
     /* LSS command specifier */
-    lss_cs = tvb_get_guint8(tvb, offset);
+    lss_cs = tvb_get_uint8(tvb, offset);
     col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", val_to_str(lss_cs, lss_cs_code, "Unknown (0x%x)"));
     offset++;
 
@@ -1043,7 +1043,7 @@ dissect_lss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *canopen_type_tree, un
         switch (lss_cs) {
             case LSS_CS_SWITCH_GLOBAL:
                 col_append_fstr(pinfo->cinfo, COL_INFO,
-                        ": %s", val_to_str(tvb_get_guint8(tvb, offset), lss_switch_mode, "Unknown (0x%x)"));
+                        ": %s", val_to_str(tvb_get_uint8(tvb, offset), lss_switch_mode, "Unknown (0x%x)"));
 
                 proto_tree_add_item(canopen_type_tree,
                         hf_canopen_lss_switch_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -1075,7 +1075,7 @@ dissect_lss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *canopen_type_tree, un
                 reserved = 3;
                 break;
             case LSS_CS_CONF_NODE_ID:
-                col_append_fstr(pinfo->cinfo, COL_INFO, ": 0x%02x", tvb_get_guint8(tvb, offset));
+                col_append_fstr(pinfo->cinfo, COL_INFO, ": 0x%02x", tvb_get_uint8(tvb, offset));
 
                 proto_tree_add_item(canopen_type_tree,
                         hf_canopen_lss_nid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -1089,7 +1089,7 @@ dissect_lss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *canopen_type_tree, un
 
                 /* XXX Note that current dissector only works for table selector 0x00 (CiA 301 Table 1) */
                 col_append_fstr(pinfo->cinfo, COL_INFO,
-                        ": %s", val_to_str(tvb_get_guint8(tvb, offset), bit_timing_tbl, "Unknown (0x%x)"));
+                        ": %s", val_to_str(tvb_get_uint8(tvb, offset), bit_timing_tbl, "Unknown (0x%x)"));
                 proto_tree_add_item(canopen_type_tree,
                         hf_canopen_lss_bt_tbl_index, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset++;
@@ -1137,7 +1137,7 @@ dissect_lss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *canopen_type_tree, un
                 proto_tree_add_item(canopen_type_tree,
                         hf_canopen_lss_fastscan_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                 offset += 4;
-                lss_bc_mask = tvb_get_guint8(tvb, offset);
+                lss_bc_mask = tvb_get_uint8(tvb, offset);
                 if (lss_bc_mask == 0x80) {
                     proto_tree_add_uint_format_value(canopen_type_tree,
                             hf_canopen_lss_fastscan_check, tvb, offset, 1, lss_bc_mask,
@@ -1320,13 +1320,13 @@ dissect_canopen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     switch(msg_type_id)
     {
     case MT_NMT_CTRL:
-        col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", val_to_str(tvb_get_guint8(tvb, offset), nmt_ctrl_cs, "Unknown (0x%x)"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", val_to_str(tvb_get_uint8(tvb, offset), nmt_ctrl_cs, "Unknown (0x%x)"));
 
         proto_tree_add_item(canopen_type_tree,
             hf_canopen_nmt_ctrl_cs, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
 
-        nmt_node_id = tvb_get_guint8(tvb, offset);
+        nmt_node_id = tvb_get_uint8(tvb, offset);
         if (nmt_node_id == 0x00) {
             col_append_fstr(pinfo->cinfo, COL_INFO, " [All]");
         } else {
@@ -1351,7 +1351,7 @@ dissect_canopen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     case MT_SYNC:
         /* Show optional counter parameter if present */
         if (tvb_reported_length(tvb) > 0) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, " [%d]", tvb_get_guint8(tvb, offset));
+            col_append_fstr(pinfo->cinfo, COL_INFO, " [%d]", tvb_get_uint8(tvb, offset));
 
             proto_tree_add_item(canopen_type_tree,
                 hf_canopen_sync_counter, tvb, offset, 1, ENC_LITTLE_ENDIAN);

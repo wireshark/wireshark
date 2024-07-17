@@ -49,7 +49,7 @@ dissect_ttag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     ti = proto_tree_add_item(tree, proto_ttag, tvb, 0, 8, ENC_NA);
     ttag_tree = proto_item_add_subtree(ti, ett_ttag);
 
-    timestamp_value = tvb_get_guint48(tvb, offset, ENC_BIG_ENDIAN);
+    timestamp_value = tvb_get_uint48(tvb, offset, ENC_BIG_ENDIAN);
     timestamp.secs = (time_t) (timestamp_value / UINT64_C(1000000000));
     timestamp.nsecs = (uint32_t)(timestamp_value - (timestamp.secs * UINT64_C(1000000000)));
 

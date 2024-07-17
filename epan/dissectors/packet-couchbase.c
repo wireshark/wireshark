@@ -1154,12 +1154,12 @@ static unsigned couchbase_ssl_port_pref = 11207;
 
 /** Read out the magic byte (located at offset 0 in the header) */
 static uint8_t get_magic(tvbuff_t *tvb) {
-  return tvb_get_guint8(tvb, 0);
+  return tvb_get_uint8(tvb, 0);
 }
 
 /** Read out the opcode (located at offset 1 in the header) */
 static uint8_t get_opcode(tvbuff_t *tvb) {
-  return tvb_get_guint8(tvb, 1);
+  return tvb_get_uint8(tvb, 1);
 }
 
 /** Read out the status code from the header (only "valid" for response packets) */
@@ -1170,25 +1170,25 @@ static uint16_t get_status(tvbuff_t *tvb) {
 /** Read out flex size (using the upper bits of the key length when using flex encoding) */
 static uint8_t get_flex_framing_extras_length(tvbuff_t *tvb) {
   if (is_flex_encoded(get_magic(tvb))) {
-    return tvb_get_guint8(tvb, 2);
+    return tvb_get_uint8(tvb, 2);
   }
   return 0;
 }
 
 /** Read out the size of the extras section (located at offset 4) */
 static uint8_t get_extras_length(tvbuff_t *tvb) {
-  return tvb_get_guint8(tvb, 4);
+  return tvb_get_uint8(tvb, 4);
 }
 
 /** Read out the datatype section (located at offset 5) */
 static uint8_t get_datatype(tvbuff_t *tvb) {
-  return tvb_get_guint8(tvb, 5);
+  return tvb_get_uint8(tvb, 5);
 }
 
 /** Read out the length of the key (1 or 2 bytes depending on the encoding) */
 static uint16_t get_key_length(tvbuff_t *tvb) {
   if (is_flex_encoded(get_magic(tvb))) {
-    return tvb_get_guint8(tvb, 3);
+    return tvb_get_uint8(tvb, 3);
   }
   return tvb_get_ntohs(tvb, 2);
 }
@@ -2116,7 +2116,7 @@ dissect_client_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 */
 static int
 dissect_unsigned_leb128(tvbuff_t *tvb, int start, int end, uint32_t* value) {
-    uint8_t byte = tvb_get_guint8(tvb, start);
+    uint8_t byte = tvb_get_uint8(tvb, start);
     *value = byte & 0x7f;
 
 
@@ -2124,7 +2124,7 @@ dissect_unsigned_leb128(tvbuff_t *tvb, int start, int end, uint32_t* value) {
         uint32_t shift = 7;
         int byte_idx;
         for (byte_idx = start+1; byte_idx < end; byte_idx++) {
-            byte = tvb_get_guint8(tvb, byte_idx);
+            byte = tvb_get_uint8(tvb, byte_idx);
             /* Ensure we are using a valid shift */
             if (shift > 32)
                 return -1;
@@ -2571,7 +2571,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         uint8_t failed_over;
 
         proto_tree_add_item(tree, hf_observe_failed_over, tvb, offset, 1, ENC_BIG_ENDIAN);
-        failed_over = tvb_get_guint8(tvb, offset);
+        failed_over = tvb_get_uint8(tvb, offset);
         offset++;
         proto_tree_add_item(tree, hf_observe_vbucket, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
@@ -3052,7 +3052,7 @@ static void dissect_flexible_framing_extras(tvbuff_t* tvb,
   while (bytes_remaining > 0) {
 
     /* FrameInfo starts with a 'tag' byte which is formed from 2 nibbles */
-    uint8_t tag_byte = tvb_get_guint8(tvb, offset);
+    uint8_t tag_byte = tvb_get_uint8(tvb, offset);
 
     /* 0xff isn't defined yet in the spec as to what it should do */
     if (tag_byte == 0xFF) {
@@ -3074,14 +3074,14 @@ static void dissect_flexible_framing_extras(tvbuff_t* tvb,
     int id_size = 1;
     /* Calculate the id/len and add to the tree */
     if (id == FLEX_ESCAPE) {
-      id = id + tvb_get_guint8(tvb, offset + 1);
+      id = id + tvb_get_uint8(tvb, offset + 1);
       id_size++;
       info_id = info_id_esc;
     }
 
     int len_size = 1;
     if (len == FLEX_ESCAPE) {
-      len = len + tvb_get_guint8(tvb, offset + 1);
+      len = len + tvb_get_uint8(tvb, offset + 1);
       len_size++;
       info_len_id = hf_flex_frame_len_esc;
     }
@@ -3742,7 +3742,7 @@ get_couchbase_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset,
 static int
 dissect_couchbase_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                       void *data) {
-  if (try_val_to_str(tvb_get_guint8(tvb, 0), magic_vals) == NULL) {
+  if (try_val_to_str(tvb_get_uint8(tvb, 0), magic_vals) == NULL) {
     // Magic isn't one of the know magics used by the Couchbase dissector
     return 0;
   }

@@ -253,7 +253,7 @@ cmpp_version(proto_tree *tree, tvbuff_t *tvb, int   field, int offset)
 	int8_t version, major, minor;
 	char  *strval;
 
-	version = tvb_get_guint8(tvb, offset);
+	version = tvb_get_uint8(tvb, offset);
 	minor   = version & 0x0F;
 	major   = (version & 0xF0) >> 4;
 	strval  = wmem_strdup_printf(wmem_packet_scope(), "%02u.%02u", major, minor);
@@ -291,7 +291,7 @@ static uint8_t
 cmpp_uint1(proto_tree *tree, tvbuff_t *tvb, int   field, int offset)
 {
 	uint8_t value;
-	value = tvb_get_guint8(tvb, offset);
+	value = tvb_get_uint8(tvb, offset);
 	proto_tree_add_uint(tree, field, tvb, offset, 1, value);
 	return value;
 }
@@ -318,7 +318,7 @@ static bool
 cmpp_boolean(proto_tree *tree, tvbuff_t *tvb, int   field, int offset)
 {
 	int8_t value;
-	value = tvb_get_guint8(tvb, offset);
+	value = tvb_get_uint8(tvb, offset);
 	proto_tree_add_boolean(tree, field, tvb, offset, 1, value);
 	if (value ==  1)
 		return true;
@@ -337,9 +337,9 @@ cmpp_msg_id(proto_tree *tree, tvbuff_t *tvb, int   field, int offset)
 	pi = proto_tree_add_item(tree, field, tvb, offset, 8, ENC_BIG_ENDIAN);
 	sub_tree = proto_item_add_subtree(pi, ett_msg_id);
 
-	month = (tvb_get_guint8(tvb, offset) & 0xF0) >> 4;
+	month = (tvb_get_uint8(tvb, offset) & 0xF0) >> 4;
 	day = (tvb_get_ntohs(tvb, offset) & 0x0F80) >> 7;
-	hour = (tvb_get_guint8(tvb, offset + 1) & 0x7C) >> 2;
+	hour = (tvb_get_uint8(tvb, offset + 1) & 0x7C) >> 2;
 	minute = (tvb_get_ntohs(tvb, offset + 1) & 0x03F0) >> 4;
 	second = (tvb_get_ntohs(tvb, offset + 2) & 0x0FC0) >> 6;
 	strval = wmem_strdup_printf(wmem_packet_scope(), "%02u/%02u %02u:%02u:%02u", month, day,

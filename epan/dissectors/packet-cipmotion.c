@@ -1086,13 +1086,13 @@ dissect_cntr_cyclic(tvbuff_t* tvb, proto_tree* tree, uint32_t offset, uint32_t s
    uint32_t bytes_used = 8;
 
    /* Determine if the dissector should be using an LREAL or DINT for position */
-   uint8_t command_control = tvb_get_guint8(tvb, offset + 7);
+   uint8_t command_control = tvb_get_uint8(tvb, offset + 7);
    bool lreal_pos = ((command_control & COMMAND_CONTROL_POSITION_DATA_TYPE) == POSITION_DATA_LREAL);
 
    /* Cyclic Command Data: Display the command data values from the cyclic data payload, the
     * cyclic data starts immediately after the interpolation control field in the controller to device
     * direction */
-   uint32_t command_data_set = tvb_get_guint8(tvb, offset + 4);
+   uint32_t command_data_set = tvb_get_uint8(tvb, offset + 4);
    bytes_used += dissect_cmd_data_set(command_data_set, header_tree, tvb, offset + bytes_used, lreal_pos);
 
    /* Return the offset to the next byte in the message */
@@ -1125,12 +1125,12 @@ dissect_device_cyclic(tvbuff_t* tvb, proto_tree* tree, uint32_t offset, uint32_t
    uint32_t bytes_used = 8;
 
    /* Display the "Cyclic Actual Data" values from the cyclic data payload. */
-   uint8_t feedback_mode = tvb_get_guint8(tvb, offset + 1);
-   uint8_t actual_data_set = tvb_get_guint8(tvb, offset + 5);
+   uint8_t feedback_mode = tvb_get_uint8(tvb, offset + 1);
+   uint8_t actual_data_set = tvb_get_uint8(tvb, offset + 5);
    bytes_used += dissect_act_data_set(actual_data_set, header_tree, tvb, offset + bytes_used, feedback_mode);
 
    /* Display the "Cyclic Status Data" values from the cyclic data payload. */
-   uint8_t status_data_set = tvb_get_guint8(tvb, offset + 6);
+   uint8_t status_data_set = tvb_get_uint8(tvb, offset + 6);
    bytes_used += dissect_status_data_set(status_data_set, header_tree, tvb, offset + bytes_used);
 
    /* Return the offset to the next byte in the message */
@@ -1691,8 +1691,8 @@ dissect_get_axis_attr_list_response(packet_info* pinfo, tvbuff_t* tvb, proto_tre
 
       /* Pull the fields for this attribute from the payload, all fields are needed to make some calculations before
       * properly displaying of the attribute is possible */
-      uint8_t dimension = tvb_get_guint8(tvb, local_offset + 2);
-      uint32_t attribute_size = tvb_get_guint8(tvb, local_offset + 3);
+      uint8_t dimension = tvb_get_uint8(tvb, local_offset + 2);
+      uint32_t attribute_size = tvb_get_uint8(tvb, local_offset + 3);
       uint8_t attribute_start = 4;
 
       if (dimension == 1)
@@ -1855,7 +1855,7 @@ dissect_var_inst_header(tvbuff_t* tvb, proto_tree* tree, uint32_t offset, uint8_
    proto_tree *header_tree;
 
    /* Create the tree for the entire instance data header */
-   *inst_number = tvb_get_guint8(tvb, offset);
+   *inst_number = tvb_get_uint8(tvb, offset);
 
    header_tree = proto_tree_add_subtree_format(tree, tvb, offset, 8, ett_inst_data_header, NULL,
                                                 "Instance Data Header - Instance: %d", *inst_number);
@@ -1873,19 +1873,19 @@ dissect_var_inst_header(tvbuff_t* tvb, proto_tree* tree, uint32_t offset, uint8_
    proto_tree_add_item(header_tree, hf_var_devce_cyclic_block_size, tvb, offset + 3, 1, ENC_NA);
 
    /* Read the cyclic command block size field in bytes from the instance data header */
-   *cyc_size = (tvb_get_guint8(tvb, offset + 4) * 4);
+   *cyc_size = (tvb_get_uint8(tvb, offset + 4) * 4);
    proto_tree_add_item(header_tree, hf_var_devce_cyclic_data_block_size, tvb, offset + 4, 1, ENC_NA);
 
    /* Read the cyclic write block size field in bytes from the instance data header */
-   *cyc_blk_size = (tvb_get_guint8(tvb, offset + 5) * 4);
+   *cyc_blk_size = (tvb_get_uint8(tvb, offset + 5) * 4);
    proto_tree_add_item(header_tree, hf_var_devce_cyclic_rw_block_size, tvb, offset + 5, 1, ENC_NA);
 
    /* Read the event block size in bytes from the instance data header */
-   *evnt_size = (tvb_get_guint8(tvb, offset + 6) * 4);
+   *evnt_size = (tvb_get_uint8(tvb, offset + 6) * 4);
    proto_tree_add_item(header_tree, hf_var_devce_event_block_size, tvb, offset + 6, 1, ENC_NA);
 
    /* Read the service block size in bytes from the instance data header */
-   *servc_size = (tvb_get_guint8(tvb, offset + 7) * 4);
+   *servc_size = (tvb_get_uint8(tvb, offset + 7) * 4);
    proto_tree_add_item(header_tree, hf_var_devce_service_block_size, tvb, offset + 7, 1, ENC_NA);
 }
 
@@ -1905,7 +1905,7 @@ dissect_var_cont_conn_header(tvbuff_t* tvb, proto_tree* tree, uint32_t* inst_cou
    /* Calculate the header size, start with the basic header size */
    header_size = 8;
 
-   uint32_t time_data_set = tvb_get_guint8(tvb, offset + 7);
+   uint32_t time_data_set = tvb_get_uint8(tvb, offset + 7);
 
    /* Check the time data set field for enabled bits. If either update period or
    * update time stamp fields are set, bump the header size by the appropriate size */
@@ -1970,7 +1970,7 @@ dissect_var_devce_conn_header(tvbuff_t* tvb, proto_tree* tree, uint32_t* inst_co
    /* Calculate the header size, start with the basic header size */
    header_size = 8;
 
-   uint32_t time_data_set = tvb_get_guint8(tvb, offset + 7);
+   uint32_t time_data_set = tvb_get_uint8(tvb, offset + 7);
    if ( (time_data_set & TIME_DATA_SET_TIME_STAMP) == TIME_DATA_SET_TIME_STAMP )
    {
       header_size += 8;
@@ -2094,8 +2094,8 @@ dissect_cipmotion(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* dat
 
    /* Pull the actual values for the connection format and update id from the
     * incoming message to be used in the column info */
-   con_format = tvb_get_guint8(tvb, offset);
-   update_id  = tvb_get_guint8(tvb, offset + 2);
+   con_format = tvb_get_uint8(tvb, offset);
+   update_id  = tvb_get_uint8(tvb, offset + 2);
 
    /* Make entries in Protocol column and Info column on summary display */
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "CIP Motion");
@@ -2117,11 +2117,11 @@ dissect_cipmotion(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* dat
       switch(con_format)
       {
       case FORMAT_VAR_CONTROL_TO_DEVICE:
-         format_rev = tvb_get_guint8(tvb, offset + 1);
+         format_rev = tvb_get_uint8(tvb, offset + 1);
          offset = dissect_var_cont_conn_header(tvb, proto_tree_top, &inst_count, offset);
          break;
       case FORMAT_VAR_DEVICE_TO_CONTROL:
-         format_rev = tvb_get_guint8(tvb, offset + 1);
+         format_rev = tvb_get_uint8(tvb, offset + 1);
          offset = dissect_var_devce_conn_header(tvb, proto_tree_top, &inst_count, offset);
          break;
       }

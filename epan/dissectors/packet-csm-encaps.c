@@ -169,15 +169,15 @@ dissect_csm_encaps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
 
     function_code = tvb_get_letohs(tvb, 10);
-    control = tvb_get_guint8(tvb, 3);
+    control = tvb_get_uint8(tvb, 3);
 
-    class_type = tvb_get_guint8(tvb, 9);
+    class_type = tvb_get_uint8(tvb, 9);
     class_type = class_type<<8;
-    class_type|= tvb_get_guint8(tvb, 8);
+    class_type|= tvb_get_uint8(tvb, 8);
 
-    type     = tvb_get_guint8(tvb, 8);
-    sequence = tvb_get_guint8(tvb, 2);
-    length   = tvb_get_guint8(tvb, 6);
+    type     = tvb_get_uint8(tvb, 8);
+    sequence = tvb_get_uint8(tvb, 2);
+    length   = tvb_get_uint8(tvb, 6);
     channel  = tvb_get_ntohs(tvb, 4);
 
 

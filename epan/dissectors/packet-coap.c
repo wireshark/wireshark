@@ -449,7 +449,7 @@ coap_get_opt_uint(tvbuff_t *tvb, int offset, int length)
 	case 0:
 		return 0;
 	case 1:
-		return (unsigned)tvb_get_guint8(tvb, offset);
+		return (unsigned)tvb_get_uint8(tvb, offset);
 	case 2:
 		return (unsigned)tvb_get_ntohs(tvb, offset);
 	case 3:
@@ -644,7 +644,7 @@ dissect_coap_opt_object_security(tvbuff_t *tvb, proto_item *head_item, proto_tre
 		/* add info to the head of the packet detail */
 		proto_item_append_text(head_item, ": 00 (no Flag Byte)");
 	} else {
-		flag_byte = tvb_get_guint8(tvb, offset);
+		flag_byte = tvb_get_uint8(tvb, offset);
 
 		proto_tree_add_item(subtree, dissect_hf->hf.opt_object_security_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 		reserved = flag_byte & COAP_OBJECT_SECURITY_RESERVED_MASK;
@@ -687,7 +687,7 @@ dissect_coap_opt_object_security(tvbuff_t *tvb, proto_item *head_item, proto_tre
 
 		if (kid_context_present) {
 			proto_tree_add_item(subtree, dissect_hf->hf.opt_object_security_kid_context_len, tvb, offset, 1, ENC_BIG_ENDIAN);
-			kid_context_len = tvb_get_guint8(tvb, offset);
+			kid_context_len = tvb_get_uint8(tvb, offset);
 
 			offset += 1;
 			kid_len -= 1;
@@ -795,7 +795,7 @@ dissect_coap_opt_block(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree
 		val = 0;
 	} else {
 		coinfo->block_number = coap_get_opt_uint(tvb, offset, opt_length) >> 4;
-		val = tvb_get_guint8(tvb, offset + opt_length - 1) & 0x0f;
+		val = tvb_get_uint8(tvb, offset + opt_length - 1) & 0x0f;
 	}
 
 	proto_tree_add_uint(subtree, dissect_hf->hf.opt_block_number,
@@ -868,7 +868,7 @@ dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tr
 	proto_item *item;
 	char	    strbuf[56];
 
-	opt_jump = tvb_get_guint8(tvb, offset);
+	opt_jump = tvb_get_uint8(tvb, offset);
 	if (0xff == opt_jump)
 		return offset;
 	offset += 1;
@@ -891,7 +891,7 @@ dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tr
 	 */
 	switch (opt_jump & 0xf0) {
 	case 0xd0:
-		opt_delta_ext = tvb_get_guint8(tvb, offset);
+		opt_delta_ext = tvb_get_uint8(tvb, offset);
 		opt_delta_ext_off = offset;
 		opt_delta_ext_len = 1;
 		offset += 1;
@@ -935,7 +935,7 @@ dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tr
 	 */
 	switch (opt_jump & 0x0f) {
 	case 0x0d:
-		opt_length_ext = tvb_get_guint8(tvb, offset);
+		opt_length_ext = tvb_get_uint8(tvb, offset);
 		opt_length_ext_off = offset;
 		opt_length_ext_len = 1;
 		offset += 1;
@@ -1146,7 +1146,7 @@ dissect_coap_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, i
 			return -1;
 		if (offset >= offset_end)
 			break;
-		endmarker = tvb_get_guint8(tvb, offset);
+		endmarker = tvb_get_uint8(tvb, offset);
 		if (endmarker == 0xff) {
 			proto_tree_add_item(coap_tree, dissect_hf->hf.opt_end_marker, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
@@ -1167,7 +1167,7 @@ dissect_coap_code(tvbuff_t *tvb, proto_tree *tree, int *offset, coap_common_diss
 	uint8_t code;
 
 	proto_tree_add_item(tree, dissect_hf->hf.code, tvb, *offset, 1, ENC_BIG_ENDIAN);
-	code = tvb_get_guint8(tvb, *offset);
+	code = tvb_get_uint8(tvb, *offset);
 	*code_class = code >> 5;
 	*offset += 1;
 
@@ -1271,7 +1271,7 @@ coap_frame_length(tvbuff_t *tvb, unsigned offset, int *size)
 	 * Decode Len and Extended Length according to
 	 * https://tools.ietf.org/html/rfc8323#page-10
 	 */
-	uint8_t len = tvb_get_guint8(tvb, offset) >> 4;
+	uint8_t len = tvb_get_uint8(tvb, offset) >> 4;
 	switch (len) {
 	default:
 		*size = 1;
@@ -1282,7 +1282,7 @@ coap_frame_length(tvbuff_t *tvb, unsigned offset, int *size)
 			return 0;
 		}
 		*size = 2;
-		return tvb_get_guint8(tvb, offset + 1) + 13;
+		return tvb_get_uint8(tvb, offset + 1) + 13;
 	case 14:
 		if (tvb_reported_length_remaining(tvb, offset) < 3) {
 			*size = -1;
@@ -1353,7 +1353,7 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	 */
 	coap_length = tvb_reported_length(tvb);
 	if (parent_protocol == PARENT_TCP_TLS) {
-		token_len = tvb_get_guint8(tvb, offset) & 0xf;
+		token_len = tvb_get_uint8(tvb, offset) & 0xf;
 		coap_length = coap_frame_length(tvb, offset, &length_size);
 		if (length_size < 0) {
 			pinfo->desegment_offset = offset;
@@ -1385,7 +1385,7 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		proto_tree_add_item(coap_tree, hf_coap_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 		proto_tree_add_item(coap_tree, hf_coap_ttype, tvb, offset, 1, ENC_BIG_ENDIAN);
-		ttype = (tvb_get_guint8(tvb, offset) & COAP_TYPE_MASK) >> 4;
+		ttype = (tvb_get_uint8(tvb, offset) & COAP_TYPE_MASK) >> 4;
 
 		proto_tree_add_item_ret_uint(coap_tree, hf_coap_token_len, tvb, offset, 1, ENC_BIG_ENDIAN, &token_len);
 		offset += 1;
@@ -1411,7 +1411,7 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	} else {
 		unsigned len = coap_length;
 		if (parent_protocol == PARENT_WEBSOCKETS) {
-			len = tvb_get_guint8(tvb, offset) >> 4;
+			len = tvb_get_uint8(tvb, offset) >> 4;
 			length_size = 1;
 		}
 		proto_tree_add_uint(coap_tree, hf_coap_length, tvb, offset, length_size, len);

@@ -934,7 +934,7 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "COPS");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    op_code = tvb_get_guint8(tvb, 1);
+    op_code = tvb_get_uint8(tvb, 1);
     col_add_fstr(pinfo->cinfo, COL_INFO, "COPS %s",
                  val_to_str_const(op_code, cops_op_code_vals, "Unknown Op Code"));
 
@@ -945,7 +945,7 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     cops_tree = proto_item_add_subtree(ti, ett_cops);
 
     /* Version and flags share the same byte, put them in a subtree */
-    ver_flags = tvb_get_guint8(tvb, offset);
+    ver_flags = tvb_get_uint8(tvb, offset);
     is_solicited = (lo_nibble(ver_flags) == 0x01);
     tv = proto_tree_add_uint_format(cops_tree, hf_cops_ver_flags, tvb, offset, 1,
                                     ver_flags, "Version: %u, Flags: %s",
@@ -1215,8 +1215,8 @@ static int dissect_cops_object(tvbuff_t *tvb, packet_info *pinfo, uint8_t op_cod
                                     object_len, COPS_OBJECT_HDR_SIZE);
         return -1;
     }
-    c_num = tvb_get_guint8(tvb, offset + 2);
-    c_type = tvb_get_guint8(tvb, offset + 3);
+    c_num = tvb_get_uint8(tvb, offset + 2);
+    c_type = tvb_get_uint8(tvb, offset + 3);
 
     ti = proto_tree_add_uint_format(tree, hf_cops_obj_c_num, tvb, offset, object_len, c_num,
                                     "%s: %s", val_to_str_const(c_num, cops_c_num_vals, "Unknown"),
@@ -1270,7 +1270,7 @@ static void dissect_cops_pr_objects(tvbuff_t *tvb, packet_info *pinfo, uint32_t 
                                         object_len, COPS_OBJECT_HDR_SIZE);
             return;
         }
-        s_num = tvb_get_guint8(tvb, offset + 2);
+        s_num = tvb_get_uint8(tvb, offset + 2);
 
         ti = proto_tree_add_uint_format(cops_pr_tree, hf_cops_obj_s_num, tvb, offset, object_len, s_num,
                                         "%s", val_to_str_const(s_num, cops_s_num_vals, "Unknown"));
@@ -1284,7 +1284,7 @@ static void dissect_cops_pr_objects(tvbuff_t *tvb, packet_info *pinfo, uint32_t 
         offset++;
         pr_len--;
 
-        s_type = tvb_get_guint8(tvb, offset);
+        s_type = tvb_get_uint8(tvb, offset);
         type_str = val_to_str_const(s_type, cops_s_type_vals, "Unknown");
         proto_tree_add_uint_format_value(obj_tree, hf_cops_obj_s_type, tvb, offset, 1, s_type,
                                          "%s%s%u%s",
@@ -1380,7 +1380,7 @@ static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, uint32_t
         if (reason == 13) { /* RFC 2748 2.2.5 */
             proto_tree_add_uint_format_value(reason_tree, hf_cops_reason_sub, tvb, offset, 2,
                                 reason_sub, "Unknown object's C-Num %u, C-Type %u",
-                                tvb_get_guint8(tvb, offset), tvb_get_guint8(tvb, offset + 1));
+                                tvb_get_uint8(tvb, offset), tvb_get_uint8(tvb, offset + 1));
         } else
             proto_tree_add_uint(reason_tree, hf_cops_reason_sub, tvb, offset, 2, reason_sub);
 
@@ -1423,7 +1423,7 @@ static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, uint32_t
         if (error == 13) { /* RFC 2748 2.2.8 */
             proto_tree_add_uint_format_value(error_tree, hf_cops_error_sub, tvb, offset, 2,
                                 error_sub, "Unknown object's C-Num %u, C-Type %u",
-                                tvb_get_guint8(tvb, offset), tvb_get_guint8(tvb, offset + 1));
+                                tvb_get_uint8(tvb, offset), tvb_get_uint8(tvb, offset + 1));
         } else
             proto_tree_add_uint(error_tree, hf_cops_error_sub, tvb, offset, 2, error_sub);
 
@@ -1761,7 +1761,7 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, uint32
         if (gperror == 13) { /* RFC 3084 4.4 */
             proto_tree_add_uint_format_value(gperror_tree, hf_cops_gperror_sub, tvb, offset, 2,
                                 gperror_sub, "Unknown object's C-Num %u, C-Type %u",
-                                tvb_get_guint8(tvb, offset), tvb_get_guint8(tvb, offset + 1));
+                                tvb_get_uint8(tvb, offset), tvb_get_uint8(tvb, offset + 1));
         } else
             proto_tree_add_uint(gperror_tree, hf_cops_gperror_sub, tvb, offset, 2, gperror_sub);
 
@@ -1780,7 +1780,7 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, uint32
         if (cperror == 13) { /* RFC 3084 4.5 */
             proto_tree_add_uint_format_value(cperror_tree, hf_cops_cperror_sub, tvb, offset, 2, cperror_sub,
                                 "Unknown object's S-Num %u, C-Type %u",
-                                tvb_get_guint8(tvb, offset), tvb_get_guint8(tvb, offset + 1));
+                                tvb_get_uint8(tvb, offset), tvb_get_uint8(tvb, offset + 1));
         } else
             proto_tree_add_uint(cperror_tree, hf_cops_cperror_sub, tvb, offset, 2, cperror_sub);
 
@@ -2912,7 +2912,7 @@ info_to_display(tvbuff_t *tvb, proto_item *stt, int offset, int octets, const ch
 
     case 1:
         /* Get the octet */
-        code8 = tvb_get_guint8( tvb, offset );
+        code8 = tvb_get_uint8( tvb, offset );
         if (vsp == NULL) {
             /* Hexadecimal format */
             if (mode==FMT_HEX)
@@ -5960,8 +5960,8 @@ cops_analyze_packetcable_dqos_obj(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
             return;
         }
 
-        s_num        = tvb_get_guint8(tvb, offset + 2);
-        s_type       = tvb_get_guint8(tvb, offset + 3);
+        s_num        = tvb_get_uint8(tvb, offset + 2);
+        s_type       = tvb_get_uint8(tvb, offset + 3);
 
         /* Glom the s_num and s_type together to make switching easier */
         num_type_glob = s_num << 8 | s_type;
@@ -6092,8 +6092,8 @@ cops_analyze_packetcable_mm_obj(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
             return;
         }
 
-        s_num        = tvb_get_guint8(tvb, offset + 2);
-        s_type       = tvb_get_guint8(tvb, offset + 3);
+        s_num        = tvb_get_uint8(tvb, offset + 2);
+        s_type       = tvb_get_uint8(tvb, offset + 3);
 
         /* Glom the s_num and s_type together to make switching easier */
         num_type_glob = s_num << 8 | s_type;

@@ -223,7 +223,7 @@ get_hex_uint(tvbuff_t *tvb, int offset, int *next_offset)
     int c;
     unsigned u = 0;
 
-    while (g_ascii_isxdigit(c = tvb_get_guint8(tvb, offset))) {
+    while (g_ascii_isxdigit(c = tvb_get_uint8(tvb, offset))) {
         u = 16*u + ws_xton(c);
 
         offset++;
@@ -239,7 +239,7 @@ skip_space(tvbuff_t *tvb, int offset, int *next_offset)
 {
     int c;
 
-    while ((c = tvb_get_guint8(tvb, offset)) == ' ')
+    while ((c = tvb_get_uint8(tvb, offset)) == ' ')
         offset++;
     if (c == '\r' || c == '\n')
         return false;    /* end of packet */
@@ -257,7 +257,7 @@ get_quoted_string(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int *next_
     unsigned l = 0;
     int o;
 
-    c = tvb_get_guint8(tvb, offset);
+    c = tvb_get_uint8(tvb, offset);
     if (c == '"') {
         o = tvb_find_guint8(tvb, offset+1, -1, '"');
         if (o != -1) {

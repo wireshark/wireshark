@@ -61,13 +61,13 @@ test_carp_packet(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, vo
         return false;
 
     /* Version must be 1 or 2, type must be in carp_type_vals */
-    ver_type = tvb_get_guint8(tvb, 0);
+    ver_type = tvb_get_uint8(tvb, 0);
     version = hi_nibble(ver_type);
     if ((version == 0) || (version > 2) ||
         (try_val_to_str(lo_nibble(ver_type), carp_type_vals) == NULL))
         return false;
 
-    auth_length = tvb_get_guint8(tvb, 3);
+    auth_length = tvb_get_uint8(tvb, 3);
     if ( auth_length != 7 )
         return false;
 
@@ -92,14 +92,14 @@ dissect_carp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "CARP");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    vhid = tvb_get_guint8(tvb, 1);
+    vhid = tvb_get_uint8(tvb, 1);
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s (Virtual Host ID: %u)",
                  "Announcement", vhid);
 
     ti = proto_tree_add_item(tree, proto_carp, tvb, 0, -1, ENC_NA);
     carp_tree = proto_item_add_subtree(ti, ett_carp);
 
-    ver_type = tvb_get_guint8(tvb, 0);
+    ver_type = tvb_get_uint8(tvb, 0);
     tv = proto_tree_add_uint_format(carp_tree, hf_carp_ver_type,
                     tvb, offset, 1, ver_type,
                     "Version %u, Packet type %u (%s)",

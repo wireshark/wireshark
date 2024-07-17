@@ -297,7 +297,7 @@ dissect_cbor_negative_integer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbo
 
 	switch (type_minor) {
 	case 0x18:
-		value = (int64_t)-1 - tvb_get_guint8(tvb, *offset);
+		value = (int64_t)-1 - tvb_get_uint8(tvb, *offset);
 		proto_tree_add_int64(subtree, hf_cbor_type_nint, tvb, *offset, 1, value);
 		*offset += 1;
 		break;
@@ -380,7 +380,7 @@ dissect_cbor_byte_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tre
 		item = proto_tree_add_item(subtree, hf_cbor_type_byte_string_indef, tvb, *offset, 1, ENC_NA);
 		subtree = proto_item_add_subtree(item, ett_cbor_byte_string_indef);
 		while (1) {
-			eof_type = tvb_get_guint8(tvb, *offset);
+			eof_type = tvb_get_uint8(tvb, *offset);
 			if (eof_type == 0xff) {
 				dissect_cbor_float_simple_data(tvb, pinfo, subtree, offset, 0x1f);
 				proto_item_set_end(item, tvb, *offset);
@@ -477,7 +477,7 @@ dissect_cbor_text_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tre
 		item = proto_tree_add_item(subtree, hf_cbor_type_text_string_indef, tvb, *offset, 1, ENC_NA);
 		subtree = proto_item_add_subtree(item, ett_cbor_text_string_indef);
 		while (1) {
-			eof_type = tvb_get_guint8(tvb, *offset);
+			eof_type = tvb_get_uint8(tvb, *offset);
 			if (eof_type == 0xff) {
 				dissect_cbor_float_simple_data(tvb, pinfo, subtree, offset, 0x1f);
 				proto_item_set_end(item, tvb, *offset);
@@ -584,7 +584,7 @@ dissect_cbor_array(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tree, int
 
 	for (uint64_t i = 0; i < length; i++) {
 		if (indefinite) {
-			int value = tvb_get_guint8(tvb, *offset);
+			int value = tvb_get_uint8(tvb, *offset);
 			if (value == 0xff) {
 				dissect_cbor_float_simple_data(tvb, pinfo, subtree, offset, 0x1f);
 				break;
@@ -660,7 +660,7 @@ dissect_cbor_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tree, int *
 
 	for (uint64_t i = 0; i < length; i++) {
 		if (indefinite) {
-			int value = tvb_get_guint8(tvb, *offset);
+			int value = tvb_get_uint8(tvb, *offset);
 			if (value == 0xff) {
 				dissect_cbor_float_simple_data(tvb, pinfo, subtree, offset, 0x1f);
 				break;
@@ -855,7 +855,7 @@ dissect_cbor_main_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tree,
 	uint8_t     type_major;
 	uint8_t     type_minor;
 
-	type = tvb_get_guint8(tvb, *offset);
+	type = tvb_get_uint8(tvb, *offset);
 
 	type_major = (type & 0xe0) >> 5;
 	type_minor = (type & 0x1f);

@@ -82,13 +82,13 @@ static int dissect_cnip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "CN/IP");
    col_clear(pinfo->cinfo, COL_INFO);
 
-   type = tvb_get_guint8(tvb, 3);
+   type = tvb_get_uint8(tvb, 3);
    col_add_fstr(pinfo->cinfo, COL_INFO,"Priority: %s Type: %s",
          (pinfo->destport == 1629 )? "urgent":"normal",
          val_to_str_const(type, type_tuple, "Unknown"));
 
-   exth_len = tvb_get_guint8(tvb, 4);
-   pf_pcode = tvb_get_guint8(tvb, 5) & 0x1F;
+   exth_len = tvb_get_uint8(tvb, 4);
+   pf_pcode = tvb_get_uint8(tvb, 5) & 0x1F;
 
    offset = 0;
 

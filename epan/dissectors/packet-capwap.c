@@ -1290,7 +1290,7 @@ dissect_capwap_encryption_capabilities(tvbuff_t *tvb, proto_tree *encryption_cap
     proto_tree_add_item(sub_encryption_capabilities_tree, hf_capwap_msg_element_type_wtp_descriptor_encrypt_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     proto_tree_add_item (sub_encryption_capabilities_tree, hf_capwap_msg_element_type_wtp_descriptor_encrypt_wbid, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_item_append_text(encryption_capabilities_item, ": (WBID %d)",tvb_get_guint8(tvb, offset) & 0x1F);
+    proto_item_append_text(encryption_capabilities_item, ": (WBID %d)",tvb_get_uint8(tvb, offset) & 0x1F);
 
 
     proto_tree_add_item(sub_encryption_capabilities_tree, hf_capwap_msg_element_type_wtp_descriptor_encrypt_capabilities, tvb, offset+1, 2, ENC_BIG_ENDIAN);
@@ -1568,7 +1568,7 @@ dissect_capwap_message_element_vendor_fortinet_type(tvbuff_t *tvb, proto_tree *s
             proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_mac_wid, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
             ti =proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_mac_len, tvb, offset, 1, ENC_BIG_ENDIAN);
-            mac_length = tvb_get_guint8(tvb, offset);
+            mac_length = tvb_get_uint8(tvb, offset);
             offset += 1;
             if(mac_length %6 != 0)
             {
@@ -1594,7 +1594,7 @@ dissect_capwap_message_element_vendor_fortinet_type(tvbuff_t *tvb, proto_tree *s
             proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_wbh_sta_rid, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
             ti = proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_wbh_sta_len, tvb, offset, 1, ENC_BIG_ENDIAN);
-            mac_length = tvb_get_guint8(tvb, offset);
+            mac_length = tvb_get_uint8(tvb, offset);
             offset += 1;
             if(mac_length %6 != 0)
             {
@@ -2262,7 +2262,7 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_add_station_radio_id, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_add_station_length, tvb, offset + 5, 1, ENC_BIG_ENDIAN);
-        maclength = tvb_get_guint8(tvb, offset+5);
+        maclength = tvb_get_uint8(tvb, offset+5);
         switch(maclength){
             case 6:
                 proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_add_station_mac_eui48, tvb, offset+6, maclength, ENC_NA);
@@ -2330,7 +2330,7 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_delete_station_radio_id, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_delete_station_length, tvb, offset + 5, 1, ENC_BIG_ENDIAN);
-        maclength = tvb_get_guint8(tvb, offset+5);
+        maclength = tvb_get_uint8(tvb, offset+5);
         switch(maclength){
             case 6:
                 proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_delete_station_mac_eui48, tvb, offset+6, maclength, ENC_NA);
@@ -2490,7 +2490,7 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_wtp_descriptor_radio_in_use, tvb, offset+5, 1, ENC_BIG_ENDIAN);
         if (global_capwap_draft_8_cisco == 0)
         {
-            number_encrypt = tvb_get_guint8(tvb,offset+6);
+            number_encrypt = tvb_get_uint8(tvb,offset+6);
             msg_element_type_item_flag = proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_wtp_descriptor_number_encrypt, tvb, offset+6, 1, ENC_BIG_ENDIAN);
             sub_msg_element_type_flag_tree = proto_item_add_subtree(msg_element_type_item_flag, ett_capwap_encryption_capabilities);
             for (i=0; i < number_encrypt; i++) {
@@ -2638,7 +2638,7 @@ hf_capwap_msg_element_type_ieee80211_add_wlan_capability, ett_capwap_ieee80211_a
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_antenna_diversity, tvb, offset+5, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_antenna_combiner, tvb, offset+6, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_antenna_count, tvb, offset+7, 1, ENC_BIG_ENDIAN);
-        antenna_count = tvb_get_guint8(tvb, offset+7);
+        antenna_count = tvb_get_uint8(tvb, offset+7);
         while(antenna < antenna_count){
             proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_antenna_selection, tvb, offset+8+antenna, 1, ENC_BIG_ENDIAN);
             antenna += 1;
@@ -2854,7 +2854,7 @@ hf_capwap_msg_element_type_ieee80211_station_capabilities, ett_capwap_ieee80211_
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_tx_power_level_radio_id, tvb, offset+4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_tx_power_level_num_levels, tvb, offset+5, 1, ENC_BIG_ENDIAN);
-        num_levels = tvb_get_guint8(tvb, offset+5);
+        num_levels = tvb_get_uint8(tvb, offset+5);
         while(level < num_levels){
             proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_tx_power_level_power_level, tvb, offset+6+(level*2), 2, ENC_BIG_ENDIAN);
             level += 1;
@@ -2920,7 +2920,7 @@ hf_capwap_msg_element_type_ieee80211_update_wlan_capability, ett_capwap_ieee8021
         break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_supported_mac_profiles_numbers, tvb, offset+4, 1, ENC_BIG_ENDIAN);
-        num_profiles = tvb_get_guint8(tvb ,offset);
+        num_profiles = tvb_get_uint8(tvb ,offset);
         while(num_profiles){
             proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_supported_mac_profiles_profile, tvb, offset+5, 1, ENC_BIG_ENDIAN);
             offset += 1;
@@ -3104,7 +3104,7 @@ dissect_capwap_header(tvbuff_t *tvb, proto_tree *capwap_control_tree, unsigned o
     plen += 2;
     /* Optional Headers */
     if (flags & 0x10 /* Radio MAC address */) {
-        maclength=tvb_get_guint8(tvb, offset+plen);
+        maclength=tvb_get_uint8(tvb, offset+plen);
         proto_tree_add_item(capwap_header_tree, hf_capwap_header_mac_length, tvb, offset+plen, 1, ENC_BIG_ENDIAN);
         plen += 1;
         if (maclength == 6) {
@@ -3125,7 +3125,7 @@ dissect_capwap_header(tvbuff_t *tvb, proto_tree *capwap_control_tree, unsigned o
         }
     }
     if (flags & 0x20 /* Wireless specific information */) {
-        wirelesslength=tvb_get_guint8(tvb, offset+plen);
+        wirelesslength=tvb_get_uint8(tvb, offset+plen);
 
         /* in Draft 8, the WBid is add in Wireless Specific Information*/
         if (global_capwap_draft_8_cisco == 1)
@@ -3172,7 +3172,7 @@ dissect_capwap_preamble(tvbuff_t *tvb, proto_tree *capwap_control_tree, unsigned
 
     proto_tree_add_item(capwap_preamble_tree, hf_capwap_preamble_version, tvb, offset+plen, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(capwap_preamble_tree, hf_capwap_preamble_type, tvb, offset+plen, 1, ENC_BIG_ENDIAN);
-    *type_header = tvb_get_guint8(tvb, offset+plen) & 0x0F;
+    *type_header = tvb_get_uint8(tvb, offset+plen) & 0x0F;
     plen++;
     /* DTLS Header ? */
     if (*type_header == 1) {

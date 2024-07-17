@@ -67,7 +67,7 @@ dissect_cgmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 		    ENC_BIG_ENDIAN);
 		offset += 2;
 
-		count = tvb_get_guint8(tvb, offset);
+		count = tvb_get_uint8(tvb, offset);
 		proto_tree_add_uint(cgmp_tree, hf_cgmp_count, tvb, offset, 1,
 		    count);
 		offset += 1;

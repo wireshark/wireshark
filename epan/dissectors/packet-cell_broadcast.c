@@ -296,7 +296,7 @@ dissect_gsm_cell_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
    message_id = tvb_get_ntohs(tvb, offset);
    offset = dissect_cbs_message_identifier(tvb, cbs_page_tree, offset);
    sms_encoding = dissect_cbs_data_coding_scheme(tvb, pinfo, cbs_page_tree, offset++);
-   total_pages = tvb_get_guint8(tvb, offset);
+   total_pages = tvb_get_uint8(tvb, offset);
    current_page = (total_pages & 0xF0) >> 4;
    total_pages &= 0x0F;
    proto_tree_add_item(cbs_page_tree, hf_gsm_cbs_current_page, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -306,7 +306,7 @@ dissect_gsm_cell_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
    if (cbs_page_tvb != NULL)
    {
       text_len = tvb_reported_length(cbs_page_tvb);
-      while (text_len && (tvb_get_guint8(cbs_page_tvb, text_len-1) == '\r')) {
+      while (text_len && (tvb_get_uint8(cbs_page_tvb, text_len-1) == '\r')) {
          text_len--;
       }
       if (tree != NULL)

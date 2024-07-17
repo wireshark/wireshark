@@ -1667,7 +1667,7 @@ static void cdma2k_message_ORDER_CMD(proto_item *item,tvbuff_t *tvb,proto_tree *
     subtree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_cdma2k_subtree1, NULL, "Order Command Message");
 
     proto_tree_add_item(subtree, hf_cdma2k_Order_Cmd, tvb, *offset,1, ENC_BIG_ENDIAN);
-    ordertype = tvb_get_guint8(tvb,*offset) >> 2;
+    ordertype = tvb_get_uint8(tvb,*offset) >> 2;
 
     proto_tree_add_bits_item(subtree, hf_cdma2k_Add_Record_Len, tvb, *offset*8 + 6,3, ENC_BIG_ENDIAN);
     addRecLen = tvb_get_bits8(tvb,*offset*8 + 6,3);

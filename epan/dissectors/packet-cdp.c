@@ -386,8 +386,8 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         case TYPE_PORT_ID:
             real_length = length;
             if ((tvb_reported_length_remaining(tvb, offset) >= length + 3) &&
-                (tvb_get_guint8(tvb, offset + real_length) != 0x00) &&
-                (tvb_get_guint8(tvb, offset + real_length) != 0x10)) {
+                (tvb_get_uint8(tvb, offset + real_length) != 0x00) &&
+                (tvb_get_uint8(tvb, offset + real_length) != 0x10)) {
                 /* The length in the TLV doesn't appear to be the
                    length of the TLV, as the byte just past it
                    isn't the first byte of a 2-byte big-endian
@@ -506,7 +506,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 length -= 4;
                 while (length > 0) {
                     proto_tree_add_ipv4_format_value(tlv_tree, hf_cdp_ip_prefix, tvb, offset, 5, tvb_get_ntohl(tvb, offset),
-                                    "%s/%u", tvb_ip_to_str(pinfo->pool, tvb, offset), tvb_get_guint8(tvb,offset+4));
+                                    "%s/%u", tvb_ip_to_str(pinfo->pool, tvb, offset), tvb_get_uint8(tvb,offset+4));
                     offset += 5;
                     length -= 5;
                 }
@@ -573,7 +573,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             if (tree) {
                 tlv_tree = proto_tree_add_subtree_format(cdp_tree, tvb,
                                            offset, length, ett_cdp_tlv, NULL, "Duplex: %s",
-                                           tvb_get_guint8(tvb, offset + 4) ?
+                                           tvb_get_uint8(tvb, offset + 4) ?
                                            "Full" : "Half" );
                 proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, tvb, offset + TLV_TYPE, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, tvb, offset + TLV_LENGTH, 2, ENC_BIG_ENDIAN);
@@ -668,7 +668,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             if (tree) {
                 tlv_tree = proto_tree_add_subtree_format(cdp_tree, tvb,
                                            offset, length, ett_cdp_tlv, NULL, "Trust Bitmap: 0x%02X",
-                                           tvb_get_guint8(tvb, offset + 4));
+                                           tvb_get_uint8(tvb, offset + 4));
                 proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, tvb, offset + TLV_TYPE, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, tvb, offset + TLV_LENGTH, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_tree, hf_cdp_trust_bitmap, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
@@ -680,7 +680,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             if (tree) {
                 tlv_tree = proto_tree_add_subtree_format(cdp_tree, tvb,
                                            offset, length, ett_cdp_tlv, NULL, "Untrusted port CoS: 0x%02X",
-                                           tvb_get_guint8(tvb, offset + 4));
+                                           tvb_get_uint8(tvb, offset + 4));
                 proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, tvb, offset + TLV_TYPE, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, tvb, offset + TLV_LENGTH, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_tree, hf_cdp_untrusted_port_cos, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
@@ -1067,14 +1067,14 @@ dissect_address_tlv(tvbuff_t *tvb, packet_info* pinfo, int offset, int length, p
     if (length < 1)
         return -1;
     address_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_cdp_address, &ti, "Truncated address");
-    protocol_type = tvb_get_guint8(tvb, offset);
+    protocol_type = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(address_tree, hf_cdp_protocol_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
 
     if (length < 1)
         return -1;
-    protocol_length = tvb_get_guint8(tvb, offset);
+    protocol_length = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(address_tree, hf_cdp_protocol_length, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     length -= 1;
@@ -1088,7 +1088,7 @@ dissect_address_tlv(tvbuff_t *tvb, packet_info* pinfo, int offset, int length, p
     }
 
     if ((protocol_type == PROTO_TYPE_NLPID) && (protocol_length == 1)) {
-        nlpid = tvb_get_guint8(tvb, offset);
+        nlpid = tvb_get_uint8(tvb, offset);
         proto_tree_add_bytes_format_value(address_tree, hf_cdp_protocol, tvb, offset, protocol_length, NULL, "%s",
                             val_to_str(nlpid, nlpid_vals, "Unknown (0x%02x)"));
     } else if ((protocol_type == PROTO_TYPE_IEEE_802_2) && (protocol_length == 8) && (tvb_get_ntoh48(tvb, offset) == 0xAAAA03000000)) {

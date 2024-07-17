@@ -372,7 +372,7 @@ dissect_ccsds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         proto_tree_add_item(secondary_header_tree, hf_ccsds_coarse_time, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
-        fine_time = tvb_get_guint8(tvb, offset);
+        fine_time = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(secondary_header_tree, hf_ccsds_fine_time, tvb, offset, 1, ENC_BIG_ENDIAN);
         ++offset;
 
@@ -394,7 +394,7 @@ dissect_ccsds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
               break;
            default:
               /* use value of checkword presence flag from header */
-              checkword_flag = (tvb_get_guint8(tvb, offset)&0x20) >> 5;
+              checkword_flag = (tvb_get_uint8(tvb, offset)&0x20) >> 5;
               break;
         }
 

@@ -467,7 +467,7 @@ dissect_cql_query_parameters(proto_tree* cql_subtree, tvbuff_t* tvb, int offset,
 
 	/* flags */
 	proto_tree_add_bitmask(cql_subtree, tvb, offset, hf_cql_query_flags_bitmap, ett_cql_query_flags_bitmap, cql_query_bitmaps, ENC_BIG_ENDIAN);
-	flags = tvb_get_guint8(tvb, offset);
+	flags = tvb_get_uint8(tvb, offset);
 	offset += 1;
 
 	if(flags & CQL_QUERY_FLAG_VALUES) {
@@ -731,7 +731,7 @@ static void add_cql_uuid(proto_tree* tree, int hf_uuid, tvbuff_t* tvb, int offse
 
 	for (i = 0; i < 8; i++)
 	{
-		guid.data4[i] = tvb_get_guint8(tvb, offset+(7-i));
+		guid.data4[i] = tvb_get_uint8(tvb, offset+(7-i));
 	}
 
 	proto_tree_add_guid(tree, hf_uuid, tvb, offset, 16, &guid);
@@ -1170,10 +1170,10 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CQL");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	first_byte = tvb_get_guint8(raw_tvb, 0);
+	first_byte = tvb_get_uint8(raw_tvb, 0);
 	cql_version = first_byte & (uint8_t)0x7F;
 	server_to_client = first_byte & (uint8_t)0x80;
-	opcode = tvb_get_guint8(raw_tvb, 4);
+	opcode = tvb_get_uint8(raw_tvb, 4);
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "v%d %s Type %s",
 		cql_version,
@@ -1208,7 +1208,7 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 		proto_tree_add_item(cql_tree, hf_cql_flags_bitmap, raw_tvb, offset, 1, ENC_BIG_ENDIAN);
 		break;
 	}
-	flags = tvb_get_guint8(raw_tvb, offset);
+	flags = tvb_get_uint8(raw_tvb, offset);
 	offset += 1;
 	proto_tree_add_item_ret_int(cql_tree, hf_cql_stream, raw_tvb, offset, 2, ENC_BIG_ENDIAN, &stream);
 	offset += 2;
@@ -1430,7 +1430,7 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 					uint32_t value_count = 0;
 
 					proto_tree_add_item_ret_uint(cql_subtree, hf_cql_batch_query_type, tvb, offset, 1, ENC_BIG_ENDIAN, &batch_query_type);
-					batch_query_type = tvb_get_guint8(tvb, offset);
+					batch_query_type = tvb_get_uint8(tvb, offset);
 					offset += 1;
 					if (batch_query_type == 0) {
 						/* Query */
@@ -1784,7 +1784,7 @@ dissect_cql_tcp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
 	if (tvb_reported_length(tvb) < 1)
 		return 0;
 
-	version = tvb_get_guint8(tvb, 0) & 0x7F;
+	version = tvb_get_uint8(tvb, 0) & 0x7F;
 	if ((version != 3 && version != 4))
 		return 0;
 

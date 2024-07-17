@@ -748,7 +748,7 @@ static int dissect_mep_maid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 		uint8_t maid_md_name_length;
 		proto_tree_add_item(cfm_maid_tree, hf_cfm_maid_md_name_length,
 				tvb, maid_offset, 1, ENC_NA);
-		maid_md_name_length = tvb_get_guint8(tvb, maid_offset);
+		maid_md_name_length = tvb_get_uint8(tvb, maid_offset);
 		maid_offset += 1;
 		if (maid_md_name_length) {  // NOTE: Between 1 and 43
 			switch (maid_md_name_format) {
@@ -1217,7 +1217,7 @@ static int dissect_cfm_gnm_unknown(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 
 static int dissect_cfm_gnm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-	uint8_t cfm_gnm_pdu_type = tvb_get_guint8(tvb, offset + 4);
+	uint8_t cfm_gnm_pdu_type = tvb_get_uint8(tvb, offset + 4);
 
 	switch (cfm_gnm_pdu_type) {
 	case BNM:
@@ -1408,7 +1408,7 @@ static int dissect_cfm_raps(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 
 	proto_tree_add_item_ret_uint(cfm_pdu_tree, hf_cfm_raps_req_st, tvb, offset, 1, ENC_NA, &raps_requeststate);
 
-	version = (tvb_get_guint8(tvb, CFM_LEVEL_VERSION_OFFSET) & CFM_VERSION_MASK) >> CFM_VERSION_SHIFT;
+	version = (tvb_get_uint8(tvb, CFM_LEVEL_VERSION_OFFSET) & CFM_VERSION_MASK) >> CFM_VERSION_SHIFT;
 
 	if (version == 1 && raps_requeststate == RAPS_REQ_ST_EVENT) {
 		proto_tree_add_item(cfm_pdu_tree, hf_cfm_raps_event_subcode, tvb, offset, 1, ENC_NA);
@@ -1468,7 +1468,7 @@ static int find_end_tlv(tvbuff_t *tvb, int first_tlv_offset)
 		// Does a tag exist in the captured data?
 		if (tvb_bytes_exist(tvb, tlv_tvb_offset, 1)) {
 			// Is this the End TLV
-			if (tvb_get_guint8(tvb, tlv_tvb_offset)) {
+			if (tvb_get_uint8(tvb, tlv_tvb_offset)) {
 				// Following the tag, does the length exist in the captured data?
 				if (tvb_captured_length_remaining(tvb, tlv_tvb_offset) < 3) {
 					tlv_tvb_offset = 0;
@@ -2089,7 +2089,7 @@ static int dissect_cfm_unknown(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 static int sender_id_tlv_chassis_id(proto_tree *cfm_tlv_tree, tvbuff_t *tvb, int tlv_data_offset, uint8_t tlv_chassis_id_length)
 {
 	proto_tree_add_item(cfm_tlv_tree, hf_tlv_chassis_id_subtype, tvb, tlv_data_offset, 1, ENC_NA);
-	uint8_t chassis_id_subtype = tvb_get_guint8(tvb, tlv_data_offset);
+	uint8_t chassis_id_subtype = tvb_get_uint8(tvb, tlv_data_offset);
 	tlv_data_offset += 1;
 	tlv_chassis_id_length -= 1;
 
@@ -2109,7 +2109,7 @@ static int sender_id_tlv_chassis_id(proto_tree *cfm_tlv_tree, tvbuff_t *tvb, int
 	case 5:
 		proto_tree_add_item(cfm_tlv_tree, hf_tlv_chassis_id_network_address_family, tvb, tlv_data_offset, 1, ENC_NA);
 
-		switch (tvb_get_guint8(tvb, tlv_data_offset)) {
+		switch (tvb_get_uint8(tvb, tlv_data_offset)) {
 		case AFNUM_INET:
 			proto_tree_add_item(cfm_tlv_tree, hf_tlv_chassis_id_network_address_ipv4, tvb, tlv_data_offset+1, tlv_chassis_id_length-1, ENC_BIG_ENDIAN);
 			break;
@@ -2188,7 +2188,7 @@ static int reply_ing_egr_tlv_port_id(proto_tree *cfm_tlv_tree, tvbuff_t *tvb, in
 {
 	proto_tree_add_item(cfm_tlv_tree, hf_tlv_reply_ing_egr_portid_subtype,
 		tvb, tlv_data_offset, 1, ENC_NA);
-	uint8_t port_id_subtype = tvb_get_guint8(tvb, tlv_data_offset);
+	uint8_t port_id_subtype = tvb_get_uint8(tvb, tlv_data_offset);
 	tlv_data_offset += 1;
 	tlv_reply_ingress_portid_length -= 1;
 
@@ -2205,7 +2205,7 @@ static int reply_ing_egr_tlv_port_id(proto_tree *cfm_tlv_tree, tvbuff_t *tvb, in
 	case 4:
 		proto_tree_add_item(cfm_tlv_tree, hf_tlv_reply_ing_egr_portid_network_address_family, tvb, tlv_data_offset, 1, ENC_NA);
 
-		switch (tvb_get_guint8(tvb, tlv_data_offset)) {
+		switch (tvb_get_uint8(tvb, tlv_data_offset)) {
 		case AFNUM_INET:
 			proto_tree_add_item(cfm_tlv_tree, hf_tlv_reply_ing_egr_portid_network_address_ipv4, tvb, tlv_data_offset+1, tlv_reply_ingress_portid_length-1, ENC_BIG_ENDIAN);
 			break;
@@ -2245,7 +2245,7 @@ static int dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CFM");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	cfm_pdu_type = tvb_get_guint8(tvb, CFM_OPCODE_OFFSET);
+	cfm_pdu_type = tvb_get_uint8(tvb, CFM_OPCODE_OFFSET);
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Type %s",
 		val_to_str(cfm_pdu_type, opcode_type_name_vals, "Unknown (0x%02x)"));
 
@@ -2355,7 +2355,7 @@ static int dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 	}
 
 	/* Get the First TLV offset and add the offset of the common CFM header*/
-	int cfm_first_tlv_offset = tvb_get_guint8(tvb, CFM_1ST_TLV_OFFSET) + CFM_COMMON_HEADER_LEN;
+	int cfm_first_tlv_offset = tvb_get_uint8(tvb, CFM_1ST_TLV_OFFSET) + CFM_COMMON_HEADER_LEN;
 
 	/* The TLV offset should be the same as where the PDU left off or we have a problem */
 	if (cfm_first_tlv_offset != offset) {
@@ -2380,7 +2380,7 @@ static int dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 		int tlv_data_offset;
 		bool test_id_length_bogus = false;
 
-		cfm_tlv_type = tvb_get_guint8(tvb, cfm_tlv_offset);
+		cfm_tlv_type = tvb_get_uint8(tvb, cfm_tlv_offset);
 
 		if (cfm_tlv_type == END_TLV) {
 			cfm_tlv_tree = proto_tree_add_subtree_format(cfm_all_tlvs_tree, tvb, cfm_tlv_offset, 1,
@@ -2428,7 +2428,7 @@ static int dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
 			proto_tree_add_item(cfm_tlv_tree, hf_tlv_chassis_id_length,
 				tvb, tlv_data_offset, 1, ENC_NA);
-			tlv_chassis_id_length = tvb_get_guint8(tvb,tlv_data_offset);
+			tlv_chassis_id_length = tvb_get_uint8(tvb,tlv_data_offset);
 			tlv_data_offset += 1;
 
 			if (tlv_chassis_id_length > 0) {
@@ -2447,7 +2447,7 @@ static int dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 				void *tlv_ma_domain_oid = NULL;
 				proto_tree_add_item(cfm_tlv_tree, hf_tlv_ma_domain_length,
 					tvb, tlv_data_offset, 1, ENC_NA);
-				tlv_ma_domain_length = tvb_get_guint8(tvb, tlv_data_offset);
+				tlv_ma_domain_length = tvb_get_uint8(tvb, tlv_data_offset);
 				tlv_data_offset += 1;
 				if (tlv_ma_domain_length > 0) {
 					// Ref ITU-T X690-2002 for OID. RFC 2579 for TDomain.
@@ -2472,7 +2472,7 @@ static int dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 					if (tlv_ma_domain_length == 0) {
 						expert_add_info(pinfo, expert_ti, &ei_tlv_management_addr_length);
 					}
-					tlv_management_addr_length = tvb_get_guint8(tvb, tlv_data_offset);
+					tlv_management_addr_length = tvb_get_uint8(tvb, tlv_data_offset);
 					tlv_data_offset += 1;
 					if (tlv_management_addr_length > 0) {
 						tlv_data_offset = sender_id_tlv_management_address(cfm_tlv_tree, tvb, tlv_ma_domain_oid,
@@ -2511,7 +2511,7 @@ static int dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 				uint8_t tlv_reply_ingress_portid_length;
 				proto_tree_add_item(cfm_tlv_tree, hf_tlv_reply_ing_egr_portid_length,
 					tvb, tlv_data_offset, 1, ENC_NA);
-				tlv_reply_ingress_portid_length = tvb_get_guint8(tvb,tlv_data_offset);
+				tlv_reply_ingress_portid_length = tvb_get_uint8(tvb,tlv_data_offset);
 				tlv_data_offset += 1;
 
 				if (tlv_reply_ingress_portid_length > 0) {
@@ -2534,7 +2534,7 @@ static int dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 				uint8_t tlv_reply_egress_portid_length;
 				proto_tree_add_item(cfm_tlv_tree, hf_tlv_reply_ing_egr_portid_length,
 					tvb, tlv_data_offset, 1, ENC_NA);
-				tlv_reply_egress_portid_length = tvb_get_guint8(tvb,tlv_data_offset);
+				tlv_reply_egress_portid_length = tvb_get_uint8(tvb,tlv_data_offset);
 				tlv_data_offset += 1;
 
 				if (tlv_reply_egress_portid_length > 0) {

@@ -1987,7 +1987,7 @@ unsigned c_dissect_entityname(proto_tree *root, int hf, c_entityname *out,
 				 tvb, off, C_SIZE_ENTITY_NAME, ENC_NA);
 	tree = proto_item_add_subtree(ti, ett_entityname);
 
-	d.type	   = (c_node_type)tvb_get_guint8(tvb, off);
+	d.type	   = (c_node_type)tvb_get_uint8(tvb, off);
 	d.type_str = c_node_type_abbr_string(d.type);
 	proto_tree_add_item(tree, hf_node_type,
 			    tvb, off, 1, ENC_LITTLE_ENDIAN);
@@ -2271,12 +2271,12 @@ unsigned c_dissect_encoded(proto_tree *tree, c_encoded *enc,
 
 	DISSECTOR_ASSERT_HINT(enc, "enc out parameter must be non-null.");
 
-	enc->version = tvb_get_guint8(tvb, off);
+	enc->version = tvb_get_uint8(tvb, off);
 	ti = proto_tree_add_item(tree, hf_encoded_ver,
 				 tvb, off++, 1, ENC_LITTLE_ENDIAN);
 	/* XXX - should we quit if this doesn't return 0? */
 	c_warn_ver(ti, enc->version, minver, maxver, data);
-	enc->compat = tvb_get_guint8(tvb, off);
+	enc->compat = tvb_get_uint8(tvb, off);
 	proto_tree_add_item(tree, hf_encoded_compat,
 			    tvb, off++, 1, ENC_LITTLE_ENDIAN);
 
@@ -2405,7 +2405,7 @@ unsigned c_dissect_pg(proto_tree *root, int hf,
 	ti   = proto_tree_add_item(root, hf, tvb, off, -1, ENC_NA);
 	tree = proto_item_add_subtree(ti, ett_pg);
 
-	ver = tvb_get_guint8(tvb, off);
+	ver = tvb_get_uint8(tvb, off);
 	ti2 = proto_tree_add_item(tree, hf_pgid_ver, tvb, off, 1, ENC_LITTLE_ENDIAN);
 	/* XXX - should we quit if this doesn't return 0? */
 	c_warn_ver(ti2, ver, 1, 1, data);
@@ -2480,7 +2480,7 @@ unsigned c_dissect_path(proto_tree *root, int hf,
 	ti   = proto_tree_add_item(root, hf, tvb, off, -1, ENC_NA);
 	tree = proto_item_add_subtree(ti, ett_filepath);
 
-	v = tvb_get_guint8(tvb, off);
+	v = tvb_get_uint8(tvb, off);
 	ti2 = proto_tree_add_item(tree, hf_path_ver, tvb, off, 1, ENC_LITTLE_ENDIAN);
 	/* XXX - should we quit if this doesn't return 0? */
 	c_warn_ver(ti2, v, 1, 1, data);
@@ -2574,7 +2574,7 @@ unsigned c_dissect_hitset_params(proto_tree *root,
 
 	off = c_dissect_encoded(tree, &enc, 1, 1, tvb, off, data);
 
-	type = (c_hitset_params_type)tvb_get_guint8(tvb, off);
+	type = (c_hitset_params_type)tvb_get_uint8(tvb, off);
 	proto_item_append_text(ti, ", Type: %s", c_hitset_params_type_string(type));
 	ti2 = proto_tree_add_item(tree, hf_hitset_params_type,
 				  tvb, off, 1, ENC_LITTLE_ENDIAN);
@@ -2687,7 +2687,7 @@ unsigned c_dissect_pgpool(proto_tree *root,
 
 	off = c_dissect_encoded(tree, &enc, 5, 15, tvb, off, data);
 
-	type = (c_pgpool_type)tvb_get_guint8(tvb, off);
+	type = (c_pgpool_type)tvb_get_uint8(tvb, off);
 	proto_tree_add_item(tree, hf_pgpool_type,
 			    tvb, off, 1, ENC_LITTLE_ENDIAN);
 	off += 1;
@@ -2801,7 +2801,7 @@ unsigned c_dissect_pgpool(proto_tree *root,
 			    tvb, off, 8, ENC_LITTLE_ENDIAN);
 	off += 8;
 
-	cachemode = (c_pgpool_cachemode)tvb_get_guint8(tvb, off);
+	cachemode = (c_pgpool_cachemode)tvb_get_uint8(tvb, off);
 	proto_tree_add_item(tree, hf_pgpool_cachemode,
 			    tvb, off, 1, ENC_LITTLE_ENDIAN);
 	off += 1;
@@ -3143,7 +3143,7 @@ unsigned c_dissect_osdinfo(proto_tree *root, int hf,
 	ti   = proto_tree_add_item(root, hf, tvb, off, 25, ENC_NA);
 	tree = proto_item_add_subtree(ti, ett_osd_info);
 
-	ver = tvb_get_guint8(tvb, off);
+	ver = tvb_get_uint8(tvb, off);
 	ti2 = proto_tree_add_item(tree, hf_osdinfo_ver,
 				  tvb, off, 1, ENC_LITTLE_ENDIAN);
 	/* XXX - should we quit if this doesn't return 0? */
@@ -4527,7 +4527,7 @@ unsigned c_dissect_msg_auth(proto_tree *root,
 					  tvb, off, -1, ENC_NA);
 		subtree = proto_item_add_subtree(ti2, ett_msg_auth_supportedproto);
 
-		ver = tvb_get_guint8(tvb, off);
+		ver = tvb_get_uint8(tvb, off);
 		/* XXX - should we quit if this doesn't return 0? */
 		c_warn_ver(ti2, ver, 1, 1, data);
 		proto_tree_add_item(tree, hf_msg_auth_supportedproto_ver,
@@ -4916,7 +4916,7 @@ unsigned c_dissect_msg_client_reqfwd(proto_tree *root,
 			    tvb, off, 4, ENC_LITTLE_ENDIAN);
 	off += 4;
 
-	resend = tvb_get_guint8(tvb, off);
+	resend = tvb_get_uint8(tvb, off);
 	proto_tree_add_item(tree, hf_msg_client_reqfwd_resend,
 			    tvb, off, 1, ENC_LITTLE_ENDIAN);
 	off += 1;
@@ -5316,7 +5316,7 @@ unsigned c_dissect_msg_poolopreply(proto_tree *root,
 			    tvb, off, 4, ENC_LITTLE_ENDIAN);
 	off += 4;
 
-	b = tvb_get_guint8(tvb, off);
+	b = tvb_get_uint8(tvb, off);
 	off += 1;
 	if (b)
 		off = c_dissect_blob(tree, hf_msg_poolopreply_datai,
@@ -5884,7 +5884,7 @@ unsigned c_dissect_msg_osd_ping(proto_tree *root,
 			    tvb, off, 4, ENC_LITTLE_ENDIAN);
 	off += 4;
 
-	op = (c_osd_ping_op)tvb_get_guint8(tvb, off);
+	op = (c_osd_ping_op)tvb_get_uint8(tvb, off);
 	proto_tree_add_item(tree, hf_msg_osd_ping_op,
 			    tvb, off, 1, ENC_LITTLE_ENDIAN);
 	off += 1;
@@ -6734,7 +6734,7 @@ bool c_unknowntagnext(tvbuff_t *tvb, unsigned off)
 {
 	if (!tvb_bytes_exist(tvb, off, 1)) return false;
 
-	return (try_val_to_str_ext(tvb_get_guint8(tvb, off), &c_tag_strings_ext) == NULL);
+	return (try_val_to_str_ext(tvb_get_uint8(tvb, off), &c_tag_strings_ext) == NULL);
 }
 
 /* Dissect a MSGR message.
@@ -6749,7 +6749,7 @@ unsigned c_dissect_msgr(proto_tree *tree,
 	c_tag tag;
 	unsigned unknowntagcount = 1;
 
-	tag = (c_tag)tvb_get_guint8(tvb, off);
+	tag = (c_tag)tvb_get_uint8(tvb, off);
 	ti = proto_tree_add_item(tree, hf_tag, tvb, off, 1, ENC_LITTLE_ENDIAN);
 	off += 1;
 
@@ -6950,7 +6950,7 @@ unsigned c_pdu_end(tvbuff_t *tvb, packet_info *pinfo, unsigned off, c_pkt_data *
 	case C_STATE_SEQ:
 		return off + 8;
 	default:
-		switch ((c_tag)tvb_get_guint8(tvb, off++))
+		switch ((c_tag)tvb_get_uint8(tvb, off++))
 		{
 		case C_TAG_READY:
 		case C_TAG_RESETSESSION:

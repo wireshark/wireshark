@@ -665,7 +665,7 @@ ctdb_hash(tvbuff_t *tvb, int offset, uint32_t len)
 	uint32_t i;
 
 	for(value=0x238F13AF*len, i=0; i < len; i++)
-		value=(value+(tvb_get_guint8(tvb, offset+i) << (i*5 % 24)));
+		value=(value+(tvb_get_uint8(tvb, offset+i) << (i*5 % 24)));
 
 	return (1103515243 * value + 12345);
 }

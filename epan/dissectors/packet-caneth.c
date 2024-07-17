@@ -73,10 +73,10 @@ test_caneth(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
     if (tvb_strneql(tvb, offset, magic, 8) != 0)
         return false;
     /* Check that the version is 1 as that is the only supported version */
-    if (tvb_get_guint8(tvb, offset+8) != 1)
+    if (tvb_get_uint8(tvb, offset+8) != 1)
         return false;
     /* Check that the version 1 limit of 16 can frames is respected */
-    if (tvb_get_guint8(tvb, offset+9) > 16)
+    if (tvb_get_uint8(tvb, offset+9) > 16)
         return false;
     return true;
 }
@@ -101,8 +101,8 @@ dissect_caneth_can(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     ti = proto_tree_add_item(tree, proto_can, tvb, 0, -1, ENC_NA);
     can_tree = proto_item_add_subtree(ti, ett_caneth_can);
 
-    ext_flag = tvb_get_guint8(tvb, CAN_EXT_FLAG_OFFSET);
-    rtr_flag = tvb_get_guint8(tvb, CAN_RTR_FLAG_OFFSET);
+    ext_flag = tvb_get_uint8(tvb, CAN_EXT_FLAG_OFFSET);
+    rtr_flag = tvb_get_uint8(tvb, CAN_RTR_FLAG_OFFSET);
 
     if (ext_flag)
     {

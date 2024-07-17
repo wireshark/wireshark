@@ -534,7 +534,7 @@ dissect_collectd_values(tvbuff_t *tvb, int msg_off, int val_cnt,
 				+ (i * 8); /* previous values */
 
 		value_type_offset = msg_off + 6 + i;
-		value_type = tvb_get_guint8 (tvb, value_type_offset);
+		value_type = tvb_get_uint8 (tvb, value_type_offset);
 
 		switch (value_type) {
 		case TYPE_VALUE_COUNTER:

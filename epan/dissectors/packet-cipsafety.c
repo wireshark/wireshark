@@ -560,8 +560,8 @@ static void dissect_safety_supervisor_safety_reset(proto_tree* cmd_data_tree, tv
 static void detect_cancel_propose_apply_operation(tvbuff_t* tvb, int offset, packet_info* pinfo, proto_item* item)
 {
    // Check for all FFs.
-   uint64_t part1 = tvb_get_guint64(tvb, offset, ENC_LITTLE_ENDIAN);
-   uint16_t part2 = tvb_get_guint16(tvb, offset + 8, ENC_LITTLE_ENDIAN);
+   uint64_t part1 = tvb_get_uint64(tvb, offset, ENC_LITTLE_ENDIAN);
+   uint16_t part2 = tvb_get_uint16(tvb, offset + 8, ENC_LITTLE_ENDIAN);
    if (part1 == 0xFFFFFFFFFFFFFFFF && part2 == 0xFFFF)
    {
       expert_add_info(pinfo, item, &ei_info_ssupervisor_tunid_cancel);
@@ -587,7 +587,7 @@ dissect_cip_s_supervisor_data( proto_tree *item_tree,
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "CIPS Supervisor");
 
    /* Add Service code & Request/Response tree */
-   service   = tvb_get_guint8( tvb, offset );
+   service   = tvb_get_uint8( tvb, offset );
    rrsc_tree = proto_tree_add_subtree( item_tree, tvb, offset, 1, ett_ssupervisor_rrsc, &rrsc_item, "Service: " );
 
    /* Add Request/Response */
@@ -607,8 +607,8 @@ dissect_cip_s_supervisor_data( proto_tree *item_tree,
       /* Response message */
 
       /* Add additional status size */
-      gen_status = tvb_get_guint8( tvb, offset+2 );
-      add_stat_size = tvb_get_guint8( tvb, offset+3 ) * 2;
+      gen_status = tvb_get_uint8( tvb, offset+2 );
+      add_stat_size = tvb_get_uint8( tvb, offset+3 ) * 2;
 
       /* If there is any command specific data create a sub-tree for it */
       if( ( item_length-4-add_stat_size ) != 0 )
@@ -654,7 +654,7 @@ dissect_cip_s_supervisor_data( proto_tree *item_tree,
    {
       /* Request message */
 
-      req_path_size = tvb_get_guint8( tvb, offset+1 )*2;
+      req_path_size = tvb_get_uint8( tvb, offset+1 )*2;
 
       /* If there is any command specific data create a sub-tree for it */
       if( (item_length-req_path_size-2) != 0 )
@@ -736,7 +736,7 @@ dissect_cip_s_supervisor_data( proto_tree *item_tree,
          case SC_SSUPER_RESET_PASSWORD:
             proto_tree_add_item(cmd_data_tree, hf_cip_ssupervisor_reset_password_data_size,
                          tvb, offset+2+req_path_size, 1, ENC_LITTLE_ENDIAN);
-            temp_data = tvb_get_guint8(tvb, offset+2+req_path_size);
+            temp_data = tvb_get_uint8(tvb, offset+2+req_path_size);
             proto_tree_add_item(cmd_data_tree, hf_cip_ssupervisor_reset_password_data,
                          tvb, offset+2+req_path_size+1, temp_data, ENC_NA);
             break;
@@ -946,7 +946,7 @@ static int dissect_s_supervisor_output_connection_point_owners(packet_info *pinf
 
          proto_tree_add_item(entry_tree, hf_cip_ssupervisor_cp_owners_app_path_size,
                          tvb, offset+attr_len, 1, ENC_LITTLE_ENDIAN );
-         app_path_size = tvb_get_guint8( tvb, offset+attr_len);
+         app_path_size = tvb_get_uint8( tvb, offset+attr_len);
          attr_len += 1;
 
          if (total_len < attr_len+app_path_size)
@@ -1016,7 +1016,7 @@ static int dissect_s_validator_time_coord_msg_min_mult(packet_info *pinfo, proto
 
    proto_tree_add_item(tree, hf_cip_svalidator_time_coord_msg_min_mult_size,
                          tvb, offset, 1, ENC_LITTLE_ENDIAN );
-   size = tvb_get_guint8( tvb, offset )*2;
+   size = tvb_get_uint8( tvb, offset )*2;
 
    if (total_len < size+1)
    {
@@ -1040,7 +1040,7 @@ static int dissect_s_validator_network_time_multiplier(packet_info *pinfo, proto
 
    proto_tree_add_item(tree, hf_cip_svalidator_network_time_multiplier_size,
                        tvb, offset, 1, ENC_LITTLE_ENDIAN );
-   size = tvb_get_guint8( tvb, offset )*2;
+   size = tvb_get_uint8( tvb, offset )*2;
 
    if (total_len < size+1)
    {
@@ -1064,7 +1064,7 @@ static int dissect_s_validator_timeout_multiplier(packet_info *pinfo, proto_tree
 
    proto_tree_add_item(tree, hf_cip_svalidator_timeout_multiplier_size,
                        tvb, offset, 1, ENC_LITTLE_ENDIAN );
-   size = tvb_get_guint8( tvb, offset );
+   size = tvb_get_uint8( tvb, offset );
 
    if (total_len < size+1)
    {
@@ -1088,7 +1088,7 @@ static int dissect_s_validator_coordination_conn_inst(packet_info *pinfo, proto_
 
    proto_tree_add_item(tree, hf_cip_svalidator_coordination_conn_inst_size,
                        tvb, offset, 1, ENC_LITTLE_ENDIAN );
-   size = tvb_get_guint8( tvb, offset )*2;
+   size = tvb_get_uint8( tvb, offset )*2;
 
    if (total_len < size+1)
    {
@@ -1121,7 +1121,7 @@ static int dissect_s_validator_prod_cons_fault_count(packet_info *pinfo, proto_t
 
    proto_tree_add_item(tree, hf_cip_svalidator_prod_cons_fault_count_size,
                          tvb, offset, 1, ENC_LITTLE_ENDIAN );
-   size = tvb_get_guint8( tvb, offset );
+   size = tvb_get_uint8( tvb, offset );
 
    if (total_len < size+1)
    {
@@ -1151,7 +1151,7 @@ dissect_cip_s_validator_data( proto_tree *item_tree,
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "CIPS Validator");
 
    /* Add Service code & Request/Response tree */
-   service   = tvb_get_guint8( tvb, offset );
+   service   = tvb_get_uint8( tvb, offset );
    rrsc_tree = proto_tree_add_subtree( item_tree, tvb, offset, 1, ett_svalidator_rrsc, &rrsc_item, "Service: " );
 
    /* Add Request/Response */
@@ -1173,8 +1173,8 @@ dissect_cip_s_validator_data( proto_tree *item_tree,
       /* Response message */
 
       /* Add additional status size */
-      gen_status = tvb_get_guint8( tvb, offset+2 );
-      add_stat_size = tvb_get_guint8( tvb, offset+3 ) * 2;
+      gen_status = tvb_get_uint8( tvb, offset+2 );
+      add_stat_size = tvb_get_uint8( tvb, offset+3 ) * 2;
 
       /* If there is any command specific data create a sub-tree for it */
       if( ( item_length-4-add_stat_size ) != 0 )
@@ -1214,7 +1214,7 @@ dissect_cip_s_validator_data( proto_tree *item_tree,
    {
       /* Request message */
 
-      req_path_size = tvb_get_guint8( tvb, offset+1 )*2;
+      req_path_size = tvb_get_uint8( tvb, offset+1 )*2;
 
       /* If there is any command specific data create a sub-tree for it */
       if( (item_length-req_path_size-2) != 0 )
@@ -1253,7 +1253,7 @@ dissect_class_svalidator_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
    uint32_t        classid = 0;
    int             offset  = 0;
 
-   service = tvb_get_guint8( tvb, offset );
+   service = tvb_get_uint8( tvb, offset );
    service_code = service & CIP_SC_MASK;
 
    /* Handle GetAttributeAll and SetAttributeAll in CCO class */
@@ -1273,10 +1273,10 @@ dissect_class_svalidator_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
       else
       {
          /* Service request */
-         ioilen = tvb_get_guint8( tvb, offset + 1 );
+         ioilen = tvb_get_uint8( tvb, offset + 1 );
          if (ioilen > 1)
          {
-            segment = tvb_get_guint8( tvb, offset + 2 );
+            segment = tvb_get_uint8( tvb, offset + 2 );
             if (((segment & CI_SEGMENT_TYPE_MASK) == CI_LOGICAL_SEGMENT) &&
                 ((segment & CI_LOGICAL_SEG_TYPE_MASK) == CI_LOGICAL_SEG_CLASS_ID))
             {
@@ -1284,7 +1284,7 @@ dissect_class_svalidator_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                switch ( segment & CI_LOGICAL_SEG_FORMAT_MASK )
                {
                case CI_LOGICAL_SEG_8_BIT:
-                  classid = tvb_get_guint8( tvb, offset + 3 );
+                  classid = tvb_get_uint8( tvb, offset + 3 );
                   break;
                case CI_LOGICAL_SEG_16_BIT:
                   if ( ioilen >= 2 )
@@ -1491,7 +1491,7 @@ dissect_mode_byte( proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pin
    proto_tree *mode_tree;
    uint8_t     mode_byte;
 
-   mode_byte = tvb_get_guint8(tvb, offset);
+   mode_byte = tvb_get_uint8(tvb, offset);
 
    /* dissect Mode Byte bits */
    mode_item = proto_tree_add_item(tree, hf_cipsafety_mode_byte, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -1614,7 +1614,7 @@ static void dissect_base_format_time_coordination_message(packet_info* pinfo, pr
    proto_item_set_generated(it);
 
    dissect_ack_byte(tree, tvb, 0);
-   uint8_t ack_byte = tvb_get_guint8(tvb, 0);
+   uint8_t ack_byte = tvb_get_uint8(tvb, 0);
 
    proto_tree_add_item(tree, hf_cipsafety_consumer_time_value, tvb, 1, 2, ENC_LITTLE_ENDIAN);
    uint16_t timestamp = tvb_get_letohs(tvb, 1);
@@ -1645,7 +1645,7 @@ static void dissect_extended_format_time_coordination_message(packet_info* pinfo
    proto_item_set_generated(it);
 
    dissect_ack_byte(tree, tvb, 0);
-   uint8_t ack_byte = tvb_get_guint8(tvb, 0);
+   uint8_t ack_byte = tvb_get_uint8(tvb, 0);
 
    proto_tree_add_item(tree, hf_cipsafety_consumer_time_value, tvb, 1, 2, ENC_LITTLE_ENDIAN);
    uint16_t timestamp = tvb_get_letohs(tvb, 1);
@@ -1671,7 +1671,7 @@ static void dissect_base_format_1_or_2_byte_data(packet_info* pinfo, proto_tree*
 
    proto_tree_add_item(tree, hf_cipsafety_data, tvb, 0, io_data_size, ENC_NA);
    dissect_mode_byte(tree, tvb, io_data_size, pinfo);
-   uint8_t mode_byte = tvb_get_guint8(tvb, io_data_size);
+   uint8_t mode_byte = tvb_get_uint8(tvb, io_data_size);
 
    if (compute_crc)
    {
@@ -1713,7 +1713,7 @@ static void dissect_base_format_3_to_250_byte_data(packet_info* pinfo, proto_tre
 
    proto_tree_add_item(tree, hf_cipsafety_data, tvb, 0, io_data_size, ENC_NA);
    dissect_mode_byte(tree, tvb, io_data_size, pinfo);
-   unsigned mode_byte = tvb_get_guint8(tvb, io_data_size);
+   unsigned mode_byte = tvb_get_uint8(tvb, io_data_size);
 
    if (compute_crc)
    {
@@ -1763,7 +1763,7 @@ static void dissect_extended_format_1_or_2_byte_data(packet_info* pinfo, proto_t
 
    proto_tree_add_item(tree, hf_cipsafety_data, tvb, 0, io_data_size, ENC_NA);
    dissect_mode_byte(tree, tvb, io_data_size, pinfo);
-   unsigned mode_byte = tvb_get_guint8(tvb, io_data_size);
+   unsigned mode_byte = tvb_get_uint8(tvb, io_data_size);
 
    uint32_t crc_s5_0, crc_s5_1, crc_s5_2;
    proto_tree_add_item_ret_uint(tree, hf_cipsafety_crc_s5_0, tvb, io_data_size + 1, 1, ENC_LITTLE_ENDIAN, &crc_s5_0);
@@ -1797,7 +1797,7 @@ static void dissect_extended_format_3_to_250_byte_data(packet_info* pinfo, proto
 
    proto_tree_add_item(tree, hf_cipsafety_data, tvb, 0, io_data_size, ENC_NA);
    dissect_mode_byte(tree, tvb, io_data_size, pinfo);
-   unsigned mode_byte = tvb_get_guint8(tvb, io_data_size);
+   unsigned mode_byte = tvb_get_uint8(tvb, io_data_size);
 
    uint16_t timestamp = tvb_get_letohs(tvb, (io_data_size * 2) + 5);
 
@@ -2015,7 +2015,7 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
          if (short_format)
          {
             io_data_size = item_length-base_length;
-            mode_byte = tvb_get_guint8(tvb, io_data_size);
+            mode_byte = tvb_get_uint8(tvb, io_data_size);
 
             dissect_base_format_1_or_2_byte_data(pinfo, tree, tvb, io_data_size, compute_crc, &connection_triad);
             dissect_base_format_time_stamp_section(pinfo, tree, tvb, io_data_size + 3, compute_crc, mode_byte, &connection_triad);
@@ -2036,7 +2036,7 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
             }
 
             io_data_size = multicast ? ((item_length-14)/2) : ((item_length-8)/2);
-            mode_byte = tvb_get_guint8(tvb, io_data_size);
+            mode_byte = tvb_get_uint8(tvb, io_data_size);
 
             dissect_base_format_3_to_250_byte_data(pinfo, tree, tvb, io_data_size, compute_crc, &connection_triad);
             dissect_base_format_time_stamp_section(pinfo, tree, tvb, (io_data_size * 2) + 5, compute_crc, mode_byte, &connection_triad);

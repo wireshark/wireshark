@@ -223,7 +223,7 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "CLNP");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    cnf_proto_id = tvb_get_guint8(tvb, P_CLNP_PROTO_ID);
+    cnf_proto_id = tvb_get_uint8(tvb, P_CLNP_PROTO_ID);
     if (cnf_proto_id == NLPID_NULL) {
         col_set_str(pinfo->cinfo, COL_INFO, "Inactive subset");
         ti = proto_tree_add_item(tree, proto_clnp, tvb, P_CLNP_PROTO_ID, 1, ENC_NA);
@@ -236,14 +236,14 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     }
 
     /* return if version not known */
-    cnf_vers = tvb_get_guint8(tvb, P_CLNP_VERS);
+    cnf_vers = tvb_get_uint8(tvb, P_CLNP_VERS);
     if (cnf_vers != ISO8473_V1) {
         call_data_dissector(tvb, pinfo, tree);
         return tvb_captured_length(tvb);
     }
 
     /* fixed part decoding */
-    cnf_hdr_len = tvb_get_guint8(tvb, P_CLNP_HDR_LEN);
+    cnf_hdr_len = tvb_get_uint8(tvb, P_CLNP_HDR_LEN);
 
     ti = proto_tree_add_item(tree, proto_clnp, tvb, 0, cnf_hdr_len, ENC_NA);
     clnp_tree = proto_item_add_subtree(ti, ett_clnp);
@@ -261,12 +261,12 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     }
     proto_tree_add_uint(clnp_tree, hf_clnp_version, tvb, P_CLNP_VERS, 1,
                 cnf_vers);
-    cnf_ttl = tvb_get_guint8(tvb, P_CLNP_TTL);
+    cnf_ttl = tvb_get_uint8(tvb, P_CLNP_TTL);
     proto_tree_add_uint_format(clnp_tree, hf_clnp_ttl, tvb, P_CLNP_TTL, 1,
             cnf_ttl,
             "Holding Time : %u (%u.%u secs)",
             cnf_ttl, cnf_ttl / 2, (cnf_ttl % 2) * 5);
-    cnf_type = tvb_get_guint8(tvb, P_CLNP_TYPE);
+    cnf_type = tvb_get_uint8(tvb, P_CLNP_TYPE);
     pdu_type_string = val_to_str(cnf_type & CNF_TYPE, npdu_type_abbrev_vals,
             "Unknown (0x%02x)");
     flag_string[0] = '\0';
@@ -336,7 +336,7 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                 FIXED_PART_LEN + 1);
         return offset;
     }
-    dst_len  = tvb_get_guint8(tvb, offset);
+    dst_len  = tvb_get_uint8(tvb, offset);
     if (tree) {
         proto_tree_add_uint(clnp_tree, hf_clnp_dest_length, tvb, offset, 1,
                 dst_len);
@@ -353,7 +353,7 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                 FIXED_PART_LEN + 1 + dst_len);
         return offset;
     }
-    nsel     = tvb_get_guint8(tvb, offset + dst_len - 1);
+    nsel     = tvb_get_uint8(tvb, offset + dst_len - 1);
     set_address_tvb(&pinfo->net_dst, get_osi_address_type(), dst_len, tvb, offset);
     copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
     proto_tree_add_bytes_format_value(clnp_tree, hf_clnp_dest, tvb, offset, dst_len,
@@ -372,7 +372,7 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                 FIXED_PART_LEN + 1 + dst_len + 1);
         return offset;
     }
-    src_len  = tvb_get_guint8(tvb, offset);
+    src_len  = tvb_get_uint8(tvb, offset);
     if (tree) {
         proto_tree_add_uint(clnp_tree, hf_clnp_src_length, tvb,
                 offset, 1, src_len);
@@ -503,7 +503,7 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                    XXX - if this isn't the first Derived PDU of a segmented Initial
                    PDU, skip that? */
 
-                if (nsel==NSEL_NET && tvb_get_guint8(next_tvb, 0)==NLPID_ISO10747_IDRP) {
+                if (nsel==NSEL_NET && tvb_get_uint8(next_tvb, 0)==NLPID_ISO10747_IDRP) {
                     if(call_dissector(idrp_handle, next_tvb, pinfo, tree) != 0) {
                         pinfo->fragmented = save_fragmented;
                         return tvb_captured_length(tvb);
