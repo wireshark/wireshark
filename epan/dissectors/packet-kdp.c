@@ -22,8 +22,8 @@ static dissector_handle_t kdp_handle;
 #define KDP_PORT 19948 /* Not IANA registered */
 #define BUFFER_SIZE 80
 static int proto_kdp;
-static gint ett_kdp;
-static gint ett_kdp_flags;
+static int ett_kdp;
+static int ett_kdp_flags;
 
 static int hf_kdp_version;
 static int hf_kdp_headerlen;
@@ -70,14 +70,14 @@ static int dissect_kdp(tvbuff_t *tvb,
                         proto_tree *tree, void* data _U_) {
   proto_item *ti;
   proto_tree *kdp_tree;
-  guint body_len;
-  guint8 version;
-  guint8 header_len = 0;
-  guint8 packet_flags = 0;
-  guint8 packet_errors = 0;
-  guint32 sequence_number = G_MAXUINT32;
-  guint32 ack_number = G_MAXUINT32;
-  guint32 src_flowid = G_MAXUINT32;
+  unsigned body_len;
+  uint8_t version;
+  uint8_t header_len = 0;
+  uint8_t packet_flags = 0;
+  uint8_t packet_errors = 0;
+  uint32_t sequence_number = UINT32_MAX;
+  uint32_t ack_number = UINT32_MAX;
+  uint32_t src_flowid = UINT32_MAX;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "KDP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -85,22 +85,22 @@ static int dissect_kdp(tvbuff_t *tvb,
   ti = proto_tree_add_item(tree, proto_kdp, tvb, 0, -1, ENC_NA);
   kdp_tree = proto_item_add_subtree(ti, ett_kdp);
 
-  version = tvb_get_guint8(tvb, 0);
+  version = tvb_get_uint8(tvb, 0);
   if (version != 2) {
     /* Version other than 2 is really SDDP in UDP */
     proto_tree_add_item(kdp_tree, hf_kdp_version, tvb, 0, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(kdp_tree, hf_kdp_xml_body, tvb, 0, -1, ENC_ASCII);
   } else {
     proto_tree *flags_tree;
-    header_len = tvb_get_guint8(tvb, 1) * 4;
+    header_len = tvb_get_uint8(tvb, 1) * 4;
     body_len = tvb_reported_length(tvb);
     if (header_len > body_len) {
       body_len = 0;           /* malformed packet */
     } else {
       body_len = body_len - header_len;
     }
-    packet_flags = tvb_get_guint8(tvb, 2);
-    packet_errors = tvb_get_guint8(tvb, 3);
+    packet_flags = tvb_get_uint8(tvb, 2);
+    packet_errors = tvb_get_uint8(tvb, 3);
     proto_tree_add_item(kdp_tree, hf_kdp_version, tvb, 0, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(kdp_tree, hf_kdp_headerlen, tvb, 1, 1, ENC_BIG_ENDIAN);
     ti = proto_tree_add_item(kdp_tree, hf_kdp_flags, tvb, 2, 1, ENC_BIG_ENDIAN);
@@ -144,15 +144,15 @@ static int dissect_kdp(tvbuff_t *tvb,
       }
 
       while (offset < ((body_len > 0) ? header_len - 4 : header_len)) {
-        guint8 option_number;
-        guint8 option_len = 0;
+        uint8_t option_number;
+        uint8_t option_len = 0;
 
-        option_number = tvb_get_guint8(tvb, offset);
+        option_number = tvb_get_uint8(tvb, offset);
 
         proto_tree_add_item(kdp_tree, hf_kdp_optionnumber, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset = offset + 1;
         if (option_number > 0) {
-          option_len = tvb_get_guint8(tvb, offset);
+          option_len = tvb_get_uint8(tvb, offset);
           proto_tree_add_item(kdp_tree, hf_kdp_optionlen, tvb, offset, 1, ENC_BIG_ENDIAN);
           offset = offset + 1;
         }
@@ -381,7 +381,7 @@ void proto_register_kdp(void) {
   };
 
   /* Setup protocol subtree array */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_kdp, &ett_kdp_flags
   };
 

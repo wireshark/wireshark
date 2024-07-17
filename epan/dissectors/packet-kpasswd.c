@@ -38,9 +38,9 @@ static int hf_kpasswd_ap_req_data;
 static int hf_kpasswd_krb_priv_message;
 static int hf_kpasswd_ChangePasswdData;
 
-static gint ett_kpasswd;
-static gint ett_ap_req_data;
-static gint ett_krb_priv_message;
+static int ett_kpasswd;
+static int ett_ap_req_data;
+static int ett_krb_priv_message;
 
 
 #define UDP_PORT_KPASSWD        464
@@ -63,7 +63,7 @@ dissect_kpasswd_ap_req_data(packet_info *pinfo _U_, tvbuff_t *tvb, proto_tree *p
 
     it=proto_tree_add_item(parent_tree, hf_kpasswd_ap_req_data, tvb, 0, -1, ENC_NA);
     tree=proto_item_add_subtree(it, ett_ap_req_data);
-    dissect_kerberos_main(tvb, pinfo, tree, FALSE, NULL);
+    dissect_kerberos_main(tvb, pinfo, tree, false, NULL);
 }
 
 static int
@@ -71,9 +71,9 @@ dissect_kpasswd_user_data_request(packet_info *pinfo, tvbuff_t *tvb, proto_tree 
 {
     int offset=0;
     asn1_ctx_t asn1_ctx;
-    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 
-    offset=dissect_kerberos_ChangePasswdData (FALSE, tvb, offset, &asn1_ctx, tree, hf_kpasswd_ChangePasswdData);
+    offset=dissect_kerberos_ChangePasswdData (false, tvb, offset, &asn1_ctx, tree, hf_kpasswd_ChangePasswdData);
     return offset;
 }
 
@@ -106,7 +106,7 @@ static int
 dissect_kpasswd_user_data_reply(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree)
 {
     int offset=0;
-    guint16 result;
+    uint16_t result;
 
     /* result */
     result = tvb_get_ntohs(tvb, offset);
@@ -131,21 +131,21 @@ static kerberos_callbacks cb_rep[] = {
     { 0, NULL }
 };
 
-static gint
-dissect_kpasswd_krb_priv_message(packet_info *pinfo _U_, tvbuff_t *tvb, proto_tree *parent_tree, gboolean isrequest)
+static int
+dissect_kpasswd_krb_priv_message(packet_info *pinfo _U_, tvbuff_t *tvb, proto_tree *parent_tree, bool isrequest)
 {
     proto_item *it;
     proto_tree *tree=NULL;
-    gint offset;
+    int offset;
 
     if(parent_tree){
         it=proto_tree_add_item(parent_tree, hf_kpasswd_krb_priv_message, tvb, 0, -1, ENC_NA);
         tree=proto_item_add_subtree(it, ett_krb_priv_message);
     }
     if(isrequest){
-        offset = dissect_kerberos_main(tvb, pinfo, tree, FALSE, cb_req);
+        offset = dissect_kerberos_main(tvb, pinfo, tree, false, cb_req);
     } else {
-        offset = dissect_kerberos_main(tvb, pinfo, tree, FALSE, cb_rep);
+        offset = dissect_kerberos_main(tvb, pinfo, tree, false, cb_rep);
     }
 
     /* offset is bytes consumed in child tvb given to us */
@@ -153,19 +153,19 @@ dissect_kpasswd_krb_priv_message(packet_info *pinfo _U_, tvbuff_t *tvb, proto_tr
 }
 
 
-static gint
-dissect_kpasswd_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean have_rm)
+static int
+dissect_kpasswd_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool have_rm)
 {
     proto_item *kpasswd_item=NULL;
     proto_tree *kpasswd_tree=NULL;
     int offset = 0;
-    guint16 message_len, version, ap_req_len;
+    uint16_t message_len, version, ap_req_len;
     tvbuff_t *next_tvb;
 
     /* TCP record mark and length */
-    guint32 krb_rm = 0;
-    gint krb_reclen = 0;
-    gint krb_rm_size = 0;    /* bytes consumed by record mark: 0 or 4 */
+    uint32_t krb_rm = 0;
+    int krb_reclen = 0;
+    int krb_rm_size = 0;    /* bytes consumed by record mark: 0 or 4 */
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "KPASSWD");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -185,11 +185,11 @@ dissect_kpasswd_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboo
     }
 
     /* it might be a KERBEROS ERROR */
-    if(tvb_get_guint8(tvb, offset)==0x7e){
+    if(tvb_get_uint8(tvb, offset)==0x7e){
         /* TCP record mark, if any, not displayed.  But hopefully
          * KRB-ERROR dissection will proceed correctly. */
         next_tvb=tvb_new_subset_remaining(tvb, offset);
-        return dissect_kerberos_main(next_tvb, pinfo, tree, FALSE, NULL);
+        return dissect_kerberos_main(next_tvb, pinfo, tree, false, NULL);
     }
 
     message_len=tvb_get_ntohs(tvb, offset);
@@ -226,15 +226,15 @@ dissect_kpasswd_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboo
 static int
 dissect_kpasswd_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    dissect_kpasswd_common(tvb, pinfo, tree, FALSE);
+    dissect_kpasswd_common(tvb, pinfo, tree, false);
     return tvb_captured_length(tvb);
 }
 
 static int
 dissect_kpasswd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    pinfo->fragmented = TRUE;
-    if (dissect_kpasswd_common(tvb, pinfo, tree, TRUE) < 0) {
+    pinfo->fragmented = true;
+    if (dissect_kpasswd_common(tvb, pinfo, tree, true) < 0) {
         /*
          * The dissector failed to recognize this as a valid
          * Kerberos message.  Mark it as a continuation packet.
@@ -284,7 +284,7 @@ proto_register_kpasswd(void)
         NULL, 0, "Change Password Data structure", HFILL }},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_kpasswd,
         &ett_ap_req_data,
         &ett_krb_priv_message,

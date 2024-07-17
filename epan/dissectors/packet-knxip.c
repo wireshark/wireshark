@@ -202,89 +202,89 @@
 /* Initialize the protocol identifier that is needed for the
  protocol hook and to register the fields in the protocol tree
 */
-static gint proto_knxip;
+static int proto_knxip;
 
 /* Initialize the registered fields identifiers. These fields
  will be registered with the protocol during initialization.
  Protocol fields are like type definitions. The protocol dissector
  later on adds items of these types to the protocol tree.
 */
-static gint hf_bytes;
-static gint hf_folder;
-static gint hf_knxip_header_length;
-static gint hf_knxip_protocol_version;
-static gint hf_knxip_service_id;
-static gint hf_knxip_service_family;
-static gint hf_knxip_service_type;
-static gint hf_knxip_total_length;
-static gint hf_knxip_structure_length;
-static gint hf_knxip_host_protocol;
-static gint hf_knxip_ip_address;
-static gint hf_knxip_port;
-static gint hf_knxip_description_type;
-static gint hf_knxip_knx_medium;
-static gint hf_knxip_device_status;
-static gint hf_knxip_program_mode;
-static gint hf_knxip_knx_address;
-static gint hf_knxip_project_id;
-static gint hf_knxip_project_number;
-static gint hf_knxip_installation_number;
-static gint hf_knxip_serial_number;
-static gint hf_knxip_multicast_address;
-static gint hf_knxip_mac_address;
-static gint hf_knxip_friendly_name;
-static gint hf_knxip_service_version;
-static gint hf_knxip_security_version;
-static gint hf_knxip_manufacturer_code;
-static gint hf_knxip_connection_type;
-static gint hf_knxip_knx_layer;
-static gint hf_knxip_reserved;
-static gint hf_knxip_channel;
-static gint hf_knxip_status;
-static gint hf_knxip_seq_counter;
-static gint hf_knxip_ip_subnet;
-static gint hf_knxip_ip_gateway;
-static gint hf_knxip_ip_assign;
-static gint hf_knxip_ip_caps;
-static gint hf_knxip_ip_dhcp;
-static gint hf_knxip_tunnel_feature;
-static gint hf_knxip_routing_loss;
-static gint hf_knxip_busy_time;
-static gint hf_knxip_busy_control;
-static gint hf_knxip_selector;
-static gint hf_knxip_max_apdu_length;
-static gint hf_knxip_medium_status;
-static gint hf_knxip_mask_version;
-static gint hf_knxip_srp_mandatory;
-static gint hf_knxip_srp_type;
-static gint hf_knxip_reset_command;
-static gint hf_knxip_session;
-static gint hf_knxip_tag;
-static gint hf_knxip_user;
-static gint hf_knxip_session_status;
+static int hf_bytes;
+static int hf_folder;
+static int hf_knxip_header_length;
+static int hf_knxip_protocol_version;
+static int hf_knxip_service_id;
+static int hf_knxip_service_family;
+static int hf_knxip_service_type;
+static int hf_knxip_total_length;
+static int hf_knxip_structure_length;
+static int hf_knxip_host_protocol;
+static int hf_knxip_ip_address;
+static int hf_knxip_port;
+static int hf_knxip_description_type;
+static int hf_knxip_knx_medium;
+static int hf_knxip_device_status;
+static int hf_knxip_program_mode;
+static int hf_knxip_knx_address;
+static int hf_knxip_project_id;
+static int hf_knxip_project_number;
+static int hf_knxip_installation_number;
+static int hf_knxip_serial_number;
+static int hf_knxip_multicast_address;
+static int hf_knxip_mac_address;
+static int hf_knxip_friendly_name;
+static int hf_knxip_service_version;
+static int hf_knxip_security_version;
+static int hf_knxip_manufacturer_code;
+static int hf_knxip_connection_type;
+static int hf_knxip_knx_layer;
+static int hf_knxip_reserved;
+static int hf_knxip_channel;
+static int hf_knxip_status;
+static int hf_knxip_seq_counter;
+static int hf_knxip_ip_subnet;
+static int hf_knxip_ip_gateway;
+static int hf_knxip_ip_assign;
+static int hf_knxip_ip_caps;
+static int hf_knxip_ip_dhcp;
+static int hf_knxip_tunnel_feature;
+static int hf_knxip_routing_loss;
+static int hf_knxip_busy_time;
+static int hf_knxip_busy_control;
+static int hf_knxip_selector;
+static int hf_knxip_max_apdu_length;
+static int hf_knxip_medium_status;
+static int hf_knxip_mask_version;
+static int hf_knxip_srp_mandatory;
+static int hf_knxip_srp_type;
+static int hf_knxip_reset_command;
+static int hf_knxip_session;
+static int hf_knxip_tag;
+static int hf_knxip_user;
+static int hf_knxip_session_status;
 
 /* Initialize the subtree pointers. These pointers are needed to
  display the protocol in a structured tree. Subtrees hook on
  already defined fields or (the topmost) on the protocol itself
 */
-static gint ett_kip;
-static gint ett_efcp;
-static gint ett_service;
-static gint ett_hpai;
-static gint ett_dib;
-static gint ett_medium;
-static gint ett_status;
-static gint ett_projectid;
-static gint ett_service_family;
-static gint ett_ip_assignment;
-static gint ett_cri;
-static gint ett_crd;
-static gint ett_cnhdr;
-static gint ett_loss;
-static gint ett_busy;
-static gint ett_selector;
-static gint ett_decrypted;
-static gint ett_tunnel;
+static int ett_kip;
+static int ett_efcp;
+static int ett_service;
+static int ett_hpai;
+static int ett_dib;
+static int ett_medium;
+static int ett_status;
+static int ett_projectid;
+static int ett_service_family;
+static int ett_ip_assignment;
+static int ett_cri;
+static int ett_crd;
+static int ett_cnhdr;
+static int ett_loss;
+static int ett_busy;
+static int ett_selector;
+static int ett_decrypted;
+static int ett_tunnel;
 
 /* Set up the value_string tables for the service families
  and the service types (note that the service types in KNXnet/IP
@@ -484,35 +484,35 @@ static const value_string session_status_vals[] = {
   { 0, NULL }
 };
 
-guint8 knxip_error;
-guint8 knxip_host_protocol;
+uint8_t knxip_error;
+uint8_t knxip_host_protocol;
 
 expert_field ei_knxip_error;
 expert_field ei_knxip_warning;
 
 static bool pref_desegment = true;
-static const gchar* pref_key_texts[ MAX_KNX_DECRYPTION_KEYS ];
-//static const gchar* authentication_code_text;
-//static const gchar* password_hash_text;
-static const gchar* pref_key_file_name;
-static const gchar* pref_key_file_pwd;
-static const gchar* pref_key_info_file_name;
+static const char* pref_key_texts[ MAX_KNX_DECRYPTION_KEYS ];
+//static const char* authentication_code_text;
+//static const char* password_hash_text;
+static const char* pref_key_file_name;
+static const char* pref_key_file_pwd;
+static const char* pref_key_info_file_name;
 
 /* KNX decryption keys
 */
-guint8 knx_decryption_keys[ MAX_KNX_DECRYPTION_KEYS ][ KNX_KEY_LENGTH ];
-guint8 knx_decryption_key_count;
+uint8_t knx_decryption_keys[ MAX_KNX_DECRYPTION_KEYS ][ KNX_KEY_LENGTH ];
+uint8_t knx_decryption_key_count;
 
 /* Forward declarations
 */
-static gint dissect_knxip( tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_ );
+static int dissect_knxip( tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_ );
 void proto_reg_handoff_knxip( void );
 void proto_register_knxip( void );
 
 /* Add raw data to list view, tree view, and parent folder
 */
-static proto_item* knxip_tree_add_data( proto_tree* tree, tvbuff_t* tvb, gint offset, gint length, column_info* cinfo, proto_item* item,
-  const gchar* name, const gchar* text1, const gchar* text2 )
+static proto_item* knxip_tree_add_data( proto_tree* tree, tvbuff_t* tvb, int offset, int length, column_info* cinfo, proto_item* item,
+  const char* name, const char* text1, const char* text2 )
 {
   proto_item* new_item = proto_tree_add_bytes_format( tree, hf_bytes, tvb, offset, length, NULL, "%s: $", name );
   if( text1 ) col_append_str( cinfo, COL_INFO, text1 );
@@ -520,7 +520,7 @@ static proto_item* knxip_tree_add_data( proto_tree* tree, tvbuff_t* tvb, gint of
 
   while( length > 0 )
   {
-    guint8 value = tvb_get_guint8( tvb, offset );
+    uint8_t value = tvb_get_uint8( tvb, offset );
     if( text1 ) col_append_fstr( cinfo, COL_INFO, "%02X", value );
     if( text2 ) proto_item_append_text( item, "%02X", value );
     proto_item_append_text( new_item, " %02X", value );
@@ -533,15 +533,15 @@ static proto_item* knxip_tree_add_data( proto_tree* tree, tvbuff_t* tvb, gint of
 
 /* Show unknown or unexpected data
 */
-static proto_item* knxip_tree_add_unknown_data( proto_tree* tree, tvbuff_t* tvb, gint offset, gint length )
+static proto_item* knxip_tree_add_unknown_data( proto_tree* tree, tvbuff_t* tvb, int offset, int length )
 {
   return proto_tree_add_bytes_format( tree, hf_bytes, tvb, offset, length, NULL, "? Unknown data (%d bytes)", length );
 }
 
-static guint8 hex_to_knx_key( const gchar* text, guint8 key[ KNX_KEY_LENGTH ] )
+static uint8_t hex_to_knx_key( const char* text, uint8_t key[ KNX_KEY_LENGTH ] )
 {
   size_t n_bytes = 0;
-  guint8* bytes = convert_string_to_hex( text, &n_bytes );
+  uint8_t* bytes = convert_string_to_hex( text, &n_bytes );
   if( bytes == NULL )
   {
     n_bytes = 0;
@@ -559,15 +559,15 @@ static guint8 hex_to_knx_key( const gchar* text, guint8 key[ KNX_KEY_LENGTH ] )
   return n_bytes != 0;
 }
 
-static proto_item* knxip_tree_add_status( proto_tree* tree, tvbuff_t* tvb, gint offset )
+static proto_item* knxip_tree_add_status( proto_tree* tree, tvbuff_t* tvb, int offset )
 {
   return proto_tree_add_item( tree, hf_knxip_status, tvb, offset, 1, ENC_BIG_ENDIAN );
 }
 
-static proto_item* knxip_tree_add_reserved( proto_tree* tree, tvbuff_t* tvb, gint offset, packet_info* pinfo, guint8* p_ok )
+static proto_item* knxip_tree_add_reserved( proto_tree* tree, tvbuff_t* tvb, int offset, packet_info* pinfo, uint8_t* p_ok )
 {
   proto_item* new_item = proto_tree_add_item( tree, hf_knxip_reserved, tvb, offset, 1, ENC_BIG_ENDIAN );
-  if( tvb_get_guint8( tvb, offset ) )
+  if( tvb_get_uint8( tvb, offset ) )
   {
     proto_item_prepend_text( new_item, "? " );
     expert_add_info_format( pinfo, new_item, KIP_ERROR, "Expected: 0x00" );
@@ -576,37 +576,37 @@ static proto_item* knxip_tree_add_reserved( proto_tree* tree, tvbuff_t* tvb, gin
   return new_item;
 }
 
-static proto_item* knxip_tree_add_missing_reserved( proto_tree* tree, tvbuff_t* tvb, gint offset, packet_info* pinfo )
+static proto_item* knxip_tree_add_missing_reserved( proto_tree* tree, tvbuff_t* tvb, int offset, packet_info* pinfo )
 {
   proto_item* new_item = proto_tree_add_expert_format( tree, pinfo, KIP_ERROR, tvb, offset, 0, "? Reserved: expected 1 byte" );
   return new_item;
 }
 
-static proto_item* knxip_tree_add_length( proto_tree* tree, tvbuff_t* tvb, gint offset, gint value )
+static proto_item* knxip_tree_add_length( proto_tree* tree, tvbuff_t* tvb, int offset, int value )
 {
   return proto_tree_add_uint_format_value( tree, hf_knxip_structure_length, tvb, offset, 1, value, "%u bytes", value );
 }
 
-static void knxip_item_illegal_length( proto_item* length_item, packet_info* pinfo, const gchar* info )
+static void knxip_item_illegal_length( proto_item* length_item, packet_info* pinfo, const char* info )
 {
   proto_item_prepend_text( length_item, "? " );
   expert_add_info_format( pinfo, length_item, KIP_ERROR, "%s", info );
 }
 
-static proto_item* knxip_tree_add_ip_address( proto_tree* tree, tvbuff_t* tvb, gint offset, gchar* output, gint output_max )
+static proto_item* knxip_tree_add_ip_address( proto_tree* tree, tvbuff_t* tvb, int offset, char* output, int output_max )
 {
   if( output )
   {
-    const guint8* ipa = tvb_get_ptr( tvb, offset, 4 );
+    const uint8_t* ipa = tvb_get_ptr( tvb, offset, 4 );
     snprintf( output, output_max, "%u.%u.%u.%u", ipa[ 0 ], ipa[ 1 ], ipa[ 2 ], ipa[ 3 ] );
   }
   return proto_tree_add_item( tree, hf_knxip_ip_address, tvb, offset, 4, ENC_BIG_ENDIAN );
 }
 
-static proto_item* knxip_tree_add_knx_address( proto_tree* tree, gint hfindex, tvbuff_t* tvb, gint offset, gchar* output, gint output_max )
+static proto_item* knxip_tree_add_knx_address( proto_tree* tree, int hfindex, tvbuff_t* tvb, int offset, char* output, int output_max )
 {
-  guint16 value = tvb_get_ntohs( tvb, offset );
-  gchar text[ 32 ];
+  uint16_t value = tvb_get_ntohs( tvb, offset );
+  char text[ 32 ];
   snprintf( text, sizeof text, "%u.%u.%u", (value >> 12) & 0xF, (value >> 8) & 0xF, value & 0xFF );
   if( output ) snprintf( output, output_max, "%s", text );
   proto_item* new_item = proto_tree_add_item( tree, hfindex, tvb, offset, 2, ENC_BIG_ENDIAN );
@@ -614,10 +614,10 @@ static proto_item* knxip_tree_add_knx_address( proto_tree* tree, gint hfindex, t
   return new_item;
 }
 
-static proto_item* knxip_tree_add_bit( proto_tree* tree, tvbuff_t* tvb, gint offset, gint bitpos, const gchar* name, gchar* output, gint output_max )
+static proto_item* knxip_tree_add_bit( proto_tree* tree, tvbuff_t* tvb, int offset, int bitpos, const char* name, char* output, int output_max )
 {
-  gchar format[ 32 ] = ".... .... = %s: %d";
-  guint8 value = (tvb_get_guint8( tvb, offset ) >> bitpos) & 1;
+  char format[ 32 ] = ".... .... = %s: %d";
+  uint8_t value = (tvb_get_uint8( tvb, offset ) >> bitpos) & 1;
   format[ 7 - bitpos + (bitpos < 4) ] = '0' + value;
 
   if( value && output )
@@ -635,11 +635,11 @@ static proto_item* knxip_tree_add_bit( proto_tree* tree, tvbuff_t* tvb, gint off
   return proto_tree_add_bytes_format( tree, hf_bytes, tvb, offset, 1, NULL, format, name, value );
 }
 
-static proto_item* knxip_tree_add_ip_assignment( proto_tree* tree, gint hfindex, tvbuff_t* tvb, gint offset, guint8 manual )
+static proto_item* knxip_tree_add_ip_assignment( proto_tree* tree, int hfindex, tvbuff_t* tvb, int offset, uint8_t manual )
 {
   proto_item* node = proto_tree_add_item( tree, hfindex, tvb, offset, 1, ENC_BIG_ENDIAN );
   proto_tree* list = proto_item_add_subtree( node, ett_ip_assignment );
-  gchar output[ 128 ];
+  char output[ 128 ];
   *output = '\0';
   knxip_tree_add_bit( list, tvb, offset, 2 + manual, "AutoIP", output, sizeof output );
   knxip_tree_add_bit( list, tvb, offset, 1 + manual, "DHCP", output, sizeof output );
@@ -651,19 +651,19 @@ static proto_item* knxip_tree_add_ip_assignment( proto_tree* tree, gint hfindex,
 
 /* Dissect HPAI field
 */
-static guint8 dissect_hpai( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, proto_tree* tree, gint* p_offset, guint8* p_ok, gchar* name, guint8 check_protocol )
+static uint8_t dissect_hpai( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, proto_tree* tree, int* p_offset, uint8_t* p_ok, char* name, uint8_t check_protocol )
 {
-  guint8 ok = 1;
-  gint offset = *p_offset;
-  gint remaining_len = tvb_captured_length_remaining( tvb, offset );
-  guint8 struct_len = (remaining_len <= 0) ? 0 : tvb_get_guint8( tvb, offset );
-  gint eff_struct_len = (struct_len <= remaining_len) ? struct_len : remaining_len;
+  uint8_t ok = 1;
+  int offset = *p_offset;
+  int remaining_len = tvb_captured_length_remaining( tvb, offset );
+  uint8_t struct_len = (remaining_len <= 0) ? 0 : tvb_get_uint8( tvb, offset );
+  int eff_struct_len = (struct_len <= remaining_len) ? struct_len : remaining_len;
 
   proto_item* hpai_item = proto_tree_add_none_format( tree, hf_folder, tvb, offset, eff_struct_len, "HPAI %s Endpoint", name );
 
-  gchar info[ 80 ];
-  gchar* output = info;
-  gint output_max = sizeof info;
+  char info[ 80 ];
+  char* output = info;
+  int output_max = sizeof info;
   snprintf( info, sizeof info, "???" );
 
   if( struct_len <= 0 )
@@ -679,7 +679,7 @@ static guint8 dissect_hpai( tvbuff_t* tvb, packet_info* pinfo, proto_item* item,
     proto_item* length_item = knxip_tree_add_length( hpai_tree, tvb, offset, struct_len );
     proto_item* node;
 
-    gint end_pos = offset + eff_struct_len;
+    int end_pos = offset + eff_struct_len;
     offset++;
 
     if( struct_len != 8 )
@@ -691,7 +691,7 @@ static guint8 dissect_hpai( tvbuff_t* tvb, packet_info* pinfo, proto_item* item,
     if( struct_len > remaining_len )
     {
       expert_add_info_format( pinfo, length_item, KIP_ERROR, "Available: %u bytes", remaining_len );
-      struct_len = (guint8) remaining_len;
+      struct_len = (uint8_t) remaining_len;
 
       if( ok )
       {
@@ -707,9 +707,9 @@ static guint8 dissect_hpai( tvbuff_t* tvb, packet_info* pinfo, proto_item* item,
     else
     {
       /* 1 byte Host Protocol */
-      guint8 host_protocol = tvb_get_guint8( tvb, offset );
-      const gchar* host_protocol_name = "???";
-      guint8 protocol_error = 0;
+      uint8_t host_protocol = tvb_get_uint8( tvb, offset );
+      const char* host_protocol_name = "???";
+      uint8_t protocol_error = 0;
 
       node = proto_tree_add_item( hpai_tree, hf_knxip_host_protocol, tvb, offset, 1, ENC_BIG_ENDIAN );
 
@@ -780,7 +780,7 @@ static guint8 dissect_hpai( tvbuff_t* tvb, packet_info* pinfo, proto_item* item,
         else
         {
           /* 2 bytes Port Number */
-          guint16 port = tvb_get_ntohs( tvb, offset );
+          uint16_t port = tvb_get_ntohs( tvb, offset );
 
           snprintf( output, output_max, "%u", port );
           while( *output ) { ++output; --output_max; }
@@ -823,19 +823,19 @@ static guint8 dissect_hpai( tvbuff_t* tvb, packet_info* pinfo, proto_item* item,
 
 /* Dissect CRI (= Connection Request Information)
 */
-static guint8 dissect_cri( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, proto_tree* tree, gint* p_offset, guint8* p_ok )
+static uint8_t dissect_cri( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, proto_tree* tree, int* p_offset, uint8_t* p_ok )
 {
-  gint offset = *p_offset;
-  gint remaining_len = tvb_captured_length_remaining( tvb, offset );
-  guint8 struct_len = (remaining_len <= 0) ? 0 : tvb_get_guint8( tvb, offset );
-  gint eff_struct_len = (struct_len <= remaining_len) ? struct_len : remaining_len;
+  int offset = *p_offset;
+  int remaining_len = tvb_captured_length_remaining( tvb, offset );
+  uint8_t struct_len = (remaining_len <= 0) ? 0 : tvb_get_uint8( tvb, offset );
+  int eff_struct_len = (struct_len <= remaining_len) ? struct_len : remaining_len;
 
   proto_item* cri_item = proto_tree_add_none_format( tree, hf_folder, tvb, offset, eff_struct_len, "CRI" );
 
-  guint8 conn_type = 0;
-  const gchar* conn_type_name = NULL;
-  guint8 ok = 0;
-  gchar extra_text[ 32 ];
+  uint8_t conn_type = 0;
+  const char* conn_type_name = NULL;
+  uint8_t ok = 0;
+  char extra_text[ 32 ];
   *extra_text = '\0';
 
   if( struct_len <= 0 )
@@ -849,12 +849,12 @@ static guint8 dissect_cri( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, 
     proto_tree* cri_tree = proto_item_add_subtree( cri_item, ett_cri );
     proto_item* length_item = knxip_tree_add_length( cri_tree, tvb, offset, struct_len );
     proto_item* type_item = NULL;
-    guint8 length_ok = 1;
+    uint8_t length_ok = 1;
 
     if( struct_len > remaining_len )
     {
       expert_add_info_format( pinfo, length_item, KIP_ERROR, "Available: %u bytes", remaining_len );
-      struct_len = (guint8) remaining_len;
+      struct_len = (uint8_t) remaining_len;
       //ok = 0;
       length_ok = 0;
     }
@@ -866,7 +866,7 @@ static guint8 dissect_cri( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, 
     }
     else
     {
-      conn_type = tvb_get_guint8( tvb, offset + 1 );
+      conn_type = tvb_get_uint8( tvb, offset + 1 );
       type_item = proto_tree_add_item( cri_tree, hf_knxip_connection_type, tvb, offset + 1, 1, ENC_BIG_ENDIAN );
       conn_type_name = try_val_to_str( conn_type, connection_type_vals );
       if( !conn_type_name )
@@ -910,8 +910,8 @@ static guint8 dissect_cri( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, 
           }
           if( struct_len >= 3 )
           {
-            guint8 knx_layer = tvb_get_guint8( tvb, offset + 2 );
-            const gchar* knx_layer_name = try_val_to_str( knx_layer, knx_layer_vals );
+            uint8_t knx_layer = tvb_get_uint8( tvb, offset + 2 );
+            const char* knx_layer_name = try_val_to_str( knx_layer, knx_layer_vals );
             proto_item* layer_item = proto_tree_add_item( cri_tree, hf_knxip_knx_layer, tvb, offset + 2, 1, ENC_BIG_ENDIAN );
             proto_item_append_text( cri_item, ", Layer: %s", knx_layer_name ? knx_layer_name : "Unknown" );
             if( !knx_layer_name )
@@ -987,18 +987,18 @@ static guint8 dissect_cri( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, 
 
 /* Dissect CRD (= Connection Response Data)
 */
-static guint8 dissect_crd( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, proto_tree* tree, gint* p_offset, guint8* p_ok )
+static uint8_t dissect_crd( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, proto_tree* tree, int* p_offset, uint8_t* p_ok )
 {
-  gint offset = *p_offset;
-  gint remaining_len = tvb_captured_length_remaining( tvb, offset );
-  guint8 struct_len = (remaining_len <= 0) ? 0 : tvb_get_guint8( tvb, offset );
-  gint eff_struct_len = (struct_len <= remaining_len) ? struct_len : remaining_len;
+  int offset = *p_offset;
+  int remaining_len = tvb_captured_length_remaining( tvb, offset );
+  uint8_t struct_len = (remaining_len <= 0) ? 0 : tvb_get_uint8( tvb, offset );
+  int eff_struct_len = (struct_len <= remaining_len) ? struct_len : remaining_len;
 
   proto_item* crd_item = proto_tree_add_none_format( tree, hf_folder, tvb, offset, eff_struct_len, "CRD" );
 
-  guint8 conn_type = 0;
-  const gchar* conn_type_name = NULL;
-  guint8 ok = 0;
+  uint8_t conn_type = 0;
+  const char* conn_type_name = NULL;
+  uint8_t ok = 0;
 
   if( struct_len <= 0 )
   {
@@ -1011,12 +1011,12 @@ static guint8 dissect_crd( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, 
     proto_tree* crd_tree = proto_item_add_subtree( crd_item, ett_crd );
     proto_item* length_item = knxip_tree_add_length( crd_tree, tvb, offset, struct_len );
     proto_item* type_item = NULL;
-    guint8 length_ok = 1;
+    uint8_t length_ok = 1;
 
     if( struct_len > remaining_len )
     {
       expert_add_info_format( pinfo, length_item, KIP_ERROR, "Available: %u bytes", remaining_len );
-      struct_len = (guint8) remaining_len;
+      struct_len = (uint8_t) remaining_len;
       //ok = 0;
       length_ok = 0;
     }
@@ -1028,7 +1028,7 @@ static guint8 dissect_crd( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, 
     }
     else
     {
-      conn_type = tvb_get_guint8( tvb, offset + 1 );
+      conn_type = tvb_get_uint8( tvb, offset + 1 );
       type_item = proto_tree_add_item( crd_tree, hf_knxip_connection_type, tvb, offset + 1, 1, ENC_BIG_ENDIAN );
       conn_type_name = try_val_to_str( conn_type, connection_type_vals );
       if( !conn_type_name )
@@ -1081,7 +1081,7 @@ static guint8 dissect_crd( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, 
           }
           else
           {
-            gchar output[ 40 ];
+            char output[ 40 ];
             knxip_tree_add_knx_address( crd_tree, hf_knxip_knx_address, tvb, offset + 2, output, sizeof output );
             proto_item_append_text( crd_item, ", KNX Address: %s", output );
             if( pinfo )
@@ -1125,19 +1125,19 @@ static guint8 dissect_crd( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, 
 
 /* Dissect Connection Header
 */
-static guint8 dissect_cnhdr( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, proto_tree* tree, gint* p_offset, guint8* p_ok, guint8 response )
+static uint8_t dissect_cnhdr( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, proto_tree* tree, int* p_offset, uint8_t* p_ok, uint8_t response )
 {
-  gint offset = *p_offset;
-  gint remaining_len = tvb_captured_length_remaining( tvb, offset );
-  guint8 struct_len = (remaining_len <= 0) ? 0 : tvb_get_guint8( tvb, offset );
-  gint eff_struct_len = (struct_len <= remaining_len) ? struct_len : remaining_len;
+  int offset = *p_offset;
+  int remaining_len = tvb_captured_length_remaining( tvb, offset );
+  uint8_t struct_len = (remaining_len <= 0) ? 0 : tvb_get_uint8( tvb, offset );
+  int eff_struct_len = (struct_len <= remaining_len) ? struct_len : remaining_len;
 
   proto_item* cnhdr_item = proto_tree_add_none_format( tree, hf_folder, tvb, offset, eff_struct_len, "Connection Header" );
 
-  guint8 ok = 0;
-  gchar info[ 100 ];
-  gint output_max = sizeof info;
-  gchar* output = info;
+  uint8_t ok = 0;
+  char info[ 100 ];
+  int output_max = sizeof info;
+  char* output = info;
 
   *output++ = '#';
   output_max--;
@@ -1153,7 +1153,7 @@ static guint8 dissect_cnhdr( tvbuff_t* tvb, packet_info* pinfo, proto_item* item
     proto_tree* cnhdr_tree = proto_item_add_subtree( cnhdr_item, ett_cnhdr );
     proto_item* length_item = knxip_tree_add_length( cnhdr_tree, tvb, offset, struct_len );
 
-    gint end_pos = offset + eff_struct_len;
+    int end_pos = offset + eff_struct_len;
     offset++;
 
     if( struct_len == 4 )
@@ -1168,7 +1168,7 @@ static guint8 dissect_cnhdr( tvbuff_t* tvb, packet_info* pinfo, proto_item* item
     if( struct_len > remaining_len )
     {
       expert_add_info_format( pinfo, length_item, KIP_ERROR, "Available: %u bytes", remaining_len );
-      struct_len = (guint8) remaining_len;
+      struct_len = (uint8_t) remaining_len;
 
       if( ok )
       {
@@ -1184,7 +1184,7 @@ static guint8 dissect_cnhdr( tvbuff_t* tvb, packet_info* pinfo, proto_item* item
     }
     else
     {
-      snprintf( output, output_max, "%02X:", tvb_get_guint8( tvb, offset ) );
+      snprintf( output, output_max, "%02X:", tvb_get_uint8( tvb, offset ) );
       while( *output ) { ++output; --output_max; }
       snprintf( output, output_max, "???" );
 
@@ -1198,7 +1198,7 @@ static guint8 dissect_cnhdr( tvbuff_t* tvb, packet_info* pinfo, proto_item* item
       }
       else
       {
-        snprintf( output, output_max, "%u", tvb_get_guint8( tvb, offset ) );
+        snprintf( output, output_max, "%u", tvb_get_uint8( tvb, offset ) );
         while( *output ) { ++output; --output_max; }
 
         proto_tree_add_item( cnhdr_tree, hf_knxip_seq_counter, tvb, offset, 1, ENC_BIG_ENDIAN );
@@ -1223,7 +1223,7 @@ static guint8 dissect_cnhdr( tvbuff_t* tvb, packet_info* pinfo, proto_item* item
         {
           if( response )
           {
-            snprintf( output, output_max, "%s", val_to_str( tvb_get_guint8( tvb, offset ), error_vals, "Error 0x%02x" ) );
+            snprintf( output, output_max, "%s", val_to_str( tvb_get_uint8( tvb, offset ), error_vals, "Error 0x%02x" ) );
             knxip_tree_add_status( cnhdr_tree, tvb, offset );
           }
           else
@@ -1260,20 +1260,20 @@ static guint8 dissect_cnhdr( tvbuff_t* tvb, packet_info* pinfo, proto_item* item
 
 /* Dissect tunneling feature frames.
 */
-static void dissect_tunneling_feature( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, proto_tree* tree, gint* p_offset, guint8* p_ok, guint16 service )
+static void dissect_tunneling_feature( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, proto_tree* tree, int* p_offset, uint8_t* p_ok, uint16_t service )
 {
   column_info* cinfo = pinfo->cinfo;
-  gint offset = *p_offset;
-  gint remaining_len;
+  int offset = *p_offset;
+  int remaining_len;
   proto_item* node;
-  guint8 c;
-  const gchar* name;
-  guint8 ok = 1;
-  guint8 isResponse = (service == KIP_TUNNELING_FEATURE_RESPONSE);
-  guint8 status = 0;
+  uint8_t c;
+  const char* name;
+  uint8_t ok = 1;
+  uint8_t isResponse = (service == KIP_TUNNELING_FEATURE_RESPONSE);
+  uint8_t status = 0;
 
   /* Connection Header */
-  dissect_cnhdr( tvb, pinfo, item, tree, &offset, &ok, FALSE );
+  dissect_cnhdr( tvb, pinfo, item, tree, &offset, &ok, false );
 
   remaining_len = tvb_captured_length_remaining( tvb, offset );
 
@@ -1285,7 +1285,7 @@ static void dissect_tunneling_feature( tvbuff_t* tvb, packet_info* pinfo, proto_
   }
   else
   {
-    c = tvb_get_guint8( tvb, offset );
+    c = tvb_get_uint8( tvb, offset );
     name = try_val_to_str( c, tunneling_feature_id_vals );
     if( !name ) name = "Unknown";
     node = proto_tree_add_item( tree, hf_knxip_tunnel_feature, tvb, offset, 1, ENC_BIG_ENDIAN );
@@ -1306,7 +1306,7 @@ static void dissect_tunneling_feature( tvbuff_t* tvb, packet_info* pinfo, proto_
   }
   else
   {
-    status = tvb_get_guint8( tvb, offset );
+    status = tvb_get_uint8( tvb, offset );
     proto_tree_add_item( tree, isResponse ? hf_knxip_status : hf_knxip_reserved, tvb, offset, 1, ENC_BIG_ENDIAN );
 
     if( isResponse && (status != 0 || remaining_len == 1) )
@@ -1346,10 +1346,10 @@ static void dissect_tunneling_feature( tvbuff_t* tvb, packet_info* pinfo, proto_
 
 /* Dissect cEMI
 */
-static void dissect_cemi( tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* p_offset )
+static void dissect_cemi( tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int* p_offset )
 {
-  gint offset = *p_offset;
-  gint remaining_len = tvb_captured_length_remaining( tvb, offset );
+  int offset = *p_offset;
+  int remaining_len = tvb_captured_length_remaining( tvb, offset );
 
   /* Call the cEMI data dissector for the remaining bytes
   */
@@ -1367,17 +1367,17 @@ static void dissect_cemi( tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, g
 
 /* Dissect ROUTING_LOSS
 */
-static guint8 dissect_routing_loss( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, proto_tree* tree, gint* p_offset )
+static uint8_t dissect_routing_loss( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, proto_tree* tree, int* p_offset )
 {
-  gint offset = *p_offset;
-  gint remaining_len = tvb_captured_length_remaining( tvb, offset );
-  guint8 struct_len = (remaining_len <= 0) ? 0 : tvb_get_guint8( tvb, offset );
-  gint eff_struct_len = (struct_len <= remaining_len) ? struct_len : remaining_len;
-  guint8 ok = 0;
+  int offset = *p_offset;
+  int remaining_len = tvb_captured_length_remaining( tvb, offset );
+  uint8_t struct_len = (remaining_len <= 0) ? 0 : tvb_get_uint8( tvb, offset );
+  int eff_struct_len = (struct_len <= remaining_len) ? struct_len : remaining_len;
+  uint8_t ok = 0;
 
   proto_item* info_item = proto_tree_add_none_format( tree, hf_folder, tvb, offset, struct_len, "Loss Info" );
 
-  gchar info[ 16 ];
+  char info[ 16 ];
   snprintf( info, sizeof info, "???" );
 
   if( struct_len <= 0 )
@@ -1390,7 +1390,7 @@ static guint8 dissect_routing_loss( tvbuff_t* tvb, packet_info* pinfo, proto_ite
     proto_tree* info_tree = proto_item_add_subtree( info_item, ett_loss );
     proto_item* length_item = knxip_tree_add_length( info_tree, tvb, offset, struct_len );
 
-    gint end_pos = offset + eff_struct_len;
+    int end_pos = offset + eff_struct_len;
     offset++;
 
     if( struct_len == 4 )
@@ -1405,7 +1405,7 @@ static guint8 dissect_routing_loss( tvbuff_t* tvb, packet_info* pinfo, proto_ite
     if( struct_len > remaining_len )
     {
       expert_add_info_format( pinfo, length_item, KIP_ERROR, "Available: %u bytes", remaining_len );
-      struct_len = (guint8) remaining_len;
+      struct_len = (uint8_t) remaining_len;
       ok = 0;
     }
 
@@ -1422,7 +1422,7 @@ static guint8 dissect_routing_loss( tvbuff_t* tvb, packet_info* pinfo, proto_ite
       /* 2 bytes Lost Messages */
       if( struct_len >= 4 )
       {
-        guint16 loss = tvb_get_ntohs( tvb, offset );
+        uint16_t loss = tvb_get_ntohs( tvb, offset );
         snprintf( info, sizeof info, "%u", loss );
         proto_tree_add_item( info_tree, hf_knxip_routing_loss, tvb, offset, 2, ENC_BIG_ENDIAN );
         offset += 2;
@@ -1451,17 +1451,17 @@ static guint8 dissect_routing_loss( tvbuff_t* tvb, packet_info* pinfo, proto_ite
 
 /* Dissect ROUTING_BUSY
 */
-static guint8 dissect_routing_busy( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, proto_tree* tree, gint* p_offset )
+static uint8_t dissect_routing_busy( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, proto_tree* tree, int* p_offset )
 {
-  gint offset = *p_offset;
-  gint remaining_len = tvb_captured_length_remaining( tvb, offset );
-  guint8 struct_len = (remaining_len <= 0) ? 0 : tvb_get_guint8( tvb, offset );
-  gint eff_struct_len = (struct_len <= remaining_len) ? struct_len : remaining_len;
-  guint8 ok = 0;
+  int offset = *p_offset;
+  int remaining_len = tvb_captured_length_remaining( tvb, offset );
+  uint8_t struct_len = (remaining_len <= 0) ? 0 : tvb_get_uint8( tvb, offset );
+  int eff_struct_len = (struct_len <= remaining_len) ? struct_len : remaining_len;
+  uint8_t ok = 0;
 
   proto_item* info_item = proto_tree_add_none_format( tree, hf_folder, tvb, offset, eff_struct_len, "Busy Info" );
 
-  gchar info[ 16 ];
+  char info[ 16 ];
   snprintf( info, sizeof info, "???" );
 
   if( struct_len <= 0 )
@@ -1474,7 +1474,7 @@ static guint8 dissect_routing_busy( tvbuff_t* tvb, packet_info* pinfo, proto_ite
     proto_tree* info_tree = proto_item_add_subtree( info_item, ett_loss );
     proto_item* length_item = knxip_tree_add_length( info_tree, tvb, offset, struct_len );
 
-    gint end_pos = offset + eff_struct_len;
+    int end_pos = offset + eff_struct_len;
     offset++;
 
     if( struct_len == 6 )
@@ -1489,7 +1489,7 @@ static guint8 dissect_routing_busy( tvbuff_t* tvb, packet_info* pinfo, proto_ite
     if( struct_len > remaining_len )
     {
       expert_add_info_format( pinfo, length_item, KIP_ERROR, "Available: %u bytes", remaining_len );
-      struct_len = (guint8) remaining_len;
+      struct_len = (uint8_t) remaining_len;
       ok = 0;
     }
 
@@ -1542,17 +1542,17 @@ static guint8 dissect_routing_busy( tvbuff_t* tvb, packet_info* pinfo, proto_ite
 
 /* Dissect SELECTOR field
 */
-static guint8 dissect_selector( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, proto_tree* tree, gint* p_offset, guint8* p_ok )
+static uint8_t dissect_selector( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, proto_tree* tree, int* p_offset, uint8_t* p_ok )
 {
-  gint offset = *p_offset;
-  gint remaining_len = tvb_captured_length_remaining( tvb, offset );
-  guint8 struct_len = (remaining_len <= 0) ? 0 : tvb_get_guint8( tvb, offset );
-  gint eff_struct_len = (struct_len <= remaining_len) ? struct_len : remaining_len;
-  guint8 ok = 0;
+  int offset = *p_offset;
+  int remaining_len = tvb_captured_length_remaining( tvb, offset );
+  uint8_t struct_len = (remaining_len <= 0) ? 0 : tvb_get_uint8( tvb, offset );
+  int eff_struct_len = (struct_len <= remaining_len) ? struct_len : remaining_len;
+  uint8_t ok = 0;
 
   proto_item* info_item = proto_tree_add_none_format( tree, hf_folder, tvb, offset, eff_struct_len, "Selector" );
 
-  gchar info[ 40 ];
+  char info[ 40 ];
   snprintf( info, sizeof info, "???" );
 
   if( struct_len <= 0 )
@@ -1565,9 +1565,9 @@ static guint8 dissect_selector( tvbuff_t* tvb, packet_info* pinfo, proto_item* i
   {
     proto_tree* info_tree = proto_item_add_subtree( info_item, ett_loss );
     proto_item* length_item = knxip_tree_add_length( info_tree, tvb, offset, struct_len );
-    guint8 length_ok = 1;
+    uint8_t length_ok = 1;
 
-    gint end_pos = offset + eff_struct_len;
+    int end_pos = offset + eff_struct_len;
     offset++;
 
     if( struct_len > remaining_len )
@@ -1575,7 +1575,7 @@ static guint8 dissect_selector( tvbuff_t* tvb, packet_info* pinfo, proto_item* i
       expert_add_info_format( pinfo, length_item, KIP_ERROR, "Available: %u bytes", remaining_len );
       //ok = 0;
       length_ok = 0;
-      struct_len = (guint8) remaining_len;
+      struct_len = (uint8_t) remaining_len;
     }
 
     if( struct_len < 2 )
@@ -1587,7 +1587,7 @@ static guint8 dissect_selector( tvbuff_t* tvb, packet_info* pinfo, proto_item* i
     else
     {
       /* 1 byte Selection Type */
-      guint8 sel = tvb_get_guint8( tvb, offset );
+      uint8_t sel = tvb_get_uint8( tvb, offset );
       proto_item* type_item = proto_tree_add_item( info_tree, hf_knxip_selector, tvb, offset, 1, ENC_BIG_ENDIAN );
       proto_item_append_text( type_item, " = %s", (sel == SELECT_PROGMODE) ? "ProgMode" : (sel == SELECT_MACADDRESS) ? "MAC" : "Unknown" );
       offset++;
@@ -1606,8 +1606,8 @@ static guint8 dissect_selector( tvbuff_t* tvb, packet_info* pinfo, proto_item* i
       }
       else if( sel == SELECT_MACADDRESS )
       {
-        gchar* output = info;
-        gint output_max = sizeof info;
+        char* output = info;
+        int output_max = sizeof info;
         snprintf( output, output_max, "MAC=" );
         while( *output ) { ++output; --output_max; }
         snprintf( output, output_max, "???" );
@@ -1622,7 +1622,7 @@ static guint8 dissect_selector( tvbuff_t* tvb, packet_info* pinfo, proto_item* i
         if( struct_len >= 8 )
         {
           /* 6 bytes MAC Address */
-          guint8 mac[ 6 ];
+          uint8_t mac[ 6 ];
           tvb_memcpy( tvb, mac, offset, 6 );
           snprintf( output, output_max, "%02x:%02x:%02x:%02x:%02x:%02x", mac[ 0 ], mac[ 1 ], mac[ 2 ], mac[ 3 ], mac[ 4 ], mac[ 5 ] );
           proto_tree_add_item( info_tree, hf_knxip_mac_address, tvb, offset, 6, ENC_NA );
@@ -1667,14 +1667,14 @@ static guint8 dissect_selector( tvbuff_t* tvb, packet_info* pinfo, proto_item* i
 
 /* Dissect DevInfo DIB
 */
-static guint8 dissect_dib_devinfo( tvbuff_t* tvb, packet_info* pinfo,
-  proto_item* dib_item, proto_tree* dib_tree, proto_item* length_item, guint8 length_ok,
-  gint* p_offset, guint8 struct_len, wmem_strbuf_t* output )
+static uint8_t dissect_dib_devinfo( tvbuff_t* tvb, packet_info* pinfo,
+  proto_item* dib_item, proto_tree* dib_tree, proto_item* length_item, uint8_t length_ok,
+  int* p_offset, uint8_t struct_len, wmem_strbuf_t* output )
 {
-  gint offset = *p_offset;
+  int offset = *p_offset;
   wmem_strbuf_t* info = wmem_strbuf_new(pinfo->pool, "");
-  guint8 prog_mode = 0;
-  guint8 ok = 1;
+  uint8_t prog_mode = 0;
+  uint8_t ok = 1;
 
   if( struct_len != 54 )
   {
@@ -1685,7 +1685,7 @@ static guint8 dissect_dib_devinfo( tvbuff_t* tvb, packet_info* pinfo,
   if( struct_len >= 3 )
   {
     /* 1 byte KNX Medium */
-    guint8 knx_medium = tvb_get_guint8( tvb, offset );
+    uint8_t knx_medium = tvb_get_uint8( tvb, offset );
     proto_item* item = proto_tree_add_item( dib_tree, hf_knxip_knx_medium, tvb, offset, 1, ENC_BIG_ENDIAN );
     proto_tree* tree = proto_item_add_subtree( item, ett_medium );
     knxip_tree_add_bit( tree, tvb, offset, 5, "IP", NULL, 0 );
@@ -1697,8 +1697,8 @@ static guint8 dissect_dib_devinfo( tvbuff_t* tvb, packet_info* pinfo,
 
     /* Check for missing or multiple medium */
     {
-      guint8 data = knx_medium;
-      guint8 media = 0;
+      uint8_t data = knx_medium;
+      uint8_t media = 0;
       while( data )
       {
         if( data & 1 )
@@ -1719,7 +1719,7 @@ static guint8 dissect_dib_devinfo( tvbuff_t* tvb, packet_info* pinfo,
     if( struct_len >= 4 )
     {
       /* 1 byte Device Status */
-      guint8 status = tvb_get_guint8( tvb, offset );
+      uint8_t status = tvb_get_uint8( tvb, offset );
       item = proto_tree_add_item( dib_tree, hf_knxip_device_status, tvb, offset, 1, ENC_BIG_ENDIAN );
       tree = proto_item_add_subtree( item, ett_status );
       proto_tree_add_item( tree, hf_knxip_program_mode, tvb, offset, 1, ENC_BIG_ENDIAN );
@@ -1735,7 +1735,7 @@ static guint8 dissect_dib_devinfo( tvbuff_t* tvb, packet_info* pinfo,
       if( struct_len >= 6 )
       {
         /* 2 bytes KNX Address */
-        gchar addr[ 32 ];
+        char addr[ 32 ];
         knxip_tree_add_knx_address( dib_tree, hf_knxip_knx_address, tvb, offset, addr, sizeof addr );
         wmem_strbuf_append( info, addr );
 
@@ -1744,7 +1744,7 @@ static guint8 dissect_dib_devinfo( tvbuff_t* tvb, packet_info* pinfo,
         if( struct_len >= 8 )
         {
           /* 2 bytes Project Installation Identifier */
-          guint16 project_id = tvb_get_ntohs( tvb, offset );
+          uint16_t project_id = tvb_get_ntohs( tvb, offset );
           item = proto_tree_add_item( dib_tree, hf_knxip_project_id, tvb, offset, 2, ENC_BIG_ENDIAN );
           tree = proto_item_add_subtree( item, ett_projectid );
           proto_tree_add_item( tree, hf_knxip_project_number, tvb, offset, 2, ENC_BIG_ENDIAN );
@@ -1810,15 +1810,15 @@ static guint8 dissect_dib_devinfo( tvbuff_t* tvb, packet_info* pinfo,
 
 /* Dissect SuppSvc DIB
 */
-static guint8 dissect_dib_suppsvc( tvbuff_t* tvb, packet_info* pinfo,
-  proto_item* dib_item, proto_tree* dib_tree, proto_item* length_item, guint8 length_ok,
-  gint* p_offset, guint8 struct_len )
+static uint8_t dissect_dib_suppsvc( tvbuff_t* tvb, packet_info* pinfo,
+  proto_item* dib_item, proto_tree* dib_tree, proto_item* length_item, uint8_t length_ok,
+  int* p_offset, uint8_t struct_len )
 {
-  gint offset = *p_offset;
-  gint end_pos = offset - 2 + struct_len;
-  guint8 ok = 1;
-  gchar separator = ':';
-  guint8 sf_count[ 8 ] = { 0 };
+  int offset = *p_offset;
+  int end_pos = offset - 2 + struct_len;
+  uint8_t ok = 1;
+  char separator = ':';
+  uint8_t sf_count[ 8 ] = { 0 };
 
   if( struct_len & 1 )
   {
@@ -1828,9 +1828,9 @@ static guint8 dissect_dib_suppsvc( tvbuff_t* tvb, packet_info* pinfo,
 
   while( offset + 2 <= end_pos )
   {
-    guint8 service_family = tvb_get_guint8( tvb, offset );
-    guint8 version = tvb_get_guint8( tvb, offset + 1 );
-    const gchar* service_family_name = try_val_to_str( service_family, knxip_service_family_vals );
+    uint8_t service_family = tvb_get_uint8( tvb, offset );
+    uint8_t version = tvb_get_uint8( tvb, offset + 1 );
+    const char* service_family_name = try_val_to_str( service_family, knxip_service_family_vals );
     proto_item* item = proto_tree_add_none_format( dib_tree, hf_folder, tvb, offset, 2, "KNXnet/IP %s v%u",
       service_family_name ? service_family_name : "Unknown Service Family", version );
     proto_tree* tree = proto_item_add_subtree( item, ett_service_family );
@@ -1870,13 +1870,13 @@ static guint8 dissect_dib_suppsvc( tvbuff_t* tvb, packet_info* pinfo,
 
 /* Dissect IpConfig DIB
 */
-static guint8 dissect_dib_ipconfig( tvbuff_t* tvb, packet_info* pinfo,
-  proto_item* dib_item, proto_tree* dib_tree, proto_item* length_item, guint8 length_ok,
-  gint* p_offset, guint8 struct_len )
+static uint8_t dissect_dib_ipconfig( tvbuff_t* tvb, packet_info* pinfo,
+  proto_item* dib_item, proto_tree* dib_tree, proto_item* length_item, uint8_t length_ok,
+  int* p_offset, uint8_t struct_len )
 {
-  gint offset = *p_offset;
-  guint8 ok = 1;
-  gchar text[ 32 ];
+  int offset = *p_offset;
+  uint8_t ok = 1;
+  char text[ 32 ];
 
   if( struct_len != 16 )
   {
@@ -1931,13 +1931,13 @@ static guint8 dissect_dib_ipconfig( tvbuff_t* tvb, packet_info* pinfo,
 
 /* Dissect CurConfig DIB
 */
-static guint8 dissect_dib_curconfig( tvbuff_t* tvb, packet_info* pinfo,
-  proto_item* dib_item, proto_tree* dib_tree, proto_item* length_item, guint8 length_ok,
-  gint* p_offset, guint8 struct_len )
+static uint8_t dissect_dib_curconfig( tvbuff_t* tvb, packet_info* pinfo,
+  proto_item* dib_item, proto_tree* dib_tree, proto_item* length_item, uint8_t length_ok,
+  int* p_offset, uint8_t struct_len )
 {
-  gint offset = *p_offset;
-  guint8 ok = 1;
-  gchar text[ 32 ];
+  int offset = *p_offset;
+  uint8_t ok = 1;
+  char text[ 32 ];
 
   if( struct_len != 20 )
   {
@@ -1999,14 +1999,14 @@ static guint8 dissect_dib_curconfig( tvbuff_t* tvb, packet_info* pinfo,
 
 /* Dissect KnxAddr DIB
 */
-static guint8 dissect_dib_knxaddr( tvbuff_t* tvb, packet_info* pinfo,
-  proto_item* dib_item, proto_tree* dib_tree, proto_item* length_item, guint8 length_ok,
-  gint* p_offset, guint8 struct_len )
+static uint8_t dissect_dib_knxaddr( tvbuff_t* tvb, packet_info* pinfo,
+  proto_item* dib_item, proto_tree* dib_tree, proto_item* length_item, uint8_t length_ok,
+  int* p_offset, uint8_t struct_len )
 {
-  gint offset = *p_offset;
-  guint8 ok = 1;
-  gchar text1[ 32 ];
-  gchar text2[ 32 ];
+  int offset = *p_offset;
+  uint8_t ok = 1;
+  char text1[ 32 ];
+  char text2[ 32 ];
 
   if( struct_len < 4 )
   {
@@ -2016,7 +2016,7 @@ static guint8 dissect_dib_knxaddr( tvbuff_t* tvb, packet_info* pinfo,
   }
   else
   {
-    gint end_pos = offset - 2 + struct_len;
+    int end_pos = offset - 2 + struct_len;
 
     if( struct_len & 1 )
     {
@@ -2044,14 +2044,14 @@ static guint8 dissect_dib_knxaddr( tvbuff_t* tvb, packet_info* pinfo,
 
 /* Dissect SecuredServices DIB
 */
-static guint8 dissect_dib_secured_service_families( tvbuff_t* tvb, packet_info* pinfo,
-  proto_item* dib_item, proto_tree* dib_tree, proto_item* length_item, guint8 length_ok,
-  gint* p_offset, guint8 struct_len )
+static uint8_t dissect_dib_secured_service_families( tvbuff_t* tvb, packet_info* pinfo,
+  proto_item* dib_item, proto_tree* dib_tree, proto_item* length_item, uint8_t length_ok,
+  int* p_offset, uint8_t struct_len )
 {
-  gint offset = *p_offset;
-  gint end_pos = offset - 2 + struct_len;
-  guint8 ok = 1;
-  gchar separator = ':';
+  int offset = *p_offset;
+  int end_pos = offset - 2 + struct_len;
+  uint8_t ok = 1;
+  char separator = ':';
 
   if( struct_len & 1 )
   {
@@ -2061,9 +2061,9 @@ static guint8 dissect_dib_secured_service_families( tvbuff_t* tvb, packet_info* 
 
   while( offset + 2 <= end_pos )
   {
-    guint8 service_family = tvb_get_guint8( tvb, offset );
-    guint8 version = tvb_get_guint8( tvb, offset + 1 );
-    const gchar* service_family_name = try_val_to_str( service_family, knxip_service_family_vals );
+    uint8_t service_family = tvb_get_uint8( tvb, offset );
+    uint8_t version = tvb_get_uint8( tvb, offset + 1 );
+    const char* service_family_name = try_val_to_str( service_family, knxip_service_family_vals );
     proto_item* item = proto_tree_add_none_format( dib_tree, hf_folder, tvb, offset, 2, "KNXnet/IP %s v%u",
       service_family_name ? service_family_name : "Unknown Service Family", version );
     proto_tree* tree = proto_item_add_subtree( item, ett_service_family );
@@ -2089,12 +2089,12 @@ static guint8 dissect_dib_secured_service_families( tvbuff_t* tvb, packet_info* 
 
 /* Dissect TunnelingInfo DIB
 */
-static guint8 dissect_dib_tunneling_info( tvbuff_t* tvb, packet_info* pinfo,
-  proto_item* dib_item, proto_tree* dib_tree, proto_item* length_item, guint8 length_ok,
-  gint* p_offset, guint8 struct_len )
+static uint8_t dissect_dib_tunneling_info( tvbuff_t* tvb, packet_info* pinfo,
+  proto_item* dib_item, proto_tree* dib_tree, proto_item* length_item, uint8_t length_ok,
+  int* p_offset, uint8_t struct_len )
 {
-  gint offset = *p_offset;
-  guint8 ok = 1;
+  int offset = *p_offset;
+  uint8_t ok = 1;
 
   if( struct_len < 4 )
   {
@@ -2106,8 +2106,8 @@ static guint8 dissect_dib_tunneling_info( tvbuff_t* tvb, packet_info* pinfo,
   }
   else
   {
-    gint end_pos = offset - 2 + struct_len;
-    gchar separator = ':';
+    int end_pos = offset - 2 + struct_len;
+    char separator = ':';
 
     /* 2 bytes Max APDU Length */
     proto_tree_add_item( dib_tree, hf_knxip_max_apdu_length, tvb, offset, 2, ENC_BIG_ENDIAN );
@@ -2124,9 +2124,9 @@ static guint8 dissect_dib_tunneling_info( tvbuff_t* tvb, packet_info* pinfo,
 
     while( offset + 4 <= end_pos )
     {
-      guint8 flags = tvb_get_guint8( tvb, offset + 3 );
-      guint8 is_free = flags & 1;
-      gchar text[ 32 ];
+      uint8_t flags = tvb_get_uint8( tvb, offset + 3 );
+      uint8_t is_free = flags & 1;
+      char text[ 32 ];
       proto_item* node;
       proto_tree* list;
 
@@ -2158,13 +2158,13 @@ static guint8 dissect_dib_tunneling_info( tvbuff_t* tvb, packet_info* pinfo,
 
 /* Dissect ExtDevInfo DIB
 */
-static guint8 dissect_dib_extdevinfo( tvbuff_t* tvb, packet_info* pinfo,
-  proto_item* dib_item, proto_tree* dib_tree, proto_item* length_item, guint8 length_ok,
-  gint* p_offset, guint8 struct_len )
+static uint8_t dissect_dib_extdevinfo( tvbuff_t* tvb, packet_info* pinfo,
+  proto_item* dib_item, proto_tree* dib_tree, proto_item* length_item, uint8_t length_ok,
+  int* p_offset, uint8_t struct_len )
 {
-  gint offset = *p_offset;
-  guint8 status = 0;
-  guint8 ok = 1;
+  int offset = *p_offset;
+  uint8_t status = 0;
+  uint8_t ok = 1;
 
   if( struct_len != 8 )
   {
@@ -2175,7 +2175,7 @@ static guint8 dissect_dib_extdevinfo( tvbuff_t* tvb, packet_info* pinfo,
   if( struct_len >= 3 )
   {
     /* 1 byte Medium Status */
-    status = tvb_get_guint8( tvb, offset );
+    status = tvb_get_uint8( tvb, offset );
     proto_tree_add_item( dib_tree, hf_knxip_medium_status, tvb, offset, 1, ENC_BIG_ENDIAN );
     if( status )
     {
@@ -2212,13 +2212,13 @@ static guint8 dissect_dib_extdevinfo( tvbuff_t* tvb, packet_info* pinfo,
 
 /* Dissect MfrData DIB
 */
-static guint8 dissect_dib_mfrdata( tvbuff_t* tvb, packet_info* pinfo,
-  proto_item* dib_item, proto_tree* dib_tree, proto_item* length_item, guint8 length_ok,
-  gint* p_offset, guint8 struct_len )
+static uint8_t dissect_dib_mfrdata( tvbuff_t* tvb, packet_info* pinfo,
+  proto_item* dib_item, proto_tree* dib_tree, proto_item* length_item, uint8_t length_ok,
+  int* p_offset, uint8_t struct_len )
 {
-  gint offset = *p_offset;
-  guint8 ok = 1;
-  gchar text[ 32 ];
+  int offset = *p_offset;
+  uint8_t ok = 1;
+  char text[ 32 ];
 
   if( struct_len < 4 )
   {
@@ -2241,20 +2241,20 @@ static guint8 dissect_dib_mfrdata( tvbuff_t* tvb, packet_info* pinfo,
 
 /* Dissect DIB
 */
-static guint8 dissect_dib( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, proto_tree* tree,
-  gint* p_offset, wmem_strbuf_t* output, gchar separator, guint8* p_count, guint8* p_ok )
+static uint8_t dissect_dib( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, proto_tree* tree,
+  int* p_offset, wmem_strbuf_t* output, char separator, uint8_t* p_count, uint8_t* p_ok )
 {
-  gint offset = *p_offset;
-  gint remaining_len = tvb_captured_length_remaining( tvb, offset );
-  guint8 struct_len = (remaining_len <= 0) ? 0 : tvb_get_guint8( tvb, offset );
+  int offset = *p_offset;
+  int remaining_len = tvb_captured_length_remaining( tvb, offset );
+  uint8_t struct_len = (remaining_len <= 0) ? 0 : tvb_get_uint8( tvb, offset );
   if( struct_len > 0 )
   {
-    gint eff_struct_len = (struct_len <= remaining_len) ? struct_len : remaining_len;
-    gint end_pos = offset + eff_struct_len;
-    const gchar* dib_name = NULL;
-    guint8 dib_type = 0;
-    guint8 ok = 1;
-    guint8 length_ok = 1;
+    int eff_struct_len = (struct_len <= remaining_len) ? struct_len : remaining_len;
+    int end_pos = offset + eff_struct_len;
+    const char* dib_name = NULL;
+    uint8_t dib_type = 0;
+    uint8_t ok = 1;
+    uint8_t length_ok = 1;
 
     proto_item* dib_item = proto_tree_add_none_format( tree, hf_folder, tvb, offset, eff_struct_len, "DIB" );
     proto_tree* dib_tree = proto_item_add_subtree( dib_item, ett_dib );
@@ -2266,7 +2266,7 @@ static guint8 dissect_dib( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, 
     {
       proto_item_prepend_text( length_item, "? " );
       expert_add_info_format( pinfo, length_item, KIP_ERROR, "Available: %u bytes", remaining_len );
-      struct_len = (guint8) remaining_len;
+      struct_len = (uint8_t) remaining_len;
       ok = 0;
       length_ok = 0;
     }
@@ -2280,7 +2280,7 @@ static guint8 dissect_dib( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, 
     {
       proto_item* type_item = proto_tree_add_item( dib_tree, hf_knxip_description_type, tvb, offset, 1, ENC_BIG_ENDIAN );
 
-      dib_type = tvb_get_guint8( tvb, offset );
+      dib_type = tvb_get_uint8( tvb, offset );
       dib_name = try_val_to_str( dib_type, descr_type_vals );
       offset++;
 
@@ -2397,7 +2397,7 @@ static guint8 dissect_dib( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, 
 
 /* Dissect sequence of DIBs
 */
-static gchar dissect_dibs( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, proto_tree* tree, gint* p_offset, wmem_strbuf_t* output, gchar separator, guint8* p_count, guint8* p_ok )
+static char dissect_dibs( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, proto_tree* tree, int* p_offset, wmem_strbuf_t* output, char separator, uint8_t* p_count, uint8_t* p_ok )
 {
   while( dissect_dib( tvb, pinfo, item, tree, p_offset, output, separator, p_count, p_ok ) )
   {
@@ -2409,21 +2409,21 @@ static gchar dissect_dibs( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, 
 
 /* Dissect SRP
 */
-static guint8 dissect_srp( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, proto_tree* tree, gint* p_offset, guint8* p_ok )
+static uint8_t dissect_srp( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, proto_tree* tree, int* p_offset, uint8_t* p_ok )
 {
-  gint offset = *p_offset;
-  gint remaining_len = tvb_captured_length_remaining( tvb, offset );
-  guint8 struct_len = (remaining_len <= 0) ? 0 : tvb_get_guint8( tvb, offset );
+  int offset = *p_offset;
+  int remaining_len = tvb_captured_length_remaining( tvb, offset );
+  uint8_t struct_len = (remaining_len <= 0) ? 0 : tvb_get_uint8( tvb, offset );
   if( struct_len > 0 )
   {
-    gint eff_struct_len = (struct_len <= remaining_len) ? struct_len : remaining_len;
-    gint end_pos = offset + eff_struct_len;
+    int eff_struct_len = (struct_len <= remaining_len) ? struct_len : remaining_len;
+    int end_pos = offset + eff_struct_len;
     column_info* cinfo = pinfo ? pinfo->cinfo : NULL;
     proto_item* srp_item = proto_tree_add_none_format( tree, hf_folder, tvb, offset, eff_struct_len, "SRP" );
     proto_tree* srp_tree = proto_item_add_subtree( srp_item, ett_dib );
     proto_item* length_item = knxip_tree_add_length( srp_tree, tvb, offset, struct_len );
-    guint8 ok = 1;
-    guint8 length_ok = 1;
+    uint8_t ok = 1;
+    uint8_t length_ok = 1;
 
     offset++;
 
@@ -2445,11 +2445,11 @@ static guint8 dissect_srp( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, 
       proto_tree_add_item( srp_tree, hf_knxip_srp_mandatory, tvb, offset, 1, ENC_BIG_ENDIAN );
 
       /* 7 bits SRP Type */
-      guint8 srp_type = tvb_get_guint8( tvb, offset ) & 0x7F;
-      const gchar* srp_name = try_val_to_str( srp_type, srp_type_vals );
+      uint8_t srp_type = tvb_get_uint8( tvb, offset ) & 0x7F;
+      const char* srp_name = try_val_to_str( srp_type, srp_type_vals );
       proto_item* type_item = proto_tree_add_item( srp_tree, hf_knxip_srp_type, tvb, offset, 1, ENC_BIG_ENDIAN );
-      guint8 expected_len = 0;
-      guint8 unknown = !srp_name;
+      uint8_t expected_len = 0;
+      uint8_t unknown = !srp_name;
       if( unknown )
       {
         expert_add_info_format( pinfo, type_item, KIP_WARNING, "Unknown SRP Type" );
@@ -2496,7 +2496,7 @@ static guint8 dissect_srp( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, 
         proto_item_append_text( srp_item, ": $" );
         while( offset < end_pos )
         {
-          proto_item_append_text( srp_item, " %02X", tvb_get_guint8( tvb, offset ) );
+          proto_item_append_text( srp_item, " %02X", tvb_get_uint8( tvb, offset ) );
           ++offset;
         }
 
@@ -2523,22 +2523,22 @@ static guint8 dissect_srp( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, 
 
 /* Dissect sequence of SRPs
 */
-static void dissect_srps( tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_tree *tree, gint *p_offset, guint8* p_ok )
+static void dissect_srps( tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_tree *tree, int *p_offset, uint8_t* p_ok )
 {
   while( dissect_srp( tvb, pinfo, item, tree, p_offset, p_ok ) );
 }
 
 /* Dissect RESET command
 */
-static guint8 dissect_resetter( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, proto_tree* tree, gint* p_offset )
+static uint8_t dissect_resetter( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, proto_tree* tree, int* p_offset )
 {
-  guint8 ok = 0;
-  gint offset = *p_offset;
-  gint remaining_len = tvb_captured_length_remaining( tvb, offset );
-  guint8 struct_len = ((guint) remaining_len < 2) ? (guint8) remaining_len : 2;
-  guint8 mode = (struct_len <= 0) ? 0 : tvb_get_guint8( tvb, offset );
-  const gchar* mode_name = (mode == 0x01) ? "Restart" : (mode == 0x02) ? "Master Reset" : NULL;
-  const gchar* mode_info = mode_name ? mode_name : "???";
+  uint8_t ok = 0;
+  int offset = *p_offset;
+  int remaining_len = tvb_captured_length_remaining( tvb, offset );
+  uint8_t struct_len = ((unsigned) remaining_len < 2) ? (uint8_t) remaining_len : 2;
+  uint8_t mode = (struct_len <= 0) ? 0 : tvb_get_uint8( tvb, offset );
+  const char* mode_name = (mode == 0x01) ? "Restart" : (mode == 0x02) ? "Master Reset" : NULL;
+  const char* mode_info = mode_name ? mode_name : "???";
   proto_item* node;
 
   if( struct_len <= 0 )
@@ -2581,10 +2581,10 @@ static guint8 dissect_resetter( tvbuff_t* tvb, packet_info* pinfo, proto_item* i
 
 /* Decrypt SECURE_WRAPPER. Returns decrypted part if MAC matches
 */
-static guint8* decrypt_secure_wrapper( const guint8* key, const guint8* data, gint h_length, gint p_length )
+static uint8_t* decrypt_secure_wrapper( const uint8_t* key, const uint8_t* data, int h_length, int p_length )
 {
-  guint8 header_length = *data;
-  gint a_length = header_length + 2;
+  uint8_t header_length = *data;
+  int a_length = header_length + 2;
   if( a_length > h_length )
   {
     a_length = h_length;
@@ -2592,13 +2592,13 @@ static guint8* decrypt_secure_wrapper( const guint8* key, const guint8* data, gi
 
   if( h_length >= header_length + 16 && p_length >= 16 )
   {
-    const guint8* nonce = data + a_length;
-    guint8* decrypted = knxip_ccm_decrypt( NULL, key, data + h_length, p_length, nonce, 14 );
+    const uint8_t* nonce = data + a_length;
+    uint8_t* decrypted = knxip_ccm_decrypt( NULL, key, data + h_length, p_length, nonce, 14 );
 
     if( decrypted )
     {
       /* Calculate MAC */
-      guint8 mac[ KNX_KEY_LENGTH ];
+      uint8_t mac[ KNX_KEY_LENGTH ];
       p_length -= 16;
 
       knxip_ccm_calc_cbc_mac( mac, key, data, a_length, decrypted, p_length, nonce, 14 );
@@ -2617,9 +2617,9 @@ static guint8* decrypt_secure_wrapper( const guint8* key, const guint8* data, gi
   return NULL;
 }
 
-static void make_key_info( gchar* text, gint text_max, const guint8* key, const gchar* context )
+static void make_key_info( char* text, int text_max, const uint8_t* key, const char* context )
 {
-  guint8 count;
+  uint8_t count;
 
   if( !key )
   {
@@ -2647,13 +2647,13 @@ static void make_key_info( gchar* text, gint text_max, const guint8* key, const 
 /* Dissect SECURE_WRAPPER
 */
 // NOLINTNEXTLINE(misc-no-recursion)
-static guint8 dissect_secure_wrapper( guint8 header_length, tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, proto_item* item, proto_tree* tree, gint* p_offset )
+static uint8_t dissect_secure_wrapper( uint8_t header_length, tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, proto_item* item, proto_tree* tree, int* p_offset )
 {
-  guint8 ok = 1;
-  gint offset = *p_offset;
-  gint size = tvb_captured_length_remaining( tvb, offset );
+  uint8_t ok = 1;
+  int offset = *p_offset;
+  int size = tvb_captured_length_remaining( tvb, offset );
   column_info* cinfo = pinfo->cinfo;
-  const guint8* dest_addr = (pinfo->dst.type == AT_IPv4) ? (const guint8*) pinfo->dst.data : NULL;
+  const uint8_t* dest_addr = (pinfo->dst.type == AT_IPv4) ? (const uint8_t*) pinfo->dst.data : NULL;
   proto_item* node;
 
   /* 2 bytes Session ID */
@@ -2665,7 +2665,7 @@ static guint8 dissect_secure_wrapper( guint8 header_length, tvbuff_t* tvb, packe
   }
   else
   {
-    guint16 session = tvb_get_ntohs( tvb, offset );
+    uint16_t session = tvb_get_ntohs( tvb, offset );
     proto_tree_add_item( tree, hf_knxip_session, tvb, offset, 2, ENC_BIG_ENDIAN );
 
     if( session )
@@ -2712,7 +2712,7 @@ static guint8 dissect_secure_wrapper( guint8 header_length, tvbuff_t* tvb, packe
         }
         else
         {
-          guint16 tag = tvb_get_ntohs( tvb, offset );
+          uint16_t tag = tvb_get_ntohs( tvb, offset );
           proto_tree_add_item( tree, hf_knxip_tag, tvb, offset, 2, ENC_BIG_ENDIAN );
           col_append_fstr( cinfo, COL_INFO, ".%04X", tag );
           proto_item_append_text( item, ", Tag: $%04X", tag );
@@ -2728,14 +2728,14 @@ static guint8 dissect_secure_wrapper( guint8 header_length, tvbuff_t* tvb, packe
           }
           else
           {
-            const guint8* encrypted = tvb_get_ptr( tvb, offset, size - offset );
-            const gint a_length = header_length + 16;  // length of leading non-encrypted data
-            const guint8* a_data = encrypted - a_length;  // ptr to KIP header
-            guint8* decrypted = NULL;
-            const guint8* key = NULL;
-            gchar decrypt_info[ 128 ];
+            const uint8_t* encrypted = tvb_get_ptr( tvb, offset, size - offset );
+            const int a_length = header_length + 16;  // length of leading non-encrypted data
+            const uint8_t* a_data = encrypted - a_length;  // ptr to KIP header
+            uint8_t* decrypted = NULL;
+            const uint8_t* key = NULL;
+            char decrypt_info[ 128 ];
             struct knx_keyring_mca_keys* mca_key;
-            guint8 key_index;
+            uint8_t key_index;
 
             node = proto_tree_add_bytes_format( tree, hf_bytes, tvb, offset, size, encrypted, "Encrypted (%d bytes)", size );
 
@@ -2776,13 +2776,13 @@ static guint8 dissect_secure_wrapper( guint8 header_length, tvbuff_t* tvb, packe
 
             if( !decrypted )
             {
-              const gchar* text = knx_decryption_key_count ? " (decryption failed)" : knx_keyring_mca_keys ? " (no key found)" : " (no key available)";
+              const char* text = knx_decryption_key_count ? " (decryption failed)" : knx_keyring_mca_keys ? " (no key found)" : " (no key available)";
               proto_item_append_text( node, "%s", text );
             }
             else
             {
               tvbuff_t* tvb2 = tvb_new_child_real_data( tvb, decrypted, size, size );
-              gint size2 = size - 16;
+              int size2 = size - 16;
               proto_item_append_text( item, ", MAC OK" );
               //tvb_set_free_cb( tvb2, wmem_free );
               add_new_data_source( pinfo, tvb2, "Decrypted" );
@@ -2821,11 +2821,11 @@ static guint8 dissect_secure_wrapper( guint8 header_length, tvbuff_t* tvb, packe
 
 /* Check encrypted MAC in TIMER_NOTIFY
 */
-static guint8 check_timer_sync_mac( const guint8* key, const guint8* data, gint header_length )
+static uint8_t check_timer_sync_mac( const uint8_t* key, const uint8_t* data, int header_length )
 {
   // Calculate and encrypt MAC
-  const guint8* nonce = data + header_length;
-  guint8 mac[ KNX_KEY_LENGTH ];
+  const uint8_t* nonce = data + header_length;
+  uint8_t mac[ KNX_KEY_LENGTH ];
   knxip_ccm_calc_cbc_mac( mac, key, data, header_length, NULL, 0, nonce, 14 );
   knxip_ccm_encrypt( mac, key, NULL, 0, mac, nonce, 14 );
 
@@ -2835,13 +2835,13 @@ static guint8 check_timer_sync_mac( const guint8* key, const guint8* data, gint 
 
 /* Dissect TIMER_NOTIFY
 */
-static guint8 dissect_timer_notify( guint8 header_length, tvbuff_t* tvb, packet_info* pinfo, proto_item* item, proto_tree* tree, gint* p_offset )
+static uint8_t dissect_timer_notify( uint8_t header_length, tvbuff_t* tvb, packet_info* pinfo, proto_item* item, proto_tree* tree, int* p_offset )
 {
-  guint8 ok = 1;
-  gint offset = *p_offset;
-  gint size = tvb_captured_length_remaining( tvb, offset );
+  uint8_t ok = 1;
+  int offset = *p_offset;
+  int size = tvb_captured_length_remaining( tvb, offset );
   column_info* cinfo = pinfo->cinfo;
-  const guint8* dest_addr = (pinfo->dst.type == AT_IPv4) ? (const guint8*) pinfo->dst.data : NULL;
+  const uint8_t* dest_addr = (pinfo->dst.type == AT_IPv4) ? (const uint8_t*) pinfo->dst.data : NULL;
   proto_item* node;
 
   /* 6 bytes Timestamp */
@@ -2879,7 +2879,7 @@ static guint8 dissect_timer_notify( guint8 header_length, tvbuff_t* tvb, packet_
       }
       else
       {
-        guint16 tag = tvb_get_ntohs( tvb, offset );
+        uint16_t tag = tvb_get_ntohs( tvb, offset );
         proto_tree_add_item( tree, hf_knxip_tag, tvb, offset, 2, ENC_BIG_ENDIAN );
         col_append_fstr( cinfo, COL_INFO, ".%04X", tag );
         proto_item_append_text( item, ", Tag: $%04X", tag );
@@ -2895,14 +2895,14 @@ static guint8 dissect_timer_notify( guint8 header_length, tvbuff_t* tvb, packet_
         }
         else
         {
-          const gint a_length = header_length + 14;  // length of leading non-encrypted data
-          const guint8* a_data = tvb_get_ptr( tvb, offset - a_length, a_length + 16 );
-          const guint8* key = NULL;
-          guint8 mac_ok = 0;
-          guint8 mac_error = 0;
-          gchar mac_info[ 128 ];
+          const int a_length = header_length + 14;  // length of leading non-encrypted data
+          const uint8_t* a_data = tvb_get_ptr( tvb, offset - a_length, a_length + 16 );
+          const uint8_t* key = NULL;
+          uint8_t mac_ok = 0;
+          uint8_t mac_error = 0;
+          char mac_info[ 128 ];
           struct knx_keyring_mca_keys* mca_key;
-          guint8 key_index;
+          uint8_t key_index;
 
           knxip_tree_add_data( tree, tvb, offset, 16, NULL, NULL, "Message Authentication Code", NULL, NULL );
 
@@ -2974,15 +2974,15 @@ static guint8 dissect_timer_notify( guint8 header_length, tvbuff_t* tvb, packet_
 
 /* Dissect SESSION_REQUEST
 */
-static guint8 dissect_session_request( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, proto_tree* tree, gint* p_offset )
+static uint8_t dissect_session_request( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, proto_tree* tree, int* p_offset )
 {
-  guint8 ok = 1;
-  gint offset = *p_offset;
+  uint8_t ok = 1;
+  int offset = *p_offset;
 
   /* Control Endpoint HPAI */
   if( dissect_hpai( tvb, pinfo, item, tree, &offset, &ok, "Control", 1 ) )
   {
-    gint size = tvb_captured_length_remaining( tvb, offset );
+    int size = tvb_captured_length_remaining( tvb, offset );
     proto_item* node;
 
     /* DH Client Public Value */
@@ -3014,12 +3014,12 @@ static guint8 dissect_session_request( tvbuff_t* tvb, packet_info* pinfo, proto_
 
 /* Dissect SESSION_RESPONSE
 */
-static guint8 dissect_session_response( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, proto_tree* tree, gint* p_offset )
+static uint8_t dissect_session_response( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, proto_tree* tree, int* p_offset )
 {
-  guint8 ok = 1;
-  gint offset = *p_offset;
+  uint8_t ok = 1;
+  int offset = *p_offset;
   column_info* cinfo = pinfo->cinfo;
-  gint size = tvb_captured_length_remaining( tvb, offset );
+  int size = tvb_captured_length_remaining( tvb, offset );
   proto_item *node;
 
   /* 2 bytes Session ID */
@@ -3032,7 +3032,7 @@ static guint8 dissect_session_response( tvbuff_t* tvb, packet_info* pinfo, proto
   }
   else
   {
-    guint16 session = tvb_get_ntohs( tvb, offset );
+    uint16_t session = tvb_get_ntohs( tvb, offset );
     col_append_fstr( cinfo, COL_INFO, " #%04X", session );
     proto_item_append_text( item, " #%04X", session );
     proto_tree_add_item( tree, hf_knxip_session, tvb, offset, 2, ENC_BIG_ENDIAN );
@@ -3041,7 +3041,7 @@ static guint8 dissect_session_response( tvbuff_t* tvb, packet_info* pinfo, proto
 
     /* DH Server Public Value */
     {
-      gint size2 = size - 16;
+      int size2 = size - 16;
       if( size2 < 0 )
       {
         size2 = 0;
@@ -3081,12 +3081,12 @@ static guint8 dissect_session_response( tvbuff_t* tvb, packet_info* pinfo, proto
 
 /* Dissect SESSION_AUTHENTICATE
 */
-static guint8 dissect_session_auth( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, proto_tree* tree, gint* p_offset )
+static uint8_t dissect_session_auth( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, proto_tree* tree, int* p_offset )
 {
-  guint8 ok = 1;
-  gint offset = *p_offset;
+  uint8_t ok = 1;
+  int offset = *p_offset;
   column_info* cinfo = pinfo->cinfo;
-  gint size = tvb_captured_length_remaining( tvb, offset );
+  int size = tvb_captured_length_remaining( tvb, offset );
   proto_item* node;
 
   /* 1 byte Reserved */
@@ -3109,7 +3109,7 @@ static guint8 dissect_session_auth( tvbuff_t* tvb, packet_info* pinfo, proto_ite
     }
     else
     {
-      guint8 user_id = tvb_get_guint8( tvb, offset );
+      uint8_t user_id = tvb_get_uint8( tvb, offset );
       col_append_fstr( cinfo, COL_INFO, " User=%u", user_id );
       proto_item_append_text( item, ", User = %u", user_id );
       proto_tree_add_item( tree, hf_knxip_user, tvb, offset, 1, ENC_BIG_ENDIAN );
@@ -3138,12 +3138,12 @@ static guint8 dissect_session_auth( tvbuff_t* tvb, packet_info* pinfo, proto_ite
 
 /* Dissect SESSION_STATUS
 */
-static guint8 dissect_session_status( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, proto_tree* tree, gint* p_offset )
+static uint8_t dissect_session_status( tvbuff_t* tvb, packet_info* pinfo, proto_item* item, proto_tree* tree, int* p_offset )
 {
-  guint8 ok = 1;
-  gint offset = *p_offset;
+  uint8_t ok = 1;
+  int offset = *p_offset;
   column_info* cinfo = pinfo->cinfo;
-  gint size = tvb_captured_length_remaining( tvb, offset );
+  int size = tvb_captured_length_remaining( tvb, offset );
 
   /* 1 byte Status */
   if( size <= 0 )
@@ -3153,7 +3153,7 @@ static guint8 dissect_session_status( tvbuff_t* tvb, packet_info* pinfo, proto_i
   }
   else
   {
-    guint8 status = tvb_get_guint8( tvb, offset );
+    uint8_t status = tvb_get_uint8( tvb, offset );
     col_append_fstr( cinfo, COL_INFO, " %u", status );
     proto_item_append_text( item, ": %u", status );
     proto_tree_add_item( tree, hf_knxip_session_status, tvb, offset, 1, ENC_BIG_ENDIAN );
@@ -3181,15 +3181,15 @@ static guint8 dissect_session_status( tvbuff_t* tvb, packet_info* pinfo, proto_i
 /* Dissect KNX-IP data after KNX-IP header
 */
 // NOLINTNEXTLINE(misc-no-recursion)
-static void dissect_knxip_data( guint8 header_length, guint8 protocol_version _U_, guint16 service, tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, proto_item* kip_item, proto_tree* kip_tree )
+static void dissect_knxip_data( uint8_t header_length, uint8_t protocol_version _U_, uint16_t service, tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, proto_item* kip_item, proto_tree* kip_tree )
 {
-  guint8 ok = 1;
-  guint8 service_family = (service >> 8);
-  const gchar* service_family_name = try_val_to_str( service_family, knxip_service_family_vals );
-  const gchar* service_name = try_val_to_str( service, knxip_service_type_vals );
-  const gchar* svc_name = try_val_to_str( service, svc_vals );
-  gint offset = header_length;
-  gint remaining_len = tvb_captured_length_remaining( tvb, offset );
+  uint8_t ok = 1;
+  uint8_t service_family = (service >> 8);
+  const char* service_family_name = try_val_to_str( service_family, knxip_service_family_vals );
+  const char* service_name = try_val_to_str( service, knxip_service_type_vals );
+  const char* svc_name = try_val_to_str( service, svc_vals );
+  int offset = header_length;
+  int remaining_len = tvb_captured_length_remaining( tvb, offset );
   column_info* cinfo = pinfo->cinfo;
 
   /* Make sure that we cope with a well known service family
@@ -3247,7 +3247,7 @@ static void dissect_knxip_data( guint8 header_length, guint8 protocol_version _U
           if( dissect_hpai( tvb, pinfo, kip_item, kip_tree, &offset, &ok, "Control", 0 ) )
           {
             /* DIBs */
-            guint8 dib_count[ 256 ] = { 0 };
+            uint8_t dib_count[ 256 ] = { 0 };
             wmem_strbuf_t* output;
             char *info;
 
@@ -3287,7 +3287,7 @@ static void dissect_knxip_data( guint8 header_length, guint8 protocol_version _U
       case KIP_DESCRIPTION_RESPONSE:
         {
           /* DIBs */
-          guint8 dib_count[ 256 ] = { 0 };
+          uint8_t dib_count[ 256 ] = { 0 };
           dissect_dibs( tvb, pinfo, kip_item, kip_tree, &offset, NULL, ':', dib_count, &ok );
           if( !dib_count[ KIP_DIB_DEVICE_INFO ] )
           {
@@ -3329,7 +3329,7 @@ static void dissect_knxip_data( guint8 header_length, guint8 protocol_version _U
           }
           else
           {
-            guint8 channel = tvb_get_guint8( tvb, offset );
+            uint8_t channel = tvb_get_uint8( tvb, offset );
             proto_tree_add_item( kip_tree, hf_knxip_channel, tvb, offset, 1, ENC_BIG_ENDIAN );
             offset++;
 
@@ -3343,7 +3343,7 @@ static void dissect_knxip_data( guint8 header_length, guint8 protocol_version _U
             }
             else
             {
-              guint8 status = tvb_get_guint8( tvb, offset );
+              uint8_t status = tvb_get_uint8( tvb, offset );
               knxip_tree_add_status( kip_tree, tvb, offset );
               offset++;
 
@@ -3361,7 +3361,7 @@ static void dissect_knxip_data( guint8 header_length, guint8 protocol_version _U
               }
               else
               {
-                const gchar* status_info = val_to_str( status, error_vals, "Error 0x%02x" );
+                const char* status_info = val_to_str( status, error_vals, "Error 0x%02x" );
                 col_append_fstr( cinfo, COL_INFO, " %s", status_info );
                 proto_item_append_text( kip_item, ": %s", status_info );
               }
@@ -3385,7 +3385,7 @@ static void dissect_knxip_data( guint8 header_length, guint8 protocol_version _U
           }
           else
           {
-            guint8 channel = tvb_get_guint8( tvb, offset );
+            uint8_t channel = tvb_get_uint8( tvb, offset );
             col_append_fstr( cinfo, COL_INFO, "%02X", channel );
             proto_item_append_text( kip_item, "%02X", channel );
             proto_tree_add_item( kip_tree, hf_knxip_channel, tvb, offset, 1, ENC_BIG_ENDIAN );
@@ -3424,7 +3424,7 @@ static void dissect_knxip_data( guint8 header_length, guint8 protocol_version _U
           }
           else
           {
-            guint8 channel = tvb_get_guint8( tvb, offset );
+            uint8_t channel = tvb_get_uint8( tvb, offset );
             col_append_fstr( cinfo, COL_INFO, "%02X ", channel );
             proto_item_append_text( kip_item, "%02X: ", channel );
             proto_tree_add_item( kip_tree, hf_knxip_channel, tvb, offset, 1, ENC_BIG_ENDIAN );
@@ -3440,8 +3440,8 @@ static void dissect_knxip_data( guint8 header_length, guint8 protocol_version _U
             }
             else
             {
-              guint8 status = tvb_get_guint8( tvb, offset );
-              const gchar* status_info = val_to_str( status, error_vals, "Error 0x%02x" );
+              uint8_t status = tvb_get_uint8( tvb, offset );
+              const char* status_info = val_to_str( status, error_vals, "Error 0x%02x" );
               col_append_fstr( cinfo, COL_INFO, "%s", status_info );
               proto_item_append_text( kip_item, "%s", status_info );
               knxip_tree_add_status( kip_tree, tvb, offset );
@@ -3466,7 +3466,7 @@ static void dissect_knxip_data( guint8 header_length, guint8 protocol_version _U
           }
           else
           {
-            guint8 channel = tvb_get_guint8( tvb, offset );
+            uint8_t channel = tvb_get_uint8( tvb, offset );
             col_append_fstr( cinfo, COL_INFO, "%02X", channel );
             proto_item_append_text( kip_item, "%02X", channel );
             proto_tree_add_item( kip_tree, hf_knxip_channel, tvb, offset, 1, ENC_BIG_ENDIAN );
@@ -3505,7 +3505,7 @@ static void dissect_knxip_data( guint8 header_length, guint8 protocol_version _U
           }
           else
           {
-            guint8 channel = tvb_get_guint8( tvb, offset );
+            uint8_t channel = tvb_get_uint8( tvb, offset );
             col_append_fstr( cinfo, COL_INFO, "%02X ", channel );
             proto_item_append_text( kip_item, "%02X: ", channel );
             proto_tree_add_item( kip_tree, hf_knxip_channel, tvb, offset, 1, ENC_BIG_ENDIAN );
@@ -3521,8 +3521,8 @@ static void dissect_knxip_data( guint8 header_length, guint8 protocol_version _U
             }
             else
             {
-              guint8 status = tvb_get_guint8( tvb, offset );
-              const gchar* status_info = val_to_str( status, error_vals, "Error 0x%02x" );
+              uint8_t status = tvb_get_uint8( tvb, offset );
+              const char* status_info = val_to_str( status, error_vals, "Error 0x%02x" );
               col_append_fstr( cinfo, COL_INFO, "%s", status_info );
               proto_item_append_text( kip_item, "%s", status_info );
               knxip_tree_add_status( kip_tree, tvb, offset );
@@ -3537,7 +3537,7 @@ static void dissect_knxip_data( guint8 header_length, guint8 protocol_version _U
       case KIP_CONFIGURATION_REQUEST:
         {
           /* Connection Header */
-          if( dissect_cnhdr( tvb, pinfo, kip_item, kip_tree, &offset, &ok, FALSE ) )
+          if( dissect_cnhdr( tvb, pinfo, kip_item, kip_tree, &offset, &ok, false ) )
           {
             /* cEMI */
             dissect_cemi( tvb, pinfo, tree, &offset );
@@ -3548,7 +3548,7 @@ static void dissect_knxip_data( guint8 header_length, guint8 protocol_version _U
       case KIP_CONFIGURATION_ACK:
         {
           /* Connection Header */
-          dissect_cnhdr( tvb, pinfo, kip_item, kip_tree, &offset, &ok, TRUE );
+          dissect_cnhdr( tvb, pinfo, kip_item, kip_tree, &offset, &ok, true );
         }
         break;
 
@@ -3557,7 +3557,7 @@ static void dissect_knxip_data( guint8 header_length, guint8 protocol_version _U
       case KIP_TUNNELING_REQUEST:
         {
           /* Connection Header */
-          if( dissect_cnhdr( tvb, pinfo, kip_item, kip_tree, &offset, &ok, FALSE ) )
+          if( dissect_cnhdr( tvb, pinfo, kip_item, kip_tree, &offset, &ok, false ) )
           {
             /* cEMI */
             dissect_cemi( tvb, pinfo, tree, &offset );
@@ -3568,7 +3568,7 @@ static void dissect_knxip_data( guint8 header_length, guint8 protocol_version _U
       case KIP_TUNNELING_ACK:
         {
           /* Connection Header */
-          dissect_cnhdr( tvb, pinfo, kip_item, kip_tree, &offset, &ok, TRUE );
+          dissect_cnhdr( tvb, pinfo, kip_item, kip_tree, &offset, &ok, true );
         }
         break;
 
@@ -3631,7 +3631,7 @@ static void dissect_knxip_data( guint8 header_length, guint8 protocol_version _U
           if( dissect_selector( tvb, pinfo, kip_item, kip_tree, &offset, &ok ) )
           {
             /* DIBs */
-            guint8 dib_count[ 256 ] = { 0 };
+            uint8_t dib_count[ 256 ] = { 0 };
             dissect_dibs( tvb, pinfo, kip_item, kip_tree, &offset, NULL, ',', dib_count, &ok );
             if( !dib_count[ KIP_DIB_IP_CONFIG ] )
             {
@@ -3661,7 +3661,7 @@ static void dissect_knxip_data( guint8 header_length, guint8 protocol_version _U
             if( dissect_selector( tvb, pinfo, kip_item, kip_tree, &offset, &ok ) )
             {
               /* DIBs */
-              gint old_offset = offset;
+              int old_offset = offset;
               dissect_dibs( tvb, pinfo, kip_item, kip_tree, &offset, NULL, ',', NULL, &ok );
               if( offset <= old_offset )
               {
@@ -3738,22 +3738,22 @@ static void dissect_knxip_data( guint8 header_length, guint8 protocol_version _U
   }
 }
 
-static guint
+static unsigned
 get_knxip_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
   return tvb_get_ntohs( tvb, offset+4 );
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
-static gint dissect_knxip( tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_ )
+static int dissect_knxip( tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_ )
 {
-  gint offset = 0;
-  guint remaining_len = tvb_captured_length( tvb );
-  guint8 header_len = 0;
-  guint8 protocol_version = 0;
-  guint16 service_id = 0;
-  guint16 total_len = 0;
-  guint8 error = 0;
+  int offset = 0;
+  unsigned remaining_len = tvb_captured_length( tvb );
+  uint8_t header_len = 0;
+  uint8_t protocol_version = 0;
+  uint16_t service_id = 0;
+  uint16_t total_len = 0;
+  uint8_t error = 0;
 
   column_info* cinfo = pinfo->cinfo;
 
@@ -3767,7 +3767,7 @@ static gint dissect_knxip( tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, 
   proto_tree* service_tree = NULL;
   proto_item* total_length_item = NULL;
 
-  gchar version_info[ 16 ];
+  char version_info[ 16 ];
 
   unsigned level = p_get_proto_depth(pinfo, proto_knxip);
   if( level == 0 )
@@ -3803,7 +3803,7 @@ static gint dissect_knxip( tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, 
   else
   {
     /* 1 byte Header Length */
-    header_len = tvb_get_guint8( tvb, 0 );
+    header_len = tvb_get_uint8( tvb, 0 );
 
     if( tree )
     {
@@ -3819,7 +3819,7 @@ static gint dissect_knxip( tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, 
       proto_item_prepend_text( header_len_item, "? " );
       expert_add_info_format( pinfo, header_len_item, KIP_ERROR, "Available: %u bytes", remaining_len );
       error = 1;
-      header_len = (guint8) remaining_len;
+      header_len = (uint8_t) remaining_len;
     }
     else if( header_len != KIP_HDR_LEN )
     {
@@ -3833,7 +3833,7 @@ static gint dissect_knxip( tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, 
     if( header_len >= 2 )
     {
       /* 1 byte Protocol Version */
-      protocol_version = tvb_get_guint8( tvb, 1 );
+      protocol_version = tvb_get_uint8( tvb, 1 );
       snprintf( version_info, sizeof version_info, "%u.%u", hi_nibble( protocol_version ), lo_nibble( protocol_version ) );
 
       if( tree )
@@ -3858,7 +3858,7 @@ static gint dissect_knxip( tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, 
 
         if( tree )
         {
-          const gchar* name = try_val_to_str( service_id, knxip_service_type_vals );
+          const char* name = try_val_to_str( service_id, knxip_service_type_vals );
           proto_item_append_text( header_item, ": " );
           if( name )
             proto_item_append_text( header_item, "%s", name );
@@ -3936,7 +3936,7 @@ static gint dissect_knxip( tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, 
   return tvb_captured_length( tvb );
 }
 
-static gint dissect_tcp_knxip( tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* udata )
+static int dissect_tcp_knxip( tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* udata )
 {
   knxip_host_protocol = IP_PROTO_TCP;
   tcp_dissect_pdus(tvb, pinfo, tree, pref_desegment, KIP_HDR_LEN, get_knxip_pdu_len, dissect_knxip, udata);
@@ -3944,7 +3944,7 @@ static gint dissect_tcp_knxip( tvbuff_t* tvb, packet_info* pinfo, proto_tree* tr
   return tvb_captured_length( tvb );
 }
 
-static gint dissect_udp_knxip( tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* udata )
+static int dissect_udp_knxip( tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* udata )
 {
   knxip_host_protocol = IP_PROTO_UDP;
   udp_dissect_pdus( tvb, pinfo, tree, KIP_HDR_LEN, NULL, get_knxip_pdu_len, dissect_knxip, udata );
@@ -4012,7 +4012,7 @@ void proto_register_knxip( void )
   };
 
   /* Subtrees */
-  static gint *ett[] =
+  static int *ett[] =
   {
     &ett_kip,
     &ett_efcp,
@@ -4042,7 +4042,7 @@ void proto_register_knxip( void )
 
   expert_module_t* expert_knxip;
   module_t* knxip_module;
-  guint8 x;
+  uint8_t x;
 
   proto_knxip = proto_register_protocol( "KNX/IP", "KNX/IP", "kip" );
 
@@ -4060,11 +4060,11 @@ void proto_register_knxip( void )
   knxip_module = prefs_register_protocol( proto_knxip, proto_reg_handoff_knxip );
 
   prefs_register_filename_preference( knxip_module, "key_file", "Key file", "Keyring.XML file (exported from ETS)",
-    &pref_key_file_name, FALSE );
+    &pref_key_file_name, false );
   prefs_register_string_preference( knxip_module, "key_file_pwd", "Key file password", "Keyring password",
     &pref_key_file_pwd );
   prefs_register_filename_preference( knxip_module, "key_info_file", "Key info output file", "Output file (- for stdout) for keys extracted from key file",
-    &pref_key_info_file_name, FALSE );
+    &pref_key_info_file_name, false );
 
   prefs_register_static_text_preference( knxip_module, "", "", NULL );
 
@@ -4080,8 +4080,8 @@ void proto_register_knxip( void )
 
   for( x = 1; x <= MAX_KNX_DECRYPTION_KEYS; ++x )
   {
-    gchar* name = wmem_strdup_printf( wmem_epan_scope(), "key_%u", x );
-    gchar* title = wmem_strdup_printf( wmem_epan_scope(), "%u. key", x );
+    char* name = wmem_strdup_printf( wmem_epan_scope(), "key_%u", x );
+    char* title = wmem_strdup_printf( wmem_epan_scope(), "%u. key", x );
     prefs_register_string_preference( knxip_module, name, title,
       "KNX decryption key (format: 16 bytes as hex; example: A0 A1 A2 A3 A4 A5 A6 A7 A8 A9 AA AB AC AD AE AF)",
       &pref_key_texts[ x - 1 ] );
@@ -4093,8 +4093,8 @@ void proto_register_knxip( void )
 void proto_reg_handoff_knxip( void )
 {
   dissector_handle_t knxip_handle;
-  guint8 x;
-  const gchar* text;
+  uint8_t x;
+  const char* text;
 
   knxip_handle = find_dissector( "udp.knxip" );
   dissector_add_uint_range_with_preference("udp.port", KIP_DEFAULT_PORT_RANGE, knxip_handle);

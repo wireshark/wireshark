@@ -59,19 +59,19 @@ static int hf_kink_tgt;
 static int hf_kink_payload;
 
 /* Argument for making the subtree */
-static gint ett_kink;
-/*static gint ett_kink_version;*/
-static gint ett_kink_payload;
-static gint ett_payload_kink_ap_req;
-static gint ett_payload_kink_ap_rep;
-static gint ett_payload_kink_krb_error;
-static gint ett_payload_kink_tgt_req;
-static gint ett_payload_kink_tgt_rep;
-static gint ett_payload_kink_isakmp;
-static gint ett_payload_kink_encrypt;
-static gint ett_payload_kink_error;
-static gint ett_payload_not_defined;
-static gint ett_decrypt_kink_encrypt;
+static int ett_kink;
+/*static int ett_kink_version;*/
+static int ett_kink_payload;
+static int ett_payload_kink_ap_req;
+static int ett_payload_kink_ap_rep;
+static int ett_payload_kink_krb_error;
+static int ett_payload_kink_tgt_req;
+static int ett_payload_kink_tgt_rep;
+static int ett_payload_kink_isakmp;
+static int ett_payload_kink_encrypt;
+static int ett_payload_kink_error;
+static int ett_payload_not_defined;
+static int ett_decrypt_kink_encrypt;
 
 static expert_field ei_kink_payload_length_small;
 static expert_field ei_kink_payload_length_mismatch;
@@ -171,9 +171,9 @@ static const value_string kink_next_payload[]={
 #define SECOND_FIFTEEN_BIT   0x7fff
 
 /* decrypt element */
-static guint32 keytype;
+static uint32_t keytype;
 
-static void control_payload(packet_info *pinfo, tvbuff_t *tvb, int offset, guint8 next_payload, proto_tree *kink_payload_tree);
+static void control_payload(packet_info *pinfo, tvbuff_t *tvb, int offset, uint8_t next_payload, proto_tree *kink_payload_tree);
 static void dissect_payload_kink_ap_req(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree);
 static void dissect_payload_kink_ap_rep(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree);
 static void dissect_payload_kink_krb_error(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree);
@@ -192,15 +192,15 @@ static int
 dissect_kink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_){
   proto_item *ti = NULL;
   proto_tree *kink_tree = NULL;
-  guint8 type;
-  guint32 doi;
-  guint chsumlen;
-  guint8 next_payload;
-  guint8 value_a_and_front_reserved;
-  guint8 value_a;
+  uint8_t type;
+  uint32_t doi;
+  unsigned chsumlen;
+  uint8_t next_payload;
+  uint8_t value_a_and_front_reserved;
+  uint8_t value_a;
   int offset=0;
 
-  type = tvb_get_guint8(tvb,offset);
+  type = tvb_get_uint8(tvb,offset);
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "KINK");
 
@@ -233,11 +233,11 @@ dissect_kink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   proto_tree_add_item(kink_tree, hf_kink_transactionId, tvb, offset, 4,  ENC_BIG_ENDIAN);
   offset += 4;
 
-  chsumlen = tvb_get_guint8(tvb, offset);
+  chsumlen = tvb_get_uint8(tvb, offset);
   proto_tree_add_item(kink_tree, hf_kink_checkSumLength, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset ++;
 
-  next_payload = tvb_get_guint8(tvb, offset);
+  next_payload = tvb_get_uint8(tvb, offset);
   proto_tree_add_uint(kink_tree, hf_kink_next_payload, tvb, offset, 1, next_payload);
   offset ++;
 
@@ -245,7 +245,7 @@ dissect_kink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
    * The logical product of 1octet value and 0x80 is performed.
    * And It is performed 7bit right shift.
    */
-  value_a_and_front_reserved = tvb_get_guint8(tvb, offset);
+  value_a_and_front_reserved = tvb_get_uint8(tvb, offset);
   value_a = (value_a_and_front_reserved & FRONT_ONE_BIT) >> A_BIT_SHIFT;
   proto_tree_add_uint(kink_tree, hf_kink_A, tvb, offset, 1, value_a);
 
@@ -276,7 +276,7 @@ dissect_kink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
  */
 static void
 // NOLINTNEXTLINE(misc-no-recursion)
-control_payload(packet_info *pinfo, tvbuff_t *tvb, int offset, guint8 next_payload, proto_tree *kink_tree){
+control_payload(packet_info *pinfo, tvbuff_t *tvb, int offset, uint8_t next_payload, proto_tree *kink_tree){
   switch(next_payload){
   case KINK_DONE:
     break;
@@ -315,9 +315,9 @@ static void
 dissect_payload_kink_ap_req(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree){
   proto_tree *payload_kink_ap_req_tree;
   proto_item *ti;
-  guint8 next_payload;
-  guint payload_length;
-  guint16 krb_ap_req_length;
+  uint8_t next_payload;
+  unsigned payload_length;
+  uint16_t krb_ap_req_length;
   int start_payload_offset = 0;  /* Keep beginning of payload offset */
 
   start_payload_offset = offset;
@@ -327,7 +327,7 @@ dissect_payload_kink_ap_req(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
   payload_kink_ap_req_tree = proto_tree_add_subtree(tree, tvb, offset, payload_length,
                         ett_payload_kink_ap_req, NULL, "KINK_AP_REQ");
 
-  next_payload = tvb_get_guint8(tvb, offset);
+  next_payload = tvb_get_uint8(tvb, offset);
   proto_tree_add_uint(payload_kink_ap_req_tree, hf_kink_next_payload, tvb, offset, 1, next_payload);
   offset ++;
 
@@ -350,7 +350,7 @@ dissect_payload_kink_ap_req(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
     krb_ap_req_length = payload_length - PAYLOAD_HEADER;
     krb_tvb=tvb_new_subset_length_caplen(tvb, offset, (krb_ap_req_length>tvb_captured_length_remaining(tvb, offset))?tvb_captured_length_remaining(tvb, offset):krb_ap_req_length, krb_ap_req_length);
     keytype=kerberos_output_keytype();
-    dissect_kerberos_main(krb_tvb, pinfo, payload_kink_ap_req_tree, FALSE, NULL);
+    dissect_kerberos_main(krb_tvb, pinfo, payload_kink_ap_req_tree, false, NULL);
     /*offset += krb_ap_req_length;*/
   }
 
@@ -371,9 +371,9 @@ static void
 dissect_payload_kink_ap_rep(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree){
   proto_tree *payload_kink_ap_rep_tree;
   proto_item *ti;
-  guint8 next_payload;
-  guint payload_length;
-  guint16 krb_ap_rep_length;
+  uint8_t next_payload;
+  unsigned payload_length;
+  uint16_t krb_ap_rep_length;
   int start_payload_offset = 0; /* Keep beginning of payload offset */
 
   payload_length = tvb_get_ntohs(tvb, offset + TO_PAYLOAD_LENGTH);
@@ -383,7 +383,7 @@ dissect_payload_kink_ap_rep(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
   payload_kink_ap_rep_tree = proto_tree_add_subtree(tree, tvb, offset, payload_length,
                         ett_payload_kink_ap_rep, NULL, "KINK_AP_REP");
 
-  next_payload = tvb_get_guint8(tvb, offset);
+  next_payload = tvb_get_uint8(tvb, offset);
   proto_tree_add_uint(payload_kink_ap_rep_tree, hf_kink_next_payload, tvb, offset, 1, next_payload);
   offset ++;
 
@@ -406,7 +406,7 @@ dissect_payload_kink_ap_rep(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
     krb_ap_rep_length = payload_length - PAYLOAD_HEADER;
     krb_tvb=tvb_new_subset_length_caplen(tvb, offset, (krb_ap_rep_length>tvb_captured_length_remaining(tvb, offset))?tvb_captured_length_remaining(tvb, offset):krb_ap_rep_length, krb_ap_rep_length);
     keytype=kerberos_output_keytype();
-    dissect_kerberos_main(krb_tvb, pinfo, payload_kink_ap_rep_tree, FALSE, NULL);
+    dissect_kerberos_main(krb_tvb, pinfo, payload_kink_ap_rep_tree, false, NULL);
 
     /*offset += krb_ap_rep_length;*/
   }
@@ -427,9 +427,9 @@ static void
 dissect_payload_kink_krb_error(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree){
   proto_tree *payload_kink_krb_error_tree;
   proto_item *ti;
-  guint8 next_payload;
-  guint payload_length;
-  guint16 krb_error_length;
+  uint8_t next_payload;
+  unsigned payload_length;
+  uint16_t krb_error_length;
   int start_payload_offset = 0; /* Keep the beginning of the payload offset  */
 
   payload_length = tvb_get_ntohs(tvb, offset + TO_PAYLOAD_LENGTH);
@@ -439,7 +439,7 @@ dissect_payload_kink_krb_error(packet_info *pinfo, tvbuff_t *tvb, int offset, pr
   payload_kink_krb_error_tree = proto_tree_add_subtree(tree, tvb, offset, payload_length,
                                     ett_payload_kink_krb_error, NULL, "KINK_KRB_ERROR");
 
-  next_payload = tvb_get_guint8(tvb, offset);
+  next_payload = tvb_get_uint8(tvb, offset);
   proto_tree_add_uint(payload_kink_krb_error_tree, hf_kink_next_payload, tvb, offset, 1, next_payload);
   offset ++;
 
@@ -460,7 +460,7 @@ dissect_payload_kink_krb_error(packet_info *pinfo, tvbuff_t *tvb, int offset, pr
     krb_error_length = payload_length - KINK_KRB_ERROR_HEADER;
     krb_tvb=tvb_new_subset_length_caplen(tvb, offset, (krb_error_length>tvb_captured_length_remaining(tvb, offset))?tvb_captured_length_remaining(tvb, offset):krb_error_length, krb_error_length);
 
-    dissect_kerberos_main(krb_tvb, pinfo, payload_kink_krb_error_tree, FALSE, NULL);
+    dissect_kerberos_main(krb_tvb, pinfo, payload_kink_krb_error_tree, false, NULL);
     /*offset += krb_error_length;*/
   }
 
@@ -479,9 +479,9 @@ static void
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_payload_kink_tgt_req(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree){
   proto_tree *payload_kink_tgt_req_tree;
-  guint8 next_payload;
-  guint payload_length;
-  guint16 realm_name_length;
+  uint8_t next_payload;
+  unsigned payload_length;
+  uint16_t realm_name_length;
   int start_payload_offset = 0; /* Keep the beginning of the payload offset  */
 
   payload_length = tvb_get_ntohs(tvb, offset + TO_PAYLOAD_LENGTH);
@@ -492,7 +492,7 @@ dissect_payload_kink_tgt_req(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
   payload_kink_tgt_req_tree = proto_tree_add_subtree(tree, tvb, offset, payload_length,
                                         ett_payload_kink_tgt_req, NULL, "KINK_TGT_REQ");
 
-  next_payload = tvb_get_guint8(tvb, offset);
+  next_payload = tvb_get_uint8(tvb, offset);
   proto_tree_add_uint(payload_kink_tgt_req_tree, hf_kink_next_payload, tvb, offset, 1, next_payload);
   offset ++;
 
@@ -522,10 +522,10 @@ static void
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_payload_kink_tgt_rep(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree){
   proto_tree *payload_kink_tgt_rep_tree;
-  guint8 next_payload;
-  guint payload_length;
-  guint princ_name_length;
-  guint16 tgt_length;
+  uint8_t next_payload;
+  unsigned payload_length;
+  unsigned princ_name_length;
+  uint16_t tgt_length;
   int start_payload_offset = 0; /* Keep the beginning of the payload offset  */
 
   payload_length = tvb_get_ntohs(tvb, offset + TO_PAYLOAD_LENGTH);
@@ -535,7 +535,7 @@ dissect_payload_kink_tgt_rep(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
   payload_kink_tgt_rep_tree = proto_tree_add_subtree(tree, tvb, offset, payload_length,
                                 ett_payload_kink_tgt_rep, NULL, "KINK_TGT_REP");
 
-  next_payload = tvb_get_guint8(tvb, offset);
+  next_payload = tvb_get_uint8(tvb, offset);
   proto_tree_add_uint(payload_kink_tgt_rep_tree, hf_kink_next_payload, tvb, offset, 1, next_payload);
   offset ++;
 
@@ -582,10 +582,10 @@ static void
 dissect_payload_kink_isakmp(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree){
   proto_tree *payload_kink_isakmp_tree;
   proto_item *ti;
-  guint8 next_payload;
-  guint payload_length,isakmp_length;
+  uint8_t next_payload;
+  unsigned payload_length,isakmp_length;
   int length, reported_length;
-  guint8 inner_next_pload;
+  uint8_t inner_next_pload;
   int start_payload_offset = 0;      /* Keep the beginning of the payload offset */
   tvbuff_t *isakmp_tvb;
 
@@ -596,7 +596,7 @@ dissect_payload_kink_isakmp(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
   payload_kink_isakmp_tree = proto_tree_add_subtree(tree, tvb, offset, payload_length,
                                         ett_payload_kink_isakmp, NULL, "KINK_ISAKMP");
 
-  next_payload = tvb_get_guint8(tvb, offset);
+  next_payload = tvb_get_uint8(tvb, offset);
   proto_tree_add_uint(payload_kink_isakmp_tree, hf_kink_next_payload, tvb, offset, 1, next_payload);
   offset ++;
 
@@ -609,7 +609,7 @@ dissect_payload_kink_isakmp(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
   }
   offset += 2;
 
-  inner_next_pload = tvb_get_guint8(tvb, offset);
+  inner_next_pload = tvb_get_uint8(tvb, offset);
   proto_tree_add_uint(payload_kink_isakmp_tree, hf_kink_inner_next_pload, tvb, offset, 1, inner_next_pload);
   offset += 1;
 
@@ -647,13 +647,13 @@ static void
 dissect_payload_kink_encrypt(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree){
   proto_tree *payload_kink_encrypt_tree;
   proto_item *ti;
-  guint8 next_payload;
-  guint payload_length;
+  uint8_t next_payload;
+  unsigned payload_length;
 #ifdef HAVE_KERBEROS
-  gint encrypt_length;
+  int encrypt_length;
 #endif
-  guint8 inner_next_pload;
-  guint16 inner_payload_length;
+  uint8_t inner_next_pload;
+  uint16_t inner_payload_length;
   int start_payload_offset = 0;    /* Keep the beginning of the payload offset */
 
   payload_length = tvb_get_ntohs(tvb,offset + TO_PAYLOAD_LENGTH);
@@ -666,7 +666,7 @@ dissect_payload_kink_encrypt(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
   payload_kink_encrypt_tree = proto_tree_add_subtree(tree, tvb, offset, payload_length,
                                             ett_payload_kink_encrypt, NULL, "KINK_ENCRYPT");
 
-  next_payload = tvb_get_guint8(tvb, offset);
+  next_payload = tvb_get_uint8(tvb, offset);
   proto_tree_add_uint(payload_kink_encrypt_tree, hf_kink_next_payload, tvb, offset, 1, next_payload);
   offset ++;
 
@@ -684,7 +684,7 @@ dissect_payload_kink_encrypt(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
   if(keytype != 0){
 #ifdef HAVE_KERBEROS
     tvbuff_t *next_tvb;
-    guint8 *plaintext=NULL;
+    uint8_t *plaintext=NULL;
 
     next_tvb=tvb_new_subset_length_caplen(tvb, offset, MIN(tvb_captured_length_remaining(tvb, offset), encrypt_length), encrypt_length);
     plaintext=decrypt_krb5_data(tree, pinfo, 0, next_tvb, keytype, NULL);
@@ -696,7 +696,7 @@ dissect_payload_kink_encrypt(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
 #endif
   }
   else{
-    inner_next_pload = tvb_get_guint8(tvb, offset);
+    inner_next_pload = tvb_get_uint8(tvb, offset);
     proto_tree_add_uint(payload_kink_encrypt_tree, hf_kink_inner_next_pload, tvb, offset, 1, inner_next_pload);
     offset += 1;
 
@@ -727,12 +727,12 @@ dissect_decrypt_kink_encrypt(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree
 
   proto_tree *decrypt_kink_encrypt_tree;
   int offset=0;
-  guint8 next_payload;
+  uint8_t next_payload;
 
   decrypt_kink_encrypt_tree = proto_tree_add_subtree(tree, tvb, offset, payload_length,
                                     ett_decrypt_kink_encrypt, NULL, "decrypted data");
 
-  next_payload = tvb_get_guint8(tvb, offset);
+  next_payload = tvb_get_uint8(tvb, offset);
 
   proto_tree_add_uint(decrypt_kink_encrypt_tree, hf_kink_next_payload, tvb, offset, 1, next_payload);
   offset ++;
@@ -763,8 +763,8 @@ static void
 dissect_payload_kink_error(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree){
   proto_tree *payload_kink_error_tree;
   proto_item *ti;
-  guint8 next_payload;
-  guint16 payload_length;
+  uint8_t next_payload;
+  uint16_t payload_length;
   int start_payload_offset = 0; /* Keep the beginning of the payload offset */
 
   payload_length = tvb_get_ntohs(tvb,offset + TO_PAYLOAD_LENGTH);
@@ -774,7 +774,7 @@ dissect_payload_kink_error(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_
   payload_kink_error_tree = proto_tree_add_subtree(tree, tvb, offset, payload_length,
                                             ett_payload_kink_error, NULL, "KINK_ERROR");
 
-  next_payload = tvb_get_guint8(tvb, offset);
+  next_payload = tvb_get_uint8(tvb, offset);
   proto_tree_add_uint(payload_kink_error_tree, hf_kink_next_payload, tvb, offset, 1, next_payload);
   offset ++;
 
@@ -797,8 +797,8 @@ static void
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_payload_kink_not_defined(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree){
   proto_tree *payload_kink_not_defined_tree;
-  guint8 next_payload;
-  guint payload_length;
+  uint8_t next_payload;
+  unsigned payload_length;
   int start_payload_offset = 0;   /* Keep the beginning of the payload offset */
 
   start_payload_offset = offset;
@@ -808,7 +808,7 @@ dissect_payload_kink_not_defined(packet_info *pinfo, tvbuff_t *tvb, int offset, 
   payload_kink_not_defined_tree = proto_tree_add_subtree(tree, tvb, offset, payload_length,
                                     ett_payload_not_defined, NULL, "UNKNOWN PAYLOAD");
 
-  next_payload = tvb_get_guint8(tvb, offset);
+  next_payload = tvb_get_uint8(tvb, offset);
   proto_tree_add_uint(payload_kink_not_defined_tree, hf_kink_next_payload, tvb, offset, 1, next_payload);
   offset ++;
 
@@ -830,9 +830,9 @@ dissect_payload_kink_not_defined(packet_info *pinfo, tvbuff_t *tvb, int offset, 
 }
 
 static void
-kink_fmt_version( gchar *result, guint32 version )
+kink_fmt_version( char *result, uint32_t version )
 {
-  guint8 major_version, minor_version;
+  uint8_t major_version, minor_version;
 
   /* This part is the version. Consider less than 1 octet value.
    * Major version and minor version is 4bit. Front half of 1octet
@@ -843,8 +843,8 @@ kink_fmt_version( gchar *result, guint32 version )
    * Secondarily, the calculation of minor version is shown below.
    * The logical product of the value of 1octet and 0x0f is performed.
    */
-  major_version = (guint8)((version & FRONT_FOUR_BIT) >> VERSION_BIT_SHIFT);
-  minor_version = (guint8)(version & SECOND_FOUR_BIT);
+  major_version = (uint8_t)((version & FRONT_FOUR_BIT) >> VERSION_BIT_SHIFT);
+  minor_version = (uint8_t)(version & SECOND_FOUR_BIT);
 
   snprintf( result, ITEM_LABEL_LENGTH, "%d.%02d", major_version, minor_version);
 }
@@ -957,7 +957,7 @@ proto_register_kink(void) {
   };
 
   /* Argument for making the subtree. */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_kink,
     /*    &ett_kink_version, */
     &ett_kink_payload,

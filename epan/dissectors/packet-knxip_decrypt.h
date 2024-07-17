@@ -14,62 +14,62 @@
 #define KNX_KEY_LENGTH  16
 
 // Calculate MAC for KNX IP Security or KNX Data Security
-void knx_ccm_calc_cbc_mac( guint8 p_mac[ KNX_KEY_LENGTH ], const guint8 key[ KNX_KEY_LENGTH ],
-  const guint8* a_bytes, gint a_length, const guint8* p_bytes, gint p_length,
-  const guint8 b_0[ KNX_KEY_LENGTH ] );
+void knx_ccm_calc_cbc_mac( uint8_t p_mac[ KNX_KEY_LENGTH ], const uint8_t key[ KNX_KEY_LENGTH ],
+  const uint8_t* a_bytes, int a_length, const uint8_t* p_bytes, int p_length,
+  const uint8_t b_0[ KNX_KEY_LENGTH ] );
 
 // Calculate MAC for KNX IP Security
-void knxip_ccm_calc_cbc_mac( guint8 p_mac[ KNX_KEY_LENGTH ], const guint8 key[ KNX_KEY_LENGTH ],
-  const guint8* a_bytes, gint a_length, const guint8* p_bytes, gint p_length,
-  const guint8* nonce, guint8 nonce_length );
+void knxip_ccm_calc_cbc_mac( uint8_t p_mac[ KNX_KEY_LENGTH ], const uint8_t key[ KNX_KEY_LENGTH ],
+  const uint8_t* a_bytes, int a_length, const uint8_t* p_bytes, int p_length,
+  const uint8_t* nonce, uint8_t nonce_length );
 
 // Encrypt for KNX IP Security or KNX Data Security
-guint8* knx_ccm_encrypt( guint8* p_result, const guint8 key[ KNX_KEY_LENGTH ], const guint8* p_bytes, gint p_length,
-  const guint8* mac, guint8 mac_length, const guint8 ctr_0[ KNX_KEY_LENGTH ], guint8 s0_bytes_used_for_mac);
+uint8_t* knx_ccm_encrypt( uint8_t* p_result, const uint8_t key[ KNX_KEY_LENGTH ], const uint8_t* p_bytes, int p_length,
+  const uint8_t* mac, uint8_t mac_length, const uint8_t ctr_0[ KNX_KEY_LENGTH ], uint8_t s0_bytes_used_for_mac);
 
 // Encrypt for KNX IP Security
-guint8* knxip_ccm_encrypt( guint8* p_result, const guint8 key[ KNX_KEY_LENGTH ], const guint8* p_bytes, gint p_length,
-  const guint8 mac[ KNX_KEY_LENGTH ], const guint8* nonce, guint8 nonce_length );
+uint8_t* knxip_ccm_encrypt( uint8_t* p_result, const uint8_t key[ KNX_KEY_LENGTH ], const uint8_t* p_bytes, int p_length,
+  const uint8_t mac[ KNX_KEY_LENGTH ], const uint8_t* nonce, uint8_t nonce_length );
 
 // Decrypt for KNX IP Security
-guint8* knxip_ccm_decrypt( guint8* p_result, const guint8 key[ KNX_KEY_LENGTH ], const guint8* crypt, gint crypt_length,
-  const guint8* nonce, guint8 nonce_length );
+uint8_t* knxip_ccm_decrypt( uint8_t* p_result, const uint8_t key[ KNX_KEY_LENGTH ], const uint8_t* crypt, int crypt_length,
+  const uint8_t* nonce, uint8_t nonce_length );
 
 // For importing keyring.XML file exported from ETS:
 
 struct knx_keyring_mca_keys
 {
   struct knx_keyring_mca_keys* next;
-  guint8 mca[ 4 ];  // IP multicast address
-  guint8 key[ KNX_KEY_LENGTH ];  // encryption key
+  uint8_t mca[ 4 ];  // IP multicast address
+  uint8_t key[ KNX_KEY_LENGTH ];  // encryption key
 };
 
 struct knx_keyring_ga_keys
 {
   struct knx_keyring_ga_keys* next;
-  guint16 ga;  // KNX GA
-  guint8 key[ KNX_KEY_LENGTH ];  // encryption key
+  uint16_t ga;  // KNX GA
+  uint8_t key[ KNX_KEY_LENGTH ];  // encryption key
 };
 
 struct knx_keyring_ga_senders
 {
   struct knx_keyring_ga_senders* next;
-  guint16 ga;  // KNX GA
-  guint16 ia;  // sending KNX IA
+  uint16_t ga;  // KNX GA
+  uint16_t ia;  // sending KNX IA
 };
 
 struct knx_keyring_ia_keys
 {
   struct knx_keyring_ia_keys* next;
-  guint16 ia;  // KNX IA
-  guint8 key[ KNX_KEY_LENGTH ];  // encryption key
+  uint16_t ia;  // KNX IA
+  uint8_t key[ KNX_KEY_LENGTH ];  // encryption key
 };
 
 struct knx_keyring_ia_seqs
 {
   struct knx_keyring_ia_seqs* next;
-  guint16 ia;  // KNX IA
-  guint64 seq;  // 6-byte sequence number
+  uint16_t ia;  // KNX IA
+  uint64_t seq;  // 6-byte sequence number
 };
 
 extern struct knx_keyring_mca_keys* knx_keyring_mca_keys;
@@ -79,7 +79,7 @@ extern struct knx_keyring_ia_keys* knx_keyring_ia_keys;
 extern struct knx_keyring_ia_seqs* knx_keyring_ia_seqs;
 
 // Read KNX security keys from keyring XML file (exported from ETS)
-void read_knx_keyring_xml_file( const gchar* key_file, const gchar* password, const gchar* key_info_file );
+void read_knx_keyring_xml_file( const char* key_file, const char* password, const char* key_info_file );
 
 #endif // KNXIP_CRYPT_H
 

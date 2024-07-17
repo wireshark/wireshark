@@ -27,9 +27,9 @@ static int hf_klm_stats;
 static int hf_klm_holder;
 static int hf_klm_block;
 
-static gint ett_klm;
-static gint ett_klm_lock;
-static gint ett_klm_holder;
+static int ett_klm;
+static int ett_klm_lock;
+static int ett_klm_holder;
 
 #define KLMPROC_TEST   1
 #define KLMPROC_LOCK   2
@@ -135,7 +135,7 @@ dissect_klm_lock_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 static int
 dissect_klm_test_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	gint32	stats;
+	int32_t	stats;
 	int offset = 0;
 
 	stats = tvb_get_ntohl(tvb, offset);
@@ -234,7 +234,7 @@ proto_register_klm(void)
 
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_klm,
 		&ett_klm_lock,
 		&ett_klm_holder,

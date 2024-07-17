@@ -21,13 +21,13 @@
 extern expert_field ei_knxip_error;
 extern expert_field ei_knxip_warning;
 
-extern guint8 knxip_host_protocol;
-extern guint8 knxip_error;
+extern uint8_t knxip_host_protocol;
+extern uint8_t knxip_error;
 
 #define MAX_KNX_DECRYPTION_KEYS  10
 
-extern guint8 knx_decryption_keys[ MAX_KNX_DECRYPTION_KEYS ][ KNX_KEY_LENGTH ];
-extern guint8 knx_decryption_key_count;
+extern uint8_t knx_decryption_keys[ MAX_KNX_DECRYPTION_KEYS ][ KNX_KEY_LENGTH ];
+extern uint8_t knx_decryption_key_count;
 
 #endif
 

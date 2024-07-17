@@ -47,8 +47,8 @@ static int hf_k12_atm_cid;
 
 static int hf_k12_ts;
 
-static gint ett_k12;
-static gint ett_port;
+static int ett_k12;
+static int ett_port;
 
 static expert_field ei_k12_unmatched_stk_file;
 static expert_field ei_k12_unmatched_info;
@@ -64,7 +64,7 @@ extern int proto_fp;
 static wmem_tree_t* port_handles;
 static uat_t* k12_uat;
 static k12_handles_t* k12_handles;
-static guint nk12_handles;
+static unsigned nk12_handles;
 
 static const value_string  k12_port_types[] = {
 	{ K12_PORT_DS1,		"Ds1" },
@@ -74,15 +74,15 @@ static const value_string  k12_port_types[] = {
 };
 
 static void
-fill_fp_info(fp_info* p_fp_info, guchar* extra_info, guint32 length)
+fill_fp_info(fp_info* p_fp_info, unsigned char* extra_info, uint32_t length)
 {
-	guint adj = 0;
+	unsigned adj = 0;
 			/* 0x11=control frame 0x30=data frame */
-	guint info_type = pntoh16(extra_info);
+	unsigned info_type = pntoh16(extra_info);
 			/* 1=FDD, 2=TDD 3.84, 3=TDD 1.28 */
-	guchar radio_mode = extra_info[14];
-	guchar channel_type = 0;
-	guint i;
+	unsigned char radio_mode = extra_info[14];
+	unsigned char channel_type = 0;
+	unsigned i;
 
 	if (!p_fp_info || length < 22)
 		return;
@@ -158,7 +158,7 @@ fill_fp_info(fp_info* p_fp_info, guchar* extra_info, guint32 length)
 	if (info_type == 0x30) { /* data frame */
 		p_fp_info->num_chans = extra_info[23 + adj];
 		/* For each channel */
-		for (i = 0; i < (guint)p_fp_info->num_chans && (36+i*104+adj) <= length; ++i) {
+		for (i = 0; i < (unsigned)p_fp_info->num_chans && (36+i*104+adj) <= length; ++i) {
 			/* Read TB size */
 			p_fp_info->chan_tf_size[i] = pntoh32(extra_info+28+i*104+adj);
 			if (p_fp_info->chan_tf_size[i])
@@ -178,7 +178,7 @@ dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree, void* data _U_)
 	proto_item* stack_item;
 	dissector_handle_t sub_handle = NULL;
 	dissector_handle_t* handles;
-	guint i;
+	unsigned i;
 
 	k12_item = proto_tree_add_protocol_format(tree, proto_k12, tvb, 0, 0,
 						  "Packet from: '%s' (0x%.8x)",
@@ -202,10 +202,10 @@ dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree, void* data _U_)
 			break;
 		case K12_PORT_ATMPVC:
 		{
-		gchar* circuit_str = wmem_strdup_printf(pinfo->pool, "%u:%u:%u",
-						      (guint)pinfo->pseudo_header->k12.input_info.atm.vp,
-						      (guint)pinfo->pseudo_header->k12.input_info.atm.vc,
-						      (guint)pinfo->pseudo_header->k12.input_info.atm.cid);
+		char* circuit_str = wmem_strdup_printf(pinfo->pool, "%u:%u:%u",
+						      (unsigned)pinfo->pseudo_header->k12.input_info.atm.vp,
+						      (unsigned)pinfo->pseudo_header->k12.input_info.atm.vc,
+						      (unsigned)pinfo->pseudo_header->k12.input_info.atm.cid);
 
 			    /*
 			     * XXX: this is prone to collisions!
@@ -291,8 +291,8 @@ static bool
 k12_update_cb(void* r, char** err)
 {
 	k12_handles_t* h = (k12_handles_t *)r;
-	gchar** protos;
-	guint num_protos, i;
+	char** protos;
+	unsigned num_protos, i;
 
 	protos = g_strsplit(h->protos,":",0);
 
@@ -309,14 +309,14 @@ k12_update_cb(void* r, char** err)
 			h->handles[i+1] = NULL;
 			*err = ws_strdup_printf("Could not find dissector for: '%s'",protos[i]);
 			g_strfreev(protos);
-			return FALSE;
+			return false;
 		}
 	}
 
 	h->handles[i] = NULL;
 	g_strfreev(protos);
 	*err = NULL;
-	return TRUE;
+	return true;
 }
 
 static void*
@@ -324,15 +324,15 @@ k12_copy_cb(void* dest, const void* orig, size_t len _U_)
 {
 	k12_handles_t* d = (k12_handles_t *)dest;
 	const k12_handles_t* o = (const k12_handles_t *)orig;
-	gchar** protos = g_strsplit(d->protos,":",0);
-	guint num_protos;
+	char** protos = g_strsplit(d->protos,":",0);
+	unsigned num_protos;
 
 	for (num_protos = 0; protos[num_protos]; num_protos++)
 		g_strstrip(protos[num_protos]);
 
 	d->match   = g_strdup(o->match);
 	d->protos  = g_strdup(o->protos);
-	d->handles = (dissector_handle_t *)g_memdup2(o->handles,(guint)(sizeof(dissector_handle_t)*(num_protos+1)));
+	d->handles = (dissector_handle_t *)g_memdup2(o->handles,(unsigned)(sizeof(dissector_handle_t)*(num_protos+1)));
 
 	g_strfreev(protos);
 
@@ -351,11 +351,11 @@ k12_free_cb(void* r)
 
 
 static bool
-protos_chk_cb(void* r _U_, const char* p, guint len, const void* u1 _U_, const void* u2 _U_, char** err)
+protos_chk_cb(void* r _U_, const char* p, unsigned len, const void* u1 _U_, const void* u2 _U_, char** err)
 {
-	gchar** protos;
-	gchar* line = wmem_strndup(NULL,p,len);
-	guint num_protos, i;
+	char** protos;
+	char* line = wmem_strndup(NULL,p,len);
+	unsigned num_protos, i;
 
 	g_strstrip(line);
 	ascii_strdown_inplace(line);
@@ -369,7 +369,7 @@ protos_chk_cb(void* r _U_, const char* p, guint len, const void* u1 _U_, const v
 		*err = g_strdup("No protocols given");
 		wmem_free(NULL, line);
 		g_strfreev(protos);
-		return FALSE;
+		return false;
 	}
 
 	for (i = 0; i < num_protos; i++) {
@@ -377,13 +377,13 @@ protos_chk_cb(void* r _U_, const char* p, guint len, const void* u1 _U_, const v
 			*err = ws_strdup_printf("Could not find dissector for: '%s'",protos[i]);
 			wmem_free(NULL, line);
 			g_strfreev(protos);
-			return FALSE;
+			return false;
 		}
 	}
 
 	wmem_free(NULL, line);
 	g_strfreev(protos);
-	return TRUE;
+	return true;
 }
 
 UAT_CSTRING_CB_DEF(k12,match,k12_handles_t)
@@ -436,7 +436,7 @@ proto_register_k12(void)
 		}
 	};
 
-	static gint* ett[] = {
+	static int* ett[] = {
 		&ett_k12,
 		&ett_port
 	};
@@ -474,7 +474,7 @@ proto_register_k12(void)
 	k12_uat = uat_new("K12 Protocols",
 			  sizeof(k12_handles_t),
 			  "k12_protos",             /* filename */
-			  TRUE,                     /* from_profile */
+			  true,                     /* from_profile */
 			  &k12_handles,             /* data_ptr */
 			  &nk12_handles,            /* numitems_ptr */
 			  UAT_AFFECTS_DISSECTION,   /* affects dissection of packets, but not set of named fields */

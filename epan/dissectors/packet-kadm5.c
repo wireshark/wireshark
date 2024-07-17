@@ -47,7 +47,7 @@ void proto_reg_handoff_kadm5(void);
 
 static int proto_kadm5;
 static int hf_kadm5_procedure_v2;
-static gint ett_kadm5;
+static int ett_kadm5;
 
 /* proc number, "proc name", dissect_request, dissect_reply */
 static const vsff kadm5_v2_proc[] = {
@@ -115,7 +115,7 @@ proto_register_kadm5(void)
 		    VALS(kadm5_v2_proc_vals), 0, NULL, HFILL }},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_kadm5,
 	};
 

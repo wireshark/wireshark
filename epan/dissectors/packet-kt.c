@@ -68,31 +68,31 @@ static int proto_kt;
 static dissector_handle_t kt_handle;
 
 /* Sub-trees */
-static gint ett_kt;
-static gint ett_kt_rec;
+static int ett_kt;
+static int ett_kt_rec;
 
 /* Header fields */
-static gint hf_kt_magic;
-static gint hf_kt_type;
-static gint hf_kt_ts;
-static gint hf_kt_flags;
-static gint hf_kt_rnum;
-static gint hf_kt_dbidx;
-static gint hf_kt_sid;
-static gint hf_kt_xt;
-static gint hf_kt_xt_resp;
-static gint hf_kt_ksiz;
-static gint hf_kt_vsiz;
-static gint hf_kt_key;
-static gint hf_kt_val;
-static gint hf_kt_key_str;
-static gint hf_kt_val_str;
-static gint hf_kt_hits;
-static gint hf_kt_nsiz;
-static gint hf_kt_name;
-static gint hf_kt_size;
-static gint hf_kt_log;
-static gint hf_kt_rec;
+static int hf_kt_magic;
+static int hf_kt_type;
+static int hf_kt_ts;
+static int hf_kt_flags;
+static int hf_kt_rnum;
+static int hf_kt_dbidx;
+static int hf_kt_sid;
+static int hf_kt_xt;
+static int hf_kt_xt_resp;
+static int hf_kt_ksiz;
+static int hf_kt_vsiz;
+static int hf_kt_key;
+static int hf_kt_val;
+static int hf_kt_key_str;
+static int hf_kt_val_str;
+static int hf_kt_hits;
+static int hf_kt_nsiz;
+static int hf_kt_name;
+static int hf_kt_size;
+static int hf_kt_log;
+static int hf_kt_rec;
 
 /* Magic Values */
 #define KT_MAGIC_REPL_WAIT      0xB0
@@ -134,10 +134,10 @@ static bool kt_present_key_val_as_ascii;
 
 /* Dissection routines */
 static int
-dissect_kt_replication_wait(tvbuff_t *tvb, proto_tree *tree, gint offset)
+dissect_kt_replication_wait(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-    gint new_offset;
-    guint64 ts;
+    int new_offset;
+    uint64_t ts;
     nstime_t ns_ts;
 
     new_offset = offset;
@@ -155,11 +155,11 @@ dissect_kt_replication_wait(tvbuff_t *tvb, proto_tree *tree, gint offset)
 }
 
 static int
-dissect_kt_replication(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_kt_replication(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    gint new_offset;
-    guint32 next32, size;
-    guint64 ts;
+    int new_offset;
+    uint32_t next32, size;
+    uint64_t ts;
     nstime_t ns_ts;
     proto_item *pi;
 
@@ -204,10 +204,10 @@ dissect_kt_replication(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
 }
 
 static int
-dissect_kt_set_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_kt_set_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    guint32 next32, rnum, ksiz, vsiz;
-    gint new_offset, rec_start_offset;
+    uint32_t next32, rnum, ksiz, vsiz;
+    int new_offset, rec_start_offset;
     proto_item *ti;
     proto_item *pi;
     proto_tree *rec_tree;
@@ -282,10 +282,10 @@ dissect_kt_set_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
 }
 
 static int
-dissect_kt_play_script(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_kt_play_script(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    guint32 next32, rnum, ksiz, vsiz, nsiz;
-    gint new_offset, rec_start_offset;
+    uint32_t next32, rnum, ksiz, vsiz, nsiz;
+    int new_offset, rec_start_offset;
     proto_item *ti;
     proto_item *pi;
     proto_tree *rec_tree;
@@ -403,12 +403,12 @@ dissect_kt_play_script(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
 }
 
 static int
-dissect_kt_get_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_kt_get_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    guint32 next32, rnum, ksiz, vsiz;
-    guint64 xt;
+    uint32_t next32, rnum, ksiz, vsiz;
+    uint64_t xt;
     nstime_t ts;
-    gint new_offset, rec_start_offset;
+    int new_offset, rec_start_offset;
     proto_item *ti;
     proto_item *pi;
     proto_tree *rec_tree;
@@ -518,10 +518,10 @@ dissect_kt_get_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
 }
 
 static int
-dissect_kt_remove_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_kt_remove_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    guint32 next32, rnum, ksiz;
-    gint new_offset, rec_start_offset;
+    uint32_t next32, rnum, ksiz;
+    int new_offset, rec_start_offset;
     proto_item *ti;
     proto_item *pi;
     proto_tree *rec_tree;
@@ -580,9 +580,9 @@ dissect_kt_remove_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
 }
 
 static int
-dissect_kt_error(tvbuff_t *tvb, proto_tree *tree, gint offset)
+dissect_kt_error(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-    gint new_offset;
+    int new_offset;
 
     new_offset = offset;
 
@@ -595,15 +595,15 @@ dissect_kt_error(tvbuff_t *tvb, proto_tree *tree, gint offset)
 static int
 dissect_kt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    gint      magic;
+    int       magic;
     proto_item *ti;
     proto_tree *kt_tree;
-    gint offset, offset_start;
+    int offset, offset_start;
 
     offset = 0;
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
-        magic = tvb_get_guint8(tvb, offset);
+        magic = tvb_get_uint8(tvb, offset);
 
         /* If the magic is not one of the known values, exit */
         if (try_val_to_str(magic, kt_magic_vals) == NULL)
@@ -761,7 +761,7 @@ proto_register_kt(void)
         }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_kt,
         &ett_kt_rec
     };
