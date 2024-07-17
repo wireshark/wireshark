@@ -105,7 +105,7 @@ dtcp_ip_check_packet(tvbuff_t *tvb)
     if (tvb_reported_length(tvb) < 1+2+CTRL_LEN)
         return false;
 
-    type = tvb_get_guint8(tvb, offset);
+    type = tvb_get_uint8(tvb, offset);
     /* all DTCP-IP AKE packets have type 1 */
     if (type != 1)
         return false;
@@ -169,7 +169,7 @@ dissect_dtcp_ip(tvbuff_t *tvb, packet_info *pinfo,
             tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    subfct_val = tvb_get_guint8(tvb, offset);
+    subfct_val = tvb_get_uint8(tvb, offset);
     subfct_str = val_to_str_const(subfct_val, subfct, "unknown");
     col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
             "%s (0x%x)", subfct_str, subfct_val);

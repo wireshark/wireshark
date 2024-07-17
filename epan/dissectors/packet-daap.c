@@ -678,10 +678,10 @@ dissect_daap_one_tag(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
          case daap_apro:
             /* Tags contain version (uint32) */
             proto_item_append_text(tag_ti, "; Version: %d.%d.%d.%d",
-                  tvb_get_guint8(tvb, offset),
-                  tvb_get_guint8(tvb, offset+1),
-                  tvb_get_guint8(tvb, offset+2),
-                  tvb_get_guint8(tvb, offset+3));
+                  tvb_get_uint8(tvb, offset),
+                  tvb_get_uint8(tvb, offset+1),
+                  tvb_get_uint8(tvb, offset+2),
+                  tvb_get_uint8(tvb, offset+3));
             break;
 
          case dacp_canp:

@@ -111,7 +111,7 @@ static expert_field ei_dcc_len;
 #define D_CHECKSUM() { \
 	proto_tree *cktree; \
 	cktree = proto_tree_add_subtree_format(dcc_optree, tvb, offset, (int)sizeof(DCC_CK), \
-		ett_dcc_ck, NULL, "Checksum - %s", val_to_str(tvb_get_guint8(tvb,offset), \
+		ett_dcc_ck, NULL, "Checksum - %s", val_to_str(tvb_get_uint8(tvb,offset), \
 		dcc_cktype_vals, \
 		"Unknown Type: %u")); \
 	proto_tree_add_item(cktree, hf_dcc_ck_type, tvb, offset, 1, ENC_BIG_ENDIAN); \
@@ -222,7 +222,7 @@ dissect_dcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	col_add_fstr(pinfo->cinfo, COL_INFO,
 		"%s: %s",
 		is_response ? "Response" : "Request",
-		val_to_str(tvb_get_guint8(tvb, offset+3),
+		val_to_str(tvb_get_uint8(tvb, offset+3),
 			 dcc_op_vals, "Unknown Op: %u"));
 
 	ti = proto_tree_add_item(tree, proto_dcc, tvb, offset, -1,
@@ -243,7 +243,7 @@ dissect_dcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 			offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 
-		op = tvb_get_guint8(tvb, offset);
+		op = tvb_get_uint8(tvb, offset);
 		proto_tree_add_item(dcc_tree, hf_dcc_op, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
@@ -261,9 +261,9 @@ dissect_dcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 		/* Very hokey check - if all three of pid/report/retrans look like little-endian
 			numbers, host is probably little endian. Probably innacurate on super-heavily-used
 			DCC clients though. This should be good enough for now. */
-		client_is_le = ( (tvb_get_guint8(tvb, offset+4) | tvb_get_guint8(tvb, offset+5)) &&
-						 (tvb_get_guint8(tvb, offset+8) | tvb_get_guint8(tvb, offset+9)) &&
-						 (tvb_get_guint8(tvb, offset+12) | tvb_get_guint8(tvb, offset+13)) );
+		client_is_le = ( (tvb_get_uint8(tvb, offset+4) | tvb_get_uint8(tvb, offset+5)) &&
+						 (tvb_get_uint8(tvb, offset+8) | tvb_get_uint8(tvb, offset+9)) &&
+						 (tvb_get_uint8(tvb, offset+12) | tvb_get_uint8(tvb, offset+13)) );
 
 		proto_tree_add_item(dcc_opnumtree, hf_dcc_opnums_host, tvb,
 			offset, 4, client_is_le);
@@ -332,11 +332,11 @@ dissect_dcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
 					D_DATE();
 
-					aop = tvb_get_guint8(tvb, offset+4);
+					aop = tvb_get_uint8(tvb, offset+4);
 					proto_tree_add_item(dcc_optree, hf_dcc_adminop, tvb, offset+4,
 						1, ENC_BIG_ENDIAN);
 					col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-						val_to_str(tvb_get_guint8(tvb,offset+4),
+						val_to_str(tvb_get_uint8(tvb,offset+4),
 						dcc_adminop_vals, "Unknown (%u)"));
 
 					if (aop == DCC_AOP_TRACE_ON || aop == DCC_AOP_TRACE_OFF )

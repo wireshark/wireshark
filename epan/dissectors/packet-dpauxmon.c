@@ -93,7 +93,7 @@ dissect_dpauxmon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     case DPAUXMON_DATA: {
         struct dpaux_info dpaux_info;
 
-        dpaux_info.from_source = tvb_get_guint8(tvb, 1);
+        dpaux_info.from_source = tvb_get_uint8(tvb, 1);
         proto_tree_add_uint(dpauxmon_tree, hf_origin, tvb, 1, 1, dpaux_info.from_source);
 
         call_dissector_with_data(dpaux_handle, tvb_new_subset_remaining(tvb, 2),

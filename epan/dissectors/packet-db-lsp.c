@@ -86,7 +86,7 @@ dissect_db_lsp_pdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
   db_lsp_item = proto_tree_add_item (tree, proto_db_lsp, tvb, offset, -1, ENC_NA);
   db_lsp_tree = proto_item_add_subtree (db_lsp_item, ett_db_lsp);
 
-  type = tvb_get_guint8 (tvb, offset);
+  type = tvb_get_uint8 (tvb, offset);
   proto_tree_add_item (db_lsp_tree, hf_type, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
@@ -110,7 +110,7 @@ dissect_db_lsp_pdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
   }
 
   if (type == TYPE_CONFIG) {
-    opvalue = tvb_get_guint8 (tvb, offset);
+    opvalue = tvb_get_uint8 (tvb, offset);
     proto_tree_add_item (db_lsp_tree, hf_opvalue, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     if (opvalue == OP_CERT) {

@@ -1157,7 +1157,7 @@ static uint8_t compute_crc8(tvbuff_t *p, uint8_t len, unsigned offset)
     uint8_t crc = 0, tmp;
 
     for (i = 0; i < len; i++) {
-        tmp = tvb_get_guint8(p, offset++);
+        tmp = tvb_get_uint8(p, offset++);
         crc = crc8_table[crc ^ tmp];
     }
     return crc;
@@ -1470,7 +1470,7 @@ static bool test_dvb_s2_crc(tvbuff_t *tvb, unsigned offset) {
     if (tvb_captured_length(tvb) < (offset + DVB_S2_BB_HEADER_LEN))
         return false;
 
-    input8 = tvb_get_guint8(tvb, offset + DVB_S2_BB_OFFS_CRC);
+    input8 = tvb_get_uint8(tvb, offset + DVB_S2_BB_OFFS_CRC);
 
     if (compute_crc8(tvb, DVB_S2_BB_HEADER_LEN - 1, offset) != input8)
         return false;
@@ -1533,7 +1533,7 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     ti = proto_tree_add_item(tree, proto_dvb_s2_bb, tvb, 0, DVB_S2_BB_HEADER_LEN, ENC_NA);
     dvb_s2_bb_tree = proto_item_add_subtree(ti, ett_dvb_s2_bb);
 
-    matype1 = tvb_get_guint8(tvb, DVB_S2_BB_OFFS_MATYPE1);
+    matype1 = tvb_get_uint8(tvb, DVB_S2_BB_OFFS_MATYPE1);
     new_off += 1;
 
     if (BIT_IS_CLEAR(matype1, DVB_S2_BB_MIS_POS))
@@ -1555,7 +1555,7 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         ett_dvb_s2_bb_matype1, bb_header_bitfields_high_ro, ENC_BIG_ENDIAN, BMT_NO_FLAGS);
     }
 
-    input8 = tvb_get_guint8(tvb, DVB_S2_BB_OFFS_MATYPE2);
+    input8 = tvb_get_uint8(tvb, DVB_S2_BB_OFFS_MATYPE2);
     new_off += 1;
     if (flag_is_ms) {
         proto_tree_add_uint_format_value(dvb_s2_bb_tree, hf_dvb_s2_bb_matype2, tvb,
@@ -1590,7 +1590,7 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                                DVB_S2_BB_OFFS_DFL, 2, input16, "%d bits (%d bytes)", input16, input16 / 8);
 
     new_off += 1;
-    sync_flag = tvb_get_guint8(tvb, DVB_S2_BB_OFFS_SYNC);
+    sync_flag = tvb_get_uint8(tvb, DVB_S2_BB_OFFS_SYNC);
     proto_tree_add_item(dvb_s2_bb_tree, hf_dvb_s2_bb_sync, tvb, DVB_S2_BB_OFFS_SYNC, 1, ENC_BIG_ENDIAN);
 
     new_off += 2;
@@ -1980,7 +1980,7 @@ static int detect_dvb_s2_modeadapt(tvbuff_t *tvb)
     }
 
     /* Try L.2 format: header includes sync byte */
-    if ((tvb_get_guint8(tvb, DVB_S2_MODEADAPT_OFFS_SYNCBYTE) == DVB_S2_MODEADAPT_SYNCBYTE) &&
+    if ((tvb_get_uint8(tvb, DVB_S2_MODEADAPT_OFFS_SYNCBYTE) == DVB_S2_MODEADAPT_SYNCBYTE) &&
         test_dvb_s2_crc(tvb, DVB_S2_MODEADAPT_L2SIZE)) {
         matched_headers |= (1 << DVB_S2_MODEADAPT_TYPE_L2);
     }
@@ -1991,7 +1991,7 @@ static int detect_dvb_s2_modeadapt(tvbuff_t *tvb)
     }
 
     /* Try L.3 format: header includes sync byte */
-    if ((tvb_get_guint8(tvb, DVB_S2_MODEADAPT_OFFS_SYNCBYTE) == DVB_S2_MODEADAPT_SYNCBYTE) &&
+    if ((tvb_get_uint8(tvb, DVB_S2_MODEADAPT_OFFS_SYNCBYTE) == DVB_S2_MODEADAPT_SYNCBYTE) &&
         test_dvb_s2_crc(tvb, DVB_S2_MODEADAPT_L3SIZE)) {
         matched_headers |= (1 << DVB_S2_MODEADAPT_TYPE_L3);
     }
@@ -2067,7 +2067,7 @@ static int dissect_dvb_s2_modeadapt(tvbuff_t *tvb, packet_info *pinfo, proto_tre
         if (modeadapt_type == DVB_S2_MODEADAPT_TYPE_L2 ||
             modeadapt_type == DVB_S2_MODEADAPT_TYPE_L3 ||
             modeadapt_type == DVB_S2_MODEADAPT_TYPE_L4) {
-            mc = tvb_get_guint8(tvb, cur_off);
+            mc = tvb_get_uint8(tvb, cur_off);
             if (mc & 0x80) {
                 modcod = 0x80;
                 modcod |= ((mc & 0x1F) << 2);

@@ -737,7 +737,7 @@ dissect_dpnss_sic(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int o
 {
     uint8_t octet, type_of_data;
 
-    octet = tvb_get_guint8(tvb,offset);
+    octet = tvb_get_uint8(tvb,offset);
     type_of_data = (octet & 0x70)>>4;
     proto_tree_add_item(tree, hf_dpnss_ext_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_dpnss_sic_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -763,7 +763,7 @@ dissect_dpnss_sic(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int o
         /* Extension bit set
          * Synch/Asynchronous Information
          */
-        octet = tvb_get_guint8(tvb,offset);
+        octet = tvb_get_uint8(tvb,offset);
         type_of_data = octet&0x7;
         proto_tree_add_item(tree, hf_dpnss_ext_bit_notall, tvb, offset, 1, ENC_BIG_ENDIAN);
         switch (type_of_data) {
@@ -1079,7 +1079,7 @@ dissect_dpnss_sup_info_str(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
     str_no = 1;
     while ((offset<tvb_end_offset)&&(last_string == false)) {
-        octet = tvb_get_guint8(tvb,offset);
+        octet = tvb_get_uint8(tvb,offset);
         if (octet == '*') {
             /* Supplementary Information String */
             start_offset = offset;
@@ -1166,7 +1166,7 @@ dissect_dpnss_LbL_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tvb_end_offset = tvb_reported_length(tvb);
 
     proto_tree_add_item(tree, hf_dpnss_LbL_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-    octet = tvb_get_guint8(tvb,offset)&0x0f;
+    octet = tvb_get_uint8(tvb,offset)&0x0f;
     offset++;
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
             val_to_str(octet, dpnss_LbL_msg_short_type_vals, "Unknown (%d)" ));
@@ -1250,7 +1250,7 @@ dissect_dpnss_e2e_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tvb_end_offset = tvb_reported_length(tvb);
 
     proto_tree_add_item(tree, hf_dpnss_e2e_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-    octet = tvb_get_guint8(tvb,offset)&0x0f;
+    octet = tvb_get_uint8(tvb,offset)&0x0f;
     offset++;
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
             val_to_str(octet, dpnss_e2e_msg_short_type_vals, "Unknown (%d)" ));
@@ -1307,7 +1307,7 @@ dissect_dpnss_e2e_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              * BIT  8       7 6 5 4 3          2 1
              *     ext | Manufacturer code | subcode
              */
-            octet = tvb_get_guint8(tvb,offset);
+            octet = tvb_get_uint8(tvb,offset);
             proto_tree_add_item(tree, hf_dpnss_ext_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_dpnss_man_code, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_dpnss_subcode, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1339,7 +1339,7 @@ dissect_dpnss_cc_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     tvb_end_offset = tvb_reported_length(tvb);
     proto_tree_add_item(tree, hf_dpnss_cc_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-    octet = tvb_get_guint8(tvb,offset)&0x0f;
+    octet = tvb_get_uint8(tvb,offset)&0x0f;
     offset++;
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
             val_to_str(octet, dpnss_cc_msg_short_type_vals, "Unknown (%d)" ));
@@ -1457,7 +1457,7 @@ dissect_dpnss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     item = proto_tree_add_item(tree, proto_dpnss, tvb, 0, -1, ENC_NA);
     dpnss_tree = proto_item_add_subtree(item, ett_dpnss);
     group_item = proto_tree_add_item(dpnss_tree, hf_dpnss_msg_grp_id, tvb, offset, 1, ENC_BIG_ENDIAN);
-    octet = tvb_get_guint8(tvb,offset)>>4;
+    octet = tvb_get_uint8(tvb,offset)>>4;
     switch (octet) {
     case DPNNS_MESSAGE_GROUP_CC:
         /* Call Control Message Group */

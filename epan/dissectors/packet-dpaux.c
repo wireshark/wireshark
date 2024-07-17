@@ -170,7 +170,7 @@ dissect_dpaux_from_source(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     uint8_t mot = tvb_get_bits8(tvb, 1, 1);
     uint8_t cmd = tvb_get_bits8(tvb, 2, 2);
     uint32_t addr = tvb_get_bits32(tvb, 4, 20, ENC_BIG_ENDIAN);
-    uint8_t len = tvb_get_guint8(tvb, 3) + 1;
+    uint8_t len = tvb_get_uint8(tvb, 3) + 1;
     bool is_read = cmd & 0x1;
 
     conversation_t *conversation = NULL;
@@ -276,7 +276,7 @@ dissect_dpaux_from_sink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                 transaction->addr + k,
                                                 "DPCD 0x%05x: 0x%02x",
                                                 transaction->addr + k,
-                                                tvb_get_guint8(tvb, k + 1));
+                                                tvb_get_uint8(tvb, k + 1));
                 register_tree = proto_item_add_subtree(ti, ett_register);
 
                 res = dissect_dpaux_register(tvb, pinfo, register_tree, k + 1,

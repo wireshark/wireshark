@@ -1165,7 +1165,7 @@ static void insert_twopc(tvbuff_t *tvb, packet_info *pinfo, drbd_conv *conv_data
     drbd_twopc_key *key = wmem_new0(wmem_file_scope(), drbd_twopc_key);
     key->tid = tvb_get_ntohl(tvb, 0);
     if (flags & TWOPC_HAS_FLAGS)
-        key->initiator_node_id = tvb_get_gint8(tvb, 10);
+        key->initiator_node_id = tvb_get_int8(tvb, 10);
     else
         key->initiator_node_id = tvb_get_ntohil(tvb, 4);
 

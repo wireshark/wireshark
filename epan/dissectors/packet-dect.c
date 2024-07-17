@@ -1419,12 +1419,12 @@ dissect_afield(bool dect_packet_type, uint8_t *ba,
 	 */
 
 	/* A-Field */
-	header = tvb_get_guint8(tvb, offset+0);
-	tail_0 = tvb_get_guint8(tvb, offset+1);
-	tail_1 = tvb_get_guint8(tvb, offset+2);
-	tail_2 = tvb_get_guint8(tvb, offset+3);
-	tail_3 = tvb_get_guint8(tvb, offset+4);
-	tail_4 = tvb_get_guint8(tvb, offset+5);
+	header = tvb_get_uint8(tvb, offset+0);
+	tail_0 = tvb_get_uint8(tvb, offset+1);
+	tail_1 = tvb_get_uint8(tvb, offset+2);
+	tail_2 = tvb_get_uint8(tvb, offset+3);
+	tail_3 = tvb_get_uint8(tvb, offset+4);
+	tail_4 = tvb_get_uint8(tvb, offset+5);
 	rcrc = tvb_get_ntohs(tvb, offset+6);
 
 	ta = (header & DECT_A_TA_MASK) >> DECT_A_TA_SHIFT;

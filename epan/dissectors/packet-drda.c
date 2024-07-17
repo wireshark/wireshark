@@ -2642,7 +2642,7 @@ dissect_drda_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         uint16_t cOuterLength, cInnerLength;
         cOuterLength = tvb_get_ntohs(tvb, 0);
         cInnerLength = tvb_get_ntohs(tvb, 6);
-        if ((tvb_get_guint8(tvb, 2) == DRDA_MAGIC) && ((cOuterLength - cInnerLength) == 6))
+        if ((tvb_get_uint8(tvb, 2) == DRDA_MAGIC) && ((cOuterLength - cInnerLength) == 6))
         {
             /* Register this dissector for this conversation */
             conversation = find_or_create_conversation(pinfo);

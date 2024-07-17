@@ -144,7 +144,7 @@ dissect_dmx_chan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 					wmem_strbuf_append(chan_str, " ");
 				}
 
-				v = tvb_get_guint8(tvb, (offset + (r * global_disp_col_count) + c));
+				v = tvb_get_uint8(tvb, (offset + (r * global_disp_col_count) + c));
 				if (global_disp_chan_val_type == 0) {
 					v = (v * 100) / 255;
 					if (v == 100) {
@@ -177,7 +177,7 @@ dmx_sip_checksum(tvbuff_t *tvb, unsigned length)
 	uint8_t   sum = DMX_SC_SIP;
 	unsigned  i;
 	for (i = 0; i < length; i++)
-		sum += tvb_get_guint8(tvb, i);
+		sum += tvb_get_uint8(tvb, i);
 	return sum;
 }
 
@@ -196,7 +196,7 @@ dissect_dmx_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 		proto_tree *dmx_sip_tree = proto_item_add_subtree(ti, ett_dmx_sip);
 
 
-		byte_count = tvb_get_guint8(tvb, offset);
+		byte_count = tvb_get_uint8(tvb, offset);
 		proto_tree_add_item(dmx_sip_tree, hf_dmx_sip_byte_count, tvb,
 							offset, 1, ENC_BIG_ENDIAN);
 		offset++;
@@ -294,7 +294,7 @@ dissect_dmx_test(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 		if (size == DMX_TEST_PACKET_SIZE) {
 			test_data_is_ok = true;
 			for (i = 0; i < DMX_TEST_PACKET_SIZE; i++) {
-				if (tvb_get_guint8(tvb, i) != DMX_TEST_VALUE) {
+				if (tvb_get_uint8(tvb, i) != DMX_TEST_VALUE) {
 					test_data_is_ok = false;
 					break;
 				}
@@ -370,7 +370,7 @@ dissect_dmx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DMX");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	start_code = tvb_get_guint8(tvb, offset);
+	start_code = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(tree, hf_dmx_start_code, tvb,
 			    offset, 1, ENC_BIG_ENDIAN);
 	offset++;

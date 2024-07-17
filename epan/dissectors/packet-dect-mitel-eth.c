@@ -603,7 +603,7 @@ static const value_string dect_mitel_eth_mac_ho_failed_ind_reason_val[] = {
 static unsigned dissect_dect_mitel_eth_mcei_field(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_, unsigned offset)
 {
 	uint8_t mcei;
-	mcei = tvb_get_guint8(tvb, offset);
+	mcei = tvb_get_uint8(tvb, offset);
 	conversation_set_elements_by_id(pinfo, CONVERSATION_NONE, mcei);
 	col_append_fstr(pinfo->cinfo, COL_INFO, "MCEI=%02x ", mcei);
 	proto_tree_add_item(tree, hf_dect_mitel_eth_mcei, tvb, offset, 1, ENC_NA);
@@ -917,19 +917,19 @@ static unsigned dissect_dect_mitel_eth_rfpc(tvbuff_t *tvb, packet_info *pinfo _U
 	proto_item *rfpc_item_tree_item;
 
 	proto_tree_add_item(tree, hf_dect_mitel_eth_rfpc_message_type, tvb, offset, 1, ENC_NA);
-	message_type = tvb_get_guint8(tvb, offset);
+	message_type = tvb_get_uint8(tvb, offset);
 	col_append_fstr(pinfo->cinfo, COL_INFO, "RFPc: %s ",
 				val_to_str(message_type, dect_mitel_eth_rfpc_message_type_val, "Unknown 0x%02x"));
 	offset++;
 
 	while ( tvb_reported_length_remaining(tvb, offset) ) {
-		item_type = tvb_get_guint8(tvb, offset);
+		item_type = tvb_get_uint8(tvb, offset);
 		rfpc_item_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1, ett_dect_mitel_eth_rfpc_item, &rfpc_item_tree_item,
 			"Item: %s", val_to_str(item_type, dect_mitel_eth_rfpc_item_type_val, "Unknown: 0x%0x"));
 		proto_tree_add_item(rfpc_item_tree, hf_dect_mitel_eth_rfpc_item_type, tvb, offset, 1, ENC_NA);
 		offset++;
 
-		item_length = tvb_get_guint8(tvb, offset);
+		item_length = tvb_get_uint8(tvb, offset);
 		proto_tree_add_item(rfpc_item_tree, hf_dect_mitel_eth_rfpc_item_length, tvb, offset, 1, ENC_NA);
 		proto_item_set_len(rfpc_item_tree_item, item_length + 2);
 		offset ++;
@@ -1058,7 +1058,7 @@ static unsigned dissect_dect_mitel_eth_mac_enc_eks_ind(tvbuff_t *tvb, packet_inf
 	offset = dissect_dect_mitel_eth_mcei_field(tvb, pinfo, tree, data, offset);
 
 	proto_tree_add_item(tree, hf_dect_mitel_eth_mac_enc_eks_ind_type, tvb, offset, 1, ENC_NA);
-	type = tvb_get_guint8(tvb, offset);
+	type = tvb_get_uint8(tvb, offset);
 	offset++;
 	if ( type == DECT_MITEL_ETH_MAC_ENC_EKS_IND_TYPE_ENCRYPTED_WITH_ID ) {
 		proto_tree_add_item(tree, hf_dect_mitel_eth_mac_enc_eks_ind_id, tvb, offset, 1, ENC_NA);
@@ -1185,7 +1185,7 @@ static int dissect_dect_mitel_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		ip_encapsulated = false;
 	}
 	if(!ip_encapsulated) {
-		mitel_eth_len = tvb_get_guint16(tvb, offset, 2);
+		mitel_eth_len = tvb_get_uint16(tvb, offset, 2);
 		proto_tree_add_item(dect_mitel_eth_tree, hf_dect_mitel_eth_len, tvb, offset, 2, ENC_BIG_ENDIAN);
 		if (mitel_eth_len < 3)
 			return tvb_captured_length(tvb);
@@ -1193,11 +1193,11 @@ static int dissect_dect_mitel_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	}
 
 	proto_tree_add_item(dect_mitel_eth_tree, hf_dect_mitel_eth_layer, tvb, offset, 1, ENC_NA);
-	layer = tvb_get_guint8(tvb, offset);
+	layer = tvb_get_uint8(tvb, offset);
 	offset++;
 
 	if ( layer != DECT_MITEL_ETH_LAYER_RFPC) {
-		prim_type = tvb_get_guint8(tvb, offset);
+		prim_type = tvb_get_uint8(tvb, offset);
 		proto_tree_add_item(dect_mitel_eth_tree, hf_dect_mitel_eth_prim_type, tvb, offset, 1, ENC_NA);
 
 		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
@@ -1214,7 +1214,7 @@ static int dissect_dect_mitel_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 				proto_tree_add_item(dect_mitel_eth_tree, hf_dect_mitel_eth_mt_item_key, tvb, offset, 1, ENC_NA);
 				offset++;
 				proto_tree_add_item(dect_mitel_eth_tree, hf_dect_mitel_eth_mt_item_length, tvb, offset, 1, ENC_NA);
-				mt_item_length = tvb_get_guint8(tvb, offset);
+				mt_item_length = tvb_get_uint8(tvb, offset);
 				offset++;
 				proto_tree_add_item(dect_mitel_eth_tree, hf_dect_mitel_eth_mt_item_value, tvb, offset, mt_item_length, ENC_NA);
 				offset += mt_item_length;
@@ -1274,7 +1274,7 @@ static int dissect_dect_mitel_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 					proto_tree_add_item(dect_mitel_eth_tree, hf_dect_mitel_eth_subfield, tvb, offset, 1, ENC_NA);
 					offset++;
-					payload_len = tvb_get_guint8(tvb, offset);
+					payload_len = tvb_get_uint8(tvb, offset);
 					offset++;
 					payload_tvb = tvb_new_subset_length(tvb, offset, payload_len);
 					if (payload_tvb)

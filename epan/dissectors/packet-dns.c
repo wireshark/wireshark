@@ -1587,7 +1587,7 @@ expand_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
     if (max_len && offset - start_offset > max_len - 1) {
       break;
     }
-    component_len = tvb_get_guint8(tvb, offset);
+    component_len = tvb_get_uint8(tvb, offset);
     offset++;
     if (component_len == 0) {
       break;
@@ -1612,7 +1612,7 @@ expand_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
             THROW(ReportedBoundsError);
           }
           if (maxname > 0) {
-            *np++ = tvb_get_guint8(tvb, offset);
+            *np++ = tvb_get_uint8(tvb, offset);
             (*name_len)++;
             maxname--;
           }
@@ -1632,7 +1632,7 @@ expand_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
             int label_len;
             int print_len;
 
-            bit_count = tvb_get_guint8(tvb, offset);
+            bit_count = tvb_get_uint8(tvb, offset);
             offset++;
             label_len = (bit_count - 1) / 8 + 1;
 
@@ -1650,7 +1650,7 @@ expand_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
             while (label_len--) {
               if (maxname > 0) {
                 print_len = snprintf(np, maxname, "%02x",
-                                       tvb_get_guint8(tvb, offset));
+                                       tvb_get_uint8(tvb, offset));
                 if (print_len <= maxname) {
                   np      += print_len;
                   maxname -= print_len;
@@ -1696,7 +1696,7 @@ expand_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
       case 0xc0:
         /* Pointer. */
         indir_offset = dns_data_offset +
-          (((component_len & ~0xc0) << 8) | tvb_get_guint8(tvb, offset));
+          (((component_len & ~0xc0) << 8) | tvb_get_uint8(tvb, offset));
         offset++;
         pointers_count++;
 
@@ -1790,7 +1790,7 @@ rfc1867_size(tvbuff_t *tvb, int offset)
   double  size;
   uint32_t exponent;
 
-  val = tvb_get_guint8(tvb, offset);
+  val = tvb_get_uint8(tvb, offset);
   size = (val & 0xF0) >> 4;
   exponent = (val & 0x0F);
   while (exponent != 0) {
@@ -2052,13 +2052,13 @@ dissect_type_bitmap(proto_tree *rr_tree, tvbuff_t *tvb, int cur_offset, int rr_l
 
   initial_offset = cur_offset;
   while (rr_len != 0) {
-    blockbase = tvb_get_guint8(tvb, cur_offset);
-    blocksize = tvb_get_guint8(tvb, cur_offset + 1);
+    blockbase = tvb_get_uint8(tvb, cur_offset);
+    blocksize = tvb_get_uint8(tvb, cur_offset + 1);
     cur_offset += 2;
     rr_len     -= 2;
     rr_type = blockbase * 256;
     for( ; blocksize; blocksize-- ) {
-      bits = tvb_get_guint8(tvb, cur_offset);
+      bits = tvb_get_uint8(tvb, cur_offset);
       mask = 1<<7;
       for (i = 0; i < 8; i++) {
         if (bits & mask) {
@@ -2088,7 +2088,7 @@ dissect_type_bitmap_nxt(proto_tree *rr_tree, tvbuff_t *tvb, int cur_offset, int 
   initial_offset = cur_offset;
   rr_type = 0;
   while (rr_len != 0) {
-    bits = tvb_get_guint8(tvb, cur_offset);
+    bits = tvb_get_uint8(tvb, cur_offset);
     mask = 1<<7;
     for (i = 0; i < 8; i++) {
       if (bits & mask) {
@@ -2232,16 +2232,16 @@ compute_key_id(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, 
 
   switch( algo ) {
      case DNS_ALGO_RSAMD5:
-       *key_id = (uint16_t)(tvb_get_guint8(tvb, offset + size - 3) << 8) + tvb_get_guint8( tvb, offset + size - 2 );
+       *key_id = (uint16_t)(tvb_get_uint8(tvb, offset + size - 3) << 8) + tvb_get_uint8( tvb, offset + size - 2 );
        break;
      default:
        for (ac = 0; size > 1; size -= 2, offset += 2) {
-         c1 = tvb_get_guint8( tvb, offset );
-         c2 = tvb_get_guint8( tvb, offset + 1 );
+         c1 = tvb_get_uint8( tvb, offset );
+         c2 = tvb_get_uint8( tvb, offset + 1 );
          ac +=  (c1 << 8) + c2 ;
        }
        if (size > 0) {
-         c1 = tvb_get_guint8( tvb, offset );
+         c1 = tvb_get_uint8( tvb, offset );
          ac += c1 << 8;
        }
        ac += (ac >> 16) & 0xffff;
@@ -2618,13 +2618,13 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       rr_len     -= 4;
 
       proto_tree_add_item(rr_tree, hf_dns_wks_protocol, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-      protocol = tvb_get_guint8(tvb, cur_offset);
+      protocol = tvb_get_uint8(tvb, cur_offset);
       cur_offset += 1;
       rr_len     -= 1;
 
       port_num = 0;
       while (rr_len != 0) {
-        bits = tvb_get_guint8(tvb, cur_offset);
+        bits = tvb_get_uint8(tvb, cur_offset);
         if (bits != 0) {
           mask = 1<<7;
           wmem_strbuf_truncate(bitnames, 0);
@@ -2723,10 +2723,10 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       const char *os;
 
       cpu_offset = cur_offset;
-      cpu_len = tvb_get_guint8(tvb, cpu_offset);
+      cpu_len = tvb_get_uint8(tvb, cpu_offset);
       cpu = (const char* )tvb_get_string_enc(pinfo->pool, tvb, cpu_offset + 1, cpu_len, ENC_ASCII|ENC_NA);
       os_offset = cpu_offset + 1 + cpu_len;
-      os_len = tvb_get_guint8(tvb, os_offset);
+      os_len = tvb_get_uint8(tvb, os_offset);
       os = (const char*)tvb_get_string_enc(pinfo->pool, tvb, os_offset + 1, os_len, ENC_ASCII|ENC_NA);
       col_append_fstr(pinfo->cinfo, COL_INFO, " %s %s", cpu, os);
       proto_item_append_text(trr, ", CPU %s, OS %s", cpu, os);
@@ -2791,14 +2791,14 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
       txt_offset = cur_offset;
       while (rr_len != 0) {
-        txt_len = tvb_get_guint8(tvb, txt_offset);
+        txt_len = tvb_get_uint8(tvb, txt_offset);
         proto_tree_add_item(rr_tree, hf_dns_txt_length, tvb, txt_offset, 1, ENC_BIG_ENDIAN);
         txt_offset += 1;
         rr_len     -= 1;
         if(  is_dnscrypt_name
           && txt_len == 124
           && rr_len >= txt_len
-          && tvb_get_guint32(tvb, txt_offset, ENC_BIG_ENDIAN) == DNSCRYPT_CERT_MAGIC){
+          && tvb_get_uint32(tvb, txt_offset, ENC_BIG_ENDIAN) == DNSCRYPT_CERT_MAGIC){
           dissect_dnscrypt(rr_tree, tvb, txt_offset, txt_len);
         } else {
             proto_tree_add_item(rr_tree, hf_dns_txt, tvb, txt_offset, txt_len, is_mdns ? ENC_UTF_8|ENC_NA : ENC_ASCII|ENC_NA);
@@ -2851,7 +2851,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name_out);
 
       proto_tree_add_item(rr_tree, hf_dns_x25_length, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-      x25_len = tvb_get_guint8(tvb, cur_offset);
+      x25_len = tvb_get_uint8(tvb, cur_offset);
       cur_offset += 1;
 
       proto_tree_add_item(rr_tree, hf_dns_x25_psdn_address, tvb, cur_offset, x25_len, ENC_ASCII);
@@ -2867,7 +2867,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name_out);
 
       proto_tree_add_item(rr_tree, hf_dns_isdn_length, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-      isdn_address_len = tvb_get_guint8(tvb, cur_offset);
+      isdn_address_len = tvb_get_uint8(tvb, cur_offset);
       cur_offset += 1;
       rr_len     -= 1;
 
@@ -2877,7 +2877,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
       if (rr_len > 1)   /* ISDN SA is optional */ {
         proto_tree_add_item(rr_tree, hf_dns_isdn_sa_length, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-        isdn_sa_len = tvb_get_guint8(tvb, cur_offset);
+        isdn_sa_len = tvb_get_uint8(tvb, cur_offset);
         cur_offset += 1;
 
         proto_tree_add_item(rr_tree, hf_dns_isdn_sa, tvb, cur_offset, isdn_sa_len, ENC_ASCII);
@@ -2955,7 +2955,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       rr_len     -= 1;
 
       proto_tree_add_item(rr_tree, hf_dns_key_algorithm, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-      algo = tvb_get_guint8(tvb, cur_offset);
+      algo = tvb_get_uint8(tvb, cur_offset);
       cur_offset += 1;
       rr_len     -= 1;
 
@@ -2997,21 +2997,21 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
       col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name_out);
       proto_tree_add_item(rr_tree, hf_dns_gpos_longitude_length, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-      long_len = tvb_get_guint8(tvb, cur_offset);
+      long_len = tvb_get_uint8(tvb, cur_offset);
       cur_offset += 1;
 
       proto_tree_add_item(rr_tree, hf_dns_gpos_longitude, tvb, cur_offset, long_len, ENC_ASCII);
       cur_offset += long_len;
 
       proto_tree_add_item(rr_tree, hf_dns_gpos_latitude_length, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-      lat_len = tvb_get_guint8(tvb, cur_offset);
+      lat_len = tvb_get_uint8(tvb, cur_offset);
       cur_offset += 1;
 
       proto_tree_add_item(rr_tree, hf_dns_gpos_latitude, tvb, cur_offset, lat_len, ENC_ASCII);
       cur_offset += lat_len;
 
       proto_tree_add_item(rr_tree, hf_dns_gpos_altitude_length, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-      alt_len = tvb_get_guint8(tvb, cur_offset);
+      alt_len = tvb_get_uint8(tvb, cur_offset);
       cur_offset += 1;
 
       proto_tree_add_item(rr_tree, hf_dns_gpos_altitude, tvb, cur_offset, alt_len, ENC_ASCII);
@@ -3043,7 +3043,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       uint8_t version;
       proto_item *ti;
 
-      version = tvb_get_guint8(tvb, cur_offset);
+      version = tvb_get_uint8(tvb, cur_offset);
       proto_tree_add_item(rr_tree, hf_dns_loc_version, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
       if (version == 0) {
         /* Version 0, the only version RFC 1876 discusses. */
@@ -3152,21 +3152,21 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
        /* Flags */
       proto_tree_add_item(rr_tree, hf_dns_naptr_flags_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-      flags_len = tvb_get_guint8(tvb, offset);
+      flags_len = tvb_get_uint8(tvb, offset);
       offset += 1;
       proto_tree_add_item_ret_string(rr_tree, hf_dns_naptr_flags, tvb, offset, flags_len, ENC_ASCII|ENC_NA, pinfo->pool, &flags);
       offset += flags_len;
 
       /* Service */
       proto_tree_add_item(rr_tree, hf_dns_naptr_service_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-      service_len = tvb_get_guint8(tvb, offset);
+      service_len = tvb_get_uint8(tvb, offset);
       offset += 1;
       proto_tree_add_item(rr_tree, hf_dns_naptr_service, tvb, offset, service_len, ENC_ASCII);
       offset += service_len;
 
       /* Regex */
       proto_tree_add_item(rr_tree, hf_dns_naptr_regex_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-      regex_len = tvb_get_guint8(tvb, offset);
+      regex_len = tvb_get_uint8(tvb, offset);
       offset += 1;
       proto_tree_add_item(rr_tree, hf_dns_naptr_regex, tvb, offset, regex_len, ENC_ASCII);
       offset += regex_len;
@@ -3236,7 +3236,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       address            suffix_addr;
 
       a6_offset = cur_offset;
-      pre_len = tvb_get_guint8(tvb, cur_offset);
+      pre_len = tvb_get_uint8(tvb, cur_offset);
       cur_offset++;
       suf_len = 128 - pre_len;
       suf_octet_count = suf_len ? (suf_len - 1) / 8 + 1 : 0;
@@ -3245,7 +3245,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         suffix.bytes[suf_offset] = 0;
       }
       for (; suf_offset < 16; suf_offset++) {
-        suffix.bytes[suf_offset] = tvb_get_guint8(tvb, cur_offset);
+        suffix.bytes[suf_offset] = tvb_get_uint8(tvb, cur_offset);
         cur_offset++;
       }
 
@@ -3508,7 +3508,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         cur_offset += 1;
         rr_len     -= 1;
 
-        afdpart_len = tvb_get_guint8(tvb, cur_offset) & DNS_APL_AFDLENGTH;
+        afdpart_len = tvb_get_uint8(tvb, cur_offset) & DNS_APL_AFDLENGTH;
         proto_tree_add_item(rr_tree, hf_dns_apl_negation, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(rr_tree, hf_dns_apl_afdlength, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
         cur_offset += 1;
@@ -3588,7 +3588,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       rr_len     -= 1;
 
       proto_tree_add_item(rr_tree, hf_dns_ipseckey_gateway_type, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-      gw_type = tvb_get_guint8(tvb, cur_offset);
+      gw_type = tvb_get_uint8(tvb, cur_offset);
       cur_offset += 1;
       rr_len     -= 1;
 
@@ -3735,7 +3735,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       rr_len     -= 1;
 
       proto_tree_add_item(rr_tree, hf_dns_dnskey_algorithm, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-      algo = tvb_get_guint8(tvb, cur_offset);
+      algo = tvb_get_uint8(tvb, cur_offset);
 
       cur_offset += 1;
       rr_len     -= 1;
@@ -3775,14 +3775,14 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       cur_offset += 2;
 
       proto_tree_add_item(rr_tree, hf_dns_nsec3_salt_length, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-      salt_len = tvb_get_guint8(tvb, cur_offset);
+      salt_len = tvb_get_uint8(tvb, cur_offset);
       cur_offset += 1;
 
       proto_tree_add_item(rr_tree, hf_dns_nsec3_salt_value, tvb, cur_offset, salt_len, ENC_NA);
       cur_offset += salt_len;
 
       proto_tree_add_item(rr_tree, hf_dns_nsec3_hash_length, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-      hash_len = tvb_get_guint8(tvb, cur_offset);
+      hash_len = tvb_get_uint8(tvb, cur_offset);
       cur_offset += 1;
 
       /*
@@ -3826,7 +3826,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       cur_offset += 2;
 
       proto_tree_add_item(rr_tree, hf_dns_nsec3_salt_length, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-      salt_len = tvb_get_guint8(tvb, cur_offset);
+      salt_len = tvb_get_uint8(tvb, cur_offset);
       cur_offset +=1;
 
       proto_tree_add_item(rr_tree, hf_dns_nsec3_salt_value, tvb, cur_offset, salt_len, ENC_NA);
@@ -3864,7 +3864,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
       col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name_out);
 
-      hit_len = tvb_get_guint8(tvb, cur_offset);
+      hit_len = tvb_get_uint8(tvb, cur_offset);
       proto_tree_add_item(rr_tree, hf_dns_hip_hit_length, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
       cur_offset += 1;
       rr_len     -= 1;
@@ -4047,7 +4047,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
       spf_offset = cur_offset;
       while (rr_len != 0) {
-        spf_len = tvb_get_guint8(tvb, spf_offset);
+        spf_len = tvb_get_uint8(tvb, spf_offset);
         proto_tree_add_item(rr_tree, hf_dns_spf_length, tvb, spf_offset, 1, ENC_BIG_ENDIAN);
         spf_offset += 1;
         rr_len     -= 1;
@@ -4304,7 +4304,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       proto_tree_add_item(caa_tree, hf_dns_caa_flag_issuer_critical, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
       cur_offset++;
 
-      tag_len = tvb_get_guint8(tvb, cur_offset);
+      tag_len = tvb_get_uint8(tvb, cur_offset);
       tag = (const char*)tvb_get_string_enc(pinfo->pool, tvb, cur_offset + 1, tag_len, ENC_ASCII|ENC_NA);
 
       value_len = data_len - (tag_len + 2);

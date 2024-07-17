@@ -34,7 +34,7 @@ static void dissect_drb_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tr
 	char* type;
 	char* value;
 
-	len = tvb_get_guint32(tvb, *offset, ENC_BIG_ENDIAN);
+	len = tvb_get_uint32(tvb, *offset, ENC_BIG_ENDIAN);
 	obj_tree = proto_tree_add_subtree(tree, tvb, *offset, 4 + len, ett_ref, NULL, label);
 	proto_tree_add_item(obj_tree, hf_drb_len, tvb, *offset, 4, ENC_NA);
 	*offset += 4;
@@ -85,7 +85,7 @@ static int dissect_drb(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
 	ti = proto_tree_add_item(tree, proto_drb, tvb, 0, -1, ENC_NA);
 	drb_tree = proto_item_add_subtree(ti, ett_drb);
 
-	type = tvb_get_guint8(tvb, 6);
+	type = tvb_get_uint8(tvb, 6);
 	if (type == 'T' || type == 'F') {
 		dissect_drb_response(tvb, pinfo, drb_tree, &offset);
 	} else {

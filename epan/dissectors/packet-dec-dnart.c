@@ -365,7 +365,7 @@ dissect_dec_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     set_dnet_address(pinfo, &pinfo->dl_dst, &pinfo->dst);
 
     offset += 2;
-    msg_flags = tvb_get_guint8(tvb, offset);
+    msg_flags = tvb_get_uint8(tvb, offset);
     ti = proto_tree_add_item(tree, proto_dec_rt, tvb, 0, -1, ENC_NA);
     rt_tree = proto_item_add_subtree(ti, ett_dec_rt);
     /* When padding, the first byte after the padding has
@@ -377,7 +377,7 @@ dissect_dec_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     }
 
     /* The real routing flag */
-    msg_flags = tvb_get_guint8(tvb, offset);
+    msg_flags = tvb_get_uint8(tvb, offset);
     ti = proto_tree_add_uint(rt_tree, hf_dec_routing_flags, tvb,
                     offset, 1, msg_flags);
     flags_tree = proto_item_add_subtree(ti, ett_dec_routing_flags);
@@ -464,7 +464,7 @@ dissect_dec_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
         proto_tree_add_uint(rt_tree, hf_dec_rt_nl2, tvb,
             offset, 1, rt_zero);
         offset++;
-        rt_visit_count = tvb_get_guint8(tvb, offset);
+        rt_visit_count = tvb_get_uint8(tvb, offset);
         proto_tree_add_uint(rt_tree, hf_dec_rt_visit_count, tvb,
             offset, 1, rt_visit_count);
         offset++;
@@ -489,7 +489,7 @@ dissect_dec_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
         offset += 2;
         proto_tree_add_item(rt_tree, hf_dec_rt_src_node, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
-        forward = tvb_get_guint8(tvb, offset);
+        forward = tvb_get_uint8(tvb, offset);
         proto_tree_add_uint(rt_tree, hf_dec_rt_visited_nodes, tvb,
             offset, 1, forward);
         offset++;
@@ -501,7 +501,7 @@ dissect_dec_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
         proto_item *ti_local;
         uint8_t    nsp_msg_type;
 
-        nsp_msg_type = tvb_get_guint8(tvb, offset);
+        nsp_msg_type = tvb_get_uint8(tvb, offset);
            ti_local = proto_tree_add_uint(
             tree, hf_dec_nsp_msgs, tvb, offset, 1, nsp_msg_type);
         if (nsp_msg_type == NOP_MSG) {
@@ -552,9 +552,9 @@ do_initialization_msg(
     proto_tree_add_item(tree, hf_dec_rt_blk_size, tvb,
         my_offset, 2, ENC_LITTLE_ENDIAN);
     my_offset += 2;
-    version = tvb_get_guint8(tvb, my_offset);
-    eco_nr = tvb_get_guint8(tvb, my_offset + 1);
-    user_eco = tvb_get_guint8(tvb, my_offset + 2);
+    version = tvb_get_uint8(tvb, my_offset);
+    eco_nr = tvb_get_uint8(tvb, my_offset + 1);
+    user_eco = tvb_get_uint8(tvb, my_offset + 2);
     proto_tree_add_none_format(tree, hf_dec_rt_version, tvb,
         my_offset, 3, "Routing Layer version: %d.%d.%d.",
             version, eco_nr, user_eco);
@@ -562,7 +562,7 @@ do_initialization_msg(
     proto_tree_add_item(tree, hf_dec_rt_timer, tvb,
         my_offset, 2, ENC_LITTLE_ENDIAN);
     my_offset += 2;
-    remainder_count = tvb_get_guint8(tvb, my_offset);
+    remainder_count = tvb_get_uint8(tvb, my_offset);
     if (remainder_count != 0) {
         proto_tree_add_item(tree, hf_dec_rt_reserved, tvb,
             my_offset, remainder_count, ENC_NA);
@@ -585,7 +585,7 @@ do_verification_msg(
     proto_tree_add_item(tree, hf_dec_rt_src_node, tvb,
         my_offset, 2, ENC_LITTLE_ENDIAN);
     my_offset += 2;
-    remainder_count = tvb_get_guint8(tvb, my_offset);
+    remainder_count = tvb_get_uint8(tvb, my_offset);
     if (remainder_count != 0) {
         proto_tree_add_item(tree, hf_dec_rt_fcnval, tvb,
             my_offset, remainder_count, ENC_NA);
@@ -690,9 +690,9 @@ do_hello_msg(
         NULL
     };
 
-    version = tvb_get_guint8(tvb, my_offset);
-    eco_nr = tvb_get_guint8(tvb, my_offset + 1);
-    user_eco = tvb_get_guint8(tvb, my_offset + 2);
+    version = tvb_get_uint8(tvb, my_offset);
+    eco_nr = tvb_get_uint8(tvb, my_offset + 1);
+    user_eco = tvb_get_uint8(tvb, my_offset + 2);
     proto_tree_add_none_format(tree, hf_dec_rt_version, tvb,
         my_offset, 3, "Routing Layer Version: %d.%d.%d",
         version, eco_nr, user_eco);
@@ -714,7 +714,7 @@ do_hello_msg(
         /* Ethernet router hello message
            Has a 'priority' field in this position */
         col_set_str(pinfo->cinfo, COL_INFO, "Routing control, Ethernet Router Hello  message");
-        priority = tvb_get_guint8(tvb, my_offset);
+        priority = tvb_get_uint8(tvb, my_offset);
         proto_tree_add_uint(
             tree, hf_dec_rt_iprio, tvb, my_offset, 1, priority);
         my_offset++;
@@ -752,7 +752,7 @@ do_hello_msg(
         uint8_t item_len;
 
         /* image field is preceded by count of remainder of field */
-        image_len = tvb_get_guint8(tvb, my_offset);
+        image_len = tvb_get_uint8(tvb, my_offset);
         my_offset++;
 
         ti_locala = proto_tree_add_item(tree, hf_dec_rt_elist, tvb,
@@ -767,7 +767,7 @@ do_hello_msg(
             image_len -= 7;
 
             /* image field is preceded by count of remainder of field */
-            item_len = tvb_get_guint8(tvb, my_offset);
+            item_len = tvb_get_uint8(tvb, my_offset);
             my_offset++;
             image_len -= 1;
             while (item_len > 0)
@@ -784,7 +784,7 @@ do_hello_msg(
                 }
                 my_offset += 6;
                 pstate_tree = proto_item_add_subtree(ti_localb, ett_dec_rt_state);
-                pristate = tvb_get_guint8(tvb, my_offset);
+                pristate = tvb_get_uint8(tvb, my_offset);
                 proto_tree_add_string(pstate_tree, hf_dec_rt_router_state,
                     tvb, my_offset, 1,
                     ((pristate & 0x80) ? "known 2-way": "unknown"));
@@ -957,7 +957,7 @@ handle_nsp_msg(
                 tvb, my_offset, 2, ENC_LITTLE_ENDIAN);
             my_offset += 2;
             /* Now follows the ls_flags field */
-            ls_flags = tvb_get_guint8(tvb, my_offset);
+            ls_flags = tvb_get_uint8(tvb, my_offset);
             switch(ls_flags) {
                 case 0: /* no change */
                     col_append_str(pinfo->cinfo, COL_INFO,
@@ -974,7 +974,7 @@ handle_nsp_msg(
                 default:
                 break;
             }
-            fc_val = tvb_get_guint8(tvb, my_offset + 1);
+            fc_val = tvb_get_uint8(tvb, my_offset + 1);
             ti = proto_tree_add_uint(tree, hf_dec_flow_control, tvb,
                          my_offset, 1, ls_flags);
             flow_control_tree =
@@ -1040,7 +1040,7 @@ handle_nsp_msg(
         case CONN_CONFIRM_MSG:     /* "Connect confirm" */
         case CONN_INITIATE_MSG:    /* "Connect initiate" */
             col_set_str(pinfo->cinfo, COL_INFO, "NSP connect confirm/initiate message");
-            services = tvb_get_guint8(tvb, my_offset);
+            services = tvb_get_uint8(tvb, my_offset);
             proto_tree_add_uint(tree, hf_dec_rt_services, tvb,
                          my_offset, 1, services);
             my_offset++;
@@ -1081,9 +1081,9 @@ handle_connect_contents(
         tvb, my_offset, -1, ENC_NA);
     contents_tree = proto_item_add_subtree(ti, ett_dec_sess_contents);
     /* The destination end user */
-    dst_format = tvb_get_guint8(tvb, my_offset);
+    dst_format = tvb_get_uint8(tvb, my_offset);
     my_offset++;
-    obj_type = tvb_get_guint8(tvb, my_offset);
+    obj_type = tvb_get_uint8(tvb, my_offset);
     proto_tree_add_uint(contents_tree, hf_dec_sess_obj_type, tvb, my_offset, 1, obj_type);
     my_offset++;
     if (dst_format == 2) {
@@ -1094,15 +1094,15 @@ handle_connect_contents(
     }
     if (dst_format != 0) {
         /* The name field for formats 1 and 2 */
-        image_len = tvb_get_guint8(tvb, my_offset);
+        image_len = tvb_get_uint8(tvb, my_offset);
         my_offset++;
         proto_tree_add_item(contents_tree, hf_dec_sess_dst_name, tvb, my_offset, image_len, ENC_ASCII);
         my_offset += image_len;
     }
     /* The source end user */
-    src_format = tvb_get_guint8(tvb, my_offset);
+    src_format = tvb_get_uint8(tvb, my_offset);
     my_offset++;
-    obj_type = tvb_get_guint8(tvb, my_offset);
+    obj_type = tvb_get_uint8(tvb, my_offset);
     proto_tree_add_uint(contents_tree, hf_dec_sess_obj_type,
         tvb, my_offset, 1, obj_type);
     my_offset++;
@@ -1114,14 +1114,14 @@ handle_connect_contents(
     }
     if (dst_format != 0) {
         /* The name field for formats 1 and 2 */
-        image_len = tvb_get_guint8(tvb, my_offset);
+        image_len = tvb_get_uint8(tvb, my_offset);
         my_offset++;
         proto_tree_add_item(contents_tree, hf_dec_sess_src_name,
             tvb, my_offset, image_len, ENC_ASCII);
         my_offset += image_len;
     }
     /* Now the MENUVER field */
-    menu_ver = tvb_get_guint8(tvb, my_offset);
+    menu_ver = tvb_get_uint8(tvb, my_offset);
     switch (menu_ver) {
         case 1:
         case 3:
@@ -1129,17 +1129,17 @@ handle_connect_contents(
                 tvb, my_offset, 1,
                 "Version 1.0: RQSTRID, PASSWRD and ACCOUNT fields included");
             my_offset++;
-            image_len = tvb_get_guint8(tvb, my_offset);
+            image_len = tvb_get_uint8(tvb, my_offset);
             my_offset++;
             proto_tree_add_item(contents_tree, hf_dec_sess_rqstr_id,
                 tvb, my_offset, image_len, ENC_ASCII);
             my_offset += image_len;
-            image_len = tvb_get_guint8(tvb, my_offset);
+            image_len = tvb_get_uint8(tvb, my_offset);
             my_offset++;
             proto_tree_add_item(contents_tree, hf_dec_sess_rqstr_id,
                 tvb, my_offset, image_len, ENC_ASCII);
             my_offset += image_len;
-            image_len = tvb_get_guint8(tvb, my_offset);
+            image_len = tvb_get_uint8(tvb, my_offset);
             my_offset++;
             proto_tree_add_item(contents_tree, hf_dec_sess_rqstr_id,
                 tvb, my_offset, image_len, ENC_ASCII);

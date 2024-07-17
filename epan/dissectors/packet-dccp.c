@@ -672,7 +672,7 @@ dccp_ntoh_var(tvbuff_t *tvb, int offset, unsigned nbytes)
         value = tvb_get_ntohs(tvb, offset);
         break;
     case 1:
-        value = tvb_get_guint8(tvb, offset);
+        value = tvb_get_uint8(tvb, offset);
         break;
     case 0:
         // do nothing
@@ -690,7 +690,7 @@ static void
 dissect_feature_options(proto_tree *dccp_options_tree, tvbuff_t *tvb,
                         int offset, uint8_t option_len)
 {
-    uint8_t     feature_number = tvb_get_guint8(tvb, offset);
+    uint8_t     feature_number = tvb_get_uint8(tvb, offset);
     proto_item *dccp_item;
     proto_tree *feature_tree;
     int         i;
@@ -725,7 +725,7 @@ dissect_feature_options(proto_tree *dccp_options_tree, tvbuff_t *tvb,
     case 192:     /* Send Loss Event Rate, RFC 4342, section 8.4   */
         for (i = 0; i < option_len; i++)
             proto_item_append_text(dccp_item, "%s %d", i ? "," : "",
-                                   tvb_get_guint8(tvb,
+                                   tvb_get_uint8(tvb,
                                                   offset + i));
         break;
 
@@ -779,14 +779,14 @@ dissect_options(tvbuff_t *tvb, packet_info *pinfo,
 
     while (offset < offset_end) {
         /* first byte is the option type */
-        option_type = tvb_get_guint8(tvb, offset);
+        option_type = tvb_get_uint8(tvb, offset);
 	option_item =
 		proto_tree_add_uint(dccp_options_tree, hf_dccp_option_type, tvb,
 				offset,
 				1,
 				option_type);
         if (option_type >= 32) { /* variable length options */
-            option_len = tvb_get_guint8(tvb, offset+1);
+            option_len = tvb_get_uint8(tvb, offset+1);
 
             if (option_len < 2) {
                 expert_add_info_format(pinfo, option_item, &ei_dccp_option_len_bad,
@@ -884,7 +884,7 @@ dissect_options(tvbuff_t *tvb, packet_info *pinfo,
                                         "Wrong Data checksum length");
             break;
         case 46:
-            mp_option_type = tvb_get_guint8(tvb, offset);
+            mp_option_type = tvb_get_uint8(tvb, offset);
             option_len -= 1;
             switch (mp_option_type) {
                 case 0:
@@ -1171,14 +1171,14 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     */
     dccph->stream = dccpd->stream;
 
-    dccph->data_offset = tvb_get_guint8(tvb, offset);
+    dccph->data_offset = tvb_get_uint8(tvb, offset);
     advertised_dccp_header_len = dccph->data_offset * 4;
     offset_item = proto_tree_add_uint(dccp_tree, hf_dccp_data_offset, tvb, offset, 1,
                                       dccph->data_offset);
     offset += 1;
 
-    dccph->cscov = tvb_get_guint8(tvb, offset) & 0x0F;
-    dccph->ccval = tvb_get_guint8(tvb, offset) & 0xF0;
+    dccph->cscov = tvb_get_uint8(tvb, offset) & 0x0F;
+    dccph->ccval = tvb_get_uint8(tvb, offset) & 0xF0;
     dccph->ccval >>= 4;
     proto_tree_add_uint(dccp_tree, hf_dccp_ccval, tvb, offset, 1,
                         dccph->ccval);
@@ -1229,14 +1229,14 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     }
     offset += 2;
 
-    dccph->reserved1 = tvb_get_guint8(tvb, offset) & 0xE0;
+    dccph->reserved1 = tvb_get_uint8(tvb, offset) & 0xE0;
     dccph->reserved1 >>= 5;
     hidden_item =
         proto_tree_add_uint(dccp_tree, hf_dccp_res1, tvb, offset, 1,
                             dccph->reserved1);
     proto_item_set_hidden(hidden_item);
 
-    dccph->type = tvb_get_guint8(tvb, offset) & 0x1E;
+    dccph->type = tvb_get_uint8(tvb, offset) & 0x1E;
     dccph->type >>= 1;
     proto_tree_add_uint(dccp_tree, hf_dccp_type, tvb, offset, 1,
                         dccph->type);
@@ -1249,7 +1249,7 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                     val_to_str_const(dccph->type, dccp_packet_type_vals,
                                      "Unknown Type"));
 
-    dccph->x = tvb_get_guint8(tvb, offset) & 0x01;
+    dccph->x = tvb_get_uint8(tvb, offset) & 0x01;
     proto_tree_add_boolean(dccp_tree, hf_dccp_x, tvb, offset, 1,
                            dccph->x);
     offset += 1;
@@ -1261,7 +1261,7 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                 advertised_dccp_header_len, DCCP_GEN_HDR_LEN_X);
             return tvb_reported_length(tvb);
         }
-        dccph->reserved2 = tvb_get_guint8(tvb, offset);
+        dccph->reserved2 = tvb_get_uint8(tvb, offset);
         hidden_item =
             proto_tree_add_uint(dccp_tree, hf_dccp_res2, tvb, offset, 1,
                                 dccph->reserved2);
@@ -1426,14 +1426,14 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                     val_to_str(dccph->type, dccp_packet_type_vals, "Unknown (%u)"));
                 return tvb_reported_length(tvb);
             }
-            dccph->ack_reserved = tvb_get_guint8(tvb, offset);
+            dccph->ack_reserved = tvb_get_uint8(tvb, offset);
             if (tree) {
                 hidden_item =
                     proto_tree_add_uint(dccp_tree, hf_dccp_ack_res, tvb, offset,
                                         1, dccph->ack_reserved);
                 proto_item_set_hidden(hidden_item);
             }
-            dccph->ack = tvb_get_guint8(tvb, offset + 1);
+            dccph->ack = tvb_get_uint8(tvb, offset + 1);
             dccph->ack <<= 16;
             dccph->ack += tvb_get_ntohs(tvb, offset + 2);
 
@@ -1492,10 +1492,10 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         col_append_fstr(pinfo->cinfo, COL_INFO, " (Ack=%" PRIu64 ")", ack);
         offset += 8; /* move offset past the Ack. Number Subheader */
 
-        dccph->reset_code = tvb_get_guint8(tvb, offset);
-        dccph->data1 = tvb_get_guint8(tvb, offset + 1);
-        dccph->data2 = tvb_get_guint8(tvb, offset + 2);
-        dccph->data3 = tvb_get_guint8(tvb, offset + 3);
+        dccph->reset_code = tvb_get_uint8(tvb, offset);
+        dccph->data1 = tvb_get_uint8(tvb, offset + 1);
+        dccph->data2 = tvb_get_uint8(tvb, offset + 2);
+        dccph->data3 = tvb_get_uint8(tvb, offset + 3);
 
         if (tree) {
             proto_tree_add_uint(dccp_tree, hf_dccp_reset_code, tvb, offset, 1,

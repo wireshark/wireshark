@@ -983,7 +983,7 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset, diam_sub_dis_t *d
 
 		pi = proto_tree_add_item(avp_tree, hf_diameter_avp_pad, tvb, offset, pad_len, ENC_NA);
 		for (i=0; i < pad_len; i++) {
-			if (tvb_get_guint8(tvb, offset++) != 0) {
+			if (tvb_get_uint8(tvb, offset++) != 0) {
 				expert_add_info(c->pinfo, pi, &ei_diameter_avp_pad);
 				break;
 			}
@@ -1598,7 +1598,7 @@ check_diameter(tvbuff_t *tvb)
 		return NOT_ENOUGH_DATA;
 
 	/* Check if the Diameter version is 1 */
-	if (tvb_get_guint8(tvb, 0) != 1)
+	if (tvb_get_uint8(tvb, 0) != 1)
 		return NOT_DIAMETER;
 
 	/* Diameter minimum message length:
@@ -1623,7 +1623,7 @@ check_diameter(tvbuff_t *tvb)
 	if ((msg_len < 36) || (msg_len & 0x3))
 		return NOT_DIAMETER;
 
-	flags = tvb_get_guint8(tvb, 4);
+	flags = tvb_get_uint8(tvb, 4);
 
 	/* Check if any of the Reserved flag bits are set */
 	if (flags & 0x0f)

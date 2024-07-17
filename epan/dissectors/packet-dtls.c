@@ -451,7 +451,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
    */
   conversation = find_or_create_conversation(pinfo);
 
-  uint8_t record_type = tvb_get_guint8(tvb, offset);
+  uint8_t record_type = tvb_get_uint8(tvb, offset);
 
   /* try to get decrypt session from the connection ID only for the first pass,
    * it should be available from the conversation in the second pass
@@ -578,7 +578,7 @@ dissect_dtls_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     /* The entire payload was captured. */
     while (offset + 13 <= length && looks_like_dtls(tvb, offset)) {
       /* Advance offset to the end of the current DTLS record */
-      uint8_t record_type = tvb_get_guint8(tvb, offset);
+      uint8_t record_type = tvb_get_uint8(tvb, offset);
 
       if ((record_type & DTLS13_FIXED_MASK) >> 5 == 1) {
         offset += 1;
@@ -969,7 +969,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
   /*
    * Get the record layer fields of interest
    */
-  content_type          = tvb_get_guint8(tvb, offset);
+  content_type          = tvb_get_uint8(tvb, offset);
   if ((content_type & DTLS13_FIXED_MASK) >> 5 == 1) {
     /* RFC 9147 s4.1: this is a DTLS 1.3 Unified Header record */
     return dissect_dtls13_record(tvb, pinfo, tree, offset, session,
@@ -1070,7 +1070,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
    * not client_hello), then save the version to the conversation
    * structure and print the column version.
    */
-  next_byte = tvb_get_guint8(tvb, offset);
+  next_byte = tvb_get_uint8(tvb, offset);
   if (session->version == SSL_VER_UNKNOWN) {
     if (version == DTLSV1DOT2_VERSION && content_type == SSL_ID_HANDSHAKE) {
       /*
@@ -1647,7 +1647,7 @@ dissect_dtls13_record(tvbuff_t *tvb, packet_info *pinfo _U_,
   bool success;
   bool is_first_early_data;
 
-  hdr_flags = tvb_get_guint8(tvb, hdr_offset);
+  hdr_flags = tvb_get_uint8(tvb, hdr_offset);
   c_bit = (hdr_flags & DTLS13_C_BIT_MASK) == DTLS13_C_BIT_MASK;
   s_bit = (hdr_flags & DTLS13_S_BIT_MASK) == DTLS13_S_BIT_MASK;
   l_bit = (hdr_flags & DTLS13_L_BIT_MASK) == DTLS13_L_BIT_MASK;
@@ -1667,7 +1667,7 @@ dissect_dtls13_record(tvbuff_t *tvb, packet_info *pinfo _U_,
   else {
     /* Lowest 8 bits of the sequence number */
     seq_length = 1;
-    seq_suffix = tvb_get_guint8(tvb, hdr_offset);
+    seq_suffix = tvb_get_uint8(tvb, hdr_offset);
   }
   /* Note: seq_suffix is encrypted if the payload is encrypted,
    * as per RFC 9147 section 4.2.3. To get the real sequence number,
@@ -1808,10 +1808,10 @@ dissect_dtls_alert(tvbuff_t *tvb, packet_info *pinfo,
    */
 
   /* first lookup the names for the alert level and description */
-  byte  = tvb_get_guint8(tvb, offset); /* grab the level byte */
+  byte  = tvb_get_uint8(tvb, offset); /* grab the level byte */
   level = try_val_to_str(byte, ssl_31_alert_level);
 
-  byte  = tvb_get_guint8(tvb, offset+1); /* grab the desc byte */
+  byte  = tvb_get_uint8(tvb, offset+1); /* grab the desc byte */
   desc  = try_val_to_str(byte, ssl_31_alert_description);
 
   /* now set the text in the record layer line */
@@ -1944,7 +1944,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
       ti = proto_tree_add_item(tree, hf_dtls_handshake_protocol, tvb, offset, -1, ENC_NA);
       ssl_hand_tree = proto_item_add_subtree(ti, ett_dtls_handshake);
 
-      msg_type = tvb_get_guint8(tvb, offset);
+      msg_type = tvb_get_uint8(tvb, offset);
       fragment_length = tvb_get_ntoh24(tvb, offset + 9);
 
       /* Check the fragment length in the handshake message. Assume it's an
@@ -2326,7 +2326,7 @@ dissect_dtls_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
    */
 
   /* first lookup the names for the message type and the payload length */
-  byte = tvb_get_guint8(tvb, offset);
+  byte = tvb_get_uint8(tvb, offset);
   type = try_val_to_str(byte, tls_heartbeat_type);
 
   payload_length = tvb_get_ntohs(tvb, offset + 1);
@@ -2610,7 +2610,7 @@ looks_like_dtls(tvbuff_t *tvb, uint32_t offset)
   uint16_t version;
 
   /* see if the first byte is a valid content type */
-  byte = tvb_get_guint8(tvb, offset);
+  byte = tvb_get_uint8(tvb, offset);
   if (!ssl_is_valid_content_type(byte))
     {
       if ((byte & DTLS13_FIXED_MASK) >> 5 == 1) {

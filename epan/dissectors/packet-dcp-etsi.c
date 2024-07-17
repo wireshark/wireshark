@@ -195,11 +195,11 @@ dissect_dcp_etsi_heur(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, vo
   /* Check for 'AF or 'PF' */
   if (word == 0x4146) {
     /* AF - check the version, which is only major 1, minor 0 */
-    if ((tvb_get_guint8(tvb, 8) & 0x7F) != 0x10) {
+    if ((tvb_get_uint8(tvb, 8) & 0x7F) != 0x10) {
       return false;
     }
     /* Tag packets are the only payload type */
-    if (tvb_get_guint8(tvb, 9) != 'T') {
+    if (tvb_get_uint8(tvb, 9) != 'T') {
       return false;
     }
   } else if (word == 0x5046) {
@@ -502,10 +502,10 @@ dissect_pft(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
   offset += 2;
   if (plen & 0x8000) {
     fec = true;
-    rsk = tvb_get_guint8 (tvb, offset);
+    rsk = tvb_get_uint8 (tvb, offset);
     proto_tree_add_item (pft_tree, hf_edcp_rsk, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
-    rsz = tvb_get_guint8 (tvb, offset);
+    rsz = tvb_get_uint8 (tvb, offset);
     proto_tree_add_item (pft_tree, hf_edcp_rsz, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
   }
@@ -589,13 +589,13 @@ dissect_af (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _
   offset += 4;
   proto_tree_add_item (af_tree, hf_edcp_seq, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
-  ver = tvb_get_guint8 (tvb, offset);
+  ver = tvb_get_uint8 (tvb, offset);
   proto_tree_add_item (af_tree, hf_edcp_crcflag, tvb, offset, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item (af_tree, hf_edcp_maj, tvb, offset, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item (af_tree, hf_edcp_min, tvb, offset, 1, ENC_BIG_ENDIAN);
 
   offset += 1;
-  pt = tvb_get_guint8 (tvb, offset);
+  pt = tvb_get_uint8 (tvb, offset);
   proto_tree_add_item (af_tree, hf_edcp_pt, tvb, offset, 1, ENC_ASCII);
   offset += 1;
   next_tvb = tvb_new_subset_length(tvb, offset, payload_len);

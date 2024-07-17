@@ -1854,7 +1854,7 @@ static int dissect_dect_nwk_s_ie_auth_type(tvbuff_t *tvb, unsigned offset, proto
 	bool def;
 
 	proto_tree_add_item(tree, hf_dect_nwk_s_ie_auth_type_authentication_algorithm, tvb, offset, 1, ENC_NA);
-	authentication_algorithm = tvb_get_guint8(tvb, offset);
+	authentication_algorithm = tvb_get_uint8(tvb, offset);
 	offset++;
 	if ( authentication_algorithm == DECT_NWK_S_IE_AUTH_TYPE_AUTHENTICATION_ALGORITHM_PROPRIETARY ) {
 		proto_tree_add_item(tree, hf_dect_nwk_s_ie_auth_type_proprietary_algorithm, tvb, offset, 1, ENC_NA);
@@ -1869,7 +1869,7 @@ static int dissect_dect_nwk_s_ie_auth_type(tvbuff_t *tvb, unsigned offset, proto
 	proto_tree_add_item(tree, hf_dect_nwk_s_ie_auth_type_upc, tvb, offset, 1, ENC_NA);
 	proto_tree_add_item(tree, hf_dect_nwk_s_ie_auth_type_cipher_key_number, tvb, offset, 1, ENC_NA);
 	proto_tree_add_item(tree, hf_dect_nwk_s_ie_auth_type_cipher_key_number_related, tvb, offset, 1, ENC_NA);
-	def = ( tvb_get_guint8(tvb, offset) & DECT_NWK_S_IE_AUTH_TYPE_DEF_MASK ) >> DECT_NWK_S_IE_AUTH_TYPE_DEF_SHIFT;
+	def = ( tvb_get_uint8(tvb, offset) & DECT_NWK_S_IE_AUTH_TYPE_DEF_MASK ) >> DECT_NWK_S_IE_AUTH_TYPE_DEF_SHIFT;
 	offset++;
 	if( def ) {
 		proto_tree_add_item(tree, hf_dect_nwk_s_ie_auth_type_default_cipher_key_index, tvb, offset, 2, ENC_NA);
@@ -1887,7 +1887,7 @@ static int dissect_dect_nwk_s_ie_calling_party_number(tvbuff_t *tvb, unsigned of
 	proto_tree_add_item(tree, hf_dect_nwk_s_ie_octet_group_extension, tvb, offset, 1, ENC_NA);
 	proto_tree_add_item(tree, hf_dect_nwk_s_ie_calling_party_number_type, tvb, offset, 1, ENC_NA);
 	proto_tree_add_item(tree, hf_dect_nwk_s_ie_calling_party_number_numbering_plan, tvb, offset, 1, ENC_NA);
-	octet_group_extension = ( tvb_get_guint8(tvb, offset) & DECT_NWK_S_IE_OCTET_GROUP_EXTENSION_MASK ) >> DECT_NWK_S_IE_OCTET_GROUP_EXTENSION_SHIFT;
+	octet_group_extension = ( tvb_get_uint8(tvb, offset) & DECT_NWK_S_IE_OCTET_GROUP_EXTENSION_MASK ) >> DECT_NWK_S_IE_OCTET_GROUP_EXTENSION_SHIFT;
 	offset++;
 	if ( !octet_group_extension ) {
 		proto_tree_add_item(tree, hf_dect_nwk_s_ie_octet_group_extension, tvb, offset, 1, ENC_NA);
@@ -1907,7 +1907,7 @@ static int dissect_dect_nwk_s_ie_cipher_info(tvbuff_t *tvb, unsigned offset, pro
 	uint8_t algorithm;
 	proto_tree_add_item(tree, hf_dect_nwk_s_ie_cipher_info_yn, tvb, offset, 1, ENC_NA);
 	proto_tree_add_item(tree, hf_dect_nwk_s_ie_cipher_info_algorithm, tvb, offset, 1, ENC_NA);
-	algorithm = tvb_get_guint8(tvb, offset) & DECT_NWK_S_IE_CIPHER_INFO_ALGORITHM_MASK;
+	algorithm = tvb_get_uint8(tvb, offset) & DECT_NWK_S_IE_CIPHER_INFO_ALGORITHM_MASK;
 	offset++;
 	if (algorithm == DECT_NWK_S_IE_CIPHER_INFO_ALGORITHM_PROPRIETARY) {
 		proto_tree_add_item(tree, hf_dect_nwk_s_ie_cipher_info_proprietary_algorithm, tvb, offset, 1, ENC_NA);
@@ -1925,7 +1925,7 @@ static int dissect_dect_nwk_s_ie_duration(tvbuff_t *tvb, unsigned offset, uint8_
 	proto_tree_add_item(tree, hf_dect_nwk_s_ie_octet_group_extension, tvb, offset, 1, ENC_NA);
 	proto_tree_add_item(tree, hf_dect_nwk_s_ie_duration_lock_limits, tvb, offset, 1, ENC_NA);
 	proto_tree_add_item(tree, hf_dect_nwk_s_ie_duration_time_limits, tvb, offset, 1, ENC_NA);
-	octet_group_extension = ( tvb_get_guint8(tvb, offset) & DECT_NWK_S_IE_OCTET_GROUP_EXTENSION_MASK ) >> DECT_NWK_S_IE_OCTET_GROUP_EXTENSION_SHIFT;
+	octet_group_extension = ( tvb_get_uint8(tvb, offset) & DECT_NWK_S_IE_OCTET_GROUP_EXTENSION_MASK ) >> DECT_NWK_S_IE_OCTET_GROUP_EXTENSION_SHIFT;
 	offset++;
 
 	if ( !octet_group_extension ) {
@@ -1944,7 +1944,7 @@ static int dissect_dect_nwk_s_ie_fixed_identity(tvbuff_t *tvb, unsigned offset, 
 	proto_tree_add_item(tree, hf_dect_nwk_s_ie_fixed_identity_type, tvb, offset, 1, ENC_NA);
 	offset++;
 	proto_tree_add_item(tree, hf_dect_nwk_s_ie_fixed_identity_value_length, tvb, offset, 1, ENC_NA);
-	value_length = tvb_get_guint8(tvb, offset) & 0x7F;
+	value_length = tvb_get_uint8(tvb, offset) & 0x7F;
 	offset++;
 	proto_tree_add_item(tree, hf_dect_nwk_s_ie_fixed_identity_arc, tvb, offset, 1, ENC_NA);
 	bit_offset = ( offset * 8 ) + 4;
@@ -1965,14 +1965,14 @@ static int dissect_dect_nwk_s_ie_iwu_to_iwu(tvbuff_t *tvb, unsigned offset, uint
 
 	proto_tree_add_item(tree, hf_dect_nwk_s_ie_iwu_to_iwu_sr, tvb, offset, 1, ENC_NA);
 	proto_tree_add_item(tree, hf_dect_nwk_s_ie_iwu_to_iwu_protocol_discriminator, tvb, offset, 1, ENC_NA);
-	protocol_discriminator = tvb_get_guint8(tvb, offset) & DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_MASK;
+	protocol_discriminator = tvb_get_uint8(tvb, offset) & DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_MASK;
 	offset++;
 	remaining_length = ie_length -1;
 
 	proto_tree_add_item(tree, hf_dect_nwk_s_ie_iwu_to_iwu_information, tvb, offset, remaining_length, ENC_NA);
 	if ( protocol_discriminator == DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_USER_SPECIFIC ) {
 		proto_tree_add_item(tree, hf_dect_nwk_s_ie_iwu_to_iwu_discriminator_type, tvb, offset, 1, ENC_NA);
-		discriminator_type = tvb_get_guint8(tvb, offset) & DECT_NWK_S_IE_IWU_TO_IWU_DISCRIMINATOR_TYPE_MASK;
+		discriminator_type = tvb_get_uint8(tvb, offset) & DECT_NWK_S_IE_IWU_TO_IWU_DISCRIMINATOR_TYPE_MASK;
 		offset++;
 		remaining_length--;
 
@@ -2000,12 +2000,12 @@ static int dissect_dect_nwk_s_ie_location_area(tvbuff_t *tvb, unsigned offset, p
 	proto_tree_add_item(li_type_tree, hf_dect_nwk_s_ie_location_area_li_extended_included, tvb, offset, 1, ENC_NA);
 	proto_tree_add_item(li_type_tree, hf_dect_nwk_s_ie_location_area_la_level_included, tvb, offset, 1, ENC_NA);
 	proto_tree_add_item(tree, hf_dect_nwk_s_ie_location_area_la_level, tvb, offset, 1, ENC_NA);
-	li_extended_included = ( tvb_get_guint8(tvb, offset) & DECT_NWK_S_IE_LOCATION_AREA_LI_EXTENDED_INCLUDED_MASK ) >> DECT_NWK_S_IE_LOCATION_AREA_LI_EXTENDED_INCLUDED_SHIFT;
+	li_extended_included = ( tvb_get_uint8(tvb, offset) & DECT_NWK_S_IE_LOCATION_AREA_LI_EXTENDED_INCLUDED_MASK ) >> DECT_NWK_S_IE_LOCATION_AREA_LI_EXTENDED_INCLUDED_SHIFT;
 	offset++;
 
 	if ( li_extended_included ) {
 		proto_tree_add_item(tree, hf_dect_nwk_s_ie_location_area_eli_type, tvb, offset, 1, ENC_NA);
-		eli_type = ( tvb_get_guint8(tvb, offset) & DECT_NWK_S_IE_LOCATION_AREA_ELI_TYPE_MASK ) >> DECT_NWK_S_IE_LOCATION_AREA_ELI_TYPE_SHIFT;
+		eli_type = ( tvb_get_uint8(tvb, offset) & DECT_NWK_S_IE_LOCATION_AREA_ELI_TYPE_MASK ) >> DECT_NWK_S_IE_LOCATION_AREA_ELI_TYPE_SHIFT;
 		offset++;
 		if ( eli_type == DECT_NWK_S_IE_LOCATION_AREA_ELI_TYPE_LI ) {
 			offset = dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_NONE, false);
@@ -2025,7 +2025,7 @@ static int dissect_dect_nwk_s_ie_nwk_assigned_identity(tvbuff_t *tvb, unsigned o
 	proto_tree_add_item(tree, hf_dect_nwk_s_ie_nwk_assigned_identity_type, tvb, offset, 1, ENC_NA);
 	offset++;
 	proto_tree_add_item(tree, hf_dect_nwk_s_ie_nwk_assigned_identity_value_length, tvb, offset, 1, ENC_NA);
-	value_length = tvb_get_guint8(tvb, offset) & 0x7F;
+	value_length = tvb_get_uint8(tvb, offset) & 0x7F;
 	offset++;
 	bit_offset = offset * 8;
 	proto_tree_add_bits_item(tree, hf_dect_nwk_s_ie_nwk_assigned_identity_value, tvb, bit_offset, value_length, ENC_NA);
@@ -2060,11 +2060,11 @@ static int dissect_dect_nwk_s_ie_portable_identity(tvbuff_t *tvb, unsigned offse
 	uint8_t value_length, identity_type, ipui_type;
 	unsigned bit_offset, no_of_bits, overflow_bits_in_last_byte, no_of_bytes;
 	bool bcd_last_byte_odd;
-	identity_type = tvb_get_guint8(tvb, offset) & DECT_NWK_S_IE_PORTABLE_IDENTITY_TYPE_MASK;
+	identity_type = tvb_get_uint8(tvb, offset) & DECT_NWK_S_IE_PORTABLE_IDENTITY_TYPE_MASK;
 	proto_tree_add_item(tree, hf_dect_nwk_s_ie_portable_identity_type, tvb, offset, 1, ENC_NA);
 	offset++;
 	proto_tree_add_item(tree, hf_dect_nwk_s_ie_portable_identity_value_length, tvb, offset, 1, ENC_NA);
-	value_length = tvb_get_guint8(tvb, offset) & 0x7F;
+	value_length = tvb_get_uint8(tvb, offset) & 0x7F;
 	overflow_bits_in_last_byte = value_length % 8;
 	if (overflow_bits_in_last_byte) {
 		no_of_bytes = value_length / 8 + 1;
@@ -2077,7 +2077,7 @@ static int dissect_dect_nwk_s_ie_portable_identity(tvbuff_t *tvb, unsigned offse
 	bit_offset = ( offset * 8 ) + 4;
 	switch(identity_type) {
 		case DECT_NWK_S_IE_PORTABLE_IDENTITY_IPUI:
-			ipui_type = ( tvb_get_guint8(tvb, offset) & DECT_NWK_S_IE_PORTABLE_IDENTITY_IPUI_TYPE_MASK ) >> DECT_NWK_S_IE_PORTABLE_IDENTITY_IPUI_TYPE_SHIFT;
+			ipui_type = ( tvb_get_uint8(tvb, offset) & DECT_NWK_S_IE_PORTABLE_IDENTITY_IPUI_TYPE_MASK ) >> DECT_NWK_S_IE_PORTABLE_IDENTITY_IPUI_TYPE_SHIFT;
 			proto_tree_add_item(tree, hf_dect_nwk_s_ie_portable_identity_put, tvb, offset, 1, ENC_NA);
 			no_of_bits = value_length - 4;
 			switch(ipui_type) {
@@ -2304,10 +2304,10 @@ static int dissect_dect_nwk_s_ie_terminal_capability(tvbuff_t *tvb, unsigned off
 				proto_tree_add_bitmask(tree, tvb, offset, hf_dect_nwk_s_ie_terminal_capability_slot_type_capability, ett_dect_nwk_s_ie_element, slot_type_flags, ENC_NA);
 				break;
 			case DECT_NWK_S_IE_OCTET_D:
-				stored_display_characters = ( tvb_get_guint8(tvb, offset) & DECT_NWK_S_IE_TERMINAL_CAPABILITY_STORED_DISPLAY_CHARACTERS_MASK ) << 7;
+				stored_display_characters = ( tvb_get_uint8(tvb, offset) & DECT_NWK_S_IE_TERMINAL_CAPABILITY_STORED_DISPLAY_CHARACTERS_MASK ) << 7;
 				break;
 			case DECT_NWK_S_IE_OCTET_E:
-				stored_display_characters = stored_display_characters |	( tvb_get_guint8(tvb, offset) & DECT_NWK_S_IE_TERMINAL_CAPABILITY_STORED_DISPLAY_CHARACTERS_MASK );
+				stored_display_characters = stored_display_characters |	( tvb_get_uint8(tvb, offset) & DECT_NWK_S_IE_TERMINAL_CAPABILITY_STORED_DISPLAY_CHARACTERS_MASK );
 				proto_tree_add_uint(tree, hf_dect_nwk_s_ie_terminal_capability_stored_display_characters, tvb, offset-1, 2, stored_display_characters);
 				break;
 			case DECT_NWK_S_IE_OCTET_F:
@@ -2320,7 +2320,7 @@ static int dissect_dect_nwk_s_ie_terminal_capability(tvbuff_t *tvb, unsigned off
 				proto_tree_add_item(tree, hf_dect_nwk_s_ie_terminal_capability_scrolling_behaviour, tvb, offset, 1, ENC_NA);
 				break;
 		}
-		octet_group_extension = ( tvb_get_guint8(tvb, offset) & DECT_NWK_S_IE_OCTET_GROUP_EXTENSION_MASK ) >> DECT_NWK_S_IE_OCTET_GROUP_EXTENSION_SHIFT;
+		octet_group_extension = ( tvb_get_uint8(tvb, offset) & DECT_NWK_S_IE_OCTET_GROUP_EXTENSION_MASK ) >> DECT_NWK_S_IE_OCTET_GROUP_EXTENSION_SHIFT;
 		octet_identifier++;
 		offset++;
 	} while ( !octet_group_extension );
@@ -2370,7 +2370,7 @@ static int dissect_dect_nwk_s_ie_terminal_capability(tvbuff_t *tvb, unsigned off
 					profile_indicator_10_flags, ENC_NA);
 				break;
 		}
-		octet_group_extension = ( tvb_get_guint8(tvb, offset) & DECT_NWK_S_IE_OCTET_GROUP_EXTENSION_MASK ) >> DECT_NWK_S_IE_OCTET_GROUP_EXTENSION_SHIFT;
+		octet_group_extension = ( tvb_get_uint8(tvb, offset) & DECT_NWK_S_IE_OCTET_GROUP_EXTENSION_MASK ) >> DECT_NWK_S_IE_OCTET_GROUP_EXTENSION_SHIFT;
 		octet_identifier++;
 		offset++;
 	} while ( !octet_group_extension );
@@ -2389,7 +2389,7 @@ static int dissect_dect_nwk_s_ie_terminal_capability(tvbuff_t *tvb, unsigned off
 					escape_to_char_sets_1_flags, ENC_NA);
 				break;
 		}
-		octet_group_extension = ( tvb_get_guint8(tvb, offset) & DECT_NWK_S_IE_OCTET_GROUP_EXTENSION_MASK ) >> DECT_NWK_S_IE_OCTET_GROUP_EXTENSION_SHIFT;
+		octet_group_extension = ( tvb_get_uint8(tvb, offset) & DECT_NWK_S_IE_OCTET_GROUP_EXTENSION_MASK ) >> DECT_NWK_S_IE_OCTET_GROUP_EXTENSION_SHIFT;
 		octet_identifier++;
 		offset++;
 	} while ( !octet_group_extension );
@@ -2409,7 +2409,7 @@ static int dissect_dect_nwk_s_ie_terminal_capability(tvbuff_t *tvb, unsigned off
 						blind_slot_6a_flags, ENC_NA);
 					break;
 			}
-			octet_group_extension = ( tvb_get_guint8(tvb, offset) & DECT_NWK_S_IE_OCTET_GROUP_EXTENSION_MASK ) >> DECT_NWK_S_IE_OCTET_GROUP_EXTENSION_SHIFT;
+			octet_group_extension = ( tvb_get_uint8(tvb, offset) & DECT_NWK_S_IE_OCTET_GROUP_EXTENSION_MASK ) >> DECT_NWK_S_IE_OCTET_GROUP_EXTENSION_SHIFT;
 			octet_identifier++;
 			offset++;
 		} while ( !octet_group_extension );
@@ -2421,7 +2421,7 @@ static int dissect_dect_nwk_s_ie_escape_to_proprietary(tvbuff_t *tvb, unsigned o
 {
 	uint8_t discriminator_type;
 	proto_tree_add_item(tree, hf_dect_nwk_s_ie_escape_to_proprietary_discriminator_type, tvb, offset, 1, ENC_NA);
-	discriminator_type = tvb_get_guint8(tvb, offset) & DECT_NWK_S_IE_ESCAPE_TO_PROPRIETARY_DISCRIMINATOR_TYPE_MASK;
+	discriminator_type = tvb_get_uint8(tvb, offset) & DECT_NWK_S_IE_ESCAPE_TO_PROPRIETARY_DISCRIMINATOR_TYPE_MASK;
 	offset++;
 	if (discriminator_type == DECT_NWK_S_IE_ESCAPE_TO_PROPRIETARY_DISCRIMINATOR_TYPE_EMC) {
 		proto_tree_add_item(tree, hf_dect_nwk_s_ie_escape_to_proprietary_discriminator, tvb, offset, 2, ENC_NA);
@@ -2466,7 +2466,7 @@ static int dissect_dect_nwk_s_ie_codec_list(tvbuff_t *tvb, unsigned offset, uint
 				proto_tree_add_item(tree, hf_dect_nwk_s_ie_codec_list_last_codec, tvb, offset, 1, ENC_NA);
 				proto_tree_add_item(tree, hf_dect_nwk_s_ie_codec_list_c_plane_routing, tvb, offset, 1, ENC_NA);
 				proto_tree_add_item(tree, hf_dect_nwk_s_ie_codec_list_slot_size, tvb, offset, 1, ENC_NA);
-				last_codec = ( tvb_get_guint8(tvb, offset) & DECT_NWK_S_IE_CODEC_LIST_LAST_CODEC_MASK ) >> DECT_NWK_S_IE_CODEC_LIST_LAST_CODEC_SHIFT;
+				last_codec = ( tvb_get_uint8(tvb, offset) & DECT_NWK_S_IE_CODEC_LIST_LAST_CODEC_MASK ) >> DECT_NWK_S_IE_CODEC_LIST_LAST_CODEC_SHIFT;
 				break;
 		}
 		octet_identifier = (octet_identifier + 1) % 3;
@@ -2483,10 +2483,10 @@ static int dissect_dect_nwk_s_ie(tvbuff_t *tvb, unsigned offset, packet_info *pi
 	proto_tree *field_tree;
 	proto_tree *field_tree_item;
 
-	fixed_length = (tvb_get_guint8(tvb, offset) & DECT_NWK_S_IE_FIXED_LENGTH_MASK) >> DECT_NWK_S_IE_FIXED_LENGTH_SHIFT;
+	fixed_length = (tvb_get_uint8(tvb, offset) & DECT_NWK_S_IE_FIXED_LENGTH_MASK) >> DECT_NWK_S_IE_FIXED_LENGTH_SHIFT;
 	if(fixed_length) {
-		fl_ie_type = ( tvb_get_guint8(tvb, offset) & DECT_NWK_S_IE_FL_TYPE_MASK ) >> DECT_NWK_S_IE_FL_TYPE_SHIFT;
-		fl_ie_double_octet_type = ( tvb_get_guint8(tvb, offset) & DECT_NWK_S_IE_FL_DOUBLE_OCTET_TYPE_MASK );
+		fl_ie_type = ( tvb_get_uint8(tvb, offset) & DECT_NWK_S_IE_FL_TYPE_MASK ) >> DECT_NWK_S_IE_FL_TYPE_SHIFT;
+		fl_ie_double_octet_type = ( tvb_get_uint8(tvb, offset) & DECT_NWK_S_IE_FL_DOUBLE_OCTET_TYPE_MASK );
 		if ( fl_ie_type == DECT_NWK_S_IE_FL_DOUBLE_OCTET_ELEMENT ) {
 			element_length = 2;
 			field_tree = proto_tree_add_subtree(tree, tvb, offset, element_length, ett_dect_nwk_s_ie_element, &field_tree_item, "Fixed length Element: ");
@@ -2542,8 +2542,8 @@ static int dissect_dect_nwk_s_ie(tvbuff_t *tvb, unsigned offset, packet_info *pi
 		}
 		offset ++;
 	} else {
-		element_type = ( tvb_get_guint8(tvb, offset) & 0x7F);
-		element_length = tvb_get_guint8(tvb, offset + 1);
+		element_type = ( tvb_get_uint8(tvb, offset) & 0x7F);
+		element_length = tvb_get_uint8(tvb, offset + 1);
 		field_tree = proto_tree_add_subtree(tree, tvb, offset, element_length + 2, ett_dect_nwk_s_ie_element, &field_tree_item, "Element: ");
 		proto_item_append_text(field_tree_item, "%s", val_to_str(element_type, dect_nwk_s_ie_type_val, "Unknown: 0x%0x"));
 		proto_tree_add_item(field_tree, hf_dect_nwk_s_ie_fl, tvb, offset, 1, ENC_NA);
@@ -2739,8 +2739,8 @@ static int dissect_dect_nwk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	proto_tree_add_item(nwk_tree, hf_nwk_ti, tvb, 0, 1, ENC_NA);
 	proto_tree_add_item(nwk_tree, hf_nwk_pdisc, tvb, 0, 1, ENC_NA);
-	pdisc = tvb_get_guint8(tvb, 0) & 0x0F;
-	msg_type = tvb_get_guint8(tvb, 1);
+	pdisc = tvb_get_uint8(tvb, 0) & 0x0F;
+	msg_type = tvb_get_uint8(tvb, 1);
 
 	switch (pdisc) {
 	case DECT_NWK_PDISC_LCE:

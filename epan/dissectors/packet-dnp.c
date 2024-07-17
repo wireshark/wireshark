@@ -1629,7 +1629,7 @@ dnp3_al_obj_procprefix(tvbuff_t *tvb, int offset, uint8_t al_objq_prefix, uint32
       proto_item_set_generated(prefix_item);
       break;
     case AL_OBJQL_PREFIX_1O:
-      *al_ptaddr = tvb_get_guint8(tvb, offset);
+      *al_ptaddr = tvb_get_uint8(tvb, offset);
       proto_tree_add_item(item_tree, hf_dnp3_al_index8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
       prefixbytes = 1;
       break;
@@ -1644,7 +1644,7 @@ dnp3_al_obj_procprefix(tvbuff_t *tvb, int offset, uint8_t al_objq_prefix, uint32
       prefixbytes = 4;
       break;
     case AL_OBJQL_PREFIX_1OS:
-      *al_ptaddr = tvb_get_guint8(tvb, offset);
+      *al_ptaddr = tvb_get_uint8(tvb, offset);
       proto_tree_add_item(item_tree, hf_dnp3_al_size8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
       prefixbytes = 1;
       break;
@@ -1901,7 +1901,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
   offset += 2;
 
   /* Object Qualifier */
-  al_objq = tvb_get_guint8(tvb, offset);
+  al_objq = tvb_get_uint8(tvb, offset);
   al_objq_prefix = al_objq & AL_OBJQ_PREFIX;
   al_objq_prefix = al_objq_prefix >> 4;
   al_objq_range = al_objq & AL_OBJQ_RANGE;
@@ -1921,9 +1921,9 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
   switch (al_objq_range)
   {
     case AL_OBJQL_RANGE_SSI8:           /* 8-bit Start and Stop Indices in Range Field */
-      num_items = ( tvb_get_guint8(tvb, offset+1) - tvb_get_guint8(tvb, offset) + 1);
+      num_items = ( tvb_get_uint8(tvb, offset+1) - tvb_get_uint8(tvb, offset) + 1);
       proto_item_set_generated(range_item);
-      al_ptaddr = tvb_get_guint8(tvb, offset);
+      al_ptaddr = tvb_get_uint8(tvb, offset);
       proto_tree_add_item(range_tree, hf_dnp3_al_range_start8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(range_tree, hf_dnp3_al_range_stop8, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
       rangebytes = 2;
@@ -1947,7 +1947,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
     case AL_OBJQL_RANGE_AA8:            /* 8-bit Absolute Address in Range Field */
       num_items = 1;
       proto_item_set_generated(range_item);
-      al_ptaddr = tvb_get_guint8(tvb, offset);
+      al_ptaddr = tvb_get_uint8(tvb, offset);
       proto_tree_add_item(range_tree, hf_dnp3_al_range_abs8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
       rangebytes = 1;
       break;
@@ -1966,7 +1966,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
       rangebytes = 4;
       break;
     case AL_OBJQL_RANGE_SF8:            /* 8-bit Single Field Quantity in Range Field */
-      num_items = tvb_get_guint8(tvb, offset);
+      num_items = tvb_get_uint8(tvb, offset);
       proto_tree_add_item(range_tree, hf_dnp3_al_range_quant8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
       rangebytes = 1;
       proto_item_set_len(range_item, rangebytes);
@@ -1984,7 +1984,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
       proto_item_set_len(range_item, rangebytes);
       break;
     case AL_OBJQL_RANGE_FF:            /* 8 bit object count in Range Field */
-      num_items = tvb_get_guint8(tvb, offset);
+      num_items = tvb_get_uint8(tvb, offset);
       proto_tree_add_item(range_tree, hf_dnp3_al_range_quant8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
       rangebytes = 1;
       proto_item_set_len(range_item, rangebytes);
@@ -2073,7 +2073,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
               case AL_DATA_TYPE_NONE:
                 break;
               case AL_DATA_TYPE_VSTR:
-                da_len = tvb_get_guint8(tvb, data_pos);
+                da_len = tvb_get_uint8(tvb, data_pos);
                 proto_tree_add_item(point_tree, hf_dnp3_al_da_length, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
                 data_pos++;
                 const uint8_t* da_value;
@@ -2082,12 +2082,12 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
                 data_pos += da_len;
                 break;
               case AL_DATA_TYPE_UINT:
-                da_len = tvb_get_guint8(tvb, data_pos);
+                da_len = tvb_get_uint8(tvb, data_pos);
                 proto_tree_add_item(point_tree, hf_dnp3_al_da_length, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
                 data_pos++;
                 if (da_len == 1) {
                   proto_tree_add_item(point_tree, hf_dnp3_al_da_uint8, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
-                  proto_item_append_text(object_item, ", Value: %u", tvb_get_guint8(tvb, data_pos));
+                  proto_item_append_text(object_item, ", Value: %u", tvb_get_uint8(tvb, data_pos));
                   data_pos++;
                 }
                 else if (da_len == 2) {
@@ -2102,12 +2102,12 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
                 }
                 break;
               case AL_DATA_TYPE_INT:
-                da_len = tvb_get_guint8(tvb, data_pos);
+                da_len = tvb_get_uint8(tvb, data_pos);
                 proto_tree_add_item(point_tree, hf_dnp3_al_da_length, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
                 data_pos++;
                 if (da_len == 1) {
                   proto_tree_add_item(point_tree, hf_dnp3_al_da_int8, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
-                  proto_item_append_text(object_item, ", Value: %d", tvb_get_guint8(tvb, data_pos));
+                  proto_item_append_text(object_item, ", Value: %d", tvb_get_uint8(tvb, data_pos));
                   data_pos++;
                 }
                 else if (da_len == 2) {
@@ -2122,7 +2122,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
                 }
                 break;
               case AL_DATA_TYPE_FLT:
-                da_len = tvb_get_guint8(tvb, data_pos);
+                da_len = tvb_get_uint8(tvb, data_pos);
                 proto_tree_add_item(point_tree, hf_dnp3_al_da_length, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
                 data_pos++;
                 if (da_len == 4) {
@@ -2185,7 +2185,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
             case AL_OBJ_IIN:        /* Internal Indications - IIN (Obj: 80, Var:01) */
 
               /* Extract the bit from the packed byte */
-              al_bi_val = tvb_get_guint8(tvb, data_pos);
+              al_bi_val = tvb_get_uint8(tvb, data_pos);
               al_bit = (al_bi_val & 1) > 0;
               if (al_obj == AL_OBJ_IIN) {
                 /* For an IIN bit, work out the IIN constant value for the bit position to get the name of the bit */
@@ -2236,7 +2236,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
               }
 
               /* Extract the Double-bit from the packed byte */
-              al_bi_val = tvb_get_guint8(tvb, offset);
+              al_bi_val = tvb_get_uint8(tvb, offset);
               al_2bit = ((al_bi_val >> (bitindex << 1)) & 3);
 
               proto_item_append_text(point_item, ", Value: %u", al_2bit);
@@ -2259,7 +2259,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
             case AL_OBJ_BOC_NOTIME: /* Binary Output Change Without Time (Obj:11, Var:01) */
 
               /* Get Point Flags */
-              al_ptflags = tvb_get_guint8(tvb, data_pos);
+              al_ptflags = tvb_get_uint8(tvb, data_pos);
 
               switch (al_obj) {
                 case AL_OBJ_BI_STAT:
@@ -2285,7 +2285,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
             case AL_OBJ_2BIC_NOTIME: /* Double-bit Input Change Without Time (Obj:04, Var:01) */
 
               /* Get Point Flags */
-              al_ptflags = tvb_get_guint8(tvb, data_pos);
+              al_ptflags = tvb_get_uint8(tvb, data_pos);
               dnp3_al_obj_quality(tvb, data_pos, al_ptflags, point_tree, point_item, BIN_IN);
               data_pos += 1;
 
@@ -2300,7 +2300,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
             case AL_OBJ_BOC_TIME:   /* Binary Output Change w/ Time (Obj:11, Var:02)  */
 
               /* Get Point Flags */
-              al_ptflags = tvb_get_guint8(tvb, data_pos);
+              al_ptflags = tvb_get_uint8(tvb, data_pos);
               switch (al_obj) {
                 case AL_OBJ_BIC_TIME:
                   dnp3_al_obj_quality(tvb, data_pos, al_ptflags, point_tree, point_item, BIN_IN);
@@ -2327,7 +2327,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
             case AL_OBJ_2BIC_TIME:   /* Double-bit Input Change w/ Time (Obj:04, Var:02)  */
 
               /* Get Point Flags */
-              al_ptflags = tvb_get_guint8(tvb, data_pos);
+              al_ptflags = tvb_get_uint8(tvb, data_pos);
               dnp3_al_obj_quality(tvb, (offset+prefixbytes), al_ptflags, point_tree, point_item, BIN_IN);
               data_pos += 1;
 
@@ -2348,7 +2348,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
             case AL_OBJ_2BIC_RTIME:  /* Double-bit Input Change w/ Relative Time (Obj:04, Var:03)  */
 
               /* Get Point Flags */
-              al_ptflags = tvb_get_guint8(tvb, data_pos);
+              al_ptflags = tvb_get_uint8(tvb, data_pos);
               dnp3_al_obj_quality(tvb, data_pos, al_ptflags, point_tree, point_item, BIN_IN);
               data_pos += 1;
 
@@ -2385,7 +2385,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
               proto_tree  *tcc_tree;
 
               /* Add a expand/collapse for TCC */
-              al_tcc_code = tvb_get_guint8(tvb, data_pos);
+              al_tcc_code = tvb_get_uint8(tvb, data_pos);
               tcc_tree = proto_tree_add_subtree_format(point_tree, tvb, data_pos, 1,
                           ett_dnp3_al_obj_point_tcc, NULL, "Control Code [0x%02x]",al_tcc_code);
 
@@ -2445,7 +2445,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
             case AL_OBJ_AOC_DBLEVTT:   /* 64-bit Floating Point Analog Command Event with time (Obj:43, Var:08) */
             {
               /* Get the status code */
-              al_ctlobj_stat = tvb_get_guint8(tvb, data_pos) & AL_OBJCTL_STATUS_MASK;
+              al_ctlobj_stat = tvb_get_uint8(tvb, data_pos) & AL_OBJCTL_STATUS_MASK;
               ctl_status_str = val_to_str_ext(al_ctlobj_stat, &dnp3_al_ctl_status_vals_ext, "Invalid Status (0x%02x)");
               proto_item_append_text(point_item, " [Status: %s (0x%02x)]", ctl_status_str, al_ctlobj_stat);
               proto_tree_add_item(point_tree, hf_dnp3_al_ctrlstatus, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
@@ -2545,7 +2545,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
               }
 
               /* Get control status */
-              al_ctlobj_stat = tvb_get_guint8(tvb, data_pos) & AL_OBJCTL_STATUS_MASK;
+              al_ctlobj_stat = tvb_get_uint8(tvb, data_pos) & AL_OBJCTL_STATUS_MASK;
               ctl_status_str = val_to_str_ext(al_ctlobj_stat, &dnp3_al_ctl_status_vals_ext, "Invalid Status (0x%02x)");
               proto_item_append_text(point_item, " [Status: %s (0x%02x)]", ctl_status_str, al_ctlobj_stat);
               proto_tree_add_item(point_tree, hf_dnp3_al_ctrlstatus, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
@@ -2607,7 +2607,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
                   break;
 
                 default:
-                  al_ptflags = tvb_get_guint8(tvb, data_pos);
+                  al_ptflags = tvb_get_uint8(tvb, data_pos);
                   dnp3_al_obj_quality(tvb, data_pos, al_ptflags, point_tree, point_item, COUNTER);
                   data_pos += 1;
                   break;
@@ -2728,7 +2728,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
                   break;
 
                 default:
-                  al_ptflags = tvb_get_guint8(tvb, data_pos);
+                  al_ptflags = tvb_get_uint8(tvb, data_pos);
                   dnp3_al_obj_quality(tvb, data_pos, al_ptflags, point_tree, point_item, ANA_IN);
                   data_pos += 1;
                   break;
@@ -2823,7 +2823,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
             case AL_OBJ_AOC_DBLT:  /* 64-Bit Floating Point Output Event w/ Time (Obj:42, Var:08) */
 
               /* Get Point Flags */
-              al_ptflags = tvb_get_guint8(tvb, data_pos);
+              al_ptflags = tvb_get_uint8(tvb, data_pos);
               dnp3_al_obj_quality(tvb, data_pos, al_ptflags, point_tree, point_item, ANA_OUT);
               data_pos += 1;
 
@@ -3166,7 +3166,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
               /* MAC Algorithm */
               /* Use the MAC Algorithm to determine the length of the MAC Value */
-              temp = tvb_get_guint8(tvb, data_pos);
+              temp = tvb_get_uint8(tvb, data_pos);
               switch (temp) {
                   case 1:
                     al_sa_mac_len = 4;
@@ -3344,7 +3344,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
               proto_item_append_text(point_item, " %s", sec_stat_str);
 
               /* Quality Flags */
-              al_ptflags = tvb_get_guint8(tvb, data_pos);
+              al_ptflags = tvb_get_uint8(tvb, data_pos);
               dnp3_al_obj_quality(tvb, data_pos, al_ptflags, point_tree, point_item, COUNTER);
               data_pos += 1;
 
@@ -3423,9 +3423,9 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   data_len = tvb_captured_length(tvb);
 
   /* Handle the control byte and function code */
-  al_ctl = tvb_get_guint8(tvb, offset);
+  al_ctl = tvb_get_uint8(tvb, offset);
   al_seq = al_ctl & DNP3_AL_SEQ;
-  al_func = tvb_get_guint8(tvb, (offset+1));
+  al_func = tvb_get_uint8(tvb, (offset+1));
   func_code_str = val_to_str_ext(al_func, &dnp3_al_func_vals_ext, "Unknown function (0x%02x)");
 
   /* Clear out lower layer info */
@@ -3701,10 +3701,10 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
   /* Skip "0x0564" header bytes */
   temp_offset += 2;
 
-  dl_len = tvb_get_guint8(tvb, temp_offset);
+  dl_len = tvb_get_uint8(tvb, temp_offset);
   temp_offset += 1;
 
-  dl_ctl = tvb_get_guint8(tvb, temp_offset);
+  dl_ctl = tvb_get_uint8(tvb, temp_offset);
   temp_offset += 1;
 
   dl_dst = tvb_get_letohs(tvb, temp_offset);
@@ -3827,7 +3827,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     };
 
     /* get the transport layer byte */
-    tr_ctl = tvb_get_guint8(tvb, offset);
+    tr_ctl = tvb_get_uint8(tvb, offset);
     tr_seq = tr_ctl & DNP3_TR_SEQ;
     tr_fir = tr_ctl & DNP3_TR_FIR;
     tr_fin = tr_ctl & DNP3_TR_FIN;
@@ -3988,10 +3988,10 @@ check_dnp3_header(tvbuff_t *tvb, bool dnp3_heuristics)
   else {
     /* For a non-heuristic match, at least the first byte is 0x05 and if available
        the second byte is 64 and if available the CRC is valid */
-    if (tvb_get_guint8(tvb, 0) != 0x05) {
+    if (tvb_get_uint8(tvb, 0) != 0x05) {
       return false;
     }
-    if ((length > 1) && (tvb_get_guint8(tvb, 1) != 0x64)) {
+    if ((length > 1) && (tvb_get_uint8(tvb, 1) != 0x64)) {
       return false;
     }
     if ((length >= DNP_HDR_LEN) && !goodCRC) {
@@ -4008,7 +4008,7 @@ get_dnp3_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
   uint16_t message_len;  /* need 16 bits as total can exceed 255 */
   uint16_t data_crc;     /* No. of user data CRC bytes */
 
-  message_len = tvb_get_guint8(tvb, offset + 2);
+  message_len = tvb_get_uint8(tvb, offset + 2);
 
   /* Add in 2 bytes for header start octets,
             1 byte for len itself,

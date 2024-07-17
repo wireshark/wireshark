@@ -101,7 +101,7 @@ request_response_handling(tvbuff_t *tvb, packet_info *pinfo, proto_tree *djiuav_
 
 	is_cmd = (pinfo->match_uint == pinfo->destport);
 	seq_no = tvb_get_letohs(tvb, offset + 4);
-	packet_type = tvb_get_guint8(tvb, offset + 6);
+	packet_type = tvb_get_uint8(tvb, offset + 6);
 
 	conversation = find_or_create_conversation(pinfo);
 	djiuav_info = (djiuav_conv_info_t *)conversation_get_proto_data(conversation, proto_djiuav);
@@ -171,7 +171,7 @@ dissect_djiuav_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 	bool		is_cmd;
 
 	is_cmd = (pinfo->match_uint == pinfo->destport);
-	packet_type = tvb_get_guint8(tvb, 6);
+	packet_type = tvb_get_uint8(tvb, 6);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
 	col_add_str(pinfo->cinfo, COL_INFO, is_cmd?"C: ":"R: ");
@@ -188,7 +188,7 @@ dissect_djiuav_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 			ENC_BIG_ENDIAN);
 		offset += 2;
 
-		pdu_length = tvb_get_guint8(tvb, offset);
+		pdu_length = tvb_get_uint8(tvb, offset);
 		proto_tree_add_item(djiuav_tree, hf_djiuav_length, tvb, offset, 1,
 			ENC_NA);
 		offset += 1;
@@ -257,7 +257,7 @@ test_djiuav(tvbuff_t *tvb)
 static unsigned
 get_djiuav_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
-	return tvb_get_guint8(tvb, offset + 2);
+	return tvb_get_uint8(tvb, offset + 2);
 }
 
 static int

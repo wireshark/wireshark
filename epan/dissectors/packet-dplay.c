@@ -523,7 +523,7 @@ static int spp_get_value(uint32_t length_type, tvbuff_t *tvb, int offset, uint32
     switch (length_type) {
         case 1:
             len = 1;
-            *value = tvb_get_guint8(tvb, offset);
+            *value = tvb_get_uint8(tvb, offset);
             break;
         case 2:
             len = 2;
@@ -1095,7 +1095,7 @@ static bool heur_dissect_dplay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
       if (tvb_get_letohs(tvb, 4) == WINSOCK_AF_INET) {
         int offset;
         for (offset = 12; offset <= 20; offset++)
-          if (tvb_get_guint8(tvb, offset) != 0)
+          if (tvb_get_uint8(tvb, offset) != 0)
             return false;
 
         dissect_dplay_player_msg(tvb, pinfo, tree);

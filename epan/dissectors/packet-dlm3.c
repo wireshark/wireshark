@@ -1024,7 +1024,7 @@ dissect_dlm3_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
       return 0;
 
     sub_tree = proto_item_add_subtree(sub_item, ett_dlm3_opts);
-    o_nextcmd = tvb_get_guint8(tvb, offset);
+    o_nextcmd = tvb_get_uint8(tvb, offset);
     col_append_fstr(pinfo->cinfo, COL_INFO,
                     ": %s", val_to_str_const(o_nextcmd,
                                              dlm3_cmd,
@@ -1139,7 +1139,7 @@ dissect_dlm3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
 
   col_set_str(pinfo->cinfo, COL_INFO, "DLM3");
 
-  h_cmd = tvb_get_guint8(tvb, DLM_HEADER_LEN - 1 - 1);
+  h_cmd = tvb_get_uint8(tvb, DLM_HEADER_LEN - 1 - 1);
   col_set_str(pinfo->cinfo, COL_INFO,
                 val_to_str_const(h_cmd,
                            dlm3_cmd,

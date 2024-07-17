@@ -636,7 +636,7 @@ add_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *doip_tree)
     proto_tree *subtree = proto_tree_add_subtree(doip_tree, tvb, DOIP_VERSION_OFFSET, DOIP_HEADER_LEN, ett_header, NULL, "Header");
     proto_tree_add_item(subtree, hf_doip_version, tvb, DOIP_VERSION_OFFSET, DOIP_VERSION_LEN, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_doip_inv_version, tvb, DOIP_INV_VERSION_OFFSET, DOIP_INV_VERSION_LEN, ENC_BIG_ENDIAN);
-    payload_type = tvb_get_guint16(tvb, DOIP_TYPE_OFFSET, ENC_BIG_ENDIAN);
+    payload_type = tvb_get_uint16(tvb, DOIP_TYPE_OFFSET, ENC_BIG_ENDIAN);
     proto_tree_add_uint_format(subtree, hf_doip_type, tvb, DOIP_TYPE_OFFSET, DOIP_TYPE_LEN, payload_type, "Type: %s", resolve_doip_payload_type(pinfo->pool, payload_type, false));
     proto_tree_add_item_ret_uint(subtree, hf_doip_length, tvb, DOIP_LENGTH_OFFSET, DOIP_LENGTH_LEN, ENC_BIG_ENDIAN, &len);
 
@@ -796,7 +796,7 @@ add_diagnostic_message_nack_fields(proto_tree *doip_tree, tvbuff_t *tvb)
 static void
 dissect_doip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    uint8_t version = tvb_get_guint8(tvb, DOIP_VERSION_OFFSET);
+    uint8_t version = tvb_get_uint8(tvb, DOIP_VERSION_OFFSET);
     uint16_t payload_type = tvb_get_ntohs(tvb, DOIP_TYPE_OFFSET);
 
     /* Set protocol and clear information columns */
@@ -890,8 +890,8 @@ dissect_doip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* Show UDS details in info column */
         if (uds_handle != 0) {
             doip_info_t doip_info;
-            doip_info.source_address = tvb_get_guint16(tvb, DOIP_DIAG_COMMON_SOURCE_OFFSET, ENC_BIG_ENDIAN);
-            doip_info.target_address = tvb_get_guint16(tvb, DOIP_DIAG_COMMON_TARGET_OFFSET, ENC_BIG_ENDIAN);
+            doip_info.source_address = tvb_get_uint16(tvb, DOIP_DIAG_COMMON_SOURCE_OFFSET, ENC_BIG_ENDIAN);
+            doip_info.target_address = tvb_get_uint16(tvb, DOIP_DIAG_COMMON_TARGET_OFFSET, ENC_BIG_ENDIAN);
             call_dissector_with_data(uds_handle, tvb_new_subset_length(tvb, DOIP_DIAG_MESSAGE_DATA_OFFSET, -1), pinfo, NULL, &doip_info);
         }
     }
@@ -902,8 +902,8 @@ dissect_doip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static unsigned
 get_doip_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *p _U_)
 {
-    uint8_t ver1 = tvb_get_guint8(tvb, DOIP_VERSION_OFFSET);
-    uint8_t ver2 = tvb_get_guint8(tvb, DOIP_INV_VERSION_OFFSET);
+    uint8_t ver1 = tvb_get_uint8(tvb, DOIP_VERSION_OFFSET);
+    uint8_t ver2 = tvb_get_uint8(tvb, DOIP_INV_VERSION_OFFSET);
 
     if (ver1 != ((~ver2) & 0xff)) {
         /* if ver2 is not the inverse of ver1, we are not at the start of a DoIP message! */

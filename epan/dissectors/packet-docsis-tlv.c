@@ -1048,8 +1048,8 @@ dissect_phs_err (tvbuff_t * tvb, packet_info *pinfo, proto_tree * tree, int star
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case PHS_ERR_PARAM:
@@ -1101,8 +1101,8 @@ dissect_phs (tvbuff_t * tvb, packet_info *pinfo, proto_tree * tree, int start, u
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case PHS_CLSFR_REF:
@@ -1265,8 +1265,8 @@ dissect_sflow_err (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int st
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case SFW_ERR_PARAM:
@@ -1313,8 +1313,8 @@ dissect_downstream_sflow (tvbuff_t * tvb, packet_info* pinfo, proto_tree * sflow
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
         case SFW_MAX_DOWN_LAT:
@@ -1359,8 +1359,8 @@ dissect_upstream_sflow (tvbuff_t * tvb, packet_info* pinfo, proto_tree * sflow_t
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case SFW_MAX_CONCAT_BURST:
@@ -1490,7 +1490,7 @@ dissect_upstream_sflow (tvbuff_t * tvb, packet_info* pinfo, proto_tree * sflow_t
                 proto_tree_add_item (sflow_tree,
                                      hf_docsis_tlv_sflow_num_of_bytes_requested_mult, tvb, pos,
                                      length, ENC_BIG_ENDIAN);
-                                uint8_t multiplier_val = tvb_get_guint8 (tvb, pos);
+                                uint8_t multiplier_val = tvb_get_uint8 (tvb, pos);
                                 if (multiplier_val != 1 && multiplier_val != 2 && multiplier_val != 4 &&
                                     multiplier_val != 8 && multiplier_val != 16)
                                     {
@@ -1534,8 +1534,8 @@ dissect_sflow (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int start,
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case SFW_REF:
@@ -1762,8 +1762,8 @@ dissect_dot1q_clsfr (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int 
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case CFR_D1Q_USER_PRI:
@@ -1819,8 +1819,8 @@ dissect_eth_clsfr (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int st
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case CFR_ETH_DST_MAC:
@@ -1881,8 +1881,8 @@ dissect_clsfr_err (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int st
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case CFR_ERR_PARAM:
@@ -1940,8 +1940,8 @@ dissect_ip_classifier (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, in
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case CFR_IP_TOS_RANGE_MASK:
@@ -2103,8 +2103,8 @@ dissect_ip6_classifier (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, i
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case CFR_IP6_TRAFFIC_CLASS:
@@ -2221,8 +2221,8 @@ dissect_classifiers (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int 
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case CFR_REF:
@@ -2345,8 +2345,8 @@ dissect_doc10cos (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int sta
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case 1:
@@ -2396,8 +2396,8 @@ dissect_modemcap (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int sta
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case CAP_CONCAT:
@@ -3288,8 +3288,8 @@ dissect_cos (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int start, u
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case COS_CLASSID:
@@ -3412,8 +3412,8 @@ dissect_snmpv3_kickstart(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree, 
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case SNMPV3_SEC_NAME:
@@ -3449,8 +3449,8 @@ dissect_ds_ch_list_single (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case SINGLE_CH_TIMEOUT:
@@ -3498,8 +3498,8 @@ dissect_ds_ch_list_range (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree,
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case FREQ_RNG_TIMEOUT:
@@ -3569,8 +3569,8 @@ dissect_dut_filter (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree,
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case DUT_CONTROL:
@@ -3610,8 +3610,8 @@ dissect_ds_ch_list(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int sta
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case DS_CH_LIST_SINGLE:
@@ -3684,8 +3684,8 @@ dissect_tcc_err(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start,
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case TCC_ERR_SUBTYPE:
@@ -3732,8 +3732,8 @@ dissect_tcc_rng_parms(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int 
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case RNG_PARMS_US_CH_ID:
@@ -3836,8 +3836,8 @@ dissect_sid_cl_so_crit(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case SID_CL_SO_MAX_REQ:
@@ -3910,8 +3910,8 @@ dissect_sid_cl_enc_map(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case SID_CL_MAP_US_CH_ID:
@@ -3972,8 +3972,8 @@ dissect_sid_cl_enc(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int sta
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case SID_CL_ENC_ID:
@@ -4016,8 +4016,8 @@ dissect_sid_cl(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, 
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case SID_CL_SF_ID:
@@ -4064,8 +4064,8 @@ dissect_tcc(tvbuff_t * tvb, packet_info * pinfo,
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case TLV_TCC_REFID:
@@ -4266,8 +4266,8 @@ dissect_ch_bl_rng(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int star
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case CH_BL_RNG_MIN_CTR_FREQ:
@@ -4316,8 +4316,8 @@ dissect_rcp_rcv_mod(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int st
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case RCV_MOD_ENC_IDX:
@@ -4396,8 +4396,8 @@ dissect_rcp_rcv_ch(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int sta
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case RCV_CH_IDX:
@@ -4466,8 +4466,8 @@ dissect_rcp(tvbuff_t * tvb, packet_info * pinfo,
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case TLV_RCP_ID:
@@ -4538,8 +4538,8 @@ dissect_rcc_rcv_mod(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int st
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case RCV_MOD_ENC_IDX:
@@ -4593,8 +4593,8 @@ dissect_rcc_rcv_ch(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int sta
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case RCV_CH_IDX:
@@ -4735,8 +4735,8 @@ dissect_rcc_srcc_ds_prof_assign(tvbuff_t * tvb, packet_info* pinfo, proto_tree *
                                   "..3 RCC SRCC Downstream Profile Assignment(Length = %u)", len);
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case RCC_SRCC_DS_PROF_ASSIGN_DCID:
@@ -4775,8 +4775,8 @@ dissect_rcc_srcc(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start
                                   ".7 RCC Simplified Receive Channel Configuration (Length = %u)", len);
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case RCC_SRCC_PRIM_DS_CHAN_ASSIGN:
@@ -4810,8 +4810,8 @@ dissect_rcc_err(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start,
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case RCC_ERR_MOD_OR_CH:
@@ -4891,8 +4891,8 @@ dissect_rcc(tvbuff_t * tvb, packet_info * pinfo,
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case TLV_RCP_ID:
@@ -4960,8 +4960,8 @@ dissect_dsid_ds_reseq(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int 
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case DS_RESEQ_DSID:
@@ -5039,8 +5039,8 @@ dissect_dsid_mc_addr(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int s
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case MC_ADDR_ACTION:
@@ -5088,8 +5088,8 @@ dissect_dsid_mc(tvbuff_t * tvb, packet_info *pinfo, proto_tree *tree, int start,
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case TLV_DSID_MC_ADDR:
@@ -5130,8 +5130,8 @@ dissect_dsid(tvbuff_t * tvb, packet_info *pinfo, proto_tree *tree, int start, ui
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case TLV_DSID_ID:
@@ -5186,8 +5186,8 @@ dissect_sec_assoc(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int star
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case TLV_SEC_ASSOC_ACTION:
@@ -5236,8 +5236,8 @@ dissect_ch_asgn(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start,
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case TLV_CH_ASGN_US_CH_ID:
@@ -5286,8 +5286,8 @@ dissect_cmts_mc_sess_enc(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, i
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case CMTS_MC_SESS_ENC_GRP:
@@ -5360,8 +5360,8 @@ dissect_fdx_tg_assignment(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, 
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case TLV_FDX_TG_ASSIGNMENT_TG_ID:
@@ -5422,8 +5422,8 @@ dissect_docsis_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
     tlv_tree = proto_item_add_subtree (it, ett_docsis_tlv);
     while (pos < total_len)
       {
-        type = tvb_get_guint8 (tvb, pos++);
-        length = tvb_get_guint8 (tvb, pos++);
+        type = tvb_get_uint8 (tvb, pos++);
+        length = tvb_get_uint8 (tvb, pos++);
         switch (type)
           {
             case TLV_DOWN_FREQ:

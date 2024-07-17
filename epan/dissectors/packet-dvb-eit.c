@@ -151,9 +151,9 @@ dissect_dvb_eit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
         duration_item = proto_tree_add_item(dvb_eit_event_tree, hf_dvb_eit_duration, tvb, offset, 3, ENC_BIG_ENDIAN);
         proto_item_append_text(duration_item, " (%02u:%02u:%02u)",
-            MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset)),
-            MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset + 1)),
-            MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset + 2)));
+            MPEG_SECT_BCD44_TO_DEC(tvb_get_uint8(tvb, offset)),
+            MPEG_SECT_BCD44_TO_DEC(tvb_get_uint8(tvb, offset + 1)),
+            MPEG_SECT_BCD44_TO_DEC(tvb_get_uint8(tvb, offset + 2)));
         offset += 3;
 
         proto_tree_add_item(dvb_eit_event_tree, hf_dvb_eit_running_status,          tvb, offset, 2, ENC_BIG_ENDIAN);

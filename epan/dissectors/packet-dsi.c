@@ -160,10 +160,10 @@ dissect_dsi_open_session(tvbuff_t *tvb, proto_tree *dsi_tree, int offset, int ds
 
 	while( dsi_length >2 ) {
 
-		type = tvb_get_guint8(tvb, offset);
+		type = tvb_get_uint8(tvb, offset);
 		proto_tree_add_item(tree, hf_dsi_open_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
-		len = tvb_get_guint8(tvb, offset);
+		len = tvb_get_uint8(tvb, offset);
 		proto_tree_add_item(tree, hf_dsi_open_len, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 		switch (type) {
@@ -230,8 +230,8 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DSI");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	dsi_flags = tvb_get_guint8(tvb, 0);
-	dsi_command = tvb_get_guint8(tvb, 1);
+	dsi_flags = tvb_get_uint8(tvb, 0);
+	dsi_command = tvb_get_uint8(tvb, 1);
 	dsi_requestid = tvb_get_ntohs(tvb, 2);
 	dsi_code = tvb_get_ntohl(tvb, 4);
 	dsi_length = tvb_get_ntohl(tvb, 8);
@@ -320,8 +320,8 @@ get_dsi_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U
 	uint32_t plen;
 	uint8_t	dsi_flags,dsi_command;
 
-	dsi_flags = tvb_get_guint8(tvb, offset);
-	dsi_command = tvb_get_guint8(tvb, offset+ 1);
+	dsi_flags = tvb_get_uint8(tvb, offset);
+	dsi_command = tvb_get_uint8(tvb, offset+ 1);
 	if ( dsi_flags > DSIFL_MAX || !dsi_command || dsi_command > DSIFUNC_MAX)
 	{
 	    /* it's not a known dsi pdu start sequence */

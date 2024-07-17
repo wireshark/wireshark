@@ -280,16 +280,16 @@ static int body_type_8_over_8_dissection(uint8_t data_length, proto_tree *device
     devicenet_tree = proto_tree_add_subtree(devicenet_tree, tvb, offset, -1, ett_devicenet_8_8, NULL, "DeviceNet 8/8");
 
     proto_tree_add_item(devicenet_tree, hf_devicenet_class8,  tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    class_id = tvb_get_guint8(tvb, offset);
+    class_id = tvb_get_uint8(tvb, offset);
     offset++;
 
     proto_tree_add_item(devicenet_tree, hf_devicenet_instance8,  tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    instance = tvb_get_guint8(tvb, offset);
+    instance = tvb_get_uint8(tvb, offset);
 
     offset++;
     if (data_length > 3)
     {
-        attribute = tvb_get_guint8(tvb, offset);
+        attribute = tvb_get_uint8(tvb, offset);
         ti = proto_tree_add_item(devicenet_tree, hf_devicenet_attribute,  tvb, offset, 1, ENC_LITTLE_ENDIAN);
         att_info = cip_get_attribute(class_id, instance, attribute);
 
@@ -318,7 +318,7 @@ static int body_type_8_over_16_dissection(uint8_t data_length, proto_tree *devic
     devicenet_tree = proto_tree_add_subtree(devicenet_tree, tvb, offset, -1, ett_devicenet_8_16, NULL, "DeviceNet 8/16");
 
     proto_tree_add_item(devicenet_tree, hf_devicenet_class8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    class_id = tvb_get_guint8(tvb, offset);
+    class_id = tvb_get_uint8(tvb, offset);
     offset++;
 
     proto_tree_add_item(devicenet_tree, hf_devicenet_instance16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -326,7 +326,7 @@ static int body_type_8_over_16_dissection(uint8_t data_length, proto_tree *devic
 
     if (data_length > 4)
     {
-        attribute = tvb_get_guint8(tvb, offset);
+        attribute = tvb_get_uint8(tvb, offset);
         ti = proto_tree_add_item(devicenet_tree, hf_devicenet_attribute,  tvb, offset, 1, ENC_LITTLE_ENDIAN);
         att_info = cip_get_attribute(class_id, instance, attribute);
 
@@ -353,12 +353,12 @@ static int body_type_16_over_8_dissection(uint8_t data_length, proto_tree *devic
     offset += 2;
 
     proto_tree_add_item(devicenet_tree, hf_devicenet_instance8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    instance = tvb_get_guint8(tvb, offset);
+    instance = tvb_get_uint8(tvb, offset);
     offset++;
 
     if (data_length > 4)
     {
-        attribute = tvb_get_guint8(tvb, offset);
+        attribute = tvb_get_uint8(tvb, offset);
         ti = proto_tree_add_item(devicenet_tree, hf_devicenet_attribute,  tvb, offset, 1, ENC_LITTLE_ENDIAN);
         att_info = cip_get_attribute(class_id, instance, attribute);
 
@@ -390,7 +390,7 @@ static int body_type_16_over_16_dissection(uint8_t data_length, proto_tree *devi
 
     if (data_length > 5)
     {
-        attribute = tvb_get_guint8(tvb, offset);
+        attribute = tvb_get_uint8(tvb, offset);
         ti = proto_tree_add_item(devicenet_tree, hf_devicenet_attribute,  tvb, offset, 1, ENC_LITTLE_ENDIAN);
         att_info = cip_get_attribute(class_id, instance, attribute);
 
@@ -527,7 +527,7 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         proto_tree_add_item(devicenet_tree, hf_devicenet_grp_msg3_frag, tvb, offset, 1, ENC_NA);
         proto_tree_add_item(devicenet_tree, hf_devicenet_grp_msg3_xid, tvb, offset, 1, ENC_NA);
         proto_tree_add_item(devicenet_tree, hf_devicenet_grp_msg3_dest_mac_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        byte1 = tvb_get_guint8(tvb, offset);
+        byte1 = tvb_get_uint8(tvb, offset);
         source_mac = byte1 & MESSAGE_GROUP_3_MAC_ID_MASK;
 
         /* Set destination address */
@@ -550,13 +550,13 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             proto_tree_add_expert(content_tree, pinfo, &ei_devicenet_frag_not_supported, tvb, offset, -1);
 
             col_set_str(pinfo->cinfo, COL_INFO,
-                        val_to_str_const((tvb_get_guint8(tvb, offset) & 0xC0) >> 6,
+                        val_to_str_const((tvb_get_uint8(tvb, offset) & 0xC0) >> 6,
                                          devicenet_fragmented_message_type_vals,
                                          "Unknown fragmented message type"));
         }
         else
         {
-            service_rr = tvb_get_guint8(tvb, offset);
+            service_rr = tvb_get_uint8(tvb, offset);
 
             content_tree = proto_tree_add_subtree_format(devicenet_tree, tvb, offset, -1, ett_devicenet_contents, NULL,
                         "Service: %s (%s)", val_to_str_const(service_rr & CIP_SC_MASK, devicenet_service_code_vals, "Unknown"),
@@ -708,7 +708,7 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 proto_tree_add_item(devicenet_tree, hf_devicenet_rr_bit, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 proto_tree_add_item(devicenet_tree, hf_devicenet_service_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
-                if( tvb_get_guint8(tvb, offset) & CIP_SC_RESPONSE_MASK)
+                if( tvb_get_uint8(tvb, offset) & CIP_SC_RESPONSE_MASK)
                 {
                     col_append_str(pinfo->cinfo, COL_INFO, " - Response");
                 }
@@ -725,7 +725,7 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 proto_tree_add_item(devicenet_tree, hf_devicenet_rr_bit, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 proto_tree_add_item(devicenet_tree, hf_devicenet_service_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
-                if( tvb_get_guint8(tvb, offset) & CIP_SC_RESPONSE_MASK)
+                if( tvb_get_uint8(tvb, offset) & CIP_SC_RESPONSE_MASK)
                 {
                     col_append_str(pinfo->cinfo, COL_INFO, " - Response");
                 }
@@ -748,7 +748,7 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
             proto_tree_add_item(devicenet_tree, hf_devicenet_rr_bit, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
-            if( tvb_get_guint8(tvb, offset) & CIP_SC_RESPONSE_MASK)
+            if( tvb_get_uint8(tvb, offset) & CIP_SC_RESPONSE_MASK)
             {
                 col_append_str(pinfo->cinfo, COL_INFO, " - Response");
             }

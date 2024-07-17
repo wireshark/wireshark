@@ -294,15 +294,15 @@ dissect_ehdr (tvbuff_t * tvb, proto_tree * tree, packet_info * pinfo, bool *is_e
   uint8_t type;
   uint8_t len;
 
-  ehdrlen = tvb_get_guint8 (tvb, 1);
+  ehdrlen = tvb_get_uint8 (tvb, 1);
   pos = 4;
 
   ehdr_tree = proto_tree_add_subtree(tree, tvb, pos, ehdrlen, ett_ehdr, NULL, "Extended Header");
 
   while (pos < ehdrlen + 4)
   {
-    type = (tvb_get_guint8 (tvb, pos) & 0xF0);
-    len = (tvb_get_guint8 (tvb, pos) & 0x0F);
+    type = (tvb_get_uint8 (tvb, pos) & 0xF0);
+    len = (tvb_get_uint8 (tvb, pos) & 0x0F);
     if ((((type >> 4) & 0x0F)== 6) && (len == 2))
     {
       proto_tree_add_uint_format_value(ehdr_tree, hf_docsis_eh_type, tvb, pos, 1, 0x60, "Unsolicited Grant Sync EHDR Sub-Element");
@@ -354,19 +354,19 @@ dissect_ehdr (tvbuff_t * tvb, proto_tree * tree, packet_info * pinfo, bool *is_e
                              1, ENC_BIG_ENDIAN);
         proto_tree_add_item (ehdr_tree, hf_docsis_sid, tvb, pos + 1, 2,
                              ENC_BIG_ENDIAN);
-        frag_sid = tvb_get_guint8 (tvb, pos+1) & 0xCFFF;
+        frag_sid = tvb_get_uint8 (tvb, pos+1) & 0xCFFF;
         proto_tree_add_item (ehdr_tree, hf_docsis_mini_slots, tvb, pos + 3,
                              1, ENC_BIG_ENDIAN);
         if (pinfo->fragmented)
         {
           proto_tree_add_item (ehdr_tree, hf_docsis_frag_rsvd, tvb, pos+4,
                                1, ENC_BIG_ENDIAN);
-          frag_flags = tvb_get_guint8 (tvb, pos+4) & 0x30;
+          frag_flags = tvb_get_uint8 (tvb, pos+4) & 0x30;
           proto_tree_add_item (ehdr_tree, hf_docsis_frag_first, tvb, pos+4,
                                1, ENC_BIG_ENDIAN);
           proto_tree_add_item (ehdr_tree, hf_docsis_frag_last, tvb, pos+4,
                                1, ENC_BIG_ENDIAN);
-          frag_seq = tvb_get_guint8 (tvb, pos+4) & 0x0F;
+          frag_seq = tvb_get_uint8 (tvb, pos+4) & 0x0F;
           proto_tree_add_item (ehdr_tree, hf_docsis_frag_seq, tvb, pos+4,
                                1, ENC_BIG_ENDIAN);
         }
@@ -440,7 +440,7 @@ dissect_ehdr (tvbuff_t * tvb, proto_tree * tree, packet_info * pinfo, bool *is_e
         proto_tree_add_item(ehdr_tree, hf_docsis_ehx_type, tvb, pos, 1, ENC_NA);
         pos++;
         proto_tree_add_item(ehdr_tree, hf_docsis_ehx_len, tvb, pos, 1, ENC_NA);
-        len = tvb_get_guint8(tvb, pos);
+        len = tvb_get_uint8(tvb, pos);
         pos++;
         /* FALLTHROUGH */
       default:
@@ -605,7 +605,7 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   proto_tree *docsis_tree;
 
   /* Extract Frame Control parts */
-  fc = tvb_get_guint8 (tvb, 0); /* Frame Control Byte */
+  fc = tvb_get_uint8 (tvb, 0); /* Frame Control Byte */
   fctype = (fc >> 6) & 0x03;    /* Frame Control Type:  2 MSB Bits */
   fcparm = (fc >> 1) & 0x1F;    /* Frame Control Parameter: Next 5 Bits */
   exthdr = (fc & 0x01);         /* Extended Header Bit: LSB */
@@ -616,7 +616,7 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
     len_sid = tvb_get_ntohs (tvb, 3);
     hdrlen = DOCSIS_MIN_HEADER_LEN + 1; // 7-byte header for this message type
   } else {
-    mac_parm = tvb_get_guint8 (tvb, 1);
+    mac_parm = tvb_get_uint8 (tvb, 1);
     len_sid = tvb_get_ntohs (tvb, 2);
   }
 

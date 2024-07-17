@@ -896,9 +896,9 @@ static int dissect_dvb_s2_table_correct_msg(tvbuff_t *tvb, int cur_off, proto_tr
     int new_off = 0;
     uint8_t time_correction_flag, frequency_correction_flag, power_correction_flag, power_control_flag;
 
-    time_correction_flag =  tvb_get_guint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_TIME_CORRECT_FLAG_MASK;
-    frequency_correction_flag =  tvb_get_guint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_FREQ_CORRECT_FLAG_MASK;
-    power_correction_flag =  tvb_get_guint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_POWER_CORRECT_FLAG_MASK;
+    time_correction_flag =  tvb_get_uint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_TIME_CORRECT_FLAG_MASK;
+    frequency_correction_flag =  tvb_get_uint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_FREQ_CORRECT_FLAG_MASK;
+    power_correction_flag =  tvb_get_uint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_POWER_CORRECT_FLAG_MASK;
     proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_table_desc_time_correct_flag, tvb, cur_off + new_off, 1, ENC_NA);
     proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_table_desc_power_correct_flag, tvb, cur_off + new_off, 1, ENC_NA);
     proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_table_desc_freq_correct_flag, tvb, cur_off + new_off, 1, ENC_NA);
@@ -912,7 +912,7 @@ static int dissect_dvb_s2_table_correct_msg(tvbuff_t *tvb, int cur_off, proto_tr
     }
     if(power_correction_flag)
     {
-        power_control_flag = tvb_get_guint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_POWER_CTRL_FLAG_MASK;
+        power_control_flag = tvb_get_uint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_POWER_CTRL_FLAG_MASK;
         proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_table_desc_power_ctrl_flag, tvb, cur_off + new_off, 1, ENC_NA);
         if(power_control_flag)
             proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_table_desc_power_correction, tvb, cur_off + new_off, 1, ENC_NA);
@@ -969,10 +969,10 @@ static int dissect_dvb_s2_table_desc(tvbuff_t *tvb, int cur_off, proto_tree *dvb
 
     for(cur_desc=0 ; cur_desc<=desc_loop_count ; cur_desc++)
     {
-        desc_length = tvb_get_guint8(tvb, cur_off + new_off + 1);
+        desc_length = tvb_get_uint8(tvb, cur_off + new_off + 1);
         ti = proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_table_descriptor, tvb, cur_off + new_off, desc_length + 2, ENC_NA);
         dvb_s2_hdr_table_desc_tree = proto_item_add_subtree(ti, ett_dvb_s2_hdr_table_desc);
-        desc_tag = tvb_get_guint8(tvb, cur_off + new_off);
+        desc_tag = tvb_get_uint8(tvb, cur_off + new_off);
         proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_desc_tag, tvb, cur_off + new_off, 1, ENC_NA);
         new_off += 1;
         proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_desc_length, tvb, cur_off + new_off, 1, ENC_NA);
@@ -1032,7 +1032,7 @@ static int dissect_dvb_s2_table_desc(tvbuff_t *tvb, int cur_off, proto_tree *dvb
                 new_off += 2;
                 proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_desc_lowest_assign_id, tvb, cur_off + new_off, 3, ENC_NA);
                 new_off += 3;
-                mac24_count = tvb_get_guint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_UNICAST_MAC24_COUNT_MASK;
+                mac24_count = tvb_get_uint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_UNICAST_MAC24_COUNT_MASK;
                 proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_desc_assign_id_count, tvb, cur_off + new_off, 1, ENC_NA);
                 proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_desc_unicast_mac24_count, tvb, cur_off + new_off, 1, ENC_NA);
                 new_off += 1;
@@ -1061,13 +1061,13 @@ static int dissect_dvb_s2_table_desc(tvbuff_t *tvb, int cur_off, proto_tree *dvb
                 new_off += 1;
                 proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_desc_volume_backlog_persistence, tvb, cur_off + new_off, 1, ENC_NA);
                 new_off += 1;
-                lls_count = tvb_get_guint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_LLS_COUNT_MASK;
+                lls_count = tvb_get_uint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_LLS_COUNT_MASK;
                 proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_desc_lls_count, tvb, cur_off + new_off, 1, ENC_NA);
                 new_off += 1;
                 for(cur_lls=0 ; cur_lls<lls_count ; cur_lls++)
                 {
-                    dedicated_access = tvb_get_guint8(tvb, cur_off + new_off) & DVB_S2_TABLE_LLS_DEDICATED_ACCESS_MASK;
-                    random_access = tvb_get_guint8(tvb, cur_off + new_off) & DVB_S2_TABLE_LLS_RANDOM_ACCESS_MASK;
+                    dedicated_access = tvb_get_uint8(tvb, cur_off + new_off) & DVB_S2_TABLE_LLS_DEDICATED_ACCESS_MASK;
+                    random_access = tvb_get_uint8(tvb, cur_off + new_off) & DVB_S2_TABLE_LLS_RANDOM_ACCESS_MASK;
                     lls_size=1;
                     if(dedicated_access) lls_size += 5;
                     if(random_access) lls_size += 2;
@@ -1095,13 +1095,13 @@ static int dissect_dvb_s2_table_desc(tvbuff_t *tvb, int cur_off, proto_tree *dvb
                         new_off += 1;
                     }
                 }
-                rc_count = tvb_get_guint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_RC_COUNT_MASK;
+                rc_count = tvb_get_uint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_RC_COUNT_MASK;
                 proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_desc_rc_count, tvb, cur_off + new_off, 1, ENC_NA);
                 new_off += 1;
                 for(cur_rc=0 ; cur_rc<rc_count ; cur_rc++)
                 {
-                    constant_assign_provided = tvb_get_guint8(tvb, cur_off + new_off) & DVB_S2_TABLE_RC_CONSTANT_ASSIGN_MASK;
-                    volume_allowed = tvb_get_guint8(tvb, cur_off + new_off) & DVB_S2_TABLE_RC_VOLUME_ALLOWED_MASK;
+                    constant_assign_provided = tvb_get_uint8(tvb, cur_off + new_off) & DVB_S2_TABLE_RC_CONSTANT_ASSIGN_MASK;
+                    volume_allowed = tvb_get_uint8(tvb, cur_off + new_off) & DVB_S2_TABLE_RC_VOLUME_ALLOWED_MASK;
                     rc_size=5;
                     if(constant_assign_provided) rc_size += 2;
                     if(volume_allowed) rc_size += 1;
@@ -1127,12 +1127,12 @@ static int dissect_dvb_s2_table_desc(tvbuff_t *tvb, int cur_off, proto_tree *dvb
                         new_off += 1;
                     }
                 }
-                raac_count = tvb_get_guint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_RA_AC_COUNT_MASK;
+                raac_count = tvb_get_uint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_RA_AC_COUNT_MASK;
                 proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_desc_ra_ac_count, tvb, cur_off + new_off, 1, ENC_NA);
                 new_off += 1;
                 for(cur_raac=0 ; cur_raac<raac_count ; cur_raac++)
                 {
-                    defaults_field_size = tvb_get_guint8(tvb, cur_off + new_off + 4);
+                    defaults_field_size = tvb_get_uint8(tvb, cur_off + new_off + 4);
                     raac_size = 5 + defaults_field_size;
                     ti = proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_ra_ac, tvb, cur_off + new_off, raac_size, ENC_NA);
                     dvb_s2_hdr_table_raac_tree = proto_item_add_subtree(ti, ett_dvb_s2_hdr_table_desc);
@@ -1159,7 +1159,7 @@ static int dissect_dvb_s2_table_desc(tvbuff_t *tvb, int cur_off, proto_tree *dvb
                 start_off = new_off;
                 proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_ld_fm_id, tvb, cur_off + new_off, 2, ENC_NA);
                 new_off += 2;
-                linkage_type = tvb_get_guint8(tvb, cur_off + new_off + 4);
+                linkage_type = tvb_get_uint8(tvb, cur_off + new_off + 4);
                 if (linkage_type == 0x82 || linkage_type == 0x81) {
                         proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_ld_rm_id, tvb, cur_off + new_off, 2, ENC_NA);
                 } else {
@@ -1198,7 +1198,7 @@ static int dissect_dvb_s2_table_desc(tvbuff_t *tvb, int cur_off, proto_tree *dvb
                 if (linkage_type == 0x82 || linkage_type == 0x81) {
                     proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_ld_network_id, tvb, cur_off + new_off, 2, ENC_NA);
                     new_off += 2;
-                    population_id_loop_count = tvb_get_guint8(tvb, cur_off + new_off);
+                    population_id_loop_count = tvb_get_uint8(tvb, cur_off + new_off);
                     proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_ld_population_id_loop_count, tvb, cur_off + new_off, 1, ENC_NA);
                     new_off += 1;
                     for (i = 0 ; i <= population_id_loop_count ; i++) {
@@ -1256,12 +1256,12 @@ static int dissect_dvb_s2_table_desc(tvbuff_t *tvb, int cur_off, proto_tree *dvb
                 proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_lid_mini_slot_flag, tvb, cur_off + new_off, 1, ENC_NA);
                 proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_lid_contention_based_mini_slot_flag, tvb, cur_off + new_off, 1, ENC_NA);
                 new_off += 1;
-                capacity_type_flag = tvb_get_guint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_CAPCITY_TYPE_FLAG_MASK;
+                capacity_type_flag = tvb_get_uint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_CAPCITY_TYPE_FLAG_MASK;
                 proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_lid_capacity_type_flag, tvb, cur_off + new_off, 1, ENC_NA);
-                traffic_burst_type = tvb_get_guint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_TRAFFIC_BURST_TYPE_MASK;
+                traffic_burst_type = tvb_get_uint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_TRAFFIC_BURST_TYPE_MASK;
                 proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_lid_traffic_burst_type, tvb, cur_off + new_off, 1, ENC_NA);
                 if (traffic_burst_type == 0) {
-                    connectivity = tvb_get_guint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_CONNECTIVITY_MASK;
+                    connectivity = tvb_get_uint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_CONNECTIVITY_MASK;
                     proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_lid_connectivity, tvb, cur_off + new_off, 1, ENC_NA);
                     if (connectivity == 0) {
                         new_off += 1;
@@ -1305,7 +1305,7 @@ static int dissect_dvb_s2_table_desc(tvbuff_t *tvb, int cur_off, proto_tree *dvb
                     new_off += 2;
                     proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_fipd_transport_stream_id, tvb, cur_off + new_off, 2, ENC_NA);
                     new_off += 2;
-                    pid_loop_count = tvb_get_guint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_PID_LOOP_COUNT;
+                    pid_loop_count = tvb_get_uint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_PID_LOOP_COUNT;
                     proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_fipd_pid_loop_count, tvb, cur_off + new_off, 1, ENC_NA);
                     new_off += 1;
                     for (k = 0 ; k <= pid_loop_count ; k++) {
@@ -1317,18 +1317,18 @@ static int dissect_dvb_s2_table_desc(tvbuff_t *tvb, int cur_off, proto_tree *dvb
                 break;
             case (DVB_S2_TABLE_DESC_RETURN_INTERACTION_PATH):
                 proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_ripd_continuous_carrier, tvb, cur_off + new_off, 1, ENC_NA);
-                network_routing_label_loop_count = tvb_get_guint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_NETWORK_ROUTING_LABEL;
+                network_routing_label_loop_count = tvb_get_uint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_NETWORK_ROUTING_LABEL;
                 proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_ripd_network_routing_label_loop_count, tvb, cur_off + new_off, 1, ENC_NA);
                 new_off += 1;
                 for (k = 0 ; k <= network_routing_label_loop_count ; k++) {
                     ti = proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_desc_network_routing, tvb, cur_off + new_off, -1, ENC_NA);
                     dvb_s2_hdr_table_network_routing_tree = proto_item_add_subtree(ti, ett_dvb_s2_hdr_table_network_routing);
                     proto_tree_add_item(dvb_s2_hdr_table_network_routing_tree, hf_dvb_s2_table_ripd_allocation_desallocation_flag, tvb, cur_off + new_off, 1, ENC_NA);
-                    pid_flag = tvb_get_guint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_PID_FLAG_MASK;
+                    pid_flag = tvb_get_uint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_PID_FLAG_MASK;
                     proto_tree_add_item(dvb_s2_hdr_table_network_routing_tree, hf_dvb_s2_table_ripd_pid_flag, tvb, cur_off + new_off, 1, ENC_NA);
                     new_off += 1;
                     if (pid_flag == 1) {
-                        pid_loop_count = tvb_get_guint8(tvb, cur_off + new_off);
+                        pid_loop_count = tvb_get_uint8(tvb, cur_off + new_off);
                         proto_tree_add_item(dvb_s2_hdr_table_network_routing_tree, hf_dvb_s2_table_ripd_pid_loop_count, tvb, cur_off + new_off, 1, ENC_NA);
                         new_off += 1;
                         for (j = 0 ; j <= pid_loop_count ; j++) {
@@ -1336,11 +1336,11 @@ static int dissect_dvb_s2_table_desc(tvbuff_t *tvb, int cur_off, proto_tree *dvb
                             new_off += 2;
                         }
                     }
-                    vpi_vci_flag = tvb_get_guint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_VPI_VCI_FLAG_MASK;
+                    vpi_vci_flag = tvb_get_uint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_VPI_VCI_FLAG_MASK;
                     proto_tree_add_item(dvb_s2_hdr_table_network_routing_tree, hf_dvb_s2_table_ripd_vpi_vci_flag, tvb, cur_off + new_off, 1, ENC_NA);
                     new_off += 1;
                     if (vpi_vci_flag == 1) {
-                        vpi_vci_loop_count = tvb_get_guint8(tvb, cur_off + new_off);
+                        vpi_vci_loop_count = tvb_get_uint8(tvb, cur_off + new_off);
                         proto_tree_add_item(dvb_s2_hdr_table_network_routing_tree, hf_dvb_s2_table_ripd_vpi_vci_loop_count, tvb, cur_off + new_off, 1, ENC_NA);
                         new_off += 1;
                         for (i = 0 ; i <= vpi_vci_loop_count ; i++) {
@@ -1350,11 +1350,11 @@ static int dissect_dvb_s2_table_desc(tvbuff_t *tvb, int cur_off, proto_tree *dvb
                             new_off += 2;
                         }
                     }
-                    route_id_flag = tvb_get_guint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_ROUTE_ID_FLAG_MASK;
+                    route_id_flag = tvb_get_uint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_ROUTE_ID_FLAG_MASK;
                     proto_tree_add_item(dvb_s2_hdr_table_network_routing_tree, hf_dvb_s2_table_ripd_route_id_flag, tvb, cur_off + new_off, 1, ENC_NA);
                     new_off += 1;
                     if (route_id_flag == 1) {
-                        route_id_loop_count = tvb_get_guint8(tvb, cur_off + new_off);
+                        route_id_loop_count = tvb_get_uint8(tvb, cur_off + new_off);
                         proto_tree_add_item(dvb_s2_hdr_table_network_routing_tree, hf_dvb_s2_table_ripd_route_id_loop_count, tvb, cur_off + new_off, 1, ENC_NA);
                         new_off += 1;
                         for (l = 0 ; l <= route_id_loop_count ; l ++) {
@@ -1405,14 +1405,14 @@ static int dissect_dvb_s2_table_desc(tvbuff_t *tvb, int cur_off, proto_tree *dvb
                 new_off += 4;
                 proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_sfld_orbital_position, tvb, cur_off + new_off, 2, ENC_NA);
                 new_off += 2;
-                transmission_standard = (tvb_get_guint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_TRANSMISSION_STANDARD_MASK) /8;
+                transmission_standard = (tvb_get_uint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_TRANSMISSION_STANDARD_MASK) /8;
                 proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_sfld_west_east_flag, tvb, cur_off + new_off, 1, ENC_NA);
                 proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_sfld_polarization, tvb, cur_off + new_off, 1, ENC_NA);
                 proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_sfld_transmission_standard, tvb, cur_off + new_off, 1, ENC_NA);
                 if (transmission_standard == 0) {
                     new_off += 1;
                 } else if (transmission_standard == 1 || transmission_standard == 2) {
-                    scrambling_sequence_selector = tvb_get_guint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_SCRAMBLING_SEQUENCE_SELECTOR_MASK;
+                    scrambling_sequence_selector = tvb_get_uint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_SCRAMBLING_SEQUENCE_SELECTOR_MASK;
                     proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_sfld_scrambling_sequence_selector, tvb, cur_off + new_off, 1, ENC_NA);
                     proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_sfld_roll_off, tvb, cur_off + new_off, 1, ENC_NA);
                     new_off += 1;
@@ -1455,7 +1455,7 @@ static int dissect_dvb_s2_table_desc(tvbuff_t *tvb, int cur_off, proto_tree *dvb
                 new_off += 2;
                 break;
             case (DVB_S2_TABLE_DESC_LOWEST_SOFTWARE_VERSION):
-                group_count = tvb_get_guint8(tvb, cur_off + new_off);
+                group_count = tvb_get_uint8(tvb, cur_off + new_off);
                 proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_lsvd_group_count, tvb, cur_off + new_off, 1, ENC_NA);
                 new_off += 1;
                 for (k = 0 ; k < group_count ; k++) {
@@ -1465,7 +1465,7 @@ static int dissect_dvb_s2_table_desc(tvbuff_t *tvb, int cur_off, proto_tree *dvb
                         new_off += 4;
                         proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_lsvd_mcast_port, tvb, cur_off + new_off, 2, ENC_NA);
                         new_off += 2;
-                        version_length = tvb_get_guint8(tvb, cur_off + new_off);
+                        version_length = tvb_get_uint8(tvb, cur_off + new_off);
                         proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_lsvd_version_field_length, tvb, cur_off + new_off, 1, ENC_NA);
                         new_off += 1;
                         proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_lsvd_version_bytes, tvb, cur_off + new_off, version_length, ENC_NA);
@@ -1490,7 +1490,7 @@ static int dissect_dvb_s2_table_sct(tvbuff_t *tvb, int cur_off, proto_tree *dvb_
 
     proto_tree  *dvb_s2_hdr_table_sf_tree, *dvb_s2_hdr_table_sf_frame_tree;
 
-    superframe_loop_count = tvb_get_guint8(tvb, cur_off + new_off);
+    superframe_loop_count = tvb_get_uint8(tvb, cur_off + new_off);
     proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_table_superframe_loop_count, tvb, cur_off + new_off, 1, ENC_NA);
     new_off += 1;
 
@@ -1515,7 +1515,7 @@ static int dissect_dvb_s2_table_sct(tvbuff_t *tvb, int cur_off, proto_tree *dvb_
         new_off += 4;
         proto_tree_add_item(dvb_s2_hdr_table_sf_tree, hf_dvb_s2_table_sf_count, tvb, cur_off + new_off, 2, ENC_NA);
         new_off += 2;
-        frame_loop_count = tvb_get_guint8(tvb, cur_off + new_off) & DVB_S2_TABLE_SCT_FRAME_LOOP_COUNT_MASK;
+        frame_loop_count = tvb_get_uint8(tvb, cur_off + new_off) & DVB_S2_TABLE_SCT_FRAME_LOOP_COUNT_MASK;
         proto_tree_add_item(dvb_s2_hdr_table_sf_tree, hf_dvb_s2_table_sf_frame_loop_count, tvb, cur_off + new_off, 1, ENC_NA);
         new_off += 1;
 
@@ -1559,7 +1559,7 @@ static int dissect_dvb_s2_table_tim(tvbuff_t *tvb, int cur_off, proto_tree *dvb_
     }
     new_off += 1;
     proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_table_desc_loop_count, tvb, cur_off + new_off, 1, ENC_NA);
-    desc_loop_count = tvb_get_guint8(tvb, cur_off + new_off);
+    desc_loop_count = tvb_get_uint8(tvb, cur_off + new_off);
     new_off += 1;
 
     new_off += dissect_dvb_s2_table_desc(tvb, cur_off + new_off, dvb_s2_hdr_table_tree, desc_loop_count, table_id, pinfo);
@@ -1584,7 +1584,7 @@ static int dissect_dvb_s2_table_tbtp(tvbuff_t *tvb, int cur_off, proto_tree *dvb
     new_off += 1;
     proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_tbtp_superframe_count, tvb, cur_off + new_off, 2, ENC_NA);
     new_off += 2;
-    frame_loop_count = tvb_get_guint8(tvb, cur_off + new_off) & DVB_S2_TABLE_SCT_FRAME_LOOP_COUNT_MASK;
+    frame_loop_count = tvb_get_uint8(tvb, cur_off + new_off) & DVB_S2_TABLE_SCT_FRAME_LOOP_COUNT_MASK;
     proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_tbtp_frame_loop_count, tvb, cur_off + new_off, 1, ENC_NA);
     new_off += 1;
     for(cur_frame=0 ; cur_frame<=frame_loop_count ; cur_frame++)
@@ -1605,7 +1605,7 @@ static int dissect_dvb_s2_table_tbtp(tvbuff_t *tvb, int cur_off, proto_tree *dvb
             dvb_s2_hdr_tbtp_frame_btp_tree = proto_item_add_subtree(tf, ett_dvb_s2_hdr_tbtp_frame_btp);
             proto_tree_add_item(dvb_s2_hdr_tbtp_frame_btp_tree, hf_dvb_s2_tbtp_logon_id, tvb, cur_off + new_off, 2, ENC_NA);
             new_off += 2;
-            multiple_channel_flag = tvb_get_guint8(tvb, cur_off + new_off) & 0x80;
+            multiple_channel_flag = tvb_get_uint8(tvb, cur_off + new_off) & 0x80;
             proto_tree_add_item(dvb_s2_hdr_tbtp_frame_btp_tree, hf_dvb_s2_tbtp_multiple_channel_flag, tvb, cur_off + new_off, 1, ENC_NA);
             proto_tree_add_item(dvb_s2_hdr_tbtp_frame_btp_tree, hf_dvb_s2_tbtp_assignment_type, tvb, cur_off + new_off, 1, ENC_NA);
             proto_tree_add_item(dvb_s2_hdr_tbtp_frame_btp_tree, hf_dvb_s2_tbtp_frame_vbdc_queue_empty_flag, tvb, cur_off + new_off, 1, ENC_NA);
@@ -1647,10 +1647,10 @@ static int dissect_dvb_s2_table_tbtp2(tvbuff_t *tvb, int cur_off, proto_tree *dv
     new_off += 1;
     proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_table_superframe_count, tvb, cur_off + new_off, 1, ENC_NA);
     new_off += 1;
-    assignment_format = tvb_get_guint8(tvb, cur_off + new_off);
+    assignment_format = tvb_get_uint8(tvb, cur_off + new_off);
     proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_table_assign_format, tvb, cur_off + new_off, 1, ENC_NA);
     new_off += 1;
-    frame_loop_count = tvb_get_guint8(tvb, cur_off + new_off);
+    frame_loop_count = tvb_get_uint8(tvb, cur_off + new_off);
     proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_table_frame_loop_count, tvb, cur_off + new_off, 1, ENC_NA);
     new_off += 1;
 
@@ -1720,7 +1720,7 @@ static int dissect_dvb_s2_table_cmt(tvbuff_t *tvb, int cur_off, proto_tree *dvb_
     proto_item *ti;
     proto_tree  *dvb_s2_hdr_table_entry_tree;
 
-    entry_loop_count = tvb_get_guint8(tvb, cur_off + new_off);
+    entry_loop_count = tvb_get_uint8(tvb, cur_off + new_off);
     proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_table_entry_loop_count, tvb, cur_off + new_off, 1, ENC_NA);
     new_off += 1;
 
@@ -1753,7 +1753,7 @@ static int dissect_dvb_s2_table_tmst(tvbuff_t *tvb, int cur_off, proto_tree *dvb
     proto_item *ti;
     proto_tree  *dvb_s2_hdr_table_txmode_tree;
 
-    txmode_count = tvb_get_guint8(tvb, cur_off + new_off);
+    txmode_count = tvb_get_uint8(tvb, cur_off + new_off);
     proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_table_tx_mode_count, tvb, cur_off + new_off, 1, ENC_NA);
     new_off += 1;
 
@@ -1783,7 +1783,7 @@ static int dissect_dvb_s2_table_tmst2(tvbuff_t *tvb, int cur_off, proto_tree *dv
 
     proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_table_common_sytem_margin, tvb, cur_off + new_off, 1, ENC_NA);
     new_off += 1;
-    txmode_count = tvb_get_guint8(tvb, cur_off + new_off);
+    txmode_count = tvb_get_uint8(tvb, cur_off + new_off);
     proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_table_tx_mode_count, tvb, cur_off + new_off, 1, ENC_NA);
     new_off += 1;
 
@@ -1812,21 +1812,21 @@ static int dissect_dvb_s2_table_bct(tvbuff_t *tvb, int cur_off, proto_tree *dvb_
                 *dvb_s2_hdr_table_txtype_uwsymbol_tree;
     uint8_t tx_format, tx_type, y_period, w_period, modulation_scheme, param_interleaver;
 
-    txtype_count = tvb_get_guint8(tvb, cur_off + new_off);
+    txtype_count = tvb_get_uint8(tvb, cur_off + new_off);
     proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_table_tx_type_loop_count, tvb, cur_off + new_off, 1, ENC_NA);
     new_off += 1;
 
     for(cur_txtype=0 ; cur_txtype<txtype_count ; cur_txtype++)
     {
-        tx_format_data_length = tvb_get_guint8(tvb, cur_off + new_off + 3);
+        tx_format_data_length = tvb_get_uint8(tvb, cur_off + new_off + 3);
         ti = proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_table_tx_type_branch, tvb, cur_off + new_off, tx_format_data_length + 4, ENC_NA);
         dvb_s2_hdr_table_txtype_tree = proto_item_add_subtree(ti, ett_dvb_s2_hdr_table_txtype);
-        tx_type = tvb_get_guint8(tvb, cur_off + new_off);
+        tx_type = tvb_get_uint8(tvb, cur_off + new_off);
         proto_tree_add_item(dvb_s2_hdr_table_txtype_tree, hf_dvb_s2_table_tx_type, tvb, cur_off + new_off, 1, ENC_NA);
         new_off += 1;
         proto_tree_add_item(dvb_s2_hdr_table_txtype_tree, hf_dvb_s2_table_tx_type_tx_content_type, tvb, cur_off + new_off, 1, ENC_NA);
         new_off += 1;
-        tx_format = tvb_get_guint8(tvb, cur_off + new_off);
+        tx_format = tvb_get_uint8(tvb, cur_off + new_off);
         proto_tree_add_item(dvb_s2_hdr_table_txtype_tree, hf_dvb_s2_table_tx_type_tx_format_class, tvb, cur_off + new_off, 1, ENC_NA);
         new_off += 1;
         proto_tree_add_item(dvb_s2_hdr_table_txtype_tree, hf_dvb_s2_table_tx_type_tx_format_data_length, tvb, cur_off + new_off, 1, ENC_NA);
@@ -1846,7 +1846,7 @@ static int dissect_dvb_s2_table_bct(tvbuff_t *tvb, int cur_off, proto_tree *dvb_
                 {
                     proto_tree_add_item(dvb_s2_hdr_table_txtype_tree, hf_dvb_s2_table_tx_type_payload_size, tvb, cur_off + new_off, 2, ENC_NA);
                     new_off += 2;
-                    modulation_scheme = tvb_get_guint8(tvb, cur_off + new_off);
+                    modulation_scheme = tvb_get_uint8(tvb, cur_off + new_off);
                     proto_tree_add_item(dvb_s2_hdr_table_txtype_tree, hf_dvb_s2_table_tx_type_modulation_scheme, tvb, cur_off + new_off, 1, ENC_NA);
                     new_off += 1;
                     proto_tree_add_item(dvb_s2_hdr_table_txtype_tree, hf_dvb_s2_table_tx_type_p, tvb, cur_off + new_off, 1, ENC_NA);
@@ -1859,10 +1859,10 @@ static int dissect_dvb_s2_table_bct(tvbuff_t *tvb, int cur_off, proto_tree *dvb_
                     new_off += 1;
                     proto_tree_add_item(dvb_s2_hdr_table_txtype_tree, hf_dvb_s2_table_tx_type_q3, tvb, cur_off + new_off, 1, ENC_NA);
                     new_off += 1;
-                    y_period = tvb_get_guint8(tvb, cur_off + new_off) & DVB_S2_TABLE_TX_TYPE_W_Y_PERIOD_MASK;
+                    y_period = tvb_get_uint8(tvb, cur_off + new_off) & DVB_S2_TABLE_TX_TYPE_W_Y_PERIOD_MASK;
                     proto_tree_add_item(dvb_s2_hdr_table_txtype_tree, hf_dvb_s2_table_tx_type_y_period, tvb, cur_off + new_off, 1, ENC_NA);
                     new_off += 1;
-                    w_period = tvb_get_guint8(tvb, cur_off + new_off) & DVB_S2_TABLE_TX_TYPE_W_Y_PERIOD_MASK;
+                    w_period = tvb_get_uint8(tvb, cur_off + new_off) & DVB_S2_TABLE_TX_TYPE_W_Y_PERIOD_MASK;
                     proto_tree_add_item(dvb_s2_hdr_table_txtype_tree, hf_dvb_s2_table_tx_type_w_period, tvb, cur_off + new_off, 1, ENC_NA);
                     new_off += 1;
                     ti = proto_tree_add_item(dvb_s2_hdr_table_txtype_tree, hf_dvb_s2_table_tx_type_y_pattern, tvb, cur_off + new_off, y_period, ENC_NA);
@@ -1880,15 +1880,15 @@ static int dissect_dvb_s2_table_bct(tvbuff_t *tvb, int cur_off, proto_tree *dvb_
                         new_off += 1;
                     }
                     uw_symbol_len = 0;
-                    uw_symbol_len += tvb_get_guint8(tvb, cur_off + new_off);
+                    uw_symbol_len += tvb_get_uint8(tvb, cur_off + new_off);
                     proto_tree_add_item(dvb_s2_hdr_table_txtype_tree, hf_dvb_s2_table_tx_type_preamble_len, tvb, cur_off + new_off, 1, ENC_NA);
                     new_off += 1;
-                    uw_symbol_len += tvb_get_guint8(tvb, cur_off + new_off);
+                    uw_symbol_len += tvb_get_uint8(tvb, cur_off + new_off);
                     proto_tree_add_item(dvb_s2_hdr_table_txtype_tree, hf_dvb_s2_table_tx_type_postamble_len, tvb, cur_off + new_off, 1, ENC_NA);
                     new_off += 1;
                     proto_tree_add_item(dvb_s2_hdr_table_txtype_tree, hf_dvb_s2_table_tx_type_pilot_period, tvb, cur_off + new_off, 2, ENC_NA);
                     new_off += 2;
-                    uw_symbol_len += tvb_get_guint8(tvb, cur_off + new_off);
+                    uw_symbol_len += tvb_get_uint8(tvb, cur_off + new_off);
                     proto_tree_add_item(dvb_s2_hdr_table_txtype_tree, hf_dvb_s2_table_tx_type_pilot_block_len, tvb, cur_off + new_off, 1, ENC_NA);
                     new_off += 1;
                     proto_tree_add_item(dvb_s2_hdr_table_txtype_tree, hf_dvb_s2_table_tx_type_pilot_sum, tvb, cur_off + new_off, 1, ENC_NA);
@@ -1947,12 +1947,12 @@ static int dissect_dvb_s2_table_bct(tvbuff_t *tvb, int cur_off, proto_tree *dvb_
                     proto_tree_add_item(dvb_s2_hdr_table_txtype_tree, hf_dvb_s2_table_tx_type_code_rate, tvb, cur_off + new_off, 1, ENC_NA);
                     proto_tree_add_item(dvb_s2_hdr_table_txtype_tree, hf_dvb_s2_table_tx_type_constraint_length_k, tvb, cur_off + new_off, 1, ENC_NA);
                     new_off += 1;
-                    uw_symbol_len = ( tvb_get_guint8(tvb, cur_off + new_off) * 2 ) / 8 + 1;
+                    uw_symbol_len = ( tvb_get_uint8(tvb, cur_off + new_off) * 2 ) / 8 + 1;
                     proto_tree_add_item(dvb_s2_hdr_table_txtype_tree, hf_dvb_s2_table_tx_type_uw_length, tvb, cur_off + new_off, 1, ENC_NA);
                     new_off += 1;
                     proto_tree_add_item(dvb_s2_hdr_table_txtype_tree, hf_dvb_s2_table_tx_type_uw_symbol, tvb, cur_off + new_off, uw_symbol_len, ENC_NA);
                     new_off += uw_symbol_len;
-                    uwsegment_count = tvb_get_guint8(tvb, cur_off + new_off);
+                    uwsegment_count = tvb_get_uint8(tvb, cur_off + new_off);
                     proto_tree_add_item(dvb_s2_hdr_table_txtype_tree, hf_dvb_s2_table_tx_type_nbr_uw_segments, tvb, cur_off + new_off, 1, ENC_NA);
                     new_off += 1;
                     for(cur_uwsegment=0 ; cur_uwsegment<uwsegment_count ; cur_uwsegment++)
@@ -1965,7 +1965,7 @@ static int dissect_dvb_s2_table_bct(tvbuff_t *tvb, int cur_off, proto_tree *dvb_
                         proto_tree_add_item(dvb_s2_hdr_table_txtype_uwsegment_tree, hf_dvb_s2_table_tx_type_uw_segment_length, tvb, cur_off + new_off, 1, ENC_NA);
                         new_off += 1;
                     }
-                    param_interleaver = tvb_get_guint8(tvb, cur_off + new_off);
+                    param_interleaver = tvb_get_uint8(tvb, cur_off + new_off);
                     proto_tree_add_item(dvb_s2_hdr_table_txtype_tree, hf_dvb_s2_table_tx_type_param_interleaver, tvb, cur_off + new_off, 1, ENC_NA);
                     new_off += 1;
                     if(param_interleaver)
@@ -2009,7 +2009,7 @@ static int dissect_dvb_s2_table_fat(tvbuff_t *tvb, int cur_off, proto_tree *dvb_
     int desc_loop_count, new_off = 0;
 
     proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_table_desc_loop_count, tvb, cur_off + new_off, 1, ENC_NA);
-    desc_loop_count = tvb_get_guint8(tvb, cur_off + new_off);
+    desc_loop_count = tvb_get_uint8(tvb, cur_off + new_off);
     new_off += 1;
 
     new_off += dissect_dvb_s2_table_desc(tvb, cur_off + new_off, dvb_s2_hdr_table_tree, desc_loop_count, DVB_S2_TABLE_FAT, pinfo);
@@ -2023,7 +2023,7 @@ static int dissect_dvb_s2_table_fct2(tvbuff_t *tvb, int cur_off, proto_tree *dvb
     proto_item *ti, *tf;
     proto_tree  *dvb_s2_hdr_table_frametype_tree, *dvb_s2_hdr_table_frametype_section_tree;
 
-    frametype_count = tvb_get_guint8(tvb, cur_off + new_off);
+    frametype_count = tvb_get_uint8(tvb, cur_off + new_off);
     proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_table_frame_type_loop_count, tvb, cur_off + new_off, 1, ENC_NA);
     new_off += 1;
 
@@ -2046,7 +2046,7 @@ static int dissect_dvb_s2_table_fct2(tvbuff_t *tvb, int cur_off, proto_tree *dvb
         new_off += 3;
         proto_tree_add_item(dvb_s2_hdr_table_frametype_tree, hf_dvb_s2_table_frame_type_time_unit_count, tvb, cur_off + new_off, 2, ENC_NA);
         new_off += 2;
-        gridrepeat_count = tvb_get_guint8(tvb, cur_off + new_off);
+        gridrepeat_count = tvb_get_uint8(tvb, cur_off + new_off);
         proto_tree_add_item(dvb_s2_hdr_table_frametype_tree, hf_dvb_s2_table_frame_type_grid_repeat_count, tvb, cur_off + new_off, 1, ENC_NA);
         new_off += 1;
         for(cur_gridrepeat=0 ; cur_gridrepeat<gridrepeat_count ; cur_gridrepeat++)
@@ -2054,7 +2054,7 @@ static int dissect_dvb_s2_table_fct2(tvbuff_t *tvb, int cur_off, proto_tree *dvb
             proto_tree_add_item(dvb_s2_hdr_table_frametype_tree, hf_dvb_s2_table_frame_type_grid_frequency_offset, tvb, cur_off + new_off, 3, ENC_NA);
             new_off += 3;
         }
-        section_count = tvb_get_guint8(tvb, cur_off + new_off);
+        section_count = tvb_get_uint8(tvb, cur_off + new_off);
         proto_tree_add_item(dvb_s2_hdr_table_frametype_tree, hf_dvb_s2_table_frame_type_section_loop_count, tvb, cur_off + new_off, 1, ENC_NA);
         new_off += 1;
         for(cur_section=0 ; cur_section<=section_count ; cur_section++)
@@ -2080,7 +2080,7 @@ static int dissect_dvb_s2_table_fct(tvbuff_t *tvb, int cur_off, proto_tree *dvb_
     proto_item *ti, *tf;
     proto_tree  *dvb_s2_hdr_table_frame_ID_tree, *dvb_s2_hdr_table_frame_ID_timeslot_tree;
 
-    frame_ID_count = tvb_get_guint8(tvb, cur_off + new_off);
+    frame_ID_count = tvb_get_uint8(tvb, cur_off + new_off);
     proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_table_frame_ID_loop_count, tvb, cur_off + new_off, 1, ENC_NA);
     new_off += 1;
     for(cur_frame_ID=0 ; cur_frame_ID<=frame_ID_count ; cur_frame_ID++)
@@ -2096,7 +2096,7 @@ static int dissect_dvb_s2_table_fct(tvbuff_t *tvb, int cur_off, proto_tree *dvb_
         new_off += 2;
         proto_tree_add_item(dvb_s2_hdr_table_frame_ID_tree, hf_dvb_s2_table_frame_ID_start_timeslot_number, tvb, cur_off + new_off, 2, ENC_NA);
         new_off += 2;
-        timeslot_loop_count = tvb_get_guint8(tvb, cur_off + new_off);
+        timeslot_loop_count = tvb_get_uint8(tvb, cur_off + new_off);
         proto_tree_add_item(dvb_s2_hdr_table_frame_ID_tree, hf_dvb_s2_table_frame_ID_timeslot_loop_count, tvb, cur_off + new_off, 1, ENC_NA);
         new_off += 1;
         for(cur_timeslot=0 ; cur_timeslot<=timeslot_loop_count ; cur_timeslot++)
@@ -2128,7 +2128,7 @@ static int dissect_dvb_s2_table_spt(tvbuff_t *tvb, int cur_off, proto_tree *dvb_
     proto_item *ti;
     proto_tree  *dvb_s2_hdr_table_satellite_tree;
 
-    satellite_count = tvb_get_guint8(tvb, cur_off + new_off);
+    satellite_count = tvb_get_uint8(tvb, cur_off + new_off);
     proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_table_satellite_loop_count, tvb, cur_off + new_off, 1, ENC_NA);
     new_off += 1;
 
@@ -2190,7 +2190,7 @@ static int dissect_dvb_s2_table_nit_rmt(tvbuff_t *tvb, int cur_off, proto_tree *
     /* calculate descriptors_count */
     desc_off=0;
     for(desc_count=0 ; desc_off<network_descriptors_length ; desc_count++){
-        desc_off += tvb_get_guint8(tvb, cur_off + new_off + desc_off + 1) + 2;
+        desc_off += tvb_get_uint8(tvb, cur_off + new_off + desc_off + 1) + 2;
     }
 
     new_off += dissect_dvb_s2_table_desc(tvb, cur_off + new_off, dvb_s2_hdr_table_tree, desc_count - 1, table_id, pinfo);
@@ -2225,7 +2225,7 @@ static int dissect_dvb_s2_table_nit_rmt(tvbuff_t *tvb, int cur_off, proto_tree *
         /* calculate descriptors_count */
         desc_off=0;
         for(desc_count=0 ; desc_off<transport_descriptors_length ; desc_count++)
-            desc_off += tvb_get_guint8(tvb, cur_off + new_off + desc_off + 1) + 2;
+            desc_off += tvb_get_uint8(tvb, cur_off + new_off + desc_off + 1) + 2;
         new_off += dissect_dvb_s2_table_desc(tvb, cur_off + new_off, dvb_s2_hdr_table_multiplex_tree, desc_count - 1, table_id, pinfo);
         proto_item_set_len(ti, new_off - mux_start_off);
     }
@@ -2250,7 +2250,7 @@ static int dissect_dvb_s2_table_mmt2(tvbuff_t *tvb, int cur_off, proto_tree *dvb
     new_off += 2;
     proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_table_svn_prefix_size, tvb, cur_off + new_off, 1, ENC_NA);
     new_off += 1;
-    protocol_count = tvb_get_guint8(tvb, cur_off + new_off);
+    protocol_count = tvb_get_uint8(tvb, cur_off + new_off);
     proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_table_pt_count, tvb, cur_off + new_off, 1, ENC_NA);
     new_off += 1;
 
@@ -2261,10 +2261,10 @@ static int dissect_dvb_s2_table_mmt2(tvbuff_t *tvb, int cur_off, proto_tree *dvb
         dvb_s2_hdr_table_protocol_tree = proto_item_add_subtree(ti_pt, ett_dvb_s2_hdr_table_pt);
         proto_tree_add_item(dvb_s2_hdr_table_protocol_tree, hf_dvb_s2_table_pt_protocol_type, tvb, cur_off + new_off, 2, ENC_NA);
         new_off += 1;
-        address_size = tvb_get_guint8(tvb, cur_off + new_off);
+        address_size = tvb_get_uint8(tvb, cur_off + new_off);
         proto_tree_add_item(dvb_s2_hdr_table_protocol_tree, hf_dvb_s2_table_pt_address_size, tvb, cur_off + new_off, 1, ENC_NA);
         new_off += 1;
-        ms_count = tvb_get_guint8(tvb, cur_off + new_off);
+        ms_count = tvb_get_uint8(tvb, cur_off + new_off);
         proto_tree_add_item(dvb_s2_hdr_table_protocol_tree, hf_dvb_s2_table_pt_mapping_sections, tvb, cur_off + new_off, 1, ENC_NA);
         new_off += 1;
         for(cur_ms=0 ; cur_ms<=ms_count ; cur_ms++)
@@ -2276,7 +2276,7 @@ static int dissect_dvb_s2_table_mmt2(tvbuff_t *tvb, int cur_off, proto_tree *dvb
             new_off += address_size;
             proto_tree_add_item(dvb_s2_hdr_table_protocol_ms_tree, hf_dvb_s2_table_pt_ms_inclusion_end, tvb, cur_off + new_off, address_size, ENC_NA);
             new_off += address_size;
-            exclusion_count = tvb_get_guint8(tvb, cur_off + new_off);
+            exclusion_count = tvb_get_uint8(tvb, cur_off + new_off);
             proto_tree_add_item(dvb_s2_hdr_table_protocol_ms_tree, hf_dvb_s2_table_pt_ms_exclusions, tvb, cur_off + new_off, 1, ENC_NA);
             new_off += 1;
             for(cur_exclusion=0 ; cur_exclusion<=exclusion_count ; cur_exclusion++)
@@ -2318,7 +2318,7 @@ static int dissect_dvb_s2_table(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
     ti = proto_tree_add_item(tree, proto_dvb_s2_table, tvb, 0, -1, ENC_NA);
     dvb_s2_hdr_table_tree = proto_item_add_subtree(ti, ett_dvb_s2_hdr_table);
-    table_id = tvb_get_guint8(tvb, cur_off + new_off);
+    table_id = tvb_get_uint8(tvb, cur_off + new_off);
     col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const(table_id, tabletype, "Unknown table id" ));
     col_append_str(pinfo->cinfo, COL_INFO, " ");
     proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_table_id, tvb, cur_off + new_off, 1, ENC_NA);
@@ -2361,10 +2361,10 @@ static int dissect_dvb_s2_table(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_reserved_1, tvb, cur_off + new_off, 1, ENC_NA);
         proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_section_length , tvb, cur_off + new_off, 2, ENC_NA);
         new_off +=2;
-        mac_6 = tvb_get_guint8(tvb, cur_off + new_off);
+        mac_6 = tvb_get_uint8(tvb, cur_off + new_off);
         proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_mac_addres_6 , tvb, cur_off + new_off, 1, ENC_NA);
         new_off +=1;
-        mac_5 = tvb_get_guint8(tvb, cur_off + new_off);
+        mac_5 = tvb_get_uint8(tvb, cur_off + new_off);
         proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_mac_addres_5 , tvb, cur_off + new_off, 1, ENC_NA);
         new_off +=1;
         proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_reserved_2, tvb, cur_off + new_off, 1, ENC_NA);
@@ -2377,16 +2377,16 @@ static int dissect_dvb_s2_table(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         new_off +=1;
         proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_last_section_number , tvb, cur_off + new_off, 1, ENC_NA);
         new_off +=1;
-        mac_4 = tvb_get_guint8(tvb, cur_off + new_off);
+        mac_4 = tvb_get_uint8(tvb, cur_off + new_off);
         proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_mac_addres_4 , tvb, cur_off + new_off, 1, ENC_NA);
         new_off +=1;
-        mac_3 = tvb_get_guint8(tvb, cur_off + new_off);
+        mac_3 = tvb_get_uint8(tvb, cur_off + new_off);
         proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_mac_addres_3 , tvb, cur_off + new_off, 1, ENC_NA);
         new_off +=1;
-        mac_2 = tvb_get_guint8(tvb, cur_off + new_off);
+        mac_2 = tvb_get_uint8(tvb, cur_off + new_off);
         proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_mac_addres_2 , tvb, cur_off + new_off, 1, ENC_NA);
         new_off +=1;
-        mac_1 = tvb_get_guint8(tvb, cur_off + new_off);
+        mac_1 = tvb_get_uint8(tvb, cur_off + new_off);
         proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_mac_addres_1 , tvb, cur_off + new_off, 1, ENC_NA);
         new_off +=1;
         if ((mac_1 == 0xff) && (mac_2 == 0xff) && (mac_3 == 0xff) && (mac_4 == 0xff) && (mac_5 == 0xff) && (mac_6 == 0xff)) {

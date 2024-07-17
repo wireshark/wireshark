@@ -485,7 +485,7 @@ dissect_dlt_verbose_parameter_bool(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         return 0;
     }
 
-    value = tvb_get_guint8(tvb, offset);
+    value = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_dlt_data_bool, tvb, offset, 1, ENC_NA);
 
     if (value==0x00) {
@@ -511,7 +511,7 @@ dissect_dlt_verbose_parameter_int(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         switch (length) {
         case 1:
             proto_tree_add_item(tree, hf_dlt_int8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            value = (int8_t)tvb_get_guint8(tvb, offset);
+            value = (int8_t)tvb_get_uint8(tvb, offset);
             break;
         case 2:
             proto_tree_add_item(tree, hf_dlt_int16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -533,7 +533,7 @@ dissect_dlt_verbose_parameter_int(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         switch (length) {
         case 1:
             proto_tree_add_item(tree, hf_dlt_int8, tvb, offset, 1, ENC_BIG_ENDIAN);
-            value = (int8_t)tvb_get_guint8(tvb, offset);
+            value = (int8_t)tvb_get_uint8(tvb, offset);
             break;
         case 2:
             proto_tree_add_item(tree, hf_dlt_int16, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -570,7 +570,7 @@ dissect_dlt_verbose_parameter_uint(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         switch (length) {
         case 1:
             proto_tree_add_item(tree, hf_dlt_uint8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            value = tvb_get_guint8(tvb, offset);
+            value = tvb_get_uint8(tvb, offset);
             break;
         case 2:
             proto_tree_add_item(tree, hf_dlt_uint16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -592,7 +592,7 @@ dissect_dlt_verbose_parameter_uint(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         switch (length) {
         case 1:
             proto_tree_add_item(tree, hf_dlt_uint8, tvb, offset, 1, ENC_BIG_ENDIAN);
-            value = tvb_get_guint8(tvb, offset);
+            value = tvb_get_uint8(tvb, offset);
             break;
         case 2:
             proto_tree_add_item(tree, hf_dlt_uint16, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1087,7 +1087,7 @@ dissect_dlt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_,
         return captured_length;
     }
 
-    header_type = tvb_get_guint8(tvb, offset);
+    header_type = tvb_get_uint8(tvb, offset);
     ext_header = ((header_type & DLT_HDR_TYPE_EXT_HEADER) == DLT_HDR_TYPE_EXT_HEADER);
     payload_le = ((header_type & DLT_HDR_TYPE_MSB_FIRST) != DLT_HDR_TYPE_MSB_FIRST);
 
@@ -1137,7 +1137,7 @@ dissect_dlt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_,
 
         proto_tree_add_item(subtree, hf_dlt_mi_verbose, tvb, offset, 1, ENC_NA);
 
-        msg_info = tvb_get_guint8(tvb, offset);
+        msg_info = tvb_get_uint8(tvb, offset);
         verbose = (msg_info & DLT_MSG_INFO_VERBOSE) == DLT_MSG_INFO_VERBOSE;
         msg_type_info_comb = msg_info & DLT_MSG_INFO_MSG_TYPE_INFO_COMB;
         msg_type = (msg_type_info_comb & DLT_MSG_INFO_MSG_TYPE) >> 1;
@@ -1148,7 +1148,7 @@ dissect_dlt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_,
             val_to_str_const(msg_type_info_comb, dlt_msg_type_info, "Unknown Message Type Info"), msg_type_info);
         offset += 1;
 
-        num_of_args = tvb_get_guint8(tvb, offset);
+        num_of_args = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(ext_hdr_tree, hf_dlt_num_of_args, tvb, offset, 1, ENC_NA);
         offset += 1;
 

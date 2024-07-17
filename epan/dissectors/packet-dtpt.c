@@ -646,9 +646,9 @@ dissect_dtpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 	uint8_t		message_type;
 	uint32_t		payload_size;
 
-	version = tvb_get_guint8(tvb, 0);
+	version = tvb_get_uint8(tvb, 0);
 	if (version != 1) return 0;
-	message_type = tvb_get_guint8(tvb, 1);
+	message_type = tvb_get_uint8(tvb, 1);
 	switch (message_type) {
 		case LookupBeginRequest:
 		case LookupBeginResponse:

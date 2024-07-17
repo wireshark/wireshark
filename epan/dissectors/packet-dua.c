@@ -666,8 +666,8 @@ dissect_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tre
 {
   uint8_t message_class, message_type;
 
-  message_class  = tvb_get_guint8(common_header_tvb, MESSAGE_CLASS_OFFSET);
-  message_type   = tvb_get_guint8(common_header_tvb, MESSAGE_TYPE_OFFSET);
+  message_class  = tvb_get_uint8(common_header_tvb, MESSAGE_CLASS_OFFSET);
+  message_type   = tvb_get_uint8(common_header_tvb, MESSAGE_TYPE_OFFSET);
 
   col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(message_class * 256 + message_type,
                                                                  message_class_type_acro_values,

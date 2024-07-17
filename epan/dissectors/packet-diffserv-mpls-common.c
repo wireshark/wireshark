@@ -58,7 +58,7 @@ dissect_diffserv_mpls_common(tvbuff_t *tvb, proto_tree *tree, int type,
         tree2 = proto_item_add_subtree(ti, ett_map);
         proto_item_set_text(ti, "MAP: ");
         offset ++;
-        exp = tvb_get_guint8(tvb, offset) & 7;
+        exp = tvb_get_uint8(tvb, offset) & 7;
         proto_tree_add_uint(tree2, hf_exp, tvb, offset, 1, exp);
         proto_item_append_text(ti, "EXP %u, ", exp);
         offset ++;

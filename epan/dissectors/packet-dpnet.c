@@ -253,7 +253,7 @@ static void process_dpnet_query(proto_tree *dpnet_tree, tvbuff_t *tvb, packet_in
     uint8_t is_query;
 
     proto_tree_add_item(dpnet_tree, hf_dpnet_lead, tvb, 0, 1, ENC_BIG_ENDIAN); offset += 1;
-    is_query = tvb_get_guint8(tvb, offset);
+    is_query = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(dpnet_tree, hf_dpnet_command, tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
     proto_tree_add_item(dpnet_tree, hf_dpnet_payload, tvb, offset, 2, ENC_LITTLE_ENDIAN); offset += 2;
 
@@ -261,7 +261,7 @@ static void process_dpnet_query(proto_tree *dpnet_tree, tvbuff_t *tvb, packet_in
     {
         col_set_str(pinfo->cinfo, COL_INFO, "DPNET Enum Query");
 
-        has_guid = tvb_get_guint8(tvb, offset);
+        has_guid = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(dpnet_tree, hf_dpnet_type, tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
 
         if (has_guid & DPNET_QUERY_GUID) {
@@ -339,7 +339,7 @@ dpnet_process_control_frame(proto_tree *dpnet_tree, tvbuff_t *tvb, packet_info *
     proto_tree_add_bitmask(dpnet_tree, tvb, offset, hf_dpnet_data_command, ett_dpnet_command_flags, command_flags, ENC_BIG_ENDIAN);
     offset += 1;
 
-    command = tvb_get_guint8(tvb, offset);
+    command = tvb_get_uint8(tvb, offset);
     command_str = val_to_str_const(command, msg_cframe_control, "Unknown Control (obsolete or malformed?)");
     col_append_fstr(pinfo->cinfo, COL_INFO, " - %s", command_str);
 
@@ -398,7 +398,7 @@ dpnet_process_control_frame(proto_tree *dpnet_tree, tvbuff_t *tvb, packet_info *
                 proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_signature, tvb, offset, 8, ENC_NA);
             break;
         case FRAME_EXOPCODE_SACK:
-            flag = tvb_get_guint8(tvb, offset);
+            flag = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
             proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_retry, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -449,7 +449,7 @@ dissect_dpnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     proto_item *ti = proto_tree_add_item(tree, proto_dpnet, tvb, 0, -1, ENC_NA);
     proto_tree *dpnet_tree = proto_item_add_subtree(ti, ett_dpnet);
 
-    lead = tvb_get_guint8(tvb, 0);
+    lead = tvb_get_uint8(tvb, 0);
     if(lead == 0)
     {
         process_dpnet_query(dpnet_tree, tvb, pinfo);

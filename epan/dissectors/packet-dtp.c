@@ -218,7 +218,7 @@ dissect_dtp_tlv(packet_info *pinfo, tvbuff_t *tvb, int offset, int length,
 	case DTP_TLV_TRSTATUS:
 		if (length == 1) { /* Value field length must be 1 byte */
 			proto_tree * field_tree = NULL;
-			uint8_t trunk_status = tvb_get_guint8(tvb, offset);
+			uint8_t trunk_status = tvb_get_uint8(tvb, offset);
 
 			proto_item_append_text(ti,
 				" (Operating/Administrative): %s/%s (0x%02x)",
@@ -240,7 +240,7 @@ dissect_dtp_tlv(packet_info *pinfo, tvbuff_t *tvb, int offset, int length,
 	case DTP_TLV_TRTYPE:
 		if (length == 1) { /* Value field length must be 1 byte */
 			proto_tree * field_tree;
-			uint8_t trunk_type = tvb_get_guint8(tvb, offset);
+			uint8_t trunk_type = tvb_get_uint8(tvb, offset);
 			proto_item_append_text(ti,
 				" (Operating/Administrative): %s/%s (0x%02x)",
 				val_to_str_const(DTP_TOTVALUE(trunk_type), dtp_tot_vals, "Unknown operating type"),

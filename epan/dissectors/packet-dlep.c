@@ -581,7 +581,7 @@ decode_dataitem_v4addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pt, void *
   tmp_pi = proto_tree_add_item(pt, hf_dlep_dataitem_v4addr_flags, tvb, offset, DLEP_DIT_V4ADDR_FLAGS_LEN, ENC_NA);
   flags_pt = proto_item_add_subtree(tmp_pi, ett_dlep_flags);
   proto_tree_add_item(flags_pt, hf_dlep_dataitem_v4addr_flags_adddrop, tvb, offset, DLEP_DIT_V4ADDR_FLAGS_LEN, ENC_BIG_ENDIAN);
-  proto_item_append_text(pi, ", %s:", tfs_get_string(tvb_get_guint8(tvb, offset) & DLEP_DIT_V4ADDR_FLAGMASK_ADDDROP, &tfs_add_drop));
+  proto_item_append_text(pi, ", %s:", tfs_get_string(tvb_get_uint8(tvb, offset) & DLEP_DIT_V4ADDR_FLAGMASK_ADDDROP, &tfs_add_drop));
   offset+=DLEP_DIT_V4ADDR_FLAGS_LEN;
 
   proto_tree_add_item(pt, hf_dlep_dataitem_v4addr_addr, tvb, offset, FT_IPv4_LEN, ENC_BIG_ENDIAN);
@@ -606,7 +606,7 @@ decode_dataitem_v6addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pt, void *
   tmp_pi = proto_tree_add_item(pt, hf_dlep_dataitem_v6addr_flags, tvb, offset, DLEP_DIT_V6ADDR_FLAGS_LEN, ENC_NA);
   flags_pt = proto_item_add_subtree(tmp_pi, ett_dlep_flags);
   proto_tree_add_item(flags_pt, hf_dlep_dataitem_v6addr_flags_adddrop, tvb, offset, DLEP_DIT_V6ADDR_FLAGS_LEN, ENC_BIG_ENDIAN);
-  proto_item_append_text(pi, ", %s:", tfs_get_string(tvb_get_guint8(tvb, offset) & DLEP_DIT_V6ADDR_FLAGMASK_ADDDROP, &tfs_add_drop));
+  proto_item_append_text(pi, ", %s:", tfs_get_string(tvb_get_uint8(tvb, offset) & DLEP_DIT_V6ADDR_FLAGMASK_ADDDROP, &tfs_add_drop));
   offset+=DLEP_DIT_V6ADDR_FLAGS_LEN;
 
   proto_tree_add_item(pt, hf_dlep_dataitem_v6addr_addr, tvb, offset, FT_IPv6_LEN, ENC_NA);
@@ -632,7 +632,7 @@ decode_dataitem_v4subnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pt, void
   tmp_pi = proto_tree_add_item(pt, hf_dlep_dataitem_v4subnet_flags, tvb, offset, DLEP_DIT_V4SUBNET_FLAGS_LEN, ENC_NA);
   flags_pt = proto_item_add_subtree(tmp_pi, ett_dlep_flags);
   proto_tree_add_item(flags_pt, hf_dlep_dataitem_v4subnet_flags_adddrop, tvb, offset, DLEP_DIT_V4SUBNET_FLAGS_LEN, ENC_BIG_ENDIAN);
-  proto_item_append_text(pi, ", %s:", tfs_get_string(tvb_get_guint8(tvb, offset) & DLEP_DIT_V4SUBNET_FLAGMASK_ADDDROP, &tfs_add_drop));
+  proto_item_append_text(pi, ", %s:", tfs_get_string(tvb_get_uint8(tvb, offset) & DLEP_DIT_V4SUBNET_FLAGMASK_ADDDROP, &tfs_add_drop));
   offset+=DLEP_DIT_V4SUBNET_FLAGS_LEN;
 
   proto_tree_add_item(pt, hf_dlep_dataitem_v4subnet_subnet, tvb, offset, FT_IPv4_LEN, ENC_BIG_ENDIAN);
@@ -662,7 +662,7 @@ decode_dataitem_v6subnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pt, void
   tmp_pi = proto_tree_add_item(pt, hf_dlep_dataitem_v6subnet_flags, tvb, offset, DLEP_DIT_V6SUBNET_FLAGS_LEN, ENC_NA);
   flags_pt = proto_item_add_subtree(tmp_pi, ett_dlep_flags);
   proto_tree_add_item(flags_pt, hf_dlep_dataitem_v6subnet_flags_adddrop, tvb, offset, DLEP_DIT_V6SUBNET_FLAGS_LEN, ENC_BIG_ENDIAN);
-  proto_item_append_text(pi, ", %s:", tfs_get_string(tvb_get_guint8(tvb, offset) & DLEP_DIT_V6SUBNET_FLAGMASK_ADDDROP, &tfs_add_drop));
+  proto_item_append_text(pi, ", %s:", tfs_get_string(tvb_get_uint8(tvb, offset) & DLEP_DIT_V6SUBNET_FLAGMASK_ADDDROP, &tfs_add_drop));
   offset+=DLEP_DIT_V6SUBNET_FLAGS_LEN;
 
   proto_tree_add_item(pt, hf_dlep_dataitem_v6subnet_subnet, tvb, offset, FT_IPv6_LEN, ENC_NA);
@@ -996,7 +996,7 @@ get_dlep_message_header_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, v
 {
   unsigned message_length;
 
-  message_length = tvb_get_guint16(tvb, offset+2, ENC_BIG_ENDIAN);
+  message_length = tvb_get_uint16(tvb, offset+2, ENC_BIG_ENDIAN);
 
   return message_length + DLEP_MSG_HEADER_LEN;
 }

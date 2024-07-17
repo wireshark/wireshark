@@ -125,7 +125,7 @@ dissect_dpnss_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	 */
 	proto_tree_add_item(dpnss_link_tree, hf_dpnss_link_control_frameType,
 			    tvb, 2, 1, ENC_BIG_ENDIAN);
-	octet = tvb_get_guint8(tvb, 2);
+	octet = tvb_get_uint8(tvb, 2);
 	switch (octet){
 	case FRAME_TYPE_UI_EVEN:
 	case FRAME_TYPE_UI_ODD:

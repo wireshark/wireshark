@@ -567,7 +567,7 @@ add_dbus_string(dbus_packet_t *packet, int hf, int uint_length) {
 	proto_item *pi = ptvcursor_add_ret_string(packet->cursor, hf, uint_length,
 			packet->enc | ENC_UTF_8, packet->pinfo->pool, &string);
 	int item_length = ptvcursor_current_offset(packet->cursor) - start_offset;
-	uint8_t term_byte = tvb_get_guint8(ptvcursor_tvbuff(packet->cursor), ptvcursor_current_offset(packet->cursor));
+	uint8_t term_byte = tvb_get_uint8(ptvcursor_tvbuff(packet->cursor), ptvcursor_current_offset(packet->cursor));
 	proto_item_set_len(pi, item_length + 1);
 	ptvcursor_advance(packet->cursor, 1);
 	packet->current_pi = pi;
@@ -622,7 +622,7 @@ add_padding(dbus_packet_t *packet, char sig) {
 	if (padding_len != 0) {
 		packet->current_pi = ptvcursor_add(packet->cursor, hf_dbus_padding, padding_len, packet->enc);
 		for (int i = offset; i < (offset + padding_len); i++) {
-			value = tvb_get_guint8(tvb, i);
+			value = tvb_get_uint8(tvb, i);
 			if (value != 0) {
 				add_expert(packet, &ei_dbus_padding_invalid);
 				return 1;
@@ -656,7 +656,7 @@ reader_next(dbus_type_reader_t *reader, int hf, int ett, dbus_val_t *value) {
 	case SIG_CODE_BOOLEAN: {
 		int offset = ptvcursor_current_offset(packet->cursor);
 		tvbuff_t *tvb = ptvcursor_tvbuff(packet->cursor);
-		uint8_t val = tvb_get_guint8(tvb, offset);
+		uint8_t val = tvb_get_uint8(tvb, offset);
 		packet->current_pi = ptvcursor_add_ret_boolean(packet->cursor,
 				hf != -1 ? hf : hf_dbus_type_boolean, 4, packet->enc, &value->bool_);
 		if (val >= 2) {
@@ -684,7 +684,7 @@ reader_next(dbus_type_reader_t *reader, int hf, int ett, dbus_val_t *value) {
 	case SIG_CODE_INT64: {
 		int offset = ptvcursor_current_offset(packet->cursor);
 		tvbuff_t *tvb = ptvcursor_tvbuff(packet->cursor);
-		value->int64 = tvb_get_gint64(tvb, offset, packet->enc);
+		value->int64 = tvb_get_int64(tvb, offset, packet->enc);
 		packet->current_pi = ptvcursor_add(packet->cursor,
 				hf != -1 ? hf : hf_dbus_type_int64, 8, packet->enc);
 		break;
@@ -692,7 +692,7 @@ reader_next(dbus_type_reader_t *reader, int hf, int ett, dbus_val_t *value) {
 	case SIG_CODE_UINT64: {
 		int offset = ptvcursor_current_offset(packet->cursor);
 		tvbuff_t *tvb = ptvcursor_tvbuff(packet->cursor);
-		value->uint64 = tvb_get_guint64(tvb, offset, packet->enc);
+		value->uint64 = tvb_get_uint64(tvb, offset, packet->enc);
 		packet->current_pi = ptvcursor_add(packet->cursor,
 				hf != -1 ? hf : hf_dbus_type_uint64, 8, packet->enc);
 		break;
@@ -1369,7 +1369,7 @@ dissect_dbus_header(dbus_packet_t *packet) {
 	ptvcursor_add_no_advance(packet->cursor, hf_dbus_flags_no_reply_expected, 1, packet->enc);
 	ptvcursor_add_no_advance(packet->cursor, hf_dbus_flags_no_auto_start, 1, packet->enc);
 	ptvcursor_add_no_advance(packet->cursor, hf_dbus_flags_allow_interactive_authorization, 1, packet->enc);
-	packet->flags = tvb_get_guint8(ptvcursor_tvbuff(packet->cursor), ptvcursor_current_offset(packet->cursor));
+	packet->flags = tvb_get_uint8(ptvcursor_tvbuff(packet->cursor), ptvcursor_current_offset(packet->cursor));
 	ptvcursor_advance(packet->cursor, 1);
 	ptvcursor_pop_subtree(packet->cursor);
 
@@ -1424,7 +1424,7 @@ get_dbus_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
 
 	uint32_t len_body, len_hdr;
 
-	switch (tvb_get_guint8(tvb, offset)) {
+	switch (tvb_get_uint8(tvb, offset)) {
 		case 'l':
 			get_guint32 = tvb_get_letohl;
 			break;

@@ -160,7 +160,7 @@ static int dissect_dect_dlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DECT-DLC");
 
-	cr = tvb_get_guint8(tvb, 0) & 0x02;
+	cr = tvb_get_uint8(tvb, 0) & 0x02;
 	if (pinfo->p2p_dir == P2P_DIR_RECV)
 		is_response = cr ? false : true;
 	else if (pinfo->p2p_dir == P2P_DIR_SENT)
@@ -172,7 +172,7 @@ static int dissect_dect_dlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	addr_ti = proto_tree_add_item(dlc_tree, hf_dect_dlc_address, tvb, 0, 1, ENC_NA);
 	addr_tree = proto_item_add_subtree(addr_ti, ett_dect_dlc_address);
 
-	sapi = (tvb_get_guint8(tvb, 0) & 0x0C) >> 2;
+	sapi = (tvb_get_uint8(tvb, 0) & 0x0C) >> 2;
 	proto_tree_add_item(addr_tree, hf_dect_dlc_nlf, tvb, 0, 1, ENC_NA);
 	proto_tree_add_item(addr_tree, hf_dect_dlc_lln, tvb, 0, 1, ENC_NA);
 	proto_tree_add_item(addr_tree, hf_dect_dlc_sapi, tvb, 0, 1, ENC_NA);
@@ -185,7 +185,7 @@ static int dissect_dect_dlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	length_ti = proto_tree_add_item(dlc_tree, hf_dect_dlc_length, tvb, 2, 1, ENC_NA);
 	length_tree = proto_item_add_subtree(length_ti, ett_dect_dlc_length);
-	length = tvb_get_guint8(tvb, 2);
+	length = tvb_get_uint8(tvb, 2);
 	proto_tree_add_uint(length_tree, hf_dect_dlc_len, tvb, 2, 1, length);
 	proto_tree_add_uint(length_tree, hf_dect_dlc_m, tvb, 2, 1, length);
 	proto_tree_add_uint(length_tree, hf_dect_dlc_el, tvb, 2, 1, length);

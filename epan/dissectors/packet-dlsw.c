@@ -290,14 +290,14 @@ dissect_dlsw_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "DLSw");
 
-  version=tvb_get_guint8(tvb,0);
+  version=tvb_get_uint8(tvb,0);
 
   col_add_fstr(pinfo->cinfo, COL_INFO, "DLSw %s",val_to_str_const(version , dlsw_version_vals, "Unknown Version"));
 
   ti = proto_tree_add_item(tree, proto_dlsw, tvb, 0, -1, ENC_NA);
   dlsw_tree = proto_item_add_subtree(ti, ett_dlsw);
 
-  hlen=tvb_get_guint8(tvb,1);
+  hlen=tvb_get_uint8(tvb,1);
 
   dlsw_header_tree = proto_tree_add_subtree_format(dlsw_tree, tvb, 0, hlen, ett_dlsw_header, NULL,
       "DLSw header, %s",
@@ -311,7 +311,7 @@ dissect_dlsw_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
   proto_tree_add_item(dlsw_header_tree, hf_dlsw_remote_dlc_pid, tvb, 8, 4, ENC_BIG_ENDIAN);
   proto_tree_add_item(dlsw_header_tree, hf_dlsw_reserved, tvb, 12, 2, ENC_NA) ;
 
-  mtype=tvb_get_guint8(tvb,14);
+  mtype=tvb_get_uint8(tvb,14);
   col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",val_to_str_const(mtype , dlsw_type_vals, "Unknown message Type"));
 
   proto_tree_add_item(dlsw_header_tree, hf_dlsw_message_type, tvb, 14, 1, ENC_BIG_ENDIAN);
@@ -321,7 +321,7 @@ dissect_dlsw_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
   }
   else
   {
-    flags = tvb_get_guint8(tvb,15);
+    flags = tvb_get_uint8(tvb,15);
     ti2 = proto_tree_add_item(dlsw_header_tree, hf_dlsw_flow_ctrl_byte, tvb, 15, 1, ENC_BIG_ENDIAN);
     dlsw_flags_tree = proto_item_add_subtree(ti2, ett_dlsw_fc);
     proto_tree_add_item(dlsw_flags_tree, hf_dlsw_flow_control_indication, tvb, 15, 1, ENC_BIG_ENDIAN);
@@ -436,12 +436,12 @@ dissect_dlsw_capex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tr
       break;
     case DLSW_GDSID_SEND:
       while (offset < mlen){
-        vlen=tvb_get_guint8(tvb,offset);
+        vlen=tvb_get_uint8(tvb,offset);
         if (vlen < 3) {
           proto_tree_add_expert(tree, pinfo, &ei_dlsw_vec_len_invalid, tvb, offset, 1);
           return;
         }
-        vtype=tvb_get_guint8(tvb,offset+1);
+        vtype=tvb_get_uint8(tvb,offset+1);
         dlsw_vector_tree=proto_tree_add_subtree (tree,tvb,offset,vlen,ett_dlsw_vector,NULL,
                                 val_to_str_const(vtype,dlsw_vector_vals,"Unknown vector type"));
         proto_tree_add_item(dlsw_vector_tree, hf_dlsw_vector_length, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -460,7 +460,7 @@ dissect_dlsw_capex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tr
             proto_tree_add_item(dlsw_vector_tree, hf_dlsw_version_string, tvb, offset+2, vlen-2, ENC_NA|ENC_ASCII);
             break;
           case 0x85:
-            tmp8 = tvb_get_guint8(tvb,offset+2);
+            tmp8 = tvb_get_uint8(tvb,offset+2);
             proto_tree_add_uint_format_value(dlsw_vector_tree, hf_dlsw_mac_address_exclusivity, tvb,offset+2, 1,
                                  tmp8, "%s",tmp8==1?"On":"Off");
             break;
@@ -487,7 +487,7 @@ dissect_dlsw_capex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tr
             proto_tree_add_item(dlsw_vector_tree, hf_dlsw_tcp_connections, tvb, offset+2, vlen-2, ENC_BIG_ENDIAN);
             break;
           case 0x88:
-            tmp8 = tvb_get_guint8(tvb,offset+2);
+            tmp8 = tvb_get_uint8(tvb,offset+2);
             proto_tree_add_uint_format_value(dlsw_vector_tree, hf_dlsw_netbios_name_exclusivity, tvb,offset+2,1,
                                  tmp8, "%s", tmp8==1?"On":"Off");
             break;
@@ -519,7 +519,7 @@ dissect_dlsw_capex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tr
 static int
 dissect_dlsw_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-  if (try_val_to_str(tvb_get_guint8(tvb, 0), dlsw_version_vals) == NULL)
+  if (try_val_to_str(tvb_get_uint8(tvb, 0), dlsw_version_vals) == NULL)
   {
     /* Probably not a DLSw packet. */
     return 0;
@@ -536,7 +536,7 @@ get_dlsw_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _
   /*
    * Get the length of the DLSw header.
    */
-  hlen=tvb_get_guint8(tvb,offset+1);
+  hlen=tvb_get_uint8(tvb,offset+1);
 
   /*
    * Get the length of the DLSw message.
@@ -552,7 +552,7 @@ get_dlsw_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _
 static int
 dissect_dlsw_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-  if (try_val_to_str(tvb_get_guint8(tvb, 0), dlsw_version_vals) == NULL)
+  if (try_val_to_str(tvb_get_uint8(tvb, 0), dlsw_version_vals) == NULL)
   {
     /* Probably not a DLSw packet. */
     return 0;

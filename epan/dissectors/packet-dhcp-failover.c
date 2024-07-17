@@ -450,7 +450,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	}
 	offset += 2;
 
-	type = tvb_get_guint8(tvb, offset);
+	type = tvb_get_uint8(tvb, offset);
 	if (tree) {
 		proto_tree_add_uint(dhcpfo_tree,
 		    hf_dhcpfo_type, tvb, offset, 1, type);
@@ -465,7 +465,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 		/* Set to false, changed to true later if autodetected */
 		microsoft_style = false;
 	}
-	poffset = tvb_get_guint8(tvb, offset);
+	poffset = tvb_get_uint8(tvb, offset);
 	if (poffset == 8) {
 		if (dhcpfo_microsoft_compatibility == AUTODETECT_MS_DHCP) {
 			microsoft_style = true;
@@ -575,7 +575,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 		switch (opcode) {
 
 		case DHCP_FO_PD_BINDING_STATUS:
-			binding_status = tvb_get_guint8(tvb, offset);
+			binding_status = tvb_get_uint8(tvb, offset);
 			proto_item_append_text(oi, ", %s (%d)",
 			    val_to_str_const(binding_status,
 				binding_status_vals,
@@ -605,7 +605,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 				break;
 			}
 
-			proto_item_append_text(oi, ", %d ", tvb_get_guint8(tvb, offset));
+			proto_item_append_text(oi, ", %d ", tvb_get_uint8(tvb, offset));
 
 			proto_tree_add_item(option_tree,
 			    hf_dhcpfo_delayed_service_parameter, tvb,
@@ -647,7 +647,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 					expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "hardware address is too short");
 					break;
 				}
-				htype = tvb_get_guint8(tvb, offset);
+				htype = tvb_get_uint8(tvb, offset);
 				htype_str = tvb_arphrdaddr_to_str(pinfo->pool, tvb, offset+1, option_length-1,
 					htype);
 				proto_item_append_text(oi, ", %s", htype_str);
@@ -664,8 +664,8 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 				}
 				proto_tree_add_item(option_tree,
 					hf_dhcpfo_ms_client_scope, tvb,	offset, 4, ENC_LITTLE_ENDIAN);
-				uint32_t scope = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
-				htype = tvb_get_guint8(tvb, offset+4);
+				uint32_t scope = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
+				htype = tvb_get_uint8(tvb, offset+4);
 				htype_str = tvb_arphrdaddr_to_str(pinfo->pool, tvb, offset+1+4, option_length-1-4,
 					htype);
 				proto_item_append_text(oi, ", %s, client DHCP scope: %s",
@@ -688,7 +688,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 				expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "Reject reason is not 1 byte long");
 				break;
 			}
-			reject_reason = tvb_get_guint8(tvb, offset);
+			reject_reason = tvb_get_uint8(tvb, offset);
 
 			proto_item_append_text(oi, ", %s (%d)",
 			    val_to_str_const(reject_reason, reject_reason_vals,
@@ -844,7 +844,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 				expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "server status is not 1 byte long");
 				break;
 			}
-			server_state = tvb_get_guint8(tvb, offset);
+			server_state = tvb_get_uint8(tvb, offset);
 
 			proto_item_append_text(oi, ", %s (%u)",
 			    val_to_str_const(server_state, server_state_vals,
@@ -861,7 +861,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 				expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "Serverflag is not 1 byte long");
 				break;
 			}
-			serverflag = tvb_get_guint8(tvb, offset);
+			serverflag = tvb_get_uint8(tvb, offset);
 			proto_item_append_text(oi, ", %s (%d)",
 				val_to_str_const(serverflag, serverflag_vals, "UNKNOWN FLAGS"),
 				serverflag);
@@ -929,7 +929,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 					expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "IP flags is not 1 bytes long");
 					break;
 				}
-				proto_item_append_text(oi, ", flags (Microsoft-specific): 0x%02x", tvb_get_guint8(tvb, offset));
+				proto_item_append_text(oi, ", flags (Microsoft-specific): 0x%02x", tvb_get_uint8(tvb, offset));
 				proto_tree_add_item(option_tree, hf_dhcpfo_ms_ipflags, tvb, offset, option_length, ENC_BIG_ENDIAN);
 			}
 			break;
@@ -941,7 +941,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 				break;
 			}
 
-			message_digest_type = tvb_get_guint8(tvb, offset);
+			message_digest_type = tvb_get_uint8(tvb, offset);
 			ti = proto_tree_add_item(option_tree, hf_dhcpfo_message_digest_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 			if (message_digest_type >= 1 && message_digest_type <= 2) {
@@ -961,7 +961,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 				expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "Protocol version is not 1 byte long");
 				break;
 			}
-			proto_item_append_text(oi, ", version: %u", tvb_get_guint8(tvb, offset));
+			proto_item_append_text(oi, ", version: %u", tvb_get_uint8(tvb, offset));
 			proto_tree_add_item(option_tree, hf_dhcpfo_protocol_version, tvb, offset, option_length, ENC_BIG_ENDIAN);
 			break;
 
@@ -970,7 +970,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 				expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "TLS request is not 1 bytes long");
 				break;
 			}
-			tls_request = tvb_get_guint8(tvb, offset);
+			tls_request = tvb_get_uint8(tvb, offset);
 			proto_item_append_text(oi, ", %s", val_to_str(tls_request, tls_request_vals, "Unknown (%u)"));
 			proto_tree_add_item(option_tree, hf_dhcpfo_tls_request, tvb, offset, 1, ENC_BIG_ENDIAN);
 			break;
@@ -980,7 +980,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 				expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "TLS reply is not 1 bytes long");
 				break;
 			}
-			tls_reply = tvb_get_guint8(tvb, offset);
+			tls_reply = tvb_get_uint8(tvb, offset);
 			proto_item_append_text(oi, ", %s", val_to_str(tls_reply, tls_reply_vals, "Unknown (%u)"));
 			proto_tree_add_item(option_tree, hf_dhcpfo_tls_reply, tvb, offset, 1, ENC_BIG_ENDIAN);
 			break;
@@ -1069,7 +1069,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 				expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "client type is not 1 byte long");
 				break;
 			}
-			ms_client_type = tvb_get_guint8(tvb, offset);
+			ms_client_type = tvb_get_uint8(tvb, offset);
 			proto_item_append_text(oi, ", %s (%d)",
 				val_to_str_const(ms_client_type, ms_client_type_vals, "(undefined)"),
 				ms_client_type);
@@ -1082,7 +1082,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 				expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "client NAP status is not 1 byte long");
 				break;
 			}
-			ms_client_nap_status = tvb_get_guint8(tvb, offset);
+			ms_client_nap_status = tvb_get_uint8(tvb, offset);
 			proto_item_append_text(oi, ", %s (%d)",
 				val_to_str_const(ms_client_nap_status, ms_client_nap_status_vals, "(undefined)"),
 				ms_client_nap_status);
@@ -1114,7 +1114,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 				expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "client NAP capable option is not 1 byte long");
 				break;
 			}
-			ms_client_nap_capable = tvb_get_guint8(tvb, offset);
+			ms_client_nap_capable = tvb_get_uint8(tvb, offset);
 			proto_item_append_text(oi, ", %s (%d)",
 				tfs_get_true_false(ms_client_nap_capable),
 				ms_client_nap_capable);

@@ -722,7 +722,7 @@ dissect_diameter_3gpp_ms_timezone(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
      * represents the algebraic sign of this difference (0: positive, 1: negative).
      */
 
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
     sign = (oct & 0x08) ? '-' : '+';
     oct = (oct >> 4) + (oct & 0x07) * 10;
     hours =  oct / 4;
@@ -731,7 +731,7 @@ dissect_diameter_3gpp_ms_timezone(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     proto_tree_add_uint_format_value(tree, hf_diameter_3gpp_timezone, tvb, offset, 1, oct, "GMT %c %d hours %d minutes", sign, hours, minutes);
     offset++;
 
-    oct = tvb_get_guint8(tvb, offset) & 0x3;
+    oct = tvb_get_uint8(tvb, offset) & 0x3;
     proto_tree_add_item(tree, hf_diameter_3gpp_timezone_adjustment, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
@@ -798,7 +798,7 @@ dissect_diameter_3gpp_codec_data(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tr
      */
     if (sdp_handle) {
         /* Lets see if we have null padding*/
-        while (tvb_get_guint8(tvb, length - 1) == 0) {
+        while (tvb_get_uint8(tvb, length - 1) == 0) {
             length--;
         }
         length -= next_offset;
@@ -1640,7 +1640,7 @@ dissect_diameter_3ggp_qos_susbscribed(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     }
 
     if (length >= 6) {
-        oct = tvb_get_guint8(tvb, offset);
+        oct = tvb_get_uint8(tvb, offset);
         switch (oct) {
             case 0x00: str = "Subscribed maximum SDU size (MS to net); Reserved (net to MS)"; break;
             case 0x97: str = "1502 octets"; break;
@@ -1659,7 +1659,7 @@ dissect_diameter_3ggp_qos_susbscribed(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     }
 
     if (length >= 7) {
-        oct = tvb_get_guint8(tvb, offset);
+        oct = tvb_get_uint8(tvb, offset);
 
         switch (oct) {
             case 0x00: str = "Subscribed maximum bit rate for uplink (MS to net); Reserved (net to MS)"; break;
@@ -1673,7 +1673,7 @@ dissect_diameter_3ggp_qos_susbscribed(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     }
 
     if (length >= 8) {
-        oct = tvb_get_guint8(tvb, offset);
+        oct = tvb_get_uint8(tvb, offset);
 
         switch (oct) {
             case 0x00: str = "Subscribed maximum bit rate for downlink (MS to net); Reserved (net to MS)"; break;
@@ -1695,7 +1695,7 @@ dissect_diameter_3ggp_qos_susbscribed(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     if (length >= 10) {
         proto_tree_add_item(subtree, hf_diameter_3gpp_qos_traff_hdl_pri, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-        oct = tvb_get_guint8(tvb, offset);
+        oct = tvb_get_uint8(tvb, offset);
         tmp_oct = oct >> 2;
         switch (tmp_oct) {
             case 0x00: str = "Subscribed transfer delay (MS to net); Reserved (net to MS)"; break;
@@ -1714,7 +1714,7 @@ dissect_diameter_3ggp_qos_susbscribed(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     }
 
     if (length >= 11) {
-        oct = tvb_get_guint8(tvb, offset);
+        oct = tvb_get_uint8(tvb, offset);
 
         switch (oct) {
         case 0x00: str = "Subscribed guaranteed bit rate for uplink (MS to net); Reserved (net to MS)"; break;
@@ -1728,7 +1728,7 @@ dissect_diameter_3ggp_qos_susbscribed(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     }
 
     if (length >= 12) {
-        oct = tvb_get_guint8(tvb, offset);
+        oct = tvb_get_uint8(tvb, offset);
 
         switch (oct) {
         case 0x00: str = "Subscribed guaranteed bit rate for downlink (MS to net); Reserved (net to MS)"; break;
@@ -1745,7 +1745,7 @@ dissect_diameter_3ggp_qos_susbscribed(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     * 1-3   Octets are coded according to 3GPP TS 24.008 Quality of Service Octets 14-16
     */
     if (length >= 13) {
-        oct = tvb_get_guint8(tvb, offset);
+        oct = tvb_get_uint8(tvb, offset);
         tmp_oct = oct & 0x0f;
         if (tmp_oct == 0x01)
             str = "speech (MS to net); spare bits (net to MS)";
@@ -1759,7 +1759,7 @@ dissect_diameter_3ggp_qos_susbscribed(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     }
 
     if (length >= 14) {
-        oct = tvb_get_guint8(tvb, offset);
+        oct = tvb_get_uint8(tvb, offset);
 
         if (oct == 0x00)
             str = "Use the value indicated by the Maximum bit rate for downlink";
@@ -1779,7 +1779,7 @@ dissect_diameter_3ggp_qos_susbscribed(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     }
 
     if (length >= 15) {
-        oct = tvb_get_guint8(tvb, offset);
+        oct = tvb_get_uint8(tvb, offset);
 
         if (oct == 0x00)
             str = "Use the value indicated by the Guaranteed bit rate for downlink";
@@ -1802,7 +1802,7 @@ dissect_diameter_3ggp_qos_susbscribed(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     * 1-2   Octets are coded according to 3GPP TS 24.008 Quality of Service Octets 17-18
     */
     if (length >= 16) {
-        oct = tvb_get_guint8(tvb, offset);
+        oct = tvb_get_uint8(tvb, offset);
 
         if (oct == 0x00)
             str = "Use the value indicated by the Maximum bit rate for uplink";
@@ -1822,7 +1822,7 @@ dissect_diameter_3ggp_qos_susbscribed(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     }
 
     if (length >= 17) {
-        oct = tvb_get_guint8(tvb, offset);
+        oct = tvb_get_uint8(tvb, offset);
 
         if (oct == 0x00)
             str = "Use the value indicated by the Guaranteed bit rate for uplink";
@@ -2713,7 +2713,7 @@ dissect_diameter_3gpp_ran_nas_release_cause(tvbuff_t *tvb, packet_info *pinfo _U
 {
     int offset = 0;
     int length = tvb_reported_length(tvb);
-    uint8_t octet = tvb_get_guint8(tvb, offset);
+    uint8_t octet = tvb_get_uint8(tvb, offset);
     uint8_t proto_type = (octet >> 4);
     int cause_type = 0;
 

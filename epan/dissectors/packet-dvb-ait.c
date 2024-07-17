@@ -139,7 +139,7 @@ dissect_dvb_ait_app_desc_body(tvbuff_t *tvb, unsigned offset,
 
     offset_start = offset;
 
-    app_prof_len = tvb_get_guint8(tvb, offset);
+    app_prof_len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_dvb_ait_descr_app_prof_len,
             tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
@@ -148,9 +148,9 @@ dissect_dvb_ait_app_desc_body(tvbuff_t *tvb, unsigned offset,
         proto_tree_add_item(tree, hf_dvb_ait_descr_app_prof,
                 tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
-        ver_maj = tvb_get_guint8(tvb, offset);
-        ver_min = tvb_get_guint8(tvb, offset+1);
-        ver_mic = tvb_get_guint8(tvb, offset+2);
+        ver_maj = tvb_get_uint8(tvb, offset);
+        ver_min = tvb_get_uint8(tvb, offset+1);
+        ver_mic = tvb_get_uint8(tvb, offset+2);
         proto_tree_add_uint_format(tree, hf_dvb_ait_descr_app_ver,
                 tvb, offset, 3, ver_maj<<16|ver_min<<8|ver_mic,
                 "Version %d.%d.%d", ver_maj, ver_min, ver_mic);
@@ -185,7 +185,7 @@ dissect_dvb_ait_app_name_desc_body(tvbuff_t *tvb, unsigned offset,
         proto_tree_add_item(tree, hf_dvb_ait_descr_app_name_lang,
               tvb, offset, 3, ENC_ASCII);
         offset += 3;
-        len = tvb_get_guint8(tvb, offset);
+        len = tvb_get_uint8(tvb, offset);
           /* FT_UINT_STRING with 1 leading len byte */
           proto_tree_add_item(tree, hf_dvb_ait_descr_app_name_name,
               tvb, offset, 1, ENC_ASCII|ENC_BIG_ENDIAN);
@@ -215,7 +215,7 @@ dissect_dvb_ait_trpt_proto_desc_body(tvbuff_t *tvb, unsigned offset,
     offset++;
     if (offset-offset_start < body_len) {
         if (proto_id == TRPT_OBJ_CAROUSEL) {
-            remote_connection = ((tvb_get_guint8(tvb, offset) & 0x80) == 0x80);
+            remote_connection = ((tvb_get_uint8(tvb, offset) & 0x80) == 0x80);
             proto_tree_add_item(tree, hf_dvb_ait_descr_trpt_sel_remote,
                 tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
@@ -237,19 +237,19 @@ dissect_dvb_ait_trpt_proto_desc_body(tvbuff_t *tvb, unsigned offset,
         else if (proto_id == TRPT_HTTP) {
             uint8_t url_base_len, url_ext_cnt, url_ext_len, i;
 
-            url_base_len = tvb_get_guint8(tvb, offset);
+            url_base_len = tvb_get_uint8(tvb, offset);
             /* FT_UINT_STRING with one leading length byte */
             proto_tree_add_item(tree, hf_dvb_ait_descr_trpt_sel_url_base,
                 tvb, offset, 1, ENC_ASCII|ENC_BIG_ENDIAN);
             offset += 1+url_base_len;
 
-            url_ext_cnt = tvb_get_guint8(tvb, offset);
+            url_ext_cnt = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(tree, hf_dvb_ait_descr_trpt_sel_url_ext_cnt,
                 tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
 
             for (i=0; i<url_ext_cnt; i++) {
-                url_ext_len = tvb_get_guint8(tvb, offset);
+                url_ext_len = tvb_get_uint8(tvb, offset);
                 proto_tree_add_item(tree, hf_dvb_ait_descr_trpt_sel_url_ext,
                         tvb, offset, 1, ENC_ASCII|ENC_BIG_ENDIAN);
                 offset += 1+url_ext_len;
@@ -275,8 +275,8 @@ dissect_dvb_ait_descriptor(tvbuff_t *tvb, unsigned offset,
     uint8_t     tag, len;
     proto_tree *descr_tree;
 
-    tag = tvb_get_guint8(tvb, offset);
-    len = tvb_get_guint8(tvb, offset+1);
+    tag = tvb_get_uint8(tvb, offset);
+    len = tvb_get_uint8(tvb, offset+1);
 
     /* if the descriptor is a special one that's defined in ETSI TS 102 809,
         we dissect it ourselves

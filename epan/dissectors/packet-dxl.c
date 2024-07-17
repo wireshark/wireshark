@@ -88,7 +88,7 @@ static int dissect_dxl(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
 	proto_tree_add_item(dxl_tree, hf_dxl_version, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
-	type = tvb_get_guint8(tvb, offset);
+	type = tvb_get_uint8(tvb, offset);
 
 	proto_tree_add_item(dxl_tree, hf_dxl_type, tvb, offset, 1, ENC_NA);
 	offset += 1;

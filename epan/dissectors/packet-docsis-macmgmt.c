@@ -3274,7 +3274,7 @@ dissect_ucd_burst_descr(tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, p
   proto_item_append_text(item, ": IUC %d (%s)", iuc, val_to_str_const(iuc,iuc_vals, "Unknown IUC"));
   while (tlvpos < endtlvpos)
   {
-    tlvtype = tvb_get_guint8 (tvb, tlvpos);
+    tlvtype = tvb_get_uint8 (tvb, tlvpos);
     burst_tree = proto_tree_add_subtree (tree, tvb, tlvpos, -1,
                                                         ett_docsis_burst_tlv, &burst_item,
                                                         val_to_str(tlvtype, burst_tlv_vals,
@@ -3546,7 +3546,7 @@ dissect_any_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int pro
   pos = 4;
   while (tvb_reported_length_remaining(tvb, pos) > 0)
   {
-    type = tvb_get_guint8 (tvb, pos);
+    type = tvb_get_uint8 (tvb, pos);
     tlv_tree = proto_tree_add_subtree(ucd_tree, tvb, pos, -1,
                                             ett_docsis_tlv, &tlv_item,
                                             val_to_str(type, channel_tlv_vals,
@@ -3562,7 +3562,7 @@ dissect_any_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int pro
     case UCD_SYMBOL_RATE:
       if (length == 1)
       {
-        symrate = tvb_get_guint8 (tvb, pos);
+        symrate = tvb_get_uint8 (tvb, pos);
         proto_tree_add_uint (tlv_tree, hf_docsis_ucd_symbol_rate, tvb, pos, length, symrate * 160);
       }
       else
@@ -4019,7 +4019,7 @@ dissect_any_map (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, uint8_t
     pos = 8;
     for (i = 0; i < numie; i++)
     {
-      ie = tvb_get_guint32(tvb, pos, ENC_BIG_ENDIAN);
+      ie = tvb_get_uint32(tvb, pos, ENC_BIG_ENDIAN);
       if ((ie & (MAP_PROBE_IE_PW_MASK | MAP_PROBE_IE_ST_MASK)) == 0)
         proto_tree_add_bitmask_with_flags(map_tree, tvb, pos, hf_docsis_map_probe_ie, ett_docsis_map_probe_ie, probe_ies_ect, ENC_BIG_ENDIAN, BMT_NO_FLAGS);
       else
@@ -4137,13 +4137,13 @@ dissect_rngrsp_commanded_power(tvbuff_t * tvb, proto_tree * tree, unsigned start
   pos = start;
   while (pos < start + len)
   {
-    tlvtype = tvb_get_guint8 (tvb, pos);
+    tlvtype = tvb_get_uint8 (tvb, pos);
     commanded_power_subtlv_tree = proto_tree_add_subtree(commanded_power_tree, tvb, pos, -1,
                                   ett_docsis_rngrsp_tlv_commanded_power_subtlv, &rngrsptlv_commanded_power_subtlv,
                                   val_to_str(tlvtype, rngrsp_tlv_commanded_power_subtlv_vals,
                                   "Unknown TLV (%u)"));
     pos++;
-    tlvlen = tvb_get_guint8 (tvb, pos);
+    tlvlen = tvb_get_uint8 (tvb, pos);
     pos++;
 
     switch (tlvtype)
@@ -4187,14 +4187,14 @@ dissect_rngrsp_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * rngrsp_tre
 
   while (tvb_reported_length_remaining(tvb, pos) > 0)
   {
-    tlvtype = tvb_get_guint8 (tvb, pos);
+    tlvtype = tvb_get_uint8 (tvb, pos);
     rngrsptlv_tree = proto_tree_add_subtree(rngrsp_tree, tvb, pos, -1,
                                   ett_docsis_rngrsptlv, &rngrsptlv_item,
                                   val_to_str(tlvtype, rngrsp_tlv_vals,
                                   "Unknown TLV (%u)"));
     proto_tree_add_uint (rngrsptlv_tree, hf_docsis_rngrsp_type, tvb, pos, 1, tlvtype);
     pos++;
-    tlvlen = tvb_get_guint8 (tvb, pos);
+    tlvlen = tvb_get_uint8 (tvb, pos);
     if  (tlvtype == RNGRSP_TRANSMIT_EQ_ADJUST_OFDMA_CHANNELS || tlvtype == RNGRSP_TRANSMIT_EQ_SET_OFDMA_CHANNELS) {
       proto_tree_add_item_ret_uint (rngrsptlv_tree, hf_docsis_rngrsp_length, tvb, pos, 2, ENC_NA, &tlvlen);
       pos += 2;
@@ -4420,7 +4420,7 @@ dissect_attrs(tvbuff_t * tvb, packet_info * pinfo, proto_item *item _U_, proto_t
   increment_dissection_depth(pinfo);
   while (pos + 2 < end)
   {
-    tlv_type = tvb_get_guint8(tvb, pos);
+    tlv_type = tvb_get_uint8(tvb, pos);
     tlv_length = tvb_get_ntohs(tvb, pos + 1);
     tlv_item = proto_tree_add_item(tree, hf_docsis_bpkmattr_tlv, tvb, pos, tlv_length + 3, ENC_NA);
     proto_item_set_text(tlv_item, "%s", val_to_str(tlv_type, bpkmattr_tlv_vals, "Unknown TLV: %u"));
@@ -5001,7 +5001,7 @@ dissect_dccreq_ds_params (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree,
   pos = start;
   while ( pos < ( start + len) )
   {
-    type = tvb_get_guint8 (tvb, pos);
+    type = tvb_get_uint8 (tvb, pos);
     dcc_tree = proto_tree_add_subtree(tree, tvb, pos, -1,
                                             ett_docsis_dccreq_ds_params, &dcc_item,
                                             val_to_str(type, ds_param_subtlv_vals,
@@ -5103,7 +5103,7 @@ dissect_dccreq_sf_sub (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, in
   pos = start;
   while ( pos < ( start + len) )
   {
-    type = tvb_get_guint8 (tvb, pos);
+    type = tvb_get_uint8 (tvb, pos);
     dcc_tree = proto_tree_add_subtree(tree, tvb, pos, -1,
                                             ett_docsis_dccreq_sf_sub, &dcc_item,
                                             val_to_str(type, sf_sub_subtlv_vals,
@@ -5173,7 +5173,7 @@ dissect_dccreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   pos = 2;
   while (tvb_reported_length_remaining(tvb, pos) > 0)
   {
-    type = tvb_get_guint8 (tvb, pos);
+    type = tvb_get_uint8 (tvb, pos);
     tlv_tree = proto_tree_add_subtree(dcc_tree, tvb, pos, -1,
                                             ett_docsis_dccreq_tlv, &tlv_item,
                                             val_to_str(type, dcc_tlv_vals,
@@ -5274,7 +5274,7 @@ dissect_dccrsp_cm_jump_time (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tr
   pos = start;
   while ( pos < ( start + len) )
   {
-    type = tvb_get_guint8 (tvb, pos);
+    type = tvb_get_uint8 (tvb, pos);
     dcc_tree = proto_tree_add_subtree(tree, tvb, pos, -1,
                                             ett_docsis_dccrsp_cm_jump_time, &dcc_item,
                                             val_to_str(type, cm_jump_subtlv_vals,
@@ -5332,7 +5332,7 @@ dissect_dccrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   pos = 3;
   while (tvb_reported_length_remaining(tvb, pos) > 0)
   {
-    type = tvb_get_guint8 (tvb, pos);
+    type = tvb_get_uint8 (tvb, pos);
     tlv_tree = proto_tree_add_subtree(dcc_tree, tvb, pos, -1,
                                             ett_docsis_dccrsp_tlv, &tlv_item,
                                             val_to_str(type, dccrsp_tlv_vals,
@@ -5394,7 +5394,7 @@ dissect_dccack (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   pos = 2;
   while (tvb_reported_length_remaining(tvb, pos) > 0)
   {
-    type = tvb_get_guint8 (tvb, pos);
+    type = tvb_get_uint8 (tvb, pos);
     tlv_tree = proto_tree_add_subtree(dcc_tree, tvb, pos, -1,
                                             ett_docsis_dccack_tlv, &tlv_item,
                                             val_to_str(type, dccack_tlv_vals,
@@ -5472,7 +5472,7 @@ dissect_dcd_dsg_cfg (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int 
   pos = start;
   while ( pos < ( start + len) )
   {
-    type = tvb_get_guint8 (tvb, pos);
+    type = tvb_get_uint8 (tvb, pos);
     dcd_tree = proto_tree_add_subtree(tree, tvb, pos, -1,
                                             ett_docsis_dcd_cfg, &dcd_item,
                                             val_to_str(type, dcd_cfg_vals,
@@ -5557,7 +5557,7 @@ dissect_dcd_down_classifier_ip (tvbuff_t * tvb, packet_info* pinfo, proto_tree *
   pos = start;
   while ( pos < ( start + len) )
   {
-    type = tvb_get_guint8 (tvb, pos);
+    type = tvb_get_uint8 (tvb, pos);
     dcd_tree = proto_tree_add_subtree(tree, tvb, pos, -1,
                                             ett_docsis_dcd_cfr_ip, &dcd_item,
                                             val_to_str(type, dcd_cfr_ip_vals,
@@ -5668,7 +5668,7 @@ dissect_dcd_clid (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int sta
   pos = start;
   while ( pos < ( start + len) )
   {
-    type = tvb_get_guint8 (tvb, pos);
+    type = tvb_get_uint8 (tvb, pos);
     dcd_tree = proto_tree_add_subtree(tree, tvb, pos, -1,
                                             ett_docsis_dcd_clid, &dcd_item,
                                             val_to_str(type, dcd_clid_vals,
@@ -5739,7 +5739,7 @@ dissect_dcd_dsg_rule (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int
   pos = start;
   while ( pos < ( start + len) )
   {
-    type = tvb_get_guint8 (tvb, pos);
+    type = tvb_get_uint8 (tvb, pos);
     dcd_tree = proto_tree_add_subtree(tree, tvb, pos, -1,
                                             ett_docsis_dcd_rule, &dcd_item,
                                             val_to_str(type, dcd_dsg_rule_vals,
@@ -5820,7 +5820,7 @@ dissect_dcd_down_classifier (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tr
   pos = start;
   while ( pos < ( start + len) )
   {
-    type = tvb_get_guint8 (tvb, pos);
+    type = tvb_get_uint8 (tvb, pos);
     dcd_tree = proto_tree_add_subtree(tree, tvb, pos, -1,
                                             ett_docsis_dcd_cfr, &dcd_item,
                                             val_to_str(type, dcd_down_classifier_vals,
@@ -5882,7 +5882,7 @@ dissect_dcd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
   pos = 3;
   while (tvb_reported_length_remaining(tvb, pos) > 0)
   {
-    type = tvb_get_guint8 (tvb, pos);
+    type = tvb_get_uint8 (tvb, pos);
     tlv_tree = proto_tree_add_subtree(dcd_tree, tvb, pos, -1,
                                             ett_docsis_dcd_tlv, &tlv_item,
                                             val_to_str(type, dcd_tlv_vals,
@@ -5942,7 +5942,7 @@ dissect_mdd_ds_active_channel_list(tvbuff_t * tvb, packet_info* pinfo _U_, proto
   pos = start;
   while ( pos < ( start + len) )
   {
-    type = tvb_get_guint8 (tvb, pos);
+    type = tvb_get_uint8 (tvb, pos);
     mdd_tree = proto_tree_add_subtree(tree, tvb, pos, -1,
                                             ett_docsis_mdd_ds_active_channel_list, &mdd_item,
                                             val_to_str(type, mdd_ds_active_channel_list_vals,
@@ -6000,7 +6000,7 @@ dissect_mdd_ds_service_group(tvbuff_t * tvb, packet_info* pinfo _U_, proto_tree 
   pos = start;
   while ( pos < ( start + len) )
   {
-    type = tvb_get_guint8 (tvb, pos);
+    type = tvb_get_uint8 (tvb, pos);
     mdd_tree = proto_tree_add_subtree(tree, tvb, pos, -1,
                                             ett_docsis_mdd_ds_service_group, &mdd_item,
                                             val_to_str(type, mdd_ds_service_group_vals,
@@ -6039,7 +6039,7 @@ dissect_mdd_channel_profile_reporting_control(tvbuff_t * tvb, packet_info* pinfo
   pos = start;
   while ( pos < ( start + len) )
   {
-    type = tvb_get_guint8 (tvb, pos);
+    type = tvb_get_uint8 (tvb, pos);
     mdd_tree = proto_tree_add_subtree(tree, tvb, pos, -1,
                                             ett_docsis_mdd_channel_profile_reporting_control, &mdd_item,
                                             val_to_str(type, mdd_channel_profile_reporting_control_vals,
@@ -6079,7 +6079,7 @@ dissect_mdd_ip_init_param(tvbuff_t * tvb, packet_info* pinfo _U_, proto_tree * t
   pos = start;
   while ( pos < ( start + len) )
   {
-    type = tvb_get_guint8 (tvb, pos);
+    type = tvb_get_uint8 (tvb, pos);
     mdd_tree = proto_tree_add_subtree(tree, tvb, pos, -1,
                                             ett_docsis_mdd_ip_init_param, &mdd_item,
                                             val_to_str(type, mdd_ip_init_param_vals,
@@ -6138,7 +6138,7 @@ dissect_mdd_upstream_active_channel_list(tvbuff_t * tvb, packet_info* pinfo _U_,
   pos = start;
   while ( pos < ( start + len) )
   {
-    type = tvb_get_guint8 (tvb, pos);
+    type = tvb_get_uint8 (tvb, pos);
     mdd_tree = proto_tree_add_subtree(tree, tvb, pos, -1,
                                             ett_docsis_mdd_up_active_channel_list, &mdd_item,
                                             val_to_str(type, mdd_up_active_channel_list_vals,
@@ -6187,7 +6187,7 @@ dissect_mdd_cm_status_event_control(tvbuff_t * tvb, packet_info* pinfo _U_, prot
   pos = start;
   while ( pos < ( start + len) )
   {
-    type = tvb_get_guint8 (tvb, pos);
+    type = tvb_get_uint8 (tvb, pos);
     mdd_tree = proto_tree_add_subtree(tree, tvb, pos, -1,
                                             ett_docsis_mdd_cm_status_event_control, &mdd_item,
                                             val_to_str(type, mdd_cm_status_event_control_vals,
@@ -6228,7 +6228,7 @@ dissect_mdd_dsg_da_to_dsid(tvbuff_t * tvb, packet_info* pinfo _U_, proto_tree * 
   pos = start;
   while ( pos < ( start + len) )
   {
-    type = tvb_get_guint8 (tvb, pos);
+    type = tvb_get_uint8 (tvb, pos);
     mdd_tree = proto_tree_add_subtree(tree, tvb, pos, -1,
                                             ett_docsis_mdd_dsg_da_to_dsid, &mdd_item,
                                             val_to_str(type, mdd_cm_dsg_da_to_dsid_vals,
@@ -6274,8 +6274,8 @@ dissect_mdd_docsis_version(tvbuff_t *tvb, packet_info *pinfo _U_, proto_item *it
 
   while (pos + 1 < end)
   {
-    tlv_type = tvb_get_guint8(tvb, pos);
-    tlv_length = tvb_get_guint8(tvb, pos + 1);
+    tlv_type = tvb_get_uint8(tvb, pos);
+    tlv_length = tvb_get_uint8(tvb, pos + 1);
     tlv_item = proto_tree_add_item(tree, hf_docsis_mdd_docsis_version_tlv, tvb, pos, tlv_length + 2, ENC_NA);
     proto_item_set_text(tlv_item, "%s", val_to_str(tlv_type, mdd_docsis_version_vals, "Unknown TLV %u"));
     tlv_tree = proto_item_add_subtree(tlv_item, ett_docsis_mdd_docsis_version);
@@ -6327,7 +6327,7 @@ dissect_mdd_docsis_version(tvbuff_t *tvb, packet_info *pinfo _U_, proto_item *it
       break;
     case CMTS_DOCSIS_VERSION_EXT_SPECTRUM_MODE:
       if (tlv_length == 1) {
-        ext_spectrum_mode = tvb_get_guint8(tvb, pos);
+        ext_spectrum_mode = tvb_get_uint8(tvb, pos);
         proto_tree_add_bitmask_value(tlv_tree, tvb, pos, hf_docsis_mdd_docsis_version_ext_spectrum_mode,
                                      ett_docsis_mdd_docsis_version_tlv,
                                      mdd_cmts_docsis_version_ext_spectrum_mode, ext_spectrum_mode);
@@ -6365,7 +6365,7 @@ dissect_mdd_diplexer_band_edge(tvbuff_t * tvb, packet_info* pinfo _U_, proto_tre
   pos = start;
   while ( pos < ( start + len) )
   {
-    type = tvb_get_guint8 (tvb, pos);
+    type = tvb_get_uint8 (tvb, pos);
     mdd_tree = proto_tree_add_subtree(tree, tvb, pos, 1,
                                             ett_docsis_mdd_diplexer_band_edge, &mdd_item,
                                             val_to_str(type, mdd_diplexer_band_edge_vals,
@@ -6436,8 +6436,8 @@ dissect_mdd_advanced_band_plan(tvbuff_t *tvb, packet_info *pinfo _U_, proto_item
 
   while (pos + 1 < end)
   {
-    tlv_type = tvb_get_guint8(tvb, pos);
-    tlv_length = tvb_get_guint8(tvb, pos + 1);
+    tlv_type = tvb_get_uint8(tvb, pos);
+    tlv_length = tvb_get_uint8(tvb, pos + 1);
     tlv_item = proto_tree_add_item(tree, hf_docsis_mdd_abp_tlv, tvb, pos, tlv_length + 2, ENC_NA);
     proto_item_set_text(tlv_item, "%s", val_to_str(tlv_type, mdd_abp_vals, "Unknown TLV: %u"));
     tlv_tree = proto_item_add_subtree(tlv_item, ett_docsis_mdd_advanced_band_plan);
@@ -6484,8 +6484,8 @@ dissect_mdd_bpi_plus(tvbuff_t *tvb, packet_info *pinfo _U_, proto_item *item, pr
 
   while (pos + 1 < end)
   {
-    tlv_type = tvb_get_guint8(tvb, pos);
-    tlv_length = tvb_get_guint8(tvb, pos + 1);
+    tlv_type = tvb_get_uint8(tvb, pos);
+    tlv_length = tvb_get_uint8(tvb, pos + 1);
     tlv_item = proto_tree_add_item(tree, hf_docsis_mdd_bpi_plus_tlv, tvb, pos, tlv_length + 2, ENC_NA);
     proto_item_set_text(tlv_item, "%s", val_to_str(tlv_type, mdd_bpi_plus_vals, "Unknown TLV: %u"));
     tlv_tree = proto_item_add_subtree(tlv_item, ett_docsis_mdd_bpi_plus);
@@ -6550,8 +6550,8 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
   pos = 4;
   while (tvb_reported_length_remaining(tvb, pos) > 0)
   {
-    type = tvb_get_guint8(tvb, pos);
-    length = tvb_get_guint8(tvb, pos + 1);
+    type = tvb_get_uint8(tvb, pos);
+    length = tvb_get_uint8(tvb, pos + 1);
     tlv_item = proto_tree_add_item(mdd_tree, hf_docsis_mdd_tlv, tvb, pos, length + 2, ENC_NA);
     proto_item_set_text(tlv_item, "%s", val_to_str(type, mdd_tlv_vals, "Unknown TLV %u"));
     tlv_tree = proto_item_add_subtree(tlv_item, ett_tlv);
@@ -6672,7 +6672,7 @@ dissect_bintrngreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
   uint8_t md_ds_sg_id;
   uint16_t offset = 0;
 
-  md_ds_sg_id = tvb_get_guint8 (tvb, 1);
+  md_ds_sg_id = tvb_get_uint8 (tvb, 1);
 
   col_add_fstr (pinfo->cinfo, COL_INFO, "Bonded Initial Ranging Request: MD-DS-SG-ID = %u (0x%X)",
                 md_ds_sg_id, md_ds_sg_id );
@@ -6866,7 +6866,7 @@ dissect_cmstatus_status_event_tlv (tvbuff_t * tvb, packet_info* pinfo, proto_tre
 
   while (tvb_reported_length_remaining(tvb, pos) > 0)
   {
-    type = tvb_get_guint8 (tvb, pos);
+    type = tvb_get_uint8 (tvb, pos);
     tlvtlv_tree = proto_tree_add_subtree(tlv_tree, tvb, pos, -1,
                                             ett_docsis_cmstatus_status_event_tlvtlv, &tlv_item,
                                             val_to_str(type, cmstatus_status_event_tlv_vals,
@@ -6975,7 +6975,7 @@ dissect_cmstatus_tlv (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree)
 
   while (tvb_reported_length_remaining(tvb, pos) > 0)
   {
-    type = tvb_get_guint8 (tvb, pos);
+    type = tvb_get_uint8 (tvb, pos);
     tlvtlv_tree = proto_tree_add_subtree(tlv_tree, tvb, pos, -1,
                                             ett_docsis_cmstatus_tlvtlv, &tlv_item,
                                             val_to_str(type, cmstatus_tlv_vals,
@@ -7003,7 +7003,7 @@ dissect_cmstatus_common (tvbuff_t * tvb, proto_tree * tree)
 {
   uint8_t event_type;
 
-  event_type = tvb_get_guint8 (tvb, 2);
+  event_type = tvb_get_uint8 (tvb, 2);
   switch (event_type)
   {
   case SEC_CH_MDD_TIMEOUT:
@@ -7152,7 +7152,7 @@ dissect_ds_event(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start
 
   while (pos < (start + len))
   {
-    type = tvb_get_guint8 (tvb, pos);
+    type = tvb_get_uint8 (tvb, pos);
     event_tree = proto_tree_add_subtree(tree, tvb, pos, -1,
                                             ett_docsis_cmctrl_tlv_ds_event, &event_item,
                                             val_to_str(type, cmctrlreq_ds_tlv_vals,
@@ -7202,7 +7202,7 @@ dissect_us_event(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start
 
   while (pos < (start + len))
   {
-    type = tvb_get_guint8 (tvb, pos);
+    type = tvb_get_uint8 (tvb, pos);
     event_tree = proto_tree_add_subtree(tree, tvb, pos, -1,
                                             ett_docsis_cmctrl_tlv_us_event, &event_item,
                                             val_to_str(type, cmctrlreq_us_tlv_vals,
@@ -7254,8 +7254,8 @@ dissect_cmctrlreq_tlv(tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree)
 
   while (tvb_reported_length_remaining(tvb, pos) > 0)
   {
-    type = tvb_get_guint8 (tvb, pos);
-    length = tvb_get_guint8 (tvb, pos + 1);
+    type = tvb_get_uint8 (tvb, pos);
+    length = tvb_get_uint8 (tvb, pos + 1);
     tlvtlv_tree = proto_tree_add_subtree(tlv_tree, tvb, pos, length + 2,
                                             ett_docsis_cmctrlreq_tlvtlv, &tlv_item,
                                             val_to_str(type, cmctrlreq_tlv_vals,
@@ -7483,8 +7483,8 @@ dissect_emrsp_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
   while (tvb_reported_length_remaining(tvb, pos) > 0)
   {
-    type = tvb_get_guint8 (tvb, pos);
-    length = tvb_get_guint8 (tvb, pos + 1);
+    type = tvb_get_uint8 (tvb, pos);
+    length = tvb_get_uint8 (tvb, pos + 1);
     tlvtlv_tree = proto_tree_add_subtree(tlv_tree, tvb, pos, length + 2,
                                             ett_docsis_emrsp_tlvtlv, &tlv_item,
                                             val_to_str(type, emrsp_tlv_vals,
@@ -7599,7 +7599,7 @@ dissect_ocd_tlv (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree)
 
   while (tvb_reported_length_remaining(tvb, pos) > 0)
   {
-    type = tvb_get_guint8 (tvb, pos);
+    type = tvb_get_uint8 (tvb, pos);
     tlvtlv_tree = proto_tree_add_subtree(tlv_tree, tvb, pos, -1,
                                             ett_docsis_ocd_tlvtlv, &tlv_item,
                                             val_to_str(type, ocd_tlv_vals,
@@ -7791,13 +7791,13 @@ dissect_dpd_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
   while (tvb_reported_length_remaining(tvb, pos) > 0)
   {
-    type = tvb_get_guint8 (tvb, pos);
+    type = tvb_get_uint8 (tvb, pos);
     if ( type == SUBCARRIER_ASSIGNMENT_VECTOR)
     {
       /* For this type, length is 2 bytes instead of 1 */
       length = tvb_get_ntohs (tvb, pos + 1);
     } else {
-      length = tvb_get_guint8 (tvb, pos + 1);
+      length = tvb_get_uint8 (tvb, pos + 1);
     }
 
     tlvtlv_tree = proto_tree_add_subtree(tlv_tree, tvb, pos, length + 2,
@@ -7897,8 +7897,8 @@ dissect_optreq_tlv_rxmer_thresholding_parameters (tvbuff_t * tvb, packet_info * 
 
   while (tvb_reported_length_remaining(tvb, pos) > 0)
   {
-    type = tvb_get_guint8 (tvb, pos);
-    length = tvb_get_guint8 (tvb, pos + 1);
+    type = tvb_get_uint8 (tvb, pos);
+    length = tvb_get_uint8 (tvb, pos + 1);
     tlvtlv_tree = proto_tree_add_subtree(tlv_tree, tvb, pos, length + 2,
                                             ett_docsis_optreq_tlv_rxmer_thresh_params_tlv, &tlv_item,
                                             val_to_str(type, optreq_tlv_rxmer_thresh_params_vals,
@@ -7944,8 +7944,8 @@ dissect_optreq_tlv_trigger_definition (tvbuff_t * tvb, packet_info * pinfo, prot
 
   while (tvb_reported_length_remaining(tvb, pos) > 0)
   {
-    type = tvb_get_guint8 (tvb, pos);
-    length = tvb_get_guint8 (tvb, pos + 1);
+    type = tvb_get_uint8 (tvb, pos);
+    length = tvb_get_uint8 (tvb, pos + 1);
     tlvtlv_tree = proto_tree_add_subtree(tlv_tree, tvb, pos, length + 2,
                                             ett_docsis_optreq_tlv_trigger_definition_params_tlv, &tlv_item,
                                             val_to_str(type, optreq_tlv_trigger_definition_vals,
@@ -7975,7 +7975,7 @@ dissect_optreq_tlv_trigger_definition (tvbuff_t * tvb, packet_info * pinfo, prot
         subtree_item = proto_tree_add_item(tlvtlv_tree, hf_docsis_optreq_tlv_trigger_definition_measure_duration,
                                            tvb, pos, length, ENC_BIG_ENDIAN);
         proto_item_append_text(subtree_item, " OFDM Symbols");
-        measurement_duration = tvb_get_guint8 (tvb, pos);
+        measurement_duration = tvb_get_uint8 (tvb, pos);
         if (measurement_duration > 1024)
         {
           expert_add_info_format(pinfo, subtree_item, &ei_docsis_mgmt_opt_req_trigger_def_measure_duration,
@@ -8067,8 +8067,8 @@ dissect_optreq_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
   while (tvb_reported_length_remaining(tvb, pos) > 0)
   {
-    type = tvb_get_guint8 (tvb, pos);
-    length = tvb_get_guint8 (tvb, pos + 1);
+    type = tvb_get_uint8 (tvb, pos);
+    length = tvb_get_uint8 (tvb, pos + 1);
     tlvtlv_tree = proto_tree_add_subtree(tlv_tree, tvb, pos, length + 2,
                                             ett_docsis_optreq_tlvtlv, &tlv_item,
                                             val_to_str(type, optreq_tlv_vals,
@@ -8164,7 +8164,7 @@ dissect_optrsp_tlv_rxmer(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, pr
 
   while (pos + 2 < end)
   {
-    tlv_type = tvb_get_guint8(tvb, pos);
+    tlv_type = tvb_get_uint8(tvb, pos);
     tlv_length = tvb_get_ntohs(tvb, pos + 1);
     tlv_item = proto_tree_add_item(tree, hf_docsis_optrsp_rxmer_tlv, tvb, pos, tlv_length + 3, ENC_NA);
     proto_item_set_text(tlv_item, "%s", val_to_str(tlv_type, optrsp_rxmer_vals, "Unknown TLV %u"));
@@ -8231,7 +8231,7 @@ dissect_optrsp_tlv_data_cw(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, 
 
   while (pos + 2 < end)
   {
-    tlv_type = tvb_get_guint8(tvb, pos);
+    tlv_type = tvb_get_uint8(tvb, pos);
     tlv_length = tvb_get_ntohs(tvb, pos + 1);
     tlv_item = proto_tree_add_item(tree, hf_docsis_optrsp_data_cw_tlv, tvb, pos, tlv_length + 3, ENC_NA);
     proto_item_set_text(tlv_item, "%s", val_to_str(tlv_type, optrsp_data_cw_vals, "Unknown TLV %u"));
@@ -8286,7 +8286,7 @@ dissect_optrsp_tlv_ncp_fields(tvbuff_t *tvb, packet_info *pinfo, proto_item *ite
 
   while (pos + 2 < end)
   {
-    tlv_type = tvb_get_guint8(tvb, pos);
+    tlv_type = tvb_get_uint8(tvb, pos);
     tlv_length = tvb_get_ntohs(tvb, pos + 1);
     tlv_item = proto_tree_add_item(tree, hf_docsis_optrsp_ncp_fields_tlv, tvb, pos, tlv_length + 3, ENC_NA);
     proto_item_set_text(tlv_item, "%s", val_to_str(tlv_type, optrsp_ncp_fields_vals, "Unknown TLV %u"));
@@ -8335,7 +8335,7 @@ dissect_optrsp_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_tr
 
   while (pos + 2 < end)
   {
-    tlv_type = tvb_get_guint8(tvb, pos);
+    tlv_type = tvb_get_uint8(tvb, pos);
     tlv_length = tvb_get_ntohs(tvb, pos + 1);
     tlv_item = proto_tree_add_item(tree, hf_docsis_optrsp_tlv, tvb, pos, tlv_length + 3, ENC_NA);
     proto_item_set_text(tlv_item, "%s", val_to_str(tlv_type, optrsp_tlv_vals, "Unknown TLV %u"));
@@ -8457,8 +8457,8 @@ dissect_cwt_us_encodings_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_item *item
 
   while (pos + 1 < end)
   {
-    tlv_type = tvb_get_guint8(tvb, pos);
-    tlv_length = tvb_get_guint8(tvb, pos + 1);
+    tlv_type = tvb_get_uint8(tvb, pos);
+    tlv_length = tvb_get_uint8(tvb, pos + 1);
     tlv_item = proto_tree_add_item(tree, hf_docsis_cwt_us_encodings_tlv, tvb, pos, tlv_length + 2, ENC_NA);
     proto_item_set_text(tlv_item, "%s", val_to_str(tlv_type, cwt_us_encodings_tlv_vals, "Unknown TLV %u"));
     tlv_tree = proto_item_add_subtree(tlv_item, ett_docsis_cwt_tlv);
@@ -8510,8 +8510,8 @@ dissect_cwt_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_tree 
 
   while (pos + 1 < end)
   {
-    tlv_type = tvb_get_guint8(tvb, pos);
-    tlv_length = tvb_get_guint8(tvb, pos + 1);
+    tlv_type = tvb_get_uint8(tvb, pos);
+    tlv_length = tvb_get_uint8(tvb, pos + 1);
     tlv_item = proto_tree_add_item(tree, hf_docsis_cwt_tlv, tvb, pos, tlv_length + 2, ENC_NA);
     proto_item_set_text(tlv_item, "%s", val_to_str(tlv_type, cwt_tlv_vals, "Unknown TLV %u"));
     tlv_tree = proto_item_add_subtree(tlv_item, ett_docsis_cwt_tlv);
@@ -8612,8 +8612,8 @@ dissect_ect_control_partial_service_tlv(tvbuff_t *tvb, packet_info *pinfo, proto
 
   while (pos + 1 < end)
   {
-    tlv_type = tvb_get_guint8(tvb, pos);
-    tlv_length = tvb_get_guint8(tvb, pos + 1);
+    tlv_type = tvb_get_uint8(tvb, pos);
+    tlv_length = tvb_get_uint8(tvb, pos + 1);
     tlv_item = proto_tree_add_item(tree, hf_docsis_ect_control_partial_service_tlv, tvb, pos, tlv_length + 2, ENC_NA);
     proto_item_set_text(tlv_item, "%s", val_to_str(tlv_type, ect_control_partial_service_tlv_vals, "Unknown TLV %u"));
     tlv_tree = proto_item_add_subtree(tlv_item, ett_docsis_ect_tlv);
@@ -8653,8 +8653,8 @@ dissect_ect_control_method_bg_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_item 
 
   while (pos + 1 < end)
   {
-    tlv_type = tvb_get_guint8(tvb, pos);
-    tlv_length = tvb_get_guint8(tvb, pos + 1);
+    tlv_type = tvb_get_uint8(tvb, pos);
+    tlv_length = tvb_get_uint8(tvb, pos + 1);
     tlv_item = proto_tree_add_item(tree, hf_docsis_ect_control_method_bg_tlv, tvb, pos, tlv_length + 2, ENC_NA);
     proto_item_set_text(tlv_item, "%s", val_to_str(tlv_type, ect_control_method_bg_tlv_vals, "Unknown TLV %u"));
     tlv_tree = proto_item_add_subtree(tlv_item, ett_docsis_ect_tlv);
@@ -8719,8 +8719,8 @@ dissect_ect_control_method_fg_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_item 
 
   while (pos + 1 < end)
   {
-    tlv_type = tvb_get_guint8(tvb, pos);
-    tlv_length = tvb_get_guint8(tvb, pos + 1);
+    tlv_type = tvb_get_uint8(tvb, pos);
+    tlv_length = tvb_get_uint8(tvb, pos + 1);
     tlv_item = proto_tree_add_item(tree, hf_docsis_ect_control_method_fg_tlv, tvb, pos, tlv_length + 2, ENC_NA);
     proto_item_set_text(tlv_item, "%s", val_to_str(tlv_type, ect_control_method_fg_tlv_vals, "Unknown TLV %u"));
     tlv_tree = proto_item_add_subtree(tlv_item, ett_docsis_ect_tlv);
@@ -8783,8 +8783,8 @@ dissect_ect_control_method_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_item *it
 
   while (pos + 1 < end)
   {
-    tlv_type = tvb_get_guint8(tvb, pos);
-    tlv_length = tvb_get_guint8(tvb, pos + 1);
+    tlv_type = tvb_get_uint8(tvb, pos);
+    tlv_length = tvb_get_uint8(tvb, pos + 1);
     tlv_item = proto_tree_add_item(tree, hf_docsis_ect_control_method_tlv, tvb, pos, tlv_length + 2, ENC_NA);
     proto_item_set_text(tlv_item, "%s", val_to_str(tlv_type, ect_control_method_tlv_vals, "Unknown TLV %u"));
     tlv_tree = proto_item_add_subtree(tlv_item, ett_docsis_ect_tlv);
@@ -8822,8 +8822,8 @@ dissect_ect_control_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, pro
 
   while (pos + 1 < end)
   {
-    tlv_type = tvb_get_guint8(tvb, pos);
-    tlv_length = tvb_get_guint8(tvb, pos + 1);
+    tlv_type = tvb_get_uint8(tvb, pos);
+    tlv_length = tvb_get_uint8(tvb, pos + 1);
     tlv_item = proto_tree_add_item(tree, hf_docsis_ect_control_tlv, tvb, pos, tlv_length + 2, ENC_NA);
     proto_item_set_text(tlv_item, "%s", val_to_str(tlv_type, ect_control_tlv_vals, "Unknown TLV %u"));
     tlv_tree = proto_item_add_subtree(tlv_item, ett_docsis_ect_tlv);
@@ -8884,8 +8884,8 @@ dissect_ect_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_tree 
 
   while (pos + 1 < end)
   {
-    tlv_type = tvb_get_guint8(tvb, pos);
-    tlv_length = tvb_get_guint8(tvb, pos + 1);
+    tlv_type = tvb_get_uint8(tvb, pos);
+    tlv_length = tvb_get_uint8(tvb, pos + 1);
     tlv_item = proto_tree_add_item(tree, hf_docsis_ect_tlv, tvb, pos, tlv_length + 2, ENC_NA);
     proto_item_set_text(tlv_item, "%s", val_to_str(tlv_type, ect_tlv_vals, "Unknown TLV %u"));
     tlv_tree = proto_item_add_subtree(tlv_item, ett_docsis_ect_tlv);
@@ -9021,10 +9021,10 @@ dissect_macmgmt (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* d
   };
 
   //We need version and type for decoding of ssap and dsap field: in case of RNG-REQ, these fields can contain the Transmit Power Level.
-  version = tvb_get_guint8 (tvb, 17);
-  type = tvb_get_guint8 (tvb, 18);
-  dsap = tvb_get_guint8 (tvb, 14);
-  ssap = tvb_get_guint8 (tvb, 15);
+  version = tvb_get_uint8 (tvb, 17);
+  type = tvb_get_uint8 (tvb, 18);
+  dsap = tvb_get_uint8 (tvb, 14);
+  ssap = tvb_get_uint8 (tvb, 15);
 
   mgt_hdr_it = proto_tree_add_item (tree, proto_docsis_mgmt, tvb, 0, 20, ENC_NA);
   mgt_hdr_tree = proto_item_add_subtree (mgt_hdr_it, ett_docsis_mgmt);
@@ -9060,7 +9060,7 @@ dissect_macmgmt (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* d
     proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_rsvd, tvb, 19, 1, ENC_BIG_ENDIAN);
   } else {
     proto_tree_add_bitmask(mgt_hdr_tree, tvb, 19, hf_docsis_mgt_multipart, ett_sub_tlv, multipart_field, ENC_BIG_ENDIAN);
-    multipart = tvb_get_guint8 (tvb, 19);
+    multipart = tvb_get_uint8 (tvb, 19);
     p_add_proto_data(pinfo->pool, pinfo, proto_docsis_mgmt, KEY_MGMT_MULTIPART, GUINT_TO_POINTER(multipart));
   }
 

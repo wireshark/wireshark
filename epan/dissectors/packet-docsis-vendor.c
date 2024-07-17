@@ -151,8 +151,8 @@ dissect_cisco (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int vsif_
   while (pos < vsif_len)
     {
       /* Extract the type and length Fields from the TLV */
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case NUM_PHONES:
@@ -166,8 +166,8 @@ dissect_cisco (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int vsif_
             templen = pos + length;
             while (pos < templen)
               {
-                type = tvb_get_guint8 (tvb, pos++);
-                length = tvb_get_guint8 (tvb, pos++);
+                type = tvb_get_uint8 (tvb, pos++);
+                length = tvb_get_uint8 (tvb, pos++);
                 switch (type)
                   {
                     case IP_PREC_VAL:
@@ -230,11 +230,11 @@ dissect_vsif (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
   /* The first TLV in the VSIF encodings must be type 0x08 (Vendor ID) and
    * length 3.
    */
-  type = tvb_get_guint8 (tvb, 0);
+  type = tvb_get_uint8 (tvb, 0);
   if (type != 0x08)
      expert_add_info_format(pinfo, it, &ei_docsis_vsif_tlvtype_unknown, "Unknown TLV: %u", type);
 
-  length = tvb_get_guint8 (tvb, 1);
+  length = tvb_get_uint8 (tvb, 1);
   if (length != 3)
      expert_add_info_format(pinfo, it, &ei_docsis_vsif_tlvlen_bad, "Wrong TLV length: %u", length);
 
@@ -277,8 +277,8 @@ dissect_extended_cmts_mic(tvbuff_t * tvb, proto_tree *tree, int start, uint16_t 
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case GEX_ECM_EXTENDED_CMTS_MIC_HMAC_TYPE:
@@ -314,8 +314,8 @@ dissect_sav_static_prefix_rule(tvbuff_t * tvb, packet_info * pinfo,  proto_tree 
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case GEX_SAV_STATIC_PREFIX_ADDRESS:
@@ -361,8 +361,8 @@ dissect_sav(tvbuff_t * tvb, packet_info * pinfo,  proto_tree *tree, int start, u
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
         case GEX_SAV_GROUP_NAME:
@@ -398,8 +398,8 @@ dissect_cable_modem_attribute_masks(tvbuff_t * tvb, packet_info * pinfo, proto_t
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case GEX_CM_REQUIRED_DOWNSTREAM_ATTRIBUTE_MASK:
@@ -454,8 +454,8 @@ dissect_ip_multicast_join_authorization_static_session_rule(tvbuff_t * tvb, pack
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case GEX_IMJA_SSR_RULE_PRIORITY:
@@ -524,8 +524,8 @@ dissect_ip_multicast_join_authorization(tvbuff_t * tvb, packet_info * pinfo,  pr
 
   while (pos < (start + len))
     {
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case GEX_IMJA_IP_MULTICAST_PROFILE_NAME:
@@ -576,8 +576,8 @@ dissect_general_extension_information (tvbuff_t * tvb, packet_info * pinfo, prot
   while (pos < vsif_len)
     {
       /* Extract the type and length Fields from the TLV */
-      type = tvb_get_guint8 (tvb, pos++);
-      length = tvb_get_guint8 (tvb, pos++);
+      type = tvb_get_uint8 (tvb, pos++);
+      length = tvb_get_uint8 (tvb, pos++);
       switch (type)
         {
           case GEX_CM_LOAD_BALANCING_POLICY_ID:

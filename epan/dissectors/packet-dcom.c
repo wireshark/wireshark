@@ -1585,8 +1585,8 @@ dcom_tvb_get_nwstringz0(tvbuff_t *tvb, int offset, uint32_t inLength, char *pszS
 	/* determine length and printablility of the string */
 	for(u32Idx = 0; u32Idx < inLengthWithoutNullDelimiter; u32Idx+=2) {
 		/* the marshalling direction of a WCHAR is fixed! */
-		u8Tmp1 = tvb_get_guint8(tvb, offset+u32Idx);
-		u8Tmp2 = tvb_get_guint8(tvb, offset+u32Idx+1);
+		u8Tmp1 = tvb_get_uint8(tvb, offset+u32Idx);
+		u8Tmp2 = tvb_get_uint8(tvb, offset+u32Idx+1);
 
 		/* is this the zero termination? */
 		if (u8Tmp1 == 0 && u8Tmp2 == 0) {
@@ -1612,14 +1612,14 @@ dcom_tvb_get_nwstringz0(tvbuff_t *tvb, int offset, uint32_t inLength, char *pszS
 		for(u32IdxA = 0, u32IdxW = 0;
 		    u32IdxW < u32Idx && u32IdxA < outLength-2;
 		    u32IdxW+=2, u32IdxA++) {
-			pszStr[u32IdxA] = tvb_get_guint8(tvb, offset+u32IdxW);
+			pszStr[u32IdxA] = tvb_get_uint8(tvb, offset+u32IdxW);
 		}
 	} else {
 		/* convert to hexdump */
 		for(u32IdxA = 0, u32IdxW = 0;
 		    u32IdxW < u32Idx && u32IdxA < outLength-2;
 		    u32IdxW++, u32IdxA+=2) {
-			snprintf(&pszStr[u32IdxA], 3, "%02X", tvb_get_guint8(tvb, offset+u32IdxW));
+			snprintf(&pszStr[u32IdxA], 3, "%02X", tvb_get_uint8(tvb, offset+u32IdxW));
 		}
 	}
 

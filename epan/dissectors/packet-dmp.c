@@ -1695,7 +1695,7 @@ static int dissect_dmp_sic (tvbuff_t *tvb, packet_info *pinfo,
   int         bytes = 0, boffset = offset;
   char       *sic = NULL;
 
-  key = tvb_get_guint8 (tvb, offset);
+  key = tvb_get_uint8 (tvb, offset);
   sic = (char *)wmem_alloc (pinfo->pool, MAX_SIC_LEN);
 
   if (key <= 0xB6) {
@@ -1784,7 +1784,7 @@ static int dissect_dmp_sic (tvbuff_t *tvb, packet_info *pinfo,
     proto_tree_add_item (key_tree, hf_message_sic_key_num, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    bitmap = tvb_get_guint8 (tvb, offset);
+    bitmap = tvb_get_uint8 (tvb, offset);
     bf = proto_tree_add_uint_format (sic_tree, hf_message_sic_bitmap, tvb,
                                      offset, 1, bitmap,
                                      "Length Bitmap: 0x%2.2x", bitmap);
@@ -1798,7 +1798,7 @@ static int dissect_dmp_sic (tvbuff_t *tvb, packet_info *pinfo,
     for (i = 0; i < no; i++) {
       if (bitmap & (1 << (7 - i))) {
         /* 4 - 8 character */
-        key = tvb_get_guint8 (tvb, offset);
+        key = tvb_get_uint8 (tvb, offset);
         if (any) {
           /* Any valid characters */
           if ((key & 0xF0) == 0xA0) {        /* bit 7-4: 1010 */
@@ -1917,7 +1917,7 @@ static int dissect_dmp_direct_addr (tvbuff_t *tvb, packet_info *pinfo,
   int         dir_addr;
   uint8_t     value;
 
-  value = tvb_get_guint8 (tvb, offset);
+  value = tvb_get_uint8 (tvb, offset);
   dir_addr = (value & 0x7F);
   if (value & 0x80) {
     en = proto_tree_add_uint_format (field_tree, hf_addr_dir_address1, tvb,
@@ -1931,7 +1931,7 @@ static int dissect_dmp_direct_addr (tvbuff_t *tvb, packet_info *pinfo,
     offset += 1;
 
     /* Extended 1 */
-    value = tvb_get_guint8 (tvb, offset);
+    value = tvb_get_uint8 (tvb, offset);
     dir_addr |= ((value & 0x3F) << 7);
     en = proto_tree_add_uint_format (field_tree, hf_addr_dir_address2, tvb,
                                      offset, 1, value,
@@ -1949,7 +1949,7 @@ static int dissect_dmp_direct_addr (tvbuff_t *tvb, packet_info *pinfo,
 
     if (value & 0x80) {
       /* Extended 2 */
-      value = tvb_get_guint8 (tvb, offset);
+      value = tvb_get_uint8 (tvb, offset);
       dir_addr |= ((value & 0x3F) << 13);
       en = proto_tree_add_uint_format (field_tree, hf_addr_dir_address3, tvb,
                                        offset, 1, value,
@@ -2011,7 +2011,7 @@ static int dissect_dmp_ext_addr (tvbuff_t *tvb, packet_info *pinfo,
 
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 
-  value = tvb_get_guint8 (tvb, offset);
+  value = tvb_get_uint8 (tvb, offset);
   type = (value & 0xE0) >> 5;
   length = (value & 0x1F);
   ef = proto_tree_add_none_format (field_tree, hf_addr_ext_address, tvb,
@@ -2036,7 +2036,7 @@ static int dissect_dmp_ext_addr (tvbuff_t *tvb, packet_info *pinfo,
     offset += 1;
 
     /* Extended */
-    value = tvb_get_guint8 (tvb, offset);
+    value = tvb_get_uint8 (tvb, offset);
     type = ((value & 0xE0) >> 5);
     length |= ((value & 0x1F) << 5);
 
@@ -2118,7 +2118,7 @@ static int dissect_dmp_originator (tvbuff_t *tvb, packet_info *pinfo,
     offset = dissect_dmp_direct_addr (tvb, pinfo, field_tree, tf,
                                       offset, -1, -1, ORIGINATOR);
   } else {
-    value = tvb_get_guint8 (tvb, offset);
+    value = tvb_get_uint8 (tvb, offset);
     dmp_addr_form = (value & 0xE0) >> 5;
 
     if (dmp.version == DMP_VERSION_1 && !(dmp.prot_id == PROT_NAT && dmp_nat_decode == NAT_DECODE_THALES)) {
@@ -2266,7 +2266,7 @@ static int dissect_dmp_direct_encoding (tvbuff_t *tvb, packet_info *pinfo,
   int         rec_no, rec_ofs = -1, dir_addr;
   bool        action = false, dir_addr_extended = false;
 
-  value = tvb_get_guint8 (tvb, offset);
+  value = tvb_get_uint8 (tvb, offset);
   rec_no = (value & 0xF0) >> 4;
   rep_req = (value & 0x0C) >> 2;
   not_req = (value & 0x03);
@@ -2290,7 +2290,7 @@ static int dissect_dmp_direct_encoding (tvbuff_t *tvb, packet_info *pinfo,
   proto_tree_add_item (rec_tree, hf_addr_dir_not_req1, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
-  value = tvb_get_guint8 (tvb, offset);
+  value = tvb_get_uint8 (tvb, offset);
   dir_addr = (value & 0x7F);
   action = (value & 0x80);
   if (not_req == 0x03) {
@@ -2311,7 +2311,7 @@ static int dissect_dmp_direct_encoding (tvbuff_t *tvb, packet_info *pinfo,
 
   if (rep_req == 0x03) {
     /* Extended Recipient Number 1 */
-    value = tvb_get_guint8 (tvb, offset);
+    value = tvb_get_uint8 (tvb, offset);
     rec_no |= ((value & 0x3F) << 4);
     rec_ofs = rec_no;
     rep_req = (value & 0xC0) >> 6;
@@ -2328,7 +2328,7 @@ static int dissect_dmp_direct_encoding (tvbuff_t *tvb, packet_info *pinfo,
 
     if (rep_req == 0x03) {
       /* Extended Recipient Number 2 */
-      value = tvb_get_guint8 (tvb, offset);
+      value = tvb_get_uint8 (tvb, offset);
       rec_no |= ((value & 0x1F) << 10);
       rec_ofs = rec_no;
       rep_req = (value & 0xC0) >> 6;
@@ -2352,7 +2352,7 @@ static int dissect_dmp_direct_encoding (tvbuff_t *tvb, packet_info *pinfo,
   if (not_req == 0x03) {
     /* Extended Direct Address 1 */
     dir_addr_extended = true;
-    value = tvb_get_guint8 (tvb, offset);
+    value = tvb_get_uint8 (tvb, offset);
     dir_addr |= ((value & 0x3F) << 7);
     not_req = (value & 0xC0) >> 6;
 
@@ -2367,7 +2367,7 @@ static int dissect_dmp_direct_encoding (tvbuff_t *tvb, packet_info *pinfo,
 
     if (not_req == 0x03) {
       /* Extended Direct Address 2 */
-      value = tvb_get_guint8 (tvb, offset);
+      value = tvb_get_uint8 (tvb, offset);
       dir_addr |= ((value & 0x3F) << 13);
       not_req = (value & 0xC0) >> 6;
 
@@ -2428,7 +2428,7 @@ static int dissect_dmp_ext_encoding (tvbuff_t *tvb, packet_info *pinfo,
   bool        action = false;
   int         rec_no, rec_ofs = -1;
 
-  value = tvb_get_guint8 (tvb, offset);
+  value = tvb_get_uint8 (tvb, offset);
   dmp_addr_form = (value & 0xE0) >> 5;
   action = (value & 0x10);
   en = proto_tree_add_uint_format (field_tree, hf_addr_ext_form, tvb,
@@ -2464,7 +2464,7 @@ static int dissect_dmp_ext_encoding (tvbuff_t *tvb, packet_info *pinfo,
   proto_tree_add_item (addr_tree, hf_addr_ext_not_req, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
-  value = tvb_get_guint8 (tvb, offset);
+  value = tvb_get_uint8 (tvb, offset);
   rec_no = (value & 0x7F);
   if (value & 0x80) {
     en = proto_tree_add_uint_format (field_tree, hf_addr_ext_rec_no1, tvb,
@@ -2478,7 +2478,7 @@ static int dissect_dmp_ext_encoding (tvbuff_t *tvb, packet_info *pinfo,
     offset += 1;
 
     /* Extended */
-    value = tvb_get_guint8 (tvb, offset);
+    value = tvb_get_uint8 (tvb, offset);
     rec_no |= (value << 7);
     rec_ofs = rec_no;
     en = proto_tree_add_uint_format (field_tree, hf_addr_ext_rec_no2, tvb,
@@ -2603,7 +2603,7 @@ static int dissect_dmp_ack (tvbuff_t *tvb, packet_info *pinfo,
   en = proto_tree_add_item (dmp_tree, hf_ack, tvb, offset, 4, ENC_NA);
   ack_tree = proto_item_add_subtree (en, ett_ack);
 
-  dmp.ack_reason = tvb_get_guint8 (tvb, offset);
+  dmp.ack_reason = tvb_get_uint8 (tvb, offset);
   proto_item_append_text (en, ", Reason: %s",
                           val_to_str_const (dmp.ack_reason, ack_reason, "Reserved"));
 
@@ -2696,7 +2696,7 @@ static int dissect_ipm_identifier (tvbuff_t *tvb, packet_info *pinfo, proto_tree
   int         length, modifier, ipm_id_length;
   unsigned char      byte_rest = 0;
 
-  length = tvb_get_guint8 (tvb, offset);
+  length = tvb_get_uint8 (tvb, offset);
   modifier = (length & 0xC0) >> 6;
   ipm_id_length = length & 0x3F;
 
@@ -2762,7 +2762,7 @@ static int dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo,
   en = proto_tree_add_item (dmp_tree, hf_envelope, tvb, offset, 10, ENC_NA);
   envelope_tree = proto_item_add_subtree (en, ett_envelope);
 
-  envelope = tvb_get_guint8 (tvb, offset);
+  envelope = tvb_get_uint8 (tvb, offset);
   dmp.prot_id = (envelope & 0xF8) >> 3;
   dmp.version = (envelope & 0x07) + 1;
 
@@ -2792,7 +2792,7 @@ static int dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo,
     return offset;
   }
 
-  envelope = tvb_get_guint8 (tvb, offset);
+  envelope = tvb_get_uint8 (tvb, offset);
   dmp.addr_enc = ((envelope & 0x10) >> 4);
   dmp.checksum = ((envelope & 0x08) >> 3);
   dmp.msg_type = (envelope & 0x07);
@@ -2861,7 +2861,7 @@ static int dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo,
   }
 
   if (dmp.version >= DMP_VERSION_2) {
-    envelope = tvb_get_guint8 (tvb, offset);
+    envelope = tvb_get_uint8 (tvb, offset);
     /* Extensions Present */
     tf = proto_tree_add_boolean_format (envelope_tree, hf_envelope_extensions,
                                         tvb, offset, 1, envelope,
@@ -2945,7 +2945,7 @@ static int dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo,
 
   if (subm_time & 0x8000) {
     /* Timed Difference */
-    time_diff = tvb_get_guint8 (tvb, offset);
+    time_diff = tvb_get_uint8 (tvb, offset);
     tf = proto_tree_add_uint_format (envelope_tree, hf_envelope_time_diff,
                                      tvb, offset, 1, time_diff,
                                      "Time Difference: ");
@@ -2961,7 +2961,7 @@ static int dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo,
   }
 
   /* Envelope Flags */
-  envelope = tvb_get_guint8 (tvb, offset);
+  envelope = tvb_get_uint8 (tvb, offset);
   tf = proto_tree_add_uint_format (envelope_tree, hf_envelope_flags,
                                    tvb, offset, 1, envelope,
                                    "Envelope Flags");
@@ -3058,7 +3058,7 @@ static int dissect_dmp_message (tvbuff_t *tvb, packet_info *pinfo,
   }
 
   if (dmp.body_format == FREE_TEXT || dmp.body_format == FREE_TEXT_SUBJECT) {
-    message = tvb_get_guint8 (tvb, offset);
+    message = tvb_get_uint8 (tvb, offset);
     eit = (message & 0xE0) >> 5;
     compr_alg = (message & 0x18) >> 3;
     /* Encoded Information Type */
@@ -3162,7 +3162,7 @@ static int dissect_dmp_report (tvbuff_t *tvb, packet_info *pinfo,
   int         len, boffset = offset;
   int         rep_type = 0;
 
-  report = tvb_get_guint8 (tvb, offset);
+  report = tvb_get_uint8 (tvb, offset);
   rep_type = (report & 0x80) >> 7;
   if (rep_type) {
     en = proto_tree_add_item (dmp_tree, hf_non_delivery_report, tvb, offset, 4, ENC_NA);
@@ -3214,7 +3214,7 @@ static int dissect_dmp_report (tvbuff_t *tvb, packet_info *pinfo,
     offset += 1;
 
     /* Delivery Time */
-    report = tvb_get_guint8 (tvb, offset);
+    report = tvb_get_uint8 (tvb, offset);
     tf = proto_tree_add_uint_format (report_tree, hf_report_del_time,
                                      tvb, offset, 1, report,
                                      "Delivery Time: ");
@@ -3252,7 +3252,7 @@ static int dissect_dmp_report (tvbuff_t *tvb, packet_info *pinfo,
     offset += 1;
 
     /* Info Present */
-    report = tvb_get_guint8 (tvb, offset);
+    report = tvb_get_uint8 (tvb, offset);
     info_present = (report & 0x80);
     tf = proto_tree_add_boolean_format (report_tree,
                                         hf_report_info_present_ndr,
@@ -3323,7 +3323,7 @@ static int dissect_dmp_notification (tvbuff_t *tvb, packet_info *pinfo,
 
   if (dmp.notif_type == RN || dmp.notif_type == ON) {
     /* Receipt Time */
-    rec_time = tvb_get_guint8 (tvb, offset);
+    rec_time = tvb_get_uint8 (tvb, offset);
     tf = proto_tree_add_uint_format (notif_tree, hf_notif_rec_time,
                                      tvb, offset, 1, rec_time,
                                      "Receipt Time: ");
@@ -3345,7 +3345,7 @@ static int dissect_dmp_notification (tvbuff_t *tvb, packet_info *pinfo,
 
     if (dmp.notif_type == ON) {
       /* ON Type */
-      on_typex = tvb_get_guint8 (tvb, offset);
+      on_typex = tvb_get_uint8 (tvb, offset);
       proto_tree_add_item (notif_tree, hf_notif_on_type, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset += 1;
     }
@@ -3384,7 +3384,7 @@ static int dissect_dmp_notification (tvbuff_t *tvb, packet_info *pinfo,
     }
   } else if (dmp.notif_type == NRN) {
     /* Non-Recipient Reason */
-    notif = tvb_get_guint8 (tvb, offset);
+    notif = tvb_get_uint8 (tvb, offset);
     proto_tree_add_uint_format (notif_tree, hf_notif_non_rec_reason,
                                 tvb, offset, 1, notif,
                                 "Non-Receipt Reason%s: %s (%d)",
@@ -3393,7 +3393,7 @@ static int dissect_dmp_notification (tvbuff_t *tvb, packet_info *pinfo,
     offset += 1;
 
     /* Discard Reason */
-    notif = tvb_get_guint8 (tvb, offset);
+    notif = tvb_get_uint8 (tvb, offset);
     proto_tree_add_uint_format (notif_tree, hf_notif_discard_reason,
                                 tvb, offset, 1, notif,
                                 "Discard Reason%s: %s (%d)",
@@ -3419,7 +3419,7 @@ static int dissect_dmp_security_category (tvbuff_t *tvb, packet_info *pinfo,
   uint8_t     message;
   bool        country_code = false;
 
-  message = tvb_get_guint8 (tvb, offset);
+  message = tvb_get_uint8 (tvb, offset);
   tf = proto_tree_add_uint_format (tree, hf_message_sec_cat_nat, tvb,
                                    offset, 1, message, "Security Categories");
   field_tree = proto_item_add_subtree (tf, ett_message_sec_cat);
@@ -3502,7 +3502,7 @@ static int dissect_dmp_security_category (tvbuff_t *tvb, packet_info *pinfo,
 
     if (country_code) {
       proto_tree_add_item (field_tree, hf_message_sec_cat_country_code, tvb, offset, 1, ENC_BIG_ENDIAN);
-      proto_item_append_text (tf, " (rel-to country-code: %d)", tvb_get_guint8 (tvb, offset));
+      proto_item_append_text (tf, " (rel-to country-code: %d)", tvb_get_uint8 (tvb, offset));
       proto_item_set_len (tf, 2);
       offset += 1;
     }
@@ -3542,7 +3542,7 @@ static int dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
   message_tree = proto_item_add_subtree (en, ett_content);
 
   if (dmp.msg_type == STANAG || dmp.msg_type == IPM) {
-    message = tvb_get_guint8 (tvb, offset);
+    message = tvb_get_uint8 (tvb, offset);
     dmp.body_format = (message & 0x03);
 
     if (dmp.msg_type == STANAG) {
@@ -3611,12 +3611,12 @@ static int dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
     offset += 1;
   }
 
-  message = tvb_get_guint8 (tvb, offset);
+  message = tvb_get_uint8 (tvb, offset);
   /* Security Classification */
   dmp_sec_class = (message & 0xE0) >> 5;
   dmp_sec_pol = (message & 0x1C) >> 2;
   if (dmp_sec_pol == EXTENDED_NATIONAL) {
-    dmp_nation = tvb_get_guint8 (tvb, offset + 1);
+    dmp_nation = tvb_get_uint8 (tvb, offset + 1);
   }
 
   loffset = offset; /* Offset to start of security label */
@@ -3701,7 +3701,7 @@ static int dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
     offset += 1;
   } else if (dmp_sec_pol == EXTENDED_MISSION) {
     /* Mission Policy Identifier */
-    message = tvb_get_guint8 (tvb, offset);
+    message = tvb_get_uint8 (tvb, offset);
     if (message == 0xFF) {
       proto_tree_add_uint_format_value (message_tree, hf_message_mission_policy_id,
                                         tvb, offset, 1, message,
@@ -3745,7 +3745,7 @@ static int dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
 
   if (dmp.msg_type == STANAG || dmp.msg_type == IPM) {
     /* Expiry Time */
-    exp_time = tvb_get_guint8 (tvb, offset);
+    exp_time = tvb_get_uint8 (tvb, offset);
     tf = proto_tree_add_uint_format (message_tree, hf_message_exp_time,
                                      tvb, offset, 1, exp_time,
                                      "Expiry Time: ");
@@ -3767,7 +3767,7 @@ static int dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
   }
 
   if (dmp.msg_type == STANAG) {
-    dtg = tvb_get_guint8 (tvb, offset);
+    dtg = tvb_get_uint8 (tvb, offset);
     tf = proto_tree_add_uint_format (message_tree, hf_message_dtg, tvb, offset, 1, dtg, "DTG: ");
     field_tree = proto_item_add_subtree (tf, ett_message_dtg);
     proto_tree_add_item (field_tree, hf_message_dtg_sign, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3859,7 +3859,7 @@ static int dissect_dmp_extensions (tvbuff_t *tvb, packet_info *pinfo _U_,
 
   while (more_extensions) {
     /* Extensions Present */
-    ext_hdr = tvb_get_guint8 (tvb, offset);
+    ext_hdr = tvb_get_uint8 (tvb, offset);
     more_extensions = (ext_hdr & 0x80);
     ext_length = (ext_hdr & 0x7F) + 1;
 
