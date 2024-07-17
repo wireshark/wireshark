@@ -668,9 +668,6 @@
    <property name="shortcut">
     <string notr="true">F1</string>
    </property>
-   <property name="iconVisibleInMenu">
-    <bool>true</bool>
-   </property>
   </action>
   <action name="actionHelpMPWireshark">
    <property name="text">

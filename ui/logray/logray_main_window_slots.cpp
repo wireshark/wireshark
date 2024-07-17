@@ -19,7 +19,7 @@
 
 /*
  * The generated Ui_LograyMainWindow::setupUi() can grow larger than our configured limit,
- * so turn off -Wframe-larger-than= for ui_main_window.h.
+ * so turn off -Wframe-larger-than= for ui_logray_main_window.h.
  */
 DIAG_OFF(frame-larger-than=)
 #include <ui_logray_main_window.h>
