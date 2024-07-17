@@ -347,7 +347,7 @@ dissect_address_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool c
 
   addr_item = proto_tree_add_mac48_detail(&eth_src, &eth_addr, ett_addr, tvb, tree, 6);
   if (check_group) {
-    if (tvb_get_guint8(tvb, 6) & 0x01) {
+    if (tvb_get_uint8(tvb, 6) & 0x01) {
       expert_add_info(pinfo, addr_item, &ei_eth_src_not_group);
     }
   }
@@ -460,12 +460,12 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
        destination address field; fortunately, they can be recognized by
        checking the first 5 octets of the destination address, which are
        01-00-0C-00-00 for ISL frames. */
-    if ((tvb_get_guint8(tvb, 0) == 0x01 ||
-      tvb_get_guint8(tvb, 0) == 0x0C) &&
-      tvb_get_guint8(tvb, 1) == 0x00 &&
-      tvb_get_guint8(tvb, 2) == 0x0C &&
-      tvb_get_guint8(tvb, 3) == 0x00 &&
-      tvb_get_guint8(tvb, 4) == 0x00) {
+    if ((tvb_get_uint8(tvb, 0) == 0x01 ||
+      tvb_get_uint8(tvb, 0) == 0x0C) &&
+      tvb_get_uint8(tvb, 1) == 0x00 &&
+      tvb_get_uint8(tvb, 2) == 0x0C &&
+      tvb_get_uint8(tvb, 3) == 0x00 &&
+      tvb_get_uint8(tvb, 4) == 0x00) {
       dissect_isl(tvb, pinfo, parent_tree, fcs_len);
       return fh_tree;
     }
@@ -817,7 +817,7 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
       /* Require padding to be zeros */
       if (eth_padding == PADDING_ZEROS) {
         for (unsigned i = 0; i < padding_length; i++) {
-          if (tvb_get_gint8(trailer_tvb, i) != 0) {
+          if (tvb_get_int8(trailer_tvb, i) != 0) {
             padding_length = i;
             break;
           }

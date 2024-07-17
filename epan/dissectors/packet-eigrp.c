@@ -697,23 +697,23 @@ dissect_eigrp_parameter (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     int    offset = 0;
     uint8_t k1, k2, k3, k4, k5;
 
-    k1 = tvb_get_guint8(tvb, offset);
+    k1 = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_eigrp_par_k1, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     offset += 1;
-    k2 = tvb_get_guint8(tvb, offset);
+    k2 = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_eigrp_par_k2, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     offset += 1;
-    k3 = tvb_get_guint8(tvb, offset);
+    k3 = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_eigrp_par_k3, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     offset += 1;
-    k4 = tvb_get_guint8(tvb, offset);
+    k4 = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_eigrp_par_k4, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     offset += 1;
-    k5 = tvb_get_guint8(tvb, offset);
+    k5 = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_eigrp_par_k5, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     offset += 1;
@@ -819,7 +819,7 @@ dissect_eigrp_seq_tlv (proto_tree *tree, tvbuff_t *tvb,
     uint8_t     addr_len;
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
-        addr_len = tvb_get_guint8(tvb, offset);
+        addr_len = tvb_get_uint8(tvb, offset);
         ti_addrlen = proto_tree_add_item(tree, hf_eigrp_seq_addrlen, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
@@ -874,14 +874,14 @@ dissect_eigrp_sw_version (tvbuff_t *tvb, proto_tree *tree,
     uint8_t ios_rel_major, ios_rel_minor;
     uint8_t eigrp_rel_major, eigrp_rel_minor;
 
-    ios_rel_major = tvb_get_guint8(tvb, 0);
-    ios_rel_minor = tvb_get_guint8(tvb, 1);
+    ios_rel_major = tvb_get_uint8(tvb, 0);
+    ios_rel_minor = tvb_get_uint8(tvb, 1);
     proto_tree_add_item(tree, hf_eigrp_release, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
     proto_item_append_text(ti, ": EIGRP=%u.%u", ios_rel_major, ios_rel_minor);
 
-    eigrp_rel_major = tvb_get_guint8(tvb, 2);
-    eigrp_rel_minor = tvb_get_guint8(tvb, 3);
+    eigrp_rel_major = tvb_get_uint8(tvb, 2);
+    eigrp_rel_minor = tvb_get_uint8(tvb, 3);
     proto_tree_add_item(tree, hf_eigrp_tlv_version, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_item_append_text(ti, ", TLV=%u.%u",
                            eigrp_rel_major, eigrp_rel_minor);
@@ -1100,7 +1100,7 @@ dissect_eigrp_ipv4_addrs (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
     int         first = true;
 
     for (; tvb_reported_length_remaining(tvb, offset) > 0; offset += (1 + addr_len)) {
-        length = tvb_get_guint8(tvb, offset);
+        length = tvb_get_uint8(tvb, offset);
         addr_len = tvb_get_ipv4_addr_with_prefix_len(tvb, offset + 1, &ip_addr, length);
 
         if (addr_len < 0) {
@@ -1154,7 +1154,7 @@ dissect_eigrp_ipv6_addrs (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
     int                first = true;
 
     for (; tvb_reported_length_remaining(tvb, offset) > 0; offset += (1 + addr_len)) {
-        length = tvb_get_guint8(tvb, offset);
+        length = tvb_get_uint8(tvb, offset);
         addr_len = tvb_get_ipv6_addr_with_prefix_len(tvb, offset + 1, &addr, length);
 
         if (addr_len < 0) {
@@ -2131,12 +2131,12 @@ dissect_eigrp_wide_metric_attr (proto_tree *tree, tvbuff_t *tvb,
     sub_offset = 0;
 
     while (limit > 0) {
-        attr_opcode = tvb_get_guint8(sub_tvb, sub_offset);
+        attr_opcode = tvb_get_uint8(sub_tvb, sub_offset);
         proto_tree_add_item(sub_tree, hf_eigrp_attr_opcode, sub_tvb,
                             sub_offset, 1, ENC_BIG_ENDIAN);
         sub_offset += 1;
 
-        attr_offset = tvb_get_guint8(sub_tvb, sub_offset) * 2;
+        attr_offset = tvb_get_uint8(sub_tvb, sub_offset) * 2;
         proto_tree_add_item(sub_tree, hf_eigrp_attr_offset, sub_tvb,
                             sub_offset, 1, ENC_BIG_ENDIAN);
         sub_offset += 1;
@@ -2236,7 +2236,7 @@ dissect_eigrp_wide_metric (proto_tree *tree, tvbuff_t *tvb, int offset)
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, 24, ett_eigrp_tlv_metric, NULL, "Wide Metric");
     sub_tvb = tvb_new_subset_length_caplen(tvb, offset, 24, -1);
 
-    attr_size = tvb_get_guint8(sub_tvb, 0);
+    attr_size = tvb_get_uint8(sub_tvb, 0);
 
     proto_tree_add_item(sub_tree, hf_eigrp_metric_offset,
                         sub_tvb, 0,  1, ENC_BIG_ENDIAN);
@@ -2420,7 +2420,7 @@ dissect_eigrp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
      */
     col_clear(pinfo->cinfo, COL_INFO);
 
-    opcode = tvb_get_guint8(tvb, 1);
+    opcode = tvb_get_uint8(tvb, 1);
     ack    = tvb_get_ntohl(tvb, 12);
     if ((opcode == EIGRP_OPC_HELLO) && (0 != ack)) {
         opcode = EIGRP_OPC_ACK;

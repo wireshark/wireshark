@@ -189,7 +189,7 @@ dissect_enttec_dmx_data(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, prot
 					offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	type = tvb_get_guint8(tvb, offset);
+	type = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(tree, hf_enttec_dmx_data_type, tvb,
 					offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
@@ -210,12 +210,12 @@ dissect_enttec_dmx_data(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, prot
 		ui = 0;
 		ci = 0;
 		while (ci < length && ui < 512) {
-			v = tvb_get_guint8(tvb, offset+ci);
+			v = tvb_get_uint8(tvb, offset+ci);
 			if (v == 0xFE) {
 				ci++;
-				count = tvb_get_guint8(tvb, offset+ci);
+				count = tvb_get_uint8(tvb, offset+ci);
 				ci++;
-				v = tvb_get_guint8(tvb, offset+ci);
+				v = tvb_get_uint8(tvb, offset+ci);
 				ci++;
 				for (i=0;i < count && ui < 512;i++) {
 					dmx_data[ui] = v;
@@ -224,7 +224,7 @@ dissect_enttec_dmx_data(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, prot
 				}
 			} else if (v == 0xFD) {
 				ci++;
-				v = tvb_get_guint8(tvb, offset+ci);
+				v = tvb_get_uint8(tvb, offset+ci);
 				dmx_data[ui] = v;
 				dmx_data_offset[ui] = ci;
 				ci++;
@@ -239,7 +239,7 @@ dissect_enttec_dmx_data(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, prot
 		dmx_data_offset[ui] = ci;
 	} else {
 		for (ui=0; ui < length;ui++) {
-			dmx_data[ui] =  tvb_get_guint8(tvb, offset+ui);
+			dmx_data[ui] =  tvb_get_uint8(tvb, offset+ui);
 			dmx_data_offset[ui] = ui;
 		}
 		dmx_data_offset[ui] = ui;

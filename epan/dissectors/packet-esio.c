@@ -86,19 +86,19 @@ is_esio_pdu(tvbuff_t *tvb)
               return false;
        }
        /* fifth byte must be 0*/
-       if (tvb_get_guint8(tvb, 4) > 0x00) {
+       if (tvb_get_uint8(tvb, 4) > 0x00) {
               return false;
        }
        /* sixth byte indicates telegram type and must be 0, 1 or 2*/
-       if (tvb_get_guint8(tvb, 5) > 0x02) {
+       if (tvb_get_uint8(tvb, 5) > 0x02) {
               return false;
        }
        /* seventh byte must be 0*/
-       if (tvb_get_guint8(tvb, 6) > 0x00) {
+       if (tvb_get_uint8(tvb, 6) > 0x00) {
               return false;
        }
        /* eight byte indicates telegram version and must be 0 (up to now)*/
-       if (tvb_get_guint8(tvb, 7) > 0x00) {
+       if (tvb_get_uint8(tvb, 7) > 0x00) {
               return false;
        }
        /*header seems to be Ether-S-I/O*/
@@ -133,12 +133,12 @@ dissect_esio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 /* Make entries in Protocol column and Info column on summary display */
        col_set_str(pinfo->cinfo, COL_PROTOCOL, "ESIO");
        col_clear(pinfo->cinfo, COL_INFO);
-       esio_telegram_type = tvb_get_guint8(tvb,5);
+       esio_telegram_type = tvb_get_uint8(tvb,5);
 
        switch (esio_telegram_type) {
        case ESIO_TRANSFER:
                 esio_src_id = tvb_get_ntohl(tvb,16);
-                esio_nbr_data_transfers = tvb_get_guint8(tvb, 20);
+                esio_nbr_data_transfers = tvb_get_uint8(tvb, 20);
                 esio_dst_id = tvb_get_ntohl(tvb,26);
                 col_add_fstr( pinfo->cinfo, COL_INFO,
                             "Data transfer: Src ID: %d, Dst ID(s): %d",
@@ -194,7 +194,7 @@ dissect_esio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                      proto_tree_add_item(esio_transfer_header_tree,
                                          hf_esio_src_stn_id, tvb, offset, 4, ENC_BIG_ENDIAN);
                      offset += 4;
-                     esio_nbr_data_transfers = tvb_get_guint8(tvb,offset);
+                     esio_nbr_data_transfers = tvb_get_uint8(tvb,offset);
                      proto_tree_add_item(esio_transfer_header_tree,
                                          hf_esio_data_nbr, tvb, offset, 1, ENC_BIG_ENDIAN);
                      offset += 1;
@@ -251,7 +251,7 @@ dissect_esio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                      proto_tree_add_item(esio_tree,
                                          hf_esio_rio_flags, tvb, offset+11, 1, ENC_BIG_ENDIAN);
               } /* if (tree) */
-              if (tvb_get_guint8(tvb, offset + 9) > 0) {
+              if (tvb_get_uint8(tvb, offset + 9) > 0) {
                      expert_add_info(pinfo, hi, &ei_esio_telegram_lost);
               }
               break;

@@ -3476,16 +3476,16 @@ dissect_e212_mcc_mnc_wmem_packet_str(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     /* MCC + MNC */
     mcc_mnc = tvb_get_ntoh24(tvb,offset);
     /* Mobile country code MCC */
-    octet = tvb_get_guint8(tvb,offset);
+    octet = tvb_get_uint8(tvb,offset);
     mcc1 = octet & 0x0f;
     mcc2 = octet >> 4;
     offset++;
-    octet = tvb_get_guint8(tvb,offset);
+    octet = tvb_get_uint8(tvb,offset);
     mcc3 = octet & 0x0f;
     /* MNC, Mobile network code (octet 3 bits 5 to 8, octet 4)  */
     mnc3 = octet >> 4;
     offset++;
-    octet = tvb_get_guint8(tvb,offset);
+    octet = tvb_get_uint8(tvb,offset);
     mnc1 = octet & 0x0f;
     mnc2 = octet >> 4;
 
@@ -3603,19 +3603,19 @@ dissect_e212_mcc_mnc_in_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     mcc_mnc = tvb_get_ntoh24(tvb,offset);
 
     /* MCC digits 1 and 2 */
-    octet = tvb_get_guint8(tvb,offset);
+    octet = tvb_get_uint8(tvb,offset);
     mcc1  = octet & 0x0f;
     mcc2  = octet >> 4;
     offset++;
 
     /* MCC digit 3 and MNC digit 1 */
-    octet = tvb_get_guint8(tvb,offset);
+    octet = tvb_get_uint8(tvb,offset);
     mcc3  = octet & 0x0f;
     mnc1  = octet >> 4;
     offset++;
 
     /* MNC digits 2 and 3 */
-    octet = tvb_get_guint8(tvb,offset);
+    octet = tvb_get_uint8(tvb,offset);
     mnc2  = octet & 0x0f;
     mnc3  = octet >> 4;
 
@@ -3699,24 +3699,24 @@ dissect_e212_mcc_mnc_high_nibble(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     start_offset = offset;
 
     /* MCC digits 1 */
-    octet = tvb_get_guint8(tvb,offset);
+    octet = tvb_get_uint8(tvb,offset);
     mcc1  = octet >> 4;
     offset++;
 
     /* MCC digits 1 and 2 */
-    octet = tvb_get_guint8(tvb,offset);
+    octet = tvb_get_uint8(tvb,offset);
     mcc2  = octet & 0x0f;
     mcc3  = octet >> 4;
     offset++;
 
     /* MNC digit 1 and MNC digit 2 */
-    octet = tvb_get_guint8(tvb,offset);
+    octet = tvb_get_uint8(tvb,offset);
     mnc1  = octet & 0x0f;
     mnc2  = octet >> 4;
     offset++;
 
     /* MNC digits 3 */
-    octet = tvb_get_guint8(tvb,offset);
+    octet = tvb_get_uint8(tvb,offset);
     mnc3  = octet & 0x0f;
 
     mcc   = 100 * mcc1 + 10 * mcc2 + mcc3;

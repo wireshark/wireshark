@@ -361,7 +361,7 @@ read_type(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree)
 
   uint32_t     type_code;
 
-  type_code = tvb_get_guint8(tvb, *offset);
+  type_code = tvb_get_uint8(tvb, *offset);
   proto_tree_add_item(etch_tree, hf_etch_typecode, tvb, *offset, 1, ENC_BIG_ENDIAN);
   (*offset)++;
   return type_code;
@@ -375,7 +375,7 @@ read_array_type(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree)
 {
   uint32_t type_code;
 
-  type_code = tvb_get_guint8(tvb, *offset);
+  type_code = tvb_get_uint8(tvb, *offset);
 
   read_type(offset, tvb, etch_tree);
   if (type_code == ETCH_TC_CUSTOM) {
@@ -397,7 +397,7 @@ read_length(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree)
   int     length_of_array_length_type;
   uint8_t tiny;
 
-  tiny = tvb_get_guint8(tvb, *offset);
+  tiny = tvb_get_uint8(tvb, *offset);
 
   /*  Is this the value already? */
   if (  tiny <= ETCH_TC_MAX_TINY_INT
@@ -411,7 +411,7 @@ read_length(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree)
 
     switch (length_of_array_length_type) {
     case 1:
-      length = tvb_get_guint8(tvb, *offset);
+      length = tvb_get_uint8(tvb, *offset);
       break;
     case 2:
       length = tvb_get_ntohs(tvb, *offset);
@@ -543,7 +543,7 @@ read_value(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree,
 {
   uint8_t type_code;
 
-  type_code = tvb_get_guint8(tvb, *offset);
+  type_code = tvb_get_uint8(tvb, *offset);
   if (type_code <= ETCH_TC_MAX_TINY_INT ||
       type_code >= ETCH_TC_MIN_TINY_INT) {
     /* this is the value already */
@@ -677,7 +677,7 @@ get_column_info(wmem_allocator_t *scope, tvbuff_t *tvb)
 
   my_offset += (4 + 4 + 1); /* skip Magic, Length, Version */
 
-  type_code = tvb_get_guint8(tvb, my_offset);
+  type_code = tvb_get_uint8(tvb, my_offset);
   byte_length = get_byte_length(type_code);
   my_offset++;
 

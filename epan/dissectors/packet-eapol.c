@@ -103,7 +103,7 @@ dissect_eapol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
   proto_tree_add_item(eapol_tree, hf_eapol_version, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset++;
 
-  eapol_type = tvb_get_guint8(tvb, offset);
+  eapol_type = tvb_get_uint8(tvb, offset);
   proto_tree_add_item(eapol_tree, hf_eapol_type, tvb, offset, 1, ENC_BIG_ENDIAN);
   col_add_str(pinfo->cinfo, COL_INFO,
                 val_to_str(eapol_type, eapol_type_vals, "Unknown Type (0x%02X)"));
@@ -145,7 +145,7 @@ dissect_eapol_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void*
   tvbuff_t   *next_tvb;
   proto_tree* eapol_tree = (proto_tree*)data;
 
-  keydesc_type = tvb_get_guint8(tvb, offset);
+  keydesc_type = tvb_get_uint8(tvb, offset);
   proto_tree_add_item(eapol_tree, hf_eapol_keydes_type, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
   next_tvb = tvb_new_subset_remaining(tvb, offset);

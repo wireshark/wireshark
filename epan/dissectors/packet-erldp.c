@@ -314,7 +314,7 @@ static int dissect_etf_dist_header(packet_info *pinfo, tvbuff_t *tvb, int offset
   ti_tmp = proto_tree_add_item(tree, hf_erldp_etf_flags, tvb, offset, flen, ENC_NA );
   flags_tree = proto_item_add_subtree(ti_tmp, ett_etf_flags);
   for (i=0; i<num; i++) {
-    flg = tvb_get_guint8(tvb, offset + i / 2);
+    flg = tvb_get_uint8(tvb, offset + i / 2);
     proto_tree_add_boolean_format_value(flags_tree, hf_etf_dist_header_new_cache, tvb, offset + i / 2, 1,
                             (flg & (0x08 << 4*(i%2))), "NewCacheEntryFlag[%2d]: %s",
                             i, (flg & (0x08 << 4*(i%2))) ? "SET" : "---");
@@ -322,7 +322,7 @@ static int dissect_etf_dist_header(packet_info *pinfo, tvbuff_t *tvb, int offset
                             (flg & (0x07 << 4*(i%2))), "SegmentIndex     [%2d]: %u",
                             i, (flg & (0x07 << 4*(i%2))));
   }
-  flg = tvb_get_guint8(tvb, offset + num / 2);
+  flg = tvb_get_uint8(tvb, offset + num / 2);
   proto_tree_add_boolean(flags_tree, hf_etf_dist_header_long_atoms, tvb, offset + num / 2, 1, (flg & (0x01 << 4*(num%2))));
   long_atom = flg & (0x01 << 4*(num%2));
   offset += flen;
@@ -330,7 +330,7 @@ static int dissect_etf_dist_header(packet_info *pinfo, tvbuff_t *tvb, int offset
   acrs_offset = offset;
   acrs_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_etf_acrs, &ti_acrs, "AtomCacheRefs");
   for (i=0; i<num; i++) {
-    flg = tvb_get_guint8(tvb, flg_offset + i / 2);
+    flg = tvb_get_uint8(tvb, flg_offset + i / 2);
     new_entry = flg & (0x08 << 4*(i%2));
     acr_offset = offset;
     acr_tree = proto_tree_add_subtree_format(acrs_tree, tvb, offset, 0, ett_etf_acr, &ti_acr, "AtomCacheRef[%2d]:", i);
@@ -379,14 +379,14 @@ static int dissect_etf_big_ext(tvbuff_t *tvb, packet_info *pinfo, int offset, ui
       uint8_t sign;
       int32_t i;
 
-      sign = tvb_get_guint8(tvb, offset);
+      sign = tvb_get_uint8(tvb, offset);
       offset += 1;
 
       if (len <= 8) {
         uint64_t big_val = 0;
 
         switch (len) {
-        case 1: big_val = tvb_get_guint8(tvb, offset); break;
+        case 1: big_val = tvb_get_uint8(tvb, offset); break;
         case 2: big_val = tvb_get_letohs(tvb, offset); break;
         case 3: big_val = tvb_get_letoh24(tvb, offset); break;
         case 4: big_val = tvb_get_letohl(tvb, offset); break;
@@ -405,7 +405,7 @@ static int dissect_etf_big_ext(tvbuff_t *tvb, packet_info *pinfo, int offset, ui
 
         wmem_strbuf_append(strbuf, "0x");
         for (i = len - 1; i >= 0; i--) {
-          wmem_strbuf_append_printf(strbuf, "%02x", tvb_get_guint8(tvb, offset + i));
+          wmem_strbuf_append_printf(strbuf, "%02x", tvb_get_uint8(tvb, offset + i));
         }
         char *buf = wmem_strbuf_finalize(strbuf);
 
@@ -649,8 +649,8 @@ static int dissect_etf_type_content(uint8_t tag, packet_info *pinfo, tvbuff_t *t
 static int dissect_etf_pdu_data(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree) {
   uint8_t ctl_op;
 
-  if ((tvb_get_guint8(tvb, offset) == SMALL_TUPLE_EXT) && (tvb_get_guint8(tvb, offset + 2) == SMALL_INTEGER_EXT)) {
-    ctl_op = tvb_get_guint8(tvb, offset + 3);
+  if ((tvb_get_uint8(tvb, offset) == SMALL_TUPLE_EXT) && (tvb_get_uint8(tvb, offset + 2) == SMALL_INTEGER_EXT)) {
+    ctl_op = tvb_get_uint8(tvb, offset + 3);
     col_add_str(pinfo->cinfo, COL_INFO, val_to_str(ctl_op, VALS(erldp_ctlmsg_vals), "unknown ControlMessage operation (%d)"));
   }
   offset = dissect_etf_type("ControlMessage", pinfo, tvb, offset, tree);
@@ -667,7 +667,7 @@ static int dissect_etf_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
   proto_item *ti;
   proto_tree *etf_tree;
 
-  mag = tvb_get_guint8(tvb, offset);
+  mag = tvb_get_uint8(tvb, offset);
   if (mag != VERSION_MAGIC) {
     return 0;
   }
@@ -747,7 +747,7 @@ static int dissect_etf_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 }
 
 static int dissect_etf_versioned_type(const char *label, packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree) {
-  if (tvb_get_guint8(tvb, offset) != VERSION_MAGIC) {
+  if (tvb_get_uint8(tvb, offset) != VERSION_MAGIC) {
     proto_tree_add_item(tree, hf_erldp_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     col_set_str(pinfo->cinfo, COL_INFO, "unknown header format");
     return offset + 1;
@@ -784,7 +784,7 @@ static int dissect_etf_type(const char *label, packet_info *pinfo, tvbuff_t *tvb
 
 static bool is_handshake(tvbuff_t *tvb, int offset) {
   uint32_t len = tvb_get_ntohs(tvb, offset);
-  uint8_t tag = tvb_get_guint8(tvb, offset + 2);
+  uint8_t tag = tvb_get_uint8(tvb, offset + 2);
   return ((len > 0) && strchr("nNras", tag) && (len == (uint32_t)tvb_captured_length_remaining(tvb, offset + 2)));
 }
 
@@ -931,7 +931,7 @@ static int dissect_erldp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     return offset;
   }
 
-  type = tvb_get_guint8(tvb, offset);
+  type = tvb_get_uint8(tvb, offset);
   switch (type) {
     case ERL_PASS_THROUGH:
       proto_tree_add_item(erldp_tree, hf_erldp_type, tvb, offset, 1, ENC_BIG_ENDIAN);

@@ -3593,7 +3593,7 @@ dissect_eobi_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                 break;
             case ETI_STRING:
                 {
-                    uint8_t c = tvb_get_guint8(tvb, off);
+                    uint8_t c = tvb_get_uint8(tvb, off);
                     if (c)
                         proto_tree_add_item(t, hf_eobi[fields[fidx].field_handle_idx], tvb, off, fields[fidx].size, ENC_ASCII);
                     else {
@@ -3620,7 +3620,7 @@ dissect_eobi_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                     switch (fields[fidx].size) {
                         case 1:
                             {
-                                uint8_t x = tvb_get_guint8(tvb, off);
+                                uint8_t x = tvb_get_uint8(tvb, off);
                                 if (x == UINT8_MAX) {
                                     proto_tree_add_uint_format_value(t, hf_eobi[fields[fidx].field_handle_idx], tvb, off, fields[fidx].size, x, "NO_VALUE (0xff)");
                                     counter[fields[fidx].counter_off] = 0;
@@ -3662,7 +3662,7 @@ dissect_eobi_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                 switch (fields[fidx].size) {
                     case 1:
                         {
-                            uint8_t x = tvb_get_guint8(tvb, off);
+                            uint8_t x = tvb_get_uint8(tvb, off);
                             if (x == UINT8_MAX) {
                                 proto_item *e = proto_tree_add_uint_format_value(t, hf_eobi[fields[fidx].field_handle_idx], tvb, off, fields[fidx].size, x, "NO_VALUE (0xff)");
                                 if (!usages[uidx])
@@ -3725,7 +3725,7 @@ dissect_eobi_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                 switch (fields[fidx].size) {
                     case 1:
                         {
-                            int8_t x = tvb_get_gint8(tvb, off);
+                            int8_t x = tvb_get_int8(tvb, off);
                             if (x == INT8_MIN) {
                                 proto_item *e = proto_tree_add_int_format_value(t, hf_eobi[fields[fidx].field_handle_idx], tvb, off, fields[fidx].size, x, "NO_VALUE (0x80)");
                                 if (!usages[uidx])

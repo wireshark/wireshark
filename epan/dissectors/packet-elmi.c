@@ -154,8 +154,8 @@ dissect_elmi_sub_info_elem(
 
     offset_start = offset;
 
-    sub_tag = tvb_get_guint8(tvb, offset);
-    len = tvb_get_guint8(tvb, offset + 1);
+    sub_tag = tvb_get_uint8(tvb, offset);
+    len = tvb_get_uint8(tvb, offset + 1);
 
     sub_info_elem_tree = proto_tree_add_subtree_format(
             tree, tvb, offset, len + 2, ett_elmi_sub_info_elem, &tree_pi,
@@ -244,7 +244,7 @@ dissect_elmi_info_elem(
 
     offset_start = offset;
 
-    tag = tvb_get_guint8(tvb, offset);
+    tag = tvb_get_uint8(tvb, offset);
     if (tag==0)
         return -1;
 
@@ -256,7 +256,7 @@ dissect_elmi_info_elem(
             tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    len = tvb_get_guint8(tvb, offset);
+    len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(info_elem_tree, hf_elmi_info_elem_len,
             tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
@@ -353,7 +353,7 @@ dissect_elmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     proto_tree_add_item(elmi_tree, hf_elmi_ver, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    msg_type = tvb_get_guint8(tvb, offset);
+    msg_type = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(elmi_tree, hf_elmi_msg_type,
             tvb, offset, 1, ENC_BIG_ENDIAN);
     col_append_str(pinfo->cinfo, COL_INFO,

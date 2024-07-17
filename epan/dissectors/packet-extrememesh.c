@@ -526,7 +526,7 @@ static void dissect_extrememesh_ps_breq(tvbuff_t *tvb, packet_info *pinfo, proto
 		offset++;
 		if (option == 0) continue;
 		proto_tree_add_item(tree, hf_extrememesh_ps_breq_option_len, tvb, offset, 1, ENC_BIG_ENDIAN);
-		option_len = tvb_get_guint8(tvb, offset);
+		option_len = tvb_get_uint8(tvb, offset);
 		offset++;
 		switch(option)
 		{
@@ -666,7 +666,7 @@ static void dissect_extrememesh_ps_bann(tvbuff_t *tvb, packet_info *pinfo, proto
 		proto_tree_add_item_ret_uint(tree, hf_extrememesh_ps_bann_option, tvb, offset, 1, ENC_BIG_ENDIAN, &option);
 		offset++;
 		if(option == 0) continue; // Option 0 is a single padding byte, no length byte
-		option_len = tvb_get_guint8(tvb, offset);
+		option_len = tvb_get_uint8(tvb, offset);
 		proto_tree_add_item(tree, hf_extrememesh_ps_bann_option_len, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 		switch(option)
@@ -1067,7 +1067,7 @@ static void dissect_extrememesh_ps_perr(tvbuff_t *tvb, packet_info *pinfo, proto
 	uint8_t dst_cnt = 0;
 
 	col_set_str(pinfo->cinfo, COL_INFO, "Extreme Mesh Path Selection Path Error");
-	dst_cnt = tvb_get_guint8(tvb, 3);
+	dst_cnt = tvb_get_uint8(tvb, 3);
 	proto_tree_add_item(tree, proto_extrememesh_ps_perr, tvb, offset, -1, ENC_NA);
 	proto_tree_add_item(tree, hf_extrememesh_ps_perr_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
@@ -1155,7 +1155,7 @@ static void dissect_extrememesh_ps_prem(tvbuff_t *tvb, packet_info *pinfo, proto
 		proto_tree_add_item_ret_uint(tree, hf_extrememesh_ps_prem_option, tvb, offset, 1, ENC_BIG_ENDIAN, &option);
 		offset++;
 		if(option == 0) continue; // Option 0 is a single padding byte, no length byte
-		option_len = tvb_get_gint8(tvb, offset);
+		option_len = tvb_get_int8(tvb, offset);
 		proto_tree_add_item(tree, hf_extrememesh_ps_prem_option_len, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 		switch(option)
@@ -1203,7 +1203,7 @@ static void dissect_extrememesh_ps_trace(tvbuff_t *tvb, packet_info *pinfo, prot
 	uint8_t hop_cnt = 0;
 
 	col_set_str(pinfo->cinfo, COL_INFO, "Extreme Mesh Path Selection Trace Path");
-	hop_cnt = tvb_get_guint8(tvb, 15);
+	hop_cnt = tvb_get_uint8(tvb, 15);
 	proto_tree_add_item(tree, proto_extrememesh_ps_trace, tvb, offset, -1, ENC_NA);
 	proto_tree_add_item(tree, hf_extrememesh_ps_trace_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
@@ -1328,7 +1328,7 @@ static int dissect_extrememesh_ps(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	int frame_type_offset = 1;
 	int frame_type = MESH_PS_FRAME_INVALID;
 
-	frame_type = tvb_get_guint8(tvb, frame_type_offset);
+	frame_type = tvb_get_uint8(tvb, frame_type_offset);
 	switch(frame_type)
 	{
 	case MESH_PS_FRAME_AREQ:
@@ -1473,7 +1473,7 @@ static int dissect_extrememesh_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	proto_tree_add_item(meshTree, proto_extrememesh_mch, tvb, offset, -1, ENC_NA);
 	proto_tree_add_item(meshTree, hf_extrememesh_mch_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
-	next_proto = tvb_get_guint8(tvb, offset);
+	next_proto = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(meshTree, hf_extrememesh_mch_next_proto, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 	proto_tree_add_item(meshTree, hf_extrememesh_mch_lq, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1567,7 +1567,7 @@ static int dissect_extrememesh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	meshTree = proto_item_add_subtree(ti, ett_extrememesh);
 	proto_tree_add_item(meshTree, hf_extrememesh_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
-	next_proto = tvb_get_guint8(tvb, offset);
+	next_proto = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(meshTree, hf_extrememesh_nextproto, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 

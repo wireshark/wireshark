@@ -44,14 +44,14 @@ static int dissect_ems(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     col_clear(pinfo->cinfo, COL_INFO);
 
     uint8_t prn, year, month, day, hour, minute, second, mt;
-    prn    = tvb_get_guint8(tvb, 0);
-    year   = tvb_get_guint8(tvb, 1);
-    month  = tvb_get_guint8(tvb, 2);
-    day    = tvb_get_guint8(tvb, 3);
-    hour   = tvb_get_guint8(tvb, 4);
-    minute = tvb_get_guint8(tvb, 5);
-    second = tvb_get_guint8(tvb, 6);
-    mt     = tvb_get_guint8(tvb, 7);
+    prn    = tvb_get_uint8(tvb, 0);
+    year   = tvb_get_uint8(tvb, 1);
+    month  = tvb_get_uint8(tvb, 2);
+    day    = tvb_get_uint8(tvb, 3);
+    hour   = tvb_get_uint8(tvb, 4);
+    minute = tvb_get_uint8(tvb, 5);
+    second = tvb_get_uint8(tvb, 6);
+    mt     = tvb_get_uint8(tvb, 7);
 
     proto_tree *ems_tree = proto_tree_add_subtree_format(tree, tvb, 0, 40,
             ett_ems, NULL, "EMS (%04d-%02d-%02d %02d:%02d:%02d PRN%d MT%d)",

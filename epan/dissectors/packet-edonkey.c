@@ -589,7 +589,7 @@ static int dissect_edonkey_list(tvbuff_t *tvb, packet_info *pinfo,
     switch (listnum_length) {
         case -1:
         case 1:
-            listnum = tvb_get_guint8(tvb, offset);
+            listnum = tvb_get_uint8(tvb, offset);
             break;
 
         case -2:
@@ -708,7 +708,7 @@ static int dissect_kademlia_search_condition(tvbuff_t *tvb, packet_info *pinfo _
                                    int offset, proto_tree *tree )
 {
     proto_item * ti;
-    uint16_t value = tvb_get_guint8(tvb, offset);
+    uint16_t value = tvb_get_uint8(tvb, offset);
     ti = proto_tree_add_item( tree, hf_kademlia_search_condition, tvb, offset, 1, ENC_BIG_ENDIAN );
     proto_item_append_text(ti, " [%s]", val_to_str_const( value, kademlia_search_conds, "Unknown") );
 
@@ -729,15 +729,15 @@ static int dissect_edonkey_metatag(tvbuff_t *tvb, packet_info *pinfo _U_,
     uint32_t tag_length, blob_length;
     int tag_offset;
 
-    real_tag_type = tag_type = tvb_get_guint8(tvb, offset);
+    real_tag_type = tag_type = tvb_get_uint8(tvb, offset);
     if (tag_type & EDONKEY_MTAG_SHORTNAME) {
         real_tag_type &= ~EDONKEY_MTAG_SHORTNAME;
         tag_name_size = 1;
-        special_tagtype = tvb_get_guint8(tvb, offset+1);
+        special_tagtype = tvb_get_uint8(tvb, offset+1);
         tag_length = 2;
     } else {
         tag_name_size = tvb_get_letohs(tvb, offset+1);
-        special_tagtype = tvb_get_guint8(tvb, offset+3);
+        special_tagtype = tvb_get_uint8(tvb, offset+3);
         tag_length = 3 + tag_name_size;
     }
 
@@ -1036,7 +1036,7 @@ static int dissect_edonkey_file_hash(tvbuff_t *tvb, packet_info *pinfo _U_,
 static int dissect_edonkey_public_key(tvbuff_t *tvb, packet_info *pinfo _U_,
                                      int offset, proto_tree *tree)
 {
-    uint8_t length = tvb_get_guint8(tvb, offset);
+    uint8_t length = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_emule_public_key_length, tvb, offset, 1, ENC_NA);
     offset++;
     proto_tree_add_item(tree, hf_emule_public_key, tvb, offset, length, ENC_NA);
@@ -1047,7 +1047,7 @@ static int dissect_edonkey_public_key(tvbuff_t *tvb, packet_info *pinfo _U_,
 static int dissect_edonkey_signature(tvbuff_t *tvb, packet_info *pinfo _U_,
                                      int offset, proto_tree *tree)
 {
-    uint8_t length = tvb_get_guint8(tvb, offset);
+    uint8_t length = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_emule_signature_length, tvb, offset, 1, ENC_NA);
     offset++;
     proto_tree_add_item(tree, hf_emule_signature, tvb, offset, length, ENC_NA);
@@ -1122,7 +1122,7 @@ static int dissect_kademlia_tag_bsob(tvbuff_t *tvb, packet_info *pinfo,
 {
     uint16_t bsob_length;
 
-    bsob_length = tvb_get_guint8(tvb, offset);
+    bsob_length = tvb_get_uint8(tvb, offset);
     *string_value = tvb_bytes_to_str(pinfo->pool, tvb, offset + 1, bsob_length );
 
     proto_tree_add_item(tree, hf_kademlia_tag_bsob, tvb, offset + 1, bsob_length, ENC_NA);
@@ -1243,7 +1243,7 @@ static int dissect_emule_sourceOBFU(tvbuff_t *tvb, packet_info *pinfo,
 
     proto_item *ti;
     proto_tree *sourceOBFU_tree;
-    uint8_t settings = tvb_get_guint8(tvb, offset+6);
+    uint8_t settings = tvb_get_uint8(tvb, offset+6);
     /* Add subtree for client info */
     ti = proto_tree_add_item(tree, hf_emule_sourceOBFU, tvb, offset, 7 + ((settings & 0x80) ? 16 : 0), ENC_NA);
     sourceOBFU_tree = proto_item_add_subtree(ti, ett_emule_sourceOBFU);
@@ -1458,7 +1458,7 @@ static int dissect_emule_multipacket(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     while (offset<eoffset) {
-        opcode = tvb_get_guint8(tvb, offset);
+        opcode = tvb_get_uint8(tvb, offset);
 
         switch (opcode) {
             case EDONKEY_MSG_FILE_STATUS_REQUEST:
@@ -1476,7 +1476,7 @@ static int dissect_emule_multipacket(tvbuff_t *tvb, packet_info *pinfo,
                 oplen = 1;
 
                 if (offset+2<eoffset) {
-                    nextop = tvb_get_guint8(tvb, offset+1);
+                    nextop = tvb_get_uint8(tvb, offset+1);
                     if (nextop!=EDONKEY_MSG_FILE_STATUS_REQUEST &&
                         nextop!=EMULE_MSG_SOURCES_REQUEST &&
                         nextop!=EMULE_MSG_AICHFILEHASH_REQUEST) {
@@ -1487,7 +1487,7 @@ static int dissect_emule_multipacket(tvbuff_t *tvb, packet_info *pinfo,
                             oplen += 2+arrlen;
 
                             if (offset+2+arrlen+2<eoffset) {
-                                nextop = tvb_get_guint8(tvb, offset+2+arrlen+1);
+                                nextop = tvb_get_uint8(tvb, offset+2+arrlen+1);
                                 if (nextop!=EDONKEY_MSG_FILE_STATUS_REQUEST &&
                                     nextop!=EMULE_MSG_SOURCES_REQUEST &&
                                     nextop!=EMULE_MSG_AICHFILEHASH_REQUEST) {
@@ -1665,7 +1665,7 @@ static int dissect_edonkey_search_query(tvbuff_t *tvb, packet_info *pinfo,
     uint32_t search_length;
     int string_offset, tag_name_offset;
 
-    search_type = tvb_get_guint8(tvb, offset);
+    search_type = tvb_get_uint8(tvb, offset);
     search_length = 1;
     ti = proto_tree_add_uint(tree, hf_edonkey_search_type, tvb, offset, 1, search_type);
 
@@ -1712,7 +1712,7 @@ static int dissect_edonkey_search_query(tvbuff_t *tvb, packet_info *pinfo,
 
             tag_name_offset = offset + search_length;
             tag_name_size = tvb_get_letohs(tvb, tag_name_offset);
-            special_tagtype = tvb_get_guint8(tvb, tag_name_offset+2);
+            special_tagtype = tvb_get_uint8(tvb, tag_name_offset+2);
             search_length += 2 + tag_name_size;
 
             /* Add subtree for search entry */
@@ -1733,7 +1733,7 @@ static int dissect_edonkey_search_query(tvbuff_t *tvb, packet_info *pinfo,
 
             tag_name_offset = offset + search_length;
             tag_name_size = tvb_get_letohs(tvb, tag_name_offset);
-            special_tagtype = tvb_get_guint8(tvb, tag_name_offset+2);
+            special_tagtype = tvb_get_uint8(tvb, tag_name_offset+2);
             search_length += 2 + tag_name_size;
 
             /* Add subtree for search entry */
@@ -1781,7 +1781,7 @@ static void dissect_edonkey_tcp_message(uint8_t msg_type,
                of mistake, we check also 6th and 15h byte of UserHash -
                they have constant value. The best way would be to process
                whole packet to check it. */
-            helloClient = (tvb_get_guint8(tvb, offset) == 0x10 && tvb_get_guint8(tvb, offset + 6) == 0x0E && tvb_get_guint8(tvb, offset + 15) == 0x6F);
+            helloClient = (tvb_get_uint8(tvb, offset) == 0x10 && tvb_get_uint8(tvb, offset + 6) == 0x0E && tvb_get_uint8(tvb, offset + 15) == 0x6F);
             if (helloClient) {
                 proto_tree_add_uint(tree, hf_edonkey_user_hash_length, tvb, offset, 1, 16);
                 offset += 1;
@@ -2340,7 +2340,7 @@ static int dissect_kademlia_tag(tvbuff_t *tvb, packet_info *pinfo,
     /* tag_node length is adjusted at the end of this function */
     subtree = proto_tree_add_subtree( tree, tvb, offset, 1, ett_kademlia_tag, &tag_node, "Tag " );
 
-    type = tvb_get_guint8( tvb, offset );
+    type = tvb_get_uint8( tvb, offset );
     str_type = val_to_str_const(type, kademlia_tag_types, "Unknown" );
 
     ti_tagtype = proto_tree_add_item( subtree, hf_kademlia_tag_type, tvb, offset, 1, ENC_LITTLE_ENDIAN );
@@ -2351,7 +2351,7 @@ static int dissect_kademlia_tag(tvbuff_t *tvb, packet_info *pinfo,
         const char *tagname_extended_string;
 
         /* Read tagname */
-        tag_type = tvb_get_guint8( tvb, offset+2 );
+        tag_type = tvb_get_uint8( tvb, offset+2 );
         offset = dissect_kademlia_tagname( tvb, pinfo, offset, subtree, &tagname_string, &tagname_extended_string );
         if ( strlen( tagname_string ) == 1 ) {
             const uint8_t tagname_guint = *(const uint8_t*)tagname_string;
@@ -2382,7 +2382,7 @@ static int dissect_kademlia_tag(tvbuff_t *tvb, packet_info *pinfo,
                 uint8_t value;
                 ti = proto_tree_add_item( subtree, hf_kademlia_tag_uint8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
-                value = tvb_get_guint8( tvb, offset );
+                value = tvb_get_uint8( tvb, offset );
                 proto_item_append_text( tag_node, "%u (0x%02X)", value, value );
                 switch (tag_type) {
                     case KADEMLIA_TAG_SOURCETYPE:
@@ -2518,7 +2518,7 @@ static int dissect_kademlia_search_expression_tree(tvbuff_t *tvb, packet_info *p
     proto_item* ti;
 
     item_start_offset = offset;
-    op = tvb_get_guint8(tvb, offset);
+    op = tvb_get_uint8(tvb, offset);
     ti = proto_tree_add_uint(tree, hf_kademlia_search_expression_type, tvb, offset, 1, op);
     tree = proto_item_add_subtree( ti, ett_kademlia_search_expression );
     ++offset;
@@ -2668,7 +2668,7 @@ static int dissect_kademlia_udp_message(uint8_t msg_type,
                 int i, j, k, l;
                 char binarray[129];
 
-                type = tvb_get_guint8(tvb, offset);
+                type = tvb_get_uint8(tvb, offset);
                 ti = proto_tree_add_uint_format_value(tree, hf_kademlia_request_type, tvb, offset, 1, type, "0x%02x", type );
                 proto_item_append_text(ti, "%s", val_to_str_const(type, kademlia_parameter, " Unknown"));
                 offset +=1;
@@ -2677,7 +2677,7 @@ static int dissect_kademlia_udp_message(uint8_t msg_type,
                 for (i=0; i<4; i++) {
                   for (j=3; j>=0; j--) {
                     l = (j+4*i);
-                    target_id[l] = tvb_get_guint8(tvb, offset + abs(8*i-(l-3)));
+                    target_id[l] = tvb_get_uint8(tvb, offset + abs(8*i-(l-3)));
                   }
                 }
 
@@ -2687,7 +2687,7 @@ static int dissect_kademlia_udp_message(uint8_t msg_type,
                 for (i=0; i<4; i++) {
                   for (j=3; j>=0; j--) {
                     l = (j+4*i);
-                    recipients_id[l] = tvb_get_guint8(tvb, offset + abs(8*i-(l-3)));
+                    recipients_id[l] = tvb_get_uint8(tvb, offset + abs(8*i-(l-3)));
                   }
                 }
 
@@ -2748,7 +2748,7 @@ static int dissect_kademlia_udp_message(uint8_t msg_type,
                 /* Target (16bytes) */
                 offset = dissect_kademlia_hash(tvb, pinfo, offset, tree, &hf_kademlia_target_id);
                 /* Restrictive (1 byte) 0/1 */
-                restrictive = tvb_get_guint8(tvb, offset);
+                restrictive = tvb_get_uint8(tvb, offset);
                 proto_tree_add_item(tree, hf_edonkey_kademlia_restrictive, tvb, offset, 1, ENC_NA);
                 offset +=1;
 
@@ -2784,13 +2784,13 @@ static int dissect_kademlia_udp_message(uint8_t msg_type,
                 int i=1, j=34;
 
                 /* check if TAG_SOURCETYPE is set */
-                taglist_size = tvb_get_guint8(tvb, offset + j);
+                taglist_size = tvb_get_uint8(tvb, offset + j);
                 j++;
 
                 while(i <= taglist_size) {
-                  type = tvb_get_guint8(tvb, offset + j);
+                  type = tvb_get_uint8(tvb, offset + j);
                   j +=3;
-                  tagname_value = tvb_get_guint8(tvb, offset + j);
+                  tagname_value = tvb_get_uint8(tvb, offset + j);
                   if (tagname_value == 0xff)
                     i = taglist_size;
                   j++;
@@ -2819,7 +2819,7 @@ static int dissect_kademlia_udp_message(uint8_t msg_type,
                         break;
                     case KADEMLIA_TAGTYPE_BSOB:
                     {
-                      uint16_t bsob_length = tvb_get_guint8(tvb, offset);
+                      uint16_t bsob_length = tvb_get_uint8(tvb, offset);
                       j += 1 + bsob_length;
                       break;
                     }
@@ -2908,7 +2908,7 @@ static int dissect_edonkey_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     edonkey_tree = proto_item_add_subtree(ti, ett_edonkey);
 
     offset = 0;
-    protocol = tvb_get_guint8(tvb, offset);
+    protocol = tvb_get_uint8(tvb, offset);
     msg_len = tvb_get_letohl(tvb, offset+1);
 
     protocol_name = val_to_str_const(protocol, edonkey_protocols, "Unknown");
@@ -2929,7 +2929,7 @@ static int dissect_edonkey_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     /* Skip past the EDONKEY Header */
     offset += EDONKEY_TCP_HEADER_LENGTH;
 
-    msg_type = tvb_get_guint8(tvb, offset);
+    msg_type = tvb_get_uint8(tvb, offset);
     switch (protocol) {
         case EDONKEY_PROTO_EDONKEY:
             message_name =  val_to_str_const(msg_type, edonkey_tcp_msgs, "Unknown");
@@ -2990,7 +2990,7 @@ static int dissect_edonkey_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     if (!tvb_bytes_exist(tvb, 0, EDONKEY_TCP_HEADER_LENGTH))
         return 0;
 
-    protocol = tvb_get_guint8(tvb, 0);
+    protocol = tvb_get_uint8(tvb, 0);
     if (try_val_to_str(protocol, edonkey_protocols) == NULL)
         return 0; /* Not a known protocol */
 
@@ -3014,7 +3014,7 @@ static int dissect_edonkey_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     if (!tvb_bytes_exist(tvb, 0, EDONKEY_UDP_HEADER_LENGTH))
         return 0;
 
-    protocol = tvb_get_guint8(tvb, offset);
+    protocol = tvb_get_uint8(tvb, offset);
     if (try_val_to_str(protocol, edonkey_protocols) == NULL)
         return 0; /* Not a known protocol */
 
@@ -3027,7 +3027,7 @@ static int dissect_edonkey_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
     offset = 0;
     /* eDonkey UDP message - Assume that there is one message per packet */
-    msg_type = tvb_get_guint8(tvb, offset+1);
+    msg_type = tvb_get_uint8(tvb, offset+1);
     protocol_name = val_to_str_const(protocol, edonkey_protocols, "Unknown");
 
     if (protocol == EDONKEY_PROTO_KADEMLIA || protocol == EDONKEY_PROTO_KADEMLIA_COMP

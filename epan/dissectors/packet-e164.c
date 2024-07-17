@@ -533,7 +533,7 @@ dissect_e164_cc(tvbuff_t *tvb, proto_tree *tree, int offset, e164_encoding_t enc
 	proto_item *item = NULL;
 
 	cc_offset = offset;
-	address_digit_pair = tvb_get_guint8(tvb, cc_offset);
+	address_digit_pair = tvb_get_uint8(tvb, cc_offset);
 
 	/* Get the first 3 digits of the MSISDN */
 	switch (encoding) {
@@ -541,7 +541,7 @@ dissect_e164_cc(tvbuff_t *tvb, proto_tree *tree, int offset, e164_encoding_t enc
 		/* Dissect country code after removing non significant zeros */
 		while (address_digit_pair == 0) {
 			cc_offset = cc_offset + 1;
-			address_digit_pair = tvb_get_guint8(tvb, cc_offset);
+			address_digit_pair = tvb_get_uint8(tvb, cc_offset);
 		}
 		cc = tvb_get_ntohs(tvb, cc_offset);
 		if ((address_digit_pair & 0xf0) != 0) {
@@ -554,15 +554,15 @@ dissect_e164_cc(tvbuff_t *tvb, proto_tree *tree, int offset, e164_encoding_t enc
 		cc = cc | (address_digit_pair &0xf0)>>4;
 		cc = cc << 4;
 		if (tvb_bytes_exist(tvb, cc_offset+1, 1)) {
-			address_digit_pair = tvb_get_guint8(tvb, cc_offset+1);
+			address_digit_pair = tvb_get_uint8(tvb, cc_offset+1);
 			cc = cc | (address_digit_pair &0x0f);
 		}
 		break;
 	case E164_ENC_UTF8:
 		/* XXX - do we need to worry about leading 0s? */
-		cc  = (tvb_get_guint8(tvb, cc_offset)   - '0') << 8;
-		cc |= (tvb_get_guint8(tvb, cc_offset+1) - '0') << 4;
-		cc |= (tvb_get_guint8(tvb, cc_offset+2) - '0');
+		cc  = (tvb_get_uint8(tvb, cc_offset)   - '0') << 8;
+		cc |= (tvb_get_uint8(tvb, cc_offset+1) - '0') << 4;
+		cc |= (tvb_get_uint8(tvb, cc_offset+2) - '0');
 		break;
 	}
 
@@ -707,13 +707,13 @@ dissect_e164_cc(tvbuff_t *tvb, proto_tree *tree, int offset, e164_encoding_t enc
 		/* Get the 1-digit ID code */
 		switch (encoding) {
 		case E164_ENC_BINARY:
-			id_code = tvb_get_guint8(tvb, cc_offset + 1) & 0x0f;
+			id_code = tvb_get_uint8(tvb, cc_offset + 1) & 0x0f;
 			break;
 		case E164_ENC_BCD:
-			id_code = (tvb_get_guint8(tvb, cc_offset + 1) & 0xf0) >> 4;
+			id_code = (tvb_get_uint8(tvb, cc_offset + 1) & 0xf0) >> 4;
 			break;
 		case E164_ENC_UTF8:
-			id_code = tvb_get_guint8(tvb, cc_offset + cc_length) - '0';
+			id_code = tvb_get_uint8(tvb, cc_offset + cc_length) - '0';
 			break;
 		}
 		bcd_ok = (id_code <= 9);
@@ -731,12 +731,12 @@ dissect_e164_cc(tvbuff_t *tvb, proto_tree *tree, int offset, e164_encoding_t enc
 			id_code = (id_code & 0x0ff0) >> 4;
 			break;
 		case E164_ENC_BCD:
-			id_code  = tvb_get_guint8(tvb, cc_offset + 1) & 0xf0;
-			id_code |= tvb_get_guint8(tvb, cc_offset + 2) & 0x0f;
+			id_code  = tvb_get_uint8(tvb, cc_offset + 1) & 0xf0;
+			id_code |= tvb_get_uint8(tvb, cc_offset + 2) & 0x0f;
 			break;
 		case E164_ENC_UTF8:
-			id_code  = (tvb_get_guint8(tvb, cc_offset+cc_length)   - '0') << 4;
-			id_code |= (tvb_get_guint8(tvb, cc_offset+cc_length+1) - '0');
+			id_code  = (tvb_get_uint8(tvb, cc_offset+cc_length)   - '0') << 4;
+			id_code |= (tvb_get_uint8(tvb, cc_offset+cc_length+1) - '0');
 			break;
 		}
 		bcd_ok = convert_bcd_to_dec(id_code, &id_code);
@@ -754,27 +754,27 @@ dissect_e164_cc(tvbuff_t *tvb, proto_tree *tree, int offset, e164_encoding_t enc
 			id_code = id_code & 0x0fff;
 			break;
 		case E164_ENC_BCD:
-			id_code  = (tvb_get_guint8(tvb, cc_offset + 1) & 0xf0) << 4;
-			id_code |= (tvb_get_guint8(tvb, cc_offset + 2) & 0x0f) << 4;
-			id_code |= (tvb_get_guint8(tvb, cc_offset + 2) & 0xf0) >> 4;
+			id_code  = (tvb_get_uint8(tvb, cc_offset + 1) & 0xf0) << 4;
+			id_code |= (tvb_get_uint8(tvb, cc_offset + 2) & 0x0f) << 4;
+			id_code |= (tvb_get_uint8(tvb, cc_offset + 2) & 0xf0) >> 4;
 			break;
 		case E164_ENC_UTF8:
-			id_code  = (tvb_get_guint8(tvb, cc_offset+cc_length)   - '0') << 8;
-			id_code |= (tvb_get_guint8(tvb, cc_offset+cc_length+1) - '0') << 4;
-			id_code |= (tvb_get_guint8(tvb, cc_offset+cc_length+2) - '0');
+			id_code  = (tvb_get_uint8(tvb, cc_offset+cc_length)   - '0') << 8;
+			id_code |= (tvb_get_uint8(tvb, cc_offset+cc_length+1) - '0') << 4;
+			id_code |= (tvb_get_uint8(tvb, cc_offset+cc_length+2) - '0');
 			break;
 		}
 		if ((id_code & 0x0ff0) == 0x510) {
 			/* Get the 4th digit of the ID code */
 			switch (encoding) {
 			case E164_ENC_BINARY:
-				id_code = (id_code << 4) | ((tvb_get_guint8(tvb, cc_offset + 3) & 0xf0) >> 4);
+				id_code = (id_code << 4) | ((tvb_get_uint8(tvb, cc_offset + 3) & 0xf0) >> 4);
 				break;
 			case E164_ENC_BCD:
-				id_code = (id_code << 4) | (tvb_get_guint8(tvb, cc_offset + 3) & 0x0f);
+				id_code = (id_code << 4) | (tvb_get_uint8(tvb, cc_offset + 3) & 0x0f);
 				break;
 			case E164_ENC_UTF8:
-				id_code = (id_code << 4) | (tvb_get_guint8(tvb, cc_offset + cc_length + 3) - '0');
+				id_code = (id_code << 4) | (tvb_get_uint8(tvb, cc_offset + cc_length + 3) - '0');
 				break;
 			}
 			bcd_ok = convert_bcd_to_dec(id_code, &id_code);

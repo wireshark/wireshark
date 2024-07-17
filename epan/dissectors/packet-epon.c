@@ -100,7 +100,7 @@ dissect_epon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
    * If security is disabled, the DPoE byte will remain 0x55 and no decoding
    * is necessary.
    */
-  dpoe_sec_byte = tvb_get_guint8(tvb, 2+offset);
+  dpoe_sec_byte = tvb_get_uint8(tvb, 2+offset);
   if (dpoe_sec_byte != 0x55) {
     unsigned    dpoe_keyid;
     unsigned    dpoe_reserved;
@@ -162,7 +162,7 @@ dissect_epon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   /* Verify the CRC-8 checksum
    */
-  sent_checksum = tvb_get_guint8(tvb, 5+offset);
+  sent_checksum = tvb_get_uint8(tvb, 5+offset);
   checksum = get_crc8_ieee8023_epon(tvb, 5, 0+offset);
 
   proto_tree_add_checksum(epon_tree, tvb, 5+offset, hf_epon_checksum, hf_epon_checksum_status, &ei_epon_checksum_bad, pinfo, checksum, ENC_NA, PROTO_CHECKSUM_VERIFY);

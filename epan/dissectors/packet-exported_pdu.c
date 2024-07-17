@@ -367,7 +367,7 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                 mtp3_addr = wmem_new0(pinfo->pool, mtp3_addr_pc_t);
                 mtp3_addr->pc = tvb_get_ntohl(tvb, offset);
                 mtp3_addr->type = (Standard_Type)tvb_get_ntohs(tvb, offset+4);
-                mtp3_addr->ni = tvb_get_guint8(tvb, offset+6);
+                mtp3_addr->ni = tvb_get_uint8(tvb, offset+6);
                 set_address(&pinfo->src, ss7pc_address_type, sizeof(mtp3_addr_pc_t), (uint8_t *) mtp3_addr);
                 break;
             case EXP_PDU_TAG_SS7_DPC:
@@ -375,7 +375,7 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                 mtp3_addr = wmem_new0(pinfo->pool, mtp3_addr_pc_t);
                 mtp3_addr->pc = tvb_get_ntohl(tvb, offset);
                 mtp3_addr->type = (Standard_Type)tvb_get_ntohs(tvb, offset+4);
-                mtp3_addr->ni = tvb_get_guint8(tvb, offset+6);
+                mtp3_addr->ni = tvb_get_uint8(tvb, offset+6);
                 set_address(&pinfo->dst, ss7pc_address_type, sizeof(mtp3_addr_pc_t), (uint8_t *) mtp3_addr);
                 break;
             case EXP_PDU_TAG_ORIG_FNO:

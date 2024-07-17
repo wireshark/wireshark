@@ -1574,7 +1574,7 @@ erf_atm_guess_traffic_type(tvbuff_t *tvb, int offset, unsigned len,
        * Ethernet header) we can try it as a SSCOP frame.
        */
       atm_info->aal = AAL_SIGNALLING;
-    } else if (((mtp3b = tvb_get_guint8(tvb, offset)) == 0x83) || (mtp3b == 0x81)) {
+    } else if (((mtp3b = tvb_get_uint8(tvb, offset)) == 0x83) || (mtp3b == 0x81)) {
       /*
        * MTP3b headers often encapsulate
        * a SCCP or MTN in the 3G network.
@@ -2499,7 +2499,7 @@ dissect_meta_tag_ext_hdrs(proto_item *section_tree, tvbuff_t *tvb, int offset, i
   *out_tag_tree = proto_item_add_subtree(tag_pi, tag_info->ett);
 
   for (int_offset = 0; int_offset < int_avail; int_offset++) {
-    ext_hdrs[int_offset] = tvb_get_guint32(tvb, offset + 4 + int_offset*4, ENC_BIG_ENDIAN);
+    ext_hdrs[int_offset] = tvb_get_uint32(tvb, offset + 4 + int_offset*4, ENC_BIG_ENDIAN);
     if (ext_hdrs[int_offset] != UINT32_MAX)
       all_set = false;
   }
@@ -3294,7 +3294,7 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     if (hdlc_type == ERF_HDLC_GUESS) {
       /* Try to guess the type. */
-      first_byte = tvb_get_guint8(tvb, 0);
+      first_byte = tvb_get_uint8(tvb, 0);
       if (first_byte == 0x0f || first_byte == 0x8f)
         hdlc_type = ERF_HDLC_CHDLC;
       else {

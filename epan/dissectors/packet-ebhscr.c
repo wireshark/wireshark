@@ -582,8 +582,8 @@ static int dissect_ebhscr_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		expert_add_info(pinfo, ti, &ei_ebhscr_err_status_flag);
 	}
 
-	channel = (tvb_get_guint8(tvb, 1) & 0x1C) >> 2;
-	major_hrd = tvb_get_guint64(tvb, 24, ENC_BIG_ENDIAN);
+	channel = (tvb_get_uint8(tvb, 1) & 0x1C) >> 2;
+	major_hrd = tvb_get_uint64(tvb, 24, ENC_BIG_ENDIAN);
 
 	proto_tree_add_bitmask(ebhscr_packet_header_tree, tvb, 24, hf_ebhscr_mjr_hdr, ett_ebhscr_mjr_hdr,
 							eth_mjr_hdr_bits, ENC_BIG_ENDIAN);
@@ -792,7 +792,7 @@ static int dissect_ebhscr_flexray_frame_packet(tvbuff_t *tvb, packet_info *pinfo
 	fr_tvb = tvb_new_composite();
 
 	header_data[0] = 0x01;
-	channel = tvb_get_guint8(tvb, 1);
+	channel = tvb_get_uint8(tvb, 1);
 
 	if ((channel & FLEXRAY_CHANNEL_B_MASK) != 0) {
 		header_data[0] |= 0x80;
@@ -855,11 +855,11 @@ static int dissect_ebhscr_flexray_symbol_packet(tvbuff_t *tvb, packet_info *pinf
 	flexray_mhdr_sub_tree = proto_item_add_subtree(ti, ett_ebhscr_mjr_hdr);
 	proto_tree_add_bitmask_list(flexray_mhdr_sub_tree, tvb, 28, 1, flexray_mhdr_symbol_length_and_status_bits, ENC_BIG_ENDIAN);
 
-	symbol_length = tvb_get_guint8(tvb, 28) & 0x7F;
+	symbol_length = tvb_get_uint8(tvb, 28) & 0x7F;
 
 	flexray_symbol_packet[0] = 0x02;
 
-	channel = tvb_get_guint8(tvb, 1);
+	channel = tvb_get_uint8(tvb, 1);
 
 	if ((channel & FLEXRAY_CHANNEL_B_MASK) != 0) {
 		flexray_symbol_packet[0] |= 0x80;
@@ -879,7 +879,7 @@ static int dissect_ebhscr_flexray_slot_status_packet(tvbuff_t *tvb, packet_info 
 	proto_item *ti;
 	proto_tree *flexray_mhdr_tree, *flexray_mhdr_sub_tree, *flexray_status_tree;
 
-	supercycle_counter = tvb_get_guint32(tvb, 28, ENC_BIG_ENDIAN);
+	supercycle_counter = tvb_get_uint32(tvb, 28, ENC_BIG_ENDIAN);
 	col_append_fstr(pinfo->cinfo, COL_INFO, "SLSTS: SCC %d", supercycle_counter);
 
 	ti = proto_tree_add_item(ebhscr_packet_header_tree, hf_ebhscr_status, tvb, 2, 2, ENC_BIG_ENDIAN);
@@ -909,8 +909,8 @@ static int dissect_ebhscr_flexray_start_of_cycle_packet(tvbuff_t *tvb, packet_in
 	proto_item *ti;
 	proto_tree *flexray_mhdr_tree, *flexray_status_tree;
 
-	cycle_counter = tvb_get_guint8(tvb, 25);
-	supercycle_counter = tvb_get_guint32(tvb, 28, ENC_BIG_ENDIAN);
+	cycle_counter = tvb_get_uint8(tvb, 25);
+	supercycle_counter = tvb_get_uint32(tvb, 28, ENC_BIG_ENDIAN);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, "SOC: CC %2d SCC %d", cycle_counter, supercycle_counter);
 
@@ -988,8 +988,8 @@ dissect_ebhscr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 		return tvb_captured_length(tvb);
 	}
 
-	ebhscr_major_num = tvb_get_guint8(tvb, 0);
-	ebhscr_status = tvb_get_guint16(tvb, 2, ENC_BIG_ENDIAN) & 0x0FFF;
+	ebhscr_major_num = tvb_get_uint8(tvb, 0);
+	ebhscr_status = tvb_get_uint16(tvb, 2, ENC_BIG_ENDIAN) & 0x0FFF;
 
 	ti = proto_tree_add_item(ebhscr_tree, hf_ebhscr_packet_header, tvb, 0, 4, ENC_BIG_ENDIAN);
 	ebhscr_packet_header_tree = proto_item_add_subtree(ti, ett_ebhscr_packet_header);

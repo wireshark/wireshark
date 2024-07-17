@@ -159,7 +159,7 @@ esis_dissect_ish_pdu( uint8_t len, tvbuff_t *tvb, proto_tree *tree, packet_info 
 
     offset += ESIS_HDR_FIXED_LENGTH;
 
-    netl = (int) tvb_get_guint8(tvb, offset);
+    netl = (int) tvb_get_uint8(tvb, offset);
     network_tree = proto_tree_add_subtree( tree, tvb, offset, netl + 1, ett_esis_network, NULL,
                          "### Network Entity Title Section ###");
     proto_tree_add_uint(network_tree, hf_esis_netl, tvb, offset++, 1, netl);
@@ -179,7 +179,7 @@ esis_dissect_redirect_pdu( uint8_t len, tvbuff_t *tvb, proto_tree *tree, packet_
 
     offset += ESIS_HDR_FIXED_LENGTH;
 
-    tmpl = (int) tvb_get_guint8(tvb, offset);
+    tmpl = (int) tvb_get_uint8(tvb, offset);
     dest_tree = proto_tree_add_subtree( tree, tvb, offset, tmpl + 1, ett_esis_dest_addr, NULL,
                          "### Destination Address Section ###" );
     proto_tree_add_uint(dest_tree, hf_esis_dal, tvb, offset++, 1, tmpl);
@@ -187,7 +187,7 @@ esis_dissect_redirect_pdu( uint8_t len, tvbuff_t *tvb, proto_tree *tree, packet_
                          print_nsap_net( pinfo->pool, tvb, offset, tmpl ) );
     offset += tmpl;
     len    -= ( tmpl + 1 );
-    tmpl    = (int) tvb_get_guint8(tvb, offset);
+    tmpl    = (int) tvb_get_uint8(tvb, offset);
 
     subnet_tree = proto_tree_add_subtree( tree, tvb, offset, tmpl + 1, ett_esis_subnetwork, NULL,
                          "###  Subnetwork Address Section ###");
@@ -195,7 +195,7 @@ esis_dissect_redirect_pdu( uint8_t len, tvbuff_t *tvb, proto_tree *tree, packet_
     proto_tree_add_item(subnet_tree, hf_esis_bsnpa, tvb, offset, tmpl, ENC_NA);
     offset += tmpl;
     len    -= ( tmpl + 1 );
-    tmpl    = (int) tvb_get_guint8(tvb, offset);
+    tmpl    = (int) tvb_get_uint8(tvb, offset);
 
     if ( 0 == tmpl ) {
       network_tree = proto_tree_add_subtree( tree, tvb, offset, 1, ett_esis_network, NULL,
@@ -247,14 +247,14 @@ dissect_esis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     proto_tree_add_item( esis_tree, hf_esis_nlpi, tvb, 0, 1, ENC_BIG_ENDIAN);
     ti = proto_tree_add_item( esis_tree, hf_esis_length, tvb, 1, 1, ENC_BIG_ENDIAN );
-    length = tvb_get_guint8(tvb, 1);
+    length = tvb_get_uint8(tvb, 1);
     if (length < ESIS_HDR_FIXED_LENGTH) {
       expert_add_info_format(pinfo, ti, &ei_esis_length,
                            "Bogus ESIS length (%u, must be >= %u)",
                            length, ESIS_HDR_FIXED_LENGTH );
     }
 
-    version = tvb_get_guint8(tvb, 2);
+    version = tvb_get_uint8(tvb, 2);
     ti = proto_tree_add_item( esis_tree, hf_esis_version, tvb, 2, 1, ENC_BIG_ENDIAN);
     if (version != ESIS_REQUIRED_VERSION){
       expert_add_info_format(pinfo, ti, &ei_esis_version,
@@ -265,7 +265,7 @@ dissect_esis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     proto_tree_add_item( esis_tree, hf_esis_reserved, tvb, 3, 1, ENC_BIG_ENDIAN);
 
     type_item = proto_tree_add_item( esis_tree, hf_esis_type, tvb, 4, 1, ENC_BIG_ENDIAN);
-    type = tvb_get_guint8(tvb, 4) & OSI_PDU_TYPE_MASK;
+    type = tvb_get_uint8(tvb, 4) & OSI_PDU_TYPE_MASK;
 
     proto_tree_add_item(esis_tree, hf_esis_holdtime, tvb, 5, 2, ENC_BIG_ENDIAN);
 

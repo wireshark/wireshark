@@ -400,8 +400,8 @@ dissect_tlv_header(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length
 	uint8_t		tlv_type;
 	uint16_t		tlv_length;
 
-	tlv_marker = tvb_get_guint8(tvb, offset);
-	tlv_type = tvb_get_guint8(tvb, offset + 1);
+	tlv_marker = tvb_get_uint8(tvb, offset);
+	tlv_type = tvb_get_uint8(tvb, offset + 1);
 	tlv_length = tvb_get_ntohs(tvb, offset + 2);
 
 	tlv_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4,
@@ -478,10 +478,10 @@ dissect_info_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 	port = tvb_get_ntohs(tvb, offset + 2 + 4) + 1;
 
 	/* version */
-	major1 = tvb_get_guint8(tvb, offset + 12 + 4);
-	major2 = tvb_get_guint8(tvb, offset + 13 + 4);
-	sustaining = tvb_get_guint8(tvb, offset + 14 + 4);
-	internal = tvb_get_guint8(tvb, offset + 15 + 4);
+	major1 = tvb_get_uint8(tvb, offset + 12 + 4);
+	major2 = tvb_get_uint8(tvb, offset + 13 + 4);
+	sustaining = tvb_get_uint8(tvb, offset + 14 + 4);
+	internal = tvb_get_uint8(tvb, offset + 15 + 4);
 
 	info_item = proto_tree_add_protocol_format(tree, hf_edp_info,
 		tvb, offset, length,
@@ -636,7 +636,7 @@ dissect_esrp_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 	proto_tree	*esrp_tree;
 	uint16_t		group;
 
-	group = tvb_get_guint8(tvb, offset + 1 + 4);
+	group = tvb_get_uint8(tvb, offset + 1 + 4);
 	esrp_item = proto_tree_add_protocol_format(tree, hf_edp_esrp,
 		tvb, offset, length, "ESRP: Group %d", group);
 
@@ -881,8 +881,8 @@ dissect_elsm_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
 	proto_tree	*elsm_tree;
 	uint8_t		type, subtype;
 
-	type = tvb_get_guint8(tvb, offset + 4);
-	subtype = tvb_get_guint8(tvb, offset + 4 + 1);
+	type = tvb_get_uint8(tvb, offset + 4);
+	subtype = tvb_get_uint8(tvb, offset + 4 + 1);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " %s%s (#%d)",
 			val_to_str(type, elsm_type_vals, "Unknown (0x%02x)"),
@@ -980,7 +980,7 @@ dissect_unknown_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, p
 	proto_tree	*unknown_tree;
 	uint8_t		tlv_type;
 
-	tlv_type = tvb_get_guint8(tvb, offset + 1);
+	tlv_type = tvb_get_uint8(tvb, offset + 1);
 
 	unknown_item = proto_tree_add_protocol_format(tree, hf_edp_unknown,
 		tvb, offset, length, "Unknown element [0x%02x]", tlv_type);
@@ -1065,7 +1065,7 @@ dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 						     data_length - offset);
 			break;
 		}
-		tlv_type = tvb_get_guint8(tvb, offset + 1);
+		tlv_type = tvb_get_uint8(tvb, offset + 1);
 		tlv_length = tvb_get_ntohs(tvb, offset + 2);
 
 		if ((tlv_length < 4) || (tlv_length > (data_length - offset))) {

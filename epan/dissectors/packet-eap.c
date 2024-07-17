@@ -792,7 +792,7 @@ dissect_eap_mschapv2(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, in
   uint8_t     opcode;
 
   /* OpCode (1 byte), MS-CHAPv2-ID (1 byte), MS-Length (2 bytes), Data */
-  opcode = tvb_get_guint8(tvb, offset);
+  opcode = tvb_get_uint8(tvb, offset);
   proto_tree_add_item(eap_tree, hf_eap_ms_chap_v2_opcode, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
   left   -= 1;
@@ -816,7 +816,7 @@ dissect_eap_mschapv2(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, in
   case MS_CHAP_V2_CHALLENGE:
     if (left <= 0)
       break;
-    value_size = tvb_get_guint8(tvb, offset);
+    value_size = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(eap_tree, hf_eap_ms_chap_v2_value_size,
                         tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
@@ -833,7 +833,7 @@ dissect_eap_mschapv2(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, in
   case MS_CHAP_V2_RESPONSE:
     if (left <= 0)
       break;
-    value_size = tvb_get_guint8(tvb, offset);
+    value_size = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(eap_tree, hf_eap_ms_chap_v2_value_size,
                         tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
@@ -902,7 +902,7 @@ dissect_eap_identity_wlan(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, i
   proto_item* item;
 
   /* Check for Encrypted IMSI - NULL prefix byte */
-  if (tvb_get_guint8(tvb, offset) == 0x00) {
+  if (tvb_get_uint8(tvb, offset) == 0x00) {
     /* Check if identity string complies with ASCII character set.  Encrypted IMSI
      * identities use Base64 encoding and should therefore be ASCII-compliant.
     */
@@ -971,7 +971,7 @@ dissect_eap_identity_wlan(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, i
   /* Go on with the dissection */
   eap_identity_tree = proto_item_add_subtree(tree, ett_identity);
   proto_tree_add_item(eap_identity_tree, hf_eap_identity_prefix, tvb, offset, 1, ENC_NA);
-  eap_identity_prefix = tvb_get_guint8(tvb, offset);
+  eap_identity_prefix = tvb_get_uint8(tvb, offset);
   eap_identity_value = try_val_to_str(eap_identity_prefix, eap_identity_prefix_vals);
   item = proto_tree_add_string(eap_identity_tree, hf_eap_identity_type,
     tvb, offset, 1, eap_identity_value ? eap_identity_value : "Unknown");
@@ -1172,8 +1172,8 @@ dissect_eap_sim(proto_tree *eap_tree, tvbuff_t *tvb, packet_info* pinfo, int off
     int         aleft;
 
     aoffset = offset;
-    type    = tvb_get_guint8(tvb, aoffset);
-    length  = tvb_get_guint8(tvb, aoffset + 1);
+    type    = tvb_get_uint8(tvb, aoffset);
+    length  = tvb_get_uint8(tvb, aoffset + 1);
     aleft   = 4 * length;
 
     pi = proto_tree_add_none_format(eap_tree, hf_eap_sim_subtype_attribute, tvb,
@@ -1248,8 +1248,8 @@ dissect_eap_aka(proto_tree *eap_tree, tvbuff_t *tvb, packet_info* pinfo, int off
     int          aleft;
 
     aoffset = offset;
-    type    = tvb_get_guint8(tvb, aoffset);
-    length  = tvb_get_guint8(tvb, aoffset + 1);
+    type    = tvb_get_uint8(tvb, aoffset);
+    length  = tvb_get_uint8(tvb, aoffset + 1);
     aleft   = 4 *  length;
 
     pi = proto_tree_add_none_format(eap_tree, hf_eap_aka_subtype_attribute, tvb,
@@ -1512,8 +1512,8 @@ dissect_eap_sake_attribute(proto_tree *eap_tree, tvbuff_t *tvb, int offset, int 
   uint8_t len;
   proto_tree *attr_tree;
 
-  type = tvb_get_guint8(tvb, offset);
-  len = tvb_get_guint8(tvb, offset + 1);
+  type = tvb_get_uint8(tvb, offset);
+  len = tvb_get_uint8(tvb, offset + 1);
 
   if (len < 2 || len > size) {
     return -1;
@@ -1707,8 +1707,8 @@ dissect_eap_msauth_tlv(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, 
                                     NULL, "Tag Length Values");
 
 next_tlv:
-  tlv_type = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN) & MSAUTH_TLV_TYPE;
-  tlv_len = tvb_get_guint16(tvb, offset + 2, ENC_BIG_ENDIAN);
+  tlv_type = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN) & MSAUTH_TLV_TYPE;
+  tlv_len = tvb_get_uint16(tvb, offset + 2, ENC_BIG_ENDIAN);
 
   tree = proto_tree_add_subtree_format(tlv_tree, tvb, offset, 4 + tlv_len,
                                        ett_eap_msauth_tlv_tree, NULL, "TLV: t=%s(%d) l=%d",
@@ -1783,8 +1783,8 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "EAP");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  eap_code = tvb_get_guint8(tvb, 0);
-  eap_identifier = tvb_get_guint8(tvb, 1);
+  eap_code = tvb_get_uint8(tvb, 0);
+  eap_identifier = tvb_get_uint8(tvb, 1);
 
   col_add_str(pinfo->cinfo, COL_INFO,
                 val_to_str(eap_code, eap_code_vals, "Unknown code (0x%02X)"));
@@ -1850,7 +1850,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
   conversation_set_conv_addr_port_endpoints(pinfo, &conv_src, &conv_dst,
     conversation_pt_to_conversation_type(pinfo->ptype), conv_srcport, conv_destport);
 
-  if (PINFO_FD_VISITED(pinfo) || !(eap_code == EAP_REQUEST && tvb_get_guint8(tvb, 4) == EAP_TYPE_ID)) {
+  if (PINFO_FD_VISITED(pinfo) || !(eap_code == EAP_REQUEST && tvb_get_uint8(tvb, 4) == EAP_TYPE_ID)) {
     conversation = find_or_create_conversation(pinfo);
   }
   if (conversation == NULL) {
@@ -1931,7 +1931,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
   case EAP_REQUEST:
   case EAP_RESPONSE:
-    eap_type = tvb_get_guint8(tvb, 4);
+    eap_type = tvb_get_uint8(tvb, 4);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
                       val_to_str_ext(eap_type, &eap_type_vals_ext,
@@ -1972,7 +1972,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         **********************************************************************/
       case EAP_TYPE_MD5:
       {
-        uint8_t     value_size = tvb_get_guint8(tvb, offset);
+        uint8_t     value_size = tvb_get_uint8(tvb, offset);
         int         extra_len  = size - 1 - value_size;
         proto_item *item;
 
@@ -2320,7 +2320,7 @@ skip_tls_dissector:
         offset += 1;
 
         /* Count   (byte) */
-        count = tvb_get_guint8(tvb, offset);
+        count = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(eap_tree, hf_eap_leap_count, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 

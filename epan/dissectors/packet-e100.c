@@ -66,7 +66,7 @@ dissect_e100(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
      * (3) e100 capture size matches tvb packet size
      */
     if (tvb_captured_length(tvb) < e100_encap_len ||
-        tvb_get_guint8(tvb, e100_header_ver.offset) != 1 ||
+        tvb_get_uint8(tvb, e100_header_ver.offset) != 1 ||
         tvb_get_ntohl(tvb, e100_bytes_cap.offset) != tvb_reported_length(tvb)-e100_encap_len)
     {
         /* Not one of our packets. */

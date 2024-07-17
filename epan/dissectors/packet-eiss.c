@@ -148,12 +148,12 @@ dissect_eiss_descriptors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, un
 	proto_tree *sub_tree;
 	unsigned    tag;
 
-	tag = tvb_get_guint8(tvb, offset);
+	tag = tvb_get_uint8(tvb, offset);
 
 	if (0xe0 == tag) {
 		unsigned total_length;
 
-		total_length = tvb_get_guint8(tvb, offset+1);
+		total_length = tvb_get_uint8(tvb, offset+1);
 		sub_tree = proto_tree_add_subtree(tree, tvb, offset, (2+total_length),
 					ett_eiss_desc, NULL, "ETV Application Information Descriptor");
 		proto_tree_add_item(sub_tree, hf_eiss_descriptor_tag,
@@ -287,15 +287,15 @@ dissect_eiss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 		expert_add_info(pinfo, msg_error, &ei_eiss_invalid_section_length);
 	}
 
-	reserved2 = tvb_get_guint8(tvb, offset);
+	reserved2 = tvb_get_uint8(tvb, offset);
 	pi = proto_tree_add_item(eiss_tree, hf_eiss_reserved2, tvb, offset, 1, ENC_BIG_ENDIAN);
 	if (0 != reserved2) {
 		expert_add_info_format(pinfo, pi, &ei_eiss_invalid_reserved_bits, "Invalid reserved2 bits (should all be 0)");
 	}
 	offset++;
 
-	sect_num = tvb_get_guint8(tvb, offset);
-	last_sect_num = tvb_get_guint8(tvb, offset + 1);
+	sect_num = tvb_get_uint8(tvb, offset);
+	last_sect_num = tvb_get_uint8(tvb, offset + 1);
 	pi = proto_tree_add_item(eiss_tree, hf_eiss_section_number, tvb, offset, 1, ENC_BIG_ENDIAN);
 	if (last_sect_num < sect_num) {
 		expert_add_info(pinfo, pi, &ei_eiss_section_number);
@@ -319,7 +319,7 @@ dissect_eiss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	proto_tree_add_item(eiss_tree, hf_eiss_application_id,          tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
-	platform_id_length = tvb_get_guint8(tvb, offset);
+	platform_id_length = tvb_get_uint8(tvb, offset);
 	pi = proto_tree_add_item(eiss_tree, hf_eiss_platform_id_length, tvb, offset, 1, ENC_BIG_ENDIAN);
 	if (0 != platform_id_length % 15) {
 		expert_add_info(pinfo, pi, &ei_eiss_platform_id_length);

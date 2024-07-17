@@ -139,31 +139,31 @@ static void elasticsearch_format_version(char *buf, uint32_t value) {
 static vint_t read_vint(tvbuff_t *tvb, int offset){
     /* See: org.elasticsearch.common.io.stream.StreamInput#readVInt */
     vint_t vint;
-    uint8_t b = tvb_get_guint8(tvb, offset);
+    uint8_t b = tvb_get_uint8(tvb, offset);
     vint.value = b & 0x7F;
     if ((b & 0x80) == 0) {
         vint.length = 1;
         return vint;
     }
-    b = tvb_get_guint8(tvb, offset+1);
+    b = tvb_get_uint8(tvb, offset+1);
     vint.value |= (b & 0x7F) << 7;
     if ((b & 0x80) == 0) {
         vint.length = 2;
         return vint;
     }
-    b = tvb_get_guint8(tvb, offset+2);
+    b = tvb_get_uint8(tvb, offset+2);
     vint.value |= (b & 0x7F) << 14;
     if ((b & 0x80) == 0) {
         vint.length = 3;
         return vint;
     }
-    b = tvb_get_guint8(tvb, offset+3);
+    b = tvb_get_uint8(tvb, offset+3);
     vint.value |= (b & 0x7F) << 21;
     if ((b & 0x80) == 0) {
         vint.length = 4;
         return vint;
     }
-    b = tvb_get_guint8(tvb, offset+4);
+    b = tvb_get_uint8(tvb, offset+4);
     vint.length = 5;
     vint.value |= ((b & 0x7F) << 28);
     return vint;
@@ -210,13 +210,13 @@ static int elasticsearch_partial_dissect_address(tvbuff_t *tvb, packet_info *pin
     }
 
     /* Address format */
-    es_address_format = tvb_get_guint8(tvb, offset);
+    es_address_format = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(address_tree, hf_elasticsearch_address_format, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     switch(es_address_format) {
         case ADDRESS_FORMAT_NUEMRIC:
-            address_length = tvb_get_guint8(tvb, offset);
+            address_length = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(address_tree, hf_elasticsearch_address_length, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
             /* Its either IPv4 or IPv6 depending on the length */
@@ -460,7 +460,7 @@ static int elasticsearch_dissect_valid_binary_packet(tvbuff_t *tvb, packet_info 
     offset += 8;
 
     /* Transport status: org.elasticsearch.transport.support.TransportStatus */
-    transport_status_flags = tvb_get_guint8(tvb, offset);
+    transport_status_flags = tvb_get_uint8(tvb, offset);
     transport_status_flags_item = proto_tree_add_uint(tree, hf_elasticsearch_header_status_flags, tvb, offset, 1, transport_status_flags);
     transport_status_flags_tree = proto_item_add_subtree(transport_status_flags_item, ett_elasticsearch_status_flags);
     if(elasticsearch_transport_status_flag_is_a_response(transport_status_flags)){

@@ -68,8 +68,8 @@ dissect_exablaze(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         offset = trailer_length - fcs_length - 16;
 
-        device = tvb_get_guint8(tvb, offset + 4);
-        port = tvb_get_guint8(tvb, offset + 5);
+        device = tvb_get_uint8(tvb, offset + 4);
+        port = tvb_get_uint8(tvb, offset + 5);
         timestamp_sec = tvb_get_ntohl(tvb, offset + 6);
         timestamp_frac = tvb_get_ntoh40(tvb, offset + 10);
 

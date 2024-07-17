@@ -169,8 +169,8 @@ dissect_ehdlc_xid(proto_tree *tree, tvbuff_t *tvb, unsigned base_offset, unsigne
 	offset += 2;
 
 	while (tvb_reported_length_remaining(tvb, offset) >= 2) {
-		uint8_t iei = tvb_get_guint8(tvb, offset++);
-		uint8_t ie_len = tvb_get_guint8(tvb, offset++);
+		uint8_t iei = tvb_get_uint8(tvb, offset++);
+		uint8_t ie_len = tvb_get_uint8(tvb, offset++);
 
 		switch (iei) {
 		case 0x07:
@@ -211,7 +211,7 @@ dissect_ehdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 		bool        is_response   = false, is_extended = true;
 		int         header_length = 2; /* Address + Length field */
 
-		hdr2 = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+		hdr2 = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
 		len = hdr2 & 0x1FF;
 		csapi = hdr2 >> 13;
 		sapi = sapi_from_csapi(csapi);

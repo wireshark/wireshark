@@ -847,7 +847,7 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     proto_item_set_generated(ti);
 
     /*proto_tree_add_int_format(evs_tree, hf_evs_packet_length, tvb, offset, 1, packet_len * 8, "packet_len %i bits", packet_len * 8);*/
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
     h_bit = oct >> 7;
 
     if (h_bit == 1) {
@@ -858,7 +858,7 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     /* ToC */
     num_toc = 0;
     do {
-        oct = tvb_get_guint8(tvb, offset);
+        oct = tvb_get_uint8(tvb, offset);
         toc_f_bit = (oct & 0x40) >> 6;
         evs_mode_b = (oct & 0x20) >> 5;
         num_toc++;

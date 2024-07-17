@@ -771,7 +771,7 @@ dissect_enrp_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *enrp
   proto_tree *flags_tree;
   uint8_t type;
 
-  type = tvb_get_guint8(message_tvb, MESSAGE_TYPE_OFFSET);
+  type = tvb_get_uint8(message_tvb, MESSAGE_TYPE_OFFSET);
   if (p_get_proto_depth(pinfo, proto_enrp) == 1) {
     tap_rec = wmem_new0(pinfo->pool, enrp_tap_rec_t);
     tap_rec->type        = type;

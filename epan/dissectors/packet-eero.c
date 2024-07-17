@@ -59,7 +59,7 @@ dissect_eero(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   if (tree)
   {
       int offset=0;
-      int type = tvb_get_guint8(tvb, 0);
+      int type = tvb_get_uint8(tvb, 0);
 
       ti = proto_tree_add_protocol_format(tree, proto_eero, tvb, offset, tot_len, "EERO,  Type 0x%04x", type);
 

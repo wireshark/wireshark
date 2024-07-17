@@ -115,7 +115,7 @@ dissect_epmd_request(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *
 
     proto_tree_add_item(tree, hf_epmd_len, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
-    type = tvb_get_guint8(tvb, offset);
+    type = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_epmd_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     col_add_str(pinfo->cinfo, COL_INFO, val_to_str(type, VALS(message_types), "unknown (0x%02X)"));
@@ -191,7 +191,7 @@ dissect_epmd_response(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree 
         return 0;
     }
 
-    type = tvb_get_guint8(tvb, offset);
+    type = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_epmd_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     col_add_str(pinfo->cinfo, COL_INFO, val_to_str(type, VALS(message_types), "unknown (0x%02X)"));
@@ -199,7 +199,7 @@ dissect_epmd_response(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree 
     switch (type) {
         case EPMD_ALIVE_OK_RESP:
         case EPMD_ALIVE2_RESP:
-            result = tvb_get_guint8(tvb, offset);
+            result = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(tree, hf_epmd_result, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             proto_tree_add_item(tree, hf_epmd_creation, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -212,7 +212,7 @@ dissect_epmd_response(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree 
             break;
 
         case EPMD_PORT2_RESP:
-            result = tvb_get_guint8(tvb, offset);
+            result = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(tree, hf_epmd_result, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             if (!result) {
@@ -269,7 +269,7 @@ check_epmd(tvbuff_t *tvb) {
     if (tvb_captured_length(tvb) < 3)
         return false;
 
-    type = tvb_get_guint8(tvb, 0);
+    type = tvb_get_uint8(tvb, 0);
     switch (type) {
         case EPMD_ALIVE_OK_RESP:
         case EPMD_ALIVE2_RESP:
@@ -279,7 +279,7 @@ check_epmd(tvbuff_t *tvb) {
             break;
     }
 
-    type = tvb_get_guint8(tvb, 2);
+    type = tvb_get_uint8(tvb, 2);
     switch (type) {
         case EPMD_ALIVE_REQ:
         case EPMD_ALIVE2_REQ:

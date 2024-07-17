@@ -1610,7 +1610,7 @@ dissect_tcpip_last_conflict(packet_info *pinfo, proto_tree *tree, proto_item *it
    proto_tree_add_item(tree, hf_tcpip_lcd_acd_activity, tvb, offset,   1, ENC_LITTLE_ENDIAN);
    proto_tree_add_item(tree, hf_tcpip_lcd_remote_mac,   tvb, offset+1, 6, ENC_NA);
 
-   if ( tvb_get_guint8(tvb, offset) == 0 )
+   if ( tvb_get_uint8(tvb, offset) == 0 )
       proto_tree_add_item(tree, hf_tcpip_lcd_arp_pdu, tvb, offset+7, 28, ENC_NA);
    else
    {
@@ -2184,7 +2184,7 @@ dissect_eip_cert_cert_list(packet_info *pinfo, proto_tree *tree, proto_item *ite
 
    for (i = 0; i < num; i++)
    {
-      path_size = tvb_get_guint8( tvb, offset );
+      path_size = tvb_get_uint8( tvb, offset );
       proto_tree_add_item(tree, hf_eip_cert_cert_name, tvb, offset+1, path_size, ENC_ASCII);
       offset += (1+path_size);
 
@@ -2336,7 +2336,7 @@ static int dissect_tcpip_port_information(packet_info *pinfo, proto_tree *tree, 
 
       if (attribute_version == true)
       {
-         uint8_t length = tvb_get_guint8(tvb, offset);
+         uint8_t length = tvb_get_uint8(tvb, offset);
          const char* port_name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, length, ENC_ASCII);
 
          offset += dissect_cip_string_type(pinfo, port_tree, item, tvb, offset, hf_tcpip_port_name, CIP_SHORT_STRING_TYPE);
@@ -3534,15 +3534,15 @@ dissect_dlr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
    dlr_tree = proto_item_add_subtree( ti, ett_dlr );
 
    /* Get values for the Common Frame Header Format */
-   dlr_subtype  = tvb_get_guint8(tvb, DLR_CFH_SUB_TYPE);
-   dlr_protover = tvb_get_guint8(tvb, DLR_CFH_PROTO_VERSION);
+   dlr_subtype  = tvb_get_uint8(tvb, DLR_CFH_SUB_TYPE);
+   dlr_protover = tvb_get_uint8(tvb, DLR_CFH_PROTO_VERSION);
 
    /* Dissect the Common Frame Header Format */
    proto_tree_add_uint( dlr_tree, hf_dlr_ringsubtype,      tvb, DLR_CFH_SUB_TYPE,      1, dlr_subtype );
    proto_tree_add_uint( dlr_tree, hf_dlr_ringprotoversion, tvb, DLR_CFH_PROTO_VERSION, 1, dlr_protover );
 
    /* Get values for the DLR Message Payload Fields */
-   dlr_frametype  = tvb_get_guint8(tvb, DLR_MPF_FRAME_TYPE);
+   dlr_frametype  = tvb_get_uint8(tvb, DLR_MPF_FRAME_TYPE);
 
    /* Dissect the DLR Message Payload Fields */
    proto_tree_add_item( dlr_tree, hf_dlr_frametype,  tvb, DLR_MPF_FRAME_TYPE,  1, ENC_BIG_ENDIAN );

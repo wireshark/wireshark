@@ -192,7 +192,7 @@ dissect_vdp_tlv_assoc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, p
 			ett_vdp_tlv_assoc, &associate_item, "VDP DeAssociate");
 
 	/* Reason */
-	reason = tvb_get_guint8(tvb, offset);
+	reason = tvb_get_uint8(tvb, offset);
 	if (reason & 0x40) {
 		static int * const response_flags[] = {
 			&hf_vdp_tlv_assoc_flag_hard_error,
@@ -232,7 +232,7 @@ dissect_vdp_tlv_assoc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, p
 
 	/* Filter Format */
 	proto_tree_add_item(vdp_tlv_assoc_tree, hf_vdp_filter_format, tvb, offset, 1, ENC_BIG_ENDIAN);
-	filter_format = tvb_get_guint8(tvb, offset);
+	filter_format = tvb_get_uint8(tvb, offset);
 	offset++;
 
 	switch (filter_format) {
@@ -286,7 +286,7 @@ dissect_vdp_tlv_org(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
 		return;
 
 	proto_tree_add_item(tree, hf_vdp_tlv_oracle_subtype, tvb, offset, 1, ENC_NA);
-	subtype = tvb_get_guint8(tvb, offset);
+	subtype = tvb_get_uint8(tvb, offset);
 	offset++;
 
 	switch (subtype) {

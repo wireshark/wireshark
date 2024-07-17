@@ -1004,7 +1004,7 @@ static void
 dissect_cat_efadn_coding(tvbuff_t *tvb, proto_tree *tree, uint32_t pos, uint32_t len, int hf_entry)
 {
 	if (len) {
-		uint8_t first_byte = tvb_get_guint8(tvb, pos);
+		uint8_t first_byte = tvb_get_uint8(tvb, pos);
 
 		if ((first_byte & 0x80) == 0) {
 			/*
@@ -1054,15 +1054,15 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 		uint32_t len, i;
 		uint8_t *ptr = NULL;
 
-		tag = tvb_get_guint8(tvb, pos++) & 0x7f;
+		tag = tvb_get_uint8(tvb, pos++) & 0x7f;
 		if (tag == 0x7f) {
 			tag = tvb_get_ntohs(tvb, pos) & 0x7fff;
 			pos += 2;
 		}
-		len = tvb_get_guint8(tvb, pos++);
+		len = tvb_get_uint8(tvb, pos++);
 		switch (len) {
 		case 0x81:
-			len = tvb_get_guint8(tvb, pos++);
+			len = tvb_get_uint8(tvb, pos++);
 			break;
 		case 0x82:
 			len = tvb_get_ntohs(tvb, pos);
@@ -1291,7 +1291,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 			break;
 		case 0x19:	/* event list */
 			for (i = 0; i < len; i++) {
-				uint8_t event = tvb_get_guint8(tvb, pos+i);
+				uint8_t event = tvb_get_uint8(tvb, pos+i);
 				if ((event == 0x17) || (event == 0x18)) {
 					ims_event = true;
 				}
@@ -1307,30 +1307,30 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 		case 0x25:	/* timer value */
 			{
 				uint8_t oct;
-				oct = tvb_get_guint8(tvb, pos);
+				oct = tvb_get_uint8(tvb, pos);
 				proto_tree_add_uint_format_value(elem_tree, hf_ctlv_timer_val_hr, tvb, pos, 1, oct, "%u (0x%02x)", 10*(oct&0x0f)+(oct>>4), oct);
-				oct = tvb_get_guint8(tvb, pos+1);
+				oct = tvb_get_uint8(tvb, pos+1);
 				proto_tree_add_uint_format_value(elem_tree, hf_ctlv_timer_val_min, tvb, pos+1, 1, oct, "%u (0x%02x)", 10*(oct&0x0f)+(oct>>4), oct);
-				oct = tvb_get_guint8(tvb, pos+2);
+				oct = tvb_get_uint8(tvb, pos+2);
 				proto_tree_add_uint_format_value(elem_tree, hf_ctlv_timer_val_sec, tvb, pos+2, 1, oct, "%u (0x%02x)", 10*(oct&0x0f)+(oct>>4), oct);
 			}
 			break;
 		case 0x26:	/* date-time and time zone */
 			{
 				uint8_t oct, tz;
-				oct = tvb_get_guint8(tvb, pos);
+				oct = tvb_get_uint8(tvb, pos);
 				proto_tree_add_uint_format_value(elem_tree, hf_ctlv_date_time_yr, tvb, pos, 1, oct, "%u (0x%02x)", 10*(oct&0x0f)+(oct>>4), oct);
-				oct = tvb_get_guint8(tvb, pos+1);
+				oct = tvb_get_uint8(tvb, pos+1);
 				proto_tree_add_uint_format_value(elem_tree, hf_ctlv_date_time_mo, tvb, pos+1, 1, oct, "%u (0x%02x)", 10*(oct&0x0f)+(oct>>4), oct);
-				oct = tvb_get_guint8(tvb, pos+2);
+				oct = tvb_get_uint8(tvb, pos+2);
 				proto_tree_add_uint_format_value(elem_tree, hf_ctlv_date_time_day, tvb, pos+2, 1, oct, "%u (0x%02x)", 10*(oct&0x0f)+(oct>>4), oct);
-				oct = tvb_get_guint8(tvb, pos+3);
+				oct = tvb_get_uint8(tvb, pos+3);
 				proto_tree_add_uint_format_value(elem_tree, hf_ctlv_date_time_hr, tvb, pos+3, 1, oct, "%u (0x%02x)", 10*(oct&0x0f)+(oct>>4), oct);
-				oct = tvb_get_guint8(tvb, pos+4);
+				oct = tvb_get_uint8(tvb, pos+4);
 				proto_tree_add_uint_format_value(elem_tree, hf_ctlv_date_time_min, tvb, pos+4, 1, oct, "%u (0x%02x)", 10*(oct&0x0f)+(oct>>4), oct);
-				oct = tvb_get_guint8(tvb, pos+5);
+				oct = tvb_get_uint8(tvb, pos+5);
 				proto_tree_add_uint_format_value(elem_tree, hf_ctlv_date_time_sec, tvb, pos+5, 1, oct, "%u (0x%02x)", 10*(oct&0x0f)+(oct>>4), oct);
-				oct = tvb_get_guint8(tvb, pos+6);
+				oct = tvb_get_uint8(tvb, pos+6);
 				if (oct == 0xff) {
 					proto_tree_add_uint_format_value(elem_tree, hf_ctlv_date_time_tz, tvb, pos+6, 1, oct, "Unknown (0x%02x)", oct);
 				} else {
@@ -1495,8 +1495,8 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 			if (ims_event) {
 				i = 0;
 				while (i < len) {
-					if (tvb_get_guint8(tvb, pos+i) == 0x80) {
-						g8 = tvb_get_guint8(tvb, pos+i+1);
+					if (tvb_get_uint8(tvb, pos+i) == 0x80) {
+						g8 = tvb_get_uint8(tvb, pos+i+1);
 						proto_tree_add_item(elem_tree, hf_ctlv_impu, tvb, pos+i+2, g8, ENC_UTF_8 | ENC_NA);
 						i += 2+g8;
 					} else {

@@ -111,7 +111,7 @@ dissect_etv_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int prot
 	}
 	offset += 2;
 
-	reserved2 = tvb_get_guint8(tvb, offset);
+	reserved2 = tvb_get_uint8(tvb, offset);
 	pi = proto_tree_add_item(etv_tree, hf_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 	if (0 != reserved2) {
 		expert_add_info_format(pinfo, pi, ei_reserved,

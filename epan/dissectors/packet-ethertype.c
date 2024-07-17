@@ -251,7 +251,7 @@ dissect_ethertype(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 		col_add_str(pinfo->cinfo, COL_INFO, description);
 		col_set_writable(pinfo->cinfo, COL_INFO, false);
 		if (reported_length >= 1) {
-			gleantype = (tvb_get_guint8(tvb, ethertype_data->payload_offset) & 0xF0) >> 4;
+			gleantype = (tvb_get_uint8(tvb, ethertype_data->payload_offset) & 0xF0) >> 4;
 			switch (gleantype) {
 			case 4: /* IPv4 */
 				payload_etype = 0x0800;

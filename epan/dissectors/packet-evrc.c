@@ -278,7 +278,7 @@ dissect_evrc_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, evrc_varia
             proto_tree_add_item(toc_tree, hf_evrc_legacy_toc_reduc_rate, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(toc_tree, hf_evrc_legacy_toc_frame_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-            oct = tvb_get_guint8(tvb, offset);
+            oct = tvb_get_uint8(tvb, offset);
             further_entries = (oct & 0x80) ? true : false;
 
             speech_data_len[frame_count] = evrc_frame_type_to_octs((uint8_t)(oct & 0x7f));
@@ -350,7 +350,7 @@ dissect_evrc_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, evrc_varia
         /*
          * number of frames in PACKET is frame_count + 1
          */
-        frame_count = (tvb_get_guint8(tvb, offset) & 0x1f) + 1;
+        frame_count = (tvb_get_uint8(tvb, offset) & 0x1f) + 1;
 
         offset++;
         saved_offset = offset;
@@ -363,7 +363,7 @@ dissect_evrc_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, evrc_varia
         while ((i < frame_count) &&
             ((len - offset) > 0))
         {
-            oct = tvb_get_guint8(tvb, offset);
+            oct = tvb_get_uint8(tvb, offset);
 
             proto_tree_add_item(toc_tree, hf_toc_frame_type_high, tvb, offset, 1, ENC_BIG_ENDIAN);
 
