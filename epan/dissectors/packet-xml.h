@@ -14,10 +14,10 @@
 
 typedef struct _xml_ns_t {
     /* the name of this namespace */
-    gchar* name;
+    char* name;
 
     /* its fully qualified name */
-    const gchar* fqn;
+    const char* fqn;
 
     /* the contents of the whole element from <> to </> */
     int hf_tag;
@@ -26,7 +26,7 @@ typedef struct _xml_ns_t {
     int hf_cdata;
 
     /* the subtree for its sub items  */
-    gint ett;
+    int ett;
 
     wmem_map_t* attributes;
     /*  key:   the attribute name
@@ -56,8 +56,8 @@ typedef struct _xml_frame_t {
     struct _xml_frame_t* last_child;
     struct _xml_frame_t* prev_sibling;
     struct _xml_frame_t* next_sibling;
-    const gchar *name;
-    const gchar *name_orig_case;
+    const char *name;
+    const char *name_orig_case;
     tvbuff_t *value;
     proto_tree* tree;
     proto_item* item;
@@ -69,9 +69,9 @@ typedef struct _xml_frame_t {
 } xml_frame_t;
 
 WS_DLL_PUBLIC
-xml_frame_t *xml_get_tag(xml_frame_t *frame, const gchar *name);
+xml_frame_t *xml_get_tag(xml_frame_t *frame, const char *name);
 WS_DLL_PUBLIC
-xml_frame_t *xml_get_attrib(xml_frame_t *frame, const gchar *name);
+xml_frame_t *xml_get_attrib(xml_frame_t *frame, const char *name);
 WS_DLL_PUBLIC
 xml_frame_t *xml_get_cdata(xml_frame_t *frame);
 
