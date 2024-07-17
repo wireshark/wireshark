@@ -1,15 +1,28 @@
 #!/usr/bin/env python3
+#
+# Wireshark - Network traffic analyzer
+# By Gerald Combs <gerald@wireshark.org>
+# Copyright 1998 Gerald Combs
+#
+# SPDX-License-Identifier: GPL-2.0-or-later
+'''Update the BACNET vendors list.
 
-'''
- Copyright 2023 Jaap Keuter <jaap.keuter@xs4all.nl>
- based on work by Anish Bhatt <anish@chelsio.com>
+generate-bacnet-vendors generates output containing BACNET vendor Identifiers.
 
-SPDX-License-Identifier: GPL-2.0-or-later
+Copyright 2023 Jaap Keuter <jaap.keuter@xs4all.nl>
+based on work by Anish Bhatt <anish@chelsio.com>
+
 '''
 
 import sys
 import urllib.request, urllib.error, urllib.parse
 from bs4 import BeautifulSoup
+
+def exit_msg(msg=None, status=1):
+    if msg is not None:
+        sys.stderr.write(msg + '\n\n')
+    sys.stderr.write(__doc__ + '\n')
+    sys.exit(status)
 
 req_headers = { 'User-Agent': 'Wireshark generate-bacnet-vendors' }
 try:
