@@ -32,6 +32,12 @@ variables:
   # Skip irrelevant SAST scanners:
   SAST_EXCLUDED_ANALYZERS: "brakeman,eslint,security-code-scan,semgrep,spotbugs"
 
+# Automatically cancel pipelines if new changes are pushed to a branch.
+# workflow:auto_cancel:on_new_commit defaults to "conservative", which
+# prevents pipeline cancellation if we have any non-interruptible jobs.
+default:
+  interruptible: true
+
 # Scheduled builds additionally set SCHEDULE_TYPE, which can be one of:
 # - 2x-daily: Twice daily at 07:00 and 19:00 UTC
 # - daily: Daily at 10:00 UTC
