@@ -19,6 +19,9 @@ It is used for troubleshooting, analysis, development and education.
 // Add a summary of **major** changes here.
 // Add other changes to "New and Updated Features" below.
 
+Many improvements and fixes to the graphing dialogs, including
+I/O Graphs, Flow Graph / VoIP Calls, and TCP Stream Graphs.
+
 Wireshark now supports automatic profile switching.
 You can associate a display filter with a configuration profile, and when you open a capture file that matches the filter, Wireshark will automatically switch to that profile.
 
@@ -38,11 +41,9 @@ raw byte addressing, and the layer modifier.
 Custom output fields for `tshark -e` can also be defined using any
 valid field expression.
 
-Many improvements and fixes to the graphing dialogs, including
-I/O Graphs, Flow Graph / VoIP Calls, and TCP Stream Graphs.
-
-Possibility to use zlib-ng to open and write zip compressed files. Zlib-ng is substantially faster. Windows and macOS brew
-packages have this feature included.
+Wireshark can be built with the zlib-ng instead of zlib for compressed file support.
+Zlib-ng is substantially faster than zlib.
+The official Windows and macOS packages have this feature included.
 
 Many other improvements have been made.
 See the “New and Updated Features” section below for more details.
@@ -57,163 +58,10 @@ See the “New and Updated Features” section below for more details.
 
 === New and Updated Features
 
-The following features are new (or have been significantly updated) since version 4.2.0:
+The following features are either new or have been significantly updated since version 4.2.0:
 
 //* The Windows installers now ship with Qt 6.5.2.
 //  They previously shipped with Qt 6.2.3.
-
-* Display filter syntax-related enhancements:
-
-  ** Better handling of comparisons with value strings. Now the display filter engine can
-     correctly handle cases where multiple different numeric values map to the same value
-     string, including but not limited to range-type value strings.
-
-  ** Fields with value strings now support regular expression matching.
-
-  ** Date and time values now support arithmetic, with some restrictions:
-     the multiplier/divisor must be an integer or float and appear on the right-hand
-     side of the operator.
-
-  ** The keyword "bitand" can be used as an alternative syntax for the bitwise-and operator.
-
-  ** Functions alone can now be used as an entire logical expression.
-     The result of the expression is the truthiness of the function return
-     value (or of all values if more than one). This is useful for example to write
-     "len(something)" instead of "len(something) != 0". Even more so if a function
-     returns itself a boolean value, it is now possible to write
-     "bool_test(some.field)" instead of having to write "bool_test(some.field) == True"
-     (both forms are now valid).
-
-  ** Display filter references can be written without curly braces. It
-     is now possible to write `$frame.number` instead of `${frame.number}` for example.
-
-  ** Added new display filter functions to test various IP address properties.
-     Check the wireshark-filter(5) manpage for more information.
-
-  ** Added new display filter functions to convert unsigned integer types to
-     decimal or hexadecimal, and convert fields with value strings into the
-     associated string for their value (used to produce results similar to
-     custom columns). Check the wireshark-filter(5) manpage for more information.
-
-  ** Display filter macros can be written with a semicolon after the macro
-     name before the argument list, e.g. `${mymacro;arg1;...;argN}`, instead
-     of `${mymacro:arg1;...;argN}`. The version with semicolons works better
-     with pop-up suggestions when editing the display filter, so the version
-     with the colon might be removed in the future.
-
-  ** Display filter macros can be written using a function-like notation.
-     The macro `${mymacro:arg1;...;argN}` can be written
-     `$mymacro(arg1,...,argN)`.
-
-  ** AX.25 addresses are now filtered using the "CALLSIGN-SSID" string syntax.
-     Filtering based on the raw bytes values is still possible, like other
-     field types, with the `@` operator.  wsbuglink:17973[]
-
-* Display filter functions can be implemented as libwireshark plugins. Plugins are loaded
-  during startup from the usual binary plugin configuration directories. See the
-  `ipaddr.c` source file in the distribution for an example of a display filter C plugin
-  and the doc/plugins.example folder for generic instructions how to build a plugin.
-
-* Display filter autocompletions now also include display filter functions.
-
-* The display filter macro configuration file has changed format. It now uses
-  the same format as the "dfilters" file and has been renamed accordingly to
-  "dmacros". Internally it no longer uses the UAT API and the display filter macro
-  GUI dialog has been updated. There is some basic migration logic implemented
-  but it is advisable to check that the "dfilter_macros" (old) and
-  "dmacros" (new) files in the profile directory are consistent.
-
-* Custom columns can be defined using any valid field expression:
-
-  ** Display filter functions, like `len(tcp.payload)`, including nested functions
-     like `min(len(tcp.payload), len(udp.payload)` and newly defined functions
-     using the plugin system mentioned above. wsbuglink:15990[] wsbuglink:16181[]
-
-  ** Arithmetic calculations, like `ip.len * 8` or `tcp.srcport + tcp.dstport`.
-     wsbuglink:7752[]
-
-  ** Slices, like `tcp.payload[4:4]`. wsbuglink:10154[]
-
-  ** The layer operator, like `ip.proto#1` to return the proto field in the
-     first IPv4 layer if there is tunneling. wsbuglink:18588[]
-
-  ** Raw byte addressing, like `@ip`, useful to return the bytes of a protocol
-     or FT_NONE field, among others. wsbuglink:19076[]
-
-  ** Logical tests, like `tcp.port == 443`, which produce a check mark if
-     the test matches (similar to protocol and none fields without `@`.)
-     This works with all logical operators, including e.g. regular expression
-     matching (`matches` or `~`.)
-
-  ** Defined display filter macros.
-
-  ** Any combination of the above also works.
-
-  ** Multifield columns are still available. For backwards compatibility,
-     `X or Y` is interpreted as a multifield column as before. To represent a
-     logical test for the presence of multiple fields instead of concatenating
-     values, use parenthesis, like `(tcp.options.timestamp or tcp.options.nop`.
-
-  ** Field references are not implemented, because there's no sense of a
-     currently selected frame. "Resolved" column values (such as host name
-     resolution or value string lookup) are not supported for any of the new
-     expressions yet.
-
-* Custom output fields for `tshark -e <field>` can also be defined using any
-  valid field expression as above.
-
-  ** For custom output fields, `X or Y` is the usual logical test; to output
-     multiple fields use multiple `-e` terms as before.
-
-  ** The various `-E` options, including `-E occurrence`, all work as expected.
-
-* When selecting "Manage Interfaces" from "Capture Options", Wireshark only
-  attempts to reconnect to rpcap (remote) hosts that were connected to in the
-  last session, instead of every remote host that the current profile has ever
-  connected to. wsbuglink:17484[]
-
-* Adding interfaces at startup is about twice as fast, and has many fewer
-  UAC pop-ups when npcap is installed with access restricted to Administrators
-  on Windows
-
-* The Resolved Addresses dialog only shows what addresses and ports are
-  present in the file (not including information from static files), and
-  selected rows or the entire table can be saved or copied to the clipboard
-  in several formats. wsbuglink:16419[]
-
-* Dumpcap and wireshark support the `-F` option when capturing a file
-  at the command line. wsbuglink:18009[]
-
-* When capturing at the command line dumpcap accepts a `-Q` option that is
-  quieter than `-q` and prints only errors to standard error, similar to tshark.
-  wsbuglink:14491[]
-
-* When capturing a file and requesting the `pcap` format, nanosecond resolution
-  time stamps will be written if the device and version of libpcap supports it.
-
-* When capturing a file, the maximum filesize at which to stop, or to switch
-  files in multiple file mode, can be 2 TB, up from 2GiB. Note that you may
-  have problems when the number of packets gets larger than 2^31^ or 2^32^,
-  though that is also true when no limit is set.
-
-* When capturing files in multiple file mode, a pattern that places the date and time
-  before the index number can be used (e.g., foo_20240714110102_00001.pcap instead of
-  foo_00001_20240714110102.pcap). This causes filenames to sort in chronological order
-  across file sets from different captures. The File Set dialog has been updated to
-  handle the new pattern, which has been capable of being produced by tshark since
-  version 3.6.0
-
-* The "Follow Stream" dialog can now show delta times between turns and all packets and events.
-
-* The "Find Packet" dialog can search backwards, and find additional occurrences
-  of a string, hex value, or regular expression in a single frame.
-
-* When using "Go To Packet" with an undisplayed frame, the window goes to
-  nearest displayed frame (by number.) wsbuglink:2988[]
-
-* A number of graphs using QCustomPlot ("I/O Graphs", "Flow Graph",
-  "TCP Stream Graphs", and "RTP Player") are more responsive during
-  mouse moves, especially on Linux when Wayland is used.
 
 * Improvements to the "I/O Graphs" dialog:
 
@@ -339,6 +187,159 @@ The following features are new (or have been significantly updated) since versio
   ** The graph crosshairs context menu option works.
 
   ** Switching between relative and absolute sequence numbers works again.
+
+* The "Follow Stream" dialog can now show delta times between turns and all packets and events.
+
+* A number of graphs using QCustomPlot ("I/O Graphs", "Flow Graph",
+  "TCP Stream Graphs", and "RTP Player") are more responsive during
+  mouse moves, especially on Linux when Wayland is used.
+
+* The "Find Packet" dialog can search backwards, and find additional occurrences
+  of a string, hex value, or regular expression in a single frame.
+
+* When using "Go To Packet" with an undisplayed frame, the window goes to
+  nearest displayed frame (by number.) wsbuglink:2988[]
+
+* Display filter syntax-related enhancements:
+
+  ** Better handling of comparisons with value strings. Now the display filter engine can
+     correctly handle cases where multiple different numeric values map to the same value
+     string, including but not limited to range-type value strings.
+
+  ** Fields with value strings now support regular expression matching.
+
+  ** Date and time values now support arithmetic, with some restrictions:
+     the multiplier/divisor must be an integer or float and appear on the right-hand
+     side of the operator.
+
+  ** The keyword "bitand" can be used as an alternative syntax for the bitwise-and operator.
+
+  ** Functions alone can now be used as an entire logical expression.
+     The result of the expression is the truthiness of the function return
+     value (or of all values if more than one). This is useful for example to write
+     "len(something)" instead of "len(something) != 0". Even more so if a function
+     returns itself a boolean value, it is now possible to write
+     "bool_test(some.field)" instead of having to write "bool_test(some.field) == True"
+     (both forms are now valid).
+
+  ** Display filter references can be written without curly braces. It
+     is now possible to write `$frame.number` instead of `${frame.number}` for example.
+
+  ** Added new display filter functions to test various IP address properties.
+     Check the wireshark-filter(5) manpage for more information.
+
+  ** Added new display filter functions to convert unsigned integer types to
+     decimal or hexadecimal, and convert fields with value strings into the
+     associated string for their value (used to produce results similar to
+     custom columns). Check the wireshark-filter(5) manpage for more information.
+
+  ** Display filter macros can be written with a semicolon after the macro
+     name before the argument list, e.g. `${mymacro;arg1;...;argN}`, instead
+     of `${mymacro:arg1;...;argN}`. The version with semicolons works better
+     with pop-up suggestions when editing the display filter, so the version
+     with the colon might be removed in the future.
+
+  ** Display filter macros can be written using a function-like notation.
+     The macro `${mymacro:arg1;...;argN}` can be written
+     `$mymacro(arg1,...,argN)`.
+
+  ** AX.25 addresses are now filtered using the "CALLSIGN-SSID" string syntax.
+     Filtering based on the raw bytes values is still possible, like other
+     field types, with the `@` operator.  wsbuglink:17973[]
+
+* Display filter functions can be implemented as libwireshark plugins. Plugins are loaded
+  during startup from the usual binary plugin configuration directories. See the
+  `ipaddr.c` source file in the distribution for an example of a display filter C plugin
+  and the doc/plugins.example folder for generic instructions how to build a plugin.
+
+* Display filter autocompletions now also include display filter functions.
+
+* The display filter macro configuration file has changed format. It now uses
+  the same format as the "dfilters" file and has been renamed accordingly to
+  "dmacros". Internally it no longer uses the UAT API and the display filter macro
+  GUI dialog has been updated. There is some basic migration logic implemented
+  but it is advisable to check that the "dfilter_macros" (old) and
+  "dmacros" (new) files in the profile directory are consistent.
+
+* Custom columns can be defined using any valid field expression:
+
+  ** Display filter functions, like `len(tcp.payload)`, including nested functions
+     like `min(len(tcp.payload), len(udp.payload)` and newly defined functions
+     using the plugin system mentioned above. wsbuglink:15990[] wsbuglink:16181[]
+
+  ** Arithmetic calculations, like `ip.len * 8` or `tcp.srcport + tcp.dstport`.
+     wsbuglink:7752[]
+
+  ** Slices, like `tcp.payload[4:4]`. wsbuglink:10154[]
+
+  ** The layer operator, like `ip.proto#1` to return the proto field in the
+     first IPv4 layer if there is tunneling. wsbuglink:18588[]
+
+  ** Raw byte addressing, like `@ip`, useful to return the bytes of a protocol
+     or FT_NONE field, among others. wsbuglink:19076[]
+
+  ** Logical tests, like `tcp.port == 443`, which produce a check mark if
+     the test matches (similar to protocol and none fields without `@`.)
+     This works with all logical operators, including e.g. regular expression
+     matching (`matches` or `~`.)
+
+  ** Defined display filter macros.
+
+  ** Any combination of the above also works.
+
+  ** Multifield columns are still available. For backwards compatibility,
+     `X or Y` is interpreted as a multifield column as before. To represent a
+     logical test for the presence of multiple fields instead of concatenating
+     values, use parenthesis, like `(tcp.options.timestamp or tcp.options.nop`.
+
+  ** Field references are not implemented, because there's no sense of a
+     currently selected frame. "Resolved" column values (such as host name
+     resolution or value string lookup) are not supported for any of the new
+     expressions yet.
+
+* Custom output fields for `tshark -e <field>` can also be defined using any
+  valid field expression as above.
+
+  ** For custom output fields, `X or Y` is the usual logical test; to output
+     multiple fields use multiple `-e` terms as before.
+
+  ** The various `-E` options, including `-E occurrence`, all work as expected.
+
+* When selecting "Manage Interfaces" from "Capture Options", Wireshark only
+  attempts to reconnect to rpcap (remote) hosts that were connected to in the
+  last session, instead of every remote host that the current profile has ever
+  connected to. wsbuglink:17484[]
+
+* The Resolved Addresses dialog only shows what addresses and ports are
+  present in the file (not including information from static files), and
+  selected rows or the entire table can be saved or copied to the clipboard
+  in several formats. wsbuglink:16419[]
+
+* Dumpcap and wireshark support the `-F` option when capturing a file
+  at the command line. wsbuglink:18009[]
+
+* When capturing at the command line dumpcap accepts a `-Q` option that is
+  quieter than `-q` and prints only errors to standard error, similar to tshark.
+  wsbuglink:14491[]
+
+* When capturing a file and requesting the `pcap` format, nanosecond resolution
+  time stamps will be written if the device and version of libpcap supports it.
+
+* When capturing a file, the maximum filesize at which to stop, or to switch
+  files in multiple file mode, can be 2 TB, up from 2GiB. Note that you may
+  have problems when the number of packets gets larger than 2^31^ or 2^32^,
+  though that is also true when no limit is set.
+
+* When capturing files in multiple file mode, a pattern that places the date and time
+  before the index number can be used (e.g., foo_20240714110102_00001.pcap instead of
+  foo_00001_20240714110102.pcap). This causes filenames to sort in chronological order
+  across file sets from different captures. The File Set dialog has been updated to
+  handle the new pattern, which has been capable of being produced by tshark since
+  version 3.6.0
+
+* Adding interfaces at startup is about twice as fast, and has many fewer
+  UAC pop-ups when npcap is installed with access restricted to Administrators
+  on Windows
 
 * The included Lua version has been updated to 5.4. While most Lua dissectors
   should continue to work (the lua_bitop library has been patched to work with

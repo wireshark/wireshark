@@ -1,3 +1,523 @@
+27c7e2adc8 TCP: Performance improvement for managing the OOO list
+945f04c2a2 epan: convert dissectors K to C99 types
+ea170b811f epan: convert dissectors J to C99 types
+31e722a7c4 IEC101/104: Add some expert infos
+c12607d0da WSDG: correction of broken gitlab URL
+451a082623 BTATT: restore wrongly C99 change
+d4e2030103 f5ethtrailer: restore wrongly gboolean->C99 change
+8dda8c25d4 epan: convert dissectors I to C99 types
+eeb129b4c2 epan: convert dissectors H to C99 types (rerun script)
+3b09b6becc epan: convert dissectors F to C99 types (rerun script)
+7c581d7fd1 epan: convert dissectors E to C99 types (rerun script)
+a96264f689 epan: convert dissectors D to C99 types (rerun script)
+a6e1171b82 epan: convert dissectors C to C99 types (rerun script)
+40801edc48 epan: convert dissectors B to C99 types (rerun script)
+2b757660e5 epan: convert dissectors A to C99 types (rerun script)
+6293415f09 epan: convert dissectors H to C99 types
+0a8e4ded45 Plugins: Use new-style integer accessors
+5e17761308 lbmsrs: Do not throw exceptions in heuristics
+b23e9ac8ec GitLab CI: Fix an if statement
+94713cb032 Update the tvb_get API calls in our ASN.1 dissectors
+2ca68dd3c7 Qt: Allow moving the I/O Graph legend
+1edd2e1053 Revert "Qt: Have all DisplayFilterEdits have bookmarks"
+39b94e6b70 Revert "Qt: DisplayFilterEdit touch-ups"
+5f5e173754 Revert "Qt: DisplayFilterEdit bookmark button background"
+5b4d32ab60 epan: Switch the tvb_get_g?int API to C99 names
+7a15145e84 docs: Update I/O Graph
+665f28c0a2 wiretap: More refactoring of wtap_open_offline.
+52138877a7 QUIC: update link to lasted draft multipath support
+c7a234ac1e QUIC: remove draft-04 support (multipath)
+9892ec13ea QUIC: rename MP_ACK to ACK_MP (multipath-draft10)
+bcf9cdf247 QUIC: Add new frame type MAX_PATH_ID from multipath-draft09
+1f4f2a487d QUIC: add new TP max_path_id from multipath-draft09
+e49774d247 epan: convert dissectors G to C99 types
+c30ccfc352 epan: convert dissectors F to C99 types
+c8e41384e9 epan: convert dissectors D to C99 types
+e106fe5e78 epan: convert dissectors E to C99 types
+67daaa3421 Qt: Parent GeometryStateDialogs when setting them modal
+ae1259aa66 F1AP: dissect new NR RRC containers
+da1b897e80 Changing packet-nordic_ble.c as well
+7e5a1f054b Replacing CSB (Connectionless Slave Broadcast) with CPB (Connectionless Peripheral Broadcast) everywhere
+bacb217683 first pass, before fixing CSB -> CPB more thoroughly
+bd29aea24d Zabbix: Add proxy tasks command support, also improve packet info headers
+9bc66492a2 epan: convert dissectors C to C99 types
+85e03ae80d Address more value_string warnings
+3686d0e52b snort: typo in comment about TraceWrangler
+d3882d0941 Windows: upgrade Npcap to 1.79
+8f1d02f2e2 ORAN FH CUS: better support for C Section Type 6 (channel info)
+ee21fd0dcf E2AP: register multiple versions of CCC
+8ede4780fa ORAN FH CUS: SE 21 affects SE 6, which configures SE 11
+59fdb05228 LTE RRC: upgrade dissector to v18.2.0
+3a3efb5a3d TCP: Fix SACK interpretation when deinterlacing and Relative SEQ
+2e3c1cfbf3 macos-install: fix a bogus path in an mv command. [skip ci]
+910ab43578 Qt: Keep Export Dissections save button disabled when changing files
+3a63db2abb [Automatic update for 2024-07-14]
+3b8e1b6813 Qt: Parent the QColorDialog in ColoringRulesDialog
+ca4d0554b6 Qt: Parent the testCaptureFileClose message box
+fc3042177f editcap: Add extract-secrets
+3a74a9aecc Support more than one context in a single OAM Get request
+b30524d912 Zigbee ZCL: Fix Discovery Attributes Extended dissectors
+a9cf73310e nmea0183: Convert to using C99 types
+a31de2c480 BGP: Add a couple of missing items to EVPN value_string
+59be13307b Signal PDU: Cache get_signal_value_name_config results
+a63f5fc802 wiretap: De-duplicate file-opening code.
+7759efe69d SMB: Eliminate Response<unknown> errors (GNS365)
+9bc41fe152 RSL: Fixed message discriminator for Location Services messages
+4e88a22d9b More issues detected by ruff
+de57b76a5c NRPPa: upgrade dissector to v18.2.0
+b6122016a7 LPPa: upgrade dissector to v18.2.0
+055846990f LPP: upgrade dissector to v18.2.0
+e3e52d8c74 Fix up some python script issues seen with ruff
+d6f8580675 Be more careful about escaping in python REs
+483e3394cf F1AP: upgrade dissector to v18.2.0
+89da7713c4 Zabbix: Add zabbix.hostmap_revision
+dd45029160 packaging: Add checkpoint RADIUS dictionary to nsi packaging
+b12141f9b4 capture-sync: Fix deadlock with lots of interfaces.
+1fd7c1df45 GNSS: add dissection for SBAS L1 MT24 with vel code = 1
+f430181d56 kerberos: implement service response time statistics
+e9d9713aa2 kerberos: add better autodetection of KRB_ERROR e-data
+4abf8fe493 CMake: don't build release-notes.html multiple times
+704bf1ab31 Qt: Connect ExportDissectionDialog signals at compile time
+a5a265ef23 SNMP: Free the error string if unused
+7fdca9c201 Qt: initialize variable
+ad804dac7f SNMP: Allow for key expansion algorithm selection
+44b0041da8 E1AP: upgrade dissector to v18.2.0
+c9fd29af56 sync pipe: Close pipe before waiting for child, better error message
+8b332123da Docs: Move our AsciiDoctor macros to the doc directory
+bc55f82c67 XnAP: upgrade dissector to v18.2.0
+04031a71e5 addr_resolv: Don't continually look up ethers that didn't resolve
+6f42825c9f asterix: adjust to upstream change
+858faad7df Qt: Window Scaling Bytes in Flight calculation update
+4a9802621e Thrift: fix incorrect proto_depth calculation
+1476e292f9 OpenVPN: Reassemble TLS control messages of arbitrary size
+2a8b1973f8 tools: Make some regex expressions raw strings
+03c56e9ee6 Qt: DisplayFilterEdit bookmark button background
+4e0e35b799 Qt: DisplayFilterEdit touch-ups
+d056dc1bb3 exported_pdu: add tag for 3GPP identity
+ea85e2a621 exported_pdu: use c99 types
+63f5995f39 GTPv2: Update to 3GPP TS 29.274 V18.7.0
+198dfd0450 Add nghttp3 support to RPM package
+5cdd62375d BTLE: don't implicitly cast bool value to int
+aa69a03769 SIP: decoding for quoted value of utran-cell-id-3gpp
+3260a07d7f NGAP: upgrade dissector to v18.2.0
+f92e4a3f3d Qt: Allow more than one path separator in stats tree plugin
+0b83828004 TCP: Fix minor array boundaries reading for SACKs
+aa20732fdd X2AP: upgrade dissector to v18.2.0
+57af237421 S1AP: upgrade dissector to v18.2.0
+c841175d22 GitLab CI: Try to fix the Visual Studio Code Analysis job
+f9c360d5d4 tvbuff: Use the clamped value for retrieving unaligned le bits
+b37c836a2d Fix some spelling errors in tools folder
+409bb10764 CMake: ASCIIDOCTOR2TXT - html is input
+843c3056c7 GSM-L2RCOP: use a common tfs entry instead of defining own
+404021bd7b dumpcap: Use GetTickCount64 on Windows
+db6e438509 dcm-dispatch: fix Dead Store found by Clang Analyzer
+a21668e303 TCP: Fix minor array boundaries reading for SACKs
+33f606b52f CMake: Add custom sources and headers only if they're defined
+374c9a79da dumpcap: Convert to C99 types
+5af51e3802 tshark: Convert to C99 types
+6b732f0274 Convert sharkd to C99 types
+3a1b36bca8 Convert rawshark and tfshark to C99 types
+b75e9b696c Falco Bridge: Use approved API calls
+cefebb8a35 CMake: Fix our Logray source paths
+08e428d690 Convert capture_opts to C99
+439184901f GitLab CI: Use a common Python virtualenv directory
+8b582d6172 Convert file.h and cfile.h to C99 types
+86a5c21075 GitLab CI: Use MinIO mc in another place
+56a6b71f40 docs: Update to the IETF Internet-Draft for the TLS Key Log File
+92d97c7106 Convert ringbuffer, frame_tvbuff, and file_packet_provider to C99
+ab1c56f9a9 Docs: adoc possible invalid reference (change to link:)
+a354b30315 Convert the smaller executables to C99 types
+6a1695d1cd [Automatic update for 2024-07-07]
+d7eefd41a2 GitLab CI: Use Mino mc on Ubuntu
+80d5a22693 Docs: Move ws.css to the doc directory
+50902e8582 Qt: Fix crash on exit with previous focus
+8b57c010b2 doc: Document additional secrets types editcap injects
+b4b00dc7f2 text2pcap: Convert to C99 types
+1053544305 GNSS: add dissector for SBAS L1 MT17
+3fa2f2dd7b tfs: add off/on true_false_string
+50cb222d78 nmea0183: Add GLL sentence dissector
+cdd9bbcc1f docs: Use attribute substitution for wiki links
+60cbd23eed wsug: Change two wiki links from SSL to TLS
+c7745b4dde docs: Switch the WSUG and WSDG back to using wiki.wireshark.org
+9b59ce6e58 Docs: add css_dir path to ws.css source
+ac61d261b4 editcap: Fix handling of unrecognized long options
+311ca847a7 epan: Use the logging system for sequence analysis
+970714f2be exported_pdu: Pad TCP_INFO_DATA to 32-bit boundary
+43fe6bcdad Docs: update Asciidoctor copycss path to ws.css
+9c8aa1ba55 editcap: Convert to C99 types
+a724879e51 pfcp: correction of IE Downlink Data Service Information
+93c092f93d epan: Convert ASN.1 dissectors to C99
+acd8dca562 DCHP: Fix Relay Agent Information Source Port
+fb89750e32 Don't call g_string_free() with bool - it takes gboolean
+a0c8344f16 editcap: Use cmdarg_err in some places
+3275e6fb18 BTATT: don't call g_string_free() with bool - it takes gboolean
+0600b68737 Convert a bunch of gconstpointers to const void pointers
+42ddcf5b7f nmea0183: Add ROT sentence dissector
+b5e9fb3951 pidl: Convert generated types to C99
+cc9566f396 z21: bool cast fix after C99 convert
+35a0eca08d Qt: Add zoom packet list header
+dfbf4b6030 Docs: Fix the CSS paths in our manual pages
+f7ee3b17b2 epan: convert dissectors A-B to C99 types
+81e58b5bbc kerberos: Fix a conflicting type
+fe6ade19ab protobuf: Fix timestamp conversion
+068dc779be doc: Use uniform coding style in README.dissector
+6ff41d0dd8 mpeg-pes: Fix return type for dissect_mpeg_pes
+19f7deabc8 epan: update make-taps script with C99 types
+d62f91bff6 text2pcap: L3PIDs are Ethertypes; update help and man page
+078be6e0c8 BLF: Simplify code for LIN endianness fix
+00df4e247e BLF: Add support for BLF_OBJTYPE_LIN_SLEEP
+c57be2ced1 BLF: Add support for BLF_OBJTYPE_LIN_WAKEUP2
+bbc1a60c1e BLF: Add support for BLF_OBJTYPE_LIN_WAKEUP
+30ca0f066e BLF: Add support for BLF_OBJTYPE_LIN_RCV_ERROR2
+21487d5108 BLF: Add support for BLF_OBJTYPE_LIN_RCV_ERROR
+a217395efb BLF: Add missing breaks
+7c2355d2ef pcapng: Write Simple Packet Block when appropriate
+a5fbbe4642 UI: scan interface warning lowered to debug
+304d6ffe86 epan: Convert dissectors to C99 types
+f6185bb54b packaging: Add new RADIUS dictionaries to nsi packaging
+a849cf7d9b WSDG: update help messages.
+790a1f89ab Fix some spelling errors
+e20a6a9115 dumpcap: don't mention rpcap in the help message absent rpcap support.
+d7ebffe147 Monero dissector extended - full breakdown of all data structures
+e3e91db8e6 BTMESH: Register pbadv reassembly table only once
+fb95d0b65f BTMESH: Register upper transport reassembly table only once
+045e7c1010 MTP2: Register reassembly table only once
+3df525f9ea BTMESH: Register proxy reassembly table only once
+cb1a36d39b capinfos: fix more names for earliest and latest packets.
+1cbd9f95ae capinfos: use the right terms for earliest and latest packets.
+534010d88f exported_pdu: remove extra reads
+4492a831be JSON: convert to C99 types
+2451bd6ba1 Run 3 dissectors through tools/convert-glib-types.py
+3f1be241b9 epan: convert epan/*.{c|h} to C99 types
+3d60efa467 TCAP: Convert some types to C99
+563099a370 TCP: better handling of the Retrans/OOO analysis
+396b39adf9 Fix CMake macro ADD_CUSTOM_CMAKE_INCLUDE
+928ed7a375 pfcp: convert to C99 types
+29df76c053 Wireshark: Cmd-line prefs override profile prefs
+03c844febf ASN1: call asn1_ctx_init() with true rather than TRUE
+2bbe84d29d win-setup: Use correct c-ares package on arm
+b9601a3add win-setup: Fix c-ares checksum.
+2a77afa9db WSDG: clarify taps and stats
+c7ced5b18a bittorrent: Fix reassembly when header and message type are segmented
+75ef0dd83e epan: Convert sequence analysis to C99 types
+a91b029920 Qt: Make dragging the Sequence Diagram axis not sticky
+2fe05aed94 Update 3party libraries.
+9124b6c944 Qt: IPv4 aggregation memory leak fix
+fc7833d40c Call register_tap in registration function
+4a05466243 epan: Convert the CRC API to C99 types
+1b5cf82bb5 cmake: Remove outdated readme.txt
+98736ddb36 ITS: Register for VAM Message type
+def3862451 Fix some spelling errors
+05d4858cf1 Qt: Make it a little easier to drag the comment axis
+70c13238d9 cmake: Fix indent and layout
+6fe180d19c merge: squelch some compiler warnings.
+8c6f913e19 Qt: Make sequence graph Comment column width adjustable
+5358de8dd1 NFS: Limit number of ops dissected.
+48229378f1 Qt: IPv4 aggregation for Endpoints/Conversations
+18f2e7f12c wsutil: Fix the local documentation directory on macOS
+2e8cb1bf08 DOCSIS: add links to specifications
+83d3311440 DOCSIS: Use common units for Hz and MHz
+497271482a DOCSIS: UCD Subcarrier 0 Center frequency: fix type and add unit
+b8375ff5b9 DOCSIS: add DPR (DOCSIS 4.0)
+9ce2592bf0 DOCSIS: add ECT-REQ and ECT-RSP (DOCSIS 4.0)
+c845f75cb4 DOCSIS: add CWT-REQ and CWT-RSP (DOCSIS 4.0)
+24914aebdb DOCSIS: BPKM: DOCSIS 4.0 MMM types, fields and DER decoding
+cd2ecbe85a DOCSIS: 2 digits suffice for quarters
+da8c619ee8 DOCSIS: OPT-RSP: Add missing and DOCSIS 4.0 fields
+7af658b2cd DOCSIS: OPT-REQ: add v5 multipart
+a6a5fae0ed DOCSIS: OCD: FDX Indicator field (DOCSIS 4.0) and v5 multipart
+4738e648ed DOCSIS: MDD: Add BPI+ version and config (DOCSIS 4.0)
+1cfcca4ed4 DOCSIS: MDD: Replace D4.0 FDX Descriptor with D4.0 Advanced Band Plan Descriptor
+eb511cd759 DOCSIS: MDD: docsis_mdd.tlv cleanup, Version fixes and DOCSIS 4.0 Version
+db6edf6290 DOCSIS: MDD: Add DS Active Channel List FDX field and remove Primary Capable use for FDX (DOCSIS 4.0)
+7d5ff94ae6 DOCSIS: MAP: Use common tfs in DOCSIS Probe MAP
+77d6dde228 DOCSIS: MAP: Add Probe IE ECT Control (DOCSIS 4.0)
+7b5316defc editcap: Support for a large number of frames
+effc8d7c7a TPNCP: Replace static allocations with wmem_arrays.
+eacc5010be GNSS: Augment COL_INFO for Galileo I/NAV Word 0
+40341b4b35 GNSS: add dissector for Galileo I/Nav Word 1
+670c3533c8 wsutil: Add constant for UTF-8 square root
+7a9677e487 DHCPFO: Use ip_num_to_str() to show little-endian IPv4
+14a47aa6e8 Qt: Show Minizip version
+b6d9f3c836 Add minizip-ng to Mac using brew.
+fe4852caae merge: report errors inside the merge API routines.
+ad7a7f7d67 Qt: Add a null check to the Endpoint dialog
+dd12fe3498 Replace some 'guint8 offset' usage with gint
+97e8c51916 NBAP:Only create the global maps once
+3bd416d3ee ASN protocols: update APIs and generated code for bool
+c03ad5099b proto.c: Increase number of preallocated fields.
+9edf5c5598 More gboolean -> bool conversion
+2a205059ff cllog: fix a reversed conditional test.
+16ea412dda file merging: report errors using report_message functions.
+dfec1bb322 MATE: Improve reporting of a mate config syntax error
+eaa7fba6d4 DHCPFO: Remove duplicate client hw address output
+59f4650e42 TCP: Initialize 'tcp_snd_manual_analysis' field.
+7800ad8737 Qt: add "ellipsis" to elide pref description
+0039ebf599 Docs: Move the manual pages to their own directory
+f1a671f1dc Qt: I/O Graph Throughput calculation
+7316303d43 GNSS: remove unnecessary #include in Galileo I/NAV dissector
+9084f0b452 GNSS: add handoff for GAL I/NAV nominal page data words
+bc91a1d4bb Qt: Replace "Contents" with "User's Guide"
+fcbc39038d radius: More FreeRADIUS updates
+48ea9d8d84 findMinizipng: Bcrypt is windows only
+af85afa4e0 Add minizip-ng dlls to the installers (fix typo)
+49164027c6 radius: Support sub-TLVs of sub-TLVs
+21c9aeb014 RRC: Only create the global U-RNTI / C-RNTI map once
+66632c5d2b Minizip-ng: Adjust FindMinizipng.cmake to work on Fedora
+8d84eed1ab smb2: Always show the compressed payload
+b6b382c428 [Automatic update for 2024-06-30]
+dbae820abe Add minizip-ng dlls to the installers
+709b09c6fb Logray: Propagate the radius nsi changes to Logray.
+4c30a109a4 Add G_GNUC_ALLOC_SIZE annotations to wmem functions.
+5d02f6631f Logray:Add MINIZIPNG_INCLUDE_DIRS
+9a9595e498 BLF: Do not set timestamp for metadata
+6e9f1ea6b4 BLF: Override the timestamp with 0 for metadata objects
+4ecab35300 radius: Update more dictionaries from FreeRADIUS 3.2.4
+43d73dfb47 radius: Update NSI packaging
+be17f7458a Qt: Improve a warning in Show Packet Bytes
+0e8cb9dbbe Qt: Add a check for empty uncompressed tvb
+5f80d2af9e radius: Move the illegal elements in ascend and usr to new files
+2d5bc134f4 radius: More dictionary updates
+6507ab6201 Make range_t.ranges a flexible array member.
+235a349188 CIP: Const-ify attribute_info_t instances.
+cdd9cbb56d Add minizip-ng to replace minizip
+0790c172a1 Qt: Extend Show Packet Bytes uncompress
+c029a63a26 Lua: Fix TvbRange:uncompress_hpack_huff
+40da1d4875 radius: Update dictionaries to FreeRADIUS 3.2.4
+28a8de771b Update gitignore for .so files
+72290a356a col_set_writable(): use bool for remaining cases
+71fc611d60 col_set_writable(): call with bool
+035f8a6925 ORAN & MAC-LTE: use bool internally
+3301f2df24 docs: Add documentation for decode as Percent-Encoding
+ca6761150a Qt: Add support for Base64Url in Show Packet Bytes
+ac81cdbc92 Qt: Keep axes in sync for Window Scaling graph
+4f500cfec7 radius: Update RFC dictionary files to FreeRADIUS 3.2.4
+0f339d3672 prefs: Make auto-preferences work with dissectors with description
+6b543256b8 pidl: Revert some links back to wiki.wireshark.org
+f523013e5a DCOM: Implement IStorage and InstanceInfo in ISystemActivator dissection
+25ecab0cc7 CIP: Improve CIP Security support
+5b75d79de7 Docs: Update the Visual Studio setup instructions
+9fef88013d Revert "CMake: Always add /Qspectre when building with Visual C++"
+f742fb5cab Resources: Update the default Logray coloring rules
+1c0b350f6d A little more checking of range_strings
+e91a34ebbe Logray: Update styleSheet on ApplicationPaletteChange event
+cee160e862 Logray: Remove empty sub menus when Reload Lua Plugins
+d9e8d52baf LTE: Reset RLC & PDCP bearer states opon certain RRC events
+5793a0f0ff pfcp: Update to 3GPP TS 29.244 V18.6.0
+4f56c263ee MAC-LTE: Add a single (hidden) lcid field for both directions
+ba83258400 CMake: Always add /Qspectre when building with Visual C++
+3adb05fd0b blf: update error messages and fix comments.
+795f2a7145 BLF: Replace g_try_malloc0 with g_try_malloc
+f4a05e2dd9 BLF: Remove unused members from blf_log_container struct
+fc56c21253 BLF: Support objects outside log containers
+a1dfac3610 blf: update a comment to reflect reality.
+3593713101 BLF: Skip objects without log container without failing
+bf4c1c1200 WiSUN: Do not store offset in a 8 bit integer
+c5759ba199 Fix some spelling errors
+732f2e8753 sapigs: Remove execute bit
+41a75fc456 blf: remove a set-but-unused variable.
+7a42f3e48f RTP: Use the extended sequence number to count cycles
+6dbbeccbbf epan: Distinguish unregistered handle name and description
+2f19d0db5c prefs: Add one space back to gui.debounce_timer description
+2030a1a783 idl2wrs.c: Pick up recent changes and regenerate
+f3f19e8fbb idl2wrs.c: Fix generation of idl2wrs-dissectors
+4d021395a7 blf: not all top-level objects are containers.
+5f807da9ba epan: Convert the stream API to C99 types
+5106dec70c Fix null derefs reported by clang-analyzer
+6931eb67e7 WiSUN: correct offset logic errors
+3a00768fb4 ieee1905:Client Association Control Request TLV: Timed block, Indefinite block
+b325469b42 epan: Don't allow NULL or empty registered dissector names
+100563111c epan update character set list
+fe98af0e30 prefs: Get rid of line continuations for gui.debounce.timer description
+49ff6ebe35 GNSS: rename SBAS L1 MT25 rate of change of ephemeris time correction
+c7cddf00dd GNSS: fix typo for SBAS L1 MT25 rate of change of ephemeris time correction
+d5e50dd596 GNSS: fix typo on SBAS L1 UDREI mapping
+b14ceeb6b6 Qt: Write gui.fileopen_remembered_dir to recent with native separators
+f918016604 idl2wrs: Convert glib types to C99 types, regenerate dissectors
+f40578a486 tools: Convert make-plugin-reg.py to C99 types
+bc75a699c4 Qt: Improve Show Packet Bytes base64 decoding
+e95d11881c idl2wrs: Update wireshark_gen.py to match memory scope changes
+7a69039fbb idl2wrs: Update generator to match recent commit
+0146fe4eb6 capture sync: extend max length for system with many interfaces
+3d482f7602 MySQL: Fix when exec stmt with 0 params
+1e33765bb8 ARP - add Unified Bus (UB hardware type)
+4c50a91531 prefs: Use common function to check module alias names
+793106c7bb DNS: additional Resource Record (RR) types, RESINFO and WALLET
+e141816fa3 dcerpc-browser: Generate with pidl
+d7c1a5a245 stcsig: Don't register the dissector handle twice
+e3cdd778df wiretap: have per-compreession-type "recognizers".
+2394249795 [Automatic update for 2024-06-23]
+bdb719f846 pidl: Another C99 type conversion
+da4c136c96 Qt: Conversations for unique IP addresses
+2be22f3a45 pidl: Auto-generate srvsvc and wkssvc from pidl
+1dc242656f dhcp Display option dhcp-option 211 PXE reboot time
+10b046cbdd pidl: Remove init of proto variables
+4df8d2884d pidl: Convert the pidl dissector generation code to C99 types
+02ec34bc2a doc: update logray quick start
+91207cac31 UDP: If no IP layer, ignore 0 checksum
+8c1af5f9f1 epan: Convert our remaining string APIs to C99 types
+4f917cef27 Docs: Update the Logray quick start
+6e4c81b324 pidl: Update test for removal of ett initialization
+1369a90722 pidl: Cherry-pick commit from upstream Samba
+37ad476b37 pidl: Cherry-pick commit from upstream Samba
+2e2a0456e8 pidl: Cherry-pick commits from upstream Samba
+d788f6e1e7 pidl: Cherry-pick commits from upstream Samba
+34cbafb931 pidl: Cherry-pick commit from upstream Samba
+b9b2dd736d pidl: Cherry-pick commits from upstream Samba.
+5712a6f402 pidl: Cherry-pick commits from upstream Samba.
+1c3471df29 pidl: Cherry-pick commits from upstream Samba
+7c93595447 pidl: Cherry-pick commits from upstream Samba
+5441003874 Fix array bounds in conversation_new_deinterlaced().
+7cf192e18d pidl: Cherry-pick a commit from upstream Samba
+517c9103f5 pidl: Cherry-pick commits from upstream Samba
+417ec805d0 pidl: Cherry-pick commits from upstream Samba
+bb51cf8845 pidl: Cherry-pick commits from upstream Samba
+08c71b5496 pidl: Cherry-pick commits from upstream Samba
+9f8237abf3 pidl: Cherry-pick commits from upstream Samba
+4fec16ec30 pidl: Cherry-pick commits from upstream Samba
+f3c5fb8faf pidl: Cherry-pick commits from upstream Samba
+fb652df574 pidl: Cherry-pick commits from upstream Samba
+7a6ca829e4 pidl: Cherry-pick commits from upstream Samba
+2c1d7ea874 pidl: Cherry-pick commits from upstream Samba
+340d8ec982 pidl: Cherry-picks from upstream Samba
+6f2b96ff52 pidl: Cherry-pick from upstream Samba
+ade6577f10 pidl: Don't assign hash undef, assign it an empty array
+cf89c3a208 vssmonitoring: fix Dead Store found by Clang Analyzer
+568275f2d2 cql: Fix Dead Store found by Clang Analyzer
+f405b3a8b2 pidl: Cherry-picks from upstream Samba
+4144e6578b pidl: Cherry-picks from upstream Samba
+0abae4e5c3 pidl: More cherry-picks from upstream Samba
+a990934b56 pidl: Cherry-pick more commits from upstream Samba
+455d5c5e2a pidl: Cherry-pick more commits from upstream
+879b6186aa pidl: Cherry-pick more commits from upstream Samba
+cb9cbe1f93 Flag identical entries in value_strings
+f1338bc521 pidl: Cherry-pick commits from upstream Samba
+ebd0dbb11f pidl: Cherry pick commits from upstream Samba
+f179c30162 pidl: Update closer to upstream Samba
+1bd74ff91a radius: Update the dictionary parsing code to C99 types
+b9f0c6b305 rmpt: prefer use proto_tree_add_item when it is possible
+7f7953b54d radius: Read dictionary files with octets length and concat
+21bef1de66 matter: Properly dissect Additional Data characteristic
+b17828f010 Qt: Add filter buttons to QToolBar as QActions
+4a892f4dea X11: Remove a few stray glib types from process-x11-xcb
+06bfc99ca9 Convert the X11 generator and code to C99 types
+270ed45065 tools: convert eti2wireshark.py
+333adde36f Qt: fix unreadable syntax filter in dark mode on KDE with Qt 6
+bec3abdf15 More init removal for hf
+2f76452bee Qt: Connect more main window signals and slots at compile time
+6fa13ededa radius: Support $INCLUDEs with absolute paths
+416c99129f Add support for LeakSanitizer.
+a77391d494 Add missing MAP tag in Erlang distribution dissector
+1e3a41a808 matter: Fix Flags type for Matter Advertising Data dissector
+a69feb8e02 rpc: Add RPC-over-TLS registered ALPN
+98d71abb49 wiretap: simplify fill_out_buffer().
+86ca02a9cd wiretap: rename gz_head() to check_for_compression().
+ef37a3e41e radius: Switch back to the previous FILE if an $INCLUDE doesn't open
+989c4e192c JSON: display number object as a double
+be796b759a wiretap: mark #else and #endif with comments.
+80ddd6bdec ITS: Fix reading of containerId so the right container is used
+8501d71346 wiretap: define and use USE_ZLIB_OR_ZLIBNG if we have either library.
+8a063371c3 wiretap: put decompression stream information together.
+22aad01a3c plugins/codecs: convert to C99 types
+9334cca935 ntlmssp: also create an anonymous session key with an 1 byte lm_response
+3b4c215a5f Make sure .scap is a valid pcapng extension
+e329f96a87 stats_tree: convert to C99 types
+16553ade76 MySQL: Add dissection of more types in binary protocol
+e9acac7088 packet-cql.c: use proto_tree_add_item_ret_string()
+ada3dfa824 packet-cql.c: properly parse a schema change result
+5c4291d440 Qt: Pluralize "%Ln bit(s)"
+5ebf5ca5e4 miwi-p2pstar: remove init for expert_field variable
+78d95ad9aa saprfc: remove init for expert_field variable
+d1a6a88806 rk512: fix indent (using tab)
+e599ff8366 rk512: remove init for expert_field variable
+3f7c2adf90 egnos-ems: remove init for hf/ett/proto variable
+f8af789411 miwi-p2pstar: remove init for hf/ett/proto variable
+601a2e1bdb iec104: remove init for hf variable
+9e5cbbacee DHCP : Display DOTS information RFC 8973, additional status codes from RFC7724
+a7e746090d Qt: Show bits size for appropriate fields in status bar, packet dialog
+b3a0cb32ae plugins/epan: convert to C99 types
+bb2aef6f7d docs: Remove user interface section from Wireshark man page
+7e7986fa9d WSUG: Update the automatic profile switching docs
+da80ca3ccb Qt: Directly connect more signals and slots
+0f77268bc8 epan: packet change return to bool
+b0ac6dcb53 WSUG: Update the Configuration Profiles dialog screenshot
+050ac413ff mp2t: Support files like BDAV M2TS with a header
+6597563934 Qt: Fix build on older Qt 5
+984b2ba803 tvbuff: use bool rather than gboolean for return values and local variables.
+00d761d224 capinfo: convert to C99 types
+9cd0d15d21 matter: Add dissector for BLE advertising data
+3853be5bba Fix some spelling errors
+cc8490681f epan: Convert the value_string code to C99 types
+b9a6ecdb0a capinfo: table_report_header should be boolean.
+ed34fc324a TACAS: remove unused code
+1b6222d1fa DNS: Add new top-level "Answer Type" statistic
+56537aa72a Dumpcap: u_char -> uint8_t
+f358612e7a MySQL: Decode execution of prepared statement with query attributes
+e712788773 BIER: Add BIER encapsulated in MPLS (RFC 8296)
+ef2e116fab VS19: Suppress a couple of const warnings
+60b33815fa Fix some spelling errors
+f5170aa507 MySQL: Add tree item for each field in binary protocol
+2fdbb6ee0a dfilter: Have editorconfig refere to correct translator filenames
+c473803e19 Fix 9P stat permission parsing
+dd893873bf Qt: Have all DisplayFilterEdits have bookmarks
+dd316b00ce prefs: Add help URLs for the modules added normally
+a1a7d236b7 Qt: Open the Preferences dialog help section for the current pane
+0b2b1cc498 Qt: Make sure the profile switcher has an initialized profile list
+03d88c9f41 CMake: clear stale PCRE2 cache entry if needed
+8c6619efd6 MySQL: Use json dissector for JSON results
+d0759e5f1e MySQL: Decode JSON in binary resultset
+8a3be65f04 fix dead URLs for CCSDS
+51668e48ca epan: heuristic to pass void *data to dissector
+cf57c1aa5c PW Eth: More heuristic tweaks
+dbe10e253f manuf-data: Don't omit the privately registered IEEE assignments
+db956a9b80 [Automatic update for 2024-06-16]
+55bba99ea6 NTP identify chrony frequency transfer and network correction extfields
+c1fe4ce86d packaging: Fix RPM on SUSE
+6fcb1445e0 Clean up the dissector handle code.
+c1bd0d561b thrift: fix return value of dissector
+3b46d9294f PNIO: fix return value of dissector
+aa5929b2fd stun: distinguish between draft and RFC XOR-MAPPED-ADDRESS.
+56ac0722f2 Remove some unnecessary extra layers of dissector.
+563479c322 docs: Add VERBATIM to add_custom_command
+15b77d6845 MPLS Pseudowires: Add dissectors to first nibble table
+667fcaa14b docs: Install user guide to build dir
+4f8bb21107 epan: changed heur_dissector_t to bool
+30eba22945 packaging: Build RPM with guides by default if we can
+6ead3e2657 log3gpp: Fix read of uninitialized data.
+fbedfaa160 NSIS: clarify personal configuration uninstall message
+1bd09aa109 More spellings
+1692f91fb1 ui: Fix help url comments
+392a2a695a wsug: Use "Font and Colors" not "Fonts and Color"
+c2d133a6e2 Qt: Explicitly connect some signals and slots
+9de1089ad8 UI: switch back to wiki.wireshark.org, fix some URLs
+a3becdd643 Qt: Explicitly connect our welcome page signals and slots
+4876c160d6 Fix C6323: "Use of arithmetic operator on Boolean type(s)".
+ccc085af59 MPLS: Add a dissector table for first nibble, heuristic list
+37a449345b Lua: Default Dumper to pcapng
+ba5777a8bc check_typed_item_calls.py: fix a test
+5a94fd5022 capinfos: Fix printing packet comment headers with -TM
+2584980a7e dumpcap: Always drop capabilities other than NET_RAW and NET_ADMIN
+3440f67211 Fix some more spellings in header files
+440b23d4bf Qt: Call init_profile_list() early
+4c8aa06cc3 dumpcap: Enable capability debugging through the normal log system
+9443744980 Initialize some variables
+f90c517f45 Docs: Add option block titles to the falcodump man page
+15f90c2dcd MATE: stop config on unknown Proto/Transport/field
+d86e2fcaa7 CmakeFindZLIBNG: Add library name
+9520691e0f macos-setup: Build zlib-ng
+387e653017 Qt: Make sure we don't scan interfaces more than once
+4e5cd1ae68 Qt: Add a null check to the Conversation dialog
+365a821298 wmem: Remove G_GNUC_MALLOC from wmem_realloc and wmem_memdup.
+8f664d3784 EVS: do not append "EVS Primary 2.8 kbps" twice
+6099e2ed9e EVS: fix dissection for hf-only=1
+4740168ef2 ZMTP: Add null checks
+4da2be8875 merge: Don't abort a merge on a short read
+12ccb05cf8 MATE: dbg_print - frame line break; print name:id of matching GOG
+9ec125e617 MATE (WSUG): update Overview chapter; booleans are now words
+25696b8612 Change some `wmem_packet_scope()` to `pinfo->pool`
+2660a0f76a GitLab CI: Add Falco plugins to our macOS packages
+8ebb1132f8 mailmap: alias two email addresses
+413b33fe5c Build: 4.3.0rc1
 b186f0b802 GitLab CI: Fix a copy+paste error
 3f13b35a12 GitLab CI: More macOS build tweaks
 e8c06e558b Update the release notes
