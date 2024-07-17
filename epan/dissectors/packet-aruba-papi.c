@@ -533,7 +533,7 @@ dissect_papi_debug(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tre
     debug_tree = proto_item_add_subtree(ti, ett_papi);
 
     while(offset < tvb_reported_length(tvb)) {
-        switch(tvb_get_guint8(tvb,offset)) {
+        switch(tvb_get_uint8(tvb,offset)) {
         case 0x00:
             ti = proto_tree_add_item(debug_tree, hf_papi_debug_text, tvb, offset+3, tvb_get_ntohs(tvb,offset+1), ENC_ASCII);
             debug_sub_tree = proto_item_add_subtree(ti, ett_papi);
@@ -575,7 +575,7 @@ dissect_papi_debug(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tre
             offset += 9;
         break;
         default:
-            proto_tree_add_expert_format(debug_tree, pinfo, &ei_papi_debug_unknown, tvb, offset, 1, "Unknown (%d)", tvb_get_guint8(tvb, offset));
+            proto_tree_add_expert_format(debug_tree, pinfo, &ei_papi_debug_unknown, tvb, offset, 1, "Unknown (%d)", tvb_get_uint8(tvb, offset));
             offset +=1;
            }
     }

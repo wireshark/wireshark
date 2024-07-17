@@ -260,11 +260,11 @@ dissect_acr122(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
 
     if (pinfo->p2p_dir == P2P_DIR_SENT) { /* Request */
-        acr_class = tvb_get_guint8(tvb, offset);
-        ins = tvb_get_guint8(tvb, offset + 1);
-        p1 = tvb_get_guint8(tvb, offset + 2);
-        p2 = tvb_get_guint8(tvb, offset + 3);
-        length = tvb_get_guint8(tvb, offset + 4);
+        acr_class = tvb_get_uint8(tvb, offset);
+        ins = tvb_get_uint8(tvb, offset + 1);
+        p1 = tvb_get_uint8(tvb, offset + 2);
+        p2 = tvb_get_uint8(tvb, offset + 3);
+        length = tvb_get_uint8(tvb, offset + 4);
 
         /* Recognize command by simple heuristic */
         if (acr_class == 0xFF) {

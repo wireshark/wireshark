@@ -337,10 +337,10 @@ dissect_object_id(tvbuff_t *tvb, proto_tree *tree, int offset, uint8_t flags, en
 	memset(oid, '\0', sizeof(oid));
 	memset(str_oid, '\0', sizeof(str_oid));
 
-	n_subid = tvb_get_guint8(tvb, offset);
-	prefix	= tvb_get_guint8(tvb, offset + 1);
-	include = tvb_get_guint8(tvb, offset + 2);
-	tvb_get_guint8(tvb, offset + 3);
+	n_subid = tvb_get_uint8(tvb, offset);
+	prefix	= tvb_get_uint8(tvb, offset + 1);
+	include = tvb_get_uint8(tvb, offset + 2);
+	tvb_get_uint8(tvb, offset + 3);
 
 	for(i=0; i<n_subid; i++) {
 		NORLEL(flags, oid[i], tvb, (offset+4) + (i*4));
@@ -537,7 +537,7 @@ dissect_open_pdu(tvbuff_t *tvb, proto_tree *tree, int offset, int len, uint8_t f
 
 	subtree = proto_tree_add_subtree(tree, tvb, offset, len, ett_open, NULL, "Open-PDU");
 
-	timeout = tvb_get_guint8(tvb, offset);
+	timeout = tvb_get_uint8(tvb, offset);
 	tvb_get_ntoh24(tvb, offset + 1);
 
 	proto_tree_add_uint(subtree, hf_open_timeout, tvb, offset, 1, timeout);
@@ -757,7 +757,7 @@ get_agentx_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data
 	/*
 	 * Get the payload length.
 	 */
-	flags = tvb_get_guint8(tvb, offset + 2);
+	flags = tvb_get_uint8(tvb, offset + 2);
 	NORLEL(flags, plen, tvb, offset + 16);
 
 	/*
@@ -795,9 +795,9 @@ dissect_agentx_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 		NULL
 	};
 
-	version = tvb_get_guint8(tvb, 0); offset+=1;
-	type = tvb_get_guint8(tvb, 1); offset+=1;
-	flags = tvb_get_guint8(tvb, 2); offset+=1;
+	version = tvb_get_uint8(tvb, 0); offset+=1;
+	type = tvb_get_uint8(tvb, 1); offset+=1;
+	flags = tvb_get_uint8(tvb, 2); offset+=1;
 	/* skip reserved byte */
 	offset+=1;
 

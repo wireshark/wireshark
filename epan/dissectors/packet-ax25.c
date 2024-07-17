@@ -143,7 +143,7 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 	proto_tree_add_item( ax25_tree, hf_ax25_dst, tvb, offset, AX25_ADDR_LEN, ENC_NA);
 	set_address_tvb(&pinfo->dl_dst, AT_AX25, AX25_ADDR_LEN, tvb, offset);
 	copy_address_shallow(&pinfo->dst, &pinfo->dl_dst);
-	dst_ssid = tvb_get_guint8(tvb, offset+6);
+	dst_ssid = tvb_get_uint8(tvb, offset+6);
 
 	/* step over dst addr point at src addr */
 	offset += AX25_ADDR_LEN;
@@ -151,7 +151,7 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 	proto_tree_add_item( ax25_tree, hf_ax25_src, tvb, offset, AX25_ADDR_LEN, ENC_NA);
 	set_address_tvb(&pinfo->dl_src, AT_AX25, AX25_ADDR_LEN, tvb, offset);
 	copy_address_shallow(&pinfo->src, &pinfo->dl_src);
-	src_ssid = tvb_get_guint8(tvb, offset+6);
+	src_ssid = tvb_get_uint8(tvb, offset+6);
 
 	/* step over src addr point at either 1st via addr or control byte */
 	offset += AX25_ADDR_LEN;
@@ -184,7 +184,7 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 
 	/* handle the vias, if any */
 	via_index = 0;
-	while ( ( tvb_get_guint8( tvb, offset - 1 ) & 0x01 ) == 0 )
+	while ( ( tvb_get_uint8( tvb, offset - 1 ) & 0x01 ) == 0 )
 		{
 		if ( via_index < AX25_MAX_DIGIS )
 			{
@@ -215,7 +215,7 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 	if ( XDLC_IS_INFORMATION( control ) )
 		{
 
-		pid      = tvb_get_guint8( tvb, offset );
+		pid      = tvb_get_uint8( tvb, offset );
 		col_append_fstr( pinfo->cinfo, COL_INFO, ", %s", val_to_str(pid, pid_vals, "Unknown (0x%02x)") );
 		proto_tree_add_uint( ax25_tree, hf_ax25_pid, tvb, offset, 1, pid );
 

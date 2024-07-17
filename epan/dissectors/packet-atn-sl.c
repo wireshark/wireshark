@@ -129,7 +129,7 @@ dissect_atn_sl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
   atn_sl_tree = proto_item_add_subtree(ti, ett_atn_sl);
 
   /* check Security Registration Length */
-  len =  tvb_get_guint8(tvb, offset);
+  len =  tvb_get_uint8(tvb, offset);
   if ( OSI_OPT_SECURITY_ATN_SR_LEN != len )
     return tvb_captured_length(tvb);
   offset++;
@@ -141,7 +141,7 @@ dissect_atn_sl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
   offset += OSI_OPT_SECURITY_ATN_SR_LEN;
 
   /* Security Information length */
-  len = tvb_get_guint8(tvb, offset);
+  len = tvb_get_uint8(tvb, offset);
 
   if ( OSI_OPT_SECURITY_ATN_SI_MAX_LEN < len )
     return tvb_captured_length(tvb);
@@ -151,41 +151,41 @@ dissect_atn_sl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
   security_info_end = offset + len;
   while ( offset < security_info_end ) {
     /* check tag name length*/
-    len = tvb_get_guint8(tvb, offset); /* check tag name length*/
+    len = tvb_get_uint8(tvb, offset); /* check tag name length*/
     if ( len != 1 )
       return tvb_captured_length(tvb);
 
     offset++;
 
-    tag_name = tvb_get_guint8(tvb, offset);
+    tag_name = tvb_get_uint8(tvb, offset);
     offset++;
 
     switch(tag_name) {
       case OSI_OPT_SECURITY_ATN_TT:
         /* check tag set length*/
-        len = tvb_get_guint8(tvb, offset);
+        len = tvb_get_uint8(tvb, offset);
         if ( len != OSI_OPT_SECURITY_ATN_TT_LEN )
           return tvb_captured_length(tvb);
 
         offset++;
         proto_tree_add_uint_format(atn_sl_tree, hf_atn_sl_tt, tvb, offset, 1,
-                                   tvb_get_guint8(tvb, offset), "%s: %s",
+                                   tvb_get_uint8(tvb, offset), "%s: %s",
                                    val_to_str(OSI_OPT_SECURITY_ATN_TT, osi_opt_sec_atn_si_vals, "Unknown (0x%x)"),
-                                   val_to_str(tvb_get_guint8(tvb, offset ), osi_opt_sec_atn_tt_vals, "Unknown (0x%x)"));
+                                   val_to_str(tvb_get_uint8(tvb, offset ), osi_opt_sec_atn_tt_vals, "Unknown (0x%x)"));
         offset += len;
         break;
 
       case OSI_OPT_SECURITY_ATN_SC:
         /* check tag set length*/
-        len = tvb_get_guint8(tvb, offset);
+        len = tvb_get_uint8(tvb, offset);
         if ( len != OSI_OPT_SECURITY_ATN_SC_LEN )
           return tvb_captured_length(tvb);
 
         offset++;
         proto_tree_add_uint_format(atn_sl_tree, hf_atn_sl_sc, tvb, offset, 1,
-                                   tvb_get_guint8(tvb, offset), "%s: %s",
+                                   tvb_get_uint8(tvb, offset), "%s: %s",
                                    val_to_str(OSI_OPT_SECURITY_ATN_SC, osi_opt_sec_atn_si_vals, "Unknown (0x%x)"),
-                                   val_to_str(tvb_get_guint8(tvb, offset ), osi_opt_sec_atn_sc_vals, "Unknown (0x%x)"));
+                                   val_to_str(tvb_get_uint8(tvb, offset ), osi_opt_sec_atn_sc_vals, "Unknown (0x%x)"));
         offset += len;
         break;
 

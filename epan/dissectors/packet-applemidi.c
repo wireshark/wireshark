@@ -163,7 +163,7 @@ dissect_applemidi_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, u
 		proto_tree_add_item( applemidi_tree, hf_applemidi_ssrc, tvb, offset, 4, ENC_BIG_ENDIAN );
 		offset += 4;
 
-		count = tvb_get_guint8( tvb, offset );
+		count = tvb_get_uint8( tvb, offset );
 		proto_tree_add_item( applemidi_tree, hf_applemidi_count, tvb, offset, 1, ENC_BIG_ENDIAN );
 		col_append_fstr( pinfo->cinfo, COL_INFO, ": count = %u", count );
 		offset += 1;

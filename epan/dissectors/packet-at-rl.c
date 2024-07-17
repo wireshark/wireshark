@@ -47,8 +47,8 @@ dissect_at_rl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "AT RL");
     col_clear(pinfo->cinfo,COL_INFO);
     col_add_fstr(pinfo->cinfo, COL_INFO, "Seq: %u, VCS-ID: %u",
-                    tvb_get_guint32(tvb, 0, ENC_BIG_ENDIAN),
-                    tvb_get_guint16(tvb, 12, ENC_BIG_ENDIAN));
+                    tvb_get_uint32(tvb, 0, ENC_BIG_ENDIAN),
+                    tvb_get_uint16(tvb, 12, ENC_BIG_ENDIAN));
 
     /* Frame has fixed length, so we can directly set tree and reported length (padding will most likely be added) */
     tvb_set_reported_length(tvb, AT_RL_FRAME_LEN);

@@ -512,7 +512,7 @@ dissect_autosar_nm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
       break;
       }
 
-      ctrl_bit_vector = tvb_get_guint8(tvb, g_autosar_nm_pos_cbv);
+      ctrl_bit_vector = tvb_get_uint8(tvb, g_autosar_nm_pos_cbv);
   }
 
   if (g_autosar_nm_pos_sni != byte_pos_off && g_autosar_nm_pos_sni >= g_autosar_nm_pos_cbv) {

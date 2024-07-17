@@ -184,7 +184,7 @@ static int hf_alp_junk;
 static int
 dissect_alp_mpegts(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, proto_tree *alp_tree)
 {
-    uint8_t header0 = tvb_get_guint8(tvb, offset);
+    uint8_t header0 = tvb_get_uint8(tvb, offset);
     uint8_t ahf = header0 & ALP_MPEGTS_AHF_MASK;
     uint8_t numts = (header0 & ALP_MPEGTS_NUMTS_MASK) >> 1;
     if (numts == 0) {
@@ -201,7 +201,7 @@ dissect_alp_mpegts(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
     uint8_t dnp = 0;
 
     if (ahf) {
-        uint8_t header1 = tvb_get_guint8(tvb, offset);
+        uint8_t header1 = tvb_get_uint8(tvb, offset);
         hdm = header1 & ALP_MPEGTS_HDM_MASK;
         dnp = header1 & ALP_MPEGTS_DNP_MASK;
         if ((hdm == 0) && (dnp == 0)) {
@@ -277,14 +277,14 @@ dissect_alp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     proto_tree *alp_tree = proto_item_add_subtree(ti, ett_alp);
 
     int offset = 0;
-    uint8_t packet_type = tvb_get_guint8(tvb, offset) >> 5;
+    uint8_t packet_type = tvb_get_uint8(tvb, offset) >> 5;
     proto_tree_add_item(alp_tree, hf_alp_packet_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     if (packet_type == ALP_PACKET_TYPE_MPEG_TS) {
         return dissect_alp_mpegts(tvb, offset, pinfo, tree, alp_tree);
     }
 
-    bool payload_configuration = (tvb_get_guint8(tvb, offset) & ALP_PAYLOAD_CONFIGURATION_MASK) != 0;
+    bool payload_configuration = (tvb_get_uint8(tvb, offset) & ALP_PAYLOAD_CONFIGURATION_MASK) != 0;
     proto_tree_add_item(alp_tree, hf_alp_payload_configuration, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     bool sif = false;
@@ -292,47 +292,47 @@ dissect_alp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     uint16_t payload_length = 0;
 
     if (payload_configuration == 0) {
-        bool header_mode = (tvb_get_guint8(tvb, offset) & ALP_HEADER_MODE_MASK) != 0;
+        bool header_mode = (tvb_get_uint8(tvb, offset) & ALP_HEADER_MODE_MASK) != 0;
         proto_tree_add_item(alp_tree, hf_alp_header_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         if (header_mode == 0) {
-            payload_length = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN) & ALP_LENGTH_MASK;
+            payload_length = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN) & ALP_LENGTH_MASK;
             proto_tree_add_item(alp_tree, hf_alp_length, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
         } else {
-            payload_length = (tvb_get_guint24(tvb, offset, ENC_BIG_ENDIAN) & ALP_SINGLE_LENGTH_MASK) >> 3;
+            payload_length = (tvb_get_uint24(tvb, offset, ENC_BIG_ENDIAN) & ALP_SINGLE_LENGTH_MASK) >> 3;
             proto_tree_add_item(alp_tree, hf_alp_single_length, tvb, offset, 3, ENC_BIG_ENDIAN);
             offset += 2;
 
-            sif = (tvb_get_guint8(tvb, offset) & ALP_SINGLE_SIF_MASK) != 0;
-            hef = (tvb_get_guint8(tvb, offset) & ALP_SINGLE_HEF_MASK) != 0;
+            sif = (tvb_get_uint8(tvb, offset) & ALP_SINGLE_SIF_MASK) != 0;
+            hef = (tvb_get_uint8(tvb, offset) & ALP_SINGLE_HEF_MASK) != 0;
             proto_tree_add_item(alp_tree, hf_alp_single_sif, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(alp_tree, hf_alp_single_hef, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
         }
     } else {
-        bool segmentation_concatenation = (tvb_get_guint8(tvb, offset) & ALP_SEGMENTATION_CONCATENATION_MASK) != 0;
+        bool segmentation_concatenation = (tvb_get_uint8(tvb, offset) & ALP_SEGMENTATION_CONCATENATION_MASK) != 0;
         proto_tree_add_item(alp_tree, hf_alp_segmentation_concatenation, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         if (segmentation_concatenation == 0) {
-            payload_length = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN) & ALP_LENGTH_MASK;
+            payload_length = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN) & ALP_LENGTH_MASK;
             proto_tree_add_item(alp_tree, hf_alp_length, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
-            sif = (tvb_get_guint8(tvb, offset) & ALP_SEGMENT_SIF_MASK) != 0;
-            hef = (tvb_get_guint8(tvb, offset) & ALP_SEGMENT_HEF_MASK) != 0;
+            sif = (tvb_get_uint8(tvb, offset) & ALP_SEGMENT_SIF_MASK) != 0;
+            hef = (tvb_get_uint8(tvb, offset) & ALP_SEGMENT_HEF_MASK) != 0;
             proto_tree_add_item(alp_tree, hf_alp_segment_sequence_number, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(alp_tree, hf_alp_segment_last_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(alp_tree, hf_alp_segment_sif, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(alp_tree, hf_alp_segment_hef, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
         } else {
-            payload_length = (tvb_get_guint24(tvb, offset, ENC_BIG_ENDIAN) & ALP_CONCAT_LENGTH_MASK) >> 4;
+            payload_length = (tvb_get_uint24(tvb, offset, ENC_BIG_ENDIAN) & ALP_CONCAT_LENGTH_MASK) >> 4;
             proto_tree_add_item(alp_tree, hf_alp_concat_length, tvb, offset, 3, ENC_BIG_ENDIAN);
             offset += 2;
 
-            uint8_t count = (tvb_get_guint8(tvb, offset) & ALP_CONCAT_COUNT_MASK) >> 1;
-            sif = (tvb_get_guint8(tvb, offset) & ALP_CONCAT_SIF_MASK) != 0;
+            uint8_t count = (tvb_get_uint8(tvb, offset) & ALP_CONCAT_COUNT_MASK) >> 1;
+            sif = (tvb_get_uint8(tvb, offset) & ALP_CONCAT_SIF_MASK) != 0;
             proto_tree_add_item(alp_tree, hf_alp_concat_count, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(alp_tree, hf_alp_concat_sif, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
@@ -354,12 +354,12 @@ dissect_alp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     }
 
     if (hef) {
-        uint8_t he_length_m1 = tvb_get_guint8(tvb, offset + 1);
+        uint8_t he_length_m1 = tvb_get_uint8(tvb, offset + 1);
         uint16_t he_length = (uint16_t)he_length_m1 + 1;
         proto_item *he_item = proto_tree_add_item(alp_tree, hf_alp_header_extension, tvb, offset, 2 + he_length, ENC_NA);
         proto_tree *he_tree = proto_item_add_subtree(he_item, ett_alp_he);
 
-        uint8_t he_type = tvb_get_guint8(tvb, offset);
+        uint8_t he_type = tvb_get_uint8(tvb, offset);
 
         proto_tree_add_item(he_tree, hf_alp_header_extension_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
@@ -371,7 +371,7 @@ dissect_alp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
         if (he_type == 0xF0 && he_length == 8) {
             /* Sony L1D Time Info Extension */
-            uint64_t sony_time = tvb_get_guint64(tvb, offset, ENC_BIG_ENDIAN);
+            uint64_t sony_time = tvb_get_uint64(tvb, offset, ENC_BIG_ENDIAN);
             uint64_t sony_sec = (sony_time & ALP_HE_SONY_L1D_TIME_SEC_MASK) >> 30;
             uint64_t sony_ms = (sony_time & ALP_HE_SONY_L1D_TIME_MS_MASK) >> 20;
             uint64_t sony_us = (sony_time & ALP_HE_SONY_L1D_TIME_US_MASK) >> 10;
@@ -400,7 +400,7 @@ dissect_alp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             offset += 8;
         } else if (he_type == 0xF1 && he_length == 1) {
             /* Sony PLP Extension */
-            col_add_fstr(pinfo->cinfo, COL_INFO, "Sony PLP Extension: PLP %u", (tvb_get_guint8(tvb, offset) & ALP_HE_SONY_PLP_NUM_MASK) >> 2);
+            col_add_fstr(pinfo->cinfo, COL_INFO, "Sony PLP Extension: PLP %u", (tvb_get_uint8(tvb, offset) & ALP_HE_SONY_PLP_NUM_MASK) >> 2);
             proto_tree_add_item(he_tree, hf_alp_header_extension_sony_plp_id, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(he_tree, hf_alp_header_extension_sony_plp_unk, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
@@ -415,7 +415,7 @@ dissect_alp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         proto_item *sig_info_item = proto_tree_add_item(alp_tree, hf_alp_sig_info, tvb, offset, 5, ENC_NA);
         proto_tree *sig_info_tree = proto_item_add_subtree(sig_info_item, ett_alp_sig_info);
 
-        uint8_t sig_info_type = tvb_get_guint8(tvb, offset);
+        uint8_t sig_info_type = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(sig_info_tree, hf_alp_sig_info_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
@@ -433,7 +433,7 @@ dissect_alp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             proto_item *lmt_item = proto_tree_add_item(alp_tree, hf_alp_lmt, tvb, offset, payload_length, ENC_NA);
             proto_tree *lmt_tree = proto_item_add_subtree(lmt_item, ett_alp_lmt);
 
-            uint8_t lmt_numplp = ((tvb_get_guint8(tvb, offset) & ALP_LMT_NUMPLP_MASK) >> 2) + 1;
+            uint8_t lmt_numplp = ((tvb_get_uint8(tvb, offset) & ALP_LMT_NUMPLP_MASK) >> 2) + 1;
             col_add_fstr(pinfo->cinfo, COL_INFO, "Link Mapping Table, number of PLPs: %u", lmt_numplp);
             PROTO_ITEM_SET_GENERATED(
                 proto_tree_add_uint(lmt_tree, hf_alp_lmt_numplp, tvb, offset, 1, lmt_numplp)
@@ -444,10 +444,10 @@ dissect_alp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             for(uint8_t i = 0; i < lmt_numplp; i++) {
                 /* Fist pass. Calculate PLP entry length */
                 int lmt_plp_length = 2;
-                uint8_t lmt_mc_nummc = tvb_get_guint8(tvb, offset + 1);
+                uint8_t lmt_mc_nummc = tvb_get_uint8(tvb, offset + 1);
                 int plp_mc_len = 0;
                 for(uint8_t j = 0; j < lmt_mc_nummc; j++) {
-                    uint8_t lmt_mc_plp_flags = tvb_get_guint8(tvb, offset + 2 + plp_mc_len + 12);
+                    uint8_t lmt_mc_plp_flags = tvb_get_uint8(tvb, offset + 2 + plp_mc_len + 12);
                     plp_mc_len += 13;
                     uint8_t lmt_mc_plp_sid_flag = lmt_mc_plp_flags & ALP_LMT_PLP_MC_SID_MASK;
                     uint8_t lmt_mc_plp_comp_flag = lmt_mc_plp_flags & ALP_LMT_PLP_MC_COMP_MASK;
@@ -464,7 +464,7 @@ dissect_alp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 proto_item *lmt_plp_item = proto_tree_add_item(lmt_tree, hf_alp_lmt_plp, tvb, offset, lmt_plp_length, ENC_NA);
                 proto_tree *lmt_plp_tree = proto_item_add_subtree(lmt_plp_item, ett_alp_lmt_plp);
 
-                uint8_t lmt_plp_id = (tvb_get_guint8(tvb, offset) & ALP_LMT_PLP_ID_MASK) >> 2;
+                uint8_t lmt_plp_id = (tvb_get_uint8(tvb, offset) & ALP_LMT_PLP_ID_MASK) >> 2;
                 proto_item_append_text(lmt_plp_item, " ID=%u", lmt_plp_id);
 
                 proto_tree_add_item(lmt_plp_tree, hf_alp_lmt_plp_id, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -476,7 +476,7 @@ dissect_alp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
                 for(uint8_t j = 0; j < lmt_mc_nummc; j++) {
                     int mc_len = 13;
-                    uint8_t lmt_mc_plp_flags = tvb_get_guint8(tvb, offset + 12);
+                    uint8_t lmt_mc_plp_flags = tvb_get_uint8(tvb, offset + 12);
                     uint8_t lmt_mc_plp_sid_flag = lmt_mc_plp_flags & ALP_LMT_PLP_MC_SID_MASK;
                     uint8_t lmt_mc_plp_comp_flag = lmt_mc_plp_flags & ALP_LMT_PLP_MC_COMP_MASK;
                     if (lmt_mc_plp_sid_flag) {
@@ -487,7 +487,7 @@ dissect_alp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                     }
 
                     proto_item *lmt_plp_mc_item = proto_tree_add_item(lmt_plp_tree, hf_alp_lmt_plp_mc, tvb, offset, mc_len, ENC_NA);
-                    proto_item_append_text(lmt_plp_mc_item, " (%u) Dst=%s:%u", j, tvb_ip_to_str(pinfo->pool, tvb, offset + 4), tvb_get_guint16(tvb, offset + 10, ENC_BIG_ENDIAN));
+                    proto_item_append_text(lmt_plp_mc_item, " (%u) Dst=%s:%u", j, tvb_ip_to_str(pinfo->pool, tvb, offset + 4), tvb_get_uint16(tvb, offset + 10, ENC_BIG_ENDIAN));
                     proto_tree *lmt_plp_mc_tree = proto_item_add_subtree(lmt_plp_mc_item, ett_alp_lmt_plp_mc);
 
                     proto_tree_add_item(lmt_plp_mc_tree, hf_alp_lmt_plp_mc_src_ip, tvb, offset, 4, ENC_BIG_ENDIAN);

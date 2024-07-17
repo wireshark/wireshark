@@ -599,7 +599,7 @@ dissect_asap_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *asap
   proto_tree     *flags_tree;
   uint8_t         type;
 
-  type = tvb_get_guint8(message_tvb, MESSAGE_TYPE_OFFSET);
+  type = tvb_get_uint8(message_tvb, MESSAGE_TYPE_OFFSET);
   /* pinfo is NULL only if dissect_asap_message is called via dissect_error_cause */
   if (!pinfo->flags.in_error_pkt) {
     tap_rec = wmem_new0(pinfo->pool, asap_tap_rec_t);

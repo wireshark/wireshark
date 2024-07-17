@@ -1102,14 +1102,14 @@ dissect_chld_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         value = get_uint_parameter(pinfo->pool, parameter_stream, 1);
 
         if (parameter_length >= 2) {
-            if (tvb_get_guint8(tvb, offset + 1) == 'x') {
+            if (tvb_get_uint8(tvb, offset + 1) == 'x') {
                 if (value == 1)
                     proto_tree_add_item(tree, hf_chld_mode_1x, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
                 else if (value == 2)
                     proto_tree_add_item(tree, hf_chld_mode_2x, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
             }
 
-            if (tvb_get_guint8(tvb, offset + 1) != 'x' || value > 4) {
+            if (tvb_get_uint8(tvb, offset + 1) != 'x' || value > 4) {
                 proto_tree_add_expert(tree, pinfo, &ei_chld_mode, tvb, offset, parameter_length);
             }
         }
@@ -2580,7 +2580,7 @@ static int allowed_chars_len(tvbuff_t *tvb, int captured_len)
     /* Get the amount of characters within the TVB which are ASCII,
      * cartridge return or new line */
     for (offset = 0; offset < captured_len; offset++) {
-        val = tvb_get_guint8(tvb, offset);
+        val = tvb_get_uint8(tvb, offset);
         if (!(g_ascii_isprint(val) || (val == 0x0a) || (val == 0x0d)))
             return offset;
     }
@@ -2594,7 +2594,7 @@ static bool is_padded(tvbuff_t *tvb, int captured_len, int first_pad_offset)
     /* Check if the rest of the packet is 0x00 padding
      * and no other values*/
     for (offset = first_pad_offset; offset < captured_len; offset++) {
-        val = tvb_get_guint8(tvb, offset);
+        val = tvb_get_uint8(tvb, offset);
         if (val != 0x00)
             return false;
     }

@@ -141,8 +141,8 @@ again:
     if ((int) tvb_reported_length(tvb) <= offset)
         return;                 /* No more options left */
 
-    type = tvb_get_guint8(tvb, offset);
-    len = tvb_get_guint8(tvb, offset + 1);
+    type = tvb_get_uint8(tvb, offset);
+    len = tvb_get_uint8(tvb, offset + 1);
 
     ext_tree = proto_tree_add_subtree(tree, tvb, offset, 2 + len, ett_aodv_extensions, NULL, "Extensions");
 
@@ -202,7 +202,7 @@ dissect_aodv_rreq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
                    ett_aodv_flags, aodv_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_TFS | BMT_NO_INT);
     offset += 2;        /* skip reserved byte */
 
-    hop_count = tvb_get_guint8(tvb, offset);
+    hop_count = tvb_get_uint8(tvb, offset);
     proto_tree_add_uint(aodv_tree, hf_aodv_hopcount, tvb, offset, 1,
                             hop_count);
     offset += 1;
@@ -304,7 +304,7 @@ dissect_aodv_rrep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
                             prefix_sz);
     offset += 1;
 
-    hop_count = tvb_get_guint8(tvb, offset);
+    hop_count = tvb_get_uint8(tvb, offset);
     if (aodv_tree)
         proto_tree_add_uint(aodv_tree, hf_aodv_hopcount, tvb, offset, 1,
                             hop_count);
@@ -392,7 +392,7 @@ dissect_aodv_rerr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
                    ett_aodv_flags, aodv_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_TFS | BMT_NO_INT);
     offset += 2;        /* skip reserved byte */
 
-    dest_count = tvb_get_guint8(tvb, offset);
+    dest_count = tvb_get_uint8(tvb, offset);
     if (aodv_tree)
         proto_tree_add_uint(aodv_tree, hf_aodv_destcount, tvb, offset, 1,
                             dest_count);
@@ -452,7 +452,7 @@ dissect_aodv_draft_01_v6_rreq(tvbuff_t *tvb, packet_info *pinfo,
                    ett_aodv_flags, aodv_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_TFS | BMT_NO_INT);
     offset += 2;        /* skip reserved byte */
 
-    hop_count = tvb_get_guint8(tvb, offset);
+    hop_count = tvb_get_uint8(tvb, offset);
     proto_tree_add_uint(aodv_tree, hf_aodv_hopcount, tvb, offset, 1,
                              hop_count);
     offset += 1;
@@ -532,7 +532,7 @@ dissect_aodv_draft_01_v6_rrep(tvbuff_t *tvb, packet_info *pinfo,
                             prefix_sz);
     offset += 1;
 
-    hop_count = tvb_get_guint8(tvb, offset);
+    hop_count = tvb_get_uint8(tvb, offset);
     proto_tree_add_uint(aodv_tree, hf_aodv_hopcount, tvb, offset, 1,
                             hop_count);
     offset += 1;
@@ -597,7 +597,7 @@ dissect_aodv_draft_01_v6_rerr(tvbuff_t *tvb, packet_info *pinfo,
                    ett_aodv_flags, aodv_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_TFS | BMT_NO_INT);
     offset += 2;        /* skip reserved byte */
 
-    dest_count = tvb_get_guint8(tvb, offset);
+    dest_count = tvb_get_uint8(tvb, offset);
     proto_tree_add_uint(aodv_tree, hf_aodv_destcount, tvb, offset, 1,
                             dest_count);
 
@@ -637,7 +637,7 @@ dissect_aodv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     is_ipv6 = (pinfo->src.type == AT_IPv6);
 
     /* Check the type of AODV packet. */
-    type = tvb_get_guint8(tvb, 0);
+    type = tvb_get_uint8(tvb, 0);
     if (try_val_to_str(type, type_vals) == NULL) {
         /*
          * We assume this is not an AODV packet.

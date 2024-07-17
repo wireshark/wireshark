@@ -86,7 +86,7 @@ dissect_ayiya(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     idlen = 1 << tvb_get_bits8(tvb, 0, 4);
     siglen = tvb_get_bits8(tvb, 8, 4) * 4;
     opcode = tvb_get_bits8(tvb, 20, 4);
-    next_header = tvb_get_guint8(tvb, 3);
+    next_header = tvb_get_uint8(tvb, 3);
 
     ayiya_len = 8+idlen+siglen;
 

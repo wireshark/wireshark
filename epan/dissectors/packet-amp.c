@@ -215,7 +215,7 @@ static cborObj cbor_info(tvbuff_t *tvb, int offset)
     ret.uint = -1;
     int theSize;
 
-    tmp = tvb_get_guint8(tvb, offset);
+    tmp = tvb_get_uint8(tvb, offset);
 
     offset += 1;
     ret.size += 1;
@@ -229,16 +229,16 @@ static cborObj cbor_info(tvbuff_t *tvb, int offset)
         if ( theSize<24 ) {
             ret.uint = (tmp & 0x1F); // May be actual size or indication of follow-on size
         } else if (theSize==24) { // next byte is uint8_t data
-            ret.uint = tvb_get_guint8(tvb, offset);
+            ret.uint = tvb_get_uint8(tvb, offset);
             ret.size += 1;
         } else if (theSize==25) { // next 2 bytes are uint16_t data
-            ret.uint = tvb_get_guint16(tvb, offset, 0);
+            ret.uint = tvb_get_uint16(tvb, offset, 0);
             ret.size += 2;
         } else if (theSize==26) { // next 4 bytes are uint32_t data
-            ret.uint = tvb_get_guint32(tvb, offset, 0);
+            ret.uint = tvb_get_uint32(tvb, offset, 0);
             ret.size += 4;
         } else if (theSize==27) { // next 8 bytes are uint64_t data
-            ret.uint = tvb_get_guint64(tvb, offset, 0);
+            ret.uint = tvb_get_uint64(tvb, offset, 0);
             ret.size += 8;
         }
         ret.totalSize = ret.size;
@@ -248,16 +248,16 @@ static cborObj cbor_info(tvbuff_t *tvb, int offset)
         if ( theSize<24 ) { // Array size is contained in the identifier byte
             ret.uint = (tmp & 0x1F);
         } else if (theSize==24) { // next byte is uint8_t data (length)
-            ret.uint = tvb_get_guint8(tvb, offset);
+            ret.uint = tvb_get_uint8(tvb, offset);
             ret.size += 1;
         } else if (theSize==25) { // next 2bytes are uint16_t data (length)
-            ret.uint = tvb_get_guint16(tvb, offset, 0);
+            ret.uint = tvb_get_uint16(tvb, offset, 0);
             ret.size += 2;
         } else if (theSize==26) { // next 4bytes are uint32_t data
-            ret.uint = tvb_get_guint32(tvb, offset, 0);
+            ret.uint = tvb_get_uint32(tvb, offset, 0);
             ret.size += 4;
         } else if (theSize==27) { // next byte is uint64_t data
-            ret.uint = tvb_get_guint64(tvb, offset, 0);
+            ret.uint = tvb_get_uint64(tvb, offset, 0);
             ret.size += 8;
         }
         ret.totalSize = ret.size+ret.uint;
@@ -269,19 +269,19 @@ static cborObj cbor_info(tvbuff_t *tvb, int offset)
             ret.uint = (tmp & 0x1F);
         } else if (theSize==24) // next byte is uint8_t data
         {
-            ret.uint = tvb_get_guint8(tvb, offset);
+            ret.uint = tvb_get_uint8(tvb, offset);
             ret.size += 1;
         } else if (theSize==25) // next 2bytes are uint16_t data
         {
-            ret.uint = tvb_get_guint16(tvb, offset, 0);
+            ret.uint = tvb_get_uint16(tvb, offset, 0);
             ret.size += 2;
         } else if (theSize==26) // next 4bytes are uint32_t data
         {
-            ret.uint = tvb_get_guint32(tvb, offset, 0);
+            ret.uint = tvb_get_uint32(tvb, offset, 0);
             ret.size += 4;
         } else if (theSize==27) // next byte is uint64_t data
         {
-            ret.uint = tvb_get_guint64(tvb, offset, 0);
+            ret.uint = tvb_get_uint64(tvb, offset, 0);
             ret.size += 8;
         }
         ret.totalSize = ret.size+ret.uint;
@@ -293,19 +293,19 @@ static cborObj cbor_info(tvbuff_t *tvb, int offset)
             ret.uint = (tmp & 0x1F);
         } else if (theSize==24) // next byte is uint8_t data
         {
-            ret.uint = tvb_get_guint8(tvb, offset);
+            ret.uint = tvb_get_uint8(tvb, offset);
             ret.size += 1;
         } else if (theSize==25) // next 2bytes are uint16_t data
         {
-            ret.uint = tvb_get_guint16(tvb, offset, 0);
+            ret.uint = tvb_get_uint16(tvb, offset, 0);
             ret.size += 2;
         } else if (theSize==26) // next 4bytes are uint32_t data
         {
-            ret.uint = tvb_get_guint32(tvb, offset, 0);
+            ret.uint = tvb_get_uint32(tvb, offset, 0);
             ret.size += 4;
         } else if (theSize==27) // next byte is uint64_t data
         {
-            ret.uint = tvb_get_guint64(tvb, offset, 0);
+            ret.uint = tvb_get_uint64(tvb, offset, 0);
             ret.size += 8;
         }
         // I know how many elements are in the array, but NOT the total
@@ -386,7 +386,7 @@ dissect_amp_as_subtree(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, int
         // The first byte of this byte string (the AMP message) is going to be the message header
         // This is just a byte, not a CBOR uint8
         int ampHeader;
-        ampHeader = tvb_get_guint8(tvb, offset);
+        ampHeader = tvb_get_uint8(tvb, offset);
         amp_message_tree = proto_tree_add_subtree(amp_tree, tvb, offset, -1,
                                                   ett_amp_message, &amp_message, "AMP Message");
 
@@ -465,7 +465,7 @@ dissect_amp_as_subtree(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, int
                 tmpObj3 = cbor_info(tvb, offset);
                 offset += tmpObj3.size;
                 uint8_t ariFlags;
-                ariFlags = tvb_get_guint8(tvb, offset);
+                ariFlags = tvb_get_uint8(tvb, offset);
 
                 if ( (ariFlags&0x0F)==0x03 ) {
                     // Literal
@@ -535,11 +535,11 @@ dissect_amp_as_subtree(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, int
                     switch ( tmpObj3.type ) {
                     case 0x02: // bytestring
                         // Get the type from the type dictionary
-                        switch ( tvb_get_guint8(tvb, report_types_offset+k) ) {
+                        switch ( tvb_get_uint8(tvb, report_types_offset+k) ) {
                         case 0x12: // string
                             // It's a text string of some size INSIDE a byte string
                             tmpObj4 = cbor_info(tvb, offset+tmpObj3.size);
-                            // printf("tmpObj4.type of (%02x) is (%d)\n", tvb_get_guint8(tvb, offset+tmpObj3.size), tmpObj4.type);
+                            // printf("tmpObj4.type of (%02x) is (%d)\n", tvb_get_uint8(tvb, offset+tmpObj3.size), tmpObj4.type);
                             proto_tree_add_item(amp_report_TNVC_tree, hf_amp_text_string, tvb,
                                         offset+tmpObj3.size+tmpObj4.size,
                                         (int) tmpObj3.uint-tmpObj4.size, 0x00);

@@ -490,7 +490,7 @@ static const fragment_items afs_frag_items = {
 static void OUT_RXArray8(ptvcursor_t *cursor, int field, int field_size, int encoding)
 {
 	unsigned int i,
-		size = tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+		size = tvb_get_uint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
 
 	ptvcursor_advance(cursor, 1);
 	for (i=0; i<size; i++) {

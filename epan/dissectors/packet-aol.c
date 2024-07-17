@@ -228,7 +228,7 @@ static int dissect_aol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	/* Add type (and add it to the tree item / info column) */
 	if (pdu_len >= 1) {
-		pdu_type = tvb_get_guint8(tvb,offset) & 0x3f;
+		pdu_type = tvb_get_uint8(tvb,offset) & 0x3f;
 		col_append_fstr(pinfo->cinfo,COL_INFO," [Type: %s]",val_to_str_const(pdu_type,aol_p3_types,"Unknown"));
 		proto_item_append_text(ti," [Type: %s]",val_to_str_const(pdu_type,aol_p3_types,"Unknown"));
 		proto_tree_add_uint(aol_tree,hf_aol_type,tvb,offset,1,pdu_type);
@@ -288,7 +288,7 @@ static int dissect_aol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
  */
 static int dissect_aol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
 	/* Ensure this really is an AOL packet */
-	if (tvb_reported_length(tvb) >= 1 && tvb_get_guint8(tvb,0) != AOL_P3_FRAME_START) return 0;
+	if (tvb_reported_length(tvb) >= 1 && tvb_get_uint8(tvb,0) != AOL_P3_FRAME_START) return 0;
 
 	/* Dissect PDUs */
 	tcp_dissect_pdus(tvb,pinfo,tree,aol_desegment,9,get_aol_pdu_len,dissect_aol_pdu,data);

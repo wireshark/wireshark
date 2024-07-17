@@ -98,8 +98,8 @@ tvb_atalkid_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int offset)
   char *cur;
 
   cur=(char *)wmem_alloc(scope, 16);
-  node=tvb_get_guint8(tvb, offset+1)<<8|tvb_get_guint8(tvb, offset+2);
-  snprintf(cur, 16, "%d.%d",node,tvb_get_guint8(tvb, offset+3));
+  node=tvb_get_uint8(tvb, offset+1)<<8|tvb_get_uint8(tvb, offset+2);
+  snprintf(cur, 16, "%d.%d",node,tvb_get_uint8(tvb, offset+3));
   return cur;
 }
 
@@ -150,8 +150,8 @@ dissect_aarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
   ar_hrd = tvb_get_ntohs(tvb, AR_HRD);
   ar_pro = tvb_get_ntohs(tvb, AR_PRO);
-  ar_hln = tvb_get_guint8(tvb, AR_HLN);
-  ar_pln = tvb_get_guint8(tvb, AR_PLN);
+  ar_hln = tvb_get_uint8(tvb, AR_HLN);
+  ar_pln = tvb_get_uint8(tvb, AR_PLN);
   ar_op  = tvb_get_ntohs(tvb, AR_OP);
 
   /* Get the offsets of the addresses. */

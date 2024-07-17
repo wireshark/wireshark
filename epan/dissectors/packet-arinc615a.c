@@ -341,7 +341,7 @@ static bool dissect_a615a_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 {
     unsigned psize = tvb_captured_length(tvb);
     if (psize < 6) return false;
-    if ((tvb_get_ntohl(tvb, 0) != psize) || ((char)tvb_get_guint8(tvb, 4) != 'A')) return false;
+    if ((tvb_get_ntohl(tvb, 0) != psize) || ((char)tvb_get_uint8(tvb, 4) != 'A')) return false;
 
     const char *filename = ((struct tftpinfo *)data)->filename;
     if (filename == NULL) {

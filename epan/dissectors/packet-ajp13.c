@@ -338,7 +338,7 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_con
 
   /* MESSAGE TYPE CODE
    */
-  mcode = tvb_get_guint8(tvb, pos);
+  mcode = tvb_get_uint8(tvb, pos);
   col_append_str(pinfo->cinfo, COL_INFO, val_to_str(mcode, mtype_codes, "Unknown message code %u"));
   if (ajp13_tree)
     proto_tree_add_item(ajp13_tree, hf_ajp13_code, tvb, pos, 1, ENC_BIG_ENDIAN);
@@ -396,11 +396,11 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_con
 
       /* HEADER CODE/NAME
        */
-      hcd = tvb_get_guint8(tvb, pos);
+      hcd = tvb_get_uint8(tvb, pos);
 
       if (hcd == 0xA0) {
         pos+=1;
-        hid = tvb_get_guint8(tvb, pos);
+        hid = tvb_get_uint8(tvb, pos);
         pos+=1;
 
         if (hid >= array_length(rsp_headers))
@@ -554,7 +554,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
 
   /* PACKET CODE
    */
-  cod = tvb_get_guint8(tvb, 4);
+  cod = tvb_get_uint8(tvb, 4);
   if (ajp13_tree)
     proto_tree_add_item(ajp13_tree, hf_ajp13_code, tvb, pos, 1, ENC_BIG_ENDIAN);
   pos+=1;
@@ -565,7 +565,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
 
   /* HTTP METHOD (ENCODED AS INTEGER)
    */
-  meth = tvb_get_guint8(tvb, pos);
+  meth = tvb_get_uint8(tvb, pos);
   col_append_str(pinfo->cinfo, COL_INFO, val_to_str(meth, http_method_codes, "Unknown method %u"));
   if (ajp13_tree)
     proto_tree_add_item(ajp13_tree, hf_ajp13_method, tvb, pos, 1, ENC_BIG_ENDIAN);
@@ -644,13 +644,13 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
 
     /* HEADER CODE/NAME
      */
-    hcd = tvb_get_guint8(tvb, pos);
+    hcd = tvb_get_uint8(tvb, pos);
 
     if (hcd == 0xA0) {
       proto_item* pi;
 
       pos+=1;
-      hid = tvb_get_guint8(tvb, pos);
+      hid = tvb_get_uint8(tvb, pos);
       pos+=1;
 
       if (hid >= array_length(req_headers))
@@ -698,7 +698,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
 
     /* ATTRIBUTE CODE/NAME
      */
-    aid = tvb_get_guint8(tvb, pos);
+    aid = tvb_get_uint8(tvb, pos);
     pos+=1;
 
     if (aid == 0xFF) {

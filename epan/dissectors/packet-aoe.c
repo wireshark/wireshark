@@ -214,7 +214,7 @@ dissect_ata_pdu(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset,
       ata_info->conversation=conversation;
       ata_info->request_frame=pinfo->num;
       ata_info->response_frame=0;
-      ata_info->cmd=tvb_get_guint8(tvb, offset+3);
+      ata_info->cmd=tvb_get_uint8(tvb, offset+3);
       ata_info->req_time=pinfo->abs_ts;
 
       tmp_ata_info=(ata_info_t *)wmem_map_lookup(ata_cmd_unmatched, ata_info);
@@ -261,7 +261,7 @@ dissect_ata_pdu(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset,
   }
 
   /* aflags */
-  aflags=tvb_get_guint8(tvb, offset);
+  aflags=tvb_get_uint8(tvb, offset);
   proto_tree_add_item(tree, hf_aoe_aflags_e, tvb, offset, 1, ENC_BIG_ENDIAN);
   if(aflags&AOE_AFLAGS_E){
     proto_tree_add_item(tree, hf_aoe_aflags_d, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -283,7 +283,7 @@ dissect_ata_pdu(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset,
   /* ata command/status */
   if(!response){
     proto_tree_add_item(tree, hf_aoe_acmd, tvb, offset, 1, ENC_BIG_ENDIAN);
-    col_append_fstr(pinfo->cinfo, COL_INFO, " ATA:%s", val_to_str(tvb_get_guint8(tvb, offset), ata_cmd_vals, " Unknown ATA<0x%02x>"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, " ATA:%s", val_to_str(tvb_get_uint8(tvb, offset), ata_cmd_vals, " Unknown ATA<0x%02x>"));
   } else {
     proto_tree_add_item(tree, hf_aoe_astatus, tvb, offset, 1, ENC_BIG_ENDIAN);
     if(ata_info != NULL && ata_info->request_frame){
@@ -312,7 +312,7 @@ dissect_aoe_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *flags_tree;
 
   /* read and dissect the flags */
-  flags=tvb_get_guint8(tvb, 0)&0x0f;
+  flags=tvb_get_uint8(tvb, 0)&0x0f;
 
   flags_tree=proto_tree_add_subtree(tree, tvb, 0, 1, ett_aoe_flags, &flags_item, "Flags:");
 
@@ -325,7 +325,7 @@ dissect_aoe_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if(flags&AOE_FLAGS_ERROR){
     proto_item_append_text(flags_item, " Error");
     proto_tree_add_item(tree, hf_aoe_error, tvb, 1, 1, ENC_BIG_ENDIAN);
-    col_append_fstr(pinfo->cinfo, COL_INFO, "Error:%s ", val_to_str(tvb_get_guint8(tvb, 1), error_vals, "Unknown error<%d>"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "Error:%s ", val_to_str(tvb_get_uint8(tvb, 1), error_vals, "Unknown error<%d>"));
   }
 
   /* major/minor address */
@@ -333,7 +333,7 @@ dissect_aoe_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree_add_item(tree, hf_aoe_minor, tvb, 4, 1, ENC_BIG_ENDIAN);
 
   /* command */
-  cmd=tvb_get_guint8(tvb, 5);
+  cmd=tvb_get_uint8(tvb, 5);
   proto_tree_add_item(tree, hf_aoe_cmd, tvb, 5, 1, ENC_BIG_ENDIAN);
   col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s", val_to_str(cmd, cmd_vals, "Unknown command<%d>"), (flags&AOE_FLAGS_RESPONSE)?"Response":"Request");
 
@@ -366,7 +366,7 @@ dissect_aoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
   item = proto_tree_add_item(parent_tree, proto_aoe, tvb, 0, -1, ENC_NA);
   tree = proto_item_add_subtree(item, ett_aoe);
 
-  version=tvb_get_guint8(tvb, 0)>>4;
+  version=tvb_get_uint8(tvb, 0)>>4;
   proto_tree_add_uint(tree, hf_aoe_version, tvb, 0, 1, version);
   switch(version){
   case 1:

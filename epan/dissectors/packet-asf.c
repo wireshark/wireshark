@@ -150,8 +150,8 @@ dissect_asf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	type = tvb_get_guint8(tvb, 4);
-	len = tvb_get_guint8(tvb, 7);
+	type = tvb_get_uint8(tvb, 4);
+	len = tvb_get_uint8(tvb, 7);
 
 	col_add_str(pinfo->cinfo, COL_INFO,
 		val_to_str(type, asf_type_vals, "Unknown (0x%02x)"));
@@ -218,7 +218,7 @@ dissect_asf_payloads(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	while ( len >= 4 )
 	{
-		ptype = tvb_get_guint8(tvb, offset);
+		ptype = tvb_get_uint8(tvb, offset);
 		plen = tvb_get_ntohs(tvb, offset + 2);
 
 		ti = proto_tree_add_none_format(tree, hf_asf_payload, tvb, offset,
@@ -263,7 +263,7 @@ dissect_asf_payload_authentication(tvbuff_t *tvb, proto_tree *tree,
 	proto_item *ti;
 	proto_tree *atree;
 
-	alg = tvb_get_guint8(tvb, offset);
+	alg = tvb_get_uint8(tvb, offset);
 	ti = proto_tree_add_none_format(tree, hf_asf_payload_data, tvb, offset,
 		len, "Authentication Algorithm: %s",
 		val_to_str(alg, asf_authentication_type_vals, "Unknown (%u)"));
@@ -280,7 +280,7 @@ dissect_asf_payload_integrity(tvbuff_t *tvb, proto_tree *tree,
 	proto_item *ti;
 	proto_tree *atree;
 
-	alg = tvb_get_guint8(tvb, offset);
+	alg = tvb_get_uint8(tvb, offset);
 	ti = proto_tree_add_none_format(tree, hf_asf_payload_data, tvb, offset,
 		len, "Integrity Algorithm: %s",
 		val_to_str(alg, asf_integrity_type_vals, "Unknown (%u)"));

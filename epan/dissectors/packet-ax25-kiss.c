@@ -226,7 +226,7 @@ dissect_ax25_kiss( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, v
 	/* protocol offset for the KISS header */
 	offset = 0;
 
-	kiss_cmd   = tvb_get_guint8( tvb, offset ) & 0xff;
+	kiss_cmd   = tvb_get_uint8( tvb, offset ) & 0xff;
 	kiss_type  = kiss_cmd & KISS_CMD_MASK;
 	kiss_port  = (kiss_cmd & KISS_PORT_MASK) >> 4;
 	offset    += KISS_HEADER_SIZE;
@@ -235,11 +235,11 @@ dissect_ax25_kiss( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, v
 	kiss_param_len  = 0;
 	switch ( kiss_type )
 		{
-		case KISS_TXDELAY	: kiss_param_len = 1; kiss_param = tvb_get_guint8( tvb, offset ) & 0xff; break;
-		case KISS_PERSISTENCE	: kiss_param_len = 1; kiss_param = tvb_get_guint8( tvb, offset ) & 0xff; break;
-		case KISS_SLOT_TIME	: kiss_param_len = 1; kiss_param = tvb_get_guint8( tvb, offset ) & 0xff; break;
-		case KISS_TXTAIL	: kiss_param_len = 1; kiss_param = tvb_get_guint8( tvb, offset ) & 0xff; break;
-		case KISS_FULLDUPLEX	: kiss_param_len = 1; kiss_param = tvb_get_guint8( tvb, offset ) & 0xff; break;
+		case KISS_TXDELAY	: kiss_param_len = 1; kiss_param = tvb_get_uint8( tvb, offset ) & 0xff; break;
+		case KISS_PERSISTENCE	: kiss_param_len = 1; kiss_param = tvb_get_uint8( tvb, offset ) & 0xff; break;
+		case KISS_SLOT_TIME	: kiss_param_len = 1; kiss_param = tvb_get_uint8( tvb, offset ) & 0xff; break;
+		case KISS_TXTAIL	: kiss_param_len = 1; kiss_param = tvb_get_uint8( tvb, offset ) & 0xff; break;
+		case KISS_FULLDUPLEX	: kiss_param_len = 1; kiss_param = tvb_get_uint8( tvb, offset ) & 0xff; break;
 		case KISS_SETHARDWARE	:
 					kiss_param_len = tvb_captured_length_remaining( tvb, offset );
 					if ( kiss_param_len < 0 )
@@ -247,7 +247,7 @@ dissect_ax25_kiss( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, v
 					if ( (kiss_param_len > 0) && gPREF_CKSUM_MODE )
 						kiss_param_len--;
 					break;
-		case KISS_DATA_FRAME_ACK: kiss_param_len = 2; kiss_param = tvb_get_guint8( tvb, offset ) & 0xff; break;
+		case KISS_DATA_FRAME_ACK: kiss_param_len = 2; kiss_param = tvb_get_uint8( tvb, offset ) & 0xff; break;
 		default			: break;
 		}
 	frame_type_text = val_to_str(kiss_type, kiss_frame_types, "Unknown (%u)");
@@ -329,7 +329,7 @@ dissect_ax25_kiss( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, v
 			if ( kiss_tvb_length > 0 )
 			{
 				for ( kiss_cksum_index = 0; kiss_cksum_index < kiss_tvb_length; kiss_cksum_index++ )
-					kiss_cksum ^= (tvb_get_guint8( tvb, kiss_cksum_index ) & 0xff);
+					kiss_cksum ^= (tvb_get_uint8( tvb, kiss_cksum_index ) & 0xff);
 
 				proto_tree_add_checksum(kiss_tree, tvb, 0, hf_ax25_kiss_cksum, -1, NULL, pinfo, kiss_cksum, ENC_NA, PROTO_CHECKSUM_GENERATED);
 			}

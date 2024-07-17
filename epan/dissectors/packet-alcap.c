@@ -432,9 +432,9 @@ static const char* dissect_fields_cau(packet_info* pinfo, tvbuff_t *tvb, proto_t
         return NULL;
     }
 
-    msg_info->release_cause = tvb_get_guint8(tvb, offset+1) & 0x7f;
+    msg_info->release_cause = tvb_get_uint8(tvb, offset+1) & 0x7f;
 
-    coding = tvb_get_guint8(tvb, offset) & 0x3;
+    coding = tvb_get_uint8(tvb, offset) & 0x3;
 
     proto_tree_add_item(tree, hf_alcap_cau_coding, tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -455,7 +455,7 @@ static const char* dissect_fields_cau(packet_info* pinfo, tvbuff_t *tvb, proto_t
     offset += 2;
 
     if (len > 2)  {
-        int diag_len = tvb_get_guint8(tvb,offset);
+        int diag_len = tvb_get_uint8(tvb,offset);
 
         pi = proto_tree_add_item(tree,hf_alcap_cau_diag, tvb, offset,len-2,ENC_NA);
         tree = proto_item_add_subtree(pi,ett_cau_diag);
@@ -499,7 +499,7 @@ static const char* dissect_fields_ceid(packet_info* pinfo, tvbuff_t *tvb, proto_
 
     proto_tree_add_item_ret_uint(tree, hf_alcap_ceid_pathid, tvb, offset, 4, ENC_BIG_ENDIAN, &msg_info->pathid);
 
-    msg_info->cid = tvb_get_guint8(tvb,offset+4);
+    msg_info->cid = tvb_get_uint8(tvb,offset+4);
 
     if (msg_info->pathid == 0) {
         return "Path: 0 (All Paths)";
@@ -531,7 +531,7 @@ static const char* dissect_fields_desea(packet_info* pinfo, tvbuff_t *tvb, proto
     e164 = wmem_new(pinfo->pool, e164_info_t);
 
     e164->e164_number_type = CALLED_PARTY_NUMBER;
-    e164->nature_of_address = tvb_get_guint8(tvb,offset) & 0x7f;
+    e164->nature_of_address = tvb_get_uint8(tvb,offset) & 0x7f;
     /*
      * XXX - section 7.4.14 "E.164 address" of Q.2630.3 seems to
      * indicate that this is BCD, not ASCII.
@@ -561,7 +561,7 @@ static const char* dissect_fields_oesea(packet_info* pinfo, tvbuff_t *tvb, proto
     e164 = wmem_new(pinfo->pool, e164_info_t);
 
     e164->e164_number_type = CALLING_PARTY_NUMBER;
-    e164->nature_of_address = tvb_get_guint8(tvb,offset) & 0x7f;
+    e164->nature_of_address = tvb_get_uint8(tvb,offset) & 0x7f;
     /*
      * XXX - section 7.4.14 "E.164 address" of Q.2630.3 seems to
      * indicate that this is BCD, not ASCII.
@@ -1179,7 +1179,7 @@ static const char* dissect_fields_sut(packet_info* pinfo, tvbuff_t *tvb, proto_t
         return NULL;
     }
 
-    sut_len = tvb_get_guint8(tvb,offset);
+    sut_len = tvb_get_uint8(tvb,offset);
 
     proto_tree_add_item(tree, hf_alcap_sut_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_alcap_sut, tvb, offset, sut_len, ENC_NA);
@@ -1331,7 +1331,7 @@ static int dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     pi = proto_tree_add_item(alcap_tree,hf_alcap_msg_id,tvb,4,1,ENC_BIG_ENDIAN);
 
     msg_info->dsaid = tvb_get_ntohl(tvb, 0);
-    msg_info->msg_type = tvb_get_guint8(tvb, 4);
+    msg_info->msg_type = tvb_get_uint8(tvb, 4);
 
     expert_add_info(pinfo, pi, &ei_alcap_response);
 
@@ -1348,8 +1348,8 @@ static int dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     offset = ALCAP_MSG_HEADER_LEN;
 
     while(len > 0) {
-        unsigned param_id = tvb_get_guint8(tvb,offset);
-        unsigned param_len = tvb_get_guint8(tvb,offset+2);
+        unsigned param_id = tvb_get_uint8(tvb,offset);
+        unsigned param_len = tvb_get_uint8(tvb,offset+2);
         const alcap_param_info_t* param_info = GET_PARAM_INFO(param_id);
         proto_tree* param_tree;
         const char* colinfo_str = NULL;

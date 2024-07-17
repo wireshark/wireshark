@@ -473,7 +473,7 @@ dissect_ancp_port_up_dn_mgmt(tvbuff_t *tvb, proto_tree *ancp_tree, int offset, u
         tech_type = 0;
     } else {
         proto_tree_add_item(ancp_tree, hf_ancp_tech_type,     tvb, offset, 1, ENC_BIG_ENDIAN);
-        tech_type = tvb_get_guint8(tvb, offset);
+        tech_type = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         proto_tree_add_item(ancp_tree, hf_ancp_reserved,      tvb, offset, 1, ENC_NA);
@@ -516,7 +516,7 @@ dissect_ancp_adj_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ancp_tree,
 
     sti = proto_tree_add_item(ancp_tree, hf_ancp_adj_code, tvb, offset, 1,
             ENC_BIG_ENDIAN);
-    byte = tvb_get_guint8(tvb, offset);
+    byte = tvb_get_uint8(tvb, offset);
     offset += 1;
     adjcode = byte & ADJ_CODE_MASK;
     ancp_info->ancp_adjcode = adjcode; /* stats */
@@ -540,7 +540,7 @@ dissect_ancp_adj_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ancp_tree,
 
     sti = proto_tree_add_item(ancp_tree, hf_ancp_p_info, tvb,
             offset, 1, ENC_BIG_ENDIAN);
-    byte = tvb_get_guint8(tvb, offset);
+    byte = tvb_get_uint8(tvb, offset);
     offset += 1;
     proto_item_append_text(sti, " (Type = %d, Flag = %d)",
             byte >> 4, byte & 0x0F);
@@ -558,7 +558,7 @@ dissect_ancp_adj_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ancp_tree,
     offset += 1;
 
     sti = proto_tree_add_item(ancp_tree, hf_ancp_num_tlvs, tvb, offset, 1, ENC_BIG_ENDIAN);
-    numcaps = tvb_get_guint8(tvb, offset);
+    numcaps = tvb_get_uint8(tvb, offset);
     offset += 1;
 
     /* Start the capability subtree */
@@ -643,12 +643,12 @@ dissect_ancp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     offset += 2;
 
     sti  = proto_tree_add_item(ancp_tree, hf_ancp_ver, tvb, offset, 1, ENC_BIG_ENDIAN);
-    byte = tvb_get_guint8(tvb, offset);
+    byte = tvb_get_uint8(tvb, offset);
     offset += 1;
     proto_item_append_text(sti, " (%d.%d)", byte >> 4, byte & 0x0F);
 
     sti = proto_tree_add_item(ancp_tree, hf_ancp_mtype, tvb, offset, 1, ENC_BIG_ENDIAN);
-    mtype = tvb_get_guint8(tvb, offset); /* ANCP message type */
+    mtype = tvb_get_uint8(tvb, offset); /* ANCP message type */
     ancp_info->ancp_mtype = mtype; /* stats */
     offset += 1;
 

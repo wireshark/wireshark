@@ -431,7 +431,7 @@ create_full_session_id_subtree(wmem_allocator_t *scope, proto_tree *tree, tvbuff
     if (full_session_id != 0) {
         const char *session_ext = "";
         uint32_t board_id = tvb_get_ntoh24(tvb, offset);
-        uint8_t reset_counter = tvb_get_guint8(tvb, offset + 3);
+        uint8_t reset_counter = tvb_get_uint8(tvb, offset + 3);
 
         if ((ver & 0xF) == 7)
             session_int = tvb_get_ntohl(tvb, offset + 4);
@@ -494,7 +494,7 @@ create_header_extension_subtree(proto_tree *tree, tvbuff_t *tvb, int offset, uin
     if (media_type == ACDR_TLS || media_type == ACDR_TLSPeek) {
         tls_packet_info->source_port = tvb_get_ntohs(tvb, offset);
         tls_packet_info->dest_port = tvb_get_ntohs(tvb, offset + 2);
-        tls_packet_info->application = tvb_get_guint8(tvb, offset + 12);
+        tls_packet_info->application = tvb_get_uint8(tvb, offset + 12);
     }
 
     //further processing only involves adding fields
@@ -818,7 +818,7 @@ dissect_rtp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint8_t 
 
     int bytes_dissected = 0;
 
-    if ((tvb_get_guint8(tvb, 0) & 0xC0) == 0) {
+    if ((tvb_get_uint8(tvb, 0) & 0xC0) == 0) {
         // RTP Version = 0
         if (tvb_get_ntohl(tvb, 4) == 0x2112a442) {
             // This is STUN RFC 5389 packet
@@ -1060,7 +1060,7 @@ create_acdr_tree(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
     offset += cid_byte_length;
 
     // Extra Data
-    extra_data = tvb_get_guint8(tvb, offset);
+    extra_data = tvb_get_uint8(tvb, offset);
     if ((extra_data == 0) ||
 
         // Backward Compatible:  in old versions we always set the extra_data with 0xAA value
@@ -1095,7 +1095,7 @@ create_acdr_tree(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
     offset++;
 
     // Media Type
-    media_type = tvb_get_guint8(tvb, offset);
+    media_type = tvb_get_uint8(tvb, offset);
     if ((media_type == ACDR_DSP_AC5X_MII) && (medium_mii == 0))
         proto_tree_add_item(acdr_tree, hf_acdr_media_type_dsp_ac5x, tvb, offset, 1, ENC_BIG_ENDIAN);
     else
@@ -1154,7 +1154,7 @@ create_acdr_tree(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
         case ACDR_RTP_RFC2198:
         case ACDR_RTP_RFC2833:
         case ACDR_RTP_FEC:
-            payload_type = (tvb_get_guint8(tvb, acdr_header_length + 1) & 0x7F);
+            payload_type = (tvb_get_uint8(tvb, acdr_header_length + 1) & 0x7F);
             break;
         }
 
@@ -1319,7 +1319,7 @@ dissect_acdr_rtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         return 0;
 
     int bytes_dissected = 0;
-    if ((tvb_get_guint8(tvb, 0) & 0xC0) == 0) {
+    if ((tvb_get_uint8(tvb, 0) & 0xC0) == 0) {
         // RTCP Version = 0
         if (tvb_get_ntohl(tvb, 4) == 0x2112a442) {
             // This is STUN RFC 5389 packet

@@ -512,7 +512,7 @@ static int dissect_pascal_string(tvbuff_t *tvb, int offset, proto_tree *tree,
 {
   int   len;
 
-  len = tvb_get_guint8(tvb, offset);
+  len = tvb_get_uint8(tvb, offset);
   proto_tree_add_item(tree, hf_index, tvb, offset, 1, ENC_MAC_ROMAN|ENC_BIG_ENDIAN);
 
   offset += (len+1);
@@ -529,7 +529,7 @@ dissect_rtmp_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTMP");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  function = tvb_get_guint8(tvb, 0);
+  function = tvb_get_uint8(tvb, 0);
 
   col_add_str(pinfo->cinfo, COL_INFO,
               val_to_str(function, rtmp_function_vals, "Unknown function (%02x)"));
@@ -557,9 +557,9 @@ dissect_rtmp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
   col_clear(pinfo->cinfo, COL_INFO);
 
   net = tvb_get_ntohs(tvb, offset);
-  nodelen_bits = tvb_get_guint8(tvb, offset+2);
+  nodelen_bits = tvb_get_uint8(tvb, offset+2);
   if ( nodelen_bits <= 8 ) {
-    node = tvb_get_guint8(tvb, offset+3);
+    node = tvb_get_uint8(tvb, offset+3);
     nodelen = 1;
   } else {
     node = tvb_get_ntohs(tvb, offset+3);
@@ -600,14 +600,14 @@ dissect_rtmp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
       uint8_t version;
 
       tuple_net = tvb_get_ntohs(tvb, offset);
-      tuple_dist = tvb_get_guint8(tvb, offset+2);
+      tuple_dist = tvb_get_uint8(tvb, offset+2);
 
       if (tuple_dist & 0x80) {
         /*
          * Extended network tuple.
          */
         tuple_range_end = tvb_get_ntohs(tvb, offset+3);
-        version = tvb_get_guint8(tvb, offset+5);
+        version = tvb_get_uint8(tvb, offset+5);
         if (i == 1) {
           /*
            * For the first tuple, the last octet is a version number.
@@ -668,7 +668,7 @@ dissect_nbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "NBP");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  info  = tvb_get_guint8(tvb, offset);
+  info  = tvb_get_uint8(tvb, offset);
   op    = info >> 4;
   count = info & 0x0F;
 
@@ -746,8 +746,8 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATP");
 
-  ctrlinfo = tvb_get_guint8(tvb, offset);
-  bitmap   = tvb_get_guint8(tvb, offset +1);
+  ctrlinfo = tvb_get_uint8(tvb, offset);
+  bitmap   = tvb_get_uint8(tvb, offset +1);
   tid      = tvb_get_ntohs(tvb, offset +2);
 
   t = bitmap;
@@ -887,7 +887,7 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
            but I don't want to keep track of NBP msgs and open connection
            port allocation.
         */
-        uint8_t fn = tvb_get_guint8(new_tvb, 0);
+        uint8_t fn = tvb_get_uint8(new_tvb, 0);
 
         if (!fn || fn > ASPFUNC_ATTN) {
           sub = pap_handle;
@@ -936,11 +936,11 @@ dissect_pap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     pap_tree = proto_item_add_subtree(ti, ett_pap);
   }
 
-  connID = tvb_get_guint8(tvb, offset);
+  connID = tvb_get_uint8(tvb, offset);
   proto_tree_add_item(pap_tree, hf_pap_connid, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset++;
 
-  fn = tvb_get_guint8(tvb, offset);
+  fn = tvb_get_uint8(tvb, offset);
   proto_tree_add_item(pap_tree, hf_pap_function, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset++;
 
@@ -1023,7 +1023,7 @@ get_transaction(tvbuff_t *tvb, packet_info *pinfo, struct atp_asp_dsi_info *atp_
 
   request_val = (asp_request_val *) wmem_map_lookup(asp_request_hash, &request_key);
   if (!request_val && !atp_asp_dsi_info->reply )  {
-    fn = tvb_get_guint8(tvb, 0);
+    fn = tvb_get_uint8(tvb, 0);
     new_request_key = wmem_new(wmem_file_scope(), asp_request_key);
     *new_request_key = request_key;
 
@@ -1294,7 +1294,7 @@ dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
       offset += 2;
       sub_tree = proto_item_add_subtree(ti, ett_zip_zones_list);
       for (i = 0; i < count; i++) {
-        len = tvb_get_guint8(tvb, offset);
+        len = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(sub_tree, hf_zip_zone_name, tvb, offset, 1,ENC_ASCII|ENC_BIG_ENDIAN);
         offset += len +1;
       }
@@ -1330,7 +1330,7 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ZIP");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  fn = tvb_get_guint8(tvb, 0);
+  fn = tvb_get_uint8(tvb, 0);
   col_add_str(pinfo->cinfo, COL_INFO,
               val_to_str_ext(fn, &zip_function_vals_ext, "Unknown ZIP function (%02x)"));
 
@@ -1345,7 +1345,7 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
   /* fn 1,7,2,8 are not tested */
   switch (fn) {
   case 1: /* Query */
-    count = tvb_get_guint8(tvb, offset);
+    count = tvb_get_uint8(tvb, offset);
     ti    = proto_tree_add_item(zip_tree, hf_zip_network_count, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     sub_tree = proto_item_add_subtree(ti, ett_zip_network_list);
@@ -1361,11 +1361,11 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     proto_tree_add_item(zip_tree, hf_zip_zero_value, tvb, offset, 4, ENC_NA);
     offset += 4;
 
-    len = tvb_get_guint8(tvb, offset);
+    len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(zip_tree, hf_zip_zone_name, tvb, offset, 1,ENC_ASCII|ENC_BIG_ENDIAN);
     offset += len +1;
 
-    len = tvb_get_guint8(tvb, offset);
+    len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(zip_tree, hf_zip_multicast_length,tvb, offset, 1,ENC_BIG_ENDIAN);
     offset++;
     proto_tree_add_item(zip_tree, hf_zip_multicast_address,tvb, offset, len,ENC_NA);
@@ -1376,7 +1376,7 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
   case 2: /* Reply */
   case 8: /* Extended Reply */
-    count = tvb_get_guint8(tvb, offset);
+    count = tvb_get_uint8(tvb, offset);
     ti = proto_tree_add_item(zip_tree, hf_zip_network_count, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     sub_tree = proto_item_add_subtree(ti, ett_zip_network_list);
@@ -1385,7 +1385,7 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
       net_tree = proto_tree_add_subtree_format(sub_tree, tvb, offset, 2, ett_zip_network_list, &ti, "Zone for network: %u", net);
       proto_tree_add_item(net_tree, hf_zip_network, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
-      len = tvb_get_guint8(tvb, offset);
+      len = tvb_get_uint8(tvb, offset);
       proto_tree_add_item(net_tree, hf_zip_zone_name, tvb, offset, 1,ENC_ASCII|ENC_BIG_ENDIAN);
       offset += len +1;
       proto_item_set_len(ti, len+3);
@@ -1401,7 +1401,7 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     break;
 
   case 6 :  /* GetNetInfo reply */
-    flag = tvb_get_guint8(tvb, offset);
+    flag = tvb_get_uint8(tvb, offset);
     proto_tree_add_bitmask(zip_tree, tvb, offset, hf_zip_flags, ett_zip_flags, zip_flags, ENC_NA);
     offset++;
 
@@ -1411,11 +1411,11 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     proto_tree_add_item(zip_tree, hf_zip_network_end, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    len = tvb_get_guint8(tvb, offset);
+    len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(zip_tree, hf_zip_zone_name, tvb, offset, 1,ENC_ASCII|ENC_BIG_ENDIAN);
     offset += len +1;
 
-    len = tvb_get_guint8(tvb, offset);
+    len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(zip_tree, hf_zip_multicast_length,tvb, offset, 1,ENC_BIG_ENDIAN);
     offset++;
     proto_tree_add_item(zip_tree, hf_zip_multicast_address,tvb, offset, len,ENC_NA);
@@ -1475,13 +1475,13 @@ dissect_ddp_short(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     }
   }
   set_actual_length(tvb, len);
-  dport = tvb_get_guint8(tvb, 2);
+  dport = tvb_get_uint8(tvb, 2);
   if (tree)
     proto_tree_add_uint(ddp_tree, hf_ddp_dst_socket, tvb, 2, 1, dport);
-  sport = tvb_get_guint8(tvb, 3);
+  sport = tvb_get_uint8(tvb, 3);
   if (tree)
     proto_tree_add_uint(ddp_tree, hf_ddp_src_socket, tvb, 3, 1, sport);
-  type = tvb_get_guint8(tvb, 4);
+  type = tvb_get_uint8(tvb, 4);
 
   src->net = 0;
   src->node = ddp_node->snode;
@@ -1565,9 +1565,9 @@ dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   proto_tree_add_uint(ddp_tree, hf_ddp_dst_net,    tvb, 4, 2, dst->net);
   src->net = tvb_get_ntohs(tvb, 6);
   proto_tree_add_uint(ddp_tree, hf_ddp_src_net,    tvb, 6, 2, src->net);
-  dst->node = tvb_get_guint8(tvb, 8);
+  dst->node = tvb_get_uint8(tvb, 8);
   proto_tree_add_uint(ddp_tree, hf_ddp_dst_node,   tvb, 8,  1, dst->node);
-  src->node = tvb_get_guint8(tvb, 9);
+  src->node = tvb_get_uint8(tvb, 9);
   proto_tree_add_uint(ddp_tree, hf_ddp_src_node,   tvb, 9,  1, src->node);
   proto_tree_add_item_ret_uint(ddp_tree, hf_ddp_dst_socket, tvb, 10, 1, ENC_NA, &pinfo->destport);
   proto_tree_add_item_ret_uint(ddp_tree, hf_ddp_src_socket, tvb, 11, 1, ENC_NA, &pinfo->srcport);
@@ -1625,13 +1625,13 @@ dissect_llap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   ti = proto_tree_add_item(tree, proto_llap, tvb, 0, 3, ENC_NA);
   llap_tree = proto_item_add_subtree(ti, ett_llap);
 
-  ddp_node.dnode = tvb_get_guint8(tvb, 0);
+  ddp_node.dnode = tvb_get_uint8(tvb, 0);
   proto_tree_add_uint(llap_tree, hf_llap_dst, tvb, 0, 1, ddp_node.dnode);
 
-  ddp_node.snode = tvb_get_guint8(tvb, 1);
+  ddp_node.snode = tvb_get_uint8(tvb, 1);
   proto_tree_add_uint(llap_tree, hf_llap_src, tvb, 1, 1, ddp_node.snode);
 
-  type = tvb_get_guint8(tvb, 2);
+  type = tvb_get_uint8(tvb, 2);
   col_add_str(pinfo->cinfo, COL_INFO,
     val_to_str_ext(type, &llap_type_vals_ext, "Unknown LLAP type (%02x)"));
   proto_tree_add_uint(llap_tree, hf_llap_type, tvb, 2, 1, type);

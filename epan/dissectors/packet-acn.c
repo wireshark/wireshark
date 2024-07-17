@@ -3008,7 +3008,7 @@ is_magic(tvbuff_t *tvb)
 {
   static const uint8_t magic_protocol_id = 15;
 
-  if (tvb_get_guint8(tvb, 0) == magic_protocol_id)
+  if (tvb_get_uint8(tvb, 0) == magic_protocol_id)
     return true;
 
   return false;
@@ -3041,7 +3041,7 @@ dissect_magic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   offset++;
 
   /* PDU Type */
-  pdu_subtype = tvb_get_guint8(tvb, offset);
+  pdu_subtype = tvb_get_uint8(tvb, offset);
   pdu_subtype_string = val_to_str(pdu_subtype, magic_pdu_subtypes, "Unknown (0x%02x)");
 
   /* Adjust info column */
@@ -3132,11 +3132,11 @@ dissect_magic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       offset += 4;
 
       /* encoded and display version */
-      major = tvb_get_guint8(tvb, offset++);
-      minor = tvb_get_guint8(tvb, offset++);
-      patch = tvb_get_guint8(tvb, offset++);
-      aud = tvb_get_guint8(tvb, offset++);
-      crit = tvb_get_guint8(tvb, offset++);
+      major = tvb_get_uint8(tvb, offset++);
+      minor = tvb_get_uint8(tvb, offset++);
+      patch = tvb_get_uint8(tvb, offset++);
+      aud = tvb_get_uint8(tvb, offset++);
+      crit = tvb_get_uint8(tvb, offset++);
       build = tvb_get_ntohs(tvb, offset);
       offset += 2;
 
@@ -3176,11 +3176,11 @@ dissect_magic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       offset += 16;
 
       /* encoded and display version */
-      major = tvb_get_guint8(tvb, offset++);
-      minor = tvb_get_guint8(tvb, offset++);
-      patch = tvb_get_guint8(tvb, offset++);
-      aud = tvb_get_guint8(tvb, offset++);
-      crit = tvb_get_guint8(tvb, offset++);
+      major = tvb_get_uint8(tvb, offset++);
+      minor = tvb_get_uint8(tvb, offset++);
+      patch = tvb_get_uint8(tvb, offset++);
+      aud = tvb_get_uint8(tvb, offset++);
+      crit = tvb_get_uint8(tvb, offset++);
       build = tvb_get_ntohs(tvb, offset);
       offset += 2;
 
@@ -3226,7 +3226,7 @@ is_acn_or_rdmnet_over_udp(tvbuff_t *tvb, uint32_t *protocol_id)
     return false;
 
   offset = 16;
-  pdu_flags = tvb_get_guint8(tvb, offset) & 0xf0;
+  pdu_flags = tvb_get_uint8(tvb, offset) & 0xf0;
   if (pdu_flags & ACN_PDU_FLAG_L) {
     /* length bit is set: there are three length bytes */
     offset += 3;
@@ -3260,7 +3260,7 @@ is_rdmnet_over_tcp(tvbuff_t *tvb)
   }
 
   offset = 16;
-  pdu_flags = tvb_get_guint8(tvb, offset) & 0xf0;
+  pdu_flags = tvb_get_uint8(tvb, offset) & 0xf0;
   if (pdu_flags & ACN_PDU_FLAG_L) {
     /* length bit is set: there are three length bytes */
     offset += 3;
@@ -3502,7 +3502,7 @@ acn_add_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int off
   uint32_t    port;
 
   /* Get type */
-  ip_address_type = tvb_get_guint8(tvb, offset);
+  ip_address_type = tvb_get_uint8(tvb, offset);
 
   switch (ip_address_type) {
     case ACN_ADDR_NULL:
@@ -3565,7 +3565,7 @@ acn_add_dmp_address_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
   const char *name;
 
   /* header contains address and data type */
-  adt->flags = tvb_get_guint8(tvb, offset);
+  adt->flags = tvb_get_uint8(tvb, offset);
 
   D = ACN_DMP_ADT_EXTRACT_D(adt->flags);
   name = val_to_str(D, acn_dmp_adt_d_vals, "not valid (%d)");
@@ -3602,7 +3602,7 @@ acn_add_dmp_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int
       adt->count        = 1;
       switch (A) {              /* address */
         case ACN_DMP_ADT_A_1:   /* One octet address, (range: one octet address, increment, and count). */
-          adt->address  = tvb_get_guint8(tvb, offset);
+          adt->address  = tvb_get_uint8(tvb, offset);
           offset       += 1;
           bytes_used    = 1;
           break;
@@ -3630,11 +3630,11 @@ acn_add_dmp_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int
     case ACN_DMP_ADT_D_RS:      /* Range address, Single data item */
       switch (A) {
         case ACN_DMP_ADT_A_1:   /* One octet address, (range: one octet address, increment, and count). */
-          adt->address    = tvb_get_guint8(tvb, offset);
+          adt->address    = tvb_get_uint8(tvb, offset);
           offset         += 1;
-          adt->increment  = tvb_get_guint8(tvb, offset);
+          adt->increment  = tvb_get_uint8(tvb, offset);
           offset         += 1;
-          adt->count      = tvb_get_guint8(tvb, offset);
+          adt->count      = tvb_get_uint8(tvb, offset);
           offset         += 1;
           bytes_used      = 3;
           break;
@@ -3674,11 +3674,11 @@ acn_add_dmp_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int
     case ACN_DMP_ADT_D_RE:      /* Range address, Array of equal size data items */
       switch (A) {
         case ACN_DMP_ADT_A_1:   /* One octet address, (range: one octet address, increment, and count). */
-          adt->address    = tvb_get_guint8(tvb, offset);
+          adt->address    = tvb_get_uint8(tvb, offset);
           offset         += 1;
-          adt->increment  = tvb_get_guint8(tvb, offset);
+          adt->increment  = tvb_get_uint8(tvb, offset);
           offset         += 1;
-          adt->count      = tvb_get_guint8(tvb, offset);
+          adt->count      = tvb_get_uint8(tvb, offset);
           offset         += 1;
           bytes_used      = 3;
           break;
@@ -3718,11 +3718,11 @@ acn_add_dmp_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int
     case ACN_DMP_ADT_D_RM: /* Range address, Series of mixed size data items */
       switch (A) {
         case ACN_DMP_ADT_A_1: /* One octet address, (range: one octet address, increment, and count). */
-          adt->address =   tvb_get_guint8(tvb, offset);
+          adt->address =   tvb_get_uint8(tvb, offset);
           offset += 1;
-          adt->increment =   tvb_get_guint8(tvb, offset);
+          adt->increment =   tvb_get_uint8(tvb, offset);
           offset += 1;
-          adt->count =   tvb_get_guint8(tvb, offset);
+          adt->count =   tvb_get_uint8(tvb, offset);
           offset += 1;
           bytes_used = 3;
           break;
@@ -3846,7 +3846,7 @@ acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
 
       switch (data_size) {
         case 1:
-          data_value = tvb_get_guint8(tvb, offset);
+          data_value = tvb_get_uint8(tvb, offset);
           proto_tree_add_uint_format(tree, hf_acn_data8, tvb, offset, 1, data_value, "%s %2.2X", buffer, data_value);
           break;
         case 2:
@@ -3865,7 +3865,7 @@ acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
           default_buffer = wmem_strbuf_new(pinfo->pool, "");
           /* build string of values */
           for (y=0; y<20 && y<data_size; y++) {
-            data_value = tvb_get_guint8(tvb, offset+y);
+            data_value = tvb_get_uint8(tvb, offset+y);
             wmem_strbuf_append_printf(default_buffer, " %2.2X", data_value);
           }
           /* add the item */
@@ -3900,7 +3900,7 @@ acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
 
         switch (data_size) {
           case 1:
-            data_value = tvb_get_guint8(tvb, offset);
+            data_value = tvb_get_uint8(tvb, offset);
             proto_tree_add_uint_format(tree, hf_acn_data8, tvb, offset, 1, data_value, "%s %2.2X", buffer, data_value);
             break;
           case 2:
@@ -3919,7 +3919,7 @@ acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
             /* build string of values */
             default_buffer = wmem_strbuf_new(pinfo->pool, "");
             for (y=0; y<20 && y<data_size; y++) {
-              data_value = tvb_get_guint8(tvb, offset+y);
+              data_value = tvb_get_uint8(tvb, offset+y);
               wmem_strbuf_append_printf(default_buffer, " %2.2X", data_value);
             }
             /* add the item */
@@ -3955,7 +3955,7 @@ acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
 
         switch (data_size) {
           case 1:
-            data_value = tvb_get_guint8(tvb, offset);
+            data_value = tvb_get_uint8(tvb, offset);
             proto_tree_add_uint_format(tree, hf_acn_data8, tvb, offset, 1, data_value, "%s %2.2X", buffer, data_value);
             break;
           case 2:
@@ -3974,7 +3974,7 @@ acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
             /* build string of values */
             default_buffer = wmem_strbuf_new(pinfo->pool, "");
             for (y=0; y<20 && y<data_size; y++) {
-              data_value = tvb_get_guint8(tvb, offset+y);
+              data_value = tvb_get_uint8(tvb, offset+y);
               wmem_strbuf_append_printf(default_buffer, " %2.2X", data_value);
             }
             /* add the item */
@@ -4033,7 +4033,7 @@ acn_add_dmp_reason_codes(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
       }
 
       /* Get reason */
-      data_value  = tvb_get_guint8(tvb, offset);
+      data_value  = tvb_get_uint8(tvb, offset);
       name        = val_to_str(data_value, acn_dmp_reason_code_vals, "reason not valid (%d)");
       proto_tree_add_uint_format(tree, hf_acn_data8, tvb, offset, 1, data_value, "%s %s", buffer, name);
       offset     += 1;
@@ -4057,7 +4057,7 @@ acn_add_dmp_reason_codes(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
         }
 
         /* Get reason */
-        data_value = tvb_get_guint8(tvb, offset);
+        data_value = tvb_get_uint8(tvb, offset);
         name       = val_to_str(data_value, acn_dmp_reason_code_vals, "reason not valid (%d)");
         proto_tree_add_uint_format(tree, hf_acn_data8, tvb, offset, 1, data_value, "%s %s", buffer, name);
 
@@ -4084,7 +4084,7 @@ acn_add_dmp_reason_codes(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
             return offset;
         }
         /* Get reason */
-        data_value    = tvb_get_guint8(tvb, offset);
+        data_value    = tvb_get_uint8(tvb, offset);
         name          = val_to_str(data_value, acn_dmp_reason_code_vals, "reason not valid (%d)");
         proto_tree_add_uint_format(tree, hf_acn_data8, tvb, offset, 1, data_value, "%s %s", buffer, name);
         data_address += adt->increment;
@@ -4152,7 +4152,7 @@ get_field_type_parameters(tvbuff_t *tvb, int blob_offset, uint8_t field_type, ui
       break;
     case ACN_BLOB_FIELD_TYPE11:
       /* Set field length and blob_offsets to use */
-      *field_length = tvb_get_guint8(tvb, blob_offset + 2);
+      *field_length = tvb_get_uint8(tvb, blob_offset + 2);
       *blob_offset1 = 2;
       *blob_offset2 = 1;
       *blob_offset3 = (*field_length) - 2;
@@ -4337,55 +4337,55 @@ display_blob_field_value(tvbuff_t *tvb, proto_tree *field_tree, uint16_t field_n
   }
   else if ((blob_type == ACN_BLOB_TIME3) && (field_number == 10)) {
     /* DST type */
-    field_value8 = tvb_get_guint8(tvb, blob_offset);
+    field_value8 = tvb_get_uint8(tvb, blob_offset);
     field_string = val_to_str(field_value8, acn_blob_time3_dst_vals, "not valid (%d)");
     proto_tree_add_uint_format(field_tree, hf_acn_blob_dst_type, tvb, blob_offset, 1, field_value8, "%s", field_string);
   }
   else if ((blob_type == ACN_BLOB_TIME3) && (field_number == 11)) {
     /* DST on month */
-    field_value8 = tvb_get_guint8(tvb, blob_offset);
+    field_value8 = tvb_get_uint8(tvb, blob_offset);
     field_string = val_to_str(field_value8, acn_blob_time3_month_vals, "not valid (%d)");
     proto_tree_add_uint_format(field_tree, hf_acn_blob_dst_type, tvb, blob_offset, 1, field_value8, "%s", field_string);
   }
   else if ((blob_type == ACN_BLOB_TIME3) && (field_number == 12)) {
     /* DST on week */
-    field_value8 = tvb_get_guint8(tvb, blob_offset);
+    field_value8 = tvb_get_uint8(tvb, blob_offset);
     field_string = val_to_str(field_value8, acn_blob_time3_week_vals, "not valid (%d)");
     proto_tree_add_uint_format(field_tree, hf_acn_blob_dst_type, tvb, blob_offset, 1, field_value8, "%s", field_string);
   }
   else if ((blob_type == ACN_BLOB_TIME3) && (field_number == 13)) {
     /* DST start day */
-    field_value8 = tvb_get_guint8(tvb, blob_offset);
+    field_value8 = tvb_get_uint8(tvb, blob_offset);
     field_string = val_to_str(field_value8, acn_blob_time3_day_vals, "not valid (%d)");
     proto_tree_add_uint_format(field_tree, hf_acn_blob_dst_start_day, tvb, blob_offset, 1, field_value8, "%s", field_string);
   }
   else if ((blob_type == ACN_BLOB_TIME3) && (field_number == 16)) {
     /* DST start locality */
-    field_value8 = tvb_get_guint8(tvb, blob_offset);
+    field_value8 = tvb_get_uint8(tvb, blob_offset);
     field_string = val_to_str(field_value8, acn_blob_time3_locality_vals, "not valid (%d)");
     proto_tree_add_uint_format(field_tree, hf_acn_blob_dst_start_locality, tvb, blob_offset, 1, field_value8, "%s", field_string);
   }
   else if ((blob_type == ACN_BLOB_TIME3) && (field_number == 17)) {
     /* DST off month */
-    field_value8 = tvb_get_guint8(tvb, blob_offset);
+    field_value8 = tvb_get_uint8(tvb, blob_offset);
     field_string = val_to_str(field_value8, acn_blob_time3_month_vals, "not valid (%d)");
     proto_tree_add_uint_format(field_tree, hf_acn_blob_dst_type, tvb, blob_offset, 1, field_value8, "%s", field_string);
   }
   else if ((blob_type == ACN_BLOB_TIME3) && (field_number == 18)) {
     /* DST off week */
-    field_value8 = tvb_get_guint8(tvb, blob_offset);
+    field_value8 = tvb_get_uint8(tvb, blob_offset);
     field_string = val_to_str(field_value8, acn_blob_time3_week_vals, "not valid (%d)");
     proto_tree_add_uint_format(field_tree, hf_acn_blob_dst_type, tvb, blob_offset, 1, field_value8, "%s", field_string);
   }
   else if ((blob_type == ACN_BLOB_TIME3) && (field_number == 19)) {
     /* DST stop day */
-    field_value8 = tvb_get_guint8(tvb, blob_offset);
+    field_value8 = tvb_get_uint8(tvb, blob_offset);
     field_string = val_to_str(field_value8, acn_blob_time3_day_vals, "not valid (%d)");
     proto_tree_add_uint_format(field_tree, hf_acn_blob_dst_stop_day, tvb, blob_offset, 1, field_value8, "%s", field_string);
   }
   else if ((blob_type == ACN_BLOB_TIME3) && (field_number == 22)) {
     /* DST stop locality */
-    field_value8 = tvb_get_guint8(tvb, blob_offset);
+    field_value8 = tvb_get_uint8(tvb, blob_offset);
     field_string = val_to_str(field_value8, acn_blob_time3_locality_vals, "not valid (%d)");
     proto_tree_add_uint_format(field_tree, hf_acn_blob_dst_stop_locality, tvb, blob_offset, 1, field_value8, "%s", field_string);
   }
@@ -4503,7 +4503,7 @@ display_blob_field(tvbuff_t *tvb, proto_tree *blob_tree, uint8_t blob_type, int 
   }
   else {
     /* Get field type*/
-    field_type = tvb_get_guint8(tvb, *blob_offset);
+    field_type = tvb_get_uint8(tvb, *blob_offset);
     get_field_type_parameters(tvb, *blob_offset, field_type, &field_length, &blob_offset1, &blob_offset2, &blob_offset3);
     field_name = get_field_name(blob_type, *field_number);
 
@@ -4576,7 +4576,7 @@ dissect_acn_blob_preset_properties(tvbuff_t *tvb, proto_tree *blob_tree, int blo
   while (blob_offset < end_offset) {
     if (field_number == 17) {
       /* Create subtree for "Levels" */
-      field_type = tvb_get_guint8(tvb, blob_offset);
+      field_type = tvb_get_uint8(tvb, blob_offset);
       get_field_type_parameters(tvb, blob_offset, field_type, &field_length, &blob_offset1, &blob_offset2, &blob_offset3);
 
       field_name = get_field_name(blob_type, field_number);
@@ -4662,7 +4662,7 @@ dissect_acn_blob_dimming_rack_status_properties_v2(tvbuff_t *tvb, proto_tree *bl
   while (blob_offset < end_offset) {
     if (field_number == 22) {
       /* Create subtree for "Active Preset Group IDs" */
-      field_type = tvb_get_guint8(tvb, blob_offset);
+      field_type = tvb_get_uint8(tvb, blob_offset);
       get_field_type_parameters(tvb, blob_offset, field_type, &field_length, &blob_offset1, &blob_offset2, &blob_offset3);
 
       field_name = get_field_name(blob_type, field_number);
@@ -4707,7 +4707,7 @@ get_blob_type_from_fields(tvbuff_t *tvb, int blob_offset, int end_offset)
   uint16_t field_number = 1;
 
   while (blob_offset < end_offset) {
-    field_type = tvb_get_guint8(tvb, blob_offset);
+    field_type = tvb_get_uint8(tvb, blob_offset);
     if (field_number == 12) {
       if (field_type == ACN_BLOB_FIELD_TYPE11) {
         /* string: dimmer name field */
@@ -4757,7 +4757,7 @@ dissect_acn_blob(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pdu_tree, in
   blob_offset += 1;
 
   /* Add Blob Meta-Type */
-  blob_type = tvb_get_guint8(tvb, blob_offset);
+  blob_type = tvb_get_uint8(tvb, blob_offset);
   if (blob_type == ACN_BLOB_DIMMER_PROPERTIES2) {
     /* Dimmer  Properties v2 and Preset Properties have the same 'type' value (20) */
     blob_type = get_blob_type_from_fields(tvb, blob_offset + 1, end_offset);
@@ -4800,15 +4800,15 @@ dissect_pdu_bit_flag_l(tvbuff_t *tvb, int *offset, uint8_t *pdu_flags, uint32_t 
   uint32_t length3;
 
   /* get PDU flags and length flag */
-  octet      = tvb_get_guint8(tvb, (*offset)++);
+  octet      = tvb_get_uint8(tvb, (*offset)++);
   *pdu_flags = octet & 0xf0;
   length1    = octet & 0x0f;     /* bottom 4 bits only */
-  length2    = tvb_get_guint8(tvb, (*offset)++);
+  length2    = tvb_get_uint8(tvb, (*offset)++);
 
   /* if length flag is set, then we have a 20 bit length else we have a 12 bit */
   /* flvh = flags, length, vector, header */
   if (*pdu_flags & ACN_PDU_FLAG_L) {
-    length3 = tvb_get_guint8(tvb, *offset);
+    length3 = tvb_get_uint8(tvb, *offset);
     *offset += 1;
     *pdu_length = length3 | (length2 << 8) | (length1 << 16);
     *pdu_flvh_length = 3;
@@ -4956,7 +4956,7 @@ dissect_acn_dmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
   /* offset should now be pointing to header (if one exists) */
 
   /* Add Vector item */
-  vector = tvb_get_guint8(tvb, vector_offset);
+  vector = tvb_get_uint8(tvb, vector_offset);
   proto_tree_add_uint(pdu_tree, hf_acn_dmp_vector, tvb, vector_offset, 1, vector);
 
   /* Add Vector item to tree*/
@@ -5218,7 +5218,7 @@ dissect_acn_sdt_wrapped_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   /* offset should now be pointing to header (if one exists) */
 
   /* Add Vector item */
-  vector = tvb_get_guint8(tvb, vector_offset);
+  vector = tvb_get_uint8(tvb, vector_offset);
   proto_tree_add_uint(pdu_tree, hf_acn_sdt_vector, tvb, vector_offset, 1, vector);
 
   /* Add Vector item to tree*/
@@ -5464,7 +5464,7 @@ dissect_acn_dmx_data_pdu(uint32_t protocol_id, tvbuff_t *tvb, packet_info *pinfo
   /* offset should now be pointing to header (if one exists) */
 
   /* Add Vector item */
-  vector = tvb_get_guint8(tvb, vector_offset);
+  vector = tvb_get_uint8(tvb, vector_offset);
   proto_tree_add_uint(pdu_tree, hf_acn_dmp_vector, tvb, vector_offset, 1, vector);
 
   /* Add Vector item to tree*/
@@ -5542,12 +5542,12 @@ dissect_acn_dmx_data_pdu(uint32_t protocol_id, tvbuff_t *tvb, packet_info *pinfo
       }
       col_append_fstr(pinfo->cinfo,COL_INFO, ", Sc %02x, [%02x %02x %02x %02x %02x %02x...]",
         info_start_code,
-        tvb_get_guint8(tvb, data_offset),
-        tvb_get_guint8(tvb, data_offset+1),
-        tvb_get_guint8(tvb, data_offset+2),
-        tvb_get_guint8(tvb, data_offset+3),
-        tvb_get_guint8(tvb, data_offset+4),
-        tvb_get_guint8(tvb, data_offset+5));
+        tvb_get_uint8(tvb, data_offset),
+        tvb_get_uint8(tvb, data_offset+1),
+        tvb_get_uint8(tvb, data_offset+2),
+        tvb_get_uint8(tvb, data_offset+3),
+        tvb_get_uint8(tvb, data_offset+4),
+        tvb_get_uint8(tvb, data_offset+5));
 
       /* add a header line */
       *buf_ptr++ =  ' ';
@@ -5570,7 +5570,7 @@ dissect_acn_dmx_data_pdu(uint32_t protocol_id, tvbuff_t *tvb, packet_info *pinfo
       total_cnt = 0;
       item_cnt = 0;
       for (x=data_offset; x<end_offset; x++) {
-        level = tvb_get_guint8(tvb, x);
+        level = tvb_get_uint8(tvb, x);
         if (global_acn_dmx_display_view == ACN_PREF_DMX_DISPLAY_PER) {
           if ((level > 0) && (level < 3)) {
             level = 1;
@@ -5689,11 +5689,11 @@ dissect_acn_dmx_discovery_pdu(uint32_t protocol_id, tvbuff_t *tvb, packet_info *
   name = val_to_str(vector, acn_dmx_discovery_vector_vals, "not valid (%d)");
   proto_item_append_text(ti, ": %s", name);
 
-  page = tvb_get_guint8(tvb, data_offset);
+  page = tvb_get_uint8(tvb, data_offset);
   proto_tree_add_item(ti, hf_acn_dmx_discovery_page, tvb, data_offset, 1, ENC_BIG_ENDIAN);
   data_offset += 1;
 
-  lastpage = tvb_get_guint8(tvb, data_offset);
+  lastpage = tvb_get_uint8(tvb, data_offset);
   proto_tree_add_item(ti, hf_acn_dmx_discovery_last_page, tvb, data_offset, 1, ENC_BIG_ENDIAN);
   data_offset += 1;
 
@@ -5706,7 +5706,7 @@ dissect_acn_dmx_discovery_pdu(uint32_t protocol_id, tvbuff_t *tvb, packet_info *
       current_universe_idx = 0;
       while(data_offset + (sizeof(uint16_t)*current_universe_idx) != end_offset && current_universe_idx < 6)
       {
-        col_append_fstr(pinfo->cinfo,COL_INFO, "%u ", tvb_get_guint16(tvb, data_offset + (sizeof(uint16_t)*current_universe_idx), ENC_BIG_ENDIAN));
+        col_append_fstr(pinfo->cinfo,COL_INFO, "%u ", tvb_get_uint16(tvb, data_offset + (sizeof(uint16_t)*current_universe_idx), ENC_BIG_ENDIAN));
         ++current_universe_idx;
       }
       if(data_offset + (sizeof(uint16_t)*current_universe_idx) != end_offset)
@@ -5721,7 +5721,7 @@ dissect_acn_dmx_discovery_pdu(uint32_t protocol_id, tvbuff_t *tvb, packet_info *
       item_cnt = 0;
       last_universe = 0;
       for (x=data_offset; x<end_offset; x+=2) {
-        universe = tvb_get_guint16(tvb, x, ENC_BIG_ENDIAN);
+        universe = tvb_get_uint16(tvb, x, ENC_BIG_ENDIAN);
 
         if(!warned_unorder_once && last_universe > universe)
         {
@@ -5871,7 +5871,7 @@ dissect_acn_dmx_base_pdu(uint32_t protocol_id, tvbuff_t *tvb, packet_info *pinfo
         data_offset += 32;
       }
 
-      priority = tvb_get_guint8(tvb, data_offset);
+      priority = tvb_get_uint8(tvb, data_offset);
       proto_tree_add_item(pdu_tree, hf_acn_dmx_priority, tvb, data_offset, 1, ENC_BIG_ENDIAN);
       data_offset += 1;
 
@@ -5885,12 +5885,12 @@ dissect_acn_dmx_base_pdu(uint32_t protocol_id, tvbuff_t *tvb, packet_info *pinfo
         data_offset += 2;
       }
 
-      sequence = tvb_get_guint8(tvb, data_offset);
+      sequence = tvb_get_uint8(tvb, data_offset);
       proto_tree_add_item(pdu_tree, hf_acn_dmx_sequence_number, tvb, data_offset, 1, ENC_BIG_ENDIAN);
       data_offset += 1;
 
       if (protocol_id == ACN_PROTOCOL_ID_DMX_2 || protocol_id == ACN_PROTOCOL_ID_DMX_3) {
-        option_flags = tvb_get_guint8(tvb, data_offset);
+        option_flags = tvb_get_uint8(tvb, data_offset);
         pi = proto_tree_add_uint(pdu_tree, hf_acn_dmx_2_options, tvb, data_offset, 1, option_flags);
         flag_tree = proto_item_add_subtree(pi, ett_acn_dmx_2_options);
         proto_tree_add_item(flag_tree, hf_acn_dmx_2_option_p, tvb, data_offset, 1, ENC_BIG_ENDIAN);
@@ -5942,7 +5942,7 @@ dissect_acn_sdt_base_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
   dissect_acn_common_base_pdu(tvb, tree, &offset, last_pdu_offsets, &pdu_flags, &pdu_start, &pdu_length, &pdu_flvh_length, &vector_offset, &ti, &pdu_tree, ett_acn_sdt_base_pdu, 1, 1);
 
   /* Add Vector item */
-  vector = tvb_get_guint8(tvb, vector_offset);
+  vector = tvb_get_uint8(tvb, vector_offset);
   proto_tree_add_uint(pdu_tree, hf_acn_sdt_vector, tvb, vector_offset, 1, vector);
 
   /* Add Vector item to tree*/
@@ -6118,7 +6118,7 @@ dissect_llrp_probe_request_pdu(tvbuff_t *tvb, proto_tree *tree, int offset, acn_
   /* offset should now be pointing to header (if one exists) */
 
   /* add vector item  */
-  vector = tvb_get_guint8(tvb, data_offset);
+  vector = tvb_get_uint8(tvb, data_offset);
   proto_tree_add_uint(pdu_tree, hf_rdmnet_llrp_probe_request_vector, tvb, data_offset, 1, vector);
 
   dissect_pdu_bit_flag_h(&offset, pdu_flags, &data_offset, last_pdu_offsets, &pdu_flvh_length, 6);
@@ -6134,7 +6134,7 @@ dissect_llrp_probe_request_pdu(tvbuff_t *tvb, proto_tree *tree, int offset, acn_
   data_offset += 6;
 
   /* filter */
-  filter_flags = tvb_get_guint8(tvb, data_offset);
+  filter_flags = tvb_get_uint8(tvb, data_offset);
   filter_flags = filter_flags & 0x03;
   pi = proto_tree_add_uint(pdu_tree, hf_rdmnet_llrp_probe_request_filter, tvb, data_offset, 1, filter_flags);
   flag_tree = proto_item_add_subtree(pi, ett_rdmnet_llrp_probe_request_filter_flags);
@@ -6178,7 +6178,7 @@ dissect_llrp_probe_reply_pdu(tvbuff_t *tvb, proto_tree *tree, int offset, acn_pd
   /* offset should now be pointing to header (if one exists) */
 
   /* add vector item  */
-  vector = tvb_get_guint8(tvb, data_offset);
+  vector = tvb_get_uint8(tvb, data_offset);
   proto_tree_add_uint(pdu_tree, hf_rdmnet_llrp_probe_reply_vector, tvb, data_offset, 1, vector);
 
   dissect_pdu_bit_flag_h(&offset, pdu_flags, &data_offset, last_pdu_offsets, &pdu_flvh_length, 6);
@@ -6255,7 +6255,7 @@ dissect_llrp_rdm_command_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   /* offset should now be pointing to header (if one exists) */
 
   /* add vector item  */
-  vector = tvb_get_guint8(tvb, data_offset);
+  vector = tvb_get_uint8(tvb, data_offset);
   proto_tree_add_uint(pdu_tree, hf_rdmnet_llrp_rdm_command_start_code, tvb, data_offset, 1, vector);
 
   /* Add Vector item to tree */
@@ -6437,7 +6437,7 @@ dissect_broker_connect(tvbuff_t *tvb, proto_tree *tree, int offset, acn_pdu_offs
   offset += 231;
 
   /* connection flags */
-  connection_flags = tvb_get_guint8(tvb, offset);
+  connection_flags = tvb_get_uint8(tvb, offset);
   connection_flags = connection_flags & 0x01;
   pi = proto_tree_add_uint(tree, hf_rdmnet_broker_connect_connection_flags, tvb, offset, 1, connection_flags);
   flag_tree = proto_item_add_subtree(pi, ett_rdmnet_broker_connect_connection_flags);
@@ -6486,7 +6486,7 @@ dissect_broker_client_entry_update(tvbuff_t *tvb, proto_tree *tree, int offset, 
   proto_tree      *flag_tree;
 
   /* connection flags */
-  connection_flags = tvb_get_guint8(tvb, offset);
+  connection_flags = tvb_get_uint8(tvb, offset);
   connection_flags = connection_flags & 0x01;
   pi = proto_tree_add_uint(tree, hf_rdmnet_broker_client_entry_update_connection_flags, tvb, offset, 1, connection_flags);
   flag_tree = proto_item_add_subtree(pi, ett_rdmnet_broker_client_entry_update_connection_flags);
@@ -6718,7 +6718,7 @@ dissect_rpt_request_rdm_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
   dissect_acn_common_base_pdu(tvb, tree, &offset, last_pdu_offsets, &pdu_flags, &pdu_start, &pdu_length, &pdu_flvh_length, &vector_offset, &ti, &pdu_tree, ett_rdmnet_rpt_request_pdu, 1, 0);
 
   /* Add Vector item */
-  vector = tvb_get_guint8(tvb, vector_offset);
+  vector = tvb_get_uint8(tvb, vector_offset);
   proto_tree_add_item(pdu_tree, hf_rdmnet_rpt_request_rdm_command, tvb, vector_offset, 1, ENC_BIG_ENDIAN);
 
   /* Add Vector item to tree */
@@ -6888,7 +6888,7 @@ dissect_rpt_notification_rdm_command(tvbuff_t *tvb, packet_info *pinfo, proto_tr
   dissect_acn_common_base_pdu(tvb, tree, &offset, last_pdu_offsets, &pdu_flags, &pdu_start, &pdu_length, &pdu_flvh_length, &vector_offset, &ti, &pdu_tree, ett_rdmnet_rpt_request_pdu, 1, 0);
 
   /* Add Vector item */
-  vector = tvb_get_guint8(tvb, vector_offset);
+  vector = tvb_get_uint8(tvb, vector_offset);
   proto_tree_add_item(pdu_tree, hf_rdmnet_rpt_notification_rdm_command, tvb, vector_offset, 1, ENC_BIG_ENDIAN);
 
   /* Add Vector item to tree */
@@ -7369,7 +7369,7 @@ dissect_acn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
   /* add preamble, postamble and ACN Packet ID */
   proto_tree_add_item(acn_tree, hf_acn_preamble_size, tvb, data_offset, 2, ENC_BIG_ENDIAN);
   data_offset += 2;
-  postamble_size = tvb_get_guint16(tvb, data_offset, ENC_BIG_ENDIAN);
+  postamble_size = tvb_get_uint16(tvb, data_offset, ENC_BIG_ENDIAN);
   proto_tree_add_item(acn_tree, hf_acn_postamble_size, tvb, data_offset, 2, ENC_BIG_ENDIAN);
   data_offset += 2;
   proto_tree_add_item(acn_tree, hf_acn_packet_identifier, tvb, data_offset, 12, ENC_UTF_8 | ENC_NA);

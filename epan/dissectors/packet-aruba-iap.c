@@ -103,7 +103,7 @@ dissect_aruba_iap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     col_add_fstr(pinfo->cinfo, COL_INFO, "Aruba Instant AP");
 
     proto_tree_add_item(aruba_iap_tree, hf_iap_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-    type = tvb_get_guint8(tvb, offset);
+    type = tvb_get_uint8(tvb, offset);
     offset += 1;
 
     proto_tree_add_item(aruba_iap_tree, hf_iap_length, tvb, offset, 1, ENC_BIG_ENDIAN);

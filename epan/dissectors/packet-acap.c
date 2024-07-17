@@ -57,7 +57,7 @@ dissect_acap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
      * Otherwise, looking for the end of line in a binary file can take a long time
      * and this probably isn't ACAP
      */
-    if (!g_ascii_isprint(tvb_get_guint8(tvb, offset))) {
+    if (!g_ascii_isprint(tvb_get_uint8(tvb, offset))) {
         return 0;
     }
 

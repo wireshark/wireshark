@@ -110,8 +110,8 @@ static int dissect_auto_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "Auto-RP");
         col_clear(pinfo->cinfo, COL_INFO);
 
-        ver_type = tvb_get_guint8(tvb, 0);
-        rp_count = tvb_get_guint8(tvb, 1);
+        ver_type = tvb_get_uint8(tvb, 0);
+        rp_count = tvb_get_uint8(tvb, 1);
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s (v%s) for %u RP%s",
                      val_to_str_const(lo_nibble(ver_type), auto_rp_type_vals, "Unknown"),
                      val_to_str_const(hi_nibble(ver_type), auto_rp_ver_vals,  "Unknown"),
@@ -165,7 +165,7 @@ static int do_auto_rp_map(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, pr
         uint8_t     group_count;
         int         i;
 
-        group_count = tvb_get_guint8(tvb, offset + 5);
+        group_count = tvb_get_uint8(tvb, offset + 5);
 
         /* sizeof map header + n * sizeof encoded group addresses */
         map_tree = proto_tree_add_subtree_format(auto_rp_tree, tvb, offset, 6 + group_count * 6,
@@ -184,8 +184,8 @@ static int do_auto_rp_map(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, pr
                 proto_tree *grp_tree;
                 uint8_t     sign, mask_len;
 
-                sign = tvb_get_guint8(tvb, offset);
-                mask_len = tvb_get_guint8(tvb, offset + 1);
+                sign = tvb_get_uint8(tvb, offset);
+                mask_len = tvb_get_uint8(tvb, offset + 1);
                 grp_tree = proto_tree_add_subtree_format(map_tree, tvb, offset, 6,
                                          ett_auto_rp_group, NULL, "Group %s/%u (%s)",
                                          tvb_ip_to_str(scope, tvb, offset + 2), mask_len,

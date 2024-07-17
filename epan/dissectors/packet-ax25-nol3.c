@@ -157,13 +157,13 @@ dissect_ax25_nol3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
 
 	if ( gPREF_APRS )
 		{
-		dti = tvb_get_guint8( tvb, offset );
+		dti = tvb_get_uint8( tvb, offset );
 		if ( isaprs( dti ) )
 			snprintf( info_buffer, STRLEN, "APRS" );
 		}
 	if ( gPREF_DX )
 		{
-		if ( tvb_get_guint8( tvb, offset ) == 'D' && tvb_get_guint8( tvb, offset + 1 ) == 'X' )
+		if ( tvb_get_uint8( tvb, offset ) == 'D' && tvb_get_uint8( tvb, offset + 1 ) == 'X' )
 		snprintf( info_buffer, STRLEN, "DX cluster" );
 		}
 
@@ -192,7 +192,7 @@ dissect_ax25_nol3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
 		}
 	if ( gPREF_DX )
 		{
-		if ( tvb_get_guint8( tvb, offset ) == 'D' && tvb_get_guint8( tvb, offset + 1 ) == 'X' )
+		if ( tvb_get_uint8( tvb, offset ) == 'D' && tvb_get_uint8( tvb, offset + 1 ) == 'X' )
 			{
 			dissected = true;
 			dissect_dx( next_tvb, pinfo, ax25_nol3_tree, NULL );

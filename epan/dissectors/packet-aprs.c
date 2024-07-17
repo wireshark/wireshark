@@ -310,7 +310,7 @@ dissect_aprs_compression_type(	tvbuff_t	 *tvb,
 
 	if ( parent_tree )
 		{
-		compression_type = tvb_get_guint8( tvb, offset ) - 33;
+		compression_type = tvb_get_uint8( tvb, offset ) - 33;
 
 		tc = proto_tree_add_uint( parent_tree, hf_aprs_compression_type, tvb, offset, data_len,
 					  compression_type );
@@ -343,7 +343,7 @@ dissect_aprs_msg(	tvbuff_t	  *tvb,
 		msg_tree = proto_item_add_subtree( tc, ett_aprs_msg );
 		}
 
-	ch = tvb_get_guint8( tvb, offset );
+	ch = tvb_get_uint8( tvb, offset );
 
 	if ( g_ascii_isdigit( ch ) )
 		{
@@ -435,13 +435,13 @@ dissect_aprs_compressed_msg(	wmem_allocator_t *scope,
 		tc = proto_tree_add_item( parent_tree, hf_aprs_msg, tvb, offset, data_len, ENC_ASCII );
 		msg_tree = proto_item_add_subtree( tc, ett_aprs_msg );
 
-		ch = tvb_get_guint8( tvb, offset );
+		ch = tvb_get_uint8( tvb, offset );
 		if ( ch != ' ' )
 			{
 			if ( ch == '{' )
 				{ /* Pre-Calculated Radio Range */
 				offset += 1;
-				ch = tvb_get_guint8( tvb, offset );
+				ch = tvb_get_uint8( tvb, offset );
 				range = exp( log( 1.08 ) * (ch - 33) );
 				info_buffer = wmem_strdup_printf( scope, "%7.2f", range );
 				proto_tree_add_string( msg_tree, hf_aprs_msg_rng, tvb, offset, 1, info_buffer );
@@ -454,7 +454,7 @@ dissect_aprs_compressed_msg(	wmem_allocator_t *scope,
 					proto_tree_add_string( msg_tree, hf_aprs_msg_cse,
 							       tvb, offset, 1, info_buffer );
 					offset += 1;
-					ch = tvb_get_guint8( tvb, offset );
+					ch = tvb_get_uint8( tvb, offset );
 					speed = exp( log( 1.08 ) * (ch - 33) );
 					info_buffer = wmem_strdup_printf( scope, "%7.2f", speed );
 					proto_tree_add_string( msg_tree, hf_aprs_msg_spd,
@@ -581,11 +581,11 @@ dissect_mic_e(	tvbuff_t    *tvb,
 		}
 
 	/* decode the mic-e info fields */
-	spd = ((tvb_get_guint8( tvb, offset + 3 ) - 28) * 10) + ((tvb_get_guint8( tvb, offset + 4 ) - 28) / 10);
+	spd = ((tvb_get_uint8( tvb, offset + 3 ) - 28) * 10) + ((tvb_get_uint8( tvb, offset + 4 ) - 28) / 10);
 	if ( spd >= 800 )
 		spd -= 800;
 
-	cse = (((tvb_get_guint8( tvb, offset + 4 ) - 28) % 10) * 100) + ((tvb_get_guint8( tvb, offset + 5 ) - 28) * 10);
+	cse = (((tvb_get_uint8( tvb, offset + 4 ) - 28) % 10) * 100) + ((tvb_get_uint8( tvb, offset + 5 ) - 28) * 10);
 	if ( cse >= 400 )
 		cse -= 400;
 
@@ -593,9 +593,9 @@ dissect_mic_e(	tvbuff_t    *tvb,
 				"Lat: %7.7s%c Long: %03d%02d.%02d%c, Cse: %d, Spd: %d, SSID: %d, Msg %s",
 				latitude,
 				n_s,
-				d28_to_deg( tvb_get_guint8( tvb, offset ), long_offset ),
-				d28_to_min( tvb_get_guint8( tvb, offset + 1 ) ),
-				tvb_get_guint8( tvb, offset + 2 ) - 28,
+				d28_to_deg( tvb_get_uint8( tvb, offset ), long_offset ),
+				d28_to_min( tvb_get_uint8( tvb, offset + 1 ) ),
+				tvb_get_uint8( tvb, offset + 2 ) - 28,
 				w_e,
 				cse,
 				spd,
@@ -651,7 +651,7 @@ dissect_mic_e(	tvbuff_t    *tvb,
 
 		if ( offset < new_offset )
 			{
-			uint8_t c = tvb_get_guint8(tvb, offset);
+			uint8_t c = tvb_get_uint8(tvb, offset);
 			if ( (c == ',') || (c == 0x1d) )
 				proto_tree_add_item( mic_e_tree, hf_aprs_mic_e_telemetry,
 						     tvb, offset, -1, ENC_NA );
@@ -720,7 +720,7 @@ dissect_aprs_weather(	wmem_allocator_t *scope _U_,
 	tc = proto_tree_add_item( parent_tree, hf_aprs_weather, tvb, offset, data_len, ENC_ASCII );
 	weather_tree = proto_item_add_subtree( tc, ett_aprs_weather );
 
-	ch = tvb_get_guint8( tvb, offset );
+	ch = tvb_get_uint8( tvb, offset );
 	if ( g_ascii_isdigit( ch ) )
 		{
 		proto_tree_add_item( weather_tree, hf_aprs_weather_dir, tvb, offset, 3, ENC_ASCII );
@@ -735,7 +735,7 @@ dissect_aprs_weather(	wmem_allocator_t *scope _U_,
 		{
 		while ( offset < new_offset )
 			{
-			ch = tvb_get_guint8( tvb, offset );
+			ch = tvb_get_uint8( tvb, offset );
 			switch ( ch )
 				{
 				case 'c' :
@@ -839,7 +839,7 @@ aprs_timestamp( proto_tree *aprs_tree, tvbuff_t *tvb, int offset )
 	data_len = 8;
 	tzone = "zulu";
 
-	ch= tvb_get_guint8( tvb, offset + 6 );
+	ch= tvb_get_uint8( tvb, offset + 6 );
 	if ( g_ascii_isdigit( ch ) )
 		{ /* MDHM */
 		proto_tree_add_item( aprs_tree, hf_aprs_mdhm, tvb, offset, data_len, ENC_ASCII );
@@ -879,10 +879,10 @@ aprs_latitude_compressed( wmem_allocator_t *scope, proto_tree *aprs_tree, tvbuff
 
 		info_buffer = (char *)wmem_alloc( scope, STRLEN );
 
-		temp = ( tvb_get_guint8( tvb, offset + 0 ) - 33 );
-		temp = ( tvb_get_guint8( tvb, offset + 1 ) - 33 ) + ( temp * 91 );
-		temp = ( tvb_get_guint8( tvb, offset + 2 ) - 33 ) + ( temp * 91 );
-		temp = ( tvb_get_guint8( tvb, offset + 3 ) - 33 ) + ( temp * 91 );
+		temp = ( tvb_get_uint8( tvb, offset + 0 ) - 33 );
+		temp = ( tvb_get_uint8( tvb, offset + 1 ) - 33 ) + ( temp * 91 );
+		temp = ( tvb_get_uint8( tvb, offset + 2 ) - 33 ) + ( temp * 91 );
+		temp = ( tvb_get_uint8( tvb, offset + 3 ) - 33 ) + ( temp * 91 );
 
 		snprintf( info_buffer, STRLEN, "%6.2f", 90.0 - (temp / 380926.0) );
 		proto_tree_add_string( aprs_tree, hf_aprs_lat, tvb, offset, 4, info_buffer );
@@ -900,10 +900,10 @@ aprs_longitude_compressed( wmem_allocator_t *scope, proto_tree *aprs_tree, tvbuf
 
 		info_buffer = (char *)wmem_alloc( scope, STRLEN );
 
-		temp = ( tvb_get_guint8( tvb, offset + 0 ) - 33 );
-		temp = ( tvb_get_guint8( tvb, offset + 1 ) - 33 ) + ( temp * 91 );
-		temp = ( tvb_get_guint8( tvb, offset + 2 ) - 33 ) + ( temp * 91 );
-		temp = ( tvb_get_guint8( tvb, offset + 3 ) - 33 ) + ( temp * 91 );
+		temp = ( tvb_get_uint8( tvb, offset + 0 ) - 33 );
+		temp = ( tvb_get_uint8( tvb, offset + 1 ) - 33 ) + ( temp * 91 );
+		temp = ( tvb_get_uint8( tvb, offset + 2 ) - 33 ) + ( temp * 91 );
+		temp = ( tvb_get_uint8( tvb, offset + 3 ) - 33 ) + ( temp * 91 );
 
 		snprintf( info_buffer, STRLEN, "%7.2f", (temp / 190463.0) - 180.0 );
 		proto_tree_add_string( aprs_tree, hf_aprs_long, tvb, offset, 4, info_buffer );
@@ -918,7 +918,7 @@ aprs_status( proto_tree *aprs_tree, tvbuff_t *tvb, int offset )
 
 	data_len = tvb_reported_length_remaining( tvb, offset );
 
-	if ( ( data_len > 7 ) && ( tvb_get_guint8( tvb, offset+6 ) == 'z' ) )
+	if ( ( data_len > 7 ) && ( tvb_get_uint8( tvb, offset+6 ) == 'z' ) )
 		{
 		proto_tree_add_item( aprs_tree, hf_aprs_dhm, tvb, offset, 6, ENC_ASCII );
 		offset	 += 6;
@@ -1030,17 +1030,17 @@ aprs_position( packet_info *pinfo, proto_tree *aprs_tree, tvbuff_t *tvb, int off
 	bool probably_a_msg	    = false;
 	bool probably_not_a_msg = false;
 
-	if ( g_ascii_isdigit( tvb_get_guint8( tvb, offset ) ) )
+	if ( g_ascii_isdigit( tvb_get_uint8( tvb, offset ) ) )
 		{
 		offset		= aprs_default_string( aprs_tree, tvb, offset, 8, hf_aprs_lat );
-		symbol_table_id = tvb_get_guint8( tvb, offset );
+		symbol_table_id = tvb_get_uint8( tvb, offset );
 		offset		= aprs_default_string( aprs_tree, tvb, offset, 1, hf_aprs_sym_id );
 		offset		= aprs_default_string( aprs_tree, tvb, offset, 9, hf_aprs_long );
-		symbol_code	= tvb_get_guint8( tvb, offset );
+		symbol_code	= tvb_get_uint8( tvb, offset );
 		offset		= aprs_default_string( aprs_tree, tvb, offset, 1, hf_aprs_sym_code );
 		if ( gPREF_APRS_LAX )
 			{
-			switch ( tvb_get_guint8( tvb, offset ) )
+			switch ( tvb_get_uint8( tvb, offset ) )
 				{
 				case 'D'	: probably_a_msg = true;     break;
 				case 'P'	: probably_a_msg = true;     break;
@@ -1059,11 +1059,11 @@ aprs_position( packet_info *pinfo, proto_tree *aprs_tree, tvbuff_t *tvb, int off
 		}
 	else
 		{
-		symbol_table_id = tvb_get_guint8( tvb, offset );
+		symbol_table_id = tvb_get_uint8( tvb, offset );
 		offset = aprs_default_string( aprs_tree, tvb, offset, 1, hf_aprs_sym_id );
 		offset = aprs_latitude_compressed( pinfo->pool, aprs_tree, tvb, offset );
 		offset = aprs_longitude_compressed( pinfo->pool, aprs_tree, tvb, offset );
-		symbol_code = tvb_get_guint8( tvb, offset );
+		symbol_code = tvb_get_uint8( tvb, offset );
 		offset = aprs_default_string( aprs_tree, tvb, offset, 1, hf_aprs_sym_code );
 		offset = dissect_aprs_compressed_msg(	pinfo->pool,
 							tvb,
@@ -1108,7 +1108,7 @@ dissect_aprs( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *
 
 	offset	 = 0;
 
-	dti	 = tvb_get_guint8( tvb, offset );
+	dti	 = tvb_get_uint8( tvb, offset );
 
 	sb = wmem_strbuf_create(pinfo->pool);
 
@@ -1119,7 +1119,7 @@ dissect_aprs( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *
 		{
 		case '!':
 			/* Position or Ultimeter 2000 WX Station */
-			if ( tvb_get_guint8( tvb, offset + 1 ) == '!' )
+			if ( tvb_get_uint8( tvb, offset + 1 ) == '!' )
 				{
 				wmem_strbuf_append(sb, "Ultimeter 2000 WX Station");
 				}
@@ -1195,7 +1195,7 @@ dissect_aprs( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *
 			offset = aprs_default_string( aprs_tree, tvb, offset, -1, hf_aprs_query );
 			break;
 		case '$'	: /* Raw GPS data or Ultimeter 2000 */
-			if ( tvb_get_guint8( tvb, offset ) == 'U' )
+			if ( tvb_get_uint8( tvb, offset ) == 'U' )
 				offset = aprs_default_string( aprs_tree, tvb, offset, -1, hf_ultimeter_2000 );
 			else
 				offset = aprs_default_string( aprs_tree, tvb, offset, -1, hf_aprs_raw );
@@ -1288,7 +1288,7 @@ dissect_aprs( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *
 			offset = aprs_default_string( aprs_tree, tvb, offset, -1, hf_aprs_comment );
 			break;
 		case '!'	: /* Position or Ultimeter 2000 WX Station */
-			if ( tvb_get_guint8( tvb, offset ) == '!' )
+			if ( tvb_get_uint8( tvb, offset ) == '!' )
 				offset = aprs_default_string( aprs_tree, tvb, offset, -1, hf_ultimeter_2000 );
 			else
 				{

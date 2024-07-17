@@ -229,10 +229,10 @@ dissect_amr_nb_if1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
     proto_tree_add_item(tree, hf_amr_nb_if1_ft, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_amr_if1_fqi,   tvb, offset, 1, ENC_BIG_ENDIAN);
-    octet = (tvb_get_guint8(tvb,offset) & 0xf0) >> 4;
+    octet = (tvb_get_uint8(tvb,offset) & 0xf0) >> 4;
     if (octet == AMR_NB_SID) {
         ti = proto_tree_add_item(tree, hf_amr_nb_if1_mode_req, tvb, offset+1, 1, ENC_BIG_ENDIAN);
-        if (tvb_get_guint8(tvb,offset+1) & 0x1f)
+        if (tvb_get_uint8(tvb,offset+1) & 0x1f)
             expert_add_info(pinfo, ti, &ei_amr_spare_bit_not0);
         proto_tree_add_item(tree, hf_amr_speech_data, tvb, offset+2, 5, ENC_NA);
         proto_tree_add_item(tree, hf_amr_if1_sti, tvb, offset+7, 1, ENC_BIG_ENDIAN);
@@ -243,7 +243,7 @@ dissect_amr_nb_if1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     proto_tree_add_item(tree, hf_amr_nb_if1_mode_ind, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     ti = proto_tree_add_item(tree, hf_amr_nb_if1_mode_req, tvb, offset, 1, ENC_BIG_ENDIAN);
-    if (tvb_get_guint8(tvb,offset) & 0x1f)
+    if (tvb_get_uint8(tvb,offset) & 0x1f)
         expert_add_info(pinfo, ti, &ei_amr_spare_bit_not0);
     offset += 1;
     proto_tree_add_item(tree, hf_amr_speech_data, tvb, offset, -1, ENC_NA);
@@ -259,9 +259,9 @@ dissect_amr_wb_if1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
     proto_tree_add_item(tree, hf_amr_wb_if1_ft, tvb, offset, 1, ENC_BIG_ENDIAN);
     ti = proto_tree_add_item(tree, hf_amr_if1_fqi, tvb, offset, 1, ENC_BIG_ENDIAN);
-    if (tvb_get_guint8(tvb,offset) & 0x03)
+    if (tvb_get_uint8(tvb,offset) & 0x03)
         expert_add_info(pinfo, ti, &ei_amr_spare_bit_not0);
-    octet = (tvb_get_guint8(tvb,offset) & 0xf0) >> 4;
+    octet = (tvb_get_uint8(tvb,offset) & 0xf0) >> 4;
     if (octet == AMR_WB_SID) {
         proto_tree_add_item(tree, hf_amr_wb_if1_mode_req, tvb, offset+1, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_amr_speech_data, tvb, offset+2, 4, ENC_NA);
@@ -284,7 +284,7 @@ dissect_amr_nb_if2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     uint8_t octet;
 
     proto_tree_add_item(tree, hf_amr_nb_if2_ft, tvb, offset, 1, ENC_BIG_ENDIAN);
-    octet = tvb_get_guint8(tvb,offset) & 0x0f;
+    octet = tvb_get_uint8(tvb,offset) & 0x0f;
 
     if (octet == AMR_NB_SID) {
         proto_tree_add_item(tree, hf_amr_speech_data, tvb, offset+1, 3, ENC_NA);
@@ -307,7 +307,7 @@ dissect_amr_wb_if2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     uint8_t octet;
 
     proto_tree_add_item(tree, hf_amr_wb_if2_ft, tvb, offset, 1, ENC_BIG_ENDIAN);
-    octet = (tvb_get_guint8(tvb,offset) & 0xf0) >> 4;
+    octet = (tvb_get_uint8(tvb,offset) & 0xf0) >> 4;
 
     if (octet == AMR_WB_SID) {
         proto_tree_add_item(tree, hf_amr_speech_data, tvb, offset+1, 4, ENC_NA);
@@ -423,7 +423,7 @@ dissect_amr_be(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int amr_mode
 
         /* Now check the paddings */
         if (bitcount%8 != 0) {
-            if ( (1 << (8 -(bitcount%8)-1)) & tvb_get_guint8(tvb,bitcount/8) )
+            if ( (1 << (8 -(bitcount%8)-1)) & tvb_get_uint8(tvb,bitcount/8) )
                 proto_tree_add_expert(tree, pinfo, &ei_amr_padding_bits_correct, tvb, bitcount/8, 1);
             else {
                 proto_tree_add_expert(tree, pinfo, &ei_amr_padding_bits_not0, tvb,
@@ -476,7 +476,7 @@ dissect_amr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int amr_
         break;
     }
 
-    octet = tvb_get_guint8(tvb,offset) & 0x0f;
+    octet = tvb_get_uint8(tvb,offset) & 0x0f;
     if ( octet != 0  ) {
         item = proto_tree_add_item(amr_tree, hf_amr_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
         expert_add_info(pinfo, item, &ei_amr_reserved);
@@ -510,13 +510,13 @@ dissect_amr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int amr_
      *
      *   P bits: padding bits, MUST be set to zero.
      */
-    octet = tvb_get_guint8(tvb,offset);
+    octet = tvb_get_uint8(tvb,offset);
     toc_tree = proto_tree_add_subtree(amr_tree, tvb, offset, -1, ett_amr_toc, NULL, "Payload Table of Contents");
 
     first_time = true;
     while ((( octet& 0x80 ) == 0x80) || (first_time == true)) {
         first_time = false;
-        octet = tvb_get_guint8(tvb,offset);
+        octet = tvb_get_uint8(tvb,offset);
 
         proto_tree_add_bits_item(toc_tree, hf_amr_toc_f, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
         bit_offset += 1;

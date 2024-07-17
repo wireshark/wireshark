@@ -2248,7 +2248,7 @@ static int dissect_aeron_pad(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
     pktinfo.length = frame_length;
     pktinfo.data_length = pad_length;
     pktinfo.type = HDR_TYPE_PAD;
-    pktinfo.flags = tvb_get_guint8(tvb, offset + O_AERON_PAD_FLAGS);
+    pktinfo.flags = tvb_get_uint8(tvb, offset + O_AERON_PAD_FLAGS);
     if (aeron_frame_info_setup(pinfo, transport, &pktinfo, finfo) < 0)
         return 0;
 
@@ -2392,7 +2392,7 @@ static int dissect_aeron_data(tvbuff_t * tvb, int offset, packet_info * pinfo, p
     pktinfo.length = frame_length;
     pktinfo.data_length = data_length;
     pktinfo.type = HDR_TYPE_DATA;
-    pktinfo.flags = tvb_get_guint8(tvb, offset + O_AERON_DATA_FLAGS);
+    pktinfo.flags = tvb_get_uint8(tvb, offset + O_AERON_DATA_FLAGS);
     if (aeron_frame_info_setup(pinfo, transport, &pktinfo, finfo) < 0)
         return 0;
 
@@ -2498,7 +2498,7 @@ static int dissect_aeron_nak(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
     pktinfo.nak_term_offset = nak_term_offset;
     pktinfo.nak_length = nak_length;
     pktinfo.type = HDR_TYPE_NAK;
-    pktinfo.flags = tvb_get_guint8(tvb, offset + O_AERON_NAK_FLAGS);
+    pktinfo.flags = tvb_get_uint8(tvb, offset + O_AERON_NAK_FLAGS);
     if (aeron_frame_info_setup(pinfo, transport, &pktinfo, finfo) < 0)
         return 0;
 
@@ -2581,7 +2581,7 @@ static int dissect_aeron_sm(tvbuff_t * tvb, int offset, packet_info * pinfo, pro
     memset((void *) &pktinfo, 0, sizeof(aeron_packet_info_t));
     pktinfo.stream_id = stream_id;
     pktinfo.info_flags = AERON_PACKET_INFO_FLAGS_STREAM_ID_VALID;
-    pktinfo.flags = tvb_get_guint8(tvb, offset + O_AERON_SM_FLAGS);
+    pktinfo.flags = tvb_get_uint8(tvb, offset + O_AERON_SM_FLAGS);
     if ((pktinfo.flags & STATUS_FLAGS_SETUP) == 0)
     {
         pktinfo.term_id = term_id;
@@ -2718,7 +2718,7 @@ static int dissect_aeron_heartbeat(tvbuff_t * tvb, int offset, packet_info * pin
     pktinfo.length = frame_length;
     pktinfo.data_length = 0;
     pktinfo.type = HDR_TYPE_DATA;
-    pktinfo.flags = tvb_get_guint8(tvb, offset + O_AERON_HEAERTBEAT_FLAGS);
+    pktinfo.flags = tvb_get_uint8(tvb, offset + O_AERON_HEAERTBEAT_FLAGS);
     if (aeron_frame_info_setup(pinfo, transport, &pktinfo, finfo) < 0)
         return 0;
 
@@ -2944,7 +2944,7 @@ static int dissect_aeron(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
             finfo = aeron_frame_info_add(pinfo->num, (uint32_t) offset);
         }
         frame_length = tvb_get_letohl(tvb, offset + O_AERON_BASIC_FRAME_LENGTH);
-        frame_flags = tvb_get_guint8(tvb, offset + O_AERON_BASIC_FLAGS);
+        frame_flags = tvb_get_uint8(tvb, offset + O_AERON_BASIC_FLAGS);
         frame_type = tvb_get_letohs(tvb, offset + O_AERON_BASIC_TYPE);
         cinfo = aeron_setup_conversation_info(pinfo, frame_type);
         switch (frame_type)
@@ -3009,7 +3009,7 @@ static bool test_aeron_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * 
         return false;
     }
     /* We know we have at least HDR_LENGTH_MIN (12) bytes captured */
-    ver = tvb_get_guint8(tvb, O_AERON_BASIC_VERSION);
+    ver = tvb_get_uint8(tvb, O_AERON_BASIC_VERSION);
     if (ver != 0)
     {
         return false;

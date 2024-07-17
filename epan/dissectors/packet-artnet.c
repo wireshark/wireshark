@@ -4699,7 +4699,7 @@ dissect_artnet_poll(tvbuff_t *tvb, unsigned offset, proto_tree *tree, packet_inf
   offset += 1;
 
   col_append_fstr(pinfo->cinfo, COL_INFO, " Prio=%s",
-                  val_to_str(tvb_get_guint8(tvb, offset), artnet_talktome_diag_priority_vals, "unknown(%u)"));
+                  val_to_str(tvb_get_uint8(tvb, offset), artnet_talktome_diag_priority_vals, "unknown(%u)"));
   proto_tree_add_item(tree, hf_artnet_poll_diag_priority, tvb,
                       offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
@@ -4718,8 +4718,8 @@ dissect_artnet_poll(tvbuff_t *tvb, unsigned offset, proto_tree *tree, packet_inf
   offset += 2;
 
   col_append_fstr(pinfo->cinfo, COL_INFO, " (%d-%d)",
-    tvb_get_guint16(tvb, offset-2, ENC_BIG_ENDIAN),
-    tvb_get_guint16(tvb, offset-4, ENC_BIG_ENDIAN));
+    tvb_get_uint16(tvb, offset-2, ENC_BIG_ENDIAN),
+    tvb_get_uint16(tvb, offset-4, ENC_BIG_ENDIAN));
 
   /* EstaMan/OEM not present (compatibility, >= Rev. DE) */
   if(tvb_reported_length_remaining(tvb, offset) < 4) {
@@ -4762,12 +4762,12 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, unsigned offset, proto_tree *tree, pack
 
   proto_tree_add_item(tree, hf_artnet_poll_reply_netswitch, tvb,
                       offset, 1, ENC_BIG_ENDIAN);
-  universe = (tvb_get_guint8(tvb, offset) & 0x7F) << 8;
+  universe = (tvb_get_uint8(tvb, offset) & 0x7F) << 8;
   offset += 1;
 
   proto_tree_add_item(tree, hf_artnet_poll_reply_subswitch, tvb,
                       offset, 1, ENC_BIG_ENDIAN);
-  universe |= (tvb_get_guint8(tvb, offset) & 0x0F) << 4;
+  universe |= (tvb_get_uint8(tvb, offset) & 0x0F) << 4;
   offset += 1;
 
   proto_tree_add_item(tree, hf_artnet_poll_reply_oem, tvb,
@@ -4800,7 +4800,7 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, unsigned offset, proto_tree *tree, pack
                       tvb, offset, 64, ENC_ASCII);
 
   /* Try to extract node report regex data as generated fields (only if data contained) */
-  if(tvb_get_guint64(tvb, offset, ENC_BIG_ENDIAN) > 0) {
+  if(tvb_get_uint64(tvb, offset, ENC_BIG_ENDIAN) > 0) {
     regex = g_regex_new(artnet_poll_reply_node_report_regex, (GRegexCompileFlags) G_REGEX_OPTIMIZE, (GRegexMatchFlags) 0, NULL);
     DISSECTOR_ASSERT(regex != NULL);
     g_regex_match(
@@ -4844,7 +4844,7 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, unsigned offset, proto_tree *tree, pack
 
   si = proto_item_add_subtree(hi, ett_artnet);
 
-  col_append_fstr(pinfo->cinfo, COL_INFO, " Ports=%d", tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN));
+  col_append_fstr(pinfo->cinfo, COL_INFO, " Ports=%d", tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN));
   proto_tree_add_item(si, hf_artnet_poll_reply_num_ports, tvb,
                       offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
@@ -4946,7 +4946,7 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, unsigned offset, proto_tree *tree, pack
   proto_tree_add_item(ti, hf_artnet_poll_reply_swin_1, tvb,
                       offset, 1, ENC_BIG_ENDIAN);
 
-  uni_port = tvb_get_guint8(tvb, offset) & 0x0F;
+  uni_port = tvb_get_uint8(tvb, offset) & 0x0F;
   tf = proto_tree_add_uint(ti,hf_artnet_poll_reply_swin_1_universe,tvb,
                            offset, 0, universe | uni_port);
   proto_item_set_generated(tf);
@@ -4954,7 +4954,7 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, unsigned offset, proto_tree *tree, pack
 
   proto_tree_add_item(ti, hf_artnet_poll_reply_swin_2, tvb,
                       offset, 1, ENC_BIG_ENDIAN);
-  uni_port = tvb_get_guint8(tvb, offset) & 0x0F;
+  uni_port = tvb_get_uint8(tvb, offset) & 0x0F;
   tf = proto_tree_add_uint(ti,hf_artnet_poll_reply_swin_2_universe,tvb,
                            offset, 0, universe | uni_port);
   proto_item_set_generated(tf);
@@ -4962,7 +4962,7 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, unsigned offset, proto_tree *tree, pack
 
   proto_tree_add_item(ti, hf_artnet_poll_reply_swin_3, tvb,
                       offset, 1, ENC_BIG_ENDIAN);
-  uni_port = tvb_get_guint8(tvb, offset) & 0x0F;
+  uni_port = tvb_get_uint8(tvb, offset) & 0x0F;
   tf = proto_tree_add_uint(ti,hf_artnet_poll_reply_swin_3_universe,tvb,
                            offset, 0, universe | uni_port);
   proto_item_set_generated(tf);
@@ -4970,7 +4970,7 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, unsigned offset, proto_tree *tree, pack
 
   proto_tree_add_item(ti, hf_artnet_poll_reply_swin_4, tvb,
                       offset, 1, ENC_BIG_ENDIAN);
-  uni_port = tvb_get_guint8(tvb, offset) & 0x0F;
+  uni_port = tvb_get_uint8(tvb, offset) & 0x0F;
   tf = proto_tree_add_uint(ti,hf_artnet_poll_reply_swin_4_universe,tvb,
                            offset, 0, universe | uni_port);
   proto_item_set_generated(tf);
@@ -4987,7 +4987,7 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, unsigned offset, proto_tree *tree, pack
 
   proto_tree_add_item(ti, hf_artnet_poll_reply_swout_1, tvb,
                       offset, 1, ENC_BIG_ENDIAN);
-  uni_port = tvb_get_guint8(tvb, offset) & 0x0F;
+  uni_port = tvb_get_uint8(tvb, offset) & 0x0F;
   tf = proto_tree_add_uint(ti,hf_artnet_poll_reply_swout_1_universe,tvb,
                            offset, 0, universe | uni_port);
   proto_item_set_generated(tf);
@@ -4995,7 +4995,7 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, unsigned offset, proto_tree *tree, pack
 
   proto_tree_add_item(ti, hf_artnet_poll_reply_swout_2, tvb,
                       offset, 1, ENC_BIG_ENDIAN);
-  uni_port = tvb_get_guint8(tvb, offset) & 0x0F;
+  uni_port = tvb_get_uint8(tvb, offset) & 0x0F;
   tf = proto_tree_add_uint(ti,hf_artnet_poll_reply_swout_2_universe,tvb,
                            offset, 0, universe | uni_port);
   proto_item_set_generated(tf);
@@ -5003,7 +5003,7 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, unsigned offset, proto_tree *tree, pack
 
   proto_tree_add_item(ti, hf_artnet_poll_reply_swout_3, tvb,
                       offset, 1, ENC_BIG_ENDIAN);
-  uni_port = tvb_get_guint8(tvb, offset) & 0x0F;
+  uni_port = tvb_get_uint8(tvb, offset) & 0x0F;
   tf = proto_tree_add_uint(ti,hf_artnet_poll_reply_swout_3_universe,tvb,
                            offset, 0, universe | uni_port);
   proto_item_set_generated(tf);
@@ -5011,7 +5011,7 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, unsigned offset, proto_tree *tree, pack
 
   proto_tree_add_item(ti, hf_artnet_poll_reply_swout_4, tvb,
                       offset, 1, ENC_BIG_ENDIAN);
-  uni_port = tvb_get_guint8(tvb, offset) & 0x0F;
+  uni_port = tvb_get_uint8(tvb, offset) & 0x0F;
   tf = proto_tree_add_uint(ti,hf_artnet_poll_reply_swout_4_universe,tvb,
                            offset, 0, universe | uni_port);
   proto_item_set_generated(tf);
@@ -5045,7 +5045,7 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, unsigned offset, proto_tree *tree, pack
                         tvb, offset, 6, ENC_NA);
   offset += 6;
 
-  bind_ip_address = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+  bind_ip_address = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
   tp = proto_tree_add_item(tree, hf_artnet_poll_reply_bind_ip_address, tvb,
                       offset, 4, ENC_BIG_ENDIAN);
   if(bind_ip_address == 0) {
@@ -5053,7 +5053,7 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, unsigned offset, proto_tree *tree, pack
   }
   offset += 4;
 
-  bind_index = tvb_get_guint8(tvb, offset);
+  bind_index = tvb_get_uint8(tvb, offset);
   col_append_fstr(pinfo->cinfo, COL_INFO, " BindIdx=0x%02x", bind_index);
   tp = proto_tree_add_item(tree, hf_artnet_poll_reply_bind_index, tvb,
                       offset, 1, ENC_BIG_ENDIAN);
@@ -5157,7 +5157,7 @@ dissect_artnet_output(tvbuff_t *tvb, unsigned offset, proto_tree *tree, packet_i
   offset += 2;
 
   col_append_fstr(pinfo->cinfo, COL_INFO, " Seq=%d Port=%d Univ=%d",
-    tvb_get_guint8(tvb, offset-4), tvb_get_guint8(tvb, offset-3), tvb_get_guint16(tvb, offset-2, ENC_LITTLE_ENDIAN));
+    tvb_get_uint8(tvb, offset-4), tvb_get_uint8(tvb, offset-3), tvb_get_uint16(tvb, offset-2, ENC_LITTLE_ENDIAN));
 
   length = tvb_get_ntohs(tvb, offset);
   proto_tree_add_uint(tree, hf_artnet_output_length, tvb,
@@ -5201,7 +5201,7 @@ dissect_artnet_nzs(tvbuff_t *tvb, unsigned offset, proto_tree *tree, packet_info
                       offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
-  start_code = tvb_get_guint8(tvb, offset);
+  start_code = tvb_get_uint8(tvb, offset);
   proto_tree_add_item(tree, hf_artnet_nzs_start_code, tvb,
                       offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
@@ -5214,7 +5214,7 @@ dissect_artnet_nzs(tvbuff_t *tvb, unsigned offset, proto_tree *tree, packet_info
                       offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
-  length = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+  length = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
   proto_tree_add_item(tree, hf_artnet_nzs_length, tvb,
                       offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
@@ -5228,8 +5228,8 @@ dissect_artnet_nzs(tvbuff_t *tvb, unsigned offset, proto_tree *tree, packet_info
 
   if(
     start_code == ARTNET_NZS_VLC_START_CODE &&
-    tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN) == ARTNET_NZS_VLC_MAGIC_MAN_ID &&
-    tvb_get_guint8(tvb, offset + 2) == ARTNET_NZS_VLC_MAGIC_SUB_CODE
+    tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN) == ARTNET_NZS_VLC_MAGIC_MAN_ID &&
+    tvb_get_uint8(tvb, offset + 2) == ARTNET_NZS_VLC_MAGIC_SUB_CODE
   ) {
 
     /* VLC */
@@ -5256,7 +5256,7 @@ dissect_artnet_nzs(tvbuff_t *tvb, unsigned offset, proto_tree *tree, packet_info
                         offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    payload_length = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+    payload_length = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_artnet_nzs_vlc_payload_size, tvb,
                         offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -5280,7 +5280,7 @@ dissect_artnet_nzs(tvbuff_t *tvb, unsigned offset, proto_tree *tree, packet_info
                         offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    lang_code = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+    lang_code = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_artnet_nzs_vlc_lang_code, tvb,
                         offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -5329,7 +5329,7 @@ dissect_artnet_address(tvbuff_t *tvb, unsigned offset, proto_tree *tree, packet_
   proto_tree *hi, *si, *ti;
   uint8_t net, sub;
 
-  net = tvb_get_guint8(tvb, offset);
+  net = tvb_get_uint8(tvb, offset);
 
   /* Treat the "special" values differently */
   if (net == 0x00 || net == 0x7F) {
@@ -5343,7 +5343,7 @@ dissect_artnet_address(tvbuff_t *tvb, unsigned offset, proto_tree *tree, packet_
 
   offset += 1;
 
-  col_append_fstr(pinfo->cinfo, COL_INFO, " BindIdx=0x%02x", tvb_get_guint8(tvb, offset));
+  col_append_fstr(pinfo->cinfo, COL_INFO, " BindIdx=0x%02x", tvb_get_uint8(tvb, offset));
   proto_tree_add_item(tree, hf_artnet_address_bind_index, tvb,
                       offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
@@ -5406,7 +5406,7 @@ dissect_artnet_address(tvbuff_t *tvb, unsigned offset, proto_tree *tree, packet_
                       offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
-  sub = tvb_get_guint8(tvb, offset);
+  sub = tvb_get_uint8(tvb, offset);
 
   /* Treat the "special" values differently */
   if (sub == 0x00 || sub == 0x7F) {
@@ -5439,12 +5439,12 @@ dissect_artnet_input(tvbuff_t *tvb, unsigned offset, proto_tree *tree, packet_in
                       offset, 1, ENC_NA);
   offset += 1;
 
-  col_append_fstr(pinfo->cinfo, COL_INFO, " BindIdx=0x%02x", tvb_get_guint8(tvb, offset));
+  col_append_fstr(pinfo->cinfo, COL_INFO, " BindIdx=0x%02x", tvb_get_uint8(tvb, offset));
   proto_tree_add_item(tree, hf_artnet_input_bind_index, tvb,
                       offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
-  col_append_fstr(pinfo->cinfo, COL_INFO, " Ports=%d", tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN));
+  col_append_fstr(pinfo->cinfo, COL_INFO, " Ports=%d", tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN));
   proto_tree_add_item(tree, hf_artnet_input_num_ports, tvb,
                       offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
@@ -5498,7 +5498,7 @@ dissect_artnet_video_setup(tvbuff_t *tvb, unsigned offset, proto_tree *tree ) {
                       offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
-  font_height = tvb_get_guint8(tvb, offset);
+  font_height = tvb_get_uint8(tvb, offset);
   proto_tree_add_uint(tree, hf_artnet_video_setup_font_height, tvb,
                       offset, 1, font_height);
   offset += 1;
@@ -5507,7 +5507,7 @@ dissect_artnet_video_setup(tvbuff_t *tvb, unsigned offset, proto_tree *tree ) {
                       offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
-  last_font = tvb_get_guint8(tvb, offset);
+  last_font = tvb_get_uint8(tvb, offset);
   proto_tree_add_uint(tree, hf_artnet_video_setup_last_font, tvb,
                       offset, 1, last_font);
   offset += 1;
@@ -5565,12 +5565,12 @@ dissect_artnet_video_data(tvbuff_t *tvb, unsigned offset, proto_tree *tree) {
                       offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
-  len_x = tvb_get_guint8(tvb, offset);
+  len_x = tvb_get_uint8(tvb, offset);
   proto_tree_add_uint(tree, hf_artnet_video_data_len_x, tvb,
                       offset, 1, len_x);
   offset += 1;
 
-  len_y = tvb_get_guint8(tvb, offset);
+  len_y = tvb_get_uint8(tvb, offset);
   proto_tree_add_uint(tree, hf_artnet_video_data_len_y, tvb,
                       offset, 1, len_y);
   offset += 1;
@@ -5648,12 +5648,12 @@ dissect_artnet_tod_request(tvbuff_t *tvb, unsigned offset, proto_tree *tree, pac
                       offset, 1, ENC_NA);
   offset += 1;
 
-  col_append_fstr(pinfo->cinfo, COL_INFO, " Cmd=%s", val_to_str(tvb_get_guint8(tvb, offset), artnet_tod_request_command_vals, "unknown(%u)"));
+  col_append_fstr(pinfo->cinfo, COL_INFO, " Cmd=%s", val_to_str(tvb_get_uint8(tvb, offset), artnet_tod_request_command_vals, "unknown(%u)"));
   proto_tree_add_item(tree, hf_artnet_tod_request_command, tvb,
                       offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
-  ad_count = tvb_get_guint8(tvb, offset);
+  ad_count = tvb_get_uint8(tvb, offset);
   proto_tree_add_uint(tree, hf_artnet_tod_request_ad_count, tvb,
                       offset, 1, ad_count);
   offset += 1;
@@ -5684,14 +5684,14 @@ dissect_artnet_tod_data(tvbuff_t *tvb, unsigned offset, proto_tree *tree, packet
                       offset, 6, ENC_NA);
   offset += 6;
 
-  col_append_fstr(pinfo->cinfo, COL_INFO, " BindIdx=0x%02x", tvb_get_guint8(tvb, offset));
+  col_append_fstr(pinfo->cinfo, COL_INFO, " BindIdx=0x%02x", tvb_get_uint8(tvb, offset));
   proto_tree_add_item(tree, hf_artnet_tod_data_bind_index, tvb,
                       offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
   proto_tree_add_item(tree, hf_artnet_tod_data_net, tvb,
                       offset, 1, ENC_BIG_ENDIAN);
-  universe = (tvb_get_guint8(tvb, offset) & 0x7F) << 8;
+  universe = (tvb_get_uint8(tvb, offset) & 0x7F) << 8;
   offset += 1;
 
   proto_tree_add_item(tree, hf_artnet_tod_data_command_response, tvb,
@@ -5700,7 +5700,7 @@ dissect_artnet_tod_data(tvbuff_t *tvb, unsigned offset, proto_tree *tree, packet
 
   proto_tree_add_item(tree, hf_artnet_tod_data_address, tvb,
                       offset, 1, ENC_BIG_ENDIAN);
-  universe |= tvb_get_guint8(tvb, offset);
+  universe |= tvb_get_uint8(tvb, offset);
   tf = proto_tree_add_uint(tree,hf_artnet_tod_control_universe,tvb,
                            offset, 0, universe);
   proto_item_set_generated(tf);
@@ -5714,7 +5714,7 @@ dissect_artnet_tod_data(tvbuff_t *tvb, unsigned offset, proto_tree *tree, packet
                       offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
-  uid_count = tvb_get_guint8(tvb, offset);
+  uid_count = tvb_get_uint8(tvb, offset);
   proto_tree_add_uint(tree, hf_artnet_tod_data_uid_count, tvb,
                       offset, 1, uid_count);
   offset += 1;
@@ -5745,17 +5745,17 @@ dissect_artnet_tod_control(tvbuff_t *tvb, unsigned offset, proto_tree *tree, pac
 
   proto_tree_add_item(tree, hf_artnet_tod_control_net, tvb,
                       offset, 1, ENC_BIG_ENDIAN);
-  universe = (tvb_get_guint8(tvb, offset) & 0x7F) << 8;
+  universe = (tvb_get_uint8(tvb, offset) & 0x7F) << 8;
   offset += 1;
 
-  col_append_fstr(pinfo->cinfo, COL_INFO, " Cmd=%s", val_to_str(tvb_get_guint8(tvb, offset), artnet_tod_control_command_vals, "unknown(%u)"));
+  col_append_fstr(pinfo->cinfo, COL_INFO, " Cmd=%s", val_to_str(tvb_get_uint8(tvb, offset), artnet_tod_control_command_vals, "unknown(%u)"));
   proto_tree_add_item(tree, hf_artnet_tod_control_command, tvb,
                       offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
   proto_tree_add_item(tree, hf_artnet_tod_control_address, tvb,
                       offset, 1, ENC_BIG_ENDIAN);
-  universe |= tvb_get_guint8(tvb, offset);
+  universe |= tvb_get_uint8(tvb, offset);
   tf = proto_tree_add_uint(tree,hf_artnet_tod_control_universe,tvb,
                            offset, 0, universe);
   proto_item_set_generated(tf);
@@ -5775,7 +5775,7 @@ dissect_artnet_rdm(tvbuff_t *tvb, unsigned offset, proto_tree *tree,  packet_inf
   bool      save_info;
   tvbuff_t *next_tvb;
 
-  rdmver = tvb_get_guint8(tvb, offset);
+  rdmver = tvb_get_uint8(tvb, offset);
   if (rdmver == 0x00) {
     proto_tree_add_item(tree, hf_artnet_filler, tvb,
                         offset, 2, ENC_NA);
@@ -5800,7 +5800,7 @@ dissect_artnet_rdm(tvbuff_t *tvb, unsigned offset, proto_tree *tree,  packet_inf
 
     proto_tree_add_item(tree, hf_artnet_rdm_net, tvb,
                         offset, 1, ENC_BIG_ENDIAN);
-    universe = (tvb_get_guint8(tvb, offset) & 0x7F) << 8;
+    universe = (tvb_get_uint8(tvb, offset) & 0x7F) << 8;
     offset += 1;
   }
 
@@ -5810,7 +5810,7 @@ dissect_artnet_rdm(tvbuff_t *tvb, unsigned offset, proto_tree *tree,  packet_inf
 
   proto_tree_add_item(tree, hf_artnet_rdm_address, tvb,
                       offset, 1, ENC_BIG_ENDIAN);
-  universe |= tvb_get_guint8(tvb, offset);
+  universe |= tvb_get_uint8(tvb, offset);
   tf = proto_tree_add_uint(tree,hf_artnet_tod_control_universe,tvb,
                            offset, 0, universe);
   proto_item_set_generated(tf);
@@ -5819,7 +5819,7 @@ dissect_artnet_rdm(tvbuff_t *tvb, unsigned offset, proto_tree *tree,  packet_inf
   /* check for old version that included the 0xCC startcode
    * The 0xCC will never be the first byte of the RDM packet
    */
-  sc = tvb_get_guint8(tvb, offset);
+  sc = tvb_get_uint8(tvb, offset);
 
   if (sc == 0xCC) {
     proto_tree_add_item(tree, hf_artnet_rdm_sc, tvb,
@@ -5864,7 +5864,7 @@ dissect_artnet_rdm_sub(tvbuff_t *tvb, unsigned offset, proto_tree *tree,  packet
                         offset, 1, ENC_NA);
   offset += 1;
 
-  cc = tvb_get_guint8(tvb, offset);
+  cc = tvb_get_uint8(tvb, offset);
   proto_tree_add_item(tree, hf_artnet_rdm_sub_command_class, tvb,
                       offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
@@ -6089,7 +6089,7 @@ dissect_artnet_data_reply(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
                       offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
 
-  payload_length = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+  payload_length = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
   proto_tree_add_item(tree, hf_artnet_data_reply_payload_length, tvb,
                       offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
@@ -6183,7 +6183,7 @@ dissect_artnet_trigger(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
                       offset, 2, ENC_NA);
   offset += 2;
 
-  oem = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+  oem = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
   proto_tree_add_item(tree, hf_artnet_trigger_oem, tvb,
                       offset, 2, ENC_BIG_ENDIAN);
   offset += 2;

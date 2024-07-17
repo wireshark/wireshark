@@ -370,7 +370,7 @@ for_req_time_off_meas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
 
 	saved_offset = offset;
 
-	oct = tvb_get_guint8(tvb, offset);
+	oct = tvb_get_uint8(tvb, offset);
 
 	proto_tree_add_item(tree, hf_ansi_801_use_action_time_indicator, tvb, offset, 1, ENC_NA);
 
@@ -399,7 +399,7 @@ for_req_cancel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len
 
 	saved_offset = offset;
 
-	oct = tvb_get_guint8(tvb, offset);
+	oct = tvb_get_uint8(tvb, offset);
 
 	str = val_to_str_const((oct & 0xf0) >> 4, for_req_type_strings, "Reserved");
 	proto_tree_add_uint_format_value(tree, hf_ansi_801_cancellation_type, tvb, offset, 1,
@@ -422,7 +422,7 @@ for_reject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len, ui
 
 	SHORT_DATA_CHECK(len, 1);
 
-	oct = tvb_get_guint8(tvb, offset);
+	oct = tvb_get_uint8(tvb, offset);
 	str = val_to_str_const((oct & 0xf0) >> 4, rev_req_type_strings, "Reserved");
 
 	proto_tree_add_uint_format_value(tree, hf_ansi_801_reject_request_type, tvb, offset, 1, oct,
@@ -457,7 +457,7 @@ for_pr_bs_cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len,
 	proto_tree_add_item(tree, hf_ansi_801_afltc_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
-	oct = tvb_get_guint8(tvb, offset);
+	oct = tvb_get_uint8(tvb, offset);
 	if (oct == 0x00)
 	{
 		proto_tree_add_uint_format(tree, hf_ansi_801_apdc_id, tvb, offset, 1, 0,
@@ -894,7 +894,7 @@ rev_reject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len, ui
 
 	SHORT_DATA_CHECK(len, 1);
 
-	oct = tvb_get_guint8(tvb, offset);
+	oct = tvb_get_uint8(tvb, offset);
 
 	str = val_to_str_const((oct & 0xf0) >> 4, for_req_type_strings, "Reserved");
 
@@ -1018,7 +1018,7 @@ rev_pr_can_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len
 
 	SHORT_DATA_CHECK(len, 1);
 
-	oct = tvb_get_guint8(tvb, offset);
+	oct = tvb_get_uint8(tvb, offset);
 
 	str = val_to_str_const((oct & 0xf0) >> 4, for_req_type_strings, "Reserved");
 	proto_tree_add_uint_format_value(tree, hf_ansi_801_cancellation_type, tvb, offset, 1, oct,
@@ -1100,7 +1100,7 @@ for_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t *offse
 	proto_item  *item;
 
 	offset = *offset_p;
-	oct    = tvb_get_guint8(tvb, offset);
+	oct    = tvb_get_uint8(tvb, offset);
 
 	if (pd_msg_type == 0x00)
 	{
@@ -1128,7 +1128,7 @@ for_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t *offse
 	subtree = proto_item_add_subtree(item, ett_for_req_type[idx]);
 
 	offset++;
-	oct = tvb_get_guint8(tvb, offset);
+	oct = tvb_get_uint8(tvb, offset);
 
 	proto_tree_add_item(subtree, hf_ansi_801_for_request_length, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
@@ -1159,7 +1159,7 @@ for_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t *offs
 	proto_item  *item;
 
 	offset = *offset_p;
-	oct    = tvb_get_guint8(tvb, offset);
+	oct    = tvb_get_uint8(tvb, offset);
 
 	proto_tree_add_item(tree, hf_ansi_801_reserved8_E0, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_ansi_801_unsolicited_response_indicator, tvb, offset, 1, ENC_NA);
@@ -1176,7 +1176,7 @@ for_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t *offs
 	subtree = proto_item_add_subtree(item, ett_for_rsp_type[idx]);
 
 	offset++;
-	oct = tvb_get_guint8(tvb, offset);
+	oct = tvb_get_uint8(tvb, offset);
 
 	proto_tree_add_item(subtree, hf_ansi_801_for_response_length, tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -1205,7 +1205,7 @@ rev_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t *offse
 	proto_item  *item;
 
 	offset = *offset_p;
-	oct    = tvb_get_guint8(tvb, offset);
+	oct    = tvb_get_uint8(tvb, offset);
 
 	if (pd_msg_type == 0x00)
 	{
@@ -1233,7 +1233,7 @@ rev_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t *offse
 	subtree = proto_item_add_subtree(item, ett_rev_req_type[idx]);
 
 	offset++;
-	oct = tvb_get_guint8(tvb, offset);
+	oct = tvb_get_uint8(tvb, offset);
 
 	proto_tree_add_item(subtree, hf_ansi_801_rev_request_length, tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -1262,7 +1262,7 @@ rev_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t *offs
 	proto_item  *item;
 
 	offset = *offset_p;
-	oct    = tvb_get_guint8(tvb, offset);
+	oct    = tvb_get_uint8(tvb, offset);
 
 	proto_tree_add_item(tree, hf_ansi_801_reserved8_E0, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_ansi_801_unsolicited_response_indicator, tvb, offset, 1, ENC_NA);
@@ -1279,7 +1279,7 @@ rev_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t *offs
 	subtree = proto_item_add_subtree(item, ett_rev_rsp_type[idx]);
 	offset++;
 
-	oct = tvb_get_guint8(tvb, offset);
+	oct = tvb_get_uint8(tvb, offset);
 
 	proto_tree_add_item(subtree, hf_ansi_801_rev_response_length, tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -1318,7 +1318,7 @@ dissect_ansi_801_for_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	proto_item_set_hidden(hidden_item);
 
 	offset++;
-	oct = tvb_get_guint8(tvb, offset);
+	oct = tvb_get_uint8(tvb, offset);
 	pd_msg_type = oct;
 
 	switch (pd_msg_type)
@@ -1363,7 +1363,7 @@ dissect_ansi_801_for_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		proto_tree_add_item(tree, hf_ansi_801_for_message_number_requests16, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
-		oct = tvb_get_guint8(tvb, offset);
+		oct = tvb_get_uint8(tvb, offset);
 		num_rsp = oct & 0xf0;
 
 		proto_tree_add_item(tree, hf_ansi_801_for_message_number_responsesF0, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1371,7 +1371,7 @@ dissect_ansi_801_for_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	}
 	else
 	{
-		oct = tvb_get_guint8(tvb, offset);
+		oct = tvb_get_uint8(tvb, offset);
 
 		num_req = (oct & 0xf0) >> 4;
 		num_rsp = oct & 0x0f;
@@ -1440,7 +1440,7 @@ dissect_ansi_801_rev_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	proto_item_set_hidden(hidden_item);
 
 	offset++;
-	oct = tvb_get_guint8(tvb, offset);
+	oct = tvb_get_uint8(tvb, offset);
 	pd_msg_type = oct;
 
 	switch (pd_msg_type)
@@ -1484,7 +1484,7 @@ dissect_ansi_801_rev_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		proto_tree_add_item(tree, hf_ansi_801_rev_message_number_requests16, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
-		oct = tvb_get_guint8(tvb, offset);
+		oct = tvb_get_uint8(tvb, offset);
 		num_rsp = oct & 0xf0;
 
 		proto_tree_add_item(tree, hf_ansi_801_rev_message_number_responsesF0, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1492,7 +1492,7 @@ dissect_ansi_801_rev_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	}
 	else
 	{
-		oct = tvb_get_guint8(tvb, offset);
+		oct = tvb_get_uint8(tvb, offset);
 
 		num_req = (oct & 0xf0) >> 4;
 		num_rsp = oct & 0x0f;

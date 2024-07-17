@@ -428,22 +428,22 @@ dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                 if (fragment && i_char > 0)
                     memcpy(buffer, fragment->data, i_char);
 
-                if (i_char >= 1 && buffer[i_char - 1] == '\r' && tvb_get_guint8(tvb, i_offset) == '\n') {
+                if (i_char >= 1 && buffer[i_char - 1] == '\r' && tvb_get_uint8(tvb, i_offset) == '\n') {
                     buffer[i_char - 1] = '\n';
                     i_offset += 1;
                 }
 
-                c1 = tvb_get_guint8(tvb, i_offset);
+                c1 = tvb_get_uint8(tvb, i_offset);
                 i_offset += 1;
                 old_offset = i_offset;
 
                 while (tvb_reported_length_remaining(tvb, i_offset) > 0) {
-                    c2 = tvb_get_guint8(tvb, i_offset);
+                    c2 = tvb_get_uint8(tvb, i_offset);
 
                     if (c1 == '\r' && c2 == '\n') {
                         buffer[i_char] = c2;
                         if (tvb_reported_length_remaining(tvb, i_offset) > 1) {
-                            c1 = tvb_get_guint8(tvb, i_offset + 1);
+                            c1 = tvb_get_uint8(tvb, i_offset + 1);
                             i_offset += 2;
                             i_char += 1;
                         } else {

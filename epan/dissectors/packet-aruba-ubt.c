@@ -323,7 +323,7 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
     proto_tree_add_item(message_tree, hf_ubt_switch_seqno, tvb, offset, SEQ_NO_SIZE, ENC_NA);
 
     /* appending to info column */
-    col_append_fstr(pinfo->cinfo, COL_INFO, " seq:%d", tvb_get_guint32(tvb, offset, ENC_NA));
+    col_append_fstr(pinfo->cinfo, COL_INFO, " seq:%d", tvb_get_uint32(tvb, offset, ENC_NA));
     offset += SEQ_NO_SIZE;
 
     /* if Switch Keepalive Message type, terminate dissection */
@@ -347,8 +347,8 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
         proto_item* tlv, * tlv_item, * tlv_item2;
 
         /* reading type & length of TLVS from stream */
-        type = tvb_get_guint8(tvb, offset);
-        optlen = tvb_get_guint16(tvb, offset + TYPE_SIZE, ENC_BIG_ENDIAN);
+        type = tvb_get_uint8(tvb, offset);
+        optlen = tvb_get_uint16(tvb, offset + TYPE_SIZE, ENC_BIG_ENDIAN);
 
         /* Adding TLV items to the tree */
         tlv = proto_tree_add_item(message_subtree, hf_ubt_tlv, tvb, offset, optlen + TYPE_SIZE + LENGTH_SIZE, ENC_NA);
@@ -501,7 +501,7 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
                 proto_tree_add_bitmask_with_flags(message_subtree2, tvb, offset, hf_ubt_dt_flags, ett_ubt_flags, ubt_user_flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
             }
 
-            val = tvb_get_guint8(tvb, offset);
+            val = tvb_get_uint8(tvb, offset);
 
             /* appending to info column */
             col_append_fstr(pinfo->cinfo, COL_INFO, " flags:%u", val);
@@ -627,20 +627,20 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
             /* adding activemaps of size 32 at a time */
             for (int i = 0; i < MAP_SIZE; i += MAP_SUBSET_SIZE) {
                 if ((i / MAP_SUBSET_SIZE) == 0) {
-                    tlv_item2 = proto_tree_add_bytes_format_value(message_subtree3, arr[i / MAP_SUBSET_SIZE], tvb, offset, MAP_SUBSET_SIZE, NULL, "    %02d", tvb_get_gint8(tvb, offset));
+                    tlv_item2 = proto_tree_add_bytes_format_value(message_subtree3, arr[i / MAP_SUBSET_SIZE], tvb, offset, MAP_SUBSET_SIZE, NULL, "    %02d", tvb_get_int8(tvb, offset));
                 }
                 else if ((i / MAP_SUBSET_SIZE) == 1 || (i / MAP_SUBSET_SIZE) == 2) {
-                    tlv_item2 = proto_tree_add_bytes_format_value(message_subtree3, arr[i / MAP_SUBSET_SIZE], tvb, offset, MAP_SUBSET_SIZE, NULL, "   %02d", tvb_get_gint8(tvb, offset));
+                    tlv_item2 = proto_tree_add_bytes_format_value(message_subtree3, arr[i / MAP_SUBSET_SIZE], tvb, offset, MAP_SUBSET_SIZE, NULL, "   %02d", tvb_get_int8(tvb, offset));
                 }
                 else if ((i / MAP_SUBSET_SIZE) == 3) {
-                    tlv_item2 = proto_tree_add_bytes_format_value(message_subtree3, arr[i / MAP_SUBSET_SIZE], tvb, offset, MAP_SUBSET_SIZE, NULL, "  %02d", tvb_get_gint8(tvb, offset));
+                    tlv_item2 = proto_tree_add_bytes_format_value(message_subtree3, arr[i / MAP_SUBSET_SIZE], tvb, offset, MAP_SUBSET_SIZE, NULL, "  %02d", tvb_get_int8(tvb, offset));
                 }
                 else {
-                    tlv_item2 = proto_tree_add_bytes_format_value(message_subtree3, arr[i / MAP_SUBSET_SIZE], tvb, offset, MAP_SUBSET_SIZE, NULL, " %02d", tvb_get_gint8(tvb, offset));
+                    tlv_item2 = proto_tree_add_bytes_format_value(message_subtree3, arr[i / MAP_SUBSET_SIZE], tvb, offset, MAP_SUBSET_SIZE, NULL, " %02d", tvb_get_int8(tvb, offset));
                 }
                 offset += 1;
                 for (int j = 1; j < MAP_SUBSET_SIZE; j += 1) {
-                    proto_item_append_text(tlv_item2, " %02d", tvb_get_gint8(tvb, offset));
+                    proto_item_append_text(tlv_item2, " %02d", tvb_get_int8(tvb, offset));
                     offset += 1;
                 }
             }
@@ -651,20 +651,20 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
             /* adding standbymaps of size 32 at a time */
             for (int i = 0; i < MAP_SIZE; i += MAP_SUBSET_SIZE) {
                 if ((i / MAP_SUBSET_SIZE) == 0) {
-                    tlv_item2 = proto_tree_add_bytes_format_value(message_subtree3, arr2[i / MAP_SUBSET_SIZE], tvb, offset, MAP_SUBSET_SIZE, NULL, "    %02d", tvb_get_gint8(tvb, offset));
+                    tlv_item2 = proto_tree_add_bytes_format_value(message_subtree3, arr2[i / MAP_SUBSET_SIZE], tvb, offset, MAP_SUBSET_SIZE, NULL, "    %02d", tvb_get_int8(tvb, offset));
                 }
                 else if ((i / MAP_SUBSET_SIZE) == 1 || (i / MAP_SUBSET_SIZE) == 2) {
-                    tlv_item2 = proto_tree_add_bytes_format_value(message_subtree3, arr2[i / MAP_SUBSET_SIZE], tvb, offset, MAP_SUBSET_SIZE, NULL, "   %02d", tvb_get_gint8(tvb, offset));
+                    tlv_item2 = proto_tree_add_bytes_format_value(message_subtree3, arr2[i / MAP_SUBSET_SIZE], tvb, offset, MAP_SUBSET_SIZE, NULL, "   %02d", tvb_get_int8(tvb, offset));
                 }
                 else if ((i / MAP_SUBSET_SIZE) == 3) {
-                    tlv_item2 = proto_tree_add_bytes_format_value(message_subtree3, arr2[i / MAP_SUBSET_SIZE], tvb, offset, MAP_SUBSET_SIZE, NULL, "  %02d", tvb_get_gint8(tvb, offset));
+                    tlv_item2 = proto_tree_add_bytes_format_value(message_subtree3, arr2[i / MAP_SUBSET_SIZE], tvb, offset, MAP_SUBSET_SIZE, NULL, "  %02d", tvb_get_int8(tvb, offset));
                 }
                 else {
-                    tlv_item2 = proto_tree_add_bytes_format_value(message_subtree3, arr2[i / MAP_SUBSET_SIZE], tvb, offset, MAP_SUBSET_SIZE, NULL, " %02d", tvb_get_gint8(tvb, offset));
+                    tlv_item2 = proto_tree_add_bytes_format_value(message_subtree3, arr2[i / MAP_SUBSET_SIZE], tvb, offset, MAP_SUBSET_SIZE, NULL, " %02d", tvb_get_int8(tvb, offset));
                 }
                 offset += 1;
                 for (int j = 1; j < MAP_SUBSET_SIZE; j += 1) {
-                    proto_item_append_text(tlv_item2, " %02d", tvb_get_gint8(tvb, offset));
+                    proto_item_append_text(tlv_item2, " %02d", tvb_get_int8(tvb, offset));
                     offset += 1;
                 }
             }
@@ -675,20 +675,20 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
             /* adding l2conn of size 32 at a time */
             for (int i = 0; i < MAP_SIZE; i += MAP_SUBSET_SIZE) {
                 if ((i / MAP_SUBSET_SIZE) == 0) {
-                    tlv_item2 = proto_tree_add_bytes_format_value(message_subtree3, arr3[i / MAP_SUBSET_SIZE], tvb, offset, MAP_SUBSET_SIZE, NULL, "    %02d", tvb_get_gint8(tvb, offset));
+                    tlv_item2 = proto_tree_add_bytes_format_value(message_subtree3, arr3[i / MAP_SUBSET_SIZE], tvb, offset, MAP_SUBSET_SIZE, NULL, "    %02d", tvb_get_int8(tvb, offset));
                 }
                 else if ((i / MAP_SUBSET_SIZE) == 1 || (i / MAP_SUBSET_SIZE) == 2) {
-                    tlv_item2 = proto_tree_add_bytes_format_value(message_subtree3, arr3[i / MAP_SUBSET_SIZE], tvb, offset, MAP_SUBSET_SIZE, NULL, "   %02d", tvb_get_gint8(tvb, offset));
+                    tlv_item2 = proto_tree_add_bytes_format_value(message_subtree3, arr3[i / MAP_SUBSET_SIZE], tvb, offset, MAP_SUBSET_SIZE, NULL, "   %02d", tvb_get_int8(tvb, offset));
                 }
                 else if ((i / MAP_SUBSET_SIZE) == 3) {
-                    tlv_item2 = proto_tree_add_bytes_format_value(message_subtree3, arr3[i / MAP_SUBSET_SIZE], tvb, offset, MAP_SUBSET_SIZE, NULL, "  %02d", tvb_get_gint8(tvb, offset));
+                    tlv_item2 = proto_tree_add_bytes_format_value(message_subtree3, arr3[i / MAP_SUBSET_SIZE], tvb, offset, MAP_SUBSET_SIZE, NULL, "  %02d", tvb_get_int8(tvb, offset));
                 }
                 else {
-                    tlv_item2 = proto_tree_add_bytes_format_value(message_subtree3, arr3[i / MAP_SUBSET_SIZE], tvb, offset, MAP_SUBSET_SIZE, NULL, " %02d", tvb_get_gint8(tvb, offset));
+                    tlv_item2 = proto_tree_add_bytes_format_value(message_subtree3, arr3[i / MAP_SUBSET_SIZE], tvb, offset, MAP_SUBSET_SIZE, NULL, " %02d", tvb_get_int8(tvb, offset));
                 }
                 offset += 1;
                 for (int j = 1; j < MAP_SUBSET_SIZE; j += 1) {
-                    proto_item_append_text(tlv_item2, " %02d", tvb_get_gint8(tvb, offset));
+                    proto_item_append_text(tlv_item2, " %02d", tvb_get_int8(tvb, offset));
                     offset += 1;
                 }
             }
@@ -832,7 +832,7 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
             /* adding Silent Client VLANs as proto_item to the tree */
             tlv_item = proto_tree_add_item(message_subtree2, hf_ubt_dt_silentclientvlans, tvb, offset, optlen, ENC_NA);
             message_subtree3 = proto_item_add_subtree(tlv_item, ett_ubt_tlv);
-            proto_item_append_text(tlv, ": %u", tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN));
+            proto_item_append_text(tlv, ": %u", tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN));
 
             /* adding each silent client VLAN assigned */
             for (int i = 0; i < 200; i++) {

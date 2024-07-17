@@ -685,7 +685,7 @@ awdl_tag_service_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
   values_tree = proto_item_add_subtree(values_item, ett_awdl_serviceparams_values);
 
   offset_item = proto_tree_add_bitmask_with_flags(values_tree, tvb, offset, hf_awdl_serviceparams_bitmask, ett_awdl_serviceparams_bitmask, bitmask_fields, ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
-  uint32_t bitmask = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
+  uint32_t bitmask = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
   offset += 4;
 
   if (bitmask != 0) {
@@ -696,7 +696,7 @@ awdl_tag_service_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         unsigned shift = i << 3;
         value_item = proto_tree_add_bitmask(values_tree, tvb, offset, hf_awdl_serviceparams_values,
                                ett_awdl_serviceparams_value, value_fields, ENC_LITTLE_ENDIAN);
-        uint8_t value = tvb_get_guint8(tvb, offset);
+        uint8_t value = tvb_get_uint8(tvb, offset);
         for (unsigned k = 0; k < 8; k++) {
           if (test_bit_guint32(k, value)) {
             if (count == 0) {
@@ -739,7 +739,7 @@ awdl_tag_channel_sequence(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   channels += 1; /* channel list length is +1 */
   offset += 1;
 
-  uint8_t seq_enc = tvb_get_guint8(tvb, offset);
+  uint8_t seq_enc = tvb_get_uint8(tvb, offset);
   proto_tree_add_item(tree, hf_awdl_channelseq_enc, tvb, offset, 1, ENC_LITTLE_ENDIAN);
   offset += 1;
   proto_tree_add_item(tree, hf_awdl_channelseq_duplicate, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -882,7 +882,7 @@ static int
 awdl_tag_election_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_) {
   int offset = 0;
 
-  uint8_t private_election = tvb_get_guint8(tvb, offset);
+  uint8_t private_election = tvb_get_uint8(tvb, offset);
 
   proto_tree_add_item(tree, hf_awdl_electionparams_flags, tvb, offset, 1, ENC_NA);
   offset += 1;
@@ -993,7 +993,7 @@ awdl_tag_datapath_state(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     NULL
   };
 
-  flags = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+  flags = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
   proto_tree_add_bitmask(tree, tvb, offset, hf_awdl_datastate_flags,
                          ett_awdl_datastate_flags, flags_fields, ENC_LITTLE_ENDIAN);
   offset += 2;
@@ -1004,7 +1004,7 @@ awdl_tag_datapath_state(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
   }
   if (flags & 0x0200) {
     /* this can either be a channel or a map indicating which channels this node supports */
-    uint16_t map = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+    uint16_t map = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
     /* TODO unverified heuristic to decide whether this is a map or number */
     if (map & 1) {
       proto_tree_add_bitmask(tree, tvb, offset, hf_awdl_datastate_social_channel_map,
@@ -1034,7 +1034,7 @@ awdl_tag_datapath_state(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     offset += 2;
   }
   if (flags & 0x1000) {
-    uint16_t optionlength = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+    uint16_t optionlength = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_awdl_datastate_umioptions_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
     proto_tree_add_item(tree, hf_awdl_datastate_umioptions, tvb, offset, optionlength, ENC_NA);
@@ -1042,7 +1042,7 @@ awdl_tag_datapath_state(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
   }
   /* now come the extended parameters */
   if (flags & 0x8000) {
-    uint16_t extflags = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+    uint16_t extflags = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
     proto_tree_add_bitmask(tree, tvb, offset, hf_awdl_datastate_extflags,
                            ett_awdl_datastate_extflags, extflags_fields, ENC_LITTLE_ENDIAN);
     offset += 2;
@@ -1118,13 +1118,13 @@ awdl_tag_ht_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
   cap_item = proto_tree_add_item(tree, hf_awdl_ampduparam, tvb, offset, 1, ENC_LITTLE_ENDIAN);
   cap_tree = proto_item_add_subtree(cap_item, ett_awdl_ht_ampduparam);
   ti = proto_tree_add_item(cap_tree, hf_awdl_ampduparam_mpdu, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_item_append_text(ti, " (%04.0f[Bytes])", pow(2, 13 + (tvb_get_guint8(tvb, offset) & 0x3)) - 1);
+  proto_item_append_text(ti, " (%04.0f[Bytes])", pow(2, 13 + (tvb_get_uint8(tvb, offset) & 0x3)) - 1);
   proto_tree_add_item(cap_tree, hf_awdl_ampduparam_mpdu_start_spacing, tvb, offset, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(cap_tree, hf_awdl_ampduparam_reserved, tvb, offset, 1, ENC_LITTLE_ENDIAN);
   offset += 1;
 
   /* Check how many streams are supported */
-  for (streams = 0; streams < 4 /* max streams */ && tvb_get_guint8(tvb, offset + streams) != 0; streams++) {
+  for (streams = 0; streams < 4 /* max streams */ && tvb_get_uint8(tvb, offset + streams) != 0; streams++) {
   }
 
   ti = proto_tree_add_item(tree, hf_awdl_mcsset, tvb, offset, streams, ENC_NA);
@@ -1175,7 +1175,7 @@ add_awdl_dns_name(proto_tree *tree, int hfindex_regular, int hfindex_compressed,
   strbuf = wmem_strbuf_new_sized(scope, MAX_DNAME_LEN);
 
   while (offset < (len + start_offset)) {
-    component_len = tvb_get_guint8(tvb, offset);
+    component_len = tvb_get_uint8(tvb, offset);
     if (component_len & 0xC0) {
       /* compressed label */
       unsigned compressed_value;
@@ -1322,11 +1322,11 @@ awdl_add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int o
   awdl_tagged_field_data_t field_data;
   int parsed;
 
-  tag_no = tvb_get_guint8(tvb, offset);
+  tag_no = tvb_get_uint8(tvb, offset);
   if (hdr_len == TAG_LENGTH_SHORT) {
-    tag_len = tvb_get_guint8(tvb, offset + 1);
+    tag_len = tvb_get_uint8(tvb, offset + 1);
   } else {
-    tag_len = tvb_get_guint16(tvb, offset + 1, ENC_LITTLE_ENDIAN);
+    tag_len = tvb_get_uint16(tvb, offset + 1, ENC_LITTLE_ENDIAN);
   }
 
   if (tree) {
@@ -1409,16 +1409,16 @@ dissect_awdl_action(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
   offset += 1;
   add_awdl_version(tvb, offset, fixed_tree);
   offset += 1;
-  subtype = tvb_get_guint8(tvb, offset);
+  subtype = tvb_get_uint8(tvb, offset);
   proto_tree_add_item(fixed_tree, hf_awdl_subtype, tvb, offset, 1, ENC_LITTLE_ENDIAN);
   offset += 1;
   proto_tree_add_item(fixed_tree, hf_awdl_rsvd, tvb, offset, 1, ENC_LITTLE_ENDIAN);
   offset += 1;
   proto_tree_add_item(fixed_tree, hf_awdl_phytime, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-  phytime = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
+  phytime = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
   offset += 4;
   proto_tree_add_item(fixed_tree, hf_awdl_targettime, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-  targettime = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
+  targettime = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
   offset += 4;
   item = proto_tree_add_uint(fixed_tree, hf_awdl_txdelay, tvb, 0, 0, phytime - targettime);
   proto_item_set_generated(item);
@@ -1460,14 +1460,14 @@ dissect_awdl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
   proto_item_append_text(ti, ", Seq: %u", seq);
   offset += 2;
 
-  if (tvb_get_guint8(tvb, offset) == 3) {
+  if (tvb_get_uint8(tvb, offset) == 3) {
       // 0x0300 ("long format")
       proto_item *tagged_item;
       proto_tree *tagged_tree;
       int         start_offset;
       uint8_t     slen;
 
-      slen = tvb_get_guint8(tvb, offset + 1);
+      slen = tvb_get_uint8(tvb, offset + 1);
       proto_tree_add_item(awdl_tree, hf_awdl_data_header, tvb, offset, 2 + slen, ENC_NA);
       offset += 2 + slen;
 
@@ -1476,11 +1476,11 @@ dissect_awdl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 
       start_offset = offset;
 
-      while (tvb_get_guint8(tvb, offset) != 3) {
+      while (tvb_get_uint8(tvb, offset) != 3) {
           offset += awdl_add_tagged_field(pinfo, tagged_tree, tvb, offset, TAG_LENGTH_SHORT);
       }
 
-      slen = tvb_get_guint8(tvb, offset + 1);
+      slen = tvb_get_uint8(tvb, offset + 1);
       proto_tree_add_item(awdl_tree, hf_awdl_data_header, tvb, offset, 2 + slen, ENC_NA);
       offset += 2 + slen;
 

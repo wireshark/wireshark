@@ -175,14 +175,14 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             }
             ti = proto_tree_add_item(sub_tree, hf_PCMD_roll, tvb, offset, length, ENC_ASCII);
 
-            PCMD_byte = tvb_get_guint8(tvb, offset);
+            PCMD_byte = tvb_get_uint8(tvb, offset);
             if (PCMD_byte == 0x30)
             {
                 PCMD_str = " (NO CHANGE)";
             }
             else if (PCMD_byte == 0x2d)
             {
-                PCMD_byte = tvb_get_guint8(tvb, offset + 1);
+                PCMD_byte = tvb_get_uint8(tvb, offset + 1);
                 if (PCMD_byte == 0x30)
                 {
                     PCMD_str = " (NO CHANGE)";
@@ -207,14 +207,14 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             }
             ti = proto_tree_add_item(sub_tree, hf_PCMD_pitch, tvb, offset, length, ENC_ASCII);
 
-            PCMD_byte = tvb_get_guint8(tvb, offset);
+            PCMD_byte = tvb_get_uint8(tvb, offset);
             if (PCMD_byte == 0x30)
             {
                 PCMD_str = " (NO CHANGE)";
             }
             else if (PCMD_byte == 0x2d)
             {
-                PCMD_byte = tvb_get_guint8(tvb, offset + 1);
+                PCMD_byte = tvb_get_uint8(tvb, offset + 1);
                 if (PCMD_byte == 0x30)
                 {
                     PCMD_str = " (NO CHANGE)";
@@ -239,14 +239,14 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             }
             ti = proto_tree_add_item(sub_tree, hf_PCMD_gaz, tvb, offset, length, ENC_ASCII);
 
-            PCMD_byte = tvb_get_guint8(tvb, offset);
+            PCMD_byte = tvb_get_uint8(tvb, offset);
             if (PCMD_byte == 0x30)
             {
                 PCMD_str = " (NO CHANGE)";
             }
             else if (PCMD_byte == 0x2d)
             {
-                PCMD_byte = tvb_get_guint8(tvb, offset + 1);
+                PCMD_byte = tvb_get_uint8(tvb, offset + 1);
                 if (PCMD_byte == 0x30)
                 {
                     PCMD_str = " (NO CHANGE)";
@@ -271,14 +271,14 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             }
             ti = proto_tree_add_item(sub_tree, hf_PCMD_yaw, tvb, offset, length, ENC_ASCII);
 
-            PCMD_byte = tvb_get_guint8(tvb, offset);
+            PCMD_byte = tvb_get_uint8(tvb, offset);
             if (PCMD_byte == 0x30)
             {
                 PCMD_str = " (NO CHANGE)";
             }
             else if (PCMD_byte == 0x2d)
             {
-                PCMD_byte = tvb_get_guint8(tvb, offset + 1);
+                PCMD_byte = tvb_get_uint8(tvb, offset + 1);
                 if (PCMD_byte == 0x30)
                 {
                     PCMD_str = " (NO CHANGE)";

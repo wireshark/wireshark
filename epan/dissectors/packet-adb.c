@@ -516,7 +516,7 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             proto_tree_add_item(arg0_tree, hf_version, tvb, offset - 8, 4, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(arg1_tree, hf_max_data, tvb, offset - 4, 4, ENC_LITTLE_ENDIAN);
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, "(version=%u.%u.%u, max_data=%u)", tvb_get_guint8(tvb, offset - 5), tvb_get_guint8(tvb, offset - 6), tvb_get_letohs(tvb, offset - 7), tvb_get_letohl(tvb, offset - 4));
+            col_append_fstr(pinfo->cinfo, COL_INFO, "(version=%u.%u.%u, max_data=%u)", tvb_get_uint8(tvb, offset - 5), tvb_get_uint8(tvb, offset - 6), tvb_get_letohs(tvb, offset - 7), tvb_get_letohl(tvb, offset - 4));
             break;
         case A_AUTH:
             proto_tree_add_item(arg0_tree, hf_auth_type, tvb, offset - 8, 4, ENC_LITTLE_ENDIAN);
@@ -677,7 +677,7 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
         } else { /* full message */
             for (i_offset = 0; i_offset < data_length; ++i_offset)
-                crc += tvb_get_guint8(tvb, offset + i_offset);
+                crc += tvb_get_uint8(tvb, offset + i_offset);
 
             if (crc32 > 0 && crc32 != crc)
                 proto_tree_add_expert(crc_tree, pinfo, &ei_invalid_crc, tvb, offset, -1);

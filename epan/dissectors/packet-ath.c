@@ -153,7 +153,7 @@ dissect_ath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
       /* HOST LENGTH
        */
       hlen_item = proto_tree_add_item(ath_tree, hf_ath_hlen, tvb, offset, 1, ENC_BIG_ENDIAN);
-      hlen = tvb_get_guint8(tvb, offset);
+      hlen = tvb_get_uint8(tvb, offset);
       offset += 1;
 
       /* HOST
@@ -253,7 +253,7 @@ dissect_ath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
       /* HOST LENGTH
        */
       hlen_item = proto_tree_add_item(ath_tree, hf_ath_hlen, tvb, offset, 1, ENC_BIG_ENDIAN);
-      hlen = tvb_get_guint8(tvb, offset);
+      hlen = tvb_get_uint8(tvb, offset);
       offset += 1;
 
       /* HOST

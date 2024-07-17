@@ -364,7 +364,7 @@ dissect_le_control_tlvs(tvbuff_t *tvb, int offset, unsigned num_tlvs,
 
   while (num_tlvs != 0) {
     tlv_type = tvb_get_ntohl(tvb, offset);
-    tlv_length = tvb_get_guint8(tvb, offset+4);
+    tlv_length = tvb_get_uint8(tvb, offset+4);
     tlv_tree = proto_tree_add_subtree_format(tree, tvb, offset, 5+tlv_length, ett_atm_lane_lc_tlv, NULL,
                                                 "TLV type: %s", val_to_str(tlv_type, le_tlv_type_vals, "Unknown (0x%08x)"));
     proto_tree_add_item(tlv_tree, hf_atm_le_control_tlv_type, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -395,11 +395,11 @@ dissect_le_configure_join_frame(tvbuff_t *tvb, int offset, proto_tree *tree)
   proto_tree_add_item(tree, hf_atm_le_configure_join_frame_max_frame_size, tvb, offset, 1, ENC_NA);
   offset += 1;
 
-  num_tlvs = tvb_get_guint8(tvb, offset);
+  num_tlvs = tvb_get_uint8(tvb, offset);
   proto_tree_add_item(tree, hf_atm_le_configure_join_frame_num_tlvs, tvb, offset, 1, ENC_NA);
   offset += 1;
 
-  name_size = tvb_get_guint8(tvb, offset);
+  name_size = tvb_get_uint8(tvb, offset);
   proto_tree_add_item(tree, hf_atm_le_configure_join_frame_elan_name_size, tvb, offset, 1, ENC_NA);
   offset += 1;
 
@@ -433,7 +433,7 @@ dissect_le_registration_frame(tvbuff_t *tvb, int offset, proto_tree *tree)
   proto_tree_add_item(tree, hf_atm_reserved, tvb, offset, 2, ENC_NA);
   offset += 2;
 
-  num_tlvs = tvb_get_guint8(tvb, offset);
+  num_tlvs = tvb_get_uint8(tvb, offset);
   proto_tree_add_item(tree, hf_atm_le_registration_frame_num_tlvs, tvb, offset, 1, ENC_NA);
   offset += 1;
 
@@ -460,7 +460,7 @@ dissect_le_arp_frame(tvbuff_t *tvb, int offset, proto_tree *tree)
   proto_tree_add_item(tree, hf_atm_reserved, tvb, offset, 2, ENC_NA);
   offset += 2;
 
-  num_tlvs = tvb_get_guint8(tvb, offset);
+  num_tlvs = tvb_get_uint8(tvb, offset);
   proto_tree_add_item(tree, hf_atm_le_arp_frame_num_tlvs, tvb, offset, 1, ENC_NA);
   offset += 1;
 
@@ -484,7 +484,7 @@ dissect_le_verify_frame(tvbuff_t *tvb, int offset, proto_tree *tree)
   proto_tree_add_item(tree, hf_atm_reserved, tvb, offset, 38, ENC_NA);
   offset += 38;
 
-  num_tlvs = tvb_get_guint8(tvb, offset);
+  num_tlvs = tvb_get_uint8(tvb, offset);
   proto_tree_add_item(tree, hf_atm_le_verify_frame_num_tlvs, tvb, offset, 1, ENC_NA);
   offset += 1;
 
@@ -1356,7 +1356,7 @@ dissect_atm_cell_payload(tvbuff_t *tvb, int offset, packet_info *pinfo,
     col_clear(pinfo->cinfo, COL_INFO);
     ti = proto_tree_add_item(tree, proto_aal1, tvb, offset, -1, ENC_NA);
     aal_tree = proto_item_add_subtree(ti, ett_aal1);
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
 
     proto_tree_add_item(aal_tree, hf_atm_aa1_csi, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(aal_tree, hf_atm_aa1_seq_count, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1405,7 +1405,7 @@ dissect_atm_cell_payload(tvbuff_t *tvb, int offset, packet_info *pinfo,
     }
     ti = proto_tree_add_item(tree, proto_oamaal, tvb, offset, -1, ENC_NA);
     aal_tree = proto_item_add_subtree(ti, ett_oamaal);
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
     if (fill_columns)
     {
       col_add_str(pinfo->cinfo, COL_INFO,
@@ -1492,10 +1492,10 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * |   HEC (CRC)   |
      * +-+-+-+-+-+-+-+-+
      */
-    octet = tvb_get_guint8(tvb, 0);
+    octet = tvb_get_uint8(tvb, 0);
     proto_tree_add_item(atm_tree, hf_atm_gfc, tvb, 0, 1, ENC_NA);
     vpi = (octet & 0xF) << 4;
-    octet = tvb_get_guint8(tvb, 1);
+    octet = tvb_get_uint8(tvb, 1);
     vpi |= octet >> 4;
     proto_tree_add_uint(atm_tree, hf_atm_vpi, tvb, 0, 2, vpi);
   } else {
@@ -1516,17 +1516,17 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * |   HEC (CRC)   |
      * +-+-+-+-+-+-+-+-+
      */
-    octet = tvb_get_guint8(tvb, 0);
+    octet = tvb_get_uint8(tvb, 0);
     vpi = octet << 4;
-    octet = tvb_get_guint8(tvb, 1);
+    octet = tvb_get_uint8(tvb, 1);
     vpi |= (octet & 0xF0) >> 4;
     proto_tree_add_uint(atm_tree, hf_atm_vpi, tvb, 0, 2, vpi);
   }
 
   vci = (octet & 0x0F) << 12;
-  octet = tvb_get_guint8(tvb, 2);
+  octet = tvb_get_uint8(tvb, 2);
   vci |= octet << 4;
-  octet = tvb_get_guint8(tvb, 3);
+  octet = tvb_get_uint8(tvb, 3);
   vci |= octet >> 4;
   proto_tree_add_uint(atm_tree, hf_atm_vci, tvb, 1, 3, vci);
   pt = (octet >> 1) & 0x7;

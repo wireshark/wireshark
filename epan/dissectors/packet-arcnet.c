@@ -176,8 +176,8 @@ dissect_arcnet_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
   col_set_str(pinfo->cinfo, COL_INFO, "ARCNET");
 
-  src = tvb_get_guint8 (tvb, 0);
-  dst = tvb_get_guint8 (tvb, 1);
+  src = tvb_get_uint8 (tvb, 0);
+  dst = tvb_get_uint8 (tvb, 1);
   set_address_tvb(&pinfo->dl_src,   arcnet_address_type, 1, tvb, 0);
   copy_address_shallow(&pinfo->src, &pinfo->dl_src);
   set_address_tvb(&pinfo->dl_dst,   arcnet_address_type, 1, tvb, 1);
@@ -198,7 +198,7 @@ dissect_arcnet_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     offset += 2;
   }
 
-  protID = tvb_get_guint8 (tvb, offset);
+  protID = tvb_get_uint8 (tvb, offset);
   proto_tree_add_uint (arcnet_tree, hf_arcnet_protID, tvb, offset, 1, protID);
   offset++;
 
@@ -238,7 +238,7 @@ dissect_arcnet_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
      * as WinPcap, like PF_PACKET sockets, taps into the networking
      * stack just as other protocols do.)
      */
-    split_flag = tvb_get_guint8 (tvb, offset);
+    split_flag = tvb_get_uint8 (tvb, offset);
     if (has_exception && split_flag == 0xff) {
       /* This is an exception packet.  The flag value there is the
          "this is an exception flag" packet; the next two bytes
@@ -255,7 +255,7 @@ dissect_arcnet_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
       offset++;
 
       /* And after that comes the real split flag. */
-      split_flag = tvb_get_guint8 (tvb, offset);
+      split_flag = tvb_get_uint8 (tvb, offset);
     }
 
     proto_tree_add_uint (arcnet_tree, hf_arcnet_split_flag, tvb, offset, 1,

@@ -709,7 +709,7 @@ dissect_ipdum_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree, 
             if (config->items[i].update_bit_pos != 0xffff) {
                 int update_byte = config->items[i].update_bit_pos / 8;
                 int update_bit_mask = 1 << (config->items[i].update_bit_pos % 8);
-                uint8_t tmp = tvb_get_guint8(tvb, update_byte);
+                uint8_t tmp = tvb_get_uint8(tvb, update_byte);
                 update_bit_ok = (tmp & update_bit_mask) == update_bit_mask;
             }
 

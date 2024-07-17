@@ -1092,7 +1092,7 @@ dissect_asam_cmp_data_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
     asam_cmp_data_msg_header_tree = proto_item_add_subtree(ti_msg_header, ett_asam_cmp_header);
     proto_item_append_text(ti_msg_header, " %s", "- Data Message");
 
-    uint64_t ns = tvb_get_guint64(tvb, offset, ENC_BIG_ENDIAN);
+    uint64_t ns = tvb_get_uint64(tvb, offset, ENC_BIG_ENDIAN);
     nstime_t timestamp = { .secs = (time_t)(ns / 1000000000), .nsecs = (int)(ns % 1000000000) };
 
     ti = proto_tree_add_time(asam_cmp_data_msg_header_tree, hf_cmp_msg_timestamp, tvb, offset, 8, &timestamp);
@@ -1170,14 +1170,14 @@ dissect_asam_cmp_data_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
         col_append_str(pinfo->cinfo, COL_INFO, " (CAN)");
         proto_item_append_text(ti_msg_payload, " %s", "(CAN)");
 
-        uint16_t can_flags = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+        uint16_t can_flags = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
         proto_tree_add_bitmask(asam_cmp_data_msg_payload_tree, tvb, offset, hf_cmp_can_flags, ett_asam_cmp_payload_flags, asam_cmp_can_flags, ENC_BIG_ENDIAN);
         offset += 2;
 
         proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_can_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
-        uint32_t can_id_field = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+        uint32_t can_id_field = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
         bool can_id_29bit = (can_id_field & CMP_CAN_ID_IDE) == CMP_CAN_ID_IDE;
         uint32_t can_id = 0;
         if (can_id_29bit) {
@@ -1278,14 +1278,14 @@ dissect_asam_cmp_data_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
         col_append_str(pinfo->cinfo, COL_INFO, " (CAN FD)");
         proto_item_append_text(ti_msg_payload, " %s", "(CAN FD)");
 
-        uint16_t canfd_flags = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+        uint16_t canfd_flags = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
         proto_tree_add_bitmask(asam_cmp_data_msg_payload_tree, tvb, offset, hf_cmp_canfd_flags, ett_asam_cmp_payload_flags, asam_cmp_canfd_flags, ENC_BIG_ENDIAN);
         offset += 2;
 
         proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_canfd_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
-        uint32_t can_id_field = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+        uint32_t can_id_field = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
         bool can_id_29bit = (can_id_field & CMP_CANFD_ID_IDE) == CMP_CANFD_ID_IDE;
         uint32_t can_id = 0;
         if (can_id_29bit) {
@@ -1303,7 +1303,7 @@ dissect_asam_cmp_data_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
         offset += 4;
 
         /* We peek ahead to find out the DLC. 0..10: 17bit CRC, 11..15: 21bit CRC. */
-        if (tvb_get_guint8(tvb, offset + 6) <= 10) {
+        if (tvb_get_uint8(tvb, offset + 6) <= 10) {
             proto_tree_add_bitmask_with_flags(asam_cmp_data_msg_payload_tree, tvb, offset, hf_cmp_canfd_crc, ett_asam_cmp_can_crc, asam_cmp_canfd_crc_field_17bit, ENC_BIG_ENDIAN, BMT_NO_FALSE);
         } else {
             proto_tree_add_bitmask_with_flags(asam_cmp_data_msg_payload_tree, tvb, offset, hf_cmp_canfd_crc, ett_asam_cmp_can_crc, asam_cmp_canfd_crc_field_21bit, ENC_BIG_ENDIAN, BMT_NO_FALSE);
@@ -1350,7 +1350,7 @@ dissect_asam_cmp_data_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
         proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_lin_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
-        lin_info.id = tvb_get_guint8(tvb, offset) & CMP_CANFD_PID_ID_MASK;
+        lin_info.id = tvb_get_uint8(tvb, offset) & CMP_CANFD_PID_ID_MASK;
         proto_tree_add_bitmask(asam_cmp_data_msg_payload_tree, tvb, offset, hf_cmp_lin_pid, ett_asam_cmp_lin_pid, asam_cmp_lin_pid, ENC_BIG_ENDIAN);
         offset += 1;
 
@@ -1389,7 +1389,7 @@ dissect_asam_cmp_data_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
         col_append_str(pinfo->cinfo, COL_INFO, " (FlexRay)");
         proto_item_append_text(ti_msg_payload, " %s", "(FlexRay)");
 
-        uint16_t flags = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+        uint16_t flags = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
         proto_tree_add_bitmask(asam_cmp_data_msg_payload_tree, tvb, offset, hf_cmp_flexray_flags, ett_asam_cmp_payload_flags, asam_cmp_flexray_flags, ENC_BIG_ENDIAN);
         offset += 2;
 
@@ -1503,7 +1503,7 @@ dissect_asam_cmp_data_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
             switch (flags & 0x03) {
             case 0: /* INT16 */
                 while (data_left >= 2) {
-                    int16_t data_sample = tvb_get_gint16(tvb, offset, ENC_BIG_ENDIAN);
+                    int16_t data_sample = tvb_get_int16(tvb, offset, ENC_BIG_ENDIAN);
                     ti = proto_tree_add_double(asam_cmp_data_msg_payload_tree, hf_cmp_analog_sample, tvb, offset, 2, ((double)data_sample * sample_scalar + sample_offset));
 
                     if (unit_symbol != NULL) {
@@ -1516,7 +1516,7 @@ dissect_asam_cmp_data_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
                 break;
             case 1: /* INT32 */
                 while (data_left >= 4) {
-                    int32_t data_sample = tvb_get_gint32(tvb, offset, ENC_BIG_ENDIAN);
+                    int32_t data_sample = tvb_get_int32(tvb, offset, ENC_BIG_ENDIAN);
                     ti = proto_tree_add_double(asam_cmp_data_msg_payload_tree, hf_cmp_analog_sample, tvb, offset, 4, ((double)data_sample * sample_scalar + sample_offset));
 
                     if (unit_symbol != NULL) {
@@ -1610,7 +1610,7 @@ dissect_asam_cmp_ctrl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
     asam_cmp_ctrl_msg_header_tree = proto_item_add_subtree(ti_msg_header, ett_asam_cmp_header);
     proto_item_append_text(ti_msg_header, " %s", "- Control Message");
 
-    uint64_t ns = tvb_get_guint64(tvb, offset, ENC_BIG_ENDIAN);
+    uint64_t ns = tvb_get_uint64(tvb, offset, ENC_BIG_ENDIAN);
     nstime_t timestamp = { .secs = (time_t)(ns / 1000000000), .nsecs = (int)(ns % 1000000000) };
 
     ti = proto_tree_add_time(asam_cmp_ctrl_msg_header_tree, hf_cmp_msg_timestamp, tvb, offset, 8, &timestamp);
@@ -1829,7 +1829,7 @@ dissect_asam_cmp_status_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_
     asam_cmp_status_msg_header_tree = proto_item_add_subtree(ti_msg_header, ett_asam_cmp_header);
     proto_item_append_text(ti_msg_header, " %s", "- Status Message");
 
-    uint64_t ns = tvb_get_guint64(tvb, offset, ENC_BIG_ENDIAN);
+    uint64_t ns = tvb_get_uint64(tvb, offset, ENC_BIG_ENDIAN);
     nstime_t timestamp = { .secs = (time_t)(ns / 1000000000), .nsecs = (int)(ns % 1000000000) };
 
     ti = proto_tree_add_time(asam_cmp_status_msg_header_tree, hf_cmp_msg_timestamp, tvb, offset, 8, &timestamp);
@@ -2120,7 +2120,7 @@ dissect_asam_cmp_vendor_msg(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *r
     asam_cmp_vendor_msg_header_tree = proto_item_add_subtree(ti_msg_header, ett_asam_cmp_header);
     proto_item_append_text(ti_msg_header, " %s", "- Vendor-Defined Message");
 
-    uint64_t ns = tvb_get_guint64(tvb, offset, ENC_BIG_ENDIAN);
+    uint64_t ns = tvb_get_uint64(tvb, offset, ENC_BIG_ENDIAN);
     nstime_t timestamp = { .secs = (time_t)(ns / 1000000000), .nsecs = (int)(ns % 1000000000) };
 
     ti = proto_tree_add_time(asam_cmp_vendor_msg_header_tree, hf_cmp_msg_timestamp, tvb, offset, 8, &timestamp);

@@ -604,7 +604,7 @@ dissect_atm_nsap(tvbuff_t *tvb, packet_info* pinfo, int offset, int len, proto_t
   uint8_t afi;
   proto_item* ti;
 
-  afi = tvb_get_guint8(tvb, offset);
+  afi = tvb_get_uint8(tvb, offset);
   ti = proto_tree_add_item(tree, hf_atmarp_src_atm_afi, tvb, offset, 1, ENC_BIG_ENDIAN);
   switch (afi) {
 
@@ -877,17 +877,17 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
   ar_hrd = tvb_get_ntohs(tvb, ATM_AR_HRD);
   ar_pro = tvb_get_ntohs(tvb, ATM_AR_PRO);
-  ar_shtl = tvb_get_guint8(tvb, ATM_AR_SHTL);
+  ar_shtl = tvb_get_uint8(tvb, ATM_AR_SHTL);
   ar_shl = ar_shtl & ATMARP_LEN_MASK;
-  ar_sstl = tvb_get_guint8(tvb, ATM_AR_SSTL);
+  ar_sstl = tvb_get_uint8(tvb, ATM_AR_SSTL);
   ar_ssl = ar_sstl & ATMARP_LEN_MASK;
   ar_op  = tvb_get_ntohs(tvb, AR_OP);
-  ar_spln = tvb_get_guint8(tvb, ATM_AR_SPLN);
-  ar_thtl = tvb_get_guint8(tvb, ATM_AR_THTL);
+  ar_spln = tvb_get_uint8(tvb, ATM_AR_SPLN);
+  ar_thtl = tvb_get_uint8(tvb, ATM_AR_THTL);
   ar_thl = ar_thtl & ATMARP_LEN_MASK;
-  ar_tstl = tvb_get_guint8(tvb, ATM_AR_TSTL);
+  ar_tstl = tvb_get_uint8(tvb, ATM_AR_TSTL);
   ar_tsl = ar_tstl & ATMARP_LEN_MASK;
-  ar_tpln = tvb_get_guint8(tvb, ATM_AR_TPLN);
+  ar_tpln = tvb_get_uint8(tvb, ATM_AR_TPLN);
 
   tot_len = MIN_ATMARP_HEADER_SIZE + ar_shl + ar_ssl + ar_spln +
     ar_thl + ar_tsl + ar_tpln;
@@ -1235,9 +1235,9 @@ dissect_ax25arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
   /* Protocol Address Type */
   ar_pro = tvb_get_ntohs(tvb, AR_PRO);
   /* Hardware Address Size */
-  ar_hln = tvb_get_guint8(tvb, AR_HLN);
+  ar_hln = tvb_get_uint8(tvb, AR_HLN);
   /* Protocol Address Size */
-  ar_pln = tvb_get_guint8(tvb, AR_PLN);
+  ar_pln = tvb_get_uint8(tvb, AR_PLN);
   /* Operation */
   ar_op  = tvb_get_ntohs(tvb, AR_OP);
 

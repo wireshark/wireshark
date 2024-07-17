@@ -582,7 +582,7 @@ aim_get_buddyname(wmem_allocator_t *pool, uint8_t **name, tvbuff_t *tvb, int off
 {
 	uint8_t buddyname_length;
 
-	buddyname_length = tvb_get_guint8(tvb, offset);
+	buddyname_length = tvb_get_uint8(tvb, offset);
 
 	*name = tvb_get_string_enc(pool, tvb, offset + 1, buddyname_length, ENC_UTF_8|ENC_NA);
 
@@ -611,7 +611,7 @@ aim_get_message( unsigned char *msg, tvbuff_t *tvb, int msg_offset, int msg_leng
 	 * (it is nearly impossible to find the correct start offset for all client versions) */
 	while( (tagchars < 6) && (new_length > 5) )
 	{
-		j = tvb_get_guint8(tvb, new_offset);
+		j = tvb_get_uint8(tvb, new_offset);
 		if( ( (j == '<') && (tagchars == 0) ) ||
 		    ( (j == 'h') && (tagchars == 1) ) ||
 		    ( (j == 'H') && (tagchars == 1) ) ||
@@ -636,7 +636,7 @@ aim_get_message( unsigned char *msg, tvbuff_t *tvb, int msg_offset, int msg_leng
 	 * All other HTML tags are stripped to display only the raw message (printable characters) */
 	while( (c < max) && (tagchars < 7) )
 	{
-		j = tvb_get_guint8(tvb, msg_offset+c);
+		j = tvb_get_uint8(tvb, msg_offset+c);
 
 
 		/* make sure this is an HTML tag by checking the order of the chars */
@@ -846,7 +846,7 @@ dissect_aim_buddyname(tvbuff_t *tvb, packet_info *pinfo _U_, int offset,
 	uint8_t buddyname_length = 0;
 	proto_tree *buddy_tree;
 
-	buddyname_length = tvb_get_guint8(tvb, offset);
+	buddyname_length = tvb_get_uint8(tvb, offset);
 	offset++;
 
 	if(tree)
@@ -1202,7 +1202,7 @@ dissect_aim_tlv_value_string08_array (proto_item *ti, uint16_t valueid _U_, tvbu
 
 	while (tvb_reported_length_remaining(tvb, offset) > 1)
 	{
-		uint8_t string_len = tvb_get_guint8(tvb, offset);
+		uint8_t string_len = tvb_get_uint8(tvb, offset);
 		proto_tree_add_item(entry, hf_aim_string08, tvb, offset, 1, ENC_UTF_8|ENC_NA);
 		offset += (string_len+1);
 	}
@@ -1219,7 +1219,7 @@ dissect_aim_tlv_value_bytes (proto_item *ti _U_, uint16_t valueid _U_, tvbuff_t 
 static int
 dissect_aim_tlv_value_uint8 (proto_item *ti, uint16_t valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_)
 {
-	uint8_t value8 = tvb_get_guint8(tvb, 0);
+	uint8_t value8 = tvb_get_uint8(tvb, 0);
 	proto_item_set_text(ti, "Value: %d", value8);
 	return 1;
 }
@@ -1586,7 +1586,7 @@ dissect_aim_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 
 	/* get relevant header information */
 	offset += 1;          /* XXX - put the identifier into the tree? */
-	hdr_channel           = tvb_get_guint8(tvb, offset);
+	hdr_channel           = tvb_get_uint8(tvb, offset);
 	offset += 1;
 	hdr_sequence_no       = tvb_get_ntohs(tvb, offset);
 	offset += 2;
@@ -1637,7 +1637,7 @@ dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	/* check, if this is really an AIM packet, they start with 0x2a */
 	/* XXX - I've seen some stuff starting with 0x5a followed by 0x2a */
 
-	if(tvb_reported_length(tvb) >= 1 && tvb_get_guint8(tvb, 0) != 0x2a)
+	if(tvb_reported_length(tvb) >= 1 && tvb_get_uint8(tvb, 0) != 0x2a)
 	{
 		/* Not an instant messenger packet, just happened to use the
 		 * same port
@@ -1658,7 +1658,7 @@ dissect_aim_ssl_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 {
 	struct tlsinfo *tlsinfo = (struct tlsinfo *) data;
 	/* XXX improve heuristics */
-	if (tvb_reported_length(tvb) < 1 || tvb_get_guint8(tvb, 0) != 0x2a) {
+	if (tvb_reported_length(tvb) < 1 || tvb_get_uint8(tvb, 0) != 0x2a) {
 		return false;
 	}
 	dissect_aim(tvb, pinfo, tree, NULL);
@@ -2410,7 +2410,7 @@ static int dissect_aim_generic_ext_status_repl(tvbuff_t *tvb, packet_info *pinfo
 	proto_tree_add_item(gen_tree, hf_generic_ext_status_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	proto_tree_add_item(gen_tree, hf_generic_ext_status_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-	length = tvb_get_guint8(tvb, offset);
+	length = tvb_get_uint8(tvb, offset);
 	offset += 1;
 	proto_tree_add_item(gen_tree, hf_generic_ext_status_data, tvb, offset, length, ENC_NA);
 	offset += 1;
@@ -2714,7 +2714,7 @@ static int dissect_aim_snac_location_request_user_information(tvbuff_t *tvb, pac
 	offset += 2;
 
 	/* Buddy Name length */
-	buddyname_length = tvb_get_guint8(tvb, offset);
+	buddyname_length = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(tree, hf_aim_location_buddyname_len, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
@@ -2731,7 +2731,7 @@ static int dissect_aim_snac_location_user_information(tvbuff_t *tvb, packet_info
 	uint8_t buddyname_length = 0;
 
 	/* Buddy Name length */
-	buddyname_length = tvb_get_guint8(tvb, offset);
+	buddyname_length = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(tree, hf_aim_location_buddyname_len, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
@@ -3606,7 +3606,7 @@ static int dissect_aim_snac_ssi_auth_request(tvbuff_t *tvb, packet_info *pinfo _
 	/*uint16_t unknown;*/
 
 	/* get buddy length (1 byte) */
-	uint8_t buddyname_length = tvb_get_guint8(tvb, offset);
+	uint8_t buddyname_length = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_buddyname_len8, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
@@ -3640,7 +3640,7 @@ static int dissect_aim_snac_ssi_auth_reply(tvbuff_t *tvb, packet_info *pinfo _U_
 	uint16_t reason_length;
 
 	/* get buddy length (1 byte) */
-	uint8_t buddyname_length = tvb_get_guint8(tvb, offset);
+	uint8_t buddyname_length = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_buddyname_len8, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
@@ -3705,7 +3705,7 @@ static int dissect_aim_sst_buddy_down_req (tvbuff_t *tvb, packet_info *pinfo, pr
 	offset+=4;
 
 	proto_tree_add_item(tree, hf_aim_sst_md5_hash_size, tvb, offset, 1, ENC_BIG_ENDIAN);
-	md5_size = tvb_get_guint8(tvb, offset);
+	md5_size = tvb_get_uint8(tvb, offset);
 	offset++;
 
 	proto_tree_add_item(tree, hf_aim_sst_md5_hash, tvb, offset, md5_size, ENC_NA);
@@ -3724,7 +3724,7 @@ static int dissect_aim_sst_buddy_down_repl (tvbuff_t *tvb, packet_info *pinfo, p
 	offset+=3;
 
 	proto_tree_add_item(tree, hf_aim_sst_md5_hash_size, tvb, offset, 1, ENC_BIG_ENDIAN);
-	md5_size = tvb_get_guint8(tvb, offset);
+	md5_size = tvb_get_uint8(tvb, offset);
 	offset++;
 
 	proto_tree_add_item(tree, hf_aim_sst_md5_hash, tvb, offset, md5_size, ENC_NA);
@@ -3754,7 +3754,7 @@ static int dissect_aim_sst_buddy_up_repl (tvbuff_t *tvb, packet_info *pinfo _U_,
 	offset+=4;
 
 	proto_tree_add_item(tree, hf_aim_sst_md5_hash_size, tvb, offset, 1, ENC_BIG_ENDIAN);
-	md5_size = tvb_get_guint8(tvb, offset);
+	md5_size = tvb_get_uint8(tvb, offset);
 	offset++;
 
 	proto_tree_add_item(tree, hf_aim_sst_md5_hash, tvb, offset, md5_size, ENC_NA);

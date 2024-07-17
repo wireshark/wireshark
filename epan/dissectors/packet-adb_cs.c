@@ -289,8 +289,8 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
         if (response_frame == -1 || response_frame == (int64_t) pinfo->num) {
             proto_tree_add_item(main_tree, hf_status, tvb, offset, 4, ENC_NA | ENC_ASCII);
-            col_append_fstr(pinfo->cinfo, COL_INFO, " Status=%c%c%c%c", tvb_get_guint8(tvb, offset),
-            tvb_get_guint8(tvb, offset + 1), tvb_get_guint8(tvb, offset + 2), tvb_get_guint8(tvb, offset + 3));
+            col_append_fstr(pinfo->cinfo, COL_INFO, " Status=%c%c%c%c", tvb_get_uint8(tvb, offset),
+            tvb_get_uint8(tvb, offset + 1), tvb_get_uint8(tvb, offset + 2), tvb_get_uint8(tvb, offset + 3));
             offset += 4;
 
             if (tvb_memeql(tvb, offset - 4, (const uint8_t *) "FAIL", 4) == 0) {
