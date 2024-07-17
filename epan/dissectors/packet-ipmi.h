@@ -58,17 +58,17 @@ enum {
  * Cached IPMI message header.
  */
 typedef struct {
-	guint8 context;
-	guint8 channel;
-	guint8 dir;
-	guint8 session;
-	guint8 rs_sa;
-	guint8 rs_lun;
-	guint8 netfn;
-	guint8 rq_sa;
-	guint8 rq_lun;
-	guint8 rq_seq;
-	guint8 cmd;
+	uint8_t context;
+	uint8_t channel;
+	uint8_t dir;
+	uint8_t session;
+	uint8_t rs_sa;
+	uint8_t rs_lun;
+	uint8_t netfn;
+	uint8_t rq_sa;
+	uint8_t rq_lun;
+	uint8_t rq_seq;
+	uint8_t cmd;
 } ipmi_header_t;
 
 /* Sub-parser */
@@ -77,7 +77,7 @@ typedef void (*ipmi_cmd_handler_t)(tvbuff_t *,
 
 /* IPMI command structure.  */
 typedef struct {
-	guint32			cmd;		/* Command number */
+	uint32_t			cmd;		/* Command number */
 	ipmi_cmd_handler_t	parse_req;	/* Request parser */
 	ipmi_cmd_handler_t	parse_resp;	/* Response parser */
 	const value_string      *cs_cc;		/* Command-specific completion codes */
@@ -93,22 +93,22 @@ typedef struct {
 const ipmi_header_t * ipmi_get_hdr(packet_info * pinfo);
 
 /* Get completion code for currently parsed message */
-guint8 ipmi_get_ccode(packet_info * pinfo);
+uint8_t ipmi_get_ccode(packet_info * pinfo);
 
 /* Save request data for later use in response */
-void ipmi_set_data(packet_info *pinfo, guint idx, guint32 data);
+void ipmi_set_data(packet_info *pinfo, unsigned idx, uint32_t data);
 
 /* Get saved request data */
-gboolean ipmi_get_data(packet_info *pinfo, guint idx, guint32 * data);
+bool ipmi_get_data(packet_info *pinfo, unsigned idx, uint32_t * data);
 
 /* Top-level search structure: signatures (if any) + command table */
 typedef struct ipmi_netfn_handler {
 	struct ipmi_netfn_handler *next;
 	const char *desc;
-	guint oem_selector;
-	const guint8 *sig;
+	unsigned oem_selector;
+	const uint8_t *sig;
 	const ipmi_cmd_t *cmdtab;
-	guint32 cmdtablen;
+	uint32_t cmdtablen;
 } ipmi_netfn_t;
 
 /* Stub parser. Use this to substitute for not-yet-written subparsers;
@@ -118,41 +118,41 @@ void ipmi_notimpl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /* Add a Type/Length field to tree */
 void ipmi_add_typelen(packet_info *pinfo, proto_tree *tree, int hf_string, int hf_type, int hf_length, tvbuff_t *tvb,
-		guint offs, gboolean is_fru);
+		unsigned offs, bool is_fru);
 
 /* Add Timestamp in IPMI format */
-void ipmi_add_timestamp(packet_info *pinfo, proto_tree *tree, gint hf, tvbuff_t *tvb, guint offset);
+void ipmi_add_timestamp(packet_info *pinfo, proto_tree *tree, int hf, tvbuff_t *tvb, unsigned offset);
 
 /* GUID, IPMI style (fields reversed, little-endian) */
-void ipmi_add_guid(proto_tree *tree, gint hf, tvbuff_t *tvb, guint offset);
+void ipmi_add_guid(proto_tree *tree, int hf, tvbuff_t *tvb, unsigned offset);
 
 /* Common format routines */
-void ipmi_fmt_10ms_1based(gchar *, guint32);
-void ipmi_fmt_500ms_0based(gchar *, guint32);
-void ipmi_fmt_500ms_1based(gchar *, guint32);
-void ipmi_fmt_1s_0based(gchar *, guint32);
-void ipmi_fmt_1s_1based(gchar *, guint32);
-void ipmi_fmt_2s_0based(gchar *, guint32);
-void ipmi_fmt_5s_1based(gchar *, guint32);
-void ipmi_fmt_version(gchar *, guint32);
-void ipmi_fmt_channel(gchar *, guint32);
-void ipmi_fmt_udpport(gchar *, guint32);
-void ipmi_fmt_percent(gchar *, guint32);
+void ipmi_fmt_10ms_1based(char *, uint32_t);
+void ipmi_fmt_500ms_0based(char *, uint32_t);
+void ipmi_fmt_500ms_1based(char *, uint32_t);
+void ipmi_fmt_1s_0based(char *, uint32_t);
+void ipmi_fmt_1s_1based(char *, uint32_t);
+void ipmi_fmt_2s_0based(char *, uint32_t);
+void ipmi_fmt_5s_1based(char *, uint32_t);
+void ipmi_fmt_version(char *, uint32_t);
+void ipmi_fmt_channel(char *, uint32_t);
+void ipmi_fmt_udpport(char *, uint32_t);
+void ipmi_fmt_percent(char *, uint32_t);
 
 /* Registrar for subparsers */
-void ipmi_register_netfn_cmdtab(guint32 netfn, guint oem_selector,
-		const guint8 *sig, guint32 siglen, const char *desc,
-		const ipmi_cmd_t *cmdtab, guint32 cmdtablen);
+void ipmi_register_netfn_cmdtab(uint32_t netfn, unsigned oem_selector,
+		const uint8_t *sig, uint32_t siglen, const char *desc,
+		const ipmi_cmd_t *cmdtab, uint32_t cmdtablen);
 
 /* Lookup routines */
-guint32 ipmi_getsiglen(guint32 netfn);
-const char *ipmi_getnetfnname(wmem_allocator_t *pool, guint32 netfn, ipmi_netfn_t *nf);
-ipmi_netfn_t *ipmi_getnetfn(guint32 netfn, const guint8 *sig);
-const ipmi_cmd_t *ipmi_getcmd(ipmi_netfn_t *nf, guint32 cmd);
-const char *ipmi_get_completion_code(guint8 completion, const ipmi_cmd_t *cmd);
+uint32_t ipmi_getsiglen(uint32_t netfn);
+const char *ipmi_getnetfnname(wmem_allocator_t *pool, uint32_t netfn, ipmi_netfn_t *nf);
+ipmi_netfn_t *ipmi_getnetfn(uint32_t netfn, const uint8_t *sig);
+const ipmi_cmd_t *ipmi_getcmd(ipmi_netfn_t *nf, uint32_t cmd);
+const char *ipmi_get_completion_code(uint8_t completion, const ipmi_cmd_t *cmd);
 
 /* Used for sub-registrars (ipmi_*.c) */
-extern gint proto_ipmi;
+extern int proto_ipmi;
 
 /* Main dissection routine */
 #define IPMI_D_NONE		0x0001 /* Do not parse at all */
@@ -166,14 +166,14 @@ extern gint proto_ipmi;
 
 /* IPMI dissector argument */
 typedef struct {
-	guint8 context;
-	guint8 channel;
-	guint8 flags;
+	uint8_t context;
+	uint8_t channel;
+	uint8_t flags;
 } ipmi_dissect_arg_t;
 
 int
 do_dissect_ipmb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-		gint hf_parent_item, gint ett_tree, ipmi_dissect_arg_t * arg);
+		int hf_parent_item, int ett_tree, ipmi_dissect_arg_t * arg);
 
 #endif /* __PACKET_IPMI_H__ */
 

@@ -19,14 +19,14 @@
  * Option 3: No Address can be determined.
  *
  * For Option 1 and 2 the ISO15765_can_id_mappings table can be used to determine the addresses:
- * - Ext Addr determines, if the CAN ID is 29bit (TRUE) or 11bit (FALSE)
+ * - Ext Addr determines, if the CAN ID is 29bit (true) or 11bit (false)
  * - CAN ID and CAN ID Mask determined how to know if a CAN ID should be mapped
  * - Source Addr Mask and Target Addr Mask show the bits used to determine the addresses of Option 1
  * - ECU Addr Mask defines the bits for the address of Option 2
  *
  * Example:
  * - ISO15765 is applicable to all 29bit CAN IDs 0x9988TTSS, with TT the target address and SS the source address.
- * - Ext Addr: TRUE
+ * - Ext Addr: true
  * - CAN ID: 0x99880000
  * - CAN ID Mask: 0xffff0000
  * - Target Addr Mask: 0x0000ff00
@@ -84,39 +84,39 @@ void proto_reg_handoff_iso15765(void);
 #define ISO15765_ADDR_INVALID 0xffffffff
 
 typedef struct iso15765_identifier {
-    guint32 id;
-    guint32 seq;
-    guint16 frag_id;
-    gboolean last;
-    guint32 bytes_used;
+    uint32_t id;
+    uint32_t seq;
+    uint16_t frag_id;
+    bool last;
+    uint32_t bytes_used;
 } iso15765_identifier_t;
 
 typedef struct iso15765_frame {
-    guint32  seq;
-    guint32  last_byte_seen;
-    guint32  len;
-    guint32  bytes_in_cf;
-    gboolean error;
-    gboolean ff_seen;
-    guint16  last_frag_id;
-    guint8   frag_id_high[16];
+    uint32_t seq;
+    uint32_t last_byte_seen;
+    uint32_t len;
+    uint32_t bytes_in_cf;
+    bool error;
+    bool ff_seen;
+    uint16_t last_frag_id;
+    uint8_t  frag_id_high[16];
 } iso15765_frame_t;
 
 typedef struct iso15765_seq_key {
-    guint32 bus_type;
-    guint32 frame_id;
-    guint32 iface_id;
+    uint32_t bus_type;
+    uint32_t frame_id;
+    uint32_t iface_id;
 } iso15765_seq_key_t;
 
-static guint
-iso15765_seq_hash_func(gconstpointer v)
+static unsigned
+iso15765_seq_hash_func(const void *v)
 {
     const iso15765_seq_key_t* key = (const iso15765_seq_key_t*)v;
     return (key->frame_id ^ key->bus_type);
 }
 
-static gint
-iso15765_seq_equal_func(gconstpointer v1, gconstpointer v2)
+static int
+iso15765_seq_equal_func(const void *v1, const void *v2)
 {
     const iso15765_seq_key_t* key1 = (const iso15765_seq_key_t*)v1;
     const iso15765_seq_key_t* key2 = (const iso15765_seq_key_t*)v2;
@@ -152,15 +152,15 @@ static const value_string iso15765_flow_status_types[] = {
 #define ONE_BYTE_ADDRESSING 1
 #define TWO_BYTE_ADDRESSING 2
 
-static gint addressing = NORMAL_ADDRESSING;
-static gint flexray_addressing = ONE_BYTE_ADDRESSING;
-static guint flexray_segment_size_limit;
-static guint window = 8;
+static int addressing = NORMAL_ADDRESSING;
+static int flexray_addressing = ONE_BYTE_ADDRESSING;
+static unsigned flexray_segment_size_limit;
+static unsigned window = 8;
 static range_t *configured_can_ids;
 static range_t *configured_ext_can_ids;
 static bool register_lin_diag_frames = true;
 static range_t *configured_ipdum_pdu_ids;
-static gint ipdum_addressing = ZERO_BYTE_ADDRESSING;
+static int ipdum_addressing = ZERO_BYTE_ADDRESSING;
 
 /* Encoding */
 static const enum_val_t enum_addressing[] = {
@@ -202,7 +202,7 @@ static int hf_iso15765_fc_stmin_in_us;
 
 static int hf_iso15765_autosar_ack;
 
-static gint ett_iso15765;
+static int ett_iso15765;
 
 static expert_field ei_iso15765_message_type_bad;
 
@@ -230,8 +230,8 @@ static int hf_iso15765_fragment_count;
 static int hf_iso15765_reassembled_in;
 static int hf_iso15765_reassembled_length;
 
-static gint ett_iso15765_fragment;
-static gint ett_iso15765_fragments;
+static int ett_iso15765_fragment;
+static int ett_iso15765_fragments;
 
 static const fragment_items iso15765_frag_items = {
     /* Fragment subtrees */
@@ -257,16 +257,16 @@ static const fragment_items iso15765_frag_items = {
 
 /* UAT for address encoded into CAN IDs */
 typedef struct config_can_addr_mapping {
-    gboolean extended_address;
-    guint32  can_id;
-    guint32  can_id_mask;
-    guint32  source_addr_mask;
-    guint32  target_addr_mask;
-    guint32  ecu_addr_mask;
+    bool extended_address;
+    uint32_t can_id;
+    uint32_t can_id_mask;
+    uint32_t source_addr_mask;
+    uint32_t target_addr_mask;
+    uint32_t ecu_addr_mask;
 } config_can_addr_mapping_t;
 
 static config_can_addr_mapping_t *config_can_addr_mappings;
-static guint config_can_addr_mappings_num;
+static unsigned config_can_addr_mappings_num;
 #define DATAFILE_CAN_ADDR_MAPPING "ISO15765_can_id_mappings"
 
 UAT_BOOL_CB_DEF(config_can_addr_mappings, extended_address, config_can_addr_mapping_t)
@@ -297,48 +297,48 @@ update_config_can_addr_mappings(void *r, char **err) {
 
     if (rec->source_addr_mask == 0 && rec->target_addr_mask == 0 && rec->ecu_addr_mask == 0) {
         *err = ws_strdup_printf("You need to define the ECU Mask OR Source Mask/Target Mask!");
-        return FALSE;
+        return false;
     }
 
     if ((rec->source_addr_mask != 0 || rec->target_addr_mask != 0) && rec->ecu_addr_mask != 0) {
         *err = ws_strdup_printf("You can only use Source Address Mask/Target Address Mask OR ECU Address Mask! Not both at the same time!");
-        return FALSE;
+        return false;
     }
 
     if ((rec->source_addr_mask == 0 || rec->target_addr_mask == 0) && rec->ecu_addr_mask == 0) {
         *err = ws_strdup_printf("You can only use Source Address Mask and Target Address Mask in combination!");
-        return FALSE;
+        return false;
     }
 
     if (rec->extended_address) {
         if ((rec->source_addr_mask & ~CAN_EFF_MASK) != 0) {
             *err = ws_strdup_printf("Source Address Mask covering bits not allowed for extended IDs (29bit)!");
-            return FALSE;
+            return false;
         }
         if ((rec->target_addr_mask & ~CAN_EFF_MASK) != 0) {
             *err = ws_strdup_printf("Target Address Mask covering bits not allowed for extended IDs (29bit)!");
-            return FALSE;
+            return false;
         }
         if ((rec->ecu_addr_mask & ~CAN_EFF_MASK) != 0) {
             *err = ws_strdup_printf("ECU Address Mask covering bits not allowed for extended IDs (29bit)!");
-            return FALSE;
+            return false;
         }
     } else {
         if ((rec->source_addr_mask & ~CAN_SFF_MASK) != 0) {
             *err = ws_strdup_printf("Source Address Mask covering bits not allowed for standard IDs (11bit)!");
-            return FALSE;
+            return false;
         }
         if ((rec->target_addr_mask & ~CAN_SFF_MASK) != 0) {
             *err = ws_strdup_printf("Target Address Mask covering bits not allowed for standard IDs (11bit)!");
-            return FALSE;
+            return false;
         }
         if ((rec->ecu_addr_mask & ~CAN_SFF_MASK) != 0) {
             *err = ws_strdup_printf("ECU Address Mask covering bits not allowed for standard IDs (11bit)!");
-            return FALSE;
+            return false;
         }
     }
 
-    return TRUE;
+    return true;
 }
 
 static void
@@ -351,23 +351,23 @@ post_update_config_can_addr_mappings_cb(void) {
     /* do nothing right now */
 }
 
-static guint16
-masked_guint16_value(const guint16 value, const guint16 mask) {
+static uint16_t
+masked_guint16_value(const uint16_t value, const uint16_t mask) {
     return (value & mask) >> ws_ctz(mask);
 }
 
-static guint32
-masked_guint32_value(const guint32 value, const guint32 mask) {
+static uint32_t
+masked_guint32_value(const uint32_t value, const uint32_t mask) {
     return (value & mask) >> ws_ctz(mask);
 }
 
 /*
  * returning number of addresses (0:none, 1:ecu (both addr same), 2:source+target)
  */
-static guint8
-find_config_can_addr_mapping(gboolean ext_id, guint32 can_id, guint16 *source_addr, guint16 *target_addr, guint8 *addr_len) {
+static uint8_t
+find_config_can_addr_mapping(bool ext_id, uint32_t can_id, uint16_t *source_addr, uint16_t *target_addr, uint8_t *addr_len) {
     config_can_addr_mapping_t *tmp = NULL;
-    guint32 i;
+    uint32_t i;
 
     if (source_addr == NULL || target_addr == NULL || config_can_addr_mappings == NULL) {
         return 0;
@@ -394,7 +394,7 @@ find_config_can_addr_mapping(gboolean ext_id, guint32 can_id, guint16 *source_ad
         if (tmp->source_addr_mask != 0 && tmp->target_addr_mask != 0) {
             *source_addr = masked_guint32_value(can_id, tmp->source_addr_mask);
             *target_addr = masked_guint32_value(can_id, tmp->target_addr_mask);
-            guint8 tmp_len = ws_count_ones(tmp->source_addr_mask);
+            uint8_t tmp_len = ws_count_ones(tmp->source_addr_mask);
             if (ws_count_ones(tmp->target_addr_mask) > tmp_len) {
                 tmp_len = ws_count_ones(tmp->target_addr_mask);
             }
@@ -409,17 +409,17 @@ find_config_can_addr_mapping(gboolean ext_id, guint32 can_id, guint16 *source_ad
 
 /* UAT for PDU Transport config */
 typedef struct config_pdu_tranport_config {
-    guint32 pdu_id;
-    guint32 source_address_size;
-    guint32 source_address_fixed;
-    guint32 target_address_size;
-    guint32 target_address_fixed;
-    guint32 ecu_address_size;
-    guint32 ecu_address_fixed;
+    uint32_t pdu_id;
+    uint32_t source_address_size;
+    uint32_t source_address_fixed;
+    uint32_t target_address_size;
+    uint32_t target_address_fixed;
+    uint32_t ecu_address_size;
+    uint32_t ecu_address_fixed;
 } config_pdu_transport_config_t;
 
 static config_pdu_transport_config_t *config_pdu_transport_config_items;
-static guint config_pdu_transport_config_items_num;
+static unsigned config_pdu_transport_config_items_num;
 #define DATAFILE_PDU_TRANSPORT_CONFIG "ISO15765_pdu_transport_config"
 
 UAT_HEX_CB_DEF(config_pdu_transport_config_items, pdu_id, config_pdu_transport_config_t)
@@ -451,36 +451,36 @@ static bool
 update_config_pdu_transport_config_item(void *r, char **err) {
     config_pdu_transport_config_t *rec = (config_pdu_transport_config_t *)r;
 
-    gboolean source_address_configured = rec->source_address_size != 0 || rec->source_address_fixed != ISO15765_ADDR_INVALID;
-    gboolean target_address_configured = rec->target_address_size != 0 || rec->target_address_fixed != ISO15765_ADDR_INVALID;
-    gboolean ecu_address_configured = rec->ecu_address_size != 0 || rec->ecu_address_fixed != ISO15765_ADDR_INVALID;
+    bool source_address_configured = rec->source_address_size != 0 || rec->source_address_fixed != ISO15765_ADDR_INVALID;
+    bool target_address_configured = rec->target_address_size != 0 || rec->target_address_fixed != ISO15765_ADDR_INVALID;
+    bool ecu_address_configured = rec->ecu_address_size != 0 || rec->ecu_address_fixed != ISO15765_ADDR_INVALID;
 
     if (rec->source_address_size != 0 && rec->source_address_fixed != ISO15765_ADDR_INVALID) {
         *err = ws_strdup_printf("You can either set the size of the source address or configure a fixed value!");
-        return FALSE;
+        return false;
     }
 
     if (rec->target_address_size != 0 && rec->target_address_fixed != ISO15765_ADDR_INVALID) {
         *err = ws_strdup_printf("You can either set the size of the target address or configure a fixed value!");
-        return FALSE;
+        return false;
     }
 
     if (rec->ecu_address_size != 0 && rec->ecu_address_fixed != ISO15765_ADDR_INVALID) {
         *err = ws_strdup_printf("You can either set the size of the ecu address or configure a fixed value!");
-        return FALSE;
+        return false;
     }
 
     if (ecu_address_configured && (source_address_configured || target_address_configured)) {
         *err = ws_strdup_printf("You cannot configure an ecu address and a source or target address at the same time!");
-        return FALSE;
+        return false;
     }
 
     if ((source_address_configured && !target_address_configured) || (!source_address_configured && target_address_configured)) {
         *err = ws_strdup_printf("You can only configure source and target address at the same time but not only one of them!");
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 static void
@@ -498,7 +498,7 @@ post_update_config_pdu_transport_config_cb(void) {
     dissector_delete_all("pdu_transport.id", iso15765_handle_pdu_transport);
 
     config_pdu_transport_config_t *tmp;
-    guint i;
+    unsigned i;
     for (i = 0; i < config_pdu_transport_config_items_num; i++) {
         tmp = &(config_pdu_transport_config_items[i]);
         dissector_add_uint("pdu_transport.id", tmp->pdu_id, iso15765_handle_pdu_transport);
@@ -506,8 +506,8 @@ post_update_config_pdu_transport_config_cb(void) {
 }
 
 static config_pdu_transport_config_t *
-find_pdu_transport_config(guint32 pdu_id) {
-    guint i;
+find_pdu_transport_config(uint32_t pdu_id) {
+    unsigned i;
     for (i = 0; i < config_pdu_transport_config_items_num; i++) {
         if (config_pdu_transport_config_items[i].pdu_id == pdu_id) {
             return &(config_pdu_transport_config_items[i]);
@@ -518,8 +518,8 @@ find_pdu_transport_config(guint32 pdu_id) {
 }
 
 static int
-handle_pdu_transport_addresses(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset_orig, guint32 pdu_id, iso15765_info_t *iso15765data) {
-    gint offset = offset_orig;
+handle_pdu_transport_addresses(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset_orig, uint32_t pdu_id, iso15765_info_t *iso15765data) {
+    int offset = offset_orig;
     config_pdu_transport_config_t *config = find_pdu_transport_config(pdu_id);
 
     iso15765data->number_of_addresses_valid = 0;
@@ -530,14 +530,14 @@ handle_pdu_transport_addresses(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
         return offset - offset_orig;
     }
 
-    guint32 tmp;
+    uint32_t tmp;
     /* single address, in payload */
     if (config->ecu_address_size != 0) {
         proto_tree_add_item_ret_uint(tree, hf_iso15765_address, tvb, offset, config->ecu_address_size, ENC_BIG_ENDIAN, &tmp);
         offset += config->ecu_address_size;
         iso15765data->number_of_addresses_valid = 1;
-        iso15765data->source_address = (guint16)tmp;
-        iso15765data->target_address = (guint16)tmp;
+        iso15765data->source_address = (uint16_t)tmp;
+        iso15765data->target_address = (uint16_t)tmp;
         iso15765data->address_length = config->ecu_address_size;
         return offset - offset_orig;
     }
@@ -586,25 +586,25 @@ handle_pdu_transport_addresses(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 }
 
 static int
-dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bus_type, guint32 frame_id, guint32 frame_length) {
-    static guint32 msg_seqid = 0;
+dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t bus_type, uint32_t frame_id, uint32_t frame_length) {
+    static uint32_t msg_seqid = 0;
 
     proto_tree *iso15765_tree;
     proto_item *ti;
     proto_item *message_type_item;
     tvbuff_t*   next_tvb = NULL;
-    guint16     pci;
-    guint32     message_type;
+    uint16_t    pci;
+    uint32_t    message_type;
     iso15765_identifier_t* iso15765_info;
     /* LIN is always extended addressing */
-    guint8      ae = (addressing == NORMAL_ADDRESSING && bus_type != ISO15765_TYPE_LIN) ? 0 : 1;
-    guint16     frag_id_low = 0;
-    guint32     offset, pci_offset;
-    guint32     data_length;
-    guint32     full_len;
-    gboolean    fragmented = FALSE;
-    gboolean    complete = FALSE;
-    guint32     iface_id = (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID) ? pinfo->rec->rec_header.packet_header.interface_id : 0;
+    uint8_t     ae = (addressing == NORMAL_ADDRESSING && bus_type != ISO15765_TYPE_LIN) ? 0 : 1;
+    uint16_t    frag_id_low = 0;
+    uint32_t    offset, pci_offset;
+    uint32_t    data_length;
+    uint32_t    full_len;
+    bool        fragmented = false;
+    bool        complete = false;
+    uint32_t    iface_id = (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID) ? pinfo->rec->rec_header.packet_header.interface_id : 0;
 
     iso15765_info_t iso15765data;
 
@@ -616,7 +616,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
     if (!iso15765_info) {
         iso15765_info = wmem_new0(wmem_file_scope(), iso15765_identifier_t);
         iso15765_info->id = frame_id;
-        iso15765_info->last = FALSE;
+        iso15765_info->last = false;
         iso15765_info->bytes_used = 0;
         p_add_proto_data(wmem_file_scope(), pinfo, proto_iso15765, 0, iso15765_info);
     }
@@ -630,20 +630,20 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
     iso15765data.address_length = 0;
 
     if (bus_type == ISO15765_TYPE_FLEXRAY) {
-        guint32 tmp;
+        uint32_t tmp;
         proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_source_address, tvb, 0, flexray_addressing, ENC_BIG_ENDIAN, &tmp);
-        iso15765data.source_address = (guint16)tmp;
+        iso15765data.source_address = (uint16_t)tmp;
         proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_target_address, tvb, flexray_addressing, flexray_addressing, ENC_BIG_ENDIAN, &tmp);
-        iso15765data.target_address = (guint16)tmp;
+        iso15765data.target_address = (uint16_t)tmp;
         iso15765data.number_of_addresses_valid = 2;
         iso15765data.address_length = flexray_addressing;
         pci_offset = 2 * flexray_addressing;
     } else if (bus_type == ISO15765_TYPE_IPDUM && ipdum_addressing > 0) {
-        guint32 tmp;
+        uint32_t tmp;
         proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_source_address, tvb, 0, ipdum_addressing, ENC_BIG_ENDIAN, &tmp);
-        iso15765data.source_address = (guint16)tmp;
+        iso15765data.source_address = (uint16_t)tmp;
         proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_target_address, tvb, ipdum_addressing, ipdum_addressing, ENC_BIG_ENDIAN, &tmp);
-        iso15765data.target_address = (guint16)tmp;
+        iso15765data.target_address = (uint16_t)tmp;
         iso15765data.number_of_addresses_valid = 2;
         iso15765data.address_length = ipdum_addressing;
         pci_offset = 2 * ipdum_addressing;
@@ -651,18 +651,18 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
         pci_offset = handle_pdu_transport_addresses(tvb, pinfo, iso15765_tree, 0, frame_id, &iso15765data);
     } else {
         if (ae != 0) {
-            guint32 tmp;
+            uint32_t tmp;
             iso15765data.number_of_addresses_valid = 1;
             iso15765data.address_length = ae;
             proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_address, tvb, 0, ae, ENC_NA, &tmp);
-            iso15765data.source_address = (guint16)tmp;
-            iso15765data.target_address = (guint16)tmp;
+            iso15765data.source_address = (uint16_t)tmp;
+            iso15765data.target_address = (uint16_t)tmp;
             pci_offset = ae;
         } else {
             /* Address implicitly encoded? */
             if (bus_type == ISO15765_TYPE_CAN || bus_type == ISO15765_TYPE_CAN_FD) {
-                gboolean ext_id = (CAN_EFF_FLAG & frame_id) == CAN_EFF_FLAG;
-                guint32  can_id = ext_id ? frame_id & CAN_EFF_MASK : frame_id & CAN_SFF_MASK;
+                bool ext_id = (CAN_EFF_FLAG & frame_id) == CAN_EFF_FLAG;
+                uint32_t can_id = ext_id ? frame_id & CAN_EFF_MASK : frame_id & CAN_SFF_MASK;
                 iso15765data.number_of_addresses_valid = find_config_can_addr_mapping(ext_id, can_id, &(iso15765data.source_address), &(iso15765data.target_address), &(iso15765data.address_length));
             }
             pci_offset = 0;
@@ -670,7 +670,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
     }
 
     offset = pci_offset;
-    pci = tvb_get_guint8(tvb, offset);
+    pci = tvb_get_uint8(tvb, offset);
     message_type_item = proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_message_type, tvb, offset, 1, ENC_NA, &message_type);
     col_add_str(pinfo->cinfo, COL_INFO, val_to_str(message_type, iso15765_message_types, "Unknown (0x%02x)"));
 
@@ -692,13 +692,13 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
             }
 
             next_tvb = tvb_new_subset_length(tvb, offset, data_length);
-            complete = TRUE;
+            complete = true;
 
             col_append_fstr(pinfo->cinfo, COL_INFO, "(Len: %d)", data_length);
             break;
         }
         case ISO15765_MESSAGE_TYPES_FIRST_FRAME: {
-            pci = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+            pci = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
             if (pci == 0x1000) {
                 /* First Frame with CAN_DL > 4095 Bytes: TTTT0000 00000000 LLLLLLLL LLLLLLLL LLLLLLLL LLLLLLLL, Type, Length */
 
@@ -719,11 +719,11 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
             data_length = tvb_reported_length(tvb) - offset;
 
             /* FlexRay data_length cut off, if configured */
-            if (bus_type == ISO15765_TYPE_FLEXRAY && flexray_segment_size_limit != 0 && (guint32)data_length > flexray_segment_size_limit - (offset - pci_offset)) {
+            if (bus_type == ISO15765_TYPE_FLEXRAY && flexray_segment_size_limit != 0 && (uint32_t)data_length > flexray_segment_size_limit - (offset - pci_offset)) {
                 data_length = flexray_segment_size_limit - (offset - pci_offset);
             }
 
-            fragmented = TRUE;
+            fragmented = true;
             frag_id_low = 0;
 
             /* Save information */
@@ -760,10 +760,10 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
             data_length = tvb_reported_length(tvb) - offset;
 
             frag_id_low = masked_guint16_value(pci, ISO15765_MESSAGE_SEQUENCE_NUMBER_MASK);
-            fragmented = TRUE;
+            fragmented = true;
 
             /* FlexRay data_length cut off, if configured */
-            if (bus_type == ISO15765_TYPE_FLEXRAY && flexray_segment_size_limit != 0 && (guint32)data_length > flexray_segment_size_limit - (offset - pci_offset)) {
+            if (bus_type == ISO15765_TYPE_FLEXRAY && flexray_segment_size_limit != 0 && (uint32_t)data_length > flexray_segment_size_limit - (offset - pci_offset)) {
                 data_length = flexray_segment_size_limit - (offset - pci_offset);
             }
 
@@ -778,10 +778,10 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
         case ISO15765_MESSAGE_TYPES_FR_ACK_FRAME:
         case ISO15765_MESSAGE_TYPES_FLOW_CONTROL: {
             /* Flow Control Frame (FC): TTTTFFFF, BBBBBBBB, SSSSSSSS, Type, Flow status, Block size, Separation time */
-            guint32 status = 0;
-            guint32 bs = 0;
-            guint32 stmin = 0;
-            gboolean stmin_in_us = FALSE;
+            uint32_t status = 0;
+            uint32_t bs = 0;
+            uint32_t stmin = 0;
+            bool stmin_in_us = false;
             data_length = 0;
 
             proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_flow_status, tvb, offset, 1, ENC_NA, &status);
@@ -790,9 +790,9 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
             proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_fc_bs, tvb, offset, 1, ENC_NA, &bs);
             offset += 1;
 
-            stmin = tvb_get_guint8(tvb, offset);
+            stmin = tvb_get_uint8(tvb, offset);
             if (stmin >= 0xF1 && stmin <= 0xF9) {
-                stmin_in_us = TRUE;
+                stmin_in_us = true;
                 stmin = (stmin - 0xF0) * 100U;
                 proto_tree_add_uint(iso15765_tree, hf_iso15765_fc_stmin_in_us, tvb, offset, 1, stmin);
             } else {
@@ -801,8 +801,8 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
             offset += 1;
 
             if (message_type == ISO15765_MESSAGE_TYPES_FR_ACK_FRAME) {
-                guint32 ack = 0;
-                guint32 sn = 0;
+                uint32_t ack = 0;
+                uint32_t sn = 0;
 
                 proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_autosar_ack, tvb, offset, 1, ENC_NA, &ack);
                 proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_sequence_number, tvb, offset, 1, ENC_NA, &sn);
@@ -819,12 +819,12 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
         case ISO15765_MESSAGE_TYPES_FR_SINGLE_FRAME_EXT: {
             offset += 1;
 
-            data_length = tvb_get_guint8(tvb, offset);
+            data_length = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(iso15765_tree, hf_iso15765_data_length_8bit, tvb, offset, 1, ENC_NA);
             offset += 1;
 
             next_tvb = tvb_new_subset_length(tvb, offset, data_length);
-            complete = TRUE;
+            complete = true;
 
             col_append_fstr(pinfo->cinfo, COL_INFO, "(Len: %d)", data_length);
             break;
@@ -832,16 +832,16 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
         case ISO15765_MESSAGE_TYPES_FR_FIRST_FRAME_EXT: {
             offset += 1;
 
-            full_len = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+            full_len = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
             proto_tree_add_item(iso15765_tree, hf_iso15765_frame_length_32bit, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
 
             data_length = tvb_reported_length(tvb) - offset;
-            if (bus_type == ISO15765_TYPE_FLEXRAY && flexray_segment_size_limit != 0 && (guint32)data_length > flexray_segment_size_limit - (offset - pci_offset)) {
+            if (bus_type == ISO15765_TYPE_FLEXRAY && flexray_segment_size_limit != 0 && (uint32_t)data_length > flexray_segment_size_limit - (offset - pci_offset)) {
                 data_length = flexray_segment_size_limit - (offset - pci_offset);
             }
 
-            fragmented = TRUE;
+            fragmented = true;
             frag_id_low = 0;
 
             /* Save information */
@@ -880,14 +880,14 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
     if (fragmented) {
         tvbuff_t *new_tvb = NULL;
         iso15765_frame_t *iso15765_frame;
-        guint16 frag_id = frag_id_low;
+        uint16_t frag_id = frag_id_low;
         /* Get frame information */
         iso15765_frame = (iso15765_frame_t *)wmem_map_lookup(iso15765_frame_table, GUINT_TO_POINTER(iso15765_info->seq));
 
         if (iso15765_frame != NULL) {
             if (!(pinfo->fd->visited)) {
                 DISSECTOR_ASSERT(frag_id < 16);
-                guint16 tmp = iso15765_frame->frag_id_high[frag_id]++;
+                uint16_t tmp = iso15765_frame->frag_id_high[frag_id]++;
                 /* Make sure that we assert on using more than 4096 (16*255) segments.*/
                 DISSECTOR_ASSERT(iso15765_frame->frag_id_high[frag_id] != 0);
                 frag_id += tmp * 16;
@@ -898,14 +898,14 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
                 /* Check if there is an error in conversation */
                 if (iso15765_info->frag_id + window < iso15765_frame->last_frag_id) {
                     /* Error in conversation */
-                    iso15765_frame->error = TRUE;
+                    iso15765_frame->error = true;
                 }
             }
 
             if (!iso15765_frame->error) {
-                gboolean       save_fragmented = pinfo->fragmented;
-                guint32        len = data_length;
-                guint32        missing_bytes = 0;
+                bool           save_fragmented = pinfo->fragmented;
+                uint32_t       len = data_length;
+                uint32_t       missing_bytes = 0;
                 fragment_head *frag_msg;
 
                 /* Check if it's the last packet */
@@ -917,7 +917,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
                             missing_bytes = (frag_id - iso15765_frame->last_frag_id - 1) * iso15765_frame->bytes_in_cf;
                         }
                         /* Update the last_frag_id */
-                        iso15765_frame->ff_seen = TRUE;
+                        iso15765_frame->ff_seen = true;
                         iso15765_frame->last_frag_id = frag_id;
 
 
@@ -929,7 +929,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
                         iso15765_frame->last_byte_seen += missing_bytes;
                         iso15765_frame->last_byte_seen += len;
                         if (iso15765_frame->last_byte_seen >= iso15765_frame->len) {
-                            iso15765_info->last = TRUE;
+                            iso15765_info->last = true;
                             len -= (iso15765_frame->last_byte_seen - iso15765_frame->len);
 
                             /* Determine how many bytes were needed to calculate padding latter. */
@@ -938,7 +938,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
 
                     }
                 }
-                pinfo->fragmented = TRUE;
+                pinfo->fragmented = true;
 
                 /* Add fragment to fragment table */
                 frag_msg = fragment_add_seq_check(&iso15765_reassembly_table, tvb, offset, pinfo, iso15765_info->seq, NULL,
@@ -957,7 +957,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
             if (new_tvb) {
                 /* This is a complete TVB to dissect */
                 next_tvb = new_tvb;
-                complete = TRUE;
+                complete = true;
             }
         }
     }
@@ -982,7 +982,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 bu
     if (next_tvb) {
         iso15765data.len = frame_length;
 
-        if (!complete || !dissector_try_payload_new(subdissector_table, next_tvb, pinfo, tree, TRUE, &iso15765data)) {
+        if (!complete || !dissector_try_payload_new(subdissector_table, next_tvb, pinfo, tree, true, &iso15765data)) {
             call_data_dissector(next_tvb, pinfo, tree);
         }
     }
@@ -1031,7 +1031,7 @@ dissect_iso15765_flexray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
     flexray_info_t *flexray_id = (flexray_info_t *)data;
 
-    guint32 id = (((guint32)flexray_id->id) << 16) | (((guint32)flexray_id->cc) << 8) | flexray_id->ch;
+    uint32_t id = (((uint32_t)flexray_id->id) << 16) | (((uint32_t)flexray_id->cc) << 8) | flexray_id->ch;
 
     return dissect_iso15765(tvb, pinfo, tree, ISO15765_TYPE_FLEXRAY, id, tvb_captured_length(tvb));
 }
@@ -1141,7 +1141,7 @@ proto_register_iso15765(void) {
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_iso15765,
         &ett_iso15765_fragment,
         &ett_iso15765_fragments,
@@ -1170,7 +1170,7 @@ proto_register_iso15765(void) {
                                    "Addressing",
                                    "Addressing of ISO 15765. Normal or Extended",
                                    &addressing,
-                                   enum_addressing, TRUE);
+                                   enum_addressing, true);
 
     prefs_register_uint_preference(iso15765_module, "window",
                                    "Window",
@@ -1193,7 +1193,7 @@ proto_register_iso15765(void) {
 
     /* UATs for config_can_addr_mapping_uat */
     static uat_field_t config_can_addr_mapping_uat_fields[] = {
-        UAT_FLD_BOOL(config_can_addr_mappings, extended_address, "Ext Addr (29bit)",    "29bit Addressing (TRUE), 11bit Addressing (FALSE)"),
+        UAT_FLD_BOOL(config_can_addr_mappings, extended_address, "Ext Addr (29bit)",    "29bit Addressing (true), 11bit Addressing (false)"),
         UAT_FLD_HEX(config_can_addr_mappings,  can_id,           "CAN ID",              "CAN ID (hex)"),
         UAT_FLD_HEX(config_can_addr_mappings,  can_id_mask,      "CAN ID Mask",         "CAN ID Mask (hex)"),
         UAT_FLD_HEX(config_can_addr_mappings,  source_addr_mask, "Source Addr Mask",    "Bitmask to specify location of Source Address (hex)"),
@@ -1205,7 +1205,7 @@ proto_register_iso15765(void) {
     config_can_addr_mapping_uat = uat_new("ISO15765 CAN ID Mapping",
         sizeof(config_can_addr_mapping_t),          /* record size           */
         DATAFILE_CAN_ADDR_MAPPING,                  /* filename              */
-        TRUE,                                       /* from profile          */
+        true,                                       /* from profile          */
         (void**)&config_can_addr_mappings,          /* data_ptr              */
         &config_can_addr_mappings_num,              /* numitems_ptr          */
         UAT_AFFECTS_DISSECTION,                     /* but not fields        */
@@ -1232,7 +1232,7 @@ proto_register_iso15765(void) {
                                    "FlexRay Addressing",
                                    "Addressing of FlexRay TP. 1 Byte or 2 Byte",
                                    &flexray_addressing,
-                                   enum_flexray_addressing, TRUE);
+                                   enum_flexray_addressing, true);
 
     prefs_register_uint_preference(iso15765_module, "flexray_segment_size_limit",
                                    "FlexRay Segment Cutoff",
@@ -1251,7 +1251,7 @@ proto_register_iso15765(void) {
         "I-PduM Addressing",
         "Addressing of I-PduM TP. 0, 1, or 2 Bytes",
         &ipdum_addressing,
-        enum_ipdum_addressing, TRUE);
+        enum_ipdum_addressing, true);
 
     prefs_register_static_text_preference(iso15765_module, "empty_pdu_transport", "", NULL);
 
@@ -1270,7 +1270,7 @@ proto_register_iso15765(void) {
     config_pdu_transport_config_uat = uat_new("ISO15765 PDU Transport Config",
         sizeof(config_pdu_transport_config_t),      /* record size           */
         DATAFILE_PDU_TRANSPORT_CONFIG,              /* filename              */
-        TRUE,                                       /* from profile          */
+        true,                                       /* from profile          */
         (void**)&config_pdu_transport_config_items, /* data_ptr              */
         &config_pdu_transport_config_items_num,     /* numitems_ptr          */
         UAT_AFFECTS_DISSECTION,                     /* but not fields        */

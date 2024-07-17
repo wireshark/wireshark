@@ -63,9 +63,9 @@ static int hf_ieee80211_prism_did_sig_b;
 static int hf_ieee80211_prism_did_sig_rate_field;
 
 
-static gint ett_prism;
-static gint ett_prism_did;
-static gint ett_sig_ab;
+static int ett_prism;
+static int ett_prism_did;
+static int ett_sig_ab;
 
 static dissector_handle_t prism_handle;
 
@@ -240,16 +240,16 @@ static const value_string prism_istx_vals[] =
 };
 
 static void
-prism_rate_base_custom(gchar *result, guint32 rate)
+prism_rate_base_custom(char *result, uint32_t rate)
 {
     snprintf(result, ITEM_LABEL_LENGTH, "%u.%u", rate /2, rate & 1 ? 5 : 0);
 }
 
-static gchar *
-prism_rate_return(wmem_allocator_t *scope, guint32 rate)
+static char *
+prism_rate_return(wmem_allocator_t *scope, uint32_t rate)
 {
-    gchar *result=NULL;
-    result = (gchar *)wmem_alloc(scope, SHORT_STR);
+    char *result=NULL;
+    result = (char *)wmem_alloc(scope, SHORT_STR);
     result[0] = '\0';
     prism_rate_base_custom(result, rate);
 
@@ -391,12 +391,12 @@ static unsigned int vht_160_tbl[10][8] =
 };
 
 
-static gchar *
-prism_rate_return_sig(wmem_allocator_t *scope, guint32 rate_phy1, guint32 rate_phy2, struct ieee_802_11_phdr *phdr)
+static char *
+prism_rate_return_sig(wmem_allocator_t *scope, uint32_t rate_phy1, uint32_t rate_phy2, struct ieee_802_11_phdr *phdr)
 {
-    gchar *result = NULL;
+    char *result = NULL;
     unsigned int mcs, base, pream_type, disp_rate, bw, sgi, ldpc, stbc, groupid, txbf;
-    gboolean su_ppdu = FALSE;
+    bool su_ppdu = false;
     unsigned int partial_aid, nsts_u1, nsts_u2, nsts_u3, nsts_u4;
     unsigned int sig_a_1, sig_a_2, nss = 1, nsts_su, signal_type;
     unsigned int dsss_tbl[] = {22, 11, 4, 2};
@@ -515,7 +515,7 @@ prism_rate_return_sig(wmem_allocator_t *scope, guint32 rate_phy1, guint32 rate_p
         phdr->phy_info.info_11ac.group_id = groupid;
 
         if (groupid == 0 || groupid == 63)
-            su_ppdu = TRUE;
+            su_ppdu = true;
 
         disp_rate = 0;
 
@@ -606,12 +606,12 @@ prism_rate_return_sig(wmem_allocator_t *scope, guint32 rate_phy1, guint32 rate_p
 }
 
 static bool
-capture_prism(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
+capture_prism(const unsigned char *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
-    guint32 cookie;
+    uint32_t cookie;
 
     if (!BYTES_ARE_IN_FRAME(offset, len, 4))
-        return FALSE;
+        return false;
 
     /* Some captures with DLT_PRISM have the AVS WLAN header */
     cookie = pntoh32(pd);
@@ -622,7 +622,7 @@ capture_prism(const guchar *pd, int offset, int len, capture_packet_info_t *cpin
 
     /* Prism header */
     if (!BYTES_ARE_IN_FRAME(offset, len, PRISM_HEADER_LENGTH))
-        return FALSE;
+        return false;
 
     offset += PRISM_HEADER_LENGTH;
 
@@ -637,14 +637,14 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     proto_item *ti = NULL, *ti_did = NULL;
     tvbuff_t *next_tvb;
     int offset;
-    guint32 msgcode, msglen, did, rate_phy1 = 0, rate_phy2 = 0;
-    guint byte_order;
-    guint16 status;
-    const guint8 *devname_p;
-    guint32 mactime;
-    guint32 channel;
-    guint32 signal_dbm;
-    guint32 rate;
+    uint32_t msgcode, msglen, did, rate_phy1 = 0, rate_phy2 = 0;
+    unsigned byte_order;
+    uint16_t status;
+    const uint8_t *devname_p;
+    uint32_t mactime;
+    uint32_t channel;
+    uint32_t signal_dbm;
+    uint32_t rate;
     struct ieee_802_11_phdr phdr;
 
     offset = 0;
@@ -683,8 +683,8 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     /* We don't have any 802.11 metadata yet. */
     memset(&phdr, 0, sizeof(phdr));
     phdr.fcs_len = -1;
-    phdr.decrypted = FALSE;
-    phdr.datapad = FALSE;
+    phdr.decrypted = false;
+    phdr.datapad = false;
     phdr.phy = PHDR_802_11_PHY_UNKNOWN;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Prism");
@@ -715,14 +715,14 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
             prism_did_tree = proto_item_add_subtree(ti_did, ett_prism_did);
 
             proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_type, tvb, offset, 4, byte_order);
-            did = tvb_get_guint32(tvb, offset, byte_order);
+            did = tvb_get_uint32(tvb, offset, byte_order);
             proto_item_append_text(ti_did, " %s", val_to_str(did, prism_did_vals, "Unknown %x") );
         }
         offset += 4;
 
 
         /* Status */
-        status = tvb_get_guint16(tvb, offset, byte_order);
+        status = tvb_get_uint16(tvb, offset, byte_order);
         proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_status, tvb, offset, 2, byte_order);
         offset += 2;
 
@@ -738,13 +738,13 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
             case PRISM_TYPE2_HOSTTIME:
                 if (tree) {
                     proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_hosttime, tvb, offset, 4, byte_order);
-                    proto_item_append_text(ti_did, " %d", tvb_get_guint32(tvb, offset, byte_order) );
+                    proto_item_append_text(ti_did, " %d", tvb_get_uint32(tvb, offset, byte_order) );
                 }
                 break;
 
             case PRISM_TYPE1_MACTIME:
             case PRISM_TYPE2_MACTIME:
-                mactime = tvb_get_guint32(tvb, offset, byte_order);
+                mactime = tvb_get_uint32(tvb, offset, byte_order);
                 phdr.has_tsf_timestamp = 1;
                 phdr.tsf_timestamp = mactime;
                 if (tree) {
@@ -755,8 +755,8 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
             case PRISM_TYPE1_CHANNEL:
             case PRISM_TYPE2_CHANNEL:
-                channel = tvb_get_guint32(tvb, offset, byte_order);
-                phdr.has_channel = TRUE;
+                channel = tvb_get_uint32(tvb, offset, byte_order);
+                phdr.has_channel = true;
                 phdr.channel = channel;
                 if (tree) {
                     proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_channel, tvb, offset, 4, byte_order);
@@ -767,7 +767,7 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
             case PRISM_TYPE1_RSSI:
             case PRISM_TYPE2_RSSI:
-                signal_dbm = tvb_get_guint32(tvb, offset, byte_order);
+                signal_dbm = tvb_get_uint32(tvb, offset, byte_order);
                 phdr.has_signal_dbm = 1;
                 phdr.signal_dbm = signal_dbm;
                 if (tree) {
@@ -781,7 +781,7 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
             case PRISM_TYPE2_SQ:
                  if (tree) {
                       proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_sq, tvb, offset, 4, byte_order);
-                      proto_item_append_text(ti_did, " 0x%x", tvb_get_guint32(tvb, offset, byte_order) );
+                      proto_item_append_text(ti_did, " 0x%x", tvb_get_uint32(tvb, offset, byte_order) );
                 }
                 break;
 
@@ -789,7 +789,7 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
             case PRISM_TYPE2_SIGNAL:
                 if (tree) {
                     proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_signal, tvb, offset, 4, byte_order);
-                    proto_item_append_text(ti_did, " 0x%x", tvb_get_guint32(tvb, offset, byte_order) );
+                    proto_item_append_text(ti_did, " 0x%x", tvb_get_uint32(tvb, offset, byte_order) );
                 }
                 break;
 
@@ -797,14 +797,14 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
             case PRISM_TYPE2_NOISE:
                 if (tree) {
                     proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_noise, tvb, offset, 4, byte_order);
-                    proto_item_append_text(ti_did, " 0x%x", tvb_get_guint32(tvb, offset, byte_order) );
+                    proto_item_append_text(ti_did, " 0x%x", tvb_get_uint32(tvb, offset, byte_order) );
                 }
                 break;
 
             case PRISM_TYPE1_RATE:
             case PRISM_TYPE2_RATE:
-                rate = tvb_get_guint32(tvb, offset, byte_order);
-                phdr.has_data_rate = TRUE;
+                rate = tvb_get_uint32(tvb, offset, byte_order);
+                phdr.has_data_rate = true;
                 phdr.data_rate = rate;
                 if (tree) {
                     proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_rate, tvb, offset, 4, byte_order);
@@ -856,7 +856,7 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
             case PRISM_TYPE2_ISTX:
                 if (tree) {
                     proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_istx, tvb, offset, 4, byte_order);
-                    proto_item_append_text(ti_did, " 0x%x", tvb_get_guint32(tvb, offset, byte_order) );
+                    proto_item_append_text(ti_did, " 0x%x", tvb_get_uint32(tvb, offset, byte_order) );
                 }
                 break;
 
@@ -864,7 +864,7 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
             case PRISM_TYPE2_FRMLEN:
                 if (tree) {
                     proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_frmlen, tvb, offset, 4, byte_order);
-                    proto_item_append_text(ti_did, " %d", tvb_get_guint32(tvb, offset, byte_order));
+                    proto_item_append_text(ti_did, " %d", tvb_get_uint32(tvb, offset, byte_order));
                 }
                 break;
 
@@ -1048,7 +1048,7 @@ static hf_register_info hf_prism[] = {
       NULL, HFILL }}
 };
 
-static gint *tree_array[] = {
+static int *tree_array[] = {
     &ett_prism,
     &ett_prism_did,
     &ett_sig_ab

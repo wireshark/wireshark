@@ -51,7 +51,7 @@ static dissector_handle_t icep_tcp_handle, icep_udp_handle;
 #endif /* 0/1 */
 
 /* fixed values taken from the standard */
-static const guint8 icep_magic[] = { 'I', 'c', 'e', 'P' };
+static const uint8_t icep_magic[] = { 'I', 'c', 'e', 'P' };
 #define ICEP_HEADER_SIZE                14
 #define ICEP_MIN_REPLY_SIZE              5
 #define ICEP_MIN_PARAMS_SIZE             6
@@ -90,9 +90,9 @@ static int hf_icep_invocation_value;
 static int hf_icep_reply_status;
 
 /* Initialize the subtree pointers */
-static gint ett_icep;
-static gint ett_icep_msg;
-static gint ett_icep_invocation_context;
+static int ett_icep;
+static int ett_icep_msg;
+static int ett_icep_invocation_context;
 
 static expert_field ei_icep_params_size;
 static expert_field ei_icep_context_missing;
@@ -111,9 +111,9 @@ static expert_field ei_icep_facet_missing;
 static expert_field ei_icep_context_too_long;
 
 /* Preferences */
-static guint icep_max_batch_requests    = 64;
-static guint icep_max_ice_string_len    = 512;
-static guint icep_max_ice_context_pairs = 64;
+static unsigned icep_max_batch_requests    = 64;
+static unsigned icep_max_ice_string_len    = 512;
+static unsigned icep_max_ice_context_pairs = 64;
 
 
 static const value_string icep_msgtype_vals[] = {
@@ -158,7 +158,7 @@ static const value_string icep_mode_vals[] = {
  * "*dest" is a null terminated version of the dissected Ice string.
  */
 static void dissect_ice_string(packet_info *pinfo, proto_tree *tree, proto_item *item, int hf_icep,
-                               tvbuff_t *tvb, guint32 offset, gint32 *consumed, const guint8 **dest)
+                               tvbuff_t *tvb, uint32_t offset, int32_t *consumed, const uint8_t **dest)
 {
     /* p. 586 chapter 23.2.1 and p. 588 chapter 23.2.5
      * string == Size + content
@@ -167,8 +167,8 @@ static void dissect_ice_string(packet_info *pinfo, proto_tree *tree, proto_item 
      * string = 1byte (255) + 1int (255..2^32-1) + string not null terminated
      */
 
-    guint32 Size = 0;
-    const guint8 *s = NULL;
+    uint32_t Size = 0;
+    const uint8_t *s = NULL;
 
     (*consumed) = 0;
 
@@ -183,7 +183,7 @@ static void dissect_ice_string(packet_info *pinfo, proto_tree *tree, proto_item 
     }
 
     /* get the Size */
-    Size = tvb_get_guint8(tvb, offset);
+    Size = tvb_get_uint8(tvb, offset);
     offset++;
     (*consumed)++;
 
@@ -248,7 +248,7 @@ static void dissect_ice_string(packet_info *pinfo, proto_tree *tree, proto_item 
  * bytes in "*consumed", if errors "*consumed" is -1.
  */
 static void dissect_ice_facet(packet_info *pinfo, proto_tree *tree, proto_item *item, int hf_icep,
-                  tvbuff_t *tvb, guint32 offset, gint32 *consumed)
+                  tvbuff_t *tvb, uint32_t offset, int32_t *consumed)
 {
     /*  p. 588, chapter 23.2.6:
      *  "facet" is a StringSeq, a StringSeq is a:
@@ -267,7 +267,7 @@ static void dissect_ice_facet(packet_info *pinfo, proto_tree *tree, proto_item *
      *
      */
 
-    guint32 Size = 0; /* number of elements in the sequence */
+    uint32_t Size = 0; /* number of elements in the sequence */
 
     (*consumed) = 0;
 
@@ -282,7 +282,7 @@ static void dissect_ice_facet(packet_info *pinfo, proto_tree *tree, proto_item *
     }
 
     /* get first byte of Size */
-    Size = tvb_get_guint8(tvb, offset);
+    Size = tvb_get_uint8(tvb, offset);
     offset++;
     (*consumed)++;
 
@@ -294,7 +294,7 @@ static void dissect_ice_facet(packet_info *pinfo, proto_tree *tree, proto_item *
 
     if ( Size == 1 ) {
 
-        gint32 consumed_facet = 0;
+        int32_t consumed_facet = 0;
 
         dissect_ice_string(pinfo, tree, item, hf_icep, tvb, offset, &consumed_facet, NULL);
 
@@ -324,7 +324,7 @@ static void dissect_ice_facet(packet_info *pinfo, proto_tree *tree, proto_item *
  * bytes in "*consumed", if errors "*consumed" is -1.
  */
 static void dissect_ice_context(packet_info *pinfo, proto_tree *tree, proto_item *item,
-                                tvbuff_t *tvb, guint32 offset, gint32 *consumed)
+                                tvbuff_t *tvb, uint32_t offset, int32_t *consumed)
 {
     /*  p. 588, chapter 23.2.7 and p. 613, 23.3.2:
      *  "context" is a dictionary<string, string>
@@ -336,8 +336,8 @@ static void dissect_ice_context(packet_info *pinfo, proto_tree *tree, proto_item
      *
      */
 
-    guint32 Size = 0; /* number of key-value in the dictionary */
-    guint32 i = 0;
+    uint32_t Size = 0; /* number of key-value in the dictionary */
+    uint32_t i = 0;
     const char *s = NULL;
 
     (*consumed) = 0;
@@ -353,7 +353,7 @@ static void dissect_ice_context(packet_info *pinfo, proto_tree *tree, proto_item
     }
 
     /* get first byte of Size */
-    Size = tvb_get_guint8(tvb, offset);
+    Size = tvb_get_uint8(tvb, offset);
     offset++;
     (*consumed)++;
 
@@ -398,11 +398,11 @@ static void dissect_ice_context(packet_info *pinfo, proto_tree *tree, proto_item
     /* looping through the dictionary */
     for ( i = 0; i < Size; i++ ) {
         /* key */
-        gint32 consumed_key = 0;
-        const guint8 *str_key = NULL;
+        int32_t consumed_key = 0;
+        const uint8_t *str_key = NULL;
         /* value */
-        gint32 consumed_value = 0;
-        const guint8 *str_value = NULL;
+        int32_t consumed_value = 0;
+        const uint8_t *str_value = NULL;
         proto_item *ti;
         proto_tree *context_tree;
 
@@ -438,7 +438,7 @@ static void dissect_ice_context(packet_info *pinfo, proto_tree *tree, proto_item
  * bytes in "*consumed", if errors "*consumed" is -1.
  */
 static void dissect_ice_params(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
-                               guint32 offset, gint32 *consumed)
+                               uint32_t offset, int32_t *consumed)
 {
     /*  p. 612, chapter 23.3.2 and p. 587, 23.2.2:
      *  "params" is an Encapsulation
@@ -452,8 +452,8 @@ static void dissect_ice_params(packet_info *pinfo, proto_tree *tree, proto_item 
      *
      */
 
-    gint32 size = 0;
-    gint tvb_data_remained = 0;
+    int32_t size = 0;
+    int tvb_data_remained = 0;
 
     (*consumed) = 0;
 
@@ -525,8 +525,8 @@ static void dissect_ice_params(packet_info *pinfo, proto_tree *tree, proto_item 
     (*consumed) += (size - ICEP_MIN_PARAMS_SIZE);
 }
 
-static void dissect_icep_request_common(tvbuff_t *tvb, guint32 offset,
-                    packet_info *pinfo, proto_tree *icep_sub_tree, proto_item* icep_sub_item, gint32 *total_consumed)
+static void dissect_icep_request_common(tvbuff_t *tvb, uint32_t offset,
+                    packet_info *pinfo, proto_tree *icep_sub_tree, proto_item* icep_sub_item, int32_t *total_consumed)
 {
     /*  p. 613, chapter 23.3.3 and p. 612 chapter 23.3.2:
      *  Request and BatchRequest differ only in the first 4 bytes (requestID)
@@ -541,9 +541,9 @@ static void dissect_icep_request_common(tvbuff_t *tvb, guint32 offset,
      *  }
      */
 
-    gint32 consumed = 0;
-    const guint8 *namestr = NULL;
-    const guint8 *opstr = NULL;
+    int32_t consumed = 0;
+    const uint8_t *namestr = NULL;
+    const uint8_t *opstr = NULL;
 
     (*total_consumed) = 0;
 
@@ -664,7 +664,7 @@ error:
 }
 
 
-static void dissect_icep_request(tvbuff_t *tvb, guint32 offset,
+static void dissect_icep_request(tvbuff_t *tvb, uint32_t offset,
                                  packet_info *pinfo, proto_tree *icep_tree, proto_item* icep_item)
 {
     /*  p. 612, chapter 23.3.2:
@@ -682,8 +682,8 @@ static void dissect_icep_request(tvbuff_t *tvb, guint32 offset,
 
     proto_item *ti = NULL;
     proto_tree *icep_sub_tree = NULL;
-    gint32 consumed = 0;
-    guint32 reqid = 0;
+    int32_t consumed = 0;
+    uint32_t reqid = 0;
 
     DBG("dissect request\n");
 
@@ -725,7 +725,7 @@ static void dissect_icep_request(tvbuff_t *tvb, guint32 offset,
 
 
 
-static void dissect_icep_batch_request(tvbuff_t *tvb, guint32 offset,
+static void dissect_icep_batch_request(tvbuff_t *tvb, uint32_t offset,
                                         packet_info *pinfo, proto_tree *icep_tree, proto_item* icep_item)
 {
     /*  p. 613, chapter 23.3.3
@@ -749,9 +749,9 @@ static void dissect_icep_batch_request(tvbuff_t *tvb, guint32 offset,
 
     proto_item *ti = NULL;
     proto_tree *icep_sub_tree = NULL;
-    guint32 num_reqs = 0;
-    guint32 i = 0;
-    gint32 consumed = 0;
+    uint32_t num_reqs = 0;
+    uint32_t i = 0;
+    int32_t consumed = 0;
 
     DBG("dissect batch request\n");
 
@@ -817,7 +817,7 @@ static void dissect_icep_batch_request(tvbuff_t *tvb, guint32 offset,
     }
 }
 
-static void dissect_icep_reply(tvbuff_t *tvb, guint32 offset,
+static void dissect_icep_reply(tvbuff_t *tvb, uint32_t offset,
                                packet_info *pinfo, proto_tree *icep_tree, proto_item* icep_item)
 {
     /*  p. 614, chapter 23.3.4:
@@ -829,9 +829,9 @@ static void dissect_icep_reply(tvbuff_t *tvb, guint32 offset,
      *  }
      */
 
-    gint32 messageSize = 0;
-    guint32 tvb_data_remained = 0;
-    guint32 reported_reply_data = 0;
+    int32_t messageSize = 0;
+    uint32_t tvb_data_remained = 0;
+    uint32_t reported_reply_data = 0;
     proto_item *ti = NULL;
     proto_tree *icep_sub_tree = NULL;
 
@@ -863,7 +863,7 @@ static void dissect_icep_reply(tvbuff_t *tvb, guint32 offset,
     proto_tree_add_item(icep_sub_tree, hf_icep_reply_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-                val_to_str_const(tvb_get_guint8(tvb, offset),
+                val_to_str_const(tvb_get_uint8(tvb, offset),
                                                  icep_replystatus_vals,
                                                  "unknown reply status"));
 
@@ -898,7 +898,7 @@ static void dissect_icep_reply(tvbuff_t *tvb, guint32 offset,
     DBG("consumed --> %d\n", reported_reply_data);
 }
 
-static guint get_icep_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+static unsigned get_icep_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                               int offset, void *data _U_)
 {
     return tvb_get_letohl(tvb, offset + 10);
@@ -922,14 +922,14 @@ static int dissect_icep_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     proto_item *ti, *msg_item = NULL;
     proto_tree *icep_tree;
-    guint32 offset = 0;
+    uint32_t offset = 0;
 
     /* Make entries in Protocol column and Info column on summary display */
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICEP");
 
     col_add_str(pinfo->cinfo, COL_INFO,
-                 val_to_str(tvb_get_guint8(tvb, 8),
+                 val_to_str(tvb_get_uint8(tvb, 8),
                     icep_msgtype_vals,
                     "Unknown Message Type: 0x%02x"));
 
@@ -979,7 +979,7 @@ static int dissect_icep_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += ICEP_HEADER_SIZE;
     }
 
-    switch(tvb_get_guint8(tvb, 8)) {
+    switch(tvb_get_uint8(tvb, 8)) {
     case 0x0:
         DBG("request message body: parsing %d bytes\n",
             tvb_captured_length_remaining(tvb, offset));
@@ -1000,7 +1000,7 @@ static int dissect_icep_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             /* messages already dissected */
         break;
     default:
-        expert_add_info_format(pinfo, msg_item, &ei_icep_message_type, "Unknown Message Type: 0x%02x", tvb_get_guint8(tvb, 8));
+        expert_add_info_format(pinfo, msg_item, &ei_icep_message_type, "Unknown Message Type: 0x%02x", tvb_get_uint8(tvb, 8));
         break;
     }
     return tvb_captured_length(tvb);
@@ -1018,7 +1018,7 @@ static gboolean dissect_icep_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
     /* start dissecting */
 
-    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, ICEP_HEADER_SIZE,
+    tcp_dissect_pdus(tvb, pinfo, tree, true, ICEP_HEADER_SIZE,
         get_icep_pdu_len, dissect_icep_pdu, data);
 
     return TRUE;
@@ -1036,12 +1036,12 @@ static gboolean dissect_icep_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
     if ( tvb_memeql(tvb, 0, icep_magic, 4) == -1 ) {
         /* Not a ICEP packet. */
-        return FALSE;
+        return false;
     }
 
     /* start dissecting */
     dissect_icep_pdu(tvb, pinfo, tree, data);
-    return TRUE;
+    return true;
 }
 
 static bool
@@ -1257,7 +1257,7 @@ void proto_register_icep(void)
 
     /* Setup protocol subtree array */
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_icep,
         &ett_icep_msg,
         &ett_icep_invocation_context,

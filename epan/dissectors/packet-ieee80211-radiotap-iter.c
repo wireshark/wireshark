@@ -135,7 +135,7 @@ int ieee80211_radiotap_iterator_init(
 	iterator->_max_length = get_unaligned_le16(&radiotap_header->it_len);
 	iterator->_arg_index = 0;
 	iterator->_bitmap_shifter = get_unaligned_le32(&radiotap_header->it_present);
-	iterator->_arg = (guint8 *)radiotap_header + sizeof(*radiotap_header);
+	iterator->_arg = (uint8_t *)radiotap_header + sizeof(*radiotap_header);
 	iterator->_reset_on_ext = 0;
 	iterator->_next_ns_data = NULL;
 	iterator->_next_bitmap = &radiotap_header->it_present;
@@ -152,11 +152,11 @@ int ieee80211_radiotap_iterator_init(
 	/* find payload start allowing for extended bitmap(s) */
 	if (iterator->_bitmap_shifter & (1U << IEEE80211_RADIOTAP_EXT)) {
 		/* XXX - we should report an expert info here */
-		if (!ITERATOR_VALID(iterator, sizeof(guint32)))
+		if (!ITERATOR_VALID(iterator, sizeof(uint32_t)))
 			return -EINVAL;
 		while (get_unaligned_le32(iterator->_arg) &
 					(1U << IEEE80211_RADIOTAP_EXT)) {
-			iterator->_arg += sizeof(guint32);
+			iterator->_arg += sizeof(uint32_t);
 
 			/*
 			 * check for insanity where the present bitmaps
@@ -164,7 +164,7 @@ int ieee80211_radiotap_iterator_init(
 			 * stated radiotap header length
 			 */
 			/* XXX - we should report an expert info here */
-			if (!ITERATOR_VALID(iterator, sizeof(guint32)))
+			if (!ITERATOR_VALID(iterator, sizeof(uint32_t)))
 				return -EINVAL;
 
 			/* XXX - we should report an expert info here */
@@ -175,7 +175,7 @@ int ieee80211_radiotap_iterator_init(
 				return -EINVAL;
 		}
 
-		iterator->_arg += sizeof(guint32);
+		iterator->_arg += sizeof(uint32_t);
 
 		/*
 		 * no need to check again for blowing past stated radiotap
@@ -192,7 +192,7 @@ int ieee80211_radiotap_iterator_init(
 }
 
 static void find_ns(struct ieee80211_radiotap_iterator *iterator,
-		    guint32 oui, guint8 subns)
+		    uint32_t oui, uint8_t subns)
 {
 	int i;
 
@@ -264,7 +264,7 @@ int ieee80211_radiotap_iterator_next(
 {
 	if (iterator->tlv_mode) {
 		struct ieee80211_radiotap_tlv *tlv;
-		guint32 size;
+		uint32_t size;
 
 #define TLV_LEN_ALIGN(x) ((x + 3) & ~3)
 		size = sizeof(*tlv) + TLV_LEN_ALIGN(iterator->this_arg_size);
@@ -305,7 +305,7 @@ return_tlv:
 	while (1) {
 		int hit = 0;
 		int pad, align, size, subns;
-		guint32 oui;
+		uint32_t oui;
 
 		/* if no more EXT bits, that's it */
 		if ((iterator->_arg_index % 32) == IEEE80211_RADIOTAP_EXT &&

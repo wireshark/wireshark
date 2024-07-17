@@ -34,7 +34,7 @@ static int hf_i2c_event;
 static int hf_i2c_flags;
 static int hf_i2c_addr;
 
-static gint ett_i2c;
+static int ett_i2c;
 
 static dissector_table_t subdissector_table;
 
@@ -69,13 +69,13 @@ static dissector_handle_t ipmb_handle;
 							   disconnected from the bus */
 #define I2C_EVENT_ERR_FAIL		(1 << 22)	/* Undiagnosed failure       */
 
-static void i2c_prompt(packet_info *pinfo _U_, gchar* result)
+static void i2c_prompt(packet_info *pinfo _U_, char* result)
 {
 	snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Interpret I2C messages as");
 }
 
 static bool
-capture_i2c_linux(const guchar *pd _U_, int offset _U_, int len _U_, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
+capture_i2c_linux(const unsigned char *pd _U_, int offset _U_, int len _U_, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
 	if (pseudo_header->i2c.is_event) {
 		capture_dissector_increment_count(cpinfo, proto_i2c_event);
@@ -83,11 +83,11 @@ capture_i2c_linux(const guchar *pd _U_, int offset _U_, int len _U_, capture_pac
 		capture_dissector_increment_count(cpinfo, proto_i2c_data);
 	}
 
-	return TRUE;
+	return true;
 }
 
 static const char *
-i2c_linux_get_event_desc(guint32 event)
+i2c_linux_get_event_desc(uint32_t event)
 {
 	const char *desc;
 
@@ -160,9 +160,9 @@ dissect_i2c_linux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 {
 	proto_item *ti;
 	proto_tree *i2c_tree;
-	guint8      is_event;
-	guint8      bus, addr;
-	guint32     flags;
+	uint8_t     is_event;
+	uint8_t     bus, addr;
+	uint32_t    flags;
 
 	flags = pinfo->pseudo_header->i2c.flags;
 
@@ -178,7 +178,7 @@ dissect_i2c_linux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 				i2c_linux_get_event_desc(flags));
 	} else {
 		/* Report 7-bit hardware address */
-		addr = tvb_get_guint8(tvb, 0) >> 1;
+		addr = tvb_get_uint8(tvb, 0) >> 1;
 		col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "I2C %s",
 				(flags & I2C_FLAG_RD) ? "Read" : "Write");
 		col_add_fstr(pinfo->cinfo, COL_DEF_DST, "0x%02x", addr);
@@ -220,7 +220,7 @@ dissect_i2c_kontron(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 	proto_item *ti;
 	proto_tree *i2c_tree;
 	int         offset = 0;
-	guint8      addr;
+	uint8_t     addr;
 	tvbuff_t   *new_tvb;
 
 	col_add_str(pinfo->cinfo, COL_DEF_SRC, "I2C");
@@ -236,9 +236,9 @@ dissect_i2c_kontron(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 	offset++;
 
 	/* Report 7-bit hardware address */
-	addr = tvb_get_guint8(tvb, offset) >> 1;
+	addr = tvb_get_uint8(tvb, offset) >> 1;
 	col_append_fstr(pinfo->cinfo, COL_PROTOCOL, " %s",
-	    tvb_get_guint8(tvb, 0) & 0x01 ? "Read" : "Write");
+	    tvb_get_uint8(tvb, 0) & 0x01 ? "Read" : "Write");
 	col_add_fstr(pinfo->cinfo, COL_DEF_DST, "0x%02x", addr);
 	col_add_fstr(pinfo->cinfo, COL_INFO, "I2C, %d bytes",
 				tvb_captured_length(tvb));
@@ -264,7 +264,7 @@ proto_register_i2c(void)
 		{ &hf_i2c_event, { "Event", "i2c.event", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 		{ &hf_i2c_flags, { "Flags", "i2c.flags", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 	};
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_i2c
 	};
 	module_t *m;

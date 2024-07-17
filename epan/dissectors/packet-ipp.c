@@ -63,8 +63,8 @@ static int hf_ipp_response_to;
 static int hf_ipp_response_time;
 
 typedef struct _ipp_transaction_t {
-        guint32 req_frame;
-        guint32 rep_frame;
+        uint32_t req_frame;
+        uint32_t rep_frame;
         nstime_t req_time;
 } ipp_transaction_t;
 
@@ -72,10 +72,10 @@ typedef struct _ipp_conv_info_t {
         wmem_map_t *pdus;
 } ipp_conv_info_t;
 
-static gint ett_ipp;
-static gint ett_ipp_as;
-static gint ett_ipp_attr;
-static gint ett_ipp_member;
+static int ett_ipp;
+static int ett_ipp_as;
+static int ett_ipp_attr;
+static int ett_ipp_member;
 
 #define PRINT_JOB              0x0002
 #define PRINT_URI              0x0003
@@ -379,17 +379,17 @@ static const value_string status_vals[] = {
 
 static int parse_attributes(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree);
 static proto_tree *add_integer_tree(proto_tree *tree, tvbuff_t *tvb,
-                                        int offset, int name_length, const gchar *name, int value_length, guint8 tag);
-static void add_integer_value(const gchar *tag_desc, proto_tree *tree,
-                                        tvbuff_t *tvb, int offset, int name_length, const gchar *name, int value_length, guint8 tag);
+                                        int offset, int name_length, const char *name, int value_length, uint8_t tag);
+static void add_integer_value(const char *tag_desc, proto_tree *tree,
+                                        tvbuff_t *tvb, int offset, int name_length, const char *name, int value_length, uint8_t tag);
 static proto_tree *add_octetstring_tree(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
-                                        int offset, int name_length, const gchar *name, int value_length, guint8 tag);
-static proto_tree *add_octetstring_value(const gchar *tag_desc, proto_tree *tree,
-                                        tvbuff_t *tvb, packet_info *pinfo, int offset, int name_length, const gchar *name, int value_length, guint8 tag);
+                                        int offset, int name_length, const char *name, int value_length, uint8_t tag);
+static proto_tree *add_octetstring_value(const char *tag_desc, proto_tree *tree,
+                                        tvbuff_t *tvb, packet_info *pinfo, int offset, int name_length, const char *name, int value_length, uint8_t tag);
 static proto_tree *add_charstring_tree(proto_tree *tree, tvbuff_t *tvb,
-                                        int offset, guint8 tag, int name_length, const gchar *name, int value_length);
-static void add_charstring_value(const gchar *tag_desc, proto_tree *tree,
-                                        tvbuff_t *tvb, int offset, int name_length, const gchar *name, int value_length, guint8 tag);
+                                        int offset, uint8_t tag, int name_length, const char *name, int value_length);
+static void add_charstring_value(const char *tag_desc, proto_tree *tree,
+                                        tvbuff_t *tvb, int offset, int name_length, const char *name, int value_length, uint8_t tag);
 static int ipp_fmt_collection(tvbuff_t *tvb, packet_info *pinfo, int offset, char *buffer, int bufsize);
 
 static int
@@ -399,10 +399,10 @@ dissect_ipp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     proto_item  *ti;
     int         offset     = 0;
     media_content_info_t *content_info = (media_content_info_t *)data;
-    gboolean    is_request;
-    guint16     operation_status;
-    const gchar *status_type;
-    guint32	request_id;
+    bool        is_request;
+    uint16_t    operation_status;
+    const char *status_type;
+    uint32_t	request_id;
     conversation_t *conversation;
     ipp_conv_info_t *ipp_info;
     ipp_transaction_t *ipp_trans;
@@ -411,11 +411,11 @@ dissect_ipp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         switch (content_info->type) {
 
         case MEDIA_CONTAINER_HTTP_REQUEST:
-            is_request = TRUE;
+            is_request = true;
             break;
 
         case MEDIA_CONTAINER_HTTP_RESPONSE:
-            is_request = FALSE;
+            is_request = false;
             break;
 
         default:
@@ -632,9 +632,9 @@ static const value_string tag_vals[] = {
 static int
 parse_attributes(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree)
 {
-    guint8       tag;
-    const gchar *tag_desc;
-    gchar       *name = "";
+    uint8_t      tag;
+    const char *tag_desc;
+    char        *name = "";
     int          name_length, value_length;
     proto_tree  *as_tree      = tree;
     proto_item  *tas          = NULL;
@@ -643,7 +643,7 @@ parse_attributes(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree
     proto_tree  *subtree      = NULL;
 
     while (tvb_offset_exists(tvb, offset)) {
-        tag = tvb_get_guint8(tvb, offset);
+        tag = tvb_get_uint8(tvb, offset);
         tag_desc = val_to_str(tag, tag_vals, "unknown-%02x");
         if (TAG_TYPE(tag) == TAG_TYPE_DELIMITER) {
             /*
@@ -787,17 +787,17 @@ parse_attributes(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree
 
 static proto_tree *
 add_integer_tree(proto_tree *tree, tvbuff_t *tvb, int offset,
-                 int name_length, const gchar *name, int value_length, guint8 tag)
+                 int name_length, const char *name, int value_length, uint8_t tag)
 {
     int count = 0;
     const char *type = val_to_str(tag, tag_vals, "unknown-%02x");
-    gchar *value = NULL;
+    char *value = NULL;
     int valoffset = offset;
 
     switch (tag) {
         case TAG_BOOLEAN:
             if (value_length == 1) {
-                value = wmem_strdup(wmem_packet_scope(), tvb_get_guint8(tvb, offset + 1 + 2 + name_length + 2) ? "true" : "false");
+                value = wmem_strdup(wmem_packet_scope(), tvb_get_uint8(tvb, offset + 1 + 2 + name_length + 2) ? "true" : "false");
             }
             else {
                 value = wmem_strdup(wmem_packet_scope(), "???");
@@ -822,8 +822,8 @@ add_integer_tree(proto_tree *tree, tvbuff_t *tvb, int offset,
                     break;
 
                 if (value_length == 8) {
-                    guint32 lower = tvb_get_ntohl(tvb, valoffset + 0);
-                    guint32 upper = tvb_get_ntohl(tvb, valoffset + 4);
+                    uint32_t lower = tvb_get_ntohl(tvb, valoffset + 0);
+                    uint32_t upper = tvb_get_ntohl(tvb, valoffset + 4);
 
                     temp = wmem_strdup_printf(wmem_packet_scope(), "%d-%d", lower, upper);
                 }
@@ -848,7 +848,7 @@ add_integer_tree(proto_tree *tree, tvbuff_t *tvb, int offset,
                 if (!tvb_offset_exists(tvb, valoffset + 3))
                     break;
 
-                tag         = tvb_get_guint8(tvb, valoffset);
+                tag         = tvb_get_uint8(tvb, valoffset);
                 name_length = tvb_get_ntohs(tvb, valoffset + 1);
                 if (!tvb_offset_exists(tvb, valoffset + 1 + 2 + name_length + 2))
                     break;
@@ -864,7 +864,7 @@ add_integer_tree(proto_tree *tree, tvbuff_t *tvb, int offset,
                /*
                 * Add the range/integer...
                 */
-                const gchar* temp;
+                const char* temp;
 
                 count ++;
 
@@ -919,7 +919,7 @@ add_integer_tree(proto_tree *tree, tvbuff_t *tvb, int offset,
                 if (!tvb_offset_exists(tvb, valoffset + 3))
                     break;
 
-                tag         = tvb_get_guint8(tvb, valoffset);
+                tag         = tvb_get_uint8(tvb, valoffset);
                 name_length = tvb_get_ntohs(tvb, valoffset + 1);
                 if (!tvb_offset_exists(tvb, valoffset + 1 + 2 + name_length + 2))
                     break;
@@ -938,8 +938,8 @@ add_integer_tree(proto_tree *tree, tvbuff_t *tvb, int offset,
 }
 
 static void
-add_integer_value(const gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb,
-                  int offset, int name_length, const gchar *name, int value_length, guint8 tag)
+add_integer_value(const char *tag_desc, proto_tree *tree, tvbuff_t *tvb,
+                  int offset, int name_length, const char *name, int value_length, uint8_t tag)
 {
     int valoffset = offset + 1 + 2 + name_length + 2;
 
@@ -1007,11 +1007,11 @@ add_integer_value(const gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb,
 }
 
 static proto_tree *
-add_octetstring_tree(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, int name_length, const gchar *name, int value_length, guint8 tag)
+add_octetstring_tree(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, int name_length, const char *name, int value_length, uint8_t tag)
 {
     int count = 0;
     const char *type = val_to_str(tag, tag_vals, "unknown-%02x");
-    gchar *value = NULL;
+    char *value = NULL;
     int valoffset = offset;
 
     switch (tag) {
@@ -1036,7 +1036,7 @@ add_octetstring_tree(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
                 if (!tvb_offset_exists(tvb, valoffset + 3))
                     break;
 
-                tag         = tvb_get_guint8(tvb, valoffset);
+                tag         = tvb_get_uint8(tvb, valoffset);
                 name_length = tvb_get_ntohs(tvb, valoffset + 1);
                 if (!tvb_offset_exists(tvb, valoffset + 1 + 2 + name_length + 2))
                     break;
@@ -1050,20 +1050,20 @@ add_octetstring_tree(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
             valoffset += 1 + 2 + name_length + 2;
 
             if (value_length == 11) {
-                guint16 year = tvb_get_ntohs(tvb, valoffset + 0);
-                guint8 month = tvb_get_guint8(tvb, valoffset + 2);
-                guint8 day = tvb_get_guint8(tvb, valoffset + 3);
-                guint8 hours = tvb_get_guint8(tvb, valoffset + 4);
-                guint8 minutes = tvb_get_guint8(tvb, valoffset + 5);
-                guint8 seconds = tvb_get_guint8(tvb, valoffset + 6);
-                guint8 decisecs = tvb_get_guint8(tvb, valoffset + 7);
-                guint8 utcsign = tvb_get_guint8(tvb, valoffset + 8);
+                uint16_t year = tvb_get_ntohs(tvb, valoffset + 0);
+                uint8_t month = tvb_get_uint8(tvb, valoffset + 2);
+                uint8_t day = tvb_get_uint8(tvb, valoffset + 3);
+                uint8_t hours = tvb_get_uint8(tvb, valoffset + 4);
+                uint8_t minutes = tvb_get_uint8(tvb, valoffset + 5);
+                uint8_t seconds = tvb_get_uint8(tvb, valoffset + 6);
+                uint8_t decisecs = tvb_get_uint8(tvb, valoffset + 7);
+                uint8_t utcsign = tvb_get_uint8(tvb, valoffset + 8);
                 if (utcsign != '+' && utcsign != '-') {
                     // XXX Add expert info
                     utcsign = '?';
                 }
-                guint8 utchours = tvb_get_guint8(tvb, valoffset + 9);
-                guint8 utcminutes = tvb_get_guint8(tvb, valoffset + 10);
+                uint8_t utchours = tvb_get_uint8(tvb, valoffset + 9);
+                uint8_t utcminutes = tvb_get_uint8(tvb, valoffset + 10);
 
                 value = wmem_strdup_printf(wmem_packet_scope(), "%04d-%02d-%02dT%02d:%02d:%02d.%d%c%02d%02d", year, month, day, hours, minutes, seconds, decisecs, utcsign, utchours, utcminutes);
             } else {
@@ -1088,7 +1088,7 @@ add_octetstring_tree(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
                 if (value_length == 9 && tvb_offset_exists(tvb, valoffset + value_length)) {
                     int xres = tvb_get_ntohl(tvb, valoffset + 0);
                     int yres = tvb_get_ntohl(tvb, valoffset + 4);
-                    guint8 units = tvb_get_guint8(tvb, valoffset + 8);
+                    uint8_t units = tvb_get_uint8(tvb, valoffset + 8);
 
                     temp = wmem_strdup_printf(wmem_packet_scope(), "%dx%d%s", xres, yres, units == 3 ? "dpi" : units == 4 ? "dpcm" : "unknown");
                 }
@@ -1110,7 +1110,7 @@ add_octetstring_tree(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
                 if (!tvb_offset_exists(tvb, valoffset + 3))
                     break;
 
-                tag         = tvb_get_guint8(tvb, valoffset);
+                tag         = tvb_get_uint8(tvb, valoffset);
                 name_length = tvb_get_ntohs(tvb, valoffset + 1);
                 if (!tvb_offset_exists(tvb, valoffset + 1 + 2 + name_length + 2))
                     break;
@@ -1136,8 +1136,8 @@ add_octetstring_tree(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
                     break;
 
                 if (value_length == 8) {
-                    guint32 lower = tvb_get_ntohl(tvb, valoffset + 0);
-                    guint32 upper = tvb_get_ntohl(tvb, valoffset + 4);
+                    uint32_t lower = tvb_get_ntohl(tvb, valoffset + 0);
+                    uint32_t upper = tvb_get_ntohl(tvb, valoffset + 4);
 
                     temp = wmem_strdup_printf(wmem_packet_scope(), "%d-%d", lower, upper);
                 }
@@ -1162,7 +1162,7 @@ add_octetstring_tree(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
                 if (!tvb_offset_exists(tvb, valoffset + 3))
                     break;
 
-                tag         = tvb_get_guint8(tvb, valoffset);
+                tag         = tvb_get_uint8(tvb, valoffset);
                 name_length = tvb_get_ntohs(tvb, valoffset + 1);
                 if (!tvb_offset_exists(tvb, valoffset + 1 + 2 + name_length + 2))
                     break;
@@ -1212,7 +1212,7 @@ add_octetstring_tree(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
                 if (!tvb_offset_exists(tvb, valoffset + 3))
                     break;
 
-                tag         = tvb_get_guint8(tvb, valoffset);
+                tag         = tvb_get_uint8(tvb, valoffset);
                 name_length = tvb_get_ntohs(tvb, valoffset + 1);
                 if (!tvb_offset_exists(tvb, valoffset + 1 + 2 + name_length + 2))
                     break;
@@ -1246,7 +1246,7 @@ add_octetstring_tree(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
                 if (!tvb_offset_exists(tvb, valoffset + 3))
                     break;
 
-                tag         = tvb_get_guint8(tvb, valoffset);
+                tag         = tvb_get_uint8(tvb, valoffset);
                 name_length = tvb_get_ntohs(tvb, valoffset + 1);
                 if (!tvb_offset_exists(tvb, valoffset + 1 + 2 + name_length + 2))
                     break;
@@ -1268,8 +1268,8 @@ add_octetstring_tree(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
 }
 
 static proto_tree *
-add_octetstring_value(const gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
-                      int offset, int name_length, const gchar *name _U_, int value_length, guint8 tag)
+add_octetstring_value(const char *tag_desc, proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
+                      int offset, int name_length, const char *name _U_, int value_length, uint8_t tag)
 {
     proto_tree *subtree = tree;
     char value[176];
@@ -1286,20 +1286,20 @@ add_octetstring_value(const gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb, pa
 
         case TAG_DATETIME :
             if (value_length == 11) {
-                guint16 year = tvb_get_ntohs(tvb, valoffset + 0);
-                guint8 month = tvb_get_guint8(tvb, valoffset + 2);
-                guint8 day = tvb_get_guint8(tvb, valoffset + 3);
-                guint8 hours = tvb_get_guint8(tvb, valoffset + 4);
-                guint8 minutes = tvb_get_guint8(tvb, valoffset + 5);
-                guint8 seconds = tvb_get_guint8(tvb, valoffset + 6);
-                guint8 decisecs = tvb_get_guint8(tvb, valoffset + 7);
-                guint8 utcsign = tvb_get_guint8(tvb, valoffset + 8);
+                uint16_t year = tvb_get_ntohs(tvb, valoffset + 0);
+                uint8_t month = tvb_get_uint8(tvb, valoffset + 2);
+                uint8_t day = tvb_get_uint8(tvb, valoffset + 3);
+                uint8_t hours = tvb_get_uint8(tvb, valoffset + 4);
+                uint8_t minutes = tvb_get_uint8(tvb, valoffset + 5);
+                uint8_t seconds = tvb_get_uint8(tvb, valoffset + 6);
+                uint8_t decisecs = tvb_get_uint8(tvb, valoffset + 7);
+                uint8_t utcsign = tvb_get_uint8(tvb, valoffset + 8);
                 if (utcsign != '+' && utcsign != '-') {
                     // XXX Add expert info
                     utcsign = '?';
                 }
-                guint8 utchours = tvb_get_guint8(tvb, valoffset + 9);
-                guint8 utcminutes = tvb_get_guint8(tvb, valoffset + 10);
+                uint8_t utchours = tvb_get_uint8(tvb, valoffset + 9);
+                uint8_t utcminutes = tvb_get_uint8(tvb, valoffset + 10);
 
                 proto_tree_add_bytes_format(tree, hf_ipp_datetime_value, tvb, valoffset, value_length, NULL, "dateTime value: %04d-%02d-%02dT%02d:%02d:%02d.%d%c%02d%02d", year, month, day, hours, minutes, seconds, decisecs, utcsign, utchours, utcminutes);
             }
@@ -1312,7 +1312,7 @@ add_octetstring_value(const gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb, pa
             if (value_length == 9) {
                 int xres = tvb_get_ntohl(tvb, valoffset + 0);
                 int yres = tvb_get_ntohl(tvb, valoffset + 4);
-                guint8 units = tvb_get_guint8(tvb, valoffset + 8);
+                uint8_t units = tvb_get_uint8(tvb, valoffset + 8);
 
                 proto_tree_add_bytes_format(tree, hf_ipp_resolution_value, tvb, valoffset, value_length, NULL, "resolution value: %dx%d%s", xres, yres, units == 3 ? "dpi" : units == 4 ? "dpcm" : "unknown");
             }
@@ -1371,18 +1371,18 @@ add_octetstring_value(const gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb, pa
 
 static proto_tree *
 add_charstring_tree(proto_tree *tree, tvbuff_t *tvb, int offset,
-                    guint8 tag, int name_length, const gchar *name, int value_length)
+                    uint8_t tag, int name_length, const char *name, int value_length)
 {
     int count = 0, valoffset = offset;
     const char *type = val_to_str(tag, tag_vals, "unknown-%02x");
-    gchar *value = NULL;
+    char *value = NULL;
 
     do {
        /*
         * Add the string...
         */
 
-        gchar *temp = NULL;
+        char *temp = NULL;
 
         count ++;
 
@@ -1415,7 +1415,7 @@ add_charstring_tree(proto_tree *tree, tvbuff_t *tvb, int offset,
         if (!tvb_offset_exists(tvb, valoffset + 3))
             break;
 
-        tag         = tvb_get_guint8(tvb, valoffset);
+        tag         = tvb_get_uint8(tvb, valoffset);
         name_length = tvb_get_ntohs(tvb, valoffset + 1);
         if (!tvb_offset_exists(tvb, valoffset + 1 + 2 + name_length + 2))
             break;
@@ -1428,8 +1428,8 @@ add_charstring_tree(proto_tree *tree, tvbuff_t *tvb, int offset,
 }
 
 static void
-add_charstring_value(const gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb,
-                     int offset, int name_length, const gchar *name _U_, int value_length, guint8 tag)
+add_charstring_value(const char *tag_desc, proto_tree *tree, tvbuff_t *tvb,
+                     int offset, int name_length, const char *name _U_, int value_length, uint8_t tag)
 {
     proto_item *ti;
     int valoffset = offset + 1 + 2 + name_length + 2;
@@ -1454,7 +1454,7 @@ static int
 ipp_fmt_collection(tvbuff_t *tvb, packet_info *pinfo, int valoffset, char *buffer, int bufsize)
 {
     char *bufptr = buffer, *bufend = buffer + bufsize - 1;
-    guint8 tag;
+    uint8_t tag;
     int name_length, value_length;
     int overflow = 0;
 
@@ -1470,7 +1470,7 @@ ipp_fmt_collection(tvbuff_t *tvb, packet_info *pinfo, int valoffset, char *buffe
         if (!tvb_offset_exists(tvb, valoffset + 3))
             break;
 
-        tag         = tvb_get_guint8(tvb, valoffset);
+        tag         = tvb_get_uint8(tvb, valoffset);
         name_length = tvb_get_ntohs(tvb, valoffset + 1);
         if (!tvb_offset_exists(tvb, valoffset + 1 + 2 + name_length + 2))
             break;
@@ -1530,9 +1530,9 @@ ipp_fmt_collection(tvbuff_t *tvb, packet_info *pinfo, int valoffset, char *buffe
 
 
 static void
-ipp_fmt_version( gchar *result, guint32 revision )
+ipp_fmt_version( char *result, uint32_t revision )
 {
-   snprintf( result, ITEM_LABEL_LENGTH, "%u.%u", (guint8)(( revision & 0xFF00 ) >> 8), (guint8)(revision & 0xFF) );
+   snprintf( result, ITEM_LABEL_LENGTH, "%u.%u", (uint8_t)(( revision & 0xFF00 ) >> 8), (uint8_t)(revision & 0xFF) );
 }
 
 void
@@ -1570,7 +1570,7 @@ proto_register_ipp(void)
       { &hf_ipp_response_to, { "Request In", "ipp.response_to", FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0, "This is a response to the IPP request in this frame", HFILL }},
       { &hf_ipp_response_time, { "Response Time", "ipp.response_time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0, "The time between the Request and the Response", HFILL }}
     };
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_ipp,
         &ett_ipp_as,
         &ett_ipp_attr,

@@ -62,8 +62,8 @@ static int hf_ieee8021ah_etype;
 /* static int hf_ieee8021ah_len; */
 static int hf_ieee8021ah_trailer;
 
-static gint ett_ieee8021ah;
-static gint ett_ieee8021ad;
+static int ett_ieee8021ah;
+static int ett_ieee8021ad;
 
 #define IEEE8021AD_LEN 4
 #define IEEE8021AH_LEN 18
@@ -73,12 +73,12 @@ static gint ett_ieee8021ad;
 
 
 static bool
-capture_ieee8021ah(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
+capture_ieee8021ah(const unsigned char *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
-    guint16 encap_proto;
+    uint16_t encap_proto;
 
     if (!BYTES_ARE_IN_FRAME(offset, len, IEEE8021AH_LEN + 1))
-        return FALSE;
+        return false;
 
     encap_proto = pntoh16( &pd[offset + IEEE8021AH_LEN - 2] );
     if (encap_proto <= IEEE_802_3_MAX_LEN) {
@@ -101,8 +101,8 @@ int dissect_ieee8021ad(tvbuff_t *tvb, packet_info *pinfo,
 {
     proto_tree       *ptree   = NULL;
     proto_tree       *tagtree = NULL;
-    guint32           tci, ctci;
-    guint16           encap_proto;
+    uint32_t          tci, ctci;
+    uint16_t          encap_proto;
     int               proto_tree_index;
     ethertype_data_t  ethertype_data;
 
@@ -221,8 +221,8 @@ int dissect_ieee8021ad(tvbuff_t *tvb, packet_info *pinfo,
 static void
 dissect_ieee8021ah_common(tvbuff_t *tvb, packet_info *pinfo,
                           proto_tree *tree, proto_tree *parent, int tree_index) {
-    guint32           tci;
-    guint16           encap_proto;
+    uint32_t          tci;
+    uint16_t          encap_proto;
     proto_tree       *ptree;
     ethertype_data_t  ethertype_data;
 
@@ -296,7 +296,7 @@ int dissect_ieee8021ah(tvbuff_t *tvb, packet_info *pinfo,
                    proto_tree *tree, void* data _U_)
 {
     proto_item *pi;
-    guint32     tci;
+    uint32_t    tci;
     int         proto_tree_index;
     proto_tree *ieee8021ah_tree;
 
@@ -386,7 +386,7 @@ proto_register_ieee8021ah(void)
                 0, 0x0FFF, "C-Vlan ID", HFILL }},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_ieee8021ah,
         &ett_ieee8021ad
     };
@@ -423,7 +423,7 @@ proto_register_ieee8021ah(void)
 void
 proto_reg_handoff_ieee8021ah(void)
 {
-    static gboolean           prefs_initialized = FALSE;
+    static bool               prefs_initialized = false;
     static unsigned int       old_ieee8021ah_ethertype;
     static capture_dissector_handle_t ieee8021ah_cap_handle;
 
@@ -438,7 +438,7 @@ proto_reg_handoff_ieee8021ah(void)
         ipx_cap_handle = find_capture_dissector("ipx");
         llc_cap_handle = find_capture_dissector("llc");
 
-        prefs_initialized = TRUE;
+        prefs_initialized = true;
     }
     else {
         dissector_delete_uint("ethertype", old_ieee8021ah_ethertype, ieee8021ah_handle);

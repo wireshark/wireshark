@@ -25,8 +25,8 @@ static dissector_handle_t ipmi_session_handle;
 
 static int proto_ipmi_session;
 
-static gint ett_ipmi_session;
-static gint ett_ipmi_session_payloadtype;
+static int ett_ipmi_session;
+static int ett_ipmi_session_payloadtype;
 
 /* IPMI session header */
 static int hf_ipmi_session_id;
@@ -103,17 +103,17 @@ dissect_ipmi_session(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 	proto_tree	*sess_tree = NULL, *s_tree;
 	proto_item	*ti;
 	tvbuff_t	*next_tvb;
-	guint32		session_id;
-	guint8		authtype, payloadtype = 0;
-	guint32		msg_start, msg_len, offset = 0;
-	gboolean	payloadtype_auth = 0, payloadtype_enc = 0;
+	uint32_t		session_id;
+	uint8_t		authtype, payloadtype = 0;
+	uint32_t		msg_start, msg_len, offset = 0;
+	bool	payloadtype_auth = 0, payloadtype_enc = 0;
 
 	/* session authtype, 0=no authcode present, 6=RMCP+ */
-	authtype = tvb_get_guint8(tvb, 0);
+	authtype = tvb_get_uint8(tvb, 0);
 	if (authtype == IPMI_AUTH_RMCPP) {
 		/* Fetch additional info before trying to interpret
 		   the packet. It may not be IPMI at all! */
-		payloadtype = tvb_get_guint8(tvb, 1);
+		payloadtype = tvb_get_uint8(tvb, 1);
 		payloadtype_auth = (payloadtype >> 6) & 1;
 		payloadtype_enc = (payloadtype >> 7);
 		payloadtype &= 0x3f;
@@ -138,10 +138,10 @@ dissect_ipmi_session(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 		session_id = tvb_get_letohl(tvb, 5);
 		if (authtype == IPMI_AUTH_NONE) {
 			msg_start = 10;
-			msg_len = tvb_get_guint8(tvb, 9);
+			msg_len = tvb_get_uint8(tvb, 9);
 		} else {
 			msg_start = 26;
-			msg_len = tvb_get_guint8(tvb, 25);
+			msg_len = tvb_get_uint8(tvb, 25);
 		}
 	}
 
@@ -289,7 +289,7 @@ proto_register_ipmi_session(void)
 			FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 	};
 
-	static gint *ett[] = { &ett_ipmi_session, &ett_ipmi_session_payloadtype };
+	static int *ett[] = { &ett_ipmi_session, &ett_ipmi_session_payloadtype };
 
 	proto_ipmi_session = proto_register_protocol("Intelligent Platform Management Interface (Session Wrapper)", "IPMI Session", "ipmi_session");
 	proto_register_field_array(proto_ipmi_session, hf, array_length(hf));

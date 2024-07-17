@@ -42,61 +42,61 @@ static int proto_infiniband;
 static int proto_infiniband_link;
 
 /* Variables to hold expansion values between packets */
-/* static gint ett_infiniband;                */
-static gint ett_all_headers;
-static gint ett_lrh;
-static gint ett_grh;
-static gint ett_bth;
-static gint ett_rwh;
-static gint ett_rdeth;
-static gint ett_deth;
-static gint ett_reth;
-static gint ett_atomiceth;
-static gint ett_aeth;
-static gint ett_aeth_syndrome;
-static gint ett_atomicacketh;
-static gint ett_immdt;
-static gint ett_ieth;
-static gint ett_payload;
-static gint ett_vendor;
-static gint ett_subn_lid_routed;
-static gint ett_subn_directed_route;
-static gint ett_subnadmin;
-static gint ett_mad;
-static gint ett_cm;
-static gint ett_cm_sid;
-static gint ett_cm_ipcm;
-static gint ett_rmpp;
-static gint ett_subm_attribute;
-static gint ett_suba_attribute;
-static gint ett_datadetails;
-static gint ett_noticestraps;
-/* static gint ett_nodedesc;                  */
-/* static gint ett_nodeinfo;                  */
-/* static gint ett_switchinfo;                */
-/* static gint ett_guidinfo;                  */
-/* static gint ett_portinfo;                  */
-static gint ett_portinfo_capmask;
-static gint ett_pkeytable;
-static gint ett_sltovlmapping;
-static gint ett_vlarbitrationtable;
-static gint ett_linearforwardingtable;
-static gint ett_randomforwardingtable;
-static gint ett_multicastforwardingtable;
-static gint ett_sminfo;
-static gint ett_vendordiag;
-static gint ett_ledinfo;
-static gint ett_linkspeedwidthpairs;
-static gint ett_informinfo;
-static gint ett_linkrecord;
-static gint ett_servicerecord;
-static gint ett_pathrecord;
-static gint ett_mcmemberrecord;
-static gint ett_tracerecord;
-static gint ett_multipathrecord;
-static gint ett_serviceassocrecord;
-static gint ett_perfclass;
-static gint ett_link;
+/* static int ett_infiniband;                */
+static int ett_all_headers;
+static int ett_lrh;
+static int ett_grh;
+static int ett_bth;
+static int ett_rwh;
+static int ett_rdeth;
+static int ett_deth;
+static int ett_reth;
+static int ett_atomiceth;
+static int ett_aeth;
+static int ett_aeth_syndrome;
+static int ett_atomicacketh;
+static int ett_immdt;
+static int ett_ieth;
+static int ett_payload;
+static int ett_vendor;
+static int ett_subn_lid_routed;
+static int ett_subn_directed_route;
+static int ett_subnadmin;
+static int ett_mad;
+static int ett_cm;
+static int ett_cm_sid;
+static int ett_cm_ipcm;
+static int ett_rmpp;
+static int ett_subm_attribute;
+static int ett_suba_attribute;
+static int ett_datadetails;
+static int ett_noticestraps;
+/* static int ett_nodedesc;                  */
+/* static int ett_nodeinfo;                  */
+/* static int ett_switchinfo;                */
+/* static int ett_guidinfo;                  */
+/* static int ett_portinfo;                  */
+static int ett_portinfo_capmask;
+static int ett_pkeytable;
+static int ett_sltovlmapping;
+static int ett_vlarbitrationtable;
+static int ett_linearforwardingtable;
+static int ett_randomforwardingtable;
+static int ett_multicastforwardingtable;
+static int ett_sminfo;
+static int ett_vendordiag;
+static int ett_ledinfo;
+static int ett_linkspeedwidthpairs;
+static int ett_informinfo;
+static int ett_linkrecord;
+static int ett_servicerecord;
+static int ett_pathrecord;
+static int ett_mcmemberrecord;
+static int ett_tracerecord;
+static int ett_multipathrecord;
+static int ett_serviceassocrecord;
+static int ett_perfclass;
+static int ett_link;
 
 /* Dissector Declaration */
 static dissector_handle_t ib_handle;
@@ -113,14 +113,14 @@ static dissector_table_t subdissector_table;
 * Structure to hold information from the common MAD header.
 * This is necessary because the MAD header contains information which significantly changes the dissection algorithm. */
 typedef struct {
-    guint8 managementClass;
-    guint8 classVersion;
-    guint8 method;
-    guint8 status;
-    guint16 classSpecific;
-    guint64 transactionID;
-    guint16 attributeID;
-    guint32 attributeModifier;
+    uint8_t managementClass;
+    uint8_t classVersion;
+    uint8_t method;
+    uint8_t status;
+    uint16_t classSpecific;
+    uint64_t transactionID;
+    uint16_t attributeID;
+    uint32_t attributeModifier;
     char data[MAD_DATA_SIZE];
 } MAD_Data;
 
@@ -133,95 +133,95 @@ typedef enum {
 /* Forward-declarations */
 
 static void dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ib_packet_start_header starts_with);
-static gint32 find_next_header_sequence(struct infinibandinfo* ibInfo);
-static gboolean contains(guint32 value, guint32* arr, int length);
-static void dissect_general_info(tvbuff_t *tvb, gint offset, packet_info *pinfo, ib_packet_start_header starts_with);
+static int32_t find_next_header_sequence(struct infinibandinfo* ibInfo);
+static bool contains(uint32_t value, uint32_t* arr, int length);
+static void dissect_general_info(tvbuff_t *tvb, int offset, packet_info *pinfo, ib_packet_start_header starts_with);
 
 /* Parsing Methods for specific IB headers. */
 
-static void parse_VENDOR(proto_tree *, tvbuff_t *, gint *);
-static void parse_PAYLOAD(proto_tree *, packet_info *, struct infinibandinfo *, tvbuff_t *, gint *, gint length, gint crclen, proto_tree *);
-static void parse_IETH(proto_tree *, tvbuff_t *, gint *);
-static void parse_IMMDT(proto_tree *, tvbuff_t *, gint *offset);
-static void parse_ATOMICACKETH(proto_tree *, tvbuff_t *, gint *offset);
-static void parse_AETH(proto_tree *, tvbuff_t *, gint *offset, packet_info *pinfo);
-static void parse_ATOMICETH(proto_tree *, tvbuff_t *, gint *offset);
-static void parse_RETH(proto_tree *, tvbuff_t *, gint *offset,
+static void parse_VENDOR(proto_tree *, tvbuff_t *, int *);
+static void parse_PAYLOAD(proto_tree *, packet_info *, struct infinibandinfo *, tvbuff_t *, int *, int length, int crclen, proto_tree *);
+static void parse_IETH(proto_tree *, tvbuff_t *, int *);
+static void parse_IMMDT(proto_tree *, tvbuff_t *, int *offset);
+static void parse_ATOMICACKETH(proto_tree *, tvbuff_t *, int *offset);
+static void parse_AETH(proto_tree *, tvbuff_t *, int *offset, packet_info *pinfo);
+static void parse_ATOMICETH(proto_tree *, tvbuff_t *, int *offset);
+static void parse_RETH(proto_tree *, tvbuff_t *, int *offset,
                        struct infinibandinfo *info);
-static void parse_DETH(proto_tree *, packet_info *, tvbuff_t *, gint *offset);
-static void parse_RDETH(proto_tree *, tvbuff_t *, gint *offset);
-static void parse_IPvSix(proto_tree *, tvbuff_t *, gint *offset, packet_info *);
-static void parse_RWH(proto_tree *, tvbuff_t *, gint *offset, packet_info *, proto_tree *);
-static void parse_DCCETH(proto_tree *parentTree, tvbuff_t *tvb, gint *offset);
-static void parse_FETH(proto_tree *, tvbuff_t *, gint *offset);
+static void parse_DETH(proto_tree *, packet_info *, tvbuff_t *, int *offset);
+static void parse_RDETH(proto_tree *, tvbuff_t *, int *offset);
+static void parse_IPvSix(proto_tree *, tvbuff_t *, int *offset, packet_info *);
+static void parse_RWH(proto_tree *, tvbuff_t *, int *offset, packet_info *, proto_tree *);
+static void parse_DCCETH(proto_tree *parentTree, tvbuff_t *tvb, int *offset);
+static void parse_FETH(proto_tree *, tvbuff_t *, int *offset);
 
-static void parse_SUBN_LID_ROUTED(proto_tree *, packet_info *, tvbuff_t *, gint *offset);
-static void parse_SUBN_DIRECTED_ROUTE(proto_tree *, packet_info *, tvbuff_t *, gint *offset);
-static void parse_SUBNADMN(proto_tree *, packet_info *, tvbuff_t *, gint *offset);
-static void parse_PERF(proto_tree *, tvbuff_t *, packet_info *, gint *offset);
-static void parse_BM(proto_tree *, tvbuff_t *, gint *offset);
-static void parse_DEV_MGT(proto_tree *, tvbuff_t *, gint *offset);
-static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset, proto_tree* top_tree);
-static void parse_SNMP(proto_tree *, tvbuff_t *, gint *offset);
-static void parse_VENDOR_MANAGEMENT(proto_tree *, tvbuff_t *, gint *offset);
-static void parse_APPLICATION_MANAGEMENT(proto_tree *, tvbuff_t *, gint *offset);
-static void parse_RESERVED_MANAGEMENT(proto_tree *, tvbuff_t *, gint *offset);
+static void parse_SUBN_LID_ROUTED(proto_tree *, packet_info *, tvbuff_t *, int *offset);
+static void parse_SUBN_DIRECTED_ROUTE(proto_tree *, packet_info *, tvbuff_t *, int *offset);
+static void parse_SUBNADMN(proto_tree *, packet_info *, tvbuff_t *, int *offset);
+static void parse_PERF(proto_tree *, tvbuff_t *, packet_info *, int *offset);
+static void parse_BM(proto_tree *, tvbuff_t *, int *offset);
+static void parse_DEV_MGT(proto_tree *, tvbuff_t *, int *offset);
+static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, int *offset, proto_tree* top_tree);
+static void parse_SNMP(proto_tree *, tvbuff_t *, int *offset);
+static void parse_VENDOR_MANAGEMENT(proto_tree *, tvbuff_t *, int *offset);
+static void parse_APPLICATION_MANAGEMENT(proto_tree *, tvbuff_t *, int *offset);
+static void parse_RESERVED_MANAGEMENT(proto_tree *, tvbuff_t *, int *offset);
 
-static gboolean parse_MAD_Common(proto_tree*, tvbuff_t*, gint *offset, MAD_Data*);
-static gboolean parse_RMPP(proto_tree* , tvbuff_t* , gint *offset);
+static bool parse_MAD_Common(proto_tree*, tvbuff_t*, int *offset, MAD_Data*);
+static bool parse_RMPP(proto_tree* , tvbuff_t* , int *offset);
 static void label_SUBM_Method(proto_item*, MAD_Data*, packet_info*);
 static void label_SUBM_Attribute(proto_item*, MAD_Data*, packet_info*);
 static void label_SUBA_Method(proto_item*, MAD_Data*, packet_info*);
 static void label_SUBA_Attribute(proto_item*, MAD_Data*, packet_info*);
 
 /* Class Attribute Parsing Routines */
-static gboolean parse_SUBM_Attribute(proto_tree*, tvbuff_t*, gint *offset, MAD_Data*);
-static gboolean parse_SUBA_Attribute(proto_tree*, tvbuff_t*, gint *offset, MAD_Data*);
+static bool parse_SUBM_Attribute(proto_tree*, tvbuff_t*, int *offset, MAD_Data*);
+static bool parse_SUBA_Attribute(proto_tree*, tvbuff_t*, int *offset, MAD_Data*);
 
 /* These methods parse individual attributes
 * Naming convention FunctionHandle = "parse_" + [Attribute Name];
 * Where [Attribute Name] is the attribute identifier from chapter 14 of the IB Specification
 * Subnet Management */
-static void parse_NoticesAndTraps(proto_tree*, tvbuff_t*, gint *offset);
-static void parse_NodeDescription(proto_tree*, tvbuff_t*, gint *offset);
-static int parse_NodeInfo(proto_tree*, tvbuff_t*, gint *offset);
-static int parse_SwitchInfo(proto_tree*, tvbuff_t*, gint *offset);
-static int parse_GUIDInfo(proto_tree*, tvbuff_t*, gint *offset);
-static int parse_PortInfo(proto_tree*, tvbuff_t*, gint *offset);
-static void parse_P_KeyTable(proto_tree*, tvbuff_t*, gint *offset);
-static void parse_SLtoVLMappingTable(proto_tree*, tvbuff_t*, gint *offset);
-static void parse_VLArbitrationTable(proto_tree*, tvbuff_t*, gint *offset);
-static void parse_LinearForwardingTable(proto_tree*, tvbuff_t*, gint *offset);
-static void parse_RandomForwardingTable(proto_tree*, tvbuff_t*, gint *offset);
-static void parse_MulticastForwardingTable(proto_tree*, tvbuff_t*, gint *offset);
-static int parse_SMInfo(proto_tree*, tvbuff_t*, gint *offset);
-static int parse_VendorDiag(proto_tree*, tvbuff_t*, gint *offset);
-static void parse_LedInfo(proto_tree*, tvbuff_t*, gint *offset);
-static int parse_LinkSpeedWidthPairsTable(proto_tree*, tvbuff_t*, gint *offset);
+static void parse_NoticesAndTraps(proto_tree*, tvbuff_t*, int *offset);
+static void parse_NodeDescription(proto_tree*, tvbuff_t*, int *offset);
+static int parse_NodeInfo(proto_tree*, tvbuff_t*, int *offset);
+static int parse_SwitchInfo(proto_tree*, tvbuff_t*, int *offset);
+static int parse_GUIDInfo(proto_tree*, tvbuff_t*, int *offset);
+static int parse_PortInfo(proto_tree*, tvbuff_t*, int *offset);
+static void parse_P_KeyTable(proto_tree*, tvbuff_t*, int *offset);
+static void parse_SLtoVLMappingTable(proto_tree*, tvbuff_t*, int *offset);
+static void parse_VLArbitrationTable(proto_tree*, tvbuff_t*, int *offset);
+static void parse_LinearForwardingTable(proto_tree*, tvbuff_t*, int *offset);
+static void parse_RandomForwardingTable(proto_tree*, tvbuff_t*, int *offset);
+static void parse_MulticastForwardingTable(proto_tree*, tvbuff_t*, int *offset);
+static int parse_SMInfo(proto_tree*, tvbuff_t*, int *offset);
+static int parse_VendorDiag(proto_tree*, tvbuff_t*, int *offset);
+static void parse_LedInfo(proto_tree*, tvbuff_t*, int *offset);
+static int parse_LinkSpeedWidthPairsTable(proto_tree*, tvbuff_t*, int *offset);
 
 /* These methods parse individual attributes for specific MAD management classes.
 * Naming convention FunctionHandle = "parse_" + [Management Class] + "_" + [Attribute Name];
 * Where [Management Class] is the shorthand name for the management class as defined
 * in the MAD Management Classes section below in this file, and [Attribute Name] is the
 * attribute identifier from the corresponding chapter of the IB Specification */
-static int parse_PERF_PortCounters(proto_tree* parentTree, tvbuff_t* tvb, packet_info *pinfo, gint *offset);
-static int parse_PERF_PortCountersExtended(proto_tree* parentTree, tvbuff_t* tvb, packet_info *pinfo, gint *offset);
+static int parse_PERF_PortCounters(proto_tree* parentTree, tvbuff_t* tvb, packet_info *pinfo, int *offset);
+static int parse_PERF_PortCountersExtended(proto_tree* parentTree, tvbuff_t* tvb, packet_info *pinfo, int *offset);
 
 /* Subnet Administration */
-static int parse_InformInfo(proto_tree*, tvbuff_t*, gint *offset);
-static int parse_LinkRecord(proto_tree*, tvbuff_t*, gint *offset);
-static int parse_ServiceRecord(proto_tree*, tvbuff_t*, gint *offset);
-static int parse_PathRecord(proto_tree*, tvbuff_t*, gint *offset);
-static int parse_MCMemberRecord(proto_tree*, tvbuff_t*, gint *offset);
-static int parse_TraceRecord(proto_tree*, tvbuff_t*, gint *offset);
-static int parse_MultiPathRecord(proto_tree*, tvbuff_t*, gint *offset);
-static int parse_ServiceAssociationRecord(proto_tree*, tvbuff_t*, gint *offset);
+static int parse_InformInfo(proto_tree*, tvbuff_t*, int *offset);
+static int parse_LinkRecord(proto_tree*, tvbuff_t*, int *offset);
+static int parse_ServiceRecord(proto_tree*, tvbuff_t*, int *offset);
+static int parse_PathRecord(proto_tree*, tvbuff_t*, int *offset);
+static int parse_MCMemberRecord(proto_tree*, tvbuff_t*, int *offset);
+static int parse_TraceRecord(proto_tree*, tvbuff_t*, int *offset);
+static int parse_MultiPathRecord(proto_tree*, tvbuff_t*, int *offset);
+static int parse_ServiceAssociationRecord(proto_tree*, tvbuff_t*, int *offset);
 
 /* Subnet Administration */
-static void parse_RID(proto_tree*, tvbuff_t*, gint *offset, MAD_Data*);
+static void parse_RID(proto_tree*, tvbuff_t*, int *offset, MAD_Data*);
 
 /* Common */
-static int parse_ClassPortInfo(proto_tree*, tvbuff_t*, gint *offset);
+static int parse_ClassPortInfo(proto_tree*, tvbuff_t*, int *offset);
 
 /* SM Methods */
 static const value_string SUBM_Methods[] = {
@@ -735,7 +735,7 @@ static int hf_infiniband_ms;
 static int hf_infiniband_seg_off;
 static int hf_infiniband_seg_id;
 
-static gint ett_eoib;
+static int ett_eoib;
 
 #define MELLANOX_VERSION_FLAG           0x3000
 #define MELLANOX_TCP_CHECKSUM_FLAG      0x0C00
@@ -1124,7 +1124,7 @@ static int hf_infiniband_PortCountersExt_PortMulticastRcvPkts;
 * There is no need to redeclare them for specific Traps (as with other SA Attributes) because they are uniform between Traps. */
 
 /* Parse DataDetails for a given Trap */
-static gint parse_NoticeDataDetails(proto_tree*, tvbuff_t*, gint *offset, guint16 trapNumber);
+static int parse_NoticeDataDetails(proto_tree*, tvbuff_t*, int *offset, uint16_t trapNumber);
 
 /* Traps 64,65,66,67 */
 static int hf_infiniband_Trap_GIDADDR;
@@ -1573,50 +1573,50 @@ static const value_string DctOpCodeMap[] =
 /* Array of all availavle OpCodes to make matching a bit easier.
 * The OpCodes dictate the header sequence following in the packet.
 * These arrays tell the dissector which headers must be decoded for the given OpCode. */
-static guint32 opCode_RDETH_DETH_ATOMICETH[] = {
+static uint32_t opCode_RDETH_DETH_ATOMICETH[] = {
  RD_CMP_SWAP,
  RD_FETCH_ADD
 };
-static guint32 opCode_IETH_PAYLD[] = {
+static uint32_t opCode_IETH_PAYLD[] = {
  RC_SEND_LAST_INVAL,
  RC_SEND_ONLY_INVAL
 };
-static guint32 opCode_ATOMICETH[] = {
+static uint32_t opCode_ATOMICETH[] = {
  RC_CMP_SWAP,
  RC_FETCH_ADD
 };
-static guint32 opCode_RDETH_DETH_RETH_PAYLD[] = {
+static uint32_t opCode_RDETH_DETH_RETH_PAYLD[] = {
  RD_RDMA_WRITE_FIRST,
  RD_RDMA_WRITE_ONLY
 };
-static guint32 opCode_RETH_IMMDT_PAYLD[] = {
+static uint32_t opCode_RETH_IMMDT_PAYLD[] = {
  RC_RDMA_WRITE_ONLY_IMM,
  UC_RDMA_WRITE_ONLY_IMM
 };
-static guint32 opCode_RDETH_DETH_IMMDT_PAYLD[] = {
+static uint32_t opCode_RDETH_DETH_IMMDT_PAYLD[] = {
  RD_SEND_LAST_IMM,
  RD_SEND_ONLY_IMM,
  RD_RDMA_WRITE_LAST_IMM
 };
 
-static guint32 opCode_RDETH_AETH_PAYLD[] = {
+static uint32_t opCode_RDETH_AETH_PAYLD[] = {
  RD_RDMA_READ_RESPONSE_FIRST,
  RD_RDMA_READ_RESPONSE_LAST,
  RD_RDMA_READ_RESPONSE_ONLY
 };
-static guint32 opCode_AETH_PAYLD[] = {
+static uint32_t opCode_AETH_PAYLD[] = {
  RC_RDMA_READ_RESPONSE_FIRST,
  RC_RDMA_READ_RESPONSE_LAST,
  RC_RDMA_READ_RESPONSE_ONLY
 };
-static guint32 opCode_RETH_PAYLD[] = {
+static uint32_t opCode_RETH_PAYLD[] = {
  RC_RDMA_WRITE_FIRST,
  RC_RDMA_WRITE_ONLY,
  UC_RDMA_WRITE_FIRST,
  UC_RDMA_WRITE_ONLY
 };
 
-static guint32 opCode_RDETH_DETH_PAYLD[] = {
+static uint32_t opCode_RDETH_DETH_PAYLD[] = {
  RD_SEND_FIRST,
  RD_SEND_MIDDLE,
  RD_SEND_LAST,
@@ -1625,7 +1625,7 @@ static guint32 opCode_RDETH_DETH_PAYLD[] = {
  RD_RDMA_WRITE_LAST
 };
 
-static guint32 opCode_IMMDT_PAYLD[] = {
+static uint32_t opCode_IMMDT_PAYLD[] = {
  RC_SEND_LAST_IMM,
  RC_SEND_ONLY_IMM,
  RC_RDMA_WRITE_LAST_IMM,
@@ -1634,7 +1634,7 @@ static guint32 opCode_IMMDT_PAYLD[] = {
  UC_RDMA_WRITE_LAST_IMM
 };
 
-static guint32 opCode_PAYLD[] = {
+static uint32_t opCode_PAYLD[] = {
  RC_SEND_FIRST,
  RC_SEND_MIDDLE,
  RC_SEND_LAST,
@@ -1653,54 +1653,54 @@ static guint32 opCode_PAYLD[] = {
 /* It is not necessary to create arrays for these OpCodes since they indicate only one further header.
 *  We can just decode it directly
 
-* static guint32 opCode_DETH_IMMDT_PAYLD[] = {
+* static uint32_t opCode_DETH_IMMDT_PAYLD[] = {
 * UD_SEND_ONLY_IMM
 * };
-* static guint32 opCode_DETH_PAYLD[] = {
+* static uint32_t opCode_DETH_PAYLD[] = {
 * UD_SEND_ONLY
 * };
-* static guint32 opCode_RDETH_DETH[] = {
+* static uint32_t opCode_RDETH_DETH[] = {
 * RD_RESYNC
 * };
-* static guint32 opCode_RDETH_DETH_RETH[] = {
+* static uint32_t opCode_RDETH_DETH_RETH[] = {
 * RD_RDMA_READ_REQUEST
 * };
-* static guint32 opCode_RDETH_DETH_RETH_IMMDT_PAYLD[] = {
+* static uint32_t opCode_RDETH_DETH_RETH_IMMDT_PAYLD[] = {
 * RD_RDMA_WRITE_ONLY_IMM
 * };
-* static guint32 opCode_RDETH_AETH_ATOMICACKETH[] = {
+* static uint32_t opCode_RDETH_AETH_ATOMICACKETH[] = {
 * RD_ATOMIC_ACKNOWLEDGE
 * };
-* static guint32 opCode_RDETH_AETH[] = {
+* static uint32_t opCode_RDETH_AETH[] = {
 * RD_ACKNOWLEDGE
 * };
-* static guint32 opCode_RDETH_PAYLD[] = {
+* static uint32_t opCode_RDETH_PAYLD[] = {
 * RD_RDMA_READ_RESPONSE_MIDDLE
 * };
-* static guint32 opCode_AETH_ATOMICACKETH[] = {
+* static uint32_t opCode_AETH_ATOMICACKETH[] = {
 * RC_ATOMIC_ACKNOWLEDGE
 * };
-* static guint32 opCode_RETH[] = {
+* static uint32_t opCode_RETH[] = {
 * RC_RDMA_READ_REQUEST
 * };
-* static guint32 opCode_AETH[] = {
+* static uint32_t opCode_AETH[] = {
 * RC_ACKNOWLEDGE
 * }; */
 
 /* settings to be set by the user via the preferences dialog */
-static guint pref_rroce_udp_port = DEFAULT_RROCE_UDP_PORT;
+static unsigned pref_rroce_udp_port = DEFAULT_RROCE_UDP_PORT;
 static bool try_heuristic_first = true;
 
 /* saves information about connections that have been/are in the process of being
    negotiated via ConnectionManagement packets */
 typedef struct {
-    guint8 req_gid[GID_SIZE],
+    uint8_t req_gid[GID_SIZE],
            resp_gid[GID_SIZE];  /* GID of requester/responder, respectively */
-    guint16 req_lid,
+    uint16_t req_lid,
             resp_lid;           /* LID of requester/responder, respectively */
-    guint32 req_qp,
+    uint32_t req_qp,
             resp_qp;            /* QP number of requester/responder, respectively */
-    guint64 service_id;         /* service id for this connection */
+    uint64_t service_id;         /* service id for this connection */
 } connection_context;
 
 /* holds a table of connection contexts being negotiated by CM. the key is a obtained
@@ -1713,12 +1713,12 @@ static heur_dissector_list_t heur_dissectors_payload;
 static heur_dissector_list_t heur_dissectors_cm_private;
 
 /* ----- This sections contains various utility functions indirectly related to Infiniband dissection ---- */
-static void infiniband_payload_prompt(packet_info *pinfo _U_, gchar* result)
+static void infiniband_payload_prompt(packet_info *pinfo _U_, char* result)
 {
     snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Dissect Infiniband payload as");
 }
 
-static void table_destroy_notify(gpointer data) {
+static void table_destroy_notify(void *data) {
     g_free(data);
 }
 
@@ -1773,8 +1773,8 @@ dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
     proto_tree *all_headers_tree;
 
     /* BTH - Base Trasport Header */
-    gboolean dctBthHeader = FALSE;
-    gint bthSize = 12;
+    bool dctBthHeader = false;
+    int bthSize = 12;
 
     /* LRH - Local Route Header */
     proto_item *local_route_header_item;
@@ -1782,19 +1782,19 @@ dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
     /* Raw Data */
     proto_item *RAWDATA_header_item;
-    guint8 lnh_val;                 /* Link Next Header Value */
-    gint offset = 0;                /* Current Offset */
+    uint8_t lnh_val;                 /* Link Next Header Value */
+    int offset = 0;                /* Current Offset */
 
     /* General Variables */
-    gboolean bthFollows = FALSE;    /* Tracks if we are parsing a BTH.  This is a significant decision point */
-    struct infinibandinfo info = { NULL, 0, 0, 0, 0, 0, 0, 0, FALSE};
-    gint32 nextHeaderSequence = -1; /* defined by this dissector. #define which indicates the upcoming header sequence from OpCode */
-    guint8 nxtHdr = 0;              /* Keyed off for header dissection order */
-    guint16 packetLength = 0;       /* Packet Length.  We track this as tvb_length - offset.   */
+    bool bthFollows = false;    /* Tracks if we are parsing a BTH.  This is a significant decision point */
+    struct infinibandinfo info = { NULL, 0, 0, 0, 0, 0, 0, 0, false};
+    int32_t nextHeaderSequence = -1; /* defined by this dissector. #define which indicates the upcoming header sequence from OpCode */
+    uint8_t nxtHdr = 0;              /* Keyed off for header dissection order */
+    uint16_t packetLength = 0;       /* Packet Length.  We track this as tvb_length - offset.   */
                                     /*  It provides the parsing methods a known size            */
                                     /*   that must be available for that header.                */
-    gint crc_length = 0;
-    gint crclen = 6;
+    int crc_length = 0;
+    int crclen = 6;
 
     void *src_addr,                 /* the address to be displayed in the source/destination columns */
          *dst_addr;                 /* (lid/gid number) will be stored here */
@@ -1848,7 +1848,7 @@ dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 
     /* Save Link Next Header... This tells us what the next header is. */
-    lnh_val =  tvb_get_guint8(tvb, offset);
+    lnh_val =  tvb_get_uint8(tvb, offset);
     lnh_val = lnh_val & 0x03;
     offset += 1;
 
@@ -1857,9 +1857,9 @@ dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 
     /* Set destination in packet view. */
-    dst_addr = wmem_alloc(pinfo->pool, sizeof(guint16));
-    *((guint16*) dst_addr) = tvb_get_ntohs(tvb, offset);
-    set_address(&pinfo->dst, AT_IB, sizeof(guint16), dst_addr);
+    dst_addr = wmem_alloc(pinfo->pool, sizeof(uint16_t));
+    *((uint16_t*) dst_addr) = tvb_get_ntohs(tvb, offset);
+    set_address(&pinfo->dst, AT_IB, sizeof(uint16_t), dst_addr);
 
     offset += 2;
 
@@ -1875,9 +1875,9 @@ dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
     proto_tree_add_item(local_route_header_tree, hf_infiniband_source_local_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 
     /* Set Source in packet view. */
-    src_addr = wmem_alloc(pinfo->pool, sizeof(guint16));
-    *((guint16*) src_addr) = tvb_get_ntohs(tvb, offset);
-    set_address(&pinfo->src, AT_IB, sizeof(guint16), src_addr);
+    src_addr = wmem_alloc(pinfo->pool, sizeof(uint16_t));
+    *((uint16_t*) src_addr) = tvb_get_ntohs(tvb, offset);
+    set_address(&pinfo->src, AT_IB, sizeof(uint16_t), src_addr);
 
     offset += 2;
     packetLength -= 8; /* Shave 8 bytes for the LRH. */
@@ -1903,7 +1903,7 @@ skip_lrh:
             proto_tree_add_item(global_route_header_tree, hf_infiniband_payload_length, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
-            nxtHdr = tvb_get_guint8(tvb, offset);
+            nxtHdr = tvb_get_uint8(tvb, offset);
 
             proto_tree_add_item(global_route_header_tree, hf_infiniband_next_header, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
@@ -1933,14 +1933,14 @@ skip_lrh:
         case IBA_LOCAL: {
             proto_item *base_transport_header_item;
             proto_tree *base_transport_header_tree;
-            bthFollows = TRUE;
+            bthFollows = true;
             /* Get the OpCode - this tells us what headers are following */
-            info.opCode = tvb_get_guint8(tvb, offset);
-            info.pad_count = (tvb_get_guint8(tvb, offset+1) & 0x30) >> 4;
+            info.opCode = tvb_get_uint8(tvb, offset);
+            info.pad_count = (tvb_get_uint8(tvb, offset+1) & 0x30) >> 4;
 
             if ((info.opCode >> 5) == 0x2) {
-                info.dctConnect = !(tvb_get_guint8(tvb, offset + 1) & 0x80);
-                dctBthHeader = TRUE;
+                info.dctConnect = !(tvb_get_uint8(tvb, offset + 1) & 0x80);
+                dctBthHeader = true;
                 bthSize += 8;
             }
 
@@ -1951,10 +1951,10 @@ skip_lrh:
 
             if (dctBthHeader) {
                 /* since DCT uses the same opcodes as RD we will use another name mapping */
-                col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const((guint32)info.opCode, DctOpCodeMap, "Unknown OpCode "));
+                col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const((uint32_t)info.opCode, DctOpCodeMap, "Unknown OpCode "));
             }
             else {
-                col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const((guint32)info.opCode, OpCodeMap, "Unknown OpCode "));
+                col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const((uint32_t)info.opCode, OpCodeMap, "Unknown OpCode "));
             }
             offset += 1;
 
@@ -2274,10 +2274,10 @@ dissect_infiniband_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     proto_tree *link_tree;
 
     proto_item *operand_item;
-    gint        offset = 0;     /* Current Offset */
-    guint8      operand;        /* Link packet Operand */
+    int         offset = 0;     /* Current Offset */
+    uint8_t     operand;        /* Link packet Operand */
 
-    operand =  tvb_get_guint8(tvb, offset);
+    operand =  tvb_get_uint8(tvb, offset);
     operand = (operand & 0xF0) >> 4;
 
     /* Mark the Packet type as Infiniband in the wireshark UI */
@@ -2321,46 +2321,46 @@ dissect_infiniband_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 * Searches largest header sequence groups first, and then finally resorts to single matches for unique header sequences
 * IN: OpCode: The OpCode from the Base Transport Header.
 * OUT: The Header Sequence enumeration.  See Declarations for #defines from (0-22) */
-static gint32
+static int32_t
 find_next_header_sequence(struct infinibandinfo* ibInfo)
 {
     if (ibInfo->opCode == 0x55)
         return ibInfo->dctConnect ? DCCETH : PAYLD;
 
-    if (contains(ibInfo->opCode, &opCode_PAYLD[0], (gint32)array_length(opCode_PAYLD)))
+    if (contains(ibInfo->opCode, &opCode_PAYLD[0], (int32_t)array_length(opCode_PAYLD)))
         return PAYLD;
 
-    if (contains(ibInfo->opCode, &opCode_IMMDT_PAYLD[0], (gint32)array_length(opCode_IMMDT_PAYLD)))
+    if (contains(ibInfo->opCode, &opCode_IMMDT_PAYLD[0], (int32_t)array_length(opCode_IMMDT_PAYLD)))
         return IMMDT_PAYLD;
 
-    if (contains(ibInfo->opCode, &opCode_RDETH_DETH_PAYLD[0], (gint32)array_length(opCode_RDETH_DETH_PAYLD)))
+    if (contains(ibInfo->opCode, &opCode_RDETH_DETH_PAYLD[0], (int32_t)array_length(opCode_RDETH_DETH_PAYLD)))
         return RDETH_DETH_PAYLD;
 
-    if (contains(ibInfo->opCode, &opCode_RETH_PAYLD[0], (gint32)array_length(opCode_RETH_PAYLD)))
+    if (contains(ibInfo->opCode, &opCode_RETH_PAYLD[0], (int32_t)array_length(opCode_RETH_PAYLD)))
         return RETH_PAYLD;
 
-    if (contains(ibInfo->opCode, &opCode_RDETH_AETH_PAYLD[0], (gint32)array_length(opCode_RDETH_AETH_PAYLD)))
+    if (contains(ibInfo->opCode, &opCode_RDETH_AETH_PAYLD[0], (int32_t)array_length(opCode_RDETH_AETH_PAYLD)))
         return RDETH_AETH_PAYLD;
 
-    if (contains(ibInfo->opCode, &opCode_AETH_PAYLD[0], (gint32)array_length(opCode_AETH_PAYLD)))
+    if (contains(ibInfo->opCode, &opCode_AETH_PAYLD[0], (int32_t)array_length(opCode_AETH_PAYLD)))
         return AETH_PAYLD;
 
-    if (contains(ibInfo->opCode, &opCode_RDETH_DETH_IMMDT_PAYLD[0], (gint32)array_length(opCode_RDETH_DETH_IMMDT_PAYLD)))
+    if (contains(ibInfo->opCode, &opCode_RDETH_DETH_IMMDT_PAYLD[0], (int32_t)array_length(opCode_RDETH_DETH_IMMDT_PAYLD)))
         return RDETH_DETH_IMMDT_PAYLD;
 
-    if (contains(ibInfo->opCode, &opCode_RETH_IMMDT_PAYLD[0], (gint32)array_length(opCode_RETH_IMMDT_PAYLD)))
+    if (contains(ibInfo->opCode, &opCode_RETH_IMMDT_PAYLD[0], (int32_t)array_length(opCode_RETH_IMMDT_PAYLD)))
         return RETH_IMMDT_PAYLD;
 
-    if (contains(ibInfo->opCode, &opCode_RDETH_DETH_RETH_PAYLD[0], (gint32)array_length(opCode_RDETH_DETH_RETH_PAYLD)))
+    if (contains(ibInfo->opCode, &opCode_RDETH_DETH_RETH_PAYLD[0], (int32_t)array_length(opCode_RDETH_DETH_RETH_PAYLD)))
         return RDETH_DETH_RETH_PAYLD;
 
-    if (contains(ibInfo->opCode, &opCode_ATOMICETH[0], (gint32)array_length(opCode_ATOMICETH)))
+    if (contains(ibInfo->opCode, &opCode_ATOMICETH[0], (int32_t)array_length(opCode_ATOMICETH)))
         return ATOMICETH;
 
-    if (contains(ibInfo->opCode, &opCode_IETH_PAYLD[0], (gint32)array_length(opCode_IETH_PAYLD)))
+    if (contains(ibInfo->opCode, &opCode_IETH_PAYLD[0], (int32_t)array_length(opCode_IETH_PAYLD)))
         return IETH_PAYLD;
 
-    if (contains(ibInfo->opCode, &opCode_RDETH_DETH_ATOMICETH[0], (gint32)array_length(opCode_RDETH_DETH_ATOMICETH)))
+    if (contains(ibInfo->opCode, &opCode_RDETH_DETH_ATOMICETH[0], (int32_t)array_length(opCode_RDETH_DETH_ATOMICETH)))
         return RDETH_DETH_ATOMICETH;
 
     if ((ibInfo->opCode ^ RC_ACKNOWLEDGE) == 0)
@@ -2417,16 +2417,16 @@ find_next_header_sequence(struct infinibandinfo* ibInfo)
 * IN: Codes: The organized array of OpCodes to look through
 * IN: Array length, because we're in C++...
 * OUT: Boolean indicating if that OpCode was found in OpCodes */
-static gboolean
-contains(guint32 OpCode, guint32* Codes, gint32 length)
+static bool
+contains(uint32_t OpCode, uint32_t* Codes, int32_t length)
 {
-    gint32 i;
+    int32_t i;
     for (i = 0; i < length; i++)
     {
         if ((OpCode ^ Codes[i]) == 0)
-            return TRUE;
+            return true;
     }
-    return FALSE;
+    return false;
 }
 
 /* Parse RDETH - Reliable Datagram Extended Transport Header
@@ -2434,9 +2434,9 @@ contains(guint32 OpCode, guint32* Codes, gint32 length)
 * IN: tvb - the data buffer from wireshark
 * IN/OUT: The current and updated offset */
 static void
-parse_RDETH(proto_tree * parentTree, tvbuff_t *tvb, gint *offset)
+parse_RDETH(proto_tree * parentTree, tvbuff_t *tvb, int *offset)
 {
-    gint        local_offset = *offset;
+    int         local_offset = *offset;
     /* RDETH - Reliable Datagram Extended Transport Header */
     proto_item *RDETH_header_item;
     proto_tree *RDETH_header_tree;
@@ -2457,9 +2457,9 @@ parse_RDETH(proto_tree * parentTree, tvbuff_t *tvb, gint *offset)
 * IN: tvb - the data buffer from wireshark
 * IN/OUT: The current and updated offset  */
 static void
-parse_DETH(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset)
+parse_DETH(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, int *offset)
 {
-    gint        local_offset = *offset;
+    int         local_offset = *offset;
     /* DETH - Datagram Extended Transport Header */
     proto_item *DETH_header_item;
     proto_tree *DETH_header_tree;
@@ -2485,7 +2485,7 @@ parse_DETH(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offs
 * IN: tvb - the data buffer from wireshark
 * IN/OUT: The current and updated offset  */
 static void
-parse_DCCETH(proto_tree *parentTree _U_, tvbuff_t *tvb _U_, gint *offset)
+parse_DCCETH(proto_tree *parentTree _U_, tvbuff_t *tvb _U_, int *offset)
 {
     /* Do nothing just skip the header size */
     *offset += 16;
@@ -2498,10 +2498,10 @@ parse_DCCETH(proto_tree *parentTree _U_, tvbuff_t *tvb _U_, gint *offset)
 * OUT: Updated info->reth_remote_key
 * OUT: Updated info->reth_dma_length */
 static void
-parse_RETH(proto_tree * parentTree, tvbuff_t *tvb, gint *offset,
+parse_RETH(proto_tree * parentTree, tvbuff_t *tvb, int *offset,
            struct infinibandinfo *info)
 {
-    gint        local_offset = *offset;
+    int         local_offset = *offset;
     /* RETH - RDMA Extended Transport Header */
     proto_item *RETH_header_item;
     proto_tree *RETH_header_tree;
@@ -2525,9 +2525,9 @@ parse_RETH(proto_tree * parentTree, tvbuff_t *tvb, gint *offset,
 * IN: tvb - the data buffer from wireshark
 * IN/OUT: The current and updated offset */
 static void
-parse_ATOMICETH(proto_tree * parentTree, tvbuff_t *tvb, gint *offset)
+parse_ATOMICETH(proto_tree * parentTree, tvbuff_t *tvb, int *offset)
 {
-    gint        local_offset = *offset;
+    int         local_offset = *offset;
     /* AtomicETH - Atomic Extended Transport Header */
     proto_item *ATOMICETH_header_item;
     proto_tree *ATOMICETH_header_tree;
@@ -2552,16 +2552,16 @@ parse_ATOMICETH(proto_tree * parentTree, tvbuff_t *tvb, gint *offset)
 * IN: tvb - the data buffer from wireshark
 * IN/OUT: The current and updated offset */
 static void
-parse_AETH(proto_tree * parentTree, tvbuff_t *tvb, gint *offset, packet_info *pinfo)
+parse_AETH(proto_tree * parentTree, tvbuff_t *tvb, int *offset, packet_info *pinfo)
 {
-    gint        local_offset = *offset;
+    int         local_offset = *offset;
     /* AETH - ACK Extended Transport Header */
     proto_item *AETH_header_item;
     proto_tree *AETH_header_tree;
     proto_item *AETH_syndrome_item;
     proto_tree *AETH_syndrome_tree;
-    guint8      opcode;
-    guint32     nak_error;
+    uint8_t     opcode;
+    uint32_t    nak_error;
 
     AETH_header_item = proto_tree_add_item(parentTree, hf_infiniband_AETH, tvb, local_offset, 4, ENC_NA);
     proto_item_set_text(AETH_header_item, "%s", "AETH - ACK Extended Transport Header");
@@ -2571,7 +2571,7 @@ parse_AETH(proto_tree * parentTree, tvbuff_t *tvb, gint *offset, packet_info *pi
     AETH_syndrome_tree = proto_item_add_subtree(AETH_syndrome_item, ett_aeth_syndrome);
     proto_tree_add_item(AETH_syndrome_tree, hf_infiniband_syndrome_reserved, tvb, local_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(AETH_syndrome_tree, hf_infiniband_syndrome_opcode, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-    opcode = ((tvb_get_guint8(tvb, local_offset) & AETH_SYNDROME_OPCODE) >> 5);
+    opcode = ((tvb_get_uint8(tvb, local_offset) & AETH_SYNDROME_OPCODE) >> 5);
     proto_item_append_text(AETH_syndrome_item, ", %s", val_to_str_const(opcode, aeth_syndrome_opcode_vals, "Unknown"));
     switch (opcode)
     {
@@ -2602,9 +2602,9 @@ parse_AETH(proto_tree * parentTree, tvbuff_t *tvb, gint *offset, packet_info *pi
 * IN: tvb - the data buffer from wireshark
 * IN/OUT: The current and updated offset */
 static void
-parse_ATOMICACKETH(proto_tree * parentTree, tvbuff_t *tvb, gint *offset)
+parse_ATOMICACKETH(proto_tree * parentTree, tvbuff_t *tvb, int *offset)
 {
-    gint        local_offset = *offset;
+    int         local_offset = *offset;
     /* AtomicAckEth - Atomic ACK Extended Transport Header */
     proto_item *ATOMICACKETH_header_item;
     proto_tree *ATOMICACKETH_header_tree;
@@ -2622,9 +2622,9 @@ parse_ATOMICACKETH(proto_tree * parentTree, tvbuff_t *tvb, gint *offset)
 * IN: tvb - the data buffer from wireshark
 * IN/OUT: The current and updated offset */
 static void
-parse_IMMDT(proto_tree * parentTree, tvbuff_t *tvb, gint *offset)
+parse_IMMDT(proto_tree * parentTree, tvbuff_t *tvb, int *offset)
 {
-    gint        local_offset = *offset;
+    int         local_offset = *offset;
     /* IMMDT - Immediate Data Extended Transport Header */
     proto_item *IMMDT_header_item;
     proto_tree *IMMDT_header_tree;
@@ -2642,9 +2642,9 @@ parse_IMMDT(proto_tree * parentTree, tvbuff_t *tvb, gint *offset)
 * IN: tvb - the data buffer from wireshark
 * IN/OUT: The current and updated offset */
 static void
-parse_IETH(proto_tree * parentTree, tvbuff_t *tvb, gint *offset)
+parse_IETH(proto_tree * parentTree, tvbuff_t *tvb, int *offset)
 {
-    gint        local_offset = *offset;
+    int         local_offset = *offset;
     /* IETH - Invalidate Extended Transport Header */
     proto_item *IETH_header_item;
     proto_tree *IETH_header_tree;
@@ -2664,9 +2664,9 @@ parse_IETH(proto_tree * parentTree, tvbuff_t *tvb, gint *offset)
 * IN: tvb - the data buffer from wireshark
 * IN/OUT: The current and updated offset */
 static void
-parse_FETH(proto_tree * parentTree, tvbuff_t *tvb, gint *offset)
+parse_FETH(proto_tree * parentTree, tvbuff_t *tvb, int *offset)
 {
-    gint        local_offset = *offset;
+    int         local_offset = *offset;
     /* FETH - FLUSH Extended Transport Header */
     proto_item *FETH_header_item;
     proto_tree *FETH_header_tree;
@@ -2711,15 +2711,15 @@ static void update_sport(packet_info *pinfo)
 * IN: top_tree - parent tree of Infiniband dissector */
 static void parse_PAYLOAD(proto_tree *parentTree,
                           packet_info *pinfo, struct infinibandinfo *info,
-                          tvbuff_t *tvb, gint *offset, gint length, gint crclen, proto_tree *top_tree)
+                          tvbuff_t *tvb, int *offset, int length, int crclen, proto_tree *top_tree)
 {
-    gint                local_offset    = *offset;
+    int                 local_offset    = *offset;
     /* Payload - Packet Payload */
-    guint8              management_class;
+    uint8_t             management_class;
     tvbuff_t *volatile  next_tvb;
-    gint                reported_length;
+    int                 reported_length;
     heur_dtbl_entry_t  *hdtbl_entry;
-    gboolean            dissector_found = FALSE;
+    bool                dissector_found = false;
 
     if (!tvb_bytes_exist(tvb, *offset, length)) /* previously consumed bytes + offset was all the data - none or corrupt payload */
     {
@@ -2731,24 +2731,24 @@ static void parse_PAYLOAD(proto_tree *parentTree,
     /* management datagrams are determined by the source/destination QPs */
     if (pinfo->srcport == 0 || pinfo->srcport == 1 || pinfo->destport == 0 || pinfo->destport == 1)    /* management datagram */
     {
-        management_class =  tvb_get_guint8(tvb, (*offset) + 1);
+        management_class =  tvb_get_uint8(tvb, (*offset) + 1);
 
-        if (((management_class >= (guint8)VENDOR_1_START) && (management_class <= (guint8)VENDOR_1_END))
-            || ((management_class >= (guint8)VENDOR_2_START) && (management_class <= (guint8)VENDOR_2_END)))
+        if (((management_class >= (uint8_t)VENDOR_1_START) && (management_class <= (uint8_t)VENDOR_1_END))
+            || ((management_class >= (uint8_t)VENDOR_2_START) && (management_class <= (uint8_t)VENDOR_2_END)))
         {
             /* parse vendor specific */
             col_set_str(pinfo->cinfo, COL_INFO, "VENDOR (Unknown Attribute)");
             parse_VENDOR_MANAGEMENT(parentTree, tvb, offset);
         }
-        else if ((management_class >= (guint8)APPLICATION_START) && (management_class <= (guint8)APPLICATION_END))
+        else if ((management_class >= (uint8_t)APPLICATION_START) && (management_class <= (uint8_t)APPLICATION_END))
         {
             /* parse application specific */
             col_set_str(pinfo->cinfo, COL_INFO, "APP (Unknown Attribute)");
             parse_APPLICATION_MANAGEMENT(parentTree, tvb, offset);
         }
-        else if (((management_class == (guint8)0x00) || (management_class == (guint8)0x02))
-                 || ((management_class >= (guint8)0x50) && (management_class <= (guint8)0x80))
-                 || ((management_class >= (guint8)0x82)))
+        else if (((management_class == (uint8_t)0x00) || (management_class == (uint8_t)0x02))
+                 || ((management_class >= (uint8_t)0x50) && (management_class <= (uint8_t)0x80))
+                 || ((management_class >= (uint8_t)0x82)))
         {
             /* parse reserved classes */
             col_set_str(pinfo->cinfo, COL_INFO, "RESERVED (Unknown Attribute)");
@@ -2820,26 +2820,26 @@ static void parse_PAYLOAD(proto_tree *parentTree,
         if (try_heuristic_first)
         {
             if (dissector_try_heuristic(heur_dissectors_payload, next_tvb, pinfo, top_tree, &hdtbl_entry, info))
-                dissector_found = TRUE;
+                dissector_found = true;
         }
 
-        if (dissector_found == FALSE)
+        if (dissector_found == false)
         {
-            if (dissector_try_payload_new(subdissector_table, next_tvb, pinfo, top_tree, TRUE, info))
+            if (dissector_try_payload_new(subdissector_table, next_tvb, pinfo, top_tree, true, info))
             {
-                dissector_found = TRUE;
+                dissector_found = true;
             }
             else
             {
                 if (!try_heuristic_first)
                 {
                     if (dissector_try_heuristic(heur_dissectors_payload, next_tvb, pinfo, top_tree, &hdtbl_entry, info))
-                        dissector_found = TRUE;
+                        dissector_found = true;
                 }
             }
         }
 
-        if (dissector_found == FALSE)
+        if (dissector_found == false)
         {
             /* No sub-dissector found.
                Label rest of packet as "Data" */
@@ -2857,12 +2857,12 @@ static void parse_PAYLOAD(proto_tree *parentTree,
 * IN: parentTree to add the dissection to - in this code the all_headers_tree
 * IN: tvb - the data buffer from wireshark
 * IN/OUT: The current and updated offset */
-static void parse_VENDOR(proto_tree * parentTree, tvbuff_t *tvb, gint *offset)
+static void parse_VENDOR(proto_tree * parentTree, tvbuff_t *tvb, int *offset)
 {
-    gint        local_offset = *offset;
+    int         local_offset = *offset;
     proto_item *VENDOR_header_item;
     proto_tree *VENDOR_header_tree;
-    gint        VENDOR_header_length;
+    int         VENDOR_header_length;
 
     VENDOR_header_item = proto_tree_add_item(parentTree, hf_infiniband_vendor, tvb, local_offset, 4, ENC_NA);
     proto_item_set_text(VENDOR_header_item, "%s", "Vendor Specific or Unknown Header Sequence");
@@ -2877,7 +2877,7 @@ static void parse_VENDOR(proto_tree * parentTree, tvbuff_t *tvb, gint *offset)
 * IN: tvb - the data buffer from wireshark
 * IN/OUT: The current and updated offset
 * IN: pinfo - packet info from wireshark */
-static void parse_IPvSix(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, packet_info *pinfo)
+static void parse_IPvSix(proto_tree *parentTree, tvbuff_t *tvb, int *offset, packet_info *pinfo)
 {
     tvbuff_t *ipv6_tvb;
 
@@ -2897,16 +2897,16 @@ static void parse_IPvSix(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, pa
 * IN/OUT: The current and updated offset
 * IN: pinfo - packet info from wireshark
 * IN: top_tree - parent tree of Infiniband dissector */
-static void parse_RWH(proto_tree *ah_tree, tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *top_tree)
+static void parse_RWH(proto_tree *ah_tree, tvbuff_t *tvb, int *offset, packet_info *pinfo, proto_tree *top_tree)
 {
-    guint16   ether_type;
+    uint16_t  ether_type;
     tvbuff_t *next_tvb;
 
     /* RWH - Raw Header */
     proto_item *RWH_header_item;
     proto_tree *RWH_header_tree;
 
-    gint captured_length, reported_length;
+    int captured_length, reported_length;
 
     RWH_header_item = proto_tree_add_item(ah_tree, hf_infiniband_RWH, tvb, *offset, 4, ENC_NA);
     proto_item_set_text(RWH_header_item, "%s", "RWH - Raw Header");
@@ -2957,13 +2957,13 @@ static bool dissect_mellanox_eoib(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     proto_tree *header_subtree;
     tvbuff_t   *encap_tvb;
     int         offset = 0;
-    gboolean    more_segments;
+    bool        more_segments;
     struct infinibandinfo *info = (struct infinibandinfo *)data;
 
     if (((info->opCode & 0xE0) >> 5) != TRANSPORT_UD)
         return false;
 
-    if ((tvb_get_guint8(tvb, offset) & 0xF0) != 0xC0)
+    if ((tvb_get_uint8(tvb, offset) & 0xF0) != 0xC0)
         return false;
 
     if (tvb_reported_length(tvb) < 4) {
@@ -3005,7 +3005,7 @@ static bool dissect_mellanox_eoib(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
  */
 static bool dissect_eth_over_ib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    guint16  etype, reserved;
+    uint16_t etype, reserved;
     const char *saved_proto;
     tvbuff_t   *next_tvb;
     struct infinibandinfo *info = (struct infinibandinfo *)data;
@@ -3075,11 +3075,11 @@ static bool dissect_eth_over_ib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 * IN: pinfo - packet info from wireshark
 * IN: tvb - the data buffer from wireshark
 * IN/OUT: The current and updated offset */
-static void parse_SUBN_LID_ROUTED(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset)
+static void parse_SUBN_LID_ROUTED(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, int *offset)
 {
     /* Parse the Common MAD Header */
     MAD_Data    MadData;
-    gint        local_offset;
+    int         local_offset;
     proto_item *SUBN_LID_ROUTED_header_item;
     proto_tree *SUBN_LID_ROUTED_header_tree;
 
@@ -3119,11 +3119,11 @@ static void parse_SUBN_LID_ROUTED(proto_tree *parentTree, packet_info *pinfo, tv
 * IN: parentTree to add the dissection to
 * IN: tvb - the data buffer from wireshark
 * IN/OUT: The current and updated offset */
-static void parse_SUBN_DIRECTED_ROUTE(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset)
+static void parse_SUBN_DIRECTED_ROUTE(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, int *offset)
 {
     /* Parse the Common MAD Header */
     MAD_Data    MadData;
-    gint        local_offset;
+    int         local_offset;
     proto_item *SUBN_DIRECTED_ROUTE_header_item;
     proto_tree *SUBN_DIRECTED_ROUTE_header_tree;
 
@@ -3182,11 +3182,11 @@ static void parse_SUBN_DIRECTED_ROUTE(proto_tree *parentTree, packet_info *pinfo
 * IN: pinfo - packet info from wireshark
 * IN: tvb - the data buffer from wireshark
 * IN/OUT: The current and updated offset */
-static void parse_SUBNADMN(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset)
+static void parse_SUBNADMN(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, int *offset)
 {
     /* Parse the Common MAD Header */
     MAD_Data    MadData;
-    gint        local_offset;
+    int         local_offset;
     proto_item *SUBNADMN_header_item;
     proto_tree *SUBNADMN_header_tree;
 
@@ -3231,11 +3231,11 @@ static void parse_SUBNADMN(proto_tree *parentTree, packet_info *pinfo, tvbuff_t 
 * IN: tvb - the data buffer from wireshark
 * IN: pinfo - the pinfo struct from wireshark
 * IN/OUT: The current and updated offset */
-static void parse_PERF(proto_tree *parentTree, tvbuff_t *tvb, packet_info *pinfo, gint *offset)
+static void parse_PERF(proto_tree *parentTree, tvbuff_t *tvb, packet_info *pinfo, int *offset)
 {
     /* Parse the Common MAD Header */
     MAD_Data    MadData;
-    gint        local_offset;
+    int         local_offset;
     proto_item *PERF_header_item;
 
     if (!parse_MAD_Common(parentTree, tvb, offset, &MadData))
@@ -3275,11 +3275,11 @@ static void parse_PERF(proto_tree *parentTree, tvbuff_t *tvb, packet_info *pinfo
 * IN: parentTree to add the dissection to
 * IN: tvb - the data buffer from wireshark
 * IN/OUT: The current and updated offset */
-static void parse_BM(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
+static void parse_BM(proto_tree *parentTree, tvbuff_t *tvb, int *offset)
 {
     /* Parse the Common MAD Header */
     MAD_Data    MadData;
-    gint        local_offset;
+    int         local_offset;
     proto_item *BM_header_item;
 
     if (!parse_MAD_Common(parentTree, tvb, offset, &MadData))
@@ -3299,11 +3299,11 @@ static void parse_BM(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
 * IN: parentTree to add the dissection to
 * IN: tvb - the data buffer from wireshark
 * IN/OUT: The current and updated offset */
-static void parse_DEV_MGT(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
+static void parse_DEV_MGT(proto_tree *parentTree, tvbuff_t *tvb, int *offset)
 {
     /* Parse the Common MAD Header */
     MAD_Data    MadData;
-    gint        local_offset;
+    int         local_offset;
     proto_item *DEVM_header_item;
 
     if (!parse_MAD_Common(parentTree, tvb, offset, &MadData))
@@ -3318,12 +3318,12 @@ static void parse_DEV_MGT(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
     *offset = local_offset;
 }
 
-static gboolean parse_CM_Req_ServiceID(proto_tree *parent_tree, tvbuff_t *tvb, gint *offset, guint64 serviceid)
+static bool parse_CM_Req_ServiceID(proto_tree *parent_tree, tvbuff_t *tvb, int *offset, uint64_t serviceid)
 {
     proto_item *service_id_item;
     proto_tree *service_id_tree;
-    gint        local_offset = *offset;
-    gboolean ip_cm_sid;
+    int         local_offset = *offset;
+    bool ip_cm_sid;
 
     if ((serviceid & RDMA_IP_CM_SID_PREFIX_MASK) == RDMA_IP_CM_SID_PREFIX) {
         service_id_item = proto_tree_add_item(parent_tree, hf_cm_req_service_id, tvb, local_offset, 8, ENC_NA);
@@ -3336,29 +3336,29 @@ static gboolean parse_CM_Req_ServiceID(proto_tree *parent_tree, tvbuff_t *tvb, g
         local_offset += 1;
         proto_tree_add_item(service_id_tree, hf_cm_req_service_id_dport, tvb, local_offset, 2, ENC_BIG_ENDIAN);
         local_offset += 2;
-        ip_cm_sid = TRUE;
+        ip_cm_sid = true;
     } else {
         proto_tree_add_item(parent_tree, hf_cm_req_service_id, tvb, local_offset, 8, ENC_BIG_ENDIAN);
         local_offset += 8;
-        ip_cm_sid = FALSE;
+        ip_cm_sid = false;
     }
     *offset = local_offset;
     return ip_cm_sid;
 }
 
-static guint64 make_hash_key(guint64 transcationID, address *addr)
+static uint64_t make_hash_key(uint64_t transcationID, address *addr)
 {
-    guint64 hash_key;
+    uint64_t hash_key;
 
     hash_key = transcationID;
     hash_key = add_address_to_hash64(hash_key, addr);
     return hash_key;
 }
 
-static connection_context* lookup_connection(guint64 transcationID, address *addr)
+static connection_context* lookup_connection(uint64_t transcationID, address *addr)
 {
     connection_context *connection;
-    guint64 hash_key;
+    uint64_t hash_key;
 
     hash_key = make_hash_key(transcationID, addr);
 
@@ -3366,9 +3366,9 @@ static connection_context* lookup_connection(guint64 transcationID, address *add
     return connection;
 }
 
-static void remove_connection(guint64 transcationID, address *addr)
+static void remove_connection(uint64_t transcationID, address *addr)
 {
-    guint64 hash_key;
+    uint64_t hash_key;
 
     hash_key = make_hash_key(transcationID, addr);
 
@@ -3376,11 +3376,11 @@ static void remove_connection(guint64 transcationID, address *addr)
 }
 
 static void
-create_conv_and_add_proto_data(packet_info *pinfo, guint64 service_id,
-                               gboolean client_to_server,
-                               address *addr, const guint16 lid,
-                               const guint32 port, const guint32 src_port,
-                               const guint options, guint8 *mad_data)
+create_conv_and_add_proto_data(packet_info *pinfo, uint64_t service_id,
+                               bool client_to_server,
+                               address *addr, const uint16_t lid,
+                               const uint32_t port, const uint32_t src_port,
+                               const unsigned options, uint8_t *mad_data)
 {
     conversation_t *conv;
     conversation_infiniband_data *proto_data;
@@ -3395,15 +3395,15 @@ create_conv_and_add_proto_data(packet_info *pinfo, guint64 service_id,
     conversation_add_proto_data(conv, proto_infiniband, proto_data);
 
     /* next, register the conversation using the LIDs */
-    set_address(addr, AT_IB, sizeof(guint16), wmem_memdup(pinfo->pool, &lid, sizeof lid));
+    set_address(addr, AT_IB, sizeof(uint16_t), wmem_memdup(pinfo->pool, &lid, sizeof lid));
     conv = conversation_new(pinfo->num, addr, addr,
                             CONVERSATION_IBQP, port, port, options);
     conversation_add_proto_data(conv, proto_infiniband, proto_data);
 }
 
-static void save_conversation_info(packet_info *pinfo, guint8 *local_gid, guint8 *remote_gid,
-                                   guint32 local_qpn, guint32 local_lid, guint32 remote_lid,
-                                   guint64 serviceid, MAD_Data *MadData)
+static void save_conversation_info(packet_info *pinfo, uint8_t *local_gid, uint8_t *remote_gid,
+                                   uint32_t local_qpn, uint32_t local_lid, uint32_t remote_lid,
+                                   uint64_t serviceid, MAD_Data *MadData)
 {
     /* the following saves information about the conversation this packet defines,
        so there's no point in doing it more than once per packet */
@@ -3412,7 +3412,7 @@ static void save_conversation_info(packet_info *pinfo, guint8 *local_gid, guint8
         connection_context *connection;
         conversation_infiniband_data *proto_data;
         conversation_t *conv;
-        guint64 *hash_key = g_new(guint64, 1);
+        uint64_t *hash_key = g_new(uint64_t, 1);
 
         /* create a new connection context and store it in the hash table */
         connection = g_new(connection_context, 1);
@@ -3440,7 +3440,7 @@ static void save_conversation_info(packet_info *pinfo, guint8 *local_gid, guint8
            QPN */
         proto_data = wmem_new(wmem_file_scope(), conversation_infiniband_data);
         proto_data->service_id = connection->service_id;
-        proto_data->client_to_server = TRUE;
+        proto_data->client_to_server = true;
 
         conv = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst,
                                 CONVERSATION_IBQP, pinfo->srcport, pinfo->destport, 0);
@@ -3449,18 +3449,18 @@ static void save_conversation_info(packet_info *pinfo, guint8 *local_gid, guint8
         /* create unidirection conversation for packets that will flow from
          * server to client.
          */
-        create_conv_and_add_proto_data(pinfo, connection->service_id, FALSE,
+        create_conv_and_add_proto_data(pinfo, connection->service_id, false,
                                        &pinfo->src, connection->req_lid,
                                        connection->req_qp, 0, NO_ADDR2|NO_PORT2,
                                        &MadData->data[0]);
     }
 }
 
-static void parse_IP_CM_Req_Msg(proto_tree *parent_tree, tvbuff_t *tvb, gint local_offset)
+static void parse_IP_CM_Req_Msg(proto_tree *parent_tree, tvbuff_t *tvb, int local_offset)
 {
     proto_item *private_data_item;
     proto_tree *private_data_tree;
-    guint8 ipv;
+    uint8_t ipv;
 
     private_data_item = proto_tree_add_item(parent_tree, hf_cm_req_ip_cm_req_msg, tvb, local_offset, 92, ENC_NA);
     proto_item_set_text(private_data_item, "%s", "IP CM Private Data");
@@ -3470,7 +3470,7 @@ static void parse_IP_CM_Req_Msg(proto_tree *parent_tree, tvbuff_t *tvb, gint loc
     proto_tree_add_item(private_data_tree, hf_cm_req_ip_cm_minv, tvb, local_offset, 1, ENC_BIG_ENDIAN);
     local_offset += 1;
 
-    ipv = (tvb_get_guint8(tvb, local_offset) & 0xf0) >> 4;
+    ipv = (tvb_get_uint8(tvb, local_offset) & 0xf0) >> 4;
 
     proto_tree_add_item(private_data_tree, hf_cm_req_ip_cm_ipv, tvb, local_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(private_data_tree, hf_cm_req_ip_cm_res, tvb, local_offset, 1, ENC_BIG_ENDIAN);
@@ -3496,18 +3496,18 @@ static void parse_IP_CM_Req_Msg(proto_tree *parent_tree, tvbuff_t *tvb, gint loc
  tvb, local_offset, 56, ENC_NA);
 }
 
-static void parse_CM_Req(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tvb, gint *offset,
+static void parse_CM_Req(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tvb, int *offset,
                          MAD_Data *MadData, proto_tree *CM_header_tree, struct infinibandinfo *info)
 {
     tvbuff_t *next_tvb;
     heur_dtbl_entry_t *hdtbl_entry;
-    guint8     *local_gid, *remote_gid;
-    guint64 serviceid;
-    gint    local_offset;
-    guint32 local_qpn;
-    guint32 local_lid;
-    guint32 remote_lid;
-    gboolean ip_cm_sid;
+    uint8_t    *local_gid, *remote_gid;
+    uint64_t serviceid;
+    int     local_offset;
+    uint32_t local_qpn;
+    uint32_t local_lid;
+    uint32_t remote_lid;
+    bool ip_cm_sid;
 
     local_offset = *offset;
 
@@ -3563,21 +3563,21 @@ static void parse_CM_Req(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tvb
     local_offset += 2;
 
     if (pinfo->dst.type == AT_IPv4) {
-        local_gid  = (guint8 *)wmem_alloc(pinfo->pool, 4);
+        local_gid  = (uint8_t *)wmem_alloc(pinfo->pool, 4);
         proto_tree_add_item(CM_header_tree, hf_cm_req_primary_local_gid_ipv4, tvb, local_offset + 12, 4, ENC_NA);
-        (*(guint32*)local_gid) = tvb_get_ipv4(tvb, local_offset + 12);
+        (*(uint32_t*)local_gid) = tvb_get_ipv4(tvb, local_offset + 12);
         local_offset += 16;
 
-        remote_gid = (guint8 *)wmem_alloc(pinfo->pool, 4);
+        remote_gid = (uint8_t *)wmem_alloc(pinfo->pool, 4);
         proto_tree_add_item(CM_header_tree, hf_cm_req_primary_remote_gid_ipv4, tvb, local_offset + 12, 4, ENC_NA);
-        (*(guint32*)remote_gid) = tvb_get_ipv4(tvb, local_offset + 12);
+        (*(uint32_t*)remote_gid) = tvb_get_ipv4(tvb, local_offset + 12);
     } else {
-        local_gid = (guint8 *)wmem_alloc(pinfo->pool, GID_SIZE);
+        local_gid = (uint8_t *)wmem_alloc(pinfo->pool, GID_SIZE);
         proto_tree_add_item(CM_header_tree, hf_cm_req_primary_local_gid, tvb, local_offset, 16, ENC_NA);
         tvb_get_ipv6(tvb, local_offset, (ws_in6_addr*)local_gid);
         local_offset += 16;
 
-        remote_gid = (guint8 *)wmem_alloc(pinfo->pool, GID_SIZE);
+        remote_gid = (uint8_t *)wmem_alloc(pinfo->pool, GID_SIZE);
         proto_tree_add_item(CM_header_tree, hf_cm_req_primary_remote_gid, tvb, local_offset, 16, ENC_NA);
         tvb_get_ipv6(tvb, local_offset, (ws_in6_addr*)remote_gid);
     }
@@ -3653,7 +3653,7 @@ static void create_bidi_conv(packet_info *pinfo, connection_context *connection)
 
     proto_data = wmem_new(wmem_file_scope(), conversation_infiniband_data);
     proto_data->service_id = connection->service_id;
-    proto_data->client_to_server = FALSE;
+    proto_data->client_to_server = false;
     memset(&proto_data->mad_private_data[0], 0, MAD_DATA_SIZE);
     conv = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst,
                             CONVERSATION_IBQP, connection->resp_qp,
@@ -3690,7 +3690,7 @@ attach_connection_to_pinfo(packet_info *pinfo, connection_context *connection,
      * first for client to server direction so that upper level protocols
      * can do appropriate dissection depending on the message direction.
      */
-    create_conv_and_add_proto_data(pinfo, connection->service_id, TRUE,
+    create_conv_and_add_proto_data(pinfo, connection->service_id, true,
                                    &resp_addr, connection->resp_lid,
                                    connection->resp_qp, connection->req_qp,
                                    NO_ADDR2|NO_PORT2, &MadData->data[0]);
@@ -3719,7 +3719,7 @@ static void update_passive_conv_info(packet_info *pinfo,
 }
 
 static void update_conversation_info(packet_info *pinfo,
-                                     guint32 remote_qpn,
+                                     uint32_t remote_qpn,
                                      MAD_Data *MadData)
 {
     /* the following saves information about the conversation this packet defines,
@@ -3740,13 +3740,13 @@ static void update_conversation_info(packet_info *pinfo,
     }
 }
 
-static void parse_CM_Rsp(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tvb, gint *offset,
+static void parse_CM_Rsp(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tvb, int *offset,
                          MAD_Data *MadData, proto_tree *CM_header_tree, struct infinibandinfo *info)
 {
     tvbuff_t *next_tvb;
     heur_dtbl_entry_t *hdtbl_entry;
-    guint32  remote_qpn;
-    gint     local_offset;
+    uint32_t remote_qpn;
+    int      local_offset;
 
     local_offset = *offset;
 
@@ -3798,7 +3798,7 @@ static void parse_CM_Rsp(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tvb
 static connection_context*
 try_connection_dissectors(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tvb,
                           address *addr, MAD_Data *MadData, struct infinibandinfo *info,
-                          gint pdata_offset, gint pdata_length)
+                          int pdata_offset, int pdata_length)
 {
     tvbuff_t *next_tvb;
     heur_dtbl_entry_t *hdtbl_entry;
@@ -3812,11 +3812,11 @@ try_connection_dissectors(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tv
     return connection;
 }
 
-static void parse_CM_Rtu(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tvb, gint *offset,
+static void parse_CM_Rtu(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tvb, int *offset,
                          MAD_Data *MadData, proto_tree *CM_header_tree,
                          struct infinibandinfo *info)
 {
-    gint     local_offset;
+    int      local_offset;
 
     local_offset = *offset;
     proto_tree_add_item(CM_header_tree, hf_cm_rtu_localcommid, tvb, local_offset, 4, ENC_BIG_ENDIAN);
@@ -3829,11 +3829,11 @@ static void parse_CM_Rtu(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tvb
     *offset = local_offset;
 }
 
-static void parse_CM_Rej(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tvb, gint *offset,
+static void parse_CM_Rej(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tvb, int *offset,
                          MAD_Data *MadData, proto_tree *CM_header_tree,
                          struct infinibandinfo *info)
 {
-    gint     local_offset;
+    int      local_offset;
 
     local_offset = *offset;
     proto_tree_add_item(CM_header_tree, hf_cm_rej_local_commid, tvb, local_offset, 4, ENC_BIG_ENDIAN);
@@ -3857,11 +3857,11 @@ static void parse_CM_Rej(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tvb
     *offset = local_offset;
 }
 
-static void parse_CM_DReq(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tvb, gint *offset,
+static void parse_CM_DReq(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tvb, int *offset,
                          MAD_Data *MadData, proto_tree *CM_header_tree,
                          struct infinibandinfo *info)
 {
-    gint     local_offset;
+    int      local_offset;
 
     local_offset = *offset;
     proto_tree_add_item(CM_header_tree, hf_cm_dreq_localcommid, tvb, local_offset, 4, ENC_BIG_ENDIAN);
@@ -3878,12 +3878,12 @@ static void parse_CM_DReq(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tv
     *offset = local_offset;
 }
 
-static void parse_CM_DRsp(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tvb, gint *offset,
+static void parse_CM_DRsp(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tvb, int *offset,
                           MAD_Data *MadData, proto_tree *CM_header_tree,
                           struct infinibandinfo *info)
 {
     connection_context *connection;
-    gint     local_offset;
+    int      local_offset;
 
     local_offset = *offset;
     proto_tree_add_item(CM_header_tree, hf_cm_drsp_localcommid, tvb, local_offset, 4, ENC_BIG_ENDIAN);
@@ -3905,11 +3905,11 @@ static void parse_CM_DRsp(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tv
 * IN: parentTree to add the dissection to
 * IN: tvb - the data buffer from wireshark
 * IN/OUT: The current and updated offset */
-static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset, proto_tree* top_tree)
+static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, int *offset, proto_tree* top_tree)
 {
     MAD_Data    MadData;
-    struct infinibandinfo info = { NULL, 0, 0, 0, 0, 0, 0, 0, FALSE};
-    gint        local_offset;
+    struct infinibandinfo info = { NULL, 0, 0, 0, 0, 0, 0, 0, false};
+    int         local_offset;
     const char *label;
     proto_item *CM_header_item;
     proto_tree *CM_header_tree;
@@ -3969,11 +3969,11 @@ static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
 * IN: parentTree to add the dissection to
 * IN: tvb - the data buffer from wireshark
 * IN/OUT: The current and updated offset */
-static void parse_SNMP(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
+static void parse_SNMP(proto_tree *parentTree, tvbuff_t *tvb, int *offset)
 {
     /* Parse the Common MAD Header */
     MAD_Data    MadData;
-    gint        local_offset;
+    int         local_offset;
     proto_item *SNMP_header_item;
 
     if (!parse_MAD_Common(parentTree, tvb, offset, &MadData))
@@ -3993,11 +3993,11 @@ static void parse_SNMP(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
 * IN: parentTree to add the dissection to
 * IN: tvb - the data buffer from wireshark
 * IN/OUT: The current and updated offset */
-static void parse_VENDOR_MANAGEMENT(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
+static void parse_VENDOR_MANAGEMENT(proto_tree *parentTree, tvbuff_t *tvb, int *offset)
 {
     /* Parse the Common MAD Header */
     MAD_Data    MadData;
-    gint        local_offset;
+    int         local_offset;
     proto_item *VENDOR_header_item;
 
     if (!parse_MAD_Common(parentTree, tvb, offset, &MadData))
@@ -4017,11 +4017,11 @@ static void parse_VENDOR_MANAGEMENT(proto_tree *parentTree, tvbuff_t *tvb, gint 
 * IN: parentTree to add the dissection to
 * IN: tvb - the data buffer from wireshark
 * IN/OUT: The current and updated offset */
-static void parse_APPLICATION_MANAGEMENT(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
+static void parse_APPLICATION_MANAGEMENT(proto_tree *parentTree, tvbuff_t *tvb, int *offset)
 {
     /* Parse the Common MAD Header */
     MAD_Data    MadData;
-    gint        local_offset;
+    int         local_offset;
     proto_item *APP_header_item;
 
     if (!parse_MAD_Common(parentTree, tvb, offset, &MadData))
@@ -4045,11 +4045,11 @@ static void parse_APPLICATION_MANAGEMENT(proto_tree *parentTree, tvbuff_t *tvb, 
 * IN: parentTree to add the dissection to
 * IN: tvb - the data buffer from wireshark
 * IN/OUT: The current and updated offset */
-static void parse_RESERVED_MANAGEMENT(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
+static void parse_RESERVED_MANAGEMENT(proto_tree *parentTree, tvbuff_t *tvb, int *offset)
 {
     /* Parse the Common MAD Header */
     MAD_Data    MadData;
-    gint        local_offset;
+    int         local_offset;
     proto_item *RESV_header_item;
 
     if (!parse_MAD_Common(parentTree, tvb, offset, &MadData))
@@ -4069,22 +4069,22 @@ static void parse_RESERVED_MANAGEMENT(proto_tree *parentTree, tvbuff_t *tvb, gin
 * IN: tvb - the data buffer from wireshark
 * IN/OUT: The current and updated offset
 * IN/OUT: MadData - the data from the MAD header */
-static gboolean parse_MAD_Common(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_Data* MadData)
+static bool parse_MAD_Common(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_Data* MadData)
 {
-    gint        local_offset = *offset;
+    int         local_offset = *offset;
     proto_item *MAD_header_item;
     proto_tree *MAD_header_tree;
 
     if (MadData == NULL)
-        return FALSE;
+        return false;
     if (!tvb_bytes_exist(tvb, *offset, 256))
-        return FALSE;
+        return false;
 
     /* Get the Management Class to decide between LID Routed and Direct Route */
-    MadData->managementClass =      tvb_get_guint8(tvb, local_offset + 1);
-    MadData->classVersion =         tvb_get_guint8(tvb, local_offset + 2);
-    MadData->method =               tvb_get_guint8(tvb, local_offset + 3);
-    MadData->status =               tvb_get_guint8(tvb, local_offset + 4);
+    MadData->managementClass =      tvb_get_uint8(tvb, local_offset + 1);
+    MadData->classVersion =         tvb_get_uint8(tvb, local_offset + 2);
+    MadData->method =               tvb_get_uint8(tvb, local_offset + 3);
+    MadData->status =               tvb_get_uint8(tvb, local_offset + 4);
     MadData->classSpecific =        tvb_get_ntohs(tvb, local_offset + 6);
     MadData->transactionID =        tvb_get_ntoh64(tvb, local_offset + 8);
     MadData->attributeID =          tvb_get_ntohs(tvb, local_offset + 16);
@@ -4120,17 +4120,17 @@ static gboolean parse_MAD_Common(proto_tree *parentTree, tvbuff_t *tvb, gint *of
     proto_tree_add_item(MAD_header_tree, hf_infiniband_data, tvb, local_offset, MAD_DATA_SIZE, ENC_NA);
     *offset = local_offset; /* Move the offset to the start of the Data field - this will be where the other parsers start. */
 
-    return TRUE;
+    return true;
 }
 
 /* Parse the RMPP (Reliable Multi-Packet Transaction Protocol
 * IN: parentTree to add the dissection to
 * IN: tvb - the data buffer from wireshark
 * IN/OUT: The current and updated offset */
-static gboolean parse_RMPP(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
+static bool parse_RMPP(proto_tree *parentTree, tvbuff_t *tvb, int *offset)
 {
-    gint        local_offset = *offset;
-    guint8      RMPP_Type    = tvb_get_guint8(tvb, local_offset + 1);
+    int         local_offset = *offset;
+    uint8_t     RMPP_Type    = tvb_get_uint8(tvb, local_offset + 1);
     proto_item *RMPP_header_item;
     proto_tree *RMPP_header_tree;
 
@@ -4181,7 +4181,7 @@ static gboolean parse_RMPP(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
             break;
     }
     *offset = local_offset;
-    return TRUE;
+    return true;
 }
 
 /* Parse the Method from the MAD Common Header.
@@ -4240,9 +4240,9 @@ static void label_SUBA_Attribute(proto_item *SubAItem, MAD_Data *MadHeader, pack
 * IN: Parent Tree to add the item to in the dissection tree
 * IN: tvbuff, offset - the data and where it is.
 * IN: MAD_Data the data from the Common MAD Header that provides the information we need */
-static gboolean parse_SUBM_Attribute(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_Data *MadHeader)
+static bool parse_SUBM_Attribute(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_Data *MadHeader)
 {
-    guint16     attributeID = MadHeader->attributeID;
+    uint16_t    attributeID = MadHeader->attributeID;
     proto_item *SUBM_Attribute_header_item;
     proto_tree *SUBM_Attribute_header_tree;
 
@@ -4307,16 +4307,16 @@ static gboolean parse_SUBM_Attribute(proto_tree *parentTree, tvbuff_t *tvb, gint
 
 
     *offset += 64;
-    return TRUE;
+    return true;
 
 }
 /* Parse the attribute from a Subnet Administration Packet.
 * IN: Parent Tree to add the item to in the dissection tree
 * IN: tvbuff, offset - the data and where it is.
 * IN: MAD_Data the data from the Common MAD Header that provides the information we need */
-static gboolean parse_SUBA_Attribute(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_Data *MadHeader)
+static bool parse_SUBA_Attribute(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_Data *MadHeader)
 {
-    guint16     attributeID = MadHeader->attributeID;
+    uint16_t    attributeID = MadHeader->attributeID;
     proto_item *SUBA_Attribute_header_item;
     proto_tree *SUBA_Attribute_header_tree;
 
@@ -4407,7 +4407,7 @@ static gboolean parse_SUBA_Attribute(proto_tree *parentTree, tvbuff_t *tvb, gint
     }
 
     *offset += 200;
-    return TRUE;
+    return true;
 }
 
 /* Subnet Management Attribute Parsing Methods.
@@ -4420,9 +4420,9 @@ static gboolean parse_SUBA_Attribute(proto_tree *parentTree, tvbuff_t *tvb, gint
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins      */
-static int parse_ClassPortInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
+static int parse_ClassPortInfo(proto_tree* parentTree, tvbuff_t* tvb, int *offset)
 {
-    gint        local_offset = *offset;
+    int         local_offset = *offset;
     proto_tree *ClassPortInfo_header_tree;
 
     if (!parentTree)
@@ -4486,9 +4486,9 @@ static int parse_ClassPortInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offs
 *       offset - The offset in TVB where the attribute begins
 *       trapNumber - The Trap ID of the Trap Data being Dissected  */
 
-static gint parse_NoticeDataDetails(proto_tree* parentTree, tvbuff_t* tvb, gint *offset, guint16 trapNumber)
+static int parse_NoticeDataDetails(proto_tree* parentTree, tvbuff_t* tvb, int *offset, uint16_t trapNumber)
 {
-    gint        local_offset = *offset;
+    int         local_offset = *offset;
     proto_item *DataDetails_header_item;
     proto_tree *DataDetails_header_tree;
 
@@ -4694,12 +4694,12 @@ static gint parse_NoticeDataDetails(proto_tree* parentTree, tvbuff_t* tvb, gint 
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins     */
-static void parse_NoticesAndTraps(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
+static void parse_NoticesAndTraps(proto_tree* parentTree, tvbuff_t* tvb, int *offset)
 {
-    gint        local_offset = *offset;
+    int         local_offset = *offset;
     proto_item *NoticesAndTraps_header_item;
     proto_tree *NoticesAndTraps_header_tree;
-    guint16     trapNumber   = tvb_get_ntohs(tvb, local_offset + 4);
+    uint16_t    trapNumber   = tvb_get_ntohs(tvb, local_offset + 4);
 
     if (!parentTree)
         return;
@@ -4738,9 +4738,9 @@ static void parse_NoticesAndTraps(proto_tree* parentTree, tvbuff_t* tvb, gint *o
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins     */
-static void parse_NodeDescription(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
+static void parse_NodeDescription(proto_tree* parentTree, tvbuff_t* tvb, int *offset)
 {
-    gint        local_offset = *offset;
+    int         local_offset = *offset;
     proto_tree *NodeDescription_header_tree;
 
     if (!parentTree)
@@ -4754,9 +4754,9 @@ static void parse_NodeDescription(proto_tree* parentTree, tvbuff_t* tvb, gint *o
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins     */
-static int parse_NodeInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
+static int parse_NodeInfo(proto_tree* parentTree, tvbuff_t* tvb, int *offset)
 {
-    gint        local_offset = *offset;
+    int         local_offset = *offset;
     proto_tree *NodeInfo_header_tree;
 
     if (!parentTree)
@@ -4797,9 +4797,9 @@ static int parse_NodeInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins     */
-static int parse_SwitchInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
+static int parse_SwitchInfo(proto_tree* parentTree, tvbuff_t* tvb, int *offset)
 {
-    gint        local_offset = *offset;
+    int         local_offset = *offset;
     proto_tree *SwitchInfo_header_tree;
 
     if (!parentTree)
@@ -4843,12 +4843,12 @@ static int parse_SwitchInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins     */
-static int parse_GUIDInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
+static int parse_GUIDInfo(proto_tree* parentTree, tvbuff_t* tvb, int *offset)
 {
-    gint        local_offset = *offset;
+    int         local_offset = *offset;
     proto_tree *GUIDInfo_header_tree;
     proto_item *tempItemLow;
-    gint        i;
+    int         i;
 
     if (!parentTree)
         return *offset;
@@ -4868,14 +4868,14 @@ static int parse_GUIDInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins     */
-static int parse_PortInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
+static int parse_PortInfo(proto_tree* parentTree, tvbuff_t* tvb, int *offset)
 {
-    gint        local_offset = *offset;
+    int         local_offset = *offset;
     proto_tree *PortInfo_header_tree;
     proto_item *PortInfo_CapabilityMask_item;
     proto_tree *PortInfo_CapabilityMask_tree;
     proto_item *temp_item;
-    guint16     temp_val;
+    uint16_t    temp_val;
 
     if (!parentTree)
         return *offset;
@@ -4937,7 +4937,7 @@ static int parse_PortInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 
     /* LinkWidthEnabled */
     temp_item = proto_tree_add_item(PortInfo_header_tree, hf_infiniband_PortInfo_LinkWidthEnabled, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-    temp_val = (guint16)tvb_get_guint8(tvb, local_offset);
+    temp_val = (uint16_t)tvb_get_uint8(tvb, local_offset);
 
     proto_item_append_text(temp_item, ", %s", val_to_str_const(temp_val, LinkWidthEnabled, "Reserved LinkWidthEnabled Value! Possible Error"));
     local_offset += 1;
@@ -4945,7 +4945,7 @@ static int parse_PortInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 
     /* LinkWidthSupported */
     temp_item = proto_tree_add_item(PortInfo_header_tree, hf_infiniband_PortInfo_LinkWidthSupported, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-    temp_val = (guint16)tvb_get_guint8(tvb, local_offset);
+    temp_val = (uint16_t)tvb_get_uint8(tvb, local_offset);
 
     proto_item_append_text(temp_item, ", %s", val_to_str_const(temp_val, LinkWidthSupported, "Reserved LinkWidthSupported Value! Possible Error"));
     local_offset += 1;
@@ -4953,7 +4953,7 @@ static int parse_PortInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 
     /* LinkWidthActive */
     temp_item = proto_tree_add_item(PortInfo_header_tree, hf_infiniband_PortInfo_LinkWidthActive, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-    temp_val = (guint16)tvb_get_guint8(tvb, local_offset);
+    temp_val = (uint16_t)tvb_get_uint8(tvb, local_offset);
 
     proto_item_append_text(temp_item, ", %s", val_to_str_const(temp_val, LinkWidthActive, "Reserved LinkWidthActive Value! Possible Error"));
     local_offset += 1;
@@ -4961,7 +4961,7 @@ static int parse_PortInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 
     /* LinkSpeedSupported */
     temp_item = proto_tree_add_item(PortInfo_header_tree, hf_infiniband_PortInfo_LinkSpeedSupported, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-    temp_val = (guint16)tvb_get_guint8(tvb, local_offset);
+    temp_val = (uint16_t)tvb_get_uint8(tvb, local_offset);
 
     /* 4 bit values = mask and shift */
     temp_val = temp_val & 0x00F0;
@@ -4972,7 +4972,7 @@ static int parse_PortInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 
     /* PortState */
     temp_item = proto_tree_add_item(PortInfo_header_tree, hf_infiniband_PortInfo_PortState, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-    temp_val = (guint16)tvb_get_guint8(tvb, local_offset);
+    temp_val = (uint16_t)tvb_get_uint8(tvb, local_offset);
 
     /* 4 bit values = mask and shift */
     temp_val = temp_val & 0x000F;
@@ -4984,7 +4984,7 @@ static int parse_PortInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 
     /* PortPhysicalState */
     temp_item = proto_tree_add_item(PortInfo_header_tree, hf_infiniband_PortInfo_PortPhysicalState, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-    temp_val = (guint16)tvb_get_guint8(tvb, local_offset);
+    temp_val = (uint16_t)tvb_get_uint8(tvb, local_offset);
 
     /* 4 bit values = mask and shift */
     temp_val = temp_val & 0x00F0;
@@ -4995,7 +4995,7 @@ static int parse_PortInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 
     /* LinkDownDefaultState */
     temp_item = proto_tree_add_item(PortInfo_header_tree, hf_infiniband_PortInfo_LinkDownDefaultState, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-    temp_val = (guint16)tvb_get_guint8(tvb, local_offset);
+    temp_val = (uint16_t)tvb_get_uint8(tvb, local_offset);
 
     /* 4 bit values = mask and shift */
     temp_val = temp_val & 0x000F;
@@ -5011,7 +5011,7 @@ static int parse_PortInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 
     /* LinkSpeedActive */
     temp_item = proto_tree_add_item(PortInfo_header_tree, hf_infiniband_PortInfo_LinkSpeedActive, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-    temp_val = (guint16)tvb_get_guint8(tvb, local_offset);
+    temp_val = (uint16_t)tvb_get_uint8(tvb, local_offset);
 
     /* 4 bit values = mask and shift */
     temp_val = temp_val & 0x00F0;
@@ -5022,7 +5022,7 @@ static int parse_PortInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 
     /* LinkSpeedEnabled */
     temp_item = proto_tree_add_item(PortInfo_header_tree, hf_infiniband_PortInfo_LinkSpeedEnabled, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-    temp_val = (guint16)tvb_get_guint8(tvb, local_offset);
+    temp_val = (uint16_t)tvb_get_uint8(tvb, local_offset);
 
     /* 4 bit values = mask and shift */
     temp_val = temp_val & 0x000F;
@@ -5034,7 +5034,7 @@ static int parse_PortInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 
     /* NeighborMTU */
     temp_item = proto_tree_add_item(PortInfo_header_tree, hf_infiniband_PortInfo_NeighborMTU, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-    temp_val = (guint16)tvb_get_guint8(tvb, local_offset);
+    temp_val = (uint16_t)tvb_get_uint8(tvb, local_offset);
 
     /* 4 bit values = mask and shift */
     temp_val = temp_val & 0x00F0;
@@ -5049,7 +5049,7 @@ static int parse_PortInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 
     /* VLCap */
     temp_item = proto_tree_add_item(PortInfo_header_tree, hf_infiniband_PortInfo_VLCap, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-    temp_val = (guint16)tvb_get_guint8(tvb, local_offset);
+    temp_val = (uint16_t)tvb_get_uint8(tvb, local_offset);
 
     /* 4 bit values = mask and shift */
     temp_val = temp_val & 0x00F0;
@@ -5071,7 +5071,7 @@ static int parse_PortInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 
     /* MTUCap */
     temp_item = proto_tree_add_item(PortInfo_header_tree, hf_infiniband_PortInfo_MTUCap, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-    temp_val = (guint16)tvb_get_guint8(tvb, local_offset);
+    temp_val = (uint16_t)tvb_get_uint8(tvb, local_offset);
 
     /* 4 bit values = mask and shift */
     temp_val = temp_val & 0x000F;
@@ -5087,7 +5087,7 @@ static int parse_PortInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 
     /* OperationalVLs */
     temp_item = proto_tree_add_item(PortInfo_header_tree, hf_infiniband_PortInfo_OperationalVLs, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-    temp_val = (guint16)tvb_get_guint8(tvb, local_offset);
+    temp_val = (uint16_t)tvb_get_uint8(tvb, local_offset);
 
     /* 4 bit values = mask and shift */
     temp_val = temp_val & 0x00F0;
@@ -5129,10 +5129,10 @@ static int parse_PortInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins     */
-static void parse_P_KeyTable(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
+static void parse_P_KeyTable(proto_tree* parentTree, tvbuff_t* tvb, int *offset)
 {
-    gint        local_offset = *offset;
-    gint        i;
+    int         local_offset = *offset;
+    int         i;
     proto_item *P_KeyTable_header_item;
     proto_tree *P_KeyTable_header_tree;
     proto_item *tempItemLow;
@@ -5159,14 +5159,14 @@ static void parse_P_KeyTable(proto_tree* parentTree, tvbuff_t* tvb, gint *offset
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins     */
-static void parse_SLtoVLMappingTable(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
+static void parse_SLtoVLMappingTable(proto_tree* parentTree, tvbuff_t* tvb, int *offset)
 {
-    gint        local_offset = *offset;
+    int         local_offset = *offset;
     proto_item *SLtoVLMappingTable_header_item;
     proto_tree *SLtoVLMappingTable_header_tree;
     proto_item *tempItemLow;
     proto_item *tempItemHigh;
-    gint        i;
+    int         i;
 
     if (!parentTree)
         return;
@@ -5189,10 +5189,10 @@ static void parse_SLtoVLMappingTable(proto_tree* parentTree, tvbuff_t* tvb, gint
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins     */
-static void parse_VLArbitrationTable(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
+static void parse_VLArbitrationTable(proto_tree* parentTree, tvbuff_t* tvb, int *offset)
 {
-    gint        local_offset = *offset;
-    gint        i;
+    int         local_offset = *offset;
+    int         i;
     proto_item *VLArbitrationTable_header_item;
     proto_tree *VLArbitrationTable_header_tree;
     proto_item *tempItemLow;
@@ -5220,10 +5220,10 @@ static void parse_VLArbitrationTable(proto_tree* parentTree, tvbuff_t* tvb, gint
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins     */
-static void parse_LinearForwardingTable(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
+static void parse_LinearForwardingTable(proto_tree* parentTree, tvbuff_t* tvb, int *offset)
 {
-    gint        i;
-    gint        local_offset = *offset;
+    int         i;
+    int         local_offset = *offset;
     proto_item *LinearForwardingTable_header_item;
     proto_tree *LinearForwardingTable_header_tree;
     proto_item *tempItemLow;
@@ -5247,10 +5247,10 @@ static void parse_LinearForwardingTable(proto_tree* parentTree, tvbuff_t* tvb, g
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins     */
-static void parse_RandomForwardingTable(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
+static void parse_RandomForwardingTable(proto_tree* parentTree, tvbuff_t* tvb, int *offset)
 {
-    gint        i;
-    gint        local_offset = *offset;
+    int         i;
+    int         local_offset = *offset;
     proto_item *RandomForwardingTable_header_item;
     proto_tree *RandomForwardingTable_header_tree;
     proto_item *tempItemLow;
@@ -5282,10 +5282,10 @@ static void parse_RandomForwardingTable(proto_tree* parentTree, tvbuff_t* tvb, g
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins     */
-static void parse_MulticastForwardingTable(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
+static void parse_MulticastForwardingTable(proto_tree* parentTree, tvbuff_t* tvb, int *offset)
 {
-    gint        i;
-    gint        local_offset = *offset;
+    int         i;
+    int         local_offset = *offset;
     proto_item *MulticastForwardingTable_header_item;
     proto_tree *MulticastForwardingTable_header_tree;
     proto_item *tempItemLow;
@@ -5310,9 +5310,9 @@ static void parse_MulticastForwardingTable(proto_tree* parentTree, tvbuff_t* tvb
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins     */
-static int parse_SMInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
+static int parse_SMInfo(proto_tree* parentTree, tvbuff_t* tvb, int *offset)
 {
-    gint        local_offset = *offset;
+    int         local_offset = *offset;
     proto_item *SMInfo_header_item;
     proto_tree *SMInfo_header_tree;
 
@@ -5339,9 +5339,9 @@ static int parse_SMInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins     */
-static int parse_VendorDiag(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
+static int parse_VendorDiag(proto_tree* parentTree, tvbuff_t* tvb, int *offset)
 {
-    gint        local_offset = *offset;
+    int         local_offset = *offset;
     proto_item *VendorDiag_header_item;
     proto_tree *VendorDiag_header_tree;
 
@@ -5364,9 +5364,9 @@ static int parse_VendorDiag(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins     */
-static void parse_LedInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
+static void parse_LedInfo(proto_tree* parentTree, tvbuff_t* tvb, int *offset)
 {
-    gint        local_offset = *offset;
+    int         local_offset = *offset;
     proto_item *LedInfo_header_item;
     proto_tree *LedInfo_header_tree;
 
@@ -5384,9 +5384,9 @@ static void parse_LedInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins     */
-static int parse_LinkSpeedWidthPairsTable(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
+static int parse_LinkSpeedWidthPairsTable(proto_tree* parentTree, tvbuff_t* tvb, int *offset)
 {
-    gint        local_offset = *offset;
+    int         local_offset = *offset;
     proto_item *LinkSpeedWidthPairsTable_header_item;
     proto_tree *LinkSpeedWidthPairsTable_header_tree;
 
@@ -5416,9 +5416,9 @@ static int parse_LinkSpeedWidthPairsTable(proto_tree* parentTree, tvbuff_t* tvb,
 *     tvb - the packet buffer
 *     MadHeader - the Common MAD header from this packet.
 * IN/OUT:  offset - the current and updated offset in the packet buffer */
-static void parse_RID(proto_tree* SA_header_tree, tvbuff_t* tvb, gint *offset, MAD_Data* MadHeader)
+static void parse_RID(proto_tree* SA_header_tree, tvbuff_t* tvb, int *offset, MAD_Data* MadHeader)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
 
     if (!SA_header_tree)
     {
@@ -5570,9 +5570,9 @@ static void parse_RID(proto_tree* SA_header_tree, tvbuff_t* tvb, gint *offset, M
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins     */
-static int parse_InformInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
+static int parse_InformInfo(proto_tree* parentTree, tvbuff_t* tvb, int *offset)
 {
-    gint        local_offset = *offset;
+    int         local_offset = *offset;
     proto_item *InformInfo_header_item;
     proto_tree *InformInfo_header_tree;
 
@@ -5615,9 +5615,9 @@ static int parse_InformInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins     */
-static int parse_LinkRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
+static int parse_LinkRecord(proto_tree* parentTree, tvbuff_t* tvb, int *offset)
 {
-    gint        local_offset = *offset;
+    int         local_offset = *offset;
     proto_item *LinkRecord_header_item;
     proto_tree *LinkRecord_header_tree;
 
@@ -5642,9 +5642,9 @@ static int parse_LinkRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins     */
-static int parse_ServiceRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
+static int parse_ServiceRecord(proto_tree* parentTree, tvbuff_t* tvb, int *offset)
 {
-    gint        local_offset = *offset;
+    int         local_offset = *offset;
     proto_item *ServiceRecord_header_item;
     proto_tree *ServiceRecord_header_tree;
     proto_item *tempData;
@@ -5685,9 +5685,9 @@ static int parse_ServiceRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offs
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins     */
-static int parse_PathRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
+static int parse_PathRecord(proto_tree* parentTree, tvbuff_t* tvb, int *offset)
 {
-    gint        local_offset = *offset;
+    int         local_offset = *offset;
     proto_item *PathRecord_header_item;
     proto_tree *PathRecord_header_tree;
 
@@ -5742,9 +5742,9 @@ static int parse_PathRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins   */
-static int parse_MCMemberRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
+static int parse_MCMemberRecord(proto_tree* parentTree, tvbuff_t* tvb, int *offset)
 {
-    gint        local_offset = *offset;
+    int         local_offset = *offset;
     proto_item *MCMemberRecord_header_item;
     proto_tree *MCMemberRecord_header_tree;
 
@@ -5792,9 +5792,9 @@ static int parse_MCMemberRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *off
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins     */
-static int parse_TraceRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
+static int parse_TraceRecord(proto_tree* parentTree, tvbuff_t* tvb, int *offset)
 {
-    gint        local_offset = *offset;
+    int         local_offset = *offset;
     proto_item *TraceRecord_header_item;
     proto_tree *TraceRecord_header_tree;
 
@@ -5834,15 +5834,15 @@ static int parse_TraceRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offset
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins     */
-static int parse_MultiPathRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
+static int parse_MultiPathRecord(proto_tree* parentTree, tvbuff_t* tvb, int *offset)
 {
-    gint        local_offset = *offset;
+    int         local_offset = *offset;
     proto_item *MultiPathRecord_header_item;
     proto_tree *MultiPathRecord_header_tree;
     proto_item *SDGID;
-    guint8      SDGIDCount;
-    guint8      DGIDCount;
-    guint32     i;
+    uint8_t     SDGIDCount;
+    uint8_t     DGIDCount;
+    uint32_t    i;
 
     if (!parentTree)
     {
@@ -5882,10 +5882,10 @@ static int parse_MultiPathRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *of
     proto_tree_add_item(MultiPathRecord_header_tree, hf_infiniband_MultiPathRecord_GIDScope, tvb, local_offset, 1, ENC_BIG_ENDIAN);
     local_offset += 1;
 
-    SDGIDCount = tvb_get_guint8(tvb, local_offset);
+    SDGIDCount = tvb_get_uint8(tvb, local_offset);
     proto_tree_add_item(MultiPathRecord_header_tree, hf_infiniband_MultiPathRecord_SGIDCount, tvb, local_offset, 1, ENC_BIG_ENDIAN);
     local_offset += 1;
-    DGIDCount = tvb_get_guint8(tvb, local_offset);
+    DGIDCount = tvb_get_uint8(tvb, local_offset);
     proto_tree_add_item(MultiPathRecord_header_tree, hf_infiniband_MultiPathRecord_DGIDCount, tvb, local_offset, 1, ENC_BIG_ENDIAN);
     local_offset += 1;
     proto_tree_add_item(MultiPathRecord_header_tree, hf_infiniband_reserved, tvb, local_offset, 7, ENC_NA);
@@ -5910,9 +5910,9 @@ static int parse_MultiPathRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *of
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins     */
-static int parse_ServiceAssociationRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
+static int parse_ServiceAssociationRecord(proto_tree* parentTree, tvbuff_t* tvb, int *offset)
 {
-    gint        local_offset = *offset;
+    int         local_offset = *offset;
     proto_item *ServiceAssociationRecord_header_item;
     proto_tree *ServiceAssociationRecord_header_tree;
 
@@ -5938,11 +5938,11 @@ static int parse_ServiceAssociationRecord(proto_tree* parentTree, tvbuff_t* tvb,
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins
 *       pinfo - The packet info structure with column information  */
-static int parse_PERF_PortCounters(proto_tree* parentTree, tvbuff_t* tvb, packet_info *pinfo, gint *offset)
+static int parse_PERF_PortCounters(proto_tree* parentTree, tvbuff_t* tvb, packet_info *pinfo, int *offset)
 {
     proto_item *perf_item;
     proto_tree *perf_tree;
-    gint        local_offset = *offset;
+    int         local_offset = *offset;
 
     col_set_str(pinfo->cinfo, COL_INFO, "PERF (PortCounters)");
 
@@ -6002,11 +6002,11 @@ static int parse_PERF_PortCounters(proto_tree* parentTree, tvbuff_t* tvb, packet
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins
 *       pinfo - The packet info structure with column information  */
-static int parse_PERF_PortCountersExtended(proto_tree* parentTree, tvbuff_t* tvb, packet_info *pinfo, gint *offset)
+static int parse_PERF_PortCountersExtended(proto_tree* parentTree, tvbuff_t* tvb, packet_info *pinfo, int *offset)
 {
     proto_item *perf_item;
     proto_tree *perf_tree;
-    gint        local_offset = *offset;
+    int         local_offset = *offset;
 
     col_set_str(pinfo->cinfo, COL_INFO, "PERF (PortCountersExtended)");
 
@@ -6052,19 +6052,19 @@ static int parse_PERF_PortCountersExtended(proto_tree* parentTree, tvbuff_t* tvb
 *       pinfo - The packet info structure with column information
 *       starts_with - regular IB packet starts with LRH, ROCE starts with GRH and RROCE starts with BTH,
 *                     this tells the parser what headers of (LRH/GRH) to skip. */
-static void dissect_general_info(tvbuff_t *tvb, gint offset, packet_info *pinfo, ib_packet_start_header starts_with)
+static void dissect_general_info(tvbuff_t *tvb, int offset, packet_info *pinfo, ib_packet_start_header starts_with)
 {
-    guint8            lnh_val            = 0; /* The Link Next Header Value.  Tells us which headers are coming */
-    gboolean          bthFollows         = FALSE; /* Tracks if we are parsing a BTH.  This is a significant decision point */
-    guint8            virtualLane        = 0; /* The Virtual Lane of the current Packet */
-    gint32            nextHeaderSequence = -1; /* defined by this dissector. #define which indicates the upcoming header sequence from OpCode */
-    guint8            nxtHdr             = 0; /* that must be available for that header. */
-    guint8            management_class   = 0;
+    uint8_t           lnh_val            = 0; /* The Link Next Header Value.  Tells us which headers are coming */
+    bool              bthFollows         = false; /* Tracks if we are parsing a BTH.  This is a significant decision point */
+    uint8_t           virtualLane        = 0; /* The Virtual Lane of the current Packet */
+    int32_t           nextHeaderSequence = -1; /* defined by this dissector. #define which indicates the upcoming header sequence from OpCode */
+    uint8_t           nxtHdr             = 0; /* that must be available for that header. */
+    uint8_t           management_class   = 0;
     MAD_Data          MadData;
 
     /* BTH - Base Trasport Header */
-    struct infinibandinfo info = { NULL, 0, 0, 0, 0, 0, 0, 0, FALSE};
-    gint bthSize = 12;
+    struct infinibandinfo info = { NULL, 0, 0, 0, 0, 0, 0, 0, false};
+    int bthSize = 12;
     void *src_addr,                 /* the address to be displayed in the source/destination columns */
          *dst_addr;                 /* (lid/gid number) will be stored here */
 
@@ -6079,26 +6079,26 @@ static void dissect_general_info(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         goto skip_lrh;
     }
 
-    virtualLane =  tvb_get_guint8(tvb, offset);
+    virtualLane =  tvb_get_uint8(tvb, offset);
     virtualLane = virtualLane & 0xF0;
     offset += 1;
 
     /* Save Link Next Header... This tells us what the next header is. */
-    lnh_val =  tvb_get_guint8(tvb, offset);
+    lnh_val =  tvb_get_uint8(tvb, offset);
     lnh_val = lnh_val & 0x03;
     offset += 1;
 
     /* Set destination in packet view. */
-    dst_addr = wmem_alloc(pinfo->pool, sizeof(guint16));
-    *((guint16*) dst_addr) = tvb_get_ntohs(tvb, offset);
-    set_address(&pinfo->dst, AT_IB, sizeof(guint16), dst_addr);
+    dst_addr = wmem_alloc(pinfo->pool, sizeof(uint16_t));
+    *((uint16_t*) dst_addr) = tvb_get_ntohs(tvb, offset);
+    set_address(&pinfo->dst, AT_IB, sizeof(uint16_t), dst_addr);
 
     offset += 4;
 
     /* Set Source in packet view. */
-    src_addr = wmem_alloc(pinfo->pool, sizeof(guint16));
-    *((guint16*) src_addr) = tvb_get_ntohs(tvb, offset);
-    set_address(&pinfo->src, AT_IB, sizeof(guint16), src_addr);
+    src_addr = wmem_alloc(pinfo->pool, sizeof(uint16_t));
+    *((uint16_t*) src_addr) = tvb_get_ntohs(tvb, offset);
+    set_address(&pinfo->src, AT_IB, sizeof(uint16_t), src_addr);
 
     offset += 2;
 
@@ -6108,7 +6108,7 @@ skip_lrh:
     {
         case IBA_GLOBAL:
             offset += 6;
-            nxtHdr = tvb_get_guint8(tvb, offset);
+            nxtHdr = tvb_get_uint8(tvb, offset);
             offset += 2;
 
             /* Set source GID in packet view. */
@@ -6131,15 +6131,15 @@ skip_lrh:
              */
         /* FALL THROUGH */
         case IBA_LOCAL:
-            bthFollows = TRUE;
+            bthFollows = true;
 
             /* Get the OpCode - this tells us what headers are following */
-            info.opCode = tvb_get_guint8(tvb, offset);
+            info.opCode = tvb_get_uint8(tvb, offset);
             if ((info.opCode >> 5) == 0x2) {
-                info.dctConnect = !(tvb_get_guint8(tvb, offset + 1) & 0x80);
+                info.dctConnect = !(tvb_get_uint8(tvb, offset + 1) & 0x80);
                 bthSize += 8;
             }
-            col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const((guint32)info.opCode, OpCodeMap, "Unknown OpCode "));
+            col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const((uint32_t)info.opCode, OpCodeMap, "Unknown OpCode "));
             offset += bthSize;
             break;
         case IP_NON_IBA:
@@ -6270,19 +6270,19 @@ skip_lrh:
     }
     if (virtualLane == 0xF0)
     {
-        management_class =  tvb_get_guint8(tvb, offset + 1);
-        if (((management_class >= (guint8)VENDOR_1_START) && (management_class <= (guint8)VENDOR_1_END))
-            || ((management_class >= (guint8)VENDOR_2_START) && (management_class <= (guint8)VENDOR_2_END)))
+        management_class =  tvb_get_uint8(tvb, offset + 1);
+        if (((management_class >= (uint8_t)VENDOR_1_START) && (management_class <= (uint8_t)VENDOR_1_END))
+            || ((management_class >= (uint8_t)VENDOR_2_START) && (management_class <= (uint8_t)VENDOR_2_END)))
         {
             return;
         }
-        else if ((management_class >= (guint8)APPLICATION_START) && (management_class <= (guint8)APPLICATION_END))
+        else if ((management_class >= (uint8_t)APPLICATION_START) && (management_class <= (uint8_t)APPLICATION_END))
         {
             return;
         }
-        else if (((management_class == (guint8)0x00) || (management_class == (guint8)0x02))
-                 || ((management_class >= (guint8)0x50) && (management_class <= (guint8)0x80))
-                 || ((management_class >= (guint8)0x82)))
+        else if (((management_class == (uint8_t)0x00) || (management_class == (uint8_t)0x02))
+                 || ((management_class >= (uint8_t)0x50) && (management_class <= (uint8_t)0x80))
+                 || ((management_class >= (uint8_t)0x82)))
         {
             return;
         }
@@ -8696,7 +8696,7 @@ void proto_register_infiniband(void)
     };
 
     /* Array to hold expansion options between dissections */
-    static gint *ett[] = {
+    static int *ett[] = {
     /*  &ett_infiniband,       */
         &ett_all_headers,
         &ett_lrh,
@@ -8776,7 +8776,7 @@ void proto_register_infiniband(void)
         }
     };
 
-    static gint *ett_link_array[] = {
+    static int *ett_link_array[] = {
         &ett_link
     };
 
@@ -8812,7 +8812,7 @@ void proto_register_infiniband(void)
         },
     };
 
-    static gint *ett_eoib_array[] = {
+    static int *ett_eoib_array[] = {
         &ett_eoib
     };
 
@@ -8862,8 +8862,8 @@ void proto_register_infiniband(void)
 /* Reg Handoff.  Register dissectors we'll need for IPoIB and RoCE */
 void proto_reg_handoff_infiniband(void)
 {
-    static gboolean initialized = FALSE;
-    static guint prev_rroce_udp_port;
+    static bool initialized = false;
+    static unsigned prev_rroce_udp_port;
     static dissector_handle_t rroce_handle;
 
     if (!initialized)
@@ -8917,7 +8917,7 @@ void proto_reg_handoff_infiniband(void)
         proto_ethertype = proto_get_id_by_filter_name("ethertype");
         heur_dissector_add("infiniband.payload", dissect_eth_over_ib, "Ethernet over IB", "eth_over_ib", proto_ethertype, HEURISTIC_ENABLE);
 
-        initialized = TRUE;
+        initialized = true;
     }
     else
     {

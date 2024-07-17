@@ -20,7 +20,7 @@
 
 void
 isakmp_dissect_payloads(tvbuff_t *tvb, proto_tree *tree, int isakmp_version,
-			guint8 initial_payload, int offset, int length,
+			uint8_t initial_payload, int offset, int length,
 			packet_info *pinfo);
 
 #endif

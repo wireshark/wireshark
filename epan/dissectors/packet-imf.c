@@ -148,11 +148,11 @@ static expert_field ei_imf_unknown_param;
 
 /* Used for IMF Export Object feature */
 typedef struct _imf_eo_t {
-  gchar    *filename;
-  gchar    *sender_data;
-  gchar    *subject_data;
-  guint32  payload_len;
-  gchar    *payload_data;
+  char     *filename;
+  char     *sender_data;
+  char     *subject_data;
+  uint32_t payload_len;
+  char     *payload_data;
 } imf_eo_t;
 
 static tap_packet_status
@@ -167,8 +167,8 @@ imf_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const 
      * is closed. */
     entry = g_new(export_object_entry_t, 1);
 
-    gchar *start = g_strrstr_len(eo_info->sender_data, -1, "<");
-    gchar *stop = g_strrstr_len(eo_info->sender_data, -1,  ">");
+    char *start = g_strrstr_len(eo_info->sender_data, -1, "<");
+    char *stop = g_strrstr_len(eo_info->sender_data, -1,  ">");
     /* Only include the string inside of the "<>" brackets. If there is nothing between
     the two brackets use the sender_data string */
     if(start && stop && stop > start && (stop - start) > 2){
@@ -181,7 +181,7 @@ imf_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const 
     entry->content_type = g_strdup("EML file");
     entry->filename = ws_strdup_printf("%s.eml", eo_info->subject_data);
     entry->payload_len = eo_info->payload_len;
-    entry->payload_data = (guint8 *)g_memdup2(eo_info->payload_data, eo_info->payload_len);
+    entry->payload_data = (uint8_t *)g_memdup2(eo_info->payload_data, eo_info->payload_len);
 
     object_list->add_entry(object_list->gui_data, entry);
 
@@ -196,7 +196,7 @@ struct imf_field {
   char         *name;           /* field name - in lower case for matching purposes */
   int          *hf_id;          /* wireshark field */
   void         (*subdissector)(tvbuff_t *tvb, int offset, int length, proto_item *item, packet_info *pinfo);
-  gboolean     add_to_col_info; /* add field to column info */
+  bool         add_to_col_info; /* add field to column info */
 };
 
 #define NO_SUBDISSECTION NULL
@@ -208,80 +208,80 @@ static void dissect_imf_mailbox_list(tvbuff_t *tvb, int offset, int length, prot
 static void dissect_imf_siolabel(tvbuff_t *tvb, int offset, int length, proto_item *item, packet_info *pinfo);
 
 static struct imf_field imf_fields[] = {
-  {"unknown-extension",                   &hf_imf_extension_type, NO_SUBDISSECTION, FALSE}, /* unknown extension */
-  {"date",                                &hf_imf_date, NO_SUBDISSECTION, FALSE}, /* date-time */
-  {"from",                                &hf_imf_from, dissect_imf_mailbox_list , TRUE}, /* mailbox_list */
-  {"sender",                              &hf_imf_sender, dissect_imf_mailbox, FALSE}, /* mailbox */
-  {"reply-to",                            &hf_imf_reply_to, dissect_imf_address_list , FALSE}, /* address_list */
-  {"to",                                  &hf_imf_to, dissect_imf_address_list , FALSE}, /* address_list */
-  {"cc",                                  &hf_imf_cc, dissect_imf_address_list , FALSE}, /* address_list */
-  {"bcc",                                 &hf_imf_bcc, dissect_imf_address_list , FALSE}, /* address_list */
-  {"message-id",                          &hf_imf_message_id, NO_SUBDISSECTION, FALSE}, /* msg-id */
-  {"in-reply-to",                         &hf_imf_in_reply_to, NO_SUBDISSECTION, FALSE}, /* msg-id */
-  {"references",                          &hf_imf_references, NO_SUBDISSECTION, FALSE}, /* msg-id */
-  {"subject",                             &hf_imf_subject, NO_SUBDISSECTION, TRUE}, /* unstructured */
-  {"comments",                            &hf_imf_comments, NO_SUBDISSECTION, FALSE}, /* unstructured */
-  {"user-agent",                          &hf_imf_user_agent, NO_SUBDISSECTION, FALSE}, /* unstructured */
-  {"keywords",                            &hf_imf_keywords, NULL, FALSE}, /* phrase_list */
-  {"resent-date",                         &hf_imf_resent_date, NO_SUBDISSECTION, FALSE},
-  {"resent-from",                         &hf_imf_resent_from, dissect_imf_mailbox_list, FALSE},
-  {"resent-sender",                       &hf_imf_resent_sender, dissect_imf_mailbox, FALSE},
-  {"resent-to",                           &hf_imf_resent_to, dissect_imf_address_list, FALSE},
-  {"resent-cc",                           &hf_imf_resent_cc, dissect_imf_address_list, FALSE},
-  {"resent-bcc",                          &hf_imf_resent_bcc, dissect_imf_address_list, FALSE},
-  {"resent-message-id",                   &hf_imf_resent_message_id, NO_SUBDISSECTION, FALSE},
-  {"return-path",                         &hf_imf_return_path, NULL, FALSE},
-  {"received",                            &hf_imf_received, NO_SUBDISSECTION, FALSE},
+  {"unknown-extension",                   &hf_imf_extension_type, NO_SUBDISSECTION, false}, /* unknown extension */
+  {"date",                                &hf_imf_date, NO_SUBDISSECTION, false}, /* date-time */
+  {"from",                                &hf_imf_from, dissect_imf_mailbox_list , true}, /* mailbox_list */
+  {"sender",                              &hf_imf_sender, dissect_imf_mailbox, false}, /* mailbox */
+  {"reply-to",                            &hf_imf_reply_to, dissect_imf_address_list , false}, /* address_list */
+  {"to",                                  &hf_imf_to, dissect_imf_address_list , false}, /* address_list */
+  {"cc",                                  &hf_imf_cc, dissect_imf_address_list , false}, /* address_list */
+  {"bcc",                                 &hf_imf_bcc, dissect_imf_address_list , false}, /* address_list */
+  {"message-id",                          &hf_imf_message_id, NO_SUBDISSECTION, false}, /* msg-id */
+  {"in-reply-to",                         &hf_imf_in_reply_to, NO_SUBDISSECTION, false}, /* msg-id */
+  {"references",                          &hf_imf_references, NO_SUBDISSECTION, false}, /* msg-id */
+  {"subject",                             &hf_imf_subject, NO_SUBDISSECTION, true}, /* unstructured */
+  {"comments",                            &hf_imf_comments, NO_SUBDISSECTION, false}, /* unstructured */
+  {"user-agent",                          &hf_imf_user_agent, NO_SUBDISSECTION, false}, /* unstructured */
+  {"keywords",                            &hf_imf_keywords, NULL, false}, /* phrase_list */
+  {"resent-date",                         &hf_imf_resent_date, NO_SUBDISSECTION, false},
+  {"resent-from",                         &hf_imf_resent_from, dissect_imf_mailbox_list, false},
+  {"resent-sender",                       &hf_imf_resent_sender, dissect_imf_mailbox, false},
+  {"resent-to",                           &hf_imf_resent_to, dissect_imf_address_list, false},
+  {"resent-cc",                           &hf_imf_resent_cc, dissect_imf_address_list, false},
+  {"resent-bcc",                          &hf_imf_resent_bcc, dissect_imf_address_list, false},
+  {"resent-message-id",                   &hf_imf_resent_message_id, NO_SUBDISSECTION, false},
+  {"return-path",                         &hf_imf_return_path, NULL, false},
+  {"received",                            &hf_imf_received, NO_SUBDISSECTION, false},
   /* these are really multi-part - but we parse them anyway */
-  {"content-type",                        &hf_imf_content_type, NULL, FALSE}, /* handled separately as a special case */
-  {"content-id",                          &hf_imf_content_id, NULL, FALSE},
-  {"content-description",                 &hf_imf_content_description, NULL, FALSE},
-  {"content-transfer-encoding",           &hf_imf_content_transfer_encoding, NULL, FALSE},
-  {"mime-version",                        &hf_imf_mime_version, NO_SUBDISSECTION, FALSE},
+  {"content-type",                        &hf_imf_content_type, NULL, false}, /* handled separately as a special case */
+  {"content-id",                          &hf_imf_content_id, NULL, false},
+  {"content-description",                 &hf_imf_content_description, NULL, false},
+  {"content-transfer-encoding",           &hf_imf_content_transfer_encoding, NULL, false},
+  {"mime-version",                        &hf_imf_mime_version, NO_SUBDISSECTION, false},
   /* MIXER - RFC 2156 */
-  {"autoforwarded",                       &hf_imf_autoforwarded, NULL, FALSE},
-  {"autosubmitted",                       &hf_imf_autosubmitted, NULL, FALSE},
-  {"x400-content-identifier",             &hf_imf_x400_content_identifier, NULL, FALSE},
-  {"content-language",                    &hf_imf_content_language, NULL, FALSE},
-  {"conversion",                          &hf_imf_conversion, NULL, FALSE},
-  {"conversion-with-loss",                &hf_imf_conversion_with_loss, NULL, FALSE},
-  {"delivery-date",                       &hf_imf_delivery_date, NULL, FALSE},
-  {"discarded-x400-ipms-extensions",      &hf_imf_discarded_x400_ipms_extensions, NULL, FALSE},
-  {"discarded-x400-mts-extensions",       &hf_imf_discarded_x400_mts_extensions, NULL, FALSE},
-  {"dl-expansion-history",                &hf_imf_dl_expansion_history, NULL, FALSE},
-  {"deferred-delivery",                   &hf_imf_deferred_delivery, NULL, FALSE},
-  {"expires",                             &hf_imf_expires, NULL, FALSE},
-  {"importance",                          &hf_imf_importance, NULL, FALSE},
-  {"incomplete-copy",                     &hf_imf_incomplete_copy, NULL, FALSE},
-  {"latest-delivery-time",                &hf_imf_latest_delivery_time, NULL, FALSE},
-  {"message-type",                        &hf_imf_message_type, NULL, FALSE},
-  {"original-encoded-information-types",  &hf_imf_original_encoded_information_types, NULL, FALSE},
-  {"originator-return-address",           &hf_imf_originator_return_address, NULL, FALSE},
-  {"priority",                            &hf_imf_priority, NULL, FALSE},
-  {"reply-by",                            &hf_imf_reply_by, NULL, FALSE},
-  {"sensitivity",                         &hf_imf_sensitivity, NULL, FALSE},
-  {"supersedes",                          &hf_imf_supersedes, NULL, FALSE},
-  {"x400-content-type",                   &hf_imf_x400_content_type, NULL, FALSE},
-  {"x400-mts-identifier",                 &hf_imf_x400_mts_identifier, NULL, FALSE},
-  {"x400-originator",                     &hf_imf_x400_originator, NULL, FALSE},
-  {"x400-received",                       &hf_imf_x400_received, NULL, FALSE},
-  {"x400-recipients",                     &hf_imf_x400_recipients, NULL, FALSE},
+  {"autoforwarded",                       &hf_imf_autoforwarded, NULL, false},
+  {"autosubmitted",                       &hf_imf_autosubmitted, NULL, false},
+  {"x400-content-identifier",             &hf_imf_x400_content_identifier, NULL, false},
+  {"content-language",                    &hf_imf_content_language, NULL, false},
+  {"conversion",                          &hf_imf_conversion, NULL, false},
+  {"conversion-with-loss",                &hf_imf_conversion_with_loss, NULL, false},
+  {"delivery-date",                       &hf_imf_delivery_date, NULL, false},
+  {"discarded-x400-ipms-extensions",      &hf_imf_discarded_x400_ipms_extensions, NULL, false},
+  {"discarded-x400-mts-extensions",       &hf_imf_discarded_x400_mts_extensions, NULL, false},
+  {"dl-expansion-history",                &hf_imf_dl_expansion_history, NULL, false},
+  {"deferred-delivery",                   &hf_imf_deferred_delivery, NULL, false},
+  {"expires",                             &hf_imf_expires, NULL, false},
+  {"importance",                          &hf_imf_importance, NULL, false},
+  {"incomplete-copy",                     &hf_imf_incomplete_copy, NULL, false},
+  {"latest-delivery-time",                &hf_imf_latest_delivery_time, NULL, false},
+  {"message-type",                        &hf_imf_message_type, NULL, false},
+  {"original-encoded-information-types",  &hf_imf_original_encoded_information_types, NULL, false},
+  {"originator-return-address",           &hf_imf_originator_return_address, NULL, false},
+  {"priority",                            &hf_imf_priority, NULL, false},
+  {"reply-by",                            &hf_imf_reply_by, NULL, false},
+  {"sensitivity",                         &hf_imf_sensitivity, NULL, false},
+  {"supersedes",                          &hf_imf_supersedes, NULL, false},
+  {"x400-content-type",                   &hf_imf_x400_content_type, NULL, false},
+  {"x400-mts-identifier",                 &hf_imf_x400_mts_identifier, NULL, false},
+  {"x400-originator",                     &hf_imf_x400_originator, NULL, false},
+  {"x400-received",                       &hf_imf_x400_received, NULL, false},
+  {"x400-recipients",                     &hf_imf_x400_recipients, NULL, false},
   /* delivery */
-  {"delivered-to",                        &hf_imf_delivered_to, dissect_imf_mailbox, FALSE}, /* mailbox */
+  {"delivered-to",                        &hf_imf_delivered_to, dissect_imf_mailbox, false}, /* mailbox */
   /* some others */
-  {"x-mailer",                            &hf_imf_ext_mailer, NO_SUBDISSECTION, FALSE}, /* unstructured */
-  {"thread-index",                        &hf_imf_thread_index, NO_SUBDISSECTION, FALSE}, /* unstructured */
-  {"lines",                               &hf_imf_lines, NULL, FALSE},
-  {"precedence",                          &hf_imf_precedence, NULL, FALSE},
-  {"x-mimeole",                           &hf_imf_ext_mimeole, NO_SUBDISSECTION, FALSE}, /* unstructured */
-  {"expiry-date",                         &hf_imf_ext_expiry_date, NO_SUBDISSECTION, FALSE}, /* unstructured */
-  {"x-ms-tnef-correlator",                &hf_imf_ext_tnef_correlator, NO_SUBDISSECTION, FALSE}, /* unstructured */
-  {"x-uidl",                              &hf_imf_ext_uidl, NO_SUBDISSECTION, FALSE}, /* unstructured */
-  {"x-authentication-warning",            &hf_imf_ext_authentication_warning, NO_SUBDISSECTION, FALSE}, /* unstructured */
-  {"x-virus-scanned",                     &hf_imf_ext_virus_scanned, NO_SUBDISSECTION, FALSE}, /* unstructured */
-  {"x-original-to",                       &hf_imf_ext_original_to, dissect_imf_address_list, FALSE},
-  {"sio-label",                           &hf_imf_siolabel, dissect_imf_siolabel, FALSE}, /* sio-label */
-  {NULL, NULL, NULL, FALSE},
+  {"x-mailer",                            &hf_imf_ext_mailer, NO_SUBDISSECTION, false}, /* unstructured */
+  {"thread-index",                        &hf_imf_thread_index, NO_SUBDISSECTION, false}, /* unstructured */
+  {"lines",                               &hf_imf_lines, NULL, false},
+  {"precedence",                          &hf_imf_precedence, NULL, false},
+  {"x-mimeole",                           &hf_imf_ext_mimeole, NO_SUBDISSECTION, false}, /* unstructured */
+  {"expiry-date",                         &hf_imf_ext_expiry_date, NO_SUBDISSECTION, false}, /* unstructured */
+  {"x-ms-tnef-correlator",                &hf_imf_ext_tnef_correlator, NO_SUBDISSECTION, false}, /* unstructured */
+  {"x-uidl",                              &hf_imf_ext_uidl, NO_SUBDISSECTION, false}, /* unstructured */
+  {"x-authentication-warning",            &hf_imf_ext_authentication_warning, NO_SUBDISSECTION, false}, /* unstructured */
+  {"x-virus-scanned",                     &hf_imf_ext_virus_scanned, NO_SUBDISSECTION, false}, /* unstructured */
+  {"x-original-to",                       &hf_imf_ext_original_to, dissect_imf_address_list, false},
+  {"sio-label",                           &hf_imf_siolabel, dissect_imf_siolabel, false}, /* sio-label */
+  {NULL, NULL, NULL, false},
 };
 
 static wmem_map_t *imf_field_table;
@@ -310,18 +310,18 @@ static const value_string add_to_col_info[] = {
 };
 
 typedef struct _header_field_t {
-  gchar *header_name;
-  gchar *description;
-  guint  header_format;
-  guint  add_to_col_info;
+  char *header_name;
+  char *description;
+  unsigned  header_format;
+  unsigned  add_to_col_info;
 } header_field_t;
 
 static header_field_t *header_fields;
-static guint num_header_fields;
+static unsigned num_header_fields;
 
 static GHashTable *custom_field_table;
 static hf_register_info *dynamic_hf;
-static guint dynamic_hf_size;
+static unsigned dynamic_hf_size;
 
 static bool
 header_fields_update_cb(void *r, char **err)
@@ -331,13 +331,13 @@ header_fields_update_cb(void *r, char **err)
 
   if (rec->header_name == NULL) {
     *err = g_strdup("Header name can't be empty");
-    return FALSE;
+    return false;
   }
 
   g_strstrip(rec->header_name);
   if (rec->header_name[0] == 0) {
     *err = g_strdup("Header name can't be empty");
-    return FALSE;
+    return false;
   }
 
   /* Check for invalid characters (to avoid asserting out when
@@ -346,11 +346,11 @@ header_fields_update_cb(void *r, char **err)
   c = proto_check_field_name(rec->header_name);
   if (c) {
     *err = ws_strdup_printf("Header name can't contain '%c'", c);
-    return FALSE;
+    return false;
   }
 
   *err = NULL;
-  return TRUE;
+  return true;
 }
 
 static void *
@@ -378,8 +378,8 @@ header_fields_free_cb(void *r)
 
 UAT_CSTRING_CB_DEF(header_fields, header_name, header_field_t)
 UAT_CSTRING_CB_DEF(header_fields, description, header_field_t)
-UAT_VS_DEF(header_fields, header_format, header_field_t, guint, 0, "Unstructured")
-UAT_VS_DEF(header_fields, add_to_col_info, header_field_t, guint, 0, "No")
+UAT_VS_DEF(header_fields, header_format, header_field_t, unsigned, 0, "Unstructured")
+UAT_VS_DEF(header_fields, add_to_col_info, header_field_t, unsigned, 0, "No")
 
 
 /* Define media_type/Content type table */
@@ -408,12 +408,12 @@ dissect_imf_address(tvbuff_t *tvb, int offset, int length, proto_item *item, pac
 
     /* consume any whitespace */
     for(addr_pos++ ;addr_pos < (offset + length); addr_pos++) {
-      if(!g_ascii_isspace(tvb_get_guint8(tvb, addr_pos))) {
+      if(!g_ascii_isspace(tvb_get_uint8(tvb, addr_pos))) {
         break;
       }
     }
 
-    if(tvb_get_guint8(tvb, addr_pos) != ';') {
+    if(tvb_get_uint8(tvb, addr_pos) != ';') {
 
       dissect_imf_mailbox_list(tvb, addr_pos, length - (addr_pos - offset), group_item, pinfo);
 
@@ -448,7 +448,7 @@ dissect_imf_mailbox(tvbuff_t *tvb, int offset, int length, proto_item *item, pac
     /* XXX: the '<' could be in the display name */
 
     for(; offset < addr_pos; offset++) {
-      if(!g_ascii_isspace(tvb_get_guint8(tvb, offset))) {
+      if(!g_ascii_isspace(tvb_get_uint8(tvb, offset))) {
         break;
       }
     }
@@ -551,7 +551,7 @@ dissect_imf_siolabel(tvbuff_t *tvb, int offset, int length, proto_item *item, pa
   int         value_offset, value_length;
   int         end_offset;
   tvbuff_t   *label_tvb;
-  gchar      *type = NULL;
+  char       *type = NULL;
   wmem_strbuf_t  *label_string = wmem_strbuf_new(pinfo->pool, "");
 
   /* a semicolon separated list of attributes */
@@ -562,29 +562,29 @@ dissect_imf_siolabel(tvbuff_t *tvb, int offset, int length, proto_item *item, pa
     end_offset = tvb_find_guint8(tvb, item_offset, length - (item_offset - offset), ';');
 
     /* skip leading space */
-    while (g_ascii_isspace(tvb_get_guint8(tvb, item_offset))) {
+    while (g_ascii_isspace(tvb_get_uint8(tvb, item_offset))) {
       item_offset++;
     }
 
     if (end_offset == -1) {
       /* length is to the end of the buffer */
-      item_length = tvb_find_line_end(tvb, item_offset, length - (item_offset - offset), NULL, FALSE);
+      item_length = tvb_find_line_end(tvb, item_offset, length - (item_offset - offset), NULL, false);
     } else {
       item_length = end_offset - item_offset;
     }
 
     value_offset = tvb_find_guint8(tvb, item_offset, length - (item_offset - offset), '=') + 1;
-    while (g_ascii_isspace(tvb_get_guint8(tvb, value_offset))) {
+    while (g_ascii_isspace(tvb_get_uint8(tvb, value_offset))) {
       value_offset++;
     }
 
     value_length = item_length - (value_offset - item_offset);
-    while (g_ascii_isspace(tvb_get_guint8(tvb, value_offset + value_length - 1))) {
+    while (g_ascii_isspace(tvb_get_uint8(tvb, value_offset + value_length - 1))) {
       value_length--;
     }
 
     if (tvb_strneql(tvb, item_offset, "marking", 7) == 0) {
-      const guint8* marking;
+      const uint8_t* marking;
       proto_tree_add_item_ret_string(tree, hf_imf_siolabel_marking, tvb, value_offset, value_length, ENC_ASCII|ENC_NA, pinfo->pool, &marking);
       proto_item_append_text(item, ": %s", marking);
 
@@ -599,10 +599,10 @@ dissect_imf_siolabel(tvbuff_t *tvb, int offset, int length, proto_item *item, pa
       proto_tree_add_item(tree, hf_imf_siolabel_type, tvb, value_offset, value_length, ENC_ASCII);
 
     } else if (tvb_strneql(tvb, item_offset, "label", 5) == 0) {
-      gchar *label = tvb_get_string_enc(pinfo->pool, tvb, value_offset + 1, value_length - 2, ENC_ASCII); /* quoted */
+      char *label = tvb_get_string_enc(pinfo->pool, tvb, value_offset + 1, value_length - 2, ENC_ASCII); /* quoted */
       wmem_strbuf_append(label_string, label);
 
-      if (tvb_get_guint8(tvb, item_offset + 5) == '*') { /* continuations */
+      if (tvb_get_uint8(tvb, item_offset + 5) == '*') { /* continuations */
         int num = (int)strtol(tvb_get_string_enc(pinfo->pool, tvb, item_offset + 6, value_offset - item_offset + 6, ENC_ASCII), NULL, 10);
         proto_tree_add_string_format(tree, hf_imf_siolabel_label, tvb, value_offset, value_length,
                                      label, "Label[%d]: \"%s\"", num, label);
@@ -635,7 +635,7 @@ dissect_imf_siolabel(tvbuff_t *tvb, int offset, int length, proto_item *item, pa
 
 static void
 dissect_imf_content_type(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_item *item,
-                         const guint8 **type, const guint8 **parameters)
+                         const uint8_t **type, const uint8_t **parameters)
 {
   int first_colon;
   int end_offset;
@@ -645,7 +645,7 @@ dissect_imf_content_type(tvbuff_t *tvb, packet_info *pinfo, int offset, int leng
 
   /* first strip any whitespace */
   for(i = 0; i < length; i++) {
-    if(!g_ascii_isspace(tvb_get_guint8(tvb, offset + i))) {
+    if(!g_ascii_isspace(tvb_get_uint8(tvb, offset + i))) {
       offset += i;
       break;
     }
@@ -671,7 +671,7 @@ dissect_imf_content_type(tvbuff_t *tvb, packet_info *pinfo, int offset, int leng
 
 
 int
-imf_find_field_end(tvbuff_t *tvb, int offset, gint max_length, bool *last_field)
+imf_find_field_end(tvbuff_t *tvb, int offset, int max_length, bool *last_field)
 {
 
   while(offset < max_length) {
@@ -681,7 +681,7 @@ imf_find_field_end(tvbuff_t *tvb, int offset, gint max_length, bool *last_field)
 
     if(offset != -1) {
       /* protect against buffer overrun and only then look for next char */
-        if (++offset < max_length && tvb_get_guint8(tvb, offset) == '\n') {
+        if (++offset < max_length && tvb_get_uint8(tvb, offset) == '\n') {
         /* OK - so we have found CRLF */
           if (++offset >= max_length) {
             /* end of buffer and also end of fields */
@@ -692,10 +692,10 @@ imf_find_field_end(tvbuff_t *tvb, int offset, gint max_length, bool *last_field)
             return offset - 2;
           }
         /* peek the next character */
-        switch(tvb_get_guint8(tvb, offset)) {
+        switch(tvb_get_uint8(tvb, offset)) {
         case '\r':
           /* probably end of the fields */
-          if ((offset + 1) < max_length && tvb_get_guint8(tvb, offset + 1) == '\n') {
+          if ((offset + 1) < max_length && tvb_get_uint8(tvb, offset + 1) == '\n') {
             if(last_field) {
               *last_field = true;
             }
@@ -726,16 +726,16 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_item  *item;
   proto_tree  *unknown_tree, *text_tree;
-  const guint8 *content_type_str = NULL;
+  const uint8_t *content_type_str = NULL;
   char  *content_encoding_str = NULL;
-  const guint8 *parameters = NULL;
+  const uint8_t *parameters = NULL;
   int   hf_id;
-  gint  start_offset = 0;
-  gint  value_offset = 0;
-  gint  unknown_offset = 0;
-  gint  end_offset = 0;
-  gint   max_length;
-  guint8 *key;
+  int   start_offset = 0;
+  int   value_offset = 0;
+  int   unknown_offset = 0;
+  int   end_offset = 0;
+  int    max_length;
+  uint8_t *key;
   bool last_field = false;
   tvbuff_t *next_tvb;
   struct imf_field *f_info;
@@ -807,7 +807,7 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
       /* remove any leading whitespace */
 
       for(value_offset = start_offset; value_offset < end_offset; value_offset++)
-        if(!g_ascii_isspace(tvb_get_guint8(tvb, value_offset))) {
+        if(!g_ascii_isspace(tvb_get_uint8(tvb, value_offset))) {
           break;
         }
 
@@ -911,7 +911,7 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
       /*
        * Find the end of the line.
        */
-      tvb_find_line_end(tvb, start_offset, -1, &end_offset, FALSE);
+      tvb_find_line_end(tvb, start_offset, -1, &end_offset, false);
 
       /*
        * Put this line.
@@ -930,7 +930,7 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   if (eo_info && have_tap_listener(imf_eo_tap)) {
     /* Set payload info */
     eo_info->payload_len = max_length;
-    eo_info->payload_data = (gchar *) tvb_memdup(pinfo->pool, tvb, 0, max_length);
+    eo_info->payload_data = (char *) tvb_memdup(pinfo->pool, tvb, 0, max_length);
 
     /* Send to tap */
     tap_queue_packet(imf_eo_tap, pinfo, eo_info);
@@ -939,7 +939,7 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 }
 
 static void
-free_imf_field (gpointer data)
+free_imf_field (void *data)
 {
   struct imf_field *imffield = (struct imf_field *) data;
 
@@ -952,7 +952,7 @@ deregister_header_fields(void)
 {
   if (dynamic_hf) {
     /* Deregister all fields */
-    for (guint i = 0; i < dynamic_hf_size; i++) {
+    for (unsigned i = 0; i < dynamic_hf_size; i++) {
       proto_deregister_field (proto_imf, *(dynamic_hf[i].p_id));
       g_free (dynamic_hf[i].p_id);
     }
@@ -971,9 +971,9 @@ deregister_header_fields(void)
 static void
 header_fields_post_update_cb (void)
 {
-  gint *hf_id;
+  int *hf_id;
   struct imf_field *imffield;
-  gchar *header_name;
+  char *header_name;
 
   deregister_header_fields();
 
@@ -982,8 +982,8 @@ header_fields_post_update_cb (void)
     dynamic_hf = g_new0(hf_register_info, num_header_fields);
     dynamic_hf_size = num_header_fields;
 
-    for (guint i = 0; i < dynamic_hf_size; i++) {
-      hf_id = g_new(gint, 1);
+    for (unsigned i = 0; i < dynamic_hf_size; i++) {
+      hf_id = g_new(int, 1);
       *hf_id = -1;
       header_name = g_strdup (header_fields[i].header_name);
 
@@ -1026,7 +1026,7 @@ header_fields_post_update_cb (void)
         break;
       }
       imffield->add_to_col_info = header_fields[i].add_to_col_info;
-      g_hash_table_insert (custom_field_table, (gpointer)imffield->name, (gpointer)imffield);
+      g_hash_table_insert (custom_field_table, (void *)imffield->name, (void *)imffield);
     }
 
     proto_register_field_array (proto_imf, dynamic_hf, dynamic_hf_size);
@@ -1308,7 +1308,7 @@ proto_register_imf(void)
       { "Message-Text", "imf.message_text", FT_NONE,  BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
   };
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_imf,
     &ett_imf_content_type,
     &ett_imf_group,
@@ -1335,7 +1335,7 @@ proto_register_imf(void)
   uat_t *headers_uat = uat_new("Custom IMF headers",
                                sizeof(header_field_t),
                                "imf_header_fields",
-                               TRUE,
+                               true,
                                &header_fields,
                                &num_header_fields,
                                /* specifies named fields, so affects dissection
@@ -1373,7 +1373,7 @@ proto_register_imf(void)
 
   /* register the fields for lookup */
   for(f = imf_fields; f->name; f++)
-    wmem_map_insert(imf_field_table, (gpointer)f->name, (gpointer)f);
+    wmem_map_insert(imf_field_table, (void *)f->name, (void *)f);
 
   /* Register for tapping */
   imf_eo_tap = register_export_object(proto_imf, imf_eo_packet, NULL);

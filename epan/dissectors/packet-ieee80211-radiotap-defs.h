@@ -36,18 +36,18 @@
  * All data in the header is little endian on all platforms.
  */
 struct ieee80211_radiotap_header {
-	guint8 it_version;	/* Version 0. Only increases
+	uint8_t it_version;	/* Version 0. Only increases
 				 * for drastic changes,
 				 * introduction of compatible
 				 * new fields does not count.
 				 */
-	guint8 it_pad;
-	guint16 it_len;		/* length of the whole
+	uint8_t it_pad;
+	uint16_t it_len;		/* length of the whole
 				 * header in bytes, including
 				 * it_version, it_pad,
 				 * it_len, and data fields.
 				 */
-	guint32 it_present;	/* A bitmap telling which
+	uint32_t it_present;	/* A bitmap telling which
 				 * fields are present. Set bit 31
 				 * (0x80000000) to extend the
 				 * bitmap by another 32 bits.
@@ -65,11 +65,11 @@ struct ieee80211_radiotap_header {
  *      Synchronization Function timer when the first bit of the
  *      MPDU arrived at the MAC. For received frames, only.
  *
- * IEEE80211_RADIOTAP_CHANNEL           2 x guint16   MHz, bitmap
+ * IEEE80211_RADIOTAP_CHANNEL           2 x uint16_t  MHz, bitmap
  *
  *      Tx/Rx frequency in MHz, followed by flags (see below).
  *
- * IEEE80211_RADIOTAP_FHSS              guint16       see below
+ * IEEE80211_RADIOTAP_FHSS              uint16_t      see below
  *
  *      For frequency-hopping radios, the hop set (first byte)
  *      and pattern (second byte).
@@ -100,20 +100,20 @@ struct ieee80211_radiotap_header {
  *      RF noise power at the antenna, decibel difference from an
  *      arbitrary, fixed reference point.
  *
- * IEEE80211_RADIOTAP_LOCK_QUALITY      guint16       unitless
+ * IEEE80211_RADIOTAP_LOCK_QUALITY      uint16_t      unitless
  *
  *      Quality of Barker code lock. Unitless. Monotonically
  *      nondecreasing with "better" lock strength. Called "Signal
  *      Quality" in datasheets.  (Is there a standard way to measure
  *      this?)
  *
- * IEEE80211_RADIOTAP_TX_ATTENUATION    guint16       unitless
+ * IEEE80211_RADIOTAP_TX_ATTENUATION    uint16_t      unitless
  *
  *      Transmit power expressed as unitless distance from max
  *      power set at factory calibration.  0 is max power.
  *      Monotonically nondecreasing with lower power levels.
  *
- * IEEE80211_RADIOTAP_DB_TX_ATTENUATION guint16       decibels (dB)
+ * IEEE80211_RADIOTAP_DB_TX_ATTENUATION uint16_t      decibels (dB)
  *
  *      Transmit power expressed as decibel distance from max power
  *      set at factory calibration.  0 is max power.  Monotonically
@@ -136,11 +136,11 @@ struct ieee80211_radiotap_header {
  *      Unitless indication of the Rx/Tx antenna for this packet.
  *      The first antenna is antenna 0.
  *
- * IEEE80211_RADIOTAP_RX_FLAGS          guint16       bitmap
+ * IEEE80211_RADIOTAP_RX_FLAGS          uint16_t      bitmap
  *
  *     Properties of received frames. See flags defined below.
  *
- * IEEE80211_RADIOTAP_TX_FLAGS          guint16       bitmap
+ * IEEE80211_RADIOTAP_TX_FLAGS          uint16_t      bitmap
  *
  *     Properties of transmitted frames. See flags defined below.
  *
@@ -216,9 +216,9 @@ enum ieee80211_radiotap_type {
 };
 
 struct ieee80211_radiotap_tlv {
-	guint16 type;
-	guint16 datalen;
-	guint8 data[];
+	uint16_t type;
+	uint16_t datalen;
+	uint8_t data[];
 };
 
 /* TLVs we understand. */

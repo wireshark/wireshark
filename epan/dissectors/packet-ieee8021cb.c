@@ -44,17 +44,17 @@ static int hf_ieee8021cb_seq;
 /* Encapsulated protocol */
 static int hf_ieee8021cb_etype;
 
-static gint ett_ieee8021cb;
+static int ett_ieee8021cb;
 
 #define IEEE8021CB_LEN 6
 
 static bool
-capture_ieee8021cb(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
+capture_ieee8021cb(const unsigned char *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
-    guint16 encap_proto;
+    uint16_t encap_proto;
 
     if (!BYTES_ARE_IN_FRAME(offset, len, IEEE8021CB_LEN + 1))
-        return FALSE;
+        return false;
 
     encap_proto = pntoh16( &pd[offset + IEEE8021CB_LEN - 2] );
     if (encap_proto <= IEEE_802_3_MAX_LEN) {
@@ -76,7 +76,7 @@ int dissect_ieee8021cb(tvbuff_t *tvb, packet_info *pinfo,
                    proto_tree *tree, void* data _U_)
 {
     proto_tree       *ptree   = NULL;
-    guint16           seq, pro;
+    uint16_t          seq, pro;
     ethertype_data_t  ethertype_data;
     proto_tree       *ieee8021cb_tree;
 
@@ -126,7 +126,7 @@ proto_register_ieee8021cb(void)
                 VALS(etype_vals), 0x0, "Ethertype", HFILL }}
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_ieee8021cb
     };
 

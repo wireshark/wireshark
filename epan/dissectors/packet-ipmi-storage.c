@@ -17,152 +17,152 @@
 
 void proto_register_ipmi_storage(void);
 
-static gint ett_ipmi_stor_10_flags;
-static gint ett_ipmi_stor_20_ops;
-static gint ett_ipmi_stor_25_byte6;
-static gint ett_ipmi_stor_27_status;
-static gint ett_ipmi_stor_2c_rq_byte1;
-static gint ett_ipmi_stor_2c_rs_byte1;
-static gint ett_ipmi_stor_40_ops;
-static gint ett_ipmi_stor_45_byte6;
-static gint ett_ipmi_stor_47_status;
-static gint ett_ipmi_stor_5a_byte1;
-static gint ett_ipmi_stor_5b_byte1;
+static int ett_ipmi_stor_10_flags;
+static int ett_ipmi_stor_20_ops;
+static int ett_ipmi_stor_25_byte6;
+static int ett_ipmi_stor_27_status;
+static int ett_ipmi_stor_2c_rq_byte1;
+static int ett_ipmi_stor_2c_rs_byte1;
+static int ett_ipmi_stor_40_ops;
+static int ett_ipmi_stor_45_byte6;
+static int ett_ipmi_stor_47_status;
+static int ett_ipmi_stor_5a_byte1;
+static int ett_ipmi_stor_5b_byte1;
 
-static gint hf_ipmi_stor_10_fruid;
-static gint hf_ipmi_stor_10_size;
-static gint hf_ipmi_stor_10_access;
+static int hf_ipmi_stor_10_fruid;
+static int hf_ipmi_stor_10_size;
+static int hf_ipmi_stor_10_access;
 
-static gint hf_ipmi_stor_11_fruid;
-static gint hf_ipmi_stor_11_offset;
-static gint hf_ipmi_stor_11_count;
-static gint hf_ipmi_stor_11_ret_count;
-static gint hf_ipmi_stor_11_data;
+static int hf_ipmi_stor_11_fruid;
+static int hf_ipmi_stor_11_offset;
+static int hf_ipmi_stor_11_count;
+static int hf_ipmi_stor_11_ret_count;
+static int hf_ipmi_stor_11_data;
 
-static gint hf_ipmi_stor_12_fruid;
-static gint hf_ipmi_stor_12_offset;
-static gint hf_ipmi_stor_12_data;
-static gint hf_ipmi_stor_12_ret_count;
+static int hf_ipmi_stor_12_fruid;
+static int hf_ipmi_stor_12_offset;
+static int hf_ipmi_stor_12_data;
+static int hf_ipmi_stor_12_ret_count;
 
-static gint hf_ipmi_stor_20_sdr_version;
-static gint hf_ipmi_stor_20_rec_count;
-static gint hf_ipmi_stor_20_free_space;
-static gint hf_ipmi_stor_20_ts_add;
-static gint hf_ipmi_stor_20_ts_erase;
-static gint hf_ipmi_stor_20_op_overflow;
-static gint hf_ipmi_stor_20_op_update;
-static gint hf_ipmi_stor_20_op_delete;
-static gint hf_ipmi_stor_20_op_partial_add;
-static gint hf_ipmi_stor_20_op_reserve;
-static gint hf_ipmi_stor_20_op_allocinfo;
+static int hf_ipmi_stor_20_sdr_version;
+static int hf_ipmi_stor_20_rec_count;
+static int hf_ipmi_stor_20_free_space;
+static int hf_ipmi_stor_20_ts_add;
+static int hf_ipmi_stor_20_ts_erase;
+static int hf_ipmi_stor_20_op_overflow;
+static int hf_ipmi_stor_20_op_update;
+static int hf_ipmi_stor_20_op_delete;
+static int hf_ipmi_stor_20_op_partial_add;
+static int hf_ipmi_stor_20_op_reserve;
+static int hf_ipmi_stor_20_op_allocinfo;
 
-static gint hf_ipmi_stor_21_units;
-static gint hf_ipmi_stor_21_size;
-static gint hf_ipmi_stor_21_free;
-static gint hf_ipmi_stor_21_largest;
-static gint hf_ipmi_stor_21_maxrec;
+static int hf_ipmi_stor_21_units;
+static int hf_ipmi_stor_21_size;
+static int hf_ipmi_stor_21_free;
+static int hf_ipmi_stor_21_largest;
+static int hf_ipmi_stor_21_maxrec;
 
-static gint hf_ipmi_stor_22_rsrv_id;
+static int hf_ipmi_stor_22_rsrv_id;
 
-static gint hf_ipmi_stor_23_rsrv_id;
-static gint hf_ipmi_stor_23_rec_id;
-static gint hf_ipmi_stor_23_offset;
-static gint hf_ipmi_stor_23_count;
-static gint hf_ipmi_stor_23_next;
-static gint hf_ipmi_stor_23_data;
+static int hf_ipmi_stor_23_rsrv_id;
+static int hf_ipmi_stor_23_rec_id;
+static int hf_ipmi_stor_23_offset;
+static int hf_ipmi_stor_23_count;
+static int hf_ipmi_stor_23_next;
+static int hf_ipmi_stor_23_data;
 
-static gint hf_ipmi_stor_24_data;
-static gint hf_ipmi_stor_24_added_rec_id;
+static int hf_ipmi_stor_24_data;
+static int hf_ipmi_stor_24_added_rec_id;
 
-static gint hf_ipmi_stor_25_rsrv_id;
-static gint hf_ipmi_stor_25_rec_id;
-static gint hf_ipmi_stor_25_offset;
-static gint hf_ipmi_stor_25_inprogress;
-static gint hf_ipmi_stor_25_data;
-static gint hf_ipmi_stor_25_added_rec_id;
-
-#if 0
-static gint hf_ipmi_stor_26_rsrv_id;
-static gint hf_ipmi_stor_26_rec_id;
-#endif
-static gint hf_ipmi_stor_26_del_rec_id;
-
-static gint hf_ipmi_stor_27_rsrv_id;
-static gint hf_ipmi_stor_27_clr;
-static gint hf_ipmi_stor_27_action;
-static gint hf_ipmi_stor_27_status;
-
-static gint hf_ipmi_stor_28_time;
-
-static gint hf_ipmi_stor_29_time;
-
-static gint hf_ipmi_stor_2c_init_agent;
-static gint hf_ipmi_stor_2c_init_state;
-
-static gint hf_ipmi_stor_40_sel_version;
-static gint hf_ipmi_stor_40_entries;
-static gint hf_ipmi_stor_40_free_space;
-static gint hf_ipmi_stor_40_ts_add;
-static gint hf_ipmi_stor_40_ts_erase;
-static gint hf_ipmi_stor_40_op_overflow;
-static gint hf_ipmi_stor_40_op_delete;
-static gint hf_ipmi_stor_40_op_partial_add;
-static gint hf_ipmi_stor_40_op_reserve;
-static gint hf_ipmi_stor_40_op_allocinfo;
-
-static gint hf_ipmi_stor_41_units;
-static gint hf_ipmi_stor_41_size;
-static gint hf_ipmi_stor_41_free;
-static gint hf_ipmi_stor_41_largest;
-static gint hf_ipmi_stor_41_maxrec;
-
-static gint hf_ipmi_stor_42_rsrv_id;
-
-static gint hf_ipmi_stor_43_rsrv_id;
-static gint hf_ipmi_stor_43_rec_id;
-static gint hf_ipmi_stor_43_offset;
-static gint hf_ipmi_stor_43_count;
-static gint hf_ipmi_stor_43_next;
-static gint hf_ipmi_stor_43_data;
-
-static gint hf_ipmi_stor_44_data;
-static gint hf_ipmi_stor_44_added_rec_id;
-
-static gint hf_ipmi_stor_45_rsrv_id;
-static gint hf_ipmi_stor_45_rec_id;
-static gint hf_ipmi_stor_45_offset;
-static gint hf_ipmi_stor_45_inprogress;
-static gint hf_ipmi_stor_45_data;
-static gint hf_ipmi_stor_45_added_rec_id;
+static int hf_ipmi_stor_25_rsrv_id;
+static int hf_ipmi_stor_25_rec_id;
+static int hf_ipmi_stor_25_offset;
+static int hf_ipmi_stor_25_inprogress;
+static int hf_ipmi_stor_25_data;
+static int hf_ipmi_stor_25_added_rec_id;
 
 #if 0
-static gint hf_ipmi_stor_46_rsrv_id;
-static gint hf_ipmi_stor_46_rec_id;
+static int hf_ipmi_stor_26_rsrv_id;
+static int hf_ipmi_stor_26_rec_id;
 #endif
-static gint hf_ipmi_stor_46_del_rec_id;
+static int hf_ipmi_stor_26_del_rec_id;
 
-static gint hf_ipmi_stor_47_rsrv_id;
-static gint hf_ipmi_stor_47_clr;
-static gint hf_ipmi_stor_47_action;
-static gint hf_ipmi_stor_47_status;
+static int hf_ipmi_stor_27_rsrv_id;
+static int hf_ipmi_stor_27_clr;
+static int hf_ipmi_stor_27_action;
+static int hf_ipmi_stor_27_status;
 
-static gint hf_ipmi_stor_48_time;
+static int hf_ipmi_stor_28_time;
 
-static gint hf_ipmi_stor_49_time;
+static int hf_ipmi_stor_29_time;
 
-static gint hf_ipmi_stor_5a_log_type;
-static gint hf_ipmi_stor_5a_ts_add;
-static gint hf_ipmi_stor_5a_num_entries;
-static gint hf_ipmi_stor_5a_iana;
-static gint hf_ipmi_stor_5a_bytes;
-static gint hf_ipmi_stor_5a_unknown;
+static int hf_ipmi_stor_2c_init_agent;
+static int hf_ipmi_stor_2c_init_state;
 
-static gint hf_ipmi_stor_5b_log_type;
-static gint hf_ipmi_stor_5b_ts_add;
-static gint hf_ipmi_stor_5b_num_entries;
-static gint hf_ipmi_stor_5b_iana;
-static gint hf_ipmi_stor_5b_bytes;
-static gint hf_ipmi_stor_5b_unknown;
+static int hf_ipmi_stor_40_sel_version;
+static int hf_ipmi_stor_40_entries;
+static int hf_ipmi_stor_40_free_space;
+static int hf_ipmi_stor_40_ts_add;
+static int hf_ipmi_stor_40_ts_erase;
+static int hf_ipmi_stor_40_op_overflow;
+static int hf_ipmi_stor_40_op_delete;
+static int hf_ipmi_stor_40_op_partial_add;
+static int hf_ipmi_stor_40_op_reserve;
+static int hf_ipmi_stor_40_op_allocinfo;
+
+static int hf_ipmi_stor_41_units;
+static int hf_ipmi_stor_41_size;
+static int hf_ipmi_stor_41_free;
+static int hf_ipmi_stor_41_largest;
+static int hf_ipmi_stor_41_maxrec;
+
+static int hf_ipmi_stor_42_rsrv_id;
+
+static int hf_ipmi_stor_43_rsrv_id;
+static int hf_ipmi_stor_43_rec_id;
+static int hf_ipmi_stor_43_offset;
+static int hf_ipmi_stor_43_count;
+static int hf_ipmi_stor_43_next;
+static int hf_ipmi_stor_43_data;
+
+static int hf_ipmi_stor_44_data;
+static int hf_ipmi_stor_44_added_rec_id;
+
+static int hf_ipmi_stor_45_rsrv_id;
+static int hf_ipmi_stor_45_rec_id;
+static int hf_ipmi_stor_45_offset;
+static int hf_ipmi_stor_45_inprogress;
+static int hf_ipmi_stor_45_data;
+static int hf_ipmi_stor_45_added_rec_id;
+
+#if 0
+static int hf_ipmi_stor_46_rsrv_id;
+static int hf_ipmi_stor_46_rec_id;
+#endif
+static int hf_ipmi_stor_46_del_rec_id;
+
+static int hf_ipmi_stor_47_rsrv_id;
+static int hf_ipmi_stor_47_clr;
+static int hf_ipmi_stor_47_action;
+static int hf_ipmi_stor_47_status;
+
+static int hf_ipmi_stor_48_time;
+
+static int hf_ipmi_stor_49_time;
+
+static int hf_ipmi_stor_5a_log_type;
+static int hf_ipmi_stor_5a_ts_add;
+static int hf_ipmi_stor_5a_num_entries;
+static int hf_ipmi_stor_5a_iana;
+static int hf_ipmi_stor_5a_bytes;
+static int hf_ipmi_stor_5a_unknown;
+
+static int hf_ipmi_stor_5b_log_type;
+static int hf_ipmi_stor_5b_ts_add;
+static int hf_ipmi_stor_5b_num_entries;
+static int hf_ipmi_stor_5b_iana;
+static int hf_ipmi_stor_5b_bytes;
+static int hf_ipmi_stor_5b_unknown;
 
 static const struct true_false_string tfs_10_access = {
 	"by words", "by bytes"
@@ -331,7 +331,7 @@ rs22(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rq23(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	guint8 v = tvb_get_guint8(tvb, 5);
+	uint8_t v = tvb_get_uint8(tvb, 5);
 
 	proto_tree_add_item(tree, hf_ipmi_stor_23_rsrv_id, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_stor_23_rec_id, tvb, 2, 2, ENC_LITTLE_ENDIAN);
@@ -509,7 +509,7 @@ static const value_string cc42[] = {
 static void
 rq43(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	guint8 v = tvb_get_guint8(tvb, 5);
+	uint8_t v = tvb_get_uint8(tvb, 5);
 
 	proto_tree_add_item(tree, hf_ipmi_stor_43_rsrv_id, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_stor_43_rec_id, tvb, 2, 2, ENC_LITTLE_ENDIAN);
@@ -641,7 +641,7 @@ rq5a(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static int * const byte1[] = { &hf_ipmi_stor_5a_log_type, NULL };
 
-	ipmi_set_data(pinfo, 0, tvb_get_guint8(tvb, 0) & 0x0f);
+	ipmi_set_data(pinfo, 0, tvb_get_uint8(tvb, 0) & 0x0f);
 	if (!tree) {
 		return;
 	}
@@ -653,7 +653,7 @@ rq5a(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs5a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	guint32 v;
+	uint32_t v;
 
 	if (!ipmi_get_data(pinfo, 0, &v) || v > 2) {
 		proto_tree_add_item(tree, hf_ipmi_stor_5a_unknown, tvb, 0, -1, ENC_NA);
@@ -675,7 +675,7 @@ static void
 rq5b(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	static int * const byte1[] = { &hf_ipmi_stor_5b_log_type, NULL };
-	guint8 v = tvb_get_guint8(tvb, 0);
+	uint8_t v = tvb_get_uint8(tvb, 0);
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
 			ett_ipmi_stor_5b_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
@@ -1084,7 +1084,7 @@ proto_register_ipmi_storage(void)
 				"ipmi.st5b.unknown", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
 	};
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_ipmi_stor_10_flags,
 		&ett_ipmi_stor_20_ops,
 		&ett_ipmi_stor_25_byte6,

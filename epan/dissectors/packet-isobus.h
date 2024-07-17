@@ -19,13 +19,13 @@
 
 /* Structure that gets passed between dissectors. */
 typedef struct isobus_info {
-    guint32 can_id;
-    guint16 bus_id;
+    uint32_t can_id;
+    uint16_t bus_id;
 
-    guint8  priority;
-    guint8  pdu_format;
-    guint32 pgn;
-    guint8  source_addr;
+    uint8_t priority;
+    uint8_t pdu_format;
+    uint32_t pgn;
+    uint8_t source_addr;
 } isobus_info_t;
 
 #endif /* __PACKET_ISOBUS_H__ */

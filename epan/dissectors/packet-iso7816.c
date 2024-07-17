@@ -94,9 +94,9 @@ static expert_field ei_iso7816_atr_tck_not1;
 #define ADDR_CARD "Card"
 
 typedef struct _iso7816_transaction_t {
-    guint32  cmd_frame;
-    guint32  resp_frame;
-    guint8   cmd_ins;  /* instruction byte in the command apdu */
+    uint32_t cmd_frame;
+    uint32_t resp_frame;
+    uint8_t  cmd_ins;  /* instruction byte in the command apdu */
     /* no need to add the channel number,
        the response contains no channel number to compare this to
        and the spec explicitly prohibits interleaving of command-response
@@ -234,7 +234,7 @@ static const value_string unique_max_num_available_bytes[] = {
 };
 
 static inline
-guint16 FI_to_Fi(guint8 FI)
+uint16_t FI_to_Fi(uint8_t FI)
 {
     if (FI<=1)
         return 372;
@@ -255,7 +255,7 @@ guint16 FI_to_Fi(guint8 FI)
 }
 
 static inline
-guint8 DI_to_Di(guint8 DI)
+uint8_t DI_to_Di(uint8_t DI)
 {
     if (DI>=1 && DI<=6)
         return 1 << (DI-1);
@@ -269,23 +269,23 @@ guint8 DI_to_Di(guint8 DI)
 
 /* dissect TA(ta_index) */
 static void
-dissect_iso7816_atr_ta(tvbuff_t *tvb, gint offset, guint ta_index,
+dissect_iso7816_atr_ta(tvbuff_t *tvb, int offset, unsigned ta_index,
         packet_info *pinfo _U_, proto_tree *tree)
 {
-    guint8      ta, FI, DI;
-    guint16     Fi;
-    guint8      Di;
+    uint8_t     ta, FI, DI;
+    uint16_t    Fi;
+    uint8_t     Di;
     proto_item *ta_it;
     proto_tree *ta_tree;
 
-    ta = tvb_get_guint8(tvb, offset);
+    ta = tvb_get_uint8(tvb, offset);
     ta_it = proto_tree_add_uint_format(tree, hf_iso7816_atr_ta,
             tvb, offset, 1, ta,
             "Interface character TA(%d): 0x%02x", ta_index, ta);
     ta_tree = proto_item_add_subtree(ta_it, ett_iso7816_atr_ta);
 
     if (ta_index==1) {
-        FI = (tvb_get_guint8(tvb, offset) & 0xF0) >> 4;
+        FI = (tvb_get_uint8(tvb, offset) & 0xF0) >> 4;
         Fi = FI_to_Fi(FI);
         if (Fi>0) {
             proto_tree_add_uint_format(ta_tree, hf_iso7816_atr_ta1_fi,
@@ -294,7 +294,7 @@ dissect_iso7816_atr_ta(tvbuff_t *tvb, gint offset, guint ta_index,
                     Fi, FI);
         }
 
-        DI = tvb_get_guint8(tvb, offset) & 0x0F;
+        DI = tvb_get_uint8(tvb, offset) & 0x0F;
         Di = DI_to_Di(DI);
         if (Di>0) {
             proto_tree_add_uint_format(ta_tree, hf_iso7816_atr_ta1_di,
@@ -308,19 +308,19 @@ dissect_iso7816_atr_ta(tvbuff_t *tvb, gint offset, guint ta_index,
 static int
 dissect_iso7816_atr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    gint        offset=0;
-    guint8      init_char;
-    guint       i=0;  /* loop index for TA(i)...TD(i) */
+    int         offset=0;
+    uint8_t     init_char;
+    unsigned    i=0;  /* loop index for TA(i)...TD(i) */
     proto_item *proto_it;
     proto_tree *proto_tr;
-    guint8      tb, tc, td, k=0;
-    gint        tck_len;
+    uint8_t     tb, tc, td, k=0;
+    int         tck_len;
 
     /* we need at least the initial char TS and the format char T0 */
     if (tvb_captured_length(tvb) < 2)
         return 0; /* no ATR sequence */
 
-    init_char = tvb_get_guint8(tvb, offset);
+    init_char = tvb_get_uint8(tvb, offset);
     if (init_char!=0x3B && init_char!=0x3F)
         return 0;
 
@@ -341,7 +341,7 @@ dissect_iso7816_atr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 
         /* for i==0, this is the T0 byte, otherwise it's the TD(i) byte
            in each loop, we dissect T0/TD(i) and TA(i+1), TB(i+1), TC(i+1) */
-        td = tvb_get_guint8(tvb, offset);
+        td = tvb_get_uint8(tvb, offset);
         if (i==0) {
             td_it = proto_tree_add_item(proto_tr, hf_iso7816_atr_t0,
                     tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -390,14 +390,14 @@ dissect_iso7816_atr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
             offset++;
         }
         if (td&0x20) {
-            tb = tvb_get_guint8(tvb, offset);
+            tb = tvb_get_uint8(tvb, offset);
             proto_tree_add_uint_format(proto_tr, hf_iso7816_atr_tb,
                     tvb, offset, 1, tb,
                     "Interface character TB(%d): 0x%02x", i+1, tb);
             offset++;
         }
         if (td&0x40) {
-            tc = tvb_get_guint8(tvb, offset);
+            tc = tvb_get_uint8(tvb, offset);
             proto_tree_add_uint_format(proto_tr, hf_iso7816_atr_tc,
                     tvb, offset, 1, tc,
                     "Interface character TC(%d): 0x%02x", i+1, tc);
@@ -433,19 +433,19 @@ dissect_iso7816_atr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
    adhere to ISO 7816. In this case, we can dissect the rest of the
    APDU. Otherwise, return -1. We may then pass the APDU to other
    dissectors. */
-static gint
-dissect_iso7816_class(tvbuff_t *tvb, gint offset,
+static int
+dissect_iso7816_class(tvbuff_t *tvb, int offset,
         packet_info *pinfo _U_, proto_tree *tree)
 {
     proto_item *class_item;
     proto_tree *class_tree;
-    guint8      dev_class;
+    uint8_t     dev_class;
 
     class_item = proto_tree_add_item(tree, hf_iso7816_cla,
             tvb, offset, 1, ENC_BIG_ENDIAN);
     class_tree = proto_item_add_subtree(class_item, ett_iso7816_class);
 
-    dev_class = tvb_get_guint8(tvb, offset);
+    dev_class = tvb_get_uint8(tvb, offset);
 
     if (dev_class>=0x10 && dev_class<=0x7F) {
         /* these values are RFU. */
@@ -487,30 +487,30 @@ dissect_iso7816_class(tvbuff_t *tvb, gint offset,
 
 /* dissect the parameters p1 and p2
    return number of dissected bytes or -1 for error */
-static gint
-dissect_iso7816_params(guint8 ins, tvbuff_t *tvb, gint offset,
+static int
+dissect_iso7816_params(uint8_t ins, tvbuff_t *tvb, int offset,
                  packet_info *pinfo _U_, proto_tree *tree)
 {
-    gint        offset_start, p1_offset, p2_offset;
+    int         offset_start, p1_offset, p2_offset;
     proto_tree *params_tree;
-    guint8      p1, p2;
+    uint8_t     p1, p2;
     proto_item *p1_it = NULL, *p2_it = NULL;
     proto_tree *p1_tree = NULL, *p2_tree = NULL;
     proto_item *p1_p2_it = NULL;
-    guint16     P1P2;
-    guint32     ef, read_rec_usage;
+    uint16_t    P1P2;
+    uint32_t    ef, read_rec_usage;
 
     offset_start = offset;
 
     params_tree = proto_tree_add_subtree(tree, tvb, offset_start, 2,
                                 ett_iso7816_param, NULL, "Parameters");
 
-    p1 = tvb_get_guint8(tvb,offset);
+    p1 = tvb_get_uint8(tvb,offset);
     p1_it = proto_tree_add_item(params_tree, hf_iso7816_p1, tvb,
             offset, 1, ENC_BIG_ENDIAN);
     p1_offset = offset;
     offset++;
-    p2 = tvb_get_guint8(tvb,offset);
+    p2 = tvb_get_uint8(tvb,offset);
     p2_it = proto_tree_add_item(params_tree, hf_iso7816_p2,
             tvb, offset, 1, ENC_BIG_ENDIAN);
     p2_offset = offset;
@@ -587,9 +587,9 @@ dissect_iso7816_params(guint8 ins, tvbuff_t *tvb, gint offset,
     return 2;
 }
 
-static gint
+static int
 dissect_iso7816_le(
-        tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tree)
+        tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_iso7816_le, tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -597,16 +597,16 @@ dissect_iso7816_le(
 }
 
 
-static gint
+static int
 dissect_iso7816_cmd_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     iso7816_transaction_t *iso7816_trans = NULL;
     proto_item            *trans_ti = NULL;
-    gint                   ret;
-    gint                   offset = 0;
-    guint8                 ins;
-    gint                   body_len;
-    guint8                 lc;
+    int                    ret;
+    int                    offset = 0;
+    uint8_t                ins;
+    int                    body_len;
+    uint8_t                lc;
 
 
     if (PINFO_FD_VISITED(pinfo)) {
@@ -655,7 +655,7 @@ dissect_iso7816_cmd_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     offset += ret;
 
-    ins = tvb_get_guint8(tvb, offset);
+    ins = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_iso7816_ins, tvb, offset, 1, ENC_BIG_ENDIAN);
     col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
             val_to_str_ext_const(ins, &iso7816_ins_ext, "Unknown instruction"));
@@ -677,7 +677,7 @@ dissect_iso7816_cmd_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset += dissect_iso7816_le(tvb, offset, pinfo, tree);
     }
     else if (body_len>1) {
-        lc = tvb_get_guint8(tvb, offset);
+        lc = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(
                 tree, hf_iso7816_lc, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
@@ -693,14 +693,14 @@ dissect_iso7816_cmd_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     return offset;
 }
 
-static gint
+static int
 dissect_iso7816_resp_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     iso7816_transaction_t *iso7816_trans;
     proto_item            *trans_ti = NULL;
-    const gchar           *cmd_ins_str;
-    gint                   offset = 0;
-    gint                   body_len;
+    const char            *cmd_ins_str;
+    int                    offset = 0;
+    int                    body_len;
 
     col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Response APDU");
 
@@ -758,10 +758,10 @@ dissect_iso7816_resp_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static int
 dissect_iso7816(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    gint        offset = 0;
+    int         offset = 0;
     proto_item *tree_ti;
     proto_tree *iso7816_tree;
-    gboolean    is_atr = FALSE;
+    bool        is_atr = false;
 
     if (pinfo->p2p_dir!=P2P_DIR_SENT && pinfo->p2p_dir!=P2P_DIR_RECV)
         return 0;
@@ -793,7 +793,7 @@ dissect_iso7816(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
             offset = call_dissector_only(iso7816_atr_handle,
                     tvb, pinfo, iso7816_tree, NULL);
             if (offset > 0)
-                is_atr = TRUE;
+                is_atr = true;
         }
         if (!is_atr) {
             proto_item_append_text(tree_ti, " Response APDU");
@@ -967,7 +967,7 @@ proto_register_iso7816(void)
                 FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }
         },
     };
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_iso7816,
         &ett_iso7816_class,
         &ett_iso7816_param,

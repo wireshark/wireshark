@@ -128,8 +128,8 @@ dissect_igap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 {
     proto_tree *tree;
     proto_item *item;
-    guint8 type, tsecs, subtype, asize, msize;
-    guint8 authentication_result, accounting_status;
+    uint8_t type, tsecs, subtype, asize, msize;
+    uint8_t authentication_result, accounting_status;
     int offset = 0;
 
     item = proto_tree_add_item(parent_tree, proto_igap, tvb, offset, -1, ENC_NA);
@@ -138,13 +138,13 @@ dissect_igap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IGAP");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    type = tvb_get_guint8(tvb, offset);
+    type = tvb_get_uint8(tvb, offset);
         col_add_str(pinfo->cinfo, COL_INFO,
                      val_to_str(type, igap_types, "Unknown Type: 0x%02x"));
     proto_tree_add_uint(tree, hf_type, tvb, offset, 1, type);
     offset += 1;
 
-    tsecs = tvb_get_guint8(tvb, offset);
+    tsecs = tvb_get_uint8(tvb, offset);
     proto_tree_add_uint_format_value(tree, hf_max_resp, tvb, offset, 1, tsecs,
         "%.1f sec (0x%02x)", tsecs * 0.1, tsecs);
     offset += 1;
@@ -158,18 +158,18 @@ dissect_igap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
     proto_tree_add_item(tree, hf_version, tvb, offset, 1, ENC_NA);
     offset += 1;
 
-    subtype = tvb_get_guint8(tvb, offset);
+    subtype = tvb_get_uint8(tvb, offset);
     proto_tree_add_uint(tree, hf_subtype, tvb, offset, 1, subtype);
     offset += 2;
 
     proto_tree_add_item(tree, hf_challengeid, tvb, offset, 1, ENC_NA);
     offset += 1;
 
-    asize = tvb_get_guint8(tvb, offset);
+    asize = tvb_get_uint8(tvb, offset);
     proto_tree_add_uint(tree, hf_asize, tvb, offset, 1, asize);
     offset += 1;
 
-    msize = tvb_get_guint8(tvb, offset);
+    msize = tvb_get_uint8(tvb, offset);
     proto_tree_add_uint(tree, hf_msize, tvb, offset, 1, msize);
     offset += 3;
 
@@ -209,13 +209,13 @@ dissect_igap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
         case IGAP_SUBTYPE_AUTH_MESSAGE:
             /* Challenge field indicates the result of the authentication */
             /* XXX - what if the length isn't 1? */
-            authentication_result = tvb_get_guint8(tvb, offset);
+            authentication_result = tvb_get_uint8(tvb, offset);
             proto_tree_add_uint(tree, hf_igap_authentication_result, tvb, offset, msize, authentication_result);
             break;
         case IGAP_SUBTYPE_ACCOUNTING_MESSAGE:
             /* Challenge field indicates the accounting status */
             /* XXX - what if the length isn't 1? */
-            accounting_status = tvb_get_guint8(tvb, offset);
+            accounting_status = tvb_get_uint8(tvb, offset);
             proto_tree_add_uint(tree, hf_igap_accounting_status, tvb, offset, msize, accounting_status);
             break;
         default:
@@ -328,7 +328,7 @@ proto_register_igap(void)
 
     expert_module_t* expert_igap;
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_igap
     };
 

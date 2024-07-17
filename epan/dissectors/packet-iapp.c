@@ -38,12 +38,12 @@ static int hf_iapp_pdu_regdomain;
 static int hf_iapp_pdu_oui_ident;
 
 /* Initialize the subtree pointers */
-static gint ett_iapp;
-static gint ett_iapp_pdu;
-static gint ett_iapp_subpdu;
-static gint ett_iapp_cap;
-static gint ett_iapp_auth;
-static gint ett_iapp_authinfo;
+static int ett_iapp;
+static int ett_iapp_pdu;
+static int ett_iapp_subpdu;
+static int ett_iapp_cap;
+static int ett_iapp_auth;
+static int ett_iapp_authinfo;
 
 static expert_field ei_iapp_no_pdus;
 
@@ -185,7 +185,7 @@ add_authval_str(proto_tree *tree, int type, int len, tvbuff_t *tvb, int offset)
     switch (type)
     {
         case IAPP_AUTH_STATUS:
-            val = tvb_get_guint8(tvb, offset);
+            val = tvb_get_uint8(tvb, offset);
             proto_tree_add_uint_format_value(tree, hf_iapp_auth_status, tvb, offset, 1, val, "%s", val ? "Authenticated" : "Not authenticated");
             break;
         case IAPP_AUTH_USERNAME:
@@ -221,14 +221,14 @@ add_authval_str(proto_tree *tree, int type, int len, tvbuff_t *tvb, int offset)
 static void dissect_authinfo(proto_item *pitem, tvbuff_t *tvb, int offset, int sumlen)
 {
     proto_tree *authtree, *value_tree;
-    guint8 pdu_type;
-    guint16 len;
+    uint8_t pdu_type;
+    uint16_t len;
 
     authtree = proto_item_add_subtree(pitem, ett_iapp_auth);
 
     while (sumlen > 0)
     {
-        pdu_type = tvb_get_guint8(tvb, offset);
+        pdu_type = tvb_get_uint8(tvb, offset);
         len = tvb_get_ntohs(tvb, offset+1);
 
         value_tree = proto_tree_add_subtree_format(authtree, tvb, offset, len + 3,
@@ -244,9 +244,9 @@ static void dissect_authinfo(proto_item *pitem, tvbuff_t *tvb, int offset, int s
 
 /* get displayable values of PDU contents */
 
-static gboolean
+static bool
 append_pduval_str(proto_tree *tree, int type, int len, tvbuff_t *tvb, int offset,
-    gboolean is_fhss)
+    bool is_fhss)
 {
     int val;
 
@@ -277,7 +277,7 @@ append_pduval_str(proto_tree *tree, int type, int len, tvbuff_t *tvb, int offset
             break;
         case IAPP_PDU_PHYTYPE:
             proto_tree_add_item(tree, hf_iapp_pdu_phytype, tvb, offset, 1, ENC_BIG_ENDIAN);
-            is_fhss = (tvb_get_guint8(tvb, offset) == IAPP_PHY_FHSS);
+            is_fhss = (tvb_get_uint8(tvb, offset) == IAPP_PHY_FHSS);
             break;
         case IAPP_PDU_REGDOMAIN:
             proto_tree_add_item(tree, hf_iapp_pdu_regdomain, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -285,7 +285,7 @@ append_pduval_str(proto_tree *tree, int type, int len, tvbuff_t *tvb, int offset
         case IAPP_PDU_CHANNEL:
             if (is_fhss)
             {
-                val = tvb_get_guint8(tvb, offset);
+                val = tvb_get_uint8(tvb, offset);
                 proto_tree_add_uint_format(tree, hf_iapp_pdu_uint, tvb, offset, 1, val,
                         "Pattern set %d, sequence %d", ((val >> 6) & 3) + 1, (val & 31) + 1);
             }
@@ -304,10 +304,10 @@ append_pduval_str(proto_tree *tree, int type, int len, tvbuff_t *tvb, int offset
 static void
 dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *pdutree, proto_item *pduitem, int pdulen)
 {
-    guint8 pdu_type;
-    guint16 len;
+    uint8_t pdu_type;
+    uint16_t len;
     proto_item *ti;
-    gboolean is_fhss;
+    bool is_fhss;
     proto_tree *subtree;
 
     if (!pdulen)
@@ -316,10 +316,10 @@ dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *pdutree,
         return;
     }
 
-    is_fhss = FALSE;
+    is_fhss = false;
     while (pdulen > 0)
     {
-        pdu_type = tvb_get_guint8(tvb, offset);
+        pdu_type = tvb_get_uint8(tvb, offset);
         len = tvb_get_ntohs(tvb, offset+1);
 
         subtree = proto_tree_add_subtree_format(pdutree, tvb, offset, len + 3,
@@ -343,16 +343,16 @@ dissect_iapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 {
     proto_item *ti, *pduitem;
     proto_tree *iapp_tree, *pdutree;
-    guint8 ia_version;
-    guint8 ia_type;
-    const gchar *codestrval;
+    uint8_t ia_version;
+    uint8_t ia_type;
+    const char *codestrval;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IAPP");
 
     col_clear(pinfo->cinfo, COL_INFO);
 
-    ia_version = tvb_get_guint8(tvb, 0);
-    ia_type = tvb_get_guint8(tvb, 1);
+    ia_version = tvb_get_uint8(tvb, 0);
+    ia_type = tvb_get_uint8(tvb, 1);
 
     codestrval = val_to_str_const(ia_type, iapp_vals, "Unknown Packet");
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s(%d) (version=%d)", codestrval, ia_type, ia_version);
@@ -433,7 +433,7 @@ proto_register_iapp(void)
         },
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_iapp,
         &ett_iapp_pdu,
         &ett_iapp_subpdu,

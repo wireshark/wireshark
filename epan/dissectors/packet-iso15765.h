@@ -20,13 +20,13 @@
 
 
 typedef struct _iso15765_info {
-    guint32  bus_type;
-    guint32  id;
-    guint32  len;
-    guint16  target_address;
-    guint16  source_address;
-    guint8   number_of_addresses_valid;
-    guint8   address_length;
+    uint32_t bus_type;
+    uint32_t id;
+    uint32_t len;
+    uint16_t target_address;
+    uint16_t source_address;
+    uint8_t  number_of_addresses_valid;
+    uint8_t  address_length;
 } iso15765_info_t;
 
 #endif /* __PACKET_ISO15765_H__ */

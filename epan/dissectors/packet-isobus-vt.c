@@ -21,7 +21,7 @@
 void proto_register_isobus_vt(void);
 void proto_reg_handoff_isobus_vt(void);
 
-static guint8 current_vt_version;
+static uint8_t current_vt_version;
 
 /* Initialize the protocol and registered fields */
 static int proto_vt;
@@ -803,19 +803,19 @@ static const value_string draw_text_background[] = {
 static value_string object_id_strings[MAX_OBJECT_ID_DB_SIZE];
 
 /* Initialize the subtree pointers */
-static gint ett_isobus_vt;
-static gint ett_isobus_vt_vtstatus_busycodes_subtree;
-static gint ett_isobus_vt_getsupportedwidechars_range;
-static gint ett_isobus_vt_gettextfontdata_smallfontsizes;
-static gint ett_isobus_vt_gettextfontdata_largefontsizes;
-static gint ett_isobus_vt_gettextfontdata_typeattributes;
-static gint ett_isobus_vt_gethardware_hardware;
-static gint ett_isobus_vt_preferredassignment_inputunit;
-static gint ett_isobus_vt_preferredassignment_inputunit_preferredfunction;
-static gint ett_isobus_vt_auxiliarycapabilities_inputunit;
-static gint ett_isobus_vt_auxiliarycapabilities_inputunit_set;
-static gint ett_isobus_vt_auxiliaryassignmenttype2_flags;
-static gint ett_isobus_vt_auxiliaryinputtype2status_operatingstate;
+static int ett_isobus_vt;
+static int ett_isobus_vt_vtstatus_busycodes_subtree;
+static int ett_isobus_vt_getsupportedwidechars_range;
+static int ett_isobus_vt_gettextfontdata_smallfontsizes;
+static int ett_isobus_vt_gettextfontdata_largefontsizes;
+static int ett_isobus_vt_gettextfontdata_typeattributes;
+static int ett_isobus_vt_gethardware_hardware;
+static int ett_isobus_vt_preferredassignment_inputunit;
+static int ett_isobus_vt_preferredassignment_inputunit_preferredfunction;
+static int ett_isobus_vt_auxiliarycapabilities_inputunit;
+static int ett_isobus_vt_auxiliarycapabilities_inputunit_set;
+static int ett_isobus_vt_auxiliaryassignmenttype2_flags;
+static int ett_isobus_vt_auxiliaryinputtype2status_operatingstate;
 
 static const char *object_id_translation = "";
 
@@ -825,9 +825,9 @@ enum vt_direction
     ecu_to_vt
 };
 
-static const gchar* get_object_id_string(guint16 object_id)
+static const char* get_object_id_string(uint16_t object_id)
 {
-    const gchar* translated_string;
+    const char* translated_string;
     if(object_id == 0xFFFF)
     {
         return "NULL Object ID";
@@ -841,7 +841,7 @@ static int
 dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_direction direction)
 {
     int offset = 0;
-    guint32 function_id;
+    uint32_t function_id;
     proto_item *ti;
 
     ti = proto_tree_add_item(tree,
@@ -856,7 +856,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
     {
     case VT_SOFT_KEY_ACTIVATION:
     {
-        guint32 key_activation_code, object_id, parent_object_id;
+        uint32_t key_activation_code, object_id, parent_object_id;
 
         proto_tree_add_item_ret_uint(tree,
             hf_isobus_vt_softkey_keyactcode, tvb, offset, 1, ENC_LITTLE_ENDIAN, &key_activation_code);
@@ -886,7 +886,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         break;
     case VT_BUTTON_ACTIVATION:
     {
-        guint32 key_activation_code, object_id, parent_object_id;
+        uint32_t key_activation_code, object_id, parent_object_id;
 
         proto_tree_add_item_ret_uint(tree,
             hf_isobus_vt_button_keyactcode, tvb, offset, 1, ENC_LITTLE_ENDIAN, &key_activation_code);
@@ -916,7 +916,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         break;
     case VT_POINTING_EVENT:
     {
-        guint32 x_position, y_position, touch_state = 0;
+        uint32_t x_position, y_position, touch_state = 0;
 
         proto_tree_add_item_ret_uint(tree,
             hf_isobus_vt_pointing_xposition, tvb, offset, 2, ENC_LITTLE_ENDIAN, &x_position);
@@ -943,7 +943,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         break;
     case VT_VT_SELECT_INPUT_OBJECT:
     {
-        guint32 object_id;
+        uint32_t object_id;
 
         proto_tree_add_item_ret_uint(tree,
             hf_isobus_vt_vtselectinputobject_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
@@ -967,7 +967,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         break;
     case VT_VT_ESC_MESSAGE:
     {
-        guint32 object_id;
+        uint32_t object_id;
 
         proto_tree_add_item_ret_uint(tree,
             hf_isobus_vt_vtescmessage_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
@@ -978,7 +978,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
         if(direction == vt_to_ecu)
         {
-            guint32 error_codes;
+            uint32_t error_codes;
 
             ti = proto_tree_add_item_ret_uint(tree,
                 hf_isobus_vt_vtescmessage_errorcodes, tvb, offset, 1, ENC_LITTLE_ENDIAN, &error_codes);
@@ -999,7 +999,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         break;
     case VT_VT_CHANGE_NUMERIC_VALUE:
     {
-        guint32 object_id, value;
+        uint32_t object_id, value;
 
         proto_tree_add_item_ret_uint(tree,
             hf_isobus_vt_vtchgnumval_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
@@ -1027,7 +1027,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         break;
     case VT_VT_CHANGE_ACTIVE_MASK:
     {
-        guint32 mask_object_id;
+        uint32_t mask_object_id;
 
         proto_tree_add_item_ret_uint(tree,
             hf_isobus_vt_vtchgactivemask_maskobjectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &mask_object_id);
@@ -1038,7 +1038,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
         if(direction == vt_to_ecu)
         {
-            guint32 error_object_id, error_codes;
+            uint32_t error_object_id, error_codes;
 
             ti = proto_tree_add_item_ret_uint(tree,
                 hf_isobus_vt_vtchgactivemask_errorcodes, tvb, offset, 1, ENC_LITTLE_ENDIAN, &error_codes);
@@ -1088,11 +1088,11 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
     {
         if(direction == vt_to_ecu)
         {
-            guint encoding = ENC_ASCII|ENC_NA;
-            guint32 object_id, str_length;
-            guint16 firstTwoBytesString;
-            const guint8* value;
-            guint bomOffset = 0;
+            unsigned encoding = ENC_ASCII|ENC_NA;
+            uint32_t object_id, str_length;
+            uint16_t firstTwoBytesString;
+            const uint8_t* value;
+            unsigned bomOffset = 0;
 
             proto_tree_add_item_ret_uint(tree,
                 hf_isobus_vt_vtchgstrval_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
@@ -1121,7 +1121,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         }
         else
         {
-            guint32 object_id;
+            uint32_t object_id;
 
             offset += 2;    /* first two bytes are reserved */
 
@@ -1138,7 +1138,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         break;
     case VT_VT_ON_USER_LAYOUT_HIDE_SHOW:
     {
-        guint32 object_id[2], status[2];
+        uint32_t object_id[2], status[2];
 
         proto_tree_add_item_ret_uint(tree,
             hf_isobus_vt_vtonuserlayouthideshow_objectid_1, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id[0]);
@@ -1168,7 +1168,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         break;
     case VT_VT_CONTROL_AUDIO_SIGNAL_TERMINATION:
     {
-        guint32 termination_cause;
+        uint32_t termination_cause;
 
         ti = proto_tree_add_item_ret_uint(tree,
             hf_isobus_vt_vtcontrolaudiosignaltermination_terminationcause, tvb, offset, 1, ENC_LITTLE_ENDIAN, &termination_cause);
@@ -1189,7 +1189,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
     {
         if(direction == vt_to_ecu)
         {
-            guint32 error_codes, obj_pool_error_codes;
+            uint32_t error_codes, obj_pool_error_codes;
 
             ti = proto_tree_add_item_ret_uint(tree,
                 hf_isobus_vt_endofobjectpool_errorcodes, tvb, offset, 1, ENC_LITTLE_ENDIAN, &error_codes);
@@ -1245,7 +1245,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         break;
     case VT_AUXILIARY_ASSIGNMENT_TYPE_1:
     {
-        guint32 source_address, aux_input_number, object_id;
+        uint32_t source_address, aux_input_number, object_id;
 
         proto_tree_add_item_ret_uint(tree,
             hf_isobus_vt_auxiliaryassignmenttype1_sourceaddressauxinputdevice, tvb, offset, 1, ENC_LITTLE_ENDIAN, &source_address);
@@ -1275,7 +1275,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         break;
     case VT_AUXILIARY_INPUT_TYPE_1_STATUS:
     {
-        guint32 input_number, boolean_value, analyze_value;
+        uint32_t input_number, boolean_value, analyze_value;
 
         proto_tree_add_item_ret_uint(tree,
             hf_isobus_vt_auxiliaryinputtype1status_inputnumber, tvb, offset, 1, ENC_LITTLE_ENDIAN, &input_number);
@@ -1301,7 +1301,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
     {
         if(direction == ecu_to_vt)
         {
-            guint32 number_of_input_units, i;
+            uint32_t number_of_input_units, i;
 
             proto_tree_add_item_ret_uint(tree,
                 hf_isobus_vt_preferredassignment_numberofinputunits, tvb, offset, 1, ENC_LITTLE_ENDIAN, &number_of_input_units);
@@ -1311,8 +1311,8 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             {
                 proto_item *input_unit_item;
                 proto_tree *input_unit_subtree;
-                guint32 number_of_preferred_functions, j, model_identification_code;
-                guint64 name;
+                uint32_t number_of_preferred_functions, j, model_identification_code;
+                uint64_t name;
 
                 input_unit_subtree = proto_tree_add_subtree_format(tree, tvb, offset, 0, ett_isobus_vt_preferredassignment_inputunit, &input_unit_item, "Input Unit");
 
@@ -1335,7 +1335,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 {
                     proto_item *preferred_function_item;
                     proto_tree *preferred_function_subtree;
-                    guint32 auxiliary_function_object_id, auxiliary_input_object_id;
+                    uint32_t auxiliary_function_object_id, auxiliary_input_object_id;
 
                     preferred_function_subtree = proto_tree_add_subtree(input_unit_subtree, tvb, offset, 4,
                         ett_isobus_vt_preferredassignment_inputunit_preferredfunction, &preferred_function_item, "Input Unit");
@@ -1362,7 +1362,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         }
         else
         {
-            guint32 error_codes, faulty_auxiliary_function_object_id;
+            uint32_t error_codes, faulty_auxiliary_function_object_id;
 
             ti = proto_tree_add_item_ret_uint(tree,
                 hf_isobus_vt_preferredassignment_errorcodes, tvb, offset, 1, ENC_LITTLE_ENDIAN, &error_codes);
@@ -1400,7 +1400,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
     {
         if(direction == ecu_to_vt)
         {
-            guint32 model_identification_code, status;
+            uint32_t model_identification_code, status;
 
             proto_tree_add_item_ret_uint(tree,
                 hf_isobus_vt_auxiliaryinputtype2maintenance_modelidentificationcode, tvb, offset, 2, ENC_LITTLE_ENDIAN, &model_identification_code);
@@ -1424,8 +1424,8 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         break;
     case VT_AUXILIARY_ASSIGNMENT_TYPE_2:
     {
-        guint32 error_codes, auxiliary_input_object_id = 0, auxiliary_function_object_id;
-        guint64 name = 0;
+        uint32_t error_codes, auxiliary_input_object_id = 0, auxiliary_function_object_id;
+        uint64_t name = 0;
 
         if(direction == ecu_to_vt)
         {
@@ -1494,7 +1494,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         break;
     case VT_AUXILIARY_INPUT_STATUS_TYPE_2_ENABLE:
     {
-        guint32 enable, status, error_codes, auxiliary_input_object_id;
+        uint32_t enable, status, error_codes, auxiliary_input_object_id;
 
         proto_tree_add_item_ret_uint(tree,
             hf_isobus_vt_auxiliaryinputstatustype2enable_auxiliaryinputobjectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &auxiliary_input_object_id);
@@ -1561,7 +1561,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         break;
     case VT_AUXILIARY_INPUT_TYPE_2_STATUS:
     {
-        guint32 auxiliary_input_object_id, value_1, value_2;
+        uint32_t auxiliary_input_object_id, value_1, value_2;
         proto_tree* operating_state_subtree;
 
         proto_tree_add_item_ret_uint(tree,
@@ -1597,7 +1597,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
     {
         if(direction == ecu_to_vt)
         {
-            guint32 request_type;
+            uint32_t request_type;
 
             proto_tree_add_item_ret_uint(tree,
                 hf_isobus_vt_auxiliarycapabilities_requesttype, tvb, offset, 1, ENC_LITTLE_ENDIAN, &request_type);
@@ -1607,7 +1607,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         }
         else
         {
-            guint32 number_of_auxiliary_units, i;
+            uint32_t number_of_auxiliary_units, i;
 
             proto_tree_add_item_ret_uint(tree,
                 hf_isobus_vt_auxiliarycapabilities_numberofauxiliaryunits, tvb, offset, 1, ENC_LITTLE_ENDIAN, &number_of_auxiliary_units);
@@ -1617,8 +1617,8 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             {
                 proto_item *input_unit_item;
                 proto_tree *input_unit_subtree;
-                guint32 number_of_different_sets, j;
-                guint64 name;
+                uint32_t number_of_different_sets, j;
+                uint64_t name;
 
                 input_unit_subtree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_isobus_vt_auxiliarycapabilities_inputunit, &input_unit_item, "Auxiliary Unit");
 
@@ -1637,7 +1637,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 {
                     proto_item *auxiliary_unit_set;
                     proto_tree *preferred_function_subtree;
-                    guint32 number_of_instances, function_attribute, assigned_attribute;
+                    uint32_t number_of_instances, function_attribute, assigned_attribute;
 
                     preferred_function_subtree = proto_tree_add_subtree(input_unit_subtree, tvb, offset, 3, ett_isobus_vt_auxiliarycapabilities_inputunit_set, &auxiliary_unit_set, "Auxiliary Unit");
 
@@ -1664,7 +1664,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
     case VT_ESC:
         if(direction == vt_to_ecu)
         {
-            guint32 object_id, error_codes;
+            uint32_t object_id, error_codes;
 
             proto_tree_add_item_ret_uint(tree,
                 hf_isobus_vt_esc_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
@@ -1697,7 +1697,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         break;
     case VT_HIDE_SHOW_OBJECT:
     {
-        guint32 object_id, action;
+        uint32_t object_id, action;
 
         proto_tree_add_item_ret_uint(tree,
             hf_isobus_vt_hideshowobj_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
@@ -1712,7 +1712,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
         if(direction == vt_to_ecu)
         {
-            guint32 error_codes;
+            uint32_t error_codes;
             ti = proto_tree_add_item_ret_uint(tree,
                 hf_isobus_vt_hideshowobj_errorcodes, tvb, offset, 1, ENC_LITTLE_ENDIAN, &error_codes);
 
@@ -1763,7 +1763,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         break;
     case VT_ENABLE_DISABLE_COMMAND:
     {
-        guint32 object_id, enable_disable;
+        uint32_t object_id, enable_disable;
 
         proto_tree_add_item_ret_uint(tree,
             hf_isobus_vt_enabledisableobj_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
@@ -1792,7 +1792,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         }
         else
         {
-            guint32 error_codes;
+            uint32_t error_codes;
 
             ti = proto_tree_add_item_ret_uint(tree,
                 hf_isobus_vt_enabledisableobj_errorcodes, tvb, offset, 1, ENC_LITTLE_ENDIAN, &error_codes);
@@ -1831,7 +1831,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         break;
     case VT_SELECT_INPUT_OBJECT:
     {
-        guint32 object_id;
+        uint32_t object_id;
 
         proto_tree_add_item_ret_uint(tree,
             hf_isobus_vt_selectinputobject_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
@@ -1850,7 +1850,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         }
         else
         {
-            guint32 response, error_codes;
+            uint32_t response, error_codes;
 
             proto_tree_add_item_ret_uint(tree,
                 hf_isobus_vt_selectinputobject_response, tvb, offset, 1, ENC_LITTLE_ENDIAN, &response);
@@ -1901,7 +1901,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
     {
         if(direction == ecu_to_vt)
         {
-            guint32 activations, frequency, ontime, offtime;
+            uint32_t activations, frequency, ontime, offtime;
 
             proto_tree_add_item_ret_uint(tree,
                 hf_isobus_vt_controlaudiosignal_activations, tvb, offset, 1, ENC_LITTLE_ENDIAN, &activations);
@@ -1923,7 +1923,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         }
         else
         {
-            guint32 error_codes;
+            uint32_t error_codes;
             ti = proto_tree_add_item_ret_uint(tree,
                 hf_isobus_vt_controlaudiosignal_errorcodes, tvb, offset, 1, ENC_LITTLE_ENDIAN, &error_codes);
 
@@ -1948,7 +1948,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
     {
         if(direction == ecu_to_vt)
         {
-            guint32 volume;
+            uint32_t volume;
             proto_tree_add_item_ret_uint(tree,
                 hf_isobus_vt_setaudiovolume_volume, tvb, offset, 1, ENC_LITTLE_ENDIAN, &volume);
 
@@ -1956,7 +1956,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         }
         else
         {
-            guint32 error_codes;
+            uint32_t error_codes;
             ti = proto_tree_add_item_ret_uint(tree,
                 hf_isobus_vt_setaudiovolume_errorcodes, tvb, offset, 1, ENC_LITTLE_ENDIAN, &error_codes);
 
@@ -1981,7 +1981,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         break;
     case VT_CHANGE_CHILD_LOCATION:
     {
-        guint32 parent_object_id, object_id;
+        uint32_t parent_object_id, object_id;
 
         proto_tree_add_item_ret_uint(tree,
             hf_isobus_vt_changechildlocation_parentobjectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &parent_object_id);
@@ -1999,7 +1999,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
         if(direction == ecu_to_vt)
         {
-            guint32 rel_x_location, rel_y_location;
+            uint32_t rel_x_location, rel_y_location;
 
             proto_tree_add_item_ret_uint(tree,
                 hf_isobus_vt_changechildlocation_relativexpos, tvb, offset, 1, ENC_LITTLE_ENDIAN, &rel_x_location);
@@ -2013,7 +2013,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         }
         else
         {
-            guint32 error_codes;
+            uint32_t error_codes;
             ti = proto_tree_add_item_ret_uint(tree,
                 hf_isobus_vt_changechildlocation_errorcodes, tvb, offset, 1, ENC_LITTLE_ENDIAN, &error_codes);
 
@@ -2039,7 +2039,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         break;
     case VT_CHANGE_SIZE:
     {
-        guint32 object_id;
+        uint32_t object_id;
 
         proto_tree_add_item_ret_uint(tree,
             hf_isobus_vt_changesize_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
@@ -2050,7 +2050,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
         if(direction == ecu_to_vt)
         {
-            guint32 new_width, new_height;
+            uint32_t new_width, new_height;
 
             proto_tree_add_item_ret_uint(tree,
                 hf_isobus_vt_changesize_newwidth, tvb, offset, 2, ENC_LITTLE_ENDIAN, &new_width);
@@ -2064,7 +2064,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         }
         else
         {
-            guint32 error_codes;
+            uint32_t error_codes;
             ti = proto_tree_add_item_ret_uint(tree,
                 hf_isobus_vt_changesize_errorcodes, tvb, offset, 1, ENC_LITTLE_ENDIAN, &error_codes);
 
@@ -2088,7 +2088,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         break;
     case VT_CHANGE_BACKGROUND_COLOUR:
     {
-        guint32 object_id, colour;
+        uint32_t object_id, colour;
 
         proto_tree_add_item_ret_uint(tree,
             hf_isobus_vt_changebackgroundcolour_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
@@ -2103,7 +2103,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
         if(direction == vt_to_ecu)
         {
-            guint32 error_codes;
+            uint32_t error_codes;
             ti = proto_tree_add_item_ret_uint(tree,
                 hf_isobus_vt_changebackgroundcolour_errorcodes, tvb, offset, 1, ENC_LITTLE_ENDIAN, &error_codes);
 
@@ -2136,7 +2136,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         break;
     case VT_CHANGE_NUMERIC_VALUE:
     {
-        guint32 object_id, error_codes, value;
+        uint32_t object_id, error_codes, value;
 
         proto_tree_add_item_ret_uint(tree,
             hf_isobus_vt_chgnumval_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
@@ -2185,7 +2185,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         break;
     case VT_CHANGE_END_POINT:
     {
-        guint32 object_id;
+        uint32_t object_id;
 
         proto_tree_add_item_ret_uint(tree,
             hf_isobus_vt_changeendpoint_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
@@ -2196,7 +2196,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
         if(direction == ecu_to_vt)
         {
-            guint32 width, height;
+            uint32_t width, height;
 
             proto_tree_add_item_ret_uint(tree,
                 hf_isobus_vt_changeendpoint_width, tvb, offset, 2, ENC_LITTLE_ENDIAN, &width);
@@ -2216,7 +2216,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         break;
     case VT_CHANGE_FONT_ATTRIBUTES:
     {
-        guint32 object_id;
+        uint32_t object_id;
 
         proto_tree_add_item_ret_uint(tree,
             hf_isobus_vt_changefontattributes_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
@@ -2246,7 +2246,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         }
         else
         {
-            guint32 error_codes;
+            uint32_t error_codes;
 
             ti = proto_tree_add_item_ret_uint(tree,
                 hf_isobus_vt_changefontattributes_errorcodes, tvb, offset, 1, ENC_LITTLE_ENDIAN, &error_codes);
@@ -2277,7 +2277,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         break;
     case VT_CHANGE_LINE_ATTRIBUTES:
     {
-        guint32 object_id;
+        uint32_t object_id;
 
         proto_tree_add_item_ret_uint(tree,
             hf_isobus_vt_changelineattributes_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
@@ -2303,7 +2303,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         }
         else
         {
-            guint32 error_codes;
+            uint32_t error_codes;
 
             ti = proto_tree_add_item_ret_uint(tree,
                 hf_isobus_vt_changelineattributes_errorcodes, tvb, offset, 1, ENC_LITTLE_ENDIAN, &error_codes);
@@ -2330,7 +2330,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         break;
     case VT_CHANGE_FILL_ATTRIBUTES:
     {
-        guint32 object_id;
+        uint32_t object_id;
 
         proto_tree_add_item_ret_uint(tree,
             hf_isobus_vt_changefillattributes_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
@@ -2359,7 +2359,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         }
         else
         {
-            guint32 error_codes;
+            uint32_t error_codes;
 
             ti = proto_tree_add_item_ret_uint(tree,
                 hf_isobus_vt_changefillattributes_errorcodes, tvb, offset, 1, ENC_LITTLE_ENDIAN, &error_codes);
@@ -2388,7 +2388,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         break;
     case VT_CHANGE_ACTIVE_MASK:
     {
-        guint32 working_set_object_id, new_active_mask_object_id, error_codes;
+        uint32_t working_set_object_id, new_active_mask_object_id, error_codes;
 
         if(direction == ecu_to_vt)
         {
@@ -2443,7 +2443,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         break;
     case VT_CHANGE_SOFT_KEY_MASK:
     {
-        guint32 error_codes, data_mask_object_id, new_soft_key_mask_object_id;
+        uint32_t error_codes, data_mask_object_id, new_soft_key_mask_object_id;
 
         if(direction == ecu_to_vt)
         {
@@ -2502,7 +2502,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         break;
     case VT_CHANGE_ATTRIBUTES:
     {
-        guint32 attribute_id, error_codes, object_id, new_value;
+        uint32_t attribute_id, error_codes, object_id, new_value;
 
         proto_tree_add_item_ret_uint(tree,
             hf_isobus_vt_changeattributes_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
@@ -2556,7 +2556,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         break;
     case VT_CHANGE_PRIORITY:
     {
-        guint32 object_id, new_priority, error_codes;
+        uint32_t object_id, new_priority, error_codes;
 
         proto_tree_add_item_ret_uint(tree,
             hf_isobus_vt_changepriority_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
@@ -2601,7 +2601,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         break;
     case VT_CHANGE_LIST_ITEM:
     {
-        guint32 list_object_id, new_object_id, list_index, error_codes;
+        uint32_t list_object_id, new_object_id, list_index, error_codes;
 
         proto_tree_add_item_ret_uint(tree,
             hf_isobus_vt_changelistitem_listobjectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &list_object_id);
@@ -2663,7 +2663,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         }
         else
         {
-            guint32 error_codes;
+            uint32_t error_codes;
 
             ti = proto_tree_add_item_ret_uint(tree,
                 hf_isobus_vt_deleteobjectpool_errorcodes, tvb, offset, 1, ENC_LITTLE_ENDIAN, &error_codes);
@@ -2688,11 +2688,11 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
     {
         if(direction == ecu_to_vt)
         {
-            guint encoding = ENC_ASCII|ENC_NA;
-            guint32 object_id, str_length;
-            guint16 firstTwoBytesString;
-            const guint8* value;
-            guint bomOffset = 0;
+            unsigned encoding = ENC_ASCII|ENC_NA;
+            uint32_t object_id, str_length;
+            uint16_t firstTwoBytesString;
+            const uint8_t* value;
+            unsigned bomOffset = 0;
 
             proto_tree_add_item_ret_uint(tree,
                 hf_isobus_vt_chgstrval_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
@@ -2720,7 +2720,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         }
         else
         {
-            guint32 object_id, error_codes;
+            uint32_t object_id, error_codes;
 
             offset += 2;    /*first two bytes are reserved*/
 
@@ -2758,7 +2758,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         break;
     case VT_CHANGE_CHILD_POSITION:
     {
-        guint32 parent_object_id, object_id;
+        uint32_t parent_object_id, object_id;
 
         proto_tree_add_item_ret_uint(tree,
             hf_isobus_vt_changechildposition_parentobjectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &parent_object_id);
@@ -2777,7 +2777,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
         if(direction == ecu_to_vt)
         {
-            guint32 rel_x_position, rel_y_position;
+            uint32_t rel_x_position, rel_y_position;
 
             proto_tree_add_item_ret_uint(tree,
                 hf_isobus_vt_changechildposition_xpos, tvb, offset, 2, ENC_LITTLE_ENDIAN, &rel_x_position);
@@ -2791,7 +2791,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         }
         else
         {
-            guint32 error_codes;
+            uint32_t error_codes;
             ti = proto_tree_add_item_ret_uint(tree,
                 hf_isobus_vt_changechildposition_errorcodes, tvb, offset, 1, ENC_LITTLE_ENDIAN, &error_codes);
 
@@ -2819,7 +2819,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
     {
         if(direction == ecu_to_vt)
         {
-            guint32 object_id, string_object_id;
+            uint32_t object_id, string_object_id;
 
             proto_tree_add_item_ret_uint(tree,
                 hf_isobus_vt_changeobjectlabel_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
@@ -2850,7 +2850,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         }
         else
         {
-            guint32 error_codes;
+            uint32_t error_codes;
             ti = proto_tree_add_item_ret_uint(tree,
                 hf_isobus_vt_changeobjectlabel_errorcodes, tvb, offset, 1, ENC_LITTLE_ENDIAN, &error_codes);
 
@@ -2881,7 +2881,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         break;
     case VT_CHANGE_POLYGON_POINT:
     {
-        guint32 object_id;
+        uint32_t object_id;
 
         proto_tree_add_item_ret_uint(tree,
             hf_isobus_vt_changepolygonpoint_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
@@ -2892,7 +2892,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
         if(direction == ecu_to_vt)
         {
-            guint32 x_value, y_value, point_index;
+            uint32_t x_value, y_value, point_index;
 
             proto_tree_add_item_ret_uint(tree,
                 hf_isobus_vt_changepolygonpoint_pointindex, tvb, offset, 1, ENC_LITTLE_ENDIAN, &point_index);
@@ -2910,7 +2910,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         }
         else
         {
-            guint32 error_codes;
+            uint32_t error_codes;
             ti = proto_tree_add_item_ret_uint(tree,
                 hf_isobus_vt_changepolygonpoint_errorcodes, tvb, offset, 1, ENC_LITTLE_ENDIAN, &error_codes);
             proto_item_append_text(ti, ": ");
@@ -2934,7 +2934,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         break;
     case VT_CHANGE_POLYGON_SCALE:
     {
-        guint32 object_id, new_width, new_height, error_codes;
+        uint32_t object_id, new_width, new_height, error_codes;
 
         proto_tree_add_item_ret_uint(tree,
             hf_isobus_vt_changepolygonscale_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
@@ -2984,7 +2984,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         break;
     case VT_GRAPHICS_CONTEXT:
     {
-        guint32 object_id, sub_command_id;
+        uint32_t object_id, sub_command_id;
 
         proto_tree_add_item_ret_uint(tree,
             hf_isobus_vt_graphicscontext_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
@@ -3003,7 +3003,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         {
             case SET_GRAPHICS_CURSOR:
             {
-                gint32 x_position, y_position;
+                int32_t x_position, y_position;
 
                 proto_tree_add_item_ret_int(tree,
                     hf_isobus_vt_graphicscontext_setgraphicscursor_xposition, tvb, offset, 2, ENC_LITTLE_ENDIAN, &x_position);
@@ -3018,7 +3018,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 break;
             case MOVE_GRAPHICS_CURSOR:
             {
-                gint32 x_offset, y_offset;
+                int32_t x_offset, y_offset;
 
                 proto_tree_add_item_ret_int(tree,
                     hf_isobus_vt_graphicscontext_movegraphicscursor_xoffset, tvb, offset, 2, ENC_LITTLE_ENDIAN, &x_offset);
@@ -3033,7 +3033,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 break;
             case SET_FOREGROUND_COLOUR:
             {
-                guint32 colour;
+                uint32_t colour;
 
                 proto_tree_add_item_ret_uint(tree,
                     hf_isobus_vt_graphicscontext_setforegroundcolour_colour, tvb, offset, 1, ENC_LITTLE_ENDIAN, &colour);
@@ -3044,7 +3044,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 break;
             case SET_BACKGROUND_COLOUR:
             {
-                guint32 colour;
+                uint32_t colour;
 
                 proto_tree_add_item_ret_uint(tree,
                     hf_isobus_vt_graphicscontext_setbackgroundcolour_colour, tvb, offset, 1, ENC_LITTLE_ENDIAN, &colour);
@@ -3055,7 +3055,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 break;
             case SET_LINE_ATTRIBUTES_OBJECT_ID:
             {
-                guint32 line_attr_object_id;
+                uint32_t line_attr_object_id;
 
                 proto_tree_add_item_ret_uint(tree,
                     hf_isobus_vt_graphicscontext_setlineattributesobjectid_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &line_attr_object_id);
@@ -3069,7 +3069,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 break;
             case SET_FILL_ATTRIBUTES_OBJECT_ID:
             {
-                guint32 fill_attr_object_id;
+                uint32_t fill_attr_object_id;
 
                 proto_tree_add_item_ret_uint(tree,
                     hf_isobus_vt_graphicscontext_setfillattributesobjectid_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &fill_attr_object_id);
@@ -3083,7 +3083,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 break;
             case SET_FONT_ATTRIBUTES_OBJECT_ID:
             {
-                guint32 font_attr_object_id;
+                uint32_t font_attr_object_id;
 
                 proto_tree_add_item_ret_uint(tree,
                     hf_isobus_vt_graphicscontext_setfontattributesobjectid_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &font_attr_object_id);
@@ -3097,7 +3097,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 break;
             case ERASE_RECTANGLE:
             {
-                guint32 width, height;
+                uint32_t width, height;
 
                 proto_tree_add_item_ret_uint(tree,
                     hf_isobus_vt_graphicscontext_eraserectangle_width, tvb, offset, 2, ENC_LITTLE_ENDIAN, &width);
@@ -3112,7 +3112,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 break;
             case DRAW_POINT:
             {
-                gint32 x_offset, y_offset;
+                int32_t x_offset, y_offset;
 
                 proto_tree_add_item_ret_int(tree,
                     hf_isobus_vt_graphicscontext_drawpoint_xoffset, tvb, offset, 2, ENC_LITTLE_ENDIAN, &x_offset);
@@ -3127,7 +3127,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 break;
             case DRAW_LINE:
             {
-                gint32 x_offset, y_offset;
+                int32_t x_offset, y_offset;
 
                 proto_tree_add_item_ret_int(tree,
                     hf_isobus_vt_graphicscontext_drawline_xoffset, tvb, offset, 2, ENC_LITTLE_ENDIAN, &x_offset);
@@ -3142,7 +3142,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 break;
             case DRAW_RECTANGLE:
             {
-                guint32 width, height;
+                uint32_t width, height;
 
                 proto_tree_add_item_ret_uint(tree,
                     hf_isobus_vt_graphicscontext_drawrectangle_width, tvb, offset, 2, ENC_LITTLE_ENDIAN, &width);
@@ -3157,7 +3157,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 break;
             case DRAW_CLOSED_ELLIPSE:
             {
-                guint32 width, height;
+                uint32_t width, height;
 
                 proto_tree_add_item_ret_uint(tree,
                     hf_isobus_vt_graphicscontext_drawclosedellipse_width, tvb, offset, 2, ENC_LITTLE_ENDIAN, &width);
@@ -3172,7 +3172,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 break;
             case DRAW_POLYGON:
             {
-                guint32 number_of_points, i;
+                uint32_t number_of_points, i;
 
                 proto_tree_add_item_ret_uint(tree,
                     hf_isobus_vt_graphicscontext_drawpolygon_numberofpoints, tvb, offset, 1, ENC_LITTLE_ENDIAN, &number_of_points);
@@ -3182,7 +3182,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 {
                     proto_item *point_item;
                     proto_tree *point_subtree;
-                    gint32 x_offset, y_offset;
+                    int32_t x_offset, y_offset;
 
                     point_subtree = proto_tree_add_subtree(tree,
                         tvb, offset, 4, ett_isobus_vt_getsupportedwidechars_range, &point_item, "Point");
@@ -3204,11 +3204,11 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 break;
             case DRAW_TEXT:
             {
-                guint encoding = ENC_ASCII|ENC_NA;
-                guint16 firstTwoBytesString;
-                guint bomOffset = 0;
-                guint32 background, number_of_bytes;
-                const guint8* value;
+                unsigned encoding = ENC_ASCII|ENC_NA;
+                uint16_t firstTwoBytesString;
+                unsigned bomOffset = 0;
+                uint32_t background, number_of_bytes;
+                const uint8_t* value;
 
                 proto_tree_add_item_ret_uint(tree,
                     hf_isobus_vt_graphicscontext_drawtext_background, tvb, offset, 1, ENC_LITTLE_ENDIAN, &background);
@@ -3234,7 +3234,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 break;
             case PAN_VIEWPORT:
             {
-                gint32 viewport_x, viewport_y;
+                int32_t viewport_x, viewport_y;
 
                 proto_tree_add_item_ret_int(tree,
                     hf_isobus_vt_graphicscontext_panviewport_viewportx, tvb, offset, 2, ENC_LITTLE_ENDIAN, &viewport_x);
@@ -3249,7 +3249,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 break;
             case ZOOM_VIEWPORT:
             {
-                gfloat zoom_value;
+                float zoom_value;
 
                 zoom_value = tvb_get_ieee_float(tvb, offset, ENC_LITTLE_ENDIAN);
                 proto_tree_add_item(tree,
@@ -3261,8 +3261,8 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 break;
             case PAN_AND_ZOOM_VIEWPORT:
             {
-                gfloat zoom_value;
-                gint32 viewport_x, viewport_y;
+                float zoom_value;
+                int32_t viewport_x, viewport_y;
 
                 proto_tree_add_item_ret_int(tree,
                     hf_isobus_vt_graphicscontext_panandzoomviewport_viewportx, tvb, offset, 2, ENC_LITTLE_ENDIAN, &viewport_x);
@@ -3282,7 +3282,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 break;
             case CHANGE_VIEWPORT_SIZE:
             {
-                guint32 new_width, new_height;
+                uint32_t new_width, new_height;
 
                 proto_tree_add_item_ret_uint(tree,
                     hf_isobus_vt_graphicscontext_changeviewportsize_newwidth, tvb, offset, 2, ENC_LITTLE_ENDIAN, &new_width);
@@ -3297,7 +3297,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 break;
             case DRAW_VT_OBJECT:
             {
-                guint32 draw_object_id;
+                uint32_t draw_object_id;
 
                 proto_tree_add_item_ret_uint(tree,
                     hf_isobus_vt_graphicscontext_drawvtobject_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &draw_object_id);
@@ -3311,7 +3311,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 break;
             case COPY_CANVAS_TO_PICTURE_GRAPHIC:
             {
-                guint32 object_id_picture_graphic;
+                uint32_t object_id_picture_graphic;
 
                 proto_tree_add_item_ret_uint(tree,
                     hf_isobus_vt_graphicscontext_copycanvastopicturegraphic_objectidpicturegraphic, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id_picture_graphic);
@@ -3325,7 +3325,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 break;
             case COPY_VIEWPORT_TO_PICTURE_GRAPHIC:
             {
-                guint32 object_id_picture_graphic;
+                uint32_t object_id_picture_graphic;
 
                 proto_tree_add_item_ret_uint(tree,
                     hf_isobus_vt_graphicscontext_copyviewporttopicturegraphic_objectidpicturegraphic, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id_picture_graphic);
@@ -3342,13 +3342,13 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         break;
     case VT_GET_ATTRIBUTE_VALUE:
     {
-        gboolean error_frame;
-        guint32 attribute_id, object_id;
+        bool error_frame;
+        uint32_t attribute_id, object_id;
 
         object_id = tvb_get_letohs(tvb, offset);
         if(direction == ecu_to_vt || object_id != 0xFFFF)
         {
-            error_frame = FALSE;
+            error_frame = false;
             proto_tree_add_item(tree,
                 hf_isobus_vt_getattributevalue_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             ti = proto_tree_add_item(tree,
@@ -3357,7 +3357,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         }
         else
         {
-            error_frame = TRUE;
+            error_frame = true;
         }
         offset += 2;
 
@@ -3367,9 +3367,9 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
         if(direction == vt_to_ecu)
         {
-            if(error_frame == FALSE)
+            if(error_frame == false)
             {
-                guint32 value;
+                uint32_t value;
                 proto_tree_add_item_ret_uint(tree,
                     hf_isobus_vt_getattributevalue_value, tvb, offset, 4, ENC_LITTLE_ENDIAN, &value);
 
@@ -3378,7 +3378,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             }
             else
             {
-                guint32 error_codes;
+                uint32_t error_codes;
 
                 proto_tree_add_item_ret_uint(tree,
                     hf_isobus_vt_getattributevalue_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
@@ -3410,7 +3410,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         break;
     case VT_SELECT_COLOUR_MAP:
     {
-        guint32 error_codes, object_id;
+        uint32_t error_codes, object_id;
 
         proto_tree_add_item_ret_uint(tree,
             hf_isobus_vt_selectcolourmap_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
@@ -3466,7 +3466,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         break;
     case VT_EXECUTE_EXTENDED_MACRO:
     {
-        guint32 error_codes, object_id;
+        uint32_t error_codes, object_id;
 
         proto_tree_add_item_ret_uint(tree,
             hf_isobus_vt_executeextendedmacro_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &object_id);
@@ -3510,7 +3510,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         break;
     case VT_LOCK_UNLOCK_MASK:
     {
-        guint32 command, error_codes, object_id, lock_timeout;
+        uint32_t command, error_codes, object_id, lock_timeout;
 
         proto_tree_add_item_ret_uint(tree,
             hf_isobus_vt_lockunlockmask_command, tvb, offset, 1, ENC_LITTLE_ENDIAN, &command);
@@ -3596,8 +3596,8 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         break;
     case VT_EXECUTE_MACRO:
     {
-        guint32 object_id;
-        guint32 error_codes;
+        uint32_t object_id;
+        uint32_t error_codes;
 
         /* Other than all object IDs macro object IDs are 1 byte in VT 4 */
         proto_tree_add_item_ret_uint(tree,
@@ -3644,7 +3644,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
     {
         if(direction == ecu_to_vt)
         {
-            guint32 memory_required;
+            uint32_t memory_required;
             offset += 1; /* reserved byte */
 
             proto_tree_add_item_ret_uint(tree,
@@ -3655,7 +3655,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         }
         else
         {
-            guint32 vt_version, status;
+            uint32_t vt_version, status;
 
             proto_tree_add_item_ret_uint(tree,
                 hf_isobus_vt_getmemory_vtversion, tvb, offset, 1, ENC_LITTLE_ENDIAN, &vt_version);
@@ -3679,7 +3679,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         break;
     case VT_GET_SUPPORTED_WIDECHARS:
     {
-        guint32 code_plane, first_widechar, last_widechar;
+        uint32_t code_plane, first_widechar, last_widechar;
 
         proto_tree_add_item_ret_uint(tree,
             hf_isobus_vt_getsupportedwidechars_codeplane, tvb, offset, 1, ENC_LITTLE_ENDIAN, &code_plane);
@@ -3695,7 +3695,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
         if(direction == vt_to_ecu)
         {
-            guint32 error_codes, number_of_ranges, i;
+            uint32_t error_codes, number_of_ranges, i;
 
             ti = proto_tree_add_item_ret_uint(tree,
                 hf_isobus_vt_getsupportedwidechars_errorcodes, tvb, offset, 1, ENC_LITTLE_ENDIAN, &error_codes);
@@ -3714,7 +3714,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
             for(i = 0; i < number_of_ranges; i++)
             {
-                guint32 first_avail_widechar, last_avail_widechar;
+                uint32_t first_avail_widechar, last_avail_widechar;
                 proto_tree* subtree;
                 proto_item* item;
 
@@ -3763,7 +3763,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         }
         else
         {
-            guint32 navigation_soft_keys, virtual_soft_keys, physical_soft_keys;
+            uint32_t navigation_soft_keys, virtual_soft_keys, physical_soft_keys;
 
             proto_tree_add_item_ret_uint(tree,
                 hf_isobus_vt_getnumberofsoftkeys_navigationsoftkeys, tvb, offset, 1, ENC_LITTLE_ENDIAN, &navigation_soft_keys);
@@ -3852,7 +3852,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         }
         else
         {
-            guint32 background_colour_data_mask, background_colour_soft_key_mask;
+            uint32_t background_colour_data_mask, background_colour_soft_key_mask;
 
             proto_tree_add_item_ret_uint(tree,
                 hf_isobus_vt_getwindowmaskdata_backgroundcolourdatamask, tvb, offset, 1, ENC_LITTLE_ENDIAN, &background_colour_data_mask);
@@ -3875,7 +3875,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         }
         else
         {
-            guint32 number_of_bytes, i;
+            uint32_t number_of_bytes, i;
 
             proto_tree_add_item_ret_uint(tree,
                 hf_isobus_vt_getsupportedobjects_numberofbytes, tvb, offset, 1, ENC_LITTLE_ENDIAN, &number_of_bytes);
@@ -3883,9 +3883,9 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
             for(i = 0; i < number_of_bytes; i++)
             {
-                guint8 object_type;
+                uint8_t object_type;
 
-                object_type = tvb_get_guint8(tvb, offset);
+                object_type = tvb_get_uint8(tvb, offset);
                 if(object_type == 0xFF)
                 {
                     break;
@@ -3908,7 +3908,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         }
         else
         {
-            guint32 graphic_type, x_pixels, y_pixels;
+            uint32_t graphic_type, x_pixels, y_pixels;
             proto_item *hardware_item;
             proto_tree *hardware_subtree;
 
@@ -3951,7 +3951,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
     {
         if(direction == ecu_to_vt)
         {
-            const guint8 *version_label;
+            const uint8_t *version_label;
 
             proto_tree_add_item_ret_string(tree,
                 hf_isobus_vt_storeversion_versionlabel, tvb, offset, 7, ENC_ASCII|ENC_NA, pinfo->pool, &version_label);
@@ -3960,7 +3960,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         }
         else
         {
-            guint32 error_codes;
+            uint32_t error_codes;
             offset += 4;
 
             ti = proto_tree_add_item_ret_uint(tree,
@@ -3988,7 +3988,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
     {
         if(direction == ecu_to_vt)
         {
-            const guint8* version_label;
+            const uint8_t* version_label;
 
             proto_tree_add_item_ret_string(tree,
                 hf_isobus_vt_loadversion_versionlabel, tvb, offset, 7, ENC_ASCII|ENC_NA, pinfo->pool, &version_label);
@@ -3997,7 +3997,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         }
         else
         {
-            guint32 error_codes;
+            uint32_t error_codes;
             offset += 4;
 
             ti = proto_tree_add_item_ret_uint(tree,
@@ -4027,7 +4027,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
     {
         if(direction == ecu_to_vt)
         {
-            const guint8* version_label;
+            const uint8_t* version_label;
 
             proto_tree_add_item_ret_string(tree,
                 hf_isobus_vt_deleteversion_versionlabel, tvb, offset, 7, ENC_ASCII|ENC_NA, pinfo->pool, &version_label);
@@ -4036,7 +4036,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         }
         else
         {
-            guint32 error_codes;
+            uint32_t error_codes;
             offset += 4;
 
             ti = proto_tree_add_item_ret_uint(tree,
@@ -4066,7 +4066,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         }
         else
         {
-            guint32 number_of_versions, i;
+            uint32_t number_of_versions, i;
 
             proto_tree_add_item_ret_uint(tree,
                 hf_isobus_vt_extendedgetversions_numberofversions, tvb, offset, 1, ENC_LITTLE_ENDIAN, &number_of_versions);
@@ -4087,7 +4087,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
     {
         if(direction == ecu_to_vt)
         {
-            const guint8* version_label;
+            const uint8_t* version_label;
 
             proto_tree_add_item_ret_string(tree,
                 hf_isobus_vt_extendedstoreversion_versionlabel, tvb, offset, 32, ENC_ASCII|ENC_NA, pinfo->pool, &version_label);
@@ -4096,7 +4096,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         }
         else
         {
-            guint32 error_codes;
+            uint32_t error_codes;
             offset += 4;
 
             ti = proto_tree_add_item_ret_uint(tree,
@@ -4124,7 +4124,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
     {
         if(direction == ecu_to_vt)
         {
-            const guint8* version_label;
+            const uint8_t* version_label;
 
             proto_tree_add_item_ret_string(tree,
                 hf_isobus_vt_extendedloadversion_versionlabel, tvb, offset, 32, ENC_ASCII|ENC_NA, pinfo->pool, &version_label);
@@ -4133,7 +4133,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         }
         else
         {
-            guint32 error_codes;
+            uint32_t error_codes;
             offset += 4;
 
             ti = proto_tree_add_item_ret_uint(tree,
@@ -4163,7 +4163,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
     {
         if(direction == ecu_to_vt)
         {
-            const guint8* version_label;
+            const uint8_t* version_label;
 
             proto_tree_add_item_ret_string(tree,
                 hf_isobus_vt_extendeddeleteversion_versionlabel, tvb, offset, 32, ENC_ASCII|ENC_NA, pinfo->pool, &version_label);
@@ -4172,7 +4172,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         }
         else
         {
-            guint32 error_codes;
+            uint32_t error_codes;
             offset += 4;
 
             ti = proto_tree_add_item_ret_uint(tree,
@@ -4207,7 +4207,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
     {
         if(direction == vt_to_ecu)
         {
-            guint32 number_of_versions, i;
+            uint32_t number_of_versions, i;
 
             proto_tree_add_item_ret_uint(tree,
                 hf_isobus_vt_getversions_numberofversions, tvb, offset, 1, ENC_LITTLE_ENDIAN, &number_of_versions);
@@ -4227,7 +4227,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         break;
     case VT_UNSUPPORTED_VT_FUNCTION:
     {
-        guint32 unsupported_vt_function;
+        uint32_t unsupported_vt_function;
 
         proto_tree_add_item_ret_uint(tree,
             hf_isobus_vt_unsupportedvtfunction_unsupportedvtfunction, tvb, offset, 1, ENC_LITTLE_ENDIAN, &unsupported_vt_function);
@@ -4248,7 +4248,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
     {
         proto_tree *ti_busycodes_subtree;
         proto_item *busycodes_item;
-        guint32 working_set_master, object_id_data_mask, object_id_soft_key_mask;
+        uint32_t working_set_master, object_id_data_mask, object_id_soft_key_mask;
 
         proto_tree_add_item_ret_uint(tree,
             hf_isobus_vt_vtstatus_workingsetmaster, tvb, offset, 1, ENC_LITTLE_ENDIAN, &working_set_master);
@@ -4290,8 +4290,8 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         break;
     case VT_WORKING_SET_MAINTENANCE:
     {
-        guint8 bitmask = tvb_get_guint8(tvb, offset);
-        guint8 version = tvb_get_guint8(tvb, offset + 1);
+        uint8_t bitmask = tvb_get_uint8(tvb, offset);
+        uint8_t version = tvb_get_uint8(tvb, offset + 1);
         if(version == 0xFF)
         {
             version = 2;
@@ -4337,7 +4337,7 @@ dissect_ecu_to_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
  *
  */
 
-static int vt_getline(FILE *fp, gchar *line, int maxlen)
+static int vt_getline(FILE *fp, char *line, int maxlen)
 {
     if (fgets(line, maxlen, fp) == NULL)
     {
@@ -4353,8 +4353,8 @@ static int vt_getline(FILE *fp, gchar *line, int maxlen)
 
 static void read_object_id_file(void)
 {
-    gchar   buf[500];
-    guint16 item_count = 0;
+    char    buf[500];
+    uint16_t item_count = 0;
     FILE     *file;
 
     if ((file = ws_fopen(object_id_translation, "r")) == NULL)
@@ -4367,9 +4367,9 @@ static void read_object_id_file(void)
 
     while ((vt_getline(file, buf, 500)) > 0)
     {
-        gchar **split_string = g_strsplit(buf, ",", 2);
+        char **split_string = g_strsplit(buf, ",", 2);
 
-        object_id_strings[item_count].value = (guint32)g_ascii_strtoll(split_string[0], NULL, 10);
+        object_id_strings[item_count].value = (uint32_t)g_ascii_strtoll(split_string[0], NULL, 10);
         object_id_strings[item_count].strptr = wmem_strdup(wmem_epan_scope(), split_string[1]);
 
         g_strfreev(split_string);
@@ -5964,7 +5964,7 @@ proto_register_isobus_vt(void)
         }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_isobus_vt,
         &ett_isobus_vt_vtstatus_busycodes_subtree,
         &ett_isobus_vt_getsupportedwidechars_range,
@@ -5999,7 +5999,7 @@ proto_register_isobus_vt(void)
      */
     prefs_register_filename_preference(vt_module, "object_ids", "Object ID Translation",
         "File containing a translation from object ID to string", &object_id_translation,
-        FALSE);
+        false);
 }
 
 void

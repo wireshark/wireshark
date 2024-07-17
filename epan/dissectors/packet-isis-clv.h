@@ -82,7 +82,7 @@
 typedef struct {
         int     optcode;                /* code for option */
         const char    *tree_text;       /* text for fold out */
-        gint    *tree_id;               /* id for add_item */
+        int     *tree_id;               /* id for add_item */
         void    (*dissect)(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree,
                                 int offset, isis_data_t *isis, int length);
 } isis_clv_handle_t;
@@ -95,7 +95,7 @@ extern void isis_dissect_clvs(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tre
         const isis_clv_handle_t *opts, expert_field *expert_short_len, isis_data_t *isis,
         int unknown_tree_id,  int tree_type, int tree_length, expert_field *ei_unknown);
 
-extern void isis_dissect_nlpid_clv(tvbuff_t *tvb, proto_tree *tree, gint ett_nlpid,
+extern void isis_dissect_nlpid_clv(tvbuff_t *tvb, proto_tree *tree, int ett_nlpid,
         int hf_nlpid, int offset, int length);
 extern void isis_dissect_te_router_id_clv(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, expert_field* expert,
         int offset, int length, int tree_id);
@@ -115,7 +115,7 @@ extern void isis_dissect_instance_identifier_clv(proto_tree *tree, packet_info* 
         expert_field* expert, int hf_iid, int hf_supported_itid, int offset, int length);
 
 extern void isis_dissect_metric(tvbuff_t *tvb, proto_tree *tree, int offset,
-        guint8 value, char *pstr, int force_supported);
+        uint8_t value, char *pstr, int force_supported);
 
 #endif /* _PACKET_ISIS_CLV_H */
 

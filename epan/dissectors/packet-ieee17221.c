@@ -2435,12 +2435,12 @@ static int ett_aecp_flags_32;
 
 typedef struct {
    int hf;
-   guint16 size;
+   uint16_t size;
 } ctrl_ref_vals;
 
 /* convenience function */
 static inline ctrl_ref_vals
-get_ctrl_ref_vals(guint16 ctrl_val_type)
+get_ctrl_ref_vals(uint16_t ctrl_val_type)
 {
    ctrl_ref_vals ret;
 
@@ -2522,11 +2522,11 @@ dissect_17221_stream_format(tvbuff_t *tvb, proto_tree *tree)
 {
    proto_item *stream_tree;
    proto_item *stream_ti;
-   guint8 version;
-   guint8 subtype;
-   guint8 sf;
-   guint8 fmt;
-   guint8 fdf_evt;
+   uint8_t version;
+   uint8_t subtype;
+   uint8_t sf;
+   uint8_t fmt;
+   uint8_t fdf_evt;
 
    /* subtree */
    stream_ti = proto_tree_add_item(tree, hf_aem_stream_format, tvb,
@@ -2534,7 +2534,7 @@ dissect_17221_stream_format(tvbuff_t *tvb, proto_tree *tree)
    stream_tree = proto_item_add_subtree(stream_ti, ett_aem_stream_format);
 
    /* get version */
-   version = tvb_get_guint8(tvb, 0) & AEM_MASK_SF_VERSION;
+   version = tvb_get_uint8(tvb, 0) & AEM_MASK_SF_VERSION;
 
    /* add the version to the tree */
    proto_tree_add_item(stream_tree, hf_aem_sf_version, tvb,
@@ -2542,7 +2542,7 @@ dissect_17221_stream_format(tvbuff_t *tvb, proto_tree *tree)
 
    if (version == 0) {       /* stream format version 0 */
 
-      subtype = tvb_get_guint8(tvb, AEM_OFFSET_SF_SUBTYPE) & AEM_MASK_SF_SUBTYPE;
+      subtype = tvb_get_uint8(tvb, AEM_OFFSET_SF_SUBTYPE) & AEM_MASK_SF_SUBTYPE;
 
       proto_tree_add_item(stream_tree, hf_aem_sf_subtype, tvb,
             AEM_OFFSET_SF_SUBTYPE, 1, ENC_BIG_ENDIAN);
@@ -2550,7 +2550,7 @@ dissect_17221_stream_format(tvbuff_t *tvb, proto_tree *tree)
       switch(subtype) {
          case IEC_61883_IIDC_SUBTYPE:
             /* get sf */
-            sf = tvb_get_guint8(tvb, 1) & AEM_MASK_SF;
+            sf = tvb_get_uint8(tvb, 1) & AEM_MASK_SF;
             proto_tree_add_item(stream_tree, hf_aem_sf, tvb,
                   AEM_OFFSET_SF, 1, ENC_BIG_ENDIAN);
 
@@ -2565,7 +2565,7 @@ dissect_17221_stream_format(tvbuff_t *tvb, proto_tree *tree)
             } else { /* 61883 Stream Format */
                proto_tree_add_item(stream_tree, hf_aem_fmt, tvb,
                      AEM_OFFSET_FMT, 1, ENC_BIG_ENDIAN);
-               fmt = tvb_get_guint8(tvb, AEM_OFFSET_FMT) & 0x7F;
+               fmt = tvb_get_uint8(tvb, AEM_OFFSET_FMT) & 0x7F;
                if (fmt == 0x20) {       /* 61883-6 Stream Format */
                   proto_tree_add_item(stream_tree, hf_aem_fdf_evt, tvb,
                         AEM_OFFSET_FDF_EVT, 1, ENC_BIG_ENDIAN);
@@ -2574,7 +2574,7 @@ dissect_17221_stream_format(tvbuff_t *tvb, proto_tree *tree)
                   proto_tree_add_item(stream_tree, hf_aem_dbs, tvb,
                         AEM_OFFSET_DBS, 1, ENC_BIG_ENDIAN);
 
-                  fdf_evt = tvb_get_guint8(tvb, AEM_OFFSET_FDF_EVT) & AEM_MASK_FDF_EVT;
+                  fdf_evt = tvb_get_uint8(tvb, AEM_OFFSET_FDF_EVT) & AEM_MASK_FDF_EVT;
 
                   proto_tree_add_item(stream_tree, hf_aem_b_flag, tvb,
                         AEM_OFFSET_B, 1, ENC_BIG_ENDIAN);
@@ -2659,12 +2659,12 @@ dissect_17221_media_format(tvbuff_t *tvb, proto_tree *tree)
 {
    proto_item *media_tree;
    proto_item *media_ti;
-   guint32 oui24;
-   guint8  mfd_type;
+   uint32_t oui24;
+   uint8_t mfd_type;
 
    /* grab the oui24 and mfd_type */
    oui24 = tvb_get_ntoh24(tvb, 0);
-   mfd_type = tvb_get_guint8(tvb, 3);
+   mfd_type = tvb_get_uint8(tvb, 3);
 
    /* subtree */
    media_ti = proto_tree_add_item(tree, hf_aecp_media_format, tvb,
@@ -2735,13 +2735,13 @@ dissect_17221_media_format(tvbuff_t *tvb, proto_tree *tree)
 
 /* TODO following updates in Draft 18 and the pending Draft 19 this section will require major overhaul */
 static void
-dissect_17221_ctrl_val(tvbuff_t *tvb, proto_tree *tree, guint16 num_ctrl_vals, guint16 ctrl_val_type,
-                       guint16 ctrl_offset)
+dissect_17221_ctrl_val(tvbuff_t *tvb, proto_tree *tree, uint16_t num_ctrl_vals, uint16_t ctrl_val_type,
+                       uint16_t ctrl_offset)
 {
    proto_item *ctrl_item;
    proto_item *ctrl_subtree;
    int i;
-   guint32 bin_blob_size;
+   uint32_t bin_blob_size;
    ctrl_ref_vals ref;
 
    /* set up control values tree */
@@ -2835,9 +2835,9 @@ dissect_17221_ctrl_val(tvbuff_t *tvb, proto_tree *tree, guint16 num_ctrl_vals, g
 static void
 dissect_17221_aem(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-   guint16 desc_type;
-   guint16 ctrl_val_type;
-   guint16 num_ctrl_vals;
+   uint16_t desc_type;
+   uint16_t ctrl_val_type;
+   uint16_t num_ctrl_vals;
    tvbuff_t *next_tvb;
    int i;
 
@@ -2848,12 +2848,12 @@ dissect_17221_aem(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
     */
    proto_item *mr_subtree;
    proto_item *mr_item;
-   guint32 mr_offset;
-   guint16 mr_counter;
+   uint32_t mr_offset;
+   uint16_t mr_counter;
 
-   gfloat frequency;
-   gint freq_mult;
-   gint base_freq;
+   float frequency;
+   int freq_mult;
+   int base_freq;
 
    proto_item *aem_tree;
    /* used in creation of descriptor subtree */
@@ -3107,8 +3107,8 @@ dissect_17221_aem(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
             base_freq &= 0x1fffffff;
             /* replace this with something not horrible */
             frequency = freq_mult == 0 ? 1 :
-               freq_mult == 1 ? 1 / (gfloat)1.001 :
-               freq_mult == 2 ? (gfloat)1.001 :
+               freq_mult == 1 ? 1 / (float)1.001 :
+               freq_mult == 2 ? (float)1.001 :
                freq_mult == 3 ? 24 / 25 :
                freq_mult == 4 ? 54 / 24 : 0;
 
@@ -3793,18 +3793,18 @@ dissect_17221_aem(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 dissect_17221_aecp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aecp_tree)
 {
-   guint16 c_type;
-   /*guint16 addr_type;*/
-   /*guint16 ctrl_data_len;*/
-   guint16 mess_status;
-   guint16 mess_type;
-   guint16 mr_counter;
-   guint32 mr_offset;
+   uint16_t c_type;
+   /*uint16_t addr_type;*/
+   /*uint16_t ctrl_data_len;*/
+   uint16_t mess_status;
+   uint16_t mess_type;
+   uint16_t mr_counter;
+   uint32_t mr_offset;
    proto_item *mr_subtree;
    proto_item *mr_item;
    int i;
-   guint64 vendor_unique_protocol_id;
-   gchar *vendor_unique_protocol_id_string;
+   uint64_t vendor_unique_protocol_id;
+   char *vendor_unique_protocol_id_string;
    /* next tvb for use in subdissection */
    tvbuff_t *next_tvb;
    proto_tree *flags_tree;
@@ -4460,7 +4460,7 @@ dissect_17221_aecp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aecp_tree)
             break;
          case AECP_COMMAND_AUTH_ADD_TOKEN:
             if (mess_type == AECP_AEM_COMMAND_MESSAGE) {
-               guint32 token_length = tvb_get_ntohl(tvb, AECP_OFFSET_AUTH_TOKEN_TOKEN_LENGTH);
+               uint32_t token_length = tvb_get_ntohl(tvb, AECP_OFFSET_AUTH_TOKEN_TOKEN_LENGTH);
                proto_tree_add_item(aecp_tree, hf_aecp_key_length, tvb,
                      AECP_OFFSET_AUTH_TOKEN_TOKEN_LENGTH, 2, ENC_BIG_ENDIAN);
                proto_tree_add_item(aecp_tree, hf_aecp_key_signature, tvb,
@@ -4552,7 +4552,7 @@ dissect_17221_aecp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aecp_tree)
 
       /* attempt to dissect the payload specific data */
       next_tvb = tvb_new_subset_remaining(tvb, AECP_VUC_OFFSET_PROTOCOL_ID);
-      vendor_unique_protocol_id = tvb_get_guint48(tvb, AECP_VUC_OFFSET_PROTOCOL_ID, ENC_BIG_ENDIAN);
+      vendor_unique_protocol_id = tvb_get_uint48(tvb, AECP_VUC_OFFSET_PROTOCOL_ID, ENC_BIG_ENDIAN);
       vendor_unique_protocol_id_string = wmem_strdup_printf(pinfo->pool, "%012" PRIx64, vendor_unique_protocol_id);
       dissector_try_string(vendor_unique_protocol_dissector_table, vendor_unique_protocol_id_string, next_tvb, pinfo, aecp_tree, NULL);
     }
@@ -4700,10 +4700,10 @@ dissect_17221_acmp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *acmp_tree)
 static int
 dissect_17221(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-   guint8 subtype = 0;
+   uint8_t subtype = 0;
    proto_item *ieee17221_item;
    proto_tree *ieee17221_tree;
-   subtype = tvb_get_guint8(tvb, 0);
+   subtype = tvb_get_uint8(tvb, 0);
    subtype &= 0x7F;
 
    /* Make entries in Protocol column and Info column on summary display */
@@ -6983,7 +6983,7 @@ proto_register_17221(void)
    };
 
    /* Setup protocol subtree array */
-   static gint *ett[] = {
+   static int *ett[] = {
       &ett_17221,
       &ett_adp_ent_cap,
       &ett_adp_talk_cap,

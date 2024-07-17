@@ -19,23 +19,23 @@ extern "C" {
 #endif /* __cplusplus */
 
 struct aggregate {
-  guint phy;
+  unsigned phy;
   union ieee_802_11_phy_info phy_info;
-  gint8 rssi; /* sometimes only available on the last frame */
-  guint duration; /* total duration of data in microseconds (without preamble) */
+  int8_t rssi; /* sometimes only available on the last frame */
+  unsigned duration; /* total duration of data in microseconds (without preamble) */
 };
 
 struct wlan_radio {
   struct aggregate *aggregate; /* if this frame is part of an aggregate, point to it, otherwise NULL */
-  guint prior_aggregate_data; /* length of all prior data in this aggregate
+  unsigned prior_aggregate_data; /* length of all prior data in this aggregate
                                  used for calculating duration of this subframe */
-  guint64 start_tsf;
-  guint64 end_tsf;
+  uint64_t start_tsf;
+  uint64_t end_tsf;
 
-  gint64 ifs; /* inter frame space in microseconds */
+  int64_t ifs; /* inter frame space in microseconds */
 
-  guint16 nav; /* Duration from the frame header */
-  gint8 rssi;
+  uint16_t nav; /* Duration from the frame header */
+  int8_t rssi;
 };
 
 #ifdef __cplusplus

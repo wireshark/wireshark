@@ -18,13 +18,13 @@
 #define ISUP_MAX_NUM_MESSAGE_TYPES  256
 
 typedef struct _isup_tap_rec_t {
-    guint8      message_type;
-    guint8      itu_isup_variant;
+    uint8_t     message_type;
+    uint8_t     itu_isup_variant;
     /* added for VoIP calls analysis, see ui/voip_calls.c*/
-    gchar           *called_number;
-    gchar           *calling_number;
-    guint8          cause_value;
-    guint32         circuit_id;
+    char            *called_number;
+    char            *calling_number;
+    uint8_t         cause_value;
+    uint32_t        circuit_id;
 } isup_tap_rec_t;
 
 
@@ -159,7 +159,7 @@ WS_DLL_PUBLIC value_string_ext isup_calling_partys_category_value_ext;
 /*
  * Export dissection of some parameters
  */
-void dissect_nsap(tvbuff_t *parameter_tvb,gint offset,gint len, proto_tree *parameter_tree);
+void dissect_nsap(tvbuff_t *parameter_tvb,int offset,int len, proto_tree *parameter_tree);
 WS_DLL_PUBLIC
 void dissect_isup_called_party_number_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, proto_item *parameter_item);
 WS_DLL_PUBLIC

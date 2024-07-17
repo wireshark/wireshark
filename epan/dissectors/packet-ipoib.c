@@ -33,8 +33,8 @@ static int hf_grh_sgid;
 static int hf_type;
 static int hf_reserved;
 
-static gint ett_raw;
-static gint ett_hdr;
+static int ett_raw;
+static int ett_hdr;
 
 static dissector_handle_t arp_handle;
 static dissector_handle_t ip_handle;
@@ -47,7 +47,7 @@ dissect_ipoib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
   proto_tree *fh_subtree;
   proto_item *ti;
   tvbuff_t   *next_tvb;
-  guint16     type;
+  uint16_t    type;
   int         grh_size = 0;
 
   if (pinfo->rec->rec_header.packet_header.pkt_encap == WTAP_ENCAP_IP_OVER_IB_PCAP)
@@ -161,7 +161,7 @@ proto_register_ipoib(void)
         NULL, HFILL }}
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_raw,
     &ett_hdr
   };

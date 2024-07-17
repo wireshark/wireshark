@@ -20,19 +20,19 @@
  */
 
 struct radiotap_override {
-	guint8 field;
-	guint align:4, size:4;
+	uint8_t field;
+	unsigned align:4, size:4;
 };
 
 struct radiotap_align_size {
-	guint align:4, size:4;
+	unsigned align:4, size:4;
 };
 
 struct ieee80211_radiotap_namespace {
 	const struct radiotap_align_size *align_size;
 	int n_bits;
-	guint32 oui;
-	guint8 subns;
+	uint32_t oui;
+	uint8_t subns;
 };
 
 struct ieee80211_radiotap_vendor_namespaces {
@@ -54,7 +54,7 @@ struct ieee80211_radiotap_iterator {
 											%NULL if the current namespace is unknown)*/
 
 	unsigned char *_arg, *_next_ns_data;					/**< beginning of the next namespace's data */
-	guint32 *_next_bitmap;							/**< internal pointer to next present u32 */
+	uint32_t *_next_bitmap;							/**< internal pointer to next present u32 */
 
 	unsigned char *this_arg;						/**< pointer to current radiotap arg; it is valid after each call
 											to ieee80211_radiotap_iterator_next() but also after
@@ -73,7 +73,7 @@ struct ieee80211_radiotap_iterator {
 
 	int _max_length;							/**< length of radiotap header in cpu byte ordering */
 	int _arg_index;								/**< next argument index */
-	guint32 _bitmap_shifter;						/**< internal shifter for curr u32 bitmap, b0 set == arg present */
+	uint32_t _bitmap_shifter;						/**< internal shifter for curr u32 bitmap, b0 set == arg present */
 	int _reset_on_ext;							/**< internal; reset the arg index to 0 when going to the next bitmap word */
 };
 

@@ -37,8 +37,8 @@ static int hf_icp_option_src_rtt;
 static int hf_icp_object_length;
 static int hf_icp_option_hit_obj;
 
-static gint ett_icp;
-static gint ett_icp_payload;
+static int ett_icp;
+static int ett_icp_payload;
 
 /* Generated from convert_proto_tree_add_text.pl */
 static expert_field ei_icp_fragmented_packet;
@@ -81,10 +81,10 @@ static const value_string opcode_vals[] = {
 };
 
 static void dissect_icp_payload(tvbuff_t *tvb, packet_info *pinfo, int offset,
-				proto_tree *pload_tree, guint8 opcode)
+				proto_tree *pload_tree, uint8_t opcode)
 {
-	gint stringlength;
-	guint16 objectlength;
+	int stringlength;
+	uint16_t objectlength;
 	proto_item* object_item;
 
 	switch(opcode)
@@ -138,15 +138,15 @@ static int dissect_icp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 {
 	proto_tree *icp_tree , *payload_tree;
 	proto_item *ti;
-	guint8 opcode;
-	guint16 message_length;
-	guint32 request_number;
-	guint32 options;
+	uint8_t opcode;
+	uint16_t message_length;
+	uint32_t request_number;
+	uint32_t options;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICP");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	opcode=tvb_get_guint8(tvb, 0);
+	opcode=tvb_get_uint8(tvb, 0);
 	message_length=tvb_get_ntohs(tvb, 2);
 	request_number=tvb_get_ntohl(tvb, 4);
 
@@ -223,7 +223,7 @@ proto_register_icp(void)
       { &hf_icp_rtt, { "RTT", "icp.rtt", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_icp_sender_host_ip_address, { "Sender Host IP address", "icp.sender_host_ip_address", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	};
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_icp,
 		&ett_icp_payload,
 	};

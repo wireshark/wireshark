@@ -87,125 +87,125 @@ void proto_register_iwarp_ddp_rdmap(void);
 #define IWARP_ETYPE_DDP_UNTAGGED 0x02
 
 /* GLOBALS */
-static gint proto_iwarp_ddp_rdmap;
-static gint ett_iwarp_ddp_rdmap;
+static int proto_iwarp_ddp_rdmap;
+static int ett_iwarp_ddp_rdmap;
 
 /*
  * DDP: initialize the protocol and registered fields
  */
-static gint hf_iwarp_ddp;
+static int hf_iwarp_ddp;
 
 /* DDP Control Field */
-static gint hf_iwarp_ddp_control_field;
-static gint hf_iwarp_ddp_t_flag;
-static gint hf_iwarp_ddp_l_flag;
-static gint hf_iwarp_ddp_rsvd;
-static gint hf_iwarp_ddp_dv;
+static int hf_iwarp_ddp_control_field;
+static int hf_iwarp_ddp_t_flag;
+static int hf_iwarp_ddp_l_flag;
+static int hf_iwarp_ddp_rsvd;
+static int hf_iwarp_ddp_dv;
 
 /* DDP rsvdULP[8:39] field */
-static gint hf_iwarp_ddp_rsvdulp;
+static int hf_iwarp_ddp_rsvdulp;
 
 /* Tagged Buffer Model Header */
-static gint hf_iwarp_ddp_tagged_header;
-static gint hf_iwarp_ddp_stag;
-static gint hf_iwarp_ddp_to;
+static int hf_iwarp_ddp_tagged_header;
+static int hf_iwarp_ddp_stag;
+static int hf_iwarp_ddp_to;
 
 /* Untagged Buffer Model Header */
-static gint hf_iwarp_ddp_untagged_header;
-static gint hf_iwarp_ddp_qn;
-static gint hf_iwarp_ddp_msn;
-static gint hf_iwarp_ddp_mo;
+static int hf_iwarp_ddp_untagged_header;
+static int hf_iwarp_ddp_qn;
+static int hf_iwarp_ddp_msn;
+static int hf_iwarp_ddp_mo;
 
 /* initialize the subtree pointers */
-static gint ett_iwarp_ddp;
+static int ett_iwarp_ddp;
 
-static gint ett_iwarp_ddp_control_field;
-static gint ett_iwarp_ddp_tagged_header;
-static gint ett_iwarp_ddp_untagged_header;
+static int ett_iwarp_ddp_control_field;
+static int ett_iwarp_ddp_tagged_header;
+static int ett_iwarp_ddp_untagged_header;
 
 /*
  * RDMAP: initialize the protocol and registered fields
  */
-static gint hf_iwarp_rdma;
+static int hf_iwarp_rdma;
 
 /* Control Field */
-static gint hf_iwarp_rdma_control_field;
-static gint hf_iwarp_rdma_version;
-static gint hf_iwarp_rdma_rsvd;
-static gint hf_iwarp_rdma_opcode;
+static int hf_iwarp_rdma_control_field;
+static int hf_iwarp_rdma_version;
+static int hf_iwarp_rdma_rsvd;
+static int hf_iwarp_rdma_opcode;
 
 /* DDP rsvdULP[8:39] RDMA interpretations */
-static gint hf_iwarp_rdma_reserved;
-static gint hf_iwarp_rdma_inval_stag;
+static int hf_iwarp_rdma_reserved;
+static int hf_iwarp_rdma_inval_stag;
 
 /* Read Request Header */
-static gint hf_iwarp_rdma_rr_header;
-static gint hf_iwarp_rdma_sinkstag;
-static gint hf_iwarp_rdma_sinkto;
-static gint hf_iwarp_rdma_rdmardsz;
-static gint hf_iwarp_rdma_srcstag;
-static gint hf_iwarp_rdma_srcto;
+static int hf_iwarp_rdma_rr_header;
+static int hf_iwarp_rdma_sinkstag;
+static int hf_iwarp_rdma_sinkto;
+static int hf_iwarp_rdma_rdmardsz;
+static int hf_iwarp_rdma_srcstag;
+static int hf_iwarp_rdma_srcto;
 
 /* Terminate Header */
-static gint hf_iwarp_rdma_terminate_header;
-static gint hf_iwarp_rdma_term_ctrl;
-static gint hf_iwarp_rdma_term_layer;
-static gint hf_iwarp_rdma_term_etype;
-static gint hf_iwarp_rdma_term_etype_rdma;
-static gint hf_iwarp_rdma_term_etype_ddp;
-static gint hf_iwarp_rdma_term_etype_llp;
-static gint hf_iwarp_rdma_term_errcode;
-static gint hf_iwarp_rdma_term_errcode_rdma;
-static gint hf_iwarp_rdma_term_errcode_ddp_untagged;
-static gint hf_iwarp_rdma_term_errcode_ddp_tagged;
-static gint hf_iwarp_rdma_term_errcode_llp;
-static gint hf_iwarp_rdma_term_hdrct;
-static gint hf_iwarp_rdma_term_hdrct_m;
-static gint hf_iwarp_rdma_term_hdrct_d;
-static gint hf_iwarp_rdma_term_hdrct_r;
-static gint hf_iwarp_rdma_term_rsvd;
-static gint hf_iwarp_rdma_term_ddp_seg_len;
-static gint hf_iwarp_rdma_term_ddp_h;
-static gint hf_iwarp_rdma_term_rdma_h;
+static int hf_iwarp_rdma_terminate_header;
+static int hf_iwarp_rdma_term_ctrl;
+static int hf_iwarp_rdma_term_layer;
+static int hf_iwarp_rdma_term_etype;
+static int hf_iwarp_rdma_term_etype_rdma;
+static int hf_iwarp_rdma_term_etype_ddp;
+static int hf_iwarp_rdma_term_etype_llp;
+static int hf_iwarp_rdma_term_errcode;
+static int hf_iwarp_rdma_term_errcode_rdma;
+static int hf_iwarp_rdma_term_errcode_ddp_untagged;
+static int hf_iwarp_rdma_term_errcode_ddp_tagged;
+static int hf_iwarp_rdma_term_errcode_llp;
+static int hf_iwarp_rdma_term_hdrct;
+static int hf_iwarp_rdma_term_hdrct_m;
+static int hf_iwarp_rdma_term_hdrct_d;
+static int hf_iwarp_rdma_term_hdrct_r;
+static int hf_iwarp_rdma_term_rsvd;
+static int hf_iwarp_rdma_term_ddp_seg_len;
+static int hf_iwarp_rdma_term_ddp_h;
+static int hf_iwarp_rdma_term_rdma_h;
 
 /* Atomic */
-static gint hf_iwarp_rdma_atomic_reserved;
-static gint hf_iwarp_rdma_atomic_opcode;
-static gint hf_iwarp_rdma_atomic_request_identifier;
-static gint hf_iwarp_rdma_atomic_remote_stag;
-static gint hf_iwarp_rdma_atomic_remote_tagged_offset;
-static gint hf_iwarp_rdma_atomic_add_data;
-static gint hf_iwarp_rdma_atomic_add_mask;
-static gint hf_iwarp_rdma_atomic_swap_data;
-static gint hf_iwarp_rdma_atomic_swap_mask;
-static gint hf_iwarp_rdma_atomic_compare_data;
-static gint hf_iwarp_rdma_atomic_compare_mask;
-static gint hf_iwarp_rdma_atomic_original_request_identifier;
-static gint hf_iwarp_rdma_atomic_original_remote_data_value;
+static int hf_iwarp_rdma_atomic_reserved;
+static int hf_iwarp_rdma_atomic_opcode;
+static int hf_iwarp_rdma_atomic_request_identifier;
+static int hf_iwarp_rdma_atomic_remote_stag;
+static int hf_iwarp_rdma_atomic_remote_tagged_offset;
+static int hf_iwarp_rdma_atomic_add_data;
+static int hf_iwarp_rdma_atomic_add_mask;
+static int hf_iwarp_rdma_atomic_swap_data;
+static int hf_iwarp_rdma_atomic_swap_mask;
+static int hf_iwarp_rdma_atomic_compare_data;
+static int hf_iwarp_rdma_atomic_compare_mask;
+static int hf_iwarp_rdma_atomic_original_request_identifier;
+static int hf_iwarp_rdma_atomic_original_remote_data_value;
 
-static gint hf_iwarp_rdma_send_fragments;
-static gint hf_iwarp_rdma_send_fragment;
-static gint hf_iwarp_rdma_send_fragment_overlap;
-static gint hf_iwarp_rdma_send_fragment_overlap_conflict;
-static gint hf_iwarp_rdma_send_fragment_multiple_tails;
-static gint hf_iwarp_rdma_send_fragment_too_long_fragment;
-static gint hf_iwarp_rdma_send_fragment_error;
-static gint hf_iwarp_rdma_send_fragment_count;
-static gint hf_iwarp_rdma_send_reassembled_in;
-static gint hf_iwarp_rdma_send_reassembled_length;
-static gint hf_iwarp_rdma_send_reassembled_data;
+static int hf_iwarp_rdma_send_fragments;
+static int hf_iwarp_rdma_send_fragment;
+static int hf_iwarp_rdma_send_fragment_overlap;
+static int hf_iwarp_rdma_send_fragment_overlap_conflict;
+static int hf_iwarp_rdma_send_fragment_multiple_tails;
+static int hf_iwarp_rdma_send_fragment_too_long_fragment;
+static int hf_iwarp_rdma_send_fragment_error;
+static int hf_iwarp_rdma_send_fragment_count;
+static int hf_iwarp_rdma_send_reassembled_in;
+static int hf_iwarp_rdma_send_reassembled_length;
+static int hf_iwarp_rdma_send_reassembled_data;
 
 /* initialize the subtree pointers */
-static gint ett_iwarp_rdma;
+static int ett_iwarp_rdma;
 
-static gint ett_iwarp_rdma_control_field;
-static gint ett_iwarp_rdma_rr_header;
-static gint ett_iwarp_rdma_terminate_header;
-static gint ett_iwarp_rdma_term_ctrl;
-static gint ett_iwarp_rdma_term_hdrct;
+static int ett_iwarp_rdma_control_field;
+static int ett_iwarp_rdma_rr_header;
+static int ett_iwarp_rdma_terminate_header;
+static int ett_iwarp_rdma_term_ctrl;
+static int ett_iwarp_rdma_term_hdrct;
 
-static gint ett_iwarp_rdma_send_fragment;
-static gint ett_iwarp_rdma_send_fragments;
+static int ett_iwarp_rdma_send_fragment;
+static int ett_iwarp_rdma_send_fragments;
 
 static const fragment_items iwarp_rdma_send_frag_items = {
 	&ett_iwarp_rdma_send_fragment,
@@ -327,12 +327,12 @@ static void
 dissect_rdmap_payload(tvbuff_t *tvb, packet_info *pinfo,
 		      proto_tree *tree, rdmap_info_t *info)
 {
-	gboolean save_fragmented = pinfo->fragmented;
+	bool save_fragmented = pinfo->fragmented;
 	int save_visited = pinfo->fd->visited;
 	conversation_t *conversation = NULL;
 	fragment_head *fd_head = NULL;
-	gboolean more_frags = FALSE;
-	gboolean fd_head_not_cached = FALSE;
+	bool more_frags = false;
+	bool fd_head_not_cached = false;
 	heur_dtbl_entry_t *hdtbl_entry;
 
 	switch (info->opcode) {
@@ -351,12 +351,12 @@ dissect_rdmap_payload(tvbuff_t *tvb, packet_info *pinfo,
 	conversation = find_or_create_conversation(pinfo);
 
 	if (!info->last_flag) {
-		more_frags = TRUE;
+		more_frags = true;
 	}
 
 	fd_head = (fragment_head *)p_get_proto_data(wmem_file_scope(), pinfo, proto_iwarp_ddp_rdmap, 0);
 	if (fd_head == NULL) {
-		fd_head_not_cached = TRUE;
+		fd_head_not_cached = true;
 
 		pinfo->fd->visited = 0;
 		fd_head = fragment_add_seq_next(&iwarp_rdma_send_reassembly_table,
@@ -405,7 +405,7 @@ dissect_rdmap_payload(tvbuff_t *tvb, packet_info *pinfo,
 	}
 
 dissect_payload:
-	pinfo->fragmented = FALSE;
+	pinfo->fragmented = false;
 	if (!dissector_try_heuristic(rdmap_heur_subdissector_list,
 					tvb, pinfo, tree, &hdtbl_entry, info)) {
 		call_data_dissector(tvb, pinfo, tree);
@@ -418,10 +418,10 @@ done:
 
 /* update packet list pane in the GUI */
 static void
-ddp_rdma_packetlist(packet_info *pinfo, gboolean ddp_last_flag,
-		guint8 rdma_msg_opcode)
+ddp_rdma_packetlist(packet_info *pinfo, bool ddp_last_flag,
+		uint8_t rdma_msg_opcode)
 {
-	const gchar *ddp_fragment_state;
+	const char *ddp_fragment_state;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DDP/RDMA");
 
@@ -438,7 +438,7 @@ ddp_rdma_packetlist(packet_info *pinfo, gboolean ddp_last_flag,
 
 /* dissects RDMA Read Request and Terminate message header */
 static int
-dissect_iwarp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rdma_tree, guint32 offset,
+dissect_iwarp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rdma_tree, uint32_t offset,
 		rdmap_info_t *info)
 {
 	proto_tree *rdma_header_tree = NULL;
@@ -449,7 +449,7 @@ dissect_iwarp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rdma_tree, gu
 	proto_item *term_ctrl_field_subitem = NULL;
 	proto_item *header_ctrl_field_subitem = NULL;
 
-	guint8 layer, etype, hdrct;
+	uint8_t layer, etype, hdrct;
 
 	if (info->opcode == RDMA_READ_REQUEST) {
 		info->read_request = wmem_new(pinfo->pool, rdmap_request_t);
@@ -492,8 +492,8 @@ dissect_iwarp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rdma_tree, gu
 					ett_iwarp_rdma);
 
 			/* Terminate Control Field */
-			layer = tvb_get_guint8(tvb, offset) & IWARP_LAYER;
-			etype = tvb_get_guint8(tvb, offset) & IWARP_ETYPE;
+			layer = tvb_get_uint8(tvb, offset) & IWARP_LAYER;
+			etype = tvb_get_uint8(tvb, offset) & IWARP_ETYPE;
 
 			term_ctrl_field_subitem = proto_tree_add_item(rdma_header_tree,
 					hf_iwarp_rdma_term_ctrl, tvb, offset, 3, ENC_NA);
@@ -566,7 +566,7 @@ dissect_iwarp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rdma_tree, gu
 			header_ctrl_field_tree = proto_item_add_subtree(
 					header_ctrl_field_subitem, ett_iwarp_rdma);
 
-			hdrct = tvb_get_guint8(tvb, offset) & IWARP_HDRCT;
+			hdrct = tvb_get_uint8(tvb, offset) & IWARP_HDRCT;
 
 			proto_tree_add_item(header_ctrl_field_tree,
 					hf_iwarp_rdma_term_hdrct_m, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -613,12 +613,12 @@ dissect_iwarp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rdma_tree, gu
 
 /* dissects RDMA Atomic Request and Terminate message header */
 static int
-dissect_iwarp_atomic(tvbuff_t *tvb, proto_tree *atomic_tree, guint32 offset,
-		guint8 rdma_msg_opcode)
+dissect_iwarp_atomic(tvbuff_t *tvb, proto_tree *atomic_tree, uint32_t offset,
+		uint8_t rdma_msg_opcode)
 {
 	switch(rdma_msg_opcode){
 		case RDMA_ATOMIC_REQUEST:{
-			guint32 atomic_opcode;
+			uint32_t atomic_opcode;
 			proto_tree_add_item(atomic_tree, hf_iwarp_rdma_atomic_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
 			proto_tree_add_item(atomic_tree, hf_iwarp_rdma_atomic_opcode, tvb, offset, 4, ENC_BIG_ENDIAN);
 			atomic_opcode = tvb_get_ntohl(tvb, offset);
@@ -682,16 +682,16 @@ dissect_iwarp_ddp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
 	tvbuff_t *next_tvb = NULL;
 
-	guint8 ddp_ctrl_field, rdma_ctrl_field;
+	uint8_t ddp_ctrl_field, rdma_ctrl_field;
 	rdmap_info_t info = { 0, 0, 0, {{0, 0}}, NULL };
-	guint32 header_end;
-	guint32 offset = 0;
+	uint32_t header_end;
+	uint32_t offset = 0;
 
-	ddp_ctrl_field = tvb_get_guint8(tvb, 0);
-	rdma_ctrl_field = tvb_get_guint8(tvb, 1);
+	ddp_ctrl_field = tvb_get_uint8(tvb, 0);
+	rdma_ctrl_field = tvb_get_uint8(tvb, 1);
 	info.opcode = rdma_ctrl_field & RDMA_OPCODE;
-	info.is_tagged = (ddp_ctrl_field & DDP_TAGGED_FLAG) ? TRUE : FALSE;
-	info.last_flag = (ddp_ctrl_field & DDP_LAST_FLAG)   ? TRUE : FALSE;
+	info.is_tagged = (ddp_ctrl_field & DDP_TAGGED_FLAG) ? true : false;
+	info.last_flag = (ddp_ctrl_field & DDP_LAST_FLAG)   ? true : false;
 
 	ddp_rdma_packetlist(pinfo, info.last_flag, info.opcode);
 
@@ -1167,7 +1167,7 @@ proto_register_iwarp_ddp_rdmap(void)
 	};
 
 	/* setup protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 
 		&ett_iwarp_ddp_rdmap,
 

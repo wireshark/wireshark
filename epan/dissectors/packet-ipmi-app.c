@@ -18,210 +18,210 @@
 
 void proto_register_ipmi_app(void);
 
-static gint ett_ipmi_app_01_byte2;
-static gint ett_ipmi_app_01_byte3;
-static gint ett_ipmi_app_01_byte6;
+static int ett_ipmi_app_01_byte2;
+static int ett_ipmi_app_01_byte3;
+static int ett_ipmi_app_01_byte6;
 
-static gint ett_ipmi_app_04_byte2;
+static int ett_ipmi_app_04_byte2;
 
-static gint ett_ipmi_app_06_syspwr;
-static gint ett_ipmi_app_06_devpwr;
+static int ett_ipmi_app_06_syspwr;
+static int ett_ipmi_app_06_devpwr;
 
-static gint ett_ipmi_app_07_syspwr;
-static gint ett_ipmi_app_07_devpwr;
+static int ett_ipmi_app_07_syspwr;
+static int ett_ipmi_app_07_devpwr;
 
-static gint ett_ipmi_app_24_timer_use;
-static gint ett_ipmi_app_24_timer_action;
-static gint ett_ipmi_app_24_expiration_flags;
+static int ett_ipmi_app_24_timer_use;
+static int ett_ipmi_app_24_timer_action;
+static int ett_ipmi_app_24_expiration_flags;
 
-static gint ett_ipmi_app_25_timer_use;
-static gint ett_ipmi_app_25_timer_action;
-static gint ett_ipmi_app_25_expiration_flags;
+static int ett_ipmi_app_25_timer_use;
+static int ett_ipmi_app_25_timer_action;
+static int ett_ipmi_app_25_expiration_flags;
 
-static gint ett_ipmi_app_2e_byte1;
-static gint ett_ipmi_app_2f_byte1;
-static gint ett_ipmi_app_30_byte1;
-static gint ett_ipmi_app_31_byte1;
-static gint ett_ipmi_app_32_rq_byte1;
-static gint ett_ipmi_app_32_rq_byte2;
-static gint ett_ipmi_app_32_rs_byte1;
-static gint ett_ipmi_app_32_rs_byte2;
-static gint ett_ipmi_app_33_rs_byte1;
-static gint ett_ipmi_app_33_msg;
-static gint ett_ipmi_app_34_byte1;
-static gint ett_ipmi_app_34_msg;
+static int ett_ipmi_app_2e_byte1;
+static int ett_ipmi_app_2f_byte1;
+static int ett_ipmi_app_30_byte1;
+static int ett_ipmi_app_31_byte1;
+static int ett_ipmi_app_32_rq_byte1;
+static int ett_ipmi_app_32_rq_byte2;
+static int ett_ipmi_app_32_rs_byte1;
+static int ett_ipmi_app_32_rs_byte2;
+static int ett_ipmi_app_33_rs_byte1;
+static int ett_ipmi_app_33_msg;
+static int ett_ipmi_app_34_byte1;
+static int ett_ipmi_app_34_msg;
 
-static gint ett_ipmi_app_38_rq_byte1;
-static gint ett_ipmi_app_38_rq_byte2;
-static gint ett_ipmi_app_38_rs_byte1;
-static gint ett_ipmi_app_38_rs_byte2;
-static gint ett_ipmi_app_38_rs_byte3;
-static gint ett_ipmi_app_38_rs_byte4;
+static int ett_ipmi_app_38_rq_byte1;
+static int ett_ipmi_app_38_rq_byte2;
+static int ett_ipmi_app_38_rs_byte1;
+static int ett_ipmi_app_38_rs_byte2;
+static int ett_ipmi_app_38_rs_byte3;
+static int ett_ipmi_app_38_rs_byte4;
 
-static gint ett_ipmi_app_39_byte1;
+static int ett_ipmi_app_39_byte1;
 
-static gint ett_ipmi_app_3a_rq_byte1;
-static gint ett_ipmi_app_3a_rq_byte2;
-static gint ett_ipmi_app_3a_rs_byte1;
-static gint ett_ipmi_app_3a_rs_byte10;
+static int ett_ipmi_app_3a_rq_byte1;
+static int ett_ipmi_app_3a_rq_byte2;
+static int ett_ipmi_app_3a_rs_byte1;
+static int ett_ipmi_app_3a_rs_byte10;
 
-static gint ett_ipmi_app_3b_rq_byte1;
-static gint ett_ipmi_app_3b_rs_byte1;
+static int ett_ipmi_app_3b_rq_byte1;
+static int ett_ipmi_app_3b_rs_byte1;
 
-static gint hf_ipmi_app_01_dev_id;
-static gint hf_ipmi_app_01_dev_prov_sdr;
-static gint hf_ipmi_app_01_dev_rev;
-static gint hf_ipmi_app_01_dev_avail;
-static gint hf_ipmi_app_01_fw_rev_maj;
-static gint hf_ipmi_app_01_fw_rev_min;
-static gint hf_ipmi_app_01_ipmi_version;
-static gint hf_ipmi_app_01_ipmi_ads_chassis;
-static gint hf_ipmi_app_01_ipmi_ads_bridge;
-static gint hf_ipmi_app_01_ipmi_ads_ipmb_ev_gen;
-static gint hf_ipmi_app_01_ipmi_ads_ipmb_ev_recv;
-static gint hf_ipmi_app_01_ipmi_ads_fru;
-static gint hf_ipmi_app_01_ipmi_ads_sel;
-static gint hf_ipmi_app_01_ipmi_ads_sdr;
-static gint hf_ipmi_app_01_ipmi_ads_sensor;
-static gint hf_ipmi_app_01_manufacturer;
-static gint hf_ipmi_app_01_product;
-static gint hf_ipmi_app_01_fw_aux;
+static int hf_ipmi_app_01_dev_id;
+static int hf_ipmi_app_01_dev_prov_sdr;
+static int hf_ipmi_app_01_dev_rev;
+static int hf_ipmi_app_01_dev_avail;
+static int hf_ipmi_app_01_fw_rev_maj;
+static int hf_ipmi_app_01_fw_rev_min;
+static int hf_ipmi_app_01_ipmi_version;
+static int hf_ipmi_app_01_ipmi_ads_chassis;
+static int hf_ipmi_app_01_ipmi_ads_bridge;
+static int hf_ipmi_app_01_ipmi_ads_ipmb_ev_gen;
+static int hf_ipmi_app_01_ipmi_ads_ipmb_ev_recv;
+static int hf_ipmi_app_01_ipmi_ads_fru;
+static int hf_ipmi_app_01_ipmi_ads_sel;
+static int hf_ipmi_app_01_ipmi_ads_sdr;
+static int hf_ipmi_app_01_ipmi_ads_sensor;
+static int hf_ipmi_app_01_manufacturer;
+static int hf_ipmi_app_01_product;
+static int hf_ipmi_app_01_fw_aux;
 
-static gint hf_ipmi_app_04_result;
-static gint hf_ipmi_app_04_fail;
-static gint hf_ipmi_app_04_fail_sel;
-static gint hf_ipmi_app_04_fail_sdr;
-static gint hf_ipmi_app_04_fail_bmc_fru;
-static gint hf_ipmi_app_04_fail_ipmb_sig;
-static gint hf_ipmi_app_04_fail_sdr_empty;
-static gint hf_ipmi_app_04_fail_iua;
-static gint hf_ipmi_app_04_fail_bb_fw;
-static gint hf_ipmi_app_04_fail_oper_fw;
+static int hf_ipmi_app_04_result;
+static int hf_ipmi_app_04_fail;
+static int hf_ipmi_app_04_fail_sel;
+static int hf_ipmi_app_04_fail_sdr;
+static int hf_ipmi_app_04_fail_bmc_fru;
+static int hf_ipmi_app_04_fail_ipmb_sig;
+static int hf_ipmi_app_04_fail_sdr_empty;
+static int hf_ipmi_app_04_fail_iua;
+static int hf_ipmi_app_04_fail_bb_fw;
+static int hf_ipmi_app_04_fail_oper_fw;
 
-static gint hf_ipmi_app_05_devspec;
+static int hf_ipmi_app_05_devspec;
 
-static gint hf_ipmi_app_06_syspwr_set;
-static gint hf_ipmi_app_06_syspwr_enum;
-static gint hf_ipmi_app_06_devpwr_set;
-static gint hf_ipmi_app_06_devpwr_enum;
+static int hf_ipmi_app_06_syspwr_set;
+static int hf_ipmi_app_06_syspwr_enum;
+static int hf_ipmi_app_06_devpwr_set;
+static int hf_ipmi_app_06_devpwr_enum;
 
-static gint hf_ipmi_app_07_syspwr_enum;
-static gint hf_ipmi_app_07_devpwr_enum;
+static int hf_ipmi_app_07_syspwr_enum;
+static int hf_ipmi_app_07_devpwr_enum;
 
-static gint hf_ipmi_app_08_guid;
+static int hf_ipmi_app_08_guid;
 
-static gint hf_ipmi_app_24_timer_use_dont_log;
-static gint hf_ipmi_app_24_timer_use_dont_stop;
-static gint hf_ipmi_app_24_timer_use_timer_use;
-static gint hf_ipmi_app_24_timer_action_interrupt;
-static gint hf_ipmi_app_24_timer_action_timeout_action;
-static gint hf_ipmi_app_24_pretimeout;
-static gint hf_ipmi_app_24_expiration_flags_oem;
-static gint hf_ipmi_app_24_expiration_flags_smsos;
-static gint hf_ipmi_app_24_expiration_flags_osload;
-static gint hf_ipmi_app_24_expiration_flags_biospost;
-static gint hf_ipmi_app_24_expiration_flags_biosfrb2;
-static gint hf_ipmi_app_24_initial_countdown;
+static int hf_ipmi_app_24_timer_use_dont_log;
+static int hf_ipmi_app_24_timer_use_dont_stop;
+static int hf_ipmi_app_24_timer_use_timer_use;
+static int hf_ipmi_app_24_timer_action_interrupt;
+static int hf_ipmi_app_24_timer_action_timeout_action;
+static int hf_ipmi_app_24_pretimeout;
+static int hf_ipmi_app_24_expiration_flags_oem;
+static int hf_ipmi_app_24_expiration_flags_smsos;
+static int hf_ipmi_app_24_expiration_flags_osload;
+static int hf_ipmi_app_24_expiration_flags_biospost;
+static int hf_ipmi_app_24_expiration_flags_biosfrb2;
+static int hf_ipmi_app_24_initial_countdown;
 
-static gint hf_ipmi_app_25_timer_use_dont_log;
-static gint hf_ipmi_app_25_timer_use_started;
-static gint hf_ipmi_app_25_timer_use_timer_use;
-static gint hf_ipmi_app_25_timer_action_interrupt;
-static gint hf_ipmi_app_25_timer_action_timeout_action;
-static gint hf_ipmi_app_25_pretimeout;
-static gint hf_ipmi_app_25_expiration_flags_oem;
-static gint hf_ipmi_app_25_expiration_flags_smsos;
-static gint hf_ipmi_app_25_expiration_flags_osload;
-static gint hf_ipmi_app_25_expiration_flags_biospost;
-static gint hf_ipmi_app_25_expiration_flags_biosfrb2;
-static gint hf_ipmi_app_25_initial_countdown;
-static gint hf_ipmi_app_25_present_countdown;
+static int hf_ipmi_app_25_timer_use_dont_log;
+static int hf_ipmi_app_25_timer_use_started;
+static int hf_ipmi_app_25_timer_use_timer_use;
+static int hf_ipmi_app_25_timer_action_interrupt;
+static int hf_ipmi_app_25_timer_action_timeout_action;
+static int hf_ipmi_app_25_pretimeout;
+static int hf_ipmi_app_25_expiration_flags_oem;
+static int hf_ipmi_app_25_expiration_flags_smsos;
+static int hf_ipmi_app_25_expiration_flags_osload;
+static int hf_ipmi_app_25_expiration_flags_biospost;
+static int hf_ipmi_app_25_expiration_flags_biosfrb2;
+static int hf_ipmi_app_25_initial_countdown;
+static int hf_ipmi_app_25_present_countdown;
 
-static gint hf_ipmi_app_2e_byte1_oem2;
-static gint hf_ipmi_app_2e_byte1_oem1;
-static gint hf_ipmi_app_2e_byte1_oem0;
-static gint hf_ipmi_app_2e_byte1_sel;
-static gint hf_ipmi_app_2e_byte1_emb;
-static gint hf_ipmi_app_2e_byte1_emb_full_intr;
-static gint hf_ipmi_app_2e_byte1_rmq_intr;
+static int hf_ipmi_app_2e_byte1_oem2;
+static int hf_ipmi_app_2e_byte1_oem1;
+static int hf_ipmi_app_2e_byte1_oem0;
+static int hf_ipmi_app_2e_byte1_sel;
+static int hf_ipmi_app_2e_byte1_emb;
+static int hf_ipmi_app_2e_byte1_emb_full_intr;
+static int hf_ipmi_app_2e_byte1_rmq_intr;
 
-static gint hf_ipmi_app_2f_byte1_oem2;
-static gint hf_ipmi_app_2f_byte1_oem1;
-static gint hf_ipmi_app_2f_byte1_oem0;
-static gint hf_ipmi_app_2f_byte1_sel;
-static gint hf_ipmi_app_2f_byte1_emb;
-static gint hf_ipmi_app_2f_byte1_emb_full_intr;
-static gint hf_ipmi_app_2f_byte1_rmq_intr;
+static int hf_ipmi_app_2f_byte1_oem2;
+static int hf_ipmi_app_2f_byte1_oem1;
+static int hf_ipmi_app_2f_byte1_oem0;
+static int hf_ipmi_app_2f_byte1_sel;
+static int hf_ipmi_app_2f_byte1_emb;
+static int hf_ipmi_app_2f_byte1_emb_full_intr;
+static int hf_ipmi_app_2f_byte1_rmq_intr;
 
-static gint hf_ipmi_app_30_byte1_oem2;
-static gint hf_ipmi_app_30_byte1_oem1;
-static gint hf_ipmi_app_30_byte1_oem0;
-static gint hf_ipmi_app_30_byte1_wd_pretimeout;
-static gint hf_ipmi_app_30_byte1_emb;
-static gint hf_ipmi_app_30_byte1_rmq;
+static int hf_ipmi_app_30_byte1_oem2;
+static int hf_ipmi_app_30_byte1_oem1;
+static int hf_ipmi_app_30_byte1_oem0;
+static int hf_ipmi_app_30_byte1_wd_pretimeout;
+static int hf_ipmi_app_30_byte1_emb;
+static int hf_ipmi_app_30_byte1_rmq;
 
-static gint hf_ipmi_app_31_byte1_oem2;
-static gint hf_ipmi_app_31_byte1_oem1;
-static gint hf_ipmi_app_31_byte1_oem0;
-static gint hf_ipmi_app_31_byte1_wd_pretimeout;
-static gint hf_ipmi_app_31_byte1_emb;
-static gint hf_ipmi_app_31_byte1_rmq;
+static int hf_ipmi_app_31_byte1_oem2;
+static int hf_ipmi_app_31_byte1_oem1;
+static int hf_ipmi_app_31_byte1_oem0;
+static int hf_ipmi_app_31_byte1_wd_pretimeout;
+static int hf_ipmi_app_31_byte1_emb;
+static int hf_ipmi_app_31_byte1_rmq;
 
-static gint hf_ipmi_app_32_rq_chno;
-static gint hf_ipmi_app_32_rq_state;
-static gint hf_ipmi_app_32_rs_chno;
-static gint hf_ipmi_app_32_rs_state;
+static int hf_ipmi_app_32_rq_chno;
+static int hf_ipmi_app_32_rq_state;
+static int hf_ipmi_app_32_rs_chno;
+static int hf_ipmi_app_32_rs_state;
 
-static gint hf_ipmi_app_33_rs_chan;
-static gint hf_ipmi_app_33_rs_priv;
-static gint hf_ipmi_app_33_msg;
+static int hf_ipmi_app_33_rs_chan;
+static int hf_ipmi_app_33_rs_priv;
+static int hf_ipmi_app_33_msg;
 
-static gint hf_ipmi_app_34_track;
-static gint hf_ipmi_app_34_encrypt;
-static gint hf_ipmi_app_34_auth;
-static gint hf_ipmi_app_34_chan;
-static gint hf_ipmi_app_34_msg;
+static int hf_ipmi_app_34_track;
+static int hf_ipmi_app_34_encrypt;
+static int hf_ipmi_app_34_auth;
+static int hf_ipmi_app_34_chan;
+static int hf_ipmi_app_34_msg;
 
-static gint hf_ipmi_app_38_rq_ipmi20;
-static gint hf_ipmi_app_38_rq_chan;
-static gint hf_ipmi_app_38_rq_priv;
-static gint hf_ipmi_app_38_rs_chan;
-static gint hf_ipmi_app_38_rs_ipmi20;
-static gint hf_ipmi_app_38_rs_auth_oem;
-static gint hf_ipmi_app_38_rs_auth_straight;
-static gint hf_ipmi_app_38_rs_auth_md5;
-static gint hf_ipmi_app_38_rs_auth_md2;
-static gint hf_ipmi_app_38_rs_auth_none;
-static gint hf_ipmi_app_38_rs_kg;
-static gint hf_ipmi_app_38_rs_permsg;
-static gint hf_ipmi_app_38_rs_userauth;
-static gint hf_ipmi_app_38_rs_user_nonnull;
-static gint hf_ipmi_app_38_rs_user_null;
-static gint hf_ipmi_app_38_rs_user_anon;
-static gint hf_ipmi_app_38_rs_ipmi20_conn;
-static gint hf_ipmi_app_38_rs_ipmi15_conn;
-static gint hf_ipmi_app_38_rs_oem_iana;
-static gint hf_ipmi_app_38_rs_oem_aux;
+static int hf_ipmi_app_38_rq_ipmi20;
+static int hf_ipmi_app_38_rq_chan;
+static int hf_ipmi_app_38_rq_priv;
+static int hf_ipmi_app_38_rs_chan;
+static int hf_ipmi_app_38_rs_ipmi20;
+static int hf_ipmi_app_38_rs_auth_oem;
+static int hf_ipmi_app_38_rs_auth_straight;
+static int hf_ipmi_app_38_rs_auth_md5;
+static int hf_ipmi_app_38_rs_auth_md2;
+static int hf_ipmi_app_38_rs_auth_none;
+static int hf_ipmi_app_38_rs_kg;
+static int hf_ipmi_app_38_rs_permsg;
+static int hf_ipmi_app_38_rs_userauth;
+static int hf_ipmi_app_38_rs_user_nonnull;
+static int hf_ipmi_app_38_rs_user_null;
+static int hf_ipmi_app_38_rs_user_anon;
+static int hf_ipmi_app_38_rs_ipmi20_conn;
+static int hf_ipmi_app_38_rs_ipmi15_conn;
+static int hf_ipmi_app_38_rs_oem_iana;
+static int hf_ipmi_app_38_rs_oem_aux;
 
-static gint hf_ipmi_app_39_authtype;
-static gint hf_ipmi_app_39_user;
-static gint hf_ipmi_app_39_temp_session;
-static gint hf_ipmi_app_39_challenge;
+static int hf_ipmi_app_39_authtype;
+static int hf_ipmi_app_39_user;
+static int hf_ipmi_app_39_temp_session;
+static int hf_ipmi_app_39_challenge;
 
-static gint hf_ipmi_app_3a_authtype;
-static gint hf_ipmi_app_3a_privlevel;
-static gint hf_ipmi_app_3a_authcode;
-static gint hf_ipmi_app_3a_outbound_seq;
-static gint hf_ipmi_app_3a_authtype_session;
-static gint hf_ipmi_app_3a_session_id;
-static gint hf_ipmi_app_3a_inbound_seq;
-static gint hf_ipmi_app_3a_maxpriv_session;
+static int hf_ipmi_app_3a_authtype;
+static int hf_ipmi_app_3a_privlevel;
+static int hf_ipmi_app_3a_authcode;
+static int hf_ipmi_app_3a_outbound_seq;
+static int hf_ipmi_app_3a_authtype_session;
+static int hf_ipmi_app_3a_session_id;
+static int hf_ipmi_app_3a_inbound_seq;
+static int hf_ipmi_app_3a_maxpriv_session;
 
-static gint hf_ipmi_app_3b_req_priv;
-static gint hf_ipmi_app_3b_new_priv;
+static int hf_ipmi_app_3b_req_priv;
+static int hf_ipmi_app_3b_new_priv;
 
-static gint hf_ipmi_app_3c_session_id;
-static gint hf_ipmi_app_3c_session_handle;
+static int hf_ipmi_app_3c_session_id;
+static int hf_ipmi_app_3c_session_handle;
 
 static const struct true_false_string tfs_01_dev_avail = {
 	"Device firmware, SDR Repository update or self-initialization in progress",
@@ -447,8 +447,8 @@ rs04(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		&hf_ipmi_app_04_fail_iua, &hf_ipmi_app_04_fail_bb_fw, &hf_ipmi_app_04_fail_oper_fw, NULL };
 	int res, fail;
 
-	res = tvb_get_guint8(tvb, 0);
-	fail = tvb_get_guint8(tvb, 1);
+	res = tvb_get_uint8(tvb, 0);
+	fail = tvb_get_uint8(tvb, 1);
 
 	proto_tree_add_uint_format_value(tree, hf_ipmi_app_04_result, tvb, 0, 1,
 			res, "%s (0x%02x)",
@@ -669,7 +669,7 @@ rs33(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	next = tvb_new_subset_remaining(tvb, 1);
 
 	arg.context = IPMI_E_GETMSG;
-	arg.channel = tvb_get_guint8(tvb, 0) & 0xF;
+	arg.channel = tvb_get_uint8(tvb, 0) & 0xF;
 	arg.flags = 0;
 
 	do_dissect_ipmb(next, pinfo, tree,
@@ -694,7 +694,7 @@ rq34(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	next = tvb_new_subset_remaining(tvb, 1);
 
 	arg.context = IPMI_E_SENDMSG_RQ;
-	arg.channel = tvb_get_guint8(tvb, 0) & 0xF;
+	arg.channel = tvb_get_uint8(tvb, 0) & 0xF;
 	arg.flags = 0;
 
 	do_dissect_ipmb(next, pinfo, tree,
@@ -1462,7 +1462,7 @@ proto_register_ipmi_app(void)
 			{ "Session handle",
 				"ipmi.app3c.session_handle", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 	};
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_ipmi_app_01_byte2,
 		&ett_ipmi_app_01_byte3,
 		&ett_ipmi_app_01_byte6,

@@ -22,7 +22,7 @@ static int proto_isdn;
 static int hf_isdn_direction;
 static int hf_isdn_channel;
 
-static gint ett_isdn;
+static int ett_isdn;
 
 static dissector_handle_t isdn_handle;
 
@@ -91,8 +91,8 @@ dissect_isdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	struct isdn_phdr *isdn = (struct isdn_phdr *)data;
 	proto_tree *isdn_tree;
 	proto_item *ti;
-	static const guint8 v120_sabme[3] = { 0x08, 0x01, 0x7F };
-	static const guint8 ppp[2] = { 0xFF, 0x03 };
+	static const uint8_t v120_sabme[3] = { 0x08, 0x01, 0x7F };
+	static const uint8_t ppp[2] = { 0xFF, 0x03 };
 	conversation_t *conv;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISDN");
@@ -212,7 +212,7 @@ proto_register_isdn(void)
 		{ "Channel",	"isdn.channel", FT_UINT8, BASE_DEC,
 		  VALS(channel_vals), 0x0, NULL, HFILL }},
 	};
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_isdn,
 	};
 	module_t *isdn_module;
@@ -226,7 +226,7 @@ proto_register_isdn(void)
 	prefs_register_enum_preference(isdn_module, "dchannel_protocol",
 	    "D-channel protocol",
 	    "The protocol running on the D channel",
-	    &dchannel_protocol, dchannel_protocol_options, FALSE);
+	    &dchannel_protocol, dchannel_protocol_options, false);
 
 	isdn_handle = register_dissector("isdn", dissect_isdn, proto_isdn);
 }

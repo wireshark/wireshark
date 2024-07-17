@@ -90,7 +90,7 @@ static const value_string fcencap_proto_vals[] = {
  * It says that bytes 4-7 MUST be zeros.  In reality most vendors are putting
  * some information in these 4 bytes, particularly Nishon.
  */
-static const guint8 ifcp_header_4_bytes[4] = {
+static const uint8_t ifcp_header_4_bytes[4] = {
     0x02, 0x01, 0xFD, 0xFE
 };
 
@@ -134,16 +134,16 @@ static dissector_handle_t fc_handle;
 
 
 /* This function checks the first 16 bytes of the "header" that it looks sane
- * and returns TRUE if this looks like iFCP and FALSE if it doesn't.
+ * and returns true if this looks like iFCP and false if it doesn't.
  */
-static gboolean
+static bool
 ifcp_header_test(tvbuff_t *tvb, int offset)
 {
-    guint16 flen, flen1;
+    uint16_t flen, flen1;
 
     /* we can only do this test if we have 16 bytes or more */
     if(tvb_captured_length_remaining(tvb, offset)<iFCP_MIN_HEADER_LEN){
-        return FALSE;
+        return false;
     }
 
     /*
@@ -185,24 +185,24 @@ ifcp_header_test(tvbuff_t *tvb, int offset)
      * Tests a, b and c
      */
     if(tvb_memeql(tvb, offset, ifcp_header_4_bytes, 4) != 0){
-        return FALSE;
+        return false;
         }
 
     /* check the frame length */
     flen=tvb_get_ntohs(tvb, offset+12)&0x03FF;
     if((flen < 15) || (flen > 545)){
-        return FALSE;
+        return false;
     }
 
     /* check the complement of the frame length */
     flen1=tvb_get_ntohs(tvb, offset+14)&0x03FF;
     if(flen!=((~flen1)&0x03FF)){
-        return FALSE;
+        return false;
     }
 
 
     /* this should be good enough for our heuristics */
-    return TRUE;
+    return true;
 }
 
 
@@ -259,12 +259,12 @@ dissect_commonflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 static int
 dissect_ifcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
-    gint        offset = 0, frame_len = 0;
-    guint8      sof    = 0, eof = 0;
+    int         offset = 0, frame_len = 0;
+    uint8_t     sof    = 0, eof = 0;
     proto_item *ti;
     proto_tree *tree           = NULL;
     tvbuff_t   *next_tvb;
-    guint8      protocol;
+    uint8_t     protocol;
     proto_tree *protocol_tree  = NULL;
     proto_tree *version_tree   = NULL;
     proto_tree *frame_len_tree = NULL;
@@ -284,8 +284,8 @@ dissect_ifcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 
         if (parent_tree) {
             if (tvb_bytes_exist (tvb, offset, frame_len-4)) {
-                sof = tvb_get_guint8 (tvb, offset+iFCP_ENCAP_HEADER_LEN);
-                eof = tvb_get_guint8 (tvb, offset+frame_len - 4);
+                sof = tvb_get_uint8 (tvb, offset+iFCP_ENCAP_HEADER_LEN);
+                eof = tvb_get_uint8 (tvb, offset+frame_len - 4);
 
                 ti = proto_tree_add_protocol_format (parent_tree, proto_ifcp, tvb, offset,
                                                      iFCP_ENCAP_HEADER_LEN,
@@ -295,7 +295,7 @@ dissect_ifcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
                                                      val_to_str (eof, ifcp_eof_vals,
                                                                  "0x%x"));
             } else {
-                sof = tvb_get_guint8 (tvb, offset+iFCP_ENCAP_HEADER_LEN);
+                sof = tvb_get_uint8 (tvb, offset+iFCP_ENCAP_HEADER_LEN);
 
                 ti = proto_tree_add_protocol_format (parent_tree, proto_ifcp, tvb, offset,
                                                      iFCP_ENCAP_HEADER_LEN,
@@ -311,7 +311,7 @@ dissect_ifcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 
     /* The Common FC Encap header */
     /* protocol */
-    protocol = tvb_get_guint8 (tvb, offset);
+    protocol = tvb_get_uint8 (tvb, offset);
     ti=proto_tree_add_item(tree, hf_ifcp_protocol, tvb, offset, 1, ENC_BIG_ENDIAN);
     protocol_tree=proto_item_add_subtree(ti, ett_ifcp_protocol);
 
@@ -437,10 +437,10 @@ dissect_ifcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
     return tvb_captured_length(tvb);
 }
 
-static guint
+static unsigned
 get_ifcp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
-    guint pdu_len;
+    unsigned pdu_len;
 
     if(!ifcp_header_test(tvb, offset)){
         return 0;
@@ -563,7 +563,7 @@ proto_register_ifcp (void)
            "Is frame part of link service", HFILL }},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_ifcp,
         &ett_ifcp_sof,
         &ett_ifcp_eof,

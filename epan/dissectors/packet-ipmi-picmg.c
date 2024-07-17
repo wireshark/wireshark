@@ -17,429 +17,429 @@
 
 void proto_register_ipmi_picmg(void);
 
-static gint ett_ipmi_picmg_led_color;
-static gint ett_ipmi_picmg_05_byte1;
-static gint ett_ipmi_picmg_06_byte1;
-static gint ett_ipmi_picmg_06_byte2;
-static gint ett_ipmi_picmg_06_byte3;
-static gint ett_ipmi_picmg_link_info;
-static gint ett_ipmi_picmg_08_byte1;
-static gint ett_ipmi_picmg_09_ipmba;
-static gint ett_ipmi_picmg_09_ipmbb;
-static gint ett_ipmi_picmg_0a_byte2;
-static gint ett_ipmi_picmg_0a_byte3;
-static gint ett_ipmi_picmg_0b_byte1;
-static gint ett_ipmi_picmg_0f_chan;
-static gint ett_ipmi_picmg_12_byte1;
-static gint ett_ipmi_picmg_14_prop;
-static gint ett_ipmi_picmg_1e_byte1;
-static gint ett_ipmi_picmg_21_byte9;
-static gint ett_ipmi_picmg_XX_compbits;
-static gint ett_ipmi_picmg_2e_byte2;
-static gint ett_ipmi_picmg_prop00_byte1;
-static gint ett_ipmi_picmg_prop01_byte1;
-static gint ett_ipmi_picmg_34_byte3;
-static gint ett_ipmi_picmg_36_byte2;
-static gint ett_ipmi_picmg_37_byte2;
-static gint ett_ipmi_picmg_link_state;
-static gint ett_ipmi_picmg_link_dev;
+static int ett_ipmi_picmg_led_color;
+static int ett_ipmi_picmg_05_byte1;
+static int ett_ipmi_picmg_06_byte1;
+static int ett_ipmi_picmg_06_byte2;
+static int ett_ipmi_picmg_06_byte3;
+static int ett_ipmi_picmg_link_info;
+static int ett_ipmi_picmg_08_byte1;
+static int ett_ipmi_picmg_09_ipmba;
+static int ett_ipmi_picmg_09_ipmbb;
+static int ett_ipmi_picmg_0a_byte2;
+static int ett_ipmi_picmg_0a_byte3;
+static int ett_ipmi_picmg_0b_byte1;
+static int ett_ipmi_picmg_0f_chan;
+static int ett_ipmi_picmg_12_byte1;
+static int ett_ipmi_picmg_14_prop;
+static int ett_ipmi_picmg_1e_byte1;
+static int ett_ipmi_picmg_21_byte9;
+static int ett_ipmi_picmg_XX_compbits;
+static int ett_ipmi_picmg_2e_byte2;
+static int ett_ipmi_picmg_prop00_byte1;
+static int ett_ipmi_picmg_prop01_byte1;
+static int ett_ipmi_picmg_34_byte3;
+static int ett_ipmi_picmg_36_byte2;
+static int ett_ipmi_picmg_37_byte2;
+static int ett_ipmi_picmg_link_state;
+static int ett_ipmi_picmg_link_dev;
 
-static gint ett_ipmi_picmg_clock_setting;
-static gint ett_ipmi_picmg_clock_res;
+static int ett_ipmi_picmg_clock_setting;
+static int ett_ipmi_picmg_clock_res;
 
-static gint ett_ipmi_picmg_hpm_caps;
+static int ett_ipmi_picmg_hpm_caps;
 
-static gint ett_ipmi_picmg_47_byte1;
+static int ett_ipmi_picmg_47_byte1;
 
-static gint ett_ipmi_picmg_23_rq_byte2;
-static gint ett_ipmi_picmg_23_rs_byte5;
-static gint ett_ipmi_picmg_25_rs_byte4;
-static gint ett_ipmi_picmg_25_rs_byte5;
-static gint ett_ipmi_picmg_27_rs_byte3;
-static gint ett_ipmi_picmg_28_rq_byte3;
-static gint ett_ipmi_picmg_29_rs_byte3;
+static int ett_ipmi_picmg_23_rq_byte2;
+static int ett_ipmi_picmg_23_rs_byte5;
+static int ett_ipmi_picmg_25_rs_byte4;
+static int ett_ipmi_picmg_25_rs_byte5;
+static int ett_ipmi_picmg_27_rs_byte3;
+static int ett_ipmi_picmg_28_rq_byte3;
+static int ett_ipmi_picmg_29_rs_byte3;
 
-static gint hf_ipmi_picmg_led_function;
-static gint hf_ipmi_picmg_led_on_duration;
-static gint hf_ipmi_picmg_led_color;
+static int hf_ipmi_picmg_led_function;
+static int hf_ipmi_picmg_led_on_duration;
+static int hf_ipmi_picmg_led_color;
 
-static gint hf_ipmi_picmg_linkinfo_grpid;
-static gint hf_ipmi_picmg_linkinfo_type_ext;
-static gint hf_ipmi_picmg_linkinfo_type;
-static gint hf_ipmi_picmg_linkinfo_ports;
-static gint hf_ipmi_picmg_linkinfo_iface;
-static gint hf_ipmi_picmg_linkinfo_chan;
-static gint hf_ipmi_picmg_linkinfo_state;
-static gint hf_ipmi_picmg_linkinfo;
-static gint hf_ipmi_picmg_linkinfo_amc_chan;
-static gint hf_ipmi_picmg_linkinfo_amc_ports;
-static gint hf_ipmi_picmg_linkinfo_amc_type;
-static gint hf_ipmi_picmg_linkinfo_amc_type_ext;
-static gint hf_ipmi_picmg_linkinfo_amc_grpid;
-static gint hf_ipmi_picmg_linkinfo_state_0;
-static gint hf_ipmi_picmg_linkinfo_state_1;
-static gint hf_ipmi_picmg_linkinfo_dev;
-static gint hf_ipmi_picmg_linkinfo_dev_type;
-static gint hf_ipmi_picmg_linkinfo_dev_id;
+static int hf_ipmi_picmg_linkinfo_grpid;
+static int hf_ipmi_picmg_linkinfo_type_ext;
+static int hf_ipmi_picmg_linkinfo_type;
+static int hf_ipmi_picmg_linkinfo_ports;
+static int hf_ipmi_picmg_linkinfo_iface;
+static int hf_ipmi_picmg_linkinfo_chan;
+static int hf_ipmi_picmg_linkinfo_state;
+static int hf_ipmi_picmg_linkinfo;
+static int hf_ipmi_picmg_linkinfo_amc_chan;
+static int hf_ipmi_picmg_linkinfo_amc_ports;
+static int hf_ipmi_picmg_linkinfo_amc_type;
+static int hf_ipmi_picmg_linkinfo_amc_type_ext;
+static int hf_ipmi_picmg_linkinfo_amc_grpid;
+static int hf_ipmi_picmg_linkinfo_state_0;
+static int hf_ipmi_picmg_linkinfo_state_1;
+static int hf_ipmi_picmg_linkinfo_dev;
+static int hf_ipmi_picmg_linkinfo_dev_type;
+static int hf_ipmi_picmg_linkinfo_dev_id;
 
-static gint hf_ipmi_picmg_clock_id;
-static gint hf_ipmi_picmg_clock_cfg;
-static gint hf_ipmi_picmg_clock_setting;
-static gint hf_ipmi_picmg_clock_state;
-static gint hf_ipmi_picmg_clock_dir;
-static gint hf_ipmi_picmg_clock_pll;
-static gint hf_ipmi_picmg_clock_family;
-static gint hf_ipmi_picmg_clock_accuracy;
-static gint hf_ipmi_picmg_clock_frequency;
-static gint hf_ipmi_picmg_clock_resource;
-static gint hf_ipmi_picmg_clock_resource_type;
-static gint hf_ipmi_picmg_clock_resource_dev;
+static int hf_ipmi_picmg_clock_id;
+static int hf_ipmi_picmg_clock_cfg;
+static int hf_ipmi_picmg_clock_setting;
+static int hf_ipmi_picmg_clock_state;
+static int hf_ipmi_picmg_clock_dir;
+static int hf_ipmi_picmg_clock_pll;
+static int hf_ipmi_picmg_clock_family;
+static int hf_ipmi_picmg_clock_accuracy;
+static int hf_ipmi_picmg_clock_frequency;
+static int hf_ipmi_picmg_clock_resource;
+static int hf_ipmi_picmg_clock_resource_type;
+static int hf_ipmi_picmg_clock_resource_dev;
 
-static gint hf_ipmi_picmg_00_version;
-static gint hf_ipmi_picmg_00_max_fruid;
-static gint hf_ipmi_picmg_00_ipmc_fruid;
+static int hf_ipmi_picmg_00_version;
+static int hf_ipmi_picmg_00_max_fruid;
+static int hf_ipmi_picmg_00_ipmc_fruid;
 
-static gint hf_ipmi_picmg_01_rq_fruid;
-static gint hf_ipmi_picmg_01_rq_addr_key_type;
-static gint hf_ipmi_picmg_01_rq_addr_key;
-static gint hf_ipmi_picmg_01_rq_site_type;
-static gint hf_ipmi_picmg_01_rs_hwaddr;
-static gint hf_ipmi_picmg_01_rs_ipmbaddr;
-static gint hf_ipmi_picmg_01_rs_rsrv;
-static gint hf_ipmi_picmg_01_rs_fruid;
-static gint hf_ipmi_picmg_01_rs_site_num;
-static gint hf_ipmi_picmg_01_rs_site_type;
+static int hf_ipmi_picmg_01_rq_fruid;
+static int hf_ipmi_picmg_01_rq_addr_key_type;
+static int hf_ipmi_picmg_01_rq_addr_key;
+static int hf_ipmi_picmg_01_rq_site_type;
+static int hf_ipmi_picmg_01_rs_hwaddr;
+static int hf_ipmi_picmg_01_rs_ipmbaddr;
+static int hf_ipmi_picmg_01_rs_rsrv;
+static int hf_ipmi_picmg_01_rs_fruid;
+static int hf_ipmi_picmg_01_rs_site_num;
+static int hf_ipmi_picmg_01_rs_site_type;
 
-static gint hf_ipmi_picmg_02_shelf_address;
-static gint hf_ipmi_picmg_02_shelf_type;
-static gint hf_ipmi_picmg_02_shelf_length;
+static int hf_ipmi_picmg_02_shelf_address;
+static int hf_ipmi_picmg_02_shelf_type;
+static int hf_ipmi_picmg_02_shelf_length;
 
-static gint hf_ipmi_picmg_03_shelf_address;
-static gint hf_ipmi_picmg_03_shelf_type;
-static gint hf_ipmi_picmg_03_shelf_length;
+static int hf_ipmi_picmg_03_shelf_address;
+static int hf_ipmi_picmg_03_shelf_type;
+static int hf_ipmi_picmg_03_shelf_length;
 
-static gint hf_ipmi_picmg_04_fruid;
-static gint hf_ipmi_picmg_04_cmd;
+static int hf_ipmi_picmg_04_fruid;
+static int hf_ipmi_picmg_04_cmd;
 
-static gint hf_ipmi_picmg_05_fruid;
-static gint hf_ipmi_picmg_05_led3;
-static gint hf_ipmi_picmg_05_led2;
-static gint hf_ipmi_picmg_05_led1;
-static gint hf_ipmi_picmg_05_blue_led;
-static gint hf_ipmi_picmg_05_app_leds;
+static int hf_ipmi_picmg_05_fruid;
+static int hf_ipmi_picmg_05_led3;
+static int hf_ipmi_picmg_05_led2;
+static int hf_ipmi_picmg_05_led1;
+static int hf_ipmi_picmg_05_blue_led;
+static int hf_ipmi_picmg_05_app_leds;
 
-static gint hf_ipmi_picmg_06_fruid;
-static gint hf_ipmi_picmg_06_ledid;
-static gint hf_ipmi_picmg_06_cap_white;
-static gint hf_ipmi_picmg_06_cap_orange;
-static gint hf_ipmi_picmg_06_cap_amber;
-static gint hf_ipmi_picmg_06_cap_green;
-static gint hf_ipmi_picmg_06_cap_red;
-static gint hf_ipmi_picmg_06_cap_blue;
-static gint hf_ipmi_picmg_06_default_local_color;
-static gint hf_ipmi_picmg_06_default_override_color;
+static int hf_ipmi_picmg_06_fruid;
+static int hf_ipmi_picmg_06_ledid;
+static int hf_ipmi_picmg_06_cap_white;
+static int hf_ipmi_picmg_06_cap_orange;
+static int hf_ipmi_picmg_06_cap_amber;
+static int hf_ipmi_picmg_06_cap_green;
+static int hf_ipmi_picmg_06_cap_red;
+static int hf_ipmi_picmg_06_cap_blue;
+static int hf_ipmi_picmg_06_default_local_color;
+static int hf_ipmi_picmg_06_default_override_color;
 
-static gint hf_ipmi_picmg_07_fruid;
-static gint hf_ipmi_picmg_07_ledid;
+static int hf_ipmi_picmg_07_fruid;
+static int hf_ipmi_picmg_07_ledid;
 
-static gint hf_ipmi_picmg_08_fruid;
-static gint hf_ipmi_picmg_08_ledid;
-static gint hf_ipmi_picmg_08_state_lamptest;
-static gint hf_ipmi_picmg_08_state_override;
-static gint hf_ipmi_picmg_08_state_local;
-static gint hf_ipmi_picmg_08_lamptest_duration;
+static int hf_ipmi_picmg_08_fruid;
+static int hf_ipmi_picmg_08_ledid;
+static int hf_ipmi_picmg_08_state_lamptest;
+static int hf_ipmi_picmg_08_state_override;
+static int hf_ipmi_picmg_08_state_local;
+static int hf_ipmi_picmg_08_lamptest_duration;
 
-static gint hf_ipmi_picmg_09_ipmba;
-static gint hf_ipmi_picmg_09_ipmba_link;
-static gint hf_ipmi_picmg_09_ipmba_state;
-static gint hf_ipmi_picmg_09_ipmbb;
-static gint hf_ipmi_picmg_09_ipmbb_link;
-static gint hf_ipmi_picmg_09_ipmbb_state;
+static int hf_ipmi_picmg_09_ipmba;
+static int hf_ipmi_picmg_09_ipmba_link;
+static int hf_ipmi_picmg_09_ipmba_state;
+static int hf_ipmi_picmg_09_ipmbb;
+static int hf_ipmi_picmg_09_ipmbb_link;
+static int hf_ipmi_picmg_09_ipmbb_state;
 
-static gint hf_ipmi_picmg_0a_fruid;
-static gint hf_ipmi_picmg_0a_msk_d_locked;
-static gint hf_ipmi_picmg_0a_msk_locked;
-static gint hf_ipmi_picmg_0a_d_locked;
-static gint hf_ipmi_picmg_0a_locked;
+static int hf_ipmi_picmg_0a_fruid;
+static int hf_ipmi_picmg_0a_msk_d_locked;
+static int hf_ipmi_picmg_0a_msk_locked;
+static int hf_ipmi_picmg_0a_d_locked;
+static int hf_ipmi_picmg_0a_locked;
 
-static gint hf_ipmi_picmg_0b_fruid;
-static gint hf_ipmi_picmg_0b_d_locked;
-static gint hf_ipmi_picmg_0b_locked;
+static int hf_ipmi_picmg_0b_fruid;
+static int hf_ipmi_picmg_0b_d_locked;
+static int hf_ipmi_picmg_0b_locked;
 
-static gint hf_ipmi_picmg_0c_fruid;
-static gint hf_ipmi_picmg_0c_cmd;
+static int hf_ipmi_picmg_0c_fruid;
+static int hf_ipmi_picmg_0c_cmd;
 
-static gint hf_ipmi_picmg_0d_fruid;
-static gint hf_ipmi_picmg_0d_start;
-static gint hf_ipmi_picmg_0d_recordid;
+static int hf_ipmi_picmg_0d_fruid;
+static int hf_ipmi_picmg_0d_start;
+static int hf_ipmi_picmg_0d_recordid;
 
-static gint hf_ipmi_picmg_0f_iface;
-static gint hf_ipmi_picmg_0f_chan;
+static int hf_ipmi_picmg_0f_iface;
+static int hf_ipmi_picmg_0f_chan;
 
-static gint hf_ipmi_picmg_10_fruid;
-static gint hf_ipmi_picmg_10_nslots;
-static gint hf_ipmi_picmg_10_ipmc_loc;
+static int hf_ipmi_picmg_10_fruid;
+static int hf_ipmi_picmg_10_nslots;
+static int hf_ipmi_picmg_10_ipmc_loc;
 
-static gint hf_ipmi_picmg_11_fruid;
-static gint hf_ipmi_picmg_11_power_level;
-static gint hf_ipmi_picmg_11_set_to_desired;
+static int hf_ipmi_picmg_11_fruid;
+static int hf_ipmi_picmg_11_power_level;
+static int hf_ipmi_picmg_11_set_to_desired;
 
-static gint hf_ipmi_picmg_12_fruid;
-static gint hf_ipmi_picmg_12_pwr_type;
-static gint hf_ipmi_picmg_12_dynamic;
-static gint hf_ipmi_picmg_12_pwr_lvl;
-static gint hf_ipmi_picmg_12_delay;
-static gint hf_ipmi_picmg_12_pwr_mult;
-static gint hf_ipmi_picmg_12_pwr_draw;
+static int hf_ipmi_picmg_12_fruid;
+static int hf_ipmi_picmg_12_pwr_type;
+static int hf_ipmi_picmg_12_dynamic;
+static int hf_ipmi_picmg_12_pwr_lvl;
+static int hf_ipmi_picmg_12_delay;
+static int hf_ipmi_picmg_12_pwr_mult;
+static int hf_ipmi_picmg_12_pwr_draw;
 
-static gint hf_ipmi_picmg_13_fruid;
+static int hf_ipmi_picmg_13_fruid;
 
-static gint hf_ipmi_picmg_14_fruid;
-static gint hf_ipmi_picmg_14_speed_min;
-static gint hf_ipmi_picmg_14_speed_max;
-static gint hf_ipmi_picmg_14_speed_norm;
-static gint hf_ipmi_picmg_14_local_control;
+static int hf_ipmi_picmg_14_fruid;
+static int hf_ipmi_picmg_14_speed_min;
+static int hf_ipmi_picmg_14_speed_max;
+static int hf_ipmi_picmg_14_speed_norm;
+static int hf_ipmi_picmg_14_local_control;
 
-static gint hf_ipmi_picmg_15_fruid;
-static gint hf_ipmi_picmg_15_fan_level;
-static gint hf_ipmi_picmg_15_local_enable;
+static int hf_ipmi_picmg_15_fruid;
+static int hf_ipmi_picmg_15_fan_level;
+static int hf_ipmi_picmg_15_local_enable;
 
-static gint hf_ipmi_picmg_16_fruid;
-static gint hf_ipmi_picmg_16_override_level;
-static gint hf_ipmi_picmg_16_local_level;
-static gint hf_ipmi_picmg_16_local_enable;
+static int hf_ipmi_picmg_16_fruid;
+static int hf_ipmi_picmg_16_override_level;
+static int hf_ipmi_picmg_16_local_level;
+static int hf_ipmi_picmg_16_local_enable;
 
-static gint hf_ipmi_picmg_17_cmd;
-static gint hf_ipmi_picmg_17_resid;
-static gint hf_ipmi_picmg_17_status;
+static int hf_ipmi_picmg_17_cmd;
+static int hf_ipmi_picmg_17_resid;
+static int hf_ipmi_picmg_17_status;
 
-static gint hf_ipmi_picmg_18_li_key_type;
-static gint hf_ipmi_picmg_18_li_key;
-static gint hf_ipmi_picmg_18_link_num;
-static gint hf_ipmi_picmg_18_sensor_num;
+static int hf_ipmi_picmg_18_li_key_type;
+static int hf_ipmi_picmg_18_li_key;
+static int hf_ipmi_picmg_18_link_num;
+static int hf_ipmi_picmg_18_sensor_num;
 
-static gint hf_ipmi_picmg_1a_flags;
+static int hf_ipmi_picmg_1a_flags;
 
-static gint hf_ipmi_picmg_1b_addr_active;
-static gint hf_ipmi_picmg_1b_addr_backup;
+static int hf_ipmi_picmg_1b_addr_active;
+static int hf_ipmi_picmg_1b_addr_backup;
 
-static gint hf_ipmi_picmg_1c_fan_site_number;
-static gint hf_ipmi_picmg_1c_fan_enable_state;
-static gint hf_ipmi_picmg_1c_fan_policy_timeout;
-static gint hf_ipmi_picmg_1c_site_number;
-static gint hf_ipmi_picmg_1c_site_type;
+static int hf_ipmi_picmg_1c_fan_site_number;
+static int hf_ipmi_picmg_1c_fan_enable_state;
+static int hf_ipmi_picmg_1c_fan_policy_timeout;
+static int hf_ipmi_picmg_1c_site_number;
+static int hf_ipmi_picmg_1c_site_type;
 
-static gint hf_ipmi_picmg_1d_fan_site_number;
-static gint hf_ipmi_picmg_1d_site_number;
-static gint hf_ipmi_picmg_1d_site_type;
-static gint hf_ipmi_picmg_1d_policy;
-static gint hf_ipmi_picmg_1d_coverage;
+static int hf_ipmi_picmg_1d_fan_site_number;
+static int hf_ipmi_picmg_1d_site_number;
+static int hf_ipmi_picmg_1d_site_type;
+static int hf_ipmi_picmg_1d_policy;
+static int hf_ipmi_picmg_1d_coverage;
 
-static gint hf_ipmi_picmg_1e_fruid;
-static gint hf_ipmi_picmg_1e_cap_diagintr;
-static gint hf_ipmi_picmg_1e_cap_graceful_reboot;
-static gint hf_ipmi_picmg_1e_cap_warm_reset;
+static int hf_ipmi_picmg_1e_fruid;
+static int hf_ipmi_picmg_1e_cap_diagintr;
+static int hf_ipmi_picmg_1e_cap_graceful_reboot;
+static int hf_ipmi_picmg_1e_cap_warm_reset;
 
-static gint hf_ipmi_picmg_1f_rq_fruid;
-static gint hf_ipmi_picmg_1f_rq_op;
-static gint hf_ipmi_picmg_1f_rq_lockid;
-static gint hf_ipmi_picmg_1f_rs_lockid;
-static gint hf_ipmi_picmg_1f_rs_tstamp;
+static int hf_ipmi_picmg_1f_rq_fruid;
+static int hf_ipmi_picmg_1f_rq_op;
+static int hf_ipmi_picmg_1f_rq_lockid;
+static int hf_ipmi_picmg_1f_rs_lockid;
+static int hf_ipmi_picmg_1f_rs_tstamp;
 
-static gint hf_ipmi_picmg_20_fruid;
-static gint hf_ipmi_picmg_20_lockid;
-static gint hf_ipmi_picmg_20_offset;
-static gint hf_ipmi_picmg_20_data;
-static gint hf_ipmi_picmg_20_count;
+static int hf_ipmi_picmg_20_fruid;
+static int hf_ipmi_picmg_20_lockid;
+static int hf_ipmi_picmg_20_offset;
+static int hf_ipmi_picmg_20_data;
+static int hf_ipmi_picmg_20_count;
 
-static gint hf_ipmi_picmg_21_addr_num;
-static gint hf_ipmi_picmg_21_tstamp;
-static gint hf_ipmi_picmg_21_addr_count;
-static gint hf_ipmi_picmg_21_site_type;
-static gint hf_ipmi_picmg_21_site_num;
-static gint hf_ipmi_picmg_21_max_unavail;
-static gint hf_ipmi_picmg_21_is_shm;
-static gint hf_ipmi_picmg_21_addr_type;
-static gint hf_ipmi_picmg_21_ipaddr;
-static gint hf_ipmi_picmg_21_rmcpport;
+static int hf_ipmi_picmg_21_addr_num;
+static int hf_ipmi_picmg_21_tstamp;
+static int hf_ipmi_picmg_21_addr_count;
+static int hf_ipmi_picmg_21_site_type;
+static int hf_ipmi_picmg_21_site_num;
+static int hf_ipmi_picmg_21_max_unavail;
+static int hf_ipmi_picmg_21_is_shm;
+static int hf_ipmi_picmg_21_addr_type;
+static int hf_ipmi_picmg_21_ipaddr;
+static int hf_ipmi_picmg_21_rmcpport;
 
-static gint hf_ipmi_picmg_22_feed_idx;
-static gint hf_ipmi_picmg_22_update_cnt;
-static gint hf_ipmi_picmg_22_pwr_alloc;
+static int hf_ipmi_picmg_22_feed_idx;
+static int hf_ipmi_picmg_22_update_cnt;
+static int hf_ipmi_picmg_22_pwr_alloc;
 
-static gint hf_ipmi_picmg_XX_comp7;
-static gint hf_ipmi_picmg_XX_comp6;
-static gint hf_ipmi_picmg_XX_comp5;
-static gint hf_ipmi_picmg_XX_comp4;
-static gint hf_ipmi_picmg_XX_comp3;
-static gint hf_ipmi_picmg_XX_comp2;
-static gint hf_ipmi_picmg_XX_comp1;
-static gint hf_ipmi_picmg_XX_comp0;
+static int hf_ipmi_picmg_XX_comp7;
+static int hf_ipmi_picmg_XX_comp6;
+static int hf_ipmi_picmg_XX_comp5;
+static int hf_ipmi_picmg_XX_comp4;
+static int hf_ipmi_picmg_XX_comp3;
+static int hf_ipmi_picmg_XX_comp2;
+static int hf_ipmi_picmg_XX_comp1;
+static int hf_ipmi_picmg_XX_comp0;
 
-static gint hf_ipmi_picmg_2e_version;
-static gint hf_ipmi_picmg_2e_upgrade_undesirable;
-static gint hf_ipmi_picmg_2e_auto_rollback_override;
-static gint hf_ipmi_picmg_2e_ipmc_degraded;
-static gint hf_ipmi_picmg_2e_deferred_activate;
-static gint hf_ipmi_picmg_2e_services_affected;
-static gint hf_ipmi_picmg_2e_manual_rollback;
-static gint hf_ipmi_picmg_2e_auto_rollback;
-static gint hf_ipmi_picmg_2e_self_test;
-static gint hf_ipmi_picmg_2e_upgrade_tout;
-static gint hf_ipmi_picmg_2e_selftest_tout;
-static gint hf_ipmi_picmg_2e_rollback_tout;
-static gint hf_ipmi_picmg_2e_inaccessibility_tout;
+static int hf_ipmi_picmg_2e_version;
+static int hf_ipmi_picmg_2e_upgrade_undesirable;
+static int hf_ipmi_picmg_2e_auto_rollback_override;
+static int hf_ipmi_picmg_2e_ipmc_degraded;
+static int hf_ipmi_picmg_2e_deferred_activate;
+static int hf_ipmi_picmg_2e_services_affected;
+static int hf_ipmi_picmg_2e_manual_rollback;
+static int hf_ipmi_picmg_2e_auto_rollback;
+static int hf_ipmi_picmg_2e_self_test;
+static int hf_ipmi_picmg_2e_upgrade_tout;
+static int hf_ipmi_picmg_2e_selftest_tout;
+static int hf_ipmi_picmg_2e_rollback_tout;
+static int hf_ipmi_picmg_2e_inaccessibility_tout;
 
-static gint hf_ipmi_picmg_prop00_cold_reset;
-static gint hf_ipmi_picmg_prop00_deferred_activation;
-static gint hf_ipmi_picmg_prop00_comparison;
-static gint hf_ipmi_picmg_prop00_preparation;
-static gint hf_ipmi_picmg_prop00_rollback;
-static gint hf_ipmi_picmg_prop01_fw_major;
-static gint hf_ipmi_picmg_prop01_fw_minor;
-static gint hf_ipmi_picmg_prop01_fw_aux;
-static gint hf_ipmi_picmg_prop02_desc;
+static int hf_ipmi_picmg_prop00_cold_reset;
+static int hf_ipmi_picmg_prop00_deferred_activation;
+static int hf_ipmi_picmg_prop00_comparison;
+static int hf_ipmi_picmg_prop00_preparation;
+static int hf_ipmi_picmg_prop00_rollback;
+static int hf_ipmi_picmg_prop01_fw_major;
+static int hf_ipmi_picmg_prop01_fw_minor;
+static int hf_ipmi_picmg_prop01_fw_aux;
+static int hf_ipmi_picmg_prop02_desc;
 
-static gint hf_ipmi_picmg_2f_comp_id;
-static gint hf_ipmi_picmg_2f_comp_prop;
-static gint hf_ipmi_picmg_2f_prop_data;
+static int hf_ipmi_picmg_2f_comp_id;
+static int hf_ipmi_picmg_2f_comp_prop;
+static int hf_ipmi_picmg_2f_prop_data;
 
-static gint hf_ipmi_picmg_31_action;
+static int hf_ipmi_picmg_31_action;
 
-static gint hf_ipmi_picmg_32_block;
-static gint hf_ipmi_picmg_32_data;
-static gint hf_ipmi_picmg_32_sec_offs;
-static gint hf_ipmi_picmg_32_sec_len;
+static int hf_ipmi_picmg_32_block;
+static int hf_ipmi_picmg_32_data;
+static int hf_ipmi_picmg_32_sec_offs;
+static int hf_ipmi_picmg_32_sec_len;
 
-static gint hf_ipmi_picmg_33_comp_id;
-static gint hf_ipmi_picmg_33_img_len;
+static int hf_ipmi_picmg_33_comp_id;
+static int hf_ipmi_picmg_33_img_len;
 
-static gint hf_ipmi_picmg_34_cmd;
-static gint hf_ipmi_picmg_34_ccode;
-static gint hf_ipmi_picmg_34_percentage;
+static int hf_ipmi_picmg_34_cmd;
+static int hf_ipmi_picmg_34_ccode;
+static int hf_ipmi_picmg_34_percentage;
 
-static gint hf_ipmi_picmg_35_rollback_override;
+static int hf_ipmi_picmg_35_rollback_override;
 
-static gint hf_ipmi_picmg_36_result;
-static gint hf_ipmi_picmg_36_fail;
-static gint hf_ipmi_picmg_36_fail_sel;
-static gint hf_ipmi_picmg_36_fail_sdr;
-static gint hf_ipmi_picmg_36_fail_bmc_fru;
-static gint hf_ipmi_picmg_36_fail_ipmb_sig;
-static gint hf_ipmi_picmg_36_fail_sdr_empty;
-static gint hf_ipmi_picmg_36_fail_iua;
-static gint hf_ipmi_picmg_36_fail_bb_fw;
-static gint hf_ipmi_picmg_36_fail_oper_fw;
+static int hf_ipmi_picmg_36_result;
+static int hf_ipmi_picmg_36_fail;
+static int hf_ipmi_picmg_36_fail_sel;
+static int hf_ipmi_picmg_36_fail_sdr;
+static int hf_ipmi_picmg_36_fail_bmc_fru;
+static int hf_ipmi_picmg_36_fail_ipmb_sig;
+static int hf_ipmi_picmg_36_fail_sdr_empty;
+static int hf_ipmi_picmg_36_fail_iua;
+static int hf_ipmi_picmg_36_fail_bb_fw;
+static int hf_ipmi_picmg_36_fail_oper_fw;
 
-static gint hf_ipmi_picmg_37_percent;
+static int hf_ipmi_picmg_37_percent;
 
-static gint hf_ipmi_picmg_hpm_id;
-static gint hf_ipmi_picmg_hpm_rev;
-static gint hf_ipmi_picmg_hpm2_mask;
-static gint hf_ipmi_picmg_hpm2_caps;
-static gint hf_ipmi_picmg_hpm2_dyn_ssn;
-static gint hf_ipmi_picmg_hpm2_ver_chg;
-static gint hf_ipmi_picmg_hpm2_ext_mgt;
-static gint hf_ipmi_picmg_hpm2_pkt_trc;
-static gint hf_ipmi_picmg_hpm2_sol_ext;
-static gint hf_ipmi_picmg_hpm_oem_start;
-static gint hf_ipmi_picmg_hpm_oem_rev;
-static gint hf_ipmi_picmg_hpm2_sol_oem_start;
-static gint hf_ipmi_picmg_hpm2_sol_oem_rev;
-static gint hf_ipmi_picmg_hpm_cred_hnd;
-static gint hf_ipmi_picmg_hpm_func_sel;
-static gint hf_ipmi_picmg_hpm_ipmi_rev;
-static gint hf_ipmi_picmg_hpm_cipher_id;
-static gint hf_ipmi_picmg_hpm_auth_type;
-static gint hf_ipmi_picmg_hpm_priv_level;
-static gint hf_ipmi_picmg_hpm_chn_num;
-static gint hf_ipmi_picmg_hpm_avail_time;
-static gint hf_ipmi_picmg_hpm_user_name;
-static gint hf_ipmi_picmg_hpm_user_pwd;
-static gint hf_ipmi_picmg_hpm_bmc_key;
-static gint hf_ipmi_picmg_hpm_operation;
-static gint hf_ipmi_picmg_hpm_ssn_hnd;
+static int hf_ipmi_picmg_hpm_id;
+static int hf_ipmi_picmg_hpm_rev;
+static int hf_ipmi_picmg_hpm2_mask;
+static int hf_ipmi_picmg_hpm2_caps;
+static int hf_ipmi_picmg_hpm2_dyn_ssn;
+static int hf_ipmi_picmg_hpm2_ver_chg;
+static int hf_ipmi_picmg_hpm2_ext_mgt;
+static int hf_ipmi_picmg_hpm2_pkt_trc;
+static int hf_ipmi_picmg_hpm2_sol_ext;
+static int hf_ipmi_picmg_hpm_oem_start;
+static int hf_ipmi_picmg_hpm_oem_rev;
+static int hf_ipmi_picmg_hpm2_sol_oem_start;
+static int hf_ipmi_picmg_hpm2_sol_oem_rev;
+static int hf_ipmi_picmg_hpm_cred_hnd;
+static int hf_ipmi_picmg_hpm_func_sel;
+static int hf_ipmi_picmg_hpm_ipmi_rev;
+static int hf_ipmi_picmg_hpm_cipher_id;
+static int hf_ipmi_picmg_hpm_auth_type;
+static int hf_ipmi_picmg_hpm_priv_level;
+static int hf_ipmi_picmg_hpm_chn_num;
+static int hf_ipmi_picmg_hpm_avail_time;
+static int hf_ipmi_picmg_hpm_user_name;
+static int hf_ipmi_picmg_hpm_user_pwd;
+static int hf_ipmi_picmg_hpm_bmc_key;
+static int hf_ipmi_picmg_hpm_operation;
+static int hf_ipmi_picmg_hpm_ssn_hnd;
 
-static gint hf_ipmi_picmg_hpm_power_draw;
-static gint hf_ipmi_picmg_hpm_base_channels;
-static gint hf_ipmi_picmg_hpm_fabric_channels;
-static gint hf_ipmi_picmg_hpm_update_channels;
-static gint hf_ipmi_picmg_hpm_cross_channels;
-static gint hf_ipmi_picmg_hpm_num_chn_desc;
-static gint hf_ipmi_picmg_hpm_chn_mask;
+static int hf_ipmi_picmg_hpm_power_draw;
+static int hf_ipmi_picmg_hpm_base_channels;
+static int hf_ipmi_picmg_hpm_fabric_channels;
+static int hf_ipmi_picmg_hpm_update_channels;
+static int hf_ipmi_picmg_hpm_cross_channels;
+static int hf_ipmi_picmg_hpm_num_chn_desc;
+static int hf_ipmi_picmg_hpm_chn_mask;
 
-static gint hf_ipmi_picmg_hpm_ext_mgmt_state;
-static gint hf_ipmi_picmg_hpm_polling_period;
-static gint hf_ipmi_picmg_hpm_auth_pwr_state;
-static gint hf_ipmi_picmg_hpm_amc_pwr_state;
+static int hf_ipmi_picmg_hpm_ext_mgmt_state;
+static int hf_ipmi_picmg_hpm_polling_period;
+static int hf_ipmi_picmg_hpm_auth_pwr_state;
+static int hf_ipmi_picmg_hpm_amc_pwr_state;
 
-static gint hf_ipmi_picmg47_port;
-static gint hf_ipmi_picmg47_flags;
-static gint hf_ipmi_picmg47_assignment;
-static gint hf_ipmi_picmg47_state;
-static gint hf_ipmi_picmg47_instance;
+static int hf_ipmi_picmg47_port;
+static int hf_ipmi_picmg47_flags;
+static int hf_ipmi_picmg47_assignment;
+static int hf_ipmi_picmg47_state;
+static int hf_ipmi_picmg47_instance;
 
-static gint hf_ipmi_picmg48_sub_fru_type;
-static gint hf_ipmi_picmg48_sub_fru_id;
-static gint hf_ipmi_picmg48_ip_source;
+static int hf_ipmi_picmg48_sub_fru_type;
+static int hf_ipmi_picmg48_sub_fru_id;
+static int hf_ipmi_picmg48_ip_source;
 
-static gint hf_ipmi_picmg_23_rq_byte2;
-static gint hf_ipmi_picmg_23_slot_sel;
-static gint hf_ipmi_picmg_23_carrier_num;
-static gint hf_ipmi_picmg_23_slot_num;
-static gint hf_ipmi_picmg_23_tier_num;
-static gint hf_ipmi_picmg_23_rs_byte5;
-static gint hf_ipmi_picmg_23_slot_base;
-static gint hf_ipmi_picmg_23_tier_base;
-static gint hf_ipmi_picmg_23_orientation;
-static gint hf_ipmi_picmg_23_origin_x;
-static gint hf_ipmi_picmg_23_origin_y;
+static int hf_ipmi_picmg_23_rq_byte2;
+static int hf_ipmi_picmg_23_slot_sel;
+static int hf_ipmi_picmg_23_carrier_num;
+static int hf_ipmi_picmg_23_slot_num;
+static int hf_ipmi_picmg_23_tier_num;
+static int hf_ipmi_picmg_23_rs_byte5;
+static int hf_ipmi_picmg_23_slot_base;
+static int hf_ipmi_picmg_23_tier_base;
+static int hf_ipmi_picmg_23_orientation;
+static int hf_ipmi_picmg_23_origin_x;
+static int hf_ipmi_picmg_23_origin_y;
 
-static gint hf_ipmi_picmg_24_channel;
-static gint hf_ipmi_picmg_24_control;
-static gint hf_ipmi_picmg_24_current;
-static gint hf_ipmi_picmg_24_primary_pm;
-static gint hf_ipmi_picmg_24_backup_pm;
+static int hf_ipmi_picmg_24_channel;
+static int hf_ipmi_picmg_24_control;
+static int hf_ipmi_picmg_24_current;
+static int hf_ipmi_picmg_24_primary_pm;
+static int hf_ipmi_picmg_24_backup_pm;
 
-static gint hf_ipmi_picmg_25_start;
-static gint hf_ipmi_picmg_25_count;
-static gint hf_ipmi_picmg_25_max;
-static gint hf_ipmi_picmg_25_gstatus;
-static gint hf_ipmi_picmg_25_fault;
-static gint hf_ipmi_picmg_25_pwr_good;
-static gint hf_ipmi_picmg_25_mp_good;
-static gint hf_ipmi_picmg_25_role;
-static gint hf_ipmi_picmg_25_cstatus;
-static gint hf_ipmi_picmg_25_pwr_on;
-static gint hf_ipmi_picmg_25_pwr_ovr;
-static gint hf_ipmi_picmg_25_pwr;
-static gint hf_ipmi_picmg_25_enable;
-static gint hf_ipmi_picmg_25_mp_ovr;
-static gint hf_ipmi_picmg_25_mp;
-static gint hf_ipmi_picmg_25_ps1;
+static int hf_ipmi_picmg_25_start;
+static int hf_ipmi_picmg_25_count;
+static int hf_ipmi_picmg_25_max;
+static int hf_ipmi_picmg_25_gstatus;
+static int hf_ipmi_picmg_25_fault;
+static int hf_ipmi_picmg_25_pwr_good;
+static int hf_ipmi_picmg_25_mp_good;
+static int hf_ipmi_picmg_25_role;
+static int hf_ipmi_picmg_25_cstatus;
+static int hf_ipmi_picmg_25_pwr_on;
+static int hf_ipmi_picmg_25_pwr_ovr;
+static int hf_ipmi_picmg_25_pwr;
+static int hf_ipmi_picmg_25_enable;
+static int hf_ipmi_picmg_25_mp_ovr;
+static int hf_ipmi_picmg_25_mp;
+static int hf_ipmi_picmg_25_ps1;
 
-static gint hf_ipmi_picmg_26_pm_site;
-static gint hf_ipmi_picmg_27_rs_byte3;
-static gint hf_ipmi_picmg_27_pm_healthy;
-static gint hf_ipmi_picmg_28_timeout;
-static gint hf_ipmi_picmg_28_rq_byte3;
-static gint hf_ipmi_picmg_28_mch2;
-static gint hf_ipmi_picmg_28_mch1;
+static int hf_ipmi_picmg_26_pm_site;
+static int hf_ipmi_picmg_27_rs_byte3;
+static int hf_ipmi_picmg_27_pm_healthy;
+static int hf_ipmi_picmg_28_timeout;
+static int hf_ipmi_picmg_28_rq_byte3;
+static int hf_ipmi_picmg_28_mch2;
+static int hf_ipmi_picmg_28_mch1;
 
-static gint hf_ipmi_picmg_29_rs_byte3;
-static gint hf_ipmi_picmg_29_maj_rst;
-static gint hf_ipmi_picmg_29_min_rst;
-static gint hf_ipmi_picmg_29_alarm_cut;
-static gint hf_ipmi_picmg_29_test_mode;
-static gint hf_ipmi_picmg_29_pwr_alarm;
-static gint hf_ipmi_picmg_29_minor_alarm;
-static gint hf_ipmi_picmg_29_major_alarm;
-static gint hf_ipmi_picmg_29_crit_alarm;
+static int hf_ipmi_picmg_29_rs_byte3;
+static int hf_ipmi_picmg_29_maj_rst;
+static int hf_ipmi_picmg_29_min_rst;
+static int hf_ipmi_picmg_29_alarm_cut;
+static int hf_ipmi_picmg_29_test_mode;
+static int hf_ipmi_picmg_29_pwr_alarm;
+static int hf_ipmi_picmg_29_minor_alarm;
+static int hf_ipmi_picmg_29_major_alarm;
+static int hf_ipmi_picmg_29_crit_alarm;
 
-static gint hf_ipmi_picmg_2a_alarm_id;
-static gint hf_ipmi_picmg_2a_alarm_ctrl;
+static int hf_ipmi_picmg_2a_alarm_id;
+static int hf_ipmi_picmg_2a_alarm_ctrl;
 
-static gint hf_ipmi_picmg_2b_alarm_state;
+static int hf_ipmi_picmg_2b_alarm_state;
 
 static const value_string site_type_vals[] = {
 	{ 0x00, "PICMG board" },
@@ -735,7 +735,7 @@ rs01(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs02(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	ipmi_add_typelen(pinfo, tree, hf_ipmi_picmg_02_shelf_address, hf_ipmi_picmg_02_shelf_type, hf_ipmi_picmg_02_shelf_length, tvb, 0, TRUE);
+	ipmi_add_typelen(pinfo, tree, hf_ipmi_picmg_02_shelf_address, hf_ipmi_picmg_02_shelf_type, hf_ipmi_picmg_02_shelf_length, tvb, 0, true);
 }
 
 /* Set Shelf Address Info
@@ -743,7 +743,7 @@ rs02(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 rq03(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	ipmi_add_typelen(pinfo, tree, hf_ipmi_picmg_03_shelf_address, hf_ipmi_picmg_03_shelf_type, hf_ipmi_picmg_03_shelf_length, tvb, 0, TRUE);
+	ipmi_add_typelen(pinfo, tree, hf_ipmi_picmg_03_shelf_address, hf_ipmi_picmg_03_shelf_type, hf_ipmi_picmg_03_shelf_length, tvb, 0, true);
 }
 
 /* FRU Control.
@@ -801,7 +801,7 @@ rs06(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 }
 
 static void
-parse_led_state(proto_tree *tree, tvbuff_t *tvb, guint offs, const char *desc)
+parse_led_state(proto_tree *tree, tvbuff_t *tvb, unsigned offs, const char *desc)
 {
 	static int * const color[] = { &hf_ipmi_picmg_led_color, NULL };
 	static const value_string funcs[] = {
@@ -814,17 +814,17 @@ parse_led_state(proto_tree *tree, tvbuff_t *tvb, guint offs, const char *desc)
 		{ 0, NULL }
 	};
 	proto_item *ti;
-	guint8 v;
+	uint8_t v;
 
-	v = tvb_get_guint8(tvb, offs);
+	v = tvb_get_uint8(tvb, offs);
 	proto_tree_add_uint_format(tree, hf_ipmi_picmg_led_function, tvb, offs, 1,
 			v, "%sFunction: %s (0x%02x)", desc,
 			val_to_str(v, funcs, "LED Blinking override, off-duration %d0ms"),
 			v);
-	v = tvb_get_guint8(tvb, offs + 1);
+	v = tvb_get_uint8(tvb, offs + 1);
 	proto_tree_add_uint_format(tree, hf_ipmi_picmg_led_on_duration, tvb, offs + 1, 1,
 			v, "%sOn-duration: %d0ms", desc, v);
-	v = tvb_get_guint8(tvb, offs + 2) & 0x0f;
+	v = tvb_get_uint8(tvb, offs + 2) & 0x0f;
 	ti = proto_tree_add_bitmask_text(tree, tvb, offs + 2, 1,
 			NULL, NULL, ett_ipmi_picmg_led_color, color, ENC_LITTLE_ENDIAN, 0);
 	proto_item_set_text(ti, "%sColor: %s", desc, val_to_str_const(v, led_color_vals, "Reserved"));
@@ -871,15 +871,15 @@ rs08(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static const true_false_string tfs_local_control_override = { "Local Control State", "Override State (Isolate)" };
 
 static void
-parse_ipmb_state(proto_tree *tree, tvbuff_t *tvb, guint offs, int hf, int hf_link, int hf_state, int ett)
+parse_ipmb_state(proto_tree *tree, tvbuff_t *tvb, unsigned offs, int hf, int hf_link, int hf_state, int ett)
 {
 	char buf[32];
 	const char *desc;
 	proto_tree *s_tree;
 	proto_item *ti;
-	guint8 v, num;
+	uint8_t v, num;
 
-	v = tvb_get_guint8(tvb, offs);
+	v = tvb_get_uint8(tvb, offs);
 	if (v == 0xff) {
 		proto_tree_add_uint_format_value(tree, hf, tvb, 0, 1,
 				v, "Don't change (0xff)");
@@ -969,12 +969,12 @@ rs0d(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 }
 
 static void
-parse_link_info_state(proto_tree *tree, tvbuff_t *tvb, guint offs, const char *num, const value_string *vs)
+parse_link_info_state(proto_tree *tree, tvbuff_t *tvb, unsigned offs, const char *num, const value_string *vs)
 {
 	static int * const link_info[] = { &hf_ipmi_picmg_linkinfo_grpid, &hf_ipmi_picmg_linkinfo_type_ext,
 		&hf_ipmi_picmg_linkinfo_type, &hf_ipmi_picmg_linkinfo_ports, &hf_ipmi_picmg_linkinfo_iface,
 		&hf_ipmi_picmg_linkinfo_chan, NULL };
-	guint8 v = tvb_get_guint8(tvb, offs + 4);
+	uint8_t v = tvb_get_uint8(tvb, offs + 4);
 	char buf[32];
 
 	snprintf(buf, sizeof(buf), "Link info%s: ", num);
@@ -1061,7 +1061,7 @@ rq11(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		{ 0xff, "Do not change" },
 		{ 0, NULL }
 	};
-	guint8 v = tvb_get_guint8(tvb, 1);
+	uint8_t v = tvb_get_uint8(tvb, 1);
 
 	proto_tree_add_item(tree, hf_ipmi_picmg_11_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_uint_format_value(tree, hf_ipmi_picmg_11_power_level, tvb, 1, 1,
@@ -1082,12 +1082,12 @@ static void
 rs12(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static int * const byte1[] = { &hf_ipmi_picmg_12_dynamic, &hf_ipmi_picmg_12_pwr_lvl, NULL };
-	guint8 v, v2, i;
-	guint32 tmp, max;
+	uint8_t v, v2, i;
+	uint32_t tmp, max;
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL, ett_ipmi_picmg_12_byte1, byte1, ENC_LITTLE_ENDIAN, BMT_NO_FALSE);
 	proto_tree_add_item(tree, hf_ipmi_picmg_12_delay, tvb, 1, 1, ENC_LITTLE_ENDIAN);
-	v = tvb_get_guint8(tvb, 2);
+	v = tvb_get_uint8(tvb, 2);
 	proto_tree_add_uint_format_value(tree, hf_ipmi_picmg_12_pwr_mult, tvb, 2, 1,
 			v, "%d.%dW", v / 10, v % 10);
 	max = tvb_captured_length(tvb) - 3;
@@ -1097,8 +1097,8 @@ rs12(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		max = 20; /* 20 levels at most */
 	}
 	for (i = 1; i <= max; i++) {
-		v2 = tvb_get_guint8(tvb, 2 + i);
-		tmp = (guint)v2 * v;
+		v2 = tvb_get_uint8(tvb, 2 + i);
+		tmp = (unsigned)v2 * v;
 		proto_tree_add_uint_format(tree, hf_ipmi_picmg_12_pwr_draw, tvb, 2 + i, 1,
 				v2, "Power Draw [%d]: %d.%dW (0x%02x)", i,
 				tmp / 10, tmp % 10, v2);
@@ -1141,7 +1141,7 @@ rs14(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rq15(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	guint8 v = tvb_get_guint8(tvb, 1);
+	uint8_t v = tvb_get_uint8(tvb, 1);
 
 	proto_tree_add_item(tree, hf_ipmi_picmg_15_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_uint_format_value(tree, hf_ipmi_picmg_15_fan_level, tvb, 1, 1,
@@ -1162,9 +1162,9 @@ rq16(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs16(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	guint8 v;
+	uint8_t v;
 
-	v = tvb_get_guint8(tvb, 0);
+	v = tvb_get_uint8(tvb, 0);
 	proto_tree_add_uint_format_value(tree, hf_ipmi_picmg_16_override_level, tvb, 0, 1,
 			v, "%s", val_to_str(v, fan_level_vals, "%d"));
 	if (tvb_captured_length(tvb) > 1) {
@@ -1193,12 +1193,12 @@ rq17(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		{ 0x02, "Notify" },
 		{ 0, NULL }
 	};
-	guint cmd = tvb_get_guint8(tvb, 0);
+	unsigned cmd = tvb_get_uint8(tvb, 0);
 	const ipmi_header_t *header = ipmi_get_hdr(pinfo);
 	if (header == NULL)
 		return;
 
-	guint to_shmm = header->rs_sa == 0x20;
+	unsigned to_shmm = header->rs_sa == 0x20;
 
 	ipmi_set_data(pinfo, 0, (to_shmm << 8) | cmd);
 
@@ -1240,8 +1240,8 @@ rs17(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		{ 0x010202, "Deny" },
 		{ 0, NULL }
 	};
-	guint32 val;
-	guint8 status;
+	uint32_t val;
+	uint8_t status;
 
 	if (!ipmi_get_data(pinfo, 0, &val)) {
 		/* Without knowing the command, we cannot decipher the response */
@@ -1249,7 +1249,7 @@ rs17(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		return;
 	}
 
-	status = tvb_get_guint8(tvb, 0);
+	status = tvb_get_uint8(tvb, 0);
 	val = (val << 8) | status;
 	proto_tree_add_uint_format_value(tree, hf_ipmi_picmg_17_status, tvb, 0, 1,
 			status, "%s (0x%02x)", val_to_str_const(val, response_vals, "Reserved"), status);
@@ -1272,7 +1272,7 @@ rs18(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 }
 
 static void
-parse_amc_link_info_state(proto_tree *tree, tvbuff_t *tvb, guint offs)
+parse_amc_link_info_state(proto_tree *tree, tvbuff_t *tvb, unsigned offs)
 {
 	static int * const amc_link_info[] = {
 			&hf_ipmi_picmg_linkinfo_amc_ports,
@@ -1328,7 +1328,7 @@ rq1a(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs1a(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	guint len = tvb_captured_length(tvb);
+	unsigned len = tvb_captured_length(tvb);
 	if (len > 0) {
 		parse_amc_link_info_state(tree, tvb, 0);
 	}
@@ -1462,7 +1462,7 @@ static void
 rs21(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	static int * const byte9[] = { &hf_ipmi_picmg_21_is_shm, &hf_ipmi_picmg_21_addr_type, NULL };
-	guint8 addrtype;
+	uint8_t addrtype;
 
 	ipmi_add_timestamp(pinfo, tree, hf_ipmi_picmg_21_tstamp, tvb, 0);
 	proto_tree_add_item(tree, hf_ipmi_picmg_21_addr_count, tvb, 4, 1, ENC_LITTLE_ENDIAN);
@@ -1471,7 +1471,7 @@ rs21(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_item(tree, hf_ipmi_picmg_21_max_unavail, tvb, 7, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_bitmask_text(tree, tvb, 8, 1, NULL, NULL, ett_ipmi_picmg_21_byte9, byte9, ENC_LITTLE_ENDIAN, 0);
 
-	addrtype = tvb_get_guint8(tvb, 8) & 0x7f;
+	addrtype = tvb_get_uint8(tvb, 8) & 0x7f;
 	if (addrtype == 0x01) {
 		/* IP address and RMCP port are in network byte order! */
 		proto_tree_add_item(tree, hf_ipmi_picmg_21_ipaddr, tvb, 9, 4, ENC_BIG_ENDIAN);
@@ -1484,7 +1484,7 @@ rs21(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 rq22(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	ipmi_set_data(pinfo, 0, tvb_get_guint8(tvb, 0));
+	ipmi_set_data(pinfo, 0, tvb_get_uint8(tvb, 0));
 	if (!tree) {
 		return;
 	}
@@ -1494,9 +1494,9 @@ rq22(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs22(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	guint32 offs = 0;
-	guint16 v;
-	guint i, max;
+	uint32_t offs = 0;
+	uint16_t v;
+	unsigned i, max;
 
 	proto_tree_add_item(tree, hf_ipmi_picmg_22_update_cnt, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 
@@ -1546,7 +1546,7 @@ rq23(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	proto_tree_add_bitmask(tree, tvb, 0, hf_ipmi_picmg_23_rq_byte2,
 			ett_ipmi_picmg_23_rq_byte2, picmg_23_rq_byte2,
 			ENC_LITTLE_ENDIAN);
-	if ((tvb_get_guint8(tvb, 0) & 0xC0) == 0x80) {
+	if ((tvb_get_uint8(tvb, 0) & 0xC0) == 0x80) {
 		proto_tree_add_item(tree, hf_ipmi_picmg_01_rs_site_num,
 				tvb, 1, 1, ENC_LITTLE_ENDIAN);
 		proto_tree_add_item(tree, hf_ipmi_picmg_01_rs_site_type,
@@ -1588,7 +1588,7 @@ static const value_string picmg_24_controls[] = {
 };
 
 static void
-fmt_power_amps(gchar *s, guint32 v)
+fmt_power_amps(char *s, uint32_t v)
 {
 	snprintf(s, ITEM_LABEL_LENGTH, "%d.%dA", v / 10, v % 10);
 }
@@ -1652,7 +1652,7 @@ rs25(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		NULL
 	};
 
-	guint i, len = tvb_captured_length(tvb);
+	unsigned i, len = tvb_captured_length(tvb);
 
 	proto_tree_add_item(tree, hf_ipmi_picmg_25_max,
 			tvb, 0, 1, ENC_LITTLE_ENDIAN);
@@ -1696,7 +1696,7 @@ static const value_string cc28[] = {
 };
 
 static void
-fmt_100ms(gchar *s, guint32 v)
+fmt_100ms(char *s, uint32_t v)
 {
 	snprintf(s, ITEM_LABEL_LENGTH, "%d.%dS", v / 10, v % 10);
 }
@@ -1900,7 +1900,7 @@ rs2d(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 }
 
 static void
-add_component_bits(proto_tree *tree, tvbuff_t *tvb, guint offs, const char *desc)
+add_component_bits(proto_tree *tree, tvbuff_t *tvb, unsigned offs, const char *desc)
 {
 	static int * const compbits[] = { &hf_ipmi_picmg_XX_comp7, &hf_ipmi_picmg_XX_comp6, &hf_ipmi_picmg_XX_comp5,
 		&hf_ipmi_picmg_XX_comp4, &hf_ipmi_picmg_XX_comp3, &hf_ipmi_picmg_XX_comp2, &hf_ipmi_picmg_XX_comp1, &hf_ipmi_picmg_XX_comp0, NULL };
@@ -1959,7 +1959,7 @@ parse_version(tvbuff_t *tvb, proto_tree *tree)
 static void
 prop_02(tvbuff_t *tvb, proto_tree *tree)
 {
-	guint len = tvb_captured_length(tvb);
+	unsigned len = tvb_captured_length(tvb);
 
 	if (len > 12) {
 		len = 12;
@@ -1981,7 +1981,7 @@ static const struct {
 static void
 rq2f(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	guint8 pno = tvb_get_guint8(tvb, 1);
+	uint8_t pno = tvb_get_uint8(tvb, 1);
 	const char *desc;
 
 	ipmi_set_data(pinfo, 0, pno);
@@ -2005,7 +2005,7 @@ rq2f(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs2f(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	guint32 pno;
+	uint32_t pno;
 	const char *desc;
 	proto_item *ti;
 
@@ -2109,16 +2109,16 @@ static const value_string cc33[] = {
 static void
 rs34(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	static const guint8 sig = 0;
+	static const uint8_t sig = 0;
 	static int * const byte3[] = { &hf_ipmi_picmg_34_percentage, NULL };
-	guint8 v;
+	uint8_t v;
 	const ipmi_cmd_t *c;
 
-	v = tvb_get_guint8(tvb, 0);
+	v = tvb_get_uint8(tvb, 0);
 	c = ipmi_getcmd(ipmi_getnetfn(IPMI_GROUP_REQ, &sig), v);
 	proto_tree_add_uint_format_value(tree, hf_ipmi_picmg_34_cmd, tvb, 0, 1, v,
 			"%s (0x%02x)", c->desc, v);
-	v = tvb_get_guint8(tvb, 1);
+	v = tvb_get_uint8(tvb, 1);
 	proto_tree_add_uint_format_value(tree, hf_ipmi_picmg_34_ccode, tvb, 1, 1, v,
 			"%s (0x%02x)", ipmi_get_completion_code(v, c), v);
 	if (tvb_captured_length(tvb) > 2) {
@@ -2157,8 +2157,8 @@ rs36(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		&hf_ipmi_picmg_36_fail_iua, &hf_ipmi_picmg_36_fail_bb_fw, &hf_ipmi_picmg_36_fail_oper_fw, NULL };
 	int res, fail;
 
-	res = tvb_get_guint8(tvb, 0);
-	fail = tvb_get_guint8(tvb, 1);
+	res = tvb_get_uint8(tvb, 0);
+	fail = tvb_get_uint8(tvb, 1);
 
 	proto_tree_add_uint_format_value(tree, hf_ipmi_picmg_36_result, tvb, 0, 1,
 			res, "%s (0x%02x)",
@@ -2225,12 +2225,12 @@ rs3e(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 			&hf_ipmi_picmg_hpm2_pkt_trc,
 			&hf_ipmi_picmg_hpm2_sol_ext,
 			NULL };
-	guint8 hpm_x;
+	uint8_t hpm_x;
 
 	proto_tree_add_item(tree, hf_ipmi_picmg_hpm_id, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_picmg_hpm_rev, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 
-	hpm_x = tvb_get_guint8(tvb, 0);
+	hpm_x = tvb_get_uint8(tvb, 0);
 
 	if (hpm_x == 2) {
 		proto_tree_add_item(tree, hf_ipmi_picmg_hpm2_mask, tvb, 2, 2, ENC_LITTLE_ENDIAN);
@@ -2294,10 +2294,10 @@ rq3f(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 			tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_picmg_hpm_func_sel,
 			tvb, 1, 1, ENC_LITTLE_ENDIAN);
-	if (!tvb_get_guint8(tvb, 1)) {
+	if (!tvb_get_uint8(tvb, 1)) {
 		proto_tree_add_item(tree, hf_ipmi_picmg_hpm_ipmi_rev,
 				tvb, 2, 1, ENC_LITTLE_ENDIAN);
-		if (tvb_get_guint8(tvb, 2)) {
+		if (tvb_get_uint8(tvb, 2)) {
 			proto_tree_add_item(tree, hf_ipmi_picmg_hpm_cipher_id,
 					tvb, 3, 1, ENC_LITTLE_ENDIAN);
 		} else {
@@ -2318,14 +2318,14 @@ rq3f(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 rs3f(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	guint8 func;
+	uint8_t func;
 
 	proto_tree_add_item(tree, hf_ipmi_picmg_hpm_cred_hnd,
 			tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_picmg_hpm_func_sel,
 			tvb, 1, 1, ENC_LITTLE_ENDIAN);
 
-	func = tvb_get_guint8(tvb, 1);
+	func = tvb_get_uint8(tvb, 1);
 
 	switch (func) {
 	case 0:
@@ -2451,14 +2451,14 @@ rs42(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 			&hf_ipmi_picmg_linkinfo_dev_type,
 			&hf_ipmi_picmg_linkinfo_dev_id,
 			NULL };
-	guint8 num, i;
+	uint8_t num, i;
 
 	proto_tree_add_item(tree, hf_ipmi_picmg_hpm_power_draw,
 			tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_picmg_hpm_num_chn_desc,
 			tvb, 1, 1, ENC_LITTLE_ENDIAN);
 
-	num = tvb_get_guint8(tvb, 1);
+	num = tvb_get_uint8(tvb, 1);
 
 	for (i = 0; i < num; i++) {
 		proto_tree_add_bitmask(tree, tvb, 2 + i * 5,
@@ -3705,7 +3705,7 @@ proto_register_ipmi_picmg(void)
 				"ipmi.picmg29.alrm.state", FT_UINT8, BASE_HEX, VALS(picmg_2a_alarm_ctrls), 0, NULL, HFILL }},
 
 	};
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_ipmi_picmg_led_color,
 		&ett_ipmi_picmg_link_info,
 		&ett_ipmi_picmg_link_state,
@@ -3744,7 +3744,7 @@ proto_register_ipmi_picmg(void)
 		&ett_ipmi_picmg_28_rq_byte3,
 		&ett_ipmi_picmg_29_rs_byte3
 	};
-	static guint8 sig_picmg[1] = { 0 };
+	static uint8_t sig_picmg[1] = { 0 };
 
 	proto_register_field_array(proto_ipmi, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));

@@ -20,7 +20,7 @@
 void proto_register_ipars(void);
 
 static int      proto_ipars;
-static gint     ett_ipars;
+static int      ett_ipars;
 
 #define S1      (0x00)
 #define S2      (0x20)
@@ -36,13 +36,13 @@ static int
 dissect_ipars(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     int       bytes;
-    guint8    ia     = 0, ta = 0, cmd = 0, la = 0;
+    uint8_t   ia     = 0, ta = 0, cmd = 0, la = 0;
     tvbuff_t *next_tvb;
     int       offset = 0;
-    gchar    *eom_msg;
-    guint8    ipars_eomtype;
+    char     *eom_msg;
+    uint8_t   ipars_eomtype;
 
-    eom_msg    = (gchar *)wmem_alloc(pinfo->pool, MAX_EOM_MSG_SIZE);
+    eom_msg    = (char *)wmem_alloc(pinfo->pool, MAX_EOM_MSG_SIZE);
     eom_msg[0] = 0;
 
     col_clear(pinfo->cinfo, COL_INFO);
@@ -50,14 +50,14 @@ dissect_ipars(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPARS");
 
     if (tvb_captured_length_remaining(tvb, 0) >= 2 ) {
-        ia = tvb_get_guint8(tvb, 0) & 0x3f;
-        ta = tvb_get_guint8(tvb, 1) & 0x3f;
+        ia = tvb_get_uint8(tvb, 0) & 0x3f;
+        ta = tvb_get_uint8(tvb, 1) & 0x3f;
         if (ia == S1 && ta == S2) { /* if the first two bytes are S1/S2 skip over them */
             offset = 2;
         }
     }
-    if (tvb_captured_length_remaining(tvb, offset) >= 1) ia = tvb_get_guint8(tvb, offset + 0);
-    if (tvb_captured_length_remaining(tvb, offset) >= 2) ta = tvb_get_guint8(tvb, offset + 1);
+    if (tvb_captured_length_remaining(tvb, offset) >= 1) ia = tvb_get_uint8(tvb, offset + 0);
+    if (tvb_captured_length_remaining(tvb, offset) >= 2) ta = tvb_get_uint8(tvb, offset + 1);
 
     if (ia == 0x83 || ia == 0x43 || ia == GA) { /* if it's an FPGA or 'corresponsdance code' 'go ahead'... */
         if (tvb_captured_length_remaining(tvb, offset) > 2) { /* if the msg is long, it must have been a 'poll' */
@@ -75,8 +75,8 @@ dissect_ipars(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         if (ta == 0x20) {
             col_add_fstr(pinfo->cinfo, COL_INFO, "Reset IA: %2.2X", ia); /* the TA character was the 'reset' command */
         }
-        if (tvb_captured_length_remaining(tvb, offset) >= 3) cmd = tvb_get_guint8(tvb, offset + 2) & 0x3f;   /* get the first two bytes of the data message */
-        if (tvb_captured_length_remaining(tvb, offset) >= 4) la  = tvb_get_guint8(tvb, offset + 3) & 0x3f;
+        if (tvb_captured_length_remaining(tvb, offset) >= 3) cmd = tvb_get_uint8(tvb, offset + 2) & 0x3f;   /* get the first two bytes of the data message */
+        if (tvb_captured_length_remaining(tvb, offset) >= 4) la  = tvb_get_uint8(tvb, offset + 3) & 0x3f;
         if (cmd == 0x1f && la == 0x38) {
             col_add_fstr(pinfo->cinfo, COL_INFO, "Please Resend - IA: %2.2X TA: %2.2X", ia, ta); /* light the resend indicator */
         } else if (cmd == 0x2a && la == 0x05) {
@@ -91,7 +91,7 @@ dissect_ipars(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         proto_tree  *ipars_tree;
         proto_item  *ti;
 
-        ia = tvb_get_guint8(tvb, 0) & 0x3f;
+        ia = tvb_get_uint8(tvb, 0) & 0x3f;
 
         ti = proto_tree_add_protocol_format(tree, proto_ipars, tvb, 0, -1, "Ipars");
         ipars_tree = proto_item_add_subtree(ti, ett_ipars);
@@ -108,7 +108,7 @@ dissect_ipars(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
             return tvb_captured_length(tvb);
         }
         proto_tree_add_protocol_format(ipars_tree, proto_ipars, tvb, 0, 1, "S1");
-        ia = tvb_get_guint8(tvb, 1) & 0x3f;
+        ia = tvb_get_uint8(tvb, 1) & 0x3f;
         if (ia != S2) {
             proto_tree_add_protocol_format(ipars_tree, proto_ipars, tvb,
                 0,
@@ -117,11 +117,11 @@ dissect_ipars(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                 return tvb_captured_length(tvb);
         }
         proto_tree_add_protocol_format(ipars_tree, proto_ipars, tvb, 1, 1, "S2");
-        ia = tvb_get_guint8(tvb, 2) & 0x3f;
+        ia = tvb_get_uint8(tvb, 2) & 0x3f;
         if (ia == GA) {
-            ia = tvb_get_guint8(tvb, 3) & 0x3f;
+            ia = tvb_get_uint8(tvb, 3) & 0x3f;
             proto_tree_add_protocol_format(ipars_tree, proto_ipars, tvb, 2, 2, "GoAhead IA: %2.2X", ia);
-            ipars_eomtype = tvb_get_guint8(tvb, 4) & 0x3f;
+            ipars_eomtype = tvb_get_uint8(tvb, 4) & 0x3f;
             switch (ipars_eomtype) {
                 case EOMc:  snprintf(eom_msg, MAX_EOM_MSG_SIZE, "EOMc");                              break;
                 case EOMi:  snprintf(eom_msg, MAX_EOM_MSG_SIZE, "EOMi");                              break;
@@ -146,7 +146,7 @@ dissect_ipars(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 void
 proto_register_ipars(void)
 {
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_ipars,
     };
 

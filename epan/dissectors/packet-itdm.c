@@ -49,14 +49,14 @@ static int hf_itdm_ctl_cksum;
 
 
 /* Initialize the subtree pointers */
-static gint ett_itdm;
-static gint ett_itdm_ctl;
+static int ett_itdm;
+static int ett_itdm_ctl;
 
 static dissector_handle_t itdm_handle;
 
 /* ZZZZ some magic number.. */
-static guint gbl_ItdmMPLSLabel = 0x99887;
-static guint gbl_ItdmCTLFlowNo;
+static unsigned gbl_ItdmMPLSLabel = 0x99887;
+static unsigned gbl_ItdmCTLFlowNo;
 
 /* I-TDM 125usec mode commands for data flows */
 #define ITDM_CMD_NEW_CHAN     1
@@ -163,20 +163,20 @@ dissect_itdm_125usec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *itdm_item = NULL;
   proto_tree *itdm_tree = NULL;
   int offset;
-  guint32 flowid;
-  guint32 chanid;
-  guint16 chloc1;
-  guint16 chloc2;
-  guint8 chcmd;
-  guint8 actbit;
-  guint8 ackbit;
+  uint32_t flowid;
+  uint32_t chanid;
+  uint16_t chloc1;
+  uint16_t chloc2;
+  uint8_t chcmd;
+  uint8_t actbit;
+  uint8_t ackbit;
 
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ITDM");
 
   flowid = tvb_get_ntoh24(tvb, ITDM_FLOWID_OFFSET);
   chanid = tvb_get_ntoh24(tvb, ITDM_CHANID_OFFSET);
-  chcmd  = tvb_get_guint8(tvb, ITDM_CHCMD_OFFSET);
+  chcmd  = tvb_get_uint8(tvb, ITDM_CHCMD_OFFSET);
   chloc1 = tvb_get_ntohs(tvb, ITDM_CHLOC1_OFFSET);
   actbit = (chcmd & 0x10) ? 1 : 0;
   ackbit = (chcmd & 0x20) ? 1 : 0;
@@ -260,16 +260,16 @@ dissect_itdm_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *itdm_ctl_item = NULL;
   proto_tree *itdm_ctl_tree = NULL;
   int offset;
-  guint32 flowid;
-  guint8 command;
-  guint32 trans_id;
-  guint32 paired_trans_id;
-  guint32 allocd_flowid;
+  uint32_t flowid;
+  uint8_t command;
+  uint32_t trans_id;
+  uint32_t paired_trans_id;
+  uint32_t allocd_flowid;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ITDM-Control");
 
   flowid = tvb_get_ntoh24(tvb, ITDM_FLOWID_OFFSET);
-  command = tvb_get_guint8(tvb, ITDM_CTL_CMD_OFFSET);
+  command = tvb_get_uint8(tvb, ITDM_CTL_CMD_OFFSET);
   allocd_flowid = tvb_get_ntoh24(tvb, ITDM_CTL_FLOWID_OFFSET);
   trans_id = tvb_get_ntohl(tvb, ITDM_CTL_TRANSID_OFFSET);
   paired_trans_id = tvb_get_ntohl(tvb, ITDM_CTL_PAIRED_TRANSID_OFFSET);
@@ -347,7 +347,7 @@ dissect_itdm_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static int
 dissect_itdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  guint32 flowid;
+  uint32_t flowid;
 
   /* ZZZ for now, 125 usec mode and I-TDM control protocol
    * need to add 1ms mode */
@@ -421,7 +421,7 @@ proto_register_itdm(void)
        FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } }
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_itdm,
     &ett_itdm_ctl
   };
@@ -450,11 +450,11 @@ proto_register_itdm(void)
 void
 proto_reg_handoff_itdm(void)
 {
-  static gboolean Initialized=FALSE;
-  static guint ItdmMPLSLabel;
+  static bool Initialized=false;
+  static unsigned ItdmMPLSLabel;
 
   if (!Initialized) {
-    Initialized=TRUE;
+    Initialized=true;
   } else {
     dissector_delete_uint("mpls.label", ItdmMPLSLabel, itdm_handle);
   }

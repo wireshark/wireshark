@@ -34,8 +34,8 @@ static int hf_ipsictl_sequence;
 static int hf_ipsictl_field1;
 static int hf_ipsictl_data;
 
-static gint ett_ipsictl;
-static gint ett_ipsictl_pdu;
+static int ett_ipsictl;
+static int ett_ipsictl_pdu;
 
 static int dissect_ipsictl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -47,14 +47,14 @@ static int dissect_ipsictl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
   int           loffset = 0;
   int           llength = 0;
   int           remaining_length;
-  guint16       magic;
-  guint16       length;
-  guint16       type=0;
-  guint16       sequence=0;
+  uint16_t      magic;
+  uint16_t      length;
+  uint16_t      type=0;
+  uint16_t      sequence=0;
   int           first_sequence=-1;
   int           last_sequence=-1;
-  guint16       field1=0;
-  guint16       pdu=0;
+  uint16_t      field1=0;
+  uint16_t      pdu=0;
   int           haspdus=0;
 
   remaining_length=tvb_reported_length_remaining(tvb, offset);
@@ -209,7 +209,7 @@ void proto_register_ipsictl(void)
         "IPSICTL data", HFILL }},
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_ipsictl,
     &ett_ipsictl_pdu
   };

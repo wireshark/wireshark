@@ -45,20 +45,20 @@ void proto_reg_handoff_iso10681(void);
 #define ISO10681_FLOW_STATUS_OVERFLOW       7
 
 typedef struct iso10681_identifier {
-    guint32  id;
-    guint32  seq;
-    guint16  frag_id;
-    gboolean last;
+    uint32_t id;
+    uint32_t seq;
+    uint16_t frag_id;
+    bool last;
 } iso10681_identifier_t;
 
 typedef struct iso10681_frame {
-    guint32  seq;
-    guint32  offset;
-    guint32  len;
-    gboolean error;
-    gboolean complete;
-    guint16  last_frag_id;
-    guint8   frag_id_high[16];
+    uint32_t seq;
+    uint32_t offset;
+    uint32_t len;
+    bool error;
+    bool complete;
+    uint16_t last_frag_id;
+    uint8_t  frag_id_high[16];
 } iso10681_frame_t;
 
 static const value_string iso10681_message_types[] = {
@@ -120,8 +120,8 @@ static int hf_iso10681_fc_ack;
 static int hf_iso10681_fc_byte_position;
 
 
-static gint ett_iso10681;
-static gint ett_iso10681_bandwidth_control;
+static int ett_iso10681;
+static int ett_iso10681_bandwidth_control;
 
 static expert_field ei_iso10681_message_type_bad;
 
@@ -136,7 +136,7 @@ static bool       iso10681_spread_over_multiple_cycles = true;
 static reassembly_table iso10681_reassembly_table;
 static wmem_map_t *iso10681_frame_table;
 static wmem_map_t *iso10681_seq_table;
-static guint32     next_seqnum;
+static uint32_t    next_seqnum;
 
 
 static int hf_iso10681_fragments;
@@ -150,8 +150,8 @@ static int hf_iso10681_fragment_count;
 static int hf_iso10681_reassembled_in;
 static int hf_iso10681_reassembled_length;
 
-static gint ett_iso10681_fragment;
-static gint ett_iso10681_fragments;
+static int ett_iso10681_fragment;
+static int ett_iso10681_fragments;
 
 static const fragment_items iso10681_frag_items = {
     /* Fragment subtrees */
@@ -175,14 +175,14 @@ static const fragment_items iso10681_frag_items = {
     "ISO10681 fragments"
 };
 
-static guint32
-iso10681_seqnum(guint32 frame_id, gboolean new_seqnum) {
-    guint32   *ret;
+static uint32_t
+iso10681_seqnum(uint32_t frame_id, bool new_seqnum) {
+    uint32_t  *ret;
 
-    ret = (guint32 *)wmem_map_lookup(iso10681_seq_table, GUINT_TO_POINTER(frame_id));
+    ret = (uint32_t *)wmem_map_lookup(iso10681_seq_table, GUINT_TO_POINTER(frame_id));
 
     if (ret == NULL) {
-        ret = wmem_new0(wmem_file_scope(), guint32);
+        ret = wmem_new0(wmem_file_scope(), uint32_t);
         *ret = next_seqnum++;
         wmem_map_insert(iso10681_seq_table, GUINT_TO_POINTER(frame_id), ret);
     } else {
@@ -195,24 +195,24 @@ iso10681_seqnum(guint32 frame_id, gboolean new_seqnum) {
 }
 
 static int
-dissect_iso10681(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 frame_id, guint32 frame_length _U_) {
+dissect_iso10681(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t frame_id, uint32_t frame_length _U_) {
     proto_tree *iso10681_tree;
     proto_item *ti;
     proto_item *ti_type;
-    guint32     type;
-    guint32     offset;
+    uint32_t    type;
+    uint32_t    offset;
 
     iso10681_identifier_t* iso10681_info;
-    gboolean    fragmented = FALSE;
-    guint32     seqnum = 0;
+    bool        fragmented = false;
+    uint32_t    seqnum = 0;
 
-    guint32     data_length = 0;
-    guint32     full_len = 0;
-    guint32     target_addr = 0;
-    guint32     source_addr = 0;
+    uint32_t    data_length = 0;
+    uint32_t    full_len = 0;
+    uint32_t    target_addr = 0;
+    uint32_t    source_addr = 0;
 
     tvbuff_t*   next_tvb = NULL;
-    gboolean    complete = FALSE;
+    bool        complete = false;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISO10681");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -222,7 +222,7 @@ dissect_iso10681(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 fr
     if (!iso10681_info) {
         iso10681_info = wmem_new0(wmem_file_scope(), iso10681_identifier_t);
         iso10681_info->id = frame_id;
-        iso10681_info->last = FALSE;
+        iso10681_info->last = false;
         p_add_proto_data(wmem_file_scope(), pinfo, proto_iso10681, 0, iso10681_info);
     }
 
@@ -238,7 +238,7 @@ dissect_iso10681(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 fr
 
     switch (type) {
         case ISO10681_TYPE_START_FRAME: {
-            guint32 type2_value;
+            uint32_t type2_value;
             proto_tree_add_item_ret_uint(iso10681_tree, hf_iso10681_type2, tvb, offset, 1, ENC_BIG_ENDIAN, &type2_value);
             col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(type2_value, iso10681_start_type2_values, "Unknown (0x%x)"));
 
@@ -246,12 +246,12 @@ dissect_iso10681(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 fr
             proto_tree_add_item_ret_uint(iso10681_tree, hf_iso10681_message_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN, &full_len);
             offset += 4;
 
-            fragmented = TRUE;
+            fragmented = true;
             seqnum = 0;
 
             if (!(pinfo->fd->visited)) {
                 iso10681_frame_t *iso10681_frame = wmem_new0(wmem_file_scope(), iso10681_frame_t);
-                iso10681_frame->seq = iso10681_info->seq = iso10681_seqnum(frame_id, TRUE);
+                iso10681_frame->seq = iso10681_info->seq = iso10681_seqnum(frame_id, true);
                 iso10681_frame->len = full_len;
 
                 wmem_map_insert(iso10681_frame_table, GUINT_TO_POINTER(iso10681_info->seq), iso10681_frame);
@@ -268,10 +268,10 @@ dissect_iso10681(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 fr
             proto_tree_add_item_ret_uint(iso10681_tree, hf_iso10681_frame_payload_length, tvb, offset + 1, 1, ENC_BIG_ENDIAN, &data_length);
             offset += 2;
 
-            fragmented = TRUE;
+            fragmented = true;
 
             if (!(pinfo->fd->visited)) {
-                iso10681_info->seq = iso10681_seqnum(frame_id, FALSE);
+                iso10681_info->seq = iso10681_seqnum(frame_id, false);
             }
 
             col_append_fstr(pinfo->cinfo, COL_INFO, " (Segment Length: %d, Sequence Number: %d)", data_length, seqnum);
@@ -282,17 +282,17 @@ dissect_iso10681(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 fr
             proto_tree_add_item_ret_uint(iso10681_tree, hf_iso10681_message_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN, &full_len);
             offset += 4;
 
-            fragmented = TRUE;
+            fragmented = true;
 
             if (!(pinfo->fd->visited)) {
-                iso10681_info->seq = iso10681_seqnum(frame_id, FALSE);
+                iso10681_info->seq = iso10681_seqnum(frame_id, false);
             }
 
             col_append_fstr(pinfo->cinfo, COL_INFO, " (Segment Length: %d, Total Len: %d)", data_length, full_len);
             break;
         }
         case ISO10681_TYPE_FLOW_CONTROL: {
-            guint flow_status = 0;
+            unsigned flow_status = 0;
             proto_tree_add_item_ret_uint(iso10681_tree, hf_iso10681_fc_flow_status, tvb, offset, 1, ENC_BIG_ENDIAN, &flow_status);
 
             switch (flow_status) {
@@ -330,7 +330,7 @@ dissect_iso10681(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 fr
     if (fragmented) {
         tvbuff_t *new_tvb = NULL;
         iso10681_frame_t *iso10681_frame;
-        guint16 frag_id = seqnum;
+        uint16_t frag_id = seqnum;
 
         /* Get frame information */
         iso10681_frame = (iso10681_frame_t *)wmem_map_lookup(iso10681_frame_table, GUINT_TO_POINTER(iso10681_info->seq));
@@ -341,7 +341,7 @@ dissect_iso10681(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 fr
 
             if (!(pinfo->fd->visited)) {
                 DISSECTOR_ASSERT(frag_id < 16);
-                guint16 tmp = iso10681_frame->frag_id_high[frag_id]++;
+                uint16_t tmp = iso10681_frame->frag_id_high[frag_id]++;
                 /* Make sure that we assert on using more than 4096 (16*255) segments.*/
                 DISSECTOR_ASSERT(iso10681_frame->frag_id_high[frag_id] != 0);
                 frag_id += tmp * 16;
@@ -351,8 +351,8 @@ dissect_iso10681(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 fr
             }
 
             if (!iso10681_frame->error) {
-                gboolean       save_fragmented = pinfo->fragmented;
-                guint32        len = data_length;
+                bool           save_fragmented = pinfo->fragmented;
+                uint32_t       len = data_length;
                 fragment_head *frag_msg;
 
                 /* Check if it's the last packet */
@@ -364,12 +364,12 @@ dissect_iso10681(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 fr
 
                     iso10681_frame->offset += len;
                     if (iso10681_frame->offset >= iso10681_frame->len) {
-                        iso10681_info->last = TRUE;
-                        iso10681_frame->complete = TRUE;
+                        iso10681_info->last = true;
+                        iso10681_frame->complete = true;
                         len -= (iso10681_frame->offset - iso10681_frame->len);
                     }
                 }
-                pinfo->fragmented = TRUE;
+                pinfo->fragmented = true;
 
                 /* Add fragment to fragment table */
                 frag_msg = fragment_add_seq_check(&iso10681_reassembly_table, tvb, offset, pinfo, iso10681_info->seq, NULL,
@@ -388,7 +388,7 @@ dissect_iso10681(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 fr
             if (new_tvb) {
                 /* This is a complete TVB to dissect */
                 next_tvb = new_tvb;
-                complete = TRUE;
+                complete = true;
             } else {
                 next_tvb = tvb_new_subset_length(tvb, offset, data_length);
             }
@@ -402,7 +402,7 @@ dissect_iso10681(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 fr
         iso10681data.target_address = target_addr;
         iso10681data.source_address = source_addr;
 
-        if (!complete || !dissector_try_payload_new(subdissector_table, next_tvb, pinfo, tree, TRUE, &iso10681data)) {
+        if (!complete || !dissector_try_payload_new(subdissector_table, next_tvb, pinfo, tree, true, &iso10681data)) {
             call_data_dissector(next_tvb, pinfo, tree);
         }
     }
@@ -414,7 +414,7 @@ static int
 dissect_iso10681_flexray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data) {
     DISSECTOR_ASSERT(data);
     flexray_info_t *flexray_info = (flexray_info_t *)data;
-    guint32 id = flexray_flexrayinfo_to_flexrayid(flexray_info);
+    uint32_t id = flexray_flexrayinfo_to_flexrayid(flexray_info);
 
     if (iso10681_spread_over_multiple_cycles) {
         /* masking out the cycle */
@@ -481,7 +481,7 @@ proto_register_iso10681(void) {
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_iso10681,
         &ett_iso10681_bandwidth_control,
         &ett_iso10681_fragment,
@@ -525,12 +525,12 @@ proto_register_iso10681(void) {
 
 void
 proto_reg_handoff_iso10681(void) {
-    static gboolean initialized = FALSE;
+    static bool initialized = false;
 
     if (!initialized) {
         dissector_add_for_decode_as("flexray.subdissector", iso10681_handle_flexray);
 
-        initialized = TRUE;
+        initialized = true;
     } else {
         dissector_delete_all("flexray.combined_id", iso10681_handle_flexray);
     }

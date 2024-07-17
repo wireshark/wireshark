@@ -26,28 +26,28 @@
 
 /* Read request info */
 typedef struct rdmap_request {
-	guint32 sink_stag;
-	guint64 sink_toffset;
-	guint32 source_stag;
-	guint64 source_toffset;
-	guint32 message_size;
+	uint32_t sink_stag;
+	uint64_t sink_toffset;
+	uint32_t source_stag;
+	uint64_t source_toffset;
+	uint32_t message_size;
 } rdmap_request_t;
 
 typedef struct rdmapinfo {
-	guint8   opcode;
-	gboolean last_flag;
-	gboolean is_tagged;
+	uint8_t  opcode;
+	bool last_flag;
+	bool is_tagged;
 	union {
 		/* Tagged Buffer Model */
 		struct {
-			guint32 steering_tag;
-			guint64 tagged_offset;
+			uint32_t steering_tag;
+			uint64_t tagged_offset;
 		};
 		/* Untagged Buffer Model */
 		struct {
-			guint32 queue_number;
-			guint32 message_seq_num;
-			guint32 message_offset;
+			uint32_t queue_number;
+			uint32_t message_seq_num;
+			uint32_t message_offset;
 		};
 	};
 	rdmap_request_t *read_request;

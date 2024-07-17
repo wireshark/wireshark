@@ -18,12 +18,12 @@
 
 /* infiniband-specific information for conversations */
 typedef struct {
-    guint64 service_id;         /* service id specified when the (RC) channel was set-up */
-    gboolean client_to_server;  /* message direction */
-    guint32 src_qp;             /* originator src qp as this is not present in RC packets */
+    uint64_t service_id;         /* service id specified when the (RC) channel was set-up */
+    bool client_to_server;  /* message direction */
+    uint32_t src_qp;             /* originator src qp as this is not present in RC packets */
 
     /* store mad data so that it can be parsed for private data by ULP */
-    guint8 mad_private_data[MAD_DATA_SIZE];
+    uint8_t mad_private_data[MAD_DATA_SIZE];
 } conversation_infiniband_data;
 
 /* OpCodeValues
@@ -118,14 +118,14 @@ typedef struct {
  */
 struct infinibandinfo {
     proto_tree* payload_tree;
-    guint8 opCode;              /* OpCode from BTH header. */
-    guint8 pad_count;           /* PadCount from BTH header. */
-    guint16 cm_attribute_id;    /* attribute id for CM messages */
-    guint32 reth_remote_key;    /* Remote Key from RETH header */
-    guint64 reth_remote_address;/* Remote address from RETH header */
-    guint32 reth_dma_length;    /* DMA Length from RETH header */
-    guint32 packet_seq_num;     /* Packet sequence number */
-    gboolean dctConnect;        /* indicator for DCT connect/disconnect */
+    uint8_t opCode;              /* OpCode from BTH header. */
+    uint8_t pad_count;           /* PadCount from BTH header. */
+    uint16_t cm_attribute_id;    /* attribute id for CM messages */
+    uint32_t reth_remote_key;    /* Remote Key from RETH header */
+    uint64_t reth_remote_address;/* Remote address from RETH header */
+    uint32_t reth_dma_length;    /* DMA Length from RETH header */
+    uint32_t packet_seq_num;     /* Packet sequence number */
+    bool dctConnect;        /* indicator for DCT connect/disconnect */
 };
 
 #endif

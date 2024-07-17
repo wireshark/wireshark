@@ -205,16 +205,16 @@ static int hf_IAX_IE_UNKNOWN_I32;
 static int hf_IAX_IE_UNKNOWN_BYTES;
 
 /* These are the ids of the subtrees that we may be creating */
-static gint ett_iax2;
-static gint ett_iax2_full_mini_subtree;
-static gint ett_iax2_type;              /* Frame-type specific subtree */
-static gint ett_iax2_ie;                /* single IE */
-static gint ett_iax2_codecs;            /* capabilities IE */
-static gint ett_iax2_ies_apparent_addr; /* apparent address IE */
-static gint ett_iax2_fragment;
-static gint ett_iax2_fragments;
-static gint ett_iax2_trunk_cmddata;
-static gint ett_iax2_trunk_call;
+static int ett_iax2;
+static int ett_iax2_full_mini_subtree;
+static int ett_iax2_type;              /* Frame-type specific subtree */
+static int ett_iax2_ie;                /* single IE */
+static int ett_iax2_codecs;            /* capabilities IE */
+static int ett_iax2_ies_apparent_addr; /* apparent address IE */
+static int ett_iax2_fragment;
+static int ett_iax2_fragments;
+static int ett_iax2_trunk_cmddata;
+static int ett_iax2_trunk_call;
 
 static expert_field ei_iax_too_many_transfers;
 static expert_field ei_iax_circuit_id_conflict;
@@ -480,7 +480,7 @@ static const value_string iax_ies_type[] = {
 };
 static value_string_ext iax_ies_type_ext = VALUE_STRING_EXT_INIT(iax_ies_type);
 
-#define CODEC_MASK(codec) ((codec) == (guint32)-1 ? 0 : (G_GUINT64_CONSTANT(1) << (codec)))
+#define CODEC_MASK(codec) ((codec) == (uint32_t)-1 ? 0 : (UINT64_C(1) << (codec)))
 
 static const val64_string codec_types[] = {
   {CODEC_MASK(AST_FORMAT_G723_1),    "G.723.1 compression"},
@@ -616,11 +616,11 @@ static value_string_ext iax_causecodes_ext = VALUE_STRING_EXT_INIT(iax_causecode
 typedef struct {
   address   addr;
   port_type ptype;
-  guint32   port;
-  guint32   callno;
+  uint32_t  port;
+  uint32_t  callno;
 
   /* this is where addr->data points to. it's put in here for easy freeing */
-  guint8 address_data[MAX_ADDRESS];
+  uint8_t address_data[MAX_ADDRESS];
 } iax_circuit_key;
 
 /* tables */
@@ -628,7 +628,7 @@ static GHashTable *iax_fid_table;
 static reassembly_table iax_reassembly_table;
 
 static GHashTable *iax_circuit_hashtab;
-static guint circuitcount;
+static unsigned circuitcount;
 
 /* the number of keys and values to reserve space for in each memory chunk.
    We assume we won't be tracking many calls at once so this is quite low.
@@ -636,12 +636,12 @@ static guint circuitcount;
 #define IAX_INIT_PACKET_COUNT 10
 
 #ifdef DEBUG_HASHING
-static gchar *key_to_str( const iax_circuit_key *key )
+static char *key_to_str( const iax_circuit_key *key )
 {
   static int    i = 0;
-  static gchar  str[3][80];
-  gchar        *strp;
-  gchar        *addrstr;
+  static char   str[3][80];
+  char         *strp;
+  char         *addrstr;
 
   i++;
   if (i >= 3) {
@@ -660,11 +660,11 @@ static gchar *key_to_str( const iax_circuit_key *key )
 #endif
 
 /* Hash Functions */
-static gint iax_circuit_equal(gconstpointer v, gconstpointer w)
+static int iax_circuit_equal(const void *v, const void *w)
 {
   const iax_circuit_key *v1 = (const iax_circuit_key *)v;
   const iax_circuit_key *v2 = (const iax_circuit_key *)w;
-  gint result;
+  int result;
 
   result = (addresses_equal(&(v1->addr), &(v2->addr)) &&
             v1->ptype == v2->ptype &&
@@ -677,41 +677,41 @@ static gint iax_circuit_equal(gconstpointer v, gconstpointer w)
   return result;
 }
 
-static guint iax_circuit_hash(gconstpointer v)
+static unsigned iax_circuit_hash(const void *v)
 {
   const iax_circuit_key *key = (const iax_circuit_key *)v;
-  guint                  hash_val;
+  unsigned               hash_val;
 
   hash_val = 0;
   hash_val = add_address_to_hash(hash_val, &key->addr);
-  hash_val += (guint)(key->ptype);
-  hash_val += (guint)(key->port);
-  hash_val += (guint)(key->callno);
+  hash_val += (unsigned)(key->ptype);
+  hash_val += (unsigned)(key->port);
+  hash_val += (unsigned)(key->callno);
 
 #ifdef DEBUG_HASHING
   ws_debug("+++ Hashing key: %s, result %#x", key_to_str(key), hash_val);
 #endif
 
-  return (guint)hash_val;
+  return (unsigned)hash_val;
 }
 
 /* Find, or create, a circuit for the given
    {address,porttype,port,call} quadruplet
 */
-static guint iax_circuit_lookup(const address *address_p,
+static unsigned iax_circuit_lookup(const address *address_p,
                                 port_type ptype,
-                                guint32 port,
-                                guint32 callno)
+                                uint32_t port,
+                                uint32_t callno)
 {
   iax_circuit_key  key;
-  guint32         *circuit_id_p;
+  uint32_t        *circuit_id_p;
 
   key.addr   = *address_p;
   key.ptype  = ptype;
   key.port   = port;
   key.callno = callno;
 
-  circuit_id_p = (guint32 *)g_hash_table_lookup(iax_circuit_hashtab, &key);
+  circuit_id_p = (uint32_t *)g_hash_table_lookup(iax_circuit_hashtab, &key);
   if (! circuit_id_p) {
     iax_circuit_key *new_key;
 
@@ -725,7 +725,7 @@ static guint iax_circuit_lookup(const address *address_p,
     new_key->port      = port;
     new_key->callno    = callno;
 
-    circuit_id_p  = (guint32 *)wmem_new(wmem_file_scope(), iax_circuit_key);
+    circuit_id_p  = (uint32_t *)wmem_new(wmem_file_scope(), iax_circuit_key);
     *circuit_id_p = ++circuitcount;
 
     g_hash_table_insert(iax_circuit_hashtab, new_key, circuit_id_p);
@@ -742,9 +742,9 @@ static guint iax_circuit_lookup(const address *address_p,
 /* ************************************************************************* */
 
 typedef struct {
-  guint32     current_frag_id; /* invalid unless current_frag_bytes > 0 */
-  guint32     current_frag_bytes;
-  guint32     current_frag_minlen;
+  uint32_t    current_frag_id; /* invalid unless current_frag_bytes > 0 */
+  uint32_t    current_frag_bytes;
+  uint32_t    current_frag_minlen;
 } iax_call_dirdata;
 
 /* This is our per-call data structure, which is attached to both the
@@ -762,15 +762,15 @@ typedef struct iax_call_data {
   */
 
   iax_dataformat_t dataformat;
-  guint32          src_codec, dst_codec;
-  guint32          src_vformat, dst_vformat;
+  uint32_t         src_codec, dst_codec;
+  uint32_t         src_vformat, dst_vformat;
 
   /* when a transfer takes place, we'll get a new circuit id; we assume that we
      don't try to transfer more than IAX_MAX_TRANSFERS times in a call */
-  guint forward_circuit_ids[IAX_MAX_TRANSFERS];
-  guint reverse_circuit_ids[IAX_MAX_TRANSFERS];
-  guint n_forward_circuit_ids;
-  guint n_reverse_circuit_ids;
+  unsigned forward_circuit_ids[IAX_MAX_TRANSFERS];
+  unsigned reverse_circuit_ids[IAX_MAX_TRANSFERS];
+  unsigned n_forward_circuit_ids;
+  unsigned n_reverse_circuit_ids;
 
   /* this is the subdissector for the call */
   dissector_handle_t subdissector;
@@ -779,7 +779,7 @@ typedef struct iax_call_data {
   nstime_t start_time;
 
   /* time stamp from last full frame, in the first pass */
-  guint32 last_full_frame_ts;
+  uint32_t last_full_frame_ts;
 
   iax_call_dirdata dirdata[2];
 } iax_call_data;
@@ -800,8 +800,8 @@ typedef struct iax_call_data {
  *
  */
 static conversation_t *iax2_new_circuit_for_call(packet_info *pinfo, proto_item * item,
-                                            guint circuit_id, guint framenum,
-                                            iax_call_data *iax_call, gboolean reversed)
+                                            unsigned circuit_id, unsigned framenum,
+                                            iax_call_data *iax_call, bool reversed)
 {
   conversation_t *conv;
 
@@ -831,41 +831,41 @@ static conversation_t *iax2_new_circuit_for_call(packet_info *pinfo, proto_item 
 /* returns true if this circuit id is a "forward" circuit for this call: ie, it
  * is the point which _sent_ the original 'NEW' packet, or a point to which that
  * end was subsequently transferred */
-static gboolean is_forward_circuit(guint circuit_id,
+static bool is_forward_circuit(unsigned circuit_id,
                                    const iax_call_data *iax_call)
 {
-  guint i;
+  unsigned i;
   for(i=0; i<iax_call->n_forward_circuit_ids; i++) {
     if (circuit_id == iax_call->forward_circuit_ids[i])
-      return TRUE;
+      return true;
   }
-  return FALSE;
+  return false;
 }
 
 /* returns true if this circuit id is a "reverse" circuit for this call: ie, it
  * is the point which _received_ the original 'NEW' packet, or a point to which that
  * end was subsequently transferred */
-static gboolean is_reverse_circuit(guint circuit_id,
+static bool is_reverse_circuit(unsigned circuit_id,
                                    const iax_call_data *iax_call)
 {
-  guint i;
+  unsigned i;
   for(i=0; i<iax_call->n_reverse_circuit_ids; i++){
     if (circuit_id == iax_call->reverse_circuit_ids[i])
-      return TRUE;
+      return true;
   }
-  return FALSE;
+  return false;
 }
 
 
 static iax_call_data *iax_lookup_call_from_dest(packet_info *pinfo, proto_item * item,
-                                                 guint src_circuit_id,
-                                                 guint dst_circuit_id,
-                                                 guint framenum,
-                                                 gboolean *reversed_p)
+                                                 unsigned src_circuit_id,
+                                                 unsigned dst_circuit_id,
+                                                 unsigned framenum,
+                                                 bool *reversed_p)
 {
   conversation_t  *dst_conv;
   iax_call_data *iax_call;
-  gboolean       reversed = FALSE;
+  bool           reversed = false;
 
   dst_conv = find_conversation_by_id(framenum, CONVERSATION_IAX2, dst_circuit_id);
 
@@ -874,7 +874,7 @@ static iax_call_data *iax_lookup_call_from_dest(packet_info *pinfo, proto_item *
     ws_debug("++ destination circuit not found, must have missed NEW packet");
 #endif
     if (reversed_p)
-      *reversed_p = FALSE;
+      *reversed_p = false;
     return NULL;
   }
 
@@ -894,7 +894,7 @@ static iax_call_data *iax_lookup_call_from_dest(packet_info *pinfo, proto_item *
              "therefore packet is reversed");
 #endif
 
-    reversed = TRUE;
+    reversed = true;
 
     if (iax_call -> n_reverse_circuit_ids == 0) {
       /* we are going in the reverse direction, and this call
@@ -905,7 +905,7 @@ static iax_call_data *iax_lookup_call_from_dest(packet_info *pinfo, proto_item *
               "new reverse circuit for this call");
 #endif
 
-      iax2_new_circuit_for_call(pinfo, item, src_circuit_id, framenum, iax_call, TRUE);
+      iax2_new_circuit_for_call(pinfo, item, src_circuit_id, framenum, iax_call, true);
 #ifdef DEBUG_HASHING
       ws_debug("++ done");
 #endif
@@ -924,7 +924,7 @@ static iax_call_data *iax_lookup_call_from_dest(packet_info *pinfo, proto_item *
             "therefore packet is forward");
 #endif
 
-    reversed = FALSE;
+    reversed = false;
     if (!is_forward_circuit(src_circuit_id, iax_call)) {
       expert_add_info_format(pinfo, item, &ei_iax_circuit_id_conflict,
                 "IAX Packet %u from circuit ids %u->%u conflicts with earlier call with circuit ids %u->%u",
@@ -933,7 +933,7 @@ static iax_call_data *iax_lookup_call_from_dest(packet_info *pinfo, proto_item *
                 iax_call->forward_circuit_ids[0],
                 iax_call->reverse_circuit_ids[0]);
       if (reversed_p)
-        *reversed_p = FALSE;
+        *reversed_p = false;
       return NULL;
     }
   } else {
@@ -949,15 +949,15 @@ static iax_call_data *iax_lookup_call_from_dest(packet_info *pinfo, proto_item *
 
 /* looks up an iax_call for this packet */
 static iax_call_data *iax_lookup_call( packet_info *pinfo,
-                                       guint32 scallno,
-                                       guint32 dcallno,
-                                       gboolean *reversed_p)
+                                       uint32_t scallno,
+                                       uint32_t dcallno,
+                                       bool *reversed_p)
 {
-  gboolean       reversed = FALSE;
+  bool           reversed = false;
   iax_call_data *iax_call = NULL;
-  guint          src_circuit_id;
+  unsigned       src_circuit_id;
 #ifdef DEBUG_HASHING
-  gchar         *srcstr, *dststr;
+  char          *srcstr, *dststr;
 #endif
 
 #ifdef DEBUG_HASHING
@@ -979,7 +979,7 @@ static iax_call_data *iax_lookup_call( packet_info *pinfo,
   /* the most reliable indicator of call is the destination callno, if
      we have one */
   if (dcallno != 0) {
-    guint dst_circuit_id;
+    unsigned dst_circuit_id;
 #ifdef DEBUG_HASHING
     ws_debug("++ dcallno non-zero, looking up destination circuit");
 #endif
@@ -1007,9 +1007,9 @@ static iax_call_data *iax_lookup_call( packet_info *pinfo,
       DISSECTOR_ASSERT(iax_call);
 
       if (is_forward_circuit(src_circuit_id, iax_call))
-        reversed = FALSE;
+        reversed = false;
       else if (is_reverse_circuit(src_circuit_id, iax_call))
-        reversed = TRUE;
+        reversed = true;
       else {
         /* there's also no way we can attach an iax_call_data to a circuit
            without the circuit being either the forward or reverse circuit
@@ -1046,10 +1046,10 @@ static void init_dir_data(iax_call_dirdata *dirdata)
    the reverse circuit is not created until the ACK is received and
    is created by iax_lookup_circuit_details. */
 static iax_call_data *iax_new_call( packet_info *pinfo,
-                                    guint32 scallno)
+                                    uint32_t scallno)
 {
   iax_call_data         *call;
-  guint                  circuit_id;
+  unsigned               circuit_id;
   static const nstime_t  millisecond = NSTIME_INIT_SECS_MSECS(0, 1);
 
 #ifdef DEBUG_HASHING
@@ -1074,7 +1074,7 @@ static iax_call_data *iax_new_call( packet_info *pinfo,
   init_dir_data(&call->dirdata[0]);
   init_dir_data(&call->dirdata[1]);
 
-  iax2_new_circuit_for_call(pinfo, NULL, circuit_id, pinfo->num, call, FALSE);
+  iax2_new_circuit_for_call(pinfo, NULL, circuit_id, pinfo->num, call, false);
 
   return call;
 }
@@ -1084,20 +1084,20 @@ static iax_call_data *iax_new_call( packet_info *pinfo,
 
 /* per-packet data */
 typedef struct iax_packet_data {
-  gboolean       first_time; /* we're dissecting this packet for the first time; so
+  bool           first_time; /* we're dissecting this packet for the first time; so
                               * things like codec and transfer requests should be
                               * propagated into the call data */
   iax_call_data *call_data;
-  guint32        codec;
-  gboolean       reversed;
+  uint32_t       codec;
+  bool           reversed;
   nstime_t       abstime;    /* the absolute time of this packet, based on its
                               * timestamp and the NEW packet's time (-1 if unknown) */
 } iax_packet_data;
 
-static iax_packet_data *iax_new_packet_data(iax_call_data *call, gboolean reversed)
+static iax_packet_data *iax_new_packet_data(iax_call_data *call, bool reversed)
 {
   iax_packet_data *p = wmem_new(wmem_file_scope(), iax_packet_data);
-  p->first_time    = TRUE;
+  p->first_time    = true;
   p->call_data     = call;
   p->codec         = 0;
   p->reversed      = reversed;
@@ -1125,40 +1125,40 @@ typedef struct
 {
   address   peer_address;
   port_type peer_ptype;
-  guint32   peer_port;
-  guint32   peer_callno;
-  guint32   dataformat;
+  uint32_t  peer_port;
+  uint32_t  peer_callno;
+  uint32_t  dataformat;
 } iax2_ie_data;
 
 
-static guint32 dissect_fullpacket(tvbuff_t *tvb, guint32 offset,
-                                  guint16 scallno,
+static uint32_t dissect_fullpacket(tvbuff_t *tvb, uint32_t offset,
+                                  uint16_t scallno,
                                   packet_info *pinfo,
                                   proto_tree *iax2_tree,
                                   proto_tree *main_tree);
 
 
-static guint32 dissect_minipacket(tvbuff_t *tvb, guint32 offset,
-                                  guint16 scallno,
+static uint32_t dissect_minipacket(tvbuff_t *tvb, uint32_t offset,
+                                  uint16_t scallno,
                                   packet_info *pinfo,
                                   proto_tree *iax2_tree,
                                   proto_tree *main_tree);
 
-static guint32 dissect_minivideopacket(tvbuff_t *tvb, guint32 offset,
-                                       guint16 scallno,
+static uint32_t dissect_minivideopacket(tvbuff_t *tvb, uint32_t offset,
+                                       uint16_t scallno,
                                        packet_info *pinfo,
                                        proto_tree *iax2_tree,
                                        proto_tree *main_tree);
 
-static guint32 dissect_trunkpacket(tvbuff_t *tvb, guint32 offset,
-                                   guint16 scallno,
+static uint32_t dissect_trunkpacket(tvbuff_t *tvb, uint32_t offset,
+                                   uint16_t scallno,
                                    packet_info *pinfo,
                                    proto_tree *iax2_tree,
                                    proto_tree *main_tree);
 
-static void dissect_payload(tvbuff_t *tvb, guint32 offset,
+static void dissect_payload(tvbuff_t *tvb, uint32_t offset,
                             packet_info *pinfo, proto_tree *iax2_tree,
-                            proto_tree *tree, guint32 ts, gboolean video,
+                            proto_tree *tree, uint32_t ts, bool video,
                             iax_packet_data *iax_packet);
 
 
@@ -1169,9 +1169,9 @@ dissect_iax2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   proto_item  *iax2_item;
   proto_tree  *iax2_tree;
   proto_tree  *full_mini_subtree = NULL;
-  guint32      offset            = 0, len;
-  guint16      scallno           = 0;
-  guint16      stmp;
+  uint32_t     offset            = 0, len;
+  uint16_t     scallno           = 0;
+  uint16_t     stmp;
   packet_type  type;
   proto_item *full_mini_base;
 
@@ -1256,10 +1256,10 @@ dissect_iax2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   return tvb_captured_length(tvb);
 }
 
-static proto_item *dissect_datetime_ie(tvbuff_t *tvb, guint32 offset, proto_tree *ies_tree)
+static proto_item *dissect_datetime_ie(tvbuff_t *tvb, uint32_t offset, proto_tree *ies_tree)
 {
   struct tm tm;
-  guint32   ie_val;
+  uint32_t  ie_val;
   nstime_t  datetime;
 
   proto_tree_add_item(ies_tree, hf_iax2_ies[IAX_IE_DATETIME], tvb, offset + 2, 4, ENC_BIG_ENDIAN);
@@ -1282,7 +1282,7 @@ static proto_item *dissect_datetime_ie(tvbuff_t *tvb, guint32 offset, proto_tree
 
 
 /* dissect the information elements in an IAX frame. Returns the updated offset */
-static guint32 dissect_ies(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
+static uint32_t dissect_ies(tvbuff_t *tvb, packet_info *pinfo, uint32_t offset,
                            proto_tree *iax_tree, proto_item * iax_item,
                            iax2_ie_data *ie_data)
 {
@@ -1290,9 +1290,9 @@ static guint32 dissect_ies(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
 
   while (offset < tvb_reported_length(tvb)) {
 
-    int     ies_type = tvb_get_guint8(tvb, offset);
-    int     ies_len  = tvb_get_guint8(tvb, offset + 1);
-    guint16 apparent_addr_family;
+    int     ies_type = tvb_get_uint8(tvb, offset);
+    int     ies_len  = tvb_get_uint8(tvb, offset + 1);
+    uint16_t apparent_addr_family;
 
     /* do non-tree-dependent stuff first */
     switch (ies_type) {
@@ -1383,7 +1383,7 @@ static guint32 dissect_ies(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
 
         case IAX_IE_CAPABILITY2:
         {
-          int version = tvb_get_guint8(tvb, offset + 2);
+          int version = tvb_get_uint8(tvb, offset + 2);
 
           proto_tree_add_uint(ies_tree, hf_iax2_version, tvb, offset + 2, 1, version);
 
@@ -1417,7 +1417,7 @@ static guint32 dissect_ies(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
 
         case IAX_IE_FORMAT2:
         {
-          int version = tvb_get_guint8(tvb, offset + 2);
+          int version = tvb_get_uint8(tvb, offset + 2);
 
           proto_tree_add_uint(ies_tree, hf_iax2_version, tvb, offset + 2, 1, version);
 
@@ -1455,7 +1455,7 @@ static guint32 dissect_ies(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
           proto_tree_add_uint(sockaddr_tree, hf_IAX_IE_APPARENTADDR_SINFAMILY, tvb, offset + 2, 2, apparent_addr_family);
 
           if (apparent_addr_family == LINUX_AF_INET) {
-            guint32 addr;
+            uint32_t addr;
             proto_tree_add_uint(sockaddr_tree, hf_IAX_IE_APPARENTADDR_SINPORT, tvb, offset + 4, 2, ie_data->peer_port);
             memcpy(&addr, ie_data->peer_address.data, 4);
             proto_tree_add_ipv4(sockaddr_tree, hf_IAX_IE_APPARENTADDR_SINADDR, tvb, offset + 6, 4, addr);
@@ -1465,7 +1465,7 @@ static guint32 dissect_ies(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
 
         default:
           if (ie_hf != 0) {
-            gint explen = proto_registrar_get_length(ie_hf);
+            int explen = proto_registrar_get_length(ie_hf);
             if (explen != 0 && ies_len != explen) {
               proto_tree_add_expert(ies_tree, pinfo, &ei_iax_invalid_len, tvb, offset+1, 1);
               break;
@@ -1503,13 +1503,13 @@ static guint32 dissect_ies(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
             }
           } else {
             /* we don't understand this ie: add a generic one */
-            guint32       value;
-            const guint8 *ptr;
-            const gchar  *ie_name = val_to_str_ext_const(ies_type, &iax_ies_type_ext, "Unknown");
+            uint32_t      value;
+            const uint8_t *ptr;
+            const char   *ie_name = val_to_str_ext_const(ies_type, &iax_ies_type_ext, "Unknown");
 
             switch (ies_len) {
               case 1:
-                value = tvb_get_guint8(tvb, offset + 2);
+                value = tvb_get_uint8(tvb, offset + 2);
                 ie_item =
                   proto_tree_add_uint_format(ies_tree, hf_IAX_IE_UNKNOWN_BYTE,
                                              tvb, offset+2, 1, value,
@@ -1555,7 +1555,7 @@ static guint32 dissect_ies(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
           proto_item_set_text(ti, "Information Element: %s",
                               ie_finfo->rep->representation);
         else {
-          guint8 *ie_val = (guint8 *)wmem_alloc(pinfo->pool, ITEM_LABEL_LENGTH);
+          uint8_t *ie_val = (uint8_t *)wmem_alloc(pinfo->pool, ITEM_LABEL_LENGTH);
           proto_item_fill_label(ie_finfo, ie_val);
           proto_item_set_text(ti, "Information Element: %s",
                               ie_val);
@@ -1568,13 +1568,13 @@ static guint32 dissect_ies(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
   return offset;
 }
 
-static guint32 uncompress_subclass(guint8 csub)
+static uint32_t uncompress_subclass(uint8_t csub)
 {
   /* If the SC_LOG flag is set, return 2^csub otherwise csub */
   if (csub & 0x80) {
     /* special case for 'compressed' -1 */
     if (csub == 0xff)
-      return (guint32)-1;
+      return (uint32_t)-1;
     else
       return csub & 0x3F;
   }
@@ -1587,17 +1587,17 @@ static guint32 uncompress_subclass(guint8 csub)
       case 0x10: return 4;
       case 0x20: return 5;
       case 0x40: return 6;
-      default: return (guint32)-1;
+      default: return (uint32_t)-1;
     }
   }
 }
 
 /* returns the new offset */
-static guint32 dissect_iax2_command(tvbuff_t *tvb, guint32 offset,
+static uint32_t dissect_iax2_command(tvbuff_t *tvb, uint32_t offset,
                                     packet_info *pinfo, proto_tree *tree,
                                     iax_packet_data *iax_packet)
 {
-  guint8         csub = tvb_get_guint8(tvb, offset);
+  uint8_t        csub = tvb_get_uint8(tvb, offset);
   proto_item*    ti;
   iax2_ie_data   ie_data;
   iax_call_data *iax_call;
@@ -1608,7 +1608,7 @@ static guint32 dissect_iax2_command(tvbuff_t *tvb, guint32 offset,
   ie_data.peer_ptype        = PT_NONE;
   ie_data.peer_port         = 0;
   ie_data.peer_callno       = 0;
-  ie_data.dataformat        = (guint32)-1;
+  ie_data.dataformat        = (uint32_t)-1;
   iax_call                  = iax_packet -> call_data;
 
   /* add the subclass */
@@ -1624,7 +1624,7 @@ static guint32 dissect_iax2_command(tvbuff_t *tvb, guint32 offset,
   offset = dissect_ies(tvb, pinfo, offset, tree, ti, &ie_data);
 
   /* if this is a data call, set up a subdissector for the circuit */
-  if (iax_call && ie_data.dataformat != (guint32)-1 && iax_call -> subdissector == NULL) {
+  if (iax_call && ie_data.dataformat != (uint32_t)-1 && iax_call -> subdissector == NULL) {
     iax_call -> subdissector = dissector_get_uint_handle(iax2_dataformat_dissector_table, ie_data.dataformat);
     iax_call -> dataformat = (iax_dataformat_t)ie_data.dataformat;
   }
@@ -1632,7 +1632,7 @@ static guint32 dissect_iax2_command(tvbuff_t *tvb, guint32 offset,
   /* if this is a transfer request, record it in the call data */
   if (csub == IAX_COMMAND_TXREQ && iax_packet -> first_time) {
     if (ie_data.peer_address.type != AT_NONE && ie_data.peer_callno != 0) {
-      guint tx_circuit = iax_circuit_lookup(&ie_data.peer_address,
+      unsigned tx_circuit = iax_circuit_lookup(&ie_data.peer_address,
                                             ie_data.peer_ptype,
                                             ie_data.peer_port,
                                             ie_data.peer_callno);
@@ -1644,9 +1644,9 @@ static guint32 dissect_iax2_command(tvbuff_t *tvb, guint32 offset,
   return offset;
 }
 
-static void iax2_add_ts_fields(packet_info *pinfo, proto_tree *iax2_tree, tvbuff_t *tvb, iax_packet_data *iax_packet, packet_type type, guint32 relts)
+static void iax2_add_ts_fields(packet_info *pinfo, proto_tree *iax2_tree, tvbuff_t *tvb, iax_packet_data *iax_packet, packet_type type, uint32_t relts)
 {
-  guint32     full_relts = relts;
+  uint32_t    full_relts = relts;
   nstime_t    lateness;
   proto_item *item;
 
@@ -1749,31 +1749,31 @@ static void iax2_add_ts_fields(packet_info *pinfo, proto_tree *iax2_tree, tvbuff
 }
 
 /* returns the new offset */
-static guint32
-dissect_fullpacket(tvbuff_t *tvb, guint32 offset,
-                   guint16 scallno,
+static uint32_t
+dissect_fullpacket(tvbuff_t *tvb, uint32_t offset,
+                   uint16_t scallno,
                    packet_info *pinfo, proto_tree *iax2_tree,
                    proto_tree *main_tree)
 {
-  guint16 dcallno;
-  guint32 ts;
-  guint8  type;
-  guint8  csub;
-  guint32 codec;
+  uint16_t dcallno;
+  uint32_t ts;
+  uint8_t type;
+  uint8_t csub;
+  uint32_t codec;
 
   proto_tree      *packet_type_tree = NULL;
   iax_call_data   *iax_call;
   iax_packet_data *iax_packet;
-  gboolean         reversed;
-  gboolean         rtp_marker;
+  bool             reversed;
+  bool             rtp_marker;
 
   /*
    * remove the top bit for retransmission detection
    */
   dcallno = tvb_get_ntohs(tvb, offset) & 0x7FFF;
   ts = tvb_get_ntohl(tvb, offset + 2);
-  type = tvb_get_guint8(tvb, offset + 8);
-  csub = tvb_get_guint8(tvb, offset + 9);
+  type = tvb_get_uint8(tvb, offset + 8);
+  csub = tvb_get_uint8(tvb, offset + 9);
   iax2_info->ftype   = type;
   iax2_info->csub    = csub;
   iax2_info->scallno = scallno;
@@ -1787,7 +1787,7 @@ dissect_fullpacket(tvbuff_t *tvb, guint32 offset,
     if (type == AST_FRAME_IAX && csub == IAX_COMMAND_NEW) {
       /* NEW packets start a new call */
       iax_call = iax_new_call(pinfo, scallno);
-      reversed = FALSE;
+      reversed = false;
     } else {
       iax_call = iax_lookup_call(pinfo, scallno, dcallno,
                                  &reversed);
@@ -1889,13 +1889,13 @@ dissect_fullpacket(tvbuff_t *tvb, guint32 offset,
       }
     }
 
-    dissect_payload(tvb, offset, pinfo, iax2_tree, main_tree, ts, FALSE, iax_packet);
+    dissect_payload(tvb, offset, pinfo, iax2_tree, main_tree, ts, false, iax_packet);
     break;
 
   case AST_FRAME_VIDEO:
     /* bit 6 of the csub is used to represent the rtp 'marker' bit */
-    rtp_marker = csub & 0x40 ? TRUE:FALSE;
-    iax_packet -> codec = codec = uncompress_subclass((guint8)(csub & ~0x40));
+    rtp_marker = csub & 0x40 ? true:false;
+    iax_packet -> codec = codec = uncompress_subclass((uint8_t)(csub & ~0x40));
 
     if (packet_type_tree) {
       proto_item *item;
@@ -1919,7 +1919,7 @@ dissect_fullpacket(tvbuff_t *tvb, guint32 offset,
       col_append_str(pinfo->cinfo, COL_INFO, ", Mark");
 
 
-    dissect_payload(tvb, offset, pinfo, iax2_tree, main_tree, ts, TRUE, iax_packet);
+    dissect_payload(tvb, offset, pinfo, iax2_tree, main_tree, ts, true, iax_packet);
     break;
 
   case AST_FRAME_MODEM:
@@ -1972,21 +1972,21 @@ dissect_fullpacket(tvbuff_t *tvb, guint32 offset,
 
   /* next time we come to parse this packet, don't propagate the codec into the
    * call_data */
-  iax_packet->first_time = FALSE;
+  iax_packet->first_time = false;
 
   return offset;
 }
 
 static iax_packet_data *iax2_get_packet_data_for_minipacket(packet_info *pinfo,
-                                                            guint16 scallno,
-                                                            gboolean video)
+                                                            uint16_t scallno,
+                                                            bool video)
 {
   /* see if we've seen this packet before */
   iax_packet_data *p = (iax_packet_data *)p_get_proto_data(wmem_file_scope(), pinfo, proto_iax2, 0);
 
   if (!p) {
     /* if not, find or create an iax_call info structure for this IAX session. */
-    gboolean reversed;
+    bool reversed;
     iax_call_data *iax_call;
 
     iax_call = iax_lookup_call(pinfo, scallno, 0, &reversed);
@@ -2008,22 +2008,22 @@ static iax_packet_data *iax2_get_packet_data_for_minipacket(packet_info *pinfo,
 }
 
 
-static guint32 dissect_minivideopacket(tvbuff_t *tvb, guint32 offset,
-                                       guint16 scallno, packet_info *pinfo,
+static uint32_t dissect_minivideopacket(tvbuff_t *tvb, uint32_t offset,
+                                       uint16_t scallno, packet_info *pinfo,
                                        proto_tree *iax2_tree, proto_tree *main_tree)
 {
-  guint32          ts;
+  uint32_t         ts;
   iax_packet_data *iax_packet;
-  gboolean         rtp_marker;
+  bool             rtp_marker;
   proto_item      *item;
 
   ts = tvb_get_ntohs(tvb, offset);
 
   /* bit 15 of the ts is used to represent the rtp 'marker' bit */
-  rtp_marker = ts & 0x8000 ? TRUE:FALSE;
+  rtp_marker = ts & 0x8000 ? true:false;
   ts &= ~0x8000;
 
-  iax_packet = iax2_get_packet_data_for_minipacket(pinfo, scallno, TRUE);
+  iax_packet = iax2_get_packet_data_for_minipacket(pinfo, scallno, true);
 
   if (iax2_tree) {
     if (iax_packet->call_data) {
@@ -2047,26 +2047,26 @@ static guint32 dissect_minivideopacket(tvbuff_t *tvb, guint32 offset,
                    scallno, ts, rtp_marker?", Mark":"");
 
 
-  dissect_payload(tvb, offset, pinfo, iax2_tree, main_tree, ts, TRUE, iax_packet);
+  dissect_payload(tvb, offset, pinfo, iax2_tree, main_tree, ts, true, iax_packet);
 
   /* next time we come to parse this packet, don't propagate the codec into the
    * call_data */
-  iax_packet->first_time = FALSE;
+  iax_packet->first_time = false;
 
   return offset;
 }
 
-static guint32 dissect_minipacket(tvbuff_t *tvb, guint32 offset, guint16 scallno,
+static uint32_t dissect_minipacket(tvbuff_t *tvb, uint32_t offset, uint16_t scallno,
                                   packet_info *pinfo, proto_tree *iax2_tree,
                                   proto_tree *main_tree)
 {
-  guint32          ts;
+  uint32_t         ts;
   iax_packet_data *iax_packet;
   proto_item      *item;
 
   ts = tvb_get_ntohs(tvb, offset);
 
-  iax_packet = iax2_get_packet_data_for_minipacket(pinfo, scallno, FALSE);
+  iax_packet = iax2_get_packet_data_for_minipacket(pinfo, scallno, false);
 
   if (iax2_tree) {
     if (iax_packet->call_data) {
@@ -2090,21 +2090,21 @@ static guint32 dissect_minipacket(tvbuff_t *tvb, guint32 offset, guint16 scallno
 
 
   /* XXX fix the timestamp logic */
-  dissect_payload(tvb, offset, pinfo, iax2_tree, main_tree, ts, FALSE, iax_packet);
+  dissect_payload(tvb, offset, pinfo, iax2_tree, main_tree, ts, false, iax_packet);
 
 
   /* next time we come to parse this packet, don't propagate the codec into the
    * call_data */
-  iax_packet->first_time = FALSE;
+  iax_packet->first_time = false;
 
   return offset;
 }
 
 
-static guint32 dissect_trunkcall_ts(tvbuff_t *tvb, guint32 offset, proto_tree *iax2_tree, guint16 *scallno)
+static uint32_t dissect_trunkcall_ts(tvbuff_t *tvb, uint32_t offset, proto_tree *iax2_tree, uint16_t *scallno)
 {
   proto_tree *call_tree;
-  guint16     datalen, rlen, ts;
+  uint16_t    datalen, rlen, ts;
   /*
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |     Data Length (in octets)   |R|     Source Call Number      |
@@ -2136,10 +2136,10 @@ static guint32 dissect_trunkcall_ts(tvbuff_t *tvb, guint32 offset, proto_tree *i
   return offset;
 }
 
-static guint32 dissect_trunkcall_nots(tvbuff_t *tvb, guint32 offset, proto_tree *iax2_tree, guint16 *scallno)
+static uint32_t dissect_trunkcall_nots(tvbuff_t *tvb, uint32_t offset, proto_tree *iax2_tree, uint16_t *scallno)
 {
   proto_tree *call_tree;
-  guint16     datalen, rlen;
+  uint16_t    datalen, rlen;
   /*
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |R|      Source Call Number     |     Data Length (in octets)   |
@@ -2168,11 +2168,11 @@ static guint32 dissect_trunkcall_nots(tvbuff_t *tvb, guint32 offset, proto_tree 
 }
 
 typedef struct _call_list {
-  guint16            scallno;
+  uint16_t           scallno;
   struct _call_list *next;
 } call_list;
 
-static call_list *call_list_append(wmem_allocator_t *pool, call_list *list, guint16 scallno)
+static call_list *call_list_append(wmem_allocator_t *pool, call_list *list, uint16_t scallno)
 {
   call_list *node = wmem_new0(pool, call_list);
 
@@ -2190,37 +2190,37 @@ static call_list *call_list_append(wmem_allocator_t *pool, call_list *list, guin
   }
 }
 
-static gboolean call_list_find(call_list *list, guint16 scallno)
+static bool call_list_find(call_list *list, uint16_t scallno)
 {
   for (; list; list = list->next) {
     if (list->scallno == scallno) {
-      return TRUE;
+      return true;
     }
   }
-  return FALSE;
+  return false;
 }
 
-static guint call_list_length(call_list *list)
+static unsigned call_list_length(call_list *list)
 {
-  guint count = 0;
+  unsigned count = 0;
   for (; list; list = list->next) {
     count++;
   }
   return count;
 }
 
-static guint32 dissect_trunkpacket(tvbuff_t *tvb, guint32 offset,
-                                   guint16 scallno_param _U_, packet_info *pinfo,
+static uint32_t dissect_trunkpacket(tvbuff_t *tvb, uint32_t offset,
+                                   uint16_t scallno_param _U_, packet_info *pinfo,
                                    proto_tree *iax2_tree, proto_tree *main_tree _U_)
 {
-  guint8      cmddata, trunkts;
-  guint       nframes    = 0, ncalls = 0;
+  uint8_t     cmddata, trunkts;
+  unsigned    nframes    = 0, ncalls = 0;
   proto_item *cd, *nc    = NULL;
   proto_tree *field_tree = NULL;
   call_list  *calls      = NULL;
   /*iax_packet_data *iax_packet;*/
 
-  cmddata = tvb_get_guint8(tvb, offset + 1);
+  cmddata = tvb_get_uint8(tvb, offset + 1);
   trunkts = cmddata & IAX2_TRUNK_TS;
 
   /* 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1   */
@@ -2252,7 +2252,7 @@ static guint32 dissect_trunkpacket(tvbuff_t *tvb, guint32 offset,
   if (trunkts) {
     /* Trunk calls with timestamp */
     while(tvb_captured_length_remaining(tvb, offset) >= 6) {
-      guint16 scallno;
+      uint16_t scallno;
       offset = dissect_trunkcall_ts(tvb, offset, iax2_tree, &scallno);
       if (!call_list_find(calls, scallno)) {
         calls = call_list_append(pinfo->pool, calls, scallno);
@@ -2263,7 +2263,7 @@ static guint32 dissect_trunkpacket(tvbuff_t *tvb, guint32 offset,
   else {
     /* Trunk calls without timestamp */
     while(tvb_captured_length_remaining(tvb, offset) >= 4) {
-      guint16 scallno;
+      uint16_t scallno;
       offset = dissect_trunkcall_nots(tvb, offset, iax2_tree, &scallno);
       if (!call_list_find(calls, scallno)) {
         calls = call_list_append(pinfo->pool, calls, scallno);
@@ -2289,9 +2289,9 @@ static guint32 dissect_trunkpacket(tvbuff_t *tvb, guint32 offset,
 
 
 static void process_iax_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                              gboolean video, iax_packet_data *iax_packet)
+                              bool video, iax_packet_data *iax_packet)
 {
-  guint32        codec    = iax_packet -> codec;
+  uint32_t       codec    = iax_packet -> codec;
   iax_call_data *iax_call = iax_packet -> call_data;
 
 #ifdef DEBUG_DESEGMENT
@@ -2309,7 +2309,7 @@ static void process_iax_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       memset(&dissector_info, 0, sizeof(dissector_info));
     } else {
       dissector_info.ctype = CONVERSATION_IAX2;
-      dissector_info.circuit_id = (guint32)iax_packet->call_data->forward_circuit_ids[0];
+      dissector_info.circuit_id = (uint32_t)iax_packet->call_data->forward_circuit_ids[0];
     }
 
     call_dissector_with_data(iax_call->subdissector, tvb, pinfo, tree, &dissector_info);
@@ -2327,15 +2327,15 @@ static void process_iax_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tree,
-                          proto_tree *tree, gboolean video, iax_packet_data *iax_packet)
+                          proto_tree *tree, bool video, iax_packet_data *iax_packet)
 {
 
   iax_call_data    *iax_call       = iax_packet -> call_data;
   iax_call_dirdata *dirdata;
-  gpointer          value          = NULL;
-  guint32           frag_offset    = 0;
+  void *            value          = NULL;
+  uint32_t          frag_offset    = 0;
   fragment_head    *fd_head;
-  gboolean          must_desegment = FALSE;
+  bool              must_desegment = false;
 
   DISSECTOR_ASSERT(iax_call);
 
@@ -2353,9 +2353,9 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
      ((value = g_hash_table_lookup(iax_fid_table, GUINT_TO_POINTER(pinfo->num))) != NULL)) {
 
     /* then we are continuing an already-started pdu */
-    guint32 fid;
-    guint32 frag_len = tvb_reported_length(tvb);
-    gboolean complete;
+    uint32_t fid;
+    uint32_t frag_len = tvb_reported_length(tvb);
+    bool complete;
 
 #ifdef DEBUG_DESEGMENT
     ws_debug("visited: %i; c_f_b: %u; hash: %u->%u", pinfo->fd->visited?1:0,
@@ -2363,7 +2363,7 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
 #endif
 
     if (!pinfo->fd->visited) {
-      guint32 tot_len;
+      uint32_t tot_len;
       fid = dirdata->current_frag_id;
       tot_len                      = dirdata->current_frag_minlen;
       DISSECTOR_ASSERT(g_hash_table_lookup(iax_fid_table, GUINT_TO_POINTER(pinfo->num)) == NULL);
@@ -2379,7 +2379,7 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
       fid = GPOINTER_TO_UINT(value);
       /* these values are unused by fragment_add if pinfo->fd->visited */
       dirdata->current_frag_bytes = 0;
-      complete = FALSE;
+      complete = false;
     }
 
     /* fragment_add checks for already-added */
@@ -2388,7 +2388,7 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
                            frag_len, !complete);
 
     if (fd_head && (pinfo->num == fd_head->reassembled_in)) {
-      gint32 old_len;
+      int32_t old_len;
       tvbuff_t *next_tvb = tvb_new_chain(tvb, fd_head->tvb_data);
       add_new_data_source(pinfo, next_tvb, "Reassembled IAX2");
 
@@ -2399,7 +2399,7 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
          within that section, the higher-level dissector was unable to find any
          pdus; if it's after that, it found one or more complete PDUs.
       */
-      old_len = (gint32)(tvb_reported_length(next_tvb) - frag_len);
+      old_len = (int32_t)(tvb_reported_length(next_tvb) - frag_len);
       if (pinfo->desegment_len &&
           (pinfo->desegment_offset < old_len)) {
         /* oops, it wasn't actually complete */
@@ -2426,7 +2426,7 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
 
         if (pinfo->desegment_len) {
           /* there's a bit of data left to desegment */
-          must_desegment = TRUE;
+          must_desegment = true;
           /* make desegment_offset relative to our tvb */
           pinfo->desegment_offset -= old_len;
         }
@@ -2447,7 +2447,7 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
       /* the higher-level dissector has asked for some more data - ie,
          the end of this segment does not coincide with the end of a
          higher-level PDU. */
-      must_desegment = TRUE;
+      must_desegment = true;
     }
 
     fd_head = NULL;
@@ -2457,9 +2457,9 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
    * contained the start of a higher-level PDU; we must add whatever is left of
    * this segment (after pinfo->desegment_offset) to a fragment table for disassembly. */
   if (must_desegment) {
-    guint32 fid = pinfo->num; /* a new fragment id */
-    guint32 deseg_offset = pinfo->desegment_offset;
-    guint32 frag_len = tvb_reported_length_remaining(tvb, deseg_offset);
+    uint32_t fid = pinfo->num; /* a new fragment id */
+    uint32_t deseg_offset = pinfo->desegment_offset;
+    uint32_t frag_len = tvb_reported_length_remaining(tvb, deseg_offset);
     dirdata->current_frag_id = fid;
     dirdata->current_frag_bytes = frag_len;
 
@@ -2472,7 +2472,7 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
 
     fd_head = fragment_add(&iax_reassembly_table,
                            tvb, deseg_offset, pinfo, fid, NULL,
-                           0, frag_len, TRUE);
+                           0, frag_len, true);
 #ifdef DEBUG_DESEGMENT
     ws_debug("Start offset of undissected bytes: %u; "
             "Bytes remaining in this segment: %u; min required bytes: %u\n",
@@ -2482,7 +2482,7 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
 
   /* add a 'reassembled in' item if necessary */
   if (fd_head != NULL) {
-    guint32 deseg_offset = pinfo->desegment_offset;
+    uint32_t deseg_offset = pinfo->desegment_offset;
     if (fd_head->reassembled_in != 0 &&
         !(fd_head->flags & FD_PARTIAL_REASSEMBLY)) {
       proto_item *iax_tree_item;
@@ -2506,17 +2506,17 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
   pinfo->desegment_len = 0;
 }
 
-static void dissect_payload(tvbuff_t *tvb, guint32 offset,
+static void dissect_payload(tvbuff_t *tvb, uint32_t offset,
                             packet_info *pinfo, proto_tree *iax2_tree,
-                            proto_tree *tree, guint32 ts _U_, gboolean video,
+                            proto_tree *tree, uint32_t ts _U_, bool video,
                             iax_packet_data *iax_packet)
 {
 #if 0
-  gboolean       out_of_order = FALSE;
+  bool           out_of_order = false;
 #endif
   tvbuff_t      *sub_tvb;
-  guint32        codec        = iax_packet -> codec;
-  guint32        nbytes;
+  uint32_t       codec        = iax_packet -> codec;
+  uint32_t       nbytes;
   iax_call_data *iax_call     = iax_packet -> call_data;
 
   if (offset >= tvb_reported_length(tvb)) {
@@ -3353,7 +3353,7 @@ proto_register_iax2(void)
       "The total length of the reassembled payload", HFILL }}
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_iax2,
     &ett_iax2_full_mini_subtree,
     &ett_iax2_type,

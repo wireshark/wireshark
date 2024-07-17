@@ -264,7 +264,7 @@ static const value_string tag_description[] = {
 static value_string_ext tag_description_ext = VALUE_STRING_EXT_INIT(tag_description);
 
 typedef struct _ipdc_tag_type_val {
-	gint	tag;
+	int	tag;
 	ipdc_tag_type	type;
 } ipdc_tag_type_val;
 
@@ -685,9 +685,9 @@ static int hf_ipdc_end_of_tags;
 static int hf_ipdc_data_trailing_end_of_tags;
 static int hf_ipdc_type_unknown;
 
-static gint ett_ipdc;
-static gint ett_ipdc_tag;
-static gint ett_ipdc_line_status;
+static int ett_ipdc;
+static int ett_ipdc_tag;
+static int ett_ipdc_line_status;
 
 static expert_field ei_ipdc_ipv4;
 
@@ -696,11 +696,11 @@ static bool ipdc_desegment = true;
 static dissector_handle_t q931_handle;
 
 
-static guint
+static unsigned
 get_ipdc_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
 	/* lower 10 bits only */
-	guint raw_len = (tvb_get_ntohs(tvb,offset+2) & 0x03FF);
+	unsigned raw_len = (tvb_get_ntohs(tvb,offset+2) & 0x03FF);
 
 	return raw_len + 4;
 }
@@ -717,23 +717,23 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 	const char *enum_val = "";
 	char *tmp_tag_text;
 	const value_string *val_ptr;
-	gint hf_ptr;
-	guint32	type;
-	guint len;
-	guint i;
-	guint status;
+	int hf_ptr;
+	uint32_t	type;
+	unsigned len;
+	unsigned i;
+	unsigned status;
 	uint8_t tag;
-	guint32 tmp_tag;
+	uint32_t tmp_tag;
 
-	uint8_t nr = tvb_get_guint8(tvb,0);
-	uint8_t ns = tvb_get_guint8(tvb,1);
-	guint payload_len = get_ipdc_pdu_len(pinfo,tvb,0,NULL);
+	uint8_t nr = tvb_get_uint8(tvb,0);
+	uint8_t ns = tvb_get_uint8(tvb,1);
+	unsigned payload_len = get_ipdc_pdu_len(pinfo,tvb,0,NULL);
 	/* payload_len will be at least 4 bytes... */
 
 	int trans_id_size;
-	guint32 trans_id;
-	guint16 message_code;
-	guint16 offset;
+	uint32_t trans_id;
+	uint16_t message_code;
+	uint16_t offset;
 
 	/* display IPDC protocol ID */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPDC");
@@ -754,7 +754,7 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 	}
 
 	/* IPDC tags present - display message code and trans. ID */
-	trans_id_size = TRANS_ID_SIZE_IPDC; /* tvb_get_guint8(tvb,5); */
+	trans_id_size = TRANS_ID_SIZE_IPDC; /* tvb_get_uint8(tvb,5); */
 	trans_id = tvb_get_ntohl(tvb,6);
 	message_code = tvb_get_ntohs(tvb,6+trans_id_size);
 	offset = 6 + trans_id_size + 2; /* past message_code */
@@ -790,7 +790,7 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 	   in bytes, following is tag data. tag of 0x0 should be
 	   end of tags. */
 	for (;;) {
-		tag = tvb_get_guint8(tvb, offset);
+		tag = tvb_get_uint8(tvb, offset);
 
 		if (tag == 0x0) {
 			if (offset == payload_len - 1) {
@@ -802,7 +802,7 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 			break;
 		}
 
-		len = tvb_get_guint8(tvb,offset+1);
+		len = tvb_get_uint8(tvb,offset+1);
 		des = val_to_str_ext_const(tag, &tag_description_ext, TEXT_UNDEFINED);
 		/* lookup tag type */
 		for (i = 0; (ipdc_tag_types[i].tag != tag &&
@@ -828,8 +828,8 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 			case IPDC_BYTE:
 				if (len <= 4) {
 					for (i = 0; i < len; i++)
-						tmp_tag += tvb_get_guint8(tvb,
-							offset + 2 + i) * (guint32)pow(256, len - (i + 1));
+						tmp_tag += tvb_get_uint8(tvb,
+							offset + 2 + i) * (uint32_t)pow(256, len - (i + 1));
 
 					if (len == 1)
 						enum_val =
@@ -877,7 +877,7 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 				val_ptr = (type == IPDC_LINESTATUS) ? line_status_vals : channel_status_vals;
 				hf_ptr = (type == IPDC_LINESTATUS) ? hf_ipdc_line_status : hf_ipdc_channel_status;
 				for (i = 0; i < len; i++) {
-					status = tvb_get_guint8(tvb,offset+2+i);
+					status = tvb_get_uint8(tvb,offset+2+i);
 					proto_tree_add_uint_format(line_tree, hf_ptr, tvb,
 							    offset + 2 + i, 1, status,
 							    "%s (0x%2.2x) %.2u: %u (%s)",
@@ -894,18 +894,18 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 				break;
 			case IPDC_ENCTYPE:
 				proto_tree_add_uint_format(tag_tree, hf_ipdc_enctype, tvb,
-							offset, len + 2, tvb_get_guint8(tvb,offset+2),
+							offset, len + 2, tvb_get_uint8(tvb,offset+2),
 							"%s (0x%2.2x): %s",
 							des, tag, val_to_str_const(
-							    tvb_get_guint8(tvb,offset+2),
+							    tvb_get_uint8(tvb,offset+2),
 							    encoding_type_vals,
 							    TEXT_UNDEFINED));
 
 				if (len == 2) {
 					proto_tree_add_uint_format(tag_tree, hf_ipdc_enctype, tvb,
-							    offset, len + 2, tvb_get_guint8(tvb,offset+3),
+							    offset, len + 2, tvb_get_uint8(tvb,offset+3),
 							    "%s (0x%2.2x): %u",
-							    des, tag, tvb_get_guint8(tvb,offset+3));
+							    des, tag, tvb_get_uint8(tvb,offset+3));
 				}
 				break;
 				/* default */
@@ -1035,7 +1035,7 @@ proto_register_ipdc(void)
 		},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_ipdc,
 		&ett_ipdc_tag,
 		&ett_ipdc_line_status,

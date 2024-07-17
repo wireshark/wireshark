@@ -396,50 +396,50 @@ typedef enum {
 /*  Structure containing information regarding all necessary packet fields. */
 typedef struct {
     /* Frame control field. */
-    gint32      version;
-    gint32      frame_type;
-    gint32      dst_addr_mode;
-    gint32      src_addr_mode;
-    gboolean    security_enable;
-    gboolean    frame_pending;
-    gboolean    ack_request;
-    gboolean    pan_id_compression;
-    gboolean    seqno_suppression;
-    gboolean    ie_present;
+    int32_t     version;
+    int32_t     frame_type;
+    int32_t     dst_addr_mode;
+    int32_t     src_addr_mode;
+    bool        security_enable;
+    bool        frame_pending;
+    bool        ack_request;
+    bool        pan_id_compression;
+    bool        seqno_suppression;
+    bool        ie_present;
 
     /* Fields exclusive to the 802.15.4-2015 multipurpose frame control field */
-    gboolean    long_frame_control;
-    gboolean    pan_id_present;
+    bool        long_frame_control;
+    bool        pan_id_present;
 
-    guint8      seqno;
+    uint8_t     seqno;
     /* Determined during processing of Header IE*/
-    gboolean    payload_ie_present;
+    bool        payload_ie_present;
     /* Addressing Info. */
-    gboolean    dst_pan_present;
-    gboolean    src_pan_present;
-    guint16     dst_pan;
-    guint16     src_pan;
-    guint16     dst16;
-    guint64     dst64;
-    guint16     src16;
-    guint64     src64;
+    bool        dst_pan_present;
+    bool        src_pan_present;
+    uint16_t    dst_pan;
+    uint16_t    src_pan;
+    uint16_t    dst16;
+    uint64_t    dst64;
+    uint16_t    src16;
+    uint64_t    src64;
 
     /* Security Info. */
     ieee802154_security_level   security_level;
     ieee802154_key_id_mode      key_id_mode;
-    gboolean    frame_counter_suppression; /* 802.15.4-2015 */
-    guint32     frame_counter;
-    guint8      key_sequence_counter;    /* Only for 802.15.4-2003 security suite with encryption */
-    guint64     asn;
+    bool        frame_counter_suppression; /* 802.15.4-2015 */
+    uint32_t    frame_counter;
+    uint8_t     key_sequence_counter;    /* Only for 802.15.4-2003 security suite with encryption */
+    uint64_t    asn;
 
     union {
-        guint32 addr32;
-        guint64 addr64;
+        uint32_t addr32;
+        uint64_t addr64;
     } key_source;
-    guint8      key_index;
+    uint8_t     key_index;
 
     /* Command ID (only if frame_type == 0x3) */
-    guint8      command_id;
+    uint8_t     command_id;
     GHashTable *short_table;
 } ieee802154_packet;
 
@@ -451,30 +451,30 @@ typedef struct {
 
 /* Key used by the short address hash table. */
 typedef struct {
-    guint16     pan;
-    guint16     addr;
+    uint16_t    pan;
+    uint16_t    addr;
 } ieee802154_short_addr;
 
 /* Key used by the long address hash table. */
 typedef struct {
-    guint64     addr;
+    uint64_t    addr;
 } ieee802154_long_addr;
 
 /* A mapping record for a frame, pointed to by hash table */
 typedef struct {
     const char *proto; /* name of protocol that created this record */
-    guint       start_fnum;
-    guint       end_fnum;
-    guint64     addr64;
-    /*guint32   frame_counter;   TODO for frame counter sequence checks. */
+    unsigned    start_fnum;
+    unsigned    end_fnum;
+    uint64_t    addr64;
+    /*uint32_t  frame_counter;   TODO for frame counter sequence checks. */
 } ieee802154_map_rec;
 
 #define IEEE802154_USER_MAPPING 0
 
 typedef struct {
-    guint16             src_pan;
-    guint16             src16;
-    guint16             dst16;
+    uint16_t            src_pan;
+    uint16_t            src16;
+    uint16_t            dst16;
     ieee802154_map_rec *map_rec;
     void               *packet;
 } ieee802154_hints_t;
@@ -492,24 +492,24 @@ typedef enum {
 
 /* UAT key structure. */
 typedef struct {
-    gchar *pref_key;
-    guint  key_index;
+    char *pref_key;
+    unsigned  key_index;
     ieee802154_key_hash hash_type;
-    guint8 key[IEEE802154_CIPHER_SIZE];
-    guint8 mle_key[IEEE802154_CIPHER_SIZE];
+    uint8_t key[IEEE802154_CIPHER_SIZE];
+    uint8_t mle_key[IEEE802154_CIPHER_SIZE];
 } ieee802154_key_t;
 
 /* */
-void dissect_ieee802154_superframe      (tvbuff_t *, packet_info *, proto_tree *, guint *);
-void dissect_ieee802154_gtsinfo         (tvbuff_t *, packet_info *, proto_tree *, guint *);
-void dissect_ieee802154_pendaddr        (tvbuff_t *, packet_info *, proto_tree *, guint *);
-void dissect_ieee802154_aux_sec_header_and_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee802154_packet *packet, guint *offset);
-void ccm_init_block(gchar *block, gboolean adata, gint M, guint64 addr, guint32 frame_counter, guint8 level, gint ctr_val, const gchar *generic_nonce);
-gboolean ccm_ctr_encrypt(const gchar *key, const gchar *iv, gchar *mic, gchar *data, gint length);
-gboolean ccm_cbc_mac(const gchar *key, const gchar *iv, const gchar *a, gint a_len, const gchar *m, gint m_len, gchar *mic);
+void dissect_ieee802154_superframe      (tvbuff_t *, packet_info *, proto_tree *, unsigned *);
+void dissect_ieee802154_gtsinfo         (tvbuff_t *, packet_info *, proto_tree *, unsigned *);
+void dissect_ieee802154_pendaddr        (tvbuff_t *, packet_info *, proto_tree *, unsigned *);
+void dissect_ieee802154_aux_sec_header_and_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee802154_packet *packet, unsigned *offset);
+void ccm_init_block(char *block, bool adata, int M, uint64_t addr, uint32_t frame_counter, uint8_t level, int ctr_val, const char *generic_nonce);
+bool ccm_ctr_encrypt(const char *key, const char *iv, char *mic, char *data, int length);
+bool ccm_cbc_mac(const char *key, const char *iv, const char *a, int a_len, const char *m, int m_len, char *mic);
 
-proto_tree *ieee802154_create_hie_tree(tvbuff_t *tvb, proto_tree *tree, int hf, gint ett);
-proto_tree *ieee802154_create_pie_tree(tvbuff_t *tvb, proto_tree *tree, int hf, gint ett);
+proto_tree *ieee802154_create_hie_tree(tvbuff_t *tvb, proto_tree *tree, int hf, int ett);
+proto_tree *ieee802154_create_pie_tree(tvbuff_t *tvb, proto_tree *tree, int hf, int ett);
 
 
 /** Even if the FCF Security Enabled flag is set, there is no auxiliary security header present (used by Wi-SUN Netricity) */
@@ -524,7 +524,7 @@ proto_tree *ieee802154_create_pie_tree(tvbuff_t *tvb, proto_tree *tree, int hf, 
  * @param[out] parsed_info will be set to the (wmem allocated) IEEE 802.15.4 packet information
  * @return the MHR length or 0 if an error occurred
  */
-guint ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint options, proto_tree **created_header_tree, ieee802154_packet **parsed_info);
+unsigned ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned options, proto_tree **created_header_tree, ieee802154_packet **parsed_info);
 
 /**
  * Decrypt the IEEE 802.15.4 payload starting from the Payload IEs
@@ -537,7 +537,7 @@ guint ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
  * @param packet the IEEE 802.15.4 packet information
  * @return the plaintext payload or NULL if decryption failed
  */
-tvbuff_t* ieee802154_decrypt_payload(tvbuff_t *tvb, guint mhr_len, packet_info *pinfo, proto_tree *ieee802154_tree, ieee802154_packet *packet);
+tvbuff_t* ieee802154_decrypt_payload(tvbuff_t *tvb, unsigned mhr_len, packet_info *pinfo, proto_tree *ieee802154_tree, ieee802154_packet *packet);
 
 /**
  * Dissect the IEEE 802.15.4 Payload IEs (if present)
@@ -547,7 +547,7 @@ tvbuff_t* ieee802154_decrypt_payload(tvbuff_t *tvb, guint mhr_len, packet_info *
  * @param packet the IEEE 802.15.4 packet information
  * @return the number of bytes dissected
  */
-guint ieee802154_dissect_payload_ies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ieee802154_tree, ieee802154_packet *packet);
+unsigned ieee802154_dissect_payload_ies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ieee802154_tree, ieee802154_packet *packet);
 
 /**
  * Dissect the IEEE 802.15.4 frame payload (after the Payload IEs)
@@ -555,55 +555,55 @@ guint ieee802154_dissect_payload_ies(tvbuff_t *tvb, packet_info *pinfo, proto_tr
  * @param pinfo packet info of the currently processed packet
  * @param ieee802154_tree the tree for the IEEE 802.15.4 header/protocol
  * @param packet the IEEE 802.15.4 packet information
- * @param fcs_ok set to FALSE if the FCS verification failed, which is used to suppress some further processing
+ * @param fcs_ok set to false if the FCS verification failed, which is used to suppress some further processing
  * @return the number of bytes dissected
  */
-guint ieee802154_dissect_frame_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ieee802154_tree, ieee802154_packet *packet, gboolean fcs_ok);
+unsigned ieee802154_dissect_frame_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ieee802154_tree, ieee802154_packet *packet, bool fcs_ok);
 
 
 /* Results for the decryption */
 typedef struct {
     /* Set by decrypt_ieee802154_payload */
     unsigned char *key;  // not valid after return of decrypt_ieee802154_payload
-    guint key_number;
+    unsigned key_number;
     /* Set by the ieee802154_decrypt_func */
     unsigned char* rx_mic;
-    guint* rx_mic_length;
-    guint aux_offset;
-    guint aux_length;
+    unsigned* rx_mic_length;
+    unsigned aux_offset;
+    unsigned aux_length;
     ieee802154_decrypt_status* status;
 } ieee802154_decrypt_info_t;
 
 /** Fill key and alt_key based on the provided information from the frame and an IEEE 802.15.4 preference table entry
  * and return the number of keys set (0: none, 1: just key, 2: key and alt_key) */
-typedef guint (*ieee802154_set_key_func) (ieee802154_packet *packet, unsigned char *key, unsigned char *alt_key, ieee802154_key_t *uat_key);
+typedef unsigned (*ieee802154_set_key_func) (ieee802154_packet *packet, unsigned char *key, unsigned char *alt_key, ieee802154_key_t *uat_key);
 /** Decrypt the payload with the provided information */
-typedef tvbuff_t* (*ieee802154_decrypt_func) (tvbuff_t *, guint, packet_info *, ieee802154_packet *, ieee802154_decrypt_info_t*);
+typedef tvbuff_t* (*ieee802154_decrypt_func) (tvbuff_t *, unsigned, packet_info *, ieee802154_packet *, ieee802154_decrypt_info_t*);
 /** Loop over the keys specified in the IEEE 802.15.4 preferences, try to use them with the specified set_key_func
  * and try to decrypt with the specified decrypt_func
  */
-tvbuff_t *decrypt_ieee802154_payload(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *key_tree, ieee802154_packet *packet,
+tvbuff_t *decrypt_ieee802154_payload(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *key_tree, ieee802154_packet *packet,
                                      ieee802154_decrypt_info_t *decrypt_info, ieee802154_set_key_func set_key_func, ieee802154_decrypt_func decrypt_func);
 
 
-extern void register_ieee802154_mac_key_hash_handler(guint hash_identifier, ieee802154_set_key_func key_func);
+extern void register_ieee802154_mac_key_hash_handler(unsigned hash_identifier, ieee802154_set_key_func key_func);
 
 /* Short to Extended Address Prototypes */
-extern ieee802154_map_rec *ieee802154_addr_update(ieee802154_map_tab_t *, guint16, guint16, guint64,
-        const char *, guint);
-extern guint    ieee802154_short_addr_hash(gconstpointer);
-extern guint    ieee802154_long_addr_hash(gconstpointer key);
-extern gboolean ieee802154_short_addr_equal(gconstpointer, gconstpointer);
-extern gboolean ieee802154_long_addr_equal(gconstpointer a, gconstpointer b);
+extern ieee802154_map_rec *ieee802154_addr_update(ieee802154_map_tab_t *, uint16_t, uint16_t, uint64_t,
+        const char *, unsigned);
+extern unsigned ieee802154_short_addr_hash(const void *);
+extern unsigned ieee802154_long_addr_hash(const void *key);
+extern gboolean ieee802154_short_addr_equal(const void *, const void *);
+extern gboolean ieee802154_long_addr_equal(const void *a, const void *b);
 
-extern gboolean ieee802154_short_addr_invalidate(guint16, guint16, guint);
-extern gboolean ieee802154_long_addr_invalidate(guint64, guint);
+extern bool ieee802154_short_addr_invalidate(uint16_t, uint16_t, unsigned);
+extern bool ieee802154_long_addr_invalidate(uint64_t, unsigned);
 
 extern ieee802154_map_tab_t ieee802154_map;
 
 extern const value_string ieee802154_mpx_kmp_id_vals[];
 extern const value_string zboss_page_names[];
 
-extern guint ieee802154_fcs_len;
+extern unsigned ieee802154_fcs_len;
 
 #endif /* PACKET_IEEE802154_H */

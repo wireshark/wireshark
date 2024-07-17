@@ -118,16 +118,16 @@ static int hf_netrix_get_conversiontable_value_type;
 static int hf_netrix_search_conversiontables_key_type;
 static int hf_netrix_search_conversiontables_table_type;
 
-static gint ett_netrix;
-static gint ett_netrix_systeminfo;
-static gint ett_netrix_groupcall;
-static gint ett_netrix_profilecall;
-static gint ett_netrix_get_conversiontable;
-static gint ett_netrix_get_conversiontable_result;
-static gint ett_netrix_search_conversiontables;
-static gint ett_netrix_search_conversiontables_result;
-static gint ett_netrix_boschcall;
-static gint ett_netrix_unknown;
+static int ett_netrix;
+static int ett_netrix_systeminfo;
+static int ett_netrix_groupcall;
+static int ett_netrix_profilecall;
+static int ett_netrix_get_conversiontable;
+static int ett_netrix_get_conversiontable_result;
+static int ett_netrix_search_conversiontables;
+static int ett_netrix_search_conversiontables_result;
+static int ett_netrix_boschcall;
+static int ett_netrix_unknown;
 
 static const value_string netrix_headertypenames[] = {
 	{ INDIGOCARE_NETRIX_SYSTEMINFO,				"System Info" },
@@ -148,15 +148,15 @@ dissect_netrix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *da
 	proto_item *header_item;
 	proto_tree *netrix_tree;
 	proto_tree *netrix_header_tree;
-	gint32 current_offset = 0, header_offset, identifier_start, identifier_offset, data_start, data_offset, ett;
-	gint32 header;
-	gint32 record_identifier;
-	gint32 group_number;
-	gint32 profile_number;
+	int32_t current_offset = 0, header_offset, identifier_start, identifier_offset, data_start, data_offset, ett;
+	int32_t header;
+	int32_t record_identifier;
+	int32_t group_number;
+	int32_t profile_number;
 	const char * record_data;
 
 	/* Corner case: 'EssecProtocolWithAck' ACK */
-	if (( tvb_get_guint8(tvb, 0) == INDIGOCARE_NETRIX_ACK ) && (tvb_reported_length(tvb) == 1)) {
+	if (( tvb_get_uint8(tvb, 0) == INDIGOCARE_NETRIX_ACK ) && (tvb_reported_length(tvb) == 1)) {
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Netrix");
 		col_clear(pinfo->cinfo, COL_INFO);
 		ti = proto_tree_add_item(tree, proto_netrix, tvb, 0, -1, ENC_NA);
@@ -167,10 +167,10 @@ dissect_netrix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *da
 	}
 
 	/* Starts with SOH */
-	if ( tvb_get_guint8(tvb, 0) != INDIGOCARE_NETRIX_SOH )
+	if ( tvb_get_uint8(tvb, 0) != INDIGOCARE_NETRIX_SOH )
 		return 0;
 	/* Ends with ETX or EOT */
-	if ((tvb_captured_length(tvb) == tvb_reported_length(tvb)) && (( tvb_get_guint8(tvb, tvb_reported_length(tvb) - 1) != INDIGOCARE_NETRIX_ETX ) && ( tvb_get_guint8(tvb, tvb_reported_length(tvb) - 1) != INDIGOCARE_NETRIX_EOT ))) {
+	if ((tvb_captured_length(tvb) == tvb_reported_length(tvb)) && (( tvb_get_uint8(tvb, tvb_reported_length(tvb) - 1) != INDIGOCARE_NETRIX_ETX ) && ( tvb_get_uint8(tvb, tvb_reported_length(tvb) - 1) != INDIGOCARE_NETRIX_EOT ))) {
 		return 0;
 	}
 	/* It is a Netrix Communication Protocol packet */
@@ -248,7 +248,7 @@ dissect_netrix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *da
 	current_offset = header_offset + 1;
 
 	/* Read records */
-	while (tvb_get_guint8(tvb, current_offset) != INDIGOCARE_NETRIX_ETX) {
+	while (tvb_get_uint8(tvb, current_offset) != INDIGOCARE_NETRIX_ETX) {
 		identifier_start = current_offset;
 		identifier_offset = tvb_find_guint8(tvb, current_offset, -1, INDIGOCARE_NETRIX_US);
 		ws_strtoi32(tvb_get_string_enc(pinfo->pool, tvb, current_offset, identifier_offset - current_offset, ENC_ASCII|ENC_NA), NULL, &record_identifier);
@@ -626,7 +626,7 @@ proto_register_netrix(void)
 	expert_module_t* expert_netrix;
 
 	/* Setup protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_netrix,
 		&ett_netrix_systeminfo,
 		&ett_netrix_groupcall,

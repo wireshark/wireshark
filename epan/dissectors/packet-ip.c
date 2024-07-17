@@ -892,7 +892,7 @@ dissect_ipopt_security(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
   if (curr_offset >= optlen) {
     return curr_offset;
   }
-  val = tvb_get_guint8(tvb, curr_offset);
+  val = tvb_get_uint8(tvb, curr_offset);
   proto_tree_add_bitmask(field_tree, tvb, curr_offset, hf_ip_opt_sec_prot_auth_flags,
                          ett_ip_opt_sec_prot_auth_flags, ip_opt_sec_prot_auth_fields_byte_1,
                          ENC_BIG_ENDIAN);
@@ -902,7 +902,7 @@ dissect_ipopt_security(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
       expert_add_info(pinfo, tf, &ei_ip_opt_sec_prot_auth_fti);
       break;
     }
-    val = tvb_get_guint8(tvb, curr_offset);
+    val = tvb_get_uint8(tvb, curr_offset);
     proto_tree_add_bitmask(field_tree, tvb, curr_offset, hf_ip_opt_sec_prot_auth_flags,
                            ett_ip_opt_sec_prot_auth_flags, ip_opt_sec_prot_auth_fields_byte_n,
                            ENC_BIG_ENDIAN);
@@ -975,11 +975,11 @@ dissect_ipopt_cipso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
 
   /* loop through all of the tags in the CIPSO option */
   while (offset < offset_max) {
-    tagtype = tvb_get_guint8(tvb, offset);
+    tagtype = tvb_get_uint8(tvb, offset);
     tag_item = proto_tree_add_item(field_tree, hf_ip_cipso_tag_type, tvb, offset, 1, ENC_NA);
 
     if ((offset + 1) < offset_max)
-      taglen = tvb_get_guint8(tvb, offset + 1);
+      taglen = tvb_get_uint8(tvb, offset + 1);
     else
       taglen = 1;
 
@@ -1153,7 +1153,7 @@ dissect_ipopt_cipso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
     default:
       /* unknown tag - stop parsing this IPv4 option */
       if ((offset + 1) <= offset_max) {
-        taglen = tvb_get_guint8(tvb, offset + 1);
+        taglen = tvb_get_uint8(tvb, offset + 1);
         proto_item_append_text(tag_item, " (%u bytes)", taglen);
         return offset;
       }
@@ -1195,7 +1195,7 @@ dissect_ipopt_route(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int pro
 
   field_tree = ip_var_option_header(tree, pinfo, tvb, proto, ett_ip_option_route, &tf, optlen);
 
-  ptr = tvb_get_guint8(tvb, offset + 2);
+  ptr = tvb_get_uint8(tvb, offset + 2);
   tf = proto_tree_add_item(field_tree, hf_ip_opt_ptr, tvb, offset + 2, 1, ENC_NA);
   if ((ptr < (optlen_min + 1)) || (ptr & 3)) {
     if (ptr < (optlen_min + 1)) {
@@ -1285,7 +1285,7 @@ dissect_ipopt_record_route(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
   field_tree = ip_var_option_header(tree, pinfo, tvb, proto_ip_option_record_route, ett_ip_option_route, &tf, optlen);
 
-  ptr = tvb_get_guint8(tvb, offset + 2);
+  ptr = tvb_get_uint8(tvb, offset + 2);
   tf = proto_tree_add_item(field_tree, hf_ip_opt_ptr, tvb, offset + 2, 1, ENC_NA);
 
   if ((ptr < (IPOLEN_RR_MIN + 1)) || (ptr & 3)) {
@@ -1410,7 +1410,7 @@ dissect_ipopt_timestamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   optoffset += 2;   /* skip past type and length */
   optlen -= 2;      /* subtract size of type and length */
 
-  ptr = tvb_get_guint8(tvb, offset + optoffset);
+  ptr = tvb_get_uint8(tvb, offset + optoffset);
   proto_tree_add_uint_format_value(field_tree, hf_ip_opt_ptr, tvb, offset + optoffset, 1, ptr, "%d%s",
                       ptr, ((ptr == 1) ? " (header is full)" :
                       (ptr < 5) ? " (points before first address)" :
@@ -1419,7 +1419,7 @@ dissect_ipopt_timestamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   optlen--;
   ptr--;    /* ptr is 1-origin */
 
-  flg = tvb_get_guint8(tvb, offset + optoffset);
+  flg = tvb_get_uint8(tvb, offset + optoffset);
   proto_tree_add_item(field_tree, hf_ip_opt_overflow, tvb, offset + optoffset, 1, ENC_NA);
   flg &= 0xF;
   proto_tree_add_item(field_tree, hf_ip_opt_flag, tvb, offset + optoffset, 1, ENC_NA);
@@ -1534,7 +1534,7 @@ dissect_ipopt_qs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * dat
   ws_ip4 *iph = (ws_ip4 *)data;
   int        offset = 2;
 
-  uint8_t command = tvb_get_guint8(tvb, offset);
+  uint8_t command = tvb_get_uint8(tvb, offset);
   uint8_t function = command >> 4;
   uint8_t rate = command & QS_RATE_MASK;
   uint8_t ttl_diff;
@@ -1547,13 +1547,13 @@ dissect_ipopt_qs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * dat
   if (function == QS_RATE_REQUEST) {
     proto_tree_add_item(field_tree, hf_ip_opt_qs_rate, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(field_tree, hf_ip_opt_qs_ttl, tvb, offset + 1, 1, ENC_NA);
-    ttl_diff = (iph->ip_ttl - tvb_get_guint8(tvb, offset + 1) % 256);
+    ttl_diff = (iph->ip_ttl - tvb_get_uint8(tvb, offset + 1) % 256);
     ti = proto_tree_add_uint(field_tree, hf_ip_opt_qs_ttl_diff,
                                           tvb, offset + 1, 1, ttl_diff);
     proto_item_set_generated(ti);
     proto_item_append_text(tf, ", %s, QS TTL %u, QS TTL diff %u",
                            val_to_str_ext(rate, &qs_rate_vals_ext, "Unknown (%u)"),
-                           tvb_get_guint8(tvb, offset + 1), ttl_diff);
+                           tvb_get_uint8(tvb, offset + 1), ttl_diff);
     proto_tree_add_item(field_tree, hf_ip_opt_qs_nonce, tvb, offset + 2, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(field_tree, hf_ip_opt_qs_reserved, tvb, offset + 2, 4, ENC_BIG_ENDIAN);
   } else if (function == QS_RATE_REPORT) {
@@ -1582,7 +1582,7 @@ dissect_ip_options(tvbuff_t *tvb, int offset, unsigned length,
   tvbuff_t         *next_tvb;
 
   while (length > 0) {
-    opt = tvb_get_guint8(tvb, offset);
+    opt = tvb_get_uint8(tvb, offset);
     --length;      /* account for type byte */
 
     if ((opt == IPOPT_EOOL) || (opt == IPOPT_NOP)) {
@@ -1634,7 +1634,7 @@ dissect_ip_options(tvbuff_t *tvb, int offset, unsigned length,
         return;
       }
 
-      optlen = tvb_get_guint8(tvb, offset + 1);  /* total including type, len */
+      optlen = tvb_get_uint8(tvb, offset + 1);  /* total including type, len */
       --length;    /* account for length byte */
 
       if (optlen < 2) {
@@ -1683,7 +1683,7 @@ get_dst_offset(tvbuff_t *tvb, int offset, unsigned length)
   int               orig_offset = offset;
 
   while (length > 0) {
-    opt = tvb_get_guint8(tvb, offset);
+    opt = tvb_get_uint8(tvb, offset);
     --length;      /* account for type byte */
 
     if ((opt != IPOPT_EOOL) && (opt != IPOPT_NOP)) {
@@ -1693,7 +1693,7 @@ get_dst_offset(tvbuff_t *tvb, int offset, unsigned length)
            length byte! */
         return 0;
       }
-      len = tvb_get_guint8(tvb, offset + 1);  /* total including type, len */
+      len = tvb_get_uint8(tvb, offset + 1);  /* total including type, len */
       --length;    /* account for length byte */
       if (len < 2) {
         /* Bogus - option length is too short to include option code and
@@ -1708,7 +1708,7 @@ get_dst_offset(tvbuff_t *tvb, int offset, unsigned length)
         /* Hmm, what if you have both options? */
         uint8_t ptr;
 
-        ptr = tvb_get_guint8(tvb, offset + 2);
+        ptr = tvb_get_uint8(tvb, offset + 2);
         if (ptr < 4 || (ptr & 3) || (ptr > len)) {
           return 0;
         }
@@ -1997,7 +1997,7 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
   proto_tree_add_uint_bits_format_value(ip_tree, hf_ip_hdr_len, tvb, (offset<<3)+4, 4, hlen,
                                ENC_BIG_ENDIAN, "%u bytes (%u)", hlen, hlen>>2);
 
-  iph->ip_tos = tvb_get_guint8(tvb, offset + 1);
+  iph->ip_tos = tvb_get_uint8(tvb, offset + 1);
   if (g_ip_dscp_actif) {
     col_add_str(pinfo->cinfo, COL_DSCP_VALUE,
                 val_to_str_ext(IPDSFIELD_DSCP(iph->ip_tos), &dscp_short_vals_ext, "%u"));
@@ -2124,10 +2124,10 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
   tf = proto_tree_add_uint_format_value(ip_tree, hf_ip_frag_offset, tvb, offset + 6, 2,
                                         iph->ip_off, "%u", (iph->ip_off & IP_OFFSET) * 8);
 
-  iph->ip_ttl = tvb_get_guint8(tvb, offset + 8);
+  iph->ip_ttl = tvb_get_uint8(tvb, offset + 8);
   ttl_item = proto_tree_add_item(ip_tree, hf_ip_ttl, tvb, offset + 8, 1, ENC_BIG_ENDIAN);
 
-  iph->ip_proto = tvb_get_guint8(tvb, offset + 9);
+  iph->ip_proto = tvb_get_uint8(tvb, offset + 9);
   if (tree) {
     proto_tree_add_item(ip_tree, hf_ip_proto, tvb, offset + 9, 1, ENC_BIG_ENDIAN);
   }
@@ -2454,7 +2454,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   proto_item *ti, *tf;
   uint8_t version;
 
-  version = tvb_get_guint8(tvb, 0) >> 4;
+  version = tvb_get_uint8(tvb, 0) >> 4;
 
   if(version == 4){
     return dissect_ip_v4(tvb, pinfo, tree, data);
@@ -2493,7 +2493,7 @@ dissect_ip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         /* Need at least 4 bytes to make some sort of decision */
         return false;
     }
-    oct = tvb_get_guint8(tvb,0);
+    oct = tvb_get_uint8(tvb,0);
     ihl = oct & 0x0f;
     version = oct >> 4;
     if(version == 6){

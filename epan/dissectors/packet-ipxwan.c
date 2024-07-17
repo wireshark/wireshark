@@ -50,8 +50,8 @@ static int hf_ipxwan_compression_parameters;
 static int hf_ipxwan_padding;
 static int hf_ipxwan_option_value;
 
-static gint ett_ipxwan;
-static gint ett_ipxwan_option;
+static int ett_ipxwan;
+static int ett_ipxwan_option;
 
 static expert_field ei_ipxwan_option_data_len;
 
@@ -118,12 +118,12 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	proto_item *ti;
 	proto_tree *ipxwan_tree = NULL;
 	int offset = 0;
-	guint8 packet_type;
-	guint8 num_options;
-	guint8 option_number;
+	uint8_t packet_type;
+	uint8_t num_options;
+	uint8_t option_number;
 	proto_tree *option_tree;
-	guint16 option_data_len;
-	guint8 compression_type;
+	uint16_t option_data_len;
+	uint8_t compression_type;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPX WAN");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -136,7 +136,7 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 		    offset, 4, ENC_ASCII);
 
 	offset += 4;
-	packet_type = tvb_get_guint8(tvb, offset);
+	packet_type = tvb_get_uint8(tvb, offset);
 	col_add_str(pinfo->cinfo, COL_INFO,
 		    val_to_str(packet_type, ipxwan_packet_type_vals,
 		        "Unknown packet type %u"));
@@ -150,13 +150,13 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	proto_tree_add_item(ipxwan_tree, hf_ipxwan_sequence_number, tvb,
 		offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	num_options = tvb_get_guint8(tvb, offset);
+	num_options = tvb_get_uint8(tvb, offset);
 	proto_tree_add_uint(ipxwan_tree, hf_ipxwan_num_options, tvb,
 		offset, 1, num_options);
 	offset += 1;
 
 	while (num_options != 0) {
-		option_number = tvb_get_guint8(tvb, offset);
+		option_number = tvb_get_uint8(tvb, offset);
 		option_tree = proto_tree_add_subtree_format(ipxwan_tree, tvb, offset, -1,
 			ett_ipxwan_option, &ti, "Option: %s",
 			val_to_str(option_number, ipxwan_option_num_vals,
@@ -258,7 +258,7 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 				expert_add_info_format(pinfo, ti, &ei_ipxwan_option_data_len,
 					"Bogus length: %u, should be >= 1", option_data_len);
 			} else {
-				compression_type = tvb_get_guint8(tvb,
+				compression_type = tvb_get_uint8(tvb,
 					offset);
 				ti = proto_tree_add_uint(option_tree,
 					hf_ipxwan_compression_type, tvb,
@@ -406,7 +406,7 @@ proto_register_ipxwan(void)
 	      { "Option value", "ipxwan.option_value",
 	         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	};
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_ipxwan,
 		&ett_ipxwan_option,
 	};

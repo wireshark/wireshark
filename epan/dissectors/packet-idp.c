@@ -34,7 +34,7 @@ static int hf_idp_snet;
 static int hf_idp_snode;
 static int hf_idp_ssocket;
 
-static gint ett_idp;
+static int ett_idp;
 
 static dissector_table_t idp_type_dissector_table;
 
@@ -68,8 +68,8 @@ dissect_idp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree	*idp_tree;
 	proto_item	*ti;
-	guint16		length;
-	guint8		type;
+	uint16_t		length;
+	uint8_t		type;
 	tvbuff_t	*next_tvb;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IDP");
@@ -84,7 +84,7 @@ dissect_idp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	/* Adjust the tvbuff length to include only the IDP datagram. */
 	set_actual_length(tvb, length);
 	proto_tree_add_item(idp_tree, hf_idp_hops, tvb, 4, 1, ENC_BIG_ENDIAN);
-	type = tvb_get_guint8(tvb, 5);
+	type = tvb_get_uint8(tvb, 5);
 	proto_tree_add_uint(idp_tree, hf_idp_packet_type, tvb, 5, 1, type);
 
 	pinfo->ptype = PT_IDP;
@@ -175,7 +175,7 @@ proto_register_idp(void)
 			VALS(idp_socket_vals), 0x0, NULL, HFILL }},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_idp,
 	};
 

@@ -55,8 +55,8 @@ static int hf_id3v2_frame_comment_text;
 static int hf_id3v2_undecoded;
 static int hf_id3v2_padding;
 
-static gint ett_id3v2;
-static gint ett_id3v2_frame;
+static int ett_id3v2;
+static int ett_id3v2_frame;
 
 static expert_field ei_id3v2_undecoded;
 
@@ -197,10 +197,10 @@ static const value_string id3v2_text_encoding_values[] = {
 	{ 0x03,  "UTF-8" },
 	{ 0,     NULL } };
 
-static guint
-id3v2_decode_encoding(guint8 id3_encoding)
+static unsigned
+id3v2_decode_encoding(uint8_t id3_encoding)
 {
-	guint encoding;
+	unsigned encoding;
 
 	switch (id3_encoding) {
 		case 0x00:
@@ -222,11 +222,11 @@ id3v2_decode_encoding(guint8 id3_encoding)
 }
 
 static char *
-id3v2_dissect_textz_item(wmem_allocator_t *scope, tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 id3_encoding, int hf)
+id3v2_dissect_textz_item(wmem_allocator_t *scope, tvbuff_t *tvb, proto_tree *tree, unsigned *offset, uint8_t id3_encoding, int hf)
 {
-	guint encoding;
+	unsigned encoding;
 	char *text_value;
-	guint text_length;
+	unsigned text_length;
 
 	encoding = id3v2_decode_encoding(id3_encoding);
 
@@ -238,9 +238,9 @@ id3v2_dissect_textz_item(wmem_allocator_t *scope, tvbuff_t *tvb, proto_tree *tre
 }
 
 static char *
-id3v2_dissect_text_item(wmem_allocator_t *scope, tvbuff_t *tvb, proto_tree *tree, guint *offset, guint end, guint8 id3_encoding, int hf)
+id3v2_dissect_text_item(wmem_allocator_t *scope, tvbuff_t *tvb, proto_tree *tree, unsigned *offset, unsigned end, uint8_t id3_encoding, int hf)
 {
-	guint encoding;
+	unsigned encoding;
 	char *text_value;
 
 	encoding = id3v2_decode_encoding(id3_encoding);
@@ -252,13 +252,13 @@ id3v2_dissect_text_item(wmem_allocator_t *scope, tvbuff_t *tvb, proto_tree *tree
 }
 
 static void
-dissect_id3v2_comment_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, guint length, proto_item *pi)
+dissect_id3v2_comment_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, unsigned length, proto_item *pi)
 {
-	guint8 id3_encoding;
-	guint end = offset + length;
+	uint8_t id3_encoding;
+	unsigned end = offset + length;
 	char *comment_value;
 
-	id3_encoding = tvb_get_guint8(tvb, offset);
+	id3_encoding = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(tree, hf_id3v2_frame_text_encoding, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
@@ -272,14 +272,14 @@ dissect_id3v2_comment_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static void
-dissect_id3v2_apic_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, guint length)
+dissect_id3v2_apic_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, unsigned length)
 {
-	guint8 id3_encoding;
-	guint end = offset + length;
+	uint8_t id3_encoding;
+	unsigned end = offset + length;
 	char *mime_type;
 	tvbuff_t *image_tvb;
 
-	id3_encoding = tvb_get_guint8(tvb, offset);
+	id3_encoding = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(tree, hf_id3v2_frame_text_encoding, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
@@ -295,13 +295,13 @@ dissect_id3v2_apic_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 }
 
 static char *
-dissect_id3v2_text_frame(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_tree *tree, guint offset, guint length, gboolean is_txxx)
+dissect_id3v2_text_frame(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_tree *tree, unsigned offset, unsigned length, bool is_txxx)
 {
-	guint8 id3_encoding;
+	uint8_t id3_encoding;
 	char *text_value;
-	guint end = offset + length;
+	unsigned end = offset + length;
 
-	id3_encoding = tvb_get_guint8(tvb, offset);
+	id3_encoding = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(tree, hf_id3v2_frame_text_encoding, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
@@ -319,11 +319,11 @@ dissect_id3v2_text_frame(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, pr
 }
 
 static int
-dissect_id3v2_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, guint8 id3_version)
+dissect_id3v2_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, uint8_t id3_version)
 {
 	proto_item *frame_item;
 	proto_tree *frame_tree;
-	guint32 size;
+	uint32_t size;
 	char *frame_id;
 
 	frame_id = tvb_get_string_enc(pinfo->pool, tvb, offset, 4, ENC_ISO_8859_1);
@@ -341,9 +341,9 @@ dissect_id3v2_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint o
 	proto_item_set_text(frame_item, "%s", str_to_str(frame_id, id3v2_tag_names, "Unknown: %s"));
 
 	if (id3_version == 0x04)
-		size = decode_synchsafe_int(tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN));
+		size = decode_synchsafe_int(tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN));
 	else
-		size = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+		size = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
 	proto_tree_add_uint(frame_tree, hf_id3v2_frame_size, tvb, offset, 4, size);
 	/* `size` does not include the 10-byte header */
 	proto_item_set_len(frame_item, size+10);
@@ -364,7 +364,7 @@ dissect_id3v2_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint o
 		if (!strcmp(frame_id, "TPE1"))
 			col_append_fstr(pinfo->cinfo, COL_INFO, "Artist: %s, ", tv);
 	} else if (!strcmp(frame_id, "UFID")) {
-		guint text_length;
+		unsigned text_length;
 		char *text_value;
 
 		text_value = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &text_length, ENC_UTF_8);
@@ -402,30 +402,30 @@ dissect_id3v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 	proto_item *id3v2_item;
 	proto_tree *id3v2_tree;
         tvbuff_t   *id3v2_tvb;
-	guint       offset = 0;
-	guint32     size;
-	guint8      id3_version;
+	unsigned    offset = 0;
+	uint32_t    size;
+	uint8_t     id3_version;
 
 	/* Check that the packet is long enough for it to belong to us. */
 	if (tvb_reported_length(tvb) < ID3V2_MIN_LENGTH)
 		return 0;
 
 	/* Check if the first 3 bytes are "ID3" */
-	if (tvb_get_guint24(tvb, 0, ENC_BIG_ENDIAN) != 0x494433)
+	if (tvb_get_uint24(tvb, 0, ENC_BIG_ENDIAN) != 0x494433)
 		return 0;
 
 	/* Check if any of the high bits of the (synchsafe int) size are set */
-	if (tvb_get_guint8(tvb, 7) & 0x80 ||
-	    tvb_get_guint8(tvb, 8) & 0x80 ||
-	    tvb_get_guint8(tvb, 9) & 0x80 ||
-	    tvb_get_guint8(tvb, 10) & 0x80)
+	if (tvb_get_uint8(tvb, 7) & 0x80 ||
+	    tvb_get_uint8(tvb, 8) & 0x80 ||
+	    tvb_get_uint8(tvb, 9) & 0x80 ||
+	    tvb_get_uint8(tvb, 10) & 0x80)
 		return 0;
 
 	/* Looks like this is ID3v2... */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ID3v2");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	size = decode_synchsafe_int(tvb_get_guint32(tvb, 6, ENC_BIG_ENDIAN));
+	size = decode_synchsafe_int(tvb_get_uint32(tvb, 6, ENC_BIG_ENDIAN));
 	/* `size` does not include the 10-byte header */
         id3v2_tvb = tvb_new_subset_length(tvb, offset, size+10);
 	id3v2_item = proto_tree_add_item(tree, hf_id3v2, id3v2_tvb, offset, tvb_captured_length(id3v2_tvb), ENC_NA);
@@ -434,7 +434,7 @@ dissect_id3v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 	proto_tree_add_item(id3v2_tree, hf_id3v2_file_id, id3v2_tvb, offset, 3, ENC_ISO_8859_1);
 	offset += 3;
 
-	id3_version = tvb_get_guint8(tvb, offset); /* Fetch just the major version info */
+	id3_version = tvb_get_uint8(tvb, offset); /* Fetch just the major version info */
 	proto_tree_add_item(id3v2_tree, hf_id3v2_version, id3v2_tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
@@ -532,7 +532,7 @@ proto_register_id3v2(void)
 		FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 	    &ett_id3v2,
 	    &ett_id3v2_frame,
 	};

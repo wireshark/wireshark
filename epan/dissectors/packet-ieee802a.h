@@ -16,6 +16,6 @@
  * Add an entry for a new OUI.
  */
 WS_DLL_PUBLIC
-void ieee802a_add_oui(guint32, const char *, const char *, hf_register_info *, const int);
+void ieee802a_add_oui(uint32_t, const char *, const char *, hf_register_info *, const int);
 
 #endif

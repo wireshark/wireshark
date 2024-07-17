@@ -32,15 +32,15 @@ static int hf_ipfc_network_da;
 static int hf_ipfc_network_sa;
 
 /* Initialize the subtree pointers */
-static gint ett_ipfc;
+static int ett_ipfc;
 static dissector_handle_t llc_handle;
 static capture_dissector_handle_t llc_cap_handle;
 
 static bool
-capture_ipfc (const guchar *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
+capture_ipfc (const unsigned char *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
   if (!BYTES_ARE_IN_FRAME(0, len, 16))
-    return FALSE;
+    return false;
 
   return call_capture_dissector(llc_cap_handle, pd, 16, len, cpinfo, pseudo_header);
 }
@@ -93,7 +93,7 @@ proto_register_ipfc (void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_ipfc,
     };
 

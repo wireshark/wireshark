@@ -228,24 +228,24 @@ typedef enum {
 typedef struct _iax2_info_t
 {
 	packet_type ptype;
-	guint16 scallno;
-	guint16 dcallno;
-	guint8 ftype;
-	guint8 csub;
-	guint32 timestamp;
-	guint payload_len;
+	uint16_t scallno;
+	uint16_t dcallno;
+	uint8_t ftype;
+	uint8_t csub;
+	uint32_t timestamp;
+	unsigned payload_len;
 	voip_call_state callState;
-	const gchar *messageName;
-	const gchar *callingParty;
-	const gchar *calledParty;
-	const guint8 *payload_data;
+	const char *messageName;
+	const char *callingParty;
+	const char *calledParty;
+	const uint8_t *payload_data;
 } iax2_info_t;
 
 /* Container for passing data between dissectors */
 typedef struct _iax2_dissector_info_t
 {
 	conversation_type ctype;
-	guint32 circuit_id;
+	uint32_t circuit_id;
 } iax2_dissector_info_t;
 
 #endif /* __PACKET_IAX2_H__ */

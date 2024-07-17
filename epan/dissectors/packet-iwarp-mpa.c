@@ -40,13 +40,13 @@ void proto_reg_handoff_mpa(void);
 #define MPA_CRC_LEN 4
 
 /* protocol constants */
-#define MPA_REQ_REP_FRAME G_GUINT64_CONSTANT(0x4d50412049442052)
-#define MPA_ID_REQ_FRAME G_GUINT64_CONSTANT(0x6571204672616d65)
-#define MPA_ID_REP_FRAME G_GUINT64_CONSTANT(0x6570204672616d65)
+#define MPA_REQ_REP_FRAME UINT64_C(0x4d50412049442052)
+#define MPA_ID_REQ_FRAME UINT64_C(0x6571204672616d65)
+#define MPA_ID_REP_FRAME UINT64_C(0x6570204672616d65)
 #define MPA_MARKER_INTERVAL 512
 #define MPA_MAX_PD_LENGTH 512
 #define MPA_ALIGNMENT 4
-#define TCP_MAX_SEQ ((guint32) 0xffffffff)
+#define TCP_MAX_SEQ ((uint32_t) 0xffffffff)
 
 /* for code readability */
 #define MPA_REQUEST_FRAME 1
@@ -64,38 +64,38 @@ void proto_reg_handoff_mpa(void);
 /* GLOBALS */
 
 /* initialize the protocol and registered fields */
-static gint proto_iwarp_mpa;
+static int proto_iwarp_mpa;
 
-static gint hf_mpa_req;
-static gint hf_mpa_rep;
-static gint hf_mpa_fpdu;
-static gint hf_mpa_marker;
+static int hf_mpa_req;
+static int hf_mpa_rep;
+static int hf_mpa_fpdu;
+static int hf_mpa_marker;
 
-static gint hf_mpa_key_req;
-static gint hf_mpa_key_rep;
-static gint hf_mpa_flag_m;
-static gint hf_mpa_flag_c;
-static gint hf_mpa_flag_r;
-static gint hf_mpa_flag_res;
-static gint hf_mpa_rev;
-static gint hf_mpa_pd_length;
-static gint hf_mpa_private_data;
+static int hf_mpa_key_req;
+static int hf_mpa_key_rep;
+static int hf_mpa_flag_m;
+static int hf_mpa_flag_c;
+static int hf_mpa_flag_r;
+static int hf_mpa_flag_res;
+static int hf_mpa_rev;
+static int hf_mpa_pd_length;
+static int hf_mpa_private_data;
 
-static gint hf_mpa_ulpdu_length;
-static gint hf_mpa_pad;
-static gint hf_mpa_crc;
-static gint hf_mpa_crc_check;
+static int hf_mpa_ulpdu_length;
+static int hf_mpa_pad;
+static int hf_mpa_crc;
+static int hf_mpa_crc_check;
 
-static gint hf_mpa_marker_res;
-static gint hf_mpa_marker_fpduptr;
+static int hf_mpa_marker_res;
+static int hf_mpa_marker_fpduptr;
 
 /* initialize the subtree pointers */
-static gint ett_mpa;
+static int ett_mpa;
 
-static gint ett_mpa_req;
-static gint ett_mpa_rep;
-static gint ett_mpa_fpdu;
-static gint ett_mpa_marker;
+static int ett_mpa_req;
+static int ett_mpa_rep;
+static int ett_mpa_fpdu;
+static int ett_mpa_marker;
 
 static expert_field ei_mpa_res_field_not_set0;
 static expert_field ei_mpa_rev_field_not_set1;
@@ -141,9 +141,9 @@ static const value_string mpa_messages[] = {
  * 'port' or not.
  */
 struct minfo {
-	guint16 port;
-	guint32 seq;
-	gboolean valid;
+	uint16_t port;
+	uint32_t seq;
+	bool valid;
 };
 typedef struct minfo minfo_t;
 
@@ -157,32 +157,32 @@ typedef struct minfo minfo_t;
  * The two MPA endpoints are called Initiator, the sender of the MPA Request,
  * and Responder, the sender of the MPA Reply.
  *
- * @full_operation: TRUE if is this state is valid and FLASE otherwise.
+ * @full_operation: true if is this state is valid and FLASE otherwise.
  * @req_frame_num: Frame number of the MPA Request to distinguish this frame
  * 		   from later FPDUs.
  * @rep_frame_num: Frame number of the MPA Reply to distinguish this frame
  * 		   from later FPDUs.
- * @ini_exp_m_res: TRUE if the Initiator expects the Responder to insert
- * 		   Markers into his FPDUs sent to Initiator and FALSE otherwise.
- * @res_exp_m_ini: TRUE if the Responder expects the Initiator to insert
- * 		   Markers into his FPDUs sent to Responder and FALSE otherwise.
+ * @ini_exp_m_res: true if the Initiator expects the Responder to insert
+ * 		   Markers into his FPDUs sent to Initiator and false otherwise.
+ * @res_exp_m_ini: true if the Responder expects the Initiator to insert
+ * 		   Markers into his FPDUs sent to Responder and false otherwise.
  * @minfo[2]:	   Array of minfo_t whichs holds necessary information to
  * 		   determine the start position of the first Marker within a
  * 		   a FPDU.
  * 		   minfo[0] is used for the Initiator endpoint
  * 		   minfo[1] is used for the Responder endpoint
- * @crc:	   TRUE if CRC is used by both endpoints and FLASE otherwise.
+ * @crc:	   true if CRC is used by both endpoints and FLASE otherwise.
  * @revision:	   Stores the MPA protocol revision number.
  */
 struct mpa_state {
-	gboolean full_operation;
-	guint req_frame_num;
-	guint rep_frame_num;
-	gboolean ini_exp_m_res;
-	gboolean res_exp_m_ini;
+	bool full_operation;
+	unsigned req_frame_num;
+	unsigned rep_frame_num;
+	bool ini_exp_m_res;
+	bool res_exp_m_ini;
 	minfo_t minfo[2];
-	gboolean crc;
-	gint revision;
+	bool crc;
+	int revision;
 };
 typedef struct mpa_state mpa_state_t;
 
@@ -220,11 +220,11 @@ get_mpa_state(conversation_t *conversation)
  * overflows.
  * The endpoint is either the Initiator or the Responder.
  */
-static guint32
+static uint32_t
 get_first_marker_offset(mpa_state_t *state, struct tcpinfo *tcpinfo,
-		guint8 endpoint)
+		uint8_t endpoint)
 {
-	guint32 offset = 0;
+	uint32_t offset = 0;
 
 	if (tcpinfo->seq > state->minfo[endpoint].seq) {
 		offset = (tcpinfo->seq - state->minfo[endpoint].seq)
@@ -243,10 +243,10 @@ get_first_marker_offset(mpa_state_t *state, struct tcpinfo *tcpinfo,
  * Returns the total length of this FPDU under the assumption that a TCP
  * segment carries only one FPDU.
  */
-static guint32
+static uint32_t
 fpdu_total_length(struct tcpinfo *tcpinfo)
 {
-	guint32 size = 0;
+	uint32_t size = 0;
 
 	if (tcpinfo->seq < tcpinfo->nxtseq) {
 		size = tcpinfo->nxtseq - tcpinfo->seq;
@@ -263,11 +263,11 @@ fpdu_total_length(struct tcpinfo *tcpinfo)
  * Returns the number of Markers of this MPA FPDU. The endpoint is either the
  * Initiator or the Responder.
  */
-static guint32
-number_of_markers(mpa_state_t *state, struct tcpinfo *tcpinfo, guint8 endpoint)
+static uint32_t
+number_of_markers(mpa_state_t *state, struct tcpinfo *tcpinfo, uint8_t endpoint)
 {
-	guint32 size;
-	guint32 offset;
+	uint32_t size;
+	uint32_t offset;
 
 	size = fpdu_total_length(tcpinfo);
 	offset = get_first_marker_offset(state, tcpinfo, endpoint);
@@ -284,12 +284,12 @@ number_of_markers(mpa_state_t *state, struct tcpinfo *tcpinfo, guint8 endpoint)
  * exception.
  */
 static tvbuff_t *
-remove_markers(tvbuff_t *tvb, packet_info *pinfo, guint32 marker_offset,
-		guint32 num_markers, guint32 orig_length)
+remove_markers(tvbuff_t *tvb, packet_info *pinfo, uint32_t marker_offset,
+		uint32_t num_markers, uint32_t orig_length)
 {
-	guint8 *mfree_buff = NULL;
-	guint32 mfree_buff_length, tot_copy, cur_copy;
-	guint32 source_offset;
+	uint8_t *mfree_buff = NULL;
+	uint32_t mfree_buff_length, tot_copy, cur_copy;
+	uint32_t source_offset;
 	tvbuff_t *mfree_tvb = NULL;
 
 	DISSECTOR_ASSERT(num_markers > 0);
@@ -298,7 +298,7 @@ remove_markers(tvbuff_t *tvb, packet_info *pinfo, guint32 marker_offset,
 
 	/* allocate memory for the marker-free buffer */
 	mfree_buff_length = orig_length - (MPA_MARKER_LEN * num_markers);
-	mfree_buff = (guint8 *)wmem_alloc(pinfo->pool, mfree_buff_length);
+	mfree_buff = (uint8_t *)wmem_alloc(pinfo->pool, mfree_buff_length);
 
 	tot_copy = 0;
 	source_offset = 0;
@@ -316,17 +316,17 @@ remove_markers(tvbuff_t *tvb, packet_info *pinfo, guint32 marker_offset,
 	return mfree_tvb;
 }
 
-/* returns TRUE if this TCP segment carries a MPA REQUEST and FLASE otherwise */
-static gboolean
+/* returns true if this TCP segment carries a MPA REQUEST and FLASE otherwise */
+static bool
 is_mpa_req(tvbuff_t *tvb, packet_info *pinfo)
 {
 	conversation_t *conversation = NULL;
 	mpa_state_t *state = NULL;
-	guint8 mcrres;
+	uint8_t mcrres;
 
 	if (tvb_get_ntoh64(tvb, 0) != MPA_REQ_REP_FRAME
 			|| tvb_get_ntoh64(tvb, 8) != MPA_ID_REQ_FRAME)
-		return FALSE;
+		return false;
 
 	conversation = find_or_create_conversation(pinfo);
 
@@ -338,10 +338,10 @@ is_mpa_req(tvbuff_t *tvb, packet_info *pinfo)
 		state = init_mpa_state();
 
 		/* analyze MPA connection parameter and record them */
-		mcrres = tvb_get_guint8(tvb, 16);
+		mcrres = tvb_get_uint8(tvb, 16);
 		state->ini_exp_m_res = mcrres & MPA_MARKER_FLAG;
 		state->crc = mcrres & MPA_CRC_FLAG;
-		state->revision = tvb_get_guint8(tvb, 17);
+		state->revision = tvb_get_uint8(tvb, 17);
 		state->req_frame_num = pinfo->num;
 		state->minfo[MPA_INITIATOR].port = pinfo->srcport;
 		state->minfo[MPA_RESPONDER].port = pinfo->destport;
@@ -355,51 +355,51 @@ is_mpa_req(tvbuff_t *tvb, packet_info *pinfo)
 		if (state->revision != 1)
 			expert_add_info(pinfo, NULL, &ei_mpa_rev_field_not_set1);
 	}
-	return TRUE;
+	return true;
 }
 
-/* returns TRUE if this TCP segment carries a MPA REPLY and FALSE otherwise */
-static gboolean
+/* returns true if this TCP segment carries a MPA REPLY and false otherwise */
+static bool
 is_mpa_rep(tvbuff_t *tvb, packet_info *pinfo)
 {
 	conversation_t *conversation = NULL;
 	mpa_state_t *state = NULL;
-	guint8 mcrres;
+	uint8_t mcrres;
 
 	if (tvb_get_ntoh64(tvb, 0) != MPA_REQ_REP_FRAME
 			|| tvb_get_ntoh64(tvb, 8) != MPA_ID_REP_FRAME) {
-		return FALSE;
+		return false;
 	}
 
 	conversation = find_conversation_pinfo(pinfo, 0);
 
 	if (!conversation) {
-		return FALSE;
+		return false;
 	}
 
 	state = get_mpa_state(conversation);
 	if (!state) {
-		return FALSE;
+		return false;
 	}
 
 	if (!state->full_operation) {
 		/* update state of this conversation */
-		mcrres = tvb_get_guint8(tvb, 16);
+		mcrres = tvb_get_uint8(tvb, 16);
 		state->res_exp_m_ini = mcrres & MPA_MARKER_FLAG;
 		state->crc = state->crc | (mcrres & MPA_CRC_FLAG);
 		state->rep_frame_num = pinfo->num;
 
 		 /* enter Full Operation Phase only if the Reject bit is not set */
 		if (!(mcrres & MPA_REJECT_FLAG))
-			state->full_operation = TRUE;
+			state->full_operation = true;
 		else
 			expert_add_info(pinfo, NULL, &ei_mpa_reject_bit_responder);
 	}
-	return TRUE;
+	return true;
 }
 
-/* returns TRUE if this TCP segment carries a MPA FPDU and FALSE otherwise */
-static gboolean
+/* returns true if this TCP segment carries a MPA FPDU and false otherwise */
+static bool
 is_mpa_fpdu(packet_info *pinfo)
 {
 	conversation_t *conversation = NULL;
@@ -408,30 +408,30 @@ is_mpa_fpdu(packet_info *pinfo)
 	conversation = find_conversation_pinfo(pinfo, 0);
 
 	if (!conversation) {
-		return FALSE;
+		return false;
 	}
 
 	state = get_mpa_state(conversation);
 	if (!state) {
-		return FALSE;
+		return false;
 	}
 
 	/* make sure all MPA connection parameters have been set */
 	if (!state->full_operation) {
-		return FALSE;
+		return false;
 	}
 
 	if (pinfo->num == state->req_frame_num
 			|| pinfo->num == state->rep_frame_num) {
-		return FALSE;
+		return false;
 	} else {
-		return TRUE;
+		return true;
 	}
 }
 
 /* update packet list pane in the GUI */
 static void
-mpa_packetlist(packet_info *pinfo, gint message_type)
+mpa_packetlist(packet_info *pinfo, int message_type)
 {
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MPA");
 
@@ -442,9 +442,9 @@ mpa_packetlist(packet_info *pinfo, gint message_type)
 }
 
 /* dissects MPA REQUEST or MPA REPLY */
-static gboolean
+static bool
 dissect_mpa_req_rep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-		gint message_type)
+		int message_type)
 {
 	proto_tree *mpa_tree = NULL;
 	proto_tree *mpa_header_tree = NULL;
@@ -452,8 +452,8 @@ dissect_mpa_req_rep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_item *mpa_item = NULL;
 	proto_item *mpa_header_item = NULL;
 
-	guint16 pd_length;
-	guint32 offset = 0;
+	uint16_t pd_length;
+	uint32_t offset = 0;
 
 	mpa_packetlist(pinfo, message_type);
 
@@ -500,7 +500,7 @@ dissect_mpa_req_rep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if (pd_length > MPA_MAX_PD_LENGTH) {
 			proto_tree_add_expert_format(tree, pinfo, &ei_mpa_bad_length, tvb, offset, 2,
 				"[PD length field indicates more 512 bytes of Private Data]");
-			return FALSE;
+			return false;
 		}
 
 		proto_tree_add_uint(mpa_header_tree,
@@ -514,12 +514,12 @@ dissect_mpa_req_rep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					pd_length, ENC_NA);
 		}
 	}
-	return TRUE;
+	return true;
 }
 
 /* returns byte length of the padding */
-static guint8
-fpdu_pad_length(guint16 ulpdu_length)
+static uint8_t
+fpdu_pad_length(uint16_t ulpdu_length)
 {
 	/*
 	 * The padding guarantees alignment of 4. Since Markers are 4 bytes long
@@ -527,7 +527,7 @@ fpdu_pad_length(guint16 ulpdu_length)
 	 * length. The padding length depends only on ULPDU (payload) length and
 	 * the length of the header field for the ULPDU length.
 	 */
-	guint32 length = ulpdu_length + MPA_ULPDU_LENGTH_LEN;
+	uint32_t length = ulpdu_length + MPA_ULPDU_LENGTH_LEN;
 
 	/*
 	 * The extra % MPA_ALIGNMENT at the end covers for the case
@@ -537,9 +537,9 @@ fpdu_pad_length(guint16 ulpdu_length)
 }
 
 /* returns offset for PAD */
-static guint32
-pad_offset(struct tcpinfo *tcpinfo, guint32 fpdu_total_len,
-		guint8 pad_len)
+static uint32_t
+pad_offset(struct tcpinfo *tcpinfo, uint32_t fpdu_total_len,
+		uint8_t pad_len)
 {
 	if ((tcpinfo->nxtseq - MPA_CRC_LEN - MPA_MARKER_LEN) % MPA_MARKER_INTERVAL
 			== 0) {
@@ -555,10 +555,10 @@ pad_offset(struct tcpinfo *tcpinfo, guint32 fpdu_total_len,
 /* dissects CRC within a FPDU */
 static void
 dissect_fpdu_crc(tvbuff_t *tvb, proto_tree *tree, mpa_state_t *state,
-		guint32 offset, guint32 length)
+		uint32_t offset, uint32_t length)
 {
-	guint32 crc = 0;
-	guint32 sent_crc = 0;
+	uint32_t crc = 0;
+	uint32_t sent_crc = 0;
 
 	if (state->crc) {
 
@@ -587,11 +587,11 @@ dissect_fpdu_crc(tvbuff_t *tvb, proto_tree *tree, mpa_state_t *state,
 /* dissects Markers within FPDU */
 static void
 dissect_fpdu_markers(tvbuff_t *tvb, proto_tree *tree, mpa_state_t *state,
-		struct tcpinfo *tcpinfo, guint8 endpoint)
+		struct tcpinfo *tcpinfo, uint8_t endpoint)
 {
 	proto_tree *mpa_marker_tree;
 	proto_item *mpa_marker_item;
-	guint32 offset, i;
+	uint32_t offset, i;
 
 	mpa_marker_item = proto_tree_add_item(tree, hf_mpa_marker, tvb,
 			0, -1, ENC_NA);
@@ -610,11 +610,11 @@ dissect_fpdu_markers(tvbuff_t *tvb, proto_tree *tree, mpa_state_t *state,
 }
 
 /* returns the expected value of the 16 bits long MPA FPDU ULPDU LENGTH field */
-static guint16
+static uint16_t
 expected_ulpdu_length(mpa_state_t *state, struct tcpinfo *tcpinfo,
-		guint8 endpoint)
+		uint8_t endpoint)
 {
-	guint32 length, pad_length, markers_length;
+	uint32_t length, pad_length, markers_length;
 
 	length = fpdu_total_length(tcpinfo);
 
@@ -641,13 +641,13 @@ expected_ulpdu_length(mpa_state_t *state, struct tcpinfo *tcpinfo,
 		return 0;
 	length -= MPA_ULPDU_LENGTH_LEN;
 
-	return (guint16) length;
+	return (uint16_t) length;
 }
 
 /* dissects MPA FPDU */
-static guint16
+static uint16_t
 dissect_mpa_fpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-		mpa_state_t *state, struct tcpinfo *tcpinfo, guint8 endpoint)
+		mpa_state_t *state, struct tcpinfo *tcpinfo, uint8_t endpoint)
 {
 	proto_item *mpa_item = NULL;
 	proto_item *mpa_header_item = NULL;
@@ -655,10 +655,10 @@ dissect_mpa_fpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree *mpa_tree = NULL;
 	proto_tree *mpa_header_tree = NULL;
 
-	guint8 pad_length;
-	guint16 ulpdu_length, exp_ulpdu_length;
-	guint32 offset, total_length;
-	guint32 num_of_m = 0;
+	uint8_t pad_length;
+	uint16_t ulpdu_length, exp_ulpdu_length;
+	uint32_t offset, total_length;
+	uint32_t num_of_m = 0;
 
 	/*
 	 * Initialize starting offset for this FPDU. Deals with the case that this
@@ -672,7 +672,7 @@ dissect_mpa_fpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 
 	/* get ULPDU length of this FPDU */
-	ulpdu_length = (guint16) tvb_get_ntohs(tvb, offset);
+	ulpdu_length = (uint16_t) tvb_get_ntohs(tvb, offset);
 
 	if (state->minfo[endpoint].valid) {
 		num_of_m = number_of_markers(state, tcpinfo, endpoint);
@@ -750,7 +750,7 @@ dissect_mpa_fpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 /* Extracted from dissect_warp_mpa, Obtain the TCP seq of the first FPDU */
 static mpa_state_t*
-get_state_of_first_fpdu(tvbuff_t *tvb, packet_info *pinfo, struct tcpinfo *tcpinfo, guint8 *endpoint)
+get_state_of_first_fpdu(tvbuff_t *tvb, packet_info *pinfo, struct tcpinfo *tcpinfo, uint8_t *endpoint)
 {
 	conversation_t *conversation = NULL;
 	mpa_state_t *state = NULL;
@@ -773,7 +773,7 @@ get_state_of_first_fpdu(tvbuff_t *tvb, packet_info *pinfo, struct tcpinfo *tcpin
 			/* find the TCP sequence number of the first FPDU */
 			if (!state->minfo[*endpoint].valid) {
 				state->minfo[*endpoint].seq = tcpinfo->seq;
-				state->minfo[*endpoint].valid = TRUE;
+				state->minfo[*endpoint].valid = true;
 			}
 		}
 	}
@@ -785,17 +785,17 @@ get_state_of_first_fpdu(tvbuff_t *tvb, packet_info *pinfo, struct tcpinfo *tcpin
 /*
  * Main dissection routine.
  */
-static gboolean
+static bool
 dissect_iwarp_mpa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	tvbuff_t *next_tvb = NULL;
 	mpa_state_t *state = NULL;
 	struct tcpinfo *tcpinfo;
-	guint8 endpoint = 3;
-	guint16 ulpdu_length = 0;
+	uint8_t endpoint = 3;
+	uint16_t ulpdu_length = 0;
 
 	if (data == NULL)
-		return FALSE;
+		return false;
 	tcpinfo = (struct tcpinfo *)data;
 
 	/* FPDU */
@@ -807,7 +807,7 @@ dissect_iwarp_mpa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
 		/* an ulpdu_length of 0 should never happen */
 		if (!ulpdu_length)
-			return FALSE;
+			return false;
 
 		/* removes Markers if any and prepares new tvbuff for next dissector */
 		if (endpoint <= MPA_RESPONDER && state->minfo[endpoint].valid
@@ -829,7 +829,7 @@ dissect_iwarp_mpa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 			REPORT_DISSECTOR_BUG("ddp_handle was null");
 		}
 
-		return TRUE;
+		return true;
 	}
 
 	/* MPA REQUEST or MPA REPLY */
@@ -839,28 +839,28 @@ dissect_iwarp_mpa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 		else if (is_mpa_rep(tvb, pinfo))
 			return dissect_mpa_req_rep(tvb, pinfo, tree, MPA_REPLY_FRAME);
 	}
-	return FALSE;
+	return false;
 }
 
-static guint
+static unsigned
 iwrap_mpa_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb,
 		     int offset, void *data _U_)
 {
-	guint64 tag;
-	gint remaining = tvb_captured_length_remaining(tvb, offset);
-	guint pdu_length = 0;
-	guint16 PD_Length;
+	uint64_t tag;
+	int remaining = tvb_captured_length_remaining(tvb, offset);
+	unsigned pdu_length = 0;
+	uint16_t PD_Length;
 	mpa_state_t *state = NULL;
-	guint8 endpoint = 3;
-	guint32 num_of_m = 0;
+	uint8_t endpoint = 3;
+	uint32_t num_of_m = 0;
 	struct tcpinfo *tcpinfo;
 	int current_offset = offset;
 
 	tag = tvb_get_ntoh64(tvb, offset);
 	if (tag != MPA_REQ_REP_FRAME) {
 		/* FPDU */
-		guint16 ULPDU_Length;
-		guint8 pad_length;
+		uint16_t ULPDU_Length;
+		uint8_t pad_length;
 
 		tcpinfo = (struct tcpinfo *)data;
 
@@ -914,8 +914,8 @@ iwrap_mpa_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb,
 static int
 dissect_iwarp_mpa_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	gboolean ok;
-	guint len;
+	bool ok;
+	unsigned len;
 
 	len = iwrap_mpa_pdu_length(pinfo, tvb, 0, data);
 	ok = dissect_iwarp_mpa(tvb, pinfo, tree, data);
@@ -956,7 +956,7 @@ dissect_iwarp_mpa_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 	pinfo->ptype = PT_IWARP_MPA;
 
 	tcp_dissect_pdus(tvb, pinfo, tree,
-			 TRUE, /* proto_desegment*/
+			 true, /* proto_desegment*/
 			 MPA_SMALLEST_FPDU_LEN,
 			 iwrap_mpa_pdu_length,
 			 dissect_iwarp_mpa_pdu,
@@ -1048,7 +1048,7 @@ void proto_register_mpa(void)
 	};
 
 	/* setup protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 			&ett_mpa,
 			&ett_mpa_req,
 			&ett_mpa_rep,

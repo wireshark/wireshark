@@ -97,13 +97,13 @@ static int hf_ismp_interface_ipx_address;
 
 
 /* Initialize the subtree pointers */
-static gint ett_ismp;
-static gint ett_ismp_edp;
-static gint ett_ismp_edp_options;
-static gint ett_ismp_edp_neighbors;
-static gint ett_ismp_edp_neighbors_leaf;
-static gint ett_ismp_edp_tuples;
-static gint ett_ismp_edp_tuples_leaf;
+static int ett_ismp;
+static int ett_ismp_edp;
+static int ett_ismp_edp_options;
+static int ett_ismp_edp_neighbors;
+static int ett_ismp_edp_neighbors_leaf;
+static int ett_ismp_edp_tuples;
+static int ett_ismp_edp_tuples_leaf;
 
 static expert_field ei_ismp_malformed;
 
@@ -206,11 +206,11 @@ static const value_string edp_tuple_types[] =
 	{ 0,NULL }
 };
 
-static gchar*
-ipx_addr_to_str(wmem_allocator_t *scope, const guint32 net, const guint8 *ad)
+static char*
+ipx_addr_to_str(wmem_allocator_t *scope, const uint32_t net, const uint8_t *ad)
 {
-	gchar       *buf;
-	const gchar *name;
+	char        *buf;
+	const char *name;
 
 	name = get_ether_name_if_known(ad);
 
@@ -234,12 +234,12 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 	/* local variables used for EDP dissection */
 	int neighbors_count = 0;
 	int tuples_count = 0;
-	guint16 device_type = 0;
-	guint16 num_neighbors = 0;
-	guint16 num_tuples = 0;
-	guint16 tuple_type = 0;
-	guint32 tuple_length = 0;
-	gchar* ipx_addr_str;
+	uint16_t device_type = 0;
+	uint16_t num_neighbors = 0;
+	uint16_t num_tuples = 0;
+	uint16_t tuple_type = 0;
+	uint32_t tuple_length = 0;
+	char* ipx_addr_str;
 
 	/* Set up structures needed to add the protocol subtree and manage it */
 	proto_item *edp_ti;
@@ -284,8 +284,8 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 		proto_tree_add_item(edp_tree, hf_ismp_edp_device_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 		proto_tree_add_uint_format_value(edp_tree, hf_ismp_edp_module_rev, tvb, offset, 4, tvb_get_ntohl(tvb, offset),
-			"%02x.%02x.%02x.%02x", tvb_get_guint8(tvb, offset),
-			tvb_get_guint8(tvb, offset+1), tvb_get_guint8(tvb, offset+2), tvb_get_guint8(tvb, offset+3));
+			"%02x.%02x.%02x.%02x", tvb_get_uint8(tvb, offset),
+			tvb_get_uint8(tvb, offset+1), tvb_get_uint8(tvb, offset+2), tvb_get_uint8(tvb, offset+3));
 		offset += 4;
 
 		/* depending on device_type, show the appropriate options */
@@ -446,7 +446,7 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 				proto_item_set_len(edp_tuples_leaf_tree, tuple_length);
 				tuple_length -= 4;
 
-				if ((guint)tvb_reported_length_remaining(tvb, offset) >= tuple_length)
+				if ((unsigned)tvb_reported_length_remaining(tvb, offset) >= tuple_length)
 				{
 					switch (tuple_type)
 					{
@@ -492,9 +492,9 @@ static int
 dissect_ismp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int offset = 0;
-	guint16 message_type = 0;
-	guint8 code_length = 0;
-	guint8 weird_stuff[3] = { 0x42, 0x42, 0x03 };
+	uint16_t message_type = 0;
+	uint8_t code_length = 0;
+	uint8_t weird_stuff[3] = { 0x42, 0x42, 0x03 };
 
 /* Set up structures needed to add the protocol subtree and manage it */
 	proto_item *ti;
@@ -526,7 +526,7 @@ dissect_ismp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	offset += 2;
 	proto_tree_add_item(ismp_tree, hf_ismp_seq_num, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
-	code_length = tvb_get_guint8(tvb, offset);
+	code_length = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(ismp_tree, hf_ismp_code_length, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	proto_tree_add_item(ismp_tree, hf_ismp_auth_data, tvb, offset, code_length, ENC_NA);
@@ -846,7 +846,7 @@ proto_register_ismp(void)
 	};
 
 /* Setup protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_ismp,
 		&ett_ismp_edp,
 		&ett_ismp_edp_options,

@@ -101,9 +101,9 @@ static int hf_ipdr_service_sla_delay_pkts;
 static int hf_ipdr_service_time_created;
 static int hf_ipdr_service_time_active;
 
-static gint ett_ipdr;
-static gint ett_ipdr_samis_type_1;
-static gint ett_ipdr_sf_ch_set;
+static int ett_ipdr;
+static int ett_ipdr_samis_type_1;
+static int ett_ipdr_sf_ch_set;
 
 static expert_field ei_ipdr_message_id;
 static expert_field ei_ipdr_sf_ch_set;
@@ -213,7 +213,7 @@ dissect_ipdr_samis_type_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     int offset = 0;
     proto_item *ti;
     proto_tree *samis_type_1_tree, *sf_ch_set_tree;
-    guint len, cmts_sys_up_time, channel_id;
+    unsigned len, cmts_sys_up_time, channel_id;
 
     //col_clear(pinfo->cinfo, COL_INFO);
     ti = proto_tree_add_item(tree, proto_ipdr_samis_type_1, tvb, 0, -1, ENC_NA);
@@ -369,7 +369,7 @@ dissect_ipdr_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     proto_item *ti, *type_item;
     proto_tree *ipdr_tree;
     int offset = 0;
-    guint32 session_id, message_len, message_type;
+    uint32_t session_id, message_len, message_type;
 
     ti = proto_tree_add_item(tree, proto_ipdr, tvb, 0, -1, ENC_NA);
     ipdr_tree = proto_item_add_subtree(ti, ett_ipdr);
@@ -527,10 +527,10 @@ dissect_ipdr_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     return tvb_captured_length(tvb);
 }
 
-static guint
+static unsigned
 get_ipdr_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
-    return (guint)tvb_get_ntohl(tvb, offset+4);
+    return (unsigned)tvb_get_ntohl(tvb, offset+4);
 }
 
 static int
@@ -539,13 +539,13 @@ dissect_ipdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     if (tvb_reported_length(tvb) < 1)
         return 0;
 
-    if (tvb_get_guint8(tvb, 0) != 2) /* Only version 2 supported */
+    if (tvb_get_uint8(tvb, 0) != 2) /* Only version 2 supported */
         return 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPDR/SP");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, IPDR_HEADER_LEN,
+    tcp_dissect_pdus(tvb, pinfo, tree, true, IPDR_HEADER_LEN,
                      get_ipdr_message_len, dissect_ipdr_message, data);
     return tvb_captured_length(tvb);
 }
@@ -625,7 +625,7 @@ proto_register_ipdr(void)
         { &hf_ipdr_service_time_active, { "SF Active", "ipdr.service_time_active", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_ipdr,
         &ett_ipdr_samis_type_1,
         &ett_ipdr_sf_ch_set
@@ -665,12 +665,12 @@ void
 proto_reg_handoff_ipdr(void)
 {
     static range_t *sessions_samis_type_1;
-    static gboolean ipdr_prefs_initialized = FALSE;
+    static bool ipdr_prefs_initialized = false;
 
     if (!ipdr_prefs_initialized) {
         dissector_add_uint_with_preference("tcp.port", IPDR_PORT, ipdr_handle);
 
-        ipdr_prefs_initialized = TRUE;
+        ipdr_prefs_initialized = true;
     } else {
         dissector_delete_uint_range("ipdr.session_type", sessions_samis_type_1, ipdr_samis_type_1_handle);
     }

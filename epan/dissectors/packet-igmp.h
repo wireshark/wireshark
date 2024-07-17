@@ -43,7 +43,7 @@
 #define IGMP_RGMP_HELLO 0xFF
 
 void igmp_checksum(proto_tree *tree, tvbuff_t *tvb, int hf_index,
-    int hf_index_status, expert_field* ei_checksum, packet_info *pinfo, guint len);
+    int hf_index_status, expert_field* ei_checksum, packet_info *pinfo, unsigned len);
 
 #endif
 

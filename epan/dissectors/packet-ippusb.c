@@ -41,26 +41,26 @@
 
 #define BITS_PER_BYTE 8
 
-static const guint8 CHUNKED_END[] = { 0x30, 0x0d, 0x0a, 0x0d, 0x0a };
-static const guint8 RETURN_NEWLINE[] = { 0x0d, 0x0a };
+static const uint8_t CHUNKED_END[] = { 0x30, 0x0d, 0x0a, 0x0d, 0x0a };
+static const uint8_t RETURN_NEWLINE[] = { 0x0d, 0x0a };
 static tvbuff_t *return_newline_tvb;
 
 void proto_register_ippusb(void);
 void proto_reg_handoff_ippusb(void);
-static gint is_http_header(guint first_linelen, const guchar *first_line);
+static int is_http_header(unsigned first_linelen, const unsigned char *first_line);
 
 static dissector_handle_t ippusb_handle;
 
-static gint proto_ippusb;
-static gint ett_ippusb;
-static gint ett_ippusb_as;
-static gint ett_ippusb_attr;
-static gint ett_ippusb_member;
-static gint ett_ippusb_fragment;
-static gint ett_ippusb_fragments;
+static int proto_ippusb;
+static int ett_ippusb;
+static int ett_ippusb_as;
+static int ett_ippusb_attr;
+static int ett_ippusb_member;
+static int ett_ippusb_fragment;
+static int ett_ippusb_fragments;
 
 /* For reassembly */
-static gint32 ippusb_last_pdu = -1;
+static int32_t ippusb_last_pdu = -1;
 
 static int hf_ippusb_fragments;
 static int hf_ippusb_fragment;
@@ -95,32 +95,32 @@ static const fragment_items ippusb_frag_items = {
 };
 
 struct ippusb_multisegment_pdu {
-    guint nxtpdu;
-    guint32 first_frame;
-    guint32 running_size;
-    gboolean finished;
-    gboolean reassembled;
-    gboolean is_ipp;
+    unsigned nxtpdu;
+    uint32_t first_frame;
+    uint32_t running_size;
+    bool finished;
+    bool reassembled;
+    bool is_ipp;
 
-    guint32 document;
+    uint32_t document;
     #define MSP_HAS_DOCUMENT        0x00000001
     #define MSP_DOCUMENT_TRUNCATED  0x00000002
 
-    guint32 flags;
+    uint32_t flags;
     #define MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT	0x00000001
     #define MSP_FLAGS_GOT_ALL_SEGMENTS          0x00000002
     #define MSP_FLAGS_MISSING_FIRST_SEGMENT     0x00000004
 };
 
 static struct ippusb_multisegment_pdu *
-pdu_store(packet_info *pinfo, wmem_tree_t *multisegment_pdus, guint32 first_frame, gboolean is_ipp, guint document)
+pdu_store(packet_info *pinfo, wmem_tree_t *multisegment_pdus, uint32_t first_frame, bool is_ipp, unsigned document)
 {
     struct ippusb_multisegment_pdu *msp;
 
     msp = wmem_new(wmem_file_scope(), struct ippusb_multisegment_pdu);
     msp->first_frame = first_frame;
-    msp->finished = FALSE;
-    msp->reassembled = FALSE;
+    msp->finished = false;
+    msp->reassembled = false;
     msp->is_ipp = is_ipp;
     msp->document = document;
     msp->flags = 0;
@@ -165,19 +165,19 @@ get_ippusb_conversation_data(conversation_t *conv, packet_info *pinfo)
 }
 
 
-static gpointer ippusb_temporary_key(const packet_info *pinfo _U_, const guint32 id _U_, const void *data)
+static void *ippusb_temporary_key(const packet_info *pinfo _U_, const uint32_t id _U_, const void *data)
 {
-    return (gpointer)data;
+    return (void *)data;
 }
 
-static gpointer ippusb_persistent_key(const packet_info *pinfo _U_, const guint32 id _U_, const void *data)
+static void *ippusb_persistent_key(const packet_info *pinfo _U_, const uint32_t id _U_, const void *data)
 {
-    return (gpointer)data;
+    return (void *)data;
 }
 
-static void ippusb_free_temporary_key(gpointer ptr _U_) { }
+static void ippusb_free_temporary_key(void *ptr _U_) { }
 
-static void ippusb_free_persistent_key(gpointer ptr _U_) { }
+static void ippusb_free_persistent_key(void *ptr _U_) { }
 
 static reassembly_table_functions ippusb_reassembly_table_functions =
 {
@@ -196,13 +196,13 @@ static reassembly_table ippusb_reassembly_table;
 static int
 dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    gint offset = 0;
-    gint ret = 0;
-    guint first_linelen;
-    const guchar *first_line;
-    gint next_offset;
-    guint8 last;
-    guint8 status_code;
+    int offset = 0;
+    int ret = 0;
+    unsigned first_linelen;
+    const unsigned char *first_line;
+    int next_offset;
+    uint8_t last;
+    uint8_t status_code;
     struct ippusb_analysis *ippusbd = NULL;
     conversation_t *conv = NULL;
 
@@ -210,8 +210,8 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     struct ippusb_multisegment_pdu *current_msp = NULL;
     struct ippusb_multisegment_pdu *previous_msp = NULL;
 
-    gint reported_length = tvb_reported_length(tvb);
-    gint captured_length = tvb_captured_length(tvb);
+    int reported_length = tvb_reported_length(tvb);
+    int captured_length = tvb_captured_length(tvb);
 
     if((conv = find_conversation_pinfo(pinfo, 0)) != NULL) {
         /* Update how far the conversation reaches */
@@ -226,11 +226,11 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
     ippusbd = get_ippusb_conversation_data(conv, pinfo);
 
-    first_linelen = tvb_find_line_end(tvb, offset, tvb_ensure_captured_length_remaining(tvb, offset), &next_offset, TRUE);
+    first_linelen = tvb_find_line_end(tvb, offset, tvb_ensure_captured_length_remaining(tvb, offset), &next_offset, true);
     first_line = tvb_get_ptr(tvb, offset, first_linelen);
 
     /* Get last byte of segment */
-    last = tvb_get_guint8(tvb, captured_length - 1);
+    last = tvb_get_uint8(tvb, captured_length - 1);
     status_code = tvb_get_bits8(tvb, 3 * BITS_PER_BYTE, BITS_PER_BYTE);
 
     /* Is the segment the last chunk from chunk transfer? */
@@ -248,7 +248,7 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             ippusb_last_pdu = -1;
         }
 
-        ret = dissector_try_uint_new(ippusb_dissector_table, HTTP, tvb, pinfo, tree, TRUE, data);
+        ret = dissector_try_uint_new(ippusb_dissector_table, HTTP, tvb, pinfo, tree, true, data);
     }
     else if (global_ippusb_reassemble) {
         /* If reassembly is wanted */
@@ -256,19 +256,19 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         if (!pinfo->fd->visited) {
             /* First time this segment is ever seen */
 
-            gboolean save_fragmented = pinfo->fragmented;
-            pinfo->fragmented = TRUE;
+            bool save_fragmented = pinfo->fragmented;
+            pinfo->fragmented = true;
 
             proto_tree_add_item(tree, proto_ippusb, tvb, offset, -1, ENC_NA);
 
             if (is_http_header(first_linelen, first_line)) {
                 /* The start of a new packet that will need to be reassembled */
 
-                new_msp = pdu_store(pinfo, ippusbd->multisegment_pdus, pinfo->num, TRUE, 0);
+                new_msp = pdu_store(pinfo, ippusbd->multisegment_pdus, pinfo->num, true, 0);
                 new_msp->running_size = captured_length;
 
                 fragment_add_check(&ippusb_reassembly_table, tvb, offset, pinfo, new_msp->first_frame,
-                                            GUINT_TO_POINTER(new_msp->first_frame), 0, captured_length, TRUE);
+                                            GUINT_TO_POINTER(new_msp->first_frame), 0, captured_length, true);
 
                 ippusb_last_pdu = pinfo->num;
             }
@@ -284,7 +284,7 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                     /* This packet has an HTTP header but is not an ipp packet */
                     if ((first_linelen >= strlen("Content-Type: ") && strncmp(first_line, "Content-Type: ", strlen("Content-Type: ")) == 0) &&
                         (first_linelen < strlen("Content-Type: application/ipp") || strncmp(first_line, "Content-Type: application/ipp", strlen("Content-Type: application/ipp")) != 0)) {
-                        new_msp->is_ipp = FALSE;
+                        new_msp->is_ipp = false;
                     }
 
                     /* This packet will have an attached document */
@@ -301,18 +301,18 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                             tvbuff_t *new_tvb = tvb_new_subset_length(tvb, 0, captured_length);
 
                             fragment_add_check(&ippusb_reassembly_table, new_tvb, offset, pinfo, new_msp->first_frame,
-                                            GUINT_TO_POINTER(new_msp->first_frame), previous_msp->running_size, captured_length, TRUE);
+                                            GUINT_TO_POINTER(new_msp->first_frame), previous_msp->running_size, captured_length, true);
 
                             new_msp->document |= MSP_DOCUMENT_TRUNCATED;
                         }
                         else {
                             fragment_add_check(&ippusb_reassembly_table, tvb, offset, pinfo, new_msp->first_frame,
-                                            GUINT_TO_POINTER(new_msp->first_frame), previous_msp->running_size, captured_length, TRUE);
+                                            GUINT_TO_POINTER(new_msp->first_frame), previous_msp->running_size, captured_length, true);
                         }
 
                         if (last != NEWLINE) {
                             fragment_add_check(&ippusb_reassembly_table, return_newline_tvb, offset, pinfo, new_msp->first_frame,
-                                            GUINT_TO_POINTER(new_msp->first_frame), new_msp->running_size, sizeof(RETURN_NEWLINE), TRUE);
+                                            GUINT_TO_POINTER(new_msp->first_frame), new_msp->running_size, sizeof(RETURN_NEWLINE), true);
 
                             new_msp->running_size += sizeof(RETURN_NEWLINE);
                         }
@@ -322,18 +322,18 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                     else {
                         /* This segment contains the end of ipp chunked transfer information */
 
-                        new_msp->finished = TRUE;
+                        new_msp->finished = true;
                         ippusb_last_pdu = -1;
 
                         fragment_head *head = fragment_add_check(&ippusb_reassembly_table, tvb, offset, pinfo, new_msp->first_frame,
-                                                            GUINT_TO_POINTER(new_msp->first_frame), previous_msp->running_size, captured_length, FALSE);
+                                                            GUINT_TO_POINTER(new_msp->first_frame), previous_msp->running_size, captured_length, false);
                         tvbuff_t *processed_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled IPPUSB", head, &ippusb_frag_items, NULL, tree);
 
-                        new_msp->reassembled = TRUE;
+                        new_msp->reassembled = true;
                         pinfo->can_desegment = 0;
 
                         if(processed_tvb){
-                            ret = dissector_try_uint_new(ippusb_dissector_table, HTTP, processed_tvb, pinfo, tree, TRUE, data);
+                            ret = dissector_try_uint_new(ippusb_dissector_table, HTTP, processed_tvb, pinfo, tree, true, data);
                             col_append_fstr(pinfo->cinfo, COL_INFO, " Reassembled Data");
                         }
                     }
@@ -345,8 +345,8 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         else {
             /* Not the first time this segment is seen */
 
-            gboolean save_fragmented = pinfo->fragmented;
-            pinfo->fragmented = TRUE;
+            bool save_fragmented = pinfo->fragmented;
+            pinfo->fragmented = true;
             current_msp = (struct ippusb_multisegment_pdu *)wmem_tree_lookup32_le(ippusbd->multisegment_pdus, pinfo->num);
 
             /* This is not an ipp packet */
@@ -364,7 +364,7 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                     /* The first time this segment is passed over after the initial round
                      * it will be added to the pdu and reassembled */
 
-                    pinfo->fd->visited = FALSE;
+                    pinfo->fd->visited = false;
 
                     if (captured_length < reported_length && (current_msp->document & MSP_HAS_DOCUMENT)) {
                         /* The attached document segment is smaller than it says it should be and cannot be reassembled properly */
@@ -372,18 +372,18 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                         tvbuff_t *new_tvb = tvb_new_subset_length(tvb, 0, captured_length);
 
                         head = fragment_add_check(&ippusb_reassembly_table, new_tvb, offset, pinfo, current_msp->first_frame,
-                                            GUINT_TO_POINTER(current_msp->first_frame), current_msp->running_size - captured_length, captured_length, FALSE);
+                                            GUINT_TO_POINTER(current_msp->first_frame), current_msp->running_size - captured_length, captured_length, false);
 
                         current_msp->document |= MSP_DOCUMENT_TRUNCATED;
                     }
                     else {
                          head = fragment_add_check(&ippusb_reassembly_table, tvb, 0, pinfo, current_msp->first_frame,
-                                            GUINT_TO_POINTER(current_msp->first_frame), current_msp->running_size - captured_length, captured_length, FALSE);
+                                            GUINT_TO_POINTER(current_msp->first_frame), current_msp->running_size - captured_length, captured_length, false);
                     }
 
-                    pinfo->fd->visited = TRUE;
+                    pinfo->fd->visited = true;
 
-                    current_msp->reassembled = TRUE;
+                    current_msp->reassembled = true;
                 }
                 else {
                     /* Packet has already been reassembled */
@@ -396,7 +396,7 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                 if (processed_tvb) {
                     pinfo->can_desegment = 0;
 
-                    ret = dissector_try_uint_new(ippusb_dissector_table, HTTP, processed_tvb, pinfo, tree, TRUE, data);
+                    ret = dissector_try_uint_new(ippusb_dissector_table, HTTP, processed_tvb, pinfo, tree, true, data);
 
                     if (current_msp->document & MSP_DOCUMENT_TRUNCATED) {
                         col_append_fstr(pinfo->cinfo, COL_INFO, " Document Truncated");
@@ -415,7 +415,7 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                 if (processed_tvb) {
                     pinfo->can_desegment = 0;
 
-                    ret = dissector_try_uint_new(ippusb_dissector_table, HTTP, processed_tvb, pinfo, tree, TRUE, data);
+                    ret = dissector_try_uint_new(ippusb_dissector_table, HTTP, processed_tvb, pinfo, tree, true, data);
 
                     col_append_fstr(pinfo->cinfo, COL_INFO, " Reassembled Data");
 
@@ -438,16 +438,16 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     }
 }
 
-static gint
-is_http_header(guint first_linelen, const guchar *first_line) {
+static int
+is_http_header(unsigned first_linelen, const unsigned char *first_line) {
     if ((first_linelen >= strlen("HTTP/") && strncmp(first_line, "HTTP/", strlen("HTTP/")) == 0) ||
         (first_linelen >= strlen("POST /ipp") && strncmp(first_line, "POST /ipp", strlen("POST /ipp")) == 0) ||
         (first_linelen >= strlen("POST / HTTP") && strncmp(first_line, "POST / HTTP", strlen("POST / HTTP")) == 0)) {
 
-        return TRUE;
+        return true;
     }
     else {
-        return FALSE;
+        return false;
     }
 }
 
@@ -500,7 +500,7 @@ proto_register_ippusb(void)
             NULL, 0x0, "The reassembled payload", HFILL }},
         };
 
-   static gint *ett[] = {
+   static int *ett[] = {
         &ett_ippusb,
         &ett_ippusb_as,
         &ett_ippusb_attr,

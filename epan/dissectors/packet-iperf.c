@@ -231,27 +231,27 @@ static int * const iperf2_bb_flags[] = {
     NULL
 };
 
-static gint ett_iperf2_udp;
-static gint ett_iperf2_tcp;
-static gint ett_udphdr;
-static gint ett_clienthdr;
-static gint ett_bbhdr;
-static gint ett_extendedhdr;
-static gint ett_permit_key;
-static gint ett_client_upper_flags;
-static gint ett_client_lower_flags;
-static gint ett_isochhdr;
-static gint ett_fqhdr;
-static gint ett_ext_isochhdr;
-static gint ett_client_hdr;
-static gint ett_client_hdr_flags;
-static gint ett_cca_hdr;
-static gint ett_bb_hdr_flags;
-static gint ett_bbclienttx_ts;
-static gint ett_bbserverrx_ts;
-static gint ett_bbservertx_ts;
-static gint ett_bbread_ts;
-static gint ett_data;
+static int ett_iperf2_udp;
+static int ett_iperf2_tcp;
+static int ett_udphdr;
+static int ett_clienthdr;
+static int ett_bbhdr;
+static int ett_extendedhdr;
+static int ett_permit_key;
+static int ett_client_upper_flags;
+static int ett_client_lower_flags;
+static int ett_isochhdr;
+static int ett_fqhdr;
+static int ett_ext_isochhdr;
+static int ett_client_hdr;
+static int ett_client_hdr_flags;
+static int ett_cca_hdr;
+static int ett_bb_hdr_flags;
+static int ett_bbclienttx_ts;
+static int ett_bbserverrx_ts;
+static int ett_bbservertx_ts;
+static int ett_bbread_ts;
+static int ett_data;
 
 /* parser definitions for iperf2 payload */
 static tvbparse_wanted_t *want;
@@ -266,19 +266,19 @@ typedef struct {
 } iperf2_conversation_t;
 
 static void
-format_version(gchar *buf, guint32 value) {
+format_version(char *buf, uint32_t value) {
     snprintf(buf, ITEM_LABEL_LENGTH, "%d.%d", (value & 0xFFFF0000) >> 16, (value & 0xFFFF));
 }
 
 static void
-format_version_long(gchar *buf, guint64 value) {
+format_version_long(char *buf, uint64_t value) {
     snprintf(buf, ITEM_LABEL_LENGTH, "%d.%d.%d.%d",
-            (guint32)((value & 0xFFFF000000000000) >> 48), (guint32)((value & 0xFFFF00000000) >> 32),
-            (guint32)((value & 0xFFFF0000) >> 16), (guint32)(value & 0xFFFF));
+            (uint32_t)((value & 0xFFFF000000000000) >> 48), (uint32_t)((value & 0xFFFF00000000) >> 32),
+            (uint32_t)((value & 0xFFFF0000) >> 16), (uint32_t)(value & 0xFFFF));
 }
 
 static int
-dissect_iperf2_payload(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
+dissect_iperf2_payload(tvbuff_t *tvb, proto_tree *tree, uint32_t offset)
 {
     proto_tree *data_tree;
 
@@ -290,15 +290,15 @@ dissect_iperf2_payload(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 }
 
 static int
-dissect_iperf2_client_header(tvbuff_t *tvb, proto_tree *tree, guint32 offset, bool is_udp)
+dissect_iperf2_client_header(tvbuff_t *tvb, proto_tree *tree, uint32_t offset, bool is_udp)
 {
-    guint32 small_packets = 0;
-    guint32 initial_offset = offset;
-    gint client_header_size = 24;
+    uint32_t small_packets = 0;
+    uint32_t initial_offset = offset;
+    int client_header_size = 24;
     proto_tree *client_tree;
 
     if (is_udp) {
-        small_packets = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+        small_packets = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
         if (small_packets & HEADER32_SMALL_TRIPTIMES) {
             client_header_size = 4;
         }
@@ -333,9 +333,9 @@ dissect_iperf2_client_header(tvbuff_t *tvb, proto_tree *tree, guint32 offset, bo
 }
 
 static int
-dissect_iperf2_extended_header(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
+dissect_iperf2_extended_header(tvbuff_t *tvb, proto_tree *tree, uint32_t offset)
 {
-    guint32 initial_offset = offset, permit_key_len = 0;
+    uint32_t initial_offset = offset, permit_key_len = 0;
     proto_tree *extended_tree, *permit_key_tree;
     proto_item *ti;
 
@@ -367,7 +367,7 @@ dissect_iperf2_extended_header(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 
     // There may be an optional permit key at the end of this header. Flags are not reliable - do some heuristics here instead.
     if (tvb_reported_length(tvb) - offset >= 2) {
-        permit_key_len = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+        permit_key_len = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
         if ((permit_key_len != 0) && (permit_key_len <= (tvb_reported_length(tvb) - offset - 2))) {
             permit_key_tree = proto_tree_add_subtree(tree, tvb, offset, permit_key_len + 2, ett_permit_key, NULL, "iPerf2 Permit Key");
             proto_tree_add_item(permit_key_tree, hf_iperf2_permit_key_len, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -380,9 +380,9 @@ dissect_iperf2_extended_header(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 }
 
 static int
-dissect_iperf2_isoch_header(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
+dissect_iperf2_isoch_header(tvbuff_t *tvb, proto_tree *tree, uint32_t offset)
 {
-    guint32 initial_offset = offset;
+    uint32_t initial_offset = offset;
     proto_tree *ext_isoch_tree;
 
     ext_isoch_tree = proto_tree_add_subtree(tree, tvb, offset, 32, ett_ext_isochhdr, NULL, "iPerf2 Extended Isochronous Header");
@@ -407,14 +407,14 @@ dissect_iperf2_isoch_header(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 }
 
 static int
-dissect_iperf2_isoch_payload_header(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
+dissect_iperf2_isoch_payload_header(tvbuff_t *tvb, proto_tree *tree, uint32_t offset)
 {
     proto_item *ti;
-    guint32 initial_offset = offset;
+    uint32_t initial_offset = offset;
     proto_tree *isoch_tree;
     nstime_t isoch_timestamp;
-    guint isoch_ts_sec = 0;
-    guint isoch_ts_usec = 0;
+    unsigned isoch_ts_sec = 0;
+    unsigned isoch_ts_usec = 0;
 
     isoch_tree = proto_tree_add_subtree(tree, tvb, offset, 32, ett_isochhdr, NULL, "iPerf2 Isochronous Header");
     proto_tree_add_item(isoch_tree, hf_iperf2_isoch_burst_period, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -442,13 +442,13 @@ dissect_iperf2_isoch_payload_header(tvbuff_t *tvb, proto_tree *tree, guint32 off
 }
 
 static int
-dissect_iperf2_fq_start_time_header(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
+dissect_iperf2_fq_start_time_header(tvbuff_t *tvb, proto_tree *tree, uint32_t offset)
 {
     proto_item *ti;
-    guint32 initial_offset = offset;
+    uint32_t initial_offset = offset;
     proto_tree *fq_tree;
-    guint fq_ts_sec = 0;
-    guint fq_ts_usec = 0;
+    unsigned fq_ts_sec = 0;
+    unsigned fq_ts_usec = 0;
     nstime_t fq_timestamp;
 
     fq_tree = proto_tree_add_subtree(tree, tvb, offset, 20, ett_fqhdr, NULL, "iPerf2 Fair Queue Start Time Header");
@@ -471,13 +471,13 @@ dissect_iperf2_fq_start_time_header(tvbuff_t *tvb, proto_tree *tree, guint32 off
 }
 
 static int
-dissect_iperf2_cca_header(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
+dissect_iperf2_cca_header(tvbuff_t *tvb, proto_tree *tree, uint32_t offset)
 {
-    guint32 initial_offset = offset;
-    guint cca_payload_len;
+    uint32_t initial_offset = offset;
+    unsigned cca_payload_len;
     proto_tree *cca_tree;
 
-    cca_payload_len = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+    cca_payload_len = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
     cca_tree = proto_tree_add_subtree(tree, tvb, offset, cca_payload_len + 2, ett_cca_hdr, NULL, "iPerf2 CCA Header");
     proto_tree_add_item(cca_tree, hf_iperf2_cca_len, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -488,11 +488,11 @@ dissect_iperf2_cca_header(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 }
 
 static int
-dissect_iperf2_bounceback_header(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
+dissect_iperf2_bounceback_header(tvbuff_t *tvb, proto_tree *tree, uint32_t offset)
 {
     proto_tree *bb_tree, *bb_tree_clienttx_ts, *bb_tree_serverrx_ts, *bb_tree_servertx_ts, *bb_tree_read_ts;
     proto_item *ti;
-    guint ts_sec = 0, ts_usec = 0;
+    unsigned ts_sec = 0, ts_usec = 0;
     nstime_t clienttx_ts, serverrx_ts, servertx_ts, read_ts;
 
     bb_tree = proto_tree_add_subtree(tree, tvb, offset, 64, ett_bbhdr, NULL, "iPerf2 Bounceback Header");
@@ -506,7 +506,7 @@ dissect_iperf2_bounceback_header(tvbuff_t *tvb, proto_tree *tree, guint32 offset
     offset += 2;
     proto_tree_add_item(bb_tree, hf_iperf2_bb_tos, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
-    guint bb_run_time = 0;
+    unsigned bb_run_time = 0;
     ti = proto_tree_add_item_ret_uint(bb_tree, hf_iperf2_bb_run_time, tvb, offset, 4, ENC_BIG_ENDIAN, &bb_run_time);
     proto_item_append_text(ti, "%d ms", bb_run_time * 10);
     offset += 4;
@@ -566,8 +566,8 @@ dissect_iperf2_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * d
 {
     proto_item *ti = NULL;
     proto_tree *iperf2_tree = NULL;
-    guint32 offset = 0, flags = 0, upper_flags = 0, lower_flags = 0, pdu_len = 24;
-    guint16 cca_len;
+    uint32_t offset = 0, flags = 0, upper_flags = 0, lower_flags = 0, pdu_len = 24;
+    uint16_t cca_len;
     tvbparse_t *tt;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "iPerf2");
@@ -581,7 +581,7 @@ dissect_iperf2_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * d
         return tvb_reported_length(tvb);
     }
 
-    flags = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+    flags = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
     ti = proto_tree_add_item(tree, proto_iperf2, tvb, offset, pdu_len, ENC_NA);
     iperf2_tree = proto_item_add_subtree(ti, ett_iperf2_tcp);
 
@@ -624,20 +624,20 @@ dissect_iperf2_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * d
             col_set_str(pinfo->cinfo, COL_INFO, "Bounceback");
         } else {
             if (pass == 2)
-                offset += dissect_iperf2_client_header(tvb, iperf2_tree, offset, FALSE);
+                offset += dissect_iperf2_client_header(tvb, iperf2_tree, offset, false);
             if (flags & HEADER_EXTEND) {
                 if (pass == 1)
                     pdu_len += 36;
                 else {
-                    upper_flags = tvb_get_guint16(tvb, offset + 8, ENC_BIG_ENDIAN);
-                    lower_flags = tvb_get_guint16(tvb, offset + 10, ENC_BIG_ENDIAN);
+                    upper_flags = tvb_get_uint16(tvb, offset + 8, ENC_BIG_ENDIAN);
+                    lower_flags = tvb_get_uint16(tvb, offset + 10, ENC_BIG_ENDIAN);
                     offset += dissect_iperf2_extended_header(tvb, iperf2_tree, offset);
                 }
             }
             // If CCA header is present, the the previous two headers are also present, though the flags may not be set
             if (lower_flags & HEADER_CCA) {
                 if (pass == 1) {
-                    cca_len = tvb_get_guint16(tvb, offset + 20 + 40, ENC_BIG_ENDIAN) + 2;
+                    cca_len = tvb_get_uint16(tvb, offset + 20 + 40, ENC_BIG_ENDIAN) + 2;
                     pdu_len += 20 + 40 + cca_len;
                 }
                 else {
@@ -673,8 +673,8 @@ dissect_iperf2_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * d
 static int
 dissect_iperf2_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * data _U_)
 {
-    guint32 offset = 0;
-    guint32 ext_header = 0;
+    uint32_t offset = 0;
+    uint32_t ext_header = 0;
     proto_item *ti;
     proto_tree *iperf2_tree, *udp_tree;
 
@@ -688,10 +688,10 @@ dissect_iperf2_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * d
     udp_tree = proto_tree_add_subtree(iperf2_tree, tvb, offset, 16, ett_udphdr, NULL, "iPerf2 UDP Header");
     proto_tree_add_item(udp_tree, hf_iperf2_sequence, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    guint ts_sec = 0;
+    unsigned ts_sec = 0;
     proto_tree_add_item_ret_uint(udp_tree, hf_iperf2_sec, tvb, offset, 4, ENC_BIG_ENDIAN, &ts_sec);
     offset += 4;
-    guint ts_usec = 0;
+    unsigned ts_usec = 0;
     proto_tree_add_item_ret_uint(udp_tree, hf_iperf2_usec, tvb, offset, 4, ENC_BIG_ENDIAN, &ts_usec);
     offset += 4;
     nstime_t timestamp;
@@ -701,9 +701,9 @@ dissect_iperf2_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * d
     proto_item_set_generated(ti);
     proto_tree_add_item(udp_tree, hf_iperf2_sequence_upper, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    ext_header = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+    ext_header = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
 
-    offset += dissect_iperf2_client_header(tvb, iperf2_tree, offset, TRUE);
+    offset += dissect_iperf2_client_header(tvb, iperf2_tree, offset, true);
 
     if (tvb_reported_length(tvb) == offset) {
         return offset;
@@ -1156,7 +1156,7 @@ proto_register_iperf2(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_iperf2_udp,
         &ett_iperf2_tcp,
         &ett_udphdr,

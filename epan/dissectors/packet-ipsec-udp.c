@@ -18,7 +18,7 @@ static int proto_udpencap;
 static int hf_nat_keepalive;
 static int hf_non_esp_marker;
 
-static gint ett_udpencap;
+static int ett_udpencap;
 
 static dissector_handle_t udpencap_handle;
 static dissector_handle_t esp_handle;
@@ -34,7 +34,7 @@ dissect_udpencap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
   tvbuff_t   *next_tvb;
   proto_tree *udpencap_tree;
   proto_item *ti;
-  guint32     spi;
+  uint32_t    spi;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "UDPENCAP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -43,7 +43,7 @@ dissect_udpencap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
   udpencap_tree = proto_item_add_subtree(ti, ett_udpencap);
 
   /* 1 byte of 0xFF indicates NAT-keepalive */
-  if ((tvb_captured_length(tvb) == 1) && (tvb_get_guint8(tvb, 0) == 0xff)) {
+  if ((tvb_captured_length(tvb) == 1) && (tvb_get_uint8(tvb, 0) == 0xff)) {
     col_set_str(pinfo->cinfo, COL_INFO, "NAT-keepalive");
     proto_tree_add_item(udpencap_tree, hf_nat_keepalive, tvb, 0, 1, ENC_NA);
   } else {
@@ -74,7 +74,7 @@ proto_register_udpencap(void)
           FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_udpencap,
   };
 

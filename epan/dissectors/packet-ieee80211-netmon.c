@@ -65,8 +65,8 @@ static int hf_netmon_802_11_rssi;
 static int hf_netmon_802_11_datarate;
 static int hf_netmon_802_11_timestamp;
 
-static gint ett_netmon_802_11;
-static gint ett_netmon_802_11_op_mode;
+static int ett_netmon_802_11;
+static int ett_netmon_802_11_op_mode;
 
 static dissector_handle_t ieee80211_radio_handle;
 
@@ -78,15 +78,15 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
   proto_item *ti;
   tvbuff_t   *next_tvb;
   int         offset;
-  guint8      version;
-  guint16     length;
-  guint32     phy_type;
-  guint32     monitor_mode;
-  guint32     flags;
-  guint32     channel;
-  gint        calc_channel;
-  gint32      rssi;
-  guint8      rate;
+  uint8_t     version;
+  uint16_t    length;
+  uint32_t    phy_type;
+  uint32_t    monitor_mode;
+  uint32_t    flags;
+  uint32_t    channel;
+  int         calc_channel;
+  int32_t     rssi;
+  uint8_t     rate;
 
   /*
    * It appears to be the case that management frames (and control and
@@ -97,21 +97,21 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
    * do not have an FCS).  An "FCS length" of -2 means "NetMon weirdness".
    *
    * The metadata header also has a bit indicating whether the adapter
-   * was in monitor mode or not; if it isn't, we set "decrypted" to TRUE,
+   * was in monitor mode or not; if it isn't, we set "decrypted" to true,
    * as, for those frames, the Protected bit is preserved in received
    * frames, but the frame is decrypted.
    */
   memset(&phdr, 0, sizeof(phdr));
   phdr.fcs_len = -2;
-  phdr.decrypted = FALSE;
-  phdr.datapad = FALSE;
+  phdr.decrypted = false;
+  phdr.datapad = false;
   phdr.phy = PHDR_802_11_PHY_UNKNOWN;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "WLAN");
   col_clear(pinfo->cinfo, COL_INFO);
   offset = 0;
 
-  version = tvb_get_guint8(tvb, offset);
+  version = tvb_get_uint8(tvb, offset);
   length = tvb_get_letohs(tvb, offset+1);
   col_add_fstr(pinfo->cinfo, COL_INFO, "NetMon WLAN Capture v%u, Length %u",
                version, length);
@@ -171,14 +171,14 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
      * the "monitor mode" flag wasn't set, so supporess treating the
      * Protect flag as an indication that the frame was encrypted.
      */
-    phdr.decrypted = TRUE;
+    phdr.decrypted = true;
 
     /*
      * Furthermore, we may see frames with the A-MSDU Present flag set
      * in the QoS Control field but that have a regular frame, not a
      * sequence of A-MSDUs, in the payload.
      */
-    phdr.no_a_msdus = TRUE;
+    phdr.no_a_msdus = true;
   }
   offset += 4;
 
@@ -255,9 +255,9 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
                                          tvb, offset, 4, channel,
                                          "Unknown");
       } else {
-        guint frequency;
+        unsigned frequency;
 
-        phdr.has_channel = TRUE;
+        phdr.has_channel = true;
         phdr.channel = channel;
         proto_tree_add_uint(wlan_tree, hf_netmon_802_11_channel,
                             tvb, offset, 4, channel);
@@ -266,12 +266,12 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         case PHDR_802_11_PHY_11B:
         case PHDR_802_11_PHY_11G:
           /* 2.4 GHz channel */
-          frequency = ieee80211_chan_to_mhz(channel, TRUE);
+          frequency = ieee80211_chan_to_mhz(channel, true);
           break;
 
         case PHDR_802_11_PHY_11A:
           /* 5 GHz channel */
-          frequency = ieee80211_chan_to_mhz(channel, FALSE);
+          frequency = ieee80211_chan_to_mhz(channel, false);
           break;
 
         default:
@@ -279,18 +279,18 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
           break;
         }
         if (frequency != 0) {
-          phdr.has_frequency = TRUE;
+          phdr.has_frequency = true;
           phdr.frequency = frequency;
         }
       }
     } else {
-      phdr.has_frequency = TRUE;
+      phdr.has_frequency = true;
       phdr.frequency = channel;
       proto_tree_add_uint(wlan_tree, hf_netmon_802_11_frequency,
                                        tvb, offset, 4, channel);
       calc_channel = ieee80211_mhz_to_chan(channel);
       if (calc_channel != -1) {
-        phdr.has_channel = TRUE;
+        phdr.has_channel = true;
         phdr.channel = calc_channel;
       }
     }
@@ -309,7 +309,7 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
                                       tvb, offset, 4, rssi,
                                       "Unknown");
     } else {
-      phdr.has_signal_dbm = TRUE;
+      phdr.has_signal_dbm = true;
       phdr.signal_dbm = rssi;
       proto_tree_add_int_format_value(wlan_tree, hf_netmon_802_11_rssi,
                                       tvb, offset, 4, rssi,
@@ -320,13 +320,13 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     /*
      * ucDataRate?
      */
-    rate = tvb_get_guint8(tvb, offset);
+    rate = tvb_get_uint8(tvb, offset);
     if (rate == 0) {
       proto_tree_add_uint_format_value(wlan_tree, hf_netmon_802_11_datarate,
                                        tvb, offset, 1, rate,
                                        "Unknown");
     } else {
-      phdr.has_data_rate = TRUE;
+      phdr.has_data_rate = true;
       phdr.data_rate = rate;
       proto_tree_add_uint_format_value(wlan_tree, hf_netmon_802_11_datarate,
                                        tvb, offset, 1, rate,
@@ -341,7 +341,7 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
    *
    * If so, should this check the presence flag in flags?
    */
-  phdr.has_tsf_timestamp = TRUE;
+  phdr.has_tsf_timestamp = true;
   phdr.tsf_timestamp = tvb_get_letoh64(tvb, offset);
   proto_tree_add_item(wlan_tree, hf_netmon_802_11_timestamp, tvb, offset, 8,
                       ENC_LITTLE_ENDIAN);
@@ -408,7 +408,7 @@ proto_register_netmon_802_11(void)
     { &hf_netmon_802_11_timestamp, { "Timestamp", "netmon_802_11.timestamp", FT_UINT64,
                           BASE_DEC, NULL, 0x0, NULL, HFILL } },
   };
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_netmon_802_11,
     &ett_netmon_802_11_op_mode
   };

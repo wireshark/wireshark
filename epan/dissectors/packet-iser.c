@@ -72,8 +72,8 @@ static int hf_iser_ird;
 static int hf_iser_ord;
 
 /* Initialize the subtree pointers */
-static gint ett_iser;
-static gint ett_iser_flags;
+static int ett_iser;
+static int ett_iser_flags;
 
 /* global preferences */
 static range_t *gPORT_RANGE;
@@ -107,13 +107,13 @@ static int dissect_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti;
     proto_tree *iser_tree;
-    guint offset = 0;
-    guint8 flags, vers, opcode;
+    unsigned offset = 0;
+    uint8_t flags, vers, opcode;
 
     if (tvb_reported_length(tvb) < ISER_ISCSI_HDR_SZ)
         return 0;
 
-    flags = tvb_get_guint8(tvb, 0);
+    flags = tvb_get_uint8(tvb, 0);
     opcode = flags & ISER_OPCODE_MASK;
 
     /* Check if the opcode is valid */
@@ -133,7 +133,7 @@ static int dissect_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
     case ISER_HELLO:
     case ISER_HELLORPLY:
-        vers = tvb_get_guint8(tvb, 1);
+        vers = tvb_get_uint8(tvb, 1);
         if ((vers & 0xf) != 10)
             return 0;
         if (((vers >> 4) & 0x0f) != 10)
@@ -244,7 +244,7 @@ dissect_iser(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if ((convo_data->service_id & SID_MASK) != SID_ULP_TCP)
         return false;   /* the service id doesn't match that of TCP ULP - nothing for us to do here */
 
-    if (!(value_is_in_range(gPORT_RANGE, (guint32)(convo_data->service_id & SID_PORT_MASK))))
+    if (!(value_is_in_range(gPORT_RANGE, (uint32_t)(convo_data->service_id & SID_PORT_MASK))))
         return false;   /* the port doesn't match that of iSER - nothing for us to do here */
 
     dissect_packet(tvb, pinfo, tree, data);
@@ -303,7 +303,7 @@ proto_register_iser(void)
         }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_iser,
         &ett_iser_flags
     };

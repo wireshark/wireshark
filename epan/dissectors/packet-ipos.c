@@ -38,7 +38,7 @@ static int hf_ipos_protocol;
 static int hf_ipos_priority;
 static int hf_ipos_ppe;
 static int hf_ipos_slot;
-static gint ett_ipos;
+static int ett_ipos;
 
 /* static expert_field ei_ipos_protocol; */
 
@@ -122,7 +122,7 @@ proto_register_ipos(void)
         NULL, HFILL }}
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_ipos
     };
 

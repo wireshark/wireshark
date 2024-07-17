@@ -62,7 +62,7 @@ isis_dissect_area_address_clv(proto_tree *tree, packet_info* pinfo, tvbuff_t *tv
     int        arealen,area_idx;
 
     while ( length > 0 ) {
-        arealen = tvb_get_guint8(tvb, offset);
+        arealen = tvb_get_uint8(tvb, offset);
         length--;
         if (length<=0) {
             proto_tree_add_expert_format(tree, pinfo, expert, tvb, offset, -1,
@@ -91,7 +91,7 @@ isis_dissect_area_address_clv(proto_tree *tree, packet_info* pinfo, tvbuff_t *tv
              */
             for (area_idx = 0; area_idx < arealen; area_idx++) {
                 proto_item_append_text(ti, "%02x",
-                    tvb_get_guint8(tvb, offset+area_idx+1));
+                    tvb_get_uint8(tvb, offset+area_idx+1));
                 if (((area_idx & 1) == 0) &&
                     (area_idx + 1 < arealen)) {
                     proto_item_append_text(ti, ".");
@@ -165,18 +165,18 @@ void
 isis_dissect_authentication_clv(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb,
         int hf_auth_bytes, int hf_key_id, expert_field* auth_expert, int offset, int length)
 {
-    guchar pw_type;
+    unsigned char pw_type;
     int auth_unsupported;
-    const gchar *algorithm = NULL;
+    const char *algorithm = NULL;
 
     if ( length <= 0 ) {
         return;
     }
 
-    pw_type = tvb_get_guint8(tvb, offset);
+    pw_type = tvb_get_uint8(tvb, offset);
     offset += 1;
     length--;
-    auth_unsupported = FALSE;
+    auth_unsupported = false;
 
     switch (pw_type) {
     case 1:
@@ -214,7 +214,7 @@ isis_dissect_authentication_clv(proto_tree *tree, packet_info* pinfo, tvbuff_t *
     default:
         proto_tree_add_bytes_format( tree, hf_auth_bytes, tvb, offset, length,
                 NULL, "type 0x%02x (0x%02x)", pw_type, length);
-        auth_unsupported=TRUE;
+        auth_unsupported=true;
         break;
     }
 
@@ -259,7 +259,7 @@ void
 isis_dissect_mt_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset, int length,
     int tree_id, expert_field* mtid_expert)
 {
-    guint16 mt_block;
+    uint16_t mt_block;
     const char *mt_desc;
 
     while (length>0) {
@@ -434,14 +434,14 @@ isis_dissect_nlpid_clv(tvbuff_t *tvb, proto_tree *tree, int ett_nlpid, int hf_nl
 {
     proto_tree *nlpid_tree;
     proto_item *ti;
-    guint8 nlpid;
+    uint8_t nlpid;
 
     if (length <= 0) {
         proto_tree_add_subtree_format(tree, tvb, offset, 0, ett_nlpid, NULL, "No NLPIDs");
     } else {
         nlpid_tree = proto_tree_add_subtree_format(tree, tvb, offset, length, ett_nlpid, &ti, "NLPID%s: ", PLURALIZE(length));
         while (length-- > 0 ) {
-            nlpid = tvb_get_guint8(tvb, offset);
+            nlpid = tvb_get_uint8(tvb, offset);
             proto_item_append_text(ti, "%s (0x%02x)",
                    /* NLPID_IEEE_8021AQ conflicts with NLPID_SNDCF. In this context, we want the former. */
                    (nlpid == NLPID_IEEE_8021AQ ? "IEEE 802.1aq (SPB)" : val_to_str_const(nlpid, nlpid_vals, "Unknown")),
@@ -485,20 +485,20 @@ isis_dissect_clvs(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offse
     const isis_clv_handle_t *opts, expert_field *expert_short_len, isis_data_t *isis,
     int unknown_tree_id _U_, int tree_type, int tree_length, expert_field *ei_unknown)
 {
-    guint len = isis->pdu_length - isis->header_length; /* length of CLV area */
-    guint8 code;
-    guint8 length;
+    unsigned len = isis->pdu_length - isis->header_length; /* length of CLV area */
+    uint8_t code;
+    uint8_t length;
     int q;
     proto_tree    *clv_tree;
 
     while ( len != 0 ) {
-        code = tvb_get_guint8(tvb, offset);
+        code = tvb_get_uint8(tvb, offset);
         offset += 1;
         len -= 1;
         if (len == 0)
             break;
 
-        length = tvb_get_guint8(tvb, offset);
+        length = tvb_get_uint8(tvb, offset);
         offset += 1;
         len -= 1;
         if (len == 0)

@@ -74,9 +74,9 @@ static int hf_ib_sdp_srcah;
 static int hf_ib_sdp_data;
 
 /* Initialize the subtree pointers */
-static gint ett_ib_sdp;
-static gint ett_ib_sdp_bsdh;
-static gint ett_ib_sdp_hh;
+static int ett_ib_sdp;
+static int ett_ib_sdp_bsdh;
+static int ett_ib_sdp_hh;
 
 typedef enum {
     Hello = 0x0,
@@ -135,7 +135,7 @@ dissect_ib_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     proto_tree *SDP_BSDH_header_tree;
     proto_item *SDP_EH_header_item;
     proto_tree *SDP_EH_header_tree;
-    guint8 mid;
+    uint8_t mid;
 
     if (tvb_captured_length(tvb) < 16)   /* check this has at least enough bytes for the BSDH */
         return 0;
@@ -148,7 +148,7 @@ dissect_ib_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     SDP_BSDH_header_item = proto_tree_add_item(SDP_header_tree, hf_ib_sdp_bsdh, tvb, local_offset, 16, ENC_NA);
     SDP_BSDH_header_tree = proto_item_add_subtree(SDP_BSDH_header_item, ett_ib_sdp_bsdh);
 
-    mid =  tvb_get_guint8(tvb, local_offset);
+    mid =  tvb_get_uint8(tvb, local_offset);
     proto_tree_add_item(SDP_BSDH_header_tree, hf_ib_sdp_mid, tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset += 1;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "(SDP %s)",
@@ -421,7 +421,7 @@ proto_register_ib_sdp(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_ib_sdp,
         &ett_ib_sdp_bsdh,
         &ett_ib_sdp_hh,

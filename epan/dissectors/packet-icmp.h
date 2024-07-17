@@ -13,16 +13,16 @@
 
 /* ICMP echo request/reply transaction statistics ... used by ICMP tap(s) */
 typedef struct _icmp_transaction_t {
-    guint32 rqst_frame;
-    guint32 resp_frame;
+    uint32_t rqst_frame;
+    uint32_t resp_frame;
     nstime_t rqst_time;
     nstime_t resp_time;
 } icmp_transaction_t;
 
 /* ICMP info ... used by sequence analysis tap and stored in pinfo with p_add_proto_data */
 typedef struct {
-    guint8 type;
-    guint8 code;
+    uint8_t type;
+    uint8_t code;
 } icmp_info_t;
 
 int get_best_guess_timestamp(tvbuff_t *tvb, int offset, nstime_t *comp_ts, nstime_t *out_ts);

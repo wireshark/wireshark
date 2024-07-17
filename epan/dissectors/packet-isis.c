@@ -39,7 +39,7 @@ static int hf_isis_reserved;
 static int hf_isis_max_area_adr;
 int hf_isis_clv_key_id;
 
-static gint ett_isis;
+static int ett_isis;
 
 static expert_field ei_isis_length_indicator_too_small;
 static expert_field ei_isis_version;
@@ -68,8 +68,8 @@ dissect_isis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     proto_item *ti, *version_item, *version2_item, *reserved_item;
     proto_tree *isis_tree = NULL;
     int offset = 0;
-    guint8 isis_version, isis_version2, isis_reserved;
-    guint8 isis_type;
+    uint8_t isis_version, isis_version2, isis_reserved;
+    uint8_t isis_type;
     isis_data_t subdissector_data;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISIS");
@@ -81,7 +81,7 @@ dissect_isis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     proto_tree_add_item(isis_tree, hf_isis_irpd, tvb, offset, 1, ENC_BIG_ENDIAN );
     offset += 1;
 
-    subdissector_data.header_length = tvb_get_guint8(tvb, offset);
+    subdissector_data.header_length = tvb_get_uint8(tvb, offset);
     subdissector_data.header_length_item =
         proto_tree_add_uint(isis_tree, hf_isis_header_length, tvb,
             offset, 1, subdissector_data.header_length );
@@ -94,7 +94,7 @@ dissect_isis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     }
     subdissector_data.ei_bad_header_length = &ei_isis_length_indicator_too_small;
 
-    isis_version = tvb_get_guint8(tvb, offset);
+    isis_version = tvb_get_uint8(tvb, offset);
     version_item = proto_tree_add_uint(isis_tree, hf_isis_version, tvb,
             offset, 1, isis_version );
     if (isis_version != ISIS_REQUIRED_VERSION){
@@ -102,27 +102,27 @@ dissect_isis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     }
     offset += 1;
 
-    subdissector_data.system_id_len = tvb_get_guint8(tvb, offset);
+    subdissector_data.system_id_len = tvb_get_uint8(tvb, offset);
     proto_tree_add_uint(isis_tree, hf_isis_system_id_length, tvb,
             offset, 1, subdissector_data.system_id_len );
     offset += 1;
 
     proto_tree_add_item(isis_tree, hf_isis_type_reserved, tvb, offset, 1, ENC_BIG_ENDIAN );
 
-    isis_type = tvb_get_guint8(tvb, offset) & ISIS_TYPE_MASK;
+    isis_type = tvb_get_uint8(tvb, offset) & ISIS_TYPE_MASK;
     col_add_str(pinfo->cinfo, COL_INFO,
                 val_to_str ( isis_type, isis_vals, "Unknown (0x%x)" ) );
     proto_tree_add_item(isis_tree, hf_isis_type, tvb, offset, 1, ENC_BIG_ENDIAN );
     offset += 1;
 
-    isis_version2 = tvb_get_guint8(tvb, offset);
+    isis_version2 = tvb_get_uint8(tvb, offset);
     version2_item = proto_tree_add_item(isis_tree, hf_isis_version2, tvb, offset, 1, ENC_BIG_ENDIAN );
     if (isis_version2 != 1) {
         expert_add_info(pinfo, version2_item, &ei_isis_version2);
     }
     offset += 1;
 
-    isis_reserved = tvb_get_guint8(tvb, offset);
+    isis_reserved = tvb_get_uint8(tvb, offset);
     reserved_item = proto_tree_add_item(isis_tree, hf_isis_reserved, tvb, offset, 1, ENC_BIG_ENDIAN );
     if (isis_reserved != 0) {
         expert_add_info(pinfo, reserved_item, &ei_isis_reserved);
@@ -149,7 +149,7 @@ dissect_isis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
      * checksum TLV, and that checksum is over the entire PDU.
      */
     if (!dissector_try_uint_new(isis_dissector_table, isis_type, tvb,
-                                pinfo, tree, TRUE, &subdissector_data))
+                                pinfo, tree, true, &subdissector_data))
     {
         proto_tree_add_expert(tree, pinfo, &ei_isis_type, tvb, offset, -1);
     }
@@ -203,7 +203,7 @@ proto_register_isis(void)
      * Note, we pull in the unknown CLV handler here, since it
      * is used by all ISIS packet types.
      */
-    static gint *ett[] = {
+    static int *ett[] = {
       &ett_isis,
     };
 

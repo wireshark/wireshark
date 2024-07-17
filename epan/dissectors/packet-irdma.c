@@ -327,7 +327,7 @@ irdma_serv_name_lookup(unsigned port)
 }
 
 static inline void
-irdma_col_snprint_port(char *buf, gulong buf_siz, uint16_t val)
+irdma_col_snprint_port(char *buf, unsigned long buf_siz, uint16_t val)
 {
     const char *str;
 
@@ -690,8 +690,8 @@ dissect_irdmalink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 /*********************************************************************/
 /*********************************************************************/
 /* IBM i RDMA Endpoint preferences                                   */
-static bool irdmaep_calculate_ts = TRUE;
-static bool irdmaep_no_subdissector_on_error = TRUE;
+static bool irdmaep_calculate_ts = true;
+static bool irdmaep_no_subdissector_on_error = true;
 
 /* IBM i RDMA Endpoint message types                                 */
 #define IRDMA_EP_CONNREQ      0x01
@@ -818,8 +818,8 @@ dissect_irdmaep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     set_address(&group_addr, AT_STRINGZ, 25,
                 tvb_bytes_to_str(wmem_packet_scope(), tvb, IRDMA_EP_GRPID, 12));
 
-    uint8_t msg_type = tvb_get_guint8(tvb, IRDMA_EP_TYPE);
-    uint8_t msg_length = tvb_get_guint8(tvb, IRDMA_EP_LEN);
+    uint8_t msg_type = tvb_get_uint8(tvb, IRDMA_EP_TYPE);
+    uint8_t msg_length = tvb_get_uint8(tvb, IRDMA_EP_LEN);
     const char *msg_type_str = val_to_str(msg_type, irdmaep_type_str,
                                           "UNKNOWN (0x%02X)");
     col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]", msg_type_str);
@@ -1309,7 +1309,7 @@ dissect_connect_msg(tvbuff_t *tvb, packet_info *pinfo _U_,
                                       ENC_BIG_ENDIAN, &bufsize);
     proto_item_append_text(ti, " (%u KB)", bufsize * 4);
 
-    uint8_t msg_type = tvb_get_guint8(tvb, IRDMA_EP_TYPE);
+    uint8_t msg_type = tvb_get_uint8(tvb, IRDMA_EP_TYPE);
     if (msg_type == IRDMA_EP_CONNREQ
         || msg_type == IRDMA_EP_CONNACK)
         {
@@ -1364,7 +1364,7 @@ dissect_buffer_msg(tvbuff_t *tvb, packet_info *pinfo,
     /* Update receive buffer analysis only on first (in-order) pass */
     if (!PINFO_FD_VISITED(pinfo))
         {
-        if (tvb_get_guint32(tvb, IRDMA_EP_BUFFER_RKEY, ENC_BIG_ENDIAN))
+        if (tvb_get_uint32(tvb, IRDMA_EP_BUFFER_RKEY, ENC_BIG_ENDIAN))
             {
             memset(&epd->rev_flow->recv_buffer[0], 0,
                    sizeof epd->rev_flow->recv_buffer[0]);
@@ -1373,7 +1373,7 @@ dissect_buffer_msg(tvbuff_t *tvb, packet_info *pinfo,
                 epd->rev_flow->recv_buffer_count = 1;
             }
 
-        if (tvb_get_guint32(tvb, IRDMA_EP_BUFFER_RKEY + 4, ENC_BIG_ENDIAN))
+        if (tvb_get_uint32(tvb, IRDMA_EP_BUFFER_RKEY + 4, ENC_BIG_ENDIAN))
             {
             memset(&epd->rev_flow->recv_buffer[1], 0,
                    sizeof epd->rev_flow->recv_buffer[1]);
@@ -1419,7 +1419,7 @@ dissect_move_link_msg(tvbuff_t *tvb, packet_info *pinfo,
     /* Update receive buffer analysis only on first (in-order) pass */
     if (!PINFO_FD_VISITED(pinfo))
         {
-        if (tvb_get_guint32(tvb, IRDMA_EP_BUFFER_RKEY, ENC_BIG_ENDIAN)
+        if (tvb_get_uint32(tvb, IRDMA_EP_BUFFER_RKEY, ENC_BIG_ENDIAN)
             && (rbufsize & 0x8000))
             {
             memset(&epd->rev_flow->recv_buffer[0], 0,
@@ -1427,7 +1427,7 @@ dissect_move_link_msg(tvbuff_t *tvb, packet_info *pinfo,
             epd->rev_flow->recv_buffer[0].size = (rbufsize & 0xFFF) * 4096;
             }
 
-        if (tvb_get_guint32(tvb, IRDMA_EP_BUFFER_RKEY + 4, ENC_BIG_ENDIAN)
+        if (tvb_get_uint32(tvb, IRDMA_EP_BUFFER_RKEY + 4, ENC_BIG_ENDIAN)
             && (rbufsize & 0x4000))
             {
             memset(&epd->rev_flow->recv_buffer[1], 0,
@@ -1512,11 +1512,11 @@ dissect_irdmaep_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             }
 
         if (dissector_try_uint_new(irdmaep_dissector_table, low_port,
-                                   tvb, pinfo, tree, TRUE, pdata))
+                                   tvb, pinfo, tree, true, pdata))
             return;
 
         if (dissector_try_uint_new(irdmaep_dissector_table, high_port,
-                                   tvb, pinfo, tree, TRUE, pdata))
+                                   tvb, pinfo, tree, true, pdata))
             return;
         }
 

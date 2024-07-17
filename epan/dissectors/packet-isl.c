@@ -58,8 +58,8 @@ static int hf_isl_fcs_not_incl;
 static int hf_isl_esize;
 static int hf_isl_trailer;
 
-static gint ett_isl;
-static gint ett_isl_dst;
+static int ett_isl;
+static int ett_isl_dst;
 
 #define ISL_HEADER_SIZE 26
 
@@ -80,12 +80,12 @@ static capture_dissector_handle_t eth_cap_handle;
 static capture_dissector_handle_t tr_cap_handle;
 
 static bool
-capture_isl(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
+capture_isl(const unsigned char *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
-  guint8 type;
+  uint8_t type;
 
   if (!BYTES_ARE_IN_FRAME(offset, len, ISL_HEADER_SIZE))
-    return FALSE;
+    return false;
 
   type = (pd[offset+5] >> 4)&0x0F;
 
@@ -101,7 +101,7 @@ capture_isl(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo
     break;
   }
 
-  return FALSE;
+  return false;
 }
 
 static const value_string type_vals[] = {
@@ -131,9 +131,9 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
   proto_tree *volatile fh_tree = NULL;
   proto_tree *dst_tree;
   proto_item *ti, *hidden_item;
-  volatile guint8 type;
-  volatile guint16 length;
-  gint captured_length;
+  volatile uint8_t type;
+  volatile uint16_t length;
+  int captured_length;
   tvbuff_t *volatile payload_tvb = NULL;
   tvbuff_t *volatile next_tvb;
   tvbuff_t *volatile trailer_tvb = NULL;
@@ -142,7 +142,7 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISL");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  type = (tvb_get_guint8(tvb, 5) >> 4)&0x0F;
+  type = (tvb_get_uint8(tvb, 5) >> 4)&0x0F;
 
   if (tree) {
     ti = proto_tree_add_protocol_format(tree, proto_isl, tvb, 0, ISL_HEADER_SIZE,
@@ -384,7 +384,7 @@ proto_register_isl(void)
       { "Trailer",    "isl.trailer", FT_BYTES, BASE_NONE, NULL, 0x0,
         "Ethernet Trailer or Checksum", HFILL }},
   };
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_isl,
     &ett_isl_dst,
   };

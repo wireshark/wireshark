@@ -14,10 +14,10 @@
 #define __PACKET_ISO10681_H__
 
 typedef struct iso10681_info {
-    guint32 id;
-    guint32 len;
-    guint16 target_address;
-    guint16 source_address;
+    uint32_t id;
+    uint32_t len;
+    uint16_t target_address;
+    uint16_t source_address;
 } iso10681_info_t;
 
 #endif /* __PACKET_ISO10681_H__ */

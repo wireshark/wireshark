@@ -63,7 +63,7 @@ static int hf_ipx_net;
 static int hf_ipx_node;
 static int hf_ipx_socket;
 
-static gint ett_ipx;
+static int ett_ipx;
 
 static dissector_table_t ipx_type_dissector_table;
 static dissector_table_t ipx_socket_dissector_table;
@@ -95,8 +95,8 @@ static int hf_spx_neg_size;
 static int hf_spx_rexmt_frame;
 static int hf_spx_rexmt_data;
 
-static gint ett_spx;
-static gint ett_spx_connctrl;
+static int ett_spx;
+static int ett_spx_connctrl;
 
 static int proto_ipxrip;
 static int hf_ipxrip_request;
@@ -106,11 +106,11 @@ static int hf_ipxrip_route_vector;
 static int hf_ipxrip_hops;
 static int hf_ipxrip_ticks;
 
-static gint ett_ipxrip;
+static int ett_ipxrip;
 
 static int proto_serialization;
 static int hf_serial_number;
-static gint ett_serialization;
+static int ett_serialization;
 
 static int proto_sap;
 static int hf_sap_request;
@@ -124,10 +124,10 @@ static int hf_sap_server_node;
 static int hf_sap_server_socket;
 static int hf_sap_server_intermediate_networks;
 
-static gint ett_ipxsap;
-static gint ett_ipxsap_server;
+static int ett_ipxsap;
+static int ett_ipxsap_server;
 
-static gint ett_ipxmsg;
+static int ett_ipxmsg;
 static int proto_ipxmsg;
 static int hf_msg_conn;
 static int hf_msg_sigchar;
@@ -186,8 +186,8 @@ ipx_endpoint_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 	/* Take two "add" passes per packet, adding for each direction, ensures that all
 	packets are counted properly (even if address is sending to itself)
 	XXX - this could probably be done more efficiently inside endpoint_table */
-	add_endpoint_table_data(hash, &ipxh->ipx_src, 0, TRUE, 1, pinfo->fd->pkt_len, &ipx_endpoint_dissector_info, ENDPOINT_NONE);
-	add_endpoint_table_data(hash, &ipxh->ipx_dst, 0, FALSE, 1, pinfo->fd->pkt_len, &ipx_endpoint_dissector_info, ENDPOINT_NONE);
+	add_endpoint_table_data(hash, &ipxh->ipx_src, 0, true, 1, pinfo->fd->pkt_len, &ipx_endpoint_dissector_info, ENDPOINT_NONE);
+	add_endpoint_table_data(hash, &ipxh->ipx_dst, 0, false, 1, pinfo->fd->pkt_len, &ipx_endpoint_dissector_info, ENDPOINT_NONE);
 
 	return TAP_PACKET_REDRAW;
 }
@@ -272,10 +272,10 @@ static const value_string ipxmsg_sigchar_vals[] = {
 };
 
 static bool
-capture_ipx(const guchar *pd _U_, int offset _U_, int len _U_, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
+capture_ipx(const unsigned char *pd _U_, int offset _U_, int len _U_, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
 	capture_dissector_increment_count(cpinfo, proto_ipx);
-	return TRUE;
+	return true;
 }
 
 static int
@@ -286,10 +286,10 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	proto_tree	*ipx_tree = NULL;
 	proto_item	*ti = NULL, *hidden_item;
 
-	guint8		ipx_hops;
+	uint8_t		ipx_hops;
 	char 		*str;
-	guint16		first_socket, second_socket;
-	guint32		ipx_snet, ipx_dnet;
+	uint16_t		first_socket, second_socket;
+	uint32_t		ipx_snet, ipx_dnet;
 	static ipxhdr_t ipxh_arr[4];
 	static int ipx_current=0;
 	ipxhdr_t *ipxh;
@@ -307,7 +307,7 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	/* Calculate here for use in pinfo and in tree */
 	ipxh->ipx_dsocket = tvb_get_ntohs(tvb, 16);
 	ipxh->ipx_ssocket = tvb_get_ntohs(tvb, 28);
-	ipxh->ipx_type    = tvb_get_guint8(tvb, 5);
+	ipxh->ipx_type    = tvb_get_uint8(tvb, 5);
 	ipxh->ipx_length  = tvb_get_ntohs(tvb, 2);
 
 	pinfo->ptype = PT_IPX;
@@ -345,7 +345,7 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
 	proto_tree_add_checksum(ipx_tree, tvb, 0, hf_ipx_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 	proto_tree_add_uint(ipx_tree, hf_ipx_len, tvb, 2, 2, ipxh->ipx_length);
-	ipx_hops = tvb_get_guint8(tvb, 4);
+	ipx_hops = tvb_get_uint8(tvb, 4);
 	proto_tree_add_uint_format(ipx_tree, hf_ipx_hops, tvb, 4, 1, ipx_hops,
 		"Transport Control: %d hops", ipx_hops);
 	proto_tree_add_uint(ipx_tree, hf_ipx_packet_type, tvb, 5, 1, ipxh->ipx_type);
@@ -424,11 +424,11 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
 	if (second_socket != IPX_SOCKET_NWLINK_SMB_NAMEQUERY) {
 		if (dissector_try_uint_new(ipx_socket_dissector_table, first_socket,
-			next_tvb, pinfo, tree, FALSE, ipxh))
+			next_tvb, pinfo, tree, false, ipxh))
 			return tvb_captured_length(tvb);
 	}
 	if (dissector_try_uint_new(ipx_socket_dissector_table, second_socket,
-		next_tvb, pinfo, tree, FALSE, ipxh))
+		next_tvb, pinfo, tree, false, ipxh))
 		return tvb_captured_length(tvb);
 
 	/*
@@ -436,7 +436,7 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	 * at least let us, for example, dissect SPX packets as SPX.
 	 */
 	if (dissector_try_uint_new(ipx_type_dissector_table, ipxh->ipx_type, next_tvb,
-		pinfo, tree, FALSE, ipxh))
+		pinfo, tree, false, ipxh))
 		return tvb_captured_length(tvb);
 
 	call_data_dissector(next_tvb, pinfo, tree);
@@ -448,14 +448,14 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
 typedef struct {
 	conversation_t	*conversation;
-	guint32         spx_src;
-	guint16         spx_seq;
+	uint32_t        spx_src;
+	uint16_t        spx_seq;
 } spx_hash_key;
 
 typedef struct {
-	guint16             spx_ack;
-	guint16             spx_all;
-	guint32             num;
+	uint16_t            spx_ack;
+	uint16_t            spx_all;
+	uint32_t            num;
 } spx_hash_value;
 
 /*
@@ -463,14 +463,14 @@ typedef struct {
  * frame number of the original transmission.
  */
 typedef struct {
-	guint32             num;
+	uint32_t            num;
 } spx_rexmit_info;
 
 static wmem_map_t *spx_hash;
 
 /* Hash Functions */
-static gint
-spx_equal(gconstpointer v, gconstpointer v2)
+static int
+spx_equal(const void *v, const void *v2)
 {
 	const spx_hash_key	*val1 = (const spx_hash_key*)v;
 	const spx_hash_key	*val2 = (const spx_hash_key*)v2;
@@ -483,15 +483,15 @@ spx_equal(gconstpointer v, gconstpointer v2)
 	return 0;
 }
 
-static guint
-spx_hash_func(gconstpointer v)
+static unsigned
+spx_hash_func(const void *v)
 {
 	const spx_hash_key	*spx_key = (const spx_hash_key*)v;
 	return GPOINTER_TO_UINT(spx_key->conversation) + spx_key->spx_src;
 }
 
 static spx_hash_value*
-spx_hash_insert(conversation_t *conversation, guint32 spx_src, guint16 spx_seq)
+spx_hash_insert(conversation_t *conversation, uint32_t spx_src, uint16_t spx_seq)
 {
 	spx_hash_key		*key;
 	spx_hash_value		*value;
@@ -511,7 +511,7 @@ spx_hash_insert(conversation_t *conversation, guint32 spx_src, guint16 spx_seq)
 
 /* Returns the spx_hash_value*, or NULL if not found. */
 static spx_hash_value*
-spx_hash_lookup(conversation_t *conversation, guint32 spx_src, guint32 spx_seq)
+spx_hash_lookup(conversation_t *conversation, uint32_t spx_src, uint32_t spx_seq)
 {
 	spx_hash_key		key;
 
@@ -547,7 +547,7 @@ static const value_string conn_vals[] = {
 };
 
 static const char*
-spx_datastream(guint8 type)
+spx_datastream(uint8_t type)
 {
 	switch (type) {
 		case 0xfe:
@@ -568,14 +568,14 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	proto_tree	*spx_tree;
 	proto_item	*ti;
 	tvbuff_t	*next_tvb;
-	guint8		conn_ctrl;
-	guint8		hdr_len = SPX_HEADER_LEN;
-	guint8		datastream_type;
+	uint8_t		conn_ctrl;
+	uint8_t		hdr_len = SPX_HEADER_LEN;
+	uint8_t		datastream_type;
 	const char	*datastream_type_string;
-	guint16         spx_seq;
+	uint16_t        spx_seq;
 	const char	*spx_msg_string;
-	guint16		low_socket, high_socket;
-	guint32		src;
+	uint16_t		low_socket, high_socket;
+	uint32_t		src;
 	conversation_t	*conversation;
 	spx_hash_value	*pkt_value;
 	spx_rexmit_info	*spx_rexmit_info_p;
@@ -584,7 +584,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SPX");
 	col_set_str(pinfo->cinfo, COL_INFO, "SPX");
 
-	conn_ctrl = tvb_get_guint8(tvb, 0);
+	conn_ctrl = tvb_get_uint8(tvb, 0);
 	if ((conn_ctrl & SPX_VII_PACKET) && tvb_get_ntohs(tvb, 4) != 0xffff) {
 		/* SPX2 packets have an extra two-byte field, unless they have
 		 * a dest-ID of 0xffff... */
@@ -626,7 +626,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 		}
 	}
 
-	datastream_type = tvb_get_guint8(tvb, 1);
+	datastream_type = tvb_get_uint8(tvb, 1);
 	datastream_type_string = spx_datastream(datastream_type);
 	if (datastream_type_string != NULL) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
@@ -822,12 +822,12 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
 		next_tvb = tvb_new_subset_remaining(tvb, hdr_len);
 		if (dissector_try_uint_new(spx_socket_dissector_table, low_socket,
-		    next_tvb, pinfo, tree, FALSE, &spx_infox))
+		    next_tvb, pinfo, tree, false, &spx_infox))
 		{
 			return tvb_captured_length(tvb);
 		}
 		if (dissector_try_uint_new(spx_socket_dissector_table, high_socket,
-		    next_tvb, pinfo, tree, FALSE, &spx_infox))
+		    next_tvb, pinfo, tree, false, &spx_infox))
 		{
 			return tvb_captured_length(tvb);
 		}
@@ -844,13 +844,13 @@ dissect_ipxmsg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 {
 	proto_tree	*msg_tree;
 	proto_item	*ti;
-	guint8		conn_number, sig_char;
+	uint8_t		conn_number, sig_char;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPX MSG");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	conn_number = tvb_get_guint8(tvb, 0);
-	sig_char = tvb_get_guint8(tvb, 1);
+	conn_number = tvb_get_uint8(tvb, 0);
+	sig_char = tvb_get_uint8(tvb, 1);
 
 	col_add_fstr(pinfo->cinfo, COL_INFO,
 			"%s, Connection %d",
@@ -881,9 +881,9 @@ dissect_ipxrip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 {
 	proto_tree	*rip_tree;
 	proto_item	*ti, *hidden_item;
-	guint16		operation, ticks;
-	guint		cursor;
-	guint		available_length;
+	uint16_t		operation, ticks;
+	unsigned		cursor;
+	unsigned		available_length;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPX RIP");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -1209,7 +1209,7 @@ dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 {
 	proto_tree	*sap_tree, *s_tree;
 	proto_item	*ti, *hidden_item;
-	guint		cursor;
+	unsigned		cursor;
 	struct sap_query query;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPX SAP");
@@ -1247,9 +1247,9 @@ dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 		if (query.query_type == IPX_SAP_GENERAL_RESPONSE ||
 				query.query_type == IPX_SAP_NEAREST_RESPONSE) { /* responses */
 
-			guint available_length = tvb_reported_length(tvb);
+			unsigned available_length = tvb_reported_length(tvb);
 			for (cursor =  2; cursor < available_length; cursor += 64) {
-				const guint8 *server_name;
+				const uint8_t *server_name;
 
 				ti = proto_tree_add_item(sap_tree, hf_sap_server, tvb, cursor, 64, ENC_NA);
 				s_tree = proto_item_add_subtree(ti, ett_ipxsap_server);
@@ -1438,12 +1438,12 @@ proto_register_ipx(void)
 		{ &hf_ipxrip_request,
 		{ "Request",			"ipxrip.request",
 		  FT_BOOLEAN,	BASE_NONE,	NULL,	0x0,
-		  "TRUE if IPX RIP request", HFILL }},
+		  "true if IPX RIP request", HFILL }},
 
 		{ &hf_ipxrip_response,
 		{ "Response",			"ipxrip.response",
 		  FT_BOOLEAN,	BASE_NONE,	NULL,	0x0,
-		  "TRUE if IPX RIP response", HFILL }},
+		  "true if IPX RIP response", HFILL }},
 
 		{ &hf_ipxrip_packet_type,
 		{ "RIP packet type",			"ipxrip.packet_type",
@@ -1470,12 +1470,12 @@ proto_register_ipx(void)
 		{ &hf_sap_request,
 		{ "Request",			"ipxsap.request",
 		  FT_BOOLEAN,	BASE_NONE,	NULL,	0x0,
-		  "TRUE if SAP request", HFILL }},
+		  "true if SAP request", HFILL }},
 
 		{ &hf_sap_response,
 		{ "Response",			"ipxsap.response",
 		  FT_BOOLEAN,	BASE_NONE,	NULL,	0x0,
-		  "TRUE if SAP response", HFILL }},
+		  "true if SAP response", HFILL }},
 
 		{ &hf_sap_packet_type,
 		{ "SAP packet type",		"ipxsap.packet_type",
@@ -1537,7 +1537,7 @@ proto_register_ipx(void)
 		  NULL, HFILL }},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_ipx,
 		&ett_spx,
 		&ett_spx_connctrl,
@@ -1592,7 +1592,7 @@ proto_register_ipx(void)
 	spx_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), spx_hash_func, spx_equal);
 	ipx_tap=register_tap("ipx");
 
-	register_conversation_table(proto_ipx, TRUE, ipx_conversation_packet, ipx_endpoint_packet);
+	register_conversation_table(proto_ipx, true, ipx_conversation_packet, ipx_endpoint_packet);
 
 	register_capture_dissector("ipx", capture_ipx, proto_ipx);
 }

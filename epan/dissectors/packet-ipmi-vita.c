@@ -19,158 +19,158 @@ void proto_register_ipmi_vita(void);
 
 /* Tree type identifiers.
 */
-static gint ett_vita_ipmc;
-static gint ett_vita_ipmb;
-static gint ett_vita_vso;
-static gint ett_vita_led_caps;
-static gint ett_vita_led_color;
-static gint ett_vita_led_flags;
-static gint ett_vita_led_states;
-static gint ett_vita_ipmb_state;
-static gint ett_vita_fru_policy_bits;
-static gint ett_vita_fan_properties;
-static gint ett_vita_fru_control_caps;
-static gint ett_vita_chassis_addr_type;
-static gint ett_vita_chassis_addr;
-static gint ett_vita_persistent_control_state;
-static gint ett_vita_persistent_control_caps;
+static int ett_vita_ipmc;
+static int ett_vita_ipmb;
+static int ett_vita_vso;
+static int ett_vita_led_caps;
+static int ett_vita_led_color;
+static int ett_vita_led_flags;
+static int ett_vita_led_states;
+static int ett_vita_ipmb_state;
+static int ett_vita_fru_policy_bits;
+static int ett_vita_fan_properties;
+static int ett_vita_fru_control_caps;
+static int ett_vita_chassis_addr_type;
+static int ett_vita_chassis_addr;
+static int ett_vita_persistent_control_state;
+static int ett_vita_persistent_control_caps;
 
 /* Field identifiers.
 */
-static gint hf_vita_reserved;
-static gint hf_vita_fruid;
-static gint hf_vita_addr_key_type;
-static gint hf_vita_addr_key;
-static gint hf_vita_hw_addr;
-static gint hf_vita_ipmb_addr;
-static gint hf_vita_site_type;
-static gint hf_vita_site_num;
-static gint hf_vita_ipmbl_addr;
+static int hf_vita_reserved;
+static int hf_vita_fruid;
+static int hf_vita_addr_key_type;
+static int hf_vita_addr_key;
+static int hf_vita_hw_addr;
+static int hf_vita_ipmb_addr;
+static int hf_vita_site_type;
+static int hf_vita_site_num;
+static int hf_vita_ipmbl_addr;
 
-static gint hf_vita_chassis_identifier;
-static gint hf_vita_chassis_identifier_type;
-static gint hf_vita_chassis_identifier_length;
-static gint hf_vita_ipmc;
-static gint hf_vita_tier;
-static gint hf_vita_layer;
-static gint hf_vita_ipmb;
-static gint hf_vita_ipmb_itfs;
-static gint hf_vita_ipmb_freq;
-static gint hf_vita_vso;
-static gint hf_vita_vso_std;
-static gint hf_vita_rev;
-static gint hf_vita_max_fruid;
-static gint hf_vita_ipmc_fruid;
-static gint hf_vita_fru_control;
+static int hf_vita_chassis_identifier;
+static int hf_vita_chassis_identifier_type;
+static int hf_vita_chassis_identifier_length;
+static int hf_vita_ipmc;
+static int hf_vita_tier;
+static int hf_vita_layer;
+static int hf_vita_ipmb;
+static int hf_vita_ipmb_itfs;
+static int hf_vita_ipmb_freq;
+static int hf_vita_vso;
+static int hf_vita_vso_std;
+static int hf_vita_rev;
+static int hf_vita_max_fruid;
+static int hf_vita_ipmc_fruid;
+static int hf_vita_fru_control;
 
-static gint hf_vita_led_count;
-static gint hf_vita_led_id;
-static gint hf_vita_led_caps;
-static gint hf_vita_led_cap_blue;
-static gint hf_vita_led_cap_red;
-static gint hf_vita_led_cap_green;
-static gint hf_vita_led_cap_amber;
-static gint hf_vita_led_cap_orange;
-static gint hf_vita_led_cap_white;
-static gint hf_vita_led_def_loc_color;
-static gint hf_vita_led_def_ovr_color;
-static gint hf_vita_led_color;
-static gint hf_vita_led_flags;
-static gint hf_vita_led_flag_pwr;
-static gint hf_vita_led_flag_hw_restrict;
-static gint hf_vita_led_states;
-static gint hf_vita_led_loc_func;
-static gint hf_vita_led_loc_duration;
-static gint hf_vita_led_loc_color;
-static gint hf_vita_led_ovr_func;
-static gint hf_vita_led_ovr_duration;
-static gint hf_vita_led_ovr_color;
-static gint hf_vita_led_lamp_test_duration;
-static gint hf_vita_led_state_local;
-static gint hf_vita_led_state_override;
-static gint hf_vita_led_state_lamp_test;
-static gint hf_vita_led_state_hw_restrict;
+static int hf_vita_led_count;
+static int hf_vita_led_id;
+static int hf_vita_led_caps;
+static int hf_vita_led_cap_blue;
+static int hf_vita_led_cap_red;
+static int hf_vita_led_cap_green;
+static int hf_vita_led_cap_amber;
+static int hf_vita_led_cap_orange;
+static int hf_vita_led_cap_white;
+static int hf_vita_led_def_loc_color;
+static int hf_vita_led_def_ovr_color;
+static int hf_vita_led_color;
+static int hf_vita_led_flags;
+static int hf_vita_led_flag_pwr;
+static int hf_vita_led_flag_hw_restrict;
+static int hf_vita_led_states;
+static int hf_vita_led_loc_func;
+static int hf_vita_led_loc_duration;
+static int hf_vita_led_loc_color;
+static int hf_vita_led_ovr_func;
+static int hf_vita_led_ovr_duration;
+static int hf_vita_led_ovr_color;
+static int hf_vita_led_lamp_test_duration;
+static int hf_vita_led_state_local;
+static int hf_vita_led_state_override;
+static int hf_vita_led_state_lamp_test;
+static int hf_vita_led_state_hw_restrict;
 
-static gint hf_vita_ipmba_state;
-static gint hf_vita_ipmbb_state;
-static gint hf_vita_ipmb_state;
-static gint hf_vita_ipmb_link_id;
+static int hf_vita_ipmba_state;
+static int hf_vita_ipmbb_state;
+static int hf_vita_ipmb_state;
+static int hf_vita_ipmb_link_id;
 
-static gint hf_vita_fru_policy_mask_bits;
-static gint hf_vita_fru_policy_set_bits;
-static gint hf_vita_fru_policy_bits;
-static gint hf_vita_fru_activation_locked;
-static gint hf_vita_fru_deactivation_locked;
-static gint hf_vita_fru_commanded_deactivation_ignored;
-static gint hf_vita_fru_default_activation_locked;
+static int hf_vita_fru_policy_mask_bits;
+static int hf_vita_fru_policy_set_bits;
+static int hf_vita_fru_policy_bits;
+static int hf_vita_fru_activation_locked;
+static int hf_vita_fru_deactivation_locked;
+static int hf_vita_fru_commanded_deactivation_ignored;
+static int hf_vita_fru_default_activation_locked;
 
-static gint hf_vita_fru_activation;
+static int hf_vita_fru_activation;
 
-static gint hf_vita_record_id;
+static int hf_vita_record_id;
 
-static gint hf_vita_fan_min_level;
-static gint hf_vita_fan_max_level;
-static gint hf_vita_fan_norm_level;
-static gint hf_vita_fan_properties;
-static gint hf_vita_fan_prop_local_control;
-static gint hf_vita_fan_override_level;
-static gint hf_vita_fan_local_level;
-static gint hf_vita_fan_local_control;
+static int hf_vita_fan_min_level;
+static int hf_vita_fan_max_level;
+static int hf_vita_fan_norm_level;
+static int hf_vita_fan_properties;
+static int hf_vita_fan_prop_local_control;
+static int hf_vita_fan_override_level;
+static int hf_vita_fan_local_level;
+static int hf_vita_fan_local_control;
 
-static gint hf_vita_ipmb_link_key_type;
-static gint hf_vita_ipmb_link_key_value;
-static gint hf_vita_ipmb_link_number;
-static gint hf_vita_ipmb_sensor_number;
+static int hf_vita_ipmb_link_key_type;
+static int hf_vita_ipmb_link_key_value;
+static int hf_vita_ipmb_link_number;
+static int hf_vita_ipmb_sensor_number;
 
-static gint hf_vita_active_chmc_ipmb_addr;
-static gint hf_vita_backup_chmc_ipmb_addr;
+static int hf_vita_active_chmc_ipmb_addr;
+static int hf_vita_backup_chmc_ipmb_addr;
 
-static gint hf_vita_fan_number;
-static gint hf_vita_fan_policy;
-static gint hf_vita_fan_policy_timeout;
-static gint hf_vita_fan_coverage;
+static int hf_vita_fan_number;
+static int hf_vita_fan_policy;
+static int hf_vita_fan_policy_timeout;
+static int hf_vita_fan_coverage;
 
-static gint hf_vita_fru_control_caps;
-static gint hf_vita_fru_control_cap_cold;
-static gint hf_vita_fru_control_cap_warm;
-static gint hf_vita_fru_control_cap_grace;
-static gint hf_vita_fru_control_cap_diag;
-static gint hf_vita_fru_control_cap_pwr;
+static int hf_vita_fru_control_caps;
+static int hf_vita_fru_control_cap_cold;
+static int hf_vita_fru_control_cap_warm;
+static int hf_vita_fru_control_cap_grace;
+static int hf_vita_fru_control_cap_diag;
+static int hf_vita_fru_control_cap_pwr;
 
-static gint hf_vita_fru_lock_operation;
-static gint hf_vita_fru_lock_id;
-static gint hf_vita_fru_lock_timestamp;
+static int hf_vita_fru_lock_operation;
+static int hf_vita_fru_lock_id;
+static int hf_vita_fru_lock_timestamp;
 
-static gint hf_vita_fru_write_offset;
-static gint hf_vita_fru_write_data;
-static gint hf_vita_fru_write_count;
+static int hf_vita_fru_write_offset;
+static int hf_vita_fru_write_data;
+static int hf_vita_fru_write_count;
 
-static gint hf_vita_chassis_addr_number;
-static gint hf_vita_chassis_addr_timestamp;
-static gint hf_vita_chassis_addr_count;
-static gint hf_vita_chassis_max_unavail;
-static gint hf_vita_chassis_addr_type;
-static gint hf_vita_chassis_addr;
-static gint hf_vita_chassis_addr_chmc;
-static gint hf_vita_chassis_addr_format;
-static gint hf_vita_ipv4_addr;
-static gint hf_vita_rmcp_port;
+static int hf_vita_chassis_addr_number;
+static int hf_vita_chassis_addr_timestamp;
+static int hf_vita_chassis_addr_count;
+static int hf_vita_chassis_max_unavail;
+static int hf_vita_chassis_addr_type;
+static int hf_vita_chassis_addr;
+static int hf_vita_chassis_addr_chmc;
+static int hf_vita_chassis_addr_format;
+static int hf_vita_ipv4_addr;
+static int hf_vita_rmcp_port;
 
-static gint hf_vita_persistent_control_state;
-static gint hf_vita_persistent_control_cold;
-static gint hf_vita_persistent_control_warm;
-static gint hf_vita_persistent_control_mask;
-static gint hf_vita_persistent_control_set;
-static gint hf_vita_persistent_control_caps;
-static gint hf_vita_persistent_control_cap_cold;
-static gint hf_vita_persistent_control_cap_warm;
+static int hf_vita_persistent_control_state;
+static int hf_vita_persistent_control_cold;
+static int hf_vita_persistent_control_warm;
+static int hf_vita_persistent_control_mask;
+static int hf_vita_persistent_control_set;
+static int hf_vita_persistent_control_caps;
+static int hf_vita_persistent_control_cap_cold;
+static int hf_vita_persistent_control_cap_warm;
 
-static gint hf_vita_fru_state_sensor_num;
-static gint hf_vita_fru_health_sensor_num;
-static gint hf_vita_fru_voltage_sensor_num;
-static gint hf_vita_fru_temp_sensor_num;
-static gint hf_vita_payload_test_results_sensor_num;
-static gint hf_vita_payload_test_status_sensor_num;
+static int hf_vita_fru_state_sensor_num;
+static int hf_vita_fru_health_sensor_num;
+static int hf_vita_fru_voltage_sensor_num;
+static int hf_vita_fru_temp_sensor_num;
+static int hf_vita_payload_test_results_sensor_num;
+static int hf_vita_payload_test_status_sensor_num;
 
 /* String values.
 */
@@ -377,7 +377,7 @@ static const value_string cc20[] = {
 
 /* Array of sub-tree identifiers (needed for registration).
 */
-static gint * const ett_ipmi_vita[] = {
+static int * const ett_ipmi_vita[] = {
 	&ett_vita_ipmc,
 	&ett_vita_ipmb,
 	&ett_vita_vso,
@@ -804,7 +804,7 @@ cmd00_rs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 cmd01_rq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	guint len = tvb_captured_length(tvb);
+	unsigned len = tvb_captured_length(tvb);
 
 	if (len > 0) {
 		proto_tree_add_item(tree, hf_vita_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
@@ -842,7 +842,7 @@ cmd01_rs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 cmd02_rs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	ipmi_add_typelen(pinfo, tree, hf_vita_chassis_identifier, hf_vita_chassis_identifier_type, hf_vita_chassis_identifier_length, tvb, 0, TRUE);
+	ipmi_add_typelen(pinfo, tree, hf_vita_chassis_identifier, hf_vita_chassis_identifier_type, hf_vita_chassis_identifier_length, tvb, 0, true);
 }
 
 /* FRU Control (request)
@@ -1199,7 +1199,7 @@ cmd21_rs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 			ENC_LITTLE_ENDIAN);
 	item = proto_tree_add_item(tree, hf_vita_chassis_addr, tvb, 8, -1, ENC_NA);
 
-	if (!(tvb_get_guint8(tvb, 8) & 0x7f)) {
+	if (!(tvb_get_uint8(tvb, 8) & 0x7f)) {
 		proto_tree * sub = proto_item_add_subtree(item, ett_vita_chassis_addr);
 		proto_tree_add_item(sub, hf_vita_ipv4_addr, tvb, 9, 4, ENC_BIG_ENDIAN);
 		proto_tree_add_item(sub, hf_vita_rmcp_port, tvb, 13, 2, ENC_BIG_ENDIAN);
@@ -1302,7 +1302,7 @@ static const ipmi_cmd_t cmd_vita[] = {
 void
 proto_register_ipmi_vita(void)
 {
-	static const guint8 sig_vita[1] = { 3 };
+	static const uint8_t sig_vita[1] = { 3 };
 
 	proto_register_field_array(proto_ipmi, hf_ipmi_vita,
 			array_length(hf_ipmi_vita));
