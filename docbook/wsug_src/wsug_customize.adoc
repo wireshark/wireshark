@@ -1588,7 +1588,7 @@ different SNMP-engines the first entry to match both is taken, if you need a
 catch all engine-id (empty) that entry should be the last one.
 
 Authentication model::
-Which auth model to use (either “MD5” or “SHA1”).
+Which auth model to use (either “MD5”, “SHA1”, "SHA2-224", "SHA2-256", "SHA2-384" or "SHA2-512").
 
 Password::
 The authentication password. Use _\xDD_ for unprintable characters. A
@@ -1598,7 +1598,7 @@ _\x01\x02\x03\x04\x05\x06_. The _\_ character must be treated as an unprintable
 character, i.e., it must be entered as _\x5C_ or _\x5c_.
 
 Privacy protocol::
-Which encryption algorithm to use (either “DES” or “AES”).
+Which encryption algorithm to use (either “DES”, “AES”, "AES192" or "AES256").
 
 Privacy password::
 The privacy password. Use _\xDD_ for unprintable characters. A hexadecimal
@@ -1606,6 +1606,11 @@ password must be entered as a sequence of _\xDD_ characters. For example, the he
 password 010203040506 must be entered as _\x01\x02\x03\x04\x05\x06_. The _\_
 character must be treated as an unprintable character, i.e., it must be entered
 as _\x5C_ or _\x5c_.
+
+Key expansion method::
+Which method to use to expand the key when the generated key provides too few bytes
+for the selected encryption method (either based on "draft-reeder-snmpv3-usm-3desede-00" or
+as implemented in AGENT++).
 
 [#ChK12ProtocolsSection]
 
