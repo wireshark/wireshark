@@ -55,9 +55,9 @@ static int hf_rsip_parameter_spi_number;
 static int hf_rsip_parameter_spi;
 
 /* Initialize the subtree pointers */
-static gint ett_rsip;
-static gint ett_rsip_param;
-static gint ett_rsip_param_val;
+static int ett_rsip;
+static int ett_rsip_param;
+static int ett_rsip_param_val;
 
 #define UDP_PORT_RSIP	4555
 #define TCP_PORT_RSIP	4555
@@ -241,9 +241,9 @@ static int
 rsip_parameter(tvbuff_t *tvb, proto_tree *rsip_tree, int off, int eoff)
 {
 	int		consumed, i, paramleft;
-	guint8		addrtype, flowpolicy, method, number, paramtype, tuntype;
-	guint16		error, ind, paramlen, portnum;
-	guint32		bid, cid, leasetm, msgc;
+	uint8_t		addrtype, flowpolicy, method, number, paramtype, tuntype;
+	uint16_t		error, ind, paramlen, portnum;
+	uint32_t		bid, cid, leasetm, msgc;
 	proto_tree	*p_tree, *v_tree;
 	proto_item	*pti, *vti;
 
@@ -251,7 +251,7 @@ rsip_parameter(tvbuff_t *tvb, proto_tree *rsip_tree, int off, int eoff)
 	if (off >= eoff)
 		return 0;
 
-	paramtype = tvb_get_guint8(tvb, off);
+	paramtype = tvb_get_uint8(tvb, off);
 	paramlen = tvb_get_ntohs(tvb, off + 1);
 
 	p_tree = proto_tree_add_subtree(rsip_tree, tvb, off, 3 + paramlen,
@@ -276,7 +276,7 @@ rsip_parameter(tvbuff_t *tvb, proto_tree *rsip_tree, int off, int eoff)
 		proto_tree_add_item(v_tree, hf_rsip_parameter_address_type,
 		    tvb, off + 3, 1, ENC_BIG_ENDIAN);
 
-		addrtype = tvb_get_guint8(tvb, off + 3);
+		addrtype = tvb_get_uint8(tvb, off + 3);
 
 		switch (addrtype) {
 		case 0:		/* Reserved */
@@ -333,7 +333,7 @@ rsip_parameter(tvbuff_t *tvb, proto_tree *rsip_tree, int off, int eoff)
 	case 2:		/* Ports */
 		proto_tree_add_item(v_tree, hf_rsip_parameter_ports_number,
 		    tvb, off + 3, 1, ENC_BIG_ENDIAN);
-		number = tvb_get_guint8(tvb, off + 3);
+		number = tvb_get_uint8(tvb, off + 3);
 		if (paramlen == 1) {
 			switch (number) {
 			case 0:
@@ -401,7 +401,7 @@ rsip_parameter(tvbuff_t *tvb, proto_tree *rsip_tree, int off, int eoff)
 		/* XXX if paramlen != 1 we've got a protocol violation */
 		proto_tree_add_item(v_tree, hf_rsip_parameter_tunnel_type,
 		    tvb, off + 3, paramlen, ENC_BIG_ENDIAN);
-		tuntype = tvb_get_guint8(tvb, off + 3);
+		tuntype = tvb_get_uint8(tvb, off + 3);
 		proto_item_append_text(pti, ": %s",
 		    val_to_str(tuntype, tunnel_type_vals,
 		        "Unknown Tunnel Type (%d)"));
@@ -410,7 +410,7 @@ rsip_parameter(tvbuff_t *tvb, proto_tree *rsip_tree, int off, int eoff)
 		/* XXX if paramlen != 1 we've got a protocol violation */
 		proto_tree_add_item(v_tree, hf_rsip_parameter_method,
 		    tvb, off + 3, paramlen, ENC_BIG_ENDIAN);
-		method = tvb_get_guint8(tvb, off + 3);
+		method = tvb_get_uint8(tvb, off + 3);
 		proto_item_append_text(pti, ": %s",
 		    val_to_str(method, method_vals,
 		    "Unknown RSIP Method (%d)"));
@@ -427,14 +427,14 @@ rsip_parameter(tvbuff_t *tvb, proto_tree *rsip_tree, int off, int eoff)
 		/* XXX if paramlen != 2 we've got a protocol violation */
 		proto_tree_add_item(v_tree,
 		    hf_rsip_parameter_flow_policy_local, tvb, off + 3, 1, ENC_BIG_ENDIAN);
-		flowpolicy = tvb_get_guint8(tvb, off + 3);
+		flowpolicy = tvb_get_uint8(tvb, off + 3);
 		proto_item_append_text(pti, ": %s",
 		    val_to_str(flowpolicy, lcl_flow_policy_vals,
 		    "Undefined Local Flow Policy (%d)"));
 		proto_tree_add_item(v_tree,
 		    hf_rsip_parameter_flow_policy_remote, tvb, off + 4, 1,
 		    ENC_BIG_ENDIAN);
-		flowpolicy = tvb_get_guint8(tvb, off + 4);
+		flowpolicy = tvb_get_uint8(tvb, off + 4);
 		proto_item_append_text(pti, "/%s",
 		    val_to_str(flowpolicy, rmt_flow_policy_vals,
 		    "Undefined Remote Flow Policy (%d)"));
@@ -962,13 +962,13 @@ dissect_rsip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 {
 	proto_item	*ti;
 	proto_tree	*rsip_tree;
-	guint8		msgtype;
-	/*gboolean	msgcnt_required;*/
+	uint8_t		msgtype;
+	/*bool	msgcnt_required;*/
 	int		eoff;
 
-	msgtype = tvb_get_guint8(tvb, 1);
+	msgtype = tvb_get_uint8(tvb, 1);
 
-	/*msgcnt_required = (pinfo->ipproto == IP_PROTO_UDP)? TRUE : FALSE;*/
+	/*msgcnt_required = (pinfo->ipproto == IP_PROTO_UDP)? true : false;*/
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RSIP");
 
@@ -1215,7 +1215,7 @@ proto_register_rsip(void)
 		}
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_rsip,
 		&ett_rsip_param,
 		&ett_rsip_param_val

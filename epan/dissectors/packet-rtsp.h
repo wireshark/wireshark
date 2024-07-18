@@ -14,11 +14,11 @@
 
 /* Used for RTSP statistics */
 typedef struct _rtsp_info_value_t {
-	guint32 framenum;
-	gchar	*request_method;
-	guint	 response_code;
-	gchar   *rtsp_host;
-	gchar   *request_uri;
+	uint32_t framenum;
+	char	*request_method;
+	unsigned	 response_code;
+	char    *rtsp_host;
+	char    *request_uri;
 } rtsp_info_value_t;
 
 WS_DLL_PUBLIC const value_string rtsp_status_code_vals[];

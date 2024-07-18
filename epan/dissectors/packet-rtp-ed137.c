@@ -43,11 +43,11 @@ typedef struct _ed137_conv_info_t {
 
 /* ED137 RMM transaction data structure */
 typedef struct _ed137rmm_transaction_t {
-    guint32  rqst_frame;
-    guint32  resp_frame;
+    uint32_t rqst_frame;
+    uint32_t resp_frame;
     nstime_t rqst_time;
     nstime_t resp_time;
-    guint8   time_quality;
+    uint8_t  time_quality;
 } ed137rmm_transaction_t;
 
 static int proto_rtp_ed137;
@@ -146,11 +146,11 @@ static int hf_rtp_hdr_ed137_ft_climax_ddc_mam_time;
 static expert_field ei_rtp_hdr_ed137_ft_climax_ddc_rmm_resp_not_found;
 static expert_field ei_rtp_hdr_ed137_ft_sqi_rssi_out_of_range;
 
-static gint ett_hdr_ext_ed137s;
-static gint ett_hdr_ext_ed137;
-static gint ett_hdr_ext_ed137_add;
-static gint ett_hdr_ext_ed137a;
-static gint ett_hdr_ext_ed137a_add;
+static int ett_hdr_ext_ed137s;
+static int ett_hdr_ext_ed137;
+static int ett_hdr_ext_ed137_add;
+static int ett_hdr_ext_ed137a;
+static int ett_hdr_ext_ed137a_add;
 
 /* Forward declaration we need below */
 void proto_register_rtp_ed137(void);
@@ -535,15 +535,15 @@ dissect_rtp_hdr_ext_ed137(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     struct _rtp_info *rtp_info=(struct _rtp_info *)data;
     proto_tree *rtp_hext_tree = NULL;
     unsigned int hdrext_offset = 0;
-    gboolean ed137_ptt = FALSE;
-    gboolean ed137_squ = FALSE;
+    bool ed137_ptt = false;
+    bool ed137_squ = false;
 
     hdr_extension_len = tvb_reported_length(tvb);
 
     if ( hdr_extension_len > 0 ) {
 
         if (rtp_info != NULL) {
-            rtp_info->info_is_ed137 = TRUE;
+            rtp_info->info_is_ed137 = true;
         }
         if ( tree ) {
             proto_item *ti;
@@ -557,15 +557,15 @@ dissect_rtp_hdr_ext_ed137(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             proto_item *ti3;
             proto_tree *rtp_hext_tree3;
             unsigned int ft_type;
-            guint32 ext_value = tvb_get_ntohl( tvb, hdrext_offset );
+            uint32_t ext_value = tvb_get_ntohl( tvb, hdrext_offset );
 
             if (RTP_ED137_ptt_mask(ext_value)) {
                 col_append_str(pinfo->cinfo, COL_INFO, ", PTT");
-                ed137_ptt = TRUE;
+                ed137_ptt = true;
             }
             if (RTP_ED137_squ_mask(ext_value)) {
                 col_append_str(pinfo->cinfo, COL_INFO, ", SQU");
-                ed137_squ = TRUE;
+                ed137_squ = true;
             }
 
             /* Map PTT/SQU bits to string */
@@ -682,12 +682,12 @@ dissect_rtp_hdr_ext_ed137(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     nstime.nsecs = (usecs % 1000000) * 1000;
 
 /* Decodes and calculates relative/absolute time item */
-static void process_time_value(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, int time_item, unsigned int hdrext_offset, gboolean time_relative _U_, unsigned int time_value)
+static void process_time_value(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, int time_item, unsigned int hdrext_offset, bool time_relative _U_, unsigned int time_value)
 {
     /* Note: even there is relative/absolute flag, value is shown same way because it is relative value derived from relative/absolute start point */
     unsigned int time_calc;
     nstime_t tmp_time;
-    gchar *tmp;
+    char *tmp;
 
     /* Value is stored as count of 125 us ticks */
     time_calc = time_value * 125;
@@ -700,8 +700,8 @@ static void process_time_value(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tr
 /* Decodes and calculates value based on 125us tick*/
 static void process_125us_based_value(tvbuff_t *tvb, proto_tree *tree, int value_item, unsigned int hdrext_offset)
 {
-    guint32 value;
-    guint32 value_calc;
+    uint32_t value;
+    uint32_t value_calc;
 
     /* Values is stored as count of 125 us ticks */
     value = tvb_get_ntohs( tvb, hdrext_offset );
@@ -713,12 +713,12 @@ static void process_125us_based_value(tvbuff_t *tvb, proto_tree *tree, int value
 static int
 dissect_rtp_hdr_ext_ed137a_feature_sqi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-    guint32 ext_value;
-    guint32 sqi_qidx;
-    guint32 sqi_qidx_ml;
+    uint32_t ext_value;
+    uint32_t sqi_qidx;
+    uint32_t sqi_qidx_ml;
     proto_item *it;
 
-    ext_value = tvb_get_guint8( tvb, 0 );
+    ext_value = tvb_get_uint8( tvb, 0 );
     sqi_qidx    = RTP_ED137A_feature_sqi_qidx(ext_value);
     sqi_qidx_ml = RTP_ED137A_feature_sqi_qidx_ml(ext_value);
     if (RTP_ED137A_feature_sqi_qidx_ml_rssi == sqi_qidx_ml) {
@@ -752,12 +752,12 @@ dissect_rtp_hdr_ext_ed137a_feature_sqi(tvbuff_t *tvb, packet_info *pinfo _U_, pr
 static int
 dissect_rtp_hdr_ext_ed137a_feature_climax_tdly(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-    guint32 ext_value;
-    guint32 climax_tdly_mode;
-    guint32 climax_tdly_value;
-    guint32 climax_tdly_value_calc;
+    uint32_t ext_value;
+    uint32_t climax_tdly_mode;
+    uint32_t climax_tdly_value;
+    uint32_t climax_tdly_value_calc;
 
-    ext_value = tvb_get_guint8( tvb, 0 );
+    ext_value = tvb_get_uint8( tvb, 0 );
 
     climax_tdly_mode = RTP_ED137A_feature_climax_tdly_mode(ext_value);
     climax_tdly_value = RTP_ED137A_feature_climax_tdly_value(ext_value);
@@ -812,8 +812,8 @@ dissect_rtp_hdr_ext_ed137b_feature_rrc_single(tvbuff_t *tvb, packet_info *pinfo 
 */
 static ed137rmm_transaction_t *transaction_start(packet_info * pinfo,
                          proto_tree * tree,
-                         guint32 * key,
-                         guint8 time_quality_vcs)
+                         uint32_t * key,
+                         uint8_t time_quality_vcs)
 {
     conversation_t *conversation;
     ed137_conv_info_t *ed137_info;
@@ -851,7 +851,7 @@ static ed137rmm_transaction_t *transaction_start(packet_info * pinfo,
                        (void *) ed137rmm_trans);
     } else {
         /* Already visited this frame */
-        guint32 frame_num = pinfo->num;
+        uint32_t frame_num = pinfo->num;
 
         ed137rmm_key[0].length = 1;
         ed137rmm_key[0].key = key;
@@ -898,11 +898,11 @@ static ed137rmm_transaction_t *transaction_start(packet_info * pinfo,
 /* ======================================================================= */
 static ed137rmm_transaction_t *transaction_end(packet_info * pinfo,
                        proto_tree * tree,
-                       guint32 * key,
-                       guint8 time_quality_grs,
-                       guint32 delta_t,
-                       guint32 tsd,
-                       guint32 internal_t)
+                       uint32_t * key,
+                       uint8_t time_quality_grs,
+                       uint32_t delta_t,
+                       uint32_t tsd,
+                       uint32_t internal_t)
 {
     conversation_t *conversation;
     ed137_conv_info_t *ed137_info;
@@ -924,7 +924,7 @@ static ed137rmm_transaction_t *transaction_end(packet_info * pinfo,
     }
 
     if (!PINFO_FD_VISITED(pinfo)) {
-        guint32 frame_num;
+        uint32_t frame_num;
 
         ed137rmm_key[0].length = 1;
         ed137rmm_key[0].key = key;
@@ -963,7 +963,7 @@ static ed137rmm_transaction_t *transaction_end(packet_info * pinfo,
                        (void *) ed137rmm_trans);
     } else {
         /* Already visited this frame */
-        guint32 frame_num = pinfo->num;
+        uint32_t frame_num = pinfo->num;
 
         ed137rmm_key[0].length = 1;
         ed137rmm_key[0].key = key;
@@ -1016,10 +1016,10 @@ static ed137rmm_transaction_t *transaction_end(packet_info * pinfo,
 static int
 dissect_rtp_hdr_ext_ed137b_feature_climax_ddc_rmm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    guint32 ext_value;
+    uint32_t ext_value;
     proto_tree *item;
-    guint32 climax_ddc_rmm_tqv;
-    guint32 climax_ddc_rmm_t1;
+    uint32_t climax_ddc_rmm_tqv;
+    uint32_t climax_ddc_rmm_t1;
 
     /* Generated item points really to previous byte */
     item = proto_tree_add_item( tree, hf_rtp_hdr_ed137b_ft_climax_ddc_rmm, tvb, -1, 1, ENC_NA);
@@ -1040,11 +1040,11 @@ dissect_rtp_hdr_ext_ed137b_feature_climax_ddc_rmm(tvbuff_t *tvb, packet_info *pi
 static int
 dissect_rtp_hdr_ext_ed137b_feature_climax_ddc_mam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    guint32 ext_value;
+    uint32_t ext_value;
     proto_tree *item;
-    guint32 climax_ddc_mam_tqg;
-    guint32 climax_ddc_mam_t1;
-    guint32 climax_ddc_mam_t2;
+    uint32_t climax_ddc_mam_tqg;
+    uint32_t climax_ddc_mam_t1;
+    uint32_t climax_ddc_mam_t2;
 
     /* Generated item points really to previous byte */
     item = proto_tree_add_item( tree, hf_rtp_hdr_ed137b_ft_climax_ddc_mam, tvb, -1, 1, ENC_NA);
@@ -1082,11 +1082,11 @@ dissect_rtp_hdr_ext_ed137b_feature_climax_ddc_mam(tvbuff_t *tvb, packet_info *pi
 static int
 dissect_rtp_hdr_ext_ed137c_feature_climax_ddc_mam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    guint32 ext_value;
+    uint32_t ext_value;
     proto_tree *item;
-    guint32 climax_ddc_mam_tqg;
-    guint32 climax_ddc_mam_t1;
-    guint32 climax_ddc_mam_t2;
+    uint32_t climax_ddc_mam_tqg;
+    uint32_t climax_ddc_mam_t1;
+    uint32_t climax_ddc_mam_t2;
 
     /* Generated item points really to previous byte */
     item = proto_tree_add_item( tree, hf_rtp_hdr_ed137c_ft_climax_ddc_mam, tvb, -1, 1, ENC_NA);
@@ -1127,22 +1127,22 @@ dissect_rtp_hdr_ext_ed137c_feature_climax_ddc_mam(tvbuff_t *tvb, packet_info *pi
 static int
 dissect_rtp_hdr_ext_ed137a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    guint32 hdr_extension_len;
+    uint32_t hdr_extension_len;
     struct _rtp_info *rtp_info=(struct _rtp_info *)data;
     proto_tree *rtp_hext_tree = NULL;
-    guint32 hdrext_offset = 0;
-    gboolean ed137_ptt = FALSE;
-    gboolean ed137_squ = FALSE;
+    uint32_t hdrext_offset = 0;
+    bool ed137_ptt = false;
+    bool ed137_squ = false;
 
     hdr_extension_len = tvb_reported_length(tvb);
 
     if ( hdr_extension_len > 0 ) {
         proto_item *ti2;
         proto_tree *rtp_hext_tree2;
-        guint32 ext_value = tvb_get_ntohs( tvb, hdrext_offset );
+        uint32_t ext_value = tvb_get_ntohs( tvb, hdrext_offset );
 
         if (rtp_info != NULL) {
-            rtp_info->info_is_ed137 = TRUE;
+            rtp_info->info_is_ed137 = true;
         }
         if ( tree ) {
             proto_item *ti;
@@ -1152,11 +1152,11 @@ dissect_rtp_hdr_ext_ed137a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
         if (RTP_ED137A_ptt_mask(ext_value)) {
             col_append_str(pinfo->cinfo, COL_INFO, ", PTT");
-            ed137_ptt = TRUE;
+            ed137_ptt = true;
         }
         if (RTP_ED137A_squ_mask(ext_value)) {
             col_append_str(pinfo->cinfo, COL_INFO, ", SQU");
-            ed137_squ = TRUE;
+            ed137_squ = true;
         }
 
         /* Map PTT/SQU bits to string */
@@ -1203,8 +1203,8 @@ dissect_rtp_hdr_ext_ed137a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             while ( hdr_extension_len >= 2 ) {
                 proto_item *ti3;
                 proto_tree *rtp_hext_tree3;
-                guint32 ft_type;
-                guint32 ft_len;
+                uint32_t ft_type;
+                uint32_t ft_len;
 
                 ext_value = tvb_get_ntohs( tvb, hdrext_offset );
                 ft_type = RTP_ED137A_feature_type(ext_value);
@@ -1225,7 +1225,7 @@ dissect_rtp_hdr_ext_ed137a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                     hdr_extension_len -= 1;
 
                     tvbuff_t   *newtvb;
-                    guint32     ft_table_key;
+                    uint32_t    ft_table_key;
 
                     /* join 4 bit type and 4 bit length to 8 bit key */
                     ft_table_key = MAKE_KEY( ft_type, ft_len );
@@ -1251,7 +1251,7 @@ dissect_rtp_hdr_ext_ed137a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             }
 
             /* Process padding if any */
-            guint32 hdr_extension_padding;
+            uint32_t hdr_extension_padding;
 
             hdr_extension_padding = hdr_extension_len & 0x03;
 
@@ -2141,7 +2141,7 @@ proto_register_rtp_ed137(void)
         },
     };
 
-    static gint *ett[] =
+    static int *ett[] =
     {
         &ett_hdr_ext_ed137s,
         &ett_hdr_ext_ed137,
@@ -2200,14 +2200,14 @@ proto_register_rtp_ed137(void)
 void
 proto_reg_handoff_rtp_ed137(void)
 {
-    static gboolean prefs_initialized = FALSE;
+    static bool prefs_initialized = false;
 
     if (!prefs_initialized) {
 
         dissector_add_uint("rtp.hdr_ext", RTP_ED137_SIG, rtp_hdr_ext_ed137_handle);
         dissector_add_uint("rtp.hdr_ext", RTP_ED137A_SIG, rtp_hdr_ext_ed137a_handle);
 
-        prefs_initialized = TRUE;
+        prefs_initialized = true;
     }
 }
 

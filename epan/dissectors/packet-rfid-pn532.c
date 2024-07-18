@@ -295,34 +295,34 @@ enum {
 };
 
 typedef struct command_data_t {
-    guint32  bus_id;
-    guint32  device_address;
-    guint32  endpoint;
+    uint32_t bus_id;
+    uint32_t device_address;
+    uint32_t endpoint;
 
-    guint8   command;
-    guint32  command_frame_number;
-    guint32  response_frame_number;
+    uint8_t  command;
+    uint32_t command_frame_number;
+    uint32_t response_frame_number;
     union {
-        gint16  test_number;
-        gint16  baudrate;
+        int16_t test_number;
+        int16_t baudrate;
     } data;
 } command_data_t;
 
 static dissector_handle_t sub_handles[SUB_MAX];
-static gint sub_selected = SUB_DATA;
+static int sub_selected = SUB_DATA;
 
 /* Subtree handles: set by register_subtree_array */
-static gint ett_pn532;
-static gint ett_pn532_flags;
-static gint ett_pn532_target;
-static gint ett_pn532_fw_support;
-static gint ett_pn532_config_212_kbps;
-static gint ett_pn532_config_424_kbps;
-static gint ett_pn532_config_848_kbps;
-static gint ett_pn532_mifare_parameters;
-static gint ett_pn532_felica_parameters;
-static gint ett_pn532_wakeup_enable;
-static gint ett_pn532_autopoll_type;
+static int ett_pn532;
+static int ett_pn532_flags;
+static int ett_pn532_target;
+static int ett_pn532_fw_support;
+static int ett_pn532_config_212_kbps;
+static int ett_pn532_config_424_kbps;
+static int ett_pn532_config_848_kbps;
+static int ett_pn532_mifare_parameters;
+static int ett_pn532_felica_parameters;
+static int ett_pn532_wakeup_enable;
+static int ett_pn532_autopoll_type;
 
 /* Re-arranged from defs above to be in ascending order by value */
 static const value_string pn532_commands[] = {
@@ -572,7 +572,7 @@ static const value_string pn532_diagnose_baudrate_vals[] = {
     {0x00, NULL}
 };
 
-static void sam_timeout_base(gchar* buf, guint32 value) {
+static void sam_timeout_base(char* buf, uint32_t value) {
     if (value == 0x00) {
         snprintf(buf, ITEM_LABEL_LENGTH, "No timeout control");
     } else if (0x01 <= value && value <= 0x13) {
@@ -582,12 +582,12 @@ static void sam_timeout_base(gchar* buf, guint32 value) {
     }
 }
 
-static void replay_delay_base(gchar* buf, guint32 value) {
+static void replay_delay_base(char* buf, uint32_t value) {
         snprintf(buf, ITEM_LABEL_LENGTH, "%u.%03u s", value * 500 / 1000, value * 500 % 1000);
 }
 
-static gint
-dissect_status(proto_tree *tree, tvbuff_t *tvb, gint offset)
+static int
+dissect_status(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
     proto_tree_add_item(tree, hf_pn532_status_nad_present, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_pn532_status_mi, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -596,7 +596,7 @@ dissect_status(proto_tree *tree, tvbuff_t *tvb, gint offset)
     return offset + 1;
 }
 
-static gint
+static int
 dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item *item;
@@ -605,26 +605,26 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_tree *sub_tree;
     proto_item *next_item;
     proto_tree *next_tree;
-    guint8      cmd;
-    guint8      config;
-    gint16      baudrate;
-    gint16      test_number;
-    guint8      length;
-    guint8      value;
-    guint8      type;
-    guint8      item_value;
+    uint8_t     cmd;
+    uint8_t     config;
+    int16_t     baudrate;
+    int16_t     test_number;
+    uint8_t     length;
+    uint8_t     value;
+    uint8_t     type;
+    uint8_t     item_value;
     tvbuff_t   *next_tvb;
-    gint        offset = 0;
+    int         offset = 0;
     command_data_t  *command_data = NULL;
     usb_conv_info_t *usb_conv_info;
     wmem_tree_key_t  key[5];
-    guint32          bus_id;
-    guint32          device_address;
-    guint32          endpoint;
-    guint32          k_bus_id;
-    guint32          k_device_address;
-    guint32          k_endpoint;
-    guint32          k_frame_number;
+    uint32_t         bus_id;
+    uint32_t         device_address;
+    uint32_t         endpoint;
+    uint32_t         k_bus_id;
+    uint32_t         k_device_address;
+    uint32_t         k_endpoint;
+    uint32_t         k_frame_number;
 
     /* Reject the packet if data is NULL */
     if (data == NULL)
@@ -640,7 +640,7 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     offset += 1;
 
     proto_tree_add_item(pn532_tree, hf_pn532_command, tvb, offset, 1, ENC_NA);
-    cmd = tvb_get_guint8(tvb, offset);
+    cmd = tvb_get_uint8(tvb, offset);
     offset += 1;
 
     col_set_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(cmd, &pn532_commands_ext, "Unknown command"));
@@ -724,14 +724,14 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     case DIAGNOSE_REQ:
         proto_tree_add_item(pn532_tree, hf_pn532_test_number, tvb, offset, 1, ENC_NA);
-        test_number = tvb_get_guint8(tvb, offset);
+        test_number = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         if (command_data)
             command_data->data.test_number = test_number;
 
         proto_tree_add_item(pn532_tree, hf_pn532_parameters_length, tvb, offset, 1, ENC_NA);
-        length = tvb_get_guint8(tvb, offset);
+        length = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         switch (test_number) {
@@ -850,7 +850,7 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         offset += 1;
 
         proto_tree_add_item(pn532_tree, hf_pn532_NbTg, tvb, offset, 1, ENC_BIG_ENDIAN);
-        value = tvb_get_guint8(tvb, offset);
+        value = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         for (item_value = 1; item_value <= value; item_value += 1) {
@@ -1002,7 +1002,7 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     case RF_CONFIGURATION_REQ:
         proto_tree_add_item(pn532_tree, hf_pn532_config, tvb, offset, 1, ENC_BIG_ENDIAN);
-        config = tvb_get_guint8(tvb, offset);
+        config = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         switch(config) {
@@ -1148,14 +1148,14 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         offset += 1;
 
         proto_tree_add_item(pn532_tree, hf_pn532_activation_baudrate, tvb, offset, 1, ENC_BIG_ENDIAN);
-        baudrate = tvb_get_guint8(tvb, offset);
+        baudrate = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         proto_tree_add_item(pn532_tree, hf_pn532_jump_next_not_used_3_7, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(pn532_tree, hf_pn532_jump_next_passive_initiator_data, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(pn532_tree, hf_pn532_jump_next_gi, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(pn532_tree, hf_pn532_jump_next_nfc_id_3i, tvb, offset, 1, ENC_BIG_ENDIAN);
-        value = tvb_get_guint8(tvb, offset);
+        value = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         if (value & 0x01) {
@@ -1214,7 +1214,7 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         offset += 1;
 
         proto_tree_add_item(pn532_tree, hf_pn532_BrTy, tvb, offset, 1, ENC_BIG_ENDIAN);
-        baudrate = tvb_get_guint8(tvb, offset);
+        baudrate = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         if (command_data)
@@ -1251,7 +1251,7 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     case IN_LIST_PASSIVE_TARGET_RSP:
         proto_tree_add_item(pn532_tree, hf_pn532_NbTg, tvb, offset, 1, ENC_BIG_ENDIAN);
-        value = tvb_get_guint8(tvb, offset);
+        value = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         if (command_data  && command_data->command == IN_LIST_PASSIVE_TARGET_REQ)
@@ -1279,7 +1279,7 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset += 1;
 
                 proto_tree_add_item(sub_tree, hf_pn532_nfc_id_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-                length = tvb_get_guint8(tvb, offset);
+                length = tvb_get_uint8(tvb, offset);
                 offset += 1;
 
                 proto_tree_add_item(sub_tree, hf_pn532_nfc_id_1, tvb, offset, length, ENC_NA);
@@ -1287,7 +1287,7 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
                 if (tvb_reported_length_remaining(tvb, offset)) {
                     proto_tree_add_item(sub_tree, hf_pn532_ats_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    length = tvb_get_guint8(tvb, offset);
+                    length = tvb_get_uint8(tvb, offset);
                     offset += 1;
 
                     proto_tree_add_item(sub_tree, hf_pn532_ats, tvb, offset, length - 1, ENC_NA);
@@ -1321,7 +1321,7 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset += 12;
 
                 proto_tree_add_item(sub_tree, hf_pn532_attrib_res_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-                length = tvb_get_guint8(tvb, offset);
+                length = tvb_get_uint8(tvb, offset);
                 offset += 1;
 
                 proto_tree_add_item(sub_tree, hf_pn532_attrib_res, tvb, offset, length, ENC_NA);
@@ -1349,7 +1349,7 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         proto_tree_add_item(pn532_tree, hf_pn532_next_not_used_2_7, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(pn532_tree, hf_pn532_next_gi, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(pn532_tree, hf_pn532_next_nfc_id_3i, tvb, offset, 1, ENC_BIG_ENDIAN);
-        value = tvb_get_guint8(tvb, offset);
+        value = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         if (value & 0x01) {
@@ -1531,7 +1531,7 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     case IN_AUTO_POLL_RSP:
         proto_tree_add_item(pn532_tree, hf_pn532_NbTg, tvb, offset, 1, ENC_BIG_ENDIAN);
-        value = tvb_get_guint8(tvb, offset);
+        value = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         for (item_value = 1; item_value <= value; item_value += 1) {
@@ -1547,11 +1547,11 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             proto_tree_add_item(next_tree, hf_pn532_autopoll_type_mf_fe, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(next_tree, hf_pn532_autopoll_type_not_used, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(next_tree, hf_pn532_autopoll_type_baudrate_and_modulation, tvb, offset, 1, ENC_BIG_ENDIAN);
-            type = tvb_get_guint8(tvb, offset);
+            type = tvb_get_uint8(tvb, offset);
             offset += 1;
 
             proto_tree_add_item(sub_tree, hf_pn532_target_data_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-            length = tvb_get_guint8(tvb, offset);
+            length = tvb_get_uint8(tvb, offset);
             proto_item_set_len(sub_item, length + 4);
             offset += 1;
 
@@ -1624,7 +1624,7 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         offset += 10;
 
         proto_tree_add_item(pn532_tree, hf_pn532_mode_gt_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-        length = tvb_get_guint8(tvb, offset);
+        length = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         if (length > 0) {
@@ -1633,7 +1633,7 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         }
 
         proto_tree_add_item(pn532_tree, hf_pn532_mode_tk_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-        length = tvb_get_guint8(tvb, offset);
+        length = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         if (length > 0) {
@@ -2279,7 +2279,7 @@ void proto_register_pn532(void)
         { &ei_unexpected_data, { "pn532.expert.unexpected_data", PI_PROTOCOL, PI_WARN, "Unexpected data", EXPFILL }},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_pn532,
         &ett_pn532_flags,
         &ett_pn532_target,
@@ -2315,7 +2315,7 @@ void proto_register_pn532(void)
             "PN532 protocol version is based on: \"UM0701-02; PN532 User Manual\"",
             "Version of protocol supported by this dissector.");
     prefs_register_enum_preference(pref_mod, "prtype532", "Payload Type", "Protocol payload type",
-        &sub_selected, sub_enum_vals, FALSE);
+        &sub_selected, sub_enum_vals, false);
 
     pn532_handle = register_dissector("pn532", dissect_pn532, proto_pn532);
 }

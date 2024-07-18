@@ -205,14 +205,14 @@ static const value_string felica_sys_codes[] = {
 };
 
 /* Subtree handles: set by register_subtree_array */
-static gint ett_felica;
+static int ett_felica;
 
 static int dissect_felica(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *item;
     proto_tree *felica_tree;
-    guint8      opcode;
-    guint8      rwe_pos     = 0;
+    uint8_t     opcode;
+    uint8_t     rwe_pos     = 0;
     tvbuff_t   *rwe_resp_data_tvb;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FeliCa");
@@ -221,7 +221,7 @@ static int dissect_felica(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     item = proto_tree_add_item(tree, proto_felica, tvb, 0, -1, ENC_NA);
     felica_tree = proto_item_add_subtree(item, ett_felica);
 
-    opcode = tvb_get_guint8(tvb, 0);
+    opcode = tvb_get_uint8(tvb, 0);
     col_set_str(pinfo->cinfo, COL_INFO,
       val_to_str_const(opcode, felica_opcodes, "Unknown"));
 
@@ -283,7 +283,7 @@ static int dissect_felica(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             proto_tree_add_item(felica_tree, hf_felica_nbr_of_blocks, tvb, 12, 1, ENC_BIG_ENDIAN);
 
             /* Iterate through the block list, and update the tree */
-            for (rwe_pos = 0; rwe_pos < tvb_get_guint8(tvb, 12); rwe_pos++) {
+            for (rwe_pos = 0; rwe_pos < tvb_get_uint8(tvb, 12); rwe_pos++) {
                 proto_tree_add_item(felica_tree, hf_felica_block_nbr, tvb,
                     13 + 2 * rwe_pos, 2, ENC_NA);
             }
@@ -523,7 +523,7 @@ proto_register_felica(void)
     }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_felica
     };
 

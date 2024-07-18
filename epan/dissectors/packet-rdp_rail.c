@@ -253,18 +253,18 @@ static int
 dissect_rdp_rail(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *parent_tree _U_, void *data _U_)
 {
 	proto_item *item;
-	gint nextOffset, offset = 0;
-	guint32 cmdId = 0;
-	guint32 pduLength;
+	int nextOffset, offset = 0;
+	uint32_t cmdId = 0;
+	uint32_t pduLength;
 	proto_tree *tree;
-	guint32 windowId;
-	gboolean packetToServer = rdp_isServerAddressTarget(pinfo);
+	uint32_t windowId;
+	bool packetToServer = rdp_isServerAddressTarget(pinfo);
 
 	parent_tree = proto_tree_get_root(parent_tree);
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RAIL");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	pduLength = tvb_get_guint16(tvb, offset + 2, ENC_LITTLE_ENDIAN);
+	pduLength = tvb_get_uint16(tvb, offset + 2, ENC_LITTLE_ENDIAN);
 	item = proto_tree_add_item(parent_tree, proto_rdp_rail, tvb, offset, pduLength, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_rdp_rail);
 
@@ -311,7 +311,7 @@ dissect_rdp_rail(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *parent_tree 
 		break;
 	case TS_RAIL_ORDER_SYSPARAM:
 		if (!packetToServer) {
-			guint32 serverParam;
+			uint32_t serverParam;
 
 			col_set_str(pinfo->cinfo, COL_INFO, "Server system parameters");
 
@@ -325,7 +325,7 @@ dissect_rdp_rail(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *parent_tree 
 				break;
 			}
 		} else {
-			guint32 clientParam;
+			uint32_t clientParam;
 
 			proto_tree_add_item_ret_uint(tree, hf_rail_sysparam_client_params, tvb, offset, 4, ENC_LITTLE_ENDIAN, &clientParam);
 			col_append_fstr(pinfo->cinfo, COL_INFO, "|%s", val_to_str_const(clientParam, rdp_rail_client_system_params_vals, "<unknown client param>"));
@@ -674,7 +674,7 @@ void proto_register_rdp_rail(void) {
 
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_rdp_rail,
 		&ett_rdp_rail_handshake_flags,
 		&ett_rdp_rail_clientstatus_flags,

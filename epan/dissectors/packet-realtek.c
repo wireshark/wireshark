@@ -108,7 +108,7 @@ static int ett_rldp;
 
 static heur_dissector_list_t realtek_heur_subdissector_list;
 
-static const guint8 ether_mac_bcast[] = {
+static const uint8_t ether_mac_bcast[] = {
    0xff, 0xff, 0xff, 0xff, 0xff, 0xff
 };
 
@@ -153,14 +153,14 @@ dissect_rrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 {
   proto_item *ti;
   proto_tree *rrcp_tree;
-  guint8 proto;
+  uint8_t proto;
   int offset = 0;
   bool reply;
-  guint32 opcode;
+  uint32_t opcode;
 
   if (!tvb_bytes_exist(tvb, 0, 1))
     return false;
-  proto = tvb_get_guint8(tvb, 0);
+  proto = tvb_get_uint8(tvb, 0);
   if (proto != RTL_PROTOCOL_RRCP)
     return false;
 
@@ -237,13 +237,13 @@ dissect_rep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   proto_item *ti;
   proto_tree *rep_tree;
-  guint8 proto;
+  uint8_t proto;
   int offset = 0;
-  gboolean bcast;
+  bool bcast;
 
   if (!tvb_bytes_exist(tvb, 0, 1))
     return false;
-  proto = tvb_get_guint8(tvb, 0);
+  proto = tvb_get_uint8(tvb, 0);
   if (proto != RTL_PROTOCOL_REP)
     return false;
 
@@ -325,12 +325,12 @@ dissect_rldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 {
   proto_item *ti;
   proto_tree *rldp_tree;
-  guint8 proto;
+  uint8_t proto;
   int offset = 0;
 
   if (!tvb_bytes_exist(tvb, 0, 1))
     return false;
-  proto = tvb_get_guint8(tvb, 0);
+  proto = tvb_get_uint8(tvb, 0);
   if (proto != RTL_PROTOCOL_RLDP && proto != RTL_PROTOCOL_RLDP2)
     return false;
 
@@ -409,7 +409,7 @@ proto_register_realtek(void)
        NULL, 0x0, NULL, HFILL }},
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_realtek,
     &ett_rrcp,
     &ett_rep,

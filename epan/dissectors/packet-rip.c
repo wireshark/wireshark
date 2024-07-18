@@ -90,17 +90,17 @@ static int hf_rip_routing_domain;
 static int hf_rip_version;
 static int hf_rip_zero_padding;
 
-static gint ett_rip;
-static gint ett_rip_vec;
-static gint ett_auth_vec;
+static int ett_rip;
+static int ett_rip_vec;
+static int ett_auth_vec;
 
 static expert_field ei_rip_unknown_address_family;
 
-static void dissect_unspec_rip_vektor(tvbuff_t *tvb, int offset, guint8 version,
+static void dissect_unspec_rip_vektor(tvbuff_t *tvb, int offset, uint8_t version,
     proto_tree *tree);
-static void dissect_ip_rip_vektor(tvbuff_t *tvb, packet_info *pinfo, int offset, guint8 version,
+static void dissect_ip_rip_vektor(tvbuff_t *tvb, packet_info *pinfo, int offset, uint8_t version,
     proto_tree *tree);
-static gint dissect_rip_authentication(tvbuff_t *tvb, int offset,
+static int dissect_rip_authentication(tvbuff_t *tvb, int offset,
     proto_tree *tree);
 
 static int
@@ -109,17 +109,17 @@ dissect_rip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     int         offset      = 0;
     proto_tree *rip_tree    = NULL;
     proto_item *ti;
-    guint8      command;
-    guint8      version;
-    guint16     family;
-    gint        trailer_len = 0;
-    gboolean    is_md5_auth = FALSE;
+    uint8_t     command;
+    uint8_t     version;
+    uint16_t    family;
+    int         trailer_len = 0;
+    bool        is_md5_auth = false;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RIP");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    command = tvb_get_guint8(tvb, 0);
-    version = tvb_get_guint8(tvb, 1);
+    command = tvb_get_uint8(tvb, 0);
+    version = tvb_get_uint8(tvb, 1);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL,
                     val_to_str_const(version, version_vals, "RIP"));
@@ -131,7 +131,7 @@ dissect_rip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     proto_tree_add_uint(rip_tree, hf_rip_command, tvb, 0, 1, command);
     proto_tree_add_uint(rip_tree, hf_rip_version, tvb, 1, 1, version);
-    if (version == RIPv2 && pref_display_routing_domain == TRUE)
+    if (version == RIPv2 && pref_display_routing_domain == true)
         proto_tree_add_item(rip_tree, hf_rip_routing_domain, tvb, 2, 2,
                     ENC_BIG_ENDIAN);
 
@@ -155,7 +155,7 @@ dissect_rip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         case 0xFFFF:
             if( offset == RIP_HEADER_LENGTH ) {
                     trailer_len=dissect_rip_authentication(tvb, offset, rip_tree);
-                    is_md5_auth = TRUE;
+                    is_md5_auth = true;
             break;
             }
             if(is_md5_auth && tvb_reported_length_remaining(tvb, offset) == 20)
@@ -173,11 +173,11 @@ dissect_rip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 }
 
 static void
-dissect_unspec_rip_vektor(tvbuff_t *tvb, int offset, guint8 version,
+dissect_unspec_rip_vektor(tvbuff_t *tvb, int offset, uint8_t version,
                       proto_tree *tree)
 {
     proto_tree *rip_vektor_tree;
-    guint32     metric;
+    uint32_t    metric;
 
     metric = tvb_get_ntohl(tvb, offset+16);
     rip_vektor_tree = proto_tree_add_subtree_format(tree, tvb, offset,
@@ -198,11 +198,11 @@ dissect_unspec_rip_vektor(tvbuff_t *tvb, int offset, guint8 version,
 }
 
 static void
-dissect_ip_rip_vektor(tvbuff_t *tvb, packet_info *pinfo, int offset, guint8 version,
+dissect_ip_rip_vektor(tvbuff_t *tvb, packet_info *pinfo, int offset, uint8_t version,
                       proto_tree *tree)
 {
     proto_tree *rip_vektor_tree;
-    guint32     metric;
+    uint32_t    metric;
 
     metric = tvb_get_ntohl(tvb, offset+16);
     rip_vektor_tree = proto_tree_add_subtree_format(tree, tvb, offset,
@@ -227,12 +227,12 @@ dissect_ip_rip_vektor(tvbuff_t *tvb, packet_info *pinfo, int offset, guint8 vers
                         offset+16, 4, metric);
 }
 
-static gint
+static int
 dissect_rip_authentication(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
     proto_tree *rip_authentication_tree;
-    guint16     authtype;
-    guint32     digest_off, auth_data_len;
+    uint16_t    authtype;
+    uint32_t    digest_off, auth_data_len;
 
     auth_data_len = 0;
     authtype = tvb_get_ntohs(tvb, offset + 2);
@@ -254,7 +254,7 @@ dissect_rip_authentication(tvbuff_t *tvb, int offset, proto_tree *tree)
         digest_off = tvb_get_ntohs( tvb, offset+4 );
         proto_tree_add_item( rip_authentication_tree, hf_rip_digest_offset, tvb, offset+4, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item( rip_authentication_tree, hf_rip_key_id, tvb, offset+6, 1, ENC_NA);
-        auth_data_len = tvb_get_guint8( tvb, offset+7 );
+        auth_data_len = tvb_get_uint8( tvb, offset+7 );
         proto_tree_add_item( rip_authentication_tree, hf_rip_auth_data_len, tvb, offset+7, 1, ENC_NA);
         proto_tree_add_item( rip_authentication_tree, hf_rip_auth_seq_num, tvb, offset+8, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item( rip_authentication_tree, hf_rip_zero_padding, tvb, offset+12, 8, ENC_ASCII);
@@ -358,7 +358,7 @@ proto_register_rip(void)
         },
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_rip,
         &ett_rip_vec,
         &ett_auth_vec,

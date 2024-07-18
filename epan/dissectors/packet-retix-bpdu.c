@@ -24,7 +24,7 @@
 
 void proto_register_retix_bpdu(void);
 
-static gint ett_retix_bpdu;
+static int ett_retix_bpdu;
 static int proto_retix_bpdu;
 
 static int hf_retix_bpdu_root_mac;
@@ -90,7 +90,7 @@ proto_register_retix_bpdu(void)
     NULL, HFILL}},
   };
 
-  static gint *ett[] ={
+  static int *ett[] ={
     &ett_retix_bpdu,
   };
 

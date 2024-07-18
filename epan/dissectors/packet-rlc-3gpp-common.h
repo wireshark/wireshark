@@ -20,28 +20,28 @@ typedef struct rlc_3gpp_tap_info {
     uint8_t         rat;
 
     /* Info from context */
-    guint8          rlcMode;
-    guint8          direction;
-    guint8          priority;
-    guint16         ueid;
-    guint16         channelType;
-    guint16         channelId;
-    guint16         pduLength;
-    guint8          sequenceNumberLength;
+    uint8_t         rlcMode;
+    uint8_t         direction;
+    uint8_t         priority;
+    uint16_t        ueid;
+    uint16_t        channelType;
+    uint16_t        channelId;
+    uint16_t        pduLength;
+    uint8_t         sequenceNumberLength;
 
     nstime_t        rlc_time;
-    guint8          loggedInMACFrame;
+    uint8_t         loggedInMACFrame;
 
-    gboolean        sequenceNumberGiven;  // absent for NR UM if not segmented
-    guint32         sequenceNumber;
-    guint8          isResegmented;        // LTE only..
-    guint8          isControlPDU;
-    guint32         ACKNo;
+    bool            sequenceNumberGiven;  // absent for NR UM if not segmented
+    uint32_t        sequenceNumber;
+    uint8_t         isResegmented;        // LTE only..
+    uint8_t         isControlPDU;
+    uint32_t        ACKNo;
     #define MAX_NACKs 512
-    guint16         noOfNACKs;
-    guint32         NACKs[MAX_NACKs];
+    uint16_t        noOfNACKs;
+    uint32_t        NACKs[MAX_NACKs];
 
-    guint16         missingSNs;
+    uint16_t        missingSNs;
 } rlc_3gpp_tap_info;
 
 #endif

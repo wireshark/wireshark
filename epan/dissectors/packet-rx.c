@@ -110,13 +110,13 @@ static int hf_rx_maxpackets;
 static int hf_rx_abort;
 static int hf_rx_abortcode;
 
-static gint ett_rx;
-static gint ett_rx_flags;
-static gint ett_rx_ack;
-static gint ett_rx_challenge;
-static gint ett_rx_response;
-static gint ett_rx_encrypted;
-static gint ett_rx_abort;
+static int ett_rx;
+static int ett_rx_flags;
+static int ett_rx_ack;
+static int ett_rx_challenge;
+static int ett_rx_response;
+static int ett_rx_encrypted;
+static int ett_rx_abort;
 
 static dissector_handle_t afs_handle;
 
@@ -127,7 +127,7 @@ dissect_rx_response_encrypted(tvbuff_t *tvb, proto_tree *parent_tree, int offset
 	proto_item *item;
 	int old_offset=offset;
 	int i;
-	guint32 callnumber;
+	uint32_t callnumber;
 
 	item = proto_tree_add_item(parent_tree, hf_rx_encrypted, tvb, offset, -1, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_rx_encrypted);
@@ -169,11 +169,11 @@ dissect_rx_response_encrypted(tvbuff_t *tvb, proto_tree *parent_tree, int offset
 
 
 static int
-dissect_rx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset, guint32 seq, guint32 callnumber)
+dissect_rx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset, uint32_t seq, uint32_t callnumber)
 {
 	proto_tree *tree;
 	proto_item *item;
-	guint32 version, tl;
+	uint32_t version, tl;
 	int old_offset=offset;
 
 	col_add_fstr(pinfo->cinfo, COL_INFO,
@@ -222,7 +222,7 @@ dissect_rx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 }
 
 static int
-dissect_rx_abort(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset, guint32 seq, guint32 callnumber)
+dissect_rx_abort(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset, uint32_t seq, uint32_t callnumber)
 {
 	proto_tree *tree;
 	proto_item *item;
@@ -253,11 +253,11 @@ dissect_rx_abort(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 
 
 static int
-dissect_rx_challenge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset, guint32 seq, guint32 callnumber)
+dissect_rx_challenge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset, uint32_t seq, uint32_t callnumber)
 {
 	proto_tree *tree;
 	proto_item *item;
-	guint32 version;
+	uint32_t version;
 	int old_offset=offset;
 
 	col_add_fstr(pinfo->cinfo, COL_INFO,
@@ -293,11 +293,11 @@ dissect_rx_challenge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 }
 
 static int
-dissect_rx_acks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset, guint32 seq, guint32 callnumber)
+dissect_rx_acks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset, uint32_t seq, uint32_t callnumber)
 {
 	proto_tree *tree;
 	proto_item *item;
-	guint8 num, reason;
+	uint8_t num, reason;
 	int old_offset = offset;
 
 
@@ -327,12 +327,12 @@ dissect_rx_acks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int 
 	offset += 4;
 
 	/* reason : 1 byte */
-	reason = tvb_get_guint8(tvb, offset);
+	reason = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(tree, hf_rx_reason, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	/* nACKs */
-	num = tvb_get_guint8(tvb, offset);
+	num = tvb_get_uint8(tvb, offset);
 	proto_tree_add_uint(tree, hf_rx_numacks, tvb, offset, 1, num);
 	offset += 1;
 
@@ -406,7 +406,7 @@ dissect_rx_flags(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *parent_tree, 
 		NULL
 	};
 
-	rxinfo->flags = tvb_get_guint8(tvb, offset);
+	rxinfo->flags = tvb_get_uint8(tvb, offset);
 
 	proto_tree_add_bitmask(parent_tree, tvb, offset, hf_rx_flags, ett_rx_flags, flags, ENC_NA);
 
@@ -422,17 +422,17 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *dat
 	const char *version_type;
 	int offset = 0;
 	struct rxinfo rxinfo;
-	guint8 type;
+	uint8_t type;
 	nstime_t ts;
-	guint32 seq, callnumber;
-	guint16 serviceid;
+	uint32_t seq, callnumber;
+	uint16_t serviceid;
 
 	/* Ensure we have enough data */
 	if (tvb_captured_length(tvb) < 28)
 		return 0;
 
 	/* Make sure it's a known type */
-	type = tvb_get_guint8(tvb, 20);
+	type = tvb_get_uint8(tvb, 20);
 	if (!try_val_to_str(type, rx_types))
 		return 0;
 
@@ -474,7 +474,7 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *dat
 	offset += 4;
 
 	/* type : 1 byte */
-	type = tvb_get_guint8(tvb, offset);
+	type = tvb_get_uint8(tvb, offset);
 	proto_tree_add_uint(tree, hf_rx_type, tvb,
 		offset, 1, type);
 	offset += 1;
@@ -742,7 +742,7 @@ proto_register_rx(void)
 			NULL, 0, NULL, HFILL }},
 
 	};
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_rx,
 		&ett_rx_flags,
 		&ett_rx_ack,

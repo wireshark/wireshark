@@ -14,16 +14,16 @@
 /* RSVP conversations support */
 typedef struct rsvp_conversation_info
 {
-    guint8 session_type;
+    uint8_t session_type;
     address source;
     address destination;
-    guint16 udp_source_port;
-    guint16 udp_dest_port;
-    guint8  protocol;
-    guint32 ext_tunnel_id;
-    guint64 ext_tunnel_id_ipv6_pre;
-    guint64 ext_tunnel_id_ipv6_post;
-    guint8 dscp;
+    uint16_t udp_source_port;
+    uint16_t udp_dest_port;
+    uint8_t protocol;
+    uint32_t ext_tunnel_id;
+    uint64_t ext_tunnel_id_ipv6_pre;
+    uint64_t ext_tunnel_id_ipv6_post;
+    uint8_t dscp;
 } rsvp_conversation_info;
 
 extern const range_string gmpls_switching_type_rvals[];

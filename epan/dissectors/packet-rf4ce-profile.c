@@ -22,26 +22,26 @@
 /* TLV Node-elements */
 static int proto_rf4ce_profile;
 
-static gint ett_rf4ce_profile;
-static gint ett_rf4ce_profile_cmd_frame;
-static gint ett_rf4ce_profile_attrs;
-static gint ett_rf4ce_profile_attrs_sub;
-static gint ett_rf4ce_profile_zrc20_ident_cap;
-static gint ett_rf4ce_profile_zrc20_mappable_actions_entry;
-static gint ett_rf4ce_profile_zrc20_action_control;
-static gint ett_rf4ce_profile_zrc20_action_mappings_flags;
-static gint ett_rf4ce_profile_zrc20_action_mappings_rf_descr;
-static gint ett_rf4ce_profile_zrc20_action_mappings_rf_descr_rf_conf;
-static gint ett_rf4ce_profile_zrc20_action_mappings_rf_descr_tx_opts;
-static gint ett_rf4ce_profile_zrc20_action_mappings_ir_descr;
-static gint ett_rf4ce_profile_zrc20_action_mappings_ir_descr_ir_conf;
-static gint ett_rf4ce_profile_gdp_poll_constraints_polling_rec;
-static gint ett_rf4ce_profile_gdp_poll_constraints_polling_rec_polling_trig_cap;
-static gint ett_rf4ce_profile_gdp_poll_configuration_polling_trig_conf;
-static gint ett_rf4ce_profile_action_records;
-static gint ett_rf4ce_profile_action_records_sub;
-static gint ett_rf4ce_profile_zrc10_supported_commands;
-static gint ett_rf4ce_profile_zrc10_supported_commands_sub;
+static int ett_rf4ce_profile;
+static int ett_rf4ce_profile_cmd_frame;
+static int ett_rf4ce_profile_attrs;
+static int ett_rf4ce_profile_attrs_sub;
+static int ett_rf4ce_profile_zrc20_ident_cap;
+static int ett_rf4ce_profile_zrc20_mappable_actions_entry;
+static int ett_rf4ce_profile_zrc20_action_control;
+static int ett_rf4ce_profile_zrc20_action_mappings_flags;
+static int ett_rf4ce_profile_zrc20_action_mappings_rf_descr;
+static int ett_rf4ce_profile_zrc20_action_mappings_rf_descr_rf_conf;
+static int ett_rf4ce_profile_zrc20_action_mappings_rf_descr_tx_opts;
+static int ett_rf4ce_profile_zrc20_action_mappings_ir_descr;
+static int ett_rf4ce_profile_zrc20_action_mappings_ir_descr_ir_conf;
+static int ett_rf4ce_profile_gdp_poll_constraints_polling_rec;
+static int ett_rf4ce_profile_gdp_poll_constraints_polling_rec_polling_trig_cap;
+static int ett_rf4ce_profile_gdp_poll_configuration_polling_trig_conf;
+static int ett_rf4ce_profile_action_records;
+static int ett_rf4ce_profile_action_records_sub;
+static int ett_rf4ce_profile_zrc10_supported_commands;
+static int ett_rf4ce_profile_zrc10_supported_commands_sub;
 
 static dissector_table_t rf4ce_profile_dissector_table;
 
@@ -851,41 +851,41 @@ static const value_string rf4ce_vendor_id_vals[] = {
 static int dissect_rf4ce_profile_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
 
 /* RF4CE Profile common commands dissectors */
-static void dissect_rf4ce_profile_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, guint8 cmd_id, char *profile_str, gboolean is_cmd_frame);
+static void dissect_rf4ce_profile_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned *offset, uint8_t cmd_id, char *profile_str, bool is_cmd_frame);
 
-static void dissect_rf4ce_profile_common_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, guint8 cmd_id, gboolean is_zrc20);
+static void dissect_rf4ce_profile_common_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned *offset, uint8_t cmd_id, bool is_zrc20);
 
-static void dissect_rf4ce_profile_cmd_generic_resp(tvbuff_t *tvb, proto_tree *tree, guint *offset);
-static void dissect_rf4ce_profile_cmd_configuration_complete(tvbuff_t *tvb, proto_tree *tree, guint *offset);
-static void dissect_rf4ce_profile_cmd_heartbeat(tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_rf4ce_profile_cmd_generic_resp(tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
+static void dissect_rf4ce_profile_cmd_configuration_complete(tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
+static void dissect_rf4ce_profile_cmd_heartbeat(tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
 
-static gboolean dissect_rf4ce_profile_zrc20_attrs(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 attr_id, guint8 attr_length);
-static gboolean dissect_rf4ce_profile_gdp_attrs(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 attr_id);
-static void dissect_rf4ce_profile_attrs(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 dissection_mask, gboolean is_zrc20);
-static void dissect_rf4ce_profile_cmd_get_attrs(tvbuff_t *tvb, proto_tree *tree, guint *offset, gboolean is_zrc20);
-static void dissect_rf4ce_profile_cmd_get_attrs_resp(tvbuff_t *tvb, proto_tree *tree, guint *offset, gboolean is_zrc20);
-static void dissect_rf4ce_profile_cmd_push_attrs(tvbuff_t *tvb, proto_tree *tree, guint *offset, gboolean is_zrc20);
-static void dissect_rf4ce_profile_cmd_set_attrs(tvbuff_t *tvb, proto_tree *tree, guint *offset, gboolean is_zrc20);
-static void dissect_rf4ce_profile_cmd_pull_attrs(tvbuff_t *tvb, proto_tree *tree, guint *offset, gboolean is_zrc20);
-static void dissect_rf4ce_profile_cmd_pull_attrs_resp(tvbuff_t *tvb, proto_tree *tree, guint *offset, gboolean is_zrc20);
-static gboolean rf4ce_profile_is_gdp_attr_arrayed(guint8 attr_id);
-static gboolean rf4ce_profile_is_zrc20_attr_arrayed(guint8 attr_id);
+static bool dissect_rf4ce_profile_zrc20_attrs(tvbuff_t *tvb, proto_tree *tree, unsigned *offset, uint8_t attr_id, uint8_t attr_length);
+static bool dissect_rf4ce_profile_gdp_attrs(tvbuff_t *tvb, proto_tree *tree, unsigned *offset, uint8_t attr_id);
+static void dissect_rf4ce_profile_attrs(tvbuff_t *tvb, proto_tree *tree, unsigned *offset, uint8_t dissection_mask, bool is_zrc20);
+static void dissect_rf4ce_profile_cmd_get_attrs(tvbuff_t *tvb, proto_tree *tree, unsigned *offset, bool is_zrc20);
+static void dissect_rf4ce_profile_cmd_get_attrs_resp(tvbuff_t *tvb, proto_tree *tree, unsigned *offset, bool is_zrc20);
+static void dissect_rf4ce_profile_cmd_push_attrs(tvbuff_t *tvb, proto_tree *tree, unsigned *offset, bool is_zrc20);
+static void dissect_rf4ce_profile_cmd_set_attrs(tvbuff_t *tvb, proto_tree *tree, unsigned *offset, bool is_zrc20);
+static void dissect_rf4ce_profile_cmd_pull_attrs(tvbuff_t *tvb, proto_tree *tree, unsigned *offset, bool is_zrc20);
+static void dissect_rf4ce_profile_cmd_pull_attrs_resp(tvbuff_t *tvb, proto_tree *tree, unsigned *offset, bool is_zrc20);
+static bool rf4ce_profile_is_gdp_attr_arrayed(uint8_t attr_id);
+static bool rf4ce_profile_is_zrc20_attr_arrayed(uint8_t attr_id);
 
-static void dissect_rf4ce_profile_cmd_check_validation(tvbuff_t *tvb, proto_tree *tree, guint *offset);
-static void dissect_rf4ce_profile_cmd_client_notification(tvbuff_t *tvb, proto_tree *tree, guint *offset);
-static void dissect_rf4ce_profile_cmd_key_exchange(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset);
+static void dissect_rf4ce_profile_cmd_check_validation(tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
+static void dissect_rf4ce_profile_cmd_client_notification(tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
+static void dissect_rf4ce_profile_cmd_key_exchange(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned *offset);
 
 /* RF4CE ZRC 1.0 profile commands dissectors */
-static void dissect_rf4ce_profile_zrc10_cmd(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 cmd_id);
+static void dissect_rf4ce_profile_zrc10_cmd(tvbuff_t *tvb, proto_tree *tree, unsigned *offset, uint8_t cmd_id);
 
-static void dissect_rf4ce_profile_zrc10_cmd_user_control_common(tvbuff_t *tvb, proto_tree *tree, guint *offset, gboolean parse_payload);
+static void dissect_rf4ce_profile_zrc10_cmd_user_control_common(tvbuff_t *tvb, proto_tree *tree, unsigned *offset, bool parse_payload);
 
-static void dissect_rf4ce_profile_zrc10_cmd_discovery_req(tvbuff_t *tvb, proto_tree *tree, guint *offset);
-static void dissect_rf4ce_profile_zrc10_cmd_discovery_rsp(tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_rf4ce_profile_zrc10_cmd_discovery_req(tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
+static void dissect_rf4ce_profile_zrc10_cmd_discovery_rsp(tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
 
 /* RF4CE ZRC 2.0 profile commands dissectors */
-static void dissect_rf4ce_profile_zrc20_cmd(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 cmd_id);
-static void dissect_rf4ce_profile_zrc20_action_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, gboolean dissect_action_control);
+static void dissect_rf4ce_profile_zrc20_cmd(tvbuff_t *tvb, proto_tree *tree, unsigned *offset, uint8_t cmd_id);
+static void dissect_rf4ce_profile_zrc20_action_data(tvbuff_t *tvb, proto_tree *tree, unsigned *offset, bool dissect_action_control);
 
 void proto_register_rf4ce_profile(void)
 {
@@ -1510,7 +1510,7 @@ void proto_register_rf4ce_profile(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_rf4ce_profile,
         &ett_rf4ce_profile_cmd_frame,
         &ett_rf4ce_profile_attrs,
@@ -1547,16 +1547,16 @@ void proto_reg_handoff_rf4ce_profile(void)
 /* RF4CE Profile common dissector */
 static int dissect_rf4ce_profile_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    guint offset = 0;
+    unsigned offset = 0;
     proto_item *ti = proto_tree_add_item(tree, proto_rf4ce_profile, tvb, 0, -1, ENC_LITTLE_ENDIAN);
     proto_tree *rf4ce_profile_tree = proto_item_add_subtree(ti, ett_rf4ce_profile);
 
-    guint8 fcf = tvb_get_guint8(tvb, offset);
-    guint8 cmd_id = fcf & RF4CE_PROFILE_FCF_CMD_ID_MASK;
-    gboolean is_cmd_frame = fcf & RF4CE_PROFILE_FCF_CMD_FRAME_MASK;
-    gboolean is_gdp = !strncmp("GDP", (char *)data, 3);
-    gboolean is_zrc20 = !strncmp("ZRC 2.0", (char *)data, 7);
-    gboolean is_zrc10 = !strncmp("ZRC 1.0", (char *)data, 7);
+    uint8_t fcf = tvb_get_uint8(tvb, offset);
+    uint8_t cmd_id = fcf & RF4CE_PROFILE_FCF_CMD_ID_MASK;
+    bool is_cmd_frame = fcf & RF4CE_PROFILE_FCF_CMD_FRAME_MASK;
+    bool is_gdp = !strncmp("GDP", (char *)data, 3);
+    bool is_zrc20 = !strncmp("ZRC 2.0", (char *)data, 7);
+    bool is_zrc10 = !strncmp("ZRC 1.0", (char *)data, 7);
 
     char protocol_str[14] = {0};
 
@@ -1610,7 +1610,7 @@ static int dissect_rf4ce_profile_common(tvbuff_t *tvb, packet_info *pinfo, proto
 
     if (offset < tvb_captured_length(tvb))
     {
-        guint unparsed_length = tvb_captured_length(tvb) - offset;
+        unsigned unparsed_length = tvb_captured_length(tvb) - offset;
         proto_tree_add_item(rf4ce_profile_tree, hf_rf4ce_profile_unparsed_payload, tvb, offset, unparsed_length, ENC_NA);
         offset += unparsed_length;
     }
@@ -1618,11 +1618,11 @@ static int dissect_rf4ce_profile_common(tvbuff_t *tvb, packet_info *pinfo, proto
     return offset;
 }
 
-static void dissect_rf4ce_profile_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, guint8 cmd_id, char *profile_str, gboolean is_cmd_frame)
+static void dissect_rf4ce_profile_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned *offset, uint8_t cmd_id, char *profile_str, bool is_cmd_frame)
 {
     proto_tree *profile_cmd_tree;
-    gboolean is_zrc10 = !strncmp("ZRC 1.0", profile_str, 7);
-    gboolean is_zrc20 = !strncmp("ZRC 2.0", profile_str, 7);
+    bool is_zrc10 = !strncmp("ZRC 1.0", profile_str, 7);
+    bool is_zrc20 = !strncmp("ZRC 2.0", profile_str, 7);
 
     profile_cmd_tree = proto_tree_add_subtree(tree, tvb, *offset, tvb_captured_length(tvb) - *offset, ett_rf4ce_profile_cmd_frame, NULL, "Profile Command Frame");
 
@@ -1644,7 +1644,7 @@ static void dissect_rf4ce_profile_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_t
     }
 }
 
-static void dissect_rf4ce_profile_common_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, guint8 cmd_id, gboolean is_zrc20)
+static void dissect_rf4ce_profile_common_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned *offset, uint8_t cmd_id, bool is_zrc20)
 {
     switch (cmd_id)
     {
@@ -1698,27 +1698,27 @@ static void dissect_rf4ce_profile_common_cmd(tvbuff_t *tvb, packet_info *pinfo, 
     }
 }
 
-static void dissect_rf4ce_profile_cmd_generic_resp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+static void dissect_rf4ce_profile_cmd_generic_resp(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
     proto_tree_add_item(tree, hf_rf4ce_profile_cmd_generic_resp_status, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
     *offset += 1;
 }
 
-static void dissect_rf4ce_profile_cmd_configuration_complete(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+static void dissect_rf4ce_profile_cmd_configuration_complete(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
     proto_tree_add_item(tree, hf_rf4ce_profile_cmd_configuration_complete_status, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
     *offset += 1;
 }
 
-static void dissect_rf4ce_profile_cmd_heartbeat(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+static void dissect_rf4ce_profile_cmd_heartbeat(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
     proto_tree_add_item(tree, hf_rf4ce_profile_cmd_heartbeat_trigger, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
     *offset += 1;
 }
 
-static gboolean dissect_rf4ce_profile_gdp_attrs(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 attr_id)
+static bool dissect_rf4ce_profile_gdp_attrs(tvbuff_t *tvb, proto_tree *tree, unsigned *offset, uint8_t attr_id)
 {
-    gboolean is_parsed = TRUE;
+    bool is_parsed = true;
 
     if (attr_id == RF4CE_GDP_ATTR_IDENTIFICATION_CAPABILITIES)
     {
@@ -1736,7 +1736,7 @@ static gboolean dissect_rf4ce_profile_gdp_attrs(tvbuff_t *tvb, proto_tree *tree,
     else if (attr_id == RF4CE_GDP_ATTR_POLL_CONSTRAINTS)
     {
         int methods_index;
-        guint8 methods_num;
+        uint8_t methods_num;
 
         static int *const polling_trig_cap_bits[] = {
             &hf_rf4ce_profile_gdp_poll_constraints_polling_rec_polling_trig_cap_tbased,
@@ -1749,7 +1749,7 @@ static gboolean dissect_rf4ce_profile_gdp_attrs(tvbuff_t *tvb, proto_tree *tree,
             NULL};
 
         proto_tree_add_item(tree, hf_rf4ce_profile_gdp_poll_constraints_methods_num, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-        methods_num = tvb_get_guint8(tvb, *offset);
+        methods_num = tvb_get_uint8(tvb, *offset);
         *offset += 1;
 
         for (methods_index = 1; methods_index <= methods_num; methods_index++)
@@ -1818,23 +1818,23 @@ static gboolean dissect_rf4ce_profile_gdp_attrs(tvbuff_t *tvb, proto_tree *tree,
 #endif
     else
     {
-        is_parsed = FALSE;
+        is_parsed = false;
     }
 
     return is_parsed;
 }
 
-static gboolean dissect_rf4ce_profile_zrc20_attrs(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 attr_id, guint8 attr_length)
+static bool dissect_rf4ce_profile_zrc20_attrs(tvbuff_t *tvb, proto_tree *tree, unsigned *offset, uint8_t attr_id, uint8_t attr_length)
 {
-    gboolean is_parsed = TRUE;
+    bool is_parsed = true;
 
     if (attr_id == RF4CE_ZRC20_ATTR_MAPPABLE_ACTIONS)
     {
         proto_tree *entry_subtree;
         char entry_subtree_name[11];
-        guint entries_num = attr_length / 3;
+        unsigned entries_num = attr_length / 3;
 
-        for (guint i = 1; i <= entries_num; i++)
+        for (unsigned i = 1; i <= entries_num; i++)
         {
             snprintf(entry_subtree_name, sizeof(entry_subtree_name), "Entry %d:", i);
             entry_subtree = proto_tree_add_subtree(tree, tvb, *offset, tvb_captured_length(tvb) - *offset, ett_rf4ce_profile_zrc20_mappable_actions_entry, NULL, entry_subtree_name);
@@ -1851,10 +1851,10 @@ static gboolean dissect_rf4ce_profile_zrc20_attrs(tvbuff_t *tvb, proto_tree *tre
     }
     else if (attr_id == RF4CE_ZRC20_ATTR_ACTION_MAPPINGS)
     {
-        guint8 action_mapping_flags = tvb_get_guint8(tvb, *offset);
-        gboolean rf_specified = (action_mapping_flags & RF4CE_PROFILE_ZRC20_ACTION_MAPPINGS_MAPPING_FLAGS_RF_SPECIFIED_MASK) != 0;
-        gboolean ir_specified = (action_mapping_flags & RF4CE_PROFILE_ZRC20_ACTION_MAPPINGS_MAPPING_FLAGS_IR_SPECIFIED_MASK) != 0;
-        gboolean use_default = (action_mapping_flags & RF4CE_PROFILE_ZRC20_ACTION_MAPPINGS_MAPPING_FLAGS_USE_DEFAULT_MASK) != 0;
+        uint8_t action_mapping_flags = tvb_get_uint8(tvb, *offset);
+        bool rf_specified = (action_mapping_flags & RF4CE_PROFILE_ZRC20_ACTION_MAPPINGS_MAPPING_FLAGS_RF_SPECIFIED_MASK) != 0;
+        bool ir_specified = (action_mapping_flags & RF4CE_PROFILE_ZRC20_ACTION_MAPPINGS_MAPPING_FLAGS_IR_SPECIFIED_MASK) != 0;
+        bool use_default = (action_mapping_flags & RF4CE_PROFILE_ZRC20_ACTION_MAPPINGS_MAPPING_FLAGS_USE_DEFAULT_MASK) != 0;
 
         static int *const action_mapping_flags_bits[] = {
             &hf_rf4ce_profile_zrc20_action_mappings_mapping_flags_rf_specified,
@@ -1871,7 +1871,7 @@ static gboolean dissect_rf4ce_profile_zrc20_attrs(tvbuff_t *tvb, proto_tree *tre
         if (rf_specified && !use_default)
         {
             proto_tree *rf_desc_subtree = proto_tree_add_subtree(tree, tvb, *offset, tvb_captured_length(tvb) - *offset, ett_rf4ce_profile_zrc20_action_mappings_rf_descr, NULL, "RF Descriptor");
-            guint8 action_data_len;
+            uint8_t action_data_len;
 
             static int *const rf_conf_bits[] = {
                 &hf_rf4ce_profile_zrc20_action_mappings_rf_descr_rf_conf_min_num_of_trans,
@@ -1899,21 +1899,21 @@ static gboolean dissect_rf4ce_profile_zrc20_attrs(tvbuff_t *tvb, proto_tree *tre
             *offset += 1;
 
             proto_tree_add_item(rf_desc_subtree, hf_rf4ce_profile_zrc20_action_mappings_rf_descr_action_data_len, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-            action_data_len = tvb_get_guint8(tvb, *offset);
+            action_data_len = tvb_get_uint8(tvb, *offset);
             *offset += 1;
 
             if (action_data_len > 0)
             {
-                dissect_rf4ce_profile_zrc20_action_data(tvb, rf_desc_subtree, offset, FALSE /* do not dissect the Action Control field */);
+                dissect_rf4ce_profile_zrc20_action_data(tvb, rf_desc_subtree, offset, false /* do not dissect the Action Control field */);
             }
         }
 
         if (ir_specified && !use_default)
         {
             proto_tree *ir_desc_subtree = proto_tree_add_subtree(tree, tvb, *offset, tvb_captured_length(tvb) - *offset, ett_rf4ce_profile_zrc20_action_mappings_ir_descr, NULL, "IR Descriptor");
-            guint8 ir_config;
-            gboolean vendor_specific;
-            guint8 ir_code_len;
+            uint8_t ir_config;
+            bool vendor_specific;
+            uint8_t ir_code_len;
 
             static int *const ir_conf_bits[] = {
                 &hf_rf4ce_profile_zrc20_action_mappings_ir_descr_ir_conf_vendor_specific,
@@ -1921,7 +1921,7 @@ static gboolean dissect_rf4ce_profile_zrc20_attrs(tvbuff_t *tvb, proto_tree *tre
                 NULL};
 
             proto_tree_add_bitmask(ir_desc_subtree, tvb, *offset, hf_rf4ce_profile_zrc20_action_mappings_ir_descr_ir_conf, ett_rf4ce_profile_zrc20_action_mappings_ir_descr_ir_conf, ir_conf_bits, ENC_LITTLE_ENDIAN);
-            ir_config = tvb_get_guint8(tvb, *offset);
+            ir_config = tvb_get_uint8(tvb, *offset);
             *offset += 1;
 
             vendor_specific = (ir_config & RF4CE_PROFILE_ZRC20_ACTION_MAPPINGS_IR_DESCR_IR_CONF_VENDOR_SPECIFIC_MASK) != 0;
@@ -1932,7 +1932,7 @@ static gboolean dissect_rf4ce_profile_zrc20_attrs(tvbuff_t *tvb, proto_tree *tre
             }
 
             proto_tree_add_item(ir_desc_subtree, hf_rf4ce_profile_zrc20_action_mappings_ir_descr_ir_code_len, tvb, *offset, 1, ENC_NA);
-            ir_code_len = tvb_get_guint8(tvb, *offset);
+            ir_code_len = tvb_get_uint8(tvb, *offset);
             *offset += 1;
 
             if (ir_code_len > 0)
@@ -1944,7 +1944,7 @@ static gboolean dissect_rf4ce_profile_zrc20_attrs(tvbuff_t *tvb, proto_tree *tre
     }
     else if (attr_id == RF4CE_ZRC20_ATTR_IRDB_VENDOR_SUPPORT)
     {
-        gint remaining_length = tvb_reported_length_remaining(tvb, *offset);
+        int remaining_length = tvb_reported_length_remaining(tvb, *offset);
         while (remaining_length > 0)
         {
             proto_tree_add_item(tree, hf_rf4ce_profile_zrc20_irdb_vendor_support_vendor_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
@@ -1954,20 +1954,20 @@ static gboolean dissect_rf4ce_profile_zrc20_attrs(tvbuff_t *tvb, proto_tree *tre
     }
     else
     {
-        is_parsed = FALSE;
+        is_parsed = false;
     }
 
     return is_parsed;
 }
 
-static void dissect_rf4ce_profile_attrs(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 dissection_mask, gboolean is_zrc20)
+static void dissect_rf4ce_profile_attrs(tvbuff_t *tvb, proto_tree *tree, unsigned *offset, uint8_t dissection_mask, bool is_zrc20)
 {
     int attr_counter = 1;
-    guint8 attr_id = 0xff;
-    guint8 attr_status = RF4CE_PROFILE_ATTR_STATUS_ATTRIBUTE_SUCCESSFULLY_READ_AND_INCLUDED;
-    guint8 attr_length = 0xff;
+    uint8_t attr_id = 0xff;
+    uint8_t attr_status = RF4CE_PROFILE_ATTR_STATUS_ATTRIBUTE_SUCCESSFULLY_READ_AND_INCLUDED;
+    uint8_t attr_length = 0xff;
     proto_tree *attrs_tree = proto_tree_add_subtree(tree, tvb, *offset, tvb_captured_length(tvb) - *offset, ett_rf4ce_profile_attrs, NULL, "Attributes List");
-    guint prev_offset = *offset;
+    unsigned prev_offset = *offset;
 
     while (tvb_captured_length(tvb) - *offset)
     {
@@ -1984,13 +1984,13 @@ static void dissect_rf4ce_profile_attrs(tvbuff_t *tvb, proto_tree *tree, guint *
             int hf_temp = is_zrc20 ? hf_rf4ce_profile_zrc20_attr_id : hf_rf4ce_profile_gdp_attr_id;
 
             proto_tree_add_item(attrs_subtree, hf_temp, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-            attr_id = tvb_get_guint8(tvb, *offset);
+            attr_id = tvb_get_uint8(tvb, *offset);
             *offset += 1;
         }
 
         if (dissection_mask & RF4CE_PROFILE_ATTR_DISSECT_ENTRY_ID_MASK)
         {
-            gboolean is_attr_arrayed =
+            bool is_attr_arrayed =
                 is_zrc20 ? rf4ce_profile_is_zrc20_attr_arrayed(attr_id) : rf4ce_profile_is_gdp_attr_arrayed(attr_id);
             if (is_attr_arrayed)
             {
@@ -2002,20 +2002,20 @@ static void dissect_rf4ce_profile_attrs(tvbuff_t *tvb, proto_tree *tree, guint *
         if (dissection_mask & RF4CE_PROFILE_ATTR_DISSECT_ATTR_STATUS_MASK)
         {
             proto_tree_add_item(attrs_subtree, hf_rf4ce_profile_attr_status, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-            attr_status = tvb_get_guint8(tvb, *offset);
+            attr_status = tvb_get_uint8(tvb, *offset);
             *offset += 1;
         }
 
         if (attr_status == RF4CE_PROFILE_ATTR_STATUS_ATTRIBUTE_SUCCESSFULLY_READ_AND_INCLUDED && dissection_mask & RF4CE_PROFILE_ATTR_DISSECT_ATTR_LENGTH_MASK)
         {
             proto_tree_add_item(attrs_subtree, hf_rf4ce_profile_attr_length, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-            attr_length = tvb_get_guint8(tvb, *offset);
+            attr_length = tvb_get_uint8(tvb, *offset);
             *offset += 1;
         }
 
         if (attr_status == RF4CE_PROFILE_ATTR_STATUS_ATTRIBUTE_SUCCESSFULLY_READ_AND_INCLUDED && dissection_mask & RF4CE_PROFILE_ATTR_DISSECT_ATTR_VALUE_MASK && attr_length != 0xff && attr_length != 0x00)
         {
-            gboolean is_parsed;
+            bool is_parsed;
 
             if (is_zrc20)
             {
@@ -2044,51 +2044,51 @@ static void dissect_rf4ce_profile_attrs(tvbuff_t *tvb, proto_tree *tree, guint *
     }
 }
 
-static void dissect_rf4ce_profile_cmd_get_attrs(tvbuff_t *tvb, proto_tree *tree, guint *offset, gboolean is_zrc20)
+static void dissect_rf4ce_profile_cmd_get_attrs(tvbuff_t *tvb, proto_tree *tree, unsigned *offset, bool is_zrc20)
 {
     dissect_rf4ce_profile_attrs(tvb, tree, offset, RF4CE_PROFILE_ATTR_DISSECT_GET_ATTRS_MASK, is_zrc20);
 }
 
-static void dissect_rf4ce_profile_cmd_get_attrs_resp(tvbuff_t *tvb, proto_tree *tree, guint *offset, gboolean is_zrc20)
+static void dissect_rf4ce_profile_cmd_get_attrs_resp(tvbuff_t *tvb, proto_tree *tree, unsigned *offset, bool is_zrc20)
 {
     dissect_rf4ce_profile_attrs(tvb, tree, offset, RF4CE_PROFILE_ATTR_DISSECT_GET_ATTRS_RESP_MASK, is_zrc20);
 }
 
-static void dissect_rf4ce_profile_cmd_push_attrs(tvbuff_t *tvb, proto_tree *tree, guint *offset, gboolean is_zrc20)
+static void dissect_rf4ce_profile_cmd_push_attrs(tvbuff_t *tvb, proto_tree *tree, unsigned *offset, bool is_zrc20)
 {
     dissect_rf4ce_profile_attrs(tvb, tree, offset, RF4CE_PROFILE_ATTR_DISSECT_PUSH_ATTRS_MASK, is_zrc20);
 }
 
-static void dissect_rf4ce_profile_cmd_set_attrs(tvbuff_t *tvb, proto_tree *tree, guint *offset, gboolean is_zrc20)
+static void dissect_rf4ce_profile_cmd_set_attrs(tvbuff_t *tvb, proto_tree *tree, unsigned *offset, bool is_zrc20)
 {
     dissect_rf4ce_profile_attrs(tvb, tree, offset, RF4CE_PROFILE_ATTR_DISSECT_SET_ATTRS_MASK, is_zrc20);
 }
 
-static void dissect_rf4ce_profile_cmd_pull_attrs(tvbuff_t *tvb, proto_tree *tree, guint *offset, gboolean is_zrc20)
+static void dissect_rf4ce_profile_cmd_pull_attrs(tvbuff_t *tvb, proto_tree *tree, unsigned *offset, bool is_zrc20)
 {
     dissect_rf4ce_profile_attrs(tvb, tree, offset, RF4CE_PROFILE_ATTR_DISSECT_PULL_ATTRS_MASK, is_zrc20);
 }
 
-static void dissect_rf4ce_profile_cmd_pull_attrs_resp(tvbuff_t *tvb, proto_tree *tree, guint *offset, gboolean is_zrc20)
+static void dissect_rf4ce_profile_cmd_pull_attrs_resp(tvbuff_t *tvb, proto_tree *tree, unsigned *offset, bool is_zrc20)
 {
     dissect_rf4ce_profile_attrs(tvb, tree, offset, RF4CE_PROFILE_ATTR_DISSECT_PULL_ATTRS_RESP_MASK, is_zrc20);
 }
 
-static gboolean rf4ce_profile_is_gdp_attr_arrayed(guint8 attr_id)
+static bool rf4ce_profile_is_gdp_attr_arrayed(uint8_t attr_id)
 {
     /* other values are scalar */
     return ((attr_id >= RF4CE_GDP_ATTR_ARRAYED1_RESERVED_MIN && attr_id <= RF4CE_GDP_ATTR_ARRAYED1_RESERVED_MAX) || (attr_id >= RF4CE_GDP_ATTR_ARRAYED2_RESERVED_MIN && attr_id <= RF4CE_GDP_ATTR_ARRAYED2_RESERVED_MAX));
 }
 
-static gboolean rf4ce_profile_is_zrc20_attr_arrayed(guint8 attr_id)
+static bool rf4ce_profile_is_zrc20_attr_arrayed(uint8_t attr_id)
 {
     /* other values are scalar */
     return (attr_id == RF4CE_ZRC20_ATTR_ACTION_CODES_SUPPORTED_RX || attr_id == RF4CE_ZRC20_ATTR_ACTION_CODES_SUPPORTED_TX || attr_id == RF4CE_ZRC20_ATTR_MAPPABLE_ACTIONS || attr_id == RF4CE_ZRC20_ATTR_ACTION_MAPPINGS || attr_id == RF4CE_ZRC20_ATTR_HOME_AUTOMATION || attr_id == RF4CE_ZRC20_ATTR_HOME_AUTOMATION_SUPPORTED || (attr_id >= RF4CE_ZRC20_ATTR_ARRAYED1_MIN && attr_id <= RF4CE_ZRC20_ATTR_ARRAYED2_MAX));
 }
 
-static void dissect_rf4ce_profile_cmd_check_validation(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+static void dissect_rf4ce_profile_cmd_check_validation(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
-    guint8 sub_type = tvb_get_guint8(tvb, *offset);
+    uint8_t sub_type = tvb_get_uint8(tvb, *offset);
     proto_tree_add_item(tree, hf_rf4ce_profile_cmd_check_validation_sub_type, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
     *offset += 1;
 
@@ -2104,9 +2104,9 @@ static void dissect_rf4ce_profile_cmd_check_validation(tvbuff_t *tvb, proto_tree
     }
 }
 
-static void dissect_rf4ce_profile_cmd_client_notification(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+static void dissect_rf4ce_profile_cmd_client_notification(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
-    guint8 sub_type = tvb_get_guint8(tvb, *offset);
+    uint8_t sub_type = tvb_get_uint8(tvb, *offset);
     ;
     proto_tree_add_item(tree, hf_rf4ce_profile_cmd_client_notification_sub_type, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
     *offset += 1;
@@ -2141,9 +2141,9 @@ static void dissect_rf4ce_profile_cmd_client_notification(tvbuff_t *tvb, proto_t
     }
 }
 
-static void dissect_rf4ce_profile_cmd_key_exchange(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
+static void dissect_rf4ce_profile_cmd_key_exchange(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned *offset)
 {
-    guint8 sub_type = tvb_get_guint8(tvb, *offset);
+    uint8_t sub_type = tvb_get_uint8(tvb, *offset);
 
     proto_tree_add_item(tree, hf_rf4ce_profile_cmd_key_exchange_sub_type, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
     *offset += 1;
@@ -2164,8 +2164,8 @@ static void dissect_rf4ce_profile_cmd_key_exchange(tvbuff_t *tvb, packet_info *p
 
     if (sub_type == RF4CE_PROFILE_CMD_KEY_EXCHANGE_SUB_TYPE_CHALLENGE)
     {
-        guint8 rand_a[RF4CE_PROFILE_CMD_KEY_EXCHANGE_RAND_A_LENGTH];
-        guint8 target_addr[RF4CE_IEEE_ADDR_LEN];
+        uint8_t rand_a[RF4CE_PROFILE_CMD_KEY_EXCHANGE_RAND_A_LENGTH];
+        uint8_t target_addr[RF4CE_IEEE_ADDR_LEN];
 
         proto_tree_add_item(tree, hf_rf4ce_profile_cmd_key_exchange_rand_a, tvb, *offset, RF4CE_PROFILE_CMD_KEY_EXCHANGE_RAND_A_LENGTH, ENC_NA);
         tvb_memcpy(tvb, (void *)rand_a, *offset, RF4CE_PROFILE_CMD_KEY_EXCHANGE_RAND_A_LENGTH);
@@ -2173,7 +2173,7 @@ static void dissect_rf4ce_profile_cmd_key_exchange(tvbuff_t *tvb, packet_info *p
 
         if (!key_exchange_context_is_procedure_started())
         {
-            if (rf4ce_addr_table_get_ieee_addr(target_addr, pinfo, TRUE))
+            if (rf4ce_addr_table_get_ieee_addr(target_addr, pinfo, true))
             {
                 key_exchange_context_init();
 
@@ -2187,22 +2187,22 @@ static void dissect_rf4ce_profile_cmd_key_exchange(tvbuff_t *tvb, packet_info *p
 
     if (sub_type == RF4CE_PROFILE_CMD_KEY_EXCHANGE_SUB_TYPE_CHALLENGE_RSP)
     {
-        guint8 rand_b[RF4CE_PROFILE_CMD_KEY_EXCHANGE_RAND_A_LENGTH];
-        guint32 tag_b_pack;
+        uint8_t rand_b[RF4CE_PROFILE_CMD_KEY_EXCHANGE_RAND_A_LENGTH];
+        uint32_t tag_b_pack;
 
-        guint8 controller_addr[RF4CE_IEEE_ADDR_LEN];
+        uint8_t controller_addr[RF4CE_IEEE_ADDR_LEN];
 
         proto_tree_add_item(tree, hf_rf4ce_profile_cmd_key_exchange_rand_b, tvb, *offset, RF4CE_PROFILE_CMD_KEY_EXCHANGE_RAND_B_LENGTH, ENC_NA);
         tvb_memcpy(tvb, (void *)rand_b, *offset, RF4CE_PROFILE_CMD_KEY_EXCHANGE_RAND_A_LENGTH);
         *offset += RF4CE_PROFILE_CMD_KEY_EXCHANGE_RAND_B_LENGTH;
 
         proto_tree_add_item(tree, hf_rf4ce_profile_cmd_key_exchange_tag_b, tvb, *offset, RF4CE_PROFILE_CMD_KEY_EXCHANGE_TAG_B_LENGTH, ENC_NA);
-        tag_b_pack = tvb_get_guint32(tvb, *offset, ENC_LITTLE_ENDIAN);
+        tag_b_pack = tvb_get_uint32(tvb, *offset, ENC_LITTLE_ENDIAN);
         *offset += RF4CE_PROFILE_CMD_KEY_EXCHANGE_TAG_B_LENGTH;
 
         if (key_exchange_context_is_procedure_started())
         {
-            if (rf4ce_addr_table_get_ieee_addr(controller_addr, pinfo, TRUE))
+            if (rf4ce_addr_table_get_ieee_addr(controller_addr, pinfo, true))
             {
                 key_exchange_context_set_rand_b(rand_b);
                 key_exchange_context_set_mac_b(controller_addr);
@@ -2221,20 +2221,20 @@ static void dissect_rf4ce_profile_cmd_key_exchange(tvbuff_t *tvb, packet_info *p
     }
 }
 
-static void dissect_rf4ce_profile_zrc10_cmd(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 cmd_id)
+static void dissect_rf4ce_profile_zrc10_cmd(tvbuff_t *tvb, proto_tree *tree, unsigned *offset, uint8_t cmd_id)
 {
     switch (cmd_id)
     {
     case RF4CE_ZRC10_FCF_CMD_ID_USER_CONTROL_PRESSED:
-        dissect_rf4ce_profile_zrc10_cmd_user_control_common(tvb, tree, offset, TRUE);
+        dissect_rf4ce_profile_zrc10_cmd_user_control_common(tvb, tree, offset, true);
         break;
 
     case RF4CE_ZRC10_FCF_CMD_ID_USER_CONTROL_REPEATED:
-        dissect_rf4ce_profile_zrc10_cmd_user_control_common(tvb, tree, offset, TRUE);
+        dissect_rf4ce_profile_zrc10_cmd_user_control_common(tvb, tree, offset, true);
         break;
 
     case RF4CE_ZRC10_FCF_CMD_ID_USER_CONTROL_RELEASED:
-        dissect_rf4ce_profile_zrc10_cmd_user_control_common(tvb, tree, offset, FALSE);
+        dissect_rf4ce_profile_zrc10_cmd_user_control_common(tvb, tree, offset, false);
         break;
 
     case RF4CE_ZRC10_FCF_CMD_ID_USER_CONTROL_CMD_DISCOVERY_REQ:
@@ -2247,14 +2247,14 @@ static void dissect_rf4ce_profile_zrc10_cmd(tvbuff_t *tvb, proto_tree *tree, gui
     }
 }
 
-static void dissect_rf4ce_profile_zrc10_cmd_user_control_common(tvbuff_t *tvb, proto_tree *tree, guint *offset, gboolean parse_payload)
+static void dissect_rf4ce_profile_zrc10_cmd_user_control_common(tvbuff_t *tvb, proto_tree *tree, unsigned *offset, bool parse_payload)
 {
     proto_tree_add_item(tree, hf_rf4ce_zrc10_cmd_common_rc_command_code, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
     if (parse_payload)
     {
-        gint remaining_length = tvb_reported_length_remaining(tvb, *offset);
+        int remaining_length = tvb_reported_length_remaining(tvb, *offset);
         if (remaining_length > 0)
         {
             proto_tree_add_item(tree, hf_rf4ce_zrc10_cmd_common_rc_command_payload, tvb, *offset, remaining_length, ENC_NA);
@@ -2263,15 +2263,15 @@ static void dissect_rf4ce_profile_zrc10_cmd_user_control_common(tvbuff_t *tvb, p
     }
 }
 
-static void dissect_rf4ce_profile_zrc10_cmd_discovery_req(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+static void dissect_rf4ce_profile_zrc10_cmd_discovery_req(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
     proto_tree_add_item(tree, hf_rf4ce_zrc10_cmd_disc_reserved, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
     *offset += 1;
 }
 
-static void dissect_rf4ce_profile_zrc10_cmd_discovery_rsp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+static void dissect_rf4ce_profile_zrc10_cmd_discovery_rsp(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
-  gint remaining_length = tvb_reported_length_remaining(tvb, *offset);
+  int remaining_length = tvb_reported_length_remaining(tvb, *offset);
 
   if (remaining_length > 0)
   {
@@ -2280,11 +2280,11 @@ static void dissect_rf4ce_profile_zrc10_cmd_discovery_rsp(tvbuff_t *tvb, proto_t
   }
 }
 
-static void dissect_rf4ce_profile_zrc20_cmd(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 cmd_id)
+static void dissect_rf4ce_profile_zrc20_cmd(tvbuff_t *tvb, proto_tree *tree, unsigned *offset, uint8_t cmd_id)
 {
     if (cmd_id == RF4CE_ZRC20_CMD_ACTIONS)
     {
-        gint remaining_length = tvb_reported_length_remaining(tvb, *offset);
+        int remaining_length = tvb_reported_length_remaining(tvb, *offset);
         proto_tree *action_records_tree;
 
         if (remaining_length > 0)
@@ -2293,7 +2293,7 @@ static void dissect_rf4ce_profile_zrc20_cmd(tvbuff_t *tvb, proto_tree *tree, gui
 
             while (remaining_length > 0)
             {
-                dissect_rf4ce_profile_zrc20_action_data(tvb, action_records_tree, offset, TRUE /* dissect the Action Control field */);
+                dissect_rf4ce_profile_zrc20_action_data(tvb, action_records_tree, offset, true /* dissect the Action Control field */);
                 remaining_length = tvb_reported_length_remaining(tvb, *offset);
             }
         }
@@ -2304,12 +2304,12 @@ static void dissect_rf4ce_profile_zrc20_cmd(tvbuff_t *tvb, proto_tree *tree, gui
     }
 }
 
-static void dissect_rf4ce_profile_zrc20_action_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, gboolean dissect_action_control)
+static void dissect_rf4ce_profile_zrc20_action_data(tvbuff_t *tvb, proto_tree *tree, unsigned *offset, bool dissect_action_control)
 {
     char record_tree_name[10];
     proto_tree *record_tree;
-    guint8 payload_length;
-    gint remaining_length;
+    uint8_t payload_length;
+    int remaining_length;
     int attr_counter = 1;
 
     snprintf(record_tree_name, sizeof(record_tree_name), "Record %d:", attr_counter);
@@ -2333,7 +2333,7 @@ static void dissect_rf4ce_profile_zrc20_action_data(tvbuff_t *tvb, proto_tree *t
     }
 
     proto_tree_add_item(record_tree, hf_rf4ce_zrc20_cmd_actions_action_data_payload_length, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-    payload_length = tvb_get_guint8(tvb, *offset);
+    payload_length = tvb_get_uint8(tvb, *offset);
     *offset += 1;
 
     proto_tree_add_item(record_tree, hf_rf4ce_zrc20_cmd_actions_action_data_action_bank, tvb, *offset, 1, ENC_LITTLE_ENDIAN);

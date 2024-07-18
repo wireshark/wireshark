@@ -54,8 +54,8 @@ static hf_register_info rtag_breakdown[] = {
 
 /*
  */
-static gint ett_rtag;
-static gint *ett[] = { &ett_rtag };
+static int ett_rtag;
+static int *ett[] = { &ett_rtag };
 
 /*
  * Dissect the R-TAG portion of a given packet. This is called with
@@ -75,8 +75,8 @@ static int dissect_rtag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	 */
       ti = proto_tree_add_item(tree, proto_rtag, tvb, 0, 6, ENC_NA);
 
-      guint16 seqno = tvb_get_ntohs(tvb, 2);
-      guint16 rtag_protocol = tvb_get_ntohs(tvb, 4);
+      uint16_t seqno = tvb_get_ntohs(tvb, 2);
+      uint16_t rtag_protocol = tvb_get_ntohs(tvb, 4);
 
       proto_tree *rtag_subtree = proto_item_add_subtree(ti, ett_rtag);
       proto_tree_add_item(rtag_subtree, hf_rtag_reserved, tvb, 0, 2, ENC_BIG_ENDIAN);

@@ -22,21 +22,21 @@
 struct _rtcp_conversation_info
 {
     /* Setup info is relevant to traffic whose dest is the conversation address */
-    guchar  setup_method_set;
-    gchar   setup_method[MAX_RTCP_SETUP_METHOD_SIZE + 1];
-    guint32 setup_frame_number;
+    unsigned char  setup_method_set;
+    char    setup_method[MAX_RTCP_SETUP_METHOD_SIZE + 1];
+    uint32_t setup_frame_number;
 
     /* Info used for roundtrip calculations */
-    guchar   last_received_set;
-    guint32  last_received_frame_number;
+    unsigned char   last_received_set;
+    uint32_t last_received_frame_number;
     nstime_t last_received_timestamp;
-    guint32  last_received_ts;
+    uint32_t last_received_ts;
 
     /* Stored result of calculation */
-    guchar  lsr_matched;
-    guint32 calculated_delay_used_frame;
-    gint    calculated_delay_report_gap;
-    gint32  calculated_delay;
+    unsigned char  lsr_matched;
+    uint32_t calculated_delay_used_frame;
+    int     calculated_delay_report_gap;
+    int32_t calculated_delay;
 
     /* SRTCP context */
     struct srtp_info *srtcp_info;
@@ -48,12 +48,12 @@ WS_DLL_PUBLIC
 void rtcp_add_address(packet_info *pinfo,
                       address *addr, int port,
                       int other_port,
-                      const gchar *setup_method, guint32 setup_frame_number);
+                      const char *setup_method, uint32_t setup_frame_number);
 
 /* Add an SRTP conversation with the given details */
 WS_DLL_PUBLIC
 void srtcp_add_address(packet_info *pinfo,
                       address *addr, int port,
                       int other_port,
-                      const gchar *setup_method, guint32 setup_frame_number,
+                      const char *setup_method, uint32_t setup_frame_number,
                       struct srtp_info *srtcp_info);

@@ -35,22 +35,22 @@ static int hf_rk512_measurement_data_flags;
 static int hf_rk512_checksum;
 static int hf_rk512_checksum_status;
 
-static gint ett_rk512;
-static gint ett_rk512_measurement_data;
-static gint ett_rk512_measurement_data_value;
-static gint ett_rk512_continuous_data;
+static int ett_rk512;
+static int ett_rk512_measurement_data;
+static int ett_rk512_measurement_data_value;
+static int ett_rk512_continuous_data;
 
 static expert_field ei_rk512_reply_header;
 static expert_field ei_rk512_data_type;
 static expert_field ei_rk512_checksum;
 
 //Preferences
-static guint rk512_num_measurements_pts = 541;
+static unsigned rk512_num_measurements_pts = 541;
 
 #define RK512_HEADER_SIZE   4
 #define RK512_CRC_SIZE   2
 //Used to find the start of packets
-static const guint8 HEADER_SEQUENCE[RK512_HEADER_SIZE] = { 0, 0, 0, 0 };
+static const uint8_t HEADER_SEQUENCE[RK512_HEADER_SIZE] = { 0, 0, 0, 0 };
 static tvbuff_t* tvb_header_signature = NULL;
 
 #define MEASUREMENT_DATA		0xBBBB
@@ -103,10 +103,10 @@ static int* const rk512_measurement_data_fields[] = {
 	NULL,
 };
 
-static guint
+static unsigned
 get_rk512_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
-	guint32 len = 0;
+	uint32_t len = 0;
 
 	len = tvb_get_ntohs(tvb, offset + RK512_HEADER_SIZE + 2);	//length in words
 
@@ -123,7 +123,7 @@ dissect_rk512_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	proto_tree		*rk512_tree, *continous_data_tree, *measurement_tree;
 	proto_item		*ti, *header_item, *continous_data_item, *data_item;
 	int				offset = 0, start_offset;
-	guint32			tag, block_type, data_type, sub_data_type, size;
+	uint32_t			tag, block_type, data_type, sub_data_type, size;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RK512");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -173,18 +173,18 @@ dissect_rk512_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 			if ((rk512_num_measurements_pts == 381) && (size == 784))
 				size = 780;
 
-			guint8* crc_data;
+			uint8_t* crc_data;
 			proto_tree_add_item_ret_uint(continous_data_tree, hf_rk512_measurement_data_type, tvb, offset, 2, ENC_LITTLE_ENDIAN, &sub_data_type);
 			offset += 2;
 			measurement_tree = proto_tree_add_subtree(continous_data_tree, tvb, offset, rk512_num_measurements_pts * 2, ett_rk512_measurement_data, NULL, "Measurement Data");
-			for (guint i = 0; i < rk512_num_measurements_pts; i++)
+			for (unsigned i = 0; i < rk512_num_measurements_pts; i++)
 			{
 				proto_tree_add_bitmask(measurement_tree, tvb, offset, hf_rk512_measurement_data, ett_rk512_measurement_data_value, rk512_measurement_data_fields, ENC_BIG_ENDIAN);
 				offset += 2;
 			}
 
 			//Create data to compute the CRC
-			crc_data = (guint8*)wmem_alloc(wmem_packet_scope(), size + 2);
+			crc_data = (uint8_t*)wmem_alloc(wmem_packet_scope(), size + 2);
 			//start with a word with value 0
 			crc_data[0] = 0;
 			crc_data[1] = 0;
@@ -220,15 +220,15 @@ dissect_rk512_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 static int
 dissect_rk512(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-	tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 8, get_rk512_pdu_len, dissect_rk512_pdu, data);
+	tcp_dissect_pdus(tvb, pinfo, tree, true, 8, get_rk512_pdu_len, dissect_rk512_pdu, data);
 	return tvb_captured_length(tvb);
 }
 
 static bool
 dissect_rk512_heur(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 {
-	gint signature_start, offset;
-	guint16 block_type;
+	int signature_start, offset;
+	uint16_t block_type;
 	tvbuff_t* rk512_tvb;
 
 	signature_start = tvb_find_tvb(tvb, tvb_header_signature, 0);
@@ -251,7 +251,7 @@ dissect_rk512_heur(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* da
 	offset += 2;
 	if (block_type == BLOCKNUM_CONTINUOUSDATA)
 	{
-		guint16 datatype;
+		uint16_t datatype;
 		if (tvb_captured_length_remaining(tvb, offset) < 18)
 			return false;
 
@@ -272,10 +272,10 @@ rk512_shutdown(void)
 }
 
 static void
-rk512_fmt_version( gchar *result, guint32 revision )
+rk512_fmt_version( char *result, uint32_t revision )
 {
 		snprintf( result, ITEM_LABEL_LENGTH, "%d.%d",
-		(guint8)(revision & 0xFF), (guint8)(( revision & 0xFF00 ) >> 8));
+		(uint8_t)(revision & 0xFF), (uint8_t)(( revision & 0xFF00 ) >> 8));
 }
 
 void
@@ -321,7 +321,7 @@ proto_register_rk512(void)
 
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_rk512,
 		&ett_rk512_continuous_data,
 		&ett_rk512_measurement_data,

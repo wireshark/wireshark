@@ -38,14 +38,14 @@ enum rohc_mode
 
 typedef struct rohc_info
 {
-    gboolean           rohc_compression;
-    guint8             rohc_ip_version;
-    gboolean           cid_inclusion_info;
-    gboolean           large_cid_present;
+    bool               rohc_compression;
+    uint8_t            rohc_ip_version;
+    bool               cid_inclusion_info;
+    bool               large_cid_present;
     enum rohc_mode     mode;
-    gboolean           rnd;
-    gboolean           udp_checksum_present;
-    guint16            profile;
+    bool               rnd;
+    bool               udp_checksum_present;
+    uint16_t           profile;
     proto_item         *last_created_item;
 } rohc_info;
 

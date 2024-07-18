@@ -2826,61 +2826,61 @@ static int hf_rtp_midi_sysex_common_rt_dc_balance;
 
 /* RTP MIDI fields defining a subtree */
 
-static gint ett_rtp_midi;
-static gint ett_rtp_midi_commands;
-static gint ett_rtp_midi_journal;
-static gint ett_rtp_midi_command;
-static gint ett_rtp_midi_systemjournal;
-static gint ett_rtp_midi_channeljournals;
-static gint ett_rtp_midi_systemchapters;
-static gint ett_rtp_midi_sj_chapter_d;
-static gint ett_rtp_midi_sj_chapter_d_field_b;
-static gint ett_rtp_midi_sj_chapter_d_field_g;
-static gint ett_rtp_midi_sj_chapter_d_field_h;
-static gint ett_rtp_midi_sj_chapter_d_field_j;
-static gint ett_rtp_midi_sj_chapter_d_field_k;
-static gint ett_rtp_midi_sj_chapter_d_field_y;
-static gint ett_rtp_midi_sj_chapter_d_field_z;
-static gint ett_rtp_midi_sj_chapter_v;
-static gint ett_rtp_midi_sj_chapter_q;
-static gint ett_rtp_midi_sj_chapter_f;
-static gint ett_rtp_midi_sj_chapter_f_complete;
-static gint ett_rtp_midi_sj_chapter_f_partial;
-static gint ett_rtp_midi_sj_chapter_x;
-static gint ett_rtp_midi_sj_chapter_x_first;
-static gint ett_rtp_midi_sj_chapter_x_data;
-static gint ett_rtp_midi_channeljournal;
-static gint ett_rtp_midi_channelchapters;
-static gint ett_rtp_midi_cj_chapter_p;
-static gint ett_rtp_midi_cj_chapter_c;
-static gint ett_rtp_midi_cj_chapter_c_loglist;
-static gint ett_rtp_midi_cj_chapter_c_logitem;
-static gint ett_rtp_midi_cj_chapter_m;
-static gint ett_rtp_midi_cj_chapter_m_loglist;
-static gint ett_rtp_midi_cj_chapter_m_logitem;
-static gint ett_rtp_midi_cj_chapter_m_log_msb;
-static gint ett_rtp_midi_cj_chapter_m_log_lsb;
-static gint ett_rtp_midi_cj_chapter_m_log_a_button;
-static gint ett_rtp_midi_cj_chapter_m_log_c_button;
-static gint ett_rtp_midi_cj_chapter_m_log_count;
-static gint ett_rtp_midi_cj_chapter_w;
-static gint ett_rtp_midi_cj_chapter_n;
-static gint ett_rtp_midi_cj_chapter_n_loglist;
-static gint ett_rtp_midi_cj_chapter_n_logitem;
-static gint ett_rtp_midi_cj_chapter_n_octets;
-static gint ett_rtp_midi_cj_chapter_e;
-static gint ett_rtp_midi_cj_chapter_e_loglist;
-static gint ett_rtp_midi_cj_chapter_e_logitem;
-static gint ett_rtp_midi_cj_chapter_t;
-static gint ett_rtp_midi_cj_chapter_a;
-static gint ett_rtp_midi_cj_chapter_a_loglist;
-static gint ett_rtp_midi_cj_chapter_a_logitem;
-static gint ett_rtp_midi_sysex_data;
-static gint ett_rtp_midi_sysex_edu;
-static gint ett_rtp_midi_sysex_manu;
-static gint ett_rtp_midi_sysex_common_rt;
-static gint ett_rtp_midi_sysex_common_nrt;
-static gint ett_rtp_midi_sysex_common_tune_note;
+static int ett_rtp_midi;
+static int ett_rtp_midi_commands;
+static int ett_rtp_midi_journal;
+static int ett_rtp_midi_command;
+static int ett_rtp_midi_systemjournal;
+static int ett_rtp_midi_channeljournals;
+static int ett_rtp_midi_systemchapters;
+static int ett_rtp_midi_sj_chapter_d;
+static int ett_rtp_midi_sj_chapter_d_field_b;
+static int ett_rtp_midi_sj_chapter_d_field_g;
+static int ett_rtp_midi_sj_chapter_d_field_h;
+static int ett_rtp_midi_sj_chapter_d_field_j;
+static int ett_rtp_midi_sj_chapter_d_field_k;
+static int ett_rtp_midi_sj_chapter_d_field_y;
+static int ett_rtp_midi_sj_chapter_d_field_z;
+static int ett_rtp_midi_sj_chapter_v;
+static int ett_rtp_midi_sj_chapter_q;
+static int ett_rtp_midi_sj_chapter_f;
+static int ett_rtp_midi_sj_chapter_f_complete;
+static int ett_rtp_midi_sj_chapter_f_partial;
+static int ett_rtp_midi_sj_chapter_x;
+static int ett_rtp_midi_sj_chapter_x_first;
+static int ett_rtp_midi_sj_chapter_x_data;
+static int ett_rtp_midi_channeljournal;
+static int ett_rtp_midi_channelchapters;
+static int ett_rtp_midi_cj_chapter_p;
+static int ett_rtp_midi_cj_chapter_c;
+static int ett_rtp_midi_cj_chapter_c_loglist;
+static int ett_rtp_midi_cj_chapter_c_logitem;
+static int ett_rtp_midi_cj_chapter_m;
+static int ett_rtp_midi_cj_chapter_m_loglist;
+static int ett_rtp_midi_cj_chapter_m_logitem;
+static int ett_rtp_midi_cj_chapter_m_log_msb;
+static int ett_rtp_midi_cj_chapter_m_log_lsb;
+static int ett_rtp_midi_cj_chapter_m_log_a_button;
+static int ett_rtp_midi_cj_chapter_m_log_c_button;
+static int ett_rtp_midi_cj_chapter_m_log_count;
+static int ett_rtp_midi_cj_chapter_w;
+static int ett_rtp_midi_cj_chapter_n;
+static int ett_rtp_midi_cj_chapter_n_loglist;
+static int ett_rtp_midi_cj_chapter_n_logitem;
+static int ett_rtp_midi_cj_chapter_n_octets;
+static int ett_rtp_midi_cj_chapter_e;
+static int ett_rtp_midi_cj_chapter_e_loglist;
+static int ett_rtp_midi_cj_chapter_e_logitem;
+static int ett_rtp_midi_cj_chapter_t;
+static int ett_rtp_midi_cj_chapter_a;
+static int ett_rtp_midi_cj_chapter_a_loglist;
+static int ett_rtp_midi_cj_chapter_a_logitem;
+static int ett_rtp_midi_sysex_data;
+static int ett_rtp_midi_sysex_edu;
+static int ett_rtp_midi_sysex_manu;
+static int ett_rtp_midi_sysex_common_rt;
+static int ett_rtp_midi_sysex_common_nrt;
+static int ett_rtp_midi_sysex_common_tune_note;
 
 
 static int proto_rtp_midi;
@@ -2898,7 +2898,7 @@ void proto_reg_handoff_rtp_midi( void );
 static int
 decodetime(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset)
 {
-	guint8		octet;
+	uint8_t		octet;
 	unsigned int	consumed;
 	unsigned int    i;
 	unsigned int    deltatime;
@@ -2910,7 +2910,7 @@ decodetime(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int
 	/* RTP-MIDI deltatime is "compressed" using only the necessary amount of octets */
 	for ( i=0; i < 4; i++ ) {
 
-		octet = tvb_get_guint8( tvb, offset + consumed );
+		octet = tvb_get_uint8( tvb, offset + consumed );
 		deltatime = ( deltatime << 7 ) | ( octet & RTP_MIDI_DELTA_TIME_OCTET_MASK );
 		consumed++;
 
@@ -2944,18 +2944,18 @@ decodetime(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int
  * Here a Note-Off command is decoded.
  */
 static int
-decode_note_off(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int cmd_count, unsigned int offset, guint8 status, unsigned int rsoffset, gboolean using_rs ) {
+decode_note_off(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int cmd_count, unsigned int offset, uint8_t status, unsigned int rsoffset, bool using_rs ) {
 
-	guint8		 note;
-	guint8		 velocity;
-	const gchar	*status_str;
-	const gchar	*note_str;
+	uint8_t		 note;
+	uint8_t		 velocity;
+	const char	*status_str;
+	const char	*note_str;
 	proto_tree	*command_tree;
 
 	status_str = val_to_str( status >> 4, rtp_midi_channel_status, rtp_midi_unknown_value_hex );
-	note = tvb_get_guint8( tvb, offset );
+	note = tvb_get_uint8( tvb, offset );
 	note_str = val_to_str_ext( note, &rtp_midi_note_values_ext, rtp_midi_unknown_value_dec );
-	velocity = tvb_get_guint8( tvb, offset + 1 );
+	velocity = tvb_get_uint8( tvb, offset + 1 );
 
 	if ( using_rs ) {
 		command_tree = proto_tree_add_subtree_format( tree, tvb, offset, 2, ett_rtp_midi_command, NULL,
@@ -2986,18 +2986,18 @@ decode_note_off(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned in
  * Here a Note-On command is decoded.
  */
 static int
-decode_note_on(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int cmd_count, unsigned int offset, guint8 status, unsigned int rsoffset, gboolean using_rs ) {
+decode_note_on(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int cmd_count, unsigned int offset, uint8_t status, unsigned int rsoffset, bool using_rs ) {
 
-	guint8		 note;
-	guint8		 velocity;
-	const gchar	*status_str;
-	const gchar	*note_str;
+	uint8_t		 note;
+	uint8_t		 velocity;
+	const char	*status_str;
+	const char	*note_str;
 	proto_tree	*command_tree;
 
 	status_str = val_to_str( status >> 4, rtp_midi_channel_status, rtp_midi_unknown_value_hex );
-	note = tvb_get_guint8( tvb, offset );
+	note = tvb_get_uint8( tvb, offset );
 	note_str = val_to_str_ext( note, &rtp_midi_note_values_ext, rtp_midi_unknown_value_dec );
-	velocity = tvb_get_guint8( tvb, offset + 1 );
+	velocity = tvb_get_uint8( tvb, offset + 1 );
 
 	/* special case velocity=0 for Note-On means Note-Off (to preserve running-status!) */
 	if ( velocity == 0 ) {
@@ -3035,18 +3035,18 @@ decode_note_on(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int
  * Here polyphonic aftertouch is decoded.
  */
 static int
-decode_poly_pressure(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int cmd_count, unsigned int offset, guint8 status, unsigned int rsoffset, gboolean using_rs ) {
+decode_poly_pressure(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int cmd_count, unsigned int offset, uint8_t status, unsigned int rsoffset, bool using_rs ) {
 
-	guint8		 note;
-	guint8		 pressure;
-	const gchar	*status_str;
-	const gchar	*note_str;
+	uint8_t		 note;
+	uint8_t		 pressure;
+	const char	*status_str;
+	const char	*note_str;
 	proto_tree	*command_tree;
 
 	status_str = val_to_str( status >> 4, rtp_midi_channel_status, rtp_midi_unknown_value_hex );
-	note = tvb_get_guint8( tvb, offset );
+	note = tvb_get_uint8( tvb, offset );
 	note_str = val_to_str_ext( note, &rtp_midi_note_values_ext, rtp_midi_unknown_value_dec );
-	pressure = tvb_get_guint8( tvb, offset + 1 );
+	pressure = tvb_get_uint8( tvb, offset + 1 );
 
 	if ( using_rs ) {
 		command_tree = proto_tree_add_subtree_format( tree, tvb, offset, 2, ett_rtp_midi_command, NULL,
@@ -3077,14 +3077,14 @@ decode_poly_pressure(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
  * Here channel aftertouch is decoded.
  */
 static int
-decode_channel_pressure(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int cmd_count, unsigned int offset, guint8 status, unsigned int rsoffset, gboolean using_rs ) {
+decode_channel_pressure(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int cmd_count, unsigned int offset, uint8_t status, unsigned int rsoffset, bool using_rs ) {
 
-	guint8		 pressure;
-	const gchar	*status_str;
+	uint8_t		 pressure;
+	const char	*status_str;
 	proto_tree	*command_tree;
 
 	status_str = val_to_str( status >> 4, rtp_midi_channel_status, rtp_midi_unknown_value_hex );
-	pressure = tvb_get_guint8( tvb, offset );
+	pressure = tvb_get_uint8( tvb, offset );
 
 	if ( using_rs ) {
 		command_tree = proto_tree_add_subtree_format( tree, tvb, offset, 1, ett_rtp_midi_command, NULL,
@@ -3114,17 +3114,17 @@ decode_channel_pressure(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uns
  * Here pitch-bend is decoded.
  */
 static int
-decode_pitch_bend_change(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int cmd_count, unsigned int offset, guint8 status, unsigned int rsoffset, gboolean using_rs ) {
+decode_pitch_bend_change(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int cmd_count, unsigned int offset, uint8_t status, unsigned int rsoffset, bool using_rs ) {
 
-	guint8		 octet1;
-	guint8		 octet2;
-	guint8		 pitch;
-	const gchar	*status_str;
+	uint8_t		 octet1;
+	uint8_t		 octet2;
+	uint8_t		 pitch;
+	const char	*status_str;
 	proto_tree	*command_tree;
 
 	status_str = val_to_str( status >> 4, rtp_midi_channel_status, rtp_midi_unknown_value_hex );
-	octet1 = tvb_get_guint8( tvb, offset );
-	octet2 = tvb_get_guint8( tvb, offset + 1 );
+	octet1 = tvb_get_uint8( tvb, offset );
+	octet2 = tvb_get_uint8( tvb, offset + 1 );
 	pitch = ( octet1 << 7 ) | octet2;
 
 	if ( using_rs ) {
@@ -3156,14 +3156,14 @@ decode_pitch_bend_change(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
  * Here program_change is decoded.
  */
 static int
-decode_program_change(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int cmd_count, unsigned int offset, guint8 status, unsigned int rsoffset, gboolean using_rs ) {
+decode_program_change(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int cmd_count, unsigned int offset, uint8_t status, unsigned int rsoffset, bool using_rs ) {
 
-	guint8		 program;
-	const gchar	*status_str;
+	uint8_t		 program;
+	const char	*status_str;
 	proto_tree	*command_tree;
 
 	status_str = val_to_str( status >> 4, rtp_midi_channel_status, rtp_midi_unknown_value_hex );
-	program = tvb_get_guint8( tvb, offset );
+	program = tvb_get_uint8( tvb, offset );
 
 	if ( using_rs ) {
 		command_tree = proto_tree_add_subtree_format( tree, tvb, offset, 1, ett_rtp_midi_command, NULL,
@@ -3194,18 +3194,18 @@ decode_program_change(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
  * Here control change is decoded.
  */
 static int
-decode_control_change(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int cmd_count, unsigned int offset, guint8 status, unsigned int rsoffset, gboolean using_rs ) {
+decode_control_change(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int cmd_count, unsigned int offset, uint8_t status, unsigned int rsoffset, bool using_rs ) {
 
-	guint8		 controller;
-	guint8		 value;
-	const gchar	*status_str;
-	const gchar	*ctrl_str;
+	uint8_t		 controller;
+	uint8_t		 value;
+	const char	*status_str;
+	const char	*ctrl_str;
 	proto_tree	*command_tree;
 
 	status_str = val_to_str( status >> 4, rtp_midi_channel_status, rtp_midi_unknown_value_hex );
-	controller = tvb_get_guint8( tvb, offset );
+	controller = tvb_get_uint8( tvb, offset );
 	ctrl_str = val_to_str_ext( controller, &rtp_midi_controller_values_ext, "Unknown: %d" );
-	value = tvb_get_guint8( tvb, offset + 1 );
+	value = tvb_get_uint8( tvb, offset + 1 );
 
 	if ( using_rs ) {
 		command_tree = proto_tree_add_subtree_format( tree, tvb, offset, 2,  ett_rtp_midi_command, NULL,
@@ -3313,14 +3313,14 @@ decode_sysex_common_nrt_sd_req( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
  */
 static unsigned int
 decode_sysex_common_nrt_sd_ext( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
-	guint8		 sub_id;
+	uint8_t		 sub_id;
 	unsigned int start_offset = offset;
 
 	if ( data_len < 1 )
 		return 0;
 
 	/* first we retrieve the sub-command */
-	sub_id = tvb_get_guint8( tvb, offset );
+	sub_id = tvb_get_uint8( tvb, offset );
 	proto_tree_add_item( tree, hf_rtp_midi_sysex_common_nrt_sd_ext, tvb, offset, 1, ENC_BIG_ENDIAN );
 	offset++;
 
@@ -3365,14 +3365,14 @@ decode_sysex_common_nrt_sd_ext( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
  */
 static unsigned int
 decode_sysex_common_nrt_gi( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
-	guint8		 sub_id;
+	uint8_t		 sub_id;
 	int		 consumed	= 0;
 
 	if ( data_len < 1 )
 		return consumed;
 
 	/* first we retrieve the sub-command */
-	sub_id = tvb_get_guint8( tvb, offset );
+	sub_id = tvb_get_uint8( tvb, offset );
 	proto_tree_add_item( tree, hf_rtp_midi_sysex_common_nrt_gi, tvb, offset, 1, ENC_BIG_ENDIAN );
 	offset++;
 	data_len--;
@@ -3386,7 +3386,7 @@ decode_sysex_common_nrt_gi( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 		/* nothing more to do... */
 
 	} else if ( sub_id == RTP_MIDI_SYSEX_COMMON_NRT_GI_IDENTITY_REPLY ) {
-		guint8 manu_short;
+		uint8_t manu_short;
 
 		if ( data_len < 1 ) {
 			return consumed;
@@ -3394,7 +3394,7 @@ decode_sysex_common_nrt_gi( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 
 		/* the manu-id should follow */
 		proto_tree_add_item( tree, hf_rtp_midi_manu_short, tvb, offset, 1, ENC_BIG_ENDIAN );
-		manu_short = tvb_get_guint8( tvb, offset );
+		manu_short = tvb_get_uint8( tvb, offset );
 		offset++;
 		data_len--;
 		consumed++;
@@ -3444,14 +3444,14 @@ decode_sysex_common_nrt_gi( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
  */
 static unsigned int
 decode_sysex_common_nrt_fd( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
-	guint8		 sub_id;
+	uint8_t		 sub_id;
 	unsigned int start_offset = offset;
 
 	if ( data_len < 1 )
 		return 0;
 
 	/* first we retrieve the sub-command */
-	sub_id = tvb_get_guint8( tvb, offset );
+	sub_id = tvb_get_uint8( tvb, offset );
 	proto_tree_add_item( tree, hf_rtp_midi_sysex_common_nrt_fd, tvb, offset, 1, ENC_BIG_ENDIAN );
 	offset++;
 	data_len--;
@@ -3534,8 +3534,8 @@ static unsigned int
 decode_sysex_common_tuning( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
 
 	proto_tree	*tune_tree;
-	const gchar	*note_str;
-	guint8		 sub_id;
+	const char	*note_str;
+	uint8_t		 sub_id;
 	unsigned int start_offset = offset;
 	unsigned int	 i;
 
@@ -3543,7 +3543,7 @@ decode_sysex_common_tuning( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 		return 0;
 
 	/* first we retrieve the sub-command */
-	sub_id = tvb_get_guint8( tvb, offset );
+	sub_id = tvb_get_uint8( tvb, offset );
 	proto_tree_add_item( tree, hf_rtp_midi_sysex_common_tuning, tvb, offset, 1, ENC_BIG_ENDIAN );
 	offset++;
 
@@ -3578,21 +3578,21 @@ decode_sysex_common_tuning( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 		offset++;
 
 	} else if ( sub_id == RTP_MIDI_SYSEX_COMMON_TUNING_NOTE_CHANGE ) {
-		guint8 changes;
+		uint8_t changes;
 
 		/* type */
 		proto_tree_add_item( tree, hf_rtp_midi_sysex_common_tune_program, tvb, offset, 1, ENC_BIG_ENDIAN );
 		offset++;
 
 		/* changes */
-		changes = tvb_get_guint8( tvb, offset );
+		changes = tvb_get_uint8( tvb, offset );
 		proto_tree_add_item( tree, hf_rtp_midi_sysex_common_tune_changes, tvb, offset, 1, ENC_BIG_ENDIAN );
 		offset++;
 
 		for ( i=0; i < changes; i++ ) {
-			guint8 note;
+			uint8_t note;
 
-			note = tvb_get_guint8( tvb, offset );
+			note = tvb_get_uint8( tvb, offset );
 
 			note_str = val_to_str_ext( note, &rtp_midi_note_values_ext, rtp_midi_unknown_value_dec );
 
@@ -3814,8 +3814,8 @@ decode_sysex_common_rt_mtc_cue( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
  */
 static unsigned int
 decode_sysex_common_nrt( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
-	guint8		 common_nrt;
-	const gchar	*nrt_str;
+	uint8_t		 common_nrt;
+	const char	*nrt_str;
 	proto_tree	*command_tree;
 	int		 consumed	= 0;
 	int		 ext_consumed	= 0;
@@ -3832,7 +3832,7 @@ decode_sysex_common_nrt( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 		return consumed;
 	}
 
-	common_nrt = tvb_get_guint8( tvb, offset );
+	common_nrt = tvb_get_uint8( tvb, offset );
 
 	nrt_str = val_to_str( common_nrt, rtp_midi_sysex_common_nrt, "Unknown 0x%02x" );
 
@@ -3918,14 +3918,14 @@ decode_sysex_common_nrt( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
  */
 static unsigned int
 decode_sysex_common_rt_mtc( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
-	guint8		 sub_id;
+	uint8_t		 sub_id;
 	unsigned int start_offset = offset;
 
 	if ( data_len < 1 )
 		return 0;
 
 	/* first we retrieve the sub-command */
-	sub_id = tvb_get_guint8( tvb, offset );
+	sub_id = tvb_get_uint8( tvb, offset );
 	proto_tree_add_item( tree, hf_rtp_midi_sysex_common_rt_mtc, tvb, offset, 1, ENC_BIG_ENDIAN );
 	offset++;
 
@@ -4010,14 +4010,14 @@ decode_sysex_common_rt_sc( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
  */
 static unsigned int
 decode_sysex_common_rt_ni( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
-	guint8		 sub_id;
+	uint8_t		 sub_id;
 	unsigned int start_offset = offset;
 
 	if ( data_len < 1 )
 		return 0;
 
 	/* first we retrieve the sub-command */
-	sub_id = tvb_get_guint8( tvb, offset );
+	sub_id = tvb_get_uint8( tvb, offset );
 	proto_tree_add_item( tree, hf_rtp_midi_sysex_common_rt_ni, tvb, offset, 1, ENC_BIG_ENDIAN );
 	offset++;
 
@@ -4032,7 +4032,7 @@ decode_sysex_common_rt_ni( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 		int bytes;
 
 		/* bytes */
-		bytes = tvb_get_guint8( tvb, offset );
+		bytes = tvb_get_uint8( tvb, offset );
 		proto_tree_add_item( tree, hf_rtp_midi_sysex_common_rt_ni_bytes, tvb, offset, 1, ENC_BIG_ENDIAN );
 		offset++;
 
@@ -4078,14 +4078,14 @@ decode_sysex_common_rt_ni( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
  */
 static unsigned int
 decode_sysex_common_rt_dc( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
-	guint8		 sub_id;
+	uint8_t		 sub_id;
 	unsigned int start_offset = offset;
 
 	if ( data_len < 1 )
 		return 0;
 
 	/* first we retrieve the sub-command */
-	sub_id = tvb_get_guint8( tvb, offset );
+	sub_id = tvb_get_uint8( tvb, offset );
 	proto_tree_add_item( tree, hf_rtp_midi_sysex_common_rt_dc, tvb, offset, 1, ENC_BIG_ENDIAN );
 	offset++;
 
@@ -4147,8 +4147,8 @@ decode_sysex_common_rt_mmc_response( tvbuff_t *tvb, packet_info *pinfo _U_, prot
  */
 static unsigned int
 decode_sysex_common_rt( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
-	guint8		 common_rt;
-	const gchar	*rt_str;
+	uint8_t		 common_rt;
+	const char	*rt_str;
 	proto_tree	*command_tree;
 	int		 consumed	= 0;
 	int		 ext_consumed	= 0;
@@ -4165,7 +4165,7 @@ decode_sysex_common_rt( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		return consumed;
 	}
 
-	common_rt = tvb_get_guint8( tvb, offset );
+	common_rt = tvb_get_uint8( tvb, offset );
 	rt_str = val_to_str( common_rt, rtp_midi_sysex_common_rt, "Unknown 0x%02x" );
 
 	command_tree = proto_tree_add_subtree(tree, tvb, offset, data_len, ett_rtp_midi_sysex_common_rt, NULL, rt_str );
@@ -4271,7 +4271,7 @@ decode_sysex_common_manufacturer( tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
  */
 static unsigned int
 decode_sysex_start(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len ) {
-	const gchar	*status_str;
+	const char	*status_str;
 	proto_tree	*command_tree;
 	int		 consumed	= 0;
 	int		 data_len;
@@ -4281,8 +4281,8 @@ decode_sysex_start(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsi
 
 	/* we need to parse "away" data until the next command */
 	while ( cmd_len ) {
-		guint8 octet;
-		octet = tvb_get_guint8( tvb, offset + consumed );
+		uint8_t octet;
+		octet = tvb_get_uint8( tvb, offset + consumed );
 		consumed++;
 
 		/*
@@ -4312,11 +4312,11 @@ decode_sysex_start(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsi
 
 	/* lets see if we have enough data for the sysex-id */
 	if ( data_len > 1 ) {
-		guint8  manu_short;
-		guint16 manufacturer;
-		manufacturer = tvb_get_guint8( tvb, offset );
+		uint8_t manu_short;
+		uint16_t manufacturer;
+		manufacturer = tvb_get_uint8( tvb, offset );
 		proto_tree_add_item( command_tree, hf_rtp_midi_manu_short, tvb, offset, 1, ENC_BIG_ENDIAN );
-		manu_short = tvb_get_guint8( tvb, offset );
+		manu_short = tvb_get_uint8( tvb, offset );
 		offset++;
 		data_len--;
 
@@ -4371,7 +4371,7 @@ decode_sysex_start(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsi
  */
 static int
 decode_mtc_quarter_frame(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int cmd_count, unsigned int offset) {
-	const gchar	*status_str;
+	const char	*status_str;
 	proto_tree	*command_tree;
 
 	status_str = val_to_str( RTP_MIDI_STATUS_COMMON_MTC_QUARTER_FRAME, rtp_midi_common_status, rtp_midi_unknown_value_hex );
@@ -4394,15 +4394,15 @@ decode_mtc_quarter_frame(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
  */
 static int
 decode_song_position_pointer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int cmd_count, unsigned int offset) {
-	guint8		 octet1;
-	guint8		 octet2;
-	guint8		 position;
-	const gchar	*status_str;
+	uint8_t		 octet1;
+	uint8_t		 octet2;
+	uint8_t		 position;
+	const char	*status_str;
 	proto_tree	*command_tree;
 
 	status_str = val_to_str( RTP_MIDI_STATUS_COMMON_SONG_POSITION_POINTER, rtp_midi_common_status, rtp_midi_unknown_value_hex );
-	octet1 = tvb_get_guint8( tvb, offset );
-	octet2 = tvb_get_guint8( tvb, offset + 1 );
+	octet1 = tvb_get_uint8( tvb, offset );
+	octet2 = tvb_get_uint8( tvb, offset + 1 );
 	position = ( octet1 << 7 ) | octet2;
 
 	command_tree = proto_tree_add_subtree_format(tree, tvb, offset - 1, 3, ett_rtp_midi_command, NULL, "%s (p=%d)", status_str, position );
@@ -4422,12 +4422,12 @@ decode_song_position_pointer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
  */
 static int
 decode_song_select(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int cmd_count, unsigned int offset) {
-	guint8		 song_nr;
-	const gchar	*status_str;
+	uint8_t		 song_nr;
+	const char	*status_str;
 	proto_tree	*command_tree;
 
 	status_str = val_to_str( RTP_MIDI_STATUS_COMMON_SONG_SELECT, rtp_midi_common_status, rtp_midi_unknown_value_hex );
-	song_nr = tvb_get_guint8( tvb, offset );
+	song_nr = tvb_get_uint8( tvb, offset );
 
 	command_tree = proto_tree_add_subtree_format(tree, tvb, offset - 1, 2, ett_rtp_midi_command, NULL, "%s (s=%d)", status_str, song_nr );
 	proto_tree_add_item( command_tree, hf_rtp_midi_common_status, tvb, offset - 1, 1, ENC_BIG_ENDIAN );
@@ -4446,7 +4446,7 @@ decode_song_select(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsi
  */
 static int
 decode_undefined_f4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len ) {
-	const gchar	*status_str;
+	const char	*status_str;
 	proto_tree	*command_tree;
 	int		 consumed	= 0;
 
@@ -4454,8 +4454,8 @@ decode_undefined_f4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, uns
 
 	/* we need to parse "away" data until the next command */
 	while ( cmd_len ) {
-		guint8 octet;
-		octet = tvb_get_guint8( tvb, offset + consumed );
+		uint8_t octet;
+		octet = tvb_get_uint8( tvb, offset + consumed );
 		consumed++;
 
 		/* Is this command through? */
@@ -4483,7 +4483,7 @@ decode_undefined_f4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, uns
  */
 static int
 decode_undefined_f5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len ) {
-	const gchar	*status_str;
+	const char	*status_str;
 	proto_tree	*command_tree;
 	int		 consumed	= 0;
 
@@ -4491,8 +4491,8 @@ decode_undefined_f5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, uns
 
 	/* we need to parse "away" data until the next command */
 	while ( cmd_len ) {
-		guint8 octet;
-		octet = tvb_get_guint8( tvb, offset + consumed );
+		uint8_t octet;
+		octet = tvb_get_uint8( tvb, offset + consumed );
 		consumed++;
 		/* Is this command done? */
 		if ( octet & RTP_MIDI_COMMAND_STATUS_FLAG ) {
@@ -4519,7 +4519,7 @@ decode_undefined_f5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, uns
  */
 static int
 decode_tune_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len _U_ ) {
-	const gchar	*status_str;
+	const char	*status_str;
 	proto_tree	*command_tree;
 
 	status_str = val_to_str( RTP_MIDI_STATUS_COMMON_TUNE_REQUEST, rtp_midi_common_status, rtp_midi_unknown_value_hex );
@@ -4539,7 +4539,7 @@ decode_tune_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, uns
  */
 static int
 decode_sysex_end(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len ) {
-	const gchar	*status_str;
+	const char	*status_str;
 	proto_tree	*command_tree;
 	int		 consumed = 0;
 
@@ -4547,8 +4547,8 @@ decode_sysex_end(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsign
 
 	/* we need to parse "away" data until the next command */
 	while ( cmd_len ) {
-		guint8 octet;
-		octet = tvb_get_guint8( tvb, offset + consumed );
+		uint8_t octet;
+		octet = tvb_get_uint8( tvb, offset + consumed );
 		consumed++;
 
 		/*
@@ -4595,40 +4595,40 @@ decode_sysex_end(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsign
  */
 
 static int
-decodemidi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len, guint8 *runningstatus, unsigned int *rsoffset )
+decodemidi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len, uint8_t *runningstatus, unsigned int *rsoffset )
 {
 	int		 consumed	= 0;
 	int		 ext_consumed	= 0;
-	guint8		 octet;
-	gboolean	 using_rs;
+	uint8_t		 octet;
+	bool	 using_rs;
 
 
 #if 0
-	guint8		octet2;
-	guint8		octet3;
-	guint8		cmd;
-	guint8		channel;
+	uint8_t		octet2;
+	uint8_t		octet3;
+	uint8_t		cmd;
+	uint8_t		channel;
 	proto_tree	*sysexdata_tree   = NULL;
-	gboolean	foundend;
-	guint16		wordvalue;
+	bool	foundend;
+	uint16_t		wordvalue;
 	char		helptext[200];
 	char		entry[200];
 	char		segtype[200];
-	guint8		manu1;
-	guint16		manu2;
-	guint8		subid1;
-	guint8		subid2;
-	guint8		sysexchan;
+	uint8_t		manu1;
+	uint16_t		manu2;
+	uint8_t		subid1;
+	uint8_t		subid2;
+	uint8_t		sysexchan;
 	unsigned int	helpoffset;
 #endif
 
-	octet = tvb_get_guint8( tvb, offset );
+	octet = tvb_get_uint8( tvb, offset );
 
 	/* midi realtime-data -> one octet  -- unlike serial-wired MIDI realtime-commands in RTP-MIDI will
 	 * not be intermingled with other MIDI-commands, so we handle this case right here and return */
 	if ( octet >= 0xf8 ) {
 		proto_tree  *command_tree;
-		const gchar *valstr;
+		const char *valstr;
 
 		valstr =  val_to_str( octet, rtp_midi_common_status, rtp_midi_unknown_value_hex );
 		command_tree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_rtp_midi_command, NULL, valstr );
@@ -4653,10 +4653,10 @@ decodemidi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int
 		/* our first octet is "virtual" coming from a preceding MIDI-command,
 		 * so actually we have not really consumed anything yet */
 		octet = *runningstatus;
-		using_rs = TRUE;
+		using_rs = true;
 	} else {
 		/* We have a "real" status-byte */
-		using_rs = FALSE;
+		using_rs = false;
 
 		/* Let's see how this octet influences our running-status */
 		/* if we have a "normal" MIDI-command then the new status replaces the current running-status */
@@ -4758,11 +4758,11 @@ decode_cj_chapter_c( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 	proto_tree			*rtp_midi_loglist_tree;
 	proto_tree			*loglist_tree;
 	unsigned int start_offset = offset;
-	guint8				 octet;
+	uint8_t				 octet;
 	int				 count;
 	int				 i;
 
-	octet = tvb_get_guint8( tvb, offset );
+	octet = tvb_get_uint8( tvb, offset );
 	count = octet & 0x7f;
 
 	/* count encoded is n+1 */
@@ -4789,7 +4789,7 @@ decode_cj_chapter_c( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 
 		offset++;
 
-		octet = tvb_get_guint8( tvb, offset );
+		octet = tvb_get_uint8( tvb, offset );
 		proto_tree_add_item(loglist_tree, hf_rtp_midi_cj_chapter_c_aflag, tvb, offset, 1, ENC_BIG_ENDIAN );
 
 		/* do we have a value or alternative coding? */
@@ -4815,12 +4815,12 @@ decode_cj_chapter_m( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 	proto_tree			*rtp_midi_cj_chapter_tree;
 	proto_tree			*rtp_midi_loglist_tree;
 	proto_tree			*rtp_midi_loglist_item_tree;
-	guint16				header;
-	guint8				logitemheader;
+	uint16_t				header;
+	uint8_t				logitemheader;
 	int				length;
 	int				logitemhdrlen;
 	int				logitemlen;
-	gboolean			no_pnum_msb;
+	bool			no_pnum_msb;
 	unsigned int start_offset = offset;
 
 	/* first we need to get the flags & length of this chapter */
@@ -4864,9 +4864,9 @@ decode_cj_chapter_m( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 	while ( length > 0 ) {
 
 		if ( no_pnum_msb ) {
-			logitemheader = tvb_get_guint8( tvb, offset + 1 );
+			logitemheader = tvb_get_uint8( tvb, offset + 1 );
 		} else {
-			logitemheader = tvb_get_guint8( tvb, offset + 2 );
+			logitemheader = tvb_get_uint8( tvb, offset + 2 );
 		}
 
 		logitemlen = logitemhdrlen;
@@ -5008,11 +5008,11 @@ static int
 decode_cj_chapter_n( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset ) {
 	proto_tree			*rtp_midi_cj_chapter_tree;
 	proto_tree			*rtp_midi_loglist_tree;
-	const gchar			*note_str;
+	const char			*note_str;
 	unsigned int start_offset = offset;
-	guint16				 header;
-	guint8				 note;
-	guint8				 velocity;
+	uint16_t				 header;
+	uint8_t				 note;
+	uint8_t				 velocity;
 	int				 log_count;
 	int				 octet_count;
 	int				 low;
@@ -5058,8 +5058,8 @@ decode_cj_chapter_n( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 
 		for ( i = 0; i < log_count; i++ ) {
 
-			note = tvb_get_guint8( tvb, offset ) & 0x7f;
-			velocity = tvb_get_guint8( tvb, offset + 1 ) & 0x7f;
+			note = tvb_get_uint8( tvb, offset ) & 0x7f;
+			velocity = tvb_get_uint8( tvb, offset + 1 ) & 0x7f;
 
 			note_str = val_to_str_ext( note, &rtp_midi_note_values_ext, rtp_midi_unknown_value_dec );
 
@@ -5103,17 +5103,17 @@ static int
 decode_cj_chapter_e( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset ) {
 	proto_tree			*rtp_midi_cj_chapter_tree;
 	proto_tree			*rtp_midi_loglist_tree, *log_tree;
-	const gchar			*note_str;
+	const char			*note_str;
 	unsigned int start_offset = offset;
-	guint8				 header;
-	guint8				 note;
-	guint8				 count_vel;
-	guint8				 octet;
+	uint8_t				 header;
+	uint8_t				 note;
+	uint8_t				 count_vel;
+	uint8_t				 octet;
 	int				 log_count;
 	int				 i;
 
 	/* first we need to get the flags & length of this chapter */
-	header = tvb_get_guint8( tvb, offset );
+	header = tvb_get_uint8( tvb, offset );
 	log_count = header & RTP_MIDI_CJ_CHAPTER_E_MASK_LENGTH;
 
 	/* count is encoded n+1 */
@@ -5132,8 +5132,8 @@ decode_cj_chapter_e( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 
 	for ( i = 0; i < log_count; i++ ) {
 
-		note = tvb_get_guint8( tvb, offset ) & 0x7f;
-		octet = tvb_get_guint8( tvb, offset + 1 );
+		note = tvb_get_uint8( tvb, offset ) & 0x7f;
+		octet = tvb_get_uint8( tvb, offset + 1 );
 		count_vel = octet & 0x7f;
 
 		note_str = val_to_str_ext( note, &rtp_midi_note_values_ext, rtp_midi_unknown_value_dec );
@@ -5178,16 +5178,16 @@ static int
 decode_cj_chapter_a( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset ) {
 	proto_tree			*rtp_midi_cj_chapter_tree;
 	proto_tree			*rtp_midi_loglist_tree, *log_tree;
-	const gchar			*note_str;
+	const char			*note_str;
 	unsigned int start_offset = offset;
-	guint8				 header;
-	guint8				 note;
-	guint8				 pressure;
+	uint8_t				 header;
+	uint8_t				 note;
+	uint8_t				 pressure;
 	int				 log_count;
 	int				 i;
 
 	/* first we need to get the flags & length of this chapter */
-	header = tvb_get_guint8( tvb, offset );
+	header = tvb_get_uint8( tvb, offset );
 	log_count = header & RTP_MIDI_CJ_CHAPTER_A_MASK_LENGTH;
 
 	/* count is encoded n+1 */
@@ -5204,8 +5204,8 @@ decode_cj_chapter_a( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 
 	for ( i = 0; i < log_count; i++ ) {
 
-		note	 = tvb_get_guint8( tvb, offset ) & 0x7f;
-		pressure = tvb_get_guint8( tvb, offset + 1 ) & 0x7f;
+		note	 = tvb_get_uint8( tvb, offset ) & 0x7f;
+		pressure = tvb_get_uint8( tvb, offset + 1 ) & 0x7f;
 
 		note_str = val_to_str_ext( note, &rtp_midi_note_values_ext, rtp_midi_unknown_value_dec );
 
@@ -5238,8 +5238,8 @@ decode_channel_journal( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	proto_tree			*rtp_midi_chanjournal_tree;
 	proto_tree			*rtp_midi_cj_chapters_tree;
 	proto_tree			*rtp_midi_cj_chapter_tree;
-	guint32				chanflags;
-	guint16				chanjourlen;
+	uint32_t				chanflags;
+	uint16_t				chanjourlen;
 	int				consumed = 0;
 	int				ext_consumed = 0;
 
@@ -5386,8 +5386,8 @@ decode_sj_chapter_d_f4( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 	proto_tree	*rtp_midi_field_tree;
 	unsigned int start_offset = offset;
-	guint16		 f4flags;
-	guint16		 f4length;
+	uint16_t		 f4flags;
+	uint16_t		 f4length;
 
 	/* Get flags & length */
 	f4flags = tvb_get_ntohs( tvb, offset );
@@ -5417,11 +5417,11 @@ decode_sj_chapter_d_f4( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	if ( f4flags & RTP_MIDI_SJ_CHAPTER_D_SYSCOM_FLAG_V ) {
 
 		int valuelen = 0;
-		guint8 octet;
+		uint8_t octet;
 
 		/* variable length field - ends with an octet with MSB set */
 		for (;;) {
-			octet = tvb_get_guint8( tvb, offset+valuelen );
+			octet = tvb_get_uint8( tvb, offset+valuelen );
 			valuelen++;
 			if ( octet & 0x80 ) {
 				break;
@@ -5459,8 +5459,8 @@ decode_sj_chapter_d_f5( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 	proto_tree	*rtp_midi_field_tree;
 	unsigned int start_offset = offset;
-	guint16		 f5flags;
-	guint16		 f5length;
+	uint16_t		 f5flags;
+	uint16_t		 f5length;
 
 	/* Get flags & length */
 	f5flags = tvb_get_ntohs( tvb, offset );
@@ -5490,11 +5490,11 @@ decode_sj_chapter_d_f5( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	if ( f5flags & RTP_MIDI_SJ_CHAPTER_D_SYSCOM_FLAG_V ) {
 
 		int valuelen = 0;
-		guint8 octet;
+		uint8_t octet;
 
 		/* variable length field - ends with an octet with MSB set */
 		for (;;) {
-			octet = tvb_get_guint8( tvb, offset+valuelen );
+			octet = tvb_get_uint8( tvb, offset+valuelen );
 			valuelen++;
 			if ( octet & 0x80 ) {
 				break;
@@ -5531,11 +5531,11 @@ decode_sj_chapter_d_f9( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 	proto_tree	*rtp_midi_field_tree;
 	unsigned int start_offset = offset;
-	guint8		 f9flags;
-	guint8		 f9length;
+	uint8_t		 f9flags;
+	uint8_t		 f9length;
 
 	/* Get flags & length */
-	f9flags = tvb_get_guint8( tvb, offset );
+	f9flags = tvb_get_uint8( tvb, offset );
 	f9length = f9flags & RTP_MIDI_SJ_CHAPTER_D_SYSREAL_MASK_LENGTH;
 
 	/* now we can display our tree, as we now have the full length */
@@ -5585,11 +5585,11 @@ decode_sj_chapter_d_fd( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 	proto_tree	*rtp_midi_field_tree;
 	unsigned int start_offset = offset;
-	guint8		 fdflags;
-	guint8		 fdlength;
+	uint8_t		 fdflags;
+	uint8_t		 fdlength;
 
 	/* Get flags & length */
-	fdflags  = tvb_get_guint8( tvb, offset );
+	fdflags  = tvb_get_uint8( tvb, offset );
 	fdlength = fdflags & RTP_MIDI_SJ_CHAPTER_D_SYSREAL_MASK_LENGTH;
 
 	/* now we can display our tree, as we now have the full length */
@@ -5640,7 +5640,7 @@ static int
 decode_sj_chapter_d( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset ) {
 	proto_item			*tix;
 	proto_tree			*rtp_midi_sj_chapter_tree;
-	guint8				header;
+	uint8_t				header;
 	unsigned int start_offset = offset;
 	int				ext_consumed;
 
@@ -5657,7 +5657,7 @@ decode_sj_chapter_d( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 	};
 
 	/* first we need to get the flags of this chapter */
-	header = tvb_get_guint8( tvb, offset );
+	header = tvb_get_uint8( tvb, offset );
 
 	/*
 	 * we don't know the complete length yet - we know that we have at least the header -> 1.
@@ -5756,12 +5756,12 @@ decode_sj_chapter_d( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 static int
 decode_sj_chapter_q( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset ) {
 	proto_tree			*rtp_midi_sj_chapter_tree;
-	guint8				header;
+	uint8_t				header;
 	unsigned int start_offset = offset;
 	int				len = 1;
 
 	/* first we need to get the flags of this chapter */
-	header = tvb_get_guint8( tvb, offset );
+	header = tvb_get_uint8( tvb, offset );
 
 	if ( header & RTP_MIDI_SJ_CHAPTER_Q_FLAG_C ) {
 		len += 2;
@@ -5807,12 +5807,12 @@ decode_sj_chapter_q( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 static int
 decode_sj_chapter_f( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset ) {
 	proto_tree			*rtp_midi_sj_chapter_tree;
-	guint8				header;
+	uint8_t				header;
 	unsigned int start_offset = offset;
 	int				len = 1;
 
 	/* first we need to get the flags of this chapter */
-	header = tvb_get_guint8( tvb, offset );
+	header = tvb_get_uint8( tvb, offset );
 
 	if ( header & RTP_MIDI_SJ_CHAPTER_F_FLAG_C ) {
 		len += 4;
@@ -5891,14 +5891,14 @@ static int
 decode_sj_chapter_x( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int max_length ) {
 	proto_tree			*rtp_midi_sj_chapter_tree;
 	proto_tree			*rtp_midi_sj_data_tree;
-	guint8				header;
-	guint8				octet;
+	uint8_t				header;
+	uint8_t				octet;
 	unsigned int			consumed = 0;
 	unsigned int			cmdlen   = 0;
 	unsigned int			i;
 
 	/* first we need to get the flags of this chapter */
-	header = tvb_get_guint8( tvb, offset );
+	header = tvb_get_uint8( tvb, offset );
 
 	rtp_midi_sj_chapter_tree = proto_tree_add_subtree( tree, tvb, offset, max_length, ett_rtp_midi_sj_chapter_x, NULL, RTP_MIDI_TREE_NAME_SJ_CHAPTER_X );
 
@@ -5941,7 +5941,7 @@ decode_sj_chapter_x( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 				return -1;
 			}
 
-			octet = tvb_get_guint8( tvb, offset + fieldlen );
+			octet = tvb_get_uint8( tvb, offset + fieldlen );
 			field = ( field << 7 ) | ( octet & RTP_MIDI_DELTA_TIME_OCTET_MASK );
 			fieldlen++;
 
@@ -5974,7 +5974,7 @@ decode_sj_chapter_x( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 		rtp_midi_sj_data_tree = proto_tree_add_subtree( rtp_midi_sj_chapter_tree, tvb, offset,  max_length - consumed,
 						ett_rtp_midi_sj_chapter_x_data, NULL, RTP_MIDI_TREE_NAME_SJ_CHAPTER_X_DATA );
 		while ( consumed < max_length ) {
-			octet = tvb_get_guint8( tvb, offset + cmdlen );
+			octet = tvb_get_uint8( tvb, offset + cmdlen );
 			if ( octet & 0x80 ) {
 				proto_tree_add_item( rtp_midi_sj_data_tree, hf_rtp_midi_sj_chapter_x_data, tvb, offset, cmdlen, ENC_NA );
 				offset += cmdlen;
@@ -6012,8 +6012,8 @@ decode_system_journal( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	proto_tree			*rtp_midi_sj_chapters_tree;
 	unsigned int start_offset = offset;
 	int				ext_consumed = 0;
-	guint16				sysjourlen;
-	guint16				systemflags;
+	uint16_t				sysjourlen;
+	uint16_t				systemflags;
 
 	systemflags = tvb_get_ntohs( tvb, offset );
 	sysjourlen  = systemflags & RTP_MIDI_SJ_MASK_LENGTH;
@@ -6098,15 +6098,15 @@ dissect_rtp_midi( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void*
 	proto_tree		*rtp_midi_tree;
 	unsigned int		 offset = 0;
 
-	guint8			flags;		/* used for command-section and journal-section*/
+	uint8_t			flags;		/* used for command-section and journal-section*/
 	unsigned int		cmd_len;
 	unsigned int		cmd_count;
-	guint8			runningstatus;
+	uint8_t			runningstatus;
 
 	int			consumed;
 	unsigned int		rsoffset = 0;
 
-	guint8			totchan;
+	uint8_t			totchan;
 
 	unsigned int		i;
 
@@ -6118,7 +6118,7 @@ dissect_rtp_midi( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void*
 	 */
 
 	/* RTP-MIDI starts with 4 bits of flags... */
-	flags = tvb_get_guint8( tvb, offset );
+	flags = tvb_get_uint8( tvb, offset );
 
 	ti = proto_tree_add_item( tree, proto_rtp_midi, tvb, 0, -1, ENC_NA );
 	rtp_midi_tree = proto_item_add_subtree( ti, ett_rtp_midi);
@@ -6197,7 +6197,7 @@ dissect_rtp_midi( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void*
 		rtp_midi_journal_tree = proto_tree_add_subtree( rtp_midi_tree, tvb, offset, -1, ett_rtp_midi_journal, NULL, RTP_MIDI_TREE_NAME_JOURNAL );
 
 		/* lets get the main flags from the recovery journal header */
-		flags = tvb_get_guint8(     tvb, offset );
+		flags = tvb_get_uint8(     tvb, offset );
 
 		proto_tree_add_item( rtp_midi_journal_tree, hf_rtp_midi_sflag, tvb, offset, 1, ENC_BIG_ENDIAN );
 		proto_tree_add_item( rtp_midi_journal_tree, hf_rtp_midi_yflag, tvb, offset, 1, ENC_BIG_ENDIAN );
@@ -9955,7 +9955,7 @@ proto_register_rtp_midi( void )
 
 
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_rtp_midi,
 		&ett_rtp_midi_commands,
 		&ett_rtp_midi_journal,

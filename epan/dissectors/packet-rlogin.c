@@ -74,7 +74,7 @@ typedef enum  {
 #define NAME_LEN 32
 typedef struct {
 	session_state_t  state;
-	guint32          info_framenum;
+	uint32_t         info_framenum;
 	char             user_name[NAME_LEN];
 } rlogin_hash_entry_t;
 
@@ -86,8 +86,8 @@ typedef struct {
 static void
 rlogin_state_machine(rlogin_hash_entry_t *hash_info, tvbuff_t *tvb, packet_info *pinfo)
 {
-	guint length;
-	gint stringlen;
+	unsigned length;
+	int stringlen;
 
 	/* Won't change state if already seen this packet */
 	if (pinfo->fd->visited)
@@ -120,7 +120,7 @@ rlogin_state_machine(rlogin_hash_entry_t *hash_info, tvbuff_t *tvb, packet_info 
 	if (hash_info->state == NONE)
 	{
 		/* new connection*/
-		if (tvb_get_guint8(tvb, 0) != '\0')
+		if (tvb_get_uint8(tvb, 0) != '\0')
 		{
 			/* We expected a null, but didn't get one; quit. */
 			hash_info->state = DONE;
@@ -158,7 +158,7 @@ rlogin_state_machine(rlogin_hash_entry_t *hash_info, tvbuff_t *tvb, packet_info 
 			stringlen = NAME_LEN - 1;   /* name too long */
 
 		/* Copy and terminate string into hash name */
-		tvb_memcpy(tvb, (guint8 *)hash_info->user_name, 0, stringlen);
+		tvb_memcpy(tvb, (uint8_t *)hash_info->user_name, 0, stringlen);
 		hash_info->user_name[stringlen] = '\0';
 
 		col_append_str(pinfo->cinfo, COL_INFO, ", (User information)");
@@ -176,9 +176,9 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 	int             offset = 0;
 	proto_tree      *rlogin_tree, *user_info_tree, *window_tree;
 	proto_item      *ti;
-	guint           length;
+	unsigned        length;
 	int             str_len;
-	gint            ti_offset;
+	int             ti_offset;
 	proto_item      *user_info_item, *window_info_item;
 
 	/* Create rlogin subtree */
@@ -203,7 +203,7 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 	{
 		/* Get urgent byte into Temp */
 		int urgent_offset = tcpinfo->urgent_pointer - 1;
-		guint8 control_byte;
+		uint8_t control_byte;
 
 		/* Check for text data in front */
 		if (urgent_offset > offset)
@@ -214,14 +214,14 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 		/* Show control byte */
 		proto_tree_add_item(rlogin_tree, hf_control_message, tvb,
 		                    urgent_offset, 1, ENC_BIG_ENDIAN);
-		control_byte = tvb_get_guint8(tvb, urgent_offset);
+		control_byte = tvb_get_uint8(tvb, urgent_offset);
 		col_append_fstr(pinfo->cinfo, COL_INFO,
 			               " (%s)", val_to_str_const(control_byte, control_message_vals, "Unknown"));
 
 		offset = urgent_offset + 1; /* adjust offset */
 	}
 	else
-	if (tvb_get_guint8(tvb, offset) == '\0')
+	if (tvb_get_uint8(tvb, offset) == '\0')
 	{
 		/* Startup */
 		if (pinfo->srcport == RLOGIN_PORT)   /* from server */
@@ -245,8 +245,8 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 
 	if (hash_info->info_framenum == pinfo->num)
 	{
-		gint info_len;
-		gint slash_offset;
+		int info_len;
+		int slash_offset;
 
 		/* First frame of conversation, assume user info... */
 
@@ -256,7 +256,7 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 
 		/* User info tree */
 		user_info_item = proto_tree_add_string_format(rlogin_tree, hf_user_info, tvb,
-		                                              offset, info_len, FALSE,
+		                                              offset, info_len, false,
 		                                              "User info (%s)",
 		                                              tvb_format_text(pinfo->pool, tvb, offset, info_len));
 		user_info_tree = proto_item_add_subtree(user_info_item,
@@ -278,9 +278,9 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 		slash_offset = tvb_find_guint8(tvb, offset, -1, '/');
 		if (slash_offset != -1)
 		{
-			guint8* str = NULL;
-			guint32 term_len = 0;
-			gboolean term_len_valid;
+			uint8_t* str = NULL;
+			uint32_t term_len = 0;
+			bool term_len_valid;
 			proto_item* pi = NULL;
 
 			/* Terminal type */
@@ -316,9 +316,9 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 	/* Next byte must also be 0xff */
 	if (ti_offset != -1 &&
 	    tvb_bytes_exist(tvb, ti_offset + 1, 1) &&
-	    tvb_get_guint8(tvb, ti_offset + 1) == 0xff)
+	    tvb_get_uint8(tvb, ti_offset + 1) == 0xff)
 	{
-		guint16 rows, columns;
+		uint16_t rows, columns;
 
 		/* Have found terminal info. */
 		if (ti_offset > offset)
@@ -385,8 +385,8 @@ dissect_rlogin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	struct tcpinfo *tcpinfo = (struct tcpinfo *)data;
 	conversation_t *conversation;
 	rlogin_hash_entry_t *hash_info;
-	guint length;
-	gint ti_offset;
+	unsigned length;
+	int ti_offset;
 
 	/* Get or create conversation */
 	conversation = find_or_create_conversation(pinfo);
@@ -425,7 +425,7 @@ dissect_rlogin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	if (length != 0)
 	{
 		/* Initial NULL byte represents part of connection handshake */
-		if (tvb_get_guint8(tvb, 0) == '\0')
+		if (tvb_get_uint8(tvb, 0) == '\0')
 		{
 			col_append_str(pinfo->cinfo, COL_INFO,
 				               (pinfo->destport == RLOGIN_PORT) ?
@@ -445,7 +445,7 @@ dissect_rlogin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 			ti_offset = tvb_find_guint8(tvb, 0, -1, 0xff);
 			if (ti_offset != -1 &&
 			    tvb_bytes_exist(tvb, ti_offset + 1, 1) &&
-			    tvb_get_guint8(tvb, ti_offset + 1) == 0xff)
+			    tvb_get_uint8(tvb, ti_offset + 1) == 0xff)
 			{
 				col_append_str(pinfo->cinfo, COL_INFO, "Terminal Info");
 			}
@@ -481,7 +481,7 @@ void proto_register_rlogin(void)
 {
 	expert_module_t* expert_rlogin;
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_rlogin,
 		&ett_rlogin_window,
 		&ett_rlogin_window_rows,

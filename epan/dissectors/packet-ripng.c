@@ -36,8 +36,8 @@ static int hf_ripng_rte_route_tag;
 static int hf_ripng_rte_prefix_length;
 static int hf_ripng_rte_metric;
 
-static gint ett_ripng;
-static gint ett_ripng_rte;
+static int ett_ripng;
+static int ett_ripng_rte;
 
 #define UDP_PORT_RIPNG  521
 
@@ -58,8 +58,8 @@ dissect_ripng(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RIPng");
     col_add_fstr(pinfo->cinfo, COL_INFO," Command %s, Version %u",
-                 val_to_str(tvb_get_guint8(tvb, offset), cmdvals, "Unknown (%u)"),
-                 tvb_get_guint8(tvb, offset +1));
+                 val_to_str(tvb_get_uint8(tvb, offset), cmdvals, "Unknown (%u)"),
+                 tvb_get_uint8(tvb, offset +1));
 
     if (tree) {
         ti = proto_tree_add_item(tree, proto_ripng, tvb, offset, -1, ENC_NA);
@@ -94,12 +94,12 @@ dissect_ripng(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
             /* Prefix Length */
             proto_tree_add_item(rte_tree, hf_ripng_rte_prefix_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_item_append_text(rte_ti, "/%u", tvb_get_guint8(tvb, offset));
+            proto_item_append_text(rte_ti, "/%u", tvb_get_uint8(tvb, offset));
             offset += 1;
 
             /* Metric */
             proto_tree_add_item(rte_tree, hf_ripng_rte_metric, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_item_append_text(rte_ti, " Metric: %u", tvb_get_guint8(tvb, offset));
+            proto_item_append_text(rte_ti, " Metric: %u", tvb_get_uint8(tvb, offset));
             offset += 1;
         }
     }
@@ -146,7 +146,7 @@ proto_register_ripng(void)
             "The current metric for the destination; the value 16 (infinity) indicates that the destination is not reachable", HFILL }},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_ripng,
         &ett_ripng_rte,
     };

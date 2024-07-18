@@ -158,13 +158,13 @@ static const value_string cp_type_vals[] = {
 /* LCT helper functions */
 /* ==================== */
 
-static void lct_timestamp_parse(guint32 t, nstime_t* s)
+static void lct_timestamp_parse(uint32_t t, nstime_t* s)
 {
     s->secs  = t / 1000;
     s->nsecs = (t % 1000) * 1000000;
 }
 
-double rmt_decode_send_rate(guint16 send_rate )
+double rmt_decode_send_rate(uint16_t send_rate )
 {
     double value;
 
@@ -173,12 +173,12 @@ double rmt_decode_send_rate(guint16 send_rate )
 }
 
 
-int lct_ext_decode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint offset, guint offset_max, lct_data_exchange_t *data_exchange,
+int lct_ext_decode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, unsigned offset, unsigned offset_max, lct_data_exchange_t *data_exchange,
                    int hfext, int ettext)
 {
-    guint8      het;
-    guint       i, count = 0;
-    guint       length,
+    uint8_t     het;
+    unsigned    i, count = 0;
+    unsigned    length,
                 tmp_offset   = offset,
                 start_offset = offset;
     proto_item *ti;
@@ -188,10 +188,10 @@ int lct_ext_decode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint of
     /* Figure out the extension count */
     while (tmp_offset < offset_max)
     {
-        het = tvb_get_guint8(tvb, tmp_offset);
+        het = tvb_get_uint8(tvb, tmp_offset);
         if (het <= 127)
         {
-            length = tvb_get_guint8(tvb, tmp_offset+1)*4;
+            length = tvb_get_uint8(tvb, tmp_offset+1)*4;
         }
         else
         {
@@ -214,10 +214,10 @@ int lct_ext_decode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint of
 
     for (i = 0; i < count; i++)
     {
-        het = tvb_get_guint8(tvb, offset);
+        het = tvb_get_uint8(tvb, offset);
         if (het <= 127)
         {
-            length = tvb_get_guint8(tvb, offset+1)*4;
+            length = tvb_get_uint8(tvb, offset+1)*4;
         }
         else
         {
@@ -270,7 +270,7 @@ int lct_ext_decode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint of
                 {
                     proto_tree_add_item(ext_tree, hf_flute_version, tvb, offset, 4, ENC_BIG_ENDIAN);
                     proto_tree_add_item(ext_tree, hf_fdt_instance_id, tvb, offset, 4, ENC_BIG_ENDIAN);
-                    data_exchange->is_flute = TRUE;
+                    data_exchange->is_flute = true;
                 }
                 break;
 
@@ -337,14 +337,14 @@ static int
 dissect_lct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     int      offset = 0;
-    guint16  buffer16;
+    uint16_t buffer16;
 
-    guint8   cci_size;
-    guint8   tsi_size;
-    guint8   toi_size;
-    guint64  tsi;
-    guint64  toi    = 0;
-    guint16  hlen;
+    uint8_t  cci_size;
+    uint8_t  tsi_size;
+    uint8_t  toi_size;
+    uint64_t tsi;
+    uint64_t toi    = 0;
+    uint16_t hlen;
     nstime_t tmp_time;
 
     /* Set up structures needed to add the protocol subtree and manage it */
@@ -361,12 +361,12 @@ dissect_lct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     tsi_size = ((buffer16 & 0x0080) >> 7) * 4 + ((buffer16 & 0x0010) >> 4) * 2;
     toi_size = ((buffer16 & 0x0060) >> 5) * 4 + ((buffer16 & 0x0010) >> 4) * 2;
 
-    hlen = tvb_get_guint8(tvb, offset+2) * 4;
+    hlen = tvb_get_uint8(tvb, offset+2) * 4;
 
     if (data_exchange != NULL)
     {
-        data_exchange->codepoint = tvb_get_guint8(tvb, offset+3);
-        data_exchange->is_flute = FALSE;
+        data_exchange->codepoint = tvb_get_uint8(tvb, offset+3);
+        data_exchange->is_flute = false;
     }
 
     if (tree)
@@ -382,7 +382,7 @@ dissect_lct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         ti = proto_tree_add_item(lct_tree, hf_psi, tvb, offset, 2, ENC_BIG_ENDIAN);
 
         if ((data_exchange != NULL) && data_exchange->is_atsc3) {
-            guint16 psi_msb = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN) & LCT_PSI_MSB;
+            uint16_t psi_msb = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN) & LCT_PSI_MSB;
             data_exchange->is_sp = !!psi_msb;
             proto_tree *lct_psi_tree = proto_item_add_subtree(ti, ett_psi);
             proto_tree_add_item(lct_psi_tree, hf_spi, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -763,7 +763,7 @@ proto_register_rmt_lct(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_main,
         &ett_fsize,
         &ett_flags,

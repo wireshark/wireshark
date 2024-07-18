@@ -30,32 +30,32 @@ typedef enum {
 } rdp_known_channel_t;
 
 typedef struct _rdp_channel_def {
-    guint32      value;
-    const gchar *strptr;
+    uint32_t     value;
+    const char *strptr;
     rdp_known_channel_t channelType;
 } rdp_channel_def_t;
 
 typedef struct _rdp_server_address {
 	address addr;
-	guint16 port;
+	uint16_t port;
 } rdp_server_address_t;
 
 
 typedef struct _rdp_conv_info_t {
-  guint32 staticChannelId;
-  guint32 messageChannelId;
-  guint32 encryptionMethod;
-  guint32 encryptionLevel;
-  guint32 licenseAgreed;
+  uint32_t staticChannelId;
+  uint32_t messageChannelId;
+  uint32_t encryptionMethod;
+  uint32_t encryptionLevel;
+  uint32_t licenseAgreed;
   rdp_server_address_t serverAddr;
-  guint8  maxChannels;
-  gboolean isRdstls;
+  uint8_t maxChannels;
+  bool isRdstls;
   rdp_channel_def_t staticChannels[RDP_MAX_CHANNELS+1];
 } rdp_conv_info_t;
 
-gint dissect_rdp_bandwidth_req(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, gboolean from_server);
-void rdp_transport_set_udp_conversation(const address *serverAddr, guint16 serverPort, gboolean reliable, guint32 reqId,
-		guint8 *cookie, conversation_t *conv);
+int dissect_rdp_bandwidth_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, bool from_server);
+void rdp_transport_set_udp_conversation(const address *serverAddr, uint16_t serverPort, bool reliable, uint32_t reqId,
+		uint8_t *cookie, conversation_t *conv);
 conversation_t *rdp_find_tcp_conversation_from_udp(conversation_t *udp);
 
 #endif /* __PACKET_RDP_H__ */

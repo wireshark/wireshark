@@ -15,13 +15,13 @@
  * Private data passed from the RX dissector to the AFS dissector.
  */
 struct rxinfo {
-	guint8	type;
-	guint8	flags;
-	guint16	serviceid;
-	guint32	epoch;
-	guint32	cid;
-	guint32	callnumber;
-	guint32	seq;
+	uint8_t	type;
+	uint8_t	flags;
+	uint16_t	serviceid;
+	uint32_t	epoch;
+	uint32_t	cid;
+	uint32_t	callnumber;
+	uint32_t	seq;
 };
 
 /*

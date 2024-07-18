@@ -28,7 +28,7 @@ static int proto_rwall;
 static int hf_rwall_message;
 static int hf_rwall_procedure_v1;
 
-static gint ett_rwall;
+static int ett_rwall;
 
 static int
 dissect_rwall_call(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
@@ -61,7 +61,7 @@ proto_register_rwall(void)
 		},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_rwall,
 	};
 

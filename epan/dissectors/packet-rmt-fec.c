@@ -56,7 +56,7 @@ static expert_field ei_fec_encoding_id;
 
 typedef struct fec_packet_data
 {
-    guint8 instance_id;
+    uint8_t instance_id;
 
 } fec_packet_data_t;
 
@@ -83,11 +83,11 @@ const value_string string_fec_encoding_id[] =
 /* ---------- */
 
 /* Decode an EXT_FTI extension and fill FEC array */
-void fec_decode_ext_fti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint8 encoding_id)
+void fec_decode_ext_fti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint8_t encoding_id)
 {
-    guint64            transfer_length;
+    uint64_t           transfer_length;
     fec_packet_data_t *fec_data;
-    guint8             instance_id = 0;
+    uint8_t            instance_id = 0;
     proto_item        *ti;
 
     if (encoding_id == 6){
@@ -101,7 +101,7 @@ void fec_decode_ext_fti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 
     if (encoding_id >= 128)
     {
-        instance_id = (guint8) tvb_get_ntohs(tvb, offset+8);
+        instance_id = (uint8_t) tvb_get_ntohs(tvb, offset+8);
 
         /* Decode FEC Instance ID */
         fec_data = wmem_new0(wmem_file_scope(), fec_packet_data_t);
@@ -175,9 +175,9 @@ dissect_fec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item          *ti;
     proto_tree          *fec_tree;
-    guint                offset      = 0;
+    unsigned             offset      = 0;
     fec_data_exchange_t *fec         = (fec_data_exchange_t*)data;
-    guint8               encoding_id = 0;
+    uint8_t              encoding_id = 0;
     fec_packet_data_t   *packet_data = (fec_packet_data_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_rmt_fec, 0);
 
     if (fec != NULL)
@@ -235,7 +235,7 @@ dissect_fec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         proto_tree_add_item(fec_tree, hf_sbn, tvb, offset,   1, ENC_BIG_ENDIAN);
         proto_tree_add_item(fec_tree, hf_esi, tvb, offset+1, 3, ENC_BIG_ENDIAN);
 
-        col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "SBN: %u", tvb_get_guint8(tvb, offset));
+        col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "SBN: %u", tvb_get_uint8(tvb, offset));
         col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "ESI: 0x%X", tvb_get_ntoh24(tvb, offset+1));
 
         offset += 4;
@@ -332,7 +332,7 @@ void proto_register_rmt_fec(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_main,
     };
 

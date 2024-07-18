@@ -40,32 +40,32 @@ extern const value_string string_fec_encoding_id[];
 typedef struct lct_data_exchange
 {
 	/* inputs */
-	gint ext_192;
-	gint ext_193;
-	gboolean is_atsc3;
+	int ext_192;
+	int ext_193;
+	bool is_atsc3;
 
 	/* outputs */
-	guint8 codepoint;
-	gboolean is_flute;
-	gboolean is_sp; /* is Source Packet? Source Packet Indicator is defined in RFC 5775 */
+	uint8_t codepoint;
+	bool is_flute;
+	bool is_sp; /* is Source Packet? Source Packet Indicator is defined in RFC 5775 */
 
 } lct_data_exchange_t;
 
 typedef struct fec_data_exchange
 {
 	/* inputs */
-	guint8 encoding_id;
+	uint8_t encoding_id;
 
 } fec_data_exchange_t;
 
 
 /* Common RMT exported functions */
 /* ============================= */
-extern int lct_ext_decode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint offset, guint offset_max, lct_data_exchange_t *data_exchange,
+extern int lct_ext_decode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, unsigned offset, unsigned offset_max, lct_data_exchange_t *data_exchange,
                    int hfext, int ettext);
-extern void fec_decode_ext_fti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint8 encoding_id);
+extern void fec_decode_ext_fti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint8_t encoding_id);
 
-extern double rmt_decode_send_rate(guint16 send_rate );
+extern double rmt_decode_send_rate(uint16_t send_rate );
 
 #endif
 

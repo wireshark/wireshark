@@ -38,8 +38,8 @@ static int hf_rquota_curfiles;
 static int hf_rquota_btimeleft;
 static int hf_rquota_ftimeleft;
 
-static gint ett_rquota;
-static gint ett_rquota_rquota;
+static int ett_rquota;
+static int ett_rquota_rquota;
 
 #define RQUOTAPROC_NULL 		0
 #define RQUOTAPROC_GETQUOTA		1
@@ -109,7 +109,7 @@ dissect_rquota(tvbuff_t *tvb, int offset, proto_tree *tree)
 static int
 dissect_getquota_result(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	gint32	status;
+	int32_t	status;
 	int offset = 0;
 
 	status = tvb_get_ntohl(tvb, offset);
@@ -279,7 +279,7 @@ proto_register_rquota(void)
 
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_rquota,
 		&ett_rquota_rquota,
 	};

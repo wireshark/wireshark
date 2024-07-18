@@ -64,7 +64,7 @@ static int hf_rfc2190_vmv1;
 static int hf_rfc2190_hmv2;
 static int hf_rfc2190_vmv2;
 
-static gint ett_rfc2190;
+static int ett_rfc2190;
 static dissector_handle_t h263_handle;
 static dissector_handle_t rfc2190_handle;
 
@@ -79,7 +79,7 @@ dissect_rfc2190( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     tvbuff_t     *next_tvb;
     int           hdr_len         = 0;
 
-    rfc2190_version = (tvb_get_guint8( tvb, offset ) & 0xc0 ) >> 6;
+    rfc2190_version = (tvb_get_uint8( tvb, offset ) & 0xc0 ) >> 6;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.263 ");
 
@@ -563,7 +563,7 @@ proto_register_rfc2190(void)
         },
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_rfc2190,
     };
 

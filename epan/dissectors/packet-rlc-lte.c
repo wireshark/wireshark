@@ -47,8 +47,8 @@ void proto_reg_handoff_rlc_lte(void);
 
 /* By default do try to analyse the sequence of messages for AM/UM channels
    using MAC PDUs */
-static gint global_rlc_lte_am_sequence_analysis = SEQUENCE_ANALYSIS_MAC_ONLY;
-static gint global_rlc_lte_um_sequence_analysis = SEQUENCE_ANALYSIS_MAC_ONLY;
+static int global_rlc_lte_am_sequence_analysis = SEQUENCE_ANALYSIS_MAC_ONLY;
+static int global_rlc_lte_um_sequence_analysis = SEQUENCE_ANALYSIS_MAC_ONLY;
 
 /* By default do call PDCP/RRC dissectors for SDU data */
 static bool global_rlc_lte_call_pdcp_for_srb = true;
@@ -63,7 +63,7 @@ static const enum_val_t pdcp_drb_col_vals[] = {
     {"pdcp-drb-sn-signalling", "Use signalled value", PDCP_drb_SN_signalled},
     {NULL, NULL, -1}
 };
-static gint global_rlc_lte_call_pdcp_for_drb = (gint)PDCP_drb_SN_signalled;
+static int global_rlc_lte_call_pdcp_for_drb = (int)PDCP_drb_SN_signalled;
 
 static bool global_rlc_lte_call_rrc_for_ccch = true;
 static bool global_rlc_lte_call_rrc_for_mcch;
@@ -80,9 +80,9 @@ static bool global_rlc_lte_reassembly = true;
 #define UL_EXT_LI 0x1
 #define DL_EXT_LI 0x2
 typedef struct rlc_ue_parameters {
-    guint32 id;
-    guint8 ext_li_field;
-    guint8 pdcp_sn_bits;
+    uint32_t id;
+    uint8_t ext_li_field;
+    uint8_t pdcp_sn_bits;
 } rlc_ue_parameters;
 static wmem_tree_t *ue_parameters_tree;
 
@@ -352,9 +352,9 @@ static const value_string header_only_vals[] =
 /**********************************************************************************/
 /* These are for keeping track of UM/AM extension headers, and the lengths found  */
 /* in them                                                                        */
-static guint8  s_number_of_extensions;
+static uint8_t s_number_of_extensions;
 #define MAX_RLC_SDUS 192
-static guint16 s_lengths[MAX_RLC_SDUS];
+static uint16_t s_lengths[MAX_RLC_SDUS];
 
 
 /*********************************************************************/
@@ -367,10 +367,10 @@ static guint16 s_lengths[MAX_RLC_SDUS];
 /* Channel key */
 typedef struct
 {
-    guint  ueId : 16;
-    guint  channelType : 3;
-    guint  channelId : 5;
-    guint  direction : 1;
+    unsigned  ueId : 16;
+    unsigned  channelType : 3;
+    unsigned  channelId : 5;
+    unsigned  direction : 1;
 } channel_hash_key;
 
 
@@ -378,15 +378,15 @@ typedef struct
 /* State maintained for AM/UM reassembly                          */
 
 typedef struct rlc_segment {
-    guint32 frameNum;
-    guint16 SN;
-    guint8 *data;
-    guint16 length;
+    uint32_t frameNum;
+    uint16_t SN;
+    uint8_t *data;
+    uint16_t length;
 } rlc_segment;
 
 typedef struct rlc_channel_reassembly_info
 {
-    guint16 number_of_segments;
+    uint16_t number_of_segments;
     #define RLC_MAX_SEGMENTS 100
     rlc_segment segments[RLC_MAX_SEGMENTS];
 } rlc_channel_reassembly_info;
@@ -398,14 +398,14 @@ typedef struct rlc_channel_reassembly_info
 /* Conversation-type status for sequence analysis on channel       */
 typedef struct
 {
-    guint8   rlcMode;
+    uint8_t  rlcMode;
 
     /* For UM, we always expect the SN to keep advancing, and these fields
        keep track of this.
        For AM, these correspond to new data */
-    guint16  previousSequenceNumber;
-    guint32  previousFrameNum;
-    gboolean previousSegmentIncomplete;
+    uint16_t previousSequenceNumber;
+    uint32_t previousFrameNum;
+    bool previousSegmentIncomplete;
 
     /* Accumulate info about current segmented SDU */
     struct rlc_channel_reassembly_info *reassembly_info;
@@ -428,14 +428,14 @@ typedef enum {
 
 typedef struct
 {
-    gboolean  sequenceExpectedCorrect;
-    guint16   sequenceExpected;
-    guint32   previousFrameNum;
-    gboolean  previousSegmentIncomplete;
-    guint32   nextFrameNum;
+    bool      sequenceExpectedCorrect;
+    uint16_t  sequenceExpected;
+    uint32_t  previousFrameNum;
+    bool      previousSegmentIncomplete;
+    uint32_t  nextFrameNum;
 
-    guint16   firstSN;
-    guint16   lastSN;
+    uint16_t  firstSN;
+    uint16_t  lastSN;
 
     /* AM/UM */
     sequence_analysis_state state;
@@ -447,9 +447,9 @@ typedef struct
 static wmem_map_t *sequence_analysis_report_hash;
 
 
-static gpointer get_report_hash_key(guint16 SN, guint32 frameNumber,
+static void *get_report_hash_key(uint16_t SN, uint32_t frameNumber,
                                     rlc_lte_info *p_rlc_lte_info,
-                                    gboolean do_persist);
+                                    bool do_persist);
 
 
 
@@ -473,11 +473,11 @@ static void reassembly_destroy(channel_sequence_analysis_status *status)
 
 /* Add a new segment to the accumulating segmented SDU */
 static void reassembly_add_segment(channel_sequence_analysis_status *status,
-                                   guint16 SN, guint32 frame,
-                                   tvbuff_t *tvb, gint offset, gint length)
+                                   uint16_t SN, uint32_t frame,
+                                   tvbuff_t *tvb, int offset, int length)
 {
     int segment_number =  status->reassembly_info->number_of_segments;
-    guint8 *segment_data;
+    uint8_t *segment_data;
 
     /* Give up if reach segment limit */
     if (segment_number >= (RLC_MAX_SEGMENTS-1)) {
@@ -485,7 +485,7 @@ static void reassembly_add_segment(channel_sequence_analysis_status *status,
         return;
     }
 
-    segment_data = (guint8 *)tvb_memdup(wmem_file_scope(),tvb, offset, length);
+    segment_data = (uint8_t *)tvb_memdup(wmem_file_scope(),tvb, offset, length);
 
     /* Add new segment */
     status->reassembly_info->segments[segment_number].frameNum = frame;
@@ -500,11 +500,11 @@ static void reassembly_add_segment(channel_sequence_analysis_status *status,
 /* Record the current & complete segmented SDU by mapping from this frame number to
    struct with segment info. */
 static void reassembly_record(channel_sequence_analysis_status *status, packet_info *pinfo,
-                              guint16 SN, rlc_lte_info *p_rlc_lte_info)
+                              uint16_t SN, rlc_lte_info *p_rlc_lte_info)
 {
     /* Just store existing info in hash table */
     wmem_map_insert(reassembly_report_hash,
-                        get_report_hash_key(SN, pinfo->num, p_rlc_lte_info, TRUE),
+                        get_report_hash_key(SN, pinfo->num, p_rlc_lte_info, true),
                         status->reassembly_info);
 }
 
@@ -512,21 +512,21 @@ static void reassembly_record(channel_sequence_analysis_status *status, packet_i
 static tvbuff_t* reassembly_get_reassembled_tvb(rlc_channel_reassembly_info *reassembly_info,
                                                 tvbuff_t *parent_tvb, packet_info *pinfo)
 {
-    gint n;
-    guint   combined_length = 0;
-    guint8 *combined_data;
-    guint combined_offset = 0;
+    int n;
+    unsigned   combined_length = 0;
+    uint8_t *combined_data;
+    unsigned combined_offset = 0;
     tvbuff_t *reassembled_tvb;
 
     /* Allocate buffer big enough to hold re-assembled data */
     for (n=0; n < reassembly_info->number_of_segments; n++) {
         combined_length += reassembly_info->segments[n].length;
     }
-    combined_data = (guint8 *)wmem_alloc(pinfo->pool, combined_length);
+    combined_data = (uint8_t *)wmem_alloc(pinfo->pool, combined_length);
 
     /* Copy data into contiguous buffer */
     for (n=0; n < reassembly_info->number_of_segments; n++) {
-        guint8 *data = reassembly_info->segments[n].data;
+        uint8_t *data = reassembly_info->segments[n].data;
         int length = reassembly_info->segments[n].length;
         memcpy(combined_data+combined_offset, data, length);
         combined_offset += length;
@@ -540,14 +540,14 @@ static tvbuff_t* reassembly_get_reassembled_tvb(rlc_channel_reassembly_info *rea
 
 /* Show where the segments came from for a reassembled SDU */
 static void reassembly_show_source(rlc_channel_reassembly_info *reassembly_info,
-                                   proto_tree *tree, tvbuff_t *tvb, gint offset)
+                                   proto_tree *tree, tvbuff_t *tvb, int offset)
 {
     int n;
     proto_item *source_ti, *ti;
     proto_tree *source_tree;
     proto_item *segment_ti;
     proto_tree *segment_tree;
-    guint      total_length=0;
+    unsigned   total_length=0;
 
     /* Create root of source info */
     source_ti = proto_tree_add_item(tree,
@@ -614,17 +614,17 @@ static void reassembly_show_source(rlc_channel_reassembly_info *reassembly_info,
 /* Conversation-type status for repeated NACK checking on channel */
 typedef struct
 {
-    guint16         noOfNACKs;
-    guint16         NACKs[MAX_NACKs];
-    guint32         frameNum;
+    uint16_t        noOfNACKs;
+    uint16_t        NACKs[MAX_NACKs];
+    uint32_t        frameNum;
 } channel_repeated_nack_status;
 
 static wmem_map_t *repeated_nack_channel_hash;
 
 typedef struct {
-    guint16         noOfNACKsRepeated;
-    guint16         repeatedNACKs[MAX_NACKs];
-    guint32         previousFrameNum;
+    uint16_t        noOfNACKsRepeated;
+    uint16_t        repeatedNACKs[MAX_NACKs];
+    uint32_t        previousFrameNum;
 } channel_repeated_nack_report;
 
 static wmem_map_t *repeated_nack_report_hash;
@@ -633,7 +633,7 @@ static wmem_map_t *repeated_nack_report_hash;
 
 /********************************************************/
 /* Forward declarations & functions                     */
-static void dissect_rlc_lte_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_udp_framing);
+static void dissect_rlc_lte_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_udp_framing);
 
 
 /* Write the given formatted text to:
@@ -685,9 +685,9 @@ static int dissect_rlc_lte_extension_header(tvbuff_t *tvb, packet_info *pinfo _U
                                             int offset,
                                             rlc_lte_info *p_rlc_lte_info)
 {
-    guint8  isOdd;
-    guint64 extension = 1;
-    guint64 length;
+    uint8_t isOdd;
+    uint64_t extension = 1;
+    uint64_t length;
 
     /* Reset this count */
     s_number_of_extensions = 0;
@@ -705,7 +705,7 @@ static int dissect_rlc_lte_extension_header(tvbuff_t *tvb, packet_info *pinfo _U
         extension_part_tree = proto_item_add_subtree(extension_part_ti,
                                                      ett_rlc_lte_extension_part);
 
-        if (p_rlc_lte_info->extendedLiField == FALSE) {
+        if (p_rlc_lte_info->extendedLiField == false) {
             isOdd = (s_number_of_extensions % 2);
 
             /* Read next extension */
@@ -743,14 +743,14 @@ static int dissect_rlc_lte_extension_header(tvbuff_t *tvb, packet_info *pinfo _U
             offset += 2;
         }
 
-        proto_item_append_text(extension_part_tree, " (length=%u)", (guint16)length);
+        proto_item_append_text(extension_part_tree, " (length=%u)", (uint16_t)length);
 
-        s_lengths[s_number_of_extensions++] = (guint16)length;
+        s_lengths[s_number_of_extensions++] = (uint16_t)length;
     }
 
     /* May need to skip padding after last extension part */
     isOdd = (s_number_of_extensions % 2);
-    if (isOdd && (p_rlc_lte_info->extendedLiField == FALSE)) {
+    if (isOdd && (p_rlc_lte_info->extendedLiField == false)) {
         proto_tree_add_item(tree, hf_rlc_lte_extension_padding,
                             tvb, offset++, 1, ENC_BIG_ENDIAN);
     }
@@ -763,9 +763,9 @@ static int dissect_rlc_lte_extension_header(tvbuff_t *tvb, packet_info *pinfo _U
    whether or not the beginning and end are included in this packet */
 static void show_PDU_in_info(packet_info *pinfo,
                              proto_item *top_ti,
-                             gint32 length,
-                             gboolean first_includes_start,
-                             gboolean last_includes_end)
+                             int32_t length,
+                             bool first_includes_start,
+                             bool last_includes_end)
 {
     /* Reflect this PDU in the info column */
     if (length > 0) {
@@ -786,12 +786,12 @@ static void show_PDU_in_info(packet_info *pinfo,
 
 
 /* Show an SDU. If configured, pass to PDCP/RRC/IP dissector */
-static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, gint offset, gint length,
-                             rlc_lte_info *rlc_info, gboolean whole_pdu, rlc_channel_reassembly_info *reassembly_info,
+static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, int length,
+                             rlc_lte_info *rlc_info, bool whole_pdu, rlc_channel_reassembly_info *reassembly_info,
                              sequence_analysis_state state)
 {
     wmem_tree_key_t key[3];
-    guint32 id;
+    uint32_t id;
     rlc_ue_parameters *params;
 
     /* Add raw data (according to mode) */
@@ -839,11 +839,11 @@ static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
             p_pdcp_lte_info->is_retx = (state != SN_OK);
 
             /* Set plane and sequence number length */
-            p_pdcp_lte_info->no_header_pdu = FALSE;
+            p_pdcp_lte_info->no_header_pdu = false;
             if (rlc_info->channelType == CHANNEL_TYPE_SRB) {
                 p_pdcp_lte_info->plane = SIGNALING_PLANE;
                 if ((rlc_info->nbMode == rlc_nb_mode) && (rlc_info->channelId == 3)) {
-                    p_pdcp_lte_info->no_header_pdu = TRUE;
+                    p_pdcp_lte_info->no_header_pdu = true;
                     p_pdcp_lte_info->seqnum_length = 0;
                 } else {
                     p_pdcp_lte_info->seqnum_length = 5;
@@ -888,7 +888,7 @@ static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
                         break;
 
                     default:
-                        DISSECTOR_ASSERT(FALSE);
+                        DISSECTOR_ASSERT(false);
                         break;
                 }
             }
@@ -954,7 +954,7 @@ static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 /* Hash table functions for RLC channels */
 
 /* Equal keys */
-static gint rlc_channel_equal(gconstpointer v, gconstpointer v2)
+static int rlc_channel_equal(const void *v, const void *v2)
 {
     const channel_hash_key* val1 = (const channel_hash_key *)v;
     const channel_hash_key* val2 = (const channel_hash_key *)v2;
@@ -969,7 +969,7 @@ static gint rlc_channel_equal(gconstpointer v, gconstpointer v2)
 }
 
 /* Compute a hash value for a given key. */
-static guint rlc_channel_hash_func(gconstpointer v)
+static unsigned rlc_channel_hash_func(const void *v)
 {
     const channel_hash_key* val1 = (const channel_hash_key *)v;
 
@@ -982,15 +982,15 @@ static guint rlc_channel_hash_func(gconstpointer v)
 /* Result hash                                                           */
 
 typedef struct {
-    guint32           frameNumber;
-    guint32           SN :             10;
-    guint32           channelType :    2;
-    guint32           channelId:       5;
-    guint32           direction:       1;
+    uint32_t          frameNumber;
+    uint32_t          SN :             10;
+    uint32_t          channelType :    2;
+    uint32_t          channelId:       5;
+    uint32_t          direction:       1;
 } rlc_result_hash_key;
 
 /* Compare 2 rlc_result_hash_key structs */
-static gint rlc_result_hash_equal(gconstpointer v, gconstpointer v2)
+static int rlc_result_hash_equal(const void *v, const void *v2)
 {
     const rlc_result_hash_key *val1 = (const rlc_result_hash_key *)v;
     const rlc_result_hash_key *val2 = (const rlc_result_hash_key *)v2;
@@ -1000,7 +1000,7 @@ static gint rlc_result_hash_equal(gconstpointer v, gconstpointer v2)
 }
 
 /* Compute a hash value for a given key. */
-static guint rlc_result_hash_func(gconstpointer v)
+static unsigned rlc_result_hash_func(const void *v)
 {
     const rlc_result_hash_key* val1 = (const rlc_result_hash_key *)v;
 
@@ -1012,9 +1012,9 @@ static guint rlc_result_hash_func(gconstpointer v)
 }
 
 /* Convenience function to get a pointer for the hash_func to work with */
-static gpointer get_report_hash_key(guint16 SN, guint32 frameNumber,
+static void *get_report_hash_key(uint16_t SN, uint32_t frameNumber,
                                     rlc_lte_info *p_rlc_lte_info,
-                                    gboolean do_persist)
+                                    bool do_persist)
 {
     static rlc_result_hash_key key;
     rlc_result_hash_key *p_key;
@@ -1040,7 +1040,7 @@ static gpointer get_report_hash_key(guint16 SN, guint32 frameNumber,
 
 static void checkFIconsistency(sequence_analysis_report *p,
                                rlc_lte_info *p_rlc_lte_info,
-                               gboolean  newSegmentStarted,
+                               bool      newSegmentStarted,
                                proto_tree *seqnum_tree,
                                packet_info *pinfo, tvbuff_t *tvb)
 {
@@ -1050,7 +1050,7 @@ static void checkFIconsistency(sequence_analysis_report *p,
         /* Previous segment was incomplete, so this PDU should continue it */
         if (newSegmentStarted) {
             ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_framing_info_correct,
-                                         tvb, 0, 0, FALSE);
+                                         tvb, 0, 0, false);
             expert_add_info_format(pinfo, ti, &ei_rlc_lte_sequence_analysis_last_segment_not_continued,
                                    "Last segment of previous PDU was not continued for UE %u (%s-%u)",
                                    p_rlc_lte_info->ueid,
@@ -1059,7 +1059,7 @@ static void checkFIconsistency(sequence_analysis_report *p,
         }
         else {
            ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_framing_info_correct,
-                                       tvb, 0, 0, TRUE);
+                                       tvb, 0, 0, true);
            proto_item_set_hidden(ti);
         }
     }
@@ -1067,7 +1067,7 @@ static void checkFIconsistency(sequence_analysis_report *p,
         /* Previous segment was complete, so this PDU should start a new one */
         if (!newSegmentStarted) {
             ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_framing_info_correct,
-                                        tvb, 0, 0, FALSE);
+                                        tvb, 0, 0, false);
             expert_add_info_format(pinfo, ti, &ei_rlc_lte_sequence_analysis_last_segment_complete,
                                    "Last segment of previous PDU was complete, but new segment was not started on UE %u (%s-%u)",
                                    p_rlc_lte_info->ueid,
@@ -1076,7 +1076,7 @@ static void checkFIconsistency(sequence_analysis_report *p,
         }
         else {
            ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_framing_info_correct,
-                                       tvb, 0, 0, TRUE);
+                                       tvb, 0, 0, true);
            proto_item_set_hidden(ti);
         }
     }
@@ -1085,10 +1085,10 @@ static void checkFIconsistency(sequence_analysis_report *p,
 
 /* Add to the tree values associated with sequence analysis for this frame */
 static void addChannelSequenceInfo(sequence_analysis_report *p,
-                                   gboolean isControlFrame,
+                                   bool isControlFrame,
                                    rlc_lte_info *p_rlc_lte_info,
-                                   guint16   sequenceNumber,
-                                   gboolean  newSegmentStarted,
+                                   uint16_t  sequenceNumber,
+                                   bool      newSegmentStarted,
                                    rlc_3gpp_tap_info *tap_info,
                                    packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb)
 {
@@ -1125,7 +1125,7 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
                     }
 
                     ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
-                                                tvb, 0, 0, TRUE);
+                                                tvb, 0, 0, true);
                     proto_item_set_generated(ti);
                     proto_item_append_text(seqnum_ti, " - OK");
 
@@ -1145,10 +1145,10 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
                     }
 
                     ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
-                                                tvb, 0, 0, FALSE);
+                                                tvb, 0, 0, false);
                     proto_item_set_generated(ti);
                     ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_mac_retx,
-                                                tvb, 0, 0, TRUE);
+                                                tvb, 0, 0, true);
                     proto_item_set_generated(ti);
                     expert_add_info_format(pinfo, ti, &ei_rlc_lte_sequence_analysis_mac_retx,
                                            "AM Frame retransmitted for %s on UE %u - due to MAC retx! (%s-%u)",
@@ -1165,10 +1165,10 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
                     }
 
                     ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
-                                                tvb, 0, 0, FALSE);
+                                                tvb, 0, 0, false);
                     proto_item_set_generated(ti);
                     ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_retx,
-                                                tvb, 0, 0, TRUE);
+                                                tvb, 0, 0, true);
                     proto_item_set_generated(ti);
                     expert_add_info_format(pinfo, ti, &ei_rlc_lte_sequence_analysis_retx,
                                            "AM Frame retransmitted for %s on UE %u - most likely in response to NACK (%s-%u)",
@@ -1185,10 +1185,10 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
                     }
 
                     ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
-                                                tvb, 0, 0, FALSE);
+                                                tvb, 0, 0, false);
                     proto_item_set_generated(ti);
                     ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_repeated,
-                                                tvb, 0, 0, TRUE);
+                                                tvb, 0, 0, true);
                     proto_item_set_generated(ti);
                     expert_add_info_format(pinfo, ti, &ei_rlc_lte_sequence_analysis_repeated,
                                            "AM SN Repeated for %s for UE %u - probably because didn't receive Status PDU? (%s-%u)",
@@ -1205,10 +1205,10 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
                     }
 
                     ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
-                                                tvb, 0, 0, FALSE);
+                                                tvb, 0, 0, false);
                     proto_item_set_generated(ti);
                     ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_skipped,
-                                                tvb, 0, 0, TRUE);
+                                                tvb, 0, 0, true);
                     proto_item_set_generated(ti);
                     if (p->lastSN != p->firstSN) {
                         expert_add_info_format(pinfo, ti, &ei_rlc_lte_am_sn_missing,
@@ -1221,7 +1221,7 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
                         proto_item_append_text(seqnum_ti, " - SNs missing (%u to %u)",
                                                p->firstSN, p->lastSN);
                         if (p_rlc_lte_info->sequenceNumberLength == AM_SN_LENGTH_16_BITS) {
-                            tap_info->missingSNs = ((65536 + (guint32)p->lastSN - (guint32)p->firstSN) % 65536) + 1;
+                            tap_info->missingSNs = ((65536 + (uint32_t)p->lastSN - (uint32_t)p->firstSN) % 65536) + 1;
                         } else {
                             tap_info->missingSNs = ((1024 + p->lastSN - p->firstSN) % 1024) + 1;
                         }
@@ -1247,11 +1247,11 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
 
                     /* Not OK */
                     ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
-                                                tvb, 0, 0, FALSE);
+                                                tvb, 0, 0, false);
                     /* Out of range */
                     proto_item_set_generated(ti);
                     ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ack_out_of_range,
-                                                tvb, 0, 0, TRUE);
+                                                tvb, 0, 0, true);
                     proto_item_set_generated(ti);
 
                     /* Link back to last seen SN in other direction */
@@ -1292,7 +1292,7 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
 
             if (!p->sequenceExpectedCorrect) {
                 /* Work out SN wrap (in case needed below) */
-                guint16 snLimit;
+                uint16_t snLimit;
                 if (p_rlc_lte_info->sequenceNumberLength == UM_SN_LENGTH_5_BITS) {
                     snLimit = 32;
                 }
@@ -1303,10 +1303,10 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
                 switch (p->state) {
                     case SN_Missing:
                         ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
-                                                    tvb, 0, 0, FALSE);
+                                                    tvb, 0, 0, false);
                         proto_item_set_generated(ti);
                         ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_skipped,
-                                                    tvb, 0, 0, TRUE);
+                                                    tvb, 0, 0, true);
                         proto_item_set_generated(ti);
                         if (p->lastSN != p->firstSN) {
                             expert_add_info_format(pinfo, ti, &ei_rlc_lte_um_sn_missing,
@@ -1336,10 +1336,10 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
 
                     case SN_Repeated:
                         ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
-                                                    tvb, 0, 0, FALSE);
+                                                    tvb, 0, 0, false);
                         proto_item_set_generated(ti);
                         ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_repeated,
-                                                    tvb, 0, 0, TRUE);
+                                                    tvb, 0, 0, true);
                         proto_item_set_generated(ti);
                         expert_add_info_format(pinfo, ti, &ei_rlc_lte_um_sn_repeated,
                                                "UM SN (%u) repeated for %s for UE %u (%s-%u)",
@@ -1354,10 +1354,10 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
 
                     case SN_MAC_Retx:
                         ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
-                                                    tvb, 0, 0, FALSE);
+                                                    tvb, 0, 0, false);
                         proto_item_set_generated(ti);
                         ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_mac_retx,
-                                                    tvb, 0, 0, TRUE);
+                                                    tvb, 0, 0, true);
                         proto_item_set_generated(ti);
                         expert_add_info_format(pinfo, ti, &ei_rlc_lte_sequence_analysis_mac_retx,
                                                "UM Frame retransmitted for %s on UE %u - due to MAC retx! (%s-%u)",
@@ -1386,7 +1386,7 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
 
                 /* Set OK here! */
                 ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
-                                            tvb, 0, 0, TRUE);
+                                            tvb, 0, 0, true);
                 proto_item_set_generated(ti);
                 proto_item_append_text(seqnum_ti, " - OK");
             }
@@ -1403,14 +1403,14 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
 /* Update the channel status and set report for this frame */
 static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
                                                         rlc_lte_info *p_rlc_lte_info,
-                                                        gboolean isControlFrame,
-                                                        guint8 number_of_segments,
-                                                        guint16 firstSegmentOffset,
-                                                        guint16 firstSegmentLength,
-                                                        guint16 lastSegmentOffset,
-                                                        guint16 sequenceNumber,
-                                                        gboolean first_includes_start, gboolean last_includes_end,
-                                                        gboolean is_resegmented _U_,
+                                                        bool isControlFrame,
+                                                        uint8_t number_of_segments,
+                                                        uint16_t firstSegmentOffset,
+                                                        uint16_t firstSegmentLength,
+                                                        uint16_t lastSegmentOffset,
+                                                        uint16_t sequenceNumber,
+                                                        bool first_includes_start, bool last_includes_end,
+                                                        bool is_resegmented _U_,
                                                         rlc_3gpp_tap_info *tap_info,
                                                         proto_tree *tree)
 {
@@ -1418,9 +1418,9 @@ static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbu
     channel_hash_key   *p_channel_key;
     channel_sequence_analysis_status     *p_channel_status;
     sequence_analysis_report *p_report_in_frame = NULL;
-    gboolean               createdChannel = FALSE;
-    guint16                expectedSequenceNumber = 0;
-    guint32                snLimit = 0;
+    bool                   createdChannel = false;
+    uint16_t               expectedSequenceNumber = 0;
+    uint32_t               snLimit = 0;
 
     /* If find stat_report_in_frame already, use that and get out */
     if (pinfo->fd->visited) {
@@ -1428,7 +1428,7 @@ static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbu
                                                                            get_report_hash_key(sequenceNumber,
                                                                                                pinfo->num,
                                                                                                p_rlc_lte_info,
-                                                                                               FALSE));
+                                                                                               false));
         if (p_report_in_frame != NULL) {
             addChannelSequenceInfo(p_report_in_frame, isControlFrame, p_rlc_lte_info,
                                    sequenceNumber, first_includes_start,
@@ -1452,7 +1452,7 @@ static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbu
 
     /* Create table entry if necessary */
     if (p_channel_status == NULL) {
-        createdChannel = TRUE;
+        createdChannel = true;
 
         /* Allocate a new value and duplicate key contents */
         p_channel_status = wmem_new0(wmem_file_scope(), channel_sequence_analysis_status);
@@ -1570,7 +1570,7 @@ static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbu
                 if (!last_includes_end &&
                     ((number_of_segments > 1) || first_includes_start)) {
 
-                    guint16 lastSegmentLength = tvb_reported_length(tvb)-lastSegmentOffset;
+                    uint16_t lastSegmentLength = tvb_reported_length(tvb)-lastSegmentOffset;
 
                     if (global_rlc_lte_reassembly) {
                         reassembly_reset(p_channel_status);
@@ -1595,7 +1595,7 @@ static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbu
                                                                                        get_report_hash_key((sequenceNumber+snLimit-1) % snLimit,
                                                                                                            p_report_in_frame->previousFrameNum,
                                                                                                            p_rlc_lte_info,
-                                                                                                           FALSE));
+                                                                                                           false));
                     /* It really shouldn't be NULL... */
                     if (p_previous_report != NULL) {
                         /* Point it forward to this one */
@@ -1650,7 +1650,7 @@ static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbu
             /* Expected? */
             if (sequenceNumber == expectedSequenceNumber) {
                 /* Set report for this frame */
-                p_report_in_frame->sequenceExpectedCorrect = TRUE;
+                p_report_in_frame->sequenceExpectedCorrect = true;
                 p_report_in_frame->sequenceExpected = expectedSequenceNumber;
                 p_report_in_frame->previousFrameNum = p_channel_status->previousFrameNum;
                 p_report_in_frame->previousSegmentIncomplete = p_channel_status->previousSegmentIncomplete;
@@ -1682,7 +1682,7 @@ static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbu
                 if (!last_includes_end &&
                     ((number_of_segments > 1) || first_includes_start)) {
 
-                    guint16 lastSegmentLength = tvb_reported_length(tvb)-lastSegmentOffset;
+                    uint16_t lastSegmentLength = tvb_reported_length(tvb)-lastSegmentOffset;
                     if (global_rlc_lte_reassembly) {
                         reassembly_reset(p_channel_status);
                         reassembly_add_segment(p_channel_status, sequenceNumber,
@@ -1698,7 +1698,7 @@ static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbu
                                                                                        get_report_hash_key((sequenceNumber+snLimit-1) % snLimit,
                                                                                                            p_report_in_frame->previousFrameNum,
                                                                                                            p_rlc_lte_info,
-                                                                                                           FALSE));
+                                                                                                           false));
                     /* It really shouldn't be NULL... */
                     if (p_previous_report != NULL) {
                         /* Point it forward to this one */
@@ -1713,7 +1713,7 @@ static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbu
                 p_report_in_frame->state = SN_Repeated;
 
                 /* Set report for this frame */
-                p_report_in_frame->sequenceExpectedCorrect = FALSE;
+                p_report_in_frame->sequenceExpectedCorrect = false;
                 p_report_in_frame->sequenceExpected = expectedSequenceNumber;
                 p_report_in_frame->firstSN = sequenceNumber;
                 p_report_in_frame->previousFrameNum = p_channel_status->previousFrameNum;
@@ -1728,10 +1728,10 @@ static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbu
 
             else {
                 /* Need to work out if new (with skips, or likely a retx (due to NACK)) */
-                gint delta  = (snLimit + expectedSequenceNumber - sequenceNumber) % snLimit;
+                int delta  = (snLimit + expectedSequenceNumber - sequenceNumber) % snLimit;
 
                 /* Rx window is 512/32768, so check to see if this is a retx */
-                if (delta < (gint)(snLimit>>1)) {
+                if (delta < (int)(snLimit>>1)) {
                     /* Probably a retx due to receiving NACK */
                     p_report_in_frame->state = SN_Retx;
 
@@ -1762,7 +1762,7 @@ static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbu
 
     /* Associate with this frame number */
     wmem_map_insert(sequence_analysis_report_hash,
-                        get_report_hash_key(sequenceNumber, pinfo->num, p_rlc_lte_info, TRUE),
+                        get_report_hash_key(sequenceNumber, pinfo->num, p_rlc_lte_info, true),
                         p_report_in_frame);
 
     /* Add state report for this frame into tree */
@@ -1782,7 +1782,7 @@ static void addChannelRepeatedNACKInfo(channel_repeated_nack_report *p,
     proto_tree *seqnum_tree;
     proto_item *seqnum_ti;
     proto_item *ti;
-    gint       n;
+    int        n;
 
     /* Create subtree */
     seqnum_ti = proto_tree_add_string_format(tree,
@@ -1793,9 +1793,9 @@ static void addChannelRepeatedNACKInfo(channel_repeated_nack_report *p,
                                          ett_rlc_lte_sequence_analysis);
     proto_item_set_generated(seqnum_ti);
 
-    /* OK = FALSE */
+    /* OK = false */
     ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
-                                tvb, 0, 0, FALSE);
+                                tvb, 0, 0, false);
     proto_item_set_generated(ti);
 
     /* Add each repeated NACK as item & expert info */
@@ -1835,15 +1835,15 @@ static void checkChannelRepeatedNACKInfo(packet_info *pinfo,
     channel_repeated_nack_status     *p_channel_status;
     channel_repeated_nack_report  *p_report_in_frame = NULL;
 
-    guint16         noOfNACKsRepeated = 0;
-    guint16         repeatedNACKs[MAX_NACKs];
-    gint            n, i, j;
+    uint16_t        noOfNACKsRepeated = 0;
+    uint16_t        repeatedNACKs[MAX_NACKs];
+    int             n, i, j;
 
     /* If find state_report_in_frame already, use that and get out */
     if (pinfo->fd->visited) {
         p_report_in_frame = (channel_repeated_nack_report*)wmem_map_lookup(repeated_nack_report_hash,
                                                                                get_report_hash_key(0, pinfo->num,
-                                                                                                   p_rlc_lte_info, FALSE));
+                                                                                                   p_rlc_lte_info, false));
         if (p_report_in_frame != NULL) {
             addChannelRepeatedNACKInfo(p_report_in_frame, p_rlc_lte_info,
                                        pinfo, tree, tvb);
@@ -1917,7 +1917,7 @@ static void checkChannelRepeatedNACKInfo(packet_info *pinfo,
         /* Associate with this frame number */
         wmem_map_insert(repeated_nack_report_hash,
                             get_report_hash_key(0, pinfo->num,
-                                                p_rlc_lte_info, TRUE),
+                                                p_rlc_lte_info, true),
                             p_report_in_frame);
 
         /* Add state report for this frame into tree */
@@ -1931,7 +1931,7 @@ static void checkChannelRepeatedNACKInfo(packet_info *pinfo,
 
 /* Check that the ACK is consistent with data the expected sequence number
    in the other direction */
-static void checkChannelACKWindow(guint16 ack_sn,
+static void checkChannelACKWindow(uint16_t ack_sn,
                                   packet_info *pinfo,
                                   rlc_lte_info *p_rlc_lte_info,
                                   rlc_3gpp_tap_info *tap_info,
@@ -1941,18 +1941,18 @@ static void checkChannelACKWindow(guint16 ack_sn,
     channel_hash_key   channel_key;
     channel_sequence_analysis_status  *p_channel_status;
     sequence_analysis_report  *p_report_in_frame = NULL;
-    guint32 snLimit;
+    uint32_t snLimit;
 
     /* If find stat_report_in_frame already, use that and get out */
     if (pinfo->fd->visited) {
         p_report_in_frame = (sequence_analysis_report*)wmem_map_lookup(sequence_analysis_report_hash,
                                                                            get_report_hash_key(0, pinfo->num,
                                                                                                p_rlc_lte_info,
-                                                                                               FALSE));
+                                                                                               false));
         if (p_report_in_frame != NULL) {
             /* Add any info to tree */
-            addChannelSequenceInfo(p_report_in_frame, TRUE, p_rlc_lte_info,
-                                   0, FALSE,
+            addChannelSequenceInfo(p_report_in_frame, true, p_rlc_lte_info,
+                                   0, false,
                                    tap_info, pinfo, tree, tvb);
             return;
         }
@@ -1981,7 +1981,7 @@ static void checkChannelACKWindow(guint16 ack_sn,
     /* Is it in the rx window? This test will catch if it's ahead, but we don't
        really know what the back of the tx window is... */
     snLimit = (p_rlc_lte_info->sequenceNumberLength == AM_SN_LENGTH_16_BITS) ? 65536 : 1024;
-    if (((snLimit + (guint32)p_channel_status->previousSequenceNumber+1 - ack_sn) % snLimit) > (snLimit>>1)) {
+    if (((snLimit + (uint32_t)p_channel_status->previousSequenceNumber+1 - ack_sn) % snLimit) > (snLimit>>1)) {
 
         /* Set result */
         p_report_in_frame = wmem_new0(wmem_file_scope(), sequence_analysis_report);
@@ -1993,12 +1993,12 @@ static void checkChannelACKWindow(guint16 ack_sn,
         /* Associate with this frame number */
         wmem_map_insert(sequence_analysis_report_hash,
                             get_report_hash_key(0, pinfo->num,
-                                                p_rlc_lte_info, TRUE),
+                                                p_rlc_lte_info, true),
                             p_report_in_frame);
 
         /* Add state report for this frame into tree */
-        addChannelSequenceInfo(p_report_in_frame, TRUE, p_rlc_lte_info, 0,
-                               FALSE, tap_info, pinfo, tree, tvb);
+        addChannelSequenceInfo(p_report_in_frame, true, p_rlc_lte_info, 0,
+                               false, tap_info, pinfo, tree, tvb);
     }
 }
 
@@ -2091,16 +2091,16 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
                                proto_item *top_ti,
                                rlc_3gpp_tap_info *tap_info)
 {
-    guint64 framing_info;
-    gboolean first_includes_start;
-    gboolean last_includes_end;
-    guint64 fixed_extension;
-    guint64 sn;
-    gint    start_offset = offset;
+    uint64_t framing_info;
+    bool first_includes_start;
+    bool last_includes_end;
+    uint64_t fixed_extension;
+    uint64_t sn;
+    int     start_offset = offset;
     proto_item *um_ti;
     proto_tree *um_header_tree;
     proto_item *um_header_ti;
-    gboolean is_truncated = FALSE;
+    bool is_truncated = false;
     proto_item *truncated_ti;
     rlc_channel_reassembly_info *reassembly_info = NULL;
     sequence_analysis_state seq_anal_state = SN_OK;
@@ -2138,7 +2138,7 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
         offset++;
     }
     else if (p_rlc_lte_info->sequenceNumberLength == UM_SN_LENGTH_10_BITS) {
-        guint32 reserved;
+        uint32_t reserved;
         proto_item *ti;
 
         /* Check 3 Reserved bits */
@@ -2172,15 +2172,15 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
         return;
     }
 
-    tap_info->sequenceNumberGiven = TRUE;
-    tap_info->sequenceNumber = (guint16)sn;
+    tap_info->sequenceNumberGiven = true;
+    tap_info->sequenceNumber = (uint16_t)sn;
 
     /* Show SN in info column */
     if ((p_rlc_lte_info->channelType == CHANNEL_TYPE_MCCH) || (p_rlc_lte_info->channelType == CHANNEL_TYPE_MTCH)) {
-        write_pdu_label_and_info(top_ti, um_header_ti, pinfo, "           sn=%-4u", (guint16)sn);
+        write_pdu_label_and_info(top_ti, um_header_ti, pinfo, "           sn=%-4u", (uint16_t)sn);
     }
     else {
-        write_pdu_label_and_info(top_ti, um_header_ti, pinfo, "            sn=%-4u", (guint16)sn);
+        write_pdu_label_and_info(top_ti, um_header_ti, pinfo, "            sn=%-4u", (uint16_t)sn);
     }
 
     proto_item_set_len(um_header_ti, offset-start_offset);
@@ -2193,8 +2193,8 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     /* Extract these 2 flags from framing_info */
-    first_includes_start = ((guint8)framing_info & 0x02) == 0;
-    last_includes_end =    ((guint8)framing_info & 0x01) == 0;
+    first_includes_start = ((uint8_t)framing_info & 0x02) == 0;
+    last_includes_end =    ((uint8_t)framing_info & 0x01) == 0;
 
     if (global_rlc_lte_headers_expected) {
         /* There might not be any data, if only headers (plus control data) were logged */
@@ -2209,13 +2209,13 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
             /* Show in the info column how long the data would be */
             for (n=0; n < s_number_of_extensions; n++) {
                 show_PDU_in_info(pinfo, top_ti, s_lengths[n],
-                                 (n==0) ? first_includes_start : TRUE,
-                                 TRUE);
+                                 (n==0) ? first_includes_start : true,
+                                 true);
                 offset += s_lengths[n];
             }
             /* Last one */
             show_PDU_in_info(pinfo, top_ti, p_rlc_lte_info->pduLength - offset,
-                             (s_number_of_extensions == 0) ? first_includes_start : TRUE,
+                             (s_number_of_extensions == 0) ? first_includes_start : true,
                              last_includes_end);
         }
         else {
@@ -2234,7 +2234,7 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
         ((global_rlc_lte_um_sequence_analysis == SEQUENCE_ANALYSIS_RLC_ONLY) &&
          (p_get_proto_data(wmem_file_scope(), pinfo, proto_mac_lte, 0) == NULL))) {
 
-        guint16 lastSegmentOffset = offset;
+        uint16_t lastSegmentOffset = offset;
         if (s_number_of_extensions >= 1) {
             int n;
             lastSegmentOffset = offset;
@@ -2244,15 +2244,15 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
         }
 
         seq_anal_state = checkChannelSequenceInfo(pinfo, tvb, p_rlc_lte_info,
-                                                  FALSE,
+                                                  false,
                                                   s_number_of_extensions+1,
                                                   offset,
                                                   s_number_of_extensions ?
                                                       s_lengths[0] :
                                                       p_rlc_lte_info->pduLength - offset,
                                                   lastSegmentOffset,
-                                                  (guint16)sn, first_includes_start, last_includes_end,
-                                                  FALSE, /* UM doesn't re-segment */
+                                                  (uint16_t)sn, first_includes_start, last_includes_end,
+                                                  false, /* UM doesn't re-segment */
                                                   tap_info, um_header_tree);
     }
 
@@ -2264,20 +2264,20 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
     /* Data                              */
 
     reassembly_info = (rlc_channel_reassembly_info *)wmem_map_lookup(reassembly_report_hash,
-                                                                         get_report_hash_key((guint16)sn, pinfo->num,
-                                                                                             p_rlc_lte_info, FALSE));
+                                                                         get_report_hash_key((uint16_t)sn, pinfo->num,
+                                                                                             p_rlc_lte_info, false));
 
     if (s_number_of_extensions > 0) {
         /* Show each data segment separately */
         int n;
         for (n=0; n < s_number_of_extensions; n++) {
             show_PDU_in_tree(pinfo, tree, tvb, offset, s_lengths[n], p_rlc_lte_info,
-                             (n==0) ? first_includes_start : TRUE,
+                             (n==0) ? first_includes_start : true,
                              (n==0) ? reassembly_info : NULL,
                              seq_anal_state);
             show_PDU_in_info(pinfo, top_ti, s_lengths[n],
-                             (n==0) ? first_includes_start : TRUE,
-                             TRUE);
+                             (n==0) ? first_includes_start : true,
+                             true);
             /* Make sure we don't lose the summary of this SDU */
             col_append_str(pinfo->cinfo, COL_INFO, "  | ");
             col_set_fence(pinfo->cinfo, COL_INFO);
@@ -2289,11 +2289,11 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Final data element */
     show_PDU_in_tree(pinfo, tree, tvb, offset, tvb_reported_length_remaining(tvb, offset), p_rlc_lte_info,
-                     ((s_number_of_extensions == 0) ? first_includes_start : TRUE) && last_includes_end,
+                     ((s_number_of_extensions == 0) ? first_includes_start : true) && last_includes_end,
                      (s_number_of_extensions == 0) ? reassembly_info : NULL,
                      seq_anal_state);
-    show_PDU_in_info(pinfo, top_ti, (guint16)tvb_reported_length_remaining(tvb, offset),
-                     (s_number_of_extensions == 0) ? first_includes_start : TRUE,
+    show_PDU_in_info(pinfo, top_ti, (uint16_t)tvb_reported_length_remaining(tvb, offset),
+                     (s_number_of_extensions == 0) ? first_includes_start : true,
                      last_includes_end);
 }
 
@@ -2309,13 +2309,13 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
                                           rlc_lte_info *p_rlc_lte_info,
                                           rlc_3gpp_tap_info *tap_info)
 {
-    guint32    cpt;
-    guint8     sn_size, so_size;
-    guint32    sn_limit;
-    guint64    ack_sn, nack_sn;
-    guint16    nack_count = 0, so_end_of_pdu;
-    guint64    e1 = 0, e2 = 0;
-    guint64    so_start, so_end;
+    uint32_t   cpt;
+    uint8_t    sn_size, so_size;
+    uint32_t   sn_limit;
+    uint64_t   ack_sn, nack_sn;
+    uint16_t   nack_count = 0, so_end_of_pdu;
+    uint64_t   e1 = 0, e2 = 0;
+    uint64_t   so_start, so_end;
     int        bit_offset = offset * 8;
     proto_item *ti;
 
@@ -2350,9 +2350,9 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
     proto_tree_add_bits_ret_val(tree, hf_rlc_lte_am_ack_sn, tvb,
                                 bit_offset, sn_size, &ack_sn, ENC_BIG_ENDIAN);
     bit_offset += sn_size;
-    write_pdu_label_and_info(top_ti, status_ti, pinfo, "  ACK_SN=%-4u", (guint16)ack_sn);
+    write_pdu_label_and_info(top_ti, status_ti, pinfo, "  ACK_SN=%-4u", (uint16_t)ack_sn);
 
-    tap_info->ACKNo = (guint16)ack_sn;
+    tap_info->ACKNo = (uint16_t)ack_sn;
 
     /* E1 */
     proto_tree_add_bits_ret_val(tree, hf_rlc_lte_am_e1, tvb,
@@ -2373,7 +2373,7 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
             nack_ti = proto_tree_add_bits_ret_val(tree, hf_rlc_lte_am_nack_sn, tvb,
                                                   bit_offset, sn_size, &nack_sn, ENC_BIG_ENDIAN);
             bit_offset += sn_size;
-            write_pdu_label_and_info(top_ti, NULL, pinfo, "  NACK_SN=%-4u", (guint16)nack_sn);
+            write_pdu_label_and_info(top_ti, NULL, pinfo, "  NACK_SN=%-4u", (uint16_t)nack_sn);
 
             /* We shouldn't NACK the ACK_SN! */
             if (nack_sn == ack_sn) {
@@ -2389,7 +2389,7 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
 
             /* Copy into struct, but don't exceed buffer */
             if (nack_count < MAX_NACKs) {
-                tap_info->NACKs[nack_count++] = (guint16)nack_sn;
+                tap_info->NACKs[nack_count++] = (uint16_t)nack_sn;
             }
             else {
                 /* Let it get bigger than the array for accurate stats... */
@@ -2433,15 +2433,15 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
             bit_offset += so_size;
 
 
-            if ((guint16)so_end == so_end_of_pdu) {
+            if ((uint16_t)so_end == so_end_of_pdu) {
                 write_pdu_label_and_info(top_ti, NULL, pinfo,
                                          " (SOstart=%u SOend=<END-OF_PDU>)",
-                                         (guint16)so_start);
+                                         (uint16_t)so_start);
             }
             else {
                 write_pdu_label_and_info(top_ti, NULL, pinfo,
                                          " (SOstart=%u SOend=%u)",
-                                         (guint16)so_start, (guint16)so_end);
+                                         (uint16_t)so_start, (uint16_t)so_end);
             }
 
             /* Reset this flag here */
@@ -2476,7 +2476,7 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
 
         if (!is_mac_lte_frame_retx(pinfo, p_rlc_lte_info->direction)) {
             checkChannelRepeatedNACKInfo(pinfo, p_rlc_lte_info, tap_info, tree, tvb);
-            checkChannelACKWindow((guint16)ack_sn, pinfo, p_rlc_lte_info, tap_info, tree, tvb);
+            checkChannelACKWindow((uint16_t)ack_sn, pinfo, p_rlc_lte_info, tap_info, tree, tvb);
         }
      }
 }
@@ -2492,22 +2492,22 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
                                rlc_3gpp_tap_info *tap_info)
 {
     bool is_data;
-    guint32 is_resegmented;
-    guint32 polling;
-    guint32 fixed_extension;
-    guint32 framing_info;
-    gboolean first_includes_start;
-    gboolean last_includes_end;
+    uint32_t is_resegmented;
+    uint32_t polling;
+    uint32_t fixed_extension;
+    uint32_t framing_info;
+    bool first_includes_start;
+    bool last_includes_end;
     proto_item *am_ti;
     proto_tree *am_header_tree;
     proto_item *am_header_ti;
-    gint   start_offset = offset;
-    guint32    sn;
-    gboolean is_truncated = FALSE;
+    int    start_offset = offset;
+    uint32_t   sn;
+    bool is_truncated = false;
     proto_item *truncated_ti;
     rlc_channel_reassembly_info *reassembly_info = NULL;
     sequence_analysis_state seq_anal_state = SN_OK;
-    guint32 id;
+    uint32_t id;
     wmem_tree_key_t key[3];
     rlc_ue_parameters *params;
 
@@ -2569,7 +2569,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Sequence Number */
     if (p_rlc_lte_info->sequenceNumberLength == AM_SN_LENGTH_16_BITS) {
-        guint32 reserved;
+        uint32_t reserved;
 
         if (is_resegmented) {
             /* Last Segment Field (LSF) */
@@ -2591,7 +2591,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree_add_item_ret_uint(am_header_tree, hf_rlc_lte_am_fixed_sn, tvb, offset, 2, ENC_BIG_ENDIAN, &sn);
         offset += 2;
     }
-    tap_info->sequenceNumberGiven = TRUE;
+    tap_info->sequenceNumberGiven = true;
     tap_info->sequenceNumber = sn;
 
     write_pdu_label_and_info(top_ti, am_header_ti, pinfo, "sn=%-4u", sn);
@@ -2599,7 +2599,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     /***************************************/
     /* Dissect extra segment header fields */
     if (is_resegmented) {
-        guint32 segmentOffset;
+        uint32_t segmentOffset;
 
         if (p_rlc_lte_info->sequenceNumberLength == AM_SN_LENGTH_16_BITS) {
             /* SO */
@@ -2659,13 +2659,13 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
             /* Show in the info column how long the data would be */
             for (n=0; n < s_number_of_extensions; n++) {
                 show_PDU_in_info(pinfo, top_ti, s_lengths[n],
-                                 (n==0) ? first_includes_start : TRUE,
-                                 TRUE);
+                                 (n==0) ? first_includes_start : true,
+                                 true);
                 offset += s_lengths[n];
             }
             /* Last one */
             show_PDU_in_info(pinfo, top_ti, p_rlc_lte_info->pduLength - offset,
-                             (s_number_of_extensions == 0) ? first_includes_start : TRUE,
+                             (s_number_of_extensions == 0) ? first_includes_start : true,
                              last_includes_end);
         }
         else {
@@ -2679,8 +2679,8 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
         ((global_rlc_lte_am_sequence_analysis == SEQUENCE_ANALYSIS_RLC_ONLY) &&
          (p_get_proto_data(wmem_file_scope(), pinfo, proto_mac_lte, 0) == NULL))) {
 
-        guint16 firstSegmentLength;
-        guint16 lastSegmentOffset = offset;
+        uint16_t firstSegmentLength;
+        uint16_t lastSegmentOffset = offset;
         if (s_number_of_extensions >= 1) {
             int n;
             for (n=0; n < s_number_of_extensions; n++) {
@@ -2693,11 +2693,11 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
             firstSegmentLength = tvb_reported_length_remaining(tvb, offset);
         }
 
-        seq_anal_state = checkChannelSequenceInfo(pinfo, tvb, p_rlc_lte_info, FALSE,
+        seq_anal_state = checkChannelSequenceInfo(pinfo, tvb, p_rlc_lte_info, false,
                                                   s_number_of_extensions+1,
                                                   offset, firstSegmentLength,
                                                   lastSegmentOffset,
-                                                  (guint16)sn,
+                                                  (uint16_t)sn,
                                                   first_includes_start, last_includes_end,
                                                   is_resegmented, tap_info, tree);
     }
@@ -2711,10 +2711,10 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
 
     if (!first_includes_start) {
         reassembly_info = (rlc_channel_reassembly_info *)wmem_map_lookup(reassembly_report_hash,
-                                                                             get_report_hash_key((guint16)sn,
+                                                                             get_report_hash_key((uint16_t)sn,
                                                                                                  pinfo->num,
                                                                                                  p_rlc_lte_info,
-                                                                                                 FALSE));
+                                                                                                 false));
     }
 
     if (s_number_of_extensions > 0) {
@@ -2722,12 +2722,12 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
         int n;
         for (n=0; n < s_number_of_extensions; n++) {
             show_PDU_in_tree(pinfo, tree, tvb, offset, s_lengths[n], p_rlc_lte_info,
-                             (n==0) ? first_includes_start : TRUE,
+                             (n==0) ? first_includes_start : true,
                              (n==0) ? reassembly_info : NULL,
                              seq_anal_state);
             show_PDU_in_info(pinfo, top_ti, s_lengths[n],
-                             (n==0) ? first_includes_start : TRUE,
-                             TRUE);
+                             (n==0) ? first_includes_start : true,
+                             true);
             /* Make sure we don't lose the summary of this SDU */
             col_append_str(pinfo->cinfo, COL_INFO, "  | ");
             col_set_fence(pinfo->cinfo, COL_INFO);
@@ -2740,11 +2740,11 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     /* Final data element */
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
         show_PDU_in_tree(pinfo, tree, tvb, offset, tvb_reported_length_remaining(tvb, offset), p_rlc_lte_info,
-                         ((s_number_of_extensions == 0) ? first_includes_start : TRUE) && last_includes_end,
+                         ((s_number_of_extensions == 0) ? first_includes_start : true) && last_includes_end,
                          (s_number_of_extensions == 0) ? reassembly_info : NULL,
                          seq_anal_state);
-        show_PDU_in_info(pinfo, top_ti, (guint16)tvb_reported_length_remaining(tvb, offset),
-                         (s_number_of_extensions == 0) ? first_includes_start : TRUE,
+        show_PDU_in_info(pinfo, top_ti, (uint16_t)tvb_reported_length_remaining(tvb, offset),
+                         (s_number_of_extensions == 0) ? first_includes_start : true,
                          last_includes_end);
     }
     else {
@@ -2761,7 +2761,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static void report_heur_error(proto_tree *tree, packet_info *pinfo, expert_field *eiindex,
-                              tvbuff_t *tvb, gint start, gint length)
+                              tvbuff_t *tvb, int start, int length)
 {
     proto_item *ti;
     proto_tree *subtree;
@@ -2777,26 +2777,26 @@ static void report_heur_error(proto_tree *tree, packet_info *pinfo, expert_field
 static bool dissect_rlc_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
                                      proto_tree *tree, void *data _U_)
 {
-    gint                 offset = 0;
+    int                  offset = 0;
     struct rlc_lte_info  *p_rlc_lte_info;
     tvbuff_t             *rlc_tvb;
-    guint8               tag = 0;
-    gboolean             seqNumLengthTagPresent = FALSE;
+    uint8_t              tag = 0;
+    bool                 seqNumLengthTagPresent = false;
 
     /* Needs to be at least as long as:
        - the signature string
        - fixed header bytes
        - tag for data
        - at least one byte of RLC PDU payload */
-    if (tvb_captured_length_remaining(tvb, offset) < (gint)(strlen(RLC_LTE_START_STRING)+1+2)) {
+    if (tvb_captured_length_remaining(tvb, offset) < (int)(strlen(RLC_LTE_START_STRING)+1+2)) {
         return false;
     }
 
     /* OK, compare with signature string */
-    if (tvb_strneql(tvb, offset, RLC_LTE_START_STRING, (gint)strlen(RLC_LTE_START_STRING)) != 0) {
+    if (tvb_strneql(tvb, offset, RLC_LTE_START_STRING, (int)strlen(RLC_LTE_START_STRING)) != 0) {
         return false;
     }
-    offset += (gint)strlen(RLC_LTE_START_STRING);
+    offset += (int)strlen(RLC_LTE_START_STRING);
 
 
     /* If redissecting, use previous info struct (if available) */
@@ -2806,7 +2806,7 @@ static bool dissect_rlc_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
         p_rlc_lte_info = wmem_new0(wmem_file_scope(), struct rlc_lte_info);
 
         /* Read fixed fields */
-        p_rlc_lte_info->rlcMode = tvb_get_guint8(tvb, offset++);
+        p_rlc_lte_info->rlcMode = tvb_get_uint8(tvb, offset++);
         if (p_rlc_lte_info->rlcMode == RLC_AM_MODE) {
             p_rlc_lte_info->sequenceNumberLength = AM_SN_LENGTH_10_BITS;
         }
@@ -2814,19 +2814,19 @@ static bool dissect_rlc_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
         /* Read optional fields */
         while (tag != RLC_LTE_PAYLOAD_TAG) {
             /* Process next tag */
-            tag = tvb_get_guint8(tvb, offset++);
+            tag = tvb_get_uint8(tvb, offset++);
             switch (tag) {
                 case RLC_LTE_SN_LENGTH_TAG:
-                    p_rlc_lte_info->sequenceNumberLength = tvb_get_guint8(tvb, offset);
+                    p_rlc_lte_info->sequenceNumberLength = tvb_get_uint8(tvb, offset);
                     offset++;
-                    seqNumLengthTagPresent = TRUE;
+                    seqNumLengthTagPresent = true;
                     break;
                 case RLC_LTE_DIRECTION_TAG:
-                    p_rlc_lte_info->direction = tvb_get_guint8(tvb, offset);
+                    p_rlc_lte_info->direction = tvb_get_uint8(tvb, offset);
                     offset++;
                     break;
                 case RLC_LTE_PRIORITY_TAG:
-                    p_rlc_lte_info->priority = tvb_get_guint8(tvb, offset);
+                    p_rlc_lte_info->priority = tvb_get_uint8(tvb, offset);
                     offset++;
                     break;
                 case RLC_LTE_UEID_TAG:
@@ -2842,11 +2842,11 @@ static bool dissect_rlc_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
                     offset += 2;
                     break;
                 case RLC_LTE_EXT_LI_FIELD_TAG:
-                    p_rlc_lte_info->extendedLiField = TRUE;
+                    p_rlc_lte_info->extendedLiField = true;
                     break;
                 case RLC_LTE_NB_MODE_TAG:
                     p_rlc_lte_info->nbMode =
-                        (rlc_lte_nb_mode)tvb_get_guint8(tvb, offset);
+                        (rlc_lte_nb_mode)tvb_get_uint8(tvb, offset);
                     offset++;
                     break;
 
@@ -2863,7 +2863,7 @@ static bool dissect_rlc_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
             }
         }
 
-        if ((p_rlc_lte_info->rlcMode == RLC_UM_MODE) && (seqNumLengthTagPresent == FALSE)) {
+        if ((p_rlc_lte_info->rlcMode == RLC_UM_MODE) && (seqNumLengthTagPresent == false)) {
             /* Conditional field is not present */
             report_heur_error(tree, pinfo, &ei_rlc_lte_missing_udp_framing_tag, tvb, 0, offset);
             wmem_free(wmem_file_scope(), p_rlc_lte_info);
@@ -2882,7 +2882,7 @@ static bool dissect_rlc_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Create tvb that starts at actual RLC PDU */
     rlc_tvb = tvb_new_subset_remaining(tvb, offset);
-    dissect_rlc_lte_common(rlc_tvb, pinfo, tree, TRUE);
+    dissect_rlc_lte_common(rlc_tvb, pinfo, tree, true);
     return true;
 }
 
@@ -2894,11 +2894,11 @@ static bool dissect_rlc_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
 
 static int dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    dissect_rlc_lte_common(tvb, pinfo, tree, FALSE);
+    dissect_rlc_lte_common(tvb, pinfo, tree, false);
     return tvb_captured_length(tvb);
 }
 
-static void dissect_rlc_lte_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_udp_framing)
+static void dissect_rlc_lte_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_udp_framing)
 {
     proto_tree             *rlc_lte_tree;
     proto_tree             *context_tree;
@@ -2906,7 +2906,7 @@ static void dissect_rlc_lte_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     proto_item             *context_ti;
     proto_item             *ti;
     proto_item             *mode_ti;
-    gint                   offset = 0;
+    int                    offset = 0;
     struct rlc_lte_info    *p_rlc_lte_info;
 
     /* Allocate and Zero tap struct */
@@ -3071,11 +3071,11 @@ static void dissect_rlc_lte_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 
 /* Configure number of PDCP SN bits to use for DRB channels */
-void set_rlc_lte_drb_pdcp_seqnum_length(packet_info *pinfo, guint16 ueid, guint8 drbid,
-                                        guint8 userplane_seqnum_length)
+void set_rlc_lte_drb_pdcp_seqnum_length(packet_info *pinfo, uint16_t ueid, uint8_t drbid,
+                                        uint8_t userplane_seqnum_length)
 {
     wmem_tree_key_t key[3];
-    guint32 id;
+    uint32_t id;
     rlc_ue_parameters *params;
 
     if (PINFO_FD_VISITED(pinfo)) {
@@ -3104,11 +3104,11 @@ void set_rlc_lte_drb_pdcp_seqnum_length(packet_info *pinfo, guint16 ueid, guint8
 }
 
 /*Configure LI field for AM DRB channels */
-void set_rlc_lte_drb_li_field(packet_info *pinfo, guint16 ueid, guint8 drbid,
-                              gboolean ul_ext_li_field, gboolean dl_ext_li_field)
+void set_rlc_lte_drb_li_field(packet_info *pinfo, uint16_t ueid, uint8_t drbid,
+                              bool ul_ext_li_field, bool dl_ext_li_field)
 {
     wmem_tree_key_t key[3];
-    guint32 id;
+    uint32_t id;
     rlc_ue_parameters *params;
 
     if (PINFO_FD_VISITED(pinfo)) {
@@ -3137,7 +3137,7 @@ void set_rlc_lte_drb_li_field(packet_info *pinfo, guint16 ueid, guint8 drbid,
     params->ext_li_field |= dl_ext_li_field ? DL_EXT_LI : NO_EXT_LI;
 }
 
-void rlc_lte_reset_ue_bearers(packet_info *pinfo, guint16 ueid)
+void rlc_lte_reset_ue_bearers(packet_info *pinfo, uint16_t ueid)
 {
     if (PINFO_FD_VISITED(pinfo)) {
         return;
@@ -3632,7 +3632,7 @@ void proto_register_rlc_lte(void)
         },
     };
 
-    static gint *ett[] =
+    static int *ett[] =
     {
         &ett_rlc_lte,
         &ett_rlc_lte_context,
@@ -3674,7 +3674,7 @@ void proto_register_rlc_lte(void)
     };
 
     static const enum_val_t sequence_analysis_vals[] = {
-        {"no-analysis", "No-Analysis",     FALSE},
+        {"no-analysis", "No-Analysis",     false},
         {"mac-only",    "Only-MAC-frames", SEQUENCE_ANALYSIS_MAC_ONLY},
         {"rlc-only",    "Only-RLC-frames", SEQUENCE_ANALYSIS_RLC_ONLY},
         {NULL, NULL, -1}
@@ -3702,12 +3702,12 @@ void proto_register_rlc_lte(void)
     prefs_register_enum_preference(rlc_lte_module, "do_sequence_analysis_am",
         "Do sequence analysis for AM channels",
         "Attempt to keep track of PDUs for AM channels, and point out problems",
-        &global_rlc_lte_am_sequence_analysis, sequence_analysis_vals, FALSE);
+        &global_rlc_lte_am_sequence_analysis, sequence_analysis_vals, false);
 
     prefs_register_enum_preference(rlc_lte_module, "do_sequence_analysis",
         "Do sequence analysis for UM channels",
         "Attempt to keep track of PDUs for UM channels, and point out problems",
-        &global_rlc_lte_um_sequence_analysis, sequence_analysis_vals, FALSE);
+        &global_rlc_lte_um_sequence_analysis, sequence_analysis_vals, false);
 
     prefs_register_bool_preference(rlc_lte_module, "call_pdcp_for_srb",
         "Call PDCP dissector for SRB PDUs",
@@ -3719,7 +3719,7 @@ void proto_register_rlc_lte(void)
         "Call PDCP dissector for DRB PDUs",
         "Call PDCP dissector for user-plane PDUs.  Note that without reassembly, it can"
         "only be called for complete PDUs (i.e. not segmented over RLC)",
-        &global_rlc_lte_call_pdcp_for_drb, pdcp_drb_col_vals, FALSE);
+        &global_rlc_lte_call_pdcp_for_drb, pdcp_drb_col_vals, false);
 
 
     prefs_register_bool_preference(rlc_lte_module, "call_rrc_for_ccch",

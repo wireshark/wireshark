@@ -23,7 +23,7 @@ static int hf_rstat_procedure_v2;
 static int hf_rstat_procedure_v3;
 static int hf_rstat_procedure_v4;
 
-static gint ett_rstat;
+static int ett_rstat;
 
 #define RSTAT_PROGRAM	100001
 
@@ -121,7 +121,7 @@ proto_register_rstat(void)
 			VALS(rstat4_proc_vals), 0, NULL, HFILL }}
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_rstat,
 	};
 

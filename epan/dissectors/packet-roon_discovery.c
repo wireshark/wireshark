@@ -60,7 +60,7 @@ static int hf_roon_disco_user_id;
 #define ROON_DISCOVERY_UDP_PORT 9003 /* Not IANA-assigned */
 
 /* Initialize the subtree pointers */
-static gint ett_roon_discover;
+static int ett_roon_discover;
 
 #define ROON_DISCOVERY_MIN_LENGTH 98 // empirically defined
 
@@ -161,7 +161,7 @@ dissect_roon_discover(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         return 0;
 
     // query or reply are the next two bytes.
-    switch (tvb_get_gint16(tvb, 4, ENC_BIG_ENDIAN)) {
+    switch (tvb_get_int16(tvb, 4, ENC_BIG_ENDIAN)) {
         case ROON_REPLY:
             is_reply = true;
             break;
@@ -191,17 +191,17 @@ dissect_roon_discover(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     int next;
     // iterate over the rest of our message bytes
-    for (guint i = 6; i < tvb_reported_length(tvb) ; i += next) {
-        guint8 key_len, value_len;
-        guint offset;
+    for (unsigned i = 6; i < tvb_reported_length(tvb) ; i += next) {
+        uint8_t key_len, value_len;
+        unsigned offset;
         char *key, *value;
 
-        key_len = tvb_get_guint8(tvb, i);
+        key_len = tvb_get_uint8(tvb, i);
         offset = i + 1;
         key = tvb_get_string_enc(pinfo->pool, tvb, offset, key_len, ENC_ASCII);
 
         offset += key_len + 1;
-        value_len = tvb_get_guint8(tvb, offset);
+        value_len = tvb_get_uint8(tvb, offset);
         offset += 1;
         value = tvb_get_string_enc(pinfo->pool, tvb, offset, value_len, ENC_ASCII);
 
@@ -327,7 +327,7 @@ proto_register_roon_discover(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_roon_discover
     };
 

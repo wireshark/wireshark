@@ -84,16 +84,16 @@ static int
 dissect_rdp_cliprdr(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *parent_tree _U_, void *data _U_)
 {
 	proto_item *item;
-	gint nextOffset, offset = 0;
-	guint32 cmdId = 0;
-	guint32 pduLength;
+	int nextOffset, offset = 0;
+	uint32_t cmdId = 0;
+	uint32_t pduLength;
 	proto_tree *tree;
 
 	parent_tree = proto_tree_get_root(parent_tree);
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CLIPRDR");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	pduLength = tvb_get_guint32(tvb, offset + 4, ENC_LITTLE_ENDIAN) + 8;
+	pduLength = tvb_get_uint32(tvb, offset + 4, ENC_LITTLE_ENDIAN) + 8;
 	nextOffset = offset + pduLength;
 
 	item = proto_tree_add_item(parent_tree, proto_rdp_cliprdr, tvb, offset, pduLength, ENC_NA);
@@ -150,7 +150,7 @@ void proto_register_rdp_cliprdr(void) {
 		},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_rdp_cliprdr,
 	};
 

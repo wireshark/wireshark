@@ -82,9 +82,9 @@ static const ber_sequence_t TSRemoteGuardInnerPacket_sequence[] = {
 static int dissect_rcg_payload(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
 	asn1_ctx_t asn1_ctx;
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 
-	offset = dissect_ber_sequence(FALSE, &asn1_ctx, tree, tvb, offset,
+	offset = dissect_ber_sequence(false, &asn1_ctx, tree, tvb, offset,
 			TSRemoteGuardInnerPacket_sequence, hf_rdpear_payload, ett_rdp_ear_innerPacket);
 
 	return offset;
@@ -97,15 +97,15 @@ dissect_rdp_ear(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
 	tvbuff_t *decr_tvb = NULL;
 	gssapi_encrypt_info_t gssapi_encrypt;
 	proto_item *item;
-	gint nextOffset, offset = 0;
-	guint32 pduLength;
+	int nextOffset, offset = 0;
+	uint32_t pduLength;
 	proto_tree *tree;
 
 	parent_tree = proto_tree_get_root(parent_tree);
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RDPEAR");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	pduLength = tvb_get_guint32(tvb, offset + 4, ENC_LITTLE_ENDIAN) + 24;
+	pduLength = tvb_get_uint32(tvb, offset + 4, ENC_LITTLE_ENDIAN) + 24;
 	nextOffset = offset + pduLength;
 
 	item = proto_tree_add_item(parent_tree, proto_rdp_ear, tvb, offset, pduLength, ENC_NA);
@@ -183,7 +183,7 @@ void proto_register_rdp_ear(void) {
 				NULL, HFILL }},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_rdp_ear,
 		&ett_rdp_ear_innerPacket,
 	};

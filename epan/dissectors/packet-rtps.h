@@ -47,11 +47,11 @@ extern "C" {
 #define GUID_HAS_ALL         0x0000000F
 
 typedef struct _endpoint_guid {
-    guint   fields_present;
-    guint32 host_id;
-    guint32 app_id;
-    guint32 instance_id;
-    guint32 entity_id;
+    unsigned   fields_present;
+    uint32_t host_id;
+    uint32_t app_id;
+    uint32_t instance_id;
+    uint32_t entity_id;
 } endpoint_guid;
 
 /* Process a submessage: used in packet-rtps-processed.c */
@@ -60,17 +60,17 @@ extern void dissect_rtps_submessages(
     int offset,
     packet_info *pinfo,
     proto_tree *rtps_tree,
-    guint16 version,
-    guint16 vendor_id,
+    uint16_t version,
+    uint16_t vendor_id,
     endpoint_guid *guid,
     bool dissecting_encrypted_submessage);
 
 /* Information that the RTPS-VT protocol passes to RTPS-PROC */
 struct rtpsvt_data {
-    guint8 version_major;
-    guint8 version_minor;
-    guint8 direction;
-    guint16 rtps_length;
+    uint8_t version_major;
+    uint8_t version_minor;
+    uint8_t direction;
+    uint16_t rtps_length;
 };
 
 #ifdef __cplusplus

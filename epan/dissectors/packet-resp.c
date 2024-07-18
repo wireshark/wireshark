@@ -32,9 +32,9 @@ static bool resp_desegment = true;
 
 static int proto_resp;
 
-static gint ett_resp;
-static gint ett_resp_bulk_string;
-static gint ett_resp_array;
+static int ett_resp;
+static int ett_resp_bulk_string;
+static int ett_resp_array;
 
 static expert_field ei_resp_partial;
 static expert_field ei_resp_malformed_length;
@@ -51,13 +51,13 @@ static int hf_resp_array;
 static int hf_resp_array_length;
 static int hf_resp_fragment;
 
-static int dissect_resp_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, gint array_depth, gint64 expected_elements);
-static void resp_bulk_string_enhance_colinfo_ascii(packet_info *pinfo, gint array_depth, gint bulk_string_length, const guint8 *bulk_string_as_str);
+static int dissect_resp_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int array_depth, int64_t expected_elements);
+static void resp_bulk_string_enhance_colinfo_ascii(packet_info *pinfo, int array_depth, int bulk_string_length, const uint8_t *bulk_string_as_str);
 void proto_reg_handoff_resp(void);
 void proto_register_resp(void);
 
-static int dissect_resp_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, gint string_lenth, gint array_depth) {
-    guint8 *string_value;
+static int dissect_resp_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int string_lenth, int array_depth) {
+    uint8_t *string_value;
 
     string_value = tvb_get_string_enc(pinfo->pool, tvb, offset + RESP_TOKEN_PREFIX_LENGTH,
                                       string_lenth - RESP_TOKEN_PREFIX_LENGTH, ENC_ASCII);
@@ -71,8 +71,8 @@ static int dissect_resp_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     return string_lenth + CRLF_LENGTH;
 }
 
-static int dissect_resp_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, gint string_lenth) {
-    guint8 *error_value;
+static int dissect_resp_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int string_lenth) {
+    uint8_t *error_value;
 
     error_value = tvb_get_string_enc(pinfo->pool, tvb, offset + RESP_TOKEN_PREFIX_LENGTH,
                                      string_lenth - RESP_TOKEN_PREFIX_LENGTH, ENC_ASCII);
@@ -81,17 +81,17 @@ static int dissect_resp_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     return string_lenth + CRLF_LENGTH;
 }
 
-static int dissect_resp_bulk_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, gint bulk_string_string_length, gint array_depth) {
-    guint8 *bulk_string_length_as_str;
-    gint bulk_string_length;
-    gint bulk_string_captured_length;
-    gint bulk_string_captured_length_with_crlf;
+static int dissect_resp_bulk_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int bulk_string_string_length, int array_depth) {
+    uint8_t *bulk_string_length_as_str;
+    int bulk_string_length;
+    int bulk_string_captured_length;
+    int bulk_string_captured_length_with_crlf;
     proto_item *resp_string_item;
     proto_tree *resp_string_tree;
 
     bulk_string_length_as_str = tvb_get_string_enc(pinfo->pool, tvb, offset + RESP_TOKEN_PREFIX_LENGTH,
                                                    bulk_string_string_length - RESP_TOKEN_PREFIX_LENGTH, ENC_ASCII);
-    bulk_string_length = (gint)g_ascii_strtoll(bulk_string_length_as_str, NULL, 10);
+    bulk_string_length = (int)g_ascii_strtoll(bulk_string_length_as_str, NULL, 10);
     /* Negative string lengths */
     if (bulk_string_length < 0) {
         /* NULL string */
@@ -107,9 +107,9 @@ static int dissect_resp_bulk_string(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     }
 
     /* We have either a bulk string or an empty string */
-    gint remaining_bytes_for_bulkstring = tvb_captured_length_remaining(tvb, offset + bulk_string_string_length + CRLF_LENGTH);
+    int remaining_bytes_for_bulkstring = tvb_captured_length_remaining(tvb, offset + bulk_string_string_length + CRLF_LENGTH);
     /* Do we have enough bytes in the tvb for what was reported in the string length? */
-    gint is_fragmented = remaining_bytes_for_bulkstring < bulk_string_length + CRLF_LENGTH;
+    int is_fragmented = remaining_bytes_for_bulkstring < bulk_string_length + CRLF_LENGTH;
     if (is_fragmented) {
         if (DESEGMENT_ENABLED(pinfo)) {
             /* Desegment at the start of the bulk string instead of part way through */
@@ -141,7 +141,7 @@ static int dissect_resp_bulk_string(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     }
 
     /* Enhance display */
-    guint8 *bulk_string_as_str = tvb_get_string_enc(pinfo->pool, tvb, offset, bulk_string_captured_length, ENC_NA);
+    uint8_t *bulk_string_as_str = tvb_get_string_enc(pinfo->pool, tvb, offset, bulk_string_captured_length, ENC_NA);
     if (g_str_is_ascii(bulk_string_as_str)) {
         proto_item_append_text(resp_string_item, ": %s", bulk_string_as_str);
         resp_bulk_string_enhance_colinfo_ascii(pinfo, array_depth, bulk_string_length, bulk_string_as_str);
@@ -153,7 +153,7 @@ static int dissect_resp_bulk_string(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     return bulk_string_string_length + CRLF_LENGTH + bulk_string_captured_length_with_crlf;
 }
 
-static void resp_bulk_string_enhance_colinfo_ascii(packet_info *pinfo, gint array_depth, gint bulk_string_length, const guint8 *bulk_string_as_str) {
+static void resp_bulk_string_enhance_colinfo_ascii(packet_info *pinfo, int array_depth, int bulk_string_length, const uint8_t *bulk_string_as_str) {
     /* Request commands are arrays */
     if (RESP_REQUEST(pinfo) && array_depth == 1) {
         if (bulk_string_length < BULK_STRING_MAX_DISPLAY) {
@@ -174,9 +174,9 @@ static void resp_bulk_string_enhance_colinfo_ascii(packet_info *pinfo, gint arra
     }
 }
 
-static int dissect_resp_integer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, gint bulk_string_string_length, gint array_depth) {
-    guint8 *integer_as_string;
-    gint64 integer;
+static int dissect_resp_integer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int bulk_string_string_length, int array_depth) {
+    uint8_t *integer_as_string;
+    int64_t integer;
     integer_as_string = tvb_get_string_enc(pinfo->pool, tvb, offset + RESP_TOKEN_PREFIX_LENGTH,
                                                    bulk_string_string_length - RESP_TOKEN_PREFIX_LENGTH, ENC_ASCII);
     integer = g_ascii_strtoll(integer_as_string, NULL, 10);
@@ -189,10 +189,10 @@ static int dissect_resp_integer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
-static int dissect_resp_array(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, gint string_length, gint array_depth) {
-    guint8 *array_length_as_string = tvb_get_string_enc(pinfo->pool, tvb, offset + RESP_TOKEN_PREFIX_LENGTH,
+static int dissect_resp_array(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int string_length, int array_depth) {
+    uint8_t *array_length_as_string = tvb_get_string_enc(pinfo->pool, tvb, offset + RESP_TOKEN_PREFIX_LENGTH,
                                                         string_length - RESP_TOKEN_PREFIX_LENGTH, ENC_ASCII);
-    gint64 array_length = g_ascii_strtoll(array_length_as_string, NULL, 10);
+    int64_t array_length = g_ascii_strtoll(array_length_as_string, NULL, 10);
 
     /* We'll fix up the length later when we know how long it actually was */
     proto_item *array_item = proto_tree_add_item(tree, hf_resp_array, tvb, offset, string_length + CRLF_LENGTH, ENC_NA);
@@ -256,8 +256,8 @@ static int dissect_resp_array(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
-static int dissect_resp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, gint string_length, gint array_depth) {
-    switch (tvb_get_guint8(tvb, offset)) {
+static int dissect_resp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int string_length, int array_depth) {
+    switch (tvb_get_uint8(tvb, offset)) {
         case '+':
             return dissect_resp_string(tvb, pinfo, tree, offset, string_length, array_depth);
         case '-':
@@ -285,10 +285,10 @@ static int dissect_resp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
-static int dissect_resp_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, gint array_depth, gint64 expected_elements) {
-    gint error_or_offset;
-    gint crlf_string_line_length;
-    gint done_elements = 0;
+static int dissect_resp_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int array_depth, int64_t expected_elements) {
+    int error_or_offset;
+    int crlf_string_line_length;
+    int done_elements = 0;
 
     while (tvb_offset_exists(tvb, offset)) {
         /* If we ended up in here from a recursive call when traversing an array, don't drain the tvb to empty.
@@ -317,7 +317,7 @@ static int dissect_resp_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 }
 
 static int dissect_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
-    gint offset = 0;
+    int offset = 0;
     proto_item *root_resp_item;
     proto_tree *resp_tree;
 
@@ -405,7 +405,7 @@ void proto_register_resp(void) {
 
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
             &ett_resp,
             &ett_resp_bulk_string,
             &ett_resp_array,

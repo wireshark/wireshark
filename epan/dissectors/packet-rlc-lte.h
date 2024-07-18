@@ -49,27 +49,27 @@ typedef enum rlc_lte_nb_mode {
 /* Info attached to each LTE RLC frame */
 typedef struct rlc_lte_info
 {
-    guint8          rlcMode;
-    guint8          direction;
-    guint8          priority;
-    guint8          sequenceNumberLength;
-    guint16         ueid;
-    guint16         channelType;
-    guint16         channelId; /* for SRB: 1=SRB1, 2=SRB2, 3=SRB1bis; for DRB: DRB ID */
-    guint16         pduLength;
-    gboolean        extendedLiField;
+    uint8_t         rlcMode;
+    uint8_t         direction;
+    uint8_t         priority;
+    uint8_t         sequenceNumberLength;
+    uint16_t        ueid;
+    uint16_t        channelType;
+    uint16_t        channelId; /* for SRB: 1=SRB1, 2=SRB2, 3=SRB1bis; for DRB: DRB ID */
+    uint16_t        pduLength;
+    bool            extendedLiField;
     rlc_lte_nb_mode nbMode;
 } rlc_lte_info;
 
 
 /* Configure number of PDCP SN bits to use for DRB channels. */
-void set_rlc_lte_drb_pdcp_seqnum_length(packet_info *pinfo, guint16 ueid, guint8 drbid, guint8 userplane_seqnum_length);
+void set_rlc_lte_drb_pdcp_seqnum_length(packet_info *pinfo, uint16_t ueid, uint8_t drbid, uint8_t userplane_seqnum_length);
 
 /* Configure LI field for AM DRB channels. */
-void set_rlc_lte_drb_li_field(packet_info *pinfo, guint16 ueid, guint8 drbid, gboolean ul_ext_li_field, gboolean dl_ext_li_field);
+void set_rlc_lte_drb_li_field(packet_info *pinfo, uint16_t ueid, uint8_t drbid, bool ul_ext_li_field, bool dl_ext_li_field);
 
 /* Reset UE's bearers */
-void rlc_lte_reset_ue_bearers(packet_info *pinfo, guint16 ueid);
+void rlc_lte_reset_ue_bearers(packet_info *pinfo, uint16_t ueid);
 
 /**********************************************************************/
 /* UDP framing format                                                 */

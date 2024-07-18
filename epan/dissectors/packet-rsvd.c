@@ -103,10 +103,10 @@ static int hf_svhdx_tunnel_vhdset_is_valid_snapshot;
 static int hf_svhdx_tunnel_vhdset_parent_snapshot_id;
 static int hf_svhdx_tunnel_vhdset_log_file_id;
 
-static gint ett_rsvd;
-static gint ett_svhdx_tunnel_op_header;
-static gint ett_svhdx_tunnel_scsi_request;
-static gint ett_rsvd_create_snapshot_flags;
+static int ett_rsvd;
+static int ett_svhdx_tunnel_op_header;
+static int ett_svhdx_tunnel_scsi_request;
+static int ett_rsvd_create_snapshot_flags;
 
 static const value_string rsvd_operation_code_vals[] = {
         { 0x02001001, "RSVD_TUNNEL_GET_INITIAL_INFO" },
@@ -149,8 +149,8 @@ static const value_string rsvd_disk_format_vals[] = {
  * We need this data to handle SCSI requests and responses, I think
  */
 typedef struct _rsvd_task_data_t {
-        guint32 request_frame;
-        guint32 response_frame;
+        uint32_t request_frame;
+        uint32_t response_frame;
         itlq_nexus_t *itlq;
 } rsvd_task_data_t;
 
@@ -181,7 +181,7 @@ get_itl_nexus(packet_info *pinfo)
 }
 
 static int
-dissect_RSVD_GET_INITIAL_INFO(tvbuff_t *tvb, proto_tree *parent_tree, int offset, gint16 len, gboolean request)
+dissect_RSVD_GET_INITIAL_INFO(tvbuff_t *tvb, proto_tree *parent_tree, int offset, int16_t len, bool request)
 {
     proto_tree *gfi_sub_tree;
     proto_item *gfi_sub_item;
@@ -216,7 +216,7 @@ static const value_string rsvd_data_in_vals[] = {
 };
 
 static void
-dissect_scsi_payload_databuffer(tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 data_transfer_length, gboolean request)
+dissect_scsi_payload_databuffer(tvbuff_t *tvb, packet_info *pinfo, int offset, uint32_t data_transfer_length, bool request)
 {
     tvbuff_t *data_tvb = NULL;
     int tvb_len, tvb_rlen;
@@ -247,15 +247,15 @@ dissect_scsi_payload_databuffer(tvbuff_t *tvb, packet_info *pinfo, int offset, g
  * needed.
  */
 static int
-dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset, gint16 len, gboolean request, guint64 request_id)
+dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset, int16_t len, bool request, uint64_t request_id)
 {
     proto_tree *sub_tree;
     proto_item *sub_item;
-    guint32 length;
-    guint32 cdb_length;
-    guint8 data_in;
-    guint32 data_transfer_length;
-    guint32 sense_info_ex_length;
+    uint32_t length;
+    uint32_t cdb_length;
+    uint8_t data_in;
+    uint32_t data_transfer_length;
+    uint32_t sense_info_ex_length;
     conversation_t *conversation;
 
     conversation = find_or_create_conversation(pinfo);
@@ -275,7 +275,7 @@ dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
     rsvd_conv_data->task = (rsvd_task_data_t *)wmem_map_lookup(rsvd_conv_data->tasks, (const void *)&request_id);
     if (!pinfo->fd->visited) {
         if (rsvd_conv_data->task == NULL) {
-            guint64 *key_copy = wmem_new(wmem_file_scope(), guint64);
+            uint64_t *key_copy = wmem_new(wmem_file_scope(), uint64_t);
 
             *key_copy = request_id;
             rsvd_conv_data->task = wmem_new0(wmem_file_scope(), rsvd_task_data_t);
@@ -310,7 +310,7 @@ dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
         offset += 2;
 
         /* CDBLength */
-        cdb_length = tvb_get_guint8(tvb, offset);
+        cdb_length = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(sub_tree, hf_svhdx_tunnel_scsi_cdb_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
 
@@ -324,7 +324,7 @@ dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
         offset++;
 
         /* DataIn */
-        data_in = tvb_get_guint8(tvb, offset);
+        data_in = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(sub_tree, hf_svhdx_tunnel_scsi_data_in, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
 
@@ -357,7 +357,7 @@ dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
              *
              * If CDB is actually smaller, we need to define padding bytes
              */
-            guint32 cdb_padding_length = 16 - cdb_length;
+            uint32_t cdb_padding_length = 16 - cdb_length;
             proto_tree_add_item(sub_tree, hf_svhdx_tunnel_scsi_cdb_padding, tvb, offset, cdb_padding_length, ENC_NA);
             offset += cdb_padding_length;
         }
@@ -384,7 +384,7 @@ dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
         /* increment after DataBuffer */
         offset += data_transfer_length;
     } else {
-        guint8 scsi_status = 0;
+        uint8_t scsi_status = 0;
 
         /* Length */
         proto_tree_add_item_ret_uint(sub_tree, hf_svhdx_tunnel_scsi_length, tvb, offset, 2, ENC_LITTLE_ENDIAN, &length);
@@ -398,7 +398,7 @@ dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
         offset++;
 
         /* ScsiStatus */
-        scsi_status = tvb_get_guint8(tvb, offset);
+        scsi_status = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(sub_tree, hf_svhdx_tunnel_scsi_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
 
@@ -407,12 +407,12 @@ dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
         offset++;
 
         /* SensInfoExLength */
-        sense_info_ex_length = tvb_get_guint8(tvb, offset);
+        sense_info_ex_length = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(sub_tree, hf_svhdx_tunnel_scsi_sense_info_ex_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
 
         /* DataIn */
-        data_in = tvb_get_guint8(tvb, offset);
+        data_in = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(sub_tree, hf_svhdx_tunnel_scsi_data_in, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
 
@@ -474,7 +474,7 @@ dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 }
 
 static int
-dissect_RSVD_SRB_STATUS(tvbuff_t *tvb, proto_tree *parent_tree, int offset, gint16 len, gboolean request)
+dissect_RSVD_SRB_STATUS(tvbuff_t *tvb, proto_tree *parent_tree, int offset, int16_t len, bool request)
 {
     proto_tree *gfi_sub_tree;
     proto_item *gfi_sub_item;
@@ -490,7 +490,7 @@ dissect_RSVD_SRB_STATUS(tvbuff_t *tvb, proto_tree *parent_tree, int offset, gint
         proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_srb_status_reserved, tvb, offset, 1, ENC_NA);
         offset += 27;
     } else {
-        guint8 sense_info_length;
+        uint8_t sense_info_length;
 
         gfi_sub_tree = proto_tree_add_subtree(parent_tree, tvb, offset, len, ett_svhdx_tunnel_op_header, &gfi_sub_item, "RSVD_TUNNEL_SRB_STATUS_RESPONSE");
 
@@ -508,7 +508,7 @@ dissect_RSVD_SRB_STATUS(tvbuff_t *tvb, proto_tree *parent_tree, int offset, gint
         offset += 1;
 
         /* SenseInfoExLength */
-        sense_info_length = tvb_get_guint8(tvb, offset);
+        sense_info_length = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_srb_status_sense_info_ex_length, tvb, offset, 1, ENC_NA);
         offset += 1;
 
@@ -526,7 +526,7 @@ dissect_RSVD_SRB_STATUS(tvbuff_t *tvb, proto_tree *parent_tree, int offset, gint
 }
 
 static int
-dissect_RSVD_GET_DISK_INFO(tvbuff_t *tvb, proto_tree *parent_tree, int offset, gint16 len, gboolean request)
+dissect_RSVD_GET_DISK_INFO(tvbuff_t *tvb, proto_tree *parent_tree, int offset, int16_t len, bool request)
 {
     proto_tree *gfi_sub_tree;
     proto_item *gfi_sub_item;
@@ -592,7 +592,7 @@ dissect_RSVD_GET_DISK_INFO(tvbuff_t *tvb, proto_tree *parent_tree, int offset, g
 }
 
 static int
-dissect_RSVD_VALIDATE_DISK(tvbuff_t *tvb, proto_tree *parent_tree, int offset, gint16 len, gboolean request)
+dissect_RSVD_VALIDATE_DISK(tvbuff_t *tvb, proto_tree *parent_tree, int offset, int16_t len, bool request)
 {
     proto_tree *gfi_sub_tree;
     proto_item *gfi_sub_item;
@@ -642,15 +642,15 @@ static const value_string svhdx_snapshot_stage_vals[] = {
 #define SVHDX_SNAPSHOT_DISK_FLAG_ENABLE_CHANGE_TRACKING 0x00000001
 
 static int
-dissect_RSVD2_META_OPERATION_START(tvbuff_t *tvb, proto_tree *parent_tree, int offset, gint16 len, gboolean request)
+dissect_RSVD2_META_OPERATION_START(tvbuff_t *tvb, proto_tree *parent_tree, int offset, int16_t len, bool request)
 {
     static int * const meta_operation_create_snapshot_flags[] = {
         &hf_svhdx_tunnel_create_snapshot_flag_enable_change_tracking,
         NULL
     };
 
-    guint32 operation_type = 0;
-    guint32 length = 0;
+    uint32_t operation_type = 0;
+    uint32_t length = 0;
     proto_tree *gfi_sub_tree;
     proto_item *gfi_sub_item;
 
@@ -749,7 +749,7 @@ dissect_RSVD2_META_OPERATION_START(tvbuff_t *tvb, proto_tree *parent_tree, int o
 
 static int
 dissect_RSVD2_META_OPERATION_QUERY_PROGRESS(tvbuff_t *tvb,
-            proto_tree *parent_tree, int offset, gint16 len, gboolean request, guint32 status)
+            proto_tree *parent_tree, int offset, int16_t len, bool request, uint32_t status)
 {
     proto_tree *gfi_sub_tree;
     proto_item *gfi_sub_item;
@@ -783,7 +783,7 @@ static const value_string svhdx_vhdset_information_type_vals[] = {
         { 0, NULL }
 };
 static int
-dissect_RSVD2_VHDSET_QUERY_INFORMATION(tvbuff_t *tvb, proto_tree *parent_tree, int offset, gint16 len, gboolean request)
+dissect_RSVD2_VHDSET_QUERY_INFORMATION(tvbuff_t *tvb, proto_tree *parent_tree, int offset, int16_t len, bool request)
 {
     proto_tree *gfi_sub_tree;
     proto_item *gfi_sub_item;
@@ -800,7 +800,7 @@ dissect_RSVD2_VHDSET_QUERY_INFORMATION(tvbuff_t *tvb, proto_tree *parent_tree, i
         proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_snapshot_id, tvb, offset, 16, ENC_LITTLE_ENDIAN);
         offset += 16;
     } else {
-        guint32 vhdset_info_type = tvb_get_letohl(tvb, offset);
+        uint32_t vhdset_info_type = tvb_get_letohl(tvb, offset);
         switch (vhdset_info_type) {
         case 0x02: /* SvhdxVHDSetInformationTypeSnapshotList */
             gfi_sub_tree = proto_tree_add_subtree(parent_tree, tvb, offset, len, ett_svhdx_tunnel_op_header, &gfi_sub_item, "RSVD_TUNNEL_VHDSET_QUERY_INFORMATION_SNAPSHOT_LIST_RESPONSE");
@@ -843,7 +843,7 @@ dissect_RSVD2_VHDSET_QUERY_INFORMATION(tvbuff_t *tvb, proto_tree *parent_tree, i
 }
 
 static int
-dissect_RSVD2_DELETE_SNAPSHOT(tvbuff_t *tvb, proto_tree *parent_tree, int offset, gint16 len, gboolean request)
+dissect_RSVD2_DELETE_SNAPSHOT(tvbuff_t *tvb, proto_tree *parent_tree, int offset, int16_t len, bool request)
 {
     proto_tree *gfi_sub_tree;
     proto_item *gfi_sub_item;
@@ -864,7 +864,7 @@ dissect_RSVD2_DELETE_SNAPSHOT(tvbuff_t *tvb, proto_tree *parent_tree, int offset
 }
 
 static int
-dissect_RSVD2_QUERY_SAFE_SIZE(tvbuff_t *tvb, proto_tree *parent_tree, int offset, gint16 len, gboolean request)
+dissect_RSVD2_QUERY_SAFE_SIZE(tvbuff_t *tvb, proto_tree *parent_tree, int offset, int16_t len, bool request)
 {
     proto_tree *gfi_sub_tree;
     proto_item *gfi_sub_item;
@@ -881,19 +881,19 @@ dissect_RSVD2_QUERY_SAFE_SIZE(tvbuff_t *tvb, proto_tree *parent_tree, int offset
 static int
 dissect_rsvd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data)
 {
-    guint32 header_bytes = 0;
-    guint proto_id = 0;
-    guint proto_version = 0;
-    guint32 operation_code = 0;
-    guint32 status;
+    uint32_t header_bytes = 0;
+    unsigned proto_id = 0;
+    unsigned proto_version = 0;
+    uint32_t operation_code = 0;
+    uint32_t status;
     proto_item *ti;
     proto_tree *rsvd_tree;
     proto_item *sub_item;
     proto_tree *sub_tree;
-    guint       offset = 0;
-    guint16 len;
-    guint64 request_id = 0;
-    gboolean request = *(gboolean *)data;
+    unsigned    offset = 0;
+    uint16_t len;
+    uint64_t request_id = 0;
+    bool request = *(bool *)data;
 
     top_tree = parent_tree;
 
@@ -1318,7 +1318,7 @@ proto_register_rsvd(void)
                     NULL, 0, NULL, HFILL }}
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_rsvd,
         &ett_svhdx_tunnel_op_header,
         &ett_svhdx_tunnel_scsi_request,

@@ -21,8 +21,8 @@
 #ifndef __PACKET_RPCRDMA_H_
 #define __PACKET_RPCRDMA_H_
 
-extern gboolean rpcrdma_is_reduced(void);
-extern void rpcrdma_insert_offset(gint offset);
+extern bool rpcrdma_is_reduced(void);
+extern void rpcrdma_insert_offset(int offset);
 
 #endif
 

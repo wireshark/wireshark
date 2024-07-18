@@ -20,7 +20,7 @@ void proto_reg_handoff_redback(void);
 
 static dissector_handle_t redback_handle;
 
-static gint ett_redback;
+static int ett_redback;
 
 static dissector_table_t osinl_incl_subdissector_table;
 static dissector_table_t osinl_excl_subdissector_table;
@@ -50,7 +50,7 @@ static expert_field ei_redback_protocol;
 static int
 dissect_redback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	guint16		l3off, dataoff, proto;
+	uint16_t		l3off, dataoff, proto;
 	proto_item	*ti, *protocol_item;
 	proto_tree	*rbtree = NULL;
 	tvbuff_t	*next_tvb;
@@ -104,7 +104,7 @@ dissect_redback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 			if (l3off > dataoff) {
 				call_dissector(ethnofcs_handle, next_tvb, pinfo, tree);
 			} else {
-				guint8 nlpid = tvb_get_guint8(tvb, dataoff);
+				uint8_t nlpid = tvb_get_uint8(tvb, dataoff);
 				if(dissector_try_uint(osinl_incl_subdissector_table, nlpid, next_tvb, pinfo, tree))
 					break;
 				next_tvb = tvb_new_subset_remaining(tvb, dataoff+1);
@@ -119,7 +119,7 @@ dissect_redback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 			 * PPP Messages e.g. LCP, IPCP etc - possibly on ethernet in case of PPPoE.
 			 * PPPoE messages are Protocol 8 ...
 			 */
-			guint32		flags;
+			uint32_t		flags;
 			flags = tvb_get_ntohl(tvb, 4);
 
 			if (flags & 0x04000000) {
@@ -208,7 +208,7 @@ proto_register_redback(void)
 		},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_redback
 	};
 

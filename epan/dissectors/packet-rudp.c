@@ -55,8 +55,8 @@ static int hf_rudp_seq;
 static int hf_rudp_ack;
 static int hf_rudp_cksum;
 
-static gint ett_rudp;
-static gint ett_rudp_flags;
+static int ett_rudp;
+static int ett_rudp_flags;
 
 static dissector_handle_t sm_handle;
 
@@ -66,7 +66,7 @@ dissect_rudp(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree, void* dat
 	tvbuff_t * next_tvb;
 	proto_tree *rudp_tree;
 	proto_item *ti;
-	guint8 hlen;
+	uint8_t hlen;
 	static int * const flags[] = {
 		&hf_rudp_flags_syn,
 		&hf_rudp_flags_ack,
@@ -79,7 +79,7 @@ dissect_rudp(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree, void* dat
 		NULL
 	};
 
-	hlen = tvb_get_guint8(tvb, 1);
+	hlen = tvb_get_uint8(tvb, 1);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RUDP");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -186,7 +186,7 @@ proto_register_rudp(void)
 
 
 /* Setup protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_rudp,
 		&ett_rudp_flags,
 	};

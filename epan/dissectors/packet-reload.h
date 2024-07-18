@@ -13,6 +13,6 @@
 #ifndef __PACKET_RELOAD_H__
 #define __PACKET_RELOAD_H__
 
-extern gint dissect_reload_messagecontents(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 offset, guint16 length);
+extern int dissect_reload_messagecontents(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16_t offset, uint16_t length);
 
 #endif

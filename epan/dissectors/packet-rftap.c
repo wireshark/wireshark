@@ -80,9 +80,9 @@ static int hf_rftap_altitude;
 static int hf_rftap_subdissector_name;
 
 /* subtree pointers */
-static gint ett_rftap;
-static gint ett_rftap_fixed_header;
-static gint ett_rftap_flags;
+static int ett_rftap;
+static int ett_rftap_fixed_header;
+static int ett_rftap_flags;
 
 static dissector_handle_t pcap_pktdata_handle;
 
@@ -122,19 +122,19 @@ struct rftap_hdr {
  * returns Data Link Type (dlt) and subdissector name
  */
 static void
-dissect_rftap_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 *dlt, const guint8 **subdissector_name)
+dissect_rftap_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t *dlt, const uint8_t **subdissector_name)
 {
     proto_item *ti_header;
     proto_tree *header_tree;
-    gint32  offset;
-    gint32  len;
-    guint64 flags;
-    guint32 flag_bit;
-    guint32 tag_id;
-    gint32  tag_len;
-    guint32 tag_flags;
-    gdouble double_val;
-    gfloat  float_val;
+    int32_t offset;
+    int32_t len;
+    uint64_t flags;
+    uint32_t flag_bit;
+    uint32_t tag_id;
+    int32_t tag_len;
+    uint32_t tag_flags;
+    double double_val;
+    float   float_val;
     char    *power_units;
 
     static int * const flag_fields[] = {
@@ -166,7 +166,7 @@ dissect_rftap_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
     header_tree = proto_item_add_subtree(ti_header, ett_rftap_fixed_header);
 
     proto_tree_add_item(header_tree, hf_rftap_magic, tvb, 0, 4, ENC_LITTLE_ENDIAN);
-    len = 4 * (gint32) tvb_get_letohs(tvb, 4);  /* convert to length in bytes */
+    len = 4 * (int32_t) tvb_get_letohs(tvb, 4);  /* convert to length in bytes */
     proto_tree_add_uint(header_tree, hf_rftap_len, tvb, 4, 2, len);  /* show length in bytes */
     proto_tree_add_bitmask_ret_uint64(header_tree, tvb, 6, hf_rftap_flags,
         ett_rftap_flags, flag_fields, ENC_LITTLE_ENDIAN, &flags);
@@ -255,8 +255,8 @@ dissect_rftap_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
     /* rftap tagged parameter fields */
 
     tag_id = tvb_get_letohs(tvb, offset);
-    tag_len = tvb_get_guint8(tvb, offset+2);
-    tag_flags = tvb_get_guint8(tvb, offset+3);
+    tag_len = tvb_get_uint8(tvb, offset+2);
+    tag_flags = tvb_get_uint8(tvb, offset+3);
 
     if ((tag_id != RFTAP_TAG_DISSECTOR_NAME) || (tag_len == 0) || (tag_len == 255) || (tag_flags != 255))
         return;  /* we've hit a tagged parameter we can't decode, abort */
@@ -281,10 +281,10 @@ dissect_rftap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     tvbuff_t   *rftap_tvb;  /* the first part of the packet */
     tvbuff_t   *subdissector_tvb;  /* the second part of the packet */
 
-    gint32      rftap_len;  /* length in bytes */
+    int32_t     rftap_len;  /* length in bytes */
     dissector_handle_t subdissector_handle;
-    guint32     subdissector_dlt;
-    const guint8 *subdissector_name;
+    uint32_t    subdissector_dlt;
+    const uint8_t *subdissector_name;
 
     /* heuristics */
 
@@ -303,7 +303,7 @@ dissect_rftap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* dissect part 1: rftap header */
 
-    rftap_len = 4 * (gint32) tvb_get_letohs(tvb, 4);
+    rftap_len = 4 * (int32_t) tvb_get_letohs(tvb, 4);
     rftap_tvb = tvb_new_subset_length_caplen(tvb, 0, rftap_len, rftap_len);
 
     ti = proto_tree_add_protocol_format(tree, proto_rftap, rftap_tvb, 0, -1,
@@ -347,7 +347,7 @@ void
 proto_register_rftap(void)
 {
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_rftap,
         &ett_rftap_fixed_header,
         &ett_rftap_flags

@@ -750,7 +750,7 @@ fmtp_free(void *key, void *value, void *user_data)
     wmem_free(scope, key);
     wmem_free(scope, value);
 
-    return TRUE;
+    return true;
 }
 
 /* the following is the GDestroyNotify function used when the individual rtp_dyn_payload_t
@@ -789,7 +789,7 @@ rtp_dyn_payloads_table_steal_func(void *key _U_, void *value, void *user_data _U
         g_hash_table_destroy(rtp_dyn_payload->table);
     }
 
-    return TRUE;
+    return true;
 }
 
 /* the following is used as the wmem callback to destroy *all* alive rtp_dyn_payload_t's,
@@ -1357,7 +1357,7 @@ dissect_rtp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     }
 
     /* Get the fields in the first octet */
-    octet1 = tvb_get_guint8( tvb, offset );
+    octet1 = tvb_get_uint8( tvb, offset );
     version = RTP_VERSION( octet1 );
 
     /* XXX: Why are we calling these dissectors from the *heuristic*
@@ -1406,7 +1406,7 @@ dissect_rtp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         return false;
     }
 
-    octet2 = tvb_get_guint8( tvb, offset + 1 );
+    octet2 = tvb_get_uint8( tvb, offset + 1 );
     payload_type = RTP_PAYLOAD_TYPE( octet2 );
 
     if (payload_type >= 72 && payload_type <= 76) {
@@ -1428,7 +1428,7 @@ dissect_rtp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         if (tvb_captured_length_remaining(tvb, offset) < 4) {
             return false;
         }
-        offset += 4 + 4*tvb_get_guint16(tvb, offset+2, ENC_BIG_ENDIAN);
+        offset += 4 + 4*tvb_get_uint16(tvb, offset+2, ENC_BIG_ENDIAN);
     }
     if (tvb_reported_length(tvb) < offset) {
         return false;
@@ -1436,7 +1436,7 @@ dissect_rtp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     if (RTP_PADDING( octet1 )) {
         if (tvb_captured_length(tvb) == tvb_reported_length(tvb)) {
             /* We can test the padding if the last octet is present. */
-            padding_count = tvb_get_guint8(tvb, tvb_reported_length(tvb) - 1);
+            padding_count = tvb_get_uint8(tvb, tvb_reported_length(tvb) - 1);
             if (tvb_reported_length_remaining(tvb, offset) < padding_count ||
                     padding_count == 0) {
                 return false;
@@ -1841,7 +1841,7 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         /* Allocate and fill in header */
         hdr_new = wmem_new0(pinfo->pool, rfc2198_hdr);
         hdr_new->next = NULL;
-        octet1 = tvb_get_guint8(tvb, offset);
+        octet1 = tvb_get_uint8(tvb, offset);
         hdr_new->pt = RTP_PAYLOAD_TYPE(octet1);
         hdr_follow = (octet1 & 0x80);
 
@@ -2016,7 +2016,7 @@ dissect_rtp_hext_rfc5285_onebyte( tvbuff_t *tvb, packet_info *pinfo,
 
         /* Skip bytes with the value 0, they are padding */
         start_ext_offset = ext_offset;
-        while (tvb_get_guint8 (tvb, ext_offset) == 0) {
+        while (tvb_get_uint8 (tvb, ext_offset) == 0) {
             ext_offset ++;
             if (ext_offset >= tvb_captured_length (tvb))
                 return;
@@ -2026,7 +2026,7 @@ dissect_rtp_hext_rfc5285_onebyte( tvbuff_t *tvb, packet_info *pinfo,
         if (ext_offset > start_ext_offset)
             proto_tree_add_item(rtp_hext_tree, hf_rtp_padding_data, tvb, start_ext_offset, ext_offset-start_ext_offset, ENC_NA );
 
-        ext_hdr_hdr = tvb_get_guint8 (tvb, ext_offset);
+        ext_hdr_hdr = tvb_get_uint8 (tvb, ext_offset);
         ext_id = ext_hdr_hdr >> 4;
 
         /* 15 is for future extensibility, ignore length, etc and stop processing packet if it shows up */
@@ -2074,7 +2074,7 @@ dissect_rtp_hext_rfc5285_twobytes(tvbuff_t *parent_tvb, unsigned id_offset,
 
         /* Skip bytes with the value 0, they are padding */
         start_ext_offset = ext_offset;
-        while (tvb_get_guint8 (tvb, ext_offset) == 0) {
+        while (tvb_get_uint8 (tvb, ext_offset) == 0) {
             if (ext_offset + 2 >= tvb_captured_length (tvb))
                 return;
             ext_offset ++;
@@ -2083,8 +2083,8 @@ dissect_rtp_hext_rfc5285_twobytes(tvbuff_t *parent_tvb, unsigned id_offset,
         if (ext_offset > start_ext_offset)
             proto_tree_add_item(rtp_hext_tree, hf_rtp_padding_data, tvb, start_ext_offset, ext_offset-start_ext_offset, ENC_NA );
 
-        ext_id = tvb_get_guint8 (tvb, ext_offset);
-        ext_length = tvb_get_guint8 (tvb, ext_offset + 1);
+        ext_id = tvb_get_uint8 (tvb, ext_offset);
+        ext_length = tvb_get_uint8 (tvb, ext_offset + 1);
 
         if (rtp_hext_tree) {
             rtp_hext_rfc5285_tree = proto_tree_add_subtree(rtp_hext_tree, tvb, ext_offset, ext_length + 2,
@@ -2141,7 +2141,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     };
 
     /* Get the fields in the first octet */
-    octet1 = tvb_get_guint8( tvb, offset );
+    octet1 = tvb_get_uint8( tvb, offset );
     version = RTP_VERSION( octet1 );
 
     /* RFC 7983 gives current best practice in demultiplexing RTP packets:
@@ -2201,7 +2201,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             break;
         case 3:
             if (octet1 == 0xFF) {
-                if (tvb_get_guint8( tvb, offset + 1 ) == 0x10) {
+                if (tvb_get_uint8( tvb, offset + 1 ) == 0x10) {
                     /* Special MS-TURN Multiplexed TURN Channel */
                     call_dissector(stun_handle, tvb, pinfo, tree);
                     return tvb_captured_length(tvb);
@@ -2271,7 +2271,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     csrc_count = RTP_CSRC_COUNT( octet1 );
 
     /* Get the fields in the second octet */
-    octet2 = tvb_get_guint8( tvb, offset + 1 );
+    octet2 = tvb_get_uint8( tvb, offset + 1 );
     marker_set = RTP_MARKER( octet2 );
     payload_type = RTP_PAYLOAD_TYPE( octet2 );
 
@@ -2554,7 +2554,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             return tvb_captured_length(tvb);
         }
 
-        padding_count = tvb_get_guint8( tvb,
+        padding_count = tvb_get_uint8( tvb,
             tvb_reported_length( tvb ) - 1 );
         data_len =
             tvb_reported_length_remaining( tvb, offset ) - padding_count;
@@ -2728,7 +2728,7 @@ dissect_rtp_shim_header(tvbuff_t *tvb, int start, packet_info *pinfo _U_, proto_
     };
 
     /* Get the fields in the first octet */
-    octet1 = tvb_get_guint8( tvb, offset );
+    octet1 = tvb_get_uint8( tvb, offset );
     version = RTP_VERSION( octet1 );
 
     /* fill in the rtp_info structure */
@@ -2752,7 +2752,7 @@ dissect_rtp_shim_header(tvbuff_t *tvb, int start, packet_info *pinfo _U_, proto_
     csrc_count = RTP_CSRC_COUNT( octet1 );
 
     /* Get the fields in the second octet */
-    octet2 = tvb_get_guint8( tvb, offset + 1 );
+    octet2 = tvb_get_uint8( tvb, offset + 1 );
     marker_set = RTP_MARKER( octet2 );
     payload_type = RTP_PAYLOAD_TYPE( octet2 );
 

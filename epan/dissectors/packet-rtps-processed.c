@@ -69,7 +69,7 @@
 
 void proto_reg_handoff_rtps_processed(void);
 void proto_register_rtps_processed(void);
-static gint dissect_rtps_processed(
+static int dissect_rtps_processed(
         tvbuff_t *tvb,
         packet_info *pinfo,
         proto_tree *tree,
@@ -77,14 +77,14 @@ static gint dissect_rtps_processed(
 static void get_new_colinfo_w_submessages(
         wmem_strbuf_t *out,
         wmem_strbuf_t *frame,
-        const gchar *submessages);
+        const char *submessages);
 
 /* Subtree pointers */
-static gint rtpsproc_tree = -1;
-static gint ett_rtpsproc;
-static gint ett_rtpsproc_security;
-static gint ett_rtpsproc_advanced_frame0;
-static gint ett_rtpsproc_advanced_frame1;
+static int rtpsproc_tree = -1;
+static int ett_rtpsproc;
+static int ett_rtpsproc_security;
+static int ett_rtpsproc_advanced_frame0;
+static int ett_rtpsproc_advanced_frame1;
 
 /* Initialize the protocol and registered fields */
 static header_field_info *rtpsproc_hf;
@@ -105,7 +105,7 @@ static dissector_handle_t rtps_handle;
  *   - This way we can skip creating some headings if they are not needed (by
  *     using zeros instead).
  */
-static gint dissect_rtps_processed(
+static int dissect_rtps_processed(
         tvbuff_t *tvb,
         packet_info *pinfo,
         proto_tree *tree,
@@ -114,16 +114,16 @@ static gint dissect_rtps_processed(
     proto_tree *rtpsproc_tree_general = NULL;
     proto_tree *rtpsproc_tree_security = NULL;
     proto_item *rtpsproc_ti = NULL;
-    guint16 param_id;
-    guint16 param_length;
-    gint offset = 0;
-    gint offset_version = 4; /* 'R', 'T', 'P', 'S' */
+    uint16_t param_id;
+    uint16_t param_length;
+    int offset = 0;
+    int offset_version = 4; /* 'R', 'T', 'P', 'S' */
     tvbuff_t *rtps_payload = NULL;
     tvbuff_t *message_payload = NULL;
     struct rtpsvt_data *transport_data = (struct rtpsvt_data *) data;
-    const gchar *title_security;
-    guint16 rtps_version = 0x0203;
-    guint16 rtps_vendor_id = 0x0101;
+    const char *title_security;
+    uint16_t rtps_version = 0x0203;
+    uint16_t rtps_vendor_id = 0x0101;
     endpoint_guid guid;
 
     if (transport_data == NULL) {
@@ -140,11 +140,11 @@ static gint dissect_rtps_processed(
      * The contents passed to the rtpsproc dissector must start with the RTPS
      * frame.
      */
-    rtps_version = tvb_get_guint16(
+    rtps_version = tvb_get_uint16(
             tvb,
             offset + offset_version,
             ENC_BIG_ENDIAN);
-    rtps_vendor_id = tvb_get_guint16(
+    rtps_vendor_id = tvb_get_uint16(
             tvb,
             offset + offset_version + 2,
             ENC_BIG_ENDIAN);
@@ -169,10 +169,10 @@ static gint dissect_rtps_processed(
     rtpsproc_tree_general = proto_item_add_subtree(rtpsproc_ti, ett_rtpsproc);
 
     /* ***************************  ADVANCED 0  *******************************/
-    param_id = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+    param_id = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
     if (param_id == PARAM_ID_ADVANCED_FRAME0) {
         proto_tree *rtpsproc_tree_frame0  = NULL;
-        param_length = tvb_get_guint16(tvb, offset + 2, ENC_BIG_ENDIAN);
+        param_length = tvb_get_uint16(tvb, offset + 2, ENC_BIG_ENDIAN);
 
         rtpsproc_tree_security = proto_tree_add_subtree_format(
                 rtpsproc_tree_general,
@@ -230,13 +230,13 @@ static gint dissect_rtps_processed(
     }
 
     /* ***************************  ADVANCED 1  *******************************/
-    param_id = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+    param_id = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
     if (param_id == PARAM_ID_ADVANCED_FRAME1) {
         proto_tree *rtpsproc_tree_frame1  = NULL;
-        const gchar *title = transport_data->direction
+        const char *title = transport_data->direction
                 ? "Submessage level"
                 : "RTPS and Submessage level (no protection)";
-        param_length = tvb_get_guint16(tvb, offset + 2, ENC_BIG_ENDIAN);
+        param_length = tvb_get_uint16(tvb, offset + 2, ENC_BIG_ENDIAN);
 
         if (rtpsproc_tree_security == NULL) {
             rtpsproc_tree_security = proto_tree_add_subtree_format(
@@ -296,7 +296,7 @@ static gint dissect_rtps_processed(
              * user.
              */
             if (pinfo->cinfo) {
-                const gchar *colinfo = col_get_text(pinfo->cinfo, COL_INFO);
+                const char *colinfo = col_get_text(pinfo->cinfo, COL_INFO);
                 if (colinfo) {
                     info_w_encrypted = wmem_strbuf_new(
                             pinfo->pool,
@@ -320,7 +320,7 @@ static gint dissect_rtps_processed(
              * Get the decrypted submessages and update the column information.
              */
             if (pinfo->cinfo) {
-                const gchar *colinfo = col_get_text(pinfo->cinfo, COL_INFO);
+                const char *colinfo = col_get_text(pinfo->cinfo, COL_INFO);
                 info_w_decrypted = wmem_strbuf_new(pinfo->pool, "");
                 if (colinfo) {
                     get_new_colinfo_w_submessages(
@@ -364,20 +364,20 @@ void proto_reg_handoff_rtps_processed(void)
 static void get_new_colinfo_w_submessages(
         wmem_strbuf_t *out,
         wmem_strbuf_t *frame,
-        const gchar *submessages)
+        const char *submessages)
 {
-    const gchar *pattern = "SEC_PREFIX, SEC_BODY, SEC_POSTFIX";
-    const gchar *frame_str = wmem_strbuf_get_str(frame);
-    gsize idx = 0; /* index for iterating frame_str */
-    gchar *submessages_dup = g_strdup(submessages);
+    const char *pattern = "SEC_PREFIX, SEC_BODY, SEC_POSTFIX";
+    const char *frame_str = wmem_strbuf_get_str(frame);
+    size_t idx = 0; /* index for iterating frame_str */
+    char *submessages_dup = g_strdup(submessages);
     /* First decrypted submessage in submessages list */
-    gchar *submessage_current = strtok(submessages_dup, ", ");
+    char *submessage_current = strtok(submessages_dup, ", ");
     /* First encrypted submessage. Found by searching the RTPS colinfo */
-    gchar *encrypted_current = strstr(&frame_str[idx], pattern);
+    char *encrypted_current = strstr(&frame_str[idx], pattern);
 
     while (encrypted_current != NULL) {
         /* Copy the RTPS frame up to the newly found encrypted submessage */
-        gsize length_to_copy = encrypted_current - &frame_str[idx];
+        size_t length_to_copy = encrypted_current - &frame_str[idx];
         wmem_strbuf_append_len(out, &frame_str[idx], length_to_copy);
 
         /* Copy the decrypted contents that replace the encrypted submessage */
@@ -413,7 +413,7 @@ proto_register_rtps_processed(void)
             }
         },
     };
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_rtpsproc,
         &ett_rtpsproc_security,
         &ett_rtpsproc_advanced_frame0,

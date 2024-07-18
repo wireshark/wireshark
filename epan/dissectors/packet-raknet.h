@@ -28,14 +28,14 @@
  */
 WS_DLL_PUBLIC
 void
-raknet_add_udp_dissector(guint32 port, const dissector_handle_t handle);
+raknet_add_udp_dissector(uint32_t port, const dissector_handle_t handle);
 
 /*
  * Opposite of "raknet_add_udp_dissector()".
  */
 WS_DLL_PUBLIC
 void
-raknet_delete_udp_dissector(guint32 port, const dissector_handle_t handle);
+raknet_delete_udp_dissector(uint32_t port, const dissector_handle_t handle);
 
 /*
  * You can also register a heuristic dissector for your protocol with

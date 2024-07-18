@@ -76,14 +76,14 @@ static int hf_rpcordma_vers_high;
 static int hf_rpcordma_vers_low;
 
 /* Initialize the subtree pointers */
-static gint ett_rpcordma;
-static gint ett_rpcordma_chunk;
-static gint ett_rpcordma_read_list;
-static gint ett_rpcordma_read_chunk;
-static gint ett_rpcordma_write_list;
-static gint ett_rpcordma_write_chunk;
-static gint ett_rpcordma_reply_chunk;
-static gint ett_rpcordma_segment;
+static int ett_rpcordma;
+static int ett_rpcordma_chunk;
+static int ett_rpcordma_read_list;
+static int ett_rpcordma_read_chunk;
+static int ett_rpcordma_write_list;
+static int ett_rpcordma_write_chunk;
+static int ett_rpcordma_reply_chunk;
+static int ett_rpcordma_segment;
 
 /* Fragmentation */
 static int hf_rpcordma_fragments;
@@ -98,8 +98,8 @@ static int hf_rpcordma_reassembled_in;
 static int hf_rpcordma_reassembled_length;
 static int hf_rpcordma_reassembled_data;
 
-static gint ett_rpcordma_fragment;
-static gint ett_rpcordma_fragments;
+static int ett_rpcordma_fragment;
+static int ett_rpcordma_fragments;
 
 static const fragment_items rpcordma_frag_items = {
     /* Fragment subtrees */
@@ -162,16 +162,16 @@ typedef enum {
 
 /* RDMA segment */
 typedef struct {
-    guint32 xdrpos;  /* Position in XDR stream -- RDMA read only */
-    guint32 handle;  /* Registered memory handle */
-    guint32 length;  /* Length of segment in bytes */
-    guint64 offset;  /* Segment virtual address or offset */
+    uint32_t xdrpos;  /* Position in XDR stream -- RDMA read only */
+    uint32_t handle;  /* Registered memory handle */
+    uint32_t length;  /* Length of segment in bytes */
+    uint64_t offset;  /* Segment virtual address or offset */
 } rdma_segment_t;
 
 /* RDMA chunk */
 typedef struct {
     chunk_type_t  type;      /* Chunk type */
-    guint32       length;    /* Length of chunk in bytes */
+    uint32_t      length;    /* Length of chunk in bytes */
     wmem_array_t *segments;  /* List of segments for chunk */
 } rdma_chunk_t;
 
@@ -188,29 +188,29 @@ typedef struct {
  * A segment could have multiple I/O requests
  */
 typedef struct {
-    guint32       handle;   /* Handle or remote key of segment */
-    guint64       offset;   /* Segment virtual address or offset */
-    guint32       msgid;    /* ID for fragments belonging together */
-    guint32       msgno;    /* Message number base so fragments are
+    uint32_t      handle;   /* Handle or remote key of segment */
+    uint64_t      offset;   /* Segment virtual address or offset */
+    uint32_t      msgid;    /* ID for fragments belonging together */
+    uint32_t      msgno;    /* Message number base so fragments are
                                consecutive within segment requests */
     chunk_type_t  type;     /* Chunk type for segment */
-    guint32       xdrpos;   /* Position in XDR stream -- RDMA read only */
-    guint32       length;   /* Length of segment in bytes */
-    guint32       rbytes;   /* Number of bytes added to reassembly table */
+    uint32_t      xdrpos;   /* Position in XDR stream -- RDMA read only */
+    uint32_t      length;   /* Length of segment in bytes */
+    uint32_t      rbytes;   /* Number of bytes added to reassembly table */
 } segment_info_t;
 
 typedef struct {
-    guint32         psn;     /* First PSN for request */
-    guint32         length;  /* Request length */
-    guint64         offset;  /* Request offset */
+    uint32_t        psn;     /* First PSN for request */
+    uint32_t        length;  /* Request length */
+    uint64_t        offset;  /* Request offset */
     segment_info_t *segment; /* Segment info for RDMA I/O */
 } ib_request_t;
 
 /* Send reassembly info structure */
 typedef struct {
-    guint32  msgid;  /* ID for fragments belonging together */
-    guint32  msgno;  /* Message number base */
-    guint32  rsize;  /* Number of bytes added to reassembly table */
+    uint32_t msgid;  /* ID for fragments belonging together */
+    uint32_t msgno;  /* Message number base */
+    uint32_t rsize;  /* Number of bytes added to reassembly table */
 } send_info_t;
 
 /* State structure per conversation */
@@ -222,7 +222,7 @@ typedef struct {
     wmem_tree_t    *send_list;    /* Binary tree for mapping PSN -> msgid (IB) */
     wmem_tree_t    *msn_list;     /* Binary tree for mapping MSN -> msgid (iWarp) */
     segment_info_t *segment_info; /* Current READ/WRITE/REPLY segment info */
-    guint32         iosize;       /* Maximum size of data transferred in a
+    uint32_t        iosize;       /* Maximum size of data transferred in a
                                      single packet */
 } rdma_conv_info_t;
 
@@ -248,13 +248,13 @@ static struct infinibandinfo *gp_infiniband_info;
 static rdmap_info_t *gp_rdmap_info;
 
 /* Call process_reassembled_data just once per frame */
-static gboolean g_needs_reassembly;
+static bool g_needs_reassembly;
 
 /* Array of offsets for reduced data in write chunks */
 static wmem_array_t *gp_rdma_write_offsets;
 
 /* Signal upper layer(s) the current frame's data has been reduced by DDP */
-static gboolean g_rpcrdma_reduced;
+static bool g_rpcrdma_reduced;
 
 /*
  * Signal upper layer(s) the current frame's data has been reduced by DDP
@@ -269,7 +269,7 @@ static gboolean g_rpcrdma_reduced;
  * but this virtual address is internal to the client -- there is no way to
  * map the virtual address to an offset within the XDR data.
  */
-gboolean rpcrdma_is_reduced(void)
+bool rpcrdma_is_reduced(void)
 {
     return g_rpcrdma_reduced;
 }
@@ -281,7 +281,7 @@ gboolean rpcrdma_is_reduced(void)
  * so it is easier to report this offset back and calculate the correct XDR
  * position in this layer before reassembly starts for a reduced message
  */
-void rpcrdma_insert_offset(gint offset)
+void rpcrdma_insert_offset(int offset)
 {
     wmem_array_append_one(gp_rdma_write_offsets, offset);
 }
@@ -326,15 +326,15 @@ static rdma_conv_info_t *get_rdma_conv_info(packet_info *pinfo)
 }
 
 /* Set RDMA maximum I/O size for conversation */
-static void set_max_iosize(rdma_conv_info_t *p_rdma_conv_info, guint size)
+static void set_max_iosize(rdma_conv_info_t *p_rdma_conv_info, unsigned size)
 {
     p_rdma_conv_info->iosize = MAX(p_rdma_conv_info->iosize, size);
 }
 
 /* Return a unique non-zero message ID */
-static guint32 get_msg_id(void)
+static uint32_t get_msg_id(void)
 {
-    static guint32 msg_id = 0;
+    static uint32_t msg_id = 0;
     if (++msg_id == 0) {
         /* Message ID has wrapped around so increment again */
         ++msg_id;
@@ -343,7 +343,7 @@ static guint32 get_msg_id(void)
 }
 
 /* Find segment info for the given handle and offset */
-static segment_info_t *find_segment_info(rdma_conv_info_t *p_rdma_conv_info, guint32 handle, guint64 offset)
+static segment_info_t *find_segment_info(rdma_conv_info_t *p_rdma_conv_info, uint32_t handle, uint64_t offset)
 {
     segment_info_t *p_segment_info;
 
@@ -379,14 +379,14 @@ static void add_request_info(rdma_conv_info_t *p_rdma_conv_info, packet_info *pi
  * been added to the reassembly table. It could be more than requested
  * because of padding bytes.
  */
-static gboolean is_reassembly_done(rdma_conv_info_t *p_rdma_conv_info, guint32 msgid)
+static bool is_reassembly_done(rdma_conv_info_t *p_rdma_conv_info, uint32_t msgid)
 {
-    guint32 message_size = 0;
-    guint32 reassembled_size = 0;
+    uint32_t message_size = 0;
+    uint32_t reassembled_size = 0;
     wmem_list_frame_t *item;
     wmem_list_t    *msgid_segments;
     segment_info_t *p_segment_info;
-    gboolean ret = FALSE; /* Make sure there is at least one segment */
+    bool ret = false; /* Make sure there is at least one segment */
     int segment_type = -1;
 
     /* Get all segments for the given msgid */
@@ -397,10 +397,10 @@ static gboolean is_reassembly_done(rdma_conv_info_t *p_rdma_conv_info, guint32 m
             segment_type = p_segment_info->type;
             if (p_segment_info->rbytes < p_segment_info->length) {
                 /* Not all bytes have been received for this request */
-                return FALSE;
+                return false;
             }
             /* At least one segment is done, check the rest */
-            ret = TRUE;
+            ret = true;
             message_size     += p_segment_info->length;
             reassembled_size += p_segment_info->rbytes;
         }
@@ -442,8 +442,8 @@ static void set_fragment_head(fragment_head *fd_head, packet_info *pinfo)
  */
 static fragment_head *get_reassembled_id(packet_info *pinfo)
 {
-    guint32 *p_msgid;
-    p_msgid = (guint32 *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rpcordma, RPCRDMA_MSG_ID);
+    uint32_t *p_msgid;
+    p_msgid = (uint32_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rpcordma, RPCRDMA_MSG_ID);
     if (p_msgid) {
         return fragment_get_reassembled_id(&rpcordma_reassembly_table, pinfo, *p_msgid);
     }
@@ -451,7 +451,7 @@ static fragment_head *get_reassembled_id(packet_info *pinfo)
 }
 
 /* Get the reassembled data, returns NULL if still missing fragments */
-static tvbuff_t *get_reassembled_data(tvbuff_t *tvb, guint offset,
+static tvbuff_t *get_reassembled_data(tvbuff_t *tvb, unsigned offset,
         packet_info *pinfo, proto_tree *tree)
 {
     tvbuff_t *new_tvb = NULL;
@@ -469,7 +469,7 @@ static tvbuff_t *get_reassembled_data(tvbuff_t *tvb, guint offset,
                 "Reassembled RPCoRDMA Message", fd_head, &rpcordma_frag_items,
                 NULL, tree);
             /* Call process_reassembled_data just once per frame */
-            g_needs_reassembly = FALSE;
+            g_needs_reassembly = false;
         }
     }
     return new_tvb;
@@ -481,7 +481,7 @@ static tvbuff_t *get_reassembled_data(tvbuff_t *tvb, guint offset,
  * 2. If p_rdma_conv_info is non-NULL then complete reassembly only if
  *    reassembly is really done by making sure all data has been received.
  */
-static fragment_head *end_reassembly(guint32 msgid,
+static fragment_head *end_reassembly(uint32_t msgid,
         rdma_conv_info_t *p_rdma_conv_info, packet_info *pinfo)
 {
     fragment_head *fd_head = NULL;
@@ -499,15 +499,15 @@ static fragment_head *end_reassembly(guint32 msgid,
  * Add a fragment to the reassembly table and return the reassembled data
  * if all fragments have been added
  */
-static tvbuff_t *add_fragment(tvbuff_t *tvb, gint offset, guint32 msgid,
-        gint32 msg_num, gboolean more_frags, rdma_conv_info_t *p_rdma_conv_info,
+static tvbuff_t *add_fragment(tvbuff_t *tvb, int offset, uint32_t msgid,
+        int32_t msg_num, bool more_frags, rdma_conv_info_t *p_rdma_conv_info,
         packet_info *pinfo, proto_tree *tree)
 {
-    guint8 pad_count = 0;
-    guint32 nbytes, frag_size;
+    uint8_t pad_count = 0;
+    uint32_t nbytes, frag_size;
     tvbuff_t *new_tvb = NULL;
     fragment_head *fd_head = NULL;
-    guint32 *p_msgid;
+    uint32_t *p_msgid;
 
     if (gp_infiniband_info) {
         pad_count = gp_infiniband_info->pad_count;
@@ -535,10 +535,10 @@ static tvbuff_t *add_fragment(tvbuff_t *tvb, gint offset, guint32 msgid,
                 }
                 fd_head = fragment_add_seq_check(&rpcordma_reassembly_table,
                                                  tvb, offset, pinfo,
-                                                 msgid, NULL, (guint32)msg_num,
+                                                 msgid, NULL, (uint32_t)msg_num,
                                                  nbytes, more_frags);
                 /* Save the msgid in the proto data cache */
-                p_msgid = wmem_new(wmem_file_scope(), guint32);
+                p_msgid = wmem_new(wmem_file_scope(), uint32_t);
                 *p_msgid = msgid;
                 p_add_proto_data(wmem_file_scope(), pinfo, proto_rpcordma, RPCRDMA_MSG_ID, p_msgid);
             } else if (p_rdma_conv_info) {
@@ -562,16 +562,16 @@ static tvbuff_t *add_fragment(tvbuff_t *tvb, gint offset, guint32 msgid,
  * reassembled data if all fragments have been added
  */
 static tvbuff_t *add_ib_fragment(tvbuff_t *tvb,
-        rdma_conv_info_t *p_rdma_conv_info, gboolean only_frag,
+        rdma_conv_info_t *p_rdma_conv_info, bool only_frag,
         packet_info *pinfo, proto_tree *tree)
 {
-    guint32 msgid, msg_num, msg_off;
-    guint32 nfrags, psndelta = 0;
+    uint32_t msgid, msg_num, msg_off;
+    uint32_t nfrags, psndelta = 0;
     tvbuff_t *new_tvb = NULL;
     ib_request_t   *p_ib_request;
     segment_info_t *p_segment_info = NULL;
-    guint32 iosize = p_rdma_conv_info->iosize;
-    guint64 va_offset;
+    uint32_t iosize = p_rdma_conv_info->iosize;
+    uint64_t va_offset;
 
     if (pinfo->fd->visited) {
         return get_reassembled_data(tvb, 0, pinfo, tree);
@@ -598,10 +598,10 @@ static tvbuff_t *add_ib_fragment(tvbuff_t *tvb,
         p_rdma_conv_info->segment_info = p_segment_info;
         p_segment_info->rbytes += tvb_reported_length(tvb);
         /* Make message number relative to request or segment(write only) */
-        msg_off = (guint32)NFRAGS((va_offset - p_segment_info->offset), iosize) + psndelta;
+        msg_off = (uint32_t)NFRAGS((va_offset - p_segment_info->offset), iosize) + psndelta;
         msgid   = p_segment_info->msgid;
         msg_num = p_segment_info->msgno + 1 + msg_off;
-        new_tvb = add_fragment(tvb, 0, msgid, msg_num, TRUE, p_rdma_conv_info, pinfo, tree);
+        new_tvb = add_fragment(tvb, 0, msgid, msg_num, true, p_rdma_conv_info, pinfo, tree);
     }
     return new_tvb;
 }
@@ -611,25 +611,25 @@ static tvbuff_t *add_ib_fragment(tvbuff_t *tvb,
  * on a four-byte boundary. The MPA layer removes the padding bytes from all
  * iWarp Reads/Writes. The iWarp Send messages are padded correctly.
  */
-static void add_iwarp_padding(tvbuff_t *tvb, gint offset,
-        guint32 msgid, guint32 msgno, packet_info *pinfo)
+static void add_iwarp_padding(tvbuff_t *tvb, int offset,
+        uint32_t msgid, uint32_t msgno, packet_info *pinfo)
 {
-    gchar *pbuf;
+    char *pbuf;
     tvbuff_t *pad_tvb;
     /* Size of payload data for current iWarp Read/Write */
-    guint32 bsize = tvb_reported_length_remaining(tvb, offset);
+    uint32_t bsize = tvb_reported_length_remaining(tvb, offset);
     /* Number of padding bytes needed */
-    guint32 padding = (4 - (bsize%4)) % 4;
+    uint32_t padding = (4 - (bsize%4)) % 4;
 
     if (padding > 0) {
         /* Allocate buffer for the number of padding bytes that will be added */
-        pbuf = (gchar *)wmem_alloc(pinfo->pool, padding);
+        pbuf = (char *)wmem_alloc(pinfo->pool, padding);
         memset(pbuf, 0, padding);
         /* Create tvb buffer */
         pad_tvb = tvb_new_real_data(pbuf, padding, padding);
         /* Add padding fragment to the reassembly table */
         fragment_add_seq_check(&rpcordma_reassembly_table, pad_tvb, 0,
-                pinfo, msgid, NULL, msgno, padding, TRUE);
+                pinfo, msgid, NULL, msgno, padding, true);
     }
 }
 
@@ -641,12 +641,12 @@ static tvbuff_t *add_iwarp_fragment(tvbuff_t *tvb,
         rdma_conv_info_t *p_rdma_conv_info, packet_info *pinfo,
         proto_tree *tree)
 {
-    guint32 sbytes = 0; /* Total bytes for all segments in current reassembly */
-    guint32 rbytes = 0; /* Total bytes received so far */
-    guint32 msgno;      /* Message number for this fragment */
-    guint32 steering_tag;
-    guint64 tagged_offset;
-    gboolean more_frags = TRUE;
+    uint32_t sbytes = 0; /* Total bytes for all segments in current reassembly */
+    uint32_t rbytes = 0; /* Total bytes received so far */
+    uint32_t msgno;      /* Message number for this fragment */
+    uint32_t steering_tag;
+    uint64_t tagged_offset;
+    bool more_frags = true;
     wmem_list_t *msgid_segments;
     wmem_list_frame_t *item;
     segment_info_t *p_seginfo;
@@ -678,7 +678,7 @@ static tvbuff_t *add_iwarp_fragment(tvbuff_t *tvb,
     if (p_segment_info) {
         /* Message number is relative with respect to chunk, adding
          * one since msgno = 0 is reserved for the reduced message */
-        msgno = (guint32)(tagged_offset - p_segment_info->offset) + p_segment_info->msgno + 1;
+        msgno = (uint32_t)(tagged_offset - p_segment_info->offset) + p_segment_info->msgno + 1;
         p_rdma_conv_info->segment_info = p_segment_info;
 
         /* Include this fragment's data */
@@ -698,10 +698,10 @@ static tvbuff_t *add_iwarp_fragment(tvbuff_t *tvb,
             if (p_read_request && rbytes == sbytes) {
                 /* Complete read chunk reassembly since all fragments
                  * have been received */
-                more_frags = FALSE;
+                more_frags = false;
             }
         }
-        new_tvb = add_fragment(tvb, 0, p_segment_info->msgid, msgno, TRUE, p_rdma_conv_info, pinfo, tree);
+        new_tvb = add_fragment(tvb, 0, p_segment_info->msgid, msgno, true, p_rdma_conv_info, pinfo, tree);
         if ((!new_tvb && !more_frags) || (gp_rdmap_info->last_flag && !p_read_request && rbytes == sbytes)) {
             /* This is the very last fragment, include any padding if needed */
             add_iwarp_padding(tvb, 0, p_segment_info->msgid, msgno+1, pinfo);
@@ -715,10 +715,10 @@ static tvbuff_t *add_iwarp_fragment(tvbuff_t *tvb,
     return new_tvb;
 }
 
-static guint get_read_list_size(tvbuff_t *tvb, guint max_offset, guint offset)
+static unsigned get_read_list_size(tvbuff_t *tvb, unsigned max_offset, unsigned offset)
 {
-    guint32 value_follows;
-    guint start = offset;
+    uint32_t value_follows;
+    unsigned start = offset;
 
     while (1) {
         value_follows = tvb_get_ntohl(tvb, offset);
@@ -736,10 +736,10 @@ static guint get_read_list_size(tvbuff_t *tvb, guint max_offset, guint offset)
     return offset - start;
 }
 
-static guint get_read_list_chunk_count(tvbuff_t *tvb, guint offset)
+static unsigned get_read_list_chunk_count(tvbuff_t *tvb, unsigned offset)
 {
-    guint32 value_follows;
-    guint num_chunks;
+    uint32_t value_follows;
+    unsigned num_chunks;
 
     num_chunks = 0;
     while (1) {
@@ -754,10 +754,10 @@ static guint get_read_list_chunk_count(tvbuff_t *tvb, guint offset)
     return num_chunks;
 }
 
-static guint get_write_chunk_size(tvbuff_t *tvb, guint offset)
+static unsigned get_write_chunk_size(tvbuff_t *tvb, unsigned offset)
 {
-    guint segment_count;
-    guint max_count = (guint)tvb_reported_length_remaining(tvb, offset + 4) / 16;
+    unsigned segment_count;
+    unsigned max_count = (unsigned)tvb_reported_length_remaining(tvb, offset + 4) / 16;
 
     segment_count = tvb_get_ntohl(tvb, offset);
     if (segment_count > max_count) {
@@ -767,10 +767,10 @@ static guint get_write_chunk_size(tvbuff_t *tvb, guint offset)
     return 4 + (segment_count * 16);
 }
 
-static guint get_write_list_size(tvbuff_t *tvb, guint max_offset, guint offset)
+static unsigned get_write_list_size(tvbuff_t *tvb, unsigned max_offset, unsigned offset)
 {
-    guint32 value_follows;
-    guint chunk_size, start = offset;
+    uint32_t value_follows;
+    unsigned chunk_size, start = offset;
 
     while (1) {
         value_follows = tvb_get_ntohl(tvb, offset);
@@ -789,10 +789,10 @@ static guint get_write_list_size(tvbuff_t *tvb, guint max_offset, guint offset)
     return offset - start;
 }
 
-static guint get_write_list_chunk_count(tvbuff_t *tvb, guint offset)
+static unsigned get_write_list_chunk_count(tvbuff_t *tvb, unsigned offset)
 {
-    guint32 value_follows;
-    guint num_chunks, chunk_size;
+    uint32_t value_follows;
+    unsigned num_chunks, chunk_size;
 
     num_chunks = 0;
     while (1) {
@@ -811,10 +811,10 @@ static guint get_write_list_chunk_count(tvbuff_t *tvb, guint offset)
    return num_chunks;
 }
 
-static guint get_reply_chunk_size(tvbuff_t *tvb, guint max_offset, guint offset)
+static unsigned get_reply_chunk_size(tvbuff_t *tvb, unsigned max_offset, unsigned offset)
 {
-    guint32 value_follows;
-    guint start = offset;
+    uint32_t value_follows;
+    unsigned start = offset;
 
     value_follows = tvb_get_ntohl(tvb, offset);
     offset += 4;
@@ -830,9 +830,9 @@ static guint get_reply_chunk_size(tvbuff_t *tvb, guint max_offset, guint offset)
     return offset - start;
 }
 
-static guint get_reply_chunk_count(tvbuff_t *tvb, guint offset)
+static unsigned get_reply_chunk_count(tvbuff_t *tvb, unsigned offset)
 {
-    guint32 value_follows;
+    uint32_t value_follows;
 
     value_follows = tvb_get_ntohl(tvb, offset);
     return value_follows ? 1 : 0;
@@ -846,7 +846,7 @@ static guint get_reply_chunk_count(tvbuff_t *tvb, guint offset)
 static void add_rdma_read_segment(wmem_array_t *p_read_list,
         rdma_segment_t *p_rdma_segment)
 {
-    guint i;
+    unsigned i;
     rdma_segment_t *p_segment;
     rdma_chunk_t *p_rdma_chunk = NULL;
 
@@ -875,11 +875,11 @@ static void add_rdma_read_segment(wmem_array_t *p_read_list,
     wmem_array_append(p_rdma_chunk->segments, p_rdma_segment, 1);
 }
 
-static guint dissect_rpcrdma_read_chunk(proto_tree *read_list,
-        tvbuff_t *tvb, guint offset, wmem_array_t *p_read_list)
+static unsigned dissect_rpcrdma_read_chunk(proto_tree *read_list,
+        tvbuff_t *tvb, unsigned offset, wmem_array_t *p_read_list)
 {
     proto_tree *read_chunk;
-    guint32 position;
+    uint32_t position;
     rdma_segment_t *p_rdma_segment;
 
     /* Initialize read segment */
@@ -907,12 +907,12 @@ static guint dissect_rpcrdma_read_chunk(proto_tree *read_list,
     return offset + 8;
 }
 
-static guint dissect_rpcrdma_read_list(tvbuff_t *tvb, guint offset,
+static unsigned dissect_rpcrdma_read_list(tvbuff_t *tvb, unsigned offset,
         proto_tree *tree, rdma_lists_t *rdma_lists)
 {
-    guint chunk_count, start = offset;
+    unsigned chunk_count, start = offset;
     proto_tree *read_list;
-    guint32 value_follows;
+    uint32_t value_follows;
     proto_item *item;
 
     chunk_count = get_read_list_chunk_count(tvb, offset);
@@ -939,8 +939,8 @@ static guint dissect_rpcrdma_read_list(tvbuff_t *tvb, guint offset,
     return offset;
 }
 
-static guint dissect_rpcrdma_segment(proto_tree *write_chunk, tvbuff_t *tvb,
-        guint offset, guint32 i, wmem_array_t *p_segments)
+static unsigned dissect_rpcrdma_segment(proto_tree *write_chunk, tvbuff_t *tvb,
+        unsigned offset, uint32_t i, wmem_array_t *p_segments)
 {
     proto_tree *segment;
     rdma_segment_t *p_rdma_segment;
@@ -967,12 +967,12 @@ static guint dissect_rpcrdma_segment(proto_tree *write_chunk, tvbuff_t *tvb,
     return offset + 8;
 }
 
-static guint dissect_rpcrdma_write_chunk(proto_tree *write_list, tvbuff_t *tvb,
-        guint offset, chunk_type_t chunk_type, wmem_array_t *p_rdma_list)
+static unsigned dissect_rpcrdma_write_chunk(proto_tree *write_list, tvbuff_t *tvb,
+        unsigned offset, chunk_type_t chunk_type, wmem_array_t *p_rdma_list)
 {
-    guint32 i, segment_count;
+    uint32_t i, segment_count;
     proto_tree *write_chunk;
-    guint selection_size;
+    unsigned selection_size;
     rdma_chunk_t *p_rdma_chunk;
 
     selection_size = get_write_chunk_size(tvb, offset);
@@ -1000,12 +1000,12 @@ static guint dissect_rpcrdma_write_chunk(proto_tree *write_list, tvbuff_t *tvb,
     return offset;
 }
 
-static guint dissect_rpcrdma_write_list(tvbuff_t *tvb, guint offset,
+static unsigned dissect_rpcrdma_write_list(tvbuff_t *tvb, unsigned offset,
         proto_tree *tree, rdma_lists_t *rdma_lists)
 {
-    guint chunk_count, start = offset;
+    unsigned chunk_count, start = offset;
     proto_tree *write_list;
-    guint32 value_follows;
+    uint32_t value_follows;
     proto_item *item;
 
     chunk_count = get_write_list_chunk_count(tvb, offset);
@@ -1032,12 +1032,12 @@ static guint dissect_rpcrdma_write_list(tvbuff_t *tvb, guint offset,
     return offset;
 }
 
-static guint dissect_rpcrdma_reply_chunk(tvbuff_t *tvb, guint offset,
+static unsigned dissect_rpcrdma_reply_chunk(tvbuff_t *tvb, unsigned offset,
         proto_tree *tree, rdma_lists_t *rdma_lists)
 {
-    guint32 chunk_count, start = offset;
+    uint32_t chunk_count, start = offset;
     proto_tree *reply_chunk;
-    guint32 value_follows;
+    uint32_t value_follows;
     proto_item *item;
 
     chunk_count = get_reply_chunk_count(tvb, offset);
@@ -1060,7 +1060,7 @@ static guint dissect_rpcrdma_reply_chunk(tvbuff_t *tvb, guint offset,
     return offset;
 }
 
-static guint parse_rdma_header(tvbuff_t *tvb, guint offset, proto_tree *tree,
+static unsigned parse_rdma_header(tvbuff_t *tvb, unsigned offset, proto_tree *tree,
         rdma_lists_t *rdma_lists)
 {
     offset = dissect_rpcrdma_read_list(tvb, offset, tree, rdma_lists);
@@ -1068,9 +1068,9 @@ static guint parse_rdma_header(tvbuff_t *tvb, guint offset, proto_tree *tree,
     return dissect_rpcrdma_reply_chunk(tvb, offset, tree, rdma_lists);
 }
 
-static guint get_chunk_lists_size(tvbuff_t *tvb, guint max_offset, guint offset)
+static unsigned get_chunk_lists_size(tvbuff_t *tvb, unsigned max_offset, unsigned offset)
 {
-    guint size, start = offset;
+    unsigned size, start = offset;
 
     size = get_read_list_size(tvb, max_offset, offset);
     if (!size)
@@ -1097,11 +1097,11 @@ static guint get_chunk_lists_size(tvbuff_t *tvb, guint max_offset, guint offset)
  * added to the reassembly table is returned. This is only valid for RDMA
  * writes since there is no RPC-over-RDMA layer for RDMA reads on an RPC reply.
  */
-static guint
+static unsigned
 get_rdma_list_size(wmem_array_t *p_list, packet_info *pinfo)
 {
-    guint i, j, size = 0;
-    guint32 *p_size;
+    unsigned i, j, size = 0;
+    uint32_t *p_size;
     rdma_chunk_t *p_rdma_chunk;
     rdma_segment_t *p_rdma_segment;
     segment_info_t *p_segment_info;
@@ -1109,7 +1109,7 @@ get_rdma_list_size(wmem_array_t *p_list, packet_info *pinfo)
 
     if (p_list) {
         /* Get size from cache */
-        p_size = (guint32 *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rpcordma, RPCRDMA_WRITE_SIZE);
+        p_size = (uint32_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rpcordma, RPCRDMA_WRITE_SIZE);
         if (p_size) {
             return *p_size;
         }
@@ -1128,7 +1128,7 @@ get_rdma_list_size(wmem_array_t *p_list, packet_info *pinfo)
     }
     if (size > 0) {
         /* Save size on the proto data cache */
-        p_size = wmem_new(wmem_file_scope(), guint32);
+        p_size = wmem_new(wmem_file_scope(), uint32_t);
         *p_size = size;
         p_add_proto_data(wmem_file_scope(), pinfo, proto_rpcordma, RPCRDMA_WRITE_SIZE, p_size);
     }
@@ -1137,24 +1137,24 @@ get_rdma_list_size(wmem_array_t *p_list, packet_info *pinfo)
 
 /* Process an RDMA chunk list (read, write or reply) */
 static tvbuff_t *
-process_rdma_list(tvbuff_t *tvb, guint offset, wmem_array_t *p_list,
+process_rdma_list(tvbuff_t *tvb, unsigned offset, wmem_array_t *p_list,
         packet_info *pinfo, proto_tree *tree)
 {
-    guint i, j, size;
-    guint32 msgid   = 0;
-    guint32 xdrpos  = 0;
-    guint32 xdrprev = 0;
-    guint32 lenprev = 0;
-    guint32 msg_num = 0;
-    guint32 msg_off = 0;
-    guint *p_offset = NULL;
+    unsigned i, j, size;
+    uint32_t msgid   = 0;
+    uint32_t xdrpos  = 0;
+    uint32_t xdrprev = 0;
+    uint32_t lenprev = 0;
+    uint32_t msg_num = 0;
+    uint32_t msg_off = 0;
+    unsigned *p_offset = NULL;
     tvbuff_t *tmp_tvb;
     tvbuff_t *new_tvb = NULL;
     fragment_head *fd_head;
     rdma_segment_t *p_rdma_segment;
     rdma_chunk_t *p_rdma_chunk = NULL;
     segment_info_t *p_segment_info = NULL;
-    gboolean setup = FALSE;
+    bool setup = false;
     wmem_list_t *msgid_segments = NULL;
     rdma_conv_info_t *p_rdma_conv_info;
 
@@ -1170,7 +1170,7 @@ process_rdma_list(tvbuff_t *tvb, guint offset, wmem_array_t *p_list,
             if (p_rdma_chunk->type == RDMA_WRITE_CHUNK) {
                 /* Process any write chunk offsets from reduced message */
                 if (gp_rdma_write_offsets && wmem_array_get_count(gp_rdma_write_offsets) == wmem_array_get_count(p_list)) {
-                    p_offset = (guint *)wmem_array_index(gp_rdma_write_offsets, i);
+                    p_offset = (unsigned *)wmem_array_index(gp_rdma_write_offsets, i);
                     /* Convert reduced offset to xdr position */
                     xdrpos = tvb_reported_length_remaining(tvb, offset) - *p_offset + msg_off;
                 }
@@ -1205,7 +1205,7 @@ process_rdma_list(tvbuff_t *tvb, guint offset, wmem_array_t *p_list,
                     /* Add segment to the list of segments */
                     wmem_tree_insert32(p_rdma_conv_info->segment_list, p_rdma_segment->handle, p_segment_info);
                     wmem_list_append(msgid_segments, p_segment_info);
-                    setup = TRUE;
+                    setup = true;
                 }
                 /* Calculate the number of bytes for the whole chunk */
                 p_rdma_chunk->length += p_rdma_segment->length;
@@ -1241,7 +1241,7 @@ process_rdma_list(tvbuff_t *tvb, guint offset, wmem_array_t *p_list,
                 size = xdrpos - xdrprev - lenprev;
                 if (size > 0 && tvb_captured_length_remaining(tvb, offset) > 0 && p_segment_info) {
                     tmp_tvb = tvb_new_subset_length(tvb, offset, size);
-                    add_fragment(tmp_tvb, 0, p_segment_info->msgid, msg_num, TRUE, p_rdma_conv_info, pinfo, tree);
+                    add_fragment(tmp_tvb, 0, p_segment_info->msgid, msg_num, true, p_rdma_conv_info, pinfo, tree);
                     /* Message number for fragment after read/write chunk */
                     msg_num += p_rdma_chunk->length;
                     /* Save rest of data for next fragment */
@@ -1263,17 +1263,17 @@ process_rdma_list(tvbuff_t *tvb, guint offset, wmem_array_t *p_list,
                 /* Only reassemble if reply chunk size is non-zero to avoid
                  * reassembly of a single fragment. The RPC-over-RDMA reply
                  * has no data when the reply chunk size is non-zero but it
-                 * needs to reassemble all fragments (more_frags = FALSE)
+                 * needs to reassemble all fragments (more_frags = false)
                  * in this frame. On the other hand when the reply chunk
                  * size is zero, the whole message is given in this frame
                  * therefore there is no need to reassemble. */
-                new_tvb = add_fragment(tvb, offset, p_segment_info->msgid, 0, FALSE, p_rdma_conv_info, pinfo, tree);
+                new_tvb = add_fragment(tvb, offset, p_segment_info->msgid, 0, false, p_rdma_conv_info, pinfo, tree);
             } else if (p_rdma_chunk->type == RDMA_READ_CHUNK && tvb_captured_length_remaining(tvb, offset) > 0) {
                 /* Add data after the last read chunk */
-                add_fragment(tvb, offset, p_segment_info->msgid, msg_num, TRUE, p_rdma_conv_info, pinfo, tree);
+                add_fragment(tvb, offset, p_segment_info->msgid, msg_num, true, p_rdma_conv_info, pinfo, tree);
             } else if (p_offset && tvb_reported_length_remaining(tvb, offset) > 0) {
                 /* Add data after the last write chunk */
-                new_tvb = add_fragment(tvb, offset, p_segment_info->msgid, msg_num, TRUE, p_rdma_conv_info, pinfo, tree);
+                new_tvb = add_fragment(tvb, offset, p_segment_info->msgid, msg_num, true, p_rdma_conv_info, pinfo, tree);
             }
         }
     }
@@ -1283,7 +1283,7 @@ process_rdma_list(tvbuff_t *tvb, guint offset, wmem_array_t *p_list,
 
 /* Process all RDMA chunk lists (read, write and reply) */
 static tvbuff_t *
-process_rdma_lists(tvbuff_t *tvb, guint offset, rdma_lists_t *rdma_lists,
+process_rdma_lists(tvbuff_t *tvb, unsigned offset, rdma_lists_t *rdma_lists,
         packet_info *pinfo, proto_tree *tree)
 {
     tvbuff_t *new_tvb;
@@ -1396,12 +1396,12 @@ process_rdma_lists(tvbuff_t *tvb, guint offset, rdma_lists_t *rdma_lists,
 static tvbuff_t *add_send_fragment(rdma_conv_info_t *p_rdma_conv_info,
         tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint32 msgid = 0;
-    gint32 msgno = -1;
+    uint32_t msgid = 0;
+    int32_t msgno = -1;
     tvbuff_t *new_tvb = NULL;
-    gboolean first_frag  = FALSE;
-    gboolean middle_frag = FALSE;
-    gboolean last_frag   = FALSE;
+    bool first_frag  = false;
+    bool middle_frag = false;
+    bool last_frag   = false;
     send_info_t *p_send_info = NULL;
 
     if (gp_infiniband_info) {
@@ -1479,14 +1479,14 @@ static tvbuff_t *add_send_fragment(rdma_conv_info_t *p_rdma_conv_info,
  * and RDMA_MSGP types, RPC call or RPC reply header follows. We can do this by comparing
  * XID in RPC and RPCoRDMA headers.
  */
-static gboolean
+static bool
 packet_is_rpcordma(tvbuff_t *tvb)
 {
-    guint size, len = tvb_reported_length(tvb);
-    guint32 xid_rpc;
-    guint32 xid = tvb_get_ntohl(tvb, 0);
-    guint32 msg_type = tvb_get_ntohl(tvb, 12);
-    guint offset;
+    unsigned size, len = tvb_reported_length(tvb);
+    uint32_t xid_rpc;
+    uint32_t xid = tvb_get_ntohl(tvb, 0);
+    uint32_t msg_type = tvb_get_ntohl(tvb, 12);
+    unsigned offset;
 
     if (len < MIN_RPCRDMA_HDR_SZ)
         return 0;
@@ -1494,34 +1494,34 @@ packet_is_rpcordma(tvbuff_t *tvb)
     switch (msg_type) {
     case RDMA_MSG:
         if (len < MIN_RPCRDMA_MSG_SZ)
-            return FALSE;
+            return false;
         offset = MIN_RPCRDMA_HDR_SZ;
         size = get_chunk_lists_size(tvb, len, offset);
         if (!size)
-            return FALSE;
+            return false;
         offset += size;
 
         if (offset + 4 > len)
-            return FALSE;
+            return false;
         xid_rpc = tvb_get_ntohl(tvb, offset);
         if (xid != xid_rpc)
-            return FALSE;
+            return false;
         break;
 
     case RDMA_MSGP:
         if (len < MIN_RPCRDMA_MSGP_SZ)
-            return FALSE;
+            return false;
         offset = MIN_RPCRDMA_HDR_SZ + 8;
         size = get_chunk_lists_size(tvb, len, offset);
         if (!size)
-            return FALSE;
+            return false;
         offset += size;
 
         if (offset + 4 > len)
-            return FALSE;
+            return false;
         xid_rpc = tvb_get_ntohl(tvb, offset);
         if (xid != xid_rpc)
-            return FALSE;
+            return false;
         break;
 
     case RDMA_NOMSG:
@@ -1530,10 +1530,10 @@ packet_is_rpcordma(tvbuff_t *tvb)
         break;
 
     default:
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 static int
@@ -1543,12 +1543,12 @@ dissect_rpcrdma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     tvbuff_t *frag_tvb;
     proto_item *ti;
     proto_tree *rpcordma_tree;
-    guint offset;
-    guint32 msg_type;
-    guint32 xid;
-    guint32 val;
-    guint32 *p_msgid;
-    guint write_size;
+    unsigned offset;
+    uint32_t msg_type;
+    uint32_t xid;
+    uint32_t val;
+    uint32_t *p_msgid;
+    unsigned write_size;
     int save_visited;
     rdma_lists_t rdma_lists = { NULL, NULL, NULL };
 
@@ -1612,7 +1612,7 @@ dissect_rpcrdma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
             if (write_size > 0 && !pinfo->fd->visited) {
                 /* Initialize array of write chunk offsets */
-                gp_rdma_write_offsets = wmem_array_new(wmem_packet_scope(), sizeof(gint));
+                gp_rdma_write_offsets = wmem_array_new(wmem_packet_scope(), sizeof(int));
                 register_frame_end_routine(pinfo, reset_write_offsets);
                 TRY {
                     /*
@@ -1620,12 +1620,12 @@ dissect_rpcrdma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
                      * where message has been reduced.
                      * This is done on the first pass (visited = 0)
                      */
-                    g_rpcrdma_reduced = TRUE;
+                    g_rpcrdma_reduced = true;
                     call_dissector(rpc_handler, next_tvb, pinfo, tree);
                 }
                 FINALLY {
                     /* Make sure to disable reduced data processing */
-                    g_rpcrdma_reduced = FALSE;
+                    g_rpcrdma_reduced = false;
                 }
                 ENDTRY;
             } else if (write_size > 0 && pinfo->fd->visited) {
@@ -1635,7 +1635,7 @@ dissect_rpcrdma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
                  * causes the upper layer(s) to be displayed twice if it is
                  * done on the same pass.
                  */
-                p_msgid = (guint32 *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rpcordma, RPCRDMA_MSG_ID);
+                p_msgid = (uint32_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rpcordma, RPCRDMA_MSG_ID);
                 if (p_msgid) {
                     /*
                      * All fragments were added during the first pass,
@@ -1749,12 +1749,12 @@ dissect_rpcrdma_ib_heur(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, void *data)
 {
     tvbuff_t *new_tvb = NULL;
-    gboolean more_frags = FALSE;
+    bool more_frags = false;
     rdma_conv_info_t *p_rdma_conv_info;
 
     /* Initialize global variables for InfiniBand reassembly */
-    g_rpcrdma_reduced  = FALSE;
-    g_needs_reassembly = TRUE;
+    g_rpcrdma_reduced  = false;
+    g_needs_reassembly = true;
     gp_rdmap_info      = NULL;
     gp_infiniband_info = (struct infinibandinfo *)data;
 
@@ -1779,7 +1779,7 @@ dissect_rpcrdma_ib_heur(tvbuff_t *tvb, packet_info *pinfo,
     case RC_RDMA_WRITE_ONLY:
     case RC_RDMA_WRITE_ONLY_IMM:
         set_max_iosize(p_rdma_conv_info, tvb_reported_length(tvb));
-        add_ib_fragment(tvb, p_rdma_conv_info, TRUE, pinfo, tree);
+        add_ib_fragment(tvb, p_rdma_conv_info, true, pinfo, tree);
         return false;
     case RC_RDMA_WRITE_FIRST:
         set_max_iosize(p_rdma_conv_info, tvb_reported_length(tvb));
@@ -1789,7 +1789,7 @@ dissect_rpcrdma_ib_heur(tvbuff_t *tvb, packet_info *pinfo,
     case RC_RDMA_WRITE_LAST:
     case RC_RDMA_WRITE_LAST_IMM:
         /* Add fragment to the reassembly table */
-        add_ib_fragment(tvb, p_rdma_conv_info, FALSE, pinfo, tree);
+        add_ib_fragment(tvb, p_rdma_conv_info, false, pinfo, tree);
         /* Do not dissect here, dissection is done on RDMA_MSG or RDMA_NOMSG */
         return false;
     case RC_RDMA_READ_REQUEST:
@@ -1799,16 +1799,16 @@ dissect_rpcrdma_ib_heur(tvbuff_t *tvb, packet_info *pinfo,
         set_max_iosize(p_rdma_conv_info, tvb_reported_length(tvb));
         /* fall through */
     case RC_RDMA_READ_RESPONSE_MIDDLE:
-        more_frags = TRUE;
+        more_frags = true;
         /* fall through */
     case RC_RDMA_READ_RESPONSE_LAST:
     case RC_RDMA_READ_RESPONSE_ONLY:
         /* Add fragment to the reassembly table */
-        new_tvb = add_ib_fragment(tvb, p_rdma_conv_info, FALSE, pinfo, tree);
+        new_tvb = add_ib_fragment(tvb, p_rdma_conv_info, false, pinfo, tree);
         if (!new_tvb && !more_frags && p_rdma_conv_info->segment_info) {
             /*
              * Reassembled data has not been cached (new_tvb==NULL) yet,
-             * so make sure reassembly is really done if more_frags==FALSE,
+             * so make sure reassembly is really done if more_frags==false,
              * (for the READ_RESPONSE_LAST or ONLY case).
              * Do not add any more data, just complete the reassembly
              */
@@ -1839,8 +1839,8 @@ dissect_rpcrdma_iwarp_heur(tvbuff_t *tvb, packet_info *pinfo,
     rdmap_request_t  *p_read_request;
 
     /* Initialize global variables for iWarp reassembly */
-    g_rpcrdma_reduced  = FALSE;
-    g_needs_reassembly = TRUE;
+    g_rpcrdma_reduced  = false;
+    g_needs_reassembly = true;
     gp_infiniband_info = NULL;
     gp_rdmap_info = (rdmap_info_t *)data;
 
@@ -2025,7 +2025,7 @@ proto_register_rpcordma(void)
         },
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_rpcordma,
         &ett_rpcordma_chunk,
         &ett_rpcordma_read_list,

@@ -19,16 +19,16 @@
 extern int proto_rdpudp;
 
 typedef struct {
-	guint64 current_base;
-	guint16 last_received;
+	uint64_t current_base;
+	uint16_t last_received;
 } rdpudp_seq_context_t;
 
 typedef struct _rdpudp_conv_info_t {
-	guint32 start_v2_at;
-	gboolean is_lossy;
+	uint32_t start_v2_at;
+	bool is_lossy;
 
 	address server_addr;
-	guint16 server_port;
+	uint16_t server_port;
 	wmem_tree_t* server_chunks;
 	rdpudp_seq_context_t server_data_seq;
 	rdpudp_seq_context_t server_channel_seq;
@@ -37,7 +37,7 @@ typedef struct _rdpudp_conv_info_t {
 	rdpudp_seq_context_t client_channel_seq;
 } rdpudp_conv_info_t;
 
-gboolean rdp_isServerAddressTarget(packet_info *pinfo);
-gboolean rdpudp_is_reliable_transport(packet_info *pinfo);
+bool rdp_isServerAddressTarget(packet_info *pinfo);
+bool rdpudp_is_reliable_transport(packet_info *pinfo);
 
 #endif /* __PACKET_RDPUDP_H_ */

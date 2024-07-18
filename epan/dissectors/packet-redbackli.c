@@ -57,7 +57,7 @@ static const value_string avp_names[] = {
 };
 
 static void
-redbackli_dissect_avp(guint8 avptype, guint8 avplen, tvbuff_t *tvb, gint offset, proto_tree *tree)
+redbackli_dissect_avp(uint8_t avptype, uint8_t avplen, tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	const char	*avpname;
 	proto_tree	*st = NULL;
@@ -119,9 +119,9 @@ redbackli_dissect_avp(guint8 avptype, guint8 avplen, tvbuff_t *tvb, gint offset,
 static int
 redbackli_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	guint8		avptype, avplen;
-	gint		len, offset = 0;
-	gboolean	eoh;
+	uint8_t		avptype, avplen;
+	int		len, offset = 0;
+	bool	eoh;
 	proto_item	*ti;
 	proto_tree	*redbackli_tree = NULL;
 	tvbuff_t	*next_tvb;
@@ -134,10 +134,10 @@ redbackli_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 
 	len = tvb_reported_length(tvb);
 	offset = 0;
-	eoh = FALSE;
+	eoh = false;
 	while (!eoh && (len > 2)) {
-		avptype = tvb_get_guint8(tvb, offset+0);
-		avplen = tvb_get_guint8(tvb, offset+1);
+		avptype = tvb_get_uint8(tvb, offset+0);
+		avplen = tvb_get_uint8(tvb, offset+1);
 
 		if ((len-2) < avplen)		/* AVP Complete ? */
 			break;
@@ -146,7 +146,7 @@ redbackli_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 			redbackli_dissect_avp(avptype, avplen, tvb, offset, redbackli_tree);
 
 		if (avptype == RB_AVP_EOH)
-			eoh = TRUE;
+			eoh = true;
 
 		offset += 2 + avplen;
 		len    -= 2 + avplen;
@@ -166,10 +166,10 @@ redbackli_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 static bool
 redbackli_dissect_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	gint		len, offset = 0;
-	gboolean	eoh = FALSE;
-	guint8		avptype, avplen;
-	guint32		avpfound = 0;
+	int		len, offset = 0;
+	bool	eoh = false;
+	uint8_t		avptype, avplen;
+	uint32_t		avpfound = 0;
 
 	len = tvb_captured_length(tvb);
 	if (len < MIN_REDBACKLI_SIZE)
@@ -182,8 +182,8 @@ redbackli_dissect_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 	 *
 	 */
 	while ((len > 2) && !eoh) {
-		avptype = tvb_get_guint8(tvb, offset+0);
-		avplen = tvb_get_guint8(tvb, offset+1);
+		avptype = tvb_get_uint8(tvb, offset+0);
+		avplen = tvb_get_uint8(tvb, offset+1);
 
 		switch (avptype) {
 			case(RB_AVP_SEQNO):
@@ -196,7 +196,7 @@ redbackli_dissect_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 			case(RB_AVP_EOH):
 				if (avplen > 1 || offset == 0)
 					return false;
-				eoh = TRUE;
+				eoh = true;
 				break;
 			case(RB_AVP_LABEL):
 			case(RB_AVP_DIR):   /* Is this correct? the hf_ originally had FT_UINT8 for DIR */
@@ -258,7 +258,7 @@ void proto_register_redbackli(void) {
 			NULL, HFILL }}
 		};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_redbackli
 	};
 

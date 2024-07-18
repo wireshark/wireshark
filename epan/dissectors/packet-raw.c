@@ -21,7 +21,7 @@ void proto_register_raw(void);
 void proto_reg_handoff_raw(void);
 
 static int proto_raw;
-static gint ett_raw;
+static int ett_raw;
 
 static const unsigned char zeroes[10] = {0,0,0,0,0,0,0,0,0,0};
 
@@ -35,7 +35,7 @@ static capture_dissector_handle_t ipv6_cap_handle;
 static capture_dissector_handle_t ppp_hdlc_cap_handle;
 
 static bool
-capture_raw(const guchar *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
+capture_raw(const unsigned char *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
   /* So far, the only time we get raw connection types are with Linux and
    * Irix PPP connections.  We can't tell what type of data is coming down
@@ -82,7 +82,7 @@ capture_raw(const guchar *pd, int offset _U_, int len, capture_packet_info_t *cp
     }
   }
 
-  return FALSE;
+  return false;
 }
 
 static int
@@ -133,7 +133,7 @@ dissect_raw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     /*
      * OK, is this IPv4 or IPv6?
      */
-    switch (tvb_get_guint8(tvb, 0) & 0xF0) {
+    switch (tvb_get_uint8(tvb, 0) & 0xF0) {
 
     case 0x40:
       /* IPv4 */
@@ -157,7 +157,7 @@ dissect_raw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 void
 proto_register_raw(void)
 {
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_raw,
   };
 

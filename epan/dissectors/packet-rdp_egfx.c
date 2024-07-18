@@ -199,7 +199,7 @@ typedef struct {
 } egfx_frame_t;
 
 static const char *
-find_egfx_version(guint32 v) {
+find_egfx_version(uint32_t v) {
 	const value_string *vs = rdp_egfx_caps_version_vals;
 	for ( ; vs->strptr; vs++)
 		if (vs->value == v)
@@ -241,17 +241,17 @@ dissect_rdp_egfx_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 	proto_item *pi;
 	proto_tree *tree;
 	proto_tree *subtree;
-	gint offset = 0;
-	guint32 cmdId = 0;
-	guint32 pduLength;
-	guint32 i;
+	int offset = 0;
+	uint32_t cmdId = 0;
+	uint32_t pduLength;
+	uint32_t i;
 
 	parent_tree = proto_tree_get_root(parent_tree);
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "EGFX");
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	while (tvb_captured_length_remaining(tvb, offset) > 8) {
-		pduLength = tvb_get_guint32(tvb, offset + 4, ENC_LITTLE_ENDIAN);
+		pduLength = tvb_get_uint32(tvb, offset + 4, ENC_LITTLE_ENDIAN);
 
 		item = proto_tree_add_item(parent_tree, proto_rdp_egfx, tvb, offset, pduLength, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_rdp_egfx);
@@ -270,10 +270,10 @@ dissect_rdp_egfx_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 			return offset;
 		}
 
-		gint nextOffset = offset + (pduLength - 8);
+		int nextOffset = offset + (pduLength - 8);
 		switch (cmdId) {
 		case RDPGFX_CMDID_CAPSADVERTISE: {
-			guint16 capsSetCount = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+			uint16_t capsSetCount = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
 
 			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Caps advertise");
 			proto_tree_add_item(tree, hf_egfx_caps_capsSetCount, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -282,8 +282,8 @@ dissect_rdp_egfx_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 			offset += 2;
 
 			for (i = 0; i < capsSetCount; i++) {
-				guint32 version = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
-				guint32 capsDataLength = tvb_get_guint32(tvb, offset + 4, ENC_LITTLE_ENDIAN);
+				uint32_t version = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
+				uint32_t capsDataLength = tvb_get_uint32(tvb, offset + 4, ENC_LITTLE_ENDIAN);
 				proto_tree* vtree = proto_tree_add_subtree(subtree, tvb, offset, 8 + capsDataLength, ett_egfx_cap_version, NULL, find_egfx_version(version));
 
 				proto_tree_add_item(vtree, hf_egfx_cap_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -298,7 +298,7 @@ dissect_rdp_egfx_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 		}
 
 		case RDPGFX_CMDID_CAPSCONFIRM: {
-			guint32 capsDataLength;
+			uint32_t capsDataLength;
 
 			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Caps confirm");
 
@@ -311,7 +311,7 @@ dissect_rdp_egfx_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 		}
 
 		case RDPGFX_CMDID_RESETGRAPHICS: {
-			guint32 nmonitor;
+			uint32_t nmonitor;
 			proto_tree *monitors_tree;
 			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Reset graphics");
 
@@ -328,11 +328,11 @@ dissect_rdp_egfx_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 			monitors_tree = proto_tree_add_subtree(subtree, tvb, offset, nmonitor * 20, ett_egfx_monitors, NULL, "Monitors");
 			for (i = 0; i < nmonitor; i++) {
 				proto_item *monitor_tree;
-				guint32 left, top, right, bottom;
-				left = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
-				top = tvb_get_guint32(tvb, offset+4, ENC_LITTLE_ENDIAN);
-				right = tvb_get_guint32(tvb, offset+8, ENC_LITTLE_ENDIAN);
-				bottom = tvb_get_guint32(tvb, offset+12, ENC_LITTLE_ENDIAN);
+				uint32_t left, top, right, bottom;
+				left = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
+				top = tvb_get_uint32(tvb, offset+4, ENC_LITTLE_ENDIAN);
+				right = tvb_get_uint32(tvb, offset+8, ENC_LITTLE_ENDIAN);
+				bottom = tvb_get_uint32(tvb, offset+12, ENC_LITTLE_ENDIAN);
 
 				monitor_tree = proto_tree_add_subtree_format(monitors_tree, tvb, offset, 20, ett_egfx_monitordef, NULL,
 						"(%d,%d) - (%d,%d)", left, top, right, bottom);
@@ -356,7 +356,7 @@ dissect_rdp_egfx_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 		}
 
 		case RDPGFX_CMDID_STARTFRAME: {
-			guint32 frameId;
+			uint32_t frameId;
 			egfx_frame_t *frame;
 			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Start frame");
 			proto_tree_add_item(tree, hf_egfx_start_timestamp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -381,7 +381,7 @@ dissect_rdp_egfx_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 		}
 
 		case RDPGFX_CMDID_ENDFRAME: {
-			guint32 frameId;
+			uint32_t frameId;
 			egfx_frame_t *frame;
 
 			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "End frame");
@@ -406,7 +406,7 @@ dissect_rdp_egfx_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 		}
 
 		case RDPGFX_CMDID_FRAMEACKNOWLEDGE: {
-			guint32 frameId;
+			uint32_t frameId;
 			egfx_frame_t *frame;
 
 			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Frame acknowledge");
@@ -443,7 +443,7 @@ dissect_rdp_egfx_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 		}
 
 		case RDPGFX_CMDID_QOEFRAMEACKNOWLEDGE: {
-			guint32 frameId;
+			uint32_t frameId;
 			egfx_frame_t *frame;
 
 			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Frame acknowledge QoE");
@@ -567,7 +567,7 @@ dissect_rdp_egfx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 	parent_tree = proto_tree_get_root(parent_tree);
 
 	if (!rdp_isServerAddressTarget(pinfo)) {
-		guint32 hash = crc32_ccitt_tvb(tvb, tvb_captured_length_remaining(tvb, 0));
+		uint32_t hash = crc32_ccitt_tvb(tvb, tvb_captured_length_remaining(tvb, 0));
 		egfx_pdu_info_t *pdu_infos = p_get_proto_data(wmem_file_scope(), pinfo, proto_rdp_egfx, EGFX_PDU_KEY);
 		if (!pdu_infos) {
 			pdu_infos = wmem_alloc(wmem_file_scope(), sizeof(*pdu_infos));
@@ -756,7 +756,7 @@ void proto_register_rdp_egfx(void) {
 		},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_rdp_egfx,
 		&ett_egfx_caps,
 		&ett_egfx_cap,

@@ -50,8 +50,8 @@ static int hf_new_label;
 static int hf_new_protocol;
 
 /* Initialize the subtree pointers */
-static gint ett_rtcdc;
-static gint ett_flags;
+static int ett_rtcdc;
+static int ett_flags;
 
 static expert_field ei_rtcdc_new_reliability_non_zero;
 static expert_field ei_rtcdc_message_type_unknown;
@@ -173,7 +173,7 @@ static const value_string new_channel_type_values[] = {
 #define NEW_RELIABILITY_LENGTH     4
 #define NEW_LABEL_LENGTH_LENGTH    2
 #define NEW_PROTOCOL_LENGTH_LENGTH 2
-#define NEW_OPEN_REQUEST_HEADER_LENGTH (guint)(NEW_MESSAGE_TYPE_LENGTH + \
+#define NEW_OPEN_REQUEST_HEADER_LENGTH (unsigned)(NEW_MESSAGE_TYPE_LENGTH + \
                                                NEW_CHANNEL_TYPE_LENGTH + \
                                                NEW_PRIORITY_LENGTH +    \
                                                NEW_RELIABILITY_LENGTH + \
@@ -191,12 +191,12 @@ static const value_string new_channel_type_values[] = {
 static void
 dissect_new_open_request_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtcdc_tree, proto_item *rtcdc_item)
 {
-    guint8  channel_type;
-    guint32 reliability;
-    guint16 label_length;
-    guint16 protocol_length;
+    uint8_t channel_type;
+    uint32_t reliability;
+    uint16_t label_length;
+    uint16_t protocol_length;
 
-    channel_type = tvb_get_guint8(tvb, NEW_CHANNEL_TYPE_OFFSET);
+    channel_type = tvb_get_uint8(tvb, NEW_CHANNEL_TYPE_OFFSET);
     if ((channel_type & 0x7f) > 0x02) {
         expert_add_info(pinfo, rtcdc_item, &ei_rtcdc_new_channel_type);
     }
@@ -206,7 +206,7 @@ dissect_new_open_request_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     }
     label_length = tvb_get_ntohs(tvb, NEW_LABEL_LENGTH_OFFSET);
     protocol_length = tvb_get_ntohs(tvb, NEW_PROTOCOL_LENGTH_OFFSET);
-    if (NEW_OPEN_REQUEST_HEADER_LENGTH + (guint)label_length + (guint)protocol_length != tvb_reported_length(tvb)) {
+    if (NEW_OPEN_REQUEST_HEADER_LENGTH + (unsigned)label_length + (unsigned)protocol_length != tvb_reported_length(tvb)) {
         expert_add_info(pinfo, rtcdc_item, &ei_rtcdc_inconsistent_label_and_parameter_length);
     }
     if (rtcdc_tree) {
@@ -226,9 +226,9 @@ dissect_rtcdc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 {
     proto_item *rtcdc_item, *msg_item;
     proto_tree *rtcdc_tree;
-    guint8      message_type;
+    uint8_t     message_type;
 
-    message_type  = tvb_get_guint8(tvb, MESSAGE_TYPE_OFFSET);
+    message_type  = tvb_get_uint8(tvb, MESSAGE_TYPE_OFFSET);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTCDC");
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(message_type, message_type_values, "reserved"));
@@ -348,7 +348,7 @@ proto_register_rtcdc(void)
             NULL, HFILL }
         }
     };
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_rtcdc,
         &ett_flags
     };

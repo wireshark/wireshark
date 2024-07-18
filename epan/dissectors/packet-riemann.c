@@ -102,11 +102,11 @@ static int hf_riemann_state_time;
 static int hf_riemann_state_state;
 static int hf_riemann_state_once;
 
-static gint ett_riemann;
-static gint ett_query;
-static gint ett_event;
-static gint ett_attribute;
-static gint ett_state;
+static int ett_riemann;
+static int ett_query;
+static int ett_event;
+static int ett_attribute;
+static int ett_state;
 
 #define RIEMANN_MIN_LENGTH 16
 #define RIEMANN_MIN_NEEDED_FOR_HEURISTICS 10
@@ -156,7 +156,7 @@ static expert_field ei_error_unknown_field_number;
 static expert_field ei_error_insufficient_data;
 
 static void
-riemann_verify_wire_format(guint64 field_number, const char *field_name, int expected, int actual,
+riemann_verify_wire_format(uint64_t field_number, const char *field_name, int expected, int actual,
                            packet_info *pinfo, proto_item *pi)
 {
     if (expected != actual) {
@@ -200,19 +200,19 @@ riemann_verify_wire_format(guint64 field_number, const char *field_name, int exp
                               (int)size * -1); \
     }
 
-static guint64
-riemann_get_guint64(tvbuff_t *tvb, guint offset, guint *len)
+static uint64_t
+riemann_get_guint64(tvbuff_t *tvb, unsigned offset, unsigned *len)
 {
-    guint64 num   = 0;
-    guint   shift = 0;
+    uint64_t num   = 0;
+    unsigned   shift = 0;
     *len = 0;
     while (1) {
-        guint8 b;
+        uint8_t b;
         if (shift >= 64) {
             return 0;
         }
-        b = tvb_get_guint8(tvb, offset++);
-        num |= ((guint64)(b & 0x7f) << shift);
+        b = tvb_get_uint8(tvb, offset++);
+        num |= ((uint64_t)(b & 0x7f) << shift);
         shift += 7;
         (*len)++;
         if ((b & 0x80) == 0) {
@@ -222,75 +222,75 @@ riemann_get_guint64(tvbuff_t *tvb, guint offset, guint *len)
     return 0;
 }
 
-static guint8 *
-riemann_get_string(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset)
+static uint8_t *
+riemann_get_string(wmem_allocator_t *scope, tvbuff_t *tvb, int offset)
 {
-    guint64 size;
-    guint   len = 0;
+    uint64_t size;
+    unsigned   len = 0;
 
     size = riemann_get_guint64(tvb, offset, &len);
     offset += len;
-    return tvb_get_string_enc(scope, tvb, offset, (gint)size, ENC_ASCII);
+    return tvb_get_string_enc(scope, tvb, offset, (int)size, ENC_ASCII);
 }
 
-static guint
-riemann_dissect_int64(proto_tree *riemann_tree, tvbuff_t *tvb, guint offset, int hf_index)
+static unsigned
+riemann_dissect_int64(proto_tree *riemann_tree, tvbuff_t *tvb, unsigned offset, int hf_index)
 {
-    guint64 num;
-    guint   len = 0;
+    uint64_t num;
+    unsigned   len = 0;
 
     num = riemann_get_guint64(tvb, offset, &len);
     proto_tree_add_int64(riemann_tree, hf_index, tvb, offset, len, num);
     return len;
 }
 
-static guint
-riemann_dissect_sint64(proto_tree *riemann_tree, tvbuff_t *tvb, guint offset, int hf_index)
+static unsigned
+riemann_dissect_sint64(proto_tree *riemann_tree, tvbuff_t *tvb, unsigned offset, int hf_index)
 {
-    guint64 num;
-    gint64 snum;
-    guint len = 0;
+    uint64_t num;
+    int64_t snum;
+    unsigned len = 0;
 
     num = riemann_get_guint64(tvb, offset, &len);
     /* zigzag decoding */
     if (num & 1) {
-        snum = -((gint64)(num >> 1)) - 1;
+        snum = -((int64_t)(num >> 1)) - 1;
     } else {
-        snum = (gint64)(num >> 1);
+        snum = (int64_t)(num >> 1);
     }
 
     proto_tree_add_int64(riemann_tree, hf_index, tvb, offset, len, snum);
     return len;
 }
 
-static guint
-riemann_dissect_string(proto_tree *riemann_tree, tvbuff_t *tvb, guint offset, int hf_index)
+static unsigned
+riemann_dissect_string(proto_tree *riemann_tree, tvbuff_t *tvb, unsigned offset, int hf_index)
 {
-    guint64 size;
-    guint   len = 0, orig_offset = offset;
+    uint64_t size;
+    unsigned   len = 0, orig_offset = offset;
 
     size = riemann_get_guint64(tvb, offset, &len);
     offset += len;
-    proto_tree_add_item(riemann_tree, hf_index, tvb, offset, (gint)size, ENC_ASCII);
-    offset += (gint)size;
+    proto_tree_add_item(riemann_tree, hf_index, tvb, offset, (int)size, ENC_ASCII);
+    offset += (int)size;
 
     return offset - orig_offset;
 }
 
-static guint
+static unsigned
 riemann_dissect_attribute(packet_info *pinfo, proto_tree *riemann_tree,
-                          tvbuff_t *tvb, guint offset)
+                          tvbuff_t *tvb, unsigned offset)
 {
-    guint64     tag, fn;
-    gint64      size;
-    guint8      wire;
-    guint       len         = 0;
-    guint       orig_offset = offset;
+    uint64_t    tag, fn;
+    int64_t     size;
+    uint8_t     wire;
+    unsigned    len         = 0;
+    unsigned    orig_offset = offset;
     proto_item *pi;
     proto_tree *attribute_tree;
 
-    size = (gint64)riemann_get_guint64(tvb, offset, &len);
-    pi = proto_tree_add_item(riemann_tree, hf_riemann_attribute, tvb, (gint)offset, (gint)(size + len), ENC_NA);
+    size = (int64_t)riemann_get_guint64(tvb, offset, &len);
+    pi = proto_tree_add_item(riemann_tree, hf_riemann_attribute, tvb, (int)offset, (int)(size + len), ENC_NA);
     attribute_tree = proto_item_add_subtree(pi, ett_attribute);
     offset += len;
 
@@ -321,19 +321,19 @@ riemann_dissect_attribute(packet_info *pinfo, proto_tree *riemann_tree,
     return offset - orig_offset;
 }
 
-static guint
+static unsigned
 riemann_dissect_query(packet_info *pinfo, proto_tree *riemann_tree,
-                      tvbuff_t *tvb, guint offset)
+                      tvbuff_t *tvb, unsigned offset)
 {
-    guint64     tag, fn;
-    gint64      size;
-    guint8      wire;
-    guint       orig_offset = offset, len = 0;
+    uint64_t    tag, fn;
+    int64_t     size;
+    uint8_t     wire;
+    unsigned    orig_offset = offset, len = 0;
     proto_item *pi;
     proto_tree *query_tree;
 
-    size = (gint64)riemann_get_guint64(tvb, offset, &len);
-    pi = proto_tree_add_item(riemann_tree, hf_riemann_query, tvb, (gint)offset, (gint)(size + len), ENC_NA);
+    size = (int64_t)riemann_get_guint64(tvb, offset, &len);
+    pi = proto_tree_add_item(riemann_tree, hf_riemann_query, tvb, (int)offset, (int)(size + len), ENC_NA);
     query_tree = proto_item_add_subtree(pi, ett_query);
     offset += len;
 
@@ -361,20 +361,20 @@ riemann_dissect_query(packet_info *pinfo, proto_tree *riemann_tree,
     return offset - orig_offset;
 }
 
-static guint
+static unsigned
 riemann_dissect_event(packet_info *pinfo, proto_tree *riemann_tree,
-                      tvbuff_t *tvb, guint offset)
+                      tvbuff_t *tvb, unsigned offset)
 {
-    guint       orig_offset = offset, len = 0;
-    guint64     tag, fn;
-    gint64      size;
-    guint8      wire;
+    unsigned    orig_offset = offset, len = 0;
+    uint64_t    tag, fn;
+    int64_t     size;
+    uint8_t     wire;
     proto_item *pi;
     proto_tree *event_tree;
-    gboolean    need_comma  = FALSE;
+    bool        need_comma  = false;
 
     size = riemann_get_guint64(tvb, offset, &len);
-    pi = proto_tree_add_item(riemann_tree, hf_riemann_event, tvb, (gint)offset, (gint)(size + len), ENC_NA);
+    pi = proto_tree_add_item(riemann_tree, hf_riemann_event, tvb, (int)offset, (int)(size + len), ENC_NA);
     event_tree = proto_item_add_subtree(pi, ett_event);
     offset += len;
 
@@ -398,13 +398,13 @@ riemann_dissect_event(packet_info *pinfo, proto_tree *riemann_tree,
             VERIFY_WIRE_FORMAT("Event.service", RIEMANN_WIRE_BYTES);
             col_append_fstr(pinfo->cinfo, COL_INFO, "%s%s", comma, riemann_get_string(pinfo->pool, tvb, offset));
             len = riemann_dissect_string(event_tree, tvb, offset, hf_riemann_event_service);
-            need_comma = TRUE;
+            need_comma = true;
             break;
         case RIEMANN_FN_EVENT_HOST:
             VERIFY_WIRE_FORMAT("Event.host", RIEMANN_WIRE_BYTES);
             col_append_fstr(pinfo->cinfo, COL_INFO, "%s%s", comma, riemann_get_string(pinfo->pool, tvb, offset));
             len = riemann_dissect_string(event_tree, tvb, offset, hf_riemann_event_host);
-            need_comma = TRUE;
+            need_comma = true;
             break;
         case RIEMANN_FN_EVENT_DESCRIPTION:
             VERIFY_WIRE_FORMAT("Event.description", RIEMANN_WIRE_BYTES);
@@ -454,20 +454,20 @@ riemann_dissect_event(packet_info *pinfo, proto_tree *riemann_tree,
     return offset - orig_offset;
 }
 
-static guint
+static unsigned
 riemann_dissect_state(packet_info *pinfo, proto_tree *riemann_tree,
-                      tvbuff_t *tvb, guint offset)
+                      tvbuff_t *tvb, unsigned offset)
 {
-    guint       orig_offset = offset, len = 0;
-    guint64     tag, fn;
-    gint64      size;
-    guint8      wire;
+    unsigned    orig_offset = offset, len = 0;
+    uint64_t    tag, fn;
+    int64_t     size;
+    uint8_t     wire;
     proto_item *pi;
     proto_tree *state_tree;
-    gboolean    need_comma  = FALSE;
+    bool        need_comma  = false;
 
     size = riemann_get_guint64(tvb, offset, &len);
-    pi   = proto_tree_add_item(riemann_tree, hf_riemann_state, tvb, offset, (gint)(size + len), ENC_NA);
+    pi   = proto_tree_add_item(riemann_tree, hf_riemann_state, tvb, offset, (int)(size + len), ENC_NA);
     state_tree = proto_item_add_subtree(pi, ett_state);
     offset += len;
 
@@ -487,13 +487,13 @@ riemann_dissect_state(packet_info *pinfo, proto_tree *riemann_tree,
             VERIFY_WIRE_FORMAT("State.service", RIEMANN_WIRE_BYTES);
             col_append_fstr(pinfo->cinfo, COL_INFO, "%s%s", comma, riemann_get_string(pinfo->pool, tvb, offset));
             len = riemann_dissect_string(state_tree, tvb, offset, hf_riemann_state_service);
-            need_comma = TRUE;
+            need_comma = true;
             break;
         case RIEMANN_FN_STATE_HOST:
             VERIFY_WIRE_FORMAT("State.host", RIEMANN_WIRE_BYTES);
             col_append_fstr(pinfo->cinfo, COL_INFO, "%s%s", comma, riemann_get_string(pinfo->pool, tvb, offset));
             len = riemann_dissect_string(state_tree, tvb, offset, hf_riemann_state_host);
-            need_comma = TRUE;
+            need_comma = true;
             break;
         case RIEMANN_FN_STATE_DESCRIPTION:
             VERIFY_WIRE_FORMAT("State.description", RIEMANN_WIRE_BYTES);
@@ -530,15 +530,15 @@ riemann_dissect_state(packet_info *pinfo, proto_tree *riemann_tree,
     return offset - orig_offset;
 }
 
-static guint
+static unsigned
 riemann_dissect_msg(packet_info *pinfo, proto_item *pi, proto_tree *riemann_tree,
-                    tvbuff_t *tvb, guint offset)
+                    tvbuff_t *tvb, unsigned offset)
 {
-    guint64  tag, fn;
-    gint64   size = (gint64)tvb_reported_length_remaining(tvb, offset);
-    guint8   wire;
-    guint    len, orig_offset = offset;
-    gboolean cinfo_set = FALSE;
+    uint64_t tag, fn;
+    int64_t  size = (int64_t)tvb_reported_length_remaining(tvb, offset);
+    uint8_t  wire;
+    unsigned len, orig_offset = offset;
+    bool cinfo_set = false;
 
     while (size > 0) {
         tag  = riemann_get_guint64(tvb, offset, &len);
@@ -561,7 +561,7 @@ riemann_dissect_msg(packet_info *pinfo, proto_item *pi, proto_tree *riemann_tree
             VERIFY_WIRE_FORMAT("Msg.query", RIEMANN_WIRE_BYTES);
             if (!cinfo_set) {
                 col_set_str(pinfo->cinfo, COL_INFO, "Query: ");
-                cinfo_set = TRUE;
+                cinfo_set = true;
             }
             len = riemann_dissect_query(pinfo, riemann_tree, tvb, offset);
             break;
@@ -569,7 +569,7 @@ riemann_dissect_msg(packet_info *pinfo, proto_item *pi, proto_tree *riemann_tree
             VERIFY_WIRE_FORMAT("Msg.events", RIEMANN_WIRE_BYTES);
             if (!cinfo_set) {
                 col_set_str(pinfo->cinfo, COL_INFO, "Event: ");
-                cinfo_set = TRUE;
+                cinfo_set = true;
             }
             len = riemann_dissect_event(pinfo, riemann_tree, tvb, offset);
             break;
@@ -577,7 +577,7 @@ riemann_dissect_msg(packet_info *pinfo, proto_item *pi, proto_tree *riemann_tree
             VERIFY_WIRE_FORMAT("Msg.states", RIEMANN_WIRE_BYTES);
             if (!cinfo_set) {
                 col_set_str(pinfo->cinfo, COL_INFO, "State: ");
-                cinfo_set = TRUE;
+                cinfo_set = true;
             }
             len = riemann_dissect_state(pinfo, riemann_tree, tvb, offset);
             break;
@@ -593,17 +593,17 @@ riemann_dissect_msg(packet_info *pinfo, proto_item *pi, proto_tree *riemann_tree
     return offset - orig_offset;
 }
 
-static gboolean
-is_riemann(tvbuff_t *tvb, guint offset)
+static bool
+is_riemann(tvbuff_t *tvb, unsigned offset)
 {
-    guint32 reported_length = tvb_reported_length_remaining(tvb, offset);
-    guint32 captured_length = tvb_captured_length_remaining(tvb, offset);
-    guint64 tag, field_number, wire_format;
-    guint len;
+    uint32_t reported_length = tvb_reported_length_remaining(tvb, offset);
+    uint32_t captured_length = tvb_captured_length_remaining(tvb, offset);
+    uint64_t tag, field_number, wire_format;
+    unsigned len;
 
     if ((reported_length < RIEMANN_MIN_LENGTH) ||
         (captured_length < RIEMANN_MIN_NEEDED_FOR_HEURISTICS)) {
-        return FALSE;
+        return false;
     }
     tag = riemann_get_guint64(tvb, offset, &len);
     field_number = tag >> 3;
@@ -613,13 +613,13 @@ is_riemann(tvbuff_t *tvb, guint offset)
         (field_number == RIEMANN_FN_MSG_QUERY  && wire_format == RIEMANN_WIRE_BYTES)   ||
         (field_number == RIEMANN_FN_MSG_EVENTS && wire_format == RIEMANN_WIRE_BYTES)   ||
         (field_number == RIEMANN_FN_MSG_STATES && wire_format == RIEMANN_WIRE_BYTES)) {
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 static int
-dissect_riemann(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+dissect_riemann(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
 {
     proto_item *pi;
     proto_tree *riemann_tree;
@@ -648,7 +648,7 @@ dissect_riemann_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     return dissect_riemann(tvb, pinfo, tree, 4);
 }
 
-static guint
+static unsigned
 get_riemann_tcp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                         int offset, void *data _U_)
 {
@@ -658,7 +658,7 @@ get_riemann_tcp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
 static int
 dissect_riemann_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 4, get_riemann_tcp_pdu_len, dissect_riemann_tcp_pdu, data);
+    tcp_dissect_pdus(tvb, pinfo, tree, true, 4, get_riemann_tcp_pdu_len, dissect_riemann_tcp_pdu, data);
 
     return tvb_captured_length(tvb);
 }
@@ -795,7 +795,7 @@ proto_register_riemann(void)
             "Insufficient data", EXPFILL }}
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_riemann,
         &ett_query,
         &ett_event,

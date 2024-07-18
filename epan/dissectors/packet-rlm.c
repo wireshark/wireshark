@@ -50,7 +50,7 @@ static int hf_rlm_tid;
 static int hf_rlm_unknown2;
 
 /* Initialize the subtree pointers */
-static gint ett_rlm;
+static int ett_rlm;
 
 
 /* RLM definitions - missing some! */
@@ -69,7 +69,7 @@ dissect_rlm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	proto_item *ti;
 	proto_tree *rlm_tree;
-	guint8 rlm_type, version;
+	uint8_t rlm_type, version;
 	const char *type_str = NULL;
 
 	if (pinfo->srcport < 3000 || pinfo->srcport > 3015
@@ -80,8 +80,8 @@ dissect_rlm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	if (tvb_captured_length(tvb) < 2)
 		return false;
 
-	version  = tvb_get_guint8(tvb, 0);
-	rlm_type = tvb_get_guint8(tvb, 1);
+	version  = tvb_get_uint8(tvb, 0);
+	rlm_type = tvb_get_uint8(tvb, 1);
 
 	/* we only know about version 2, and I've only seen 8 byte packets */
 	if (tvb_captured_length(tvb) != 8 || version != 2) {
@@ -176,7 +176,7 @@ proto_register_rlm(void)
 	};
 
 /* Setup protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_rlm,
 	};
 

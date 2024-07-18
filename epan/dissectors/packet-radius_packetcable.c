@@ -107,10 +107,10 @@ static int hf_packetcable_em_header_time_zone_dst;
 /* This is slightly ugly.  */
 static int hf_packetcable_qos_desc_fields[16];
 
-static gint ett_radius_vendor_packetcable_bcid;
-static gint ett_radius_vendor_packetcable_status;
-static gint ett_radius_vendor_packetcable_qos_status;
-static gint ett_packetcable_term_dsply;
+static int ett_radius_vendor_packetcable_bcid;
+static int ett_radius_vendor_packetcable_status;
+static int ett_radius_vendor_packetcable_qos_status;
+static int ett_packetcable_term_dsply;
 
 
 #define PACKETCABLE_QOS_STATE_INDICATION_MASK 0X0003
@@ -139,7 +139,7 @@ static gint ett_packetcable_term_dsply;
 #define PACKETCABLE_EMHS_RESERVED_MASK 0Xfff0
 
 
-static guint32 packetcable_qos_desc_mask[] =
+static uint32_t packetcable_qos_desc_mask[] =
 {
 	PACKETCABLE_SERVICE_FLOW_SCHEDULING_TYPE_MASK,
 	PACKETCABLE_NOMINAL_GRANT_INTERVAL_MASK,
@@ -262,7 +262,7 @@ static void decode_packetcable_bcid (tvbuff_t *tvb, proto_tree *tree, int offset
 	proto_tree_add_item(tree, hf_packetcable_bcid_event_counter, tvb, offset + 20, 4, ENC_BIG_ENDIAN);
 }
 
-static const gchar* dissect_packetcable_em_hdr(proto_tree* tree, tvbuff_t* tvb, packet_info *pinfo _U_) {
+static const char* dissect_packetcable_em_hdr(proto_tree* tree, tvbuff_t* tvb, packet_info *pinfo _U_) {
 	proto_item *ti;
 	proto_tree *obj_tree;
 
@@ -290,7 +290,7 @@ static const gchar* dissect_packetcable_em_hdr(proto_tree* tree, tvbuff_t* tvb, 
 	return "";
 }
 
-static const gchar* dissect_packetcable_call_term_cause(proto_tree* tree, tvbuff_t* tvb, packet_info *pinfo _U_) {
+static const char* dissect_packetcable_call_term_cause(proto_tree* tree, tvbuff_t* tvb, packet_info *pinfo _U_) {
 	proto_tree_add_item(tree, hf_packetcable_call_termination_cause_source_document,
 						tvb, 0, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_packetcable_call_termination_cause_code,
@@ -299,12 +299,12 @@ static const gchar* dissect_packetcable_call_term_cause(proto_tree* tree, tvbuff
 	return "";
 }
 
-static const gchar* dissect_packetcable_rel_call_billing_correlation(proto_tree* tree, tvbuff_t* tvb, packet_info *pinfo _U_) {
+static const char* dissect_packetcable_rel_call_billing_correlation(proto_tree* tree, tvbuff_t* tvb, packet_info *pinfo _U_) {
 	decode_packetcable_bcid(tvb, tree, 0);
 	return "";
 }
 
-static const gchar* dissect_packetcable_trunk_group_id(proto_tree* tree, tvbuff_t* tvb, packet_info *pinfo _U_) {
+static const char* dissect_packetcable_trunk_group_id(proto_tree* tree, tvbuff_t* tvb, packet_info *pinfo _U_) {
 	proto_tree_add_item(tree, hf_packetcable_trunk_group_id_trunk_type,
 						tvb, 0, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_packetcable_trunk_group_id_trunk_number,
@@ -312,10 +312,10 @@ static const gchar* dissect_packetcable_trunk_group_id(proto_tree* tree, tvbuff_
 	return "";
 }
 
-static const gchar* dissect_packetcable_qos_descriptor(proto_tree* tree, tvbuff_t* tvb, packet_info *pinfo _U_) {
-	guint32 intval;
-	guint32 packetcable_qos_flags = tvb_get_ntohl(tvb, 0);
-	guint packetcable_qos_off = 20;
+static const char* dissect_packetcable_qos_descriptor(proto_tree* tree, tvbuff_t* tvb, packet_info *pinfo _U_) {
+	uint32_t intval;
+	uint32_t packetcable_qos_flags = tvb_get_ntohl(tvb, 0);
+	unsigned packetcable_qos_off = 20;
 	static int * const qos_flags[] = {
 		&hf_packetcable_qos_status_indication,
 		&hf_packetcable_qos_desc_flags_sfst,
@@ -353,13 +353,13 @@ static const gchar* dissect_packetcable_qos_descriptor(proto_tree* tree, tvbuff_
 	return "";
 }
 
-static const gchar* dissect_packetcable_time_adjustment(proto_tree* tree, tvbuff_t* tvb, packet_info *pinfo _U_) {
+static const char* dissect_packetcable_time_adjustment(proto_tree* tree, tvbuff_t* tvb, packet_info *pinfo _U_) {
 	proto_tree_add_item(tree, hf_packetcable_time_adjustment, tvb, 0, 8, ENC_BIG_ENDIAN);
 
 	return "";
 }
 
-static const gchar* dissect_packetcable_redirected_from_info(proto_tree* tree, tvbuff_t* tvb, packet_info *pinfo _U_) {
+static const char* dissect_packetcable_redirected_from_info(proto_tree* tree, tvbuff_t* tvb, packet_info *pinfo _U_) {
 
 	proto_tree_add_item(tree, hf_packetcable_redirected_from_last_redirecting_party, tvb, 0, 20, ENC_ASCII);
 
@@ -371,7 +371,7 @@ static const gchar* dissect_packetcable_redirected_from_info(proto_tree* tree, t
 	return "";
 }
 
-static const gchar* dissect_packetcable_time_electr_surv_ind(proto_tree* tree, tvbuff_t* tvb, packet_info *pinfo _U_) {
+static const char* dissect_packetcable_time_electr_surv_ind(proto_tree* tree, tvbuff_t* tvb, packet_info *pinfo _U_) {
 
 	if (tvb_reported_length(tvb) == 0)
 		return "None";
@@ -389,7 +389,7 @@ static const gchar* dissect_packetcable_time_electr_surv_ind(proto_tree* tree, t
 	return "";
 }
 
-static const gchar* dissect_packetcable_surv_df_sec(proto_tree* tree _U_, tvbuff_t* tvb _U_, packet_info *pinfo _U_) {
+static const char* dissect_packetcable_surv_df_sec(proto_tree* tree _U_, tvbuff_t* tvb _U_, packet_info *pinfo _U_) {
 		return "";
 }
 
@@ -398,10 +398,10 @@ static const gchar* dissect_packetcable_surv_df_sec(proto_tree* tree _U_, tvbuff
 #define PACKETCABLE_CALLING_NAME    (1 << 2)
 #define PACKETCABLE_MESSAGE_WAITING (1 << 3)
 
-static const gchar* dissect_packetcable_term_dsply_info(proto_tree* tree, tvbuff_t* tvb, packet_info *pinfo _U_) {
+static const char* dissect_packetcable_term_dsply_info(proto_tree* tree, tvbuff_t* tvb, packet_info *pinfo _U_) {
 	/* XXX - this logic seems buggy because the offsets don't line up */
-	guint8 bitmask = tvb_get_guint8(tvb, 2);
-	guint intval = 1;
+	uint8_t bitmask = tvb_get_uint8(tvb, 2);
+	unsigned intval = 1;
 	static int * const flags[] = {
 		&hf_packetcable_terminal_display_info_sbm_general_display,
 		&hf_packetcable_terminal_display_info_sbm_calling_number,
@@ -793,7 +793,7 @@ void proto_register_packetcable(void) {
 		{ &hf_packetcable_electronic_surveillance_indication_df_df_key, { "DF-DF-Key", "packetcable_avps.esi.df_df_key", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_radius_vendor_packetcable_bcid,
 		&ett_radius_vendor_packetcable_status,
 		&ett_radius_vendor_packetcable_qos_status,

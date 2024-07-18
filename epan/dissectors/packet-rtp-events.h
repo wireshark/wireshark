@@ -13,9 +13,9 @@
 WS_DLL_PUBLIC value_string_ext rtp_event_type_values_ext;
 
 struct _rtp_event_info {
-	guint8      info_rtp_evt;
-	guint32		info_setup_frame_num; /* the frame num of the packet that set this RTP connection */
-	guint16		info_duration;
-	gboolean	info_end;
+	uint8_t     info_rtp_evt;
+	uint32_t		info_setup_frame_num; /* the frame num of the packet that set this RTP connection */
+	uint16_t		info_duration;
+	bool	info_end;
 };
 

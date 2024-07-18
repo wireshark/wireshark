@@ -64,27 +64,27 @@ static dissector_handle_t rmt_fec_handle;
 static dissector_table_t media_type_dissector_table;
 
 static bool g_codepoint_as_fec_encoding = true;
-static gint     g_ext_192                   = LCT_PREFS_EXT_192_FLUTE;
-static gint     g_ext_193                   = LCT_PREFS_EXT_193_FLUTE;
-static gint     g_atsc3_mode                = LCT_ATSC3_MODE_AUTO;
+static int      g_ext_192                   = LCT_PREFS_EXT_192_FLUTE;
+static int      g_ext_193                   = LCT_PREFS_EXT_193_FLUTE;
+static int      g_atsc3_mode                = LCT_ATSC3_MODE_AUTO;
 
 static void
 try_decode_payload(tvbuff_t *tvb, packet_info *pinfo, proto_item *tree)
 {
-    guint32 b03 = tvb_get_guint32(tvb, 0, ENC_BIG_ENDIAN);
+    uint32_t b03 = tvb_get_uint32(tvb, 0, ENC_BIG_ENDIAN);
     /* xml ("<?xm") */
     if (b03 == 0x3C3F786D) {
         call_dissector(xml_handle, tvb, pinfo, tree);
     } else {
-        guint32 b47 = tvb_get_guint32(tvb, 4, ENC_BIG_ENDIAN);
+        uint32_t b47 = tvb_get_uint32(tvb, 4, ENC_BIG_ENDIAN);
         /* mp4 ("ftyp" or "sidx" or "styp" mp4 box) */
         if (b47 == 0x66747970 || b47 == 0x73696478 || b47 == 0x73747970) {
             /* MP4 dissector removes useful info from Protocol and Info columns so store it */
-            gchar *col_info_text = wmem_strdup(pinfo->pool, col_get_text(pinfo->cinfo, COL_INFO));
-            gchar *col_protocol_text = wmem_strdup(pinfo->pool, col_get_text(pinfo->cinfo, COL_PROTOCOL));
+            char *col_info_text = wmem_strdup(pinfo->pool, col_get_text(pinfo->cinfo, COL_INFO));
+            char *col_protocol_text = wmem_strdup(pinfo->pool, col_get_text(pinfo->cinfo, COL_PROTOCOL));
 
             int mp4_dis = dissector_try_string(media_type_dissector_table, "video/mp4", tvb, pinfo, tree, NULL);
-            gchar *col_protocol_text_mp4 = wmem_strdup(pinfo->pool,col_get_text(pinfo->cinfo, COL_PROTOCOL));
+            char *col_protocol_text_mp4 = wmem_strdup(pinfo->pool,col_get_text(pinfo->cinfo, COL_PROTOCOL));
 
             /* Restore Protocol and Info columns and add MP4 Protocol Info */
             col_set_str(pinfo->cinfo, COL_INFO, col_info_text);
@@ -97,14 +97,14 @@ try_decode_payload(tvbuff_t *tvb, packet_info *pinfo, proto_item *tree)
 }
 
 static void
-try_uncompress(tvbuff_t *tvb, packet_info *pinfo, gint offset, /*gint len,*/ proto_item *ti)
+try_uncompress(tvbuff_t *tvb, packet_info *pinfo, int offset, /*int len,*/ proto_item *ti)
 {
     tvbuff_t *uncompress_tvb = tvb_uncompress_zlib(tvb, offset, tvb_captured_length(tvb) - offset);
     if (uncompress_tvb) {
         add_new_data_source(pinfo, uncompress_tvb, "Uncompressed Payload");
 
         proto_tree *uncompress_tree = proto_item_add_subtree(ti, ett_uncomp_payload);
-        guint decomp_length = tvb_captured_length(uncompress_tvb);
+        unsigned decomp_length = tvb_captured_length(uncompress_tvb);
         proto_item *ti_uncomp = proto_tree_add_item(uncompress_tree, hf_uncomp_payload, uncompress_tvb, 0, decomp_length, ENC_ASCII);
         proto_item_set_generated(ti_uncomp);
 
@@ -118,23 +118,23 @@ try_uncompress(tvbuff_t *tvb, packet_info *pinfo, gint offset, /*gint len,*/ pro
 static int
 dissect_alc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    guint8              version;
+    uint8_t             version;
     lct_data_exchange_t lct;
     fec_data_exchange_t fec;
     int                 len;
-    gboolean            is_atsc3;
+    bool                is_atsc3;
 
     if (g_atsc3_mode == LCT_ATSC3_MODE_FORCE) {
-        is_atsc3 = TRUE;
+        is_atsc3 = true;
     } else if (g_atsc3_mode == LCT_ATSC3_MODE_DISABLED) {
-        is_atsc3 = FALSE;
+        is_atsc3 = false;
     } else { /* Auto detect mode*/
         /* If packet encap is ALP then it is necessary to use ATSC decoding mode*/
         is_atsc3 = pinfo->rec->rec_header.packet_header.pkt_encap == WTAP_ENCAP_ATSC_ALP;
     }
 
     /* Offset for subpacket dissection */
-    guint offset = 0;
+    unsigned offset = 0;
 
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti;
@@ -149,7 +149,7 @@ dissect_alc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     /* ALC header dissection */
     /* --------------------- */
 
-    version = hi_nibble(tvb_get_guint8(tvb, offset));
+    version = hi_nibble(tvb_get_uint8(tvb, offset));
 
     /* Create subtree for the ALC protocol */
     ti = proto_tree_add_item(tree, proto_rmt_alc, tvb, offset, -1, ENC_NA);
@@ -179,9 +179,9 @@ dissect_alc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     lct.ext_192 = g_ext_192;
     lct.ext_193 = g_ext_193;
     lct.codepoint = 0;
-    lct.is_flute = FALSE;
+    lct.is_flute = false;
     lct.is_atsc3 = is_atsc3;
-    lct.is_sp = FALSE;
+    lct.is_sp = false;
     len = call_dissector_with_data(rmt_lct_handle, new_tvb, pinfo, alc_tree, &lct);
     if (len < 0)
         return offset;
@@ -206,9 +206,9 @@ dissect_alc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     }
 
     /* A/331 specifies start_offset field */
-    gint64 object_start_offset = -1;
+    int64_t object_start_offset = -1;
     if (lct.is_sp) {
-        object_start_offset = tvb_get_guint32(tvb, offset, 4);
+        object_start_offset = tvb_get_uint32(tvb, offset, 4);
         proto_tree_add_item(alc_tree, hf_object_start_offset, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
     }
@@ -222,7 +222,7 @@ dissect_alc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             ti = proto_tree_add_item(alc_tree, hf_payload, tvb, offset, -1, ENC_NA);
             if (object_start_offset == 0 &&
                 tvb_captured_length_remaining(tvb, offset) > 18 &&
-                tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN) == 0x1f8b) {
+                tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN) == 0x1f8b) {
                 /* gzip is detected */
                 try_uncompress(tvb, pinfo, offset, ti);
             } else if (object_start_offset == 0) {
@@ -235,7 +235,7 @@ dissect_alc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     /* Add Channel info in ATSC3 mode */
     if(lct.is_atsc3) {
-        gchar *channel_info = get_slt_channel_info(pinfo);
+        char *channel_info = get_slt_channel_info(pinfo);
         if (channel_info != NULL) {
             col_append_sep_str(pinfo->cinfo, COL_INFO, " ", channel_info);
             wmem_free(pinfo->pool, channel_info);
@@ -281,7 +281,7 @@ void proto_register_alc(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett_ptr[] = {
+    static int *ett_ptr[] = {
         &ett_main,
         &ett_uncomp_payload,
         &ett_uncomp_decode,
@@ -321,7 +321,7 @@ void proto_register_alc(void)
                                    "How to decode LCT header extension 192",
                                    &g_ext_192,
                                    enum_lct_ext_192,
-                                   FALSE);
+                                   false);
 
     prefs_register_enum_preference(module,
                                    "lct.ext.193",
@@ -329,7 +329,7 @@ void proto_register_alc(void)
                                    "How to decode LCT header extension 193",
                                    &g_ext_193,
                                    enum_lct_ext_193,
-                                   FALSE);
+                                   false);
 
     prefs_register_enum_preference(module,
                                    "lct.atsc3.mode",
@@ -337,7 +337,7 @@ void proto_register_alc(void)
                                    "How to detect ATSC3 data",
                                    &g_atsc3_mode,
                                    enum_lct_atsc3_mode,
-                                   FALSE);
+                                   false);
 }
 
 void proto_reg_handoff_alc(void)
