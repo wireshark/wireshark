@@ -17231,7 +17231,7 @@ add_ff_eht_mu_exclusive_20MHz_rpt(proto_tree *tree, tvbuff_t *tvb, packet_info *
   proto_tree *ru_index_tree = NULL;
   proto_item *ruii = NULL;
   unsigned ss = 0, get_snr = 1;
-  int8_t snr, value;
+  int8_t snr = 0, value;
 
   if (ng == 4) {
     init_eht_scidx(&scidx_ctx, 1, &ru_242_tone_1_20MHz_ng4[0], ng);
@@ -17277,7 +17277,7 @@ add_ff_eht_mu_exclusive_40MHz_rpt(proto_tree *tree, tvbuff_t *tvb, packet_info *
   proto_tree *ru_index_tree = NULL;
   proto_item *ruii = NULL;
   unsigned ss = 0, get_snr = 1;
-  int8_t snr, value;
+  int8_t snr = 0, value;
 
   /* Add each of the RU index groups set */
   for (i = 1; i <= 2; i++) {
@@ -17327,7 +17327,7 @@ add_ff_eht_mu_exclusive_80MHz_rpt(proto_tree *tree, tvbuff_t *tvb, packet_info *
   proto_tree *ru_index_tree = NULL;
   proto_item *ruii = NULL;
   unsigned ss = 0, get_snr = 1;
-  int8_t snr, value;
+  int8_t snr = 0, value;
 
   if (partial_bw_info == 0x1E) { /* Uses 996-tone RU indices */
     if (ng == 4) {
@@ -17409,7 +17409,7 @@ add_ff_eht_mu_exclusive_160MHz_rpt(proto_tree *tree, tvbuff_t *tvb, packet_info 
   proto_tree *ru_index_tree = NULL;
   proto_item *ruii = NULL;
   unsigned ss = 0, get_snr = 1;
-  int8_t snr, value;
+  int8_t snr = 0, value;
 
   /* Is the first lot a 996-tone RU? */
   if ((partial_bw_info & 0x1E) == 0x1E) { /* Uses 996-tone RU indices */
@@ -17555,7 +17555,7 @@ add_ff_eht_mu_exclusive_320MHz_rpt(proto_tree *tree, tvbuff_t *tvb, packet_info 
   proto_tree *ru_index_tree = NULL;
   proto_item *ruii = NULL;
   unsigned ss = 0, get_snr = 1;
-  int8_t snr, value;
+  int8_t snr = 0, value;
 
   for ( i = 0; i < 4; i++) {
     if (((partial_bw_info >> (2*i+1)) & 0x03) == 0x03) { /* Uses 996-tone RU indices */
