@@ -67,9 +67,9 @@ static expert_field ei_pcombinary_reserved4_bad_value;
 static expert_field ei_pcombinary_command_unsupported;
 
 /* Initialize the subtree pointers */
-static gint ett_pcomtcp;
-static gint ett_pcomascii;
-static gint ett_pcombinary;
+static int ett_pcomtcp;
+static int ett_pcomascii;
+static int ett_pcombinary;
 
 static dissector_handle_t pcomtcp_handle;
 static dissector_handle_t pcomascii_handle;
@@ -197,9 +197,9 @@ dissect_pcomtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     tvbuff_t    *next_tvb;
 
-    guint        offset = 0;
+    unsigned     offset = 0;
     const char   *pkt_type;
-    guint8       pcom_mode;
+    uint8_t      pcom_mode;
     const char   *pcom_mode_str;
 
     proto_item    *hf_pcomtcp_reserved_item = NULL;
@@ -208,7 +208,7 @@ dissect_pcomtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (tvb_reported_length(tvb) < PCOMTCP_MIN_LENGTH)
         return 0;
 
-    pcom_mode = tvb_get_guint8(tvb, 2);
+    pcom_mode = tvb_get_uint8(tvb, 2);
     if ( pcom_mode != PCOM_ASCII && pcom_mode != PCOM_BINARY )
         return 0;
 
@@ -237,7 +237,7 @@ dissect_pcomtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += 1;
     hf_pcomtcp_reserved_item = proto_tree_add_item(pcomtcp_tree, hf_pcomtcp_reserved, tvb,
             offset, 1, ENC_NA);
-    if(tvb_get_guint8(tvb, offset) !=0){
+    if(tvb_get_uint8(tvb, offset) !=0){
             expert_add_info_format(pinfo, hf_pcomtcp_reserved_item,
                     &ei_pcomtcp_reserved_bad_value,"Isn't 0");
     }
@@ -267,15 +267,15 @@ dissect_pcomascii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree  *pcomascii_tree;
     proto_item    *hf_pcomascii_command_item = NULL;
 
-    guint        offset = 0;
-    guint16      nvalues;
-    guint8       i;
-    guint8       cc_len;
-    guint32      cc;
-    const gchar* cc_str;
-    const gchar* cc_str2;
-    guint8       op_type;
-    guint8       op_size;
+    unsigned     offset = 0;
+    uint16_t     nvalues;
+    uint8_t      i;
+    uint8_t      cc_len;
+    uint32_t     cc;
+    const char* cc_str;
+    const char* cc_str2;
+    uint8_t      op_type;
+    uint8_t      op_size;
 
     /* Create protocol tree */
     ti = proto_tree_add_item(tree, proto_pcomascii, tvb, offset, -1, ENC_NA);
@@ -418,15 +418,15 @@ dissect_pcombinary(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item  *ti;
     proto_tree  *pcombinary_tree;
 
-    guint        offset = 0;
+    unsigned     offset = 0;
     proto_item    *hf_pcombinary_reserved1_item = NULL;
     proto_item    *hf_pcombinary_reserved2_item = NULL;
     proto_item    *hf_pcombinary_reserved3_item = NULL;
     proto_item    *hf_pcombinary_reserved4_item = NULL;
     proto_item    *hf_pcombinary_command_item = NULL;
 
-    guint8 command;
-    const gchar* command_str;
+    uint8_t command;
+    const char* command_str;
 
     /* Create protocol tree */
     ti = proto_tree_add_item(tree, proto_pcombinary, tvb, offset, -1, ENC_NA);
@@ -439,7 +439,7 @@ dissect_pcombinary(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (value_is_in_range(global_pcomtcp_tcp_ports, pinfo->srcport)) { // these bytes are transposed
         hf_pcombinary_reserved1_item = proto_tree_add_item(pcombinary_tree,
                 hf_pcombinary_reserved1, tvb, offset, 1, ENC_NA);
-        if(tvb_get_guint8(tvb, offset) !=254){
+        if(tvb_get_uint8(tvb, offset) !=254){
             expert_add_info_format(pinfo, hf_pcombinary_reserved1_item,
                     &ei_pcombinary_reserved1_bad_value,"Isn't 0xfe");
         }
@@ -457,7 +457,7 @@ dissect_pcombinary(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     hf_pcombinary_reserved2_item = proto_tree_add_item(pcombinary_tree,
             hf_pcombinary_reserved2, tvb, offset, 1, ENC_NA);
-    if( tvb_get_guint8(tvb, offset) !=1)
+    if( tvb_get_uint8(tvb, offset) !=1)
         expert_add_info_format(pinfo, hf_pcombinary_reserved2_item,
                 &ei_pcombinary_reserved2_bad_value,"Isn't 1");
     offset += 1;
@@ -468,7 +468,7 @@ dissect_pcombinary(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 &ei_pcombinary_reserved3_bad_value,"Isn't 0");
     offset += 3;
 
-    command = tvb_get_guint8(tvb, offset);
+    command = tvb_get_uint8(tvb, offset);
     if (value_is_in_range(global_pcomtcp_tcp_ports, pinfo->srcport)) { // reply
         command_str = try_val_to_str(command, pcombinary_command_vals_reply);
     }else{
@@ -487,7 +487,7 @@ dissect_pcombinary(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     hf_pcombinary_reserved4_item = proto_tree_add_item(pcombinary_tree,
             hf_pcombinary_reserved4, tvb, offset, 1, ENC_NA);
-    if( tvb_get_guint8(tvb, offset) !=0)
+    if( tvb_get_uint8(tvb, offset) !=0)
         expert_add_info_format(pinfo, hf_pcombinary_reserved4_item,
                 &ei_pcombinary_reserved4_bad_value,"Isn't 0");
     offset += 1;
@@ -664,7 +664,7 @@ proto_register_pcomtcp(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_pcomtcp,
         &ett_pcomascii,
         &ett_pcombinary

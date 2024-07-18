@@ -140,17 +140,17 @@ static int hf_analysis_msg_resend_from;
 static int hf_analysis_ack_resend_from;
 static int hf_analysis_total_time;
 
-static gint ett_p_mul;
-static gint ett_pdu_type;
-static gint ett_dest_entry;
-static gint ett_ack_entry;
-static gint ett_range_entry;
-static gint ett_checksum;
-static gint ett_seq_analysis;
-static gint ett_ack_analysis;
-static gint ett_seq_ack_analysis;
-static gint ett_msg_fragment;
-static gint ett_msg_fragments;
+static int ett_p_mul;
+static int ett_pdu_type;
+static int ett_dest_entry;
+static int ett_ack_entry;
+static int ett_range_entry;
+static int ett_checksum;
+static int ett_seq_analysis;
+static int ett_ack_analysis;
+static int ett_seq_ack_analysis;
+static int ett_msg_fragment;
+static int ett_msg_fragments;
 
 static expert_field ei_more_data;
 static expert_field ei_checksum_bad;
@@ -170,30 +170,30 @@ static expert_field ei_analysis_retrans_no;
 static dissector_handle_t p_mul_handle;
 
 typedef struct _p_mul_id_key {
-  guint32 id;
-  guint16 seq;
+  uint32_t id;
+  uint16_t seq;
   address addr;
 } p_mul_id_key;
 
 typedef struct _p_mul_seq_val {
-  gint        msg_type;         /* Message type                      */
-  guint32     prev_msg_id;      /* Previous message package num      */
+  int         msg_type;         /* Message type                      */
+  uint32_t    prev_msg_id;      /* Previous message package num      */
   nstime_t    prev_msg_time;    /* Previous message receive time     */
-  guint32     addr_id;          /* PDU package num for Address_PDU   */
+  uint32_t    addr_id;          /* PDU package num for Address_PDU   */
   nstime_t    addr_time;        /* PDU received time for Address_PDU */
-  guint32     pdu_id;           /* PDU package num                   */
+  uint32_t    pdu_id;           /* PDU package num                   */
   nstime_t    pdu_time;         /* PDU receive time                  */
-  guint32     prev_pdu_id;      /* Previous PDU package num          */
+  uint32_t    prev_pdu_id;      /* Previous PDU package num          */
   nstime_t    prev_pdu_time;    /* Previous PDU receive time         */
-  guint16     last_found_pdu;   /* Last PDU num                      */
+  uint16_t    last_found_pdu;   /* Last PDU num                      */
   nstime_t    first_msg_time;   /* First message receive time        */
-  guint32     msg_resend_count; /* Message resend counter            */
+  uint32_t    msg_resend_count; /* Message resend counter            */
   wmem_map_t *ack_data;
 } p_mul_seq_val;
 
 typedef struct _p_mul_ack_data {
-  guint32  ack_id;                     /* Ack PDU package num               */
-  guint32  ack_resend_count;           /* Ack resend counter                */
+  uint32_t ack_id;                     /* Ack PDU package num               */
+  uint32_t ack_resend_count;           /* Ack resend counter                */
 } p_mul_ack_data;
 
 /* Hash table with current data for seq/ack analysis */
@@ -201,13 +201,13 @@ static wmem_map_t *p_mul_id_hash_table;
 
 /* User definable values to use for dissection */
 static bool p_mul_reassemble = true;
-static gint decode_option = DECODE_NONE;
+static int decode_option = DECODE_NONE;
 static bool use_relative_msgid = true;
 static bool use_seq_ack_analysis = true;
 
 static reassembly_table p_mul_reassembly_table;
 
-static guint32 message_id_offset;
+static uint32_t message_id_offset;
 
 static const fragment_items p_mul_frag_items = {
   /* Fragment subtrees */
@@ -256,18 +256,18 @@ static const enum_val_t decode_options[] = {
 };
 
 
-static const gchar *get_type (guint8 value)
+static const char *get_type (uint8_t value)
 {
   return val_to_str_const (value, pdu_vals, "Unknown");
 }
 
 
 /* Function checksum, found in ACP 142 annex B04 (Fletcher algorithm) */
-static guint16 checksum_acp142 (guint8 *buffer, gint len, gint offset)
+static uint16_t checksum_acp142 (uint8_t *buffer, int len, int offset)
 {
-  guint16  c0 = 0, c1 = 0, ret, ctmp;
-  gint16   cs;
-  guint8  *hpp, *pls;
+  uint16_t c0 = 0, c1 = 0, ret, ctmp;
+  int16_t  cs;
+  uint8_t *hpp, *pls;
 
   if (len < offset+2) {
     /* Buffer too small */
@@ -291,13 +291,13 @@ static guint16 checksum_acp142 (guint8 *buffer, gint len, gint offset)
   return ret;
 }
 
-static guint p_mul_id_hash (gconstpointer k)
+static unsigned p_mul_id_hash (const void *k)
 {
   const p_mul_id_key *p_mul = (const p_mul_id_key *)k;
   return p_mul->id;
 }
 
-static gint p_mul_id_hash_equal (gconstpointer k1, gconstpointer k2)
+static int p_mul_id_hash_equal (const void *k1, const void *k2)
 {
   const p_mul_id_key *p_mul1 = (const p_mul_id_key *)k1;
   const p_mul_id_key *p_mul2 = (const p_mul_id_key *)k2;
@@ -311,7 +311,7 @@ static gint p_mul_id_hash_equal (gconstpointer k1, gconstpointer k2)
   return (addresses_equal (&p_mul1->addr, &p_mul2->addr));
 }
 
-static p_mul_seq_val *lookup_seq_val (guint32 message_id, guint16 seq_no,
+static p_mul_seq_val *lookup_seq_val (uint32_t message_id, uint16_t seq_no,
                                       address *addr)
 {
   p_mul_seq_val *pkg_data;
@@ -326,7 +326,7 @@ static p_mul_seq_val *lookup_seq_val (guint32 message_id, guint16 seq_no,
   return pkg_data;
 }
 
-static void copy_hashtable_data (gpointer key, gpointer value, gpointer user_data)
+static void copy_hashtable_data (void *key, void *value, void *user_data)
 {
   p_mul_ack_data *ack_data1 = (p_mul_ack_data*)value;
   p_mul_ack_data *ack_data2;
@@ -339,17 +339,17 @@ static void copy_hashtable_data (gpointer key, gpointer value, gpointer user_dat
   wmem_map_insert (table, key, ack_data2);
 }
 
-static p_mul_seq_val *register_p_mul_id (packet_info *pinfo, address *addr, guint32 dstIP,
-                                         guint8 pdu_type, guint32 message_id,
-                                         guint16 seq_no, gint no_missing)
+static p_mul_seq_val *register_p_mul_id (packet_info *pinfo, address *addr, uint32_t dstIP,
+                                         uint8_t pdu_type, uint32_t message_id,
+                                         uint16_t seq_no, int no_missing)
 {
   p_mul_seq_val  *p_mul_data = NULL, *pkg_data = NULL;
   p_mul_id_key   *p_mul_key;
   p_mul_ack_data *ack_data = NULL;
   nstime_t        addr_time, prev_time;
-  guint           addr_id = 0, prev_id = 0;
-  guint16         last_found_pdu = 0;
-  gboolean        missing_pdu = FALSE, need_set_address = FALSE;
+  unsigned        addr_id = 0, prev_id = 0;
+  uint16_t        last_found_pdu = 0;
+  bool            missing_pdu = false, need_set_address = false;
   wmem_map_t     *pkg_list;
 
   if (pinfo->flags.in_error_pkt) {
@@ -374,7 +374,7 @@ static p_mul_seq_val *register_p_mul_id (packet_info *pinfo, address *addr, guin
     p_mul_key->id = message_id;
     p_mul_key->seq = 0;
     copy_address_wmem(wmem_file_scope(), &p_mul_key->addr, addr);
-    need_set_address = TRUE;
+    need_set_address = true;
 
     p_mul_data = (p_mul_seq_val *) wmem_map_lookup (p_mul_id_hash_table, p_mul_key);
 
@@ -391,7 +391,7 @@ static p_mul_seq_val *register_p_mul_id (packet_info *pinfo, address *addr, guin
 
       if (pdu_type == Data_PDU && p_mul_data->msg_resend_count == 0 && last_found_pdu != seq_no - 1) {
         /* Data_PDU and missing previous PDU */
-        missing_pdu = TRUE;
+        missing_pdu = true;
       }
 
       if (last_found_pdu) {
@@ -511,16 +511,16 @@ static p_mul_seq_val *register_p_mul_id (packet_info *pinfo, address *addr, guin
 }
 
 static void add_ack_analysis (tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_mul_tree,
-                              gint offset, guint8 pdu_type, address *src, address *dst,
-                              guint32 message_id, gint no_missing)
+                              int offset, uint8_t pdu_type, address *src, address *dst,
+                              uint32_t message_id, int no_missing)
 {
   proto_tree     *analysis_tree = NULL;
   proto_item     *sa            = NULL;
   proto_item     *en            = NULL;
   p_mul_seq_val  *pkg_data      = NULL;
   p_mul_ack_data *ack_data      = NULL;
-  gboolean        item_added    = FALSE;
-  guint32         dstIp;
+  bool            item_added    = false;
+  uint32_t        dstIp;
   nstime_t        ns;
 
   if (pinfo->flags.in_error_pkt) {
@@ -552,9 +552,9 @@ static void add_ack_analysis (tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_m
       } else {
         proto_tree_add_expert(analysis_tree, pinfo, &ei_address_pdu_missing, tvb, offset, 0);
       }
-      item_added = TRUE;
+      item_added = true;
     } else {
-      memcpy((guint8 *)&dstIp, dst->data, 4);
+      memcpy((uint8_t *)&dstIp, dst->data, 4);
       if (pkg_data->ack_data) {
         ack_data = (p_mul_ack_data *)wmem_map_lookup (pkg_data->ack_data, GUINT_TO_POINTER(dstIp));
       }
@@ -564,7 +564,7 @@ static void add_ack_analysis (tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_m
         en = proto_tree_add_uint (analysis_tree, hf_analysis_ack_num, tvb,
                                   0, 0, ack_data->ack_id);
         proto_item_set_generated (en);
-        item_added = TRUE;
+        item_added = true;
       } else if (!pkg_data->msg_resend_count) {
         en = proto_tree_add_item (analysis_tree,
                                   hf_analysis_ack_missing,
@@ -575,7 +575,7 @@ static void add_ack_analysis (tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_m
           expert_add_info(pinfo, en, &ei_analysis_ack_missing);
           proto_item_set_generated (en);
         }
-        item_added = TRUE;
+        item_added = true;
       }
     }
 
@@ -587,7 +587,7 @@ static void add_ack_analysis (tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_m
     proto_item_set_generated (sa);
 
     /* Fetch package data */
-    memcpy((guint8 *)&dstIp, dst->data, 4);
+    memcpy((uint8_t *)&dstIp, dst->data, 4);
     if ((pkg_data = register_p_mul_id (pinfo, src, dstIp, pdu_type, message_id, 0, no_missing)) == NULL) {
       /* No need for seq/ack analysis yet */
       return;
@@ -644,14 +644,14 @@ static void add_ack_analysis (tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_m
 
 static p_mul_seq_val *add_seq_analysis (tvbuff_t *tvb, packet_info *pinfo,
                                         proto_tree *p_mul_tree, address *src,
-                                        gint offset,
-                                        guint8 pdu_type, guint32 message_id,
-                                        guint16 seq_no, gint no_missing)
+                                        int offset,
+                                        uint8_t pdu_type, uint32_t message_id,
+                                        uint16_t seq_no, int no_missing)
 {
   p_mul_seq_val *pkg_data;
   proto_tree    *analysis_tree;
   proto_item    *sa, *en = NULL, *eh = NULL;
-  gboolean       item_added = FALSE;
+  bool           item_added = false;
   nstime_t       ns;
 
   pkg_data = register_p_mul_id (pinfo, src, 0, pdu_type, message_id, seq_no,
@@ -683,10 +683,10 @@ static p_mul_seq_val *add_seq_analysis (tvbuff_t *tvb, packet_info *pinfo,
                                   tvb, 0, 0, &ns);
         proto_item_set_generated (en);
       }
-      item_added = TRUE;
+      item_added = true;
     } else if (!pkg_data->msg_resend_count) {
       proto_tree_add_expert(analysis_tree, pinfo, &ei_address_pdu_missing, tvb, offset, 0);
-      item_added = TRUE;
+      item_added = true;
     }
   }
 
@@ -701,10 +701,10 @@ static p_mul_seq_val *add_seq_analysis (tvbuff_t *tvb, packet_info *pinfo,
       en = proto_tree_add_time (analysis_tree, hf_analysis_prev_pdu_time,
                                 tvb, 0, 0, &ns);
       proto_item_set_generated (en);
-      item_added = TRUE;
+      item_added = true;
     } else if (!pkg_data->msg_resend_count) {
       proto_tree_add_expert(analysis_tree, pinfo, &ei_analysis_prev_pdu_missing, tvb, offset, 0);
-      item_added = TRUE;
+      item_added = true;
     }
   }
 
@@ -737,7 +737,7 @@ static p_mul_seq_val *add_seq_analysis (tvbuff_t *tvb, packet_info *pinfo,
         /* Time values does not differ, hide the total time */
         proto_item_set_hidden (eh);
       }
-      item_added = TRUE;
+      item_added = true;
 
       col_append_fstr (pinfo->cinfo, COL_INFO, "[Retrans %d#%d] ",
                        pkg_data->pdu_id, pkg_data->msg_resend_count);
@@ -773,22 +773,22 @@ static int dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 {
   proto_tree    *p_mul_tree, *field_tree, *checksum_tree;
   proto_item    *ti, *en, *len_en;
-  gboolean       save_fragmented;
-  guint32        message_id = 0;
-  guint16        no_dest = 0, count = 0, len, data_len = 0;
-  guint16        checksum_calc, checksum_found;
-  guint16        pdu_length, no_pdus = 0, seq_no = 0;
-  guint8         pdu_type, *value, map = 0, fec_len;
-  gint           i, tot_no_missing = 0, no_missing = 0, offset = 0;
+  bool           save_fragmented;
+  uint32_t       message_id = 0;
+  uint16_t       no_dest = 0, count = 0, len, data_len = 0;
+  uint16_t       checksum_calc, checksum_found;
+  uint16_t       pdu_length, no_pdus = 0, seq_no = 0;
+  uint8_t        pdu_type, *value, map = 0, fec_len;
+  int            i, tot_no_missing = 0, no_missing = 0, offset = 0;
   address        src, dst;
   wmem_strbuf_t *message_id_list = NULL;
-  gboolean       fletcher = FALSE;
+  bool           fletcher = false;
 
   col_set_str (pinfo->cinfo, COL_PROTOCOL, "P_MUL");
   col_clear (pinfo->cinfo, COL_INFO);
 
   /* First fetch PDU Type */
-  pdu_type = tvb_get_guint8 (tvb, offset + 3) & 0x3F;
+  pdu_type = tvb_get_uint8 (tvb, offset + 3) & 0x3F;
 
   ti = proto_tree_add_item (tree, proto_p_mul, tvb, offset, -1, ENC_NA);
   proto_item_append_text (ti, ", %s", get_type (pdu_type));
@@ -835,7 +835,7 @@ static int dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   case Extra_Address_PDU:
   case FEC_Address_PDU:
   case Extra_FEC_Address_PDU:
-    map = tvb_get_guint8 (tvb, offset);
+    map = tvb_get_uint8 (tvb, offset);
     proto_tree_add_item (field_tree, hf_map_first, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item (field_tree, hf_map_last, tvb, offset, 1, ENC_BIG_ENDIAN);
     if ((map & 0x80) || (map & 0x40)) {
@@ -894,7 +894,7 @@ static int dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   en = proto_tree_add_item (p_mul_tree, hf_checksum, tvb, offset, 2, ENC_BIG_ENDIAN);
   checksum_tree = proto_item_add_subtree (en, ett_checksum);
   len = tvb_captured_length (tvb);
-  value = (guint8 *)tvb_memdup (pinfo->pool, tvb, 0, len);
+  value = (uint8_t *)tvb_memdup (pinfo->pool, tvb, 0, len);
   if (len >= offset+2) {
     value[offset] = 0;
     value[offset+1] = 0;
@@ -903,10 +903,10 @@ static int dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   /* This computed IP checksum is network-byte-order, so convert to host-byte-order */
   checksum_calc = g_ntohs (ip_checksum (value, len));
   if (checksum_calc != checksum_found) {
-    guint16 checksum1 = checksum_acp142 (value, len, offset);
+    uint16_t checksum1 = checksum_acp142 (value, len, offset);
     if (checksum1 == checksum_found) {
       checksum_calc = checksum1;
-      fletcher = TRUE;
+      fletcher = true;
     }
   }
   if (checksum_calc == checksum_found) {
@@ -915,19 +915,19 @@ static int dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     }
     proto_item_append_text (en, " (correct)");
     en = proto_tree_add_boolean (checksum_tree, hf_checksum_good, tvb,
-                                 offset, 2, TRUE);
+                                 offset, 2, true);
     proto_item_set_generated (en);
     en = proto_tree_add_boolean (checksum_tree, hf_checksum_bad, tvb,
-                                 offset, 2, FALSE);
+                                 offset, 2, false);
     proto_item_set_generated (en);
   } else {
     proto_item_append_text (en, " (incorrect, should be 0x%04x)", checksum_calc);
     expert_add_info(pinfo, en, &ei_checksum_bad);
     en = proto_tree_add_boolean (checksum_tree, hf_checksum_good, tvb,
-                                 offset, 2, FALSE);
+                                 offset, 2, false);
     proto_item_set_generated (en);
     en = proto_tree_add_boolean (checksum_tree, hf_checksum_bad, tvb,
-                                 offset, 2, TRUE);
+                                 offset, 2, true);
     proto_item_set_generated (en);
   }
   offset += 2;
@@ -976,7 +976,7 @@ static int dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
   if (pdu_type == FEC_Address_PDU || pdu_type == Extra_FEC_Address_PDU) {
     /* FEC Parameters Length */
-    fec_len = tvb_get_guint8 (tvb, offset);
+    fec_len = tvb_get_uint8 (tvb, offset);
     proto_tree_add_item (p_mul_tree, hf_fec_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -1104,14 +1104,14 @@ static int dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
       }
 
       if (len > 10) {
-        gint num_seq_no = (len - 10) / 2;
-        guint16 ack_seq_no, prev_ack_seq_no = 0;
+        int num_seq_no = (len - 10) / 2;
+        uint16_t ack_seq_no, prev_ack_seq_no = 0;
         for (no_missing = 0; no_missing < num_seq_no; no_missing++) {
           /* Missing Data PDU Seq Number */
           ack_seq_no = tvb_get_ntohs (tvb, offset);
           if ((ack_seq_no != 0) && (no_missing < num_seq_no - 2) && tvb_get_ntohs (tvb, offset + 2) == 0) {
             /* We are handling a range */
-            guint16 end_seq_no = tvb_get_ntohs (tvb, offset + 4);
+            uint16_t end_seq_no = tvb_get_ntohs (tvb, offset + 4);
 
             en = proto_tree_add_bytes_format_value(field_tree, hf_miss_seq_range,
                                               tvb, offset, 6, NULL,
@@ -1160,7 +1160,7 @@ static int dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
     if (tvb_reported_length_remaining (tvb, offset) >= 8) {
       /* Timestamp Option (in units of 100ms) */
-      guint64 timestamp;
+      uint64_t timestamp;
 
       timestamp = tvb_get_ntoh64 (tvb, offset);
       proto_tree_add_uint64_format_value(p_mul_tree, hf_timestamp_option, tvb,
@@ -1181,7 +1181,7 @@ static int dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     break;
 
   case Discard_Message_PDU:
-    seq_no = G_MAXUINT16;       /* To make the seq_no uniq */
+    seq_no = UINT16_MAX;       /* To make the seq_no uniq */
     break;
 
   case Announce_PDU:
@@ -1260,12 +1260,12 @@ static int dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
       fragment_head *frag_msg;
       tvbuff_t      *new_tvb;
 
-      pinfo->fragmented = TRUE;
+      pinfo->fragmented = true;
 
       /* Add fragment to fragment table */
       frag_msg = fragment_add_seq_check (&p_mul_reassembly_table,
                                          tvb, offset, pinfo, message_id, NULL,
-                                         seq_no - 1, data_len, TRUE);
+                                         seq_no - 1, data_len, true);
       new_tvb = process_reassembled_data (tvb, offset, pinfo,
                                           "Reassembled P_MUL", frag_msg,
                                           &p_mul_frag_items, NULL, tree);
@@ -1521,7 +1521,7 @@ void proto_register_p_mul (void)
         NULL, 0x0, "The time between the first and the last Address PDU", HFILL } },
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_p_mul,
     &ett_pdu_type,
     &ett_dest_entry,
@@ -1592,7 +1592,7 @@ void proto_register_p_mul (void)
   prefs_register_enum_preference (p_mul_module, "decode",
                                   "Decode Data PDU as",
                                   "Type of content in Data_PDU",
-                                  &decode_option, decode_options, FALSE);
+                                  &decode_option, decode_options, false);
 }
 
 void proto_reg_handoff_p_mul (void)

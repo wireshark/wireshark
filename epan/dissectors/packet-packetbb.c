@@ -47,7 +47,7 @@ static dissector_handle_t packetbb_handle;
 
 #define MAX_ADDR_SIZE                16
 
-#define PACKETBB_MSG_TLV_LENGTH        (G_MAXUINT8 + 1)
+#define PACKETBB_MSG_TLV_LENGTH        (UINT8_MAX + 1)
 
 #define TLV_CAT_PACKET             0
 #define TLV_CAT_MESSAGE            1
@@ -250,38 +250,38 @@ static int hf_packetbb_tlv_mprwillingness_flooding;
 static int hf_packetbb_tlv_mprwillingness_routing;
 static int hf_packetbb_tlv_contseqnum;
 
-static gint ett_packetbb;
-static gint ett_packetbb_header;
-static gint ett_packetbb_header_flags;
-static gint ett_packetbb_msg[PACKETBB_MSG_TLV_LENGTH];
-static gint ett_packetbb_msgheader;
-static gint ett_packetbb_msgheader_flags;
-static gint ett_packetbb_addr;
-static gint ett_packetbb_addr_flags;
-static gint ett_packetbb_addr_value;
-static gint ett_packetbb_tlvblock;
-static gint ett_packetbb_tlv[PACKETBB_MSG_TLV_LENGTH];
-static gint ett_packetbb_tlv_flags;
-static gint ett_packetbb_tlv_value;
-static gint ett_packetbb_tlv_mprwillingness;
-static gint ett_packetbb_tlv_linkmetric;
+static int ett_packetbb;
+static int ett_packetbb_header;
+static int ett_packetbb_header_flags;
+static int ett_packetbb_msg[PACKETBB_MSG_TLV_LENGTH];
+static int ett_packetbb_msgheader;
+static int ett_packetbb_msgheader_flags;
+static int ett_packetbb_addr;
+static int ett_packetbb_addr_flags;
+static int ett_packetbb_addr_value;
+static int ett_packetbb_tlvblock;
+static int ett_packetbb_tlv[PACKETBB_MSG_TLV_LENGTH];
+static int ett_packetbb_tlv_flags;
+static int ett_packetbb_tlv_value;
+static int ett_packetbb_tlv_mprwillingness;
+static int ett_packetbb_tlv_linkmetric;
 
 static expert_field ei_packetbb_error;
 
 /* Link metric of RFC7181 */
-static guint32 uncompress_metric(guint16 val16) {
-  guint8 exp = (val16 >> 8) & 0xf;
-  return (guint32)((((guint16)257U + (val16 & 0xff)) << exp) - 256);
+static uint32_t uncompress_metric(uint16_t val16) {
+  uint8_t exp = (val16 >> 8) & 0xf;
+  return (uint32_t)((((uint16_t)257U + (val16 & 0xff)) << exp) - 256);
 }
 
 /* Time metric of RFC5497 */
-static guint32 uncompress_time(guint8 val8) {
-  guint8 exp = val8 >> 3;
-  gfloat mant = (gfloat)(val8 & 0x07);
-  return (guint32)((1.00 + mant / 8) * (1U << exp));
+static uint32_t uncompress_time(uint8_t val8) {
+  uint8_t exp = val8 >> 3;
+  float mant = (float)(val8 & 0x07);
+  return (uint32_t)((1.00 + mant / 8) * (1U << exp));
 }
 
-static proto_item* dissect_pbb_tlvvalue(tvbuff_t *tvb, proto_tree *tlvTree, guint offset, guint len, guint tlvCat, guint tlvType) {
+static proto_item* dissect_pbb_tlvvalue(tvbuff_t *tvb, proto_tree *tlvTree, unsigned offset, unsigned len, unsigned tlvCat, unsigned tlvType) {
   proto_tree *tlv_decoded_value_tree = NULL;
   proto_tree *tlv_decoded_value_item = NULL;
 
@@ -313,11 +313,11 @@ static proto_item* dissect_pbb_tlvvalue(tvbuff_t *tvb, proto_tree *tlvTree, guin
     switch (tlvType) {
     case RFC5497_TLV_INTERVAL_TIME:
       tlv_decoded_value_item = proto_tree_add_item(tlvTree, hf_packetbb_tlv_intervaltime, tvb, offset, len, ENC_NA);
-      proto_item_append_text(tlv_decoded_value_item, " (%d)", uncompress_time(tvb_get_guint8(tvb, offset)));
+      proto_item_append_text(tlv_decoded_value_item, " (%d)", uncompress_time(tvb_get_uint8(tvb, offset)));
       break;
     case RFC5497_TLV_VALIDITY_TIME:
       tlv_decoded_value_item = proto_tree_add_item(tlvTree, hf_packetbb_tlv_validitytime, tvb, offset, len, ENC_NA);
-      proto_item_append_text(tlv_decoded_value_item, " (%d)", uncompress_time(tvb_get_guint8(tvb, offset)));
+      proto_item_append_text(tlv_decoded_value_item, " (%d)", uncompress_time(tvb_get_uint8(tvb, offset)));
       break;
     case RFC6130_ADDRTLV_LOCAL_IF:
       tlv_decoded_value_item = proto_tree_add_item(tlvTree, hf_packetbb_tlv_localifs, tvb, offset, 1, ENC_NA);
@@ -341,7 +341,7 @@ static proto_item* dissect_pbb_tlvvalue(tvbuff_t *tvb, proto_tree *tlvTree, guin
       proto_tree_add_item(tlv_decoded_value_tree, hf_packetbb_tlv_linkmetric_flags_neighin, tvb, offset, 2, ENC_NA);
       proto_tree_add_item(tlv_decoded_value_tree, hf_packetbb_tlv_linkmetric_flags_neighout, tvb, offset, 2, ENC_NA);
       tlv_decoded_value_item = proto_tree_add_item(tlv_decoded_value_tree, hf_packetbb_tlv_linkmetric_value, tvb, offset, 2, ENC_NA);
-      proto_item_append_text(tlv_decoded_value_item, " (%d)", uncompress_metric(tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN)));
+      proto_item_append_text(tlv_decoded_value_item, " (%d)", uncompress_metric(tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN)));
       break;
     case RFC7181_ADDRTLV_MPR:
       tlv_decoded_value_item = proto_tree_add_item(tlvTree, hf_packetbb_tlv_mpr, tvb, offset, len, ENC_NA);
@@ -357,9 +357,9 @@ static proto_item* dissect_pbb_tlvvalue(tvbuff_t *tvb, proto_tree *tlvTree, guin
   return tlv_decoded_value_item;
 }
 
-static int dissect_pbb_tlvblock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, guint maxoffset, gint8 addrCount, guint tlvCat) {
-  guint16 tlvblockLength;
-  guint tlvblockEnd;
+static int dissect_pbb_tlvblock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, unsigned maxoffset, int8_t addrCount, unsigned tlvCat) {
+  uint16_t tlvblockLength;
+  unsigned tlvblockEnd;
 
   proto_tree *tlvblock_tree, *tlv_tree, *tlvValue_tree;
   proto_item *tlvBlock_item, *tlv_item, *tlvValue_item;
@@ -398,25 +398,25 @@ static int dissect_pbb_tlvblock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
   offset += 2;
   while (offset < tlvblockEnd) {
-    guint tlvStart, tlvLength;
-    guint8 tlvType, tlvFlags, /*tlvExtType, */indexStart, indexEnd;
-    guint16 length = 0;
+    unsigned tlvStart, tlvLength;
+    uint8_t tlvType, tlvFlags, /*tlvExtType, */indexStart, indexEnd;
+    uint16_t length = 0;
     int hf_packetbb_tlv_type = 0;
     const value_string *tlv_type_vals;
 
     tlvStart = offset;
-    tlvType = tvb_get_guint8(tvb, offset++);
-    tlvFlags = tvb_get_guint8(tvb, offset++);
+    tlvType = tvb_get_uint8(tvb, offset++);
+    tlvFlags = tvb_get_uint8(tvb, offset++);
 
     indexStart = 0;
     indexEnd = addrCount ? (addrCount - 1) : 0;
 
     if ((tlvFlags & TLV_HAS_SINGLEINDEX) != 0) {
-      indexStart = indexEnd = tvb_get_guint8(tvb, offset++);
+      indexStart = indexEnd = tvb_get_uint8(tvb, offset++);
     }
     else if ((tlvFlags & TLV_HAS_MULTIINDEX) != 0) {
-      indexStart = tvb_get_guint8(tvb, offset++);
-      indexEnd = tvb_get_guint8(tvb, offset++);
+      indexStart = tvb_get_uint8(tvb, offset++);
+      indexEnd = tvb_get_uint8(tvb, offset++);
     }
 
     if ((tlvFlags & TLV_HAS_VALUE) != 0) {
@@ -424,7 +424,7 @@ static int dissect_pbb_tlvblock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         length = tvb_get_ntohs(tvb, offset++);
       }
       else {
-        length = tvb_get_guint8(tvb, offset++);
+        length = tvb_get_uint8(tvb, offset++);
       }
     }
 
@@ -503,7 +503,7 @@ static int dissect_pbb_tlvblock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
       else {
         /* multiple values */
         int i;
-        guint c = indexEnd - indexStart + 1;
+        unsigned c = indexEnd - indexStart + 1;
         if (c > 0) {
           tlvValue_tree = proto_item_add_subtree(tlvValue_item, ett_packetbb_tlv_value);
 
@@ -526,15 +526,15 @@ static int dissect_pbb_tlvblock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
   return offset;
 }
 
-static int dissect_pbb_addressblock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, guint maxoffset,
-    guint8 addressType, guint8 addressSize) {
-  guint8 addr[MAX_ADDR_SIZE];
+static int dissect_pbb_addressblock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, unsigned maxoffset,
+    uint8_t addressType, uint8_t addressSize) {
+  uint8_t addr[MAX_ADDR_SIZE];
 
-  guint8 numAddr;
-  guint8 address_flags;
-  guint8 head_length = 0, tail_length = 0;
-  guint block_length = 0, midSize = 0;
-  guint block_index = 0, head_index = 0, tail_index = 0, mid_index = 0, prefix_index = 0;
+  uint8_t numAddr;
+  uint8_t address_flags;
+  uint8_t head_length = 0, tail_length = 0;
+  unsigned block_length = 0, midSize = 0;
+  unsigned block_index = 0, head_index = 0, tail_index = 0, mid_index = 0, prefix_index = 0;
 
   proto_tree *addr_tree = NULL;
   proto_tree *addrValue_tree = NULL;
@@ -567,8 +567,8 @@ static int dissect_pbb_addressblock(tvbuff_t *tvb, packet_info *pinfo, proto_tre
   block_index = offset;
   midSize = addressSize;
 
-  numAddr = tvb_get_guint8(tvb, offset++);
-  address_flags = tvb_get_guint8(tvb, offset++);
+  numAddr = tvb_get_uint8(tvb, offset++);
+  address_flags = tvb_get_uint8(tvb, offset++);
 
   if ((address_flags & ADDR_HASHEAD) != 0) {
     head_index = offset;
@@ -578,7 +578,7 @@ static int dissect_pbb_addressblock(tvbuff_t *tvb, packet_info *pinfo, proto_tre
          "Not enough octets for addressblock head");
       return tvb_reported_length(tvb);
     }
-    head_length = tvb_get_guint8(tvb, offset++);
+    head_length = tvb_get_uint8(tvb, offset++);
 
     if (head_length > addressSize-1) {
       proto_tree_add_expert_format(tree, pinfo, &ei_packetbb_error, tvb, offset, maxoffset - offset,
@@ -604,7 +604,7 @@ static int dissect_pbb_addressblock(tvbuff_t *tvb, packet_info *pinfo, proto_tre
           "Not enough octets for addressblock tail");
       return tvb_reported_length(tvb);
     }
-    tail_length = tvb_get_guint8(tvb, offset++);
+    tail_length = tvb_get_uint8(tvb, offset++);
     if (tail_length > addressSize-1-head_length) {
       proto_tree_add_expert_format(tree, pinfo, &ei_packetbb_error, tvb, offset, maxoffset - offset,
           "address tail length is too long");
@@ -621,7 +621,7 @@ static int dissect_pbb_addressblock(tvbuff_t *tvb, packet_info *pinfo, proto_tre
           "Not enough octets for addressblock tail");
       return tvb_reported_length(tvb);
     }
-    tail_length = tvb_get_guint8(tvb, offset++);
+    tail_length = tvb_get_uint8(tvb, offset++);
     if (tail_length > addressSize-1-head_length) {
       proto_tree_add_expert_format(tree, pinfo, &ei_packetbb_error, tvb, offset, maxoffset - offset,
           "address tail length is too long");
@@ -684,8 +684,8 @@ static int dissect_pbb_addressblock(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     proto_tree_add_item(addr_tree, hf_packetbb_addr_tail, tvb, tail_index, 1, ENC_NA);
   }
   for (i=0; i<numAddr; i++) {
-    guint32 ipv4 = 0;
-    guint8 prefix = addressSize * 8;
+    uint32_t ipv4 = 0;
+    uint8_t prefix = addressSize * 8;
 
     tvb_memcpy(tvb, &addr[head_length], mid_index + midSize*i, midSize);
     ipv4 = (addr[3] << 24) + (addr[2] << 16) + (addr[1] << 8) + addr[0];
@@ -717,11 +717,11 @@ static int dissect_pbb_addressblock(tvbuff_t *tvb, packet_info *pinfo, proto_tre
         mid_index + midSize*i, midSize, ENC_NA);
 
     if ((address_flags & ADDR_HASSINGLEPRELEN) != 0) {
-      prefix = tvb_get_guint8(tvb, prefix_index);
+      prefix = tvb_get_uint8(tvb, prefix_index);
       proto_tree_add_item(addrValue_tree, hf_packetbb_addr_value_prefix, tvb, prefix_index, 1, ENC_BIG_ENDIAN);
     }
     else if ((address_flags & ADDR_HASMULTIPRELEN) != 0) {
-      prefix = tvb_get_guint8(tvb, prefix_index + i);
+      prefix = tvb_get_uint8(tvb, prefix_index + i);
       proto_tree_add_item(addrValue_tree, hf_packetbb_addr_value_prefix, tvb, prefix_index + i, 1, ENC_BIG_ENDIAN);
     }
     proto_item_append_text(addrValue_item, "/%d", prefix);
@@ -731,7 +731,7 @@ static int dissect_pbb_addressblock(tvbuff_t *tvb, packet_info *pinfo, proto_tre
   return offset;
 }
 
-static int dissect_pbb_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset) {
+static int dissect_pbb_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset) {
   proto_tree *message_tree;
   proto_tree *header_tree = NULL;
   proto_tree *headerFlags_tree = NULL;
@@ -740,10 +740,10 @@ static int dissect_pbb_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   proto_item *header_item = NULL;
   proto_item *headerFlags_item = NULL;
 
-  guint8 messageType;
-  guint8 messageFlags;
-  guint16 messageLength, headerLength, messageEnd;
-  guint8 addressSize, addressType;
+  uint8_t messageType;
+  uint8_t messageFlags;
+  uint16_t messageLength, headerLength, messageEnd;
+  uint8_t addressSize, addressType;
 
   if (tvb_reported_length(tvb) - offset < 6) {
     proto_tree_add_expert_format(tree, pinfo, &ei_packetbb_error, tvb, offset, -1,
@@ -751,8 +751,8 @@ static int dissect_pbb_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     return tvb_reported_length(tvb);
   }
 
-  messageType = tvb_get_guint8(tvb, offset);
-  messageFlags = tvb_get_guint8(tvb, offset+1);
+  messageType = tvb_get_uint8(tvb, offset);
+  messageFlags = tvb_get_uint8(tvb, offset+1);
   messageLength = tvb_get_ntohs(tvb, offset+2);
   addressSize = (messageFlags & 0x0f) + 1;
 
@@ -883,11 +883,11 @@ static int dissect_pbb_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   return offset;
 }
 
-static int dissect_pbb_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint headerLength, guint tlvIndex) {
+static int dissect_pbb_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned headerLength, unsigned tlvIndex) {
   proto_tree *header_tree;
   proto_item *header_item;
 
-  guint8 packet_flags = tvb_get_guint8(tvb, 0);
+  uint8_t packet_flags = tvb_get_uint8(tvb, 0);
 
   static int * const flags[] = {
     &hf_packetbb_header_flags_phasseqnum,
@@ -919,15 +919,15 @@ static int dissect_packetbb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   proto_item *ti;
   proto_tree *packetbb_tree;
-  guint offset;
-  guint8 packet_flags;
-  guint headerLength = 1;
-  guint tlvIndex = 0;
+  unsigned offset;
+  uint8_t packet_flags;
+  unsigned headerLength = 1;
+  unsigned tlvIndex = 0;
 
   /* Make sure it's a PacketBB packet */
 
   /* calculate header length */
-  packet_flags = tvb_get_guint8(tvb, 0);
+  packet_flags = tvb_get_uint8(tvb, 0);
   if ((packet_flags & PACKET_HEADER_HASSEQNR) != 0) {
     headerLength += 2;
   }
@@ -1357,7 +1357,7 @@ void proto_register_packetbb(void) {
   };
 
   /* Setup protocol subtree array */
-  gint *ett_base[] = {
+  int *ett_base[] = {
     &ett_packetbb,
     &ett_packetbb_header,
     &ett_packetbb_header_flags,
@@ -1377,7 +1377,7 @@ void proto_register_packetbb(void) {
     { &ei_packetbb_error, { "packetbb.error", PI_PROTOCOL, PI_WARN, "ERROR!", EXPFILL }},
   };
 
-  static gint *ett[array_length(ett_base) + 2*PACKETBB_MSG_TLV_LENGTH];
+  static int *ett[array_length(ett_base) + 2*PACKETBB_MSG_TLV_LENGTH];
   expert_module_t* expert_packetbb;
   int i,j;
 

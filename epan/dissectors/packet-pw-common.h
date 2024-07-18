@@ -61,7 +61,7 @@ typedef enum {
 }
 pwc_demux_type_t;
 
-extern void pwc_item_append_cw(proto_item* item, const guint32 cw, const gboolean append_text);
+extern void pwc_item_append_cw(proto_item* item, const uint32_t cw, const bool append_text);
 extern void pwc_item_append_text_n_items(proto_item* item, const int n, const char * const item_text);
 
 #endif

@@ -73,7 +73,7 @@ static int hf_pptp_alignment_errors;
 static int hf_pptp_send_accm;
 static int hf_pptp_receive_accm;
 
-static gint ett_pptp;
+static int ett_pptp;
 
 static expert_field ei_pptp_incorrect_magic_cookie;
 
@@ -214,7 +214,7 @@ dissect_cntrl_req(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree 
 
   proto_tree_add_uint_format_value(tree, hf_pptp_protocol_version, tvb, offset,
                                2, tvb_get_ntohs(tvb, offset), "%u.%u",
-                               tvb_get_guint8(tvb, offset), tvb_get_guint8(tvb, offset + 1));
+                               tvb_get_uint8(tvb, offset), tvb_get_uint8(tvb, offset + 1));
   offset += 2;
 
   proto_tree_add_item(tree, hf_pptp_reserved,             tvb, offset, 2, ENC_NA);
@@ -246,7 +246,7 @@ dissect_cntrl_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 
   proto_tree_add_uint_format_value(tree, hf_pptp_protocol_version, tvb, offset,
                                2, tvb_get_ntohs(tvb, offset), "%u.%u",
-                               tvb_get_guint8(tvb, offset), tvb_get_guint8(tvb, offset + 1));
+                               tvb_get_uint8(tvb, offset), tvb_get_uint8(tvb, offset + 1));
   offset += 2;
 
   proto_tree_add_item(tree, hf_pptp_control_result,       tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -581,8 +581,8 @@ dissect_pptp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   proto_tree *pptp_tree = NULL;
   proto_item *item      = NULL;
   int         offset    = 0;
-  guint16     len;
-  guint16     control_message_type;
+  uint16_t    len;
+  uint16_t    control_message_type;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPTP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -678,7 +678,7 @@ dissect_pptp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 void
 proto_register_pptp(void)
 {
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_pptp,
   };
 

@@ -57,7 +57,7 @@ static int hf_pdu_transport_length;
 static int hf_pdu_transport_payload;
 
 /* protocol tree items */
-static gint ett_pdu_transport;
+static int ett_pdu_transport;
 
 /* expert info items */
 static expert_field ei_pdu_transport_message_truncated;
@@ -65,17 +65,17 @@ static expert_field ei_pdu_transport_message_truncated;
 /********* UATs *********/
 
 typedef struct _generic_one_id_string {
-    guint   id;
-    gchar  *name;
+    unsigned   id;
+    char   *name;
 } generic_one_id_string_t;
 
 static void
-pdu_transport_free_key(gpointer key) {
+pdu_transport_free_key(void *key) {
     wmem_free(wmem_epan_scope(), key);
 }
 
 static void
-simple_free(gpointer data) {
+simple_free(void *data) {
     /* we need to free because of the g_strdup in post_update*/
     g_free(data);
 }
@@ -97,10 +97,10 @@ update_generic_one_identifier_32bit(void *r, char **err) {
 
     if (rec->name == NULL || rec->name[0] == 0) {
         *err = g_strdup("Name cannot be empty");
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 static void
@@ -112,8 +112,8 @@ free_generic_one_id_string_cb(void *r) {
 }
 
 static void
-post_update_one_id_string_template_cb(generic_one_id_string_t *data, guint data_num, GHashTable *ht) {
-    guint   i;
+post_update_one_id_string_template_cb(generic_one_id_string_t *data, unsigned data_num, GHashTable *ht) {
+    unsigned   i;
     int    *key = NULL;
 
     for (i = 0; i < data_num; i++) {
@@ -146,7 +146,7 @@ ht_lookup_name(GHashTable *ht, unsigned int identifier) {
 
 static GHashTable *data_pdu_transport_pdus;
 static generic_one_id_string_t *pdu_transport_pdus;
-static guint pdu_transport_pdus_num;
+static unsigned pdu_transport_pdus_num;
 
 UAT_HEX_CB_DEF(pdu_transport_pdus, id, generic_one_id_string_t)
 UAT_CSTRING_CB_DEF(pdu_transport_pdus, name, generic_one_id_string_t)
@@ -169,13 +169,13 @@ dissect_pdu_transport(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     proto_item         *ti_top = NULL;
     proto_item         *ti = NULL;
     proto_tree         *pdu_transport_tree = NULL;
-    guint               offset = 0;
+    unsigned            offset = 0;
     tvbuff_t           *subtvb = NULL;
-    gint                tmp = 0;
+    int                 tmp = 0;
 
-    guint32             length = 0;
-    guint32             pdu_id = 0;
-    const gchar        *descr;
+    uint32_t            length = 0;
+    uint32_t            pdu_id = 0;
+    const char         *descr;
 
     if (p_get_proto_data(pinfo->pool, pinfo, proto_pdu_transport, pinfo->curr_layer_num) != NULL) {
         col_append_str(pinfo->cinfo, COL_INFO, ", ");
@@ -224,7 +224,7 @@ dissect_pdu_transport(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     p_add_proto_data(pinfo->pool, pinfo, proto_pdu_transport, pinfo->curr_layer_num, GUINT_TO_POINTER(pdu_id));
 
     tmp = tvb_captured_length_remaining(tvb, offset);
-    if ((gint)length <= tmp) {
+    if ((int)length <= tmp) {
         proto_tree_add_item(pdu_transport_tree, hf_pdu_transport_payload, tvb, offset, length, ENC_NA);
         subtvb = tvb_new_subset_length_caplen(tvb, offset, length, length);
     } else {
@@ -236,22 +236,22 @@ dissect_pdu_transport(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         pdu_transport_info_t pdu_t_info;
         pdu_t_info.id = pdu_id;
 
-        dissector_try_uint_new(subdissector_table, pdu_id, subtvb, pinfo, tree, FALSE, (void *)(&pdu_t_info));
+        dissector_try_uint_new(subdissector_table, pdu_id, subtvb, pinfo, tree, false, (void *)(&pdu_t_info));
     }
-    offset += (gint)length;
+    offset += (int)length;
 
     col_set_fence(pinfo->cinfo, COL_INFO);
     return offset;
 }
 
-static guint
+static unsigned
 get_pdu_transport_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_) {
-    return PDU_TRANSPORT_HDR_LEN + (guint)tvb_get_ntohl(tvb, offset + 4);
+    return PDU_TRANSPORT_HDR_LEN + (unsigned)tvb_get_ntohl(tvb, offset + 4);
 }
 
 static int
 dissect_pdu_transport_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
-    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, PDU_TRANSPORT_HDR_LEN, get_pdu_transport_message_len, dissect_pdu_transport, data);
+    tcp_dissect_pdus(tvb, pinfo, tree, true, PDU_TRANSPORT_HDR_LEN, get_pdu_transport_message_len, dissect_pdu_transport, data);
     return tvb_reported_length(tvb);
 }
 
@@ -262,12 +262,12 @@ dissect_pdu_transport_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
 
 static void
-pdu_transport_id_prompt(packet_info *pinfo, gchar *result) {
+pdu_transport_id_prompt(packet_info *pinfo, char *result) {
     snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "PDU Transport ID 0x%08x as",
              GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_pdu_transport, pinfo->curr_layer_num)));
 }
 
-static gpointer
+static void *
 pdu_transport_id_value(packet_info *pinfo) {
     /* Limitation: This only returns the last proto_data, since udp_dissect_pdus gives us the same layer for all. */
     return p_get_proto_data(pinfo->pool, pinfo, proto_pdu_transport, pinfo->curr_layer_num);
@@ -288,7 +288,7 @@ proto_register_pdu_transport(void) {
             { "Payload", "pdu_transport.payload", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_pdu_transport,
     };
 
@@ -323,7 +323,7 @@ proto_register_pdu_transport(void) {
     pdu_transport_pduid_uat = uat_new("pdu_transport Capture Modules",
         sizeof(generic_one_id_string_t),        /* record size           */
         DATAFILE_PDU_IDS,                       /* filename              */
-        TRUE,                                   /* from profile          */
+        true,                                   /* from profile          */
         (void**)&pdu_transport_pdus,            /* data_ptr              */
         &pdu_transport_pdus_num,                /* numitems_ptr          */
         UAT_AFFECTS_DISSECTION,                 /* but not fields        */

@@ -18,7 +18,7 @@
 
 void proto_register_ppcap(void);
 
-static guint8 ssn;
+static uint8_t ssn;
 
 static dissector_handle_t ppcap_handle;
 static dissector_handle_t mtp3_handle;  /* MTP3 handle */
@@ -38,9 +38,9 @@ static mtp3_addr_pc_t* mtp3_addr_dpc;
 
 static int ss7pc_address_type = -1;
 
-static gint ett_ppcap;
-static gint ett_ppcap1;
-static gint ett_ppcap_new;
+static int ett_ppcap;
+static int ett_ppcap1;
+static int ett_ppcap_new;
 
 static const value_string payload_tag_values[] = {
 	{  1,	"Payload Type"},
@@ -130,7 +130,7 @@ dissect_ppcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 {
 	proto_item *ti;
 	proto_tree *ppcap_tree, *ppcap_tree1;
-	guint16 msg_type;
+	uint16_t msg_type;
 	int offset = 0;
 	payload_type_type payload_type = PPCAP_UNKNOWN;
 
@@ -196,7 +196,7 @@ static int
 dissect_ppcap_payload_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree * ppcap_tree1, int offset, payload_type_type *payload_type)
 {
 	char *string;
-	guint16 msg_len =0;
+	uint16_t msg_len =0;
 	msg_len = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_item( ppcap_tree1, hf_ppcap_length, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset  = offset + 2;
@@ -246,7 +246,7 @@ static int
 dissect_ppcap_source_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree * ppcap_tree1, int offset)
 {
 	int key1;
-	guint16 msg_len;
+	uint16_t msg_len;
 	msg_len = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_item( ppcap_tree1, hf_ppcap_length, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset  = offset + 2;
@@ -262,13 +262,13 @@ dissect_ppcap_source_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree * ppc
 		proto_tree_add_item(ppcap_tree1, hf_ppcap_ssn, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 		proto_tree_add_item(ppcap_tree1, hf_ppcap_spc, tvb, offset, 3, ENC_BIG_ENDIAN);
-		/*src_addr1 = (guint32 )tvb_get_ntoh24(tvb, offset);*/
+		/*src_addr1 = (uint32_t )tvb_get_ntoh24(tvb, offset);*/
 		mtp3_addr_opc = wmem_new0(pinfo->pool, mtp3_addr_pc_t);
-		mtp3_addr_opc->pc = (guint32 )tvb_get_ntoh24(tvb, offset);
+		mtp3_addr_opc->pc = (uint32_t )tvb_get_ntoh24(tvb, offset);
 		mtp3_addr_opc->type = ITU_STANDARD;
 		mtp3_addr_opc->ni = 0;
-		/*set_address(&pinfo->net_src, ss7pc_address_type, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr_opc);*/
-		set_address(&pinfo->src, ss7pc_address_type, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr_opc);
+		/*set_address(&pinfo->net_src, ss7pc_address_type, sizeof(mtp3_addr_pc_t), (uint8_t *) mtp3_addr_opc);*/
+		set_address(&pinfo->src, ss7pc_address_type, sizeof(mtp3_addr_pc_t), (uint8_t *) mtp3_addr_opc);
 		if (msg_len%4)
 			msg_len = msg_len + (4 - (msg_len%4));
 
@@ -279,12 +279,12 @@ dissect_ppcap_source_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree * ppc
 	{
 		proto_tree_add_item(ppcap_tree1, hf_ppcap_opc, tvb, offset, msg_len, ENC_BIG_ENDIAN);
 
-		/*src_addr1 = (guint32 )tvb_get_ntoh24(tvb, offset);*/
+		/*src_addr1 = (uint32_t )tvb_get_ntoh24(tvb, offset);*/
 		mtp3_addr_opc = wmem_new0(pinfo->pool, mtp3_addr_pc_t);
 		mtp3_addr_opc->pc = tvb_get_ntohl(tvb, offset);
 		mtp3_addr_opc->type = ITU_STANDARD;
 		mtp3_addr_opc->ni = 0;
-		set_address(&pinfo->src, ss7pc_address_type, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr_opc);
+		set_address(&pinfo->src, ss7pc_address_type, sizeof(mtp3_addr_pc_t), (uint8_t *) mtp3_addr_opc);
 	}
 	else if (key1 == 3)
 	{
@@ -333,7 +333,7 @@ static int
 dissect_ppcap_destination_address(tvbuff_t *tvb, packet_info * pinfo, proto_tree * ppcap_tree1, int offset)
 {
 	int key2;
-	guint16 msg_len;
+	uint16_t msg_len;
 	msg_len = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_item( ppcap_tree1, hf_ppcap_length, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset  = offset + 2;
@@ -346,18 +346,18 @@ dissect_ppcap_destination_address(tvbuff_t *tvb, packet_info * pinfo, proto_tree
 
 	if (key2 == 1)
 	{
-		ssn = tvb_get_guint8(tvb, offset);
+		ssn = tvb_get_uint8(tvb, offset);
 		proto_tree_add_item(ppcap_tree1, hf_ppcap_ssn1, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 
 		proto_tree_add_item(ppcap_tree1, hf_ppcap_spc1, tvb, offset, 3, ENC_BIG_ENDIAN);
 
-		/*dst_addr1 = (guint32 )tvb_get_ntoh24(tvb, offset);*/
+		/*dst_addr1 = (uint32_t )tvb_get_ntoh24(tvb, offset);*/
 		mtp3_addr_dpc = wmem_new0(pinfo->pool, mtp3_addr_pc_t);
-		mtp3_addr_dpc->pc = (guint32)tvb_get_ntoh24(tvb, offset);
+		mtp3_addr_dpc->pc = (uint32_t)tvb_get_ntoh24(tvb, offset);
 		mtp3_addr_dpc->type = ITU_STANDARD;
 		mtp3_addr_dpc->ni = 0;
-		set_address(&pinfo->dst, ss7pc_address_type, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr_dpc);
+		set_address(&pinfo->dst, ss7pc_address_type, sizeof(mtp3_addr_pc_t), (uint8_t *) mtp3_addr_dpc);
 
 		if (msg_len%4)
 			msg_len = msg_len + (4 - (msg_len%4));
@@ -370,12 +370,12 @@ dissect_ppcap_destination_address(tvbuff_t *tvb, packet_info * pinfo, proto_tree
 	{
 		proto_tree_add_item(ppcap_tree1, hf_ppcap_dpc, tvb, offset, 4, ENC_BIG_ENDIAN);
 
-		/*dst_addr1 = (guint32 )tvb_get_ntoh24(tvb, offset);*/
+		/*dst_addr1 = (uint32_t )tvb_get_ntoh24(tvb, offset);*/
 		mtp3_addr_dpc = wmem_new0(pinfo->pool, mtp3_addr_pc_t);
 		mtp3_addr_dpc->pc = tvb_get_ntohl(tvb, offset);
 		mtp3_addr_dpc->type = ITU_STANDARD;
 		mtp3_addr_dpc->ni = 0;
-		set_address(&pinfo->dst, ss7pc_address_type, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr_dpc);
+		set_address(&pinfo->dst, ss7pc_address_type, sizeof(mtp3_addr_pc_t), (uint8_t *) mtp3_addr_dpc);
 	}
 	else if (key2 == 3)
 	{
@@ -395,7 +395,7 @@ dissect_ppcap_destination_address(tvbuff_t *tvb, packet_info * pinfo, proto_tree
 
 	else if (key2 == 4)
 	{
-		const guint8 *string;
+		const uint8_t *string;
 		proto_tree_add_item_ret_string(ppcap_tree1, hf_ppcap_destination_nodeid, tvb, offset, msg_len, ENC_UTF_8|ENC_NA, pinfo->pool, &string);
 		set_address_tvb(&pinfo->net_dst, AT_STRINGZ, msg_len, tvb, offset);
 		copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
@@ -421,7 +421,7 @@ dissect_ppcap_destination_address(tvbuff_t *tvb, packet_info * pinfo, proto_tree
 static int
 dissect_ppcap_info_string(tvbuff_t *tvb, proto_tree * ppcap_tree1, int offset)
 {
-	guint16 msg_len;
+	uint16_t msg_len;
 	msg_len = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_item( ppcap_tree1, hf_ppcap_length, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset  = offset + 2;
@@ -489,7 +489,7 @@ dissect_ppcap_transport_protocol(tvbuff_t *tvb,proto_tree * ppcap_tree1, int off
 static int
 dissect_ppcap_sctp_assoc(tvbuff_t *tvb _U_, proto_tree * tree _U_, int offset)
 {
-	guint16 length;
+	uint16_t length;
 	length = tvb_get_ntohs(tvb, offset);
 
 	proto_tree_add_item(tree, hf_ppcap_length, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -516,7 +516,7 @@ static int
 dissect_ppcap_payload_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree * ppcap_tree1, int offset, proto_tree *tree, payload_type_type payload_type)
 {
 	tvbuff_t        *next_tvb;
-	guint16 msg_len;
+	uint16_t msg_len;
 	msg_len = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_item( ppcap_tree1, hf_ppcap_length, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset  = offset + 2;
@@ -659,7 +659,7 @@ void proto_register_ppcap(void)
 		BASE_NONE,      NULL,   0x0    , NULL,    HFILL } },
 	};
 
-	static gint *ett[]= {
+	static int *ett[]= {
 		&ett_ppcap,
 		&ett_ppcap1,
 		&ett_ppcap_new,

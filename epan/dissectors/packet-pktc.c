@@ -41,49 +41,49 @@ static dissector_handle_t pktc_mtafqdn_handle;
 
 static int proto_pktc;
 static int proto_pktc_mtafqdn;
-static gint hf_pktc_app_spec_data;
-static gint hf_pktc_list_of_ciphersuites;
-static gint hf_pktc_list_of_ciphersuites_len;
-static gint hf_pktc_kmmid;
-static gint hf_pktc_doi;
-static gint hf_pktc_version_major;
-static gint hf_pktc_version_minor;
-static gint hf_pktc_server_nonce;
-static gint hf_pktc_server_principal;
-static gint hf_pktc_timestamp;
-static gint hf_pktc_snmpEngineID_len;
-static gint hf_pktc_snmpEngineID;
-static gint hf_pktc_snmpEngineBoots;
-static gint hf_pktc_snmpEngineTime;
-static gint hf_pktc_usmUserName_len;
-static gint hf_pktc_usmUserName;
-static gint hf_pktc_ipsec_spi;
-static gint hf_pktc_snmpAuthenticationAlgorithm;
-static gint hf_pktc_snmpEncryptionTransformID;
-static gint hf_pktc_ipsecAuthenticationAlgorithm;
-static gint hf_pktc_ipsecEncryptionTransformID;
-static gint hf_pktc_reestablish_flag;
-static gint hf_pktc_ack_required_flag;
-static gint hf_pktc_sha1_hmac;
-static gint hf_pktc_sec_param_lifetime;
-static gint hf_pktc_grace_period;
+static int hf_pktc_app_spec_data;
+static int hf_pktc_list_of_ciphersuites;
+static int hf_pktc_list_of_ciphersuites_len;
+static int hf_pktc_kmmid;
+static int hf_pktc_doi;
+static int hf_pktc_version_major;
+static int hf_pktc_version_minor;
+static int hf_pktc_server_nonce;
+static int hf_pktc_server_principal;
+static int hf_pktc_timestamp;
+static int hf_pktc_snmpEngineID_len;
+static int hf_pktc_snmpEngineID;
+static int hf_pktc_snmpEngineBoots;
+static int hf_pktc_snmpEngineTime;
+static int hf_pktc_usmUserName_len;
+static int hf_pktc_usmUserName;
+static int hf_pktc_ipsec_spi;
+static int hf_pktc_snmpAuthenticationAlgorithm;
+static int hf_pktc_snmpEncryptionTransformID;
+static int hf_pktc_ipsecAuthenticationAlgorithm;
+static int hf_pktc_ipsecEncryptionTransformID;
+static int hf_pktc_reestablish_flag;
+static int hf_pktc_ack_required_flag;
+static int hf_pktc_sha1_hmac;
+static int hf_pktc_sec_param_lifetime;
+static int hf_pktc_grace_period;
 
-static gint hf_pktc_mtafqdn_msgtype;
-static gint hf_pktc_mtafqdn_enterprise;
-static gint hf_pktc_mtafqdn_version;
-static gint hf_pktc_mtafqdn_mac;
-static gint hf_pktc_mtafqdn_pub_key_hash;
-static gint hf_pktc_mtafqdn_manu_cert_revoked;
-static gint hf_pktc_mtafqdn_fqdn;
-static gint hf_pktc_mtafqdn_ip;
+static int hf_pktc_mtafqdn_msgtype;
+static int hf_pktc_mtafqdn_enterprise;
+static int hf_pktc_mtafqdn_version;
+static int hf_pktc_mtafqdn_mac;
+static int hf_pktc_mtafqdn_pub_key_hash;
+static int hf_pktc_mtafqdn_manu_cert_revoked;
+static int hf_pktc_mtafqdn_fqdn;
+static int hf_pktc_mtafqdn_ip;
 
-static gint ett_pktc;
-static gint ett_pktc_app_spec_data;
-static gint ett_pktc_list_of_ciphersuites;
-static gint ett_pktc_engineid;
-static gint ett_pktc_version;
+static int ett_pktc;
+static int ett_pktc_app_spec_data;
+static int ett_pktc_list_of_ciphersuites;
+static int ett_pktc_engineid;
+static int ett_pktc_version;
 
-static gint ett_pktc_mtafqdn;
+static int ett_pktc_mtafqdn;
 
 static expert_field ei_pktc_unknown_kmmid;
 static expert_field ei_pktc_unknown_doi;
@@ -171,14 +171,14 @@ static const value_string pktc_mtafqdn_msgtype_vals[] = {
 };
 
 static int
-dissect_pktc_app_specific_data(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 doi, guint8 kmmid)
+dissect_pktc_app_specific_data(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, uint8_t doi, uint8_t kmmid)
 {
     int old_offset=offset;
     proto_tree *tree;
     proto_tree *engineid_tree = NULL;
     proto_item *item;
     proto_item *engineid_item = NULL;
-    guint8 len;
+    uint8_t len;
 
     item = proto_tree_add_item(parent_tree, hf_pktc_app_spec_data, tvb, offset, -1, ENC_NA);
     tree = proto_item_add_subtree(item, ett_pktc_app_spec_data);
@@ -192,7 +192,7 @@ dissect_pktc_app_specific_data(packet_info *pinfo, proto_tree *parent_tree, tvbu
         case KMMID_AP_REQUEST:
         case KMMID_AP_REPLY:
             /* snmpEngineID Length */
-            len=tvb_get_guint8(tvb, offset);
+            len=tvb_get_uint8(tvb, offset);
             proto_tree_add_uint(tree, hf_pktc_snmpEngineID_len, tvb, offset, 1, len);
             offset+=1;
 
@@ -211,7 +211,7 @@ dissect_pktc_app_specific_data(packet_info *pinfo, proto_tree *parent_tree, tvbu
             offset+=4;
 
             /* usmUserName Length */
-            len=tvb_get_guint8(tvb, offset);
+            len=tvb_get_uint8(tvb, offset);
             proto_tree_add_uint(tree, hf_pktc_usmUserName_len, tvb, offset, 1, len);
             offset+=1;
 
@@ -250,18 +250,18 @@ dissect_pktc_app_specific_data(packet_info *pinfo, proto_tree *parent_tree, tvbu
 }
 
 static int
-dissect_pktc_list_of_ciphersuites(packet_info *pinfo _U_, proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 doi)
+dissect_pktc_list_of_ciphersuites(packet_info *pinfo _U_, proto_tree *parent_tree, tvbuff_t *tvb, int offset, uint8_t doi)
 {
     int old_offset=offset;
     proto_tree *tree;
     proto_item *item, *hidden_item;
-    guint8 len, i;
+    uint8_t len, i;
 
     item = proto_tree_add_item(parent_tree, hf_pktc_list_of_ciphersuites, tvb, offset, -1, ENC_NA);
     tree = proto_item_add_subtree(item, ett_pktc_list_of_ciphersuites);
 
     /* number of ciphersuites */
-    len=tvb_get_guint8(tvb, offset);
+    len=tvb_get_uint8(tvb, offset);
     if (len>0) {
       proto_item_append_text(tree, " (%d):", len);
     }
@@ -274,12 +274,12 @@ dissect_pktc_list_of_ciphersuites(packet_info *pinfo _U_, proto_tree *parent_tre
         for(i=0;i<len;i++){
             /* SNMPv3 authentication algorithm */
             proto_tree_add_item(tree, hf_pktc_snmpAuthenticationAlgorithm, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_item_append_text(tree, " %s", val_to_str(tvb_get_guint8(tvb, offset), snmp_authentication_algorithm_vals, "%0x"));
+            proto_item_append_text(tree, " %s", val_to_str(tvb_get_uint8(tvb, offset), snmp_authentication_algorithm_vals, "%0x"));
             offset+=1;
 
             /* SNMPv3 encryption transform id */
             proto_tree_add_item(tree, hf_pktc_snmpEncryptionTransformID, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_item_append_text(tree, "/%s", val_to_str(tvb_get_guint8(tvb, offset), snmp_transform_id_vals, "%0x"));
+            proto_item_append_text(tree, "/%s", val_to_str(tvb_get_uint8(tvb, offset), snmp_transform_id_vals, "%0x"));
             offset+=1;
         }
         break;
@@ -287,12 +287,12 @@ dissect_pktc_list_of_ciphersuites(packet_info *pinfo _U_, proto_tree *parent_tre
         for(i=0;i<len;i++){
             /* IPsec authentication algorithm */
             proto_tree_add_item(tree, hf_pktc_ipsecAuthenticationAlgorithm, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_item_append_text(tree, " %s", val_to_str(tvb_get_guint8(tvb, offset), ipsec_authentication_algorithm_vals, "%0x"));
+            proto_item_append_text(tree, " %s", val_to_str(tvb_get_uint8(tvb, offset), ipsec_authentication_algorithm_vals, "%0x"));
             offset+=1;
 
             /* IPsec encryption transform id */
             proto_tree_add_item(tree, hf_pktc_ipsecEncryptionTransformID, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_item_append_text(tree, "/%s", val_to_str(tvb_get_guint8(tvb, offset), ipsec_transform_id_vals, "%0x"));
+            proto_item_append_text(tree, "/%s", val_to_str(tvb_get_uint8(tvb, offset), ipsec_transform_id_vals, "%0x"));
             offset+=1;
         }
         break;
@@ -307,8 +307,8 @@ dissect_pktc_list_of_ciphersuites(packet_info *pinfo _U_, proto_tree *parent_tre
 static int
 dissect_pktc_wakeup(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-    guint32 snonce;
-    guint string_len;
+    uint32_t snonce;
+    unsigned string_len;
 
     /* Server Nonce */
     snonce=tvb_get_ntohl(tvb, offset);
@@ -324,14 +324,14 @@ dissect_pktc_wakeup(proto_tree *tree, tvbuff_t *tvb, int offset)
 }
 
 static int
-dissect_pktc_ap_request(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, guint8 doi)
+dissect_pktc_ap_request(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, uint8_t doi)
 {
     tvbuff_t *pktc_tvb;
-    guint32 snonce;
+    uint32_t snonce;
 
     /* AP Request  kerberos blob */
     pktc_tvb = tvb_new_subset_remaining(tvb, offset);
-    offset += dissect_kerberos_main(pktc_tvb, pinfo, tree, FALSE, NULL);
+    offset += dissect_kerberos_main(pktc_tvb, pinfo, tree, false, NULL);
 
     /* Server Nonce */
     snonce=tvb_get_ntohl(tvb, offset);
@@ -356,13 +356,13 @@ dissect_pktc_ap_request(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
 }
 
 static int
-dissect_pktc_ap_reply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, guint8 doi)
+dissect_pktc_ap_reply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, uint8_t doi)
 {
     tvbuff_t *pktc_tvb;
 
     /* AP Reply  kerberos blob */
     pktc_tvb = tvb_new_subset_remaining(tvb, offset);
-    offset += dissect_kerberos_main(pktc_tvb, pinfo, tree, FALSE, NULL);
+    offset += dissect_kerberos_main(pktc_tvb, pinfo, tree, false, NULL);
 
     /* app specific data */
     offset=dissect_pktc_app_specific_data(pinfo, tree, tvb, offset, doi, KMMID_AP_REPLY);
@@ -407,11 +407,11 @@ dissect_pktc_sec_param_rec(proto_tree *tree, tvbuff_t *tvb, int offset)
 }
 
 static int
-dissect_pktc_rekey(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, guint8 doi)
+dissect_pktc_rekey(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, uint8_t doi)
 {
-    guint32 snonce;
-    guint string_len;
-    const guint8 *timestr;
+    uint32_t snonce;
+    unsigned string_len;
+    const uint8_t *timestr;
     char *display;
     int yy, mm, dd, hh, _mm, ss;
 
@@ -468,7 +468,7 @@ dissect_pktc_error_reply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, in
 
     /* KRB_ERROR */
     pktc_tvb = tvb_new_subset_remaining(tvb, offset);
-    offset += dissect_kerberos_main(pktc_tvb, pinfo, tree, FALSE, NULL);
+    offset += dissect_kerberos_main(pktc_tvb, pinfo, tree, false, NULL);
 
     return offset;
 }
@@ -477,12 +477,12 @@ static int
 dissect_pktc_mtafqdn_krbsafeuserdata(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree)
 {
     int offset=0, string_len=0;
-    guint8 msgtype;
-    guint32 bignum;
+    uint8_t msgtype;
+    uint32_t bignum;
     nstime_t ts;
 
     /* message type */
-    msgtype = tvb_get_guint8(tvb, offset);
+    msgtype = tvb_get_uint8(tvb, offset);
     proto_tree_add_uint(tree, hf_pktc_mtafqdn_msgtype, tvb, offset, 1, msgtype);
     offset+=1;
 
@@ -525,7 +525,7 @@ dissect_pktc_mtafqdn_krbsafeuserdata(packet_info *pinfo, tvbuff_t *tvb, proto_tr
         offset+=string_len;
 
         /* MTA IP address */
-        tvb_memcpy(tvb, (guint8 *)&bignum, offset, sizeof(bignum));
+        tvb_memcpy(tvb, (uint8_t *)&bignum, offset, sizeof(bignum));
         proto_tree_add_ipv4(tree, hf_pktc_mtafqdn_ip, tvb, offset, 4, bignum);
 
         break;
@@ -546,9 +546,9 @@ dissect_pktc_mtafqdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     proto_tree *pktc_mtafqdn_tree;
     proto_item *item;
     tvbuff_t *pktc_mtafqdn_tvb;
-    gint8              ber_class;
+    int8_t             ber_class;
     bool               pc;
-    gint32             tag;
+    int32_t            tag;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PKTC");
 
@@ -562,7 +562,7 @@ dissect_pktc_mtafqdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     pktc_mtafqdn_tvb = tvb_new_subset_remaining(tvb, offset);
     get_ber_identifier(pktc_mtafqdn_tvb, 0, &ber_class, &pc, &tag);
     if ((tag == KERBEROS_APPLICATIONS_AP_REQ) || (tag == KERBEROS_APPLICATIONS_AP_REP)) {
-        offset += dissect_kerberos_main(pktc_mtafqdn_tvb, pinfo, pktc_mtafqdn_tree, FALSE, NULL);
+        offset += dissect_kerberos_main(pktc_mtafqdn_tvb, pinfo, pktc_mtafqdn_tree, false, NULL);
     } else {
         expert_add_info_format(pinfo, item, &ei_pktc_unknown_kerberos_application, "Unknown Kerberos application (%d), expected 10 or 11", tag);
         return tvb_captured_length(tvb);
@@ -572,7 +572,7 @@ dissect_pktc_mtafqdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     pktc_mtafqdn_tvb = tvb_new_subset_remaining(tvb, offset);
     get_ber_identifier(pktc_mtafqdn_tvb, 0, &ber_class, &pc, &tag);
     if (tag == KERBEROS_APPLICATIONS_KRB_SAFE) {
-        offset += dissect_kerberos_main(pktc_mtafqdn_tvb, pinfo, pktc_mtafqdn_tree, FALSE, cb);
+        offset += dissect_kerberos_main(pktc_mtafqdn_tvb, pinfo, pktc_mtafqdn_tree, false, cb);
     } else {
         expert_add_info_format(pinfo, item, &ei_pktc_unknown_kerberos_application, "Unknown Kerberos application (%d), expected 20", tag);
     }
@@ -585,7 +585,7 @@ dissect_pktc_mtafqdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 static int
 dissect_pktc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    guint8 kmmid, doi, version;
+    uint8_t kmmid, doi, version;
     int offset=0;
     proto_tree *pktc_tree, *version_tree;
     proto_item *item;
@@ -596,17 +596,17 @@ dissect_pktc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     pktc_tree = proto_item_add_subtree(item, ett_pktc);
 
     /* key management message id */
-    kmmid=tvb_get_guint8(tvb, offset);
+    kmmid=tvb_get_uint8(tvb, offset);
     proto_tree_add_uint(pktc_tree, hf_pktc_kmmid, tvb, offset, 1, kmmid);
     offset+=1;
 
     /* domain of interpretation */
-    doi=tvb_get_guint8(tvb, offset);
+    doi=tvb_get_uint8(tvb, offset);
     proto_tree_add_uint(pktc_tree, hf_pktc_doi, tvb, offset, 1, doi);
     offset+=1;
 
     /* version */
-    version=tvb_get_guint8(tvb, offset);
+    version=tvb_get_uint8(tvb, offset);
     version_tree = proto_tree_add_subtree_format(pktc_tree, tvb, offset, 1, ett_pktc_version, NULL,
                 "Version: %d.%d", (version>>4)&0x0f, (version)&0x0f);
     proto_tree_add_item(version_tree, hf_pktc_version_major, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -727,7 +727,7 @@ proto_register_pktc(void)
             "Grace Period", "pktc.grace_period", FT_UINT32, BASE_DEC,
             NULL, 0, "Grace Period in seconds", HFILL }},
     };
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_pktc,
         &ett_pktc_app_spec_data,
         &ett_pktc_list_of_ciphersuites,
@@ -780,7 +780,7 @@ proto_register_pktc_mtafqdn(void)
            "MTA IP Address", "pktc.mtafqdn.ip", FT_IPv4, BASE_NONE,
            NULL, 0, "MTA IP Address (all zeros if not supplied)", HFILL }},
     };
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_pktc_mtafqdn,
     };
 

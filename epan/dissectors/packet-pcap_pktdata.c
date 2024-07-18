@@ -29,7 +29,7 @@ static int hf_pcap_pktdata_pseudoheader;
 static int hf_pcap_pktdata_pseudoheader_bluetooth_direction;
 static int hf_pcap_pktdata_undecoded_data;
 
-static gint ett_pcap_pktdata_pseudoheader;
+static int ett_pcap_pktdata_pseudoheader;
 
 static expert_field ei_pcap_pktdata_linktype_unknown;
 static expert_field ei_pcap_pktdata_cant_generate_phdr;
@@ -274,8 +274,8 @@ static const value_string pseudoheader_bluetooth_direction_vals[] = {
 static int
 dissect_pcap_pktdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    gint         offset = 0;
-    guint32     *link_type;
+    int          offset = 0;
+    uint32_t    *link_type;
     tvbuff_t    *next_tvb;
     proto_item  *pseudoheader_item;
     proto_tree  *pseudoheader_tree = NULL;
@@ -285,7 +285,7 @@ dissect_pcap_pktdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
     DISSECTOR_ASSERT(data);
 
-    link_type = (guint32 *) data;
+    link_type = (uint32_t *) data;
 
     /*
      * We're passed a pointer to a LINKTYPE_ value.
@@ -330,9 +330,9 @@ dissect_pcap_pktdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
             pseudoheader_item = proto_tree_add_item(tree, hf_pcap_pktdata_pseudoheader, tvb, offset, 4, ENC_NA);
             pseudoheader_tree = proto_item_add_subtree(pseudoheader_item, ett_pcap_pktdata_pseudoheader);
             proto_tree_add_item(pseudoheader_tree, hf_pcap_pktdata_pseudoheader_bluetooth_direction, tvb, offset, 4, ENC_BIG_ENDIAN);
-            if (tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN) == 0)
+            if (tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN) == 0)
                 pinfo->p2p_dir = P2P_DIR_SENT;
-            else if (tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN) == 1)
+            else if (tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN) == 1)
                 pinfo->p2p_dir = P2P_DIR_RECV;
             else
                 pinfo->p2p_dir = P2P_DIR_UNKNOWN;
@@ -391,7 +391,7 @@ dissect_pcap_pktdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
 
-    offset = dissector_try_uint_new(wtap_encap_table, pinfo->rec->rec_header.packet_header.pkt_encap, next_tvb, pinfo, tree, TRUE, phdr);
+    offset = dissector_try_uint_new(wtap_encap_table, pinfo->rec->rec_header.packet_header.pkt_encap, next_tvb, pinfo, tree, true, phdr);
 
     return offset;
 }
@@ -417,7 +417,7 @@ proto_register_pcap_pktdata(void)
         },
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_pcap_pktdata_pseudoheader,
     };
 

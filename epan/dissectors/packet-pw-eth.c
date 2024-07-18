@@ -24,11 +24,11 @@
 void proto_register_pw_eth(void);
 void proto_reg_handoff_pw_eth(void);
 
-static gint proto_pw_eth_cw;
-static gint proto_pw_eth_nocw;
-static gint proto_pw_eth_heuristic;
+static int proto_pw_eth_cw;
+static int proto_pw_eth_nocw;
+static int proto_pw_eth_heuristic;
 
-static gint ett_pw_eth;
+static int ett_pw_eth;
 
 static int hf_pw_eth;
 static int hf_pw_eth_cw;
@@ -43,7 +43,7 @@ static int
 dissect_pw_eth_cw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     tvbuff_t *next_tvb;
-    guint16   sequence_number;
+    uint16_t  sequence_number;
 
     if (tvb_reported_length_remaining(tvb, 0) < 4) {
         return 0;
@@ -59,7 +59,7 @@ dissect_pw_eth_cw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
         proto_item *ti;
 
         ti = proto_tree_add_boolean(tree, hf_pw_eth_cw,
-                                    tvb, 0, 0, TRUE);
+                                    tvb, 0, 0, true);
         proto_item_set_hidden(ti);
         ti = proto_tree_add_item(tree, proto_pw_eth_cw,
                                  tvb, 0, 4, ENC_NA);
@@ -87,7 +87,7 @@ dissect_pw_eth_nocw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
     if (tree) {
         proto_item *ti;
-        ti = proto_tree_add_boolean(tree, hf_pw_eth, tvb, 0, 0, TRUE);
+        ti = proto_tree_add_boolean(tree, hf_pw_eth, tvb, 0, 0, true);
         proto_item_set_hidden(ti);
     }
 
@@ -98,14 +98,14 @@ dissect_pw_eth_nocw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 }
 
 /*
- * FF: this function returns TRUE if the first 12 bytes in tvb looks like
- *     two valid ethernet addresses.  FALSE otherwise.
+ * FF: this function returns true if the first 12 bytes in tvb looks like
+ *     two valid ethernet addresses.  false otherwise.
  */
 static int
 looks_like_plain_eth(tvbuff_t *tvb, int offset)
 {
-    const gchar *manuf_name_da;
-    const gchar *manuf_name_sa;
+    const char *manuf_name_da;
+    const char *manuf_name_sa;
     uint16_t etype;
     int ret = 2;
 
@@ -177,12 +177,12 @@ looks_like_plain_eth(tvbuff_t *tvb, int offset)
             return 0;
         }
         uint8_t sap;
-        sap = tvb_get_guint8(tvb, offset);
+        sap = tvb_get_uint8(tvb, offset);
         if (!try_val_to_str(sap, sap_vals)) {
             return 0;
         }
         offset += 1;
-        sap = tvb_get_guint8(tvb, offset);
+        sap = tvb_get_uint8(tvb, offset);
         if (!try_val_to_str(sap, sap_vals)) {
             return 0;
         }
@@ -202,7 +202,7 @@ dissect_pw_eth_heuristic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
      * CW, and if they do, the CW MUST be used. So it looks equally likely to
      * have the CW as not, assume CW.
      */
-    guint8 first_nibble = (tvb_get_guint8(tvb, 0) >> 4) & 0x0F;
+    uint8_t first_nibble = (tvb_get_uint8(tvb, 0) >> 4) & 0x0F;
 
     if (first_nibble == 0) {
         if (looks_like_plain_eth(tvb, 4) >= looks_like_plain_eth(tvb, 0)) {
@@ -256,7 +256,7 @@ proto_register_pw_eth(void)
         }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_pw_eth
     };
 

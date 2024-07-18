@@ -334,10 +334,10 @@ static int hf_pim_transitivetype;
 static int hf_pim_optiontype1;
 static int hf_pfm_no_forward_bit;
 
-static gint ett_pim;
-static gint ett_pim_opts;
-static gint ett_pim_opt;
-static gint ett_pim_addr_flags;
+static int ett_pim;
+static int ett_pim_opts;
+static int ett_pim_opt;
+static int ett_pim_addr_flags;
 
 static expert_field ei_pim_cksum;
 
@@ -485,9 +485,9 @@ static const value_string unique_infinity_t[] = {
 /* This function is only called from the IGMP dissector */
 static int
 dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
-    guint8 pim_type;
-    guint8 pim_ver;
-    guint length, pim_length;
+    uint8_t pim_type;
+    uint8_t pim_ver;
+    unsigned length, pim_length;
     vec_t cksum_vec[1];
     proto_tree *pim_tree = NULL;
     proto_item *ti;
@@ -505,14 +505,14 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
     offset += 1;
 
-    pim_type = tvb_get_guint8(tvb, offset);
+    pim_type = tvb_get_uint8(tvb, offset);
     col_add_str(pinfo->cinfo, COL_INFO,
                     val_to_str(pim_type, pim_type1_vals, "Unknown (%u)"));
 
     proto_tree_add_uint(pim_tree, hf_pim_code, tvb, offset, 1, pim_type);
     offset += 1;
 
-    pim_ver = PIM_VER(tvb_get_guint8(tvb, offset + 2));
+    pim_ver = PIM_VER(tvb_get_uint8(tvb, offset + 2));
     if (pim_ver != 1) {
         proto_tree_add_checksum(pim_tree, tvb, offset, hf_pim_cksum, hf_pim_cksum_status, &ei_pim_cksum, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 
@@ -598,7 +598,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
     case 1:     /* register */
     {
-        guint8 v_hl;
+        uint8_t v_hl;
         tvbuff_t *next_tvb;
 
         /*
@@ -609,7 +609,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         /*
          * It's an IP packet - determine whether it's IPv4 or IPv6.
          */
-        v_hl = tvb_get_guint8(tvb, offset);
+        v_hl = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(pimopt_tree, hf_pim_ip_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         switch((v_hl & 0xf0) >> 4) {
@@ -690,7 +690,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         proto_tree_add_item(pimopt_tree, hf_pim_addr_len, tvb, offset, 1, ENC_NA);
         offset += 1;
 
-        ngroup = tvb_get_guint8(tvb, offset);
+        ngroup = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(pimopt_tree, hf_pim_numgroups, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
@@ -777,13 +777,13 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     return offset;
 }
 
-static gboolean
+static bool
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_pim_addr(packet_info *pinfo, proto_tree* tree, tvbuff_t *tvb, int offset, enum pimv2_addrtype at,
                  const char* label, proto_item** ret_item, int hf_ip4, int hf_ip6, int *advance) {
-    guint8 af, et, flags, mask_len, ja_af;
+    uint8_t af, et, flags, mask_len, ja_af;
     ws_in6_addr ipv6;
-    guint32 ipv4 = 0;
+    uint32_t ipv4 = 0;
     proto_item* ti = NULL;
     proto_tree* addr_tree = NULL;
     proto_item *rloc_tree = NULL;
@@ -791,20 +791,20 @@ dissect_pim_addr(packet_info *pinfo, proto_tree* tree, tvbuff_t *tvb, int offset
     proto_tree* ja_tree = NULL;
     int len = 0;
     int ja_offset = 0;
-    guint8 ja_eos_type = 0;
-    guint8 ja_length = 0;
+    uint8_t ja_eos_type = 0;
+    uint8_t ja_length = 0;
     int ja_length_sum = 0;
 
-    af = tvb_get_guint8(tvb, offset);
+    af = tvb_get_uint8(tvb, offset);
     if (af != AFNUM_INET && af != AFNUM_INET6) {
         /*
          * We don't handle the other formats, and addresses don't include
          * a length field, so we can't even show them as raw bytes.
          */
-        return FALSE;
+        return false;
     }
 
-    et = tvb_get_guint8(tvb, offset + 1);
+    et = tvb_get_uint8(tvb, offset + 1);
     if ((et != PIM_ADDR_ET_NATIVE) && (et != PIM_ADDR_ET_NATIVE_JA)) {
         /*
          * The only defined encoding type is 0 and 1, for the native encoding
@@ -813,7 +813,7 @@ dissect_pim_addr(packet_info *pinfo, proto_tree* tree, tvbuff_t *tvb, int offset
          * even show addresses with a different encoding type as raw
          * bytes.
          */
-        return FALSE;
+        return false;
     }
 
     switch (at) {
@@ -861,10 +861,10 @@ dissect_pim_addr(packet_info *pinfo, proto_tree* tree, tvbuff_t *tvb, int offset
         if (et == PIM_ADDR_ET_NATIVE_JA){
             ja_offset = offset + len + 2;
             while (((ja_eos_type & 0x40) != 0x40) && (tvb_reported_length_remaining(tvb, ja_offset) >= 2)){
-                ja_length = tvb_get_guint8(tvb, ja_offset+1);
+                ja_length = tvb_get_uint8(tvb, ja_offset+1);
                 ti = proto_tree_add_item(addr_tree, hf_pim_source_join_attribute, tvb, ja_offset, ja_length + 2, ENC_NA);
                 ja_tree = proto_item_add_subtree(ti, ett_pim);
-                ja_eos_type = tvb_get_guint8(tvb, ja_offset);
+                ja_eos_type = tvb_get_uint8(tvb, ja_offset);
                 proto_tree_add_bitmask(ja_tree, tvb, ja_offset, hf_pim_source_ja_flags,
                                        ett_pim_addr_flags, pim_source_ja_flags, ENC_BIG_ENDIAN);
                 proto_item_append_text(ti, ": %s", val_to_str_const(ja_eos_type & 0x3F, pim_join_attribute_type_vals, "Unknown"));
@@ -876,7 +876,7 @@ dissect_pim_addr(packet_info *pinfo, proto_tree* tree, tvbuff_t *tvb, int offset
                         proto_tree_add_item(ja_tree, hf_pim_attribute_transport_mode, tvb, ja_offset, 1, ENC_NA);
                         break;
                     case PIM_JOIN_ATTRIBUTE_TYPE_RLOC:
-                        ja_af = tvb_get_guint8(tvb, offset);
+                        ja_af = tvb_get_uint8(tvb, offset);
                         switch(ja_af) {
                             case AFNUM_INET:
                                 rloc_tree = proto_tree_add_ipv4_format(ja_tree, hf_ip4, tvb, ja_offset, ja_length,
@@ -907,7 +907,7 @@ dissect_pim_addr(packet_info *pinfo, proto_tree* tree, tvbuff_t *tvb, int offset
         break;
 
     case pimv2_group:
-        mask_len = tvb_get_guint8(tvb, offset + 3);
+        mask_len = tvb_get_uint8(tvb, offset + 3);
         switch (af) {
         case AFNUM_INET:
             len = 4;
@@ -958,8 +958,8 @@ dissect_pim_addr(packet_info *pinfo, proto_tree* tree, tvbuff_t *tvb, int offset
         break;
 
     case pimv2_source:
-        flags = tvb_get_guint8(tvb, offset + 2);
-        mask_len = tvb_get_guint8(tvb, offset + 3);
+        flags = tvb_get_uint8(tvb, offset + 2);
+        mask_len = tvb_get_uint8(tvb, offset + 3);
         switch (af) {
         case AFNUM_INET:
             len = 4;
@@ -1017,10 +1017,10 @@ dissect_pim_addr(packet_info *pinfo, proto_tree* tree, tvbuff_t *tvb, int offset
         if (et == PIM_ADDR_ET_NATIVE_JA) {
             ja_offset = offset + 4 + len;
             while (((ja_eos_type & 0x40) != 0x40) && (tvb_reported_length_remaining(tvb, ja_offset) >= 2)) {
-                ja_length = tvb_get_guint8(tvb, ja_offset+1);
+                ja_length = tvb_get_uint8(tvb, ja_offset+1);
                 ti = proto_tree_add_item(addr_tree, hf_pim_source_join_attribute, tvb, ja_offset, ja_length + 2, ENC_NA);
                 ja_tree = proto_item_add_subtree(ti, ett_pim);
-                ja_eos_type = tvb_get_guint8(tvb, ja_offset);
+                ja_eos_type = tvb_get_uint8(tvb, ja_offset);
                 proto_tree_add_bitmask(ja_tree, tvb, ja_offset, hf_pim_source_ja_flags,
                             ett_pim_addr_flags, pim_source_ja_flags, ENC_BIG_ENDIAN);
                 proto_item_append_text(ti, ": %s", val_to_str_const(ja_eos_type & 0x3F, pim_join_attribute_type_vals, "Unknown"));
@@ -1040,7 +1040,7 @@ dissect_pim_addr(packet_info *pinfo, proto_tree* tree, tvbuff_t *tvb, int offset
                         }
                         break;
                     case PIM_JOIN_ATTRIBUTE_TYPE_RLOC:
-                        ja_af = tvb_get_guint8(tvb, offset);
+                        ja_af = tvb_get_uint8(tvb, offset);
                         switch(ja_af) {
                             case AFNUM_INET:
                                 rloc_tree = proto_tree_add_ipv4_format(ja_tree, hf_ip4, tvb, ja_offset, ja_length,
@@ -1069,13 +1069,13 @@ dissect_pim_addr(packet_info *pinfo, proto_tree* tree, tvbuff_t *tvb, int offset
 
         break;
     default:
-        return FALSE;
+        return false;
     }
 
     if (ret_item != NULL)
         *ret_item = ti;
 
-    return TRUE;
+    return true;
 }
 
 
@@ -1087,12 +1087,12 @@ dissect_pim_addr(packet_info *pinfo, proto_tree* tree, tvbuff_t *tvb, int offset
 static int
 dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
     int offset = 0;
-    guint8 pim_typever;
-    guint8 pim_subtype;
-    guint8 pim_bidir_subtype = 0;
-    guint length, pim_length;
+    uint8_t pim_typever;
+    uint8_t pim_subtype;
+    uint8_t pim_bidir_subtype = 0;
+    unsigned length, pim_length;
     vec_t cksum_vec[4];
-    guint32 phdr[2];
+    uint32_t phdr[2];
     const char *typestr;
     proto_tree *pim_tree = NULL;
     proto_item *ti;
@@ -1102,8 +1102,8 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PIM");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    pim_typever = tvb_get_guint8(tvb, 0);
-    pim_subtype = PIM_SUBTYPE(tvb_get_guint8(tvb, 1));
+    pim_typever = tvb_get_uint8(tvb, 0);
+    pim_subtype = PIM_SUBTYPE(tvb_get_uint8(tvb, 1));
 
     switch (PIM_VER(pim_typever)) {
     case 2:
@@ -1145,7 +1145,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     if (PIM_TYPE(pim_typever) == PIM_TYPE_DF_ELECT) {
         proto_tree_add_item(pim_tree, hf_pim_df_elect_subtype, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(pim_tree, hf_pim_df_elect_rsvd, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
-        pim_bidir_subtype = tvb_get_guint8(tvb,offset);
+        pim_bidir_subtype = tvb_get_uint8(tvb,offset);
     } else if ((PIM_TYPE(pim_typever) == PIM_TYPE_PACKED_REGISTER)) {
         /*
          * [version-4bits][type-4bits][0x[SubType-4bits][Flagbits-4bits]
@@ -1205,11 +1205,11 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             break;
         case AT_IPv6:
             /* Set up the fields of the pseudo-header. */
-            SET_CKSUM_VEC_PTR(cksum_vec[0], (const guint8 *)pinfo->src.data, pinfo->src.len);
-            SET_CKSUM_VEC_PTR(cksum_vec[1], (const guint8 *)pinfo->dst.data, pinfo->dst.len);
+            SET_CKSUM_VEC_PTR(cksum_vec[0], (const uint8_t *)pinfo->src.data, pinfo->src.len);
+            SET_CKSUM_VEC_PTR(cksum_vec[1], (const uint8_t *)pinfo->dst.data, pinfo->dst.len);
             phdr[0] = g_htonl(pim_length);
             phdr[1] = g_htonl(IP_PROTO_PIM);
-            SET_CKSUM_VEC_PTR(cksum_vec[2], (const guint8 *)&phdr, 8);
+            SET_CKSUM_VEC_PTR(cksum_vec[2], (const uint8_t *)&phdr, 8);
             SET_CKSUM_VEC_TVB(cksum_vec[3], tvb, 0, pim_length);
             proto_tree_add_checksum(pim_tree, tvb, offset+2, hf_pim_cksum, hf_pim_cksum_status, &ei_pim_cksum,
                                 pinfo, in_cksum(&cksum_vec[0], 4), ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
@@ -1238,9 +1238,9 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         int opt_count = 0;
 
         while (tvb_reported_length_remaining(tvb, offset) >= 2) {
-            guint16 hello_opt, opt_len;
-            guint32 holdtime;
-            const gchar* hold_str;
+            uint16_t hello_opt, opt_len;
+            uint32_t holdtime;
+            const char* hold_str;
             proto_item *opt_item;
             proto_tree *opt_tree;
 
@@ -1271,7 +1271,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 proto_tree_add_item(opt_tree, hf_pim_override_interval, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
                 proto_item_append_text(opt_item,
                                        ": T = %u, Propagation Delay = %ums, Override Interval = %ums",
-                                       tvb_get_guint8(tvb, offset + 4) & 0x80 ? 1 : 0,
+                                       tvb_get_uint8(tvb, offset + 4) & 0x80 ? 1 : 0,
                                        tvb_get_ntohs(tvb, offset + 4) & 0x7fff,
                                        tvb_get_ntohs(tvb, offset + 6));
                 break;
@@ -1291,8 +1291,8 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 proto_tree_add_item(opt_tree, hf_pim_state_refresh_interval, tvb, offset + 5, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(opt_tree, hf_pim_state_refresh_reserved, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
                 proto_item_append_text(opt_item, ": Version = %u, Interval = %us",
-                                       tvb_get_guint8(tvb, offset + 4),
-                                       tvb_get_guint8(tvb, offset + 5));
+                                       tvb_get_uint8(tvb, offset + 4),
+                                       tvb_get_uint8(tvb, offset + 5));
                 break;
 
             case PIM_HELLO_VAR_ADDR_LST: /* address list */
@@ -1329,7 +1329,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     case PIM_TYPE_REGISTER:     /* register */
     {
-        guint8 v_hl;
+        uint8_t v_hl;
         tvbuff_t *next_tvb;
         proto_tree *flag_tree;
         proto_item *tiflag;
@@ -1348,7 +1348,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         /*
          * It's an IP packet - determine whether it's IPv4 or IPv6.
          */
-        v_hl = tvb_get_guint8(tvb, offset);
+        v_hl = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(pimopt_tree, hf_pim_ip_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         switch((v_hl & 0xf0) >> 4) {
@@ -1424,7 +1424,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         proto_tree_add_item(pimopt_tree, hf_pim_res_bytes, tvb, offset, 1, ENC_NA);
         offset += 1;
 
-        ngroup = tvb_get_guint8(tvb, offset);
+        ngroup = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(pimopt_tree, hf_pim_numgroups, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
@@ -1504,7 +1504,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
             proto_tree_add_item(grouptree, hf_pim_rp_count, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
-            frpcnt = tvb_get_guint8(tvb, offset);
+            frpcnt = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(grouptree, hf_pim_frp_count, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 3;
 
@@ -1563,7 +1563,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         int pfxcnt;
         int i;
 
-        pfxcnt = tvb_get_guint8(tvb, offset);
+        pfxcnt = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(pimopt_tree, hf_pim_prefix_count, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
         proto_tree_add_item(pimopt_tree, hf_pim_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1688,7 +1688,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             break;
         offset += advance;
         while (tvb_reported_length_remaining(tvb, offset) >= 2) {
-            guint16 pfm, pfm_opt, opt_len;
+            uint16_t pfm, pfm_opt, opt_len;
             proto_item *opt_item;
             proto_tree *opt_tree;
 
@@ -1710,7 +1710,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                                             hf_pim_group_ip4, hf_pim_group_ip6, &advance))
                         break;
                     offset += advance;
-                    guint16 src_count;
+                    uint16_t src_count;
                     src_count=tvb_get_ntohs(tvb, offset);
                     proto_tree_add_item(pimopt_tree, hf_pim_srcount, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset += 2;
@@ -2377,7 +2377,7 @@ proto_register_pim(void)
             }
         };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_pim,
         &ett_pim_opts,      /* Tree for all options */
         &ett_pim_opt,       /* Tree for each option */

@@ -61,7 +61,7 @@ static int hf_pktap_ifunit;
 static int hf_pktap_epid;
 static int hf_pktap_ecmdname;
 
-static gint ett_pktap;
+static int ett_pktap;
 
 static expert_field ei_pktap_hdrlen_too_short;
 
@@ -91,17 +91,17 @@ static capture_dissector_handle_t eth_cap_handle;
  */
 
 static bool
-capture_pktap(const guchar *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
+capture_pktap(const unsigned char *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
-	guint32  hdrlen, rectype, dlt;
+	uint32_t hdrlen, rectype, dlt;
 
 	hdrlen = pletoh32(pd);
 	if (hdrlen < MIN_PKTAP_HDR_LEN || !BYTES_ARE_IN_FRAME(0, len, hdrlen))
-		return FALSE;
+		return false;
 
 	rectype = pletoh32(pd+4);
 	if (rectype != PKT_REC_PACKET)
-		return FALSE;
+		return false;
 
 	dlt = pletoh32(pd+4);
 
@@ -113,7 +113,7 @@ capture_pktap(const guchar *pd, int offset _U_, int len, capture_packet_info_t *
 
 	}
 
-	return FALSE;
+	return false;
 }
 
 static int
@@ -123,7 +123,7 @@ dissect_pktap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 	proto_item *ti = NULL;
 	tvbuff_t *next_tvb;
 	int offset = 0;
-	guint32 pkt_len, rectype, dlt;
+	uint32_t pkt_len, rectype, dlt;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "PKTAP");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -248,7 +248,7 @@ proto_register_pktap(void)
 	      FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_pktap,
 	};
 

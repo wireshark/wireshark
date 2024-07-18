@@ -15,7 +15,7 @@
 
 /* Structure that gets passed between dissectors. */
 typedef struct pdu_transport_info {
-    guint32 id;
+    uint32_t id;
 } pdu_transport_info_t;
 
 #endif /* __PACKET_PDU_TRANSPORT_H__ */

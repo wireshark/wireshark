@@ -493,13 +493,13 @@ static const value_string field_types_general[] = {
 /* Some details of frame seen passed info functions handling packet types.
    Not stored as per-packet data in frame...  */
 typedef struct pldm_packet_data {
-	guint8 direction;
-	guint8 instance_id;
+	uint8_t direction;
+	uint8_t instance_id;
 } pldm_packet_data;
 
 
 /* Return number of characters written */
-static int print_version_field(guint8 bcd, char *buffer, size_t buffer_size)
+static int print_version_field(uint8_t bcd, char *buffer, size_t buffer_size)
 {
 	int v;
 	if (bcd == 0xff)
@@ -521,10 +521,10 @@ static char* ver2str(tvbuff_t *tvb, int offset)
 	static char buffer[VER_BUF_LEN+1];
 	char* buf_ptr = &buffer[0];
 
-	guint8 major = tvb_get_guint8(tvb, offset);
-	guint8 minor = tvb_get_guint8(tvb, offset+1);
-	guint8 update = tvb_get_guint8(tvb, offset+2);
-	guint8 alpha = tvb_get_guint8(tvb, offset+3);
+	uint8_t major = tvb_get_uint8(tvb, offset);
+	uint8_t minor = tvb_get_uint8(tvb, offset+1);
+	uint8_t update = tvb_get_uint8(tvb, offset+2);
+	uint8_t alpha = tvb_get_uint8(tvb, offset+3);
 
 	// major, minor and update fields are all BCD encoded
 	uint8_t c_offset = 0;
@@ -565,10 +565,10 @@ static
 int dissect_base(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_tree, const pldm_packet_data *data)
 {
 	static uint8_t pldmT = -1;
-	guint8 instID = data->instance_id;
-	guint8 request = data->direction;
-	gint   offset = 0;
-	guint32 pldm_cmd, completion_code;
+	uint8_t instID = data->instance_id;
+	uint8_t request = data->direction;
+	int    offset = 0;
+	uint32_t pldm_cmd, completion_code;
 	proto_tree_add_item_ret_uint(p_tree, hf_pldm_base_commands, tvb, offset, 1, ENC_LITTLE_ENDIAN, &pldm_cmd);
 	offset += 1;
 	if (!request) { //completion code in response only
@@ -608,10 +608,10 @@ int dissect_base(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_tree, const pl
 			break;
 		case 04: // GetPLDMTypes
 			if (!request) {
-				guint8 flag_bit, curr_byte;
-				gint byte, bit;
+				uint8_t flag_bit, curr_byte;
+				int byte, bit;
 				for (byte=0; byte<8; byte++, offset+=1) { // loop for iterating over last 8 bytes
-					curr_byte = tvb_get_guint8(tvb, offset);
+					curr_byte = tvb_get_uint8(tvb, offset);
 					flag_bit = 1; // bit within current byte
 					for (bit=0; bit<8; bit++, flag_bit <<=1) {
 						if (curr_byte & flag_bit) { // type is supported
@@ -624,7 +624,7 @@ int dissect_base(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_tree, const pl
 			break;
 		case 05: // GetPLDMCommand
 			if (request) {
-				pldmT = tvb_get_guint8(tvb, offset); // response depends on this
+				pldmT = tvb_get_uint8(tvb, offset); // response depends on this
 				if (pldmT == 63)
 					pldmT = 7; // for oem-specific inorder to avoid array of size 64
 				if (instID > 31 || pldmT > 7) {
@@ -644,9 +644,9 @@ int dissect_base(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_tree, const pl
 				switch (pldmTypeReceived) {
 					case 0:
 						{
-							guint8 byte = tvb_get_guint8(tvb, offset);
-							guint8 flag_bit = 1;
-							for (gint i = 0; i < 8; i++, flag_bit <<= 1) {
+							uint8_t byte = tvb_get_uint8(tvb, offset);
+							uint8_t flag_bit = 1;
+							for (int i = 0; i < 8; i++, flag_bit <<= 1) {
 								if (byte & flag_bit) {
 									proto_tree_add_uint(p_tree, hf_pldm_base_commands, tvb, offset, 1, i);
 								}
@@ -655,20 +655,20 @@ int dissect_base(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_tree, const pl
 						break;
 					case 2:
 						{
-						    guint64 byt[4];
+						    uint64_t byt[4];
 						    byt[0] = tvb_get_letoh64(tvb, offset);
 						    byt[1] = tvb_get_letoh64(tvb, offset + 8);
 						    byt[2] = tvb_get_letoh64(tvb, offset + 16);
 						    byt[3] = tvb_get_letoh64(tvb, offset + 24);
-						    guint64 flag_bit = 1;
-						    for (gint i = 0; i < 88; i++, flag_bit <<= 1) {
+						    uint64_t flag_bit = 1;
+						    for (int i = 0; i < 88; i++, flag_bit <<= 1) {
 							    if (i == 64) {
 								    flag_bit = 1;
 							    }
 							    int j = i / 64;
 							    if (i > 7 && i % 8 == 0)
 								    offset += 1;
-							    guint64 byte = byt[j];
+							    uint64_t byte = byt[j];
 							    if (byte & flag_bit) {
 								    proto_tree_add_uint(p_tree, hf_pldm_platform_commands, tvb, offset, 1, i);
 							    }
@@ -677,9 +677,9 @@ int dissect_base(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_tree, const pl
 					    break;
 					case 3:
 						{
-						    guint16 byte = tvb_get_letohs(tvb, offset);
-						    guint16 flag_bit = 1;
-						    for (gint i = 0; i < 16; i++, flag_bit <<= 1) {
+						    uint16_t byte = tvb_get_letohs(tvb, offset);
+						    uint16_t flag_bit = 1;
+						    for (int i = 0; i < 16; i++, flag_bit <<= 1) {
 							    if (i > 7 && i % 8 == 0)
 								    offset += 1;
 							    if (byte & flag_bit) {
@@ -690,9 +690,9 @@ int dissect_base(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_tree, const pl
 					    break;
 					case 4:
 						{
-						    guint64 byte = tvb_get_letoh64(tvb, offset);
-						    guint64 flag_bit = 1;
-						    for (gint i = 0; i < 64; i++, flag_bit <<= 1) {
+						    uint64_t byte = tvb_get_letoh64(tvb, offset);
+						    uint64_t flag_bit = 1;
+						    for (int i = 0; i < 64; i++, flag_bit <<= 1) {
 							    if (i > 7 && i % 8 == 0)
 								    offset += 1;
 							    if (byte & flag_bit) {
@@ -717,9 +717,9 @@ int dissect_base(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_tree, const pl
 static
 int dissect_platform(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p_tree, const pldm_packet_data *data)
 {
-	guint8 request = data->direction;
-	gint   offset = 0;
-	guint32 pldm_cmd, completion_code;
+	uint8_t request = data->direction;
+	int    offset = 0;
+	uint32_t pldm_cmd, completion_code;
 	proto_tree_add_item_ret_uint(p_tree, hf_pldm_platform_commands, tvb, offset, 1, ENC_LITTLE_ENDIAN, &pldm_cmd);
 	offset += 1;
 	if (!request) { //completion code in response only
@@ -731,7 +731,7 @@ int dissect_platform(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p_tree, 
 	switch (pldm_cmd) {
 		case 0x04: // Set Event Receiver command
 			if (request) {
-				guint32 transport_protocol, event_message_global;
+				uint32_t transport_protocol, event_message_global;
 				proto_item *event_msg_global_response = proto_tree_add_item_ret_uint(
 					p_tree, hf_event_message_global, tvb, offset, 1, ENC_LITTLE_ENDIAN, &event_message_global);
 				offset += 1;
@@ -753,10 +753,10 @@ int dissect_platform(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p_tree, 
 				offset += 1;
 				proto_tree_add_item(p_tree, hf_pldm_base_TID, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
-				guint32 platform_event_message_class;
+				uint32_t platform_event_message_class;
 				proto_tree_add_item_ret_uint(p_tree, hf_event_class, tvb, offset, 1, ENC_LITTLE_ENDIAN, &platform_event_message_class);
 				offset += 1;
-				guint32 sensor_event_class;
+				uint32_t sensor_event_class;
 				/* Event Data */
 				switch (platform_event_message_class) {
 					case 0x0: // SensorEvent(0x00)
@@ -783,7 +783,7 @@ int dissect_platform(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p_tree, 
 								offset += 1;
 								proto_tree_add_item(p_tree, hf_event_prev_state, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 								offset += 1;
-								guint32 size;
+								uint32_t size;
 								proto_tree_add_item_ret_uint(p_tree, hf_sensor_data_size, tvb, offset, 1, ENC_LITTLE_ENDIAN, &size);
 								offset += 1;
 								switch (size) {
@@ -816,19 +816,19 @@ int dissect_platform(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p_tree, 
 						break;
 					case 0x4: // PLDM PDR Repository Change Event
 						if (request) {
-							guint32 pdr_data_format, num_change_record;
+							uint32_t pdr_data_format, num_change_record;
 							proto_tree_add_item_ret_uint(p_tree, hf_pdr_data_format, tvb, offset, 1, ENC_LITTLE_ENDIAN, &pdr_data_format);
 							offset += 1;
 							proto_tree_add_item_ret_uint(p_tree, hf_pdr_num_change_recs, tvb, offset, 1, ENC_LITTLE_ENDIAN, &num_change_record);
 							if (num_change_record>0) { // if pdr_data_format is refresh entire repo then num-change-record shall be 0
 								offset +=1;
-								for (guint32 i = 0; i < num_change_record; i++) {
+								for (uint32_t i = 0; i < num_change_record; i++) {
 									proto_tree_add_item(p_tree, hf_pdr_repo_change_event_data_op, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 									offset +=1;
-									guint32 num_change_entries;
+									uint32_t num_change_entries;
 									proto_tree_add_item_ret_uint(p_tree, hf_pdr_repo_change_rec_num_change_entries, tvb, offset, 1, ENC_LITTLE_ENDIAN, &num_change_entries);
 									offset +=1;
-									for (guint32 j = 0; j < num_change_entries; j++) {
+									for (uint32_t j = 0; j < num_change_entries; j++) {
 										if (pdr_data_format == 1) { // pdr type enumeration
 											proto_tree_add_item(p_tree, hf_pdr_repo_change_event_record_pdr_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 										}
@@ -860,10 +860,10 @@ int dissect_platform(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p_tree, 
 			if (request) {
 				proto_tree_add_item(p_tree, hf_sensor_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 				offset += 2;
-				guint8 sensor_rearm = tvb_get_guint8(tvb, offset);
-				guint8 flag_bit = 1;
+				uint8_t sensor_rearm = tvb_get_uint8(tvb, offset);
+				uint8_t flag_bit = 1;
 				int cnt = 0;
-				for (gint i = 0; i < 8; i++, flag_bit <<= 1) {
+				for (int i = 0; i < 8; i++, flag_bit <<= 1) {
 					if (sensor_rearm & flag_bit) {
 						cnt++;
 						proto_tree_add_uint(p_tree, hf_sensor_rearm, tvb, offset, 1, i);
@@ -875,9 +875,9 @@ int dissect_platform(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p_tree, 
 				offset +=1;
 				proto_tree_add_item(p_tree, hf_pldm_sensor_reserved, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			} else {
-				guint32 sensor_comp_count;
+				uint32_t sensor_comp_count;
 				proto_tree_add_item_ret_uint(p_tree, hf_sensor_composite_count, tvb, offset, 1, ENC_LITTLE_ENDIAN, &sensor_comp_count);
-				for (guint32 i=0; i<sensor_comp_count; i++) { // statefield
+				for (uint32_t i=0; i<sensor_comp_count; i++) { // statefield
 					offset += 1;
 					proto_tree_add_item(p_tree, hf_sensor_present_op_state, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 					offset += 1;
@@ -896,7 +896,7 @@ int dissect_platform(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p_tree, 
 				proto_tree_add_item(p_tree, hf_event_rearm, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			}
 			else {
-				guint32 size;
+				uint32_t size;
 				proto_tree_add_item_ret_uint(p_tree, hf_sensor_data_size, tvb, offset, 1, ENC_LITTLE_ENDIAN, &size);
 				offset += 1;
 				proto_tree_add_item(p_tree, hf_sensor_present_op_state, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -937,7 +937,7 @@ int dissect_platform(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p_tree, 
 			if (request) {
 				proto_tree_add_item(p_tree, hf_effecter_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 				offset += 2;
-				guint32 size;
+				uint32_t size;
 				proto_tree_add_item_ret_uint(p_tree, hf_effecter_datasize, tvb, offset, 1, ENC_LITTLE_ENDIAN, &size);
 				offset += 1;
 				switch (size) {
@@ -968,7 +968,7 @@ int dissect_platform(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p_tree, 
 			if (request) {
 				proto_tree_add_item(p_tree, hf_effecter_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			} else {
-				guint32 size;
+				uint32_t size;
 				proto_tree_add_item_ret_uint(p_tree, hf_effecter_datasize, tvb, offset, 1, ENC_LITTLE_ENDIAN, &size);
 				offset += 1;
 				proto_tree_add_item(p_tree, hf_effecter_op_state, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -1014,9 +1014,9 @@ int dissect_platform(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p_tree, 
 			if (request) {
 				proto_tree_add_item(p_tree, hf_effecter_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 				offset += 2;
-				guint32 effecter_comp_count;
+				uint32_t effecter_comp_count;
 				proto_tree_add_item_ret_uint(p_tree, hf_effecter_count, tvb, offset, 1, ENC_LITTLE_ENDIAN, &effecter_comp_count);
-				for (guint32 i=0; i < effecter_comp_count; i++) { // statefield
+				for (uint32_t i=0; i < effecter_comp_count; i++) { // statefield
 					offset += 1;
 					proto_tree_add_item(p_tree, hf_effecter_set_request, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 					offset += 1;
@@ -1041,13 +1041,13 @@ int dissect_platform(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p_tree, 
 				offset += 4;
 				proto_tree_add_item(p_tree, hf_pdr_next_data_handle, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 				offset += 4;
-				guint32 transfer_flag;
+				uint32_t transfer_flag;
 				proto_tree_add_item_ret_uint(p_tree, hf_pdr_transfer_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN, &transfer_flag);
 				offset += 1;
-				guint32 response_cnt;
+				uint32_t response_cnt;
 				proto_tree_add_item_ret_uint(p_tree, hf_pdr_response_count, tvb, offset, 2, ENC_LITTLE_ENDIAN, &response_cnt);
 				offset += 2;
-				guint16 pdr_length = tvb_reported_length_remaining(tvb, offset);
+				uint16_t pdr_length = tvb_reported_length_remaining(tvb, offset);
 				if (response_cnt) {
 					if (pdr_length != response_cnt) {
 						col_append_fstr(pinfo->cinfo, COL_INFO, "Corrupt PDR Record data");
@@ -1073,11 +1073,11 @@ int dissect_platform(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p_tree, 
 }
 
 static
-guint16 parse_fru_record_table(tvbuff_t *tvb, const packet_info *pinfo,
-	proto_tree *p_tree, guint16 offset)
+uint16_t parse_fru_record_table(tvbuff_t *tvb, const packet_info *pinfo,
+	proto_tree *p_tree, uint16_t offset)
 {
-	guint32 min_size = 8, field_len = 0, num_fields = 0, encoding = 0, record_type;
-	guint16 bytes_left = tvb_reported_length(tvb) - offset;
+	uint32_t min_size = 8, field_len = 0, num_fields = 0, encoding = 0, record_type;
+	uint16_t bytes_left = tvb_reported_length(tvb) - offset;
 	while (bytes_left >= min_size) {
 		// parse a FRU Record Data
 		proto_tree_add_item(p_tree, hf_fru_record_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -1089,7 +1089,7 @@ guint16 parse_fru_record_table(tvbuff_t *tvb, const packet_info *pinfo,
 		proto_tree_add_item_ret_uint(p_tree, hf_fru_record_encoding, tvb, offset, 1, ENC_LITTLE_ENDIAN, &encoding);
 		offset += 1;
 
-		for (guint8 i = 0; i < num_fields; i++) {
+		for (uint8_t i = 0; i < num_fields; i++) {
 			if (record_type == 1) { // General
 				proto_tree_add_item(p_tree, hf_fru_record_field_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
@@ -1130,14 +1130,14 @@ guint16 parse_fru_record_table(tvbuff_t *tvb, const packet_info *pinfo,
 static
 int dissect_FRU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_tree, const pldm_packet_data *data)
 {
-	guint8 request = data->direction;
-	guint16 offset = 0;
-	guint32 pldm_cmd;
-	guint8 padding = 0;
+	uint8_t request = data->direction;
+	uint16_t offset = 0;
+	uint32_t pldm_cmd;
+	uint8_t padding = 0;
 	proto_tree_add_item_ret_uint(p_tree, hf_pldm_FRU_commands, tvb, offset, 1, ENC_LITTLE_ENDIAN, &pldm_cmd);
 	offset += 1;
 	if (!request) {
-		guint8 completion_code = tvb_get_guint8(tvb, offset);
+		uint8_t completion_code = tvb_get_uint8(tvb, offset);
 		switch (completion_code) {
 			case 0x80:
 			case 0x81:
@@ -1245,9 +1245,9 @@ static int dissect_pldm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	tvbuff_t *next_tvb;
-	guint len;
-	guint32 direction;
-	guint32 instID, pldm_type, offset;
+	unsigned len;
+	uint32_t direction;
+	uint32_t instID, pldm_type, offset;
 	int reported_length;
 	len = tvb_reported_length(tvb);
 	if (len < PLDM_MIN_LENGTH) {
@@ -1643,7 +1643,7 @@ void proto_register_pldm(void)
 				0x0, NULL, HFILL}},
 	};
 
-	static gint *ett[] = {&ett_pldm};
+	static int *ett[] = {&ett_pldm};
 	proto_pldm = proto_register_protocol("PLDM Protocol", "PLDM", "pldm");
 	proto_register_field_array(proto_pldm, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));

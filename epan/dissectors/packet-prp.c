@@ -44,7 +44,7 @@ static int hf_prp_redundancy_control_trailer_version;
 
 
 /* Initialize the subtree pointers */
-static gint ett_prp_redundancy_control_trailer;
+static int ett_prp_redundancy_control_trailer;
 
 
 /* Code to actually dissect the packets */
@@ -55,11 +55,11 @@ dissect_prp_redundancy_control_trailer(tvbuff_t *tvb, packet_info *pinfo _U_, pr
     proto_tree *prp_tree;
     int         i;
     int         length;
-    guint16     lan_id;
-    guint16     lsdu_size;
-    guint16     prp1_suffix;
-    guint       trailer_start;
-    guint       trailer_length;
+    uint16_t    lan_id;
+    uint16_t    lsdu_size;
+    uint16_t    prp1_suffix;
+    unsigned    trailer_start;
+    unsigned    trailer_length;
 
     trailer_start = 0;
     trailer_length = 0;
@@ -197,7 +197,7 @@ void proto_register_prp(void)
         }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_prp_redundancy_control_trailer,
     };
 

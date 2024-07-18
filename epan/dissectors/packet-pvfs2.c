@@ -174,22 +174,22 @@ static int hf_fhandle_data;
 static int hf_pvfs_opaque_length;
 
 /* Initialize the subtree pointers */
-static gint ett_pvfs;
-static gint ett_pvfs_hdr;
-static gint ett_pvfs_credentials;
-static gint ett_pvfs_server_config;
-static gint ett_pvfs_server_config_branch;
-static gint ett_pvfs_attrmask;
-static gint ett_pvfs_time;
-static gint ett_pvfs_extent_array_tree;
-static gint ett_pvfs_extent_item;
-static gint ett_pvfs_string;
-static gint ett_pvfs_attr_tree;
-static gint ett_pvfs_distribution;
-static gint ett_pvfs_mgmt_perf_stat;
-static gint ett_pvfs_mgmt_dspace_info;
-static gint ett_pvfs_attr;
-static gint ett_pvfs_fh;
+static int ett_pvfs;
+static int ett_pvfs_hdr;
+static int ett_pvfs_credentials;
+static int ett_pvfs_server_config;
+static int ett_pvfs_server_config_branch;
+static int ett_pvfs_attrmask;
+static int ett_pvfs_time;
+static int ett_pvfs_extent_array_tree;
+static int ett_pvfs_extent_item;
+static int ett_pvfs_string;
+static int ett_pvfs_attr_tree;
+static int ett_pvfs_distribution;
+static int ett_pvfs_mgmt_perf_stat;
+static int ett_pvfs_mgmt_dspace_info;
+static int ett_pvfs_attr;
+static int ett_pvfs_fh;
 
 static expert_field ei_pvfs_malformed;
 
@@ -268,21 +268,21 @@ static const value_string names_pvfs_server_mode[] =
 };
 
 /* Forward declaration */
-static gboolean
+static bool
 dissect_pvfs_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-		gboolean dissect_other_as_continuation);
+		bool dissect_other_as_continuation);
 
 
 static int dissect_pvfs_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	dissect_pvfs_common(tvb, pinfo, tree, FALSE);
+	dissect_pvfs_common(tvb, pinfo, tree, false);
 	return tvb_reported_length(tvb);
 }
 
-static guint get_pvfs_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+static unsigned get_pvfs_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                               int offset, void *data _U_)
 {
-	guint32 plen;
+	uint32_t plen;
 
 	/*
 	 * Get the length of the PVFS-over-TCP packet. Ignore top 32 bits
@@ -295,8 +295,8 @@ static guint get_pvfs_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
 static int
 dissect_pvfs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	guint32 magic_nr, mode;
-	guint64 size;
+	uint32_t magic_nr, mode;
+	uint64_t size;
 
 	/* verify that this is indeed PVFS and that it looks sane */
 	if(tvb_reported_length(tvb)<24){
@@ -545,7 +545,7 @@ static int
 dissect_pvfs2_error(tvbuff_t *tvb, proto_tree *tree, int offset,
 		packet_info *pinfo)
 {
-	gint32 err;
+	int32_t err;
 	const char *errmsg = NULL;
 
 	err = tvb_get_letohl(tvb, offset);
@@ -566,7 +566,7 @@ dissect_pvfs_credentials(tvbuff_t *tvb, proto_tree *parent_tree,
 		int offset)
 {
 	proto_tree *hcred_tree;
-	guint32 uid, gid;
+	uint32_t uid, gid;
 
 	uid = tvb_get_letohl(tvb, offset);
 	gid = tvb_get_letohl(tvb, offset + 4);
@@ -710,9 +710,9 @@ static const value_string names_pvfs_attr[] =
 
 static int
 dissect_pvfs2_attrmask(tvbuff_t *tvb, proto_tree *tree, int offset,
-		guint32 *pattrmask)
+		uint32_t *pattrmask)
 {
-	guint32 attrmask, i;
+	uint32_t attrmask, i;
 	proto_item *attritem;
 	proto_tree *attrtree;
 
@@ -755,7 +755,7 @@ static int
 dissect_pvfs2_ds_type(tvbuff_t *tvb, proto_tree *tree, int offset,
 		int *pds_type)
 {
-	guint32 ds_type;
+	uint32_t ds_type;
 
 	ds_type = tvb_get_letohl(tvb, offset);
 
@@ -774,24 +774,24 @@ dissect_pvfs_opaque_data(tvbuff_t *tvb, int offset,
 	proto_tree *tree,
 	packet_info *pinfo,
 	int hfindex,
-	gboolean fixed_length, guint32 length,
-	gboolean string_data, const char **string_buffer_ret)
+	bool fixed_length, uint32_t length,
+	bool string_data, const char **string_buffer_ret)
 {
 	int data_offset;
 	proto_item *string_item = NULL;
 	proto_tree *string_tree = NULL;
 
-	guint32 string_length;
-	guint32 string_length_full;
-	guint32 string_length_packet;
-	guint32 string_length_captured;
-	guint32 string_length_copy;
+	uint32_t string_length;
+	uint32_t string_length_full;
+	uint32_t string_length_packet;
+	uint32_t string_length_captured;
+	uint32_t string_length_copy;
 
 	int fill_truncated;
-	guint32 fill_length;
-	guint32 fill_length_packet;
-	guint32 fill_length_captured;
-	guint32 fill_length_copy;
+	uint32_t fill_length;
+	uint32_t fill_length_packet;
+	uint32_t fill_length_captured;
+	uint32_t fill_length_copy;
 
 	int exception = 0;
 
@@ -885,7 +885,7 @@ dissect_pvfs_opaque_data(tvbuff_t *tvb, int offset,
 				size_t string_buffer_size = 0;
 				char *string_buffer_temp;
 
-				formatted = format_text(pinfo->pool, (guint8 *)string_buffer,
+				formatted = format_text(pinfo->pool, (uint8_t *)string_buffer,
 						(int)strlen(string_buffer));
 
 				string_buffer_size = strlen(formatted) + 12 + 1;
@@ -909,7 +909,7 @@ dissect_pvfs_opaque_data(tvbuff_t *tvb, int offset,
 			}
 		} else {
 			if (string_data) {
-				string_buffer_print = format_text(pinfo->pool, (guint8 *) string_buffer,
+				string_buffer_print = format_text(pinfo->pool, (uint8_t *) string_buffer,
 								 (int)strlen(string_buffer));
 			} else {
 				string_buffer_print="<DATA>";
@@ -939,7 +939,7 @@ dissect_pvfs_opaque_data(tvbuff_t *tvb, int offset,
 	} else {
 		proto_tree_add_bytes_format(string_tree,
 			hfindex, tvb, offset, string_length_copy,
-			(guint8 *) string_buffer,
+			(uint8_t *) string_buffer,
 			"contents: %s", string_buffer_print);
 	}
 
@@ -982,23 +982,23 @@ dissect_pvfs_string(tvbuff_t *tvb, proto_tree *tree, int hfindex,
 		int offset, packet_info *pinfo, const char **string_buffer_ret)
 {
 	return dissect_pvfs_opaque_data(tvb, offset, tree, pinfo, hfindex,
-			FALSE, 0, TRUE, string_buffer_ret);
+			false, 0, true, string_buffer_ret);
 }
 
 static void
 dissect_fhandle_data_unknown(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-	guint bytes_left  = PVFS2_FH_LENGTH;
+	unsigned bytes_left  = PVFS2_FH_LENGTH;
 
 	proto_tree_add_item(tree, hf_fhandle_data, tvb, offset, bytes_left, ENC_NA);
 }
 
 static void
 dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-		     proto_tree *tree, guint32 *hash)
+		     proto_tree *tree, uint32_t *hash)
 {
-	guint32 fhhash;
-	guint32 i;
+	uint32_t fhhash;
+	uint32_t i;
 
 	/* Not all bytes there. Any attempt to deduce the type would be
 		senseless. */
@@ -1007,7 +1007,7 @@ dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	/* create a semiunique hash value for the filehandle */
 	for(fhhash=0,i=0;i<(PVFS2_FH_LENGTH-3);i+=4){
-		guint32 val;
+		uint32_t val;
 		val = tvb_get_ntohl(tvb, offset+i);
 		fhhash ^= val;
 		fhhash += val;
@@ -1027,7 +1027,7 @@ type_ready:
 
 static int
 dissect_pvfs_fh(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		proto_tree *tree, const char *name, guint32 *hash)
+		proto_tree *tree, const char *name, uint32_t *hash)
 {
 	proto_tree* ftree;
 
@@ -1048,7 +1048,7 @@ dissect_pvfs_fh(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 dissect_pvfs_handle_extent(tvbuff_t *tvb, proto_tree *tree, int offset,
-		packet_info *pinfo, guint32 nCount)
+		packet_info *pinfo, uint32_t nCount)
 {
 	proto_tree *extent_tree;
 
@@ -1070,8 +1070,8 @@ static int
 dissect_pvfs_handle_extent_array(tvbuff_t *tvb, proto_tree *tree, int offset,
 		packet_info *pinfo)
 {
-	guint32 extent_count;
-	guint32 nCount;
+	uint32_t extent_count;
+	uint32_t nCount;
 	proto_tree *extent_array_tree;
 
 	/* extent count */
@@ -1097,8 +1097,8 @@ static int
 dissect_pvfs_time(tvbuff_t *tvb, proto_tree *tree, int offset,
 		int hf_time, int hf_time_sec, int hf_time_nsec)
 {
-	guint32 seconds;
-	guint32 nseconds;
+	uint32_t seconds;
+	uint32_t nseconds;
 	nstime_t ts;
 	proto_item *time_item;
 	proto_tree *time_tree;
@@ -1118,9 +1118,9 @@ dissect_pvfs_time(tvbuff_t *tvb, proto_tree *tree, int offset,
 
 static
 int dissect_pvfs_uint64(tvbuff_t *tvb, proto_tree *tree, int offset,
-		int hfindex, guint64 *pvalue)
+		int hfindex, uint64_t *pvalue)
 {
-	guint64 val;
+	uint64_t val;
 
 	val = tvb_get_letoh64(tvb, offset);
 	proto_tree_add_uint64(tree, hfindex, tvb, offset, 8, val);
@@ -1141,10 +1141,10 @@ dissect_pvfs_distribution(tvbuff_t *tvb, proto_tree *tree, int offset,
 {
 	proto_item *dist_item;
 	proto_tree *dist_tree;
-	guint32 distlen;
+	uint32_t distlen;
 	char *tmpstr;
-	guint8 issimplestripe = 0;
-	guint32 total_len;
+	uint8_t issimplestripe = 0;
+	uint32_t total_len;
 
 	/* Get distribution name length */
 	distlen = tvb_get_letohl(tvb, offset);
@@ -1187,7 +1187,7 @@ static int
 dissect_pvfs_meta_attr_dfiles(tvbuff_t *tvb, proto_tree *tree, int offset,
 		packet_info *pinfo)
 {
-	guint32 dfile_count, i;
+	uint32_t dfile_count, i;
 
 	/* dfile_count */
 	dfile_count = tvb_get_letohl(tvb, offset);
@@ -1205,8 +1205,8 @@ static int
 dissect_pvfs_object_attr(tvbuff_t *tvb, proto_tree *tree, int offset,
 		packet_info *pinfo)
 {
-	gint32 ds_type = 0;
-	guint32 attrmask = 0;
+	int32_t ds_type = 0;
+	uint32_t attrmask = 0;
 	proto_tree *attr_tree;
 
 	attr_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_pvfs_attr_tree, NULL, "Attributes");
@@ -1313,7 +1313,7 @@ static int
 dissect_pvfs_server_param(tvbuff_t *tvb, proto_tree *tree, int offset,
 		packet_info *pinfo)
 {
-	guint32 server_param;
+	uint32_t server_param;
 	proto_item* ti;
 
 	/* server_param */
@@ -1683,7 +1683,7 @@ static int
 dissect_pvfs2_mkdir_request(tvbuff_t *tvb, proto_tree *tree, int offset,
 		packet_info *pinfo)
 {
-	guint count, i;
+	unsigned count, i;
 
 	/* fs_id */
 	offset = dissect_pvfs_fs_id(tvb, tree, offset);
@@ -1796,7 +1796,7 @@ static int
 dissect_pvfs2_mgmt_dspace_info_list_request(tvbuff_t *tvb,
 		proto_tree *tree, int offset, packet_info *pinfo)
 {
-	guint32 handle_count, i;
+	uint32_t handle_count, i;
 
 	/* fs_id */
 	offset = dissect_pvfs_fs_id(tvb, tree, offset);
@@ -1889,7 +1889,7 @@ dissect_pvfs_ds_keyval(tvbuff_t *tvb, proto_tree *tree, int offset, packet_info 
 static int
 dissect_ds_keyval_array(tvbuff_t *tvb, proto_tree *tree, int offset, packet_info *pinfo)
 {
-	guint32 nKey, i;
+	uint32_t nKey, i;
 
 	/* number of keys and vals */
 	nKey = tvb_get_letohl(tvb, offset);
@@ -1955,7 +1955,7 @@ dissect_pvfs2_deleattr_request(tvbuff_t *tvb, proto_tree *tree,
 }
 
 static void
-pvfc_fmt_release_num(gchar *result, guint32 release_nr)
+pvfc_fmt_release_num(char *result, uint32_t release_nr)
 {
 	snprintf( result, ITEM_LABEL_LENGTH, "%d (%d.%d.%d)",
 			release_nr,
@@ -1984,7 +1984,7 @@ dissect_pvfs2_common_header(tvbuff_t *tvb, proto_tree *tree, int offset)
 
 static int
 dissect_pvfs2_request(tvbuff_t *tvb, proto_tree *tree, int offset,
-		packet_info *pinfo, guint32 server_op)
+		packet_info *pinfo, uint32_t server_op)
 {
 	/* context_id */
 	proto_tree_add_item(tree, hf_pvfs_context_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -2178,9 +2178,9 @@ static int
 dissect_pvfs2_lookup_path_response(tvbuff_t *tvb, proto_tree *tree,
 		int offset, packet_info *pinfo)
 {
-	guint32 nCount = 0;
-	guint32 handle_count = 0;
-	guint32 attr_count = 0;
+	uint32_t nCount = 0;
+	uint32_t handle_count = 0;
+	uint32_t attr_count = 0;
 	proto_tree *attr_tree;
 
 	offset += 4;
@@ -2245,8 +2245,8 @@ static int
 dissect_pvfs2_readdir_response(tvbuff_t *tvb, proto_tree *tree, int offset,
 		packet_info *pinfo)
 {
-	guint32 dirent_count = 0;
-	guint32 nCount = 0;
+	uint32_t dirent_count = 0;
+	uint32_t nCount = 0;
 
 	/* ds_position */
 	proto_tree_add_item(tree, hf_pvfs_ds_position, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -2281,13 +2281,13 @@ static int
 dissect_pvfs2_getconfig_response(tvbuff_t *tvb, proto_tree *parent_tree,
 		int offset, packet_info *pinfo)
 {
-	guint32 i;
-	guint32 total_bytes = 0, total_config_bytes = 0, total_lines = 0;
-	guint32 bytes_processed = 0;
-	guint32 length_remaining = 0;
+	uint32_t i;
+	uint32_t total_bytes = 0, total_config_bytes = 0, total_lines = 0;
+	uint32_t bytes_processed = 0;
+	uint32_t length_remaining = 0;
 	const char *ptr = NULL;
 	proto_tree *tree, *config_tree = NULL;
-	/*guint8 truncated = 0;*/
+	/*uint8_t truncated = 0;*/
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 12,
 				ett_pvfs_server_config, NULL, "Server Config");
@@ -2339,9 +2339,9 @@ dissect_pvfs2_getconfig_response(tvbuff_t *tvb, proto_tree *parent_tree,
 
 	for (i = 0; i < total_lines; i++)
 	{
-		guint8 entry[256], *pentry = entry, *tmp_entry = NULL;
-		guint32 entry_length = 0, tmp_entry_length = 0;
-		guint32 bufsiz = sizeof(entry);
+		uint8_t entry[256], *pentry = entry, *tmp_entry = NULL;
+		uint32_t entry_length = 0, tmp_entry_length = 0;
+		uint32_t bufsiz = sizeof(entry);
 
 		while ((bytes_processed < total_config_bytes) &&
 				(entry_length < bufsiz) &&
@@ -2374,7 +2374,7 @@ dissect_pvfs2_getconfig_response(tvbuff_t *tvb, proto_tree *parent_tree,
 		*pentry= '\0';
 
 		tmp_entry = get_ascii_string(pinfo->pool, entry, entry_length);
-		tmp_entry_length = (guint32)strlen(tmp_entry);
+		tmp_entry_length = (uint32_t)strlen(tmp_entry);
 
 		/* Remove all whitespace from front of entry */
 		while ((tmp_entry_length > 0) && (!g_ascii_isalnum(*tmp_entry)) &&
@@ -2546,7 +2546,7 @@ static int
 dissect_pvfs2_mgmt_perf_mon_response(tvbuff_t *tvb, proto_tree *tree,
 		int offset)
 {
-	guint32 perf_array_count, i;
+	uint32_t perf_array_count, i;
 
 	/* TODO: suggested_next_id */
 	proto_tree_add_item(tree, hf_pvfs_mgmt_perf_mon_response_suggested_next_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -2574,7 +2574,7 @@ static int
 dissect_pvfs2_mgmt_iterate_handles_response(tvbuff_t *tvb, proto_tree *tree,
 		int offset, packet_info *pinfo)
 {
-	guint32 handle_count, i;
+	uint32_t handle_count, i;
 
 	/* ds_position */
 	proto_tree_add_item(tree, hf_pvfs_mgmt_iterate_handles_response_ds_position, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -2612,7 +2612,7 @@ static int
 dissect_pvfs2_mgmt_dspace_info_list_response(tvbuff_t *tvb, proto_tree *tree,
 		int offset, packet_info *pinfo)
 {
-	guint32 dspace_info_count, i;
+	uint32_t dspace_info_count, i;
 	proto_tree *arr_tree = NULL;
 
 	offset += 4;
@@ -2709,7 +2709,7 @@ dissect_pvfs2_geteattr_response(tvbuff_t *tvb, proto_tree *tree, int offset,
 
 static int
 dissect_pvfs2_response(tvbuff_t *tvb, proto_tree *tree, int offset,
-		packet_info *pinfo, guint32 server_op)
+		packet_info *pinfo, uint32_t server_op)
 {
 	/* error code */
 	offset = dissect_pvfs2_error(tvb, tree, offset, pinfo);
@@ -2877,19 +2877,19 @@ static wmem_map_t *pvfs2_io_tracking_value_table;
 
 typedef struct pvfs2_io_tracking_key
 {
-	guint64 tag;
+	uint64_t tag;
 } pvfs2_io_tracking_key_t;
 
 typedef struct pvfs2_io_tracking_value
 {
-	guint32 request_frame_num;
-	guint32 response_frame_num;
-	guint32 flow_frame_num;
+	uint32_t request_frame_num;
+	uint32_t response_frame_num;
+	uint32_t flow_frame_num;
 
 } pvfs2_io_tracking_value_t;
 
-static gint
-pvfs2_io_tracking_equal(gconstpointer k1, gconstpointer k2)
+static int
+pvfs2_io_tracking_equal(const void *k1, const void *k2)
 {
 	const pvfs2_io_tracking_key_t *key1 = (const pvfs2_io_tracking_key_t *) k1;
 	const pvfs2_io_tracking_key_t *key2 = (const pvfs2_io_tracking_key_t *) k2;
@@ -2897,16 +2897,16 @@ pvfs2_io_tracking_equal(gconstpointer k1, gconstpointer k2)
 	return (key1->tag == key2->tag);
 }
 
-static guint
-pvfs2_io_tracking_hash(gconstpointer k)
+static unsigned
+pvfs2_io_tracking_hash(const void *k)
 {
 	const pvfs2_io_tracking_key_t *key = (const pvfs2_io_tracking_key_t *) k;
 
-	return (guint) ((key->tag >> 32) ^ ((guint32) key->tag));
+	return (unsigned) ((key->tag >> 32) ^ ((uint32_t) key->tag));
 }
 
 static pvfs2_io_tracking_value_t *
-pvfs2_io_tracking_new_with_tag(guint64 tag, guint32 num)
+pvfs2_io_tracking_new_with_tag(uint64_t tag, uint32_t num)
 {
 	pvfs2_io_tracking_value_t *value;
 	pvfs2_io_tracking_key_t *newkey;
@@ -2923,16 +2923,16 @@ pvfs2_io_tracking_new_with_tag(guint64 tag, guint32 num)
 	return value;
 }
 
-static gboolean
+static bool
 dissect_pvfs_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
-		gboolean dissect_other_as_continuation _U_)
+		bool dissect_other_as_continuation _U_)
 {
-	guint32 mode = 0;
+	uint32_t mode = 0;
 	proto_item *item;
 	proto_tree *pvfs_tree = NULL, *pvfs_htree = NULL;
 	int offset = 0;
-	guint64 tag;
-	guint32 server_op;
+	uint64_t tag;
+	uint32_t server_op;
 	pvfs2_io_tracking_value_t *val = NULL;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "PVFS");
@@ -3003,7 +3003,7 @@ dissect_pvfs_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 		proto_tree_add_item(pvfs_tree, hf_pvfs_flow_data, tvb, offset, -1, ENC_NA);
 
-		return TRUE;
+		return true;
 	}
 
 	/* Extract common part of packet found in requests and responses */
@@ -3044,7 +3044,7 @@ dissect_pvfs_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
 /* Register the protocol with Wireshark */
@@ -3552,7 +3552,7 @@ proto_register_pvfs(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_pvfs,
 		&ett_pvfs_hdr,
 		&ett_pvfs_credentials,

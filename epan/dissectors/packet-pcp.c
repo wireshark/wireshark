@@ -148,98 +148,98 @@ static int hf_pcp_label_sets_labels_valuelen;
 static int hf_pcp_label_sets_labels_name;
 static int hf_pcp_label_sets_labels_value;
 
-static gint ett_pcp;
-static gint ett_pcp_pdu_length;
-static gint ett_pcp_pdu_type;
-static gint ett_pcp_pdu_pid;
-static gint ett_pcp_pdu_error;
-static gint ett_pcp_pdu_padding;
-static gint ett_pcp_creds_number_of;
-static gint ett_pcp_creds_type;
-static gint ett_pcp_creds_vala;
-static gint ett_pcp_creds_valb;
-static gint ett_pcp_creds_valc;
-static gint ett_pcp_start;
-static gint ett_pcp_start_status;
-static gint ett_pcp_start_zero;
-static gint ett_pcp_start_version;
-static gint ett_pcp_start_licensed;
-static gint ett_pcp_start_features;
-static gint ett_pcp_pmns_traverse;
-static gint ett_pcp_pmns_subtype;
-static gint ett_pcp_pmns_namelen;
-static gint ett_pcp_pmns_name;
-static gint ett_pcp_pmns_names;
-static gint ett_pcp_pmns_names_nstrbytes;
-static gint ett_pcp_pmns_names_numstatus;
-static gint ett_pcp_pmns_names_numnames;
-static gint ett_pcp_pmns_names_nametree;
-static gint ett_pcp_pmns_names_nametree_status;
-static gint ett_pcp_pmns_names_nametree_namelen;
-static gint ett_pcp_pmns_names_nametree_name;
-static gint ett_pcp_pmns_ids;
-static gint ett_pcp_pmns_ids_status;
-static gint ett_pcp_pmns_ids_numids;
-static gint ett_pcp_pmns_child;
-static gint ett_pcp_pmid;
-static gint ett_pcp_pmid_flag;
-static gint ett_pcp_pmid_domain;
-static gint ett_pcp_pmid_cluster;
-static gint ett_pcp_pmid_item;
-static gint ett_pcp_pmid_type;
-static gint ett_pcp_pmid_sem;
-static gint ett_pcp_profile;
-static gint ett_pcp_ctxnum;
-static gint ett_pcp_profile_g_state;
-static gint ett_pcp_profile_numprof;
-static gint ett_pcp_profile_profile;
-static gint ett_pcp_profile_profile_state;
-static gint ett_pcp_profile_profile_numinst;
-static gint ett_pcp_fetch;
-static gint ett_pcp_fetch_numpmid;
-static gint ett_pcp_when;
-static gint ett_pcp_when_sec;
-static gint ett_pcp_when_usec;
-static gint ett_pcp_desc_req;
-static gint ett_pcp_units;
-static gint ett_pcp_units_dimspace;
-static gint ett_pcp_units_dimtime;
-static gint ett_pcp_units_dimcount;
-static gint ett_pcp_units_scalespace;
-static gint ett_pcp_units_scaletime;
-static gint ett_pcp_units_scalecount;
-static gint ett_pcp_instance;
-static gint ett_pcp_instance_req;
-static gint ett_pcp_instance_namelen;
-static gint ett_pcp_instance_name;
-static gint ett_pcp_instance_inst;
-static gint ett_pcp_instance_indom;
-static gint ett_pcp_instance_valoffset;
-static gint ett_pcp_instance_vallength;
-static gint ett_pcp_instance_value_insitu;
-static gint ett_pcp_instance_value_ptr;
-static gint ett_pcp_instance_value_int;
-static gint ett_pcp_instance_value_uint;
-static gint ett_pcp_instance_value_int64;
-static gint ett_pcp_instance_value_uint64;
-static gint ett_pcp_instance_value_float;
-static gint ett_pcp_instance_value_double;
-static gint ett_pcp_instance_value_aggr;
-static gint ett_pcp_instances;
-static gint ett_pcp_instances_numinst;
-static gint ett_pcp_results;
-static gint ett_pcp_results_numpmid;
-static gint ett_pcp_result;
-static gint ett_pcp_result_numval;
-static gint ett_pcp_result_valfmt;
-static gint ett_pcp_text_req;
-static gint ett_pcp_text_type;
-static gint ett_pcp_text_type_format;
-static gint ett_pcp_text_type_ident;
-static gint ett_pcp_text;
-static gint ett_pcp_text_ident;
-static gint ett_pcp_text_buflen;
-static gint ett_pcp_text_buffer;
+static int ett_pcp;
+static int ett_pcp_pdu_length;
+static int ett_pcp_pdu_type;
+static int ett_pcp_pdu_pid;
+static int ett_pcp_pdu_error;
+static int ett_pcp_pdu_padding;
+static int ett_pcp_creds_number_of;
+static int ett_pcp_creds_type;
+static int ett_pcp_creds_vala;
+static int ett_pcp_creds_valb;
+static int ett_pcp_creds_valc;
+static int ett_pcp_start;
+static int ett_pcp_start_status;
+static int ett_pcp_start_zero;
+static int ett_pcp_start_version;
+static int ett_pcp_start_licensed;
+static int ett_pcp_start_features;
+static int ett_pcp_pmns_traverse;
+static int ett_pcp_pmns_subtype;
+static int ett_pcp_pmns_namelen;
+static int ett_pcp_pmns_name;
+static int ett_pcp_pmns_names;
+static int ett_pcp_pmns_names_nstrbytes;
+static int ett_pcp_pmns_names_numstatus;
+static int ett_pcp_pmns_names_numnames;
+static int ett_pcp_pmns_names_nametree;
+static int ett_pcp_pmns_names_nametree_status;
+static int ett_pcp_pmns_names_nametree_namelen;
+static int ett_pcp_pmns_names_nametree_name;
+static int ett_pcp_pmns_ids;
+static int ett_pcp_pmns_ids_status;
+static int ett_pcp_pmns_ids_numids;
+static int ett_pcp_pmns_child;
+static int ett_pcp_pmid;
+static int ett_pcp_pmid_flag;
+static int ett_pcp_pmid_domain;
+static int ett_pcp_pmid_cluster;
+static int ett_pcp_pmid_item;
+static int ett_pcp_pmid_type;
+static int ett_pcp_pmid_sem;
+static int ett_pcp_profile;
+static int ett_pcp_ctxnum;
+static int ett_pcp_profile_g_state;
+static int ett_pcp_profile_numprof;
+static int ett_pcp_profile_profile;
+static int ett_pcp_profile_profile_state;
+static int ett_pcp_profile_profile_numinst;
+static int ett_pcp_fetch;
+static int ett_pcp_fetch_numpmid;
+static int ett_pcp_when;
+static int ett_pcp_when_sec;
+static int ett_pcp_when_usec;
+static int ett_pcp_desc_req;
+static int ett_pcp_units;
+static int ett_pcp_units_dimspace;
+static int ett_pcp_units_dimtime;
+static int ett_pcp_units_dimcount;
+static int ett_pcp_units_scalespace;
+static int ett_pcp_units_scaletime;
+static int ett_pcp_units_scalecount;
+static int ett_pcp_instance;
+static int ett_pcp_instance_req;
+static int ett_pcp_instance_namelen;
+static int ett_pcp_instance_name;
+static int ett_pcp_instance_inst;
+static int ett_pcp_instance_indom;
+static int ett_pcp_instance_valoffset;
+static int ett_pcp_instance_vallength;
+static int ett_pcp_instance_value_insitu;
+static int ett_pcp_instance_value_ptr;
+static int ett_pcp_instance_value_int;
+static int ett_pcp_instance_value_uint;
+static int ett_pcp_instance_value_int64;
+static int ett_pcp_instance_value_uint64;
+static int ett_pcp_instance_value_float;
+static int ett_pcp_instance_value_double;
+static int ett_pcp_instance_value_aggr;
+static int ett_pcp_instances;
+static int ett_pcp_instances_numinst;
+static int ett_pcp_results;
+static int ett_pcp_results_numpmid;
+static int ett_pcp_result;
+static int ett_pcp_result_numval;
+static int ett_pcp_result_valfmt;
+static int ett_pcp_text_req;
+static int ett_pcp_text_type;
+static int ett_pcp_text_type_format;
+static int ett_pcp_text_type_ident;
+static int ett_pcp_text;
+static int ett_pcp_text_ident;
+static int ett_pcp_text_buflen;
+static int ett_pcp_text_buffer;
 
 static expert_field ei_pcp_type_event_unimplemented;
 static expert_field ei_pcp_type_nosupport_unsupported;
@@ -483,26 +483,26 @@ static const value_string packettypenames_label_req_type[]= {
 typedef struct pcp_conv_info_t {
     wmem_array_t *pmid_name_candidates;
     wmem_map_t *pmid_to_name;
-    guint32 last_pmns_names_frame;
-    guint32 last_processed_pmns_names_frame;
-    gboolean using_good_labels;
+    uint32_t last_pmns_names_frame;
+    uint32_t last_processed_pmns_names_frame;
+    bool using_good_labels;
 } pcp_conv_info_t;
 
 /* function prototypes */
 static pcp_conv_info_t* get_pcp_conversation_info(packet_info *pinfo);
 static int is_unvisited_pmns_names_frame(packet_info *pinfo);
-static gboolean is_using_good_labels(packet_info *pinfo);
-static gboolean label_value_length_looks_like_wrong_endianness(tvbuff_t *tvb, guint16 value_offset, guint16 value_length);
+static bool is_using_good_labels(packet_info *pinfo);
+static bool label_value_length_looks_like_wrong_endianness(tvbuff_t *tvb, uint16_t value_offset, uint16_t value_length);
 static void add_candidate_name_for_pmid_resolution(packet_info *pinfo, tvbuff_t *tvb, int offset, int name_len);
 static void mark_this_frame_as_last_pmns_names_frame(packet_info *pinfo);
 static inline int has_unprocessed_pmns_names_frame(pcp_conv_info_t *pcp_conv_info);
-static void create_pmid_to_name_map_from_candidates(pcp_conv_info_t *pcp_conv_info, tvbuff_t *tvb, int offset, guint32 num_ids);
-static void populate_pmids_to_names(packet_info *pinfo, tvbuff_t *tvb, int offset, guint32 num_ids);
+static void create_pmid_to_name_map_from_candidates(pcp_conv_info_t *pcp_conv_info, tvbuff_t *tvb, int offset, uint32_t num_ids);
+static void populate_pmids_to_names(packet_info *pinfo, tvbuff_t *tvb, int offset, uint32_t num_ids);
 static inline int client_to_server(packet_info *pinfo);
 static inline int server_to_client(packet_info *pinfo);
-static guint8* get_name_from_pmid(guint32 pmid, packet_info *pinfo);
-static guint get_pcp_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data);
-static const gchar *get_pcp_features_to_string(wmem_allocator_t *pool, guint16 feature_flags);
+static uint8_t* get_name_from_pmid(uint32_t pmid, packet_info *pinfo);
+static unsigned get_pcp_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data);
+static const char *get_pcp_features_to_string(wmem_allocator_t *pool, uint16_t feature_flags);
 static int dissect_pcp_message_creds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
 static int dissect_pcp_message_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
 static int dissect_pcp_message_start(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
@@ -523,15 +523,15 @@ static int dissect_pcp_message_user_auth(tvbuff_t *tvb, packet_info *pinfo, prot
 static int dissect_pcp_partial_pmid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
 static int dissect_pcp_partial_when(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
 static int dissect_pcp_partial_features(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
-static int dissect_pcp_partial_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint32 json_start_offset);
+static int dissect_pcp_partial_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint32_t json_start_offset);
 static int dissect_pcp_partial_labelset(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset);
 
 /* message length for dissect_tcp */
-static guint get_pcp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+static unsigned get_pcp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                                  int offset, void *data _U_)
 {
     /* length is at the very start of the packet, after tcp header */
-    return (guint)tvb_get_ntohl(tvb, offset);
+    return (unsigned)tvb_get_ntohl(tvb, offset);
 }
 
 static void mark_this_frame_as_last_pmns_names_frame(packet_info *pinfo) {
@@ -555,25 +555,25 @@ static inline int server_to_client(packet_info *pinfo) {
     return !client_to_server(pinfo);
 }
 
-static guint8* get_name_from_pmid(guint32 pmid, packet_info *pinfo) {
-    guint8 *name;
+static uint8_t* get_name_from_pmid(uint32_t pmid, packet_info *pinfo) {
+    uint8_t *name;
     wmem_map_t *pmid_to_name;
 
     pmid_to_name = get_pcp_conversation_info(pinfo)->pmid_to_name;
 
-    name = (guint8*)wmem_map_lookup(pmid_to_name, GINT_TO_POINTER(pmid));
+    name = (uint8_t*)wmem_map_lookup(pmid_to_name, GINT_TO_POINTER(pmid));
     if(!name) {
-        name = (guint8*)wmem_strdup(pinfo->pool, "Metric name unknown");
+        name = (uint8_t*)wmem_strdup(pinfo->pool, "Metric name unknown");
     }
 
     return name;
 }
 
-static const gchar *get_pcp_features_to_string(wmem_allocator_t *pool, guint16 feature_flags)
+static const char *get_pcp_features_to_string(wmem_allocator_t *pool, uint16_t feature_flags)
 {
     const value_string *flag_under_test;
     wmem_strbuf_t *string_buffer;
-    gsize string_length;
+    size_t string_length;
 
     string_buffer = wmem_strbuf_new(pool, "");
 
@@ -614,7 +614,7 @@ static pcp_conv_info_t* get_pcp_conversation_info(packet_info *pinfo) {
 
 static void add_candidate_name_for_pmid_resolution(packet_info *pinfo, tvbuff_t *tvb, int offset, int name_len) {
     pcp_conv_info_t *pcp_conv_info;
-    guint8 *name;
+    uint8_t *name;
 
     pcp_conv_info = get_pcp_conversation_info(pinfo);
 
@@ -632,9 +632,9 @@ static int is_unvisited_pmns_names_frame(packet_info *pinfo) {
     return pinfo->num > pcp_conv_info->last_processed_pmns_names_frame && pinfo->num > pcp_conv_info->last_pmns_names_frame;
 }
 
-static void populate_pmids_to_names(packet_info *pinfo, tvbuff_t *tvb, int offset, guint32 num_ids) {
+static void populate_pmids_to_names(packet_info *pinfo, tvbuff_t *tvb, int offset, uint32_t num_ids) {
     pcp_conv_info_t *pcp_conv_info;
-    guint number_of_name_candidates;
+    unsigned number_of_name_candidates;
 
     pcp_conv_info = get_pcp_conversation_info(pinfo);
     number_of_name_candidates = wmem_array_get_count(pcp_conv_info->pmid_name_candidates);
@@ -645,18 +645,18 @@ static void populate_pmids_to_names(packet_info *pinfo, tvbuff_t *tvb, int offse
         pcp_conv_info->last_processed_pmns_names_frame = pcp_conv_info->last_pmns_names_frame;
     }
 
-    pcp_conv_info->pmid_name_candidates = wmem_array_new(wmem_file_scope(), sizeof(guint8 *));
+    pcp_conv_info->pmid_name_candidates = wmem_array_new(wmem_file_scope(), sizeof(uint8_t *));
 }
 
-static void create_pmid_to_name_map_from_candidates(pcp_conv_info_t *pcp_conv_info, tvbuff_t *tvb, int offset, guint32 num_ids) {
-    guint32 i;
+static void create_pmid_to_name_map_from_candidates(pcp_conv_info_t *pcp_conv_info, tvbuff_t *tvb, int offset, uint32_t num_ids) {
+    uint32_t i;
 
     for(i=0; i<num_ids; i++) {
-        guint32 pmid;
-        guint8 *pmid_name;
+        uint32_t pmid;
+        uint8_t *pmid_name;
 
         pmid = tvb_get_ntohl(tvb, offset);
-        pmid_name = *(guint8 **)wmem_array_index(pcp_conv_info->pmid_name_candidates, i);
+        pmid_name = *(uint8_t **)wmem_array_index(pcp_conv_info->pmid_name_candidates, i);
 
         if(wmem_map_lookup(pcp_conv_info->pmid_to_name, GINT_TO_POINTER(pmid)) == NULL) {
             wmem_map_insert(pcp_conv_info->pmid_to_name, GINT_TO_POINTER(pmid), pmid_name);
@@ -667,8 +667,8 @@ static void create_pmid_to_name_map_from_candidates(pcp_conv_info_t *pcp_conv_in
 
 static int dissect_pcp_message_creds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    guint32 creds_length;
-    guint32 i;
+    uint32_t creds_length;
+    uint32_t i;
 
     /* append the type of packet */
     col_append_fstr(pinfo->cinfo, COL_INFO, "[%s]",
@@ -698,7 +698,7 @@ static int dissect_pcp_message_creds(tvbuff_t *tvb, packet_info *pinfo, proto_tr
  */
 static int dissect_pcp_message_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    gint32  error_num;
+    int32_t error_num;
     pcp_conv_info_t *pcp_conv_info;
 
     /* append the type of packet, we can't look this up as it clashes with START */
@@ -716,7 +716,7 @@ static int dissect_pcp_message_error(tvbuff_t *tvb, packet_info *pinfo, proto_tr
      */
     if(error_num == PM_ERR_NAME) {
         pcp_conv_info = get_pcp_conversation_info(pinfo);
-        pcp_conv_info->pmid_name_candidates = wmem_array_new(wmem_file_scope(), sizeof(guint8 *));
+        pcp_conv_info->pmid_name_candidates = wmem_array_new(wmem_file_scope(), sizeof(uint8_t *));
     }
 
     return offset;
@@ -736,7 +736,7 @@ static int dissect_pcp_message_start(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     /* create a start tree to hold the information*/
     proto_item *pcp_start_item;
     proto_tree *pcp_start_tree;
-    guint32     status;
+    uint32_t    status;
 
     pcp_start_item = proto_tree_add_item(tree, hf_pcp_start, tvb, 0, -1, ENC_NA);
     pcp_start_tree = proto_item_add_subtree(pcp_start_item, ett_pcp);
@@ -773,16 +773,16 @@ static int dissect_pcp_message_start(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 }
 
 /* PMNS_TRAVERSE packet format:
-    guint32 subtype
-    guint32 namelen
+    uint32_t subtype
+    uint32_t namelen
     char name[sizeof(namelen)] + padding
 */
 static int dissect_pcp_message_pmns_traverse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
     proto_item *pcp_pmns_traverse_item;
     proto_tree *pcp_pmns_traverse_tree;
-    guint32     name_len;
-    guint32     padding;
+    uint32_t    name_len;
+    uint32_t    padding;
 
     /* append the type of packet */
     col_append_fstr(pinfo->cinfo, COL_INFO, "[%s]",
@@ -814,9 +814,9 @@ static int dissect_pcp_message_pmns_traverse(tvbuff_t *tvb, packet_info *pinfo, 
 }
 
 /* PMNS_NAMES packet format:
-    guint32     nstrbytes (number of str bytes)
-    guint32     numstatus (0 if no status. Also, if 0, use name_t, otherwise use name_status_t )
-    guint32     numnames
+    uint32_t    nstrbytes (number of str bytes)
+    uint32_t    numstatus (0 if no status. Also, if 0, use name_t, otherwise use name_status_t )
+    uint32_t    numnames
     __pmPDU     names (if numstatus = 0, filled with name_t, otherwise name_status_t)
     | |
     | |> -- name_t --
@@ -834,12 +834,12 @@ static int dissect_pcp_message_pmns_names(tvbuff_t *tvb, packet_info *pinfo, pro
     proto_tree *pcp_pmns_names_tree;
     proto_item *pcp_pmns_names_name_item;
     proto_tree *pcp_pmns_names_name_tree;
-    guint32     is_pmns_names_status;
-    guint32     num_names;
-    guint32     name_len;
-    guint32     full_name_len;
-    guint32     padding;
-    guint32     i;
+    uint32_t    is_pmns_names_status;
+    uint32_t    num_names;
+    uint32_t    name_len;
+    uint32_t    full_name_len;
+    uint32_t    padding;
+    uint32_t    i;
 
     /* append the type of packet */
     col_append_fstr(pinfo->cinfo, COL_INFO, "[%s]", val_to_str(PCP_PDU_PMNS_NAMES, packettypenames, "Unknown Type:0x%02x"));
@@ -909,15 +909,15 @@ static int dissect_pcp_message_pmns_names(tvbuff_t *tvb, packet_info *pinfo, pro
 }
 
 /* PMNS_CHILD packet format:
-    guint32  subtype
-    guint32  namelen
+    uint32_t subtype
+    uint32_t namelen
     char name[namelen]
 */
 static int dissect_pcp_message_pmns_child(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
     proto_item *pcp_pmns_child_item;
     proto_tree *pcp_pmns_child_tree;
-    guint32     name_len;
+    uint32_t    name_len;
 
     pcp_pmns_child_item = proto_tree_add_item(tree, hf_pcp_pmns_child, tvb, offset, -1, ENC_NA);
     pcp_pmns_child_tree = proto_item_add_subtree(pcp_pmns_child_item, ett_pcp);
@@ -941,8 +941,8 @@ static int dissect_pcp_message_pmns_child(tvbuff_t *tvb, packet_info *pinfo, pro
 }
 
 /* PMNS_IDS packet format
-    guint32 status
-    guint32 numids
+    uint32_t status
+    uint32_t numids
     pmID    idlist[numids] (where pmID = uint32)
 
 */
@@ -950,8 +950,8 @@ static int dissect_pcp_message_pmns_ids(tvbuff_t *tvb, packet_info *pinfo, proto
 {
     proto_item *pcp_pmns_ids_item;
     proto_tree *pcp_pmns_ids_tree;
-    guint32     num_ids;
-    guint32     i;
+    uint32_t    num_ids;
+    uint32_t    i;
 
     /* append the type of packet */
     col_append_fstr(pinfo->cinfo, COL_INFO, "[%s]",
@@ -981,10 +981,10 @@ static int dissect_pcp_message_pmns_ids(tvbuff_t *tvb, packet_info *pinfo, proto
 }
 
 /*  PROFILE packet format
-    guint32     ctxnum;
-    guint32     g_state;
-    guint32     numprof;
-    guint32     pad;
+    uint32_t    ctxnum;
+    uint32_t    g_state;
+    uint32_t    numprof;
+    uint32_t    pad;
     pmProfile   profiles[numprof]
       |
       |> pmInDom indom;
@@ -998,8 +998,8 @@ static int dissect_pcp_message_profile(tvbuff_t *tvb, packet_info *pinfo, proto_
     proto_tree *pcp_profile_tree;
     proto_item *pcp_profile_profile_item;
     proto_tree *pcp_profile_profile_tree;
-    guint32     num_prof;
-    guint32     i;
+    uint32_t    num_prof;
+    uint32_t    i;
 
     /* append the type of packet */
     col_append_fstr(pinfo->cinfo, COL_INFO, "[%s]", val_to_str(PCP_PDU_PROFILE, packettypenames, "Unknown Type:0x%02x"));
@@ -1050,17 +1050,17 @@ static int dissect_pcp_message_profile(tvbuff_t *tvb, packet_info *pinfo, proto_
 }
 
 /*  FETCH packet format
-    guint32         cxtnum
+    uint32_t        cxtnum
     __pmTimeval     when (unsigned int tv_sec, unsigned int tv_usec)
-    guint32         numpmid
+    uint32_t        numpmid
     pmID            pmidlist[1-x] (unsigned int)
  */
 static int dissect_pcp_message_fetch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
     proto_item *pcp_fetch_item;
     proto_tree *pcp_fetch_tree;
-    guint32     num_pmid;
-    guint32     i;
+    uint32_t    num_pmid;
+    uint32_t    i;
 
     /* append the type of packet */
     col_append_fstr(pinfo->cinfo, COL_INFO, "[%s]",
@@ -1115,15 +1115,15 @@ static int dissect_pcp_message_result(tvbuff_t *tvb, packet_info *pinfo, proto_t
     proto_tree *pcp_result_tree;
     proto_item *pcp_result_instance_item;
     proto_tree *pcp_result_instance_tree;
-    guint32     num_pmid;
-    guint32     num_val;
-    guint32     offset_start;
-    guint32     valfmt_type;
-    guint32     value_type;
-    guint32     pmvalueblock_offset;
-    guint32     pmvalueblock_value_length;
-    guint32     i;
-    guint32     j;
+    uint32_t    num_pmid;
+    uint32_t    num_val;
+    uint32_t    offset_start;
+    uint32_t    valfmt_type;
+    uint32_t    value_type;
+    uint32_t    pmvalueblock_offset;
+    uint32_t    pmvalueblock_value_length;
+    uint32_t    i;
+    uint32_t    j;
 
     /* append the type of packet */
     col_append_fstr(pinfo->cinfo, COL_INFO, "[%s]", val_to_str(PCP_PDU_RESULT, packettypenames, "Unknown Type:0x%02x"));
@@ -1188,7 +1188,7 @@ static int dissect_pcp_message_result(tvbuff_t *tvb, packet_info *pinfo, proto_t
                     pmvalueblock_offset = pmvalueblock_offset * 4; /* offset values are in 32bit units */
 
                     /* type */
-                    value_type = tvb_get_guint8(tvb, pmvalueblock_offset);
+                    value_type = tvb_get_uint8(tvb, pmvalueblock_offset);
                     proto_tree_add_item(pcp_result_instance_tree, hf_pcp_pmid_type,
                                         tvb, pmvalueblock_offset, 1, ENC_BIG_ENDIAN);
                     pmvalueblock_offset += 1;
@@ -1305,7 +1305,7 @@ static int dissect_pcp_message_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     proto_tree *pcp_desc_tree;
     proto_item *pcp_desc_units_item;
     proto_tree *pcp_desc_units_tree;
-    guint32     bits_offset;
+    uint32_t    bits_offset;
 
     /* append the type of packet */
     col_append_fstr(pinfo->cinfo, COL_INFO, "[%s]", val_to_str(PCP_PDU_DESC, packettypenames, "Unknown Type:0x%02x"));
@@ -1372,7 +1372,7 @@ static int dissect_pcp_message_instance_req(tvbuff_t *tvb, packet_info *pinfo, p
 {
     proto_item *pcp_instance_req_item;
     proto_tree *pcp_instance_req_tree;
-    guint32     name_len;
+    uint32_t    name_len;
 
     /* append the type of packet */
     col_append_fstr(pinfo->cinfo, COL_INFO, "[%s]", val_to_str(PCP_PDU_INSTANCE_REQ, packettypenames, "Unknown Type:0x%02x"));
@@ -1414,8 +1414,8 @@ static int dissect_pcp_message_text_req(tvbuff_t *tvb, packet_info *pinfo, proto
     proto_tree *pcp_text_req_tree;
     proto_item *pcp_text_req_type_item;
     proto_tree *pcp_text_req_type_tree;
-    guint32     bits_offset;
-    guint32     type;
+    uint32_t    bits_offset;
+    uint32_t    type;
 
     /* append the type of packet */
     col_append_fstr(pinfo->cinfo, COL_INFO, "[%s]", val_to_str(PCP_PDU_TEXT_REQ, packettypenames, "Unknown Type:0x%02x"));
@@ -1455,7 +1455,7 @@ static int dissect_pcp_message_text(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 {
     proto_item *pcp_text_item;
     proto_tree *pcp_text_tree;
-    guint32     buflen;
+    uint32_t    buflen;
 
     /* append the type of packet */
     col_append_fstr(pinfo->cinfo, COL_INFO, "[%s]", val_to_str(PCP_PDU_TEXT, packettypenames, "Unknown Type:0x%02x"));
@@ -1551,12 +1551,12 @@ static int dissect_pcp_message_label(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     offset += 4;
 
     /* number of label sets */
-    gint32 nsets;
+    int32_t nsets;
     proto_tree_add_item_ret_int(pcp_label_tree, hf_pcp_label_nsets, tvb, offset, 4, ENC_NA, &nsets);
     offset += 4;
 
 
-    for (gint32 i = 0; i < nsets; i++) {
+    for (int32_t i = 0; i < nsets; i++) {
         offset = dissect_pcp_partial_labelset(tvb, pcp_label_tree, pinfo, offset);
     }
 
@@ -1578,10 +1578,10 @@ static int dissect_pcp_message_instance(tvbuff_t *tvb, packet_info *pinfo, proto
     proto_tree *pcp_instances_tree;
     proto_item *pcp_instance_item;
     proto_tree *pcp_instance_tree;
-    guint32     num_inst;
-    guint32     i;
-    guint32     name_len;
-    guint32     padding;
+    uint32_t    num_inst;
+    uint32_t    i;
+    uint32_t    name_len;
+    uint32_t    padding;
 
     /* append the type of packet */
     col_append_fstr(pinfo->cinfo, COL_INFO, "[%s]", val_to_str(PCP_PDU_INSTANCE, packettypenames, "Unknown Type:0x%02x"));
@@ -1640,9 +1640,9 @@ static int dissect_pcp_partial_pmid(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 {
     proto_item *pcp_pmid_item;
     proto_tree *pcp_pmid_tree;
-    guint32     bits_offset;
-    guint32     pmid;
-    guint8     *name;
+    uint32_t    bits_offset;
+    uint32_t    pmid;
+    uint8_t    *name;
 
     bits_offset = offset * 8;
 
@@ -1691,8 +1691,8 @@ static int dissect_pcp_partial_when(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 
 static int dissect_pcp_partial_features(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    guint16     feature_flags;
-    const gchar *feature_flags_string;
+    uint16_t    feature_flags;
+    const char *feature_flags_string;
 
     static int * const pcp_feature_flags_header_fields[] = {
             &hf_pcp_features_flags_labels,
@@ -1718,7 +1718,7 @@ static int dissect_pcp_partial_features(tvbuff_t *tvb, packet_info *pinfo, proto
 
     if ((feature_flags & PCP_PDU_FLAG_LABELS) == PCP_PDU_FLAG_LABELS && server_to_client(pinfo)) {
         pcp_conv_info_t *pcp_conv_info = get_pcp_conversation_info(pinfo);
-        pcp_conv_info->using_good_labels = TRUE;
+        pcp_conv_info->using_good_labels = true;
     }
 
     return offset;
@@ -1734,7 +1734,7 @@ static int dissect_pcp_partial_labelset(tvbuff_t *tvb, proto_tree *tree, packet_
     offset += 4;
 
     /* Number of labels or error */
-    gint32 nlabels_or_error = tvb_get_ntohl(tvb, offset);
+    int32_t nlabels_or_error = tvb_get_ntohl(tvb, offset);
     proto_tree_add_item(pcp_label_sets_tree, hf_pcp_label_sets_nlabels, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     if (nlabels_or_error < 0) {
@@ -1742,7 +1742,7 @@ static int dissect_pcp_partial_labelset(tvbuff_t *tvb, proto_tree *tree, packet_
     }
 
     /* Offset to start of JSON */
-    guint32 json_start_offset = tvb_get_ntohl(tvb, offset);
+    uint32_t json_start_offset = tvb_get_ntohl(tvb, offset);
     proto_tree_add_item(pcp_label_sets_tree, hf_pcp_label_sets_json, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
@@ -1751,7 +1751,7 @@ static int dissect_pcp_partial_labelset(tvbuff_t *tvb, proto_tree *tree, packet_
     offset += 4;
 
     /* pmLabels */
-    for (gint i = 0; i < nlabels_or_error; i++) {
+    for (int i = 0; i < nlabels_or_error; i++) {
         offset = dissect_pcp_partial_label(tvb, pinfo, pcp_label_sets_tree, offset, json_start_offset);
     }
 
@@ -1762,18 +1762,18 @@ static int dissect_pcp_partial_labelset(tvbuff_t *tvb, proto_tree *tree, packet_
 
 }
 
-static int dissect_pcp_partial_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint32 json_start_offset)
+static int dissect_pcp_partial_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint32_t json_start_offset)
 {
     proto_item *pcp_label_sets_label_item = proto_tree_add_item(tree, hf_pcp_label_sets_labels, tvb, offset, -1, ENC_NA);
     proto_tree *pcp_label_sets_label_tree = proto_item_add_subtree(pcp_label_sets_label_item, ett_pcp);
 
     /* Name offset*/
-    guint16 name_offset = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+    uint16_t name_offset = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
     proto_tree_add_item(pcp_label_sets_label_tree, hf_pcp_label_sets_labels_nameoffset, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     /* Name length */
-    guint32 name_length = tvb_get_guint8(tvb, offset);
+    uint32_t name_length = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(pcp_label_sets_label_tree, hf_pcp_label_sets_labels_namelen, tvb, offset, 1, ENC_NA);
     offset += 1;
 
@@ -1782,12 +1782,12 @@ static int dissect_pcp_partial_label(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     offset += 1;
 
     /* Value offset */
-    guint16 value_offset = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+    uint16_t value_offset = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
     proto_tree_add_item(pcp_label_sets_label_tree, hf_pcp_label_sets_labels_valueoffset, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     /* Value Length */
-    guint16 value_length = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+    uint16_t value_length = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
     /* Value length was not correctly converted to network-byte order in pcp v4.0.0-v4.0.1, it was encoded with whatever
      * byte order the host uses. We try and pick this up and accommodate either by detecting the feature off the START PDU
      * and failing that, check if the offset+length would be greater than the length of the captured packets. This isn't
@@ -1798,7 +1798,7 @@ static int dissect_pcp_partial_label(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     }
     else if(label_value_length_looks_like_wrong_endianness(tvb, value_offset, value_length)) {
         /* We're _probably_ using the wrong endianness but we didn't capture the initial exchange to find out */
-        value_length = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        value_length = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(pcp_label_sets_label_tree, hf_pcp_label_sets_labels_valuelen, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         expert_add_info(pinfo, pcp_label_sets_label_tree, &ei_pcp_label_error_endianness);
     } else {
@@ -1814,8 +1814,8 @@ static int dissect_pcp_partial_label(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     proto_tree_add_item(pcp_label_sets_label_tree, hf_pcp_label_sets_labels_value, tvb, json_start_offset + value_offset, value_length, ENC_ASCII | ENC_NA);
 
     /* Add to subtree  */
-    guint8 *name = tvb_get_string_enc(pinfo->pool, tvb, json_start_offset + name_offset, name_length, ENC_ASCII | ENC_NA);
-    guint8 *value = tvb_get_string_enc(pinfo->pool, tvb, json_start_offset + value_offset, value_length, ENC_ASCII | ENC_NA);
+    uint8_t *name = tvb_get_string_enc(pinfo->pool, tvb, json_start_offset + name_offset, name_length, ENC_ASCII | ENC_NA);
+    uint8_t *value = tvb_get_string_enc(pinfo->pool, tvb, json_start_offset + value_offset, value_length, ENC_ASCII | ENC_NA);
     proto_item_append_text(pcp_label_sets_label_item, " (%s:%s)", name, value);
 
     proto_item_set_end(pcp_label_sets_label_item, tvb, offset);
@@ -1823,19 +1823,19 @@ static int dissect_pcp_partial_label(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     return offset;
 }
 
-static gboolean is_using_good_labels(packet_info *pinfo)
+static bool is_using_good_labels(packet_info *pinfo)
 {
     /* Try to establish if we've got good labels from an earlier START PDU */
     return get_pcp_conversation_info(pinfo)->using_good_labels;
 }
 
-static gboolean label_value_length_looks_like_wrong_endianness(tvbuff_t *tvb, guint16 value_offset, guint16 value_length)
+static bool label_value_length_looks_like_wrong_endianness(tvbuff_t *tvb, uint16_t value_offset, uint16_t value_length)
 {
     /* Try to detect if the offset + length is greater than the TVB length which may happen with a
      * wrongly-encoded endianness. This may fail in some cases if the label is early on in the frame and has
      * many other labels that wouldn't push it over of the TVB length.
      */
-    return tvb_reported_length(tvb) < ((guint)value_offset + (guint)value_length);
+    return tvb_reported_length(tvb) < ((unsigned)value_offset + (unsigned)value_length);
 }
 
 /* MAIN DISSECTING ROUTINE (after passed from dissect_tcp, all non-ssl packets hit function) */
@@ -1845,8 +1845,8 @@ static int dissect_pcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     proto_tree *pcp_tree;
     conversation_t  *conversation;
     pcp_conv_info_t *pcp_conv_info;
-    guint32     packet_type;
-    gint32      err_bytes;
+    uint32_t    packet_type;
+    int32_t     err_bytes;
     int         offset = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PCP");
@@ -1861,11 +1861,11 @@ static int dissect_pcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         pcp_conv_info = wmem_new(wmem_file_scope(), pcp_conv_info_t);
         conversation_add_proto_data(conversation, proto_pcp, pcp_conv_info);
 
-        pcp_conv_info->pmid_name_candidates = wmem_array_new(wmem_file_scope(), sizeof(guint8 *));
+        pcp_conv_info->pmid_name_candidates = wmem_array_new(wmem_file_scope(), sizeof(uint8_t *));
         pcp_conv_info->pmid_to_name = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
         pcp_conv_info->last_pmns_names_frame = 0;
         pcp_conv_info->last_processed_pmns_names_frame = 0;
-        pcp_conv_info->using_good_labels = FALSE;
+        pcp_conv_info->using_good_labels = false;
     }
 
     root_pcp_item = proto_tree_add_item(tree, proto_pcp, tvb, 0, -1, ENC_NA);
@@ -1984,7 +1984,7 @@ static int dissect_pcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 static int dissect_pcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     /* pass all packets through TCP-reassembly */
-    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, PCP_HEADER_LEN, get_pcp_message_len, dissect_pcp_message, data);
+    tcp_dissect_pdus(tvb, pinfo, tree, true, PCP_HEADER_LEN, get_pcp_message_len, dissect_pcp_message, data);
     return tvb_captured_length(tvb);
 }
 
@@ -2836,7 +2836,7 @@ void proto_register_pcp(void)
 
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_pcp,
         &ett_pcp_pdu_length,
         &ett_pcp_pdu_type,

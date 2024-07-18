@@ -80,15 +80,15 @@ static expert_field ei_proxy_header_length_too_small;
 static expert_field ei_proxy_bad_format;
 
 
-static gint ett_proxy1;
-static gint ett_proxy2;
-static gint ett_proxy2_fampro;
-static gint ett_proxy2_tlv;
+static int ett_proxy1;
+static int ett_proxy2;
+static int ett_proxy2_fampro;
+static int ett_proxy2_tlv;
 
 static dissector_handle_t proxy_v1_handle;
 static dissector_handle_t proxy_v2_handle;
 
-static const guint8 proxy_v2_magic[] = { 0x0d, 0x0a, 0x0d, 0x0a, 0x00, 0x0d, 0x0a, 0x51, 0x55, 0x49, 0x54, 0x0a };
+static const uint8_t proxy_v2_magic[] = { 0x0d, 0x0a, 0x0d, 0x0a, 0x00, 0x0d, 0x0a, 0x51, 0x55, 0x49, 0x54, 0x0a };
 
 static const value_string proxy2_cmd_vals[] = {
     { 0x0, "LOCAL" },
@@ -250,7 +250,7 @@ dissect_proxy_v2_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *proxy_tree, 
 {
     increment_dissection_depth(pinfo);
     while (offset < next_offset) {
-        guint32 type, length;
+        uint32_t type, length;
         proto_item *ti_tlv;
         proto_tree *tlv_tree;
 
@@ -305,73 +305,73 @@ dissect_proxy_v2_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *proxy_tree, 
     return offset;
 }
 
-static gboolean
+static bool
 is_proxy_v2(tvbuff_t* tvb)
 {
     int offset = 0;
     int length = tvb_reported_length(tvb);
 
     if (length < 16) {
-        return FALSE;
+        return false;
     }
 
-    if (tvb_memeql(tvb, offset, (const guint8*)proxy_v2_magic, sizeof(proxy_v2_magic)) != 0) {
-        return FALSE;
+    if (tvb_memeql(tvb, offset, (const uint8_t*)proxy_v2_magic, sizeof(proxy_v2_magic)) != 0) {
+        return false;
     }
     // TODO maybe check for "(hdr.v2.ver_cmd & 0xF0) == 0x20" as done in "9. Sample code" from
     // https://www.haproxy.org/download/1.8/doc/proxy-protocol.txt?
 
-    return TRUE;
+    return true;
 }
 
 /* "a 108-byte buffer is always enough to store all the line and a trailing zero" */
 #define PROXY_V1_MAX_LINE_LENGTH 107
 
-static gboolean
-is_proxy_v1(tvbuff_t *tvb, gint *header_length)
+static bool
+is_proxy_v1(tvbuff_t *tvb, int *header_length)
 {
     const int min_header_size = sizeof("PROXY \r\n") - 1;
     int length = tvb_reported_length(tvb);
-    gint next_offset;
+    int next_offset;
 
     if (length < min_header_size) {
-        return FALSE;
+        return false;
     }
 
-    if (tvb_memeql(tvb, 0, (const guint8*)"PROXY ", 6) != 0) {
-        return FALSE;
+    if (tvb_memeql(tvb, 0, (const uint8_t*)"PROXY ", 6) != 0) {
+        return false;
     }
 
     length = MIN(length, PROXY_V1_MAX_LINE_LENGTH);
-    if (tvb_find_line_end(tvb, 6, length, &next_offset, FALSE) == -1) {
-        return FALSE;
+    if (tvb_find_line_end(tvb, 6, length, &next_offset, false) == -1) {
+        return false;
     }
 
     /* The line must end with a CRLF and not just a single CR or LF. */
-    if (tvb_memeql(tvb, next_offset - 2, (const guint8*)"\r\n", 2) != 0) {
-        return FALSE;
+    if (tvb_memeql(tvb, next_offset - 2, (const uint8_t*)"\r\n", 2) != 0) {
+        return false;
     }
 
     if (header_length) {
         *header_length = next_offset;
     }
-    return TRUE;
+    return true;
 }
 
 /**
  * Scan for the next non-empty token (terminated by a space). If invalid, add
- * expert info for the remaining part and return FALSE. Otherwise return TRUE
+ * expert info for the remaining part and return false. Otherwise return true
  * and the token length.
  */
-static gboolean
-proxy_v1_get_token_length(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int header_length, gchar *token, gint *token_length)
+static bool
+proxy_v1_get_token_length(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int header_length, char *token, int *token_length)
 {
-    gint space_pos = tvb_find_guint8(tvb, offset, header_length - offset, ' ');
+    int space_pos = tvb_find_guint8(tvb, offset, header_length - offset, ' ');
     if (space_pos == -1) {
         proto_tree_add_expert(tree, pinfo, &ei_proxy_bad_format, tvb, offset, header_length - offset);
-        return FALSE;
+        return false;
     }
-    gint length = space_pos - offset;
+    int length = space_pos - offset;
     if (token && length) {
         DISSECTOR_ASSERT(length + 1 < PROXY_V1_MAX_LINE_LENGTH);
         tvb_memcpy(tvb, token, offset, length);
@@ -386,13 +386,13 @@ dissect_proxy_v1_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *ti;
     proto_tree *proxy_tree;
-    guint       offset = 0;
-    gint        header_length = 0;
-    gint        token_length = 0;
-    gint        tcp_ip_version = 0;
-    guint16     srcport, dstport;
-    gchar       buffer[PROXY_V1_MAX_LINE_LENGTH];
-    guint32     src_ipv4, dst_ipv4;
+    unsigned    offset = 0;
+    int         header_length = 0;
+    int         token_length = 0;
+    int         tcp_ip_version = 0;
+    uint16_t    srcport, dstport;
+    char        buffer[PROXY_V1_MAX_LINE_LENGTH];
+    uint32_t    src_ipv4, dst_ipv4;
     ws_in6_addr src_ipv6, dst_ipv6;
     address     src_addr, dst_addr;
 
@@ -553,10 +553,10 @@ dissect_proxy_v2_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *ti , *ti_ver;
     proto_tree *proxy_tree, *fampro_tree;
-    guint offset = 0, next_offset;
-    guint32     header_len, fam_pro, cmd;
+    unsigned offset = 0, next_offset;
+    uint32_t    header_len, fam_pro, cmd;
     address     src_addr = ADDRESS_INIT_NONE, dst_addr = ADDRESS_INIT_NONE;
-    guint32     srcport, dstport;
+    uint32_t    srcport, dstport;
     port_type   ptype = PT_NONE;
 
     if (!is_proxy_v2(tvb)) {
@@ -905,7 +905,7 @@ proto_register_proxy(void)
         },
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_proxy1,
         &ett_proxy2,
         &ett_proxy2_fampro,

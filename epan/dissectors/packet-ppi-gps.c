@@ -103,9 +103,9 @@ static int hf_ppi_gps_gpsflags_flag7_manual;
 static int hf_ppi_gps_gpsflags_flag8_sim;
 
 /* These represent arrow-dropdownthings in the gui */
-static gint ett_ppi_gps;
-static gint ett_ppi_gps_present;
-static gint ett_ppi_gps_gpsflags_flags;
+static int ett_ppi_gps;
+static int ett_ppi_gps_present;
+static int ett_ppi_gps_gpsflags_flags;
 
 static expert_field ei_ppi_gps_present_bit;
 static expert_field ei_ppi_gps_version;
@@ -114,8 +114,8 @@ static expert_field ei_ppi_gps_length;
 static int
 dissect_ppi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
     /* These are locals used for processing the current tvb */
-    guint length;
-    gint  length_remaining;
+    unsigned length;
+    int   length_remaining;
     int offset = 0;
 
     proto_tree *ppi_gps_tree = NULL;
@@ -156,20 +156,20 @@ dissect_ppi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
     /* bits */
     int bit;
-    guint32 present, next_present;
+    uint32_t present, next_present;
     /* values actually read out, for displaying */
-    guint32 version;
-    gdouble lat, lon, alt, alt_gnd;
+    uint32_t version;
+    double lat, lon, alt, alt_gnd;
     nstime_t gps_timestamp;
     int gps_time_size, already_processed_fractime; /* we use this internally to track if this is a 4 or 8 byte wide timestamp */
-    gdouble eph, epv, ept;
-    gchar *curr_str;
+    double eph, epv, ept;
+    char *curr_str;
 
 
     /* these are temporary intermediate values, used in the individual cases below */
-    guint32 t_lat, t_lon, t_alt, t_alt_gnd;
-    guint32 t_herr, t_verr, t_terr;
-    guint32 t_appspecific_num;
+    uint32_t t_lat, t_lon, t_alt, t_alt_gnd;
+    uint32_t t_herr, t_verr, t_terr;
+    uint32_t t_appspecific_num;
     /* initialize the timestamp value(s) */
     gps_timestamp.secs = gps_timestamp.nsecs = already_processed_fractime = 0;
 
@@ -177,7 +177,7 @@ dissect_ppi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     col_clear(pinfo->cinfo,COL_INFO);
 
     /* pull out the first three fields of the BASE-GEOTAG-HEADER */
-    version = tvb_get_guint8(tvb, offset);
+    version = tvb_get_uint8(tvb, offset);
     length  = tvb_get_letohs(tvb, offset+2);
     present = tvb_get_letohl(tvb, offset+4);
 
@@ -584,7 +584,7 @@ proto_register_ppi_gps(void) {
             NULL, HFILL } },
 
     };
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_ppi_gps,
         &ett_ppi_gps_present,
         &ett_ppi_gps_gpsflags_flags

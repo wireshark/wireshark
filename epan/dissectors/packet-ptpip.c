@@ -31,8 +31,8 @@
 #define PTPIP_MAX_PARAM_COUNT     5  /* [1] Section 2.3.6 */
 
 /* trees */
-static gint ett_ptpIP;
-static gint ett_ptpIP_hdr;
+static int ett_ptpIP;
+static int ett_ptpIP_hdr;
 
 /* PTP/IP Fields */
 static int proto_ptpIP;
@@ -58,19 +58,19 @@ static int hf_ptp_opCode_param_sessionID;
 
 /* function declarations */
 static int dissect_ptpIP (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_);
-static void dissect_ptpIP_init_command_request (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 *offset);
-static void dissect_ptpIP_init_command_ack     (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 *offset);
-static void dissect_ptpIP_init_event_request   (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 *offset);
+static void dissect_ptpIP_init_command_request (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16_t *offset);
+static void dissect_ptpIP_init_command_ack     (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16_t *offset);
+static void dissect_ptpIP_init_event_request   (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16_t *offset);
 static void dissect_ptpIP_init_event_ack       (               packet_info *pinfo);
-static void dissect_ptpIP_operation_request    (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 *offset);
-static void dissect_ptpIP_operation_response   (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 *offset);
-static void dissect_ptpIP_start_data           (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 *offset);
-static void dissect_ptpIP_data                 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 *offset);
-static void dissect_ptpIP_end_data             (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 *offset);
-static void dissect_ptpIP_event                (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 *offset);
-static void dissect_ptpIP_unicode_name         (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 *offset);
-static void dissect_ptpIP_protocol_version     (tvbuff_t *tvb,                     proto_tree *tree, guint16 *offset);
-static void dissect_ptpIP_guid                 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 *offset);
+static void dissect_ptpIP_operation_request    (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16_t *offset);
+static void dissect_ptpIP_operation_response   (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16_t *offset);
+static void dissect_ptpIP_start_data           (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16_t *offset);
+static void dissect_ptpIP_data                 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16_t *offset);
+static void dissect_ptpIP_end_data             (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16_t *offset);
+static void dissect_ptpIP_event                (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16_t *offset);
+static void dissect_ptpIP_unicode_name         (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16_t *offset);
+static void dissect_ptpIP_protocol_version     (tvbuff_t *tvb,                     proto_tree *tree, uint16_t *offset);
+static void dissect_ptpIP_guid                 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16_t *offset);
 
 void proto_register_ptpip( void );
 void proto_reg_handoff_ptpIP( void );
@@ -537,9 +537,9 @@ int dissect_ptpIP (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 {
     proto_item *item_ptr;
     proto_tree *ptp_tree;
-    guint16     offset = 0;
+    uint16_t    offset = 0;
 
-    guint32 pktType;
+    uint32_t pktType;
 
     /* Check that there's enough data */
     if ( tvb_captured_length_remaining(tvb, offset) < 8 )    /* ptp-photo smallest packet size is 8 */
@@ -611,7 +611,7 @@ int dissect_ptpIP (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
  * Method to dissect the Init Command Request sent by the Initiator
  * in the connection. This packet is defined by [1] Section 2.3.1
  */
-static void dissect_ptpIP_init_command_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 *offset)
+static void dissect_ptpIP_init_command_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16_t *offset)
 {
     *offset += 0;
 
@@ -637,9 +637,9 @@ static void dissect_ptpIP_init_command_request(tvbuff_t *tvb, packet_info *pinfo
  * Method to dissect the Init Command Ack sent by the Responder
  * in the connection. This packet is defined by [1] Section 2.3.2
  */
-static void dissect_ptpIP_init_command_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 *offset)
+static void dissect_ptpIP_init_command_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16_t *offset)
 {
-    guint32 connectionNumber;
+    uint32_t connectionNumber;
 
     col_set_str(
         pinfo->cinfo,
@@ -673,9 +673,9 @@ static void dissect_ptpIP_init_command_ack(tvbuff_t *tvb, packet_info *pinfo, pr
  * Dissects the Init Event Request packet specified in [1] Section 2.3.3.
  * Standard states that the packet only has 1 field.
  */
-static void dissect_ptpIP_init_event_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 *offset)
+static void dissect_ptpIP_init_event_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16_t *offset)
 {
-    guint32 connectionNumber;
+    uint32_t connectionNumber;
 
     col_set_str(
         pinfo->cinfo,
@@ -712,10 +712,10 @@ static void dissect_ptpIP_init_event_ack(packet_info *pinfo)
  * of the stack.  Work will need to be done in future iterations to make this
  * compatible with PTP/USB.
  */
-static void dissect_ptpIP_operation_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 *offset)
+static void dissect_ptpIP_operation_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16_t *offset)
 {
-    guint16 opcode;
-    guint16 transactionID_offset = *offset; /* need to save this to output transaction id in pinfo */
+    uint16_t opcode;
+    uint16_t transactionID_offset = *offset; /* need to save this to output transaction id in pinfo */
 
     col_set_str(
         pinfo->cinfo,
@@ -757,7 +757,7 @@ static void dissect_ptpIP_operation_request(tvbuff_t *tvb, packet_info *pinfo, p
                 vendor_values = &ptp_opcode_olympus_names_ext;
                 break;
             default:
-                DISSECTOR_ASSERT(FALSE);
+                DISSECTOR_ASSERT(false);
                 break;
             }
 
@@ -817,9 +817,9 @@ static void dissect_ptpIP_operation_request(tvbuff_t *tvb, packet_info *pinfo, p
  * of the stack.  Work will need to be done in future iterations to make this
  * compatible with PTP/USB.
  */
-static void dissect_ptpIP_operation_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 *offset)
+static void dissect_ptpIP_operation_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16_t *offset)
 {
-    guint16 resp;
+    uint16_t resp;
 
     col_set_str(
         pinfo->cinfo,
@@ -871,7 +871,7 @@ static void dissect_ptpIP_operation_response(tvbuff_t *tvb, packet_info *pinfo, 
  * of the stack.  Work will need to be done in future iterations to make this
  * compatible with PTP/USB.
  */
-static void dissect_ptpIP_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 *offset)
+static void dissect_ptpIP_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16_t *offset)
 {
     col_set_str(
         pinfo->cinfo,
@@ -890,9 +890,9 @@ static void dissect_ptpIP_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
  * of the stack.  Work will need to be done in future iterations to make this
  * compatible with PTP/USB.
  */
-static void dissect_ptpIP_start_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 *offset)
+static void dissect_ptpIP_start_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16_t *offset)
 {
-    guint64 dataLen;
+    uint64_t dataLen;
 
     col_set_str(
         pinfo->cinfo,
@@ -905,7 +905,7 @@ static void dissect_ptpIP_start_data(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     dataLen = tvb_get_letoh64(tvb, *offset);
     proto_tree_add_item(tree, hf_ptp_totalDataLength, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
     *offset += 8;
-    if (dataLen == G_GUINT64_CONSTANT(0xFFFFFFFFFFFFFFFF)) /* [1] specifies in 2.3.9 if total data len
+    if (dataLen == UINT64_C(0xFFFFFFFFFFFFFFFF)) /* [1] specifies in 2.3.9 if total data len
                                                               is this value then len is unknown */
     {
         col_append_str(
@@ -915,7 +915,7 @@ static void dissect_ptpIP_start_data(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     }
 }
 
-static void dissect_ptpIP_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 *offset)
+static void dissect_ptpIP_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16_t *offset)
 {
 
     col_set_str(
@@ -933,7 +933,7 @@ static void dissect_ptpIP_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
  * of the stack.  Work will need to be done in future iterations to make this
  * compatible with PTP/USB.
  */
-static void dissect_ptpIP_end_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 *offset)
+static void dissect_ptpIP_end_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16_t *offset)
 {
 
     col_set_str(
@@ -947,7 +947,7 @@ static void dissect_ptpIP_end_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 /**
  * Dissects the Opcode Open Session as defined by [2] 10.5.2
  */
-void dissect_ptp_opCode_openSession(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 *offset)
+void dissect_ptp_opCode_openSession(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16_t *offset)
 {
     col_set_str(
         pinfo->cinfo,
@@ -965,9 +965,9 @@ void dissect_ptp_opCode_openSession(tvbuff_t *tvb, packet_info *pinfo, proto_tre
  * column.
  *
  */
-void dissect_ptp_transactionID(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 *offset)
+void dissect_ptp_transactionID(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16_t *offset)
 {
-    guint32 transactionID;
+    uint32_t transactionID;
 
     transactionID = tvb_get_letohl(tvb, *offset);
     proto_tree_add_item(tree, hf_ptp_transactionID, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
@@ -983,10 +983,10 @@ void dissect_ptp_transactionID(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
  * This method handles dissecting the Unicode name that is
  * specificed in multiple packets.
  */
-static void dissect_ptpIP_unicode_name(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 *offset)
+static void dissect_ptpIP_unicode_name(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16_t *offset)
 {
-    const guint8 *name;
-    gint          nameLen;
+    const uint8_t *name;
+    int           nameLen;
 
     nameLen = tvb_unicode_strsize(tvb, *offset);
     proto_tree_add_item_ret_string(tree, hf_ptpIP_name, tvb, *offset, nameLen, ENC_UTF_16|ENC_LITTLE_ENDIAN, pinfo->pool, &name);
@@ -999,12 +999,12 @@ static void dissect_ptpIP_unicode_name(tvbuff_t *tvb, packet_info *pinfo, proto_
  * as 0x00010000 == 1.0 where the Most significant bits are the major version and the least
  * significant bits are the minor version.
  */
-static void dissect_ptpIP_protocol_version(tvbuff_t *tvb, proto_tree *tree, guint16 *offset)
+static void dissect_ptpIP_protocol_version(tvbuff_t *tvb, proto_tree *tree, uint16_t *offset)
 {
 
-    guint8  version[30];
-    guint32 protoVersion;
-    guint16 majorVersion, minorVersion;
+    uint8_t version[30];
+    uint32_t protoVersion;
+    uint16_t majorVersion, minorVersion;
 
     protoVersion = tvb_get_letohl(tvb, *offset);
     /* logic to format version */
@@ -1016,9 +1016,9 @@ static void dissect_ptpIP_protocol_version(tvbuff_t *tvb, proto_tree *tree, guin
 }
 
 /* Grabbing the GUID */
-static void dissect_ptpIP_guid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 *offset)
+static void dissect_ptpIP_guid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16_t *offset)
 {
-    guint8 *guid;
+    uint8_t *guid;
 
     guid = tvb_bytes_to_str(pinfo->pool, tvb, *offset, PTPIP_GUID_SIZE);
     proto_tree_add_item(tree, hf_ptpIP_guid, tvb, *offset, PTPIP_GUID_SIZE, ENC_NA);
@@ -1080,7 +1080,7 @@ void proto_register_ptpip( void )
             NULL, 0, NULL, HFILL }},
 
     };
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_ptpIP,
         &ett_ptpIP_hdr
     };
@@ -1103,7 +1103,7 @@ void proto_register_ptpip( void )
     prefs_register_enum_preference(ptpIP_module, "vendor",
             "Camera vendor",
             "Properly translates vendor specific opcodes",
-            &pref_vendor, pref_hsp_role, FALSE);
+            &pref_vendor, pref_hsp_role, false);
 
 }
 

@@ -85,7 +85,7 @@ static int hf_pflog_saddr;
 static int hf_pflog_daddr;
 static int hf_pflog_sport;
 static int hf_pflog_dport;
-static gint ett_pflog;
+static int ett_pflog;
 
 static expert_field ei_pflog_invalid_header_length;
 
@@ -98,7 +98,7 @@ static int hf_old_pflog_reason;
 static int hf_old_pflog_action;
 static int hf_old_pflog_dir;
 
-static gint ett_old_pflog;
+static int ett_old_pflog;
 
 /*
  * Because ENC_HOST_ENDIAN is either equal to ENC_BIG_ENDIAN or
@@ -112,7 +112,7 @@ static gint ett_old_pflog;
 #define ID_BIG_ENDIAN    1
 #define ID_LITTLE_ENDIAN 2
 
-static gint id_endian = ID_HOST_ENDIAN;
+static int id_endian = ID_HOST_ENDIAN;
 static const enum_val_t id_endian_vals[] = {
 	{ "host", "Host-endian", ID_HOST_ENDIAN },
 	{ "big", "Big-endian", ID_BIG_ENDIAN },
@@ -269,11 +269,11 @@ dissect_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
   tvbuff_t *next_tvb;
   proto_tree *pflog_tree;
   proto_item *ti = NULL, *ti_len;
-  guint32 length, padded_length;
-  guint32 af, action;
-  const guint8 *ifname;
-  gint32 rulenr;
-  gint offset = 0;
+  uint32_t length, padded_length;
+  uint32_t af, action;
+  const uint8_t *ifname;
+  int32_t rulenr;
+  int offset = 0;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "PFLOG");
 
@@ -514,7 +514,7 @@ proto_register_pflog(void)
       { "Direction", "pflog.dir", FT_UINT8, BASE_DEC, VALS(pflog_dir_vals), 0x0,
         "Direction of packet in stack (inbound versus outbound)", HFILL }},
   };
-  static gint *ett[] = { &ett_pflog };
+  static int *ett[] = { &ett_pflog };
 
   static ei_register_info ei[] = {
      { &ei_pflog_invalid_header_length, { "pflog.invalid_header_length", PI_MALFORMED, PI_ERROR, "Invalid header length ", EXPFILL }},
@@ -536,7 +536,7 @@ proto_register_pflog(void)
   prefs_register_enum_preference(pflog_module, "id_endian",
         "Byte order for UID and PID fields",
         "Whether or not UID and PID fields are dissected in host, big, or little endian byte order",
-        &id_endian, id_endian_vals, FALSE);
+        &id_endian, id_endian_vals, false);
   prefs_register_obsolete_preference(pflog_module, "uid_endian");
 }
 
@@ -555,10 +555,10 @@ dissect_old_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
   tvbuff_t *next_tvb;
   proto_tree *pflog_tree;
   proto_item *ti;
-  guint32 af;
-  const guint8 *ifname;
-  guint16 rnr, action;
-  gint offset = 0;
+  uint32_t af;
+  const uint8_t *ifname;
+  uint16_t rnr, action;
+  int offset = 0;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "PFLOG-OLD");
 
@@ -643,7 +643,7 @@ proto_register_old_pflog(void)
       { "Direction", "pflog.dir", FT_UINT16, BASE_DEC, VALS(pflog_old_dir_vals), 0x0,
         "Direction of packet in stack (inbound versus outbound)", HFILL }},
   };
-  static gint *ett[] = { &ett_old_pflog };
+  static int *ett[] = { &ett_old_pflog };
 
   proto_old_pflog = proto_register_protocol("OpenBSD Packet Filter log file, pre 3.4", "PFLOG-OLD", "pflog-old");
   proto_register_field_array(proto_old_pflog, hf, array_length(hf));

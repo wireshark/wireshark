@@ -41,8 +41,8 @@ static int hf_pong_messageno;
 static int hf_pong_replyno;
 static int hf_pong_data;
 
-static guint64 pingpongprotocol_total_msgs;
-static guint64 pingpongprotocol_total_bytes;
+static uint64_t pingpongprotocol_total_msgs;
+static uint64_t pingpongprotocol_total_bytes;
 
 /* Dissectors for messages. This is specific to PingPongProtocol */
 #define MESSAGE_TYPE_LENGTH    1
@@ -81,8 +81,8 @@ static const value_string message_type_values[] = {
 
 
 typedef struct _tap_pingpongprotocol_rec_t {
-  guint8      type;
-  guint16     size;
+  uint8_t     type;
+  uint16_t    size;
   const char* type_string;
 } tap_pingpongprotocol_rec_t;
 
@@ -90,7 +90,7 @@ typedef struct _tap_pingpongprotocol_rec_t {
 static void
 dissect_pingpongprotocol_ping_message(tvbuff_t *message_tvb, proto_tree *message_tree)
 {
-  guint16 ping_data_length;
+  uint16_t ping_data_length;
 
   proto_tree_add_item(message_tree, hf_ping_messageno, message_tvb, PING_MESSAGENO_OFFSET, PING_MESSAGENO_LENGTH, ENC_BIG_ENDIAN);
 
@@ -102,7 +102,7 @@ dissect_pingpongprotocol_ping_message(tvbuff_t *message_tvb, proto_tree *message
 static void
 dissect_pingpongprotocol_pong_message(tvbuff_t *message_tvb, proto_tree *message_tree)
 {
-  guint16 pong_data_length;
+  uint16_t pong_data_length;
 
   proto_tree_add_item(message_tree, hf_pong_messageno, message_tvb, PONG_MESSAGENO_OFFSET, PONG_MESSAGENO_LENGTH, ENC_BIG_ENDIAN);
   proto_tree_add_item(message_tree, hf_pong_replyno,   message_tvb, PONG_REPLYNO_OFFSET,   PONG_REPLYNO_LENGTH,   ENC_BIG_ENDIAN);
@@ -118,7 +118,7 @@ static void
 dissect_pingpongprotocol_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *pingpongprotocol_tree)
 {
   tap_pingpongprotocol_rec_t* tap_rec = wmem_new0(pinfo->pool, tap_pingpongprotocol_rec_t);
-  tap_rec->type        = tvb_get_guint8(message_tvb, MESSAGE_TYPE_OFFSET);
+  tap_rec->type        = tvb_get_uint8(message_tvb, MESSAGE_TYPE_OFFSET);
   tap_rec->size        = tvb_get_ntohs(message_tvb,  MESSAGE_LENGTH_OFFSET);
   tap_rec->type_string = val_to_str_const(tap_rec->type, message_type_values, "Unknown PingPongProtocol message type");
   tap_queue_packet(tap_pingpongprotocol, pinfo, tap_rec);
@@ -157,7 +157,7 @@ dissect_pingpongprotocol(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *
   };
   /* dissect the message */
   dissect_pingpongprotocol_message(message_tvb, pinfo, pingpongprotocol_tree);
-  return TRUE;
+  return true;
 }
 
 
@@ -243,9 +243,9 @@ pingpongprotocol_stat_packet(void* tapdata, packet_info* pinfo _U_, epan_dissect
   const tap_pingpongprotocol_rec_t* tap_rec   = (const tap_pingpongprotocol_rec_t*)data;
   stat_tap_table*                   table;
   stat_tap_table_item_type*         msg_data;
-  gint                              idx;
-  guint64                           messages;
-  guint64                           bytes;
+  int                               idx;
+  uint64_t                          messages;
+  uint64_t                          bytes;
   int                               i         = 0;
   double                            firstSeen = -1.0;
   double                            lastSeen  = -1.0;
@@ -273,9 +273,9 @@ pingpongprotocol_stat_packet(void* tapdata, packet_info* pinfo _U_, epan_dissect
   /* Update messages and bytes share */
   while (message_type_values[i].strptr) {
     msg_data = stat_tap_get_field_data(table, i, MESSAGES_COLUMN);
-    const guint m = msg_data->value.uint_value;
+    const unsigned m = msg_data->value.uint_value;
     msg_data = stat_tap_get_field_data(table, i, BYTES_COLUMN);
-    const guint b = msg_data->value.uint_value;
+    const unsigned b = msg_data->value.uint_value;
 
     msg_data = stat_tap_get_field_data(table, i, MESSAGES_SHARE_COLUMN);
     msg_data->type = TABLE_ITEM_FLOAT;
@@ -333,7 +333,7 @@ pingpongprotocol_stat_packet(void* tapdata, packet_info* pinfo _U_, epan_dissect
 static void
 pingpongprotocol_stat_reset(stat_tap_table* table)
 {
-  guint element;
+  unsigned element;
   stat_tap_table_item_type* item_data;
 
   for (element = 0; element < table->num_elements; element++) {
@@ -403,12 +403,12 @@ proto_register_pingpongprotocol(void)
   };
 
   /* Setup protocol subtree array */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_pingpongprotocol
   };
 
   static tap_param pingpongprotocol_stat_params[] = {
-    { PARAM_FILTER, "filter", "Filter", NULL, TRUE }
+    { PARAM_FILTER, "filter", "Filter", NULL, true }
   };
 
   static stat_tap_table_ui pingpongprotocol_stat_table = {

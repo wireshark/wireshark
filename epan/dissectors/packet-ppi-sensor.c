@@ -113,18 +113,18 @@ static int hf_ppi_sensor_present_ext;
 
 
 /* These represent arrow-dropdownthings in the gui */
-static gint ett_ppi_sensor;
-static gint ett_ppi_sensor_present;
+static int ett_ppi_sensor;
+static int ett_ppi_sensor_present;
 
 static expert_field ei_ppi_sensor_present_bit;
 static expert_field ei_ppi_sensor_version;
 static expert_field ei_ppi_sensor_length;
 
 /* used with ScaleFactor */
-static gdouble
+static double
 base_10_expt(int power)
 {
-    gdouble ret = 1;
+    double ret = 1;
     int provide_frac = 0;
 
     if (power == 0) /* likely*/
@@ -150,17 +150,17 @@ base_10_expt(int power)
 static int
 dissect_ppi_sensor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
     /* The fixed values up front */
-    guint32 version;
-    guint length;
-    guint length_remaining;
+    uint32_t version;
+    unsigned length;
+    unsigned length_remaining;
 
     proto_tree *ppi_sensor_tree = NULL;
     proto_tree *pt, *my_pt;
     proto_item *version_item, *length_item;
     proto_tree *sensor_line;
     /* sensor type in english */
-    const gchar *type_str = "Unknown sensor";
-    const gchar *unit_str = "Unknown unit";
+    const char *type_str = "Unknown sensor";
+    const char *unit_str = "Unknown unit";
 
     static int * const ppi_sensor_present_flags[] = {
         &hf_ppi_sensor_present_sensortype,
@@ -179,17 +179,17 @@ dissect_ppi_sensor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
     /* bits*/
     int bit;
-    guint32 present, next_present;
+    uint32_t present, next_present;
     int offset = 0;
     /* values actually read out, for displaying */
-    guint16 sensortype =0;
-    gchar  scalefactor = 0;
-    gdouble c_val=0; /*curr val */
-    guint32 val_t=0; /*temp curr val*/
-    guint32 t_appspecific_num; /* temporary conversions */
+    uint16_t sensortype =0;
+    char   scalefactor = 0;
+    double c_val=0; /*curr val */
+    uint32_t val_t=0; /*temp curr val*/
+    uint32_t t_appspecific_num; /* temporary conversions */
 
-    gdouble curr_native_val; /* this will have scaling_factor applied. displayed in sensor line */
-    gchar* curr_str;
+    double curr_native_val; /* this will have scaling_factor applied. displayed in sensor line */
+    char* curr_str;
 
 
 
@@ -197,7 +197,7 @@ dissect_ppi_sensor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     col_clear(pinfo->cinfo,COL_INFO);
 
     /* pull out the first three fields of the BASE-GEOTAG-HEADER */
-    version = tvb_get_guint8(tvb, offset);
+    version = tvb_get_uint8(tvb, offset);
     length = tvb_get_letohs(tvb, offset+2);
     present = tvb_get_letohl(tvb, offset+4);
 
@@ -271,7 +271,7 @@ dissect_ppi_sensor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
         case PPI_SENSOR_SCALEFACTOR:
             if (length_remaining < 1)
                 break;
-            scalefactor = (gchar) tvb_get_guint8(tvb, offset);
+            scalefactor = (char) tvb_get_uint8(tvb, offset);
             proto_tree_add_int(ppi_sensor_tree, hf_ppi_sensor_scalefactor, tvb, offset, 1, scalefactor);
             offset+=1;
             length_remaining-=1;
@@ -517,7 +517,7 @@ proto_register_ppi_sensor(void) {
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "Application-specific data", HFILL } },
     };
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_ppi_sensor,
         &ett_ppi_sensor_present,
     };

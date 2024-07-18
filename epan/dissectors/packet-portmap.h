@@ -39,10 +39,10 @@
 #define RPCBPROC_GETSTAT	12
 
 struct pmap {
-        guint32 pm_prog;
-        guint32 pm_vers;
-        guint32 pm_prot;
-        guint32 pm_port;
+        uint32_t pm_prog;
+        uint32_t pm_vers;
+        uint32_t pm_prot;
+        uint32_t pm_port;
 };
 
 #endif

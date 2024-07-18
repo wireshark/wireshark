@@ -104,9 +104,9 @@ static int hf_pagp_flush_transaction_id;
 
 /* Initialise the subtree pointers */
 
-static gint ett_pagp;
-static gint ett_pagp_flags;
-static gint ett_pagp_tlvs;
+static int ett_pagp;
+static int ett_pagp_flags;
+static int ett_pagp_tlvs;
 
 static expert_field ei_pagp_tlv_length;
 
@@ -141,15 +141,15 @@ static const true_false_string automode = {
 static int
 dissect_pagp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    guint32 raw_word;
-    guint16 num_tlvs;
-    guint16 tlv;
-    guint16 len;
-    guint16 ii;
-    guint16 offset = PAGP_FIRST_TLV;
-    guint8  raw_octet;
+    uint32_t raw_word;
+    uint16_t num_tlvs;
+    uint16_t tlv;
+    uint16_t len;
+    uint16_t ii;
+    uint16_t offset = PAGP_FIRST_TLV;
+    uint8_t raw_octet;
 
-    guint8  flags;
+    uint8_t flags;
 
     proto_tree *pagp_tree = NULL;
     proto_item *pagp_item, *len_item;
@@ -166,7 +166,7 @@ dissect_pagp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     col_clear(pinfo->cinfo, COL_INFO);
 
-    raw_octet = tvb_get_guint8(tvb, PAGP_VERSION_NUMBER);
+    raw_octet = tvb_get_uint8(tvb, PAGP_VERSION_NUMBER);
     if (tree) {
         pagp_item = proto_tree_add_protocol_format(tree, proto_pagp, tvb,
                                                    0, -1, "Port Aggregation Protocol");
@@ -201,7 +201,7 @@ dissect_pagp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     /* Info PDU */
 
-    flags = tvb_get_guint8(tvb, PAGP_FLAGS);
+    flags = tvb_get_uint8(tvb, PAGP_FLAGS);
     col_append_fstr(pinfo->cinfo, COL_INFO, "; Flags 0x%x", flags);
 
     proto_tree_add_bitmask(pagp_tree, tvb, PAGP_FLAGS, hf_pagp_flags, ett_pagp_flags, pagp_flags, ENC_NA);
@@ -452,7 +452,7 @@ proto_register_pagp(void)
 
     /* Setup protocol subtree array */
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_pagp,
         &ett_pagp_flags,
         &ett_pagp_tlvs,

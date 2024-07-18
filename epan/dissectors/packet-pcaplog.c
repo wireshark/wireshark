@@ -39,8 +39,8 @@ static int
 dissect_pcaplog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         void *data _U_)
 {
-    guint32 data_type;
-    guint32 data_length;
+    uint32_t data_type;
+    uint32_t data_length;
     proto_item *pcaplog_item;
     proto_tree *pcaplog_tree;
     proto_item *pi_tmp;

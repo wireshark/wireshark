@@ -42,14 +42,14 @@ enum nr_security_ciphering_algorithm_e { nea0, nea1, nea2, nea3, nea_disabled=99
 
 typedef struct pdcp_nr_security_info_t
 {
-    guint32                                algorithm_configuration_frame;
-    gboolean                               seen_next_ul_pdu;       /* i.e. have we seen SecurityModeComplete */
-    gboolean                               dl_after_reest_request; /* i.e. waiting for DL after rrcReestablishmentRequest */
+    uint32_t                               algorithm_configuration_frame;
+    bool                                   seen_next_ul_pdu;       /* i.e. have we seen SecurityModeComplete */
+    bool                                   dl_after_reest_request; /* i.e. waiting for DL after rrcReestablishmentRequest */
     enum nr_security_integrity_algorithm_e integrity;
     enum nr_security_ciphering_algorithm_e ciphering;
 
     /* Store previous settings so can revert if get SecurityModeFailure */
-    guint32                                previous_algorithm_configuration_frame;
+    uint32_t                               previous_algorithm_configuration_frame;
     enum nr_security_integrity_algorithm_e previous_integrity;
     enum nr_security_ciphering_algorithm_e previous_ciphering;
 } pdcp_nr_security_info_t;
@@ -59,26 +59,26 @@ typedef struct pdcp_nr_security_info_t
 typedef struct pdcp_nr_info
 {
     /* Bearer info is needed for RRC parsing */
-    guint8             direction;
-    guint16            ueid;
+    uint8_t            direction;
+    uint16_t           ueid;
     NRBearerType       bearerType;
-    guint8             bearerId;
+    uint8_t            bearerId;
 
     /* Details of PDCP header */
     enum pdcp_nr_plane plane;
-    guint8             seqnum_length;
-    gboolean           maci_present;
-    gboolean           ciphering_disabled;
+    uint8_t            seqnum_length;
+    bool               maci_present;
+    bool               ciphering_disabled;
     /* PDCP_NR_(U|D)L_SDAP_HEADER_PRESENT bitmask */
-    guint8             sdap_header;
+    uint8_t            sdap_header;
 
     /* RoHC settings */
     rohc_info          rohc;
 
-    guint8             is_retx;
+    uint8_t            is_retx;
 
     /* Used by heuristic dissector only */
-    guint16            pdu_length;
+    uint16_t           pdu_length;
 } pdcp_nr_info;
 
 /* Functions to be called from outside this module (e.g. in a plugin, where pdcp_nr_info
@@ -179,20 +179,20 @@ void set_pdcp_nr_proto_data(packet_info *pinfo, pdcp_nr_info *p_pdcp_nr_info);
 /* Called by RRC, or other configuration protocols */
 
 /* Function to configure ciphering & integrity algorithms */
-void set_pdcp_nr_security_algorithms(guint16 ueid, pdcp_nr_security_info_t *security_info);
+void set_pdcp_nr_security_algorithms(uint16_t ueid, pdcp_nr_security_info_t *security_info);
 
 /* Function to indicate securityModeCommand did not complete */
-void set_pdcp_nr_security_algorithms_failed(guint16 ueid);
+void set_pdcp_nr_security_algorithms_failed(uint16_t ueid);
 
 /* Function to indicate rrcReestablishmentRequest.
  * This results in the next DL SRB1 PDU not being decrypted */
-void set_pdcp_nr_rrc_reestablishment_request(guint16 ueid);
+void set_pdcp_nr_rrc_reestablishment_request(uint16_t ueid);
 
 /* Called by external dissectors */
-void set_pdcp_nr_rrc_ciphering_key(guint16 ueid, const char *key, guint32 frame_num);
-void set_pdcp_nr_rrc_integrity_key(guint16 ueid, const char *key, guint32 frame_num);
-void set_pdcp_nr_up_ciphering_key(guint16 ueid, const char *key, guint32 frame_num);
-void set_pdcp_nr_up_integrity_key(guint16 ueid, const char *key, guint32 frame_num);
+void set_pdcp_nr_rrc_ciphering_key(uint16_t ueid, const char *key, uint32_t frame_num);
+void set_pdcp_nr_rrc_integrity_key(uint16_t ueid, const char *key, uint32_t frame_num);
+void set_pdcp_nr_up_ciphering_key(uint16_t ueid, const char *key, uint32_t frame_num);
+void set_pdcp_nr_up_integrity_key(uint16_t ueid, const char *key, uint32_t frame_num);
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

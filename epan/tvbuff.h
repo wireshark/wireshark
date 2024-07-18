@@ -25,6 +25,7 @@
 #include <ws_attributes.h>
 
 #include <glib.h>
+#include <ws_attributes.h>
 #include <epan/guid-utils.h>
 #include <epan/wmem_scopes.h>
 

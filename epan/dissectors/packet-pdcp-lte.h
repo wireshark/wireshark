@@ -50,13 +50,13 @@ enum lte_security_ciphering_algorithm_e { eea0, eea1, eea2, eea3 };
 
 typedef struct pdcp_lte_security_info_t
 {
-    guint32                                 configuration_frame;
-    gboolean                                seen_next_ul_pdu;  /* i.e. have we seen SecurityModeResponse */
+    uint32_t                                configuration_frame;
+    bool                                    seen_next_ul_pdu;  /* i.e. have we seen SecurityModeResponse */
     enum lte_security_integrity_algorithm_e integrity;
     enum lte_security_ciphering_algorithm_e ciphering;
 
     /* Store previous settings so can revert if get SecurityModeFailure */
-    guint32                                 previous_configuration_frame;
+    uint32_t                                previous_configuration_frame;
     enum lte_security_integrity_algorithm_e previous_integrity;
     enum lte_security_ciphering_algorithm_e previous_ciphering;
 } pdcp_lte_security_info_t;
@@ -66,24 +66,24 @@ typedef struct pdcp_lte_security_info_t
 typedef struct pdcp_lte_info
 {
     /* Channel info is needed for RRC parsing */
-    guint8             direction;
-    guint16            ueid;
+    uint8_t            direction;
+    uint16_t           ueid;
     LogicalChannelType channelType;
-    guint16            channelId;
+    uint16_t           channelId;
     BCCHTransportType  BCCHTransport;
 
     /* Details of PDCP header */
-    gboolean           no_header_pdu;
+    bool               no_header_pdu;
     enum pdcp_plane    plane;
-    guint8             seqnum_length;
+    uint8_t            seqnum_length;
 
     /* RoHC settings */
     rohc_info          rohc;
 
-    guint8             is_retx;
+    uint8_t            is_retx;
 
     /* Used by heuristic dissector only */
-    guint16            pdu_length;
+    uint16_t           pdu_length;
 } pdcp_lte_info;
 
 
@@ -174,19 +174,19 @@ typedef struct pdcp_lte_info
 /* Called by RRC, or other configuration protocols */
 
 /* Function to configure ciphering & integrity algorithms */
-void set_pdcp_lte_security_algorithms(guint16 ueid, pdcp_lte_security_info_t *security_info);
+void set_pdcp_lte_security_algorithms(uint16_t ueid, pdcp_lte_security_info_t *security_info);
 
 /* Function to indicate securityModeCommand did not complete */
-void set_pdcp_lte_security_algorithms_failed(guint16 ueid);
+void set_pdcp_lte_security_algorithms_failed(uint16_t ueid);
 
 
 /* Called by external dissectors */
-void set_pdcp_lte_rrc_ciphering_key(guint16 ueid, const char *key, guint32 frame_num);
-void set_pdcp_lte_rrc_integrity_key(guint16 ueid, const char *key, guint32 frame_num);
-void set_pdcp_lte_up_ciphering_key(guint16 ueid, const char *key, guint32 frame_num);
+void set_pdcp_lte_rrc_ciphering_key(uint16_t ueid, const char *key, uint32_t frame_num);
+void set_pdcp_lte_rrc_integrity_key(uint16_t ueid, const char *key, uint32_t frame_num);
+void set_pdcp_lte_up_ciphering_key(uint16_t ueid, const char *key, uint32_t frame_num);
 
 /* Reset UE's bearers */
-void pdcp_lte_reset_ue_bearers(packet_info *pinfo, guint16 ueid, gboolean including_drb_am);
+void pdcp_lte_reset_ue_bearers(packet_info *pinfo, uint16_t ueid, bool including_drb_am);
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

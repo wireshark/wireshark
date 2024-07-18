@@ -99,14 +99,14 @@ void proto_reg_handoff_pnrp(void);
 static dissector_handle_t pnrp_handle;
 
 /* Define all helper methods  */
-static void dissect_pnrp_ids(tvbuff_t *tvb, gint offset, gint length, proto_tree *tree);
-static void dissect_ipv6_address(tvbuff_t *tvb, gint offset, gint length, proto_tree *tree);
-static void dissect_route_entry(tvbuff_t *tvb, gint offset, gint length, proto_tree *tree);
-static void dissect_ipv6_endpoint_structure(tvbuff_t *tvb, gint offset, gint length, proto_tree *tree);
-static void dissect_encodedCPA_structure(tvbuff_t *tvb, gint offset, gint length, proto_tree *tree);
-static void dissect_payload_structure(tvbuff_t *tvb, gint offset, gint length, proto_tree *tree);
-static void dissect_publicKey_structure(tvbuff_t *tvb, gint offset, gint length, proto_tree *tree);
-static void dissect_signature_structure(tvbuff_t *tvb, gint offset, gint length, proto_tree *tree);
+static void dissect_pnrp_ids(tvbuff_t *tvb, int offset, int length, proto_tree *tree);
+static void dissect_ipv6_address(tvbuff_t *tvb, int offset, int length, proto_tree *tree);
+static void dissect_route_entry(tvbuff_t *tvb, int offset, int length, proto_tree *tree);
+static void dissect_ipv6_endpoint_structure(tvbuff_t *tvb, int offset, int length, proto_tree *tree);
+static void dissect_encodedCPA_structure(tvbuff_t *tvb, int offset, int length, proto_tree *tree);
+static void dissect_payload_structure(tvbuff_t *tvb, int offset, int length, proto_tree *tree);
+static void dissect_publicKey_structure(tvbuff_t *tvb, int offset, int length, proto_tree *tree);
+static void dissect_signature_structure(tvbuff_t *tvb, int offset, int length, proto_tree *tree);
 
 /* Define global variables
  ----------------------------*/
@@ -177,28 +177,28 @@ static const value_string reasonCode[] = {
 
 /* Define IDs for subcomponents */
 /* Message Header */
-static gint hf_pnrp_header;
-static gint hf_pnrp_header_fieldID;
-static gint hf_pnrp_header_length;
-static gint hf_pnrp_header_ident;
-static gint hf_pnrp_header_versionMajor;
-static gint hf_pnrp_header_versionMinor;
-static gint hf_pnrp_header_messageType;
-static gint hf_pnrp_header_messageID;
+static int hf_pnrp_header;
+static int hf_pnrp_header_fieldID;
+static int hf_pnrp_header_length;
+static int hf_pnrp_header_ident;
+static int hf_pnrp_header_versionMajor;
+static int hf_pnrp_header_versionMinor;
+static int hf_pnrp_header_messageType;
+static int hf_pnrp_header_messageID;
 /* Message Body */
-static gint hf_pnrp_message_type;
-static gint hf_pnrp_message_length;
-static gint hf_pnrp_message_headerack;
-static gint hf_pnrp_message_pnrpID;    /* Generic variable to display pnrp ID in various situations */
+static int hf_pnrp_message_type;
+static int hf_pnrp_message_length;
+static int hf_pnrp_message_headerack;
+static int hf_pnrp_message_pnrpID;    /* Generic variable to display pnrp ID in various situations */
 /* Inquire Message Flags */
-static gint hf_pnrp_message_inquire_flags;
-static gint hf_pnrp_message_inquire_flags_reserved1;
-static gint hf_pnrp_message_inquire_flags_Abit;
-static gint hf_pnrp_message_inquire_flags_Xbit;
-static gint hf_pnrp_message_inquire_flags_Cbit;
-static gint hf_pnrp_message_inquire_flags_reserved2;
+static int hf_pnrp_message_inquire_flags;
+static int hf_pnrp_message_inquire_flags_reserved1;
+static int hf_pnrp_message_inquire_flags_Abit;
+static int hf_pnrp_message_inquire_flags_Xbit;
+static int hf_pnrp_message_inquire_flags_Cbit;
+static int hf_pnrp_message_inquire_flags_reserved2;
 
-static gint hf_pnrp_padding;
+static int hf_pnrp_padding;
 
 static int * const inquire_flags[] = {
     &hf_pnrp_message_inquire_flags_reserved1,
@@ -210,27 +210,27 @@ static int * const inquire_flags[] = {
 };
 
 /* Classifier */
-static gint hf_pnrp_message_classifier_unicodeCount;
-static gint hf_pnrp_message_classifier_arrayLength;
-static gint hf_pnrp_message_classifier_entryLength;
-static gint hf_pnrp_message_classifier_string;
+static int hf_pnrp_message_classifier_unicodeCount;
+static int hf_pnrp_message_classifier_arrayLength;
+static int hf_pnrp_message_classifier_entryLength;
+static int hf_pnrp_message_classifier_string;
 /* ACK Message Flags */
-static gint hf_pnrp_message_ack_flags_reserved;
-static gint hf_pnrp_message_ack_flags_Nbit;
+static int hf_pnrp_message_ack_flags_reserved;
+static int hf_pnrp_message_ack_flags_Nbit;
 /* SplitControls */
-static gint hf_pnrp_message_splitControls_authorityBuffer;
+static int hf_pnrp_message_splitControls_authorityBuffer;
 /* IPv6 Endpoint Array */
-static gint hf_pnrp_message_ipv6EndpointArray_NumberOfEntries;
-static gint hf_pnrp_message_ipv6EndpointArray_ArrayLength;
-static gint hf_pnrp_message_ipv6EndpointArray_EntryLength;
+static int hf_pnrp_message_ipv6EndpointArray_NumberOfEntries;
+static int hf_pnrp_message_ipv6EndpointArray_ArrayLength;
+static int hf_pnrp_message_ipv6EndpointArray_EntryLength;
 /* AUTHORITY Message Flags */
-static gint hf_pnrp_message_authority_flags;
-static gint hf_pnrp_message_authority_flags_reserved1;
-static gint hf_pnrp_message_authority_flags_Lbit;
-static gint hf_pnrp_message_authority_flags_reserved2;
-static gint hf_pnrp_message_authority_flags_Bbit;
-static gint hf_pnrp_message_authority_flags_reserved3;
-static gint hf_pnrp_message_authority_flags_Nbit;
+static int hf_pnrp_message_authority_flags;
+static int hf_pnrp_message_authority_flags_reserved1;
+static int hf_pnrp_message_authority_flags_Lbit;
+static int hf_pnrp_message_authority_flags_reserved2;
+static int hf_pnrp_message_authority_flags_Bbit;
+static int hf_pnrp_message_authority_flags_reserved3;
+static int hf_pnrp_message_authority_flags_Nbit;
 
 static int * const authority_flags[] = {
     &hf_pnrp_message_authority_flags_reserved1,
@@ -243,34 +243,34 @@ static int * const authority_flags[] = {
 };
 
 /* Flood Control Flags */
-static gint hf_pnrp_message_flood_flags_reserved1;
-static gint hf_pnrp_message_flood_flags_Dbit;
+static int hf_pnrp_message_flood_flags_reserved1;
+static int hf_pnrp_message_flood_flags_Dbit;
 
 /* PNRP ID Array */
-static gint hf_pnrp_message_idArray_NumEntries;
-static gint hf_pnrp_message_idArray_Length;
-static gint hf_pnrp_message_ElementFieldType;
-static gint hf_pnrp_message_idarray_Entrylength;
+static int hf_pnrp_message_idArray_NumEntries;
+static int hf_pnrp_message_idArray_Length;
+static int hf_pnrp_message_ElementFieldType;
+static int hf_pnrp_message_idarray_Entrylength;
 
-static gint hf_pnrp_message_solicitType;
-static gint hf_pnrp_message_certChain;
-static gint hf_pnrp_message_nonce;
-static gint hf_pnrp_message_hashednonce;
-static gint hf_pnrp_message_ipv6;
+static int hf_pnrp_message_solicitType;
+static int hf_pnrp_message_certChain;
+static int hf_pnrp_message_nonce;
+static int hf_pnrp_message_hashednonce;
+static int hf_pnrp_message_ipv6;
 
 /* Encoded CPA */
-static gint hf_pnrp_encodedCPA;
-static gint hf_pnrp_encodedCPA_length;
-static gint hf_pnrp_encodedCPA_minorVersion;
-static gint hf_pnrp_encodedCPA_majorVersion;
-static gint hf_pnrp_encodedCPA_flags;
-static gint hf_pnrp_encodedCPA_flags_reserved;
-static gint hf_pnrp_encodedCPA_flags_Xbit;
-static gint hf_pnrp_encodedCPA_flags_Fbit;
-static gint hf_pnrp_encodedCPA_flags_Cbit;
-static gint hf_pnrp_encodedCPA_flags_Abit;
-static gint hf_pnrp_encodedCPA_flags_Ubit;
-static gint hf_pnrp_encodedCPA_flags_Rbit;
+static int hf_pnrp_encodedCPA;
+static int hf_pnrp_encodedCPA_length;
+static int hf_pnrp_encodedCPA_minorVersion;
+static int hf_pnrp_encodedCPA_majorVersion;
+static int hf_pnrp_encodedCPA_flags;
+static int hf_pnrp_encodedCPA_flags_reserved;
+static int hf_pnrp_encodedCPA_flags_Xbit;
+static int hf_pnrp_encodedCPA_flags_Fbit;
+static int hf_pnrp_encodedCPA_flags_Cbit;
+static int hf_pnrp_encodedCPA_flags_Abit;
+static int hf_pnrp_encodedCPA_flags_Ubit;
+static int hf_pnrp_encodedCPA_flags_Rbit;
 static int * const encodedCPA_flags[] = {
     &hf_pnrp_encodedCPA_flags_reserved,
     &hf_pnrp_encodedCPA_flags_Xbit,
@@ -281,38 +281,38 @@ static int * const encodedCPA_flags[] = {
     &hf_pnrp_encodedCPA_flags_Rbit,
     NULL
 };
-static gint hf_pnrp_encodedCPA_notAfter;
-static gint hf_pnrp_encodedCPA_serviceLocation;
-static gint hf_pnrp_encodedCPA_binaryAuthority;
-static gint hf_pnrp_encodedCPA_classifierHash;
-static gint hf_pnrp_encodedCPA_friendlyName;
+static int hf_pnrp_encodedCPA_notAfter;
+static int hf_pnrp_encodedCPA_serviceLocation;
+static int hf_pnrp_encodedCPA_binaryAuthority;
+static int hf_pnrp_encodedCPA_classifierHash;
+static int hf_pnrp_encodedCPA_friendlyName;
 
 /* Lookup Controls */
-static gint hf_pnrp_message_lookupControls_flags;
-static gint hf_pnrp_message_lookupControls_flags_reserved;
-static gint hf_pnrp_message_lookupControls_flags_Abit;
-static gint hf_pnrp_message_lookupControls_flags_0bit;
+static int hf_pnrp_message_lookupControls_flags;
+static int hf_pnrp_message_lookupControls_flags_reserved;
+static int hf_pnrp_message_lookupControls_flags_Abit;
+static int hf_pnrp_message_lookupControls_flags_0bit;
 static int * const lookupControls_flags[] = {
     &hf_pnrp_message_lookupControls_flags_reserved,
     &hf_pnrp_message_lookupControls_flags_Abit,
     &hf_pnrp_message_lookupControls_flags_0bit,
     NULL
 };
-static gint hf_pnrp_message_lookupControls_precision;
-static gint hf_pnrp_message_lookupControls_resolveCriteria;
-static gint hf_pnrp_message_lookupControls_reasonCode;
+static int hf_pnrp_message_lookupControls_precision;
+static int hf_pnrp_message_lookupControls_resolveCriteria;
+static int hf_pnrp_message_lookupControls_reasonCode;
 
 /* Dissect Route Entry */
-static gint hf_pnrp_message_routeEntry_portNumber;
-static gint hf_pnrp_message_routeEntry_flags;
-static gint hf_pnrp_message_routeEntry_addressCount;
+static int hf_pnrp_message_routeEntry_portNumber;
+static int hf_pnrp_message_routeEntry_flags;
+static int hf_pnrp_message_routeEntry_addressCount;
 
 /* Public Key Structure */
-static gint hf_pnrp_publicKey_objID;
-static gint hf_pnrp_publicKey_publicKeyData;
+static int hf_pnrp_publicKey_objID;
+static int hf_pnrp_publicKey_publicKeyData;
 
 /* Signature Structure */
-static gint hf_pnrp_signature_signatureData;
+static int hf_pnrp_signature_signatureData;
 
 /* Generated from convert_proto_tree_add_text.pl */
 static int hf_pnrp_payload_port;
@@ -354,19 +354,19 @@ static int hf_pnrp_reassembled_data;
 static int hf_pnrp_fragmented_payload;
 
 /* Define variables to reference subtrees */
-static gint ett_pnrp;
-static gint ett_pnrp_header;
-static gint ett_pnrp_message;
-static gint ett_pnrp_message_inquire_flags;
-static gint ett_pnrp_message_authority_flags;
-static gint ett_pnrp_message_encodedCPA;
-static gint ett_pnrp_message_encodedCPA_flags;
-static gint ett_pnrp_message_lookupControls_flags;
-static gint ett_pnrp_message_payloadStructure;
-static gint ett_pnrp_message_publicKeyStructure;
-static gint ett_pnrp_message_signatureStructure;
-static gint ett_pnrp_fragment;
-static gint ett_pnrp_fragments;
+static int ett_pnrp;
+static int ett_pnrp_header;
+static int ett_pnrp_message;
+static int ett_pnrp_message_inquire_flags;
+static int ett_pnrp_message_authority_flags;
+static int ett_pnrp_message_encodedCPA;
+static int ett_pnrp_message_encodedCPA_flags;
+static int ett_pnrp_message_lookupControls_flags;
+static int ett_pnrp_message_payloadStructure;
+static int ett_pnrp_message_publicKeyStructure;
+static int ett_pnrp_message_signatureStructure;
+static int ett_pnrp_fragment;
+static int ett_pnrp_fragments;
 
 static reassembly_table pnrp_reassembly_table;
 
@@ -392,16 +392,16 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 {
     /* Variable declaration */
     int offset, start_offset;
-    gint padding_bytes;
-    guint8 message_type;
-    guint16 field_type;
+    int padding_bytes;
+    uint8_t message_type;
+    uint16_t field_type;
     unsigned data_length;
     proto_item *ti;
     proto_tree *pnrp_tree;
     proto_item *pnrp_header_item;
     proto_tree *pnrp_header_tree;
     proto_item *pnrp_message_tree = NULL;
-    guint32 msg_id;
+    uint32_t msg_id;
 
     /*----------------------------------------
      * Validate if it is really a PNRP Packet
@@ -426,7 +426,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         return 0;
     }
     /* Identifier must 0x51 */
-    if (tvb_get_guint8(tvb,4) != 0x51) {
+    if (tvb_get_uint8(tvb,4) != 0x51) {
         return 0;
     }
 
@@ -435,7 +435,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     /* Use to track data */
     offset= 0;
     /* Get the message Information beforehand */
-    message_type = tvb_get_guint8(tvb,7);
+    message_type = tvb_get_uint8(tvb,7);
 
 
     /* Simply Display the Protocol Name in the INFO column */
@@ -760,7 +760,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
             {
                 fragment_head *frag_data;
                 tvbuff_t *frag_tvb;
-                guint32 buffer_len, frag_offset, remaining_len;
+                uint32_t buffer_len, frag_offset, remaining_len;
 
                 if (tree) {
                     pnrp_message_tree = proto_tree_add_subtree(pnrp_tree, tvb, offset,
@@ -885,7 +885,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
  * Dissecting helper methods                                    *
  *--------------------------------------------------------------*/
 
-static void dissect_pnrp_ids(tvbuff_t *tvb, gint offset, gint length, proto_tree *tree)
+static void dissect_pnrp_ids(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 {
     while (32 <=length) {
         proto_tree_add_item(tree, hf_pnrp_message_pnrpID, tvb, offset, 32, ENC_NA);
@@ -895,9 +895,9 @@ static void dissect_pnrp_ids(tvbuff_t *tvb, gint offset, gint length, proto_tree
 
 }
 
-static void dissect_route_entry(tvbuff_t *tvb, gint offset, gint length, proto_tree *tree)
+static void dissect_route_entry(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 {
-    gint tmp_offset;
+    int tmp_offset;
     /* Check if we don't run out of data */
     if (0 <= tvb_reported_length_remaining(tvb, offset+length)) {
         tmp_offset = 0;
@@ -924,7 +924,7 @@ static void dissect_route_entry(tvbuff_t *tvb, gint offset, gint length, proto_t
     }
 }
 
-static void dissect_ipv6_endpoint_structure(tvbuff_t *tvb, gint offset, gint length, proto_tree *tree)
+static void dissect_ipv6_endpoint_structure(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 {
     /* Check if we don't run out of data */
     while (0 <= tvb_reported_length_remaining(tvb, offset+18) && 18 <=length) {
@@ -937,7 +937,7 @@ static void dissect_ipv6_endpoint_structure(tvbuff_t *tvb, gint offset, gint len
     }
 }
 
-static void dissect_ipv6_address(tvbuff_t *tvb, gint offset, gint length, proto_tree *tree)
+static void dissect_ipv6_address(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 {
     while (0 <= tvb_reported_length_remaining(tvb, offset+16) && 16 <=length) {
         proto_tree_add_item(tree, hf_pnrp_message_ipv6, tvb, offset, 16, ENC_NA);
@@ -946,11 +946,11 @@ static void dissect_ipv6_address(tvbuff_t *tvb, gint offset, gint length, proto_
     }
 }
 
-static void dissect_encodedCPA_structure(tvbuff_t *tvb, gint offset, gint length, proto_tree *tree)
+static void dissect_encodedCPA_structure(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 {
     /* Check if we don't run out of data */
     if (0 <= tvb_reported_length_remaining(tvb, offset+length)) {
-        guint8 flagsField;
+        uint8_t flagsField;
         /* Add a new subtree */
         proto_item *pnrp_encodedCPA_tree = NULL;
         proto_item *pnrp_encodedCPA_item = NULL;
@@ -969,7 +969,7 @@ static void dissect_encodedCPA_structure(tvbuff_t *tvb, gint offset, gint length
         proto_tree_add_item(pnrp_encodedCPA_tree, hf_pnrp_header_versionMajor, tvb, offset+5, 1, ENC_BIG_ENDIAN);
         /* Flags Field */
         proto_tree_add_bitmask(pnrp_encodedCPA_tree, tvb, offset+6, hf_pnrp_encodedCPA_flags, ett_pnrp_message_encodedCPA_flags, encodedCPA_flags, ENC_BIG_ENDIAN);
-        flagsField = tvb_get_guint8(tvb,offset+6);
+        flagsField = tvb_get_uint8(tvb,offset+6);
         /* Reserved */
         proto_tree_add_item(pnrp_encodedCPA_tree, hf_pnrp_reserved8, tvb, offset + 7, 1, ENC_NA);
         /* Not After */
@@ -1029,9 +1029,9 @@ static void dissect_encodedCPA_structure(tvbuff_t *tvb, gint offset, gint length
         /*offset += tvb_get_letohs(tvb,offset);*/
     }
 }
-static void dissect_payload_structure(tvbuff_t *tvb, gint offset, gint length, proto_tree *tree)
+static void dissect_payload_structure(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 {
-    guint16 lengthOfData;
+    uint16_t lengthOfData;
     /* Add a new Subtree */
     proto_item *pnrp_payload_tree;
     /* Check if we actually should display something */
@@ -1060,10 +1060,10 @@ static void dissect_payload_structure(tvbuff_t *tvb, gint offset, gint length, p
     }
 }
 
-static void dissect_publicKey_structure(tvbuff_t *tvb, gint offset, gint length, proto_tree *tree)
+static void dissect_publicKey_structure(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 {
-    guint16 objIDLength;
-    guint16 cbDataLength;
+    uint16_t objIDLength;
+    uint16_t cbDataLength;
     /* Add a new Subtree */
     proto_tree *pnrp_publicKey_tree;
     /* Check if we can safely parse Data */
@@ -1094,9 +1094,9 @@ static void dissect_publicKey_structure(tvbuff_t *tvb, gint offset, gint length,
         proto_tree_add_item(pnrp_publicKey_tree, hf_pnrp_publicKey_publicKeyData, tvb, offset, cbDataLength, ENC_ASCII);
     }
 }
-static void dissect_signature_structure(tvbuff_t *tvb, gint offset, gint length, proto_tree *tree)
+static void dissect_signature_structure(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 {
-    guint16 signatureLength;
+    uint16_t signatureLength;
     /* Add a new Subtree */
     proto_tree *pnrp_signature_tree;
 
@@ -1440,7 +1440,7 @@ void proto_register_pnrp(void)
     };
 
     /* Protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_pnrp,
         &ett_pnrp_header,
         &ett_pnrp_message,

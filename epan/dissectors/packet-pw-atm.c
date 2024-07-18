@@ -41,19 +41,19 @@ void proto_reg_handoff_pw_atm_ata(void);
 void proto_register_pw_atm(void);
 void proto_reg_handoff_pw_atm(void);
 
-static gint proto_n1_nocw;
-static gint proto_n1_cw;
-static gint proto_11_or_aal5_pdu;
-static gint proto_aal5_sdu;
+static int proto_n1_nocw;
+static int proto_n1_cw;
+static int proto_11_or_aal5_pdu;
+static int proto_aal5_sdu;
 /* subordinate dissectors: */
-static gint proto_control_word;
-static gint proto_cell_header;
-static gint proto_cell;
+static int proto_control_word;
+static int proto_cell_header;
+static int proto_cell;
 
-static gint ett_encaps;
-static gint ett_cw;
-static gint ett_cell_header;
-static gint ett_cell;
+static int ett_encaps;
+static int ett_cw;
+static int ett_cell_header;
+static int ett_cell;
 
 static int hf_pw_type_n1_cw;
 static int hf_pw_type_n1_nocw;
@@ -132,7 +132,7 @@ typedef enum {
 typedef struct {
 	int pw_cell_number;
 	int props;
-	gint packet_size;
+	int packet_size;
 	pwatm_mode_t mode;
 	pwatm_submode_t submode;
 	struct {
@@ -146,14 +146,14 @@ typedef struct {
 		 *   positive	- value is the same in all cells
 		 * Machinery is implemented in the UPDATE_CUMULATIVE_VALUE macro.
 		 */
-		gint32 vpi;
-		gint32 vci;
-		gint32 clp;
-		gint32 pti;
+		int32_t vpi;
+		int32_t vci;
+		int32_t clp;
+		int32_t pti;
 	} cumulative;
-	gint32 vpi; /*-1 if unknown*/
-	gint32 vci; /*-1 if unknown*/
-	gint32 pti; /*-1 if unknown*/
+	int32_t vpi; /*-1 if unknown*/
+	int32_t vci; /*-1 if unknown*/
+	int32_t pti; /*-1 if unknown*/
 	struct {
 		/*
 		 * Some fields from 3rd byte of CW. Filled by cell_header dissector.
@@ -162,15 +162,15 @@ typedef struct {
 		 * Meanings of values:
 		 *   (-1) 	- value is unknown
 		 */
-		gint32 m;
-		gint32 v;
-		gint32 rsv;
-		gint32 u;
-		gint32 e;
-		gint32 clp;
+		int32_t m;
+		int32_t v;
+		int32_t rsv;
+		int32_t u;
+		int32_t e;
+		int32_t clp;
 	} cwb3;
-	gboolean aal5_sdu_frame_relay_cr_bit; /*see rfc4717 10.1*/
-	gboolean cell_mode_oam; /*atm admin cell*/
+	bool aal5_sdu_frame_relay_cr_bit; /*see rfc4717 10.1*/
+	bool cell_mode_oam; /*atm admin cell*/
 } pwatm_private_data_t;
 
 #define PWATM_PRIVATE_DATA_T_INITIALIZER {		\
@@ -179,7 +179,7 @@ typedef struct {
 	,{-1, -1, -1, -1 } 				\
 	,-1, -1, -1 					\
 	,{-1, -1, -1, -1, -1, -1 }			\
-	,FALSE, FALSE,					\
+	,false, false,					\
 	}
 
 #define PTI_IS_ADMIN(pti) ((pti) == 4 || (pti) == 5 || (pti) == 6)  /*see atm_pt_vals[]*/
@@ -316,8 +316,8 @@ pw_cell_header_size(const pwatm_mode_t mode, const pwatm_submode_t submode)
 static int
 number_of_cells(const pwatm_mode_t mode
 		,const pwatm_submode_t submode
-		,const gint payload_size
-		,gint* const remainder_size)
+		,const int payload_size
+		,int* const remainder_size)
 {
 	int cells;
 
@@ -416,7 +416,7 @@ static void
 prepare_pseudo_header_atm(
 	struct atm_phdr *ph,
 	const pwatm_private_data_t * const pdata,
-	const guint aal)
+	const unsigned aal)
 {
 	DISSECTOR_ASSERT(NULL != pdata);
 	DISSECTOR_ASSERT(NULL != ph);
@@ -448,8 +448,8 @@ dissect_payload_and_padding(
 	tvbuff_t     * tvb
 	,packet_info * pinfo
 	,proto_tree  * tree
-	,const gint    payload_size
-	,const gint    padding_size
+	,const int     payload_size
+	,const int     padding_size
 	,pwatm_private_data_t * pd)
 {
 	int                    dissected;
@@ -469,7 +469,7 @@ dissect_payload_and_padding(
 		{
 			if (atm_is_oam_cell(pd->vci, pd->pti))
 			{
-				pd->cell_mode_oam = TRUE;
+				pd->cell_mode_oam = true;
 			}
 		}
 
@@ -487,9 +487,9 @@ dissect_payload_and_padding(
 			tvb_3 = tvb_new_subset_length_caplen(tvb_2, 0, bytes_to_dissect, -1);
 			/*aal5_sdu: disable filling columns after 1st (valid) oam cell*/
 			if (pd->mode == PWATM_MODE_AAL5_SDU && (pd->pw_cell_number > 0))
-				ph.enable_fill_columns_by_atm_dissector = FALSE;
+				ph.enable_fill_columns_by_atm_dissector = false;
 			else
-				ph.enable_fill_columns_by_atm_dissector = TRUE;
+				ph.enable_fill_columns_by_atm_dissector = true;
 			/* prepare atm pseudo header for atm OAM cell decoding */
 			prepare_pseudo_header_atm(&ph.info, pd, AAL_OAMCELL);
 
@@ -511,14 +511,14 @@ dissect_payload_and_padding(
 }
 
 
-static gboolean
+static bool
 too_small_packet_or_notpw(tvbuff_t * tvb
 	,packet_info * pinfo
 	,proto_tree  * tree
 	,const int     proto_handler
 	,const char  * const proto_name_column)
 {
-	gint packet_size;
+	int packet_size;
 	packet_size = tvb_reported_length_remaining(tvb, 0);
 	/*
 	 * FIXME
@@ -535,13 +535,13 @@ too_small_packet_or_notpw(tvbuff_t * tvb
 		/* represent problems in the Packet List pane */
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_name_column);
 		col_set_str(pinfo->cinfo, COL_INFO, "Malformed: PW packet is too small");
-		return TRUE;
+		return true;
 	}
 	if (dissect_try_cw_first_nibble(tvb, pinfo, tree))
 	{
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 
 
@@ -561,7 +561,7 @@ dissect_11_or_aal5_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, v
 {
 	const char           * proto_name_column;
 	const char           * proto_name_tree = NULL;
-	gint                   payload_size;
+	int                    payload_size;
 	int                    cells;
 	pwatm_private_data_t   pd              = PWATM_PRIVATE_DATA_T_INITIALIZER;
 
@@ -577,8 +577,8 @@ dissect_11_or_aal5_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, v
 	 * Also adjust protocol name strings.
 	 */
 	{
-		guint8 third_byte;
-		third_byte = tvb_get_guint8(tvb, 3);
+		uint8_t third_byte;
+		third_byte = tvb_get_uint8(tvb, 3);
 		if (0 == (third_byte & 0x80 /*generic_cw.m*/))
 		{ /*1:1 modes*/
 			if (0 != (third_byte & 0x40 /*generic_cw.v*/))
@@ -605,11 +605,11 @@ dissect_11_or_aal5_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, v
 
 	/* check how "good" is this packet */
 	pd.props = PWC_PACKET_PROPERTIES_T_INITIALIZER;
-	if (0 != (tvb_get_guint8(tvb, 0) & 0xf0 /*bits03*/))
+	if (0 != (tvb_get_uint8(tvb, 0) & 0xf0 /*bits03*/))
 	{
 		pd.props |= PWC_CW_BAD_BITS03;
 	}
-	if (0 != (tvb_get_guint8(tvb, 0) & 0x0f /*generic_cw.rsvd*/))
+	if (0 != (tvb_get_uint8(tvb, 0) & 0x0f /*generic_cw.rsvd*/))
 	{
 		pd.props |= PWC_CW_BAD_RSV;
 	}
@@ -633,7 +633,7 @@ dissect_11_or_aal5_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, v
 	 */
 	if (MODE_11(pd.mode))
 	{
-		gint bad_padding_size;
+		int bad_padding_size;
 		payload_size = pd.packet_size - (PWC_SIZEOF_CW-1);
 		cells = number_of_cells(pd.mode, pd.submode, payload_size, &bad_padding_size);
 		if ((0 == cells) || (0 != bad_padding_size))
@@ -643,7 +643,7 @@ dissect_11_or_aal5_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, v
 	}
 	else
 	{ /*aal5_pdu mode*/
-		gint bad_padding_size;
+		int bad_padding_size;
 		payload_size = pd.packet_size - PWC_SIZEOF_CW;
 		cells = number_of_cells(pd.mode, pd.submode, payload_size, &bad_padding_size);
 		/* at least 1 cell must be present in the packet in this mode*/
@@ -678,7 +678,7 @@ dissect_11_or_aal5_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, v
 						,hf_pw_type_11_vpc
 						,hf_pw_type_11_vcc
 						,hf_pw_type_aal5_pdu)
-					,tvb, 0, 0, TRUE);
+					,tvb, 0, 0, true);
 				proto_item_set_generated(item2);
 				if (MODE_11(pd.mode))
 				{
@@ -741,8 +741,8 @@ static int
 dissect_aal5_sdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
 	const char           * proto_name_column;
-	gint                   payload_size;
-	gint                   padding_size;
+	int                    payload_size;
+	int                    padding_size;
 	int                    cells;
 	pwatm_private_data_t   pd      = PWATM_PRIVATE_DATA_T_INITIALIZER;
 
@@ -757,20 +757,20 @@ dissect_aal5_sdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* d
 
 	/* check how "good" is this packet */
 	/* also decide payload length from packet size and CW */
-	if (0 != (tvb_get_guint8(tvb, 0) & 0xf0 /*bits03*/))
+	if (0 != (tvb_get_uint8(tvb, 0) & 0xf0 /*bits03*/))
 	{
 		pd.props |= PWC_CW_BAD_BITS03;
 	}
 
 	pd.submode = PWATM_SUBMODE_DEFAULT;
-	if (0 != (tvb_get_guint8(tvb, 0) & 0x08 /*preferred_cw.T*/))
+	if (0 != (tvb_get_uint8(tvb, 0) & 0x08 /*preferred_cw.T*/))
 	{
 		pd.submode = PWATM_SUBMODE_ADMIN_CELL;
 	}
 
 	if (! pref_aal5_sdu_extend_cw_length_with_rsvd)
 	{
-		if (0 != (tvb_get_guint8(tvb, 1) & 0xc0 /*preferred_cw.rsvd*/))
+		if (0 != (tvb_get_uint8(tvb, 1) & 0xc0 /*preferred_cw.rsvd*/))
 		{
 			pd.props |= PWC_CW_BAD_RSV;
 		}
@@ -785,17 +785,17 @@ dissect_aal5_sdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* d
 		 *
 		 * Also we allow some "extensions"conducted by pref_xxx.
 		 */
-		gint payload_size_from_packet;
+		int payload_size_from_packet;
 		int cw_len; /*length field from cw*/
 
 		payload_size_from_packet = pd.packet_size - PWC_SIZEOF_CW;
 		if (pref_aal5_sdu_extend_cw_length_with_rsvd)
 		{
-			cw_len = tvb_get_guint8(tvb, 1) & 0xff;
+			cw_len = tvb_get_uint8(tvb, 1) & 0xff;
 		}
 		else
 		{
-			cw_len = tvb_get_guint8(tvb, 1) & 0x3f;
+			cw_len = tvb_get_uint8(tvb, 1) & 0x3f;
 		}
 
 		/*
@@ -822,7 +822,7 @@ dissect_aal5_sdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* d
 		}
 		else
 		{
-			gint payload_size_from_cw;
+			int payload_size_from_cw;
 			payload_size_from_cw = cw_len - PWC_SIZEOF_CW;
 			if (payload_size_from_cw <= 0)
 			{
@@ -857,7 +857,7 @@ dissect_aal5_sdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* d
 
 		if (PWATM_SUBMODE_ADMIN_CELL == pd.submode)
 		{
-			gint bad_padding_size;
+			int bad_padding_size;
 			cells = number_of_cells(pd.mode, pd.submode, payload_size, &bad_padding_size);
 			/* only one atm admin cell is allowed in the packet in this mode*/
 			if ((1 != cells) || (0 != bad_padding_size))
@@ -889,7 +889,7 @@ dissect_aal5_sdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* d
 			proto_tree* tree2;
 			tree2 = proto_item_add_subtree(item, ett_encaps);
 			{
-				item = proto_tree_add_boolean(tree2, hf_pw_type_aal5_sdu, tvb, 0, 0, TRUE);
+				item = proto_tree_add_boolean(tree2, hf_pw_type_aal5_sdu, tvb, 0, 0, true);
 				proto_item_set_generated(item);
 			}
 		}
@@ -941,8 +941,8 @@ static int
 dissect_n1_cw(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
 	const char           * proto_name_column;
-	gint                   payload_size;
-	gint                   padding_size;
+	int                    payload_size;
+	int                    padding_size;
 	int                    cells;
 	pwatm_private_data_t   pd      = PWATM_PRIVATE_DATA_T_INITIALIZER;
 
@@ -958,17 +958,17 @@ dissect_n1_cw(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
 	/* check how "good" is this packet */
 	/* also decide payload length from packet size and CW */
 	pd.props = PWC_PACKET_PROPERTIES_T_INITIALIZER;
-	if (0 != (tvb_get_guint8(tvb, 0) & 0xf0 /*bits03*/))
+	if (0 != (tvb_get_uint8(tvb, 0) & 0xf0 /*bits03*/))
 	{
 		pd.props |= PWC_CW_BAD_BITS03;
 	}
-	if (0 != (tvb_get_guint8(tvb, 0) & 0x0f /*preferred_cw.flags*/))
+	if (0 != (tvb_get_uint8(tvb, 0) & 0x0f /*preferred_cw.flags*/))
 	{
 		pd.props |= PWC_CW_BAD_FLAGS;
 	}
 	if (! pref_n1_cw_extend_cw_length_with_rsvd)
 	{
-		if (0 != (tvb_get_guint8(tvb, 1) & 0xc0 /*preferred_cw.rsvd*/))
+		if (0 != (tvb_get_uint8(tvb, 1) & 0xc0 /*preferred_cw.rsvd*/))
 		{
 			pd.props |= PWC_CW_BAD_RSV;
 		}
@@ -983,17 +983,17 @@ dissect_n1_cw(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
 		 *
 		 * Also we allow some "extensions"conducted by pref_xxx.
 		 */
-		gint payload_size_from_packet;
+		int payload_size_from_packet;
 		int cw_len; /*length field from cw*/
 
 		payload_size_from_packet = pd.packet_size - PWC_SIZEOF_CW;
 		if (pref_n1_cw_extend_cw_length_with_rsvd)
 		{
-			cw_len = tvb_get_guint8(tvb, 1) & 0xff;
+			cw_len = tvb_get_uint8(tvb, 1) & 0xff;
 		}
 		else
 		{
-			cw_len = tvb_get_guint8(tvb, 1) & 0x3f;
+			cw_len = tvb_get_uint8(tvb, 1) & 0x3f;
 		}
 
 		/*
@@ -1013,7 +1013,7 @@ dissect_n1_cw(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
 		}
 		else
 		{
-			gint payload_size_from_cw;
+			int payload_size_from_cw;
 			payload_size_from_cw = cw_len - PWC_SIZEOF_CW;
 			if (payload_size_from_cw <= 0)
 			{
@@ -1038,7 +1038,7 @@ dissect_n1_cw(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
 			}
 		}
 		{
-			gint bad_padding_size;
+			int bad_padding_size;
 			cells = number_of_cells(pd.mode, pd.submode, payload_size, &bad_padding_size);
 			if ((0 == cells) || (0 != bad_padding_size))
 			{
@@ -1056,7 +1056,7 @@ dissect_n1_cw(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
 			tree2 = proto_item_add_subtree(item, ett_encaps);
 			{
 				proto_item* item2;
-				item2 = proto_tree_add_boolean(tree2, hf_pw_type_n1_cw, tvb, 0, 0, TRUE);
+				item2 = proto_tree_add_boolean(tree2, hf_pw_type_n1_cw, tvb, 0, 0, true);
 				proto_item_set_generated(item2);
 				item2 = proto_tree_add_int(tree2, hf_n1_cw_ncells, tvb, 0, 0, cells);
 				proto_item_set_generated(item2);
@@ -1104,7 +1104,7 @@ static int
 dissect_n1_nocw(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
 	const char           * proto_name_column = &shortname_n1_nocw[0];
-	gint                   payload_size;
+	int                    payload_size;
 	int                    cells;
 	pwatm_private_data_t   pd                = PWATM_PRIVATE_DATA_T_INITIALIZER;
 
@@ -1116,7 +1116,7 @@ dissect_n1_nocw(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
 	pd.props = PWC_PACKET_PROPERTIES_T_INITIALIZER;
 	payload_size = pd.packet_size;
 	{
-		gint bad_padding_size;
+		int bad_padding_size;
 		cells = number_of_cells(pd.mode, pd.submode, pd.packet_size, &bad_padding_size);
 		if ((cells == 0) || (bad_padding_size != 0))
 		{
@@ -1133,7 +1133,7 @@ dissect_n1_nocw(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
 			tree2 = proto_item_add_subtree(item, ett_encaps);
 			{
 				proto_item* item2;
-				item2 = proto_tree_add_boolean(tree2, hf_pw_type_n1_nocw, tvb, 0, 0, TRUE);
+				item2 = proto_tree_add_boolean(tree2, hf_pw_type_n1_nocw, tvb, 0, 0, true);
 				proto_item_set_generated(item2);
 				item2 = proto_tree_add_int(tree2, hf_n1_nocw_ncells, tvb, 0, 0, cells);
 				proto_item_set_generated(item2);
@@ -1206,7 +1206,7 @@ dissect_control_word(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, voi
 	 */
 
 	{
-		gint size;
+		int size;
 		size = tvb_reported_length_remaining(tvb, 0);
 		if (size < PWC_SIZEOF_CW)
 		{
@@ -1225,7 +1225,7 @@ dissect_control_word(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, voi
 		proto_item* item;
 
 		item_top = proto_tree_add_item(tree, proto_control_word, tvb, 0, -1, ENC_NA);
-		pwc_item_append_cw(item_top, tvb_get_ntohl(tvb, 0), FALSE);
+		pwc_item_append_cw(item_top, tvb_get_ntohl(tvb, 0), false);
 
 		tree2 = proto_item_add_subtree(item_top, ett_cw);
 
@@ -1267,8 +1267,8 @@ dissect_control_word(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, voi
 			 * Let's remember this bit (and then transfer it to ATM dissector).
 			 */
 			pd->aal5_sdu_frame_relay_cr_bit =
-				(0 == (tvb_get_guint8(tvb, 0) & 0x01 /*preferred_cw.U*/))
-				? FALSE : TRUE;
+				(0 == (tvb_get_uint8(tvb, 0) & 0x01 /*preferred_cw.U*/))
+				? false : true;
 		}
 
 		/* reserved bits */
@@ -1383,7 +1383,7 @@ static int
 dissect_cell_header(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data)
 {
 	pwatm_private_data_t * pd;
-	gboolean               is_enough_data;
+	bool                   is_enough_data;
 	int                    dissect_size;
 
 	/* Reject the packet if data is NULL */
@@ -1398,28 +1398,28 @@ dissect_cell_header(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
 	{
 		if (tvb_reported_length_remaining(tvb, 0) < 1)
 		{
-			is_enough_data = FALSE;
+			is_enough_data = false;
 			dissect_size = 0;
 		}
 		else
 		{
-			is_enough_data = TRUE;
+			is_enough_data = true;
 			dissect_size = 1;
 		}
 	}
 	else
 	{
-		gint size;
+		int size;
 		size = tvb_reported_length_remaining(tvb, 0);
 
 		if (size < pw_cell_header_size(pd->mode, pd->submode))
 		{
-			is_enough_data = FALSE;
+			is_enough_data = false;
 			dissect_size = size;
 		}
 		else
 		{
-			is_enough_data = TRUE;
+			is_enough_data = true;
 			dissect_size = pw_cell_header_size(pd->mode, pd->submode);
 		}
 	}
@@ -1433,7 +1433,7 @@ dissect_cell_header(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
 	 */
 	if (is_enough_data)
 	{
-		guint8 tmp8;
+		uint8_t tmp8;
 		switch (pd->mode)
 		{
 		case PWATM_MODE_AAL5_SDU:
@@ -1444,7 +1444,7 @@ dissect_cell_header(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
 		case PWATM_MODE_N1_NOCW:
 			pd->vpi		= (tvb_get_ntohs (tvb, 0) >> 4);
 			pd->vci		= (tvb_get_ntoh24(tvb, 1) >> 4) & 0xffff;
-			tmp8 		= (tvb_get_guint8(tvb, 3));
+			tmp8 		= (tvb_get_uint8(tvb, 3));
 			pd->pti		= (tmp8 >> 1) & 0x07;
 			pd->cwb3.clp 	= (tmp8 >> 0) & 0x01;
 			UPDATE_CUMULATIVE_VALUE(pd->cumulative.vpi, pd->vpi);
@@ -1464,7 +1464,7 @@ dissect_cell_header(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
 			UPDATE_CUMULATIVE_VALUE(pd->cumulative.vci, pd->vci);
 			/*fallthrough*/
 		case PWATM_MODE_11_VCC:
-			tmp8	= (tvb_get_guint8(tvb, 0));
+			tmp8	= (tvb_get_uint8(tvb, 0));
 			pd->cwb3.m	= (tmp8 >> 7) & 0x1;
 			pd->cwb3.v	= (tmp8 >> 6) & 0x1;
 			pd->cwb3.rsv	= (tmp8 >> 4) & 0x3;
@@ -1478,7 +1478,7 @@ dissect_cell_header(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
 			pd->cell_mode_oam = PTI_IS_ADMIN(pd->pti) && (pd->cwb3.m == 0);
 			break;
 		case PWATM_MODE_AAL5_PDU:
-			tmp8		= (tvb_get_guint8(tvb, 0));
+			tmp8		= (tvb_get_uint8(tvb, 0));
 			pd->cwb3.m	= (tmp8 >> 7) & 0x1;
 			pd->cwb3.v	= (tmp8 >> 6) & 0x1;
 			pd->cwb3.rsv	= (tmp8 >> 3) & 0x7;
@@ -1632,21 +1632,21 @@ dissect_cell_header(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
 static int
 dissect_cell(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data)
 {
-	gboolean is_enough_data;
+	bool is_enough_data;
 	int      dissect_size;
-	gint size;
+	int size;
 	proto_item* item;
 	pwatm_private_data_t * pd = (pwatm_private_data_t *)data;
 
 	size = tvb_reported_length_remaining(tvb, 0);
 	if (size < SIZEOF_ATM_CELL_PAYLOAD)
 	{
-		is_enough_data = FALSE;
+		is_enough_data = false;
 		dissect_size = size;
 	}
 	else
 	{
-		is_enough_data = TRUE;
+		is_enough_data = true;
 		dissect_size = SIZEOF_ATM_CELL_PAYLOAD;
 	}
 
@@ -1892,7 +1892,7 @@ proto_register_pw_atm_ata(void)
 					  ,FT_UINT8	,BASE_HEX	,NULL		,0x0
 					  ,NULL						,HFILL }}
 	};
-	static gint *ett_array[] = {
+	static int *ett_array[] = {
 		&ett_encaps
 		,&ett_cw
 		,&ett_cell_header

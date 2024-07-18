@@ -44,7 +44,7 @@ pwc_vals_cw_frag[] = {
 };
 
 
-void pwc_item_append_cw(proto_item* item, const guint32 cw, const gboolean append_text)
+void pwc_item_append_cw(proto_item* item, const uint32_t cw, const bool append_text)
 {
 	if (item != NULL)
 	{
@@ -71,14 +71,14 @@ void pwc_item_append_text_n_items(proto_item* item, const int n, const char * co
 }
 
 
-static gint proto_pw_padding;
-static gint ett_pw_common;
+static int proto_pw_padding;
+static int ett_pw_common;
 static int hf_padding_len;
 
 static
 int dissect_pw_padding(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
-	gint size;
+	int size;
 	proto_item* item;
 	proto_tree* tree_p;
 	size = tvb_reported_length_remaining(tvb, 0);
@@ -100,7 +100,7 @@ void proto_register_pw_padding(void)
 					,FT_INT32	,BASE_DEC	,NULL		,0
 					,NULL						,HFILL }}
 	};
-	static gint *ett_array[] = {
+	static int *ett_array[] = {
 		&ett_pw_common
 	};
 	proto_pw_padding = proto_register_protocol("Pseudowire Padding","PW Padding","pw.padding");

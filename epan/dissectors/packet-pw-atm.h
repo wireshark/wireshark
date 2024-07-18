@@ -16,7 +16,7 @@
 
 struct pw_atm_phdr {
 	struct atm_phdr info;
-	gboolean enable_fill_columns_by_atm_dissector;
+	bool enable_fill_columns_by_atm_dissector;
 };
 
 #endif /*PACKET_PW_ATM_H*/

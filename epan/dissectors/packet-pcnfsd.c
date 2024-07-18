@@ -47,10 +47,10 @@ static int hf_pcnfsd_mapreq_status;
 static int hf_pcnfsd_username;
 
 
-static gint ett_pcnfsd;
-static gint ett_pcnfsd_auth_ident;
-static gint ett_pcnfsd_auth_password;
-static gint ett_pcnfsd_gids;
+static int ett_pcnfsd;
+static int ett_pcnfsd_auth_ident;
+static int ett_pcnfsd_auth_password;
+static int ett_pcnfsd_gids;
 
 static int
 dissect_pcnfsd_username(tvbuff_t *tvb, int offset, proto_tree *tree)
@@ -192,7 +192,7 @@ dissect_pcnfsd2_auth_call(tvbuff_t *tvb, packet_info *pinfo,
         if (ident_tree)
             proto_tree_add_string(ident_tree,
                 hf_pcnfsd_auth_ident_clear,
-                tvb, offset+4, (gint)strlen(ident_decoded), ident_decoded);
+                tvb, offset+4, (int)strlen(ident_decoded), ident_decoded);
     }
     if (ident_item) {
         proto_item_set_text(ident_item, "Authentication Ident: %s",
@@ -219,7 +219,7 @@ dissect_pcnfsd2_auth_call(tvbuff_t *tvb, packet_info *pinfo,
         if (password_tree)
             proto_tree_add_string(password_tree,
                 hf_pcnfsd_auth_password_clear,
-                tvb, offset+4, (gint)strlen(password), password);
+                tvb, offset+4, (int)strlen(password), password);
     }
     if (password_item) {
         proto_item_set_text(password_item, "Authentication Password: %s",
@@ -396,7 +396,7 @@ proto_register_pcnfsd(void)
                 NULL, 0, "pcnfsd.username", HFILL }},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_pcnfsd,
         &ett_pcnfsd_auth_ident,
         &ett_pcnfsd_auth_password,

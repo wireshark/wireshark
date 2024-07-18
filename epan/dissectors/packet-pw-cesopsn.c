@@ -29,8 +29,8 @@
 void proto_register_pw_cesopsn(void);
 void proto_reg_handoff_pw_cesopsn(void);
 
-static gint proto = -1;
-static gint ett_pw_cesopsn;
+static int proto = -1;
+static int ett_pw_cesopsn;
 
 static int hf_cw;
 static int hf_cw_bits03;
@@ -80,9 +80,9 @@ void dissect_pw_cesopsn( tvbuff_t * tvb_original
 						,pwc_demux_type_t demux)
 {
 	const int encaps_size = 4; /*RTP header in encapsulation is not supported yet*/
-	gint      packet_size;
-	gint      payload_size;
-	gint      padding_size;
+	int       packet_size;
+	int       payload_size;
+	int       padding_size;
 	int properties;
 
 	packet_size = tvb_reported_length_remaining(tvb_original, 0);
@@ -122,11 +122,11 @@ void dissect_pw_cesopsn( tvbuff_t * tvb_original
 	/* check how "good" is this packet */
 	/* also decide payload length from packet size and CW */
 	properties = PWC_PACKET_PROPERTIES_T_INITIALIZER;
-	if (0 != (tvb_get_guint8(tvb_original, 0) & 0xf0 /*bits03*/))
+	if (0 != (tvb_get_uint8(tvb_original, 0) & 0xf0 /*bits03*/))
 	{
 		properties |= PWC_CW_BAD_BITS03;
 	}
-	if (0 != (tvb_get_guint8(tvb_original, 1) & 0xc0 /*frag*/))
+	if (0 != (tvb_get_uint8(tvb_original, 1) & 0xc0 /*frag*/))
 	{
 		properties |= PWC_CW_BAD_FRAG;
 	}
@@ -145,13 +145,13 @@ void dissect_pw_cesopsn( tvbuff_t * tvb_original
 		 * We will use RFC5086's definition here.
 		 */
 		int  cw_len;
-		gint payload_size_from_packet;
+		int payload_size_from_packet;
 
-		cw_len = tvb_get_guint8(tvb_original, 1) & 0x3f;
+		cw_len = tvb_get_uint8(tvb_original, 1) & 0x3f;
 		payload_size_from_packet = packet_size - encaps_size;
 		if (cw_len != 0)
 		{
-			gint payload_size_from_cw;
+			int payload_size_from_cw;
 			payload_size_from_cw = cw_len - encaps_size;
 			/*
 			 * Assumptions for error case,
@@ -186,15 +186,15 @@ void dissect_pw_cesopsn( tvbuff_t * tvb_original
 	}
 
 	{
-		guint8 cw_lm;
-		cw_lm = tvb_get_guint8(tvb_original, 0) & 0x0b /*l+mod*/;
+		uint8_t cw_lm;
+		cw_lm = tvb_get_uint8(tvb_original, 0) & 0x0b /*l+mod*/;
 		if (NULL == try_val_to_str(cw_lm, vals_cw_lm))
 		{
 			properties |= PWC_CW_SUSPECT_LM;
 		}
 
 		{
-			guint8 l_bit, m_bits;
+			uint8_t l_bit, m_bits;
 			l_bit  = (cw_lm & 0x08) >> 3;
 			m_bits = (cw_lm & 0x03) >> 0;
 			if ((l_bit == 0 && m_bits == 0x0) /*CESoPSN data packet - normal situation*/
@@ -243,7 +243,7 @@ void dissect_pw_cesopsn( tvbuff_t * tvb_original
 	{
 		proto_item* item;
 		item = proto_tree_add_item(tree, proto, tvb_original, 0, -1, ENC_NA);
-		pwc_item_append_cw(item,tvb_get_ntohl(tvb_original, 0),TRUE);
+		pwc_item_append_cw(item,tvb_get_ntohl(tvb_original, 0),true);
 		pwc_item_append_text_n_items(item,(int)payload_size,"octet");
 		{
 			proto_tree* tree2;
@@ -253,7 +253,7 @@ void dissect_pw_cesopsn( tvbuff_t * tvb_original
 				proto_item* item2;
 				tvb = tvb_new_subset_length(tvb_original, 0, PWC_SIZEOF_CW);
 				item2 = proto_tree_add_item(tree2, hf_cw, tvb, 0, -1, ENC_NA);
-				pwc_item_append_cw(item2,tvb_get_ntohl(tvb, 0),FALSE);
+				pwc_item_append_cw(item2,tvb_get_ntohl(tvb, 0),false);
 				{
 					proto_tree* tree3;
 					tree3 = proto_item_add_subtree(item, ett_pw_cesopsn);
@@ -415,7 +415,7 @@ void proto_register_pw_cesopsn(void)
 				  ,0				,NULL			,HFILL }}
 	};
 
-	static gint *ett_array[] = {
+	static int *ett_array[] = {
 		&ett_pw_cesopsn
 	};
 	static ei_register_info ei[] = {

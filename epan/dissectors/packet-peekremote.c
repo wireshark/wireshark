@@ -249,10 +249,10 @@ static int hf_peekremote_type;
 static expert_field ei_peekremote_unknown_header_version;
 static expert_field ei_peekremote_invalid_header_size;
 
-static gint ett_peekremote;
-static gint ett_peekremote_flags;
-static gint ett_peekremote_status;
-static gint ett_peekremote_extflags;
+static int ett_peekremote;
+static int ett_peekremote_flags;
+static int ett_peekremote_status;
+static int ett_peekremote_extflags;
 
 static dissector_handle_t wlan_radio_handle;
 static dissector_handle_t radiotap_handle;
@@ -339,18 +339,18 @@ dissect_peekremote_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 static bool
 dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *u _U_)
 {
-  static const guint8 magic[4] = { 0x00, 0xFF, 0xAB, 0xCD };
+  static const uint8_t magic[4] = { 0x00, 0xFF, 0xAB, 0xCD };
   int offset = 0;
   proto_tree *peekremote_tree = NULL;
   proto_item *ti = NULL;
   proto_item *ti_header_version, *ti_header_size;
-  guint8 header_version;
-  gint header_size;
+  uint8_t header_version;
+  int header_size;
   struct ieee_802_11_phdr phdr;
-  guint32 extflags;
-  guint16 frequency;
-  guint16 mcs_index;
-  guint8  nss;
+  uint32_t extflags;
+  uint16_t frequency;
+  uint16_t mcs_index;
+  uint8_t nss;
   tvbuff_t *next_tvb;
 
   if (tvb_memeql(tvb, 0, magic, 4) == -1) {
@@ -364,8 +364,8 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
   /* We don't have any 802.11 metadata yet. */
   memset(&phdr, 0, sizeof(phdr));
   phdr.fcs_len = 4; /* has an FCS */
-  phdr.decrypted = FALSE;
-  phdr.datapad = FALSE;
+  phdr.decrypted = false;
+  phdr.datapad = false;
   phdr.phy = PHDR_802_11_PHY_UNKNOWN;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "PEEKREMOTE");
@@ -376,7 +376,7 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
   proto_tree_add_item(peekremote_tree, hf_peekremote_magic_number, tvb, offset, 4,  ENC_BIG_ENDIAN);
   offset += 4;
-  header_version = tvb_get_guint8(tvb, offset);
+  header_version = tvb_get_uint8(tvb, offset);
   ti_header_version = proto_tree_add_uint(peekremote_tree, hf_peekremote_header_version, tvb, offset, 1,  header_version);
   offset += 1;
   header_size = tvb_get_ntohl(tvb, offset);
@@ -425,12 +425,12 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         /* Quarter GI  : 0.8uS
             Half GI    : 1.6uS
             Full GI    : 3.2uS */
-          phdr.phy_info.info_11be.has_gi = TRUE;
+          phdr.phy_info.info_11be.has_gi = true;
           phdr.phy_info.info_11be.gi = ((extflags & EXT_FLAG_FULL_GI) != 0) ? 2 :
                                         ((extflags & EXT_FLAG_HALF_GI) != 0) ? 1 :
                                         0;
         }
-        phdr.phy_info.info_11be.has_bandwidth = TRUE;
+        phdr.phy_info.info_11be.has_bandwidth = true;
         phdr.phy_info.info_11be.bandwidth     = bandwidth_eht;
         /* Peekremote does not have per-user fields, so fill data as if it is SU and for user0 */
         phdr.phy_info.info_11be.num_users = 1;
@@ -446,14 +446,14 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         /* Quarter GI  : 0.8uS
             Half GI    : 1.6uS
             Full GI    : 3.2uS */
-          phdr.phy_info.info_11ax.has_gi = TRUE;
+          phdr.phy_info.info_11ax.has_gi = true;
           phdr.phy_info.info_11ax.gi = ((extflags & EXT_FLAG_FULL_GI) != 0) ? 2 :
                                         ((extflags & EXT_FLAG_HALF_GI) != 0) ? 1 :
                                         0;
         }
-        phdr.phy_info.info_11ax.has_bwru = TRUE;
+        phdr.phy_info.info_11ax.has_bwru = true;
         phdr.phy_info.info_11ax.bwru = bandwidth_he;
-        phdr.phy_info.info_11ax.has_mcs_index = TRUE;
+        phdr.phy_info.info_11ax.has_mcs_index = true;
         phdr.phy_info.info_11ax.mcs = mcs_index;
         phdr.phy_info.info_11ax.nsts = nss;
 
@@ -464,16 +464,16 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
           if (extflags & EXT_FLAGS_GI) {
             /* Half GI     : 0.4uS
                Full GI     : 0.8uS */
-            phdr.phy_info.info_11ac.has_short_gi = TRUE;
+            phdr.phy_info.info_11ac.has_short_gi = true;
             phdr.phy_info.info_11ac.short_gi = ((extflags & EXT_FLAG_HALF_GI) != 0);
           }
 
-          phdr.phy_info.info_11ac.has_bandwidth = TRUE;
+          phdr.phy_info.info_11ac.has_bandwidth = true;
           phdr.phy_info.info_11ac.bandwidth = bandwidth_vht;
           /* Set FEC/ STBC to defaults to suppress warnings in 80211-radio dissector */
-          phdr.phy_info.info_11ac.has_fec = TRUE;
+          phdr.phy_info.info_11ac.has_fec = true;
           phdr.phy_info.info_11ac.fec     = 0;
-          phdr.phy_info.info_11ac.has_stbc = TRUE;
+          phdr.phy_info.info_11ac.has_stbc = true;
           phdr.phy_info.info_11ac.stbc    = 0;
           /* Peekremote does not have per-user fields, so fill data as if it is SU and for user0 */
           phdr.phy_info.info_11ac.mcs[0]  = mcs_index;
@@ -485,37 +485,37 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
           if (extflags & EXT_FLAGS_GI) {
             /* Half GI     : 0.4uS
                Full GI     : 0.8uS */
-            phdr.phy_info.info_11ac.has_short_gi = TRUE;
+            phdr.phy_info.info_11ac.has_short_gi = true;
             phdr.phy_info.info_11ac.short_gi = ((extflags & EXT_FLAG_HALF_GI) != 0);
           }
-          phdr.phy_info.info_11n.has_bandwidth = TRUE;
+          phdr.phy_info.info_11n.has_bandwidth = true;
           if (extflags & EXT_FLAG_40_MHZ) {
             phdr.phy_info.info_11n.bandwidth = IEEE80211_RADIOTAP_MCS_BW_40;
           } else {
             phdr.phy_info.info_11n.bandwidth = IEEE80211_RADIOTAP_MCS_BW_20;
           }
           /* Set FEC/ STBC/ Greenfield to defaults to suppress warnings in 80211-radio dissector */
-          phdr.phy_info.info_11n.has_fec      = TRUE;
+          phdr.phy_info.info_11n.has_fec      = true;
           phdr.phy_info.info_11n.fec          = 0;
-          phdr.phy_info.info_11n.has_stbc_streams = TRUE;
+          phdr.phy_info.info_11n.has_stbc_streams = true;
           phdr.phy_info.info_11n.stbc_streams   = 0;
-          phdr.phy_info.info_11n.has_greenfield = TRUE;
-          phdr.phy_info.info_11n.greenfield     = FALSE;
-          phdr.phy_info.info_11n.has_ness       = TRUE;
+          phdr.phy_info.info_11n.has_greenfield = true;
+          phdr.phy_info.info_11n.greenfield     = false;
+          phdr.phy_info.info_11n.has_ness       = true;
           phdr.phy_info.info_11n.ness           = 0;
 
-          phdr.phy_info.info_11n.has_mcs_index  = TRUE;
+          phdr.phy_info.info_11n.has_mcs_index  = true;
           phdr.phy_info.info_11n.mcs_index      = mcs_index;
         }
       }
       offset += 2;
-      phdr.has_channel = TRUE;
+      phdr.has_channel = true;
       phdr.channel = tvb_get_ntohs(tvb, offset);
       proto_tree_add_item(peekremote_tree, hf_peekremote_channel, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
       frequency = tvb_get_ntohl(tvb, offset);
       if (frequency != 0) {
-        phdr.has_frequency = TRUE;
+        phdr.has_frequency = true;
         phdr.frequency = frequency;
       }
       proto_tree_add_item(peekremote_tree, hf_peekremote_frequency, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -523,20 +523,20 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
       proto_tree_add_item(peekremote_tree, hf_peekremote_band, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset +=4;
       offset += dissect_peekremote_extflags(tvb, pinfo, peekremote_tree, offset);
-      phdr.has_signal_percent = TRUE;
-      phdr.signal_percent = tvb_get_guint8(tvb, offset);
+      phdr.has_signal_percent = true;
+      phdr.signal_percent = tvb_get_uint8(tvb, offset);
       proto_tree_add_item(peekremote_tree, hf_peekremote_signal_percent, tvb, offset, 1, ENC_NA);
       offset += 1;
-      phdr.has_noise_percent = TRUE;
-      phdr.noise_percent = tvb_get_guint8(tvb, offset);
+      phdr.has_noise_percent = true;
+      phdr.noise_percent = tvb_get_uint8(tvb, offset);
       proto_tree_add_item(peekremote_tree, hf_peekremote_noise_percent, tvb, offset, 1, ENC_NA);
       offset += 1;
-      phdr.has_signal_dbm = TRUE;
-      phdr.signal_dbm = tvb_get_guint8(tvb, offset);
+      phdr.has_signal_dbm = true;
+      phdr.signal_dbm = tvb_get_uint8(tvb, offset);
       proto_tree_add_item(peekremote_tree, hf_peekremote_signal_dbm, tvb, offset, 1, ENC_NA);
       offset += 1;
-      phdr.has_noise_dbm = TRUE;
-      phdr.noise_dbm = tvb_get_guint8(tvb, offset);
+      phdr.has_noise_dbm = true;
+      phdr.noise_dbm = tvb_get_uint8(tvb, offset);
       proto_tree_add_item(peekremote_tree, hf_peekremote_noise_dbm, tvb, offset, 1, ENC_NA);
       offset += 1;
       proto_tree_add_item(peekremote_tree, hf_peekremote_signal_1_dbm, tvb, offset, 1, ENC_NA);
@@ -562,7 +562,7 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
       offset += dissect_peekremote_flags(tvb, pinfo, peekremote_tree, offset);
       offset += dissect_peekremote_status(tvb, pinfo, peekremote_tree, offset);
       proto_tree_add_item(peekremote_tree, hf_peekremote_timestamp, tvb, offset, 8, ENC_BIG_ENDIAN);
-      phdr.has_tsf_timestamp = TRUE;
+      phdr.has_tsf_timestamp = true;
       phdr.tsf_timestamp = tvb_get_ntoh64(tvb, offset);
       offset += 8;
     }
@@ -605,7 +605,7 @@ dissect_peekremote_legacy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   proto_tree *peekremote_tree = NULL;
   proto_item *ti = NULL;
   struct ieee_802_11_phdr phdr;
-  guint8 signal_percent;
+  uint8_t signal_percent;
   uint8_t flags = 0;
   bool is_6ghz = false;
   memset(&phdr, 0, sizeof(phdr));
@@ -638,7 +638,7 @@ dissect_peekremote_legacy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     proto_tree_add_item(peekremote_tree, hf_peekremote_signal_percent, tvb, 18, 1, ENC_NA);
     proto_tree_add_item(peekremote_tree, hf_peekremote_noise_percent, tvb, 19, 1, ENC_NA);
   }
-  signal_percent = tvb_get_guint8(tvb, 18);
+  signal_percent = tvb_get_uint8(tvb, 18);
   proto_item_set_end(ti, tvb, 20);
   next_tvb = tvb_new_subset_remaining(tvb, 20);
   /* When signal = 100 % and coming from ARUBA ERM, it is TX packet and there is no FCS */
@@ -647,29 +647,29 @@ dissect_peekremote_legacy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   } else {
     phdr.fcs_len = 4; /* We have an FCS */
   }
-  phdr.decrypted = FALSE;
+  phdr.decrypted = false;
   phdr.phy = PHDR_802_11_PHY_UNKNOWN;
-  phdr.has_channel = TRUE;
-  phdr.channel = tvb_get_guint8(tvb, 17);
-  phdr.has_data_rate = TRUE;
-  phdr.data_rate = tvb_get_guint8(tvb, 16);
-  phdr.has_signal_percent = TRUE;
-  phdr.signal_percent = tvb_get_guint8(tvb, 18);
-  phdr.has_noise_percent = TRUE;
-  phdr.noise_percent = tvb_get_guint8(tvb, 18);
-  phdr.has_signal_dbm = TRUE;
-  phdr.signal_dbm = tvb_get_guint8(tvb, 0);
-  phdr.has_noise_dbm = TRUE;
-  phdr.noise_dbm = tvb_get_guint8(tvb, 1);
-  phdr.has_tsf_timestamp = TRUE;
+  phdr.has_channel = true;
+  phdr.channel = tvb_get_uint8(tvb, 17);
+  phdr.has_data_rate = true;
+  phdr.data_rate = tvb_get_uint8(tvb, 16);
+  phdr.has_signal_percent = true;
+  phdr.signal_percent = tvb_get_uint8(tvb, 18);
+  phdr.has_noise_percent = true;
+  phdr.noise_percent = tvb_get_uint8(tvb, 18);
+  phdr.has_signal_dbm = true;
+  phdr.signal_dbm = tvb_get_uint8(tvb, 0);
+  phdr.has_noise_dbm = true;
+  phdr.noise_dbm = tvb_get_uint8(tvb, 1);
+  phdr.has_tsf_timestamp = true;
   phdr.tsf_timestamp = tvb_get_ntoh64(tvb, 8);
 
-  flags = tvb_get_guint8(tvb, 6);
+  flags = tvb_get_uint8(tvb, 6);
   if (flags & PEEKREMOTE_V0_6GHZ_BAND_VALID) {
     bool is_bg;
     is_6ghz = flags & PEEKREMOTE_V0_IS_6GHZ_BAND;
     is_bg   = is_6ghz ? false : CHAN_IS_BG(phdr.channel);
-    phdr.has_frequency = TRUE;
+    phdr.has_frequency = true;
     phdr.frequency = ieee80211_chan_band_to_mhz(phdr.channel, is_bg, is_6ghz);
   }
   /*
@@ -679,18 +679,18 @@ dissect_peekremote_legacy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   if (RATE_IS_DSSS(phdr.data_rate)) {
     /* 11b */
     phdr.phy = PHDR_802_11_PHY_11B;
-    phdr.phy_info.info_11b.has_short_preamble = FALSE;
+    phdr.phy_info.info_11b.has_short_preamble = false;
   } else if (RATE_IS_OFDM(phdr.data_rate)) {
     /* 11a or 11g, depending on the band. */
     if (CHAN_IS_BG(phdr.channel) && !is_6ghz) {
       /* 11g */
       phdr.phy = PHDR_802_11_PHY_11G;
-      phdr.phy_info.info_11g.has_mode = FALSE;
+      phdr.phy_info.info_11g.has_mode = false;
     } else {
       /* 11a */
       phdr.phy = PHDR_802_11_PHY_11A;
-      phdr.phy_info.info_11a.has_channel_type = FALSE;
-      phdr.phy_info.info_11a.has_turbo_type = FALSE;
+      phdr.phy_info.info_11a.has_channel_type = false;
+      phdr.phy_info.info_11a.has_turbo_type = false;
     }
   }
 
@@ -982,7 +982,7 @@ proto_register_peekremote(void)
         NULL, HFILL }
     },
   };
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_peekremote,
     &ett_peekremote_flags,
     &ett_peekremote_status,

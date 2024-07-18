@@ -27,8 +27,8 @@
 void proto_register_pw_fr(void);
 void proto_reg_handoff_pw_fr(void);
 
-static gint proto_encaps;
-static gint ett_encaps;
+static int proto_encaps;
+static int ett_encaps;
 
 /* static int hf_pw_fr; */
 static int hf_cw_bits03;
@@ -60,9 +60,9 @@ static dissector_handle_t pw_fr_mpls_handle;
 static int
 dissect_pw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_ )
 {
-	gint packet_size;
-	gint payload_size;
-	gint payload_padding;
+	int packet_size;
+	int payload_size;
+	int payload_padding;
 	const int encaps_size = 4; /*encapsulation consists of mandatory CW only*/
 	enum {
 		PQ_CW_BAD		       = 0x001
@@ -97,7 +97,7 @@ dissect_pw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* dat
 	/* check how "good" is this packet */
 	/* also decide payload length from packet size and CW */
 	packet_quality = 0;
-	if (0 != (tvb_get_guint8(tvb, 0) & 0xf0 /*bits03*/))
+	if (0 != (tvb_get_uint8(tvb, 0) & 0xf0 /*bits03*/))
 	{
 		packet_quality |= PQ_CW_BAD + PQ_CW_BAD_BITS03;
 	}
@@ -113,9 +113,9 @@ dissect_pw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* dat
 		 * *plus* the length of the *PWMCW*. ]
 		 */
 		int cw_len;
-		gint payload_size_packet; /*derived from packet size*/
+		int payload_size_packet; /*derived from packet size*/
 
-		cw_len = tvb_get_guint8(tvb, 1) & 0x3f;
+		cw_len = tvb_get_uint8(tvb, 1) & 0x3f;
 		payload_size_packet = packet_size - encaps_size;
 
 		/*
@@ -126,7 +126,7 @@ dissect_pw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* dat
 
 		if (payload_size_packet < 64)
 		{
-			gint payload_size_cw; /*derived from cw*/
+			int payload_size_cw; /*derived from cw*/
 			payload_size_cw = cw_len; /*RFC4619-specific*/
 			if (payload_size_cw == 0)
 			{
@@ -275,7 +275,7 @@ static hf_register_info hf[] = {
 			  ,HFILL}}
 };
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_encaps
 	};
 

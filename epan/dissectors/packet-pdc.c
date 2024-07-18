@@ -49,31 +49,31 @@ static dissector_handle_t asterix_handle;
 static int		  proto_pdc;
 
 /*HF Declarations*/
-static gint hf_pdc_len;
-static gint hf_pdc_mpdu_code;
-static gint hf_pdc_credit;
-static gint hf_pdc_simpdu_state;
-static gint hf_pdc_yr_admu_nr;
-static gint hf_pdc_akmpdu_mns;
-static gint hf_pdc_akmpdu_cdt;
-static gint hf_pdc_simpdu_var;
-static gint hf_pdc_simpdu_var_len;
-static gint hf_pdc_simpdu_param;
-static gint hf_pdc_simpdu_var_version;
-static gint hf_pdc_simpdu_var_REFSRC;
-static gint hf_pdc_simpdu_var_REFDEST;
-static gint hf_pdc_simpdu_var_TSEL;
-static gint hf_pdc_drmpdu_abort;
-static gint hf_pdc_drmpdu_reason;
-static gint hf_pdc_drmpdu_mode;
-static gint hf_pdc_drmpdu_init;
-static gint hf_pdc_dtmpdu_user_size;
-static gint hf_pdc_admpdu_admpdunr;
-static gint hf_pdc_admpdu_size;
+static int hf_pdc_len;
+static int hf_pdc_mpdu_code;
+static int hf_pdc_credit;
+static int hf_pdc_simpdu_state;
+static int hf_pdc_yr_admu_nr;
+static int hf_pdc_akmpdu_mns;
+static int hf_pdc_akmpdu_cdt;
+static int hf_pdc_simpdu_var;
+static int hf_pdc_simpdu_var_len;
+static int hf_pdc_simpdu_param;
+static int hf_pdc_simpdu_var_version;
+static int hf_pdc_simpdu_var_REFSRC;
+static int hf_pdc_simpdu_var_REFDEST;
+static int hf_pdc_simpdu_var_TSEL;
+static int hf_pdc_drmpdu_abort;
+static int hf_pdc_drmpdu_reason;
+static int hf_pdc_drmpdu_mode;
+static int hf_pdc_drmpdu_init;
+static int hf_pdc_dtmpdu_user_size;
+static int hf_pdc_admpdu_admpdunr;
+static int hf_pdc_admpdu_size;
 
 /*Tree Declarations*/
-static gint ett_pdc;
-static gint ett_pdc_simpdu_var;
+static int ett_pdc;
+static int ett_pdc_simpdu_var;
 
 
 /*Value String Declarations*/
@@ -134,10 +134,10 @@ static const value_string valstr_drmpdu_reason[] = {
 };
 
 /* start of functions here */
-static int dissect_simpdu(tvbuff_t *tvb, proto_tree *tree, guint16 offset, guint8 lenIndicator)
+static int dissect_simpdu(tvbuff_t *tvb, proto_tree *tree, uint16_t offset, uint8_t lenIndicator)
 {
-	gint	    bytesProcessed;
-	guint8	    paramCode;
+	int	    bytesProcessed;
+	uint8_t	    paramCode;
 	proto_item *simpduItem;
 	proto_tree *simpduVarTree;
 	proto_tree *simpduVarTree1;
@@ -166,7 +166,7 @@ static int dissect_simpdu(tvbuff_t *tvb, proto_tree *tree, guint16 offset, guint
 		while ((offset + bytesProcessed) < ( lenIndicator + 1 ))
 		{
 			/*Get the parameter code*/
-			paramCode  = tvb_get_guint8(tvb, offset + bytesProcessed);
+			paramCode  = tvb_get_uint8(tvb, offset + bytesProcessed);
 			simpduItem = proto_tree_add_item (simpduVarTree, hf_pdc_simpdu_param, tvb, offset + bytesProcessed,      1, ENC_BIG_ENDIAN);
 			simpduVarTree1 = proto_item_add_subtree (simpduItem, ett_pdc_simpdu_var);
 			bytesProcessed += 1;
@@ -199,7 +199,7 @@ static int dissect_rsmpdu(void)
 	return 0;
 }
 
-static int dissect_drmpdu(tvbuff_t *tvb, proto_tree *tree, guint16 offset)
+static int dissect_drmpdu(tvbuff_t *tvb, proto_tree *tree, uint16_t offset)
 {
 	/*DR-MPDU*/
 	proto_tree_add_item(tree, hf_pdc_drmpdu_abort,  tvb, offset,     1, ENC_BIG_ENDIAN);
@@ -211,10 +211,10 @@ static int dissect_drmpdu(tvbuff_t *tvb, proto_tree *tree, guint16 offset)
 }
 
 #if (PDC_VERSION == 2)
-static int dissect_admpdu(tvbuff_t *tvb, proto_tree *parent_tree, proto_tree *tree, guint16 offset, packet_info *pinfo)
+static int dissect_admpdu(tvbuff_t *tvb, proto_tree *parent_tree, proto_tree *tree, uint16_t offset, packet_info *pinfo)
 {
-	guint16	  userDataLen;
-	guint16	  returnLen;
+	uint16_t	  userDataLen;
+	uint16_t	  returnLen;
 	tvbuff_t *asterixTVB;
 
 	/*Add the ad*/
@@ -235,7 +235,7 @@ static int dissect_admpdu(tvbuff_t *tvb, proto_tree *parent_tree, proto_tree *tr
 	return (returnLen);
 }
 #else
-static int dissect_admpdu(tvbuff_t *tvb, proto_tree *parent_tree _U_, proto_tree *tree, guint16 offset, packet_info *pinfo _U_)
+static int dissect_admpdu(tvbuff_t *tvb, proto_tree *parent_tree _U_, proto_tree *tree, uint16_t offset, packet_info *pinfo _U_)
 {
 	/*Add the ad*/
 	proto_tree_add_item(tree, hf_pdc_admpdu_admpdunr, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -245,10 +245,10 @@ static int dissect_admpdu(tvbuff_t *tvb, proto_tree *parent_tree _U_, proto_tree
 #endif
 
 #if (PDC_VERSION == 2)
-static int dissect_dtmpdu(tvbuff_t *tvb, proto_tree *parent_tree, proto_tree *tree, guint16 offset, packet_info *pinfo)
+static int dissect_dtmpdu(tvbuff_t *tvb, proto_tree *parent_tree, proto_tree *tree, uint16_t offset, packet_info *pinfo)
 {
-	guint16	  userDataLen;
-	guint16	  returnLen;
+	uint16_t	  userDataLen;
+	uint16_t	  returnLen;
 	tvbuff_t *asterixTVB;
 
 	proto_tree_add_item(tree, hf_pdc_dtmpdu_user_size, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -263,7 +263,7 @@ static int dissect_dtmpdu(tvbuff_t *tvb, proto_tree *parent_tree, proto_tree *tr
 	return (returnLen);
 }
 #else
-static int dissect_dtmpdu(tvbuff_t *tvb _U_, proto_tree *parent_tree _U_, proto_tree *tree _U_, guint16 offset _U_, packet_info *pinfo _U_)
+static int dissect_dtmpdu(tvbuff_t *tvb _U_, proto_tree *parent_tree _U_, proto_tree *tree _U_, uint16_t offset _U_, packet_info *pinfo _U_)
 {
 	return 2;
 }
@@ -271,10 +271,10 @@ static int dissect_dtmpdu(tvbuff_t *tvb _U_, proto_tree *parent_tree _U_, proto_
 
 
 #if (PDC_VERSION == 2)
-static int dissect_edmpdu(tvbuff_t *tvb, proto_tree *parent_tree, proto_tree *tree, guint16 offset, packet_info *pinfo)
+static int dissect_edmpdu(tvbuff_t *tvb, proto_tree *parent_tree, proto_tree *tree, uint16_t offset, packet_info *pinfo)
 {
-	guint16	  userDataLen;
-	guint16	  returnLen;
+	uint16_t	  userDataLen;
+	uint16_t	  returnLen;
 	tvbuff_t *asterixTVB;
 
 	proto_tree_add_item(tree, hf_pdc_dtmpdu_user_size, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -289,13 +289,13 @@ static int dissect_edmpdu(tvbuff_t *tvb, proto_tree *parent_tree, proto_tree *tr
 	return (returnLen);
 }
 #else
-static int dissect_edmpdu(tvbuff_t *tvb _U_, proto_tree *parent_tree _U_, proto_tree *tree _U_, guint16 offset _U_, packet_info *pinfo _U_)
+static int dissect_edmpdu(tvbuff_t *tvb _U_, proto_tree *parent_tree _U_, proto_tree *tree _U_, uint16_t offset _U_, packet_info *pinfo _U_)
 {
 	return 2;
 }
 #endif
 
-static int dissect_akmpdu(tvbuff_t *tvb, proto_tree *tree, guint16 offset)
+static int dissect_akmpdu(tvbuff_t *tvb, proto_tree *tree, uint16_t offset)
 {
 	proto_tree_add_item(tree, hf_pdc_akmpdu_mns, tvb, offset,     2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_pdc_akmpdu_cdt, tvb, offset,     2, ENC_BIG_ENDIAN);
@@ -305,18 +305,18 @@ static int dissect_akmpdu(tvbuff_t *tvb, proto_tree *tree, guint16 offset)
 
 static int dissect_pdc_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
 {
-	guint	    i = 0;
-	guint8	    len_indicator;
-	guint8	    mpduCode;
-	guint16	    length;
+	unsigned	    i = 0;
+	uint8_t	    len_indicator;
+	uint8_t	    mpduCode;
+	uint16_t	    length;
 	proto_item *pdcPacketItem;
 	proto_tree *pdcPacketTree;
 
 	length = 0;
 
 	/*Get the length indictor and the MPDU Code*/
-	len_indicator  = tvb_get_guint8 (tvb, i);
-	mpduCode       = tvb_get_guint8 (tvb, i + 1);
+	len_indicator  = tvb_get_uint8 (tvb, i);
+	mpduCode       = tvb_get_uint8 (tvb, i + 1);
 	length	      += 2;
 
 	/*Add the PDC Tree*/
@@ -378,26 +378,26 @@ static int dissect_pdc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 }
 
 /* function to provide TCP split packet combiner with size of packet */
-static guint get_pdc_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+static unsigned get_pdc_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                                  int offset, void *data _U_)
 {
-	guint  size;
-	guint  extra;
-	guint8 mpdu_type;
+	unsigned  size;
+	unsigned  extra;
+	uint8_t mpdu_type;
 
-	mpdu_type = tvb_get_guint8(tvb, offset+1);
+	mpdu_type = tvb_get_uint8(tvb, offset+1);
 	switch (mpdu_type)
 	{
 	case SIMPDU:
-		size  = tvb_get_guint8(tvb, offset);
+		size  = tvb_get_uint8(tvb, offset);
 		extra = 1;
 		break;
 	case RSMPDU:
-		size  = tvb_get_guint8(tvb, offset);
+		size  = tvb_get_uint8(tvb, offset);
 		extra = 1;
 		break;
 	case DRMPDU:
-		size  =	tvb_get_guint8(tvb, offset);
+		size  =	tvb_get_uint8(tvb, offset);
 		extra = 1;
 		break;
 	case DTMPDU:
@@ -409,11 +409,11 @@ static guint get_pdc_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
 		extra = 8;
 		break;
 	case EDMPDU:
-		size  = tvb_get_guint8(tvb, offset);
+		size  = tvb_get_uint8(tvb, offset);
 		extra = 1;
 		break;
 	case AKMPDU:
-		size  = tvb_get_guint8(tvb, offset)+1;
+		size  = tvb_get_uint8(tvb, offset)+1;
 		extra = 0;
 		break;
 	default:
@@ -427,10 +427,10 @@ static guint get_pdc_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
 
 static int tcp_dissect_pdc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	guint8 mpdu_type;
-	guint8 minimum_bytes;
+	uint8_t mpdu_type;
+	uint8_t minimum_bytes;
 
-	mpdu_type = tvb_get_guint8(tvb,1);
+	mpdu_type = tvb_get_uint8(tvb,1);
 	switch (mpdu_type)
 	{
 	case SIMPDU:
@@ -458,7 +458,7 @@ static int tcp_dissect_pdc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 		minimum_bytes = 2;
 		break;
 	}
-	tcp_dissect_pdus(tvb, pinfo, tree, TRUE, minimum_bytes, get_pdc_message_len, dissect_pdc, NULL);
+	tcp_dissect_pdus(tvb, pinfo, tree, true, minimum_bytes, get_pdc_message_len, dissect_pdc, NULL);
 	return tvb_captured_length(tvb);
 }
 
@@ -552,7 +552,7 @@ void proto_register_pdc(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_pdc,
 		&ett_pdc_simpdu_var
 	};

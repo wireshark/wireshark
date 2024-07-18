@@ -30,8 +30,8 @@
 void proto_register_pw_satop(void);
 void proto_reg_handoff_pw_satop(void);
 
-static gint proto = -1;
-static gint ett_pw_satop;
+static int proto = -1;
+static int ett_pw_satop;
 
 static int hf_cw;
 static int hf_cw_bits03;
@@ -71,14 +71,14 @@ void dissect_pw_satop(tvbuff_t * tvb_original
 {
 	int min_packet_size_this_dissector = PWC_SIZEOF_CW;
 	int encaps_size;
-	gint      packet_size;
-	gint      rtp_header_offset;
-	gint      cw_offset;
-	gint      payload_size;
-	gint      padding_size;
+	int       packet_size;
+	int       rtp_header_offset;
+	int       cw_offset;
+	int       payload_size;
+	int       padding_size;
 	int properties;
-	guint16   sn;
-	gboolean  has_rtp_header;
+	uint16_t  sn;
+	bool      has_rtp_header;
 
 	enum {
 		PAY_NO_IDEA = 0
@@ -124,11 +124,11 @@ void dissect_pw_satop(tvbuff_t * tvb_original
 	{
 	case PWC_DEMUX_MPLS:
 		rtp_header_offset = PWC_SIZEOF_CW;
-		sn = tvb_get_guint16(tvb_original, 2, ENC_BIG_ENDIAN);
+		sn = tvb_get_uint16(tvb_original, 2, ENC_BIG_ENDIAN);
 		break;
 	case PWC_DEMUX_UDP:
 		rtp_header_offset = 0;
-		sn = tvb_get_guint16(tvb_original, SIZEOF_RTP + 2, ENC_BIG_ENDIAN);
+		sn = tvb_get_uint16(tvb_original, SIZEOF_RTP + 2, ENC_BIG_ENDIAN);
 		break;
 	default:
 		DISSECTOR_ASSERT_NOT_REACHED();
@@ -138,9 +138,9 @@ void dissect_pw_satop(tvbuff_t * tvb_original
 	if ((pref_has_rtp_header) ||
 		((pref_heuristic_rtp_header) &&
 			/* Check for RTP version 2, the other fields must be zero */
-			(tvb_get_guint8(tvb_original, rtp_header_offset) == 0x80) &&
+			(tvb_get_uint8(tvb_original, rtp_header_offset) == 0x80) &&
 			/* Check the marker is zero. Unfortunately PT is not always from the dynamic range */
-			((tvb_get_guint8(tvb_original, rtp_header_offset + 1) & 0x80) == 0) &&
+			((tvb_get_uint8(tvb_original, rtp_header_offset + 1) & 0x80) == 0) &&
 			/* The sequence numbers from cw and RTP header must match */
 			(tvb_get_ntohs(tvb_original, rtp_header_offset + 2) == sn)))
 	{
@@ -157,25 +157,25 @@ void dissect_pw_satop(tvbuff_t * tvb_original
 			return;
 		}
 		encaps_size = PWC_SIZEOF_CW + SIZEOF_RTP;
-		has_rtp_header = TRUE;
+		has_rtp_header = true;
 	} else {
 		cw_offset = 0;
 		encaps_size = PWC_SIZEOF_CW;
-		has_rtp_header = FALSE;
+		has_rtp_header = false;
 	}
 
 	/* check how "good" is this packet */
 	/* also decide payload length from packet size, CW and optional RTP header */
 	properties = 0;
-	if (0 != (tvb_get_guint8(tvb_original, cw_offset) & 0xf0 /*bits03*/))
+	if (0 != (tvb_get_uint8(tvb_original, cw_offset) & 0xf0 /*bits03*/))
 	{
 		properties |= PWC_CW_BAD_BITS03;
 	}
-	if (0 != (tvb_get_guint8(tvb_original, cw_offset) & 0x03 /*rsv*/))
+	if (0 != (tvb_get_uint8(tvb_original, cw_offset) & 0x03 /*rsv*/))
 	{
 		properties |= PWC_CW_BAD_RSV;
 	}
-	if (0 != (tvb_get_guint8(tvb_original, cw_offset + 1) & 0xc0 /*frag*/))
+	if (0 != (tvb_get_uint8(tvb_original, cw_offset + 1) & 0xc0 /*frag*/))
 	{
 		properties |= PWC_CW_BAD_FRAG;
 	}
@@ -193,13 +193,13 @@ void dissect_pw_satop(tvbuff_t * tvb_original
 		 * We will use RFC4553's definition here.
 		 */
 		int  cw_len;
-		gint payload_size_from_packet;
+		int payload_size_from_packet;
 
-		cw_len = tvb_get_guint8(tvb_original, cw_offset + 1) & 0x3f;
+		cw_len = tvb_get_uint8(tvb_original, cw_offset + 1) & 0x3f;
 		payload_size_from_packet = packet_size - encaps_size;
 		if (cw_len != 0)
 		{
-			gint payload_size_from_cw;
+			int payload_size_from_cw;
 			payload_size_from_cw = cw_len - encaps_size;
 			/*
 			 * Assumptions for error case,
@@ -239,7 +239,7 @@ void dissect_pw_satop(tvbuff_t * tvb_original
 		 * not blame packets with bad payload (including "bad" or "strange" SIZE of
 		 * payload) when L bit is set.
 		 */
-		if (0 == (tvb_get_guint8(tvb_original, cw_offset) & 0x08 /*L bit*/))
+		if (0 == (tvb_get_uint8(tvb_original, cw_offset) & 0x08 /*L bit*/))
 		{
 			properties |= PWC_PAY_SIZE_BAD;
 		}
@@ -293,7 +293,7 @@ void dissect_pw_satop(tvbuff_t * tvb_original
 	{
 		proto_item* item;
 		item = proto_tree_add_item(tree, proto, tvb_original, 0, -1, ENC_NA);
-		pwc_item_append_cw(item, tvb_get_ntohl(tvb_original, cw_offset), TRUE);
+		pwc_item_append_cw(item, tvb_get_ntohl(tvb_original, cw_offset), true);
 		pwc_item_append_text_n_items(item, (int)payload_size, "octet");
 		{
 			proto_tree* tree2;
@@ -308,7 +308,7 @@ void dissect_pw_satop(tvbuff_t * tvb_original
 				proto_item* item2;
 				tvb = tvb_new_subset_length(tvb_original, cw_offset, PWC_SIZEOF_CW);
 				item2 = proto_tree_add_item(tree2, hf_cw, tvb, 0, -1, ENC_NA);
-				pwc_item_append_cw(item2, tvb_get_ntohl(tvb, 0), FALSE);
+				pwc_item_append_cw(item2, tvb_get_ntohl(tvb, 0), false);
 				{
 					proto_tree* tree3;
 					tree3 = proto_item_add_subtree(item2, ett_pw_satop);
@@ -495,7 +495,7 @@ void proto_register_pw_satop(void)
 				,0				,NULL			,HFILL }}
 	};
 
-	static gint *ett_array[] = {
+	static int *ett_array[] = {
 		&ett_pw_satop
 	};
 	static ei_register_info ei[] = {

@@ -63,11 +63,11 @@ static int hf_pop_data_reassembled_length;
 
 static expert_field ei_pop_resp_tot_len_invalid;
 
-static gint ett_pop;
-static gint ett_pop_reqresp;
+static int ett_pop;
+static int ett_pop_reqresp;
 
-static gint ett_pop_data_fragment;
-static gint ett_pop_data_fragments;
+static int ett_pop_data_fragment;
+static int ett_pop_data_fragments;
 
 static dissector_handle_t pop_handle;
 static dissector_handle_t imf_handle;
@@ -105,17 +105,17 @@ static const fragment_items pop_data_frag_items = {
 };
 
 struct pop_proto_data {
-  guint16 conversation_id;
-  gboolean more_frags;
+  uint16_t conversation_id;
+  bool more_frags;
 };
 
 struct pop_data_val {
-  gboolean msg_request;
-  guint32 msg_read_len;  /* Length of RETR message read so far */
-  guint32 msg_tot_len;   /* Total length of RETR message */
-  gboolean stls_request;  /* Received STLS request */
-  gchar* username;
-  guint username_num;
+  bool msg_request;
+  uint32_t msg_read_len;  /* Length of RETR message read so far */
+  uint32_t msg_tot_len;   /* Total length of RETR message */
+  bool stls_request;  /* Received STLS request */
+  char* username;
+  unsigned username_num;
 };
 
 typedef enum {
@@ -124,27 +124,27 @@ typedef enum {
   pop_arg_type_password
 } pop_arg_type_t;
 
-static gboolean response_is_continuation(const guchar *data);
+static bool response_is_continuation(const unsigned char *data);
 
 static int
 dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   struct pop_proto_data  *frame_data_p;
-  gboolean               is_request;
-  gboolean               is_continuation;
+  bool                   is_request;
+  bool                   is_continuation;
   proto_tree             *pop_tree, *reqresp_tree;
   proto_item             *ti;
-  gint                   offset = 0;
-  guchar                 *line;
-  gint                   next_offset;
+  int                    offset = 0;
+  unsigned char          *line;
+  int                    next_offset;
   int                    linelen;
   int                    tokenlen;
-  const guchar           *next_token;
+  const unsigned char    *next_token;
   fragment_head          *frag_msg = NULL;
   tvbuff_t               *next_tvb = NULL;
   conversation_t         *conversation = NULL;
   struct pop_data_val    *data_val = NULL;
-  gint                   length_remaining;
+  int                    length_remaining;
   pop_arg_type_t         pop_arg_type = pop_arg_type_unknown;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "POP");
@@ -166,16 +166,16 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   /*
    * Find the end of the first line.
    */
-  linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
-  line = (guchar*)wmem_alloc(pinfo->pool, linelen+1);
+  linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, false);
+  line = (unsigned char*)wmem_alloc(pinfo->pool, linelen+1);
   tvb_memcpy(tvb, line, offset, linelen);
   line[linelen] = '\0';
 
   if (pinfo->match_uint == pinfo->destport) {
-    is_request = TRUE;
-    is_continuation = FALSE;
+    is_request = true;
+    is_continuation = false;
   } else {
-    is_request = FALSE;
+    is_request = false;
     is_continuation = response_is_continuation(line);
   }
 
@@ -236,9 +236,9 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
           data_val->msg_read_len = 0;
           data_val->msg_tot_len = 0;
         }
-        pinfo->fragmented = FALSE;
+        pinfo->fragmented = false;
       } else {
-        pinfo->fragmented = TRUE;
+        pinfo->fragmented = true;
       }
 
     } else {
@@ -283,10 +283,10 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         if (g_ascii_strncasecmp(line, "RETR", 4) == 0 ||
            g_ascii_strncasecmp(line, "TOP", 3) == 0)
           /* the next response will tell us how many bytes */
-          data_val->msg_request = TRUE;
+          data_val->msg_request = true;
 
         if (g_ascii_strncasecmp(line, "STLS", 4) == 0) {
-          data_val->stls_request = TRUE;
+          data_val->stls_request = true;
         }
 
         if (g_ascii_strncasecmp(line, "USER", 4) == 0) {
@@ -307,7 +307,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             if (sscanf(line, "%*s %u %*s", &data_val->msg_tot_len) != 1)
               expert_add_info(pinfo, ti, &ei_pop_resp_tot_len_invalid);
           }
-          data_val->msg_request = FALSE;
+          data_val->msg_request = false;
         }
 
         if (data_val->stls_request) {
@@ -315,12 +315,12 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
               /* This is the last non-TLS frame. */
               ssl_starttls_ack(tls_handle, pinfo, pop_handle);
           }
-          data_val->stls_request = FALSE;
+          data_val->stls_request = false;
         }
       }
     }
 
-    offset += (gint) (next_token - line);
+    offset += (int) (next_token - line);
     linelen -= (int) (next_token - line);
   }
 
@@ -367,7 +367,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     /*
      * Find the end of the line.
      */
-    tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+    tvb_find_line_end(tvb, offset, -1, &next_offset, false);
 
     /*
      * Put this line.
@@ -385,15 +385,15 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   return tvb_captured_length(tvb);
 }
 
-static gboolean response_is_continuation(const guchar *data)
+static bool response_is_continuation(const unsigned char *data)
 {
   if (strncmp(data, "+OK", strlen("+OK")) == 0)
-    return FALSE;
+    return false;
 
   if (strncmp(data, "-ERR", strlen("-ERR")) == 0)
-    return FALSE;
+    return false;
 
-  return TRUE;
+  return true;
 }
 
 void
@@ -467,7 +467,7 @@ proto_register_pop(void)
       "Length must be a string containing an integer", EXPFILL }}
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_pop,
     &ett_pop_reqresp,
     &ett_pop_data_fragment,

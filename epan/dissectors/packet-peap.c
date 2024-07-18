@@ -56,8 +56,8 @@ dissect_peap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
   int len;
   int offset = 0;
   tvbuff_t *eap_tvb, *eap_len_tvb, *next_tvb;
-  guchar *eap_len_buf;
-  guint32 tls_group = pinfo->curr_proto_layer_num << 16;
+  unsigned char *eap_len_buf;
+  uint32_t tls_group = pinfo->curr_proto_layer_num << 16;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "PEAP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -65,19 +65,19 @@ dissect_peap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
   len = tvb_reported_length(tvb);
 
   eap_tvb = (tvbuff_t *)p_get_proto_data(pinfo->pool, pinfo, proto_eap, PROTO_DATA_EAP_TVB | tls_group);
-  version = tvb_get_guint8(eap_tvb, EAP_TLS_FLAGS_OFFSET) & EAP_TLS_FLAGS_VERSION;
+  version = tvb_get_uint8(eap_tvb, EAP_TLS_FLAGS_OFFSET) & EAP_TLS_FLAGS_VERSION;
   if (version > 0) {	/* FIXME support v1 and v2 */
     goto ret;
   }
 
   if (!(   len >= 5
         && tvb_get_bits(tvb, offset, 16, ENC_BIG_ENDIAN) == tvb_get_bits(eap_tvb, 0, 16, ENC_BIG_ENDIAN)
-        && tvb_get_guint16(tvb, offset + 2, ENC_BIG_ENDIAN) <= tvb_get_guint16(eap_tvb, 2, ENC_BIG_ENDIAN)
+        && tvb_get_uint16(tvb, offset + 2, ENC_BIG_ENDIAN) <= tvb_get_uint16(eap_tvb, 2, ENC_BIG_ENDIAN)
         && (
-                (tvb_get_guint8(eap_tvb, 0) == EAP_REQUEST && tvb_get_guint8(tvb, offset + 4) == EAP_TYPE_ID)
-             || tvb_get_guint8(tvb, offset + 4) == EAP_TYPE_MSAUTH_TLV
+                (tvb_get_uint8(eap_tvb, 0) == EAP_REQUEST && tvb_get_uint8(tvb, offset + 4) == EAP_TYPE_ID)
+             || tvb_get_uint8(tvb, offset + 4) == EAP_TYPE_MSAUTH_TLV
            ))) {
-    eap_len_buf = (guchar *)wmem_alloc(pinfo->pool, 2);
+    eap_len_buf = (unsigned char *)wmem_alloc(pinfo->pool, 2);
     eap_len_tvb = tvb_new_child_real_data(tvb, eap_len_buf, 2, 2);
     phton16(eap_len_buf, 4 + len);
 

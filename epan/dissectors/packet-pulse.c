@@ -27,7 +27,7 @@ static dissector_handle_t pulse_handle;
 
 static int  proto_pulse;
 static int  hf_pulse_magic;
-static gint ett_pulse;
+static int ett_pulse;
 
 /* piranha/pulse.c */
 #define PULSE_HEARTBEAT_RUNNING_MAGIC     0xbdaddbda
@@ -45,9 +45,9 @@ dissect_pulse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
     proto_item *item;
     proto_tree *tree;
 
-    guint32 magic;
+    uint32_t magic;
     const char* magic_str;
-    guint endian;
+    unsigned endian;
 
     if (tvb_captured_length(tvb) < 4)
         return 0;
@@ -87,7 +87,7 @@ proto_register_pulse(void)
             NULL, HFILL }},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_pulse,
     };
 
