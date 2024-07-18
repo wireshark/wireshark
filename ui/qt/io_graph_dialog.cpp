@@ -2684,10 +2684,8 @@ format_size_units_e IOGraph::formatUnits() const
         return FORMAT_SIZE_UNIT_BITS;
     case IOG_ITEM_UNIT_CALC_LOAD:
         return FORMAT_SIZE_UNIT_ERLANGS;
-        break;
     case IOG_ITEM_UNIT_CALC_FIELDS:
         return FORMAT_SIZE_UNIT_FIELDS;
-        break;
     case IOG_ITEM_UNIT_CALC_SUM:
     case IOG_ITEM_UNIT_CALC_MAX:
     case IOG_ITEM_UNIT_CALC_MIN:
@@ -2702,6 +2700,8 @@ format_size_units_e IOGraph::formatUnits() const
             // and some unit strings are already prefixed units.
         }
         return FORMAT_SIZE_UNIT_NONE;
+    case IOG_ITEM_UNIT_CALC_THROUGHPUT:
+        return FORMAT_SIZE_UNIT_BITS_S;
     default:
         return FORMAT_SIZE_UNIT_NONE;
     }
@@ -2768,6 +2768,7 @@ bool IOGraph::showsZero() const
     case IOG_ITEM_UNIT_CALC_MIN:
     case IOG_ITEM_UNIT_CALC_AVERAGE:
     case IOG_ITEM_UNIT_CALC_LOAD:
+    case IOG_ITEM_UNIT_CALC_THROUGHPUT:
         // These are not the same sort of "omitted zeros" as above,
         // but changing val_units_ always results in a recalculation
         // so it doesn't matter (see modelDataChanged)
@@ -2806,6 +2807,7 @@ bool IOGraph::hasItemToShow(int idx, double value) const
     case IOG_ITEM_UNIT_CALC_MIN:
     case IOG_ITEM_UNIT_CALC_AVERAGE:
     case IOG_ITEM_UNIT_CALC_LOAD:
+    case IOG_ITEM_UNIT_CALC_THROUGHPUT:
         if (item->fields) {
             result = true;
         }
