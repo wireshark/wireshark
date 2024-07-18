@@ -261,7 +261,7 @@ static int proto_ouch;
 static dissector_handle_t ouch_handle;
 
 /* Initialize the subtree pointers */
-static gint ett_ouch;
+static int ett_ouch;
 
 static int hf_ouch_bbo_weight_indicator;
 static int hf_ouch_broken_trade_reason;
@@ -313,14 +313,14 @@ ouch_tree_add_timestamp(
     proto_tree *tree,
     const int hf,
     tvbuff_t *tvb,
-    gint offset)
+    int offset)
 {
-    guint64 ts = tvb_get_ntoh64(tvb, offset);
+    uint64_t ts = tvb_get_ntoh64(tvb, offset);
     char *buf = (char *)wmem_alloc(pinfo->pool, ITEM_LABEL_LENGTH);
-    guint32 tmp, hours, mins, secs, nsecs;
+    uint32_t tmp, hours, mins, secs, nsecs;
 
-    nsecs = (guint32)(ts % G_GUINT64_CONSTANT(1000000000));
-    tmp = (guint32)(ts / G_GUINT64_CONSTANT(1000000000));
+    nsecs = (uint32_t)(ts % UINT64_C(1000000000));
+    tmp = (uint32_t)(ts / UINT64_C(1000000000));
 
     hours = tmp / 3600;
     mins = (tmp % 3600) / 60;
@@ -340,7 +340,7 @@ ouch_tree_add_timestamp(
 static void
 format_price(
     char *buf,
-    guint32 value)
+    uint32_t value)
 {
     if (value == 0x7fffffff) {
         snprintf(buf, ITEM_LABEL_LENGTH, "%s", "Market");
@@ -358,7 +358,7 @@ format_price(
 static void
 format_reference_price_type(
     char *buf,
-    guint32 value)
+    uint32_t value)
 {
     snprintf(buf, ITEM_LABEL_LENGTH,
                "%s (%c)",
@@ -376,12 +376,12 @@ format_reference_price_type(
  * seconds. */
 static void
 format_tif(
-    gchar *buf,
-    guint32 value)
+    char *buf,
+    uint32_t value)
 {
-    guint32 hours;
-    guint32 mins;
-    guint32 secs;
+    uint32_t hours;
+    uint32_t mins;
+    uint32_t secs;
 
     switch (value) {
     case 0:
@@ -420,12 +420,12 @@ dissect_ouch(
     proto_item *ti;
     proto_tree *ouch_tree = NULL;
     const char *pkt_name;
-    guint16 reported_len;
-    guint8 pkt_type;
+    uint16_t reported_len;
+    uint8_t pkt_type;
     int offset = 0;
 
     /* Get the OUCH message type value */
-    pkt_type = tvb_get_guint8(tvb, offset);
+    pkt_type = tvb_get_uint8(tvb, offset);
     reported_len = tvb_reported_length(tvb);
 
     /* OUCH has two messages with the same code: Replace Order and
@@ -1237,8 +1237,8 @@ dissect_ouch_heur(
     proto_tree *tree,
     void *data _U_)
 {
-    guint8 msg_type = tvb_get_guint8(tvb, 0);
-    guint msg_len = tvb_reported_length(tvb);
+    uint8_t msg_type = tvb_get_uint8(tvb, 0);
+    unsigned msg_len = tvb_reported_length(tvb);
 
     switch (msg_type) {
     case 'O': /* Enter order (with or without optional customer type) */
@@ -1548,7 +1548,7 @@ proto_register_ouch(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_ouch
     };
 

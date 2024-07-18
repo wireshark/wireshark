@@ -26,17 +26,17 @@ void proto_register_opa_fe(void);
 #define OPA_FE_HEADER_LEN 24
 
 /* Wireshark ID */
-static gint proto_opa_fe;
+static int proto_opa_fe;
 
 /* Variables to hold expansion values between packets */
-static gint ett_fe;
+static int ett_fe;
 
 /* SnC Fields */
-static gint hf_opa_fe_magicnumber;
-static gint hf_opa_fe_length_oob;
-static gint hf_opa_fe_headerversion;
-static gint hf_opa_fe_length;
-static gint hf_opa_fe_Reserved64;
+static int hf_opa_fe_magicnumber;
+static int hf_opa_fe_length_oob;
+static int hf_opa_fe_headerversion;
+static int hf_opa_fe_length;
+static int hf_opa_fe_Reserved64;
 
 /* Dissector Declarations */
 static dissector_handle_t opa_fe_handle;
@@ -46,13 +46,13 @@ static range_t *global_fe_ssl_range;
 
 static range_t *fe_ssl_range;
 
-static guint get_opa_fe_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
+static unsigned get_opa_fe_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
     return tvb_get_ntohl(tvb, offset + 4);
 }
 static int dissect_opa_fe_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    gint offset = 0;    /* Current Offset */
+    int offset = 0;    /* Current Offset */
     proto_item *FE_item;
     proto_tree *FE_tree;
 
@@ -82,18 +82,18 @@ static int dissect_opa_fe_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 static int dissect_opa_fe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, OPA_FE_HEADER_LEN,
+    tcp_dissect_pdus(tvb, pinfo, tree, true, OPA_FE_HEADER_LEN,
         get_opa_fe_message_len, dissect_opa_fe_message, data);
 
     return tvb_reported_length(tvb);
 }
 
-static void range_delete_fe_ssl_callback(guint32 port, gpointer ptr _U_)
+static void range_delete_fe_ssl_callback(uint32_t port, void *ptr _U_)
 {
     ssl_dissector_delete(port, opa_fe_handle);
 }
 
-static void range_add_fe_ssl_callback(guint32 port, gpointer ptr _U_)
+static void range_add_fe_ssl_callback(uint32_t port, void *ptr _U_)
 {
     ssl_dissector_add(port, opa_fe_handle);
 }
@@ -125,7 +125,7 @@ void proto_register_opa_fe(void)
         }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_fe
     };
 
@@ -145,13 +145,13 @@ void proto_register_opa_fe(void)
 
 void proto_reg_handoff_opa_fe(void)
 {
-    static gboolean initialized = FALSE;
+    static bool initialized = false;
 
     if (!initialized)
     {
         opa_mad_handle = find_dissector("opa.mad");
         dissector_add_uint_range_with_preference("tcp.port", OPA_FE_TCP_RANGE, opa_fe_handle);
-        initialized = TRUE;
+        initialized = true;
     }
 
     range_foreach(fe_ssl_range, range_delete_fe_ssl_callback, NULL);

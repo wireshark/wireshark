@@ -16,7 +16,7 @@
 /*
  * published API functions
  */
-extern void dissect_osi_options( guchar, tvbuff_t *, int, proto_tree *, packet_info *);
+extern void dissect_osi_options( unsigned char, tvbuff_t *, int, proto_tree *, packet_info *);
 extern void proto_register_osi_options(void);
 
 #endif /* _PACKET_OSI_OPTIONS_H__ */

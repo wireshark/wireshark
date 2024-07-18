@@ -69,9 +69,9 @@ printf("#%u  %s   tvb:0x%08x\n",actx->pinfo->num,x,(int)tvb);
 * unreassembled tvbuff.
 */
 static tvbuff_t *
-oer_tvb_new_subset_length(tvbuff_t *tvb, const gint backing_offset, const gint backing_length)
+oer_tvb_new_subset_length(tvbuff_t *tvb, const int backing_offset, const int backing_length)
 {
-    gint length_remaining;
+    int length_remaining;
 
     length_remaining = tvb_reported_length_remaining(tvb, backing_offset);
     return tvb_new_subset_length(tvb, backing_offset, (length_remaining > backing_length) ? backing_length : length_remaining);
@@ -116,12 +116,12 @@ index_get_field_name(const oer_sequence_t *sequence, int idx)
 
 
 /* 8.6 Length determinant */
-static guint32
-dissect_oer_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, guint32 *length)
+static uint32_t
+dissect_oer_length_determinant(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, uint32_t *length)
 {
     proto_item *item;
-    guint8 oct, value_len;
-    guint32 len;
+    uint8_t oct, value_len;
+    uint32_t len;
 
     if (!length) {
         length = &len;
@@ -133,7 +133,7 @@ dissect_oer_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, 
      * 8.6.4 The short form of length determinant consists of a single octet. Bit 8 of this octet shall be set to '0',
      * and bits 7 to 1 of this octet shall contain the length (0 to 127) encoded as an unsigned binary integer into 7 bits.
      */
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
     if ((oct & 0x80) == 0) {
         /* Short form */
         *length = oct;
@@ -154,7 +154,7 @@ dissect_oer_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, 
     value_len = oct & 0x7f;
     switch (value_len) {
     case 1:
-        *length = tvb_get_guint8(tvb, offset);
+        *length = tvb_get_uint8(tvb, offset);
         offset++;
         break;
     case 2:
@@ -180,16 +180,16 @@ dissect_oer_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, 
 }
 
 /* 9 Encoding of Boolean values */
-guint32 dissect_oer_boolean(tvbuff_t* tvb, guint32 offset, asn1_ctx_t* actx, proto_tree* tree, int hf_index, bool* bool_val)
+uint32_t dissect_oer_boolean(tvbuff_t* tvb, uint32_t offset, asn1_ctx_t* actx, proto_tree* tree, int hf_index, bool* bool_val)
 {
-    guint32 val = 0;
+    uint32_t val = 0;
     DEBUG_ENTRY("dissect_oer_boolean");
 
     actx->created_item = proto_tree_add_item_ret_uint(tree, hf_index, tvb, offset, 1, ENC_BIG_ENDIAN, &val);
     offset++;
 
     if (bool_val) {
-        *bool_val = (gboolean)val;
+        *bool_val = (bool)val;
     }
 
     return offset;
@@ -197,11 +197,11 @@ guint32 dissect_oer_boolean(tvbuff_t* tvb, guint32 offset, asn1_ctx_t* actx, pro
 
 /* 10 Encoding of integer values */
 
-guint32
-dissect_oer_constrained_integer(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, gint64 min, gint64 max, guint32 *value, gboolean has_extension _U_)
+uint32_t
+dissect_oer_constrained_integer(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int64_t min, int64_t max, uint32_t *value, bool has_extension _U_)
 {
     DEBUG_ENTRY("dissect_oer_constrained_integer");
-    guint32 val = 0;
+    uint32_t val = 0;
 
     if (min >= 0) {
         /* 10.2 There are two main cases:
@@ -259,10 +259,10 @@ dissect_oer_constrained_integer(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx,
 
 }
 
-guint32
-dissect_oer_constrained_integer_64b(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, gint64 min, guint64 max, guint64 *value, gboolean has_extension _U_)
+uint32_t
+dissect_oer_constrained_integer_64b(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int64_t min, uint64_t max, uint64_t *value, bool has_extension _U_)
 {
-    guint64 val = 0;
+    uint64_t val = 0;
 
     /* XXX Negative numbers ???*/
     if (min >= 0) {
@@ -282,7 +282,7 @@ dissect_oer_constrained_integer_64b(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *a
             /* Four octets, upper bound is less than or equal to 2 exp 32 - 1 (4294967295), */
             proto_tree_add_item_ret_uint64(tree, hf_index, tvb, offset, 4, ENC_BIG_ENDIAN, &val);
             offset += 4;
-        } else if (max == G_GUINT64_CONSTANT(18446744073709551615)) {
+        } else if (max == UINT64_C(18446744073709551615)) {
             /* Eight octets, upper bound is less than or equal to 2 exp 64 - 1 (4294967295), */
             proto_tree_add_item_ret_uint64(tree, hf_index, tvb, offset, 8, ENC_BIG_ENDIAN, &val);
             offset += 8;
@@ -305,11 +305,11 @@ dissect_oer_constrained_integer_64b(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *a
 
 }
 
-guint32
-dissect_oer_constrained_integer_64b_no_ub(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, gint64 min, guint64 max _U_, guint64 *value, gboolean has_extension _U_)
+uint32_t
+dissect_oer_constrained_integer_64b_no_ub(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int64_t min, uint64_t max _U_, uint64_t *value, bool has_extension _U_)
 {
-    guint64 val = 0;
-    guint32 length;
+    uint64_t val = 0;
+    uint32_t length;
 
     /* Negative numbers ???*/
     if (min >= 0) {
@@ -339,11 +339,11 @@ dissect_oer_constrained_integer_64b_no_ub(tvbuff_t *tvb, guint32 offset, asn1_ct
 
 }
 
-guint32
-dissect_oer_integer(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, gint32 *value)
+uint32_t
+dissect_oer_integer(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int32_t *value)
 {
-    gint32 val = 0;
-    guint32 length;
+    int32_t val = 0;
+    uint32_t length;
     /* 10.4 e) (the effective value constraint has a lower bound less than -263, no lower bound,
      * an upper bound greater than 2 exp 63-1, or no upper bound) every value of the integer type
      * shall be encoded as a length determinant (see 8.6) followed by a variable-size signed number
@@ -359,12 +359,12 @@ dissect_oer_integer(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree 
             if (hf_index > 0) {
                 type = proto_registrar_get_ftype(hf_index);
             }
-            uint8_t first = tvb_get_guint8(tvb, offset);
+            uint8_t first = tvb_get_uint8(tvb, offset);
             if (first & 0x80 && FT_IS_INT(type)) {
                 val = -1;
             }
             for (unsigned i = 0; i < length; i++) {
-                val = ((uint32_t)val << 8) | tvb_get_guint8(tvb, offset);
+                val = ((uint32_t)val << 8) | tvb_get_uint8(tvb, offset);
                 offset++;
             }
         } else {
@@ -394,11 +394,11 @@ dissect_oer_integer(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree 
 
 }
 /* 11 Encoding of enumerated values */
-guint32
-dissect_oer_enumerated(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, guint32 root_num _U_, guint32 *value, gboolean has_extension _U_, guint32 ext_num _U_, guint32 *value_map _U_)
+uint32_t
+dissect_oer_enumerated(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, uint32_t root_num _U_, uint32_t *value, bool has_extension _U_, uint32_t ext_num _U_, uint32_t *value_map _U_)
 {
     int old_offset = offset;
-    guint32 val;
+    uint32_t val;
     /* 11.2 There are two forms of enumerated type encoding - a short form and a long form... */
 
     offset = dissect_oer_length_determinant(tvb, offset, actx, tree, -1 /*Don't show length value as internal field*/, &val);
@@ -418,23 +418,23 @@ dissect_oer_enumerated(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tr
  * The encoding of a bitstring value depends on the effective size constraint of the bitstring type (see 8.2.8).
  *  If the lower and upper bounds of the effective size constraint are identical, 13.2 applies, otherwise 13.3 applies.
  */
-guint32
-dissect_oer_bit_string(tvbuff_t *tvb, guint32 offset _U_, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_, int min_len _U_, int max_len _U_, gboolean has_extension _U_, int * const *named_bits _U_, gint num_named_bits _U_, tvbuff_t **value_tvb _U_, int *len _U_)
+uint32_t
+dissect_oer_bit_string(tvbuff_t *tvb, uint32_t offset _U_, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_, int min_len _U_, int max_len _U_, bool has_extension _U_, int * const *named_bits _U_, int num_named_bits _U_, tvbuff_t **value_tvb _U_, int *len _U_)
 {
     dissect_oer_not_decoded_yet(tree, actx->pinfo, tvb, "Encoding of bitstring values not handled yet");
 
     return tvb_reported_length(tvb);
 }
 
-static guint32
-dissect_oer_bit_string_unconstr(tvbuff_t *tvb, guint32 offset _U_, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_, int min_len _U_, int max_len _U_, gboolean has_extension _U_, int * const *named_bits _U_, gint num_named_bits _U_, tvbuff_t **value_tvb _U_, guint8 * const values, int values_size, int *len _U_)
+static uint32_t
+dissect_oer_bit_string_unconstr(tvbuff_t *tvb, uint32_t offset _U_, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_, int min_len _U_, int max_len _U_, bool has_extension _U_, int * const *named_bits _U_, int num_named_bits _U_, tvbuff_t **value_tvb _U_, uint8_t * const values, int values_size, int *len _U_)
 {
     int length;
-    guint8 unused_bit_count = 0;
+    uint8_t unused_bit_count = 0;
 
     offset = dissect_oer_length_determinant(tvb, offset, actx, tree, -1 /*Don't show length value as internal field*/, &length);
     if (length > 0) {
-        unused_bit_count = tvb_get_guint8(tvb, offset);
+        unused_bit_count = tvb_get_uint8(tvb, offset);
         if (unused_bit_count > 7) {
             dissect_oer_not_decoded_yet(tree, actx->pinfo, tvb, "too high unused bit count");
             return offset + length;
@@ -450,7 +450,7 @@ dissect_oer_bit_string_unconstr(tvbuff_t *tvb, guint32 offset _U_, asn1_ctx_t *a
             dissect_oer_not_decoded_yet(tree, actx->pinfo, tvb, "too many bitstring elements");
         }
         for (int i = 0; i < length; i++) {
-            guint8 value = tvb_get_guint8(tvb, offset);
+            uint8_t value = tvb_get_uint8(tvb, offset);
             if (i + 1 == length) {
                 /* unused bits of the last octet shall be set to zeros */
                 value &= (0xFF << unused_bit_count);
@@ -466,10 +466,10 @@ dissect_oer_bit_string_unconstr(tvbuff_t *tvb, guint32 offset _U_, asn1_ctx_t *a
 }
 
 /* 14 Encoding of octet string values */
-guint32
-dissect_oer_octet_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension _U_, tvbuff_t **value_tvb)
+uint32_t
+dissect_oer_octet_string(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, bool has_extension _U_, tvbuff_t **value_tvb)
 {
-    guint length;
+    unsigned length;
     /* 14.1 For an octetstring type in which the lower and upper bounds of the effective size constraint are identical,
      * the encoding shall consist of the octets of the octetstring value (zero or more octets), with no length determinant.
      */
@@ -497,8 +497,8 @@ dissect_oer_octet_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_
 }
 
 /* 15 Encoding of the null value */
-guint32
-dissect_oer_null(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index)
+uint32_t
+dissect_oer_null(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index)
 {
     /* The encoding of the null value shall be empty. */
     proto_item *ti_tmp;
@@ -526,17 +526,17 @@ static const value_string oer_extension_present_bit_vals[] = {
 
 
 /* 16 Encoding of sequence values */
-guint32
-dissect_oer_sequence(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *parent_tree, int hf_index, gint ett_index, const oer_sequence_t *sequence)
+uint32_t
+dissect_oer_sequence(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *parent_tree, int hf_index, int ett_index, const oer_sequence_t *sequence)
 {
-    guint64 optional_field_flag;
+    uint64_t optional_field_flag;
     proto_item *item;
     proto_tree *tree;
-    guint32 old_offset = offset;
-    guint32 i, j, num_opts;
-    guint32 optional_mask[SEQ_MAX_COMPONENTS >> 5];
+    uint32_t old_offset = offset;
+    uint32_t i, j, num_opts;
+    uint32_t optional_mask[SEQ_MAX_COMPONENTS >> 5];
     int bit_offset = 0;
-    guint64 extensions_present = 0;
+    uint64_t extensions_present = 0;
 
     DEBUG_ENTRY("dissect_oer_sequence");
 
@@ -586,8 +586,8 @@ dissect_oer_sequence(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree
         }
     }
     if (num_opts > 0) {
-        guint8 len = num_opts >> 3;
-        guint8 remaining_bits = num_opts % 8;
+        uint8_t len = num_opts >> 3;
+        uint8_t remaining_bits = num_opts % 8;
         if (remaining_bits) {
             len++;
         }
@@ -599,7 +599,7 @@ dissect_oer_sequence(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree
         if ((sequence[i].extension == ASN1_NO_EXTENSIONS)
             || (sequence[i].extension == ASN1_EXTENSION_ROOT)) {
             if (sequence[i].optional == ASN1_OPTIONAL) {
-                gboolean is_present;
+                bool is_present;
                 if (num_opts == 0) {
                     continue;
                 }
@@ -621,8 +621,8 @@ dissect_oer_sequence(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree
     if (extensions_present) {
         /* Parse the Extension Bitmap */
         int ext_bmp_len;
-        guint8 extension_mask[SEQ_MAX_COMPONENTS >> 3];
-        offset = dissect_oer_bit_string_unconstr(tvb, offset, actx, tree, hf_index, NO_BOUND, NO_BOUND, FALSE, NULL, 0, NULL, extension_mask, SEQ_MAX_COMPONENTS >> 3, &ext_bmp_len);
+        uint8_t extension_mask[SEQ_MAX_COMPONENTS >> 3];
+        offset = dissect_oer_bit_string_unconstr(tvb, offset, actx, tree, hf_index, NO_BOUND, NO_BOUND, false, NULL, 0, NULL, extension_mask, SEQ_MAX_COMPONENTS >> 3, &ext_bmp_len);
 
         /* find first extension */
         int seq_pos;
@@ -632,13 +632,13 @@ dissect_oer_sequence(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree
             }
         }
         for (int bitstr_pos = 0; bitstr_pos < ext_bmp_len; bitstr_pos++) {
-            gint8 octet = extension_mask[bitstr_pos];
+            int8_t octet = extension_mask[bitstr_pos];
             for (int octet_pos = 0; octet_pos < 8; octet_pos++) {
-                gboolean ext_present = ((octet << octet_pos) & (0x80)) >> 7;
+                bool ext_present = ((octet << octet_pos) & (0x80)) >> 7;
                 if (ext_present) {
                     /* If any extensions still known - use functions */
                     if (sequence[seq_pos].p_id) {
-                        guint length;
+                        unsigned length;
                         offset = dissect_oer_length_determinant(tvb, offset, actx, tree, hf_oer_length_determinant, &length);
                         if (sequence[seq_pos].func) {
                             offset = sequence[seq_pos].func(tvb, offset, actx, tree, *sequence[seq_pos].p_id);
@@ -646,7 +646,7 @@ dissect_oer_sequence(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree
                             dissect_oer_not_decoded_yet(tree, actx->pinfo, tvb, index_get_field_name(sequence, seq_pos    ));
                         }
                     } else {
-                        offset = dissect_oer_octet_string(tvb, offset, actx, tree, hf_index, NO_BOUND, NO_BOUND, FALSE, NULL);
+                        offset = dissect_oer_octet_string(tvb, offset, actx, tree, hf_index, NO_BOUND, NO_BOUND, false, NULL);
                     }
                 }
                 /* if still within known sequence elements - move to next */
@@ -665,14 +665,14 @@ dissect_oer_sequence(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree
 
 /* 17 Encoding of sequence-of values */
 
-static guint32
-dissect_oer_sequence_of_helper(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, oer_type_fn func, int hf_index, guint32 length)
+static uint32_t
+dissect_oer_sequence_of_helper(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, oer_type_fn func, int hf_index, uint32_t length)
 {
-    guint32 i;
+    uint32_t i;
 
     DEBUG_ENTRY("dissect_oer_sequence_of_helper");
     for (i = 0; i<length; i++) {
-        guint32 lold_offset = offset;
+        uint32_t lold_offset = offset;
         proto_item *litem;
         proto_tree *ltree;
 
@@ -685,13 +685,13 @@ dissect_oer_sequence_of_helper(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, 
     return offset;
 }
 
-guint32
-dissect_oer_sequence_of(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *parent_tree, int hf_index, gint ett_index, const oer_sequence_t *seq)
+uint32_t
+dissect_oer_sequence_of(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *parent_tree, int hf_index, int ett_index, const oer_sequence_t *seq)
 {
     proto_item *item;
     proto_tree *tree;
-    guint32 old_offset = offset;
-    guint32 occ_len, occurrence;
+    uint32_t old_offset = offset;
+    uint32_t occ_len, occurrence;
     header_field_info *hfi;
 
     DEBUG_ENTRY("dissect_oer_sequence_of");
@@ -706,7 +706,7 @@ dissect_oer_sequence_of(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_t
 
     switch (occ_len) {
     case 1:
-        occurrence = tvb_get_guint8(tvb, offset);
+        occurrence = tvb_get_uint8(tvb, offset);
         break;
     case 2:
         occurrence = tvb_get_ntohs(tvb, offset);
@@ -742,21 +742,21 @@ dissect_oer_sequence_of(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_t
 }
 
 /* As we are using the per ASN1 generator define this "dummy" function */
-guint32
-dissect_oer_constrained_sequence_of(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *parent_tree, int hf_index, gint ett_index, const oer_sequence_t *seq, int min_len _U_, int max_len _U_ , gboolean has_extension _U_)
+uint32_t
+dissect_oer_constrained_sequence_of(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *parent_tree, int hf_index, int ett_index, const oer_sequence_t *seq, int min_len _U_, int max_len _U_ , bool has_extension _U_)
 {
     return dissect_oer_sequence_of(tvb, offset, actx, parent_tree, hf_index, ett_index, seq);
 
 }
 /* 20 Encoding of choice values */
-guint32
-dissect_oer_choice(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, gint ett_index, const oer_choice_t *choice, gint *value)
+uint32_t
+dissect_oer_choice(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int ett_index, const oer_choice_t *choice, int *value)
 {
     proto_tree *choice_tree;
     proto_item *item, *choice_item;
     int bit_offset = offset << 3;
-    guint64 oer_class;
-    guint8 tag, oct;
+    uint64_t oer_class;
+    uint8_t tag, oct;
     int old_offset = offset;
 
     /* 20.1 The encoding of a value of a choice type shall consist of the encoding of the outermost tag of the type of the chosen alternative
@@ -775,7 +775,7 @@ dissect_oer_choice(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *
         /* The tag number shall be encoded into bits 7 to 1 of each subsequent octet (seven bits in each octet),
          * with bit 1 of the final subsequent octet containing the least significant bit of the tag number ("big-endian" encoding).
          */
-        oct = tvb_get_guint8(tvb, offset);
+        oct = tvb_get_uint8(tvb, offset);
         if ((oct & 0x80) == 0x80) {
             dissect_oer_not_decoded_yet(tree, actx->pinfo, tvb, "Choice, Tag value > 0x7f not implemented yet");
         } else {
@@ -805,7 +805,7 @@ dissect_oer_choice(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *
             choice_tree = proto_item_add_subtree(choice_item, ett_index);
             /* For known extensions parse length prefix */
             if (choice->extension == ASN1_NOT_EXTENSION_ROOT) {
-                guint length;
+                unsigned length;
                 offset = dissect_oer_length_determinant(tvb, offset, actx, tree, hf_oer_length_determinant, &length);
             }
             offset = choice->func(tvb, offset, actx, choice_tree, *choice->p_id);
@@ -819,7 +819,7 @@ dissect_oer_choice(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *
     }
     /* None of the known choice options matched, parse the contents as an extension */
     // XXX : should check if the extensions are present in the CHOICE definition
-    offset = dissect_oer_octet_string(tvb, offset, actx, tree, hf_index, NO_BOUND, NO_BOUND, FALSE, NULL);
+    offset = dissect_oer_octet_string(tvb, offset, actx, tree, hf_index, NO_BOUND, NO_BOUND, false, NULL);
 
     return offset;
 }
@@ -828,11 +828,11 @@ dissect_oer_choice(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *
  * The encoding of an object identifier value shall consist of a length determinant (see 8.6) followed by a series of octets,
  * which are the contents octets of BER encoding of the object identifier value (see Rec. ITU-T X.690 | ISO/IEC 8825-1,8.19).
  */
-static guint32
-dissect_oer_any_oid(tvbuff_t* tvb, guint32 offset, asn1_ctx_t* actx, proto_tree* tree, int hf_index, tvbuff_t** value_tvb,
-    gboolean is_absolute)
+static uint32_t
+dissect_oer_any_oid(tvbuff_t* tvb, uint32_t offset, asn1_ctx_t* actx, proto_tree* tree, int hf_index, tvbuff_t** value_tvb,
+    bool is_absolute)
 {
-    guint length;
+    unsigned length;
     const char* str;
     header_field_info* hfi;
 
@@ -866,10 +866,10 @@ dissect_oer_any_oid(tvbuff_t* tvb, guint32 offset, asn1_ctx_t* actx, proto_tree*
     return offset;
 }
 
-guint32
-dissect_oer_object_identifier(tvbuff_t* tvb, guint32 offset, asn1_ctx_t* actx, proto_tree* tree, int hf_index, tvbuff_t** value_tvb)
+uint32_t
+dissect_oer_object_identifier(tvbuff_t* tvb, uint32_t offset, asn1_ctx_t* actx, proto_tree* tree, int hf_index, tvbuff_t** value_tvb)
 {
-    return dissect_oer_any_oid(tvb, offset, actx, tree, hf_index, value_tvb, TRUE);
+    return dissect_oer_any_oid(tvb, offset, actx, tree, hf_index, value_tvb, true);
 }
 
 /* 27 Encoding of values of the restricted character string types
@@ -879,10 +879,10 @@ dissect_oer_object_identifier(tvbuff_t* tvb, guint32 offset, asn1_ctx_t* actx, p
  */
 
 
-guint32
-dissect_oer_IA5String(tvbuff_t* tvb, guint32 offset, asn1_ctx_t* actx, proto_tree* tree, int hf_index, int min_len, int max_len, gboolean has_extension _U_)
+uint32_t
+dissect_oer_IA5String(tvbuff_t* tvb, uint32_t offset, asn1_ctx_t* actx, proto_tree* tree, int hf_index, int min_len, int max_len, bool has_extension _U_)
 {
-    guint32 length = 0;
+    uint32_t length = 0;
 
     /* 27.2 For a known-multiplier character string type in which the lower and upper bounds of the effective size constraint
      * are identical, the encoding shall consist of the series of octets specified in 27.4, with no length determinant.
@@ -899,10 +899,10 @@ dissect_oer_IA5String(tvbuff_t* tvb, guint32 offset, asn1_ctx_t* actx, proto_tre
 
 }
 
-guint32
-dissect_oer_UTF8String(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len _U_, int max_len _U_, gboolean has_extension _U_)
+uint32_t
+dissect_oer_UTF8String(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len _U_, int max_len _U_, bool has_extension _U_)
 {
-    guint32 length = 0;
+    uint32_t length = 0;
     /* 27.3 For every other character string type, the encoding shall consist of a length determinant
      * (see 8.6) followed by the series of octets specified in 27.4.
      */
@@ -922,8 +922,8 @@ dissect_oer_UTF8String(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tr
  * are the encoding of the value of the contained type.
  */
 
-static guint32
-dissect_oer_open_type_internal(tvbuff_t* tvb, guint32 offset, asn1_ctx_t* actx, proto_tree* tree, int hf_index, void* type_cb, asn1_cb_variant variant)
+static uint32_t
+dissect_oer_open_type_internal(tvbuff_t* tvb, uint32_t offset, asn1_ctx_t* actx, proto_tree* tree, int hf_index, void* type_cb, asn1_cb_variant variant)
 {
     int type_length, start_offset;
     tvbuff_t* val_tvb = NULL;
@@ -961,8 +961,8 @@ dissect_oer_open_type_internal(tvbuff_t* tvb, guint32 offset, asn1_ctx_t* actx, 
 
     return offset;
 }
-guint32
-dissect_oer_open_type(tvbuff_t* tvb, guint32 offset, asn1_ctx_t* actx, proto_tree* tree, int hf_index, oer_type_fn type_cb)
+uint32_t
+dissect_oer_open_type(tvbuff_t* tvb, uint32_t offset, asn1_ctx_t* actx, proto_tree* tree, int hf_index, oer_type_fn type_cb)
 {
     return dissect_oer_open_type_internal(tvb, offset, actx, tree, hf_index, (void*)type_cb, CB_ASN1_ENC);
 }
@@ -1005,7 +1005,7 @@ void proto_register_oer(void) {
     };
 
     /* List of subtrees hf_oer_extension*/
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_oer,
         &ett_oer_sequence_of_item,
         &ett_oer_open_type,

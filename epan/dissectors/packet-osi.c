@@ -41,16 +41,16 @@ static dissector_handle_t osi_juniper_handle;
 /* Preferences for OSI over TPKT over TCP */
 static bool tpkt_desegment;
 
-gboolean
-osi_calc_checksum( tvbuff_t *tvb, int offset, guint len, guint32* c0, guint32* c1) {
-  guint         available_len;
-  const guint8 *p;
-  guint         seglen;
-  guint         i;
+bool
+osi_calc_checksum( tvbuff_t *tvb, int offset, unsigned len, uint32_t* c0, uint32_t* c1) {
+  unsigned      available_len;
+  const uint8_t *p;
+  unsigned      seglen;
+  unsigned      i;
 
   available_len = tvb_captured_length_remaining( tvb, offset );
   if ( available_len < len )
-    return FALSE;
+    return false;
 
   p = tvb_get_ptr( tvb, offset, len );
 
@@ -82,29 +82,29 @@ osi_calc_checksum( tvbuff_t *tvb, int offset, guint len, guint32* c0, guint32* c
     len -= seglen;
   }
 
-  return TRUE;
+  return true;
 }
 
 
-gboolean
-osi_check_and_get_checksum( tvbuff_t *tvb, int offset, guint len, int offset_check, guint16* result) {
-  const guint8 *p;
-  guint8        discard         = 0;
-  guint32       c0, c1, factor;
-  guint         seglen, initlen = len;
-  guint         i;
+bool
+osi_check_and_get_checksum( tvbuff_t *tvb, int offset, unsigned len, int offset_check, uint16_t* result) {
+  const uint8_t *p;
+  uint8_t       discard         = 0;
+  uint32_t      c0, c1, factor;
+  unsigned      seglen, initlen = len;
+  unsigned      i;
   int           block, x, y;
 
   /* Make sure the checksum is part of the data being checksummed. */
   DISSECTOR_ASSERT(offset_check >= offset);
-  DISSECTOR_ASSERT((guint)offset_check + 2 <= (guint)offset + len);
+  DISSECTOR_ASSERT((unsigned)offset_check + 2 <= (unsigned)offset + len);
 
   /*
    * If we don't have all the data to be checksummed, report that and don't
    * try checksumming.
    */
   if (!tvb_bytes_exist(tvb, offset, len))
-    return FALSE;
+    return false;
   offset_check -= offset;
 
   p = tvb_get_ptr( tvb, offset, len );
@@ -171,7 +171,7 @@ osi_check_and_get_checksum( tvbuff_t *tvb, int offset, guint len, int offset_che
   if (y == 0) y = 0x01;
 
   *result = ( x << 8 ) | ( y & 0xFF );
-  return TRUE;
+  return true;
 }
 
 /* 4 octet ATN extended checksum: ICAO doc 9705 Ed3 Volume V section 5.5.4.6.4 */
@@ -179,35 +179,35 @@ osi_check_and_get_checksum( tvbuff_t *tvb, int offset, guint len, int offset_che
 /* of length SRC-NSAP, SRC-NSAP, length DST-NSAP, DST-NSAP and ATN extended checksum. */
 /* In case of a CR TPDU, the value of the ISO 8073 16-bit fletcher checksum parameter shall */
 /* be set to zero. */
-guint32 check_atn_ec_32(
-  tvbuff_t *tvb, guint tpdu_len,
-  guint offset_ec_32_val,   /* offset ATN extended checksum value, calculated at last as part of pseudo trailer */
-  guint offset_iso8073_val, /* offset ISO 8073 fletcher checksum, CR only*/
-  guint clnp_dst_len,       /* length of DST-NSAP */
-  const guint8 *clnp_dst,   /* DST-NSAP */
-  guint clnp_src_len,       /* length of SRC-NSAP */
-  const guint8 *clnp_src)   /* SRC-NSAP */
+uint32_t check_atn_ec_32(
+  tvbuff_t *tvb, unsigned tpdu_len,
+  unsigned offset_ec_32_val,   /* offset ATN extended checksum value, calculated at last as part of pseudo trailer */
+  unsigned offset_iso8073_val, /* offset ISO 8073 fletcher checksum, CR only*/
+  unsigned clnp_dst_len,       /* length of DST-NSAP */
+  const uint8_t *clnp_dst,   /* DST-NSAP */
+  unsigned clnp_src_len,       /* length of SRC-NSAP */
+  const uint8_t *clnp_src)   /* SRC-NSAP */
 {
-  guint  i = 0;
-  guint32 c0 = 0;
-  guint32 c1 = 0;
-  guint32 c2 = 0;
-  guint32 c3 = 0;
-  guint32 sum = 0;
+  unsigned  i = 0;
+  uint32_t c0 = 0;
+  uint32_t c1 = 0;
+  uint32_t c2 = 0;
+  uint32_t c3 = 0;
+  uint32_t sum = 0;
 
   /* sum across complete TPDU  */
   for ( i =0; i< tpdu_len; i++){
-    c0 += tvb_get_guint8(tvb, i) ;
+    c0 += tvb_get_uint8(tvb, i) ;
 
     if( ( i >= offset_ec_32_val ) &&  /* ignore 32 bit ATN extended checksum value */
         ( i < ( offset_ec_32_val + 4 ) ) ) {
-      c0 -= tvb_get_guint8(tvb, i);
+      c0 -= tvb_get_uint8(tvb, i);
     }
 
     if( ( offset_iso8073_val ) && /* ignore 16 bit ISO 8073 checksum, if present*/
         ( i >= offset_iso8073_val ) &&
         ( i < ( offset_iso8073_val + 2 ) ) ) {
-      c0 -= tvb_get_guint8(tvb, i);
+      c0 -= tvb_get_uint8(tvb, i);
     }
 
     if ( c0 >= 0x000000FF )
@@ -277,7 +277,7 @@ guint32 check_atn_ec_32(
   }
   /* add extended checksum as last part of the pseudo trailer */
   for ( i = offset_ec_32_val; i< (offset_ec_32_val+4); i++){
-    c0 += tvb_get_guint8(tvb, i) ;
+    c0 += tvb_get_uint8(tvb, i) ;
 
     if ( c0 >= 0x000000FF )
       c0 -= 0x00000FF;
@@ -302,34 +302,34 @@ guint32 check_atn_ec_32(
 /* In case of a CR TPDU, the value of the ISO 8073 16-bit fletcher checksum parameter shall */
 /* be set to zero. */
 /* this routine is currently *untested* because of the unavailability of samples.*/
-guint16 check_atn_ec_16(
+uint16_t check_atn_ec_16(
   tvbuff_t *tvb,
-  guint tpdu_len,
-  guint offset_ec_16_val,   /* offset ATN extended checksum value, calculated at last as part of pseudo trailer */
-  guint offset_iso8073_val, /* offset ISO 8073 fletcher checksum, CR only*/
-  guint clnp_dst_len,       /* length of DST-NSAP */
-  const guint8 *clnp_dst,   /* DST-NSAP */
-  guint clnp_src_len,       /* length of SRC-NSAP */
-  const guint8 *clnp_src)   /* SRC-NSAP */
+  unsigned tpdu_len,
+  unsigned offset_ec_16_val,   /* offset ATN extended checksum value, calculated at last as part of pseudo trailer */
+  unsigned offset_iso8073_val, /* offset ISO 8073 fletcher checksum, CR only*/
+  unsigned clnp_dst_len,       /* length of DST-NSAP */
+  const uint8_t *clnp_dst,   /* DST-NSAP */
+  unsigned clnp_src_len,       /* length of SRC-NSAP */
+  const uint8_t *clnp_src)   /* SRC-NSAP */
 {
-  guint i = 0;
-  guint16 c0 = 0;
-  guint16 c1 = 0;
-  guint16 sum;
+  unsigned i = 0;
+  uint16_t c0 = 0;
+  uint16_t c1 = 0;
+  uint16_t sum;
 
   /* sum across complete TPDU */
   for ( i =0; i< tpdu_len; i++){
 
-    c0 += tvb_get_guint8(tvb, i);
+    c0 += tvb_get_uint8(tvb, i);
 
     if( (i >= offset_ec_16_val) && /* ignore 16 bit extended checksum */
         (i < (offset_ec_16_val + 2) ) ) {
-      c0 -= tvb_get_guint8(tvb, i) ;
+      c0 -= tvb_get_uint8(tvb, i) ;
     }
 
     if( (i >= offset_iso8073_val) && /* ignore 16 bit ISO 8073 checksum, if present*/
         (i < (offset_iso8073_val + 2) ) ) {
-      c0 -= tvb_get_guint8(tvb, i) ;
+      c0 -= tvb_get_uint8(tvb, i) ;
     }
 
     if ( c0 >= 0x00FF )
@@ -369,7 +369,7 @@ guint16 check_atn_ec_16(
   }
   /* add extended checksum as last part of the pseudo trailer */
   for ( i = offset_ec_16_val; i< (offset_ec_16_val+2); i++){
-    c0 += tvb_get_guint8(tvb, i) ;
+    c0 += tvb_get_uint8(tvb, i) ;
 
     if ( c0 >= 0x00FF )
       c0 -= 0x00FF;
@@ -432,10 +432,10 @@ dissect_osi_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
 static int dissect_osi_juniper(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  guint8     nlpid;
+  uint8_t    nlpid;
   tvbuff_t   *next_tvb;
 
-  nlpid = tvb_get_guint8(tvb, 0);
+  nlpid = tvb_get_uint8(tvb, 0);
   if(dissector_try_uint(osinl_incl_subdissector_table, nlpid, tvb, pinfo, tree))
     return tvb_captured_length(tvb);
 
@@ -446,10 +446,10 @@ static int dissect_osi_juniper(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 static int dissect_osi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  guint8    nlpid;
+  uint8_t   nlpid;
   tvbuff_t *new_tvb;
 
-  nlpid = tvb_get_guint8(tvb, 0);
+  nlpid = tvb_get_uint8(tvb, 0);
 
   /*
    * Try the subdissector table for protocols in which the NLPID is

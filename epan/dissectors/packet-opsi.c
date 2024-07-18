@@ -46,9 +46,9 @@ static dissector_handle_t opsi_handle;
 
 /* Internal structure to dissect attributes */
 typedef struct {
-	guint16		 attribute_type;	/* attribute code */
+	uint16_t		 attribute_type;	/* attribute code */
 	const char	*tree_text;             /* text for fold out */
-	gint		*tree_id;               /* id for add_item */
+	int		*tree_id;               /* id for add_item */
 	int             *hf_type_attribute;	/* id for search option */
 	void		(*dissect)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item,
 				   int* hfValue, int offset, int length);
@@ -169,42 +169,42 @@ static int hf_opsi_application_name_att;
 static int hf_opsi_attribute_length;
 
 /* Initialize the subtree pointers */
-static gint ett_opsi;
-static gint ett_opsi_user_name;
-static gint ett_opsi_user_password;
-static gint ett_opsi_chap_password;
-static gint ett_opsi_nas_ip_address;
-static gint ett_opsi_nas_port;
-static gint ett_opsi_service_type;
-static gint ett_opsi_framed_protocol;
-static gint ett_opsi_framed_address;
-static gint ett_opsi_framed_netmask;
-static gint ett_opsi_framed_routing;
-static gint ett_opsi_framed_filter;
-static gint ett_opsi_framed_mtu;
-static gint ett_opsi_framed_compression;
-static gint ett_opsi_called_station_id;
-static gint ett_opsi_calling_station_id;
-static gint ett_opsi_nas_identifier;
-static gint ett_opsi_accounting;
-static gint ett_opsi_acct_session_id;
-static gint ett_opsi_chap_challenge;
-static gint ett_opsi_nas_port_type;
-static gint ett_opsi_designation_number;
-static gint ett_opsi_nas_port_id;
-static gint ett_opsi_smc_aaa_id;
-static gint ett_opsi_smc_vpn_id;
-static gint ett_opsi_smc_vpn_name;
-static gint ett_opsi_smc_ran_id;
-static gint ett_opsi_smc_ran_ip;
-static gint ett_opsi_smc_ran_name;
-static gint ett_opsi_smc_pop_id;
-static gint ett_opsi_smc_pop_name;
-static gint ett_opsi_smc_id;
-static gint ett_opsi_smc_receive_time;
-static gint ett_opsi_smc_stat_time;
-static gint ett_opsi_flags;
-static gint ett_opsi_application_name;
+static int ett_opsi;
+static int ett_opsi_user_name;
+static int ett_opsi_user_password;
+static int ett_opsi_chap_password;
+static int ett_opsi_nas_ip_address;
+static int ett_opsi_nas_port;
+static int ett_opsi_service_type;
+static int ett_opsi_framed_protocol;
+static int ett_opsi_framed_address;
+static int ett_opsi_framed_netmask;
+static int ett_opsi_framed_routing;
+static int ett_opsi_framed_filter;
+static int ett_opsi_framed_mtu;
+static int ett_opsi_framed_compression;
+static int ett_opsi_called_station_id;
+static int ett_opsi_calling_station_id;
+static int ett_opsi_nas_identifier;
+static int ett_opsi_accounting;
+static int ett_opsi_acct_session_id;
+static int ett_opsi_chap_challenge;
+static int ett_opsi_nas_port_type;
+static int ett_opsi_designation_number;
+static int ett_opsi_nas_port_id;
+static int ett_opsi_smc_aaa_id;
+static int ett_opsi_smc_vpn_id;
+static int ett_opsi_smc_vpn_name;
+static int ett_opsi_smc_ran_id;
+static int ett_opsi_smc_ran_ip;
+static int ett_opsi_smc_ran_name;
+static int ett_opsi_smc_pop_id;
+static int ett_opsi_smc_pop_name;
+static int ett_opsi_smc_id;
+static int ett_opsi_smc_receive_time;
+static int ett_opsi_smc_stat_time;
+static int ett_opsi_flags;
+static int ett_opsi_application_name;
 
 static expert_field ei_opsi_unknown_attribute;
 static expert_field ei_opsi_short_attribute;
@@ -472,7 +472,7 @@ decode_time_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto
 /****************************************************************************/
 
 /* To find the correct size of the PDU. Needed by the desegmentation feature*/
-static guint
+static unsigned
 get_opsi_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
 	/*
@@ -551,7 +551,7 @@ dissect_opsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	col_append_sep_str(pinfo->cinfo, COL_INFO, ", ",
-		val_to_str(tvb_get_guint8(tvb, CODE_OFFSET), opsi_opcode,
+		val_to_str(tvb_get_uint8(tvb, CODE_OFFSET), opsi_opcode,
 			"<Unknown opcode %d>"));
 	col_set_fence(pinfo->cinfo, COL_INFO);
 
@@ -801,7 +801,7 @@ proto_register_opsi(void)
 	};
 
 /* Setup protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_opsi,
 		&ett_opsi_user_name,
 		&ett_opsi_user_password,

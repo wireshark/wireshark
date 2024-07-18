@@ -41,7 +41,7 @@ static int hf_opus_padding;
 static int hf_opus_padding_size;
 
 /* Initialize the subtree pointers */
-static gint ett_opus;
+static int ett_opus;
 
 static expert_field ei_opus_err_r1;
 static expert_field ei_opus_err_r2;
@@ -156,9 +156,9 @@ dissect_opus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     proto_item *item;
     proto_tree *opus_tree;
 
-    gint pkt_total = 0, offset = 0;
-    guint cap_len = 0;
-    guint8 ch = 0, toc = 0, octet[2] = {0, 0};
+    int pkt_total = 0, offset = 0;
+    unsigned cap_len = 0;
+    uint8_t ch = 0, toc = 0, octet[2] = {0, 0};
     int octet_cnt = 0;
     int bytes = 0;
     int16_t framesize = 0;
@@ -198,7 +198,7 @@ dissect_opus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         return cap_len;
     }
 
-    toc = tvb_get_guint8(tvb, offset++);
+    toc = tvb_get_uint8(tvb, offset++);
 
     switch (toc & 0x3) {
     case 0: /* One frame */
@@ -222,9 +222,9 @@ dissect_opus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             return cap_len;
         }
         /* offset < pkt_total */
-        octet[octet_cnt++] = tvb_get_guint8(tvb, offset);
+        octet[octet_cnt++] = tvb_get_uint8(tvb, offset);
         if (offset + 1 < pkt_total) {
-            octet[octet_cnt++] = tvb_get_guint8(tvb, offset + 1);
+            octet[octet_cnt++] = tvb_get_uint8(tvb, offset + 1);
         }
         bytes = parse_size_field(octet, octet_cnt, &framesize);
         if (framesize < 0 || framesize > pkt_total) {
@@ -250,7 +250,7 @@ dissect_opus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         proto_tree_add_bitmask_list(opus_tree, tvb, offset, 1,
                                     frame_count_fields, ENC_NA);
         /* Number of frames encoded in bits 0 to 5 */
-        ch = tvb_get_guint8(tvb, offset++);
+        ch = tvb_get_uint8(tvb, offset++);
         frame_count = ch & 0x3F;
         framesize = opus_packet_get_samples_per_frame(&toc, 48000U);
         if (frame_count <= 0
@@ -264,14 +264,14 @@ dissect_opus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         /* Padding flag (bit 6) used */
         if (ch & 0x40) {
             int p;
-            gint padding_begin = offset;
+            int padding_begin = offset;
             do {
                 int tmp;
                 if (offset >= pkt_total) {
                     expert_add_info(pinfo, opus_tree, &ei_opus_err_r7);
                     return cap_len;
                 }
-                p = tvb_get_guint8(tvb, offset++);
+                p = tvb_get_uint8(tvb, offset++);
                 tmp = p == 255 ? 254 : p;
                 padding_size += tmp;
             } while (p == 255);
@@ -292,9 +292,9 @@ dissect_opus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                     return cap_len;
                 }
                 octet_cnt = 0;
-                octet[octet_cnt++] = tvb_get_guint8(tvb, offset);
+                octet[octet_cnt++] = tvb_get_uint8(tvb, offset);
                 if (offset + 1 < pkt_total) {
-                    octet[octet_cnt++] = tvb_get_guint8(tvb, offset);
+                    octet[octet_cnt++] = tvb_get_uint8(tvb, offset);
                 }
                 bytes = parse_size_field(octet, octet_cnt, &frames[idx].size);
                 if (frames[idx].size < 0
@@ -323,8 +323,8 @@ dissect_opus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                 expert_add_info(pinfo, opus_tree, &ei_opus_err_r6);
                 return cap_len;
             }
-            guint frame_size = (pkt_total - offset) / frame_count;
-            if (frame_size * frame_count != (guint)(pkt_total - offset)) {
+            unsigned frame_size = (pkt_total - offset) / frame_count;
+            if (frame_size * frame_count != (unsigned)(pkt_total - offset)) {
                 expert_add_info(pinfo, opus_tree, &ei_opus_err_r6);
                 return cap_len;
             }
@@ -356,7 +356,7 @@ dissect_opus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
          * creating a covert channel."
          */
         for (int i = 0; i < padding_size; ++i) {
-            if (tvb_get_guint8(tvb, padding_begin + i) != 0) {
+            if (tvb_get_uint8(tvb, padding_begin + i) != 0) {
                 expert_add_info(pinfo, item, &ei_opus_padding_nonzero);
                 break;
             }
@@ -407,7 +407,7 @@ proto_register_opus(void)
           HFILL}},
     };
 
-    static gint *ett[] = { &ett_opus, };
+    static int *ett[] = { &ett_opus, };
 
     static ei_register_info ei[] = {
         {&ei_opus_err_r1,

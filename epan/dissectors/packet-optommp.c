@@ -26,26 +26,26 @@
 #define OPTOMMP_READ_BLOCK_RESPONSE 7
 
 /* Initialize the protocol and registered fields */
-static gint proto_optommp;
+static int proto_optommp;
 static dissector_handle_t optommp_tcp_handle;
 static dissector_handle_t optommp_udp_handle;
-static gint hf_optommp_nodest_id;
-static gint hf_optommp_dest_id;
-static gint hf_optommp_boot_id;
-static gint hf_optommp_tl;
-static gint hf_optommp_tcode;
-static gint hf_optommp_source_ID;
-static gint hf_optommp_rcode;
-static gint hf_optommp_quadlet_data;
-static gint hf_optommp_data_length;
-static gint hf_optommp_dest_offset;
-static gint hf_optommp_data_block_byte;
-static gint hf_optommp_data_block_quadlet;
+static int hf_optommp_nodest_id;
+static int hf_optommp_dest_id;
+static int hf_optommp_boot_id;
+static int hf_optommp_tl;
+static int hf_optommp_tcode;
+static int hf_optommp_source_ID;
+static int hf_optommp_rcode;
+static int hf_optommp_quadlet_data;
+static int hf_optommp_data_length;
+static int hf_optommp_dest_offset;
+static int hf_optommp_data_block_byte;
+static int hf_optommp_data_block_quadlet;
 /* Initialize the subtree pointers */
-static gint ett_optommp;
-static gint ett_dest_id;
-static gint ett_data_block_q;
-static gint ett_data_block_b;
+static int ett_optommp;
+static int ett_dest_id;
+static int ett_data_block_q;
+static int ett_data_block_b;
 
 static const value_string optommp_tcode_names[] = {
     { 0, "Write Quadlet Request" },
@@ -239,47 +239,47 @@ static const range_string optommp_mm_areas[] = {
 };
 
 /* Function Prototypes */
-static guint get_optommp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+static unsigned get_optommp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
     int offset, void *data _U_);
-static gint dissect_optommp_reassemble_tcp(tvbuff_t *tvb, packet_info *pinfo,
+static int dissect_optommp_reassemble_tcp(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree, void *data);
-static gint dissect_optommp_reassemble_udp(tvbuff_t *tvb, packet_info *pinfo,
+static int dissect_optommp_reassemble_udp(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree, void *data);
-static gint dissect_optommp(tvbuff_t *tvb, packet_info *pinfo, proto_tree
+static int dissect_optommp(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     *tree, void * data _U_);
 static void dissect_optommp_dest_id(proto_tree *tree,
-    tvbuff_t *tvb, guint *poffset);
+    tvbuff_t *tvb, unsigned *poffset);
 static void dissect_optommp_write_quadlet_request(proto_item **ti,
-    proto_tree *tree, tvbuff_t *tvb, guint *poffset);
+    proto_tree *tree, tvbuff_t *tvb, unsigned *poffset);
 static void dissect_optommp_write_block_request(proto_item **ti,
-    proto_tree *tree, tvbuff_t *tvb, guint *poffset);
+    proto_tree *tree, tvbuff_t *tvb, unsigned *poffset);
 static void dissect_optommp_write_response(proto_item **ti,
-    proto_tree *tree, tvbuff_t *tvb, guint *poffset);
+    proto_tree *tree, tvbuff_t *tvb, unsigned *poffset);
 static void dissect_optommp_read_quadlet_request(proto_item **ti,
-    proto_tree *tree, tvbuff_t *tvb, guint *poffset);
+    proto_tree *tree, tvbuff_t *tvb, unsigned *poffset);
 static void dissect_optommp_read_block_request(proto_item **ti,
-    proto_tree *tree, tvbuff_t *tvb, guint *poffset);
+    proto_tree *tree, tvbuff_t *tvb, unsigned *poffset);
 static void dissect_optommp_read_quadlet_response(proto_item **ti,
-    proto_tree *tree, tvbuff_t *tvb, guint *poffset);
+    proto_tree *tree, tvbuff_t *tvb, unsigned *poffset);
 static void dissect_optommp_read_block_response(proto_item **ti, proto_tree
-    *tree, tvbuff_t *tvb, guint *poffset);
+    *tree, tvbuff_t *tvb, unsigned *poffset);
 static void dissect_optommp_source_ID(proto_item **ti, proto_tree *tree,
-    tvbuff_t *tvb, guint *poffset);
+    tvbuff_t *tvb, unsigned *poffset);
 static void dissect_optommp_destination_offset_6(proto_item **ti,
-     proto_tree *tree, tvbuff_t *tvb, guint *poffset);
+     proto_tree *tree, tvbuff_t *tvb, unsigned *poffset);
 static void dissect_optommp_quadlet_data(proto_item **ti, proto_tree *tree,
-    tvbuff_t *tvb, guint *poffset);
+    tvbuff_t *tvb, unsigned *poffset);
 static void dissect_optommp_rcode(proto_item **ti, proto_tree *tree,
-    tvbuff_t *tvb, guint *poffset);
-static guint16 dissect_optommp_data_length(proto_item **ti, proto_tree *tree,
-    tvbuff_t *tvb, guint *poffset);
+    tvbuff_t *tvb, unsigned *poffset);
+static uint16_t dissect_optommp_data_length(proto_item **ti, proto_tree *tree,
+    tvbuff_t *tvb, unsigned *poffset);
 static void dissect_optommp_data_block(proto_item **ti, proto_tree *tree,
-    tvbuff_t *tvb, guint *poffset, guint16 data_length);
+    tvbuff_t *tvb, unsigned *poffset, uint16_t data_length);
 static void dissect_optommp_data_block_byte(proto_item **ti, proto_tree *tree,
-    tvbuff_t *tvb, guint *poffset);
+    tvbuff_t *tvb, unsigned *poffset);
 static void dissect_optommp_data_block_quadlet(proto_item **ti, proto_tree
-    *tree, tvbuff_t *tvb, guint *poffset);
-static gint optommp_has_destination_offset(guint8 tcode);
+    *tree, tvbuff_t *tvb, unsigned *poffset);
+static int optommp_has_destination_offset(uint8_t tcode);
 
 void proto_register_optommp(void);
 void proto_reg_handoff_optommp(void);
@@ -292,14 +292,14 @@ parameters:     pinfo: not used
                 offset: not used
 purpose:        Gets the message length depending on tcode and data_block len
 ****************************************************************************/
-static guint get_optommp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+static unsigned get_optommp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
     int offset, void *data _U_)
 {
-    guint len = OPTO_FRAME_HEADER_LEN;
-    guint8 tcode = 0;
+    unsigned len = OPTO_FRAME_HEADER_LEN;
+    uint8_t tcode = 0;
 
     /* Just want the most significant nibble */
-    tcode = tvb_get_guint8(tvb, offset + 3) >> 4;
+    tcode = tvb_get_uint8(tvb, offset + 3) >> 4;
 
     if( tcode == OPTOMMP_WRITE_QUADLET_REQUEST ||
         tcode == OPTOMMP_WRITE_BLOCK_REQUEST ||
@@ -320,7 +320,7 @@ static guint get_optommp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
         tvb_reported_length_remaining(tvb, offset) >= 14 )
     {
         /* offset + 12 is the data_length of the packet */
-        len += (guint) tvb_get_ntohs(tvb, offset + 12);
+        len += (unsigned) tvb_get_ntohs(tvb, offset + 12);
     }
 
     return len;
@@ -331,10 +331,10 @@ function:       dissect_optommp_reassemble_tcp()
 parameters:     void
 purpose:        reassemble packets then send to dissector
 ****************************************************************************/
-static gint dissect_optommp_reassemble_tcp(tvbuff_t *tvb, packet_info *pinfo,
+static int dissect_optommp_reassemble_tcp(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree, void *data)
 {
-    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, OPTO_FRAME_HEADER_LEN,
+    tcp_dissect_pdus(tvb, pinfo, tree, true, OPTO_FRAME_HEADER_LEN,
         get_optommp_message_len, dissect_optommp, data);
 
     return tvb_captured_length(tvb);
@@ -345,7 +345,7 @@ function:       dissect_optommp_reassemble_udp()
 parameters:     void
 purpose:        reassemble packets then send to dissector
 ****************************************************************************/
-static gint dissect_optommp_reassemble_udp(tvbuff_t *tvb, packet_info *pinfo,
+static int dissect_optommp_reassemble_udp(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree, void *data)
 {
     dissect_optommp(tvb, pinfo, tree, data);
@@ -358,11 +358,11 @@ function:       dissect_optommp()
 parameters:     void
 purpose:        add the optommp protocol subtree
 ****************************************************************************/
-static gint dissect_optommp(tvbuff_t *tvb, packet_info *pinfo, proto_tree
+static int dissect_optommp(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     *tree, void *data _U_)
 {
     /* Declare and init variables for each part of the packet */
-    guint8 tcode = 0;
+    uint8_t tcode = 0;
 
     /* Provide a summary label */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "OptoMMP");
@@ -370,11 +370,11 @@ static gint dissect_optommp(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     if( tvb_reported_length(tvb) >= OPTOMMP_MIN_LENGTH)
     {
         /* the tcode is the most sig nibble of the 3rd byte */
-        tcode = tvb_get_guint8(tvb, 3) >> 4;
+        tcode = tvb_get_uint8(tvb, 3) >> 4;
         if( optommp_has_destination_offset(tcode) != 0 &&
             tvb_reported_length(tvb) >= 12)
         {
-            guint64 destination_offset = 0;
+            uint64_t destination_offset = 0;
             destination_offset = tvb_get_ntoh48(tvb, 6);
             col_add_fstr(pinfo->cinfo, COL_INFO,
                 " type: %s, dest_off: 0x%012" PRIx64,
@@ -393,19 +393,19 @@ static gint dissect_optommp(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         proto_item *root_ti = NULL;
         proto_item *ti = NULL;
         proto_tree *optommp_tree = NULL;
-        guint offset = 0;
+        unsigned offset = 0;
 
         /* Add the root node of our protocol */
         root_ti = proto_tree_add_item(tree, proto_optommp, tvb, 0, -1,
             ENC_NA);
         if( tvb_reported_length(tvb) >= OPTOMMP_MIN_LENGTH)
         {
-            tcode = tvb_get_guint8(tvb, 3) >> 4;
+            tcode = tvb_get_uint8(tvb, 3) >> 4;
             proto_item_append_text(root_ti, ", type: %s", val_to_str(tcode,
                 optommp_tcode_names, "Unknown (0x%02x)"));
             if( optommp_has_destination_offset(tcode) != 0 )
             {
-                guint64 destination_offset = 0;
+                uint64_t destination_offset = 0;
                 destination_offset = tvb_get_ntoh48(tvb, 6);
                 proto_item_append_text(root_ti,
                     ", dest_off: 0x%012" PRIx64,
@@ -422,7 +422,7 @@ static gint dissect_optommp(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             /* Dissect tcode */
             proto_tree_add_item(optommp_tree, hf_optommp_tcode, tvb,
                 offset, 1, ENC_BIG_ENDIAN);
-            tcode = tvb_get_guint8(tvb, offset) >> 4;
+            tcode = tvb_get_uint8(tvb, offset) >> 4;
             ++offset;
             /* Dissect the rest of the packet according to type */
             switch( tcode )
@@ -470,10 +470,10 @@ parameters:     tree:       The subtree to append nodes to
 purpose:        Dissect destination id and boot id
 ****************************************************************************/
 static void dissect_optommp_dest_id(proto_tree *tree,
-    tvbuff_t *tvb, guint *poffset)
+    tvbuff_t *tvb, unsigned *poffset)
 {
     proto_tree *dest_id_tree = NULL;
-    guint16 dest_id = 0;
+    uint16_t dest_id = 0;
 
     /* Check whether boot id present */
     dest_id = tvb_get_ntohs(tvb, *poffset);
@@ -503,7 +503,7 @@ parameters:     ti:         Reserved for future use
 purpose:        Dissect a write quadlet request
 ****************************************************************************/
 static void dissect_optommp_write_quadlet_request(proto_item **ti,
-    proto_tree *tree, tvbuff_t *tvb, guint *poffset)
+    proto_tree *tree, tvbuff_t *tvb, unsigned *poffset)
 {
     dissect_optommp_source_ID(ti, tree, tvb, poffset);
     dissect_optommp_destination_offset_6(ti, tree, tvb, poffset);
@@ -519,9 +519,9 @@ parameters:     ti:         Reserved for future use
 purpose:        Dissect a write block request
 ****************************************************************************/
 static void dissect_optommp_write_block_request(proto_item **ti,
-    proto_tree *tree, tvbuff_t *tvb, guint *poffset)
+    proto_tree *tree, tvbuff_t *tvb, unsigned *poffset)
 {
-    guint16 data_length = 0;
+    uint16_t data_length = 0;
     dissect_optommp_source_ID(ti, tree, tvb, poffset);
     dissect_optommp_destination_offset_6(ti, tree, tvb, poffset);
     data_length = dissect_optommp_data_length(ti, tree, tvb, poffset);
@@ -538,7 +538,7 @@ parameters:     ti:         Reserved for future use
 purpose:        Dissect a write response
 ****************************************************************************/
 static void dissect_optommp_write_response(proto_item **ti,
-    proto_tree *tree, tvbuff_t *tvb, guint *poffset)
+    proto_tree *tree, tvbuff_t *tvb, unsigned *poffset)
 {
     dissect_optommp_source_ID(ti, tree, tvb, poffset);
     dissect_optommp_rcode(ti, tree, tvb, poffset);
@@ -553,7 +553,7 @@ parameters:     ti:         Reserved for future use
 purpose:        Dissect a read quadlet request
 ****************************************************************************/
 static void dissect_optommp_read_quadlet_request(proto_item **ti,
-    proto_tree *tree, tvbuff_t *tvb, guint *poffset)
+    proto_tree *tree, tvbuff_t *tvb, unsigned *poffset)
 {
     dissect_optommp_source_ID(ti, tree, tvb, poffset);
     dissect_optommp_destination_offset_6(ti, tree, tvb, poffset);
@@ -568,7 +568,7 @@ parameters:     ti:         Reserved for future use
 purpose:        Dissect a read block request
 ****************************************************************************/
 static void dissect_optommp_read_block_request(proto_item **ti,
-    proto_tree *tree, tvbuff_t *tvb, guint *poffset)
+    proto_tree *tree, tvbuff_t *tvb, unsigned *poffset)
 {
     dissect_optommp_source_ID(ti, tree, tvb, poffset);
     dissect_optommp_destination_offset_6(ti, tree, tvb, poffset);
@@ -584,7 +584,7 @@ parameters:     ti:         Reserved for future use
 purpose:        Dissect a read quadlet response
 ****************************************************************************/
 static void dissect_optommp_read_quadlet_response(proto_item **ti,
-    proto_tree *tree, tvbuff_t *tvb, guint *poffset)
+    proto_tree *tree, tvbuff_t *tvb, unsigned *poffset)
 {
     dissect_optommp_source_ID(ti, tree, tvb, poffset);
     dissect_optommp_rcode(ti, tree, tvb, poffset);
@@ -601,9 +601,9 @@ parameters:     ti:         Reserved for future use
 purpose:        Dissect a read block response
 ****************************************************************************/
 static void dissect_optommp_read_block_response(proto_item **ti, proto_tree
-    *tree, tvbuff_t *tvb, guint *poffset)
+    *tree, tvbuff_t *tvb, unsigned *poffset)
 {
-    guint16 data_length = 0;
+    uint16_t data_length = 0;
     dissect_optommp_source_ID(ti, tree, tvb, poffset);
     dissect_optommp_rcode(ti, tree, tvb, poffset);
     *poffset += 5; /* Skip the reserved part for now */
@@ -621,7 +621,7 @@ parameters:     ti:         Reserved for future use
 purpose:        Dissect the source id field.
 ****************************************************************************/
 static void dissect_optommp_source_ID(proto_item **ti, proto_tree *tree,
-    tvbuff_t *tvb, guint *poffset)
+    tvbuff_t *tvb, unsigned *poffset)
 {
     if( tvb_reported_length(tvb) >= *poffset + 2 )
     {
@@ -641,7 +641,7 @@ purpose:        Get the destination offset byte by byte and then reassemble
 note:           This must be called when the reported length < offset + 8
 ****************************************************************************/
 static void dissect_optommp_destination_offset_6(proto_item **ti,
-     proto_tree *tree, tvbuff_t *tvb, guint *poffset)
+     proto_tree *tree, tvbuff_t *tvb, unsigned *poffset)
 {
     if( tvb_reported_length(tvb) >= *poffset + 6 )
     {
@@ -661,7 +661,7 @@ parameters:     ti:         Reserved for future use
 purpose:        Dissect the quadlet data part for packets that have it
 ****************************************************************************/
 static void dissect_optommp_quadlet_data(proto_item **ti, proto_tree *tree,
-    tvbuff_t *tvb, guint *poffset)
+    tvbuff_t *tvb, unsigned *poffset)
 {
     if( tvb_reported_length(tvb) >= *poffset + 4 )
     {
@@ -679,10 +679,10 @@ parameters:     ti:         Reserved for future use
                 poffset:    Keeps track of our location in the tree
 purpose:        Dissect data length
 ****************************************************************************/
-static guint16 dissect_optommp_data_length(proto_item **ti, proto_tree *tree,
-    tvbuff_t *tvb, guint *poffset)
+static uint16_t dissect_optommp_data_length(proto_item **ti, proto_tree *tree,
+    tvbuff_t *tvb, unsigned *poffset)
 {
-    guint16 data_length = 0;
+    uint16_t data_length = 0;
 
     if( tvb_reported_length(tvb) >= *poffset + 2 )
     {
@@ -705,7 +705,7 @@ parameters:     ti:         Reserved for future use
 purpose:        Dissect rcode part for packets that have it
 ****************************************************************************/
 static void dissect_optommp_rcode(proto_item **ti, proto_tree *tree,
-    tvbuff_t *tvb, guint *poffset)
+    tvbuff_t *tvb, unsigned *poffset)
 {
     if( tvb_reported_length(tvb) >= *poffset + 1 )
     {
@@ -726,13 +726,13 @@ parameters:     ti:         The node to add the subtree to
 purpose:        Dissect a data block.
 ****************************************************************************/
 static void dissect_optommp_data_block(proto_item **ti, proto_tree *tree,
-    tvbuff_t *tvb, guint *poffset, guint16 data_length)
+    tvbuff_t *tvb, unsigned *poffset, uint16_t data_length)
 {
     proto_tree *data_block_tree_b = NULL;
     proto_tree *data_block_tree_q = NULL;
-    guint i = 0;
-    guint quadlet_offset = 0;
-    guint byte_offset = 0;
+    unsigned i = 0;
+    unsigned quadlet_offset = 0;
+    unsigned byte_offset = 0;
     quadlet_offset = *poffset;
     byte_offset = *poffset;
 
@@ -740,7 +740,7 @@ static void dissect_optommp_data_block(proto_item **ti, proto_tree *tree,
     data_block_tree_q = proto_tree_add_subtree(tree, tvb, *poffset,
         data_length, ett_data_block_q, ti, "data_block (as quadlets)");
 
-    for( i = 0; i < (guint16) (data_length / 4); ++i )
+    for( i = 0; i < (uint16_t) (data_length / 4); ++i )
     {
         dissect_optommp_data_block_quadlet(ti, data_block_tree_q, tvb,
             &quadlet_offset);
@@ -766,7 +766,7 @@ parameters:     ti:         Reserved for future use
 purpose:        Dissect a data block.
 ****************************************************************************/
 static void dissect_optommp_data_block_byte(proto_item **ti, proto_tree *tree,
-    tvbuff_t *tvb, guint *poffset)
+    tvbuff_t *tvb, unsigned *poffset)
 {
     if( tvb_reported_length(tvb) >= *poffset + 1 )
     {
@@ -786,7 +786,7 @@ parameters:     ti:             Reserved for future use
 purpose:        Dissect a data block.
 ****************************************************************************/
 static void dissect_optommp_data_block_quadlet(proto_item **ti, proto_tree
-    *tree, tvbuff_t *tvb, guint *poffset)
+    *tree, tvbuff_t *tvb, unsigned *poffset)
 {
     if( tvb_reported_length(tvb) >= *poffset + 4 )
     {
@@ -806,7 +806,7 @@ parameters:     ti:             Reserved for future use
 returns:        1 if packet type has destination_offset field, 0 otherwise
 purpose:        Dissect a data block.
 ****************************************************************************/
-static gint optommp_has_destination_offset(guint8 tcode)
+static int optommp_has_destination_offset(uint8_t tcode)
 {
     if( tcode == 0 || tcode == 1 || tcode == 4 || tcode == 5 )
         return 1;
@@ -900,7 +900,7 @@ void proto_register_optommp(void)
     };
 
     /* The subtrees */
-    static gint *ett[] =
+    static int *ett[] =
     {
         &ett_optommp,
         &ett_dest_id,

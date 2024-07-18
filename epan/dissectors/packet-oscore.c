@@ -28,17 +28,17 @@
 #include "packet-coap.h" /* packet-coap.h includes packet-oscore.h */
 
 /* Prototypes */
-static guint oscore_alg_get_key_len(cose_aead_alg_t);
-static guint oscore_alg_get_iv_len(cose_aead_alg_t);
-static guint oscore_alg_get_tag_len(cose_aead_alg_t);
-static gboolean oscore_context_derive_params(oscore_context_t *);
+static unsigned oscore_alg_get_key_len(cose_aead_alg_t);
+static unsigned oscore_alg_get_iv_len(cose_aead_alg_t);
+static unsigned oscore_alg_get_tag_len(cose_aead_alg_t);
+static bool oscore_context_derive_params(oscore_context_t *);
 
 /* CBOR encoder prototypes */
-static guint8 cborencoder_put_text(guint8 *buffer, const char *text, guint8 text_len);
-static guint8 cborencoder_put_null(guint8 *buffer);
-static guint8 cborencoder_put_unsigned(guint8 *buffer, guint8 value);
-static guint8 cborencoder_put_bytes(guint8 *buffer, const guint8 *bytes, guint8 bytes_len);
-static guint8 cborencoder_put_array(guint8 *buffer, guint8 elements);
+static uint8_t cborencoder_put_text(uint8_t *buffer, const char *text, uint8_t text_len);
+static uint8_t cborencoder_put_null(uint8_t *buffer);
+static uint8_t cborencoder_put_unsigned(uint8_t *buffer, uint8_t value);
+static uint8_t cborencoder_put_bytes(uint8_t *buffer, const uint8_t *bytes, uint8_t bytes_len);
+static uint8_t cborencoder_put_array(uint8_t *buffer, uint8_t elements);
 
 /* (Required to prevent [-Wmissing-prototypes] warnings */
 void proto_reg_handoff_oscore(void);
@@ -63,12 +63,12 @@ static expert_field ei_oscore_piv_len_invalid;
 static expert_field ei_oscore_info_fetch_failed;
 
 /* Initialize the subtree pointers */
-static gint ett_oscore;
+static int ett_oscore;
 
 /* UAT variables */
 static uat_t            *oscore_context_uat;
 static oscore_context_t *oscore_contexts;
-static guint            num_oscore_contexts;
+static unsigned         num_oscore_contexts;
 
 /* Enumeration for COSE algorithms used by OSCORE */
 static const value_string oscore_context_alg_vals[] = {
@@ -120,42 +120,42 @@ UAT_VS_DEF(oscore_context_uat, algorithm, oscore_context_t, cose_aead_alg_t, COS
 static void oscore_context_free_byte_arrays(oscore_context_t *rec) {
 
     if (rec->master_secret) {
-        g_byte_array_free(rec->master_secret, TRUE);
+        g_byte_array_free(rec->master_secret, true);
     }
 
     if (rec->master_salt) {
-        g_byte_array_free(rec->master_salt, TRUE);
+        g_byte_array_free(rec->master_salt, true);
     }
 
     if (rec->id_context) {
-        g_byte_array_free(rec->id_context, TRUE);
+        g_byte_array_free(rec->id_context, true);
     }
 
     if (rec->sender_id) {
-        g_byte_array_free(rec->sender_id, TRUE);
+        g_byte_array_free(rec->sender_id, true);
     }
 
     if (rec->recipient_id) {
-        g_byte_array_free(rec->recipient_id, TRUE);
+        g_byte_array_free(rec->recipient_id, true);
     }
 
     if (rec->request_decryption_key) {
-        g_byte_array_free(rec->request_decryption_key, TRUE);
+        g_byte_array_free(rec->request_decryption_key, true);
     }
 
     if (rec->response_decryption_key) {
-        g_byte_array_free(rec->response_decryption_key, TRUE);
+        g_byte_array_free(rec->response_decryption_key, true);
     }
 
     if (rec->common_iv) {
-        g_byte_array_free(rec->common_iv, TRUE);
+        g_byte_array_free(rec->common_iv, true);
     }
 }
 
 static void oscore_context_post_update_cb(void) {
-    guint i;
-    guint key_len;
-    guint iv_len;
+    unsigned i;
+    unsigned key_len;
+    unsigned iv_len;
 
     for (i = 0; i < num_oscore_contexts; i++) {
 
@@ -169,11 +169,11 @@ static void oscore_context_post_update_cb(void) {
         oscore_contexts[i].recipient_id     = g_byte_array_new();
 
         /* Convert strings to byte arrays */
-        hex_str_to_bytes(oscore_contexts[i].sender_id_prefs, oscore_contexts[i].sender_id, FALSE);
-        hex_str_to_bytes(oscore_contexts[i].recipient_id_prefs, oscore_contexts[i].recipient_id, FALSE);
-        hex_str_to_bytes(oscore_contexts[i].id_context_prefs, oscore_contexts[i].id_context, FALSE);
-        hex_str_to_bytes(oscore_contexts[i].master_secret_prefs, oscore_contexts[i].master_secret, FALSE);
-        hex_str_to_bytes(oscore_contexts[i].master_salt_prefs, oscore_contexts[i].master_salt, FALSE);
+        hex_str_to_bytes(oscore_contexts[i].sender_id_prefs, oscore_contexts[i].sender_id, false);
+        hex_str_to_bytes(oscore_contexts[i].recipient_id_prefs, oscore_contexts[i].recipient_id, false);
+        hex_str_to_bytes(oscore_contexts[i].id_context_prefs, oscore_contexts[i].id_context, false);
+        hex_str_to_bytes(oscore_contexts[i].master_secret_prefs, oscore_contexts[i].master_secret, false);
+        hex_str_to_bytes(oscore_contexts[i].master_salt_prefs, oscore_contexts[i].master_salt, false);
 
         /* Algorithm-dependent key and IV length */
         key_len = oscore_alg_get_key_len(oscore_contexts[i].algorithm);
@@ -195,67 +195,67 @@ static bool oscore_context_update_cb(void *r, char **err) {
 
     bytes = g_byte_array_new();
 
-    if (hex_str_to_bytes(rec->sender_id_prefs, bytes, FALSE) == FALSE) {
+    if (hex_str_to_bytes(rec->sender_id_prefs, bytes, false) == false) {
         *err = g_strdup("Sender ID is invalid.");
-        g_byte_array_free(bytes, TRUE);
-        return FALSE;
+        g_byte_array_free(bytes, true);
+        return false;
     }
 
     if (bytes->len > OSCORE_KID_MAX_LEN) {
         *err = ws_strdup_printf("Should be %u bytes or less.", OSCORE_KID_MAX_LEN);
-        g_byte_array_free(bytes, TRUE);
-        return FALSE;
+        g_byte_array_free(bytes, true);
+        return false;
     }
 
-    if (hex_str_to_bytes(rec->recipient_id_prefs, bytes, FALSE) == FALSE) {
+    if (hex_str_to_bytes(rec->recipient_id_prefs, bytes, false) == false) {
         *err = g_strdup("Recipient ID is invalid.");
-        g_byte_array_free(bytes, TRUE);
-        return FALSE;
+        g_byte_array_free(bytes, true);
+        return false;
     }
 
     if (bytes->len > OSCORE_KID_MAX_LEN) {
         *err = ws_strdup_printf("Should be %u bytes or less.", OSCORE_KID_MAX_LEN);
-        g_byte_array_free(bytes, TRUE);
-        return FALSE;
+        g_byte_array_free(bytes, true);
+        return false;
     }
 
-    if (hex_str_to_bytes(rec->id_context_prefs, bytes, FALSE) == FALSE) {
+    if (hex_str_to_bytes(rec->id_context_prefs, bytes, false) == false) {
         *err = g_strdup("ID Context is invalid.");
-        g_byte_array_free(bytes, TRUE);
-        return FALSE;
+        g_byte_array_free(bytes, true);
+        return false;
     }
 
     if (bytes->len > OSCORE_KID_CONTEXT_MAX_LEN) {
         *err = ws_strdup_printf("Should be %u bytes or less.", OSCORE_KID_CONTEXT_MAX_LEN);
-        g_byte_array_free(bytes, TRUE);
-        return FALSE;
+        g_byte_array_free(bytes, true);
+        return false;
     }
 
-    if (hex_str_to_bytes(rec->master_secret_prefs, bytes, FALSE) == FALSE) {
+    if (hex_str_to_bytes(rec->master_secret_prefs, bytes, false) == false) {
         *err = g_strdup("Master Secret is invalid.");
-        g_byte_array_free(bytes, TRUE);
-        return FALSE;
+        g_byte_array_free(bytes, true);
+        return false;
     }
 
     /* No max length check on Master Secret. We use GByteArray to allocate memory
      * and pass it to the context derivation routine */
     if (bytes->len == 0) {
         *err = g_strdup("Master Secret is mandatory.");
-        g_byte_array_free(bytes, TRUE);
-        return FALSE;
+        g_byte_array_free(bytes, true);
+        return false;
     }
 
-    if (hex_str_to_bytes(rec->master_salt_prefs, bytes, FALSE) == FALSE) {
+    if (hex_str_to_bytes(rec->master_salt_prefs, bytes, false) == false) {
         *err = g_strdup("Master Salt is invalid.");
-        g_byte_array_free(bytes, TRUE);
-        return FALSE;
+        g_byte_array_free(bytes, true);
+        return false;
     }
 
     /* No (max) length check on optional Master Salt. We use GByteArray to allocate memory
      * and pass it to the context derivation routine */
 
-     g_byte_array_free(bytes, TRUE);
-     return TRUE;
+     g_byte_array_free(bytes, true);
+     return true;
 }
 
 static void* oscore_context_copy_cb(void *n, const void *o, size_t siz _U_) {
@@ -300,14 +300,14 @@ static void oscore_context_free_cb(void *r) {
  }
 
 /* GByteArrays within the oscore_context_t object should be initialized before calling this function */
-static gboolean oscore_context_derive_params(oscore_context_t *context) {
+static bool oscore_context_derive_params(oscore_context_t *context) {
     const char *iv_label = "IV";
     const char *key_label = "Key";
-    guint8 prk[32]; /* Pseudo-random key from HKDF-Extract step. 32 for SHA256. */
-    guint key_len;
-    guint iv_len;
-    guint8 info_buf[OSCORE_INFO_MAX_LEN];
-    guint info_len;
+    uint8_t prk[32]; /* Pseudo-random key from HKDF-Extract step. 32 for SHA256. */
+    unsigned key_len;
+    unsigned iv_len;
+    uint8_t info_buf[OSCORE_INFO_MAX_LEN];
+    unsigned info_len;
     GByteArray *info;
 
     key_len = oscore_alg_get_key_len(context->algorithm);
@@ -378,11 +378,11 @@ static gboolean oscore_context_derive_params(oscore_context_t *context) {
     g_byte_array_set_size(context->common_iv, iv_len);
     hkdf_expand(GCRY_MD_SHA256, prk, sizeof(prk), info->data, info->len, context->common_iv->data, iv_len); /* 32 for SHA256 */
 
-    g_byte_array_free(info, TRUE);
-    return TRUE;
+    g_byte_array_free(info, true);
+    return true;
 }
 
-static guint oscore_alg_get_key_len(cose_aead_alg_t algorithm) {
+static unsigned oscore_alg_get_key_len(cose_aead_alg_t algorithm) {
     switch(algorithm) {
         case COSE_AES_CCM_16_64_128:
             return 16; /* RFC8152 */
@@ -392,7 +392,7 @@ static guint oscore_alg_get_key_len(cose_aead_alg_t algorithm) {
     }
 }
 
-static guint oscore_alg_get_tag_len(cose_aead_alg_t algorithm) {
+static unsigned oscore_alg_get_tag_len(cose_aead_alg_t algorithm) {
     switch(algorithm) {
         case COSE_AES_CCM_16_64_128:
             return 8; /* RFC8152 */
@@ -402,7 +402,7 @@ static guint oscore_alg_get_tag_len(cose_aead_alg_t algorithm) {
     }
 }
 
-static guint oscore_alg_get_iv_len(cose_aead_alg_t algorithm) {
+static unsigned oscore_alg_get_iv_len(cose_aead_alg_t algorithm) {
     switch(algorithm) {
         case COSE_AES_CCM_16_64_128:
             return 13; /* RFC8152 */
@@ -413,7 +413,7 @@ static guint oscore_alg_get_iv_len(cose_aead_alg_t algorithm) {
 }
 
 static oscore_context_t * oscore_find_context(oscore_info_t *info) {
-    guint i;
+    unsigned i;
 
     for (i = 0; i < num_oscore_contexts; i++) {
         if ((info->kid_len == oscore_contexts[i].sender_id->len) &&
@@ -431,9 +431,9 @@ CBOR encoding functions needed to construct HKDF info and aad.
 Author Martin Gunnarsson <martin.gunnarsson@ri.se>
 Modified by Malisa Vucinic <malishav@gmail.com>
 */
-static guint8
-cborencoder_put_text(guint8 *buffer, const char *text, guint8 text_len) {
-    guint8 ret = 0;
+static uint8_t
+cborencoder_put_text(uint8_t *buffer, const char *text, uint8_t text_len) {
+    uint8_t ret = 0;
 
     if(text_len > 23 ){
         buffer[ret++] = 0x78;
@@ -450,9 +450,9 @@ cborencoder_put_text(guint8 *buffer, const char *text, guint8 text_len) {
     return ret;
 }
 
-static guint8
-cborencoder_put_array(guint8 *buffer, guint8 elements) {
-    guint8 ret = 0;
+static uint8_t
+cborencoder_put_array(uint8_t *buffer, uint8_t elements) {
+    uint8_t ret = 0;
 
     if(elements > 15){
         return 0;
@@ -462,9 +462,9 @@ cborencoder_put_array(guint8 *buffer, guint8 elements) {
     return ret;
 }
 
-static guint8
-cborencoder_put_bytes(guint8 *buffer, const guint8 *bytes, guint8 bytes_len) {
-    guint8 ret = 0;
+static uint8_t
+cborencoder_put_bytes(uint8_t *buffer, const uint8_t *bytes, uint8_t bytes_len) {
+    uint8_t ret = 0;
 
     if(bytes_len > 23){
         buffer[ret++] = 0x58;
@@ -481,9 +481,9 @@ cborencoder_put_bytes(guint8 *buffer, const guint8 *bytes, guint8 bytes_len) {
     return ret;
 }
 
-static guint8
-cborencoder_put_unsigned(guint8 *buffer, guint8 value) {
-    guint8 ret = 0;
+static uint8_t
+cborencoder_put_unsigned(uint8_t *buffer, uint8_t value) {
+    uint8_t ret = 0;
 
     if(value > 0x17 ){
         buffer[ret++] = 0x18;
@@ -495,9 +495,9 @@ cborencoder_put_unsigned(guint8 *buffer, guint8 value) {
     return ret;
 }
 
-static guint8
-cborencoder_put_null(guint8 *buffer) {
-    guint8 ret = 0;
+static uint8_t
+cborencoder_put_null(uint8_t *buffer) {
+    uint8_t ret = 0;
 
     buffer[ret++] = 0xf6;
     return ret;
@@ -505,15 +505,15 @@ cborencoder_put_null(guint8 *buffer) {
 
 /* out should hold NONCE_MAX_LEN bytes at most */
 static void
-oscore_create_nonce(guint8 *out,
+oscore_create_nonce(uint8_t *out,
         oscore_context_t *context,
         oscore_info_t *info) {
 
-    guint i = 0;
-    gchar piv_extended[NONCE_MAX_LEN] = { 0 };
-    guint nonce_len;
-    guint8 *piv;
-    guint8 piv_len;
+    unsigned i = 0;
+    char piv_extended[NONCE_MAX_LEN] = { 0 };
+    unsigned nonce_len;
+    uint8_t *piv;
+    uint8_t piv_len;
     GByteArray *piv_generator;
 
     DISSECTOR_ASSERT(out != NULL);
@@ -561,26 +561,26 @@ oscore_create_nonce(guint8 *out,
 static oscore_decryption_status_t
 oscore_decrypt_and_verify(tvbuff_t *tvb_ciphertext,
         packet_info *pinfo,
-        gint *offset,
+        int *offset,
         proto_tree *tree,
         oscore_context_t *context,
         oscore_info_t *info,
         tvbuff_t **tvb_plaintext) {
 
-    gboolean have_tag = FALSE;
-    guint8 nonce[NONCE_MAX_LEN];
-    guint8 tmp[AES_128_BLOCK_LEN];
-    guint8 *text;
-    guint8 rx_tag[TAG_MAX_LEN];
-    guint tag_len = 0;
-    guint8 gen_tag[TAG_MAX_LEN];
-    guint8 external_aad[OSCORE_EXTERNAL_AAD_MAX_LEN];
-    guint8 external_aad_len = 0;
-    guint8 aad[OSCORE_AAD_MAX_LEN];
-    guint8 aad_len = 0;
-    guint8 *decryption_key;
-    gint ciphertext_captured_len;
-    gint ciphertext_reported_len;
+    bool have_tag = false;
+    uint8_t nonce[NONCE_MAX_LEN];
+    uint8_t tmp[AES_128_BLOCK_LEN];
+    uint8_t *text;
+    uint8_t rx_tag[TAG_MAX_LEN];
+    unsigned tag_len = 0;
+    uint8_t gen_tag[TAG_MAX_LEN];
+    uint8_t external_aad[OSCORE_EXTERNAL_AAD_MAX_LEN];
+    uint8_t external_aad_len = 0;
+    uint8_t aad[OSCORE_AAD_MAX_LEN];
+    uint8_t aad_len = 0;
+    uint8_t *decryption_key;
+    int ciphertext_captured_len;
+    int ciphertext_reported_len;
     const char *encrypt0 = "Encrypt0";
     proto_item *item = NULL;
 
@@ -620,7 +620,7 @@ oscore_decrypt_and_verify(tvbuff_t *tvb_ciphertext,
      * Create the CCM* initial block for decryption (Adata=0, M=0, counter=0).
      * XXX: This only handles AES-CCM-16-64-128, add generic algorithm handling
      * */
-    ccm_init_block(tmp, FALSE, 0, 0, 0, 0, 0, nonce);
+    ccm_init_block(tmp, false, 0, 0, 0, 0, 0, nonce);
 
     /*
     * Make a copy of the ciphertext in heap memory.
@@ -628,13 +628,13 @@ oscore_decrypt_and_verify(tvbuff_t *tvb_ciphertext,
     * We will decrypt the message in-place and then use the buffer as the
     * real data for the new tvb.
     */
-    text = (guint8 *)tvb_memdup(pinfo->pool, tvb_ciphertext, *offset, ciphertext_captured_len);
+    text = (uint8_t *)tvb_memdup(pinfo->pool, tvb_ciphertext, *offset, ciphertext_captured_len);
 
     /*
      * Perform CTR-mode transformation and decrypt the tag.
      * XXX: This only handles AES-CCM-16-64-128, add generic algorithm handling
      * */
-    if(ccm_ctr_encrypt(decryption_key, tmp, rx_tag, text, ciphertext_captured_len) == FALSE) {
+    if(ccm_ctr_encrypt(decryption_key, tmp, rx_tag, text, ciphertext_captured_len) == false) {
         return STATUS_ERROR_DECRYPT_FAILED;
     }
 
@@ -680,7 +680,7 @@ oscore_decrypt_and_verify(tvbuff_t *tvb_ciphertext,
         * XXX: This only handles AES-CCM-16-64-128, add generic algorithm handling
         * */
         DISSECTOR_ASSERT(tag_len <= sizeof(gen_tag));
-        ccm_init_block(tmp, TRUE, tag_len, 0, 0, 0, ciphertext_captured_len, nonce);
+        ccm_init_block(tmp, true, tag_len, 0, 0, 0, ciphertext_captured_len, nonce);
         /* text is already a raw buffer containing the plaintext since we just decrypted it in-place */
         if (!ccm_cbc_mac(decryption_key, tmp, aad, aad_len, text, ciphertext_captured_len, gen_tag)) {
             return STATUS_ERROR_CBCMAC_FAILED;
@@ -711,14 +711,14 @@ oscore_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *ti;
     proto_tree *oscore_tree;
     /* Other misc. local variables. */
-    gint offset = 0;
+    int offset = 0;
     oscore_info_t *info = (oscore_info_t *) data;
     oscore_context_t *context = NULL;
     oscore_decryption_status_t status;
     tvbuff_t *tvb_decrypted = NULL;
     coap_info *coinfo;
-    gint oscore_length;
-    guint8 code_class;
+    int oscore_length;
+    uint8_t code_class;
 
     /* Check that the packet is long enough for it to belong to us. */
     if (tvb_reported_length(tvb) < OSCORE_MIN_LENGTH) {
@@ -783,7 +783,7 @@ oscore_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         dissect_coap_code(tvb_decrypted, oscore_tree, &offset, &dissect_oscore_hf, &code_class);
         offset = dissect_coap_options(tvb_decrypted, pinfo, oscore_tree, offset, oscore_length, code_class, coinfo, &dissect_oscore_hf);
         if (oscore_length > offset) {
-            dissect_coap_payload(tvb_decrypted, pinfo, oscore_tree, tree, offset, oscore_length, code_class, coinfo, &dissect_oscore_hf, TRUE);
+            dissect_coap_payload(tvb_decrypted, pinfo, oscore_tree, tree, offset, oscore_length, code_class, coinfo, &dissect_oscore_hf, true);
         }
     } else {
         /* We don't support OSCORE over HTTP at the moment, where coinfo fetch will fail */
@@ -813,7 +813,7 @@ proto_register_oscore(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_oscore,
         COAP_COMMON_ETT_LIST(dissect_oscore_hf)
     };
@@ -901,7 +901,7 @@ proto_register_oscore(void)
     oscore_context_uat = uat_new("Security Contexts",
             sizeof(oscore_context_t),       /* record size */
             "oscore_contexts",              /* filename */
-            TRUE,                           /* from_profile */
+            true,                           /* from_profile */
             &oscore_contexts,               /* data_ptr */
             &num_oscore_contexts,           /* numitems_ptr */
             UAT_AFFECTS_DISSECTION,         /* affects dissection of packets, but not set of named fields */

@@ -34,30 +34,30 @@ static dissector_handle_t omron_fins_udp_handle;
 #define OMRON_FINS_TCP_MAGIC_BYTES 0x46494e53 /* ASCII 'FINS' */
 
 static int proto_omron_fins;
-static gint ett_omron;
-static gint ett_omron_tcp_header;
-static gint ett_omron_header;
-static gint ett_omron_icf_fields;
-static gint ett_omron_command_data;
-static gint ett_area_data;
-static gint ett_cpu_bus;
-static gint ett_io_data;
-static gint ett_pc_status_fields;
-static gint ett_fatal_fields;
-static gint ett_non_fatal_fields;
-static gint ett_message_fields;
-static gint ett_omron_error_log_data;
-static gint ett_omron_disk_data;
-static gint ett_omron_file_data;
-static gint ett_omron_data_type;
-static gint ett_omron_block_record;
-static gint ett_omron_status_block;
-static gint ett_omron_cyclic_fields;
-static gint ett_omron_netw_nodes_sts;
-static gint ett_omron_netw_node_sts;
-static gint ett_omron_netw_nodes_non_fatal_err_sts;
-static gint ett_omron_netw_nodes_cyclic_err_ctrs;
-static gint ett_omron_data_link_status_tree;
+static int ett_omron;
+static int ett_omron_tcp_header;
+static int ett_omron_header;
+static int ett_omron_icf_fields;
+static int ett_omron_command_data;
+static int ett_area_data;
+static int ett_cpu_bus;
+static int ett_io_data;
+static int ett_pc_status_fields;
+static int ett_fatal_fields;
+static int ett_non_fatal_fields;
+static int ett_message_fields;
+static int ett_omron_error_log_data;
+static int ett_omron_disk_data;
+static int ett_omron_file_data;
+static int ett_omron_data_type;
+static int ett_omron_block_record;
+static int ett_omron_status_block;
+static int ett_omron_cyclic_fields;
+static int ett_omron_netw_nodes_sts;
+static int ett_omron_netw_node_sts;
+static int ett_omron_netw_nodes_non_fatal_err_sts;
+static int ett_omron_netw_nodes_cyclic_err_ctrs;
+static int ett_omron_data_link_status_tree;
 
 #if 0
 static bool gPREF_HEX;
@@ -1221,15 +1221,15 @@ dissect_omron_fins_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *omron_t
     proto_tree  *omron_header_tree, *field_tree, *command_tree, *area_data_tree, *cpu_bus_tree;
     proto_tree  *io_data_tree, *error_log_tree, *omron_disk_data_tree, *omron_file_data_tree;
     proto_tree  *omron_block_record_tree, *omron_status_tree;
-    const gchar *cmd_str;
-    gint     cmd_str_idx = -1;
-    gint     reported_length_remaining;
-    guint    offset = 0;
-    guint8   icf_flags;
-    guint8   omron_byte;
-    gboolean is_response = FALSE;
-    gboolean is_command  = FALSE;
-    guint16  command_code = 0;
+    const char *cmd_str;
+    int      cmd_str_idx = -1;
+    int      reported_length_remaining;
+    unsigned offset = 0;
+    uint8_t  icf_flags;
+    uint8_t  omron_byte;
+    bool is_response = false;
+    bool is_command  = false;
+    uint16_t command_code = 0;
 
     /* Set the protocol column */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "OMRON");
@@ -1242,23 +1242,23 @@ dissect_omron_fins_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *omron_t
         cmd_str = wmem_strdup_printf(pinfo->pool, "Unknown (%d)", command_code);
 
     /* Setup and fill in the INFO column if it's there */
-    icf_flags = tvb_get_guint8(tvb, offset);
+    icf_flags = tvb_get_uint8(tvb, offset);
     if (icf_flags & 0x40) {
-        is_response = TRUE;
+        is_response = true;
         col_add_fstr(pinfo->cinfo, COL_INFO, "Response : %s", cmd_str);
     } else {
-        is_command = TRUE;
+        is_command = true;
         col_add_fstr(pinfo->cinfo, COL_INFO, "Command  : %s", cmd_str);
     }
 
     /* Show address info for single memory area read */
     if (is_command && command_code == 0x0101 && tvb_captured_length(tvb) >= 15) {
-        const gchar *mem_area_str;
-        gint mem_area_str_idx;
-        guint8 mem_area;
-        guint16 mem_address;
+        const char *mem_area_str;
+        int mem_area_str_idx;
+        uint8_t mem_area;
+        uint16_t mem_address;
 
-        mem_area = tvb_get_guint8(tvb, offset + 12);
+        mem_area = tvb_get_uint8(tvb, offset + 12);
         mem_area_str = try_val_to_str_idx(mem_area, memory_area_code_prefix, &mem_area_str_idx);
         if (mem_area_str_idx >= 0) {
             mem_address = tvb_get_ntohs(tvb, offset + 13);
@@ -1491,15 +1491,15 @@ dissect_omron_fins_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *omron_t
             {
                 while(reported_length_remaining >= 4)
                 {
-                    const gchar *mem_area_str;
-                    gint mem_area_str_idx;
-                    guint8 mem_area;
-                    guint16 mem_address;
+                    const char *mem_area_str;
+                    int mem_area_str_idx;
+                    uint8_t mem_area;
+                    uint16_t mem_address;
 
                     proto_tree_add_item(command_tree, hf_omron_command_memory_area_code, tvb, offset, 1, ENC_BIG_ENDIAN);
                     ti = proto_tree_add_item(command_tree, hf_omron_address, tvb, (offset+1), 2, ENC_BIG_ENDIAN);
 
-                    mem_area = tvb_get_guint8(tvb, offset);
+                    mem_area = tvb_get_uint8(tvb, offset);
                     mem_area_str = try_val_to_str_idx(mem_area, memory_area_code_prefix, &mem_area_str_idx);
                     if(mem_area_str_idx >= 0) {
                         mem_address = tvb_get_ntohs(tvb, offset+1);
@@ -1522,11 +1522,11 @@ dissect_omron_fins_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *omron_t
 
                     while(reported_length_remaining >= 2)
                     {
-                        guint8 memory_area_code;
-                        guint8 memory_code_len;
+                        uint8_t memory_area_code;
+                        uint8_t memory_code_len;
 
                         ti = proto_tree_add_item(command_tree, hf_omron_command_memory_area_code, tvb, offset, 1, ENC_BIG_ENDIAN);
-                        memory_area_code  = tvb_get_guint8(tvb, offset);
+                        memory_area_code  = tvb_get_uint8(tvb, offset);
                         switch(memory_area_code) {
                             case 0x00:
                             case 0x01:
@@ -2159,8 +2159,8 @@ dissect_omron_fins_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *omron_t
                     proto_tree *netw_nodes_sts_tree;
                     proto_tree *netw_nodes_non_fatal_err_sts_tree;
                     proto_tree *netw_nodes_cyclic_err_ctrs_tree;
-                    guint8 i;
-                    guint8 node_num;
+                    uint8_t i;
+                    uint8_t node_num;
 
                     proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset = offset + 2;
@@ -2222,7 +2222,7 @@ dissect_omron_fins_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *omron_t
                     node_num = 1;
                     for(i = 0; i < 62; i++)
                     {
-                        guint8 ctr = tvb_get_guint8(tvb, offset);
+                        uint8_t ctr = tvb_get_uint8(tvb, offset);
                         proto_tree_add_uint_format(netw_nodes_cyclic_err_ctrs_tree, hf_omron_node_error_count,
                                                    tvb, offset, 1, ctr, "Node Number %2d: %3d", node_num, ctr);
                         node_num = node_num + 1;
@@ -2776,7 +2776,7 @@ dissect_omron_fins_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *omron_t
                     omron_disk_data_tree = proto_tree_add_subtree(command_tree, tvb, (offset+2), 26, ett_omron_disk_data, NULL, "Disk data");
                     proto_tree_add_item(omron_disk_data_tree, hf_omron_volume_label, tvb, (offset+2), 12, ENC_ASCII);
 
-                    omron_byte = tvb_get_guint8(tvb, (offset+14));
+                    omron_byte = tvb_get_uint8(tvb, (offset+14));
                     proto_tree_add_uint_format_value(omron_disk_data_tree, hf_omron_date_year, tvb, (offset+14), 1, omron_byte,
                         "%d", ((omron_byte>>1)+1980));
 
@@ -2785,7 +2785,7 @@ dissect_omron_fins_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *omron_t
                     proto_tree_add_item(omron_disk_data_tree, hf_omron_date_hour, tvb, (offset+14), 4, ENC_BIG_ENDIAN);
                     proto_tree_add_item(omron_disk_data_tree, hf_omron_date_minute, tvb, (offset+14), 4, ENC_BIG_ENDIAN);
 
-                    omron_byte = tvb_get_guint8(tvb, (offset+17));
+                    omron_byte = tvb_get_uint8(tvb, (offset+17));
                     proto_tree_add_uint_format_value(omron_disk_data_tree, hf_omron_date_second, tvb, (offset+17), 1, omron_byte,
                         "%d", ((omron_byte&0x1F)*2));
 
@@ -2803,7 +2803,7 @@ dissect_omron_fins_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *omron_t
 
                         proto_tree_add_item(omron_file_data_tree, hf_omron_filename, tvb, offset, 12, ENC_ASCII);
 
-                        omron_byte = tvb_get_guint8(tvb, (offset+12));
+                        omron_byte = tvb_get_uint8(tvb, (offset+12));
                         proto_tree_add_uint_format_value(omron_file_data_tree, hf_omron_date_year, tvb, (offset+12), 1, omron_byte,
                                                    "%d", ((omron_byte>>1)+1980));
 
@@ -2812,7 +2812,7 @@ dissect_omron_fins_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *omron_t
                         proto_tree_add_item(omron_file_data_tree, hf_omron_date_hour, tvb, (offset+12), 4, ENC_BIG_ENDIAN);
                         proto_tree_add_item(omron_file_data_tree, hf_omron_date_minute, tvb, (offset+12), 4, ENC_BIG_ENDIAN);
 
-                        omron_byte = tvb_get_guint8(tvb, (offset+15));
+                        omron_byte = tvb_get_uint8(tvb, (offset+15));
                         proto_tree_add_uint_format_value(omron_file_data_tree, hf_omron_date_second, tvb, (offset+15), 1, omron_byte,
                                                    "%d", ((omron_byte&0x1F)*2));
 
@@ -3354,7 +3354,7 @@ dissect_omron_fins_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *omron_t
 
         } /* switch(command_code) */
 
-        if ((guint)offset != tvb_reported_length(tvb)) {
+        if ((unsigned)offset != tvb_reported_length(tvb)) {
             expert_add_info(pinfo, omron_tree, &ei_omron_bad_length);
         }
 
@@ -3363,10 +3363,10 @@ dissect_omron_fins_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *omron_t
     return tvb_captured_length(tvb);
 }
 
-static guint
+static unsigned
 get_omron_fins_tcp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
-    guint32 length = tvb_get_ntohl(tvb, offset + 4);
+    uint32_t length = tvb_get_ntohl(tvb, offset + 4);
 
     // length field does not include magic or length fields
     return 8 + length;
@@ -3379,8 +3379,8 @@ dissect_omron_fins_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     proto_tree *omron_tree = NULL;
     proto_tree *omron_tcp_header_tree = NULL;
 
-    gint fins_pdu_offset = 0;
-    guint32 tcp_command = tvb_get_ntohl(tvb, 8);
+    int fins_pdu_offset = 0;
+    uint32_t tcp_command = tvb_get_ntohl(tvb, 8);
 
     switch (tcp_command) {
         case TCP_CMD_NODE_ADDRESS_DATA_SEND_CLIENT:
@@ -3439,7 +3439,7 @@ dissect_omron_fins_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         return 0;
     }
 
-    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 8,
+    tcp_dissect_pdus(tvb, pinfo, tree, true, 8,
                      get_omron_fins_tcp_pdu_len, dissect_omron_fins_tcp_pdu, data);
 
     return tvb_reported_length(tvb);
@@ -3448,7 +3448,7 @@ dissect_omron_fins_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 static int
 dissect_omron_fins_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    guint8 omron_byte;
+    uint8_t omron_byte;
     proto_item *ti = NULL;
     proto_tree *omron_tree = NULL;
 
@@ -3457,7 +3457,7 @@ dissect_omron_fins_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         return 0;
     }
     /* Check some bytes to see if it's OMRON */
-    omron_byte = tvb_get_guint8(tvb, 1);
+    omron_byte = tvb_get_uint8(tvb, 1);
     if (omron_byte != 0x00) {
         return 0;
     }
@@ -4173,7 +4173,7 @@ proto_register_omron_fins(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_omron,
         &ett_omron_tcp_header,
         &ett_omron_header,

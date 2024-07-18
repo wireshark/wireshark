@@ -358,47 +358,47 @@ static int ett_osc_rgba;
 static int ett_osc_midi;
 
 /* check for valid path string */
-static gboolean
+static bool
 is_valid_path(const char *path)
 {
     const char *ptr;
     if(path[0] != '/')
-        return FALSE;
+        return false;
     for(ptr=path+1; *ptr!='\0'; ptr++)
         if(!g_ascii_isprint(*ptr) || (strchr(invalid_path_chars, *ptr) != NULL) )
-            return FALSE;
-    return TRUE;
+            return false;
+    return true;
 }
 
 /* check for valid format string */
-static gboolean
+static bool
 is_valid_format(const char *format)
 {
     const char *ptr;
     if(format[0] != ',')
-        return FALSE;
+        return false;
     for(ptr=format+1; *ptr!='\0'; ptr++)
         if(strchr(valid_format_chars, *ptr) == NULL)
-            return FALSE;
-    return TRUE;
+            return false;
+    return true;
 }
 
 /* Dissect OSC message */
 static int
-dissect_osc_message(tvbuff_t *tvb, packet_info *pinfo, proto_item *ti, proto_tree *osc_tree, gint offset, gint len)
+dissect_osc_message(tvbuff_t *tvb, packet_info *pinfo, proto_item *ti, proto_tree *osc_tree, int offset, int len)
 {
     proto_tree  *message_tree;
     proto_tree  *header_tree;
-    gint         slen;
-    gint         rem;
-    gint         end = offset + len;
-    const gchar *path;
-    gint         path_len;
-    gint         path_offset;
-    const gchar *format;
-    gint         format_offset;
-    gint         format_len;
-    const gchar *ptr;
+    int          slen;
+    int          rem;
+    int          end = offset + len;
+    const char *path;
+    int          path_len;
+    int          path_offset;
+    const char *format;
+    int          format_offset;
+    int          format_len;
+    const char *ptr;
 
     /* peek/read path */
     path_offset = offset;
@@ -457,7 +457,7 @@ dissect_osc_message(tvbuff_t *tvb, packet_info *pinfo, proto_item *ti, proto_tre
                 proto_item *bi;
                 proto_tree *blob_tree;
 
-                gint32 blen = tvb_get_ntohl(tvb, offset);
+                int32_t blen = tvb_get_ntohl(tvb, offset);
                 slen = blen;
                 if( (rem = slen%4) ) slen += 4-rem;
 
@@ -499,8 +499,8 @@ dissect_osc_message(tvbuff_t *tvb, packet_info *pinfo, proto_item *ti, proto_tre
                 break;
             case OSC_TIMETAG:
             {
-                guint32  sec  = tvb_get_ntohl(tvb, offset);
-                guint32  frac = tvb_get_ntohl(tvb, offset+4);
+                uint32_t sec  = tvb_get_ntohl(tvb, offset);
+                uint32_t frac = tvb_get_ntohl(tvb, offset+4);
                 nstime_t ns;
                 if( (sec == 0) && (frac == 1) )
                     proto_tree_add_time_format_value(message_tree, hf_osc_message_timetag_type, tvb, offset, 8, &ns, immediate_fmt, immediate_str);
@@ -541,22 +541,22 @@ dissect_osc_message(tvbuff_t *tvb, packet_info *pinfo, proto_item *ti, proto_tre
             }
             case OSC_MIDI:
             {
-                const gchar *status_str;
+                const char *status_str;
                 proto_item  *mi = NULL;
                 proto_tree  *midi_tree;
-                guint8       port;
-                guint8       command;
-                guint8       data1;
-                guint8       data2;
-                guint8       status;
-                guint8       channel;
-                gboolean     system_msg;
-                guint8       status_shifted;
+                uint8_t      port;
+                uint8_t      command;
+                uint8_t      data1;
+                uint8_t      data2;
+                uint8_t      status;
+                uint8_t      channel;
+                bool         system_msg;
+                uint8_t      status_shifted;
 
-                port = tvb_get_guint8(tvb, offset);
-                command  = tvb_get_guint8(tvb, offset+1);
-                data1   = tvb_get_guint8(tvb, offset+2);
-                data2   = tvb_get_guint8(tvb, offset+3);
+                port = tvb_get_uint8(tvb, offset);
+                command  = tvb_get_uint8(tvb, offset+1);
+                data1   = tvb_get_uint8(tvb, offset+2);
+                data2   = tvb_get_uint8(tvb, offset+3);
 
                 status  = command & 0xF0;
                 channel = command & 0x0F;
@@ -583,7 +583,7 @@ dissect_osc_message(tvbuff_t *tvb, packet_info *pinfo, proto_item *ti, proto_tre
                         case MIDI_STATUS_NOTE_OFF:
                         case MIDI_STATUS_NOTE_PRESSURE:
                         {
-                            const gchar *note_str;
+                            const char *note_str;
                             note_str = val_to_str_ext_const(data1, &MIDI_note_ext, "Unknown");
 
                             mi = proto_tree_add_none_format(message_tree, hf_osc_message_midi_type, tvb, offset, 4,
@@ -593,7 +593,7 @@ dissect_osc_message(tvbuff_t *tvb, packet_info *pinfo, proto_item *ti, proto_tre
                         }
                         case MIDI_STATUS_CONTROLLER:
                         {
-                            const gchar *control_str;
+                            const char *control_str;
                             control_str = val_to_str_ext_const(data1, &MIDI_control_ext, "Unknown");
 
                             mi = proto_tree_add_none_format(message_tree, hf_osc_message_midi_type, tvb, offset, 4,
@@ -603,7 +603,7 @@ dissect_osc_message(tvbuff_t *tvb, packet_info *pinfo, proto_item *ti, proto_tre
                         }
                         case MIDI_STATUS_PITCH_BENDER:
                         {
-                            const gint bender = (((gint)data2 << 7) | (gint)data1) - 0x2000;
+                            const int bender = (((int)data2 << 7) | (int)data1) - 0x2000;
 
                             mi = proto_tree_add_none_format(message_tree, hf_osc_message_midi_type, tvb, offset, 4,
                                     "MIDI: Port %i, Channel %i, %s, %i",
@@ -686,7 +686,7 @@ dissect_osc_message(tvbuff_t *tvb, packet_info *pinfo, proto_item *ti, proto_tre
                         }
                         case MIDI_STATUS_PITCH_BENDER:
                         {
-                            const gint bender = (((gint)data2 << 7) | (gint)data1) - 0x2000;
+                            const int bender = (((int)data2 << 7) | (int)data1) - 0x2000;
 
                             proto_tree_add_int(midi_tree, hf_osc_message_midi_bender_type, tvb, offset, 2, bender);
                             offset += 2;
@@ -726,12 +726,12 @@ dissect_osc_message(tvbuff_t *tvb, packet_info *pinfo, proto_item *ti, proto_tre
 /* Dissect OSC bundle */
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_osc_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_item *ti, proto_tree *osc_tree, gint offset, gint len)
+dissect_osc_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_item *ti, proto_tree *osc_tree, int offset, int len)
 {
     proto_tree  *bundle_tree;
-    gint         end = offset + len;
-    guint32      sec;
-    guint32      frac;
+    int          end = offset + len;
+    uint32_t     sec;
+    uint32_t     frac;
     nstime_t     ns;
 
     /* check for valid #bundle */
@@ -758,7 +758,7 @@ dissect_osc_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_item *ti, proto_tree
     while(offset < end)
     {
         /* peek bundle element size */
-        gint32 size;
+        int32_t size;
 
         /* read bundle element size */
         proto_tree_add_item_ret_int(bundle_tree, hf_osc_bundle_element_size_type, tvb, offset, 4, ENC_BIG_ENDIAN, &size);
@@ -770,7 +770,7 @@ dissect_osc_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_item *ti, proto_tree
 
         /* peek first bundle element char */
         increment_dissection_depth(pinfo);
-        switch(tvb_get_guint8(tvb, offset))
+        switch(tvb_get_uint8(tvb, offset))
         {
             case '#': /* this is a bundle */
                 if(dissect_osc_bundle(tvb, pinfo, ti, bundle_tree, offset, size))
@@ -788,7 +788,7 @@ dissect_osc_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_item *ti, proto_tree
         decrement_dissection_depth(pinfo);
 
         /* check for integer overflow */
-        if(size > G_MAXINT - offset)
+        if(size > INT_MAX - offset)
             return -1;
         else
             offset += size;
@@ -802,7 +802,7 @@ dissect_osc_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_item *ti, proto_tree
 
 /* Dissect OSC PDU */
 static void
-dissect_osc_pdu_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_, gint offset, gint len)
+dissect_osc_pdu_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_, int offset, int len)
 {
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "OSC");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -817,7 +817,7 @@ dissect_osc_pdu_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         osc_tree = proto_item_add_subtree(ti, ett_osc_packet);
 
         /* peek first bundle element char */
-        switch(tvb_get_guint8(tvb, offset))
+        switch(tvb_get_uint8(tvb, offset))
         {
             case '#': /* this is a bundle */
                 if(dissect_osc_bundle(tvb, pinfo, ti, osc_tree, offset, len))
@@ -837,7 +837,7 @@ dissect_osc_pdu_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
 /* OSC TCP (OSC-1.0) */
 
-static guint
+static unsigned
 get_osc_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
     return tvb_get_ntohl(tvb, offset) + 4;
@@ -846,7 +846,7 @@ get_osc_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U
 static int
 dissect_osc_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    gint pdu_len;
+    int pdu_len;
 
     pdu_len = tvb_get_ntohl(tvb, 0);
     dissect_osc_pdu_common(tvb, pinfo, tree, data, 4, pdu_len);
@@ -856,7 +856,7 @@ dissect_osc_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 static int
 dissect_osc_tcp_1_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 4, get_osc_pdu_len,
+    tcp_dissect_pdus(tvb, pinfo, tree, true, 4, get_osc_pdu_len,
                      dissect_osc_tcp_pdu, data);
     return tvb_reported_length(tvb);
 }
@@ -867,13 +867,13 @@ dissect_osc_tcp_1_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 #define SLIP_END_REPLACE        0xDC /* 334 (octal), 220 (decimal), ESC ESC_END means END data byte */
 #define SLIP_ESC_REPLACE        0xDD /* 335 (octal), 221 (decimal), ESC ESC_ESC means ESC data byte */
 
-static inline gint
-slip_decoded_len(const guint8 *src, guint available)
+static inline int
+slip_decoded_len(const uint8_t *src, unsigned available)
 {
-    const guint8 *ptr;
-    const guint8 *end = src + available;
-    gint decoded_len = 0;
-    gboolean escaped = FALSE;
+    const uint8_t *ptr;
+    const uint8_t *end = src + available;
+    int decoded_len = 0;
+    bool escaped = false;
 
     for(ptr = src; ptr < end; ptr++)
     {
@@ -884,7 +884,7 @@ slip_decoded_len(const guint8 *src, guint available)
                 case SLIP_END_REPLACE:
                     /* fall-through */
                 case SLIP_ESC_REPLACE:
-                    escaped = FALSE;
+                    escaped = false;
                     decoded_len++;
                     break;
                 default:
@@ -898,7 +898,7 @@ slip_decoded_len(const guint8 *src, guint available)
                 case SLIP_END:
                     return decoded_len;
                 case SLIP_ESC:
-                    escaped = TRUE;
+                    escaped = true;
                     break;
                 default:
                     decoded_len++;
@@ -911,11 +911,11 @@ slip_decoded_len(const guint8 *src, guint available)
 }
 
 static inline void
-slip_decode(guint8 *dst, const guint8 *src, guint available)
+slip_decode(uint8_t *dst, const uint8_t *src, unsigned available)
 {
-    const guint8 *ptr;
-    guint8 *tar = dst;
-    const guint8 *end = src + available;
+    const uint8_t *ptr;
+    uint8_t *tar = dst;
+    const uint8_t *end = src + available;
 
     for(ptr = src; ptr < end; ptr++)
     {
@@ -941,16 +941,16 @@ slip_decode(guint8 *dst, const guint8 *src, guint available)
 static int
 dissect_osc_tcp_1_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    guint offset = 0;
+    unsigned offset = 0;
 
     while(offset < tvb_reported_length(tvb))
     {
-        const gint available = tvb_reported_length_remaining(tvb, offset);
-        const guint8 *encoded_buf = tvb_get_ptr(tvb, offset, -1);
-        const guint8 *slip_end_found = (const guint8 *)memchr(encoded_buf, SLIP_END, available);
-        guint encoded_len;
-        gint decoded_len;
-        guint8 *decoded_buf;
+        const int available = tvb_reported_length_remaining(tvb, offset);
+        const uint8_t *encoded_buf = tvb_get_ptr(tvb, offset, -1);
+        const uint8_t *slip_end_found = (const uint8_t *)memchr(encoded_buf, SLIP_END, available);
+        unsigned encoded_len;
+        int decoded_len;
+        uint8_t *decoded_buf;
         tvbuff_t *next_tvb;
 
         if(!slip_end_found) /* no SLIP'd stream ending in this chunk */
@@ -961,13 +961,13 @@ dissect_osc_tcp_1_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
             return (offset + available);
         }
 
-        encoded_len = (guint)(slip_end_found + 1 - encoded_buf);
+        encoded_len = (unsigned)(slip_end_found + 1 - encoded_buf);
         if(encoded_len > 1) /* we have a non-empty SLIP'd stream*/
         {
             decoded_len = slip_decoded_len(encoded_buf, encoded_len);
             if(decoded_len != -1) /* is a valid SLIP'd stream */
             {
-                decoded_buf = (guint8 *)wmem_alloc(pinfo->pool, decoded_len);
+                decoded_buf = (uint8_t *)wmem_alloc(pinfo->pool, decoded_len);
 
                 slip_decode(decoded_buf, encoded_buf, encoded_len);
 
@@ -1004,8 +1004,8 @@ dissect_osc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
      * ... {SLIP'd(OSC packet)} ... {SLIP'd(OSC)} ...
      */
 
-    const guint8 first_byte = tvb_get_guint8(tvb, 0);
-    const gboolean slip_encoded = (first_byte == SLIP_END) /* empty SLIP frame*/
+    const uint8_t first_byte = tvb_get_uint8(tvb, 0);
+    const bool slip_encoded = (first_byte == SLIP_END) /* empty SLIP frame*/
         || (first_byte == '/') /* SLIP'd OSC message frame */
         || (first_byte == '#'); /* SLIP'd OSC bundle frame */
 
@@ -1024,7 +1024,7 @@ dissect_osc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 static int
 dissect_osc_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    gint pdu_len;
+    int pdu_len;
 
     pdu_len = tvb_reported_length(tvb);
     dissect_osc_pdu_common(tvb,pinfo, tree, data, 0, pdu_len);
@@ -1043,9 +1043,9 @@ dissect_osc_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     /* peek first string */
     if(tvb_strneql(tvb, 0, bundle_str, 8) != 0) /* no OSC bundle */
     {
-        gint               offset = 0;
-        gint               slen;
-        gint               rem;
+        int                offset = 0;
+        int                slen;
+        int                rem;
         volatile bool      valid  = false;
 
         /* Check for valid path */
@@ -1261,7 +1261,7 @@ proto_register_osc(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_osc_packet,
         &ett_osc_bundle,
         &ett_osc_message,

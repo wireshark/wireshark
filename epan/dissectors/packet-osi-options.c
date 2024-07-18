@@ -93,10 +93,10 @@ static int hf_osi_options_residual_error_prob_vs_cost;
 static int hf_osi_options_rtd_pdu_discarded;
 static int hf_osi_options_rfd_field;
 
-static gint ett_osi_options;
-static gint ett_osi_qos;
-static gint ett_osi_route;
-static gint ett_osi_redirect;
+static int ett_osi_options;
+static int ett_osi_qos;
+static int ett_osi_route;
+static int ett_osi_redirect;
 
 static expert_field ei_osi_options_none;
 static expert_field ei_osi_options_rfd_error_class;
@@ -175,7 +175,7 @@ static const value_string osi_opt_rfd_reassembly[] = {
 static dissector_table_t subdissector_decode_as_opt_security_table;
 
 static void
-dissect_option_qos(const guint8 qos, proto_tree *tree, tvbuff_t *tvb, int offset)
+dissect_option_qos(const uint8_t qos, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
   proto_item *ti;
   proto_tree *osi_qos_tree;
@@ -194,32 +194,32 @@ dissect_option_qos(const guint8 qos, proto_tree *tree, tvbuff_t *tvb, int offset
 }
 
 static void
-dissect_option_route(guchar parm_type, int offset, guchar parm_len,
+dissect_option_route(unsigned char parm_type, int offset, unsigned char parm_len,
                      tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo )
 {
-  guchar      next_hop = 0;
-  guint16     this_hop = 0;
-  guchar      netl     = 0;
-  guchar      last_hop = 0;
-  guchar      cnt_hops = 0;
-  guchar      crr      = 0;
-  gchar*      str;
+  unsigned char      next_hop = 0;
+  uint16_t    this_hop = 0;
+  unsigned char      netl     = 0;
+  unsigned char      last_hop = 0;
+  unsigned char      cnt_hops = 0;
+  unsigned char      crr      = 0;
+  char*      str;
 
   proto_tree *osi_route_tree = NULL;
 
   if ( parm_type == OSI_OPT_SOURCE_ROUTING ) {
-    next_hop = tvb_get_guint8(tvb, offset + 1);
-    netl     = tvb_get_guint8(tvb, next_hop + 2);
+    next_hop = tvb_get_uint8(tvb, offset + 1);
+    netl     = tvb_get_uint8(tvb, next_hop + 2);
     this_hop = offset + 2;  /* points to first netl */
 
     proto_tree_add_uint_format_value(tree, hf_osi_options_source_routing, tvb, offset + next_hop, netl,
-                        tvb_get_guint8(tvb, offset), "%s   ( Next Hop Highlighted In Data Buffer )",
-                        (tvb_get_guint8(tvb, offset) == 0) ? "Partial Source Routing" :
+                        tvb_get_uint8(tvb, offset), "%s   ( Next Hop Highlighted In Data Buffer )",
+                        (tvb_get_uint8(tvb, offset) == 0) ? "Partial Source Routing" :
                                                              "Complete Source Routing");
   }
   else if ( parm_type == OSI_OPT_RECORD_OF_ROUTE ) {
-    crr = tvb_get_guint8(tvb, offset);
-    last_hop = tvb_get_guint8(tvb, offset + 1);
+    crr = tvb_get_uint8(tvb, offset);
+    last_hop = tvb_get_uint8(tvb, offset + 1);
     osi_route_tree = proto_tree_add_subtree(tree, tvb, offset, parm_len, ett_osi_route, NULL,
                              (crr == 0) ? "Partial Route Recording" : "Complete Route Recording");
 
@@ -250,7 +250,7 @@ dissect_option_route(guchar parm_type, int offset, guchar parm_len,
   }
 
   while ( this_hop < offset + last_hop -2 ) { /* -2 for crr and last_hop */
-    netl = tvb_get_guint8(tvb, this_hop);
+    netl = tvb_get_uint8(tvb, this_hop);
     str = print_nsap_net(pinfo->pool, tvb, this_hop + 1, netl);
     proto_tree_add_string_format(osi_route_tree, hf_osi_options_route, tvb, this_hop, netl + 1, str,
                         "Hop #%3u NETL: %2u, NET: %s", cnt_hops++, netl, str);
@@ -260,8 +260,8 @@ dissect_option_route(guchar parm_type, int offset, guchar parm_len,
 
 
 static void
-dissect_option_rfd(const guchar error, const guchar field, int offset,
-                   guchar len _U_, tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo )
+dissect_option_rfd(const unsigned char error, const unsigned char field, int offset,
+                   unsigned char len _U_, tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo )
 {
   proto_item *ti;
 
@@ -304,7 +304,7 @@ dissect_option_rfd(const guchar error, const guchar field, int offset,
  *   main esis tree data and call the sub-protocols as needed.
  *
  * Input:
- *   guchar       : length of option section
+ *   unsigned char       : length of option section
  *   tvbuff_t *   : tvbuff containing packet data
  *   int          : offset into packet where we are (packet_data[offset]== start
  *                  of what we care about)
@@ -314,13 +314,13 @@ dissect_option_rfd(const guchar error, const guchar field, int offset,
  *   void, but we will add to the proto_tree if it is not NULL.
  */
 void
-dissect_osi_options(guchar opt_len, tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo)
+dissect_osi_options(unsigned char opt_len, tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo)
 {
   proto_item *ti;
   proto_tree *osi_option_tree = NULL;
-  guchar      parm_len        = 0;
-  guchar      parm_type       = 0;
-  guint8      octet;
+  unsigned char      parm_len        = 0;
+  unsigned char      parm_type       = 0;
+  uint8_t     octet;
   uint32_t    sec_type;
   tvbuff_t   *next_tvb;
 
@@ -332,12 +332,12 @@ dissect_osi_options(guchar opt_len, tvbuff_t *tvb, int offset, proto_tree *tree,
     }
 
     while ( 0 < opt_len ) {
-      parm_type = tvb_get_guint8(tvb, offset++);
-      parm_len = tvb_get_guint8(tvb, offset++);
+      parm_type = tvb_get_uint8(tvb, offset++);
+      parm_len = tvb_get_uint8(tvb, offset++);
 
       switch ( parm_type ) {
         case OSI_OPT_QOS_MAINTANANCE:
-          octet = tvb_get_guint8(tvb, offset);
+          octet = tvb_get_uint8(tvb, offset);
           dissect_option_qos(octet, osi_option_tree, tvb, offset);
           break;
 
@@ -370,7 +370,7 @@ dissect_osi_options(guchar opt_len, tvbuff_t *tvb, int offset, proto_tree *tree,
           break;
 
         case OSI_OPT_PRIORITY:
-          octet = tvb_get_guint8(tvb, offset);
+          octet = tvb_get_uint8(tvb, offset);
           if ( OSI_OPT_MAX_PRIORITY >= octet ) {
             ti = proto_tree_add_item(osi_option_tree, hf_osi_options_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
           } else {
@@ -405,8 +405,8 @@ dissect_osi_options(guchar opt_len, tvbuff_t *tvb, int offset, proto_tree *tree,
           break;
 
         case OSI_OPT_REASON_OF_DISCARD:
-          dissect_option_rfd(tvb_get_guint8(tvb, offset),
-                             tvb_get_guint8(tvb, offset + 1), offset, parm_len,
+          dissect_option_rfd(tvb_get_uint8(tvb, offset),
+                             tvb_get_uint8(tvb, offset + 1), offset, parm_len,
                              tvb, osi_option_tree, pinfo);
           break;
       }
@@ -466,7 +466,7 @@ proto_register_osi_options(void) {
       { &hf_osi_options_padding, { "Padding", "osi.options.padding", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_osi_options,
     &ett_osi_qos,
     &ett_osi_route,

@@ -59,7 +59,7 @@ static const value_string openflow_version_values[] = {
     { 0, NULL }
 };
 
-static guint
+static unsigned
 get_openflow_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb,
                         int offset, void *data _U_)
 {
@@ -69,11 +69,11 @@ get_openflow_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb,
 static int
 dissect_openflow_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    guint offset = 0;
-    guint8 version;
+    unsigned offset = 0;
+    uint8_t version;
     proto_item* ti;
 
-    version = tvb_get_guint8(tvb, 0);
+    version = tvb_get_uint8(tvb, 0);
     /* Set the Protocol column to the constant string of openflow */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "OpenFlow");
     col_clear(pinfo->cinfo,COL_INFO);

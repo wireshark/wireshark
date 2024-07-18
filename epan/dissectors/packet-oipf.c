@@ -24,7 +24,7 @@ static dissector_handle_t oipf_ciplus_handle;
 
 static int proto_oipf_ciplus;
 
-static gint ett_oipf_ciplus;
+static int ett_oipf_ciplus;
 
 static int hf_oipf_ciplus_cmd_id;
 static int hf_oipf_ciplus_ca_sys_id;
@@ -39,7 +39,7 @@ static int hf_oipf_ciplus_data;
    for the dissector table directly, we have to process it as a string
    (the string must not be a local variable as glib stores a pointer to
    it in the hash table) */
-static const gchar sas_app_id_str_oipf[] = "0x0108113101190000";
+static const char sas_app_id_str_oipf[] = "0x0108113101190000";
 
 static const value_string oipf_ciplus_cmd_id[] = {
     { 0x01, "send_msg" },
@@ -66,11 +66,11 @@ static const value_string oipf_ciplus_dat_id[] = {
 static int
 dissect_oipf_ciplus(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    gint        msg_len;
+    int         msg_len;
     proto_tree *oipf_ciplus_tree;
-    guint       offset           = 0;
-    guint8      i, send_datatype_nbr;
-    guint16     dat_len;
+    unsigned    offset           = 0;
+    uint8_t     i, send_datatype_nbr;
+    uint16_t    dat_len;
 
     /* an OIPF CI+ message minimally contains command_id (1 byte),
        ca sys id (2 bytes), transaction id (4 bytes) and
@@ -91,7 +91,7 @@ dissect_oipf_ciplus(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, voi
             tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    send_datatype_nbr = tvb_get_guint8(tvb, offset);
+    send_datatype_nbr = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(oipf_ciplus_tree, hf_oipf_ciplus_send_datatype_nbr,
             tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
@@ -117,7 +117,7 @@ dissect_oipf_ciplus(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, voi
 void
 proto_register_oipf(void)
 {
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_oipf_ciplus
     };
 

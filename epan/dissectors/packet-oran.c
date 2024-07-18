@@ -234,32 +234,32 @@ static int hf_oran_c_eAxC_ID;
 static int hf_oran_refa;
 
 /* Initialize the subtree pointers */
-static gint ett_oran;
-static gint ett_oran_ecpri_rtcid;
-static gint ett_oran_ecpri_pcid;
-static gint ett_oran_ecpri_seqid;
-static gint ett_oran_section;
-static gint ett_oran_section_type;
-static gint ett_oran_u_timing;
-static gint ett_oran_u_section;
-static gint ett_oran_u_prb;
-static gint ett_oran_iq;
-static gint ett_oran_c_section_extension;
-static gint ett_oran_bfw_bundle;
-static gint ett_oran_bfw;
-static gint ett_oran_offset_start_prb_num_prb;
-static gint ett_oran_prb_cisamples;
-static gint ett_oran_cisample;
-static gint ett_oran_udcomphdr;
-static gint ett_oran_cicomphdr;
-static gint ett_oran_cicompparam;
-static gint ett_oran_bfwcomphdr;
-static gint ett_oran_bfwcompparam;
-static gint ett_oran_ext19_port;
-static gint ett_oran_prb_allocation;
-static gint ett_oran_punc_pattern;
-static gint ett_oran_bfacomphdr;
-static gint ett_oran_modcomp_param_set;
+static int ett_oran;
+static int ett_oran_ecpri_rtcid;
+static int ett_oran_ecpri_pcid;
+static int ett_oran_ecpri_seqid;
+static int ett_oran_section;
+static int ett_oran_section_type;
+static int ett_oran_u_timing;
+static int ett_oran_u_section;
+static int ett_oran_u_prb;
+static int ett_oran_iq;
+static int ett_oran_c_section_extension;
+static int ett_oran_bfw_bundle;
+static int ett_oran_bfw;
+static int ett_oran_offset_start_prb_num_prb;
+static int ett_oran_prb_cisamples;
+static int ett_oran_cisample;
+static int ett_oran_udcomphdr;
+static int ett_oran_cicomphdr;
+static int ett_oran_cicompparam;
+static int ett_oran_bfwcomphdr;
+static int ett_oran_bfwcompparam;
+static int ett_oran_ext19_port;
+static int ett_oran_prb_allocation;
+static int ett_oran_punc_pattern;
+static int ett_oran_bfacomphdr;
+static int ett_oran_modcomp_param_set;
 
 
 /* Expert info */
@@ -282,13 +282,13 @@ static expert_field ei_oran_ci_prb_group_size_reserved;
 
 
 /* Preference settings. */
-static guint pref_du_port_id_bits = 2;
-static guint pref_bandsector_id_bits = 6;
-static guint pref_cc_id_bits = 4;
-static guint pref_ru_port_id_bits = 4;
+static unsigned pref_du_port_id_bits = 2;
+static unsigned pref_bandsector_id_bits = 6;
+static unsigned pref_cc_id_bits = 4;
+static unsigned pref_ru_port_id_bits = 4;
 
-static guint pref_sample_bit_width_uplink = 14;
-static guint pref_sample_bit_width_downlink = 14;
+static unsigned pref_sample_bit_width_uplink = 14;
+static unsigned pref_sample_bit_width_downlink = 14;
 
 /* Compression schemes */
 #define COMP_NONE                             0
@@ -301,14 +301,14 @@ static guint pref_sample_bit_width_downlink = 14;
 #define BFP_AND_SELECTIVE_RE_WITH_MASKS       7
 #define MOD_COMPR_AND_SELECTIVE_RE_WITH_MASKS 8
 
-static gint pref_iqCompressionUplink = COMP_BLOCK_FP;
-static gint pref_iqCompressionDownlink = COMP_BLOCK_FP;
+static int pref_iqCompressionUplink = COMP_BLOCK_FP;
+static int pref_iqCompressionDownlink = COMP_BLOCK_FP;
 static bool pref_includeUdCompHeaderUplink;
 static bool pref_includeUdCompHeaderDownlink;
 
-static guint pref_data_plane_section_total_rbs = 273;
-static guint pref_num_weights_per_bundle = 32;
-static guint pref_num_bf_antennas = 32;
+static unsigned pref_data_plane_section_total_rbs = 273;
+static unsigned pref_num_weights_per_bundle = 32;
+static unsigned pref_num_bf_antennas = 32;
 static bool pref_showIQSampleValues = true;
 
 
@@ -656,37 +656,37 @@ static const true_false_string tfs_partial_full_sf = {
 typedef struct {
     /* Ext 6 config */
     bool     ext6_set;
-    guint8   ext6_rbg_size;      /* number of PRBs allocated by bitmask */
+    uint8_t  ext6_rbg_size;      /* number of PRBs allocated by bitmask */
 
-    guint8   ext6_num_bits_set;
-    guint8   ext6_bits_set[28];  /* Which bit position this entry has */
+    uint8_t  ext6_num_bits_set;
+    uint8_t  ext6_bits_set[28];  /* Which bit position this entry has */
 
     /* Ext 12 config */
     bool     ext12_set;
-    guint    ext12_num_pairs;
+    unsigned ext12_num_pairs;
 #define MAX_BFW_EXT12_PAIRS 128
     struct {
-        guint8 off_start_prb;
-        guint8 num_prb;
+        uint8_t off_start_prb;
+        uint8_t num_prb;
     } ext12_pairs[MAX_BFW_EXT12_PAIRS];
 
     /* Ext 13 config */
     bool     ext13_set;
-    guint    ext13_num_start_prbs;
+    unsigned ext13_num_start_prbs;
 #define MAX_BFW_EXT13_ALLOCATIONS 128
-    guint    ext13_start_prbs[MAX_BFW_EXT13_ALLOCATIONS];
+    unsigned ext13_start_prbs[MAX_BFW_EXT13_ALLOCATIONS];
     /* TODO: store nextSymbolId here too? */
 
     /* Ext 21 config */
     bool     ext21_set;
-    guint8   ext21_ci_prb_group_size;
+    uint8_t  ext21_ci_prb_group_size;
 
     /* Results (after calling ext11_work_out_bundles()) */
-    guint32  num_bundles;
+    uint32_t num_bundles;
 #define MAX_BFW_BUNDLES 512
     struct {
-        guint32  start;      /* first prb of bundle */
-        guint32  end;        /* last prb of bundle*/
+        uint32_t start;      /* first prb of bundle */
+        uint32_t end;        /* last prb of bundle*/
         bool     is_orphan;  /* true if not complete (i.e., < numBundPrb) */
     } bundles[MAX_BFW_BUNDLES];
 } ext11_settings_t;
@@ -694,14 +694,14 @@ typedef struct {
 
 /* Work out bundle allocation for ext 11.  Take into account ext6/ext21, ext12 or ext13 in this section before ext 11. */
 /* Won't be called with numBundPrb=0 */
-static void ext11_work_out_bundles(guint startPrbc,
-                                   guint numPrbc,
-                                   guint numBundPrb,             /* number of PRBs pre (full) bundle */
+static void ext11_work_out_bundles(unsigned startPrbc,
+                                   unsigned numPrbc,
+                                   unsigned numBundPrb,             /* number of PRBs pre (full) bundle */
                                    ext11_settings_t *settings)
 {
     /* Allocation configured by ext 6 */
     if (settings->ext6_set) {
-        guint bundles_per_entry = (settings->ext6_rbg_size / numBundPrb);
+        unsigned bundles_per_entry = (settings->ext6_rbg_size / numBundPrb);
 
         /* Maybe also be affected by ext 21 */
         if (settings->ext21_set) {
@@ -713,13 +713,13 @@ static void ext11_work_out_bundles(guint startPrbc,
             /* numPrbc is the number of PRB groups per antenna - handled in call to dissect_bfw_bundle() */
         }
 
-        guint bundles_set = 0;
-        for (guint8 n=0; n < settings->ext6_num_bits_set; n++) {
+        unsigned bundles_set = 0;
+        for (uint8_t n=0; n < settings->ext6_num_bits_set; n++) {
             /* For each bit set in the mask */
-            guint32 prb_start = (settings->ext6_bits_set[n] * settings->ext6_rbg_size);
+            uint32_t prb_start = (settings->ext6_bits_set[n] * settings->ext6_rbg_size);
 
             /* For each bundle within identified rbgSize block */
-            for (guint m=0; m < bundles_per_entry; m++) {
+            for (unsigned m=0; m < bundles_per_entry; m++) {
                 settings->bundles[bundles_set].start = startPrbc+prb_start+(m*numBundPrb);
                 /* Start already beyond end, so doesn't count. */
                 if (settings->bundles[bundles_set].start > (startPrbc+numPrbc-1)) {
@@ -750,7 +750,7 @@ static void ext11_work_out_bundles(guint startPrbc,
         /* Don't overflow settings->bundles[] ! */
         settings->num_bundles = MIN(MAX_BFW_BUNDLES, settings->num_bundles);
 
-        for (guint32 n=0; n < settings->num_bundles; n++) {
+        for (uint32_t n=0; n < settings->num_bundles; n++) {
             settings->bundles[n].start = startPrbc + n*numBundPrb;
             settings->bundles[n].end =   settings->bundles[n].start + numBundPrb-1;
             /* Does it go beyond the end? */
@@ -763,15 +763,15 @@ static void ext11_work_out_bundles(guint startPrbc,
             return;
         }
 
-        guint prb_offset = startPrbc + numPrbc;
+        unsigned prb_offset = startPrbc + numPrbc;
 
         /* Loop over pairs, adding bundles for each */
-        for (guint p=0; p < settings->ext12_num_pairs; p++) {
+        for (unsigned p=0; p < settings->ext12_num_pairs; p++) {
             prb_offset += settings->ext12_pairs[p].off_start_prb;
-            guint pair_bundles = (settings->ext12_pairs[p].num_prb+numBundPrb-1) / numBundPrb;
+            unsigned pair_bundles = (settings->ext12_pairs[p].num_prb+numBundPrb-1) / numBundPrb;
 
-            for (guint32 n=0; n < pair_bundles; n++) {
-                guint idx = settings->num_bundles;
+            for (uint32_t n=0; n < pair_bundles; n++) {
+                unsigned idx = settings->num_bundles;
 
                 settings->bundles[idx].start = prb_offset + n*numBundPrb;
                 settings->bundles[idx].end =   settings->bundles[idx].start + numBundPrb-1;
@@ -793,15 +793,15 @@ static void ext11_work_out_bundles(guint startPrbc,
 
     /* Allocation configured by ext 13 */
     else if (settings->ext13_set) {
-        guint alloc_size = (numPrbc+numBundPrb-1) / numBundPrb;
+        unsigned alloc_size = (numPrbc+numBundPrb-1) / numBundPrb;
         settings->num_bundles = alloc_size * settings->ext13_num_start_prbs;
 
         /* Don't overflow settings->bundles[] ! */
         settings->num_bundles = MIN(MAX_BFW_BUNDLES, settings->num_bundles);
 
-        for (guint alloc=0; alloc < settings->ext13_num_start_prbs; alloc++) {
-            guint alloc_start = alloc * alloc_size;
-            for (guint32 n=0; n < alloc_size; n++) {
+        for (unsigned alloc=0; alloc < settings->ext13_num_start_prbs; alloc++) {
+            unsigned alloc_start = alloc * alloc_size;
+            for (uint32_t n=0; n < alloc_size; n++) {
                 if ((alloc_start+n) >= MAX_BFW_BUNDLES) {
                     /* ERROR */
                     return;
@@ -823,7 +823,7 @@ static void ext11_work_out_bundles(guint startPrbc,
         /* Don't overflow settings->bundles[] ! */
         settings->num_bundles = MIN(MAX_BFW_BUNDLES, settings->num_bundles);
 
-        for (guint32 n=0; n < settings->num_bundles; n++) {
+        for (uint32_t n=0; n < settings->num_bundles; n++) {
             settings->bundles[n].start = startPrbc + n*numBundPrb;
             settings->bundles[n].end =   settings->bundles[n].start + numBundPrb-1;
             /* Does it go beyond the end? */
@@ -840,16 +840,16 @@ static void ext11_work_out_bundles(guint startPrbc,
 /*******************************************************/
 /* Overall state of a flow (eAxC)                      */
 typedef struct {
-    guint32  last_cplane_frame;
+    uint32_t last_cplane_frame;
     nstime_t last_cplane_frame_ts;
     /* TODO: add udCompHdr info for subsequence U-Plane frames? */
 
     /* First U-PLane frame following 'last_cplane' frame */
-    guint32  first_uplane_frame;
+    uint32_t first_uplane_frame;
     nstime_t first_uplane_frame_ts;
 } flow_state_t;
 
-/* Table maintained on first pass from eAxC (guint16) -> flow_state_t* */
+/* Table maintained on first pass from eAxC (uint16_t) -> flow_state_t* */
 static wmem_tree_t *flow_states_table;
 
 
@@ -891,7 +891,7 @@ static void write_pdu_label_and_info(proto_item *ti1, proto_item *ti2,
 /* Add section (type + PRB range) for C-Plane, U-Plane */
 static void
 write_section_info(proto_item *section_heading, packet_info *pinfo, proto_item *protocol_item,
-                   guint32 section_id, guint32 start_prbx, guint32 num_prbx, guint32 rb)
+                   uint32_t section_id, uint32_t start_prbx, uint32_t num_prbx, uint32_t rb)
 {
     switch (num_prbx) {
     case 0:
@@ -908,13 +908,13 @@ write_section_info(proto_item *section_heading, packet_info *pinfo, proto_item *
 
 /* 5.1.3.2.7 (real time control data / IQ data transfer message series identifier */
 static void
-addPcOrRtcid(tvbuff_t *tvb, proto_tree *tree, gint *offset, const char *name, guint16 *eAxC)
+addPcOrRtcid(tvbuff_t *tvb, proto_tree *tree, int *offset, const char *name, uint16_t *eAxC)
 {
     /* Subtree */
     proto_item *item;
     proto_tree *oran_pcid_tree = proto_tree_add_subtree(tree, tvb, *offset, 2, ett_oran_ecpri_pcid, &item, name);
-    guint64 duPortId, bandSectorId, ccId, ruPortId = 0;
-    gint id_offset = *offset;
+    uint64_t duPortId, bandSectorId, ccId, ruPortId = 0;
+    int id_offset = *offset;
 
     /* All parts of eAxC should be above 0, and should total 16 bits (breakdown controlled by preferences) */
     if (!((pref_du_port_id_bits > 0) && (pref_bandsector_id_bits > 0) && (pref_cc_id_bits > 0) && (pref_ru_port_id_bits > 0) &&
@@ -924,10 +924,10 @@ addPcOrRtcid(tvbuff_t *tvb, proto_tree *tree, gint *offset, const char *name, gu
         return;
     }
 
-    guint bit_offset = *offset * 8;
+    unsigned bit_offset = *offset * 8;
 
     /* N.B. For sequence analysis / tapping, just interpret these 2 bytes as eAxC ID... */
-    *eAxC = tvb_get_guint16(tvb, *offset, ENC_BIG_ENDIAN);
+    *eAxC = tvb_get_uint16(tvb, *offset, ENC_BIG_ENDIAN);
 
     /* DU Port ID */
     proto_tree_add_bits_ret_val(oran_pcid_tree, hf_oran_du_port_id, tvb, bit_offset, pref_du_port_id_bits, &duPortId, ENC_BIG_ENDIAN);
@@ -951,12 +951,12 @@ addPcOrRtcid(tvbuff_t *tvb, proto_tree *tree, gint *offset, const char *name, gu
 
 /* 5.1.3.2.8 (message identifier) */
 static void
-addSeqid(tvbuff_t *tvb, proto_tree *oran_tree, gint *offset)
+addSeqid(tvbuff_t *tvb, proto_tree *oran_tree, int *offset)
 {
     /* Subtree */
     proto_item *seqIdItem;
     proto_tree *oran_seqid_tree = proto_tree_add_subtree(oran_tree, tvb, *offset, 2, ett_oran_ecpri_seqid, &seqIdItem, "ecpriSeqid");
-    guint32 seqId, subSeqId, e = 0;
+    uint32_t seqId, subSeqId, e = 0;
     /* Sequence ID */
     proto_tree_add_item_ret_uint(oran_seqid_tree, hf_oran_sequence_id, tvb, *offset, 1, ENC_NA, &seqId);
     *offset += 1;
@@ -969,15 +969,15 @@ addSeqid(tvbuff_t *tvb, proto_tree *oran_tree, gint *offset)
 }
 
 /* Special case for uncompressed/16-bit value */
-static float uncompressed_to_float(guint32 h)
+static float uncompressed_to_float(uint32_t h)
 {
-    gint16 i16 = h & 0x0000ffff;
+    int16_t i16 = h & 0x0000ffff;
     return ((float)i16) / 0x7fff;
 }
 
 /* 7.7.1.2 bfwCompHdr (beamforming weight compression header) */
-static int dissect_bfwCompHdr(tvbuff_t *tvb, proto_tree *tree, gint offset,
-                              guint32 *iq_width, guint32 *comp_meth, proto_item **comp_meth_ti)
+static int dissect_bfwCompHdr(tvbuff_t *tvb, proto_tree *tree, int offset,
+                              uint32_t *iq_width, uint32_t *comp_meth, proto_item **comp_meth_ti)
 {
     /* Subtree */
     proto_item *bfwcomphdr_ti = proto_tree_add_string_format(tree, hf_oran_bfwCompHdr,
@@ -1002,9 +1002,9 @@ static int dissect_bfwCompHdr(tvbuff_t *tvb, proto_tree *tree, gint offset,
 
 /* 7.7.1.3 bfwCompParam (beamforming weight compression parameter).
  * Depends upon passed-in bfwCompMeth (field may be empty) */
-static int dissect_bfwCompParam(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint offset,
-                                proto_item *ti, guint32 bfw_comp_method,
-                                guint32 *exponent, bool *supported)
+static int dissect_bfwCompParam(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset,
+                                proto_item *ti, uint32_t bfw_comp_method,
+                                uint32_t *exponent, bool *supported)
 {
     /* Subtree */
     proto_item *bfwcompparam_ti = proto_tree_add_string_format(tree, hf_oran_bfwCompParam,
@@ -1074,7 +1074,7 @@ static int dissect_bfwCompParam(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 }
 
 
-static gfloat decompress_value(guint32 bits, guint32 comp_method, guint8 iq_width, guint32 exponent)
+static float decompress_value(uint32_t bits, uint32_t comp_method, uint8_t iq_width, uint32_t exponent)
 {
     switch (comp_method) {
         case COMP_NONE: /* no compression */
@@ -1083,16 +1083,16 @@ static gfloat decompress_value(guint32 bits, guint32 comp_method, guint8 iq_widt
         case COMP_BLOCK_FP: /* block floating point */
         {
             /* A.1.2 Block Floating Point Decompression Algorithm */
-            gint32 cPRB = bits;
-            guint32 scaler = 1 << exponent;  /* i.e. 2^exponent */
+            int32_t cPRB = bits;
+            uint32_t scaler = 1 << exponent;  /* i.e. 2^exponent */
 
             /* Check last bit, in case we need to flip to -ve */
             if (cPRB >= (1<<(iq_width-1))) {
                 cPRB -= (1<<iq_width);
             }
 
-            const guint8 mantissa_bits = iq_width-1;
-            return (cPRB / (gfloat)(1 << (mantissa_bits))) * scaler;
+            const uint8_t mantissa_bits = iq_width-1;
+            return (cPRB / (float)(1 << (mantissa_bits))) * scaler;
         }
 
         case COMP_BLOCK_SCALE:
@@ -1110,12 +1110,12 @@ static gfloat decompress_value(guint32 bits, guint32 comp_method, guint8 iq_widt
 #define ORPHAN_BUNDLE_NUMBER 999
 
 /* Bundle of PRBs/TRX I/Q samples (ext 11) */
-static guint32 dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint offset,
-                                  proto_item *comp_meth_ti, guint32 bfwcomphdr_comp_meth,
-                                  guint32 num_weights_per_bundle,
-                                  guint8 iq_width,
-                                  guint bundle_number,
-                                  guint first_prb, guint last_prb, bool is_orphan)
+static uint32_t dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, unsigned offset,
+                                  proto_item *comp_meth_ti, uint32_t bfwcomphdr_comp_meth,
+                                  uint32_t num_weights_per_bundle,
+                                  uint8_t iq_width,
+                                  unsigned bundle_number,
+                                  unsigned first_prb, unsigned last_prb, bool is_orphan)
 {
     /* Set bundle name */
     char bundle_name[32];
@@ -1152,7 +1152,7 @@ static guint32 dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
     /* bfwCompParam */
     bool compression_method_supported = false;
-    guint exponent;
+    unsigned exponent;
     offset = dissect_bfwCompParam(tvb, bundle_tree, pinfo, offset, comp_meth_ti,
                                   bfwcomphdr_comp_meth, &exponent, &compression_method_supported);
 
@@ -1163,12 +1163,12 @@ static guint32 dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info *
     }
 
     /* Create Bundle subtree */
-    gint bit_offset = offset*8;
-    gint bfw_offset;
-    gint prb_offset = offset;
+    int bit_offset = offset*8;
+    int bfw_offset;
+    int prb_offset = offset;
 
     /* beamId */
-    guint32 beam_id;
+    uint32_t beam_id;
     proto_tree_add_item_ret_uint(bundle_tree, hf_oran_beam_id, tvb, offset, 2, ENC_BIG_ENDIAN, &beam_id);
     proto_item_append_text(bundle_ti, " (beamId:%u) ", beam_id);
     bit_offset += 16;
@@ -1179,11 +1179,11 @@ static guint32 dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info *
     proto_item_set_generated(wpb_ti);
 
     /* Add the weights for this bundle */
-    for (guint m=0; m < num_weights_per_bundle; m++) {
+    for (unsigned m=0; m < num_weights_per_bundle; m++) {
 
         /* Create subtree */
         bfw_offset = bit_offset / 8;
-        guint8 bfw_extent = ((bit_offset + (iq_width*2)) / 8) - bfw_offset;
+        uint8_t bfw_extent = ((bit_offset + (iq_width*2)) / 8) - bfw_offset;
         proto_item *bfw_ti = proto_tree_add_string_format(bundle_tree, hf_oran_bfw,
                                                           tvb, bfw_offset, bfw_extent,
                                                           "", "TRX %3u: (", m);
@@ -1191,8 +1191,8 @@ static guint32 dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
         /* I */
         /* Get bits, and convert to float. */
-        guint32 bits = tvb_get_bits(tvb, bit_offset, iq_width, ENC_BIG_ENDIAN);
-        gfloat value = decompress_value(bits, bfwcomphdr_comp_meth, iq_width, exponent);
+        uint32_t bits = tvb_get_bits(tvb, bit_offset, iq_width, ENC_BIG_ENDIAN);
+        float value = decompress_value(bits, bfwcomphdr_comp_meth, iq_width, exponent);
         /* Add to tree. */
         proto_tree_add_float_format_value(bfw_tree, hf_oran_bfw_i, tvb, bit_offset/8, (iq_width+7)/8, value, "#%u=%f", m, value);
         bit_offset += iq_width;
@@ -1215,15 +1215,15 @@ static guint32 dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info *
 }
 
 /* Return new bit offset.  in/out will always be byte-aligned.. */
-static int dissect_ciCompParam(tvbuff_t *tvb _U_, proto_tree *tree _U_, packet_info *pinfo _U_, guint bit_offset,
-                               guint comp_meth, guint8 *exponent)
+static int dissect_ciCompParam(tvbuff_t *tvb _U_, proto_tree *tree _U_, packet_info *pinfo _U_, unsigned bit_offset,
+                               unsigned comp_meth, uint8_t *exponent)
 {
     /* Subtree */
     proto_item *cicompparam_ti = proto_tree_add_string_format(tree, hf_oran_ciCompParam,
                                                             tvb, bit_offset/8, 1, "",
                                                             "ciCompParam");
     proto_tree *cicompparam_tree = proto_item_add_subtree(cicompparam_ti, ett_oran_cicompparam);
-    guint32 ci_exponent;
+    uint32_t ci_exponent;
 
     /* Contents differ by compression method */
     switch (comp_meth) {
@@ -1254,20 +1254,20 @@ static int dissect_ciCompParam(tvbuff_t *tvb _U_, proto_tree *tree _U_, packet_i
 /* Section 7.
  * N.B. these are the green parts of the tables showing Section Types, differing by section Type */
 static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
-                                  guint32 sectionType, proto_item *protocol_item,
-                                  guint8 ci_iq_width, guint8 ci_comp_meth, guint ci_comp_opt)
+                                  uint32_t sectionType, proto_item *protocol_item,
+                                  uint8_t ci_iq_width, uint8_t ci_comp_meth, unsigned ci_comp_opt)
 {
-    guint offset = 0;
+    unsigned offset = 0;
     proto_tree *c_section_tree = NULL;
     proto_item *sectionHeading = NULL;
 
     c_section_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_oran_section, &sectionHeading, "Section");
-    guint32 sectionId = 0;
+    uint32_t sectionId = 0;
 
-    guint32 startPrbc;
-    guint32 numPrbc;
-    guint32 ueId = 0;
-    guint32 beamId = 0;
+    uint32_t startPrbc;
+    uint32_t numPrbc;
+    uint32_t ueId = 0;
+    uint32_t beamId = 0;
     proto_item *beamId_ti = NULL;
     bool beamId_ignored = false;
 
@@ -1289,7 +1289,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
         offset++;
 
         /* rb */
-        guint32 rb;
+        uint32_t rb;
         proto_tree_add_item_ret_uint(c_section_tree, hf_oran_rb, tvb, offset, 1, ENC_NA, &rb);
         /* symInc */
         proto_tree_add_item(c_section_tree, hf_oran_symInc, tvb, offset, 1, ENC_NA);
@@ -1306,7 +1306,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
         proto_tree_add_item(c_section_tree, hf_oran_reMask, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset++;
         /* numSymbol */
-        guint32 numSymbol;
+        uint32_t numSymbol;
         proto_tree_add_item_ret_uint(c_section_tree, hf_oran_numSymbol, tvb, offset, 1, ENC_NA, &numSymbol);
         offset++;
 
@@ -1353,7 +1353,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 offset += 2;
 
                 /* freqOffset */
-                gint32 freqOffset;          /* Yes, this is signed, so the implicit cast is intentional. */
+                int32_t freqOffset;          /* Yes, this is signed, so the implicit cast is intentional. */
                 proto_item *freq_offset_item = proto_tree_add_item_ret_uint(c_section_tree, hf_oran_freqOffset, tvb, offset, 3, ENC_BIG_ENDIAN, &freqOffset);
                 freqOffset |= 0xff000000;   /* Must sign-extend */
                 proto_item_set_text(freq_offset_item, "Frequency offset: %d \u0394f", freqOffset);
@@ -1402,12 +1402,12 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
         offset += 1;
 
         /* ciIsample,ciQsample pairs */
-        guint m;
-        guint prb;
-        guint32 bit_offset = offset*8;
+        unsigned m;
+        unsigned prb;
+        uint32_t bit_offset = offset*8;
 
         /* Antenna count from preference */
-        guint num_trx = pref_num_bf_antennas;
+        unsigned num_trx = pref_num_bf_antennas;
         if (numPrbc > 1) {
             proto_item_append_text(sectionHeading, " (UEId=%u  PRBs %u-%u, %u antennas", ueId, startPrbc, startPrbc+numPrbc-1, num_trx);
         }
@@ -1416,11 +1416,11 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
         }
 
         bool first_prb = true;
-        guint8 exponent = 0;
+        uint8_t exponent = 0;
         for (prb=startPrbc; prb < startPrbc+numPrbc; prb++) {
 
             /* PRB subtree */
-            guint prb_start_offset = bit_offset;
+            unsigned prb_start_offset = bit_offset;
             proto_item *prb_ti = proto_tree_add_string_format(c_section_tree, hf_oran_samples_prb,
                                                                  tvb, bit_offset/8, 0,
                                                                  "", "PRB=%u", prb);
@@ -1435,8 +1435,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             /* Antennas */
             for (m=0; m < num_trx; m++) {
 
-                guint sample_offset = bit_offset / 8;
-                guint8 sample_extent = ((bit_offset + (ci_iq_width*2)) / 8) - sample_offset;
+                unsigned sample_offset = bit_offset / 8;
+                uint8_t sample_extent = ((bit_offset + (ci_iq_width*2)) / 8) - sample_offset;
 
                 /* Create subtree for antenna */
                 proto_item *sample_ti = proto_tree_add_string_format(prb_tree, hf_oran_ciSample,
@@ -1446,8 +1446,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
                 /* I */
                 /* Get bits, and convert to float. */
-                guint32 bits = tvb_get_bits(tvb, bit_offset, ci_iq_width, ENC_BIG_ENDIAN);
-                gfloat value = decompress_value(bits, ci_comp_meth, ci_iq_width, exponent);
+                uint32_t bits = tvb_get_bits(tvb, bit_offset, ci_iq_width, ENC_BIG_ENDIAN);
+                float value = decompress_value(bits, ci_comp_meth, ci_iq_width, exponent);
 
                 /* Add to tree. */
                 proto_tree_add_float_format_value(sample_tree, hf_oran_ciIsample, tvb, bit_offset/8, (16+7)/8, value, "#%u=%f", m, value);
@@ -1472,10 +1472,10 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
         /* 7.2.5 Table 6.4-6 */
 
         /* laaMsgType */
-        guint32 laa_msg_type;
+        uint32_t laa_msg_type;
         proto_tree_add_item_ret_uint(c_section_tree, hf_oran_laaMsgType, tvb, offset, 1, ENC_NA, &laa_msg_type);
         /* laaMsgLen */
-        guint32 laa_msg_len;
+        uint32_t laa_msg_len;
         proto_item *len_ti = proto_tree_add_item_ret_uint(c_section_tree, hf_oran_laaMsgLen, tvb, offset, 1, ENC_NA, &laa_msg_len);
         proto_item_append_text(len_ti, " (%u bytes)", 4*(laa_msg_len+1));
         offset += 1;
@@ -1596,7 +1596,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
     /* Section extension commands */
     while (extension_flag) {
 
-        gint extension_start_offset = offset;
+        int extension_start_offset = offset;
 
         /* Create subtree for each extension (with summary) */
         proto_item *extension_ti = proto_tree_add_string_format(c_section_tree, hf_oran_extension,
@@ -1607,7 +1607,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
         proto_tree_add_item_ret_boolean(extension_tree, hf_oran_ef, tvb, offset, 1, ENC_BIG_ENDIAN, &extension_flag);
 
         /* extType */
-        guint32 exttype;
+        uint32_t exttype;
         proto_tree_add_item_ret_uint(extension_tree, hf_oran_exttype, tvb, offset, 1, ENC_BIG_ENDIAN, &exttype);
         offset++;
         proto_item_append_text(sectionHeading, " (ext-%u)", exttype);
@@ -1615,8 +1615,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
         proto_item_append_text(extension_ti, " (ext-%u: %s)", exttype, val_to_str_const(exttype, exttype_vals, "Reserved"));
 
         /* extLen (number of 32-bit words) */
-        guint32 extlen_len = ((exttype==11)||(exttype==19)||(exttype==20)) ? 2 : 1;  /* Extensions 11/19/20 are special */
-        guint32 extlen;
+        uint32_t extlen_len = ((exttype==11)||(exttype==19)||(exttype==20)) ? 2 : 1;  /* Extensions 11/19/20 are special */
+        uint32_t extlen;
         proto_item *extlen_ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_extlen, tvb,
                                                              offset, extlen_len, ENC_BIG_ENDIAN, &extlen);
         proto_item_append_text(extlen_ti, " (%u bytes)", extlen*4);
@@ -1632,7 +1632,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
             case 1:  /* Beamforming Weights Extension type */
             {
-                guint32 bfwcomphdr_iq_width, bfwcomphdr_comp_meth;
+                uint32_t bfwcomphdr_iq_width, bfwcomphdr_comp_meth;
                 proto_item *comp_meth_ti = NULL;
 
                 /* bfwCompHdr (2 subheaders - bfwIqWidth and bfwCompMeth)*/
@@ -1640,10 +1640,10 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                                             &bfwcomphdr_iq_width, &bfwcomphdr_comp_meth, &comp_meth_ti);
 
                 /* Look up width of samples. */
-                guint8 iq_width = !bfwcomphdr_iq_width ? 16 : bfwcomphdr_iq_width;
+                uint8_t iq_width = !bfwcomphdr_iq_width ? 16 : bfwcomphdr_iq_width;
 
                 /* bfwCompParam */
-                guint32 exponent = 0;
+                uint32_t exponent = 0;
                 bool compression_method_supported = false;
                 offset = dissect_bfwCompParam(tvb, extension_tree, pinfo, offset, comp_meth_ti,
                                               bfwcomphdr_comp_meth, &exponent, &compression_method_supported);
@@ -1663,22 +1663,22 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 /* I & Q samples
                    Don't know how many there will be, so just fill available bytes...
                  */
-                guint weights_bytes = (extlen*4)-3;
-                guint num_weights_pairs = (weights_bytes*8) / (iq_width*2);
-                guint num_trx = num_weights_pairs;
-                gint bit_offset = offset*8;
+                unsigned weights_bytes = (extlen*4)-3;
+                unsigned num_weights_pairs = (weights_bytes*8) / (iq_width*2);
+                unsigned num_trx = num_weights_pairs;
+                int bit_offset = offset*8;
 
-                for (guint n=0; n < num_trx; n++) {
+                for (unsigned n=0; n < num_trx; n++) {
                     /* Create antenna subtree */
-                    gint bfw_offset = bit_offset / 8;
+                    int bfw_offset = bit_offset / 8;
                     proto_item *bfw_ti = proto_tree_add_string_format(extension_tree, hf_oran_bfw,
                                                                       tvb, bfw_offset, 0, "", "TRX %3u: (", n);
                     proto_tree *bfw_tree = proto_item_add_subtree(bfw_ti, ett_oran_bfw);
 
                     /* I value */
                     /* Get bits, and convert to float. */
-                    guint32 bits = tvb_get_bits(tvb, bit_offset, iq_width, ENC_BIG_ENDIAN);
-                    gfloat value = decompress_value(bits, COMP_BLOCK_FP, iq_width, exponent);
+                    uint32_t bits = tvb_get_bits(tvb, bit_offset, iq_width, ENC_BIG_ENDIAN);
+                    float value = decompress_value(bits, COMP_BLOCK_FP, iq_width, exponent);
                     /* Add to tree. */
                     proto_tree_add_float_format_value(bfw_tree, hf_oran_bfw_i, tvb, bit_offset/8, (iq_width+7)/8, value, "%f", value);
                     bit_offset += iq_width;
@@ -1708,7 +1708,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             case 2: /* Beamforming attributes */
             {
                 /* bfaCompHdr (get widths of fields to follow) */
-                guint32 bfAzPtWidth, bfZePtWidth, bfAz3ddWidth, bfZe3ddWidth;
+                uint32_t bfAzPtWidth, bfZePtWidth, bfAz3ddWidth, bfZe3ddWidth;
                 /* subtree */
                 proto_item *bfa_ti = proto_tree_add_string_format(extension_tree, hf_oran_bfaCompHdr,
                                                                   tvb, offset, 2, "", "bfaCompHdr");
@@ -1730,7 +1730,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 proto_tree_add_item_ret_uint(bfa_tree, hf_oran_bfZe3ddWidth, tvb, offset, 1, ENC_BIG_ENDIAN, &bfZe3ddWidth);
                 offset += 1;
 
-                guint bit_offset = offset*8;
+                unsigned bit_offset = offset*8;
 
                 /* bfAzPt */
                 if (bfAzPtWidth > 0) {
@@ -1769,12 +1769,12 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 /* csf */
                 proto_tree_add_bits_item(extension_tree, hf_oran_csf, tvb, offset*8, 1, ENC_BIG_ENDIAN);
                 /* modCompScaler */
-                guint32 modCompScaler;
+                uint32_t modCompScaler;
                 proto_item *ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_modcompscaler,
                                                               tvb, offset, 2, ENC_BIG_ENDIAN, &modCompScaler);
                 /* Work out and show floating point value too. */
-                guint16 exponent = (modCompScaler >> 11) & 0x000f; /* m.s. 4 bits */
-                guint16 mantissa = modCompScaler & 0x07ff;         /* l.s. 11 bits */
+                uint16_t exponent = (modCompScaler >> 11) & 0x000f; /* m.s. 4 bits */
+                uint16_t mantissa = modCompScaler & 0x07ff;         /* l.s. 11 bits */
                 double value = (double)mantissa * (1.0 / (1 << exponent));
                 proto_item_append_text(ti, " (%f)", value);
 
@@ -1787,7 +1787,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 /* Applies only to section types 1,3 and 5 */
 
                 /* There may be one or 2 entries, depending upon extlen */
-                gint sets = 1, reserved_bits = 0;
+                int sets = 1, reserved_bits = 0;
                 switch (extlen) {
                     case 2:
                         sets = 1;
@@ -1817,16 +1817,16 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         break;
                 }
 
-                guint bit_offset = offset*8;
+                unsigned bit_offset = offset*8;
 
-                for (gint n=0; n < sets; n++) {
+                for (int n=0; n < sets; n++) {
                     /* Subtree for each set */
-                    guint set_start_offset = bit_offset/8;
+                    unsigned set_start_offset = bit_offset/8;
                     proto_item *set_ti = proto_tree_add_string(extension_tree, hf_oran_modcomp_param_set,
                                                                 tvb, set_start_offset, 0, "");
                     proto_tree *set_tree = proto_item_add_subtree(set_ti, ett_oran_modcomp_param_set);
 
-                    guint64 mcScaleReMask, csf, mcScaleOffset;
+                    uint64_t mcScaleReMask, csf, mcScaleOffset;
 
                     /* mcScaleReMask (12 bits) */
                     proto_tree_add_bits_ret_val(set_tree, hf_oran_mc_scale_re_mask, tvb, bit_offset, 12, &mcScaleReMask, ENC_BIG_ENDIAN);
@@ -1841,7 +1841,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     /* Summary */
                     proto_item_set_len(set_ti, (bit_offset+7)/8 - set_start_offset);
                     proto_item_append_text(set_ti, " (mcScaleReMask=%u  csf=%s  mcScaleOffset=%u)",
-                                           (guint)mcScaleReMask, tfs_get_true_false((bool)csf), (guint)mcScaleOffset);
+                                           (unsigned)mcScaleReMask, tfs_get_true_false((bool)csf), (unsigned)mcScaleOffset);
                 }
 
                 proto_item_append_text(extension_ti, " (%u sets)", sets);
@@ -1864,14 +1864,14 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 /* repetition */
                 proto_tree_add_bits_item(extension_tree, hf_oran_repetition, tvb, offset*8, 1, ENC_BIG_ENDIAN);
                 /* rbgSize */
-                guint32 rbgSize;
+                uint32_t rbgSize;
                 proto_tree_add_item_ret_uint(extension_tree, hf_oran_rbgSize, tvb, offset, 1, ENC_BIG_ENDIAN, &rbgSize);
                 if (rbgSize == 0) {
                     expert_add_info_format(pinfo, extlen_ti, &ei_oran_rbg_size_reserved,
                                            "rbgSize value of 0 is reserved");
                 }
                 /* rbgMask (28 bits) */
-                guint32 rbgMask;
+                uint32_t rbgMask;
                 proto_tree_add_item_ret_uint(extension_tree, hf_oran_rbgMask, tvb, offset, 4, ENC_BIG_ENDIAN, &rbgMask);
                 offset += 4;
                 /* priority */
@@ -1902,7 +1902,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     /* N.B., encoded in 3 bits, so no other values are possible */
                 }
                 /* Record which bits (and count) are set in rbgMask */
-                for (guint n=0; n < 28 && ext11_settings.ext6_num_bits_set < 28; n++) {
+                for (unsigned n=0; n < 28 && ext11_settings.ext6_num_bits_set < 28; n++) {
                     if ((rbgMask >> n) & 0x01) {
                         ext11_settings.ext6_bits_set[ext11_settings.ext6_num_bits_set++] = n;
                     }
@@ -1930,13 +1930,13 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             case 10: /* Section description for group configuration of multiple ports */
             {
                 /* beamGroupType */
-                guint32 beam_group_type = 0;
+                uint32_t beam_group_type = 0;
                 proto_tree_add_item_ret_uint(extension_tree, hf_oran_beamGroupType,
                                              tvb, offset, 1, ENC_BIG_ENDIAN, &beam_group_type);
                 proto_item_append_text(extension_ti, " (%s)", val_to_str_const(beam_group_type, beam_group_type_vals, "Unknown"));
 
                 /* numPortc */
-                guint32 numPortc;
+                uint32_t numPortc;
                 proto_tree_add_item_ret_uint(extension_tree, hf_oran_numPortc,
                                              tvb, offset, 1, ENC_BIG_ENDIAN, &numPortc);
                 offset++;
@@ -1945,7 +1945,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
                 /* Will append all beamId values to extension_ti, regardless of beamGroupType */
                 proto_item_append_text(extension_ti, "(");
-                guint n;
+                unsigned n;
 
                 switch (beam_group_type) {
                     case 0x0: /* common beam */
@@ -1980,7 +1980,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                             /* TODO: Single reserved bit */
 
                             /* port beam ID (or UEID) */
-                            guint32 id;
+                            uint32_t id;
                             proto_item *beamid_or_ueid_ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_beamId,
                                                                                          tvb, offset, 2, ENC_BIG_ENDIAN, &id);
                             proto_item_append_text(beamid_or_ueid_ti, " port #%u beam ID (or UEId) %u", n, id);
@@ -2002,7 +2002,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             case 11: /* Flexible Weights Extension Type */
             {
                 bool disableBFWs;
-                guint32  numBundPrb;
+                uint32_t numBundPrb;
 
                 /* disableBFWs */
                 proto_tree_add_item_ret_boolean(extension_tree, hf_oran_disable_bfws,
@@ -2028,7 +2028,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                                            "Reserved value 0 for numBundPrb seen - not valid");
                 }
 
-                guint32 num_bundles;
+                uint32_t num_bundles;
                 bool orphaned_prbs = false;
 
                 if (!disableBFWs) {
@@ -2036,7 +2036,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     /* Table 7.7.1.1-1 */
                     /********************************************/
 
-                    guint32 bfwcomphdr_iq_width, bfwcomphdr_comp_meth;
+                    uint32_t bfwcomphdr_iq_width, bfwcomphdr_comp_meth;
                     proto_item *comp_meth_ti = NULL;
 
                     /* bfwCompHdr (2 subheaders - bfwIqWidth and bfwCompMeth)*/
@@ -2044,7 +2044,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                                                 &bfwcomphdr_iq_width, &bfwcomphdr_comp_meth, &comp_meth_ti);
 
                     /* Look up width of samples. */
-                    guint8 iq_width = !bfwcomphdr_iq_width ? 16 : bfwcomphdr_iq_width;
+                    uint8_t iq_width = !bfwcomphdr_iq_width ? 16 : bfwcomphdr_iq_width;
 
 
                     /* Work out number of bundles, but take care not to divide by zero. */
@@ -2057,7 +2057,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     num_bundles = ext11_settings.num_bundles;
 
                     /* Add (complete) bundles */
-                    for (guint b=0; b < num_bundles; b++) {
+                    for (unsigned b=0; b < num_bundles; b++) {
 
                         offset = dissect_bfw_bundle(tvb, extension_tree, pinfo, offset,
                                                     comp_meth_ti, bfwcomphdr_comp_meth,
@@ -2092,7 +2092,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     ext11_work_out_bundles(startPrbc, numPrbc, numBundPrb, &ext11_settings);
                     num_bundles = ext11_settings.num_bundles;
 
-                    for (guint n=0; n < num_bundles; n++) {
+                    for (unsigned n=0; n < num_bundles; n++) {
                         /* beamId */
                         proto_item *ti = proto_tree_add_item(extension_tree, hf_oran_beam_id,
                                                              tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2131,8 +2131,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
                 /* There are now 'R' pairs of (offStartPrb, numPrb) values. Fill extlen bytes with values.  If last one is not set,
                    should be populated with 0s. */
-                guint32 extlen_remaining_bytes = (extlen*4) - 4;
-                guint8 prb_index;
+                uint32_t extlen_remaining_bytes = (extlen*4) - 4;
+                uint8_t prb_index;
 
                 for (prb_index = 1; extlen_remaining_bytes > 0; prb_index++)
                 {
@@ -2142,12 +2142,12 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     proto_tree *pair_tree = proto_item_add_subtree(pair_ti, ett_oran_offset_start_prb_num_prb);
 
                     /* offStartPrb */
-                    guint32 off_start_prb;
+                    uint32_t off_start_prb;
                     proto_tree_add_item_ret_uint(pair_tree, hf_oran_off_start_prb, tvb, offset, 1, ENC_BIG_ENDIAN, &off_start_prb);
                     offset++;
 
                     /* numPrb */
-                    guint32 num_prb;
+                    uint32_t num_prb;
                     proto_tree_add_item_ret_uint(pair_tree, hf_oran_num_prb, tvb, offset, 1, ENC_BIG_ENDIAN, &num_prb);
                     offset++;
 
@@ -2175,10 +2175,10 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 /* Will update settings for ext11 */
                 ext11_settings.ext13_set = true;
 
-                guint32 extlen_remaining_bytes = (extlen*4) - 2;
-                guint8 allocation_index;
+                uint32_t extlen_remaining_bytes = (extlen*4) - 2;
+                uint8_t allocation_index;
 
-                guint prev_next_symbol_id = 0, prev_next_start_prbc = 0;
+                unsigned prev_next_symbol_id = 0, prev_next_start_prbc = 0;
 
                 for (allocation_index = 1; extlen_remaining_bytes > 0; allocation_index++)
                 {
@@ -2191,11 +2191,11 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     proto_tree_add_item(allocation_tree, hf_oran_reserved_2bits, tvb, offset, 1, ENC_BIG_ENDIAN);
 
                     /* nextSymbolId (4 bits) */
-                    guint32 next_symbol_id;
+                    uint32_t next_symbol_id;
                     proto_tree_add_item_ret_uint(allocation_tree, hf_oran_nextSymbolId, tvb, offset, 1, ENC_BIG_ENDIAN, &next_symbol_id);
 
                     /* nextStartPrbc (10 bits) */
-                    guint32 next_start_prbc;
+                    uint32_t next_start_prbc;
                     proto_tree_add_item_ret_uint(allocation_tree, hf_oran_nextStartPrbc, tvb, offset, 2, ENC_BIG_ENDIAN, &next_start_prbc);
                     offset += 2;
 
@@ -2243,9 +2243,9 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
             case 16:  /* Section description for antenna mapping in UE channel information based UL beamforming */
             {
-                guint32 extlen_remaining_bytes = (extlen*4) - 2;
-                guint num_ant_masks = extlen_remaining_bytes / 8;
-                for (guint n=0; n < num_ant_masks; n++) {
+                uint32_t extlen_remaining_bytes = (extlen*4) - 2;
+                unsigned num_ant_masks = extlen_remaining_bytes / 8;
+                for (unsigned n=0; n < num_ant_masks; n++) {
                     proto_item *ti = proto_tree_add_item(extension_tree, hf_oran_antMask, tvb, offset, 8, ENC_BIG_ENDIAN);
                     proto_item_append_text(ti, " (RX eAxC #%u)", n+1);
                     offset += 8;
@@ -2255,11 +2255,11 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
             case 17:  /* Section description for indication of user port group */
             {
-                guint32 extlen_remaining_bytes = (extlen*4) - 2;
-                guint32 end_bit = (offset+extlen_remaining_bytes) * 8;
-                guint32 ueid_index = 1;
+                uint32_t extlen_remaining_bytes = (extlen*4) - 2;
+                uint32_t end_bit = (offset+extlen_remaining_bytes) * 8;
+                uint32_t ueid_index = 1;
                 /* TODO: just filling up all available bytes - some may actually be padding.. */
-                for (guint32 bit_offset=offset*8; bit_offset < end_bit; bit_offset+=4, ueid_index++) {
+                for (uint32_t bit_offset=offset*8; bit_offset < end_bit; bit_offset+=4, ueid_index++) {
                     proto_item *ti = proto_tree_add_bits_item(extension_tree, hf_oran_num_ueid, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
                     proto_item_append_text(ti, " (user #%u)", ueid_index);
                 }
@@ -2301,7 +2301,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 /* Repetition */
                 proto_tree_add_bits_item(extension_tree, hf_oran_repetition, tvb, (offset*8)+1, 1, ENC_BIG_ENDIAN);
                 /* numPortc */
-                guint32 numPortc;
+                uint32_t numPortc;
                 proto_tree_add_item_ret_uint(extension_tree, hf_oran_numPortc,
                                              tvb, offset, 1, ENC_BIG_ENDIAN, &numPortc);
                 offset++;
@@ -2313,16 +2313,16 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 offset += 2;
 
                 /* bfwCompHdr */
-                guint32 bfwcomphdr_iq_width, bfwcomphdr_comp_meth;
+                uint32_t bfwcomphdr_iq_width, bfwcomphdr_comp_meth;
                 proto_item *comp_meth_ti = NULL;
                 offset = dissect_bfwCompHdr(tvb, extension_tree, offset,
                                             &bfwcomphdr_iq_width, &bfwcomphdr_comp_meth, &comp_meth_ti);
 
                 /* Add entries for each port */
-                for (guint port=0; port < numPortc; port++) {
+                for (unsigned port=0; port < numPortc; port++) {
 
                     /* Create subtree for port entry*/
-                    gint port_start_offset = offset;
+                    int port_start_offset = offset;
                     proto_item *port_ti = proto_tree_add_string_format(extension_tree, hf_oran_ext19_port,
                                                                        tvb, offset, 0,
                                                                       "", "Port %u: ", port);
@@ -2351,7 +2351,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
                     /* bfwCompParam (TODO: present in disableBFWs case?) */
                     bool compression_method_supported = false;
-                    guint32  exponent = 0;
+                    uint32_t exponent = 0;
                     offset = dissect_bfwCompParam(tvb, port_tree, pinfo, offset, comp_meth_ti,
                                                   bfwcomphdr_comp_meth, &exponent, &compression_method_supported);
 
@@ -2362,17 +2362,17 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         /*****************************************************************/
 
                         /* Look up width of samples. */
-                        guint8 iq_width = !bfwcomphdr_iq_width ? 16 : bfwcomphdr_iq_width;
+                        uint8_t iq_width = !bfwcomphdr_iq_width ? 16 : bfwcomphdr_iq_width;
 
-                        gint bit_offset = offset*8;
-                        gint bfw_offset;
+                        int bit_offset = offset*8;
+                        int bfw_offset;
 
                         /* Add weights for each TRX */
-                        for (guint b=0; b < pref_num_bf_antennas; b++) {
+                        for (unsigned b=0; b < pref_num_bf_antennas; b++) {
 
                             /* Create BFW subtree */
                             bfw_offset = bit_offset / 8;
-                            guint8 bfw_extent = ((bit_offset + (iq_width*2)) / 8) - bfw_offset;
+                            uint8_t bfw_extent = ((bit_offset + (iq_width*2)) / 8) - bfw_offset;
                             proto_item *bfw_ti = proto_tree_add_string_format(port_tree, hf_oran_bfw,
                                                                               tvb, bfw_offset, bfw_extent,
                                                                               "", "TRX %u: (", b);
@@ -2380,8 +2380,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
                             /* I */
                             /* Get bits, and convert to float. */
-                            guint32 bits = tvb_get_bits(tvb, bit_offset, iq_width, ENC_BIG_ENDIAN);
-                            gfloat value = decompress_value(bits, bfwcomphdr_comp_meth, iq_width, exponent);
+                            uint32_t bits = tvb_get_bits(tvb, bit_offset, iq_width, ENC_BIG_ENDIAN);
+                            float value = decompress_value(bits, bfwcomphdr_comp_meth, iq_width, exponent);
                             /* Add to tree. */
                             proto_tree_add_float_format_value(bfw_tree, hf_oran_bfw_i, tvb, bit_offset/8, (iq_width+7)/8, value, "#%u=%f", b, value);
                             bit_offset += iq_width;
@@ -2419,13 +2419,13 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             case 20:  /* Puncturing extension */
             {
                 /* numPuncPatterns */
-                guint32 numPuncPatterns;
+                uint32_t numPuncPatterns;
                 proto_tree_add_item_ret_uint(extension_tree, hf_oran_numPuncPatterns, tvb, offset, 1, ENC_BIG_ENDIAN, &numPuncPatterns);
                 offset += 1;
 
                 /* Add each puncturing pattern */
-                for (guint32 n=0; n < numPuncPatterns; n++) {
-                    guint pattern_start_offset = offset;
+                for (uint32_t n=0; n < numPuncPatterns; n++) {
+                    unsigned pattern_start_offset = offset;
 
                     /* Subtree for this puncturing pattern */
                     proto_item *pattern_ti = proto_tree_add_string_format(extension_tree, hf_oran_puncPattern,
@@ -2472,7 +2472,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             case 21:  /* Variable PRB group size for channel information */
             {
                 /* ciPrbGroupSize */
-                guint32 ci_prb_group_size;
+                uint32_t ci_prb_group_size;
                 proto_item *prb_group_size_ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_ci_prb_group_size, tvb, offset, 1, ENC_BIG_ENDIAN, &ci_prb_group_size);
                 switch (ci_prb_group_size) {
                     case 0:
@@ -2512,7 +2512,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
         }
 
         /* Check offset compared with extlen.  There should be 0-3 bytes of padding */
-        gint num_padding_bytes = (extension_start_offset + (extlen*4) - offset);
+        int num_padding_bytes = (extension_start_offset + (extlen*4) - offset);
         if ((num_padding_bytes<0) || (num_padding_bytes>3)) {
             expert_add_info_format(pinfo, extlen_ti, &ei_oran_extlen_wrong,
                                    "extlen signalled %u bytes (+ 0-3 bytes padding), but %u were dissected",
@@ -2534,8 +2534,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
 /* Dissect udCompHdr (user data compression header, 7.5.2.10) */
 /* bit_width and comp_meth are out params */
-static int dissect_udcomphdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset,
-                             guint *bit_width, guint *comp_meth)
+static int dissect_udcomphdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset,
+                             unsigned *bit_width, unsigned *comp_meth)
 {
     /* Subtree */
     proto_item *udcomphdr_ti = proto_tree_add_string_format(tree, hf_oran_udCompHdr,
@@ -2544,13 +2544,13 @@ static int dissect_udcomphdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     proto_tree *udcomphdr_tree = proto_item_add_subtree(udcomphdr_ti, ett_oran_udcomphdr);
 
     /* udIqWidth */
-    guint32 hdr_iq_width;
+    uint32_t hdr_iq_width;
     proto_item *iq_width_item = proto_tree_add_item_ret_uint(udcomphdr_tree, hf_oran_udCompHdrIqWidth , tvb, offset, 1, ENC_NA, &hdr_iq_width);
     *bit_width = (hdr_iq_width) ? hdr_iq_width : 16;
     proto_item_append_text(iq_width_item, " (%u bits)", *bit_width);
 
     /* udCompMeth */
-    guint32 ud_comp_meth;
+    uint32_t ud_comp_meth;
     proto_tree_add_item_ret_uint(udcomphdr_tree, hf_oran_udCompHdrMeth, tvb, offset, 1, ENC_NA, &ud_comp_meth);
     if (comp_meth) {
         *comp_meth = ud_comp_meth;
@@ -2565,8 +2565,8 @@ static int dissect_udcomphdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
 /* Dissect ciCompHdr (channel information compression header, 7.5.2.15) */
 /* bit_width and comp_meth are out params */
-static int dissect_cicomphdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset,
-                             guint *bit_width, guint *comp_meth, guint8 *comp_opt)
+static int dissect_cicomphdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset,
+                             unsigned *bit_width, unsigned *comp_meth, uint8_t *comp_opt)
 {
     /* Subtree */
     proto_item *cicomphdr_ti = proto_tree_add_string_format(tree, hf_oran_ciCompHdr,
@@ -2575,7 +2575,7 @@ static int dissect_cicomphdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     proto_tree *cicomphdr_tree = proto_item_add_subtree(cicomphdr_ti, ett_oran_cicomphdr);
 
     /* ciIqWidth */
-    guint32 hdr_iq_width;
+    uint32_t hdr_iq_width;
     proto_item *iq_width_item = proto_tree_add_item_ret_uint(cicomphdr_tree, hf_oran_ciCompHdrIqWidth , tvb, offset, 1, ENC_NA, &hdr_iq_width);
     hdr_iq_width = (hdr_iq_width) ? hdr_iq_width : 16;
     if (bit_width) {
@@ -2584,14 +2584,14 @@ static int dissect_cicomphdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     proto_item_append_text(iq_width_item, " (%u bits)", hdr_iq_width);
 
     /* ciCompMeth */
-    guint32 ci_comp_meth;
+    uint32_t ci_comp_meth;
     proto_tree_add_item_ret_uint(cicomphdr_tree, hf_oran_ciCompHdrMeth, tvb, offset, 1, ENC_NA, &ci_comp_meth);
     if (comp_meth) {
         *comp_meth = ci_comp_meth;
     }
 
     /* ciCompOpt */
-    guint32 opt;
+    uint32_t opt;
     proto_tree_add_item_ret_uint(cicomphdr_tree, hf_oran_ciCompOpt, tvb, offset, 1, ENC_NA, &opt);
     *comp_opt = opt;
     offset += 1;
@@ -2609,7 +2609,7 @@ static int dissect_cicomphdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
-    guint offset = 0;
+    unsigned offset = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "O-RAN-FH-C");
     col_set_str(pinfo->cinfo, COL_INFO, "C-Plane");
@@ -2619,7 +2619,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     proto_item_append_text(protocol_item, "-C");
     proto_tree *oran_tree = proto_item_add_subtree(protocol_item, ett_oran);
 
-    guint16 eAxC;
+    uint16_t eAxC;
     addPcOrRtcid(tvb, oran_tree, &offset, "ecpriRtcid", &eAxC);
 
     if (!PINFO_FD_VISITED(pinfo)) {
@@ -2635,11 +2635,11 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     proto_item *sectionHeading;
 
     /* Section subtree */
-    gint section_tree_offset = offset;
+    int section_tree_offset = offset;
     proto_tree *section_tree = proto_tree_add_subtree(oran_tree, tvb, offset, 2, ett_oran_section_type, &sectionHeading, "C-Plane Section Type ");
 
     /* dataDirection */
-    guint32 direction = 0;
+    uint32_t direction = 0;
     proto_tree_add_item_ret_uint(section_tree, hf_oran_data_direction, tvb, offset, 1, ENC_NA, &direction);
     /* payloadVersion */
     proto_tree_add_item(section_tree, hf_oran_payload_version, tvb, offset, 1, ENC_NA);
@@ -2647,21 +2647,21 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     proto_tree_add_item(section_tree, hf_oran_filter_index, tvb, offset, 1, ENC_NA);
     offset += 1;
 
-    guint ref_a_offset = offset;
+    unsigned ref_a_offset = offset;
     /* frameId */
-    guint32 frameId = 0;
+    uint32_t frameId = 0;
     proto_tree_add_item_ret_uint(section_tree, hf_oran_frame_id, tvb, offset, 1, ENC_NA, &frameId);
     offset += 1;
 
     /* subframeId */
-    guint32 subframeId = 0;
+    uint32_t subframeId = 0;
     proto_tree_add_item_ret_uint(section_tree, hf_oran_subframe_id, tvb, offset, 1, ENC_NA, &subframeId);
     /* slotId */
-    guint32 slotId = 0;
+    uint32_t slotId = 0;
     proto_tree_add_item_ret_uint(section_tree, hf_oran_slot_id, tvb, offset, 2, ENC_BIG_ENDIAN, &slotId);
     offset++;
     /* startSymbolId */
-    guint32 startSymbolId = 0;
+    uint32_t startSymbolId = 0;
     proto_tree_add_item_ret_uint(section_tree, hf_oran_start_symbol_id, tvb, offset, 1, ENC_NA, &startSymbolId);
     offset++;
 
@@ -2671,22 +2671,22 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     proto_item_set_generated(pi);
 
     /* numberOfSections */
-    guint32 nSections = 0;
+    uint32_t nSections = 0;
     proto_tree_add_item_ret_uint(section_tree, hf_oran_numberOfSections, tvb, offset, 1, ENC_NA, &nSections);
     offset += 1;
 
     /* sectionType */
-    guint32 sectionType = 0;
+    uint32_t sectionType = 0;
     proto_tree_add_item_ret_uint(section_tree, hf_oran_sectionType, tvb, offset, 1, ENC_NA, &sectionType);
     offset += 1;
 
     /* Section-specific fields (white entries in Section Type diagrams) */
-    guint bit_width = 0;
-    guint ci_comp_method = 0;
-    guint8 ci_comp_opt = 0;
+    unsigned bit_width = 0;
+    unsigned ci_comp_method = 0;
+    uint8_t ci_comp_opt = 0;
 
-    guint32 scs, slots_per_subframe;
-    guint32 num_ues = 0;
+    uint32_t scs, slots_per_subframe;
+    uint32_t num_ues = 0;
     proto_item *ti;
 
     switch (sectionType) {
@@ -2765,7 +2765,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
 
     /* Dissect each C section */
-    for (guint32 i = 0; i < nSections; ++i) {
+    for (uint32_t i = 0; i < nSections; ++i) {
         tvbuff_t *section_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, -1);
         offset += dissect_oran_c_section(section_tvb, oran_tree, pinfo, sectionType, protocol_item,
                                          bit_width, ci_comp_method, ci_comp_opt);
@@ -2786,7 +2786,7 @@ static int
 dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
-    gint offset = 0;
+    int offset = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "O-RAN-FH-U");
     col_set_str(pinfo->cinfo, COL_INFO, "U-Plane");
@@ -2798,7 +2798,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     /* Transport header */
     /* Real-time control data / IQ data transfer message series identifier */
-    guint16 eAxC;
+    uint16_t eAxC;
     addPcOrRtcid(tvb, oran_tree, &offset, "ecpriPcid", &eAxC);
 
     if (!PINFO_FD_VISITED(pinfo)) {
@@ -2816,7 +2816,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     proto_tree *timing_header_tree = proto_tree_add_subtree(oran_tree, tvb, offset, 4, ett_oran_u_timing, &timingHeader, "Timing header");
 
     /* dataDirection */
-    guint32 direction;
+    uint32_t direction;
     proto_tree_add_item_ret_uint(timing_header_tree, hf_oran_data_direction, tvb, offset, 1, ENC_NA, &direction);
     /* payloadVersion */
     proto_tree_add_item(timing_header_tree, hf_oran_payload_version, tvb, offset, 1, ENC_NA);
@@ -2824,22 +2824,22 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     proto_tree_add_item(timing_header_tree, hf_oran_filter_index, tvb, offset, 1, ENC_NA);
     offset += 1;
 
-    gint ref_a_offset = offset;
+    int ref_a_offset = offset;
 
     /* frameId */
-    guint32 frameId = 0;
+    uint32_t frameId = 0;
     proto_tree_add_item_ret_uint(timing_header_tree, hf_oran_frame_id, tvb, offset, 1, ENC_NA, &frameId);
     offset += 1;
 
     /* subframeId */
-    guint32 subframeId = 0;
+    uint32_t subframeId = 0;
     proto_tree_add_item_ret_uint(timing_header_tree, hf_oran_subframe_id, tvb, offset, 1, ENC_NA, &subframeId);
     /* slotId */
-    guint32 slotId = 0;
+    uint32_t slotId = 0;
     proto_tree_add_item_ret_uint(timing_header_tree, hf_oran_slot_id, tvb, offset, 2, ENC_BIG_ENDIAN, &slotId);
     offset++;
     /* symbolId */
-    guint32 symbolId = 0;
+    uint32_t symbolId = 0;
     proto_tree_add_item_ret_uint(timing_header_tree, hf_oran_symbolId, tvb, offset, 1, ENC_NA, &symbolId);
     offset++;
 
@@ -2851,8 +2851,8 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     proto_item_append_text(timingHeader, " %s, Frame: %d, Subframe: %d, Slot: %d, Symbol: %d",
         val_to_str_const(direction, data_direction_vals, "Unknown"), frameId, subframeId, slotId, symbolId);
 
-    guint sample_bit_width;
-    gint compression;
+    unsigned sample_bit_width;
+    int compression;
     bool includeUdCompHeader;
 
     if (direction == DIR_UPLINK) {
@@ -2873,37 +2873,37 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         return offset;
     }
 
-    guint bytesLeft;
+    unsigned bytesLeft;
 
-    guint number_of_sections = 0;
-    guint nBytesPerPrb;
+    unsigned number_of_sections = 0;
+    unsigned nBytesPerPrb;
 
     do {
-        guint section_start_offet = offset;
+        unsigned section_start_offet = offset;
         proto_item *sectionHeading;
         proto_tree *section_tree = proto_tree_add_subtree(oran_tree, tvb, offset, 0, ett_oran_u_section, &sectionHeading, "Section");
 
         /* Section Header fields (darker green part) */
 
         /* sectionId */
-        guint32 sectionId = 0;
+        uint32_t sectionId = 0;
         proto_item *ti = proto_tree_add_item_ret_uint(section_tree, hf_oran_section_id, tvb, offset, 2, ENC_BIG_ENDIAN, &sectionId);
         if (sectionId == 4095) {
             proto_item_append_text(ti, " (not default coupling C/U planes using sectionId)");
         }
         offset++;
         /* rb */
-        guint32 rb;
+        uint32_t rb;
         proto_tree_add_item_ret_uint(section_tree, hf_oran_rb, tvb, offset, 1, ENC_NA, &rb);
         /* symInc */
         proto_tree_add_item(section_tree, hf_oran_symInc, tvb, offset, 1, ENC_NA);
         /* startPrbu */
-        guint32 startPrbu = 0;
+        uint32_t startPrbu = 0;
         proto_tree_add_item_ret_uint(section_tree, hf_oran_startPrbu, tvb, offset, 2, ENC_BIG_ENDIAN, &startPrbu);
         offset += 2;
 
         /* numPrbu */
-        guint32 numPrbu = 0;
+        uint32_t numPrbu = 0;
         proto_tree_add_item_ret_uint(section_tree, hf_oran_numPrbu, tvb, offset, 1, ENC_NA, &numPrbu);
         offset += 1;
 
@@ -2930,7 +2930,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         }
 
         /* Work this out each time, as udCompHdr may have changed things */
-        guint nBytesForSamples = (sample_bit_width * 12 * 2) / 8;
+        unsigned nBytesForSamples = (sample_bit_width * 12 * 2) / 8;
         nBytesPerPrb = nBytesForSamples;
         if ((compression != COMP_NONE) && (compression != COMP_MODULATION)) {
             nBytesPerPrb++;         /* 1 extra byte reserved/exponent */
@@ -2946,13 +2946,13 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             startPrbu = 0;  /* may already be 0... */
         }
 
-        for (guint i = 0; i < numPrbu; i++) {
+        for (unsigned i = 0; i < numPrbu; i++) {
             /* Create subtree */
             proto_item *prbHeading = proto_tree_add_string_format(section_tree, hf_oran_samples_prb,
                                                                   tvb, offset, nBytesPerPrb,
                                                                   "", "PRB");
             proto_tree *rb_tree = proto_item_add_subtree(prbHeading, ett_oran_u_prb);
-            guint32 exponent = 0;
+            uint32_t exponent = 0;
             if ((compression != COMP_NONE) && (compression != COMP_MODULATION)) {
                 proto_tree_add_item(rb_tree, hf_oran_reserved_4bits, tvb, offset, 1, ENC_NA);
                 proto_tree_add_item_ret_uint(rb_tree, hf_oran_exponent, tvb, offset, 1, ENC_BIG_ENDIAN, &exponent);
@@ -2966,19 +2966,19 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
             if (pref_showIQSampleValues) {
                 /* Individual values */
-                guint samples_offset = offset*8;
-                guint sample_number = 0;
-                for (guint n = 0; n<12; n++) {
+                unsigned samples_offset = offset*8;
+                unsigned sample_number = 0;
+                for (unsigned n = 0; n<12; n++) {
                     /* I */
-                    guint i_bits = tvb_get_bits(tvb, samples_offset, sample_bit_width, ENC_BIG_ENDIAN);
-                    gfloat i_value = decompress_value(i_bits, COMP_BLOCK_FP, sample_bit_width, exponent);
-                    guint sample_len_in_bytes = ((samples_offset%8)+sample_bit_width+7)/8;
+                    unsigned i_bits = tvb_get_bits(tvb, samples_offset, sample_bit_width, ENC_BIG_ENDIAN);
+                    float i_value = decompress_value(i_bits, COMP_BLOCK_FP, sample_bit_width, exponent);
+                    unsigned sample_len_in_bytes = ((samples_offset%8)+sample_bit_width+7)/8;
                     proto_item *i_ti = proto_tree_add_float(rb_tree, hf_oran_iSample, tvb, samples_offset/8, sample_len_in_bytes, i_value);
                     proto_item_set_text(i_ti, "iSample: %0.12f  0x%04x (iSample-%u in the PRB)", i_value, i_bits, sample_number);
                     samples_offset += sample_bit_width;
                     /* Q */
-                    guint q_bits = tvb_get_bits(tvb, samples_offset, sample_bit_width, ENC_BIG_ENDIAN);
-                    gfloat q_value = decompress_value(q_bits, COMP_BLOCK_FP, sample_bit_width, exponent);
+                    unsigned q_bits = tvb_get_bits(tvb, samples_offset, sample_bit_width, ENC_BIG_ENDIAN);
+                    float q_value = decompress_value(q_bits, COMP_BLOCK_FP, sample_bit_width, exponent);
                     sample_len_in_bytes = ((samples_offset%8)+sample_bit_width+7)/8;
                     proto_item *q_ti = proto_tree_add_float(rb_tree, hf_oran_qSample, tvb, samples_offset/8, sample_len_in_bytes, q_value);
                     proto_item_set_text(q_ti, "qSample: %0.12f  0x%04x (qSample-%u in the PRB)", q_value, q_bits, sample_number);
@@ -3019,7 +3019,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 static int
 dissect_oran(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    guint32 ecpri_message_type = *(guint32 *)data;
+    uint32_t ecpri_message_type = *(uint32_t *)data;
 
     switch (ecpri_message_type) {
         case ECPRI_MT_IQ_DATA:
@@ -4369,7 +4369,7 @@ proto_register_oran(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_oran,
         &ett_oran_ecpri_pcid,
         &ett_oran_ecpri_rtcid,

@@ -35,9 +35,9 @@ void proto_reg_handoff_cotp(void);
 static int  proto_clnp;
 
 static int  proto_cotp;
-static gint ett_cotp;
-static gint ett_cotp_segments;
-static gint ett_cotp_segment;
+static int ett_cotp;
+static int ett_cotp_segments;
+static int ett_cotp_segment;
 
 static int hf_cotp_li;
 static int hf_cotp_type;
@@ -117,7 +117,7 @@ static expert_field ei_cotp_checksum;
 
 
 static int  proto_cltp;
-static gint ett_cltp;
+static int ett_cltp;
 
 static int hf_cltp_li;
 static int hf_cltp_type;
@@ -338,9 +338,9 @@ static heur_dissector_list_t cltp_heur_subdissector_list;
  * Reassembly of COTP.
  */
 static reassembly_table cotp_reassembly_table;
-static guint16    cotp_dst_ref;
-static gboolean   cotp_frame_reset;
-static gboolean   cotp_last_fragment;
+static uint16_t   cotp_dst_ref;
+static bool       cotp_frame_reset;
+static bool       cotp_last_fragment;
 
 #define TSAP_DISPLAY_AUTO   0
 #define TSAP_DISPLAY_STRING 1
@@ -348,7 +348,7 @@ static gboolean   cotp_last_fragment;
 
 /* options */
 static bool cotp_reassemble = true;
-static gint32   tsap_display = TSAP_DISPLAY_AUTO;
+static int32_t  tsap_display = TSAP_DISPLAY_AUTO;
 static bool cotp_decode_atn;
 
 static const enum_val_t tsap_display_options[] = {
@@ -370,17 +370,17 @@ static void cotp_frame_end(void)
      */
     cotp_dst_ref--;
   }
-  cotp_frame_reset = TRUE;
+  cotp_frame_reset = true;
 }
 
-static gchar *print_tsap(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int length)
+static char *print_tsap(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int length)
 {
-  const guchar *tsap = tvb_get_ptr(tvb, offset, length);
-  gchar    *cur;
-  gboolean  allprintable;
-  gint      idx = 0, returned_length;
+  const unsigned char *tsap = tvb_get_ptr(tvb, offset, length);
+  char     *cur;
+  bool      allprintable;
+  int       idx = 0, returned_length;
 
-  cur=(gchar *)wmem_alloc(scope, MAX_TSAP_LEN * 2 + 3);
+  cur=(char *)wmem_alloc(scope, MAX_TSAP_LEN * 2 + 3);
   cur[0] = '\0';
   if (length <= 0 || length > MAX_TSAP_LEN)
     snprintf(cur, MAX_TSAP_LEN * 2 + 3, "<unsupported TSAP length>");
@@ -409,29 +409,29 @@ static gchar *print_tsap(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int
 
 static const true_false_string tfs_vp_opt_sel_class1_use = { "Receipt confirmation", "Explicit AK variant" };
 
-static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
+static bool ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
                                       int class_option, int tpdu_len,
                                       packet_info *pinfo, proto_tree *tree)
 {
-  guint8          code, length;
-  guint8          c1;
-  guint16         s;
-  guint32         offset_iso8073_checksum = 0;
-  gint32          i                       = 0;
-  guint8          tmp_code                = 0;
-  guint           tmp_len                 = 0;
-  guint32         pref_max_tpdu_size;
+  uint8_t         code, length;
+  uint8_t         c1;
+  uint16_t        s;
+  uint32_t        offset_iso8073_checksum = 0;
+  int32_t         i                       = 0;
+  uint8_t         tmp_code                = 0;
+  unsigned        tmp_len                 = 0;
+  uint32_t        pref_max_tpdu_size;
   proto_item     *hidden_item;
 
   while (vp_length != 0) {
-    code = tvb_get_guint8(tvb, offset);
+    code = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_cotp_parameter_code, tvb, offset, 1, ENC_NA);
     offset += 1;
     vp_length -= 1;
 
     if (vp_length == 0)
       break;
-    length = tvb_get_guint8(tvb, offset);
+    length = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_cotp_parameter_length, tvb, offset, 1, ENC_NA);
     offset += 1;
     vp_length -= 1;
@@ -440,15 +440,15 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
 
     case VP_ATN_EC_16 : /* ATN */
       if (cotp_decode_atn) {
-        guint16 sum;
+        uint16_t sum;
         /* if an alternate OSI checksum is present in the currently unprocessed
          * VP section to the checksum algorithm has to know.
          * this may be the case for backward compatible CR TPDU */
         if (!offset_iso8073_checksum) {
           /* search following parameters in VP part for ISO checksum */
           for (i = offset + length; i < vp_length;) {
-            tmp_code = tvb_get_guint8(tvb, i++);
-            tmp_len = tvb_get_guint8(tvb, i++);
+            tmp_code = tvb_get_uint8(tvb, i++);
+            tmp_len = tvb_get_uint8(tvb, i++);
             if (tmp_code == VP_CHECKSUM) {
               offset_iso8073_checksum = i; /* save ISO 8073 checksum offset for ATN extended checksum calculation */
               break;
@@ -458,8 +458,8 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
         }
         sum = check_atn_ec_16(tvb, tpdu_len , offset,
                                       offset_iso8073_checksum,
-                                      pinfo->dst.len, (const guint8 *)pinfo->dst.data,
-                                      pinfo->src.len, (const guint8 *)pinfo->src.data);
+                                      pinfo->dst.len, (const uint8_t *)pinfo->dst.data,
+                                      pinfo->src.len, (const uint8_t *)pinfo->src.data);
         proto_tree_add_checksum(tree, tvb, offset, hf_cotp_atn_extended_checksum16, hf_cotp_atn_extended_checksum_status, &ei_cotp_atn_extended_checksum,
                                 pinfo, sum, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_ZERO);
       } else {
@@ -471,15 +471,15 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
 
     case VP_ATN_EC_32 : /* ATN */
       if (cotp_decode_atn) {
-        guint32 sum;
+        uint32_t sum;
         /* if an alternate OSI checksum is present in the currently unprocessed
          * VP section the checksum algorithm has to know.
          * this may be the case for backward compatible CR TPDU */
         if (!offset_iso8073_checksum) {
           /* search following parameters in VP part for ISO checksum */
           for (i = offset + length; i < vp_length;) {
-            tmp_code = tvb_get_guint8(tvb, i++);
-            tmp_len = tvb_get_guint8(tvb, i++);
+            tmp_code = tvb_get_uint8(tvb, i++);
+            tmp_len = tvb_get_uint8(tvb, i++);
             if (tmp_code == VP_CHECKSUM) {
               offset_iso8073_checksum = i; /* save ISO 8073 checksum offset for ATN extended checksum calculation */
               break;
@@ -489,8 +489,8 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
         }
         sum = check_atn_ec_32(tvb, tpdu_len , offset,
                                       offset_iso8073_checksum,
-                                      pinfo->dst.len, (const guint8 *)pinfo->dst.data,
-                                      pinfo->src.len, (const guint8 *)pinfo->src.data);
+                                      pinfo->dst.len, (const uint8_t *)pinfo->dst.data,
+                                      pinfo->src.len, (const uint8_t *)pinfo->src.data);
         proto_tree_add_checksum(tree, tvb, offset, hf_cotp_atn_extended_checksum32, hf_cotp_atn_extended_checksum_status, &ei_cotp_atn_extended_checksum,
                                 pinfo, sum, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_ZERO);
       } else {
@@ -507,17 +507,17 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
       break;
 
     case VP_RES_ERROR:
-      s = tvb_get_guint8(tvb, offset);
+      s = tvb_get_uint8(tvb, offset);
       proto_tree_add_uint_format_value(tree, hf_cotp_res_error_rate_target_value, tvb, offset, 1, s, "10^%u", s);
       offset += 1;
       vp_length -= 1;
 
-      s = tvb_get_guint8(tvb, offset);
+      s = tvb_get_uint8(tvb, offset);
       proto_tree_add_uint_format_value(tree, hf_cotp_res_error_rate_min_accept, tvb, offset, 1, s, "10^%u", s);
       offset += 1;
       vp_length -= 1;
 
-      s = tvb_get_guint8(tvb, offset);
+      s = tvb_get_uint8(tvb, offset);
       proto_tree_add_uint_format_value(tree, hf_cotp_res_error_rate_tdsu, tvb, offset, 1, s, "2^%u", s);
       offset += 1;
       vp_length -= 1;
@@ -615,7 +615,7 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
       break;
 
     case VP_TPDU_SIZE:
-      c1 = tvb_get_guint8(tvb, offset) & 0x0F;
+      c1 = tvb_get_uint8(tvb, offset) & 0x0F;
       proto_tree_add_uint(tree, hf_cotp_tpdu_size, tvb, offset, 1, 1 << c1);
       offset += length;
       vp_length -= length;
@@ -674,7 +674,7 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
         /* No checksum present */
         proto_tree_add_checksum(tree, tvb, offset, hf_cotp_checksum, hf_cotp_checksum_status, &ei_cotp_checksum, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NOT_PRESENT);
       } else {
-        guint32 calc_c0 = 0, calc_c1 = 0;
+        uint32_t calc_c0 = 0, calc_c1 = 0;
 
         if (osi_calc_checksum(tvb, 0, length, &calc_c0, &calc_c1)) {
             /* Successfully processed checksum, verify it */
@@ -717,7 +717,7 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
       switch (length) {
 
       case 1:
-        pref_max_tpdu_size = tvb_get_guint8(tvb, offset);
+        pref_max_tpdu_size = tvb_get_uint8(tvb, offset);
         break;
 
       case 2:
@@ -735,7 +735,7 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
       default:
         proto_tree_add_expert_format(tree, pinfo, &ei_cotp_preferred_maximum_tpdu_size, tvb, offset, length,
                             "Preferred maximum TPDU size: bogus length %u (not 1, 2, 3, or 4)", length);
-        return FALSE;
+        return false;
       }
       proto_tree_add_uint(tree, hf_cotp_preferred_maximum_tpdu_size, tvb, offset, length, pref_max_tpdu_size*128);
       offset += length;
@@ -759,7 +759,7 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
     }
   } /* while */
 
-  return TRUE;
+  return true;
 }
 
 static const value_string cotp_cause_vals[] = {
@@ -779,14 +779,14 @@ static const value_string cotp_cause_vals[] = {
   { 0,       NULL }
 };
 
-static int ositp_decode_DR(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
+static int ositp_decode_DR(tvbuff_t *tvb, int offset, uint8_t li, uint8_t tpdu,
                            packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *cotp_tree = NULL;
   proto_item *ti        = NULL;
-  guint16     dst_ref, src_ref;
-  guchar      reason;
-  guint       tpdu_len;
+  uint16_t    dst_ref, src_ref;
+  unsigned char      reason;
+  unsigned    tpdu_len;
 
   /* ATN TPDU's tend to be larger than normal OSI,
    * so nothing to do with respect to LI checks */
@@ -800,7 +800,7 @@ static int ositp_decode_DR(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 
   src_ref = tvb_get_ntohs(tvb, offset + P_SRC_REF);
 
-  reason  = tvb_get_guint8(tvb, offset + P_REASON_IN_DR);
+  reason  = tvb_get_uint8(tvb, offset + P_REASON_IN_DR);
 
   pinfo->clnp_dstref = dst_ref;
   pinfo->clnp_srcref = src_ref;
@@ -852,24 +852,24 @@ static int ositp_decode_DR(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 
 } /* ositp_decode_DR */
 
-static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
+static int ositp_decode_DT(tvbuff_t *tvb, int offset, uint8_t li, uint8_t tpdu,
                            packet_info *pinfo, proto_tree *tree,
-                           gboolean uses_inactive_subset,
-                           gboolean *subdissector_found)
+                           bool uses_inactive_subset,
+                           bool *subdissector_found)
 {
   proto_tree        *cotp_tree       = NULL;
   proto_item        *ti;
-  gboolean           is_extended;
-  gboolean           is_class_234;
-  guint32            dst_ref;
-  guint32           *prev_dst_ref;
-  guint              tpdu_nr;
-  gboolean           fragment        = FALSE;
-  guint32            fragment_length = 0;
+  bool               is_extended;
+  bool               is_class_234;
+  uint32_t           dst_ref;
+  uint32_t          *prev_dst_ref;
+  unsigned           tpdu_nr;
+  bool               fragment        = false;
+  uint32_t           fragment_length = 0;
   tvbuff_t          *next_tvb;
   fragment_head     *fd_head;
   conversation_t    *conv;
-  guint              tpdu_len;
+  unsigned           tpdu_len;
   heur_dtbl_entry_t *hdtbl_entry;
 
   /* DT TPDUs have user data, so they run to the end of the containing PDU */
@@ -899,22 +899,22 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     switch (li) {
 
       case LI_NORMAL_DT_WITH_CHECKSUM      :
-        if (tvb_get_guint8(tvb, offset + P_VAR_PART_NDT) != VP_CHECKSUM)
+        if (tvb_get_uint8(tvb, offset + P_VAR_PART_NDT) != VP_CHECKSUM)
           return -1;
         /* FALLTHROUGH */
 
       case LI_NORMAL_DT_WITHOUT_CHECKSUM   :
-        tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
+        tpdu_nr = tvb_get_uint8(tvb, offset + P_TPDU_NR_234);
         if (tpdu_nr & 0x80)
           tpdu_nr = tpdu_nr & 0x7F;
         else
-          fragment = TRUE;
-        is_extended = FALSE;
+          fragment = true;
+        is_extended = false;
         dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
         break;
 
       case LI_EXTENDED_DT_WITH_CHECKSUM    :
-        if (tvb_get_guint8(tvb, offset + P_VAR_PART_EDT) != VP_CHECKSUM)
+        if (tvb_get_uint8(tvb, offset + P_VAR_PART_EDT) != VP_CHECKSUM)
           return -1;
         /* FALLTHROUGH */
 
@@ -923,28 +923,28 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
         if (tpdu_nr & 0x80000000)
           tpdu_nr = tpdu_nr & 0x7FFFFFFF;
         else
-          fragment = TRUE;
-        is_extended = TRUE;
+          fragment = true;
+        is_extended = true;
         dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
         break;
 
       case LI_NORMAL_DT_CLASS_01           :
-        tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_0_1);
+        tpdu_nr = tvb_get_uint8(tvb, offset + P_TPDU_NR_0_1);
         if (tpdu_nr & 0x80)
           tpdu_nr = tpdu_nr & 0x7F;
         else
-          fragment = TRUE;
-        is_extended = FALSE;
-        prev_dst_ref = (guint32 *)p_get_proto_data(wmem_file_scope(), pinfo, proto_clnp, 0);
+          fragment = true;
+        is_extended = false;
+        prev_dst_ref = (uint32_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_clnp, 0);
         if (!prev_dst_ref) {
           /* First COTP in frame - save previous dst_ref as offset */
-          prev_dst_ref = wmem_new(wmem_file_scope(), guint32);
+          prev_dst_ref = wmem_new(wmem_file_scope(), uint32_t);
           *prev_dst_ref = cotp_dst_ref;
           p_add_proto_data(wmem_file_scope(), pinfo, proto_clnp, 0, prev_dst_ref);
         } else if (cotp_frame_reset) {
           cotp_dst_ref = *prev_dst_ref;
         }
-        cotp_frame_reset = FALSE;
+        cotp_frame_reset = false;
         cotp_last_fragment = fragment;
         dst_ref = cotp_dst_ref;
         conv = find_conversation_pinfo(pinfo, 0);
@@ -974,25 +974,25 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 
       /* normal DT with 2 octets of OSI or of ATN Extended Checksum */
       case LI_NORMAL_DT_WITH_CHECKSUM      :
-        if (tvb_get_guint8(tvb, offset + P_VAR_PART_NDT) != VP_CHECKSUM &&
-            tvb_get_guint8(tvb, offset + P_VAR_PART_NDT) != VP_ATN_EC_16)
+        if (tvb_get_uint8(tvb, offset + P_VAR_PART_NDT) != VP_CHECKSUM &&
+            tvb_get_uint8(tvb, offset + P_VAR_PART_NDT) != VP_ATN_EC_16)
           return -1;
         /* FALLTHROUGH */
 
       case LI_NORMAL_DT_WITHOUT_CHECKSUM   :
-        tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
+        tpdu_nr = tvb_get_uint8(tvb, offset + P_TPDU_NR_234);
         if (tpdu_nr & 0x80)
           tpdu_nr = tpdu_nr & 0x7F;
         else
-          fragment = TRUE;
-        is_extended = FALSE;
+          fragment = true;
+        is_extended = false;
         dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
         break;
 
       /* extended DT with 2 octets of OSI or of ATN Extended Checksum */
       case LI_EXTENDED_DT_WITH_CHECKSUM    :
-        if (tvb_get_guint8(tvb, offset + P_VAR_PART_EDT) != VP_CHECKSUM &&
-            tvb_get_guint8(tvb, offset + P_VAR_PART_EDT) != VP_ATN_EC_16)
+        if (tvb_get_uint8(tvb, offset + P_VAR_PART_EDT) != VP_CHECKSUM &&
+            tvb_get_uint8(tvb, offset + P_VAR_PART_EDT) != VP_ATN_EC_16)
           return -1;
         /* FALLTHROUGH */
 
@@ -1001,37 +1001,37 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
         if (tpdu_nr & 0x80000000)
           tpdu_nr = tpdu_nr & 0x7FFFFFFF;
         else
-          fragment = TRUE;
-        is_extended = TRUE;
+          fragment = true;
+        is_extended = true;
         dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
         break;
 
       /* normal DT with ATN Extended Checksum (4 octets)*/
       case LI_ATN_NORMAL_DT_WITH_CHECKSUM      :
-        if (tvb_get_guint8(tvb, offset + P_VAR_PART_NDT) != VP_ATN_EC_32)
+        if (tvb_get_uint8(tvb, offset + P_VAR_PART_NDT) != VP_ATN_EC_32)
           return -1;
 
-        tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
+        tpdu_nr = tvb_get_uint8(tvb, offset + P_TPDU_NR_234);
 
         if (tpdu_nr & 0x80)
           tpdu_nr = tpdu_nr & 0x7F;
         else
-          fragment = TRUE;
-        is_extended = FALSE;
+          fragment = true;
+        is_extended = false;
         dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
         break;
 
       /* extended DT with 4 octets ATN Extended Checksum  */
       case LI_ATN_EXTENDED_DT_WITH_CHECKSUM:
-        if (tvb_get_guint8(tvb, offset + P_VAR_PART_EDT) != VP_ATN_EC_32)
+        if (tvb_get_uint8(tvb, offset + P_VAR_PART_EDT) != VP_ATN_EC_32)
           return -1;
 
         tpdu_nr = tvb_get_ntohl(tvb, offset + P_TPDU_NR_234);
         if (tpdu_nr & 0x80000000)
           tpdu_nr = tpdu_nr & 0x7FFFFFFF;
         else
-          fragment = TRUE;
-        is_extended = TRUE;
+          fragment = true;
+        is_extended = true;
         dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
         break;
 
@@ -1149,14 +1149,14 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   if (uses_inactive_subset) {
     if (dissector_try_heuristic(cotp_is_heur_subdissector_list, next_tvb,
                                 pinfo, tree, &hdtbl_entry, NULL)) {
-      *subdissector_found = TRUE;
+      *subdissector_found = true;
     } else {
       /* Fill in other Dissectors using inactive subset here */
       call_data_dissector(next_tvb, pinfo, tree);
     }
   } else {
     /*
-     * We dissect payload if one of the following is TRUE:
+     * We dissect payload if one of the following is true:
      *
      * - Reassembly option for COTP in preferences is unchecked
      * - Reassembly option is checked and this packet is the last fragment
@@ -1164,7 +1164,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     if ((!cotp_reassemble) || ((cotp_reassemble) && (!fragment))) {
       if (dissector_try_heuristic(cotp_heur_subdissector_list, next_tvb, pinfo,
                                   tree, &hdtbl_entry, NULL)) {
-        *subdissector_found = TRUE;
+        *subdissector_found = true;
       } else {
         call_data_dissector(next_tvb, pinfo, tree);
       }
@@ -1178,18 +1178,18 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 
 } /* ositp_decode_DT */
 
-static int ositp_decode_ED(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
+static int ositp_decode_ED(tvbuff_t *tvb, int offset, uint8_t li, uint8_t tpdu,
                            packet_info *pinfo, proto_tree *tree,
-                           gboolean uses_inactive_subset,
-                           gboolean *subdissector_found)
+                           bool uses_inactive_subset,
+                           bool *subdissector_found)
 {
   proto_tree *cotp_tree = NULL;
   proto_item *ti;
-  gboolean    is_extended;
-  guint16     dst_ref;
-  guint       tpdu_nr;
+  bool        is_extended;
+  uint16_t    dst_ref;
+  unsigned    tpdu_nr;
   tvbuff_t   *next_tvb;
-  guint       tpdu_len;
+  unsigned    tpdu_len;
   heur_dtbl_entry_t *hdtbl_entry;
 
   /* ED TPDUs have user data, so they run to the end of the containing PDU */
@@ -1213,21 +1213,21 @@ static int ositp_decode_ED(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     switch (li) {
 
       case LI_NORMAL_DT_WITH_CHECKSUM      :
-        if (tvb_get_guint8(tvb, offset + P_VAR_PART_NDT) != VP_CHECKSUM)
+        if (tvb_get_uint8(tvb, offset + P_VAR_PART_NDT) != VP_CHECKSUM)
           return -1;
         /* FALLTHROUGH */
 
       case LI_NORMAL_DT_WITHOUT_CHECKSUM   :
-        tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
+        tpdu_nr = tvb_get_uint8(tvb, offset + P_TPDU_NR_234);
         if (tpdu_nr & 0x80)
           tpdu_nr = tpdu_nr & 0x7F;
         else
           return -1;
-        is_extended = FALSE;
+        is_extended = false;
         break;
 
       case LI_EXTENDED_DT_WITH_CHECKSUM    :
-        if (tvb_get_guint8(tvb, offset + P_VAR_PART_EDT) != VP_CHECKSUM)
+        if (tvb_get_uint8(tvb, offset + P_VAR_PART_EDT) != VP_CHECKSUM)
           return -1;
         /* FALLTHROUGH */
 
@@ -1237,7 +1237,7 @@ static int ositp_decode_ED(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
           tpdu_nr = tpdu_nr & 0x7FFFFFFF;
         else
           return -1;
-        is_extended = TRUE;
+        is_extended = true;
         break;
 
       default : /* bad TPDU */
@@ -1253,37 +1253,37 @@ static int ositp_decode_ED(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     switch (li) {
 
       case LI_NORMAL_DT_WITHOUT_CHECKSUM   :
-        tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
+        tpdu_nr = tvb_get_uint8(tvb, offset + P_TPDU_NR_234);
         if (tpdu_nr & 0x80)
           tpdu_nr = tpdu_nr & 0x7F;
         else
           return -1;
-        is_extended = FALSE;
+        is_extended = false;
         break;
 
       case LI_NORMAL_DT_WITH_CHECKSUM      :
-        if ((tvb_get_guint8(tvb, offset + P_VAR_PART_NDT) != VP_CHECKSUM) &&
-             (tvb_get_guint8(tvb, offset + P_VAR_PART_NDT) != VP_ATN_EC_16))
+        if ((tvb_get_uint8(tvb, offset + P_VAR_PART_NDT) != VP_CHECKSUM) &&
+             (tvb_get_uint8(tvb, offset + P_VAR_PART_NDT) != VP_ATN_EC_16))
           return -1;
 
-        tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
+        tpdu_nr = tvb_get_uint8(tvb, offset + P_TPDU_NR_234);
         if (tpdu_nr & 0x80)
           tpdu_nr = tpdu_nr & 0x7F;
         else
           return -1;
-        is_extended = FALSE;
+        is_extended = false;
         break;
 
       case LI_ATN_NORMAL_DT_WITH_CHECKSUM      :
-        if (tvb_get_guint8(tvb, offset + P_VAR_PART_NDT) != VP_ATN_EC_32)
+        if (tvb_get_uint8(tvb, offset + P_VAR_PART_NDT) != VP_ATN_EC_32)
           return -1;
 
-        tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
+        tpdu_nr = tvb_get_uint8(tvb, offset + P_TPDU_NR_234);
         if (tpdu_nr & 0x80)
           tpdu_nr = tpdu_nr & 0x7F;
         else
           return -1;
-        is_extended = FALSE;
+        is_extended = false;
         break;
 
       case LI_EXTENDED_DT_WITHOUT_CHECKSUM :
@@ -1292,12 +1292,12 @@ static int ositp_decode_ED(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
           tpdu_nr = tpdu_nr & 0x7FFFFFFF;
         else
           return -1;
-        is_extended = TRUE;
+        is_extended = true;
         break;
 
       case LI_EXTENDED_DT_WITH_CHECKSUM    :
-        if ((tvb_get_guint8(tvb, offset + P_VAR_PART_EDT) != VP_CHECKSUM) &&
-              (tvb_get_guint8(tvb, offset + P_VAR_PART_EDT) != VP_ATN_EC_16))
+        if ((tvb_get_uint8(tvb, offset + P_VAR_PART_EDT) != VP_CHECKSUM) &&
+              (tvb_get_uint8(tvb, offset + P_VAR_PART_EDT) != VP_ATN_EC_16))
           return -1;
 
         tpdu_nr = tvb_get_ntohl(tvb, offset + P_TPDU_NR_234);
@@ -1305,11 +1305,11 @@ static int ositp_decode_ED(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
           tpdu_nr = tpdu_nr & 0x7FFFFFFF;
         else
           return -1;
-        is_extended = TRUE;
+        is_extended = true;
         break;
 
       case LI_ATN_EXTENDED_DT_WITH_CHECKSUM    :
-        if (tvb_get_guint8(tvb, offset + P_VAR_PART_EDT) != VP_ATN_EC_32)
+        if (tvb_get_uint8(tvb, offset + P_VAR_PART_EDT) != VP_ATN_EC_32)
           return -1;
 
         tpdu_nr = tvb_get_ntohl(tvb, offset + P_TPDU_NR_234);
@@ -1317,7 +1317,7 @@ static int ositp_decode_ED(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
           tpdu_nr = tpdu_nr & 0x7FFFFFFF;
         else
           return -1;
-        is_extended = TRUE;
+        is_extended = true;
         break;
 
       default : /* bad TPDU */
@@ -1376,7 +1376,7 @@ static int ositp_decode_ED(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   if (uses_inactive_subset) {
     if (dissector_try_heuristic(cotp_is_heur_subdissector_list, next_tvb,
                                 pinfo, tree, &hdtbl_entry, NULL)) {
-      *subdissector_found = TRUE;
+      *subdissector_found = true;
     } else {
       /* Fill in other Dissectors using inactive subset here */
       call_data_dissector(next_tvb, pinfo, tree);
@@ -1387,7 +1387,7 @@ static int ositp_decode_ED(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
      */
     if (dissector_try_heuristic(cotp_heur_subdissector_list, next_tvb, pinfo,
                                 tree, &hdtbl_entry, NULL)) {
-      *subdissector_found = TRUE;
+      *subdissector_found = true;
     } else {
       call_data_dissector(next_tvb, pinfo, tree);
     }
@@ -1400,14 +1400,14 @@ static int ositp_decode_ED(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 
 } /* ositp_decode_ED */
 
-static int ositp_decode_RJ(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
-                           guint8 cdt, packet_info *pinfo, proto_tree *tree)
+static int ositp_decode_RJ(tvbuff_t *tvb, int offset, uint8_t li, uint8_t tpdu,
+                           uint8_t cdt, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *cotp_tree;
   proto_item *ti;
   proto_item *item = NULL;
-  guint16  dst_ref;
-  guint    tpdu_nr;
+  uint16_t dst_ref;
+  unsigned tpdu_nr;
   gushort  credit = 0;
 
   /* note: in the ATN the user is up to chose between 3 different checksums:
@@ -1417,7 +1417,7 @@ static int ositp_decode_RJ(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   if (!cotp_decode_atn) {  /* non ATN, plain OSI */
     switch(li) {
       case LI_NORMAL_RJ   :
-        tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
+        tpdu_nr = tvb_get_uint8(tvb, offset + P_TPDU_NR_234);
         break;
       case LI_EXTENDED_RJ :
         tpdu_nr = tvb_get_ntohl(tvb, offset + P_TPDU_NR_234);
@@ -1432,7 +1432,7 @@ static int ositp_decode_RJ(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
       case LI_NORMAL_RJ   :
       /* with 4 octets of ATN checksum */
       case LI_ATN_NORMAL_RJ   :
-        tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
+        tpdu_nr = tvb_get_uint8(tvb, offset + P_TPDU_NR_234);
         break;
       /* extended with 2 octets of OSI or ATN checksum */
       case LI_EXTENDED_RJ :
@@ -1481,10 +1481,10 @@ static int ositp_decode_RJ(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 
 } /* ositp_decode_RJ */
 
-static int ositp_decode_CR_CC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
+static int ositp_decode_CR_CC(tvbuff_t *tvb, int offset, uint8_t li, uint8_t tpdu,
                               packet_info *pinfo, proto_tree *tree,
-                              gboolean uses_inactive_subset,
-                              gboolean *subdissector_found)
+                              bool uses_inactive_subset,
+                              bool *subdissector_found)
 {
   /* note: in the ATN the user is up to chose between 3 different checksums:
    *       standard OSI, 2 or 4 octet extended checksum.
@@ -1495,10 +1495,10 @@ static int ositp_decode_CR_CC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   proto_tree *cotp_tree = NULL;
   proto_item *ti;
   proto_item *item = NULL;
-  guint16 dst_ref, src_ref;
-  guint8  class_option;
+  uint16_t dst_ref, src_ref;
+  uint8_t class_option;
   tvbuff_t *next_tvb;
-  guint   tpdu_len;
+  unsigned   tpdu_len;
   heur_dtbl_entry_t *hdtbl_entry;
   static int * const class_options[] = {
      &hf_cotp_class,
@@ -1509,7 +1509,7 @@ static int ositp_decode_CR_CC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 
   src_ref = tvb_get_ntohs(tvb, offset + P_SRC_REF);
 
-  class_option = tvb_get_guint8(tvb, offset + P_CLASS_OPTION);
+  class_option = tvb_get_uint8(tvb, offset + P_CLASS_OPTION);
   if (((class_option & 0xF0) >> 4) > 4) /* class 0..4 allowed */
     return -1;
 
@@ -1566,7 +1566,7 @@ static int ositp_decode_CR_CC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
                                  cotp_cc_heur_subdissector_list,
                                 next_tvb, pinfo, tree, &hdtbl_entry, NULL)) {
       /* A subdissector claimed this, so it really belongs to them. */
-      *subdissector_found = TRUE;
+      *subdissector_found = true;
     } else {
       /* No heuristic dissector claimed it, so dissect it as a regular
          variable part. */
@@ -1585,7 +1585,7 @@ static int ositp_decode_CR_CC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     if (!uses_inactive_subset){
       if (dissector_try_heuristic(cotp_heur_subdissector_list, next_tvb, pinfo,
                                   tree, &hdtbl_entry, NULL)) {
-        *subdissector_found = TRUE;
+        *subdissector_found = true;
       } else {
         call_data_dissector(next_tvb, pinfo, tree);
       }
@@ -1600,14 +1600,14 @@ static int ositp_decode_CR_CC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 
 } /* ositp_decode_CR_CC */
 
-static int ositp_decode_DC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
+static int ositp_decode_DC(tvbuff_t *tvb, int offset, uint8_t li, uint8_t tpdu,
                            packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *cotp_tree = NULL;
   proto_item *ti;
   proto_item *item = NULL;
-  guint16 dst_ref, src_ref;
-  guint   tpdu_len;
+  uint16_t dst_ref, src_ref;
+  unsigned   tpdu_len;
 
   /* ATN may use checksums different from OSI */
   /* which may result in different TPDU header length. */
@@ -1664,15 +1664,15 @@ static int ositp_decode_DC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 
 } /* ositp_decode_DC */
 
-static int ositp_decode_AK(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
-                           guint8 cdt, packet_info *pinfo, proto_tree *tree)
+static int ositp_decode_AK(tvbuff_t *tvb, int offset, uint8_t li, uint8_t tpdu,
+                           uint8_t cdt, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *cotp_tree = NULL;
   proto_item *ti;
-  guint16    dst_ref;
-  guint      tpdu_nr;
+  uint16_t   dst_ref;
+  unsigned   tpdu_nr;
   gushort    cdt_in_ak;
-  guint      tpdu_len;
+  unsigned   tpdu_len;
 
   if (!cotp_decode_atn) {
     if (li > LI_MAX_AK)
@@ -1691,7 +1691,7 @@ static int ositp_decode_AK(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   if (is_LI_NORMAL_AK(li)) {
 
     dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
-    tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
+    tpdu_nr = tvb_get_uint8(tvb, offset + P_TPDU_NR_234);
     pinfo->clnp_dstref = dst_ref;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "AK TPDU (%u) dst-ref: 0x%04x",
@@ -1779,15 +1779,15 @@ static int ositp_decode_AK(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 
 } /* ositp_decode_AK */
 
-static int ositp_decode_EA(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
+static int ositp_decode_EA(tvbuff_t *tvb, int offset, uint8_t li, uint8_t tpdu,
                            packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *cotp_tree = NULL;
   proto_item *ti;
-  gboolean is_extended;
-  guint16  dst_ref;
-  guint    tpdu_nr;
-  guint    tpdu_len;
+  bool is_extended;
+  uint16_t dst_ref;
+  unsigned tpdu_nr;
+  unsigned tpdu_len;
 
   /* Due to different checksums in the ATN the TPDU header sizes
    * as well as the checksum parameters may be different than plain OSI EA
@@ -1805,25 +1805,25 @@ static int ositp_decode_EA(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     switch (li) {
 
       case LI_NORMAL_EA_WITH_CHECKSUM      :
-        if (tvb_get_guint8(tvb, offset + P_VAR_PART_NDT) != VP_CHECKSUM ||
-          tvb_get_guint8(tvb, offset + P_VAR_PART_NDT + 1) != 2)
+        if (tvb_get_uint8(tvb, offset + P_VAR_PART_NDT) != VP_CHECKSUM ||
+          tvb_get_uint8(tvb, offset + P_VAR_PART_NDT + 1) != 2)
             return -1;
         /* FALLTHROUGH */
 
       case LI_NORMAL_EA_WITHOUT_CHECKSUM   :
-        tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
-        is_extended = FALSE;
+        tpdu_nr = tvb_get_uint8(tvb, offset + P_TPDU_NR_234);
+        is_extended = false;
         break;
 
       case LI_EXTENDED_EA_WITH_CHECKSUM    :
-        if (tvb_get_guint8(tvb, offset + P_VAR_PART_EDT) != VP_CHECKSUM ||
-            tvb_get_guint8(tvb, offset + P_VAR_PART_EDT + 1) != 2)
+        if (tvb_get_uint8(tvb, offset + P_VAR_PART_EDT) != VP_CHECKSUM ||
+            tvb_get_uint8(tvb, offset + P_VAR_PART_EDT + 1) != 2)
           return -1;
         /* FALLTHROUGH */
 
       case LI_EXTENDED_EA_WITHOUT_CHECKSUM :
         tpdu_nr = tvb_get_ntohl(tvb, offset + P_TPDU_NR_234);
-        is_extended = TRUE;
+        is_extended = true;
         break;
 
       default : /* bad TPDU */
@@ -1838,74 +1838,74 @@ static int ositp_decode_EA(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 
       /* extended TPDU numbering EA with  no checksum  */
       case LI_NORMAL_EA_WITHOUT_CHECKSUM   :
-        tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
-        is_extended = FALSE;
+        tpdu_nr = tvb_get_uint8(tvb, offset + P_TPDU_NR_234);
+        is_extended = false;
         break;
 
       /* normal TPDU numbering EA with 2 octets of OSI or ATN extended
        * checksum */
       case LI_NORMAL_EA_WITH_CHECKSUM      :
         /* check checksum parameter (in VP) parameter code octet */
-        if ((tvb_get_guint8(tvb, offset + P_VAR_PART_NDT) != VP_CHECKSUM) &&
-            (tvb_get_guint8(tvb, offset + P_VAR_PART_NDT) != VP_ATN_EC_16))
+        if ((tvb_get_uint8(tvb, offset + P_VAR_PART_NDT) != VP_CHECKSUM) &&
+            (tvb_get_uint8(tvb, offset + P_VAR_PART_NDT) != VP_ATN_EC_16))
           return -1;
 
         /* check checksum parameter (in VP) length octet */
-        if (tvb_get_guint8(tvb, offset + P_VAR_PART_NDT + 1) != 2)
+        if (tvb_get_uint8(tvb, offset + P_VAR_PART_NDT + 1) != 2)
           return -1;
 
-        tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
-        is_extended = FALSE;
+        tpdu_nr = tvb_get_uint8(tvb, offset + P_TPDU_NR_234);
+        is_extended = false;
         break;
 
       /* normal TPDU numbering EA with 4 octets of ATN extended checksum  */
       case LI_ATN_NORMAL_EA_WITH_CHECKSUM      :
         /* check checksum parameter (in VP) parameter code octet */
-        if (tvb_get_guint8(tvb, offset + P_VAR_PART_NDT) != VP_ATN_EC_32)
+        if (tvb_get_uint8(tvb, offset + P_VAR_PART_NDT) != VP_ATN_EC_32)
           return -1;
 
         /* check checksum parameter (in VP) length octet */
-        if (tvb_get_guint8(tvb, offset + P_VAR_PART_NDT + 1) != 4)
+        if (tvb_get_uint8(tvb, offset + P_VAR_PART_NDT + 1) != 4)
           return -1;
 
-        tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
-        is_extended = FALSE;
+        tpdu_nr = tvb_get_uint8(tvb, offset + P_TPDU_NR_234);
+        is_extended = false;
         break;
 
       /* extended TPDU numbering EA with no checksum  */
       case LI_EXTENDED_EA_WITHOUT_CHECKSUM :
         tpdu_nr = tvb_get_ntohl(tvb, offset + P_TPDU_NR_234);
-        is_extended = TRUE;
+        is_extended = true;
         break;
 
       /* extended TPDU numbering EA with 2 octets of OSI or ATN extended
        * checksum */
       case LI_EXTENDED_EA_WITH_CHECKSUM    :
         /* check checksum parameter (in VP) parameter code octet */
-        if ((tvb_get_guint8(tvb, offset + P_VAR_PART_EDT) != VP_CHECKSUM) &&
-             (tvb_get_guint8(tvb, offset + P_VAR_PART_EDT) != VP_ATN_EC_16))
+        if ((tvb_get_uint8(tvb, offset + P_VAR_PART_EDT) != VP_CHECKSUM) &&
+             (tvb_get_uint8(tvb, offset + P_VAR_PART_EDT) != VP_ATN_EC_16))
           return -1;
 
         /* check checksum parameter (in VP) length octet */
-        if (tvb_get_guint8(tvb, offset + P_VAR_PART_EDT + 1) != 2)
+        if (tvb_get_uint8(tvb, offset + P_VAR_PART_EDT + 1) != 2)
           return -1;
 
         tpdu_nr = tvb_get_ntohl(tvb, offset + P_TPDU_NR_234);
-        is_extended = TRUE;
+        is_extended = true;
         break;
 
         /* extended EA with 4 octets ATN extended checksum  */
       case LI_ATN_EXTENDED_EA_WITH_CHECKSUM    :
         /* check checksum parameter (in VP) parameter code octet */
-        if (tvb_get_guint8(tvb, offset + P_VAR_PART_EDT) != VP_ATN_EC_32)
+        if (tvb_get_uint8(tvb, offset + P_VAR_PART_EDT) != VP_ATN_EC_32)
           return -1;
 
         /* check checksum parameter (in VP) length octet */
-        if (tvb_get_guint8(tvb, offset + P_VAR_PART_EDT + 1) != 2)
+        if (tvb_get_uint8(tvb, offset + P_VAR_PART_EDT + 1) != 2)
           return -1;
 
         tpdu_nr = tvb_get_ntohl(tvb, offset + P_TPDU_NR_234);
-        is_extended = TRUE;
+        is_extended = true;
         break;
 
       default : /* bad TPDU */
@@ -1973,13 +1973,13 @@ static const value_string cotp_reject_vals[] = {
   { 0,       NULL }
 };
 
-static int ositp_decode_ER(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
+static int ositp_decode_ER(tvbuff_t *tvb, int offset, uint8_t li, uint8_t tpdu,
                            packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *cotp_tree = NULL;
   proto_item *ti;
-  guint16 dst_ref;
-  guint8 tpdu_len;
+  uint16_t dst_ref;
+  uint8_t tpdu_len;
 
   /* ATN: except for modified LI checking nothing to be done here */
   if (!cotp_decode_atn) {
@@ -1994,7 +1994,7 @@ static int ositp_decode_ER(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
    * length */
   tpdu_len = li + 1;
 
-  if(try_val_to_str(tvb_get_guint8(tvb, offset + P_REJECT_ER), cotp_reject_vals) == NULL)
+  if(try_val_to_str(tvb_get_uint8(tvb, offset + P_REJECT_ER), cotp_reject_vals) == NULL)
       return -1;
 
   dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
@@ -2022,14 +2022,14 @@ static int ositp_decode_ER(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 
 } /* ositp_decode_ER */
 
-static int ositp_decode_UD(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
+static int ositp_decode_UD(tvbuff_t *tvb, int offset, uint8_t li, uint8_t tpdu,
                            packet_info *pinfo, proto_tree *tree,
-                           gboolean *subdissector_found)
+                           bool *subdissector_found)
 {
   proto_item *ti;
   proto_tree *cltp_tree = NULL;
   tvbuff_t   *next_tvb;
-  guint      tpdu_len;
+  unsigned   tpdu_len;
   heur_dtbl_entry_t *hdtbl_entry;
 
   /* UD TPDUs have user data, so they run to the end of the containing PDU */
@@ -2058,7 +2058,7 @@ static int ositp_decode_UD(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 
   if (dissector_try_heuristic(cltp_heur_subdissector_list, next_tvb,
                               pinfo, tree, &hdtbl_entry, NULL)) {
-    *subdissector_found = TRUE;
+    *subdissector_found = true;
   } else {
     call_data_dissector(next_tvb, pinfo, tree);
   }
@@ -2081,17 +2081,17 @@ static int ositp_decode_UD(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
    protocols' headers mean the same thing - length and PDU type - and the
    only valid CLTP PDU type is not a valid COTP PDU type, so we'll handle
    both of them here. */
-static gint dissect_ositp_internal(tvbuff_t *tvb, packet_info *pinfo,
+static int dissect_ositp_internal(tvbuff_t *tvb, packet_info *pinfo,
                                    proto_tree *tree,
-                                   gboolean uses_inactive_subset)
+                                   bool uses_inactive_subset)
 {
   int offset = 0;
-  guint8 li, tpdu, cdt;
-  gboolean first_tpdu = TRUE;
+  uint8_t li, tpdu, cdt;
+  bool first_tpdu = true;
   int new_offset;
-  gboolean found_ositp = FALSE;
-  gboolean is_cltp = FALSE;
-  gboolean subdissector_found = FALSE;
+  bool found_ositp = false;
+  bool is_cltp = false;
+  bool subdissector_found = false;
 
   /* Initialize the COL_INFO field; each of the TPDUs will have its
      information appended. */
@@ -2105,7 +2105,7 @@ static gint dissect_ositp_internal(tvbuff_t *tvb, packet_info *pinfo,
       tvb = tvb_new_subset_remaining(tvb, offset);
       offset = 0 ;
     }
-    if ((li = tvb_get_guint8(tvb, offset + P_LI)) == 0) {
+    if ((li = tvb_get_uint8(tvb, offset + P_LI)) == 0) {
       col_append_str(pinfo->cinfo, COL_INFO, "Length indicator is zero");
       if (!first_tpdu)
         call_data_dissector( tvb_new_subset_remaining(tvb, offset),
@@ -2113,10 +2113,10 @@ static gint dissect_ositp_internal(tvbuff_t *tvb, packet_info *pinfo,
       return found_ositp;
     }
 
-    tpdu = (tvb_get_guint8(tvb, offset + P_TPDU) >> 4) & 0x0F;
+    tpdu = (tvb_get_uint8(tvb, offset + P_TPDU) >> 4) & 0x0F;
     if (tpdu == UD_TPDU)
       pinfo->current_proto = "CLTP";    /* connectionless transport */
-    cdt = tvb_get_guint8(tvb, offset + P_CDT) & 0x0F;
+    cdt = tvb_get_uint8(tvb, offset + P_CDT) & 0x0F;
 
     switch (tpdu) {
       case CC_TPDU :
@@ -2153,7 +2153,7 @@ static gint dissect_ositp_internal(tvbuff_t *tvb, packet_info *pinfo,
       case UD_TPDU :
         new_offset = ositp_decode_UD(tvb, offset, li, tpdu, pinfo, tree,
                                      &subdissector_found);
-        is_cltp = TRUE;
+        is_cltp = true;
         break;
       default      :
         if (first_tpdu)
@@ -2175,62 +2175,62 @@ static gint dissect_ositp_internal(tvbuff_t *tvb, packet_info *pinfo,
          is either COTP or CLTP. */
       if (!subdissector_found)
         col_set_str(pinfo->cinfo, COL_PROTOCOL, is_cltp ? "CLTP" : "COTP");
-      found_ositp = TRUE;
+      found_ositp = true;
     }
 
     offset = new_offset;
-    first_tpdu = FALSE;
+    first_tpdu = false;
   }
   return found_ositp ? offset : 0;
 } /* dissect_ositp_internal */
 
-static gint dissect_ositp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+static int dissect_ositp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                           void *data _U_)
 {
-  return dissect_ositp_internal(tvb, pinfo, tree, FALSE);
+  return dissect_ositp_internal(tvb, pinfo, tree, false);
 }
 
-static gint dissect_ositp_inactive(tvbuff_t *tvb, packet_info *pinfo,
+static int dissect_ositp_inactive(tvbuff_t *tvb, packet_info *pinfo,
                                    proto_tree *tree, void *data _U_)
 {
-  return dissect_ositp_internal(tvb, pinfo, tree, TRUE);
+  return dissect_ositp_internal(tvb, pinfo, tree, true);
 }
 
-static gboolean
+static bool
 test_cltp_var_part(tvbuff_t *tvb)
 {
   int offset = 0;
-  guint8 li;
+  uint8_t li;
   while (tvb_captured_length_remaining(tvb, offset)) {
     if (tvb_captured_length_remaining(tvb, offset) < 2) {
-      return FALSE;
+      return false;
     }
-    switch (tvb_get_guint8(tvb, offset++)) {
+    switch (tvb_get_uint8(tvb, offset++)) {
     /* These are the only 3 legal parameters for CLTP per RFC 1240 and X.234 */
     case VP_SRC_TSAP:
     case VP_DST_TSAP:
     case VP_CHECKSUM: // Not required as redundant with UDP checksum, per RFC 1240
       break;
     default:
-      return FALSE;
+      return false;
     }
-    li = tvb_get_guint8(tvb, offset++);
+    li = tvb_get_uint8(tvb, offset++);
     if (li == 255) {
-      return FALSE;
+      return false;
     }
     if (tvb_captured_length_remaining(tvb, offset) < li) {
-      return FALSE;
+      return false;
     }
     offset += li;
   }
-  return TRUE;
+  return true;
 }
 
 static bool
 dissect_cltp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 				  void *data)
 {
-  guint8 li, tpdu, spdu;
+  uint8_t li, tpdu, spdu;
   int offset = 0;
 
   /* RFC 1240: OSI Connectionless Transport Services on top of UDP
@@ -2244,7 +2244,7 @@ dissect_cltp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     return false;
   }
 
-  li = tvb_get_guint8(tvb, offset++);
+  li = tvb_get_uint8(tvb, offset++);
 
   /* LI must include TPDU, and 255 is reserved */
   if (li == 0 || li == 255) {
@@ -2252,7 +2252,7 @@ dissect_cltp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
   }
 
   /* Is it OSI on top of the UDP? */
-  tpdu = (tvb_get_guint8(tvb, offset++) & 0xF0) >> 4;
+  tpdu = (tvb_get_uint8(tvb, offset++) & 0xF0) >> 4;
   if (tpdu != UD_TPDU) {
     return false;
   }
@@ -2275,7 +2275,7 @@ dissect_cltp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
   }
 
   /* And let's see if it is GOOSE SPDU */
-  spdu = tvb_get_guint8(tvb, offset);
+  spdu = tvb_get_uint8(tvb, offset);
   if (spdu != 0xA1) {
     return false;
   }
@@ -2433,7 +2433,7 @@ void proto_register_cotp(void)
       { &hf_cotp_credit_cdt, { "Credit", "cotp.credit", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_cotp_reject_cause, { "Reject cause", "cotp.reject_cause", FT_UINT8, BASE_DEC, VALS(cotp_reject_vals), 0x0, NULL, HFILL }},
   };
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_cotp,
     &ett_cotp_segment,
     &ett_cotp_segments
@@ -2471,7 +2471,7 @@ void proto_register_cotp(void)
   prefs_register_enum_preference(cotp_module, "tsap_display",
                                  "Display TSAPs as strings or bytes",
                                  "How TSAPs should be displayed",
-                                 &tsap_display, tsap_display_options, FALSE);
+                                 &tsap_display, tsap_display_options, false);
 
   prefs_register_bool_preference(cotp_module, "decode_atn", "Decode ATN TPDUs",
                                  "Whether to decode OSI TPDUs with ATN "
@@ -2518,7 +2518,7 @@ void proto_register_cltp(void)
       { "PDU Type", "cltp.type", FT_UINT8, BASE_HEX,
         VALS(cltp_tpdu_type_abbrev_vals), 0x0, NULL, HFILL}}
   };
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_cltp
   };
 

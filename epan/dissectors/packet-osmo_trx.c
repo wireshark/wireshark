@@ -80,11 +80,11 @@ static int hf_otrxc_verb;
 static int hf_otrxc_params;
 static int hf_otrxc_status;
 
-static gint ett_otrxd;
-static gint ett_otrxc;
+static int ett_otrxd;
+static int ett_otrxc;
 
-static gint ett_otrxd_rx_pdu;
-static gint ett_otrxd_tx_pdu;
+static int ett_otrxd_rx_pdu;
+static int ett_otrxd_tx_pdu;
 
 static expert_field ei_otrxd_unknown_pdu_ver;
 static expert_field ei_otrxd_injected_msg;
@@ -155,7 +155,7 @@ enum otrxd_mod_type {
 #define GMSK_BURST_LEN			148
 
 /* TRXD modulation / burst length mapping */
-static const guint16 otrxd_burst_len[] = {
+static const uint16_t otrxd_burst_len[] = {
 	[OTRXD_MOD_T_GMSK]		= GMSK_BURST_LEN * 1,
 	[OTRXD_MOD_T_GMSK_AB]		= GMSK_BURST_LEN * 1,
 	[OTRXD_MOD_T_AQPSK]		= GMSK_BURST_LEN * 2,
@@ -166,14 +166,14 @@ static const guint16 otrxd_burst_len[] = {
 };
 
 /* RSSI is encoded without a negative sign, so we need to show it */
-static void format_rssi(gchar *buf, const guint32 rssi)
+static void format_rssi(char *buf, const uint32_t rssi)
 {
 	snprintf(buf, ITEM_LABEL_LENGTH, "-%u%s", rssi, unit_name_string_get_value(rssi, &units_dbm));
 }
 
 /* TSC (Training Sequence Code) set number in 3GPP TS 45.002 starts
  * from 1, while 'on the wire' it's encoded as X - 1 (starts from 0). */
-static void format_tsc_set(gchar *buf, guint32 tsc_set)
+static void format_tsc_set(char *buf, uint32_t tsc_set)
 {
 	snprintf(buf, ITEM_LABEL_LENGTH, "%u", tsc_set + 1);
 }
@@ -252,26 +252,26 @@ static const value_string otrxc_msg_type_desc[] = {
 /* TRXD PDU information */
 struct otrxd_pdu_info {
 	/* PDU version */
-	guint32 ver;
+	uint32_t ver;
 	/* BATCH.ind marker */
 	bool batch;
 	/* SHADOW.ind marker */
 	bool shadow;
 	/* Number of batched PDUs */
-	guint32 num_pdus;
+	uint32_t num_pdus;
 	/* TRX (RF channel) number */
-	guint32 trx_num;
+	uint32_t trx_num;
 	/* TDMA frame number */
-	guint32 fn;
+	uint32_t fn;
 	/* TDMA timeslot number */
-	guint32 tn;
+	uint32_t tn;
 	/* NOPE.{ind,req} marker */
 	bool nope;
 	/* Modulation type and string */
 	enum otrxd_mod_type mod;
-	const gchar *mod_str;
+	const char *mod_str;
 	/* Training Sequence Code */
-	guint32 tsc;
+	uint32_t tsc;
 };
 
 /* Dissector for common Rx/Tx TRXDv0/v1 header part */
@@ -326,7 +326,7 @@ static void dissect_otrxd_mts(tvbuff_t *tvb, proto_tree *tree,
 	 *
 	 * NOTE: 3GPP defines 4 TSC sets for both GMSK and AQPSK.
 	 */
-	guint8 mts = tvb_get_guint8(tvb, offset);
+	uint8_t mts = tvb_get_uint8(tvb, offset);
 	if ((mts >> 5) == 0x00 || (mts >> 5) == 0x03) { /* 2 bit: GMSK (0) or AQPSK (3) */
 		pi->mod = (enum otrxd_mod_type) (mts >> 5);
 		pi->mod_str = val_to_str(mts >> 5, otrxd_mod_2b_vals, "Unknown 0x%02x");
@@ -518,7 +518,7 @@ static void dissect_otrxd_tx_burst_v0(tvbuff_t *tvb, packet_info *pinfo _U_,
 	/* We may also have NOPE.req in the future (to drive fake_trx.py) */
 	case 0:
 		proto_item_append_text(ti, ", NOPE.req");
-		pi->nope = TRUE;
+		pi->nope = true;
 		return;
 
 	/* TODO: introduce an enumerated type, detect other modulation types,
@@ -708,7 +708,7 @@ static int dissect_otrxd(tvbuff_t *tvb, packet_info *pinfo,
 	proto_item_set_len(ti, offset);
 
 	/* Let it warn us if there are unhandled tail octets */
-	if ((guint) offset < tvb_reported_length(tvb))
+	if ((unsigned) offset < tvb_reported_length(tvb))
 		expert_add_info(pinfo, ti, &ei_otrxd_tail_octets);
 
 	return offset;
@@ -719,10 +719,10 @@ static int dissect_otrxc(tvbuff_t *tvb, packet_info *pinfo,
 			 proto_tree *tree, void *data _U_)
 {
 	int offset = 0, msg_len, end_verb, end_status;
-	const guint8 *msg_str, *msg_type_str;
+	const uint8_t *msg_str, *msg_type_str;
 	proto_item *ti, *gi, *delim_item;
 	proto_tree *otrxc_tree;
-	guint32 delimiter;
+	uint32_t delimiter;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "OsmoTRXC");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -757,7 +757,7 @@ static int dissect_otrxc(tvbuff_t *tvb, packet_info *pinfo,
 	offset += 3;
 
 	/* Determine the message type */
-	enum otrxc_msg_type msg_type = str_to_val((const gchar *) msg_type_str,
+	enum otrxc_msg_type msg_type = str_to_val((const char *) msg_type_str,
 						  otrxc_msg_type_enc,
 						  OTRXC_MSG_TYPE_UNKNOWN);
 	proto_item_append_text(ti, ", %s", val_to_str_const(msg_type, otrxc_msg_type_desc,
@@ -913,7 +913,7 @@ void proto_register_osmo_trx(void)
 		  FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_otrxd,
 		&ett_otrxd_rx_pdu,
 		&ett_otrxd_tx_pdu,

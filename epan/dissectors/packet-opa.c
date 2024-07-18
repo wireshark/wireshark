@@ -154,48 +154,48 @@ void proto_register_opa_9b(void);
  * dictate the header sequence following in the packet. These arrays tell the
  * dissector which headers must be decoded for the given OpCode.
  */
-static guint32 opCode_RDETH_DETH_ATOMICETH[] = {
+static uint32_t opCode_RDETH_DETH_ATOMICETH[] = {
     RD_CMP_SWAP,
     RD_FETCH_ADD
 };
-static guint32 opCode_IETH_PAYLD[] = {
+static uint32_t opCode_IETH_PAYLD[] = {
     RC_SEND_LAST_INVAL,
     RC_SEND_ONLY_INVAL
 };
-static guint32 opCode_ATOMICETH[] = {
+static uint32_t opCode_ATOMICETH[] = {
     RC_CMP_SWAP,
     RC_FETCH_ADD
 };
-static guint32 opCode_RDETH_DETH_RETH_PAYLD[] = {
+static uint32_t opCode_RDETH_DETH_RETH_PAYLD[] = {
     RD_RDMA_WRITE_FIRST,
     RD_RDMA_WRITE_ONLY
 };
-static guint32 opCode_RETH_IMMDT_PAYLD[] = {
+static uint32_t opCode_RETH_IMMDT_PAYLD[] = {
     RC_RDMA_WRITE_ONLY_IMM,
     UC_RDMA_WRITE_ONLY_IMM
 };
-static guint32 opCode_RDETH_DETH_IMMDT_PAYLD[] = {
+static uint32_t opCode_RDETH_DETH_IMMDT_PAYLD[] = {
     RD_SEND_LAST_IMM,
     RD_SEND_ONLY_IMM,
     RD_RDMA_WRITE_LAST_IMM
 };
-static guint32 opCode_RDETH_AETH_PAYLD[] = {
+static uint32_t opCode_RDETH_AETH_PAYLD[] = {
     RD_RDMA_READ_RESPONSE_FIRST,
     RD_RDMA_READ_RESPONSE_LAST,
     RD_RDMA_READ_RESPONSE_ONLY
 };
-static guint32 opCode_AETH_PAYLD[] = {
+static uint32_t opCode_AETH_PAYLD[] = {
     RC_RDMA_READ_RESPONSE_FIRST,
     RC_RDMA_READ_RESPONSE_LAST,
     RC_RDMA_READ_RESPONSE_ONLY
 };
-static guint32 opCode_RETH_PAYLD[] = {
+static uint32_t opCode_RETH_PAYLD[] = {
     RC_RDMA_WRITE_FIRST,
     RC_RDMA_WRITE_ONLY,
     UC_RDMA_WRITE_FIRST,
     UC_RDMA_WRITE_ONLY
 };
-static guint32 opCode_RDETH_DETH_PAYLD[] = {
+static uint32_t opCode_RDETH_DETH_PAYLD[] = {
     RD_SEND_FIRST,
     RD_SEND_MIDDLE,
     RD_SEND_LAST,
@@ -203,7 +203,7 @@ static guint32 opCode_RDETH_DETH_PAYLD[] = {
     RD_RDMA_WRITE_MIDDLE,
     RD_RDMA_WRITE_LAST
 };
-static guint32 opCode_IMMDT_PAYLD[] = {
+static uint32_t opCode_IMMDT_PAYLD[] = {
     RC_SEND_LAST_IMM,
     RC_SEND_ONLY_IMM,
     RC_RDMA_WRITE_LAST_IMM,
@@ -211,7 +211,7 @@ static guint32 opCode_IMMDT_PAYLD[] = {
     UC_SEND_ONLY_IMM,
     UC_RDMA_WRITE_LAST_IMM
 };
-static guint32 opCode_PAYLD[] = {
+static uint32_t opCode_PAYLD[] = {
     RC_SEND_FIRST,
     RC_SEND_MIDDLE,
     RC_SEND_LAST,
@@ -226,7 +226,7 @@ static guint32 opCode_PAYLD[] = {
     UC_RDMA_WRITE_MIDDLE,
     UC_RDMA_WRITE_LAST
 };
-static guint32 opCode_PSM[] = {
+static uint32_t opCode_PSM[] = {
     PSM_RESERVED,
     PSM_TINY,
     PSM_SHORT,
@@ -255,7 +255,7 @@ static guint32 opCode_PSM[] = {
     PSM_AM_REQUEST,
     PSM_AM_REPLY
 };
-static guint opCode_TIDRDMA[] = {
+static unsigned opCode_TIDRDMA[] = {
     TID_RDMA_WRITE_REQUEST,
     TID_RDMA_WRITE_RESPONSE,
     TID_RDMA_WRITE_DATA,
@@ -389,99 +389,99 @@ static const true_false_string tfs_opa_kdeth_offset_32_64 = {
     "64 Byte Words"
 };
 /* Wireshark ID */
-static gint proto_opa_9b;
+static int proto_opa_9b;
 
 /* Variables to hold expansion values between packets */
-static gint ett_all_headers;
-static gint ett_9b;
-static gint ett_grh;
-static gint ett_bth;
-static gint ett_rdeth;
-static gint ett_deth;
-static gint ett_reth;
-static gint ett_atomiceth;
-static gint ett_aeth;
-static gint ett_atomicacketh;
-static gint ett_immdt;
-static gint ett_ieth;
-static gint ett_kdeth;
-static gint ett_psm;
-static gint ett_tidrdma;
+static int ett_all_headers;
+static int ett_9b;
+static int ett_grh;
+static int ett_bth;
+static int ett_rdeth;
+static int ett_deth;
+static int ett_reth;
+static int ett_atomiceth;
+static int ett_aeth;
+static int ett_atomicacketh;
+static int ett_immdt;
+static int ett_ieth;
+static int ett_kdeth;
+static int ett_psm;
+static int ett_tidrdma;
 
 /* 9B Header Fields */
-static gint hf_opa_9B;
-static gint hf_opa_9B_service_channel;
-static gint hf_opa_9B_link_version;
-static gint hf_opa_9B_service_level;
-static gint hf_opa_9B_reserved2;
-static gint hf_opa_9B_lnh;
-static gint hf_opa_9B_dlid;
-static gint hf_opa_9B_reserved3;
-static gint hf_opa_9B_packet_length;
-static gint hf_opa_9B_slid;
+static int hf_opa_9B;
+static int hf_opa_9B_service_channel;
+static int hf_opa_9B_link_version;
+static int hf_opa_9B_service_level;
+static int hf_opa_9B_reserved2;
+static int hf_opa_9B_lnh;
+static int hf_opa_9B_dlid;
+static int hf_opa_9B_reserved3;
+static int hf_opa_9B_packet_length;
+static int hf_opa_9B_slid;
 /* ICRC */
-static gint hf_opa_9b_ICRC;
+static int hf_opa_9b_ICRC;
 
 /* GRH */
-static gint hf_opa_grh;
-static gint hf_opa_grh_ip_version;
-static gint hf_opa_grh_traffic_class;
-static gint hf_opa_grh_flow_label;
-static gint hf_opa_grh_payload_length;
-static gint hf_opa_grh_next_header;
-static gint hf_opa_grh_hop_limit;
-static gint hf_opa_grh_source_gid;
-static gint hf_opa_grh_destination_gid;
+static int hf_opa_grh;
+static int hf_opa_grh_ip_version;
+static int hf_opa_grh_traffic_class;
+static int hf_opa_grh_flow_label;
+static int hf_opa_grh_payload_length;
+static int hf_opa_grh_next_header;
+static int hf_opa_grh_hop_limit;
+static int hf_opa_grh_source_gid;
+static int hf_opa_grh_destination_gid;
 
 /* BTH */
-static gint hf_opa_bth;
-static gint hf_opa_bth_opcode;
-static gint hf_opa_bth_solicited_event;
-static gint hf_opa_bth_migreq;
-static gint hf_opa_bth_pad_count;
-static gint hf_opa_bth_transport_header_version;
-static gint hf_opa_bth_partition_key;
-static gint hf_opa_bth_fcn;
-static gint hf_opa_bth_bcn;
-static gint hf_opa_bth_Reserved8a;
-static gint hf_opa_bth_destination_qp;
-static gint hf_opa_bth_acknowledge_request;
-static gint hf_opa_bth_packet_sequence_number;
+static int hf_opa_bth;
+static int hf_opa_bth_opcode;
+static int hf_opa_bth_solicited_event;
+static int hf_opa_bth_migreq;
+static int hf_opa_bth_pad_count;
+static int hf_opa_bth_transport_header_version;
+static int hf_opa_bth_partition_key;
+static int hf_opa_bth_fcn;
+static int hf_opa_bth_bcn;
+static int hf_opa_bth_Reserved8a;
+static int hf_opa_bth_destination_qp;
+static int hf_opa_bth_acknowledge_request;
+static int hf_opa_bth_packet_sequence_number;
 
 /* XXETH */
-static gint hf_opa_RDETH;
-static gint hf_opa_RDETH_reserved8;
-static gint hf_opa_RDETH_ee_context;
-static gint hf_opa_DETH;
-static gint hf_opa_DETH_queue_key;
-static gint hf_opa_DETH_reserved8;
-static gint hf_opa_DETH_source_qp;
-static gint hf_opa_RETH;
-static gint hf_opa_RETH_virtual_address;
-static gint hf_opa_RETH_remote_key;
-static gint hf_opa_RETH_dma_length;
-static gint hf_opa_AtomicETH;
-static gint hf_opa_AtomicETH_virtual_address;
-static gint hf_opa_AtomicETH_remote_key;
-static gint hf_opa_AtomicETH_swap_or_add_data;
-static gint hf_opa_AtomicETH_compare_data;
-static gint hf_opa_AETH;
-static gint hf_opa_AETH_syndrome;
-static gint hf_opa_AETH_message_sequence_number;
-static gint hf_opa_AtomicAckETH;
-static gint hf_opa_AtomicAckETH_original_remote_data;
-static gint hf_opa_IMMDT;
-static gint hf_opa_IMMDT_data;
-static gint hf_opa_IETH;
-static gint hf_opa_IETH_r_key;
-static gint hf_opa_KDETH;
-static gint hf_opa_KDETH_kver;
-static gint hf_opa_KDETH_sh;
-static gint hf_opa_KDETH_intr;
-static gint hf_opa_KDETH_tidctrl;
-static gint hf_opa_KDETH_tid;
-static gint hf_opa_KDETH_offset_mode;
-static gint hf_opa_KDETH_offset;
+static int hf_opa_RDETH;
+static int hf_opa_RDETH_reserved8;
+static int hf_opa_RDETH_ee_context;
+static int hf_opa_DETH;
+static int hf_opa_DETH_queue_key;
+static int hf_opa_DETH_reserved8;
+static int hf_opa_DETH_source_qp;
+static int hf_opa_RETH;
+static int hf_opa_RETH_virtual_address;
+static int hf_opa_RETH_remote_key;
+static int hf_opa_RETH_dma_length;
+static int hf_opa_AtomicETH;
+static int hf_opa_AtomicETH_virtual_address;
+static int hf_opa_AtomicETH_remote_key;
+static int hf_opa_AtomicETH_swap_or_add_data;
+static int hf_opa_AtomicETH_compare_data;
+static int hf_opa_AETH;
+static int hf_opa_AETH_syndrome;
+static int hf_opa_AETH_message_sequence_number;
+static int hf_opa_AtomicAckETH;
+static int hf_opa_AtomicAckETH_original_remote_data;
+static int hf_opa_IMMDT;
+static int hf_opa_IMMDT_data;
+static int hf_opa_IETH;
+static int hf_opa_IETH_r_key;
+static int hf_opa_KDETH;
+static int hf_opa_KDETH_kver;
+static int hf_opa_KDETH_sh;
+static int hf_opa_KDETH_intr;
+static int hf_opa_KDETH_tidctrl;
+static int hf_opa_KDETH_tid;
+static int hf_opa_KDETH_offset_mode;
+static int hf_opa_KDETH_offset;
 static int * const _opa_KDETH_word1[] = {
     &hf_opa_KDETH_kver,
     &hf_opa_KDETH_sh,
@@ -492,54 +492,54 @@ static int * const _opa_KDETH_word1[] = {
     &hf_opa_KDETH_offset,
     NULL
 };
-static gint hf_opa_KDETH_hcrc;
-static gint hf_opa_KDETH_j_key;
+static int hf_opa_KDETH_hcrc;
+static int hf_opa_KDETH_j_key;
 static int * const _opa_KDETH_word2[] = {
     &hf_opa_KDETH_hcrc,
     &hf_opa_KDETH_j_key,
     NULL
 };
 /* PSM */
-static gint hf_opa_psm;
-static gint hf_opa_psm_a;
-static gint hf_opa_psm_ackpsn;
-static gint hf_opa_psm_flags;
-static gint hf_opa_psm_commidx;
-static gint hf_opa_psm_flowid;
-static gint hf_opa_psm_msglen;
-static gint hf_opa_psm_msgseq;
-static gint hf_opa_psm_tag;
-static gint hf_opa_psm_msgdata;
-static gint hf_opa_psm_short_msglen;
-static gint hf_opa_psm_paylen;
-static gint hf_opa_psm_offset;
-static gint hf_opa_psm_sreqidx;
-static gint hf_opa_psm_rreqidx;
-static gint hf_opa_psm_rdescid;
-static gint hf_opa_psm_sdescid;
-static gint hf_opa_psm_psn;
-static gint hf_opa_psm_hostipv4;
-static gint hf_opa_psm_hostpid;
-static gint hf_opa_psm_dlen;
-static gint hf_opa_psm_nargs;
-static gint hf_opa_psm_hidx;
-static gint hf_opa_psm_arg;
-static gint hf_opa_psm_payload;
+static int hf_opa_psm;
+static int hf_opa_psm_a;
+static int hf_opa_psm_ackpsn;
+static int hf_opa_psm_flags;
+static int hf_opa_psm_commidx;
+static int hf_opa_psm_flowid;
+static int hf_opa_psm_msglen;
+static int hf_opa_psm_msgseq;
+static int hf_opa_psm_tag;
+static int hf_opa_psm_msgdata;
+static int hf_opa_psm_short_msglen;
+static int hf_opa_psm_paylen;
+static int hf_opa_psm_offset;
+static int hf_opa_psm_sreqidx;
+static int hf_opa_psm_rreqidx;
+static int hf_opa_psm_rdescid;
+static int hf_opa_psm_sdescid;
+static int hf_opa_psm_psn;
+static int hf_opa_psm_hostipv4;
+static int hf_opa_psm_hostpid;
+static int hf_opa_psm_dlen;
+static int hf_opa_psm_nargs;
+static int hf_opa_psm_hidx;
+static int hf_opa_psm_arg;
+static int hf_opa_psm_payload;
 /* TID RDMA */
-static gint hf_opa_TIDRDMA;
-static gint hf_opa_TIDRDMA_reserved;
-static gint hf_opa_TIDRDMA_TIDFlowPSN_reserved;
-static gint hf_opa_TIDRDMA_TIDFlowPSN;
-static gint hf_opa_TIDRDMA_TIDFlowQP_reserved;
-static gint hf_opa_TIDRDMA_TIDFlowQP;
-static gint hf_opa_TIDRDMA_VerbsPSN_reserved;
-static gint hf_opa_TIDRDMA_VerbsPSN;
-static gint hf_opa_TIDRDMA_VerbsQP_reserved;
-static gint hf_opa_TIDRDMA_VerbsQP;
+static int hf_opa_TIDRDMA;
+static int hf_opa_TIDRDMA_reserved;
+static int hf_opa_TIDRDMA_TIDFlowPSN_reserved;
+static int hf_opa_TIDRDMA_TIDFlowPSN;
+static int hf_opa_TIDRDMA_TIDFlowQP_reserved;
+static int hf_opa_TIDRDMA_TIDFlowQP;
+static int hf_opa_TIDRDMA_VerbsPSN_reserved;
+static int hf_opa_TIDRDMA_VerbsPSN;
+static int hf_opa_TIDRDMA_VerbsQP_reserved;
+static int hf_opa_TIDRDMA_VerbsQP;
 
 
 /* Custom Functions */
-static void cf_opa_dw_to_b(gchar *buf, guint32 value)
+static void cf_opa_dw_to_b(char *buf, uint32_t value)
 {
     snprintf(buf, ITEM_LABEL_LENGTH, "%u DWORDS (%u Bytes)", value, value * 4);
 }
@@ -550,14 +550,14 @@ static dissector_handle_t opa_mad_handle;
 static dissector_handle_t infiniband_handle;
 static dissector_handle_t ipv6_handle;
 
-static void parse_opa_9B_Header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset, guint8 *lnh_val)
+static void parse_opa_9B_Header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, uint8_t *lnh_val)
 {
     /* 16B - L2 Header */
     proto_item *L2_9B_header_item;
     proto_tree *L2_9B_header_tree;
     void *src_addr, *dst_addr;
 
-    gint local_offset = *offset;
+    int local_offset = *offset;
 
     col_prepend_fstr(pinfo->cinfo, COL_INFO, "9B: ");
     L2_9B_header_item = proto_tree_add_item(tree, hf_opa_9B, tvb, local_offset, 8, ENC_NA);
@@ -571,16 +571,16 @@ static void parse_opa_9B_Header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     proto_tree_add_item(L2_9B_header_tree, hf_opa_9B_lnh, tvb, local_offset, 1, ENC_BIG_ENDIAN);
 
     /* Save Link Next Header... This tells us what the next header is. */
-    *lnh_val = tvb_get_guint8(tvb, local_offset);
+    *lnh_val = tvb_get_uint8(tvb, local_offset);
     *lnh_val &= 0x03;
     local_offset += 1;
 
     proto_tree_add_item(L2_9B_header_tree, hf_opa_9B_dlid, tvb, local_offset, 2, ENC_BIG_ENDIAN);
 
     /* Set destination in packet view. */
-    dst_addr = wmem_alloc(pinfo->pool, sizeof(guint16));
-    *((guint16 *)dst_addr) = tvb_get_ntohs(tvb, local_offset);
-    set_address(&pinfo->dst, AT_IB, sizeof(guint16), dst_addr);
+    dst_addr = wmem_alloc(pinfo->pool, sizeof(uint16_t));
+    *((uint16_t *)dst_addr) = tvb_get_ntohs(tvb, local_offset);
+    set_address(&pinfo->dst, AT_IB, sizeof(uint16_t), dst_addr);
     local_offset += 2;
 
     proto_tree_add_item(L2_9B_header_tree, hf_opa_9B_reserved3, tvb, local_offset, 1, ENC_BIG_ENDIAN);
@@ -590,20 +590,20 @@ static void parse_opa_9B_Header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     proto_tree_add_item(L2_9B_header_tree, hf_opa_9B_slid, tvb, local_offset, 2, ENC_BIG_ENDIAN);
 
     /* Set Source in packet view. */
-    src_addr = wmem_alloc(pinfo->pool, sizeof(guint16));
-    *((guint16 *)src_addr) = tvb_get_ntohs(tvb, local_offset);
-    set_address(&pinfo->src, AT_IB, sizeof(guint16), src_addr);
+    src_addr = wmem_alloc(pinfo->pool, sizeof(uint16_t));
+    *((uint16_t *)src_addr) = tvb_get_ntohs(tvb, local_offset);
+    set_address(&pinfo->src, AT_IB, sizeof(uint16_t), src_addr);
     local_offset += 2;
 
     *offset = local_offset;
 }
 
-static void parse_opa_grh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset, guint8 *nextHdr)
+static void parse_opa_grh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, uint8_t *nextHdr)
 {
     proto_item *global_route_header_item;
     proto_tree *global_route_header_tree;
 
-    gint local_offset = *offset;
+    int local_offset = *offset;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "GRH: ");
     global_route_header_item = proto_tree_add_item(tree, hf_opa_grh, tvb, local_offset, 40, ENC_NA);
@@ -617,7 +617,7 @@ static void parse_opa_grh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     proto_tree_add_item(global_route_header_tree, hf_opa_grh_payload_length, tvb, local_offset, 2, ENC_BIG_ENDIAN);
     local_offset += 2;
 
-    *nextHdr = tvb_get_guint8(tvb, local_offset);
+    *nextHdr = tvb_get_uint8(tvb, local_offset);
 
     proto_tree_add_item(global_route_header_tree, hf_opa_grh_next_header, tvb, local_offset, 1, ENC_BIG_ENDIAN);
     local_offset += 1;
@@ -638,20 +638,20 @@ static void parse_opa_grh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     *offset = local_offset;
 }
 
-static void parse_opa_bth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset, guint8 *opCode)
+static void parse_opa_bth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, uint8_t *opCode)
 {
     proto_item *base_transport_header_item;
     proto_tree *base_transport_header_tree;
 
-    gint local_offset = *offset;
+    int local_offset = *offset;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "BTH: ");
     base_transport_header_item = proto_tree_add_item(tree, hf_opa_bth, tvb, local_offset, 12, ENC_NA);
     base_transport_header_tree = proto_item_add_subtree(base_transport_header_item, ett_bth);
 
     proto_tree_add_item(base_transport_header_tree, hf_opa_bth_opcode, tvb, local_offset, 1, ENC_LITTLE_ENDIAN);
-    *opCode = tvb_get_guint8(tvb, local_offset);
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str((guint32)(*opCode), vals_opa_bth_opcode, "Unknown OpCode (0x%0x)"));
+    *opCode = tvb_get_uint8(tvb, local_offset);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str((uint32_t)(*opCode), vals_opa_bth_opcode, "Unknown OpCode (0x%0x)"));
     local_offset += 1;
 
     proto_tree_add_item(base_transport_header_tree, hf_opa_bth_solicited_event, tvb, local_offset, 1, ENC_BIG_ENDIAN);
@@ -675,57 +675,57 @@ static void parse_opa_bth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
     *offset = local_offset;
 }
-static gboolean contains(guint32 OpCode, guint32 *Codes, gint32 length)
+static bool contains(uint32_t OpCode, uint32_t *Codes, int32_t length)
 {
-    gint32 i;
+    int32_t i;
     for (i = 0; i < length; i++) {
         if ((OpCode ^ Codes[i]) == 0)
-            return TRUE;
+            return true;
     }
-    return FALSE;
+    return false;
 }
-static gint32 find_next_header_sequence(guint32 OpCode)
+static int32_t find_next_header_sequence(uint32_t OpCode)
 {
-    if (contains(OpCode, &opCode_PAYLD[0], (gint32)array_length(opCode_PAYLD)))
+    if (contains(OpCode, &opCode_PAYLD[0], (int32_t)array_length(opCode_PAYLD)))
         return PAYLD;
 
-    if (contains(OpCode, &opCode_IMMDT_PAYLD[0], (gint32)array_length(opCode_IMMDT_PAYLD)))
+    if (contains(OpCode, &opCode_IMMDT_PAYLD[0], (int32_t)array_length(opCode_IMMDT_PAYLD)))
         return IMMDT_PAYLD;
 
-    if (contains(OpCode, &opCode_RDETH_DETH_PAYLD[0], (gint32)array_length(opCode_RDETH_DETH_PAYLD)))
+    if (contains(OpCode, &opCode_RDETH_DETH_PAYLD[0], (int32_t)array_length(opCode_RDETH_DETH_PAYLD)))
         return RDETH_DETH_PAYLD;
 
-    if (contains(OpCode, &opCode_RETH_PAYLD[0], (gint32)array_length(opCode_RETH_PAYLD)))
+    if (contains(OpCode, &opCode_RETH_PAYLD[0], (int32_t)array_length(opCode_RETH_PAYLD)))
         return RETH_PAYLD;
 
-    if (contains(OpCode, &opCode_RDETH_AETH_PAYLD[0], (gint32)array_length(opCode_RDETH_AETH_PAYLD)))
+    if (contains(OpCode, &opCode_RDETH_AETH_PAYLD[0], (int32_t)array_length(opCode_RDETH_AETH_PAYLD)))
         return RDETH_AETH_PAYLD;
 
-    if (contains(OpCode, &opCode_AETH_PAYLD[0], (gint32)array_length(opCode_AETH_PAYLD)))
+    if (contains(OpCode, &opCode_AETH_PAYLD[0], (int32_t)array_length(opCode_AETH_PAYLD)))
         return AETH_PAYLD;
 
-    if (contains(OpCode, &opCode_RDETH_DETH_IMMDT_PAYLD[0], (gint32)array_length(opCode_RDETH_DETH_IMMDT_PAYLD)))
+    if (contains(OpCode, &opCode_RDETH_DETH_IMMDT_PAYLD[0], (int32_t)array_length(opCode_RDETH_DETH_IMMDT_PAYLD)))
         return RDETH_DETH_IMMDT_PAYLD;
 
-    if (contains(OpCode, &opCode_RETH_IMMDT_PAYLD[0], (gint32)array_length(opCode_RETH_IMMDT_PAYLD)))
+    if (contains(OpCode, &opCode_RETH_IMMDT_PAYLD[0], (int32_t)array_length(opCode_RETH_IMMDT_PAYLD)))
         return RETH_IMMDT_PAYLD;
 
-    if (contains(OpCode, &opCode_RDETH_DETH_RETH_PAYLD[0], (gint32)array_length(opCode_RDETH_DETH_RETH_PAYLD)))
+    if (contains(OpCode, &opCode_RDETH_DETH_RETH_PAYLD[0], (int32_t)array_length(opCode_RDETH_DETH_RETH_PAYLD)))
         return RDETH_DETH_RETH_PAYLD;
 
-    if (contains(OpCode, &opCode_ATOMICETH[0], (gint32)array_length(opCode_ATOMICETH)))
+    if (contains(OpCode, &opCode_ATOMICETH[0], (int32_t)array_length(opCode_ATOMICETH)))
         return ATOMICETH;
 
-    if (contains(OpCode, &opCode_IETH_PAYLD[0], (gint32)array_length(opCode_IETH_PAYLD)))
+    if (contains(OpCode, &opCode_IETH_PAYLD[0], (int32_t)array_length(opCode_IETH_PAYLD)))
         return IETH_PAYLD;
 
-    if (contains(OpCode, &opCode_RDETH_DETH_ATOMICETH[0], (gint32)array_length(opCode_RDETH_DETH_ATOMICETH)))
+    if (contains(OpCode, &opCode_RDETH_DETH_ATOMICETH[0], (int32_t)array_length(opCode_RDETH_DETH_ATOMICETH)))
         return RDETH_DETH_ATOMICETH;
 
-    if (contains(OpCode, &opCode_PSM[0], (gint32)array_length(opCode_PSM)))
+    if (contains(OpCode, &opCode_PSM[0], (int32_t)array_length(opCode_PSM)))
         return KDETH_PSM;
 
-    if (contains(OpCode, &opCode_TIDRDMA[0], (gint32)array_length(opCode_TIDRDMA)))
+    if (contains(OpCode, &opCode_TIDRDMA[0], (int32_t)array_length(opCode_TIDRDMA)))
         return KDETH_TIDRDMA;
 
     if ((OpCode ^ RC_ACKNOWLEDGE) == 0)
@@ -765,9 +765,9 @@ static gint32 find_next_header_sequence(guint32 OpCode)
 }
 
 /* Parse RDETH - Reliable Datagram Extended Transport Header */
-static void parse_RDETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset)
+static void parse_RDETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     /* RDETH - Reliable Datagram Extended Transport Header */
     proto_item *RDETH_header_item;
     proto_tree *RDETH_header_tree;
@@ -783,9 +783,9 @@ static void parse_RDETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gin
     *offset = local_offset;
 }
 /* Parse DETH - Datagram Extended Transport Header */
-static void parse_DETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset)
+static void parse_DETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     /* DETH - Datagram Extended Transport Header */
     proto_item *DETH_header_item;
     proto_tree *DETH_header_tree;
@@ -804,9 +804,9 @@ static void parse_DETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
     *offset = local_offset;
 }
 /* Parse RETH - RDMA Extended Transport Header */
-static void parse_RETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset)
+static void parse_RETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     /* RETH - RDMA Extended Transport Header */
     proto_item *RETH_header_item;
     proto_tree *RETH_header_tree;
@@ -825,9 +825,9 @@ static void parse_RETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
     *offset = local_offset;
 }
 /* Parse AtomicETH - Atomic Extended Transport Header */
-static void parse_ATOMICETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset)
+static void parse_ATOMICETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     /* AtomicETH - Atomic Extended Transport Header */
     proto_item *ATOMICETH_header_item;
     proto_tree *ATOMICETH_header_tree;
@@ -847,9 +847,9 @@ static void parse_ATOMICETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     *offset = local_offset;
 }
 /* Parse AETH - ACK Extended Transport Header */
-static void parse_AETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset)
+static void parse_AETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     /* AETH - ACK Extended Transport Header */
     proto_item *AETH_header_item;
     proto_tree *AETH_header_tree;
@@ -866,9 +866,9 @@ static void parse_AETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
     *offset = local_offset;
 }
 /* Parse AtomicAckEth - Atomic ACK Extended Transport Header */
-static void parse_ATOMICACKETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset)
+static void parse_ATOMICACKETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     /* AtomicAckEth - Atomic ACK Extended Transport Header */
     proto_item *ATOMICACKETH_header_item;
     proto_tree *ATOMICACKETH_header_tree;
@@ -881,9 +881,9 @@ static void parse_ATOMICACKETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     *offset = local_offset;
 }
 /* Parse IMMDT - Immediate Data Extended Transport Header */
-static void parse_IMMDT(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset)
+static void parse_IMMDT(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     /* IMMDT - Immediate Data Extended Transport Header */
     proto_item *IMMDT_header_item;
     proto_tree *IMMDT_header_tree;
@@ -896,9 +896,9 @@ static void parse_IMMDT(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gin
     *offset = local_offset;
 }
 /* Parse IETH - Invalidate Extended Transport Header */
-static void parse_IETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset)
+static void parse_IETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     /* IETH - Invalidate Extended Transport Header */
     proto_item *IETH_header_item;
     proto_tree *IETH_header_tree;
@@ -913,9 +913,9 @@ static void parse_IETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
     *offset = local_offset;
 }
 /* Parse KDETH - Key Datagram Extended Transport Header */
-static void parse_KDETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset)
+static void parse_KDETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     /* KDETH - Key Datagram Extended Transport Header */
     proto_item *KDETH_header_item;
     proto_tree *KDETH_header_tree;
@@ -933,13 +933,13 @@ static void parse_KDETH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gin
 }
 
 /* Parse PSM header */
-static void parse_PSM(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset, gint opCode)
+static void parse_PSM(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, int opCode)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     /* PSM Header */
     proto_item *PSM_header_item;
     proto_tree *PSM_header_tree;
-    guint32 payLength;
+    uint32_t payLength;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "PSM: ");
     PSM_header_item = proto_tree_add_item(tree, hf_opa_psm, tvb, local_offset, 28, ENC_NA);
@@ -1116,9 +1116,9 @@ static void parse_PSM(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint 
     }
     *offset = local_offset;
 }
-static void parse_TIDRDMA(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset, gint opCode, gboolean *parsePayload)
+static void parse_TIDRDMA(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, int opCode, bool *parsePayload)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     proto_item *TIDRDMA_header_item;
     proto_tree *TIDRDMA_header_tree;
 
@@ -1137,7 +1137,7 @@ static void parse_TIDRDMA(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_VerbsQP, tvb, local_offset, 4, ENC_BIG_ENDIAN);
         local_offset += 4;
 
-        *parsePayload = FALSE;
+        *parsePayload = false;
         break;
     case TID_RDMA_WRITE_RESPONSE:
         parse_AETH(tvb, pinfo, tree, &local_offset);
@@ -1159,7 +1159,7 @@ static void parse_TIDRDMA(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_VerbsQP, tvb, local_offset, 4, ENC_BIG_ENDIAN);
         local_offset += 4;
 
-        *parsePayload = FALSE;
+        *parsePayload = false;
         break;
     case TID_RDMA_WRITE_DATA:
         col_append_fstr(pinfo->cinfo, COL_INFO, "TID RDMA Write Data: ");
@@ -1174,7 +1174,7 @@ static void parse_TIDRDMA(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_VerbsQP, tvb, local_offset, 4, ENC_BIG_ENDIAN);
         local_offset += 4;
 
-        *parsePayload = TRUE;
+        *parsePayload = true;
         break;
     case TID_RDMA_WRITE_DATA_LAST:
         col_append_fstr(pinfo->cinfo, COL_INFO, "TID RDMA Write Data Last: ");
@@ -1189,7 +1189,7 @@ static void parse_TIDRDMA(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_VerbsQP, tvb, local_offset, 4, ENC_BIG_ENDIAN);
         local_offset += 4;
 
-        *parsePayload = TRUE;
+        *parsePayload = true;
         break;
     case TID_RDMA_READ_REQUEST:
         parse_RETH(tvb, pinfo, tree, &local_offset);
@@ -1208,7 +1208,7 @@ static void parse_TIDRDMA(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_VerbsQP, tvb, local_offset, 4, ENC_BIG_ENDIAN);
         local_offset += 4;
 
-        *parsePayload = FALSE;
+        *parsePayload = false;
         break;
     case TID_RDMA_READ_RESPONSE:
         parse_AETH(tvb, pinfo, tree, &local_offset);
@@ -1227,7 +1227,7 @@ static void parse_TIDRDMA(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_VerbsQP, tvb, local_offset, 4, ENC_BIG_ENDIAN);
         local_offset += 4;
 
-        *parsePayload = TRUE;
+        *parsePayload = true;
         break;
     case TID_RDMA_RESYNC:
         col_append_fstr(pinfo->cinfo, COL_INFO, "TID RDMA Read ReSync: ");
@@ -1242,7 +1242,7 @@ static void parse_TIDRDMA(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_VerbsQP, tvb, local_offset, 4, ENC_BIG_ENDIAN);
         local_offset += 4;
 
-        *parsePayload = FALSE;
+        *parsePayload = false;
         break;
     case TID_RDMA_ACK:
         parse_AETH(tvb, pinfo, tree, &local_offset);
@@ -1267,14 +1267,14 @@ static void parse_TIDRDMA(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         proto_tree_add_item(TIDRDMA_header_tree, hf_opa_TIDRDMA_VerbsQP, tvb, local_offset, 4, ENC_BIG_ENDIAN);
         local_offset += 4;
 
-        *parsePayload = FALSE;
+        *parsePayload = false;
         break;
     default:
-        *parsePayload = FALSE;
+        *parsePayload = false;
     }
     *offset = local_offset;
 }
-static void parse_IPvSix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset)
+static void parse_IPvSix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset)
 {
     call_dissector(ipv6_handle, tvb_new_subset_remaining(tvb, *offset), pinfo, tree);
     *offset = tvb_reported_length(tvb);
@@ -1289,26 +1289,26 @@ static int dissect_opa_9b(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     /* TVB to pass to infiniband header */
     tvbuff_t *infiniband_tvb;
 
-    gint offset = 0;    /* Current Offset */
-    gint ib_offset = 0; /* Offset to track if IB packet */
-    gint captured_length, reported_length;
-    guint8 lnh_val = 0;
-    gboolean bthFollows = FALSE;
-    gboolean parsePayload = FALSE;
-    gint32 nextHeaderSequence = -1;
-    guint8 nextHdr = 0, opCode = 0;
-    guint8 baseVersion = 0;
+    int offset = 0;    /* Current Offset */
+    int ib_offset = 0; /* Offset to track if IB packet */
+    int captured_length, reported_length;
+    uint8_t lnh_val = 0;
+    bool bthFollows = false;
+    bool parsePayload = false;
+    int32_t nextHeaderSequence = -1;
+    uint8_t nextHdr = 0, opCode = 0;
+    uint8_t baseVersion = 0;
 
     /* Infiniband Check */
-    lnh_val = tvb_get_guint8(tvb, ib_offset + 1) & 0x3;
+    lnh_val = tvb_get_uint8(tvb, ib_offset + 1) & 0x3;
     if (lnh_val == 3) {
-        nextHdr = tvb_get_guint8(tvb, ib_offset + 6);
+        nextHdr = tvb_get_uint8(tvb, ib_offset + 6);
         ib_offset += 40;
     }
     if (lnh_val == 2 || nextHdr == 0x1B) {
-        opCode = tvb_get_guint8(tvb, ib_offset + 8);
+        opCode = tvb_get_uint8(tvb, ib_offset + 8);
         if (opCode == 0x64) {
-            baseVersion = tvb_get_guint8(tvb, ib_offset + 28);
+            baseVersion = tvb_get_uint8(tvb, ib_offset + 28);
             if (baseVersion == 0x01) {
                 infiniband_tvb = tvb_new_subset_remaining(tvb, offset);
                 call_dissector(infiniband_handle, infiniband_tvb, pinfo, tree);
@@ -1339,7 +1339,7 @@ static int dissect_opa_9b(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         /* FALL THROUGH */
     case 2: /* LOCAL - BTH - Base Transport Header */
         parse_opa_bth(tvb, pinfo, tree, &offset, &opCode);
-        bthFollows = TRUE;
+        bthFollows = true;
         break;
     case 1: /* NON OPA - IPv6 Packet */
         set_address(&pinfo->dst, AT_STRINGZ, (int)strlen("IPv6 over OPA Packet") + 1,
@@ -1357,27 +1357,27 @@ static int dissect_opa_9b(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
     if (bthFollows) {
         /* Save transport type for identifying EoOPA payloads later */
-        nextHeaderSequence = find_next_header_sequence((guint32)opCode);
+        nextHeaderSequence = find_next_header_sequence((uint32_t)opCode);
         switch (nextHeaderSequence) {
         case RDETH_DETH_PAYLD:
             parse_RDETH(tvb, pinfo, tree, &offset);
             parse_DETH(tvb, pinfo, tree, &offset);
 
-            parsePayload = TRUE;
+            parsePayload = true;
             break;
         case RDETH_DETH_RETH_PAYLD:
             parse_RDETH(tvb, pinfo, tree, &offset);
             parse_DETH(tvb, pinfo, tree, &offset);
             parse_RETH(tvb, pinfo, tree, &offset);
 
-            parsePayload = TRUE;
+            parsePayload = true;
             break;
         case RDETH_DETH_IMMDT_PAYLD:
             parse_RDETH(tvb, pinfo, tree, &offset);
             parse_DETH(tvb, pinfo, tree, &offset);
             parse_IMMDT(tvb, pinfo, tree, &offset);
 
-            parsePayload = TRUE;
+            parsePayload = true;
             break;
         case RDETH_DETH_RETH_IMMDT_PAYLD:
             parse_RDETH(tvb, pinfo, tree, &offset);
@@ -1385,7 +1385,7 @@ static int dissect_opa_9b(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             parse_RETH(tvb, pinfo, tree, &offset);
             parse_IMMDT(tvb, pinfo, tree, &offset);
 
-            parsePayload = TRUE;
+            parsePayload = true;
             break;
         case RDETH_DETH_RETH:
             parse_RDETH(tvb, pinfo, tree, &offset);
@@ -1397,12 +1397,12 @@ static int dissect_opa_9b(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             parse_RDETH(tvb, pinfo, tree, &offset);
             parse_AETH(tvb, pinfo, tree, &offset);
 
-            parsePayload = TRUE;
+            parsePayload = true;
             break;
         case RDETH_PAYLD:
             parse_RDETH(tvb, pinfo, tree, &offset);
 
-            parsePayload = TRUE;
+            parsePayload = true;
             break;
         case RDETH_AETH:
             parse_AETH(tvb, pinfo, tree, &offset);
@@ -1428,21 +1428,21 @@ static int dissect_opa_9b(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         case DETH_PAYLD:
             parse_DETH(tvb, pinfo, tree, &offset);
 
-            parsePayload = TRUE;
+            parsePayload = true;
             break;
         case PAYLD:
 
-            parsePayload = TRUE;
+            parsePayload = true;
             break;
         case IMMDT_PAYLD:
             parse_IMMDT(tvb, pinfo, tree, &offset);
 
-            parsePayload = TRUE;
+            parsePayload = true;
             break;
         case RETH_PAYLD:
             parse_RETH(tvb, pinfo, tree, &offset);
 
-            parsePayload = TRUE;
+            parsePayload = true;
             break;
         case RETH:
             parse_RETH(tvb, pinfo, tree, &offset);
@@ -1451,7 +1451,7 @@ static int dissect_opa_9b(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         case AETH_PAYLD:
             parse_AETH(tvb, pinfo, tree, &offset);
 
-            parsePayload = TRUE;
+            parsePayload = true;
             break;
         case AETH:
             parse_AETH(tvb, pinfo, tree, &offset);
@@ -1469,13 +1469,13 @@ static int dissect_opa_9b(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         case IETH_PAYLD:
             parse_IETH(tvb, pinfo, tree, &offset);
 
-            parsePayload = TRUE;
+            parsePayload = true;
             break;
         case DETH_IMMDT_PAYLD:
             parse_DETH(tvb, pinfo, tree, &offset);
             parse_IMMDT(tvb, pinfo, tree, &offset);
 
-            parsePayload = TRUE;
+            parsePayload = true;
             break;
         case KDETH_PSM:
             parse_KDETH(tvb, pinfo, tree, &offset);
@@ -1962,7 +1962,7 @@ void proto_register_opa_9b(void)
         }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_all_headers,
         &ett_9b,
         &ett_grh,

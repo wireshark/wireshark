@@ -41,16 +41,16 @@
 
 /* Handle Hashmap Key */
 struct oca_request_hash_key {
-    guint32 conv_index;
-    guint32 handle;
+    uint32_t conv_index;
+    uint32_t handle;
 };
 /* Handle Hashmap Val */
 struct oca_request_hash_val {
-    guint32 pnum;
-    guint32 pnum_resp;
-    guint32 ono;
-    guint16 tree_level;
-    guint16 method_index;
+    uint32_t pnum;
+    uint32_t pnum_resp;
+    uint32_t ono;
+    uint16_t tree_level;
+    uint16_t method_index;
 };
 static wmem_map_t *oca_request_hash_map;
 
@@ -162,24 +162,24 @@ static expert_field ei_ocp1_bad_status_code;
 static expert_field ei_ocp1_invalid_length;
 
 /* Trees */
-static gint ett_ocp1;
-static gint ett_ocp1_pdu;
-static gint ett_ocp1_keepalive;
-static gint ett_ocp1_message_method;
-static gint ett_ocp1_context;
-static gint ett_ocp1_event_data;
-static gint ett_ocp1_event_method;
-static gint ett_ocp1_params;
-static gint ett_ocp1_params_event;
-static gint ett_ocp1_params_method;
-static gint ett_ocp1_params_property;
-static gint ett_ocp1_params_blob;
-static gint ett_ocp1_params_string;
-static gint ett_ocp1_params_manager_desc;
-static gint ett_ocp1_params_devicestate;
-static gint ett_ocp1_params_compversion;
-static gint ett_ocp1_params_ocaver;
-static gint ett_ocp1_params_ptp;
+static int ett_ocp1;
+static int ett_ocp1_pdu;
+static int ett_ocp1_keepalive;
+static int ett_ocp1_message_method;
+static int ett_ocp1_context;
+static int ett_ocp1_event_data;
+static int ett_ocp1_event_method;
+static int ett_ocp1_params;
+static int ett_ocp1_params_event;
+static int ett_ocp1_params_method;
+static int ett_ocp1_params_property;
+static int ett_ocp1_params_blob;
+static int ett_ocp1_params_string;
+static int ett_ocp1_params_manager_desc;
+static int ett_ocp1_params_devicestate;
+static int ett_ocp1_params_compversion;
+static int ett_ocp1_params_ocaver;
+static int ett_ocp1_params_ptp;
 
 /* PDU Types */
 static const value_string pdu_type_vals[] = {
@@ -450,19 +450,19 @@ static const value_string OcaDiagnosticManagerMethods[] = {
 
 
 /* wmem hash/equal funcs */
-static guint
-oca_handle_hash (gconstpointer v)
+static unsigned
+oca_handle_hash (const void *v)
 {
     const struct oca_request_hash_key *key = (const struct oca_request_hash_key *)v;
-    guint val;
+    unsigned val;
 
     val = key->conv_index + key->handle;
 
     return val;
 }
 
-static gint
-oca_handle_equal(gconstpointer v, gconstpointer w)
+static int
+oca_handle_equal(const void *v, const void *w)
 {
     const struct oca_request_hash_key *v1 = (const struct oca_request_hash_key *)v;
     const struct oca_request_hash_key *v2 = (const struct oca_request_hash_key *)w;
@@ -480,12 +480,12 @@ oca_handle_equal(gconstpointer v, gconstpointer w)
 
 
 static void
-format_occ(gchar *s, guint64 value) {
+format_occ(char *s, uint64_t value) {
 
 
-    guint32 ono        = value >> 32;
-    guint16 tree_level = (guint32)value >> 16;
-    guint16 idx        = (guint16)value;
+    uint32_t ono        = value >> 32;
+    uint16_t tree_level = (uint32_t)value >> 16;
+    uint16_t idx        = (uint16_t)value;
 
     /* Currently, we can only solve fixed object numbers */
     if(ono < 0x01 || ono > 0x0D) {
@@ -493,10 +493,10 @@ format_occ(gchar *s, guint64 value) {
         return;
     }
 
-    const gchar *unknown_method = "UnknownMethod";
-    const gchar *unknown_class = "UnknownClass";
+    const char *unknown_method = "UnknownMethod";
+    const char *unknown_class = "UnknownClass";
 
-    const gchar *method;
+    const char *method;
 
     switch (tree_level) {
 
@@ -566,48 +566,48 @@ format_occ(gchar *s, guint64 value) {
 
 /* Parameter Decoder Datatypes */
 static int
-decode_params_OcaONo(tvbuff_t *tvb, guint offset, proto_tree *tree)
+decode_params_OcaONo(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_ocp1_params_ono, tvb, offset, 4, ENC_BIG_ENDIAN);
     return 4;
 }
 
 static int
-decode_params_OcaResetCause(tvbuff_t *tvb, guint offset, proto_tree *tree)
+decode_params_OcaResetCause(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_ocp1_params_reset_cause, tvb, offset, 1, ENC_BIG_ENDIAN);
     return 1;
 }
 
 static int
-decode_params_OcaPowerState(tvbuff_t *tvb, guint offset, proto_tree *tree)
+decode_params_OcaPowerState(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_ocp1_params_power_state, tvb, offset, 1, ENC_BIG_ENDIAN);
     return 1;
 }
 
 static int
-decode_params_OcaMediaClockType(tvbuff_t *tvb, guint offset, proto_tree *tree)
+decode_params_OcaMediaClockType(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_ocp1_params_media_clock_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     return 1;
 }
 
 static int
-decode_params_OcaComponent(tvbuff_t *tvb, guint offset, proto_tree *tree)
+decode_params_OcaComponent(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_ocp1_params_component, tvb, offset, 2, ENC_BIG_ENDIAN);
     return 2;
 }
 
 static int
-decode_params_OcaBlob(tvbuff_t *tvb, guint offset, proto_tree *tree, char *fname)
+decode_params_OcaBlob(tvbuff_t *tvb, unsigned offset, proto_tree *tree, char *fname)
 {
     proto_tree *l_tree;
     proto_item *ti;
 
-    guint offset_m = offset;
-    guint16 datasize = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+    unsigned offset_m = offset;
+    uint16_t datasize = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
 
     ti = proto_tree_add_item(tree, hf_ocp1_params_blob, tvb, offset_m, 2 + datasize, ENC_NA);
     proto_item_prepend_text(ti, "%s: ", fname);
@@ -623,7 +623,7 @@ decode_params_OcaBlob(tvbuff_t *tvb, guint offset, proto_tree *tree, char *fname
 }
 
 static int
-decode_params_OcaBlobFixedLen(tvbuff_t *tvb, guint offset, guint length, proto_tree *tree, char *fname)
+decode_params_OcaBlobFixedLen(tvbuff_t *tvb, unsigned offset, unsigned length, proto_tree *tree, char *fname)
 {
     proto_item *ti;
 
@@ -634,13 +634,13 @@ decode_params_OcaBlobFixedLen(tvbuff_t *tvb, guint offset, guint length, proto_t
 }
 
 static int
-decode_params_OcaString(tvbuff_t *tvb, guint offset, proto_tree *tree, char *fname)
+decode_params_OcaString(tvbuff_t *tvb, unsigned offset, proto_tree *tree, char *fname)
 {
     proto_tree *l_tree;
     proto_item *ti;
 
-    guint offset_m = offset;
-    guint16 length = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+    unsigned offset_m = offset;
+    uint16_t length = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
 
     ti = proto_tree_add_item(tree, hf_ocp1_params_string, tvb, offset_m, 2 + length, ENC_NA);
     l_tree = proto_item_add_subtree(ti, ett_ocp1_params_string);
@@ -656,14 +656,14 @@ decode_params_OcaString(tvbuff_t *tvb, guint offset, proto_tree *tree, char *fna
 }
 
 static int
-decode_params_OcaBoolean(tvbuff_t *tvb, guint offset, proto_tree *tree)
+decode_params_OcaBoolean(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_ocp1_params_bool, tvb, offset, 1, ENC_BIG_ENDIAN);
     return 1;
 }
 
 static int
-decode_params_OcaEventID(tvbuff_t *tvb, guint offset, proto_tree *tree)
+decode_params_OcaEventID(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     proto_tree *l_tree;
     proto_item *ti;
@@ -680,9 +680,9 @@ decode_params_OcaEventID(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 static int
-decode_params_OcaEvent(tvbuff_t *tvb, guint offset, proto_tree *tree)
+decode_params_OcaEvent(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
-    guint offset_m = offset;
+    unsigned offset_m = offset;
     offset_m += decode_params_OcaONo(tvb, offset_m, tree);
     offset_m += decode_params_OcaEventID(tvb, offset_m, tree);
 
@@ -690,7 +690,7 @@ decode_params_OcaEvent(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 static int
-decode_params_OcaMethodID(tvbuff_t *tvb, guint offset, proto_tree *tree)
+decode_params_OcaMethodID(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     proto_tree *l_tree;
     proto_item *ti;
@@ -707,7 +707,7 @@ decode_params_OcaMethodID(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 static int
-decode_params_OcaPropertyID(tvbuff_t *tvb, guint offset, proto_tree *tree)
+decode_params_OcaPropertyID(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     proto_tree *l_tree;
     proto_item *ti;
@@ -724,13 +724,13 @@ decode_params_OcaPropertyID(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 static int
-decode_params_OcaClassID(tvbuff_t *tvb, guint offset, proto_tree *tree)
+decode_params_OcaClassID(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     proto_item *ti;
-    guint offset_m = offset;
+    unsigned offset_m = offset;
 
     proto_tree_add_item(tree, hf_ocp1_params_classid_fields, tvb, offset_m, 2, ENC_BIG_ENDIAN);
-    guint16 fields = tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN);
+    uint16_t fields = tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN);
     offset_m += 2;
 
     ti = proto_tree_add_item(tree, hf_ocp1_params_classid, tvb, offset_m, fields*2, ENC_ASCII);
@@ -738,9 +738,9 @@ decode_params_OcaClassID(tvbuff_t *tvb, guint offset, proto_tree *tree)
 
     for(int i=0; i<fields; i++) {
         if(i == fields-1)
-            proto_item_append_text(ti, "%d", tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN));
+            proto_item_append_text(ti, "%d", tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN));
         else
-            proto_item_append_text(ti, "%d.", tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN));
+            proto_item_append_text(ti, "%d.", tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN));
 
         offset_m += 2;
     }
@@ -750,16 +750,16 @@ decode_params_OcaClassID(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 static int
-decode_params_OcaClassVersion(tvbuff_t *tvb, guint offset, proto_tree *tree)
+decode_params_OcaClassVersion(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_ocp1_params_class_version, tvb, offset, 2, ENC_BIG_ENDIAN);
     return 2;
 }
 
 static int
-decode_params_OcaClassIdentification(tvbuff_t *tvb, guint offset, proto_tree *tree)
+decode_params_OcaClassIdentification(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
-    guint offset_m = offset;
+    unsigned offset_m = offset;
 
     offset_m += decode_params_OcaClassID(tvb, offset_m, tree);
     offset_m += decode_params_OcaClassVersion(tvb, offset_m, tree);
@@ -768,9 +768,9 @@ decode_params_OcaClassIdentification(tvbuff_t *tvb, guint offset, proto_tree *tr
 }
 
 static int
-decode_params_OcaManagerDescriptor(tvbuff_t *tvb, guint offset, proto_tree *tree)
+decode_params_OcaManagerDescriptor(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
-    guint offset_m = offset;
+    unsigned offset_m = offset;
 
     offset_m += decode_params_OcaONo(tvb, offset_m, tree);
     offset_m += decode_params_OcaString(tvb, offset_m, tree, "Name");
@@ -781,7 +781,7 @@ decode_params_OcaManagerDescriptor(tvbuff_t *tvb, guint offset, proto_tree *tree
 }
 
 static int
-decode_params_OcaNotificationDeliveryMode(tvbuff_t *tvb, guint offset, proto_tree *tree)
+decode_params_OcaNotificationDeliveryMode(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_ocp1_params_ntf_delivery_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -789,9 +789,9 @@ decode_params_OcaNotificationDeliveryMode(tvbuff_t *tvb, guint offset, proto_tre
 }
 
 static int
-decode_params_OcaModelDescription(tvbuff_t *tvb, guint offset, proto_tree *tree)
+decode_params_OcaModelDescription(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
-    guint offset_m = offset;
+    unsigned offset_m = offset;
     offset_m += decode_params_OcaString(tvb, offset_m, tree, "Manufacturer");
     offset_m += decode_params_OcaString(tvb, offset_m, tree, "Name");
     offset_m += decode_params_OcaString(tvb, offset_m, tree, "Version");
@@ -800,9 +800,9 @@ decode_params_OcaModelDescription(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 static int
-decode_params_OcaModelGUID(tvbuff_t *tvb, guint offset, proto_tree *tree)
+decode_params_OcaModelGUID(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
-    guint offset_m = offset;
+    unsigned offset_m = offset;
     offset_m += decode_params_OcaBlobFixedLen(tvb, offset_m, 1, tree, "Reserved");
     offset_m += decode_params_OcaBlobFixedLen(tvb, offset_m, 3, tree, "Manufacturer Code");
     offset_m += decode_params_OcaBlobFixedLen(tvb, offset_m, 4, tree, "Model Code");
@@ -811,9 +811,9 @@ decode_params_OcaModelGUID(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 static int
-decode_params_OcaMethod(tvbuff_t *tvb, guint offset, proto_tree *tree)
+decode_params_OcaMethod(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
-    guint offset_m = offset;
+    unsigned offset_m = offset;
     offset_m += decode_params_OcaONo(tvb, offset_m, tree);
     offset_m += decode_params_OcaMethodID(tvb, offset_m, tree);
 
@@ -821,9 +821,9 @@ decode_params_OcaMethod(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 static int
-decode_params_OcaLibVolType(tvbuff_t *tvb, guint offset, proto_tree *tree)
+decode_params_OcaLibVolType(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
-    guint offset_m = offset;
+    unsigned offset_m = offset;
     offset_m += decode_params_OcaBlobFixedLen(tvb, offset_m, 3, tree, "Authority");
     proto_tree_add_item(tree, hf_ocp1_params_libvoltype_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset_m += 4;
@@ -832,16 +832,16 @@ decode_params_OcaLibVolType(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 static int
-decode_params_OcaLibVolID(tvbuff_t *tvb, guint offset, proto_tree *tree)
+decode_params_OcaLibVolID(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_ocp1_params_libvol_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     return 4;
 }
 
 static int
-decode_params_OcaLibVolIdentifier(tvbuff_t *tvb, guint offset, proto_tree *tree)
+decode_params_OcaLibVolIdentifier(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
-    guint offset_m = offset;
+    unsigned offset_m = offset;
     offset_m += decode_params_OcaONo(tvb, offset_m, tree);
     offset_m += decode_params_OcaLibVolID(tvb, offset_m, tree);
 
@@ -849,9 +849,9 @@ decode_params_OcaLibVolIdentifier(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 static int
-decode_params_OcaLibraryIdentifier(tvbuff_t *tvb, guint offset, proto_tree *tree)
+decode_params_OcaLibraryIdentifier(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
-    guint offset_m = offset;
+    unsigned offset_m = offset;
     offset_m += decode_params_OcaLibVolType(tvb, offset_m, tree);
     offset_m += decode_params_OcaONo(tvb, offset_m, tree);
 
@@ -859,18 +859,18 @@ decode_params_OcaLibraryIdentifier(tvbuff_t *tvb, guint offset, proto_tree *tree
 }
 
 static int
-decode_params_OcaVersion(tvbuff_t *tvb, guint offset, proto_tree *tree)
+decode_params_OcaVersion(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
-    guint offset_m = offset;
+    unsigned offset_m = offset;
     proto_item *ti;
     proto_tree *v_tree;
 
     v_tree = proto_tree_add_subtree_format(tree, tvb, offset_m, 14, ett_ocp1_params_ocaver, &ti,
         "Version %d.%d.%d.%d",
-        tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN),
-        tvb_get_guint32(tvb, offset + 4, ENC_BIG_ENDIAN),
-        tvb_get_guint32(tvb, offset + 8, ENC_BIG_ENDIAN),
-        tvb_get_guint16(tvb, offset + 12, ENC_BIG_ENDIAN));
+        tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN),
+        tvb_get_uint32(tvb, offset + 4, ENC_BIG_ENDIAN),
+        tvb_get_uint32(tvb, offset + 8, ENC_BIG_ENDIAN),
+        tvb_get_uint16(tvb, offset + 12, ENC_BIG_ENDIAN));
 
     proto_tree_add_item(v_tree, hf_ocp1_params_ocaver_major, tvb, offset_m, 4, ENC_BIG_ENDIAN);
     offset_m += 4;
@@ -885,16 +885,16 @@ decode_params_OcaVersion(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 static int
-decode_params_OcaTimeNTP(tvbuff_t *tvb, guint offset, proto_tree *tree)
+decode_params_OcaTimeNTP(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_ocp1_params_time_ntp, tvb, offset, 8, ENC_TIME_NTP);
     return 8;
 }
 
 static int
-decode_params_OcaTimePTP(tvbuff_t *tvb, guint offset, proto_tree *tree)
+decode_params_OcaTimePTP(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
-    guint offset_m = offset;
+    unsigned offset_m = offset;
     proto_item *ti;
     proto_tree *pt;
 
@@ -915,65 +915,65 @@ decode_params_OcaTimePTP(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 static int
-decode_params_OcaTimeMode(tvbuff_t *tvb, guint offset, proto_tree *tree)
+decode_params_OcaTimeMode(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_ocp1_params_time_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
     return 1;
 }
 
 static int
-decode_params_OcaTimeInterval(tvbuff_t *tvb, guint offset, proto_tree *tree)
+decode_params_OcaTimeInterval(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_ocp1_params_time_interval, tvb, offset, 4, ENC_BIG_ENDIAN);
     return 4;
 }
 
 static int
-decode_params_OcaTimeUnits(tvbuff_t *tvb, guint offset, proto_tree *tree)
+decode_params_OcaTimeUnits(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_ocp1_params_time_units, tvb, offset, 1, ENC_BIG_ENDIAN);
     return 1;
 }
 
 static int
-decode_params_OcaTaskID(tvbuff_t *tvb, guint offset, proto_tree *tree)
+decode_params_OcaTaskID(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_ocp1_params_task_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     return 4;
 }
 
 static int
-decode_params_OcaTaskGroupID(tvbuff_t *tvb, guint offset, proto_tree *tree)
+decode_params_OcaTaskGroupID(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_ocp1_params_task_group_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     return 2;
 }
 
 static int
-decode_params_OcaTaskCommand(tvbuff_t *tvb, guint offset, proto_tree *tree)
+decode_params_OcaTaskCommand(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_ocp1_params_task_command, tvb, offset, 1, ENC_BIG_ENDIAN);
     return 1;
 }
 
 static int
-decode_params_OcaTaskManagerState(tvbuff_t *tvb, guint offset, proto_tree *tree)
+decode_params_OcaTaskManagerState(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_ocp1_params_task_manager_state, tvb, offset, 1, ENC_BIG_ENDIAN);
     return 1;
 }
 
 static int
-decode_params_OcaTaskState(tvbuff_t *tvb, guint offset, proto_tree *tree)
+decode_params_OcaTaskState(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_ocp1_params_task_state, tvb, offset, 1, ENC_BIG_ENDIAN);
     return 1;
 }
 
 static int
-decode_params_OcaTaskStatus(tvbuff_t *tvb, guint offset, proto_tree *tree)
+decode_params_OcaTaskStatus(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
-    guint offset_m = offset;
+    unsigned offset_m = offset;
 
     offset_m += decode_params_OcaTaskID(tvb, offset_m, tree);
     offset_m += decode_params_OcaTaskState(tvb, offset_m, tree);
@@ -984,24 +984,24 @@ decode_params_OcaTaskStatus(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 static int
-decode_params_OcaTask(tvbuff_t *tvb, guint offset, proto_tree *tree)
+decode_params_OcaTask(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
 
-    guint offset_m = offset;
+    unsigned offset_m = offset;
 
     offset_m += decode_params_OcaTaskID(tvb, offset_m, tree);
     offset_m += decode_params_OcaString(tvb, offset_m, tree, "Label");
     offset_m += decode_params_OcaLibVolIdentifier(tvb, offset_m, tree);
     offset_m += decode_params_OcaTaskGroupID(tvb, offset_m, tree);
 
-    guint8 mode = tvb_get_guint8(tvb, offset_m);
+    uint8_t mode = tvb_get_uint8(tvb, offset_m);
     offset_m += decode_params_OcaTimeMode(tvb, offset_m, tree);
     offset_m += decode_params_OcaTimeUnits(tvb, offset_m, tree);
     offset_m += decode_params_OcaONo(tvb, offset_m, tree);
 
     if(mode==1) {/* seconds, PTP */
         offset_m += decode_params_OcaTimePTP(tvb, offset_m, tree);
-    } else if (mode==2) { /* samples, guint64 */
+    } else if (mode==2) { /* samples, uint64_t */
         proto_tree_add_item(tree, hf_ocp1_params_start_time, tvb, offset_m, 8, ENC_BIG_ENDIAN);
         offset_m += 8;
     } else { /* fail, malformed */
@@ -1015,14 +1015,14 @@ decode_params_OcaTask(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 static int
-decode_params_OcaMediaCodingSchemeID(tvbuff_t *tvb, guint offset, proto_tree *tree)
+decode_params_OcaMediaCodingSchemeID(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_ocp1_params_media_coding_scheme_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     return 2;
 }
 
 static int
-decode_params_OcaDeviceState(tvbuff_t *tvb, guint offset, proto_tree *tree)
+decode_params_OcaDeviceState(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     static int* const state_bits[] = {
             &hf_ocp1_params_devicestate_oper,
@@ -1039,16 +1039,16 @@ decode_params_OcaDeviceState(tvbuff_t *tvb, guint offset, proto_tree *tree)
 
 /* Parameter Decoder (Class Methods) */
 static int
-decode_params_OcaRoot(tvbuff_t *tvb, gint offset, gint length, guint16 m_idx, guint8 pcount, bool request, proto_tree *tree)
+decode_params_OcaRoot(tvbuff_t *tvb, int offset, int length, uint16_t m_idx, uint8_t pcount, bool request, proto_tree *tree)
 {
-    guint offset_m = offset;
+    unsigned offset_m = offset;
 
     if(m_idx == 0x01 && !request && pcount == 1) {
         /* GetClassIdentification ([out] OcaClassIdentification) */
         proto_tree *p1_tree;
         proto_item *t1;
 
-        guint len = 2 + tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN)*2 + 2;
+        unsigned len = 2 + tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN)*2 + 2;
 
         p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, len, ett_ocp1_params, &t1, "Parameter 1 (Class Identification)");
         offset_m += decode_params_OcaClassIdentification(tvb, offset_m, p1_tree);
@@ -1066,7 +1066,7 @@ decode_params_OcaRoot(tvbuff_t *tvb, gint offset, gint length, guint16 m_idx, gu
         proto_tree *p1_tree;
         proto_item *t1;
 
-        p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t1, "Parameter 1 (Role)");
+        p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t1, "Parameter 1 (Role)");
         offset_m += decode_params_OcaString(tvb, offset_m, p1_tree, "Role");
     }
     else {
@@ -1078,9 +1078,9 @@ decode_params_OcaRoot(tvbuff_t *tvb, gint offset, gint length, guint16 m_idx, gu
 }
 
 static int
-decode_params_OcaDeviceManager(tvbuff_t *tvb, gint offset, gint length, guint16 m_idx, guint8 pcount, bool request, proto_tree *tree)
+decode_params_OcaDeviceManager(tvbuff_t *tvb, int offset, int length, uint16_t m_idx, uint8_t pcount, bool request, proto_tree *tree)
 {
-    guint offset_m = offset;
+    unsigned offset_m = offset;
 
     if(m_idx == 0x01 && !request && pcount == 1) {
         /* GetOcaVersion ([out] OcaVersion: OcaUint16) */
@@ -1104,7 +1104,7 @@ decode_params_OcaDeviceManager(tvbuff_t *tvb, gint offset, gint length, guint16 
         proto_tree *p1_tree;
         proto_item *t1;
 
-        p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t1, "Parameter 1 (Serial Number)");
+        p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t1, "Parameter 1 (Serial Number)");
         offset_m += decode_params_OcaString(tvb, offset_m, p1_tree, "Serial Number");
     }
     else if(m_idx == 0x04 && !request && pcount == 1) {
@@ -1112,7 +1112,7 @@ decode_params_OcaDeviceManager(tvbuff_t *tvb, gint offset, gint length, guint16 
         proto_tree *p1_tree;
         proto_item *t1;
 
-        p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t1, "Parameter 1 (Name)");
+        p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t1, "Parameter 1 (Name)");
         offset_m += decode_params_OcaString(tvb, offset_m, p1_tree, "Name");
     }
     else if(m_idx == 0x05 && request && pcount == 1) {
@@ -1120,7 +1120,7 @@ decode_params_OcaDeviceManager(tvbuff_t *tvb, gint offset, gint length, guint16 
         proto_tree *p1_tree;
         proto_item *t1;
 
-        p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t1, "Parameter 1 (Name)");
+        p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t1, "Parameter 1 (Name)");
         offset_m += decode_params_OcaString(tvb, offset_m, p1_tree, "Name");
     }
     else if(m_idx == 0x06 && !request && pcount == 1) {
@@ -1128,7 +1128,7 @@ decode_params_OcaDeviceManager(tvbuff_t *tvb, gint offset, gint length, guint16 
         proto_tree *p1_tree;
         proto_item *t1;
 
-        p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t1, "Parameter 1 (Description)");
+        p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t1, "Parameter 1 (Description)");
         offset_m += decode_params_OcaModelDescription(tvb, offset_m, p1_tree);
     }
     else if(m_idx == 0x07 && !request && pcount == 1) {
@@ -1136,7 +1136,7 @@ decode_params_OcaDeviceManager(tvbuff_t *tvb, gint offset, gint length, guint16 
         proto_tree *p1_tree;
         proto_item *t1;
 
-        p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t1, "Parameter 1 (Role)");
+        p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t1, "Parameter 1 (Role)");
         offset_m += decode_params_OcaString(tvb, offset_m, p1_tree, "Role");
     }
     else if(m_idx == 0x08 && request && pcount == 1) {
@@ -1144,7 +1144,7 @@ decode_params_OcaDeviceManager(tvbuff_t *tvb, gint offset, gint length, guint16 
         proto_tree *p1_tree;
         proto_item *t1;
 
-        p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t1, "Parameter 1 (Role)");
+        p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t1, "Parameter 1 (Role)");
         offset_m += decode_params_OcaString(tvb, offset_m, p1_tree, "Role");
     }
     else if(m_idx == 0x09 && !request && pcount == 1) {
@@ -1152,7 +1152,7 @@ decode_params_OcaDeviceManager(tvbuff_t *tvb, gint offset, gint length, guint16 
         proto_tree *p1_tree;
         proto_item *t1;
 
-        p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t1, "Parameter 1 (Code)");
+        p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t1, "Parameter 1 (Code)");
         offset_m += decode_params_OcaString(tvb, offset_m, p1_tree, "Code");
     }
     else if(m_idx == 0x0A && request && pcount == 1) {
@@ -1160,7 +1160,7 @@ decode_params_OcaDeviceManager(tvbuff_t *tvb, gint offset, gint length, guint16 
         proto_tree *p1_tree;
         proto_item *t1;
 
-        p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t1, "Parameter 1 (Code)");
+        p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t1, "Parameter 1 (Code)");
         offset_m += decode_params_OcaString(tvb, offset_m, p1_tree, "Code");
     }
     else if(m_idx == 0x0B && !request && pcount == 1) {
@@ -1195,7 +1195,7 @@ decode_params_OcaDeviceManager(tvbuff_t *tvb, gint offset, gint length, guint16 
 
         p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, 16, ett_ocp1_params, &t1, "Parameter 1 (Key)");
         offset_m += decode_params_OcaBlobFixedLen(tvb, offset_m, 16, p1_tree, "Key");
-        p2_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t2, "Parameter 2 (Address)");
+        p2_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t2, "Parameter 2 (Address)");
         offset_m += decode_params_OcaBlob(tvb, offset_m, p2_tree, "Address");
 
     }
@@ -1212,7 +1212,7 @@ decode_params_OcaDeviceManager(tvbuff_t *tvb, gint offset, gint length, guint16 
         proto_tree *p1_tree;
         proto_item *t1;
 
-        p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t1, "Parameter 1 (Message)");
+        p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t1, "Parameter 1 (Message)");
         offset_m += decode_params_OcaString(tvb, offset_m, p1_tree, "Message");
     }
     else if(m_idx == 0x12 && request && pcount == 1) {
@@ -1220,7 +1220,7 @@ decode_params_OcaDeviceManager(tvbuff_t *tvb, gint offset, gint length, guint16 
         proto_tree *p1_tree;
         proto_item *t1;
 
-        p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t1, "Parameter 1 (Message)");
+        p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t1, "Parameter 1 (Message)");
         offset_m += decode_params_OcaString(tvb, offset_m, p1_tree, "Message");
     }
     else if(m_idx == 0x13 && !request && pcount == 1) {
@@ -1230,11 +1230,11 @@ decode_params_OcaDeviceManager(tvbuff_t *tvb, gint offset, gint length, guint16 
 
         /* Determine the full length */
         int plen_total = 2; /* start with len=2, this is the list count field */
-        guint16 item_count = tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN);
+        uint16_t item_count = tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN);
         for(int i = 0; i < item_count; i++) { /* Loop list items */
             plen_total += 4; /* ono */
-            plen_total += tvb_get_guint16(tvb, offset_m + plen_total, ENC_BIG_ENDIAN) + 2;   /* string length + length field (uint16) */
-            plen_total += tvb_get_guint16(tvb, offset_m + plen_total, ENC_BIG_ENDIAN)*2 + 2; /* ClassID field count (uint16) + count x ID (uint16) */
+            plen_total += tvb_get_uint16(tvb, offset_m + plen_total, ENC_BIG_ENDIAN) + 2;   /* string length + length field (uint16) */
+            plen_total += tvb_get_uint16(tvb, offset_m + plen_total, ENC_BIG_ENDIAN)*2 + 2; /* ClassID field count (uint16) + count x ID (uint16) */
             plen_total += 2; /* OcaClassVersionNumber */
         }
 
@@ -1246,8 +1246,8 @@ decode_params_OcaDeviceManager(tvbuff_t *tvb, gint offset, gint length, guint16 
             int plen = 0;
             proto_tree *list_tree;
             plen += 4; /* ono */
-            plen += tvb_get_guint16(tvb, offset_m + plen, ENC_BIG_ENDIAN) + 2;   /* string length + length field (uint16) */
-            plen += tvb_get_guint16(tvb, offset_m + plen, ENC_BIG_ENDIAN)*2 + 2; /* ClassID field count (uint16) + count x ID (uint16) */
+            plen += tvb_get_uint16(tvb, offset_m + plen, ENC_BIG_ENDIAN) + 2;   /* string length + length field (uint16) */
+            plen += tvb_get_uint16(tvb, offset_m + plen, ENC_BIG_ENDIAN)*2 + 2; /* ClassID field count (uint16) + count x ID (uint16) */
             plen += 2; /* OcaClassVersioNumber */
             list_tree = proto_tree_add_subtree_format(p1_tree, tvb, offset_m, plen, ett_ocp1_params_manager_desc, NULL, "Manager Descriptor Item %d", i+1 );
             offset_m += decode_params_OcaManagerDescriptor(tvb, offset_m, list_tree);
@@ -1259,7 +1259,7 @@ decode_params_OcaDeviceManager(tvbuff_t *tvb, gint offset, gint length, guint16 
         proto_tree *p1_tree;
         proto_item *t1;
 
-        p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t1, "Parameter 1 (ID)");
+        p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t1, "Parameter 1 (ID)");
         offset_m += decode_params_OcaString(tvb, offset_m, p1_tree, "Revision");
     }
     else {
@@ -1271,18 +1271,18 @@ decode_params_OcaDeviceManager(tvbuff_t *tvb, gint offset, gint length, guint16 
 }
 
 static int
-decode_params_OcaSecurityManager(tvbuff_t *tvb, gint offset, gint length, guint16 m_idx, guint8 pcount, bool request, proto_tree *tree)
+decode_params_OcaSecurityManager(tvbuff_t *tvb, int offset, int length, uint16_t m_idx, uint8_t pcount, bool request, proto_tree *tree)
 {
-    guint offset_m = offset;
+    unsigned offset_m = offset;
 
     if(m_idx == 0x03 && request && pcount == 2) {
         /* ChangePreSharedKey (identity: OcaString, newKey: OcaBlob) */
         proto_tree *p1_tree, *p2_tree;
         proto_item *t1, *t2;
 
-        p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t1, "Parameter 1 (Identity)");
+        p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t1, "Parameter 1 (Identity)");
         offset_m += decode_params_OcaString(tvb, offset_m, p1_tree, "Identity");
-        p2_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t2, "Parameter 2 (New Key)");
+        p2_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t2, "Parameter 2 (New Key)");
         offset_m += decode_params_OcaBlob(tvb, offset_m, p2_tree, "Key");
     }
     else if(m_idx == 0x04 && request && pcount == 2) {
@@ -1290,9 +1290,9 @@ decode_params_OcaSecurityManager(tvbuff_t *tvb, gint offset, gint length, guint1
         proto_tree *p1_tree, *p2_tree;
         proto_item *t1, *t2;
 
-        p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t1, "Parameter 1 (Identity)");
+        p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t1, "Parameter 1 (Identity)");
         offset_m += decode_params_OcaString(tvb, offset_m, p1_tree, "Identity");
-        p2_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t2, "Parameter 2 (Key)");
+        p2_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t2, "Parameter 2 (Key)");
         offset_m += decode_params_OcaBlob(tvb, offset_m, p2_tree, "Key");
     }
     else if(m_idx == 0x05 && request && pcount == 1) {
@@ -1300,7 +1300,7 @@ decode_params_OcaSecurityManager(tvbuff_t *tvb, gint offset, gint length, guint1
         proto_tree *p1_tree;
         proto_item *t1;
 
-        p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t1, "Parameter 1 (Identity)");
+        p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t1, "Parameter 1 (Identity)");
         offset_m += decode_params_OcaString(tvb, offset_m, p1_tree, "Identity");
     }
     else {
@@ -1312,9 +1312,9 @@ decode_params_OcaSecurityManager(tvbuff_t *tvb, gint offset, gint length, guint1
 }
 
 static int
-decode_params_OcaFirmwareManager(tvbuff_t *tvb, gint offset, gint length, guint16 m_idx, guint8 pcount, bool request, proto_tree *tree)
+decode_params_OcaFirmwareManager(tvbuff_t *tvb, int offset, int length, uint16_t m_idx, uint8_t pcount, bool request, proto_tree *tree)
 {
-    guint offset_m = offset;
+    unsigned offset_m = offset;
 
     if(m_idx == 0x01 && !request && pcount == 1) {
         /* GetComponentVersions ([out] componentVersions: OcaList<OcaVersion>) */
@@ -1324,7 +1324,7 @@ decode_params_OcaFirmwareManager(tvbuff_t *tvb, gint offset, gint length, guint1
         /* Determine the full length */
         /* Each OcaVersion item length = major uint32 + minor uint32 + build uint32 + component uint16 = 14 bytes */
         int plen_total = 2; /* start with len=2, this is the list count field */
-        guint16 item_count = tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN);
+        uint16_t item_count = tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN);
         plen_total += item_count * 14;
 
         p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, plen_total, ett_ocp1_params, &t1, "Parameter 1 (Component Versions)");
@@ -1355,7 +1355,7 @@ decode_params_OcaFirmwareManager(tvbuff_t *tvb, gint offset, gint length, guint1
         p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, 4, ett_ocp1_params, &t1, "Parameter 1 (ID)");
         proto_tree_add_item(p1_tree, hf_ocp1_params_imageid, tvb, offset_m, 4, ENC_BIG_ENDIAN);
         offset += 4;
-        p2_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t2, "Parameter 2 (Image Data)");
+        p2_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t2, "Parameter 2 (Image Data)");
         offset_m += decode_params_OcaBlob(tvb, offset_m, p2_tree, "Image Data");
     }
     else if(m_idx == 0x05 && request && pcount == 1) {
@@ -1363,7 +1363,7 @@ decode_params_OcaFirmwareManager(tvbuff_t *tvb, gint offset, gint length, guint1
         proto_tree *p1_tree;
         proto_item *t1;
 
-        p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t1, "Parameter 1 (Verify Data)");
+        p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t1, "Parameter 1 (Verify Data)");
         offset_m += decode_params_OcaBlob(tvb, offset_m, p1_tree, "Data");
     }
     else if(m_idx == 0x07 && request && pcount == 3) {
@@ -1373,9 +1373,9 @@ decode_params_OcaFirmwareManager(tvbuff_t *tvb, gint offset, gint length, guint1
 
         p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2, ett_ocp1_params, &t1, "Parameter 1 (Component)");
         offset_m += decode_params_OcaComponent(tvb, offset_m, p1_tree);
-        p2_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t2, "Parameter 2 (Server Address)");
+        p2_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t2, "Parameter 2 (Server Address)");
         offset_m += decode_params_OcaBlob(tvb, offset_m, p2_tree, "Server Address");
-        p3_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t3, "Parameter 3 (Update File Name)");
+        p3_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t3, "Parameter 3 (Update File Name)");
         offset_m += decode_params_OcaString(tvb, offset_m, p3_tree, "File Name");
     }
     else {
@@ -1387,9 +1387,9 @@ decode_params_OcaFirmwareManager(tvbuff_t *tvb, gint offset, gint length, guint1
 }
 
 static int
-decode_params_OcaSubscriptionManager(tvbuff_t *tvb, gint offset, gint length, guint16 m_idx, guint8 pcount, bool request, proto_tree *tree)
+decode_params_OcaSubscriptionManager(tvbuff_t *tvb, int offset, int length, uint16_t m_idx, uint8_t pcount, bool request, proto_tree *tree)
 {
-    guint offset_m = offset;
+    unsigned offset_m = offset;
 
     if(m_idx == 0x01 && request && pcount == 5) {
         /* AddSubscription (Event: OcaEvent, Subscriber: OcaMethod, SubscriberContext: OcaBlob, NotificationDeliveryMode: OcaNotificationDeliveryMode, DestinationInformation: OcaNetworkAddress) */
@@ -1400,11 +1400,11 @@ decode_params_OcaSubscriptionManager(tvbuff_t *tvb, gint offset, gint length, gu
         offset_m += decode_params_OcaEvent(tvb, offset_m, p1_tree);
         p2_tree = proto_tree_add_subtree(tree, tvb, offset_m, 8, ett_ocp1_params, &t2, "Parameter 2 (Subscriber)");
         offset_m += decode_params_OcaMethod(tvb, offset_m, p2_tree);
-        p3_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t3, "Parameter 3 (Subscriber Context)");
+        p3_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t3, "Parameter 3 (Subscriber Context)");
         offset_m += decode_params_OcaBlob(tvb, offset_m, p3_tree, "Subscriber Context");
         p4_tree = proto_tree_add_subtree(tree, tvb, offset_m, 1, ett_ocp1_params, &t4, "Parameter 4 (Notification Delivery Mode)");
         offset_m += decode_params_OcaNotificationDeliveryMode(tvb, offset_m, p4_tree);
-        p5_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t5, "Parameter 5 (Destination Information)");
+        p5_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t5, "Parameter 5 (Destination Information)");
         offset_m += decode_params_OcaBlob(tvb, offset_m, p5_tree, "Destination Information");
 
     }
@@ -1430,11 +1430,11 @@ decode_params_OcaSubscriptionManager(tvbuff_t *tvb, gint offset, gint length, gu
         offset_m += decode_params_OcaPropertyID(tvb, offset_m, p2_tree);
         p3_tree = proto_tree_add_subtree(tree, tvb, offset_m, 8, ett_ocp1_params, &t3, "Parameter 3 (Subscriber)");
         offset_m += decode_params_OcaMethod(tvb, offset_m, p3_tree);
-        p4_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t4, "Parameter 4 (SubscriberContext)");
+        p4_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t4, "Parameter 4 (SubscriberContext)");
         offset += decode_params_OcaBlob(tvb, offset_m, p4_tree, "Context");
         p5_tree = proto_tree_add_subtree(tree, tvb, offset_m, 1, ett_ocp1_params, &t5, "Parameter 5 (Notification Delivery Mode)");
         offset_m += decode_params_OcaNotificationDeliveryMode(tvb, offset_m, p5_tree);
-        p6_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t6, "Parameter 6 (Destination Information)");
+        p6_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t6, "Parameter 6 (Destination Information)");
         offset_m += decode_params_OcaBlob(tvb, offset_m, p6_tree, "Address");
     }
     else if(m_idx == 0x06 && request && pcount == 3) {
@@ -1468,9 +1468,9 @@ decode_params_OcaSubscriptionManager(tvbuff_t *tvb, gint offset, gint length, gu
 }
 
 static int
-decode_params_OcaPowerManager(tvbuff_t *tvb, gint offset, gint length, guint16 m_idx, guint8 pcount, bool request, proto_tree *tree)
+decode_params_OcaPowerManager(tvbuff_t *tvb, int offset, int length, uint16_t m_idx, uint8_t pcount, bool request, proto_tree *tree)
 {
-    guint offset_m = offset;
+    unsigned offset_m = offset;
 
     if(m_idx == 0x01 && !request && pcount == 1) {
         /* GetState ([out] State: OcaPowerState) */
@@ -1496,7 +1496,7 @@ decode_params_OcaPowerManager(tvbuff_t *tvb, gint offset, gint length, guint16 m
         /* Determine the full length */
         /* Each ONo item has length 4 bytes */
         int plen_total = 2; /* start with len=2, this is the list count field */
-        guint16 item_count = tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN);
+        uint16_t item_count = tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN);
         plen_total += item_count * 4;
 
         p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, plen_total, ett_ocp1_params, &t1, "Parameter 1 (PSU List)");
@@ -1517,7 +1517,7 @@ decode_params_OcaPowerManager(tvbuff_t *tvb, gint offset, gint length, guint16 m
         /* Determine the full length */
         /* Each ONo item has length 4 bytes */
         int plen_total = 2; /* start with len=2, this is the list count field */
-        guint16 item_count = tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN);
+        uint16_t item_count = tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN);
         plen_total += item_count * 4;
 
         p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, plen_total, ett_ocp1_params, &t1, "Parameter 1 (PSU List)");
@@ -1559,9 +1559,9 @@ decode_params_OcaPowerManager(tvbuff_t *tvb, gint offset, gint length, guint16 m
 }
 
 static int
-decode_params_OcaNetworkManager(tvbuff_t *tvb, gint offset, gint length, guint16 m_idx, guint8 pcount, bool request, proto_tree *tree)
+decode_params_OcaNetworkManager(tvbuff_t *tvb, int offset, int length, uint16_t m_idx, uint8_t pcount, bool request, proto_tree *tree)
 {
-    guint offset_m = offset;
+    unsigned offset_m = offset;
 
     if(m_idx == 0x01 && !request && pcount == 1) {
         /* GetNetworks ([out] Networks: OcaList<OcaONo>) */
@@ -1571,7 +1571,7 @@ decode_params_OcaNetworkManager(tvbuff_t *tvb, gint offset, gint length, guint16
         /* Determine the full length */
         /* Each ONo item has length 4 bytes */
         int plen_total = 2; /* start with len=2, this is the list count field */
-        guint16 item_count = tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN);
+        uint16_t item_count = tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN);
         plen_total += item_count * 4;
 
         p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, plen_total, ett_ocp1_params, &t1, "Parameter 1 (Networks)");
@@ -1592,7 +1592,7 @@ decode_params_OcaNetworkManager(tvbuff_t *tvb, gint offset, gint length, guint16
         /* Determine the full length */
         /* Each ONo item has length 4 bytes */
         int plen_total = 2; /* start with len=2, this is the list count field */
-        guint16 item_count = tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN);
+        uint16_t item_count = tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN);
         plen_total += item_count * 4;
 
         p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, plen_total, ett_ocp1_params, &t1, "Parameter 1 (Stream Networks)");
@@ -1613,7 +1613,7 @@ decode_params_OcaNetworkManager(tvbuff_t *tvb, gint offset, gint length, guint16
         /* Determine the full length */
         /* Each ONo item has length 4 bytes */
         int plen_total = 2; /* start with len=2, this is the list count field */
-        guint16 item_count = tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN);
+        uint16_t item_count = tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN);
         plen_total += item_count * 4;
 
         p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, plen_total, ett_ocp1_params, &t1, "Parameter 1 (Control Networks)");
@@ -1634,7 +1634,7 @@ decode_params_OcaNetworkManager(tvbuff_t *tvb, gint offset, gint length, guint16
         /* Determine the full length */
         /* Each ONo item has length 4 bytes */
         int plen_total = 2; /* start with len=2, this is the list count field */
-        guint16 item_count = tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN);
+        uint16_t item_count = tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN);
         plen_total += item_count * 4;
 
         p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, plen_total, ett_ocp1_params, &t1, "Parameter 1 (Media Transport Networks)");
@@ -1656,9 +1656,9 @@ decode_params_OcaNetworkManager(tvbuff_t *tvb, gint offset, gint length, guint16
 }
 
 static int
-decode_params_OcaMediaClockManager(tvbuff_t *tvb, gint offset, gint length, guint16 m_idx, guint8 pcount, bool request, proto_tree *tree)
+decode_params_OcaMediaClockManager(tvbuff_t *tvb, int offset, int length, uint16_t m_idx, uint8_t pcount, bool request, proto_tree *tree)
 {
-    guint offset_m = offset;
+    unsigned offset_m = offset;
 
     if(m_idx == 0x01 && !request && pcount == 1) {
         /* GetClocks ([out] Clocks: OcaList<OcaONo>) */
@@ -1668,7 +1668,7 @@ decode_params_OcaMediaClockManager(tvbuff_t *tvb, gint offset, gint length, guin
         /* Determine the full length */
         /* Each ONo item has length 4 bytes */
         int plen_total = 2; /* start with len=2, this is the list count field */
-        guint16 item_count = tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN);
+        uint16_t item_count = tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN);
         plen_total += item_count * 4;
 
         p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, plen_total, ett_ocp1_params, &t1, "Parameter 1 (Clocks)");
@@ -1689,7 +1689,7 @@ decode_params_OcaMediaClockManager(tvbuff_t *tvb, gint offset, gint length, guin
         /* Determine the full length */
         /* Each OcaMediaClockType item has length 1 byte */
         int plen_total = 2; /* start with len=2, this is the list count field */
-        guint16 item_count = tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN);
+        uint16_t item_count = tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN);
         plen_total += item_count;
 
         p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, plen_total, ett_ocp1_params, &t1, "Parameter 1 (Media Clock Types)");
@@ -1710,7 +1710,7 @@ decode_params_OcaMediaClockManager(tvbuff_t *tvb, gint offset, gint length, guin
         /* Determine the full length */
         /* Each ONo item has length 4 bytes */
         int plen_total = 2; /* start with len=2, this is the list count field */
-        guint16 item_count = tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN);
+        uint16_t item_count = tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN);
         plen_total += item_count * 4;
 
         p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, plen_total, ett_ocp1_params, &t1, "Parameter 1 (Clocks)");
@@ -1732,9 +1732,9 @@ decode_params_OcaMediaClockManager(tvbuff_t *tvb, gint offset, gint length, guin
 }
 
 static int
-decode_params_OcaLibraryManager(tvbuff_t *tvb, gint offset, gint length, guint16 m_idx, guint8 pcount, bool request, proto_tree *tree)
+decode_params_OcaLibraryManager(tvbuff_t *tvb, int offset, int length, uint16_t m_idx, uint8_t pcount, bool request, proto_tree *tree)
 {
-    guint offset_m = offset;
+    unsigned offset_m = offset;
 
     if(m_idx == 0x01 && request && pcount == 1) {
         /* AddLibrary (Type: OcaLibVolType) */
@@ -1796,7 +1796,7 @@ decode_params_OcaLibraryManager(tvbuff_t *tvb, gint offset, gint length, guint16
          *   - Type (authority = fixed len blob 3, id = 4 bytes)
          *   - ONo = 4 bytes */
         int plen_total = 2; /* start with len=2, this is the list count field */
-        guint16 item_count = tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN);
+        uint16_t item_count = tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN);
         plen_total += item_count * 11;
 
         p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, plen_total, ett_ocp1_params, &t1, "Parameter 1 (Library Identifier)");
@@ -1834,9 +1834,9 @@ decode_params_OcaLibraryManager(tvbuff_t *tvb, gint offset, gint length, guint16
 }
 
 static int
-decode_params_OcaAudioProcessing(tvbuff_t *tvb, gint offset, gint length, proto_tree *tree)
+decode_params_OcaAudioProcessing(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 {
-    guint offset_m = offset;
+    unsigned offset_m = offset;
 
     /* No registered methods */
     proto_tree_add_item(tree, hf_ocp1_params, tvb, offset_m, length, ENC_NA);
@@ -1846,9 +1846,9 @@ decode_params_OcaAudioProcessing(tvbuff_t *tvb, gint offset, gint length, proto_
 }
 
 static int
-decode_params_OcaDeviceTimeManager(tvbuff_t *tvb, gint offset, gint length, guint16 m_idx, guint8 pcount, bool request, proto_tree *tree)
+decode_params_OcaDeviceTimeManager(tvbuff_t *tvb, int offset, int length, uint16_t m_idx, uint8_t pcount, bool request, proto_tree *tree)
 {
-    guint offset_m = offset;
+    unsigned offset_m = offset;
 
     if(m_idx == 0x01 && !request && pcount == 1) {
         /* GetDeviceTimeNTP ([out] DeviceTime: OcaTimeNTP) */
@@ -1874,7 +1874,7 @@ decode_params_OcaDeviceTimeManager(tvbuff_t *tvb, gint offset, gint length, guin
         /* Determine the full length */
         /* Each Item is an ONo = 4 bytes */
         int plen_total = 2; /* start with len=2, this is the list count field */
-        guint16 item_count = tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN);
+        uint16_t item_count = tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN);
         plen_total += item_count * 4;
 
         p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, plen_total, ett_ocp1_params, &t1, "Parameter 1 (Time Sources)");
@@ -1928,9 +1928,9 @@ decode_params_OcaDeviceTimeManager(tvbuff_t *tvb, gint offset, gint length, guin
 }
 
 static int
-decode_params_OcaTaskManager(tvbuff_t *tvb, gint offset, gint length, guint16 m_idx, guint8 pcount, bool request, proto_tree *tree)
+decode_params_OcaTaskManager(tvbuff_t *tvb, int offset, int length, uint16_t m_idx, uint8_t pcount, bool request, proto_tree *tree)
 {
-    guint offset_m = offset;
+    unsigned offset_m = offset;
 
     if(m_idx == 0x01 && request && pcount == 1) {
         /* Enable (Enable: OcaBoolean) */
@@ -1947,7 +1947,7 @@ decode_params_OcaTaskManager(tvbuff_t *tvb, gint offset, gint length, guint16 m_
 
         p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, 1, ett_ocp1_params, &t1, "Parameter 1 (Command)");
         offset_m += decode_params_OcaTaskCommand(tvb, offset_m, p1_tree);
-        p2_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t2, "Parameter 2 (Application Task Parameter)");
+        p2_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t2, "Parameter 2 (Application Task Parameter)");
         offset_m += decode_params_OcaBlob(tvb, offset_m, p2_tree, "Task Parameter");
     }
     else if(m_idx == 0x03 && request && pcount == 3) {
@@ -1959,7 +1959,7 @@ decode_params_OcaTaskManager(tvbuff_t *tvb, gint offset, gint length, guint16 m_
         offset_m += decode_params_OcaTaskGroupID(tvb, offset_m, p1_tree);
         p2_tree = proto_tree_add_subtree(tree, tvb, offset_m, 1, ett_ocp1_params, &t2, "Parameter 2 (Command)");
         offset_m += decode_params_OcaTaskCommand(tvb, offset_m, p2_tree);
-        p3_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t3, "Parameter 3 (Application Task Parameter)");
+        p3_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t3, "Parameter 3 (Application Task Parameter)");
         offset_m += decode_params_OcaBlob(tvb, offset_m, p3_tree, "Task Parameter");
     }
     else if(m_idx == 0x04 && request && pcount == 3) {
@@ -1971,7 +1971,7 @@ decode_params_OcaTaskManager(tvbuff_t *tvb, gint offset, gint length, guint16 m_
         offset_m += decode_params_OcaTaskID(tvb, offset_m, p1_tree);
         p2_tree = proto_tree_add_subtree(tree, tvb, offset_m, 1, ett_ocp1_params, &t2, "Parameter 2 (Task Command)");
         offset_m += decode_params_OcaTaskCommand(tvb, offset_m, p2_tree);
-        p3_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t3, "Parameter 3 (Application Task Parameter)");
+        p3_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t3, "Parameter 3 (Application Task Parameter)");
         offset_m += decode_params_OcaBlob(tvb, offset_m, p3_tree, "Task Parameter");
     }
     else if(m_idx == 0x05 && !request && pcount == 1) {
@@ -2013,17 +2013,17 @@ decode_params_OcaTaskManager(tvbuff_t *tvb, gint offset, gint length, guint16 m_
 
         /* Determine length */
         /* ID (4) + Label (OcaString) + ProgramID (8) + GroupID (2) + TimeMode (1) + */
-        guint len = 4 + 2 + tvb_get_guint16(tvb, offset_m + 4, ENC_BIG_ENDIAN) + 8 + 2 + 1;
+        unsigned len = 4 + 2 + tvb_get_uint16(tvb, offset_m + 4, ENC_BIG_ENDIAN) + 8 + 2 + 1;
         /* TimeUnits (1) + ClockONo (4) + StartTime (13 if TimeUnits=1 (seconds, PTP Time), 8 if TimeUnits=2 (samples)) + Duration (4) + */
-        if(tvb_get_guint8(tvb, offset_m + len)==1) { /* 1 = PTP Time, 13 byte */
+        if(tvb_get_uint8(tvb, offset_m + len)==1) { /* 1 = PTP Time, 13 byte */
             len += 1 + 4 + 13 + 4;
-        } if(tvb_get_guint8(tvb, offset_m + len)==2) { /* 2 = samples, 8 byte */
+        } if(tvb_get_uint8(tvb, offset_m + len)==2) { /* 2 = samples, 8 byte */
             len += 1 + 4 + 8 + 4;
         } else { /* invalid, malformed */
             return offset_m - offset;
         }
         /* ApplicationSpecificParameters (blob) */
-        len += 2 + tvb_get_guint16(tvb, offset_m + len, ENC_BIG_ENDIAN);
+        len += 2 + tvb_get_uint16(tvb, offset_m + len, ENC_BIG_ENDIAN);
 
 
         p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, len, ett_ocp1_params, &t1, "Parameter 1 (Task)");
@@ -2036,23 +2036,23 @@ decode_params_OcaTaskManager(tvbuff_t *tvb, gint offset, gint length, guint16 m_
 
         /* Determine the full length */
         int plen_total = 2; /* start with len=2, this is the map item count field */
-        guint16 item_count = tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN);
+        uint16_t item_count = tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN);
         for(int i = 0; i < item_count; i++) { /* Loop map items */
             plen_total += 4;    /* Map Key -> OcaTaskID, Uint32 */
 
             plen_total += 4; /* ID */
-            plen_total += 2 + tvb_get_guint16(tvb, offset_m + plen_total, ENC_BIG_ENDIAN); /* Label OCA String */
+            plen_total += 2 + tvb_get_uint16(tvb, offset_m + plen_total, ENC_BIG_ENDIAN); /* Label OCA String */
             plen_total += 11; /* ProgramID, GroupId, TimeMode */
             /* TimeUnits (1) + ClockONo (4) + StartTime (13 if TimeUnits=1 (seconds, PTP Time), 8 if TimeUnits=2 (samples)) + Duration (4) + */
-            if(tvb_get_guint8(tvb, offset_m + plen_total)==1) { /* 1 = PTP Time, 13 byte */
+            if(tvb_get_uint8(tvb, offset_m + plen_total)==1) { /* 1 = PTP Time, 13 byte */
                 plen_total += 1 + 4 + 13 + 4;
-            } if(tvb_get_guint8(tvb, offset_m + plen_total)==2) { /* 2 = samples, 8 byte */
+            } if(tvb_get_uint8(tvb, offset_m + plen_total)==2) { /* 2 = samples, 8 byte */
                 plen_total += 1 + 4 + 8 + 4;
             } else { /* invalid, malformed */
                 return offset_m - offset;
             }
             /* ApplicationSpecificParameters (blob) */
-            plen_total += 2 + tvb_get_guint16(tvb, offset_m + plen_total, ENC_BIG_ENDIAN);
+            plen_total += 2 + tvb_get_uint16(tvb, offset_m + plen_total, ENC_BIG_ENDIAN);
         }
 
         p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, plen_total, ett_ocp1_params, &t1, "Parameter 1 (Task Map)");
@@ -2064,17 +2064,17 @@ decode_params_OcaTaskManager(tvbuff_t *tvb, gint offset, gint length, guint16 m_
 
             /* Determine length */
             /* Task ID (4) (Key) + ID (4) + Label (OcaString) + ProgramID (8) + GroupID (2) + TimeMode (1) + */
-            guint len = 4 + 4 + 2 + tvb_get_guint16(tvb, offset_m + 4, ENC_BIG_ENDIAN) + 8 + 2 + 1;
+            unsigned len = 4 + 4 + 2 + tvb_get_uint16(tvb, offset_m + 4, ENC_BIG_ENDIAN) + 8 + 2 + 1;
             /* TimeUnits (1) + ClockONo (4) + StartTime (13 if TimeUnits=1 (seconds, PTP Time), 8 if TimeUnits=2 (samples)) + Duration (4) + */
-            if(tvb_get_guint8(tvb, offset_m + len)==1) { /* 1 = PTP Time, 13 byte */
+            if(tvb_get_uint8(tvb, offset_m + len)==1) { /* 1 = PTP Time, 13 byte */
                 len += 1 + 4 + 13 + 4;
-            } if(tvb_get_guint8(tvb, offset_m + len)==2) { /* 2 = samples, 8 byte */
+            } if(tvb_get_uint8(tvb, offset_m + len)==2) { /* 2 = samples, 8 byte */
                 len += 1 + 4 + 8 + 4;
             } else { /* invalid, malformed */
                 return offset_m - offset;
             }
             /* ApplicationSpecificParameters (blob) */
-            len += 2 + tvb_get_guint16(tvb, offset_m + len, ENC_BIG_ENDIAN);
+            len += 2 + tvb_get_uint16(tvb, offset_m + len, ENC_BIG_ENDIAN);
 
             list_tree = proto_tree_add_subtree_format(p1_tree, tvb, offset_m, len, ett_ocp1_params_compversion, NULL, "Task Item %d", i+1 );
             offset_m += decode_params_OcaTaskID(tvb, offset_m, list_tree);
@@ -2096,17 +2096,17 @@ decode_params_OcaTaskManager(tvbuff_t *tvb, gint offset, gint length, guint16 m_
 
         /* Determine length */
         /* ID (4) + Label (OcaString) + ProgramID (8) + GroupID (2) + TimeMode (1) + */
-        guint len = 4 + 2 + tvb_get_guint16(tvb, offset_m + 4, ENC_BIG_ENDIAN) + 8 + 2 + 1;
+        unsigned len = 4 + 2 + tvb_get_uint16(tvb, offset_m + 4, ENC_BIG_ENDIAN) + 8 + 2 + 1;
         /* TimeUnits (1) + ClockONo (4) + StartTime (13 if TimeUnits=1 (seconds, PTP Time), 8 if TimeUnits=2 (samples)) + Duration (4) + */
-        if(tvb_get_guint8(tvb, offset_m + len)==1) { /* 1 = PTP Time, 13 byte */
+        if(tvb_get_uint8(tvb, offset_m + len)==1) { /* 1 = PTP Time, 13 byte */
             len += 1 + 4 + 13 + 4;
-        } if(tvb_get_guint8(tvb, offset_m + len)==2) { /* 2 = samples, 8 byte */
+        } if(tvb_get_uint8(tvb, offset_m + len)==2) { /* 2 = samples, 8 byte */
             len += 1 + 4 + 8 + 4;
         } else { /* invalid, malformed */
             return offset_m - offset;
         }
         /* ApplicationSpecificParameters (blob) */
-        len += 2 + tvb_get_guint16(tvb, offset_m + len, ENC_BIG_ENDIAN);
+        len += 2 + tvb_get_uint16(tvb, offset_m + len, ENC_BIG_ENDIAN);
 
         p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, len, ett_ocp1_params, &t1, "Parameter 1 (Task)");
         offset_m += decode_params_OcaTask(tvb, offset_m, p1_tree);
@@ -2121,17 +2121,17 @@ decode_params_OcaTaskManager(tvbuff_t *tvb, gint offset, gint length, guint16 m_
 
         /* Determine length */
         /* ID (4) + Label (OcaString) + ProgramID (8) + GroupID (2) + TimeMode (1) + */
-        guint len = 4 + 2 + tvb_get_guint16(tvb, offset_m + 4, ENC_BIG_ENDIAN) + 8 + 2 + 1;
+        unsigned len = 4 + 2 + tvb_get_uint16(tvb, offset_m + 4, ENC_BIG_ENDIAN) + 8 + 2 + 1;
         /* TimeUnits (1) + ClockONo (4) + StartTime (13 if TimeUnits=1 (seconds, PTP Time), 8 if TimeUnits=2 (samples)) + Duration (4) + */
-        if(tvb_get_guint8(tvb, offset_m + len)==1) { /* 1 = PTP Time, 13 byte */
+        if(tvb_get_uint8(tvb, offset_m + len)==1) { /* 1 = PTP Time, 13 byte */
             len += 1 + 4 + 13 + 4;
-        } if(tvb_get_guint8(tvb, offset_m + len)==2) { /* 2 = samples, 8 byte */
+        } if(tvb_get_uint8(tvb, offset_m + len)==2) { /* 2 = samples, 8 byte */
             len += 1 + 4 + 8 + 4;
         } else { /* invalid, malformed */
             return offset_m - offset;
         }
         /* ApplicationSpecificParameters (blob) */
-        len += 2 + tvb_get_guint16(tvb, offset_m + len, ENC_BIG_ENDIAN);
+        len += 2 + tvb_get_uint16(tvb, offset_m + len, ENC_BIG_ENDIAN);
 
         p2_tree = proto_tree_add_subtree(tree, tvb, offset_m, len, ett_ocp1_params, &t2, "Parameter 2 (Task)");
         offset_m += decode_params_OcaTask(tvb, offset_m, p2_tree);
@@ -2153,9 +2153,9 @@ decode_params_OcaTaskManager(tvbuff_t *tvb, gint offset, gint length, guint16 m_
 }
 
 static int
-decode_params_OcaCodingManager(tvbuff_t *tvb, gint offset, gint length, guint16 m_idx, guint8 pcount, bool request, proto_tree *tree)
+decode_params_OcaCodingManager(tvbuff_t *tvb, int offset, int length, uint16_t m_idx, uint8_t pcount, bool request, proto_tree *tree)
 {
-    guint offset_m = offset;
+    unsigned offset_m = offset;
 
     if((m_idx == 0x01 || m_idx == 0x02) && !request && pcount == 1) {
         /* GetAvailableEncodingSchemes ([out] Schemes: OcaMap<OcaMediaCodingSchemeID,OcaString>) */
@@ -2165,11 +2165,11 @@ decode_params_OcaCodingManager(tvbuff_t *tvb, gint offset, gint length, guint16 
 
         /* Determine the full length */
         int plen_total = 2; /* start with len=2, this is the map item count field */
-        guint16 item_count = tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN);
+        uint16_t item_count = tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN);
         for(int i = 0; i < item_count; i++) { /* Loop map items */
             plen_total += 4;    /* Map Key -> OcaMediaCodingSchemeID, Uint16 */
 
-            plen_total += 2 + tvb_get_guint16(tvb, offset_m + plen_total, ENC_BIG_ENDIAN); /* Value, String */
+            plen_total += 2 + tvb_get_uint16(tvb, offset_m + plen_total, ENC_BIG_ENDIAN); /* Value, String */
         }
 
         p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, plen_total, ett_ocp1_params, &t1, "Parameter 1 (Schemes)");
@@ -2192,9 +2192,9 @@ decode_params_OcaCodingManager(tvbuff_t *tvb, gint offset, gint length, guint16 
 }
 
 static int
-decode_params_OcaDiagnosticManager(tvbuff_t *tvb, gint offset, gint length, guint16 m_idx, guint8 pcount, bool request, proto_tree *tree)
+decode_params_OcaDiagnosticManager(tvbuff_t *tvb, int offset, int length, uint16_t m_idx, uint8_t pcount, bool request, proto_tree *tree)
 {
-    guint offset_m = offset;
+    unsigned offset_m = offset;
 
     if(m_idx == 0x01 && request && pcount == 1) {
         /* GetLockStatus (ONo: OcaONo) */
@@ -2209,7 +2209,7 @@ decode_params_OcaDiagnosticManager(tvbuff_t *tvb, gint offset, gint length, guin
         proto_tree *p1_tree;
         proto_item *t1;
 
-        p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t1, "Parameter 1 (Status Description)");
+        p1_tree = proto_tree_add_subtree(tree, tvb, offset_m, 2 + tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN), ett_ocp1_params, &t1, "Parameter 1 (Status Description)");
         offset_m += decode_params_OcaString(tvb, offset_m, p1_tree, "Description");
     }
     else {
@@ -2221,7 +2221,7 @@ decode_params_OcaDiagnosticManager(tvbuff_t *tvb, gint offset, gint length, guin
 }
 
 static int
-decode_params(tvbuff_t *tvb, gint offset, gint length, guint32 ono, guint16 tree_level, guint16 m_idx, guint8 pcount, bool request, proto_tree *tree)
+decode_params(tvbuff_t *tvb, int offset, int length, uint32_t ono, uint16_t tree_level, uint16_t m_idx, uint8_t pcount, bool request, proto_tree *tree)
 {
 
     proto_tree *params_tree;
@@ -2285,7 +2285,7 @@ decode_params(tvbuff_t *tvb, gint offset, gint length, guint32 ono, guint16 tree
 }
 
 static int
-dissect_ocp1_msg_keepalive(tvbuff_t *tvb, gint offset, gint length, proto_tree *tree)
+dissect_ocp1_msg_keepalive(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 {
     proto_tree *message_tree;
     proto_item *ti;
@@ -2304,7 +2304,7 @@ dissect_ocp1_msg_keepalive(tvbuff_t *tvb, gint offset, gint length, proto_tree *
 }
 
 static int
-dissect_ocp1_msg_command(tvbuff_t *tvb, gint offset, gint length, packet_info *pinfo, proto_tree *tree, guint msg_counter)
+dissect_ocp1_msg_command(tvbuff_t *tvb, int offset, int length, packet_info *pinfo, proto_tree *tree, unsigned msg_counter)
 {
     proto_tree *message_tree, *method_tree;
     proto_item *ti, *tf, *t_occ, *r_pkt;
@@ -2316,7 +2316,7 @@ dissect_ocp1_msg_command(tvbuff_t *tvb, gint offset, gint length, packet_info *p
 
     message_tree = proto_tree_add_subtree_format(tree, tvb, offset, length, ett_ocp1_keepalive, &ti, "Command Message %d", msg_counter);
 
-    gint offset_m = offset;
+    int offset_m = offset;
 
     proto_tree_add_item(message_tree, hf_ocp1_message_size, tvb, offset_m, OCP1_MESSAGE_SIZE_LEN, ENC_BIG_ENDIAN);
     offset_m += OCP1_MESSAGE_SIZE_LEN;
@@ -2343,17 +2343,17 @@ dissect_ocp1_msg_command(tvbuff_t *tvb, gint offset, gint length, packet_info *p
 
     if (length-(offset_m - offset) > 0) {
         decode_params(tvb, offset_m, length-(offset_m - offset),
-            tvb_get_guint32(tvb, offset + 8, ENC_BIG_ENDIAN),
-            tvb_get_guint16(tvb, offset + 12, ENC_BIG_ENDIAN),
-            tvb_get_guint16(tvb, offset + 14, ENC_BIG_ENDIAN),
-            tvb_get_guint8(tvb, offset + 16),
+            tvb_get_uint32(tvb, offset + 8, ENC_BIG_ENDIAN),
+            tvb_get_uint16(tvb, offset + 12, ENC_BIG_ENDIAN),
+            tvb_get_uint16(tvb, offset + 14, ENC_BIG_ENDIAN),
+            tvb_get_uint8(tvb, offset + 16),
             true, message_tree);
     }
 
     /* Handle wmem for lookup */
     conversation = find_or_create_conversation(pinfo);
     request_key.conv_index = conversation->conv_index;
-    request_key.handle     = tvb_get_guint32(tvb, offset + 4, ENC_BIG_ENDIAN);
+    request_key.handle     = tvb_get_uint32(tvb, offset + 4, ENC_BIG_ENDIAN);
 
     request_val = (struct oca_request_hash_val *) wmem_map_lookup(oca_request_hash_map, &request_key);
 
@@ -2365,9 +2365,9 @@ dissect_ocp1_msg_command(tvbuff_t *tvb, gint offset, gint length, packet_info *p
         request_val = wmem_new(wmem_file_scope(), struct oca_request_hash_val);
         request_val->pnum         = pinfo->num;
         request_val->pnum_resp    = 0;
-        request_val->ono          = tvb_get_guint32(tvb, offset + 8, ENC_BIG_ENDIAN);
-        request_val->tree_level   = tvb_get_guint16(tvb, offset + 12, ENC_BIG_ENDIAN);
-        request_val->method_index = tvb_get_guint16(tvb, offset + 14, ENC_BIG_ENDIAN);
+        request_val->ono          = tvb_get_uint32(tvb, offset + 8, ENC_BIG_ENDIAN);
+        request_val->tree_level   = tvb_get_uint16(tvb, offset + 12, ENC_BIG_ENDIAN);
+        request_val->method_index = tvb_get_uint16(tvb, offset + 14, ENC_BIG_ENDIAN);
 
         wmem_map_insert(oca_request_hash_map, new_request_key, request_val);
     } else {
@@ -2383,14 +2383,14 @@ dissect_ocp1_msg_command(tvbuff_t *tvb, gint offset, gint length, packet_info *p
 }
 
 static int
-dissect_ocp1_msg_notification(tvbuff_t *tvb, gint offset, gint length, proto_tree *tree, guint msg_counter)
+dissect_ocp1_msg_notification(tvbuff_t *tvb, int offset, int length, proto_tree *tree, unsigned msg_counter)
 {
     proto_tree *message_tree, *context_tree, *method_tree, *eventdata_tree, *eventid_tree;
     proto_item *ti, *tf, *te, *teid, *t_occ, *ti_context;
 
     message_tree = proto_tree_add_subtree_format(tree, tvb, offset, length, ett_ocp1_keepalive, &ti, "Notification Message %d", msg_counter);
 
-    gint offset_m = offset;
+    int offset_m = offset;
 
     proto_tree_add_item(message_tree, hf_ocp1_message_size, tvb, offset_m, OCP1_MESSAGE_SIZE_LEN, ENC_BIG_ENDIAN);
     offset_m += OCP1_MESSAGE_SIZE_LEN;
@@ -2412,7 +2412,7 @@ dissect_ocp1_msg_notification(tvbuff_t *tvb, gint offset, gint length, proto_tre
     proto_tree_add_item(message_tree, hf_ocp1_message_parameter_count, tvb, offset_m, 1, ENC_BIG_ENDIAN);
     offset_m += 1;
 
-    ti_context = proto_tree_add_item(message_tree, hf_ocp1_notification_parameter_context, tvb, offset_m, tvb_get_guint16(tvb, offset_m, ENC_BIG_ENDIAN) + 2, ENC_NA);
+    ti_context = proto_tree_add_item(message_tree, hf_ocp1_notification_parameter_context, tvb, offset_m, tvb_get_uint16(tvb, offset_m, ENC_BIG_ENDIAN) + 2, ENC_NA);
     context_tree = proto_item_add_subtree(ti_context, ett_ocp1_context);
     offset_m += decode_params_OcaBlob(tvb, offset_m, context_tree, "Context");
 
@@ -2431,10 +2431,10 @@ dissect_ocp1_msg_notification(tvbuff_t *tvb, gint offset, gint length, proto_tre
 
     if (length-(offset_m - offset) > 0) {
         decode_params(tvb, offset_m, length-(offset_m - offset),
-            tvb_get_guint32(tvb, offset + 4, ENC_BIG_ENDIAN),
-            tvb_get_guint16(tvb, offset + 8, ENC_BIG_ENDIAN),
-            tvb_get_guint16(tvb, offset + 10, ENC_BIG_ENDIAN),
-            tvb_get_guint8(tvb, offset + 12),
+            tvb_get_uint32(tvb, offset + 4, ENC_BIG_ENDIAN),
+            tvb_get_uint16(tvb, offset + 8, ENC_BIG_ENDIAN),
+            tvb_get_uint16(tvb, offset + 10, ENC_BIG_ENDIAN),
+            tvb_get_uint8(tvb, offset + 12),
             false, eventdata_tree);
     }
 
@@ -2442,7 +2442,7 @@ dissect_ocp1_msg_notification(tvbuff_t *tvb, gint offset, gint length, proto_tre
 }
 
 static int
-dissect_ocp1_msg_response(tvbuff_t *tvb, gint offset, gint length, packet_info *pinfo, proto_tree *tree, guint msg_counter)
+dissect_ocp1_msg_response(tvbuff_t *tvb, int offset, int length, packet_info *pinfo, proto_tree *tree, unsigned msg_counter)
 {
     proto_tree *message_tree;
     proto_item *ti, *r_pkt;
@@ -2452,7 +2452,7 @@ dissect_ocp1_msg_response(tvbuff_t *tvb, gint offset, gint length, packet_info *
 
     message_tree = proto_tree_add_subtree_format(tree, tvb, offset, length, ett_ocp1_keepalive, &ti, "Response Message %d", msg_counter);
 
-    gint offset_m = offset;
+    int offset_m = offset;
 
     proto_tree_add_item(message_tree, hf_ocp1_message_size, tvb, offset_m, OCP1_MESSAGE_SIZE_LEN, ENC_BIG_ENDIAN);
     offset_m += OCP1_MESSAGE_SIZE_LEN;
@@ -2461,7 +2461,7 @@ dissect_ocp1_msg_response(tvbuff_t *tvb, gint offset, gint length, packet_info *
     offset_m += 4;
 
     proto_tree_add_item(message_tree, hf_ocp1_message_status_code, tvb, offset_m, 1, ENC_BIG_ENDIAN);
-    if(tvb_get_guint8(tvb, offset_m) != 0x00) {
+    if(tvb_get_uint8(tvb, offset_m) != 0x00) {
         expert_add_info(pinfo, ti, &ei_ocp1_bad_status_code);
     }
     offset_m += 1;
@@ -2472,7 +2472,7 @@ dissect_ocp1_msg_response(tvbuff_t *tvb, gint offset, gint length, packet_info *
     /* Find request info */
     conversation = find_or_create_conversation(pinfo);
     request_key.conv_index = conversation->conv_index;
-    request_key.handle     = tvb_get_guint32(tvb, offset + 4, ENC_BIG_ENDIAN);
+    request_key.handle     = tvb_get_uint32(tvb, offset + 4, ENC_BIG_ENDIAN);
 
     /* build an empty oca_request_val
      * if wmem lookup fails, reference this one to force the parameter dissectors to fail */
@@ -2488,7 +2488,7 @@ dissect_ocp1_msg_response(tvbuff_t *tvb, gint offset, gint length, packet_info *
             request_val->ono,
             request_val->tree_level,
             request_val->method_index,
-            tvb_get_guint8(tvb, offset + 9),
+            tvb_get_uint8(tvb, offset + 9),
             false, message_tree);
     }
 
@@ -2506,21 +2506,21 @@ dissect_ocp1_msg_response(tvbuff_t *tvb, gint offset, gint length, packet_info *
 }
 
 static int
-dissect_ocp1_pdu(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *tree, guint *pdu_counter)
+dissect_ocp1_pdu(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, unsigned *pdu_counter)
 {
 
-    if (tvb_get_guint8(tvb, offset) != OCP1_SYNC_VAL)
+    if (tvb_get_uint8(tvb, offset) != OCP1_SYNC_VAL)
         return offset;
 
-    guint offset_d = offset;                         /* Increment counter for dissection */
-    guint offset_m = offset + OCP1_FRAME_HEADER_LEN; /* Set offset to start of first message, will increment to next message later */
-    guint message_size;                              /* Message size (per iteration) */
+    unsigned offset_d = offset;                         /* Increment counter for dissection */
+    unsigned offset_m = offset + OCP1_FRAME_HEADER_LEN; /* Set offset to start of first message, will increment to next message later */
+    unsigned message_size;                              /* Message size (per iteration) */
 
     if (tvb_captured_length_remaining(tvb, offset) < OCP1_FRAME_HEADER_LEN)
         return offset;
 
-    guint32 header_pdu_size = tvb_get_guint32(tvb, offset + 3, ENC_BIG_ENDIAN);
-    guint8  pdu_type        = tvb_get_guint8(tvb, offset + 7);
+    uint32_t header_pdu_size = tvb_get_uint32(tvb, offset + 3, ENC_BIG_ENDIAN);
+    uint8_t pdu_type        = tvb_get_uint8(tvb, offset + 7);
 
     proto_tree *pdu_tree;
     proto_item *ti;
@@ -2569,7 +2569,7 @@ dissect_ocp1_pdu(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *tre
 
     proto_tree_add_item(pdu_tree, hf_ocp1_message_count, tvb, offset_d, 2, ENC_BIG_ENDIAN);
 
-    guint msg_counter = 1;
+    unsigned msg_counter = 1;
 
 
 
@@ -2581,13 +2581,13 @@ dissect_ocp1_pdu(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *tre
 
             while (offset_m < (offset + header_pdu_size + 1)) {
                 /* first 4 byte of message is command size (incl. these 4 bytes) */
-                message_size = tvb_get_guint32(tvb, offset_m, ENC_BIG_ENDIAN);
+                message_size = tvb_get_uint32(tvb, offset_m, ENC_BIG_ENDIAN);
                 if(message_size < OCP1_MESSAGE_SIZE_LEN) {
                     expert_add_info(pinfo, pdu_tree, &ei_ocp1_invalid_length);
                     return 0;
                 }
 
-                dissect_ocp1_msg_command(tvb, offset_m, tvb_get_guint32(tvb, offset_m, ENC_BIG_ENDIAN), pinfo, pdu_tree, msg_counter);
+                dissect_ocp1_msg_command(tvb, offset_m, tvb_get_uint32(tvb, offset_m, ENC_BIG_ENDIAN), pinfo, pdu_tree, msg_counter);
                 offset_m += message_size;
                 msg_counter++;
             }
@@ -2597,13 +2597,13 @@ dissect_ocp1_pdu(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *tre
 
             while (offset_m < (offset + header_pdu_size + 1)) {
                 /* first 4 byte of message is command size (incl. these 4 bytes) */
-                message_size = tvb_get_guint32(tvb, offset_m, ENC_BIG_ENDIAN);
+                message_size = tvb_get_uint32(tvb, offset_m, ENC_BIG_ENDIAN);
                 if(message_size < OCP1_MESSAGE_SIZE_LEN) {
                     expert_add_info(pinfo, pdu_tree, &ei_ocp1_invalid_length);
                     return 0;
                 }
 
-                dissect_ocp1_msg_notification(tvb, offset_m, tvb_get_guint32(tvb, offset_m, ENC_BIG_ENDIAN), pdu_tree, msg_counter);
+                dissect_ocp1_msg_notification(tvb, offset_m, tvb_get_uint32(tvb, offset_m, ENC_BIG_ENDIAN), pdu_tree, msg_counter);
                 offset_m += message_size;
                 msg_counter++;
             }
@@ -2613,12 +2613,12 @@ dissect_ocp1_pdu(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *tre
 
             while (offset_m < (offset + header_pdu_size + 1)) {
                 /* first 4 byte of message is response size (incl. these 4 bytes) */
-                message_size = tvb_get_guint32(tvb, offset_m, ENC_BIG_ENDIAN);
+                message_size = tvb_get_uint32(tvb, offset_m, ENC_BIG_ENDIAN);
                 if(message_size < OCP1_MESSAGE_SIZE_LEN) {
                     expert_add_info(pinfo, pdu_tree, &ei_ocp1_invalid_length);
                     return 0;
                 }
-                dissect_ocp1_msg_response(tvb, offset_m, tvb_get_guint32(tvb, offset_m, ENC_BIG_ENDIAN), pinfo, pdu_tree, msg_counter);
+                dissect_ocp1_msg_response(tvb, offset_m, tvb_get_uint32(tvb, offset_m, ENC_BIG_ENDIAN), pinfo, pdu_tree, msg_counter);
                 offset_m += message_size;
                 msg_counter++;
             }
@@ -2627,7 +2627,7 @@ dissect_ocp1_pdu(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *tre
         case OCP1_PDU_TYPE_OCA_KEEPALIVE:
 
             /* Keep-Alive shall only contain one message */
-            if (tvb_get_guint16(tvb, offset + 8, ENC_BIG_ENDIAN) != 0x01)
+            if (tvb_get_uint16(tvb, offset + 8, ENC_BIG_ENDIAN) != 0x01)
                 return 0;
 
             /* Message length possibe are 2 bytes (sec) or 4 bytes (msec) */
@@ -2654,10 +2654,10 @@ dissect_ocp1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     proto_item *ti = proto_tree_add_item(tree, proto_ocp1, tvb, 0, -1, ENC_NA);
     proto_tree *ocp1_tree = proto_item_add_subtree(ti, ett_ocp1);
 
-    guint pdu_counter[OCP1_PDU_TYPE_ERROR_INDEX+1] = {0};
+    unsigned pdu_counter[OCP1_PDU_TYPE_ERROR_INDEX+1] = {0};
 
     /* iterate through PDUs */
-    guint offset = 0;
+    unsigned offset = 0;
     while (offset < tvb_captured_length(tvb)) {
 
         int len = dissect_ocp1_pdu(tvb, pinfo, offset, ocp1_tree, pdu_counter);
@@ -2682,21 +2682,21 @@ dissect_ocp1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     return tvb_captured_length(tvb);
 }
 
-static guint
+static unsigned
 get_ocp1_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
 
-    gboolean another_pdu = TRUE;
-    guint size = 0;
+    bool another_pdu = true;
+    unsigned size = 0;
 
     /* concat multiple PDUs into one protocol tree */
     while(another_pdu) {
 
-        guint pdu_size = tvb_get_guint32(tvb, offset + 3, ENC_BIG_ENDIAN) + 1;
+        unsigned pdu_size = tvb_get_uint32(tvb, offset + 3, ENC_BIG_ENDIAN) + 1;
         size += pdu_size;
 
         if (!(tvb_captured_length_remaining(tvb, offset + pdu_size) >= OCP1_FRAME_HEADER_LEN + 1) || pdu_size < OCP1_FRAME_HEADER_LEN - 1)
-            another_pdu = FALSE;
+            another_pdu = false;
 
         offset += pdu_size;
     }
@@ -2711,11 +2711,11 @@ dissect_ocp1_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     if (!tvb_bytes_exist(tvb, 0, OCP1_FRAME_HEADER_LEN))
         return 0;
 
-    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, OCP1_FRAME_HEADER_LEN, get_ocp1_message_len, dissect_ocp1, data);
+    tcp_dissect_pdus(tvb, pinfo, tree, true, OCP1_FRAME_HEADER_LEN, get_ocp1_message_len, dissect_ocp1, data);
     return tvb_reported_length(tvb);
 }
 
-static gboolean
+static bool
 test_ocp1(tvbuff_t *tvb)
 {
 
@@ -2725,23 +2725,23 @@ test_ocp1(tvbuff_t *tvb)
 
     /* Size must be larger than SyncVal + Header = 10 bytes */
     if (tvb_captured_length(tvb) < OCP1_FRAME_HEADER_LEN)
-        return FALSE;
+        return false;
 
     /* PDU size must be larger than header size (without SyncVal) */
-    if (tvb_get_guint32(tvb, 3, ENC_BIG_ENDIAN) < OCP1_FRAME_HEADER_LEN - 1)
-        return FALSE;
+    if (tvb_get_uint32(tvb, 3, ENC_BIG_ENDIAN) < OCP1_FRAME_HEADER_LEN - 1)
+        return false;
 
     /* SyncVal must be the first byte */
-    if (tvb_get_guint8(tvb, 0) != OCP1_SYNC_VAL)
-        return FALSE;
+    if (tvb_get_uint8(tvb, 0) != OCP1_SYNC_VAL)
+        return false;
 
     /* Protocol version must be 0x0001 */
-    if (tvb_get_guint16(tvb, 1, ENC_BIG_ENDIAN) != OCP1_PROTO_VER)
-        return FALSE;
+    if (tvb_get_uint16(tvb, 1, ENC_BIG_ENDIAN) != OCP1_PROTO_VER)
+        return false;
 
     /* PDU type can be 0x00-0x04 */
-    if (tvb_get_guint8(tvb, 7) > 0x04)
-        return FALSE;
+    if (tvb_get_uint8(tvb, 7) > 0x04)
+        return false;
 
     /* Check packet length
         * - PDU's header size can be larger than packet (fragmentation)
@@ -2750,16 +2750,16 @@ test_ocp1(tvbuff_t *tvb)
         *   for at least a header, then it smells like OCP.1, really...but don't iterate through every possible PDU
         *   (Header's PDU size field includes header and message length but excludes SyncVal (1 byte))
     */
-    guint header_pdu_size = tvb_get_guint32(tvb, 3, ENC_BIG_ENDIAN);
+    unsigned header_pdu_size = tvb_get_uint32(tvb, 3, ENC_BIG_ENDIAN);
     if (tvb_captured_length(tvb) > header_pdu_size + 1) {
         if (
-            tvb_get_guint8(tvb, header_pdu_size + 1) != OCP1_SYNC_VAL &&
+            tvb_get_uint8(tvb, header_pdu_size + 1) != OCP1_SYNC_VAL &&
             tvb_captured_length(tvb) <= header_pdu_size + 11 /* PDU one (PDU size + SyncVal) + SyncVal-/Header length PDU two = 11 bytes */
         )
-            return FALSE;
+            return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 static bool
@@ -3315,7 +3315,7 @@ proto_register_ocp1(void)
         }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_ocp1,
         &ett_ocp1_pdu,
         &ett_ocp1_keepalive,

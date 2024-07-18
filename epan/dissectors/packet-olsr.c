@@ -92,12 +92,12 @@ static int hf_olsrorg_ns_content;
 static int hf_olsr_data;
 
 /* Initialize the subtree pointers*/
-static gint ett_olsr;
-static gint ett_olsr_message[G_MAXUINT8 + 1];
-static gint ett_olsr_message_linktype;
-static gint ett_olsr_message_neigh;
-static gint ett_olsr_message_neigh6;
-static gint ett_olsr_message_ns;
+static int ett_olsr;
+static int ett_olsr_message[UINT8_MAX + 1];
+static int ett_olsr_message_linktype;
+static int ett_olsr_message_neigh;
+static int ett_olsr_message_neigh6;
+static int ett_olsr_message_ns;
 
 static expert_field ei_olsr_not_enough_bytes;
 static expert_field ei_olsrorg_ns_version;
@@ -142,12 +142,12 @@ static const value_string nameservice_type_vals[] = {
 static bool global_olsr_olsrorg = true;
 static bool global_olsr_nrlolsr = true;
 
-static double getOlsrTime(guint8 timeval) {
+static double getOlsrTime(uint8_t timeval) {
   int high_bits, low_bits;
 
   high_bits = ((timeval & 0xF0) >> 4);
   low_bits  = (timeval & 0x0F);
-  return ((G_GUINT64_CONSTANT(1) << low_bits) / 16.0) * (1 + (high_bits / 16.0));
+  return ((UINT64_C(1) << low_bits) / 16.0) * (1 + (high_bits / 16.0));
 }
 
 /*------------------------- TC Dissecting Code-------------------------*/
@@ -193,7 +193,7 @@ static int dissect_olsrorg_lq_tc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
   while (offset < message_end) {
     proto_item *address_group;
     proto_tree *address_tree;
-    guint8 lq, nlq;
+    uint8_t lq, nlq;
 
     if (pinfo->src.type == AT_IPv4) {
       if (message_end - offset < 8) {
@@ -201,8 +201,8 @@ static int dissect_olsrorg_lq_tc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             "Not enough bytes for last entry (need 8 bytes)");
         return message_end;
       }
-      lq = tvb_get_guint8(tvb, offset + 4);
-      nlq = tvb_get_guint8(tvb, offset + 5);
+      lq = tvb_get_uint8(tvb, offset + 4);
+      nlq = tvb_get_uint8(tvb, offset + 5);
 
       address_group = proto_tree_add_bytes_format_value(olsr_tree, hf_olsr_neighbor, tvb, offset, 8,
           NULL, "%s (%d/%d)", tvb_ip_to_str(pinfo->pool, tvb, offset), lq, nlq);
@@ -217,8 +217,8 @@ static int dissect_olsrorg_lq_tc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             "Not enough bytes for last entry (need 20 bytes)");
         return message_end;
       }
-      lq = tvb_get_guint8(tvb, offset + 16);
-      nlq = tvb_get_guint8(tvb, offset + 17);
+      lq = tvb_get_uint8(tvb, offset + 16);
+      nlq = tvb_get_uint8(tvb, offset + 17);
 
       address_group = proto_tree_add_bytes_format_value(olsr_tree, hf_olsr_neighbor, tvb, offset, 20,
           NULL, "%s (%d/%d)", tvb_ip6_to_str(pinfo->pool, tvb, offset), lq, nlq);
@@ -277,7 +277,7 @@ static int dissect_olsr_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ols
   proto_item *ti;
   proto_tree *link_type_tree;
 
-  guint16     message_size;
+  uint16_t    message_size;
 
   if (message_end - offset < 4) {
     proto_tree_add_expert_format(olsr_tree, pinfo, &ei_olsr_not_enough_bytes, tvb, offset, message_end - offset,
@@ -288,7 +288,7 @@ static int dissect_olsr_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ols
   offset += 2;
 
   /*---------------------Dissect Hello Emission Inverval-------------------*/
-  hTime = getOlsrTime(tvb_get_guint8(tvb, offset));
+  hTime = getOlsrTime(tvb_get_uint8(tvb, offset));
   proto_tree_add_double_format_value(olsr_tree, hf_olsr_htime, tvb, offset, 1, hTime,
       "%.3f (in seconds)", hTime);
   offset += 1;
@@ -353,7 +353,7 @@ static int handle_olsr_hello_olsrorg(tvbuff_t *tvb, packet_info *pinfo, proto_tr
   while (offset < link_message_end) {
     proto_item *address_group;
     proto_tree *address_tree;
-    guint8      lq, nlq;
+    uint8_t     lq, nlq;
 
     if (link_message_end - offset < pinfo->src.len + 4) {
       proto_tree_add_expert_format(olsr_tree, pinfo, &ei_olsr_not_enough_bytes, tvb, offset, link_message_end - offset,
@@ -362,8 +362,8 @@ static int handle_olsr_hello_olsrorg(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     }
 
     if (pinfo->src.type == AT_IPv4) {
-      lq = tvb_get_guint8(tvb, offset + 4);
-      nlq = tvb_get_guint8(tvb, offset + 5);
+      lq = tvb_get_uint8(tvb, offset + 4);
+      nlq = tvb_get_uint8(tvb, offset + 5);
 
       address_group = proto_tree_add_bytes_format_value(olsr_tree, hf_olsr_neighbor, tvb, offset, 8,
            NULL, "%s (%d/%d)", tvb_ip_to_str(pinfo->pool, tvb, offset), lq, nlq);
@@ -373,8 +373,8 @@ static int handle_olsr_hello_olsrorg(tvbuff_t *tvb, packet_info *pinfo, proto_tr
       proto_tree_add_item(address_tree, hf_olsr_neighbor_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
     } else if (pinfo->src.type == AT_IPv6) {
-      lq = tvb_get_guint8(tvb, offset + 16);
-      nlq = tvb_get_guint8(tvb, offset + 17);
+      lq = tvb_get_uint8(tvb, offset + 16);
+      nlq = tvb_get_uint8(tvb, offset + 17);
 
       address_group = proto_tree_add_bytes_format_value(olsr_tree, hf_olsr_neighbor, tvb, offset, 20,
           NULL, "%s (%d/%d)", tvb_ip6_to_str(pinfo->pool, tvb, offset), lq, nlq);
@@ -444,7 +444,7 @@ static int dissect_olsr_hna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *olsr_
 /*------------------------- MID Dissecting Code-------------------------*/
 static int dissect_olsrorg_nameservice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *olsr_tree, int offset,
     int message_end) {
-  guint16     version, count;
+  uint16_t    version, count;
 
   proto_item *olsr_ns_item, *ti;
   proto_tree *olsr_ns_tree;
@@ -471,7 +471,7 @@ static int dissect_olsrorg_nameservice(tvbuff_t *tvb, packet_info *pinfo, proto_
   }
 
   while (offset < message_end && count-- > 0) {
-    guint16 type, length;
+    uint16_t type, length;
     int total_length;
 
     if (message_end - offset < 20) {
@@ -518,10 +518,10 @@ static int dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   proto_tree *olsr_tree;
 
   int    offset, message_len, message_end;
-  guint  message_type;
+  unsigned  message_type;
   double vTime;
 
-  guint16 packet_len;
+  uint16_t packet_len;
 
   /* Does this packet have a valid message type at the beginning? */
   if (tvb_captured_length(tvb) < 4) {
@@ -567,8 +567,8 @@ static int dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         break;
       }
 
-      message_type = tvb_get_guint8(tvb, offset);
-      vTime = getOlsrTime(tvb_get_guint8(tvb, offset + 1));
+      message_type = tvb_get_uint8(tvb, offset);
+      vTime = getOlsrTime(tvb_get_uint8(tvb, offset + 1));
       message_len = tvb_get_ntohs(tvb, offset + 2);
 
       message_item = proto_tree_add_bytes_format_value(olsr_tree, hf_olsr_message, tvb, offset, message_len,
@@ -937,7 +937,7 @@ void proto_register_olsr(void) {
     }
   };
 
-  static gint *ett_base[] = {
+  static int *ett_base[] = {
     &ett_olsr,
     &ett_olsr_message_linktype,
     &ett_olsr_message_neigh,
@@ -951,7 +951,7 @@ void proto_register_olsr(void) {
     { &ei_olsr_data_misaligned,  { "olsr.data.misaligned", PI_PROTOCOL, PI_WARN, "Must be aligned on 32 bits", EXPFILL }},
   };
 
-  gint *ett[array_length(ett_base) + (G_MAXUINT8+1)];
+  int *ett[array_length(ett_base) + (UINT8_MAX+1)];
 
   module_t        *olsr_module;
   expert_module_t *expert_olsr;
@@ -959,7 +959,7 @@ void proto_register_olsr(void) {
 
   memcpy(ett, ett_base, sizeof(ett_base));
   j = array_length(ett_base);
-  for (i=0; i<G_MAXUINT8+1; i++) {
+  for (i=0; i<UINT8_MAX+1; i++) {
     ett[j++] = &ett_olsr_message[i];
   }
 

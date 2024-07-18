@@ -66,7 +66,7 @@ static int hf_omapi_object_end_tag;
 static int hf_omapi_message_end_tag;
 static int hf_omapi_no_value;
 
-static gint ett_omapi;
+static int ett_omapi;
 
 #define OMAPI_PORT 7911 /* Not IANA registered */
 
@@ -98,9 +98,9 @@ dissect_omapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
   proto_tree  *omapi_tree;
   ptvcursor_t *cursor;
 
-  guint32 authlength;
-  guint32 msglength;
-  guint32 objlength;
+  uint32_t authlength;
+  uint32_t msglength;
+  uint32_t objlength;
 
     /* Payload too small for OMAPI */
   if (tvb_reported_length_remaining(tvb, 0) < 8)
@@ -164,7 +164,7 @@ dissect_omapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     {
       proto_tree_add_item(omapi_tree, hf_omapi_empty_string, tvb, 0, 0, ENC_NA);
     }
-    else if (msglength == (guint32)~0)
+    else if (msglength == (uint32_t)~0)
     {
       proto_tree_add_item(omapi_tree, hf_omapi_no_value, tvb, 0, 0, ENC_NA);
     }
@@ -190,7 +190,7 @@ dissect_omapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     {
       proto_tree_add_item(omapi_tree, hf_omapi_empty_string, tvb, 0, 0, ENC_NA);
     }
-    else if (objlength == (guint32)~0)
+    else if (objlength == (uint32_t)~0)
     {
       proto_tree_add_item(omapi_tree, hf_omapi_no_value, tvb, 0, 0, ENC_NA);
     }
@@ -293,7 +293,7 @@ proto_register_omapi(void)
 
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_omapi
   };
 

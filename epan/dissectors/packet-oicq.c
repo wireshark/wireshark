@@ -50,7 +50,7 @@ static int hf_oicq_qqid;
 static int hf_oicq_data;
 
 
-static gint ett_oicq;
+static int ett_oicq;
 
 static const value_string oicq_flag_vals[] = {
 	{ 0x02,	"Oicq packet" },
@@ -112,7 +112,7 @@ dissect_oicq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 	/* heuristic: OICQ iff (([0] == STX) && ([3/4] == <valid_command>) ) */
 	/*  (Supposedly each OICQ message ends with an ETX so a test for     */
 	/*   same could also be part of the heuristic).                      */
-	if ( (try_val_to_str(tvb_get_guint8(tvb, 0), oicq_flag_vals)    == NULL) ||
+	if ( (try_val_to_str(tvb_get_uint8(tvb, 0), oicq_flag_vals)    == NULL) ||
 	     (try_val_to_str(tvb_get_ntohs(tvb, 3),  oicq_command_vals) == NULL) )
 		return 0;
 
@@ -172,7 +172,7 @@ proto_register_oicq(void)
 			"Data", "oicq.data", FT_STRING, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 	};
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_oicq,
 	};
 

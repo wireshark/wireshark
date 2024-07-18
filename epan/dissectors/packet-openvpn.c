@@ -51,29 +51,29 @@ void proto_reg_handoff_openvpn(void);
 #define P_CONTROL_HARD_RESET_CLIENT_V3  10
 #define P_CONTROL_WKC_V1                11
 
-static gint ett_openvpn;
-static gint ett_openvpn_data;
-static gint ett_openvpn_packetarray;
-static gint ett_openvpn_type;
-static gint ett_openvpn_wkc;
-static gint hf_openvpn_data;
-static gint hf_openvpn_wkc_data;
-static gint hf_openvpn_wkc_length;
-static gint hf_openvpn_fragment_bytes;
-static gint hf_openvpn_hmac;
-static gint hf_openvpn_keyid;
-static gint hf_openvpn_mpid;
-static gint hf_openvpn_mpid_arrayelement;
-static gint hf_openvpn_mpid_arraylength;
-static gint hf_openvpn_net_time;
-static gint hf_openvpn_opcode;
-static gint hf_openvpn_pdu_type;
-static gint hf_openvpn_pid;
-static gint hf_openvpn_plen;
-static gint hf_openvpn_rsessionid;
-static gint hf_openvpn_sessionid;
-static gint hf_openvpn_peerid;
-static gint proto_openvpn;
+static int ett_openvpn;
+static int ett_openvpn_data;
+static int ett_openvpn_packetarray;
+static int ett_openvpn_type;
+static int ett_openvpn_wkc;
+static int hf_openvpn_data;
+static int hf_openvpn_wkc_data;
+static int hf_openvpn_wkc_length;
+static int hf_openvpn_fragment_bytes;
+static int hf_openvpn_hmac;
+static int hf_openvpn_keyid;
+static int hf_openvpn_mpid;
+static int hf_openvpn_mpid_arrayelement;
+static int hf_openvpn_mpid_arraylength;
+static int hf_openvpn_net_time;
+static int hf_openvpn_opcode;
+static int hf_openvpn_pdu_type;
+static int hf_openvpn_pid;
+static int hf_openvpn_plen;
+static int hf_openvpn_rsessionid;
+static int hf_openvpn_sessionid;
+static int hf_openvpn_peerid;
+static int proto_openvpn;
 
 static dissector_handle_t openvpn_udp_handle;
 static dissector_handle_t openvpn_tcp_handle;
@@ -85,7 +85,7 @@ static bool     pref_long_format       = true;
 static bool     pref_tls_auth;
 static bool     pref_tls_auth_override;
 static bool     pref_tls_crypt_override;
-static guint    tls_auth_hmac_size     = 20; /* Default SHA-1 160 Bits */
+static unsigned tls_auth_hmac_size     = 20; /* Default SHA-1 160 Bits */
 
 static const value_string openvpn_message_types[] =
 {
@@ -106,18 +106,18 @@ static const value_string openvpn_message_types[] =
 /* everything used during the reassembly process */
 static reassembly_table msg_reassembly_table;
 
-static gint ett_openvpn_fragment;
-static gint ett_openvpn_fragments;
-static gint hf_openvpn_fragment;
-static gint hf_openvpn_fragment_count;
-static gint hf_openvpn_fragment_error;
-static gint hf_openvpn_fragment_multiple_tails;
-static gint hf_openvpn_fragment_overlap;
-static gint hf_openvpn_fragment_overlap_conflicts;
-static gint hf_openvpn_fragment_too_long_fragment;
-static gint hf_openvpn_fragments;
-static gint hf_openvpn_reassembled_in;
-static gint hf_openvpn_reassembled_length;
+static int ett_openvpn_fragment;
+static int ett_openvpn_fragments;
+static int hf_openvpn_fragment;
+static int hf_openvpn_fragment_count;
+static int hf_openvpn_fragment_error;
+static int hf_openvpn_fragment_multiple_tails;
+static int hf_openvpn_fragment_overlap;
+static int hf_openvpn_fragment_overlap_conflicts;
+static int hf_openvpn_fragment_too_long_fragment;
+static int hf_openvpn_fragments;
+static int hf_openvpn_reassembled_in;
+static int hf_openvpn_reassembled_length;
 
 static const fragment_items openvpn_frag_items = {
   /* Fragment subtrees */
@@ -146,10 +146,10 @@ static const fragment_items openvpn_frag_items = {
    if more than 1 byte out of the 4 provided contains 0x00, the
    hmac is considered not valid, which suggests that no tls auth is used.
    unfortunately there is no other way to detect tls auth on the fly */
-static gboolean
-check_for_valid_hmac(guint32 hmac)
+static bool
+check_for_valid_hmac(uint32_t hmac)
 {
-  gint c = 0;
+  int c = 0;
   if ((hmac & 0x000000FF) == 0x00000000) {
     c++;
   }
@@ -163,25 +163,25 @@ check_for_valid_hmac(guint32 hmac)
     c++;
   }
   if (c > 1) {
-    return FALSE;
+    return false;
   } else {
-    return TRUE;
+    return true;
   }
 }
 
 static int
-dissect_openvpn_msg_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openvpn_tree, proto_tree *parent_tree, gint offset)
+dissect_openvpn_msg_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openvpn_tree, proto_tree *parent_tree, int offset)
 {
-  gboolean       tls_auth;
-  gboolean       tls_crypt = FALSE;
-  guint          openvpn_keyid;
-  guint          openvpn_opcode;
-  guint32        msg_sessionid = -1;
-  guint8         openvpn_predict_tlsauth_arraylength;
+  bool           tls_auth;
+  bool           tls_crypt = false;
+  unsigned       openvpn_keyid;
+  unsigned       openvpn_opcode;
+  uint32_t       msg_sessionid = -1;
+  uint8_t        openvpn_predict_tlsauth_arraylength;
   proto_item    *ti2;
   proto_tree    *packetarray_tree, *type_tree;
-  guint32        msg_length_remaining;
-  gint           wkc_offset = -1;
+  uint32_t       msg_length_remaining;
+  int            wkc_offset = -1;
 
   /* Clear out stuff in the info column */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
@@ -218,54 +218,54 @@ dissect_openvpn_msg_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openvp
     offset += 8;
 
     /* tls-auth detection (this can be overridden by preferences */
-    openvpn_predict_tlsauth_arraylength = tvb_get_guint8(tvb, offset);
+    openvpn_predict_tlsauth_arraylength = tvb_get_uint8(tvb, offset);
 
     /* if the first 4 bytes that would, if tls-auth is used, contain part of the hmac,
        lack entropy, we assume no tls-auth is used */
-    if (pref_tls_auth_override == FALSE) {
+    if (pref_tls_auth_override == false) {
       if ((openvpn_opcode != P_DATA_V1)
           && (openvpn_predict_tlsauth_arraylength > 0)
           && check_for_valid_hmac(tvb_get_ntohl(tvb, offset))) {
-        tls_auth = TRUE;
+        tls_auth = true;
       } else {
-        tls_auth = FALSE;
+        tls_auth = false;
       }
     } else {
       tls_auth = pref_tls_auth;
     }
 
-    if (openvpn_opcode == P_CONTROL_HARD_RESET_CLIENT_V3 || openvpn_opcode == P_CONTROL_WKC_V1 || pref_tls_crypt_override == TRUE) {
+    if (openvpn_opcode == P_CONTROL_HARD_RESET_CLIENT_V3 || openvpn_opcode == P_CONTROL_WKC_V1 || pref_tls_crypt_override == true) {
       /* these opcodes are always tls-crypt*/
-      tls_crypt = TRUE;
-      tls_auth = FALSE;
+      tls_crypt = true;
+      tls_auth = false;
     }
 
-    if (tls_auth == TRUE) {
+    if (tls_auth == true) {
       proto_tree_add_item(openvpn_tree, hf_openvpn_hmac, tvb, offset, tls_auth_hmac_size, ENC_NA);
       offset += tls_auth_hmac_size;
     }
 
-    if (tls_auth == TRUE || tls_crypt == TRUE) {
+    if (tls_auth == true || tls_crypt == true) {
       if (tvb_reported_length_remaining(tvb, offset) >= 8) {
         proto_tree_add_item(openvpn_tree, hf_openvpn_pid, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
-        if (pref_long_format || tls_crypt == TRUE) {
+        if (pref_long_format || tls_crypt == true) {
           proto_tree_add_item(openvpn_tree, hf_openvpn_net_time, tvb, offset, 4, ENC_BIG_ENDIAN);
           offset += 4;
         }
       }
-      if (tls_crypt == TRUE) {
+      if (tls_crypt == true) {
         /* tls-crypt uses HMAC-SHA256 */
         proto_tree_add_item(openvpn_tree, hf_openvpn_hmac, tvb, offset, 32, ENC_NA);
         offset += 32;
       }
     }
 
-    if (tvb_reported_length_remaining(tvb, offset) >= 1 && tls_crypt == FALSE) {
+    if (tvb_reported_length_remaining(tvb, offset) >= 1 && tls_crypt == false) {
       /* read P_ACK packet-id array length */
-      gint pid_arraylength = tvb_get_guint8(tvb, offset);
-      gint i;
+      int pid_arraylength = tvb_get_uint8(tvb, offset);
+      int i;
       proto_tree_add_item(openvpn_tree, hf_openvpn_mpid_arraylength, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset += 1;
 
@@ -285,7 +285,7 @@ dissect_openvpn_msg_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openvp
     }
 
     /* if we have a P_CONTROL packet */
-    if (openvpn_opcode != P_ACK_V1 && tls_crypt == FALSE) {
+    if (openvpn_opcode != P_ACK_V1 && tls_crypt == false) {
       /* read Message Packet-ID */
       if (tvb_reported_length_remaining(tvb, offset) >= 4) {
         proto_tree_add_item(openvpn_tree, hf_openvpn_mpid, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -301,8 +301,8 @@ dissect_openvpn_msg_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openvp
     return tvb_captured_length(tvb);
   }
 
-  gint data_len = msg_length_remaining;
-  gint wkc_len = -1;
+  int data_len = msg_length_remaining;
+  int wkc_len = -1;
   if ((openvpn_opcode == P_CONTROL_HARD_RESET_CLIENT_V3 || openvpn_opcode == P_CONTROL_WKC_V1)
       &&  msg_length_remaining >= 2) {
 
@@ -354,10 +354,10 @@ dissect_openvpn_msg_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openvp
   return tvb_captured_length(tvb);
 }
 
-static guint
-get_msg_length(packet_info *pinfo _U_, tvbuff_t *tvb, gint offset, void *data _U_)
+static unsigned
+get_msg_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
-  return (guint)tvb_get_ntohs(tvb, offset) + 2; /* length field is at offset 0,
+  return (unsigned)tvb_get_ntohs(tvb, offset) + 2; /* length field is at offset 0,
                                                    +2 to account for the length field itself */
 }
 
@@ -379,7 +379,7 @@ static int
 dissect_openvpn_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     tcp_dissect_pdus( tvb, pinfo, tree,
-      TRUE,           /* should data be reassembled? */
+      true,           /* should data be reassembled? */
       2,              /* how much bytes do we need for get_msg_length to be successful,
                          since the length is the first thing in an openvpn packet we choose 2 */
       get_msg_length, /* fptr for function to get the packetlength of current frame */
@@ -568,7 +568,7 @@ proto_register_openvpn(void)
   };
 
   /* Setup protocol subtree array */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_openvpn,
     &ett_openvpn_type,
     &ett_openvpn_data,
@@ -628,7 +628,7 @@ proto_register_openvpn(void)
                 " is inserted after the HMAC signature."
                 " This field can either be 4 bytes or 8 bytes including an optional time_t timestamp long.\n"
                 " This option is only evaluated if tls_auth_hmac_size > 0.\n"
-                " The default value is TRUE.",
+                " The default value is true.",
                 &pref_long_format);
 }
 

@@ -451,17 +451,17 @@ static const value_string RMPP_Status[] = {
 * This is necessary because the MAD header contains information which significantly changes the dissection algorithm. */
 #define STL_MAX_MAD_PAYLOAD 2048
 typedef struct _MAD {
-    guint8 BaseVersion;
-    guint8 MgmtClass;
-    guint8 ClassVersion;
-    guint8 Method;
-    guint16 Status; /* D = bit 15 when DR */
-    guint8 HopPointer; /* Reserved in DR MADs */
-    guint8 HopCount; /* Reserved in DR MADs */
-    guint64 TransactionID;
-    guint16 AttributeID;
-    guint16 Reserved2;
-    guint32 AttributeModifier;
+    uint8_t BaseVersion;
+    uint8_t MgmtClass;
+    uint8_t ClassVersion;
+    uint8_t Method;
+    uint16_t Status; /* D = bit 15 when DR */
+    uint8_t HopPointer; /* Reserved in DR MADs */
+    uint8_t HopCount; /* Reserved in DR MADs */
+    uint64_t TransactionID;
+    uint16_t AttributeID;
+    uint16_t Reserved2;
+    uint32_t AttributeModifier;
 } MAD_t;
 #define STL_MAX_RMPP_PAYLOAD 2036
 #define RMPP_FLAG_LAST_MASK 0x04
@@ -471,20 +471,20 @@ typedef struct _MAD {
 #define RMPP_FLAG_ACTIVE_MASK 0x01
 #define RMPP_FLAG_ACTIVE_SHIFT 0
 typedef struct _RMPP {
-    guint8 Version;
-    guint8 Type;
-    guint8 resptime_flags;
-    guint8 Status;
-    guint32 SegmentNumber;
-    guint32 PayloadLength;
+    uint8_t Version;
+    uint8_t Type;
+    uint8_t resptime_flags;
+    uint8_t Status;
+    uint32_t SegmentNumber;
+    uint32_t PayloadLength;
 } RMPP_t;
 
 #define STL_MAX_SA_PA_PAYLOAD 1992
 typedef struct _SA_HEADER {
-    guint64 SM_Key;
-    guint16 AttributeOffset;
-    guint16 Reserved;
-    guint64 ComponentMask;
+    uint64_t SM_Key;
+    uint16_t AttributeOffset;
+    uint16_t Reserved;
+    uint64_t ComponentMask;
 } SA_HEADER_t, PA_HEADER_t;
 
 /* Trap Type/Descriptions for dissection */
@@ -799,220 +799,220 @@ static const value_string FocusPortFlags[] = {
 #define PM_ERR_BUCKETS 5
 
 /* Wireshark ID */
-static gint proto_opa_mad;
+static int proto_opa_mad;
 
 /* Variables to hold expansion values between packets */
-static gint ett_payload;
-static gint ett_sm_lid;
-static gint ett_sm_dr;
-static gint ett_sa;
-static gint ett_pm;
-static gint ett_pa;
-static gint ett_mad;
-static gint ett_mad_status;
-static gint ett_mad_attributemod;
-static gint ett_rmpp;
-static gint ett_rmpp_fragment;
-static gint ett_rmpp_fragments;
-static gint ett_rmpp_sa_record;
+static int ett_payload;
+static int ett_sm_lid;
+static int ett_sm_dr;
+static int ett_sa;
+static int ett_pm;
+static int ett_pa;
+static int ett_mad;
+static int ett_mad_status;
+static int ett_mad_attributemod;
+static int ett_rmpp;
+static int ett_rmpp_fragment;
+static int ett_rmpp_fragments;
+static int ett_rmpp_sa_record;
 /* Common */
-static gint ett_noticestraps;
-static gint ett_datadetails;
-static gint ett_datadetails_trap259datavalid;
-static gint ett_informinfo;
-static gint ett_classportinfo;
-static gint ett_classportinfo_redirect;
-static gint ett_classportinfo_trap;
+static int ett_noticestraps;
+static int ett_datadetails;
+static int ett_datadetails_trap259datavalid;
+static int ett_informinfo;
+static int ett_classportinfo;
+static int ett_classportinfo_redirect;
+static int ett_classportinfo_trap;
 /* SM */
-static gint ett_nodedescription;
-static gint ett_nodeinfo;
-static gint ett_switchinfo;
-static gint ett_switchinfo_switchcapabilitymask;
-static gint ett_portinfo;
-static gint ett_portinfo_vl;
-static gint ett_portinfo_link;
-static gint ett_portinfo_portmode;
-static gint ett_portinfo_flitcontrol;
-static gint ett_portinfo_porterroraction;
-static gint ett_portinfo_neighbormtu;
-static gint ett_portinfo_xmitq;
-static gint ett_portinfo_capmask;
-static gint ett_portinfo_capmask3;
-static gint ett_portstates;
-static gint ett_pkeytable;
-static gint ett_pkeytable_block;
-static gint ett_sltoscmapping;
-static gint ett_sltoscmapping_block;
-static gint ett_sctoscmapping;
-static gint ett_sctoscmapping_block;
-static gint ett_sctoslmapping;
-static gint ett_sctoslmapping_block;
-static gint ett_sctovlxmappingtable;
-static gint ett_sctovlxmappingtable_block;
-static gint ett_vlarbitrationtable;
-static gint ett_vlarbitrationtable_port;
-static gint ett_linearforwardingtable;
-static gint ett_linearforwardingtable_block;
-static gint ett_multicastforwardingtable;
-static gint ett_multicastforwardingtable_block;
-static gint ett_portgroupforwardingtable;
-static gint ett_portgroupforwardingtable_block;
-static gint ett_portgrouptable;
-static gint ett_portgrouptable_block;
-static gint ett_sminfo;
-static gint ett_ledinfo;
-static gint ett_cableinfo;
-static gint ett_aggregate;
-static gint ett_buffercontroltable;
-static gint ett_congestioninfo;
-static gint ett_switchcongestionlog;
-static gint ett_switchcongestionlog_entry;
-static gint ett_switchcongestionsetting;
-static gint ett_switchportcongestionsetting;
-static gint ett_switchportcongestionsetting_port;
-static gint ett_hficongestionlog;
-static gint ett_hficongestionlog_entry;
-static gint ett_hficongestionsetting;
-static gint ett_hficongestioncontroltable;
-static gint ett_hficongestioncontroltable_block;
+static int ett_nodedescription;
+static int ett_nodeinfo;
+static int ett_switchinfo;
+static int ett_switchinfo_switchcapabilitymask;
+static int ett_portinfo;
+static int ett_portinfo_vl;
+static int ett_portinfo_link;
+static int ett_portinfo_portmode;
+static int ett_portinfo_flitcontrol;
+static int ett_portinfo_porterroraction;
+static int ett_portinfo_neighbormtu;
+static int ett_portinfo_xmitq;
+static int ett_portinfo_capmask;
+static int ett_portinfo_capmask3;
+static int ett_portstates;
+static int ett_pkeytable;
+static int ett_pkeytable_block;
+static int ett_sltoscmapping;
+static int ett_sltoscmapping_block;
+static int ett_sctoscmapping;
+static int ett_sctoscmapping_block;
+static int ett_sctoslmapping;
+static int ett_sctoslmapping_block;
+static int ett_sctovlxmappingtable;
+static int ett_sctovlxmappingtable_block;
+static int ett_vlarbitrationtable;
+static int ett_vlarbitrationtable_port;
+static int ett_linearforwardingtable;
+static int ett_linearforwardingtable_block;
+static int ett_multicastforwardingtable;
+static int ett_multicastforwardingtable_block;
+static int ett_portgroupforwardingtable;
+static int ett_portgroupforwardingtable_block;
+static int ett_portgrouptable;
+static int ett_portgrouptable_block;
+static int ett_sminfo;
+static int ett_ledinfo;
+static int ett_cableinfo;
+static int ett_aggregate;
+static int ett_buffercontroltable;
+static int ett_congestioninfo;
+static int ett_switchcongestionlog;
+static int ett_switchcongestionlog_entry;
+static int ett_switchcongestionsetting;
+static int ett_switchportcongestionsetting;
+static int ett_switchportcongestionsetting_port;
+static int ett_hficongestionlog;
+static int ett_hficongestionlog_entry;
+static int ett_hficongestionsetting;
+static int ett_hficongestioncontroltable;
+static int ett_hficongestioncontroltable_block;
 /* SA */
-static gint ett_portinforecord_linkdownreason;
-static gint ett_portinforecord_linkdownreason_entry;
-static gint ett_scmappingrecord;
-static gint ett_lftrecord;
-static gint ett_linkrecord;
-static gint ett_servicerecord;
-static gint ett_pathrecord;
-static gint ett_pathrecord_dgid;
-static gint ett_pathrecord_sgid;
-static gint ett_mcmemberrecord;
-static gint ett_tracerecord;
-static gint ett_multipathrecord_gid;
-static gint ett_multipathrecord_guid;
-static gint ett_multipathrecord_lid;
-static gint ett_cableinforecord;
-static gint ett_serviceassocrecord;
-static gint ett_sctoslmappingtablerecord;
-static gint ett_portgroupforwardingtablerecord;
-static gint ett_vfinforecord;
-static gint ett_quarantinednoderecord;
-static gint ett_fabricinforecord;
+static int ett_portinforecord_linkdownreason;
+static int ett_portinforecord_linkdownreason_entry;
+static int ett_scmappingrecord;
+static int ett_lftrecord;
+static int ett_linkrecord;
+static int ett_servicerecord;
+static int ett_pathrecord;
+static int ett_pathrecord_dgid;
+static int ett_pathrecord_sgid;
+static int ett_mcmemberrecord;
+static int ett_tracerecord;
+static int ett_multipathrecord_gid;
+static int ett_multipathrecord_guid;
+static int ett_multipathrecord_lid;
+static int ett_cableinforecord;
+static int ett_serviceassocrecord;
+static int ett_sctoslmappingtablerecord;
+static int ett_portgroupforwardingtablerecord;
+static int ett_vfinforecord;
+static int ett_quarantinednoderecord;
+static int ett_fabricinforecord;
 /* PM */
-static gint ett_portstatus;
-static gint ett_portstatus_vl;
-static gint ett_clearportstatus;
-static gint ett_clearportstatus_counterselectmask;
-static gint ett_dataportcounters;
-static gint ett_dataportcounters_port;
-static gint ett_dataportcounters_vl;
-static gint ett_errorportcounters;
-static gint ett_errorportcounters_port;
-static gint ett_errorportinfo;
-static gint ett_errorportinfoport;
-static gint ett_errorportinfo_portrcverrorinfo;
-static gint ett_errorportinfo_excessivebufferoverruninfo;
-static gint ett_errorportinfo_portxmitconstrainterrorinfo;
-static gint ett_errorportinfo_portrcvconstrainterrorinfo;
-static gint ett_errorportinfo_portrcvswitchrelayerrorinfo;
-static gint ett_errorportinfo_uncorrectableerrorinfo;
-static gint ett_errorportinfo_fmconfigerrorinfo;
+static int ett_portstatus;
+static int ett_portstatus_vl;
+static int ett_clearportstatus;
+static int ett_clearportstatus_counterselectmask;
+static int ett_dataportcounters;
+static int ett_dataportcounters_port;
+static int ett_dataportcounters_vl;
+static int ett_errorportcounters;
+static int ett_errorportcounters_port;
+static int ett_errorportinfo;
+static int ett_errorportinfoport;
+static int ett_errorportinfo_portrcverrorinfo;
+static int ett_errorportinfo_excessivebufferoverruninfo;
+static int ett_errorportinfo_portxmitconstrainterrorinfo;
+static int ett_errorportinfo_portrcvconstrainterrorinfo;
+static int ett_errorportinfo_portrcvswitchrelayerrorinfo;
+static int ett_errorportinfo_uncorrectableerrorinfo;
+static int ett_errorportinfo_fmconfigerrorinfo;
 /* PA */
-static gint ett_getgrouplist;
-static gint ett_getgroupinfo;
-static gint ett_getgroupinfoutilstats;
-static gint ett_getgroupinfoutilbuckets;
-static gint ett_getgroupinfoerrorsummary;
-static gint ett_getgroupinfoerrintegritybucket;
-static gint ett_getgroupinfoerrcongestionbucket;
-static gint ett_getgroupinfoerrsmacongestionbucket;
-static gint ett_getgroupinfoerrbubblebucket;
-static gint ett_getgroupinfoerrsecuritybucket;
-static gint ett_getgroupinfoerrroutingbucket;
-static gint ett_getportcounters;
-static gint ett_clearportcounters;
-static gint ett_clearportcounters_counterselectmask;
-static gint ett_clearallportcounters;
-static gint ett_clearallportcounters_counterselectmask;
-static gint ett_pmconfig;
-static gint ett_getgroupconfig;
-static gint ett_getgroupconfigport;
-static gint ett_movefreezeframeold;
-static gint ett_movefreezeframenew;
-static gint ett_getfocusports;
-static gint ett_getfocusportsport;
-static gint ett_getimageinfo;
-static gint ett_getimageinfosm;
-static gint ett_getvflist;
-static gint ett_getvfinfo;
-static gint ett_getvfinfoutilstats;
-static gint ett_getvfinfoutilbuckets;
-static gint ett_getvfinfoerrorsummary;
-static gint ett_getvfinfoerrintegritybucket;
-static gint ett_getvfinfoerrcongestionbucket;
-static gint ett_getvfinfoerrsmacongestionbucket;
-static gint ett_getvfinfoerrbubblebucket;
-static gint ett_getvfinfoerrsecuritybucket;
-static gint ett_getvfinfoerrroutingbucket;
-static gint ett_getvfconfig;
-static gint ett_getvfconfigport;
-static gint ett_getvffocusports;
-static gint ett_getvffocusportsport;
-static gint ett_getvfportcounters;
-static gint ett_clearvfportcounters;
-static gint ett_clearvfportcounters_counterselectmask;
+static int ett_getgrouplist;
+static int ett_getgroupinfo;
+static int ett_getgroupinfoutilstats;
+static int ett_getgroupinfoutilbuckets;
+static int ett_getgroupinfoerrorsummary;
+static int ett_getgroupinfoerrintegritybucket;
+static int ett_getgroupinfoerrcongestionbucket;
+static int ett_getgroupinfoerrsmacongestionbucket;
+static int ett_getgroupinfoerrbubblebucket;
+static int ett_getgroupinfoerrsecuritybucket;
+static int ett_getgroupinfoerrroutingbucket;
+static int ett_getportcounters;
+static int ett_clearportcounters;
+static int ett_clearportcounters_counterselectmask;
+static int ett_clearallportcounters;
+static int ett_clearallportcounters_counterselectmask;
+static int ett_pmconfig;
+static int ett_getgroupconfig;
+static int ett_getgroupconfigport;
+static int ett_movefreezeframeold;
+static int ett_movefreezeframenew;
+static int ett_getfocusports;
+static int ett_getfocusportsport;
+static int ett_getimageinfo;
+static int ett_getimageinfosm;
+static int ett_getvflist;
+static int ett_getvfinfo;
+static int ett_getvfinfoutilstats;
+static int ett_getvfinfoutilbuckets;
+static int ett_getvfinfoerrorsummary;
+static int ett_getvfinfoerrintegritybucket;
+static int ett_getvfinfoerrcongestionbucket;
+static int ett_getvfinfoerrsmacongestionbucket;
+static int ett_getvfinfoerrbubblebucket;
+static int ett_getvfinfoerrsecuritybucket;
+static int ett_getvfinfoerrroutingbucket;
+static int ett_getvfconfig;
+static int ett_getvfconfigport;
+static int ett_getvffocusports;
+static int ett_getvffocusportsport;
+static int ett_getvfportcounters;
+static int ett_clearvfportcounters;
+static int ett_clearvfportcounters_counterselectmask;
 
 /* Reserved Fields */
-static gint hf_opa_reserved8;
-static gint hf_opa_reserved16;
-static gint hf_opa_reserved24;
-static gint hf_opa_reserved32;
-static gint hf_opa_reserved64;
+static int hf_opa_reserved8;
+static int hf_opa_reserved16;
+static int hf_opa_reserved24;
+static int hf_opa_reserved32;
+static int hf_opa_reserved64;
 /* opa_MAD Dissector */
-static gint hf_opa_etype;
-static gint hf_opa_etype_reserved16;
+static int hf_opa_etype;
+static int hf_opa_etype_reserved16;
 /* SM Header - Lid Routed*/
-static gint hf_opa_sm_lid;
-static gint hf_opa_sm_m_key;
+static int hf_opa_sm_lid;
+static int hf_opa_sm_m_key;
 /* SM Header - Directed Route */
-static gint hf_opa_sm_dr;
-static gint hf_opa_sm_dr_slid;
-static gint hf_opa_sm_dr_dlid;
-static gint hf_opa_sm_dr_initial_path;
-static gint hf_opa_sm_dr_return_path;
-static gint hf_opa_sm_dr_reserved64;
+static int hf_opa_sm_dr;
+static int hf_opa_sm_dr_slid;
+static int hf_opa_sm_dr_dlid;
+static int hf_opa_sm_dr_initial_path;
+static int hf_opa_sm_dr_return_path;
+static int hf_opa_sm_dr_reserved64;
 /* SA Header */
-static gint hf_opa_sa;
-static gint hf_opa_sa_sm_key;
-static gint hf_opa_sa_attribute_offset;
-static gint hf_opa_sa_component_mask;
+static int hf_opa_sa;
+static int hf_opa_sa_sm_key;
+static int hf_opa_sa_attribute_offset;
+static int hf_opa_sa_component_mask;
 /* PM Header / PA Header */
-static gint hf_opa_pm;
-static gint hf_opa_pa;
-static gint hf_opa_pa_sm_key;
-static gint hf_opa_pa_attribute_offset;
-static gint hf_opa_pa_component_mask;
+static int hf_opa_pm;
+static int hf_opa_pa;
+static int hf_opa_pa_sm_key;
+static int hf_opa_pa_attribute_offset;
+static int hf_opa_pa_component_mask;
 /* Other Vendor Header */
-static gint hf_opa_vendor;
-static gint hf_opa_application;
-static gint hf_opa_reservedmclass;
-static gint hf_opa_unknown;
+static int hf_opa_vendor;
+static int hf_opa_application;
+static int hf_opa_reservedmclass;
+static int hf_opa_unknown;
 
 /* MAD Header */
-static gint hf_opa_mad;
-static gint hf_opa_mad_base_version;
-static gint hf_opa_mad_mgmt_class;
-static gint hf_opa_mad_class_version;
-static gint hf_opa_mad_method;
-static gint hf_opa_mad_status;
-static gint hf_opa_mad_status_DR_D;
-static gint hf_opa_mad_status_DR_status;
-static gint hf_opa_mad_status_DR_Hop_Pointer;
-static gint hf_opa_mad_status_DR_Hop_Count;
-static gint hf_opa_mad_status_NM_ClassSpecific;
-static gint hf_opa_mad_status_NM_reserved1;
-static gint hf_opa_mad_status_NM_InvalidField;
-static gint hf_opa_mad_status_NM_RedirectRqrd;
-static gint hf_opa_mad_status_NM_Busy;
+static int hf_opa_mad;
+static int hf_opa_mad_base_version;
+static int hf_opa_mad_mgmt_class;
+static int hf_opa_mad_class_version;
+static int hf_opa_mad_method;
+static int hf_opa_mad_status;
+static int hf_opa_mad_status_DR_D;
+static int hf_opa_mad_status_DR_status;
+static int hf_opa_mad_status_DR_Hop_Pointer;
+static int hf_opa_mad_status_DR_Hop_Count;
+static int hf_opa_mad_status_NM_ClassSpecific;
+static int hf_opa_mad_status_NM_reserved1;
+static int hf_opa_mad_status_NM_InvalidField;
+static int hf_opa_mad_status_NM_RedirectRqrd;
+static int hf_opa_mad_status_NM_Busy;
 static int * const _mad_status[] = {
     &hf_opa_mad_status_NM_ClassSpecific,
     &hf_opa_mad_status_NM_reserved1,
@@ -1021,32 +1021,32 @@ static int * const _mad_status[] = {
     &hf_opa_mad_status_NM_Busy,
     NULL
 };
-static gint hf_opa_mad_transaction_id;
-static gint hf_opa_mad_attribute_id;
-static gint hf_opa_attribute_modifier;
-static gint hf_opa_attribute_modifier_A;
-static gint hf_opa_attribute_modifier_A2;
-static gint hf_opa_attribute_modifier_A3;
-static gint hf_opa_attribute_modifier_A4;
-static gint hf_opa_attribute_modifier_A5;
-static gint hf_opa_attribute_modifier_A6;
-static gint hf_opa_attribute_modifier_B;
-static gint hf_opa_attribute_modifier_B2;
-static gint hf_opa_attribute_modifier_B3;
-static gint hf_opa_attribute_modifier_B4;
-static gint hf_opa_attribute_modifier_B5;
-static gint hf_opa_attribute_modifier_E;
-static gint hf_opa_attribute_modifier_I;
-static gint hf_opa_attribute_modifier_L;
-static gint hf_opa_attribute_modifier_NP;
-static gint hf_opa_attribute_modifier_NB;
-static gint hf_opa_attribute_modifier_N2;
-static gint hf_opa_attribute_modifier_P;
-static gint hf_opa_attribute_modifier_P2;
-static gint hf_opa_attribute_modifier_P3;
-static gint hf_opa_attribute_modifier_S;
-static gint hf_opa_attribute_modifier_S2;
-static gint hf_opa_attribute_modifier_Y;
+static int hf_opa_mad_transaction_id;
+static int hf_opa_mad_attribute_id;
+static int hf_opa_attribute_modifier;
+static int hf_opa_attribute_modifier_A;
+static int hf_opa_attribute_modifier_A2;
+static int hf_opa_attribute_modifier_A3;
+static int hf_opa_attribute_modifier_A4;
+static int hf_opa_attribute_modifier_A5;
+static int hf_opa_attribute_modifier_A6;
+static int hf_opa_attribute_modifier_B;
+static int hf_opa_attribute_modifier_B2;
+static int hf_opa_attribute_modifier_B3;
+static int hf_opa_attribute_modifier_B4;
+static int hf_opa_attribute_modifier_B5;
+static int hf_opa_attribute_modifier_E;
+static int hf_opa_attribute_modifier_I;
+static int hf_opa_attribute_modifier_L;
+static int hf_opa_attribute_modifier_NP;
+static int hf_opa_attribute_modifier_NB;
+static int hf_opa_attribute_modifier_N2;
+static int hf_opa_attribute_modifier_P;
+static int hf_opa_attribute_modifier_P2;
+static int hf_opa_attribute_modifier_P3;
+static int hf_opa_attribute_modifier_S;
+static int hf_opa_attribute_modifier_S2;
+static int hf_opa_attribute_modifier_Y;
 static int * const _attribute_modifier_Nps2AP[] = {
     &hf_opa_attribute_modifier_NP,
     &hf_opa_attribute_modifier_S2,
@@ -1131,96 +1131,96 @@ static int * const _attribute_modifier_NbP3A6B5[] = {
     NULL
 };
 /* RMPP Header */
-static gint hf_opa_rmpp;
-static gint hf_opa_rmpp_version;
-static gint hf_opa_rmpp_type;
-static gint hf_opa_rmpp_r_resp_time;
-static gint hf_opa_rmpp_flags_last;
-static gint hf_opa_rmpp_flags_first;
-static gint hf_opa_rmpp_flags_active;
-static gint hf_opa_rmpp_status;
-static gint hf_opa_rmpp_data1;
-static gint hf_opa_rmpp_data2;
-static gint hf_opa_rmpp_segment_number;
-static gint hf_opa_rmpp_payload_length32;
-static gint hf_opa_rmpp_new_window_last;
+static int hf_opa_rmpp;
+static int hf_opa_rmpp_version;
+static int hf_opa_rmpp_type;
+static int hf_opa_rmpp_r_resp_time;
+static int hf_opa_rmpp_flags_last;
+static int hf_opa_rmpp_flags_first;
+static int hf_opa_rmpp_flags_active;
+static int hf_opa_rmpp_status;
+static int hf_opa_rmpp_data1;
+static int hf_opa_rmpp_data2;
+static int hf_opa_rmpp_segment_number;
+static int hf_opa_rmpp_payload_length32;
+static int hf_opa_rmpp_new_window_last;
 /* SA Packets */
 /* SA RID */
-static gint hf_opa_sa_Lid;
-static gint hf_opa_sa_EndportLID;
-static gint hf_opa_sa_PortNum;
-static gint hf_opa_sa_InputPortNum;
-static gint hf_opa_sa_OutputPortNum;
-static gint hf_opa_sa_Port;
-static gint hf_opa_sa_reserved14;
-static gint hf_opa_sa_BlockNum_18b;
-static gint hf_opa_sa_Position;
-static gint hf_opa_sa_Position_16b;
-static gint hf_opa_sa_reserved9;
-static gint hf_opa_sa_reserved9_16b;
-static gint hf_opa_sa_BlockNum_21b;
-static gint hf_opa_sa_BlockNum_8b;
-static gint hf_opa_sa_BlockNum_16b;
-static gint hf_opa_sa_BlockNum_5b;
-static gint hf_opa_sa_SubscriberLID;
-static gint hf_opa_sa_Enum;
-static gint hf_opa_sa_FromLID;
-static gint hf_opa_sa_FromPort;
-static gint hf_opa_sa_ServiceID;
-static gint hf_opa_sa_ServiceLID;
-static gint hf_opa_sa_ServiceP_Key;
-static gint hf_opa_sa_ServiceGID;
-static gint hf_opa_sa_MGID;
-static gint hf_opa_sa_PortGID;
+static int hf_opa_sa_Lid;
+static int hf_opa_sa_EndportLID;
+static int hf_opa_sa_PortNum;
+static int hf_opa_sa_InputPortNum;
+static int hf_opa_sa_OutputPortNum;
+static int hf_opa_sa_Port;
+static int hf_opa_sa_reserved14;
+static int hf_opa_sa_BlockNum_18b;
+static int hf_opa_sa_Position;
+static int hf_opa_sa_Position_16b;
+static int hf_opa_sa_reserved9;
+static int hf_opa_sa_reserved9_16b;
+static int hf_opa_sa_BlockNum_21b;
+static int hf_opa_sa_BlockNum_8b;
+static int hf_opa_sa_BlockNum_16b;
+static int hf_opa_sa_BlockNum_5b;
+static int hf_opa_sa_SubscriberLID;
+static int hf_opa_sa_Enum;
+static int hf_opa_sa_FromLID;
+static int hf_opa_sa_FromPort;
+static int hf_opa_sa_ServiceID;
+static int hf_opa_sa_ServiceLID;
+static int hf_opa_sa_ServiceP_Key;
+static int hf_opa_sa_ServiceGID;
+static int hf_opa_sa_MGID;
+static int hf_opa_sa_PortGID;
 
 /* Attribute Specific Fields */
-static gint hf_opa_Notice;
-static gint hf_opa_Notice_IsGeneric;
-static gint hf_opa_Notice_Type;
-static gint hf_opa_Notice_ProducerType;
-static gint hf_opa_Notice_TrapNumber;
-static gint hf_opa_Notice_VendorID;
-static gint hf_opa_Notice_DeviceID;
-static gint hf_opa_Notice_IssuerLID;
-static gint hf_opa_Notice_IssuerGID;
-static gint hf_opa_Notice_Toggle;
-static gint hf_opa_Notice_Count;
-static gint hf_opa_Notice_ClassDataDetails;
-static gint hf_opa_Trap;
-static gint hf_opa_Trap_GID;
-static gint hf_opa_Trap_LID;
-static gint hf_opa_Trap_PORTNO;
-static gint hf_opa_Trap_CAPABILITYMASK;
-static gint hf_opa_Trap_CAPABILITYMASK3;
-static gint hf_opa_Trap_144_reserved;
-static gint hf_opa_Trap_LinkWidthDowngradeEnabledChange;
-static gint hf_opa_Trap_LinkSpeecEnabledChange;
-static gint hf_opa_Trap_LinkWidthEnabledChange;
-static gint hf_opa_Trap_NodeDescriptionChange;
-static gint hf_opa_Trap_SystemImageGUID;
-static gint hf_opa_Trap_DRSLID;
-static gint hf_opa_Trap_Method;
-static gint hf_opa_Trap_AttributeID;
-static gint hf_opa_Trap_AttributeModifier;
-static gint hf_opa_Trap_MKey;
-static gint hf_opa_Trap_DRNotice;
-static gint hf_opa_Trap_DRPathTruncated;
-static gint hf_opa_Trap_DRHopCount;
-static gint hf_opa_Trap_DRNoticeReturnPath;
-static gint hf_opa_Trap_Key;
-static gint hf_opa_Trap_SL;
-static gint hf_opa_Trap_SL_reserved;
-static gint hf_opa_Trap_QP;
-static gint hf_opa_Trap_DataValid;
-static gint hf_opa_Trap_DataValid_Lid1;
-static gint hf_opa_Trap_DataValid_Lid2;
-static gint hf_opa_Trap_DataValid_PKey;
-static gint hf_opa_Trap_DataValid_SL;
-static gint hf_opa_Trap_DataValid_QP1;
-static gint hf_opa_Trap_DataValid_QP2;
-static gint hf_opa_Trap_DataValid_Gid1;
-static gint hf_opa_Trap_DataValid_Gid2;
-static gint hf_opa_Trap_DataValid_Reserved;
+static int hf_opa_Notice;
+static int hf_opa_Notice_IsGeneric;
+static int hf_opa_Notice_Type;
+static int hf_opa_Notice_ProducerType;
+static int hf_opa_Notice_TrapNumber;
+static int hf_opa_Notice_VendorID;
+static int hf_opa_Notice_DeviceID;
+static int hf_opa_Notice_IssuerLID;
+static int hf_opa_Notice_IssuerGID;
+static int hf_opa_Notice_Toggle;
+static int hf_opa_Notice_Count;
+static int hf_opa_Notice_ClassDataDetails;
+static int hf_opa_Trap;
+static int hf_opa_Trap_GID;
+static int hf_opa_Trap_LID;
+static int hf_opa_Trap_PORTNO;
+static int hf_opa_Trap_CAPABILITYMASK;
+static int hf_opa_Trap_CAPABILITYMASK3;
+static int hf_opa_Trap_144_reserved;
+static int hf_opa_Trap_LinkWidthDowngradeEnabledChange;
+static int hf_opa_Trap_LinkSpeecEnabledChange;
+static int hf_opa_Trap_LinkWidthEnabledChange;
+static int hf_opa_Trap_NodeDescriptionChange;
+static int hf_opa_Trap_SystemImageGUID;
+static int hf_opa_Trap_DRSLID;
+static int hf_opa_Trap_Method;
+static int hf_opa_Trap_AttributeID;
+static int hf_opa_Trap_AttributeModifier;
+static int hf_opa_Trap_MKey;
+static int hf_opa_Trap_DRNotice;
+static int hf_opa_Trap_DRPathTruncated;
+static int hf_opa_Trap_DRHopCount;
+static int hf_opa_Trap_DRNoticeReturnPath;
+static int hf_opa_Trap_Key;
+static int hf_opa_Trap_SL;
+static int hf_opa_Trap_SL_reserved;
+static int hf_opa_Trap_QP;
+static int hf_opa_Trap_DataValid;
+static int hf_opa_Trap_DataValid_Lid1;
+static int hf_opa_Trap_DataValid_Lid2;
+static int hf_opa_Trap_DataValid_PKey;
+static int hf_opa_Trap_DataValid_SL;
+static int hf_opa_Trap_DataValid_QP1;
+static int hf_opa_Trap_DataValid_QP2;
+static int hf_opa_Trap_DataValid_Gid1;
+static int hf_opa_Trap_DataValid_Gid2;
+static int hf_opa_Trap_DataValid_Reserved;
 static int * const _Trap_DataValid[] = {
     &hf_opa_Trap_DataValid_Lid1,
     &hf_opa_Trap_DataValid_Lid2,
@@ -1233,94 +1233,94 @@ static int * const _Trap_DataValid[] = {
     &hf_opa_Trap_DataValid_Reserved,
     NULL
 };
-static gint hf_opa_Trap_PKey;
-static gint hf_opa_ClassPortInfo;
-static gint hf_opa_ClassPortInfo_BaseVersion;
-static gint hf_opa_ClassPortInfo_ClassVersion;
-static gint hf_opa_ClassPortInfo_CapMask;
-static gint hf_opa_ClassPortInfo_CapMask2;
-static gint hf_opa_ClassPortInfo_RespTimeValue;
-static gint hf_opa_ClassPortInfo_Redirect_GID;
-static gint hf_opa_ClassPortInfo_Redirect_TClass;
-static gint hf_opa_ClassPortInfo_Redirect_SL;
-static gint hf_opa_ClassPortInfo_Redirect_reserved;
-static gint hf_opa_ClassPortInfo_Redirect_FlowLabel;
-static gint hf_opa_ClassPortInfo_Redirect_LID;
-static gint hf_opa_ClassPortInfo_Redirect_reserved2;
-static gint hf_opa_ClassPortInfo_Redirect_QP;
-static gint hf_opa_ClassPortInfo_Redirect_Q_Key;
-static gint hf_opa_ClassPortInfo_Trap_GID;
-static gint hf_opa_ClassPortInfo_Trap_TClass;
-static gint hf_opa_ClassPortInfo_Trap_reserved;
-static gint hf_opa_ClassPortInfo_Trap_FlowLabel;
-static gint hf_opa_ClassPortInfo_Trap_LID;
-static gint hf_opa_ClassPortInfo_Trap_HopLimit;
-static gint hf_opa_ClassPortInfo_Trap_QP;
-static gint hf_opa_ClassPortInfo_Trap_Q_Key;
-static gint hf_opa_ClassPortInfo_Trap_P_Key;
-static gint hf_opa_ClassPortInfo_Redirect_P_Key;
-static gint hf_opa_ClassPortInfo_Trap_SL;
-static gint hf_opa_ClassPortInfo_Trap_reserved2;
-static gint hf_opa_InformInfo;
-static gint hf_opa_InformInfo_GID;
-static gint hf_opa_InformInfo_LIDRangeBegin;
-static gint hf_opa_InformInfo_LIDRangeEnd;
-static gint hf_opa_InformInfo_IsGeneric;
-static gint hf_opa_InformInfo_Subscribe;
-static gint hf_opa_InformInfo_Type;
-static gint hf_opa_InformInfo_TrapNumber;
-static gint hf_opa_InformInfo_DeviceID;
-static gint hf_opa_InformInfo_QPN;
-static gint hf_opa_InformInfo_reserved;
-static gint hf_opa_InformInfo_RespTimeValue;
-static gint hf_opa_InformInfo_ProducerType;
-static gint hf_opa_InformInfo_VendorID;
+static int hf_opa_Trap_PKey;
+static int hf_opa_ClassPortInfo;
+static int hf_opa_ClassPortInfo_BaseVersion;
+static int hf_opa_ClassPortInfo_ClassVersion;
+static int hf_opa_ClassPortInfo_CapMask;
+static int hf_opa_ClassPortInfo_CapMask2;
+static int hf_opa_ClassPortInfo_RespTimeValue;
+static int hf_opa_ClassPortInfo_Redirect_GID;
+static int hf_opa_ClassPortInfo_Redirect_TClass;
+static int hf_opa_ClassPortInfo_Redirect_SL;
+static int hf_opa_ClassPortInfo_Redirect_reserved;
+static int hf_opa_ClassPortInfo_Redirect_FlowLabel;
+static int hf_opa_ClassPortInfo_Redirect_LID;
+static int hf_opa_ClassPortInfo_Redirect_reserved2;
+static int hf_opa_ClassPortInfo_Redirect_QP;
+static int hf_opa_ClassPortInfo_Redirect_Q_Key;
+static int hf_opa_ClassPortInfo_Trap_GID;
+static int hf_opa_ClassPortInfo_Trap_TClass;
+static int hf_opa_ClassPortInfo_Trap_reserved;
+static int hf_opa_ClassPortInfo_Trap_FlowLabel;
+static int hf_opa_ClassPortInfo_Trap_LID;
+static int hf_opa_ClassPortInfo_Trap_HopLimit;
+static int hf_opa_ClassPortInfo_Trap_QP;
+static int hf_opa_ClassPortInfo_Trap_Q_Key;
+static int hf_opa_ClassPortInfo_Trap_P_Key;
+static int hf_opa_ClassPortInfo_Redirect_P_Key;
+static int hf_opa_ClassPortInfo_Trap_SL;
+static int hf_opa_ClassPortInfo_Trap_reserved2;
+static int hf_opa_InformInfo;
+static int hf_opa_InformInfo_GID;
+static int hf_opa_InformInfo_LIDRangeBegin;
+static int hf_opa_InformInfo_LIDRangeEnd;
+static int hf_opa_InformInfo_IsGeneric;
+static int hf_opa_InformInfo_Subscribe;
+static int hf_opa_InformInfo_Type;
+static int hf_opa_InformInfo_TrapNumber;
+static int hf_opa_InformInfo_DeviceID;
+static int hf_opa_InformInfo_QPN;
+static int hf_opa_InformInfo_reserved;
+static int hf_opa_InformInfo_RespTimeValue;
+static int hf_opa_InformInfo_ProducerType;
+static int hf_opa_InformInfo_VendorID;
 /* SM */
-static gint hf_opa_NodeDescription;
-static gint hf_opa_NodeDescription_NodeString;
-static gint hf_opa_NodeInfo;
-static gint hf_opa_NodeInfo_BaseVersion;
-static gint hf_opa_NodeInfo_ClassVersion;
-static gint hf_opa_NodeInfo_NodeType;
-static gint hf_opa_NodeInfo_NumPorts;
-static gint hf_opa_NodeInfo_SystemImageGUID;
-static gint hf_opa_NodeInfo_NodeGUID;
-static gint hf_opa_NodeInfo_PortGUID;
-static gint hf_opa_NodeInfo_PartitionCap;
-static gint hf_opa_NodeInfo_DeviceID;
-static gint hf_opa_NodeInfo_Revision;
-static gint hf_opa_NodeInfo_LocalPortNum;
-static gint hf_opa_NodeInfo_VendorID;
-static gint hf_opa_SwitchInfo;
-static gint hf_opa_SwitchInfo_LinearFDBCap;
-static gint hf_opa_SwitchInfo_MulticastFDBCap;
-static gint hf_opa_SwitchInfo_LinearFDBTop;
-static gint hf_opa_SwitchInfo_MulticastFDBTop;
-static gint hf_opa_SwitchInfo_CollectiveCap;
-static gint hf_opa_SwitchInfo_CollectiveTop;
-static gint hf_opa_SwitchInfo_IPAddrIPv6;
-static gint hf_opa_SwitchInfo_IPAddrIPv4;
-static gint hf_opa_SwitchInfo_LifeTimeValue;
-static gint hf_opa_SwitchInfo_PortStateChange;
-static gint hf_opa_SwitchInfo_reserved2;
-static gint hf_opa_SwitchInfo_PartitionEnforcementCap;
-static gint hf_opa_SwitchInfo_PortGroupCap;
-static gint hf_opa_SwitchInfo_PortGroupTop;
-static gint hf_opa_SwitchInfo_SupportedRoutingMode;
-static gint hf_opa_SwitchInfo_EnabledRoutingMode;
-static gint hf_opa_SwitchInfo_reserved3;
-static gint hf_opa_SwitchInfo_EnhancedPortZero;
-static gint hf_opa_SwitchInfo_reserved4;
-static gint hf_opa_SwitchInfo_reserved5;
-static gint hf_opa_SwitchInfo_CollectiveMask;
-static gint hf_opa_SwitchInfo_MulticastMask;
-static gint hf_opa_SwitchInfo_AdaptiveRoutingEnable;
-static gint hf_opa_SwitchInfo_AdaptiveRoutingPause;
-static gint hf_opa_SwitchInfo_AdaptiveRoutingAlgorithm;
-static gint hf_opa_SwitchInfo_AdaptiveRoutingFrequency;
-static gint hf_opa_SwitchInfo_AdaptiveRoutingLostRoutesOnly;
-static gint hf_opa_SwitchInfo_AdaptiveRoutingThreshold;
-static gint hf_opa_SwitchInfo_reserved6;
+static int hf_opa_NodeDescription;
+static int hf_opa_NodeDescription_NodeString;
+static int hf_opa_NodeInfo;
+static int hf_opa_NodeInfo_BaseVersion;
+static int hf_opa_NodeInfo_ClassVersion;
+static int hf_opa_NodeInfo_NodeType;
+static int hf_opa_NodeInfo_NumPorts;
+static int hf_opa_NodeInfo_SystemImageGUID;
+static int hf_opa_NodeInfo_NodeGUID;
+static int hf_opa_NodeInfo_PortGUID;
+static int hf_opa_NodeInfo_PartitionCap;
+static int hf_opa_NodeInfo_DeviceID;
+static int hf_opa_NodeInfo_Revision;
+static int hf_opa_NodeInfo_LocalPortNum;
+static int hf_opa_NodeInfo_VendorID;
+static int hf_opa_SwitchInfo;
+static int hf_opa_SwitchInfo_LinearFDBCap;
+static int hf_opa_SwitchInfo_MulticastFDBCap;
+static int hf_opa_SwitchInfo_LinearFDBTop;
+static int hf_opa_SwitchInfo_MulticastFDBTop;
+static int hf_opa_SwitchInfo_CollectiveCap;
+static int hf_opa_SwitchInfo_CollectiveTop;
+static int hf_opa_SwitchInfo_IPAddrIPv6;
+static int hf_opa_SwitchInfo_IPAddrIPv4;
+static int hf_opa_SwitchInfo_LifeTimeValue;
+static int hf_opa_SwitchInfo_PortStateChange;
+static int hf_opa_SwitchInfo_reserved2;
+static int hf_opa_SwitchInfo_PartitionEnforcementCap;
+static int hf_opa_SwitchInfo_PortGroupCap;
+static int hf_opa_SwitchInfo_PortGroupTop;
+static int hf_opa_SwitchInfo_SupportedRoutingMode;
+static int hf_opa_SwitchInfo_EnabledRoutingMode;
+static int hf_opa_SwitchInfo_reserved3;
+static int hf_opa_SwitchInfo_EnhancedPortZero;
+static int hf_opa_SwitchInfo_reserved4;
+static int hf_opa_SwitchInfo_reserved5;
+static int hf_opa_SwitchInfo_CollectiveMask;
+static int hf_opa_SwitchInfo_MulticastMask;
+static int hf_opa_SwitchInfo_AdaptiveRoutingEnable;
+static int hf_opa_SwitchInfo_AdaptiveRoutingPause;
+static int hf_opa_SwitchInfo_AdaptiveRoutingAlgorithm;
+static int hf_opa_SwitchInfo_AdaptiveRoutingFrequency;
+static int hf_opa_SwitchInfo_AdaptiveRoutingLostRoutesOnly;
+static int hf_opa_SwitchInfo_AdaptiveRoutingThreshold;
+static int hf_opa_SwitchInfo_reserved6;
 static int * const _SwitchInfo_AdaptiveRouting[] = {
     &hf_opa_SwitchInfo_AdaptiveRoutingEnable,
     &hf_opa_SwitchInfo_AdaptiveRoutingPause,
@@ -1331,11 +1331,11 @@ static int * const _SwitchInfo_AdaptiveRouting[] = {
     &hf_opa_SwitchInfo_reserved6,
     NULL
 };
-static gint hf_opa_SwitchInfo_SwitchCapabilityMask;
-static gint hf_opa_SwitchInfo_SwitchCapabilityMask_reserved;
-static gint hf_opa_SwitchInfo_SwitchCapabilityMask_IsAddrRangeConfigSupported;
-static gint hf_opa_SwitchInfo_SwitchCapabilityMask_reserved2;
-static gint hf_opa_SwitchInfo_SwitchCapabilityMask_IsAdaptiveRoutingSupported;
+static int hf_opa_SwitchInfo_SwitchCapabilityMask;
+static int hf_opa_SwitchInfo_SwitchCapabilityMask_reserved;
+static int hf_opa_SwitchInfo_SwitchCapabilityMask_IsAddrRangeConfigSupported;
+static int hf_opa_SwitchInfo_SwitchCapabilityMask_reserved2;
+static int hf_opa_SwitchInfo_SwitchCapabilityMask_IsAdaptiveRoutingSupported;
 static int * const _SwitchInfo_SwitchCapabilityMask[] = {
     &hf_opa_SwitchInfo_SwitchCapabilityMask_reserved,
     &hf_opa_SwitchInfo_SwitchCapabilityMask_IsAddrRangeConfigSupported,
@@ -1343,74 +1343,74 @@ static int * const _SwitchInfo_SwitchCapabilityMask[] = {
     &hf_opa_SwitchInfo_SwitchCapabilityMask_IsAdaptiveRoutingSupported,
     NULL
 };
-static gint hf_opa_SwitchInfo_CapabilityMaskCollectives;
-static gint hf_opa_PortInfo;
-static gint hf_opa_PortInfo_LID;
-static gint hf_opa_PortInfo_FlowControlMask;
-static gint hf_opa_PortInfo_VL_PreemptCap;
-static gint hf_opa_PortInfo_VL_reserved;
-static gint hf_opa_PortInfo_VL_Cap;
-static gint hf_opa_PortInfo_VL_HighLimit;
-static gint hf_opa_PortInfo_VL_PreemptingLimit;
-static gint hf_opa_PortInfo_VL_ArbitrationHighCap;
-static gint hf_opa_PortInfo_VL_ArbitrationLowCap;
-static gint hf_opa_PortInfo_PortPhysConfig_reserved;
-static gint hf_opa_PortInfo_PortPhysConfig_PortType;
-static gint hf_opa_PortInfo_MultiCollectMask_reserved;
-static gint hf_opa_PortInfo_MultiCollectMask_CollectiveMask;
-static gint hf_opa_PortInfo_MultiCollectMask_MulticastMask;
-static gint hf_opa_PortInfo_M_KeyProtectBits;
-static gint hf_opa_PortInfo_S1_reserved;
-static gint hf_opa_PortInfo_LMC;
-static gint hf_opa_PortInfo_S2_reserved;
-static gint hf_opa_PortInfo_MasterSMSL;
-static gint hf_opa_PortInfo_LinkInitReason;
-static gint hf_opa_PortInfo_PartitionEnforcementInbound;
-static gint hf_opa_PortInfo_PartitionEnforcementOutbound;
-static gint hf_opa_PortInfo_S3_reserved2;
-static gint hf_opa_PortInfo_S4_reserved;
-static gint hf_opa_PortInfo_OperationalVL;
-static gint hf_opa_PortInfo_P_Keys_P_Key_8B;
-static gint hf_opa_PortInfo_P_Keys_P_Key_10B;
-static gint hf_opa_PortInfo_M_KeyViolations;
-static gint hf_opa_PortInfo_P_KeyViolations;
-static gint hf_opa_PortInfo_Q_KeyViolations;
-static gint hf_opa_PortInfo_TrapQueuePair_reserved;
-static gint hf_opa_PortInfo_TrapQueuePair;
-static gint hf_opa_PortInfo_SAQueuePair_reserved;
-static gint hf_opa_PortInfo_SAQueuePair;
-static gint hf_opa_PortInfo_NeighborPortNum;
-static gint hf_opa_PortInfo_LinkDownReason;
-static gint hf_opa_PortInfo_NeighborLinkDownReason;
-static gint hf_opa_PortInfo_ClientReregister;
-static gint hf_opa_PortInfo_MulticastPKeyTrapSuppressEnabled;
-static gint hf_opa_PortInfo_Timeout;
-static gint hf_opa_PortInfo_LinkSpeedSupported;
-static gint hf_opa_PortInfo_LinkSpeedEnabled;
-static gint hf_opa_PortInfo_LinkSpeedActive;
-static gint hf_opa_PortInfo_LinkWidthSupported;
-static gint hf_opa_PortInfo_LinkWidthEnabled;
-static gint hf_opa_PortInfo_LinkWidthActive;
-static gint hf_opa_PortInfo_LinkWidthDowngrade_Supported;
-static gint hf_opa_PortInfo_LinkWidthDowngrade_Enabled;
-static gint hf_opa_PortInfo_LinkWidthDowngrade_TxActive;
-static gint hf_opa_PortInfo_LinkWidthDowngrade_RxActive;
-static gint hf_opa_PortInfo_PortLinkMode_reserved;
-static gint hf_opa_PortInfo_PortLinkMode_Supported;
-static gint hf_opa_PortInfo_PortLinkMode_Enabled;
-static gint hf_opa_PortInfo_PortLinkMode_Active;
-static gint hf_opa_PortInfo_PortLTPCRCMode_reserved;
-static gint hf_opa_PortInfo_PortLTPCRCMode_Supported;
-static gint hf_opa_PortInfo_PortLTPCRCMode_Enabled;
-static gint hf_opa_PortInfo_PortLTPCRCMode_Active;
-static gint hf_opa_PortInfo_PortMode;
-static gint hf_opa_PortInfo_PortMode_reserved;
-static gint hf_opa_PortInfo_PortMode_IsActiveOptimizeEnabled;
-static gint hf_opa_PortInfo_PortMode_IsPassThroughEnabled;
-static gint hf_opa_PortInfo_PortMode_IsVLMarkerEnabled;
-static gint hf_opa_PortInfo_PortMode_reserved2;
-static gint hf_opa_PortInfo_PortMode_Is16BTrapQueryEnabled;
-static gint hf_opa_PortInfo_PortMode_reserved3;
+static int hf_opa_SwitchInfo_CapabilityMaskCollectives;
+static int hf_opa_PortInfo;
+static int hf_opa_PortInfo_LID;
+static int hf_opa_PortInfo_FlowControlMask;
+static int hf_opa_PortInfo_VL_PreemptCap;
+static int hf_opa_PortInfo_VL_reserved;
+static int hf_opa_PortInfo_VL_Cap;
+static int hf_opa_PortInfo_VL_HighLimit;
+static int hf_opa_PortInfo_VL_PreemptingLimit;
+static int hf_opa_PortInfo_VL_ArbitrationHighCap;
+static int hf_opa_PortInfo_VL_ArbitrationLowCap;
+static int hf_opa_PortInfo_PortPhysConfig_reserved;
+static int hf_opa_PortInfo_PortPhysConfig_PortType;
+static int hf_opa_PortInfo_MultiCollectMask_reserved;
+static int hf_opa_PortInfo_MultiCollectMask_CollectiveMask;
+static int hf_opa_PortInfo_MultiCollectMask_MulticastMask;
+static int hf_opa_PortInfo_M_KeyProtectBits;
+static int hf_opa_PortInfo_S1_reserved;
+static int hf_opa_PortInfo_LMC;
+static int hf_opa_PortInfo_S2_reserved;
+static int hf_opa_PortInfo_MasterSMSL;
+static int hf_opa_PortInfo_LinkInitReason;
+static int hf_opa_PortInfo_PartitionEnforcementInbound;
+static int hf_opa_PortInfo_PartitionEnforcementOutbound;
+static int hf_opa_PortInfo_S3_reserved2;
+static int hf_opa_PortInfo_S4_reserved;
+static int hf_opa_PortInfo_OperationalVL;
+static int hf_opa_PortInfo_P_Keys_P_Key_8B;
+static int hf_opa_PortInfo_P_Keys_P_Key_10B;
+static int hf_opa_PortInfo_M_KeyViolations;
+static int hf_opa_PortInfo_P_KeyViolations;
+static int hf_opa_PortInfo_Q_KeyViolations;
+static int hf_opa_PortInfo_TrapQueuePair_reserved;
+static int hf_opa_PortInfo_TrapQueuePair;
+static int hf_opa_PortInfo_SAQueuePair_reserved;
+static int hf_opa_PortInfo_SAQueuePair;
+static int hf_opa_PortInfo_NeighborPortNum;
+static int hf_opa_PortInfo_LinkDownReason;
+static int hf_opa_PortInfo_NeighborLinkDownReason;
+static int hf_opa_PortInfo_ClientReregister;
+static int hf_opa_PortInfo_MulticastPKeyTrapSuppressEnabled;
+static int hf_opa_PortInfo_Timeout;
+static int hf_opa_PortInfo_LinkSpeedSupported;
+static int hf_opa_PortInfo_LinkSpeedEnabled;
+static int hf_opa_PortInfo_LinkSpeedActive;
+static int hf_opa_PortInfo_LinkWidthSupported;
+static int hf_opa_PortInfo_LinkWidthEnabled;
+static int hf_opa_PortInfo_LinkWidthActive;
+static int hf_opa_PortInfo_LinkWidthDowngrade_Supported;
+static int hf_opa_PortInfo_LinkWidthDowngrade_Enabled;
+static int hf_opa_PortInfo_LinkWidthDowngrade_TxActive;
+static int hf_opa_PortInfo_LinkWidthDowngrade_RxActive;
+static int hf_opa_PortInfo_PortLinkMode_reserved;
+static int hf_opa_PortInfo_PortLinkMode_Supported;
+static int hf_opa_PortInfo_PortLinkMode_Enabled;
+static int hf_opa_PortInfo_PortLinkMode_Active;
+static int hf_opa_PortInfo_PortLTPCRCMode_reserved;
+static int hf_opa_PortInfo_PortLTPCRCMode_Supported;
+static int hf_opa_PortInfo_PortLTPCRCMode_Enabled;
+static int hf_opa_PortInfo_PortLTPCRCMode_Active;
+static int hf_opa_PortInfo_PortMode;
+static int hf_opa_PortInfo_PortMode_reserved;
+static int hf_opa_PortInfo_PortMode_IsActiveOptimizeEnabled;
+static int hf_opa_PortInfo_PortMode_IsPassThroughEnabled;
+static int hf_opa_PortInfo_PortMode_IsVLMarkerEnabled;
+static int hf_opa_PortInfo_PortMode_reserved2;
+static int hf_opa_PortInfo_PortMode_Is16BTrapQueryEnabled;
+static int hf_opa_PortInfo_PortMode_reserved3;
 static int * const _PortInfo_PortMode[] = {
     &hf_opa_PortInfo_PortMode_reserved,
     &hf_opa_PortInfo_PortMode_IsActiveOptimizeEnabled,
@@ -1421,45 +1421,45 @@ static int * const _PortInfo_PortMode[] = {
     &hf_opa_PortInfo_PortMode_reserved3,
     NULL
 };
-static gint hf_opa_PortInfo_PortPacketFormats_Supported;
-static gint hf_opa_PortInfo_PortPacketFormats_Enabled;
-static gint hf_opa_PortInfo_FlitControl_Interleave_reserved;
-static gint hf_opa_PortInfo_FlitControl_Interleave_DistanceSupported;
-static gint hf_opa_PortInfo_FlitControl_Interleave_DistanceEnabled;
-static gint hf_opa_PortInfo_FlitControl_Interleave_MaxNestLevelTxEnabled;
-static gint hf_opa_PortInfo_FlitControl_Interleave_MaxNestLevelRxSupported;
-static gint hf_opa_PortInfo_FlitControl_Preemption_MinInitial;
-static gint hf_opa_PortInfo_FlitControl_Preemption_MinTail;
-static gint hf_opa_PortInfo_FlitControl_Preemption_LargePacketLimit;
-static gint hf_opa_PortInfo_FlitControl_Preemption_SmallPacketLimit;
-static gint hf_opa_PortInfo_FlitControl_Preemption_MaxSmallPacketLimit;
-static gint hf_opa_PortInfo_FlitControl_Preemption_PreemptionLimit;
-static gint hf_opa_PortInfo_PortErrorAction;
-static gint hf_opa_PortInfo_PortErrorAction_ExcessiveBufferOverrun;
-static gint hf_opa_PortInfo_PortErrorAction_reserved;
-static gint hf_opa_PortInfo_PortErrorAction_FmConfigErrorExceedMulticastLimit;
-static gint hf_opa_PortInfo_PortErrorAction_FmConfigErrorBadControlFlit;
-static gint hf_opa_PortInfo_PortErrorAction_FmConfigErrorBadPreempt;
-static gint hf_opa_PortInfo_PortErrorAction_FmConfigErrorBadVLMarker;
-static gint hf_opa_PortInfo_PortErrorAction_FmConfigErrorBadCrdtAck;
-static gint hf_opa_PortInfo_PortErrorAction_FmConfigErrorBadCtrlDist;
-static gint hf_opa_PortInfo_PortErrorAction_FmConfigErrorBadTailDist;
-static gint hf_opa_PortInfo_PortErrorAction_FmConfigErrorBadHeadDist;
-static gint hf_opa_PortInfo_PortErrorAction_reserved2;
-static gint hf_opa_PortInfo_PortErrorAction_PortRcvErrorBadVLMarker;
-static gint hf_opa_PortInfo_PortErrorAction_PortRcvErrorPreemptVL15;
-static gint hf_opa_PortInfo_PortErrorAction_PortRcvErrorPreemptError;
-static gint hf_opa_PortInfo_PortErrorAction_reserved3;
-static gint hf_opa_PortInfo_PortErrorAction_PortRcvErrorBadMidTail;
-static gint hf_opa_PortInfo_PortErrorAction_PortRcvErrorReserved;
-static gint hf_opa_PortInfo_PortErrorAction_PortRcvErrorBadSC;
-static gint hf_opa_PortInfo_PortErrorAction_PortRcvErrorBadL2;
-static gint hf_opa_PortInfo_PortErrorAction_PortRcvErrorBadDLID;
-static gint hf_opa_PortInfo_PortErrorAction_PortRcvErrorBadSLID;
-static gint hf_opa_PortInfo_PortErrorAction_PortRcvErrorPktLenTooShort;
-static gint hf_opa_PortInfo_PortErrorAction_PortRcvErrorPktLenTooLong;
-static gint hf_opa_PortInfo_PortErrorAction_PortRcvErrorBadPktLen;
-static gint hf_opa_PortInfo_PortErrorAction_reserved4;
+static int hf_opa_PortInfo_PortPacketFormats_Supported;
+static int hf_opa_PortInfo_PortPacketFormats_Enabled;
+static int hf_opa_PortInfo_FlitControl_Interleave_reserved;
+static int hf_opa_PortInfo_FlitControl_Interleave_DistanceSupported;
+static int hf_opa_PortInfo_FlitControl_Interleave_DistanceEnabled;
+static int hf_opa_PortInfo_FlitControl_Interleave_MaxNestLevelTxEnabled;
+static int hf_opa_PortInfo_FlitControl_Interleave_MaxNestLevelRxSupported;
+static int hf_opa_PortInfo_FlitControl_Preemption_MinInitial;
+static int hf_opa_PortInfo_FlitControl_Preemption_MinTail;
+static int hf_opa_PortInfo_FlitControl_Preemption_LargePacketLimit;
+static int hf_opa_PortInfo_FlitControl_Preemption_SmallPacketLimit;
+static int hf_opa_PortInfo_FlitControl_Preemption_MaxSmallPacketLimit;
+static int hf_opa_PortInfo_FlitControl_Preemption_PreemptionLimit;
+static int hf_opa_PortInfo_PortErrorAction;
+static int hf_opa_PortInfo_PortErrorAction_ExcessiveBufferOverrun;
+static int hf_opa_PortInfo_PortErrorAction_reserved;
+static int hf_opa_PortInfo_PortErrorAction_FmConfigErrorExceedMulticastLimit;
+static int hf_opa_PortInfo_PortErrorAction_FmConfigErrorBadControlFlit;
+static int hf_opa_PortInfo_PortErrorAction_FmConfigErrorBadPreempt;
+static int hf_opa_PortInfo_PortErrorAction_FmConfigErrorBadVLMarker;
+static int hf_opa_PortInfo_PortErrorAction_FmConfigErrorBadCrdtAck;
+static int hf_opa_PortInfo_PortErrorAction_FmConfigErrorBadCtrlDist;
+static int hf_opa_PortInfo_PortErrorAction_FmConfigErrorBadTailDist;
+static int hf_opa_PortInfo_PortErrorAction_FmConfigErrorBadHeadDist;
+static int hf_opa_PortInfo_PortErrorAction_reserved2;
+static int hf_opa_PortInfo_PortErrorAction_PortRcvErrorBadVLMarker;
+static int hf_opa_PortInfo_PortErrorAction_PortRcvErrorPreemptVL15;
+static int hf_opa_PortInfo_PortErrorAction_PortRcvErrorPreemptError;
+static int hf_opa_PortInfo_PortErrorAction_reserved3;
+static int hf_opa_PortInfo_PortErrorAction_PortRcvErrorBadMidTail;
+static int hf_opa_PortInfo_PortErrorAction_PortRcvErrorReserved;
+static int hf_opa_PortInfo_PortErrorAction_PortRcvErrorBadSC;
+static int hf_opa_PortInfo_PortErrorAction_PortRcvErrorBadL2;
+static int hf_opa_PortInfo_PortErrorAction_PortRcvErrorBadDLID;
+static int hf_opa_PortInfo_PortErrorAction_PortRcvErrorBadSLID;
+static int hf_opa_PortInfo_PortErrorAction_PortRcvErrorPktLenTooShort;
+static int hf_opa_PortInfo_PortErrorAction_PortRcvErrorPktLenTooLong;
+static int hf_opa_PortInfo_PortErrorAction_PortRcvErrorBadPktLen;
+static int hf_opa_PortInfo_PortErrorAction_reserved4;
 static int * const _PortInfo_PortErrorAction[] = {
     &hf_opa_PortInfo_PortErrorAction_ExcessiveBufferOverrun,
     &hf_opa_PortInfo_PortErrorAction_reserved,
@@ -1488,38 +1488,38 @@ static int * const _PortInfo_PortErrorAction[] = {
     &hf_opa_PortInfo_PortErrorAction_reserved4,
     NULL
 };
-static gint hf_opa_PortInfo_PassThroughControl_EgressPort;
-static gint hf_opa_PortInfo_PassThroughControl_reserved;
-static gint hf_opa_PortInfo_PassThroughControl_DRControl;
-static gint hf_opa_PortInfo_M_KeyLeasePeriod;
-static gint hf_opa_PortInfo_BufferUnits_reserved;
-static gint hf_opa_PortInfo_BufferUnits_VL15Init;
-static gint hf_opa_PortInfo_BufferUnits_VL15CreditRate;
-static gint hf_opa_PortInfo_BufferUnits_CreditAck;
-static gint hf_opa_PortInfo_BufferUnits_BufferAlloc;
-static gint hf_opa_PortInfo_MasterSMLID;
-static gint hf_opa_PortInfo_M_Key;
-static gint hf_opa_PortInfo_SubnetPrefix;
-static gint hf_opa_PortInfo_VL1;
-static gint hf_opa_PortInfo_VL2;
-static gint hf_opa_PortInfo_XmitQ_VLStallCount;
-static gint hf_opa_PortInfo_XmitQ_HOQLife;
-static gint hf_opa_PortInfo_IPAddrIPv6;
-static gint hf_opa_PortInfo_IPAddrIPv4;
-static gint hf_opa_PortInfo_NeighborNodeGUID;
-static gint hf_opa_PortInfo_CapabilityMask;
-static gint hf_opa_PortInfo_CapabilityMask_reserved;
-static gint hf_opa_PortInfo_CapabilityMask_IsCapabilityMaskNoticeSupported;
-static gint hf_opa_PortInfo_CapabilityMask_reserved2;
-static gint hf_opa_PortInfo_CapabilityMask_IsVendorClassSupported;
-static gint hf_opa_PortInfo_CapabilityMask_IsDeviceManagementSupported;
-static gint hf_opa_PortInfo_CapabilityMask_reserved3;
-static gint hf_opa_PortInfo_CapabilityMask_IsConnectionManagementSupported;
-static gint hf_opa_PortInfo_CapabilityMask_reserved4;
-static gint hf_opa_PortInfo_CapabilityMask_IsAutomaticMigrationSupported;
-static gint hf_opa_PortInfo_CapabilityMask_reserved5;
-static gint hf_opa_PortInfo_CapabilityMask_IsSM;
-static gint hf_opa_PortInfo_CapabilityMask_reserved6;
+static int hf_opa_PortInfo_PassThroughControl_EgressPort;
+static int hf_opa_PortInfo_PassThroughControl_reserved;
+static int hf_opa_PortInfo_PassThroughControl_DRControl;
+static int hf_opa_PortInfo_M_KeyLeasePeriod;
+static int hf_opa_PortInfo_BufferUnits_reserved;
+static int hf_opa_PortInfo_BufferUnits_VL15Init;
+static int hf_opa_PortInfo_BufferUnits_VL15CreditRate;
+static int hf_opa_PortInfo_BufferUnits_CreditAck;
+static int hf_opa_PortInfo_BufferUnits_BufferAlloc;
+static int hf_opa_PortInfo_MasterSMLID;
+static int hf_opa_PortInfo_M_Key;
+static int hf_opa_PortInfo_SubnetPrefix;
+static int hf_opa_PortInfo_VL1;
+static int hf_opa_PortInfo_VL2;
+static int hf_opa_PortInfo_XmitQ_VLStallCount;
+static int hf_opa_PortInfo_XmitQ_HOQLife;
+static int hf_opa_PortInfo_IPAddrIPv6;
+static int hf_opa_PortInfo_IPAddrIPv4;
+static int hf_opa_PortInfo_NeighborNodeGUID;
+static int hf_opa_PortInfo_CapabilityMask;
+static int hf_opa_PortInfo_CapabilityMask_reserved;
+static int hf_opa_PortInfo_CapabilityMask_IsCapabilityMaskNoticeSupported;
+static int hf_opa_PortInfo_CapabilityMask_reserved2;
+static int hf_opa_PortInfo_CapabilityMask_IsVendorClassSupported;
+static int hf_opa_PortInfo_CapabilityMask_IsDeviceManagementSupported;
+static int hf_opa_PortInfo_CapabilityMask_reserved3;
+static int hf_opa_PortInfo_CapabilityMask_IsConnectionManagementSupported;
+static int hf_opa_PortInfo_CapabilityMask_reserved4;
+static int hf_opa_PortInfo_CapabilityMask_IsAutomaticMigrationSupported;
+static int hf_opa_PortInfo_CapabilityMask_reserved5;
+static int hf_opa_PortInfo_CapabilityMask_IsSM;
+static int hf_opa_PortInfo_CapabilityMask_reserved6;
 static int * const _PortInfo_CapabilityMask[] = {
     &hf_opa_PortInfo_CapabilityMask_reserved,
     &hf_opa_PortInfo_CapabilityMask_IsCapabilityMaskNoticeSupported,
@@ -1535,16 +1535,16 @@ static int * const _PortInfo_CapabilityMask[] = {
     &hf_opa_PortInfo_CapabilityMask_reserved6,
     NULL
 };
-static gint hf_opa_PortInfo_CapabilityMask3;
-static gint hf_opa_PortInfo_CapabilityMask3_reserved;
-static gint hf_opa_PortInfo_CapabilityMask3_IsSnoopSupported;
-static gint hf_opa_PortInfo_CapabilityMask3_IsAsyncSCtoVLSupported;
-static gint hf_opa_PortInfo_CapabilityMask3_IsAddrRangeConfigSupported;
-static gint hf_opa_PortInfo_CapabilityMask3_IsPassThroughSupported;
-static gint hf_opa_PortInfo_CapabilityMask3_IsSharedSpaceSupported;
-static gint hf_opa_PortInfo_CapabilityMask3_reserved2;
-static gint hf_opa_PortInfo_CapabilityMask3_IsVLMarkerSupported;
-static gint hf_opa_PortInfo_CapabilityMask3_IsVLrSupported;
+static int hf_opa_PortInfo_CapabilityMask3;
+static int hf_opa_PortInfo_CapabilityMask3_reserved;
+static int hf_opa_PortInfo_CapabilityMask3_IsSnoopSupported;
+static int hf_opa_PortInfo_CapabilityMask3_IsAsyncSCtoVLSupported;
+static int hf_opa_PortInfo_CapabilityMask3_IsAddrRangeConfigSupported;
+static int hf_opa_PortInfo_CapabilityMask3_IsPassThroughSupported;
+static int hf_opa_PortInfo_CapabilityMask3_IsSharedSpaceSupported;
+static int hf_opa_PortInfo_CapabilityMask3_reserved2;
+static int hf_opa_PortInfo_CapabilityMask3_IsVLMarkerSupported;
+static int hf_opa_PortInfo_CapabilityMask3_IsVLrSupported;
 static int * const _PortInfo_CapabilityMask3[] = {
     &hf_opa_PortInfo_CapabilityMask3_reserved,
     &hf_opa_PortInfo_CapabilityMask3_IsSnoopSupported,
@@ -1557,29 +1557,29 @@ static int * const _PortInfo_CapabilityMask3[] = {
     &hf_opa_PortInfo_CapabilityMask3_IsVLrSupported,
     NULL
 };
-static gint hf_opa_PortInfo_OverallBufferSpace;
-static gint hf_opa_PortInfo_DiagCode;
-static gint hf_opa_PortInfo_ReplayDepth_BufferDepth;
-static gint hf_opa_PortInfo_ReplayDepth_WireDepth;
-static gint hf_opa_PortInfo_PortNeighborMode_reserved;
-static gint hf_opa_PortInfo_PortNeighborMode_MgmtAllowed;
-static gint hf_opa_PortInfo_PortNeighborMode_NeighborFWAuthenBypass;
-static gint hf_opa_PortInfo_PortNeighborMode_NeighborNodeType;
-static gint hf_opa_PortInfo_MTU_reserved;
-static gint hf_opa_PortInfo_MTU_Cap;
-static gint hf_opa_PortInfo_Resp_reserved;
-static gint hf_opa_PortInfo_Resp_TimeValue;
-static gint hf_opa_PortInfo_LocalPortNum;
-static gint hf_opa_PortStates;
-static gint hf_opa_PortStates_reserved;
-static gint hf_opa_PortStates_LEDEnabled;
-static gint hf_opa_PortStates_IsSMConfigurationStarted;
-static gint hf_opa_PortStates_NeighborNormal;
-static gint hf_opa_PortStates_OfflineDisabledReason;
-static gint hf_opa_PortStates_PortUnsleepState;
-static gint hf_opa_PortStates_DownDefaultState;
-static gint hf_opa_PortStates_PortPhysicalState;
-static gint hf_opa_PortStates_PortState;
+static int hf_opa_PortInfo_OverallBufferSpace;
+static int hf_opa_PortInfo_DiagCode;
+static int hf_opa_PortInfo_ReplayDepth_BufferDepth;
+static int hf_opa_PortInfo_ReplayDepth_WireDepth;
+static int hf_opa_PortInfo_PortNeighborMode_reserved;
+static int hf_opa_PortInfo_PortNeighborMode_MgmtAllowed;
+static int hf_opa_PortInfo_PortNeighborMode_NeighborFWAuthenBypass;
+static int hf_opa_PortInfo_PortNeighborMode_NeighborNodeType;
+static int hf_opa_PortInfo_MTU_reserved;
+static int hf_opa_PortInfo_MTU_Cap;
+static int hf_opa_PortInfo_Resp_reserved;
+static int hf_opa_PortInfo_Resp_TimeValue;
+static int hf_opa_PortInfo_LocalPortNum;
+static int hf_opa_PortStates;
+static int hf_opa_PortStates_reserved;
+static int hf_opa_PortStates_LEDEnabled;
+static int hf_opa_PortStates_IsSMConfigurationStarted;
+static int hf_opa_PortStates_NeighborNormal;
+static int hf_opa_PortStates_OfflineDisabledReason;
+static int hf_opa_PortStates_PortUnsleepState;
+static int hf_opa_PortStates_DownDefaultState;
+static int hf_opa_PortStates_PortPhysicalState;
+static int hf_opa_PortStates_PortState;
 static int * const _PortStates[] = {
     &hf_opa_PortStates_reserved,
     &hf_opa_PortStates_LEDEnabled,
@@ -1592,355 +1592,355 @@ static int * const _PortStates[] = {
     &hf_opa_PortStates_PortState,
     NULL
 };
-static gint hf_opa_PortStates_LinkWidthDowngradeTxActive;
-static gint hf_opa_PortStates_LinkWidthDowngradeRxActive;
-static gint hf_opa_P_KeyTable;
-static gint hf_opa_P_KeyTable_MembershipType;
-static gint hf_opa_P_KeyTable_P_KeyBase;
-static gint hf_opa_SLtoSCMappingTable;
-static gint hf_opa_SLtoSCMappingTable_SLtoSC_HighBits;
-static gint hf_opa_SLtoSCMappingTable_SLtoSC_LowBits;
-static gint hf_opa_SCtoSCMappingTable;
-static gint hf_opa_SCtoSCMappingTable_SCtoSC_HighBits;
-static gint hf_opa_SCtoSCMappingTable_SCtoSC_LowBits;
-static gint hf_opa_SCtoSLMappingTable;
-static gint hf_opa_SCtoSLMappingTable_SCtoSL_HighBits;
-static gint hf_opa_SCtoSLMappingTable_SCtoSL_LowBits;
-static gint hf_opa_SCtoVLxMappingTable;
-static gint hf_opa_SCtoVLxMappingTable_SCtoVLx_HighBits;
-static gint hf_opa_SCtoVLxMappingTable_SCtoVLx_LowBits;
-static gint hf_opa_VLArbitrationTable;
-static gint hf_opa_VLArbitrationTable_reserved;
-static gint hf_opa_VLArbitrationTable_VL;
-static gint hf_opa_VLArbitrationTable_Weight;
-static gint hf_opa_VLArbitrationTable_Matrix;
-static gint hf_opa_LinearForwardingTable;
-static gint hf_opa_LinearForwardingTable_Port;
-static gint hf_opa_MulticastForwardingTable;
-static gint hf_opa_MulticastForwardingTable_PortMask;
-static gint hf_opa_PortGroupForwardingTable;
-static gint hf_opa_PortGroupForwardingTable_Port;
-static gint hf_opa_PortGroupTable;
-static gint hf_opa_PortGroupTable_PortMask;
-static gint hf_opa_SMInfo;
-static gint hf_opa_SMInfo_GUID;
-static gint hf_opa_SMInfo_SM_Key;
-static gint hf_opa_SMInfo_ActCount;
-static gint hf_opa_SMInfo_ElapsedTime;
-static gint hf_opa_SMInfo_Priority;
-static gint hf_opa_SMInfo_ElevatedPriority;
-static gint hf_opa_SMInfo_InitialPriority;
-static gint hf_opa_SMInfo_SMState;
-static gint hf_opa_LedInfo;
-static gint hf_opa_LedInfo_LedMask;
-static gint hf_opa_LedInfo_reserved;
-static gint hf_opa_CableInfo;
-static gint hf_opa_CableInfo_Data;
-static gint hf_opa_CableInfo_DataStream;
-static gint hf_opa_Aggregate;
-static gint hf_opa_Aggregate_AttributeID;
-static gint hf_opa_Aggregate_Error;
-static gint hf_opa_Aggregate_RequestLength;
-static gint hf_opa_BufferControlTable;
-static gint hf_opa_BufferControlTable_TxOverallSharedLimit;
-static gint hf_opa_BufferControlTable_TxDedicatedLimit;
-static gint hf_opa_BufferControlTable_TxSharedLimit;
-static gint hf_opa_CongestionInfo;
-static gint hf_opa_CongestionInfo_CongestionInfo;
-static gint hf_opa_CongestionInfo_ControlTableCap;
-static gint hf_opa_CongestionInfo_CongestionLogLength;
-static gint hf_opa_SwitchCongestionLog;
-static gint hf_opa_SwitchCongestionLog_LogType;
-static gint hf_opa_SwitchCongestionLog_CongestionFlags;
-static gint hf_opa_SwitchCongestionLog_LogEventsCounter;
-static gint hf_opa_SwitchCongestionLog_CurrentTimeStamp;
-static gint hf_opa_SwitchCongestionLog_PortMap;
-static gint hf_opa_SwitchCongestionLog_SLID;
-static gint hf_opa_SwitchCongestionLog_DLID;
-static gint hf_opa_SwitchCongestionLog_SC;
-static gint hf_opa_SwitchCongestionLog_reserved;
-static gint hf_opa_SwitchCongestionLog_TimeStamp;
-static gint hf_opa_SwitchCongestionSetting;
-static gint hf_opa_SwitchCongestionSetting_Control_Map;
-static gint hf_opa_SwitchCongestionSetting_Victim_Mask;
-static gint hf_opa_SwitchCongestionSetting_Credit_Mask;
-static gint hf_opa_SwitchCongestionSetting_Threshold;
-static gint hf_opa_SwitchCongestionSetting_reserved1;
-static gint hf_opa_SwitchCongestionSetting_Packet_Size;
-static gint hf_opa_SwitchCongestionSetting_CS_Threshold;
-static gint hf_opa_SwitchCongestionSetting_reserved2;
-static gint hf_opa_SwitchCongestionSetting_CS_ReturnDelay;
-static gint hf_opa_SwitchCongestionSetting_Marking_Rate;
-static gint hf_opa_SwitchPortCongestionSetting;
-static gint hf_opa_SwitchPortCongestionSetting_Valid;
-static gint hf_opa_SwitchPortCongestionSetting_Control_Type;
-static gint hf_opa_SwitchPortCongestionSetting_reserved;
-static gint hf_opa_SwitchPortCongestionSetting_Threshold;
-static gint hf_opa_SwitchPortCongestionSetting_Packet_Size;
-static gint hf_opa_SwitchPortCongestionSetting_Marking_Rate;
-static gint hf_opa_HFICongestionLog;
-static gint hf_opa_HFICongestionLog_LogType;
-static gint hf_opa_HFICongestionLog_CongestionFlags;
-static gint hf_opa_HFICongestionLog_ThresholdEventCounter;
-static gint hf_opa_HFICongestionLog_CurrentTimeStamp;
-static gint hf_opa_HFICongestionLog_ThresholdCongestionEventMap;
-static gint hf_opa_HFICongestionLog_Local_QP_CN_Entry;
-static gint hf_opa_HFICongestionLog_Remote_QP_Number_CN_Entry;
-static gint hf_opa_HFICongestionLog_SL_CN_Entry;
-static gint hf_opa_HFICongestionLog_Service_Type_CN_Entry;
-static gint hf_opa_HFICongestionLog_Remote_LID_CN_Entry;
-static gint hf_opa_HFICongestionLog_TimeStamp_CN_Entry;
-static gint hf_opa_HFICongestionSetting;
-static gint hf_opa_HFICongestionSetting_Control_Map;
-static gint hf_opa_HFICongestionSetting_Port_Control;
-static gint hf_opa_HFICongestionSetting_CCTI_Increase;
-static gint hf_opa_HFICongestionSetting_CCTI_Timer;
-static gint hf_opa_HFICongestionSetting_TriggerThreshold;
-static gint hf_opa_HFICongestionSetting_CCTI_Min;
-static gint hf_opa_HFICongestionControlTable;
-static gint hf_opa_HFICongestionControlTable_CCTI_Limit;
-static gint hf_opa_HFICongestionControlTable_CCT_Shift;
-static gint hf_opa_HFICongestionControlTable_CCT_Multiplier;
+static int hf_opa_PortStates_LinkWidthDowngradeTxActive;
+static int hf_opa_PortStates_LinkWidthDowngradeRxActive;
+static int hf_opa_P_KeyTable;
+static int hf_opa_P_KeyTable_MembershipType;
+static int hf_opa_P_KeyTable_P_KeyBase;
+static int hf_opa_SLtoSCMappingTable;
+static int hf_opa_SLtoSCMappingTable_SLtoSC_HighBits;
+static int hf_opa_SLtoSCMappingTable_SLtoSC_LowBits;
+static int hf_opa_SCtoSCMappingTable;
+static int hf_opa_SCtoSCMappingTable_SCtoSC_HighBits;
+static int hf_opa_SCtoSCMappingTable_SCtoSC_LowBits;
+static int hf_opa_SCtoSLMappingTable;
+static int hf_opa_SCtoSLMappingTable_SCtoSL_HighBits;
+static int hf_opa_SCtoSLMappingTable_SCtoSL_LowBits;
+static int hf_opa_SCtoVLxMappingTable;
+static int hf_opa_SCtoVLxMappingTable_SCtoVLx_HighBits;
+static int hf_opa_SCtoVLxMappingTable_SCtoVLx_LowBits;
+static int hf_opa_VLArbitrationTable;
+static int hf_opa_VLArbitrationTable_reserved;
+static int hf_opa_VLArbitrationTable_VL;
+static int hf_opa_VLArbitrationTable_Weight;
+static int hf_opa_VLArbitrationTable_Matrix;
+static int hf_opa_LinearForwardingTable;
+static int hf_opa_LinearForwardingTable_Port;
+static int hf_opa_MulticastForwardingTable;
+static int hf_opa_MulticastForwardingTable_PortMask;
+static int hf_opa_PortGroupForwardingTable;
+static int hf_opa_PortGroupForwardingTable_Port;
+static int hf_opa_PortGroupTable;
+static int hf_opa_PortGroupTable_PortMask;
+static int hf_opa_SMInfo;
+static int hf_opa_SMInfo_GUID;
+static int hf_opa_SMInfo_SM_Key;
+static int hf_opa_SMInfo_ActCount;
+static int hf_opa_SMInfo_ElapsedTime;
+static int hf_opa_SMInfo_Priority;
+static int hf_opa_SMInfo_ElevatedPriority;
+static int hf_opa_SMInfo_InitialPriority;
+static int hf_opa_SMInfo_SMState;
+static int hf_opa_LedInfo;
+static int hf_opa_LedInfo_LedMask;
+static int hf_opa_LedInfo_reserved;
+static int hf_opa_CableInfo;
+static int hf_opa_CableInfo_Data;
+static int hf_opa_CableInfo_DataStream;
+static int hf_opa_Aggregate;
+static int hf_opa_Aggregate_AttributeID;
+static int hf_opa_Aggregate_Error;
+static int hf_opa_Aggregate_RequestLength;
+static int hf_opa_BufferControlTable;
+static int hf_opa_BufferControlTable_TxOverallSharedLimit;
+static int hf_opa_BufferControlTable_TxDedicatedLimit;
+static int hf_opa_BufferControlTable_TxSharedLimit;
+static int hf_opa_CongestionInfo;
+static int hf_opa_CongestionInfo_CongestionInfo;
+static int hf_opa_CongestionInfo_ControlTableCap;
+static int hf_opa_CongestionInfo_CongestionLogLength;
+static int hf_opa_SwitchCongestionLog;
+static int hf_opa_SwitchCongestionLog_LogType;
+static int hf_opa_SwitchCongestionLog_CongestionFlags;
+static int hf_opa_SwitchCongestionLog_LogEventsCounter;
+static int hf_opa_SwitchCongestionLog_CurrentTimeStamp;
+static int hf_opa_SwitchCongestionLog_PortMap;
+static int hf_opa_SwitchCongestionLog_SLID;
+static int hf_opa_SwitchCongestionLog_DLID;
+static int hf_opa_SwitchCongestionLog_SC;
+static int hf_opa_SwitchCongestionLog_reserved;
+static int hf_opa_SwitchCongestionLog_TimeStamp;
+static int hf_opa_SwitchCongestionSetting;
+static int hf_opa_SwitchCongestionSetting_Control_Map;
+static int hf_opa_SwitchCongestionSetting_Victim_Mask;
+static int hf_opa_SwitchCongestionSetting_Credit_Mask;
+static int hf_opa_SwitchCongestionSetting_Threshold;
+static int hf_opa_SwitchCongestionSetting_reserved1;
+static int hf_opa_SwitchCongestionSetting_Packet_Size;
+static int hf_opa_SwitchCongestionSetting_CS_Threshold;
+static int hf_opa_SwitchCongestionSetting_reserved2;
+static int hf_opa_SwitchCongestionSetting_CS_ReturnDelay;
+static int hf_opa_SwitchCongestionSetting_Marking_Rate;
+static int hf_opa_SwitchPortCongestionSetting;
+static int hf_opa_SwitchPortCongestionSetting_Valid;
+static int hf_opa_SwitchPortCongestionSetting_Control_Type;
+static int hf_opa_SwitchPortCongestionSetting_reserved;
+static int hf_opa_SwitchPortCongestionSetting_Threshold;
+static int hf_opa_SwitchPortCongestionSetting_Packet_Size;
+static int hf_opa_SwitchPortCongestionSetting_Marking_Rate;
+static int hf_opa_HFICongestionLog;
+static int hf_opa_HFICongestionLog_LogType;
+static int hf_opa_HFICongestionLog_CongestionFlags;
+static int hf_opa_HFICongestionLog_ThresholdEventCounter;
+static int hf_opa_HFICongestionLog_CurrentTimeStamp;
+static int hf_opa_HFICongestionLog_ThresholdCongestionEventMap;
+static int hf_opa_HFICongestionLog_Local_QP_CN_Entry;
+static int hf_opa_HFICongestionLog_Remote_QP_Number_CN_Entry;
+static int hf_opa_HFICongestionLog_SL_CN_Entry;
+static int hf_opa_HFICongestionLog_Service_Type_CN_Entry;
+static int hf_opa_HFICongestionLog_Remote_LID_CN_Entry;
+static int hf_opa_HFICongestionLog_TimeStamp_CN_Entry;
+static int hf_opa_HFICongestionSetting;
+static int hf_opa_HFICongestionSetting_Control_Map;
+static int hf_opa_HFICongestionSetting_Port_Control;
+static int hf_opa_HFICongestionSetting_CCTI_Increase;
+static int hf_opa_HFICongestionSetting_CCTI_Timer;
+static int hf_opa_HFICongestionSetting_TriggerThreshold;
+static int hf_opa_HFICongestionSetting_CCTI_Min;
+static int hf_opa_HFICongestionControlTable;
+static int hf_opa_HFICongestionControlTable_CCTI_Limit;
+static int hf_opa_HFICongestionControlTable_CCT_Shift;
+static int hf_opa_HFICongestionControlTable_CCT_Multiplier;
 /* SA */
-static gint hf_opa_PortInfoRecord_LinkDownReason_NeighborLinkDownReason;
-static gint hf_opa_PortInfoRecord_LinkDownReason_LinkDownReason;
-static gint hf_opa_PortInfoRecord_LinkDownReason_Timestamp;
-static gint hf_opa_LinkRecord;
-static gint hf_opa_LinkRecord_ToPort;
-static gint hf_opa_LinkRecord_ToLID;
-static gint hf_opa_ServiceRecord;
-static gint hf_opa_ServiceRecord_ServiceLease;
-static gint hf_opa_ServiceRecord_ServiceKey;
-static gint hf_opa_ServiceRecord_ServiceName;
-static gint hf_opa_ServiceRecord_ServiceData;
-static gint hf_opa_ServiceAssociationRecord_ServiceKey;
-static gint hf_opa_ServiceAssociationRecord_ServiceName;
-static gint hf_opa_PathRecord;
-static gint hf_opa_PathRecord_DGID;
-static gint hf_opa_PathRecord_SGID;
-static gint hf_opa_PathRecord_DLID;
-static gint hf_opa_PathRecord_SLID;
-static gint hf_opa_PathRecord_RawTraffic;
-static gint hf_opa_PathRecord_reserved;
-static gint hf_opa_PathRecord_FlowLabel;
-static gint hf_opa_PathRecord_HopLimit;
-static gint hf_opa_PathRecord_TClass;
-static gint hf_opa_PathRecord_Reversible;
-static gint hf_opa_PathRecord_NumbPath;
-static gint hf_opa_PathRecord_P_Key;
-static gint hf_opa_PathRecord_QosType;
-static gint hf_opa_PathRecord_reserved2;
-static gint hf_opa_PathRecord_QosPriority;
-static gint hf_opa_PathRecord_SL;
-static gint hf_opa_PathRecord_MTUSelector;
-static gint hf_opa_PathRecord_MTU;
-static gint hf_opa_PathRecord_RateSelector;
-static gint hf_opa_PathRecord_Rate;
-static gint hf_opa_PathRecord_PacketLifeTimeSelector;
-static gint hf_opa_PathRecord_PacketLifeTime;
-static gint hf_opa_PathRecord_Preference;
-static gint hf_opa_MCMemberRecord;
-static gint hf_opa_MCMemberRecord_Q_Key;
-static gint hf_opa_MCMemberRecord_MLID;
-static gint hf_opa_MCMemberRecord_MTUSelector;
-static gint hf_opa_MCMemberRecord_MTU;
-static gint hf_opa_MCMemberRecord_TClass;
-static gint hf_opa_MCMemberRecord_P_Key;
-static gint hf_opa_MCMemberRecord_RateSelector;
-static gint hf_opa_MCMemberRecord_Rate;
-static gint hf_opa_MCMemberRecord_PacketLifeTimeSelector;
-static gint hf_opa_MCMemberRecord_PacketLifeTime;
-static gint hf_opa_MCMemberRecord_SL;
-static gint hf_opa_MCMemberRecord_reserved;
-static gint hf_opa_MCMemberRecord_HopLimit;
-static gint hf_opa_MCMemberRecord_Scope;
-static gint hf_opa_MCMemberRecord_reserved2;
-static gint hf_opa_MCMemberRecord_JoinSendOnlyMember;
-static gint hf_opa_MCMemberRecord_JoinNonMember;
-static gint hf_opa_MCMemberRecord_JoinFullMember;
-static gint hf_opa_MCMemberRecord_ProxyJoin;
-static gint hf_opa_MCMemberRecord_reserved3;
-static gint hf_opa_TraceRecord;
-static gint hf_opa_TraceRecord_IDGeneration;
-static gint hf_opa_TraceRecord_NodeType;
-static gint hf_opa_TraceRecord_NodeID;
-static gint hf_opa_TraceRecord_ChassisID;
-static gint hf_opa_TraceRecord_EntryPortID;
-static gint hf_opa_TraceRecord_ExitPortID;
-static gint hf_opa_TraceRecord_EntryPort;
-static gint hf_opa_TraceRecord_ExitPort;
-static gint hf_opa_MultiPathRecord;
-static gint hf_opa_MultiPathRecord_reserved;
-static gint hf_opa_MultiPathRecord_FlowLabel;
-static gint hf_opa_MultiPathRecord_HopLimit;
-static gint hf_opa_MultiPathRecord_TClass;
-static gint hf_opa_MultiPathRecord_Reversible;
-static gint hf_opa_MultiPathRecord_NumbPath;
-static gint hf_opa_MultiPathRecord_P_Key;
-static gint hf_opa_MultiPathRecord_QoSType;
-static gint hf_opa_MultiPathRecord_QoSPriority;
-static gint hf_opa_MultiPathRecord_reserved2;
-static gint hf_opa_MultiPathRecord_SL;
-static gint hf_opa_MultiPathRecord_MTUSelector;
-static gint hf_opa_MultiPathRecord_MTU;
-static gint hf_opa_MultiPathRecord_RateSelector;
-static gint hf_opa_MultiPathRecord_Rate;
-static gint hf_opa_MultiPathRecord_PacketLifeTimeSelector;
-static gint hf_opa_MultiPathRecord_PacketLifeTime;
-static gint hf_opa_MultiPathRecord_IndependenceSelector;
-static gint hf_opa_MultiPathRecord_SGIDScope;
-static gint hf_opa_MultiPathRecord_DGIDScope;
-static gint hf_opa_MultiPathRecord_SGIDCount;
-static gint hf_opa_MultiPathRecord_DGIDCount;
-static gint hf_opa_MultiPathRecord_SGID;
-static gint hf_opa_MultiPathRecord_DGID;
-static gint hf_opa_MultiPathRecord_L2_8B;
-static gint hf_opa_MultiPathRecord_L2_10B;
-static gint hf_opa_MultiPathRecord_L2_9B;
-static gint hf_opa_MultiPathRecord_L2_16B;
-static gint hf_opa_MultiPathRecord_reserved3;
-static gint hf_opa_MultiPathRecord_SGUIDScope;
-static gint hf_opa_MultiPathRecord_DGUIDScope;
-static gint hf_opa_MultiPathRecord_SGUIDCount;
-static gint hf_opa_MultiPathRecord_DGUIDCount;
-static gint hf_opa_MultiPathRecord_SGUID;
-static gint hf_opa_MultiPathRecord_DGUID;
-static gint hf_opa_MultiPathRecord_ServiceID;
-static gint hf_opa_MultiPathRecord_SubnetPrefix;
-static gint hf_opa_MultiPathRecord_SLIDCount;
-static gint hf_opa_MultiPathRecord_DLIDCount;
-static gint hf_opa_MultiPathRecord_SLID;
-static gint hf_opa_MultiPathRecord_DLID;
-static gint hf_opa_CableInfoRecord;
-static gint hf_opa_CableInfoRecord_Lid;
-static gint hf_opa_CableInfoRecord_Port;
-static gint hf_opa_CableInfoRecord_Length;
-static gint hf_opa_CableInfoRecord_reserved;
-static gint hf_opa_CableInfoRecord_Address;
-static gint hf_opa_CableInfoRecord_PortType;
-static gint hf_opa_CableInfoRecord_Data;
-static gint hf_opa_VFInfoRecord;
-static gint hf_opa_VFInfoRecord_vfIndex;
-static gint hf_opa_VFInfoRecord_pKey;
-static gint hf_opa_VFInfoRecord_vfName;
-static gint hf_opa_VFInfoRecord_MGID;
-static gint hf_opa_VFInfoRecord_SelectFlags;
-static gint hf_opa_VFInfoRecord_reserved;
-static gint hf_opa_VFInfoRecord_SL;
-static gint hf_opa_VFInfoRecord_MTUSpecified;
-static gint hf_opa_VFInfoRecord_reserved2;
-static gint hf_opa_VFInfoRecord_MTU;
-static gint hf_opa_VFInfoRecord_RateSpecified;
-static gint hf_opa_VFInfoRecord_reserved4;
-static gint hf_opa_VFInfoRecord_Rate;
-static gint hf_opa_VFInfoRecord_PktLifeSpecified;
-static gint hf_opa_VFInfoRecord_reserved5;
-static gint hf_opa_VFInfoRecord_PktLifeTimeInc;
-static gint hf_opa_VFInfoRecord_OptionFlags;
-static gint hf_opa_VFInfoRecord_BandwidthPercent;
-static gint hf_opa_VFInfoRecord_reserved6;
-static gint hf_opa_VFInfoRecord_Priority;
-static gint hf_opa_VFInfoRecord_RoutingSLs;
-static gint hf_opa_VFInfoRecord_reserved7;
-static gint hf_opa_QuarantinedNodeRecord;
-static gint hf_opa_QuarantinedNodeRecord_TrustedLid;
-static gint hf_opa_QuarantinedNodeRecord_TrustedNodeGUID;
-static gint hf_opa_QuarantinedNodeRecord_TrustedPortNum;
-static gint hf_opa_QuarantinedNodeRecord_TrustedNeighborNodeGUID;
-static gint hf_opa_QuarantinedNodeRecord_QuarantineReasons;
-static gint hf_opa_QuarantinedNodeRecord_ExpectedNodeDesc;
-static gint hf_opa_QuarantinedNodeRecord_ExpectedNodeGUID;
-static gint hf_opa_QuarantinedNodeRecord_ExpectedPortGUID;
-static gint hf_opa_FabricInfoRecord;
-static gint hf_opa_FabricInfoRecord_NumHFIs;
-static gint hf_opa_FabricInfoRecord_NumSwitches;
-static gint hf_opa_FabricInfoRecord_NumInternalHFILinks;
-static gint hf_opa_FabricInfoRecord_NumExternalHFILinks;
-static gint hf_opa_FabricInfoRecord_NumInternalISLs;
-static gint hf_opa_FabricInfoRecord_NumExternalISLs;
-static gint hf_opa_FabricInfoRecord_NumDegradedHFILinks;
-static gint hf_opa_FabricInfoRecord_NumDegradedISLs;
-static gint hf_opa_FabricInfoRecord_NumOmittedHFILinks;
-static gint hf_opa_FabricInfoRecord_NumOmittedISLs;
-static gint hf_opa_FabricInfoRecord_Reserved;
+static int hf_opa_PortInfoRecord_LinkDownReason_NeighborLinkDownReason;
+static int hf_opa_PortInfoRecord_LinkDownReason_LinkDownReason;
+static int hf_opa_PortInfoRecord_LinkDownReason_Timestamp;
+static int hf_opa_LinkRecord;
+static int hf_opa_LinkRecord_ToPort;
+static int hf_opa_LinkRecord_ToLID;
+static int hf_opa_ServiceRecord;
+static int hf_opa_ServiceRecord_ServiceLease;
+static int hf_opa_ServiceRecord_ServiceKey;
+static int hf_opa_ServiceRecord_ServiceName;
+static int hf_opa_ServiceRecord_ServiceData;
+static int hf_opa_ServiceAssociationRecord_ServiceKey;
+static int hf_opa_ServiceAssociationRecord_ServiceName;
+static int hf_opa_PathRecord;
+static int hf_opa_PathRecord_DGID;
+static int hf_opa_PathRecord_SGID;
+static int hf_opa_PathRecord_DLID;
+static int hf_opa_PathRecord_SLID;
+static int hf_opa_PathRecord_RawTraffic;
+static int hf_opa_PathRecord_reserved;
+static int hf_opa_PathRecord_FlowLabel;
+static int hf_opa_PathRecord_HopLimit;
+static int hf_opa_PathRecord_TClass;
+static int hf_opa_PathRecord_Reversible;
+static int hf_opa_PathRecord_NumbPath;
+static int hf_opa_PathRecord_P_Key;
+static int hf_opa_PathRecord_QosType;
+static int hf_opa_PathRecord_reserved2;
+static int hf_opa_PathRecord_QosPriority;
+static int hf_opa_PathRecord_SL;
+static int hf_opa_PathRecord_MTUSelector;
+static int hf_opa_PathRecord_MTU;
+static int hf_opa_PathRecord_RateSelector;
+static int hf_opa_PathRecord_Rate;
+static int hf_opa_PathRecord_PacketLifeTimeSelector;
+static int hf_opa_PathRecord_PacketLifeTime;
+static int hf_opa_PathRecord_Preference;
+static int hf_opa_MCMemberRecord;
+static int hf_opa_MCMemberRecord_Q_Key;
+static int hf_opa_MCMemberRecord_MLID;
+static int hf_opa_MCMemberRecord_MTUSelector;
+static int hf_opa_MCMemberRecord_MTU;
+static int hf_opa_MCMemberRecord_TClass;
+static int hf_opa_MCMemberRecord_P_Key;
+static int hf_opa_MCMemberRecord_RateSelector;
+static int hf_opa_MCMemberRecord_Rate;
+static int hf_opa_MCMemberRecord_PacketLifeTimeSelector;
+static int hf_opa_MCMemberRecord_PacketLifeTime;
+static int hf_opa_MCMemberRecord_SL;
+static int hf_opa_MCMemberRecord_reserved;
+static int hf_opa_MCMemberRecord_HopLimit;
+static int hf_opa_MCMemberRecord_Scope;
+static int hf_opa_MCMemberRecord_reserved2;
+static int hf_opa_MCMemberRecord_JoinSendOnlyMember;
+static int hf_opa_MCMemberRecord_JoinNonMember;
+static int hf_opa_MCMemberRecord_JoinFullMember;
+static int hf_opa_MCMemberRecord_ProxyJoin;
+static int hf_opa_MCMemberRecord_reserved3;
+static int hf_opa_TraceRecord;
+static int hf_opa_TraceRecord_IDGeneration;
+static int hf_opa_TraceRecord_NodeType;
+static int hf_opa_TraceRecord_NodeID;
+static int hf_opa_TraceRecord_ChassisID;
+static int hf_opa_TraceRecord_EntryPortID;
+static int hf_opa_TraceRecord_ExitPortID;
+static int hf_opa_TraceRecord_EntryPort;
+static int hf_opa_TraceRecord_ExitPort;
+static int hf_opa_MultiPathRecord;
+static int hf_opa_MultiPathRecord_reserved;
+static int hf_opa_MultiPathRecord_FlowLabel;
+static int hf_opa_MultiPathRecord_HopLimit;
+static int hf_opa_MultiPathRecord_TClass;
+static int hf_opa_MultiPathRecord_Reversible;
+static int hf_opa_MultiPathRecord_NumbPath;
+static int hf_opa_MultiPathRecord_P_Key;
+static int hf_opa_MultiPathRecord_QoSType;
+static int hf_opa_MultiPathRecord_QoSPriority;
+static int hf_opa_MultiPathRecord_reserved2;
+static int hf_opa_MultiPathRecord_SL;
+static int hf_opa_MultiPathRecord_MTUSelector;
+static int hf_opa_MultiPathRecord_MTU;
+static int hf_opa_MultiPathRecord_RateSelector;
+static int hf_opa_MultiPathRecord_Rate;
+static int hf_opa_MultiPathRecord_PacketLifeTimeSelector;
+static int hf_opa_MultiPathRecord_PacketLifeTime;
+static int hf_opa_MultiPathRecord_IndependenceSelector;
+static int hf_opa_MultiPathRecord_SGIDScope;
+static int hf_opa_MultiPathRecord_DGIDScope;
+static int hf_opa_MultiPathRecord_SGIDCount;
+static int hf_opa_MultiPathRecord_DGIDCount;
+static int hf_opa_MultiPathRecord_SGID;
+static int hf_opa_MultiPathRecord_DGID;
+static int hf_opa_MultiPathRecord_L2_8B;
+static int hf_opa_MultiPathRecord_L2_10B;
+static int hf_opa_MultiPathRecord_L2_9B;
+static int hf_opa_MultiPathRecord_L2_16B;
+static int hf_opa_MultiPathRecord_reserved3;
+static int hf_opa_MultiPathRecord_SGUIDScope;
+static int hf_opa_MultiPathRecord_DGUIDScope;
+static int hf_opa_MultiPathRecord_SGUIDCount;
+static int hf_opa_MultiPathRecord_DGUIDCount;
+static int hf_opa_MultiPathRecord_SGUID;
+static int hf_opa_MultiPathRecord_DGUID;
+static int hf_opa_MultiPathRecord_ServiceID;
+static int hf_opa_MultiPathRecord_SubnetPrefix;
+static int hf_opa_MultiPathRecord_SLIDCount;
+static int hf_opa_MultiPathRecord_DLIDCount;
+static int hf_opa_MultiPathRecord_SLID;
+static int hf_opa_MultiPathRecord_DLID;
+static int hf_opa_CableInfoRecord;
+static int hf_opa_CableInfoRecord_Lid;
+static int hf_opa_CableInfoRecord_Port;
+static int hf_opa_CableInfoRecord_Length;
+static int hf_opa_CableInfoRecord_reserved;
+static int hf_opa_CableInfoRecord_Address;
+static int hf_opa_CableInfoRecord_PortType;
+static int hf_opa_CableInfoRecord_Data;
+static int hf_opa_VFInfoRecord;
+static int hf_opa_VFInfoRecord_vfIndex;
+static int hf_opa_VFInfoRecord_pKey;
+static int hf_opa_VFInfoRecord_vfName;
+static int hf_opa_VFInfoRecord_MGID;
+static int hf_opa_VFInfoRecord_SelectFlags;
+static int hf_opa_VFInfoRecord_reserved;
+static int hf_opa_VFInfoRecord_SL;
+static int hf_opa_VFInfoRecord_MTUSpecified;
+static int hf_opa_VFInfoRecord_reserved2;
+static int hf_opa_VFInfoRecord_MTU;
+static int hf_opa_VFInfoRecord_RateSpecified;
+static int hf_opa_VFInfoRecord_reserved4;
+static int hf_opa_VFInfoRecord_Rate;
+static int hf_opa_VFInfoRecord_PktLifeSpecified;
+static int hf_opa_VFInfoRecord_reserved5;
+static int hf_opa_VFInfoRecord_PktLifeTimeInc;
+static int hf_opa_VFInfoRecord_OptionFlags;
+static int hf_opa_VFInfoRecord_BandwidthPercent;
+static int hf_opa_VFInfoRecord_reserved6;
+static int hf_opa_VFInfoRecord_Priority;
+static int hf_opa_VFInfoRecord_RoutingSLs;
+static int hf_opa_VFInfoRecord_reserved7;
+static int hf_opa_QuarantinedNodeRecord;
+static int hf_opa_QuarantinedNodeRecord_TrustedLid;
+static int hf_opa_QuarantinedNodeRecord_TrustedNodeGUID;
+static int hf_opa_QuarantinedNodeRecord_TrustedPortNum;
+static int hf_opa_QuarantinedNodeRecord_TrustedNeighborNodeGUID;
+static int hf_opa_QuarantinedNodeRecord_QuarantineReasons;
+static int hf_opa_QuarantinedNodeRecord_ExpectedNodeDesc;
+static int hf_opa_QuarantinedNodeRecord_ExpectedNodeGUID;
+static int hf_opa_QuarantinedNodeRecord_ExpectedPortGUID;
+static int hf_opa_FabricInfoRecord;
+static int hf_opa_FabricInfoRecord_NumHFIs;
+static int hf_opa_FabricInfoRecord_NumSwitches;
+static int hf_opa_FabricInfoRecord_NumInternalHFILinks;
+static int hf_opa_FabricInfoRecord_NumExternalHFILinks;
+static int hf_opa_FabricInfoRecord_NumInternalISLs;
+static int hf_opa_FabricInfoRecord_NumExternalISLs;
+static int hf_opa_FabricInfoRecord_NumDegradedHFILinks;
+static int hf_opa_FabricInfoRecord_NumDegradedISLs;
+static int hf_opa_FabricInfoRecord_NumOmittedHFILinks;
+static int hf_opa_FabricInfoRecord_NumOmittedISLs;
+static int hf_opa_FabricInfoRecord_Reserved;
 /* PM */
-static gint hf_opa_PortStatus;
-static gint hf_opa_PortStatus_PortNumber;
-static gint hf_opa_PortStatus_VLSelectMask;
-static gint hf_opa_PortStatus_PortXmitData;
-static gint hf_opa_PortStatus_PortRcvData;
-static gint hf_opa_PortStatus_PortXmitPkts;
-static gint hf_opa_PortStatus_PortRcvPkts;
-static gint hf_opa_PortStatus_PortMulticastXmitPkts;
-static gint hf_opa_PortStatus_PortMulticastRcvPkts;
-static gint hf_opa_PortStatus_PortXmitWait;
-static gint hf_opa_PortStatus_SwPortCongestion;
-static gint hf_opa_PortStatus_PortRcvFECN;
-static gint hf_opa_PortStatus_PortRcvBECN;
-static gint hf_opa_PortStatus_PortXmitTimeCong;
-static gint hf_opa_PortStatus_PortXmitWastedBW;
-static gint hf_opa_PortStatus_PortXmitWaitData;
-static gint hf_opa_PortStatus_PortRcvBubble;
-static gint hf_opa_PortStatus_PortMarkFECN;
-static gint hf_opa_PortStatus_PortRcvConstraintErrors;
-static gint hf_opa_PortStatus_PortRcvSwitchRelayErrors;
-static gint hf_opa_PortStatus_PortXmitDiscards;
-static gint hf_opa_PortStatus_PortXmitConstraintErrors;
-static gint hf_opa_PortStatus_PortRcvRemotePhysicalErrors;
-static gint hf_opa_PortStatus_LocalLinkIntegrityErrors;
-static gint hf_opa_PortStatus_PortRcvErrors;
-static gint hf_opa_PortStatus_ExcessiveBufferOverruns;
-static gint hf_opa_PortStatus_FMConfigErrors;
-static gint hf_opa_PortStatus_LinkErrorRecovery;
-static gint hf_opa_PortStatus_LinkDowned;
-static gint hf_opa_PortStatus_UncorrectableErrors;
-static gint hf_opa_PortStatus_reserved;
-static gint hf_opa_PortStatus_LinkQualityIndicator;
-static gint hf_opa_PortStatus_PortVLXmitData;
-static gint hf_opa_PortStatus_PortVLRcvData;
-static gint hf_opa_PortStatus_PortVLXmitPkts;
-static gint hf_opa_PortStatus_PortVLRcvPkts;
-static gint hf_opa_PortStatus_PortVLXmitWait;
-static gint hf_opa_PortStatus_SwPortVLCongestion;
-static gint hf_opa_PortStatus_PortVLRcvFECN;
-static gint hf_opa_PortStatus_PortVLRcvBECN;
-static gint hf_opa_PortStatus_PortVLXmitTimeCong;
-static gint hf_opa_PortStatus_PortVLXmitWastedBW;
-static gint hf_opa_PortStatus_PortVLXmitWaitData;
-static gint hf_opa_PortStatus_PortVLRcvBubble;
-static gint hf_opa_PortStatus_PortVLMarkFECN;
-static gint hf_opa_PortStatus_PortVLXmitDiscards;
-static gint hf_opa_ClearPortStatus;
-static gint hf_opa_ClearPortStatus_PortSelectMask;
-static gint hf_opa_ClearPortStatus_PortXmitData;
-static gint hf_opa_ClearPortStatus_PortRcvData;
-static gint hf_opa_ClearPortStatus_PortXmitPkts;
-static gint hf_opa_ClearPortStatus_PortRcvPkts;
-static gint hf_opa_ClearPortStatus_PortMulticastXmitPkts;
-static gint hf_opa_ClearPortStatus_PortMulticastRcvPkts;
-static gint hf_opa_ClearPortStatus_PortXmitWait;
-static gint hf_opa_ClearPortStatus_SwPortCongestion;
-static gint hf_opa_ClearPortStatus_PortRcvFECN;
-static gint hf_opa_ClearPortStatus_PortRcvBECN;
-static gint hf_opa_ClearPortStatus_PortXmitTimeCong;
-static gint hf_opa_ClearPortStatus_PortXmitWastedBW;
-static gint hf_opa_ClearPortStatus_PortXmitWaitData;
-static gint hf_opa_ClearPortStatus_PortRcvBubble;
-static gint hf_opa_ClearPortStatus_PortMarkFECN;
-static gint hf_opa_ClearPortStatus_PortRcvConstraintErrors;
-static gint hf_opa_ClearPortStatus_PortRcvSwitchRelayErrors;
-static gint hf_opa_ClearPortStatus_PortXmitDiscards;
-static gint hf_opa_ClearPortStatus_PortXmitConstraintErrors;
-static gint hf_opa_ClearPortStatus_PortRcvRemotePhysicalErrors;
-static gint hf_opa_ClearPortStatus_LocalLinkIntegrityErrors;
-static gint hf_opa_ClearPortStatus_PortRcvErrors;
-static gint hf_opa_ClearPortStatus_ExcessiveBufferOverruns;
-static gint hf_opa_ClearPortStatus_FMConfigErrors;
-static gint hf_opa_ClearPortStatus_LinkErrorRecovery;
-static gint hf_opa_ClearPortStatus_LinkDowned;
-static gint hf_opa_ClearPortStatus_UncorrectableErrors;
-static gint hf_opa_ClearPortStatus_reserved;
-static gint hf_opa_ClearPortStatus_CounterSelectMask;
+static int hf_opa_PortStatus;
+static int hf_opa_PortStatus_PortNumber;
+static int hf_opa_PortStatus_VLSelectMask;
+static int hf_opa_PortStatus_PortXmitData;
+static int hf_opa_PortStatus_PortRcvData;
+static int hf_opa_PortStatus_PortXmitPkts;
+static int hf_opa_PortStatus_PortRcvPkts;
+static int hf_opa_PortStatus_PortMulticastXmitPkts;
+static int hf_opa_PortStatus_PortMulticastRcvPkts;
+static int hf_opa_PortStatus_PortXmitWait;
+static int hf_opa_PortStatus_SwPortCongestion;
+static int hf_opa_PortStatus_PortRcvFECN;
+static int hf_opa_PortStatus_PortRcvBECN;
+static int hf_opa_PortStatus_PortXmitTimeCong;
+static int hf_opa_PortStatus_PortXmitWastedBW;
+static int hf_opa_PortStatus_PortXmitWaitData;
+static int hf_opa_PortStatus_PortRcvBubble;
+static int hf_opa_PortStatus_PortMarkFECN;
+static int hf_opa_PortStatus_PortRcvConstraintErrors;
+static int hf_opa_PortStatus_PortRcvSwitchRelayErrors;
+static int hf_opa_PortStatus_PortXmitDiscards;
+static int hf_opa_PortStatus_PortXmitConstraintErrors;
+static int hf_opa_PortStatus_PortRcvRemotePhysicalErrors;
+static int hf_opa_PortStatus_LocalLinkIntegrityErrors;
+static int hf_opa_PortStatus_PortRcvErrors;
+static int hf_opa_PortStatus_ExcessiveBufferOverruns;
+static int hf_opa_PortStatus_FMConfigErrors;
+static int hf_opa_PortStatus_LinkErrorRecovery;
+static int hf_opa_PortStatus_LinkDowned;
+static int hf_opa_PortStatus_UncorrectableErrors;
+static int hf_opa_PortStatus_reserved;
+static int hf_opa_PortStatus_LinkQualityIndicator;
+static int hf_opa_PortStatus_PortVLXmitData;
+static int hf_opa_PortStatus_PortVLRcvData;
+static int hf_opa_PortStatus_PortVLXmitPkts;
+static int hf_opa_PortStatus_PortVLRcvPkts;
+static int hf_opa_PortStatus_PortVLXmitWait;
+static int hf_opa_PortStatus_SwPortVLCongestion;
+static int hf_opa_PortStatus_PortVLRcvFECN;
+static int hf_opa_PortStatus_PortVLRcvBECN;
+static int hf_opa_PortStatus_PortVLXmitTimeCong;
+static int hf_opa_PortStatus_PortVLXmitWastedBW;
+static int hf_opa_PortStatus_PortVLXmitWaitData;
+static int hf_opa_PortStatus_PortVLRcvBubble;
+static int hf_opa_PortStatus_PortVLMarkFECN;
+static int hf_opa_PortStatus_PortVLXmitDiscards;
+static int hf_opa_ClearPortStatus;
+static int hf_opa_ClearPortStatus_PortSelectMask;
+static int hf_opa_ClearPortStatus_PortXmitData;
+static int hf_opa_ClearPortStatus_PortRcvData;
+static int hf_opa_ClearPortStatus_PortXmitPkts;
+static int hf_opa_ClearPortStatus_PortRcvPkts;
+static int hf_opa_ClearPortStatus_PortMulticastXmitPkts;
+static int hf_opa_ClearPortStatus_PortMulticastRcvPkts;
+static int hf_opa_ClearPortStatus_PortXmitWait;
+static int hf_opa_ClearPortStatus_SwPortCongestion;
+static int hf_opa_ClearPortStatus_PortRcvFECN;
+static int hf_opa_ClearPortStatus_PortRcvBECN;
+static int hf_opa_ClearPortStatus_PortXmitTimeCong;
+static int hf_opa_ClearPortStatus_PortXmitWastedBW;
+static int hf_opa_ClearPortStatus_PortXmitWaitData;
+static int hf_opa_ClearPortStatus_PortRcvBubble;
+static int hf_opa_ClearPortStatus_PortMarkFECN;
+static int hf_opa_ClearPortStatus_PortRcvConstraintErrors;
+static int hf_opa_ClearPortStatus_PortRcvSwitchRelayErrors;
+static int hf_opa_ClearPortStatus_PortXmitDiscards;
+static int hf_opa_ClearPortStatus_PortXmitConstraintErrors;
+static int hf_opa_ClearPortStatus_PortRcvRemotePhysicalErrors;
+static int hf_opa_ClearPortStatus_LocalLinkIntegrityErrors;
+static int hf_opa_ClearPortStatus_PortRcvErrors;
+static int hf_opa_ClearPortStatus_ExcessiveBufferOverruns;
+static int hf_opa_ClearPortStatus_FMConfigErrors;
+static int hf_opa_ClearPortStatus_LinkErrorRecovery;
+static int hf_opa_ClearPortStatus_LinkDowned;
+static int hf_opa_ClearPortStatus_UncorrectableErrors;
+static int hf_opa_ClearPortStatus_reserved;
+static int hf_opa_ClearPortStatus_CounterSelectMask;
 static int * const _ClearPortStatus_CounterSelectMask[] = {
     &hf_opa_ClearPortStatus_PortXmitData,
     &hf_opa_ClearPortStatus_PortRcvData,
@@ -1972,71 +1972,71 @@ static int * const _ClearPortStatus_CounterSelectMask[] = {
     &hf_opa_ClearPortStatus_reserved,
     NULL
 };
-static gint hf_opa_DataPortCounters;
-static gint hf_opa_DataPortCounters_PortSelectMask;
-static gint hf_opa_DataPortCounters_VLSelectMask;
-static gint hf_opa_DataPortCounters_resolution_reserved;
-static gint hf_opa_DataPortCounters_LocalLinkIntegrityResolution;
-static gint hf_opa_DataPortCounters_LinkErrorRecoveryResolution;
-static gint hf_opa_DataPortCounters_PortNumber;
-static gint hf_opa_DataPortCounters_lqi_reserved;
-static gint hf_opa_DataPortCounters_LinkQualityIndicator;
-static gint hf_opa_DataPortCounters_PortXmitData;
-static gint hf_opa_DataPortCounters_PortRcvData;
-static gint hf_opa_DataPortCounters_PortXmitPkts;
-static gint hf_opa_DataPortCounters_PortRcvPkts;
-static gint hf_opa_DataPortCounters_PortMulticastXmitPkts;
-static gint hf_opa_DataPortCounters_PortMulticastRcvPkts;
-static gint hf_opa_DataPortCounters_PortXmitWait;
-static gint hf_opa_DataPortCounters_SwPortCongestion;
-static gint hf_opa_DataPortCounters_PortRcvFECN;
-static gint hf_opa_DataPortCounters_PortRcvBECN;
-static gint hf_opa_DataPortCounters_PortXmitTimeCong;
-static gint hf_opa_DataPortCounters_PortXmitWastedBW;
-static gint hf_opa_DataPortCounters_PortXmitWaitData;
-static gint hf_opa_DataPortCounters_PortRcvBubble;
-static gint hf_opa_DataPortCounters_PortMarkFECN;
-static gint hf_opa_DataPortCounters_PortErrorCounterSummary;
-static gint hf_opa_DataPortCounters_PortVLXmitData;
-static gint hf_opa_DataPortCounters_PortVLRcvData;
-static gint hf_opa_DataPortCounters_PortVLXmitPkts;
-static gint hf_opa_DataPortCounters_PortVLRcvPkts;
-static gint hf_opa_DataPortCounters_PortVLXmitWait;
-static gint hf_opa_DataPortCounters_SwPortVLCongestion;
-static gint hf_opa_DataPortCounters_PortVLRcvFECN;
-static gint hf_opa_DataPortCounters_PortVLRcvBECN;
-static gint hf_opa_DataPortCounters_PortVLXmitTimeCong;
-static gint hf_opa_DataPortCounters_PortVLXmitWastedBW;
-static gint hf_opa_DataPortCounters_PortVLXmitWaitData;
-static gint hf_opa_DataPortCounters_PortVLRcvBubble;
-static gint hf_opa_DataPortCounters_PortVLMarkFECN;
-static gint hf_opa_ErrorPortCounters;
-static gint hf_opa_ErrorPortCounters_PortSelectMask;
-static gint hf_opa_ErrorPortCounters_VLSelectMask;
-static gint hf_opa_ErrorPortCounters_PortNumber;
-static gint hf_opa_ErrorPortCounters_PortRcvConstraintErrors;
-static gint hf_opa_ErrorPortCounters_PortRcvSwitchRelayErrors;
-static gint hf_opa_ErrorPortCounters_PortXmitDiscards;
-static gint hf_opa_ErrorPortCounters_PortXmitConstraintErrors;
-static gint hf_opa_ErrorPortCounters_PortRcvRemotePhysicalErrors;
-static gint hf_opa_ErrorPortCounters_LocalLinkIntegrityErrors;
-static gint hf_opa_ErrorPortCounters_PortRcvErrors;
-static gint hf_opa_ErrorPortCounters_ExcessiveBufferOverruns;
-static gint hf_opa_ErrorPortCounters_FMConfigErrors;
-static gint hf_opa_ErrorPortCounters_LinkErrorRecovery;
-static gint hf_opa_ErrorPortCounters_LinkDowned;
-static gint hf_opa_ErrorPortCounters_UncorrectableErrors;
-static gint hf_opa_ErrorPortCounters_PortVLXmitDiscards;
-static gint hf_opa_ErrorPortInfo;
-static gint hf_opa_ErrorPortInfo_PortSelectMask;
-static gint hf_opa_ErrorPortInfo_ErrorInfoSelectMask_PortRcvErrorInfo;
-static gint hf_opa_ErrorPortInfo_ErrorInfoSelectMask_ExcessiveBufferOverrunInfo;
-static gint hf_opa_ErrorPortInfo_ErrorInfoSelectMask_PortXmitConstraintErrorInfo;
-static gint hf_opa_ErrorPortInfo_ErrorInfoSelectMask_PortRcvConstraintErrorInfo;
-static gint hf_opa_ErrorPortInfo_ErrorInfoSelectMask_PortRcvSwitchRelayErrorInfo;
-static gint hf_opa_ErrorPortInfo_ErrorInfoSelectMask_UncorrectableErrorInfo;
-static gint hf_opa_ErrorPortInfo_ErrorInfoSelectMask_FMConfigErrorInfo;
-static gint hf_opa_ErrorPortInfo_ErrorInfoSelectMask_reserved;
+static int hf_opa_DataPortCounters;
+static int hf_opa_DataPortCounters_PortSelectMask;
+static int hf_opa_DataPortCounters_VLSelectMask;
+static int hf_opa_DataPortCounters_resolution_reserved;
+static int hf_opa_DataPortCounters_LocalLinkIntegrityResolution;
+static int hf_opa_DataPortCounters_LinkErrorRecoveryResolution;
+static int hf_opa_DataPortCounters_PortNumber;
+static int hf_opa_DataPortCounters_lqi_reserved;
+static int hf_opa_DataPortCounters_LinkQualityIndicator;
+static int hf_opa_DataPortCounters_PortXmitData;
+static int hf_opa_DataPortCounters_PortRcvData;
+static int hf_opa_DataPortCounters_PortXmitPkts;
+static int hf_opa_DataPortCounters_PortRcvPkts;
+static int hf_opa_DataPortCounters_PortMulticastXmitPkts;
+static int hf_opa_DataPortCounters_PortMulticastRcvPkts;
+static int hf_opa_DataPortCounters_PortXmitWait;
+static int hf_opa_DataPortCounters_SwPortCongestion;
+static int hf_opa_DataPortCounters_PortRcvFECN;
+static int hf_opa_DataPortCounters_PortRcvBECN;
+static int hf_opa_DataPortCounters_PortXmitTimeCong;
+static int hf_opa_DataPortCounters_PortXmitWastedBW;
+static int hf_opa_DataPortCounters_PortXmitWaitData;
+static int hf_opa_DataPortCounters_PortRcvBubble;
+static int hf_opa_DataPortCounters_PortMarkFECN;
+static int hf_opa_DataPortCounters_PortErrorCounterSummary;
+static int hf_opa_DataPortCounters_PortVLXmitData;
+static int hf_opa_DataPortCounters_PortVLRcvData;
+static int hf_opa_DataPortCounters_PortVLXmitPkts;
+static int hf_opa_DataPortCounters_PortVLRcvPkts;
+static int hf_opa_DataPortCounters_PortVLXmitWait;
+static int hf_opa_DataPortCounters_SwPortVLCongestion;
+static int hf_opa_DataPortCounters_PortVLRcvFECN;
+static int hf_opa_DataPortCounters_PortVLRcvBECN;
+static int hf_opa_DataPortCounters_PortVLXmitTimeCong;
+static int hf_opa_DataPortCounters_PortVLXmitWastedBW;
+static int hf_opa_DataPortCounters_PortVLXmitWaitData;
+static int hf_opa_DataPortCounters_PortVLRcvBubble;
+static int hf_opa_DataPortCounters_PortVLMarkFECN;
+static int hf_opa_ErrorPortCounters;
+static int hf_opa_ErrorPortCounters_PortSelectMask;
+static int hf_opa_ErrorPortCounters_VLSelectMask;
+static int hf_opa_ErrorPortCounters_PortNumber;
+static int hf_opa_ErrorPortCounters_PortRcvConstraintErrors;
+static int hf_opa_ErrorPortCounters_PortRcvSwitchRelayErrors;
+static int hf_opa_ErrorPortCounters_PortXmitDiscards;
+static int hf_opa_ErrorPortCounters_PortXmitConstraintErrors;
+static int hf_opa_ErrorPortCounters_PortRcvRemotePhysicalErrors;
+static int hf_opa_ErrorPortCounters_LocalLinkIntegrityErrors;
+static int hf_opa_ErrorPortCounters_PortRcvErrors;
+static int hf_opa_ErrorPortCounters_ExcessiveBufferOverruns;
+static int hf_opa_ErrorPortCounters_FMConfigErrors;
+static int hf_opa_ErrorPortCounters_LinkErrorRecovery;
+static int hf_opa_ErrorPortCounters_LinkDowned;
+static int hf_opa_ErrorPortCounters_UncorrectableErrors;
+static int hf_opa_ErrorPortCounters_PortVLXmitDiscards;
+static int hf_opa_ErrorPortInfo;
+static int hf_opa_ErrorPortInfo_PortSelectMask;
+static int hf_opa_ErrorPortInfo_ErrorInfoSelectMask_PortRcvErrorInfo;
+static int hf_opa_ErrorPortInfo_ErrorInfoSelectMask_ExcessiveBufferOverrunInfo;
+static int hf_opa_ErrorPortInfo_ErrorInfoSelectMask_PortXmitConstraintErrorInfo;
+static int hf_opa_ErrorPortInfo_ErrorInfoSelectMask_PortRcvConstraintErrorInfo;
+static int hf_opa_ErrorPortInfo_ErrorInfoSelectMask_PortRcvSwitchRelayErrorInfo;
+static int hf_opa_ErrorPortInfo_ErrorInfoSelectMask_UncorrectableErrorInfo;
+static int hf_opa_ErrorPortInfo_ErrorInfoSelectMask_FMConfigErrorInfo;
+static int hf_opa_ErrorPortInfo_ErrorInfoSelectMask_reserved;
 static int * const _ErrorPortInfo_ErrorInfoSelectMask[] = {
     &hf_opa_ErrorPortInfo_ErrorInfoSelectMask_PortRcvErrorInfo,
     &hf_opa_ErrorPortInfo_ErrorInfoSelectMask_ExcessiveBufferOverrunInfo,
@@ -2048,153 +2048,153 @@ static int * const _ErrorPortInfo_ErrorInfoSelectMask[] = {
     &hf_opa_ErrorPortInfo_ErrorInfoSelectMask_reserved,
     NULL
 };
-static gint hf_opa_ErrorPortInfo_PortNumber;
-static gint hf_opa_ErrorPortInfo_PortRcvErrorInfo_Status;
-static gint hf_opa_ErrorPortInfo_PortRcvErrorInfo_reserved;
-static gint hf_opa_ErrorPortInfo_PortRcvErrorInfo_ErrorCode;
-static gint hf_opa_ErrorPortInfo_PortRcvErrorInfo_PacketFlit1;
-static gint hf_opa_ErrorPortInfo_PortRcvErrorInfo_PacketFlit2;
-static gint hf_opa_ErrorPortInfo_PortRcvErrorInfo_Flit1Bits;
-static gint hf_opa_ErrorPortInfo_PortRcvErrorInfo_Flit2Bits;
-static gint hf_opa_ErrorPortInfo_PortRcvErrorInfo_reserved2;
-static gint hf_opa_ErrorPortInfo_PortRcvErrorInfo_PacketBytes;
-static gint hf_opa_ErrorPortInfo_PortRcvErrorInfo_FlitBits;
-static gint hf_opa_ErrorPortInfo_PortRcvErrorInfo_reserved3;
-static gint hf_opa_ErrorPortInfo_PortRcvErrorInfo_reserved4;
-static gint hf_opa_ErrorPortInfo_ExcessiveBufferOverrunErrorInfo_Status;
-static gint hf_opa_ErrorPortInfo_ExcessiveBufferOverrunErrorInfo_SC;
-static gint hf_opa_ErrorPortInfo_ExcessiveBufferOverrunErrorInfo_reserved;
-static gint hf_opa_ErrorPortInfo_PortXmitConstraintErrorInfo_Status;
-static gint hf_opa_ErrorPortInfo_PortXmitConstraintErrorInfo_reserved;
-static gint hf_opa_ErrorPortInfo_PortXmitConstraintErrorInfo_P_Key;
-static gint hf_opa_ErrorPortInfo_PortXmitConstraintErrorInfo_SLID;
-static gint hf_opa_ErrorPortInfo_PortRcvConstraintErrorInfo_Status;
-static gint hf_opa_ErrorPortInfo_PortRcvConstraintErrorInfo_reserved;
-static gint hf_opa_ErrorPortInfo_PortRcvConstraintErrorInfo_P_Key;
-static gint hf_opa_ErrorPortInfo_PortRcvConstraintErrorInfo_SLID;
-static gint hf_opa_ErrorPortInfo_PortRcvSwitchRelayErrorInfo_Status;
-static gint hf_opa_ErrorPortInfo_PortRcvSwitchRelayErrorInfo_reserved;
-static gint hf_opa_ErrorPortInfo_PortRcvSwitchRelayErrorInfo_ErrorCode;
-static gint hf_opa_ErrorPortInfo_PortRcvSwitchRelayErrorInfo_DLID;
-static gint hf_opa_ErrorPortInfo_PortRcvSwitchRelayErrorInfo_EgressPortNum;
-static gint hf_opa_ErrorPortInfo_PortRcvSwitchRelayErrorInfo_SC;
-static gint hf_opa_ErrorPortInfo_UncorrectableErrorInfo_Status;
-static gint hf_opa_ErrorPortInfo_UncorrectableErrorInfo_reserved;
-static gint hf_opa_ErrorPortInfo_UncorrectableErrorInfo_ErrorCode;
-static gint hf_opa_ErrorPortInfo_FMConfigErrorInfo_Status;
-static gint hf_opa_ErrorPortInfo_FMConfigErrorInfo_reserved;
-static gint hf_opa_ErrorPortInfo_FMConfigErrorInfo_ErrorCode;
-static gint hf_opa_ErrorPortInfo_FMConfigErrorInfo_VL;
-static gint hf_opa_ErrorPortInfo_FMConfigErrorInfo_Distance;
-static gint hf_opa_ErrorPortInfo_FMConfigErrorInfo_BadFlitBits;
-static gint hf_opa_ErrorPortInfo_FMConfigErrorInfo_SC;
+static int hf_opa_ErrorPortInfo_PortNumber;
+static int hf_opa_ErrorPortInfo_PortRcvErrorInfo_Status;
+static int hf_opa_ErrorPortInfo_PortRcvErrorInfo_reserved;
+static int hf_opa_ErrorPortInfo_PortRcvErrorInfo_ErrorCode;
+static int hf_opa_ErrorPortInfo_PortRcvErrorInfo_PacketFlit1;
+static int hf_opa_ErrorPortInfo_PortRcvErrorInfo_PacketFlit2;
+static int hf_opa_ErrorPortInfo_PortRcvErrorInfo_Flit1Bits;
+static int hf_opa_ErrorPortInfo_PortRcvErrorInfo_Flit2Bits;
+static int hf_opa_ErrorPortInfo_PortRcvErrorInfo_reserved2;
+static int hf_opa_ErrorPortInfo_PortRcvErrorInfo_PacketBytes;
+static int hf_opa_ErrorPortInfo_PortRcvErrorInfo_FlitBits;
+static int hf_opa_ErrorPortInfo_PortRcvErrorInfo_reserved3;
+static int hf_opa_ErrorPortInfo_PortRcvErrorInfo_reserved4;
+static int hf_opa_ErrorPortInfo_ExcessiveBufferOverrunErrorInfo_Status;
+static int hf_opa_ErrorPortInfo_ExcessiveBufferOverrunErrorInfo_SC;
+static int hf_opa_ErrorPortInfo_ExcessiveBufferOverrunErrorInfo_reserved;
+static int hf_opa_ErrorPortInfo_PortXmitConstraintErrorInfo_Status;
+static int hf_opa_ErrorPortInfo_PortXmitConstraintErrorInfo_reserved;
+static int hf_opa_ErrorPortInfo_PortXmitConstraintErrorInfo_P_Key;
+static int hf_opa_ErrorPortInfo_PortXmitConstraintErrorInfo_SLID;
+static int hf_opa_ErrorPortInfo_PortRcvConstraintErrorInfo_Status;
+static int hf_opa_ErrorPortInfo_PortRcvConstraintErrorInfo_reserved;
+static int hf_opa_ErrorPortInfo_PortRcvConstraintErrorInfo_P_Key;
+static int hf_opa_ErrorPortInfo_PortRcvConstraintErrorInfo_SLID;
+static int hf_opa_ErrorPortInfo_PortRcvSwitchRelayErrorInfo_Status;
+static int hf_opa_ErrorPortInfo_PortRcvSwitchRelayErrorInfo_reserved;
+static int hf_opa_ErrorPortInfo_PortRcvSwitchRelayErrorInfo_ErrorCode;
+static int hf_opa_ErrorPortInfo_PortRcvSwitchRelayErrorInfo_DLID;
+static int hf_opa_ErrorPortInfo_PortRcvSwitchRelayErrorInfo_EgressPortNum;
+static int hf_opa_ErrorPortInfo_PortRcvSwitchRelayErrorInfo_SC;
+static int hf_opa_ErrorPortInfo_UncorrectableErrorInfo_Status;
+static int hf_opa_ErrorPortInfo_UncorrectableErrorInfo_reserved;
+static int hf_opa_ErrorPortInfo_UncorrectableErrorInfo_ErrorCode;
+static int hf_opa_ErrorPortInfo_FMConfigErrorInfo_Status;
+static int hf_opa_ErrorPortInfo_FMConfigErrorInfo_reserved;
+static int hf_opa_ErrorPortInfo_FMConfigErrorInfo_ErrorCode;
+static int hf_opa_ErrorPortInfo_FMConfigErrorInfo_VL;
+static int hf_opa_ErrorPortInfo_FMConfigErrorInfo_Distance;
+static int hf_opa_ErrorPortInfo_FMConfigErrorInfo_BadFlitBits;
+static int hf_opa_ErrorPortInfo_FMConfigErrorInfo_SC;
 /* PA */
-static gint hf_opa_ImageID_imageNumber;
-static gint hf_opa_ImageID_imageOffset;
-static gint hf_opa_GetGroupList;
-static gint hf_opa_GetGroupList_groupName;
-static gint hf_opa_GetGroupInfo;
-static gint hf_opa_GetGroupInfo_groupName;
-static gint hf_opa_GetGroupInfo_numInternalPorts;
-static gint hf_opa_GetGroupInfo_numExternalPorts;
-static gint hf_opa_GetGroupInfo_totalMBps;
-static gint hf_opa_GetGroupInfo_totalKPps;
-static gint hf_opa_GetGroupInfo_avgMBps;
-static gint hf_opa_GetGroupInfo_minMBps;
-static gint hf_opa_GetGroupInfo_maxMBps;
-static gint hf_opa_GetGroupInfo_numBWBuckets;
-static gint hf_opa_GetGroupInfo_BWBuckets;
-static gint hf_opa_GetGroupInfo_avgKPps;
-static gint hf_opa_GetGroupInfo_minKPps;
-static gint hf_opa_GetGroupInfo_maxKPps;
-static gint hf_opa_GetGroupInfo_pmaFailedPorts;
-static gint hf_opa_GetGroupInfo_topoFailedPorts;
-static gint hf_opa_GetGroupInfo_integrityErrors;
-static gint hf_opa_GetGroupInfo_congestionErrors;
-static gint hf_opa_GetGroupInfo_smaCongestionErrors;
-static gint hf_opa_GetGroupInfo_bubbleErrors;
-static gint hf_opa_GetGroupInfo_securityErrors;
-static gint hf_opa_GetGroupInfo_routingErrors;
-static gint hf_opa_GetGroupInfo_utilizationPct10;
-static gint hf_opa_GetGroupInfo_discardsPct10;
-static gint hf_opa_GetGroupInfo_maxInternalRate;
-static gint hf_opa_GetGroupInfo_minInternalRate;
-static gint hf_opa_GetGroupInfo_maxExternalRate;
-static gint hf_opa_GetGroupInfo_minExternalRate;
-static gint hf_opa_GetGroupInfo_maxInternalMBps;
-static gint hf_opa_GetGroupInfo_maxExternalMBps;
-static gint hf_opa_GetGroupConfig;
-static gint hf_opa_GetGroupConfig_groupName;
-static gint hf_opa_GetGroupConfig_Port_NodeGUID;
-static gint hf_opa_GetGroupConfig_Port_nodeDesc;
-static gint hf_opa_GetGroupConfig_Port_NodeLID;
-static gint hf_opa_GetGroupConfig_Port_PortNumber;
-static gint hf_opa_GetPortCounters;
-static gint hf_opa_GetPortCounters_nodeLID;
-static gint hf_opa_GetPortCounters_PortNumber;
-static gint hf_opa_GetPortCounters_flags;
-static gint hf_opa_GetPortCounters_PortXmitData;
-static gint hf_opa_GetPortCounters_PortRcvData;
-static gint hf_opa_GetPortCounters_PortXmitPkts;
-static gint hf_opa_GetPortCounters_PortRcvPkts;
-static gint hf_opa_GetPortCounters_PortMulticastXmitPkts;
-static gint hf_opa_GetPortCounters_PortMulticastRcvPkts;
-static gint hf_opa_GetPortCounters_LocalLinkIntegrityErrors;
-static gint hf_opa_GetPortCounters_FMConfigErrors;
-static gint hf_opa_GetPortCounters_PortRcvErrors;
-static gint hf_opa_GetPortCounters_ExcessiveBufferOverruns;
-static gint hf_opa_GetPortCounters_PortRcvConstraintErrors;
-static gint hf_opa_GetPortCounters_PortRcvSwitchRelayErrors;
-static gint hf_opa_GetPortCounters_PortXmitDiscards;
-static gint hf_opa_GetPortCounters_PortXmitConstraintErrors;
-static gint hf_opa_GetPortCounters_PortRcvRemotePhysicalErrors;
-static gint hf_opa_GetPortCounters_SwPortCongestion;
-static gint hf_opa_GetPortCounters_PortXmitWait;
-static gint hf_opa_GetPortCounters_PortRcvFECN;
-static gint hf_opa_GetPortCounters_PortRcvBECN;
-static gint hf_opa_GetPortCounters_PortXmitTimeCong;
-static gint hf_opa_GetPortCounters_PortXmitWastedBW;
-static gint hf_opa_GetPortCounters_PortXmitWaitData;
-static gint hf_opa_GetPortCounters_PortRcvBubble;
-static gint hf_opa_GetPortCounters_PortMarkFECN;
-static gint hf_opa_GetPortCounters_LinkErrorRecovery;
-static gint hf_opa_GetPortCounters_LinkDowned;
-static gint hf_opa_GetPortCounters_UncorrectableErrors;
-static gint hf_opa_GetPortCounters_NumLanesDown;
-static gint hf_opa_GetPortCounters_reserved;
-static gint hf_opa_GetPortCounters_LinkQualityIndicator;
-static gint hf_opa_ClearPortCounters;
-static gint hf_opa_ClearPortCounters_nodeLID;
-static gint hf_opa_ClearPortCounters_PortNumber;
-static gint hf_opa_ClearPortCounters_PortXmitData;
-static gint hf_opa_ClearPortCounters_PortRcvData;
-static gint hf_opa_ClearPortCounters_PortXmitPkts;
-static gint hf_opa_ClearPortCounters_PortRcvPkts;
-static gint hf_opa_ClearPortCounters_PortMulticastXmitPkts;
-static gint hf_opa_ClearPortCounters_PortMulticastRcvPkts;
-static gint hf_opa_ClearPortCounters_LocalLinkIntegrityErrors;
-static gint hf_opa_ClearPortCounters_FMConfigErrors;
-static gint hf_opa_ClearPortCounters_PortRcvErrors;
-static gint hf_opa_ClearPortCounters_ExcessiveBufferOverruns;
-static gint hf_opa_ClearPortCounters_PortRcvConstraintErrors;
-static gint hf_opa_ClearPortCounters_PortRcvSwitchRelayErrors;
-static gint hf_opa_ClearPortCounters_PortXmitDiscards;
-static gint hf_opa_ClearPortCounters_PortXmitConstraintErrors;
-static gint hf_opa_ClearPortCounters_PortRcvRemotePhysicalErrors;
-static gint hf_opa_ClearPortCounters_SwPortCongestion;
-static gint hf_opa_ClearPortCounters_PortXmitWait;
-static gint hf_opa_ClearPortCounters_PortRcvFECN;
-static gint hf_opa_ClearPortCounters_PortRcvBECN;
-static gint hf_opa_ClearPortCounters_PortXmitTimeCong;
-static gint hf_opa_ClearPortCounters_PortXmitWastedBW;
-static gint hf_opa_ClearPortCounters_PortXmitWaitData;
-static gint hf_opa_ClearPortCounters_PortRcvBubble;
-static gint hf_opa_ClearPortCounters_PortMarkFECN;
-static gint hf_opa_ClearPortCounters_LinkErrorRecovery;
-static gint hf_opa_ClearPortCounters_LinkDowned;
-static gint hf_opa_ClearPortCounters_UncorrectableErrors;
-static gint hf_opa_ClearPortCounters_reserved;
-static gint hf_opa_ClearPortCounters_CounterSelectMask;
+static int hf_opa_ImageID_imageNumber;
+static int hf_opa_ImageID_imageOffset;
+static int hf_opa_GetGroupList;
+static int hf_opa_GetGroupList_groupName;
+static int hf_opa_GetGroupInfo;
+static int hf_opa_GetGroupInfo_groupName;
+static int hf_opa_GetGroupInfo_numInternalPorts;
+static int hf_opa_GetGroupInfo_numExternalPorts;
+static int hf_opa_GetGroupInfo_totalMBps;
+static int hf_opa_GetGroupInfo_totalKPps;
+static int hf_opa_GetGroupInfo_avgMBps;
+static int hf_opa_GetGroupInfo_minMBps;
+static int hf_opa_GetGroupInfo_maxMBps;
+static int hf_opa_GetGroupInfo_numBWBuckets;
+static int hf_opa_GetGroupInfo_BWBuckets;
+static int hf_opa_GetGroupInfo_avgKPps;
+static int hf_opa_GetGroupInfo_minKPps;
+static int hf_opa_GetGroupInfo_maxKPps;
+static int hf_opa_GetGroupInfo_pmaFailedPorts;
+static int hf_opa_GetGroupInfo_topoFailedPorts;
+static int hf_opa_GetGroupInfo_integrityErrors;
+static int hf_opa_GetGroupInfo_congestionErrors;
+static int hf_opa_GetGroupInfo_smaCongestionErrors;
+static int hf_opa_GetGroupInfo_bubbleErrors;
+static int hf_opa_GetGroupInfo_securityErrors;
+static int hf_opa_GetGroupInfo_routingErrors;
+static int hf_opa_GetGroupInfo_utilizationPct10;
+static int hf_opa_GetGroupInfo_discardsPct10;
+static int hf_opa_GetGroupInfo_maxInternalRate;
+static int hf_opa_GetGroupInfo_minInternalRate;
+static int hf_opa_GetGroupInfo_maxExternalRate;
+static int hf_opa_GetGroupInfo_minExternalRate;
+static int hf_opa_GetGroupInfo_maxInternalMBps;
+static int hf_opa_GetGroupInfo_maxExternalMBps;
+static int hf_opa_GetGroupConfig;
+static int hf_opa_GetGroupConfig_groupName;
+static int hf_opa_GetGroupConfig_Port_NodeGUID;
+static int hf_opa_GetGroupConfig_Port_nodeDesc;
+static int hf_opa_GetGroupConfig_Port_NodeLID;
+static int hf_opa_GetGroupConfig_Port_PortNumber;
+static int hf_opa_GetPortCounters;
+static int hf_opa_GetPortCounters_nodeLID;
+static int hf_opa_GetPortCounters_PortNumber;
+static int hf_opa_GetPortCounters_flags;
+static int hf_opa_GetPortCounters_PortXmitData;
+static int hf_opa_GetPortCounters_PortRcvData;
+static int hf_opa_GetPortCounters_PortXmitPkts;
+static int hf_opa_GetPortCounters_PortRcvPkts;
+static int hf_opa_GetPortCounters_PortMulticastXmitPkts;
+static int hf_opa_GetPortCounters_PortMulticastRcvPkts;
+static int hf_opa_GetPortCounters_LocalLinkIntegrityErrors;
+static int hf_opa_GetPortCounters_FMConfigErrors;
+static int hf_opa_GetPortCounters_PortRcvErrors;
+static int hf_opa_GetPortCounters_ExcessiveBufferOverruns;
+static int hf_opa_GetPortCounters_PortRcvConstraintErrors;
+static int hf_opa_GetPortCounters_PortRcvSwitchRelayErrors;
+static int hf_opa_GetPortCounters_PortXmitDiscards;
+static int hf_opa_GetPortCounters_PortXmitConstraintErrors;
+static int hf_opa_GetPortCounters_PortRcvRemotePhysicalErrors;
+static int hf_opa_GetPortCounters_SwPortCongestion;
+static int hf_opa_GetPortCounters_PortXmitWait;
+static int hf_opa_GetPortCounters_PortRcvFECN;
+static int hf_opa_GetPortCounters_PortRcvBECN;
+static int hf_opa_GetPortCounters_PortXmitTimeCong;
+static int hf_opa_GetPortCounters_PortXmitWastedBW;
+static int hf_opa_GetPortCounters_PortXmitWaitData;
+static int hf_opa_GetPortCounters_PortRcvBubble;
+static int hf_opa_GetPortCounters_PortMarkFECN;
+static int hf_opa_GetPortCounters_LinkErrorRecovery;
+static int hf_opa_GetPortCounters_LinkDowned;
+static int hf_opa_GetPortCounters_UncorrectableErrors;
+static int hf_opa_GetPortCounters_NumLanesDown;
+static int hf_opa_GetPortCounters_reserved;
+static int hf_opa_GetPortCounters_LinkQualityIndicator;
+static int hf_opa_ClearPortCounters;
+static int hf_opa_ClearPortCounters_nodeLID;
+static int hf_opa_ClearPortCounters_PortNumber;
+static int hf_opa_ClearPortCounters_PortXmitData;
+static int hf_opa_ClearPortCounters_PortRcvData;
+static int hf_opa_ClearPortCounters_PortXmitPkts;
+static int hf_opa_ClearPortCounters_PortRcvPkts;
+static int hf_opa_ClearPortCounters_PortMulticastXmitPkts;
+static int hf_opa_ClearPortCounters_PortMulticastRcvPkts;
+static int hf_opa_ClearPortCounters_LocalLinkIntegrityErrors;
+static int hf_opa_ClearPortCounters_FMConfigErrors;
+static int hf_opa_ClearPortCounters_PortRcvErrors;
+static int hf_opa_ClearPortCounters_ExcessiveBufferOverruns;
+static int hf_opa_ClearPortCounters_PortRcvConstraintErrors;
+static int hf_opa_ClearPortCounters_PortRcvSwitchRelayErrors;
+static int hf_opa_ClearPortCounters_PortXmitDiscards;
+static int hf_opa_ClearPortCounters_PortXmitConstraintErrors;
+static int hf_opa_ClearPortCounters_PortRcvRemotePhysicalErrors;
+static int hf_opa_ClearPortCounters_SwPortCongestion;
+static int hf_opa_ClearPortCounters_PortXmitWait;
+static int hf_opa_ClearPortCounters_PortRcvFECN;
+static int hf_opa_ClearPortCounters_PortRcvBECN;
+static int hf_opa_ClearPortCounters_PortXmitTimeCong;
+static int hf_opa_ClearPortCounters_PortXmitWastedBW;
+static int hf_opa_ClearPortCounters_PortXmitWaitData;
+static int hf_opa_ClearPortCounters_PortRcvBubble;
+static int hf_opa_ClearPortCounters_PortMarkFECN;
+static int hf_opa_ClearPortCounters_LinkErrorRecovery;
+static int hf_opa_ClearPortCounters_LinkDowned;
+static int hf_opa_ClearPortCounters_UncorrectableErrors;
+static int hf_opa_ClearPortCounters_reserved;
+static int hf_opa_ClearPortCounters_CounterSelectMask;
 static int * const _ClearPortCounters_CounterSelectMask[] = {
     &hf_opa_ClearPortCounters_PortXmitData,
     &hf_opa_ClearPortCounters_PortRcvData,
@@ -2226,36 +2226,36 @@ static int * const _ClearPortCounters_CounterSelectMask[] = {
     &hf_opa_ClearPortCounters_reserved,
     NULL
 };
-static gint hf_opa_ClearAllPortCounters;
-static gint hf_opa_ClearAllPortCounters_PortXmitData;
-static gint hf_opa_ClearAllPortCounters_PortRcvData;
-static gint hf_opa_ClearAllPortCounters_PortXmitPkts;
-static gint hf_opa_ClearAllPortCounters_PortRcvPkts;
-static gint hf_opa_ClearAllPortCounters_PortMulticastXmitPkts;
-static gint hf_opa_ClearAllPortCounters_PortMulticastRcvPkts;
-static gint hf_opa_ClearAllPortCounters_LocalLinkIntegrityErrors;
-static gint hf_opa_ClearAllPortCounters_FMConfigErrors;
-static gint hf_opa_ClearAllPortCounters_PortRcvErrors;
-static gint hf_opa_ClearAllPortCounters_ExcessiveBufferOverruns;
-static gint hf_opa_ClearAllPortCounters_PortRcvConstraintErrors;
-static gint hf_opa_ClearAllPortCounters_PortRcvSwitchRelayErrors;
-static gint hf_opa_ClearAllPortCounters_PortXmitDiscards;
-static gint hf_opa_ClearAllPortCounters_PortXmitConstraintErrors;
-static gint hf_opa_ClearAllPortCounters_PortRcvRemotePhysicalErrors;
-static gint hf_opa_ClearAllPortCounters_SwPortCongestion;
-static gint hf_opa_ClearAllPortCounters_PortXmitWait;
-static gint hf_opa_ClearAllPortCounters_PortRcvFECN;
-static gint hf_opa_ClearAllPortCounters_PortRcvBECN;
-static gint hf_opa_ClearAllPortCounters_PortXmitTimeCong;
-static gint hf_opa_ClearAllPortCounters_PortXmitWastedBW;
-static gint hf_opa_ClearAllPortCounters_PortXmitWaitData;
-static gint hf_opa_ClearAllPortCounters_PortRcvBubble;
-static gint hf_opa_ClearAllPortCounters_PortMarkFECN;
-static gint hf_opa_ClearAllPortCounters_LinkErrorRecovery;
-static gint hf_opa_ClearAllPortCounters_LinkDowned;
-static gint hf_opa_ClearAllPortCounters_UncorrectableErrors;
-static gint hf_opa_ClearAllPortCounters_reserved;
-static gint hf_opa_ClearAllPortCounters_CounterSelectMask;
+static int hf_opa_ClearAllPortCounters;
+static int hf_opa_ClearAllPortCounters_PortXmitData;
+static int hf_opa_ClearAllPortCounters_PortRcvData;
+static int hf_opa_ClearAllPortCounters_PortXmitPkts;
+static int hf_opa_ClearAllPortCounters_PortRcvPkts;
+static int hf_opa_ClearAllPortCounters_PortMulticastXmitPkts;
+static int hf_opa_ClearAllPortCounters_PortMulticastRcvPkts;
+static int hf_opa_ClearAllPortCounters_LocalLinkIntegrityErrors;
+static int hf_opa_ClearAllPortCounters_FMConfigErrors;
+static int hf_opa_ClearAllPortCounters_PortRcvErrors;
+static int hf_opa_ClearAllPortCounters_ExcessiveBufferOverruns;
+static int hf_opa_ClearAllPortCounters_PortRcvConstraintErrors;
+static int hf_opa_ClearAllPortCounters_PortRcvSwitchRelayErrors;
+static int hf_opa_ClearAllPortCounters_PortXmitDiscards;
+static int hf_opa_ClearAllPortCounters_PortXmitConstraintErrors;
+static int hf_opa_ClearAllPortCounters_PortRcvRemotePhysicalErrors;
+static int hf_opa_ClearAllPortCounters_SwPortCongestion;
+static int hf_opa_ClearAllPortCounters_PortXmitWait;
+static int hf_opa_ClearAllPortCounters_PortRcvFECN;
+static int hf_opa_ClearAllPortCounters_PortRcvBECN;
+static int hf_opa_ClearAllPortCounters_PortXmitTimeCong;
+static int hf_opa_ClearAllPortCounters_PortXmitWastedBW;
+static int hf_opa_ClearAllPortCounters_PortXmitWaitData;
+static int hf_opa_ClearAllPortCounters_PortRcvBubble;
+static int hf_opa_ClearAllPortCounters_PortMarkFECN;
+static int hf_opa_ClearAllPortCounters_LinkErrorRecovery;
+static int hf_opa_ClearAllPortCounters_LinkDowned;
+static int hf_opa_ClearAllPortCounters_UncorrectableErrors;
+static int hf_opa_ClearAllPortCounters_reserved;
+static int hf_opa_ClearAllPortCounters_CounterSelectMask;
 static int * const _ClearAllPortCounters_CounterSelectMask[] = {
     &hf_opa_ClearAllPortCounters_PortXmitData,
     &hf_opa_ClearAllPortCounters_PortRcvData,
@@ -2287,159 +2287,159 @@ static int * const _ClearAllPortCounters_CounterSelectMask[] = {
     &hf_opa_ClearAllPortCounters_reserved,
     NULL
 };
-static gint hf_opa_PMConfig;
-static gint hf_opa_PMConfig_sweepInterval;
-static gint hf_opa_PMConfig_maxClients;
-static gint hf_opa_PMConfig_sizeHistory;
-static gint hf_opa_PMConfig_sizeFreeze;
-static gint hf_opa_PMConfig_lease;
-static gint hf_opa_PMConfig_pmFlags;
-static gint hf_opa_PMConfig_PortXmitWait;
-static gint hf_opa_PMConfig_SwPortCongestion;
-static gint hf_opa_PMConfig_PortRcvFECN;
-static gint hf_opa_PMConfig_PortRcvBECN;
-static gint hf_opa_PMConfig_PortXmitTimeCong;
-static gint hf_opa_PMConfig_PortMarkFECN;
-static gint hf_opa_PMConfig_integrityErrors;
-static gint hf_opa_PMConfig_congestionErrors;
-static gint hf_opa_PMConfig_smaCongestionErrors;
-static gint hf_opa_PMConfig_bubbleErrors;
-static gint hf_opa_PMConfig_securityErrors;
-static gint hf_opa_PMConfig_routingErrors;
-static gint hf_opa_PMConfig_LocalLinkIntegrityErrors;
-static gint hf_opa_PMConfig_PortRcvErrors;
-static gint hf_opa_PMConfig_ExcessiveBufferOverrunErrors;
-static gint hf_opa_PMConfig_LinkErrorRecovery;
-static gint hf_opa_PMConfig_LinkDowned;
-static gint hf_opa_PMConfig_UncorrectableErrors;
-static gint hf_opa_PMConfig_FMConfigErrors;
-static gint hf_opa_PMConfig_LinkQualityIndicator;
-static gint hf_opa_PMConfig_LinkWidthDowngrade;
-static gint hf_opa_PMConfig_memoryFootprint;
-static gint hf_opa_PMConfig_maxAttempts;
-static gint hf_opa_PMConfig_respTimeout;
-static gint hf_opa_PMConfig_minRespTimeout;
-static gint hf_opa_PMConfig_maxParallelNodes;
-static gint hf_opa_PMConfig_pmaBatchSize;
-static gint hf_opa_PMConfig_errorClear;
-static gint hf_opa_MoveFreezeFrame_old;
-static gint hf_opa_MoveFreezeFrame_new;
-static gint hf_opa_GetFocusPorts;
-static gint hf_opa_GetFocusPorts_groupName;
-static gint hf_opa_GetFocusPorts_select;
-static gint hf_opa_GetFocusPorts_start;
-static gint hf_opa_GetFocusPorts_range;
-static gint hf_opa_GetFocusPorts_nodeLID;
-static gint hf_opa_GetFocusPorts_portNumber;
-static gint hf_opa_GetFocusPorts_rate;
-static gint hf_opa_GetFocusPorts_mtu;
-static gint hf_opa_GetFocusPorts_localFlags;
-static gint hf_opa_GetFocusPorts_neighborFlags;
-static gint hf_opa_GetFocusPorts_value;
-static gint hf_opa_GetFocusPorts_nodeGUID;
-static gint hf_opa_GetFocusPorts_nodeDesc;
-static gint hf_opa_GetFocusPorts_neighborLid;
-static gint hf_opa_GetFocusPorts_neighborPortNumber;
-static gint hf_opa_GetFocusPorts_neighborValue;
-static gint hf_opa_GetFocusPorts_neighborGuid;
-static gint hf_opa_GetFocusPorts_neighborNodeDesc;
-static gint hf_opa_GetImageInfo;
-static gint hf_opa_GetImageInfo_sweepStart;
-static gint hf_opa_GetImageInfo_sweepDuration;
-static gint hf_opa_GetImageInfo_numHFIPorts;
-static gint hf_opa_GetImageInfo_numSwitchNodes;
-static gint hf_opa_GetImageInfo_numSwitchPorts;
-static gint hf_opa_GetImageInfo_numLinks;
-static gint hf_opa_GetImageInfo_numSMs;
-static gint hf_opa_GetImageInfo_numFailedNodes;
-static gint hf_opa_GetImageInfo_numFailedPorts;
-static gint hf_opa_GetImageInfo_numSkippedNodes;
-static gint hf_opa_GetImageInfo_numSkippedPorts;
-static gint hf_opa_GetImageInfo_numUnexpectedClearPorts;
-static gint hf_opa_GetImageInfo_imageInterval;
-static gint hf_opa_GetImageInfo_smPortGuid;
-static gint hf_opa_GetImageInfo_smNodeDesc;
-static gint hf_opa_GetImageInfo_lid;
-static gint hf_opa_GetImageInfo_state;
-static gint hf_opa_GetImageInfo_priority;
-static gint hf_opa_GetImageInfo_portNumber;
-static gint hf_opa_GetVFList;
-static gint hf_opa_GetVFList_vfName;
+static int hf_opa_PMConfig;
+static int hf_opa_PMConfig_sweepInterval;
+static int hf_opa_PMConfig_maxClients;
+static int hf_opa_PMConfig_sizeHistory;
+static int hf_opa_PMConfig_sizeFreeze;
+static int hf_opa_PMConfig_lease;
+static int hf_opa_PMConfig_pmFlags;
+static int hf_opa_PMConfig_PortXmitWait;
+static int hf_opa_PMConfig_SwPortCongestion;
+static int hf_opa_PMConfig_PortRcvFECN;
+static int hf_opa_PMConfig_PortRcvBECN;
+static int hf_opa_PMConfig_PortXmitTimeCong;
+static int hf_opa_PMConfig_PortMarkFECN;
+static int hf_opa_PMConfig_integrityErrors;
+static int hf_opa_PMConfig_congestionErrors;
+static int hf_opa_PMConfig_smaCongestionErrors;
+static int hf_opa_PMConfig_bubbleErrors;
+static int hf_opa_PMConfig_securityErrors;
+static int hf_opa_PMConfig_routingErrors;
+static int hf_opa_PMConfig_LocalLinkIntegrityErrors;
+static int hf_opa_PMConfig_PortRcvErrors;
+static int hf_opa_PMConfig_ExcessiveBufferOverrunErrors;
+static int hf_opa_PMConfig_LinkErrorRecovery;
+static int hf_opa_PMConfig_LinkDowned;
+static int hf_opa_PMConfig_UncorrectableErrors;
+static int hf_opa_PMConfig_FMConfigErrors;
+static int hf_opa_PMConfig_LinkQualityIndicator;
+static int hf_opa_PMConfig_LinkWidthDowngrade;
+static int hf_opa_PMConfig_memoryFootprint;
+static int hf_opa_PMConfig_maxAttempts;
+static int hf_opa_PMConfig_respTimeout;
+static int hf_opa_PMConfig_minRespTimeout;
+static int hf_opa_PMConfig_maxParallelNodes;
+static int hf_opa_PMConfig_pmaBatchSize;
+static int hf_opa_PMConfig_errorClear;
+static int hf_opa_MoveFreezeFrame_old;
+static int hf_opa_MoveFreezeFrame_new;
+static int hf_opa_GetFocusPorts;
+static int hf_opa_GetFocusPorts_groupName;
+static int hf_opa_GetFocusPorts_select;
+static int hf_opa_GetFocusPorts_start;
+static int hf_opa_GetFocusPorts_range;
+static int hf_opa_GetFocusPorts_nodeLID;
+static int hf_opa_GetFocusPorts_portNumber;
+static int hf_opa_GetFocusPorts_rate;
+static int hf_opa_GetFocusPorts_mtu;
+static int hf_opa_GetFocusPorts_localFlags;
+static int hf_opa_GetFocusPorts_neighborFlags;
+static int hf_opa_GetFocusPorts_value;
+static int hf_opa_GetFocusPorts_nodeGUID;
+static int hf_opa_GetFocusPorts_nodeDesc;
+static int hf_opa_GetFocusPorts_neighborLid;
+static int hf_opa_GetFocusPorts_neighborPortNumber;
+static int hf_opa_GetFocusPorts_neighborValue;
+static int hf_opa_GetFocusPorts_neighborGuid;
+static int hf_opa_GetFocusPorts_neighborNodeDesc;
+static int hf_opa_GetImageInfo;
+static int hf_opa_GetImageInfo_sweepStart;
+static int hf_opa_GetImageInfo_sweepDuration;
+static int hf_opa_GetImageInfo_numHFIPorts;
+static int hf_opa_GetImageInfo_numSwitchNodes;
+static int hf_opa_GetImageInfo_numSwitchPorts;
+static int hf_opa_GetImageInfo_numLinks;
+static int hf_opa_GetImageInfo_numSMs;
+static int hf_opa_GetImageInfo_numFailedNodes;
+static int hf_opa_GetImageInfo_numFailedPorts;
+static int hf_opa_GetImageInfo_numSkippedNodes;
+static int hf_opa_GetImageInfo_numSkippedPorts;
+static int hf_opa_GetImageInfo_numUnexpectedClearPorts;
+static int hf_opa_GetImageInfo_imageInterval;
+static int hf_opa_GetImageInfo_smPortGuid;
+static int hf_opa_GetImageInfo_smNodeDesc;
+static int hf_opa_GetImageInfo_lid;
+static int hf_opa_GetImageInfo_state;
+static int hf_opa_GetImageInfo_priority;
+static int hf_opa_GetImageInfo_portNumber;
+static int hf_opa_GetVFList;
+static int hf_opa_GetVFList_vfName;
 
-static gint hf_opa_GetVFInfo;
-static gint hf_opa_GetVFInfo_vfName;
-static gint hf_opa_GetVFInfo_numPorts;
-static gint hf_opa_GetVFInfo_totalMBps;
-static gint hf_opa_GetVFInfo_totalKPps;
-static gint hf_opa_GetVFInfo_avgMBps;
-static gint hf_opa_GetVFInfo_minMBps;
-static gint hf_opa_GetVFInfo_maxMBps;
-static gint hf_opa_GetVFInfo_numBWBuckets;
-static gint hf_opa_GetVFInfo_BWBuckets;
-static gint hf_opa_GetVFInfo_avgKPps;
-static gint hf_opa_GetVFInfo_minKPps;
-static gint hf_opa_GetVFInfo_maxKPps;
-static gint hf_opa_GetVFInfo_pmaFailedPorts;
-static gint hf_opa_GetVFInfo_topoFailedPorts;
-static gint hf_opa_GetVFInfo_integrityErrors;
-static gint hf_opa_GetVFInfo_congestionErrors;
-static gint hf_opa_GetVFInfo_smaCongestionErrors;
-static gint hf_opa_GetVFInfo_bubbleErrors;
-static gint hf_opa_GetVFInfo_securityErrors;
-static gint hf_opa_GetVFInfo_routingErrors;
-static gint hf_opa_GetVFInfo_utilizationPct10;
-static gint hf_opa_GetVFInfo_discardsPct10;
-static gint hf_opa_GetVFInfo_maxInternalRate;
-static gint hf_opa_GetVFInfo_minInternalRate;
-static gint hf_opa_GetVFInfo_maxInternalMBps;
+static int hf_opa_GetVFInfo;
+static int hf_opa_GetVFInfo_vfName;
+static int hf_opa_GetVFInfo_numPorts;
+static int hf_opa_GetVFInfo_totalMBps;
+static int hf_opa_GetVFInfo_totalKPps;
+static int hf_opa_GetVFInfo_avgMBps;
+static int hf_opa_GetVFInfo_minMBps;
+static int hf_opa_GetVFInfo_maxMBps;
+static int hf_opa_GetVFInfo_numBWBuckets;
+static int hf_opa_GetVFInfo_BWBuckets;
+static int hf_opa_GetVFInfo_avgKPps;
+static int hf_opa_GetVFInfo_minKPps;
+static int hf_opa_GetVFInfo_maxKPps;
+static int hf_opa_GetVFInfo_pmaFailedPorts;
+static int hf_opa_GetVFInfo_topoFailedPorts;
+static int hf_opa_GetVFInfo_integrityErrors;
+static int hf_opa_GetVFInfo_congestionErrors;
+static int hf_opa_GetVFInfo_smaCongestionErrors;
+static int hf_opa_GetVFInfo_bubbleErrors;
+static int hf_opa_GetVFInfo_securityErrors;
+static int hf_opa_GetVFInfo_routingErrors;
+static int hf_opa_GetVFInfo_utilizationPct10;
+static int hf_opa_GetVFInfo_discardsPct10;
+static int hf_opa_GetVFInfo_maxInternalRate;
+static int hf_opa_GetVFInfo_minInternalRate;
+static int hf_opa_GetVFInfo_maxInternalMBps;
 
-static gint hf_opa_GetVFConfig;
-static gint hf_opa_GetVFConfig_vfName;
-static gint hf_opa_GetVFConfig_Port_NodeGUID;
-static gint hf_opa_GetVFConfig_Port_nodeDesc;
-static gint hf_opa_GetVFConfig_Port_NodeLID;
-static gint hf_opa_GetVFConfig_Port_PortNumber;
+static int hf_opa_GetVFConfig;
+static int hf_opa_GetVFConfig_vfName;
+static int hf_opa_GetVFConfig_Port_NodeGUID;
+static int hf_opa_GetVFConfig_Port_nodeDesc;
+static int hf_opa_GetVFConfig_Port_NodeLID;
+static int hf_opa_GetVFConfig_Port_PortNumber;
 
-static gint hf_opa_GetVFPortCounters;
-static gint hf_opa_GetVFPortCounters_vfName;
-static gint hf_opa_GetVFPortCounters_nodeLID;
-static gint hf_opa_GetVFPortCounters_PortNumber;
-static gint hf_opa_GetVFPortCounters_flags;
-static gint hf_opa_GetVFPortCounters_PortVFXmitData;
-static gint hf_opa_GetVFPortCounters_PortVFRcvData;
-static gint hf_opa_GetVFPortCounters_PortVFXmitPkts;
-static gint hf_opa_GetVFPortCounters_PortVFRcvPkts;
-static gint hf_opa_GetVFPortCounters_PortVFXmitDiscards;
-static gint hf_opa_GetVFPortCounters_SwPortVFCongestion;
-static gint hf_opa_GetVFPortCounters_PortVFXmitWait;
-static gint hf_opa_GetVFPortCounters_PortVFRcvFECN;
-static gint hf_opa_GetVFPortCounters_PortVFRcvBECN;
-static gint hf_opa_GetVFPortCounters_PortVFXmitTimeCong;
-static gint hf_opa_GetVFPortCounters_PortVFXmitWastedBW;
-static gint hf_opa_GetVFPortCounters_PortVFXmitWaitData;
-static gint hf_opa_GetVFPortCounters_PortVFRcvBubble;
-static gint hf_opa_GetVFPortCounters_PortVFMarkFECN;
+static int hf_opa_GetVFPortCounters;
+static int hf_opa_GetVFPortCounters_vfName;
+static int hf_opa_GetVFPortCounters_nodeLID;
+static int hf_opa_GetVFPortCounters_PortNumber;
+static int hf_opa_GetVFPortCounters_flags;
+static int hf_opa_GetVFPortCounters_PortVFXmitData;
+static int hf_opa_GetVFPortCounters_PortVFRcvData;
+static int hf_opa_GetVFPortCounters_PortVFXmitPkts;
+static int hf_opa_GetVFPortCounters_PortVFRcvPkts;
+static int hf_opa_GetVFPortCounters_PortVFXmitDiscards;
+static int hf_opa_GetVFPortCounters_SwPortVFCongestion;
+static int hf_opa_GetVFPortCounters_PortVFXmitWait;
+static int hf_opa_GetVFPortCounters_PortVFRcvFECN;
+static int hf_opa_GetVFPortCounters_PortVFRcvBECN;
+static int hf_opa_GetVFPortCounters_PortVFXmitTimeCong;
+static int hf_opa_GetVFPortCounters_PortVFXmitWastedBW;
+static int hf_opa_GetVFPortCounters_PortVFXmitWaitData;
+static int hf_opa_GetVFPortCounters_PortVFRcvBubble;
+static int hf_opa_GetVFPortCounters_PortVFMarkFECN;
 
-static gint hf_opa_ClearVFPortCounters;
-static gint hf_opa_ClearVFPortCounters_vfName;
-static gint hf_opa_ClearVFPortCounters_nodeLID;
-static gint hf_opa_ClearVFPortCounters_PortNumber;
-static gint hf_opa_ClearVFPortCounters_PortVFXmitData;
-static gint hf_opa_ClearVFPortCounters_PortVFRcvData;
-static gint hf_opa_ClearVFPortCounters_PortVFXmitPkts;
-static gint hf_opa_ClearVFPortCounters_PortVFRcvPkts;
-static gint hf_opa_ClearVFPortCounters_PortVFXmitDiscards;
-static gint hf_opa_ClearVFPortCounters_SwPortVFCongestion;
-static gint hf_opa_ClearVFPortCounters_PortVFXmitWait;
-static gint hf_opa_ClearVFPortCounters_PortVFRcvFECN;
-static gint hf_opa_ClearVFPortCounters_PortVFRcvBECN;
-static gint hf_opa_ClearVFPortCounters_PortVFXmitTimeCong;
-static gint hf_opa_ClearVFPortCounters_PortVFXmitWastedBW;
-static gint hf_opa_ClearVFPortCounters_PortVFXmitWaitData;
-static gint hf_opa_ClearVFPortCounters_PortVFRcvBubble;
-static gint hf_opa_ClearVFPortCounters_PortVFMarkFECN;
-static gint hf_opa_ClearVFPortCounters_reserved;
-static gint hf_opa_ClearVFPortCounters_CounterSelectMask;
+static int hf_opa_ClearVFPortCounters;
+static int hf_opa_ClearVFPortCounters_vfName;
+static int hf_opa_ClearVFPortCounters_nodeLID;
+static int hf_opa_ClearVFPortCounters_PortNumber;
+static int hf_opa_ClearVFPortCounters_PortVFXmitData;
+static int hf_opa_ClearVFPortCounters_PortVFRcvData;
+static int hf_opa_ClearVFPortCounters_PortVFXmitPkts;
+static int hf_opa_ClearVFPortCounters_PortVFRcvPkts;
+static int hf_opa_ClearVFPortCounters_PortVFXmitDiscards;
+static int hf_opa_ClearVFPortCounters_SwPortVFCongestion;
+static int hf_opa_ClearVFPortCounters_PortVFXmitWait;
+static int hf_opa_ClearVFPortCounters_PortVFRcvFECN;
+static int hf_opa_ClearVFPortCounters_PortVFRcvBECN;
+static int hf_opa_ClearVFPortCounters_PortVFXmitTimeCong;
+static int hf_opa_ClearVFPortCounters_PortVFXmitWastedBW;
+static int hf_opa_ClearVFPortCounters_PortVFXmitWaitData;
+static int hf_opa_ClearVFPortCounters_PortVFRcvBubble;
+static int hf_opa_ClearVFPortCounters_PortVFMarkFECN;
+static int hf_opa_ClearVFPortCounters_reserved;
+static int hf_opa_ClearVFPortCounters_CounterSelectMask;
 static int * const _ClearVFPortCounters_CounterSelectMask[] = {
     &hf_opa_ClearVFPortCounters_PortVFXmitData,
     &hf_opa_ClearVFPortCounters_PortVFRcvData,
@@ -2459,25 +2459,25 @@ static int * const _ClearVFPortCounters_CounterSelectMask[] = {
     NULL
 };
 
-static gint hf_opa_GetVFFocusPorts;
-static gint hf_opa_GetVFFocusPorts_vfName;
-static gint hf_opa_GetVFFocusPorts_select;
-static gint hf_opa_GetVFFocusPorts_start;
-static gint hf_opa_GetVFFocusPorts_range;
-static gint hf_opa_GetVFFocusPorts_nodeLID;
-static gint hf_opa_GetVFFocusPorts_portNumber;
-static gint hf_opa_GetVFFocusPorts_rate;
-static gint hf_opa_GetVFFocusPorts_mtu;
-static gint hf_opa_GetVFFocusPorts_localFlags;
-static gint hf_opa_GetVFFocusPorts_neighborFlags;
-static gint hf_opa_GetVFFocusPorts_value;
-static gint hf_opa_GetVFFocusPorts_nodeGUID;
-static gint hf_opa_GetVFFocusPorts_nodeDesc;
-static gint hf_opa_GetVFFocusPorts_neighborLid;
-static gint hf_opa_GetVFFocusPorts_neighborPortNumber;
-static gint hf_opa_GetVFFocusPorts_neighborValue;
-static gint hf_opa_GetVFFocusPorts_neighborGuid;
-static gint hf_opa_GetVFFocusPorts_neighborNodeDesc;
+static int hf_opa_GetVFFocusPorts;
+static int hf_opa_GetVFFocusPorts_vfName;
+static int hf_opa_GetVFFocusPorts_select;
+static int hf_opa_GetVFFocusPorts_start;
+static int hf_opa_GetVFFocusPorts_range;
+static int hf_opa_GetVFFocusPorts_nodeLID;
+static int hf_opa_GetVFFocusPorts_portNumber;
+static int hf_opa_GetVFFocusPorts_rate;
+static int hf_opa_GetVFFocusPorts_mtu;
+static int hf_opa_GetVFFocusPorts_localFlags;
+static int hf_opa_GetVFFocusPorts_neighborFlags;
+static int hf_opa_GetVFFocusPorts_value;
+static int hf_opa_GetVFFocusPorts_nodeGUID;
+static int hf_opa_GetVFFocusPorts_nodeDesc;
+static int hf_opa_GetVFFocusPorts_neighborLid;
+static int hf_opa_GetVFFocusPorts_neighborPortNumber;
+static int hf_opa_GetVFFocusPorts_neighborValue;
+static int hf_opa_GetVFFocusPorts_neighborGuid;
+static int hf_opa_GetVFFocusPorts_neighborNodeDesc;
 
 /* Expert Info */
 static expert_field ei_opa_mad_error;
@@ -2487,16 +2487,16 @@ static expert_field ei_opa_rmpp_undecoded;
 static expert_field ei_opa_aggregate_error;
 
 /* Fragments */
-static gint hf_opa_rmpp_fragments;
-static gint hf_opa_rmpp_fragment;
-static gint hf_opa_rmpp_fragment_overlap;
-static gint hf_opa_rmpp_fragment_overlap_conflicts;
-static gint hf_opa_rmpp_fragment_multiple_tails;
-static gint hf_opa_rmpp_fragment_too_long_fragment;
-static gint hf_opa_rmpp_fragment_error;
-static gint hf_opa_rmpp_fragment_count;
-static gint hf_opa_rmpp_reassembled_in;
-static gint hf_opa_rmpp_reassembled_length;
+static int hf_opa_rmpp_fragments;
+static int hf_opa_rmpp_fragment;
+static int hf_opa_rmpp_fragment_overlap;
+static int hf_opa_rmpp_fragment_overlap_conflicts;
+static int hf_opa_rmpp_fragment_multiple_tails;
+static int hf_opa_rmpp_fragment_too_long_fragment;
+static int hf_opa_rmpp_fragment_error;
+static int hf_opa_rmpp_fragment_count;
+static int hf_opa_rmpp_reassembled_in;
+static int hf_opa_rmpp_reassembled_length;
 
 static const fragment_items opa_rmpp_frag_items = {
     &ett_rmpp_fragment,
@@ -2524,18 +2524,18 @@ static const fragment_items opa_rmpp_frag_items = {
  *                                 wmem_alloc(wmem_packet_scope(), 256)
  * @param[out] num_ports optional: pointer to a number of ports in set in port
  *                                 select mask and portlist if provided.
- * @return gchar* pointer to range string allocated using
+ * @return char* pointer to range string allocated using
  *                wmem_strbuf_new_sized(wmem_packet_scope(),...)
  */
-static gchar *opa_format_port_select_mask(tvbuff_t *tvb, gint offset, guint8 **port_list, guint8 *num_ports)
+static char *opa_format_port_select_mask(tvbuff_t *tvb, int offset, uint8_t **port_list, uint8_t *num_ports)
 {
-    gint i, j, port, last = -1, first = 0, ports = 0;
-    guint64 mask, psm[4];
+    int i, j, port, last = -1, first = 0, ports = 0;
+    uint64_t mask, psm[4];
     wmem_strbuf_t *buf = NULL;
-    guint8 *portlist = NULL;
+    uint8_t *portlist = NULL;
 
     if (!tvb_bytes_exist(tvb, offset, 32)) {
-        return (gchar *)"Invalid Length: Requires 32 bytes";
+        return (char *)"Invalid Length: Requires 32 bytes";
     }
     psm[0] = tvb_get_ntoh64(tvb, offset);
     psm[1] = tvb_get_ntoh64(tvb, offset + 8);
@@ -2546,13 +2546,13 @@ static gchar *opa_format_port_select_mask(tvbuff_t *tvb, gint offset, guint8 **p
 
     if (port_list) {
         /* Allocate list of ports; max = 256 = 64 * 4 */
-        portlist = (guint8 *)wmem_alloc(wmem_packet_scope(), 256);
+        portlist = (uint8_t *)wmem_alloc(wmem_packet_scope(), 256);
         memset(portlist, 0xFF, 256);
     }
     for (i = 0; i < 4; i++) {
         mask = psm[3 - i];
         for (j = 0; mask && j < 64; j++, mask >>= 1) {
-            if ((mask & (guint64)0x1) == 0) continue;
+            if ((mask & (uint64_t)0x1) == 0) continue;
             port = (i * 64) + j;
             if (portlist) portlist[ports] = port;
 
@@ -2579,14 +2579,14 @@ static gchar *opa_format_port_select_mask(tvbuff_t *tvb, gint offset, guint8 **p
     }
     if (num_ports) *num_ports = ports;
     if (port_list) *port_list = portlist;
-    return (gchar *)wmem_strbuf_finalize(buf);
+    return (char *)wmem_strbuf_finalize(buf);
 }
 /* Custom Functions */
-static void cf_opa_mad_swinfo_ar_frequency(gchar *buf, guint16 value)
+static void cf_opa_mad_swinfo_ar_frequency(char *buf, uint16_t value)
 {
     snprintf(buf, ITEM_LABEL_LENGTH, "%u ms", 2 ^ (value)*64);
 }
-static void cf_opa_mad_linkspeed(gchar *buf, guint16 value)
+static void cf_opa_mad_linkspeed(char *buf, uint16_t value)
 {
     int len = 0;
     if (value & 0x1) /* 12.5 Gbps */
@@ -2598,7 +2598,7 @@ static void cf_opa_mad_linkspeed(gchar *buf, guint16 value)
     else
         snprintf(buf, ITEM_LABEL_LENGTH, "No State Change");
 }
-static void cf_opa_mad_linkwidth(gchar *buf, guint16 value)
+static void cf_opa_mad_linkwidth(char *buf, uint16_t value)
 {
     int len = 0;
     if (value & 0x1) /* 1x */
@@ -2612,7 +2612,7 @@ static void cf_opa_mad_linkwidth(gchar *buf, guint16 value)
     if (!len)
         snprintf(buf, ITEM_LABEL_LENGTH, "No State Change");
 }
-static void cf_opa_mad_portlinkmode(gchar *buf, guint16 value)
+static void cf_opa_mad_portlinkmode(char *buf, uint16_t value)
 {
     int len = 0;
     if (value & 0x1) /* Reserved */
@@ -2624,7 +2624,7 @@ static void cf_opa_mad_portlinkmode(gchar *buf, guint16 value)
     if (!len)
         snprintf(buf, ITEM_LABEL_LENGTH, "No State Change");
 }
-static void cf_opa_mad_portltpcrcmode(gchar *buf, guint16 value)
+static void cf_opa_mad_portltpcrcmode(char *buf, uint16_t value)
 {
     int len = 0;
     if (value & 0x1) /* 14-bit */
@@ -2640,7 +2640,7 @@ static void cf_opa_mad_portltpcrcmode(gchar *buf, guint16 value)
     else
         snprintf(buf, ITEM_LABEL_LENGTH, "No State Change");
 }
-static void cf_opa_mad_packetformat(gchar *buf, guint16 value)
+static void cf_opa_mad_packetformat(char *buf, uint16_t value)
 {
     int len = 0;
     if (value & 0x1) /* 8B */
@@ -2656,7 +2656,7 @@ static void cf_opa_mad_packetformat(gchar *buf, guint16 value)
     else
         snprintf(buf, ITEM_LABEL_LENGTH, "No State Change");
 }
-static void cf_opa_mad_swcongestionsetting_controlmap(gchar *buf, guint32 value)
+static void cf_opa_mad_swcongestionsetting_controlmap(char *buf, uint32_t value)
 {
     int len = 0;
     if (value & 0x1) /* Victim */
@@ -2672,10 +2672,10 @@ static void cf_opa_mad_swcongestionsetting_controlmap(gchar *buf, guint32 value)
     if (!len)
         snprintf(buf, ITEM_LABEL_LENGTH, "No Valid Fields");
 }
-static void cf_opa_mad_32b_mask(gchar *buf, guint32 value)
+static void cf_opa_mad_32b_mask(char *buf, uint32_t value)
 {
     int len = 0;
-    guint32 i, mask;
+    uint32_t i, mask;
     for (i = 0, mask = value; mask && i < 32 && len < ITEM_LABEL_LENGTH; i++, mask >>= 1) {
         if (mask & 1) {
             len += snprintf(&buf[len], ITEM_LABEL_LENGTH - len, "%s%u", (len ? ", " : ""), i);
@@ -2685,7 +2685,7 @@ static void cf_opa_mad_32b_mask(gchar *buf, guint32 value)
         snprintf(buf, ITEM_LABEL_LENGTH, " ");
     }
 }
-static void cf_opa_mad_computed_pct10(gchar *buf, guint16 value)
+static void cf_opa_mad_computed_pct10(char *buf, uint16_t value)
 {
     snprintf(buf, ITEM_LABEL_LENGTH, "%u.%01u", value / 10, value % 10);
 }
@@ -2705,11 +2705,11 @@ static range_t *global_mad_application_class;
 static range_t *global_mad_reserved_class;
 static range_t *global_mad_opa_class;
 
-static gint parse_MAD_AttributeModifier(proto_tree *MAD_tree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static int parse_MAD_AttributeModifier(proto_tree *MAD_tree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
     proto_tree *AttributeModifier_tree;
     proto_item *AttributeModifier_item;
-    gint local_offset = *offset;
+    int local_offset = *offset;
 
     AttributeModifier_item = proto_tree_add_item(MAD_tree, hf_opa_attribute_modifier, tvb, local_offset, 4, ENC_BIG_ENDIAN);
     AttributeModifier_tree = proto_item_add_subtree(AttributeModifier_item, ett_mad_attributemod);
@@ -2817,15 +2817,15 @@ static gint parse_MAD_AttributeModifier(proto_tree *MAD_tree, tvbuff_t *tvb, gin
     return local_offset;
 }
 /* Parse the common MAD Header */
-static gboolean parse_MAD_Common(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static bool parse_MAD_Common(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     proto_item *MAD_header_item;
     proto_tree *MAD_header_tree;
     proto_item *MAD_Status_item;
 
     if (MAD == NULL) {
-        return FALSE;
+        return false;
     }
 
     /* Get the Management Class to decide between LID Routed and Direct Route */
@@ -2835,16 +2835,16 @@ static gboolean parse_MAD_Common(proto_tree *parentTree, packet_info *pinfo, tvb
     MAD_header_tree = proto_item_add_subtree(MAD_header_item, ett_mad);
 
     proto_tree_add_item(MAD_header_tree, hf_opa_mad_base_version, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-    MAD->BaseVersion = tvb_get_guint8(tvb, local_offset);
+    MAD->BaseVersion = tvb_get_uint8(tvb, local_offset);
     local_offset += 1;
     proto_tree_add_item(MAD_header_tree, hf_opa_mad_mgmt_class, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-    MAD->MgmtClass = tvb_get_guint8(tvb, local_offset);
+    MAD->MgmtClass = tvb_get_uint8(tvb, local_offset);
     local_offset += 1;
     proto_tree_add_item(MAD_header_tree, hf_opa_mad_class_version, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-    MAD->ClassVersion = tvb_get_guint8(tvb, local_offset);
+    MAD->ClassVersion = tvb_get_uint8(tvb, local_offset);
     local_offset += 1;
     proto_tree_add_item(MAD_header_tree, hf_opa_mad_method, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-    MAD->Method = tvb_get_guint8(tvb, local_offset);
+    MAD->Method = tvb_get_uint8(tvb, local_offset);
     local_offset += 1;
     if (MAD->MgmtClass == SUBN_DIRECTED_ROUTE) {
         proto_tree_add_item(MAD_header_tree, hf_opa_mad_status_DR_D, tvb, local_offset, 2, ENC_BIG_ENDIAN);
@@ -2857,10 +2857,10 @@ static gboolean parse_MAD_Common(proto_tree *parentTree, packet_info *pinfo, tvb
                 "Mad Status Error (0x%04x)", MAD->Status & 0x7FFF);
         }
         proto_tree_add_item(MAD_header_tree, hf_opa_mad_status_DR_Hop_Pointer, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-        MAD->HopPointer = tvb_get_guint8(tvb, local_offset);
+        MAD->HopPointer = tvb_get_uint8(tvb, local_offset);
         local_offset += 1;
         proto_tree_add_item(MAD_header_tree, hf_opa_mad_status_DR_Hop_Count, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-        MAD->HopCount = tvb_get_guint8(tvb, local_offset);
+        MAD->HopCount = tvb_get_uint8(tvb, local_offset);
         local_offset += 1;
     } else {
         MAD_Status_item = proto_tree_add_bitmask(MAD_header_tree, tvb, local_offset,
@@ -2887,23 +2887,23 @@ static gboolean parse_MAD_Common(proto_tree *parentTree, packet_info *pinfo, tvb
     MAD->AttributeModifier = tvb_get_ntohl(tvb, local_offset);
     *offset = parse_MAD_AttributeModifier(MAD_header_tree, tvb, &local_offset, MAD);
 
-    return TRUE;
+    return true;
 }
 /* Parse the RMPP (Reliable Multi-Packet Transaction Protocol) */
-static gboolean parse_RMPP(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset, RMPP_t *RMPP)
+static bool parse_RMPP(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, int *offset, RMPP_t *RMPP)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     proto_item *RMPP_header_item;
     proto_item *RMPP_type_item;
     proto_item *RMPP_segment_number_item;
     proto_tree *RMPP_header_tree;
-    guint32 val;
+    uint32_t val;
 
     RMPP_header_item = proto_tree_add_item(parentTree, hf_opa_rmpp, tvb, local_offset, 12, ENC_NA);
     RMPP_header_tree = proto_item_add_subtree(RMPP_header_item, ett_rmpp);
 
     proto_tree_add_item(RMPP_header_tree, hf_opa_rmpp_version, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-    RMPP->Version = tvb_get_guint8(tvb, local_offset);
+    RMPP->Version = tvb_get_uint8(tvb, local_offset);
     local_offset += 1;
 
     RMPP_type_item = proto_tree_add_item_ret_uint(RMPP_header_tree, hf_opa_rmpp_type, tvb,
@@ -2914,7 +2914,7 @@ static gboolean parse_RMPP(proto_tree *parentTree, packet_info *pinfo, tvbuff_t 
     proto_tree_add_item(RMPP_header_tree, hf_opa_rmpp_flags_last, tvb, local_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(RMPP_header_tree, hf_opa_rmpp_flags_first, tvb, local_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(RMPP_header_tree, hf_opa_rmpp_flags_active, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-    RMPP->resptime_flags = tvb_get_guint8(tvb, local_offset);
+    RMPP->resptime_flags = tvb_get_uint8(tvb, local_offset);
     local_offset += 1;
 
     proto_tree_add_item_ret_uint(RMPP_header_tree, hf_opa_rmpp_status, tvb,
@@ -2965,15 +2965,15 @@ static gboolean parse_RMPP(proto_tree *parentTree, packet_info *pinfo, tvbuff_t 
         local_offset += 4;
         break;
     default:
-        return FALSE;
+        return false;
     }
     *offset = local_offset;
-    return TRUE;
+    return true;
 }
 /* Parse NoticeDataDetails Attribute Field */
-static gint parse_NoticeDataDetails(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, guint16 trapNumber)
+static int parse_NoticeDataDetails(proto_tree *parentTree, tvbuff_t *tvb, int *offset, uint16_t trapNumber)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     proto_item *DataDetails_header_item;
     proto_tree *DataDetails_header_tree;
 
@@ -3111,13 +3111,13 @@ static gint parse_NoticeDataDetails(proto_tree *parentTree, tvbuff_t *tvb, gint 
 }
 
 /* Parse NoticesAndTraps Attribute  */
-static gint parse_NoticesAndTraps(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
+static int parse_NoticesAndTraps(proto_tree *parentTree, tvbuff_t *tvb, int *offset)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     proto_item *NoticesAndTraps_header_item;
     proto_tree *NoticesAndTraps_header_tree;
-    gboolean isGeneric = tvb_get_bits8(tvb, local_offset * 8, 1);
-    guint16 trapNumber = tvb_get_ntohs(tvb, local_offset + 4);
+    bool isGeneric = tvb_get_bits8(tvb, local_offset * 8, 1);
+    uint16_t trapNumber = tvb_get_ntohs(tvb, local_offset + 4);
 
     if (!parentTree)
         return *offset;
@@ -3163,12 +3163,12 @@ static gint parse_NoticesAndTraps(proto_tree *parentTree, tvbuff_t *tvb, gint *o
 }
 
 /* Parse InformInfo Attribute*/
-static gint parse_InformInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static int parse_InformInfo(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     proto_item *InformInfo_header_item;
     proto_tree *InformInfo_header_tree;
-    gboolean     isGeneric;
+    bool         isGeneric;
 
     if (!parentTree || MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE)
         return *offset;
@@ -3182,7 +3182,7 @@ static gint parse_InformInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset
     local_offset += 4;
     proto_tree_add_item(InformInfo_header_tree, hf_opa_InformInfo_LIDRangeEnd, tvb, local_offset, 4, ENC_BIG_ENDIAN);
     local_offset += 4;
-    isGeneric = (gboolean)tvb_get_bits8(tvb, local_offset * 8 + 7, 1);
+    isGeneric = (bool)tvb_get_bits8(tvb, local_offset * 8 + 7, 1);
     proto_tree_add_item(InformInfo_header_tree, hf_opa_InformInfo_IsGeneric, tvb, local_offset, 1, ENC_BIG_ENDIAN);
     local_offset += 1;
     proto_tree_add_item(InformInfo_header_tree, hf_opa_InformInfo_Subscribe, tvb, local_offset, 1, ENC_BIG_ENDIAN);
@@ -3217,13 +3217,13 @@ static gint parse_InformInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset
 }
 
 /* Parse ClassPortInfo MAD from the ALL classes. */
-static gint parse_ClassPortInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static int parse_ClassPortInfo(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
     proto_item *ClassPortInfo_item;
     proto_tree *ClassPortInfo_tree;
     proto_tree *ClassPortInfo_Redirect_tree;
     proto_tree *ClassPortInfo_Trap_tree;
-    gint local_offset = *offset;
+    int local_offset = *offset;
 
     if (!parentTree || MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE)
         return *offset;
@@ -3297,9 +3297,9 @@ static gint parse_ClassPortInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *off
 }
 
 /* Parse NodeDescription Attribute  */
-static gint parse_NodeDescription(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static int parse_NodeDescription(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     proto_tree *NodeDescription_header_tree = parentTree;
     proto_item *NodeDescription_header_item;
 
@@ -3315,9 +3315,9 @@ static gint parse_NodeDescription(proto_tree *parentTree, tvbuff_t *tvb, gint *o
 }
 
 /* Parse NodeInfo Attribute */
-static gint parse_NodeInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static int parse_NodeInfo(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     proto_tree *NodeInfo_header_tree = parentTree;
     proto_item *NodeInfo_header_item;
 
@@ -3359,9 +3359,9 @@ static gint parse_NodeInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, 
 }
 
 /* Parse SwitchInfo Attribute  */
-static gint parse_SwitchInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static int parse_SwitchInfo(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     proto_tree *SwitchInfo_header_tree = parentTree;
     proto_item *SwitchInfo_header_item;
 
@@ -3440,9 +3440,9 @@ static gint parse_SwitchInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset
 }
 
 /* Parse PortInfo Attribute  */
-static gint parse_PortInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static int parse_PortInfo(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     proto_tree *PortInfo_header_tree = parentTree,
         *PortInfo_VL_tree,
         *PortInfo_Link_tree,
@@ -3452,14 +3452,14 @@ static gint parse_PortInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, 
     proto_item * PortInfo_header_item,
         *PortInfo_PortWdthSpeedActive_item;
     proto_item *temp_item;
-    guint p, i, Num_ports, Port_num;
-    guint16 active;
-    gint block_length = 242;
-    gint block_pad_len = 8 - (block_length & 7); /* Padding to add */
+    unsigned p, i, Num_ports, Port_num;
+    uint16_t active;
+    int block_length = 242;
+    int block_pad_len = 8 - (block_length & 7); /* Padding to add */
 
     if (MAD->MgmtClass == SUBNADMN) {
         Num_ports = 1;
-        Port_num = tvb_get_guint8(tvb, local_offset - 4);
+        Port_num = tvb_get_uint8(tvb, local_offset - 4);
     } else {
         Num_ports = (MAD->AttributeModifier & 0xFF000000) >> 24;
         Port_num = (MAD->AttributeModifier & 0x000000FF);
@@ -3791,12 +3791,12 @@ static gint parse_PortInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, 
 }
 
 /* Parse PortStateInfo Attribute */
-static gint parse_PortStateInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static int parse_PortStateInfo(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     proto_item *PortStates_header_item;
     proto_tree *PortStates_header_tree;
-    guint i, Num_ports, Port_num;
+    unsigned i, Num_ports, Port_num;
 
     if (!parentTree || MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE)
         return *offset;
@@ -3823,15 +3823,15 @@ static gint parse_PortStateInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *off
 }
 
 /* Parse P_KeyTable Attribute  */
-static gint parse_P_KeyTable(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static int parse_P_KeyTable(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     proto_item *P_KeyTable_header_item;
     proto_tree *P_KeyTable_header_tree;
     proto_tree *tempBlock_tree;
     proto_item *tempItemLow;
     proto_item *tempItemHigh;
-    guint i, b, Num_blocks, Block_num/*, Port_num*/;
+    unsigned i, b, Num_blocks, Block_num/*, Port_num*/;
 
     if (!parentTree || MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE)
         return *offset;
@@ -3839,7 +3839,7 @@ static gint parse_P_KeyTable(proto_tree *parentTree, tvbuff_t *tvb, gint *offset
     if (MAD->MgmtClass == SUBNADMN) {
         Num_blocks = 1;
         Block_num = tvb_get_ntohs(tvb, local_offset - 4);
-        /*Port_num = tvb_get_guint8(tvb, local_offset - 2);*/
+        /*Port_num = tvb_get_uint8(tvb, local_offset - 2);*/
     } else {
         Num_blocks = (MAD->AttributeModifier & 0xFF000000) >> 24;
         Block_num = (MAD->AttributeModifier & 0x000007FF);
@@ -3865,14 +3865,14 @@ static gint parse_P_KeyTable(proto_tree *parentTree, tvbuff_t *tvb, gint *offset
 }
 
 /* Parse SLtoSC Mapping Table Attribute */
-static gint parse_SLtoSCMappingTable(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static int parse_SLtoSCMappingTable(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     proto_item *SLtoSCMappingTable_header_item;
     proto_tree *SLtoSCMappingTable_header_tree;
     proto_item *tempItemHigh;
     proto_item *tempItemLow;
-    guint i;
+    unsigned i;
 
     if (!parentTree || MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE)
         return *offset;
@@ -3892,29 +3892,29 @@ static gint parse_SLtoSCMappingTable(proto_tree *parentTree, tvbuff_t *tvb, gint
 }
 
 /* Parse SCtoSC Mapping Table Attribute  */
-static gint parse_SCtoSCMappingTable(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static int parse_SCtoSCMappingTable(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
-    gint        local_offset = *offset;
+    int         local_offset = *offset;
     proto_item *SCtoSCMappingTable_header_item;
     proto_tree *SCtoSCMappingTable_header_tree;
     proto_item *tempItemHigh;
     proto_item *tempItemLow;
     proto_tree *tempBlock_tree;
-    guint       i, b, i_block, e_block, Num_blocks, Block_num;
-    gboolean    B;
+    unsigned    i, b, i_block, e_block, Num_blocks, Block_num;
+    bool        B;
 
     if (!parentTree || MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE)
         return *offset;
 
     if (MAD->MgmtClass == SUBNADMN) {
         Num_blocks = 1;
-        B = FALSE;
-        i_block = tvb_get_guint8(tvb, local_offset - 4);
-        e_block = tvb_get_guint8(tvb, local_offset - 3);
+        B = false;
+        i_block = tvb_get_uint8(tvb, local_offset - 4);
+        e_block = tvb_get_uint8(tvb, local_offset - 3);
         Block_num = e_block;
     } else {
         Num_blocks = (MAD->AttributeModifier & 0xFF000000) >> 24;
-        B = (gboolean)((MAD->AttributeModifier & 0x00010000) >> 16);
+        B = (bool)((MAD->AttributeModifier & 0x00010000) >> 16);
         i_block = (MAD->AttributeModifier & 0x0000FF00) >> 8;
         e_block = (MAD->AttributeModifier & 0x000000FF);
         Block_num = (B ? i_block : e_block);
@@ -3940,14 +3940,14 @@ static gint parse_SCtoSCMappingTable(proto_tree *parentTree, tvbuff_t *tvb, gint
 }
 
 /* Parse SCtoSL Mapping Table Attribute  */
-static gint parse_SCtoSLMappingTable(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static int parse_SCtoSLMappingTable(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
-    gint        local_offset = *offset;
+    int         local_offset = *offset;
     proto_item *SCtoSLMappingTable_header_item;
     proto_tree *SCtoSLMappingTable_header_tree;
     proto_item *tempItemHigh;
     proto_item *tempItemLow;
-    guint       i;
+    unsigned    i;
 
     if (!parentTree || MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE)
         return *offset;
@@ -3966,23 +3966,23 @@ static gint parse_SCtoSLMappingTable(proto_tree *parentTree, tvbuff_t *tvb, gint
 }
 
 /* Parse SCtoVLx Mapping Table Attribute  */
-static gint parse_SCtoVLxMappingTable(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static int parse_SCtoVLxMappingTable(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
-    gint        local_offset = *offset;
+    int         local_offset = *offset;
     proto_item *SCtoVLxMappingTable_header_item;
     proto_tree *SCtoVLxMappingTable_header_tree;
     proto_item *tempItemLow;
     proto_item *tempItemHigh;
     proto_tree *tempBlock_tree;
-    guint       p, v, Port_num, Num_ports;
-    const gchar *VLx;
+    unsigned    p, v, Port_num, Num_ports;
+    const char *VLx;
 
     if (!parentTree || MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE)
         return *offset;
 
     if (MAD->MgmtClass == SUBNADMN) {
         Num_ports = 1;
-        Port_num = tvb_get_guint8(tvb, local_offset - 4);
+        Port_num = tvb_get_uint8(tvb, local_offset - 4);
         VLx = val_to_str_const(MAD->AttributeID, SA_SC_VLx, "x");
     } else {
         Num_ports = (MAD->AttributeModifier & 0xFF000000) >> 24;
@@ -4010,24 +4010,24 @@ static gint parse_SCtoVLxMappingTable(proto_tree *parentTree, tvbuff_t *tvb, gin
 }
 
 /* Parse VLArbitrationTable Attribute  */
-static gint parse_VLArbitrationTable(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static int parse_VLArbitrationTable(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
-    gint        local_offset = *offset;
+    int         local_offset = *offset;
     proto_item *VLArbitrationTable_header_item;
     proto_tree * VLArbitrationTable_header_tree,*VLArbitrationTable_port_tree;
     proto_item *tempItemHigh;
     proto_item *tempItemLow;
     proto_item *tempItem;
-    guint       i, p, Section, Num_ports, Port_num;
-    const gchar *TableType;
+    unsigned    i, p, Section, Num_ports, Port_num;
+    const char *TableType;
 
     if (!parentTree || MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE)
         return *offset;
 
     if (MAD->MgmtClass == SUBNADMN) {
         Num_ports = 1;
-        Section = tvb_get_guint8(tvb, local_offset - 3);
-        Port_num = tvb_get_guint8(tvb, local_offset - 4);
+        Section = tvb_get_uint8(tvb, local_offset - 3);
+        Port_num = tvb_get_uint8(tvb, local_offset - 4);
     } else {
         Num_ports = (MAD->AttributeModifier & 0xFF000000) >> 24;
         Section = (MAD->AttributeModifier & 0x00FF0000) >> 16;
@@ -4069,14 +4069,14 @@ static gint parse_VLArbitrationTable(proto_tree *parentTree, tvbuff_t *tvb, gint
 }
 
 /* Parse LinearForwardingTable Attribute  */
-static gint parse_LinearForwardingTable(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static int parse_LinearForwardingTable(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
-    gint        local_offset = *offset;
+    int         local_offset = *offset;
     proto_item *LinearForwardingTable_header_item;
     proto_tree *LinearForwardingTable_header_tree;
     proto_item *tempItemLow;
     proto_tree *tempBlock_tree;
-    guint       b, i, Block_num, Num_blocks;
+    unsigned    b, i, Block_num, Num_blocks;
 
     if (!parentTree || MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE)
         return *offset;
@@ -4105,15 +4105,15 @@ static gint parse_LinearForwardingTable(proto_tree *parentTree, tvbuff_t *tvb, g
 }
 
 /* Parse MulticastForwardingTable Attribute  */
-static gint parse_MulticastForwardingTable(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static int parse_MulticastForwardingTable(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
-    gint        local_offset = *offset;
+    int         local_offset = *offset;
     proto_item *MulticastForwardingTable_header_item;
     proto_tree *MulticastForwardingTable_header_tree;
     proto_item *tempItem;
     proto_tree *tempBlock_tree;
-    guint       b, i, Block_num, Num_blocks, Pos;
-    const gchar *Position;
+    unsigned    b, i, Block_num, Num_blocks, Pos;
+    const char *Position;
 
     if (!parentTree || MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE)
         return *offset;
@@ -4145,14 +4145,14 @@ static gint parse_MulticastForwardingTable(proto_tree *parentTree, tvbuff_t *tvb
 }
 
 /* Parse PortGroupForwardingTable Attribute  */
-static gint parse_PortGroupForwardingTable(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static int parse_PortGroupForwardingTable(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
-    gint        local_offset = *offset;
+    int         local_offset = *offset;
     proto_item *PortGroupForwardingTable_header_item;
     proto_tree *PortGroupForwardingTable_header_tree;
     proto_item *tempItemLow;
     proto_tree *tempBlock_tree;
-    guint       b, i, Block_num, Num_blocks;
+    unsigned    b, i, Block_num, Num_blocks;
 
     if (!parentTree || MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE)
         return *offset;
@@ -4182,15 +4182,15 @@ static gint parse_PortGroupForwardingTable(proto_tree *parentTree, tvbuff_t *tvb
 }
 
 /* Parse PortGroupTable Attribute */
-static gint parse_PortGroupTable(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static int parse_PortGroupTable(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
-    gint        local_offset = *offset;
+    int         local_offset = *offset;
     proto_item *PortGroupTable_header_item;
     proto_tree *PortGroupTable_header_tree;
     proto_item *tempItemLow;
     proto_tree *tempBlock_tree;
-    guint       b, i, Block_num, Num_blocks, Pos;
-    const gchar *Position;
+    unsigned    b, i, Block_num, Num_blocks, Pos;
+    const char *Position;
 
     if (!parentTree || MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE)
         return *offset;
@@ -4198,7 +4198,7 @@ static gint parse_PortGroupTable(proto_tree *parentTree, tvbuff_t *tvb, gint *of
     if (MAD->MgmtClass == SUBNADMN) {
         Num_blocks = 1;
         Pos = 0;
-        Block_num = tvb_get_guint8(tvb, local_offset - 3) & 0x1F;
+        Block_num = tvb_get_uint8(tvb, local_offset - 3) & 0x1F;
     } else {
         Num_blocks = (MAD->AttributeModifier & 0xFF000000) >> 24;
         Pos = (MAD->AttributeModifier & 0x00C00000) >> 22;
@@ -4223,9 +4223,9 @@ static gint parse_PortGroupTable(proto_tree *parentTree, tvbuff_t *tvb, gint *of
 }
 
 /* Parse SMInfo Attribute */
-static gint parse_SMInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static int parse_SMInfo(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     proto_item *SMInfo_header_item;
     proto_tree *SMInfo_header_tree;
 
@@ -4252,14 +4252,14 @@ static gint parse_SMInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MA
 }
 
 /* Parse LedInfo Attribute */
-static gint parse_LedInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static int parse_LedInfo(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
-    gint        local_offset = *offset;
+    int         local_offset = *offset;
     proto_item *LedInfo_header_item;
     proto_tree *LedInfo_header_tree;
     proto_item *tempItemHigh;
     proto_item *tempItemLow;
-    guint       p, Port_num, Num_ports;
+    unsigned    p, Port_num, Num_ports;
 
     if (!parentTree || MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE)
         return *offset;
@@ -4283,13 +4283,13 @@ static gint parse_LedInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, M
 }
 
 /* Parse CableInfo Attribute */
-static gint parse_CableInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static int parse_CableInfo(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     proto_item *CableInfo_header_item;
     proto_tree *CableInfo_header_tree;
     proto_item *tempItemLow;
-    guint i, Port_num, Data_Len, start_addr;
+    unsigned i, Port_num, Data_Len, start_addr;
 
     if (!parentTree || MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE)
         return *offset;
@@ -4311,23 +4311,23 @@ static gint parse_CableInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset,
     return local_offset;
 }
 /* Parse BufferControlTable Attribute */
-static gint parse_BufferControlTable(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static int parse_BufferControlTable(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     proto_item *BCT_header_item;
     proto_tree *BCT_header_tree;
     proto_item *tempItemLow;
     proto_item *tempItemHigh;
-    guint p, i, Port_num, Num_ports;
-    gint block_length = 4 + (32 * 4);
-    gint block_pad_len = 8 - (block_length & 7); /* Padding to add */
+    unsigned p, i, Port_num, Num_ports;
+    int block_length = 4 + (32 * 4);
+    int block_pad_len = 8 - (block_length & 7); /* Padding to add */
 
     if (!parentTree || MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE)
         return *offset;
 
     if (MAD->MgmtClass == SUBNADMN) {
         Num_ports = 1;
-        Port_num = tvb_get_guint8(tvb, local_offset - 4);
+        Port_num = tvb_get_uint8(tvb, local_offset - 4);
     } else {
         Num_ports = (MAD->AttributeModifier & 0xFF000000) >> 24;
         Port_num = (MAD->AttributeModifier & 0x000000FF);
@@ -4360,9 +4360,9 @@ static gint parse_BufferControlTable(proto_tree *parentTree, tvbuff_t *tvb, gint
 }
 
 /* Parse CongestionInfo Attribute */
-static gint parse_CongestionInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static int parse_CongestionInfo(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     proto_item *CongestionInfo_header_item;
     proto_tree *CongestionInfo_header_tree;
 
@@ -4382,13 +4382,13 @@ static gint parse_CongestionInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *of
 }
 
 /* Parse SwitchCongestionLog Attribute */
-static gint parse_SwitchCongestionLog(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static int parse_SwitchCongestionLog(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     proto_item *SwitchCongestionLog_header_item;
     proto_tree *SwitchCongestionLog_header_tree;
     proto_tree *SwitchCongestionLog_Entry_tree;
-    guint i;
+    unsigned i;
 
     if (!parentTree || MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE)
         return *offset;
@@ -4427,9 +4427,9 @@ static gint parse_SwitchCongestionLog(proto_tree *parentTree, tvbuff_t *tvb, gin
 }
 
 /* Parse SwitchCongestionSetting Attribute */
-static gint parse_SwitchCongestionSetting(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static int parse_SwitchCongestionSetting(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     proto_item *SwitchCongestionSetting_header_item;
     proto_tree *SwitchCongestionSetting_header_tree;
 
@@ -4464,20 +4464,20 @@ static gint parse_SwitchCongestionSetting(proto_tree *parentTree, tvbuff_t *tvb,
 }
 
 /* Parse SwitchPortCongestionSetting Attribute */
-static gint parse_SwitchPortCongestionSetting(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static int parse_SwitchPortCongestionSetting(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     proto_item *SwitchPortCongestionSetting_header_item;
     proto_tree *SwitchPortCongestionSetting_header_tree;
     proto_tree *SwitchPortCongestionSetting_Port_tree;
-    guint p, Num_ports, Port_num;
+    unsigned p, Num_ports, Port_num;
 
     if (!parentTree || MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE)
         return *offset;
 
     if (MAD->MgmtClass == SUBNADMN) {
         Num_ports = 1;
-        Port_num = tvb_get_guint8(tvb, local_offset - 4);
+        Port_num = tvb_get_uint8(tvb, local_offset - 4);
     } else {
         Num_ports = (MAD->AttributeModifier & 0xFF000000) >> 24;
         Port_num = (MAD->AttributeModifier & 0x000000FF);
@@ -4505,13 +4505,13 @@ static gint parse_SwitchPortCongestionSetting(proto_tree *parentTree, tvbuff_t *
 }
 
 /* Parse HFICongestionLog Attribute */
-static gint parse_HFICongestionLog(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static int parse_HFICongestionLog(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     proto_item *HFICongestionLog_header_item;
     proto_tree *HFICongestionLog_header_tree;
     proto_tree *HFICongestionLog_Entry_tree;
-    guint i;
+    unsigned i;
 
     if (!parentTree || MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE)
         return *offset;
@@ -4554,10 +4554,10 @@ static gint parse_HFICongestionLog(proto_tree *parentTree, tvbuff_t *tvb, gint *
 }
 
 /* Parse HFICongestionSetting Attribute*/
-static gint parse_HFICongestionSetting(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static int parse_HFICongestionSetting(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
-    gint i;
-    gint local_offset = *offset;
+    int i;
+    int local_offset = *offset;
     proto_item *HFICongestionSetting_header_item;
     proto_tree *HFICongestionSetting_header_tree;
     proto_item *tempItem;
@@ -4599,14 +4599,14 @@ static gint parse_HFICongestionSetting(proto_tree *parentTree, tvbuff_t *tvb, gi
 }
 
 /* Parse HFICongestionControlTable Attribute*/
-static gint parse_HFICongestionControlTable(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static int parse_HFICongestionControlTable(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     proto_item *HFICongestionControlTable_header_item;
     proto_tree *HFICongestionControlTable_header_tree;
     proto_item *tempItem;
     proto_tree *tempBlock_tree;
-    guint b, i, Num_blocks, Block_Num;
+    unsigned b, i, Num_blocks, Block_Num;
 
     if (!parentTree || MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE)
         return *offset;
@@ -4640,13 +4640,13 @@ static gint parse_HFICongestionControlTable(proto_tree *parentTree, tvbuff_t *tv
     return local_offset;
 }
 /* Call appropriate parsing function */
-static gboolean call_SUBM_Parser(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD, guint16 AttributeID)
+static bool call_SUBM_Parser(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD, uint16_t AttributeID)
 {
     proto_tree *SUBM_Attribute_header_tree = parentTree;
-    gint local_offset = *offset;
+    int local_offset = *offset;
 
     if (!tvb_bytes_exist(tvb, local_offset, 8))
-        return TRUE;
+        return true;
 
     switch (AttributeID) {
     case SM_ATTR_ID_CLASS_PORT_INFO:
@@ -4736,22 +4736,22 @@ static gboolean call_SUBM_Parser(proto_tree *parentTree, tvbuff_t *tvb, gint *of
         local_offset = parse_HFICongestionControlTable(SUBM_Attribute_header_tree, tvb, offset, MAD);
         break;
     default:
-        return FALSE;
+        return false;
     }
     *offset = local_offset;
-    return TRUE;
+    return true;
 }
 
 /* Parse Aggregate Attribute */
-static gint parse_Aggregate(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static int parse_Aggregate(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
-    gint i;
-    guint requestLength;
-    gint numAttributes;
-    gint local_offset = *offset;
-    gint saved_offset;
-    guint16 LocalAttributeID = 0;
-    gboolean AggregatError = FALSE;
+    int i;
+    unsigned requestLength;
+    int numAttributes;
+    int local_offset = *offset;
+    int saved_offset;
+    uint16_t LocalAttributeID = 0;
+    bool AggregatError = false;
     proto_item *Aggregate_header_item;
     proto_item *Aggregate_Length_item;
     proto_item *Aggregate_Error_item;
@@ -4763,7 +4763,7 @@ static gint parse_Aggregate(proto_tree *parentTree, tvbuff_t *tvb, gint *offset,
     numAttributes = MAD->AttributeModifier & 0x000000FF;
 
     for (i = 0; i < numAttributes; i++) {
-        requestLength = (tvb_get_guint8(tvb, local_offset + 3) & 0x7F) * 8;
+        requestLength = (tvb_get_uint8(tvb, local_offset + 3) & 0x7F) * 8;
         if (i == numAttributes - 1 && MAD->Method == METHOD_GET) {
             Aggregate_header_item = proto_tree_add_item(parentTree, hf_opa_Aggregate, tvb, local_offset, 8, ENC_NA);
         } else {
@@ -4776,7 +4776,7 @@ static gint parse_Aggregate(proto_tree *parentTree, tvbuff_t *tvb, gint *offset,
         local_offset += 2;
         proto_item_set_text(Aggregate_header_item, "Aggregate %u: %s", i + 1, val_to_str(LocalAttributeID, SUBM_Attributes, "Unknown Attribute Type! (0x%02x)"));
 
-        AggregatError = (gboolean)tvb_get_bits(tvb, local_offset * 8, 1, ENC_BIG_ENDIAN);
+        AggregatError = (bool)tvb_get_bits(tvb, local_offset * 8, 1, ENC_BIG_ENDIAN);
         Aggregate_Error_item = proto_tree_add_item(Aggregate_header_tree, hf_opa_Aggregate_Error, tvb, local_offset, 2, ENC_BIG_ENDIAN);
         if (AggregatError)
             expert_add_info(NULL, Aggregate_Error_item, &ei_opa_aggregate_error);
@@ -4793,42 +4793,42 @@ static gint parse_Aggregate(proto_tree *parentTree, tvbuff_t *tvb, gint *offset,
         } else {
             saved_offset = local_offset;
             call_SUBM_Parser(Aggregate_header_tree, tvb, &local_offset, MAD, LocalAttributeID);
-            if (local_offset != (saved_offset + (gint)requestLength)) {
-                local_offset = saved_offset + (gint)requestLength;
+            if (local_offset != (saved_offset + (int)requestLength)) {
+                local_offset = saved_offset + (int)requestLength;
             }
         }
     }
     return local_offset;
 }
 /* Parse the attribute from a Subnet Management Packet. */
-static gboolean parse_SUBM_Attribute(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static bool parse_SUBM_Attribute(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     if (MAD->AttributeID == SM_ATTR_ID_AGGREGATE) {
         *offset = parse_Aggregate(parentTree, tvb, &local_offset, MAD);
-        return TRUE;
+        return true;
     } else
         return call_SUBM_Parser(parentTree, tvb, offset, MAD, MAD->AttributeID);
 }
 /* Parse the Method from the MAD Common Header. */
 static void label_SUBM_Method(proto_item *SubMItem, MAD_t *MAD, packet_info *pinfo)
 {
-    const gchar *label = val_to_str_const(MAD->Method, SUBM_Methods, "(Unknown SM Method!)");
+    const char *label = val_to_str_const(MAD->Method, SUBM_Methods, "(Unknown SM Method!)");
     proto_item_append_text(SubMItem, " %s", label);
     col_append_str(pinfo->cinfo, COL_INFO, label);
 }
 /* Parse the Attribute from the MAD Common Header */
 static void label_SUBM_Attribute(proto_item *SubMItem, MAD_t *MAD, packet_info *pinfo)
 {
-    const gchar *label = val_to_str_const(MAD->AttributeID, SUBM_Attributes, "Attribute (Unknown SM Attribute!)");
+    const char *label = val_to_str_const(MAD->AttributeID, SUBM_Attributes, "Attribute (Unknown SM Attribute!)");
     proto_item_append_text(SubMItem, "%s", &label[11]);
     col_append_str(pinfo->cinfo, COL_INFO, &label[11]);
 }
 /* Parse Subnet Management (LID Routed) */
-static void parse_SUBN_LID_ROUTED(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset)
+static void parse_SUBN_LID_ROUTED(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, int *offset)
 {
     MAD_t       MAD;
-    gint        local_offset;
+    int         local_offset;
     proto_item *SM_LID_header_item;
     proto_tree *SM_LID_header_tree;
 
@@ -4858,10 +4858,10 @@ static void parse_SUBN_LID_ROUTED(proto_tree *parentTree, packet_info *pinfo, tv
 }
 
 /* Parse Subnet Management (Directed Route) */
-static void parse_SUBN_DIRECTED_ROUTE(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset)
+static void parse_SUBN_DIRECTED_ROUTE(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, int *offset)
 {
     MAD_t        MAD;
-    gint local_offset;
+    int local_offset;
     proto_item *SM_DR_header_item;
     proto_tree *SM_DR_header_tree;
 
@@ -4901,12 +4901,12 @@ static void parse_SUBN_DIRECTED_ROUTE(proto_tree *parentTree, packet_info *pinfo
     *offset = local_offset;
 }
 
-static gint parse_PortInfoRecord(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static int parse_PortInfoRecord(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     proto_tree * PortInfoRecord_LinkDownReason_tree,
         *PortInfoRecord_LinkDownReason_Entry_tree;
-    gint i;
+    int i;
     local_offset = parse_PortInfo(parentTree, tvb, &local_offset, MAD);
 
     PortInfoRecord_LinkDownReason_tree = proto_tree_add_subtree(parentTree, tvb, local_offset, 8 * 16,
@@ -4931,9 +4931,9 @@ static gint parse_PortInfoRecord(proto_tree *parentTree, tvbuff_t *tvb, gint *of
 }
 
 /* Parse LinkRecord Attribute*/
-static gint parse_LinkRecord(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
+static int parse_LinkRecord(proto_tree *parentTree, tvbuff_t *tvb, int *offset)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     proto_item *LinkRecord_header_item;
     proto_tree *LinkRecord_header_tree;
 
@@ -4956,9 +4956,9 @@ static gint parse_LinkRecord(proto_tree *parentTree, tvbuff_t *tvb, gint *offset
 }
 
 /* Parse ServiceRecord Attribute*/
-static gint parse_ServiceRecord(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
+static int parse_ServiceRecord(proto_tree *parentTree, tvbuff_t *tvb, int *offset)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     proto_item *ServiceRecord_header_item;
     proto_tree *ServiceRecord_header_tree;
     proto_item *tempData;
@@ -4997,9 +4997,9 @@ static gint parse_ServiceRecord(proto_tree *parentTree, tvbuff_t *tvb, gint *off
 }
 
 /* Parse PathRecord Attribute*/
-static gint parse_PathRecord(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
+static int parse_PathRecord(proto_tree *parentTree, tvbuff_t *tvb, int *offset)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     proto_item * PathRecord_header_item;
     proto_tree * PathRecord_header_tree;
 
@@ -5061,9 +5061,9 @@ static gint parse_PathRecord(proto_tree *parentTree, tvbuff_t *tvb, gint *offset
 }
 
 /* Parse MCMemberRecord Attribute*/
-static gint parse_MCMemberRecord(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
+static int parse_MCMemberRecord(proto_tree *parentTree, tvbuff_t *tvb, int *offset)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     proto_item *MCMemberRecord_header_item;
     proto_tree *MCMemberRecord_header_tree;
 
@@ -5118,9 +5118,9 @@ static gint parse_MCMemberRecord(proto_tree *parentTree, tvbuff_t *tvb, gint *of
 }
 
 /* Parse TraceRecord Attribute*/
-static gint parse_TraceRecord(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
+static int parse_TraceRecord(proto_tree *parentTree, tvbuff_t *tvb, int *offset)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     proto_item *TraceRecord_header_item;
     proto_tree *TraceRecord_header_tree;
 
@@ -5156,21 +5156,21 @@ static gint parse_TraceRecord(proto_tree *parentTree, tvbuff_t *tvb, gint *offse
 }
 
 /* Parse MultiPathRecord Attribute*/
-static gint parse_MultiPathRecord_GID(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
+static int parse_MultiPathRecord_GID(proto_tree *parentTree, tvbuff_t *tvb, int *offset)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     proto_item *MultiPathRecord_header_item;
     proto_tree *MultiPathRecord_header_tree;
     proto_item *SDGID;
-    guint8 SGIDCount;
-    guint8 DGIDCount;
-    guint32 i;
+    uint8_t SGIDCount;
+    uint8_t DGIDCount;
+    uint32_t i;
 
     if (!parentTree)
         return *offset;
 
-    SGIDCount = tvb_get_guint8(tvb, local_offset + 14);
-    DGIDCount = tvb_get_guint8(tvb, local_offset + 15);
+    SGIDCount = tvb_get_uint8(tvb, local_offset + 14);
+    DGIDCount = tvb_get_uint8(tvb, local_offset + 15);
     MultiPathRecord_header_item = proto_tree_add_item(parentTree, hf_opa_MultiPathRecord, tvb, local_offset, 32 + (SGIDCount + DGIDCount) * 16, ENC_NA);
     proto_item_append_text(MultiPathRecord_header_item, " (GID)");
     MultiPathRecord_header_tree = proto_item_add_subtree(MultiPathRecord_header_item, ett_multipathrecord_gid);
@@ -5245,15 +5245,15 @@ static gint parse_MultiPathRecord_GID(proto_tree *parentTree, tvbuff_t *tvb, gin
 }
 
 /* Parse MultiPathRecord Attribute*/
-static gint parse_MultiPathRecord_GUID(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
+static int parse_MultiPathRecord_GUID(proto_tree *parentTree, tvbuff_t *tvb, int *offset)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     proto_item *MultiPathRecord_header_item;
     proto_tree *MultiPathRecord_header_tree;
     proto_item *SDGUID;
-    guint16 SGUIDCount;
-    guint16 DGUIDCount;
-    guint32 i;
+    uint16_t SGUIDCount;
+    uint16_t DGUIDCount;
+    uint32_t i;
 
     if (!parentTree)
         return *offset;
@@ -5336,15 +5336,15 @@ static gint parse_MultiPathRecord_GUID(proto_tree *parentTree, tvbuff_t *tvb, gi
 }
 
 /* Parse MultiPathRecord Attribute*/
-static gint parse_MultiPathRecord_lid(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
+static int parse_MultiPathRecord_lid(proto_tree *parentTree, tvbuff_t *tvb, int *offset)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     proto_item *MultiPathRecord_header_item;
     proto_tree *MultiPathRecord_header_tree;
     proto_item *SDLID;
-    guint16 SLIDCount;
-    guint16 DLIDCount;
-    guint32 i;
+    uint16_t SLIDCount;
+    uint16_t DLIDCount;
+    uint32_t i;
 
     if (!parentTree)
         return *offset;
@@ -5425,9 +5425,9 @@ static gint parse_MultiPathRecord_lid(proto_tree *parentTree, tvbuff_t *tvb, gin
 }
 
 /* Parse CableInfoRecord Attribute*/
-static gint parse_CableInfoRecord(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
+static int parse_CableInfoRecord(proto_tree *parentTree, tvbuff_t *tvb, int *offset)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     proto_item *CableInfoRecord_header_item;
     proto_tree *CableInfoRecord_header_tree;
 
@@ -5454,9 +5454,9 @@ static gint parse_CableInfoRecord(proto_tree *parentTree, tvbuff_t *tvb, gint *o
 }
 
 /* Parse ServiceAssociationRecord Attribute*/
-static gint parse_ServiceAssociationRecord(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
+static int parse_ServiceAssociationRecord(proto_tree *parentTree, tvbuff_t *tvb, int *offset)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     /* proto_item *ServiceAssociationRecord_header_item; */
     proto_tree *ServiceAssociationRecord_header_tree;
 
@@ -5476,9 +5476,9 @@ static gint parse_ServiceAssociationRecord(proto_tree *parentTree, tvbuff_t *tvb
     return local_offset;
 }
 
-static gint parse_VFInfoRecord(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
+static int parse_VFInfoRecord(proto_tree *parentTree, tvbuff_t *tvb, int *offset)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     proto_item *VFInfoRecord_header_item;
     proto_tree *VFInfoRecord_header_tree;
 
@@ -5539,9 +5539,9 @@ static gint parse_VFInfoRecord(proto_tree *parentTree, tvbuff_t *tvb, gint *offs
 
     return local_offset;
 }
-static gint parse_QuarantinedNodeRecord(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static int parse_QuarantinedNodeRecord(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     proto_item *QuarantinedNodeRecord_header_item;
     proto_tree *QuarantinedNodeRecord_header_tree;
 
@@ -5576,9 +5576,9 @@ static gint parse_QuarantinedNodeRecord(proto_tree *parentTree, tvbuff_t *tvb, g
 
     return local_offset;
 }
-static gint parse_FabricInfoRecord(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static int parse_FabricInfoRecord(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     proto_item *FabricInfoRecord_header_item;
     proto_tree *FabricInfoRecord_header_tree;
 
@@ -5614,9 +5614,9 @@ static gint parse_FabricInfoRecord(proto_tree *parentTree, tvbuff_t *tvb, gint *
     return local_offset;
 }
 /* Parse RID Field from Subnet Administration Packets. */
-static void parse_RID(proto_tree *SA_header_tree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static void parse_RID(proto_tree *SA_header_tree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
 
     if (!SA_header_tree)
         return;
@@ -5792,14 +5792,14 @@ static void parse_RID(proto_tree *SA_header_tree, tvbuff_t *tvb, gint *offset, M
     *offset = local_offset;
 }
 /* Parse the attribute from a Subnet Administration Packet. */
-static gboolean parse_SUBA_Attribute(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD, RMPP_t *RMPP, SA_HEADER_t *SA_HEADER)
+static bool parse_SUBA_Attribute(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD, RMPP_t *RMPP, SA_HEADER_t *SA_HEADER)
 {
     proto_tree *SUBA_Attribute_header_tree = parentTree;
-    gint local_offset = *offset;
+    int local_offset = *offset;
 
     if (RMPP->Type == RMPP_ACK || SA_HEADER->AttributeOffset == 0 || (RMPP->PayloadLength <= 20 && RMPP->Type == RMPP_DATA) ||
         (!pref_attempt_rmpp_defragment && RMPP->Type == RMPP_DATA && RMPP->SegmentNumber != 1))
-        return TRUE;
+        return true;
 
     /* Skim off the RID fields should they be present */
     parse_RID(SUBA_Attribute_header_tree, tvb, &local_offset, MAD);
@@ -5957,23 +5957,23 @@ static gboolean parse_SUBA_Attribute(proto_tree *parentTree, tvbuff_t *tvb, gint
         local_offset = parse_FabricInfoRecord(SUBA_Attribute_header_tree, tvb, &local_offset, MAD);
         break;
     default:
-        return FALSE;
+        return false;
     }
 
     *offset = local_offset;
-    return TRUE;
+    return true;
 }
 /* Parse the SA Method from the MAD Common Header. */
 static void label_SUBA_Method(proto_item *SubAItem, MAD_t *MAD, packet_info *pinfo)
 {
-    const gchar *label = val_to_str_const(MAD->Method, SUBA_Methods, "(Unknown SA Method!)");
+    const char *label = val_to_str_const(MAD->Method, SUBA_Methods, "(Unknown SA Method!)");
     proto_item_append_text(SubAItem, " %s", label);
     col_append_str(pinfo->cinfo, COL_INFO, label);
 }
 /* Parse the SA Attribute from the MAD Common Header */
 static void label_SUBA_Attribute(proto_item *SubAItem, MAD_t *MAD, packet_info *pinfo)
 {
-    const gchar *label = val_to_str_const(MAD->AttributeID, SUBA_Attributes, "Attribute (Unknown SA Attribute!)");
+    const char *label = val_to_str_const(MAD->AttributeID, SUBA_Attributes, "Attribute (Unknown SA Attribute!)");
     proto_item_append_text(SubAItem, "%s", &label[11]);
     col_append_str(pinfo->cinfo, COL_INFO, &label[11]);
 }
@@ -5981,9 +5981,9 @@ static void label_SUBA_Attribute(proto_item *SubAItem, MAD_t *MAD, packet_info *
 * IN: parentTree to add the dissection to
 * IN: tvb - the data buffer from wireshark
 * IN/OUT: The current and updated offset */
-static gboolean parse_SA_HEADER(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset, MAD_t *MAD, SA_HEADER_t *SA_HEADER)
+static bool parse_SA_HEADER(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, int *offset, MAD_t *MAD, SA_HEADER_t *SA_HEADER)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     proto_item *SA_HEADER_header_item;
     proto_tree *SA_HEADER_header_tree;
 
@@ -6007,21 +6007,21 @@ static gboolean parse_SA_HEADER(proto_tree *parentTree, packet_info *pinfo, tvbu
     label_SUBA_Attribute(SA_HEADER_header_item, MAD, pinfo);
 
     *offset = local_offset;
-    return TRUE;
+    return true;
 }
 /* Parse Subnet Administration */
-static void parse_SUBNADMN(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset)
+static void parse_SUBNADMN(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, int *offset)
 {
     MAD_t       MAD;
     RMPP_t      RMPP;
     SA_HEADER_t SA_HEADER;
     fragment_head *frag_head = NULL;
     tvbuff_t *old_tvb = NULL;
-    gint old_offset;
-    guint r, records, length;
+    int old_offset;
+    unsigned r, records, length;
     proto_tree *SA_record_tree;
-    const gchar *label;
-    gboolean parent_was_opa_fe = proto_is_frame_protocol(pinfo->layers, "opa.fe");
+    const char *label;
+    bool parent_was_opa_fe = proto_is_frame_protocol(pinfo->layers, "opa.fe");
 
     if (!parse_MAD_Common(parentTree, pinfo, tvb, offset, &MAD)) {
         return;
@@ -6044,10 +6044,10 @@ static void parse_SUBNADMN(proto_tree *parentTree, packet_info *pinfo, tvbuff_t 
             && (RMPP.resptime_flags & RMPP_FLAG_LAST_MASK))) {
 
         frag_head = fragment_add_seq_check(&opa_mad_rmpp_reassembly_table,
-            tvb, *offset, pinfo, (guint32)MAD.TransactionID, NULL, RMPP.SegmentNumber - 1,
+            tvb, *offset, pinfo, (uint32_t)MAD.TransactionID, NULL, RMPP.SegmentNumber - 1,
             ((RMPP.resptime_flags & RMPP_FLAG_LAST_MASK) ?
-                RMPP.PayloadLength - 20 : (guint32)tvb_captured_length_remaining(tvb, *offset)),
-            (gboolean)!(RMPP.resptime_flags & RMPP_FLAG_LAST_MASK));
+                RMPP.PayloadLength - 20 : (uint32_t)tvb_captured_length_remaining(tvb, *offset)),
+            (bool)!(RMPP.resptime_flags & RMPP_FLAG_LAST_MASK));
         /* Back up tvb & offset */
         old_tvb = tvb;
         old_offset = *offset;
@@ -6080,15 +6080,15 @@ static void parse_SUBNADMN(proto_tree *parentTree, packet_info *pinfo, tvbuff_t 
 }
 
 /* Parse PortStatus MAD from the Performance management class. */
-static gint parse_PortStatus(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static int parse_PortStatus(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
     proto_item *PortStatus_header_item;
     proto_tree *PortStatus_header_tree;
     proto_tree *PortStatus_VL_tree;
-    gint local_offset = *offset;
-    guint32 VLSelectMask;
-    guint i, VLs;
-    guint32 vlSelMskTmp;
+    int local_offset = *offset;
+    uint32_t VLSelectMask;
+    unsigned i, VLs;
+    uint32_t vlSelMskTmp;
 
     if (!parentTree)
         return *offset;
@@ -6228,12 +6228,12 @@ static gint parse_PortStatus(proto_tree *parentTree, tvbuff_t *tvb, gint *offset
 }
 
 /* Parse ClearPortStatus MAD from the Performance management class.*/
-static gint parse_ClearPortStatus(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static int parse_ClearPortStatus(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
     proto_item *ClearPortStatus_header_item;
     proto_tree *ClearPortStatus_header_tree;
     proto_item *ClearPortStatus_PortSelectMask_item;
-    gint local_offset = *offset;
+    int local_offset = *offset;
 
     if (!parentTree)
         return *offset;
@@ -6259,7 +6259,7 @@ static gint parse_ClearPortStatus(proto_tree *parentTree, tvbuff_t *tvb, gint *o
 }
 
 /* Parse DataPortCounters MAD from the Performance management class.*/
-static gint parse_DataPortCounters(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static int parse_DataPortCounters(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
     proto_item *DataPortCounters_header_item;
     proto_item *DataPortCounters_PortSelectMask_item;
@@ -6267,10 +6267,10 @@ static gint parse_DataPortCounters(proto_tree *parentTree, tvbuff_t *tvb, gint *
     proto_tree *DataPortCounters_Port_tree;
     proto_tree *DataPortCounters_VL_tree;
 
-    gint local_offset = *offset;
-    guint32 VLSelectMask, vlSelMskTmp;
-    guint VLs, i, p;
-    guint Num_Ports = (MAD->AttributeModifier >> 24) & 0xFF;
+    int local_offset = *offset;
+    uint32_t VLSelectMask, vlSelMskTmp;
+    unsigned VLs, i, p;
+    unsigned Num_Ports = (MAD->AttributeModifier >> 24) & 0xFF;
 
     if (!parentTree)
         return *offset;
@@ -6307,7 +6307,7 @@ static gint parse_DataPortCounters(proto_tree *parentTree, tvbuff_t *tvb, gint *
 
     for (p = 0; p < Num_Ports; p++) {
         DataPortCounters_Port_tree = proto_tree_add_subtree_format(DataPortCounters_header_tree, tvb, local_offset, (1 + 3 + 4 + (8 * 16) + VLs * (8 * 13)),
-            ett_dataportcounters_port, NULL, "Port %u", tvb_get_guint8(tvb, local_offset));
+            ett_dataportcounters_port, NULL, "Port %u", tvb_get_uint8(tvb, local_offset));
 
         proto_tree_add_item(DataPortCounters_Port_tree, hf_opa_DataPortCounters_PortNumber, tvb, local_offset, 1, ENC_BIG_ENDIAN);
         local_offset += 1;
@@ -6393,7 +6393,7 @@ static gint parse_DataPortCounters(proto_tree *parentTree, tvbuff_t *tvb, gint *
 }
 
 /* Parse ErrorPortCounters MAD from the Performance management class.*/
-static gint parse_ErrorPortCounters(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static int parse_ErrorPortCounters(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
     proto_item *ErrorPortCounters_header_item;
     proto_item *ErrorPortCounters_PortSelectMask_item;
@@ -6401,10 +6401,10 @@ static gint parse_ErrorPortCounters(proto_tree *parentTree, tvbuff_t *tvb, gint 
     proto_tree *ErrorPortCounters_header_tree;
     proto_tree *ErrorPortCounters_Port_tree;
 
-    gint local_offset = *offset;
-    guint32 VLSelectMask, vlSelMskTmp;
-    guint VLs, i, p;
-    guint Num_Ports = (MAD->AttributeModifier & 0xFF000000) >> 24;
+    int local_offset = *offset;
+    uint32_t VLSelectMask, vlSelMskTmp;
+    unsigned VLs, i, p;
+    unsigned Num_Ports = (MAD->AttributeModifier & 0xFF000000) >> 24;
 
     if (!parentTree)
         return *offset;
@@ -6439,7 +6439,7 @@ static gint parse_ErrorPortCounters(proto_tree *parentTree, tvbuff_t *tvb, gint 
 
     for (p = 0; p < Num_Ports; p++) {
         ErrorPortCounters_Port_tree = proto_tree_add_subtree_format(ErrorPortCounters_header_tree, tvb, local_offset, (96 + VLs * 8),
-            ett_errorportcounters_port, NULL, "Port %u", tvb_get_guint8(tvb, local_offset));
+            ett_errorportcounters_port, NULL, "Port %u", tvb_get_uint8(tvb, local_offset));
 
         proto_tree_add_item(ErrorPortCounters_Port_tree, hf_opa_ErrorPortCounters_PortNumber, tvb, local_offset, 1, ENC_BIG_ENDIAN);
         local_offset += 1;
@@ -6492,7 +6492,7 @@ static gint parse_ErrorPortCounters(proto_tree *parentTree, tvbuff_t *tvb, gint 
 }
 
 /* Parse ErrorPortInfo MAD from the Performance management class.*/
-static gint parse_ErrorPortInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static int parse_ErrorPortInfo(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
     proto_item *ErrorPortInfo_header_item;
     proto_item *ErrorPortInfo_PortSelectMask_item;
@@ -6507,9 +6507,9 @@ static gint parse_ErrorPortInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *off
         *UncorrectableErrorInfo_tree,
         *FMConfigErrorInfo_tree;
 
-    gint local_offset = *offset;
-    guint p, ErrorCode;
-    guint Num_Ports = (MAD->AttributeModifier & 0xFF000000) >> 24;
+    int local_offset = *offset;
+    unsigned p, ErrorCode;
+    unsigned Num_Ports = (MAD->AttributeModifier & 0xFF000000) >> 24;
 
     if (!parentTree)
         return *offset;
@@ -6544,7 +6544,7 @@ static gint parse_ErrorPortInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *off
     local_offset += 4;
     for (p = 0; p < Num_Ports; p++) {
         ErrorPortInfo_Port_tree = proto_tree_add_subtree_format(ErrorPortInfo_header_tree, tvb, local_offset, 72,
-            ett_errorportinfoport, NULL, "Port %u", tvb_get_guint8(tvb, local_offset));
+            ett_errorportinfoport, NULL, "Port %u", tvb_get_uint8(tvb, local_offset));
 
         proto_tree_add_item(ErrorPortInfo_Port_tree, hf_opa_ErrorPortInfo_PortNumber, tvb, local_offset, 1, ENC_BIG_ENDIAN);
         local_offset += 1;
@@ -6560,7 +6560,7 @@ static gint parse_ErrorPortInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *off
         proto_tree_add_item(PortRcvErrorInfo_tree, hf_opa_ErrorPortInfo_PortRcvErrorInfo_Status, tvb, local_offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(PortRcvErrorInfo_tree, hf_opa_ErrorPortInfo_PortRcvErrorInfo_reserved, tvb, local_offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(PortRcvErrorInfo_tree, hf_opa_ErrorPortInfo_PortRcvErrorInfo_ErrorCode, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-        ErrorCode = tvb_get_guint8(tvb, local_offset) & 0x0F;
+        ErrorCode = tvb_get_uint8(tvb, local_offset) & 0x0F;
         local_offset += 1;
         if (ErrorCode >= 1 && ErrorCode <= 12) {
             proto_tree_add_item(PortRcvErrorInfo_tree, hf_opa_ErrorPortInfo_PortRcvErrorInfo_PacketFlit1, tvb, local_offset, 8, ENC_BIG_ENDIAN);
@@ -6636,7 +6636,7 @@ static gint parse_ErrorPortInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *off
         proto_tree_add_item(PortRcvSwitchRelayErrorInfo_tree, hf_opa_ErrorPortInfo_PortRcvSwitchRelayErrorInfo_Status, tvb, local_offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(PortRcvSwitchRelayErrorInfo_tree, hf_opa_ErrorPortInfo_PortRcvSwitchRelayErrorInfo_reserved, tvb, local_offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(PortRcvSwitchRelayErrorInfo_tree, hf_opa_ErrorPortInfo_PortRcvSwitchRelayErrorInfo_ErrorCode, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-        ErrorCode = tvb_get_guint8(tvb, local_offset) & 0x0F;
+        ErrorCode = tvb_get_uint8(tvb, local_offset) & 0x0F;
         local_offset += 1;
         proto_tree_add_item(PortRcvSwitchRelayErrorInfo_tree, hf_opa_reserved24, tvb, local_offset, 3, ENC_BIG_ENDIAN);
         local_offset += 3;
@@ -6683,7 +6683,7 @@ static gint parse_ErrorPortInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *off
         proto_tree_add_item(FMConfigErrorInfo_tree, hf_opa_ErrorPortInfo_FMConfigErrorInfo_Status, tvb, local_offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(FMConfigErrorInfo_tree, hf_opa_ErrorPortInfo_FMConfigErrorInfo_reserved, tvb, local_offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(FMConfigErrorInfo_tree, hf_opa_ErrorPortInfo_FMConfigErrorInfo_ErrorCode, tvb, local_offset, 1, ENC_BIG_ENDIAN);
-        ErrorCode = tvb_get_guint8(tvb, local_offset) & 0x0F;
+        ErrorCode = tvb_get_uint8(tvb, local_offset) & 0x0F;
         local_offset += 1;
         switch (ErrorCode) {
         case 0:
@@ -6717,9 +6717,9 @@ static gint parse_ErrorPortInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *off
     }
     return local_offset;
 }
-static gboolean parse_PM_Attribute(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static bool parse_PM_Attribute(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
 
     switch (MAD->AttributeID) {
         /* Mgmt */
@@ -6742,17 +6742,17 @@ static gboolean parse_PM_Attribute(proto_tree *parentTree, tvbuff_t *tvb, gint *
         local_offset = parse_ErrorPortInfo(parentTree, tvb, &local_offset, MAD);
         break;
     default:
-        return FALSE;
+        return false;
     }
 
     *offset = local_offset;
-    return TRUE;
+    return true;
 }
 
 /* Parse the Method from the MAD Common Header. */
 static void label_PM_Method(proto_item *PMItem, MAD_t *MAD, packet_info *pinfo)
 {
-    const gchar *label = val_to_str_const(MAD->Method, PM_Methods, "(Unknown Perf Method!)");
+    const char *label = val_to_str_const(MAD->Method, PM_Methods, "(Unknown Perf Method!)");
     proto_item_append_text(PMItem, " %s", label);
     col_append_str(pinfo->cinfo, COL_INFO, label);
 }
@@ -6760,12 +6760,12 @@ static void label_PM_Method(proto_item *PMItem, MAD_t *MAD, packet_info *pinfo)
 /* Parse the Attribute from the MAD Common Header */
 static void label_PM_Attribute(proto_item *PMItem, MAD_t *MAD, packet_info *pinfo)
 {
-    const gchar *label = val_to_str_const(MAD->AttributeID, PM_Attributes, "Attribute (Unknown Perf Attribute!)");
+    const char *label = val_to_str_const(MAD->AttributeID, PM_Attributes, "Attribute (Unknown Perf Attribute!)");
     proto_item_append_text(PMItem, "%s", &label[11]);
     col_append_str(pinfo->cinfo, COL_INFO, &label[11]);
 }
 /* Parse Performance Management */
-static void parse_PERF(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset)
+static void parse_PERF(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, int *offset)
 {
     MAD_t        MAD;
     proto_item *PM_header_item;
@@ -6794,11 +6794,11 @@ static void parse_PERF(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb
 }
 
 /* Parse Image MAD from the Performance Admin class. */
-static gint parse_Image(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
+static int parse_Image(proto_tree *parentTree, tvbuff_t *tvb, int *offset)
 {
     proto_tree *Image_header_tree = parentTree;
 
-    gint local_offset = *offset;
+    int local_offset = *offset;
 
     if (!parentTree)
         return *offset;
@@ -6815,16 +6815,16 @@ static gint parse_Image(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
     return local_offset;
 }
 /* Parse GetGroupList MAD from the Performance Admin class.*/
-static gint parse_GetGroupList(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD, RMPP_t *RMPP, PA_HEADER_t *PA_HEADER)
+static int parse_GetGroupList(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD, RMPP_t *RMPP, PA_HEADER_t *PA_HEADER)
 {
     proto_item *GetGroupList_GroupName_item;
     proto_tree *GetGroupList_header_tree;
     proto_item *GetGroupList_header_item;
-    gint local_offset = *offset;
-    guint i;
+    int local_offset = *offset;
+    unsigned i;
 
-    guint length = tvb_captured_length_remaining(tvb, local_offset);
-    guint records = (PA_HEADER->AttributeOffset ? length / (PA_HEADER->AttributeOffset * 8) : 0);
+    unsigned length = tvb_captured_length_remaining(tvb, local_offset);
+    unsigned records = (PA_HEADER->AttributeOffset ? length / (PA_HEADER->AttributeOffset * 8) : 0);
 
     if (!parentTree || RMPP->Type != RMPP_DATA ||
         (MAD->Method != METHOD_GET_RESP && MAD->Method != METHOD_GETTABLE_RESP)) {
@@ -6844,7 +6844,7 @@ static gint parse_GetGroupList(proto_tree *parentTree, tvbuff_t *tvb, gint *offs
 }
 
 /* Parse GetGroupInfo MAD from the Performance Admin class.*/
-static gint parse_GetGroupInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD, RMPP_t *RMPP, PA_HEADER_t *PA_HEADER)
+static int parse_GetGroupInfo(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD, RMPP_t *RMPP, PA_HEADER_t *PA_HEADER)
 {
     proto_tree *GetGroupInfo_header_tree;
     proto_tree *GetGroupInfo_header_item;
@@ -6869,14 +6869,14 @@ static gint parse_GetGroupInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offs
     proto_item *GetGroupInfo_Error_Stats_Routing_Buckets_item;
     proto_item *GetGroupInfo_Error_Stats_Bucket_item;
 
-    gint local_offset = *offset;
-    guint i, r;
+    int local_offset = *offset;
+    unsigned i, r;
 
-    guint length = tvb_captured_length_remaining(tvb, local_offset);
-    guint records = (PA_HEADER->AttributeOffset ? length / (PA_HEADER->AttributeOffset * 8) : 0);
+    unsigned length = tvb_captured_length_remaining(tvb, local_offset);
+    unsigned records = (PA_HEADER->AttributeOffset ? length / (PA_HEADER->AttributeOffset * 8) : 0);
 
-    guint util = 100 / PM_UTIL_BUCKETS;     /* 0%+ 10%+ 20%+ ... 80%+ 90%+ */
-    guint err = 100 / (PM_ERR_BUCKETS - 1); /* 0%+ 25%+ 50%+ 75%+ 100%+ */
+    unsigned util = 100 / PM_UTIL_BUCKETS;     /* 0%+ 10%+ 20%+ ... 80%+ 90%+ */
+    unsigned err = 100 / (PM_ERR_BUCKETS - 1); /* 0%+ 25%+ 50%+ 75%+ 100%+ */
 
     if (!parentTree || (!pref_attempt_rmpp_defragment && RMPP->Type == RMPP_DATA && RMPP->SegmentNumber != 1))
         return *offset;
@@ -7131,7 +7131,7 @@ static gint parse_GetGroupInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offs
 }
 
 /* Parse GetGroupConfig MAD from the Performance Admin class.*/
-static gint parse_GetGroupConfig(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD, RMPP_t *RMPP, PA_HEADER_t *PA_HEADER)
+static int parse_GetGroupConfig(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD, RMPP_t *RMPP, PA_HEADER_t *PA_HEADER)
 {
     proto_item *GetGroupConfig_header_item;
     proto_tree *GetGroupConfig_header_tree = parentTree;
@@ -7139,11 +7139,11 @@ static gint parse_GetGroupConfig(proto_tree *parentTree, tvbuff_t *tvb, gint *of
     proto_item *GetGroupConfig_Port_item;
     proto_tree *GetGroupConfig_Port_tree;
 
-    gint local_offset = *offset;
-    guint i;
+    int local_offset = *offset;
+    unsigned i;
 
-    guint length = tvb_captured_length_remaining(tvb, local_offset);
-    guint records = (PA_HEADER->AttributeOffset ? length / (PA_HEADER->AttributeOffset * 8) : 0);
+    unsigned length = tvb_captured_length_remaining(tvb, local_offset);
+    unsigned records = (PA_HEADER->AttributeOffset ? length / (PA_HEADER->AttributeOffset * 8) : 0);
 
     if (!parentTree || (!pref_attempt_rmpp_defragment && RMPP->Type == RMPP_DATA && RMPP->SegmentNumber != 1))
         return *offset;
@@ -7167,7 +7167,7 @@ static gint parse_GetGroupConfig(proto_tree *parentTree, tvbuff_t *tvb, gint *of
             local_offset += 8;
             proto_tree_add_item(GetGroupConfig_Port_tree, hf_opa_GetGroupConfig_Port_nodeDesc, tvb, local_offset, 64, ENC_ASCII | ENC_NA);
             local_offset += 64;
-            proto_item_append_text(GetGroupConfig_Port_item, "LID: 0x%04x, Port: %u", tvb_get_ntohl(tvb, local_offset), tvb_get_guint8(tvb, local_offset + 4));
+            proto_item_append_text(GetGroupConfig_Port_item, "LID: 0x%04x, Port: %u", tvb_get_ntohl(tvb, local_offset), tvb_get_uint8(tvb, local_offset + 4));
             proto_tree_add_item(GetGroupConfig_Port_tree, hf_opa_GetGroupConfig_Port_NodeLID, tvb, local_offset, 4, ENC_BIG_ENDIAN);
             local_offset += 4;
             proto_tree_add_item(GetGroupConfig_Port_tree, hf_opa_GetGroupConfig_Port_PortNumber, tvb, local_offset, 1, ENC_BIG_ENDIAN);
@@ -7181,18 +7181,18 @@ static gint parse_GetGroupConfig(proto_tree *parentTree, tvbuff_t *tvb, gint *of
 }
 
 /* Parse GetPortCounters MAD from the Performance Admin class.*/
-static gint parse_GetPortCounters(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static int parse_GetPortCounters(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
     proto_tree *GetPortCounters_header_tree;
     proto_item *GetPortCounters_header_item;
 
-    gint local_offset = *offset;
+    int local_offset = *offset;
 
     if (!parentTree)
         return *offset;
 
     GetPortCounters_header_item = proto_tree_add_item(parentTree, hf_opa_GetPortCounters, tvb, local_offset, 232 + 16, ENC_NA);
-    proto_item_set_text(GetPortCounters_header_item, "Port Counters for LID: 0x%x Port: %u", tvb_get_ntohl(tvb, local_offset), tvb_get_guint8(tvb, local_offset + 4));
+    proto_item_set_text(GetPortCounters_header_item, "Port Counters for LID: 0x%x Port: %u", tvb_get_ntohl(tvb, local_offset), tvb_get_uint8(tvb, local_offset + 4));
     GetPortCounters_header_tree = proto_item_add_subtree(GetPortCounters_header_item, ett_getportcounters);
 
     proto_tree_add_item(GetPortCounters_header_tree, hf_opa_GetPortCounters_nodeLID, tvb, local_offset, 4, ENC_BIG_ENDIAN);
@@ -7284,18 +7284,18 @@ static gint parse_GetPortCounters(proto_tree *parentTree, tvbuff_t *tvb, gint *o
     return local_offset;
 }
 
-static gint parse_ClearPortCounters(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
+static int parse_ClearPortCounters(proto_tree *parentTree, tvbuff_t *tvb, int *offset)
 {
     proto_tree *ClearPortCounters_header_tree;
     proto_item *ClearPortCounters_header_item;
 
-    gint local_offset = *offset;
+    int local_offset = *offset;
 
     if (!parentTree)
         return *offset;
 
     ClearPortCounters_header_item = proto_tree_add_item(parentTree, hf_opa_ClearPortCounters, tvb, local_offset, 20, ENC_NA);
-    proto_item_set_text(ClearPortCounters_header_item, "Clear User Port Counters for LID: 0x%x Port: %u", tvb_get_ntohl(tvb, local_offset), tvb_get_guint8(tvb, local_offset + 4));
+    proto_item_set_text(ClearPortCounters_header_item, "Clear User Port Counters for LID: 0x%x Port: %u", tvb_get_ntohl(tvb, local_offset), tvb_get_uint8(tvb, local_offset + 4));
     ClearPortCounters_header_tree = proto_item_add_subtree(ClearPortCounters_header_item, ett_clearportcounters);
 
     proto_tree_add_item(ClearPortCounters_header_tree, hf_opa_ClearPortCounters_nodeLID, tvb, local_offset, 4, ENC_BIG_ENDIAN);
@@ -7315,13 +7315,13 @@ static gint parse_ClearPortCounters(proto_tree *parentTree, tvbuff_t *tvb, gint 
     return local_offset;
 }
 
-static gint parse_ClearAllPortCounters(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
+static int parse_ClearAllPortCounters(proto_tree *parentTree, tvbuff_t *tvb, int *offset)
 {
 
     proto_tree *ClearAllPortCounters_header_tree;
     proto_item *ClearAllPortCounters_header_item;
 
-    gint local_offset = *offset;
+    int local_offset = *offset;
 
     if (!parentTree)
         return *offset;
@@ -7338,12 +7338,12 @@ static gint parse_ClearAllPortCounters(proto_tree *parentTree, tvbuff_t *tvb, gi
     return local_offset;
 }
 
-static gint parse_PMConfig(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
+static int parse_PMConfig(proto_tree *parentTree, tvbuff_t *tvb, int *offset)
 {
     proto_tree *PMConfig_header_tree;
     proto_item *PMConfig_header_item;
 
-    gint local_offset = *offset;
+    int local_offset = *offset;
 
     if (!parentTree)
         return *offset;
@@ -7438,7 +7438,7 @@ static gint parse_PMConfig(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
 }
 
 /* Parse MoveFreezeFrame MAD from the Performance Admin class. */
-static gint parse_MoveFreezeFrame(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
+static int parse_MoveFreezeFrame(proto_tree *parentTree, tvbuff_t *tvb, int *offset)
 {
     proto_tree *MoveFreezeFrame_header_tree = parentTree;
     proto_item *MoveFreezeFrame_old_item;
@@ -7446,7 +7446,7 @@ static gint parse_MoveFreezeFrame(proto_tree *parentTree, tvbuff_t *tvb, gint *o
     proto_item *MoveFreezeFrame_new_item;
     proto_tree *MoveFreezeFrame_new_tree;
 
-    gint local_offset = *offset;
+    int local_offset = *offset;
 
     if (!parentTree)
         return *offset;
@@ -7463,7 +7463,7 @@ static gint parse_MoveFreezeFrame(proto_tree *parentTree, tvbuff_t *tvb, gint *o
 }
 
 /* Parse GetFocusPorts MAD from the Performance Admin class. */
-static gint parse_GetFocusPorts(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD, RMPP_t *RMPP, PA_HEADER_t *PA_HEADER)
+static int parse_GetFocusPorts(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD, RMPP_t *RMPP, PA_HEADER_t *PA_HEADER)
 {
     proto_tree *GetFocusPorts_header_tree;
     proto_item *GetFocusPorts_header_item;
@@ -7471,11 +7471,11 @@ static gint parse_GetFocusPorts(proto_tree *parentTree, tvbuff_t *tvb, gint *off
     proto_tree *GetFocusPorts_Port_tree;
     proto_item *GetFocusPorts_Port_item;
 
-    gint local_offset = *offset;
-    guint i = 0;
+    int local_offset = *offset;
+    unsigned i = 0;
 
-    guint length = tvb_captured_length_remaining(tvb, local_offset);
-    guint records = (PA_HEADER->AttributeOffset ? length / (PA_HEADER->AttributeOffset * 8) : 0);
+    unsigned length = tvb_captured_length_remaining(tvb, local_offset);
+    unsigned records = (PA_HEADER->AttributeOffset ? length / (PA_HEADER->AttributeOffset * 8) : 0);
 
     if (!parentTree || (!pref_attempt_rmpp_defragment && RMPP->Type == RMPP_DATA && RMPP->SegmentNumber != 1))
         return *offset;
@@ -7504,7 +7504,7 @@ static gint parse_GetFocusPorts(proto_tree *parentTree, tvbuff_t *tvb, gint *off
             local_offset = parse_Image(GetFocusPorts_Port_tree, tvb, &local_offset);
 
             proto_item_append_text(GetFocusPorts_Port_item, "LID: %04x, Port %u",
-                tvb_get_ntohl(tvb, local_offset), tvb_get_guint8(tvb, local_offset + 4));
+                tvb_get_ntohl(tvb, local_offset), tvb_get_uint8(tvb, local_offset + 4));
             proto_tree_add_item(GetFocusPorts_Port_tree, hf_opa_GetFocusPorts_nodeLID, tvb, local_offset, 4, ENC_BIG_ENDIAN);
             local_offset += 4;
             proto_tree_add_item(GetFocusPorts_Port_tree, hf_opa_GetFocusPorts_portNumber, tvb, local_offset, 1, ENC_BIG_ENDIAN);
@@ -7541,14 +7541,14 @@ static gint parse_GetFocusPorts(proto_tree *parentTree, tvbuff_t *tvb, gint *off
 }
 
 /* Parse GetImageInfo MAD from the Performance Admin class. */
-static gint parse_GetImageInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
+static int parse_GetImageInfo(proto_tree *parentTree, tvbuff_t *tvb, int *offset)
 {
     proto_tree *GetImageInfo_header_tree = parentTree;
     proto_item *GetImageInfo_header_item;
     proto_tree *GetImageInfo_SM_tree;
-    guint32 numSMs;
+    uint32_t numSMs;
 
-    gint local_offset = *offset;
+    int local_offset = *offset;
 
     if (!parentTree)
         return *offset;
@@ -7630,17 +7630,17 @@ static gint parse_GetImageInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offs
 }
 
 /* Parse GetVFList MAD from the Performance Admin class. */
-static gint parse_GetVFList(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD, RMPP_t *RMPP, PA_HEADER_t *PA_HEADER)
+static int parse_GetVFList(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD, RMPP_t *RMPP, PA_HEADER_t *PA_HEADER)
 {
     proto_item *GetVFList_GroupName_item;
     proto_tree *GetVFList_header_tree;
     proto_item *GetVFList_header_item;
 
-    gint local_offset = *offset;
-    guint i;
+    int local_offset = *offset;
+    unsigned i;
 
-    guint length = tvb_captured_length_remaining(tvb, local_offset);
-    guint records = (PA_HEADER->AttributeOffset ? length / (PA_HEADER->AttributeOffset * 8) : 0);
+    unsigned length = tvb_captured_length_remaining(tvb, local_offset);
+    unsigned records = (PA_HEADER->AttributeOffset ? length / (PA_HEADER->AttributeOffset * 8) : 0);
 
     if (!parentTree || RMPP->Type != RMPP_DATA ||
         (MAD->Method != METHOD_GET_RESP && MAD->Method != METHOD_GETTABLE_RESP)) {
@@ -7661,7 +7661,7 @@ static gint parse_GetVFList(proto_tree *parentTree, tvbuff_t *tvb, gint *offset,
 }
 
 /* Parse GetVFInfo MAD from the Performance Admin class. */
-static gint parse_GetVFInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD, RMPP_t *RMPP, PA_HEADER_t *PA_HEADER)
+static int parse_GetVFInfo(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD, RMPP_t *RMPP, PA_HEADER_t *PA_HEADER)
 {
     proto_tree *GetVFInfo_header_tree = parentTree;
     proto_tree *GetVFInfo_header_item = parentTree;
@@ -7686,14 +7686,14 @@ static gint parse_GetVFInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset,
     proto_item *GetVFInfo_Error_Stats_Routing_Buckets_item;
     proto_item *GetVFInfo_Error_Stats_Bucket_item;
 
-    gint local_offset = *offset;
-    guint i;
+    int local_offset = *offset;
+    unsigned i;
 
-    guint length = tvb_captured_length_remaining(tvb, local_offset);
-    guint records = (PA_HEADER->AttributeOffset ? length / (PA_HEADER->AttributeOffset * 8) : 0);
+    unsigned length = tvb_captured_length_remaining(tvb, local_offset);
+    unsigned records = (PA_HEADER->AttributeOffset ? length / (PA_HEADER->AttributeOffset * 8) : 0);
 
-    guint util = 100 / PM_UTIL_BUCKETS;     /* 0%+ 10%+ 20%+ ... 80%+ 90%+ */
-    guint err = 100 / (PM_ERR_BUCKETS - 1); /* 0%+ 25%+ 50%+ 75%+ 100%+ */
+    unsigned util = 100 / PM_UTIL_BUCKETS;     /* 0%+ 10%+ 20%+ ... 80%+ 90%+ */
+    unsigned err = 100 / (PM_ERR_BUCKETS - 1); /* 0%+ 25%+ 50%+ 75%+ 100%+ */
 
     if (!parentTree || (!pref_attempt_rmpp_defragment && RMPP->Type == RMPP_DATA && RMPP->SegmentNumber != 1)) {
         return *offset;
@@ -7828,18 +7828,18 @@ static gint parse_GetVFInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset,
 }
 
 /* Parse GetVFConfig MAD from the Performance Admin class. */
-static gint parse_GetVFConfig(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD, RMPP_t *RMPP, PA_HEADER_t *PA_HEADER)
+static int parse_GetVFConfig(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD, RMPP_t *RMPP, PA_HEADER_t *PA_HEADER)
 {
     proto_tree *GetVFConfig_header_tree;
     proto_item *GetVFConfig_header_item;
     proto_item *GetVFConfig_Port_item;
     proto_tree *GetVFConfig_Port_tree;
 
-    gint local_offset = *offset;
-    guint i;
+    int local_offset = *offset;
+    unsigned i;
 
-    guint length = tvb_captured_length_remaining(tvb, local_offset);
-    guint records = (PA_HEADER->AttributeOffset ? length / (PA_HEADER->AttributeOffset * 8) : 0);
+    unsigned length = tvb_captured_length_remaining(tvb, local_offset);
+    unsigned records = (PA_HEADER->AttributeOffset ? length / (PA_HEADER->AttributeOffset * 8) : 0);
 
     if (!parentTree || (!pref_attempt_rmpp_defragment && RMPP->Type == RMPP_DATA && RMPP->SegmentNumber != 1))
         return *offset;
@@ -7865,7 +7865,7 @@ static gint parse_GetVFConfig(proto_tree *parentTree, tvbuff_t *tvb, gint *offse
             local_offset += 8;
             proto_tree_add_item(GetVFConfig_Port_tree, hf_opa_GetVFConfig_Port_nodeDesc, tvb, local_offset, 64, ENC_ASCII | ENC_NA);
             local_offset += 64;
-            proto_item_append_text(GetVFConfig_Port_item, "LID: 0x%04x, Port: %u", tvb_get_ntohl(tvb, local_offset), tvb_get_guint8(tvb, local_offset + 4));
+            proto_item_append_text(GetVFConfig_Port_item, "LID: 0x%04x, Port: %u", tvb_get_ntohl(tvb, local_offset), tvb_get_uint8(tvb, local_offset + 4));
             proto_tree_add_item(GetVFConfig_Port_tree, hf_opa_GetVFConfig_Port_NodeLID, tvb, local_offset, 4, ENC_BIG_ENDIAN);
             local_offset += 4;
             proto_tree_add_item(GetVFConfig_Port_tree, hf_opa_GetVFConfig_Port_PortNumber, tvb, local_offset, 1, ENC_BIG_ENDIAN);
@@ -7879,12 +7879,12 @@ static gint parse_GetVFConfig(proto_tree *parentTree, tvbuff_t *tvb, gint *offse
 }
 
 /* Parse GetVFPortCounters MAD from the Performance Admin class. */
-static gint parse_GetVFPortCounters(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
+static int parse_GetVFPortCounters(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD)
 {
     proto_tree *GetVFPortCounters_header_tree;
     proto_item *GetVFPortCounters_header_item;
 
-    gint local_offset = *offset;
+    int local_offset = *offset;
 
     if (!parentTree)
         return *offset;
@@ -7950,12 +7950,12 @@ static gint parse_GetVFPortCounters(proto_tree *parentTree, tvbuff_t *tvb, gint 
 }
 
 /* Parse ClearVFPortCounters MAD from the Performance Admin class. */
-static gint parse_ClearVFPortCounters(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
+static int parse_ClearVFPortCounters(proto_tree *parentTree, tvbuff_t *tvb, int *offset)
 {
     proto_tree *ClearVFPortCounters_header_tree;
     proto_item *ClearVFPortCounters_header_item;
 
-    gint local_offset = *offset;
+    int local_offset = *offset;
 
     if (!parentTree)
         return *offset;
@@ -7986,18 +7986,18 @@ static gint parse_ClearVFPortCounters(proto_tree *parentTree, tvbuff_t *tvb, gin
 }
 
 /* Parse GetVFFocusPorts MAD from the Performance Admin class. */
-static gint parse_GetVFFocusPorts(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD, RMPP_t *RMPP, PA_HEADER_t *PA_HEADER)
+static int parse_GetVFFocusPorts(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD, RMPP_t *RMPP, PA_HEADER_t *PA_HEADER)
 {
     proto_tree *GetVFFocusPorts_header_tree;
     proto_item *GetVFFocusPorts_header_item;
 
     proto_tree *GetVFFocusPorts_Port_tree;
 
-    gint local_offset = *offset;
-    guint i;
+    int local_offset = *offset;
+    unsigned i;
 
-    guint length = tvb_captured_length_remaining(tvb, local_offset);
-    guint records = (PA_HEADER->AttributeOffset ? length / (PA_HEADER->AttributeOffset * 8) : 0);
+    unsigned length = tvb_captured_length_remaining(tvb, local_offset);
+    unsigned records = (PA_HEADER->AttributeOffset ? length / (PA_HEADER->AttributeOffset * 8) : 0);
 
     if (!parentTree || (!pref_attempt_rmpp_defragment && RMPP->Type == RMPP_DATA && RMPP->SegmentNumber != 1))
         return *offset;
@@ -8024,7 +8024,7 @@ static gint parse_GetVFFocusPorts(proto_tree *parentTree, tvbuff_t *tvb, gint *o
             GetVFFocusPorts_Port_tree = proto_tree_add_subtree_format(GetVFFocusPorts_header_tree,
                 tvb, local_offset, PA_HEADER->AttributeOffset * 8, ett_getvffocusportsport, NULL,
                 "%3u: LID: 0x%04x, Port: %u",
-                i, tvb_get_ntohl(tvb, local_offset), tvb_get_guint8(tvb, local_offset + 4));
+                i, tvb_get_ntohl(tvb, local_offset), tvb_get_uint8(tvb, local_offset + 4));
             proto_tree_add_item(GetVFFocusPorts_Port_tree, hf_opa_GetVFFocusPorts_nodeLID, tvb, local_offset, 4, ENC_BIG_ENDIAN);
             local_offset += 4;
             proto_tree_add_item(GetVFFocusPorts_Port_tree, hf_opa_GetVFFocusPorts_portNumber, tvb, local_offset, 1, ENC_BIG_ENDIAN);
@@ -8059,9 +8059,9 @@ static gint parse_GetVFFocusPorts(proto_tree *parentTree, tvbuff_t *tvb, gint *o
 
     return local_offset;
 }
-static gboolean parse_PA_Attribute(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, MAD_t *MAD, RMPP_t *RMPP, PA_HEADER_t *PA_HEADER)
+static bool parse_PA_Attribute(proto_tree *parentTree, tvbuff_t *tvb, int *offset, MAD_t *MAD, RMPP_t *RMPP, PA_HEADER_t *PA_HEADER)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
 
     switch (MAD->AttributeID) {
     case PA_ATTR_ID_CLASS_PORTINFO:
@@ -8125,17 +8125,17 @@ static gboolean parse_PA_Attribute(proto_tree *parentTree, tvbuff_t *tvb, gint *
         local_offset = parse_GetVFFocusPorts(parentTree, tvb, &local_offset, MAD, RMPP, PA_HEADER);
         break;
     default:
-        return FALSE;
+        return false;
     }
 
     *offset = local_offset;
-    return TRUE;
+    return true;
 }
 
 /* Parse the Method from the MAD Common Header. */
 static void label_PA_Method(proto_item *PAItem, MAD_t *MAD, packet_info *pinfo)
 {
-    const gchar *label = val_to_str_const(MAD->Method, PA_Methods, "(Unknown Perf Method!)");
+    const char *label = val_to_str_const(MAD->Method, PA_Methods, "(Unknown Perf Method!)");
     proto_item_append_text(PAItem, " %s", label);
     col_append_str(pinfo->cinfo, COL_INFO, label);
 }
@@ -8143,7 +8143,7 @@ static void label_PA_Method(proto_item *PAItem, MAD_t *MAD, packet_info *pinfo)
 /* Parse the Attribute from the MAD Common Header */
 static void label_PA_Attribute(proto_item *PAItem, MAD_t *MAD, packet_info *pinfo)
 {
-    const gchar *label = val_to_str_const(MAD->AttributeID, PA_Attributes, "Attribute (Unknown Perf Attribute!)");
+    const char *label = val_to_str_const(MAD->AttributeID, PA_Attributes, "Attribute (Unknown Perf Attribute!)");
     proto_item_append_text(PAItem, "%s", &label[11]);
     col_append_str(pinfo->cinfo, COL_INFO, &label[11]);
 }
@@ -8151,9 +8151,9 @@ static void label_PA_Attribute(proto_item *PAItem, MAD_t *MAD, packet_info *pinf
 * IN: parentTree to add the dissection to
 * IN: tvb - the data buffer from wireshark
 * IN/OUT: The current and updated offset */
-static gboolean parse_PA_HEADER(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset, MAD_t *MAD, PA_HEADER_t *PA_HEADER)
+static bool parse_PA_HEADER(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, int *offset, MAD_t *MAD, PA_HEADER_t *PA_HEADER)
 {
-    gint local_offset = *offset;
+    int local_offset = *offset;
     proto_item *PA_HEADER_header_item;
     proto_tree *PA_HEADER_header_tree;
 
@@ -8177,18 +8177,18 @@ static gboolean parse_PA_HEADER(proto_tree *parentTree, packet_info *pinfo, tvbu
     label_PA_Attribute(PA_HEADER_header_item, MAD, pinfo);
 
     *offset = local_offset;
-    return TRUE;
+    return true;
 }
 /* Parse Performance Administration */
-static void parse_PERFADMN(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset)
+static void parse_PERFADMN(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, int *offset)
 {
     MAD_t       MAD;
     RMPP_t      RMPP;
     PA_HEADER_t PA_HEADER;
     fragment_head *frag_head = NULL;
     tvbuff_t *old_tvb = NULL;
-    gint old_offset;
-    gboolean parent_was_opa_fe = proto_is_frame_protocol(pinfo->layers, "opa.fe");
+    int old_offset;
+    bool parent_was_opa_fe = proto_is_frame_protocol(pinfo->layers, "opa.fe");
 
     if (!parse_MAD_Common(parentTree, pinfo, tvb, offset, &MAD)) {
         return;
@@ -8211,10 +8211,10 @@ static void parse_PERFADMN(proto_tree *parentTree, packet_info *pinfo, tvbuff_t 
             && (RMPP.resptime_flags & RMPP_FLAG_LAST_MASK))) {
 
         frag_head = fragment_add_seq_check(&opa_mad_rmpp_reassembly_table,
-            tvb, *offset, pinfo, (guint32)MAD.TransactionID, NULL, RMPP.SegmentNumber - 1,
+            tvb, *offset, pinfo, (uint32_t)MAD.TransactionID, NULL, RMPP.SegmentNumber - 1,
             ((RMPP.resptime_flags & RMPP_FLAG_LAST_MASK) ?
-                RMPP.PayloadLength - 20 : (guint32)tvb_captured_length_remaining(tvb, *offset)),
-            (gboolean)!(RMPP.resptime_flags & RMPP_FLAG_LAST_MASK));
+                RMPP.PayloadLength - 20 : (uint32_t)tvb_captured_length_remaining(tvb, *offset)),
+            (bool)!(RMPP.resptime_flags & RMPP_FLAG_LAST_MASK));
         /* Back up tvb & offset */
         old_tvb = tvb;
         old_offset = *offset;
@@ -8235,7 +8235,7 @@ static void parse_PERFADMN(proto_tree *parentTree, packet_info *pinfo, tvbuff_t 
 }
 /* Parse Vendor Specific Management Packets */
 /* TBD: Replace with dissector table to call other possible dissectors */
-static void parse_VENDOR_MANAGEMENT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset)
+static void parse_VENDOR_MANAGEMENT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, int *offset)
 {
     MAD_t  MAD;
     RMPP_t RMPP;
@@ -8269,7 +8269,7 @@ static void parse_VENDOR_MANAGEMENT(proto_tree *parentTree, packet_info *pinfo, 
 
 /* Parse Application Specific Management Packets */
 /* TBD: Replace with dissector table to call other possible dissectors */
-static void parse_APPLICATION_MANAGEMENT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset)
+static void parse_APPLICATION_MANAGEMENT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, int *offset)
 {
     MAD_t  MAD;
 
@@ -8292,7 +8292,7 @@ static void parse_APPLICATION_MANAGEMENT(proto_tree *parentTree, packet_info *pi
 }
 
 /* Parse Reserved Management Packets --- ERROR */
-static void parse_RESERVED_MANAGEMENT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset)
+static void parse_RESERVED_MANAGEMENT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, int *offset)
 {
     MAD_t  MAD;
 
@@ -8316,7 +8316,7 @@ static void parse_RESERVED_MANAGEMENT(proto_tree *parentTree, packet_info *pinfo
 
 /* Parse Unknown Management Packets --- WARNING */
 /* TBD: Replace with dissector table to call other possible dissectors */
-static void parse_UNKNOWN_MANAGEMENT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset)
+static void parse_UNKNOWN_MANAGEMENT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, int *offset)
 {
     MAD_t  MAD;
 
@@ -8341,11 +8341,11 @@ static void parse_UNKNOWN_MANAGEMENT(proto_tree *parentTree, packet_info *pinfo,
 /* Main OPA MAD dissector */
 static int dissect_opa_mad(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    gint offset = 0;                /* Current Offset */
-    guint8 management_class;
-    guint16 etype, reserved;
+    int offset = 0;                /* Current Offset */
+    uint8_t management_class;
+    uint16_t etype, reserved;
     dissector_handle_t dissector_found = NULL;
-    gboolean parent_was_opa_fe = proto_is_frame_protocol(pinfo->layers, "opa.fe");
+    bool parent_was_opa_fe = proto_is_frame_protocol(pinfo->layers, "opa.fe");
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Omni-Path");
     col_clear_fence(pinfo->cinfo, COL_INFO);
@@ -8353,7 +8353,7 @@ static int dissect_opa_mad(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     /* management datagrams are determined by the source/destination QPs */
     if (pinfo->srcport == 0 || pinfo->srcport == 1 || pinfo->destport == 0
         || pinfo->destport == 1 || parent_was_opa_fe) {
-        management_class = tvb_get_guint8(tvb, offset + 1);
+        management_class = tvb_get_uint8(tvb, offset + 1);
         if (value_is_in_range(global_mad_vendor_class, management_class) ||
             value_is_in_range(global_mad_vendor_rmpp_class, management_class)) {
             /* parse vendor specific */
@@ -13466,7 +13466,7 @@ void proto_register_opa_mad(void)
         }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_payload,
         &ett_sm_lid,
         &ett_sm_dr,

@@ -369,73 +369,73 @@ static const true_false_string opensafety_addparam_request = { "Header only", "H
 
 typedef struct _opensafety_packet_spdo
 {
-    guint16 timerequest;
+    uint16_t timerequest;
 
-    gboolean conn_valid;
+    bool conn_valid;
 
-    gboolean counter_40bit;
+    bool counter_40bit;
 
     union {
-        guint16 b16;
-        guint64 b40;
+        uint16_t b16;
+        uint64_t b40;
     } counter;
 
     struct {
-        gboolean enabled40bit;
-        gboolean requested40bit;
+        bool enabled40bit;
+        bool requested40bit;
     } flags;
 
 } opensafety_packet_spdo;
 
 typedef struct _opensafety_packet_ssdo
 {
-    gboolean is_slim;
+    bool is_slim;
 
     struct {
-        gboolean end_segment;
-        gboolean initiate;
-        gboolean toggle;
-        gboolean segmented;
-        gboolean abort_transfer;
-        gboolean preload;
-        gboolean read_access;
+        bool end_segment;
+        bool initiate;
+        bool toggle;
+        bool segmented;
+        bool abort_transfer;
+        bool preload;
+        bool read_access;
     } sacmd;
 } opensafety_packet_ssdo;
 
 typedef struct _opensafety_packet_snmt
 {
-    guint8 ext_msg_id;
+    uint8_t ext_msg_id;
 
     struct {
-        gboolean exists;
-        guint8 id;
-        guint8 set;
-        gboolean full;
+        bool exists;
+        uint8_t id;
+        uint8_t set;
+        bool full;
     } add_param;
 
     struct {
-        guint16 actual;
-        guint16 additional;
+        uint16_t actual;
+        uint16_t additional;
     } add_saddr;
 
-    guint64 init_ct;
+    uint64_t init_ct;
 
-    gchar * scm_udid;
-    gchar * sn_udid;
+    char * scm_udid;
+    char * sn_udid;
 
-    guint8 error_code;
+    uint8_t error_code;
 } opensafety_packet_snmt;
 
 typedef struct _opensafety_packet_frame
 {
-    gboolean malformed;
+    bool malformed;
 
-    guint16 subframe1;
-    guint16 subframe2;
+    uint16_t subframe1;
+    uint16_t subframe2;
 
-    guint length;
+    unsigned length;
 
-    guint16 byte_offset;
+    uint16_t byte_offset;
 
     tvbuff_t *frame_tvb;
 
@@ -443,34 +443,34 @@ typedef struct _opensafety_packet_frame
 
 typedef struct _opensafety_packet_crc
 {
-    guint8  type;
+    uint8_t type;
 
-    guint16 frame1;
-    guint16 frame2;
+    uint16_t frame1;
+    uint16_t frame2;
 
-    gboolean valid1;
-    gboolean valid2;
+    bool valid1;
+    bool valid2;
 } opensafety_packet_crc;
 
 typedef struct _opensafety_packet_info
 {
     opensafety_packet_frame frame;
 
-    guint16 saddr;
-    guint16 sdn;
+    uint16_t saddr;
+    uint16_t sdn;
 
-    guint16 sender;
-    guint16 receiver;
+    uint16_t sender;
+    uint16_t receiver;
 
-    gboolean is_request;
+    bool is_request;
 
-    guint8  msg_id;    /**< The exact transported message id */
-    guint8  msg_type;  /**< Only represents the general type, e.g. SPDO, SSDO, Slim SSDO and SNMT */
-    guint8  msg_len;
-    guint   frame_len;
+    uint8_t msg_id;    /**< The exact transported message id */
+    uint8_t msg_type;  /**< Only represents the general type, e.g. SPDO, SSDO, Slim SSDO and SNMT */
+    uint8_t msg_len;
+    unsigned   frame_len;
 
-    guint8   scm_udid[6];
-    gboolean scm_udid_valid;
+    uint8_t  scm_udid[6];
+    bool scm_udid_valid;
 
     opensafety_packet_crc crc;
 

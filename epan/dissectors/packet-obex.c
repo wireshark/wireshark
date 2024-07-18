@@ -349,8 +349,8 @@ static int hf_obex_fragment_count;
 static int hf_obex_reassembled_in;
 static int hf_obex_reassembled_length;
 
-static gint ett_obex_fragment;
-static gint ett_obex_fragments;
+static int ett_obex_fragment;
+static int ett_obex_fragments;
 
 static dissector_handle_t obex_handle;
 static dissector_handle_t raw_application_parameters_handle;
@@ -382,15 +382,15 @@ static const fragment_items obex_frag_items = {
 };
 
 /* Initialize the subtree pointers */
-static gint ett_obex;
-static gint ett_obex_hdrs;
-static gint ett_obex_hdr;
-static gint ett_obex_hdr_id;
-static gint ett_obex_filter;
-static gint ett_obex_parameter;
-static gint ett_obex_session_parameters;
-static gint ett_obex_application_parameters;
-static gint ett_obex_authentication_parameters;
+static int ett_obex;
+static int ett_obex_hdrs;
+static int ett_obex_hdr;
+static int ett_obex_hdr_id;
+static int ett_obex_filter;
+static int ett_obex_parameter;
+static int ett_obex_session_parameters;
+static int ett_obex_application_parameters;
+static int ett_obex_authentication_parameters;
 
 static wmem_tree_t *obex_path;
 static wmem_tree_t *obex_profile;
@@ -401,63 +401,63 @@ static dissector_handle_t xml_handle;
 static dissector_handle_t data_handle;
 static dissector_handle_t data_text_lines_handle;
 
-static const gchar  *path_unknown = "?";
-static const gchar  *path_root    = "/";
+static const char   *path_unknown = "?";
+static const char   *path_root    = "/";
 
 typedef struct _obex_proto_data_t {
-    guint32  interface_id;
-    guint32  adapter_id;
-    guint32  chandle;
-    guint32  channel;
+    uint32_t interface_id;
+    uint32_t adapter_id;
+    uint32_t chandle;
+    uint32_t channel;
 } obex_proto_data_t;
 
 typedef struct _ext_value_string {
-    guint8       value[16];
-    gint         length;
-    const gchar *strptr;
+    uint8_t      value[16];
+    int          length;
+    const char *strptr;
 } ext_value_string;
 
 typedef struct _obex_path_data_t {
-    guint32  interface_id;
-    guint32  adapter_id;
-    guint32  chandle;
-    guint32   channel;
+    uint32_t interface_id;
+    uint32_t adapter_id;
+    uint32_t chandle;
+    uint32_t  channel;
 /* TODO: add OBEX ConnectionId */
 
-    const gchar  *path;
+    const char   *path;
 } obex_path_data_t;
 
 typedef struct _obex_profile_data_t {
-    guint32  interface_id;
-    guint32  adapter_id;
-    guint32  chandle;
-    guint32  channel;
+    uint32_t interface_id;
+    uint32_t adapter_id;
+    uint32_t chandle;
+    uint32_t channel;
 /* TODO: add OBEX ConnectionId */
 
-    gint     profile;
+    int      profile;
 } obex_profile_data_t;
 
 typedef struct _obex_last_opcode_data_t {
-    guint32 interface_id;
-    guint32 adapter_id;
-    guint32 chandle;
-    guint32 channel;
+    uint32_t interface_id;
+    uint32_t adapter_id;
+    uint32_t chandle;
+    uint32_t channel;
 /* TODO: add OBEX ConnectionId */
-    gint    code;
+    int     code;
 
-    gboolean final_flag;
+    bool final_flag;
 
-    guint32  request_in_frame;
-    guint32  response_in_frame;
+    uint32_t request_in_frame;
+    uint32_t response_in_frame;
 
     union {
         struct {
-            const gchar  *name;
-            gboolean      go_up;
+            const char   *name;
+            bool          go_up;
         } set_data;
         struct {
-            gchar     *type;
-            gchar     *name;
+            char      *type;
+            char      *name;
         } get_put;
     } data;
 } obex_last_opcode_data_t;
@@ -520,7 +520,7 @@ static const ext_value_string target_vals[] = {
 };
 
 /* This table must map targets from "target_vals" to profile */
-static const gint target_to_profile[] = {
+static const int target_to_profile[] = {
     PROFILE_FTP,
     PROFILE_PBAP,
     PROFILE_SYNCML,
@@ -994,8 +994,8 @@ void proto_register_obex(void);
 void proto_reg_handoff_obex(void);
 
 static void
-save_path(packet_info *pinfo, const gchar *current_path, const gchar *name,
-        gboolean go_up, obex_proto_data_t *obex_proto_data)
+save_path(packet_info *pinfo, const char *current_path, const char *name,
+        bool go_up, obex_proto_data_t *obex_proto_data)
 {
 
 /* On Connect response sets "/"
@@ -1004,8 +1004,8 @@ save_path(packet_info *pinfo, const gchar *current_path, const gchar *name,
     if (!pinfo->fd->visited) {
         obex_path_data_t     *obex_path_data;
         wmem_tree_key_t       key[6];
-        guint32               frame_number;
-        const gchar          *path = path_unknown;
+        uint32_t              frame_number;
+        const char           *path = path_unknown;
 
         frame_number = pinfo->num;
 
@@ -1028,9 +1028,9 @@ save_path(packet_info *pinfo, const gchar *current_path, const gchar *name,
         obex_path_data->chandle = obex_proto_data->chandle;
         obex_path_data->channel = obex_proto_data->channel;
 
-        if (go_up == TRUE) {
+        if (go_up == true) {
             if (current_path != path_unknown && current_path != path_root) {
-                gchar *i_path;
+                char *i_path;
 
                 i_path = g_strrstr(current_path, "/");
                 if (!i_path) {
@@ -1057,54 +1057,54 @@ save_path(packet_info *pinfo, const gchar *current_path, const gchar *name,
     }
 }
 
-static void media_type_prompt(packet_info *pinfo, gchar* result)
+static void media_type_prompt(packet_info *pinfo, char* result)
 {
-    gchar *value_data;
+    char *value_data;
 
-    value_data = (gchar *) p_get_proto_data(pinfo->pool, pinfo, proto_obex, PROTO_DATA_MEDIA_TYPE);
+    value_data = (char *) p_get_proto_data(pinfo->pool, pinfo, proto_obex, PROTO_DATA_MEDIA_TYPE);
     if (value_data)
-        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Media Type %s as", (gchar *) value_data);
+        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Media Type %s as", (char *) value_data);
     else
         snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Unknown Media Type");
 }
 
-static gpointer media_type_value(packet_info *pinfo)
+static void *media_type_value(packet_info *pinfo)
 {
-    gchar *value_data;
+    char *value_data;
 
-    value_data = (gchar *) p_get_proto_data(pinfo->pool, pinfo, proto_obex, PROTO_DATA_MEDIA_TYPE);
+    value_data = (char *) p_get_proto_data(pinfo->pool, pinfo, proto_obex, PROTO_DATA_MEDIA_TYPE);
 
     if (value_data)
-        return (gpointer) value_data;
+        return (void *) value_data;
 
     return NULL;
 }
 
-static void obex_profile_prompt(packet_info *pinfo, gchar* result)
+static void obex_profile_prompt(packet_info *pinfo, char* result)
 {
-    guint8 *value_data;
+    uint8_t *value_data;
 
-    value_data = (guint8 *) p_get_proto_data(pinfo->pool, pinfo, proto_obex, PROTO_DATA_OBEX_PROFILE);
+    value_data = (uint8_t *) p_get_proto_data(pinfo->pool, pinfo, proto_obex, PROTO_DATA_OBEX_PROFILE);
     if (value_data)
-        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "OBEX Profile 0x%04x as", (guint) *value_data);
+        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "OBEX Profile 0x%04x as", (unsigned) *value_data);
     else
         snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Unknown OBEX Profile");
 }
 
-static gpointer obex_profile_value(packet_info *pinfo)
+static void *obex_profile_value(packet_info *pinfo)
 {
-    guint8 *value_data;
+    uint8_t *value_data;
 
-    value_data = (guint8 *) p_get_proto_data(pinfo->pool, pinfo, proto_obex, PROTO_DATA_OBEX_PROFILE);
+    value_data = (uint8_t *) p_get_proto_data(pinfo->pool, pinfo, proto_obex, PROTO_DATA_OBEX_PROFILE);
 
     if (value_data)
-        return GUINT_TO_POINTER((gulong)*value_data);
+        return GUINT_TO_POINTER((unsigned long)*value_data);
 
     return NULL;
 }
 
 static int
-is_ascii_str(const guint8 *str, int length)
+is_ascii_str(const uint8_t *str, int length)
 {
     int i;
 
@@ -1122,20 +1122,20 @@ is_ascii_str(const guint8 *str, int length)
     return 1;
 }
 
-static gint
+static int
 dissect_obex_application_parameter_raw(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
     proto_item  *parameter_item;
     proto_tree  *parameter_tree;
-    guint8       parameter_id;
-    gint         offset = 0;
-    gint         parameters_length;
-    gint         parameter_length;
+    uint8_t      parameter_id;
+    int          offset = 0;
+    int          parameters_length;
+    int          parameter_length;
 
     parameters_length = tvb_reported_length(tvb);
 
     while (parameters_length > 0) {
-        parameter_id = tvb_get_guint8(tvb, offset);
+        parameter_id = tvb_get_uint8(tvb, offset);
         parameter_item = proto_tree_add_none_format(tree, hf_application_parameter, tvb, offset,
                 tvb_captured_length_remaining(tvb, offset), "Parameter: 0x%02x", parameter_id);
         parameter_tree = proto_item_add_subtree(parameter_item, ett_obex_application_parameters);
@@ -1146,7 +1146,7 @@ dissect_obex_application_parameter_raw(tvbuff_t *tvb, packet_info *pinfo _U_, pr
 
         proto_tree_add_item(parameter_tree, hf_application_parameter_length, tvb, offset,
                 1, ENC_BIG_ENDIAN);
-        parameter_length = tvb_get_guint8(tvb, offset);
+        parameter_length = tvb_get_uint8(tvb, offset);
         proto_item_set_len(parameter_item, parameter_length + 2);
         offset += 1;
 
@@ -1160,22 +1160,22 @@ dissect_obex_application_parameter_raw(tvbuff_t *tvb, packet_info *pinfo _U_, pr
     return offset;
 }
 
-static gint
+static int
 dissect_obex_application_parameter_bt_bpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item  *item;
     proto_item  *parameter_item;
     proto_tree  *parameter_tree;
-    guint8       parameter_id;
-    gint         offset = 0;
-    gint         parameters_length;
-    gint         parameter_length;
+    uint8_t      parameter_id;
+    int          offset = 0;
+    int          parameters_length;
+    int          parameter_length;
 
     parameters_length = tvb_reported_length(tvb);
 
     while (parameters_length > 0) {
-        parameter_id = tvb_get_guint8(tvb, offset);
-        parameter_length = tvb_get_guint8(tvb, offset + 1);
+        parameter_id = tvb_get_uint8(tvb, offset);
+        parameter_length = tvb_get_uint8(tvb, offset + 1);
 
         parameter_item = proto_tree_add_none_format(tree, hf_application_parameter, tvb, offset, parameter_length + 2,
                 "Parameter: %s", val_to_str_const(parameter_id,
@@ -1216,23 +1216,23 @@ dissect_obex_application_parameter_bt_bpp(tvbuff_t *tvb, packet_info *pinfo, pro
     return offset;
 }
 
-static gint
+static int
 dissect_obex_application_parameter_bt_bip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item  *item;
     proto_item  *parameter_item;
     proto_tree  *parameter_tree;
-    guint8       parameter_id;
-    gint         offset = 0;
-    gint         parameters_length;
-    gint         parameter_length;
-    static gint  required_length_map[] = {0, 2, 2, 1, 4, 4, 4, 1, 1, 16, 1};
+    uint8_t      parameter_id;
+    int          offset = 0;
+    int          parameters_length;
+    int          parameter_length;
+    static int   required_length_map[] = {0, 2, 2, 1, 4, 4, 4, 1, 1, 16, 1};
 
     parameters_length = tvb_reported_length(tvb);
 
     while (parameters_length > 0) {
-        parameter_id = tvb_get_guint8(tvb, offset);
-        parameter_length = tvb_get_guint8(tvb, offset + 1);
+        parameter_id = tvb_get_uint8(tvb, offset);
+        parameter_length = tvb_get_uint8(tvb, offset + 1);
 
         parameter_item = proto_tree_add_none_format(tree, hf_application_parameter, tvb, offset, parameter_length + 2,
                 "Parameter: %s", val_to_str_const(parameter_id,
@@ -1293,23 +1293,23 @@ dissect_obex_application_parameter_bt_bip(tvbuff_t *tvb, packet_info *pinfo, pro
     return offset;
 }
 
-static gint
+static int
 dissect_obex_application_parameter_bt_pbap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item  *item;
     proto_item  *parameter_item;
     proto_tree  *parameter_tree;
-    guint8       parameter_id;
-    gint         offset = 0;
-    gint         parameters_length;
-    gint         parameter_length;
-    static gint  required_length_map[] = {0, 1, -1, 1, 2, 2, 8, 1, 2, 1, 16, 16, 8, 16, 1, 1};
+    uint8_t      parameter_id;
+    int          offset = 0;
+    int          parameters_length;
+    int          parameter_length;
+    static int   required_length_map[] = {0, 1, -1, 1, 2, 2, 8, 1, 2, 1, 16, 16, 8, 16, 1, 1};
 
     parameters_length = tvb_reported_length(tvb);
 
     while (parameters_length > 0) {
-        parameter_id = tvb_get_guint8(tvb, offset);
-        parameter_length = tvb_get_guint8(tvb, offset + 1);
+        parameter_id = tvb_get_uint8(tvb, offset);
+        parameter_length = tvb_get_uint8(tvb, offset + 1);
 
         parameter_item = proto_tree_add_none_format(tree, hf_application_parameter, tvb, offset, parameter_length + 2,
                 "Parameter: %s", val_to_str_const(parameter_id,
@@ -1391,23 +1391,23 @@ dissect_obex_application_parameter_bt_pbap(tvbuff_t *tvb, packet_info *pinfo, pr
     return offset;
 }
 
-static gint
+static int
 dissect_obex_application_parameter_bt_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item  *item;
     proto_item  *parameter_item;
     proto_tree  *parameter_tree;
-    guint8       parameter_id;
-    gint         offset = 0;
-    gint         parameters_length;
-    gint         parameter_length;
-    static gint  required_length_map[] = {0, 2, 2, 1, -1, -1, 1, -1, -1, 1, 1, 1, 1, 1, 1, 1, 4, 2, 2, 1, 1, 1, 1, 1, 1, -1};
+    uint8_t      parameter_id;
+    int          offset = 0;
+    int          parameters_length;
+    int          parameter_length;
+    static int   required_length_map[] = {0, 2, 2, 1, -1, -1, 1, -1, -1, 1, 1, 1, 1, 1, 1, 1, 4, 2, 2, 1, 1, 1, 1, 1, 1, -1};
 
     parameters_length = tvb_reported_length(tvb);
 
     while (parameters_length > 0) {
-        parameter_id = tvb_get_guint8(tvb, offset);
-        parameter_length = tvb_get_guint8(tvb, offset + 1);
+        parameter_id = tvb_get_uint8(tvb, offset);
+        parameter_length = tvb_get_uint8(tvb, offset + 1);
 
         parameter_item = proto_tree_add_none_format(tree, hf_application_parameter, tvb, offset, parameter_length + 2,
                 "Parameter: %s", val_to_str_const(parameter_id,
@@ -1549,23 +1549,23 @@ dissect_obex_application_parameter_bt_map(tvbuff_t *tvb, packet_info *pinfo, pro
    return offset;
 }
 
-static gint
+static int
 dissect_obex_application_parameter_bt_gpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item  *item;
     proto_item  *parameter_item;
     proto_tree  *parameter_tree;
-    guint8       parameter_id;
-    gint         offset = 0;
-    gint         parameters_length;
-    gint         parameter_length;
-    static gint  required_length_map[] = {2, 2, 1, 1, 0, 2};
+    uint8_t      parameter_id;
+    int          offset = 0;
+    int          parameters_length;
+    int          parameter_length;
+    static int   required_length_map[] = {2, 2, 1, 1, 0, 2};
 
     parameters_length = tvb_reported_length(tvb);
 
     while (parameters_length > 0) {
-        parameter_id = tvb_get_guint8(tvb, offset);
-        parameter_length = tvb_get_guint8(tvb, offset + 1);
+        parameter_id = tvb_get_uint8(tvb, offset);
+        parameter_length = tvb_get_uint8(tvb, offset + 1);
 
         parameter_item = proto_tree_add_none_format(tree, hf_application_parameter, tvb, offset, parameter_length + 2,
                 "Parameter: %s", val_to_str_const(parameter_id,
@@ -1578,7 +1578,7 @@ dissect_obex_application_parameter_bt_gpp(tvbuff_t *tvb, packet_info *pinfo, pro
         item = proto_tree_add_item(parameter_tree, hf_application_parameter_length, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        if (parameter_id >= 0x41 && (guint8)(parameter_id - 0x41) < array_length(required_length_map) &&
+        if (parameter_id >= 0x41 && (uint8_t)(parameter_id - 0x41) < array_length(required_length_map) &&
                 required_length_map[parameter_id - 0x41] != -1 &&
                 required_length_map[parameter_id - 0x41] != parameter_length) {
             proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, parameter_length, ENC_NA);
@@ -1613,24 +1613,24 @@ dissect_obex_application_parameter_bt_gpp(tvbuff_t *tvb, packet_info *pinfo, pro
     return offset;
 }
 
-static gint
+static int
 dissect_obex_application_parameter_bt_ctn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item  *item;
     proto_item  *parameter_item;
     proto_tree  *parameter_tree;
-    guint8       parameter_id;
-    gint         offset = 0;
-    gint         parameters_length;
-    gint         parameter_length;
-    static gint  required_length_map[] = {0, 1, 1, 1, -1, -1, 4, 1, 1, 4, -1, -1, 1, 1, -1};
-    static gint  required_length_map_gpp[] = {2, 2, 1, 1, -1, 2};
+    uint8_t      parameter_id;
+    int          offset = 0;
+    int          parameters_length;
+    int          parameter_length;
+    static int   required_length_map[] = {0, 1, 1, 1, -1, -1, 4, 1, 1, 4, -1, -1, 1, 1, -1};
+    static int   required_length_map_gpp[] = {2, 2, 1, 1, -1, 2};
 
     parameters_length = tvb_reported_length(tvb);
 
     while (parameters_length > 0) {
-        parameter_id = tvb_get_guint8(tvb, offset);
-        parameter_length = tvb_get_guint8(tvb, offset + 1);
+        parameter_id = tvb_get_uint8(tvb, offset);
+        parameter_length = tvb_get_uint8(tvb, offset + 1);
 
         parameter_item = proto_tree_add_none_format(tree, hf_application_parameter, tvb, offset, parameter_length + 2,
                 "Parameter: %s", val_to_str_const(parameter_id,
@@ -1651,7 +1651,7 @@ dissect_obex_application_parameter_bt_ctn(tvbuff_t *tvb, packet_info *pinfo, pro
             expert_add_info_format(pinfo, item, &ei_application_parameter_length_bad,
                     "According to the specification this parameter length should be %i, but there is %i",
                     required_length_map[parameter_id], parameter_length);
-        } else if ((parameter_id >= 0x41) && ((guint8)(parameter_id - 0x41) < array_length(required_length_map_gpp)) &&
+        } else if ((parameter_id >= 0x41) && ((uint8_t)(parameter_id - 0x41) < array_length(required_length_map_gpp)) &&
                 required_length_map[parameter_id - 0x41] != -1 &&
                 required_length_map[parameter_id - 0x41] != parameter_length) {
 
@@ -1731,7 +1731,7 @@ dissect_obex_application_parameter_bt_ctn(tvbuff_t *tvb, packet_info *pinfo, pro
 
 static int
 dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
-        gint profile, obex_last_opcode_data_t *obex_last_opcode_data,
+        int profile, obex_last_opcode_data_t *obex_last_opcode_data,
         obex_proto_data_t *obex_proto_data)
 {
     proto_tree *hdrs_tree   = NULL;
@@ -1739,14 +1739,14 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_item *hdr         = NULL;
     proto_item *handle_item;
     tvbuff_t   *next_tvb;
-    gint        new_offset;
-    gint        item_length = 0;
-    gint        value_length = 0;
-    guint8      hdr_id, i;
-    guint32     value;
-    guint32     frame_number;
-    guint8      tag;
-    gchar      *str = NULL;
+    int         new_offset;
+    int         item_length = 0;
+    int         value_length = 0;
+    uint8_t     hdr_id, i;
+    uint32_t    value;
+    uint32_t    frame_number;
+    uint8_t     tag;
+    char       *str = NULL;
 
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
         proto_item *hdrs;
@@ -1758,7 +1758,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
     }
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
-        hdr_id = tvb_get_guint8(tvb, offset);
+        hdr_id = tvb_get_uint8(tvb, offset);
 
         switch(0xC0 & hdr_id)
         {
@@ -1821,7 +1821,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                 switch (hdr_id) {
                 case 0x4c: /* Application Parameters */
                     next_tvb = tvb_new_subset_length(tvb, offset, value_length);
-                    if (!(new_offset = dissector_try_uint_new(obex_profile_table, profile, next_tvb, pinfo, hdr_tree, TRUE, NULL))) {
+                    if (!(new_offset = dissector_try_uint_new(obex_profile_table, profile, next_tvb, pinfo, hdr_tree, true, NULL))) {
                         new_offset = call_dissector(raw_application_parameters_handle, next_tvb, pinfo, hdr_tree);
                     }
                     offset += new_offset;
@@ -1829,13 +1829,13 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                     break;
                 case 0x4d: /* Authentication Challenge */
                     while (value_length) {
-                        guint8       parameter_id;
-                        guint8       sub_parameter_length;
+                        uint8_t      parameter_id;
+                        uint8_t      sub_parameter_length;
                         proto_item  *parameter_item;
                         proto_tree  *parameter_tree;
 
-                        parameter_id = tvb_get_guint8(tvb, offset);
-                        sub_parameter_length = tvb_get_guint8(tvb, offset + 1);
+                        parameter_id = tvb_get_uint8(tvb, offset);
+                        sub_parameter_length = tvb_get_uint8(tvb, offset + 1);
 
                         parameter_item = proto_tree_add_none_format(hdr_tree, hf_authentication_parameter, tvb, offset,
                                 2 + sub_parameter_length, "Tag: %s", val_to_str_const(parameter_id,
@@ -1843,7 +1843,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                         parameter_tree = proto_item_add_subtree(parameter_item, ett_obex_authentication_parameters);
 
                         proto_tree_add_item(parameter_tree, hf_authentication_challenge_tag, tvb, offset, 1, ENC_BIG_ENDIAN);
-                        tag = tvb_get_guint8(tvb, offset);
+                        tag = tvb_get_uint8(tvb, offset);
                         offset += 1;
 
                         proto_tree_add_item(parameter_tree, hf_authentication_length, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1876,13 +1876,13 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                     break;
                 case 0x4e: /* Authentication Response */
                     while (value_length) {
-                        guint8       parameter_id;
-                        guint8       sub_parameter_length;
+                        uint8_t      parameter_id;
+                        uint8_t      sub_parameter_length;
                         proto_item  *parameter_item;
                         proto_tree  *parameter_tree;
 
-                        parameter_id = tvb_get_guint8(tvb, offset);
-                        sub_parameter_length = tvb_get_guint8(tvb, offset + 1);
+                        parameter_id = tvb_get_uint8(tvb, offset);
+                        sub_parameter_length = tvb_get_uint8(tvb, offset + 1);
 
                         parameter_item = proto_tree_add_none_format(hdr_tree, hf_authentication_parameter, tvb, offset,
                                 2 + sub_parameter_length, "Tag: %s", val_to_str_const(parameter_id,
@@ -1890,11 +1890,11 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                         parameter_tree = proto_item_add_subtree(parameter_item, ett_obex_authentication_parameters);
 
                         proto_tree_add_item(parameter_tree, hf_authentication_response_tag, tvb, offset, 1, ENC_BIG_ENDIAN);
-                        tag = tvb_get_guint8(tvb, offset);
+                        tag = tvb_get_uint8(tvb, offset);
                         offset += 1;
 
                         proto_tree_add_item(parameter_tree, hf_authentication_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-                        sub_parameter_length = tvb_get_guint8(tvb, offset);
+                        sub_parameter_length = tvb_get_uint8(tvb, offset);
                         offset += 1;
 
                         switch (tag) {
@@ -1927,7 +1927,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                         obex_last_opcode_data->data.get_put.type = tvb_get_string_enc(wmem_file_scope(), tvb, offset, value_length, ENC_ASCII | ENC_NA);
                     }
                     if (p_get_proto_data(pinfo->pool, pinfo, proto_obex, PROTO_DATA_MEDIA_TYPE) == NULL) {
-                        guint8 *value_data;
+                        uint8_t *value_data;
 
                         value_data = tvb_get_string_enc(wmem_file_scope(), tvb, offset, value_length, ENC_ASCII | ENC_NA);
 
@@ -1938,7 +1938,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                     break;
                 case 0x44: /* Time (ISO8601) */
                     {
-                    const guint8* time_str;
+                    const uint8_t* time_str;
                     proto_tree_add_item_ret_string(hdr_tree, hf_time_iso8601, tvb, offset, value_length, ENC_ASCII | ENC_NA, pinfo->pool, &time_str);
                     proto_item_append_text(hdr_tree, ": \"%s\"", time_str);
 
@@ -1953,7 +1953,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                     if (value_length > 0 && obex_last_opcode_data &&
                             (obex_last_opcode_data->code == OBEX_CODE_VALS_GET || obex_last_opcode_data->code == OBEX_CODE_VALS_PUT) &&
                             p_get_proto_data(pinfo->pool, pinfo, proto_obex, PROTO_DATA_MEDIA_TYPE) == NULL) {
-                        guint8 *value_data;
+                        uint8_t *value_data;
 
                         value_data = obex_last_opcode_data->data.get_put.type;
 
@@ -2038,7 +2038,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                     break;
                 case 0x51: /* Object Class */
                     {
-                    const guint8* obj_str;
+                    const uint8_t* obj_str;
                     proto_tree_add_item_ret_string(hdr_tree, hf_object_class, tvb, offset, value_length, ENC_ASCII | ENC_NA, pinfo->pool, &obj_str);
                     proto_item_append_text(hdr_tree, ": \"%s\"", obj_str);
 
@@ -2047,13 +2047,13 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                     break;
                 case 0x52: /* Session Parameter */
                     while (value_length) {
-                        guint8       parameter_id;
-                        guint8       sub_parameter_length;
+                        uint8_t      parameter_id;
+                        uint8_t      sub_parameter_length;
                         proto_item  *parameter_item;
                         proto_tree  *parameter_tree;
 
-                        parameter_id = tvb_get_guint8(tvb, offset);
-                        sub_parameter_length = tvb_get_guint8(tvb, offset + 1);
+                        parameter_id = tvb_get_uint8(tvb, offset);
+                        sub_parameter_length = tvb_get_uint8(tvb, offset + 1);
 
                         parameter_item = proto_tree_add_none_format(hdr_tree, hf_session_parameter, tvb, offset,
                                 2 + sub_parameter_length, "Tag: %s", val_to_str_const(parameter_id,
@@ -2061,17 +2061,17 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                         parameter_tree = proto_item_add_subtree(parameter_item, ett_obex_session_parameters);
 
                         proto_tree_add_item(parameter_tree, hf_session_parameter_tag, tvb, offset, 1, ENC_BIG_ENDIAN);
-                        tag = tvb_get_guint8(tvb, offset);
+                        tag = tvb_get_uint8(tvb, offset);
                         offset += 1;
 
                         proto_tree_add_item(parameter_tree, hf_session_parameter_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-                        sub_parameter_length = tvb_get_guint8(tvb, offset);
+                        sub_parameter_length = tvb_get_uint8(tvb, offset);
                         offset += 1;
 
                         switch (tag) {
                         case 0x00: /* Device Address */
                             if (sub_parameter_length == 6) {
-                                offset = dissect_bd_addr(hf_sender_bd_addr, pinfo, parameter_tree, tvb, offset, FALSE, obex_proto_data->interface_id, obex_proto_data->adapter_id, NULL);
+                                offset = dissect_bd_addr(hf_sender_bd_addr, pinfo, parameter_tree, tvb, offset, false, obex_proto_data->interface_id, obex_proto_data->adapter_id, NULL);
                             } else {
                                 proto_tree_add_item(parameter_tree, hf_session_parameter_data, tvb, offset, sub_parameter_length, ENC_NA);
 
@@ -2156,7 +2156,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
 
                 break;
             case 0x80:  /* 1 byte */
-                value = tvb_get_guint8(tvb, offset);
+                value = tvb_get_uint8(tvb, offset);
 
                 switch (hdr_id) {
                 case 0x94: /* Action */
@@ -2219,7 +2219,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
     return offset;
 }
 
-static gint
+static int
 dissect_obex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item    *main_item;
@@ -2227,23 +2227,23 @@ dissect_obex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_item    *sub_item;
     fragment_head *frag_msg       = NULL;
     fragment_item *frag           = NULL;
-    gboolean       save_fragmented;
-    gboolean       complete;
+    bool           save_fragmented;
+    bool           complete;
     tvbuff_t*      new_tvb        = NULL;
     tvbuff_t*      next_tvb       = NULL;
-    gint           offset         = 0;
-    gint           profile        = PROFILE_UNKNOWN;
-    const gchar   *path           = path_unknown;
+    int            offset         = 0;
+    int            profile        = PROFILE_UNKNOWN;
+    const char    *path           = path_unknown;
     obex_profile_data_t      *obex_profile_data;
     wmem_tree_key_t           key[6];
-    guint32                   frame_number;
+    uint32_t                  frame_number;
     obex_last_opcode_data_t  *obex_last_opcode_data;
     obex_path_data_t         *obex_path_data;
-    guint32                   length;
-    guint8                   *profile_data;
+    uint32_t                  length;
+    uint8_t                  *profile_data;
     dissector_handle_t        current_handle;
     dissector_handle_t        default_handle;
-    gint                      previous_proto;
+    int                       previous_proto;
     obex_proto_data_t         obex_proto_data;
 
     previous_proto = (GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_frame_prev(wmem_list_tail(pinfo->layers)))));
@@ -2294,7 +2294,7 @@ dissect_obex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     key[5].length = 0;
     key[5].key = NULL;
 
-    profile_data = (guint8 *) p_get_proto_data(pinfo->pool, pinfo, proto_obex, PROTO_DATA_OBEX_PROFILE);
+    profile_data = (uint8_t *) p_get_proto_data(pinfo->pool, pinfo, proto_obex, PROTO_DATA_OBEX_PROFILE);
     if (profile_data == NULL) {
         obex_profile_data = (obex_profile_data_t *)wmem_tree_lookup32_array_le(obex_profile, key);
         if (obex_profile_data && obex_profile_data->interface_id == obex_proto_data.interface_id &&
@@ -2304,7 +2304,7 @@ dissect_obex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             profile = obex_profile_data->profile;
         }
 
-        profile_data = wmem_new(wmem_file_scope(), guint8);
+        profile_data = wmem_new(wmem_file_scope(), uint8_t);
         *profile_data = profile;
 
         p_add_proto_data(pinfo->pool, pinfo, proto_obex, PROTO_DATA_OBEX_PROFILE, profile_data);
@@ -2332,7 +2332,7 @@ dissect_obex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         expert_add_info_format(pinfo, main_item, &ei_decoded_as_profile, "Decoded As %s", dissector_handle_get_protocol_long_name(current_handle));
     }
 
-    complete = FALSE;
+    complete = false;
 
     if (tvb_captured_length(tvb) == tvb_reported_length(tvb)) {
         frag_msg = fragment_get_reassembled_id(&obex_reassembly_table, pinfo, pinfo->p2p_dir);
@@ -2360,12 +2360,12 @@ dissect_obex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                         tvb, 0, pinfo, pinfo->p2p_dir, NULL,
                         frag->offset + frag->len, tvb_reported_length(tvb),
                                 ((frag->offset + frag->len + tvb_reported_length(tvb)) <
-                                    fragment_get_tot_len(&obex_reassembly_table, pinfo, pinfo->p2p_dir, NULL)) ? TRUE : FALSE);
+                                    fragment_get_tot_len(&obex_reassembly_table, pinfo, pinfo->p2p_dir, NULL)) ? true : false);
 
                 new_tvb = process_reassembled_data(tvb, 0, pinfo,
                         "Reassembled Obex packet", frag_msg, &obex_frag_items, NULL, main_tree);
 
-                pinfo->fragmented = TRUE;
+                pinfo->fragmented = true;
             } else {
                 if (tvb_reported_length(tvb) < 3) {
                     /* Packet length is in the second and the third bye of packet, anything shorter than 3 is bad */
@@ -2377,7 +2377,7 @@ dissect_obex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     /* first fragment in a sequence */
                     frag_msg = fragment_add_check(&obex_reassembly_table,
                                         tvb, 0, pinfo, pinfo->p2p_dir, NULL,
-                                        0, tvb_reported_length(tvb), TRUE);
+                                        0, tvb_reported_length(tvb), true);
 
                     fragment_set_tot_len(&obex_reassembly_table,
                                         pinfo, pinfo->p2p_dir, NULL,
@@ -2385,11 +2385,11 @@ dissect_obex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
                     new_tvb = process_reassembled_data(tvb, 0, pinfo,
                                 "Reassembled Obex packet", frag_msg, &obex_frag_items, NULL, main_tree);
-                    pinfo->fragmented = TRUE;
+                    pinfo->fragmented = true;
                 } else if (tvb_reported_length(tvb) == tvb_get_ntohs(tvb, offset+1)) {
                     /* non-fragmented */
-                    complete = TRUE;
-                    pinfo->fragmented = FALSE;
+                    complete = true;
+                    pinfo->fragmented = false;
                 }
             }
         }
@@ -2397,20 +2397,20 @@ dissect_obex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     if (new_tvb) { /* take it all */
         next_tvb = new_tvb;
-        complete = TRUE;
+        complete = true;
     } else { /* make a new subset */
         next_tvb = tvb_new_subset_remaining(tvb, offset);
     }
 
     if (complete) {
-        guint8       code;
-        guint8       final_flag;
+        uint8_t      code;
+        uint8_t      final_flag;
 
         /* fully dissectable packet ready */
 
         /* op/response code */
-        code = tvb_get_guint8(next_tvb, offset) & OBEX_CODE_VALS_MASK;
-        final_flag = tvb_get_guint8(next_tvb, offset) & 0x80;
+        code = tvb_get_uint8(next_tvb, offset) & OBEX_CODE_VALS_MASK;
+        final_flag = tvb_get_uint8(next_tvb, offset) & 0x80;
 
         switch (pinfo->p2p_dir) {
             case P2P_DIR_SENT:
@@ -2530,7 +2530,7 @@ dissect_obex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             proto_tree_add_item(main_tree, hf_set_path_flags_1, next_tvb, offset, 1, ENC_BIG_ENDIAN);
 
             if (!pinfo->fd->visited && obex_last_opcode_data) {
-                obex_last_opcode_data->data.set_data.go_up = tvb_get_guint8(tvb, offset) & 0x01;
+                obex_last_opcode_data->data.set_data.go_up = tvb_get_uint8(tvb, offset) & 0x01;
                 obex_last_opcode_data->data.set_data.name = NULL;
             }
 
@@ -2562,7 +2562,7 @@ dissect_obex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset += 2;
 
                 if (!pinfo->fd->visited)
-                    save_path(pinfo, path, "", FALSE, &obex_proto_data);
+                    save_path(pinfo, path, "", false, &obex_proto_data);
             }
             break;
         }
@@ -3760,7 +3760,7 @@ proto_register_obex(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_obex,
         &ett_obex_hdrs,
         &ett_obex_hdr,

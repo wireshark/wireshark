@@ -26,7 +26,7 @@ static dissector_handle_t wpan_handle;
 static int hf_openthread_channel;
 /* static int hf_openthread_psdu; */
 
-static gint ett_openthread;
+static int ett_openthread;
 
 static int
 dissect_openthread(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -70,7 +70,7 @@ proto_register_openthread(void)
 #endif
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_openthread
     };
 

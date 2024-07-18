@@ -29,11 +29,11 @@ typedef enum {
 /*  Structure containing information regarding all necessary OSCORE message fields. */
 typedef struct oscore_context {
     /* Pre-Shared Parameters as Strings */
-    gchar               *master_secret_prefs;
-    gchar               *master_salt_prefs;
-    gchar               *id_context_prefs;
-    gchar               *sender_id_prefs;
-    gchar               *recipient_id_prefs;
+    char                *master_secret_prefs;
+    char                *master_salt_prefs;
+    char                *id_context_prefs;
+    char                *sender_id_prefs;
+    char                *recipient_id_prefs;
     cose_aead_alg_t     algorithm;
     /* Pre-Shared Parameters as Byte Arrays */
     GByteArray          *master_secret;
@@ -49,15 +49,15 @@ typedef struct oscore_context {
 
 /* Data from the lower layer (CoAP/HTTP) necessary for OSCORE to decrypt the packet */
 typedef struct oscore_info {
-    guint8              *kid;
-    guint8              kid_len;
-    guint8              *kid_context;
-    guint8              kid_context_len;
-    guint8              *piv;
-    guint8              piv_len;
-    guint8              *request_piv;
-    guint8              request_piv_len;
-    gboolean            response;
+    uint8_t             *kid;
+    uint8_t             kid_len;
+    uint8_t             *kid_context;
+    uint8_t             kid_context_len;
+    uint8_t             *piv;
+    uint8_t             piv_len;
+    uint8_t             *request_piv;
+    uint8_t             request_piv_len;
+    bool                response;
 } oscore_info_t;
 
 #endif /* __PACKET_OSCORE_H__ */

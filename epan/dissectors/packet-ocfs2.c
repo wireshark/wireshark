@@ -26,11 +26,11 @@ void proto_reg_handoff_ocfs2(void);
 
 static dissector_handle_t ocfs2_handle;
 
-static gint ett_ocfs2;
-static gint ett_dtm_lock_flags;
-static gint ett_mres_flags;
-static gint ett_migrate_lockres_locks;
-static gint ett_query_nodeinfo;
+static int ett_ocfs2;
+static int ett_dtm_lock_flags;
+static int ett_mres_flags;
+static int ett_migrate_lockres_locks;
+static int ett_query_nodeinfo;
 
 static int proto_ocfs2;
 static int hf_msg_magic;
@@ -427,27 +427,27 @@ enum {
 };
 
 
-static int dlm_cookie_handler(proto_tree *tree, tvbuff_t *tvb, guint offset, int hf_cookie)
+static int dlm_cookie_handler(proto_tree *tree, tvbuff_t *tvb, unsigned offset, int hf_cookie)
 {
 	proto_item *item;
-	guint64 cookie;
-	guint64 seq;
-	guint8 node_idx;
+	uint64_t cookie;
+	uint64_t seq;
+	uint8_t node_idx;
 
 	item = proto_tree_add_item(tree, hf_cookie, tvb, offset, 8, ENC_BIG_ENDIAN);
 	cookie = tvb_get_ntoh64(tvb, offset);
 
 	cookie >>= 56;
-	node_idx = (guint8)((cookie >> 56) & G_GINT64_CONSTANT(0xff));
-	seq = cookie & G_GINT64_CONSTANT(0x00ffffffffffffff);
+	node_idx = (uint8_t)((cookie >> 56) & INT64_C(0xff));
+	seq = cookie & INT64_C(0x00ffffffffffffff);
 
 	proto_item_append_text(item, " (%u:%" PRIu64 ")", node_idx, seq);
 
 	return offset + 8;
 }
 
-static int dlm_lkm_flags_handler(proto_tree *tree, tvbuff_t *tvb, guint offset,
-				 guint32 *dlm_lock_flags_ptr)
+static int dlm_lkm_flags_handler(proto_tree *tree, tvbuff_t *tvb, unsigned offset,
+				 uint32_t *dlm_lock_flags_ptr)
 {
 	static int * const flags[] = {
 		&hf_dlm_lock_flag_unused1,
@@ -488,14 +488,14 @@ static int dlm_lkm_flags_handler(proto_tree *tree, tvbuff_t *tvb, guint offset,
 	return offset + 4;
 }
 
-static int dlm_name_handler(proto_tree *tree, tvbuff_t *tvb, guint offset, int namelen)
+static int dlm_name_handler(proto_tree *tree, tvbuff_t *tvb, unsigned offset, int namelen)
 {
-	guint8 lock_type;
-	guint64 blkno;
+	uint8_t lock_type;
+	uint64_t blkno;
 	proto_item *ti;
 
 	ti = proto_tree_add_item(tree, hf_dlm_name, tvb, offset, namelen, ENC_ASCII);
-	lock_type = tvb_get_guint8(tvb, offset);
+	lock_type = tvb_get_uint8(tvb, offset);
 	if (lock_type == 'N') {
 		blkno = tvb_get_ntoh64(tvb, offset + OCFS2_DENTRY_LOCK_INO_START);
 		proto_item_append_text(ti, "%08x", (unsigned int)blkno);
@@ -514,7 +514,7 @@ static int dlm_name_handler(proto_tree *tree, tvbuff_t *tvb, guint offset, int n
  * {
  *	dlm_migratable_lockres mres;
  *	dlm_migratable_lock ml[DLM_MAX_MIGRATABLE_LOCKS];
- *	guint8 pad[DLM_MIG_LOCKRES_RESERVED];
+ *	uint8_t pad[DLM_MIG_LOCKRES_RESERVED];
  * };
  *
  * from ../cluster/tcp.h
@@ -538,7 +538,7 @@ static int dlm_name_handler(proto_tree *tree, tvbuff_t *tvb, guint offset, int n
 static void dissect_dlm_migrate_lockres(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
 	unsigned int i;
-	guint32 num_locks;
+	uint32_t num_locks;
 
 	static int * const mres_flags[] = {
 		&hf_dlm_mres_flag_recovery,
@@ -628,9 +628,9 @@ static void dissect_dlm_migrate_lockres(proto_tree *tree, tvbuff_t *tvb, int off
 }
 
 static void
-dlm_fmt_revision( gchar *result, guint32 revision )
+dlm_fmt_revision( char *result, uint32_t revision )
 {
-	snprintf( result, ITEM_LABEL_LENGTH, "%d.%02d", (guint8)(( revision & 0xFF00 ) >> 8), (guint8)(revision & 0xFF) );
+	snprintf( result, ITEM_LABEL_LENGTH, "%d.%02d", (uint8_t)(( revision & 0xFF00 ) >> 8), (uint8_t)(revision & 0xFF) );
 }
 
 #define DLM_QUERY_JOIN_REQUEST_OFF_DLMPROTO	4
@@ -645,17 +645,17 @@ dlm_fmt_revision( gchar *result, guint32 revision )
 #define DLM_QUERY_JOIN_REQUEST_OLD_LEN		100
 static void dissect_dlm_query_join_request(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	guint8 cc, *node_bits_array;
-	guint8 *node_map;
-	gint len;
+	uint8_t cc, *node_bits_array;
+	uint8_t *node_map;
+	int len;
 	unsigned int i, j;
-	gboolean oldver = FALSE;
+	bool oldver = false;
 
-	node_bits_array = (guint8 *)wmem_alloc0(wmem_packet_scope(), (DLM_QUERY_JOIN_REQUEST_LEN_NODEMAP*8)+1);
+	node_bits_array = (uint8_t *)wmem_alloc0(wmem_packet_scope(), (DLM_QUERY_JOIN_REQUEST_LEN_NODEMAP*8)+1);
 
 	len = tvb_reported_length_remaining(tvb, offset);
 	if (len == DLM_QUERY_JOIN_REQUEST_OLD_LEN)
-		oldver = TRUE;
+		oldver = true;
 
 	/* node_idx */
 	proto_tree_add_item(tree, hf_dlm_node_idx, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -684,7 +684,7 @@ static void dissect_dlm_query_join_request(proto_tree *tree, tvbuff_t *tvb, int 
 	offset += 64;
 
 	/* node_map */
-	node_map = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, offset, DLM_QUERY_JOIN_REQUEST_LEN_NODEMAP);
+	node_map = (uint8_t *)tvb_memdup(wmem_packet_scope(), tvb, offset, DLM_QUERY_JOIN_REQUEST_LEN_NODEMAP);
 
 	for (i = 0; i < DLM_QUERY_JOIN_REQUEST_LEN_NODEMAP; i++) {
 		cc = node_map[i];
@@ -701,10 +701,10 @@ static void dissect_dlm_query_join_request(proto_tree *tree, tvbuff_t *tvb, int 
 #define O2HB_MAX_REGION_NAME_LEN 32
 
 static void dissect_dlm_query_region(proto_tree *tree, tvbuff_t *tvb,
-				     guint offset)
+				     unsigned offset)
 {
-	guint32 i, num_regions;
-	guchar *region;
+	uint32_t i, num_regions;
+	unsigned char *region;
 
 	/* qr_node */
 	proto_tree_add_item(tree, hf_dlm_qr_node, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -733,9 +733,9 @@ static void dissect_dlm_query_region(proto_tree *tree, tvbuff_t *tvb,
 	}
 }
 
-static void dissect_dlm_query_nodeinfo(proto_tree *tree, tvbuff_t *tvb, guint offset)
+static void dissect_dlm_query_nodeinfo(proto_tree *tree, tvbuff_t *tvb, unsigned offset)
 {
-	guint32 i, num_nodes;
+	uint32_t i, num_nodes;
 
 	/* qn_nodenum */
 	proto_tree_add_item(tree, hf_dlm_qn_nodenum, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -777,7 +777,7 @@ static void dissect_dlm_query_nodeinfo(proto_tree *tree, tvbuff_t *tvb, guint of
 
 static int dissect_master_msg(proto_tree *tree, tvbuff_t *tvb, int offset, int hf_flag)
 {
-	guint32 namelen;
+	uint32_t namelen;
 
 	proto_tree_add_item(tree, hf_dlm_node_idx, tvb, offset, 1, ENC_NA);
 	offset += 1;
@@ -798,9 +798,9 @@ static int dissect_master_msg(proto_tree *tree, tvbuff_t *tvb, int offset, int h
 }
 
 static int dissect_create_lock_msg(proto_tree *tree, tvbuff_t *tvb, int offset,
-				   guint32 *dlm_lock_flags_ptr)
+				   uint32_t *dlm_lock_flags_ptr)
 {
-	guint32 namelen;
+	uint32_t namelen;
 
 	offset = dlm_cookie_handler(tree, tvb, offset, hf_dlm_cookie);
 	offset = dlm_lkm_flags_handler(tree, tvb, offset, dlm_lock_flags_ptr);
@@ -823,7 +823,7 @@ static int dissect_create_lock_msg(proto_tree *tree, tvbuff_t *tvb, int offset,
 
 static int dissect_convert_lock_msg(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	guint32 dlm_lock_flags;
+	uint32_t dlm_lock_flags;
 	offset = dissect_create_lock_msg(tree, tvb, offset, &dlm_lock_flags);
 
 	if(dlm_lock_flags & DLM_LOCK_FLAGS_PUT_LVB){
@@ -842,8 +842,8 @@ static int dissect_convert_lock_msg(proto_tree *tree, tvbuff_t *tvb, int offset)
 
 static int dissect_unlock_msg(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	guint32 namelen;
-	guint32 dlm_lock_flags;
+	uint32_t namelen;
+	uint32_t dlm_lock_flags;
 
 	offset = dlm_cookie_handler(tree, tvb, offset, hf_dlm_cookie);
 	offset = dlm_lkm_flags_handler(tree, tvb, offset, &dlm_lock_flags);
@@ -876,8 +876,8 @@ static int dissect_unlock_msg(proto_tree *tree, tvbuff_t *tvb, int offset)
 
 static int dissect_proxy_ast_msg(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	guint32 namelen;
-	guint32 dlm_lock_flags;
+	uint32_t namelen;
+	uint32_t dlm_lock_flags;
 
 	offset = dlm_cookie_handler(tree, tvb, offset, hf_dlm_cookie);
 	offset = dlm_lkm_flags_handler(tree, tvb, offset, &dlm_lock_flags);
@@ -912,7 +912,7 @@ static int dissect_proxy_ast_msg(proto_tree *tree, tvbuff_t *tvb, int offset)
 
 static int dissect_deref_lockres_msg(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	guint32 namelen;
+	uint32_t namelen;
 
 	proto_tree_add_item(tree, hf_dlm_pad32, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
@@ -931,7 +931,7 @@ static int dissect_deref_lockres_msg(proto_tree *tree, tvbuff_t *tvb, int offset
 
 static int dissect_migrate_request_msg(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	guint32 namelen;
+	uint32_t namelen;
 
 	proto_tree_add_item(tree, hf_dlm_master, tvb, offset, 1, ENC_NA);
 	offset += 1;
@@ -970,7 +970,7 @@ static int dissect_dlm_joined_msg(proto_tree *tree, tvbuff_t *tvb, int offset)
 
 static int dissect_master_requery_msg(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	guint32 namelen;
+	uint32_t namelen;
 
 	proto_tree_add_item(tree, hf_dlm_pad16, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
@@ -1038,8 +1038,8 @@ static int dissect_ocfs2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 {
 	proto_tree *subtree;
 	proto_item *ti;
-	guint32 len, msg_type;
-	guint32 magic;
+	uint32_t len, msg_type;
+	uint32_t magic;
 	tvbuff_t   *next_tvb;
 	int offset = 0;
 
@@ -1162,10 +1162,10 @@ static int dissect_ocfs2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	return tvb_reported_length(tvb);
 }
 
-static guint
+static unsigned
 get_ocfs2_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
-	guint16 plen;
+	uint16_t plen;
 
 	/* Get the length of the data from header. */
 	plen = tvb_get_ntohs(tvb, offset + 2);
@@ -1176,7 +1176,7 @@ get_ocfs2_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data 
 
 static int dissect_ocfs2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-	guint32 magic;
+	uint32_t magic;
 	int offset = 0;
 
 	if (!tvb_bytes_exist(tvb, offset, 2))
@@ -1186,7 +1186,7 @@ static int dissect_ocfs2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 	if (try_val_to_str(magic, o2net_magic) == NULL)
 		return 0;
 
-	tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 4, get_ocfs2_pdu_len, dissect_ocfs2_pdu, data);
+	tcp_dissect_pdus(tvb, pinfo, tree, true, 4, get_ocfs2_pdu_len, dissect_ocfs2_pdu, data);
 	return tvb_captured_length(tvb);
 }
 
@@ -1658,7 +1658,7 @@ void proto_register_ocfs2(void)
 		},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_ocfs2,
 		&ett_dtm_lock_flags,
 		&ett_mres_flags,

@@ -528,32 +528,32 @@ static const value_string obdii_mode_vals[] =
 struct obdii_packet_info
 {
 	packet_info *pinfo;
-	guint32 can_id;
+	uint32_t can_id;
 
-	guint8 data_bytes;
-	guint8 mode;
+	uint8_t data_bytes;
+	uint8_t mode;
 
-	guint8 value_bytes;
+	uint8_t value_bytes;
 	int value_offset;
-	guint8 valueA, valueB, valueC, valueD, valueE;
+	uint8_t valueA, valueB, valueC, valueD, valueE;
 };
 
-static gboolean
+static bool
 dissect_obdii_common_temperature(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree *tree, int hf_field)
 {
 	if (oinfo->value_bytes == 1)
 	{
-		gint16 val = ((int) oinfo->valueA) - 40;
+		int16_t val = ((int) oinfo->valueA) - 40;
 
 		col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, ": %d " UTF8_DEGREE_SIGN "C", val);
 		proto_tree_add_int(tree, hf_field, tvb, oinfo->value_offset, oinfo->value_bytes, val);
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
-static gboolean
+static bool
 dissect_obdii_common_percent(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree *tree, int hf_field)
 {
 	if (oinfo->value_bytes == 1)
@@ -562,13 +562,13 @@ dissect_obdii_common_percent(tvbuff_t *tvb, struct obdii_packet_info *oinfo, pro
 
 		col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, ": %.2f %%", val);
 		proto_tree_add_double(tree, hf_field, tvb, oinfo->value_offset, oinfo->value_bytes, val);
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
-static gboolean
+static bool
 dissect_obdii_common_percent_neg(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree *tree, int hf_field)
 {
 	if (oinfo->value_bytes == 1)
@@ -577,73 +577,73 @@ dissect_obdii_common_percent_neg(tvbuff_t *tvb, struct obdii_packet_info *oinfo,
 
 		col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, ": %.2f %%", val);
 		proto_tree_add_double(tree, hf_field, tvb, oinfo->value_offset, oinfo->value_bytes, val);
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
-static gboolean
+static bool
 dissect_obdii_common_fuel_rail_pressure(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree *tree, int hf_field)
 {
 	if (oinfo->value_bytes == 2)
 	{
-		guint val = 10 * (256 * oinfo->valueA + oinfo->valueB);
+		unsigned val = 10 * (256 * oinfo->valueA + oinfo->valueB);
 
 		col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, ": %u kPa", val);
 		proto_tree_add_uint(tree, hf_field, tvb, oinfo->value_offset, oinfo->value_bytes, val);
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
-static gboolean
+static bool
 dissect_obdii_common_absolute_pressure(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree *tree, int hf_field)
 {
 	if (oinfo->value_bytes == 1)
 	{
-		guint8 val = oinfo->valueA;
+		uint8_t val = oinfo->valueA;
 
 		col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, ": %u kPa", val);
 		proto_tree_add_uint(tree, hf_field, tvb, oinfo->value_offset, oinfo->value_bytes, val);
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
-static gboolean
+static bool
 dissect_obdii_common_distance_travelled(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree *tree, int hf_field)
 {
 	if (oinfo->value_bytes == 2)
 	{
-		guint16 val = 256 * oinfo->valueA + oinfo->valueB;
+		uint16_t val = 256 * oinfo->valueA + oinfo->valueB;
 
 		col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, ": %u km", val);
 		proto_tree_add_uint(tree, hf_field, tvb, oinfo->value_offset, oinfo->value_bytes, val);
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
-static gboolean
+static bool
 dissect_obdii_common_time(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree *tree, int hf_field)
 {
 	if (oinfo->value_bytes == 2)
 	{
-		guint16 val = 256 * oinfo->valueA + oinfo->valueB;
+		uint16_t val = 256 * oinfo->valueA + oinfo->valueB;
 
 		col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, ": %u minutes", val);
 		proto_tree_add_uint(tree, hf_field, tvb, oinfo->value_offset, oinfo->value_bytes, val);
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
-static gboolean
+static bool
 dissect_obdii_common_torque(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree *tree, int hf_field)
 {
 	if (oinfo->value_bytes == 1)
@@ -652,18 +652,18 @@ dissect_obdii_common_torque(tvbuff_t *tvb, struct obdii_packet_info *oinfo, prot
 
 		col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, ": %d %%", val);
 		proto_tree_add_int(tree, hf_field, tvb, oinfo->value_offset, oinfo->value_bytes, val);
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 static void
 dissect_obdii_mode_01(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree *tree)
 {
-	guint8 pid = tvb_get_guint8(tvb, OBDII_PID_POS);
+	uint8_t pid = tvb_get_uint8(tvb, OBDII_PID_POS);
 	int value_offset;
-	gboolean handled = FALSE;
+	bool handled = false;
 
 	col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, "- %s", val_to_str_ext(pid, &obdii_mode01_pid_vals_ext, "Unknown (%.2x)"));
 	proto_tree_add_uint(tree, hf_obdii_mode01_pid, tvb, OBDII_PID_POS, 1, pid);
@@ -685,7 +685,7 @@ dissect_obdii_mode_01(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree
 	case OBDII_MODE01_PIDS_SUPPORTC0:
 		if ((handled = (oinfo->value_bytes == 4)))
 		{
-			guint32 val = ((oinfo->valueA << 24) | (oinfo->valueB << 16) | (oinfo->valueC << 8) | (oinfo->valueD << 0));
+			uint32_t val = ((oinfo->valueA << 24) | (oinfo->valueB << 16) | (oinfo->valueC << 8) | (oinfo->valueD << 0));
 			int i;
 			const char *sepa;
 			char bits_str[33];
@@ -693,7 +693,7 @@ dissect_obdii_mode_01(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree
 			sepa = ": ";
 			for (i = 31; i >= 0; i--)
 			{
-				guint this_pid = (pid + 32 - i);
+				unsigned this_pid = (pid + 32 - i);
 				proto_item *ti;
 
 				memset(bits_str, '.', 32);
@@ -720,8 +720,8 @@ dissect_obdii_mode_01(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree
 	case OBDII_MODE01_FUEL_SYSTEM_STATUS:
 		if ((handled = (oinfo->value_bytes == 2)))
 		{
-			guint8 fuel_system1_val = oinfo->valueA;
-			guint8 fuel_system2_val = oinfo->valueB;
+			uint8_t fuel_system1_val = oinfo->valueA;
+			uint8_t fuel_system2_val = oinfo->valueB;
 
 			col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, ": System 1: %s", val_to_str(fuel_system1_val, obdii_fuel_system_status_vals, "Unknown (%.2X)"));
 			col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, ", System 2: %s", val_to_str(fuel_system2_val, obdii_fuel_system_status_vals, "Unknown (%.2X)"));
@@ -758,7 +758,7 @@ dissect_obdii_mode_01(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree
 	case OBDII_MODE01_FUEL_PRESSURE:
 		if ((handled = (oinfo->value_bytes == 1)))
 		{
-			guint16 val = 3 * oinfo->valueA;
+			uint16_t val = 3 * oinfo->valueA;
 
 			col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, ": %u kPa", val);
 			proto_tree_add_uint(tree, hf_obdii_mode01_fuel_pressure, tvb, value_offset, oinfo->value_bytes, val);
@@ -778,7 +778,7 @@ dissect_obdii_mode_01(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree
 	case OBDII_MODE01_VEHICLE_SPEED:
 		if ((handled = (oinfo->value_bytes == 1)))
 		{
-			guint8 val = oinfo->valueA;
+			uint8_t val = oinfo->valueA;
 
 			col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, ": %u km/h", val);
 			proto_tree_add_uint(tree, hf_obdii_mode01_vehicle_speed, tvb, value_offset, oinfo->value_bytes, val);
@@ -816,7 +816,7 @@ dissect_obdii_mode_01(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree
 	case OBDII_MODE01_SECONDARY_AIR_STATUS:
 		if ((handled = (oinfo->value_bytes == 1)))
 		{
-			guint8 air_status = oinfo->valueA;
+			uint8_t air_status = oinfo->valueA;
 
 			col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, ": %s", val_to_str(air_status, obdii_secondary_air_status_vals, "Unknown (%.2X)"));
 			proto_tree_add_uint(tree, hf_obdii_mode01_secondary_air_status, tvb, value_offset, oinfo->value_bytes, air_status);
@@ -826,14 +826,14 @@ dissect_obdii_mode_01(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree
 	case OBDII_MODE01_OXYGEN_SENSOR_PRESET2:
 		if ((handled = (oinfo->value_bytes == 1)))
 		{
-			guint8 bank1_sensor1 = (oinfo->valueA & (1 << 0));
-			guint8 bank1_sensor2 = (oinfo->valueA & (1 << 1));
-			guint8 bank1_sensor3 = (oinfo->valueA & (1 << 2));
-			guint8 bank1_sensor4 = (oinfo->valueA & (1 << 3));
-			guint8 bank2_sensor1 = (oinfo->valueA & (1 << 4));
-			guint8 bank2_sensor2 = (oinfo->valueA & (1 << 5));
-			guint8 bank2_sensor3 = (oinfo->valueA & (1 << 6));
-			guint8 bank2_sensor4 = (oinfo->valueA & (1 << 7));
+			uint8_t bank1_sensor1 = (oinfo->valueA & (1 << 0));
+			uint8_t bank1_sensor2 = (oinfo->valueA & (1 << 1));
+			uint8_t bank1_sensor3 = (oinfo->valueA & (1 << 2));
+			uint8_t bank1_sensor4 = (oinfo->valueA & (1 << 3));
+			uint8_t bank2_sensor1 = (oinfo->valueA & (1 << 4));
+			uint8_t bank2_sensor2 = (oinfo->valueA & (1 << 5));
+			uint8_t bank2_sensor3 = (oinfo->valueA & (1 << 6));
+			uint8_t bank2_sensor4 = (oinfo->valueA & (1 << 7));
 
 			col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, ": Bank1 sensors: %s%s%s%s%s",
 				bank1_sensor1 ? "1 " : "", bank1_sensor2 ? "2 " : "", bank1_sensor3 ? "3 " : "", bank1_sensor4 ? "4 " : "",
@@ -850,14 +850,14 @@ dissect_obdii_mode_01(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree
 	case OBDII_MODE01_OXYGEN_SENSOR_PRESET4:
 		if ((handled = (oinfo->value_bytes == 1)))
 		{
-			guint8 bank1_sensor1 = (oinfo->valueA & (1 << 0));
-			guint8 bank1_sensor2 = (oinfo->valueA & (1 << 1));
-			guint8 bank2_sensor1 = (oinfo->valueA & (1 << 2));
-			guint8 bank2_sensor2 = (oinfo->valueA & (1 << 3));
-			guint8 bank3_sensor1 = (oinfo->valueA & (1 << 4));
-			guint8 bank3_sensor2 = (oinfo->valueA & (1 << 5));
-			guint8 bank4_sensor1 = (oinfo->valueA & (1 << 6));
-			guint8 bank4_sensor2 = (oinfo->valueA & (1 << 7));
+			uint8_t bank1_sensor1 = (oinfo->valueA & (1 << 0));
+			uint8_t bank1_sensor2 = (oinfo->valueA & (1 << 1));
+			uint8_t bank2_sensor1 = (oinfo->valueA & (1 << 2));
+			uint8_t bank2_sensor2 = (oinfo->valueA & (1 << 3));
+			uint8_t bank3_sensor1 = (oinfo->valueA & (1 << 4));
+			uint8_t bank3_sensor2 = (oinfo->valueA & (1 << 5));
+			uint8_t bank4_sensor1 = (oinfo->valueA & (1 << 6));
+			uint8_t bank4_sensor2 = (oinfo->valueA & (1 << 7));
 
 			col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, ": Bank1 sensors: %s%s%s",
 				bank1_sensor1 ? "1 " : "", bank1_sensor2 ? "2 " : "",
@@ -905,7 +905,7 @@ dissect_obdii_mode_01(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree
 	case OBDII_MODE01_OBD_STANDARDS:
 		if ((handled = (oinfo->value_bytes == 1)))
 		{
-			guint8 val = oinfo->valueA;
+			uint8_t val = oinfo->valueA;
 
 			col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, ": %s", val_to_str(val, obdii_standards_vals, "Unknown (%u)"));
 			proto_tree_add_uint(tree, hf_obdii_mode01_obd_standards, tvb, value_offset, oinfo->value_bytes, val);
@@ -915,7 +915,7 @@ dissect_obdii_mode_01(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree
 	case OBDII_MODE01_ENGINE_UPTIME:
 		if ((handled = (oinfo->value_bytes == 2)))
 		{
-			guint16 val = 256 * oinfo->valueA + oinfo->valueB;
+			uint16_t val = 256 * oinfo->valueA + oinfo->valueB;
 
 			col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, ": %u s", val);
 			proto_tree_add_uint(tree, hf_obdii_mode01_engine_uptime, tvb, value_offset, oinfo->value_bytes, val);
@@ -981,7 +981,7 @@ dissect_obdii_mode_01(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree
 	case OBDII_MODE01_WARM_UPS_SINCE_CLEAR:
 		if ((handled = (oinfo->value_bytes == 1)))
 		{
-			guint8 val = oinfo->valueA;
+			uint8_t val = oinfo->valueA;
 
 			col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, ": %u", val);
 			proto_tree_add_uint(tree, hf_obdii_mode01_warm_ups, tvb, value_offset, oinfo->value_bytes, val);
@@ -991,7 +991,7 @@ dissect_obdii_mode_01(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree
 	case OBDII_MODE01_EVAP_SYSTEM_VAPOR_PRESSURE:
 		if ((handled = (oinfo->value_bytes == 2)))
 		{
-			double val = ((gint16) (oinfo->valueA * 256 + oinfo->valueB)) / 4.0;
+			double val = ((int16_t) (oinfo->valueA * 256 + oinfo->valueB)) / 4.0;
 
 			col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, ": %.2f kPa", val);
 			proto_tree_add_double(tree, hf_obdii_mode01_evap_system_vapor_pressure, tvb, value_offset, oinfo->value_bytes, val);
@@ -1129,7 +1129,7 @@ dissect_obdii_mode_01(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree
 	case OBDII_MODE01_FUEL_TYPE:
 		if ((handled = (oinfo->value_bytes == 1)))
 		{
-			guint8 val = oinfo->valueA;
+			uint8_t val = oinfo->valueA;
 
 			col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, ": %s", val_to_str(val, obdii_fuel_type_coding_vals, "Unknown (%u)"));
 			proto_tree_add_uint(tree, hf_obdii_mode01_fuel_type, tvb, value_offset, oinfo->value_bytes, val);
@@ -1208,7 +1208,7 @@ dissect_obdii_mode_01(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree
 	case OBDII_MODE01_TORQUE_REFERENCE_ENGINE:
 		if ((handled = (oinfo->value_bytes == 2)))
 		{
-			guint16 val = 256 * oinfo->valueA + oinfo->valueB;
+			uint16_t val = 256 * oinfo->valueA + oinfo->valueB;
 
 			col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, ": %u Nm", val);
 			proto_tree_add_uint(tree, hf_obdii_mode01_torque_reference_engine, tvb, value_offset, oinfo->value_bytes, val);
@@ -1246,7 +1246,7 @@ dissect_obdii_mode_07(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree
 static void
 dissect_obdii_mode_09(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree *tree)
 {
-	guint8 pid = tvb_get_guint8(tvb, OBDII_PID_POS);
+	uint8_t pid = tvb_get_uint8(tvb, OBDII_PID_POS);
 	int value_offset;
 
 	col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, "- %s", val_to_str_ext(pid, &obdii_mode09_pid_vals_ext, "Unknown (%.2x)"));
@@ -1282,7 +1282,7 @@ dissect_obdii_mode_09(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree
 static int
 dissect_obdii_query(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree *tree)
 {
-	guint16 pid;
+	uint16_t pid;
 	int pid_len;
 	const char *mode_str;
 	const char *pid_str;
@@ -1295,7 +1295,7 @@ dissect_obdii_query(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree *
 		pid = 0; /* Should never be required but set to satisfy petri-dish */
 	}
 	else if (pid_len == 1)
-		pid  = tvb_get_guint8(tvb, OBDII_PID_POS);
+		pid  = tvb_get_uint8(tvb, OBDII_PID_POS);
 	else if (pid_len == 2)
 		pid = tvb_get_ntohs(tvb, OBDII_PID_POS);
 	else
@@ -1342,11 +1342,11 @@ dissect_obdii_response(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tre
 
 	oinfo->value_bytes = oinfo->data_bytes - OBDII_VAL_OFF;
 
-	if (oinfo->value_bytes >= 1) oinfo->valueA = tvb_get_guint8(tvb, OBDII_VAL_OFF);
-	if (oinfo->value_bytes >= 2) oinfo->valueB = tvb_get_guint8(tvb, OBDII_VAL_OFF + 1);
-	if (oinfo->value_bytes >= 3) oinfo->valueC = tvb_get_guint8(tvb, OBDII_VAL_OFF + 2);
-	if (oinfo->value_bytes >= 4) oinfo->valueD = tvb_get_guint8(tvb, OBDII_VAL_OFF + 3);
-	if (oinfo->value_bytes >= 5) oinfo->valueE = tvb_get_guint8(tvb, OBDII_VAL_OFF + 4);
+	if (oinfo->value_bytes >= 1) oinfo->valueA = tvb_get_uint8(tvb, OBDII_VAL_OFF);
+	if (oinfo->value_bytes >= 2) oinfo->valueB = tvb_get_uint8(tvb, OBDII_VAL_OFF + 1);
+	if (oinfo->value_bytes >= 3) oinfo->valueC = tvb_get_uint8(tvb, OBDII_VAL_OFF + 2);
+	if (oinfo->value_bytes >= 4) oinfo->valueD = tvb_get_uint8(tvb, OBDII_VAL_OFF + 3);
+	if (oinfo->value_bytes >= 5) oinfo->valueE = tvb_get_uint8(tvb, OBDII_VAL_OFF + 4);
 
 	switch (oinfo->mode)
 	{
@@ -1367,16 +1367,16 @@ static int
 dissect_obdii_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	iso15765_info_t iso15765_info;
-	guint32         can_id_only;
+	uint32_t        can_id_only;
 	struct obdii_packet_info oinfo;
 
 	proto_tree *obdii_tree;
 	proto_item *ti;
 
-	guint8 data_bytes;
-	guint8 mode;
-	gboolean id_is_query;
-	gboolean id_is_response;
+	uint8_t data_bytes;
+	uint8_t mode;
+	bool id_is_query;
+	bool id_is_response;
 
 	DISSECTOR_ASSERT(data);
 
@@ -1409,7 +1409,7 @@ dissect_obdii_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 		return 0;
 
 	data_bytes = tvb_reported_length(tvb);
-	mode = tvb_get_guint8(tvb, OBDII_MODE_POS);
+	mode = tvb_get_uint8(tvb, OBDII_MODE_POS);
 
 	/* Mode 7 is a datalength of 1, all other queries either 2 or 3 bytes */
 	if (id_is_query)
@@ -1466,12 +1466,12 @@ dissect_obdii_uds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     proto_tree               *obdii_tree;
     proto_item               *ti;
 
-    guint8                    data_bytes;
-    guint8                    mode;
-    gboolean                  response;
+    uint8_t                   data_bytes;
+    uint8_t                   mode;
+    bool                      response;
 
     data_bytes = tvb_reported_length(tvb);
-    mode = tvb_get_guint8(tvb, OBDII_MODE_POS);
+    mode = tvb_get_uint8(tvb, OBDII_MODE_POS);
     response = (mode & 0x40) == 0x40;
     mode = mode & 0xbf;
 

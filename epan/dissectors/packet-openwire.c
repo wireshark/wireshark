@@ -256,8 +256,8 @@ static int hf_openwire_cached_inlined;
 static int hf_openwire_cached_id;
 static int hf_openwire_cached_enabled;
 
-static gint ett_openwire;
-static gint ett_openwire_type;
+static int ett_openwire;
+static int ett_openwire_type;
 
 static expert_field ei_openwire_tight_encoding_not_supported;
 static expert_field ei_openwire_encoding_not_supported;
@@ -525,17 +525,17 @@ static const value_string openwire_operation_type_vals[] = {
 };
 
 typedef struct openwire_conv_data {
-    gboolean caching;
-    gboolean tight;
+    bool caching;
+    bool tight;
 } openwire_conv_data;
 
 static void
 validate_boolean(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, int offset, proto_item *boolean_item)
 {
     /* Sanity check of boolean : must be 0x00 or 0x01 */
-    guint8 booleanByte;
-    booleanByte = tvb_get_guint8(tvb, offset);
-    if (booleanByte != FALSE && booleanByte != TRUE)
+    uint8_t booleanByte;
+    booleanByte = tvb_get_uint8(tvb, offset);
+    if (booleanByte != false && booleanByte != true)
     {
         expert_add_info(pinfo, boolean_item, &ei_openwire_encoding_not_supported);
     }
@@ -577,38 +577,38 @@ detect_protocol_options(tvbuff_t *tvb, packet_info *pinfo, int offset, int iComm
             cd = (openwire_conv_data*)conversation_get_proto_data(conv, proto_openwire);
             if (!cd)
             {
-                guint8 present, type;
-                gint command_id = 0;
+                uint8_t present, type;
+                int command_id = 0;
 
-                present = tvb_get_guint8(tvb, offset + 10);
-                type = tvb_get_guint8(tvb, offset + 11);
+                present = tvb_get_uint8(tvb, offset + 10);
+                type = tvb_get_uint8(tvb, offset + 11);
                 command_id = tvb_get_ntohl(tvb, offset + 5);
 
                 cd = wmem_new(wmem_file_scope(), openwire_conv_data);
-                cd->caching = FALSE;
-                cd->tight = FALSE;
+                cd->caching = false;
+                cd->tight = false;
                 if (command_id > (1 << 24))
                 {
                     /* If "tight" encoding is enabled, the command_id first byte is non-zero.
                        This can be misdetected with "loose" encoding if the capture is started after 16 millions commands on the connection,
                        which we will assume that it happens very rarely.  */
-                    cd->tight = TRUE;
+                    cd->tight = true;
                 }
                 else
                 {
-                    if (present == TRUE && type == OPENWIRE_TYPE_NULL)
+                    if (present == true && type == OPENWIRE_TYPE_NULL)
                     {
                         /* If a cached object is not-null, it should be the "NULL" object.
                            This can be misdetected with "loose" encoding if the capture is started after 256 cached objects on the connection,
                            which we will assume that it happens rarely.  */
-                        cd->caching = TRUE;
+                        cd->caching = true;
                     }
                 }
                 conversation_add_proto_data(conv, proto_openwire, cd);
             }
         }
     }
-    else if ((tvb_get_guint8(tvb, 4) == OPENWIRE_KEEP_ALIVE_INFO)
+    else if ((tvb_get_uint8(tvb, 4) == OPENWIRE_KEEP_ALIVE_INFO)
             && (tvb_captured_length(tvb) == 11))
     {
         /* If the capture is started after a long-lived connection is started,
@@ -621,14 +621,14 @@ detect_protocol_options(tvbuff_t *tvb, packet_info *pinfo, int offset, int iComm
         if (!cd)
         {
             cd = wmem_new(wmem_file_scope(), openwire_conv_data);
-            cd->tight = TRUE;
-            cd->caching = FALSE; /* Dummy value */
+            cd->tight = true;
+            cd->caching = false; /* Dummy value */
             conversation_add_proto_data(conv, proto_openwire, cd);
         }
     }
 }
 
-static gboolean
+static bool
 retrieve_caching(packet_info *pinfo)
 {
     conversation_t     *conv;
@@ -638,10 +638,10 @@ retrieve_caching(packet_info *pinfo)
     cd = (openwire_conv_data*)conversation_get_proto_data(conv, proto_openwire);
     if (cd) return cd->caching;
     /* Default : non-caching is recommended */
-    return FALSE;
+    return false;
 }
 
-static gboolean
+static bool
 retrieve_tight(packet_info *pinfo)
 {
     conversation_t     *conv;
@@ -649,8 +649,8 @@ retrieve_tight(packet_info *pinfo)
 
     conv = find_or_create_conversation(pinfo);
     cd = (openwire_conv_data*)conversation_get_proto_data(conv, proto_openwire);
-    if (cd && cd->tight) return TRUE;
-    return FALSE;
+    if (cd && cd->tight) return true;
+    return false;
 }
 
 static int
@@ -658,18 +658,18 @@ dissect_openwire_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int field, int type, int parentType, gboolean nullable)
+dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int field, int type, int parentType, bool nullable)
 {
-    gint        startOffset  = offset;
+    int         startOffset  = offset;
     proto_item *boolean_item = NULL;
     const char *cache_str = "";
 
-    if (type == OPENWIRE_TYPE_CACHED && retrieve_caching(pinfo) == TRUE && tvb_reported_length_remaining(tvb, offset) >= 3)
+    if (type == OPENWIRE_TYPE_CACHED && retrieve_caching(pinfo) == true && tvb_reported_length_remaining(tvb, offset) >= 3)
     {
-        guint8 inlined = 0;
-        gint cachedID = 0;
+        uint8_t inlined = 0;
+        int cachedID = 0;
         proto_item * cached_item = NULL;
-        inlined = tvb_get_guint8(tvb, offset + 0) == TRUE ? TRUE : FALSE;
+        inlined = tvb_get_uint8(tvb, offset + 0) == true ? true : false;
         cachedID = tvb_get_ntohs(tvb, offset + 1);
         cache_str = wmem_strdup_printf(pinfo->pool, " (CachedID: %d)", cachedID);
         if (openwire_verbose_type)
@@ -682,7 +682,7 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
             /* Hide it but allow it in search filters */
             proto_item_set_hidden(cached_item);
         }
-        if (inlined == FALSE)
+        if (inlined == false)
         {
             proto_item    *ti;
             ti = proto_tree_add_item(tree, particularize(field, hf_openwire_type_object), tvb, startOffset, 3, ENC_NA);
@@ -694,15 +694,15 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
             offset += 3;
         }
     }
-    if (nullable == TRUE && (type == OPENWIRE_TYPE_NESTED || type == OPENWIRE_TYPE_CACHED || type == OPENWIRE_COMMAND_INNER) && tvb_reported_length_remaining(tvb, offset) >= 1)
+    if (nullable == true && (type == OPENWIRE_TYPE_NESTED || type == OPENWIRE_TYPE_CACHED || type == OPENWIRE_COMMAND_INNER) && tvb_reported_length_remaining(tvb, offset) >= 1)
     {
-        nullable = tvb_get_guint8(tvb, offset + 0) == FALSE ? TRUE : FALSE;
+        nullable = tvb_get_uint8(tvb, offset + 0) == false ? true : false;
         if (openwire_verbose_type)
         {
             boolean_item = proto_tree_add_item(tree, hf_openwire_type_notnull, tvb, offset, 1, ENC_BIG_ENDIAN);
         }
         validate_boolean(tvb, pinfo, tree, offset, boolean_item);
-        if (nullable == TRUE)
+        if (nullable == true)
         {
             proto_tree_add_item(tree, particularize(field, hf_openwire_none), tvb, offset, 1, ENC_NA);
             return offset - startOffset + 1;
@@ -713,8 +713,8 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
     {
         proto_item * inner_item = NULL;
         proto_tree * object_tree = NULL;
-        guint8 iCommand = parentType;
-        iCommand = tvb_get_guint8(tvb, offset + 0);
+        uint8_t iCommand = parentType;
+        iCommand = tvb_get_uint8(tvb, offset + 0);
         inner_item = proto_tree_add_item(tree, particularize(field, hf_openwire_none), tvb, startOffset, -1, ENC_NA);
         proto_item_append_text(inner_item, ": %s", val_to_str_ext(iCommand, &openwire_opcode_vals_ext, "Unknown (0x%02x)"));
         object_tree = proto_item_add_subtree(inner_item, ett_openwire_type);
@@ -726,22 +726,22 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
     }
     if ((type == OPENWIRE_TYPE_NESTED || type == OPENWIRE_TYPE_CACHED) && tvb_reported_length_remaining(tvb, offset) >= 1)
     {
-        type = tvb_get_guint8(tvb, offset + 0);
+        type = tvb_get_uint8(tvb, offset + 0);
         if (openwire_verbose_type)
         {
             proto_tree_add_item(tree, hf_openwire_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         }
         offset += 1;
     }
-    if (nullable == TRUE && tvb_reported_length_remaining(tvb, offset) >= 1)
+    if (nullable == true && tvb_reported_length_remaining(tvb, offset) >= 1)
     {
-        nullable = tvb_get_guint8(tvb, offset + 0) == FALSE ? TRUE : FALSE;
+        nullable = tvb_get_uint8(tvb, offset + 0) == false ? true : false;
         if (openwire_verbose_type)
         {
             boolean_item = proto_tree_add_item(tree, hf_openwire_type_notnull, tvb, offset, 1, ENC_BIG_ENDIAN);
         }
         validate_boolean(tvb, pinfo, tree, offset, boolean_item);
-        if (nullable == TRUE)
+        if (nullable == true)
         {
             proto_tree_add_item(tree, particularize(field, hf_openwire_none), tvb, offset, 1, ENC_NA);
             return offset - startOffset + 1;
@@ -797,7 +797,7 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
     }
     else if (type == OPENWIRE_TYPE_STRING && tvb_reported_length_remaining(tvb, offset) >= 2)
     {
-        gint iStringLength = 0;
+        int iStringLength = 0;
         iStringLength = tvb_get_ntohs(tvb, offset);
         if (openwire_verbose_type)
         {
@@ -812,7 +812,7 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
     }
     else if (type == OPENWIRE_TYPE_BIG_STRING && tvb_reported_length_remaining(tvb, offset) >= 4)
     {
-        gint iStringLength = 0;
+        int iStringLength = 0;
         iStringLength = tvb_get_ntohl(tvb, offset);
         if (openwire_verbose_type)
         {
@@ -827,7 +827,7 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
     }
     else if (type == OPENWIRE_TYPE_BYTE_ARRAY && tvb_reported_length_remaining(tvb, offset) >= 4)
     {
-        gint iArrayLength = 0;
+        int iArrayLength = 0;
         iArrayLength = tvb_get_ntohl(tvb, offset);
         if (openwire_verbose_type)
         {
@@ -845,20 +845,20 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
                 tvbuff_t* next_tvb = NULL;
                 if (parentType == OPENWIRE_ACTIVEMQ_TEXT_MESSAGE)
                 {
-                    dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_none, OPENWIRE_TYPE_BIG_STRING, type, FALSE);
+                    dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_none, OPENWIRE_TYPE_BIG_STRING, type, false);
                     next_tvb = tvb_new_subset_length(tvb, offset, iArrayLength);
                     add_new_data_source(pinfo, next_tvb, "Body");
                 }
                 else if (parentType == OPENWIRE_ACTIVEMQ_MAP_MESSAGE)
                 {
-                    dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_none, OPENWIRE_TYPE_MAP, type, FALSE);
+                    dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_none, OPENWIRE_TYPE_MAP, type, false);
                 }
                 else if (parentType == OPENWIRE_ACTIVEMQ_STREAM_MESSAGE)
                 {
-                    gint streamOffset = offset;
+                    int streamOffset = offset;
                     while (streamOffset < offset + iArrayLength)
                     {
-                        streamOffset += dissect_openwire_type(tvb, pinfo, object_tree, streamOffset, hf_openwire_none, OPENWIRE_TYPE_NESTED, type, FALSE);
+                        streamOffset += dissect_openwire_type(tvb, pinfo, object_tree, streamOffset, hf_openwire_none, OPENWIRE_TYPE_NESTED, type, false);
                     }
                 }
                 else if (parentType == OPENWIRE_ACTIVEMQ_BYTES_MESSAGE
@@ -872,7 +872,7 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
             }
             else if (field == hf_openwire_message_properties)
             {
-                dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_none, OPENWIRE_TYPE_MAP, type, FALSE);
+                dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_none, OPENWIRE_TYPE_MAP, type, false);
             }
             offset += iArrayLength;
         }
@@ -890,7 +890,7 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 
         if (type == OPENWIRE_TYPE_OBJECT_ARRAY && tvb_reported_length_remaining(tvb, offset) >= 2)
         {
-            gint iArrayLength;
+            int iArrayLength;
             int iArrayItem = 0;
             iArrayLength = tvb_get_ntohs(tvb, offset);
             if (openwire_verbose_type)
@@ -903,7 +903,7 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
             {
                 if (tvb_reported_length_remaining(tvb, offset) >= 0)
                 {
-                    offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_none, OPENWIRE_TYPE_NESTED, type, TRUE);
+                    offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_none, OPENWIRE_TYPE_NESTED, type, true);
                 }
             }
         }
@@ -922,23 +922,23 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
             {
                 proto_item * map_entry;
                 proto_tree * entry_tree;
-                gint entryStartOffset = offset;
+                int entryStartOffset = offset;
 
                 map_entry = proto_tree_add_item(object_tree, hf_openwire_map_entry, tvb, offset, 0, ENC_NA);
                 entry_tree = proto_item_add_subtree(map_entry, ett_openwire_type);
 
                 /* Key */
-                offset += dissect_openwire_type(tvb, pinfo, entry_tree, offset, hf_openwire_map_key, OPENWIRE_TYPE_STRING, type, FALSE);
+                offset += dissect_openwire_type(tvb, pinfo, entry_tree, offset, hf_openwire_map_key, OPENWIRE_TYPE_STRING, type, false);
                 /* Value */
-                offset += dissect_openwire_type(tvb, pinfo, entry_tree, offset, hf_openwire_none, OPENWIRE_TYPE_NESTED, type, FALSE);
+                offset += dissect_openwire_type(tvb, pinfo, entry_tree, offset, hf_openwire_none, OPENWIRE_TYPE_NESTED, type, false);
                 proto_item_set_len(map_entry, offset - entryStartOffset);
             }
         }
         else if (type == OPENWIRE_TYPE_THROWABLE && tvb_reported_length_remaining(tvb, offset) >= 2)
         {
-            gint iStackTraceDepth, iStackTraceItem;
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_throwable_class, OPENWIRE_TYPE_STRING, type, TRUE);
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_throwable_message, OPENWIRE_TYPE_STRING, type, TRUE);
+            int iStackTraceDepth, iStackTraceItem;
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_throwable_class, OPENWIRE_TYPE_STRING, type, true);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_throwable_message, OPENWIRE_TYPE_STRING, type, true);
             iStackTraceDepth = tvb_get_ntohs(tvb, offset);
             if (openwire_verbose_type)
             {
@@ -951,20 +951,20 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
                 {
                     proto_item    *element;
                     proto_tree    *element_tree;
-                    gint startElementOffset = offset;
+                    int startElementOffset = offset;
                     element = proto_tree_add_item(object_tree, hf_openwire_throwable_element, tvb, startElementOffset, -1, ENC_NA);
                     element_tree = proto_item_add_subtree(element, ett_openwire_type);
 
                     if (tvb_reported_length_remaining(tvb, offset) >= 0)
                     {
-                        offset += dissect_openwire_type(tvb, pinfo, element_tree, offset, hf_openwire_throwable_classname, OPENWIRE_TYPE_STRING, type, TRUE);
-                        offset += dissect_openwire_type(tvb, pinfo, element_tree, offset, hf_openwire_throwable_methodname, OPENWIRE_TYPE_STRING, type, TRUE);
-                        offset += dissect_openwire_type(tvb, pinfo, element_tree, offset, hf_openwire_throwable_filename, OPENWIRE_TYPE_STRING, type, TRUE);
-                        offset += dissect_openwire_type(tvb, pinfo, element_tree, offset, hf_openwire_throwable_linenumber, OPENWIRE_TYPE_INTEGER, type, FALSE);
+                        offset += dissect_openwire_type(tvb, pinfo, element_tree, offset, hf_openwire_throwable_classname, OPENWIRE_TYPE_STRING, type, true);
+                        offset += dissect_openwire_type(tvb, pinfo, element_tree, offset, hf_openwire_throwable_methodname, OPENWIRE_TYPE_STRING, type, true);
+                        offset += dissect_openwire_type(tvb, pinfo, element_tree, offset, hf_openwire_throwable_filename, OPENWIRE_TYPE_STRING, type, true);
+                        offset += dissect_openwire_type(tvb, pinfo, element_tree, offset, hf_openwire_throwable_linenumber, OPENWIRE_TYPE_INTEGER, type, false);
                         proto_item_set_len(element, offset - startElementOffset);
                     }
                 }
-                offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_exceptionresponse_exception, OPENWIRE_TYPE_THROWABLE, type, TRUE);
+                offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_exceptionresponse_exception, OPENWIRE_TYPE_THROWABLE, type, true);
             }
         }
         else if (type == OPENWIRE_TYPE_LIST && tvb_reported_length_remaining(tvb, offset) >= 4)
@@ -973,45 +973,45 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
         }
         else if (type == OPENWIRE_CONNECTION_ID && tvb_reported_length_remaining(tvb, offset) >= 1)
         {
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_connectionid_value, OPENWIRE_TYPE_STRING, type, TRUE);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_connectionid_value, OPENWIRE_TYPE_STRING, type, true);
         }
         else if (type == OPENWIRE_SESSION_ID && tvb_reported_length_remaining(tvb, offset) >= 2)
         {
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_sessionid_connectionid, OPENWIRE_TYPE_STRING, type, TRUE);
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_sessionid_value, OPENWIRE_TYPE_LONG, type, FALSE);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_sessionid_connectionid, OPENWIRE_TYPE_STRING, type, true);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_sessionid_value, OPENWIRE_TYPE_LONG, type, false);
         }
         else if (type == OPENWIRE_CONSUMER_ID && tvb_reported_length_remaining(tvb, offset) >= 3)
         {
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_consumerid_connectionid, OPENWIRE_TYPE_STRING, type, TRUE);
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_consumerid_value, OPENWIRE_TYPE_LONG, type, FALSE);
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_consumerid_sessionid, OPENWIRE_TYPE_LONG, type, FALSE);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_consumerid_connectionid, OPENWIRE_TYPE_STRING, type, true);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_consumerid_value, OPENWIRE_TYPE_LONG, type, false);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_consumerid_sessionid, OPENWIRE_TYPE_LONG, type, false);
         }
         else if (type == OPENWIRE_PRODUCER_ID && tvb_reported_length_remaining(tvb, offset) >= 3)
         {
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_producerid_connectionid, OPENWIRE_TYPE_STRING, type, TRUE);
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_producerid_value, OPENWIRE_TYPE_LONG, type, FALSE);
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_producerid_sessionid, OPENWIRE_TYPE_LONG, type, FALSE);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_producerid_connectionid, OPENWIRE_TYPE_STRING, type, true);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_producerid_value, OPENWIRE_TYPE_LONG, type, false);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_producerid_sessionid, OPENWIRE_TYPE_LONG, type, false);
         }
         else if (type == OPENWIRE_BROKER_ID && tvb_reported_length_remaining(tvb, offset) >= 1)
         {
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_brokerid_value, OPENWIRE_TYPE_STRING, type, TRUE);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_brokerid_value, OPENWIRE_TYPE_STRING, type, true);
         }
         else if (type == OPENWIRE_MESSAGE_ID && tvb_reported_length_remaining(tvb, offset) >= 3)
         {
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_messageid_producerid, OPENWIRE_TYPE_CACHED, type, TRUE);
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_messageid_producersequenceid, OPENWIRE_TYPE_LONG, type, FALSE);
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_messageid_brokersequenceid, OPENWIRE_TYPE_LONG, type, FALSE);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_messageid_producerid, OPENWIRE_TYPE_CACHED, type, true);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_messageid_producersequenceid, OPENWIRE_TYPE_LONG, type, false);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_messageid_brokersequenceid, OPENWIRE_TYPE_LONG, type, false);
         }
         else if (type == OPENWIRE_ACTIVEMQ_LOCAL_TRANSACTION_ID && tvb_reported_length_remaining(tvb, offset) >= 2)
         {
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_localtransactionid_value, OPENWIRE_TYPE_LONG, type, FALSE);
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_localtransactionid_connectionid, OPENWIRE_TYPE_CACHED, type, TRUE);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_localtransactionid_value, OPENWIRE_TYPE_LONG, type, false);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_localtransactionid_connectionid, OPENWIRE_TYPE_CACHED, type, true);
         }
         else if (type == OPENWIRE_ACTIVEMQ_XA_TRANSACTION_ID && tvb_reported_length_remaining(tvb, offset) >= 3)
         {
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_xatransactionid_formatid, OPENWIRE_TYPE_INTEGER, type, FALSE);
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_xatransactionid_globaltransactionid, OPENWIRE_TYPE_BYTE_ARRAY, type, TRUE);
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_xatransactionid_branchqualifier, OPENWIRE_TYPE_BYTE_ARRAY, type, TRUE);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_xatransactionid_formatid, OPENWIRE_TYPE_INTEGER, type, false);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_xatransactionid_globaltransactionid, OPENWIRE_TYPE_BYTE_ARRAY, type, true);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_xatransactionid_branchqualifier, OPENWIRE_TYPE_BYTE_ARRAY, type, true);
         }
         else if ((type == OPENWIRE_ACTIVEMQ_QUEUE
             || type == OPENWIRE_ACTIVEMQ_TOPIC
@@ -1019,7 +1019,7 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
             || type == OPENWIRE_ACTIVEMQ_TEMP_TOPIC)
             && tvb_reported_length_remaining(tvb, offset) >= 1)
         {
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_destination_name, OPENWIRE_TYPE_STRING, type, TRUE);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_destination_name, OPENWIRE_TYPE_STRING, type, true);
         }
         else if (type == OPENWIRE_ACTIVEMQ_MESSAGE
                 || type == OPENWIRE_ACTIVEMQ_BYTES_MESSAGE
@@ -1031,38 +1031,38 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
         {
             if (parentType != type)
             {
-                offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_command_id, OPENWIRE_TYPE_INTEGER, type, FALSE);
-                offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_command_response_required, OPENWIRE_TYPE_BOOLEAN, type, FALSE);
+                offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_command_id, OPENWIRE_TYPE_INTEGER, type, false);
+                offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_command_response_required, OPENWIRE_TYPE_BOOLEAN, type, false);
             }
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_producerid, OPENWIRE_TYPE_CACHED, type, TRUE);
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_destination, OPENWIRE_TYPE_CACHED, type, TRUE);
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_transactionid, OPENWIRE_TYPE_CACHED, type, TRUE);
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_originaldestination, OPENWIRE_TYPE_CACHED, type, TRUE);
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_messageid, OPENWIRE_TYPE_NESTED, type, TRUE);
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_originaldestinationid, OPENWIRE_TYPE_CACHED, type, TRUE);
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_groupid, OPENWIRE_TYPE_STRING, type, TRUE);
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_groupsequence, OPENWIRE_TYPE_INTEGER, type, FALSE);
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_correlationid, OPENWIRE_TYPE_STRING, type, TRUE);
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_persistent, OPENWIRE_TYPE_BOOLEAN, type, FALSE);
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_expiration, OPENWIRE_TYPE_LONG, type, FALSE);
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_priority, OPENWIRE_TYPE_BYTE, type, FALSE);
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_replyto, OPENWIRE_TYPE_NESTED, type, TRUE);
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_timestamp, OPENWIRE_TYPE_LONG, type, FALSE);
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_type, OPENWIRE_TYPE_STRING, type, TRUE);
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_body, OPENWIRE_TYPE_BYTE_ARRAY, type, TRUE);
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_properties, OPENWIRE_TYPE_BYTE_ARRAY, type, TRUE);
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_datastructure, OPENWIRE_COMMAND_INNER, type, TRUE);
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_targetconsumerid, OPENWIRE_TYPE_CACHED, type, TRUE);
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_compressed, OPENWIRE_TYPE_BOOLEAN, type, FALSE);
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_redeliverycount, OPENWIRE_TYPE_INTEGER, type, FALSE);
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_brokerpath, OPENWIRE_TYPE_OBJECT_ARRAY, type, TRUE);
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_arrival, OPENWIRE_TYPE_LONG, type, FALSE);
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_userid, OPENWIRE_TYPE_STRING, type, TRUE);
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_receivedbydfbridge, OPENWIRE_TYPE_BOOLEAN, type, FALSE);
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_droppable, OPENWIRE_TYPE_BOOLEAN, type, FALSE);
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_cluster, OPENWIRE_TYPE_OBJECT_ARRAY, type, TRUE);
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_brokerintime, OPENWIRE_TYPE_LONG, type, FALSE);
-            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_brokerouttime, OPENWIRE_TYPE_LONG, type, FALSE);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_producerid, OPENWIRE_TYPE_CACHED, type, true);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_destination, OPENWIRE_TYPE_CACHED, type, true);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_transactionid, OPENWIRE_TYPE_CACHED, type, true);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_originaldestination, OPENWIRE_TYPE_CACHED, type, true);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_messageid, OPENWIRE_TYPE_NESTED, type, true);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_originaldestinationid, OPENWIRE_TYPE_CACHED, type, true);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_groupid, OPENWIRE_TYPE_STRING, type, true);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_groupsequence, OPENWIRE_TYPE_INTEGER, type, false);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_correlationid, OPENWIRE_TYPE_STRING, type, true);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_persistent, OPENWIRE_TYPE_BOOLEAN, type, false);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_expiration, OPENWIRE_TYPE_LONG, type, false);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_priority, OPENWIRE_TYPE_BYTE, type, false);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_replyto, OPENWIRE_TYPE_NESTED, type, true);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_timestamp, OPENWIRE_TYPE_LONG, type, false);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_type, OPENWIRE_TYPE_STRING, type, true);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_body, OPENWIRE_TYPE_BYTE_ARRAY, type, true);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_properties, OPENWIRE_TYPE_BYTE_ARRAY, type, true);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_datastructure, OPENWIRE_COMMAND_INNER, type, true);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_targetconsumerid, OPENWIRE_TYPE_CACHED, type, true);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_compressed, OPENWIRE_TYPE_BOOLEAN, type, false);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_redeliverycount, OPENWIRE_TYPE_INTEGER, type, false);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_brokerpath, OPENWIRE_TYPE_OBJECT_ARRAY, type, true);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_arrival, OPENWIRE_TYPE_LONG, type, false);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_userid, OPENWIRE_TYPE_STRING, type, true);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_receivedbydfbridge, OPENWIRE_TYPE_BOOLEAN, type, false);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_droppable, OPENWIRE_TYPE_BOOLEAN, type, false);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_cluster, OPENWIRE_TYPE_OBJECT_ARRAY, type, true);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_brokerintime, OPENWIRE_TYPE_LONG, type, false);
+            offset += dissect_openwire_type(tvb, pinfo, object_tree, offset, hf_openwire_message_brokerouttime, OPENWIRE_TYPE_LONG, type, false);
         }
         else if (tvb_reported_length_remaining(tvb, offset) > 0)
         {
@@ -1079,10 +1079,10 @@ static int
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_openwire_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int parentType)
 {
-    gint   startOffset = offset;
-    guint8 iCommand;
+    int    startOffset = offset;
+    uint8_t iCommand;
 
-    iCommand = tvb_get_guint8(tvb, offset + 0);
+    iCommand = tvb_get_uint8(tvb, offset + 0);
 
     proto_tree_add_item(tree, hf_openwire_command, tvb, offset + 0, 1, ENC_BIG_ENDIAN);
     offset += 1;
@@ -1096,7 +1096,7 @@ dissect_openwire_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
             proto_tree_add_item(tree, hf_openwire_wireformatinfo_data, tvb, offset + 12, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_openwire_wireformatinfo_length, tvb, offset + 13, 4, ENC_BIG_ENDIAN);
             offset += 17;
-            offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_none, OPENWIRE_TYPE_MAP, iCommand, FALSE);
+            offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_none, OPENWIRE_TYPE_MAP, iCommand, false);
         }
     }
     else
@@ -1112,169 +1112,169 @@ dissect_openwire_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
             }
             else if (iCommand == OPENWIRE_SESSION_INFO)
             {
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_sessioninfo_sessionid, OPENWIRE_TYPE_CACHED, iCommand, TRUE);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_sessioninfo_sessionid, OPENWIRE_TYPE_CACHED, iCommand, true);
             }
             else if (iCommand == OPENWIRE_DESTINATION_INFO)
             {
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_destinationinfo_connectionid, OPENWIRE_TYPE_CACHED, iCommand, TRUE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_destinationinfo_destination, OPENWIRE_TYPE_CACHED, iCommand, TRUE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_destinationinfo_operationtype, OPENWIRE_TYPE_BYTE, iCommand, FALSE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_destinationinfo_timeout, OPENWIRE_TYPE_LONG, iCommand, FALSE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_destinationinfo_brokerpath, OPENWIRE_TYPE_OBJECT_ARRAY, iCommand, TRUE);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_destinationinfo_connectionid, OPENWIRE_TYPE_CACHED, iCommand, true);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_destinationinfo_destination, OPENWIRE_TYPE_CACHED, iCommand, true);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_destinationinfo_operationtype, OPENWIRE_TYPE_BYTE, iCommand, false);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_destinationinfo_timeout, OPENWIRE_TYPE_LONG, iCommand, false);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_destinationinfo_brokerpath, OPENWIRE_TYPE_OBJECT_ARRAY, iCommand, true);
             }
             else if (iCommand == OPENWIRE_CONNECTION_INFO)
             {
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_connectioninfo_connectionid, OPENWIRE_TYPE_CACHED, iCommand, TRUE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_connectioninfo_clientid, OPENWIRE_TYPE_STRING, iCommand, TRUE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_connectioninfo_password, OPENWIRE_TYPE_STRING, iCommand, TRUE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_connectioninfo_username, OPENWIRE_TYPE_STRING, iCommand, TRUE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_connectioninfo_brokerpath, OPENWIRE_TYPE_OBJECT_ARRAY, iCommand, TRUE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_connectioninfo_brokermasterconnector, OPENWIRE_TYPE_BOOLEAN, iCommand, FALSE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_connectioninfo_manageable, OPENWIRE_TYPE_BOOLEAN, iCommand, FALSE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_connectioninfo_clientmaster, OPENWIRE_TYPE_BOOLEAN, iCommand, FALSE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_connectioninfo_faulttolerant, OPENWIRE_TYPE_BOOLEAN, iCommand, FALSE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_connectioninfo_failoverreconnect, OPENWIRE_TYPE_BOOLEAN, iCommand, FALSE);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_connectioninfo_connectionid, OPENWIRE_TYPE_CACHED, iCommand, true);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_connectioninfo_clientid, OPENWIRE_TYPE_STRING, iCommand, true);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_connectioninfo_password, OPENWIRE_TYPE_STRING, iCommand, true);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_connectioninfo_username, OPENWIRE_TYPE_STRING, iCommand, true);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_connectioninfo_brokerpath, OPENWIRE_TYPE_OBJECT_ARRAY, iCommand, true);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_connectioninfo_brokermasterconnector, OPENWIRE_TYPE_BOOLEAN, iCommand, false);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_connectioninfo_manageable, OPENWIRE_TYPE_BOOLEAN, iCommand, false);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_connectioninfo_clientmaster, OPENWIRE_TYPE_BOOLEAN, iCommand, false);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_connectioninfo_faulttolerant, OPENWIRE_TYPE_BOOLEAN, iCommand, false);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_connectioninfo_failoverreconnect, OPENWIRE_TYPE_BOOLEAN, iCommand, false);
             }
             else if (iCommand == OPENWIRE_CONNECTION_CONTROL)
             {
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_connectioncontrol_close, OPENWIRE_TYPE_BOOLEAN, iCommand, TRUE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_connectioncontrol_exit, OPENWIRE_TYPE_BOOLEAN, iCommand, FALSE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_connectioncontrol_faulttolerant, OPENWIRE_TYPE_BOOLEAN, iCommand, FALSE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_connectioncontrol_resume, OPENWIRE_TYPE_BOOLEAN, iCommand, FALSE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_connectioncontrol_suspend, OPENWIRE_TYPE_BOOLEAN, iCommand, FALSE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_connectioncontrol_connectedbrokers, OPENWIRE_TYPE_STRING, iCommand, TRUE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_connectioncontrol_reconnectto, OPENWIRE_TYPE_STRING, iCommand, TRUE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_connectioncontrol_rebalanceconnection, OPENWIRE_TYPE_BOOLEAN, iCommand, FALSE);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_connectioncontrol_close, OPENWIRE_TYPE_BOOLEAN, iCommand, true);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_connectioncontrol_exit, OPENWIRE_TYPE_BOOLEAN, iCommand, false);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_connectioncontrol_faulttolerant, OPENWIRE_TYPE_BOOLEAN, iCommand, false);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_connectioncontrol_resume, OPENWIRE_TYPE_BOOLEAN, iCommand, false);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_connectioncontrol_suspend, OPENWIRE_TYPE_BOOLEAN, iCommand, false);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_connectioncontrol_connectedbrokers, OPENWIRE_TYPE_STRING, iCommand, true);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_connectioncontrol_reconnectto, OPENWIRE_TYPE_STRING, iCommand, true);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_connectioncontrol_rebalanceconnection, OPENWIRE_TYPE_BOOLEAN, iCommand, false);
             }
             else if (iCommand == OPENWIRE_CONSUMER_INFO)
             {
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumerinfo_consumerid, OPENWIRE_TYPE_CACHED, iCommand, TRUE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumerinfo_browser, OPENWIRE_TYPE_BOOLEAN, iCommand, FALSE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumerinfo_destination, OPENWIRE_TYPE_CACHED, iCommand, TRUE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumerinfo_prefetchsize, OPENWIRE_TYPE_INTEGER, iCommand, FALSE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumerinfo_maximumpendingmessagelimit, OPENWIRE_TYPE_INTEGER, iCommand, FALSE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumerinfo_dispatchasync, OPENWIRE_TYPE_BOOLEAN, iCommand, FALSE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumerinfo_selector, OPENWIRE_TYPE_STRING, iCommand, TRUE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumerinfo_subscriptionname, OPENWIRE_TYPE_STRING, iCommand, TRUE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumerinfo_nolocal, OPENWIRE_TYPE_BOOLEAN, iCommand, FALSE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumerinfo_exclusive, OPENWIRE_TYPE_BOOLEAN, iCommand, FALSE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumerinfo_retroactive, OPENWIRE_TYPE_BOOLEAN, iCommand, FALSE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumerinfo_priority, OPENWIRE_TYPE_BYTE, iCommand, TRUE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumerinfo_brokerpath, OPENWIRE_TYPE_OBJECT_ARRAY, iCommand, TRUE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumerinfo_additionalpredicate, OPENWIRE_TYPE_NESTED, iCommand, TRUE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumerinfo_networksubscription, OPENWIRE_TYPE_BOOLEAN, iCommand, FALSE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumerinfo_optimizedacknowledge, OPENWIRE_TYPE_BOOLEAN, iCommand, FALSE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumerinfo_norangeacks, OPENWIRE_TYPE_BOOLEAN, iCommand, FALSE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumerinfo_networkconsumerpath, OPENWIRE_TYPE_OBJECT_ARRAY, iCommand, TRUE);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumerinfo_consumerid, OPENWIRE_TYPE_CACHED, iCommand, true);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumerinfo_browser, OPENWIRE_TYPE_BOOLEAN, iCommand, false);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumerinfo_destination, OPENWIRE_TYPE_CACHED, iCommand, true);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumerinfo_prefetchsize, OPENWIRE_TYPE_INTEGER, iCommand, false);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumerinfo_maximumpendingmessagelimit, OPENWIRE_TYPE_INTEGER, iCommand, false);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumerinfo_dispatchasync, OPENWIRE_TYPE_BOOLEAN, iCommand, false);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumerinfo_selector, OPENWIRE_TYPE_STRING, iCommand, true);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumerinfo_subscriptionname, OPENWIRE_TYPE_STRING, iCommand, true);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumerinfo_nolocal, OPENWIRE_TYPE_BOOLEAN, iCommand, false);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumerinfo_exclusive, OPENWIRE_TYPE_BOOLEAN, iCommand, false);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumerinfo_retroactive, OPENWIRE_TYPE_BOOLEAN, iCommand, false);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumerinfo_priority, OPENWIRE_TYPE_BYTE, iCommand, true);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumerinfo_brokerpath, OPENWIRE_TYPE_OBJECT_ARRAY, iCommand, true);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumerinfo_additionalpredicate, OPENWIRE_TYPE_NESTED, iCommand, true);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumerinfo_networksubscription, OPENWIRE_TYPE_BOOLEAN, iCommand, false);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumerinfo_optimizedacknowledge, OPENWIRE_TYPE_BOOLEAN, iCommand, false);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumerinfo_norangeacks, OPENWIRE_TYPE_BOOLEAN, iCommand, false);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumerinfo_networkconsumerpath, OPENWIRE_TYPE_OBJECT_ARRAY, iCommand, true);
             }
             else if (iCommand == OPENWIRE_PRODUCER_INFO)
             {
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_producerinfo_producerid, OPENWIRE_TYPE_CACHED, iCommand, TRUE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_producerinfo_destination, OPENWIRE_TYPE_CACHED, iCommand, TRUE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_producerinfo_brokerpath, OPENWIRE_TYPE_OBJECT_ARRAY, iCommand, TRUE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_producerinfo_dispatchasync, OPENWIRE_TYPE_BOOLEAN, iCommand, FALSE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_producerinfo_windowsize, OPENWIRE_TYPE_INTEGER, iCommand, FALSE);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_producerinfo_producerid, OPENWIRE_TYPE_CACHED, iCommand, true);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_producerinfo_destination, OPENWIRE_TYPE_CACHED, iCommand, true);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_producerinfo_brokerpath, OPENWIRE_TYPE_OBJECT_ARRAY, iCommand, true);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_producerinfo_dispatchasync, OPENWIRE_TYPE_BOOLEAN, iCommand, false);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_producerinfo_windowsize, OPENWIRE_TYPE_INTEGER, iCommand, false);
             }
             else if (iCommand == OPENWIRE_CONSUMER_CONTROL)
             {
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumercontrol_destination, OPENWIRE_TYPE_NESTED, iCommand, TRUE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumercontrol_close, OPENWIRE_TYPE_BOOLEAN, iCommand, FALSE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumercontrol_consumerid, OPENWIRE_TYPE_NESTED, iCommand, TRUE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumercontrol_prefetch, OPENWIRE_TYPE_INTEGER, iCommand, FALSE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumercontrol_flush, OPENWIRE_TYPE_BOOLEAN, iCommand, FALSE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumercontrol_start, OPENWIRE_TYPE_BOOLEAN, iCommand, FALSE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumercontrol_stop, OPENWIRE_TYPE_BOOLEAN, iCommand, FALSE);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumercontrol_destination, OPENWIRE_TYPE_NESTED, iCommand, true);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumercontrol_close, OPENWIRE_TYPE_BOOLEAN, iCommand, false);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumercontrol_consumerid, OPENWIRE_TYPE_NESTED, iCommand, true);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumercontrol_prefetch, OPENWIRE_TYPE_INTEGER, iCommand, false);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumercontrol_flush, OPENWIRE_TYPE_BOOLEAN, iCommand, false);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumercontrol_start, OPENWIRE_TYPE_BOOLEAN, iCommand, false);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_consumercontrol_stop, OPENWIRE_TYPE_BOOLEAN, iCommand, false);
             }
             else if (iCommand == OPENWIRE_BROKER_INFO)
             {
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_brokerinfo_brokerid, OPENWIRE_TYPE_CACHED, iCommand, TRUE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_brokerinfo_brokerurl, OPENWIRE_TYPE_STRING, iCommand, TRUE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_brokerinfo_peerbrokerinfos, OPENWIRE_TYPE_OBJECT_ARRAY, iCommand, TRUE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_brokerinfo_brokername, OPENWIRE_TYPE_STRING, iCommand, TRUE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_brokerinfo_slavebroker, OPENWIRE_TYPE_BOOLEAN, iCommand, FALSE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_brokerinfo_masterbroker, OPENWIRE_TYPE_BOOLEAN, iCommand, FALSE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_brokerinfo_faulttolerantconfiguration, OPENWIRE_TYPE_BOOLEAN, iCommand, FALSE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_brokerinfo_duplexconnection, OPENWIRE_TYPE_BOOLEAN, iCommand, FALSE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_brokerinfo_networkconnection, OPENWIRE_TYPE_BOOLEAN, iCommand, FALSE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_brokerinfo_connectionid, OPENWIRE_TYPE_LONG, iCommand, FALSE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_brokerinfo_brokeruploadurl, OPENWIRE_TYPE_STRING, iCommand, TRUE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_brokerinfo_networkproperties, OPENWIRE_TYPE_STRING, iCommand, TRUE);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_brokerinfo_brokerid, OPENWIRE_TYPE_CACHED, iCommand, true);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_brokerinfo_brokerurl, OPENWIRE_TYPE_STRING, iCommand, true);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_brokerinfo_peerbrokerinfos, OPENWIRE_TYPE_OBJECT_ARRAY, iCommand, true);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_brokerinfo_brokername, OPENWIRE_TYPE_STRING, iCommand, true);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_brokerinfo_slavebroker, OPENWIRE_TYPE_BOOLEAN, iCommand, false);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_brokerinfo_masterbroker, OPENWIRE_TYPE_BOOLEAN, iCommand, false);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_brokerinfo_faulttolerantconfiguration, OPENWIRE_TYPE_BOOLEAN, iCommand, false);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_brokerinfo_duplexconnection, OPENWIRE_TYPE_BOOLEAN, iCommand, false);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_brokerinfo_networkconnection, OPENWIRE_TYPE_BOOLEAN, iCommand, false);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_brokerinfo_connectionid, OPENWIRE_TYPE_LONG, iCommand, false);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_brokerinfo_brokeruploadurl, OPENWIRE_TYPE_STRING, iCommand, true);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_brokerinfo_networkproperties, OPENWIRE_TYPE_STRING, iCommand, true);
             }
             else if (iCommand == OPENWIRE_TRANSACTION_INFO)
             {
-                guint8 iTransactionType;
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_transactioninfo_connectionid, OPENWIRE_TYPE_CACHED, iCommand, TRUE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_transactioninfo_transactionid, OPENWIRE_TYPE_CACHED, iCommand, TRUE);
+                uint8_t iTransactionType;
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_transactioninfo_connectionid, OPENWIRE_TYPE_CACHED, iCommand, true);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_transactioninfo_transactionid, OPENWIRE_TYPE_CACHED, iCommand, true);
                 if (tvb_reported_length_remaining(tvb, offset) >= 1)
                 {
-                    iTransactionType = tvb_get_guint8(tvb, offset);
-                    offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_transactioninfo_type, OPENWIRE_TYPE_BYTE, iCommand, FALSE);
+                    iTransactionType = tvb_get_uint8(tvb, offset);
+                    offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_transactioninfo_type, OPENWIRE_TYPE_BYTE, iCommand, false);
                     proto_item_append_text(tree, " (%s)", val_to_str_ext(iTransactionType, &openwire_transaction_type_vals_ext, "Unknown (0x%02x)"));
                 }
             }
             else if (iCommand == OPENWIRE_PRODUCER_ACK)
             {
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_producerack_producerid, OPENWIRE_TYPE_NESTED, iCommand, TRUE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_producerack_size, OPENWIRE_TYPE_INTEGER, iCommand, FALSE);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_producerack_producerid, OPENWIRE_TYPE_NESTED, iCommand, true);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_producerack_size, OPENWIRE_TYPE_INTEGER, iCommand, false);
             }
             else if (iCommand == OPENWIRE_REMOVE_INFO)
             {
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_removeinfo_objectid, OPENWIRE_TYPE_CACHED, iCommand, TRUE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_removeinfo_lastdeliveredsequenceid, OPENWIRE_TYPE_LONG, iCommand, FALSE);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_removeinfo_objectid, OPENWIRE_TYPE_CACHED, iCommand, true);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_removeinfo_lastdeliveredsequenceid, OPENWIRE_TYPE_LONG, iCommand, false);
             }
             else if (iCommand == OPENWIRE_REMOVE_SUBSCRIPTION_INFO)
             {
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_removesubscriptioninfo_connectionid, OPENWIRE_TYPE_CACHED, iCommand, TRUE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_removesubscriptioninfo_subscriptionname, OPENWIRE_TYPE_STRING, iCommand, TRUE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_removesubscriptioninfo_clientid, OPENWIRE_TYPE_STRING, iCommand, TRUE);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_removesubscriptioninfo_connectionid, OPENWIRE_TYPE_CACHED, iCommand, true);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_removesubscriptioninfo_subscriptionname, OPENWIRE_TYPE_STRING, iCommand, true);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_removesubscriptioninfo_clientid, OPENWIRE_TYPE_STRING, iCommand, true);
             }
             else if (iCommand == OPENWIRE_MESSAGE_DISPATCH)
             {
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_messagedispatch_consumerid, OPENWIRE_TYPE_CACHED, iCommand, TRUE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_messagedispatch_destination, OPENWIRE_TYPE_CACHED, iCommand, TRUE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_messagedispatch_message, OPENWIRE_TYPE_NESTED, iCommand, TRUE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_messagedispatch_redeliverycounter, OPENWIRE_TYPE_INTEGER, iCommand, FALSE);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_messagedispatch_consumerid, OPENWIRE_TYPE_CACHED, iCommand, true);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_messagedispatch_destination, OPENWIRE_TYPE_CACHED, iCommand, true);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_messagedispatch_message, OPENWIRE_TYPE_NESTED, iCommand, true);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_messagedispatch_redeliverycounter, OPENWIRE_TYPE_INTEGER, iCommand, false);
             }
             else if (iCommand == OPENWIRE_MESSAGE_ACK)
             {
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_messageack_destination, OPENWIRE_TYPE_CACHED, iCommand, TRUE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_messageack_transactionid, OPENWIRE_TYPE_CACHED, iCommand, TRUE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_messageack_consumerid, OPENWIRE_TYPE_CACHED, iCommand, TRUE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_messageack_acktype, OPENWIRE_TYPE_BYTE, iCommand, FALSE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_messageack_firstmessageid, OPENWIRE_TYPE_NESTED, iCommand, TRUE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_messageack_lastmessageid, OPENWIRE_TYPE_NESTED, iCommand, TRUE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_messageack_messagecount, OPENWIRE_TYPE_INTEGER, iCommand, FALSE);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_messageack_destination, OPENWIRE_TYPE_CACHED, iCommand, true);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_messageack_transactionid, OPENWIRE_TYPE_CACHED, iCommand, true);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_messageack_consumerid, OPENWIRE_TYPE_CACHED, iCommand, true);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_messageack_acktype, OPENWIRE_TYPE_BYTE, iCommand, false);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_messageack_firstmessageid, OPENWIRE_TYPE_NESTED, iCommand, true);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_messageack_lastmessageid, OPENWIRE_TYPE_NESTED, iCommand, true);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_messageack_messagecount, OPENWIRE_TYPE_INTEGER, iCommand, false);
             }
             else if (iCommand == OPENWIRE_MESSAGE_PULL)
             {
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_messagepull_consumerid, OPENWIRE_TYPE_CACHED, iCommand, TRUE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_messagepull_destinationid, OPENWIRE_TYPE_CACHED, iCommand, TRUE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_messagepull_timeout, OPENWIRE_TYPE_LONG, iCommand, FALSE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_messagepull_correlationid, OPENWIRE_TYPE_STRING, iCommand, TRUE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_messagepull_messageid, OPENWIRE_TYPE_NESTED, iCommand, TRUE);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_messagepull_consumerid, OPENWIRE_TYPE_CACHED, iCommand, true);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_messagepull_destinationid, OPENWIRE_TYPE_CACHED, iCommand, true);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_messagepull_timeout, OPENWIRE_TYPE_LONG, iCommand, false);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_messagepull_correlationid, OPENWIRE_TYPE_STRING, iCommand, true);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_messagepull_messageid, OPENWIRE_TYPE_NESTED, iCommand, true);
             }
             else if (iCommand == OPENWIRE_RESPONSE)
             {
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_response_correlationid, OPENWIRE_TYPE_INTEGER, iCommand, FALSE);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_response_correlationid, OPENWIRE_TYPE_INTEGER, iCommand, false);
             }
             else if (iCommand == OPENWIRE_DATA_RESPONSE)
             {
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_response_correlationid, OPENWIRE_TYPE_INTEGER, iCommand, FALSE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_dataresponse_data, OPENWIRE_COMMAND_INNER, iCommand, TRUE);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_response_correlationid, OPENWIRE_TYPE_INTEGER, iCommand, false);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_dataresponse_data, OPENWIRE_COMMAND_INNER, iCommand, true);
             }
             else if (iCommand == OPENWIRE_CONNECTION_ERROR)
             {
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_connectionerror_exception, OPENWIRE_TYPE_THROWABLE, iCommand, TRUE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_connectionerror_connectionid, OPENWIRE_TYPE_NESTED, iCommand, TRUE);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_connectionerror_exception, OPENWIRE_TYPE_THROWABLE, iCommand, true);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_connectionerror_connectionid, OPENWIRE_TYPE_NESTED, iCommand, true);
             }
             else if (iCommand == OPENWIRE_EXCEPTION_RESPONSE)
             {
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_response_correlationid, OPENWIRE_TYPE_INTEGER, iCommand, FALSE);
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_exceptionresponse_exception, OPENWIRE_TYPE_THROWABLE, iCommand, TRUE);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_response_correlationid, OPENWIRE_TYPE_INTEGER, iCommand, false);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_exceptionresponse_exception, OPENWIRE_TYPE_THROWABLE, iCommand, true);
             }
             else if (iCommand == OPENWIRE_CONTROL_COMMAND)
             {
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_controlcommand_command, OPENWIRE_TYPE_STRING, iCommand, TRUE);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_controlcommand_command, OPENWIRE_TYPE_STRING, iCommand, true);
             }
             else if (iCommand == OPENWIRE_ACTIVEMQ_MESSAGE
                     || iCommand == OPENWIRE_ACTIVEMQ_BYTES_MESSAGE
@@ -1284,7 +1284,7 @@ dissect_openwire_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
                     || iCommand == OPENWIRE_ACTIVEMQ_TEXT_MESSAGE
                     || iCommand == OPENWIRE_ACTIVEMQ_BLOB_MESSAGE)
             {
-                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_none, iCommand, parentType, FALSE);
+                offset += dissect_openwire_type(tvb, pinfo, tree, offset, hf_openwire_none, iCommand, parentType, false);
             }
             else if (tvb_reported_length_remaining(tvb, offset) > 0)
             {
@@ -1298,19 +1298,19 @@ dissect_openwire_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 static int
 dissect_openwire(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    gint        offset            = 0;
+    int         offset            = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "OpenWire");
     col_clear(pinfo->cinfo, COL_INFO);
 
     if (tvb_reported_length_remaining(tvb, offset) >= 5)
     {
-        guint8      iCommand;
+        uint8_t     iCommand;
         proto_tree *openwireroot_tree;
         proto_item *ti;
-        gboolean    caching;
+        bool        caching;
 
-        iCommand = tvb_get_guint8(tvb, offset + 4);
+        iCommand = tvb_get_uint8(tvb, offset + 4);
 
         col_append_sep_str(pinfo->cinfo, COL_INFO, " | ",
                             val_to_str_ext(iCommand, &openwire_opcode_vals_ext, "Unknown (0x%02x)"));
@@ -1325,7 +1325,7 @@ dissect_openwire(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         proto_tree_add_item(openwireroot_tree, hf_openwire_length, tvb, offset + 0, 4, ENC_BIG_ENDIAN);
 
         /* Abort dissection if tight encoding is enabled*/
-        if (iCommand != OPENWIRE_WIREFORMAT_INFO && retrieve_tight(pinfo) == TRUE)
+        if (iCommand != OPENWIRE_WIREFORMAT_INFO && retrieve_tight(pinfo) == true)
         {
             proto_tree_add_item(openwireroot_tree, hf_openwire_command, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
             expert_add_info(pinfo, openwireroot_tree, &ei_openwire_tight_encoding_not_supported);
@@ -1349,7 +1349,7 @@ dissect_openwire(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     return tvb_captured_length(tvb);
 }
 
-static guint
+static unsigned
 get_openwire_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
     return (tvb_get_ntohl(tvb, offset) + 4);
@@ -1372,7 +1372,7 @@ dissect_openwire_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     if (tvb_reported_length(tvb) == 10 || tvb_reported_length(tvb) == 11)
     {
         /* KeepAlive is sent by default every 30 second.  It is 10 bytes (loose) or 11 bytes (tight) long. */
-        if ((tvb_get_guint8(tvb, 4) == OPENWIRE_KEEP_ALIVE_INFO)
+        if ((tvb_get_uint8(tvb, 4) == OPENWIRE_KEEP_ALIVE_INFO)
             && (tvb_get_ntohl(tvb, 0) + 4 == tvb_reported_length(tvb)))
         {
             detected = true;
@@ -1381,7 +1381,7 @@ dissect_openwire_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     else if (tvb_reported_length(tvb) == 14 || tvb_reported_length(tvb) == 15)
     {
         /* Response is sent after several commands.  It is 14 bytes (loose) or 15 bytes (tight) long. */
-        if ((tvb_get_guint8(tvb, 4) == OPENWIRE_RESPONSE)
+        if ((tvb_get_uint8(tvb, 4) == OPENWIRE_RESPONSE)
             && (tvb_get_ntohl(tvb, 0) + 4 == tvb_reported_length(tvb)))
         {
             detected = true;
@@ -1393,7 +1393,7 @@ dissect_openwire_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
            If the capture was started after this command, a manual "Decode As..." might be required.
            */
         if (tvb_captured_length(tvb) >= 10
-            && (tvb_get_guint8(tvb, 4) == OPENWIRE_WIREFORMAT_INFO)
+            && (tvb_get_uint8(tvb, 4) == OPENWIRE_WIREFORMAT_INFO)
             && (tvb_get_ntohl(tvb, 5) == OPENWIRE_MAGIC_PART_1)
             && (tvb_get_ntohl(tvb, 9) == OPENWIRE_MAGIC_PART_2))
         {
@@ -1961,7 +1961,7 @@ proto_register_openwire(void)
         { "Type", "openwire.type", FT_UINT8, BASE_DEC, VALS(openwire_type_vals), 0x0, "Openwire type", HFILL }}
 
     };
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_openwire,
         &ett_openwire_type
     };

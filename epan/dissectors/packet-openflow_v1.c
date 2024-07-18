@@ -145,14 +145,14 @@ static int hf_openflow_v1_stats_type;
 static int hf_openflow_v1_flow_stats_request_pad;
 
 /* Initialize the subtree pointers */
-static gint ett_openflow;
-static gint ett_openflow_path_id;
-static gint ett_openflow_cap;
-static gint ett_openflow_act;
-static gint ett_openflow_port;
-static gint ett_openflow_port_cnf;
-static gint ett_openflow_port_state;
-static gint ett_openflow_port_cf;
+static int ett_openflow;
+static int ett_openflow_path_id;
+static int ett_openflow_cap;
+static int ett_openflow_act;
+static int ett_openflow_port;
+static int ett_openflow_port_cnf;
+static int ett_openflow_port_state;
+static int ett_openflow_port_cf;
 
 /* static expert_field ei_openflow_undecoded_data; */
 static expert_field ei_openflow_action_type;
@@ -390,7 +390,7 @@ static const value_string openflow_action_values[] = {
 static int
 dissect_openflow_action_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    guint16 action_type, action_len;
+    uint16_t action_type, action_len;
     proto_item* ti;
 
     /* uint16_t type;  One of OFPAT_*. */
@@ -530,12 +530,12 @@ struct ofp_switch_features {
 #endif
 
 static void
-dissect_openflow_features_reply_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint16 length)
+dissect_openflow_features_reply_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint16_t length)
 {
     proto_item *ti;
     proto_tree *path_id_tree, *cap_tree, *act_tree;
 
-    guint16 length_remaining;
+    uint16_t length_remaining;
 
     ti = proto_tree_add_item(tree, hf_openflow_datapath_id, tvb, offset, 8, ENC_BIG_ENDIAN);
     path_id_tree = proto_item_add_subtree(ti, ett_openflow_path_id);
@@ -585,7 +585,7 @@ dissect_openflow_features_reply_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
     length_remaining = length-32;
     if(length_remaining > 0){
-        guint16 num_ports = length_remaining/48;
+        uint16_t num_ports = length_remaining/48;
         int i;
         if((length_remaining&0x003f) != 0){
             /* protocol_error */
@@ -603,7 +603,7 @@ dissect_openflow_features_reply_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 
 static void
-dissect_openflow_switch_config(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
+dissect_openflow_switch_config(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, uint16_t length _U_)
 {
 
     /* ofp_config_flags */
@@ -627,7 +627,7 @@ static const value_string openflow_reason_values[] = {
 };
 
 static void
-dissect_openflow_pkt_in(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint16 length)
+dissect_openflow_pkt_in(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint16_t length)
 {
     tvbuff_t *next_tvb;
 
@@ -665,7 +665,7 @@ static const value_string openflow_flow_removed_reason_values[] = {
 };
 
 static void
-dissect_openflow_flow_removed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint16 length _U_)
+dissect_openflow_flow_removed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint16_t length _U_)
 {
     /* struct match; */
     offset = dissect_openflow_ofp_match_v1(tvb, pinfo, tree, offset);
@@ -712,10 +712,10 @@ dissect_openflow_flow_removed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 }
 
 static void
-dissect_openflow_pkt_out(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint16 length)
+dissect_openflow_pkt_out(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint16_t length)
 {
     tvbuff_t *next_tvb;
-    gint32 buffer_id;
+    int32_t buffer_id;
 
     /* uint32_t buffer_id;  ID assigned by datapath. */
     buffer_id = tvb_get_ntohl(tvb, offset);
@@ -758,7 +758,7 @@ static const value_string openflow_command_values[] = {
 };
 
 static void
-dissect_openflow_flow_mod(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint16 length _U_)
+dissect_openflow_flow_mod(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint16_t length _U_)
 {
 
     /* struct ofp_match match;  Fields to match */
@@ -820,10 +820,10 @@ static const value_string openflow_stats_type_values[] = {
     { 0, NULL }
 };
 static int
-dissect_openflow_stats_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint16 length _U_)
+dissect_openflow_stats_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint16_t length _U_)
 {
     proto_item *type_item;
-    guint32 type;
+    uint32_t type;
 
     /* uint16_t type; */
     type_item = proto_tree_add_item_ret_uint(tree, hf_openflow_v1_stats_type, tvb, offset, 2, ENC_BIG_ENDIAN, &type);
@@ -848,11 +848,11 @@ dissect_openflow_stats_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 }
 
 static int
-dissect_openflow_stats_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint16 length)
+dissect_openflow_stats_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint16_t length)
 {
 
     proto_item *type_item;
-    guint32 type;
+    uint32_t type;
 
     /* uint16_t type; */
     type_item = proto_tree_add_item_ret_uint(tree, hf_openflow_v1_stats_type, tvb, offset, 2, ENC_BIG_ENDIAN, &type);
@@ -884,11 +884,11 @@ dissect_openflow_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 {
     proto_item *ti, *type_item;
     proto_tree *openflow_tree;
-    guint offset = 0;
-    guint8 type;
-    guint16 length;
+    unsigned offset = 0;
+    uint8_t type;
+    uint16_t length;
 
-    type    = tvb_get_guint8(tvb, 1);
+    type    = tvb_get_uint8(tvb, 1);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "Type: %s",
                   val_to_str_ext_const(type, &openflow_1_0_type_values_ext, "Unknown message type"));
@@ -1538,7 +1538,7 @@ proto_register_openflow_v1(void)
         },
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_openflow,
         &ett_openflow_path_id,
         &ett_openflow_cap,

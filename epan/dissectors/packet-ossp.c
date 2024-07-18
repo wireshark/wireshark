@@ -207,10 +207,10 @@ static int hf_esmc_padding;
 
 /* Initialise the subtree pointers */
 
-static gint ett_ossppdu;
-static gint ett_itu_ossp;
+static int ett_ossppdu;
+static int ett_itu_ossp;
 
-static gint ett_esmc;
+static int ett_esmc;
 
 static expert_field ei_esmc_tlv_type_ql_type_not_first;
 static expert_field ei_esmc_tlv_type_not_ext_ql;
@@ -222,7 +222,7 @@ static expert_field ei_esmc_version_compliance;
 static expert_field ei_esmc_tlv_length_bad;
 static expert_field ei_esmc_reserved_not_zero;
 
-static gint pref_option_network = 1;
+static int pref_option_network = 1;
 static const enum_val_t pref_option_network_vals[] =
 {
     { "1", "Option I network", 1 }, /* G.781 5.5.1.1 Option I SDH (same in G.707) */
@@ -258,12 +258,12 @@ dissect_itu_ossp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int
 dissect_ossp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    gint          offset = 0;
-    const gchar  *str;
+    int           offset = 0;
+    const char   *str;
     proto_item   *ossp_item;
     proto_tree   *ossp_tree;
     tvbuff_t     *ossp_tvb;
-    guint32      oui;
+    uint32_t     oui;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "OSSP");
 
@@ -324,7 +324,7 @@ dissect_ossp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 static void
 dissect_itu_ossp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint16     subtype;
+    uint16_t    subtype;
     proto_item *ti;
     proto_tree *itu_ossp_tree;
     tvbuff_t   *ossp_subtype_tvb;
@@ -361,10 +361,10 @@ dissect_itu_ossp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
 {
-    gint     offset    = 0;
-    gboolean event_flag;
-    gint     ssm       = 0;
-    gint     essm      = 0;
+    int      offset    = 0;
+    bool event_flag;
+    int      ssm       = 0;
+    int      essm      = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ESMC");
 
@@ -376,21 +376,21 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
         { /* version */
             proto_item *item_b;
             item_b = proto_tree_add_item(tree_a, hf_esmc_version, tvb, offset, 1, ENC_BIG_ENDIAN);
-            if ((tvb_get_guint8(tvb, offset) >> 4) != ESMC_VERSION_1)
+            if ((tvb_get_uint8(tvb, offset) >> 4) != ESMC_VERSION_1)
             {
                 expert_add_info_format(pinfo, item_b, &ei_esmc_version_compliance, "Version must be 0x%.1x claim compliance with Version 1 of this protocol", ESMC_VERSION_1);
             }
             /*stay at the same octet in tvb*/
         }
         { /* event flag */
-            event_flag = ((tvb_get_guint8(tvb, offset) & 0x08) != 0);
+            event_flag = ((tvb_get_uint8(tvb, offset) & 0x08) != 0);
             proto_tree_add_item(tree_a, hf_esmc_event_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
             /*stay at the same octet in tvb*/
         }
         { /* reserved bits */
             proto_item *item_b;
-            guint8 reserved;
-            reserved = tvb_get_guint8(tvb, offset) & 0x07;
+            uint8_t reserved;
+            reserved = tvb_get_uint8(tvb, offset) & 0x07;
             item_b = proto_tree_add_uint_format_value(tree_a, hf_esmc_reserved_bits, tvb, offset, 1, reserved, "0x%.2x", reserved);
             if (reserved != 0x0)
             {
@@ -400,7 +400,7 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
         }
         { /* reserved octets */
             proto_item *item_b;
-            guint32 reserved;
+            uint32_t reserved;
             reserved = tvb_get_ntoh24(tvb, offset);
             item_b = proto_tree_add_uint_format_value(tree_a, hf_esmc_reserved_octets, tvb, offset, 3, reserved, "0x%.6x", reserved);
             if (reserved != 0x0)
@@ -420,18 +420,18 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
          */
         {
             proto_item *item_b;
-            guint8 type;
+            uint8_t type;
             item_b = proto_tree_add_item(tree_a, hf_esmc_tlv, tvb, offset, ESMC_QL_TLV_LENGTH, ENC_NA);
             {
                 proto_tree *tree_b;
                 tree_b = proto_item_add_subtree(item_b, ett_esmc);
                 {
                     proto_item *item_c;
-                    guint16 length;
-                    guint8 unused;
+                    uint16_t length;
+                    uint8_t unused;
 
                     /* type */
-                    type = tvb_get_guint8(tvb, offset);
+                    type = tvb_get_uint8(tvb, offset);
                     item_c = proto_tree_add_item(tree_b, hf_esmc_tlv_type, tvb, offset, 1, ENC_BIG_ENDIAN);
                     if (type != ESMC_QL_TLV_TYPE)
                     {
@@ -452,7 +452,7 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
                     offset += 2;
 
                     /* value */
-                    ssm = tvb_get_guint8(tvb, offset);
+                    ssm = tvb_get_uint8(tvb, offset);
                     unused = ssm & 0xf0;
                     ssm &= 0x0f;
                     item_c = proto_tree_add_item(tree_b, hf_esmc_tlv_ql_unused, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -471,8 +471,8 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
          */
         if (tvb_captured_length_remaining(tvb, offset) >= ESMC_EXTENDED_QL_TLV_LENGTH)
         {
-            guint8 type;
-            type = tvb_get_guint8(tvb, offset);
+            uint8_t type;
+            type = tvb_get_uint8(tvb, offset);
 
             if (type == ESMC_EXTENDED_QL_TLV_TYPE)
             {
@@ -483,8 +483,8 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
                     tree_b = proto_item_add_subtree(item_b, ett_esmc);
                     {
                         proto_item *item_c;
-                        guint16 length;
-                        guint64 reserved;
+                        uint16_t length;
+                        uint64_t reserved;
 
                         /* type */
                         item_c = proto_tree_add_item(tree_b, hf_esmc_tlv_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -507,7 +507,7 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
                         offset += 2;
 
                         /* Enhanced SSM code */
-                        essm = tvb_get_guint8(tvb, offset);
+                        essm = tvb_get_uint8(tvb, offset);
                         proto_tree_add_item(tree_b, hf_esmc_tlv_ext_ql_essm, tvb, offset, 1, ENC_BIG_ENDIAN);
                         offset += 1;
 
@@ -516,7 +516,7 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
                         offset += 8;
 
                         /* Flag */
-                        reserved = tvb_get_guint8(tvb, offset) & 0xfc;
+                        reserved = tvb_get_uint8(tvb, offset) & 0xfc;
                         item_c = proto_tree_add_item(tree_b, hf_esmc_tlv_ext_ql_flag_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
                         if (reserved != 0x0)
                         {
@@ -535,7 +535,7 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
                         offset += 1;
 
                         /* Reserved */
-                        reserved = tvb_get_guint40(tvb, offset, ENC_BIG_ENDIAN);
+                        reserved = tvb_get_uint40(tvb, offset, ENC_BIG_ENDIAN);
                         item_c = proto_tree_add_item(tree_b, hf_esmc_tlv_ext_ql_reserved, tvb, offset, 5, ENC_BIG_ENDIAN);
                         if (reserved != 0x0)
                         {
@@ -555,7 +555,7 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
     {
         const value_string *ql_vals;
         const value_string *ql_vals_short;
-        const gchar *ql_str;
+        const char *ql_str;
         proto_item *item_b;
 
         ql_vals = esmc_quality_level_vals[pref_option_network];
@@ -573,7 +573,7 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
     }
 
     { /* padding */
-        gint padding_size;
+        int padding_size;
         padding_size = tvb_captured_length_remaining(tvb, offset);
         if (0 != padding_size)
         {
@@ -712,7 +712,7 @@ proto_register_ossp(void)
 
     /* Setup protocol subtree array */
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_esmc,
         &ett_ossppdu,
         &ett_itu_ossp
@@ -755,7 +755,7 @@ proto_register_ossp(void)
     prefs_ossp = prefs_register_protocol(proto_ossp, NULL);
     prefs_register_enum_preference(prefs_ossp, "option_network",
         "Regional option", "Select the option of the network to interpret the Quality Level for",
-        &pref_option_network, pref_option_network_vals, TRUE);
+        &pref_option_network, pref_option_network_vals, true);
 
     /* Register the dissector */
 
