@@ -145,7 +145,7 @@ static const value_string tag_vals[] = {
 static const value_string tag_aead_vals[] = {
     { AEAD_AESG, "AES-GCM with a 12-byte tag and IV" },
     { AEAD_S20P, "Salsa20 with Poly1305" },
-    { AEAD_CC12, "ChaCha20 with Poly1305" },
+    { AEAD_CC12, "ChaCha12 with Poly1305" },
     { 0, NULL }
 };
 
