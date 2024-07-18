@@ -83,6 +83,12 @@
  *   Stage 3
  *   (3GPP TS 24.008 version 17.8.0 Release 17)
  *
+ *   Reference [18]
+ *   Mobile radio interface Layer 3 specification;
+ *   Core network protocols;
+ *   Stage 3
+ *   (3GPP TS 24.008 version 18.6.0 Release 18)
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -619,6 +625,7 @@ static int hf_gsm_a_gm_sm_pco_eas_rediscovery_support_ind_with_impacted_eas_ipv4
 static int hf_gsm_a_gm_sm_pco_eas_rediscovery_support_ind_with_impacted_eas_ipv6_range_low;
 static int hf_gsm_a_gm_sm_pco_eas_rediscovery_support_ind_with_impacted_eas_ipv6_range_high;
 static int hf_gsm_a_gm_sm_pco_eas_rediscovery_support_ind_with_impacted_eas_fqdn;
+static int hf_gsm_a_gm_sm_pco_sdnaepc_dn_specific_id;
 static int hf_gsm_a_sm_pdp_type_number;
 static int hf_gsm_a_sm_pdp_address;
 static int hf_gsm_a_gm_ti_value;
@@ -641,6 +648,7 @@ static expert_field ei_gsm_a_gm_missing_mandatory_element;
 static dissector_handle_t rrc_irat_ho_info_handle;
 static dissector_handle_t lte_rrc_ue_eutra_cap_handle;
 static dissector_handle_t nbifom_handle;
+static dissector_handle_t eap_handle;
 
 static dissector_table_t gprs_sm_pco_subdissector_table; /* GPRS SM PCO PPP Protocols */
 
@@ -4542,6 +4550,10 @@ static const range_string gsm_a_sm_pco_ms2net_prot_vals[] = {
 	{ 0x0041, 0x0041, "Service-level-AA container with the length of two octets" },
 	{ 0x0047, 0x0047, "EDC support indicator" },
 	{ 0x004a, 0x004a, "MS support of MAC address range in 5GS indicator" },
+	{ 0x0050, 0x0050, "SDNAEPC support indicator" },
+	{ 0x0051, 0x0051, "SDNAEPC EAP message with the length of two octets" },
+	{ 0x0052, 0x0052, "SDNAEPC DN-specific identity" },
+	{ 0x0056, 0x0056, "UE policy container with the length of two octets" },
 	{ 0xff00, 0xffff, "Operator Specific Use" },
 	{ 0, 0, NULL }
 };
@@ -4607,6 +4619,8 @@ static const range_string gsm_a_sm_pco_net2ms_prot_vals[] = {
 	{ 0x0048, 0x0048, "EDC usage allowed indicator" },
 	{ 0x0049, 0x0049, "EDC usage required indicator" },
 	{ 0x004a, 0x004a, "Network support of MAC address range in 5GS indicator" },
+	{ 0x0051, 0x0051, "SDNAEPC EAP message with the length of two octets" },
+	{ 0x0056, 0x0056, "UE policy container with the length of two octets" },
 	{ 0xff00, 0xffff, "Operator Specific Use" },
 	{ 0, 0, NULL }
 };
@@ -4745,8 +4759,9 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, 
 
 		curr_len    -= 2;
 		curr_offset += 2;
-		if ((link_dir == P2P_DIR_DL && (prot == 0x0023 || prot == 0x0024 || prot == 0x0030 || prot == 0x0031 || prot == 0x0032 || prot == 0x0041)) ||
-		    (link_dir == P2P_DIR_UL && prot == 0x0041)) {
+		if ((link_dir == P2P_DIR_DL && (prot == 0x0023 || prot == 0x0024 || prot == 0x0030 || prot == 0x0031 ||
+		                                prot == 0x0032 || prot == 0x0041 || prot == 0x0051 || prot == 0x0056)) ||
+		    (link_dir == P2P_DIR_UL && (prot == 0x0041 || prot == 0x0051 || prot == 0x0056))) {
 			proto_tree_add_item_ret_uint(pco_tree, hf_gsm_a_gm_sm_pco_length2, tvb, curr_offset, 2, ENC_BIG_ENDIAN, &e_len);
 			curr_len    -= 2;
 			curr_offset += 2;
@@ -4789,6 +4804,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, 
 			case 0x0048:
 			case 0x0049:
 			case 0x004a:
+			case 0x0050:
 				break;
 			case 0x0004:
 				if ((link_dir == P2P_DIR_DL) && (e_len == 1)) {
@@ -5081,6 +5097,27 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, 
 				break;
 			 case 0x0041:
 				de_nas_5gs_cmn_service_level_aa_cont(tvb, pco_tree, pinfo, curr_offset, e_len, NULL, 0);
+				break;
+			case 0x0051:
+				if (eap_handle) {
+					col_append_str(pinfo->cinfo, COL_PROTOCOL, "/");
+					col_set_fence(pinfo->cinfo, COL_PROTOCOL);
+					col_append_str(pinfo->cinfo, COL_INFO, ", ");
+					col_set_fence(pinfo->cinfo, COL_INFO);
+					call_dissector(eap_handle, tvb_new_subset_length(tvb, curr_offset, e_len), pinfo, pco_tree);
+				} else {
+					call_data_dissector(tvb_new_subset_length(tvb, curr_offset, e_len), pinfo, pco_tree);
+				}
+				break;
+			case 0x0052:
+				if (link_dir == P2P_DIR_UL && e_len > 0) {
+					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_sdnaepc_dn_specific_id, tvb, curr_offset, e_len, ENC_NA|ENC_UTF_8);
+				}
+				break;
+			case 0x0056:
+				if (e_len > 0) {
+					dissect_nas_5gs_updp(tvb_new_subset_length(tvb, curr_offset, e_len), pinfo, pco_tree);
+				}
 				break;
 			default:
 			{
@@ -9928,6 +9965,11 @@ proto_register_gsm_a_gm(void)
 		    FT_STRING, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }
 		},
+		{ &hf_gsm_a_gm_sm_pco_sdnaepc_dn_specific_id,
+		  { "SDNAEPC DN-specific identity", "gsm_a.gm.sm.pco.sdnaepc_dn_specific_id",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
 		/* Generated from convert_proto_tree_add_text.pl */
 		{ &hf_gsm_a_gm_presence, { "Presence", "gsm_a.gm.gmm.presence", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_gsm_a_gm_8psk_power_class, { "8PSK Power Class", "gsm_a.gm.8psk_power_class", FT_UINT8, BASE_DEC, VALS(gsm_a_gm_8psk_power_class_vals), 0x0, NULL, HFILL }},
@@ -10033,6 +10075,7 @@ proto_reg_handoff_gsm_a_gm(void)
 	rrc_irat_ho_info_handle = find_dissector_add_dependency("rrc.irat.irat_ho_info", proto_a_gm);
 	lte_rrc_ue_eutra_cap_handle = find_dissector_add_dependency("lte-rrc.ue_eutra_cap", proto_a_gm);
 	nbifom_handle = find_dissector_add_dependency("nbifom", proto_a_gm);
+	eap_handle = find_dissector_add_dependency("eap", proto_a_gm);
 }
 
 /*

@@ -817,8 +817,6 @@ static expert_field ei_nas_5gs_not_diss;
 #define NAS_5GS_INTEG_NEW_NAS_MSG      3
 #define NAS_5GS_INTEG_CIPH_NEW_NAS_MSG 4
 
-static void dissect_nas_5gs_updp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset);
-
 static const value_string nas_5gs_security_header_type_vals[] = {
     { NAS_5GS_PLAIN_NAS_MSG,          "Plain NAS message, not security protected"},
     { NAS_5GS_INTEG_NAS_MSG,          "Integrity protected"},
@@ -2953,7 +2951,7 @@ de_nas_5gs_mm_pld_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         }
         break;
     case 5: /* UE policy container */
-        dissect_nas_5gs_updp(tvb_new_subset_length(tvb, offset, len), pinfo, tree, 0);
+        dissect_nas_5gs_updp(tvb_new_subset_length(tvb, offset, len), pinfo, tree);
         break;
     case 8: /* CIoT user data container */
         nas_5gs_decode_user_data_cont(tvb, tree, pinfo, offset, len, hf_nas_5gs_mm_pld_cont);
@@ -10192,8 +10190,8 @@ dissect_nas_5gs_sm_info(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int
 /* UPDP */
 /* D.6.1 UE policy delivery service message type */
 
-static void
-dissect_nas_5gs_updp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset)
+void
+dissect_nas_5gs_updp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
     const char* msg_str;
@@ -10202,6 +10200,7 @@ dissect_nas_5gs_updp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int of
     int          hf_idx;
     void(*msg_fcn_p)(tvbuff_t * tvb, proto_tree * tree, packet_info * pinfo, uint32_t offset, unsigned len);
     uint8_t      oct;
+    int          offset = 0;
 
     len = tvb_reported_length(tvb);
 
@@ -10529,8 +10528,8 @@ dissect_nas_5gs_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     } else if (!strcmp(n1_msg_class, "SMS")) {
         subdissector = gsm_a_dtap_handle;
     } else if (!strcmp(n1_msg_class, "UPDP")) {
-        /* UD policy delivery service */
-        dissect_nas_5gs_updp(tvb, pinfo, tree, 0);
+        /* UE policy delivery service */
+        dissect_nas_5gs_updp(tvb, pinfo, tree);
         return tvb_captured_length(tvb);
     } else {
         subdissector = NULL;
