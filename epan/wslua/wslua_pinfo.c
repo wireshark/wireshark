@@ -241,6 +241,12 @@ WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(Pinfo,curr_proto,ws_pinfo->current_proto);
 PINFO_INTEGER_GETTER(can_desegment);
 PINFO_NUMBER_SETTER(can_desegment,uint16_t);
 
+/* WSLUA_ATTRIBUTE Pinfo_saved_can_desegment RO Value of can_desegment before the current dissector was called.
+   Supplied so that proxy protocols like SOCKS can restore it to whatever the previous dissector (e.g. TCP) set it,
+   so that the dissectors they call are desegmented via the previous dissector.
+   @since 4.3.1 */
+PINFO_INTEGER_GETTER(saved_can_desegment);
+
 /* WSLUA_ATTRIBUTE Pinfo_desegment_len RW Estimated number of additional bytes required for completing the PDU. */
 PINFO_INTEGER_GETTER(desegment_len);
 PINFO_NUMBER_SETTER(desegment_len,uint32_t);
@@ -458,6 +464,7 @@ WSLUA_ATTRIBUTES Pinfo_attributes[] = {
     WSLUA_ATTRIBUTE_ROREG(Pinfo,columns),
     { "cols", Pinfo_get_columns, NULL },
     WSLUA_ATTRIBUTE_RWREG(Pinfo,can_desegment),
+    WSLUA_ATTRIBUTE_ROREG(Pinfo,saved_can_desegment),
     WSLUA_ATTRIBUTE_RWREG(Pinfo,desegment_len),
     WSLUA_ATTRIBUTE_RWREG(Pinfo,desegment_offset),
     WSLUA_ATTRIBUTE_ROREG(Pinfo,private),
