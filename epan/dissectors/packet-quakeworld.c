@@ -52,17 +52,17 @@ static int hf_quakeworld_game_seq2;
 static int hf_quakeworld_game_rel2;
 static int hf_quakeworld_game_qport;
 
-static gint ett_quakeworld;
-static gint ett_quakeworld_connectionless;
-static gint ett_quakeworld_connectionless_text;
-static gint ett_quakeworld_connectionless_arguments;
-static gint ett_quakeworld_connectionless_connect_infostring;
-static gint ett_quakeworld_connectionless_connect_infostring_key_value;
-static gint ett_quakeworld_game;
-static gint ett_quakeworld_game_seq1;
-static gint ett_quakeworld_game_seq2;
-static gint ett_quakeworld_game_clc;
-static gint ett_quakeworld_game_svc;
+static int ett_quakeworld;
+static int ett_quakeworld_connectionless;
+static int ett_quakeworld_connectionless_text;
+static int ett_quakeworld_connectionless_arguments;
+static int ett_quakeworld_connectionless_connect_infostring;
+static int ett_quakeworld_connectionless_connect_infostring_key_value;
+static int ett_quakeworld_game;
+static int ett_quakeworld_game_seq1;
+static int ett_quakeworld_game_seq2;
+static int ett_quakeworld_game_clc;
+static int ett_quakeworld_game_svc;
 
 static expert_field ei_quakeworld_connectionless_command_invalid;
 
@@ -90,7 +90,7 @@ COM_Parse (const char *data, int data_len, int* token_start, int* token_len)
 
 	/* skip whitespace */
 skipwhite:
-	while (TRUE) {
+	while (true) {
 		c = *data;
 		if (c == '\0')
 			return NULL;	/* end of file; */
@@ -230,10 +230,10 @@ Cmd_TokenizeString(const char* text, int text_len)
 static void
 dissect_id_infostring(tvbuff_t *tvb, proto_tree* tree,
 	int offset, char* infostring,
-	gint ett_key_value, int hf_key_value, int hf_key, int hf_value)
+	int ett_key_value, int hf_key_value, int hf_key, int hf_value)
 {
 	char     *newpos     = infostring;
-	gboolean end_of_info = FALSE;
+	bool end_of_info = false;
 
 	/* to look at all the key/value pairs, we destroy infostring */
 	while(!end_of_info) {
@@ -267,7 +267,7 @@ dissect_id_infostring(tvbuff_t *tvb, proto_tree* tree,
 		;
 		valueend = valuepos + valuelength;
 		if (*valueend == '\0') {
-			end_of_info = TRUE;
+			end_of_info = true;
 		}
 		*(keyvaluesep) = '=';
 		*(valueend) = '\0';
@@ -279,7 +279,7 @@ dissect_id_infostring(tvbuff_t *tvb, proto_tree* tree,
 			sub_item = proto_tree_add_string(tree,
 				hf_key_value,
 				tvb,
-				offset + (gint)(keypos-infostring),
+				offset + (int)(keypos-infostring),
 				keylength + 1 + valuelength, keypos);
 			sub_tree = proto_item_add_subtree(
 				sub_item,
@@ -288,12 +288,12 @@ dissect_id_infostring(tvbuff_t *tvb, proto_tree* tree,
 			proto_tree_add_string(sub_tree,
 					      hf_key,
 					      tvb,
-					      offset + (gint)(keypos-infostring),
+					      offset + (int)(keypos-infostring),
 					      keylength, keypos);
 			proto_tree_add_string(sub_tree,
 					      hf_value,
 					      tvb,
-					      offset + (gint)(valuepos-infostring),
+					      offset + (int)(valuepos-infostring),
 					      valuelength, valuepos);
 		}
 		newpos = valueend + 1;
@@ -340,13 +340,13 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree	*cl_tree;
 	proto_tree	*text_tree = NULL;
 	proto_item	*pi = NULL;
-	guint8		*text;
+	uint8_t		*text;
 	int		len;
 	int		offset;
-	guint32		marker;
+	uint32_t		marker;
 	int		command_len;
 	const char	*command;
-	gboolean	command_finished = FALSE;
+	bool	command_finished = false;
 
 	marker = tvb_get_ntohl(tvb, 0);
 	cl_tree = proto_tree_add_subtree(tree, tvb, 0, -1, ett_quakeworld_connectionless, NULL, "Connectionless");
@@ -385,12 +385,12 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 			command = "Log";
 			command_len = 3;
 		} else if (strcmp(c,"connect") == 0) {
-			guint32 version = 0;
-			guint16 qport = 0;
-			guint32 challenge = 0;
-			gboolean version_valid = TRUE;
-			gboolean qport_valid = TRUE;
-			gboolean challenge_valid = TRUE;
+			uint32_t version = 0;
+			uint16_t qport = 0;
+			uint32_t challenge = 0;
+			bool version_valid = true;
+			bool qport_valid = true;
+			bool challenge_valid = true;
 			const char *infostring;
 			proto_tree *argument_tree = NULL;
 			command = "Connect";
@@ -405,7 +405,7 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 					text + Cmd_Argv_start(1));
 				argument_tree = proto_item_add_subtree(argument_item,
 								       ett_quakeworld_connectionless_arguments);
-				command_finished=TRUE;
+				command_finished=true;
 			}
 			version_valid = ws_strtou32(Cmd_Argv(1), NULL, &version);
 			qport_valid = ws_strtou16(Cmd_Argv(2), NULL, &qport);
@@ -467,7 +467,7 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 					text + Cmd_Argv_start(1));
 				argument_tree =	proto_item_add_subtree(argument_item,
 								       ett_quakeworld_connectionless_arguments);
-				command_finished=TRUE;
+				command_finished=true;
 			}
 			password = Cmd_Argv(1);
 			if (argument_tree) {
@@ -573,12 +573,12 @@ dissect_quakeworld_GamePacket(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree, int direction)
 {
 	proto_tree	*game_tree = NULL;
-	guint32		seq1;
-	guint32		seq2;
+	uint32_t		seq1;
+	uint32_t		seq2;
 	int		rel1;
 	int		rel2;
 	int		offset;
-	guint		rest_length;
+	unsigned		rest_length;
 
 	direction = value_is_in_range(gbl_quakeworldServerPorts, pinfo->destport) ?
 			DIR_C2S : DIR_S2C;
@@ -615,7 +615,7 @@ dissect_quakeworld_GamePacket(tvbuff_t *tvb, packet_info *pinfo,
 
 	if (direction == DIR_C2S) {
 		/* client to server */
-		guint16 qport = tvb_get_letohs(tvb, offset);
+		uint16_t qport = tvb_get_letohs(tvb, offset);
 		if (game_tree) {
 			proto_tree_add_uint(game_tree, hf_quakeworld_game_qport, tvb, offset, 2, qport);
 		}
@@ -792,7 +792,7 @@ proto_register_quakeworld(void)
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			"QuakeWorld Client Port", HFILL }}
 	};
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_quakeworld,
 		&ett_quakeworld_connectionless,
 		&ett_quakeworld_connectionless_text,

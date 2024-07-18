@@ -209,12 +209,12 @@ static int hf_q931_locking_codeset;
 static int hf_q931_protocol_negotiation;
 
 
-static gint ett_q931;
+static int ett_q931;
 #define NUM_IE  256
-static gint ett_q931_ie[NUM_IE];
+static int ett_q931_ie[NUM_IE];
 
-static gint ett_q931_segments;
-static gint ett_q931_segment;
+static int ett_q931_segments;
+static int ett_q931_segment;
 
 static expert_field ei_q931_invalid_length;
 static expert_field ei_q931_date_time;
@@ -262,7 +262,7 @@ static heur_dissector_list_t q931_user_heur_subdissector_list;
 
 static void
 dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
-    proto_tree *q931_tree, gboolean is_over_ip, int offset, int initial_codeset,
+    proto_tree *q931_tree, bool is_over_ip, int offset, int initial_codeset,
     q931_packet_info *q931_pi);
 
 const value_string q931_message_type_vals[] = {
@@ -605,7 +605,7 @@ static void
 dissect_q931_segmented_message_ie(tvbuff_t *tvb, packet_info *pinfo, int offset, int len,
     proto_tree *tree, proto_item* item)
 {
-    guint8 octet;
+    uint8_t octet;
 
     if (len != 2) {
         expert_add_info_format(pinfo, item, &ei_q931_invalid_length,
@@ -613,7 +613,7 @@ dissect_q931_segmented_message_ie(tvbuff_t *tvb, packet_info *pinfo, int offset,
         return;
     }
 
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
     if (octet & 0x80) {
         proto_tree_add_item(tree, hf_q931_first_segment, tvb, offset, 1, ENC_NA);
     } else {
@@ -792,7 +792,7 @@ static const value_string q931_uil3_vals[] = {
 static void
 dissect_q931_protocol_discriminator(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-    unsigned int discriminator = tvb_get_guint8(tvb, offset);
+    unsigned int discriminator = tvb_get_uint8(tvb, offset);
 
     if (discriminator == NLPID_DMS) {
         proto_tree_add_uint_format_value(tree, hf_q931_discriminator,
@@ -862,16 +862,16 @@ void
 dissect_q931_bearer_capability_ie(tvbuff_t *tvb, int offset, int len,
     proto_tree *tree)
 {
-    guint8 octet;
-    guint8 coding_standard;
-    guint8 it_rate;
-    guint8 uil2_protocol;
-    guint8 uil3_protocol;
-    guint8 add_l3_info;
+    uint8_t octet;
+    uint8_t coding_standard;
+    uint8_t it_rate;
+    uint8_t uil2_protocol;
+    uint8_t uil3_protocol;
+    uint8_t add_l3_info;
 
     if (len == 0)
         return;
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
     coding_standard = octet & 0x60;
     if (coding_standard != Q931_ITU_STANDARDIZED_CODING) {
         /*
@@ -902,7 +902,7 @@ dissect_q931_bearer_capability_ie(tvbuff_t *tvb, int offset, int len,
 
     if (len == 0)
         return;
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
     proto_tree_add_boolean(tree, hf_q931_extension_ind, tvb, offset, 1, octet);
     proto_tree_add_uint(tree, hf_q931_transfer_mode, tvb, offset, 1, octet);
     proto_tree_add_uint(tree, hf_q931_information_transfer_rate, tvb, offset, 1, octet);
@@ -920,7 +920,7 @@ dissect_q931_bearer_capability_ie(tvbuff_t *tvb, int offset, int len,
 
     if (len == 0)
         return;
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
     if ((octet & 0x60) == 0x20) {
         /*
          * Layer 1 information.
@@ -935,7 +935,7 @@ dissect_q931_bearer_capability_ie(tvbuff_t *tvb, int offset, int len,
             goto l1_done;
         if (len == 0)
             return;
-        octet = tvb_get_guint8(tvb, offset);
+        octet = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(tree, hf_q931_layer_1, tvb, offset, 1, ENC_NA);
         proto_tree_add_item(tree, hf_q931_layer_1_in_band_negotiation, tvb, offset, 1, ENC_NA);
         proto_tree_add_item(tree, hf_q931_bearer_capability_user_rate, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -946,7 +946,7 @@ dissect_q931_bearer_capability_ie(tvbuff_t *tvb, int offset, int len,
             goto l1_done;
         if (len == 0)
             return;
-        octet = tvb_get_guint8(tvb, offset);
+        octet = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(tree, hf_q931_bearer_capability_intermediate_rate, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_q931_send_data_net_independent_clock, tvb, offset, 1, ENC_NA);
         proto_tree_add_item(tree, hf_q931_accept_data_net_independent_clock, tvb, offset, 1, ENC_NA);
@@ -959,7 +959,7 @@ dissect_q931_bearer_capability_ie(tvbuff_t *tvb, int offset, int len,
             goto l1_done;
         if (len == 0)
             return;
-        octet = tvb_get_guint8(tvb, offset);
+        octet = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(tree, hf_q931_rate_adaption_header, tvb, offset, 1, ENC_NA);
         proto_tree_add_item(tree, hf_q931_multiple_frame_establishment, tvb, offset, 1, ENC_NA);
         proto_tree_add_item(tree, hf_q931_mode_of_operation, tvb, offset, 1, ENC_NA);
@@ -973,7 +973,7 @@ dissect_q931_bearer_capability_ie(tvbuff_t *tvb, int offset, int len,
             goto l1_done;
         if (len == 0)
             return;
-        octet = tvb_get_guint8(tvb, offset);
+        octet = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(tree, hf_q931_bearer_capability_stop_bits, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_q931_bearer_capability_data_bits, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_q931_bearer_capability_parity, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -990,7 +990,7 @@ l1_done:
 
     if (len == 0)
         return;
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
     if ((octet & 0x60) == 0x40) {
         /*
          * Layer 2 information.
@@ -1009,7 +1009,7 @@ l1_done:
             goto l2_done;
         if (len == 0)
             return;
-        octet = tvb_get_guint8(tvb, offset);
+        octet = tvb_get_uint8(tvb, offset);
         if (uil2_protocol == Q931_UIL2_USER_SPEC) {
             proto_tree_add_item(tree, hf_q931_uil2_info, tvb, offset, 1, ENC_BIG_ENDIAN);
         } else {
@@ -1022,7 +1022,7 @@ l1_done:
             goto l2_done;
         if (len == 0)
             return;
-        octet = tvb_get_guint8(tvb, offset) & 0x7F;
+        octet = tvb_get_uint8(tvb, offset) & 0x7F;
         proto_tree_add_uint_format_value(tree, hf_q931_bearer_capability_window_size, tvb, offset, 1,
             octet, "octet & 0x7F%u k", octet);
         offset += 1;
@@ -1033,7 +1033,7 @@ l2_done:
 
     if (len == 0)
         return;
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
     if ((octet & 0x60) == 0x60) {
         /*
          * Layer 3 information.
@@ -1053,7 +1053,7 @@ l2_done:
             goto l3_done;
         if (len == 0)
             return;
-        octet = tvb_get_guint8(tvb, offset);
+        octet = tvb_get_uint8(tvb, offset);
         switch (uil3_protocol) {
 
         case Q931_UIL3_X25_PL:
@@ -1067,7 +1067,7 @@ l2_done:
                 goto l3_done;
             if (len == 0)
                 return;
-            octet = tvb_get_guint8(tvb, offset);
+            octet = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(tree, hf_q931_bearer_capability_default_packet_size, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
             len -= 1;
@@ -1093,7 +1093,7 @@ l2_done:
                 goto l3_done;
             if (len < 2)
                 return;
-            octet = tvb_get_guint8(tvb, offset + 1);
+            octet = tvb_get_uint8(tvb, offset + 1);
             add_l3_info |= (octet & 0x0F);
             proto_tree_add_uint(tree, hf_q931_uil3_additional, tvb, offset, 2, add_l3_info);
             /*offset += 2;*/
@@ -1270,7 +1270,7 @@ static const value_string q931_rejection_reason_vals[] = {
     { 0x00, NULL }
 };
 
-static const gchar *get_message_name(guint8 prot_discr, guint8 message_type) {
+static const char *get_message_name(uint8_t prot_discr, uint8_t message_type) {
     if (prot_discr == NLPID_DMS)
         return val_to_str(message_type, dms_message_type_vals, "Unknown (0x%02X)");
     else
@@ -1281,16 +1281,16 @@ static const true_false_string tfs_abnormal_normal = { "Abnormal", "Normal" };
 
 static void
 dissect_q931_cause_ie_with_info(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree, int hf_cause_value, guint8 *cause_value, const value_string *ie_vals,
+    proto_tree *tree, int hf_cause_value, uint8_t *cause_value, const value_string *ie_vals,
     q931_packet_info *q931_pi)
 {
-    guint8 octet;
-    guint8 coding_standard;
-    guint8 rejection_reason;
+    uint8_t octet;
+    uint8_t coding_standard;
+    uint8_t rejection_reason;
 
     if (len == 0)
         return;
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
     coding_standard = octet & 0x60;
     if (coding_standard != Q931_ITU_STANDARDIZED_CODING &&
         !g931_iso_iec_cause && coding_standard != Q931_ISO_IEC_STANDARDIZED_CODING) {
@@ -1311,7 +1311,7 @@ dissect_q931_cause_ie_with_info(tvbuff_t *tvb, int offset, int len,
     if (!(octet & Q931_IE_VL_EXTENSION)) {
         if (len == 0)
             return;
-        octet = tvb_get_guint8(tvb, offset);
+        octet = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(tree, hf_q931_cause_recommendation, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_boolean(tree, hf_q931_extension_ind, tvb, offset, 1, octet);
         offset += 1;
@@ -1320,7 +1320,7 @@ dissect_q931_cause_ie_with_info(tvbuff_t *tvb, int offset, int len,
 
     if (len == 0)
         return;
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
     *cause_value = octet & 0x7F;
 
     /* add cause value to packet info for use in tap */
@@ -1361,13 +1361,13 @@ dissect_q931_cause_ie_with_info(tvbuff_t *tvb, int offset, int len,
 
         case Q931_REJ_IE_MISSING:
             proto_tree_add_uint_format_value(tree, hf_q931_missing_info_element, tvb, offset, 1,
-                 tvb_get_guint8(tvb, offset), "%s", val_to_str(tvb_get_guint8(tvb, offset), ie_vals,
+                 tvb_get_uint8(tvb, offset), "%s", val_to_str(tvb_get_uint8(tvb, offset), ie_vals,
                   "Unknown (0x%02X)"));
             break;
 
         case Q931_REJ_IE_INSUFFICIENT:
             proto_tree_add_uint_format_value(tree, hf_q931_insufficient_info_element, tvb, offset, 1,
-                tvb_get_guint8(tvb, offset), "%s", val_to_str(tvb_get_guint8(tvb, offset), ie_vals,
+                tvb_get_uint8(tvb, offset), "%s", val_to_str(tvb_get_uint8(tvb, offset), ie_vals,
                   "Unknown (0x%02X)"));
             break;
 
@@ -1384,7 +1384,7 @@ dissect_q931_cause_ie_with_info(tvbuff_t *tvb, int offset, int len,
     case Q931_CAUSE_INVALID_IE_CONTENTS:
         do {
             proto_tree_add_uint_format_value(tree, hf_q931_information_element, tvb, offset, 1,
-                tvb_get_guint8(tvb, offset), "%s", val_to_str(tvb_get_guint8(tvb, offset), ie_vals,
+                tvb_get_uint8(tvb, offset), "%s", val_to_str(tvb_get_uint8(tvb, offset), ie_vals,
                   "Unknown (0x%02X)"));
             offset += 1;
             len -= 1;
@@ -1409,7 +1409,7 @@ dissect_q931_cause_ie_with_info(tvbuff_t *tvb, int offset, int len,
 
 void
 dissect_q931_cause_ie(tvbuff_t *tvb, int offset, int len,
-              proto_tree *tree, int hf_cause_value, guint8 *cause_value, const value_string *ie_vals)
+              proto_tree *tree, int hf_cause_value, uint8_t *cause_value, const value_string *ie_vals)
 {
     /* External dissectors have no use for "q931_packet_info". */
     dissect_q931_cause_ie_with_info(tvb, offset, len, tree, hf_cause_value, cause_value, ie_vals, NULL);
@@ -1473,12 +1473,12 @@ static void
 dissect_q931_call_state_ie(tvbuff_t *tvb, int offset, int len,
     proto_tree *tree)
 {
-    guint8 octet;
-    guint8 coding_standard;
+    uint8_t octet;
+    uint8_t coding_standard;
 
     if (len == 0)
         return;
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
     coding_standard = octet & 0x60;
     proto_tree_add_uint(tree, hf_q931_coding_standard, tvb, offset, 1, octet);
     if (coding_standard != Q931_ITU_STANDARDIZED_CODING) {
@@ -1527,12 +1527,12 @@ static void
 dissect_q931_channel_identification_ie(tvbuff_t *tvb, int offset, int len,
     proto_tree *tree)
 {
-    guint8 octet;
-    guint8 coding_standard;
+    uint8_t octet;
+    uint8_t coding_standard;
 
     if (len == 0)
         return;
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
 
     proto_tree_add_item(tree, hf_q931_extension_ind, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_q931_channel_interface_explicit, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1549,14 +1549,14 @@ dissect_q931_channel_identification_ie(tvbuff_t *tvb, int offset, int len,
     len -= 1;
 
     if (octet & Q931_INTERFACE_IDENTIFIED) {
-        guint8 octet2;
-        guint32 identifier_val = 0;
+        uint8_t octet2;
+        uint32_t identifier_val = 0;
         int identifier_offset = offset;
         int identifier_len = 0;
         do {
             if (len == 0)
                 break;
-            octet2 = tvb_get_guint8(tvb, offset);
+            octet2 = tvb_get_uint8(tvb, offset);
             offset += 1;
             len -= 1;
             identifier_len++;
@@ -1573,7 +1573,7 @@ dissect_q931_channel_identification_ie(tvbuff_t *tvb, int offset, int len,
     if (octet & Q931_NOT_BASIC_CHANNEL) {
         if (len == 0)
             return;
-        octet = tvb_get_guint8(tvb, offset);
+        octet = tvb_get_uint8(tvb, offset);
         coding_standard = octet & 0x60;
         proto_tree_add_item(tree, hf_q931_extension_ind, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_uint(tree, hf_q931_coding_standard, tvb, offset, 1, octet);
@@ -1599,11 +1599,11 @@ dissect_q931_channel_identification_ie(tvbuff_t *tvb, int offset, int len,
                 len -= 1;
             }
         } else {
-            guint8 octet2;
+            uint8_t octet2;
             do {
                 if (len == 0)
                     break;
-                octet2 = tvb_get_guint8(tvb, offset);
+                octet2 = tvb_get_uint8(tvb, offset);
 
                 proto_tree_add_item(tree, hf_q931_extension_ind, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tree,hf_q931_channel_number,tvb,offset,1,ENC_BIG_ENDIAN);
@@ -1633,12 +1633,12 @@ void
 dissect_q931_progress_indicator_ie(tvbuff_t *tvb, int offset, int len,
     proto_tree *tree)
 {
-    guint8 octet;
-    guint8 coding_standard;
+    uint8_t octet;
+    uint8_t coding_standard;
 
     if (len == 0)
         return;
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
     coding_standard = octet & 0x60;
     proto_tree_add_uint(tree, hf_q931_coding_standard, tvb, offset, 1, octet);
     if (coding_standard != Q931_ITU_STANDARDIZED_CODING) {
@@ -1681,12 +1681,12 @@ static void
 dissect_q931_ns_facilities_ie(tvbuff_t *tvb, int offset, int len,
     proto_tree *tree)
 {
-    guint8 octet;
+    uint8_t octet;
     int netid_len;
 
     if (len == 0)
         return;
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
     netid_len = octet & 0x7F;
     proto_tree_add_item(tree, hf_q931_netid_length, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
@@ -1753,12 +1753,12 @@ dissect_q931_date_time_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, int len
          * 1-origin?  Q.931 doesn't say....
          */
         proto_tree_add_bytes_format_value(tree, hf_q931_date_time, tvb, offset, 6, NULL, "%02u-%02u-%02u %02u:%02u:%02u",
-            tvb_get_guint8(tvb, offset + 0), tvb_get_guint8(tvb, offset + 1), tvb_get_guint8(tvb, offset + 2),
-            tvb_get_guint8(tvb, offset + 3), tvb_get_guint8(tvb, offset + 4), tvb_get_guint8(tvb, offset + 5));
+            tvb_get_uint8(tvb, offset + 0), tvb_get_uint8(tvb, offset + 1), tvb_get_uint8(tvb, offset + 2),
+            tvb_get_uint8(tvb, offset + 3), tvb_get_uint8(tvb, offset + 4), tvb_get_uint8(tvb, offset + 5));
     } else if (len == 5) {
         proto_tree_add_bytes_format_value(tree, hf_q931_date_time, tvb, offset, 5, NULL, "%02u-%02u-%02u %02u:%02u:00",
-            tvb_get_guint8(tvb, offset + 0), tvb_get_guint8(tvb, offset + 1), tvb_get_guint8(tvb, offset + 2),
-            tvb_get_guint8(tvb, offset + 3), tvb_get_guint8(tvb, offset + 4));
+            tvb_get_uint8(tvb, offset + 0), tvb_get_uint8(tvb, offset + 1), tvb_get_uint8(tvb, offset + 2),
+            tvb_get_uint8(tvb, offset + 3), tvb_get_uint8(tvb, offset + 4));
     } else {
         proto_tree_add_expert_format(tree, pinfo, &ei_q931_date_time, tvb, offset, len, "Date/time: length is %d, should be 5 or 6", len);
     }
@@ -1842,13 +1842,13 @@ static int
 dissect_q931_guint16_value(tvbuff_t *tvb, packet_info *pinfo, int offset, int len,
     proto_tree *tree, proto_item* item, int hf_value)
 {
-    guint8 octet;
-    guint16 value;
+    uint8_t octet;
+    uint16_t value;
     int value_len;
 
     value_len = 0;
 
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
     if (octet & Q931_IE_VL_EXTENSION) {
         /*
          * Only one octet long - error.
@@ -1866,7 +1866,7 @@ dissect_q931_guint16_value(tvbuff_t *tvb, packet_info *pinfo, int offset, int le
          */
         goto past_end;
     }
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
     if (octet & Q931_IE_VL_EXTENSION) {
         /*
          * Only two octets long - error.
@@ -1884,7 +1884,7 @@ dissect_q931_guint16_value(tvbuff_t *tvb, packet_info *pinfo, int offset, int le
          */
         goto past_end;
     }
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
     if (!(octet & Q931_IE_VL_EXTENSION)) {
         /*
          * More than three octets long - error.
@@ -2114,12 +2114,12 @@ static void
 dissect_q931_number_ie(packet_info *pinfo, tvbuff_t *tvb, int offset, int len,
     proto_tree *tree, int hfindex, e164_info_t e164_info, q931_packet_info *q931_pi)
 {
-    guint8 octet;
-    gint number_plan;
+    uint8_t octet;
+    int number_plan;
 
     if (len == 0)
         return;
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
     number_plan = octet & 0x0f;
     e164_info.nature_of_address = ( octet & 0x70 ) >> 4;
     proto_tree_add_uint(tree, hf_q931_numbering_plan, tvb, offset, 1, octet);
@@ -2132,7 +2132,7 @@ dissect_q931_number_ie(packet_info *pinfo, tvbuff_t *tvb, int offset, int len,
     if (!(octet & Q931_IE_VL_EXTENSION)) {
         if (len == 0)
             return;
-        octet = tvb_get_guint8(tvb, offset);
+        octet = tvb_get_uint8(tvb, offset);
         proto_tree_add_uint(tree, hf_q931_screening_ind, tvb, offset, 1, octet);
         proto_tree_add_uint(tree, hf_q931_presentation_ind, tvb, offset, 1, octet);
         proto_tree_add_boolean(tree, hf_q931_extension_ind, tvb, offset, 1, octet);
@@ -2304,14 +2304,14 @@ void
 dissect_q931_high_layer_compat_ie(tvbuff_t *tvb, int offset, int len,
     proto_tree *tree)
 {
-    guint8 octet;
-    guint8 coding_standard;
-    guint8 pres_method;
-    guint8 characteristics;
+    uint8_t octet;
+    uint8_t coding_standard;
+    uint8_t pres_method;
+    uint8_t characteristics;
 
     if (len == 0)
         return;
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
     coding_standard = octet & 0x60;
     pres_method = octet & 0x03;
 
@@ -2333,7 +2333,7 @@ dissect_q931_high_layer_compat_ie(tvbuff_t *tvb, int offset, int len,
     if (len == 0)
         return;
 
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
     characteristics = octet & 0x7F;
 
     proto_tree_add_item(tree, hf_q931_extension_ind, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2345,7 +2345,7 @@ dissect_q931_high_layer_compat_ie(tvbuff_t *tvb, int offset, int len,
     if (!(octet & Q931_IE_VL_EXTENSION)) {
         if (len == 0)
             return;
-        octet = tvb_get_guint8(tvb, offset);
+        octet = tvb_get_uint8(tvb, offset);
         if ((characteristics == Q931_AUDIOVISUAL) || (characteristics == 0x61) || (characteristics == 0x62) ||
             (characteristics == 0x68)) {
             proto_tree_add_item(tree, hf_q931_extension_ind, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2384,13 +2384,13 @@ void
 dissect_q931_user_user_ie(tvbuff_t *tvb, packet_info *pinfo, int offset, int len,
     proto_tree *tree)
 {
-    guint8 octet;
+    uint8_t octet;
     tvbuff_t *next_tvb = NULL;
     heur_dtbl_entry_t *hdtbl_entry;
 
     if (len == 0)
         return;
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_q931_user_protocol_discriminator, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     len -= 1;
@@ -2456,21 +2456,21 @@ dissect_q931_ia5_ie(tvbuff_t *tvb, int offset, int len, packet_info *pinfo, prot
 
 static void
 dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    gboolean is_over_ip)
+    bool is_over_ip)
 {
     int         offset = 0;
     proto_tree  *q931_tree = NULL;
     proto_tree  *ie_tree = NULL;
     proto_item  *ti;
-    guint8      prot_discr;
-    guint8      call_ref_len;
-    guint8      call_ref[16];
-    guint32     call_ref_val;
-    guint8      message_type, segmented_message_type;
-    guint8      info_element;
-    guint16     info_element_len;
-    gboolean    first_frag, more_frags;
-    guint32     frag_len;
+    uint8_t     prot_discr;
+    uint8_t     call_ref_len;
+    uint8_t     call_ref[16];
+    uint32_t    call_ref_val;
+    uint8_t     message_type, segmented_message_type;
+    uint8_t     info_element;
+    uint16_t    info_element_len;
+    bool        first_frag, more_frags;
+    uint32_t    frag_len;
     fragment_head *fd_head;
     tvbuff_t *next_tvb = NULL;
     q931_packet_info *q931_pi = NULL;
@@ -2482,7 +2482,7 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Q.931");
 
-    prot_discr = tvb_get_guint8(tvb, offset);
+    prot_discr = tvb_get_uint8(tvb, offset);
     ti = proto_tree_add_item(tree, proto_q931, tvb, offset, -1, ENC_NA);
     if (tree) {
         q931_tree = proto_item_add_subtree(ti, ett_q931);
@@ -2490,13 +2490,13 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         dissect_q931_protocol_discriminator(tvb, offset, q931_tree);
     }
     offset += 1;
-    call_ref_len = tvb_get_guint8(tvb, offset) & 0xF;   /* XXX - do as a bit field? */
+    call_ref_len = tvb_get_uint8(tvb, offset) & 0xF;   /* XXX - do as a bit field? */
     if (q931_tree != NULL)
         proto_tree_add_uint(q931_tree, hf_q931_call_ref_len, tvb, offset, 1, call_ref_len);
     offset += 1;
     switch (call_ref_len) {
         case 0: call_ref_val = 0; break;
-        case 1: call_ref_val = tvb_get_guint8(tvb, offset); break;
+        case 1: call_ref_val = tvb_get_uint8(tvb, offset); break;
         case 2: call_ref_val = tvb_get_ntohs(tvb, offset); break;
         case 3: call_ref_val = tvb_get_ntoh24(tvb, offset); break;
         default: call_ref_val = tvb_get_ntohl(tvb, offset);
@@ -2513,11 +2513,11 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         {       /* info for the tap */
             call_ref[0] &= 0x7F;
         }
-        /* XXX - Should crv be something besides a guint32? */
+        /* XXX - Should crv be something besides a uint32_t? */
         memcpy(&(q931_pi->crv), call_ref, call_ref_len > sizeof(q931_pi->crv) ? sizeof(q931_pi->crv) : call_ref_len );
         offset += call_ref_len;
     }
-    message_type = tvb_get_guint8(tvb, offset);
+    message_type = tvb_get_uint8(tvb, offset);
     q931_pi->message_type = message_type;
     col_add_str(pinfo->cinfo, COL_INFO, get_message_name(prot_discr, message_type));
 
@@ -2536,8 +2536,8 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         dissect_q931_IEs(tvb, pinfo, tree, q931_tree, is_over_ip, offset, 0, q931_pi);
         return;
     }
-    info_element = tvb_get_guint8(tvb, offset);
-    info_element_len = tvb_get_guint8(tvb, offset + 1);
+    info_element = tvb_get_uint8(tvb, offset);
+    info_element_len = tvb_get_uint8(tvb, offset + 1);
     if ((info_element != Q931_IE_SEGMENTED_MESSAGE) || (info_element_len < 2)) {
         dissect_q931_IEs(tvb, pinfo, tree, q931_tree, is_over_ip, offset, 0, q931_pi);
         return;
@@ -2549,9 +2549,9 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                             "%s", val_to_str(info_element, q931_info_element_vals[0], "Unknown (0x%02X)"));
     proto_tree_add_item(ie_tree, hf_q931_information_element_len, tvb, offset + 1, 1, ENC_NA);
     dissect_q931_segmented_message_ie(tvb, pinfo, offset + 2, info_element_len, ie_tree, ti);
-    first_frag = (tvb_get_guint8(tvb, offset + 2) & 0x80) != 0;
-    more_frags = (tvb_get_guint8(tvb, offset + 2) & 0x7F) != 0;
-    segmented_message_type = tvb_get_guint8(tvb, offset + 3);
+    first_frag = (tvb_get_uint8(tvb, offset + 2) & 0x80) != 0;
+    more_frags = (tvb_get_uint8(tvb, offset + 2) & 0x7F) != 0;
+    segmented_message_type = tvb_get_uint8(tvb, offset + 3);
     col_append_fstr(pinfo->cinfo, COL_INFO, " of %s",
             val_to_str_ext(segmented_message_type, &q931_message_type_vals_ext, "Unknown message type (0x%02X)"));
 
@@ -2601,16 +2601,16 @@ static const value_string q931_codeset_vals[] = {
 
 static void
 dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
-    proto_tree *q931_tree, gboolean is_over_ip, int offset, int initial_codeset,
+    proto_tree *q931_tree, bool is_over_ip, int offset, int initial_codeset,
     q931_packet_info *q931_pi)
 {
     proto_item  *ti;
     proto_tree  *ie_tree = NULL;
-    guint8      info_element;
-    guint8      dummy;
-    guint16     info_element_len;
+    uint8_t     info_element;
+    uint8_t     dummy;
+    uint16_t    info_element_len;
     int         codeset, locked_codeset;
-    gboolean    non_locking_shift, first_segment;
+    bool        non_locking_shift, first_segment;
     tvbuff_t    *h225_tvb, *next_tvb;
     e164_info_t e164_info;
     e164_info.e164_number_type = NONE;
@@ -2619,9 +2619,9 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
     e164_info.E164_number_length = NONE;
 
     codeset = locked_codeset = initial_codeset;
-    first_segment = FALSE;
+    first_segment = false;
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
-        info_element = tvb_get_guint8(tvb, offset);
+        info_element = tvb_get_uint8(tvb, offset);
 
         /* Check for the codeset shift */
         if ((info_element & Q931_IE_SO_MASK) &&
@@ -2710,8 +2710,8 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
          * IE with ASN.1 encoding of the user information.
          */
         if (is_over_ip && tvb_bytes_exist(tvb, offset, 4) &&
-            codeset == 0 && tvb_get_guint8(tvb, offset) == Q931_IE_USER_USER &&
-            tvb_get_guint8(tvb, offset + 3) == Q931_PROTOCOL_DISCRIMINATOR_ASN1)  {
+            codeset == 0 && tvb_get_uint8(tvb, offset) == Q931_IE_USER_USER &&
+            tvb_get_uint8(tvb, offset + 3) == Q931_PROTOCOL_DISCRIMINATOR_ASN1)  {
             info_element_len = tvb_get_ntohs(tvb, offset + 1);
             if (q931_tree != NULL) {
                 ie_tree = proto_tree_add_subtree(q931_tree, tvb, offset,
@@ -2758,7 +2758,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
             }
             offset += 1 + 2 + info_element_len;
         } else {
-            info_element_len = tvb_get_guint8(tvb, offset + 1);
+            info_element_len = tvb_get_uint8(tvb, offset + 1);
 
             if (first_segment && (tvb_reported_length_remaining(tvb, offset + 2) < info_element_len)) {  /* incomplete IE at the end of the 1st segment */
                 proto_tree_add_expert(q931_tree, pinfo, &ei_q931_incomplete_ie, tvb, offset, -1);
@@ -2789,10 +2789,10 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
             if (((codeset << 8) | info_element) == (CS0 | Q931_IE_SEGMENTED_MESSAGE)) {
                 dissect_q931_segmented_message_ie(tvb, pinfo, offset + 2, info_element_len, ie_tree, ti);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " of %s",
-                        val_to_str_ext(tvb_get_guint8(tvb, offset + 3), &q931_message_type_vals_ext, "Unknown message type (0x%02X)"));
+                        val_to_str_ext(tvb_get_uint8(tvb, offset + 3), &q931_message_type_vals_ext, "Unknown message type (0x%02X)"));
 
-                if (tvb_get_guint8(tvb, offset + 2) & 0x80) {  /* the 1st segment */
-                    first_segment = TRUE;
+                if (tvb_get_uint8(tvb, offset + 2) & 0x80) {  /* the 1st segment */
+                    first_segment = true;
                 } else {  /* not the 1st segment */
                     proto_tree_add_item(q931_tree, hf_q931_message_segment, tvb, offset + 4, -1, ENC_NA);
                     info_element_len += tvb_reported_length_remaining(tvb, offset + 4);
@@ -3110,7 +3110,7 @@ dissect_q931_tpkt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         return false;
 
     /* Check the protocol discriminator */
-    if ((tvb_get_guint8(tvb, 4) != NLPID_Q_931) && (tvb_get_guint8(tvb, 4) != 0x03)) {
+    if ((tvb_get_uint8(tvb, 4) != NLPID_Q_931) && (tvb_get_uint8(tvb, 4) != 0x03)) {
         /* Doesn't look like Q.931 inside TPKT */
         return false;
     }
@@ -3135,43 +3135,43 @@ dissect_q931_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 static int
 dissect_q931_tpkt_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    dissect_q931_pdu(tvb, pinfo, tree, TRUE);
+    dissect_q931_pdu(tvb, pinfo, tree, true);
     return tvb_captured_length(tvb);
 }
 
 static int
 dissect_q931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    dissect_q931_pdu(tvb, pinfo, tree, FALSE);
+    dissect_q931_pdu(tvb, pinfo, tree, false);
     return tvb_captured_length(tvb);
 }
 
 static int
 dissect_q931_over_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    dissect_q931_pdu(tvb, pinfo, tree, TRUE);
+    dissect_q931_pdu(tvb, pinfo, tree, true);
 	return tvb_captured_length(tvb);
 }
 
 static int
 dissect_q931_ie_cs0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    dissect_q931_IEs(tvb, pinfo, NULL, tree, FALSE, 0, 0, NULL);
+    dissect_q931_IEs(tvb, pinfo, NULL, tree, false, 0, 0, NULL);
     return tvb_captured_length(tvb);
 }
 
 static int
 dissect_q931_ie_cs7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    dissect_q931_IEs(tvb, pinfo, NULL, tree, FALSE, 0, 7, NULL);
+    dissect_q931_IEs(tvb, pinfo, NULL, tree, false, 0, 7, NULL);
     return tvb_captured_length(tvb);
 }
 
 void
 proto_register_q931(void)
 {
-    guint i;
-    guint last_offset;
+    unsigned i;
+    unsigned last_offset;
 
     static hf_register_info hf[] = {
         { &hf_q931_discriminator,
@@ -3902,7 +3902,7 @@ proto_register_q931(void)
     };
 
 #define NUM_INDIVIDUAL_ELEMS    3
-    static gint *ett[NUM_INDIVIDUAL_ELEMS + NUM_IE];
+    static int *ett[NUM_INDIVIDUAL_ELEMS + NUM_IE];
 
     static ei_register_info ei[] = {
         { &ei_q931_invalid_length, { "q931.invalid_length", PI_MALFORMED, PI_ERROR, "Invalid length", EXPFILL }},

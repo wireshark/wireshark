@@ -20,7 +20,7 @@ static int proto_qllc;
 static int hf_qllc_address;
 static int hf_qllc_control;
 
-static gint ett_qllc;
+static int ett_qllc;
 
 static dissector_handle_t sna_handle;
 
@@ -63,14 +63,14 @@ dissect_qllc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     proto_tree *qllc_tree;
     proto_item *qllc_ti;
-    gboolean   *q_bit_set;
-    guint8      addr, ctrl;
-    gboolean    command = FALSE;
+    bool       *q_bit_set;
+    uint8_t     addr, ctrl;
+    bool        command = false;
 
     /* Reject the packet if data is NULL */
     if (data == NULL)
         return 0;
-    q_bit_set = (gboolean *)data;
+    q_bit_set = (bool *)data;
 
     /*
      * If the Q bit isn't set, this is just SNA data.
@@ -89,14 +89,14 @@ dissect_qllc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
     /* Get the address; we need it to determine if this is a
      * COMMAND or a RESPONSE */
-    addr = tvb_get_guint8(tvb, 0);
+    addr = tvb_get_uint8(tvb, 0);
     proto_tree_add_item(qllc_tree, hf_qllc_address, tvb, 0, 1, ENC_BIG_ENDIAN);
 
     /* The address field equals X'FF' in commands (except QRR)
      * and anything in responses. */
-    ctrl = tvb_get_guint8(tvb, 1);
+    ctrl = tvb_get_uint8(tvb, 1);
     if (ctrl != QRR && addr == 0xff) {
-        command = TRUE;
+        command = true;
     }
 
 
@@ -147,7 +147,7 @@ proto_register_qllc(void)
             VALS(qllc_control_vals), 0x0, NULL, HFILL }},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_qllc,
     };
 

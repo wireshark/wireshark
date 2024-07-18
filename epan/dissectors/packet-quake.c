@@ -57,10 +57,10 @@ static int hf_quake_CCREP_RULE_INFO_rule;
 static int hf_quake_CCREP_RULE_INFO_value;
 
 
-static gint ett_quake;
-static gint ett_quake_control;
-static gint ett_quake_control_colors;
-static gint ett_quake_flags;
+static int ett_quake;
+static int ett_quake_control;
+static int ett_quake_control_colors;
+static int ett_quake_flags;
 
 static dissector_handle_t quake_handle;
 
@@ -136,8 +136,8 @@ static void
 dissect_quake_CCREQ_CONNECT
 (tvbuff_t *tvb, proto_tree *tree)
 {
-	gint offset = 0;
-	gint item_len;
+	int offset = 0;
+	int item_len;
 
 	proto_tree_add_item_ret_length(tree, hf_quake_CCREQ_CONNECT_game,
 			tvb, offset, -1, ENC_ASCII|ENC_NA, &item_len);
@@ -152,8 +152,8 @@ static void
 dissect_quake_CCREQ_SERVER_INFO
 (tvbuff_t *tvb, proto_tree *tree)
 {
-	gint offset = 0;
-	gint item_len;
+	int offset = 0;
+	int item_len;
 
 	proto_tree_add_item_ret_length(tree, hf_quake_CCREQ_SERVER_INFO_game,
 			tvb, offset, -1, ENC_ASCII|ENC_NA, &item_len);
@@ -185,7 +185,7 @@ static void
 dissect_quake_CCREP_ACCEPT
 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	guint32 port;
+	uint32_t port;
 	conversation_t *c;
 
 	port = tvb_get_letohl(tvb, 0);
@@ -210,8 +210,8 @@ static void
 dissect_quake_CCREP_SERVER_INFO
 (tvbuff_t *tvb, proto_tree *tree)
 {
-	gint offset = 0;
-	gint item_len;
+	int offset = 0;
+	int item_len;
 
 	proto_tree_add_item_ret_length(tree,
 			hf_quake_CCREP_SERVER_INFO_address, tvb, offset, -1,
@@ -243,13 +243,13 @@ static void
 dissect_quake_CCREP_PLAYER_INFO
 (tvbuff_t *tvb, proto_tree *tree)
 {
-	gint offset = 0;
-	guint32 colors;
-	guint32 color_shirt;
-	guint32 color_pants;
+	int offset = 0;
+	uint32_t colors;
+	uint32_t color_shirt;
+	uint32_t color_pants;
 	proto_item *colors_item;
 	proto_tree *colors_tree;
-	gint item_len;
+	int item_len;
 
 	proto_tree_add_item(tree, hf_quake_CCREQ_PLAYER_INFO_player,
 			tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -291,8 +291,8 @@ static void
 dissect_quake_CCREP_RULE_INFO
 (tvbuff_t *tvb, proto_tree *tree)
 {
-	gint offset = 0;
-	gint item_len;
+	int offset = 0;
+	int item_len;
 
 	if (tvb_reported_length(tvb) == 0) return;
 
@@ -308,12 +308,12 @@ dissect_quake_CCREP_RULE_INFO
 static void
 dissect_quake_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	guint8		command;
+	uint8_t		command;
 	int		direction;
 	proto_tree	*control_tree;
 	tvbuff_t	*next_tvb;
 
-	command = tvb_get_guint8(tvb, 0);
+	command = tvb_get_uint8(tvb, 0);
 	direction = (command & 0x80) ? CCREP : CCREQ;
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
@@ -377,10 +377,10 @@ dissect_quake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 {
 	proto_tree	*quake_tree;
 	proto_item	*quake_item;
-	guint16		flags;
+	uint16_t		flags;
 	proto_item	*flags_item;
 	proto_tree	*flags_tree;
-	guint32		sequence = 0;
+	uint32_t		sequence = 0;
 	tvbuff_t	*next_tvb;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "QUAKE");
@@ -561,7 +561,7 @@ proto_register_quake(void)
 		    FT_STRINGZ, BASE_NONE, NULL, 0x0,
 		    "Rule Value", HFILL }},
 	};
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_quake,
 		&ett_quake_control,
 		&ett_quake_control_colors,

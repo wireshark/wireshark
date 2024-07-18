@@ -47,20 +47,20 @@ static int hf_quake3_game_seq2;
 static int hf_quake3_game_rel2;
 static int hf_quake3_game_qport;
 
-static gint ett_quake3;
-static gint ett_quake3_connectionless;
-static gint ett_quake3_connectionless_text;
-static gint ett_quake3_server;
-static gint ett_quake3_game;
-static gint ett_quake3_game_seq1;
-static gint ett_quake3_game_seq2;
-static gint ett_quake3_game_clc;
-static gint ett_quake3_game_svc;
+static int ett_quake3;
+static int ett_quake3_connectionless;
+static int ett_quake3_connectionless_text;
+static int ett_quake3_server;
+static int ett_quake3_game;
+static int ett_quake3_game_seq1;
+static int ett_quake3_game_seq2;
+static int ett_quake3_game_clc;
+static int ett_quake3_game_svc;
 
 #define QUAKE3_SERVER_PORT 27960
 #define QUAKE3_MASTER_PORT 27950
-static guint gbl_quake3_server_port=QUAKE3_SERVER_PORT;
-static guint gbl_quake3_master_port=QUAKE3_MASTER_PORT;
+static unsigned gbl_quake3_server_port=QUAKE3_SERVER_PORT;
+static unsigned gbl_quake3_master_port=QUAKE3_MASTER_PORT;
 
 
 static const value_string names_direction[] = {
@@ -129,13 +129,13 @@ dissect_quake3_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo _U_,
 	proto_tree	*cl_tree;
 	proto_item	*text_item = NULL;
 	proto_tree	*text_tree = NULL;
-	guint8		*text;
+	uint8_t		*text;
 	int		len;
 	int		offset;
-	guint32		marker;
+	uint32_t		marker;
 	int		command;
 	int		command_len;
-	gboolean	command_finished = FALSE;
+	bool	command_finished = false;
 
 	cl_tree = proto_tree_add_subtree(tree, tvb,
 			0, -1, ett_quake3_connectionless, NULL, "Connectionless");
@@ -246,14 +246,14 @@ dissect_quake3_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo _U_,
 			proto_tree_add_string(text_tree, hf_quake3_connectionless_command,
 					tvb, offset, command_len,
 					val_to_str_const(command, names_command, "Unknown"));
-		command_finished = TRUE;
+		command_finished = true;
 
 		/* now we decode all the rest */
 		base = offset + 18;
 		/* '/', ip-address in network order, port in network order */
 		while (tvb_reported_length_remaining(tvb, base) >= 7) {
-			guint32		ip_addr;
-			guint16		udp_port;
+			uint32_t		ip_addr;
+			uint16_t		udp_port;
 
 			ip_addr = tvb_get_ipv4(tvb, base + 1);
 			udp_port = tvb_get_ntohs(tvb, base + 5);
@@ -303,7 +303,7 @@ dissect_quake3_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo _U_,
 		*direction = DIR_UNKNOWN;
 	}
 
-	if (text_tree && command_finished == FALSE) {
+	if (text_tree && command_finished == false) {
 		proto_tree_add_string(text_tree, hf_quake3_connectionless_command,
 					tvb, offset, command_len,
 					val_to_str_const(command, names_command, "Unknown"));
@@ -345,12 +345,12 @@ dissect_quake3_GamePacket(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree, int *direction)
 {
 	proto_tree	*game_tree;
-	guint32		seq1;
-	guint32		seq2;
+	uint32_t		seq1;
+	uint32_t		seq2;
 	int		rel1;
 	int		rel2;
 	int		offset;
-	guint		rest_length;
+	unsigned		rest_length;
 
 	*direction = (pinfo->destport == gbl_quake3_server_port) ?
 			DIR_C2S : DIR_S2C;
@@ -389,7 +389,7 @@ dissect_quake3_GamePacket(tvbuff_t *tvb, packet_info *pinfo,
 
 	if (*direction == DIR_C2S) {
 		/* client to server */
-		guint16 qport = tvb_get_letohs(tvb, offset);
+		uint16_t qport = tvb_get_letohs(tvb, offset);
 		if (game_tree) {
 			proto_tree_add_uint(game_tree, hf_quake3_game_qport,
 				tvb, offset, 2, qport);
@@ -533,7 +533,7 @@ proto_register_quake3(void)
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			"Quake III Arena Client Port", HFILL }}
 	};
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_quake3,
 		&ett_quake3_connectionless,
 		&ett_quake3_connectionless_text,
@@ -569,13 +569,13 @@ proto_register_quake3(void)
 void
 proto_reg_handoff_quake3(void)
 {
-	static gboolean initialized=FALSE;
-	static guint server_port;
-	static guint master_port;
+	static bool initialized=false;
+	static unsigned server_port;
+	static unsigned master_port;
 	int i;
 
 	if (!initialized) {
-		initialized=TRUE;
+		initialized=true;
 	} else {
 		for (i=0;i<4;i++)
 			dissector_delete_uint("udp.port", server_port+i, quake3_handle);

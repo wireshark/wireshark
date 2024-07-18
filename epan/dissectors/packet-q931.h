@@ -19,7 +19,7 @@ WS_DLL_PUBLIC void dissect_q931_bearer_capability_ie(tvbuff_t *, int, int,
     proto_tree *);
 
 extern void dissect_q931_cause_ie(tvbuff_t *, int, int,
-    proto_tree *, int, guint8 *,const value_string *);
+    proto_tree *, int, uint8_t *,const value_string *);
 
 extern void dissect_q931_progress_indicator_ie(tvbuff_t *, int, int,
     proto_tree *);
@@ -33,11 +33,11 @@ extern void dissect_q931_user_user_ie(tvbuff_t *tvb, packet_info *pinfo, int off
 extern value_string_ext q931_cause_location_vals_ext;
 
 typedef struct _q931_packet_info {
-       gchar *calling_number;
-       gchar *called_number;
-       guint8 cause_value;
-       gint32 crv;
-       guint8 message_type;
+       char *calling_number;
+       char *called_number;
+       uint8_t cause_value;
+       int32_t crv;
+       uint8_t message_type;
 } q931_packet_info;
 
 /*
