@@ -2600,7 +2600,7 @@ static int dissect_cicomphdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     proto_item_append_text(cicomphdr_ti, " (IqWidth=%u, ciCompMeth=%s, ciCompOpt=%s)",
                            hdr_iq_width,
                            rval_to_str_const(ci_comp_meth, ud_comp_header_meth, "Unknown"),
-                           (comp_opt) ?  "compression per PRB" : "compression per UE");
+                           (*comp_opt) ?  "compression per PRB" : "compression per UE");
     return offset;
 }
 
