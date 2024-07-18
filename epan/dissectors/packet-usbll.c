@@ -130,7 +130,7 @@ static const enum_val_t dissect_unknown_speed_as[] = {
     { NULL, NULL, 0 }
 };
 
-static gint global_dissect_unknown_speed_as = USB_SPEED_UNKNOWN;
+static int global_dissect_unknown_speed_as = USB_SPEED_UNKNOWN;
 
 /* USB packet ID is 4-bit. It is send in octet alongside complemented form.
  * The list of PIDs is available in Universal Serial Bus Specification Revision 2.0,
@@ -219,7 +219,7 @@ static const value_string usb_subpid_vals[] = {
 static value_string_ext usb_subpid_vals_ext =
     VALUE_STRING_EXT_INIT(usb_subpid_vals);
 
-static void lpm_link_state_str(gchar *buf, guint32 value)
+static void lpm_link_state_str(char *buf, uint32_t value)
 {
     if (value == 0x01) {
         snprintf(buf, ITEM_LABEL_LENGTH, "L1 (Sleep)");
@@ -228,7 +228,7 @@ static void lpm_link_state_str(gchar *buf, guint32 value)
     }
 }
 
-static guint besl_to_us(guint8 besl)
+static unsigned besl_to_us(uint8_t besl)
 {
     unsigned int us;
     if (besl == 0) {
@@ -243,7 +243,7 @@ static guint besl_to_us(guint8 besl)
     return us;
 }
 
-void usb_lpm_besl_str(gchar *buf, guint32 value)
+void usb_lpm_besl_str(char *buf, uint32_t value)
 {
     snprintf(buf, ITEM_LABEL_LENGTH, "%d us (%d)", besl_to_us(value), value);
 }
@@ -291,8 +291,8 @@ static const value_string usb_endpoint_type_vals[] = {
 #define TOKEN_BITS_GET_ENDPOINT(bits) ((bits & 0x0780) >> 7)
 
 /* Macros for Split Packets. */
-#define SPLIT_BITS_GET_HUB_ADDRESS(bits) (guint8)(bits & 0x007F)
-#define SPLIT_BITS_GET_HUB_PORT(bits) (guint8)((bits & 0x7F00) >> 8)
+#define SPLIT_BITS_GET_HUB_ADDRESS(bits) (uint8_t)(bits & 0x007F)
+#define SPLIT_BITS_GET_HUB_PORT(bits) (uint8_t)((bits & 0x7F00) >> 8)
 #define SPLIT_BITS_GET_ENDPOINT_TYPE(bits) ((bits & 0x060000) >> 17)
 #define SPLIT_BIT_SPEED 0x8000
 #define SPLIT_BIT_E_U 0x10000
@@ -446,20 +446,20 @@ typedef enum usbll_ep_type {
  * of Host, Hub and Devices.
  */
 typedef struct {
-    guint8 flags;       /* flags    - Contains information if address is
+    uint8_t flags;       /* flags    - Contains information if address is
                          *            Host, Hub, Device or Broadcast.
                          */
-    guint8 device;      /* device   - Device or Hub Address */
-    guint8 endpoint;    /* endpoint - It represents endpoint number for
+    uint8_t device;      /* device   - Device or Hub Address */
+    uint8_t endpoint;    /* endpoint - It represents endpoint number for
                          *            Device and port number for Hub.
                          */
 } usbll_address_t;
 
 typedef struct usbll_transaction_info {
-    guint32 starts_in;
-    guint8 pid;
-    guint8 address;
-    guint8 endpoint;
+    uint32_t starts_in;
+    uint8_t pid;
+    uint8_t address;
+    uint8_t endpoint;
     usb_speed_t speed;
     struct usbll_transaction_info *split_start;
     struct usbll_transaction_info *split_complete;
@@ -467,14 +467,14 @@ typedef struct usbll_transaction_info {
 
 typedef struct usbll_transfer_info {
     /* First data packet number, used as reassembly key */
-    guint32 first_packet;
+    uint32_t first_packet;
     /* Offset this packet starts at */
-    guint32 offset;
+    uint32_t offset;
     usbll_ep_type_t type;
-    /* TRUE if data from host to device, FALSE when from device to host */
-    gboolean from_host;
-    /* FALSE if this is the last packet */
-    gboolean more_frags;
+    /* true if data from host to device, false when from device to host */
+    bool from_host;
+    /* false if this is the last packet */
+    bool more_frags;
 } usbll_transfer_info_t;
 
 /* USB is a stateful protocol. The addresses of Data Packets
@@ -511,41 +511,41 @@ typedef struct usbll_endpoint_info {
     usbll_ep_type_t type;
     usbll_transfer_data_t data;
     /* Maximum packet size, 0 if not known */
-    guint16 max_packet_size;
+    uint16_t max_packet_size;
     /* DATA0/DATA1 tracking to detect retransmissions */
-    guint8 last_data_pid;
-    /* TRUE if last data packet was acknowledged */
-    gboolean last_data_acked;
+    uint8_t last_data_pid;
+    /* true if last data packet was acknowledged */
+    bool last_data_acked;
     /* Current transfer key, 0 if no transfer in progress */
-    guint32 active_transfer_key;
+    uint32_t active_transfer_key;
     /* Offset where next packet should start at */
-    guint32 transfer_offset;
+    uint32_t transfer_offset;
     /* Last data packet length that was part of transfer */
-    guint32 last_data_len;
+    uint32_t last_data_len;
     /* Transfer length if known, 0 if unknown */
-    guint32 requested_transfer_length;
+    uint32_t requested_transfer_length;
 } usbll_endpoint_info_t;
 
 /* Endpoint info arrays used only during first pass. */
 static usbll_endpoint_info_t **ep_info_in;
 static usbll_endpoint_info_t **ep_info_out;
 
-static guint usbll_fragment_key_hash(gconstpointer k)
+static unsigned usbll_fragment_key_hash(const void *k)
 {
     return GPOINTER_TO_UINT(k);
 }
 
-static gint usbll_fragment_key_equal(gconstpointer k1, gconstpointer k2)
+static int usbll_fragment_key_equal(const void *k1, const void *k2)
 {
     return GPOINTER_TO_UINT(k1) == GPOINTER_TO_UINT(k2);
 }
 
-static gpointer usbll_fragment_key(const packet_info *pinfo _U_, const guint32 id, const void *data _U_)
+static void *usbll_fragment_key(const packet_info *pinfo _U_, const uint32_t id, const void *data _U_)
 {
     return GUINT_TO_POINTER(id);
 }
 
-static void usbll_fragment_free_key(gpointer ptr _U_)
+static void usbll_fragment_free_key(void *ptr _U_)
 {
     /* there's nothing to be freed */
 }
@@ -560,7 +560,7 @@ static const reassembly_table_functions usbll_reassembly_table_functions = {
 };
 
 static usbll_state_t
-usbll_next_state(usbll_state_t state, guint8 pid)
+usbll_next_state(usbll_state_t state, uint8_t pid)
 {
     if (state == STATE_EXT)
     {
@@ -792,7 +792,7 @@ usbll_next_state(usbll_state_t state, guint8 pid)
     return STATE_IDLE;
 }
 
-static gboolean usbll_is_non_periodic_split_start_token(usbll_state_t state)
+static bool usbll_is_non_periodic_split_start_token(usbll_state_t state)
 {
     switch (state)
     {
@@ -801,13 +801,13 @@ static gboolean usbll_is_non_periodic_split_start_token(usbll_state_t state)
         case STATE_SSPLIT_CONTROL_IN:
         case STATE_SSPLIT_BULK_OUT:
         case STATE_SSPLIT_BULK_IN:
-            return TRUE;
+            return true;
         default:
-            return FALSE;
+            return false;
     }
 
 }
-static gboolean usbll_is_periodic_split_start_token(usbll_state_t state)
+static bool usbll_is_periodic_split_start_token(usbll_state_t state)
 {
     switch (state)
     {
@@ -815,18 +815,18 @@ static gboolean usbll_is_periodic_split_start_token(usbll_state_t state)
         case STATE_SSPLIT_INTERRUPT_IN:
         case STATE_SSPLIT_ISOCHRONOUS_OUT:
         case STATE_SSPLIT_ISOCHRONOUS_IN:
-            return TRUE;
+            return true;
         default:
-            return FALSE;
+            return false;
     }
 
 }
-static gboolean usbll_is_split_start_token(usbll_state_t state)
+static bool usbll_is_split_start_token(usbll_state_t state)
 {
     return usbll_is_non_periodic_split_start_token(state) || usbll_is_periodic_split_start_token(state);
 }
 
-static gboolean usbll_is_non_periodic_split_complete_token(usbll_state_t state)
+static bool usbll_is_non_periodic_split_complete_token(usbll_state_t state)
 {
     switch (state)
     {
@@ -835,36 +835,36 @@ static gboolean usbll_is_non_periodic_split_complete_token(usbll_state_t state)
         case STATE_CSPLIT_CONTROL_IN:
         case STATE_CSPLIT_BULK_OUT:
         case STATE_CSPLIT_BULK_IN:
-            return TRUE;
+            return true;
         default:
-            return FALSE;
+            return false;
     }
 }
 
-static gboolean usbll_is_periodic_split_complete_token(usbll_state_t state)
+static bool usbll_is_periodic_split_complete_token(usbll_state_t state)
 {
     switch (state)
     {
         case STATE_CSPLIT_INTERRUPT_OUT:
         case STATE_CSPLIT_INTERRUPT_IN:
         case STATE_CSPLIT_ISOCHRONOUS_IN:
-            return TRUE;
+            return true;
         default:
-            return FALSE;
+            return false;
     }
 }
 
-static gboolean usbll_is_split_complete_token(usbll_state_t state)
+static bool usbll_is_split_complete_token(usbll_state_t state)
 {
     return usbll_is_non_periodic_split_complete_token(state) || usbll_is_periodic_split_complete_token(state);
 }
 
-static gboolean usbll_is_split_token(usbll_state_t state)
+static bool usbll_is_split_token(usbll_state_t state)
 {
     return usbll_is_split_start_token(state) || usbll_is_split_complete_token(state);
 }
 
-static gboolean usbll_is_non_split_token(usbll_state_t state)
+static bool usbll_is_non_split_token(usbll_state_t state)
 {
     switch (state)
     {
@@ -873,13 +873,13 @@ static gboolean usbll_is_non_split_token(usbll_state_t state)
         case STATE_PING:
         case STATE_SETUP:
         case STATE_EXT:
-            return TRUE;
+            return true;
         default:
-            return FALSE;
+            return false;
     }
 }
 
-static gboolean usbll_is_extended_subpid(usbll_state_t state)
+static bool usbll_is_extended_subpid(usbll_state_t state)
 {
     switch (state)
     {
@@ -887,25 +887,25 @@ static gboolean usbll_is_extended_subpid(usbll_state_t state)
         case STATE_SUBPID_NOT_REUSABLE:
         case STATE_SUBPID_LPM:
         case STATE_SUBPID_RESERVED:
-            return TRUE;
+            return true;
         default:
-            return FALSE;
+            return false;
     }
 }
 
-static gboolean usbll_is_setup_data(usbll_state_t state)
+static bool usbll_is_setup_data(usbll_state_t state)
 {
     switch (state)
     {
         case STATE_SETUP_DATA0:
         case STATE_SSPLIT_CONTROL_SETUP_DATA0:
-            return TRUE;
+            return true;
         default:
-            return FALSE;
+            return false;
     }
 }
 
-static gboolean usbll_is_data_from_host(usbll_state_t state)
+static bool usbll_is_data_from_host(usbll_state_t state)
 {
     switch (state)
     {
@@ -922,7 +922,7 @@ static gboolean usbll_is_data_from_host(usbll_state_t state)
         case STATE_SSPLIT_INTERRUPT_OUT_DATA0:
         case STATE_SSPLIT_INTERRUPT_OUT_DATA1:
         case STATE_SSPLIT_ISOCHRONOUS_OUT_DATA0:
-            return TRUE;
+            return true;
         case STATE_IN_DATA0:
         case STATE_IN_DATA1:
         case STATE_IN_HS_ISOCHRONOUS_DATA2:
@@ -935,13 +935,13 @@ static gboolean usbll_is_data_from_host(usbll_state_t state)
         case STATE_CSPLIT_INTERRUPT_IN_DATA1:
         case STATE_CSPLIT_ISOCHRONOUS_IN_DATA0:
         case STATE_CSPLIT_ISOCHRONOUS_IN_MDATA:
-            return FALSE;
+            return false;
         default:
             DISSECTOR_ASSERT_NOT_REACHED();
     }
 }
 
-static gboolean usbll_is_split_data_from_device(usbll_state_t state)
+static bool usbll_is_split_data_from_device(usbll_state_t state)
 {
     switch (state)
     {
@@ -954,25 +954,25 @@ static gboolean usbll_is_split_data_from_device(usbll_state_t state)
         case STATE_CSPLIT_INTERRUPT_IN_DATA1:
         case STATE_CSPLIT_ISOCHRONOUS_IN_DATA0:
         case STATE_CSPLIT_ISOCHRONOUS_IN_MDATA:
-            return TRUE;
+            return true;
         default:
-            return FALSE;
+            return false;
     }
 }
 
-static gboolean usbll_is_setup_ack(usbll_state_t state)
+static bool usbll_is_setup_ack(usbll_state_t state)
 {
     switch (state)
     {
         case STATE_SETUP_ACK:
         case STATE_CSPLIT_CONTROL_SETUP_ACK:
-            return TRUE;
+            return true;
         default:
-            return FALSE;
+            return false;
     }
 }
 
-static gboolean usbll_is_data_ack(usbll_state_t state)
+static bool usbll_is_data_ack(usbll_state_t state)
 {
     switch (state)
     {
@@ -982,13 +982,13 @@ static gboolean usbll_is_data_ack(usbll_state_t state)
         case STATE_CSPLIT_CONTROL_OUT_ACK:
         case STATE_CSPLIT_BULK_OUT_ACK:
         case STATE_CSPLIT_INTERRUPT_OUT_ACK:
-            return TRUE;
+            return true;
         default:
-            return FALSE;
+            return false;
     }
 }
 
-static gboolean usbll_is_acked_data_from_host(usbll_state_t state)
+static bool usbll_is_acked_data_from_host(usbll_state_t state)
 {
     switch (state)
     {
@@ -997,15 +997,15 @@ static gboolean usbll_is_acked_data_from_host(usbll_state_t state)
         case STATE_CSPLIT_CONTROL_OUT_ACK:
         case STATE_CSPLIT_BULK_OUT_ACK:
         case STATE_CSPLIT_INTERRUPT_OUT_ACK:
-            return TRUE;
+            return true;
         case STATE_IN_ACK:
-            return FALSE;
+            return false;
         default:
             DISSECTOR_ASSERT_NOT_REACHED();
     }
 }
 
-static gboolean usbll_is_endpoint_stall(usbll_state_t state)
+static bool usbll_is_endpoint_stall(usbll_state_t state)
 {
     switch (state)
     {
@@ -1018,13 +1018,13 @@ static gboolean usbll_is_endpoint_stall(usbll_state_t state)
         case STATE_CSPLIT_BULK_IN_STALL:
         case STATE_CSPLIT_INTERRUPT_OUT_STALL:
         case STATE_CSPLIT_INTERRUPT_IN_STALL:
-            return TRUE;
+            return true;
         default:
-            return FALSE;
+            return false;
     }
 }
 
-static gboolean usbll_is_stalled_data_from_host(usbll_state_t state)
+static bool usbll_is_stalled_data_from_host(usbll_state_t state)
 {
     switch (state)
     {
@@ -1033,12 +1033,12 @@ static gboolean usbll_is_stalled_data_from_host(usbll_state_t state)
         case STATE_CSPLIT_CONTROL_OUT_STALL:
         case STATE_CSPLIT_BULK_OUT_STALL:
         case STATE_CSPLIT_INTERRUPT_OUT_STALL:
-            return TRUE;
+            return true;
         case STATE_IN_STALL:
         case STATE_CSPLIT_CONTROL_IN_STALL:
         case STATE_CSPLIT_BULK_IN_STALL:
         case STATE_CSPLIT_INTERRUPT_IN_STALL:
-            return FALSE;
+            return false;
         default:
             DISSECTOR_ASSERT_NOT_REACHED();
     }
@@ -1095,7 +1095,7 @@ static usb_speed_t usbll_get_data_transaction_speed(usbll_data_t *data)
     }
 }
 
-static int usbll_addr_to_str(const address* addr, gchar *buf, int buf_len)
+static int usbll_addr_to_str(const address* addr, char *buf, int buf_len)
 {
     const usbll_address_t *addrp = (const usbll_address_t *)addr->data;
 
@@ -1126,11 +1126,11 @@ static int usbll_addr_str_len(const address* addr _U_)
 
 static void
 usbll_set_address(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
-                  guint8 device, guint8 endpoint, guint8 flags)
+                  uint8_t device, uint8_t endpoint, uint8_t flags)
 {
     proto_item     *sub_item;
     usbll_address_t *src_addr, *dst_addr;
-    guint8 *str_src_addr, *str_dst_addr;
+    uint8_t *str_src_addr, *str_dst_addr;
 
     src_addr = wmem_new0(pinfo->pool, usbll_address_t);
     dst_addr = wmem_new0(pinfo->pool, usbll_address_t);
@@ -1359,7 +1359,7 @@ usbll_generate_address(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, usbl
 }
 
 static usbll_transaction_info_t *
-tt_restore_transaction(packet_info *pinfo, usbll_state_t state, guint8 hub_address, guint8 port)
+tt_restore_transaction(packet_info *pinfo, usbll_state_t state, uint8_t hub_address, uint8_t port)
 {
     /* The buffer is simply updated with each subsequent packet, this is fine
      * if and only if we access it only during first pass.
@@ -1387,7 +1387,7 @@ tt_restore_transaction(packet_info *pinfo, usbll_state_t state, guint8 hub_addre
 }
 
 static void
-tt_store_transaction(packet_info *pinfo, usbll_state_t state, guint8 hub_address, guint8 port,
+tt_store_transaction(packet_info *pinfo, usbll_state_t state, uint8_t hub_address, uint8_t port,
                      usbll_transaction_info_t *transaction)
 {
     DISSECTOR_ASSERT(!PINFO_FD_VISITED(pinfo));
@@ -1425,7 +1425,7 @@ tt_store_transaction(packet_info *pinfo, usbll_state_t state, guint8 hub_address
 }
 
 static usbll_ep_type_t
-usbll_ep_type_from_urb_type(guint8 urb_type)
+usbll_ep_type_from_urb_type(uint8_t urb_type)
 {
     switch (urb_type)
     {
@@ -1438,13 +1438,13 @@ usbll_ep_type_from_urb_type(guint8 urb_type)
 }
 
 static void
-usbll_reset_endpoint_info(usbll_endpoint_info_t *info, usbll_ep_type_t type, guint16 max_packet_size)
+usbll_reset_endpoint_info(usbll_endpoint_info_t *info, usbll_ep_type_t type, uint16_t max_packet_size)
 {
     info->type = type;
     info->data = USBLL_TRANSFER_NORMAL;
     info->max_packet_size = max_packet_size;
     info->last_data_pid = 0;
-    info->last_data_acked = FALSE;
+    info->last_data_acked = false;
     info->active_transfer_key = 0;
     info->transfer_offset = 0;
     info->last_data_len = 0;
@@ -1488,7 +1488,7 @@ static void usbll_init_endpoint_tables(void)
 }
 
 static usbll_endpoint_info_t *
-usbll_get_endpoint_info(packet_info *pinfo, guint8 addr, guint8 ep, gboolean from_host)
+usbll_get_endpoint_info(packet_info *pinfo, uint8_t addr, uint8_t ep, bool from_host)
 {
     usbll_endpoint_info_t *info;
     DISSECTOR_ASSERT(!PINFO_FD_VISITED(pinfo));
@@ -1525,8 +1525,8 @@ usbll_get_endpoint_info(packet_info *pinfo, guint8 addr, guint8 ep, gboolean fro
          */
         usb_conv_info_t *usb_conv_info;
         usbll_ep_type_t  type = USBLL_EP_UNKNOWN;
-        guint16          max_packet_size = 0;
-        guint8           endpoint = ep | (from_host ? 0 : 0x80);
+        uint16_t         max_packet_size = 0;
+        uint8_t          endpoint = ep | (from_host ? 0 : 0x80);
         usb_conv_info = get_existing_usb_ep_conv_info(pinfo, 0, addr, endpoint);
         if (usb_conv_info && usb_conv_info->max_packet_size)
         {
@@ -1543,10 +1543,10 @@ usbll_get_endpoint_info(packet_info *pinfo, guint8 addr, guint8 ep, gboolean fro
     return info;
 }
 
-static gint
-dissect_usbll_sof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+static int
+dissect_usbll_sof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    guint32 frame;
+    uint32_t frame;
     /* SOF Packets are broadcasted from Host to all devices. */
     usbll_set_address(tree, tvb, pinfo, 0, 0, USBLL_ADDRESS_HOST_TO_DEV | USBLL_ADDRESS_BROADCAST);
 
@@ -1560,13 +1560,13 @@ dissect_usbll_sof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offs
     return offset;
 }
 
-static gint
-dissect_usbll_token(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
-                    guint8 pid, usbll_data_t *data, usb_speed_t speed)
+static int
+dissect_usbll_token(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
+                    uint8_t pid, usbll_data_t *data, usb_speed_t speed)
 {
-    guint8           device_address;
-    guint8           endpoint;
-    guint16          address_bits;
+    uint8_t          device_address;
+    uint8_t          endpoint;
+    uint16_t         address_bits;
 
     static int * const address_fields[] = {
         &hf_usbll_device_addr,
@@ -1647,8 +1647,8 @@ dissect_usbll_token(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
     return offset;
 }
 
-static gboolean
-packet_ends_transfer(usbll_endpoint_info_t *ep_info, guint32 offset, gint data_size)
+static bool
+packet_ends_transfer(usbll_endpoint_info_t *ep_info, uint32_t offset, int data_size)
 {
     DISSECTOR_ASSERT(ep_info->type != USBLL_EP_UNKNOWN);
 
@@ -1658,7 +1658,7 @@ packet_ends_transfer(usbll_endpoint_info_t *ep_info, guint32 offset, gint data_s
         if (offset + data_size >= ep_info->requested_transfer_length)
         {
             /* No more data needed */
-            return TRUE;
+            return true;
         }
         /* else check max packet size as transfer can end prematurely */
     }
@@ -1673,7 +1673,7 @@ packet_ends_transfer(usbll_endpoint_info_t *ep_info, guint32 offset, gint data_s
          */
         if (ep_info->type != USBLL_EP_BULK)
         {
-            return TRUE;
+            return true;
         }
     }
 
@@ -1686,16 +1686,16 @@ packet_ends_transfer(usbll_endpoint_info_t *ep_info, guint32 offset, gint data_s
     /* This code is valid only for high-speed control endpoints */
     if (data_size < 64)
     {
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 
-static gboolean is_get_device_descriptor(guint8 setup[8])
+static bool is_get_device_descriptor(uint8_t setup[8])
 {
-    guint16 lang_id = setup[4] | (setup[5] << 8);
-    guint16 length = setup[6] | (setup[7] << 8);
+    uint16_t lang_id = setup[4] | (setup[5] << 8);
+    uint16_t length = setup[6] | (setup[7] << 8);
     return (setup[0] == USB_DIR_IN) &&
            (setup[1] == USB_SETUP_GET_DESCRIPTOR) &&
            (setup[2] == 0x00) && /* Descriptor Index */
@@ -1704,11 +1704,11 @@ static gboolean is_get_device_descriptor(guint8 setup[8])
            (length >= 8); /* atleast 8 bytes needed to get bMaxPacketSize0 */
 }
 
-static gboolean is_set_address(guint8 setup[8])
+static bool is_set_address(uint8_t setup[8])
 {
-    guint16 addr = setup[2] | (setup[3] << 8);
-    guint16 idx = setup[4] | (setup[5] << 8);
-    guint16 length = setup[6] | (setup[7] << 8);
+    uint16_t addr = setup[2] | (setup[3] << 8);
+    uint16_t idx = setup[4] | (setup[5] << 8);
+    uint16_t length = setup[6] | (setup[7] << 8);
     return (setup[0] == USB_DIR_OUT) &&
            (setup[1] == USB_SETUP_SET_ADDRESS) &&
            (addr <= 127) && (idx == 0x00) && (length == 0x00);
@@ -1779,14 +1779,14 @@ usbll_construct_urb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 }
 
-static gint
+static int
 dissect_usbll_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
-                   guint8 pid, usbll_data_t *data, gint *payload_size)
+                   uint8_t pid, usbll_data_t *data, int *payload_size)
 {
     /* TODO: How to determine the expected DATA size? */
-    guint16                computed_crc, actual_crc;
-    gint                   data_offset = offset;
-    gint                   data_size = tvb_reported_length_remaining(tvb, offset) - 2;
+    uint16_t               computed_crc, actual_crc;
+    int                    data_offset = offset;
+    int                    data_size = tvb_reported_length_remaining(tvb, offset) - 2;
     proto_item            *data_item = NULL;
     usbll_transfer_info_t *transfer = NULL;
 
@@ -1830,22 +1830,22 @@ dissect_usbll_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
         {
             usbll_endpoint_info_t *ep_out, *ep_in;
 
-            ep_out = usbll_get_endpoint_info(pinfo, data->transaction->address, data->transaction->endpoint, TRUE);
-            ep_in = usbll_get_endpoint_info(pinfo, data->transaction->address, data->transaction->endpoint, FALSE);
+            ep_out = usbll_get_endpoint_info(pinfo, data->transaction->address, data->transaction->endpoint, true);
+            ep_in = usbll_get_endpoint_info(pinfo, data->transaction->address, data->transaction->endpoint, false);
 
             /* Check if SETUP data is indeed to control endpoint (discard if targtet endpoint is not control).
              * Practically all control transfers are to endpoint 0 which is always control endpoint.
              */
             if ((ep_out->type == USBLL_EP_CONTROL) && (ep_in->type == USBLL_EP_CONTROL))
             {
-                guint8 setup[8];
-                gboolean data_stage_from_host;
-                guint16  requested_length;
+                uint8_t setup[8];
+                bool data_stage_from_host;
+                uint16_t requested_length;
 
                 tvb_memcpy(tvb, setup, data_offset, 8);
 
                 /* bmRequestType D7 0 = Host-to-device, 1 = Device-to-host */
-                data_stage_from_host = (setup[0] & 0x80) ? FALSE : TRUE;
+                data_stage_from_host = (setup[0] & 0x80) ? false : true;
                 /* wLength */
                 requested_length = setup[6] | (setup[7] << 8);
 
@@ -1856,19 +1856,19 @@ dissect_usbll_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
                 transfer->first_packet = pinfo->num;
                 transfer->offset = 0;
                 transfer->type = USBLL_EP_CONTROL;
-                transfer->from_host = TRUE; /* SETUP is always from host to service */
+                transfer->from_host = true; /* SETUP is always from host to service */
 
                 if (requested_length > 0)
                 {
                     if (data_stage_from_host)
                     {
                         /* Merge SETUP data with OUT Data to pass to USB dissector */
-                        transfer->more_frags = TRUE;
+                        transfer->more_frags = true;
                         ep_out->active_transfer_key = pinfo->num;
                         ep_out->requested_transfer_length = 8 + requested_length;
                         ep_out->transfer_offset = 8;
                         ep_out->last_data_pid = pid;
-                        ep_out->last_data_acked = FALSE;
+                        ep_out->last_data_acked = false;
                         /* If SETUP is sent again, it always starts a new transfer.
                          * If we receive DATA0 next then it is really a host failure.
                          * Do not "overwrite" the 8 SETUP bytes in such case.
@@ -1877,14 +1877,14 @@ dissect_usbll_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
                     }
                     else
                     {
-                        transfer->more_frags = FALSE;
+                        transfer->more_frags = false;
                         /* Expect requested_length when reading from control endpoint.
                          * The data should start with DATA1. If we receive DATA0 then
                          * this is really device failure.
                          */
                         ep_in->requested_transfer_length = requested_length;
                         ep_in->last_data_pid = pid;
-                        ep_in->last_data_acked = FALSE;
+                        ep_in->last_data_acked = false;
                         ep_in->last_data_len = 0;
                     }
                 }
@@ -1914,7 +1914,7 @@ dissect_usbll_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
     else if ((!PINFO_FD_VISITED(pinfo)) && (data->transaction_state != STATE_INVALID))
     {
         usbll_endpoint_info_t *ep_info;
-        gboolean               from_host;
+        bool                   from_host;
 
         from_host = usbll_is_data_from_host(data->transaction_state);
         ep_info = usbll_get_endpoint_info(pinfo, data->transaction->address, data->transaction->endpoint, from_host);
@@ -1961,9 +1961,9 @@ dissect_usbll_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
                         {
                             usbll_endpoint_info_t *ep_out;
                             usb_speed_t            speed;
-                            guint16                max_packet_size;
-                            ep_out = usbll_get_endpoint_info(pinfo, data->transaction->address, data->transaction->endpoint, TRUE);
-                            max_packet_size = tvb_get_guint8(tvb, data_offset + 7);
+                            uint16_t               max_packet_size;
+                            ep_out = usbll_get_endpoint_info(pinfo, data->transaction->address, data->transaction->endpoint, true);
+                            max_packet_size = tvb_get_uint8(tvb, data_offset + 7);
                             speed = usbll_get_data_transaction_speed(data);
                             max_packet_size = sanitize_usb_max_packet_size(ENDPOINT_TYPE_CONTROL, speed, max_packet_size);
                             ep_info->max_packet_size = ep_out->max_packet_size = max_packet_size;
@@ -2054,7 +2054,7 @@ dissect_usbll_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
             transfer->offset = 0;
             transfer->type = ep_info->type;
             transfer->from_host = from_host;
-            transfer->more_frags = FALSE;
+            transfer->more_frags = false;
             wmem_map_insert(transfer_info, GUINT_TO_POINTER(pinfo->num), transfer);
         }
     }
@@ -2064,16 +2064,16 @@ dissect_usbll_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
     return offset;
 }
 
-static gint
-dissect_usbll_split(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
-                    guint8 pid, usbll_data_t *data)
+static int
+dissect_usbll_split(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
+                    uint8_t pid, usbll_data_t *data)
 {
-    guint8           hub_address;
-    guint8           hub_port;
+    uint8_t          hub_address;
+    uint8_t          hub_port;
     proto_item      *split_e_u;
     proto_item      *split_s;
 
-    gint32 tmp = tvb_get_gint24(tvb, offset, ENC_LITTLE_ENDIAN);
+    int32_t tmp = tvb_get_int24(tvb, offset, ENC_LITTLE_ENDIAN);
 
     hub_address = SPLIT_BITS_GET_HUB_ADDRESS(tmp);
     hub_port = SPLIT_BITS_GET_HUB_PORT(tmp);
@@ -2179,9 +2179,9 @@ dissect_usbll_split(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
     return offset;
 }
 
-static gint
+static int
 dissect_usbll_handshake(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int offset,
-                        guint8 pid, usbll_data_t *data)
+                        uint8_t pid, usbll_data_t *data)
 {
     if (!PINFO_FD_VISITED(pinfo))
     {
@@ -2200,19 +2200,19 @@ dissect_usbll_handshake(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *t
         if (usbll_is_setup_ack(data->transaction_state))
         {
             usbll_endpoint_info_t *ep_out, *ep_in;
-            ep_out = usbll_get_endpoint_info(pinfo, data->transaction->address, data->transaction->endpoint, TRUE);
-            ep_in = usbll_get_endpoint_info(pinfo, data->transaction->address, data->transaction->endpoint, FALSE);
+            ep_out = usbll_get_endpoint_info(pinfo, data->transaction->address, data->transaction->endpoint, true);
+            ep_in = usbll_get_endpoint_info(pinfo, data->transaction->address, data->transaction->endpoint, false);
             if ((ep_out->type == USBLL_EP_CONTROL) && (ep_in->type == USBLL_EP_CONTROL))
             {
                 if (ep_out->active_transfer_key != 0)
                 {
                     DISSECTOR_ASSERT(ep_in->active_transfer_key == 0);
-                    ep_out->last_data_acked = TRUE;
+                    ep_out->last_data_acked = true;
                 }
                 else if (ep_in->active_transfer_key != 0)
                 {
                     DISSECTOR_ASSERT(ep_out->active_transfer_key == 0);
-                    ep_in->last_data_acked = TRUE;
+                    ep_in->last_data_acked = true;
                 }
             }
         }
@@ -2220,20 +2220,20 @@ dissect_usbll_handshake(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *t
         if (usbll_is_data_ack(data->transaction_state))
         {
             usbll_endpoint_info_t *ep_info;
-            gboolean               from_host;
+            bool                   from_host;
 
             from_host = usbll_is_acked_data_from_host(data->transaction_state);
             ep_info = usbll_get_endpoint_info(pinfo, data->transaction->address, data->transaction->endpoint, from_host);
 
-            ep_info->last_data_acked = TRUE;
+            ep_info->last_data_acked = true;
         }
 
         if (usbll_is_endpoint_stall(data->transaction_state))
         {
             usbll_endpoint_info_t *ep_info;
             usbll_transfer_info_t *transfer;
-            guint32                last_offset;
-            gboolean               from_host;
+            uint32_t               last_offset;
+            bool                   from_host;
 
             from_host = usbll_is_stalled_data_from_host(data->transaction_state);
             ep_info = usbll_get_endpoint_info(pinfo, data->transaction->address, data->transaction->endpoint, from_host);
@@ -2278,13 +2278,13 @@ dissect_usbll_handshake(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *t
                  }
                  transfer->type = ep_info->type;
                  transfer->from_host = from_host;
-                 transfer->more_frags = FALSE;
+                 transfer->more_frags = false;
                  wmem_map_insert(transfer_info, GUINT_TO_POINTER(pinfo->num), transfer);
             }
 
             /* Transfers cannot span across STALL handshake */
             ep_info->last_data_pid = 0;
-            ep_info->last_data_acked = FALSE;
+            ep_info->last_data_acked = false;
             ep_info->active_transfer_key = 0;
             ep_info->transfer_offset = 0;
             ep_info->last_data_len = 0;
@@ -2295,7 +2295,7 @@ dissect_usbll_handshake(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *t
     return offset;
 }
 
-static void check_for_extended_subpid(guint8 pid, usbll_data_t *data)
+static void check_for_extended_subpid(uint8_t pid, usbll_data_t *data)
 {
     if (data->prev && data->prev->transaction_state == STATE_EXT)
     {
@@ -2310,10 +2310,10 @@ static void check_for_extended_subpid(guint8 pid, usbll_data_t *data)
     }
 }
 
-static gint
-dissect_usbll_lpm_token(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+static int
+dissect_usbll_lpm_token(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    guint16          attributes_bits;
+    uint16_t         attributes_bits;
 
     static int * const attributes_fields[] = {
         &hf_usbll_lpm_link_state,
@@ -2377,18 +2377,18 @@ dissect_usbll_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 {
     proto_item       *item;
     proto_tree       *tree;
-    gint              offset = 0;
-    gint              data_offset;
-    gint              data_size;
-    guint8            pid;
-    gboolean          is_subpid;
-    const gchar      *str;
+    int               offset = 0;
+    int               data_offset;
+    int               data_size;
+    uint8_t           pid;
+    bool              is_subpid;
+    const char       *str;
     usbll_data_t     *data;
 
     item = proto_tree_add_item(parent_tree, proto_usbll, tvb, offset, -1, ENC_NA);
     tree = proto_item_add_subtree(item, ett_usbll);
 
-    pid = tvb_get_guint8(tvb, offset);
+    pid = tvb_get_uint8(tvb, offset);
 
     if (PINFO_FD_VISITED(pinfo)) {
         data = usbll_restore_data(pinfo);
@@ -2694,7 +2694,7 @@ proto_register_usbll(void)
         { &ei_invalid_setup_data, {"usbll.invalid_setup_data", PI_MALFORMED, PI_ERROR, "Invalid data length (Must be 8 bytes)", EXPFILL }},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_usbll,
         &ett_usbll_transfer_fragment,
         &ett_usbll_transfer_fragments,
@@ -2713,7 +2713,7 @@ proto_register_usbll(void)
     prefs_register_enum_preference(usbll_module, "global_pref_dissect_unknown_speed_as",
         "Decode unknown speed packets as",
         "Use specified speed if speed is not indicated in capture",
-        &global_dissect_unknown_speed_as, dissect_unknown_speed_as, FALSE);
+        &global_dissect_unknown_speed_as, dissect_unknown_speed_as, false);
 
     unknown_speed_handle = register_dissector("usbll", dissect_usbll_unknown_speed, proto_usbll);
     low_speed_handle = register_dissector("usbll.low_speed", dissect_usbll_low_speed, proto_usbll);

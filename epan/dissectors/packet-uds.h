@@ -62,10 +62,10 @@
 #define UDS_SERVICES_LC      0x87
 
 typedef struct uds_info {
-    guint32  id;
-    guint32  uds_address;
-    gboolean reply;
-    guint8   service;
+    uint32_t id;
+    uint32_t uds_address;
+    bool reply;
+    uint8_t  service;
 } uds_info_t;
 
 #endif /* __PACKET_UDS_H__ */

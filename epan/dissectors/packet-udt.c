@@ -26,8 +26,8 @@
  * Per-conversation information
  */
 typedef struct _udt_conversation {
-	gboolean is_dtls;
-	guint32 isn;
+	bool is_dtls;
+	uint32_t isn;
 } udt_conversation;
 
 /*
@@ -104,7 +104,7 @@ static int hf_udt_handshake_id;
 static int hf_udt_handshake_cookie;
 static int hf_udt_handshake_peerip;
 
-static gint ett_udt;
+static int ett_udt;
 
 static expert_field ei_udt_nak_seqno;
 
@@ -112,7 +112,7 @@ static dissector_handle_t udt_handle;
 
 static heur_dissector_list_t heur_subdissector_list;
 
-static int get_sqn(udt_conversation *udt_conv, guint32 sqn)
+static int get_sqn(udt_conversation *udt_conv, uint32_t sqn)
 {
 	if (udt_conv)
 		sqn -= udt_conv->isn;
@@ -127,7 +127,7 @@ dissect_udt(tvbuff_t *tvb, packet_info* pinfo, proto_tree *parent_tree,
 	proto_tree        *tree;
 	proto_item        *udt_item;
 	int                is_control, type;
-	guint              i;
+	unsigned           i;
 	conversation_t    *conv;
 	udt_conversation  *udt_conv;
 	heur_dtbl_entry_t *hdtbl_entry;
@@ -154,12 +154,12 @@ dissect_udt(tvbuff_t *tvb, packet_info* pinfo, proto_tree *parent_tree,
 			break;
 		case UDT_PACKET_TYPE_NAK: {
 			wmem_strbuf_t *nakstr = wmem_strbuf_new(pinfo->pool, "");
-			guint max = tvb_reported_length(tvb);
+			unsigned max = tvb_reported_length(tvb);
 			if (max > UDT_MAX_NAK_LENGTH)
 			    max = UDT_MAX_NAK_LENGTH;
 
 			for (i = UDT_CONTROL_OFFSET; i <= (max-4) ; i = i + 4) {
-				guint32 start, finish;
+				uint32_t start, finish;
 				int     is_range;
 
 				is_range = tvb_get_ntohl(tvb, i) & 0x80000000;
@@ -256,8 +256,8 @@ dissect_udt(tvbuff_t *tvb, packet_info* pinfo, proto_tree *parent_tree,
 		case UDT_PACKET_TYPE_ACK:
 			if (tree) {
 				int len = tvb_reported_length(tvb);
-				guint32 real_sqn = tvb_get_ntohl(tvb, 16);
-				guint32 sqn = get_sqn(udt_conv, real_sqn);
+				uint32_t real_sqn = tvb_get_ntohl(tvb, 16);
+				uint32_t sqn = get_sqn(udt_conv, real_sqn);
 				if (sqn != real_sqn)
 					proto_tree_add_uint_format_value(tree, hf_udt_ack_seqno, tvb, 16, 4, real_sqn,
 									 "%d (relative) [%d]", sqn, real_sqn);
@@ -288,8 +288,8 @@ dissect_udt(tvbuff_t *tvb, packet_info* pinfo, proto_tree *parent_tree,
 			break;
 		case UDT_PACKET_TYPE_NAK:
 			for (i = 16; i <= (tvb_reported_length(tvb)-4); i = i + 4) {
-				guint32 real_start, real_finish;
-				guint32 start, finish;
+				uint32_t real_start, real_finish;
+				uint32_t start, finish;
 				int     is_range;
 
 				is_range = tvb_get_ntohl(tvb, i) & 0x80000000;
@@ -338,8 +338,8 @@ dissect_udt(tvbuff_t *tvb, packet_info* pinfo, proto_tree *parent_tree,
 		tvbuff_t *next_tvb;
 
 		if (tree) {
-			guint32 real_seqno = tvb_get_ntohl(tvb, 0);
-			guint32 seqno = get_sqn(udt_conv, real_seqno);
+			uint32_t real_seqno = tvb_get_ntohl(tvb, 0);
+			uint32_t seqno = get_sqn(udt_conv, real_seqno);
 			if (seqno != real_seqno)
 				proto_tree_add_uint_format_value(tree, hf_udt_seqno, tvb, 0, 4, real_seqno,
 								 "%u (relative) [%u]", seqno, real_seqno);
@@ -371,7 +371,7 @@ dissect_udt(tvbuff_t *tvb, packet_info* pinfo, proto_tree *parent_tree,
 }
 
 static bool
-dissect_udt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data, gboolean is_dtls)
+dissect_udt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data, bool is_dtls)
 {
 	conversation_t *conv;
 	udt_conversation *udt_conv;
@@ -424,13 +424,13 @@ dissect_udt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 static bool
 dissect_udt_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	return dissect_udt_heur(tvb, pinfo, tree, data, FALSE /* Not DTLS */);
+	return dissect_udt_heur(tvb, pinfo, tree, data, false /* Not DTLS */);
 }
 
 static bool
 dissect_udt_heur_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	return dissect_udt_heur(tvb, pinfo, tree, data, TRUE /* Is DTLS */);
+	return dissect_udt_heur(tvb, pinfo, tree, data, true /* Is DTLS */);
 }
 
 void proto_register_udt(void)
@@ -570,7 +570,7 @@ void proto_register_udt(void)
 				NULL, 0, NULL, HFILL}},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_udt,
 	};
 

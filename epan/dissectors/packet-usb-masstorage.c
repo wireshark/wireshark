@@ -80,7 +80,7 @@ dissect_usb_ms_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 
     usb_conv_info = (usb_conv_info_t *)data;
 
-    return dissector_try_uint_new(usb_ms_bulk_dissector_table, usb_conv_info->interfaceProtocol, tvb, pinfo, parent_tree, TRUE, usb_conv_info);
+    return dissector_try_uint_new(usb_ms_bulk_dissector_table, usb_conv_info->interfaceProtocol, tvb, pinfo, parent_tree, true, usb_conv_info);
 }
 
 static int
@@ -90,7 +90,7 @@ dissect_usb_ms_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tre
 
     usb_conv_info = (usb_conv_info_t *)data;
 
-    return dissector_try_uint_new(usb_ms_control_dissector_table, usb_conv_info->interfaceProtocol, tvb, pinfo, parent_tree, TRUE, usb_conv_info);
+    return dissector_try_uint_new(usb_ms_control_dissector_table, usb_conv_info->interfaceProtocol, tvb, pinfo, parent_tree, true, usb_conv_info);
 }
 
 static int
@@ -100,7 +100,7 @@ dissect_usb_ms_interrupt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 
     usb_conv_info = (usb_conv_info_t *)data;
 
-    return dissector_try_uint_new(usb_ms_interrupt_dissector_table, usb_conv_info->interfaceProtocol, tvb, pinfo, parent_tree, TRUE, usb_conv_info);
+    return dissector_try_uint_new(usb_ms_interrupt_dissector_table, usb_conv_info->interfaceProtocol, tvb, pinfo, parent_tree, true, usb_conv_info);
 }
 
 static int
@@ -110,7 +110,7 @@ dissect_usb_ms_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_
 
     usb_conv_info = (usb_conv_info_t *)data;
 
-    return dissector_try_uint_new(usb_ms_descriptor_dissector_table, usb_conv_info->interfaceProtocol, tvb, pinfo, parent_tree, TRUE, usb_conv_info);
+    return dissector_try_uint_new(usb_ms_descriptor_dissector_table, usb_conv_info->interfaceProtocol, tvb, pinfo, parent_tree, true, usb_conv_info);
 }
 
 void

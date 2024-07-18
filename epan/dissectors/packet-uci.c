@@ -181,7 +181,7 @@ void proto_register_uci(void);
 #define UCI_APP_CONFIG_NB_OF_ELEVATION_MEASUREMENTS 0xE5
 
 static bool gPREF_TCP_DESEGMENT = true;
-static guint gPREF_TCP_PORT = 7000;
+static unsigned gPREF_TCP_PORT = 7000;
 
 static int proto_uci;
 static dissector_handle_t handle_uci;
@@ -246,19 +246,19 @@ static int hf_uci_aoa_destination_elevation;
 static int hf_uci_aoa_destination_elevation_fom;
 static int hf_uci_slot_index;
 
-static gint ett_uci;
-static gint ett_uci_header;
-static gint ett_uci_payload;
-static gint ett_uci_capability_parameters;
-static gint ett_uci_capability_parameter;
-static gint ett_uci_parameters;
-static gint ett_uci_parameter;
-static gint ett_uci_app_config_parameters;
-static gint ett_uci_app_config_parameter;
-static gint ett_uci_controlee_list;
-static gint ett_uci_controlee;
-static gint ett_uci_ranging_measurements;
-static gint ett_uci_ranging_measurement;
+static int ett_uci;
+static int ett_uci_header;
+static int ett_uci_payload;
+static int ett_uci_capability_parameters;
+static int ett_uci_capability_parameter;
+static int ett_uci_parameters;
+static int ett_uci_parameter;
+static int ett_uci_app_config_parameters;
+static int ett_uci_app_config_parameter;
+static int ett_uci_controlee_list;
+static int ett_uci_controlee;
+static int ett_uci_ranging_measurements;
+static int ett_uci_ranging_measurement;
 
 static const value_string message_type_vals[] = {
     { UCI_MT_COMMAND, "Command" },
@@ -475,10 +475,10 @@ static const value_string nlos_vals[] = {
     { 0, NULL },
 };
 
-static guint get_uci_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
+static unsigned get_uci_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
     /* Return the payload length added to the packet header length. */
-    return tvb_get_guint8(tvb, offset + 3) + UCI_PACKET_HEADER_LEN;
+    return tvb_get_uint8(tvb, offset + 3) + UCI_PACKET_HEADER_LEN;
 }
 
 static void dissect_core_device_reset_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -534,7 +534,7 @@ static void dissect_core_get_device_info_rsp(tvbuff_t *tvb, int offset, packet_i
         hf_uci_test_version, ett_uci_payload, version_fields, ENC_LITTLE_ENDIAN);
     offset += 2;
 
-    int vendor_specific_information_len = tvb_get_guint8(tvb, offset);
+    int vendor_specific_information_len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(payload_tree, hf_uci_vendor_specific_information_length,
         tvb, offset, 1, ENC_NA);
     offset += 1;
@@ -556,7 +556,7 @@ static void dissect_core_get_caps_info_rsp(tvbuff_t *tvb, int offset, packet_inf
     proto_tree_add_item(payload_tree, hf_uci_status, tvb, offset, 1, ENC_NA);
     offset += 1;
 
-    int capability_parameters_count = tvb_get_guint8(tvb, offset);
+    int capability_parameters_count = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(payload_tree, hf_uci_capability_parameters_count,
         tvb, offset, 1, ENC_NA);
     offset += 1;
@@ -570,8 +570,8 @@ static void dissect_core_get_caps_info_rsp(tvbuff_t *tvb, int offset, packet_inf
             ett_uci_capability_parameters, NULL, "Capability Parameters");
 
     for (int idx = 0; idx < capability_parameters_count; idx++) {
-        int parameter_type = tvb_get_guint8(tvb, offset + 0);
-        int parameter_len = tvb_get_guint8(tvb, offset + 1);
+        int parameter_type = tvb_get_uint8(tvb, offset + 0);
+        int parameter_len = tvb_get_uint8(tvb, offset + 1);
         proto_tree *parameter_tree =
             proto_tree_add_subtree(capability_parameters_tree, tvb, offset, 2 + parameter_len,
                 ett_uci_capability_parameter, NULL,
@@ -591,7 +591,7 @@ static void dissect_core_get_config_cmd(tvbuff_t *tvb, int offset, packet_info *
 {
     col_add_fstr(pinfo->cinfo, COL_INFO, "Core Get Config Cmd");
 
-    int parameters_count = tvb_get_guint8(tvb, offset);
+    int parameters_count = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(payload_tree, hf_uci_parameters_count, tvb, offset, 1, ENC_NA);
     offset += 1;
 
@@ -604,7 +604,7 @@ static void dissect_core_get_config_cmd(tvbuff_t *tvb, int offset, packet_info *
             ett_uci_parameters, NULL, "Parameter IDs");
 
     for (int idx = 0; idx < parameters_count; idx++) {
-        int parameter_id = tvb_get_guint8(tvb, offset);
+        int parameter_id = tvb_get_uint8(tvb, offset);
 
         proto_tree *parameter_tree =
             proto_tree_add_subtree(parameters_tree, tvb, offset, 1,
@@ -621,7 +621,7 @@ static void dissect_core_get_config_cmd(tvbuff_t *tvb, int offset, packet_info *
 static void dissect_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                                proto_tree *payload_tree)
 {
-    int parameters_count = tvb_get_guint8(tvb, offset);
+    int parameters_count = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(payload_tree, hf_uci_parameters_count, tvb, offset, 1, ENC_NA);
     offset += 1;
 
@@ -634,8 +634,8 @@ static void dissect_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
             ett_uci_parameters, NULL, "Parameters");
 
     for (int idx = 0; idx < parameters_count; idx++) {
-        int parameter_id = tvb_get_guint8(tvb, offset + 0);
-        int parameter_len = tvb_get_guint8(tvb, offset + 1);
+        int parameter_id = tvb_get_uint8(tvb, offset + 0);
+        int parameter_len = tvb_get_uint8(tvb, offset + 1);
         proto_tree *parameter_tree =
             proto_tree_add_subtree(parameters_tree, tvb, offset, 2 + parameter_len,
                 ett_uci_parameter, NULL,
@@ -674,7 +674,7 @@ static void dissect_core_set_config_rsp(tvbuff_t *tvb, int offset, packet_info *
     proto_tree_add_item(payload_tree, hf_uci_status, tvb, offset, 1, ENC_NA);
     offset += 1;
 
-    int parameters_count = tvb_get_guint8(tvb, offset);
+    int parameters_count = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(payload_tree, hf_uci_parameters_count,
         tvb, offset, 1, ENC_NA);
     offset += 1;
@@ -688,7 +688,7 @@ static void dissect_core_set_config_rsp(tvbuff_t *tvb, int offset, packet_info *
             ett_uci_parameters, NULL, "Parameters");
 
     for (int idx = 0; idx < parameters_count; idx++) {
-        int parameter_type = tvb_get_guint8(tvb, offset + 0);
+        int parameter_type = tvb_get_uint8(tvb, offset + 0);
 
         proto_tree *parameter_tree =
             proto_tree_add_subtree(parameters_tree, tvb, offset, 2,
@@ -813,7 +813,7 @@ static void dissect_session_status_ntf(tvbuff_t *tvb, int offset, packet_info *p
 static void dissect_app_config_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                                proto_tree *payload_tree)
 {
-    int app_config_parameters_count = tvb_get_guint8(tvb, offset);
+    int app_config_parameters_count = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(payload_tree, hf_uci_app_config_parameters_count,
         tvb, offset, 1, ENC_NA);
     offset += 1;
@@ -827,8 +827,8 @@ static void dissect_app_config_parameters(tvbuff_t *tvb, int offset, packet_info
             ett_uci_app_config_parameters, NULL, "App Configurations");
 
     for (int idx = 0; idx < app_config_parameters_count; idx++) {
-        int app_config_parameter_id = tvb_get_guint8(tvb, offset + 0);
-        int app_config_parameter_len = tvb_get_guint8(tvb, offset + 1);
+        int app_config_parameter_id = tvb_get_uint8(tvb, offset + 0);
+        int app_config_parameter_len = tvb_get_uint8(tvb, offset + 1);
         proto_tree *app_config_parameter_tree =
             proto_tree_add_subtree(app_config_parameters_tree, tvb, offset,
                 2 + app_config_parameter_len, ett_uci_app_config_parameter, NULL,
@@ -863,7 +863,7 @@ static void dissect_session_set_app_config_rsp(tvbuff_t *tvb, int offset, packet
     proto_tree_add_item(payload_tree, hf_uci_status, tvb, offset, 1, ENC_NA);
     offset += 1;
 
-    int app_config_parameters_count = tvb_get_guint8(tvb, offset);
+    int app_config_parameters_count = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(payload_tree, hf_uci_app_config_parameters_count,
         tvb, offset, 1, ENC_NA);
     offset += 1;
@@ -877,7 +877,7 @@ static void dissect_session_set_app_config_rsp(tvbuff_t *tvb, int offset, packet
             ett_uci_app_config_parameters, NULL, "App Configurations");
 
     for (int idx = 0; idx < app_config_parameters_count; idx++) {
-        int app_config_parameter_type = tvb_get_guint8(tvb, offset + 0);
+        int app_config_parameter_type = tvb_get_uint8(tvb, offset + 0);
 
         proto_tree *app_config_parameter_tree =
             proto_tree_add_subtree(app_config_parameters_tree, tvb, offset, 2,
@@ -898,7 +898,7 @@ static void dissect_session_get_app_config_cmd(tvbuff_t *tvb, int offset, packet
     proto_tree_add_item(payload_tree, hf_uci_session_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
 
-    int app_config_parameters_count = tvb_get_guint8(tvb, offset);
+    int app_config_parameters_count = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(payload_tree, hf_uci_app_config_parameters_count, tvb, offset, 1, ENC_NA);
     offset += 1;
 
@@ -911,7 +911,7 @@ static void dissect_session_get_app_config_cmd(tvbuff_t *tvb, int offset, packet
             ett_uci_app_config_parameters, NULL, "App Configuration IDs");
 
     for (int idx = 0; idx < app_config_parameters_count; idx++) {
-        int app_config_parameter_id = tvb_get_guint8(tvb, offset);
+        int app_config_parameter_id = tvb_get_uint8(tvb, offset);
 
         proto_tree *app_config_parameter_tree =
             proto_tree_add_subtree(app_config_parameters_tree, tvb, offset, 1,
@@ -975,7 +975,7 @@ static void dissect_session_update_controller_multicast_list_cmd(
         tvb, offset, 1, ENC_NA);
     offset += 1;
 
-    int controlees_count = tvb_get_guint8(tvb, offset);
+    int controlees_count = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(payload_tree, hf_uci_controlees_count,
         tvb, offset, 1, ENC_NA);
     offset += 1;
@@ -1019,7 +1019,7 @@ static void dissect_session_update_controller_multicast_list_ntf(
         tvb, offset, 1, ENC_NA);
     offset += 1;
 
-    int controlees_count = tvb_get_guint8(tvb, offset);
+    int controlees_count = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(payload_tree, hf_uci_controlees_count,
         tvb, offset, 1, ENC_NA);
     offset += 1;
@@ -1156,12 +1156,12 @@ static void dissect_range_data_ntf(tvbuff_t *tvb, int offset, packet_info *pinfo
     offset += 1;
     offset += 1;
 
-    int mac_addressing_mode_indicator = tvb_get_guint8(tvb, offset);
+    int mac_addressing_mode_indicator = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(payload_tree, hf_uci_mac_addressing_mode_indicator, tvb, offset, 1, ENC_NA);
     offset += 1;
     offset += 8;
 
-    int ranging_measurement_count = tvb_get_guint8(tvb, offset);
+    int ranging_measurement_count = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(payload_tree, hf_uci_ranging_measurement_count, tvb, offset, 1, ENC_NA);
     offset += 1;
 
@@ -1182,8 +1182,8 @@ static void dissect_range_data_ntf(tvbuff_t *tvb, int offset, packet_info *pinfo
                 ranging_measurements_tree, tvb, offset, 31,
                 ett_uci_ranging_measurement, NULL,
                 "%02x:%02x",
-                tvb_get_guint8(tvb, offset + 0),
-                tvb_get_guint8(tvb, offset + 1));
+                tvb_get_uint8(tvb, offset + 0),
+                tvb_get_uint8(tvb, offset + 1));
 
             proto_tree_add_item(ranging_measurement_tree,
                 hf_uci_mac_address, tvb, offset, 2, ENC_NA);
@@ -1195,14 +1195,14 @@ static void dissect_range_data_ntf(tvbuff_t *tvb, int offset, packet_info *pinfo
                 ranging_measurements_tree, tvb, offset, 31,
                 ett_uci_ranging_measurement, NULL,
                 "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x",
-                tvb_get_guint8(tvb, offset + 0),
-                tvb_get_guint8(tvb, offset + 1),
-                tvb_get_guint8(tvb, offset + 2),
-                tvb_get_guint8(tvb, offset + 3),
-                tvb_get_guint8(tvb, offset + 4),
-                tvb_get_guint8(tvb, offset + 5),
-                tvb_get_guint8(tvb, offset + 6),
-                tvb_get_guint8(tvb, offset + 7));
+                tvb_get_uint8(tvb, offset + 0),
+                tvb_get_uint8(tvb, offset + 1),
+                tvb_get_uint8(tvb, offset + 2),
+                tvb_get_uint8(tvb, offset + 3),
+                tvb_get_uint8(tvb, offset + 4),
+                tvb_get_uint8(tvb, offset + 5),
+                tvb_get_uint8(tvb, offset + 6),
+                tvb_get_uint8(tvb, offset + 7));
 
             proto_tree_add_item(ranging_measurement_tree,
                 hf_uci_mac_address, tvb, offset, 8, ENC_NA);
@@ -1390,10 +1390,10 @@ static int dissect_uci_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     proto_tree_add_item(header_tree, hf_uci_opcode_id, tvb, offset + 1, 1, ENC_NA);
     proto_tree_add_item(header_tree, hf_uci_payload_length, tvb, offset + 3, 1, ENC_NA);
 
-    message_type = (tvb_get_guint8(tvb, offset + 0) >> 5) & 0x07;
-    group_id = (tvb_get_guint8(tvb, offset + 0) >> 0) & 0x0f;
-    opcode_id = tvb_get_guint8(tvb, offset + 1) & 0x3f;
-    payload_len = tvb_get_guint8(tvb, offset + 3);
+    message_type = (tvb_get_uint8(tvb, offset + 0) >> 5) & 0x07;
+    group_id = (tvb_get_uint8(tvb, offset + 0) >> 0) & 0x0f;
+    opcode_id = tvb_get_uint8(tvb, offset + 1) & 0x3f;
+    payload_len = tvb_get_uint8(tvb, offset + 3);
 
     offset += UCI_PACKET_HEADER_LEN;
     payload_tree = proto_tree_add_subtree(packet_tree, tvb, offset, payload_len, ett_uci_payload, NULL, "UCI Packet Payload");
@@ -1777,7 +1777,7 @@ void proto_register_uci(void)
         },
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_uci,
         &ett_uci_header,
         &ett_uci_payload,

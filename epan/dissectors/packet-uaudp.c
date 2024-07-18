@@ -47,8 +47,8 @@ static int hf_uaudp_length;
 static int hf_uaudp_startsig_reserved;
 static int hf_uaudp_startsig_filename;
 
-static gint ett_uaudp;
-static gint ett_uaudp_tlv;
+static int ett_uaudp;
+static int ett_uaudp_tlv;
 
 static expert_field ei_uaudp_tlv_length;
 
@@ -60,7 +60,7 @@ static ws_in4_addr cs_ipv4;
 static ws_in6_addr cs_ipv6;
 static const char* pref_sys_ip_s = "";
 
-static gboolean use_sys_ip;
+static bool use_sys_ip;
 
 static const value_string uaudp_opcode_str[] =
 {
@@ -101,16 +101,16 @@ static dissector_handle_t ua_term_to_sys_handle;
 static void _dissect_uaudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                            e_ua_direction direction)
 {
-    gint        offset = 0;
-    guint32     type, length;
-    guint8      opcode;
+    int         offset = 0;
+    uint32_t    type, length;
+    uint8_t     opcode;
     proto_item *uaudp_item, *tlv_item, *tlv_len_item;
     proto_tree *uaudp_tree, *connect_tree;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "UAUDP");
 
     /* get the identifier; it means operation code */
-    opcode = tvb_get_guint8(tvb, offset);
+    opcode = tvb_get_uint8(tvb, offset);
     offset += 1;
 
     /* print in "INFO" column the type of UAUDP message */
@@ -134,7 +134,7 @@ static void _dissect_uaudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     {
         while(tvb_reported_length_remaining(tvb, offset) > 0)
         {
-            type = tvb_get_guint8(tvb, offset+0);
+            type = tvb_get_uint8(tvb, offset+0);
             connect_tree = proto_tree_add_subtree(uaudp_tree, tvb, offset, 0, ett_uaudp_tlv, &tlv_item,
                                                     val_to_str_ext(type, &uaudp_connect_vals_ext, "Unknown %d"));
             proto_tree_add_uint(connect_tree, hf_uaudp_type, tvb, offset, 1, type);
@@ -303,7 +303,7 @@ static void
 apply_uaudp_prefs(void) {
     ua_udp_range = prefs_get_range_value("uaudp", "udp.port");
 
-    use_sys_ip = FALSE;
+    use_sys_ip = false;
     if (*pref_sys_ip_s) {
         use_sys_ip = ws_inet_pton4(pref_sys_ip_s, &cs_ipv4);
         if (use_sys_ip) {
@@ -548,7 +548,7 @@ void proto_register_uaudp(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] =
+    static int *ett[] =
         {
             &ett_uaudp,
             &ett_uaudp_tlv,

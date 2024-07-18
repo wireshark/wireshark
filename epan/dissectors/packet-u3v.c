@@ -432,25 +432,25 @@ static int proto_u3v;
  * and dissection of addresses
  */
 typedef struct _gencp_transaction_t {
-    guint32  cmd_frame;
-    guint32  ack_frame;
+    uint32_t cmd_frame;
+    uint32_t ack_frame;
     nstime_t cmd_time;
     /* list of pending acknowledges */
     wmem_array_t *pend_ack_frame_list;
     /* current requested address */
-    guint64 address;
+    uint64_t address;
     /* current requested count read/write */
-    guint32 count;
+    uint32_t count;
 } gencp_transaction_t;
 
 typedef struct _u3v_conv_info_t {
-    guint64 abrm_addr;
-    guint64 sbrm_addr;
-    guint64 sirm_addr;
-    guint64 eirm_addr;
-    guint64 iidc2_addr;
-    guint64 manifest_addr;
-    guint32 ep_stream;
+    uint64_t abrm_addr;
+    uint64_t sbrm_addr;
+    uint64_t sirm_addr;
+    uint64_t eirm_addr;
+    uint64_t iidc2_addr;
+    uint64_t manifest_addr;
+    uint32_t ep_stream;
     gencp_transaction_t *trans_info;
 } u3v_conv_info_t;
 
@@ -1045,38 +1045,38 @@ static int * const speed_support_fields[] = {
 /*
  \brief Returns a register name based on its address
  */
-static const gchar*
-get_register_name_from_address(guint64 addr, gboolean* is_custom_register, u3v_conv_info_t * u3v_conv_info)
+static const char*
+get_register_name_from_address(uint64_t addr, bool* is_custom_register, u3v_conv_info_t * u3v_conv_info)
 {
-    const gchar* address_string = NULL;
-    guint32 offset_address;
+    const char* address_string = NULL;
+    uint32_t offset_address;
 
     if (is_custom_register != NULL) {
-        *is_custom_register = FALSE;
+        *is_custom_register = false;
     }
 
     /* check if this is the access to one of the base address registers */
     if ( addr < 0x10000 ) {
-        offset_address = (guint32)addr;
+        offset_address = (uint32_t)addr;
         address_string = try_val_to_str(offset_address, bootstrap_register_names_abrm);
     }
     if ( u3v_conv_info && u3v_conv_info->sbrm_addr != 0 && (addr >= u3v_conv_info->sbrm_addr)) {
-        offset_address = (guint32)( addr - u3v_conv_info->sbrm_addr);
+        offset_address = (uint32_t)( addr - u3v_conv_info->sbrm_addr);
         address_string = try_val_to_str(offset_address, bootstrap_register_names_sbrm);
     }
     if ( u3v_conv_info && u3v_conv_info->sirm_addr != 0 && (addr >= u3v_conv_info->sirm_addr)) {
-        offset_address = (guint32)( addr - u3v_conv_info->sirm_addr);
+        offset_address = (uint32_t)( addr - u3v_conv_info->sirm_addr);
         address_string = try_val_to_str(offset_address, bootstrap_register_names_sirm);
     }
     if ( u3v_conv_info && u3v_conv_info->eirm_addr != 0 && (addr >= u3v_conv_info->eirm_addr)) {
-        offset_address = (guint32)( addr - u3v_conv_info->eirm_addr);
+        offset_address = (uint32_t)( addr - u3v_conv_info->eirm_addr);
         address_string = try_val_to_str(offset_address, bootstrap_register_names_eirm);
     }
 
     if (!address_string) {
         address_string = wmem_strdup_printf(wmem_packet_scope(), "[Addr:0x%016" PRIX64 "]", addr);
         if (is_custom_register != NULL) {
-            *is_custom_register = TRUE;
+            *is_custom_register = true;
         }
     }
 
@@ -1087,25 +1087,25 @@ get_register_name_from_address(guint64 addr, gboolean* is_custom_register, u3v_c
  \brief Returns true if a register (identified by its address) is a known bootstrap register
  */
 static int
-is_known_bootstrap_register(guint64 addr, u3v_conv_info_t * u3v_conv_info)
+is_known_bootstrap_register(uint64_t addr, u3v_conv_info_t * u3v_conv_info)
 {
-    const gchar* address_string = NULL;
-    guint32 offset_address;
+    const char* address_string = NULL;
+    uint32_t offset_address;
     /* check if this is the access to one of the base address registers */
     if ( addr < 0x10000 ) {
-        offset_address = (guint32)addr;
+        offset_address = (uint32_t)addr;
         address_string = try_val_to_str(offset_address, bootstrap_register_names_abrm);
     }
     if ( u3v_conv_info->sbrm_addr != 0 &&  (addr >= u3v_conv_info->sbrm_addr)) {
-        offset_address = (guint32)( addr - u3v_conv_info->sbrm_addr);
+        offset_address = (uint32_t)( addr - u3v_conv_info->sbrm_addr);
         address_string = try_val_to_str(offset_address, bootstrap_register_names_sbrm);
     }
     if ( u3v_conv_info->sirm_addr != 0 &&  (addr >= u3v_conv_info->sirm_addr)) {
-        offset_address = (guint32)( addr - u3v_conv_info->sirm_addr);
+        offset_address = (uint32_t)( addr - u3v_conv_info->sirm_addr);
         address_string = try_val_to_str(offset_address, bootstrap_register_names_sirm);
     }
     if ( u3v_conv_info->eirm_addr != 0 &&  (addr >= u3v_conv_info->eirm_addr)) {
-        offset_address = (guint32)( addr - u3v_conv_info->eirm_addr);
+        offset_address = (uint32_t)( addr - u3v_conv_info->eirm_addr);
         address_string = try_val_to_str(offset_address, bootstrap_register_names_eirm);
     }
     return address_string != NULL;
@@ -1115,7 +1115,7 @@ is_known_bootstrap_register(guint64 addr, u3v_conv_info_t * u3v_conv_info)
  \brief Identify Base Address Pointer
 */
 static void
-dissect_u3v_register_bases(guint64 addr, tvbuff_t *tvb, gint offset, u3v_conv_info_t * u3v_conv_info)
+dissect_u3v_register_bases(uint64_t addr, tvbuff_t *tvb, int offset, u3v_conv_info_t * u3v_conv_info)
 {
     if ( addr < 0x10000 ) {
         switch (addr) {
@@ -1147,12 +1147,12 @@ dissect_u3v_register_bases(guint64 addr, tvbuff_t *tvb, gint offset, u3v_conv_in
  \brief Attempt to dissect a bootstrap register
 */
 static int
-dissect_u3v_register(guint64 addr, proto_tree *branch, tvbuff_t *tvb, gint offset, gint length, u3v_conv_info_t *u3v_conv_info)
+dissect_u3v_register(uint64_t addr, proto_tree *branch, tvbuff_t *tvb, int offset, int length, u3v_conv_info_t *u3v_conv_info)
 {
-    gint isABRM = FALSE, isSBRM = FALSE, isSIRM = FALSE,isEIRM = FALSE;
+    int isABRM = false, isSBRM = false, isSIRM = false,isEIRM = false;
     /* check if this is the access to one of the base address registers */
     if ( addr < 0x10000 ) {
-        isABRM = TRUE;
+        isABRM = true;
         switch (addr) {
         case U3V_ABRM_GENCP_VERSION:
             proto_tree_add_item(branch, hf_u3v_bootstrap_GenCP_Version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -1232,13 +1232,13 @@ dissect_u3v_register(guint64 addr, proto_tree *branch, tvbuff_t *tvb, gint offse
             proto_tree_add_item(branch, hf_u3v_bootstrap_Implementation_Endianness, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             break;
         default:
-            isABRM = FALSE;
+            isABRM = false;
             break;
         }
     }
     if ( u3v_conv_info->sbrm_addr != 0 && (addr >= u3v_conv_info->sbrm_addr)) {
-        guint64 map_offset = addr - u3v_conv_info->sbrm_addr;
-        isSBRM = TRUE;
+        uint64_t map_offset = addr - u3v_conv_info->sbrm_addr;
+        isSBRM = true;
         switch(map_offset) {
         case U3V_SBRM_U3V_VERSION:
             proto_tree_add_item(branch, hf_u3v_bootstrap_U3V_Version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -1277,13 +1277,13 @@ dissect_u3v_register(guint64 addr, proto_tree *branch, tvbuff_t *tvb, gint offse
             proto_tree_add_item(branch, hf_u3v_bootstrap_Current_Speed, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             break;
         default:
-            isSBRM = FALSE;
+            isSBRM = false;
             break;
         }
     }
     if ( u3v_conv_info->sirm_addr != 0 && (addr >= u3v_conv_info->sirm_addr)) {
-        guint64 map_offset = addr - u3v_conv_info->sirm_addr;
-        isSIRM = TRUE;
+        uint64_t map_offset = addr - u3v_conv_info->sirm_addr;
+        isSIRM = true;
         switch(map_offset) {
         case U3V_SIRM_SI_INFO:
             proto_tree_add_item(branch, hf_u3v_bootstrap_SI_Info, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -1319,13 +1319,13 @@ dissect_u3v_register(guint64 addr, proto_tree *branch, tvbuff_t *tvb, gint offse
             proto_tree_add_item(branch, hf_u3v_bootstrap_SI_Maximum_Trailer_Size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             break;
         default:
-            isSIRM = FALSE;
+            isSIRM = false;
             break;
         }
     }
     if ( u3v_conv_info->eirm_addr != 0 && (addr >= u3v_conv_info->eirm_addr)) {
-        guint64 map_offset = addr -u3v_conv_info->eirm_addr;
-        isEIRM=TRUE;
+        uint64_t map_offset = addr -u3v_conv_info->eirm_addr;
+        isEIRM=true;
         switch(map_offset) {
         case U3V_EIRM_EI_CONTROL:
             proto_tree_add_item(branch, hf_u3v_bootstrap_EI_Control, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -1337,7 +1337,7 @@ dissect_u3v_register(guint64 addr, proto_tree *branch, tvbuff_t *tvb, gint offse
             proto_tree_add_item(branch, hf_u3v_bootstrap_Event_Test_Control, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             break;
         default:
-            isEIRM = FALSE;
+            isEIRM = false;
             break;
         }
     }
@@ -1351,13 +1351,13 @@ dissect_u3v_register(guint64 addr, proto_tree *branch, tvbuff_t *tvb, gint offse
  \brief DISSECT: Read memory command
 */
 static void
-dissect_u3v_read_mem_cmd(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, gint startoffset, gint length, u3v_conv_info_t *u3v_conv_info, gencp_transaction_t * gencp_trans)
+dissect_u3v_read_mem_cmd(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, int startoffset, int length, u3v_conv_info_t *u3v_conv_info, gencp_transaction_t * gencp_trans)
 {
-    guint64 addr = 0;
-    const gchar* address_string = NULL;
-    gboolean is_custom_register = FALSE;
-    guint16 count = 0;
-    gint offset = startoffset;
+    uint64_t addr = 0;
+    const char* address_string = NULL;
+    bool is_custom_register = false;
+    uint16_t count = 0;
+    int offset = startoffset;
     proto_item *item = NULL;
 
     addr = tvb_get_letoh64(tvb, offset);
@@ -1370,7 +1370,7 @@ dissect_u3v_read_mem_cmd(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_in
     if ( 0xffffffff00000000 & addr ) {
         col_append_fstr(pinfo->cinfo, COL_INFO, " (0x%016" PRIX64 " (%d) bytes) %s", addr, count, address_string);
     } else {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " (0x%08X (%d) bytes)", (guint32)addr, count);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " (0x%08X (%d) bytes)", (uint32_t)addr, count);
     }
 
 
@@ -1398,14 +1398,14 @@ dissect_u3v_read_mem_cmd(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_in
  \brief DISSECT: Write memory command
 */
 static void
-dissect_u3v_write_mem_cmd(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, gint startoffset, gint length, u3v_conv_info_t *u3v_conv_info, gencp_transaction_t *gencp_trans)
+dissect_u3v_write_mem_cmd(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, int startoffset, int length, u3v_conv_info_t *u3v_conv_info, gencp_transaction_t *gencp_trans)
 {
-    const gchar* address_string = NULL;
-    gboolean is_custom_register = FALSE;
-    guint64 addr = 0;
-    guint byte_count = 0;
+    const char* address_string = NULL;
+    bool is_custom_register = false;
+    uint64_t addr = 0;
+    unsigned byte_count = 0;
     proto_item *item = NULL;
-    guint offset = startoffset + 8;
+    unsigned offset = startoffset + 8;
 
     addr = tvb_get_letoh64(tvb, startoffset);
     byte_count = length - 8;
@@ -1437,10 +1437,10 @@ dissect_u3v_write_mem_cmd(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_i
  *  \brief DISSECT: Event command
  */
 static void
-dissect_u3v_event_cmd(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, gint startoffset, gint length)
+dissect_u3v_event_cmd(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, int startoffset, int length)
 {
-    gint32 eventid;
-    gint offset = startoffset;
+    int32_t eventid;
+    int offset = startoffset;
     proto_item *item = NULL;
 
     /* Get event ID */
@@ -1482,15 +1482,15 @@ dissect_u3v_event_cmd(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_info 
  \brief DISSECT: Read memory acknowledge
 */
 static void
-dissect_u3v_read_mem_ack(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, gint startoffset, gint length, u3v_conv_info_t *u3v_conv_info, gencp_transaction_t * gencp_trans)
+dissect_u3v_read_mem_ack(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, int startoffset, int length, u3v_conv_info_t *u3v_conv_info, gencp_transaction_t * gencp_trans)
 {
-    guint64 addr = 0;
-    const gchar *address_string = NULL;
-    gboolean is_custom_register = FALSE;
-    gboolean have_address = (0 != gencp_trans->cmd_frame);
+    uint64_t addr = 0;
+    const char *address_string = NULL;
+    bool is_custom_register = false;
+    bool have_address = (0 != gencp_trans->cmd_frame);
     proto_item *item = NULL;
-    guint offset = startoffset;
-    guint byte_count = (length);
+    unsigned offset = startoffset;
+    unsigned byte_count = (length);
 
     addr = gencp_trans->address;
     dissect_u3v_register_bases(addr, tvb, startoffset, u3v_conv_info);
@@ -1522,13 +1522,13 @@ dissect_u3v_read_mem_ack(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_in
  \brief DISSECT: Write memory acknowledge
 */
 static void
-dissect_u3v_write_mem_ack(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, gint startoffset, gint length, u3v_conv_info_t *u3v_conv_info , gencp_transaction_t * gencp_trans)
+dissect_u3v_write_mem_ack(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, int startoffset, int length, u3v_conv_info_t *u3v_conv_info , gencp_transaction_t * gencp_trans)
 {
-    guint64 addr = 0;
-    gint offset = startoffset;
-    const gchar *address_string = NULL;
-    gboolean is_custom_register = FALSE;
-    gboolean have_address = (0 != gencp_trans->cmd_frame);
+    uint64_t addr = 0;
+    int offset = startoffset;
+    const char *address_string = NULL;
+    bool is_custom_register = false;
+    bool have_address = (0 != gencp_trans->cmd_frame);
     proto_item *item = NULL;
 
     addr = gencp_trans->address;
@@ -1561,10 +1561,10 @@ dissect_u3v_write_mem_ack(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_i
  \brief DISSECT: Pending acknowledge
 */
 static void
-dissect_u3v_pending_ack(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint startoffset, gint length, u3v_conv_info_t *u3v_conv_info _U_, gencp_transaction_t *gencp_trans _U_)
+dissect_u3v_pending_ack(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_info *pinfo _U_, int startoffset, int length, u3v_conv_info_t *u3v_conv_info _U_, gencp_transaction_t *gencp_trans _U_)
 {
     proto_item *item = NULL;
-    guint offset = startoffset;
+    unsigned offset = startoffset;
 
     /* Fill in Wireshark GUI Info column */
     col_append_fstr(pinfo->cinfo, COL_INFO, " %d ms", tvb_get_letohs(tvb, startoffset+2));
@@ -1585,9 +1585,9 @@ dissect_u3v_pending_ack(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_inf
 static void
 dissect_u3v_stream_leader(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, usb_conv_info_t *usb_conv_info _U_)
 {
-    guint32 offset = 0;
-    guint32 payload_type = 0;
-    guint64 block_id = 0;
+    uint32_t offset = 0;
+    uint32_t payload_type = 0;
+    uint64_t block_id = 0;
     proto_item *item = NULL;
 
     /* Subtree initialization for Stream Leader */
@@ -1671,8 +1671,8 @@ dissect_u3v_stream_leader(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_i
 static void
 dissect_u3v_stream_trailer(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, usb_conv_info_t *usb_conv_info _U_)
 {
-    gint offset = 0;
-    guint64 block_id;
+    int offset = 0;
+    uint64_t block_id;
     proto_item *item = NULL;
 
     /* Subtree initialization for Stream Trailer */
@@ -1749,19 +1749,19 @@ dissect_u3v_stream_payload(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_
 static int
 dissect_u3v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    gint offset = 0;
+    int offset = 0;
     proto_tree *u3v_tree = NULL, *ccd_tree_flag, *u3v_telegram_tree = NULL, *ccd_tree = NULL;
-    gint data_length = 0;
-    gint req_id = 0;
-    gint command_id = -1;
-    gint status = 0;
-    guint prefix = 0;
+    int data_length = 0;
+    int req_id = 0;
+    int command_id = -1;
+    int status = 0;
+    unsigned prefix = 0;
     proto_item *ti = NULL;
     proto_item *item = NULL;
     const char *command_string;
     usb_conv_info_t *usb_conv_info;
-    gint stream_detected = FALSE;
-    gint control_detected = FALSE;
+    int stream_detected = false;
+    int control_detected = false;
     u3v_conv_info_t *u3v_conv_info = NULL;
     gencp_transaction_t *gencp_trans = NULL;
 
@@ -1781,12 +1781,12 @@ dissect_u3v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
     prefix = tvb_get_letohl(tvb, 0);
     if ((tvb_reported_length(tvb) >= 4) && ( ( U3V_CONTROL_PREFIX == prefix ) || ( U3V_EVENT_PREFIX == prefix ) ) ) {
-        control_detected = TRUE;
+        control_detected = true;
     }
 
     if (((tvb_reported_length(tvb) >= 4) && (( U3V_STREAM_LEADER_PREFIX == prefix ) || ( U3V_STREAM_TRAILER_PREFIX == prefix )))
          || (usb_conv_info->endpoint == u3v_conv_info->ep_stream)) {
-        stream_detected = TRUE;
+        stream_detected = true;
     }
 
     /* initialize interface class/subclass in case no descriptors have been dissected yet */
@@ -1979,7 +1979,7 @@ dissect_u3v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 static bool
 dissect_u3v_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    guint32 prefix;
+    uint32_t prefix;
     usb_conv_info_t *usb_conv_info;
 
     /* all control and meta data packets of U3V contain at least the prefix */
@@ -2005,14 +2005,14 @@ dissect_u3v_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     return false;
 }
 
-static gint
+static int
 dissect_u3v_descriptors(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    guint8          type;
-    gint            offset = 0;
+    uint8_t         type;
+    int             offset = 0;
     proto_item *    ti;
     proto_tree *    sub_tree;
-    guint32         version;
+    uint32_t        version;
 
 
     /* The descriptor must at least have a length and type field. */
@@ -2021,7 +2021,7 @@ dissect_u3v_descriptors(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     }
 
     /* skip len */
-    type = tvb_get_guint8(tvb, 1);
+    type = tvb_get_uint8(tvb, 1);
 
     /* Check for U3V device info descriptor. */
     if (type != DESCRIPTOR_TYPE_U3V_INTERFACE) {
@@ -2800,7 +2800,7 @@ static hf_register_info hf[] =
 void
 proto_register_u3v(void)
 {
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_u3v,
         &ett_u3v_cmd,
         &ett_u3v_flags,

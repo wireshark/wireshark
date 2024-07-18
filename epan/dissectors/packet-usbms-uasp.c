@@ -89,23 +89,23 @@ static const value_string uasp_iu_id_vals[] = {
 };
 
 typedef struct _uasp_itlq_nexus_t {
-    guint16 tag;                /* tag for this ITLQ nexus */
-    guint32 started_frame;      /* when tag was first seen */
-    guint32 completed_frame;    /* when tag was completed */
-    guint32 read_ready_frame;   /* when read ready was issued for tag */
-    guint32 write_ready_frame;  /* when write ready was issued for tag */
-    guint32 data_recv_frame;    /* when read data was received for tag */
-    guint32 data_sent_frame;    /* when write data was sent for tag */
+    uint16_t tag;                /* tag for this ITLQ nexus */
+    uint32_t started_frame;      /* when tag was first seen */
+    uint32_t completed_frame;    /* when tag was completed */
+    uint32_t read_ready_frame;   /* when read ready was issued for tag */
+    uint32_t write_ready_frame;  /* when write ready was issued for tag */
+    uint32_t data_recv_frame;    /* when read data was received for tag */
+    uint32_t data_sent_frame;    /* when write data was sent for tag */
     itl_nexus_t* itl;
     itlq_nexus_t itlq;
 } uasp_itlq_nexus_t;
 
 typedef struct _uasp_conv_info_t {
     /* for keeping track of what endpoint is used for what */
-    guint8 command_endpoint;
-    guint8 status_endpoint;
-    guint8 data_in_endpoint;
-    guint8 data_out_endpoint;
+    uint8_t command_endpoint;
+    uint8_t status_endpoint;
+    uint8_t data_in_endpoint;
+    uint8_t data_out_endpoint;
 
     /* tag of each read/write ready IU; indexed by pinfo->num */
     wmem_tree_t* read_ready;
@@ -145,29 +145,29 @@ get_uasp_conv_info(usb_conv_info_t *usb_conv_info)
     return uasp_conv_info;
 }
 
-static guint16
+static uint16_t
 get_scsi_lun(tvbuff_t* tvb, int offset)
 {
-    guint16 lun;
+    uint16_t lun;
 
     /* Copied from packet-iscsi.c - not really correct but good enough... */
-    if (tvb_get_guint8(tvb, offset) & 0x40) {
+    if (tvb_get_uint8(tvb, offset) & 0x40) {
         /* volume set addressing */
-        lun = tvb_get_guint8(tvb, offset) & 0x3f;
+        lun = tvb_get_uint8(tvb, offset) & 0x3f;
         lun <<= 8;
-        lun |= tvb_get_guint8(tvb,offset + 1);
+        lun |= tvb_get_uint8(tvb,offset + 1);
     } else {
-        lun = tvb_get_guint8(tvb, offset + 1);
+        lun = tvb_get_uint8(tvb, offset + 1);
     }
 
     return lun;
 }
 
 static uasp_itlq_nexus_t*
-create_itlq_nexus(packet_info *pinfo, uasp_conv_info_t *uasp_conv_info, guint16 lun, guint16 tag)
+create_itlq_nexus(packet_info *pinfo, uasp_conv_info_t *uasp_conv_info, uint16_t lun, uint16_t tag)
 {
     wmem_tree_key_t key[3];
-    guint32 tag32 = tag;
+    uint32_t tag32 = tag;
     itl_nexus_t *itl;
     uasp_itlq_nexus_t *uitlq;
 
@@ -217,9 +217,9 @@ create_itlq_nexus(packet_info *pinfo, uasp_conv_info_t *uasp_conv_info, guint16 
 }
 
 static uasp_itlq_nexus_t*
-get_itlq_nexus(packet_info* pinfo, uasp_conv_info_t *uasp_conv_info, guint16 tag)
+get_itlq_nexus(packet_info* pinfo, uasp_conv_info_t *uasp_conv_info, uint16_t tag)
 {
-    guint32 tag32 = tag;
+    uint32_t tag32 = tag;
     wmem_tree_key_t key[3];
     uasp_itlq_nexus_t *uitlq;
 
@@ -237,12 +237,12 @@ get_itlq_nexus(packet_info* pinfo, uasp_conv_info_t *uasp_conv_info, guint16 tag
 }
 
 static void
-create_ready_iu(wmem_tree_t* tree, packet_info* pinfo, guint16 tag)
+create_ready_iu(wmem_tree_t* tree, packet_info* pinfo, uint16_t tag)
 {
     wmem_tree_insert32(tree, pinfo->num, GUINT_TO_POINTER(tag));
 }
 
-static guint16
+static uint16_t
 get_ready_iu(wmem_tree_t* tree, packet_info* pinfo)
 {
     return GPOINTER_TO_UINT(wmem_tree_lookup32_le(tree, pinfo->num));
@@ -295,10 +295,10 @@ dissect_uasp_iu(tvbuff_t *tvb, packet_info *pinfo,
                 proto_tree *parent_tree, proto_tree *uasp_tree,
                 usb_conv_info_t *usb_conv_info _U_, uasp_conv_info_t *uasp_conv_info)
 {
-    guint8             iu_id;
-    guint8             status;
-    guint16            tag;
-    guint16            lun;
+    uint8_t            iu_id;
+    uint8_t            status;
+    uint16_t           tag;
+    uint16_t           lun;
     uasp_itlq_nexus_t *uitlq = NULL;
     int                rlen, len;
     tvbuff_t          *cdb_tvb;
@@ -307,7 +307,7 @@ dissect_uasp_iu(tvbuff_t *tvb, packet_info *pinfo,
     if (tvb_reported_length(tvb) < 4)
         return 0;
 
-    iu_id = tvb_get_guint8(tvb, 0);
+    iu_id = tvb_get_uint8(tvb, 0);
     tag = tvb_get_ntohs(tvb, 2);
 
     col_add_str(pinfo->cinfo, COL_INFO,
@@ -326,7 +326,7 @@ dissect_uasp_iu(tvbuff_t *tvb, packet_info *pinfo,
         lun = get_scsi_lun(tvb, 8);
         uitlq = create_itlq_nexus(pinfo, uasp_conv_info, lun, tag);
 
-        rlen = 16 + tvb_get_guint8(tvb, 6);
+        rlen = 16 + tvb_get_uint8(tvb, 6);
         len = rlen;
 
         if (len > tvb_captured_length_remaining(tvb, 16))
@@ -350,7 +350,7 @@ dissect_uasp_iu(tvbuff_t *tvb, packet_info *pinfo,
             uitlq->completed_frame = pinfo->num;
             uitlq->itlq.last_exchange_frame = pinfo->num;
 
-            status = tvb_get_guint8(tvb, 6);
+            status = tvb_get_uint8(tvb, 6);
             dissect_scsi_rsp(tvb, pinfo, parent_tree, &uitlq->itlq, uitlq->itl, status);
 
             /* dissect sense info, if any */
@@ -401,11 +401,11 @@ dissect_uasp_data(tvbuff_t *tvb, packet_info *pinfo,
                   usb_conv_info_t *usb_conv_info, uasp_conv_info_t *uasp_conv_info)
 {
     proto_item        *ti;
-    guint16            tag;
+    uint16_t           tag;
     uasp_itlq_nexus_t *uitlq;
-    gboolean           is_request;
+    bool               is_request;
 
-    is_request = (usb_conv_info->direction == P2P_DIR_SENT) ? TRUE : FALSE;
+    is_request = (usb_conv_info->direction == P2P_DIR_SENT) ? true : false;
 
     /* TODO - fetch tag from USB 3.0 Bulk Streams.
      *
@@ -449,7 +449,7 @@ dissect_uasp_bulk(tvbuff_t *tvb,
     proto_tree        *uasp_tree;
     proto_item        *ti;
     uasp_dissector_t  dissector = NULL;
-    guint8            endpoint;
+    uint8_t           endpoint;
     usb_conv_info_t  *usb_conv_info = (usb_conv_info_t *)data;
     uasp_conv_info_t *uasp_conv_info = get_uasp_conv_info(usb_conv_info);
 
@@ -482,8 +482,8 @@ dissect_uasp_descriptor(tvbuff_t *tvb,
                         proto_tree *parent_tree,
                         void *data _U_)
 {
-    guint8            desc_type;
-    guint8            desc_len;
+    uint8_t           desc_type;
+    uint8_t           desc_len;
     proto_tree       *desc_tree;
     proto_tree       *desc_tree_item;
     usb_conv_info_t  *usb_conv_info = (usb_conv_info_t *)data;
@@ -497,8 +497,8 @@ dissect_uasp_descriptor(tvbuff_t *tvb,
     if (tvb_reported_length(tvb) < 2)
         return 0;
 
-    desc_len = tvb_get_guint8(tvb, 0);
-    desc_type = tvb_get_guint8(tvb, 1);
+    desc_len = tvb_get_uint8(tvb, 0);
+    desc_type = tvb_get_uint8(tvb, 1);
 
     if (desc_type != DT_PIPE_USAGE)
         return 0;
@@ -517,8 +517,8 @@ dissect_uasp_descriptor(tvbuff_t *tvb,
      * endpoint so the bulk dissector can distinguish between commands
      * and data reliably */
     if (!pinfo->fd->visited && usb_trans_info && usb_trans_info->interface_info) {
-        guint8 endpoint = usb_trans_info->interface_info->endpoint;
-        guint8 pipe_id = tvb_get_guint8(tvb, 2);
+        uint8_t endpoint = usb_trans_info->interface_info->endpoint;
+        uint8_t pipe_id = tvb_get_uint8(tvb, 2);
 
         uasp_conv_info = get_uasp_conv_info(usb_trans_info->interface_info);
         if (uasp_conv_info) {
@@ -611,7 +611,7 @@ proto_register_uasp(void)
             "The request data for the tag was transmitted in this frame", HFILL } },
     };
 
-    static gint *uasp_subtrees[] = {
+    static int *uasp_subtrees[] = {
         &ett_uasp,
         &ett_uasp_desc,
     };

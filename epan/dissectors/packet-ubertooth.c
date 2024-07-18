@@ -309,13 +309,13 @@ static int hf_cc2400_reserved_0x2B_res_11_0;
 static int hf_cc2400_syncl;
 static int hf_cc2400_synch;
 
-static gint ett_ubertooth;
-static gint ett_command;
-static gint ett_usb_rx_packet;
-static gint ett_usb_rx_packet_data;
-static gint ett_entry;
-static gint ett_register_value;
-static gint ett_fsdiv_frequency;
+static int ett_ubertooth;
+static int ett_command;
+static int ett_usb_rx_packet;
+static int ett_usb_rx_packet_data;
+static int ett_entry;
+static int ett_register_value;
+static int ett_fsdiv_frequency;
 
 static expert_field ei_unexpected_response;
 static expert_field ei_unknown_data;
@@ -327,12 +327,12 @@ static dissector_handle_t bluetooth_ubertooth_handle;
 static wmem_tree_t *command_info;
 
 typedef struct _command_data {
-    guint32  bus_id;
-    guint32  device_address;
+    uint32_t bus_id;
+    uint32_t device_address;
 
-    guint8   command;
-    guint32  command_frame_number;
-    gint32   register_id;
+    uint8_t  command;
+    uint32_t command_frame_number;
+    int32_t  register_id;
 } command_data_t;
 
 
@@ -870,7 +870,7 @@ void proto_reg_handoff_ubertooth(void);
 
 /* TODO: rewrite to use e.g. proto_tree_add_bitmask() ? */
 static void
-dissect_cc2400_register(proto_tree *tree, tvbuff_t *tvb, gint offset, guint8 register_id)
+dissect_cc2400_register(proto_tree *tree, tvbuff_t *tvb, int offset, uint8_t register_id)
 {
     proto_item  *sub_item;
     proto_item  *sub_tree;
@@ -1191,9 +1191,9 @@ dissect_cc2400_register(proto_tree *tree, tvbuff_t *tvb, gint offset, guint8 reg
     }
 }
 
-static gint
+static int
 dissect_usb_rx_packet(proto_tree *main_tree, proto_tree *tree, packet_info *pinfo,
-        tvbuff_t *tvb, gint offset, gint16 command, usb_conv_info_t *usb_conv_info)
+        tvbuff_t *tvb, int offset, int16_t command, usb_conv_info_t *usb_conv_info)
 {
     proto_item  *sub_item;
     proto_tree  *sub_tree;
@@ -1202,13 +1202,13 @@ dissect_usb_rx_packet(proto_tree *main_tree, proto_tree *tree, packet_info *pinf
     proto_tree  *data_tree;
     proto_item  *entry_item;
     proto_tree  *entry_tree;
-    gint         i_spec;
-    gint         length;
+    int          i_spec;
+    int          length;
     tvbuff_t    *next_tvb;
-    guint8       packet_type;
-    guint32      start_offset;
-    guint32      clock_100ns;
-    guint8       channel;
+    uint8_t      packet_type;
+    uint32_t     start_offset;
+    uint32_t     clock_100ns;
+    uint8_t      channel;
     ubertooth_data_t  *ubertooth_data;
 
     sub_item = proto_tree_add_item(tree, hf_usb_rx_packet, tvb, offset, 64, ENC_NA);
@@ -1217,14 +1217,14 @@ dissect_usb_rx_packet(proto_tree *main_tree, proto_tree *tree, packet_info *pinf
     start_offset = offset;
 
     proto_tree_add_item(sub_tree, hf_packet_type, tvb, offset, 1, ENC_NA);
-    packet_type = tvb_get_guint8(tvb, offset);
+    packet_type = tvb_get_uint8(tvb, offset);
     offset += 1;
 
     if (packet_type == 0x05) { /* LE_PROMISC */
-        guint8  state;
+        uint8_t state;
 
         proto_tree_add_item(sub_tree, hf_state, tvb, offset, 1, ENC_NA);
-        state = tvb_get_guint8(tvb, offset);
+        state = tvb_get_uint8(tvb, offset);
         col_append_fstr(pinfo->cinfo, COL_INFO, " LE Promiscuous - %s", val_to_str_const(state, usb_rx_packet_state_vals, "Unknown"));
         offset += 1;
 
@@ -1247,7 +1247,7 @@ dissect_usb_rx_packet(proto_tree *main_tree, proto_tree *tree, packet_info *pinf
             break;
         case 3: /* Hop Increment */
             proto_tree_add_item(sub_tree, hf_hop_increment, tvb, offset, 1, ENC_NA);
-            col_append_fstr(pinfo->cinfo, COL_INFO, " %u", tvb_get_guint8(tvb, offset));
+            col_append_fstr(pinfo->cinfo, COL_INFO, " %u", tvb_get_uint8(tvb, offset));
             offset += 1;
             break;
         }
@@ -1267,7 +1267,7 @@ dissect_usb_rx_packet(proto_tree *main_tree, proto_tree *tree, packet_info *pinf
     offset += 1;
 
     proto_tree_add_item(sub_tree, hf_usb_rx_packet_channel, tvb, offset, 1, ENC_NA);
-    channel = tvb_get_guint8(tvb, offset);
+    channel = tvb_get_uint8(tvb, offset);
     offset += 1;
 
     proto_tree_add_item(sub_tree, hf_clock_ns, tvb, offset, 1, ENC_NA);
@@ -1307,7 +1307,7 @@ dissect_usb_rx_packet(proto_tree *main_tree, proto_tree *tree, packet_info *pinf
             proto_tree_add_item(entry_tree, hf_rssi, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            proto_item_append_text(entry_item, " Frequency = %u MHz, RSSI = %i", tvb_get_ntohs(tvb, offset - 3), tvb_get_gint8(tvb, offset - 1));
+            proto_item_append_text(entry_item, " Frequency = %u MHz, RSSI = %i", tvb_get_ntohs(tvb, offset - 3), tvb_get_int8(tvb, offset - 1));
         }
 
         proto_tree_add_item(data_tree, hf_reserved, tvb, offset, 2, ENC_NA);
@@ -1321,9 +1321,9 @@ dissect_usb_rx_packet(proto_tree *main_tree, proto_tree *tree, packet_info *pinf
             length = 9; /* From BTLE: AccessAddress (4) + Header (2) + Length from Header (below) + CRC (3) */
 
             if (tvb_get_letohl(tvb, offset) == ACCESS_ADDRESS_ADVERTISING)
-                length += tvb_get_guint8(tvb, offset + 5) & 0x3f;
+                length += tvb_get_uint8(tvb, offset + 5) & 0x3f;
             else
-                length += tvb_get_guint8(tvb, offset + 5) & 0x1f;
+                length += tvb_get_uint8(tvb, offset + 5) & 0x1f;
 
             ubertooth_data = wmem_new(pinfo->pool, ubertooth_data_t);
             ubertooth_data->bus_id = usb_conv_info->bus_id;
@@ -1355,7 +1355,7 @@ dissect_usb_rx_packet(proto_tree *main_tree, proto_tree *tree, packet_info *pinf
     return offset;
 }
 
-static gint
+static int
 dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item       *main_tree = NULL;
@@ -1364,23 +1364,23 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     proto_item       *command_tree;
     proto_item       *sub_item;
     proto_item       *sub_tree;
-    gint              offset = 0;
+    int               offset = 0;
     usb_conv_info_t  *usb_conv_info = (usb_conv_info_t *)data;
-    gint              p2p_dir_save;
-    guint8            command;
-    gint16            command_response = -1;
+    int               p2p_dir_save;
+    uint8_t           command;
+    int16_t           command_response = -1;
     command_data_t   *command_data = NULL;
     wmem_tree_t      *wmem_tree;
     wmem_tree_key_t   key[5];
-    guint32           bus_id;
-    guint32           device_address;
-    guint32           k_bus_id;
-    guint32           k_device_address;
-    guint32           k_frame_number;
-    guint8            length;
-    guint32          *serial;
-    guint8            status;
-    gint32            register_id = -1;
+    uint32_t          bus_id;
+    uint32_t          device_address;
+    uint32_t          k_bus_id;
+    uint32_t          k_device_address;
+    uint32_t          k_frame_number;
+    uint8_t           length;
+    uint32_t         *serial;
+    uint8_t           status;
+    int32_t           register_id = -1;
 
     main_item = proto_tree_add_item(tree, proto_ubertooth, tvb, offset, -1, ENC_NA);
     main_tree = proto_item_add_subtree(main_item, ett_ubertooth);
@@ -1423,7 +1423,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
     if (usb_conv_info->is_setup) {
         proto_tree_add_item(main_tree, hf_command, tvb, offset, 1, ENC_NA);
-        command = tvb_get_guint8(tvb, offset);
+        command = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         col_append_fstr(pinfo->cinfo, COL_INFO, "Command: %s",
@@ -1795,25 +1795,25 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         break;
     case 3: /* Get User LED */
         proto_tree_add_item(main_tree, hf_user_led, tvb, offset, 1, ENC_NA);
-        col_append_fstr(pinfo->cinfo, COL_INFO, " = %s", val_to_str_ext_const(tvb_get_guint8(tvb, offset), &led_state_vals_ext, "Unknown"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, " = %s", val_to_str_ext_const(tvb_get_uint8(tvb, offset), &led_state_vals_ext, "Unknown"));
         offset += 1;
 
         break;
     case 5: /* Get Rx LED */
         proto_tree_add_item(main_tree, hf_rx_led, tvb, offset, 1, ENC_NA);
-        col_append_fstr(pinfo->cinfo, COL_INFO, " = %s", val_to_str_ext_const(tvb_get_guint8(tvb, offset), &led_state_vals_ext, "Unknown"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, " = %s", val_to_str_ext_const(tvb_get_uint8(tvb, offset), &led_state_vals_ext, "Unknown"));
         offset += 1;
 
         break;
     case 7: /* Get Tx LED */
         proto_tree_add_item(main_tree, hf_tx_led, tvb, offset, 1, ENC_NA);
-        col_append_fstr(pinfo->cinfo, COL_INFO, " = %s", val_to_str_ext_const(tvb_get_guint8(tvb, offset), &led_state_vals_ext, "Unknown"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, " = %s", val_to_str_ext_const(tvb_get_uint8(tvb, offset), &led_state_vals_ext, "Unknown"));
         offset += 1;
 
         break;
     case 9: /* Get 1V8 */
         proto_tree_add_item(main_tree, hf_1v8_led, tvb, offset, 1, ENC_NA);
-        col_append_fstr(pinfo->cinfo, COL_INFO, " = %s", val_to_str_ext_const(tvb_get_guint8(tvb, offset), &led_state_vals_ext, "Unknown"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, " = %s", val_to_str_ext_const(tvb_get_uint8(tvb, offset), &led_state_vals_ext, "Unknown"));
         offset += 1;
 
         break;
@@ -1825,27 +1825,27 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         break;
     case 14: /* Get Microcontroller Serial Number */
         proto_tree_add_item(main_tree, hf_status, tvb, offset, 1, ENC_NA);
-        status = tvb_get_guint8(tvb, offset);
+        status = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         if (status) break;
 
-        serial = (guint32 *) wmem_alloc(pinfo->pool, 16);
+        serial = (uint32_t *) wmem_alloc(pinfo->pool, 16);
         serial[0] = tvb_get_ntohl(tvb, offset);
         serial[1] = tvb_get_ntohl(tvb, offset + 4);
         serial[2] = tvb_get_ntohl(tvb, offset + 8);
         serial[3] = tvb_get_ntohl(tvb, offset + 12);
 
         proto_tree_add_bytes(main_tree, hf_serial_number, tvb,
-                offset, 16, (guint8 *) serial);
+                offset, 16, (uint8_t *) serial);
         col_append_fstr(pinfo->cinfo, COL_INFO, " = %s",
-                bytes_to_str(pinfo->pool, (guint8 *) serial, 16));
+                bytes_to_str(pinfo->pool, (uint8_t *) serial, 16));
         offset += 16;
 
         break;
     case 15: /* Get Microcontroller Part Number */
         proto_tree_add_item(main_tree, hf_status, tvb, offset, 1, ENC_NA);
-        status = tvb_get_guint8(tvb, offset);
+        status = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         if (status) break;
@@ -1857,26 +1857,26 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         break;
     case 16: /* Get PAEN */
         proto_tree_add_item(main_tree, hf_paen, tvb, offset, 1, ENC_NA);
-        col_append_fstr(pinfo->cinfo, COL_INFO, " = %s", val_to_str_ext_const(tvb_get_guint8(tvb, offset), &state_vals_ext, "Unknown"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, " = %s", val_to_str_ext_const(tvb_get_uint8(tvb, offset), &state_vals_ext, "Unknown"));
         offset += 1;
 
         break;
     case 18: /* Get HGM */
         proto_tree_add_item(main_tree, hf_hgm, tvb, offset, 1, ENC_NA);
-        col_append_fstr(pinfo->cinfo, COL_INFO, " = %s", val_to_str_ext_const(tvb_get_guint8(tvb, offset), &state_vals_ext, "Unknown"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, " = %s", val_to_str_ext_const(tvb_get_uint8(tvb, offset), &state_vals_ext, "Unknown"));
         offset += 1;
 
         break;
     case 22: /* Get Modulation */
         proto_tree_add_item(main_tree, hf_modulation, tvb, offset, 1, ENC_NA);
-        col_append_fstr(pinfo->cinfo, COL_INFO, " = %s", val_to_str_ext_const(tvb_get_guint8(tvb, offset), &modulation_vals_ext, "Unknown"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, " = %s", val_to_str_ext_const(tvb_get_uint8(tvb, offset), &modulation_vals_ext, "Unknown"));
         offset += 1;
 
         break;
     case 28: /* Get Power Amplifier Level */
         proto_tree_add_item(main_tree, hf_power_amplifier_reserved, tvb, offset, 1, ENC_NA);
         proto_tree_add_item(main_tree, hf_power_amplifier_level, tvb, offset, 1, ENC_NA);
-        col_append_fstr(pinfo->cinfo, COL_INFO, " = %u", tvb_get_guint8(tvb, offset) & 0x7);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " = %u", tvb_get_uint8(tvb, offset) & 0x7);
         offset += 1;
 
         break;
@@ -1899,12 +1899,12 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         break;
     case 33: /* Get Firmware Revision Number */
         {
-        const guint8* firmware;
+        const uint8_t* firmware;
         proto_tree_add_item(main_tree, hf_reserved, tvb, offset, 2, ENC_NA);
         offset += 2;
 
         proto_tree_add_item(main_tree, hf_length, tvb, offset, 1, ENC_NA);
-        length = tvb_get_guint8(tvb, offset);
+        length = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         proto_tree_add_item_ret_string(main_tree, hf_firmware_revision, tvb, offset, length, ENC_NA | ENC_ASCII, pinfo->pool, &firmware);
@@ -1914,19 +1914,19 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         break;
     case 35: /* Get Hardware Board ID */
         proto_tree_add_item(main_tree, hf_board_id, tvb, offset, 1, ENC_NA);
-        col_append_fstr(pinfo->cinfo, COL_INFO, " = %s", val_to_str_ext_const(tvb_get_guint8(tvb, offset), &board_id_vals_ext, "Unknown"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, " = %s", val_to_str_ext_const(tvb_get_uint8(tvb, offset), &board_id_vals_ext, "Unknown"));
         offset += 1;
 
         break;
     case 37: /* Get Squelch */
         proto_tree_add_item(main_tree, hf_squelch, tvb, offset, 1, ENC_NA);
-        col_append_fstr(pinfo->cinfo, COL_INFO, " = %i", tvb_get_gint8(tvb, offset));
+        col_append_fstr(pinfo->cinfo, COL_INFO, " = %i", tvb_get_int8(tvb, offset));
         offset += 1;
 
         break;
     case 41: /* Get Clock */
         proto_tree_add_item(main_tree, hf_clock_ns, tvb, offset, 1, ENC_NA);
-        col_append_fstr(pinfo->cinfo, COL_INFO, " = %u", tvb_get_guint8(tvb, offset));
+        col_append_fstr(pinfo->cinfo, COL_INFO, " = %u", tvb_get_uint8(tvb, offset));
         offset += 1;
 
         break;
@@ -1943,7 +1943,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         break;
     case 47: /* Get CRC Verify */
         proto_tree_add_item(main_tree, hf_crc_verify, tvb, offset, 1, ENC_NA);
-        col_append_fstr(pinfo->cinfo, COL_INFO, " = %s", val_to_str_ext_const(tvb_get_guint8(tvb, offset), &state_vals_ext, "Unknown"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, " = %s", val_to_str_ext_const(tvb_get_uint8(tvb, offset), &state_vals_ext, "Unknown"));
         offset += 1;
 
         break;
@@ -1978,9 +1978,9 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         break;
     case 55: /* Get Compile Info */
         {
-        const guint8* compile;
+        const uint8_t* compile;
         proto_tree_add_item(main_tree, hf_length, tvb, offset, 1, ENC_NA);
-        length = tvb_get_guint8(tvb, offset);
+        length = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         proto_tree_add_item_ret_string(main_tree, hf_firmware_compile_info, tvb, offset, length, ENC_NA | ENC_ASCII, pinfo->pool, &compile);
@@ -3447,7 +3447,7 @@ proto_register_ubertooth(void)
         { &ei_unexpected_data, { "ubertooth.unexpected_data", PI_PROTOCOL, PI_WARN, "Unexpected data", EXPFILL }},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_ubertooth,
         &ett_command,
         &ett_usb_rx_packet,

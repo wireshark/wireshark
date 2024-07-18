@@ -78,8 +78,8 @@ static int hf_ubdp_platform_vers;
 static int hf_ubdp_sshd_port;
 static int hf_ubdp_generic;
 
-static gint ett_ubdp;
-static gint ett_ubdp_tlv;
+static int ett_ubdp;
+static int ett_ubdp_tlv;
 
 static expert_field ei_ubdp_bad_version;
 static expert_field ei_ubdp_unexpected_len;
@@ -165,12 +165,12 @@ dissect_ubdp(tvbuff_t *ubdp_tvb, packet_info *pinfo, proto_tree *tree, void *dat
 {
     proto_tree  *ubdp_tree, *tlv_tree;
     proto_item  *ubdp_item, *tlv_item;
-    guint32     ubdp_length;
-    guint32     ubdp_type;
-    guint32     version;
-    gint offset = 0;
-    gchar *uValue;
-    const gchar *uModel;
+    uint32_t    ubdp_length;
+    uint32_t    ubdp_type;
+    uint32_t    version;
+    int offset = 0;
+    char *uValue;
+    const char *uModel;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "UBDP");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -381,7 +381,7 @@ proto_register_ubdp(void)
         { &hf_ubdp_generic, {"Unknown Field","ubdp.unk",FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }}
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
       &ett_ubdp,
       &ett_ubdp_tlv
     };

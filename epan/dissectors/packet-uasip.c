@@ -46,15 +46,15 @@ static int hf_uasip_sntseq;
 static int hf_uasip_type;
 static int hf_uasip_length;
 
-static gint ett_uasip;
-static gint ett_uasip_tlv;
+static int ett_uasip;
+static int ett_uasip_tlv;
 
 static expert_field ei_uasip_tlv_length;
 
-static guint8      proxy_ipaddr[4];
+static uint8_t     proxy_ipaddr[4];
 static const char *pref_proxy_ipaddr_s;
 
-static gboolean use_proxy_ipaddr;
+static bool use_proxy_ipaddr;
 static bool noesip_enabled;
 
 static dissector_handle_t uasip_handle;
@@ -66,9 +66,9 @@ static void _dissect_uasip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 {
     proto_item *uasip_item, *tlv_item, *tlv_len_item;
     proto_tree *uasip_tree, *connect_tree;
-    guint8      opcode;
-    guint32     type, length;
-    gint        offset = 0;
+    uint8_t     opcode;
+    uint32_t    type, length;
+    int         offset = 0;
 
     if (noesip_enabled)
     {
@@ -79,7 +79,7 @@ static void _dissect_uasip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         col_append_str(pinfo->cinfo, COL_PROTOCOL, "/DL");
     }
 
-    opcode = tvb_get_guint8(tvb, offset);
+    opcode = tvb_get_uint8(tvb, offset);
     offset++;
 
     ua_tap_info.opcode = opcode;
@@ -100,7 +100,7 @@ static void _dissect_uasip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         {
             while(tvb_reported_length_remaining(tvb, offset) > 0)
             {
-                type = tvb_get_guint8(tvb, offset+0);
+                type = tvb_get_uint8(tvb, offset+0);
                 connect_tree = proto_tree_add_subtree(uasip_tree, tvb, offset, 0, ett_uasip_tlv, &tlv_item,
                                                       val_to_str_ext(type, &uaudp_connect_vals_ext, "Unknown %d"));
                 proto_tree_add_uint(connect_tree, hf_uasip_type, tvb, offset, 1, type);
@@ -498,7 +498,7 @@ void proto_register_uasip(void)
         },
     };
 
-    static gint *ett[] =
+    static int *ett[] =
     {
         &ett_uasip,
         &ett_uasip_tlv,
@@ -530,7 +530,7 @@ void proto_register_uasip(void)
 
 void proto_reg_handoff_uasip(void)
 {
-    static gboolean    prefs_initialized = FALSE;
+    static bool        prefs_initialized = false;
 
     if (!prefs_initialized)
     {
@@ -540,15 +540,15 @@ void proto_reg_handoff_uasip(void)
         /* Enable decoding "Internet media type" as UASIP */
         dissector_add_for_decode_as("media_type", uasip_handle);
 
-        prefs_initialized = TRUE;
+        prefs_initialized = true;
     }
 
-    use_proxy_ipaddr = FALSE;
+    use_proxy_ipaddr = false;
     memset(proxy_ipaddr, 0, sizeof(proxy_ipaddr));
 
     if (strcmp(pref_proxy_ipaddr_s, "") != 0) {
         if (str_to_ip(pref_proxy_ipaddr_s, proxy_ipaddr)) {
-            use_proxy_ipaddr = TRUE;
+            use_proxy_ipaddr = true;
         } else {
             report_failure("uasip: Invalid 'Proxy IP Address': \"%s\"", pref_proxy_ipaddr_s);
         }

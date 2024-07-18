@@ -26,7 +26,7 @@ static dissector_table_t ua_opcode_dissector_table;
 #endif
 
 static int  proto_ua_msg;
-static gint ett_ua_msg;
+static int ett_ua_msg;
 
 static dissector_handle_t noe_handle;
 static dissector_handle_t ua3g_handle;
@@ -35,9 +35,9 @@ static void uadecode(e_ua_direction  direction,
                      proto_tree     *tree,
                      packet_info    *pinfo,
                      tvbuff_t       *tvb,
-                     gint            offset,
-                     gint            opcode,
-                     gint            length)
+                     int             offset,
+                     int             opcode,
+                     int             length)
 {
     switch (opcode & 0x7f) /* suppression of the CP bit */
     {
@@ -129,7 +129,7 @@ static void uadecode(e_ua_direction  direction,
     default:
         {
             /* add text to the frame "INFO" column */
-            col_append_fstr(pinfo->cinfo, COL_INFO, " - UA3G Message ERR: Opcode (0x%02x) Unknown", tvb_get_guint8(tvb, (offset + 2)));
+            col_append_fstr(pinfo->cinfo, COL_INFO, " - UA3G Message ERR: Opcode (0x%02x) Unknown", tvb_get_uint8(tvb, (offset + 2)));
 
             call_data_dissector(tvb_new_subset_length(tvb, offset, length),
                            pinfo,
@@ -149,7 +149,7 @@ static void _dissect_ua_msg(tvbuff_t       *tvb,
                             proto_tree     *tree,
                             e_ua_direction  direction)
 {
-    gint        offset = 0;
+    int         offset = 0;
     proto_item *ua_msg_item;
     proto_tree *ua_msg_tree;
 
@@ -162,8 +162,8 @@ static void _dissect_ua_msg(tvbuff_t       *tvb,
 
     while (tvb_offset_exists(tvb, offset))
     {
-        gint length = tvb_get_letohs(tvb, offset) + 2;
-        gint opcode = tvb_get_guint8(tvb, offset+2);
+        int length = tvb_get_letohs(tvb, offset) + 2;
+        int opcode = tvb_get_uint8(tvb, offset+2);
 
         uadecode(direction, ua_msg_tree, pinfo, tvb, offset, opcode, length);
 
@@ -191,7 +191,7 @@ static int dissect_ua_term_to_sys(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 void proto_register_ua_msg(void)
 {
-    static gint *ett[] =
+    static int *ett[] =
     {
         &ett_ua_msg,
     };

@@ -37,9 +37,9 @@
 void proto_register_uts(void);
 
 static int	proto_uts;
-static gint	ett_uts;
-static gint	ett_header_uts;
-static gint	ett_trailer_uts;
+static int	ett_uts;
+static int	ett_header_uts;
+static int	ett_trailer_uts;
 static int	hf_rid;
 static int	hf_sid;
 static int	hf_did;
@@ -58,12 +58,12 @@ static int	hf_data;
 #define SRC	(1)
 #define DST	(2)
 
-static int testchar(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int op, gchar match, gchar *storage)
+static int testchar(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int op, char match, char *storage)
 {
-	gchar temp;
+	char temp;
 
 	if (tvb_bytes_exist(tvb, offset, 1)) {
-		temp = tvb_get_guint8(tvb, offset) & 0x7f;
+		temp = tvb_get_uint8(tvb, offset) & 0x7f;
 		if (op == FETCH || (op == MATCH && temp == match)) {
 			if (storage != NULL)
 				*storage = temp;
@@ -78,7 +78,7 @@ static int testchar(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int op, g
 }
 
 static void
-set_addr(packet_info *pinfo _U_ , int field, gchar rid, gchar sid, gchar did)
+set_addr(packet_info *pinfo _U_ , int field, char rid, char sid, char did)
 {
 	if (field == SRC) {
 		col_append_fstr(pinfo->cinfo, COL_DEF_SRC, " %2.2X:%2.2X:%2.2X", rid, sid, did);
@@ -95,7 +95,7 @@ dissect_uts(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree, void* data
 	proto_tree	*uts_trailer_tree	= NULL;
 	proto_item	*ti;
 	int		length;
-	gchar		rid = 0, sid = 0, did = 0;
+	char		rid = 0, sid = 0, did = 0;
 	int		offset			= 0;
 	int		header_length		= -1;
 	int		ack_start		= 0;
@@ -108,8 +108,8 @@ dissect_uts(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree, void* data
 	int		etx_start		= 0;
 	int		bcc_start		= 0;
 	int		stx_start		= 0;
-	gchar		function_code;
-	guint8		*data_ptr;
+	char		function_code;
+	uint8_t		*data_ptr;
 
 	enum	{ NOTRAFFIC, OTHER }	msg_type = OTHER;
 
@@ -122,9 +122,9 @@ dissect_uts(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree, void* data
 		col_set_str(pinfo->cinfo, COL_INFO, "No Traffic");
 	} else {
 		if (testchar(tvb, pinfo, 0, MATCH, SOH, NULL)		&&
-		    testchar(tvb, pinfo, 1, FETCH, 0, (gchar *)&rid)	&&
-		    testchar(tvb, pinfo, 2, FETCH, 0, (gchar *)&sid)	&&
-		    testchar(tvb, pinfo, 3, FETCH, 0, (gchar *)&did)) {
+		    testchar(tvb, pinfo, 1, FETCH, 0, (char *)&rid)	&&
+		    testchar(tvb, pinfo, 2, FETCH, 0, (char *)&sid)	&&
+		    testchar(tvb, pinfo, 3, FETCH, 0, (char *)&did)) {
 			offset = 4;
 			if (testchar(tvb, pinfo, offset, MATCH, ETX, NULL)) {
 				col_set_str(pinfo->cinfo, COL_INFO, "General Poll");
@@ -226,7 +226,7 @@ dissect_uts(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree, void* data
 	}
 
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {					/* now look for the ETX */
-		if ((tvb_get_guint8(tvb, offset) & 0x7f) == ETX) {
+		if ((tvb_get_uint8(tvb, offset) & 0x7f) == ETX) {
 			if (header_length == -1)
 				header_length = offset;	/* the header ends at an STX, or if not found, the ETX */
 			etx_start = offset;
@@ -323,22 +323,22 @@ proto_register_uts(void)
 		    FT_UINT8,	BASE_HEX,	NULL, 0, "Device Identifier address",	HFILL }},
 		{ &hf_retxrequest,
 		  { "ReTxRequest",  "uts.retxrequest",
-		    FT_BOOLEAN,	BASE_NONE,	NULL, 0x0, "TRUE if Re-transmit Request", HFILL }},
+		    FT_BOOLEAN,	BASE_NONE,	NULL, 0x0, "true if Re-transmit Request", HFILL }},
 		{ &hf_ack,
 		  { "Ack",	   "uts.ack",
-		    FT_BOOLEAN,	BASE_NONE,	NULL, 0x0, "TRUE if Ack",		HFILL }},
+		    FT_BOOLEAN,	BASE_NONE,	NULL, 0x0, "true if Ack",		HFILL }},
 		{ &hf_replyrequest,
 		  { "ReplyRequest", "uts.replyrequest",
-		    FT_BOOLEAN,	BASE_NONE,	NULL, 0x0, "TRUE if Reply Request",	HFILL }},
+		    FT_BOOLEAN,	BASE_NONE,	NULL, 0x0, "true if Reply Request",	HFILL }},
 		{ &hf_busy,
 		  { "Busy",	   "uts.busy",
-		    FT_BOOLEAN,	BASE_NONE,	NULL, 0x0, "TRUE if Busy",		HFILL }},
+		    FT_BOOLEAN,	BASE_NONE,	NULL, 0x0, "true if Busy",		HFILL }},
 		{ &hf_notbusy,
 		  { "NotBusy",	   "uts.notbusy",
-		    FT_BOOLEAN,	BASE_NONE,	NULL, 0x0, "TRUE if Not Busy",		HFILL }},
+		    FT_BOOLEAN,	BASE_NONE,	NULL, 0x0, "true if Not Busy",		HFILL }},
 		{ &hf_msgwaiting,
 		  { "MsgWaiting",  "uts.msgwaiting",
-		    FT_BOOLEAN,	BASE_NONE,	NULL, 0x0, "TRUE if Message Waiting",	HFILL }},
+		    FT_BOOLEAN,	BASE_NONE,	NULL, 0x0, "true if Message Waiting",	HFILL }},
 		{ &hf_function,
 		  { "Function",    "uts.function",
 		    FT_UINT8,	BASE_HEX,	NULL, 0, "Function Code value",		HFILL }},
@@ -347,7 +347,7 @@ proto_register_uts(void)
 		    FT_STRING,	BASE_NONE,	NULL, 0, "User Data Message",		HFILL }},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_uts,
 		&ett_header_uts,
 		&ett_trailer_uts,

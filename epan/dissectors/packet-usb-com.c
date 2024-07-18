@@ -121,11 +121,11 @@ static int hf_usb_com_data_stream;
 static int hf_usb_com_data_in_payload;
 static int hf_usb_com_data_out_payload;
 
-static gint ett_usb_com;
-static gint ett_usb_com_capabilities;
-static gint ett_usb_com_bitmap;
-static gint ett_usb_com_descriptor_ecm_eth_stats;
-static gint ett_usb_com_descriptor_ecm_nb_mc_filters;
+static int ett_usb_com;
+static int ett_usb_com_capabilities;
+static int ett_usb_com_bitmap;
+static int ett_usb_com_descriptor_ecm_eth_stats;
+static int ett_usb_com_descriptor_ecm_nb_mc_filters;
 
 static dissector_handle_t usb_com_descriptor_handle;
 static dissector_handle_t usb_com_control_handle;
@@ -142,15 +142,15 @@ static expert_field ei_unexpected_controlling_iface;
 static wmem_tree_t* controlling_ifaces;
 
 typedef struct _controlling_iface {
-    guint16 interfaceClass;
-    guint16 interfaceSubclass;
-    guint16 interfaceProtocol;
+    uint16_t interfaceClass;
+    uint16_t interfaceSubclass;
+    uint16_t interfaceProtocol;
 } controlling_iface_t;
 
-static guint32 cdc_data_stream_count;
+static uint32_t cdc_data_stream_count;
 
 typedef struct _cdc_data_conv {
-    guint32 stream;
+    uint32_t stream;
 } cdc_data_conv_t;
 
 #define CS_INTERFACE 0x24
@@ -430,8 +430,8 @@ static int
 dissect_usb_com_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     usb_conv_info_t *usb_conv_info = (usb_conv_info_t *)data;
-    gint offset = 0;
-    guint8 type, subtype;
+    int offset = 0;
+    uint8_t type, subtype;
     proto_tree *subtree;
     proto_tree *subtree_capabilities;
     proto_item *subitem_capabilities;
@@ -445,10 +445,10 @@ dissect_usb_com_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     dissect_usb_descriptor_header(subtree, tvb, offset, &usb_com_descriptor_type_vals_ext);
     offset += 2;
 
-    type = tvb_get_guint8(tvb, 1);
+    type = tvb_get_uint8(tvb, 1);
     switch (type) {
         case CS_INTERFACE:
-            subtype = tvb_get_guint8(tvb, offset);
+            subtype = tvb_get_uint8(tvb, offset);
             proto_tree_add_uint(subtree, hf_usb_com_descriptor_subtype, tvb, offset, 1, subtype);
             offset++;
             switch (subtype) {
@@ -480,10 +480,10 @@ dissect_usb_com_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                     break;
                 case 0x06: {
                     proto_item *control_item;
-                    guint32 k_bus_id;
-                    guint32 k_device_address;
-                    guint32 k_subordinate_id;
-                    guint32 k_frame_number;
+                    uint32_t k_bus_id;
+                    uint32_t k_device_address;
+                    uint32_t k_subordinate_id;
+                    uint32_t k_frame_number;
                     wmem_tree_key_t key[] = {
                         { .length = 1, .key = &k_bus_id },
                         { .length = 1, .key = &k_device_address },
@@ -492,7 +492,7 @@ dissect_usb_com_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                         { .length = 0, .key = NULL },
                     };
                     controlling_iface_t *master_info = NULL;
-                    guint32  master;
+                    uint32_t master;
 
                     k_bus_id = usb_conv_info->bus_id;
                     k_device_address = usb_conv_info->device_address;
@@ -556,9 +556,9 @@ dissect_usb_com_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 }
 
 static int
-dissect_usb_com_get_ntb_params(tvbuff_t *tvb, proto_tree *tree, gint base_offset)
+dissect_usb_com_get_ntb_params(tvbuff_t *tvb, proto_tree *tree, int base_offset)
 {
-    gint offset = base_offset;
+    int offset = base_offset;
 
     proto_tree_add_item(tree, hf_usb_com_get_ntb_params_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
@@ -590,9 +590,9 @@ dissect_usb_com_get_ntb_params(tvbuff_t *tvb, proto_tree *tree, gint base_offset
 }
 
 static int
-dissect_usb_com_ntb_input_size(tvbuff_t *tvb, proto_tree *tree, gint base_offset, gboolean is_set)
+dissect_usb_com_ntb_input_size(tvbuff_t *tvb, proto_tree *tree, int base_offset, bool is_set)
 {
-    gint offset = base_offset;
+    int offset = base_offset;
 
     proto_tree_add_item(tree, is_set ? hf_usb_com_set_ntb_input_size_ntb_in_max_size :
                         hf_usb_com_get_ntb_input_size_ntb_in_max_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -616,8 +616,8 @@ dissect_usb_com_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     usb_trans_info_t *usb_trans_info;
     proto_tree *subtree;
     proto_item *ti;
-    gint offset = 0;
-    gboolean is_request;
+    int offset = 0;
+    bool is_request;
 
     if (tvb_reported_length(tvb) == 0) {
         return 0;
@@ -698,12 +698,12 @@ dissect_usb_com_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                 break;
             case GET_NTB_INPUT_SIZE:
                 if (!is_request) {
-                    offset = dissect_usb_com_ntb_input_size(tvb, subtree, offset, FALSE);
+                    offset = dissect_usb_com_ntb_input_size(tvb, subtree, offset, false);
                 }
                 break;
             case SET_NTB_INPUT_SIZE:
                 if (!is_request) {
-                    offset = dissect_usb_com_ntb_input_size(tvb, subtree, offset, TRUE);
+                    offset = dissect_usb_com_ntb_input_size(tvb, subtree, offset, true);
                 }
                 break;
             case GET_MAX_DATAGRAM_SIZE:
@@ -745,9 +745,9 @@ dissect_usb_com_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 {
     usb_conv_info_t *usb_conv_info = (usb_conv_info_t *)data;
     cdc_data_conv_t *cdc_data_info;
-    guint32 k_bus_id;
-    guint32 k_device_address;
-    guint32 k_subordinate_id;
+    uint32_t k_bus_id;
+    uint32_t k_device_address;
+    uint32_t k_subordinate_id;
     wmem_tree_key_t key[] = {
         { .length = 1, .key = &k_bus_id },
         { .length = 1, .key = &k_device_address },
@@ -840,8 +840,8 @@ dissect_usb_com_interrupt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 {
     proto_tree *subtree;
     proto_item *it;
-    guint32 notif_code;
-    gint offset = 0;
+    uint32_t notif_code;
+    int offset = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "USBCOM");
 
@@ -915,7 +915,7 @@ static cdc_data_conv_t *get_cdc_data_conv(packet_info *pinfo)
     return (cdc_data_conv_t *)usb_conv_info->class_data;
 }
 
-static gchar *cdc_data_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo, guint *stream, guint *sub_stream _U_)
+static char *cdc_data_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo, unsigned *stream, unsigned *sub_stream _U_)
 {
     cdc_data_conv_t *cdc_data_info;
 
@@ -928,18 +928,18 @@ static gchar *cdc_data_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *
     return NULL;
 }
 
-static gchar *cdc_data_follow_index_filter(guint stream, guint sub_stream _U_)
+static char *cdc_data_follow_index_filter(unsigned stream, unsigned sub_stream _U_)
 {
     return ws_strdup_printf("usbcom.data.stream eq %u", stream);
 }
 
-static gchar *cdc_data_follow_address_filter(address *src_addr _U_, address *dst_addr _U_, int src_port _U_, int dst_port _U_)
+static char *cdc_data_follow_address_filter(address *src_addr _U_, address *dst_addr _U_, int src_port _U_, int dst_port _U_)
 {
     /* We always just filter stream based on an arbitrarily generated index. */
     return NULL;
 }
 
-static gchar *cdc_data_port_to_display(wmem_allocator_t *allocator, guint port)
+static char *cdc_data_port_to_display(wmem_allocator_t *allocator, unsigned port)
 {
     return wmem_strdup(allocator, port == NO_ENDPOINT ? "host" : "device");
 }
@@ -951,8 +951,8 @@ follow_cdc_data_tap_listener(void *tapdata, packet_info *pinfo, epan_dissect_t *
     follow_record_t *follow_record;
     follow_info_t *follow_info = (follow_info_t *)tapdata;
     tvbuff_t *tvb = (tvbuff_t *)data;
-    guint32 data_length = tvb_captured_length(tvb);
-    gboolean is_server;
+    uint32_t data_length = tvb_captured_length(tvb);
+    bool is_server;
 
     if (follow_info->client_port == 0) {
         /* XXX: Client/Server does not quite match how USB works. Simply assume
@@ -990,7 +990,7 @@ follow_cdc_data_tap_listener(void *tapdata, packet_info *pinfo, epan_dissect_t *
     return TAP_PACKET_DONT_REDRAW;
 }
 
-static guint32 get_cdc_data_stream_count(void)
+static uint32_t get_cdc_data_stream_count(void)
 {
     return cdc_data_stream_count;
 }
@@ -1304,7 +1304,7 @@ proto_register_usb_com(void)
               NULL, 0, NULL, HFILL }},
     };
 
-    static gint *usb_com_subtrees[] = {
+    static int *usb_com_subtrees[] = {
         &ett_usb_com,
         &ett_usb_com_capabilities,
         &ett_usb_com_bitmap,

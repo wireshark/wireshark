@@ -45,9 +45,9 @@ typedef enum _e_ua_direction {
 
 /* struct for tap wireshark */
 typedef struct _tap_struct_uaudp {
-	guint opcode;
-	guint expseq; /* expected sequence number */
-	guint sntseq; /* sent sequence number */
+	unsigned opcode;
+	unsigned expseq; /* expected sequence number */
+	unsigned sntseq; /* sent sequence number */
 } tap_struct_uaudp;
 
 #endif /* _PACKET_UAUDP_H_ */

@@ -49,27 +49,27 @@ enum mac_content_type {
 #define MAX_MAC_FRAMES 64
 typedef struct umts_mac_info
 {
-    gboolean ctmux[MAX_MAC_FRAMES];
-    guint8 content[MAX_MAC_FRAMES];
-    guint8 lchid[MAX_MAC_FRAMES];       /*Makes displaying logical channel a lot easier*/
-    guint8 macdflow_id[MAX_MAC_FRAMES]; /*Makes displaying logical channel a lot easier*/
+    bool ctmux[MAX_MAC_FRAMES];
+    uint8_t content[MAX_MAC_FRAMES];
+    uint8_t lchid[MAX_MAC_FRAMES];       /*Makes displaying logical channel a lot easier*/
+    uint8_t macdflow_id[MAX_MAC_FRAMES]; /*Makes displaying logical channel a lot easier*/
 
-    gboolean fake_chid[MAX_MAC_FRAMES]; /*Indicate if the child ID is faked or not*/
-    guint pdu_len;                      /*Length of MAC PDU, same for all PDUs in one FP frame*/
-    guint8 trchid[MAX_MAC_FRAMES];      /*Makes displaying logical channel a lot easier*/
+    bool fake_chid[MAX_MAC_FRAMES]; /*Indicate if the child ID is faked or not*/
+    unsigned pdu_len;                      /*Length of MAC PDU, same for all PDUs in one FP frame*/
+    uint8_t trchid[MAX_MAC_FRAMES];      /*Makes displaying logical channel a lot easier*/
 } umts_mac_info;
 
 typedef struct
 {
-    guint number_of_mac_is_sdus;
-    guint8 lchid[MAX_MAC_FRAMES];
-    gint sdulength[MAX_MAC_FRAMES];
+    unsigned number_of_mac_is_sdus;
+    uint8_t lchid[MAX_MAC_FRAMES];
+    int sdulength[MAX_MAC_FRAMES];
 } umts_mac_is_info;
 
 enum enum_mac_tsn_size {
     MAC_TSN_6BITS,
     MAC_TSN_14BITS
 };
-gint get_mac_tsn_size(void);
+int get_mac_tsn_size(void);
 
 #endif

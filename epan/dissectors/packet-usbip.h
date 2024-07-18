@@ -19,10 +19,10 @@
 #define USBIP_DIR_IN 0x01
 
 struct usbip_header {
-    guint8 devid;
-    guint8 busid;
-    guint32 ep;
-    guint32 dir;
+    uint8_t devid;
+    uint8_t busid;
+    uint32_t ep;
+    uint32_t dir;
 };
 
 #endif

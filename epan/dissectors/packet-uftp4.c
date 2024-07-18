@@ -497,46 +497,46 @@ static int hf_uftp_abort_reserved;
 static int hf_uftp_abort_clientid;
 static int hf_uftp_abort_message;
 
-static gint ett_uftp;
-static gint ett_uftp_announce;
-static gint ett_uftp_register;
-static gint ett_uftp_clientkey;
-static gint ett_uftp_regconf;
-static gint ett_uftp_keyinfo;
-static gint ett_uftp_keyinfoack;
-static gint ett_uftp_fileinfo;
-static gint ett_uftp_fileinfoack;
-static gint ett_uftp_fileseg;
-static gint ett_uftp_done;
-static gint ett_uftp_status;
-static gint ett_uftp_complete;
-static gint ett_uftp_doneconf;
-static gint ett_uftp_hbreq;
-static gint ett_uftp_hbresp;
-static gint ett_uftp_keyreq;
-static gint ett_uftp_proxykey;
-static gint ett_uftp_congctrl;
-static gint ett_uftp_ccack;
-static gint ett_uftp_encrypted;
-static gint ett_uftp_abort;
+static int ett_uftp;
+static int ett_uftp_announce;
+static int ett_uftp_register;
+static int ett_uftp_clientkey;
+static int ett_uftp_regconf;
+static int ett_uftp_keyinfo;
+static int ett_uftp_keyinfoack;
+static int ett_uftp_fileinfo;
+static int ett_uftp_fileinfoack;
+static int ett_uftp_fileseg;
+static int ett_uftp_done;
+static int ett_uftp_status;
+static int ett_uftp_complete;
+static int ett_uftp_doneconf;
+static int ett_uftp_hbreq;
+static int ett_uftp_hbresp;
+static int ett_uftp_keyreq;
+static int ett_uftp_proxykey;
+static int ett_uftp_congctrl;
+static int ett_uftp_ccack;
+static int ett_uftp_encrypted;
+static int ett_uftp_abort;
 
-static gint ett_uftp_announce_flags;
-static gint ett_uftp_encinfo;
-static gint ett_uftp_encinfo_flags;
-static gint ett_uftp_keyinfo_destkey;
-static gint ett_uftp_fileinfoack_flags;
-static gint ett_uftp_congctrl_cclist;
-static gint ett_uftp_congctrl_item;
-static gint ett_uftp_congctrl_item_flags;
-static gint ett_uftp_tfmccdata;
-static gint ett_uftp_tfmccack;
-static gint ett_uftp_tfmccack_flags;
-static gint ett_uftp_freespace;
-static gint ett_uftp_abort_flags;
+static int ett_uftp_announce_flags;
+static int ett_uftp_encinfo;
+static int ett_uftp_encinfo_flags;
+static int ett_uftp_keyinfo_destkey;
+static int ett_uftp_fileinfoack_flags;
+static int ett_uftp_congctrl_cclist;
+static int ett_uftp_congctrl_item;
+static int ett_uftp_congctrl_item_flags;
+static int ett_uftp_tfmccdata;
+static int ett_uftp_tfmccack;
+static int ett_uftp_tfmccack_flags;
+static int ett_uftp_freespace;
+static int ett_uftp_abort_flags;
 
-static gint ett_uftp_destlist;
-static gint ett_uftp_rsablob;
-static gint ett_uftp_ecblob;
+static int ett_uftp_destlist;
+static int ett_uftp_rsablob;
+static int ett_uftp_ecblob;
 
 static expert_field ei_uftp_length_invalid;
 static expert_field ei_uftp_func_unknown;
@@ -731,16 +731,16 @@ static const value_string comp_status[] = {
 #define RTT_MIN 1.0e-6
 #define RTT_MAX 1000.0
 
-static double unquantize_grtt(guint8 rtt)
+static double unquantize_grtt(uint8_t rtt)
 {
     return ((rtt <= 31) ?
             (((double)(rtt + 1)) * (double)RTT_MIN) :
             (RTT_MAX / exp(((double)(255 - rtt)) / (double)13.0)));
 }
 
-static guint unquantize_gsize(guint8 size)
+static unsigned unquantize_gsize(uint8_t size)
 {
-    gint E, i;
+    int E, i;
     double rval;
 
     E = size & 0x7;
@@ -749,12 +749,12 @@ static guint unquantize_gsize(guint8 size)
         rval *= 10;
     }
 
-    return (guint)(rval + 0.5);
+    return (unsigned)(rval + 0.5);
 }
 
-static guint unquantize_rate(guint16 rate)
+static unsigned unquantize_rate(uint16_t rate)
 {
-    gint E, i;
+    int E, i;
     double rval;
 
     E = rate & 0xF;
@@ -763,14 +763,14 @@ static guint unquantize_rate(guint16 rate)
         rval *= 10;
     }
 
-    return (guint)rval;
+    return (unsigned)rval;
 }
 
 static int dissect_uftp_rsablob(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int tree_hf)
 {
     proto_item *ti = NULL;
     proto_tree *rsablob_tree = NULL;
-    gint offset = 0, modlen;
+    int offset = 0, modlen;
 
     if (tvb_reported_length(tvb) < RSA_BLOB_LEN) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
@@ -778,8 +778,8 @@ static int dissect_uftp_rsablob(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         return 0;
     }
 
-    modlen = (gint)tvb_get_ntohs(tvb, 2);
-    if ((gint)tvb_reported_length(tvb) < modlen + RSA_BLOB_LEN) {
+    modlen = (int)tvb_get_ntohs(tvb, 2);
+    if ((int)tvb_reported_length(tvb) < modlen + RSA_BLOB_LEN) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
                             "Invalid length, len = %d", tvb_reported_length(tvb));
         return 0;
@@ -804,7 +804,7 @@ static int dissect_uftp_ecblob(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 {
     proto_item *ti = NULL;
     proto_tree *ecblob_tree = NULL;
-    gint offset = 0, keylen;
+    int offset = 0, keylen;
 
     if (tvb_reported_length(tvb) < EC_BLOB_LEN) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
@@ -812,8 +812,8 @@ static int dissect_uftp_ecblob(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
         return 0;
     }
 
-    keylen = (gint)tvb_get_ntohs(tvb, 2);
-    if ((gint)tvb_reported_length(tvb) < keylen + EC_BLOB_LEN) {
+    keylen = (int)tvb_get_ntohs(tvb, 2);
+    if ((int)tvb_reported_length(tvb) < keylen + EC_BLOB_LEN) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
                             "Invalid length, len = %d", tvb_reported_length(tvb));
         return 0;
@@ -832,12 +832,12 @@ static int dissect_uftp_ecblob(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     return EC_BLOB_LEN + keylen;
 }
 
-static gint dissect_uftp_encinfo(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int dissect_uftp_encinfo(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
     proto_item *ti = NULL;
     proto_tree *encinfo_tree = NULL;
-    gint offset = 0, hlen, keylen, dhlen, siglen;
-    gint8 blobtype;
+    int offset = 0, hlen, keylen, dhlen, siglen;
+    int8_t blobtype;
     tvbuff_t *next_tvb;
 
     if (tvb_reported_length(tvb) < ENC_INFO_LEN) {
@@ -846,11 +846,11 @@ static gint dissect_uftp_encinfo(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
         return 0;
     }
 
-    hlen = (gint)tvb_get_guint8(tvb, 1) * 4;
-    keylen = (gint)tvb_get_ntohs(tvb, 6);
-    dhlen = (gint)tvb_get_ntohs(tvb, 8);
-    siglen = (gint)tvb_get_ntohs(tvb, 10);
-    if (((gint)tvb_reported_length(tvb) < hlen) ||
+    hlen = (int)tvb_get_uint8(tvb, 1) * 4;
+    keylen = (int)tvb_get_ntohs(tvb, 6);
+    dhlen = (int)tvb_get_ntohs(tvb, 8);
+    siglen = (int)tvb_get_ntohs(tvb, 10);
+    if (((int)tvb_reported_length(tvb) < hlen) ||
             (hlen < ENC_INFO_LEN + keylen + dhlen + siglen)) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
                             "Invalid length, len = %d, hlen = %d, "
@@ -883,10 +883,10 @@ static gint dissect_uftp_encinfo(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     proto_tree_add_item(encinfo_tree, hf_uftp_encinfo_rand1, tvb, offset, RAND_LEN, ENC_NA);
     offset += RAND_LEN;
     if (keylen > 0) {
-        gint parsed = 0;
+        int parsed = 0;
 
         next_tvb = tvb_new_subset_length(tvb, offset, keylen);
-        blobtype = tvb_get_guint8(tvb, offset);
+        blobtype = tvb_get_uint8(tvb, offset);
         switch (blobtype) {
         case KEYBLOB_RSA:
             parsed = dissect_uftp_rsablob(next_tvb, pinfo, encinfo_tree, hf_uftp_encinfo_keyblob);
@@ -898,10 +898,10 @@ static gint dissect_uftp_encinfo(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
         offset += parsed;
     }
     if (dhlen > 0) {
-        gint parsed = 0;
+        int parsed = 0;
 
         next_tvb = tvb_new_subset_length(tvb, offset, dhlen);
-        blobtype = tvb_get_guint8(tvb, offset);
+        blobtype = tvb_get_uint8(tvb, offset);
         switch (blobtype) {
         case KEYBLOB_RSA:
             parsed = dissect_uftp_rsablob(next_tvb, pinfo, encinfo_tree, hf_uftp_encinfo_dhblob);
@@ -925,9 +925,9 @@ static void dissect_uftp_announce(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     proto_item *destlist = NULL;
     proto_tree *announce_tree = NULL;
     proto_tree *destlist_tree = NULL;
-    gint offset = 0;
-    gint hlen, iplen, destcount, idx, extlen_total;
-    guint8 flags, ext_type;
+    int offset = 0;
+    int hlen, iplen, destcount, idx, extlen_total;
+    uint8_t flags, ext_type;
     tvbuff_t *next_tvb;
 
     if (tvb_reported_length(tvb) < ANNOUNCE_LEN) {
@@ -936,15 +936,15 @@ static void dissect_uftp_announce(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
         return;
     }
 
-    hlen = (gint)tvb_get_guint8(tvb, 1) * 4;
-    if ((gint)tvb_reported_length(tvb) < hlen) {
+    hlen = (int)tvb_get_uint8(tvb, 1) * 4;
+    if ((int)tvb_reported_length(tvb) < hlen) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
                             "Invalid length, len = %d, hlen = %d",
                             tvb_reported_length(tvb), hlen);
         return;
     }
 
-    flags = tvb_get_guint8(tvb, 2);
+    flags = tvb_get_uint8(tvb, 2);
 
     ti = proto_tree_add_item(tree, hf_uftp_announce, tvb, offset, -1, ENC_NA);
     announce_tree = proto_item_add_subtree(ti, ett_uftp_announce);
@@ -980,10 +980,10 @@ static void dissect_uftp_announce(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 
     extlen_total = hlen - (ANNOUNCE_LEN + ( 2 * iplen));
     while (extlen_total > 0) {
-        gint parsed = 0;
+        int parsed = 0;
 
         next_tvb = tvb_new_subset_length(tvb, offset, extlen_total);
-        ext_type = tvb_get_guint8(tvb, offset);
+        ext_type = tvb_get_uint8(tvb, offset);
         switch (ext_type) {
         case EXT_ENC_INFO:
             parsed = dissect_uftp_encinfo(next_tvb, pinfo, announce_tree);
@@ -1012,8 +1012,8 @@ static void dissect_uftp_register(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     proto_item *destlist = NULL;
     proto_tree *register_tree = NULL;
     proto_tree *destlist_tree = NULL;
-    gint offset = 0, hlen;
-    guint16 destcount, keylen, idx;
+    int offset = 0, hlen;
+    uint16_t destcount, keylen, idx;
 
     if (tvb_reported_length(tvb) < REGISTER_LEN) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
@@ -1021,9 +1021,9 @@ static void dissect_uftp_register(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
         return;
     }
 
-    hlen = (gint)tvb_get_guint8(tvb, 1) * 4;
+    hlen = (int)tvb_get_uint8(tvb, 1) * 4;
     keylen = tvb_get_ntohs(tvb, 2);
-    if (((gint)tvb_reported_length(tvb) < hlen) || (hlen < REGISTER_LEN + keylen)) {
+    if (((int)tvb_reported_length(tvb) < hlen) || (hlen < REGISTER_LEN + keylen)) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
                             "Invalid length, len = %d, hlen = %d, keylen = %d",
                             tvb_reported_length(tvb), hlen, keylen);
@@ -1062,9 +1062,9 @@ static void dissect_uftp_clientkey(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 {
     proto_item *ti = NULL;
     proto_tree *clientkey_tree = NULL;
-    gint offset = 0, hlen;
-    guint16 keylen, verifylen;
-    gint8 blobtype;
+    int offset = 0, hlen;
+    uint16_t keylen, verifylen;
+    int8_t blobtype;
     tvbuff_t *next_tvb;
 
     if (tvb_reported_length(tvb) < CLIENT_KEY_LEN) {
@@ -1073,10 +1073,10 @@ static void dissect_uftp_clientkey(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
         return;
     }
 
-    hlen = (gint)tvb_get_guint8(tvb, 1) * 4;
+    hlen = (int)tvb_get_uint8(tvb, 1) * 4;
     keylen = tvb_get_ntohs(tvb, 4);
     verifylen = tvb_get_ntohs(tvb, 6);
-    if (((gint)tvb_reported_length(tvb) < hlen) || (hlen < CLIENT_KEY_LEN + keylen + verifylen)) {
+    if (((int)tvb_reported_length(tvb) < hlen) || (hlen < CLIENT_KEY_LEN + keylen + verifylen)) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
                             "Invalid length, len = %d, hlen = %d, keylen = %d verifylen = %d",
                             tvb_reported_length(tvb), hlen, keylen, verifylen);
@@ -1096,10 +1096,10 @@ static void dissect_uftp_clientkey(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     proto_tree_add_item(clientkey_tree, hf_uftp_clientkey_siglen, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
     if (keylen > 0) {
-        gint parsed = 0;
+        int parsed = 0;
 
         next_tvb = tvb_new_subset_length(tvb, offset, keylen);
-        blobtype = tvb_get_guint8(tvb, offset);
+        blobtype = tvb_get_uint8(tvb, offset);
         switch (blobtype) {
         case KEYBLOB_RSA:
             parsed = dissect_uftp_rsablob(next_tvb, pinfo, clientkey_tree, hf_uftp_clientkey_keyblob);
@@ -1121,8 +1121,8 @@ static void dissect_uftp_regconf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     proto_item *destlist = NULL;
     proto_tree *regconf_tree = NULL;
     proto_tree *destlist_tree = NULL;
-    gint offset = 0, hlen;
-    guint16 destcount, idx;
+    int offset = 0, hlen;
+    uint16_t destcount, idx;
 
     if (tvb_reported_length(tvb) < REG_CONF_LEN) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
@@ -1130,8 +1130,8 @@ static void dissect_uftp_regconf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
         return;
     }
 
-    hlen = (gint)tvb_get_guint8(tvb, 1) * 4;
-    if (((gint)tvb_reported_length(tvb) < hlen) || (hlen < REG_CONF_LEN)) {
+    hlen = (int)tvb_get_uint8(tvb, 1) * 4;
+    if (((int)tvb_reported_length(tvb) < hlen) || (hlen < REG_CONF_LEN)) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
                             "Invalid length, len = %d, hlen = %d",
                             tvb_reported_length(tvb), hlen);
@@ -1166,8 +1166,8 @@ static void dissect_uftp_keyinfo(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     proto_tree *keyinfo_tree = NULL;
     proto_tree *destlist_tree = NULL;
     proto_tree *destkey_tree = NULL;
-    gint offset = 0, hlen;
-    guint8 destcount, idx;
+    int offset = 0, hlen;
+    uint8_t destcount, idx;
 
     if (tvb_reported_length(tvb) < KEYINFO_LEN) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
@@ -1175,8 +1175,8 @@ static void dissect_uftp_keyinfo(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
         return;
     }
 
-    hlen = (gint)tvb_get_guint8(tvb, 1) * 4;
-    if (((gint)tvb_reported_length(tvb) < hlen) || (hlen < KEYINFO_LEN)) {
+    hlen = (int)tvb_get_uint8(tvb, 1) * 4;
+    if (((int)tvb_reported_length(tvb) < hlen) || (hlen < KEYINFO_LEN)) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
                             "Invalid length, len = %d, hlen = %d",
                             tvb_reported_length(tvb), hlen);
@@ -1213,7 +1213,7 @@ static void dissect_uftp_keyinfoack(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 {
     proto_item *ti = NULL;
     proto_tree *keyinfoack_tree = NULL;
-    gint offset = 0, hlen;
+    int offset = 0, hlen;
 
     if (tvb_reported_length(tvb) < KEYINFO_ACK_LEN) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
@@ -1221,8 +1221,8 @@ static void dissect_uftp_keyinfoack(tvbuff_t *tvb, packet_info *pinfo _U_, proto
         return;
     }
 
-    hlen = (gint)tvb_get_guint8(tvb, 1) * 4;
-    if (((gint)tvb_reported_length(tvb) < hlen) || (hlen < KEYINFO_ACK_LEN)) {
+    hlen = (int)tvb_get_uint8(tvb, 1) * 4;
+    if (((int)tvb_reported_length(tvb) < hlen) || (hlen < KEYINFO_ACK_LEN)) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
                             "Invalid length, len = %d, hlen = %d",
                             tvb_reported_length(tvb), hlen);
@@ -1246,8 +1246,8 @@ static void dissect_uftp_fileinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     proto_item *destlist = NULL;
     proto_tree *fileinfo_tree = NULL;
     proto_tree *destlist_tree = NULL;
-    gint offset = 0, hlen;
-    guint16 file_id, destcount, idx, namelen, linklen;
+    int offset = 0, hlen;
+    uint16_t file_id, destcount, idx, namelen, linklen;
 
     if (tvb_reported_length(tvb) < FILEINFO_LEN) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
@@ -1255,10 +1255,10 @@ static void dissect_uftp_fileinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         return;
     }
 
-    hlen = (gint)tvb_get_guint8(tvb, 1) * 4;
-    namelen = tvb_get_guint8(tvb, 8) * 4;
-    linklen = tvb_get_guint8(tvb, 9) * 4;
-    if (((gint)tvb_reported_length(tvb) < hlen) || (hlen < FILEINFO_LEN + namelen + linklen)) {
+    hlen = (int)tvb_get_uint8(tvb, 1) * 4;
+    namelen = tvb_get_uint8(tvb, 8) * 4;
+    linklen = tvb_get_uint8(tvb, 9) * 4;
+    if (((int)tvb_reported_length(tvb) < hlen) || (hlen < FILEINFO_LEN + namelen + linklen)) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
                             "Invalid length, len = %d, hlen = %d, namelen = %d, linklen = %d",
                             tvb_reported_length(tvb), hlen, namelen, linklen);
@@ -1314,8 +1314,8 @@ static void dissect_uftp_fileinfoack(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     proto_item *destlist = NULL;
     proto_tree *fileinfoack_tree = NULL;
     proto_tree *destlist_tree = NULL;
-    gint offset = 0, hlen;
-    guint16 file_id, destcount, idx;
+    int offset = 0, hlen;
+    uint16_t file_id, destcount, idx;
 
     if (tvb_reported_length(tvb) < FILEINFO_ACK_LEN) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
@@ -1323,8 +1323,8 @@ static void dissect_uftp_fileinfoack(tvbuff_t *tvb, packet_info *pinfo, proto_tr
         return;
     }
 
-    hlen = (gint)tvb_get_guint8(tvb, 1) * 4;
-    if (((gint)tvb_reported_length(tvb) < hlen) || (hlen < FILEINFO_ACK_LEN)) {
+    hlen = (int)tvb_get_uint8(tvb, 1) * 4;
+    if (((int)tvb_reported_length(tvb) < hlen) || (hlen < FILEINFO_ACK_LEN)) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
                             "Invalid length, len = %d, hlen = %d",
                             tvb_reported_length(tvb), hlen);
@@ -1362,12 +1362,12 @@ static void dissect_uftp_fileinfoack(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     }
 }
 
-static gint dissect_uftp_tfmccdata(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int dissect_uftp_tfmccdata(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
     proto_item *ti = NULL;
     proto_tree *tfmccdata_tree = NULL;
-    gint offset = 0, hlen;
-    guint rate, srate;
+    int offset = 0, hlen;
+    unsigned rate, srate;
 
     if (tvb_reported_length(tvb) < TFMCC_DATA_LEN) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
@@ -1375,8 +1375,8 @@ static gint dissect_uftp_tfmccdata(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
         return 0;
     }
 
-    hlen = (gint)tvb_get_guint8(tvb, 1) * 4;
-    if (((gint)tvb_reported_length(tvb) < hlen) || (hlen < TFMCC_DATA_LEN)) {
+    hlen = (int)tvb_get_uint8(tvb, 1) * 4;
+    if (((int)tvb_reported_length(tvb) < hlen) || (hlen < TFMCC_DATA_LEN)) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
                             "Invalid length, len = %d, hlen = %d",
                             tvb_reported_length(tvb), hlen);
@@ -1405,9 +1405,9 @@ static void dissect_uftp_fileseg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 {
     proto_item *ti = NULL;
     proto_tree *fileseg_tree = NULL;
-    gint offset = 0, hlen, extlen_total;
-    guint16 file_id, section, sec_block;
-    guint8 ext_type;
+    int offset = 0, hlen, extlen_total;
+    uint16_t file_id, section, sec_block;
+    uint8_t ext_type;
     tvbuff_t *next_tvb;
 
     if (tvb_reported_length(tvb) < FILESEG_LEN) {
@@ -1416,8 +1416,8 @@ static void dissect_uftp_fileseg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         return;
     }
 
-    hlen = (gint)tvb_get_guint8(tvb, 1) * 4;
-    if (((gint)tvb_reported_length(tvb) < hlen) || (hlen < FILESEG_LEN)) {
+    hlen = (int)tvb_get_uint8(tvb, 1) * 4;
+    if (((int)tvb_reported_length(tvb) < hlen) || (hlen < FILESEG_LEN)) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
                             "Invalid length, len = %d, hlen = %d",
                             tvb_reported_length(tvb), hlen);
@@ -1445,10 +1445,10 @@ static void dissect_uftp_fileseg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
     extlen_total = hlen - FILESEG_LEN;
     while (extlen_total > 0) {
-        gint parsed = 0;
+        int parsed = 0;
 
         next_tvb = tvb_new_subset_length(tvb, offset, extlen_total);
-        ext_type = tvb_get_guint8(tvb, offset);
+        ext_type = tvb_get_uint8(tvb, offset);
         switch (ext_type) {
         case EXT_TFMCC_DATA_INFO:
             parsed = dissect_uftp_tfmccdata(next_tvb, pinfo, fileseg_tree);
@@ -1469,8 +1469,8 @@ static void dissect_uftp_done(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     proto_item *destlist = NULL;
     proto_tree *done_tree = NULL;
     proto_tree *destlist_tree = NULL;
-    gint offset = 0, hlen;
-    guint16 file_id, section, destcount, idx;
+    int offset = 0, hlen;
+    uint16_t file_id, section, destcount, idx;
 
     if (tvb_reported_length(tvb) < DONE_LEN) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
@@ -1478,8 +1478,8 @@ static void dissect_uftp_done(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         return;
     }
 
-    hlen = (gint)tvb_get_guint8(tvb, 1) * 4;
-    if (((gint)tvb_reported_length(tvb) < hlen) || (hlen < DONE_LEN)) {
+    hlen = (int)tvb_get_uint8(tvb, 1) * 4;
+    if (((int)tvb_reported_length(tvb) < hlen) || (hlen < DONE_LEN)) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
                             "Invalid length, len = %d, hlen = %d",
                             tvb_reported_length(tvb), hlen);
@@ -1517,12 +1517,12 @@ static void dissect_uftp_done(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     }
 }
 
-static gint dissect_uftp_tfmccack(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int dissect_uftp_tfmccack(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
     proto_item *ti = NULL;
     proto_tree *tfmccack_tree = NULL;
-    gint offset = 0, hlen;
-    guint rate;
+    int offset = 0, hlen;
+    unsigned rate;
 
     if (tvb_reported_length(tvb) < TFMCC_ACK_LEN) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
@@ -1530,8 +1530,8 @@ static gint dissect_uftp_tfmccack(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
         return 0;
     }
 
-    hlen = (gint)tvb_get_guint8(tvb, 1) * 4;
-    if (((gint)tvb_reported_length(tvb) < hlen) || (hlen < TFMCC_ACK_LEN)) {
+    hlen = (int)tvb_get_uint8(tvb, 1) * 4;
+    if (((int)tvb_reported_length(tvb) < hlen) || (hlen < TFMCC_ACK_LEN)) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
                             "Invalid length, len = %d, hlen = %d",
                             tvb_reported_length(tvb), hlen);
@@ -1565,9 +1565,9 @@ static void dissect_uftp_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 {
     proto_item *ti = NULL;
     proto_tree *status_tree = NULL;
-    gint offset = 0, hlen, extlen_total;
-    guint16 file_id, section;
-    guint8 ext_type;
+    int offset = 0, hlen, extlen_total;
+    uint16_t file_id, section;
+    uint8_t ext_type;
     tvbuff_t *next_tvb;
 
     if (tvb_reported_length(tvb) < STATUS_LEN) {
@@ -1576,8 +1576,8 @@ static void dissect_uftp_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         return;
     }
 
-    hlen = (gint)tvb_get_guint8(tvb, 1) * 4;
-    if (((gint)tvb_reported_length(tvb) < hlen) || (hlen < STATUS_LEN)) {
+    hlen = (int)tvb_get_uint8(tvb, 1) * 4;
+    if (((int)tvb_reported_length(tvb) < hlen) || (hlen < STATUS_LEN)) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
                             "Invalid length, len = %d, hlen = %d",
                             tvb_reported_length(tvb), hlen);
@@ -1604,10 +1604,10 @@ static void dissect_uftp_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
     extlen_total = hlen - STATUS_LEN;
     while (extlen_total > 0) {
-        gint parsed = 0;
+        int parsed = 0;
 
         next_tvb = tvb_new_subset_length(tvb, offset, extlen_total);
-        ext_type = tvb_get_guint8(tvb, offset);
+        ext_type = tvb_get_uint8(tvb, offset);
         switch (ext_type) {
         case EXT_TFMCC_ACK_INFO:
             parsed = dissect_uftp_tfmccack(next_tvb, pinfo, status_tree);
@@ -1622,11 +1622,11 @@ static void dissect_uftp_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     proto_tree_add_item(status_tree, hf_uftp_status_naks, tvb, offset, -1, ENC_NA);
 }
 
-static gint dissect_uftp_freespace(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int dissect_uftp_freespace(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
     proto_item *ti = NULL;
     proto_tree *freespace_tree = NULL;
-    gint offset = 0, hlen;
+    int offset = 0, hlen;
 
     if (tvb_reported_length(tvb) < FREESPACE_LEN) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
@@ -1634,8 +1634,8 @@ static gint dissect_uftp_freespace(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
         return 0;
     }
 
-    hlen = (gint)tvb_get_guint8(tvb, 1) * 4;
-    if (((gint)tvb_reported_length(tvb) < hlen) || (hlen < FREESPACE_LEN)) {
+    hlen = (int)tvb_get_uint8(tvb, 1) * 4;
+    if (((int)tvb_reported_length(tvb) < hlen) || (hlen < FREESPACE_LEN)) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
                             "Invalid length, len = %d, hlen = %d",
                             tvb_reported_length(tvb), hlen);
@@ -1661,9 +1661,9 @@ static void dissect_uftp_complete(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     proto_item *destlist = NULL;
     proto_tree *complete_tree = NULL;
     proto_tree *destlist_tree = NULL;
-    gint offset = 0, hlen, extlen_total;
-    guint16 file_id, destcount, idx;
-    guint8 ext_type;
+    int offset = 0, hlen, extlen_total;
+    uint16_t file_id, destcount, idx;
+    uint8_t ext_type;
     tvbuff_t *next_tvb;
 
     if (tvb_reported_length(tvb) < COMPLETE_LEN) {
@@ -1672,8 +1672,8 @@ static void dissect_uftp_complete(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         return;
     }
 
-    hlen = (gint)tvb_get_guint8(tvb, 1) * 4;
-    if (((gint)tvb_reported_length(tvb) < hlen) || (hlen < COMPLETE_LEN)) {
+    hlen = (int)tvb_get_uint8(tvb, 1) * 4;
+    if (((int)tvb_reported_length(tvb) < hlen) || (hlen < COMPLETE_LEN)) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
                             "Invalid length, len = %d, hlen = %d",
                             tvb_reported_length(tvb), hlen);
@@ -1700,10 +1700,10 @@ static void dissect_uftp_complete(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
     extlen_total = hlen - COMPLETE_LEN;
     while (extlen_total > 0) {
-        gint parsed = 0;
+        int parsed = 0;
 
         next_tvb = tvb_new_subset_length(tvb, offset, extlen_total);
-        ext_type = tvb_get_guint8(tvb, offset);
+        ext_type = tvb_get_uint8(tvb, offset);
         switch (ext_type) {
         case EXT_FREESPACE_INFO:
             parsed = dissect_uftp_freespace(next_tvb, pinfo, complete_tree);
@@ -1732,8 +1732,8 @@ static void dissect_uftp_doneconf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     proto_item *destlist = NULL;
     proto_tree *doneconf_tree = NULL;
     proto_tree *destlist_tree = NULL;
-    gint offset = 0, hlen;
-    guint16 destcount, idx;
+    int offset = 0, hlen;
+    uint16_t destcount, idx;
 
     if (tvb_reported_length(tvb) < DONE_CONF_LEN) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
@@ -1741,8 +1741,8 @@ static void dissect_uftp_doneconf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
         return;
     }
 
-    hlen = (gint)tvb_get_guint8(tvb, 1) * 4;
-    if (((gint)tvb_reported_length(tvb) < hlen) || (hlen < DONE_CONF_LEN)) {
+    hlen = (int)tvb_get_uint8(tvb, 1) * 4;
+    if (((int)tvb_reported_length(tvb) < hlen) || (hlen < DONE_CONF_LEN)) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
                             "Invalid length, len = %d, hlen = %d",
                             tvb_reported_length(tvb), hlen);
@@ -1773,9 +1773,9 @@ static void dissect_uftp_hbreq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 {
     proto_item *ti = NULL;
     proto_tree *hbreq_tree = NULL;
-    gint offset = 0, hlen;
-    guint16 keylen, siglen;
-    gint8 blobtype;
+    int offset = 0, hlen;
+    uint16_t keylen, siglen;
+    int8_t blobtype;
     tvbuff_t *next_tvb;
 
     if (tvb_reported_length(tvb) < HB_REQ_LEN) {
@@ -1784,10 +1784,10 @@ static void dissect_uftp_hbreq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
         return;
     }
 
-    hlen = (gint)tvb_get_guint8(tvb, 1) * 4;
+    hlen = (int)tvb_get_uint8(tvb, 1) * 4;
     keylen = tvb_get_ntohs(tvb, 4);
     siglen = tvb_get_ntohs(tvb, 6);
-    if (((gint)tvb_reported_length(tvb) < hlen) || (hlen < HB_REQ_LEN + keylen + siglen)) {
+    if (((int)tvb_reported_length(tvb) < hlen) || (hlen < HB_REQ_LEN + keylen + siglen)) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
                             "Invalid length, len = %d, hlen = %d, keylen=%d siglen=%d",
                             tvb_reported_length(tvb), hlen, keylen, siglen);
@@ -1809,10 +1809,10 @@ static void dissect_uftp_hbreq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     proto_tree_add_item(hbreq_tree, hf_uftp_hbreq_nonce, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     if (keylen > 0) {
-        gint parsed = 0;
+        int parsed = 0;
 
         next_tvb = tvb_new_subset_length(tvb, offset, keylen);
-        blobtype = tvb_get_guint8(tvb, offset);
+        blobtype = tvb_get_uint8(tvb, offset);
         switch (blobtype) {
         case KEYBLOB_RSA:
             parsed = dissect_uftp_rsablob(next_tvb, pinfo, hbreq_tree, hf_uftp_hbreq_keyblob);
@@ -1832,7 +1832,7 @@ static void dissect_uftp_hbresp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 {
     proto_item *ti = NULL;
     proto_tree *hbresp_tree = NULL;
-    gint offset = 0, hlen;
+    int offset = 0, hlen;
 
     if (tvb_reported_length(tvb) < HB_RESP_LEN) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
@@ -1840,8 +1840,8 @@ static void dissect_uftp_hbresp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         return;
     }
 
-    hlen = (gint)tvb_get_guint8(tvb, 1) * 4;
-    if (((gint)tvb_reported_length(tvb) < hlen) || (hlen < HB_RESP_LEN)) {
+    hlen = (int)tvb_get_uint8(tvb, 1) * 4;
+    if (((int)tvb_reported_length(tvb) < hlen) || (hlen < HB_RESP_LEN)) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
                             "Invalid length, len = %d, hlen = %d",
                             tvb_reported_length(tvb), hlen);
@@ -1865,7 +1865,7 @@ static void dissect_uftp_keyreq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 {
     proto_item *ti = NULL;
     proto_tree *keyreq_tree = NULL;
-    gint offset = 0, hlen;
+    int offset = 0, hlen;
 
     if (tvb_reported_length(tvb) < KEY_REQ_LEN) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
@@ -1873,8 +1873,8 @@ static void dissect_uftp_keyreq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         return;
     }
 
-    hlen = (gint)tvb_get_guint8(tvb, 1) * 4;
-    if (((gint)tvb_reported_length(tvb) < hlen) || (hlen < KEY_REQ_LEN)) {
+    hlen = (int)tvb_get_uint8(tvb, 1) * 4;
+    if (((int)tvb_reported_length(tvb) < hlen) || (hlen < KEY_REQ_LEN)) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
                             "Invalid length, len = %d, hlen = %d",
                             tvb_reported_length(tvb), hlen);
@@ -1894,9 +1894,9 @@ static void dissect_uftp_proxykey(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 {
     proto_item *ti = NULL;
     proto_tree *proxykey_tree = NULL;
-    gint offset = 0, hlen;
-    guint16 keylen, dhlen, siglen;
-    gint8 blobtype;
+    int offset = 0, hlen;
+    uint16_t keylen, dhlen, siglen;
+    int8_t blobtype;
     tvbuff_t *next_tvb;
 
     if (tvb_reported_length(tvb) < PROXY_KEY_LEN) {
@@ -1905,11 +1905,11 @@ static void dissect_uftp_proxykey(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
         return;
     }
 
-    hlen = (gint)tvb_get_guint8(tvb, 1) * 4;
+    hlen = (int)tvb_get_uint8(tvb, 1) * 4;
     keylen = tvb_get_ntohs(tvb, 2);
     dhlen = tvb_get_ntohs(tvb, 4);
     siglen = tvb_get_ntohs(tvb, 6);
-    if (((gint)tvb_reported_length(tvb) < hlen) ||
+    if (((int)tvb_reported_length(tvb) < hlen) ||
             (hlen < PROXY_KEY_LEN + keylen + dhlen + siglen)) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
                 "Invalid length, len = %d, hlen = %d, keylen=%d, dhlen=%d, siglen=%d",
@@ -1932,10 +1932,10 @@ static void dissect_uftp_proxykey(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     proto_tree_add_item(proxykey_tree, hf_uftp_proxykey_nonce, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     if (keylen > 0) {
-        gint parsed = 0;
+        int parsed = 0;
 
         next_tvb = tvb_new_subset_length(tvb, offset, keylen);
-        blobtype = tvb_get_guint8(tvb, offset);
+        blobtype = tvb_get_uint8(tvb, offset);
         switch (blobtype) {
         case KEYBLOB_RSA:
             parsed = dissect_uftp_rsablob(next_tvb, pinfo, proxykey_tree, hf_uftp_proxykey_keyblob);
@@ -1947,10 +1947,10 @@ static void dissect_uftp_proxykey(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
         offset += parsed;
     }
     if (dhlen > 0) {
-        gint parsed = 0;
+        int parsed = 0;
 
         next_tvb = tvb_new_subset_length(tvb, offset, dhlen);
-        blobtype = tvb_get_guint8(tvb, offset);
+        blobtype = tvb_get_uint8(tvb, offset);
         switch (blobtype) {
         case KEYBLOB_RSA:
             parsed = dissect_uftp_rsablob(next_tvb, pinfo, proxykey_tree, hf_uftp_proxykey_dhblob);
@@ -1974,9 +1974,9 @@ static void dissect_uftp_congctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     proto_tree *congctrl_tree = NULL;
     proto_tree *cclist_tree = NULL;
     proto_tree *ccitem_tree = NULL;
-    gint offset = 0, hlen;
-    guint rate;
-    guint8 itemcount, idx;
+    int offset = 0, hlen;
+    unsigned rate;
+    uint8_t itemcount, idx;
 
     if (tvb_reported_length(tvb) < CONG_CTRL_LEN) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
@@ -1984,8 +1984,8 @@ static void dissect_uftp_congctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
         return;
     }
 
-    hlen = (gint)tvb_get_guint8(tvb, 1) * 4;
-    if (((gint)tvb_reported_length(tvb) < hlen) || (hlen < CONG_CTRL_LEN)) {
+    hlen = (int)tvb_get_uint8(tvb, 1) * 4;
+    if (((int)tvb_reported_length(tvb) < hlen) || (hlen < CONG_CTRL_LEN)) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
                             "Invalid length, len = %d, hlen = %d",
                             tvb_reported_length(tvb), hlen);
@@ -2015,9 +2015,9 @@ static void dissect_uftp_congctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
         cclist_tree = proto_item_add_subtree(cclist, ett_uftp_congctrl_cclist);
     }
     for (idx = 0; idx < itemcount; idx++) {
-        guint itemrate;
+        unsigned itemrate;
         double itemrtt;
-        itemrtt = unquantize_grtt(tvb_get_guint8(tvb, offset + 5));
+        itemrtt = unquantize_grtt(tvb_get_uint8(tvb, offset + 5));
         itemrate = unquantize_rate(tvb_get_ntohs(tvb, offset + 6));
 
         ccitem = proto_tree_add_item(cclist_tree, hf_uftp_congctrl_item, tvb, offset, CC_ITEM_LEN, ENC_NA);
@@ -2037,8 +2037,8 @@ static void dissect_uftp_ccack(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 {
     proto_item *ti = NULL;
     proto_tree *ccack_tree = NULL;
-    gint offset = 0, hlen, extlen_total;
-    guint8 ext_type;
+    int offset = 0, hlen, extlen_total;
+    uint8_t ext_type;
     tvbuff_t *next_tvb;
 
     if (tvb_reported_length(tvb) < CC_ACK_LEN) {
@@ -2047,8 +2047,8 @@ static void dissect_uftp_ccack(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
         return;
     }
 
-    hlen = (gint)tvb_get_guint8(tvb, 1) * 4;
-    if (((gint)tvb_reported_length(tvb) < hlen) || (hlen < CC_ACK_LEN)) {
+    hlen = (int)tvb_get_uint8(tvb, 1) * 4;
+    if (((int)tvb_reported_length(tvb) < hlen) || (hlen < CC_ACK_LEN)) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
                             "Invalid length, len = %d, hlen = %d",
                             tvb_reported_length(tvb), hlen);
@@ -2066,10 +2066,10 @@ static void dissect_uftp_ccack(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
     extlen_total = hlen - CC_ACK_LEN;
     while (extlen_total > 0) {
-        gint parsed = 0;
+        int parsed = 0;
 
         next_tvb = tvb_new_subset_length(tvb, offset, extlen_total);
-        ext_type = tvb_get_guint8(tvb, offset);
+        ext_type = tvb_get_uint8(tvb, offset);
         switch (ext_type) {
         case EXT_TFMCC_ACK_INFO:
             parsed = dissect_uftp_tfmccack(next_tvb, pinfo, ccack_tree);
@@ -2085,8 +2085,8 @@ static void dissect_uftp_encrypted(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 {
     proto_item *ti = NULL;
     proto_tree *encrypted_tree = NULL;
-    gint offset = 0;
-    guint16 sig_len, payload_len;
+    int offset = 0;
+    uint16_t sig_len, payload_len;
 
     if (tvb_reported_length(tvb) < ENCRYPTED_LEN) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
@@ -2096,7 +2096,7 @@ static void dissect_uftp_encrypted(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 
     sig_len = tvb_get_ntohs(tvb, 8);
     payload_len = tvb_get_ntohs(tvb, 10);
-    if ((gint)tvb_reported_length(tvb) < ENCRYPTED_LEN + sig_len + payload_len) {
+    if ((int)tvb_reported_length(tvb) < ENCRYPTED_LEN + sig_len + payload_len) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
                             "Invalid length, len = %d, sig=%d, payload=%d",
                             tvb_reported_length(tvb), sig_len, payload_len);
@@ -2120,7 +2120,7 @@ static void dissect_uftp_abort(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 {
     proto_item *ti = NULL;
     proto_tree *abort_tree = NULL;
-    gint offset = 0, hlen;
+    int offset = 0, hlen;
 
     if (tvb_reported_length(tvb) < ABORT_LEN) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
@@ -2128,8 +2128,8 @@ static void dissect_uftp_abort(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
         return;
     }
 
-    hlen = (gint)tvb_get_guint8(tvb, 1) * 4;
-    if (((gint)tvb_reported_length(tvb) < hlen) || (hlen < ABORT_LEN)) {
+    hlen = (int)tvb_get_uint8(tvb, 1) * 4;
+    if (((int)tvb_reported_length(tvb) < hlen) || (hlen < ABORT_LEN)) {
         proto_tree_add_expert_format(tree, pinfo, &ei_uftp_length_invalid, tvb, offset, -1,
                             "Invalid length, len = %d, hlen = %d",
                             tvb_reported_length(tvb), hlen);
@@ -2153,22 +2153,22 @@ static void dissect_uftp_abort(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
 static int dissect_uftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    guint8 version;
-    guint8 mes_type;
-    guint32 group_id;
+    uint8_t version;
+    uint8_t mes_type;
+    uint32_t group_id;
     tvbuff_t *next_tvb;
     proto_item *ti = NULL;
     proto_tree *uftp_tree = NULL;
-    gint offset = 0;
-    guint l_gsize;
+    int offset = 0;
+    unsigned l_gsize;
     double grtt;
 
     if (tvb_reported_length(tvb) < UFTP_LEN + 4) {
         return 0;
     }
 
-    version = tvb_get_guint8(tvb, 0);
-    mes_type = tvb_get_guint8(tvb, 1);
+    version = tvb_get_uint8(tvb, 0);
+    mes_type = tvb_get_uint8(tvb, 1);
     group_id = tvb_get_ntohl(tvb, 8);
 
     if (version != UFTP_VER_NUM) {
@@ -2184,8 +2184,8 @@ static int dissect_uftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         col_append_fstr(pinfo->cinfo, COL_INFO, " ID=%08X", group_id);
     }
 
-    grtt = unquantize_grtt(tvb_get_guint8(tvb, 13));
-    l_gsize = unquantize_gsize(tvb_get_guint8(tvb, 14));
+    grtt = unquantize_grtt(tvb_get_uint8(tvb, 13));
+    l_gsize = unquantize_gsize(tvb_get_uint8(tvb, 14));
 
     ti = proto_tree_add_item(tree, proto_uftp, tvb, 0, -1, ENC_NA);
     uftp_tree = proto_item_add_subtree(ti, ett_uftp);
@@ -3205,7 +3205,7 @@ void proto_register_uftp4(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_uftp,
         &ett_uftp_announce,
         &ett_uftp_encinfo,

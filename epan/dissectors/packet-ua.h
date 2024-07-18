@@ -15,4 +15,4 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-extern gboolean is_ua(tvbuff_t *tvb);
+extern bool is_ua(tvbuff_t *tvb);

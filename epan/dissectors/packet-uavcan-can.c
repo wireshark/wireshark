@@ -45,8 +45,8 @@
 
 struct uavcan_proto_data
 {
-    guint32 seq_id;
-    gboolean toggle_error;
+    uint32_t seq_id;
+    bool toggle_error;
 };
 
 void proto_register_uavcan(void);
@@ -79,15 +79,15 @@ static reassembly_table uavcan_reassembly_table;
 
 static int hf_uavcan_packet_crc;
 
-static gint ett_uavcan;
-static gint ett_uavcan_can;
-static gint ett_uavcan_message;
+static int ett_uavcan;
+static int ett_uavcan_can;
+static int ett_uavcan_message;
 
 static expert_field ei_uavcan_toggle_bit_error;
 static expert_field ei_uavcan_transfer_crc_error;
 
-static gint ett_uavcan_fragment;
-static gint ett_uavcan_fragments;
+static int ett_uavcan_fragment;
+static int ett_uavcan_fragments;
 static int hf_uavcan_fragments;
 static int hf_uavcan_fragment;
 static int hf_uavcan_fragment_overlap;
@@ -102,12 +102,12 @@ static int hf_uavcan_reassembled_length;
 /* fragment struct to store packet assembly data */
 typedef struct _fragment_info_t
 {
-    gint toggle;
-    gint fragment_id;
-    guint32 seq_id;
+    int toggle;
+    int fragment_id;
+    uint32_t seq_id;
 } fragment_info_t;
 
-guint32 uavcan_seq_id;
+uint32_t uavcan_seq_id;
 
 static const fragment_items uavcan_frag_items = {
     /* Fragment subtrees */
@@ -160,13 +160,13 @@ dissect_uavcan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_item *ti, *toggle, *transfer_crc;
     proto_tree *uavcan_tree, *can_id_tree, *can_data_tree, *dsdl_tree;
 
-    gint offset = 0;
+    int offset = 0;
     struct can_info can_info;
-    guint16 *src_addr, *dest_addr;
-    guint8 tail_byte;
+    uint16_t *src_addr, *dest_addr;
+    uint8_t tail_byte;
     fragment_info_t *fragment_info = NULL;
-    guint reported_length;
-    guint32 lookup_id = 0;
+    unsigned reported_length;
+    uint32_t lookup_id = 0;
 
     /* Semi-unique lookup id for reassembly lookup table note transfer-ID rolls-over every 32 times  */
 
@@ -175,7 +175,7 @@ dissect_uavcan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     DISSECTOR_ASSERT(data);
     can_info = *((struct can_info *) data);
 
-    tail_byte = tvb_get_guint8(tvb, reported_length - 1);
+    tail_byte = tvb_get_uint8(tvb, reported_length - 1);
 
     if ((can_info.id & CAN_ERR_FLAG) ||
         !(can_info.id & CAN_EFF_FLAG)) {
@@ -242,8 +242,8 @@ dissect_uavcan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         proto_item_set_generated(ti);
 
         /* Set source address */
-        src_addr = wmem_new(pinfo->pool, guint16);
-        *src_addr = (guint16) UAVCAN_SOURCE_ID(can_info.id);
+        src_addr = wmem_new(pinfo->pool, uint16_t);
+        *src_addr = (uint16_t) UAVCAN_SOURCE_ID(can_info.id);
 
         if (UAVCAN_IS_ANONYMOUS(can_info.id)) {
             *src_addr |= ANONYMOUS_FLAG;
@@ -252,7 +252,7 @@ dissect_uavcan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         set_address(&pinfo->src, uavcan_address_type, 2, (const void *) src_addr);
 
         /* Fill in "destination" address even if its "broadcast" */
-        dest_addr = wmem_new(pinfo->pool, guint16);
+        dest_addr = wmem_new(pinfo->pool, uint16_t);
         *dest_addr = BROADCAST_FLAG;
         set_address(&pinfo->dst, uavcan_address_type, 2, (const void *) dest_addr);
 
@@ -273,12 +273,12 @@ dissect_uavcan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         proto_item_set_generated(ti);
 
         /* Set source address */
-        src_addr = wmem_new(pinfo->pool, guint16);
-        *src_addr = (guint16) UAVCAN_SOURCE_ID(can_info.id);
+        src_addr = wmem_new(pinfo->pool, uint16_t);
+        *src_addr = (uint16_t) UAVCAN_SOURCE_ID(can_info.id);
         set_address(&pinfo->src, uavcan_address_type, 2, (const void *) src_addr);
 
-        dest_addr = wmem_new(pinfo->pool, guint16);
-        *dest_addr = (guint16) UAVCAN_DESTINATION_ID(can_info.id);
+        dest_addr = wmem_new(pinfo->pool, uint16_t);
+        *dest_addr = (uint16_t) UAVCAN_DESTINATION_ID(can_info.id);
         set_address(&pinfo->dst, uavcan_address_type, 2, (const void *) dest_addr);
         if (UAVCAN_IS_RESPONSE(can_info.id)) {
             col_add_fstr(pinfo->cinfo, COL_INFO, "Service response: %d (%s)", UAVCAN_SERVICE_ID(can_info.id),
@@ -309,23 +309,23 @@ dissect_uavcan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         tvb_set_reported_length(tvb, reported_length - 1); /* Don't pass Tail byte to DSDL */
 
         if (UAVCAN_IS_MESSAGE(can_info.id)) {
-            guint32 id;
+            uint32_t id;
             id = UAVCAN_SUBJECT_ID(can_info.id);
             proto_item_append_text(dsdl_tree, "Message");
             call_dissector_with_data(dsdl_message_handle, tvb, pinfo, dsdl_tree,
-                                     GUINT_TO_POINTER((guint) id));
+                                     GUINT_TO_POINTER((unsigned) id));
         } else if (UAVCAN_IS_SERVICE(can_info.id)) {
-            guint32 id;
+            uint32_t id;
             id = UAVCAN_SERVICE_ID(can_info.id);
 
             if (UAVCAN_IS_REQUEST(can_info.id)) {
                 proto_item_append_text(dsdl_tree, "Service request");
                 call_dissector_with_data(dsdl_request_handle, tvb, pinfo, dsdl_tree, GUINT_TO_POINTER(
-                                             (guint) id));
+                                             (unsigned) id));
             } else {
                 proto_item_append_text(dsdl_tree, "Service response");
                 call_dissector_with_data(dsdl_response_handle, tvb, pinfo, dsdl_tree, GUINT_TO_POINTER(
-                                             (guint) id));
+                                             (unsigned) id));
             }
         }
     }
@@ -358,19 +358,19 @@ dissect_uavcan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             } else { /* Update transfer */
                 fragment_info->fragment_id += 1;
                 uavcan_frame_data->toggle_error =
-                    ((tail_byte & TOGGLE) == fragment_info->toggle) ? TRUE : FALSE;
+                    ((tail_byte & TOGGLE) == fragment_info->toggle) ? true : false;
             }
 
             uavcan_frame_data->seq_id = fragment_info->seq_id;
 
             fragment_info->toggle = tail_byte & TOGGLE;
 
-            pinfo->fragmented = TRUE;
+            pinfo->fragmented = true;
             fragment_add_seq_check(&uavcan_reassembly_table,
                                    tvb, offset, pinfo, fragment_info->seq_id, NULL, /* ID for fragments belonging together */
                                    fragment_info->fragment_id, /* fragment sequence number */
                                    tvb_captured_length_remaining(tvb, offset) - 1, /* fragment length - minus tail byte */
-                                   ((tail_byte & END_OF_TRANSFER) == 0) ? TRUE : FALSE); /* More fragments? */
+                                   ((tail_byte & END_OF_TRANSFER) == 0) ? true : false); /* More fragments? */
         } else { /* Visited reassembled data */
             fragment_head *reassembled = NULL;
             tvbuff_t *reassembled_tvb;
@@ -410,10 +410,10 @@ dissect_uavcan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                                                        tvb_reported_length(reassembled_tvb) - 2,
                                                        2, ENC_BIG_ENDIAN);
 
-                    guint16 packet_crc = tvb_get_guint16(reassembled_tvb,
+                    uint16_t packet_crc = tvb_get_uint16(reassembled_tvb,
                                                          tvb_reported_length(reassembled_tvb) - 2,
                                                          ENC_BIG_ENDIAN);
-                    guint16 calc_crc = crc16_x25_ccitt_tvb(reassembled_tvb,
+                    uint16_t calc_crc = crc16_x25_ccitt_tvb(reassembled_tvb,
                                                    tvb_reported_length(reassembled_tvb) - 2);
 
                     if (packet_crc != calc_crc) {
@@ -429,23 +429,23 @@ dissect_uavcan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
                     /* Pass payload to DSDL dissector */
                     if (UAVCAN_IS_MESSAGE(can_info.id)) {
-                        guint32 id = UAVCAN_SUBJECT_ID(can_info.id);
+                        uint32_t id = UAVCAN_SUBJECT_ID(can_info.id);
                         proto_item_append_text(dsdl_tree, "Message");
 
                         call_dissector_with_data(dsdl_message_handle, reassembled_tvb, pinfo,
                                                  dsdl_tree,
-                                                 GUINT_TO_POINTER((guint) id));
+                                                 GUINT_TO_POINTER((unsigned) id));
                     } else if (UAVCAN_IS_SERVICE(can_info.id)) {
-                        guint32 id = UAVCAN_SERVICE_ID(can_info.id);
+                        uint32_t id = UAVCAN_SERVICE_ID(can_info.id);
 
                         if (UAVCAN_IS_REQUEST(can_info.id)) {
                             proto_item_append_text(dsdl_tree, "Service request");
                             call_dissector_with_data(dsdl_request_handle, reassembled_tvb, pinfo,
-                                                     dsdl_tree, GUINT_TO_POINTER((guint) id));
+                                                     dsdl_tree, GUINT_TO_POINTER((unsigned) id));
                         } else {
                             proto_item_append_text(dsdl_tree, "Service response");
                             call_dissector_with_data(dsdl_response_handle, reassembled_tvb, pinfo,
-                                                     dsdl_tree, GUINT_TO_POINTER((guint) id));
+                                                     dsdl_tree, GUINT_TO_POINTER((unsigned) id));
                         }
                     }
                 }
@@ -457,16 +457,16 @@ dissect_uavcan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 }
 
 static int
-UAVCAN_addr_to_str(const address *addr, gchar *buf, int buf_len)
+UAVCAN_addr_to_str(const address *addr, char *buf, int buf_len)
 {
-    const guint16 *addrdata = (const guint16 *) addr->data;
+    const uint16_t *addrdata = (const uint16_t *) addr->data;
 
     if ((*addrdata & ANONYMOUS_FLAG) != 0) {
         return (int) snprintf(buf, buf_len, "Anonymous");
     } else if ((*addrdata & BROADCAST_FLAG) != 0) {
         return (int) snprintf(buf, buf_len, "Broadcast");
     } else {
-        guint8 real_addr = (guint8) (*addrdata & ADDR_MASK);
+        uint8_t real_addr = (uint8_t) (*addrdata & ADDR_MASK);
         guint32_to_str_buf(real_addr, buf, buf_len);
         return (int) strlen(buf);
     }
@@ -591,7 +591,7 @@ proto_register_uavcan(void)
            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}}
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_uavcan,
         &ett_uavcan_can,
         &ett_uavcan_message,

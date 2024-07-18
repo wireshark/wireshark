@@ -15,11 +15,11 @@
 
 
 typedef struct _ubertooth_data_t {
-    guint16  bus_id;
-    guint16  device_address;
+    uint16_t bus_id;
+    uint16_t device_address;
 
-    guint32      clock_100ns;
-    guint8       channel;
+    uint32_t     clock_100ns;
+    uint8_t      channel;
 } ubertooth_data_t;
 
 

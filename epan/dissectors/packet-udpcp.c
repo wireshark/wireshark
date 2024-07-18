@@ -198,7 +198,7 @@ dissect_udpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     }
 
     /* Has to be Data or Ack format. */
-    uint32_t msg_type = tvb_get_guint8(tvb, 4) >> 6;
+    uint32_t msg_type = tvb_get_uint8(tvb, 4) >> 6;
     if ((msg_type != DATA_FORMAT) && (msg_type != ACK_FORMAT)) {
         return 0;
     }

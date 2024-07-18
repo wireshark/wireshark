@@ -349,32 +349,32 @@ static const value_string ccid_status_cmd_status_vals[] = {
 };
 
 /* Subtree handles: set by register_subtree_array */
-static gint ett_ccid;
-static gint ett_ccid_desc;
-static gint ett_ccid_protocol_data_structure;
-static gint ett_ccid_voltage_level;
-static gint ett_ccid_protocols;
-static gint ett_ccid_features;
-static gint ett_ccid_lcd_layout;
-static gint ett_ccid_pin_support;
-static gint ett_ccid_slot_change;
-static gint ett_ccid_status;
+static int ett_ccid;
+static int ett_ccid_desc;
+static int ett_ccid_protocol_data_structure;
+static int ett_ccid_voltage_level;
+static int ett_ccid_protocols;
+static int ett_ccid_features;
+static int ett_ccid_lcd_layout;
+static int ett_ccid_pin_support;
+static int ett_ccid_slot_change;
+static int ett_ccid_status;
 
-static gint
+static int
 dissect_usb_ccid_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, void *data _U_)
 {
-    gint        offset = 0;
-    guint8      descriptor_type;
-    guint8      descriptor_len;
+    int         offset = 0;
+    uint8_t     descriptor_type;
+    uint8_t     descriptor_len;
     proto_item *freq_item;
     proto_tree *desc_tree;
-    guint8      num_clock_supp;
+    uint8_t     num_clock_supp;
     proto_item *lcd_layout_item;
     proto_tree *lcd_layout_tree;
 
-    descriptor_len  = tvb_get_guint8(tvb, offset);
-    descriptor_type = tvb_get_guint8(tvb, offset+1);
+    descriptor_len  = tvb_get_uint8(tvb, offset);
+    descriptor_type = tvb_get_uint8(tvb, offset+1);
     if (descriptor_type!=USB_DESC_TYPE_SMARTCARD)
         return 0;
 
@@ -408,7 +408,7 @@ dissect_usb_ccid_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_tree_add_item(desc_tree, hf_ccid_dwMaximumClock, tvb,
             offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
-    num_clock_supp = tvb_get_guint8(tvb, offset);
+    num_clock_supp = tvb_get_uint8(tvb, offset);
     freq_item = proto_tree_add_item(desc_tree, hf_ccid_bNumClockSupported, tvb,
             offset, 1, ENC_LITTLE_ENDIAN);
     if (num_clock_supp==0)
@@ -476,17 +476,17 @@ dissect_usb_ccid_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 
-static gint
+static int
 dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item *item;
     proto_tree *ccid_tree;
-    guint8      cmd;
-    guint32     payload_len;
+    uint8_t     cmd;
+    uint32_t    payload_len;
     tvbuff_t   *next_tvb;
     usb_conv_info_t  *usb_conv_info;
     int len_remaining;
-    guint8 bProtocolNum;
+    uint8_t bProtocolNum;
     proto_tree *protocol_tree;
 
     /* Reject the packet if data is NULL */
@@ -502,7 +502,7 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     ccid_tree = proto_item_add_subtree(item, ett_ccid);
 
     proto_tree_add_item(ccid_tree, hf_ccid_bMessageType, tvb, 0, 1, ENC_LITTLE_ENDIAN);
-    cmd = tvb_get_guint8(tvb, 0);
+    cmd = tvb_get_uint8(tvb, 0);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " - %s", val_to_str_const(cmd, ccid_messagetypes_vals, "Unknown"));
 
@@ -520,7 +520,7 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         payload_len = tvb_get_letohl(tvb, 1);
 
         /* abProtocolDataStructure */
-        bProtocolNum = tvb_get_guint8(tvb, 7);
+        bProtocolNum = tvb_get_uint8(tvb, 7);
         switch (bProtocolNum)
         {
             case 0: /* T=0 */
@@ -607,7 +607,7 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         /* sent/received is from the perspective of the card reader */
         pinfo->p2p_dir = P2P_DIR_SENT;
 
-        if (!dissector_try_payload_new(subdissector_table, next_tvb, pinfo, tree, TRUE, usb_conv_info)) {
+        if (!dissector_try_payload_new(subdissector_table, next_tvb, pinfo, tree, true, usb_conv_info)) {
             call_data_dissector(next_tvb, pinfo, tree);
         }
         break;
@@ -631,7 +631,7 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         next_tvb = tvb_new_subset_length(tvb, 10, payload_len);
         pinfo->p2p_dir = P2P_DIR_RECV;
 
-        if (!dissector_try_payload_new(subdissector_table, next_tvb, pinfo, tree, TRUE, usb_conv_info)) {
+        if (!dissector_try_payload_new(subdissector_table, next_tvb, pinfo, tree, true, usb_conv_info)) {
             call_data_dissector(next_tvb, pinfo, tree);
         }
         break;
@@ -656,7 +656,7 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         payload_len = tvb_get_letohl(tvb, 1);
 
         /* abProtocolDataStructure */
-        bProtocolNum = tvb_get_guint8(tvb, 9);
+        bProtocolNum = tvb_get_uint8(tvb, 9);
         switch (bProtocolNum)
         {
             case 0: /* T=0 */
@@ -997,7 +997,7 @@ proto_register_ccid(void)
            NULL, 0x0, NULL, HFILL }},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_ccid,
         &ett_ccid_desc,
         &ett_ccid_protocol_data_structure,

@@ -184,20 +184,20 @@ static int ett_ubx_gps_l1_sf1_w9;
 static int ett_ubx_gps_l1_sf1_w10;
 
 /* Format TOW count */
-static void fmt_tow_count(gchar *label, gint32 c) {
-    guint tow = c << 2;
+static void fmt_tow_count(char *label, int32_t c) {
+    unsigned tow = c << 2;
     snprintf(label, ITEM_LABEL_LENGTH, "%d (TOW: %.1fs)", c, tow * 1.5);
 }
 
 /* Format Clock Data Reference Time t_OC */
-static void fmt_t_oc(gchar *label, gint32 i) {
-    guint t_oc = i << 4;
+static void fmt_t_oc(char *label, int32_t i) {
+    unsigned t_oc = i << 4;
     snprintf(label, ITEM_LABEL_LENGTH, "%ds", t_oc);
 }
 
 /* Dissect GPS L1 C/A LNAV navigation message */
 static int dissect_ubx_gps_l1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
-    guint32 subframe_id = (tvb_get_guint32(tvb, 4, ENC_LITTLE_ENDIAN) & 0x00000700) >> 8;
+    uint32_t subframe_id = (tvb_get_uint32(tvb, 4, ENC_LITTLE_ENDIAN) & 0x00000700) >> 8;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "GPS L1 LNAV");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -217,7 +217,7 @@ static int dissect_ubx_gps_l1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static void dissect_ubx_gps_l1_tlm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
     proto_tree *tlm_tree = proto_tree_add_subtree_format(tree, tvb, 0, 4, ett_ubx_gps_l1_tlm, NULL, "Word 1: Telemetry");
 
-    guint32 tlm_preamble;
+    uint32_t tlm_preamble;
     proto_item* pi_tlm_preamble = proto_tree_add_item_ret_uint(tlm_tree, hf_ubx_gps_l1_tlm_preamble, tvb, 0, 4, ENC_LITTLE_ENDIAN, &tlm_preamble);
     if (tlm_preamble != 0x8b) {
         expert_add_info_format(pinfo, pi_tlm_preamble, &ei_ubx_gps_l1_tlm_preamble, "Invalid preamble");
@@ -231,11 +231,11 @@ static void dissect_ubx_gps_l1_tlm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 
 // Dissect the handover word (HOW)
 static void dissect_ubx_gps_l1_how(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
-    guint32 subframe_id;
+    uint32_t subframe_id;
 
     proto_tree *how_tree = proto_tree_add_subtree_format(tree, tvb, 4, 4, ett_ubx_gps_l1_how, NULL, "Word 2: Handover");
 
-    guint32 tow_count;
+    uint32_t tow_count;
     proto_item* pi_how_tow_count = proto_tree_add_item_ret_uint(how_tree, hf_ubx_gps_l1_how_tow_count, tvb, 4, 4, ENC_LITTLE_ENDIAN, &tow_count);
     if (tow_count > 100799) {
         expert_add_info_format(pinfo, pi_how_tow_count, &ei_ubx_gps_l1_how_tow_count, "Invalid TOW count");
@@ -366,7 +366,7 @@ void proto_register_ubx_gps_l1(void) {
         {&ei_ubx_gps_l1_how_subframe_id, {"gps_l1.how.subframe_id", PI_PROTOCOL, PI_WARN, "Illegal subframe ID", EXPFILL}},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_ubx_gps_l1,
         &ett_ubx_gps_l1_tlm,
         &ett_ubx_gps_l1_how,

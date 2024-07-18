@@ -370,35 +370,35 @@ static int hf_parameter_dres;
 
 static reassembly_table midi_data_reassembly_table;
 
-static gint ett_usb_audio;
-static gint ett_usb_audio_desc;
+static int ett_usb_audio;
+static int ett_usb_audio_desc;
 
-static gint ett_ac_if_hdr_controls;
-static gint ett_ac_if_fu_controls;
-static gint ett_ac_if_fu_controls0;
-static gint ett_ac_if_fu_controls1;
-static gint ett_ac_if_fu_controls_v2;
-static gint ett_ac_if_fu_control_v2;
-static gint ett_ac_if_su_sourceids;
-static gint ett_ac_if_su_controls;
-static gint ett_ac_if_input_wchannelconfig;
-static gint ett_ac_if_input_bmchannelconfig;
-static gint ett_ac_if_input_controls;
-static gint ett_ac_if_output_controls;
-static gint ett_ac_if_mu_channelconfig;
-static gint ett_ac_if_clksrc_attr;
-static gint ett_ac_if_clksrc_controls;
-static gint ett_ac_if_clksel_controls;
-static gint ett_ac_if_extunit_bmchannelconfig;
-static gint ett_ac_if_extunit_bmcontrols;
-static gint ett_as_if_gen_controls;
-static gint ett_as_if_gen_formats;
-static gint ett_as_if_gen_bmchannelconfig;
-static gint ett_as_ep_gen_attributes;
-static gint ett_as_ep_gen_controls;
-static gint ett_wvalue;
-static gint ett_windex;
-static gint ett_parameter_block;
+static int ett_ac_if_hdr_controls;
+static int ett_ac_if_fu_controls;
+static int ett_ac_if_fu_controls0;
+static int ett_ac_if_fu_controls1;
+static int ett_ac_if_fu_controls_v2;
+static int ett_ac_if_fu_control_v2;
+static int ett_ac_if_su_sourceids;
+static int ett_ac_if_su_controls;
+static int ett_ac_if_input_wchannelconfig;
+static int ett_ac_if_input_bmchannelconfig;
+static int ett_ac_if_input_controls;
+static int ett_ac_if_output_controls;
+static int ett_ac_if_mu_channelconfig;
+static int ett_ac_if_clksrc_attr;
+static int ett_ac_if_clksrc_controls;
+static int ett_ac_if_clksel_controls;
+static int ett_ac_if_extunit_bmchannelconfig;
+static int ett_ac_if_extunit_bmcontrols;
+static int ett_as_if_gen_controls;
+static int ett_as_if_gen_formats;
+static int ett_as_if_gen_bmchannelconfig;
+static int ett_as_ep_gen_attributes;
+static int ett_as_ep_gen_controls;
+static int ett_wvalue;
+static int ett_windex;
+static int ett_parameter_block;
 
 static dissector_handle_t sysex_handle;
 static dissector_handle_t usb_audio_bulk_handle;
@@ -843,8 +843,8 @@ static int hf_sysex_msg_reassembled_in;
 static int hf_sysex_msg_reassembled_length;
 static int hf_sysex_msg_reassembled_data;
 
-static gint ett_sysex_msg_fragment;
-static gint ett_sysex_msg_fragments;
+static int ett_sysex_msg_fragment;
+static int ett_sysex_msg_fragments;
 
 static expert_field ei_usb_audio_undecoded;
 static expert_field ei_usb_audio_invalid_feature_unit_length;
@@ -874,8 +874,8 @@ static const fragment_items sysex_msg_frag_items = {
     "Message fragments"
 };
 
-static gint
-get_midi_event_size(guint8 code)
+static int
+get_midi_event_size(uint8_t code)
 {
     switch (code)
     {
@@ -906,27 +906,27 @@ get_midi_event_size(guint8 code)
     }
 }
 
-static inline gboolean
-is_sysex_code(guint8 code)
+static inline bool
+is_sysex_code(uint8_t code)
 {
     return (code == 0x04 || code == 0x05 || code == 0x06 || code == 0x07);
 }
 
-static gboolean
-is_last_sysex_packet_in_tvb(tvbuff_t *tvb, gint offset)
+static bool
+is_last_sysex_packet_in_tvb(tvbuff_t *tvb, int offset)
 {
-    gboolean last   = TRUE;
-    gint     length = tvb_reported_length(tvb);
+    bool last   = true;
+    int      length = tvb_reported_length(tvb);
 
     offset += 4;
     while (offset < length)
     {
-        guint8 code = tvb_get_guint8(tvb, offset);
+        uint8_t code = tvb_get_uint8(tvb, offset);
         code &= 0x0F;
 
         if (is_sysex_code(code))
         {
-            last = FALSE;
+            last = false;
             break;
         }
 
@@ -939,21 +939,21 @@ is_last_sysex_packet_in_tvb(tvbuff_t *tvb, gint offset)
 static void
 dissect_usb_midi_event(tvbuff_t *tvb, packet_info *pinfo,
                        proto_tree *parent_tree,
-                       gint offset)
+                       int offset)
 {
-    guint8      code;
-    guint8      cable;
-    gboolean    save_fragmented;
+    uint8_t     code;
+    uint8_t     cable;
+    bool        save_fragmented;
     proto_tree *tree = NULL;
 
-    code = tvb_get_guint8(tvb, offset);
+    code = tvb_get_uint8(tvb, offset);
     cable = (code & 0xF0) >> 4;
     code &= 0x0F;
 
     if (parent_tree)
     {
         proto_item *ti;
-        gint event_size, padding_size;
+        int event_size, padding_size;
 
         ti = proto_tree_add_protocol_format(parent_tree, proto_usb_audio, tvb, offset, 4, "USB Midi Event Packet: %s",
                  try_val_to_str(code, code_index_vals));
@@ -966,12 +966,12 @@ dissect_usb_midi_event(tvbuff_t *tvb, packet_info *pinfo,
         if (event_size > 0)
         {
             /* TODO: Create MIDI dissector and pass the event data to it */
-            const guint8 *event_data = tvb_get_ptr(tvb, offset+1, event_size);
+            const uint8_t *event_data = tvb_get_ptr(tvb, offset+1, event_size);
             proto_tree_add_bytes(tree, hf_midi_event, tvb, offset+1, event_size, event_data);
         }
         if (padding_size > 0)
         {
-            const guint8 *padding = tvb_get_ptr(tvb, offset+1+event_size, padding_size);
+            const uint8_t *padding = tvb_get_ptr(tvb, offset+1+event_size, padding_size);
             proto_tree_add_bytes(tree, hf_midi_padding, tvb, offset+1+event_size, padding_size, padding);
         }
     }
@@ -984,7 +984,7 @@ dissect_usb_midi_event(tvbuff_t *tvb, packet_info *pinfo,
         tvbuff_t* new_tvb = NULL;
         fragment_head *frag_sysex_msg = NULL;
 
-        pinfo->fragmented = TRUE;
+        pinfo->fragmented = true;
 
         if (code == 0x04)
         {
@@ -994,7 +994,7 @@ dissect_usb_midi_event(tvbuff_t *tvb, packet_info *pinfo,
                 cable, /* ID for fragments belonging together */
                 NULL,
                 3,
-                TRUE);
+                true);
         }
         else
         {
@@ -1003,8 +1003,8 @@ dissect_usb_midi_event(tvbuff_t *tvb, packet_info *pinfo,
                 pinfo,
                 cable, /* ID for fragments belonging together */
                 NULL,
-                (gint)(code - 4),
-                FALSE);
+                (int)(code - 4),
+                false);
         }
 
         if (is_last_sysex_packet_in_tvb(tvb, offset))
@@ -1043,7 +1043,7 @@ allocate_audio_conv_info(void)
 }
 
 static void
-set_entity_type(usb_conv_info_t *usb_conv_info, guint8 id, usb_audio_entity_t type)
+set_entity_type(usb_conv_info_t *usb_conv_info, uint8_t id, usb_audio_entity_t type)
 {
     audio_conv_info_t *audio_conv_info = (audio_conv_info_t *)usb_conv_info->class_data;
     if (!audio_conv_info) {
@@ -1062,7 +1062,7 @@ set_entity_type(usb_conv_info_t *usb_conv_info, guint8 id, usb_audio_entity_t ty
 }
 
 static usb_audio_entity_t
-get_entity_type(usb_conv_info_t *usb_conv_info, guint8 id)
+get_entity_type(usb_conv_info_t *usb_conv_info, uint8_t id)
 {
     audio_conv_info_t *audio_conv_info = (audio_conv_info_t *)usb_conv_info->class_data;
     if (!audio_conv_info || (usb_conv_info->class_data_type != USB_CONV_AUDIO)) {
@@ -1072,12 +1072,12 @@ get_entity_type(usb_conv_info_t *usb_conv_info, guint8 id)
 }
 
 static void
-base_volume(gchar *buf, guint32 value)
+base_volume(char *buf, uint32_t value)
 {
     if (value == 0x8000) {
         snprintf(buf, ITEM_LABEL_LENGTH, "-infinity dB (silence)");
     } else {
-        double dB = ((double)((gint16)value)) / 256;
+        double dB = ((double)((int16_t)value)) / 256;
         snprintf(buf, ITEM_LABEL_LENGTH, "%.4f dB", dB);
     }
 }
@@ -1085,15 +1085,15 @@ base_volume(gchar *buf, guint32 value)
 /* dissect the body of an AC interface header descriptor
    return the number of bytes dissected (which may be smaller than the
    body's length) */
-static gint
-dissect_ac_if_hdr_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+static int
+dissect_ac_if_hdr_body(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
         proto_tree *tree, usb_conv_info_t *usb_conv_info)
 {
-    gint     offset_start;
-    guint16  bcdADC;
-    guint8   ver_major;
+    int      offset_start;
+    uint16_t bcdADC;
+    uint8_t  ver_major;
     double   ver;
-    guint8   if_in_collection, i;
+    uint8_t  if_in_collection, i;
 
     static int * const bm_controls[] = {
         &hf_ac_if_hdr_controls_latency,
@@ -1117,7 +1117,7 @@ dissect_ac_if_hdr_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
         proto_tree_add_item(tree, hf_ac_if_hdr_total_len,
                 tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
-        if_in_collection = tvb_get_guint8(tvb, offset);
+        if_in_collection = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(tree, hf_ac_if_hdr_bInCollection,
                 tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
@@ -1143,11 +1143,11 @@ dissect_ac_if_hdr_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     return offset-offset_start;
 }
 
-static gint
-dissect_ac_if_input_terminal(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+static int
+dissect_ac_if_input_terminal(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
         proto_tree *tree, usb_conv_info_t *usb_conv_info)
 {
-    gint               offset_start;
+    int                offset_start;
 
     static int * const input_wchannelconfig[] = {
         &hf_ac_if_input_wchannelconfig_d0,
@@ -1255,11 +1255,11 @@ dissect_ac_if_input_terminal(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     return offset-offset_start;
 }
 
-static gint
-dissect_ac_if_output_terminal(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+static int
+dissect_ac_if_output_terminal(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
         proto_tree *tree, usb_conv_info_t *usb_conv_info)
 {
-    gint               offset_start;
+    int                offset_start;
 
     static int * const controls[] = {
         &hf_ac_if_output_controls_copy,
@@ -1303,14 +1303,14 @@ dissect_ac_if_output_terminal(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_
     return offset-offset_start;
 }
 
-static gint
-dissect_ac_if_feature_unit(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
-        proto_tree *tree, usb_conv_info_t *usb_conv_info, guint8 desc_len)
+static int
+dissect_ac_if_feature_unit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+        proto_tree *tree, usb_conv_info_t *usb_conv_info, uint8_t desc_len)
 {
-    gint offset_start;
-    gint i;
-    gint ch;
-    guint8 controlsize;
+    int offset_start;
+    int i;
+    int ch;
+    uint8_t controlsize;
     proto_tree *bitmap_tree;
     proto_item *ti;
 
@@ -1357,7 +1357,7 @@ dissect_ac_if_feature_unit(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     offset_start = offset;
 
     if (!PINFO_FD_VISITED(pinfo)) {
-        set_entity_type(usb_conv_info, tvb_get_guint8(tvb, offset), USB_AUDIO_ENTITY_FEATURE_UNIT);
+        set_entity_type(usb_conv_info, tvb_get_uint8(tvb, offset), USB_AUDIO_ENTITY_FEATURE_UNIT);
     }
     proto_tree_add_item(tree, hf_ac_if_fu_unitid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
@@ -1367,7 +1367,7 @@ dissect_ac_if_feature_unit(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 
     if (usb_conv_info->interfaceProtocol == AUDIO_PROTOCOL_V1) {
         proto_tree_add_item(tree, hf_ac_if_fu_controlsize, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        controlsize = tvb_get_guint8(tvb, offset);
+        controlsize = tvb_get_uint8(tvb, offset);
         offset += 1;
 
         /* Descriptor size is 7+(ch+1)*n where n is controlsize, calculate and validate ch */
@@ -1420,11 +1420,11 @@ dissect_ac_if_feature_unit(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     return offset-offset_start;
 }
 
-static gint dissect_ac_if_selector_unit(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tree, usb_conv_info_t *usb_conv_info)
+static int dissect_ac_if_selector_unit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, usb_conv_info_t *usb_conv_info)
 {
-    gint offset_start;
-    guint32 nrinpins,i;
-    guint32 source_id;
+    int offset_start;
+    uint32_t nrinpins,i;
+    uint32_t source_id;
     proto_item *ti;
     proto_tree *subtree;
 
@@ -1441,7 +1441,7 @@ static gint dissect_ac_if_selector_unit(tvbuff_t *tvb, gint offset, packet_info 
     offset_start = offset;
 
     if (!PINFO_FD_VISITED(pinfo)) {
-        set_entity_type(usb_conv_info, tvb_get_guint8(tvb, offset), USB_AUDIO_ENTITY_SELECTOR);
+        set_entity_type(usb_conv_info, tvb_get_uint8(tvb, offset), USB_AUDIO_ENTITY_SELECTOR);
     }
     proto_tree_add_item(tree, hf_ac_if_su_unitid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
@@ -1469,12 +1469,12 @@ static gint dissect_ac_if_selector_unit(tvbuff_t *tvb, gint offset, packet_info 
     return offset - offset_start;
 }
 
-static gint
-dissect_ac_if_mixed_unit(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+static int
+dissect_ac_if_mixed_unit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
         proto_tree *tree, usb_conv_info_t *usb_conv_info _U_)
 {
-    gint     offset_start;
-    guint8 nrinpins;
+    int      offset_start;
+    uint8_t nrinpins;
 
     static int * const mu_channelconfig[] = {
         &hf_ac_if_mu_channelconfig_d0,
@@ -1499,7 +1499,7 @@ dissect_ac_if_mixed_unit(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     offset += 1;
 
     proto_tree_add_item(tree, hf_ac_if_mu_nrinpins, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    nrinpins = tvb_get_guint8(tvb, offset);
+    nrinpins = tvb_get_uint8(tvb, offset);
     offset += 1;
 
     while(nrinpins){
@@ -1526,11 +1526,11 @@ dissect_ac_if_mixed_unit(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     return offset-offset_start;
 }
 
-static gint
-dissect_ac_if_clock_source(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+static int
+dissect_ac_if_clock_source(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
         proto_tree *tree, usb_conv_info_t *usb_conv_info)
 {
-    gint offset_start;
+    int offset_start;
     static int * const cs_attributes[] = {
         &hf_ac_if_clksrc_attr_type,
         &hf_ac_if_clksrc_attr_d2,
@@ -1546,7 +1546,7 @@ dissect_ac_if_clock_source(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     offset_start = offset;
 
     if (!PINFO_FD_VISITED(pinfo)) {
-        set_entity_type(usb_conv_info, tvb_get_guint8(tvb, offset), USB_AUDIO_ENTITY_CLOCK_SOURCE);
+        set_entity_type(usb_conv_info, tvb_get_uint8(tvb, offset), USB_AUDIO_ENTITY_CLOCK_SOURCE);
     }
     proto_tree_add_item(tree, hf_ac_if_clksrc_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
@@ -1566,12 +1566,12 @@ dissect_ac_if_clock_source(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     return offset-offset_start;
 }
 
-static gint
-dissect_ac_if_clock_selector(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+static int
+dissect_ac_if_clock_selector(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
         proto_tree *tree, usb_conv_info_t *usb_conv_info)
 {
-    gint   offset_start;
-    guint8 nrinpins;
+    int    offset_start;
+    uint8_t nrinpins;
     static int * const cs_controls[] = {
         &hf_ac_if_clksel_controls_clksel,
         &hf_ac_if_clksel_controls_rsv,
@@ -1580,13 +1580,13 @@ dissect_ac_if_clock_selector(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     offset_start = offset;
 
     if (!PINFO_FD_VISITED(pinfo)) {
-        set_entity_type(usb_conv_info, tvb_get_guint8(tvb, offset), USB_AUDIO_ENTITY_CLOCK_SELECTOR);
+        set_entity_type(usb_conv_info, tvb_get_uint8(tvb, offset), USB_AUDIO_ENTITY_CLOCK_SELECTOR);
     }
     proto_tree_add_item(tree, hf_ac_if_clksel_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
     proto_tree_add_item(tree, hf_ac_if_clksel_nrpins, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    nrinpins = tvb_get_guint8(tvb, offset);
+    nrinpins = tvb_get_uint8(tvb, offset);
     offset += 1;
 
     while (nrinpins) {
@@ -1604,12 +1604,12 @@ dissect_ac_if_clock_selector(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     return offset-offset_start;
 }
 
-static gint
-dissect_ac_if_extension_unit(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+static int
+dissect_ac_if_extension_unit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                              proto_tree *tree, usb_conv_info_t *usb_conv_info)
 {
-    gint offset_start;
-    guint8 nrinpins;
+    int offset_start;
+    uint8_t nrinpins;
     offset_start = offset;
 
     static int * const v2_channels[] = {
@@ -1653,7 +1653,7 @@ dissect_ac_if_extension_unit(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     };
 
     if (!PINFO_FD_VISITED(pinfo)) {
-        set_entity_type(usb_conv_info, tvb_get_guint8(tvb, offset), USB_AUDIO_ENTITY_EXTENSION_UNIT);
+        set_entity_type(usb_conv_info, tvb_get_uint8(tvb, offset), USB_AUDIO_ENTITY_EXTENSION_UNIT);
     }
     proto_tree_add_item(tree, hf_ac_if_extunit_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
@@ -1661,7 +1661,7 @@ dissect_ac_if_extension_unit(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     offset += 2;
 
     proto_tree_add_item(tree, hf_ac_if_extunit_nrpins, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    nrinpins = tvb_get_guint8(tvb, offset);
+    nrinpins = tvb_get_uint8(tvb, offset);
     offset += 1;
 
     while (nrinpins) {
@@ -1691,11 +1691,11 @@ dissect_ac_if_extension_unit(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     return offset - offset_start;
 }
 
-static gint
-dissect_as_if_general_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+static int
+dissect_as_if_general_body(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
         proto_tree *tree, usb_conv_info_t *usb_conv_info)
 {
-    gint               offset_start;
+    int                offset_start;
 
     static int * const v2_controls[] = {
         &hf_as_if_gen_controls_active,
@@ -1813,7 +1813,7 @@ dissect_as_if_general_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
         proto_tree_add_item(tree, hf_as_if_gen_wformattag, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
     } else if (usb_conv_info->interfaceProtocol == AUDIO_PROTOCOL_V2) {
-        guint8 format_type;
+        uint8_t format_type;
         int * const *formats_bitmask;
 
         proto_tree_add_item(tree, hf_as_if_gen_term_link, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -1821,7 +1821,7 @@ dissect_as_if_general_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
         proto_tree_add_bitmask(tree, tvb, offset, hf_as_if_gen_controls, ett_as_if_gen_controls, v2_controls, ENC_LITTLE_ENDIAN);
         offset++;
         proto_tree_add_item(tree, hf_as_if_gen_formattype, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        format_type = tvb_get_guint8(tvb, offset);
+        format_type = tvb_get_uint8(tvb, offset);
         offset++;
         switch(format_type)
         {
@@ -1858,22 +1858,22 @@ dissect_as_if_general_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     return offset-offset_start;
 }
 
-static gint
-dissect_as_if_format_type_ver1_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+static int
+dissect_as_if_format_type_ver1_body(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
         proto_tree *tree, usb_conv_info_t *usb_conv_info _U_)
 {
-    gint   offset_start;
-    guint8 SamFreqType;
-    guint8 format_type;
-    guint32 nrchannels;
-    guint32 subframesize;
-    guint32 bitresolution;
+    int    offset_start;
+    uint8_t SamFreqType;
+    uint8_t format_type;
+    uint32_t nrchannels;
+    uint32_t subframesize;
+    uint32_t bitresolution;
     proto_item *desc_tree_item;
 
     offset_start = offset;
 
     proto_tree_add_item(tree, hf_as_if_ft_formattype, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    format_type = tvb_get_guint8(tvb, offset);
+    format_type = tvb_get_uint8(tvb, offset);
     offset++;
 
 
@@ -1889,7 +1889,7 @@ dissect_as_if_format_type_ver1_body(tvbuff_t *tvb, gint offset, packet_info *pin
             offset += 1;
 
             proto_tree_add_item(tree, hf_as_if_ft_samfreqtype, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            SamFreqType = tvb_get_guint8(tvb, offset);
+            SamFreqType = tvb_get_uint8(tvb, offset);
             offset++;
 
             if(SamFreqType == 0){
@@ -1913,7 +1913,7 @@ dissect_as_if_format_type_ver1_body(tvbuff_t *tvb, gint offset, packet_info *pin
             offset += 2;
 
             proto_tree_add_item(tree, hf_as_if_ft_samfreqtype, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            SamFreqType = tvb_get_guint8(tvb, offset);
+            SamFreqType = tvb_get_uint8(tvb, offset);
             offset++;
 
             if(SamFreqType == 0){
@@ -1952,7 +1952,7 @@ dissect_as_if_format_type_ver1_body(tvbuff_t *tvb, gint offset, packet_info *pin
             }
 
             proto_tree_add_item(tree, hf_as_if_ft_samfreqtype, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            SamFreqType = tvb_get_guint8(tvb, offset);
+            SamFreqType = tvb_get_uint8(tvb, offset);
             offset++;
 
             if(SamFreqType == 0){
@@ -1975,17 +1975,17 @@ dissect_as_if_format_type_ver1_body(tvbuff_t *tvb, gint offset, packet_info *pin
     return offset-offset_start;
 }
 
-static gint
-dissect_as_if_format_type_ver2_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+static int
+dissect_as_if_format_type_ver2_body(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
         proto_tree *tree, usb_conv_info_t *usb_conv_info _U_)
 {
-    gint   offset_start;
-    guint8 format_type;
+    int    offset_start;
+    uint8_t format_type;
 
     offset_start = offset;
 
     proto_tree_add_item(tree, hf_as_if_ft_formattype, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    format_type = tvb_get_guint8(tvb, offset);
+    format_type = tvb_get_uint8(tvb, offset);
     offset++;
 
     if (format_type==1) {
@@ -1999,8 +1999,8 @@ dissect_as_if_format_type_ver2_body(tvbuff_t *tvb, gint offset, packet_info *pin
     return offset-offset_start;
 }
 
-static gint
-dissect_as_if_format_type_body(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+static int
+dissect_as_if_format_type_body(tvbuff_t *tvb, int offset, packet_info *pinfo,
         proto_tree *tree, usb_conv_info_t *usb_conv_info)
 {
     if (usb_conv_info->interfaceProtocol == AUDIO_PROTOCOL_V1) {
@@ -2012,11 +2012,11 @@ dissect_as_if_format_type_body(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     return 0;
 }
 
-static gint
-dissect_as_ep_general_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+static int
+dissect_as_ep_general_body(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
         proto_tree *tree, usb_conv_info_t *usb_conv_info)
 {
-    gint               offset_start = offset;
+    int                offset_start = offset;
 
     static int * const v1_attributes[] = {
         &hf_as_ep_gen_bmattributes_d0,
@@ -2059,13 +2059,13 @@ dissect_as_ep_general_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     return offset-offset_start;
 }
 
-static gint
-dissect_ms_if_hdr_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+static int
+dissect_ms_if_hdr_body(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
         proto_tree *tree, usb_conv_info_t *usb_conv_info _U_)
 {
-    gint     offset_start;
-    guint16  bcdADC;
-    guint8   ver_major;
+    int      offset_start;
+    uint16_t bcdADC;
+    uint8_t  ver_major;
     double   ver;
 
     offset_start = offset;
@@ -2085,11 +2085,11 @@ dissect_ms_if_hdr_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     return offset-offset_start;
 }
 
-static gint
-dissect_ms_if_midi_in_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+static int
+dissect_ms_if_midi_in_body(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
         proto_tree *tree, usb_conv_info_t *usb_conv_info _U_)
 {
-    gint     offset_start = offset;
+    int      offset_start = offset;
 
     proto_tree_add_item(tree, hf_ms_if_midi_in_bjacktype, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
@@ -2101,12 +2101,12 @@ dissect_ms_if_midi_in_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     return offset-offset_start;
 }
 
-static gint
-dissect_ms_if_midi_out_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+static int
+dissect_ms_if_midi_out_body(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
         proto_tree *tree, usb_conv_info_t *usb_conv_info _U_)
 {
-    gint     offset_start = offset;
-    guint8   nrinputpins;
+    int      offset_start = offset;
+    uint8_t  nrinputpins;
 
     proto_tree_add_item(tree, hf_ms_if_midi_out_bjacktype, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
@@ -2114,7 +2114,7 @@ dissect_ms_if_midi_out_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     offset += 1;
 
     proto_tree_add_item(tree, hf_ms_if_midi_out_bnrinputpins, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    nrinputpins = tvb_get_guint8(tvb, offset);
+    nrinputpins = tvb_get_uint8(tvb, offset);
     offset += 1;
     while (nrinputpins)
     {
@@ -2131,15 +2131,15 @@ dissect_ms_if_midi_out_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     return offset-offset_start;
 }
 
-static gint
-dissect_ms_ep_general_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+static int
+dissect_ms_ep_general_body(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
         proto_tree *tree, usb_conv_info_t *usb_conv_info _U_)
 {
-    gint     offset_start = offset;
-    guint8   numjacks;
+    int      offset_start = offset;
+    uint8_t  numjacks;
 
     proto_tree_add_item(tree, hf_ms_ep_gen_numjacks, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    numjacks = tvb_get_guint8(tvb, offset);
+    numjacks = tvb_get_uint8(tvb, offset);
     offset += 1;
     while (numjacks)
     {
@@ -2151,26 +2151,26 @@ dissect_ms_ep_general_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     return offset-offset_start;
 }
 
-static gint
+static int
 dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, void *data)
 {
-    gint             offset = 0;
-    gint             bytes_dissected = 0;
+    int              offset = 0;
+    int              bytes_dissected = 0;
     usb_conv_info_t *usb_conv_info;
     proto_tree       *desc_tree = NULL;
     proto_item       *desc_tree_item;
-    guint8           desc_len;
-    guint8           desc_type;
-    guint8           desc_subtype;
-    const gchar     *subtype_str;
+    uint8_t          desc_len;
+    uint8_t          desc_type;
+    uint8_t          desc_subtype;
+    const char      *subtype_str;
 
     usb_conv_info = (usb_conv_info_t *)data;
     if (!usb_conv_info || usb_conv_info->interfaceClass!=IF_CLASS_AUDIO)
         return 0;
 
-    desc_len  = tvb_get_guint8(tvb, offset);
-    desc_type = tvb_get_guint8(tvb, offset+1);
+    desc_len  = tvb_get_uint8(tvb, offset);
+    desc_type = tvb_get_uint8(tvb, offset+1);
 
     if (desc_type == CS_INTERFACE) {
         /* Switch to interface specific usb_conv_info */
@@ -2188,7 +2188,7 @@ dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
             &aud_descriptor_type_vals_ext);
         offset += 2;
 
-        desc_subtype = tvb_get_guint8(tvb, offset);
+        desc_subtype = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(desc_tree, hf_ac_if_desc_subtype,
                 tvb, offset, 1, ENC_LITTLE_ENDIAN);
         subtype_str = try_val_to_str_ext(desc_subtype, &ac_subtype_vals_ext);
@@ -2244,7 +2244,7 @@ dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
             &aud_descriptor_type_vals_ext);
         offset += 2;
 
-        desc_subtype = tvb_get_guint8(tvb, offset);
+        desc_subtype = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(desc_tree, hf_as_if_desc_subtype,
                 tvb, offset, 1, ENC_LITTLE_ENDIAN);
         subtype_str = try_val_to_str_ext(desc_subtype, &as_subtype_vals_ext);
@@ -2278,7 +2278,7 @@ dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
             &aud_descriptor_type_vals_ext);
         offset += 2;
 
-        desc_subtype = tvb_get_guint8(tvb, offset);
+        desc_subtype = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(desc_tree, hf_as_ep_desc_subtype,
                 tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
@@ -2303,7 +2303,7 @@ dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
             &aud_descriptor_type_vals_ext);
         offset += 2;
 
-        desc_subtype = tvb_get_guint8(tvb, offset);
+        desc_subtype = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(desc_tree, hf_ms_if_desc_subtype,
                 tvb, offset, 1, ENC_LITTLE_ENDIAN);
         subtype_str = try_val_to_str_ext(desc_subtype, &ms_if_subtype_vals_ext);
@@ -2339,7 +2339,7 @@ dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
             &aud_descriptor_type_vals_ext);
         offset += 2;
 
-        desc_subtype = tvb_get_guint8(tvb, offset);
+        desc_subtype = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(desc_tree, hf_ms_ep_desc_subtype,
                 tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
@@ -2369,14 +2369,14 @@ get_addressed_entity_type(usb_conv_info_t *usb_conv_info)
     usb_audio_entity_t  entity = USB_AUDIO_ENTITY_UNKNOWN;
 
     if (USB_RECIPIENT(usb_conv_info->usb_trans_info->setup.requesttype) == RQT_SETUP_RECIPIENT_INTERFACE) {
-        gint8 id = (usb_conv_info->usb_trans_info->setup.wIndex & 0xFF00) >> 8;
+        int8_t id = (usb_conv_info->usb_trans_info->setup.wIndex & 0xFF00) >> 8;
         entity = get_entity_type(usb_conv_info, id);
     }
 
     return entity;
 }
 
-static gboolean
+static bool
 has_data_stage(usb_conv_info_t *usb_conv_info)
 {
     /* If the two conditions are fulfilled, then URB we got should contain data stage */
@@ -2385,10 +2385,10 @@ has_data_stage(usb_conv_info_t *usb_conv_info)
 }
 
 static int
-dissect_windex_and_wlength(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+dissect_windex_and_wlength(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                            proto_tree *tree, usb_conv_info_t *usb_conv_info)
 {
-    gint                offset_start = offset;
+    int                 offset_start = offset;
     static int * const  windex_interface[] = {
         &hf_windex_interface,
         &hf_windex_entity_id,
@@ -2413,18 +2413,18 @@ dissect_windex_and_wlength(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 }
 
 static int
-dissect_v1_control(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+dissect_v1_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
                    proto_tree *tree, usb_conv_info_t *usb_conv_info)
 {
-    gint                offset_start = offset;
+    int                 offset_start = offset;
     proto_item         *ti;
-    const gchar        *request_str;
-    guint8              bRequest;
+    const char         *request_str;
+    uint8_t             bRequest;
     usb_audio_entity_t  entity = get_addressed_entity_type(usb_conv_info);
     const value_string *control_selector_vals = NULL;
-    guint8              control_selector;
-    const gchar        *str;
-    const gchar        *title = "Unknown Parameter Block";
+    uint8_t             control_selector;
+    const char         *str;
+    const char         *title = "Unknown Parameter Block";
     int                *parameter_hf = NULL;
     int                 attribute_size;
     int                *wvalue_fields[] = {
@@ -2510,17 +2510,17 @@ dissect_v1_control(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 }
 
 static int
-dissect_v2_control_cur_range(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+dissect_v2_control_cur_range(tvbuff_t *tvb, int offset, packet_info *pinfo,
                              proto_tree *tree, usb_conv_info_t *usb_conv_info)
 {
-    gint                offset_start = offset;
+    int                 offset_start = offset;
     proto_item         *ti;
     usb_audio_entity_t  entity = get_addressed_entity_type(usb_conv_info);
     const value_string *control_selector_vals = NULL;
-    guint8              control_selector, channel_number;
+    uint8_t             control_selector, channel_number;
     parameter_layout_t  layout = PARAMETER_LAYOUT_UNKNOWN;
-    const gchar        *parameter_str = NULL;
-    const gchar        *str;
+    const char         *parameter_str = NULL;
+    const char         *str;
     int                *wvalue_fields[] = {
         &hf_wvalue_channel_number,
         NULL, /* Control selector if known */
@@ -2573,8 +2573,8 @@ dissect_v2_control_cur_range(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     if (has_data_stage(usb_conv_info)) {
         proto_tree  *subtree;
         proto_item  *subtree_item;
-        const gchar *title;
-        guint32      n;
+        const char *title;
+        uint32_t     n;
         int          attribute_size;
         int          cur_hf, min_hf, max_hf, res_hf;
 
@@ -2615,7 +2615,7 @@ dissect_v2_control_cur_range(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         }
 
         if (usb_conv_info->usb_trans_info->setup.request == V2_REQUEST_RANGE) {
-            guint32   max_n;
+            uint32_t  max_n;
 
             proto_tree_add_item_ret_uint(subtree, hf_parameter_wnumsubranges, tvb, offset, 2, ENC_LITTLE_ENDIAN, &n);
             offset += 2;
@@ -2632,7 +2632,7 @@ dissect_v2_control_cur_range(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                 max_n = 0;
             }
 
-            for (guint32 i = 0; i < max_n; i++) {
+            for (uint32_t i = 0; i < max_n; i++) {
                 proto_tree_add_item(subtree, min_hf, tvb, offset, attribute_size, ENC_LITTLE_ENDIAN);
                 offset += attribute_size;
                 proto_tree_add_item(subtree, max_hf, tvb, offset, attribute_size, ENC_LITTLE_ENDIAN);
@@ -2653,12 +2653,12 @@ dissect_v2_control_cur_range(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 }
 
 static int
-dissect_v2_control(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+dissect_v2_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
                    proto_tree *tree, usb_conv_info_t *usb_conv_info)
 {
-    gint         offset_start = offset;
-    const gchar *request_str;
-    guint8       bRequest;
+    int          offset_start = offset;
+    const char *request_str;
+    uint8_t      bRequest;
 
     bRequest = usb_conv_info->usb_trans_info->setup.request;
     request_str = try_val_to_str_ext(bRequest, &v2_brequest_vals_ext);
@@ -2681,7 +2681,7 @@ static int
 dissect_usb_audio_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data)
 {
     usb_conv_info_t *usb_conv_info;
-    gint             offset, length;
+    int              offset, length;
 
     /* Reject the packet if data is NULL */
     if (data == NULL)
@@ -2737,8 +2737,8 @@ static int
 dissect_usb_audio_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data)
 {
     usb_conv_info_t *usb_conv_info;
-    gint             offset, length;
-    gint             i;
+    int              offset, length;
+    int              i;
 
     /* Reject the packet if data is NULL */
     if (data == NULL)
@@ -3840,7 +3840,7 @@ proto_register_usb_audio(void)
               FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }}
     };
 
-    static gint *usb_audio_subtrees[] = {
+    static int *usb_audio_subtrees[] = {
         &ett_usb_audio,
         &ett_usb_audio_desc,
         &ett_sysex_msg_fragment,
