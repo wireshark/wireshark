@@ -47,37 +47,37 @@ static int proto_synphasor;
 #define G_PMU_ID_LEN 16
 
 /* the ett... variables hold the state (open/close) of the treeview in the GUI */
-static gint ett_synphasor; /* root element for this protocol */
+static int ett_synphasor; /* root element for this protocol */
 /* used in the common header */
-static gint ett_frtype;
-static gint ett_timequal;
+static int ett_frtype;
+static int ett_timequal;
 /* used for config frames */
-static gint ett_conf;
-static gint ett_conf_station;
-static gint ett_conf_format;
-static gint ett_conf_phnam;
-static gint ett_conf_annam;
-static gint ett_conf_dgnam;
-static gint ett_conf_phconv;
-static gint ett_conf_phlist;
-static gint ett_conf_phflags;
-static gint ett_conf_phmod_flags;
-static gint ett_conf_ph_user_flags;
-static gint ett_conf_anconv;
-static gint ett_conf_anlist;
-static gint ett_conf_dgmask;
-static gint ett_conf_chnam;
-static gint ett_conf_wgs84;
+static int ett_conf;
+static int ett_conf_station;
+static int ett_conf_format;
+static int ett_conf_phnam;
+static int ett_conf_annam;
+static int ett_conf_dgnam;
+static int ett_conf_phconv;
+static int ett_conf_phlist;
+static int ett_conf_phflags;
+static int ett_conf_phmod_flags;
+static int ett_conf_ph_user_flags;
+static int ett_conf_anconv;
+static int ett_conf_anlist;
+static int ett_conf_dgmask;
+static int ett_conf_chnam;
+static int ett_conf_wgs84;
 /* used for data frames */
-static gint ett_data;
-static gint ett_data_block;
-static gint ett_data_stat;
-static gint ett_data_phasors;
-static gint ett_data_analog;
-static gint ett_data_digital;
+static int ett_data;
+static int ett_data_block;
+static int ett_data_stat;
+static int ett_data_phasors;
+static int ett_data_analog;
+static int ett_data_digital;
 /* used for command frames */
-static gint ett_command;
-static gint ett_status_word_mask;
+static int ett_command;
+static int ett_status_word_mask;
 
 /* handles to the header fields hf[] in proto_register_synphasor() */
 static int hf_sync;
@@ -201,7 +201,7 @@ typedef enum { V, A } unit_e;
 typedef struct {
 	char	name[MAX_NAME_LEN + 1];
 	unit_e	unit;
-	guint32	conv;			/* cfg-2 conversion factor in 10^-5 scale */
+	uint32_t	conv;			/* cfg-2 conversion factor in 10^-5 scale */
 	float	conv_cfg3;		/* cfg-3 conversion scale factor */
 	float	angle_offset_cfg3;	/* cfg-3 angle offset */
 } phasor_info;
@@ -209,22 +209,22 @@ typedef struct {
 /* holds the information for an analog value */
 typedef struct {
 	char	name[MAX_NAME_LEN + 1];
-	guint32	conv;		/* cfg-2 conversion scale factor, user defined scaling (so it's pretty useless) */
+	uint32_t	conv;		/* cfg-2 conversion scale factor, user defined scaling (so it's pretty useless) */
 	float	conv_cfg3;	/* cfg-3 conversion scale factor */
 	float	offset_cfg3;	/* cfg-3 conversion offset */
 } analog_info;
 
 /* holds information required to dissect a single PMU block in a data frame */
 typedef struct {
-	guint16		   id;			/* (Data Source ID) identifies source of block     */
+	uint16_t		   id;			/* (Data Source ID) identifies source of block     */
 	char		   name[MAX_NAME_LEN + 1]; /* holds STN			  */
-	guint8		   cfg_frame_type;	/* Config Frame Type (1,2,3,...)  */
+	uint8_t		   cfg_frame_type;	/* Config Frame Type (1,2,3,...)  */
 	data_format	   format_fr;		/* data format of FREQ and DFREQ  */
 	data_format	   format_ph;		/* data format of PHASORS	  */
 	data_format	   format_an;		/* data format of ANALOG	  */
 	phasor_notation_e  phasor_notation;	/* format of the phasors	  */
-	guint		   fnom;		/* nominal line frequency	  */
-	guint		   num_dg;		/* number of digital status words */
+	unsigned		   fnom;		/* nominal line frequency	  */
+	unsigned		   num_dg;		/* number of digital status words */
 	wmem_array_t	  *phasors;		/* array of phasor_infos	  */
 	wmem_array_t	  *analogs;		/* array of analog_infos	  */
 } config_block;
@@ -232,9 +232,9 @@ typedef struct {
 /* holds the id the configuration comes from an and
  * an array of config_block members */
 typedef struct {
-	guint32		fnum;		/* frame number */
-	guint16		id;		/* (Stream Source ID) identifies source of stream */
-	guint32		time_base;	/* Time base - resolution of FRACSEC time stamp. */
+	uint32_t		fnum;		/* frame number */
+	uint16_t		id;		/* (Stream Source ID) identifies source of stream */
+	uint32_t		time_base;	/* Time base - resolution of FRACSEC time stamp. */
 	wmem_array_t	*config_blocks; /* Contains a config_block struct for
 				      * every PMU included in the config frame */
 } config_frame;
@@ -506,12 +506,12 @@ static const range_string command_names[] = {
 	0 - no name
 	1-255 - length of name
 */
-static guint8 get_name_length(tvbuff_t *tvb, gint offset)
+static uint8_t get_name_length(tvbuff_t *tvb, int offset)
 {
-	guint8 name_length;
+	uint8_t name_length;
 
 	/* read the size of the name */
-	name_length = tvb_get_guint8(tvb, offset);
+	name_length = tvb_get_uint8(tvb, offset);
 
 	return name_length;
 }
@@ -519,18 +519,18 @@ static guint8 get_name_length(tvbuff_t *tvb, gint offset)
 /* Checks the CRC of a synchrophasor frame, 'tvb' has to include the whole
  * frame, including CRC, the calculated CRC is returned in '*computedcrc'.
  */
-static gboolean check_crc(tvbuff_t *tvb, guint16 *computedcrc)
+static bool check_crc(tvbuff_t *tvb, uint16_t *computedcrc)
 {
-	guint16 crc;
-	guint	len = tvb_get_ntohs(tvb, 2);
+	uint16_t crc;
+	unsigned	len = tvb_get_ntohs(tvb, 2);
 
 	crc = tvb_get_ntohs(tvb, len - 2);
 	*computedcrc = crc16_x25_ccitt_tvb(tvb, len - 2);
 
 	if (crc == *computedcrc)
-		return TRUE;
+		return true;
 
-	return FALSE;
+	return false;
 }
 
 /* Dissects a configuration frame (only the most important stuff, tries
@@ -542,8 +542,8 @@ static gboolean check_crc(tvbuff_t *tvb, guint16 *computedcrc)
  */
 static config_frame *config_frame_fast(tvbuff_t *tvb)
 {
-	guint16		num_pmu;
-	gint		offset;
+	uint16_t		num_pmu;
+	int		offset;
 	config_frame	*frame;
 
 	/* get a new frame and initialize it */
@@ -557,7 +557,7 @@ static config_frame *config_frame_fast(tvbuff_t *tvb)
 
 	/* Skip to time base for FRACSEC */
 	offset += 11; // high 8 bits reserved for flags, so +1 byte
-	frame->time_base = tvb_get_guint24(tvb, offset,ENC_BIG_ENDIAN);
+	frame->time_base = tvb_get_uint24(tvb, offset,ENC_BIG_ENDIAN);
 
 	/* Next number of PMU blocks */
 	offset += 3;
@@ -567,11 +567,11 @@ static config_frame *config_frame_fast(tvbuff_t *tvb)
 	offset += 2;
 
 	while (num_pmu) {
-		guint16	     format_flags;
-		gint	     num_ph,
+		uint16_t	     format_flags;
+		int	     num_ph,
 			     num_an,
 			     num_dg;
-		gint	     i,
+		int	     i,
 			     phunit,
 			     anunit,
 			     fnom;
@@ -605,7 +605,7 @@ static config_frame *config_frame_fast(tvbuff_t *tvb)
 		/* read num_ph phasor names and conversion factors */
 		for (i = 0; i != num_ph; i++) {
 			phasor_info  pi;
-			guint32	     conv;
+			uint32_t	     conv;
 
 			/* copy the phasor name from the tvb, and add NULL byte */
 			tvb_memcpy(tvb, pi.name, offset, CHNAM_LEN); offset += CHNAM_LEN;
@@ -623,7 +623,7 @@ static config_frame *config_frame_fast(tvbuff_t *tvb)
 		/* read num_an analog value names and conversion factors */
 		for (i = 0; i != num_an; i++) {
 			analog_info ai;
-			guint32	    conv;
+			uint32_t	    conv;
 
 			/* copy the phasor name from the tvb, and add NULL byte */
 			tvb_memcpy(tvb, ai.name, offset, CHNAM_LEN); offset += CHNAM_LEN;
@@ -663,12 +663,12 @@ static config_frame *config_frame_fast(tvbuff_t *tvb)
  */
 static config_frame * config_3_frame_fast(tvbuff_t *tvb)
 {
-	guint16	      num_pmu;
-	gint	      offset;
+	uint16_t	      num_pmu;
+	int	      offset;
 	config_frame *frame;
 	phasor_info  *pi = NULL;
 	analog_info  *ai = NULL;
-	gboolean      frame_not_fragmented;
+	bool          frame_not_fragmented;
 
 	/* get a new frame and initialize it */
 	frame = wmem_new(wmem_file_scope(), config_frame);
@@ -681,11 +681,11 @@ static config_frame * config_3_frame_fast(tvbuff_t *tvb)
 
 	/* Skip to CONT_IDX -- Fragmented Frames not supported at this time */
 	offset += 10;
-	frame_not_fragmented = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN) == 0;
+	frame_not_fragmented = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN) == 0;
 
 	/* Skip to time base for FRACSEC */
 	offset += 3; // high 8 bits reserved for flags, so +1 byte
-	frame->time_base = tvb_get_guint24(tvb, offset,ENC_BIG_ENDIAN);
+	frame->time_base = tvb_get_uint24(tvb, offset,ENC_BIG_ENDIAN);
 
 	/* Skip to number of PMU blocks */
 	offset += 3;
@@ -694,12 +694,12 @@ static config_frame * config_3_frame_fast(tvbuff_t *tvb)
 	/* start of repeating blocks */
 	offset += 2;
 	while ((num_pmu) && (frame_not_fragmented)) {
-		guint16	     format_flags;
-		gint	     num_ph,
+		uint16_t	     format_flags;
+		int	     num_ph,
 			     num_an,
 			     num_dg;
-		gint	     i;
-		guint8	     name_length;
+		int	     i;
+		uint8_t	     name_length;
 		config_block block;
 
 		/* initialize the block */
@@ -789,7 +789,7 @@ static config_frame * config_3_frame_fast(tvbuff_t *tvb)
 		if (num_ph > 0)
 		{
 			for (i = 0; i != num_ph; i++) {
-				guint32 phasor_unit;
+				uint32_t phasor_unit;
 
 				/* get unit */
 				phasor_unit = tvb_get_ntohl(tvb, offset);
@@ -848,14 +848,14 @@ static config_frame * config_3_frame_fast(tvbuff_t *tvb)
  * Returns the framesize, in contrast to most
  * other helper functions that return the offset.
  */
-static gint dissect_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
+static int dissect_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
 {
 	proto_tree *temp_tree;
 	proto_item *temp_item;
 	config_frame *conf;
 
-	gint	offset = 0;
-	guint16	framesize;
+	int	offset = 0;
+	uint16_t	framesize;
 
 	conf = (config_frame *)p_get_proto_data(wmem_file_scope(), pinfo, proto_synphasor, 0);
 
@@ -892,7 +892,7 @@ static gint dissect_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
 
 	// If exist configuration frame, add fracsec in milliseconds
 	if (conf){
-		guint32 fracsec_raw = tvb_get_guint24(tvb, offset, ENC_BIG_ENDIAN);
+		uint32_t fracsec_raw = tvb_get_uint24(tvb, offset, ENC_BIG_ENDIAN);
 		float	fracsec_ms = 1000.0f*fracsec_raw/conf->time_base;
 		proto_tree_add_float(tree, hf_fracsec_ms, tvb, offset, 3, fracsec_ms);
 	} else
@@ -905,9 +905,9 @@ static gint dissect_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
 
 /* Dissects a single phasor for 'dissect_PHASORS()' */
 static int dissect_single_phasor(tvbuff_t *tvb, int offset,
-					gdouble *mag, gdouble *phase, /* returns the resulting values in polar format here */
-					gdouble* real, gdouble* imag, /* returns the resulting values in rectangular format here*/
-					gdouble* mag_real_unscaled, gdouble* phase_imag_unscaled, /* returns unscaled values*/
+					double *mag, double *phase, /* returns the resulting values in polar format here */
+					double* real, double* imag, /* returns the resulting values in rectangular format here*/
+					double* mag_real_unscaled, double* phase_imag_unscaled, /* returns unscaled values*/
 					config_block *block,	      /* information needed to... */
 					phasor_info* pi)	      /*  ...dissect the phasor	*/
 {
@@ -996,12 +996,12 @@ static int dissect_single_phasor(tvbuff_t *tvb, int offset,
 }
 
 /* used by 'dissect_data_frame()' to dissect the PHASORS field */
-static gint dissect_PHASORS(tvbuff_t *tvb, proto_tree *tree, config_block *block, gint offset)
+static int dissect_PHASORS(tvbuff_t *tvb, proto_tree *tree, config_block *block, int offset)
 {
 	proto_tree *phasor_tree;
-	guint	    length;
-	gint	    j;
-	gint	    cnt = wmem_array_get_count(block->phasors); /* number of phasors to dissect */
+	unsigned	    length;
+	int	    j;
+	int	    cnt = wmem_array_get_count(block->phasors); /* number of phasors to dissect */
 
 	if (0 == cnt)
 		return offset;
@@ -1015,8 +1015,8 @@ static gint dissect_PHASORS(tvbuff_t *tvb, proto_tree *tree, config_block *block
 	/* dissect a phasor for every phasor_info saved in the config_block */
 	for (j = 0; j < cnt; j++) {
 		proto_item  *temp_item;
-		gdouble	     mag, phase,real, imag;
-		gdouble	     mag_real_unscaled = NAN, phase_imag_unscaled = NAN;
+		double	     mag, phase,real, imag;
+		double	     mag_real_unscaled = NAN, phase_imag_unscaled = NAN;
 		phasor_info *pi;
 
 		pi = (phasor_info *)wmem_array_index(block->phasors, j);
@@ -1046,7 +1046,7 @@ static gint dissect_PHASORS(tvbuff_t *tvb, proto_tree *tree, config_block *block
 }
 
 /* used by 'dissect_data_frame()' to dissect the FREQ and DFREQ fields */
-static gint dissect_DFREQ(tvbuff_t *tvb, proto_tree *tree, config_block *block, gint offset)
+static int dissect_DFREQ(tvbuff_t *tvb, proto_tree *tree, config_block *block, int offset)
 {
 	if (floating_point == block->format_fr) {
 		proto_tree_add_item(tree, hf_synphasor_actual_frequency_value, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1059,7 +1059,7 @@ static gint dissect_DFREQ(tvbuff_t *tvb, proto_tree *tree, config_block *block, 
 		offset += 4;
 	}
 	else {
-		gint16 tmp;
+		int16_t tmp;
 
 		tmp = tvb_get_ntohs(tvb, offset);
 		proto_tree_add_int_format_value(tree, hf_synphasor_frequency_deviation_from_nominal, tvb, offset, 2, tmp,
@@ -1067,18 +1067,18 @@ static gint dissect_DFREQ(tvbuff_t *tvb, proto_tree *tree, config_block *block, 
 		offset += 2;
 
 		tmp = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_float_format_value(tree, hf_synphasor_rate_change_frequency, tvb, offset, 2, (gfloat)(tmp / 100.0), "%.3fHz/s", tmp / 100.0); offset += 2;
+		proto_tree_add_float_format_value(tree, hf_synphasor_rate_change_frequency, tvb, offset, 2, (float)(tmp / 100.0), "%.3fHz/s", tmp / 100.0); offset += 2;
 	}
 	return offset;
 }
 
 /* used by 'dissect_data_frame()' to dissect the ANALOG field */
-static gint dissect_ANALOG(tvbuff_t *tvb, proto_tree *tree, config_block *block, gint offset)
+static int dissect_ANALOG(tvbuff_t *tvb, proto_tree *tree, config_block *block, int offset)
 {
 	proto_tree *analog_tree;
-	guint	    length;
-	gint	    j;
-	gint	    cnt = wmem_array_get_count(block->analogs); /* number of analog values to dissect */
+	unsigned	    length;
+	int	    j;
+	int	    cnt = wmem_array_get_count(block->analogs); /* number of analog values to dissect */
 
 	if (0 == cnt)
 		return offset;
@@ -1098,7 +1098,7 @@ static gint dissect_ANALOG(tvbuff_t *tvb, proto_tree *tree, config_block *block,
 		if (block->cfg_frame_type == 3)
 		{
 			if (floating_point == block->format_an) {
-				gfloat tmp;
+				float tmp;
 
 				tmp = tvb_get_ntohieee_float(tvb, offset);
 				offset += 4;
@@ -1107,9 +1107,9 @@ static gint dissect_ANALOG(tvbuff_t *tvb, proto_tree *tree, config_block *block,
 			}
 			else {
 				/* the "standard" doesn't say if this is signed or unsigned,
-				* so I just use gint16 */
-				gint16 tmp_i;
-				gfloat tmp_f;
+				* so I just use int16_t */
+				int16_t tmp_i;
+				float tmp_f;
 
 				tmp_i = tvb_get_ntohs(tvb, offset);
 				offset += 2;
@@ -1122,14 +1122,14 @@ static gint dissect_ANALOG(tvbuff_t *tvb, proto_tree *tree, config_block *block,
 		else
 		{
 			if (floating_point == block->format_an) {
-				gfloat tmp = tvb_get_ntohieee_float(tvb, offset); offset += 4;
+				float tmp = tvb_get_ntohieee_float(tvb, offset); offset += 4;
 				proto_item_append_text(temp_item, ", %.3f", tmp);
 			}
 			else {
 				/* the "standard" doesn't say if this is signed or unsigned,
-				 * so I just use gint16; the scaling of the conversion factor
+				 * so I just use int16_t; the scaling of the conversion factor
 				 * is also "user defined", so I just write it after the analog value */
-				gint16 tmp = tvb_get_ntohs(tvb, offset); offset += 2;
+				int16_t tmp = tvb_get_ntohs(tvb, offset); offset += 2;
 				proto_item_append_text(temp_item, ", %" PRId16 " (conversion factor: %#06x)",
 						       tmp, ai->conv);
 			}
@@ -1139,10 +1139,10 @@ static gint dissect_ANALOG(tvbuff_t *tvb, proto_tree *tree, config_block *block,
 }
 
 /* used by 'dissect_data_frame()' to dissect the DIGITAL field */
-static gint dissect_DIGITAL(tvbuff_t *tvb, proto_tree *tree, config_block *block, gint offset)
+static int dissect_DIGITAL(tvbuff_t *tvb, proto_tree *tree, config_block *block, int offset)
 {
-	gint	    j;
-	gint	    cnt = block->num_dg; /* number of digital status words to dissect */
+	int	    j;
+	int	    cnt = block->num_dg; /* number of digital status words to dissect */
 
 	if (0 == cnt)
 		return offset;
@@ -1151,7 +1151,7 @@ static gint dissect_DIGITAL(tvbuff_t *tvb, proto_tree *tree, config_block *block
 					     "Digital status words (%u)", cnt);
 
 	for (j = 0; j < cnt; j++) {
-		guint16 tmp = tvb_get_ntohs(tvb, offset);
+		uint16_t tmp = tvb_get_ntohs(tvb, offset);
 		proto_tree_add_uint_format(tree, hf_synphasor_digital_status_word, tvb, offset, 2, tmp, "Digital status word #%u: 0x%04x", j + 1, tmp);
 		offset += 2;
 	}
@@ -1159,10 +1159,10 @@ static gint dissect_DIGITAL(tvbuff_t *tvb, proto_tree *tree, config_block *block
 }
 
 /* used by 'dissect_config_frame()' to dissect the PHUNIT field */
-static gint dissect_PHUNIT(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cnt)
+static int dissect_PHUNIT(tvbuff_t *tvb, proto_tree *tree, int offset, int cnt)
 {
 	proto_tree *temp_tree;
-	gint i;
+	int i;
 
 	if (0 == cnt)
 		return offset;
@@ -1175,7 +1175,7 @@ static gint dissect_PHUNIT(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cn
 	 * Lower 3 Bytes: unsigned 24-bit word in 10^-5 V or A per bit to scale the phasor value
 	 */
 	for (i = 0; i < cnt; i++) {
-		guint32 tmp = tvb_get_ntohl(tvb, offset);
+		uint32_t tmp = tvb_get_ntohl(tvb, offset);
 		proto_tree_add_uint_format(temp_tree, hf_synphasor_conversion_factor, tvb, offset, 4,
 				    tmp, "#%u factor: %u * 10^-5, unit: %s",
 				    i + 1,
@@ -1188,10 +1188,10 @@ static gint dissect_PHUNIT(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cn
 }
 
 /* used by 'dissect_config_3_frame()' to dissect the PHSCALE field */
-static gint dissect_PHSCALE(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cnt)
+static int dissect_PHSCALE(tvbuff_t *tvb, proto_tree *tree, int offset, int cnt)
 {
 	proto_tree *temp_tree;
-	gint i;
+	int i;
 
 	if (0 == cnt) {
 		return offset;
@@ -1212,7 +1212,7 @@ static gint dissect_PHSCALE(tvbuff_t *tvb, proto_tree *tree, gint offset, gint c
 
 		data_flag_tree = proto_tree_add_subtree_format(single_phasor_scaling_and_flags_tree, tvb, offset, 4,
 							       ett_conf_phflags, NULL, "Phasor Data flags: %s",
-							       val_to_str_const(tvb_get_guint8(tvb, offset + 2), conf_phasor_type, "Unknown"));
+							       val_to_str_const(tvb_get_uint8(tvb, offset + 2), conf_phasor_type, "Unknown"));
 
 		/* first and second bytes - phasor modification flags*/
 		phasor_flag1_tree = proto_tree_add_subtree_format(data_flag_tree, tvb, offset, 2, ett_conf_phmod_flags,
@@ -1240,7 +1240,7 @@ static gint dissect_PHSCALE(tvbuff_t *tvb, proto_tree *tree, gint offset, gint c
 		/* fourth byte - user designation*/
 		phasor_flag2_tree = proto_tree_add_subtree_format(data_flag_tree, tvb, offset, 1, ett_conf_ph_user_flags,
 								  NULL, "User designated flags: 0x%02x",
-								  tvb_get_guint8(tvb, offset));
+								  tvb_get_uint8(tvb, offset));
 
 		proto_tree_add_item(phasor_flag2_tree, hf_conf_phasor_user_data, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
@@ -1260,11 +1260,11 @@ static gint dissect_PHSCALE(tvbuff_t *tvb, proto_tree *tree, gint offset, gint c
 }
 
 /* used by 'dissect_config_frame()' to dissect the ANUNIT field */
-static gint dissect_ANUNIT(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cnt)
+static int dissect_ANUNIT(tvbuff_t *tvb, proto_tree *tree, int offset, int cnt)
 {
 	proto_item *temp_item;
 	proto_tree *temp_tree;
-	gint i;
+	int i;
 
 	if (0 == cnt)
 		return offset;
@@ -1277,7 +1277,7 @@ static gint dissect_ANUNIT(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cn
 	 * Lower 3 Bytes: signed 24-bit word, user-defined scaling
 	 */
 	for (i = 0; i < cnt; i++) {
-		gint32 tmp = tvb_get_ntohl(tvb, offset);
+		int32_t tmp = tvb_get_ntohl(tvb, offset);
 		temp_item = proto_tree_add_uint_format(temp_tree, hf_synphasor_factor_for_analog_value, tvb, offset, 4,
 						tmp, "Factor for analog value #%i: %s",
 						i + 1,
@@ -1296,10 +1296,10 @@ static gint dissect_ANUNIT(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cn
 }
 
 /* used by 'dissect_config_3_frame()' to dissect the ANSCALE field */
-static gint dissect_ANSCALE(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cnt)
+static int dissect_ANSCALE(tvbuff_t *tvb, proto_tree *tree, int offset, int cnt)
 {
 	proto_tree *temp_tree;
-	gint i;
+	int i;
 
 	if (0 == cnt) {
 		return offset;
@@ -1334,10 +1334,10 @@ static gint dissect_ANSCALE(tvbuff_t *tvb, proto_tree *tree, gint offset, gint c
 }
 
 /* used by 'dissect_config_frame()' to dissect the DIGUNIT field */
-static gint dissect_DIGUNIT(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cnt)
+static int dissect_DIGUNIT(tvbuff_t *tvb, proto_tree *tree, int offset, int cnt)
 {
 	proto_tree *temp_tree, *mask_tree;
-	gint i;
+	int i;
 
 	if (0 == cnt)
 		return offset;
@@ -1360,10 +1360,10 @@ static gint dissect_DIGUNIT(tvbuff_t *tvb, proto_tree *tree, gint offset, gint c
 }
 
 /* used by 'dissect_config_frame()' to dissect the "channel name"-fields */
-static gint dissect_CHNAM(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cnt, const char *prefix)
+static int dissect_CHNAM(tvbuff_t *tvb, proto_tree *tree, int offset, int cnt, const char *prefix)
 {
 	proto_tree *temp_tree;
-	gint i;
+	int i;
 
 	if (0 == cnt)
 		return offset;
@@ -1384,13 +1384,13 @@ static gint dissect_CHNAM(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cnt
 }
 
 /* used by 'dissect_config_3_frame()' to dissect the "channel name"-fields */
-static gint dissect_config_3_CHNAM(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cnt, const char *prefix)
+static int dissect_config_3_CHNAM(tvbuff_t *tvb, proto_tree *tree, int offset, int cnt, const char *prefix)
 {
 	proto_tree *temp_tree, *chnam_tree;
-	gint i;
-	guint8 name_length;
-	gint temp_offset;
-	gint subsection_length = 0;
+	int i;
+	uint8_t name_length;
+	int temp_offset;
+	int subsection_length = 0;
 
 	if (0 == cnt) {
 		return offset;
@@ -1431,8 +1431,8 @@ static gint dissect_config_3_CHNAM(tvbuff_t *tvb, proto_tree *tree, gint offset,
 static int dissect_config_frame(tvbuff_t *tvb, proto_item *config_item)
 {
 	proto_tree *config_tree;
-	gint	    offset = 0;
-	guint16	    num_pmu, j;
+	int	    offset = 0;
+	uint16_t	    num_pmu, j;
 
 	proto_item_set_text   (config_item, "Configuration data");
 	config_tree = proto_item_add_subtree(config_item, ett_conf);
@@ -1447,13 +1447,13 @@ static int dissect_config_frame(tvbuff_t *tvb, proto_item *config_item)
 
 	/* dissect the repeating PMU blocks */
 	for (j = 0; j < num_pmu; j++) {
-		guint16	    num_ph, num_an, num_dg;
+		uint16_t	    num_ph, num_an, num_dg;
 		proto_item *station_item;
 		proto_tree *station_tree;
 		proto_tree *temp_tree;
 		char	   *str;
 
-		gint oldoffset = offset; /* to calculate the length of the whole PMU block later */
+		int oldoffset = offset; /* to calculate the length of the whole PMU block later */
 
 		/* STN with new tree to add the rest of the PMU block */
 		str = (char *)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, CHNAM_LEN, ENC_ASCII);
@@ -1503,13 +1503,13 @@ static int dissect_config_frame(tvbuff_t *tvb, proto_item *config_item)
 
 	/* DATA_RATE */
 	{
-		gint16 tmp = tvb_get_ntohis(tvb, offset);
+		int16_t tmp = tvb_get_ntohis(tvb, offset);
 		if (tmp > 0)
 			proto_tree_add_int_format_value(config_tree, hf_synphasor_rate_of_transmission, tvb, offset, 2, tmp,
                         "%d frame(s) per second", tmp);
 		else
 			proto_tree_add_int_format_value(config_tree, hf_synphasor_rate_of_transmission, tvb, offset, 2, tmp,
-                        "1 frame per %d second(s)", (gint16)-tmp);
+                        "1 frame per %d second(s)", (int16_t)-tmp);
 		offset += 2;
 	}
 
@@ -1520,8 +1520,8 @@ static int dissect_config_frame(tvbuff_t *tvb, proto_item *config_item)
 static int dissect_config_3_frame(tvbuff_t *tvb, proto_item *config_item)
 {
 	proto_tree *config_tree, *wgs84_tree;
-	gint	    offset = 0;
-	guint16	    num_pmu, j;
+	int	    offset = 0;
+	uint16_t	    num_pmu, j;
 
 	proto_item_set_text(config_item, "Configuration data");
 	config_tree = proto_item_add_subtree(config_item, ett_conf);
@@ -1546,16 +1546,16 @@ static int dissect_config_3_frame(tvbuff_t *tvb, proto_item *config_item)
 
 	/* dissect the repeating PMU blocks */
 	for (j = 0; j < num_pmu; j++) {
-		guint16    num_ph, num_an, num_dg, i;
-		guint8     name_length;
-		gint       oldoffset;
-		gfloat     pmu_lat, pmu_long, pmu_elev;
+		uint16_t   num_ph, num_an, num_dg, i;
+		uint8_t    name_length;
+		int        oldoffset;
+		float      pmu_lat, pmu_long, pmu_elev;
 		proto_item *station_item;
 		proto_tree *station_tree;
 		proto_tree *temp_tree;
 		char       *str, *service_class;
 		char       *unspecified_location = "Unspecified Location";
-		guint8     g_pmu_id_array[G_PMU_ID_LEN];
+		uint8_t    g_pmu_id_array[G_PMU_ID_LEN];
 
 		oldoffset = offset; /* to calculate the length of the whole PMU block later */
 
@@ -1581,7 +1581,7 @@ static int dissect_config_3_frame(tvbuff_t *tvb, proto_item *config_item)
 		/* G_PMU_ID */
 		/* A 128 bit display as raw bytes */
 		for (i = 0; i < G_PMU_ID_LEN; i++) {
-			g_pmu_id_array[i] = tvb_get_guint8(tvb, offset + i);
+			g_pmu_id_array[i] = tvb_get_uint8(tvb, offset + i);
 		}
 
 		proto_tree_add_bytes_format(station_tree, hf_g_pmu_id, tvb, offset, G_PMU_ID_LEN, 0,
@@ -1695,14 +1695,14 @@ static int dissect_config_3_frame(tvbuff_t *tvb, proto_item *config_item)
 
 	/* DATA_RATE */
 	{
-		gint16 tmp = tvb_get_ntohis(tvb, offset);
+		int16_t tmp = tvb_get_ntohis(tvb, offset);
 		if (tmp > 0) {
 			proto_tree_add_int_format_value(config_tree, hf_synphasor_rate_of_transmission, tvb, offset, 2, tmp,
 							"%d frame(s) per second", tmp);
 		}
 		else {
 			proto_tree_add_int_format_value(config_tree, hf_synphasor_rate_of_transmission, tvb, offset, 2, tmp,
-							"1 frame per %d second(s)", (gint16)-tmp);
+							"1 frame per %d second(s)", (int16_t)-tmp);
 		}
 		offset += 2;
 	}
@@ -1723,8 +1723,8 @@ static int dissect_data_frame(tvbuff_t	  *tvb,
 			      packet_info *pinfo)     /* used to find the data from a CFG-2 or CFG-3 frame */
 {
 	proto_tree	*data_tree;
-	gint		offset	 = 0;
-	guint		i;
+	int		offset	 = 0;
+	unsigned		i;
 	config_frame	*conf;
 
 	proto_item_set_text(data_item, "Measurement data");
@@ -1732,7 +1732,7 @@ static int dissect_data_frame(tvbuff_t	  *tvb,
 
 	/* search for configuration information to dissect the frame */
 	{
-		gboolean config_found = FALSE;
+		bool config_found = false;
 		conf = (config_frame *)p_get_proto_data(wmem_file_scope(), pinfo, proto_synphasor, 0);
 
 		if (conf) {
@@ -1748,7 +1748,7 @@ static int dissect_data_frame(tvbuff_t	  *tvb,
 				// Add link to CFG Frame
 				proto_item* item = proto_tree_add_uint(data_tree, hf_cfg_frame_num, tvb, 0,0, conf->fnum);
 				proto_item_set_generated(item);
-				config_found = TRUE;
+				config_found = true;
 			}
 		}
 
@@ -1770,12 +1770,12 @@ static int dissect_data_frame(tvbuff_t	  *tvb,
 		proto_tree *temp_tree = proto_tree_add_subtree(block_tree, tvb, offset, 2, ett_data_stat, NULL, "Flags");
 
 		proto_item *temp_item = proto_tree_add_item(temp_tree, hf_data_statb15to14, tvb, offset, 2, ENC_BIG_ENDIAN);
-		guint16 flag_bits = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN)  >> 14; // Get bits 15-14
+		uint16_t flag_bits = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN)  >> 14; // Get bits 15-14
 		if (flag_bits != 0) {
 			expert_add_info(pinfo, temp_item, &ei_synphasor_data_error);
 		}
 		temp_item = proto_tree_add_item(temp_tree, hf_data_statb13,	    tvb, offset, 2, ENC_BIG_ENDIAN);
-		flag_bits = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN); // Get flag bits
+		flag_bits = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN); // Get flag bits
 		if ((flag_bits >> 13)&1) { // Check 13 bit
 			expert_add_info(pinfo, temp_item, &ei_synphasor_pmu_not_sync);
 		}
@@ -1807,7 +1807,7 @@ static int dissect_command_frame(tvbuff_t    *tvb,
 				 packet_info *pinfo)
 {
 	proto_tree *command_tree;
-	guint	    tvbsize	  = tvb_reported_length(tvb);
+	unsigned	    tvbsize	  = tvb_reported_length(tvb);
 	const char *s;
 
 	proto_item_set_text(command_item, "Command data");
@@ -1839,20 +1839,20 @@ static int dissect_command_frame(tvbuff_t    *tvb,
  */
 static int dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	guint8	frame_type;
-	guint16 crc;
-	guint	tvbsize = tvb_reported_length(tvb);
+	uint8_t	frame_type;
+	uint16_t crc;
+	unsigned	tvbsize = tvb_reported_length(tvb);
 
 	/* some heuristics */
 	if (tvbsize < 17		    /* 17 bytes = header frame with only a
 					       NULL character, useless but valid */
-	 || tvb_get_guint8(tvb, 0) != 0xAA) /* every synchrophasor frame starts with 0xAA */
+	 || tvb_get_uint8(tvb, 0) != 0xAA) /* every synchrophasor frame starts with 0xAA */
 		return 0;
 
 	/* write the protocol name to the info column */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
 
-	frame_type = tvb_get_guint8(tvb, 1) >> 4;
+	frame_type = tvb_get_uint8(tvb, 1) >> 4;
 
 	col_add_str(pinfo->cinfo, COL_INFO, val_to_str_const(frame_type, typenames, "invalid packet type"));
 
@@ -1914,10 +1914,10 @@ static int dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 		proto_item *temp_item;
 		proto_item *sub_item;
 
-		gint	    offset;
-		guint16	    framesize;
+		int	    offset;
+		uint16_t	    framesize;
 		tvbuff_t   *sub_tvb;
-		gboolean   crc_good;
+		bool       crc_good;
 
 		temp_item = proto_tree_add_item(tree, proto_synphasor, tvb, 0, -1, ENC_NA);
 		proto_item_append_text(temp_item, ", %s", val_to_str_const(frame_type, typenames,
@@ -1961,7 +1961,7 @@ static int dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 					/* Note:  The C37.118-2.2001 stanadard is vague on how to handle fragmented frames.
 						  Until further clarification is given, fragmented frames with the CONT_IDX
 						  are not supported. */
-					if (tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN) != 0) {
+					if (tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN) != 0) {
 						proto_item_append_text(sub_item, ", CFG-3 Fragmented Frame (Not Supported)");
 					}
 					else {
@@ -1987,7 +1987,7 @@ static int dissect_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 }
 
 /* callback for 'tcp_dissect_pdus()' to give it the length of the frame */
-static guint get_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb,
+static unsigned get_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb,
                             int offset, void *data _U_)
 {
 	return tvb_get_ntohs(tvb, offset + 2);
@@ -1995,7 +1995,7 @@ static guint get_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb,
 
 static int dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 4, get_pdu_length, dissect_common, data);
+	tcp_dissect_pdus(tvb, pinfo, tree, true, 4, get_pdu_length, dissect_common, data);
 
 	return tvb_reported_length(tvb);
 }
@@ -2301,7 +2301,7 @@ void proto_register_synphasor(void)
 	};
 
 	/* protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_synphasor,
 		&ett_frtype,
 		&ett_timequal,

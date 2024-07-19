@@ -76,13 +76,13 @@ static int hf_scylla_read_data_timeout;
 static int hf_scylla_read_data_table_id;
 static int hf_scylla_read_data_schema_version;
 
-static gint ett_scylla;
-static gint ett_scylla_header;
-static gint ett_scylla_response;
-static gint ett_scylla_negotiation;
-static gint ett_scylla_mut;
-static gint ett_scylla_mut_pkey;
-static gint ett_scylla_read_data;
+static int ett_scylla;
+static int ett_scylla_header;
+static int ett_scylla_response;
+static int ett_scylla_negotiation;
+static int ett_scylla_mut;
+static int ett_scylla_mut_pkey;
+static int ett_scylla_read_data;
 
 static bool scylla_desegment = true;
 
@@ -188,27 +188,27 @@ static const val64_string packettypenames[] = {
     {0, NULL}
 };
 
-static gboolean
-looks_like_rpc_negotiation(tvbuff_t *tvb, const gint offset) {
-    return tvb_memeql(tvb, offset, (const guint8 *)"SSTARRPC", 8) == 0;
+static bool
+looks_like_rpc_negotiation(tvbuff_t *tvb, const int offset) {
+    return tvb_memeql(tvb, offset, (const uint8_t *)"SSTARRPC", 8) == 0;
 }
 
-static gboolean
-looks_like_response(guint64 verb_type, guint32 len) {
+static bool
+looks_like_response(uint64_t verb_type, uint32_t len) {
     return verb_type >= LAST || len > 64*1024*1024;
 }
 
 typedef struct {
-    guint64 verb_type;
-    guint32 request_frame_num;
-    guint32 response_frame_num;
+    uint64_t verb_type;
+    uint32_t request_frame_num;
+    uint32_t response_frame_num;
 } request_response_t;
 
-static guint
+static unsigned
 get_scylla_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
-    guint64 verb_type = LAST;
-    guint32 plen = 0;
+    uint64_t verb_type = LAST;
+    uint32_t plen = 0;
     if (looks_like_rpc_negotiation(tvb, offset)) {
         return tvb_get_letohl(tvb, offset + SCYLLA_NEGOTIATION_LEN_OFFSET) + SCYLLA_NEGOTIATION_SIZE;
     }
@@ -226,13 +226,13 @@ get_scylla_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data
 static int
 dissect_scylla_negotiation_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *scylla_tree)
 {
-    gint offset = 0;
-    guint32 len = tvb_get_letohl(tvb, offset + SCYLLA_NEGOTIATION_LEN_OFFSET) + SCYLLA_NEGOTIATION_SIZE;
+    int offset = 0;
+    uint32_t len = tvb_get_letohl(tvb, offset + SCYLLA_NEGOTIATION_LEN_OFFSET) + SCYLLA_NEGOTIATION_SIZE;
 
     proto_tree *scylla_negotiation_tree = proto_tree_add_subtree(scylla_tree, tvb, offset,
             len, ett_scylla_negotiation, NULL, "Protocol negotiation");
     proto_tree_add_item(scylla_negotiation_tree, hf_scylla_negotiation_magic, tvb, offset, 8, ENC_ASCII);
-    gint negotiation_offset = 8;
+    int negotiation_offset = 8;
     proto_tree_add_item(scylla_negotiation_tree, hf_scylla_negotiation_size, tvb, offset + negotiation_offset, 4, ENC_LITTLE_ENDIAN);
     negotiation_offset += 4;
     proto_tree_add_item(scylla_negotiation_tree, hf_scylla_payload, tvb, offset + negotiation_offset, len - negotiation_offset, ENC_NA);
@@ -245,17 +245,17 @@ dissect_scylla_negotiation_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sc
 static int
 dissect_scylla_response_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *scylla_tree, request_response_t *req_resp)
 {
-    gint offset = 0;
-    guint32 len = tvb_get_letohl(tvb, offset + SCYLLA_RESPONSE_LEN_OFFSET) + SCYLLA_RESPONSE_SIZE;
+    int offset = 0;
+    uint32_t len = tvb_get_letohl(tvb, offset + SCYLLA_RESPONSE_LEN_OFFSET) + SCYLLA_RESPONSE_SIZE;
 
     /* Add response subtree */
     proto_item *response_ti = proto_tree_add_string_format(scylla_tree, hf_scylla_response,
                                                            tvb, offset, len, "", "Response");
     proto_tree *scylla_response_tree = proto_item_add_subtree(response_ti, ett_scylla_response);
 
-    gint resp_offset = 0;
+    int resp_offset = 0;
 
-    guint64 msg_id;
+    uint64_t msg_id;
     proto_tree_add_item_ret_uint64(scylla_response_tree, hf_scylla_msg_id, tvb, offset + resp_offset, 8, ENC_LITTLE_ENDIAN, &msg_id);
     resp_offset += 8;
     proto_tree_add_item(scylla_response_tree, hf_scylla_response_size, tvb, offset + resp_offset, 4, ENC_LITTLE_ENDIAN);
@@ -285,9 +285,9 @@ dissect_scylla_response_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *scyll
 }
 
 static int
-dissect_scylla_msg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *scylla_tree, proto_item *ti, guint64 verb_type, guint32 len, request_response_t *req_resp)
+dissect_scylla_msg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *scylla_tree, proto_item *ti, uint64_t verb_type, uint32_t len, request_response_t *req_resp)
 {
-    gint offset = 0;
+    int offset = 0;
 
     /* Add request subtree */
     proto_item *request_ti = proto_tree_add_string_format(scylla_tree, hf_scylla_request,
@@ -301,7 +301,7 @@ dissect_scylla_msg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *scylla_tre
     proto_item_append_text(ti, ", Type %s", val64_to_str(verb_type, packettypenames, "Unknown (0x%02x)"));
     proto_tree_add_item(scylla_header_tree, hf_scylla_verb, tvb, offset, 8, ENC_LITTLE_ENDIAN);
     offset += 8;
-    guint64 msg_id;
+    uint64_t msg_id;
     proto_tree_add_item_ret_uint64(scylla_header_tree, hf_scylla_msg_id, tvb, offset, 8, ENC_LITTLE_ENDIAN, &msg_id);
     offset += 8;
     proto_tree_add_item(scylla_header_tree, hf_scylla_len, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -313,9 +313,9 @@ dissect_scylla_msg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *scylla_tre
     case MUTATION: {
         proto_tree* scylla_mut_tree = proto_tree_add_subtree(scylla_tree, tvb, offset,
                 len, ett_scylla_mut, NULL, "Mutation");
-        gint mut_offset = 0;
-        guint32 len_keys;
-        guint32 num_keys;
+        int mut_offset = 0;
+        uint32_t len_keys;
+        uint32_t num_keys;
         proto_tree_add_item(scylla_mut_tree, hf_scylla_mut_size1, tvb, offset + mut_offset, 4, ENC_LITTLE_ENDIAN);
         mut_offset += 4;
         proto_tree_add_item(scylla_mut_tree, hf_scylla_mut_size2, tvb, offset + mut_offset, 4, ENC_LITTLE_ENDIAN);
@@ -330,9 +330,9 @@ dissect_scylla_msg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *scylla_tre
                 len - mut_offset, ett_scylla_mut_pkey, NULL, "Partition key");
         proto_tree_add_item_ret_uint(scylla_mut_pkey_tree, hf_scylla_mut_num_pkeys, tvb, offset + mut_offset, 4, ENC_LITTLE_ENDIAN, &num_keys);
         mut_offset += 4;
-        guint i;
+        unsigned i;
         for (i = 0; i < num_keys; ++i) {
-            guint32 len_pkey = tvb_get_letohl(tvb, offset + mut_offset);
+            uint32_t len_pkey = tvb_get_letohl(tvb, offset + mut_offset);
             proto_tree_add_item(scylla_mut_pkey_tree, hf_scylla_mut_len_pkey, tvb, offset + mut_offset, 4, ENC_LITTLE_ENDIAN);
             mut_offset += 4;
             proto_tree_add_item(scylla_mut_pkey_tree, hf_scylla_mut_pkey, tvb, offset + mut_offset, len_pkey, ENC_NA);
@@ -345,7 +345,7 @@ dissect_scylla_msg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *scylla_tre
     case READ_DATA: {
         proto_tree* scylla_read_tree = proto_tree_add_subtree(scylla_tree, tvb, offset,
                 len, ett_scylla_read_data, NULL, "Read data");
-        gint rd_offset = 0;
+        int rd_offset = 0;
 
         proto_tree_add_item(scylla_read_tree, hf_scylla_read_data_timeout, tvb, offset + rd_offset, 4, ENC_LITTLE_ENDIAN);
         rd_offset += 4;
@@ -380,8 +380,8 @@ dissect_scylla_msg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *scylla_tre
     return tvb_reported_length(tvb);
 }
 
-static gboolean
-response_expected(guint64 verb_type)
+static bool
+response_expected(uint64_t verb_type)
 {
     switch (verb_type) {
     case GOSSIP_DIGEST_SYN:
@@ -395,9 +395,9 @@ response_expected(guint64 verb_type)
     case HINT_MUTATION:
     case PAXOS_LEARN:
     case PAXOS_PRUNE:
-        return FALSE;
+        return false;
     default:
-        return TRUE;
+        return true;
     }
 }
 
@@ -405,15 +405,15 @@ response_expected(guint64 verb_type)
 static int
 dissect_scylla_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    gint offset = 0;
+    int offset = 0;
     conversation_t *conversation;
     wmem_map_t *conv_map;
 
     proto_item *ti = proto_tree_add_item(tree, proto_scylla, tvb, 0, -1, ENC_NA);
     proto_tree *scylla_tree = proto_item_add_subtree(ti, ett_scylla);
 
-    guint64 verb_type = LAST;
-    guint32 len = 0;
+    uint64_t verb_type = LAST;
+    uint32_t len = 0;
 
     if (looks_like_rpc_negotiation(tvb, offset)) {
         return dissect_scylla_negotiation_pdu(tvb, pinfo, scylla_tree);
@@ -433,18 +433,18 @@ dissect_scylla_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
     if (looks_like_response(verb_type, len)) {
         void *req_resp;
-        guint64 msg_id;
+        uint64_t msg_id;
         msg_id = tvb_get_letoh64(tvb, offset + SCYLLA_RESPONSE_MSG_ID_OFFSET);
         req_resp = wmem_map_lookup(conv_map, &msg_id);
         return dissect_scylla_response_pdu(tvb, pinfo, scylla_tree, (request_response_t *)req_resp);
     }
 
-    guint64 msg_id = tvb_get_letoh64(tvb, offset + SCYLLA_HEADER_MSG_ID_OFFSET);
+    uint64_t msg_id = tvb_get_letoh64(tvb, offset + SCYLLA_HEADER_MSG_ID_OFFSET);
     void *req_resp = NULL;
 
     if (response_expected(verb_type)) {
         if (!PINFO_FD_VISITED(pinfo)) {
-            guint64 *key = wmem_new(wmem_file_scope(), guint64);
+            uint64_t *key = wmem_new(wmem_file_scope(), uint64_t);
             request_response_t *val = wmem_new(wmem_file_scope(), request_response_t);
             *key = msg_id;
             val->verb_type = verb_type;
@@ -506,7 +506,7 @@ proto_register_scylla(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_scylla,
         &ett_scylla_header,
         &ett_scylla_response,

@@ -58,33 +58,33 @@ static int hf_ssyncp_rtt_to_server;
 static int hf_ssyncp_rtt_to_client;
 
 /* Initialize the subtree pointers */
-static gint ett_ssyncp;
-static gint ett_ssyncp_decrypted;
+static int ett_ssyncp;
+static int ett_ssyncp_decrypted;
 
 static expert_field ei_ssyncp_fragmented;
 static expert_field ei_ssyncp_bad_key;
 
 static const char *pref_ssyncp_key;
 static char ssyncp_raw_aes_key[16];
-static gboolean have_ssyncp_key;
+static bool have_ssyncp_key;
 
 static dissector_handle_t dissector_protobuf;
 
 typedef struct _ssyncp_conv_info_t {
     /* last sequence numbers per direction */
-    guint64 last_seq[2];
+    uint64_t last_seq[2];
     /* for each direction, have we seen any traffic yet? */
-    gboolean seen_packet[2];
+    bool seen_packet[2];
 
-    guint16 clock_offset[2];
-    gboolean clock_seen[2];
+    uint16_t clock_offset[2];
+    bool clock_seen[2];
 } ssyncp_conv_info_t;
 
 typedef struct _ssyncp_packet_info_t {
-    gboolean first_packet;
-    gint64 seq_delta;
-    gboolean have_rtt_estimate;
-    gint16 rtt_estimate;
+    bool first_packet;
+    int64_t seq_delta;
+    bool have_rtt_estimate;
+    int16_t rtt_estimate;
 } ssyncp_packet_info_t;
 
 #define SSYNCP_IV_PAD 4
@@ -109,9 +109,9 @@ dissect_ssyncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (tvb_reported_length(tvb) < SSYNCP_DATAGRAM_HEADER_LEN + SSYNCP_TRANSPORT_HEADER_LEN + SSYNCP_AUTHTAG_LEN)
         return 0;
 
-    guint64 direction_and_seq = tvb_get_guint64(tvb, 0, ENC_BIG_ENDIAN);
-    guint direction = direction_and_seq >> 63;
-    guint64 seq = direction_and_seq & ~(1ULL << 63);
+    uint64_t direction_and_seq = tvb_get_uint64(tvb, 0, ENC_BIG_ENDIAN);
+    unsigned direction = direction_and_seq >> 63;
+    uint64_t seq = direction_and_seq & ~(1ULL << 63);
 
     /* Heuristic: The 63-bit sequence number starts from zero and increments
      * from there. Even if you send 1000 packets per second over 10 years, you
@@ -135,20 +135,20 @@ dissect_ssyncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (!ssyncp_info) {
             ssyncp_info = wmem_new(wmem_file_scope(), ssyncp_conv_info_t);
             conversation_add_proto_data(conversation, proto_ssyncp, ssyncp_info);
-            ssyncp_info->seen_packet[0] = FALSE;
-            ssyncp_info->seen_packet[1] = FALSE;
-            ssyncp_info->clock_seen[0] = FALSE;
-            ssyncp_info->clock_seen[1] = FALSE;
+            ssyncp_info->seen_packet[0] = false;
+            ssyncp_info->seen_packet[1] = false;
+            ssyncp_info->clock_seen[0] = false;
+            ssyncp_info->clock_seen[1] = false;
         }
 
         ssyncp_pinfo = wmem_new(wmem_file_scope(), ssyncp_packet_info_t);
         ssyncp_pinfo->first_packet = !ssyncp_info->seen_packet[direction];
         if (ssyncp_pinfo->first_packet) {
-            ssyncp_info->seen_packet[direction] = TRUE;
+            ssyncp_info->seen_packet[direction] = true;
         } else {
             ssyncp_pinfo->seq_delta = seq - ssyncp_info->last_seq[direction];
         }
-        ssyncp_pinfo->have_rtt_estimate = FALSE;
+        ssyncp_pinfo->have_rtt_estimate = false;
         p_add_proto_data(wmem_file_scope(), pinfo, proto_ssyncp, 0, ssyncp_pinfo);
 
         ssyncp_info->last_seq[direction] = seq;
@@ -190,7 +190,7 @@ dissect_ssyncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     unsigned char *decrypted = NULL;
-    guint decrypted_len = 0;
+    unsigned decrypted_len = 0;
 
     /* avoid build failure on ancient libgcrypt without OCB support */
 #ifdef GCRY_OCB_BLOCK_LEN
@@ -256,15 +256,15 @@ dissect_ssyncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         add_new_data_source(pinfo, decrypted_tvb, "Decrypted data");
 
         if (!pinfo->fd->visited) {
-            guint16 our_clock16 = ((guint64)pinfo->abs_ts.secs * 1000 + pinfo->abs_ts.nsecs / 1000000) & 0xffff;
-            guint16 sender_ts = tvb_get_guint16(decrypted_tvb, 0, ENC_BIG_ENDIAN);
-            guint16 reply_ts = tvb_get_guint16(decrypted_tvb, 2, ENC_BIG_ENDIAN);
+            uint16_t our_clock16 = ((uint64_t)pinfo->abs_ts.secs * 1000 + pinfo->abs_ts.nsecs / 1000000) & 0xffff;
+            uint16_t sender_ts = tvb_get_uint16(decrypted_tvb, 0, ENC_BIG_ENDIAN);
+            uint16_t reply_ts = tvb_get_uint16(decrypted_tvb, 2, ENC_BIG_ENDIAN);
             ssyncp_info->clock_offset[direction] = sender_ts - our_clock16;
-            ssyncp_info->clock_seen[direction] = TRUE;
+            ssyncp_info->clock_seen[direction] = true;
             if (reply_ts != 0xffff && ssyncp_info->clock_seen[1-direction]) {
-                guint16 projected_send_time_our_clock = reply_ts - ssyncp_info->clock_offset[1-direction];
+                uint16_t projected_send_time_our_clock = reply_ts - ssyncp_info->clock_offset[1-direction];
                 ssyncp_pinfo->rtt_estimate = our_clock16 - projected_send_time_our_clock;
-                ssyncp_pinfo->have_rtt_estimate = TRUE;
+                ssyncp_pinfo->have_rtt_estimate = true;
             }
         }
 
@@ -290,7 +290,7 @@ dissect_ssyncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 hf_ssyncp_frag_idx, decrypted_tvb, 12, 2, ENC_BIG_ENDIAN);
 
         /* TODO actually handle fragmentation; for now just bail out on fragmentation */
-        if (tvb_get_guint16(decrypted_tvb, 12, ENC_BIG_ENDIAN) != 0x8000) {
+        if (tvb_get_uint16(decrypted_tvb, 12, ENC_BIG_ENDIAN) != 0x8000) {
             expert_add_info(pinfo, frag_idx_item, &ei_ssyncp_fragmented);
             return tvb_captured_length(tvb);
         }
@@ -384,7 +384,7 @@ proto_register_ssyncp(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_ssyncp,
         &ett_ssyncp_decrypted
     };
@@ -425,7 +425,7 @@ proto_register_ssyncp(void)
 void
 proto_reg_handoff_ssyncp(void)
 {
-    static gboolean initialized = FALSE;
+    static bool initialized = false;
 
     if (!initialized) {
         dissector_add_uint("udp.port", SSYNCP_UDP_PORT, ssyncp_handle);
@@ -435,10 +435,10 @@ proto_reg_handoff_ssyncp(void)
             report_failure("unable to find protobuf dissector");
         }
 
-        initialized = TRUE;
+        initialized = true;
     }
 
-    have_ssyncp_key = FALSE;
+    have_ssyncp_key = false;
     if (strlen(pref_ssyncp_key) != 0) {
         if (strlen(pref_ssyncp_key) != 22) {
             report_failure("ssyncp: invalid key, must be 22 characters long");
@@ -447,13 +447,13 @@ proto_reg_handoff_ssyncp(void)
         char base64_key[25];
         memcpy(base64_key, pref_ssyncp_key, 22);
         memcpy(base64_key+22, "==\0", 3);
-        gsize out_len;
+        size_t out_len;
         if (g_base64_decode_inplace(base64_key, &out_len) == NULL || out_len != sizeof(ssyncp_raw_aes_key)) {
             report_failure("ssyncp: invalid key, base64 decoding (with \"==\" appended) failed");
             return;
         }
         memcpy(ssyncp_raw_aes_key, base64_key, sizeof(ssyncp_raw_aes_key));
-        have_ssyncp_key = TRUE;
+        have_ssyncp_key = true;
     }
 }
 

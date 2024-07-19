@@ -156,12 +156,12 @@ static const fragment_items frag_items = {
 
 static tvbuff_t *
 handle_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-               guint32 pkt_id, guint16 pkt_len, guint16 seg_off)
+               uint32_t pkt_id, uint16_t pkt_len, uint16_t seg_off)
 {
     fragment_head *frags;
     int offset;
-    guint32 frag_data_len;
-    gboolean more_frags;
+    uint32_t frag_data_len;
+    bool more_frags;
 
     /* Skip fake TCP header after the first segment. */
     if (seg_off == 0) {
@@ -192,28 +192,28 @@ handle_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static void
 dissect_stt_checksum(tvbuff_t *tvb, packet_info *pinfo, proto_tree *stt_tree)
 {
-    gboolean can_checksum = !pinfo->fragmented &&
+    bool can_checksum = !pinfo->fragmented &&
                    tvb_bytes_exist(tvb, 0, tvb_reported_length(tvb));
 
     if (can_checksum && pref_check_checksum) {
         vec_t      cksum_vec[4];
-        guint32    phdr[2];
+        uint32_t   phdr[2];
 
         /* Set up the fields of the pseudo-header. */
-        SET_CKSUM_VEC_PTR(cksum_vec[0], (const guint8 *)pinfo->src.data,
+        SET_CKSUM_VEC_PTR(cksum_vec[0], (const uint8_t *)pinfo->src.data,
                           pinfo->src.len);
-        SET_CKSUM_VEC_PTR(cksum_vec[1], (const guint8 *)pinfo->dst.data,
+        SET_CKSUM_VEC_PTR(cksum_vec[1], (const uint8_t *)pinfo->dst.data,
                           pinfo->dst.len);
         switch (pinfo->src.type) {
         case AT_IPv4:
             phdr[0] = g_htonl((IP_PROTO_TCP<<16) + tvb_reported_length(tvb));
-            SET_CKSUM_VEC_PTR(cksum_vec[2], (const guint8 *)phdr, 4);
+            SET_CKSUM_VEC_PTR(cksum_vec[2], (const uint8_t *)phdr, 4);
             break;
 
         case AT_IPv6:
             phdr[0] = g_htonl(tvb_reported_length(tvb));
             phdr[1] = g_htonl(IP_PROTO_TCP);
-            SET_CKSUM_VEC_PTR(cksum_vec[2], (const guint8 *)phdr, 8);
+            SET_CKSUM_VEC_PTR(cksum_vec[2], (const uint8_t *)phdr, 8);
             break;
 
         default:
@@ -283,7 +283,7 @@ dissect_tcp_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *stt_tree)
     tcp_tree = proto_item_add_subtree(tcp_item, ett_stt_tcp_data);
     proto_item_set_text(tcp_item, "TCP Data");
 
-    data_offset = hi_nibble(tvb_get_guint8(tvb, offset)) * 4;
+    data_offset = hi_nibble(tvb_get_uint8(tvb, offset)) * 4;
     data_offset_item = proto_tree_add_uint(tcp_tree,
                                             hf_stt_tcp_data_offset,
                                             tvb, offset, 1,
@@ -330,9 +330,9 @@ dissect_stt_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *stt_tree,
 {
     proto_tree *vlan_tree;
     proto_item *ver_item, *l4_offset_item, *vlan_item, *mss_item;
-    guint8 flags;
-    guint32 version, l4_offset, mss, attributes;
-    guint64 context_id;
+    uint8_t flags;
+    uint32_t version, l4_offset, mss, attributes;
+    uint64_t context_id;
     int offset = STT_TCP_HDR_LEN;
 
     /*
@@ -363,7 +363,7 @@ dissect_stt_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *stt_tree,
     offset++;
 
     /* Flags */
-    flags = tvb_get_guint8(tvb, offset);
+    flags = tvb_get_uint8(tvb, offset);
     offset = dissect_stt_flags(stt_tree, tvb, offset);
 
     /* Layer 4 offset */
@@ -438,9 +438,9 @@ dissect_stt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *stt_item;
     proto_tree *stt_tree;
     tvbuff_t *next_tvb;
-    guint16 seg_off, pkt_len, rx_bytes;
-    guint8 sub_off;
-    gboolean frag_save, is_seg;
+    uint16_t seg_off, pkt_len, rx_bytes;
+    uint8_t sub_off;
+    bool frag_save, is_seg;
 
     /* Make entry in Protocol column on summary display. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "STT");
@@ -460,9 +460,9 @@ dissect_stt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     is_seg = pkt_len > rx_bytes;
 
     if (is_seg) {
-        guint32 pkt_id = tvb_get_ntohl(tvb, STT_TCP_OFF_PKT_ID);
+        uint32_t pkt_id = tvb_get_ntohl(tvb, STT_TCP_OFF_PKT_ID);
 
-        pinfo->fragmented = TRUE;
+        pinfo->fragmented = true;
         col_add_fstr(pinfo->cinfo, COL_INFO,
                      "STT Segment (ID: 0x%x Len: %hu, Off: %hu)",
                       pkt_id, pkt_len, seg_off);
@@ -476,12 +476,12 @@ dissect_stt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (reasm_tvb) {
                 tvb = reasm_tvb;
                 pinfo->fragmented = frag_save;
-                is_seg = FALSE;
+                is_seg = false;
             }
         } else if (seg_off == 0) {
            /* If we're not reassembling, move ahead as if we have the
             *  whole frame. */
-            is_seg = FALSE;
+            is_seg = false;
         }
     }
 
@@ -834,7 +834,7 @@ proto_register_stt(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_stt,
         &ett_stt_tcp_data,
         &ett_stt_tcp_flags,

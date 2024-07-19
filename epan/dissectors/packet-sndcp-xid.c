@@ -46,8 +46,8 @@ static const value_string sndcp_xid_pcomp_algo_str[] = {
 
 typedef struct
 {
-    guint8 nb_of_dcomp_pcomp; /* note that a DCOMP or a PCOMP is 4 bit wide */
-    guint16 (**func_array_ptr) (tvbuff_t *, proto_tree *, guint16);
+    uint8_t nb_of_dcomp_pcomp; /* note that a DCOMP or a PCOMP is 4 bit wide */
+    uint16_t (**func_array_ptr) (tvbuff_t *, proto_tree *, uint16_t);
 } algo_parameters_t;
 
 /* Initialize the protocol and registered fields
@@ -58,8 +58,8 @@ static int proto_sndcp_xid;
 * When the P bit is not set, try to decode the algo based on what whas stored.
 * Entity ranges from 0 to 31 (6.5.1.1.3)
 */
-static guint8 dcomp_entity_algo_id[32];
-static guint8 pcomp_entity_algo_id[32];
+static uint8_t dcomp_entity_algo_id[32];
+static uint8_t pcomp_entity_algo_id[32];
 
 
 /* L3 XID parsing */
@@ -125,19 +125,19 @@ static int hf_sndcp_xid_V44_p3r_lsb;
 
 /* Initialize the subtree pointers
 */
-static gint ett_sndcp_xid;
-static gint ett_sndcp_xid_version_field;
-static gint ett_sndcp_comp_field;
+static int ett_sndcp_xid;
+static int ett_sndcp_xid_version_field;
+static int ett_sndcp_comp_field;
 
-static void parse_compression_parameters(tvbuff_t *tvb, proto_tree *tree, gboolean dcomp);
+static void parse_compression_parameters(tvbuff_t *tvb, proto_tree *tree, bool dcomp);
 /******************************************************/
 /* Compression algorithms element dissector functions */
 /******************************************************/
-static guint16 parse_applicable_nsapi(tvbuff_t *tvb, proto_tree *tree, guint16 offset)
+static uint16_t parse_applicable_nsapi(tvbuff_t *tvb, proto_tree *tree, uint16_t offset)
 {
-    guint8 nsapi_byte1, nsapi_byte2;
-    nsapi_byte1 = tvb_get_guint8(tvb, offset);
-    nsapi_byte2 = tvb_get_guint8(tvb, offset+1);
+    uint8_t nsapi_byte1, nsapi_byte2;
+    nsapi_byte1 = tvb_get_uint8(tvb, offset);
+    nsapi_byte2 = tvb_get_uint8(tvb, offset+1);
 
     proto_tree_add_uint(tree, hf_element_applicable_nsapi_15, tvb, offset, 1, nsapi_byte1);
     proto_tree_add_uint(tree, hf_element_applicable_nsapi_14, tvb, offset, 1, nsapi_byte1);
@@ -156,21 +156,21 @@ static guint16 parse_applicable_nsapi(tvbuff_t *tvb, proto_tree *tree, guint16 o
     return 2U;
 }
 
-static guint16 parse_rfc1144_s0(tvbuff_t *tvb, proto_tree *tree, guint16 offset)
+static uint16_t parse_rfc1144_s0(tvbuff_t *tvb, proto_tree *tree, uint16_t offset)
 {
-    guint8 s0;
-    s0 = tvb_get_guint8(tvb, offset);
+    uint8_t s0;
+    s0 = tvb_get_uint8(tvb, offset);
 
     proto_tree_add_uint(tree, hf_sndcp_xid_rfc1144_s0, tvb, offset, 1, s0);
 
     return 1U;
 }
 
-static guint16 parse_rfc2507_f_max_period(tvbuff_t *tvb, proto_tree *tree, guint16 offset)
+static uint16_t parse_rfc2507_f_max_period(tvbuff_t *tvb, proto_tree *tree, uint16_t offset)
 {
-    guint8 f_max_period_byte1, f_max_period_byte2;
-    f_max_period_byte1 = tvb_get_guint8(tvb, offset);
-    f_max_period_byte2 = tvb_get_guint8(tvb, offset+1);
+    uint8_t f_max_period_byte1, f_max_period_byte2;
+    f_max_period_byte1 = tvb_get_uint8(tvb, offset);
+    f_max_period_byte2 = tvb_get_uint8(tvb, offset+1);
 
     proto_tree_add_uint(tree, hf_sndcp_xid_rfc2507_f_max_period_msb, tvb, offset, 1, f_max_period_byte1);
     proto_tree_add_uint(tree, hf_sndcp_xid_rfc2507_f_max_period_lsb, tvb, offset, 1, f_max_period_byte2);
@@ -178,41 +178,41 @@ static guint16 parse_rfc2507_f_max_period(tvbuff_t *tvb, proto_tree *tree, guint
     return 2U;
 }
 
-static guint16 parse_rfc2507_f_max_time(tvbuff_t *tvb, proto_tree *tree, guint16 offset)
+static uint16_t parse_rfc2507_f_max_time(tvbuff_t *tvb, proto_tree *tree, uint16_t offset)
 {
-    guint8 f_max_time;
-    f_max_time = tvb_get_guint8(tvb, offset);
+    uint8_t f_max_time;
+    f_max_time = tvb_get_uint8(tvb, offset);
 
     proto_tree_add_uint(tree, hf_sndcp_xid_rfc2507_f_max_time, tvb, offset, 1, f_max_time);
 
     return 1U;
 }
 
-static guint16 parse_rfc2507_max_header(tvbuff_t *tvb, proto_tree *tree, guint16 offset)
+static uint16_t parse_rfc2507_max_header(tvbuff_t *tvb, proto_tree *tree, uint16_t offset)
 {
-    guint8 max_header;
-    max_header = tvb_get_guint8(tvb, offset);
+    uint8_t max_header;
+    max_header = tvb_get_uint8(tvb, offset);
 
     proto_tree_add_uint(tree, hf_sndcp_xid_rfc2507_max_header, tvb, offset, 1, max_header);
 
     return 1U;
 }
 
-static guint16 parse_rfc2507_tcp_space(tvbuff_t *tvb, proto_tree *tree, guint16 offset)
+static uint16_t parse_rfc2507_tcp_space(tvbuff_t *tvb, proto_tree *tree, uint16_t offset)
 {
-    guint8 tcp_space;
-    tcp_space = tvb_get_guint8(tvb, offset);
+    uint8_t tcp_space;
+    tcp_space = tvb_get_uint8(tvb, offset);
 
     proto_tree_add_uint(tree, hf_sndcp_xid_rfc2507_tcp_space, tvb, offset, 1, tcp_space);
 
     return 1U;
 }
 
-static guint16 parse_rfc2507_non_tcp_space(tvbuff_t *tvb, proto_tree *tree, guint16 offset)
+static uint16_t parse_rfc2507_non_tcp_space(tvbuff_t *tvb, proto_tree *tree, uint16_t offset)
 {
-    guint8 tcp_space_msb, tcp_space_lsb;
-    tcp_space_msb = tvb_get_guint8(tvb, offset);
-    tcp_space_lsb = tvb_get_guint8(tvb, offset+1);
+    uint8_t tcp_space_msb, tcp_space_lsb;
+    tcp_space_msb = tvb_get_uint8(tvb, offset);
+    tcp_space_lsb = tvb_get_uint8(tvb, offset+1);
 
     proto_tree_add_uint(tree, hf_sndcp_xid_rfc2507_non_tcp_space_msb, tvb, offset, 1, tcp_space_msb);
     proto_tree_add_uint(tree, hf_sndcp_xid_rfc2507_non_tcp_space_lsb, tvb, offset, 1, tcp_space_lsb);
@@ -220,11 +220,11 @@ static guint16 parse_rfc2507_non_tcp_space(tvbuff_t *tvb, proto_tree *tree, guin
     return 2U;
 }
 
-static guint16 parse_rohc_max_cid(tvbuff_t *tvb, proto_tree *tree, guint16 offset)
+static uint16_t parse_rohc_max_cid(tvbuff_t *tvb, proto_tree *tree, uint16_t offset)
 {
-    guint8 max_cid_msb, max_cid_lsb;
-    max_cid_msb = tvb_get_guint8(tvb, offset);
-    max_cid_lsb = tvb_get_guint8(tvb, offset+1);
+    uint8_t max_cid_msb, max_cid_lsb;
+    max_cid_msb = tvb_get_uint8(tvb, offset);
+    max_cid_lsb = tvb_get_uint8(tvb, offset+1);
 
     proto_tree_add_uint(tree, hf_sndcp_xid_rohc_max_cid_spare, tvb, offset, 1, max_cid_msb);
     proto_tree_add_uint(tree, hf_sndcp_xid_rohc_max_cid_msb, tvb, offset, 1, max_cid_msb);
@@ -232,22 +232,22 @@ static guint16 parse_rohc_max_cid(tvbuff_t *tvb, proto_tree *tree, guint16 offse
 
     return 2U;
 }
-static guint16 parse_rohc_max_header(tvbuff_t *tvb, proto_tree *tree, guint16 offset)
+static uint16_t parse_rohc_max_header(tvbuff_t *tvb, proto_tree *tree, uint16_t offset)
 {
-    guint8 max_header;
+    uint8_t max_header;
 
-    max_header = tvb_get_guint8(tvb, offset+1);
+    max_header = tvb_get_uint8(tvb, offset+1);
 
     proto_tree_add_uint(tree, hf_sndcp_xid_rohc_max_header, tvb, offset+1, 1, max_header);
 
     return 2U;
 }
 
-static guint16 parse_rohc_profile(tvbuff_t *tvb, proto_tree *tree, guint16 offset)
+static uint16_t parse_rohc_profile(tvbuff_t *tvb, proto_tree *tree, uint16_t offset)
 {
-    guint8 profile_msb, profile_lsb;
-    profile_msb = tvb_get_guint8(tvb, offset);
-    profile_lsb = tvb_get_guint8(tvb, offset+1);
+    uint8_t profile_msb, profile_lsb;
+    profile_msb = tvb_get_uint8(tvb, offset);
+    profile_lsb = tvb_get_uint8(tvb, offset+1);
 
     proto_tree_add_uint(tree, hf_sndcp_xid_rohc_profile_msb, tvb, offset, 1, profile_msb);
     proto_tree_add_uint(tree, hf_sndcp_xid_rohc_profile_lsb, tvb, offset+1, 1, profile_lsb);
@@ -255,11 +255,11 @@ static guint16 parse_rohc_profile(tvbuff_t *tvb, proto_tree *tree, guint16 offse
     return 2U;
 }
 
-static guint16 parse_V42bis_p0(tvbuff_t *tvb, proto_tree *tree, guint16 offset)
+static uint16_t parse_V42bis_p0(tvbuff_t *tvb, proto_tree *tree, uint16_t offset)
 {
-    guint8 p0;
+    uint8_t p0;
 
-    p0 = tvb_get_guint8(tvb, offset);
+    p0 = tvb_get_uint8(tvb, offset);
 
     proto_tree_add_uint(tree, hf_sndcp_xid_V42bis_p0_spare, tvb, offset, 1, p0);
     proto_tree_add_uint(tree, hf_sndcp_xid_V42bis_p0, tvb, offset, 1, p0);
@@ -267,12 +267,12 @@ static guint16 parse_V42bis_p0(tvbuff_t *tvb, proto_tree *tree, guint16 offset)
     return 1U;
 }
 
-static guint16 parse_V42bis_p1(tvbuff_t *tvb, proto_tree *tree, guint16 offset)
+static uint16_t parse_V42bis_p1(tvbuff_t *tvb, proto_tree *tree, uint16_t offset)
 {
-    guint8 p1_msb, p1_lsb;
+    uint8_t p1_msb, p1_lsb;
 
-    p1_msb = tvb_get_guint8(tvb, offset);
-    p1_lsb = tvb_get_guint8(tvb, offset+1);
+    p1_msb = tvb_get_uint8(tvb, offset);
+    p1_lsb = tvb_get_uint8(tvb, offset+1);
 
     proto_tree_add_uint(tree, hf_sndcp_xid_V42bis_p1_msb, tvb, offset, 1, p1_msb);
     proto_tree_add_uint(tree, hf_sndcp_xid_V42bis_p1_lsb, tvb, offset+1, 1, p1_lsb);
@@ -280,33 +280,33 @@ static guint16 parse_V42bis_p1(tvbuff_t *tvb, proto_tree *tree, guint16 offset)
     return 2U;
 }
 
-static guint16 parse_V42bis_p2(tvbuff_t *tvb, proto_tree *tree, guint16 offset)
+static uint16_t parse_V42bis_p2(tvbuff_t *tvb, proto_tree *tree, uint16_t offset)
 {
-    guint8 p2;
+    uint8_t p2;
 
-    p2 = tvb_get_guint8(tvb, offset);
+    p2 = tvb_get_uint8(tvb, offset);
 
     proto_tree_add_uint(tree, hf_sndcp_xid_V42bis_p2, tvb, offset, 1, p2);
 
     return 1U;
 }
 
-static guint16 parse_V44_c0(tvbuff_t *tvb, proto_tree *tree, guint16 offset)
+static uint16_t parse_V44_c0(tvbuff_t *tvb, proto_tree *tree, uint16_t offset)
 {
-    guint8 c0;
+    uint8_t c0;
 
-    c0 = tvb_get_guint8(tvb, offset);
+    c0 = tvb_get_uint8(tvb, offset);
     proto_tree_add_uint(tree, hf_sndcp_xid_V44_c0_spare, tvb, offset, 1, c0);
     proto_tree_add_uint(tree, hf_sndcp_xid_V44_c0, tvb, offset, 1, c0);
 
     return 1U;
 }
 
-static guint16 parse_V44_p0(tvbuff_t *tvb, proto_tree *tree, guint16 offset)
+static uint16_t parse_V44_p0(tvbuff_t *tvb, proto_tree *tree, uint16_t offset)
 {
-    guint8 p0;
+    uint8_t p0;
 
-    p0 = tvb_get_guint8(tvb, offset);
+    p0 = tvb_get_uint8(tvb, offset);
 
     proto_tree_add_uint(tree, hf_sndcp_xid_V44_p0_spare, tvb, offset, 1, p0);
     proto_tree_add_uint(tree, hf_sndcp_xid_V44_p0, tvb, offset, 1, p0);
@@ -315,12 +315,12 @@ static guint16 parse_V44_p0(tvbuff_t *tvb, proto_tree *tree, guint16 offset)
 }
 
 
-static guint16 parse_V44_p1t(tvbuff_t *tvb, proto_tree *tree, guint16 offset)
+static uint16_t parse_V44_p1t(tvbuff_t *tvb, proto_tree *tree, uint16_t offset)
 {
-    guint8 p1t_msb, p1t_lsb;
+    uint8_t p1t_msb, p1t_lsb;
 
-    p1t_msb = tvb_get_guint8(tvb, offset);
-    p1t_lsb = tvb_get_guint8(tvb, offset+1);
+    p1t_msb = tvb_get_uint8(tvb, offset);
+    p1t_lsb = tvb_get_uint8(tvb, offset+1);
 
     proto_tree_add_uint(tree, hf_sndcp_xid_V44_p1t_msb, tvb, offset, 1, p1t_msb);
     proto_tree_add_uint(tree, hf_sndcp_xid_V44_p1t_lsb, tvb, offset+1, 1, p1t_lsb);
@@ -328,12 +328,12 @@ static guint16 parse_V44_p1t(tvbuff_t *tvb, proto_tree *tree, guint16 offset)
     return 2U;
 }
 
-static guint16 parse_V44_p1r(tvbuff_t *tvb, proto_tree *tree, guint16 offset)
+static uint16_t parse_V44_p1r(tvbuff_t *tvb, proto_tree *tree, uint16_t offset)
 {
-    guint8 p1r_msb, p1r_lsb;
+    uint8_t p1r_msb, p1r_lsb;
 
-    p1r_msb = tvb_get_guint8(tvb, offset);
-    p1r_lsb = tvb_get_guint8(tvb, offset+1);
+    p1r_msb = tvb_get_uint8(tvb, offset);
+    p1r_lsb = tvb_get_uint8(tvb, offset+1);
 
     proto_tree_add_uint(tree, hf_sndcp_xid_V44_p1r_msb, tvb, offset, 1, p1r_msb);
     proto_tree_add_uint(tree, hf_sndcp_xid_V44_p1r_lsb, tvb, offset+1, 1, p1r_lsb);
@@ -341,12 +341,12 @@ static guint16 parse_V44_p1r(tvbuff_t *tvb, proto_tree *tree, guint16 offset)
     return 2U;
 }
 
-static guint16 parse_V44_p3t(tvbuff_t *tvb, proto_tree *tree, guint16 offset)
+static uint16_t parse_V44_p3t(tvbuff_t *tvb, proto_tree *tree, uint16_t offset)
 {
-    guint8 p3t_msb, p3t_lsb;
+    uint8_t p3t_msb, p3t_lsb;
 
-    p3t_msb = tvb_get_guint8(tvb, offset);
-    p3t_lsb = tvb_get_guint8(tvb, offset+1);
+    p3t_msb = tvb_get_uint8(tvb, offset);
+    p3t_lsb = tvb_get_uint8(tvb, offset+1);
 
     proto_tree_add_uint(tree, hf_sndcp_xid_V44_p3t_msb, tvb, offset, 1, p3t_msb);
     proto_tree_add_uint(tree, hf_sndcp_xid_V44_p3t_lsb, tvb, offset+1, 1, p3t_lsb);
@@ -354,12 +354,12 @@ static guint16 parse_V44_p3t(tvbuff_t *tvb, proto_tree *tree, guint16 offset)
     return 2U;
 }
 
-static guint16 parse_V44_p3r(tvbuff_t *tvb, proto_tree *tree, guint16 offset)
+static uint16_t parse_V44_p3r(tvbuff_t *tvb, proto_tree *tree, uint16_t offset)
 {
-    guint8 p3r_msb, p3r_lsb;
+    uint8_t p3r_msb, p3r_lsb;
 
-    p3r_msb = tvb_get_guint8(tvb, offset);
-    p3r_lsb = tvb_get_guint8(tvb, offset+1);
+    p3r_msb = tvb_get_uint8(tvb, offset);
+    p3r_lsb = tvb_get_uint8(tvb, offset+1);
 
     proto_tree_add_uint(tree, hf_sndcp_xid_V44_p3r_msb, tvb, offset, 1, p3r_msb);
     proto_tree_add_uint(tree, hf_sndcp_xid_V44_p3r_lsb, tvb, offset+1, 1, p3r_lsb);
@@ -371,14 +371,14 @@ static guint16 parse_V44_p3r(tvbuff_t *tvb, proto_tree *tree, guint16 offset)
 /***************************************************/
 /* Compression algorithms element dissector arrays */
 /***************************************************/
-static guint16 (*rfc1144_elem_fcn[])(tvbuff_t *, proto_tree *, guint16) = {
+static uint16_t (*rfc1144_elem_fcn[])(tvbuff_t *, proto_tree *, uint16_t) = {
     parse_applicable_nsapi,
     parse_rfc1144_s0,
     NULL
 };
 
 
-static guint16 (*rfc2507_elem_fcn[])(tvbuff_t *, proto_tree *, guint16) = {
+static uint16_t (*rfc2507_elem_fcn[])(tvbuff_t *, proto_tree *, uint16_t) = {
     parse_applicable_nsapi,
     parse_rfc2507_f_max_period,
     parse_rfc2507_f_max_time,
@@ -388,7 +388,7 @@ static guint16 (*rfc2507_elem_fcn[])(tvbuff_t *, proto_tree *, guint16) = {
     NULL
 };
 
-static guint16 (*rohc_elem_fcn[])(tvbuff_t *, proto_tree *, guint16) = {
+static uint16_t (*rohc_elem_fcn[])(tvbuff_t *, proto_tree *, uint16_t) = {
     parse_applicable_nsapi,
     parse_rohc_max_cid,
     parse_rohc_max_header,
@@ -420,7 +420,7 @@ static algo_parameters_t pcomp_algo_pars[] = {
 
 /* Data compression algorithms */
 
-static guint16 (*v42bis_elem_fcn[])(tvbuff_t *, proto_tree *, guint16) = {
+static uint16_t (*v42bis_elem_fcn[])(tvbuff_t *, proto_tree *, uint16_t) = {
     parse_applicable_nsapi,
     parse_V42bis_p0,
     parse_V42bis_p1,
@@ -428,7 +428,7 @@ static guint16 (*v42bis_elem_fcn[])(tvbuff_t *, proto_tree *, guint16) = {
     NULL
 };
 
-static guint16 (*v44_elem_fcn[])(tvbuff_t *, proto_tree *, guint16) = {
+static uint16_t (*v44_elem_fcn[])(tvbuff_t *, proto_tree *, uint16_t) = {
     parse_applicable_nsapi,
     parse_V44_c0,
     parse_V44_p0,
@@ -455,8 +455,8 @@ dissect_sndcp_xid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void*
     */
     proto_item *ti, *dcomp_item;
     proto_tree *sndcp_tree, *version_tree, *dcomp_tree, *pcomp_tree;
-    guint16 offset = 0, l3_param_len;
-    guint8 parameter_type, parameter_len;
+    uint16_t offset = 0, l3_param_len;
+    uint8_t parameter_type, parameter_len;
 
     /* create display subtree for the protocol
     */
@@ -466,12 +466,12 @@ dissect_sndcp_xid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void*
 
     while (offset < l3_param_len-1)
     {
-        parameter_type = tvb_get_guint8(tvb, offset);
-        parameter_len = tvb_get_guint8(tvb, offset+1);
+        parameter_type = tvb_get_uint8(tvb, offset);
+        parameter_len = tvb_get_uint8(tvb, offset+1);
 
         if (parameter_type == SNDCP_VERSION_PAR_TYPE)
         {
-            guint8 value = tvb_get_guint8(tvb, offset+2);
+            uint8_t value = tvb_get_uint8(tvb, offset+2);
             version_tree = proto_tree_add_subtree_format(sndcp_tree, tvb, offset, parameter_len+2,
                     ett_sndcp_xid_version_field, NULL, "Version (SNDCP version number) - Value %d", value);
 
@@ -497,7 +497,7 @@ dissect_sndcp_xid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void*
             offset += 2;
 
             dcomp_tvb = tvb_new_subset_length(tvb, offset, parameter_len);
-            parse_compression_parameters(dcomp_tvb, dcomp_tree, TRUE);
+            parse_compression_parameters(dcomp_tvb, dcomp_tree, true);
             offset += parameter_len;
 
 
@@ -515,7 +515,7 @@ dissect_sndcp_xid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void*
             offset += 2;
 
             pcomp_tvb = tvb_new_subset_length(tvb, offset, parameter_len);
-            parse_compression_parameters(pcomp_tvb, pcomp_tree, FALSE);
+            parse_compression_parameters(pcomp_tvb, pcomp_tree, false);
             offset += parameter_len;
 
         }
@@ -528,15 +528,15 @@ dissect_sndcp_xid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void*
 }
 
 
-static void parse_compression_parameters(tvbuff_t *tvb, proto_tree *tree, gboolean dcomp)
+static void parse_compression_parameters(tvbuff_t *tvb, proto_tree *tree, bool dcomp)
 {
-    guint8 entity, len, algo_id;
-    guint8 number_of_comp, i;
-    gboolean p_bit_set;
+    uint8_t entity, len, algo_id;
+    uint8_t number_of_comp, i;
+    bool p_bit_set;
     algo_parameters_t * algo_pars;
-    guint8 function_index;
+    uint8_t function_index;
     proto_tree *comp_entity_tree = NULL;
-    guint16 tvb_len, offset=0 , new_offset, entity_offset;
+    uint16_t tvb_len, offset=0 , new_offset, entity_offset;
     value_string const * comp_algo_str;
 
     tvb_len = tvb_reported_length(tvb);
@@ -546,7 +546,7 @@ static void parse_compression_parameters(tvbuff_t *tvb, proto_tree *tree, gboole
     while (offset < tvb_len)
     {
         /* Read the entity byte */
-        entity = tvb_get_guint8(tvb, offset);
+        entity = tvb_get_uint8(tvb, offset);
         p_bit_set = ((entity & 0x80) == 0x80) ? 1 : 0;
         entity = entity & 0x1F;
 
@@ -554,7 +554,7 @@ static void parse_compression_parameters(tvbuff_t *tvb, proto_tree *tree, gboole
         if (p_bit_set)
         {
             /* Read the algorithm id. TODO: store the algo in a different variable for each different entity */
-            algo_id = tvb_get_guint8(tvb, offset+1) & 0x1F;
+            algo_id = tvb_get_uint8(tvb, offset+1) & 0x1F;
 
             /* sanity check: check that the algo id that will be used inside the array has a valid range */
             if (dcomp)
@@ -579,7 +579,7 @@ static void parse_compression_parameters(tvbuff_t *tvb, proto_tree *tree, gboole
             }
 
             /* Read the length */
-            len = tvb_get_guint8(tvb, offset+2);
+            len = tvb_get_uint8(tvb, offset+2);
 
             comp_entity_tree = proto_tree_add_subtree_format(tree, tvb, offset, len + 3,
                 ett_sndcp_comp_field, NULL, "Entity %d, Algorithm %s",
@@ -599,9 +599,9 @@ static void parse_compression_parameters(tvbuff_t *tvb, proto_tree *tree, gboole
 
             for (i=0; i < (number_of_comp+1) / 2; i++)
             {
-                guint8 byte;
+                uint8_t byte;
 
-                byte = tvb_get_guint8(tvb, offset+i);
+                byte = tvb_get_uint8(tvb, offset+i);
                 proto_tree_add_uint(comp_entity_tree, hf_sndcp_xid_comp[2*i], tvb, offset+i, 1, byte);
 
                 /* if there is an even number of dcomp/pcomp */
@@ -631,7 +631,7 @@ static void parse_compression_parameters(tvbuff_t *tvb, proto_tree *tree, gboole
         }
         else /* P bit not set */
         {
-            len = tvb_get_guint8(tvb, offset+1);
+            len = tvb_get_uint8(tvb, offset+1);
 
             if (dcomp)
             {
@@ -832,7 +832,7 @@ proto_register_sndcp_xid(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_sndcp_xid,
         &ett_sndcp_xid_version_field,
         &ett_sndcp_comp_field

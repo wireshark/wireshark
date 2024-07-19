@@ -32,8 +32,8 @@
 #define SCSI_SMC_REQUEST_VOLUME_ELEMENT_ADDRESS  0xB5
 #define SCSI_SMC_SEND_VOLUME_TAG                 0xB6
 #define SCSI_SMC_WRITE_ATTRIBUTE                 0x8D
-void dissect_smc_movemedium (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
-void dissect_smc_readelementstatus (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_smc_movemedium (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, bool isreq, bool iscdb, unsigned payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_smc_readelementstatus (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, bool isreq, bool iscdb, unsigned payload_len _U_, scsi_task_data_t *cdata _U_);
 
 
 extern int hf_scsi_smc_opcode;

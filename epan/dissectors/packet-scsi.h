@@ -25,7 +25,7 @@ extern "C" {
 typedef struct _itl_nexus_t {
 #define SCSI_CMDSET_DEFAULT	0x80
 #define SCSI_CMDSET_MASK	0x7f
-    guint8 cmdset;         /* This is a bitfield.
+    uint8_t cmdset;         /* This is a bitfield.
 			    * The MSB (0x80) represents whether
 			    * 0: the commandset is known from a INQ PDU
 			    * 1: is using the "default" from preferences.
@@ -41,15 +41,15 @@ typedef struct _itl_nexus_t {
  * for a initiator target lun queue/commandid combination.
  */
 typedef struct _itlq_nexus_t {
-    guint32 first_exchange_frame;
-    guint32 last_exchange_frame;
-    guint16 lun;         /* initialized to 0xffff == unknown */
-    guint16 scsi_opcode; /* initialized to 0xffff == unknown */
-    guint16 flags;
+    uint32_t first_exchange_frame;
+    uint32_t last_exchange_frame;
+    uint16_t lun;         /* initialized to 0xffff == unknown */
+    uint16_t scsi_opcode; /* initialized to 0xffff == unknown */
+    uint16_t flags;
 
 #define SCSI_DATA_READ	0x0001
 #define SCSI_DATA_WRITE	0x0002
-    guint16 task_flags; /* Flags set by the transport for this
+    uint16_t task_flags; /* Flags set by the transport for this
 			 * scsi task.
 			 *
 			 * If there is no data being transferred both flags
@@ -63,10 +63,10 @@ typedef struct _itlq_nexus_t {
 			 * data_length specifies the amount of DATA-OUT and
 			 * bidir_data_length specifies the amount of DATA-IN
 			 */
-    guint32 data_length;
-    guint32 bidir_data_length;
+    uint32_t data_length;
+    uint32_t bidir_data_length;
 
-    guint32 alloc_len;	/* we need to track alloc_len between the CDB and
+    uint32_t alloc_len;	/* we need to track alloc_len between the CDB and
 			 * the DATA pdus for some opcodes.
 			 */
     nstime_t fc_time;
@@ -89,9 +89,9 @@ typedef struct _scsi_task_data {
 
 /* list of commands for each commandset */
 typedef void (*scsi_dissector_t)(tvbuff_t *tvb, packet_info *pinfo,
-		proto_tree *tree, guint offset,
-		gboolean isreq, gboolean iscdb,
-                guint32 payload_len, scsi_task_data_t *cdata);
+		proto_tree *tree, unsigned offset,
+		bool isreq, bool iscdb,
+                uint32_t payload_len, scsi_task_data_t *cdata);
 
 typedef struct _scsi_cdb_table_t {
 	scsi_dissector_t	func;
@@ -132,28 +132,28 @@ typedef struct _scsi_cdb_table_t {
 #define SCSI_SPC_WRITEBUFFER             0x3B
 #define SCSI_SPC_VARLENCDB               0x7F
 
-void dissect_spc_inquiry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint32 payload_len, scsi_task_data_t *cdata);
-void dissect_spc_logselect(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
-void dissect_spc_logsense(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
-void dissect_spc_mgmt_protocol_in(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
-void dissect_spc_modeselect6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len, scsi_task_data_t *cdata);
-void dissect_spc_modesense6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len, scsi_task_data_t *cdata);
-void dissect_spc_modeselect10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len, scsi_task_data_t *cdata);
-void dissect_spc_modesense10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len, scsi_task_data_t *cdata);
-void dissect_spc_persistentreservein(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len, scsi_task_data_t *cdata);
-void dissect_spc_persistentreserveout(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
-void dissect_spc_reportluns(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
-void dissect_spc_testunitready (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
-void dissect_spc_requestsense (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
-void dissect_spc_preventallowmediaremoval (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
-void dissect_spc_writebuffer (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb _U_, guint payload_len _U_, scsi_task_data_t *cdata _U_);
-void dissect_spc_reserve6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
-void dissect_spc_release6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
-void dissect_spc_reserve10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
-void dissect_spc_release10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
-void dissect_spc_senddiagnostic (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
-void dissect_spc_extcopy (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
-void dissect_spc_recvcopy (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc_inquiry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, bool isreq, bool iscdb, uint32_t payload_len, scsi_task_data_t *cdata);
+void dissect_spc_logselect(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, bool isreq, bool iscdb, unsigned payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc_logsense(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, bool isreq, bool iscdb, unsigned payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc_mgmt_protocol_in(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, bool isreq, bool iscdb, unsigned payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc_modeselect6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, bool isreq, bool iscdb, unsigned payload_len, scsi_task_data_t *cdata);
+void dissect_spc_modesense6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, bool isreq, bool iscdb, unsigned payload_len, scsi_task_data_t *cdata);
+void dissect_spc_modeselect10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, bool isreq, bool iscdb, unsigned payload_len, scsi_task_data_t *cdata);
+void dissect_spc_modesense10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, bool isreq, bool iscdb, unsigned payload_len, scsi_task_data_t *cdata);
+void dissect_spc_persistentreservein(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, bool isreq, bool iscdb, unsigned payload_len, scsi_task_data_t *cdata);
+void dissect_spc_persistentreserveout(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, bool isreq, bool iscdb, unsigned payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc_reportluns(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, bool isreq, bool iscdb, unsigned payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc_testunitready (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, bool isreq, bool iscdb, unsigned payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc_requestsense (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, bool isreq, bool iscdb, unsigned payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc_preventallowmediaremoval (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, bool isreq, bool iscdb, unsigned payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc_writebuffer (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, bool isreq, bool iscdb _U_, unsigned payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc_reserve6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, bool isreq, bool iscdb, unsigned payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc_release6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, bool isreq, bool iscdb, unsigned payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc_reserve10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, bool isreq, bool iscdb, unsigned payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc_release10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, bool isreq, bool iscdb, unsigned payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc_senddiagnostic (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, bool isreq, bool iscdb, unsigned payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc_extcopy (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, bool isreq, bool iscdb, unsigned payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc_recvcopy (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, bool isreq, bool iscdb, unsigned payload_len _U_, scsi_task_data_t *cdata _U_);
 
 
 
@@ -198,17 +198,17 @@ extern const value_string scsi_status_val[];
  * FCP/iSCSI
  */
 void dissect_scsi_cdb (tvbuff_t *, packet_info *, proto_tree *,
-                       gint, itlq_nexus_t *, itl_nexus_t *);
-void dissect_scsi_rsp (tvbuff_t *, packet_info *, proto_tree *, itlq_nexus_t *, itl_nexus_t *, guint8);
+                       int, itlq_nexus_t *, itl_nexus_t *);
+void dissect_scsi_rsp (tvbuff_t *, packet_info *, proto_tree *, itlq_nexus_t *, itl_nexus_t *, uint8_t);
 void dissect_scsi_payload (tvbuff_t *, packet_info *, proto_tree *,
-                           gboolean, itlq_nexus_t *, itl_nexus_t *,
-                           guint32 relative_offset);
-void dissect_scsi_snsinfo (tvbuff_t *, packet_info *, proto_tree *, guint, guint, itlq_nexus_t *, itl_nexus_t *);
+                           bool, itlq_nexus_t *, itl_nexus_t *,
+                           uint32_t relative_offset);
+void dissect_scsi_snsinfo (tvbuff_t *, packet_info *, proto_tree *, unsigned, unsigned, itlq_nexus_t *, itl_nexus_t *);
 
-void dissect_scsi_lun(proto_tree *, tvbuff_t *, guint);
+void dissect_scsi_lun(proto_tree *, tvbuff_t *, unsigned);
 
 extern int * const cdb_control_fields[6];
-extern gint ett_scsi_control;
+extern int ett_scsi_control;
 extern int hf_scsi_control;
 extern int hf_scsi_alloclen16;
 
@@ -251,8 +251,8 @@ extern value_string_ext scsi_asc_val_ext;
 #define TRY_SCSI_CDB_ALLOC_LEN(length_arg)				\
     {									\
 	tvbuff_t *try_tvb;						\
-	volatile guint try_offset;                                      \
-	guint32   try_end_data_offset=0;				\
+	volatile unsigned try_offset;                                      \
+	uint32_t  try_end_data_offset=0;				\
 									\
 	try_tvb=tvb_new_subset_length(tvb_a, offset_a, length_arg);	\
 	try_offset=0;							\
@@ -263,7 +263,7 @@ extern value_string_ext scsi_asc_val_ext;
 			/* just verify we can read all the bytes we were\
 			 * supposed to.					\
 			 */						\
-			tvb_get_guint8(try_tvb,try_end_data_offset);	\
+			tvb_get_uint8(try_tvb,try_end_data_offset);	\
 		}							\
 	} /* TRY */							\
 	CATCH(BoundsError) {						\
@@ -301,7 +301,7 @@ extern value_string_ext scsi_asc_val_ext;
 	try_end_data_offset=offset_arg;
 
 
-WS_DLL_PUBLIC guint scsistat_param(register_srt_t* srt, const char* opt_arg, char** err);
+WS_DLL_PUBLIC unsigned scsistat_param(register_srt_t* srt, const char* opt_arg, char** err);
 
 #ifdef __cplusplus
 }

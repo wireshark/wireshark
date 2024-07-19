@@ -81,14 +81,14 @@ static int hf_scsi_smc_primary_vol_seq_num;
 static int hf_scsi_smc_alternate_vol_tag_id;
 static int hf_scsi_smc_alternate_vol_seq_num;
 
-static gint ett_scsi_exchange_medium;
-static gint ett_scsi_range;
-static gint ett_scsi_move;
+static int ett_scsi_exchange_medium;
+static int ett_scsi_range;
+static int ett_scsi_move;
 
 static void
 dissect_smc_exchangemedium (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                    guint offset, gboolean isreq, gboolean iscdb,
-                    guint payload_len _U_, scsi_task_data_t *cdata _U_)
+                    unsigned offset, bool isreq, bool iscdb,
+                    unsigned payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     static int * const exchg_fields[] = {
         &hf_scsi_smc_inv1,
@@ -113,8 +113,8 @@ dissect_smc_exchangemedium (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 
 static void
 dissect_smc_position_to_element (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                    guint offset, gboolean isreq, gboolean iscdb,
-                    guint payload_len _U_, scsi_task_data_t *cdata _U_)
+                    unsigned offset, bool isreq, bool iscdb,
+                    unsigned payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     static int * const pte_fields[] = {
         &hf_scsi_smc_invert,
@@ -136,8 +136,8 @@ dissect_smc_position_to_element (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
 static void
 dissect_smc_initialize_element_status (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                    guint offset, gboolean isreq, gboolean iscdb,
-                    guint payload_len _U_, scsi_task_data_t *cdata _U_)
+                    unsigned offset, bool isreq, bool iscdb,
+                    unsigned payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     if (!tree)
         return;
@@ -150,8 +150,8 @@ dissect_smc_initialize_element_status (tvbuff_t *tvb, packet_info *pinfo _U_, pr
 
 static void
 dissect_smc_initialize_element_status_with_range (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                    guint offset, gboolean isreq, gboolean iscdb,
-                    guint payload_len _U_, scsi_task_data_t *cdata _U_)
+                    unsigned offset, bool isreq, bool iscdb,
+                    unsigned payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     static int * const range_fields[] = {
         &hf_scsi_smc_fast,
@@ -174,8 +174,8 @@ dissect_smc_initialize_element_status_with_range (tvbuff_t *tvb, packet_info *pi
 
 static void
 dissect_smc_openclose_importexport_element (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                    guint offset, gboolean isreq, gboolean iscdb,
-                    guint payload_len _U_, scsi_task_data_t *cdata _U_)
+                    unsigned offset, bool isreq, bool iscdb,
+                    unsigned payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     if (!tree)
         return;
@@ -189,8 +189,8 @@ dissect_smc_openclose_importexport_element (tvbuff_t *tvb, packet_info *pinfo _U
 }
 void
 dissect_smc_movemedium (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                    guint offset, gboolean isreq, gboolean iscdb,
-                    guint payload_len _U_, scsi_task_data_t *cdata _U_)
+                    unsigned offset, bool isreq, bool iscdb,
+                    unsigned payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     static int * const move_fields[] = {
         &hf_scsi_smc_invert,
@@ -243,12 +243,12 @@ static const value_string action_code_vals[] = {
 
 static void
 dissect_scsi_smc_volume_tag (tvbuff_t *tvb, packet_info *pinfo,
-                              proto_tree *tree, guint offset, int hf_vol_id, int hf_vol_seq_num)
+                              proto_tree *tree, unsigned offset, int hf_vol_id, int hf_vol_seq_num)
 {
-    guint8 *volid;
+    uint8_t *volid;
     int length;
     for (length = 32; length > 0; length--) {
-        if (tvb_get_guint8(tvb, offset + length - 1) != ' ')
+        if (tvb_get_uint8(tvb, offset + length - 1) != ' ')
             break;
     }
 
@@ -260,12 +260,12 @@ dissect_scsi_smc_volume_tag (tvbuff_t *tvb, packet_info *pinfo,
 
 static void
 dissect_scsi_smc_element (tvbuff_t *tvb, packet_info *pinfo _U_,
-                         proto_tree *tree, guint offset,
-                         guint elem_bytecnt, guint8 elem_type,
-                         guint8 voltag_flags)
+                         proto_tree *tree, unsigned offset,
+                         unsigned elem_bytecnt, uint8_t elem_type,
+                         uint8_t voltag_flags)
 {
-    guint8 flags;
-    guint8 ident_len;
+    uint8_t flags;
+    uint8_t ident_len;
 
     proto_tree_add_item(tree, hf_scsi_smc_ea, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -273,7 +273,7 @@ dissect_scsi_smc_element (tvbuff_t *tvb, packet_info *pinfo _U_,
 
     if (elem_bytecnt < 1)
         return;
-    flags = tvb_get_guint8 (tvb, offset);
+    flags = tvb_get_uint8 (tvb, offset);
     switch (elem_type) {
 
     case MT_ELEM:
@@ -319,7 +319,7 @@ dissect_scsi_smc_element (tvbuff_t *tvb, packet_info *pinfo _U_,
     switch (elem_type) {
 
     case DT_ELEM:
-        flags = tvb_get_guint8 (tvb, offset);
+        flags = tvb_get_uint8 (tvb, offset);
         if (flags & LU_VALID) {
             proto_tree_add_item(tree, hf_scsi_smc_lun, tvb, offset, 1, ENC_BIG_ENDIAN);
         }
@@ -343,7 +343,7 @@ dissect_scsi_smc_element (tvbuff_t *tvb, packet_info *pinfo _U_,
 
     if (elem_bytecnt < 3)
         return;
-    flags = tvb_get_guint8 (tvb, offset);
+    flags = tvb_get_uint8 (tvb, offset);
     proto_tree_add_item(tree, hf_scsi_smc_svalid, tvb, offset, 1, ENC_NA);
     if (flags & SVALID) {
         proto_tree_add_item(tree, hf_scsi_smc_invert, tvb, offset, 1, ENC_NA);
@@ -392,7 +392,7 @@ dissect_scsi_smc_element (tvbuff_t *tvb, packet_info *pinfo _U_,
 
     if (elem_bytecnt < 1)
         return;
-    ident_len = tvb_get_guint8 (tvb, offset);
+    ident_len = tvb_get_uint8 (tvb, offset);
     proto_tree_add_item(tree, hf_scsi_smc_identifier_length, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     elem_bytecnt -= 1;
@@ -412,11 +412,11 @@ dissect_scsi_smc_element (tvbuff_t *tvb, packet_info *pinfo _U_,
 
 static void
 dissect_scsi_smc_elements (tvbuff_t *tvb, packet_info *pinfo,
-                            proto_tree *tree, guint offset,
-                            guint desc_bytecnt, guint8 elem_type,
-                            guint8 voltag_flags, guint16 elem_desc_len)
+                            proto_tree *tree, unsigned offset,
+                            unsigned desc_bytecnt, uint8_t elem_type,
+                            uint8_t voltag_flags, uint16_t elem_desc_len)
 {
-    guint elem_bytecnt;
+    unsigned elem_bytecnt;
 
     while (desc_bytecnt != 0) {
         elem_bytecnt = elem_desc_len;
@@ -437,14 +437,14 @@ dissect_scsi_smc_elements (tvbuff_t *tvb, packet_info *pinfo,
 
 void
 dissect_smc_readelementstatus (tvbuff_t *tvb, packet_info *pinfo,
-                         proto_tree *tree, guint offset, gboolean isreq,
-                         gboolean iscdb,
-                         guint payload_len _U_, scsi_task_data_t *cdata _U_)
+                         proto_tree *tree, unsigned offset, bool isreq,
+                         bool iscdb,
+                         unsigned payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    guint   bytecnt, desc_bytecnt;
-    guint8  elem_type;
-    guint8  voltag_flags;
-    guint16 elem_desc_len;
+    unsigned   bytecnt, desc_bytecnt;
+    uint8_t elem_type;
+    uint8_t voltag_flags;
+    uint16_t elem_desc_len;
 
     if (!tree)
         return;
@@ -470,14 +470,14 @@ dissect_smc_readelementstatus (tvbuff_t *tvb, packet_info *pinfo,
         proto_tree_add_item(tree, hf_scsi_smc_byte_count_of_report_available, tvb, offset, 3, ENC_BIG_ENDIAN);
         offset += 3;
         while (bytecnt != 0) {
-            elem_type = tvb_get_guint8 (tvb, offset);
+            elem_type = tvb_get_uint8 (tvb, offset);
             proto_tree_add_item(tree, hf_scsi_smc_element_type_code, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
             bytecnt -= 1;
 
             if (bytecnt < 1)
                 break;
-            voltag_flags = tvb_get_guint8 (tvb, offset);
+            voltag_flags = tvb_get_uint8 (tvb, offset);
             proto_tree_add_item(tree, hf_scsi_smc_pvoltag, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(tree, hf_scsi_smc_avoltag, tvb, offset, 1, ENC_NA);
             offset += 1;
@@ -1111,7 +1111,7 @@ proto_register_scsi_smc(void)
 
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_scsi_exchange_medium,
         &ett_scsi_range,
         &ett_scsi_move

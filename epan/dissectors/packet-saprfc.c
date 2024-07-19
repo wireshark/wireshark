@@ -405,7 +405,7 @@ static int hf_saprfc_payload;
 /* TODO: Add CPIC error codes (https://launchpad.support.sap.com/#/notes/63347) */
 /* TODO: Add RFC logon error codes (https://launchpad.support.sap.com/#/notes/320991) */
 
-static gint ett_saprfc;
+static int ett_saprfc;
 
 /* Expert info */
 #if 0
@@ -418,17 +418,17 @@ static expert_field ei_saprfc_unknown_item;
 
 
 /* Global table reassembling preference */
-static bool global_saprfc_table_reassembly = TRUE;
+static bool global_saprfc_table_reassembly = true;
 
 /* Global highlight preference */
-static bool global_saprfc_highlight_items = TRUE;
+static bool global_saprfc_highlight_items = true;
 
 /* Protocol handles for both external and internal dissectors */
 static dissector_handle_t saprfc_handle;
 static dissector_handle_t saprfcinternal_handle;
 
 /* Keeps track of table content items */
-guint32 global_saprfc_table_content_counter = 0;
+uint32_t global_saprfc_table_content_counter = 0;
 
 
 void proto_register_saprfc(void);
@@ -436,9 +436,9 @@ void proto_reg_handoff_saprfc(void);
 
 
 static void
-dissect_saprfc_tables_compressed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *structure_tvb _U_, guint32 structure_offset _U_, guint32 structure_length _U_, guint32 row_width _U_, guint32 row_count _U_){
+dissect_saprfc_tables_compressed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *structure_tvb _U_, uint32_t structure_offset _U_, uint32_t structure_length _U_, uint32_t row_width _U_, uint32_t row_count _U_){
 
-	guint32 reported_length = 0, offset = 0;
+	uint32_t reported_length = 0, offset = 0;
 
 	proto_item *compression_header = NULL;
 	proto_tree *compression_header_tree = NULL;
@@ -475,18 +475,18 @@ dissect_saprfc_tables_compressed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 }
 
 static void
-dissect_saprfc_tables(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint16 item_length){
+dissect_saprfc_tables(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, uint16_t item_length){
 
-	guint8 *reassemble_buffer = NULL, *table_name = NULL;
-	guint16 next_item = 0;
-	guint32 reassemble_length = 0, reassemble_offset = 0, row_width = 0, row_count = 0, initial_offset = 0;
+	uint8_t *reassemble_buffer = NULL, *table_name = NULL;
+	uint16_t next_item = 0;
+	uint32_t reassemble_length = 0, reassemble_offset = 0, row_width = 0, row_count = 0, initial_offset = 0;
 
 	proto_item *table = NULL;
 	proto_tree *table_tree = NULL;
 	tvbuff_t *compressed_tvb = NULL;
 
-	guint32 structure_offset = offset;
-	guint32 structure_length = item_length;
+	uint32_t structure_offset = offset;
+	uint32_t structure_length = item_length;
 
 	/* Skip table line structure */
 	offset += item_length + 2;
@@ -534,7 +534,7 @@ dissect_saprfc_tables(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 	}
 
 	/* Allocate the buffer only in the scope of current packet */
-	reassemble_buffer = (guint8 *)wmem_alloc(pinfo->pool, reassemble_length);
+	reassemble_buffer = (uint8_t *)wmem_alloc(pinfo->pool, reassemble_length);
 	if (!reassemble_buffer){
 		return;
 	}
@@ -579,20 +579,20 @@ dissect_saprfc_tables(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 }
 
 static void
-dissect_saprfc_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_tree *item_value_tree, guint32 offset, guint8 item_id1, guint8 item_id2, guint16 item_length){
+dissect_saprfc_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_tree *item_value_tree, uint32_t offset, uint8_t item_id1, uint8_t item_id2, uint16_t item_length){
 
 	if (item_id1==0x01 && item_id2==0x02){
-		gint8 *value_str = tvb_get_string_enc(pinfo->pool, tvb, offset, item_length, ENC_ASCII);
+		int8_t *value_str = tvb_get_string_enc(pinfo->pool, tvb, offset, item_length, ENC_ASCII);
 		proto_tree_add_none_format(item_value_tree, hf_saprfc_item_value, tvb, offset, item_length, "Function Name: %s", value_str);
 		proto_item_append_text(item, ", Function Name=%s", value_str);
 
 	} else if (item_id1==0x02 && item_id2==0x01){
-		gint8 *value_str = tvb_get_string_enc(pinfo->pool, tvb, offset, item_length, ENC_ASCII);
+		int8_t *value_str = tvb_get_string_enc(pinfo->pool, tvb, offset, item_length, ENC_ASCII);
 		proto_tree_add_none_format(item_value_tree, hf_saprfc_item_value, tvb, offset, item_length, "Import Parameter Name: %s", value_str);
 		proto_item_append_text(item, ", Import Parameter Name=%s", value_str);
 
 	} else if (item_id1==0x02 && item_id2==0x05){
-		gint8 *value_str = tvb_get_string_enc(pinfo->pool, tvb, offset, item_length, ENC_ASCII);
+		int8_t *value_str = tvb_get_string_enc(pinfo->pool, tvb, offset, item_length, ENC_ASCII);
 		proto_tree_add_none_format(item_value_tree, hf_saprfc_item_value, tvb, offset, item_length, "Export Parameter Name: %s", value_str);
 		proto_item_append_text(item, ", Export Parameter Name=%s", value_str);
 
@@ -600,12 +600,12 @@ dissect_saprfc_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_t
 		proto_tree_add_none_format(item_value_tree, hf_saprfc_item_value, tvb, offset, item_length, "Type Structure A");
 
 	} else if (item_id1==0x03 && item_id2==0x01){
-		gint8 *value_str = tvb_get_string_enc(pinfo->pool, tvb, offset, item_length, ENC_ASCII);
+		int8_t *value_str = tvb_get_string_enc(pinfo->pool, tvb, offset, item_length, ENC_ASCII);
 		proto_tree_add_none_format(item_value_tree, hf_saprfc_item_value, tvb, offset, item_length, "Table Name: %s", value_str);
 		proto_item_append_text(item, ", Table Name=%s", value_str);
 
 	} else if (item_id1==0x03 && item_id2==0x02){
-		guint32 value_guint32;
+		uint32_t value_guint32;
 
 		if (item_length != 8) {
 			expert_add_info_format(pinfo, item_value_tree, &ei_saprfc_item_length_invalid, "Table Info length is invalid");
@@ -640,11 +640,11 @@ dissect_saprfc_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_t
 		proto_item_append_text(item, ", Table Content End");
 
 	} else if (item_id1==0x01 && item_id2==0x36){
-		gint8 *value_str;
-		guint8 value_guint8;
-		guint32 value_guint32;
+		int8_t *value_str;
+		uint8_t value_guint8;
+		uint32_t value_guint32;
 
-		value_guint8 = tvb_get_guint8(tvb, offset);
+		value_guint8 = tvb_get_uint8(tvb, offset);
 		proto_tree_add_none_format(item_value_tree, hf_saprfc_item_value, tvb, offset, 1, "#: %u", value_guint8);
 		proto_item_append_text(item, ", #=%u", value_guint8);
 		offset+=1;
@@ -672,10 +672,10 @@ dissect_saprfc_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_t
 }
 
 static void
-dissect_saprfc_payload(tvbuff_t *tvb, packet_info *info, proto_tree *tree, proto_tree *parent_tree, guint32 offset){
+dissect_saprfc_payload(tvbuff_t *tvb, packet_info *info, proto_tree *tree, proto_tree *parent_tree, uint32_t offset){
 
-	guint8 item_id1, item_id2;
-	guint16 item_length, item_value_length;
+	uint8_t item_id1, item_id2;
+	uint16_t item_length, item_value_length;
 
 	proto_item *item = NULL, *item_value = NULL;
 	proto_tree *item_tree = NULL, *item_value_tree = NULL;
@@ -688,7 +688,7 @@ dissect_saprfc_payload(tvbuff_t *tvb, packet_info *info, proto_tree *tree, proto
 		item_tree = proto_item_add_subtree(item, ett_saprfc);
 
 		/* Get the first identifier */
-		item_id1 = tvb_get_guint8(tvb, offset);
+		item_id1 = tvb_get_uint8(tvb, offset);
 		proto_tree_add_item(item_tree, hf_saprfc_item_id1, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 		item_length += 1;
@@ -701,7 +701,7 @@ dissect_saprfc_payload(tvbuff_t *tvb, packet_info *info, proto_tree *tree, proto
 		/* Otherwise follow dissection */
 		} else {
 
-			item_id2 = tvb_get_guint8(tvb, offset);
+			item_id2 = tvb_get_uint8(tvb, offset);
 			proto_tree_add_item(item_tree, hf_saprfc_item_id2, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 			item_length += 1;
@@ -742,10 +742,10 @@ dissect_saprfc_payload(tvbuff_t *tvb, packet_info *info, proto_tree *tree, proto
 
 
 static void
-dissect_saprfc_monitor_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 version _U_, guint32 offset){
-	guint8 opcode;
+dissect_saprfc_monitor_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint8_t version _U_, uint32_t offset){
+	uint8_t opcode;
 
-	opcode = tvb_get_guint8(tvb, offset);
+	opcode = tvb_get_uint8(tvb, offset);
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Command=%s", val_to_str_const(opcode, saprfc_monitor_cmd_values, "Unknown"));
 
 	proto_tree_add_item(tree, hf_saprfc_monitor_cmd, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -760,13 +760,13 @@ dissect_saprfc_monitor_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 
 static void
-dissect_saprfc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset){
-	guint8 version = 0, reqtype = 0;
+dissect_saprfc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset){
+	uint8_t version = 0, reqtype = 0;
 	proto_item *header = NULL, *info = NULL, *info2 = NULL, *info3 = NULL, *info4 = NULL, *reqtype2 = NULL, *params = NULL;
 	proto_tree *header_tree = NULL, *info_tree = NULL, *info2_tree = NULL, *info3_tree = NULL, *info4_tree = NULL, *reqtype2_tree = NULL, *params_tree;
 
-	version = tvb_get_guint8(tvb, offset);
-	reqtype = tvb_get_guint8(tvb, offset + 1);
+	version = tvb_get_uint8(tvb, offset);
+	reqtype = tvb_get_uint8(tvb, offset + 1);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, "APPC Version=%u, Request Type=%s", version, val_to_str_const(reqtype, saprfc_header_reqtype_values, "Unknown"));
 
@@ -910,7 +910,7 @@ dissect_saprfc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 static int
 dissect_saprfc_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	guint32 offset = 0;
+	uint32_t offset = 0;
 	proto_item *saprfc, *payload = NULL;
 	proto_tree *saprfc_tree, *payload_tree = NULL;
 
@@ -934,8 +934,8 @@ dissect_saprfc_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 static int
 dissect_saprfc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	guint32 offset = 0;
-	guint8 version = 0, req_type = 0;
+	uint32_t offset = 0;
+	uint8_t version = 0, req_type = 0;
 	proto_item *saprfc = NULL, *accept_info = NULL;
 	proto_tree *saprfc_tree = NULL, *accept_info_tree = NULL;
 
@@ -945,8 +945,8 @@ dissect_saprfc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	/* Get version and request type values */
-	version = tvb_get_guint8(tvb, offset);
-	req_type = tvb_get_guint8(tvb, offset + 1);
+	version = tvb_get_uint8(tvb, offset);
+	req_type = tvb_get_uint8(tvb, offset + 1);
 
 	/* Check if the message is valid or it is an APPC header */
 	/* TODO: We need to find a way of performing this check, as Wireshark is
@@ -1266,7 +1266,7 @@ proto_register_saprfc(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_saprfc
 	};
 

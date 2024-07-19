@@ -44,7 +44,7 @@ static int hf_slow_subtype;
 
 /* Initialise the subtree pointers */
 
-static gint ett_slow;
+static int ett_slow;
 
 /*
  * Name: dissect_slow_protocols
@@ -66,13 +66,13 @@ static gint ett_slow;
 static int
 dissect_slow_protocols(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    guint8      subtype;
+    uint8_t     subtype;
     proto_tree *pdu_tree;
     proto_item *pdu_item;
     tvbuff_t   *next_tvb;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Slow Protocols");
-    subtype = tvb_get_guint8(tvb, 0);
+    subtype = tvb_get_uint8(tvb, 0);
     col_add_fstr(pinfo->cinfo, COL_INFO, "Subtype = %u", subtype);
 
     if (tree)
@@ -86,7 +86,7 @@ dissect_slow_protocols(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
     next_tvb = tvb_new_subset_remaining(tvb, 1);
     if (!dissector_try_uint_new(slow_protocols_dissector_table, subtype,
-                                next_tvb, pinfo, tree, TRUE, NULL))
+                                next_tvb, pinfo, tree, true, NULL))
         call_data_dissector(next_tvb, pinfo, tree);
     set_actual_length(tvb, tvb_captured_length(next_tvb) + 1);
 
@@ -109,7 +109,7 @@ proto_register_slow_protocols(void)
 
     /* Setup protocol subtree array */
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_slow,
     };
 

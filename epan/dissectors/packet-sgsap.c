@@ -69,7 +69,7 @@ static expert_field ei_sgsap_missing_mandatory_element;
 
 static dissector_handle_t sgsap_handle;
 
-static void get_sgsap_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf_idx, msg_fcn *msg_fcn_p);
+static void get_sgsap_msg_params(uint8_t oct, const char **msg_str, int *ett_tree, int *hf_idx, msg_fcn *msg_fcn_p);
 
 /*
  * 9.4  Information elements
@@ -96,18 +96,18 @@ static const value_string sgsap_eps_location_update_type_values[] = {
     { 0, NULL }
 };
 
-static guint16
-de_sgsap_eps_loc_upd_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+static uint16_t
+de_sgsap_eps_loc_upd_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len _U_, char *add_string _U_, int string_len _U_)
 {
-    guint32 curr_offset;
-    guint8 oct;
+    uint32_t curr_offset;
+    uint8_t oct;
 
     curr_offset = offset;
 
     /* Octet 3  EPS location update type value */
     proto_tree_add_item(tree, hf_sgsap_eps_location_update_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     if (add_string) {
-        oct = tvb_get_guint8(tvb, curr_offset);
+        oct = tvb_get_uint8(tvb, curr_offset);
         snprintf(add_string, string_len, " - %s", val_to_str_const(oct, sgsap_eps_location_update_type_values, "Reserved"));
     }
 
@@ -120,14 +120,14 @@ de_sgsap_eps_loc_upd_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
  *
  * See subclause 18.4.5 in 3GPP TS 29.018 [16].
  */
-static guint16
-de_sgsap_err_msg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string , int string_len)
+static uint16_t
+de_sgsap_err_msg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len, char *add_string , int string_len)
 {
-    const gchar     *msg_str;
-    gint             ett_tree;
+    const char      *msg_str;
+    int              ett_tree;
     int              hf_idx;
-    void(*msg_fcn_p)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len);
-    guint8          oct;
+    void(*msg_fcn_p)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len);
+    uint8_t         oct;
 
     /* 18.4.5 Erroneous message
      * The Erroneous message IE is a TLV IE that encapsulates the message in error.
@@ -135,7 +135,7 @@ de_sgsap_err_msg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
      * Erroneous message including the message type.
      */
      /* Message type IE*/
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
     msg_fcn_p = NULL;
     ett_tree = -1;
     hf_idx = -1;
@@ -150,7 +150,7 @@ de_sgsap_err_msg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 
     }
     if (msg_fcn_p){
-        volatile guint32 curr_offset = offset + 1;
+        volatile uint32_t curr_offset = offset + 1;
         TRY {
             /*let's try to decode erroneous message and catch exceptions as it could be malformed */
             (*msg_fcn_p)(tvb, tree, pinfo, curr_offset, len - 1);
@@ -168,14 +168,14 @@ de_sgsap_err_msg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
  * The coding of the E-UTRAN Cell Global Identity value is according to ECGI field information element
  * as specified in subclause 8.21.5 of 3GPP TS 29.274 [17A] (GTPv2-C)
  */
-guint16
-de_sgsap_ecgi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+uint16_t
+de_sgsap_ecgi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len _U_, char *add_string _U_, int string_len _U_)
 {
-    guint32    curr_offset;
+    uint32_t   curr_offset;
 
     curr_offset = offset;
 
-    dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_ECGI, TRUE);
+    dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_ECGI, true);
     curr_offset += 3;
 
     proto_tree_add_item(tree, hf_sgsap_eci, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
@@ -193,14 +193,14 @@ de_sgsap_ecgi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offse
  * least significant bit of the CN-Id field is bit 1 of octet 7 and the most significant bit is bit 8 of octet 6. If the CN-Id does
  * not fill the field reserved for it, the rest of the bits are set to '0'.
  */
-static guint16
-de_sgsap_g_cn_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+static uint16_t
+de_sgsap_g_cn_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len _U_, char *add_string _U_, int string_len _U_)
 {
-    guint32    curr_offset;
+    uint32_t   curr_offset;
 
     curr_offset = offset;
 
-    dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_NONE, TRUE);
+    dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_NONE, true);
     curr_offset += 3;
 
     proto_tree_add_item(tree, hf_sgsap_cn_id, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
@@ -215,11 +215,11 @@ de_sgsap_g_cn_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
  * The IMEISV consists of 16 digits
  * (see 3GPP TS 23.003).
  */
-static guint16
-de_sgsap_imeisv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+static uint16_t
+de_sgsap_imeisv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len _U_, char *add_string _U_, int string_len _U_)
 {
     char       *imeisv_str;
-    guint32     curr_offset;
+    uint32_t    curr_offset;
 
     curr_offset = offset;
 
@@ -253,10 +253,10 @@ static const value_string sgsap_imsi_det_from_eps_serv_type_values[] = {
     { 0, NULL }
 };
 
-static guint16
-de_sgsap_imsi_det_eps(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+static uint16_t
+de_sgsap_imsi_det_eps(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len _U_, char *add_string _U_, int string_len _U_)
 {
-    guint32 curr_offset;
+    uint32_t curr_offset;
 
     curr_offset = offset;
 
@@ -277,10 +277,10 @@ static const value_string sgsap_imsi_det_from_non_eps_serv_type_values[] = {
     { 0, NULL }
 };
 
-static guint16
-de_sgsap_imsi_det_non_eps(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+static uint16_t
+de_sgsap_imsi_det_non_eps(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len _U_, char *add_string _U_, int string_len _U_)
 {
-    guint32 curr_offset;
+    uint32_t curr_offset;
 
     curr_offset = offset;
 
@@ -304,10 +304,10 @@ static const value_string sgsap_lcs_indic_values[] = {
     { 0, NULL }
 };
 
-static guint16
-de_sgsap_lcs_indic(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+static uint16_t
+de_sgsap_lcs_indic(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len _U_, char *add_string _U_, int string_len _U_)
 {
-    guint32 curr_offset;
+    uint32_t curr_offset;
 
     curr_offset = offset;
 
@@ -332,10 +332,10 @@ de_sgsap_lcs_indic(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
  * indicator and Message type. This field includes the IEI and length
  * indicatior of the other information elements.
  */
-static guint16
-de_sgsap_mm_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+static uint16_t
+de_sgsap_mm_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len, char *add_string _U_, int string_len _U_)
 {
-    guint32 curr_offset;
+    uint32_t curr_offset;
 
     curr_offset = offset;
 
@@ -347,11 +347,11 @@ de_sgsap_mm_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 /*
  * 9.4.13   MME name
  */
-static guint16
-de_sgsap_mme_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+static uint16_t
+de_sgsap_mme_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len _U_, char *add_string _U_, int string_len _U_)
 {
-    guint   name_len;
-    guint8  *fqdn = NULL;
+    unsigned   name_len;
+    uint8_t *fqdn = NULL;
 
     /* The MME name information element specifies the MME name and is coded as shown in figure 9.4.13.1. Octets 3
      * through n contain the name in the form of a fully qualified domain name (FQDN) as specified in 3GPP TS 23.003 [3].
@@ -359,7 +359,7 @@ de_sgsap_mme_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
      * octets.
      */
     if (len > 0) {
-        name_len = tvb_get_guint8(tvb, offset);
+        name_len = tvb_get_uint8(tvb, offset);
 
         if (name_len < 0x20) {
             fqdn = tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_APN_STR);
@@ -389,11 +389,11 @@ de_sgsap_mme_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
  * Octets 3 to 253 contain the SMS message (i.e. CP DATA, CP ACK or CP ERROR)
  * as defined in subclause 7.2 of 3GPP TS 24.011 [10]
  */
-static guint16
-de_sgsap_nas_msg_container(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+static uint16_t
+de_sgsap_nas_msg_container(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len, char *add_string _U_, int string_len _U_)
 {
     tvbuff_t *new_tvb;
-    guint32 curr_offset;
+    uint32_t curr_offset;
 
     curr_offset = offset;
 
@@ -427,18 +427,18 @@ static const value_string sgsap_service_indicator_values[] = {
     { 0, NULL }
 };
 
-static guint16
-de_sgsap_serv_indic(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+static uint16_t
+de_sgsap_serv_indic(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len _U_, char *add_string _U_, int string_len _U_)
 {
-    guint32 curr_offset;
-    guint8 oct;
+    uint32_t curr_offset;
+    uint8_t oct;
 
     curr_offset = offset;
 
     /* Octet 3  Service indicator value */
     proto_tree_add_item(tree, hf_sgsap_service_indicator_value, tvb, offset, 1, ENC_BIG_ENDIAN);
     if (add_string) {
-        oct = tvb_get_guint8(tvb, curr_offset);
+        oct = tvb_get_uint8(tvb, curr_offset);
         snprintf(add_string, string_len, " - %s", val_to_str_const(oct, sgsap_service_indicator_values, "Reserved"));
     }
     curr_offset++;
@@ -471,17 +471,17 @@ static const value_string sgsap_sgs_cause_values[] = {
 
 static value_string_ext sgsap_sgs_cause_values_ext = VALUE_STRING_EXT_INIT(sgsap_sgs_cause_values);
 
-static guint16
-de_sgsap_sgs_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+static uint16_t
+de_sgsap_sgs_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len _U_, char *add_string _U_, int string_len _U_)
 {
-    guint32 curr_offset;
-    guint8 oct;
+    uint32_t curr_offset;
+    uint8_t oct;
 
     curr_offset = offset;
 
     proto_tree_add_item(tree, hf_sgsap_sgs_cause, tvb, offset, 1, ENC_BIG_ENDIAN);
     if (add_string) {
-        oct = tvb_get_guint8(tvb, curr_offset);
+        oct = tvb_get_uint8(tvb, curr_offset);
         snprintf(add_string, string_len, " - %s", val_to_str_ext_const(oct, &sgsap_sgs_cause_values_ext, "Reserved"));
     }
     curr_offset++;
@@ -527,10 +527,10 @@ static const value_string sgsap_ue_emm_mode_values[] = {
     { 0, NULL }
 };
 
-static guint16
-de_sgsap_ue_emm_mode(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+static uint16_t
+de_sgsap_ue_emm_mode(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len _U_, char *add_string _U_, int string_len _U_)
 {
-    guint32 curr_offset;
+    uint32_t curr_offset;
 
     curr_offset = offset;
 
@@ -542,18 +542,18 @@ de_sgsap_ue_emm_mode(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
 /*
  * 9.4.22   VLR name
  */
-static guint16
-de_sgsap_vlr_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+static uint16_t
+de_sgsap_vlr_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len _U_, char *add_string _U_, int string_len _U_)
 {
-    guint     name_len;
-    guint8  *fqdn = NULL;
+    unsigned  name_len;
+    uint8_t *fqdn = NULL;
 
     /* The VLR name information element specifies the VLR name and is coded as shown in figure 9.4.22.1.
      * Octets 3 through n contain the VLR name in the form of a fully qualified domain name (FQDN)
      * as specified in IETF RFC 1035 [21].
      */
     if (len > 0) {
-        name_len = tvb_get_guint8(tvb, offset);
+        name_len = tvb_get_uint8(tvb, offset);
 
         if (name_len < 0x20) {
             fqdn = tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_APN_STR);
@@ -587,8 +587,8 @@ de_sgsap_vlr_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 /*
  *
  */
-static guint16
-de_sgsap_add_paging_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+static uint16_t
+de_sgsap_add_paging_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len _U_, char *add_string _U_, int string_len _U_)
 {
     /* Octet 3 0 0 0 0 0 0 0 CSRI */
     proto_tree_add_item(tree, hf_sgsap_csri, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -601,8 +601,8 @@ Reuse GSM_A_PDU_TYPE_GM, DE_NET_RES_ID_CONT
 /*
  * 9.4.26 TMSI based NRI container
  */
-static guint16
-de_sgsap_tmsi_based_nri_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+static uint16_t
+de_sgsap_tmsi_based_nri_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len _U_, char *add_string _U_, int string_len _U_)
 {
 
     /* See subclause 18.4.28 in 3GPP TS 29.018 [16].
@@ -617,8 +617,8 @@ de_sgsap_tmsi_based_nri_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
 /*
 * 9.4.27 Selected CS domain operator
 */
-static guint16
-de_sgsap_selected_cs_dmn_op(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+static uint16_t
+de_sgsap_selected_cs_dmn_op(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len _U_, char *add_string _U_, int string_len _U_)
 {
     proto_item *item;
     proto_tree *sub_tree;
@@ -632,7 +632,7 @@ de_sgsap_selected_cs_dmn_op(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo 
     item = proto_tree_add_item(tree, hf_sgsap_sel_cs_dmn_op, tvb, offset, 1, ENC_NA);
     sub_tree = proto_item_add_subtree(item, ett_sgsap_sel_cs_dmn_op);
 
-    dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, sub_tree, offset, E212_LAI, TRUE);
+    dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, sub_tree, offset, E212_LAI, true);
 
     return len;
 }
@@ -685,7 +685,7 @@ static const value_string sgsap_elem_strings[] = {
 value_string_ext sgsap_elem_strings_ext = VALUE_STRING_EXT_INIT(sgsap_elem_strings);
 
 #define NUM_SGSAP_ELEM array_length(sgsap_elem_strings)
-gint ett_sgsap_elem[NUM_SGSAP_ELEM];
+int ett_sgsap_elem[NUM_SGSAP_ELEM];
 #if 0
 This enum has been moved to packet-gsm_a_common to
 make it possible to use element dissecton from this dissector
@@ -745,7 +745,7 @@ typedef enum
 sgsap_elem_idx_t;
 #endif /* 0 */
 
-guint16 (*sgsap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len) = {
+uint16_t (*sgsap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len, char *add_string, int string_len) = {
     NULL/*DE_SGSAP_IMSI*/,                                  /* 9.4.6 IMSI*/
     de_sgsap_vlr_name,                                      /* 9.4.22 VLR name*/
     NULL/*DE_SGSAP_TMSI*/,                                  /* 9.4.20 TMSI */
@@ -797,11 +797,11 @@ guint16 (*sgsap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo 
  * 8.1  SGsAP-ALERT-ACK message
  */
 static void
-sgsap_alert_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+sgsap_alert_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len)
 {
-    guint32 curr_offset;
-    guint32 consumed;
-    guint   curr_len;
+    uint32_t curr_offset;
+    uint32_t consumed;
+    unsigned   curr_len;
 
     curr_offset = offset;
     curr_len    = len;
@@ -816,11 +816,11 @@ sgsap_alert_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
  * 8.2  SGsAP-ALERT-REJECT message
  */
 static void
-sgsap_alert_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+sgsap_alert_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len)
 {
-    guint32 curr_offset;
-    guint32 consumed;
-    guint   curr_len;
+    uint32_t curr_offset;
+    uint32_t consumed;
+    unsigned   curr_len;
 
     curr_offset = offset;
     curr_len    = len;
@@ -837,11 +837,11 @@ sgsap_alert_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
  * 8.3  SGsAP-ALERT-REQUEST message
  */
 static void
-sgsap_alert_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+sgsap_alert_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len)
 {
-    guint32 curr_offset;
-    guint32 consumed;
-    guint   curr_len;
+    uint32_t curr_offset;
+    uint32_t consumed;
+    unsigned   curr_len;
 
     curr_offset = offset;
     curr_len    = len;
@@ -856,11 +856,11 @@ sgsap_alert_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
  * 8.4  SGsAP-DOWNLINK-UNITDATA message
  */
 static void
-sgsap_dl_unitdata(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+sgsap_dl_unitdata(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len)
 {
-    guint32 curr_offset;
-    guint32 consumed;
-    guint   curr_len;
+    uint32_t curr_offset;
+    uint32_t consumed;
+    unsigned   curr_len;
 
     curr_offset = offset;
     curr_len    = len;
@@ -879,11 +879,11 @@ sgsap_dl_unitdata(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
  */
 
 static void
-sgsap_eps_det_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+sgsap_eps_det_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len)
 {
-    guint32 curr_offset;
-    guint32 consumed;
-    guint   curr_len;
+    uint32_t curr_offset;
+    uint32_t consumed;
+    unsigned   curr_len;
 
     curr_offset = offset;
     curr_len    = len;
@@ -898,11 +898,11 @@ sgsap_eps_det_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
  */
 
 static void
-sgsap_eps_det_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+sgsap_eps_det_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len)
 {
-    guint32 curr_offset;
-    guint32 consumed;
-    guint   curr_len;
+    uint32_t curr_offset;
+    uint32_t consumed;
+    unsigned   curr_len;
 
     curr_offset = offset;
     curr_len    = len;
@@ -921,11 +921,11 @@ sgsap_eps_det_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
  * 8.7  SGsAP-IMSI-DETACH-ACK message
  */
 static void
-sgsap_imsi_det_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+sgsap_imsi_det_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len)
 {
-    guint32 curr_offset;
-    guint32 consumed;
-    guint   curr_len;
+    uint32_t curr_offset;
+    uint32_t consumed;
+    unsigned   curr_len;
 
     curr_offset = offset;
     curr_len    = len;
@@ -939,11 +939,11 @@ sgsap_imsi_det_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
  * 8.8  SGsAP-IMSI-DETACH-INDICATION message
  */
 static void
-sgsap_imsi_det_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+sgsap_imsi_det_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len)
 {
-    guint32 curr_offset;
-    guint32 consumed;
-    guint   curr_len;
+    uint32_t curr_offset;
+    uint32_t consumed;
+    unsigned   curr_len;
 
     curr_offset = offset;
     curr_len    = len;
@@ -962,11 +962,11 @@ sgsap_imsi_det_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
  * 8.9  SGsAP-LOCATION-UPDATE-ACCEPT message
  */
 static void
-sgsap_imsi_loc_update_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+sgsap_imsi_loc_update_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len)
 {
-    guint32 curr_offset;
-    guint32 consumed;
-    guint   curr_len;
+    uint32_t curr_offset;
+    uint32_t consumed;
+    unsigned   curr_len;
 
     curr_offset = offset;
     curr_len    = len;
@@ -985,11 +985,11 @@ sgsap_imsi_loc_update_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
  * 8.10 SGsAP-LOCATION-UPDATE-REJECT message
  */
 static void
-sgsap_imsi_loc_update_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+sgsap_imsi_loc_update_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len)
 {
-    guint32 curr_offset;
-    guint32 consumed;
-    guint   curr_len;
+    uint32_t curr_offset;
+    uint32_t consumed;
+    unsigned   curr_len;
 
     curr_offset = offset;
     curr_len    = len;
@@ -1009,11 +1009,11 @@ sgsap_imsi_loc_update_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
  */
 
 static void
-sgsap_imsi_loc_update_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+sgsap_imsi_loc_update_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len)
 {
-    guint32 curr_offset;
-    guint32 consumed;
-    guint   curr_len;
+    uint32_t curr_offset;
+    uint32_t consumed;
+    unsigned   curr_len;
 
     curr_offset = offset;
     curr_len    = len;
@@ -1048,11 +1048,11 @@ sgsap_imsi_loc_update_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
  * 8.12 SGsAP-MM-INFORMATION-REQUEST
  */
 static void
-sgsap_mm_info_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+sgsap_mm_info_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len)
 {
-    guint32 curr_offset;
-    guint32 consumed;
-    guint   curr_len;
+    uint32_t curr_offset;
+    uint32_t consumed;
+    unsigned   curr_len;
 
     curr_offset = offset;
     curr_len    = len;
@@ -1069,11 +1069,11 @@ sgsap_mm_info_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
  * 8.13 SGsAP-PAGING-REJECT message
  */
 static void
-sgsap_paging_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+sgsap_paging_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len)
 {
-    guint32 curr_offset;
-    guint32 consumed;
-    guint   curr_len;
+    uint32_t curr_offset;
+    uint32_t consumed;
+    unsigned   curr_len;
 
     curr_offset = offset;
     curr_len    = len;
@@ -1089,11 +1089,11 @@ sgsap_paging_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
  * 8.14 SGsAP-PAGING-REQUEST message
  */
 static void
-sgsap_paging_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+sgsap_paging_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len)
 {
-    guint32 curr_offset;
-    guint32 consumed;
-    guint   curr_len;
+    uint32_t curr_offset;
+    uint32_t consumed;
+    unsigned   curr_len;
 
     curr_offset = offset;
     curr_len    = len;
@@ -1131,11 +1131,11 @@ sgsap_paging_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
  * 8.15 SGsAP-RESET-ACK message
  */
 static void
-sgsap_reset_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+sgsap_reset_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len)
 {
-    guint32 curr_offset;
-    guint32 consumed;
-    guint   curr_len;
+    uint32_t curr_offset;
+    uint32_t consumed;
+    unsigned   curr_len;
 
     curr_offset = offset;
     curr_len    = len;
@@ -1152,11 +1152,11 @@ sgsap_reset_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
  * 8.16 SGsAP-RESET-INDICATION message
  */
 static void
-sgsap_reset_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+sgsap_reset_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len)
 {
-    guint32 curr_offset;
-    guint32 consumed;
-    guint   curr_len;
+    uint32_t curr_offset;
+    uint32_t consumed;
+    unsigned   curr_len;
 
     curr_offset = offset;
     curr_len    = len;
@@ -1172,11 +1172,11 @@ sgsap_reset_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
  * 8.17 SGsAP-SERVICE-REQUEST message
  */
 static void
-sgsap_service_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+sgsap_service_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len)
 {
-    guint32 curr_offset;
-    guint32 consumed;
-    guint   curr_len;
+    uint32_t curr_offset;
+    uint32_t consumed;
+    unsigned   curr_len;
 
     curr_offset = offset;
     curr_len    = len;
@@ -1205,11 +1205,11 @@ sgsap_service_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
  * 8.18 SGsAP-STATUS message
  */
 static void
-sgsap_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+sgsap_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len)
 {
-    guint32 curr_offset;
-    guint32 consumed;
-    guint   curr_len;
+    uint32_t curr_offset;
+    uint32_t consumed;
+    unsigned   curr_len;
 
     curr_offset = offset;
     curr_len    = len;
@@ -1228,11 +1228,11 @@ sgsap_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 of
  * 8.19 SGsAP-TMSI-REALLOCATION-COMPLETE message
  */
 static void
-sgsap_tmsi_realloc_comp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+sgsap_tmsi_realloc_comp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len)
 {
-    guint32 curr_offset;
-    guint32 consumed;
-    guint   curr_len;
+    uint32_t curr_offset;
+    uint32_t consumed;
+    unsigned   curr_len;
 
     curr_offset = offset;
     curr_len    = len;
@@ -1247,11 +1247,11 @@ sgsap_tmsi_realloc_comp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
  * 8.20 SGsAP-UE-ACTIVITY-INDICATION message
  */
 static void
-sgsap_ue_act_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+sgsap_ue_act_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len)
 {
-    guint32 curr_offset;
-    guint32 consumed;
-    guint   curr_len;
+    uint32_t curr_offset;
+    uint32_t consumed;
+    unsigned   curr_len;
 
     curr_offset = offset;
     curr_len    = len;
@@ -1266,11 +1266,11 @@ sgsap_ue_act_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
  * 8.21 SGsAP-UE-UNREACHABLE message
  */
 static void
-sgsap_ue_unreachable(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+sgsap_ue_unreachable(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len)
 {
-    guint32 curr_offset;
-    guint32 consumed;
-    guint   curr_len;
+    uint32_t curr_offset;
+    uint32_t consumed;
+    unsigned   curr_len;
 
     curr_offset = offset;
     curr_len    = len;
@@ -1287,11 +1287,11 @@ sgsap_ue_unreachable(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
  * 8.22 SGsAP-UPLINK-UNITDATA message
  */
 static void
-sgsap_ue_ul_unitdata(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+sgsap_ue_ul_unitdata(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len)
 {
-    guint32 curr_offset;
-    guint32 consumed;
-    guint   curr_len;
+    uint32_t curr_offset;
+    uint32_t consumed;
+    unsigned   curr_len;
 
     curr_offset = offset;
     curr_len    = len;
@@ -1317,11 +1317,11 @@ sgsap_ue_ul_unitdata(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
  * 8.23 SGsAP-RELEASE-REQUEST message
  */
 static void
-sgsap_release_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+sgsap_release_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len)
 {
-    guint32 curr_offset;
-    guint32 consumed;
-    guint   curr_len;
+    uint32_t curr_offset;
+    uint32_t consumed;
+    unsigned   curr_len;
 
     curr_offset = offset;
     curr_len    = len;
@@ -1338,11 +1338,11 @@ sgsap_release_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
  * 8.24 SGsAP-SERVICE-ABORT-REQUEST message
  */
 static void
-sgsap_service_abort_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+sgsap_service_abort_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len)
 {
-    guint32 curr_offset;
-    guint32 consumed;
-    guint   curr_len;
+    uint32_t curr_offset;
+    uint32_t consumed;
+    unsigned   curr_len;
 
     curr_offset = offset;
     curr_len    = len;
@@ -1357,11 +1357,11 @@ sgsap_service_abort_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
  * 8.25 SGsAP-MO-CSFB-INDICATION message
  */
 static void
-sgsap_mo_csfb_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+sgsap_mo_csfb_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len)
 {
-    guint32 curr_offset;
-    guint32 consumed;
-    guint   curr_len;
+    uint32_t curr_offset;
+    uint32_t consumed;
+    unsigned   curr_len;
 
     curr_offset = offset;
     curr_len    = len;
@@ -1433,8 +1433,8 @@ static const value_string sgsap_msg_strings[] = {
 static value_string_ext sgsap_msg_strings_ext = VALUE_STRING_EXT_INIT(sgsap_msg_strings);
 
 #define NUM_SGSAP_MSG array_length(sgsap_msg_strings)
-static gint ett_sgsap_msg[NUM_SGSAP_MSG];
-static void (*sgsap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len) = {
+static int ett_sgsap_msg[NUM_SGSAP_MSG];
+static void (*sgsap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len) = {
     sgsap_paging_req,           /* 0x01,    "SGsAP-PAGING-REQUEST"  8.14 */
     sgsap_paging_rej,           /* 0x02,    "SGsAP-PAGING-REJECT"   8.13 */
 /*
@@ -1488,11 +1488,11 @@ static void (*sgsap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
     NULL,   /* NONE */
 };
 
-static void get_sgsap_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf_idx, msg_fcn *msg_fcn_p)
+static void get_sgsap_msg_params(uint8_t oct, const char **msg_str, int *ett_tree, int *hf_idx, msg_fcn *msg_fcn_p)
 {
-    gint            idx;
+    int             idx;
 
-    *msg_str   = try_val_to_str_idx_ext((guint32) (oct & 0xff), &sgsap_msg_strings_ext, &idx);
+    *msg_str   = try_val_to_str_idx_ext((uint32_t) (oct & 0xff), &sgsap_msg_strings_ext, &idx);
     *hf_idx    = hf_sgsap_msg_type;
     if (*msg_str != NULL) {
         *ett_tree  = ett_sgsap_msg[idx];
@@ -1509,12 +1509,12 @@ dissect_sgsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     proto_item      *item;
     proto_tree      *sgsap_tree;
     int              offset = 0;
-    guint32          len;
-    const gchar     *msg_str;
-    gint             ett_tree;
+    uint32_t         len;
+    const char      *msg_str;
+    int              ett_tree;
     int              hf_idx;
-    void            (*msg_fcn_p)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len);
-    guint8          oct;
+    void            (*msg_fcn_p)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len);
+    uint8_t         oct;
 
     len = tvb_reported_length(tvb);
 
@@ -1525,7 +1525,7 @@ dissect_sgsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     sgsap_tree = proto_item_add_subtree(item, ett_sgsap);
 
     /* Message type IE*/
-    oct       = tvb_get_guint8(tvb, offset);
+    oct       = tvb_get_uint8(tvb, offset);
     msg_fcn_p = NULL;
     ett_tree  = -1;
     hf_idx    = -1;
@@ -1565,8 +1565,8 @@ dissect_sgsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
 
 void proto_register_sgsap(void) {
-    guint        i;
-    guint        last_offset;
+    unsigned     i;
+    unsigned     last_offset;
 
     /* List of fields */
 
@@ -1672,7 +1672,7 @@ void proto_register_sgsap(void) {
 
     /* Setup protocol subtree array */
 #define NUM_INDIVIDUAL_ELEMS    2
-    gint *ett[NUM_INDIVIDUAL_ELEMS +
+    int *ett[NUM_INDIVIDUAL_ELEMS +
           NUM_SGSAP_ELEM +
           NUM_SGSAP_MSG];
 

@@ -23,15 +23,15 @@ typedef void (*attribute_dissector)(tvbuff_t *tvb, packet_info *pinfo, proto_tre
                                     scsi_osd_lun_info_t *lun_info, const attribute_page_numbers_t *att);
 
 struct _attribute_page_numbers_t {
-    guint32    number;
+    uint32_t   number;
     const char *name;
     attribute_dissector dissector;
     int* hf_index;
-    guint expected_length;
+    unsigned expected_length;
 };
 
 const attribute_page_numbers_t *
-osd_lookup_attribute(guint32 page, guint32 number);
+osd_lookup_attribute(uint32_t page, uint32_t number);
 
 extern int hf_scsi_osd_opcode;
 extern const scsi_cdb_table_t scsi_osd_table[256];

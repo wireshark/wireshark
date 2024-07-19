@@ -289,9 +289,9 @@ static const value_string saphdb_error_level_vals[] = {
 
 /* Structure to define Option Parts */
 typedef struct _option_part_definition {
-    gint8       value;
-    const gchar *identifier_strptr;
-    gint8	    type;
+    int8_t      value;
+    const char *identifier_strptr;
+    int8_t	    type;
 } option_part_definition;
 
 
@@ -537,7 +537,7 @@ static int hf_saphdb_part_authentication_field_value;
 static int hf_saphdb_part_clientid;
 
 
-static gint ett_saphdb;
+static int ett_saphdb;
 
 
 /* Global port preference */
@@ -570,10 +570,10 @@ void proto_register_saphdb(void);
 
 
 /* Option Part Value to Option Part Identifier */
-static const gchar *
-opv_to_opi(const gint8 value, const option_part_definition *opd, const char *unknown_str)
+static const char *
+opv_to_opi(const int8_t value, const option_part_definition *opd, const char *unknown_str)
 {
-	gint i = 0;
+	int i = 0;
 	if (opd) {
         while (opd[i].identifier_strptr) {
             if (opd[i].value == value) {
@@ -586,10 +586,10 @@ opv_to_opi(const gint8 value, const option_part_definition *opd, const char *unk
 }
 
 /* Option Part Value to Option Part Type */
-static gint8
-opv_to_opt(const gint8 value, const option_part_definition *opd)
+static int8_t
+opv_to_opt(const int8_t value, const option_part_definition *opd)
 {
-	gint i = 0;
+	int i = 0;
 	if (opd) {
         while (opd[i].identifier_strptr) {
             if (opd[i].value == value) {
@@ -602,22 +602,22 @@ opv_to_opt(const gint8 value, const option_part_definition *opd)
 }
 
 static int
-dissect_saphdb_part_options_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, gint16 argcount, guint8 partkind, const option_part_definition *definition)
+dissect_saphdb_part_options_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, int16_t argcount, uint8_t partkind, const option_part_definition *definition)
 {
-	guint32 parsed_length = 0;
+	uint32_t parsed_length = 0;
 
 	while (argcount > 0 && tvb_reported_length_remaining(tvb, offset + parsed_length) > 2) {
-		gint8 option_key = 0, option_type = 0;
-		gint16 option_length = 0;
-		gint8 option_value_byte = 0;
+		int8_t option_key = 0, option_type = 0;
+		int16_t option_length = 0;
+		int8_t option_value_byte = 0;
 		proto_item *option_type_item = NULL;
 
-		option_key = tvb_get_gint8(tvb, offset + parsed_length);
+		option_key = tvb_get_int8(tvb, offset + parsed_length);
 		proto_tree_add_int_format(tree, hf_saphdb_part_option_name, tvb, offset + parsed_length, 1, option_key,
 				"Option Name: %s (%d)", opv_to_opi(option_key, definition, "Unknown"), option_key);
 		parsed_length += 1;
 
-		option_type = tvb_get_gint8(tvb, offset + parsed_length);
+		option_type = tvb_get_int8(tvb, offset + parsed_length);
 		option_type_item = proto_tree_add_item(tree, hf_saphdb_part_option_type, tvb, offset + parsed_length, 1, ENC_NA);
 		parsed_length += 1;
 
@@ -649,14 +649,14 @@ dissect_saphdb_part_options_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 				parsed_length += 8;
 				break;
 			case 28:	// BOOLEAN
-				option_value_byte = tvb_get_gint8(tvb, offset + parsed_length);
+				option_value_byte = tvb_get_int8(tvb, offset + parsed_length);
 				proto_tree_add_boolean(tree, hf_saphdb_part_option_value_bool, tvb, offset + parsed_length, 1, option_value_byte);
 				parsed_length += 1;
 				break;
 			case 29:     // STRING
 			case 30:     // NSTRING
 			case 33:     // BSTRING
-				option_length = tvb_get_gint16(tvb, offset + parsed_length, ENC_LITTLE_ENDIAN);
+				option_length = tvb_get_int16(tvb, offset + parsed_length, ENC_LITTLE_ENDIAN);
 				proto_tree_add_item(tree, hf_saphdb_part_option_length, tvb, offset + parsed_length, 2, ENC_LITTLE_ENDIAN);
 				parsed_length += 2;
 
@@ -688,16 +688,16 @@ dissect_saphdb_part_options_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 }
 
 static int
-dissect_saphdb_part_multi_line_options_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, gint16 rowcount, guint8 partkind, const option_part_definition *definition)
+dissect_saphdb_part_multi_line_options_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, int16_t rowcount, uint8_t partkind, const option_part_definition *definition)
 {
-	guint32 parsed_length = 0;
+	uint32_t parsed_length = 0;
 
 	/* In Multi-line Option Part, the part's argcount is the number of rows. For each row we need to parse the options. */
 	while (rowcount > 0 && tvb_reported_length_remaining(tvb, offset + parsed_length) > 2) {
-		gint16 argcount = 0;
+		int16_t argcount = 0;
 
 		/* First we read the amount of arguments in this row */
-		argcount = tvb_get_gint16(tvb, offset + parsed_length, ENC_LITTLE_ENDIAN);
+		argcount = tvb_get_int16(tvb, offset + parsed_length, ENC_LITTLE_ENDIAN);
 		proto_tree_add_item(tree, hf_saphdb_part_option_argcount, tvb, offset + parsed_length, 2, ENC_LITTLE_ENDIAN);
 		parsed_length += 2;
 
@@ -714,23 +714,23 @@ dissect_saphdb_part_multi_line_options_data(tvbuff_t *tvb, packet_info *pinfo, p
 }
 
 static void
-dissect_saphdb_gss_authentication_fields(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset)
+dissect_saphdb_gss_authentication_fields(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset)
 {
-	guint8 field_short_length, commtype = 0;
-	guint16 field_count = 0, field_length;
+	uint8_t field_short_length, commtype = 0;
+	uint16_t field_count = 0, field_length;
 
 	/* Parse the field count */
-	field_count = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+	field_count = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_saphdb_part_authentication_field_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
-	for (guint16 field = 0; field < field_count; field++) {
+	for (uint16_t field = 0; field < field_count; field++) {
 
 		/* Parse the field length. If the first byte is 0xFF, the length is contained in the next 2 bytes */
-		field_short_length = tvb_get_guint8(tvb, offset);
+		field_short_length = tvb_get_uint8(tvb, offset);
 		if (field_short_length == 0xff) {
 			offset += 1;
-			field_length = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+			field_length = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
 			proto_tree_add_item(tree, hf_saphdb_part_authentication_field_length, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
 		} else {
@@ -744,7 +744,7 @@ dissect_saphdb_gss_authentication_fields(tvbuff_t *tvb, packet_info *pinfo, prot
 		 */
 		if ((field == 1) && (field_length == 1))
 		{
-			commtype = tvb_get_guint8(tvb, offset);
+			commtype = tvb_get_uint8(tvb, offset);
 		}
 
 		/* If this is the last value of a three field packet, and is one of the commtypes that carries an
@@ -769,31 +769,31 @@ dissect_saphdb_gss_authentication_fields(tvbuff_t *tvb, packet_info *pinfo, prot
 
 
 static int
-dissect_saphdb_part_authentication_fields(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset)
+dissect_saphdb_part_authentication_fields(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset)
 {
-	guint8 field_short_length;
-	guint16 field_count = 0, field_length;
-	guint32 parsed_length = 0;
+	uint8_t field_short_length;
+	uint16_t field_count = 0, field_length;
+	uint32_t parsed_length = 0;
 
 	proto_item *gss_item = NULL;
 	proto_tree *gss_tree = NULL;
 
-	gboolean is_gss = FALSE;
+	bool is_gss = false;
 
 	/* Parse the field count */ /* TODO: Should this match with argcount? */
-	field_count = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+	field_count = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_saphdb_part_authentication_field_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 	parsed_length += 2;
 
-	for (guint16 field = 0; field < field_count; field++) {
+	for (uint16_t field = 0; field < field_count; field++) {
 
 		/* Parse the field length. If the first byte is 0xFF, the length is contained in the next 2 bytes */
-		field_short_length = tvb_get_guint8(tvb, offset);
+		field_short_length = tvb_get_uint8(tvb, offset);
 		if (field_short_length == 0xff) {
 			offset += 1;
 			parsed_length += 1;
-			field_length = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+			field_length = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
 			proto_tree_add_item(tree, hf_saphdb_part_authentication_field_length, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
 			parsed_length += 2;
@@ -810,7 +810,7 @@ dissect_saphdb_part_authentication_fields(tvbuff_t *tvb, packet_info *pinfo, pro
 		/* Check if this is a GSS field so we can parse the remaining fields */
 		if ((((field_count == 2) && (field == 0)) || ((field_count == 3) && (field == 1))) &&
 			(field_length == 3) && (tvb_strneql(tvb, offset, "GSS", 3) != -1)) {
-			is_gss = TRUE;
+			is_gss = true;
 		}
 
 		/* If the method is GSS, and this is the last value, we add a new tree and parse the value */
@@ -829,13 +829,13 @@ dissect_saphdb_part_authentication_fields(tvbuff_t *tvb, packet_info *pinfo, pro
 
 
 static int
-dissect_saphdb_part_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint32 length, gint16 argcount, guint8 partkind, proto_item *partkind_item)
+dissect_saphdb_part_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, uint32_t length, int16_t argcount, uint8_t partkind, proto_item *partkind_item)
 {
-	gint32 error_text_length = 0;
+	int32_t error_text_length = 0;
 
 	switch (partkind) {
 		case 3:   // COMMAND
-			if ((length > 0) && ((guint32)tvb_reported_length_remaining(tvb, offset) >= length)) {
+			if ((length > 0) && ((uint32_t)tvb_reported_length_remaining(tvb, offset) >= length)) {
 				proto_tree_add_item(tree, hf_saphdb_part_command, tvb, offset, length, ENC_ASCII);
 				length = 0;
 			}
@@ -873,7 +873,7 @@ dissect_saphdb_part_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 			break;
 
 		case 35:   // CLIENTID
-			if ((length > 0) && ((guint32)tvb_reported_length_remaining(tvb, offset) >= length)) {
+			if ((length > 0) && ((uint32_t)tvb_reported_length_remaining(tvb, offset) >= length)) {
 				proto_tree_add_item(tree, hf_saphdb_part_clientid, tvb, offset, length, ENC_ASCII);
 				length = 0;
 			}
@@ -928,12 +928,12 @@ dissect_saphdb_part_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 
 static int
-dissect_saphdb_part(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_, guint32 offset, gint16 number_of_parts, guint16 part_number)
+dissect_saphdb_part(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_, uint32_t offset, int16_t number_of_parts, uint16_t part_number)
 {
-	gint8 partkind = 0;
-	gint16 argcount = 0;
-	gint32 bufferlength = 0;
-	guint32 length = 0;
+	int8_t partkind = 0;
+	int16_t argcount = 0;
+	int32_t bufferlength = 0;
+	uint32_t length = 0;
 	proto_item *part_item = NULL, *partkind_item = NULL, *part_buffer_length_item = NULL, *part_buffer_item = NULL;
 	proto_tree *part_tree = NULL, *part_buffer_tree = NULL;
 
@@ -943,7 +943,7 @@ dissect_saphdb_part(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 	proto_item_append_text(part_item, " (%d/%d)", part_number, number_of_parts);
 
 	/* Add the Part fields */
-	partkind = tvb_get_gint8(tvb, offset);
+	partkind = tvb_get_int8(tvb, offset);
 	proto_item_append_text(part_item, ", %s", val_to_str_const(partkind, saphdb_part_partkind_vals, "Unknown"));
 	partkind_item = proto_tree_add_item(part_tree, hf_saphdb_part_partkind, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
@@ -951,7 +951,7 @@ dissect_saphdb_part(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 	proto_tree_add_item(part_tree, hf_saphdb_part_partattributes, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 	length += 1;
-	argcount = tvb_get_gint16(tvb, offset, ENC_LITTLE_ENDIAN);
+	argcount = tvb_get_int16(tvb, offset, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(part_tree, hf_saphdb_part_argumentcount, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 	length += 2;
@@ -997,12 +997,12 @@ dissect_saphdb_part(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 
 
 static int
-dissect_saphdb_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_, guint32 offset, gint16 number_of_segments, guint16 nosegment, gboolean compressed)
+dissect_saphdb_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_, uint32_t offset, int16_t number_of_segments, uint16_t nosegment, bool compressed)
 {
-	gint8 segmentkind = 0, message_type = 0;
-	gint16 number_of_parts = 0, segment_number = 0, function_code = 0;
-	guint32 length = 0, part_length = 0;
-	gint32 segmentlength = 0;
+	int8_t segmentkind = 0, message_type = 0;
+	int16_t number_of_parts = 0, segment_number = 0, function_code = 0;
+	uint32_t length = 0, part_length = 0;
+	int32_t segmentlength = 0;
 	proto_item *segment_item = NULL, *segmentlength_item = NULL, *number_of_parts_item = NULL, *segment_number_item = NULL, *segment_buffer_item = NULL;
 	proto_tree *segment_tree = NULL, *segment_buffer_tree = NULL;
 
@@ -1012,22 +1012,22 @@ dissect_saphdb_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 	proto_item_append_text(segment_item, " (%d/%d)", nosegment, number_of_segments);
 
 	/* Add the Segment fields */
-	segmentlength = tvb_get_gint32(tvb, offset, ENC_LITTLE_ENDIAN);
+	segmentlength = tvb_get_int32(tvb, offset, ENC_LITTLE_ENDIAN);
 	segmentlength_item = proto_tree_add_item(segment_tree, hf_saphdb_segment_segmentlength, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 	length += 4;
 	proto_tree_add_item(segment_tree, hf_saphdb_segment_segmentofs, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 	length += 4;
-	number_of_parts = tvb_get_gint16(tvb, offset, ENC_LITTLE_ENDIAN);
+	number_of_parts = tvb_get_int16(tvb, offset, ENC_LITTLE_ENDIAN);
 	number_of_parts_item = proto_tree_add_item(segment_tree, hf_saphdb_segment_noofparts, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 	length += 2;
-	segment_number = tvb_get_gint16(tvb, offset, ENC_LITTLE_ENDIAN);
+	segment_number = tvb_get_int16(tvb, offset, ENC_LITTLE_ENDIAN);
 	segment_number_item = proto_tree_add_item(segment_tree, hf_saphdb_segment_segmentno, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 	length += 2;
-	segmentkind = tvb_get_gint8(tvb, offset);
+	segmentkind = tvb_get_int8(tvb, offset);
 	proto_tree_add_item(segment_tree, hf_saphdb_segment_segmentkind, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 	length += 1;
@@ -1049,7 +1049,7 @@ dissect_saphdb_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 	/* Add additional fields according to the segment kind*/
 	switch (segmentkind) {
 		case 1: /* Request */
-			message_type = tvb_get_gint8(tvb, offset);
+			message_type = tvb_get_int8(tvb, offset);
 			col_append_fstr(pinfo->cinfo, COL_INFO, "%s)", val_to_str_const(message_type, saphdb_segment_messagetype_vals, "Unknown"));
 			proto_item_append_text(segment_item, ", %s", val_to_str_const(message_type, saphdb_segment_messagetype_vals, "Unknown"));
 			proto_tree_add_item(segment_tree, hf_saphdb_segment_messagetype, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -1072,7 +1072,7 @@ dissect_saphdb_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 			offset += 1;
 			length += 1;
 
-			function_code = tvb_get_gint16(tvb, offset, ENC_LITTLE_ENDIAN);
+			function_code = tvb_get_int16(tvb, offset, ENC_LITTLE_ENDIAN);
 			col_append_fstr(pinfo->cinfo, COL_INFO, "%s)", val_to_str_const(function_code, saphdb_segment_functioncode_vals, "Unknown"));
 			proto_item_append_text(segment_item, ", %s", val_to_str_const(function_code, saphdb_segment_functioncode_vals, "Unknown"));
 			proto_tree_add_item(segment_tree, hf_saphdb_segment_functioncode, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -1098,12 +1098,12 @@ dissect_saphdb_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 	}
 
 	/* Add the Segment Buffer subtree */
-	if (((guint32)segmentlength > length) && (number_of_parts > 0)) {
+	if (((uint32_t)segmentlength > length) && (number_of_parts > 0)) {
 		segment_buffer_item = proto_tree_add_item(segment_tree, hf_saphdb_segment_buffer, tvb, offset, segmentlength - length, ENC_NA);
 		segment_buffer_tree = proto_item_add_subtree(segment_buffer_item, ett_saphdb);
 
 		/* Iterate over the parts and dissect them */
-		for (guint16 part_number = 1; part_number <= number_of_parts && tvb_reported_length_remaining(tvb, offset) >= 16; part_number++) {
+		for (uint16_t part_number = 1; part_number <= number_of_parts && tvb_reported_length_remaining(tvb, offset) >= 16; part_number++) {
 			part_length = dissect_saphdb_part(tvb, pinfo, segment_buffer_tree, NULL, offset, number_of_parts, part_number);
 			offset += part_length;
 			length += part_length;
@@ -1121,7 +1121,7 @@ dissect_saphdb_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 static int
 dissect_saphdb_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	guint32 offset = 0;
+	uint32_t offset = 0;
 
 	/* Add the protocol to the column */
 	col_add_str(pinfo->cinfo, COL_PROTOCOL, "SAPHDB");
@@ -1168,9 +1168,9 @@ dissect_saphdb_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 		/* All other message types */
 		} else if (tvb_reported_length(tvb) >= SAPHDB_HEADER_LEN) {
 
-			gboolean compressed = FALSE;
-			gint16 number_of_segments = 0;
-			guint32 varpartlength = 0;
+			bool compressed = false;
+			int16_t number_of_segments = 0;
+			uint32_t varpartlength = 0;
 			proto_item *message_header_item = NULL, *varpartlength_item = NULL, *number_of_segments_item = NULL, *message_buffer_item = NULL, *compressed_buffer_item = NULL;
 			proto_tree *message_header_tree = NULL, *message_buffer_tree = NULL;
 
@@ -1187,10 +1187,10 @@ dissect_saphdb_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 			offset += 4;
 			proto_tree_add_item(message_header_tree, hf_saphdb_message_header_varpartsize, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
-			number_of_segments = tvb_get_gint16(tvb, offset, ENC_LITTLE_ENDIAN);
+			number_of_segments = tvb_get_int16(tvb, offset, ENC_LITTLE_ENDIAN);
 			number_of_segments_item = proto_tree_add_item(message_header_tree, hf_saphdb_message_header_noofsegm, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset += 2;
-			compressed = tvb_get_gint8(tvb, offset) == 2;
+			compressed = tvb_get_int8(tvb, offset) == 2;
 			proto_tree_add_item(message_header_tree, hf_saphdb_message_header_packetoptions, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset += 1;
 			proto_tree_add_item(message_header_tree, hf_saphdb_message_header_reserved, tvb, offset, 1, ENC_NA);
@@ -1201,7 +1201,7 @@ dissect_saphdb_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 			offset += 4;
 
 			/* Check the length of the variable part against the remaining packet */
-			if ((guint32)tvb_reported_length_remaining(tvb, offset) != varpartlength) {
+			if ((uint32_t)tvb_reported_length_remaining(tvb, offset) != varpartlength) {
 				expert_add_info_format(pinfo, varpartlength_item, &ei_saphdb_varpartlenght_incorrect, "Length of variable part %d is invalid", varpartlength);
 				varpartlength = tvb_reported_length_remaining(tvb, offset);
 			}
@@ -1222,7 +1222,7 @@ dissect_saphdb_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
 				} else {
 					/* Iterate over the segments and dissect them */
-					for (guint16 segment_number = 1; segment_number <= number_of_segments && tvb_reported_length_remaining(tvb, offset) >= 13; segment_number++) {
+					for (uint16_t segment_number = 1; segment_number <= number_of_segments && tvb_reported_length_remaining(tvb, offset) >= 13; segment_number++) {
 						offset += dissect_saphdb_segment(tvb, pinfo, message_buffer_tree, NULL, offset, number_of_segments, segment_number, compressed);
 					}
 				}
@@ -1238,18 +1238,18 @@ dissect_saphdb_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 	return offset;
 }
 
-static guint
+static unsigned
 get_saphdb_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
 	/* Entire HDB packets are of 32-bytes header plus the value in varpartlength field */
-	guint32 varpartlength = tvb_get_guint32(tvb, offset + 12, ENC_LITTLE_ENDIAN);
+	uint32_t varpartlength = tvb_get_uint32(tvb, offset + 12, ENC_LITTLE_ENDIAN);
 	return varpartlength + SAPHDB_HEADER_LEN;
 }
 
 static int
 dissect_saphdb_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	return dissect_saphdb_message(tvb, pinfo, tree, FALSE);
+	return dissect_saphdb_message(tvb, pinfo, tree, false);
 }
 
 static int
@@ -1265,10 +1265,10 @@ dissect_saphdb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 			return 0;
 
 		/* Filter on reserved bytes */
-		if(tvb_get_guint8(tvb, 23) || tvb_get_guint32(tvb, 28, ENC_BIG_ENDIAN))
+		if(tvb_get_uint8(tvb, 23) || tvb_get_uint32(tvb, 28, ENC_BIG_ENDIAN))
 			return 0;
 
-		tcp_dissect_pdus(tvb, pinfo, tree, TRUE, SAPHDB_HEADER_LEN, get_saphdb_pdu_len, dissect_saphdb_tcp, data);
+		tcp_dissect_pdus(tvb, pinfo, tree, true, SAPHDB_HEADER_LEN, get_saphdb_pdu_len, dissect_saphdb_tcp, data);
 	}
 	return tvb_reported_length(tvb);
 }
@@ -1424,7 +1424,7 @@ proto_register_saphdb(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_saphdb
 	};
 
@@ -1467,11 +1467,11 @@ proto_register_saphdb(void)
 /**
  * Helpers for dealing with the port range
  */
-static void range_delete_callback (guint32 port, gpointer ptr _U_)
+static void range_delete_callback (uint32_t port, void *ptr _U_)
 {
 	dissector_delete_uint("tcp.port", port, saphdb_handle);
 }
-static void range_add_callback (guint32 port, gpointer ptr _U_)
+static void range_add_callback (uint32_t port, void *ptr _U_)
 {
 	dissector_add_uint("tcp.port", port, saphdb_handle);
 }
@@ -1482,13 +1482,13 @@ static void range_add_callback (guint32 port, gpointer ptr _U_)
 void
 proto_reg_handoff_saphdb(void)
 {
-	static gboolean initialized = FALSE;
+	static bool initialized = false;
 	static range_t *saphdb_port_range;
 
 	if (!initialized) {
 		saphdb_handle = create_dissector_handle(dissect_saphdb, proto_saphdb);
 		saphdb_handle_tls = register_dissector_with_description("saphdb_tls", "SAPHDB over TLS", dissect_saphdb, proto_saphdb);
-		initialized = TRUE;
+		initialized = true;
 	} else {
 		range_foreach(saphdb_port_range, range_delete_callback, NULL);
 		wmem_free(wmem_epan_scope(), saphdb_port_range);

@@ -13,7 +13,7 @@
 #ifndef __PACKET_S7COMM_SZL_IDS_H__
 #define __PACKET_S7COMM_SZL_IDS_H__
 
-guint32 s7comm_decode_ud_cpu_szl_subfunc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *data_tree, guint8 type, guint8 ret_val, guint32 dlength, guint32 offset);
+uint32_t s7comm_decode_ud_cpu_szl_subfunc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *data_tree, uint8_t type, uint8_t ret_val, uint32_t dlength, uint32_t offset);
 void s7comm_register_szl_types(int proto);
 
 #endif

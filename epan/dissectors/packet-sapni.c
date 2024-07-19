@@ -49,7 +49,7 @@ static int hf_sap_protocol_payload;
 static int hf_sap_protocol_ping;
 static int hf_sap_protocol_pong;
 
-static gint ett_sap_protocol;
+static int ett_sap_protocol;
 
 /* Expert info */
 static expert_field ei_sap_invalid_length;
@@ -78,10 +78,10 @@ void proto_register_sap_protocol(void);
 /*
  * Get the SAPNI pdu length
  */
-static guint
+static unsigned
 get_sap_protocol_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_, void *dissector_data _U_)
 {
-	return ((guint)tvb_get_ntohl(tvb, 0) + 4);
+	return ((unsigned)tvb_get_ntohl(tvb, 0) + 4);
 }
 
 
@@ -91,8 +91,8 @@ get_sap_protocol_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_, 
  * (e.g. 3200/tcp for Enqueue Server and Diag).
  */
 void
-dissect_sap_protocol_payload(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, guint16 sport, guint16 dport){
-	guint16 low_port = 0, high_port = 0;
+dissect_sap_protocol_payload(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_tree *tree, uint16_t sport, uint16_t dport){
+	uint16_t low_port = 0, high_port = 0;
 	tvbuff_t *next_tvb = NULL;
 	heur_dtbl_entry_t *hdtbl_entry = NULL;
 
@@ -135,7 +135,7 @@ dissect_sap_protocol_payload(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, 
 static int
 dissect_sap_protocol_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	guint32 length = 0;
+	uint32_t length = 0;
 	proto_item *ti = NULL, *sap_protocol_length = NULL;
 	proto_tree *sap_protocol_tree = NULL;
 	conversation_t *conversation = NULL;
@@ -238,7 +238,7 @@ proto_register_sap_protocol(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_sap_protocol
 	};
 
@@ -277,12 +277,12 @@ proto_register_sap_protocol(void)
 /**
  * Helpers for dealing with the port range
  */
-static void range_delete_callback (guint32 port, gpointer ptr _U_)
+static void range_delete_callback (uint32_t port, void *ptr _U_)
 {
 	dissector_delete_uint("tcp.port", port, sap_protocol_handle);
 }
 
-static void range_add_callback (guint32 port, gpointer ptr _U_)
+static void range_add_callback (uint32_t port, void *ptr _U_)
 {
 	dissector_add_uint("tcp.port", port, sap_protocol_handle);
 }
@@ -294,11 +294,11 @@ void
 proto_reg_handoff_sap_protocol(void)
 {
 	static range_t *sap_protocol_port_range;
-	static gboolean initialized = FALSE;
+	static bool initialized = false;
 
 	if (!initialized) {
 		sap_protocol_handle = find_dissector("sapni");
-		initialized = TRUE;
+		initialized = true;
 	} else {
 		range_foreach(sap_protocol_port_range, range_delete_callback, NULL);
 		wmem_free(wmem_epan_scope(), sap_protocol_port_range);

@@ -23,29 +23,29 @@ extern "C" {
 #define MAXIMUM_NUMBER_OF_TVBS 2048
 
 struct _sctp_info {
-  gboolean incomplete;
-  gboolean adler32_calculated;
-  gboolean adler32_correct;
-  gboolean crc32c_calculated;
-  gboolean crc32c_correct;
-  gboolean checksum_zero;
-  gboolean vtag_reflected;
-  guint16 sport;
-  guint16 dport;
+  bool incomplete;
+  bool adler32_calculated;
+  bool adler32_correct;
+  bool crc32c_calculated;
+  bool crc32c_correct;
+  bool checksum_zero;
+  bool vtag_reflected;
+  uint16_t sport;
+  uint16_t dport;
   address ip_src;
   address ip_dst;
-  guint32 verification_tag;
-  guint16 assoc_index;
-  guint16 direction;
-  guint32 number_of_tvbs;
+  uint32_t verification_tag;
+  uint16_t assoc_index;
+  uint16_t direction;
+  uint32_t number_of_tvbs;
   tvbuff_t *tvb[MAXIMUM_NUMBER_OF_TVBS];
 };
 
 typedef struct _sctp_fragment {
-  guint32 frame_num;
-  guint32 tsn;
-  guint32 len;
-  guint32 ppi;
+  uint32_t frame_num;
+  uint32_t tsn;
+  uint32_t len;
+  uint32_t ppi;
   unsigned char *data;
   struct _sctp_fragment *next;
 } sctp_fragment;
@@ -56,10 +56,10 @@ typedef struct _sctp_frag_be {
 } sctp_frag_be;
 
 typedef struct _sctp_complete_msg {
-  guint32 begin;
-  guint32 end;
+  uint32_t begin;
+  uint32_t end;
   sctp_fragment* reassembled_in;
-  guint32 len;
+  uint32_t len;
   unsigned char *data;
   struct _sctp_complete_msg *next;
 } sctp_complete_msg;
@@ -69,7 +69,7 @@ typedef struct _sctp_frag_msg {
   sctp_frag_be* ends;
   sctp_fragment* fragments;
   sctp_complete_msg* messages;
-  guint32 ppi;
+  uint32_t ppi;
   struct _sctp_frag_msg* next;
 } sctp_frag_msg;
 

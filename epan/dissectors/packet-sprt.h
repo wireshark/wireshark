@@ -21,8 +21,8 @@ void sprt_add_address(packet_info *pinfo,
                       address *addr,
                       int port,
                       int other_port,
-                      const gchar *setup_method,
-                      guint32 setup_frame_number);
+                      const char *setup_method,
+                      uint32_t setup_frame_number);
 
 
 

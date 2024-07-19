@@ -57,8 +57,8 @@ static int hf_smp_seqnum;
 static int hf_smp_wndw;
 static int hf_smp_data;
 
-static gint ett_smp;
-static gint ett_smp_flags;
+static int ett_smp;
+static int ett_smp_flags;
 
 #define SMP_FLAGS_SYN  0x01
 #define SMP_FLAGS_ACK  0x02
@@ -73,20 +73,20 @@ static dissector_table_t smp_payload_table;
 
 static bool reassemble_smp = true;
 
-static void smp_prompt(packet_info *pinfo _U_, gchar* result)
+static void smp_prompt(packet_info *pinfo _U_, char* result)
 {
     snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Payload as");
 }
 
 /* Code to actually dissect the packets */
 static int
-dissect_smp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean tds_payload)
+dissect_smp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool tds_payload)
 {
-    guint offset = 0;
-    guint remaining_bytes;
+    unsigned offset = 0;
+    unsigned remaining_bytes;
     proto_item *ti;
     proto_tree *smp_tree;
-    guint32 flags, sid, smp_length;
+    uint32_t flags, sid, smp_length;
     tvbuff_t* next_tvb;
     int parsed_bytes;
     static int * const flag_fields[] = {
@@ -110,7 +110,7 @@ dissect_smp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     offset+=1;
 
     proto_tree_add_bitmask(smp_tree, tvb, offset, hf_smp_flags, ett_smp_flags, flag_fields, ENC_NA);
-    flags = tvb_get_guint8(tvb, offset);
+    flags = tvb_get_uint8(tvb, offset);
     offset += 1;
 
     proto_tree_add_item_ret_uint(smp_tree, hf_smp_sid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &sid);
@@ -164,7 +164,7 @@ dissect_smp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     return offset;
 }
 
-static guint get_smp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
+static unsigned get_smp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
     return tvb_get_letohl(tvb, offset + 4);
 }
@@ -172,12 +172,12 @@ static guint get_smp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, 
 static int
 dissect_smp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    return dissect_smp_common(tvb, pinfo, tree, FALSE);
+    return dissect_smp_common(tvb, pinfo, tree, false);
 }
 
 static int dissect_smp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    if ((tvb_reported_length(tvb) > 0) && (tvb_get_guint8(tvb, 0) == 0x53)) {
+    if ((tvb_reported_length(tvb) > 0) && (tvb_get_uint8(tvb, 0) == 0x53)) {
         tcp_dissect_pdus(tvb, pinfo, tree, reassemble_smp, SMP_MIN_LENGTH,
                      get_smp_pdu_len, dissect_smp_pdu, data);
 
@@ -190,7 +190,7 @@ static int dissect_smp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 static int
 dissect_smp_tds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    return dissect_smp_common(tvb, pinfo, tree, TRUE);
+    return dissect_smp_common(tvb, pinfo, tree, true);
 }
 
 void
@@ -221,7 +221,7 @@ proto_register_smp(void)
           { "Data", "smp.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_smp,
         &ett_smp_flags,
     };

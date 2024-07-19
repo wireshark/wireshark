@@ -120,9 +120,9 @@ static int hf_srt_srths_sid;
 static int hf_srt_srths_congestcontrol;
 static int hf_srt_hs_ext_filter;
 
-static gint ett_srt;
-static gint ett_srt_handshake_ext_flags;
-static gint ett_srt_handshake_ext_field_flags;
+static int ett_srt;
+static int ett_srt_handshake_ext_flags;
+static int ett_srt_handshake_ext_field_flags;
 
 static expert_field ei_srt_nak_seqno;
 static expert_field ei_srt_hs_ext_hsreq_len;
@@ -362,7 +362,7 @@ static const value_string srt_enc_kmstate[] = {
 
 /*
  * XXX To be added later to extract correct IPv4/IPv6 address from 16 bytes of data
- * static void srt_tree_add_ipaddr( proto_tree *tree, const int hf, tvbuff_t *tvb, gint offset)
+ * static void srt_tree_add_ipaddr( proto_tree *tree, const int hf, tvbuff_t *tvb, int offset)
  * {
  *
  * }
@@ -370,7 +370,7 @@ static const value_string srt_enc_kmstate[] = {
 
 #define IP_BUFFER_SIZE 64
 
-static void srt_format_ip_address(gchar* dest, size_t dest_size, const gchar* ptr)
+static void srt_format_ip_address(char* dest, size_t dest_size, const char* ptr)
 {
     /* Initial IPv4 check.
      * The address is considered IPv4 if:
@@ -380,7 +380,7 @@ static void srt_format_ip_address(gchar* dest, size_t dest_size, const gchar* pt
 
     ws_in4_addr ia4;
     ws_in6_addr ia6;
-    guint32* p;
+    uint32_t* p;
     int i, j;
 
     if (ptr[0] != 0 && ptr[3] != 0)
@@ -391,11 +391,11 @@ static void srt_format_ip_address(gchar* dest, size_t dest_size, const gchar* pt
                 continue;
 
             /* This is not an IP4 */
-            p = (guint32*)&ia6;
+            p = (uint32_t*)&ia6;
             for (j = 0; j < 4; ++j)
-                p[j] = g_ntohl(((guint32*)ptr)[j]);
+                p[j] = g_ntohl(((uint32_t*)ptr)[j]);
 
-            ws_inet_ntop6(&ia6, dest, (guint)dest_size);
+            ws_inet_ntop6(&ia6, dest, (unsigned)dest_size);
             return;
         }
     }
@@ -405,9 +405,9 @@ static void srt_format_ip_address(gchar* dest, size_t dest_size, const gchar* pt
     // The address must be inverted.
 
     // Here's IPv4, so invert only one l.
-    ia4 = g_ntohl(*((const guint32*)ptr));
+    ia4 = g_ntohl(*((const uint32_t*)ptr));
 
-    ws_inet_ntop4(&ia4, dest, (guint)dest_size);
+    ws_inet_ntop4(&ia4, dest, (unsigned)dest_size);
     return;
 }
 
@@ -415,7 +415,7 @@ static void srt_format_ip_address(gchar* dest, size_t dest_size, const gchar* pt
 static void srt_format_hs_ext_hsreq(proto_tree* tree, tvbuff_t* tvb, int baseoff)
 {
     proto_item* pi;
-    guint32 version = 0;
+    uint32_t version = 0;
     pi = proto_tree_add_item_ret_uint(tree, hf_srt_handshake_ext_version, tvb, baseoff, 4, ENC_BIG_ENDIAN, &version);
 
     const int vminor = (version >>  8) & 0xff;
@@ -461,8 +461,8 @@ static void srt_format_km(proto_tree* tree, tvbuff_t* tvb, int baseoff, int bloc
     // +                          Wrapped Key                          +
     // |                                                               |
     // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    guint   u8bits = 0;
-    guint32 slen = 0;
+    unsigned   u8bits = 0;
+    uint32_t slen = 0;
 
     proto_tree_add_item(tree, hf_srt_km_s, tvb, baseoff, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_srt_km_v, tvb, baseoff, 1, ENC_BIG_ENDIAN);
@@ -480,7 +480,7 @@ static void srt_format_km(proto_tree* tree, tvbuff_t* tvb, int baseoff, int bloc
         { 0, NULL }
     };
 
-    u8bits = tvb_get_guint8(tvb, baseoff + 3);
+    u8bits = tvb_get_uint8(tvb, baseoff + 3);
     proto_tree_add_uint_format_value(tree, hf_srt_km_kk, tvb, baseoff + 3, 1,
         u8bits, "%u (%s)", (u8bits & SRT_KM_KK_MASK), try_val_to_str(u8bits & SRT_KM_KK_MASK, kk_desc));
 
@@ -494,7 +494,7 @@ static void srt_format_km(proto_tree* tree, tvbuff_t* tvb, int baseoff, int bloc
     };
     proto_tree_add_item(tree, hf_srt_km_keki, tvb, baseoff + 4, 4, ENC_BIG_ENDIAN);
 
-    u8bits = tvb_get_guint8(tvb, baseoff + 8);
+    u8bits = tvb_get_uint8(tvb, baseoff + 8);
     proto_tree_add_uint_format_value(tree, hf_srt_km_cipher, tvb, baseoff + 8, 1,
         u8bits, "%u (%s)", u8bits, try_val_to_str(u8bits, cipher_desc));
 
@@ -506,19 +506,19 @@ static void srt_format_km(proto_tree* tree, tvbuff_t* tvb, int baseoff, int bloc
         { 2, "MPEG2-TS/SRT" },
         { 0, NULL }
     };
-    u8bits = tvb_get_guint8(tvb, baseoff + 10); // km.se
+    u8bits = tvb_get_uint8(tvb, baseoff + 10); // km.se
     proto_tree_add_uint_format_value(tree, hf_srt_km_se, tvb, baseoff + 10, 1,
         u8bits, "%u (%s)", u8bits, try_val_to_str(u8bits, se_desc));
 
     proto_tree_add_item(tree, hf_srt_km_resv2, tvb, baseoff + 11, 1, ENC_NA);
     proto_tree_add_item(tree, hf_srt_km_resv3, tvb, baseoff + 12, 2, ENC_NA);
 
-    u8bits = tvb_get_guint8(tvb, baseoff + 14); // km.slen
+    u8bits = tvb_get_uint8(tvb, baseoff + 14); // km.slen
     slen = 4 * u8bits;
     proto_tree_add_uint_format_value(tree, hf_srt_km_slen, tvb, baseoff + 14, 1,
         u8bits, "%u (%d bytes)", u8bits, slen);
 
-    u8bits = tvb_get_guint8(tvb, baseoff + 15); // km.klen
+    u8bits = tvb_get_uint8(tvb, baseoff + 15); // km.klen
     proto_tree_add_uint_format_value(tree, hf_srt_km_klen, tvb, baseoff + 15, 1,
         u8bits, "%u (%d bytes)", u8bits, 4 * u8bits);
 
@@ -573,7 +573,7 @@ static void srt_format_hs_ext_group(proto_tree* tree, tvbuff_t* tvb, packet_info
 static void dissect_srt_hs_ext_field(proto_tree* tree,
         tvbuff_t* tvb, int baseoff)
 {
-    static const gint ext_field_len = 2;
+    static const int ext_field_len = 2;
 
     const int bits = tvb_get_ntohs(tvb, baseoff);
     if (bits == SRT_HS_V5_EXT_FIELD_MAGIC)
@@ -648,7 +648,7 @@ static void format_text_reorder_32(proto_tree* tree, tvbuff_t* tvb, packet_info 
         // No, I have no idea why they chose this representation for
         // strings.
         //
-        const guint32 u = tvb_get_ntohl(tvb, baseoff + ii);
+        const uint32_t u = tvb_get_ntohl(tvb, baseoff + ii);
         wmem_strbuf_append_c(sid, 0xFF & (u >>  0));
         wmem_strbuf_append_c(sid, 0xFF & (u >>  8));
         wmem_strbuf_append_c(sid, 0xFF & (u >> 16));
@@ -668,8 +668,8 @@ static void
 dissect_srt_control_packet(tvbuff_t *tvb, packet_info* pinfo,
                            proto_tree *tree, proto_item *srt_item)
 {
-    guint32 type    = 0;
-    guint32 exttype = 0;
+    uint32_t type    = 0;
+    uint32_t exttype = 0;
 
     proto_tree_add_item_ret_uint(tree, hf_srt_type, tvb, 0, 2,
                                  ENC_BIG_ENDIAN, &type);
@@ -816,7 +816,7 @@ dissect_srt_control_packet(tvbuff_t *tvb, packet_info* pinfo,
             proto_tree_add_item(tree, hf_srt_handshake_cookie, tvb,
                         44,  4, ENC_BIG_ENDIAN);
 
-            srt_format_ip_address(ipbuf, sizeof ipbuf, (const gchar *)tvb_memdup(pinfo->pool, tvb, 48, 16));
+            srt_format_ip_address(ipbuf, sizeof ipbuf, (const char *)tvb_memdup(pinfo->pool, tvb, 48, 16));
 
             proto_tree_add_string(tree, hf_srt_handshake_peerip, tvb,
                                   48, 16, ipbuf);
@@ -828,8 +828,8 @@ dissect_srt_control_packet(tvbuff_t *tvb, packet_info* pinfo,
                 int begin = baselen;
                 for (;;)
                 {
-                    const guint16 blockid  = tvb_get_ntohs(tvb, begin);
-                    const guint16 blocklen = tvb_get_ntohs(tvb, begin + 2);
+                    const uint16_t blockid  = tvb_get_ntohs(tvb, begin);
+                    const uint16_t blocklen = tvb_get_ntohs(tvb, begin + 2);
 
                     proto_tree_add_item(tree, hf_srt_srths_blocktype, tvb,
                                         begin, 2, ENC_BIG_ENDIAN);
@@ -902,7 +902,7 @@ dissect_srt_control_packet(tvbuff_t *tvb, packet_info* pinfo,
         break;
     case UMSG_ACK:
         {
-            guint len = tvb_reported_length(tvb);
+            unsigned len = tvb_reported_length(tvb);
 
             proto_tree_add_item(tree, hf_srt_ack_seqno, tvb, 4 * 4, 4,
                                 ENC_BIG_ENDIAN);
@@ -935,7 +935,7 @@ dissect_srt_control_packet(tvbuff_t *tvb, packet_info* pinfo,
                         len = (4 + 7) * 4;
                     }
 
-                    proto_item_set_len(srt_item, (gint) len);
+                    proto_item_set_len(srt_item, (int) len);
                 }
                 else
                 {
@@ -946,25 +946,25 @@ dissect_srt_control_packet(tvbuff_t *tvb, packet_info* pinfo,
         break;
     case UMSG_DROPREQ:
         {
-            guint len = tvb_reported_length(tvb);
+            unsigned len = tvb_reported_length(tvb);
             if (len > (4 + 0) * 4)
             {
-                guint lo = tvb_get_ntohl(tvb, (4 + 0) * 4);
-                guint hi = tvb_get_ntohl(tvb, (4 + 1) * 4);
+                unsigned lo = tvb_get_ntohl(tvb, (4 + 0) * 4);
+                unsigned hi = tvb_get_ntohl(tvb, (4 + 1) * 4);
 
                 proto_tree_add_expert_format(tree, pinfo, &ei_srt_nak_seqno,
                         tvb, 16, 8, "Drop sequence range: %u-%u",
                         lo, hi);
-                proto_item_set_len(srt_item, (gint) len);
+                proto_item_set_len(srt_item, (int) len);
             }
         }
         break;
     case UMSG_LOSSREPORT:
         {
-            guint len = tvb_reported_length(tvb);
-            guint pos;
-            guint32 val;
-            guint prev = 0;
+            unsigned len = tvb_reported_length(tvb);
+            unsigned pos;
+            uint32_t val;
+            unsigned prev = 0;
             for (pos = 16; pos < len; pos += 4)
             {
                 val = tvb_get_ntohl(tvb, pos);
@@ -1106,7 +1106,7 @@ dissect_srt_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         return false;
 
     /* must be version 4 or 5*/
-    const guint32 version = tvb_get_ntohl(tvb, 16);
+    const uint32_t version = tvb_get_ntohl(tvb, 16);
     if (version != 4 && version != 5)
         return false;
 
@@ -1551,7 +1551,7 @@ void proto_register_srt(void)
 
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_srt,
         &ett_srt_handshake_ext_flags,
         &ett_srt_handshake_ext_field_flags

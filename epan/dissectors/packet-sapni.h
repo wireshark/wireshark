@@ -16,6 +16,6 @@
 #include <epan/packet.h>
 
 extern void
-dissect_sap_protocol_payload(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, guint16 sport, guint16 dport);
+dissect_sap_protocol_payload(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_tree *tree, uint16_t sport, uint16_t dport);
 
 #endif /* __PACKET_SAPPROTOCOL_H__ */

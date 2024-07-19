@@ -39,12 +39,12 @@ static int hf_message_info;
 static int hf_message_hash;
 static int hf_environment_u_bit;
 
-static guint64 ssprotocol_total_msgs;
-static guint64 ssprotocol_total_bytes;
+static uint64_t ssprotocol_total_msgs;
+static uint64_t ssprotocol_total_bytes;
 
 /* Initialize the subtree pointers */
-static gint ett_ssprotocol;
-static gint ett_environment_flags;
+static int ett_ssprotocol;
+static int ett_environment_flags;
 
 /* Dissectors for messages. This is specific to ScriptingServiceProtocol */
 #define MESSAGE_TYPE_LENGTH          1
@@ -103,23 +103,23 @@ static const true_false_string environment_u_bit = {
 
 
 typedef struct _tap_ssprotocol_rec_t {
-  guint8      type;
-  guint16     size;
+  uint8_t     type;
+  uint16_t    size;
   const char* type_string;
 } tap_ssprotocol_rec_t;
 
 
-static guint
+static unsigned
 dissect_ssprotocol_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *ssprotocol_tree)
 {
   proto_item* flags_item;
   proto_tree* flags_tree;
-  guint16     data_length;
-  guint16     info_length;
-  guint       total_length;
+  uint16_t    data_length;
+  uint16_t    info_length;
+  unsigned    total_length;
 
   tap_ssprotocol_rec_t* tap_rec = wmem_new0(pinfo->pool, tap_ssprotocol_rec_t);
-  tap_rec->type        = tvb_get_guint8(message_tvb, MESSAGE_TYPE_OFFSET);
+  tap_rec->type        = tvb_get_uint8(message_tvb, MESSAGE_TYPE_OFFSET);
   tap_rec->size        = tvb_get_ntohs(message_tvb,  MESSAGE_LENGTH_OFFSET);
   tap_rec->type_string = val_to_str_const(tap_rec->type, message_type_values, "Unknown SSP message type");
   tap_queue_packet(tap_ssprotocol, pinfo, tap_rec);
@@ -274,9 +274,9 @@ ssprotocol_stat_packet(void* tapdata, packet_info* pinfo _U_, epan_dissect_t* ed
   const tap_ssprotocol_rec_t* tap_rec   = (const tap_ssprotocol_rec_t*)data;
   stat_tap_table*             table;
   stat_tap_table_item_type*   msg_data;
-  gint                        idx;
-  guint64                     messages;
-  guint64                     bytes;
+  int                         idx;
+  uint64_t                    messages;
+  uint64_t                    bytes;
   int                         i         = 0;
   double                      firstSeen = -1.0;
   double                      lastSeen  = -1.0;
@@ -304,9 +304,9 @@ ssprotocol_stat_packet(void* tapdata, packet_info* pinfo _U_, epan_dissect_t* ed
   /* Update messages and bytes share */
   while (message_type_values[i].strptr) {
     msg_data = stat_tap_get_field_data(table, i, MESSAGES_COLUMN);
-    const guint m = msg_data->value.uint_value;
+    const unsigned m = msg_data->value.uint_value;
     msg_data = stat_tap_get_field_data(table, i, BYTES_COLUMN);
-    const guint b = msg_data->value.uint_value;
+    const unsigned b = msg_data->value.uint_value;
 
     msg_data = stat_tap_get_field_data(table, i, MESSAGES_SHARE_COLUMN);
     msg_data->type = TABLE_ITEM_FLOAT;
@@ -364,7 +364,7 @@ ssprotocol_stat_packet(void* tapdata, packet_info* pinfo _U_, epan_dissect_t* ed
 static void
 ssprotocol_stat_reset(stat_tap_table* table)
 {
-  guint element;
+  unsigned element;
   stat_tap_table_item_type* item_data;
 
   for (element = 0; element < table->num_elements; element++) {
@@ -435,13 +435,13 @@ proto_register_ssprotocol(void)
   };
 
   /* Setup protocol subtree array */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_ssprotocol,
     &ett_environment_flags
   };
 
   static tap_param ssprotocol_stat_params[] = {
-    { PARAM_FILTER, "filter", "Filter", NULL, TRUE }
+    { PARAM_FILTER, "filter", "Filter", NULL, true }
   };
 
   static stat_tap_table_ui ssprotocol_stat_table = {

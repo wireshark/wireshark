@@ -29,21 +29,21 @@
 #include "packet-gsm_sms.h"
 
 typedef struct _smpp_data_t {
-        gboolean udhi;
-        guint encoding;
+        bool udhi;
+        unsigned encoding;
         gsm_sms_udh_fields_t *udh_fields;
 } smpp_data_t;
 
 /*
  * Export dissection of some parameters
  */
-void smpp_handle_dcs(proto_tree *tree, tvbuff_t *tvb, int *offset, guint *encoding);
+void smpp_handle_dcs(proto_tree *tree, tvbuff_t *tvb, int *offset, unsigned *encoding);
 
 
 /* Tap Record */
 typedef struct _smpp_tap_rec_t {
-	guint command_id;
-	guint command_status;
+	unsigned command_id;
+	unsigned command_status;
 } smpp_tap_rec_t;
 
 #endif

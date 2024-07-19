@@ -109,7 +109,7 @@ static int hf_synergy_eunk;
 static int hf_synergy_ebad;
 
 /* Initialize the subtree pointers */
-static gint ett_synergy;
+static int ett_synergy;
 
 static dissector_handle_t synergy_handle;
 
@@ -143,17 +143,17 @@ static const string_string packet_type_vals[] = {
     { NULL  , NULL }
 };
 
-static void dissect_synergy_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,gint offset);
-static void dissect_synergy_cinn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,gint offset);
-static void dissect_synergy_cclp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,gint offset);
-static void dissect_synergy_dkdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,gint offset);
-static void dissect_synergy_dkrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,gint offset);
-static void dissect_synergy_dkup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,gint offset);
-static void dissect_synergy_dmmv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,gint offset);
-static void dissect_synergy_dmrm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,gint offset);
-static void dissect_synergy_dclp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,gint offset);
-static void dissect_synergy_dinf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,gint offset);
-static void dissect_synergy_eicv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,gint offset);
+static void dissect_synergy_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,int offset);
+static void dissect_synergy_cinn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,int offset);
+static void dissect_synergy_cclp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,int offset);
+static void dissect_synergy_dkdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,int offset);
+static void dissect_synergy_dkrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,int offset);
+static void dissect_synergy_dkup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,int offset);
+static void dissect_synergy_dmmv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,int offset);
+static void dissect_synergy_dmrm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,int offset);
+static void dissect_synergy_dclp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,int offset);
+static void dissect_synergy_dinf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,int offset);
+static void dissect_synergy_eicv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,int offset);
 
 
 /* Code to dissect a single Synergy packet */
@@ -165,8 +165,8 @@ dissect_synergy_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     col_clear(pinfo->cinfo, COL_INFO);
 
     if (tree) {
-        gint offset=0;
-        const guint8* packet_type;
+        int offset=0;
+        const uint8_t* packet_type;
         proto_item *ti = NULL;
         proto_tree *synergy_tree = NULL;
         ti = proto_tree_add_protocol_format(tree, proto_synergy, tvb, 0, -1,"Synergy Protocol");
@@ -244,7 +244,7 @@ dissect_synergy_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     return tvb_captured_length(tvb);
 }
 
-static void dissect_synergy_handshake( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset )
+static void dissect_synergy_handshake( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset )
 {
     proto_item *ti = NULL;
     proto_tree *sub_tree = NULL;
@@ -261,7 +261,7 @@ static void dissect_synergy_handshake( tvbuff_t *tvb, packet_info *pinfo _U_, pr
     }
 }
 
-static void dissect_synergy_cinn( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset )
+static void dissect_synergy_cinn( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset )
 {
     proto_item *ti = NULL;
     proto_tree *sub_tree = NULL;
@@ -274,7 +274,7 @@ static void dissect_synergy_cinn( tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     proto_tree_add_item(sub_tree, hf_synergy_cinn_modifiermask, tvb, offset + 8, 2, ENC_BIG_ENDIAN);
 }
 
-static void dissect_synergy_cclp( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset )
+static void dissect_synergy_cclp( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset )
 {
     proto_item *ti = NULL;
     proto_tree *sub_tree = NULL;
@@ -285,7 +285,7 @@ static void dissect_synergy_cclp( tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     proto_tree_add_item(sub_tree, hf_synergy_cclp_sequencenumber, tvb, offset + 1, 4, ENC_BIG_ENDIAN);
 }
 
-static void dissect_synergy_dkdn( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset )
+static void dissect_synergy_dkdn( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset )
 {
     proto_item *ti = NULL;
     proto_tree *sub_tree = NULL;
@@ -299,7 +299,7 @@ static void dissect_synergy_dkdn( tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
         proto_tree_add_item(sub_tree, hf_synergy_dkdn_keybutton, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
 }
 
-static void dissect_synergy_dkrp( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset )
+static void dissect_synergy_dkrp( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset )
 {
     proto_item *ti = NULL;
     proto_tree *sub_tree = NULL;
@@ -314,7 +314,7 @@ static void dissect_synergy_dkrp( tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
         proto_tree_add_item(sub_tree, hf_synergy_dkrp_keybutton, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
 }
 
-static void dissect_synergy_dkup( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset )
+static void dissect_synergy_dkup( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset )
 {
     proto_item *ti = NULL;
     proto_tree *sub_tree = NULL;
@@ -328,7 +328,7 @@ static void dissect_synergy_dkup( tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
         proto_tree_add_item(sub_tree, hf_synergy_dkup_keybutton, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
 }
 
-static void dissect_synergy_dmmv( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset )
+static void dissect_synergy_dmmv( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset )
 {
     proto_item *ti = NULL;
     proto_tree *sub_tree = NULL;
@@ -339,7 +339,7 @@ static void dissect_synergy_dmmv( tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     proto_tree_add_item(sub_tree, hf_synergy_dmmv_y, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 }
 
-static void dissect_synergy_dmrm( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset )
+static void dissect_synergy_dmrm( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset )
 {
     proto_item *ti = NULL;
     proto_tree *sub_tree = NULL;
@@ -350,7 +350,7 @@ static void dissect_synergy_dmrm( tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     proto_tree_add_item(sub_tree, hf_synergy_dmrm_y, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 }
 
-static void dissect_synergy_dclp( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset )
+static void dissect_synergy_dclp( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset )
 {
     proto_item *ti = NULL;
     proto_tree *sub_tree = NULL;
@@ -362,7 +362,7 @@ static void dissect_synergy_dclp( tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     proto_tree_add_item(sub_tree, hf_synergy_dclp_clipboarddata, tvb, offset + 5, -1, ENC_ASCII);
 }
 
-static void dissect_synergy_dinf( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset )
+static void dissect_synergy_dinf( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset )
 {
     proto_item *ti = NULL;
     proto_tree *sub_tree = NULL;
@@ -378,7 +378,7 @@ static void dissect_synergy_dinf( tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     proto_tree_add_item(sub_tree, hf_synergy_dinf_y, tvb, offset + 12, 2, ENC_BIG_ENDIAN);
 }
 
-static void dissect_synergy_eicv( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset )
+static void dissect_synergy_eicv( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset )
 {
     proto_item *ti = NULL;
     proto_tree *sub_tree = NULL;
@@ -389,7 +389,7 @@ static void dissect_synergy_eicv( tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     proto_tree_add_item(sub_tree, hf_synergy_eicv_minorversion, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 }
 
-static guint
+static unsigned
 synergy_get_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
 	return tvb_get_ntohl(tvb, offset) + 4;
@@ -398,7 +398,7 @@ synergy_get_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *dat
 static int
 dissect_synergy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 4, synergy_get_pdu_len,
+    tcp_dissect_pdus(tvb, pinfo, tree, true, 4, synergy_get_pdu_len,
                      dissect_synergy_pdu, NULL);
     return tvb_captured_length(tvb);
 }
@@ -598,7 +598,7 @@ proto_register_synergy(void)
 
 
 /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_synergy,
     };
 

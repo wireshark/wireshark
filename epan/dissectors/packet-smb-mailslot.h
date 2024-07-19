@@ -12,7 +12,7 @@
 #ifndef _PACKET_SMB_MAILSLOT_H_
 #define _PACKET_SMB_MAILSLOT_H_
 
-gboolean
+bool
 dissect_mailslot_smb(tvbuff_t *total_tvb, tvbuff_t *setup_tvb,
 		     tvbuff_t *tvb, const char *mailslot,
 		     packet_info *pinfo, proto_tree *tree, smb_info_t* smb_info);

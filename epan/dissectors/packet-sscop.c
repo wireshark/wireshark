@@ -35,8 +35,8 @@ static int hf_sscop_pad_length;
 static int hf_sscop_source;
 /* static int hf_sscop_stat_count; */
 
-static gint ett_sscop;
-static gint ett_stat;
+static int ett_sscop;
+static int ett_stat;
 
 static dissector_handle_t q2931_handle;
 static dissector_handle_t data_handle;
@@ -56,7 +56,7 @@ static const enum_val_t sscop_payload_dissector_options[] = {
   { NULL,       NULL,                           0 }
 };
 
-static guint sscop_payload_dissector = Q2931_DISSECTOR;
+static unsigned sscop_payload_dissector = Q2931_DISSECTOR;
 static dissector_handle_t default_handle;
 
 static sscop_info_t sscop_info;
@@ -153,8 +153,8 @@ static value_string_ext sscop_type_vals_ext = VALUE_STRING_EXT_INIT(sscop_type_v
 #define SSCOP_SS_N_MR   (reported_length - 8)   /* lower 3 bytes thereof */
 #define SSCOP_SS_N_R    (reported_length - 4)   /* lower 3 bytes thereof */
 
-static void dissect_stat_list(proto_tree *tree, tvbuff_t *tvb,guint h) {
-  gint n,i;
+static void dissect_stat_list(proto_tree *tree, tvbuff_t *tvb,unsigned h) {
+  int n,i;
 
   if ((n = (tvb_reported_length(tvb))/4 - h)) {
     tree = proto_tree_add_subtree(tree,tvb,0,n*4,ett_stat,NULL,"SD List");
@@ -168,16 +168,16 @@ static void dissect_stat_list(proto_tree *tree, tvbuff_t *tvb,guint h) {
 extern void
 dissect_sscop_and_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dissector_handle_t payload_handle)
 {
-  guint reported_length;
+  unsigned reported_length;
   proto_item *ti;
   proto_tree *sscop_tree = NULL;
-  guint8 sscop_pdu_type;
+  uint8_t sscop_pdu_type;
   int pdu_len;
   int pad_len;
   tvbuff_t *next_tvb;
 
   reported_length = tvb_reported_length(tvb);   /* frame length */
-  sscop_pdu_type = tvb_get_guint8(tvb, SSCOP_PDU_TYPE);
+  sscop_pdu_type = tvb_get_uint8(tvb, SSCOP_PDU_TYPE);
   sscop_info.type = sscop_pdu_type & SSCOP_TYPE_MASK;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "SSCOP");
@@ -345,7 +345,7 @@ static int dissect_sscop(tvbuff_t* tvb, packet_info* pinfo,proto_tree* tree, voi
 
 /* Make sure handles for various protocols are initialized */
 static void initialize_handles_once(void) {
-  static gboolean initialized = FALSE;
+  static bool initialized = false;
   if (!initialized) {
     q2931_handle = find_dissector("q2931");
     data_handle = find_dissector("data");
@@ -353,31 +353,31 @@ static void initialize_handles_once(void) {
     alcap_handle = find_dissector("alcap");
     nbap_handle = find_dissector("nbap");
 
-    initialized = TRUE;
+    initialized = true;
   }
 }
 
-gboolean sscop_allowed_subdissector(dissector_handle_t handle)
+bool sscop_allowed_subdissector(dissector_handle_t handle)
 {
   initialize_handles_once();
   if (handle == q2931_handle || handle == data_handle
       || handle == sscf_nni_handle || handle == alcap_handle
       || handle == nbap_handle)
-    return TRUE;
-  return FALSE;
+    return true;
+  return false;
 }
 
 void
 proto_reg_handoff_sscop(void)
 {
-  static gboolean prefs_initialized = FALSE;
+  static bool prefs_initialized = false;
 
   if (!prefs_initialized) {
     initialize_handles_once();
     dissector_add_uint_range_with_preference("udp.port", "", sscop_handle);
     dissector_add_uint("atm.aal5.type", TRAF_SSCOP, sscop_handle);
 
-    prefs_initialized = TRUE;
+    prefs_initialized = true;
   }
 
   switch(sscop_payload_dissector) {
@@ -408,7 +408,7 @@ proto_register_sscop(void)
 #endif
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_sscop,
     &ett_stat
   };
@@ -426,8 +426,8 @@ proto_register_sscop(void)
   prefs_register_enum_preference(sscop_module, "payload",
                                  "SSCOP payload protocol",
                                  "SSCOP payload (dissector to call on SSCOP payload)",
-                                 (gint *)&sscop_payload_dissector,
-                                 sscop_payload_dissector_options, FALSE);
+                                 (int *)&sscop_payload_dissector,
+                                 sscop_payload_dissector_options, false);
 }
 
 /*

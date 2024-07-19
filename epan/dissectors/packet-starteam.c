@@ -44,11 +44,11 @@ static int hf_starteam_id_command_time;
 static int hf_starteam_id_command_userid;
 static int hf_starteam_data_data;
 
-static gint ett_starteam;
-static gint ett_starteam_mdh;
-static gint ett_starteam_ph;
-static gint ett_starteam_id;
-static gint ett_starteam_data;
+static int ett_starteam;
+static int ett_starteam_mdh;
+static int ett_starteam_ph;
+static int ett_starteam_id;
+static int ett_starteam_data;
 
 static dissector_handle_t starteam_tcp_handle;
 
@@ -462,7 +462,7 @@ static const value_string starteam_opcode_vals[] = {
 
 static value_string_ext starteam_opcode_vals_ext = VALUE_STRING_EXT_INIT(starteam_opcode_vals);
 
-static gint iPreviousFrameNumber = -1;
+static int iPreviousFrameNumber = -1;
 
 static void
 starteam_init(void)
@@ -473,12 +473,12 @@ starteam_init(void)
 static int
 dissect_starteam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  gint offset = 0;
+  int offset = 0;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "StarTeam");
 
   /* This is a trick to know whether this is the first PDU in this packet or not */
-  if(iPreviousFrameNumber != (gint) pinfo->num){
+  if(iPreviousFrameNumber != (int) pinfo->num){
     col_clear(pinfo->cinfo, COL_INFO);
   } else {
     col_append_str(pinfo->cinfo, COL_INFO, " | ");
@@ -486,16 +486,16 @@ dissect_starteam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
   iPreviousFrameNumber = pinfo->num;
   if(tvb_captured_length(tvb) >= 16){
-    guint32 iCommand = 0;
-    gboolean bRequest = FALSE;
+    uint32_t iCommand = 0;
+    bool bRequest = false;
     if(tvb_get_ntohl(tvb, offset + 0) == STARTEAM_MAGIC){
       /* This packet is a response */
-      bRequest = FALSE;
+      bRequest = false;
       col_append_fstr(pinfo->cinfo, COL_INFO, "Reply: %d bytes", tvb_reported_length(tvb));
 
     } else if(tvb_captured_length_remaining(tvb, offset) >= 28 && tvb_get_ntohl(tvb, offset + 20) == STARTEAM_MAGIC){
       /* This packet is a request */
-      bRequest = TRUE;
+      bRequest = true;
       if(tvb_captured_length_remaining(tvb, offset) >= 66){
         iCommand = tvb_get_letohl(tvb, offset + 62);
       }
@@ -560,11 +560,11 @@ dissect_starteam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
   return tvb_captured_length(tvb);
 }
 
-static guint
+static unsigned
 get_starteam_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                      int offset, void *data _U_)
 {
-  guint32 iPDULength = 0;
+  uint32_t iPDULength = 0;
   if(tvb_captured_length_remaining(tvb, offset) >= 8 && tvb_get_ntohl(tvb, offset + 0) == STARTEAM_MAGIC){
     /* Response */
     iPDULength = tvb_get_letohl(tvb, offset + 4) + 16;
@@ -587,15 +587,15 @@ static bool
 dissect_starteam_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   if(tvb_captured_length(tvb) >= 32){
-    gint iOffsetLengths = -1;
+    int iOffsetLengths = -1;
     if(tvb_get_ntohl(tvb, 0) == STARTEAM_MAGIC){
       iOffsetLengths = 4;
     } else if(tvb_get_ntohl(tvb, 20) == STARTEAM_MAGIC){
       iOffsetLengths = 24;
     }
     if(iOffsetLengths != -1){
-      guint32 iLengthPacket;
-      guint32 iLengthData;
+      uint32_t iLengthPacket;
+      uint32_t iLengthData;
       iLengthPacket = tvb_get_letohl(tvb, iOffsetLengths);
       iLengthData   = tvb_get_letohl(tvb, iOffsetLengths + 4);
 
@@ -669,7 +669,7 @@ proto_register_starteam(void)
    { &hf_starteam_data_data,
       { "Data", "starteam.data", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }}
   };
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_starteam,
     &ett_starteam_mdh,
     &ett_starteam_ph,

@@ -20,28 +20,28 @@
 #define TXP_MIN_TELEGRAM_LENGTH 22
 
 /* Wireshark ID of the AP1 protocol */
-static gint proto_ap;
+static int proto_ap;
 
-static gint hf_ap_protoid;
-static gint hf_ap_mpxadr;
-static gint hf_ap_comcls;
-static gint hf_ap_comcod;
-static gint hf_ap_modfr1;
-static gint hf_ap_modfr2;
-static gint hf_ap_errcls;
-static gint hf_ap_errcod;
-static gint hf_ap_rosctr;
-static gint hf_ap_sgsqnr;
-static gint hf_ap_tactid;
-static gint hf_ap_tasqnr;
-static gint hf_ap_spare;
-static gint hf_ap_pduref;
-static gint hf_ap_pduid;
-static gint hf_ap_pdulg;
-static gint hf_ap_parlg;
-static gint hf_ap_datlg;
+static int hf_ap_protoid;
+static int hf_ap_mpxadr;
+static int hf_ap_comcls;
+static int hf_ap_comcod;
+static int hf_ap_modfr1;
+static int hf_ap_modfr2;
+static int hf_ap_errcls;
+static int hf_ap_errcod;
+static int hf_ap_rosctr;
+static int hf_ap_sgsqnr;
+static int hf_ap_tactid;
+static int hf_ap_tasqnr;
+static int hf_ap_spare;
+static int hf_ap_pduref;
+static int hf_ap_pduid;
+static int hf_ap_pdulg;
+static int hf_ap_parlg;
+static int hf_ap_datlg;
 
-static gint ett_ap;
+static int ett_ap;
 
 static heur_dissector_list_t ap_heur_subdissector_list;
 
@@ -65,20 +65,20 @@ dissect_ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _
         return false;
 
     /* 2) protocol id == 0 */
-    if (tvb_get_guint8(tvb, 0) != 0)
+    if (tvb_get_uint8(tvb, 0) != 0)
         return false;
     /*----------------- Heuristic Checks - End */
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_TAG_AP);
     col_clear(pinfo->cinfo, COL_INFO);
 
-    guint8 comcls = tvb_get_guint8(tvb, 2);
+    uint8_t comcls = tvb_get_uint8(tvb, 2);
 
-    gint offset = 16;
-    guint16 pdulg = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+    int offset = 16;
+    uint16_t pdulg = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
     offset += 4;
 
-    guint16 datlg = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+    uint16_t datlg = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
     offset += 2;
 
     ws_assert(offset == 22);
@@ -191,7 +191,7 @@ proto_register_ap(void)
             "sinecap"               /* filter_name */
     );
 
-    static gint *ett[] = {
+    static int *ett[] = {
             &ett_ap,
     };
 

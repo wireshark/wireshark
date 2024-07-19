@@ -56,7 +56,7 @@ static int hf_slimp3_i2c_request_server_client;
 static int hf_slimp3_data_length;
 static int hf_slimp3_data_data;
 
-static gint ett_slimp3;
+static int ett_slimp3;
 
 #define UDP_PORT_SLIMP3_V1    1069 /* Not IANA registered */
 #define UDP_PORT_SLIMP3_V2    3483
@@ -234,15 +234,15 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     const char *opcode_str;
     proto_tree *slimp3_tree;
     proto_item *ti;
-    gint        i1;
-    gint        offset = 0;
-    guint16     opcode;
-    guchar      lcd_char;
+    int         i1;
+    int         offset = 0;
+    uint16_t    opcode;
+    unsigned char      lcd_char;
     char        lcd_str[MAX_LCD_STR_LEN + 1];
-    int         to_server    = FALSE;
-    int         old_protocol = FALSE;
+    int         to_server    = false;
+    int         old_protocol = false;
     address     tmp_addr;
-    gboolean    in_str;
+    bool        in_str;
     int         lcd_strlen;
 
     /*
@@ -252,7 +252,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
      */
     if (!tvb_bytes_exist(tvb, offset, 1))
         return 0;   /* not even an opcode */
-    opcode = tvb_get_guint8(tvb, offset);
+    opcode = tvb_get_uint8(tvb, offset);
     opcode_str = try_val_to_str(opcode, slimp3_opcode_vals);
     if (opcode_str == NULL)
         return 0;
@@ -277,18 +277,18 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         to_server = addresses_equal(&tmp_addr, &pinfo->dl_src);
     }
     else if (pinfo->destport == UDP_PORT_SLIMP3_V2) {
-        to_server = TRUE;
+        to_server = true;
     }
     else if (pinfo->srcport == UDP_PORT_SLIMP3_V2) {
-        to_server = FALSE;
+        to_server = false;
     }
     if (pinfo->destport == UDP_PORT_SLIMP3_V1) {
-        to_server = TRUE;
-        old_protocol = TRUE;
+        to_server = true;
+        old_protocol = true;
     }
     else if (pinfo->srcport == UDP_PORT_SLIMP3_V1) {
-        to_server = FALSE;
-        old_protocol = TRUE;
+        to_server = false;
+        old_protocol = true;
     }
 
     switch (opcode) {
@@ -314,15 +314,15 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
             i1 = tvb_get_ntohl(tvb, offset+8);
             /* Check the code to figure out which remote is being used. */
-            if (tvb_get_guint8(tvb, offset+6) == 0x02 &&
-                tvb_get_guint8(tvb, offset+7) == 32) {
+            if (tvb_get_uint8(tvb, offset+6) == 0x02 &&
+                tvb_get_uint8(tvb, offset+7) == 32) {
                 /* This is the custom SLIMP3 remote. */
                 proto_tree_add_item(slimp3_tree, hf_slimp3_infrared_slimp3, tvb, offset+8, 4, ENC_BIG_ENDIAN);
                 col_append_fstr(pinfo->cinfo, COL_INFO, ", SLIMP3: %s",
                                 val_to_str_ext(i1, &slimp3_ir_codes_slimp3_ext, "Unknown (0x%0x)"));
             }
-            else if (tvb_get_guint8(tvb, offset+6) == 0xff &&
-                     tvb_get_guint8(tvb, offset+7) == 16) {
+            else if (tvb_get_uint8(tvb, offset+6) == 0xff &&
+                     tvb_get_uint8(tvb, offset+7) == 16) {
                 /* This is a JVC DVD player remote */
                 proto_tree_add_item(slimp3_tree, hf_slimp3_infrared_jvc, tvb, offset+8, 4, ENC_BIG_ENDIAN);
                 col_append_fstr(pinfo->cinfo, COL_INFO, ", JVC: %s",
@@ -337,22 +337,22 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     case SLIMP3_DISPLAY:
         if (tree) {
-            guint8 value;
+            uint8_t value;
 
             /* Loop through the commands */
             i1 = 18;
-            in_str = FALSE;
+            in_str = false;
             lcd_strlen = 0;
             while (i1 < tvb_reported_length_remaining(tvb, offset)) {
-                switch(tvb_get_guint8(tvb, offset + i1)) {
+                switch(tvb_get_uint8(tvb, offset + i1)) {
                 case 0:
-                    in_str = FALSE;
+                    in_str = false;
                     lcd_strlen = 0;
                     proto_tree_add_item(slimp3_tree, hf_slimp3_display_delay, tvb, offset + i1, 2, ENC_NA);
                     i1 += 2;
                     break;
                 case 3:
-                    lcd_char = tvb_get_guint8(tvb, offset + i1 + 1);
+                    lcd_char = tvb_get_uint8(tvb, offset + i1 + 1);
                     if (!g_ascii_isprint(lcd_char))
                         lcd_char = '.';
                     if (ti && in_str) {
@@ -362,20 +362,20 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                     } else {
                         ti = proto_tree_add_uint_format_value(slimp3_tree, hf_slimp3_display_string, tvb, offset + i1, 2,
                                                  lcd_char, "%c", lcd_char);
-                        in_str = TRUE;
+                        in_str = true;
                         lcd_strlen = 2;
                     }
                     i1 += 2;
                     break;
 
                 case 2:
-                    in_str = FALSE;
+                    in_str = false;
                     lcd_strlen = 0;
-                    value = tvb_get_guint8(tvb, offset + i1 + 1);
+                    value = tvb_get_uint8(tvb, offset + i1 + 1);
                     ti = proto_tree_add_uint(slimp3_tree, hf_slimp3_display_command, tvb, offset + i1, 2, value);
-                    if ((tvb_get_guint8(tvb, offset + i1 + 1) & 0xf0) == 0x30) {
+                    if ((tvb_get_uint8(tvb, offset + i1 + 1) & 0xf0) == 0x30) {
                         proto_item_append_text(ti, ": %s",
-                                               val_to_str(tvb_get_guint8(tvb, offset + i1 + 2),
+                                               val_to_str(tvb_get_uint8(tvb, offset + i1 + 2),
                                                           slimp3_display_fset8,
                                                           "Unknown (0x%0x)"));
                         i1 += 2;
@@ -395,7 +395,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         lcd_strlen = 0;
         while (tvb_offset_exists(tvb, offset + i1) &&
                lcd_strlen < MAX_LCD_STR_LEN) {
-            switch (tvb_get_guint8(tvb, offset + i1)) {
+            switch (tvb_get_uint8(tvb, offset + i1)) {
 
             case 0:
                 lcd_str[lcd_strlen++] = '.';
@@ -404,7 +404,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             case 2:
                 lcd_str[lcd_strlen++] = '|';
                 if (tvb_offset_exists(tvb, offset + i1 + 1) &&
-                    (tvb_get_guint8(tvb, offset + i1 + 1) & 0xf0) == 0x30)
+                    (tvb_get_uint8(tvb, offset + i1 + 1) & 0xf0) == 0x30)
                     i1 += 2;
                 break;
 
@@ -412,8 +412,8 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 if (tvb_offset_exists(tvb, offset + i1 + 1)) {
                     if ((lcd_strlen < 1) ||
                         (lcd_str[lcd_strlen-1] != ' ') ||
-                        (tvb_get_guint8(tvb, offset + i1 + 1) != ' ')) {
-                        lcd_char = tvb_get_guint8(tvb, offset + i1 + 1);
+                        (tvb_get_uint8(tvb, offset + i1 + 1) != ' ')) {
+                        lcd_char = tvb_get_uint8(tvb, offset + i1 + 1);
                         lcd_str[lcd_strlen++] = g_ascii_isprint(lcd_char) ? lcd_char : '.';
                     }
                 }
@@ -429,18 +429,18 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     case SLIMP3_CONTROL:
         proto_tree_add_item(slimp3_tree, hf_slimp3_control, tvb, offset+1, 1, ENC_BIG_ENDIAN);
         col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-                        val_to_str(tvb_get_guint8(tvb, offset+1),
+                        val_to_str(tvb_get_uint8(tvb, offset+1),
                                    slimp3_stream_control, "Unknown (0x%0x)"));
         break;
 
     case SLIMP3_HELLO:
         if (tree) {
             if (to_server) {
-                guint8 fw_ver;
+                uint8_t fw_ver;
                 /* Hello response; client->server */
                 proto_tree_add_item(slimp3_tree, hf_slimp3_hello_response_client_server, tvb, offset, 1, ENC_NA);
                 proto_tree_add_item(slimp3_tree, hf_slimp3_device_id, tvb, offset+1, 1, ENC_BIG_ENDIAN);
-                fw_ver = tvb_get_guint8(tvb, offset+2);
+                fw_ver = tvb_get_uint8(tvb, offset+2);
                 proto_tree_add_uint_format_value(slimp3_tree, hf_slimp3_fw_rev, tvb, offset+2, 1, fw_ver,
                                                  "%u.%u (0x%0x)", fw_ver>>4, fw_ver & 0xf, fw_ver);
             } else {
@@ -480,7 +480,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
          *  [18..]    MPEG data
          */
         if (old_protocol) {
-            guint offset_buffer;
+            unsigned offset_buffer;
             proto_tree_add_bytes_format(slimp3_tree, hf_slimp3_data_length, tvb, offset, -1,
                                 NULL, "Length: %d bytes",
                                 tvb_reported_length_remaining(tvb, offset+18));
@@ -493,7 +493,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                             offset_buffer);
         }
         else {
-            guint write_pointer;
+            unsigned write_pointer;
             proto_tree_add_item(slimp3_tree, hf_slimp3_data_command, tvb, offset+1, 1, ENC_BIG_ENDIAN);
             proto_tree_add_bytes_format(slimp3_tree, hf_slimp3_data_length, tvb, offset, -1,
                                 NULL, "Length: %d bytes",
@@ -504,7 +504,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
             col_append_fstr(pinfo->cinfo, COL_INFO,
                             ", %s, %d bytes at %u, Sequence: %u",
-                            val_to_str(tvb_get_guint8(tvb, offset+1),
+                            val_to_str(tvb_get_uint8(tvb, offset+1),
                                        slimp3_mpg_control, "Unknown (0x%0x)"),
                             tvb_reported_length_remaining(tvb, offset+18),
                             write_pointer,
@@ -514,13 +514,13 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     case SLIMP3_DISC_REQ:
     {
-        guint8 fw_ver;
+        uint8_t fw_ver;
         proto_tree_add_item(slimp3_tree, hf_slimp3_device_id, tvb, offset+1, 1, ENC_BIG_ENDIAN);
-        fw_ver = tvb_get_guint8(tvb, offset+2);
+        fw_ver = tvb_get_uint8(tvb, offset+2);
         proto_tree_add_uint_format_value(slimp3_tree, hf_slimp3_fw_rev, tvb, offset+2, 1, fw_ver,
                                          "%u.%u (0x%0x)", fw_ver>>4, fw_ver & 0xf, fw_ver);
         col_append_fstr(pinfo->cinfo, COL_INFO, ", Device ID: %u. Firmware: %u.%u",
-                        tvb_get_guint8(tvb, offset+1), fw_ver>>4, fw_ver & 0xf);
+                        tvb_get_uint8(tvb, offset+1), fw_ver>>4, fw_ver & 0xf);
     }
     break;
 
@@ -546,7 +546,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
          *  [12..17]  client MAC address (v1.3 and later)
          */
         if (tree) {
-            guint pointer;
+            unsigned pointer;
 
             pointer = tvb_get_ntohs(tvb, offset+6) * 2;
             proto_tree_add_uint(slimp3_tree, hf_slimp3_data_ack_write_pointer, tvb, offset+6, 2, pointer);
@@ -686,7 +686,7 @@ proto_register_slimp3(void)
         { &hf_slimp3_data_data, { "Data", "slimp3.data.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_slimp3,
     };
 

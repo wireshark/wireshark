@@ -214,31 +214,31 @@ static int hf_selfm_fmdata_frame_data_format_reference;
 static int hf_selfm_fastmsg_bit_label_name;
 
 /* Initialize the subtree pointers */
-static gint ett_selfm;
-static gint ett_selfm_relaydef;
-static gint ett_selfm_relaydef_fm;
-static gint ett_selfm_relaydef_proto;
-static gint ett_selfm_relaydef_flags;
-static gint ett_selfm_fmconfig;
-static gint ett_selfm_fmconfig_ai;
-static gint ett_selfm_fmconfig_calc;
-static gint ett_selfm_foconfig;
-static gint ett_selfm_foconfig_brkr;
-static gint ett_selfm_foconfig_rb;
-static gint ett_selfm_fastop;
-static gint ett_selfm_fmdata;
-static gint ett_selfm_fmdata_ai;
-static gint ett_selfm_fmdata_dig;
-static gint ett_selfm_fmdata_ai_ch;
-static gint ett_selfm_fmdata_dig_ch;
-static gint ett_selfm_fastmsg;
-static gint ett_selfm_fastmsg_seq;
-static gint ett_selfm_fastmsg_def_fc;
-static gint ett_selfm_fastmsg_datareg;
-static gint ett_selfm_fastmsg_soeblk;
-static gint ett_selfm_fastmsg_tag;
-static gint ett_selfm_fastmsg_element_list;
-static gint ett_selfm_fastmsg_element;
+static int ett_selfm;
+static int ett_selfm_relaydef;
+static int ett_selfm_relaydef_fm;
+static int ett_selfm_relaydef_proto;
+static int ett_selfm_relaydef_flags;
+static int ett_selfm_fmconfig;
+static int ett_selfm_fmconfig_ai;
+static int ett_selfm_fmconfig_calc;
+static int ett_selfm_foconfig;
+static int ett_selfm_foconfig_brkr;
+static int ett_selfm_foconfig_rb;
+static int ett_selfm_fastop;
+static int ett_selfm_fmdata;
+static int ett_selfm_fmdata_ai;
+static int ett_selfm_fmdata_dig;
+static int ett_selfm_fmdata_ai_ch;
+static int ett_selfm_fmdata_dig_ch;
+static int ett_selfm_fastmsg;
+static int ett_selfm_fastmsg_seq;
+static int ett_selfm_fastmsg_def_fc;
+static int ett_selfm_fastmsg_datareg;
+static int ett_selfm_fastmsg_soeblk;
+static int ett_selfm_fastmsg_tag;
+static int ett_selfm_fastmsg_element_list;
+static int ett_selfm_fastmsg_element;
 
 /* Expert fields */
 static expert_field ei_selfm_crc16_incorrect;
@@ -341,28 +341,28 @@ static const char *selfm_ser_list;
 /***************************************************************************************/
 /* Holds Configuration Information required to decode a Fast Meter analog value        */
 typedef struct {
-    gchar   name[FM_CONFIG_ANA_CHNAME_LEN+1];     /* Name of Analog Channel, 6 char + a null */
-    guint8  type;                                 /* Analog Channel Type, Int, FP, etc */
-    guint8  sf_type;                              /* Analog Scale Factor Type, none, etc */
-    guint16 sf_offset;                            /* Analog Scale Factor Offset */
-    gfloat  sf_fp;                                /* Scale factor, if present in Cfg message */
+    char    name[FM_CONFIG_ANA_CHNAME_LEN+1];     /* Name of Analog Channel, 6 char + a null */
+    uint8_t type;                                 /* Analog Channel Type, Int, FP, etc */
+    uint8_t sf_type;                              /* Analog Scale Factor Type, none, etc */
+    uint16_t sf_offset;                            /* Analog Scale Factor Offset */
+    float   sf_fp;                                /* Scale factor, if present in Cfg message */
 } fm_analog_info;
 
 
 /* Holds Information from a single "Fast Meter Configuration" frame.  Required to dissect subsequent "Data" frames. */
 typedef struct {
-    guint32  fnum;                   /* frame number */
-    guint16  cfg_cmd;                /* holds ID of config command, ie: 0xa5c1 */
-    guint8   num_flags;              /* Number of Flag Bytes           */
-    guint8   sf_loc;                 /* Scale Factor Location          */
-    guint8   sf_num;                 /* Number of Scale Factors        */
-    guint8   num_ai;                 /* Number of Analog Inputs        */
-    guint8   num_ai_samples;         /* Number samples per Analog Input */
-    guint16  offset_ai;              /* Start Offset of Analog Inputs  */
-    guint8   num_dig;                /* Number of Digital Input Blocks */
-    guint16  offset_dig;             /* Start Offset of Digital Inputs */
-    guint16  offset_ts;              /* Start Offset of Time Stamp     */
-    guint8   num_calc;               /* Number of Calculations         */
+    uint32_t fnum;                   /* frame number */
+    uint16_t cfg_cmd;                /* holds ID of config command, ie: 0xa5c1 */
+    uint8_t  num_flags;              /* Number of Flag Bytes           */
+    uint8_t  sf_loc;                 /* Scale Factor Location          */
+    uint8_t  sf_num;                 /* Number of Scale Factors        */
+    uint8_t  num_ai;                 /* Number of Analog Inputs        */
+    uint8_t  num_ai_samples;         /* Number samples per Analog Input */
+    uint16_t offset_ai;              /* Start Offset of Analog Inputs  */
+    uint8_t  num_dig;                /* Number of Digital Input Blocks */
+    uint16_t offset_dig;             /* Start Offset of Digital Inputs */
+    uint16_t offset_ts;              /* Start Offset of Time Stamp     */
+    uint8_t  num_calc;               /* Number of Calculations         */
     fm_analog_info *analogs;         /* Array of fm_analog_infos       */
 } fm_config_frame;
 
@@ -375,12 +375,12 @@ typedef struct {
 /* and a quantity of values contained within the data item.  We will retrieve this    */
 /* format information later while attempting to dissect Read Response frames          */
 typedef struct {
-    guint32  fnum;                              /* frame number */
-    guint32  base_address;                      /* Base address of Data Item Region                         */
-    guint8   index_pos;                         /* Index Offset Position within data format message (1-16)  */
-    gchar    name[10+1];                        /* Name of Data Item, 10 chars, null-terminated             */
-    guint16  quantity;                          /* Quantity of values within Data Item                      */
-    guint16  data_type;                         /* Data Item Type, Char, Int, FP, etc                       */
+    uint32_t fnum;                              /* frame number */
+    uint32_t base_address;                      /* Base address of Data Item Region                         */
+    uint8_t  index_pos;                         /* Index Offset Position within data format message (1-16)  */
+    char     name[10+1];                        /* Name of Data Item, 10 chars, null-terminated             */
+    uint16_t quantity;                          /* Quantity of values within Data Item                      */
+    uint16_t data_type;                         /* Data Item Type, Char, Int, FP, etc                       */
 } fastmsg_dataitem;
 
 /**************************************************************************************/
@@ -389,7 +389,7 @@ typedef struct {
 /* Holds Configuration Information required to decode a Fast Message Data Region      */
 /* Each data region format is returned as a sequential list of tags, w/o reference to */
 typedef struct {
-    gchar    name[10+1];                        /* Name of Data Region, 10 chars, null-terminated              */
+    char     name[10+1];                        /* Name of Data Region, 10 chars, null-terminated              */
 } fastmsg_dataregion;
 
 /**************************************************************************************/
@@ -398,7 +398,7 @@ typedef struct {
 /* Holds user-configurable naming information for Unsolicited Fast SER word bits      */
 /* that will later be present in an 0xA546 msg with only an index position reference  */
 typedef struct {
-    gchar    *name;                     /* Name of Word Bit, 8 chars, null-terminated */
+    char     *name;                     /* Name of Word Bit, 8 chars, null-terminated */
 } fastser_uns_wordbit;
 
 
@@ -801,8 +801,8 @@ static int   hf_selfm_fragment_error;
 static int   hf_selfm_fragment_count;
 static int   hf_selfm_fragment_reassembled_in;
 static int   hf_selfm_fragment_reassembled_length;
-static gint ett_selfm_fragment;
-static gint ett_selfm_fragments;
+static int ett_selfm_fragment;
+static int ett_selfm_fragments;
 
 static const fragment_items selfm_frag_items = {
     &ett_selfm_fragment,
@@ -830,13 +830,13 @@ static tvbuff_t *
 clean_telnet_iac(packet_info *pinfo, tvbuff_t *tvb, int offset, int len, int *num_skip_byte)
 {
     tvbuff_t     *telnet_tvb;
-    guint8       *buf;
-    const guint8 *spos;
-    guint8       *dpos;
+    uint8_t      *buf;
+    const uint8_t *spos;
+    uint8_t      *dpos;
     int           len_remaining, skip_byte = 0;
 
     spos=tvb_get_ptr(tvb, offset, len);
-    buf=(guint8 *)wmem_alloc(pinfo->pool, len);
+    buf=(uint8_t *)wmem_alloc(pinfo->pool, len);
     dpos=buf;
     len_remaining = len;
     while(len_remaining > 0){
@@ -872,7 +872,7 @@ clean_telnet_iac(packet_info *pinfo, tvbuff_t *tvb, int offset, int len, int *nu
 static fm_config_frame* fmconfig_frame_fast(tvbuff_t *tvb)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
-    guint           count, offset = 0;
+    unsigned        count, offset = 0;
     fm_config_frame *frame;
 
     /* get a new frame and initialize it */
@@ -881,13 +881,13 @@ static fm_config_frame* fmconfig_frame_fast(tvbuff_t *tvb)
     /* Get data packet setup information from config message and copy into ai_info (if required) */
     frame->cfg_cmd        = tvb_get_ntohs(tvb, offset);
     /* skip length byte, position offset+2 */
-    frame->num_flags      = tvb_get_guint8(tvb, offset+3);
-    frame->sf_loc         = tvb_get_guint8(tvb, offset+4);
-    frame->sf_num         = tvb_get_guint8(tvb, offset+5);
-    frame->num_ai         = tvb_get_guint8(tvb, offset+6);
-    frame->num_ai_samples = tvb_get_guint8(tvb, offset+7);
-    frame->num_dig        = tvb_get_guint8(tvb, offset+8);
-    frame->num_calc       = tvb_get_guint8(tvb, offset+9);
+    frame->num_flags      = tvb_get_uint8(tvb, offset+3);
+    frame->sf_loc         = tvb_get_uint8(tvb, offset+4);
+    frame->sf_num         = tvb_get_uint8(tvb, offset+5);
+    frame->num_ai         = tvb_get_uint8(tvb, offset+6);
+    frame->num_ai_samples = tvb_get_uint8(tvb, offset+7);
+    frame->num_dig        = tvb_get_uint8(tvb, offset+8);
+    frame->num_calc       = tvb_get_uint8(tvb, offset+9);
 
     /* Update offset pointer */
     offset += 10;
@@ -907,8 +907,8 @@ static fm_config_frame* fmconfig_frame_fast(tvbuff_t *tvb)
         fm_analog_info *analog = &(frame->analogs[count]);
         tvb_memcpy(tvb, analog->name, offset, FM_CONFIG_ANA_CHNAME_LEN);
         analog->name[FM_CONFIG_ANA_CHNAME_LEN] = '\0'; /* Put a terminating null onto the end of the AI Channel name */
-        analog->type = tvb_get_guint8(tvb, offset+6);
-        analog->sf_type = tvb_get_guint8(tvb, offset+7);
+        analog->type = tvb_get_uint8(tvb, offset+6);
+        analog->sf_type = tvb_get_uint8(tvb, offset+7);
         analog->sf_offset = tvb_get_ntohs(tvb, offset+8);
 
         /* If Scale Factors are present in the cfg message, retrieve and store them per analog */
@@ -970,10 +970,10 @@ static fastmsg_dataregion* fastmsg_dataregion_save(tvbuff_t *tvb, int offset)
 }
 
 /********************************************************************************************************/
-/* Lookup region name using current base address & saved conversation data.  Return ptr to gchar string */
+/* Lookup region name using current base address & saved conversation data.  Return ptr to char string */
 /********************************************************************************************************/
-static const gchar*
-region_lookup(packet_info *pinfo, guint32 base_addr)
+static const char*
+region_lookup(packet_info *pinfo, uint32_t base_addr)
 {
     fm_conversation    *conv;
     fastmsg_dataregion *dataregion = NULL;
@@ -995,7 +995,7 @@ region_lookup(packet_info *pinfo, guint32 base_addr)
 /* Create Fast SER Unsolicited Word Bit item.  Return item to calling function.  'index' parameter         */
 /* will be used to store 'name' parameter in lookup tree.  Index 254 and 255 are special (hardcoded) cases */
 /***********************************************************************************************************/
-static fastser_uns_wordbit* fastser_uns_wordbit_save(guint8 idx, const char *name)
+static fastser_uns_wordbit* fastser_uns_wordbit_save(uint8_t idx, const char *name)
 {
     fastser_uns_wordbit *wordbit_item;
 
@@ -1019,10 +1019,10 @@ static fastser_uns_wordbit* fastser_uns_wordbit_save(guint8 idx, const char *nam
 }
 
 /***************************************************************************************************************/
-/* Lookup uns wordbit name using current index position & saved conversation data.  Return ptr to gchar string */
+/* Lookup uns wordbit name using current index position & saved conversation data.  Return ptr to char string */
 /***************************************************************************************************************/
-static const gchar*
-fastser_uns_wordbit_lookup(packet_info *pinfo, guint8 idx)
+static const char*
+fastser_uns_wordbit_lookup(packet_info *pinfo, uint8_t idx)
 {
     fm_conversation    *conv;
     fastser_uns_wordbit *wordbit = NULL;
@@ -1051,13 +1051,13 @@ dissect_relaydef_frame(tvbuff_t *tvb, proto_tree *tree, int offset)
 /* Set up structures needed to add the protocol subtree and manage it */
     proto_item    *relaydef_fm_item, *relaydef_flags_item, *relaydef_proto_item;
     proto_tree    *relaydef_tree, *relaydef_fm_tree, *relaydef_flags_tree, *relaydef_proto_tree;
-    guint8        len, num_proto, num_fm, num_flags;
+    uint8_t       len, num_proto, num_fm, num_flags;
     int           count;
 
-    len = tvb_get_guint8(tvb, offset);
-    num_proto = tvb_get_guint8(tvb, offset+1);
-    num_fm = tvb_get_guint8(tvb, offset+2);
-    num_flags = tvb_get_guint8(tvb, offset+3);
+    len = tvb_get_uint8(tvb, offset);
+    num_proto = tvb_get_uint8(tvb, offset+1);
+    num_fm = tvb_get_uint8(tvb, offset+2);
+    num_flags = tvb_get_uint8(tvb, offset+3);
 
     /* Add items to protocol tree specific to Relay Definition Block */
     relaydef_tree = proto_tree_add_subtree(tree, tvb, offset, len-2, ett_selfm_relaydef, NULL, "Relay Definition Block Details");
@@ -1120,18 +1120,18 @@ dissect_fmconfig_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int 
 {
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_tree    *fmconfig_tree, *fmconfig_ai_tree=NULL, *fmconfig_calc_tree=NULL;
-    guint         count;
-    guint8        len, sf_loc, num_sf, num_ai, num_calc;
-    gchar*        ai_name;
+    unsigned      count;
+    uint8_t       len, sf_loc, num_sf, num_ai, num_calc;
+    char*        ai_name;
 
-    len = tvb_get_guint8(tvb, offset);
+    len = tvb_get_uint8(tvb, offset);
     /* skip num_flags, position offset+1 */
-    sf_loc = tvb_get_guint8(tvb, offset+2);
-    num_sf = tvb_get_guint8(tvb, offset+3);
-    num_ai = tvb_get_guint8(tvb, offset+4);
+    sf_loc = tvb_get_uint8(tvb, offset+2);
+    num_sf = tvb_get_uint8(tvb, offset+3);
+    num_ai = tvb_get_uint8(tvb, offset+4);
     /* skip num_samp,  position offset+5 */
     /* skip num_dig,   position offset+6 */
-    num_calc = tvb_get_guint8(tvb, offset+7);
+    num_calc = tvb_get_uint8(tvb, offset+7);
 
     fmconfig_tree = proto_tree_add_subtree(tree, tvb, offset, len-2, ett_selfm_fmconfig, NULL, "Fast Meter Configuration Details");
 
@@ -1223,24 +1223,24 @@ dissect_fmconfig_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int 
 /* Formatting depends heavily on previously-encountered Configuration Frames so search array instances for them */
 /******************************************************************************************************/
 static int
-dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, guint16 config_cmd_match)
+dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, uint16_t config_cmd_match)
 {
 /* Set up structures needed to add the protocol subtree and manage it */
     proto_item       *fmdata_item, *fmdata_dig_ch_item;
     proto_item       *fmdata_ai_sf_item;
     proto_tree       *fmdata_tree, *fmdata_ai_tree=NULL, *fmdata_dig_tree=NULL, *fmdata_ai_ch_tree=NULL, *fmdata_dig_ch_tree=NULL;
-    guint8           len, idx=0, j=0;
-    guint16          config_cmd;
-    gint16           ai_int16val;
-    gint             cnt = 0, ch_size=0;
-    gfloat           ai_sf_fp;
-    gboolean         config_found = FALSE;
+    uint8_t          len, idx=0, j=0;
+    uint16_t         config_cmd;
+    int16_t          ai_int16val;
+    int              cnt = 0, ch_size=0;
+    float            ai_sf_fp;
+    bool             config_found = false;
     fm_conversation  *conv;
     fm_config_frame  *cfg_data = NULL;
     nstime_t  datetime;
     struct tm tm;
 
-    len = tvb_get_guint8(tvb, offset);
+    len = tvb_get_uint8(tvb, offset);
 
     fmdata_tree = proto_tree_add_subtree_format(tree, tvb, offset, len-2, ett_selfm_fmdata, &fmdata_item, "Fast Meter Data Details");
 
@@ -1263,7 +1263,7 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
                 if (config_cmd == config_cmd_match) {
                     proto_item_append_text(fmdata_item, ", using frame number %"PRIu32" as Configuration Frame",
                                    cfg_data->fnum);
-                    config_found = TRUE;
+                    config_found = true;
                 }
 
                 frame = wmem_list_frame_next(frame);
@@ -1354,7 +1354,7 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
                                     }
 
                                     proto_tree_add_uint(fmdata_ai_ch_tree, hf_selfm_fmdata_ai_value16, tvb, offset, ch_size, ai_int16val);
-                                    proto_tree_add_float(fmdata_ai_ch_tree, hf_selfm_fmdata_ai_scale_factor, tvb, offset, ch_size, ((gfloat)ai_int16val*ai_sf_fp));
+                                    proto_tree_add_float(fmdata_ai_ch_tree, hf_selfm_fmdata_ai_scale_factor, tvb, offset, ch_size, ((float)ai_int16val*ai_sf_fp));
                                     offset += ch_size;
                                     break;
                                 /* Channel type is IEEE Floating point */
@@ -1380,12 +1380,12 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
                 if (cfg_data->offset_ts != 0xFFFF) {
                     /* Retrieve timestamp from 8-byte format                         */
                     /* Stored as: month, day, year (xx), hr, min, sec, msec (16-bit) */
-                    tm.tm_mon = tvb_get_guint8(tvb, offset) - 1;
-                    tm.tm_mday = tvb_get_guint8(tvb, offset+1);
-                    tm.tm_year = tvb_get_guint8(tvb, offset+2) + 100;
-                    tm.tm_hour = tvb_get_guint8(tvb, offset+3);
-                    tm.tm_min = tvb_get_guint8(tvb, offset+4);
-                    tm.tm_sec = tvb_get_guint8(tvb, offset+5);
+                    tm.tm_mon = tvb_get_uint8(tvb, offset) - 1;
+                    tm.tm_mday = tvb_get_uint8(tvb, offset+1);
+                    tm.tm_year = tvb_get_uint8(tvb, offset+2) + 100;
+                    tm.tm_hour = tvb_get_uint8(tvb, offset+3);
+                    tm.tm_min = tvb_get_uint8(tvb, offset+4);
+                    tm.tm_sec = tvb_get_uint8(tvb, offset+5);
                     tm.tm_isdst = 0;
 
                     datetime.nsecs = (tvb_get_ntohs(tvb, offset+6) % 1000) * 1000000;
@@ -1408,10 +1408,10 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
 
                         /* Display the bit pattern on the digital channel proto_item */
                         proto_item_append_text(fmdata_dig_ch_item, " [  %d %d %d %d %d %d %d %d  ]",
-                        ((tvb_get_guint8(tvb, offset) & 0x80) >> 7), ((tvb_get_guint8(tvb, offset) & 0x40) >> 6),
-                        ((tvb_get_guint8(tvb, offset) & 0x20) >> 5), ((tvb_get_guint8(tvb, offset) & 0x10) >> 4),
-                        ((tvb_get_guint8(tvb, offset) & 0x08) >> 3), ((tvb_get_guint8(tvb, offset) & 0x04) >> 2),
-                        ((tvb_get_guint8(tvb, offset) & 0x02) >> 1), (tvb_get_guint8(tvb, offset) & 0x01));
+                        ((tvb_get_uint8(tvb, offset) & 0x80) >> 7), ((tvb_get_uint8(tvb, offset) & 0x40) >> 6),
+                        ((tvb_get_uint8(tvb, offset) & 0x20) >> 5), ((tvb_get_uint8(tvb, offset) & 0x10) >> 4),
+                        ((tvb_get_uint8(tvb, offset) & 0x08) >> 3), ((tvb_get_uint8(tvb, offset) & 0x04) >> 2),
+                        ((tvb_get_uint8(tvb, offset) & 0x02) >> 1), (tvb_get_uint8(tvb, offset) & 0x01));
 
                         proto_tree_add_item(fmdata_dig_ch_tree, hf_selfm_fmdata_dig_b0, tvb, offset, 1, ENC_BIG_ENDIAN);
                         proto_tree_add_item(fmdata_dig_ch_tree, hf_selfm_fmdata_dig_b1, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1460,14 +1460,14 @@ dissect_foconfig_frame(tvbuff_t *tvb, proto_tree *tree, int offset)
 /* Set up structures needed to add the protocol subtree and manage it */
     proto_item    *foconfig_brkr_item, *foconfig_rb_item;
     proto_tree    *foconfig_tree, *foconfig_brkr_tree=NULL, *foconfig_rb_tree=NULL;
-    guint         count;
-    guint8        len, num_brkr, prb_supp;
-    guint16       num_rb;
+    unsigned      count;
+    uint8_t       len, num_brkr, prb_supp;
+    uint16_t      num_rb;
 
-    len = tvb_get_guint8(tvb, offset);
-    num_brkr = tvb_get_guint8(tvb, offset+1);
+    len = tvb_get_uint8(tvb, offset);
+    num_brkr = tvb_get_uint8(tvb, offset+1);
     num_rb = tvb_get_ntohs(tvb, offset+2);
-    prb_supp = tvb_get_guint8(tvb, offset+4);
+    prb_supp = tvb_get_uint8(tvb, offset+4);
 
     foconfig_tree = proto_tree_add_subtree(tree, tvb, offset, len-2, ett_selfm_foconfig, NULL, "Fast Operate Configuration Details");
 
@@ -1543,9 +1543,9 @@ dissect_alt_fastop_config_frame(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
 /* Set up structures needed to add the protocol subtree and manage it */
     proto_tree    *foconfig_tree;
-    guint8        len;
+    uint8_t       len;
 
-    len = tvb_get_guint8(tvb, offset);
+    len = tvb_get_uint8(tvb, offset);
 
     foconfig_tree = proto_tree_add_subtree(tree, tvb, offset, len-2,
             ett_selfm_foconfig, NULL, "Alternate Fast Operate Configuration Details");
@@ -1585,11 +1585,11 @@ dissect_fastop_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
 {
 /* Set up structures needed to add the protocol subtree and manage it */
     proto_tree    *fastop_tree;
-    guint8        len, opcode;
-    guint16       msg_type;
+    uint8_t       len, opcode;
+    uint16_t      msg_type;
 
     msg_type = tvb_get_ntohs(tvb, offset-2);
-    len = tvb_get_guint8(tvb, offset);
+    len = tvb_get_uint8(tvb, offset);
 
     fastop_tree = proto_tree_add_subtree(tree, tvb, offset, len-2, ett_selfm_fastop, NULL, "Fast Operate Details");
 
@@ -1598,7 +1598,7 @@ dissect_fastop_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
     offset += 1;
 
     /* Operate Code */
-    opcode = tvb_get_guint8(tvb, offset);
+    opcode = tvb_get_uint8(tvb, offset);
 
     /* Use different lookup table for different msg_type */
     if (msg_type == CMD_FASTOP_RB_CTRL) {
@@ -1635,10 +1635,10 @@ dissect_alt_fastop_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, in
 {
 /* Set up structures needed to add the protocol subtree and manage it */
     proto_tree    *fastop_tree;
-    guint8        len;
-    guint16       opcode;
+    uint8_t       len;
+    uint16_t      opcode;
 
-    len = tvb_get_guint8(tvb, offset);
+    len = tvb_get_uint8(tvb, offset);
 
     fastop_tree = proto_tree_add_subtree(tree, tvb, offset, len-2, ett_selfm_fastop, NULL, "Alternate Fast Operate Details");
 
@@ -1674,15 +1674,15 @@ dissect_alt_fastop_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, in
 /************************************************************************************************************************/
 
 static int
-dissect_fastmsg_readresp_frame(tvbuff_t *tvb, proto_tree *fastmsg_tree, packet_info *pinfo, int offset, guint8 seq_byte)
+dissect_fastmsg_readresp_frame(tvbuff_t *tvb, proto_tree *fastmsg_tree, packet_info *pinfo, int offset, uint8_t seq_byte)
 {
     proto_item        *fastmsg_tag_value_item=NULL, *fmdata_dig_item=NULL;
     proto_item        *pi_baseaddr=NULL, *pi_fnum=NULL, *pi_type=NULL, *pi_qty=NULL;
     proto_tree        *fastmsg_tag_tree=NULL, *fmdata_dig_tree=NULL;
-    guint32           base_addr;
-    guint16           data_size, num_addr, cnt;
-    guint8            seq_cnt;
-    gboolean          seq_fir, seq_fin, save_fragmented;
+    uint32_t          base_addr;
+    uint16_t          data_size, num_addr, cnt;
+    uint8_t           seq_cnt;
+    bool              seq_fir, seq_fin, save_fragmented;
     int               payload_offset=0;
     fm_conversation   *conv;
     fastmsg_dataitem  *dataitem;
@@ -1715,7 +1715,7 @@ dissect_fastmsg_readresp_frame(tvbuff_t *tvb, proto_tree *fastmsg_tree, packet_i
         fragment_head         *frag_msg;
 
         /* This is a fragmented packet, mark it as such */
-        pinfo->fragmented = TRUE;
+        pinfo->fragmented = true;
 
         frag_msg = fragment_add_seq_next(&selfm_reassembly_table,
             data_tvb, 0, pinfo, 0, NULL,
@@ -1817,10 +1817,10 @@ dissect_fastmsg_readresp_frame(tvbuff_t *tvb, proto_tree *fastmsg_tree, packet_i
 
                                 /* Display the bit pattern on the digital channel proto_item */
                                 proto_item_append_text(fmdata_dig_item, " [  %d %d %d %d %d %d %d %d  ]",
-                                ((tvb_get_guint8(payload_tvb, payload_offset) & 0x80) >> 7), ((tvb_get_guint8(payload_tvb, payload_offset) & 0x40) >> 6),
-                                ((tvb_get_guint8(payload_tvb, payload_offset) & 0x20) >> 5), ((tvb_get_guint8(payload_tvb, payload_offset) & 0x10) >> 4),
-                                ((tvb_get_guint8(payload_tvb, payload_offset) & 0x08) >> 3), ((tvb_get_guint8(payload_tvb, payload_offset) & 0x04) >> 2),
-                                ((tvb_get_guint8(payload_tvb, payload_offset) & 0x02) >> 1), (tvb_get_guint8(payload_tvb, payload_offset) & 0x01));
+                                ((tvb_get_uint8(payload_tvb, payload_offset) & 0x80) >> 7), ((tvb_get_uint8(payload_tvb, payload_offset) & 0x40) >> 6),
+                                ((tvb_get_uint8(payload_tvb, payload_offset) & 0x20) >> 5), ((tvb_get_uint8(payload_tvb, payload_offset) & 0x10) >> 4),
+                                ((tvb_get_uint8(payload_tvb, payload_offset) & 0x08) >> 3), ((tvb_get_uint8(payload_tvb, payload_offset) & 0x04) >> 2),
+                                ((tvb_get_uint8(payload_tvb, payload_offset) & 0x02) >> 1), (tvb_get_uint8(payload_tvb, payload_offset) & 0x01));
 
                                 proto_tree_add_item(fmdata_dig_tree, hf_selfm_fmdata_dig_b0, payload_tvb, payload_offset, 1, ENC_BIG_ENDIAN);
                                 proto_tree_add_item(fmdata_dig_tree, hf_selfm_fmdata_dig_b1, payload_tvb, payload_offset, 1, ENC_BIG_ENDIAN);
@@ -1917,12 +1917,12 @@ dissect_fastmsg_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
     proto_item    *pi_baseaddr, *fastmsg_crc16_item;
     proto_tree    *fastmsg_tree, *fastmsg_def_fc_tree=NULL, *fastmsg_elementlist_tree=NULL;
     proto_tree    *fastmsg_element_tree=NULL, *fastmsg_datareg_tree=NULL, *fastmsg_tag_tree=NULL, *fastmsg_soeblk_tree=NULL;
-    gint          cnt, cnt1, num_elements, elmt_status32_ofs=0, elmt_status, null_offset;
-    guint8        len, funccode, seq=0, rx_num_fc, tx_num_fc;
-    guint8        seq_cnt=0, elmt_idx, fc_enable, soe_num_reg;
-    guint8        *tag_name_ptr;
-    guint16       base_addr, num_addr, num_reg, addr1, addr2, crc16, crc16_calc, soe_num_blks;
-    guint32       tod_ms, elmt_status32, elmt_ts_offset;
+    int           cnt, cnt1, num_elements, elmt_status32_ofs=0, elmt_status, null_offset;
+    uint8_t       len, funccode, seq=0, rx_num_fc, tx_num_fc;
+    uint8_t       seq_cnt=0, elmt_idx, fc_enable, soe_num_reg;
+    uint8_t       *tag_name_ptr;
+    uint16_t      base_addr, num_addr, num_reg, addr1, addr2, crc16, crc16_calc, soe_num_blks;
+    uint32_t      tod_ms, elmt_status32, elmt_ts_offset;
     static int * const seq_fields[] = {
         &hf_selfm_fastmsg_seq_fir,
         &hf_selfm_fastmsg_seq_fin,
@@ -1930,7 +1930,7 @@ dissect_fastmsg_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
         NULL
     };
 
-    len = tvb_get_guint8(tvb, offset);
+    len = tvb_get_uint8(tvb, offset);
 
     fastmsg_tree = proto_tree_add_subtree(tree, tvb, offset, len-2, ett_selfm_fastmsg, NULL, "Fast Message Details");
 
@@ -1946,7 +1946,7 @@ dissect_fastmsg_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
     offset += 1;
 
     /* Get Function Code, add to tree */
-    funccode = tvb_get_guint8(tvb, offset);
+    funccode = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_funccode, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* Append Column Info w/ Function Code */
@@ -1963,7 +1963,7 @@ dissect_fastmsg_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
 
     else {
         /* Otherwise, it is the sequence byte, add to Tree */
-        seq = tvb_get_guint8(tvb, offset);
+        seq = tvb_get_uint8(tvb, offset);
         seq_cnt = seq & FAST_MSG_SEQ_CNT;
         proto_tree_add_bitmask_with_flags(fastmsg_tree, tvb, offset, hf_selfm_fastmsg_seq, ett_selfm_fastmsg_seq,
             seq_fields, ENC_NA, BMT_NO_APPEND);
@@ -1981,7 +1981,7 @@ dissect_fastmsg_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
         case FAST_MSG_EN_UNS_DATA:   /* 0x01 - Enabled Unsolicited Data Transfers */
 
             /* Function code to enable */
-            fc_enable = tvb_get_guint8(tvb, offset);
+            fc_enable = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_uns_en_fc, tvb, offset, 1, ENC_BIG_ENDIAN);
 
             /* Append Column Info w/ "Enable" Function Code */
@@ -1997,7 +1997,7 @@ dissect_fastmsg_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
         case FAST_MSG_DIS_UNS_DATA:   /* 0x02 - Disable Unsolicited Data Transfers */
 
             /* Function code to disable */
-            fc_enable = tvb_get_guint8(tvb, offset);
+            fc_enable = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_uns_dis_fc, tvb, offset, 1, ENC_BIG_ENDIAN);
 
             /* Append Column Info w/ "Disable" Function Code */
@@ -2075,7 +2075,7 @@ dissect_fastmsg_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
                Save this word for use in the element index printing but don't print the word itself until the end of the tree dissection */
             for (cnt = offset; cnt < len; cnt++) {
 
-                if (tvb_memeql(tvb, cnt, (const guint8*)"\xFF\xFF\xFF\xFE", 4) == 0) {
+                if (tvb_memeql(tvb, cnt, (const uint8_t*)"\xFF\xFF\xFF\xFE", 4) == 0) {
                     elmt_status32_ofs = cnt+4;
                 }
             }
@@ -2085,8 +2085,8 @@ dissect_fastmsg_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
             for (cnt=0; cnt<num_elements; cnt++) {
 
                 /* Get Element Index and Timestamp Offset (in uSec) */
-                elmt_idx = tvb_get_guint8(tvb, offset);
-                elmt_ts_offset = (guint32)((tvb_get_guint8(tvb, offset+1) << 16) | (tvb_get_guint8(tvb, offset+2) << 8) | (tvb_get_guint8(tvb, offset+3)));
+                elmt_idx = tvb_get_uint8(tvb, offset);
+                elmt_ts_offset = (uint32_t)((tvb_get_uint8(tvb, offset+1) << 16) | (tvb_get_uint8(tvb, offset+2) << 8) | (tvb_get_uint8(tvb, offset+3)));
 
                 /* Bit shift the appropriate element from the 32-bit elmt_status word to position 0 and get the bit state for use in the tree */
                 elmt_status = ((elmt_status32 >> cnt) & 0x01);
@@ -2189,7 +2189,7 @@ dissect_fastmsg_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
              offset += 6;
 
              /* Number of Supported RX Function Codes */
-             rx_num_fc = tvb_get_guint8(tvb, offset);
+             rx_num_fc = tvb_get_uint8(tvb, offset);
              fastmsg_def_fc_item = proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_def_rx_num_fc, tvb, offset, 1, ENC_BIG_ENDIAN);
              fastmsg_def_fc_tree = proto_item_add_subtree(fastmsg_def_fc_item, ett_selfm_fastmsg_def_fc);
              offset += 1;
@@ -2201,7 +2201,7 @@ dissect_fastmsg_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
              }
 
              /* Number of Supported TX Function Codes */
-             tx_num_fc = tvb_get_guint8(tvb, offset);
+             tx_num_fc = tvb_get_uint8(tvb, offset);
              fastmsg_def_fc_item = proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_def_tx_num_fc, tvb, offset, 1, ENC_BIG_ENDIAN);
              fastmsg_def_fc_tree = proto_item_add_subtree(fastmsg_def_fc_item, ett_selfm_fastmsg_def_fc);
              offset += 1;
@@ -2231,11 +2231,11 @@ dissect_fastmsg_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
             for (cnt=0; cnt<soe_num_blks; cnt++) {
 
                 /* Blocks of 16 bits are packed into 16-bit registers, with any remainder into a final 16-bit register */
-                if ((tvb_get_guint8(tvb, offset+4) % 16) == 0) {
-                    soe_num_reg = (tvb_get_guint8(tvb, offset+4) / 16);
+                if ((tvb_get_uint8(tvb, offset+4) % 16) == 0) {
+                    soe_num_reg = (tvb_get_uint8(tvb, offset+4) / 16);
                 }
                 else {
-                    soe_num_reg = (tvb_get_guint8(tvb, offset+4) / 16) + 1;
+                    soe_num_reg = (tvb_get_uint8(tvb, offset+4) / 16) + 1;
                 }
 
                 fastmsg_soeblk_tree = proto_tree_add_subtree_format(fastmsg_tree, tvb, offset, 14 + soe_num_reg*2,
@@ -2311,7 +2311,7 @@ dissect_fastmsg_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
             /* 'reserved' space for the control regions.  Detect these and skip if they are present */
             if (tvb_reported_length_remaining(tvb, offset) > 2) {
 
-                if (tvb_memeql(tvb, offset, (const guint8*)"\x00\x00\x00\x00\x00\x00\x00\x00", 8) == 0) {
+                if (tvb_memeql(tvb, offset, (const uint8_t*)"\x00\x00\x00\x00\x00\x00\x00\x00", 8) == 0) {
                     offset += 8;
                 }
             }
@@ -2356,8 +2356,8 @@ dissect_fastmsg_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
 
             /* find the null separators and add the bit label text strings to the tree */
             for (null_offset = offset; null_offset < len; null_offset++) {
-                if ((tvb_memeql(tvb, null_offset, (const guint8*)"\x00", 1) == 0) && (tvb_reported_length_remaining(tvb, offset) > 2)) {
-                    gchar* str = tvb_format_text(pinfo->pool, tvb, offset, (null_offset-offset));
+                if ((tvb_memeql(tvb, null_offset, (const uint8_t*)"\x00", 1) == 0) && (tvb_reported_length_remaining(tvb, offset) > 2)) {
+                    char* str = tvb_format_text(pinfo->pool, tvb, offset, (null_offset-offset));
                     proto_tree_add_string_format(fastmsg_tree, hf_selfm_fastmsg_bit_label_name, tvb, offset, (null_offset-offset), str,
                             "Bit Label #%d Name: %s", cnt, str);
                     offset = null_offset+1; /* skip the null */
@@ -2404,10 +2404,10 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree, void* d
     proto_item    *selfm_item=NULL;
     proto_tree    *selfm_tree=NULL;
     int           offset=0, cnt=0, consumed_bytes=0;
-    guint32       base_addr;
-    guint16       msg_type, len, num_items;
-    guint8        seq, seq_cnt;
-    gchar         **uns_ser_split_str;
+    uint32_t      base_addr;
+    uint16_t      msg_type, len, num_items;
+    uint8_t       seq, seq_cnt;
+    char          **uns_ser_split_str;
 
     /* Make entries in Protocol column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SEL Protocol");
@@ -2465,9 +2465,9 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree, void* d
 
         /* 2. Fill conversation data array with Fast Msg Data Item info from Data Format Response Messages.   */
         /* These format definitions will later be retrieved to decode Read Response messages.                 */
-        if ((CMD_FAST_MSG == msg_type) && (tvb_get_guint8(selfm_tvb, offset+9) == FAST_MSG_DATAFMT_RESP)) {
+        if ((CMD_FAST_MSG == msg_type) && (tvb_get_uint8(selfm_tvb, offset+9) == FAST_MSG_DATAFMT_RESP)) {
 
-            seq = tvb_get_guint8(selfm_tvb, offset+10);
+            seq = tvb_get_uint8(selfm_tvb, offset+10);
             seq_cnt = seq & FAST_MSG_SEQ_CNT;
 
             base_addr = tvb_get_ntohl(selfm_tvb, offset+12); /* 32-bit field with base address to read */
@@ -2500,9 +2500,9 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree, void* d
 
         /* 3. Attempt re-assembly during first pass with Read Response Messages data payloads that span multiple */
         /* packets.  The final data payload will be assembled on the packet with the seq_fin bit set.            */
-        if ((CMD_FAST_MSG == msg_type) && (tvb_get_guint8(selfm_tvb, offset+9) == FAST_MSG_READ_RESP)) {
+        if ((CMD_FAST_MSG == msg_type) && (tvb_get_uint8(selfm_tvb, offset+9) == FAST_MSG_READ_RESP)) {
 
-            seq = tvb_get_guint8(selfm_tvb, offset+10);
+            seq = tvb_get_uint8(selfm_tvb, offset+10);
 
             /* Set offset to where the dissect_fastmsg_readresp_frame function would normally be called, */
             /* right before base address & num_items */
@@ -2518,9 +2518,9 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree, void* d
 
         /* 4. Fill conversation data array with Fast Message Data Region info from Device Desc Response Messages.  This */
         /*    will retrieve a data region name (associated to an address) that can later be displayed in the tree.      */
-        if ((CMD_FAST_MSG == msg_type) && (tvb_get_guint8(selfm_tvb, offset+9) == FAST_MSG_DEVDESC_RESP)) {
+        if ((CMD_FAST_MSG == msg_type) && (tvb_get_uint8(selfm_tvb, offset+9) == FAST_MSG_DEVDESC_RESP)) {
 
-            seq = tvb_get_guint8(selfm_tvb, offset+10);
+            seq = tvb_get_uint8(selfm_tvb, offset+10);
             seq_cnt = seq & FAST_MSG_SEQ_CNT;
 
             num_items = tvb_get_ntohs(selfm_tvb, offset+102);
@@ -2539,7 +2539,7 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree, void* d
 
             /* Enter the single frame multiple times, retrieving a single data region per entry */
             for (cnt = 1; (cnt <= num_items); cnt++) {
-                guint32 base_address = tvb_get_ntohl(selfm_tvb, offset+10);
+                uint32_t base_address = tvb_get_ntohl(selfm_tvb, offset+10);
                 fastmsg_dataregion *dataregion_ptr = fastmsg_dataregion_save(selfm_tvb, offset);
 
                 /* Store the data region info in the fastmsg_dataregions tree */
@@ -2634,11 +2634,11 @@ dissect_selfm_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
     tvbuff_t      *selfm_tvb, *selfm_pdu_tvb;
     int           skip_byte = 0, selfm_tvb_len, offset = 0;
-    guint8        selfm_PDU_len=0, new_selfm_PDU_len=0;
-    gint length = tvb_reported_length(tvb);
+    uint8_t       selfm_PDU_len=0, new_selfm_PDU_len=0;
+    int length = tvb_reported_length(tvb);
 
     /* Check for a SEL Protocol packet.  It should begin with 0xA5 */
-    if(length < 2 || tvb_get_guint8(tvb, 0) != 0xA5) {
+    if(length < 2 || tvb_get_uint8(tvb, 0) != 0xA5) {
         /* Not a SEL Protocol packet, just happened to use the same port */
         return 0;
     }
@@ -2648,7 +2648,7 @@ dissect_selfm_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         return dissect_selfm(tvb, pinfo, tree, data);
     }
 
-    selfm_PDU_len = tvb_get_guint8(tvb,2);
+    selfm_PDU_len = tvb_get_uint8(tvb,2);
 
     /* If the reported selfm PDU length is greater than the present tvb length, request more data */
     if (length < selfm_PDU_len) {
@@ -2679,8 +2679,8 @@ dissect_selfm_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     /* there is possibly a second PDU to follow so let's dig deeper...                   */
     if (selfm_tvb_len > selfm_PDU_len) {
         /* Check if additional data is actually selfm PDU data */
-        if (tvb_get_guint8(selfm_tvb, selfm_PDU_len) == 0xA5) {
-            new_selfm_PDU_len = tvb_get_guint8(selfm_tvb, selfm_PDU_len+2);
+        if (tvb_get_uint8(selfm_tvb, selfm_PDU_len) == 0xA5) {
+            new_selfm_PDU_len = tvb_get_uint8(selfm_tvb, selfm_PDU_len+2);
             /* If we still don't have enough data to accommodate the 2 PDUs... */
             if (selfm_tvb_len < (selfm_PDU_len + new_selfm_PDU_len)) {
 #if 0
@@ -2698,14 +2698,14 @@ dissect_selfm_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     /* If multiple SEL protocol PDUs exist within a single tvb, dissect each of them sequentially */
     while (offset < selfm_tvb_len) {
         /* If random ASCII data makes its way onto the end of an SEL protocol PDU, ignore it */
-        if (tvb_get_guint8(selfm_tvb, offset) != 0xA5) {
+        if (tvb_get_uint8(selfm_tvb, offset) != 0xA5) {
 #if 0
-            fprintf(stderr, "On Packet: %d, extraneous data (starts with: %x).. \n", pinfo->fd->num, tvb_get_guint8(selfm_tvb, offset));
+            fprintf(stderr, "On Packet: %d, extraneous data (starts with: %x).. \n", pinfo->fd->num, tvb_get_uint8(selfm_tvb, offset));
 #endif
             break;
         }
         /* Create new selfm_pdu_tvb that contains only a single PDU worth of data */
-        selfm_pdu_tvb = tvb_new_subset_length( selfm_tvb, offset, tvb_get_guint8(selfm_tvb, offset+2));
+        selfm_pdu_tvb = tvb_new_subset_length( selfm_tvb, offset, tvb_get_uint8(selfm_tvb, offset+2));
         offset += dissect_selfm(selfm_pdu_tvb, pinfo, tree, data);
     }
 
@@ -3039,7 +3039,7 @@ proto_register_selfm(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_selfm,
         &ett_selfm_relaydef,
         &ett_selfm_relaydef_fm,
@@ -3092,13 +3092,13 @@ proto_register_selfm(void)
     /* Register required preferences for SEL Protocol register decoding */
     selfm_module = prefs_register_protocol(proto_selfm, NULL);
 
-    /*  SEL Protocol - Desegmentmentation; defaults to TRUE for TCP desegmentation*/
+    /*  SEL Protocol - Desegmentmentation; defaults to true for TCP desegmentation*/
     prefs_register_bool_preference(selfm_module, "desegment",
                                   "Desegment packets spanning multiple TCP segments",
                                   "Whether the SEL Protocol dissector should desegment all messages spanning multiple TCP segments",
                                   &selfm_desegment);
 
-    /* SEL Protocol - Telnet protocol IAC (0xFF) processing; defaults to TRUE to allow Telnet Encapsulated Data */
+    /* SEL Protocol - Telnet protocol IAC (0xFF) processing; defaults to true to allow Telnet Encapsulated Data */
     prefs_register_bool_preference(selfm_module, "telnetclean",
                                   "Remove extra 0xFF (Telnet IAC) bytes",
                                   "Whether the SEL Protocol dissector should automatically pre-process Telnet data to remove duplicate 0xFF IAC bytes",

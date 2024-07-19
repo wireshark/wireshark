@@ -44,7 +44,7 @@ const value_string share_type_vals[] = {
 int display_ms_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int hf_index, char **data)
 {
 	char *str;
-	gint  len;
+	int   len;
 
 	/* display a string from the tree and return the new offset */
 
@@ -85,8 +85,8 @@ int dissect_ms_compressed_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 				 const char **data)
 {
 	int           compr_len;
-	gint         str_len;
-	const gchar  *str = NULL;
+	int          str_len;
+	const char   *str = NULL;
 
 	/* The name data MUST start at offset 0 of the tvb */
 	compr_len = get_dns_name(tvb, offset, MAX_UNICODE_STR_LEN+3+1, 0, &str, &str_len);

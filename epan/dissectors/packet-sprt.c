@@ -51,16 +51,16 @@ typedef enum {
  */
 struct _sprt_conversation_info
 {
-    gchar    method[SPRT_CONV_MAX_SETUP_METHOD_SIZE + 1];
-    gboolean stream_started;
-    guint32  frame_number;         /* the frame where this conversation is started */
+    char     method[SPRT_CONV_MAX_SETUP_METHOD_SIZE + 1];
+    bool stream_started;
+    uint32_t frame_number;         /* the frame where this conversation is started */
 
     /* sequence numbers for each channel: */
-    guint32 seqnum[4];
+    uint32_t seqnum[4];
 
     /* are we using the DLCI field in I_OCTET messages?  See CONNECT message ("DLCI enabled") */
     i_octet_dlci_status_t i_octet_dlci_status;
-    guint32 connect_frame_number; /* the CONNECT frame that tells us if the DLCI is enabled */
+    uint32_t connect_frame_number; /* the CONNECT frame that tells us if the DLCI is enabled */
 
     /* TODO - maintain state */
 
@@ -475,13 +475,13 @@ static dissector_handle_t sprt_handle;
 
 
 /* initialize the subtree pointers */
-static gint ett_sprt;
-static gint ett_sprt_setup;
-static gint ett_sprt_ack_fields;
-static gint ett_payload;
-static gint ett_init_msg_all_fields;
-static gint ett_jminfo_msg_cat_data;
-static gint ett_connect_msg_adt;
+static int ett_sprt;
+static int ett_sprt_setup;
+static int ett_sprt_ack_fields;
+static int ett_payload;
+static int ett_init_msg_all_fields;
+static int ett_jminfo_msg_cat_data;
+static int ett_connect_msg_adt;
 
 static expert_field ei_sprt_sequence_number_0;
 
@@ -750,8 +750,8 @@ static struct _sprt_conversation_info* find_sprt_conversation_data(packet_info *
 void sprt_add_address(packet_info *pinfo,
                       address *addr, int port,
                       int other_port,
-                      const gchar *setup_method,
-                      guint32 setup_frame_number)
+                      const char *setup_method,
+                      uint32_t setup_frame_number)
 {
     address null_addr;
     conversation_t* p_conv;
@@ -781,7 +781,7 @@ void sprt_add_address(packet_info *pinfo,
      */
     if (!p_conv || p_conv->setup_frame != setup_frame_number) {
         p_conv = conversation_new(setup_frame_number, addr, &null_addr, CONVERSATION_UDP,
-                                    (guint32)port, (guint32)other_port,
+                                    (uint32_t)port, (uint32_t)other_port,
                                     NO_ADDR2 | (!other_port ? NO_PORT2 : 0));
     }
 
@@ -799,7 +799,7 @@ void sprt_add_address(packet_info *pinfo,
     if (!p_conv_data) {
         /* Create conversation data */
         p_conv_data = wmem_new(wmem_file_scope(), struct _sprt_conversation_info);
-        p_conv_data->stream_started = FALSE;
+        p_conv_data->stream_started = false;
         p_conv_data->seqnum[0] = 0;
         p_conv_data->seqnum[1] = 0;
         p_conv_data->seqnum[2] = 0;
@@ -860,13 +860,13 @@ dissect_sprt_data(tvbuff_t *tvb,
                   struct _sprt_conversation_info *p_conv_data,
                   proto_tree *sprt_tree,
                   unsigned int offset,
-                  guint payload_length)
+                  unsigned payload_length)
 {
     proto_item *ti;
     proto_tree *sprt_payload_tree, *field_subtree;
-    guint8 octet, payload_msgid, category_id;
-    guint8 selcompr, mr_event_id;
-    guint16 word, category_count;
+    uint8_t octet, payload_msgid, category_id;
+    uint8_t selcompr, mr_event_id;
+    uint16_t word, category_count;
 
     if (payload_length > 0)
     {
@@ -875,7 +875,7 @@ dissect_sprt_data(tvbuff_t *tvb,
 
         sprt_payload_tree = proto_item_add_subtree(ti, ett_payload);
 
-        payload_msgid = tvb_get_guint8(tvb, offset) & 0x7F;
+        payload_msgid = tvb_get_uint8(tvb, offset) & 0x7F;
 
         proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_reserved_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_message_id, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1006,7 +1006,7 @@ dissect_sprt_data(tvbuff_t *tvb,
             proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_msg_connect_selmod, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_msg_connect_compr_dir, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
-            selcompr = (tvb_get_guint8(tvb, offset) & 0xF0) >> 4;
+            selcompr = (tvb_get_uint8(tvb, offset) & 0xF0) >> 4;
             proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_msg_connect_selected_compr, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_msg_connect_selected_err_corr, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
@@ -1076,7 +1076,7 @@ dissect_sprt_data(tvbuff_t *tvb,
             /* No additional content */
             break;
         case SPRT_MODEM_RELAY_MSG_ID_MR_EVENT:
-            mr_event_id = tvb_get_guint8(tvb, offset);
+            mr_event_id = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_msg_mr_event_id, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_msg_mr_evt_reason_code, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1144,7 +1144,7 @@ dissect_sprt_data(tvbuff_t *tvb,
             offset += 2;
             break;
         case SPRT_MODEM_RELAY_MSG_ID_I_RAW_OCTET: /* data */
-            octet = tvb_get_guint8(tvb, offset);
+            octet = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_rawoctet_n_field_present, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_rawoctet_l, tvb, offset, 1, ENC_BIG_ENDIAN);
             if (octet & 0x80) /* is N field present? */
@@ -1159,7 +1159,7 @@ dissect_sprt_data(tvbuff_t *tvb,
             /*
              * L, P, N fields need to be parsed
              */
-            switch((tvb_get_guint8(tvb, offset) & 0xC0) >> 6)
+            switch((tvb_get_uint8(tvb, offset) & 0xC0) >> 6)
             {
             case 0x0: /* 00: get L (6 bits) */
                 /* display leading "00" bits, followed by L */
@@ -1199,7 +1199,7 @@ dissect_sprt_data(tvbuff_t *tvb,
                 switch(p_conv_data->i_octet_dlci_status)
                 {
                 case DLCI_PRESENT:
-                    octet = tvb_get_guint8(tvb, offset);
+                    octet = tvb_get_uint8(tvb, offset);
                     proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_i_octet_dlci1, tvb, offset, 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_i_octet_cr, tvb, offset, 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_i_octet_ea, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1333,26 +1333,26 @@ dissect_sprt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     proto_item *ti;
     proto_tree *sprt_tree = NULL;
     proto_tree *sprt_ack_field_tree;
-    guint16 word1;
+    uint16_t word1;
     unsigned int offset = 0;
-    guint payload_length;
+    unsigned payload_length;
     struct _sprt_conversation_info *p_conv_data = NULL;
     int i;
 
-    guint16 tc;
-    guint16 seqnum; /* 0 if TC = 0 or if no payload */
-    guint16 noa;
+    uint16_t tc;
+    uint16_t seqnum; /* 0 if TC = 0 or if no payload */
+    uint16_t noa;
     /* ack fields */
-    /*guint16 tcn;*/
-    /*guint16 sqn;*/
+    /*uint16_t tcn;*/
+    /*uint16_t sqn;*/
 
     /* Fix for SPRT Parser Crash (Gitlab Issue #19559)
      * XXX - heuristic to check for misidentified packets.
      */
 
-    guint8 octet1;
+    uint8_t octet1;
     unsigned int version;
-    octet1 = tvb_get_guint8(tvb, offset);
+    octet1 = tvb_get_uint8(tvb, offset);
     version = RTP_VERSION( octet1 );
 
     if (version == 2){
@@ -1482,8 +1482,8 @@ dissect_sprt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 static bool
 dissect_sprt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    guint8 octet, extension_bit, reserved_bit, payload_type;
-    guint16 word, tc, seqnum;
+    uint8_t octet, extension_bit, reserved_bit, payload_type;
+    uint16_t word, tc, seqnum;
     unsigned int offset = 0;
 
     /* This is a heuristic dissector, which means we get all the UDP
@@ -1495,11 +1495,11 @@ dissect_sprt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         return false; /* packet is waay to short */
 
     /* Get the fields in the first two octets */
-    extension_bit = tvb_get_guint8(tvb, offset) & 0x7F;
+    extension_bit = tvb_get_uint8(tvb, offset) & 0x7F;
     if (extension_bit != 0) /* must be 0 */
         return false;
 
-    octet = tvb_get_guint8(tvb, offset + 1);
+    octet = tvb_get_uint8(tvb, offset + 1);
     reserved_bit = octet & 80;
     payload_type = octet & 0x7F;
     if (reserved_bit != 0) /* must be 0 */
@@ -3388,7 +3388,7 @@ proto_register_sprt(void)
     }; /* hf_register_info hf[] */
 
     /* setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_sprt,
         &ett_sprt_setup,
         &ett_sprt_ack_fields,

@@ -56,8 +56,8 @@ static int hf_stcsig_timestamp;
 static int hf_stcsig_tslr;
 static int hf_stcsig_unknown;
 
-static gint ett_stcsig;
-static gint ett_stcsig_streamid;
+static int ett_stcsig;
+static int ett_stcsig_streamid;
 
 static const true_false_string tfs_end_start = { "EndOfFrame", "StartOfFrame" };
 
@@ -68,13 +68,13 @@ static const true_false_string tfs_hard_soft = { "Hard", "Soft" };
  * the fist byte (offset 0) plus the 11th byte (offset 10) of the deocded
  * signature must add up to 255
  */
-static gboolean
-is_signature(tvbuff_t *tvb, gint sigoffset)
+static bool
+is_signature(tvbuff_t *tvb, int sigoffset)
 {
 	/*
 	 * How to generate the table below:
 	 *
-	 * static guint8 runit = 1;
+	 * static uint8_t runit = 1;
 	 * for(int k=0; k<256; k++) {
 	 * 	obfuscation_value = k;
 	 * 	for(int i=1; i<=10; i++) {
@@ -85,7 +85,7 @@ is_signature(tvbuff_t *tvb, gint sigoffset)
 	 * }
 	 */
 
-	static const guint8 deobfuscate_offset_10[256] = {
+	static const uint8_t deobfuscate_offset_10[256] = {
 		0x00, 0x86, 0x0d, 0x8b, 0x9d, 0x1b, 0x90, 0x16,
 		0xbc, 0x3a, 0xb1, 0x37, 0x21, 0xa7, 0x2c, 0xaa,
 		0x78, 0xfe, 0x75, 0xf3, 0xe5, 0x63, 0xe8, 0x6e,
@@ -119,24 +119,24 @@ is_signature(tvbuff_t *tvb, gint sigoffset)
 		0x28, 0xae, 0x25, 0xa3, 0xb5, 0x33, 0xb8, 0x3e,
 		0x94, 0x12, 0x99, 0x1f, 0x09, 0x8f, 0x04, 0x82
 	};
-	guint8	byte0;
-	guint8  byte10;
+	uint8_t	byte0;
+	uint8_t byte10;
 
 	/* Byte 0 also is the initialization vector for the obfuscation of offsets 1 - 15 */
-	byte0 = tvb_get_guint8(tvb, sigoffset);
-	byte10 = tvb_get_guint8(tvb, sigoffset + 10);
+	byte0 = tvb_get_uint8(tvb, sigoffset);
+	byte10 = tvb_get_uint8(tvb, sigoffset + 10);
 
 	if (byte0 + (byte10 ^ deobfuscate_offset_10[byte0]) == 255) {
-		return TRUE;
+		return true;
 	} else {
-		return FALSE;
+		return false;
 	}
 }
 
 static void
-decode_signature(guint8* decode_buffer)
+decode_signature(uint8_t* decode_buffer)
 {
-	static const guint8 deobfuscate_this[256] = {
+	static const uint8_t deobfuscate_this[256] = {
 		0x00, 0x71, 0xe3, 0x92, 0xb6, 0xc7, 0x55, 0x24,
 		0x1c, 0x6d, 0xff, 0x8e, 0xaa, 0xdb, 0x49, 0x38,
 		0x39, 0x48, 0xda, 0xab, 0x8f, 0xfe, 0x6c, 0x1d,
@@ -170,7 +170,7 @@ decode_signature(guint8* decode_buffer)
 		0x17, 0x66, 0xf4, 0x85, 0xa1, 0xd0, 0x42, 0x33,
 		0x0b, 0x7a, 0xe8, 0x99, 0xbd, 0xcc, 0x5e, 0x2f
 	};
-	guint8 obfuscation_value;
+	uint8_t obfuscation_value;
 
 	obfuscation_value = decode_buffer[0];
 
@@ -184,25 +184,25 @@ decode_signature(guint8* decode_buffer)
 static int
 dissect_stcsig(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	gint       bytes, length;
-	gint       sig_offset;
+	int        bytes, length;
+	int        sig_offset;
 
 	tvbuff_t   *stcsig_tvb;
 	proto_item *ti;
 	proto_tree *stcsig_tree;
 	proto_tree *stcsig_streamid_tree;
-	guint8     *real_stcsig;
+	uint8_t    *real_stcsig;
 
-	guint64    timestamp_2_5_ns;
+	uint64_t   timestamp_2_5_ns;
 	nstime_t   timestamp;
 
 	length = tvb_captured_length(tvb);
-	if (length >= 21 && tvb_get_guint8(tvb, length - 21) == 0 && is_signature(tvb, length - 20)) {
+	if (length >= 21 && tvb_get_uint8(tvb, length - 21) == 0 && is_signature(tvb, length - 20)) {
 		bytes = 20;
-	} else if (length >= 25 && tvb_get_guint8(tvb, length - 25) == 0 && is_signature(tvb, length - 24)) {
+	} else if (length >= 25 && tvb_get_uint8(tvb, length - 25) == 0 && is_signature(tvb, length - 24)) {
 		/* Sigsize + 4 bytes FCS */
 		bytes = 24;
-	} else if (length >= 29 && tvb_get_guint8(tvb, length - 29) == 0 && is_signature(tvb, length - 28)) {
+	} else if (length >= 29 && tvb_get_uint8(tvb, length - 29) == 0 && is_signature(tvb, length - 28)) {
 		/* Sigsize + 8 bytes FCS, i.e. FibreChannel */
 		bytes = 28;
 	} else if (length >= 20 && is_signature(tvb, length - 20)) {
@@ -224,7 +224,7 @@ dissect_stcsig(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	col_set_str(pinfo->cinfo, COL_INFO, PROTO_LONG_NAME);
 #endif
 
-	real_stcsig = (guint8 *)tvb_memdup(pinfo->pool, tvb, sig_offset, 20);
+	real_stcsig = (uint8_t *)tvb_memdup(pinfo->pool, tvb, sig_offset, 20);
 	decode_signature(real_stcsig);
 	stcsig_tvb = tvb_new_child_real_data(tvb, real_stcsig, 20, 20);
 	add_new_data_source(pinfo, stcsig_tvb, PROTO_LONG_NAME);
@@ -237,7 +237,7 @@ dissect_stcsig(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	ti = proto_tree_add_item(stcsig_tree, hf_stcsig_streamid, stcsig_tvb, 1, 4, ENC_BIG_ENDIAN);
 	stcsig_streamid_tree = proto_item_add_subtree(ti, ett_stcsig_streamid);
 	/* This subtree is mostly an optical hierarchy, auto expand it */
-	tree_expanded_set(ett_stcsig_streamid, TRUE);
+	tree_expanded_set(ett_stcsig_streamid, true);
 	proto_tree_add_item(stcsig_streamid_tree, hf_stcsig_csp, stcsig_tvb, 1, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(stcsig_streamid_tree, hf_stcsig_streamtype, stcsig_tvb, 3, 1, ENC_NA);
 	proto_tree_add_item(stcsig_streamid_tree, hf_stcsig_streamindex, stcsig_tvb, 3, 2, ENC_BIG_ENDIAN);
@@ -247,7 +247,7 @@ dissect_stcsig(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	} else {
 		proto_tree_add_item(stcsig_tree, hf_stcsig_seqnum_sm, stcsig_tvb, 5, 6, ENC_BIG_ENDIAN);
 	}
-	timestamp_2_5_ns = (guint64)(tvb_get_guint8(stcsig_tvb, 15) & 0xfc) << 30;
+	timestamp_2_5_ns = (uint64_t)(tvb_get_uint8(stcsig_tvb, 15) & 0xfc) << 30;
 	timestamp_2_5_ns |= tvb_get_ntohl(stcsig_tvb, 11);
 	timestamp.secs = (time_t)(timestamp_2_5_ns / 400000000L);
 	timestamp.nsecs = (int)(timestamp_2_5_ns % 400000000L);
@@ -331,7 +331,7 @@ proto_register_stcsig(void)
 		},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_stcsig,
 		&ett_stcsig_streamid
 	};

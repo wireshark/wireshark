@@ -295,9 +295,9 @@ static int hf_param_vtid_int64;
 static int hf_param_whence_bytes;
 
 /* Initialize the subtree pointers */
-static gint ett_sysdig_event;
-static gint ett_sysdig_parm_lens;
-static gint ett_sysdig_syscall;
+static int ett_sysdig_event;
+static int ett_sysdig_parm_lens;
+static int ett_sysdig_syscall;
 
 /* Initialize the pointer to the child plugin dissector */
 static dissector_handle_t sinsp_dissector_handle;
@@ -1397,7 +1397,7 @@ static const struct _event_col_info_param execve_15_x_params[] = {
 };
 
 struct _event_col_info {
-    const guint event_type;
+    const unsigned event_type;
     const int num_len_fields;
     const struct _event_col_info_param *params;
 };
@@ -1413,7 +1413,7 @@ static const struct _event_col_info event_col_info[] = {
 };
 
 struct _event_tree_info {
-    const guint event_type;
+    const unsigned event_type;
     /* int num_params; */
     int * const *hf_indexes;
 };
@@ -2795,7 +2795,7 @@ static const value_string param_subcategory_vals[] = {
 };
 */
 
-static inline const gchar *format_param_str(tvbuff_t *tvb, int offset, int len) {
+static inline const char *format_param_str(tvbuff_t *tvb, int offset, int len) {
     char *param_str;
 
     param_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_UTF_8|ENC_NA);
@@ -2831,7 +2831,7 @@ dissect_header_lens_v1(tvbuff_t *tvb, proto_tree *tree, int encoding, int * cons
 static int
 dissect_header_lens_v2(tvbuff_t *tvb, wtap_syscall_header* syscall_header, proto_tree *tree, int encoding)
 {
-    guint32 param_count;
+    uint32_t param_count;
     proto_item *ti;
     proto_tree *len_tree;
 
@@ -2849,7 +2849,7 @@ dissect_header_lens_v2(tvbuff_t *tvb, wtap_syscall_header* syscall_header, proto
 static int
 dissect_header_lens_v2_large(tvbuff_t *tvb, wtap_syscall_header* syscall_header, proto_tree *tree, int encoding)
 {
-    guint32 param_count;
+    uint32_t param_count;
     proto_item *ti;
     proto_tree *len_tree;
 
@@ -2872,7 +2872,7 @@ dissect_event_params(tvbuff_t *tvb, packet_info *pinfo, const char **event_name,
     int len_offset = 0;
     int param_offset;
     int len_size;
-    guint32 cur_param;
+    uint32_t cur_param;
 
     switch (syscall_header->record_type) {
         case BLOCK_TYPE_SYSDIG_EVENT_V2_LARGE:
@@ -2899,9 +2899,9 @@ dissect_event_params(tvbuff_t *tvb, packet_info *pinfo, const char **event_name,
 
         uint32_t param_len;
         if (syscall_header->record_type == BLOCK_TYPE_SYSDIG_EVENT_V2_LARGE) {
-            param_len = tvb_get_guint32(tvb, len_offset, encoding);
+            param_len = tvb_get_uint32(tvb, len_offset, encoding);
         } else {
-            param_len = tvb_get_guint16(tvb, len_offset, encoding);
+            param_len = tvb_get_uint16(tvb, len_offset, encoding);
         }
         const int hf_index = *hf_indexes[cur_param];
         if (proto_registrar_get_ftype(hf_index) == FT_STRING) {
@@ -2916,7 +2916,7 @@ dissect_event_params(tvbuff_t *tvb, packet_info *pinfo, const char **event_name,
         }
 
         if (hf_index == hf_param_ID_uint16) {
-            uint16_t id = tvb_get_guint16(tvb, param_offset, encoding);
+            uint16_t id = tvb_get_uint16(tvb, param_offset, encoding);
             *event_name = val_to_str(id, ID_uint16_vals, "Unknown ID %u");
             col_add_str(pinfo->cinfo, COL_INFO, *event_name);
         }
@@ -2977,7 +2977,7 @@ dissect_sysdig_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             for (cur_len_field = 0;
                     cur_len_field < cur_col_info->num_len_fields && cur_param->param_name;
                     cur_len_field++) {
-                unsigned param_len = tvb_get_guint16(tvb, cur_len_field * 2, encoding);
+                unsigned param_len = tvb_get_uint16(tvb, cur_len_field * 2, encoding);
                 if (cur_param->param_num == cur_len_field) {
                     col_append_fstr(pinfo->cinfo, COL_INFO, ", %s=", cur_param->param_name);
                     switch (cur_param->param_ftype) {
@@ -2985,7 +2985,7 @@ dissect_sysdig_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         col_append_str(pinfo->cinfo, COL_INFO, format_param_str(tvb, param_offset, param_len));
                         break;
                     case FT_UINT64:
-                        col_append_fstr(pinfo->cinfo, COL_INFO, "%" PRIu64, tvb_get_guint64(tvb, param_offset, encoding));
+                        col_append_fstr(pinfo->cinfo, COL_INFO, "%" PRIu64, tvb_get_uint64(tvb, param_offset, encoding));
                     default:
                         break;
                     }
@@ -3032,7 +3032,7 @@ dissect_sysdig_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (event_param_data.data_bytes_offset > 0 && event_param_data.data_bytes_length > 0) {
 #define ELF_MAGIC 0x7f454c46 // 7f 'E' 'L' 'F'
-        if (tvb_get_guint32(tvb, event_param_data.data_bytes_offset, ENC_BIG_ENDIAN) == ELF_MAGIC) {
+        if (tvb_get_uint32(tvb, event_param_data.data_bytes_offset, ENC_BIG_ENDIAN) == ELF_MAGIC) {
             tvbuff_t *elf_tvb = tvb_new_subset_length(tvb, event_param_data.data_bytes_offset, event_param_data.data_bytes_length);
             TRY {
                 call_dissector(elf_dissector_handle, elf_tvb, pinfo, tree);
@@ -3316,7 +3316,7 @@ proto_register_sysdig_event(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_sysdig_event,
         &ett_sysdig_parm_lens,
         &ett_sysdig_syscall

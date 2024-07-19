@@ -256,49 +256,49 @@ static int hf_sna_padding;
 static int hf_sna_reserved;
 static int hf_sna_biu_segment_data;
 
-static gint ett_sna;
-static gint ett_sna_th;
-static gint ett_sna_th_fid;
-static gint ett_sna_nlp_nhdr;
-static gint ett_sna_nlp_nhdr_0;
-static gint ett_sna_nlp_nhdr_1;
-static gint ett_sna_nlp_thdr;
-static gint ett_sna_nlp_thdr_8;
-static gint ett_sna_nlp_thdr_9;
-static gint ett_sna_nlp_opti_un;
-static gint ett_sna_nlp_opti_0d;
-static gint ett_sna_nlp_opti_0d_4;
-static gint ett_sna_nlp_opti_0e;
-static gint ett_sna_nlp_opti_0e_stat;
-static gint ett_sna_nlp_opti_0e_absp;
-static gint ett_sna_nlp_opti_0f;
-static gint ett_sna_nlp_opti_10;
-static gint ett_sna_nlp_opti_12;
-static gint ett_sna_nlp_opti_14;
-static gint ett_sna_nlp_opti_14_si;
-static gint ett_sna_nlp_opti_14_si_2;
-static gint ett_sna_nlp_opti_14_rr;
-static gint ett_sna_nlp_opti_14_rr_2;
-static gint ett_sna_nlp_opti_22;
-static gint ett_sna_nlp_opti_22_2;
-static gint ett_sna_nlp_opti_22_3;
-static gint ett_sna_rh;
-static gint ett_sna_rh_0;
-static gint ett_sna_rh_1;
-static gint ett_sna_rh_2;
-static gint ett_sna_gds;
-static gint ett_sna_xid_0;
-static gint ett_sna_xid_id;
-static gint ett_sna_xid_3_8;
-static gint ett_sna_xid_3_10;
-static gint ett_sna_xid_3_11;
-static gint ett_sna_xid_3_12;
-static gint ett_sna_xid_3_15;
-static gint ett_sna_control_un;
-static gint ett_sna_control_05;
-static gint ett_sna_control_05hpr;
-static gint ett_sna_control_05hpr_type;
-static gint ett_sna_control_0e;
+static int ett_sna;
+static int ett_sna_th;
+static int ett_sna_th_fid;
+static int ett_sna_nlp_nhdr;
+static int ett_sna_nlp_nhdr_0;
+static int ett_sna_nlp_nhdr_1;
+static int ett_sna_nlp_thdr;
+static int ett_sna_nlp_thdr_8;
+static int ett_sna_nlp_thdr_9;
+static int ett_sna_nlp_opti_un;
+static int ett_sna_nlp_opti_0d;
+static int ett_sna_nlp_opti_0d_4;
+static int ett_sna_nlp_opti_0e;
+static int ett_sna_nlp_opti_0e_stat;
+static int ett_sna_nlp_opti_0e_absp;
+static int ett_sna_nlp_opti_0f;
+static int ett_sna_nlp_opti_10;
+static int ett_sna_nlp_opti_12;
+static int ett_sna_nlp_opti_14;
+static int ett_sna_nlp_opti_14_si;
+static int ett_sna_nlp_opti_14_si_2;
+static int ett_sna_nlp_opti_14_rr;
+static int ett_sna_nlp_opti_14_rr_2;
+static int ett_sna_nlp_opti_22;
+static int ett_sna_nlp_opti_22_2;
+static int ett_sna_nlp_opti_22_3;
+static int ett_sna_rh;
+static int ett_sna_rh_0;
+static int ett_sna_rh_1;
+static int ett_sna_rh_2;
+static int ett_sna_gds;
+static int ett_sna_xid_0;
+static int ett_sna_xid_id;
+static int ett_sna_xid_3_8;
+static int ett_sna_xid_3_10;
+static int ett_sna_xid_3_11;
+static int ett_sna_xid_3_12;
+static int ett_sna_xid_3_15;
+static int ett_sna_control_un;
+static int ett_sna_control_05;
+static int ett_sna_control_05hpr;
+static int ett_sna_control_05hpr_type;
+static int ett_sna_control_0e;
 
 static dissector_handle_t sna_handle;
 static dissector_handle_t sna_xid_handle;
@@ -803,8 +803,8 @@ enum parse {
  */
 #define	SNA_FID_TYPE_4_ADDR_LEN	6
 struct sna_fid_type_4_addr {
-	guint32	saf;
-	guint16	ef;
+	uint32_t	saf;
+	uint16_t	ef;
 };
 
 typedef enum next_dissection_enum next_dissection_t;
@@ -816,22 +816,22 @@ static void dissect_gds (tvbuff_t*, packet_info*, proto_tree*, proto_tree*);
 static void dissect_rh (tvbuff_t*, int, proto_tree*);
 static void dissect_sna_control(tvbuff_t* parent_tvb, int offset, int control_len, proto_tree* tree, int hpr, enum parse parse);
 
-static int sna_fid_to_str_buf(const address *addr, gchar *buf, int buf_len _U_)
+static int sna_fid_to_str_buf(const address *addr, char *buf, int buf_len _U_)
 {
-	const guint8 *addrdata;
+	const uint8_t *addrdata;
 	struct sna_fid_type_4_addr sna_fid_type_4_addr;
-	gchar *bufp = buf;
+	char *bufp = buf;
 
 	switch (addr->len) {
 
 	case 1:
-		addrdata = (const guint8 *)addr->data;
+		addrdata = (const uint8_t *)addr->data;
 		word_to_hex(buf, addrdata[0]);
 		buf[4] = '\0';
 		break;
 
 	case 2:
-		addrdata = (const guint8 *)addr->data;
+		addrdata = (const uint8_t *)addr->data;
 		word_to_hex(buf, pntoh16(&addrdata[0]));
 		buf[4] = '\0';
 		break;
@@ -891,7 +891,7 @@ dissect_optional_0d(tvbuff_t *tvb, proto_tree *tree)
 	offset = 8;
 
 	while (tvb_offset_exists(tvb, offset)) {
-		len = tvb_get_guint8(tvb, offset+0);
+		len = tvb_get_uint8(tvb, offset+0);
 		if (len) {
 			dissect_sna_control(tvb, offset, len, tree, 1, LT);
 			pad = (len+3) & 0xfffc;
@@ -915,7 +915,7 @@ dissect_optional_0e(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		NULL
 	};
 
-	bits = tvb_get_guint8(tvb, 2);
+	bits = tvb_get_uint8(tvb, 2);
 	offset = 20;
 
 	proto_tree_add_bitmask(tree, tvb, 2, hf_sna_nlp_opti_0e_stat,
@@ -988,8 +988,8 @@ dissect_optional_14(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	offset = 4;
 
-	len = tvb_get_guint8(tvb, offset);
-	type = tvb_get_guint8(tvb, offset+1);
+	len = tvb_get_uint8(tvb, offset);
+	type = tvb_get_uint8(tvb, offset+1);
 
 	if ((type != 0x83) || (len <= 16)) {
 		/* Invalid */
@@ -1022,8 +1022,8 @@ dissect_optional_14(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(sub_tree, hf_sna_padding, tvb, offset+len, pad-len, ENC_NA);
 	offset += pad;
 
-	len = tvb_get_guint8(tvb, offset);
-	type = tvb_get_guint8(tvb, offset+1);
+	len = tvb_get_uint8(tvb, offset);
+	type = tvb_get_uint8(tvb, offset+1);
 
 	if ((type != 0x85) || ( len < 4))  {
 		/* Invalid */
@@ -1041,7 +1041,7 @@ dissect_optional_14(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_bitmask(tree, tvb, offset+2, hf_sna_nlp_opti_14_rr_2,
 			       ett_sna_nlp_opti_14_rr_2, opti_14_rr_fields, ENC_NA);
 
-	num = tvb_get_guint8(tvb, offset+3);
+	num = tvb_get_uint8(tvb, offset+3);
 
 	proto_tree_add_uint(sub_tree, hf_sna_nlp_opti_14_rr_num,
 	    tvb, offset+3, 1, num);
@@ -1049,7 +1049,7 @@ dissect_optional_14(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset += 4;
 
 	while (num) {
-		sublen = tvb_get_guint8(tvb, offset);
+		sublen = tvb_get_uint8(tvb, offset);
 		if (sublen) {
 			dissect_sna_control(tvb, offset, sublen, sub_tree, 1, LT);
 		} else {
@@ -1080,7 +1080,7 @@ dissect_optional_22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		NULL
 	};
 
-	bits = tvb_get_guint8(tvb, 2);
+	bits = tvb_get_uint8(tvb, 2);
 	type = (bits & 0xc0) >> 6;
 
 	proto_tree_add_bitmask(tree, tvb, 2, hf_sna_nlp_opti_22_2,
@@ -1113,15 +1113,15 @@ dissect_optional(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree	*sub_tree;
 	int		offset, type, len;
-	gint		ett;
+	int		ett;
 
 	sub_tree = NULL;
 
 	offset = 0;
 
 	while (tvb_offset_exists(tvb, offset)) {
-		len = tvb_get_guint8(tvb, offset);
-		type = tvb_get_guint8(tvb, offset+1);
+		len = tvb_get_uint8(tvb, offset);
+		type = tvb_get_uint8(tvb, offset+1);
 
 		/* Prevent loop for invalid crap in packet */
 		if (len == 0) {
@@ -1189,9 +1189,9 @@ dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
 	proto_tree	*nlp_tree;
 	proto_item	*nlp_item;
-	guint8		nhdr_0, nhdr_1, nhdr_x, thdr_8, thdr_9, fid;
-	guint32		thdr_len, thdr_dlf;
-	guint16		subindx;
+	uint8_t		nhdr_0, nhdr_1, nhdr_x, thdr_8, thdr_9, fid;
+	uint32_t		thdr_len, thdr_dlf;
+	uint16_t		subindx;
 	static int * const nlp_nhdr_0_fields[] = {
 		&hf_sna_nlp_sm,
 		&hf_sna_nlp_tpf,
@@ -1225,8 +1225,8 @@ dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	nlp_tree = NULL;
 	nlp_item = NULL;
 
-	nhdr_0 = tvb_get_guint8(tvb, indx);
-	nhdr_1 = tvb_get_guint8(tvb, indx+1);
+	nhdr_0 = tvb_get_uint8(tvb, indx);
+	nhdr_1 = tvb_get_uint8(tvb, indx+1);
 
 	col_set_str(pinfo->cinfo, COL_INFO, "HPR NLP Packet");
 
@@ -1250,7 +1250,7 @@ dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	if ((nhdr_0 & 0xe0) == 0xa0) {
 		do {
-			nhdr_x = tvb_get_guint8(tvb, indx + counter);
+			nhdr_x = tvb_get_uint8(tvb, indx + counter);
 			counter ++;
 		} while (nhdr_x != 0xff);
 		proto_tree_add_item(nlp_tree,
@@ -1275,7 +1275,7 @@ dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 	if ((nhdr_0 & 0xe0) == 0xc0) {
 		do {
-			nhdr_x = tvb_get_guint8(tvb, indx + counter);
+			nhdr_x = tvb_get_uint8(tvb, indx + counter);
 			counter ++;
 		} while (nhdr_x != 0xff);
 		proto_tree_add_item(nlp_tree, hf_sna_nlp_anr,
@@ -1289,8 +1289,8 @@ dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			proto_item_set_len(nlp_item, indx);
 	}
 
-	thdr_8 = tvb_get_guint8(tvb, indx+8);
-	thdr_9 = tvb_get_guint8(tvb, indx+9);
+	thdr_8 = tvb_get_uint8(tvb, indx+8);
+	thdr_9 = tvb_get_uint8(tvb, indx+9);
 	thdr_len = tvb_get_ntohs(tvb, indx+10);
 	thdr_dlf = tvb_get_ntohl(tvb, indx+12);
 
@@ -1318,8 +1318,8 @@ dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	subindx = 20;
 
 	if (((thdr_9 & 0x18) == 0x08) && ((thdr_len << 2) > subindx)) {
-		counter = tvb_get_guint8(tvb, indx + subindx);
-		if (tvb_get_guint8(tvb, indx+subindx+1) == 5)
+		counter = tvb_get_uint8(tvb, indx + subindx);
+		if (tvb_get_uint8(tvb, indx+subindx+1) == 5)
 			dissect_sna_control(tvb, indx + subindx, counter+2, nlp_tree, 1, LT);
 		else
 			call_data_dissector(tvb_new_subset_length_caplen(tvb, indx + subindx, counter+2,
@@ -1344,7 +1344,7 @@ dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 	if (tvb_offset_exists(tvb, indx)) {
 		/* Transmission Header Format Identifier */
-		fid = hi_nibble(tvb_get_guint8(tvb, indx));
+		fid = hi_nibble(tvb_get_uint8(tvb, indx));
 		if (fid == 5) /* Only FID5 allowed for HPR */
 			dissect_fid(tvb_new_subset_remaining(tvb, indx), pinfo,
 			    tree, parent_tree);
@@ -1376,17 +1376,17 @@ dissect_xid1(tvbuff_t *tvb, proto_tree *tree)
 static void
 dissect_xid2(tvbuff_t *tvb, proto_tree *tree)
 {
-	guint		dlen, offset;
+	unsigned		dlen, offset;
 
 	if (!tree)
 		return;
 
-	dlen = tvb_get_guint8(tvb, 0);
+	dlen = tvb_get_uint8(tvb, 0);
 
 	offset = dlen;
 
 	while (tvb_offset_exists(tvb, offset)) {
-		dlen = tvb_get_guint8(tvb, offset+1);
+		dlen = tvb_get_uint8(tvb, offset+1);
 		dissect_sna_control(tvb, offset, dlen+2, tree, 0, KL);
 		offset += (dlen + 2);
 	}
@@ -1395,7 +1395,7 @@ dissect_xid2(tvbuff_t *tvb, proto_tree *tree)
 static void
 dissect_xid3(tvbuff_t *tvb, proto_tree *tree)
 {
-	guint		dlen, offset;
+	unsigned		dlen, offset;
 	static int * const sna_xid_3_fields[] = {
 		&hf_sna_xid_3_init_self,
 		&hf_sna_xid_3_stand_bind,
@@ -1465,7 +1465,7 @@ dissect_xid3(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree_add_item(tree, hf_sna_xid_3_tg, tvb, 10, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_sna_xid_3_dlc, tvb, 11, 1, ENC_BIG_ENDIAN);
 
-	dlen = tvb_get_guint8(tvb, 12);
+	dlen = tvb_get_uint8(tvb, 12);
 
 	proto_tree_add_uint(tree, hf_sna_xid_3_dlen, tvb, 12, 1, dlen);
 
@@ -1474,7 +1474,7 @@ dissect_xid3(tvbuff_t *tvb, proto_tree *tree)
 	offset = 12 + dlen;
 
 	while (tvb_offset_exists(tvb, offset)) {
-		dlen = tvb_get_guint8(tvb, offset+1);
+		dlen = tvb_get_uint8(tvb, offset+1);
 		dissect_sna_control(tvb, offset, dlen+2, tree, 0, KL);
 		offset += (dlen+2);
 	}
@@ -1487,10 +1487,10 @@ dissect_xid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree	*sub_tree;
 	proto_item	*sub_ti = NULL;
 	int		format, type, len;
-	guint32		id;
+	uint32_t		id;
 
-	len = tvb_get_guint8(tvb, 1);
-	type = tvb_get_guint8(tvb, 0);
+	len = tvb_get_uint8(tvb, 1);
+	type = tvb_get_uint8(tvb, 0);
 	id = tvb_get_ntohl(tvb, 2);
 	format = hi_nibble(type);
 
@@ -1558,7 +1558,7 @@ dissect_xid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #define RH_LEN	3
 
 static unsigned int
-mpf_value(guint8 th_byte)
+mpf_value(uint8_t th_byte)
 {
 	return (th_byte & 0x0c) >> 2;
 }
@@ -1608,9 +1608,9 @@ defragment_by_sequence(packet_info *pinfo, tvbuff_t *tvb, int offset, int mpf,
 {
 	fragment_head *fd_head;
 	int frag_number = -1;
-	int more_frags = TRUE;
+	int more_frags = true;
 	tvbuff_t *rh_tvb = NULL;
-	gint frag_len;
+	int frag_len;
 
 	/* Determine frag_number and more_frags */
 	switch(mpf) {
@@ -1625,7 +1625,7 @@ defragment_by_sequence(packet_info *pinfo, tvbuff_t *tvb, int offset, int mpf,
 			break;
 		case MPF_LAST_SEGMENT:
 			frag_number = LAST_FRAG_NUMBER;
-			more_frags = FALSE;
+			more_frags = false;
 			break;
 		default:
 			DISSECTOR_ASSERT_NOT_REACHED();
@@ -1649,7 +1649,7 @@ defragment_by_sequence(packet_info *pinfo, tvbuff_t *tvb, int offset, int mpf,
 			if (mpf == MPF_LAST_SEGMENT && !fd_head) {
 				fd_head = fragment_add_seq(&sna_reassembly_table,
 				    tvb, offset, pinfo, id, NULL,
-				    MIDDLE_FRAG_NUMBER, 0, TRUE, 0);
+				    MIDDLE_FRAG_NUMBER, 0, true, 0);
 			}
 
 			if (fd_head != NULL) {
@@ -1674,13 +1674,13 @@ dissect_fid0_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree	*bf_tree;
 	proto_item	*bf_item;
-	guint8		th_0;
+	uint8_t		th_0;
 
 	const int bytes_in_header = 10;
 
 	if (tree) {
 		/* Byte 0 */
-		th_0 = tvb_get_guint8(tvb, 0);
+		th_0 = tvb_get_uint8(tvb, 0);
 		bf_item = proto_tree_add_uint(tree, hf_sna_th_0, tvb, 0, 1,
 		    th_0);
 		bf_tree = proto_item_add_subtree(bf_item, ett_sna_th_fid);
@@ -1721,12 +1721,12 @@ dissect_fid2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
 	proto_tree	*bf_tree;
 	proto_item	*bf_item;
-	guint8		th_0;
+	uint8_t		th_0;
 	unsigned int	mpf, id;
 
 	const int bytes_in_header = 6;
 
-	th_0 = tvb_get_guint8(tvb, 0);
+	th_0 = tvb_get_uint8(tvb, 0);
 	mpf = mpf_value(th_0);
 
 	if (tree) {
@@ -1784,7 +1784,7 @@ dissect_fid3(tvbuff_t *tvb, proto_tree *tree)
 {
 	proto_tree	*bf_tree;
 	proto_item	*bf_item;
-	guint8		th_0;
+	uint8_t		th_0;
 
 	const int bytes_in_header = 2;
 
@@ -1792,7 +1792,7 @@ dissect_fid3(tvbuff_t *tvb, proto_tree *tree)
 	if (!tree)
 		return bytes_in_header;
 
-	th_0 = tvb_get_guint8(tvb, 0);
+	th_0 = tvb_get_uint8(tvb, 0);
 
 	/* Create the bitfield tree */
 	bf_item = proto_tree_add_uint(tree, hf_sna_th_0, tvb, 0, 1, th_0);
@@ -1811,9 +1811,9 @@ static int
 dissect_fid4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int		offset = 0;
-	guint8		th_byte, mft;
-	guint16		def, oef;
-	guint32		dsaf, osaf;
+	uint8_t		th_byte, mft;
+	uint16_t		def, oef;
+	uint32_t		dsaf, osaf;
 	static int * const byte0_fields[] = {
 		&hf_sna_th_fid,
 		&hf_sna_th_tg_sweep,
@@ -1885,7 +1885,7 @@ dissect_fid4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			       ett_sna_th_fid, byte0_fields, ENC_NA);
 
 	offset += 1;
-	th_byte = tvb_get_guint8(tvb, offset);
+	th_byte = tvb_get_uint8(tvb, offset);
 
 	/* Byte 1 */
 	proto_tree_add_bitmask(tree, tvb, offset, hf_sna_th_byte1,
@@ -1972,7 +1972,7 @@ dissect_fid5(tvbuff_t *tvb, proto_tree *tree)
 {
 	proto_tree	*bf_tree;
 	proto_item	*bf_item;
-	guint8		th_0;
+	uint8_t		th_0;
 
 	const int bytes_in_header = 12;
 
@@ -1980,7 +1980,7 @@ dissect_fid5(tvbuff_t *tvb, proto_tree *tree)
 	if (!tree)
 		return bytes_in_header;
 
-	th_0 = tvb_get_guint8(tvb, 0);
+	th_0 = tvb_get_uint8(tvb, 0);
 
 	/* Create the bitfield tree */
 	bf_item = proto_tree_add_uint(tree, hf_sna_th_0, tvb, 0, 1, th_0);
@@ -2005,7 +2005,7 @@ dissect_fidf(tvbuff_t *tvb, proto_tree *tree)
 {
 	proto_tree	*bf_tree;
 	proto_item	*bf_item;
-	guint8		th_0;
+	uint8_t		th_0;
 
 	const int bytes_in_header = 26;
 
@@ -2013,7 +2013,7 @@ dissect_fidf(tvbuff_t *tvb, proto_tree *tree)
 	if (!tree)
 		return bytes_in_header;
 
-	th_0 = tvb_get_guint8(tvb, 0);
+	th_0 = tvb_get_uint8(tvb, 0);
 
 	/* Create the bitfield tree */
 	bf_item = proto_tree_add_uint(tree, hf_sna_th_0, tvb, 0, 1, th_0);
@@ -2041,14 +2041,14 @@ dissect_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	proto_tree	*th_tree = NULL, *rh_tree = NULL;
 	proto_item	*th_ti = NULL, *rh_ti = NULL;
-	guint8		th_fid;
+	uint8_t		th_fid;
 	int		th_header_len = 0;
 	int		offset, rh_offset;
 	tvbuff_t	*rh_tvb = NULL;
 	next_dissection_t continue_dissecting = everything;
 
 	/* Transmission Header Format Identifier */
-	th_fid = hi_nibble(tvb_get_guint8(tvb, 0));
+	th_fid = hi_nibble(tvb_get_uint8(tvb, 0));
 
 	/* Summary information */
 	col_add_str(pinfo->cinfo, COL_INFO,
@@ -2137,8 +2137,8 @@ dissect_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static void
 dissect_rh(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-	gboolean	is_response;
-	guint8		rh_0;
+	bool	is_response;
+	uint8_t		rh_0;
 	static int * const sna_rh_fields[] = {
 		&hf_sna_rh_rri,
 		&hf_sna_rh_ru_category,
@@ -2181,7 +2181,7 @@ dissect_rh(tvbuff_t *tvb, int offset, proto_tree *tree)
 		return;
 
 	/* Create the bitfield tree for byte 0*/
-	rh_0 = tvb_get_guint8(tvb, offset);
+	rh_0 = tvb_get_uint8(tvb, offset);
 	is_response = (rh_0 & 0x80);
 
 	proto_tree_add_bitmask(tree, tvb, offset, hf_sna_rh_0,
@@ -2206,7 +2206,7 @@ dissect_rh(tvbuff_t *tvb, int offset, proto_tree *tree)
 		proto_tree_add_item(tree, hf_sna_rh_2, tvb, offset, 1, ENC_BIG_ENDIAN);
 	}
 
-	/* XXX - check for sdi. If TRUE, the next 4 bytes will be sense data */
+	/* XXX - check for sdi. If true, the next 4 bytes will be sense data */
 }
 
 /* --------------------------------------------------------------------
@@ -2224,7 +2224,7 @@ static void
 dissect_control_05hpr(tvbuff_t *tvb, proto_tree *tree, int hpr,
 		      enum parse parse)
 {
-	guint16		offset, len, pad;
+	uint16_t		offset, len, pad;
 	static int * const sna_control_05hpr_fields[] = {
 		&hf_sna_control_05_ptp,
 		NULL
@@ -2242,9 +2242,9 @@ dissect_control_05hpr(tvbuff_t *tvb, proto_tree *tree, int hpr,
 
 	while (tvb_offset_exists(tvb, offset)) {
 		if (parse == LT) {
-			len = tvb_get_guint8(tvb, offset+0);
+			len = tvb_get_uint8(tvb, offset+0);
 		} else {
-			len = tvb_get_guint8(tvb, offset+1);
+			len = tvb_get_uint8(tvb, offset+1);
 		}
 		if (len) {
 			// We recurse here, but we'll run out of packet before we run out of stack.
@@ -2272,7 +2272,7 @@ dissect_control_05(tvbuff_t *tvb, proto_tree *tree)
 static void
 dissect_control_0e(tvbuff_t *tvb, proto_tree *tree)
 {
-	gint	len;
+	int	len;
 
 	if (!tree)
 		return;
@@ -2292,10 +2292,10 @@ dissect_sna_control(tvbuff_t *parent_tvb, int offset, int control_len,
 		proto_tree *tree, int hpr, enum parse parse)
 {
 	tvbuff_t	*tvb;
-	gint		length, reported_length;
+	int		length, reported_length;
 	proto_tree	*sub_tree;
 	int		len, key;
-	gint		ett;
+	int		ett;
 
 	length = tvb_captured_length_remaining(parent_tvb, offset);
 	reported_length = tvb_reported_length_remaining(parent_tvb, offset);
@@ -2308,11 +2308,11 @@ dissect_sna_control(tvbuff_t *parent_tvb, int offset, int control_len,
 	sub_tree = NULL;
 
 	if (parse == LT) {
-		len = tvb_get_guint8(tvb, 0);
-		key = tvb_get_guint8(tvb, 1);
+		len = tvb_get_uint8(tvb, 0);
+		key = tvb_get_uint8(tvb, 1);
 	} else {
-		key = tvb_get_guint8(tvb, 0);
-		len = tvb_get_guint8(tvb, 1);
+		key = tvb_get_uint8(tvb, 0);
+		len = tvb_get_uint8(tvb, 1);
 	}
 	ett = ett_sna_control_un;
 
@@ -2385,12 +2385,12 @@ static void
 dissect_gds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	    proto_tree *parent_tree)
 {
-	guint16		length;
+	uint16_t		length;
 	int		cont;
 	int		offset = 0;
 	proto_item	*pi;
 	proto_tree	*subtree;
-	gboolean	first_ll = TRUE;
+	bool	first_ll = true;
 
 	do {
 		length = tvb_get_ntohs(tvb, offset) & 0x7fff;
@@ -2408,7 +2408,7 @@ dissect_gds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			proto_tree_add_item(subtree, hf_sna_gds_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
 			length -= 2;
-			first_ll = FALSE;
+			first_ll = false;
 		}
 		if (length > 0) {
 			proto_tree_add_item(subtree, hf_sna_gds_info, tvb, offset, length, ENC_NA);
@@ -2428,7 +2428,7 @@ dissect_gds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static int
 dissect_sna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	guint8		fid;
+	uint8_t		fid;
 	proto_tree	*sna_tree = NULL;
 	proto_item	*sna_ti = NULL;
 
@@ -2448,7 +2448,7 @@ dissect_sna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	}
 
 	/* Transmission Header Format Identifier */
-	fid = hi_nibble(tvb_get_guint8(tvb, 0));
+	fid = hi_nibble(tvb_get_uint8(tvb, 0));
 	switch(fid) {
 		case 0xa:	/* HPR Network Layer Packet */
 		case 0xb:
@@ -3404,7 +3404,7 @@ proto_register_sna(void)
 		    FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
 	};
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_sna,
 		&ett_sna_th,
 		&ett_sna_th_fid,

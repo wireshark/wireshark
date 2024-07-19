@@ -92,10 +92,10 @@ static int hf_sap_message_identifier_hash;
 static int hf_sap_auth_data_padding_len;
 static int hf_sap_payload_type;
 
-static gint ett_sap;
-static gint ett_sap_flags;
-static gint ett_sap_auth;
-static gint ett_sap_authf;
+static int ett_sap;
+static int ett_sap_flags;
+static int ett_sap_auth;
+static int ett_sap_authf;
 
 static expert_field ei_sap_compressed_and_encrypted;
 static expert_field ei_sap_encrypted;
@@ -110,9 +110,9 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     int offset = 0;
     int sap_version, is_ipv6, is_del, is_enc, is_comp, addr_len;
-    guint8 vers_flags;
-    guint8 auth_len;
-    guint8 auth_flags;
+    uint8_t vers_flags;
+    uint8_t auth_len;
+    uint8_t auth_flags;
     tvbuff_t *next_tvb;
 
     proto_item *si, *sif;
@@ -121,7 +121,7 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SAP");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    vers_flags = tvb_get_guint8(tvb, offset);
+    vers_flags = tvb_get_uint8(tvb, offset);
     is_ipv6 = vers_flags&MCAST_SAP_BIT_A;
     is_del = vers_flags&MCAST_SAP_BIT_T;
     is_enc = vers_flags&MCAST_SAP_BIT_E;
@@ -149,7 +149,7 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     offset++;
 
-    auth_len = tvb_get_guint8(tvb, offset);
+    auth_len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(sap_tree, hf_sap_auth_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
@@ -164,18 +164,18 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     /* Authentication data lives in its own subtree */
     if (auth_len > 0) {
-        guint32 auth_data_len;
+        uint32_t auth_data_len;
         proto_item *sdi, *sai;
         proto_tree *sa_tree, *saf_tree;
         int has_pad;
-        guint8 pad_len = 0;
+        uint8_t pad_len = 0;
 
-        auth_data_len = (guint32)(auth_len * sizeof(guint32));
+        auth_data_len = (uint32_t)(auth_len * sizeof(uint32_t));
 
         sdi = proto_tree_add_item(sap_tree, hf_auth_data, tvb, offset, auth_data_len, ENC_NA);
         sa_tree = proto_item_add_subtree(sdi, ett_sap_auth);
 
-        auth_flags = tvb_get_guint8(tvb, offset);
+        auth_flags = tvb_get_uint8(tvb, offset);
         sai = proto_tree_add_item(sa_tree, hf_auth_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
         saf_tree = proto_item_add_subtree(sai, ett_sap_authf);
         proto_tree_add_item(saf_tree, hf_auth_flags_v, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -184,7 +184,7 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
         has_pad = auth_flags&MCAST_SAP_AUTH_BIT_P;
         if (has_pad) {
-            pad_len = tvb_get_guint8(tvb, offset+auth_data_len-1);
+            pad_len = tvb_get_uint8(tvb, offset+auth_data_len-1);
         }
 
         if ((int) auth_data_len - pad_len - 1 < 0) {
@@ -219,10 +219,10 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     if (tree) {
         /* Do we have the optional payload type aka. MIME content specifier */
         if (tvb_strneql(tvb, offset, "v=", strlen("v="))) {
-            gint remaining_len;
-            guint32 pt_len;
+            int remaining_len;
+            uint32_t pt_len;
             int pt_string_len;
-            guint8* pt_str;
+            uint8_t* pt_str;
 
             remaining_len = tvb_captured_length_remaining(tvb, offset);
             if (remaining_len == 0) {
@@ -341,7 +341,7 @@ void proto_register_sap(void)
         { &hf_sap_payload_type, { "Payload type", "sap.payload_type", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     };
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_sap,
         &ett_sap_flags,
         &ett_sap_auth,

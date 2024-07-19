@@ -312,13 +312,13 @@ typedef struct {
 
 typedef struct {
     tvbuff_t *tvb;
-    gint offset;
-    gint bytes_read;
+    int offset;
+    int bytes_read;
 } tvb_sane_reader;
 
 
-static gint
-tvb_read_sane_word(tvb_sane_reader *r, guint32 *dest) {
+static int
+tvb_read_sane_word(tvb_sane_reader *r, uint32_t *dest) {
     if (tvb_captured_length_remaining(r->tvb, r->offset) < SANE_WORD_LENGTH) {
         return 0;
     }
@@ -335,9 +335,9 @@ tvb_read_sane_word(tvb_sane_reader *r, guint32 *dest) {
     do { if (tvb_read_sane_word((r), (var)) == 0) { return 0; } } while(0)
 
 
-static gint
+static int
 tvb_read_sane_string(tvb_sane_reader *r, wmem_allocator_t *alloc, char **dest) {
-    gint str_len;
+    int str_len;
     WORD_OR_RETURN(r, &str_len);
 
     if (tvb_captured_length_remaining(r->tvb, r->offset) < str_len) {
@@ -356,8 +356,8 @@ tvb_read_sane_string(tvb_sane_reader *r, wmem_allocator_t *alloc, char **dest) {
 #define STRING_OR_RETURN(r) \
     do { if (tvb_read_sane_string((r), NULL, NULL) == 0) { return 0; } } while(0)
 
-static gint
-tvb_skip_bytes(tvb_sane_reader *r, gint len) {
+static int
+tvb_skip_bytes(tvb_sane_reader *r, int len) {
     if (tvb_captured_length_remaining(r->tvb, r->offset) < len) {
         return 0;
     }
@@ -409,7 +409,7 @@ get_sane_expected_response_type(sane_session *sess, packet_info *pinfo) {
 }
 
 static proto_item *
-dissect_sane_word(tvb_sane_reader *r, proto_tree *tree, int hfindex, gint *word) {
+dissect_sane_word(tvb_sane_reader *r, proto_tree *tree, int hfindex, int *word) {
     proto_item *item = proto_tree_add_item(tree, hfindex, r->tvb, r->offset, SANE_WORD_LENGTH,
                         ENC_BIG_ENDIAN);
     // safe to ignore the return value here, we're guaranteed to have enough bytes to
@@ -442,7 +442,7 @@ dissect_sane_string(tvb_sane_reader *r, packet_info *pinfo, proto_tree *tree, in
 
 static void
 dissect_sane_net_init_request(tvb_sane_reader *r, packet_info *pinfo, proto_tree *tree) {
-    gint version = 0;
+    int version = 0;
     int offset = r->offset;
     proto_item *version_item = dissect_sane_word(r, tree, hf_sane_version, &version);
     proto_item *version_tree = proto_item_add_subtree(version_item, ett_sane_version);
@@ -464,13 +464,13 @@ dissect_sane_net_open_request(tvb_sane_reader *r, packet_info *pinfo, proto_tree
 
 static void
 dissect_control_option_value(tvb_sane_reader *r, packet_info *pinfo, proto_tree *tree) {
-    gint value_type = 0;
+    int value_type = 0;
     dissect_sane_word(r, tree, hf_sane_option_value_type, &value_type);
 
     proto_item *value_item = proto_tree_add_item(tree, hf_sane_option_value, r->tvb, r->offset, -1, ENC_NA);
     proto_tree *value_tree = proto_item_add_subtree(value_item, ett_sane_option_value);
 
-    gint array_length = 0;
+    int array_length = 0;
     proto_item *length_item = dissect_sane_word(r, value_tree, hf_sane_option_length, &array_length);
 
     if (value_type == SANE_TYPE_STRING) {
@@ -481,11 +481,11 @@ dissect_control_option_value(tvb_sane_reader *r, packet_info *pinfo, proto_tree 
 
         for (int i = 0; i < array_length; i++) {
             if (value_type == SANE_TYPE_FIXED) {
-                gint value = 0;
+                int value = 0;
                 proto_item *numeric_value = dissect_sane_word(r, value_tree, hf_sane_option_numeric_value, &value);
                 proto_item_append_text(numeric_value, " (%f)", ((double) value) / (1 << 16));
             } else if (value_type == SANE_TYPE_INT) {
-                gint value = 0;
+                int value = 0;
                 proto_item *numeric_value = dissect_sane_word(r, value_tree, hf_sane_option_numeric_value, &value);
                 proto_item_append_text(numeric_value, " (%d)", value);
             } else if (value_type == SANE_TYPE_BOOL) {
@@ -518,7 +518,7 @@ dissect_sane_device_handle_request(tvb_sane_reader *r, proto_tree *tree) {
 
 static int
 dissect_sane_request(tvb_sane_reader *r, packet_info *pinfo, proto_tree *tree) {
-    guint opcode = SANE_NET_UNKNOWN;
+    unsigned opcode = SANE_NET_UNKNOWN;
     dissect_sane_word(r, tree, hf_sane_opcode, &opcode);
     proto_item_append_text(tree, ": %s request", val_to_str(opcode, opcode_vals, "Unknown opcode (%u)"));
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s request", val_to_str(opcode, opcode_vals, "Unknown opcode (%u)"));
@@ -552,9 +552,9 @@ dissect_sane_request(tvb_sane_reader *r, packet_info *pinfo, proto_tree *tree) {
 }
 
 static proto_item *
-dissect_sane_status(tvb_sane_reader *r, packet_info *pinfo, proto_tree *tree, guint *status_ptr) {
+dissect_sane_status(tvb_sane_reader *r, packet_info *pinfo, proto_tree *tree, unsigned *status_ptr) {
     int offset = r->offset;
-    guint status = SANE_STATUS_UNKNOWN;
+    unsigned status = SANE_STATUS_UNKNOWN;
 
     // Safe to ignore the return value here, we're guaranteed to have enough bytes to
     // read a word.
@@ -575,10 +575,10 @@ dissect_sane_status(tvb_sane_reader *r, packet_info *pinfo, proto_tree *tree, gu
 
 static void
 dissect_sane_net_init_response(tvb_sane_reader *r, packet_info *pinfo, proto_tree *tree) {
-    guint status;
+    unsigned status;
     dissect_sane_status(r, pinfo, tree, &status);
 
-    gint version = 0;
+    int version = 0;
     proto_item *version_item = dissect_sane_word(r, tree, hf_sane_version, &version);
     proto_item *version_tree = proto_item_add_subtree(version_item, ett_sane_version);
 
@@ -592,14 +592,14 @@ dissect_sane_net_init_response(tvb_sane_reader *r, packet_info *pinfo, proto_tre
 
 static void
 dissect_sane_net_open_response(tvb_sane_reader *r, packet_info *pinfo, proto_tree *tree) {
-    guint status = SANE_STATUS_UNKNOWN;
+    unsigned status = SANE_STATUS_UNKNOWN;
     dissect_sane_status(r, pinfo, tree, &status);
     dissect_sane_word(r, tree, hf_sane_device_handle, NULL);
     dissect_sane_string(r, pinfo, tree, hf_sane_resource_name, "Authentication resource: '%s'");
 }
 
 static void
-append_option_value(proto_item *item, gint value, guint units, guint type) {
+append_option_value(proto_item *item, int value, unsigned units, unsigned type) {
     switch (type) {
         case SANE_TYPE_INT:
             if (units) {
@@ -633,8 +633,8 @@ dissect_sane_net_get_option_descriptors_response(tvb_sane_reader *r, packet_info
     dissect_sane_word(r, tree, hf_sane_option_count, &option_count);
 
     for (int i = 0; i < option_count; i++) {
-        gint unit = 0;
-        gint type = 0;
+        int unit = 0;
+        int type = 0;
         int start_offset = r->offset;
         proto_item *option_item = proto_tree_add_item(tree, hf_sane_option_descriptor, r->tvb, start_offset, 0, ENC_NA);
         proto_tree *option_tree = proto_item_add_subtree(option_item, ett_sane_option);
@@ -667,15 +667,15 @@ dissect_sane_net_get_option_descriptors_response(tvb_sane_reader *r, packet_info
         proto_item *constraint_item = proto_tree_add_item(option_tree, hf_sane_option_constraints, r->tvb, constraint_start, 0, ENC_NA);
         proto_tree *constraint_tree = proto_item_add_subtree(constraint_item, ett_sane_option_constraints);
 
-        gint constraint_type = SANE_NO_CONSTRAINT;
+        int constraint_type = SANE_NO_CONSTRAINT;
         dissect_sane_word(r, constraint_tree, hf_sane_option_constraint_type, &constraint_type);
         proto_item_set_text(constraint_item, "Constraint type: %s",
                             val_to_str(constraint_type, sane_constraint_type_names, "Unknown (%u)"));
 
-        gint array_length = 0;
-        gint min = 0;
-        gint max = 0;
-        gint quant = 0;
+        int array_length = 0;
+        int min = 0;
+        int max = 0;
+        int quant = 0;
         switch (constraint_type) {
             case SANE_CONSTRAINT_STRING_LIST:
                 dissect_sane_word(r, constraint_tree, hf_sane_array_length, &array_length);
@@ -688,7 +688,7 @@ dissect_sane_net_get_option_descriptors_response(tvb_sane_reader *r, packet_info
                 dissect_sane_word(r, constraint_tree, hf_sane_array_length, &array_length);
 
                 for (int j = 0; j < array_length; j++) {
-                    gint value = 0;
+                    int value = 0;
                     proto_item *value_item = dissect_sane_word(r, constraint_tree, hf_sane_option_possible_word_value,
                                                                &value);
                     append_option_value(value_item, value, unit, type);
@@ -750,10 +750,10 @@ static void
 dissect_sane_net_get_devices_response(tvb_sane_reader *r, packet_info *pinfo, proto_tree *tree) {
     dissect_sane_status(r, pinfo, tree, NULL);
 
-    gint array_len = 0;
+    int array_len = 0;
     dissect_sane_word(r, tree, hf_sane_array_length, &array_len);
     for (int i = 0; i < array_len - 1; i++) {
-        gint offset = r->offset;
+        int offset = r->offset;
         proto_item *device_item = proto_tree_add_item(tree, hf_sane_device_descriptor, r->tvb, r->offset, -1, ENC_NA);
         proto_tree *device_tree = proto_item_add_subtree(device_item, ett_sane_device_descriptor);
         proto_item_set_text(device_item, "Device[%d] descriptor", i);
@@ -843,7 +843,7 @@ dissect_sane_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
  * or if the PDU appears to be truncated and its length cannot be determined,
  * this function returns 0.
  */
-static guint
+static unsigned
 get_sane_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U_) {
     tvb_sane_reader r = {.tvb = tvb, .offset = offset, .bytes_read = 0};
 
@@ -861,11 +861,11 @@ get_sane_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U_) 
 
     if (value_is_in_range(sane_server_ports, pinfo->destport)) {
         /* REQUEST */
-        guint opcode;
+        unsigned opcode;
         WORD_OR_RETURN(&r, &opcode);
 
         sane_pdu pdu = {
-            .is_request = TRUE,
+            .is_request = true,
             .opcode = opcode,
             .packet_num = pinfo->num
         };
@@ -905,7 +905,7 @@ get_sane_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U_) 
                 for (int i = 0; i < 4; i++) {
                     WORD_OR_RETURN(&r, NULL);
                 }
-                guint value_size;
+                unsigned value_size;
                 WORD_OR_RETURN(&r, &value_size);
 
                 // Pointer to void, contains an extra word for whether the pointer is NULL
@@ -923,7 +923,7 @@ get_sane_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U_) 
     } else {
         /* RESPONSE */
         sane_rpc_code opcode = get_sane_expected_response_type(sess, pinfo);
-        guint array_len;
+        unsigned array_len;
 
         switch (opcode) {
             case SANE_NET_INIT:
@@ -943,7 +943,7 @@ get_sane_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U_) 
             case SANE_NET_GET_OPTION_DESCRIPTORS:
                 WORD_OR_RETURN(&r, &array_len);
 
-                for (guint i = 0; i < array_len; i++) {
+                for (unsigned i = 0; i < array_len; i++) {
                     WORD_OR_RETURN(&r, NULL);
 
                     // read name, title and description
@@ -956,29 +956,29 @@ get_sane_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U_) 
                     }
 
                     // constraint type
-                    guint constraint_type;
+                    unsigned constraint_type;
                     WORD_OR_RETURN(&r, &constraint_type);
 
-                    guint string_count;
-                    guint value_list_length;
+                    unsigned string_count;
+                    unsigned value_list_length;
                     switch (constraint_type) {
                         case SANE_CONSTRAINT_STRING_LIST:
                             WORD_OR_RETURN(&r, &string_count);
 
-                            for (guint j = 0; j < string_count; j++) {
+                            for (unsigned j = 0; j < string_count; j++) {
                                 STRING_OR_RETURN(&r);
                             }
                             break;
                         case SANE_CONSTRAINT_WORD_LIST:
                             WORD_OR_RETURN(&r, &value_list_length);
 
-                            for (guint j = 0; j < value_list_length; j++) {
+                            for (unsigned j = 0; j < value_list_length; j++) {
                                 WORD_OR_RETURN(&r, NULL);
                             }
                             break;
                         case SANE_CONSTRAINT_RANGE:
                             // Pointer to range, then min, max, quantization
-                            for (guint j = 0; j < 4; j++) {
+                            for (unsigned j = 0; j < 4; j++) {
                                 WORD_OR_RETURN(&r, NULL);
                             }
                             break;
@@ -998,7 +998,7 @@ get_sane_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U_) 
                     WORD_OR_RETURN(&r, NULL);
                 }
 
-                guint value_len;
+                unsigned value_len;
                 WORD_OR_RETURN(&r, &value_len);
 
                 if (tvb_skip_bytes(&r, value_len + SANE_WORD_LENGTH) == 0) {
@@ -1010,9 +1010,9 @@ get_sane_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U_) 
             case SANE_NET_GET_DEVICES:
                 WORD_OR_RETURN(&r, NULL);
 
-                guint device_count;
+                unsigned device_count;
                 WORD_OR_RETURN(&r, &device_count);
-                for (guint i = 0; i < device_count - 1; i++) {
+                for (unsigned i = 0; i < device_count - 1; i++) {
                     WORD_OR_RETURN(&r, NULL);
                     STRING_OR_RETURN(&r);
                     STRING_OR_RETURN(&r);
@@ -1747,7 +1747,7 @@ void proto_register_sane(void) {
     };
 
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_sane,
         &ett_sane_version,
         &ett_sane_string,

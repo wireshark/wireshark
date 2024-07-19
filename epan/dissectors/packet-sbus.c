@@ -258,9 +258,9 @@ static int hf_sbus_timeout;
 static int hf_sbus_request_in;
 
 /* Initialize the subtree pointers */
-static gint ett_sbus;
-static gint ett_sbus_ether;
-static gint ett_sbus_data;
+static int ett_sbus;
+static int ett_sbus_ether;
+static int ett_sbus_data;
 
 static expert_field ei_sbus_retry;
 static expert_field ei_sbus_telegram_not_acked;
@@ -509,7 +509,7 @@ static const value_string rdwrblock_list_type_vals[] = {
        {0, NULL}
 };
 
-static const guint crc_table[] = {
+static const unsigned crc_table[] = {
        0x0000,0x1021,0x2042,0x3063,0x4084,0x50a5,0x60c6,0x70e7,0x8108,0x9129,0xa14a,0xb16b,0xc18c,0xd1ad,0xe1ce,0xf1ef,
        0x1231,0x0210,0x3273,0x2252,0x52b5,0x4294,0x72f7,0x62d6,0x9339,0x8318,0xb37b,0xa35a,0xd3bd,0xc39c,0xf3ff,0xe3de,
        0x2462,0x3443,0x0420,0x1401,0x64e6,0x74c7,0x44a4,0x5485,0xa56a,0xb54b,0x8528,0x9509,0xe5ee,0xf5cf,0xc5ac,0xd58d,
@@ -530,35 +530,35 @@ static const guint crc_table[] = {
 
 /* Conversion values passing structure*/
 typedef struct {
-       guint32 conversation;  /*Conversation ID*/
-       guint16 sequence;      /*Sequence number of request telegram*/
+       uint32_t conversation;  /*Conversation ID*/
+       uint16_t sequence;      /*Sequence number of request telegram*/
 } sbus_request_key;
 
 typedef struct {
-    guint8 cmd_code; /*multimedia command code*/
-    guint8 count;    /*rcount of sub-request*/
+    uint8_t cmd_code; /*multimedia command code*/
+    uint8_t count;    /*rcount of sub-request*/
 } sbus_subrequest;
 
 typedef struct {
-       guint8 cmd_code;       /*command code from request*/
-       guint8 count;          /*rcount value*/
-       guint8 sysinfo;        /*system information number*/
-       guint8 block_tlg;      /*telegram type of RD/WR block telegrams*/
-       guint8 retry_count;    /*number of retries*/
-       guint32 req_frame;     /*frame number of last request*/
-       guint32 resp_frame;    /*frame number of response*/
+       uint8_t cmd_code;       /*command code from request*/
+       uint8_t count;          /*rcount value*/
+       uint8_t sysinfo;        /*system information number*/
+       uint8_t block_tlg;      /*telegram type of RD/WR block telegrams*/
+       uint8_t retry_count;    /*number of retries*/
+       uint32_t req_frame;     /*frame number of last request*/
+       uint32_t resp_frame;    /*frame number of response*/
        nstime_t req_time;     /*time of the last request*/
-       guint8 mm_request_count;       /*multi-media subrequest count*/
+       uint8_t mm_request_count;       /*multi-media subrequest count*/
        wmem_list_t *sbus_subrequests; /*list containing sub requests of multi-media request*/
 } sbus_request_val;
 
 /* The hash structure (for conversations)*/
 static wmem_map_t *sbus_request_hash;
 
-static guint crc_calc (guint crc, guint val)
+static unsigned crc_calc (unsigned crc, unsigned val)
 {
        int indx;
-       guint ncrc;
+       unsigned ncrc;
 
        indx = (((crc >> 8) ^ val) & 0xff);
        ncrc = crc_table[indx] ^ ((crc << 8) & 0xffff);
@@ -567,7 +567,7 @@ static guint crc_calc (guint crc, guint val)
 }
 
 /* Hash functions*/
-static gint sbus_equal(gconstpointer v, gconstpointer w)
+static int sbus_equal(const void *v, const void *w)
 {
        const sbus_request_key *v1 = (const sbus_request_key *)v;
        const sbus_request_key *v2 = (const sbus_request_key *)w;
@@ -579,25 +579,25 @@ static gint sbus_equal(gconstpointer v, gconstpointer w)
        return 0;
 }
 
-static guint sbus_hash(gconstpointer v)
+static unsigned sbus_hash(const void *v)
 {
        const sbus_request_key *key = (const sbus_request_key *)v;
-       guint val;
+       unsigned val;
 
        val = key->conversation + key->sequence;
        return val;
 }
 
 /* check whether the packet looks like SBUS or not */
-static gboolean
+static bool
 is_sbus_pdu(tvbuff_t *tvb)
 {
-       guint32 length;
+       uint32_t length;
 
        /* we need at least 8 bytes to determine whether this is sbus or
           not*/
        if(tvb_captured_length(tvb)<8){
-              return FALSE;
+              return false;
        }
 
        /* the length must be >= 8 bytes to accommodate the header,
@@ -605,51 +605,51 @@ is_sbus_pdu(tvbuff_t *tvb)
        */
        length=tvb_get_ntohl(tvb, 0);
        if ( (length<8) || (length>65535) ) {
-              return FALSE;
+              return false;
        }
        if (tvb_reported_length(tvb) != length) {
-              return FALSE;
+              return false;
        }
        /* First four byte indicate the length which must be at least 12 bytes*/
        if (tvb_get_ntohl(tvb, 0) < 12) {
-              return FALSE;
+              return false;
        }
        /* Fifth byte indicates protocol version which can be 0 or 1*/
-       if (tvb_get_guint8(tvb, 4) > 0x01) {
-              return FALSE;
+       if (tvb_get_uint8(tvb, 4) > 0x01) {
+              return false;
        }
        /* Sixth byte indicates protocol type and must be 0*/
-       if ( tvb_get_guint8(tvb, 5) > 0x01 ) {
-              return FALSE;
+       if ( tvb_get_uint8(tvb, 5) > 0x01 ) {
+              return false;
        }
        /* Seventh and eighth bytes indicate the packet sequence number and can
           be 0 to 65565 (--> check does not make sense)*/
        /* Ninth byte the "attributes character" and must be either 0, 1 or 2
           (request, response or ACK/NAK)*/
-       if (tvb_get_guint8(tvb, 8) > 0x02 ) {
-              return FALSE;
+       if (tvb_get_uint8(tvb, 8) > 0x02 ) {
+              return false;
        }
-       return TRUE;
+       return true;
 }
 
 /*add the tree structure for one request media type to the tree*/
-static gint add_media_access_to_tree(gint sbus_cmd_code, tvbuff_t *tvb, proto_tree *tree, gint offset)
+static int add_media_access_to_tree(int sbus_cmd_code, tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-       gint i, j;
-       gint sbus_media_cnt;
+       int i, j;
+       int sbus_media_cnt;
        proto_tree *sub_tree;
-       guint8 sbus_fio_cnt;
-       guint32 sbus_binaries;
-       guint32 sbus_binarymasked;
-       guint32 sbus_show_bin;
-       guint32 sbus_helper;
+       uint8_t sbus_fio_cnt;
+       uint32_t sbus_binaries;
+       uint32_t sbus_binarymasked;
+       uint32_t sbus_show_bin;
+       uint32_t sbus_helper;
 
        switch (sbus_cmd_code) {
                             /*Read Counter, Register or Timer*/
                case SBUS_RD_COUNTER:
                case SBUS_RD_REGISTER:
                case SBUS_RD_TIMER:
-                       sbus_media_cnt = (tvb_get_guint8(tvb,offset))+1;
+                       sbus_media_cnt = (tvb_get_uint8(tvb,offset))+1;
                        proto_tree_add_uint(tree,
                                            hf_sbus_rcount, tvb, offset, 1, sbus_media_cnt);
                        offset += 1;
@@ -662,7 +662,7 @@ static gint add_media_access_to_tree(gint sbus_cmd_code, tvbuff_t *tvb, proto_tr
                case SBUS_RD_FLAG:
                case SBUS_RD_INPUT:
                case SBUS_RD_OUTPUT:
-                        sbus_media_cnt = (tvb_get_guint8(tvb,offset))+1;
+                        sbus_media_cnt = (tvb_get_uint8(tvb,offset))+1;
                         proto_tree_add_uint(tree,
                                    hf_sbus_rcount, tvb, offset, 1, sbus_media_cnt);
                         offset += 1;
@@ -675,7 +675,7 @@ static gint add_media_access_to_tree(gint sbus_cmd_code, tvbuff_t *tvb, proto_tr
                case SBUS_WR_COUNTER:
                case SBUS_WR_REGISTER:
                case SBUS_WR_TIMER:
-                       sbus_media_cnt = (tvb_get_guint8(tvb,offset));
+                       sbus_media_cnt = (tvb_get_uint8(tvb,offset));
                        sbus_media_cnt = ((sbus_media_cnt - 1)/4);
                        proto_tree_add_uint(tree,
                                            hf_sbus_wcount_calculated, tvb, offset,
@@ -700,7 +700,7 @@ static gint add_media_access_to_tree(gint sbus_cmd_code, tvbuff_t *tvb, proto_tr
                                    /* Write flags and outputs*/
                case SBUS_WR_FLAG:
                case SBUS_WR_OUTPUT:
-                       sbus_media_cnt = (tvb_get_guint8(tvb,offset));
+                       sbus_media_cnt = (tvb_get_uint8(tvb,offset));
                        sbus_media_cnt = (sbus_media_cnt - 2);
                        proto_tree_add_uint(tree,
                                    hf_sbus_wcount_calculated, tvb, offset,
@@ -711,7 +711,7 @@ static gint add_media_access_to_tree(gint sbus_cmd_code, tvbuff_t *tvb, proto_tr
                        proto_tree_add_item(tree,
                                    hf_sbus_addr_iof, tvb, offset, 2, ENC_BIG_ENDIAN);
                        offset += 2;
-                       sbus_fio_cnt = (tvb_get_guint8(tvb,offset));
+                       sbus_fio_cnt = (tvb_get_uint8(tvb,offset));
                        sbus_fio_cnt = ((sbus_fio_cnt + 1));
                        proto_tree_add_uint(tree,
                                    hf_sbus_fio_count, tvb, offset, 1, sbus_fio_cnt);
@@ -724,7 +724,7 @@ static gint add_media_access_to_tree(gint sbus_cmd_code, tvbuff_t *tvb, proto_tr
                                    sbus_helper = 1;
                                    sbus_show_bin = 0;
                                    sbus_binarymasked = 0x01;
-                                   sbus_binaries = tvb_get_guint8(tvb, offset);
+                                   sbus_binaries = tvb_get_uint8(tvb, offset);
                                    for (j=0; j<8; j++) {
                                              if ((sbus_binarymasked & sbus_binaries) != 0) {
                                                     sbus_show_bin = (sbus_show_bin + sbus_helper);
@@ -740,7 +740,7 @@ static gint add_media_access_to_tree(gint sbus_cmd_code, tvbuff_t *tvb, proto_tr
                        }
                        break;
                case SBUS_RD_DATA_BLOCK:
-                       sbus_media_cnt = (tvb_get_guint8(tvb,offset))+1;
+                       sbus_media_cnt = (tvb_get_uint8(tvb,offset))+1;
                        proto_tree_add_uint(tree,
                                            hf_sbus_rcount, tvb, offset, 1, sbus_media_cnt);
                        offset += 1;
@@ -759,14 +759,14 @@ static gint add_media_access_to_tree(gint sbus_cmd_code, tvbuff_t *tvb, proto_tr
 }
 
 /*add the tree structure for one response media type to the tree*/
-static gint add_media_response_to_tree(gint cmd_code, gint count, tvbuff_t *tvb, proto_tree *tree, gint offset)
+static int add_media_response_to_tree(int cmd_code, int count, tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-       gint i, j;
+       int i, j;
        proto_tree *sub_tree;
-       guint32 sbus_binaries;
-       guint32 sbus_binarymasked;
-       guint32 sbus_show_bin;
-       guint32 sbus_helper;
+       uint32_t sbus_binaries;
+       uint32_t sbus_binarymasked;
+       uint32_t sbus_show_bin;
+       uint32_t sbus_helper;
 
        switch (cmd_code) {
 
@@ -800,7 +800,7 @@ static gint add_media_response_to_tree(gint cmd_code, gint count, tvbuff_t *tvb,
                              sbus_helper = 1;
                              sbus_show_bin = 0;
                              sbus_binarymasked = 0x01;
-                             sbus_binaries = tvb_get_guint8(tvb, offset);
+                             sbus_binaries = tvb_get_uint8(tvb, offset);
                              for (j=0; j<8; j++){
                                     if ((sbus_binarymasked & sbus_binaries) != 0) {
                                     sbus_show_bin = (sbus_show_bin + sbus_helper);
@@ -819,10 +819,10 @@ static gint add_media_response_to_tree(gint cmd_code, gint count, tvbuff_t *tvb,
        return offset;
 }
 
-static gint get_response_length(gint cmd_code, gint count)
+static int get_response_length(int cmd_code, int count)
 {
 
-       gint length;
+       int length;
        length = 0;
 
        switch (cmd_code) {
@@ -850,31 +850,31 @@ static gint get_response_length(gint cmd_code, gint count)
 }
 
 
-static gint add_sbus_subrequest(tvbuff_t *tvb, wmem_list_t *request_list, gint offset)
+static int add_sbus_subrequest(tvbuff_t *tvb, wmem_list_t *request_list, int offset)
 {
        /*append subrequest info to requests lists and return number of sub-requests*/
-       gint subrequest_count;
-       gint internal_wcount;
-       gint internal_subwcount;
-       gint internal_offset;
-       gint internal_last_offset;
+       int subrequest_count;
+       int internal_wcount;
+       int internal_subwcount;
+       int internal_offset;
+       int internal_last_offset;
 
        internal_offset = offset;
        subrequest_count = 0;
-       internal_wcount = tvb_get_guint8(tvb,internal_offset);
+       internal_wcount = tvb_get_uint8(tvb,internal_offset);
        internal_last_offset = internal_wcount + offset + 1; /*check for new sub requests until this end offset*/
 
-       for(gint i=0; i < 64; i +=1){   /*max sub-requests number is 64*/
+       for(int i=0; i < 64; i +=1){   /*max sub-requests number is 64*/
               if (internal_last_offset > internal_offset) {
                      sbus_subrequest *sub_req;
                      sub_req = wmem_new(wmem_file_scope(), sbus_subrequest);
 
                      internal_offset += 1; /*move to the next sub-request wcount*/
-                     internal_subwcount = tvb_get_guint8(tvb,internal_offset);
+                     internal_subwcount = tvb_get_uint8(tvb,internal_offset);
                      internal_offset += 1;
-                     sub_req->cmd_code = tvb_get_guint8(tvb,internal_offset);
+                     sub_req->cmd_code = tvb_get_uint8(tvb,internal_offset);
                      internal_offset += 1;
-                     sub_req->count = tvb_get_guint8(tvb,internal_offset) + 1;
+                     sub_req->count = tvb_get_uint8(tvb,internal_offset) + 1;
                      internal_offset += internal_subwcount -1;
                      subrequest_count += 1;
 
@@ -894,35 +894,35 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
        proto_item *ti, *hi;
        proto_tree *sbus_tree, *ethsbus_tree, *sbusdata_tree, *sbus_multimedia_tree;
 
-       gint i;        /*for CRC calculation*/
-       gint offset;
-       gint sbus_end_multimedia;
-       gint sbus_eth_len;
-       guint sbus_crc_calc;
-       guint8 sbus_attribut;
-       guint8 sbus_media_cnt;
+       int i;        /*for CRC calculation*/
+       int offset;
+       int sbus_end_multimedia;
+       int sbus_eth_len;
+       unsigned sbus_crc_calc;
+       uint8_t sbus_attribut;
+       uint8_t sbus_media_cnt;
        sbus_subrequest *mm_sub_req;
        wmem_list_frame_t *frame;
-       guint8 sbus_multimedia_total;
-       guint8 sbus_multimedia_cnt;
-       guint8 sbus_multimedia_cmd;
-       guint8 sbus_multimedia_att;
-       guint8 sbus_multimedia_bytes;
-       guint8 sbus_cmd_code;
-       guint8 sbus_web_size;
-       guint8 sbus_web_aid;
-       guint8 sbus_web_seq;
-       guint8 sbus_rdwr_type;
-       guint8 sbus_rdwr_sequence;
-       guint8 sbus_rdwr_block_tlg;
-       guint8 sbus_rdwr_block_type;
-       guint8 sbus_rdwr_ack_nak;
-       guint8 sbus_quint8_helper0;
-       guint16 sbus_ack_code;
-       guint32 sbus_rdwr_length;
-       guint32 sbus_helper;
-       guint32 sbus_helper1;
-       guint32 sbus_helper2;
+       uint8_t sbus_multimedia_total;
+       uint8_t sbus_multimedia_cnt;
+       uint8_t sbus_multimedia_cmd;
+       uint8_t sbus_multimedia_att;
+       uint8_t sbus_multimedia_bytes;
+       uint8_t sbus_cmd_code;
+       uint8_t sbus_web_size;
+       uint8_t sbus_web_aid;
+       uint8_t sbus_web_seq;
+       uint8_t sbus_rdwr_type;
+       uint8_t sbus_rdwr_sequence;
+       uint8_t sbus_rdwr_block_tlg;
+       uint8_t sbus_rdwr_block_type;
+       uint8_t sbus_rdwr_ack_nak;
+       uint8_t sbus_quint8_helper0;
+       uint16_t sbus_ack_code;
+       uint32_t sbus_rdwr_length;
+       uint32_t sbus_helper;
+       uint32_t sbus_helper1;
+       uint32_t sbus_helper2;
        char *tmp_string;
        nstime_t ns; /*we use this for the response time*/
 
@@ -951,7 +951,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
        /*Get type of telegram for finding retries
         *As we are storing the info in a hash table we need to update the info
         *also in case this is no retry*/
-       sbus_attribut = tvb_get_guint8(tvb,8);
+       sbus_attribut = tvb_get_uint8(tvb,8);
        if (request_val && sbus_attribut == SBUS_REQUEST) {
               if (request_val->req_frame < pinfo->num){ /*a retry; req_frame smaller this frame*/
                      request_val->retry_count +=1;
@@ -967,14 +967,14 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             request_val->resp_frame = pinfo->num; /*so store this frame nr.*/
        }
        /* Only allocate a new hash element when it's a request*/
-       sbus_attribut = tvb_get_guint8(tvb,8);
+       sbus_attribut = tvb_get_uint8(tvb,8);
 
        if ( !request_val && sbus_attribut == 0 ) {/* request telegram */
               new_request_key = wmem_new(wmem_file_scope(), sbus_request_key);
               *new_request_key = request_key;
 
               request_val = wmem_new(wmem_file_scope(), sbus_request_val);
-              request_val->cmd_code=tvb_get_guint8(tvb,10);
+              request_val->cmd_code=tvb_get_uint8(tvb,10);
               request_val->retry_count=0;
               request_val->req_frame = pinfo->num; /*store actual frame nr.*/
               request_val->req_time = pinfo->abs_ts;
@@ -983,25 +983,25 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
               if (((request_val->cmd_code) == SBUS_RD_USER_EEPROM_REGISTER) ||
                   ((request_val->cmd_code) == SBUS_WR_USER_EEPROM_REGISTER)) {
-                     request_val->count=((tvb_get_guint8(tvb,12))+1);
+                     request_val->count=((tvb_get_uint8(tvb,12))+1);
               } else if ((request_val->cmd_code) == SBUS_RDWR_MULTI_MEDIAS) {
-                     request_val->count=tvb_get_guint8(tvb,11);      /*length of all sub requests in bytes*/
+                     request_val->count=tvb_get_uint8(tvb,11);      /*length of all sub requests in bytes*/
                      /*create list for sub requests to be able to process response frame later on*/
                      request_val->sbus_subrequests = wmem_list_new(wmem_file_scope());
                      /*add the sub requests to the list*/
                      request_val->mm_request_count = add_sbus_subrequest(tvb, request_val->sbus_subrequests, 11);
 
               } else {
-                     request_val->count=((tvb_get_guint8(tvb,11))+1);
+                     request_val->count=((tvb_get_uint8(tvb,11))+1);
               }
 
               /*Enter system info or telegram type (for rd/wr block telegrams)*/
               if ((request_val->cmd_code) == SBUS_RD_SYSTEM_INFORMATION) {
-                     request_val->sysinfo=(tvb_get_guint8(tvb,12));
+                     request_val->sysinfo=(tvb_get_uint8(tvb,12));
                      request_val->block_tlg=0x0;
               } else if ((request_val->cmd_code) == SBUS_RD_WR_PCD_BLOCK) {
                      request_val->sysinfo=0x0;
-                     request_val->block_tlg=(tvb_get_guint8(tvb,12));
+                     request_val->block_tlg=(tvb_get_uint8(tvb,12));
               } else {
                      request_val->sysinfo   = 0x0;
                      request_val->block_tlg = 0x0;
@@ -1015,13 +1015,13 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
        switch (sbus_attribut){
                 case SBUS_REQUEST:
-                    sbus_cmd_code = tvb_get_guint8(tvb, 10);
+                    sbus_cmd_code = tvb_get_uint8(tvb, 10);
                     switch (sbus_cmd_code){
                             case SBUS_WEB_SERVER_SERIAL_COMM:
                                     /* Special treatment of web server request
                                     * as this is very helpful to see more information in the packetlist */
-                                    sbus_web_aid = tvb_get_guint8(tvb, 12);
-                                    sbus_web_seq = tvb_get_guint8(tvb, 13);
+                                    sbus_web_aid = tvb_get_uint8(tvb, 12);
+                                    sbus_web_seq = tvb_get_uint8(tvb, 13);
                                     col_add_fstr(pinfo->cinfo, COL_INFO,
                                                  "Web Server Request: %s (Seq No: %d)",
                                                  val_to_str_const(sbus_web_aid,
@@ -1035,7 +1035,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                                   request_val->mm_request_count);
                                     break;
                             case SBUS_RD_WR_PCD_BLOCK:
-                                    sbus_rdwr_type = tvb_get_guint8(tvb, 12);
+                                    sbus_rdwr_type = tvb_get_uint8(tvb, 12);
                                     col_add_fstr( pinfo->cinfo, COL_INFO,
                                                   "Request:  %s",
                                                   val_to_str_ext_const(sbus_rdwr_type,
@@ -1043,13 +1043,13 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                                                        "This RD/WR block telegram is not implemented"));
                                     /* Add name of file to be written in case of start of file stream */
                                     if (sbus_rdwr_type == SBUS_WR_START_OF_STREAM) {
-                                            sbus_rdwr_block_type = tvb_get_guint8(tvb, 14);
+                                            sbus_rdwr_block_type = tvb_get_uint8(tvb, 14);
                                             if ((sbus_rdwr_block_type == SBUS_RD_WR_CONFIGURATION_FILE) ||
                                                 (sbus_rdwr_block_type == SBUS_RD_WR_PROGRAM_BLOCK_FILE)) {
                                                 sbus_quint8_helper0=0;
                                                 for (i=19; i<43; i++) { /*max length is 24 chars*/
                                                         /*find zero-termination of string*/
-                                                        if ((tvb_get_guint8(tvb, i)) == 0x00) {
+                                                        if ((tvb_get_uint8(tvb, i)) == 0x00) {
                                                                 break;
                                                         }
                                                         sbus_quint8_helper0 += 1;
@@ -1060,13 +1060,13 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                                                 ": (File: %s)", tmp_string);
                                             }
                                     } else if (sbus_rdwr_type == SBUS_RD_BLOCK_START_OF_STREAM) {
-                                            sbus_rdwr_block_type = tvb_get_guint8(tvb, 14);
+                                            sbus_rdwr_block_type = tvb_get_uint8(tvb, 14);
                                             if ((sbus_rdwr_block_type == SBUS_RD_WR_CONFIGURATION_FILE) ||
                                                 (sbus_rdwr_block_type == SBUS_RD_WR_PROGRAM_BLOCK_FILE)) {
                                                 sbus_quint8_helper0=0;
                                                 for (i=15; i<39; i++) { /*max length is 24 chars*/
                                                         /*find zero-termination of string*/
-                                                        if ((tvb_get_guint8(tvb, i)) == 0x00) {
+                                                        if ((tvb_get_uint8(tvb, i)) == 0x00) {
                                                                 break;
                                                         }
                                                         sbus_quint8_helper0 += 1;
@@ -1099,14 +1099,14 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                     /* Special treatment of web server request
                         * as this is very helpful to see more information in the packetlist */
                     if (request_val && ((request_val->cmd_code) == SBUS_WEB_SERVER_SERIAL_COMM)) {
-                            sbus_web_size = tvb_get_guint8(tvb,9);
-                            sbus_web_aid = tvb_get_guint8(tvb,10);
+                            sbus_web_size = tvb_get_uint8(tvb,9);
+                            sbus_web_aid = tvb_get_uint8(tvb,10);
                             col_add_fstr(pinfo->cinfo, COL_INFO,
                                     "Response: %s",
                                     val_to_str_const(sbus_web_aid,
                                                      webserver_aid_vals, "Unknown Request!"));
                             if (sbus_web_size > 1) {
-                                    sbus_web_seq = tvb_get_guint8(tvb,11);
+                                    sbus_web_seq = tvb_get_uint8(tvb,11);
                                     col_append_fstr(pinfo->cinfo, COL_INFO,
                                         " (Seq No: %d)",
                                         sbus_web_seq);
@@ -1127,7 +1127,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                     case SBUS_WR_BLOCK_DATA_BYTES:
                                     case SBUS_DELETE_BLOCK:
                                     case SBUS_RD_ABORT_BLOCK_STREAM:
-                                            sbus_rdwr_ack_nak = tvb_get_guint8(tvb, 10);
+                                            sbus_rdwr_ack_nak = tvb_get_uint8(tvb, 10);
                                             col_add_fstr( pinfo->cinfo, COL_INFO,
                                                           "Response: %s",
                                                           val_to_str_ext_const(sbus_rdwr_ack_nak,
@@ -1135,7 +1135,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                                                                "Unknown response!"));
                                             break;
                                     default:
-                                            sbus_rdwr_type = tvb_get_guint8(tvb, 9);
+                                            sbus_rdwr_type = tvb_get_uint8(tvb, 9);
                                             col_add_fstr( pinfo->cinfo, COL_INFO,
                                                         "Response: (%d byte)", sbus_rdwr_type);
                                             break;
@@ -1187,7 +1187,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
               offset += 2;
 
 /* Continue adding stuff to the main tree*/
-              sbus_attribut = tvb_get_guint8(tvb,offset);
+              sbus_attribut = tvb_get_uint8(tvb,offset);
               proto_tree_add_item(sbus_tree,
                                   hf_sbus_attribut, tvb, offset, 1, ENC_BIG_ENDIAN);
               offset += 1;
@@ -1196,7 +1196,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                      proto_tree_add_item(sbus_tree,
                                          hf_sbus_dest, tvb, offset, 1, ENC_BIG_ENDIAN);
                      offset += 1;
-                     sbus_cmd_code = tvb_get_guint8(tvb,offset);
+                     sbus_cmd_code = tvb_get_uint8(tvb,offset);
                      proto_tree_add_item(sbus_tree,
                                          hf_sbus_command, tvb, offset, 1, ENC_BIG_ENDIAN);
                      offset += 1;
@@ -1246,22 +1246,22 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                    sbusdata_tree = proto_tree_add_subtree(sbus_tree, tvb, offset,
                                                             8, ett_sbus_data, NULL, "Clock data");
 
-                                   sbus_helper = tvb_get_guint8(tvb, (offset));  /*year-week*/
-                                   sbus_helper1 = tvb_get_guint8(tvb, (offset +1)); /*week-day*/
+                                   sbus_helper = tvb_get_uint8(tvb, (offset));  /*year-week*/
+                                   sbus_helper1 = tvb_get_uint8(tvb, (offset +1)); /*week-day*/
                                    proto_tree_add_uint_format_value(sbusdata_tree,
                                                        hf_sbus_week_day, tvb, offset, 2, tvb_get_ntohs(tvb, offset),
                                                        "%x, Week day: %x", sbus_helper, sbus_helper1);
                                    offset += 2;
-                                   sbus_helper = tvb_get_guint8(tvb, (offset));  /*year*/
-                                   sbus_helper1 = tvb_get_guint8(tvb, (offset +1)); /*month*/
-                                   sbus_helper2 = tvb_get_guint8(tvb, (offset +2)); /*day*/
+                                   sbus_helper = tvb_get_uint8(tvb, (offset));  /*year*/
+                                   sbus_helper1 = tvb_get_uint8(tvb, (offset +1)); /*month*/
+                                   sbus_helper2 = tvb_get_uint8(tvb, (offset +2)); /*day*/
                                    proto_tree_add_uint_format_value(sbusdata_tree,
                                                        hf_sbus_date, tvb, offset, 3, tvb_get_ntoh24(tvb, offset),
                                                        "%02x/%02x/%02x", sbus_helper, sbus_helper1, sbus_helper2);
                                    offset += 3;
-                                   sbus_helper = tvb_get_guint8(tvb, (offset));  /*hours*/
-                                   sbus_helper1 = tvb_get_guint8(tvb, (offset +1)); /*minutes*/
-                                   sbus_helper2 = tvb_get_guint8(tvb, (offset +2)); /*seconds*/
+                                   sbus_helper = tvb_get_uint8(tvb, (offset));  /*hours*/
+                                   sbus_helper1 = tvb_get_uint8(tvb, (offset +1)); /*minutes*/
+                                   sbus_helper2 = tvb_get_uint8(tvb, (offset +2)); /*seconds*/
                                    proto_tree_add_uint_format_value(sbusdata_tree,
                                                        hf_sbus_time, tvb, offset, 3, tvb_get_ntoh24(tvb, offset),
                                                        "%02x:%02x:%02x", sbus_helper, sbus_helper1, sbus_helper2);
@@ -1270,7 +1270,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                    /* Read/write multi media; multiple requests are transmitted within one single telegram*/
                             case SBUS_RDWR_MULTI_MEDIAS:
                                    /*Add subtree for Sub-requests*/
-                                   sbus_multimedia_total = tvb_get_guint8(tvb,offset) + 1;
+                                   sbus_multimedia_total = tvb_get_uint8(tvb,offset) + 1;
                                    proto_tree_add_uint(sbus_tree,
                                                        hf_sbus_multimedia_length, tvb, offset, 1, sbus_multimedia_total);
                                    offset += 1;
@@ -1282,13 +1282,13 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                        if(offset >= sbus_end_multimedia){
                                            break;
                                        }
-                                       sbus_multimedia_cnt = tvb_get_guint8(tvb,offset) + 1;
+                                       sbus_multimedia_cnt = tvb_get_uint8(tvb,offset) + 1;
                                        sbus_multimedia_tree = proto_tree_add_subtree_format(sbusdata_tree, tvb, offset,
                                                             sbus_multimedia_cnt + 1, ett_sbus_data, NULL, "Request %d", i);
                                        proto_tree_add_item(sbus_multimedia_tree,
                                                          hf_sbus_sub_length, tvb, offset, 1, ENC_BIG_ENDIAN);
                                        offset +=1;
-                                       sbus_cmd_code = tvb_get_guint8(tvb,offset);
+                                       sbus_cmd_code = tvb_get_uint8(tvb,offset);
                                        proto_tree_add_item(sbus_multimedia_tree,
                                              hf_sbus_command, tvb, offset, 1, ENC_BIG_ENDIAN);
                                        offset += 1;
@@ -1299,7 +1299,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                    /* Read user memory or program line*/
                             case SBUS_RD_USER_MEMORY:
                             case SBUS_RD_PROGRAM_LINE:
-                                   sbus_media_cnt = (tvb_get_guint8(tvb,offset))+1;
+                                   sbus_media_cnt = (tvb_get_uint8(tvb,offset))+1;
                                    proto_tree_add_uint(sbus_tree,
                                                        hf_sbus_rcount, tvb, offset, 1, sbus_media_cnt);
                                    offset += 1;
@@ -1310,7 +1310,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
                                    /*Write user memory*/
                             case SBUS_WR_USER_MEMORY:
-                                   sbus_media_cnt = (tvb_get_guint8(tvb,offset));
+                                   sbus_media_cnt = (tvb_get_uint8(tvb,offset));
                                    sbus_media_cnt = ((sbus_media_cnt - 2)/4);
                                    proto_tree_add_uint(sbus_tree,
                                                        hf_sbus_wcount_calculated, tvb, offset,
@@ -1336,7 +1336,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
                                    /* Read byte*/
                             case SBUS_RD_BYTE:
-                                   sbus_media_cnt = (tvb_get_guint8(tvb,offset))+1;
+                                   sbus_media_cnt = (tvb_get_uint8(tvb,offset))+1;
                                    proto_tree_add_uint(sbus_tree,
                                                        hf_sbus_rcount, tvb, offset, 1, sbus_media_cnt);
                                    offset += 1;
@@ -1347,7 +1347,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
                                    /* Write byte */
                             case SBUS_WR_BYTE:
-                                   sbus_media_cnt = (tvb_get_guint8(tvb,offset));
+                                   sbus_media_cnt = (tvb_get_uint8(tvb,offset));
                                    sbus_media_cnt = (sbus_media_cnt - 2);
                                    proto_tree_add_uint(sbus_tree,
                                                        hf_sbus_wcount_calculated, tvb, offset,
@@ -1375,7 +1375,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                    proto_tree_add_item(sbus_tree,
                                                        hf_sbus_command_extension, tvb, offset, 1, ENC_BIG_ENDIAN);
                                    offset += 1;
-                                   sbus_media_cnt = (tvb_get_guint8(tvb,offset))+1;
+                                   sbus_media_cnt = (tvb_get_uint8(tvb,offset))+1;
                                    proto_tree_add_uint(sbus_tree,
                                                        hf_sbus_rcount, tvb, offset, 1, sbus_media_cnt);
                                    offset += 1;
@@ -1397,19 +1397,19 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
                                    /* WebServer Request */
                             case SBUS_WEB_SERVER_SERIAL_COMM:
-                                   sbus_web_size = tvb_get_guint8(tvb,offset);
+                                   sbus_web_size = tvb_get_uint8(tvb,offset);
                                    proto_tree_add_uint(sbus_tree,
                                                        hf_sbus_web_size, tvb, offset,
                                                        1, sbus_web_size);
                                    offset += 1;
 
-                                   sbus_web_aid = tvb_get_guint8(tvb,offset);
+                                   sbus_web_aid = tvb_get_uint8(tvb,offset);
                                    proto_tree_add_uint(sbus_tree,
                                                        hf_sbus_web_aid, tvb, offset,
                                                        1, sbus_web_aid);
                                    offset += 1;
 
-                                   sbus_web_seq = tvb_get_guint8(tvb,offset);
+                                   sbus_web_seq = tvb_get_uint8(tvb,offset);
                                    proto_tree_add_uint(sbus_tree,
                                                        hf_sbus_web_seq, tvb, offset,
                                                        1, sbus_web_seq);
@@ -1429,26 +1429,26 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                    break;
                                    /* Read/write block request */
                             case SBUS_RD_WR_PCD_BLOCK:
-                                   if (tvb_get_guint8(tvb,offset) == 0xff){
+                                   if (tvb_get_uint8(tvb,offset) == 0xff){
                                           sbus_rdwr_length = ((tvb_get_ntohl(tvb,0))-15);
                                           proto_tree_add_uint(sbus_tree,
                                                               hf_sbus_rdwr_block_length_ext, tvb, 0, 4, sbus_rdwr_length);
                                           offset += 1;
                                    } else {
-                                          sbus_rdwr_length = tvb_get_guint8(tvb,offset);
+                                          sbus_rdwr_length = tvb_get_uint8(tvb,offset);
                                           proto_tree_add_uint(sbus_tree,
                                                               hf_sbus_rdwr_block_length, tvb, offset,
                                                               1, sbus_rdwr_length);
                                           offset += 1;
                                    }
-                                   sbus_rdwr_type = tvb_get_guint8(tvb,offset);
+                                   sbus_rdwr_type = tvb_get_uint8(tvb,offset);
                                    proto_tree_add_uint(sbus_tree,
                                                        hf_sbus_rdwr_telegram_type, tvb, offset,
                                                        1, sbus_rdwr_type);
                                    offset += 1;
                                    switch(sbus_rdwr_type) {
                                           case SBUS_WR_START_OF_STREAM:
-                                                 sbus_rdwr_block_type = tvb_get_guint8(tvb, 14);
+                                                 sbus_rdwr_block_type = tvb_get_uint8(tvb, 14);
                                                  proto_tree_add_item(sbus_tree,
                                                                      hf_sbus_rdwr_telegram_sequence, tvb, offset,
                                                                      1, ENC_BIG_ENDIAN);
@@ -1468,7 +1468,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                                         sbus_quint8_helper0=0;
                                                         /*find zero-termination of string*/
                                                         for (i=19; i<43; i++) { /*max length string is 24 char*/
-                                                               if ((tvb_get_guint8(tvb, i)) == 0x00) {
+                                                               if ((tvb_get_uint8(tvb, i)) == 0x00) {
                                                                       break;
                                                                }
                                                                sbus_quint8_helper0 += 1;
@@ -1494,7 +1494,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                                  }
                                                  break;
                                           case SBUS_WR_BLOCK_DATA_STREAM:
-                                                 sbus_rdwr_sequence = tvb_get_guint8(tvb,offset);
+                                                 sbus_rdwr_sequence = tvb_get_uint8(tvb,offset);
                                                  proto_tree_add_uint(sbus_tree,
                                                                      hf_sbus_rdwr_telegram_sequence, tvb, offset,
                                                                      1, sbus_rdwr_sequence);
@@ -1503,7 +1503,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                                  offset += (sbus_rdwr_length-1);
                                                  break;
                                           case SBUS_WR_BLOCK_END_OF_STREAM:
-                                                 sbus_rdwr_sequence = tvb_get_guint8(tvb,offset);
+                                                 sbus_rdwr_sequence = tvb_get_uint8(tvb,offset);
                                                  proto_tree_add_uint(sbus_tree,
                                                                      hf_sbus_rdwr_telegram_sequence, tvb, offset,
                                                                      1, sbus_rdwr_sequence);
@@ -1517,7 +1517,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                           case SBUS_RD_ABORT_BLOCK_STREAM:
                                                  break;
                                           case SBUS_WR_BLOCK_DATA_BYTES:
-                                                 sbus_rdwr_block_type = tvb_get_guint8(tvb, 14);
+                                                 sbus_rdwr_block_type = tvb_get_uint8(tvb, 14);
                                                  proto_tree_add_item(sbus_tree,
                                                                      hf_sbus_block_type, tvb, offset,
                                                                      1, ENC_BIG_ENDIAN);
@@ -1533,7 +1533,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                                         sbus_quint8_helper0=0;
                                                         /*find zero-termination of string*/
                                                         for (i=19; i<43; i++) { /*max length string is 24 char*/
-                                                               if ((tvb_get_guint8(tvb, i)) == 0x00) {
+                                                               if ((tvb_get_uint8(tvb, i)) == 0x00) {
                                                                       break;
                                                                }
                                                                sbus_quint8_helper0 += 1;
@@ -1559,7 +1559,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                                  }
                                                  break;
                                           case SBUS_RD_BLOCK_START_OF_STREAM:
-                                                 sbus_rdwr_block_type = tvb_get_guint8(tvb, 14);
+                                                 sbus_rdwr_block_type = tvb_get_uint8(tvb, 14);
                                                  proto_tree_add_item(sbus_tree,
                                                                      hf_sbus_rdwr_telegram_sequence, tvb, offset,
                                                                      1, ENC_BIG_ENDIAN);
@@ -1575,7 +1575,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                                         sbus_quint8_helper0=0;
                                                         /*find zero-termination of string*/
                                                         for (i=14; i<38; i++) { /*max length string is 24 char*/
-                                                               if ((tvb_get_guint8(tvb, i)) == 0x00) {
+                                                               if ((tvb_get_uint8(tvb, i)) == 0x00) {
                                                                       break;
                                                                }
                                                                sbus_quint8_helper0 += 1;
@@ -1599,7 +1599,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                                  offset += 1;
                                                  break;
                                           case SBUS_RD_BLOCK_DATA_BYTES:
-                                                 sbus_rdwr_block_type = tvb_get_guint8(tvb, 13);
+                                                 sbus_rdwr_block_type = tvb_get_uint8(tvb, 13);
                                                  proto_tree_add_item(sbus_tree,
                                                                      hf_sbus_block_type, tvb, offset,
                                                                      1, ENC_BIG_ENDIAN);
@@ -1619,7 +1619,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                                         sbus_quint8_helper0=0;
                                                         /*find zero-termination of string*/
                                                         for (i=22; i<46; i++) { /*max length string is 24 char*/
-                                                               if ((tvb_get_guint8(tvb, i)) == 0x00) {
+                                                               if ((tvb_get_uint8(tvb, i)) == 0x00) {
                                                                       break;
                                                                }
                                                                sbus_quint8_helper0 += 1;
@@ -1646,7 +1646,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                                  break;
                                           case SBUS_DELETE_BLOCK:
                                           case SBUS_GET_BLOCK_SIZE:
-                                                 sbus_rdwr_block_type = tvb_get_guint8(tvb, 13);
+                                                 sbus_rdwr_block_type = tvb_get_uint8(tvb, 13);
                                                  proto_tree_add_item(sbus_tree,
                                                                      hf_sbus_block_type, tvb, offset,
                                                                      1, ENC_BIG_ENDIAN);
@@ -1658,7 +1658,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                                         sbus_quint8_helper0=0;
                                                         /*find zero-termination of string*/
                                                         for (i=14; i<38; i++) { /*max length string is 24 char*/
-                                                               if ((tvb_get_guint8(tvb, i)) == 0x00) {
+                                                               if ((tvb_get_uint8(tvb, i)) == 0x00) {
                                                                       break;
                                                                }
                                                                sbus_quint8_helper0 += 1;
@@ -1747,22 +1747,22 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                    sbusdata_tree = proto_tree_add_subtree(sbus_tree, tvb, offset,
                                                             8, ett_sbus_data, NULL, "Clock data");
 
-                                   sbus_helper = tvb_get_guint8(tvb, (offset));  /*year-week*/
-                                   sbus_helper1 = tvb_get_guint8(tvb, (offset +1)); /*week-day*/
+                                   sbus_helper = tvb_get_uint8(tvb, (offset));  /*year-week*/
+                                   sbus_helper1 = tvb_get_uint8(tvb, (offset +1)); /*week-day*/
                                    proto_tree_add_uint_format_value(sbusdata_tree,
                                                        hf_sbus_week_day, tvb, offset, 2, tvb_get_ntohs(tvb, offset),
                                                        "%x, Week day: %x", sbus_helper, sbus_helper1);
                                    offset += 2;
-                                   sbus_helper = tvb_get_guint8(tvb, (offset));  /*year*/
-                                   sbus_helper1 = tvb_get_guint8(tvb, (offset +1)); /*month*/
-                                   sbus_helper2 = tvb_get_guint8(tvb, (offset +2)); /*day*/
+                                   sbus_helper = tvb_get_uint8(tvb, (offset));  /*year*/
+                                   sbus_helper1 = tvb_get_uint8(tvb, (offset +1)); /*month*/
+                                   sbus_helper2 = tvb_get_uint8(tvb, (offset +2)); /*day*/
                                    proto_tree_add_uint_format_value(sbusdata_tree,
                                                        hf_sbus_date, tvb, offset, 3, tvb_get_ntoh24(tvb, offset),
                                                        "%02x/%02x/%02x", sbus_helper, sbus_helper1, sbus_helper2);
                                    offset += 3;
-                                   sbus_helper = tvb_get_guint8(tvb, (offset));  /*hours*/
-                                   sbus_helper1 = tvb_get_guint8(tvb, (offset +1)); /*minutes*/
-                                   sbus_helper2 = tvb_get_guint8(tvb, (offset +2)); /*seconds*/
+                                   sbus_helper = tvb_get_uint8(tvb, (offset));  /*hours*/
+                                   sbus_helper1 = tvb_get_uint8(tvb, (offset +1)); /*minutes*/
+                                   sbus_helper2 = tvb_get_uint8(tvb, (offset +2)); /*seconds*/
                                    proto_tree_add_uint_format_value(sbusdata_tree,
                                                        hf_sbus_time, tvb, offset, 3, tvb_get_ntoh24(tvb, offset),
                                                        "%02x:%02x:%02x", sbus_helper, sbus_helper1, sbus_helper2);
@@ -1771,7 +1771,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
                             case SBUS_RDWR_MULTI_MEDIAS:
                                    /*Add subtree for Subrequests*/
-                                   sbus_multimedia_total = tvb_get_guint8(tvb,offset);
+                                   sbus_multimedia_total = tvb_get_uint8(tvb,offset);
                                    proto_tree_add_uint(sbus_tree,
                                                        hf_sbus_multimedia_length, tvb, offset, 1, sbus_multimedia_total);
                                    offset += 1;
@@ -1788,7 +1788,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                        sbus_multimedia_cnt = mm_sub_req->count;
 
                                        /*get the attribute of the sub-response (1: response, 2: ACK/NACK)*/
-                                       sbus_multimedia_att = tvb_get_guint8(tvb,offset + 1) ;
+                                       sbus_multimedia_att = tvb_get_uint8(tvb,offset + 1) ;
 
                                        if (sbus_multimedia_att == SBUS_ACKNAK) {
                                            sbus_multimedia_tree = proto_tree_add_subtree_format(sbusdata_tree, tvb, offset,
@@ -1801,7 +1801,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                            offset +=1;
                                            hi = proto_tree_add_item(sbus_multimedia_tree,
                                                hf_sbus_acknackcode, tvb, offset, 2, ENC_BIG_ENDIAN);
-                                           if (tvb_get_guint8(tvb, (offset+1)) > 0) {
+                                           if (tvb_get_uint8(tvb, (offset+1)) > 0) {
                                                expert_add_info(pinfo, hi, &ei_sbus_telegram_not_acked);
                                            }
                                            offset += 2;
@@ -1952,26 +1952,26 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                           offset += 1;
                                    } else {
                                           /*do not dissect all system info telegrams as there is no need*/
-                                          offset = (tvb_get_guint8(tvb,9) + 10);
+                                          offset = (tvb_get_uint8(tvb,9) + 10);
                                    }
                                    break;
 
                                    /* Response: Webserver request */
                             case SBUS_WEB_SERVER_SERIAL_COMM:
-                                   sbus_web_size = tvb_get_guint8(tvb,offset);
+                                   sbus_web_size = tvb_get_uint8(tvb,offset);
                                    proto_tree_add_uint(sbus_tree,
                                                        hf_sbus_web_size, tvb, offset,
                                                        1, sbus_web_size);
                                    offset += 1;
 
-                                   sbus_web_aid = tvb_get_guint8(tvb,offset);
+                                   sbus_web_aid = tvb_get_uint8(tvb,offset);
                                    proto_tree_add_uint(sbus_tree,
                                                        hf_sbus_web_aid, tvb, offset,
                                                        1, sbus_web_aid);
                                    offset += 1;
 
                                    if (sbus_web_size > 1) {
-                                          sbus_web_seq = tvb_get_guint8(tvb,offset);
+                                          sbus_web_seq = tvb_get_uint8(tvb,offset);
                                           proto_tree_add_uint(sbus_tree,
                                                               hf_sbus_web_seq, tvb, offset,
                                                               1, sbus_web_seq);
@@ -1991,7 +1991,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                    /* Response: Read/Write block data */
                             case SBUS_RD_WR_PCD_BLOCK:
                                    sbus_rdwr_block_tlg = request_val->block_tlg;
-                                   sbus_rdwr_length = tvb_get_guint8(tvb,offset);
+                                   sbus_rdwr_length = tvb_get_uint8(tvb,offset);
                                    proto_tree_add_uint(sbus_tree,
                                                        hf_sbus_rdwr_block_length, tvb, offset,
                                                        1, sbus_rdwr_length);
@@ -1999,8 +1999,8 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                    hi = proto_tree_add_item(sbus_tree,
                                                             hf_sbus_rdwr_acknakcode, tvb, offset,
                                                             1, ENC_BIG_ENDIAN);
-                                   if ((tvb_get_guint8(tvb, offset) >= SBUS_RD_WR_NAK)&&
-                                       (tvb_get_guint8(tvb, offset) <= SBUS_RD_WR_NAK_INVALID_SIZE)) {
+                                   if ((tvb_get_uint8(tvb, offset) >= SBUS_RD_WR_NAK)&&
+                                       (tvb_get_uint8(tvb, offset) <= SBUS_RD_WR_NAK_INVALID_SIZE)) {
                                           expert_add_info(pinfo, hi, &ei_sbus_telegram_not_acked);
                                    }
                                    offset += 1;
@@ -2043,7 +2043,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                                  offset += (sbus_rdwr_length-1);
                                                  break;
                                           case SBUS_GET_BLOCK_SIZE:
-                                                 sbus_rdwr_block_type = tvb_get_guint8(tvb, 10);
+                                                 sbus_rdwr_block_type = tvb_get_uint8(tvb, 10);
                                                  /* Check for unknown block type */
                                                  if (sbus_rdwr_block_type == SBUS_RD_WR_UNKNOWN_BLOCK_TYPE) {
                                                         /*unknown block, no more data follows*/
@@ -2104,7 +2104,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                      }
                      hi = proto_tree_add_item(sbus_tree,
                          hf_sbus_acknackcode, tvb, offset, 2, ENC_BIG_ENDIAN);
-                     if (tvb_get_guint8(tvb, (offset+1)) > 0) {
+                     if (tvb_get_uint8(tvb, (offset+1)) > 0) {
                             expert_add_info(pinfo, hi, &ei_sbus_telegram_not_acked);
                      }
                      offset += 2;
@@ -2113,7 +2113,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
               /* Calculate CRC */
               sbus_crc_calc = 0;
               for (i = 0; i < sbus_eth_len - 2; i++)
-                     sbus_crc_calc = crc_calc (sbus_crc_calc, tvb_get_guint8(tvb, i));
+                     sbus_crc_calc = crc_calc (sbus_crc_calc, tvb_get_uint8(tvb, i));
 
               proto_tree_add_checksum(sbus_tree, tvb, offset, hf_sbus_crc, hf_sbus_crc_status, &ei_sbus_crc_bad, pinfo, sbus_crc_calc,
                             ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
@@ -2563,7 +2563,7 @@ proto_register_sbus(void)
        };
 
 /* Setup protocol subtree array */
-       static gint *ett[] = {
+       static int *ett[] = {
               &ett_sbus,
               &ett_sbus_ether,
               &ett_sbus_data

@@ -23,8 +23,8 @@ static int hf_spray_clock;
 static int hf_spray_sec;
 static int hf_spray_usec;
 
-static gint ett_spray;
-static gint ett_spray_clock;
+static int ett_spray;
+static int ett_spray_clock;
 
 #define PACKET_SPRAY_H
 
@@ -118,7 +118,7 @@ proto_register_spray(void)
 
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_spray,
 		&ett_spray_clock,
 	};

@@ -32,8 +32,8 @@ static int hf_spp_ack_nr;
 static int hf_spp_all_nr;
 /* static int hf_spp_rexmt_frame; */
 
-static gint ett_spp;
-static gint ett_spp_connctrl;
+static int ett_spp;
+static int ett_spp_connctrl;
 
 static dissector_table_t spp_socket_dissector_table;
 
@@ -52,7 +52,7 @@ static dissector_table_t spp_socket_dissector_table;
 #define SPP_EOM		0x10
 
 static const char*
-spp_conn_ctrl(guint8 ctrl)
+spp_conn_ctrl(uint8_t ctrl)
 {
 	static const value_string conn_vals[] = {
 		{ 0x00,                        "Data, No Ack Required" },
@@ -69,7 +69,7 @@ spp_conn_ctrl(guint8 ctrl)
 }
 
 static const char*
-spp_datastream(guint8 type)
+spp_datastream(uint8_t type)
 {
 	switch (type) {
 		case 0xfe:
@@ -95,12 +95,12 @@ dissect_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	proto_tree *spp_tree;
 	proto_item *ti;
 	tvbuff_t   *next_tvb;
-	guint8	    conn_ctrl;
-	guint8	    datastream_type;
+	uint8_t	    conn_ctrl;
+	uint8_t	    datastream_type;
 	const char *datastream_type_string;
-	guint16     spp_seq;
+	uint16_t    spp_seq;
 	const char *spp_msg_string;
-	guint16	    low_socket, high_socket;
+	uint16_t	    low_socket, high_socket;
 	static int * const ctrl[] = {
 		&hf_spp_connection_control_sys,
 		&hf_spp_connection_control_send_ack,
@@ -115,14 +115,14 @@ dissect_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	ti = proto_tree_add_item(tree, proto_spp, tvb, 0, SPP_HEADER_LEN, ENC_NA);
 	spp_tree = proto_item_add_subtree(ti, ett_spp);
 
-	conn_ctrl = tvb_get_guint8(tvb, 0);
+	conn_ctrl = tvb_get_uint8(tvb, 0);
 	spp_msg_string = spp_conn_ctrl(conn_ctrl);
 	col_append_fstr(pinfo->cinfo, COL_INFO, " %s", spp_msg_string);
 
 	proto_tree_add_bitmask_with_flags(spp_tree, tvb, 0, hf_spp_connection_control, ett_spp_connctrl,
 								ctrl, ENC_NA, BMT_NO_FALSE);
 
-	datastream_type = tvb_get_guint8(tvb, 1);
+	datastream_type = tvb_get_uint8(tvb, 1);
 	datastream_type_string = spp_datastream(datastream_type);
 	if (datastream_type_string != NULL) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", datastream_type_string);
@@ -239,7 +239,7 @@ proto_register_spp(void)
 #endif
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_spp,
 		&ett_spp_connctrl,
 	};

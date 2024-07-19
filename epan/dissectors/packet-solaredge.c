@@ -454,24 +454,24 @@
 #define SOLAREDGE_DEVICETYPE_EVENT		0x0300
 
 typedef struct solaredge_packet_header {
-	guint16 length;
-	guint16 length_inverse;
-	guint16 sequence_number;
-	guint32 source_address;
-	guint32 destination_address;
-	guint16 command_type;
+	uint16_t length;
+	uint16_t length_inverse;
+	uint16_t sequence_number;
+	uint32_t source_address;
+	uint32_t destination_address;
+	uint16_t command_type;
 } t_solaredge_packet_header;
 
 typedef struct solaredge_device_header {
-	guint16 type;
-	guint32 id;
-	guint16 device_length;
+	uint16_t type;
+	uint32_t id;
+	uint16_t device_length;
 } t_solaredge_device_header;
 
 typedef struct solaredge_conversion_data {
-	gboolean session_key_found;
+	bool session_key_found;
 	gcry_cipher_hd_t cipher_hd_session;
-	guint16 expected_sequence_number;
+	uint16_t expected_sequence_number;
 } t_solaredge_conversion_data;
 
 void proto_reg_handoff_solaredge(void);
@@ -539,10 +539,10 @@ static int hf_solaredge_post_event_event_start_timestamp_type;
 static int hf_solaredge_post_event_event_timezone_offset_type;
 static int hf_solaredge_post_event_event_end_timestamp_type;
 
-static gint ett_solaredge_packet;
-static gint ett_solaredge_packet_decrypted;
-static gint ett_solaredge_packet_post;
-static gint ett_solaredge_packet_post_device;
+static int ett_solaredge_packet;
+static int ett_solaredge_packet_decrypted;
+static int ett_solaredge_packet_post;
+static int ett_solaredge_packet_post_device;
 
 static const value_string solaredge_packet_commandtypes[] = {
 	{ SOLAREDGE_COMMAND_PARAMS_RESET,					"PARAMS_RESET" },
@@ -978,17 +978,17 @@ static const value_string solaredge_data_devicetypes[] = {
 };
 
 static gcry_cipher_hd_t cipher_hd_system;
-static const gchar *global_system_encryption_key;
+static const char *global_system_encryption_key;
 
 static
-guint16 calculate_crc(t_solaredge_packet_header *header, const guint8 *data, gint length)
+uint16_t calculate_crc(t_solaredge_packet_header *header, const uint8_t *data, int length)
 {
 	/* Concatenate in network endinaness header items followed by unmodified data */
-	guint16 crc = 0x5a5a;
-	guint16 sequence_number = g_htons(header->sequence_number);
-	guint32 source_address = g_htonl(header->source_address);
-	guint32 destination_address = g_htonl(header->destination_address);
-	guint16 command_type = g_htons(header->command_type);
+	uint16_t crc = 0x5a5a;
+	uint16_t sequence_number = g_htons(header->sequence_number);
+	uint32_t source_address = g_htonl(header->source_address);
+	uint32_t destination_address = g_htonl(header->destination_address);
+	uint16_t command_type = g_htons(header->command_type);
 	crc = crc16_plain_update(crc, (unsigned char *)&sequence_number, 2);
 	crc = crc16_plain_update(crc, (unsigned char *)&source_address, 4);
 	crc = crc16_plain_update(crc, (unsigned char *)&destination_address, 4);
@@ -997,14 +997,14 @@ guint16 calculate_crc(t_solaredge_packet_header *header, const guint8 *data, gin
 }
 
 static
-void solaredge_decrypt(const guint8 *in, gint length, guint8 *out, gcry_cipher_hd_t cipher)
+void solaredge_decrypt(const uint8_t *in, int length, uint8_t *out, gcry_cipher_hd_t cipher)
 {
-	guint8 rand1[SOLAREDGE_ENCRYPTION_KEY_LENGTH];
-	guint8 rand2[SOLAREDGE_ENCRYPTION_KEY_LENGTH];
-	gint payload_length = length - SOLAREDGE_ENCRYPTION_KEY_LENGTH;
-	guint8 *payload = (guint8 *) wmem_alloc(wmem_packet_scope(), payload_length);
-	guint8 *intermediate_decrypted_payload = (guint8 *) wmem_alloc(wmem_packet_scope(), payload_length);
-	gint i = 0, posa = 0, posb = 0, posc = 0;
+	uint8_t rand1[SOLAREDGE_ENCRYPTION_KEY_LENGTH];
+	uint8_t rand2[SOLAREDGE_ENCRYPTION_KEY_LENGTH];
+	int payload_length = length - SOLAREDGE_ENCRYPTION_KEY_LENGTH;
+	uint8_t *payload = (uint8_t *) wmem_alloc(wmem_packet_scope(), payload_length);
+	uint8_t *intermediate_decrypted_payload = (uint8_t *) wmem_alloc(wmem_packet_scope(), payload_length);
+	int i = 0, posa = 0, posb = 0, posc = 0;
 	memcpy(rand2, in, SOLAREDGE_ENCRYPTION_KEY_LENGTH);
 	memcpy(payload, in + SOLAREDGE_ENCRYPTION_KEY_LENGTH, payload_length);
 	gcry_cipher_encrypt(cipher, rand1, SOLAREDGE_ENCRYPTION_KEY_LENGTH, rand2, SOLAREDGE_ENCRYPTION_KEY_LENGTH);
@@ -1030,19 +1030,19 @@ void solaredge_decrypt(const guint8 *in, gint length, guint8 *out, gcry_cipher_h
 
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_solaredge_devicedata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, gint length)
+dissect_solaredge_devicedata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int length)
 {
-	gint current_offset;
+	int current_offset;
 	t_solaredge_device_header device_header;
 	proto_item *post_item;
 	proto_tree *post_tree;
-	const guint8 *optimizer_data;
-	gfloat dc_voltage_panel;
-	gfloat dc_voltage_optimizer;
-	gfloat dc_current_optimizer;
-	gfloat energy_day_optimizer;
-	gfloat temperature_optimizer;
-	guint32 event_type;
+	const uint8_t *optimizer_data;
+	float dc_voltage_panel;
+	float dc_voltage_optimizer;
+	float dc_current_optimizer;
+	float energy_day_optimizer;
+	float temperature_optimizer;
+	uint32_t event_type;
 
 	device_header.type = tvb_get_letohs(tvb, offset);
 	device_header.id = tvb_get_letohl(tvb, offset + 2);
@@ -1063,7 +1063,7 @@ dissect_solaredge_devicedata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			current_offset += 4;
 			proto_tree_add_item(post_tree, hf_solaredge_post_optimizer_inverter_type, tvb, current_offset, 4, ENC_LITTLE_ENDIAN);
 			current_offset += 4;
-			if (global_show_unknown_fields == TRUE) {
+			if (global_show_unknown_fields == true) {
 				proto_tree_add_item(post_tree, hf_solaredge_post_padding_uint32_type, tvb, current_offset, 4, ENC_LITTLE_ENDIAN);
 			}
 			current_offset += 4;
@@ -1100,63 +1100,63 @@ dissect_solaredge_devicedata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			current_offset += 4;
 			proto_tree_add_item(post_tree, hf_solaredge_post_singlephase_inverter_ac_frequency_type, tvb, current_offset, 4, ENC_LITTLE_ENDIAN);
 			current_offset += 4;
-			if (global_show_unknown_fields == TRUE) {
+			if (global_show_unknown_fields == true) {
 				proto_tree_add_item(post_tree, hf_solaredge_post_padding_uint32_type, tvb, current_offset, 4, ENC_LITTLE_ENDIAN);
 			}
 			current_offset += 4;
-			if (global_show_unknown_fields == TRUE) {
+			if (global_show_unknown_fields == true) {
 				proto_tree_add_item(post_tree, hf_solaredge_post_padding_uint32_type, tvb, current_offset, 4, ENC_LITTLE_ENDIAN);
 			}
 			current_offset += 4;
 			proto_tree_add_item(post_tree, hf_solaredge_post_singlephase_inverter_dc_voltage_type, tvb, current_offset, 4, ENC_LITTLE_ENDIAN);
 			current_offset += 4;
-			if (global_show_unknown_fields == TRUE) {
+			if (global_show_unknown_fields == true) {
 				proto_tree_add_item(post_tree, hf_solaredge_post_padding_uint32_type, tvb, current_offset, 4, ENC_LITTLE_ENDIAN);
 			}
 			current_offset += 4;
 			proto_tree_add_item(post_tree, hf_solaredge_post_singlephase_inverter_energy_total_type, tvb, current_offset, 4, ENC_LITTLE_ENDIAN);
 			current_offset += 4;
-			if (global_show_unknown_fields == TRUE) {
+			if (global_show_unknown_fields == true) {
 				proto_tree_add_item(post_tree, hf_solaredge_post_padding_float_type, tvb, current_offset, 4, ENC_LITTLE_ENDIAN);
 			}
 			current_offset += 4;
-			if (global_show_unknown_fields == TRUE) {
+			if (global_show_unknown_fields == true) {
 				proto_tree_add_item(post_tree, hf_solaredge_post_padding_uint32_type, tvb, current_offset, 4, ENC_LITTLE_ENDIAN);
 			}
 			current_offset += 4;
-			if (global_show_unknown_fields == TRUE) {
+			if (global_show_unknown_fields == true) {
 				proto_tree_add_item(post_tree, hf_solaredge_post_padding_float_type, tvb, current_offset, 4, ENC_LITTLE_ENDIAN);
 			}
 			current_offset += 4;
-			if (global_show_unknown_fields == TRUE) {
+			if (global_show_unknown_fields == true) {
 				proto_tree_add_item(post_tree, hf_solaredge_post_padding_float_type, tvb, current_offset, 4, ENC_LITTLE_ENDIAN);
 			}
 			current_offset += 4;
 			proto_tree_add_item(post_tree, hf_solaredge_post_singlephase_inverter_power_max_type, tvb, current_offset, 4, ENC_LITTLE_ENDIAN);
 			current_offset += 4;
-			if (global_show_unknown_fields == TRUE) {
+			if (global_show_unknown_fields == true) {
 				proto_tree_add_item(post_tree, hf_solaredge_post_padding_float_type, tvb, current_offset, 4, ENC_LITTLE_ENDIAN);
 			}
 			current_offset += 4;
-			if (global_show_unknown_fields == TRUE) {
+			if (global_show_unknown_fields == true) {
 				proto_tree_add_item(post_tree, hf_solaredge_post_padding_float_type, tvb, current_offset, 4, ENC_LITTLE_ENDIAN);
 			}
 			current_offset += 4;
-			if (global_show_unknown_fields == TRUE) {
+			if (global_show_unknown_fields == true) {
 				proto_tree_add_item(post_tree, hf_solaredge_post_padding_uint32_type, tvb, current_offset, 4, ENC_LITTLE_ENDIAN);
 			}
 			current_offset += 4;
-			if (global_show_unknown_fields == TRUE) {
+			if (global_show_unknown_fields == true) {
 				proto_tree_add_item(post_tree, hf_solaredge_post_padding_uint32_type, tvb, current_offset, 4, ENC_LITTLE_ENDIAN);
 			}
 			current_offset += 4;
 			proto_tree_add_item(post_tree, hf_solaredge_post_singlephase_inverter_ac_power_type, tvb, current_offset, 4, ENC_LITTLE_ENDIAN);
 			current_offset += 4;
-			if (global_show_unknown_fields == TRUE) {
+			if (global_show_unknown_fields == true) {
 				proto_tree_add_item(post_tree, hf_solaredge_post_padding_float_type, tvb, current_offset, 4, ENC_LITTLE_ENDIAN);
 			}
 			current_offset += 4;
-			if (global_show_unknown_fields == TRUE) {
+			if (global_show_unknown_fields == true) {
 				proto_tree_add_item(post_tree, hf_solaredge_post_padding_uint32_type, tvb, current_offset, 4, ENC_LITTLE_ENDIAN);
 			}
 			current_offset += 4;
@@ -1173,16 +1173,16 @@ dissect_solaredge_devicedata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			proto_tree_add_item(post_tree, hf_solaredge_post_optimizer_uptime_short_type, tvb, current_offset, 2, ENC_LITTLE_ENDIAN);
 			current_offset += 2;
 			optimizer_data = tvb_get_ptr(tvb, current_offset, 6);
-			dc_voltage_panel = (gfloat)(0.125 * (gfloat)(optimizer_data[0] | (optimizer_data[1] << 8 & 0x300)));
+			dc_voltage_panel = (float)(0.125 * (float)(optimizer_data[0] | (optimizer_data[1] << 8 & 0x300)));
 			proto_tree_add_float_format_value(post_tree, hf_solaredge_post_optimizer_dc_voltage_panel_type, tvb, current_offset, 6, dc_voltage_panel, "%.2f", dc_voltage_panel);
-			dc_voltage_optimizer = (gfloat)(0.125 * (gfloat)(optimizer_data[1] >> 2 | (optimizer_data[2] << 6 & 0x3c0)));
+			dc_voltage_optimizer = (float)(0.125 * (float)(optimizer_data[1] >> 2 | (optimizer_data[2] << 6 & 0x3c0)));
 			proto_tree_add_float_format_value(post_tree, hf_solaredge_post_optimizer_dc_voltage_optimzer_type, tvb, current_offset, 6, dc_voltage_optimizer, "%.2f", dc_voltage_optimizer);
-			dc_current_optimizer = (gfloat)(0.00625 * (gfloat)(optimizer_data[3] <<4 | (optimizer_data[2] >>4 & 0xf)));
+			dc_current_optimizer = (float)(0.00625 * (float)(optimizer_data[3] <<4 | (optimizer_data[2] >>4 & 0xf)));
 			proto_tree_add_float_format_value(post_tree, hf_solaredge_post_optimizer_dc_current_optimzer_type, tvb, current_offset, 6, dc_current_optimizer, "%.2f", dc_current_optimizer);
-			energy_day_optimizer = (gfloat)(0.25 * (gfloat)(optimizer_data[6] <<8 | optimizer_data[5]));
+			energy_day_optimizer = (float)(0.25 * (float)(optimizer_data[6] <<8 | optimizer_data[5]));
 			proto_tree_add_float_format_value(post_tree, hf_solaredge_post_optimizer_energy_day_type, tvb, current_offset, 6, energy_day_optimizer, "%.2f", energy_day_optimizer);
 			current_offset += 6;
-			temperature_optimizer = (gfloat)(2.0 * (gfloat)tvb_get_guint8(tvb, current_offset));
+			temperature_optimizer = (float)(2.0 * (float)tvb_get_uint8(tvb, current_offset));
 			proto_tree_add_float_format_value(post_tree, hf_solaredge_post_optimizer_temperature_type, tvb, current_offset, 2, temperature_optimizer, "%.2f", temperature_optimizer);
 			current_offset++;
 		break;
@@ -1190,7 +1190,7 @@ dissect_solaredge_devicedata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			col_append_str(pinfo->cinfo, COL_INFO, "Wake/sleep event");
 			proto_tree_add_item(post_tree, hf_solaredge_post_event_timestamp_type, tvb, current_offset, 4, ENC_LITTLE_ENDIAN);
 			current_offset += 4;
-			event_type = tvb_get_guint32(tvb, current_offset, ENC_LITTLE_ENDIAN);
+			event_type = tvb_get_uint32(tvb, current_offset, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(post_tree, hf_solaredge_post_event_type_type, tvb, current_offset, 4, ENC_LITTLE_ENDIAN);
 			current_offset += 4;
 			proto_tree_add_item(post_tree, hf_solaredge_post_event_event_start_timestamp_type, tvb, current_offset, 4, ENC_LITTLE_ENDIAN);
@@ -1206,11 +1206,11 @@ dissect_solaredge_devicedata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				proto_tree_add_item(post_tree, hf_solaredge_post_event_event_end_timestamp_type, tvb, current_offset, 4, ENC_LITTLE_ENDIAN);
 				current_offset += 8;
 			}
-			if (global_show_unknown_fields == TRUE) {
+			if (global_show_unknown_fields == true) {
 				proto_tree_add_item(post_tree, hf_solaredge_post_padding_uint32_type, tvb, current_offset, 4, ENC_LITTLE_ENDIAN);
 			}
 			current_offset += 4;
-			if (global_show_unknown_fields == TRUE) {
+			if (global_show_unknown_fields == true) {
 				proto_tree_add_item(post_tree, hf_solaredge_post_padding_uint32_type, tvb, current_offset, 4, ENC_LITTLE_ENDIAN);
 			}
 			current_offset += 4;
@@ -1231,24 +1231,24 @@ dissect_solaredge_devicedata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_solaredge_recursive(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _U_, gint ett, conversation_t *conv)
+dissect_solaredge_recursive(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _U_, int ett, conversation_t *conv)
 {
 	proto_item *ti;
 	proto_tree *solaredge_header_tree;
 	proto_item *solaredge_payload_item;
 	proto_tree *solaredge_payload_tree;
-	gint32 current_offset = 0;
+	int32_t current_offset = 0;
 	t_solaredge_packet_header header;
 	GByteArray *system_key;
-	guint8 session_key_message_part1[SOLAREDGE_ENCRYPTION_KEY_LENGTH];
-	guint8 session_key_message_part2[SOLAREDGE_ENCRYPTION_KEY_LENGTH];
-	guint8 session_key_intermediate[SOLAREDGE_ENCRYPTION_KEY_LENGTH];
-	guint i;
+	uint8_t session_key_message_part1[SOLAREDGE_ENCRYPTION_KEY_LENGTH];
+	uint8_t session_key_message_part2[SOLAREDGE_ENCRYPTION_KEY_LENGTH];
+	uint8_t session_key_intermediate[SOLAREDGE_ENCRYPTION_KEY_LENGTH];
+	unsigned i;
 	t_solaredge_conversion_data *conv_data;
-	gboolean system_key_valid;
+	bool system_key_valid;
 
 	/* Starts with magic number */
-	if ( tvb_get_guint32(tvb, 0, ENC_LITTLE_ENDIAN) != SOLAREDGE_MAGIC_NUMBER) {
+	if ( tvb_get_uint32(tvb, 0, ENC_LITTLE_ENDIAN) != SOLAREDGE_MAGIC_NUMBER) {
 		return 0;
 	}
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SolarEdge");
@@ -1257,25 +1257,25 @@ dissect_solaredge_recursive(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree 
 	current_offset += 4;
 	solaredge_header_tree = proto_item_add_subtree(ti, ett);
 
-	header.length = tvb_get_guint16(tvb, current_offset, ENC_LITTLE_ENDIAN);
+	header.length = tvb_get_uint16(tvb, current_offset, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(solaredge_header_tree, hf_solaredge_length_type, tvb, current_offset, 2, ENC_LITTLE_ENDIAN);
 	current_offset += 2;
-	header.length_inverse = tvb_get_guint16(tvb, current_offset, ENC_LITTLE_ENDIAN);
-	if (header.length_inverse != (G_MAXUINT16 - header.length)) {
+	header.length_inverse = tvb_get_uint16(tvb, current_offset, ENC_LITTLE_ENDIAN);
+	if (header.length_inverse != (UINT16_MAX - header.length)) {
 		proto_tree_add_expert_format(solaredge_header_tree, pinfo, &ei_solaredge_invalid_length, tvb, current_offset - 2, current_offset + 2, "Invalid length: inverse length %d not matching length %d", header.length_inverse, header.length);
 	}
 	proto_tree_add_item(solaredge_header_tree, hf_solaredge_length_inverse_type, tvb, current_offset, 2, ENC_LITTLE_ENDIAN);
 	current_offset += 2;
-	header.sequence_number = tvb_get_guint16(tvb, current_offset, ENC_LITTLE_ENDIAN);
+	header.sequence_number = tvb_get_uint16(tvb, current_offset, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(solaredge_header_tree, hf_solaredge_sequence_number_type, tvb, current_offset, 2, ENC_LITTLE_ENDIAN);
 	current_offset += 2;
-	header.source_address = tvb_get_guint32(tvb, current_offset, ENC_LITTLE_ENDIAN);
+	header.source_address = tvb_get_uint32(tvb, current_offset, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(solaredge_header_tree, hf_solaredge_source_address_type, tvb, current_offset, 4, ENC_LITTLE_ENDIAN);
 	current_offset += 4;
-	header.destination_address = tvb_get_guint32(tvb, current_offset, ENC_LITTLE_ENDIAN);
+	header.destination_address = tvb_get_uint32(tvb, current_offset, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(solaredge_header_tree, hf_solaredge_destination_address_type, tvb, current_offset, 4, ENC_LITTLE_ENDIAN);
 	current_offset += 4;
-	header.command_type = tvb_get_guint16(tvb, current_offset, ENC_LITTLE_ENDIAN);
+	header.command_type = tvb_get_uint16(tvb, current_offset, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(solaredge_header_tree, hf_solaredge_command_type, tvb, current_offset, 2, ENC_LITTLE_ENDIAN);
 	current_offset += 2;
 	col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const(header.command_type, solaredge_packet_commandtypes, "Unknown command"));
@@ -1285,11 +1285,11 @@ dissect_solaredge_recursive(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree 
 		case SOLAREDGE_COMMAND_MISC_ENCRYPTED:
 			proto_tree_add_item(solaredge_header_tree, hf_solaredge_payload_type, tvb, current_offset, header.length, ENC_NA);
 			conv_data = (t_solaredge_conversion_data *)conversation_get_proto_data(conv, proto_solaredge);
-			if ((conv_data != NULL) && (conv_data->session_key_found == TRUE)) {
-				guint8 *decrypted_buffer = (guint8*)wmem_alloc(pinfo->pool, header.length);
+			if ((conv_data != NULL) && (conv_data->session_key_found == true)) {
+				uint8_t *decrypted_buffer = (uint8_t*)wmem_alloc(pinfo->pool, header.length);
 				solaredge_decrypt(tvb_get_ptr(tvb, current_offset, header.length), header.length, decrypted_buffer, conv_data->cipher_hd_session);
 				tvbuff_t *next_tvb = tvb_new_child_real_data(tvb, decrypted_buffer, header.length, header.length);
-				if ( tvb_get_guint32(next_tvb, 0, ENC_LITTLE_ENDIAN) == SOLAREDGE_MAGIC_NUMBER) {
+				if ( tvb_get_uint32(next_tvb, 0, ENC_LITTLE_ENDIAN) == SOLAREDGE_MAGIC_NUMBER) {
 					add_new_data_source(pinfo, next_tvb, "Decrypted Packet");
 					dissect_solaredge_recursive(next_tvb, pinfo, tree, data, ett_solaredge_packet_decrypted, conv);
 				}
@@ -1306,8 +1306,8 @@ dissect_solaredge_recursive(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree 
 			if (!gcry_cipher_open(&cipher_hd_system, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_ECB, 0)) {
 				/* Load the system key to generate session key */
 				system_key = g_byte_array_new();
-				system_key_valid = hex_str_to_bytes(global_system_encryption_key, system_key, FALSE);
-				if ((system_key_valid == TRUE) && (system_key->len == SOLAREDGE_ENCRYPTION_KEY_LENGTH)) {
+				system_key_valid = hex_str_to_bytes(global_system_encryption_key, system_key, false);
+				if ((system_key_valid == true) && (system_key->len == SOLAREDGE_ENCRYPTION_KEY_LENGTH)) {
 					if (!gcry_cipher_setkey(cipher_hd_system, system_key->data, SOLAREDGE_ENCRYPTION_KEY_LENGTH)) {
 						/* Read first part of message */
 						tvb_memcpy(tvb, session_key_message_part1, current_offset, SOLAREDGE_ENCRYPTION_KEY_LENGTH);
@@ -1325,7 +1325,7 @@ dissect_solaredge_recursive(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree 
 						if (!gcry_cipher_open(&conv_data->cipher_hd_session, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_ECB, 0)) {
 							/* Load the session key */
 							if (!gcry_cipher_setkey(conv_data->cipher_hd_session, session_key_message_part2, SOLAREDGE_ENCRYPTION_KEY_LENGTH)) {
-								conv_data->session_key_found = TRUE;
+								conv_data->session_key_found = true;
 							} else {
 								gcry_cipher_close(conv_data->cipher_hd_session);
 							}
@@ -1356,7 +1356,7 @@ dissect_solaredge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void 
 	if (conversation_get_proto_data(conv, proto_solaredge) == NULL) {
 		/* Setup empty encryption key */
 		conv_data = wmem_new(wmem_file_scope(), t_solaredge_conversion_data);
-		conv_data->session_key_found = FALSE;
+		conv_data->session_key_found = false;
 		conversation_add_proto_data(conv, proto_solaredge, conv_data);
 	}
 	return dissect_solaredge_recursive(tvb, pinfo, tree, data, ett_solaredge_packet, conv);
@@ -1652,7 +1652,7 @@ proto_register_solaredge(void)
 	expert_module_t* expert_solaredge;
 
 	/* Setup protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_solaredge_packet,
 		&ett_solaredge_packet_decrypted,
 		&ett_solaredge_packet_post,

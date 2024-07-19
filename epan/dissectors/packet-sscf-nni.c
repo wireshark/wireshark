@@ -20,7 +20,7 @@ void proto_reg_handoff_sscf(void);
 
 static int proto_sscf;
 
-static gint ett_sscf;
+static int ett_sscf;
 
 static dissector_handle_t mtp3_handle;
 
@@ -59,10 +59,10 @@ static const value_string sscf_status_vals[] = {
 static int
 dissect_sscf_nni(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  guint reported_length;
+  unsigned reported_length;
   proto_item *sscf_item = NULL;
   proto_tree *sscf_tree = NULL;
-  guint8 sscf_status;
+  uint8_t sscf_status;
 
   reported_length = tvb_reported_length(tvb);  /* frame length */
 
@@ -77,7 +77,7 @@ dissect_sscf_nni(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
   } else {
 
-    sscf_status = tvb_get_guint8(tvb, SSCF_STATUS_OFFSET);
+    sscf_status = tvb_get_uint8(tvb, SSCF_STATUS_OFFSET);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SSCF-NNI");
     col_add_fstr(pinfo->cinfo, COL_INFO, "STATUS (%s) ",
@@ -103,7 +103,7 @@ proto_register_sscf(void)
                    NULL, 0x0, NULL, HFILL} }
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_sscf,
   };
 

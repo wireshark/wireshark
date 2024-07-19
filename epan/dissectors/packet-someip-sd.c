@@ -144,32 +144,32 @@ static int hf_someip_sd_option_lb_priority;
 static int hf_someip_sd_option_lb_weight;
 
 /* protocol tree items */
-static gint ett_someip_sd;
-static gint ett_someip_sd_flags;
-static gint ett_someip_sd_entries;
-static gint ett_someip_sd_entry;
-static gint ett_someip_sd_options;
-static gint ett_someip_sd_option;
-static gint ett_someip_sd_config_string;
+static int ett_someip_sd;
+static int ett_someip_sd_flags;
+static int ett_someip_sd_entries;
+static int ett_someip_sd_entry;
+static int ett_someip_sd_options;
+static int ett_someip_sd_option;
+static int ett_someip_sd_config_string;
 
 
 /*** Taps ***/
 static int tap_someip_sd_entries = -1;
 
 typedef struct _someip_sd_entries_tap {
-    guint8  entry_type;
-    guint16 service_id;
-    guint8  major_version;
-    guint32 minor_version;
-    guint16 instance_id;
-    guint16 eventgroup_id;
-    guint32 ttl;
+    uint8_t entry_type;
+    uint16_t service_id;
+    uint8_t major_version;
+    uint32_t minor_version;
+    uint16_t instance_id;
+    uint16_t eventgroup_id;
+    uint32_t ttl;
 } someip_sd_entries_tap_t;
 
 
 /*** Stats ***/
-static const gchar *st_str_ip_src = "Source Addresses";
-static const gchar *st_str_ip_dst = "Destination Addresses";
+static const char *st_str_ip_src = "Source Addresses";
+static const char *st_str_ip_dst = "Destination Addresses";
 
 static int st_node_ip_src = -1;
 static int st_node_ip_dst = -1;
@@ -281,12 +281,12 @@ static dissector_handle_t someip_sd_handle;
  *************************************/
 
 static void
-someip_sd_register_ports(guint32 opt_index, guint32 opt_num, guint32 option_count, guint32 option_ports[]) {
-    guint i;
+someip_sd_register_ports(uint32_t opt_index, uint32_t opt_num, uint32_t option_count, uint32_t option_ports[]) {
+    unsigned i;
 
     for (i = opt_index; i < opt_index + opt_num && i < option_count; i++) {
-        guint32 l4port = 0x0000ffff & option_ports[i];
-        guint32 l4proto = (0xff000000 & option_ports[i]) >> 24;
+        uint32_t l4port = 0x0000ffff & option_ports[i];
+        uint32_t l4proto = (0xff000000 & option_ports[i]) >> 24;
 
         if (l4proto == SD_OPTION_L4PROTO_UDP && !value_is_in_range(someip_ignore_ports_udp, l4port)) {
             register_someip_port_udp(l4port);
@@ -301,9 +301,9 @@ someip_sd_register_ports(guint32 opt_index, guint32 opt_num, guint32 option_coun
 }
 
 static void
-dissect_someip_sd_pdu_option_configuration(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint32 length, int optionnum) {
-    guint32         offset_orig = offset;
-    const guint8   *config_string;
+dissect_someip_sd_pdu_option_configuration(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, uint32_t length, int optionnum) {
+    uint32_t        offset_orig = offset;
+    const uint8_t  *config_string;
     proto_item     *ti;
     proto_tree     *subtree;
 
@@ -319,12 +319,12 @@ dissect_someip_sd_pdu_option_configuration(tvbuff_t *tvb, packet_info *pinfo, pr
     proto_tree_add_item(tree, hf_someip_sd_option_reserved, tvb, offset, 1, ENC_NA);
     offset += 1;
 
-    gint config_string_length = length - offset + offset_orig;
+    int config_string_length = length - offset + offset_orig;
     ti = proto_tree_add_item_ret_string(tree, hf_someip_sd_option_config_string, tvb, offset, config_string_length, ENC_ASCII | ENC_NA, pinfo->pool, &config_string);
     subtree = proto_item_add_subtree(ti, ett_someip_sd_config_string);
 
-    guint8 pos = 0;
-    guint8 element_length;
+    uint8_t pos = 0;
+    uint8_t element_length;
     while (config_string != NULL && config_string_length - pos > 0) {
         element_length = config_string[pos];
         pos++;
@@ -344,7 +344,7 @@ dissect_someip_sd_pdu_option_configuration(tvbuff_t *tvb, packet_info *pinfo, pr
 }
 
 static void
-dissect_someip_sd_pdu_option_loadbalancing(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint32 length, int optionnum) {
+dissect_someip_sd_pdu_option_loadbalancing(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, uint32_t offset, uint32_t length, int optionnum) {
     tree = proto_tree_add_subtree_format(tree, tvb, offset, length, ett_someip_sd_option, NULL, "%d: Load Balancing Option", optionnum);
 
     /* Add common fields */
@@ -364,18 +364,18 @@ dissect_someip_sd_pdu_option_loadbalancing(tvbuff_t *tvb, packet_info *pinfo _U_
 }
 
 static void
-dissect_someip_sd_pdu_option_ipv4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint32 length, int optionnum, guint32 option_ports[]) {
-    guint8              type = 255;
-    const gchar        *description = NULL;
-    guint32             l4port = 0;
-    guint32             l4proto = 0;
-    const gchar        *l4protoname = NULL;
-    const gchar        *ipstring = NULL;
+dissect_someip_sd_pdu_option_ipv4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, uint32_t length, int optionnum, uint32_t option_ports[]) {
+    uint8_t             type = 255;
+    const char         *description = NULL;
+    uint32_t            l4port = 0;
+    uint32_t            l4proto = 0;
+    const char         *l4protoname = NULL;
+    const char         *ipstring = NULL;
 
     proto_item         *ti = NULL;
     proto_item         *ti_top = NULL;
 
-    type = tvb_get_guint8(tvb, offset + 2);
+    type = tvb_get_uint8(tvb, offset + 2);
     description = val_to_str(type, sd_option_type, "(Unknown Option: %d)");
     tree = proto_tree_add_subtree_format(tree, tvb, offset, length, ett_someip_sd_option, &ti_top, "%d: %s Option", optionnum, description);
 
@@ -414,21 +414,21 @@ dissect_someip_sd_pdu_option_ipv4(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
     proto_item_append_text(ti_top, " (%s:%d (%s))", ipstring, l4port, l4protoname);
 
-    option_ports[optionnum] = ((guint32)l4proto << 24) + l4port;
+    option_ports[optionnum] = ((uint32_t)l4proto << 24) + l4port;
 }
 
 static void
-dissect_someip_sd_pdu_option_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint32 length, int optionnum, guint32 option_ports[]) {
-    guint8              type = 255;
-    const gchar        *description = NULL;
-    guint32             l4port = 0;
-    guint32             l4proto = 0;
-    const gchar        *l4protoname = NULL;
-    const gchar        *ipstring = NULL;
+dissect_someip_sd_pdu_option_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, uint32_t length, int optionnum, uint32_t option_ports[]) {
+    uint8_t             type = 255;
+    const char         *description = NULL;
+    uint32_t            l4port = 0;
+    uint32_t            l4proto = 0;
+    const char         *l4protoname = NULL;
+    const char         *ipstring = NULL;
     proto_item         *ti = NULL;
     proto_item         *ti_top = NULL;
 
-    type = tvb_get_guint8(tvb, offset + 2);
+    type = tvb_get_uint8(tvb, offset + 2);
     description = val_to_str(type, sd_option_type, "(Unknown Option: %d)");
 
     tree = proto_tree_add_subtree_format(tree, tvb, offset, length, ett_someip_sd_option, &ti_top, "%d: %s Option", optionnum, description);
@@ -467,16 +467,16 @@ dissect_someip_sd_pdu_option_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
     proto_item_append_text(ti_top, " (%s:%d (%s))", ipstring, l4port, l4protoname);
 
-    option_ports[optionnum] = ((guint32)l4proto << 24) + l4port;
+    option_ports[optionnum] = ((uint32_t)l4proto << 24) + l4port;
 }
 
 static void
-dissect_someip_sd_pdu_option_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint32 length, int optionnum) {
-    guint32             len = 0;
+dissect_someip_sd_pdu_option_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, uint32_t length, int optionnum) {
+    uint32_t            len = 0;
     proto_item         *ti;
 
     tree = proto_tree_add_subtree_format(tree, tvb, offset, length, ett_someip_sd_option, &ti, "%d: %s Option", optionnum,
-        val_to_str_const(tvb_get_guint8(tvb, offset + 2), sd_option_type, "Unknown"));
+        val_to_str_const(tvb_get_uint8(tvb, offset + 2), sd_option_type, "Unknown"));
 
     expert_add_info(pinfo, ti, &ei_someipsd_option_unknown);
 
@@ -497,13 +497,13 @@ dissect_someip_sd_pdu_option_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 }
 
 static int
-dissect_someip_sd_pdu_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *ti, guint32 offset_orig, guint32 length, guint32 option_ports[], guint *option_count) {
-    guint16             real_length = 0;
-    guint8              option_type = 0;
+dissect_someip_sd_pdu_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *ti, uint32_t offset_orig, uint32_t length, uint32_t option_ports[], unsigned *option_count) {
+    uint16_t            real_length = 0;
+    uint8_t             option_type = 0;
     int                 optionnum = 0;
     tvbuff_t           *subtvb = NULL;
 
-    guint32             offset = offset_orig;
+    uint32_t            offset = offset_orig;
 
     if (!tvb_bytes_exist(tvb, offset, SD_OPTION_MINLENGTH) || !tvb_bytes_exist(tvb, offset, length)) {
         expert_add_info(pinfo, ti, &ei_someipsd_option_array_truncated);
@@ -515,14 +515,14 @@ dissect_someip_sd_pdu_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         option_ports[optionnum] = 0;
 
         real_length = tvb_get_ntohs(tvb, offset) + 3;
-        option_type = tvb_get_guint8(tvb, offset + 2);
+        option_type = tvb_get_uint8(tvb, offset + 2);
 
-        if (!tvb_bytes_exist(tvb, offset, (gint)real_length) || offset - offset_orig + real_length > length) {
+        if (!tvb_bytes_exist(tvb, offset, (int)real_length) || offset - offset_orig + real_length > length) {
             expert_add_info(pinfo, ti, &ei_someipsd_option_array_truncated);
             return offset;
         }
 
-        subtvb = tvb_new_subset_length(tvb, offset, (gint)real_length);
+        subtvb = tvb_new_subset_length(tvb, offset, (int)real_length);
 
         switch (option_type) {
         case SD_OPTION_CONFIGURATION:
@@ -557,7 +557,7 @@ dissect_someip_sd_pdu_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 }
 
 static void
-someip_sd_pdu_entry_append_text(proto_item *ti_entry, guint8 category, guint16 serviceid, guint16 instanceid, guint8 majorver, guint32 minorver, guint16 eventgroupid, gchar *buf_opt_ref) {
+someip_sd_pdu_entry_append_text(proto_item *ti_entry, uint8_t category, uint16_t serviceid, uint16_t instanceid, uint8_t majorver, uint32_t minorver, uint16_t eventgroupid, char *buf_opt_ref) {
     if (category != SD_ENTRY_SERVICE && category != SD_ENTRY_EVENTGROUP) {
         return;
     }
@@ -602,25 +602,25 @@ someip_sd_pdu_entry_append_text(proto_item *ti_entry, guint8 category, guint16 s
 }
 
 static void
-dissect_someip_sd_pdu_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset_orig, guint32 length, guint8 *type, guint32 *ttl, guint64 *uniqueid, guint32 option_ports[], guint option_count, proto_item **ti_entry) {
-    guint32             serviceid = 0;
-    guint32             instanceid = 0;
-    guint32             eventgroupid = 0;
-    guint32             majorver = 0;
-    guint32             minorver = 0;
-    guint32             opt_index1;
-    guint32             opt_index2;
-    guint32             opt_num1;
-    guint32             opt_num2;
+dissect_someip_sd_pdu_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset_orig, uint32_t length, uint8_t *type, uint32_t *ttl, uint64_t *uniqueid, uint32_t option_ports[], unsigned option_count, proto_item **ti_entry) {
+    uint32_t            serviceid = 0;
+    uint32_t            instanceid = 0;
+    uint32_t            eventgroupid = 0;
+    uint32_t            majorver = 0;
+    uint32_t            minorver = 0;
+    uint32_t            opt_index1;
+    uint32_t            opt_index2;
+    uint32_t            opt_num1;
+    uint32_t            opt_num2;
 
-    guint8              category = SD_ENTRY_UNKNOWN;
+    uint8_t             category = SD_ENTRY_UNKNOWN;
 
-    const gchar        *description = NULL;
-    static gchar        buf_opt_ref[32];
+    const char         *description = NULL;
+    static char         buf_opt_ref[32];
 
     proto_item         *ti;
 
-    guint32             offset = offset_orig;
+    uint32_t            offset = offset_orig;
 
     *uniqueid = 0;
     *type = 255;
@@ -631,7 +631,7 @@ dissect_someip_sd_pdu_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     /* lets look ahead and find out the type and ttl */
-    *type = tvb_get_guint8(tvb, offset);
+    *type = tvb_get_uint8(tvb, offset);
     *ttl = tvb_get_ntoh24(tvb, offset + 9);
 
     if (*type < 4) {
@@ -677,7 +677,7 @@ dissect_someip_sd_pdu_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item_set_generated(ti);
 
     ti = proto_tree_add_item_ret_uint(tree, hf_someip_sd_entry_serviceid, tvb, offset, 2, ENC_BIG_ENDIAN, &serviceid);
-    description = someip_lookup_service_name((guint16)serviceid);
+    description = someip_lookup_service_name((uint16_t)serviceid);
     if (description != NULL) {
         proto_item_append_text(ti, " (%s)", description);
         ti = proto_tree_add_string(tree, hf_someip_sd_entry_servicename, tvb, offset, 2, description);
@@ -709,7 +709,7 @@ dissect_someip_sd_pdu_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 1;
 
         ti = proto_tree_add_item_ret_uint(tree, hf_someip_sd_entry_eventgroupid, tvb, offset, 2, ENC_BIG_ENDIAN, &eventgroupid);
-        description = someip_lookup_eventgroup_name((guint16)serviceid, (guint16)eventgroupid);
+        description = someip_lookup_eventgroup_name((uint16_t)serviceid, (uint16_t)eventgroupid);
         if (description != NULL) {
             proto_item_append_text(ti, " (%s)", description);
             ti = proto_tree_add_string(tree, hf_someip_sd_entry_eventgroupname, tvb, offset, 2, description);
@@ -721,7 +721,7 @@ dissect_someip_sd_pdu_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     /* lets add some combined filtering term */
-    *uniqueid = (((guint64)serviceid) << 32) | (guint64)instanceid << 16 | (guint64)eventgroupid;
+    *uniqueid = (((uint64_t)serviceid) << 32) | (uint64_t)instanceid << 16 | (uint64_t)eventgroupid;
 
     ti = NULL;
     if (*ttl > 0) {
@@ -770,11 +770,11 @@ dissect_someip_sd_pdu_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (have_tap_listener(tap_someip_sd_entries)) {
         someip_sd_entries_tap_t *data = wmem_alloc(pinfo->pool, sizeof(someip_sd_entries_tap_t));
         data->entry_type = *type;
-        data->service_id = (guint16)serviceid;
-        data->major_version = (guint8)majorver;
+        data->service_id = (uint16_t)serviceid;
+        data->major_version = (uint8_t)majorver;
         data->minor_version = minorver;
-        data->instance_id = (guint16)instanceid;
-        data->eventgroup_id = (guint16)eventgroupid;
+        data->instance_id = (uint16_t)instanceid;
+        data->eventgroup_id = (uint16_t)eventgroupid;
         data->ttl = *ttl;
 
         tap_queue_packet(tap_someip_sd_entries, pinfo, data);
@@ -782,16 +782,16 @@ dissect_someip_sd_pdu_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static int
-dissect_someip_sd_pdu_entries(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *ti, guint32 offset, guint32 length, guint32 option_ports[], guint option_count) {
+dissect_someip_sd_pdu_entries(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *ti, uint32_t offset, uint32_t length, uint32_t option_ports[], unsigned option_count) {
     proto_item *ti_entry;
 
-    guint8      type;
-    guint32     ttl;
-    guint32     entry_flags = 0;
-    guint32     stop_entry_flags = 0;
+    uint8_t     type;
+    uint32_t    ttl;
+    uint32_t    entry_flags = 0;
+    uint32_t    stop_entry_flags = 0;
 
-    guint64     uniqueid;
-    guint64     last_uniqueid = 0xffffffffffffffff;
+    uint64_t    uniqueid;
+    uint64_t    last_uniqueid = 0xffffffffffffffff;
 
 
     while (length >= SD_ENTRY_LENGTH) {
@@ -861,21 +861,21 @@ dissect_someip_sd_pdu_entries(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 static int
 dissect_someip_sd_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
-    guint32         offset = 0;
-    guint32         length_entriesarray = 0;
-    guint32         length_optionsarray = 0;
+    uint32_t        offset = 0;
+    uint32_t        length_entriesarray = 0;
+    uint32_t        length_optionsarray = 0;
 
     proto_item     *ti = NULL;
     proto_item     *ti_sd_entries = NULL;
 
     proto_tree     *someip_sd_entries_tree = NULL;
     proto_tree     *someip_sd_options_tree = NULL;
-    gboolean        stop_parsing_after_entries = FALSE;
-    guint32         offset_entriesarray;
+    bool            stop_parsing_after_entries = false;
+    uint32_t        offset_entriesarray;
 
     /* format for option_ports entries: 1 byte proto | 1 byte reserved | 2 byte port number*/
-    static guint32  option_ports[SD_MAX_NUM_OPTIONS];
-    guint           option_count = 0;
+    static uint32_t option_ports[SD_MAX_NUM_OPTIONS];
+    unsigned        option_count = 0;
 
     static int * const someipsd_flags[] = {
         &hf_someip_sd_rebootflag,
@@ -916,7 +916,7 @@ dissect_someip_sd_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         /* truncated SD message - need to shorten buffer */
         length_entriesarray = tvb_captured_length_remaining(tvb, offset);
         expert_add_info(pinfo, ti, &ei_someipsd_message_truncated);
-        stop_parsing_after_entries = TRUE;
+        stop_parsing_after_entries = true;
     }
 
     /* preparing entries array but not parsing it yet */
@@ -980,7 +980,7 @@ someipsd_entries_stats_tree_init(stats_tree *st) {
 }
 
 static void
-stat_number_to_string_with_any(guint32 value, guint max, gchar *format_string, gchar *ret, size_t size_limit) {
+stat_number_to_string_with_any(uint32_t value, unsigned max, char *format_string, char *ret, size_t size_limit) {
     if (value == max) {
         snprintf(ret, size_limit, "%s", "MAX");
     } else {
@@ -989,13 +989,13 @@ stat_number_to_string_with_any(guint32 value, guint max, gchar *format_string, g
 }
 
 static void
-stat_create_entry_summary_string(const someip_sd_entries_tap_t *data, gchar *ret, size_t size_limit) {
-    gchar service_str[128];
-    gchar instance_str[128];
-    gchar majorver_str[128];
-    gchar minorver_str[128];
-    gchar eventgrp_str[128];
-    gchar tmp[128];
+stat_create_entry_summary_string(const someip_sd_entries_tap_t *data, char *ret, size_t size_limit) {
+    char service_str[128];
+    char instance_str[128];
+    char majorver_str[128];
+    char minorver_str[128];
+    char eventgrp_str[128];
+    char tmp[128];
 
     char *service_name  = someip_lookup_service_name(data->service_id);
     char *eventgrp_name = someip_lookup_eventgroup_name(data->service_id, data->eventgroup_id);
@@ -1034,7 +1034,7 @@ static tap_packet_status
 someipsd_entries_stats_tree_packet(stats_tree *st, packet_info *pinfo, epan_dissect_t *edt _U_, const void *p, tap_flags_t flags _U_) {
     DISSECTOR_ASSERT(p);
     const someip_sd_entries_tap_t *data = (const someip_sd_entries_tap_t *)p;
-    static gchar tmp_addr_str[256];
+    static char tmp_addr_str[256];
 
     snprintf(tmp_addr_str, sizeof(tmp_addr_str) - 1, "%s (%s)", address_to_str(pinfo->pool, &pinfo->net_src), address_to_name(&pinfo->net_src));
     tick_stat_node(st, st_str_ip_src, 0, false);
@@ -1045,7 +1045,7 @@ someipsd_entries_stats_tree_packet(stats_tree *st, packet_info *pinfo, epan_diss
     int dst_id = tick_stat_node(st, tmp_addr_str, st_node_ip_dst, true);
 
     int tmp_id;
-    static gchar tmp_str[128];
+    static char tmp_str[128];
 
     if (data->ttl == 0) {
         switch (data->entry_type) {
@@ -1267,7 +1267,7 @@ proto_register_someip_sd(void) {
             FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
     };
 
-    static gint *ett_sd[] = {
+    static int *ett_sd[] = {
         &ett_someip_sd,
         &ett_someip_sd_flags,
         &ett_someip_sd_entries,

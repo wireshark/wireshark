@@ -55,12 +55,12 @@ static int hf_npdu_reassembled_length;
 
 /* Initialize the subtree pointers
 */
-static gint ett_sndcp;
-static gint ett_sndcp_address_field;
-static gint ett_sndcp_compression_field;
-static gint ett_sndcp_npdu_field;
-static gint ett_npdu_fragment;
-static gint ett_npdu_fragments;
+static int ett_sndcp;
+static int ett_sndcp_address_field;
+static int ett_sndcp_compression_field;
+static int ett_sndcp_npdu_field;
+static int ett_npdu_fragment;
+static int ett_npdu_fragments;
 
 /* Structure needed for the fragmentation routines in reassemble.c
 */
@@ -176,11 +176,11 @@ static const true_false_string m_bit = {
 static int
 dissect_sndcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  guint8         addr_field, comp_field, npdu_field1, dcomp=0, pcomp=0;
-  guint16        offset=0, npdu=0, segment=0, npdu_field2;
+  uint8_t        addr_field, comp_field, npdu_field1, dcomp=0, pcomp=0;
+  uint16_t       offset=0, npdu=0, segment=0, npdu_field2;
   tvbuff_t      *next_tvb, *npdu_tvb;
-  gint           len;
-  gboolean       first, more_frags, unack;
+  int            len;
+  bool           first, more_frags, unack;
   static int * const addr_fields[] = {
     &hf_sndcp_x,
     &hf_sndcp_f,
@@ -207,7 +207,7 @@ dissect_sndcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
   /* get address field from next byte
    */
-  addr_field = tvb_get_guint8(tvb,offset);
+  addr_field = tvb_get_uint8(tvb,offset);
   first      = addr_field & MASK_F;
   more_frags = addr_field & MASK_M;
   unack      = addr_field & MASK_T;
@@ -221,7 +221,7 @@ dissect_sndcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
   /* get compression pointers from next byte if this is the first segment
    */
   if (first) {
-    comp_field = tvb_get_guint8(tvb,offset);
+    comp_field = tvb_get_uint8(tvb,offset);
     dcomp      = comp_field & 0xF0;
     pcomp      = comp_field & 0x0F;
 
@@ -252,7 +252,7 @@ dissect_sndcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     /* get N-PDU number from next byte for acknowledged mode (only for first segment)
      */
     if (!unack) {
-      npdu = npdu_field1 = tvb_get_guint8(tvb,offset);
+      npdu = npdu_field1 = tvb_get_uint8(tvb,offset);
       col_add_fstr(pinfo->cinfo, COL_INFO, "SN-DATA N-PDU %d", npdu_field1);
       if (tree) {
         npdu_field_tree = proto_tree_add_subtree_format(sndcp_tree, tvb, offset, 1, ett_sndcp_npdu_field, NULL, "Acknowledged mode, N-PDU %d", npdu_field1 );
@@ -294,15 +294,15 @@ dissect_sndcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     /* Try reassembling fragments
      */
     fragment_head  *fd_npdu         = NULL;
-    guint32         reassembled_in  = 0;
-    gboolean        save_fragmented = pinfo->fragmented;
+    uint32_t        reassembled_in  = 0;
+    bool            save_fragmented = pinfo->fragmented;
 
     len = tvb_captured_length_remaining(tvb, offset);
     if(len<=0){
         return offset;
     }
 
-    pinfo->fragmented = TRUE;
+    pinfo->fragmented = true;
 
     if (unack)
       fd_npdu  = fragment_add_seq_check(&npdu_reassembly_table, tvb, offset,
@@ -521,7 +521,7 @@ proto_register_sndcp(void)
   };
 
     /* Setup protocol subtree array */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_sndcp     ,
     &ett_sndcp_address_field,
     &ett_sndcp_compression_field,

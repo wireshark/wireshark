@@ -71,24 +71,24 @@ static int hf_sametime_location_name;
 static int hf_sametime_location_timezone;
 
 /*packet detail tree*/
-static gint ett_sametime;
-static gint ett_sametime_options;
+static int ett_sametime;
+static int ett_sametime_options;
 
 /*statistics*/
 static int sametime_tap;
-static const guint8* st_str_packet = "Sametime Message Count";
-static const guint8* st_str_message_type = "Message Type";
-static const guint8* st_str_send_type = "Send Type";
-static const guint8* st_str_user_status = "User Status";
+static const uint8_t* st_str_packet = "Sametime Message Count";
+static const uint8_t* st_str_message_type = "Message Type";
+static const uint8_t* st_str_send_type = "Send Type";
+static const uint8_t* st_str_user_status = "User Status";
 static int st_node_packet = -1;
 static int st_node_message_type = -1;
 static int st_node_send_type = -1;
 static int st_node_user_status = -1;
 
 typedef struct SametimeTap {
-   gint message_type;
-   gint send_type;
-   gint user_status;
+   int message_type;
+   int send_type;
+   int user_status;
 } SametimeTap;
 
 #define SAMETIME_MESSAGETYPE_HEARTBEAT        0x80
@@ -204,10 +204,10 @@ static const value_string codenames[] = {
 static int
 add_text_item(tvbuff_t *tvb, proto_tree *tree, int offset, int hf)
 {
-   guint16 length;
+   uint16_t length;
 
    /* heuristic rule, string should start w/ valid character(s) */
-   if (! tvb_get_guint8(tvb, offset + 2))
+   if (! tvb_get_uint8(tvb, offset + 2))
       return 0;
 
    length = tvb_get_ntohs(tvb, offset);
@@ -228,10 +228,10 @@ add_text_item(tvbuff_t *tvb, proto_tree *tree, int offset, int hf)
 }
 
 
-static guint16
+static uint16_t
 dissect_set_user_status(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-   guint16 user_status;
+   uint16_t user_status;
 
    user_status = tvb_get_ntohs(tvb, offset);
    proto_item_append_text(tree, ", %s", val_to_str(user_status, userstatusnames, "0x%04x"));
@@ -332,11 +332,11 @@ dissect_channel_create(tvbuff_t *tvb, proto_tree *tree, int offset)
 }
 
 
-static guint16
+static uint16_t
 dissect_channel_send(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-   guint16 send_type, awareness;
-   guint na;
+   uint16_t send_type, awareness;
+   unsigned na;
 
    send_type = tvb_get_ntohs(tvb, offset);
    proto_item_append_text(tree, ", %s", val_to_str(send_type, sendtypenames, "0x%04x"));
@@ -405,7 +405,7 @@ dissect_channel_send(tvbuff_t *tvb, proto_tree *tree, int offset)
          offset += 2;
          offset += add_text_item(tvb, tree, offset, hf_sametime_field_text);
          offset += 4;
-         if (tvb_get_guint8(tvb, offset))        {
+         if (tvb_get_uint8(tvb, offset))        {
             offset += 1;
             offset += add_text_item(tvb, tree, offset, hf_sametime_field_text);
             dissect_set_user_status(tvb, tree, offset);
@@ -467,7 +467,7 @@ dissect_channel_accept(tvbuff_t *tvb, proto_tree *tree, int offset)
    offset += 34;
    if (tvb_reported_length_remaining(tvb, offset + 2))        {
       offset += add_text_item(tvb, tree, offset, hf_sametime_field_text);
-      if (tvb_get_guint8(tvb, offset))        {
+      if (tvb_get_uint8(tvb, offset))        {
          offset += 1;
          offset += add_text_item(tvb, tree, offset, hf_sametime_field_text);
          dissect_set_user_status(tvb, tree, offset);
@@ -479,7 +479,7 @@ dissect_channel_accept(tvbuff_t *tvb, proto_tree *tree, int offset)
 static void
 dissect_sense_service(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-   guint32 code;
+   uint32_t code;
 
    code = tvb_get_ntohl(tvb, offset);
    proto_item_append_text(tree, ", %s", val_to_str(code, codenames, "0x%04x"));
@@ -496,13 +496,13 @@ dissect_sametime_content(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
    proto_tree *sametime_tree;
    proto_item *ti;
    static SametimeTap *sinfo;
-   gint message_type;
+   int message_type;
    int packet_length, offset = 0;
 
    /* we expect either 1 heartbeat byte (0x80) or a sametime message */
    packet_length = tvb_reported_length_remaining(tvb, offset);
    if (packet_length == 1)        {
-      message_type = tvb_get_guint8(tvb, 0);
+      message_type = tvb_get_uint8(tvb, 0);
 
    } else if (packet_length < 12)        {
       message_type = -1;
@@ -650,7 +650,7 @@ sametime_stats_tree_init(stats_tree* st)
 /*
         length of the sametime message
 */
-static guint
+static unsigned
 get_sametime_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                          int offset, void *data _U_)
 {
@@ -658,7 +658,7 @@ get_sametime_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
    /*      because tcp_dissect_pdus was called with 4 as a required "fixed length".  */
    /*        But newer variants of this protocol with a full encrypted network stream  */
    /*        may require a more sophisticated dissection logic here                    */
-   guint32 N = tvb_captured_length_remaining(tvb, offset);
+   uint32_t N = tvb_captured_length_remaining(tvb, offset);
 
    return (N < 4) ? N : tvb_get_ntohl(tvb, offset) + 4;
 }
@@ -866,7 +866,7 @@ proto_register_sametime(void)
       },
    };
 
-   static gint *ett[] = {
+   static int *ett[] = {
       &ett_sametime,
       &ett_sametime_options
    };

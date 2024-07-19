@@ -52,7 +52,7 @@
 
 extern const value_string s7comm_item_return_valuenames[];
 
-guint32 s7comm_decode_ud_cpu_diagnostic_message(tvbuff_t *tvb, packet_info *pinfo, gboolean add_info_to_col, proto_tree *data_tree, guint32 offset);
+uint32_t s7comm_decode_ud_cpu_diagnostic_message(tvbuff_t *tvb, packet_info *pinfo, bool add_info_to_col, proto_tree *data_tree, uint32_t offset);
 
 #endif
 

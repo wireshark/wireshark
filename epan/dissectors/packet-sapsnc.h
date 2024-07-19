@@ -21,6 +21,6 @@ extern /**
  * from any dissector that wants SNC frames to be decoded.
  */
 tvbuff_t*
-dissect_sapsnc_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset);
+dissect_sapsnc_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset);
 
 #endif /* __PACKET_SAPPSNC_H__ */

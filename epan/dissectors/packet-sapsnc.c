@@ -96,7 +96,7 @@ static int hf_sapsnc_ext_field;
 static int hf_sapsnc_token;
 static int hf_sapsnc_data;
 
-static gint ett_sapsnc;
+static int ett_sapsnc;
 
 /* Expert info */
 static expert_field ei_sapsnc_invalid_header_length;
@@ -112,11 +112,11 @@ void proto_register_sapsnc(void);
  * from any dissector that wants SNC frames to be decoded.
  */
 tvbuff_t*
-dissect_sapsnc_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset)
+dissect_sapsnc_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset)
 {
 	tvbuff_t *next_tvb = NULL;
-	guint8 frame_type;
-	guint32 header_length, ext_field_length, token_length = 0, data_length = 0;
+	uint8_t frame_type;
+	uint32_t header_length, ext_field_length, token_length = 0, data_length = 0;
 	proto_item *sapsnc_frame = NULL, *sapsnc_flags = NULL, *sapsnc_header_length = NULL;
 	proto_tree *sapsnc_frame_tree = NULL, *sapsnc_flags_tree = NULL;
 
@@ -129,7 +129,7 @@ dissect_sapsnc_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 	offset+=8;
 
 	/* Frame type */
-	frame_type = tvb_get_guint8(tvb, offset);
+	frame_type = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(sapsnc_frame_tree, hf_sapsnc_frame_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset+=1;
 
@@ -146,7 +146,7 @@ dissect_sapsnc_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 	if (header_length < 14){
 		expert_add_info_format(pinfo, sapsnc_header_length, &ei_sapsnc_invalid_header_length, "Invalid header length %u", header_length);
 		header_length = 14;
-	} else if ((guint32)tvb_reported_length_remaining(tvb, offset) < header_length) {
+	} else if ((uint32_t)tvb_reported_length_remaining(tvb, offset) < header_length) {
 		expert_add_info_format(pinfo, sapsnc_header_length, &ei_sapsnc_invalid_header_length, "Invalid captured length %d (reported %u)", tvb_reported_length_remaining(tvb, offset), header_length);
 		header_length = tvb_reported_length_remaining(tvb, offset);
 	}
@@ -277,7 +277,7 @@ proto_register_sapsnc(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_sapsnc
 	};
 
@@ -308,11 +308,11 @@ proto_register_sapsnc(void)
 void
 proto_reg_handoff_sapsnc(void)
 {
-	static gboolean initialized = FALSE;
+	static bool initialized = false;
 
 	if (!initialized) {
 		create_dissector_handle(dissect_sapsnc, proto_sapsnc);
-		initialized = TRUE;
+		initialized = true;
 	}
 
 }

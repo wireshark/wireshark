@@ -179,76 +179,76 @@ static int proto_simple;
 static dissector_handle_t simple_dissector_handle;
 static dissector_handle_t link16_handle;
 
-static gint hf_simple_sync_byte_1;
-static gint hf_simple_sync_byte_2;
-static gint hf_simple_length;
-static gint hf_simple_sequence_number;
-static gint hf_simple_src_node;
-static gint hf_simple_src_subnode;
-static gint hf_simple_dst_node;
-static gint hf_simple_dst_subnode;
-static gint hf_simple_packet_size;
-static gint hf_simple_packet_type;
-static gint hf_simple_transit_time;
-static gint hf_simple_link16_subtype;
-static gint hf_simple_link16_rc;
-static gint hf_simple_link16_network;
-static gint hf_simple_link16_ssc2;
-static gint hf_simple_link16_npg;
-static gint hf_simple_link16_ssc1;
-static gint hf_simple_link16_stn;
-static gint hf_simple_link16_word_count;
-static gint hf_simple_link16_loopback_id;
-static gint hf_simple_status_subtype;
-static gint hf_simple_status_word_count;
-static gint hf_simple_status_name;
-static gint hf_simple_status_time_hours;
-static gint hf_simple_status_node_id;
-static gint hf_simple_status_time_seconds;
-static gint hf_simple_status_time_minutes;
-static gint hf_simple_status_security_level;
-static gint hf_simple_status_node_entry_flag;
-static gint hf_simple_status_relay_hop;
-static gint hf_simple_status_dx_flag_system_messages;
-static gint hf_simple_status_dx_flag_common_tims_bims;
-static gint hf_simple_status_dx_flag_common_toms_boms;
-static gint hf_simple_status_dx_flag_simple_receive;
-static gint hf_simple_status_dx_flag_simple_transmit;
-static gint hf_simple_status_dx_flag_all_tims_bims;
-static gint hf_simple_status_dx_flag_all_toms_boms;
-static gint hf_simple_status_dx_file_id;
-static gint hf_simple_status_spare_1;
-static gint hf_simple_status_link16_terminal_type;
-static gint hf_simple_status_link16_role;
-static gint hf_simple_status_link16_sync_status;
-static gint hf_simple_status_link16_terminal_host_status;
-static gint hf_simple_status_link16_stn;
-static gint hf_simple_status_spare_2;
-static gint hf_simple_status_link11_dts_type;
-static gint hf_simple_status_link11_role;
-static gint hf_simple_status_link11_pu;
-static gint hf_simple_status_link11_dts_host_status;
-static gint hf_simple_status_spare_3;
-static gint hf_simple_checksum;
-static gint hf_simple_checksum_status;
+static int hf_simple_sync_byte_1;
+static int hf_simple_sync_byte_2;
+static int hf_simple_length;
+static int hf_simple_sequence_number;
+static int hf_simple_src_node;
+static int hf_simple_src_subnode;
+static int hf_simple_dst_node;
+static int hf_simple_dst_subnode;
+static int hf_simple_packet_size;
+static int hf_simple_packet_type;
+static int hf_simple_transit_time;
+static int hf_simple_link16_subtype;
+static int hf_simple_link16_rc;
+static int hf_simple_link16_network;
+static int hf_simple_link16_ssc2;
+static int hf_simple_link16_npg;
+static int hf_simple_link16_ssc1;
+static int hf_simple_link16_stn;
+static int hf_simple_link16_word_count;
+static int hf_simple_link16_loopback_id;
+static int hf_simple_status_subtype;
+static int hf_simple_status_word_count;
+static int hf_simple_status_name;
+static int hf_simple_status_time_hours;
+static int hf_simple_status_node_id;
+static int hf_simple_status_time_seconds;
+static int hf_simple_status_time_minutes;
+static int hf_simple_status_security_level;
+static int hf_simple_status_node_entry_flag;
+static int hf_simple_status_relay_hop;
+static int hf_simple_status_dx_flag_system_messages;
+static int hf_simple_status_dx_flag_common_tims_bims;
+static int hf_simple_status_dx_flag_common_toms_boms;
+static int hf_simple_status_dx_flag_simple_receive;
+static int hf_simple_status_dx_flag_simple_transmit;
+static int hf_simple_status_dx_flag_all_tims_bims;
+static int hf_simple_status_dx_flag_all_toms_boms;
+static int hf_simple_status_dx_file_id;
+static int hf_simple_status_spare_1;
+static int hf_simple_status_link16_terminal_type;
+static int hf_simple_status_link16_role;
+static int hf_simple_status_link16_sync_status;
+static int hf_simple_status_link16_terminal_host_status;
+static int hf_simple_status_link16_stn;
+static int hf_simple_status_spare_2;
+static int hf_simple_status_link11_dts_type;
+static int hf_simple_status_link11_role;
+static int hf_simple_status_link11_pu;
+static int hf_simple_status_link11_dts_host_status;
+static int hf_simple_status_spare_3;
+static int hf_simple_checksum;
+static int hf_simple_checksum_status;
 
-static gint ett_simple;
-static gint ett_packet;
-static gint ett_simple_status_dx_flag;
+static int ett_simple;
+static int ett_packet;
+static int ett_simple_status_dx_flag;
 
 static expert_field ei_simple_sync_bytes_bad;
 static expert_field ei_simple_length_bad;
 static expert_field ei_simple_packet_size_bad;
 static expert_field ei_simple_checksum_bad;
 
-static void dissect_simple_link16(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+static void dissect_simple_link16(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
-    guint subtype, stn, word_count, i;
+    unsigned subtype, stn, word_count, i;
     Link16State state;
     tvbuff_t *newtvb;
 
     proto_tree_add_item(tree, hf_simple_link16_subtype, tvb, offset, 1, ENC_NA);
-    subtype = tvb_get_guint8(tvb, offset);
+    subtype = tvb_get_uint8(tvb, offset);
     offset++;
 
     proto_tree_add_item(tree, hf_simple_link16_rc, tvb, offset, 1, ENC_NA);
@@ -271,7 +271,7 @@ static void dissect_simple_link16(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     offset += 2;
 
     proto_tree_add_item(tree, hf_simple_link16_word_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    word_count = tvb_get_guint8(tvb, offset);
+    word_count = tvb_get_uint8(tvb, offset);
     offset += 2;
 
     proto_tree_add_item(tree, hf_simple_link16_loopback_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -305,7 +305,7 @@ static int * const simple_status_dx_flag_fields[] = {
 
 #define SIMPLE_STATUS_NAME_LEN 10
 
-static void dissect_simple_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+static void dissect_simple_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
     char *name;
     int link16_status, pu;
@@ -361,7 +361,7 @@ static void dissect_simple_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     offset++;
 
     proto_tree_add_item(tree, hf_simple_status_link16_terminal_host_status, tvb, offset, 1, ENC_NA);
-    link16_status = tvb_get_guint8(tvb, offset);
+    link16_status = tvb_get_uint8(tvb, offset);
     offset++;
 
     proto_tree_add_item(tree, hf_simple_status_link16_stn, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -379,22 +379,22 @@ static void dissect_simple_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     offset++;
 
     proto_tree_add_item(tree, hf_simple_status_link11_pu, tvb, offset, 1, ENC_NA);
-    pu = tvb_get_guint8(tvb, offset);
+    pu = tvb_get_uint8(tvb, offset);
     offset++;
 
     proto_tree_add_item(tree, hf_simple_status_link11_dts_host_status, tvb, offset, 1, ENC_NA);
-    if (tvb_get_guint8(tvb, offset))
+    if (tvb_get_uint8(tvb, offset))
         col_append_fstr(pinfo->cinfo, COL_INFO, ", PU: %03o", pu);
     offset++;
 
     proto_tree_add_item(tree, hf_simple_status_spare_3, tvb, offset, 4, ENC_NA);
 }
 
-static void dissect_checksum(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+static void dissect_checksum(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    const guint8 * v = tvb_get_ptr(tvb, 0, offset);
-    guint16 expected_checksum = 0;
-    gint i;
+    const uint8_t * v = tvb_get_ptr(tvb, 0, offset);
+    uint16_t expected_checksum = 0;
+    int i;
 
     for (i = 0; i < offset; i++)
         expected_checksum += v[i];
@@ -407,9 +407,9 @@ static int dissect_simple(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 {
     proto_item *simple_item = NULL, *item;
     proto_tree *simple_tree = NULL, *packet_tree = NULL;
-    guint offset = 0, length, packet_size, packet_type;
-    const gchar *packet_type_string;
-    guint8 sync_bytes_bad = 0;
+    unsigned offset = 0, length, packet_size, packet_type;
+    const char *packet_type_string;
+    uint8_t sync_bytes_bad = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SIMPLE");
 
@@ -419,11 +419,11 @@ static int dissect_simple(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     }
 
     proto_tree_add_item(simple_tree, hf_simple_sync_byte_1, tvb, offset, 1, ENC_NA);
-    sync_bytes_bad |= tvb_get_guint8(tvb, offset) ^ 0x49;
+    sync_bytes_bad |= tvb_get_uint8(tvb, offset) ^ 0x49;
     offset++;
 
     proto_tree_add_item(simple_tree, hf_simple_sync_byte_2, tvb, offset, 1, ENC_NA);
-    sync_bytes_bad |= tvb_get_guint8(tvb, offset) ^ 0x36;
+    sync_bytes_bad |= tvb_get_uint8(tvb, offset) ^ 0x36;
     offset++;
 
     if (sync_bytes_bad)
@@ -452,14 +452,14 @@ static int dissect_simple(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     offset++;
 
     item = proto_tree_add_item(simple_tree, hf_simple_packet_size, tvb, offset, 1, ENC_NA);
-    packet_size = tvb_get_guint8(tvb, offset) * 2;
+    packet_size = tvb_get_uint8(tvb, offset) * 2;
     if (packet_size < 8 || packet_size - 8 > tvb_reported_length(tvb))
         expert_add_info(pinfo, item, &ei_simple_packet_size_bad);
     packet_size -= 8;
     offset++;
 
     proto_tree_add_item(simple_tree, hf_simple_packet_type, tvb, offset, 1, ENC_NA);
-    packet_type = tvb_get_guint8(tvb, offset);
+    packet_type = tvb_get_uint8(tvb, offset);
     offset++;
 
     proto_tree_add_item(simple_tree, hf_simple_transit_time, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -643,7 +643,7 @@ void proto_register_simple(void)
           { "Checksum Status", "simple.checksum.status", FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,
             NULL, HFILL }}
     };
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_simple,
         &ett_packet,
         &ett_simple_status_dx_flag,

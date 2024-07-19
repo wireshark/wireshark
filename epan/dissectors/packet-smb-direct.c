@@ -29,11 +29,11 @@ static dissector_handle_t smb_direct_handle;
 
 static int proto_smb_direct;
 
-static gint ett_smb_direct;
-static gint ett_smb_direct_hdr;
-static gint ett_smb_direct_flags;
-static gint ett_smb_direct_fragment;
-static gint ett_smb_direct_fragments;
+static int ett_smb_direct;
+static int ett_smb_direct_hdr;
+static int ett_smb_direct_flags;
+static int ett_smb_direct_fragment;
+static int ett_smb_direct_fragments;
 
 static int hf_smb_direct_negotiate_request;
 static int hf_smb_direct_negotiate_response;
@@ -98,15 +98,15 @@ static reassembly_table smb_direct_reassembly_table;
 
 static void
 dissect_smb_direct_payload(tvbuff_t *tvb, packet_info *pinfo,
-			   proto_tree *tree, guint32 remaining_length)
+			   proto_tree *tree, uint32_t remaining_length)
 {
-	gboolean save_fragmented = pinfo->fragmented;
+	bool save_fragmented = pinfo->fragmented;
 	int save_visited = pinfo->fd->visited;
 	conversation_t *conversation = NULL;
 	fragment_head *fd_head = NULL;
 	tvbuff_t *payload_tvb = NULL;
-	gboolean more_frags = FALSE;
-	gboolean fd_head_not_cached = FALSE;
+	bool more_frags = false;
+	bool fd_head_not_cached = false;
 	heur_dtbl_entry_t *hdtbl_entry;
 
 	if (!smb_direct_reassemble) {
@@ -117,12 +117,12 @@ dissect_smb_direct_payload(tvbuff_t *tvb, packet_info *pinfo,
 	conversation = find_or_create_conversation(pinfo);
 
 	if (remaining_length > 0) {
-		more_frags = TRUE;
+		more_frags = true;
 	}
 
 	fd_head = (fragment_head *)p_get_proto_data(wmem_file_scope(), pinfo, proto_smb_direct, 0);
 	if (fd_head == NULL) {
-		fd_head_not_cached = TRUE;
+		fd_head_not_cached = true;
 
 		pinfo->fd->visited = 0;
 		fd_head = fragment_add_seq_next(&smb_direct_reassembly_table,
@@ -171,7 +171,7 @@ dissect_smb_direct_payload(tvbuff_t *tvb, packet_info *pinfo,
 	}
 
 dissect_payload:
-	pinfo->fragmented = FALSE;
+	pinfo->fragmented = false;
 	if (!dissector_try_heuristic(smb_direct_heur_subdissector_list,
 				     payload_tvb, pinfo, tree, &hdtbl_entry, NULL)) {
 		call_data_dissector(payload_tvb, pinfo, tree);
@@ -193,12 +193,12 @@ dissect_smb_direct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	proto_tree *neg_rep_tree = NULL;
 	proto_tree *data_tree = NULL;
 	int offset = 0;
-	guint32 status = 0;
-	guint32 remaining_length = 0;
-	guint32 data_offset = 0;
-	guint32 data_length = 0;
-	guint rlen = tvb_reported_length(tvb);
-	gint len = 0;
+	uint32_t status = 0;
+	uint32_t remaining_length = 0;
+	uint32_t data_offset = 0;
+	uint32_t data_length = 0;
+	unsigned rlen = tvb_reported_length(tvb);
+	int len = 0;
 	tvbuff_t *next_tvb = NULL;
 	static int * const flags[] = {
 		&hf_smb_direct_flags_response_requested,
@@ -354,11 +354,11 @@ dissect_smb_direct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 				    tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
-		if (data_length > 0 && data_offset > (guint32)offset) {
+		if (data_length > 0 && data_offset > (uint32_t)offset) {
 			len = tvb_reported_length_remaining(tvb, data_offset);
 		}
 
-		if (data_length <= (guint32)len) {
+		if (data_length <= (uint32_t)len) {
 			next_tvb = tvb_new_subset_length(tvb, data_offset,
 						  data_length);
 		}
@@ -378,9 +378,9 @@ dissect_smb_direct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 static enum SMB_DIRECT_HDR_TYPE
 is_smb_direct(tvbuff_t *tvb, packet_info *pinfo _U_)
 {
-	gboolean maybe_neg_req = FALSE;
-	gboolean maybe_data = FALSE;
-	guint len = tvb_reported_length(tvb);
+	bool maybe_neg_req = false;
+	bool maybe_data = false;
+	unsigned len = tvb_reported_length(tvb);
 
 	if (len < 20) {
 		return SMB_DIRECT_HDR_UNKNOWN;
@@ -400,7 +400,7 @@ is_smb_direct(tvbuff_t *tvb, packet_info *pinfo _U_)
 	    tvb_get_letohs(tvb, 2) == 0x0100 && /* max version */
 	    tvb_get_letohs(tvb, 4) == 0x0000)   /* reserved */
 	{
-		maybe_neg_req = TRUE;
+		maybe_neg_req = true;
 	}
 
 	if (tvb_get_letohs(tvb, 0) <= 255 &&    /* credits up to 255 */
@@ -408,25 +408,25 @@ is_smb_direct(tvbuff_t *tvb, packet_info *pinfo _U_)
 	    tvb_get_letohs(tvb, 4) <= 1   &&    /* flags 0 or 1 */
 	    tvb_get_letohs(tvb, 6) == 0)    /* reserved */
 	{
-		maybe_data = TRUE;
+		maybe_data = true;
 	}
 
 	if (len == 20) {
 		if (tvb_get_letohl(tvb, 8) != 0) { /* remaining */
-			maybe_data = FALSE;
+			maybe_data = false;
 		}
 		if (tvb_get_letohl(tvb, 12) != 0) { /* data offset */
-			maybe_data = FALSE;
+			maybe_data = false;
 		}
 		if (tvb_get_letohl(tvb, 16) != 0) { /* data length */
-			maybe_data = FALSE;
+			maybe_data = false;
 		}
 
 		if (maybe_neg_req && !maybe_data) {
 			/* Negotiate Request */
 			return SMB_DIRECT_HDR_NEG_REQ;
 		}
-		/* maybe_neg_req = FALSE; */
+		/* maybe_neg_req = false; */
 		if (maybe_data) {
 			/* Data Message */
 			return SMB_DIRECT_HDR_DATA;
@@ -530,7 +530,7 @@ dissect_smb_direct_infiniband_heur(tvbuff_t *tvb, packet_info *pinfo,
 
 void proto_register_smb_direct(void)
 {
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_smb_direct,
 		&ett_smb_direct_hdr,
 		&ett_smb_direct_flags,

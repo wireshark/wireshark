@@ -52,11 +52,11 @@ static int hf_ses_reassembled_in;
 static int hf_ses_reassembled_length;
 
 /* ses fields defining a sub tree */
-static gint ett_ses;
-static gint ett_ses_param;
+static int ett_ses;
+static int ett_ses_param;
 
-static gint ett_ses_segment;
-static gint ett_ses_segments;
+static int ett_ses_segment;
+static int ett_ses_segments;
 
 
 /* flags */
@@ -65,12 +65,12 @@ static int hf_version_number_options_flags;
 static int hf_enclosure_item_options_flags;
 static int hf_token_item_options_flags;
 
-static gint ett_connect_protocol_options_flags;
-static gint ett_transport_options_flags;
-static gint ett_protocol_version_flags;
-static gint ett_enclosure_item_flags;
-static gint ett_token_item_flags;
-static gint ett_ses_req_options_flags;
+static int ett_connect_protocol_options_flags;
+static int ett_transport_options_flags;
+static int ett_protocol_version_flags;
+static int ett_enclosure_item_flags;
+static int ett_token_item_flags;
+static int ett_ses_req_options_flags;
 
 /* called SS user reference */
 static int hf_called_ss_user_reference;
@@ -321,11 +321,11 @@ static value_string_ext reason_vals_ext = VALUE_STRING_EXT_INIT(reason_vals);
 static bool ses_desegment = true;
 
 /* RTSE reassembly data */
-static guint ses_pres_ctx_id;
-static gboolean ses_rtse_reassemble;
+static unsigned ses_pres_ctx_id;
+static bool ses_rtse_reassemble;
 
 static void
-call_pres_dissector(tvbuff_t *tvb, int offset, guint16 param_len,
+call_pres_dissector(tvbuff_t *tvb, int offset, uint16_t param_len,
 		    packet_info *pinfo, proto_tree *tree,
 		    proto_tree *param_tree,
 		    struct SESSION_DATA_STRUCTURE *session)
@@ -355,9 +355,9 @@ call_pres_dissector(tvbuff_t *tvb, int offset, guint16 param_len,
 static int
 get_item_len(tvbuff_t *tvb, int offset, int *len_len)
 {
-	guint16 len;
+	uint16_t len;
 
-	len = tvb_get_guint8(tvb, offset);
+	len = tvb_get_uint8(tvb, offset);
 	if(len == TWO_BYTE_LEN)
 	{
 		len = tvb_get_ntohs(tvb, offset+1);
@@ -368,14 +368,14 @@ get_item_len(tvbuff_t *tvb, int offset, int *len_len)
 	return len;
 }
 
-static gboolean
+static bool
 dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
-	          proto_tree *param_tree, packet_info *pinfo, guint8 param_type,
-	          guint16 param_len, proto_item *param_len_item, guint8 *enclosure_item_flags,
+	          proto_tree *param_tree, packet_info *pinfo, uint8_t param_type,
+	          uint16_t param_len, proto_item *param_len_item, uint8_t *enclosure_item_flags,
 		  struct SESSION_DATA_STRUCTURE *session)
 {
-	gboolean has_user_information = TRUE;
-	guint16       flags;
+	bool has_user_information = true;
+	uint16_t      flags;
 	asn1_ctx_t asn1_ctx;
 	static int * const item_option_flags[] = {
 		&hf_release_token,
@@ -424,7 +424,7 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 		NULL
 	};
 
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 
 	switch (param_type)
 	{
@@ -484,7 +484,7 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 		}
 		proto_tree_add_bitmask(param_tree, tvb, offset, hf_ses_transport_option_flags, ett_transport_options_flags, transport_option_flags, ENC_NA);
 
-		if(tvb_get_guint8(tvb, offset) & user_abort )
+		if(tvb_get_uint8(tvb, offset) & user_abort )
 		{
 			session->abort_type = SESSION_USER_ABORT;
 		}
@@ -559,8 +559,8 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 			    "Length is %u, should be 1", param_len);
 			break;
 		}
-		flags = tvb_get_guint8(tvb, offset);
-		*enclosure_item_flags = (guint8) flags;
+		flags = tvb_get_uint8(tvb, offset);
+		*enclosure_item_flags = (uint8_t) flags;
 		proto_tree_add_bitmask(param_tree, tvb, offset, hf_enclosure_item_options_flags, ett_enclosure_item_flags, enclosure_flags, ENC_BIG_ENDIAN);
 
 		if (flags & END_SPDU) {
@@ -582,7 +582,7 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 		     * So, there is only no user information if *only* END_SPDU is set.
 		     */
 
-		     has_user_information = FALSE;
+		     has_user_information = false;
 		  }
 		}
 		break;
@@ -724,22 +724,22 @@ PICS.    */
 	return has_user_information;
 }
 
-static gboolean
+static bool
 dissect_parameter_group(tvbuff_t *tvb, int offset, proto_tree *tree,
-		        proto_tree *pg_tree, packet_info *pinfo, guint16 pg_len,
-		        guint8 *enclosure_item_flags, struct SESSION_DATA_STRUCTURE *session)
+		        proto_tree *pg_tree, packet_info *pinfo, uint16_t pg_len,
+		        uint8_t *enclosure_item_flags, struct SESSION_DATA_STRUCTURE *session)
 {
-	gboolean has_user_information = TRUE;
+	bool has_user_information = true;
 	proto_item *ti, *param_len_item;
 	proto_tree *param_tree;
-	guint8 param_type;
+	uint8_t param_type;
 	const char *param_str;
 	int len_len;
-	guint16 param_len;
+	uint16_t param_len;
 
 	while(pg_len != 0)
 	{
-		param_type = tvb_get_guint8(tvb, offset);
+		param_type = tvb_get_uint8(tvb, offset);
 		param_tree = proto_tree_add_subtree(pg_tree, tvb, offset, -1,
 			ett_ses_param, &ti,
 			val_to_str_ext(param_type, &param_vals_ext, "Unknown parameter type (0x%02x)"));
@@ -780,7 +780,7 @@ dissect_parameter_group(tvbuff_t *tvb, int offset, proto_tree *tree,
 				if (!dissect_parameter(tvb, offset, tree,
 				    param_tree, pinfo, param_type, param_len, param_len_item,
 				    enclosure_item_flags, session))
-					has_user_information = FALSE;
+					has_user_information = false;
 				break;
 			}
 		}
@@ -791,25 +791,25 @@ dissect_parameter_group(tvbuff_t *tvb, int offset, proto_tree *tree,
 }
 
 /*
- * Returns TRUE if there's a User Information field in this SPDU, FALSE
+ * Returns true if there's a User Information field in this SPDU, false
  * otherwise.
  */
-static gboolean
-dissect_parameters(tvbuff_t *tvb, int offset, guint16 len, proto_tree *tree,
+static bool
+dissect_parameters(tvbuff_t *tvb, int offset, uint16_t len, proto_tree *tree,
 	           proto_tree *ses_tree, packet_info *pinfo,
-	           guint8 *enclosure_item_flags, struct SESSION_DATA_STRUCTURE *session)
+	           uint8_t *enclosure_item_flags, struct SESSION_DATA_STRUCTURE *session)
 {
-	gboolean has_user_information = TRUE;
+	bool has_user_information = true;
 	proto_item *ti, *param_len_item;
 	proto_tree *param_tree;
-	guint8 param_type;
+	uint8_t param_type;
 	const char *param_str;
 	int len_len;
-	guint16 param_len;
+	uint16_t param_len;
 
 	while (len != 0)
 	{
-		param_type = tvb_get_guint8(tvb, offset);
+		param_type = tvb_get_uint8(tvb, offset);
 		param_tree = proto_tree_add_subtree(ses_tree, tvb, offset, -1, ett_ses_param, &ti,
 		    val_to_str_ext(param_type, &param_vals_ext,
 		      "Unknown parameter type (0x%02x)"));
@@ -854,7 +854,7 @@ dissect_parameters(tvbuff_t *tvb, int offset, guint16 len, proto_tree *tree,
 				/* Yes. */
 				if (!dissect_parameter_group(tvb, offset, tree,
 				    param_tree, pinfo, param_len, enclosure_item_flags, session))
-					has_user_information = FALSE;
+					has_user_information = false;
 				break;
 
 			/* everything else is a PI */
@@ -862,7 +862,7 @@ dissect_parameters(tvbuff_t *tvb, int offset, guint16 len, proto_tree *tree,
 				if (!dissect_parameter(tvb, offset, tree,
 				    param_tree, pinfo, param_type, param_len, param_len_item,
 				    enclosure_item_flags, session))
-					has_user_information = FALSE;
+					has_user_information = false;
 				break;
 			}
 		}
@@ -877,28 +877,28 @@ dissect_parameters(tvbuff_t *tvb, int offset, guint16 len, proto_tree *tree,
  */
 static int
 dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
-	     gboolean tokens, gboolean connectionless)
+	     bool tokens, bool connectionless)
 {
-	gboolean has_user_information = FALSE;
-	guint8 type;
+	bool has_user_information = false;
+	uint8_t type;
 	proto_item *ti = NULL;
 	proto_tree *ses_tree = NULL;
 	int len_len;
-	guint16 parameters_len;
+	uint16_t parameters_len;
 	tvbuff_t *next_tvb = NULL;
-	guint32 *pres_ctx_id = NULL;
-	guint8 enclosure_item_flags = BEGINNING_SPDU|END_SPDU;
+	uint32_t *pres_ctx_id = NULL;
+	uint8_t enclosure_item_flags = BEGINNING_SPDU|END_SPDU;
 	struct SESSION_DATA_STRUCTURE session;
 
 	/*
 	 * Get SPDU type.
 	 */
-	type = tvb_get_guint8(tvb, offset);
+	type = tvb_get_uint8(tvb, offset);
 	session.spdu_type = type;
 	session.abort_type = SESSION_NO_ABORT;
 	session.pres_ctx_id = 0;
 	session.ros_op = 0;
-	session.rtse_reassemble = FALSE;
+	session.rtse_reassemble = false;
 
 	if(connectionless) {
 		col_add_str(pinfo->cinfo, COL_INFO,
@@ -910,7 +910,7 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 			proto_tree_add_uint(ses_tree, hf_ses_type, tvb,
 				offset, 1, type);
 		}
-		has_user_information = TRUE;
+		has_user_information = true;
 	}
 	else if (tokens) {
 		col_add_str(pinfo->cinfo, COL_INFO,
@@ -940,22 +940,22 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 		case SES_DATA_TRANSFER:
 		case SES_EXPEDITED:
 		case SES_TYPED_DATA:
-			has_user_information = TRUE;
+			has_user_information = true;
 			break;
 		case SES_MAJOR_SYNC_POINT:
-			pres_ctx_id = (guint32 *)p_get_proto_data(wmem_file_scope(), pinfo, proto_ses, 0);
+			pres_ctx_id = (uint32_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_ses, 0);
 			if (ses_rtse_reassemble != 0 && !pres_ctx_id) {
 				/* First time visited - save pres_ctx_id */
-				pres_ctx_id = wmem_new(wmem_file_scope(), guint32);
+				pres_ctx_id = wmem_new(wmem_file_scope(), uint32_t);
 				*pres_ctx_id = ses_pres_ctx_id;
 				p_add_proto_data(wmem_file_scope(), pinfo, proto_ses, 0, pres_ctx_id);
 			}
 			if (pres_ctx_id) {
 				session.pres_ctx_id = *pres_ctx_id;
-				session.rtse_reassemble = TRUE;
-				has_user_information = TRUE;
+				session.rtse_reassemble = true;
+				has_user_information = true;
 			}
-			ses_rtse_reassemble = FALSE;
+			ses_rtse_reassemble = false;
 			break;
 		}
 	}
@@ -971,7 +971,7 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 	/* Dissect parameters. */
 	if (!dissect_parameters(tvb, offset, parameters_len, tree, ses_tree,
 				pinfo, &enclosure_item_flags, &session))
-		has_user_information = FALSE;
+		has_user_information = false;
 	offset += parameters_len;
 
 	proto_item_set_end(ti, tvb, offset);
@@ -987,8 +987,8 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 	} else {
 		conversation_t *conversation = NULL;
 		fragment_head *frag_msg = NULL;
-		gint fragment_len;
-		guint32 ses_id = 0;
+		int fragment_len;
+		uint32_t ses_id = 0;
 
 		/* Use conversation index as segment id */
 		conversation  = find_conversation_pinfo(pinfo, 0);
@@ -1003,12 +1003,12 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 						  tvb, offset,
 						  pinfo, ses_id, NULL,
 						  fragment_len,
-						  (enclosure_item_flags & END_SPDU) ? FALSE : TRUE);
+						  (enclosure_item_flags & END_SPDU) ? false : true);
 		next_tvb = process_reassembled_data (tvb, offset, pinfo, "Reassembled SES",
 						     frag_msg, &ses_frag_items, NULL,
 						     (enclosure_item_flags & END_SPDU) ? tree : ses_tree);
 
-		has_user_information = TRUE;
+		has_user_information = true;
 		offset += fragment_len;
 	}
 
@@ -1027,7 +1027,7 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 		offset = tvb_captured_length(tvb);
 		if (session.rtse_reassemble && type == SES_DATA_TRANSFER) {
 			ses_pres_ctx_id = session.pres_ctx_id;
-			ses_rtse_reassemble = TRUE;
+			ses_rtse_reassemble = true;
 		}
 	}
 	return offset;
@@ -1040,12 +1040,12 @@ static int
 dissect_ses(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int offset = 0;
-	guint8 type;
-	gboolean is_clsp = FALSE;
+	uint8_t type;
+	bool is_clsp = false;
 
-	type = tvb_get_guint8(tvb, offset);
+	type = tvb_get_uint8(tvb, offset);
 	if(type == CLSES_UNIT_DATA)
-		is_clsp = TRUE;
+		is_clsp = true;
 
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, is_clsp ? "CLSES" : "SES");
@@ -1060,7 +1060,7 @@ dissect_ses(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	 * the same SPDU type value).
 	 */
 	if ((type == SES_PLEASE_TOKENS) || (type == SES_GIVE_TOKENS))
-		offset = dissect_spdu(tvb, offset, pinfo, tree, TOKENS_SPDU, FALSE);
+		offset = dissect_spdu(tvb, offset, pinfo, tree, TOKENS_SPDU, false);
 
 
 	/* Dissect the remaining SPDUs. */
@@ -1074,17 +1074,17 @@ dissect_ses_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 {
 	/* must check that this really is a ses packet */
 	int offset = 0;
-	guint8 type;
+	uint8_t type;
 	int len_len;
-	guint16 len;
+	uint16_t len;
 
 	/* first, check do we have at least 4 bytes (type+length) */
 	if (tvb_captured_length(tvb) < 2)
 		return false;	/* no */
 
-	/* can we recognize session PDU ? Return FALSE if  not */
+	/* can we recognize session PDU ? Return false if  not */
 	/*   get SPDU type */
-	type = tvb_get_guint8(tvb, offset);
+	type = tvb_get_uint8(tvb, offset);
 	/* check SPDU type */
 	if (try_val_to_str_ext(type, &ses_vals_ext) == NULL)
 	{
@@ -1095,7 +1095,7 @@ dissect_ses_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 	 * a Give Tokens PDU? Return false if not */
 	if(tvb_bytes_exist(tvb, 2, 2) && type == SES_GIVE_TOKENS) {
 		/*   get SPDU type */
-		type = tvb_get_guint8(tvb, offset+2);
+		type = tvb_get_uint8(tvb, offset+2);
 		/* check SPDU type */
 		if (try_val_to_str_ext(type, &ses_vals_ext) == NULL)
 		{
@@ -1108,7 +1108,7 @@ dissect_ses_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 	 * the starter in this case is fixed to 0x32 (SES_MINOR_SYNC_ACK for SES),
 	 * so if the parameter type is unknown, it's probably SIMATIC */
 	if(type == 0x32 && tvb_captured_length(tvb) >= 3) {
-		type = tvb_get_guint8(tvb, offset+2);
+		type = tvb_get_uint8(tvb, offset+2);
 		if (try_val_to_str_ext(type, &param_vals_ext) == NULL) {
 			return false; /* it's probably a SIMATIC protocol */
 		}
@@ -1125,8 +1125,8 @@ dissect_ses_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 		return false;	/* no */
 
 	/* final check to see if the next SPDU, if present, is also valid */
-	if (tvb_captured_length(tvb) > 1+(guint) len) {
-	  type = tvb_get_guint8(tvb, offset + len + 1);
+	if (tvb_captured_length(tvb) > 1+(unsigned) len) {
+	  type = tvb_get_uint8(tvb, offset + len + 1);
 	  /* check SPDU type */
 	  if (try_val_to_str_ext(type, &ses_vals_ext) == NULL) {
 	    return false;  /* no, it isn't a session PDU */
@@ -1834,7 +1834,7 @@ proto_register_ses(void)
           { &hf_ses_parameter_group_inside_parameter_group, { "Parameter group inside parameter group", "ses.parameter_group_inside_parameter_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	};
 
-	static gint *ett[] =
+	static int *ett[] =
 	{
 		&ett_ses,
 		&ett_ses_param,

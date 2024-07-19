@@ -25,7 +25,7 @@ static int proto_snaeth;
 static int hf_snaeth_len;
 static int hf_snaeth_padding;
 
-static gint ett_snaeth;
+static int ett_snaeth;
 
 static dissector_handle_t llc_handle;
 static dissector_handle_t snaeth_handle;
@@ -35,7 +35,7 @@ dissect_snaeth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 {
 	proto_tree	*snaeth_tree;
 	proto_item	*snaeth_ti;
-	guint16		len;
+	uint16_t		len;
 	tvbuff_t	*next_tvb;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SNAETH");
@@ -77,7 +77,7 @@ proto_register_snaeth(void)
 		{ "Padding",	"snaeth.padding", FT_UINT8, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }},
 	};
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_snaeth,
 	};
 

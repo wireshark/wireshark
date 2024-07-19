@@ -52,58 +52,58 @@ typedef enum _sccp_payload_t {
 } sccp_payload_t;
 
 typedef struct _sccp_msg_info_t {
-	guint framenum;
-	guint offset;
-	guint type;
+	unsigned framenum;
+	unsigned offset;
+	unsigned type;
 
 	union {
 		struct {
-			gchar* label;
-			gchar* comment;
-			gchar* imsi;
+			char* label;
+			char* comment;
+			char* imsi;
 			struct _sccp_assoc_info_t* assoc;
 			struct _sccp_msg_info_t* next;
 		} co;
 		struct {
-			guint8* calling_gt;
-			guint calling_ssn;
-			guint8* called_gt;
-			guint called_ssn;
+			uint8_t* calling_gt;
+			unsigned calling_ssn;
+			uint8_t* called_gt;
+			unsigned called_ssn;
 		} ud;
 	} data;
 } sccp_msg_info_t;
 
 typedef struct _sccp_assoc_info_t {
-    guint32 id;
-    guint32 calling_dpc;
-    guint32 called_dpc;
-    guint8 calling_ssn;
-    guint8 called_ssn;
-    gboolean has_fw_key;
-    gboolean has_bw_key;
+    uint32_t id;
+    uint32_t calling_dpc;
+    uint32_t called_dpc;
+    uint8_t calling_ssn;
+    uint8_t called_ssn;
+    bool has_fw_key;
+    bool has_bw_key;
     sccp_msg_info_t* msgs;
     sccp_msg_info_t* curr_msg;
 
     sccp_payload_t payload;
-    gchar* calling_party;
-    gchar* called_party;
-    gchar* extra_info;
-    gchar* imsi;
-    guint32 app_info;  /* used only by dissectors of protocols above SCCP */
+    char* calling_party;
+    char* called_party;
+    char* extra_info;
+    char* imsi;
+    uint32_t app_info;  /* used only by dissectors of protocols above SCCP */
 
 } sccp_assoc_info_t;
 
 typedef struct _sccp_decode_context_t {
-    guint8 message_type;
-    guint dlr;
-    guint slr;
+    uint8_t message_type;
+    unsigned dlr;
+    unsigned slr;
     sccp_assoc_info_t* assoc;
     sccp_msg_info_t*   sccp_msg;
 
 } sccp_decode_context_t;
 
-extern sccp_assoc_info_t* get_sccp_assoc(packet_info* pinfo, guint offset, sccp_decode_context_t* value);
-extern gboolean looks_like_valid_sccp(guint32 frame_num, tvbuff_t *tvb, guint8 my_mtp3_standard);
+extern sccp_assoc_info_t* get_sccp_assoc(packet_info* pinfo, unsigned offset, sccp_decode_context_t* value);
+extern bool looks_like_valid_sccp(uint32_t frame_num, tvbuff_t *tvb, uint8_t my_mtp3_standard);
 
 #define INVALID_LR 0xffffff /* a reserved value */
 

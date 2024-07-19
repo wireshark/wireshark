@@ -192,13 +192,13 @@ static int hf_scsi_mmc_getperformance_type;
 static int hf_scsi_mmc_setcdspeed_logical_unit_write_speed;
 static int hf_scsi_mmc_read_dvd_address;
 
-static gint ett_scsi_mmc_profile;
-static gint ett_scsi_notifications;
-static gint ett_scsi_prevent_allow;
-static gint ett_scsi_disk_flags;
-static gint ett_scsi_format_flags;
-static gint ett_scsi_track_flags;
-static gint ett_scsi_data_flags;
+static int ett_scsi_mmc_profile;
+static int ett_scsi_notifications;
+static int ett_scsi_prevent_allow;
+static int ett_scsi_disk_flags;
+static int ett_scsi_format_flags;
+static int ett_scsi_track_flags;
+static int ett_scsi_data_flags;
 
 /* Generated from convert_proto_tree_add_text.pl */
 static expert_field ei_scsi_mmc_unknown_read_dvd_format;
@@ -380,14 +380,14 @@ static value_string_ext scsi_feature_val_ext = VALUE_STRING_EXT_INIT(scsi_featur
 
 static void
 dissect_mmc4_getconfiguration (tvbuff_t *tvb_a, packet_info *pinfo,
-                               proto_tree *tree, guint offset_a,
-                               gboolean isreq, gboolean iscdb,
-                               guint payload_len _U_,
+                               proto_tree *tree, unsigned offset_a,
+                               bool isreq, bool iscdb,
+                               unsigned payload_len _U_,
                                scsi_task_data_t *cdata)
 
 {
-    gint32             len;
-    guint              old_offset;
+    int32_t            len;
+    unsigned           old_offset;
 
     if (tree && isreq && iscdb) {
         proto_tree_add_item (tree, hf_scsi_mmc_getconf_rt, tvb_a, offset_a+0, 1, ENC_BIG_ENDIAN);
@@ -413,9 +413,9 @@ dissect_mmc4_getconfiguration (tvbuff_t *tvb_a, packet_info *pinfo,
         try_offset+=8;
         len-=4;
         while(len>0){
-            guint16 feature;
-            guint8 additional_length;
-            guint8 num_linksize;
+            uint16_t feature;
+            uint8_t additional_length;
+            uint8_t num_linksize;
 
             feature=tvb_get_ntohs(try_tvb, try_offset);
             proto_tree_add_item (tree, hf_scsi_mmc_feature, try_tvb, try_offset, 2, ENC_BIG_ENDIAN);
@@ -424,7 +424,7 @@ dissect_mmc4_getconfiguration (tvbuff_t *tvb_a, packet_info *pinfo,
             proto_tree_add_item (tree, hf_scsi_mmc_feature_persistent, try_tvb, try_offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item (tree, hf_scsi_mmc_feature_current, try_tvb, try_offset, 1, ENC_BIG_ENDIAN);
             try_offset+=1;
-            additional_length=tvb_get_guint8(try_tvb, try_offset);
+            additional_length=tvb_get_uint8(try_tvb, try_offset);
             proto_tree_add_item (tree, hf_scsi_mmc_feature_additional_length, try_tvb, try_offset, 1, ENC_BIG_ENDIAN);
             try_offset+=1;
             old_offset=try_offset;
@@ -433,8 +433,8 @@ dissect_mmc4_getconfiguration (tvbuff_t *tvb_a, packet_info *pinfo,
                 while(try_offset<(old_offset+additional_length)){
                     proto_item *it;
                     proto_tree *tr;
-                    guint16 profile;
-                    guint8  cur_profile;
+                    uint16_t profile;
+                    uint8_t cur_profile;
 
                     tr=proto_tree_add_subtree(tree, try_tvb, try_offset, 4, ett_scsi_mmc_profile, &it, "Profile:");
 
@@ -442,7 +442,7 @@ dissect_mmc4_getconfiguration (tvbuff_t *tvb_a, packet_info *pinfo,
                     proto_tree_add_item (tr, hf_scsi_mmc_feature_profile, try_tvb, try_offset, 2, ENC_BIG_ENDIAN);
                     proto_item_append_text(it, "%s", val_to_str_ext(profile, &scsi_getconf_current_profile_val_ext, "Unknown 0x%04x"));
 
-                    cur_profile=tvb_get_guint8(try_tvb, try_offset+2);
+                    cur_profile=tvb_get_uint8(try_tvb, try_offset+2);
                     proto_tree_add_item (tr, hf_scsi_mmc_feature_profile_current, try_tvb, try_offset+2, 1, ENC_BIG_ENDIAN);
                     if(cur_profile&0x01){
                         proto_item_append_text(it, "  [CURRENT PROFILE]");
@@ -465,7 +465,7 @@ dissect_mmc4_getconfiguration (tvbuff_t *tvb_a, packet_info *pinfo,
                 try_offset+=2;
                 proto_tree_add_item (tree, hf_scsi_mmc_feature_isw_buf, try_tvb, try_offset, 1, ENC_BIG_ENDIAN);
                 try_offset+=1;
-                num_linksize=tvb_get_guint8(try_tvb, try_offset);
+                num_linksize=tvb_get_uint8(try_tvb, try_offset);
                 proto_tree_add_item (tree, hf_scsi_mmc_feature_isw_num_linksize, try_tvb, try_offset, 1, ENC_BIG_ENDIAN);
                 try_offset+=1;
                 while(num_linksize--){
@@ -546,15 +546,15 @@ static value_string_ext scsi_q_subchannel_control_val_ext = VALUE_STRING_EXT_INI
 
 static void
 dissect_mmc4_readtocpmaatip (tvbuff_t *tvb_a, packet_info *pinfo, proto_tree *tree,
-                     guint offset_a, gboolean isreq, gboolean iscdb,
-                     guint payload_len _U_, scsi_task_data_t *cdata)
+                     unsigned offset_a, bool isreq, bool iscdb,
+                     unsigned payload_len _U_, scsi_task_data_t *cdata)
 
 {
-    guint8 format;
-    gint16 len;
+    uint8_t format;
+    int16_t len;
 
     if (isreq && iscdb) {
-        format=tvb_get_guint8(tvb_a, offset_a+1)&0x0f;
+        format=tvb_get_uint8(tvb_a, offset_a+1)&0x0f;
         /* save format so we can decode the response */
         cdata->itlq->flags=format;
 
@@ -563,7 +563,7 @@ dissect_mmc4_readtocpmaatip (tvbuff_t *tvb_a, packet_info *pinfo, proto_tree *tr
         case 0x01:
             proto_tree_add_item (tree, hf_scsi_mmc_readtoc_time, tvb_a, offset_a, 1, ENC_BIG_ENDIAN);
             /* save time so we can pick it up in the response */
-            if(tvb_get_guint8(tvb_a, offset_a)&0x02){
+            if(tvb_get_uint8(tvb_a, offset_a)&0x02){
                 cdata->itlq->flags|=0x0100;
             }
             break;
@@ -660,8 +660,8 @@ static const value_string scsi_disc_info_disc_type_val[] = {
 
 static void
 dissect_mmc4_readdiscinformation (tvbuff_t *tvb_a, packet_info *pinfo _U_, proto_tree *tree,
-                     guint offset_a, gboolean isreq, gboolean iscdb,
-                     guint payload_len _U_, scsi_task_data_t *cdata)
+                     unsigned offset_a, bool isreq, bool iscdb,
+                     unsigned payload_len _U_, scsi_task_data_t *cdata)
 {
     if (iscdb) {
         proto_tree_add_item (tree, hf_scsi_alloclen16, tvb_a, offset_a + 6, 2, ENC_BIG_ENDIAN);
@@ -697,13 +697,13 @@ dissect_mmc4_readdiscinformation (tvbuff_t *tvb_a, packet_info *pinfo _U_, proto
         proto_tree_add_item (tree, hf_scsi_mmc_first_track, try_tvb, try_offset+3, 1, ENC_BIG_ENDIAN);
 
        /* number of session  try_offset+4 and try_offset+9 */
-        proto_tree_add_uint (tree, hf_scsi_mmc_disc_info_number_of_sessions, try_tvb, 4, 1, (tvb_get_guint8(try_tvb, try_offset+9)<<8)|tvb_get_guint8(try_tvb, try_offset+4));
+        proto_tree_add_uint (tree, hf_scsi_mmc_disc_info_number_of_sessions, try_tvb, 4, 1, (tvb_get_uint8(try_tvb, try_offset+9)<<8)|tvb_get_uint8(try_tvb, try_offset+4));
 
         /* first track in last session  try_offset+5 and try_offset+10 */
-        proto_tree_add_uint (tree, hf_scsi_mmc_disc_info_first_track_in_last_session, try_tvb, 5, 1, (tvb_get_guint8(try_tvb, try_offset+10)<<8)|tvb_get_guint8(try_tvb, try_offset+5));
+        proto_tree_add_uint (tree, hf_scsi_mmc_disc_info_first_track_in_last_session, try_tvb, 5, 1, (tvb_get_uint8(try_tvb, try_offset+10)<<8)|tvb_get_uint8(try_tvb, try_offset+5));
 
         /*  last track in last session  try_offset+6 and try_offset+11 */
-        proto_tree_add_uint (tree, hf_scsi_mmc_disc_info_last_track_in_last_session, try_tvb, 6, 1, (tvb_get_guint8(try_tvb, try_offset+11)<<8)|tvb_get_guint8(try_tvb, try_offset+6));
+        proto_tree_add_uint (tree, hf_scsi_mmc_disc_info_last_track_in_last_session, try_tvb, 6, 1, (tvb_get_uint8(try_tvb, try_offset+11)<<8)|tvb_get_uint8(try_tvb, try_offset+6));
 
         proto_tree_add_bitmask(tree, try_tvb, try_offset + 7, hf_scsi_mmc_format_flags,
              ett_scsi_format_flags, format_fields, ENC_BIG_ENDIAN);
@@ -724,14 +724,14 @@ dissect_mmc4_readdiscinformation (tvbuff_t *tvb_a, packet_info *pinfo _U_, proto
 
 static void
 dissect_mmc4_readdiscstructure (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                     guint offset, gboolean isreq, gboolean iscdb,
-                     guint payload_len _U_, scsi_task_data_t *cdata)
+                     unsigned offset, bool isreq, bool iscdb,
+                     unsigned payload_len _U_, scsi_task_data_t *cdata)
 
 {    if (tree && isreq && iscdb) {
         proto_tree_add_item(tree, hf_scsi_mmc_read_dvd_address, tvb, offset+1, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_scsi_mmc_read_dvd_layer_number, tvb, offset+5, 1, ENC_BIG_ENDIAN);
 
-        cdata->itlq->flags=tvb_get_guint8 (tvb, offset+6);
+        cdata->itlq->flags=tvb_get_uint8 (tvb, offset+6);
         proto_tree_add_uint (tree, hf_scsi_mmc_read_dvd_format, tvb, offset+6, 1, cdata->itlq->flags);
 
         proto_tree_add_item (tree, hf_scsi_alloclen16, tvb, offset+7, 2, ENC_BIG_ENDIAN);
@@ -824,8 +824,8 @@ dissect_mmc4_readdiscstructure (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 static void
 dissect_mmc4_getperformance (tvbuff_t *tvb, packet_info *pinfo _U_,
 proto_tree *tree,
-                     guint offset, gboolean isreq, gboolean iscdb,
-                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
+                     unsigned offset, bool isreq, bool iscdb,
+                     unsigned payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
     if (tree && isreq && iscdb) {
@@ -842,8 +842,8 @@ proto_tree *tree,
 
 static void
 dissect_mmc4_synchronizecache (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                     guint offset, gboolean isreq, gboolean iscdb,
-                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
+                     unsigned offset, bool isreq, bool iscdb,
+                     unsigned payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
     if (tree && isreq && iscdb) {
@@ -887,22 +887,22 @@ static const value_string scsi_report_key_rpc_scheme_val[] = {
 
 static void
 dissect_mmc4_reportkey (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                     guint offset, gboolean isreq, gboolean iscdb,
-                     guint payload_len _U_, scsi_task_data_t *cdata)
+                     unsigned offset, bool isreq, bool iscdb,
+                     unsigned payload_len _U_, scsi_task_data_t *cdata)
 
 {
-    guint8      agid, key_format, key_class;
+    uint8_t     agid, key_format, key_class;
 
     if (tree && isreq && iscdb) {
         proto_tree_add_item (tree, hf_scsi_mmc_lba, tvb, offset+1,
                              4, ENC_BIG_ENDIAN);
-        key_class=tvb_get_guint8(tvb, offset+6);
+        key_class=tvb_get_uint8(tvb, offset+6);
         proto_tree_add_item (tree, hf_scsi_mmc_key_class, tvb, offset+6,
                              1, ENC_BIG_ENDIAN);
         proto_tree_add_item (tree, hf_scsi_alloclen16, tvb, offset+7, 2, ENC_BIG_ENDIAN);
 
-        agid=tvb_get_guint8(tvb, offset+9)&0xc0;
-        key_format=tvb_get_guint8(tvb, offset+9)&0x3f;
+        agid=tvb_get_uint8(tvb, offset+9)&0xc0;
+        key_format=tvb_get_uint8(tvb, offset+9)&0x3f;
         switch(key_format){
         case 0x01:
         case 0x02:
@@ -947,14 +947,14 @@ static const value_string scsi_rti_address_type_val[] = {
 
 static void
 dissect_mmc4_readtrackinformation (tvbuff_t *tvb_a, packet_info *pinfo _U_, proto_tree *tree,
-                     guint offset_a, gboolean isreq, gboolean iscdb,
-                     guint payload_len _U_, scsi_task_data_t *cdata)
+                     unsigned offset_a, bool isreq, bool iscdb,
+                     unsigned payload_len _U_, scsi_task_data_t *cdata)
 
 {
-    guint8 addresstype;
+    uint8_t addresstype;
 
     if (isreq && iscdb) {
-        addresstype=tvb_get_guint8(tvb_a, offset_a)&0x03;
+        addresstype=tvb_get_uint8(tvb_a, offset_a)&0x03;
         proto_tree_add_item (tree, hf_scsi_mmc_rti_address_type, tvb_a, offset_a+0, 1, ENC_BIG_ENDIAN);
         switch(addresstype){
         case 0x00: /* logical block address */
@@ -1000,16 +1000,16 @@ dissect_mmc4_readtrackinformation (tvbuff_t *tvb_a, packet_info *pinfo _U_, prot
         proto_tree_add_item (tree, hf_scsi_mmc_data_length, try_tvb, 0, 2, ENC_BIG_ENDIAN);
         /* track  try_offset+2 and try_offset+32, only use the high byte if we have it */
         if (tvb_reported_length(try_tvb) < 33) {
-            proto_tree_add_uint (tree, hf_scsi_mmc_track, try_tvb, 2, 1, tvb_get_guint8(try_tvb, try_offset + 2));
+            proto_tree_add_uint (tree, hf_scsi_mmc_track, try_tvb, 2, 1, tvb_get_uint8(try_tvb, try_offset + 2));
         } else {
-            proto_tree_add_uint (tree, hf_scsi_mmc_track, try_tvb, 2, 1, (tvb_get_guint8(try_tvb, try_offset + 32) << 8) | tvb_get_guint8(try_tvb, try_offset + 2));
+            proto_tree_add_uint (tree, hf_scsi_mmc_track, try_tvb, 2, 1, (tvb_get_uint8(try_tvb, try_offset + 32) << 8) | tvb_get_uint8(try_tvb, try_offset + 2));
         }
 
         /* session  try_offset+3 and try_offset+33 */
         if (tvb_reported_length(try_tvb) < 34) {
-            proto_tree_add_uint (tree, hf_scsi_mmc_session, try_tvb, 3, 1, tvb_get_guint8(try_tvb, try_offset + 3));
+            proto_tree_add_uint (tree, hf_scsi_mmc_session, try_tvb, 3, 1, tvb_get_uint8(try_tvb, try_offset + 3));
         } else {
-            proto_tree_add_uint (tree, hf_scsi_mmc_session, try_tvb, 3, 1, (tvb_get_guint8(try_tvb, try_offset + 33) << 8) | tvb_get_guint8(try_tvb, try_offset + 3));
+            proto_tree_add_uint (tree, hf_scsi_mmc_session, try_tvb, 3, 1, (tvb_get_uint8(try_tvb, try_offset + 33) << 8) | tvb_get_uint8(try_tvb, try_offset + 3));
         }
 
         proto_tree_add_bitmask(tree, try_tvb, try_offset + 5, hf_scsi_mmc_track_flags,
@@ -1040,8 +1040,8 @@ dissect_mmc4_readtrackinformation (tvbuff_t *tvb_a, packet_info *pinfo _U_, prot
 
 static void
 dissect_mmc4_geteventstatusnotification (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                     guint offset, gboolean isreq, gboolean iscdb,
-                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
+                     unsigned offset, bool isreq, bool iscdb,
+                     unsigned payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
     if (tree && isreq && iscdb) {
@@ -1070,8 +1070,8 @@ dissect_mmc4_geteventstatusnotification (tvbuff_t *tvb, packet_info *pinfo _U_, 
 
 static void
 dissect_mmc4_reservetrack (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                     guint offset, gboolean isreq, gboolean iscdb,
-                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
+                     unsigned offset, bool isreq, bool iscdb,
+                     unsigned payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
     if (tree && isreq && iscdb) {
@@ -1094,8 +1094,8 @@ static const value_string scsi_closetrack_func_val[] = {
 
 static void
 dissect_mmc4_close_track (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                     guint offset, gboolean isreq, gboolean iscdb,
-                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
+                     unsigned offset, bool isreq, bool iscdb,
+                     unsigned payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
     if (tree && isreq && iscdb) {
@@ -1125,14 +1125,14 @@ dissect_mmc4_close_track (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
 static void
 dissect_mmc4_readbuffercapacity (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                     guint offset, gboolean isreq, gboolean iscdb,
-                     guint payload_len _U_, scsi_task_data_t *cdata)
+                     unsigned offset, bool isreq, bool iscdb,
+                     unsigned payload_len _U_, scsi_task_data_t *cdata)
 
 {
     if (tree && isreq && iscdb) {
         cdata->itlq->flags=0;
         proto_tree_add_item (tree, hf_scsi_mmc_rbc_block, tvb, offset, 1, ENC_BIG_ENDIAN);
-        if(tvb_get_guint8(tvb, offset)&0x01){
+        if(tvb_get_uint8(tvb, offset)&0x01){
             cdata->itlq->flags=1;
         }
 
@@ -1163,8 +1163,8 @@ static const value_string scsi_setcdspeed_rc_val[] = {
 
 static void
 dissect_mmc4_setcdspeed (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                     guint offset, gboolean isreq, gboolean iscdb,
-                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
+                     unsigned offset, bool isreq, bool iscdb,
+                     unsigned payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
     if (tree && isreq && iscdb) {
@@ -1185,14 +1185,14 @@ static const value_string scsi_setstreaming_type_val[] = {
 
 static void
 dissect_mmc4_setstreaming (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                     guint offset, gboolean isreq, gboolean iscdb,
-                     guint payload_len _U_, scsi_task_data_t *cdata)
+                     unsigned offset, bool isreq, bool iscdb,
+                     unsigned payload_len _U_, scsi_task_data_t *cdata)
 
 {
-    guint8      type;
+    uint8_t     type;
 
     if (tree && isreq && iscdb) {
-        type=tvb_get_guint8(tvb, offset+7);
+        type=tvb_get_uint8(tvb, offset+7);
         cdata->itlq->flags=type;
         proto_tree_add_item (tree, hf_scsi_mmc_setstreaming_type, tvb, offset+7, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item (tree, hf_scsi_mmc_setstreaming_param_len, tvb, offset+8, 2, ENC_BIG_ENDIAN);
@@ -1223,11 +1223,11 @@ dissect_mmc4_setstreaming (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
 static void
 dissect_mmc_preventallowmediaremoval(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                                     guint offset, gboolean isreq, gboolean iscdb,
-                                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
+                                     unsigned offset, bool isreq, bool iscdb,
+                                     unsigned payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     if (isreq && iscdb) {
-        guint8 flags;
+        uint8_t flags;
         static int * const prevent_allow_fields[] = {
             &hf_scsi_mmc_prevent_allow_persistent,
             &hf_scsi_mmc_prevent_allow_prevent,
@@ -1237,7 +1237,7 @@ dissect_mmc_preventallowmediaremoval(tvbuff_t *tvb, packet_info *pinfo, proto_tr
         proto_tree_add_bitmask(tree, tvb, offset + 3, hf_scsi_mmc_prevent_allow_flags,
             ett_scsi_prevent_allow, prevent_allow_fields, ENC_BIG_ENDIAN);
 
-        flags = tvb_get_guint8(tvb, offset + 3);
+        flags = tvb_get_uint8(tvb, offset + 3);
         if (flags & 0x01) {
             col_append_str(pinfo->cinfo, COL_INFO, " PREVENT");
         } else {
@@ -2081,7 +2081,7 @@ proto_register_scsi_mmc(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_scsi_mmc_profile,
         &ett_scsi_notifications,
         &ett_scsi_prevent_allow,

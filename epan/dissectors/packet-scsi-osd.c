@@ -132,17 +132,17 @@ static int hf_scsi_osd2_cdb_continuation_descriptor_pad_length;
 static int hf_scsi_osd2_cdb_continuation_descriptor_length;
 static int hf_scsi_osd2_remove_scope;
 
-static gint ett_osd_option;
-static gint ett_osd_partition;
-static gint ett_osd_attribute_parameters;
-static gint ett_osd_capability;
-static gint ett_osd_permission_bitmask;
-static gint ett_osd_security_parameters;
-static gint ett_osd_get_attributes;
-static gint ett_osd_set_attributes;
-static gint ett_osd_multi_object;
-static gint ett_osd_attribute;
-static gint ett_osd2_query_criteria_entry;
+static int ett_osd_option;
+static int ett_osd_partition;
+static int ett_osd_attribute_parameters;
+static int ett_osd_capability;
+static int ett_osd_permission_bitmask;
+static int ett_osd_security_parameters;
+static int ett_osd_get_attributes;
+static int ett_osd_set_attributes;
+static int ett_osd_multi_object;
+static int ett_osd_attribute;
+static int ett_osd2_query_criteria_entry;
 
 static expert_field ei_osd_attr_unknown;
 static expert_field ei_osd2_invalid_offset;
@@ -177,9 +177,9 @@ struct _scsi_osd_lun_info_t {
 };
 
 typedef void (*scsi_osd_dissector_t)(tvbuff_t *tvb, packet_info *pinfo,
-        proto_tree *tree, guint offset,
-        gboolean isreq, gboolean iscdb,
-         guint32 payload_len, scsi_task_data_t *cdata,
+        proto_tree *tree, unsigned offset,
+        bool isreq, bool iscdb,
+         uint32_t payload_len, scsi_task_data_t *cdata,
         scsi_osd_conv_info_t *conv_info,
         scsi_osd_lun_info_t *lun_info
         );
@@ -197,20 +197,20 @@ typedef struct _partition_info_t {
  * task.
  */
 typedef struct _scsi_osd_extra_data_t {
-    guint16 svcaction;
-    guint8  gsatype;
+    uint16_t svcaction;
+    uint8_t gsatype;
     union {
         struct {    /* gsatype: attribute list */
-            guint32 get_list_length;
-            guint32 get_list_offset;
-            guint32 get_list_allocation_length;
-            guint32 retrieved_list_offset;
-            guint32 set_list_length;
-            guint32 set_list_offset;
+            uint32_t get_list_length;
+            uint32_t get_list_offset;
+            uint32_t get_list_allocation_length;
+            uint32_t retrieved_list_offset;
+            uint32_t set_list_length;
+            uint32_t set_list_offset;
         } al;
     } u;
-    guint32 continuation_length;
-    gboolean osd2;
+    uint32_t continuation_length;
+    bool osd2;
 } scsi_osd_extra_data_t;
 
 static proto_item*
@@ -234,14 +234,14 @@ generic_attribute_dissector(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 static proto_item *
 dissect_osd_partition_id(packet_info *pinfo, tvbuff_t *tvb, int offset,
                          proto_tree *tree, int hf_index,
-                         scsi_osd_lun_info_t *lun_info, gboolean is_created,
-                         gboolean is_removed);
+                         scsi_osd_lun_info_t *lun_info, bool is_created,
+                         bool is_removed);
 
 static void
 partition_id_attribute_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                  scsi_osd_lun_info_t *lun_info, const attribute_page_numbers_t *att)
 {
-    dissect_osd_partition_id(pinfo, tvb, 0, tree, *att->hf_index, lun_info, FALSE, FALSE);
+    dissect_osd_partition_id(pinfo, tvb, 0, tree, *att->hf_index, lun_info, false, false);
 }
 
 static const attribute_page_numbers_t user_object_info_attributes[] = {
@@ -257,7 +257,7 @@ static const attribute_page_numbers_t current_command_attributes[] = {
 };
 
 typedef struct _attribute_pages_t {
-    guint32 page;
+    uint32_t page;
     const attribute_page_numbers_t *attributes;
 } attribute_pages_t;
 
@@ -369,7 +369,7 @@ dissect_osd2_list_attr(tvbuff_t *tvb, int offset, proto_tree *tree)
 /* used by dissect_osd_attributes_list, dissect_osd2_attribute_list_entry
 and dissect_scsi_descriptor_snsinfo from packet-scsi.c*/
 const attribute_page_numbers_t *
-osd_lookup_attribute(guint32 page, guint32 number)
+osd_lookup_attribute(uint32_t page, uint32_t number)
 {
     const attribute_pages_t        *ap;
     const attribute_page_numbers_t *apn;
@@ -397,14 +397,14 @@ osd_lookup_attribute(guint32 page, guint32 number)
 }
 
 /* OSD-1: 7.1.3.3, OSD2 7.1.4.3 list entry format */
-static guint32
+static uint32_t
 dissect_osd_attribute_list_entry(packet_info *pinfo, tvbuff_t *tvb,
                                  proto_tree *tree, proto_item *item,
-                                 guint32 offset, scsi_osd_lun_info_t *lun_info,
-                                 gboolean osd2)
+                                 uint32_t offset, scsi_osd_lun_info_t *lun_info,
+                                 bool osd2)
 {
-    guint16 attribute_length;
-    guint32 page, number;
+    uint16_t attribute_length;
+    uint32_t page, number;
     const attribute_page_numbers_t *apn;
 
     /* attributes page */
@@ -463,17 +463,17 @@ dissect_osd_attribute_list_entry(packet_info *pinfo, tvbuff_t *tvb,
 static void
 dissect_osd_attributes_list(packet_info *pinfo, tvbuff_t *tvb, int offset,
                             proto_tree *tree, scsi_osd_lun_info_t *lun_info,
-                            gboolean osd2)
+                            bool osd2)
 {
-    guint8      type;
-    guint32     length;
-    guint32     page, number;
+    uint8_t     type;
+    uint32_t    length;
+    uint32_t    page, number;
     int         start_offset = offset;
     proto_item *item, *list_type_item;
     const attribute_page_numbers_t *apn;
 
     /* list type */
-    type = tvb_get_guint8(tvb, offset)&0x0f;
+    type = tvb_get_uint8(tvb, offset)&0x0f;
     list_type_item = proto_tree_add_item(tree, hf_scsi_osd_attributes_list_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -502,10 +502,10 @@ dissect_osd_attributes_list(packet_info *pinfo, tvbuff_t *tvb, int offset,
 
     length += (osd2?8:4);
 
-    while ( (guint32)(offset-start_offset)<length ) {
+    while ( (uint32_t)(offset-start_offset)<length ) {
         proto_item *ti;
         proto_tree *tt;
-        guint32     attribute_entry_length;
+        uint32_t    attribute_entry_length;
 
         switch (type) {
             case 0x01:
@@ -526,7 +526,7 @@ dissect_osd_attributes_list(packet_info *pinfo, tvbuff_t *tvb, int offset,
                 return;
         }
 
-        if ((guint32)(offset-start_offset)+attribute_entry_length>length) break;
+        if ((uint32_t)(offset-start_offset)+attribute_entry_length>length) break;
         tt = proto_tree_add_subtree(tree, tvb, offset, attribute_entry_length, ett_osd_attribute, &ti, "Attribute:");
 
         switch (type) {
@@ -573,9 +573,9 @@ dissect_osd_option(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 {
     proto_tree *tree;
     proto_item *it;
-    guint8      option;
+    uint8_t     option;
 
-    option = tvb_get_guint8(tvb, offset);
+    option = tvb_get_uint8(tvb, offset);
 
     it = proto_tree_add_item(parent_tree, hf_scsi_osd_option, tvb, offset, 1, ENC_BIG_ENDIAN);
     tree = proto_item_add_subtree(it, ett_osd_option);
@@ -605,7 +605,7 @@ dissect_osd_getsetattrib(tvbuff_t *tvb, int offset, proto_tree *tree, scsi_task_
 {
     if (cdata && cdata->itlq && cdata->itlq->extra_data) {
         scsi_osd_extra_data_t *extra_data = (scsi_osd_extra_data_t *)cdata->itlq->extra_data;
-        extra_data->gsatype = (tvb_get_guint8(tvb, offset)>>4)&0x03;
+        extra_data->gsatype = (tvb_get_uint8(tvb, offset)>>4)&0x03;
     }
     proto_tree_add_item(tree, hf_scsi_osd_getsetattrib, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
@@ -632,11 +632,11 @@ dissect_osd_formatted_capacity(tvbuff_t *tvb, int offset, proto_tree *tree)
 
 static void
 dissect_osd_offset(packet_info *pinfo, tvbuff_t *tvb, int offset,
-                   proto_tree *tree, int field, guint32 *raw_value_ptr,
-                   gboolean osd2)
+                   proto_tree *tree, int field, uint32_t *raw_value_ptr,
+                   bool osd2)
 {
     /* dissects an OSD offset value, add proto item and updates *raw_value_ptr */
-    guint32 value = *raw_value_ptr;
+    uint32_t value = *raw_value_ptr;
 
     if (value != 0xFFFFFFFF) {
         if (!osd2) {
@@ -646,7 +646,7 @@ dissect_osd_offset(packet_info *pinfo, tvbuff_t *tvb, int offset,
         } else {
             /*OSD-2: the exponent is a signed value (4.15.5)*/
             int  exponent = (value>>28);
-            guint32 mantissa = (value&0x0FFFFFFF);
+            uint32_t mantissa = (value&0x0FFFFFFF);
 
             if (exponent&0x8) {
                 exponent = -(((~exponent)&7)+1);
@@ -668,10 +668,10 @@ dissect_osd_offset(packet_info *pinfo, tvbuff_t *tvb, int offset,
 static int
 dissect_osd_attribute_parameters(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *parent_tree, scsi_task_data_t *cdata)
 {
-    guint8      gsatype = 0;
+    uint8_t     gsatype = 0;
     proto_tree *tree;
     scsi_osd_extra_data_t *extra_data = NULL;
-    gboolean osd2;
+    bool osd2;
 
     tree = proto_tree_add_subtree(parent_tree, tvb, offset, 28,
         ett_osd_attribute_parameters, NULL, "Attribute Parameters");
@@ -766,7 +766,7 @@ dissect_osd_attribute_data_out(packet_info *pinfo, tvbuff_t *tvb, int offset _U_
                                proto_tree *tree, scsi_task_data_t *cdata,
                                scsi_osd_lun_info_t *lun_info)
 {
-    guint8      gsatype = 0;
+    uint8_t     gsatype = 0;
     proto_tree *subtree;
     scsi_osd_extra_data_t *extra_data = NULL;
 
@@ -800,7 +800,7 @@ dissect_osd_attribute_data_out(packet_info *pinfo, tvbuff_t *tvb, int offset _U_
 static void
 dissect_osd_attribute_data_in(packet_info *pinfo, tvbuff_t *tvb, int offset _U_, proto_tree *tree, scsi_task_data_t *cdata, scsi_osd_lun_info_t *lun_info)
 {
-    guint8 gsatype = 0;
+    uint8_t gsatype = 0;
     scsi_osd_extra_data_t *extra_data = NULL;
 
     if (cdata && cdata->itlq && cdata->itlq->extra_data) {
@@ -824,11 +824,11 @@ dissect_osd_attribute_data_in(packet_info *pinfo, tvbuff_t *tvb, int offset _U_,
 
 static void
 dissect_osd2_cdb_continuation_length(packet_info *pinfo, tvbuff_t *tvb,
-                                     guint32 offset, proto_tree *tree,
+                                     uint32_t offset, proto_tree *tree,
                                      scsi_task_data_t *cdata)
 {
     scsi_osd_extra_data_t *extra_data;
-    guint32     continuation_length;
+    uint32_t    continuation_length;
     proto_item *item;
 
     continuation_length = tvb_get_ntohl(tvb, offset);
@@ -842,8 +842,8 @@ dissect_osd2_cdb_continuation_length(packet_info *pinfo, tvbuff_t *tvb,
     }
 }
 
-static void dissect_osd2_query_list_descriptor(packet_info *pinfo, tvbuff_t *tvb, guint32 offset, proto_tree *tree, guint32 length) {
-    guint32 end = offset+length;
+static void dissect_osd2_query_list_descriptor(packet_info *pinfo, tvbuff_t *tvb, uint32_t offset, proto_tree *tree, uint32_t length) {
+    uint32_t end = offset+length;
 
     /* query type */
     proto_tree_add_item(tree, hf_scsi_osd2_query_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -854,9 +854,9 @@ static void dissect_osd2_query_list_descriptor(packet_info *pinfo, tvbuff_t *tvb
 
     /*query criteria entry*/
     while (offset<end) {
-        guint32     page, number;
-        guint32     min_value_length, max_value_length;
-        guint32     min_value_offset, max_value_offset;
+        uint32_t    page, number;
+        uint32_t    min_value_length, max_value_length;
+        uint32_t    min_value_offset, max_value_offset;
         proto_item *item;
         const attribute_page_numbers_t *apn;
 
@@ -914,7 +914,7 @@ static void dissect_osd2_query_list_descriptor(packet_info *pinfo, tvbuff_t *tvb
         if (max_value_length == min_value_length) {
             unsigned int i;
             for (i=0; i<max_value_length; i++) {
-                if (tvb_get_guint8(tvb, max_value_offset+i) != tvb_get_guint8(tvb, min_value_offset+i)) return;
+                if (tvb_get_uint8(tvb, max_value_offset+i) != tvb_get_uint8(tvb, min_value_offset+i)) return;
             }
             expert_add_info(pinfo, item, &ei_osd2_query_values_equal);
         }
@@ -922,13 +922,13 @@ static void dissect_osd2_query_list_descriptor(packet_info *pinfo, tvbuff_t *tvb
 }
 
 static void
-dissect_osd2_cdb_continuation(packet_info *pinfo, tvbuff_t *tvb, guint32 offset,
+dissect_osd2_cdb_continuation(packet_info *pinfo, tvbuff_t *tvb, uint32_t offset,
                               proto_tree *tree, scsi_task_data_t *cdata)
 {
     scsi_osd_extra_data_t *extra_data = NULL;
     proto_item            *item;
-    guint8                 format;
-    guint16                sa;
+    uint8_t                format;
+    uint16_t               sa;
     if (cdata && cdata->itlq && cdata->itlq->extra_data) {
         extra_data = (scsi_osd_extra_data_t *)cdata->itlq->extra_data;
     }
@@ -936,7 +936,7 @@ dissect_osd2_cdb_continuation(packet_info *pinfo, tvbuff_t *tvb, guint32 offset,
 
     /* cdb continuation format */
     item = proto_tree_add_item(tree, hf_scsi_osd2_cdb_continuation_format, tvb, offset, 1, ENC_BIG_ENDIAN);
-    format = tvb_get_guint8(tvb, offset);
+    format = tvb_get_uint8(tvb, offset);
     if (format != 0x01) {
         expert_add_info(pinfo, item, &ei_osd2_cdb_continuation_format_unknown);
         return;
@@ -960,8 +960,8 @@ dissect_osd2_cdb_continuation(packet_info *pinfo, tvbuff_t *tvb, guint32 offset,
 
     /* CDB continuation descriptors */
     while (offset<extra_data->continuation_length) {
-        guint16 type;
-        guint32 length, padlen;
+        uint16_t type;
+        uint32_t length, padlen;
         proto_item *item_type, *item_length;
 
         /* descriptor type */
@@ -974,7 +974,7 @@ dissect_osd2_cdb_continuation(packet_info *pinfo, tvbuff_t *tvb, guint32 offset,
 
         /* descriptor pad length */
         proto_tree_add_item(tree, hf_scsi_osd2_cdb_continuation_descriptor_pad_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-        padlen = tvb_get_guint8(tvb, offset)&7;
+        padlen = tvb_get_uint8(tvb, offset)&7;
         offset += 1;
 
         /* descriptor length */
@@ -1031,7 +1031,7 @@ dissect_osd_permissions(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 {
     proto_tree *tree = NULL;
     proto_item *it   = NULL;
-    guint16     permissions;
+    uint16_t    permissions;
 
     permissions = tvb_get_ntohs(tvb, offset);
 
@@ -1092,14 +1092,14 @@ static void
 dissect_osd_capability(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 {
     proto_tree *tree;
-    guint8 format;
+    uint8_t format;
 
     tree = proto_tree_add_subtree(parent_tree, tvb, offset, 80,
             ett_osd_capability, NULL, "Capability");
 
     /* capability format */
     proto_tree_add_item(tree, hf_scsi_osd_capability_format, tvb, offset, 1, ENC_BIG_ENDIAN);
-    format = tvb_get_guint8(tvb, offset)&0x0F;
+    format = tvb_get_uint8(tvb, offset)&0x0F;
     offset += 1;
 
     if (format != 1) return;
@@ -1186,8 +1186,8 @@ dissect_osd_security_parameters(tvbuff_t *tvb, int offset, proto_tree *parent_tr
 
 static void
 dissect_osd_format_osd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                       guint offset, gboolean isreq, gboolean iscdb,
-                       guint payload_len _U_, scsi_task_data_t *cdata _U_,
+                       unsigned offset, bool isreq, bool iscdb,
+                       unsigned payload_len _U_, scsi_task_data_t *cdata _U_,
                        scsi_osd_conv_info_t *conv_info _U_,
                        scsi_osd_lun_info_t *lun_info _U_)
 {
@@ -1250,11 +1250,11 @@ dissect_osd_format_osd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static proto_item*
 dissect_osd_partition_id(packet_info *pinfo, tvbuff_t *tvb, int offset,
                          proto_tree *tree, int hf_index,
-                         scsi_osd_lun_info_t *lun_info, gboolean is_created,
-                         gboolean is_removed)
+                         scsi_osd_lun_info_t *lun_info, bool is_created,
+                         bool is_removed)
 {
     proto_item *item = NULL;
-    guint32     partition_id[2];
+    uint32_t    partition_id[2];
 
     /* partition id */
     item = proto_tree_add_item(tree, hf_index, tvb, offset, 8, ENC_BIG_ENDIAN);
@@ -1309,12 +1309,12 @@ dissect_osd_partition_id(packet_info *pinfo, tvbuff_t *tvb, int offset,
 
 static void
 dissect_osd_create_partition(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                             guint offset, gboolean isreq, gboolean iscdb,
-                             guint payload_len _U_, scsi_task_data_t *cdata _U_,
+                             unsigned offset, bool isreq, bool iscdb,
+                             unsigned payload_len _U_, scsi_task_data_t *cdata _U_,
                              scsi_osd_conv_info_t *conv_info _U_,
                              scsi_osd_lun_info_t *lun_info)
 {
-    gboolean osd2 = ((scsi_osd_extra_data_t *)cdata->itlq->extra_data)->svcaction&0x80;
+    bool osd2 = ((scsi_osd_extra_data_t *)cdata->itlq->extra_data)->svcaction&0x80;
     ((scsi_osd_extra_data_t *)cdata->itlq->extra_data)->osd2 = osd2;
 
     /* dissecting the CDB   dissection starts at byte 10 of the CDB */
@@ -1336,7 +1336,7 @@ dissect_osd_create_partition(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         offset += 3;
 
         /* requested partition id */
-        dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_requested_partition_id, lun_info, TRUE, FALSE);
+        dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_requested_partition_id, lun_info, true, false);
         offset += 8;
 
         /* 24 reserved bytes */
@@ -1414,11 +1414,11 @@ dissect_osd_allocation_length(tvbuff_t *tvb, int offset, proto_tree *tree, scsi_
     proto_tree_add_item(tree, hf_scsi_osd_allocation_length, tvb, offset, 8, ENC_BIG_ENDIAN);
 
     if (cdata) {
-        guint64 alloc_len = tvb_get_ntoh64(tvb, offset);
-        if (alloc_len>G_GINT64_CONSTANT(0xFFFFFFFF)) {
-            alloc_len = G_GINT64_CONSTANT(0xFFFFFFFF);
+        uint64_t alloc_len = tvb_get_ntoh64(tvb, offset);
+        if (alloc_len>INT64_C(0xFFFFFFFF)) {
+            alloc_len = INT64_C(0xFFFFFFFF);
         }
-        cdata->itlq->alloc_len = (guint32)alloc_len;
+        cdata->itlq->alloc_len = (uint32_t)alloc_len;
     }
 }
 
@@ -1477,14 +1477,14 @@ dissect_osd_collection_object_id(tvbuff_t *tvb, int offset, proto_tree *tree, co
 
 static void
 dissect_osd_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                 guint offset, gboolean isreq, gboolean iscdb,
-                 guint payload_len _U_, scsi_task_data_t *cdata _U_,
+                 unsigned offset, bool isreq, bool iscdb,
+                 unsigned payload_len _U_, scsi_task_data_t *cdata _U_,
                  scsi_osd_conv_info_t *conv_info _U_,
                  scsi_osd_lun_info_t *lun_info)
 {
-    guint    svcaction       = ((scsi_osd_extra_data_t *)cdata->itlq->extra_data)->svcaction;
-    gboolean list_collection = (svcaction == 0x8817) || (svcaction == 0x8897);
-    gboolean osd2            = svcaction&0x80;
+    unsigned svcaction       = ((scsi_osd_extra_data_t *)cdata->itlq->extra_data)->svcaction;
+    bool list_collection = (svcaction == 0x8817) || (svcaction == 0x8897);
+    bool osd2            = svcaction&0x80;
     ((scsi_osd_extra_data_t *)cdata->itlq->extra_data)->osd2 = osd2;
 
     /* dissecting the CDB   dissection starts at byte 10 of the CDB */
@@ -1508,7 +1508,7 @@ dissect_osd_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 3;
 
         /* partition id */
-        dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
+        dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, false, false);
         offset += 8;
 
         if (list_collection) {
@@ -1570,11 +1570,11 @@ dissect_osd_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* dissecting the DATA IN */
     if (!isreq && !iscdb) {
 
-        guint64  additional_length;
-        guint64  allocation_length;
-        guint64  remaining_length;
-        gboolean is_root_or_coltn;
-        guint8   format = 0;
+        uint64_t additional_length;
+        uint64_t allocation_length;
+        uint64_t remaining_length;
+        bool is_root_or_coltn;
+        uint8_t  format = 0;
 
         /* attribute data in */
         dissect_osd_attribute_data_in(pinfo, tvb, offset, tree, cdata, lun_info);
@@ -1607,15 +1607,15 @@ dissect_osd_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (osd2) {
             proto_item *item;
             item = proto_tree_add_item(tree, hf_scsi_osd2_object_descriptor_format, tvb, offset, 1, ENC_BIG_ENDIAN);
-            format = tvb_get_guint8(tvb, offset)>>2;
+            format = tvb_get_uint8(tvb, offset)>>2;
             if (format == 0x01 || format == 0x02) {
-                is_root_or_coltn = TRUE;
+                is_root_or_coltn = true;
                 if (list_collection) format = 0;
             } else if (format == 0x11 || format == 0x12) {
-                is_root_or_coltn = TRUE;
+                is_root_or_coltn = true;
                 if (!list_collection) format = 0;
             } else if (format == 0x21 || format == 0x22) {
-                is_root_or_coltn = FALSE;
+                is_root_or_coltn = false;
             } else format = 0;
             if (!format) {
                 expert_add_info(pinfo, item, &ei_osd2_invalid_object_descriptor_format);
@@ -1627,7 +1627,7 @@ dissect_osd_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             } else {
                 proto_tree_add_item(tree, hf_scsi_osd_list_flags_root, tvb, offset, 1, ENC_BIG_ENDIAN);
             }
-            is_root_or_coltn = tvb_get_guint8(tvb, offset)&0x01;
+            is_root_or_coltn = tvb_get_uint8(tvb, offset)&0x01;
         }
 
         offset += 1;
@@ -1639,7 +1639,7 @@ dissect_osd_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 if (list_collection) {
                     ti = dissect_osd_collection_object_id(tvb, offset, tree, hf_scsi_osd_collection_object_id);
                 } else {
-                    ti = dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
+                    ti = dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, false, false);
                 }
             } else {
                 ti = dissect_osd_user_object_id(tvb, offset, tree);
@@ -1648,7 +1648,7 @@ dissect_osd_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             /* for OSD-2 if format is 0x02, 0x12 or 0x22: sub-list of attributes*/
             if (osd2 && (format&0x02)) {
-                guint32 attr_list_end;
+                uint32_t attr_list_end;
                 proto_tree *subtree;
 
                 if (offset+8>additional_length) break;
@@ -1664,10 +1664,10 @@ dissect_osd_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 offset += 2;
                 if (attr_list_end>additional_length+8) break;
                 while (offset+16<attr_list_end) {
-                    guint32 attribute_length = tvb_get_ntohs(tvb, offset+14);
+                    uint32_t attribute_length = tvb_get_ntohs(tvb, offset+14);
                     proto_item *att_item;
                     proto_tree *att_tree = proto_tree_add_subtree(subtree, tvb, offset, 16+attribute_length, ett_osd_attribute, &att_item, "Attribute:");
-                    offset = dissect_osd_attribute_list_entry(pinfo, tvb, att_tree, att_item, offset, lun_info, TRUE);
+                    offset = dissect_osd_attribute_list_entry(pinfo, tvb, att_tree, att_item, offset, lun_info, true);
                 }
                 offset = attr_list_end;
             }
@@ -1699,8 +1699,8 @@ dissect_osd_number_of_user_objects(tvbuff_t *tvb, int offset, proto_tree *tree)
 
 static void
 dissect_osd_create(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                   guint offset, gboolean isreq, gboolean iscdb,
-                   guint payload_len _U_, scsi_task_data_t *cdata _U_,
+                   unsigned offset, bool isreq, bool iscdb,
+                   unsigned payload_len _U_, scsi_task_data_t *cdata _U_,
                    scsi_osd_conv_info_t *conv_info _U_,
                    scsi_osd_lun_info_t *lun_info)
 {
@@ -1722,7 +1722,7 @@ dissect_osd_create(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 3;
 
         /* partition id */
-        dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
+        dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, false, false);
         offset += 8;
 
         /* requested user_object id */
@@ -1773,12 +1773,12 @@ dissect_osd_create(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 static void
 dissect_osd_remove_partition(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                             guint offset, gboolean isreq, gboolean iscdb,
-                             guint payload_len _U_, scsi_task_data_t *cdata _U_,
+                             unsigned offset, bool isreq, bool iscdb,
+                             unsigned payload_len _U_, scsi_task_data_t *cdata _U_,
                              scsi_osd_conv_info_t *conv_info _U_,
                              scsi_osd_lun_info_t *lun_info)
 {
-    gboolean osd2 = ((scsi_osd_extra_data_t *)cdata->itlq->extra_data)->svcaction&0x80;
+    bool osd2 = ((scsi_osd_extra_data_t *)cdata->itlq->extra_data)->svcaction&0x80;
     ((scsi_osd_extra_data_t *)cdata->itlq->extra_data)->osd2 = osd2;
 
     /* dissecting the CDB   dissection starts at byte 10 of the CDB */
@@ -1801,7 +1801,7 @@ dissect_osd_remove_partition(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         offset += 3;
 
         /* partition id */
-        dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, TRUE);
+        dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, false, true);
         offset += 8;
 
         /* 24 reserved bytes */
@@ -1880,8 +1880,8 @@ dissect_osd_seed(tvbuff_t *tvb, int offset, proto_tree *tree)
 
 static void
 dissect_osd_set_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                    guint offset, gboolean isreq, gboolean iscdb,
-                    guint payload_len _U_, scsi_task_data_t *cdata _U_,
+                    unsigned offset, bool isreq, bool iscdb,
+                    unsigned payload_len _U_, scsi_task_data_t *cdata _U_,
                     scsi_osd_conv_info_t *conv_info _U_,
                     scsi_osd_lun_info_t *lun_info)
 {
@@ -1903,7 +1903,7 @@ dissect_osd_set_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 3;
 
         /* partition id */
-        dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
+        dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, false, false);
         offset += 8;
 
         /* key version */
@@ -1951,8 +1951,8 @@ dissect_osd_set_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 static void
 dissect_osd_remove(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                   guint offset, gboolean isreq, gboolean iscdb,
-                   guint payload_len _U_, scsi_task_data_t *cdata _U_,
+                   unsigned offset, bool isreq, bool iscdb,
+                   unsigned payload_len _U_, scsi_task_data_t *cdata _U_,
                    scsi_osd_conv_info_t *conv_info _U_,
                    scsi_osd_lun_info_t *lun_info)
 {
@@ -1974,7 +1974,7 @@ dissect_osd_remove(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 3;
 
         /* partition id */
-        dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
+        dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, false, false);
         offset += 8;
 
         /* user object id */
@@ -2023,12 +2023,12 @@ dissect_osd_collection_fcr(tvbuff_t *tvb, int offset, proto_tree *tree)
 
 static void
 dissect_osd_remove_collection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                              guint offset, gboolean isreq, gboolean iscdb,
-                              guint payload_len _U_, scsi_task_data_t *cdata _U_,
+                              unsigned offset, bool isreq, bool iscdb,
+                              unsigned payload_len _U_, scsi_task_data_t *cdata _U_,
                               scsi_osd_conv_info_t *conv_info _U_,
                               scsi_osd_lun_info_t *lun_info)
 {
-    gboolean osd2 = ((scsi_osd_extra_data_t *)cdata->itlq->extra_data)->svcaction&0x80;
+    bool osd2 = ((scsi_osd_extra_data_t *)cdata->itlq->extra_data)->svcaction&0x80;
     ((scsi_osd_extra_data_t *)cdata->itlq->extra_data)->osd2 = osd2;
 
     /* dissecting the CDB   dissection starts at byte 10 of the CDB */
@@ -2050,7 +2050,7 @@ dissect_osd_remove_collection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         offset += 3;
 
         /* partition id */
-        dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
+        dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, false, false);
         offset += 8;
 
         /* collection object id */
@@ -2125,8 +2125,8 @@ dissect_osd_starting_byte_address(tvbuff_t *tvb, int offset, proto_tree *tree)
 
 static void
 dissect_osd_write(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                  guint offset, gboolean isreq, gboolean iscdb,
-                  guint payload_len _U_, scsi_task_data_t *cdata _U_,
+                  unsigned offset, bool isreq, bool iscdb,
+                  unsigned payload_len _U_, scsi_task_data_t *cdata _U_,
                   scsi_osd_conv_info_t *conv_info _U_,
                   scsi_osd_lun_info_t *lun_info)
 {
@@ -2148,7 +2148,7 @@ dissect_osd_write(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 3;
 
         /* partition id */
-        dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
+        dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, false, false);
         offset += 8;
 
         /* user object id */
@@ -2199,8 +2199,8 @@ dissect_osd_write(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 static void
 dissect_osd_create_collection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                              guint offset, gboolean isreq, gboolean iscdb,
-                              guint payload_len _U_, scsi_task_data_t *cdata _U_,
+                              unsigned offset, bool isreq, bool iscdb,
+                              unsigned payload_len _U_, scsi_task_data_t *cdata _U_,
                               scsi_osd_conv_info_t *conv_info _U_,
                               scsi_osd_lun_info_t *lun_info)
 {
@@ -2223,7 +2223,7 @@ dissect_osd_create_collection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         offset += 3;
 
         /* partition id */
-        dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
+        dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, false, false);
         offset += 8;
 
         /* requested collection object id */
@@ -2283,8 +2283,8 @@ dissect_osd_flush_scope(tvbuff_t *tvb, int offset, proto_tree *tree)
 
 static void
 dissect_osd_flush(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                  guint offset, gboolean isreq, gboolean iscdb,
-                  guint payload_len _U_, scsi_task_data_t *cdata _U_,
+                  unsigned offset, bool isreq, bool iscdb,
+                  unsigned payload_len _U_, scsi_task_data_t *cdata _U_,
                   scsi_osd_conv_info_t *conv_info _U_,
                   scsi_osd_lun_info_t *lun_info)
 {
@@ -2306,7 +2306,7 @@ dissect_osd_flush(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 3;
 
         /* partition id */
-        dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
+        dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, false, false);
         offset += 8;
 
         /* user object id */
@@ -2367,8 +2367,8 @@ dissect_osd_flush_collection_scope(tvbuff_t *tvb, int offset, proto_tree *tree)
 
 static void
 dissect_osd_flush_collection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                             guint offset, gboolean isreq, gboolean iscdb,
-                             guint payload_len _U_, scsi_task_data_t *cdata _U_,
+                             unsigned offset, bool isreq, bool iscdb,
+                             unsigned payload_len _U_, scsi_task_data_t *cdata _U_,
                              scsi_osd_conv_info_t *conv_info _U_,
                              scsi_osd_lun_info_t *lun_info)
 {
@@ -2391,7 +2391,7 @@ dissect_osd_flush_collection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         offset += 3;
 
         /* partition id */
-        dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
+        dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, false, false);
         offset += 8;
 
         /* collection object id */
@@ -2435,8 +2435,8 @@ dissect_osd_flush_collection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 static void
 dissect_osd_append(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                   guint offset, gboolean isreq, gboolean iscdb,
-                   guint payload_len _U_, scsi_task_data_t *cdata _U_,
+                   unsigned offset, bool isreq, bool iscdb,
+                   unsigned payload_len _U_, scsi_task_data_t *cdata _U_,
                    scsi_osd_conv_info_t *conv_info _U_,
                    scsi_osd_lun_info_t *lun_info)
 {
@@ -2458,7 +2458,7 @@ dissect_osd_append(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 3;
 
         /* partition id */
-        dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
+        dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, false, false);
         offset += 8;
 
         /* user object id */
@@ -2508,8 +2508,8 @@ dissect_osd_append(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 static void
 dissect_osd_create_and_write(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                             guint offset, gboolean isreq, gboolean iscdb,
-                             guint payload_len _U_, scsi_task_data_t *cdata _U_,
+                             unsigned offset, bool isreq, bool iscdb,
+                             unsigned payload_len _U_, scsi_task_data_t *cdata _U_,
                              scsi_osd_conv_info_t *conv_info _U_,
                              scsi_osd_lun_info_t *lun_info)
 {
@@ -2531,7 +2531,7 @@ dissect_osd_create_and_write(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         offset += 3;
 
         /* partition id */
-        dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
+        dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, false, false);
         offset += 8;
 
         /* requested user_object id */
@@ -2600,8 +2600,8 @@ dissect_osd_flush_osd_scope(tvbuff_t *tvb, int offset, proto_tree *tree)
 
 static void
 dissect_osd_flush_osd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                      guint offset, gboolean isreq, gboolean iscdb,
-                      guint payload_len _U_, scsi_task_data_t *cdata _U_,
+                      unsigned offset, bool isreq, bool iscdb,
+                      unsigned payload_len _U_, scsi_task_data_t *cdata _U_,
                       scsi_osd_conv_info_t *conv_info _U_,
                       scsi_osd_lun_info_t *lun_info _U_)
 {
@@ -2674,8 +2674,8 @@ dissect_osd_flush_partition_scope(tvbuff_t *tvb, int offset, proto_tree *tree)
 
 static void
 dissect_osd_flush_partition(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                            guint offset, gboolean isreq, gboolean iscdb,
-                            guint payload_len _U_, scsi_task_data_t *cdata _U_,
+                            unsigned offset, bool isreq, bool iscdb,
+                            unsigned payload_len _U_, scsi_task_data_t *cdata _U_,
                             scsi_osd_conv_info_t *conv_info _U_,
                             scsi_osd_lun_info_t *lun_info)
 {
@@ -2697,7 +2697,7 @@ dissect_osd_flush_partition(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 3;
 
         /* partition id */
-        dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
+        dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, false, false);
         offset += 8;
 
         /* 28 reserved bytes */
@@ -2737,12 +2737,12 @@ dissect_osd_flush_partition(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 static void
 dissect_osd_get_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                           guint offset, gboolean isreq, gboolean iscdb,
-                           guint payload_len _U_, scsi_task_data_t *cdata _U_,
+                           unsigned offset, bool isreq, bool iscdb,
+                           unsigned payload_len _U_, scsi_task_data_t *cdata _U_,
                            scsi_osd_conv_info_t *conv_info _U_,
                            scsi_osd_lun_info_t *lun_info)
 {
-    gboolean osd2 = ((scsi_osd_extra_data_t *)cdata->itlq->extra_data)->svcaction&0x80;
+    bool osd2 = ((scsi_osd_extra_data_t *)cdata->itlq->extra_data)->svcaction&0x80;
     ((scsi_osd_extra_data_t *)cdata->itlq->extra_data)->osd2 = osd2;
 
     /* dissecting the CDB   dissection starts at byte 10 of the CDB */
@@ -2763,7 +2763,7 @@ dissect_osd_get_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 3;
 
         /* partition id */
-        dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
+        dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, false, false);
         offset += 8;
 
         /* user_object id */
@@ -2814,8 +2814,8 @@ dissect_osd_get_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 static void
 dissect_osd_read(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                 guint offset, gboolean isreq, gboolean iscdb,
-                 guint payload_len _U_, scsi_task_data_t *cdata _U_,
+                 unsigned offset, bool isreq, bool iscdb,
+                 unsigned payload_len _U_, scsi_task_data_t *cdata _U_,
                  scsi_osd_conv_info_t *conv_info _U_,
                  scsi_osd_lun_info_t *lun_info)
 {
@@ -2837,7 +2837,7 @@ dissect_osd_read(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 3;
 
         /* partition id */
-        dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
+        dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, false, false);
         offset += 8;
 
         /* user object id */
@@ -2889,12 +2889,12 @@ dissect_osd_read(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 static void
 dissect_osd_set_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                           guint offset, gboolean isreq, gboolean iscdb,
-                           guint payload_len _U_, scsi_task_data_t *cdata _U_,
+                           unsigned offset, bool isreq, bool iscdb,
+                           unsigned payload_len _U_, scsi_task_data_t *cdata _U_,
                            scsi_osd_conv_info_t *conv_info _U_,
                            scsi_osd_lun_info_t *lun_info)
 {
-    gboolean osd2 = ((scsi_osd_extra_data_t *)cdata->itlq->extra_data)->svcaction&0x80;
+    bool osd2 = ((scsi_osd_extra_data_t *)cdata->itlq->extra_data)->svcaction&0x80;
     ((scsi_osd_extra_data_t *)cdata->itlq->extra_data)->osd2 = osd2;
 
     /* dissecting the CDB   dissection starts at byte 10 of the CDB */
@@ -2915,7 +2915,7 @@ dissect_osd_set_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 3;
 
         /* partition id */
-        dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
+        dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, false, false);
         offset += 8;
 
         /* user_object id */
@@ -2966,12 +2966,12 @@ dissect_osd_set_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 static void
 dissect_osd2_create_user_tracking_collection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                        guint offset, gboolean isreq, gboolean iscdb,
-                        guint payload_len _U_, scsi_task_data_t *cdata _U_,
+                        unsigned offset, bool isreq, bool iscdb,
+                        unsigned payload_len _U_, scsi_task_data_t *cdata _U_,
                         scsi_osd_conv_info_t *conv_info _U_,
                         scsi_osd_lun_info_t *lun_info)
 {
-    ((scsi_osd_extra_data_t *)cdata->itlq->extra_data)->osd2 = TRUE;
+    ((scsi_osd_extra_data_t *)cdata->itlq->extra_data)->osd2 = true;
 
     /* dissecting the CDB   dissection starts at byte 10 of the CDB */
     if (isreq && iscdb) {
@@ -2993,7 +2993,7 @@ dissect_osd2_create_user_tracking_collection(tvbuff_t *tvb, packet_info *pinfo, 
         offset += 3;
 
         /* partition id */
-        dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
+        dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, false, false);
         offset += 8;
 
         /* user_object id */
@@ -3047,12 +3047,12 @@ dissect_osd2_create_user_tracking_collection(tvbuff_t *tvb, packet_info *pinfo, 
 
 static void
 dissect_osd2_query(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                        guint offset, gboolean isreq, gboolean iscdb,
-                        guint payload_len _U_, scsi_task_data_t *cdata _U_,
+                        unsigned offset, bool isreq, bool iscdb,
+                        unsigned payload_len _U_, scsi_task_data_t *cdata _U_,
                         scsi_osd_conv_info_t *conv_info _U_,
                         scsi_osd_lun_info_t *lun_info)
 {
-    ((scsi_osd_extra_data_t *)cdata->itlq->extra_data)->osd2 = TRUE;
+    ((scsi_osd_extra_data_t *)cdata->itlq->extra_data)->osd2 = true;
 
     /* dissecting the CDB   dissection starts at byte 10 of the CDB */
     if (isreq && iscdb) {
@@ -3074,7 +3074,7 @@ dissect_osd2_query(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 3;
 
         /* partition id */
-        dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
+        dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, false, false);
         offset += 8;
 
         /* collection_object id */
@@ -3119,10 +3119,10 @@ dissect_osd2_query(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* dissecting the DATA IN */
     if (!isreq && !iscdb) {
-        guint64  additional_length;
-        guint64  allocation_length;
-        guint64  remaining_length;
-        guint8   format;
+        uint64_t additional_length;
+        uint64_t allocation_length;
+        uint64_t remaining_length;
+        uint8_t  format;
         proto_item *item;
 
         /* attribute data in */
@@ -3136,7 +3136,7 @@ dissect_osd2_query(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* dissection of the LIST or LIST COLLECTION DATA-IN */
         /* additional length */
         additional_length = tvb_get_ntoh64(tvb, offset);
-        if ((guint32)(allocation_length-8)<additional_length) additional_length = (guint32)(allocation_length-8);
+        if ((uint32_t)(allocation_length-8)<additional_length) additional_length = (uint32_t)(allocation_length-8);
 
         dissect_osd_additional_length(tvb, offset, tree);
         offset += 8;
@@ -3144,7 +3144,7 @@ dissect_osd2_query(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* 3 reserved bytes */
         offset += 3;
         item = proto_tree_add_item(tree, hf_scsi_osd2_object_descriptor_format, tvb, offset, 1, ENC_BIG_ENDIAN);
-        format = tvb_get_guint8(tvb, offset)>>2;
+        format = tvb_get_uint8(tvb, offset)>>2;
         offset += 1;
         if (format != 0x21) {
             expert_add_info(pinfo, item, &ei_osd2_invalid_object_descriptor_format);
@@ -3250,7 +3250,7 @@ static value_string_ext scsi_osd_svcaction_vals_ext = VALUE_STRING_EXT_INIT(scsi
 
 /* OSD Service Action dissectors */
 typedef struct _scsi_osd_svcaction_t {
-    guint16              svcaction;
+    uint16_t             svcaction;
     scsi_osd_dissector_t dissector;
 } scsi_osd_svcaction_t;
 
@@ -3289,7 +3289,7 @@ static const scsi_osd_svcaction_t scsi_osd_svcaction[] = {
 };
 
 static scsi_osd_dissector_t
-find_svcaction_dissector(guint16 svcaction)
+find_svcaction_dissector(uint16_t svcaction)
 {
     const scsi_osd_svcaction_t *sa = scsi_osd_svcaction;
 
@@ -3306,10 +3306,10 @@ find_svcaction_dissector(guint16 svcaction)
 
 static void
 dissect_osd_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                   guint offset, gboolean isreq, gboolean iscdb,
-                   guint payload_len, scsi_task_data_t *cdata)
+                   unsigned offset, bool isreq, bool iscdb,
+                   unsigned payload_len, scsi_task_data_t *cdata)
 {
-    guint16               svcaction = 0;
+    uint16_t              svcaction = 0;
     scsi_osd_dissector_t  dissector;
     scsi_osd_conv_info_t *conv_info;
     scsi_osd_lun_info_t  *lun_info;
@@ -3987,7 +3987,7 @@ proto_register_scsi_osd(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_osd_option,
         &ett_osd_partition,
         &ett_osd_attribute_parameters,

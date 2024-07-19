@@ -41,14 +41,14 @@ typedef struct content_t {
     bool     nocase;          /* when set, do case insensitive match */
 
     bool     offset_set;  /* Where to start looking within packet. -65535 -> 65535 */
-    gint     offset;
+    int      offset;
 
-    guint    depth;       /* How far to look into packet.  Can't be 0 */
+    unsigned depth;       /* How far to look into packet.  Can't be 0 */
 
     bool     distance_set;
-    gint     distance;    /* Same as offset but relative to last match. -65535 -> 65535 */
+    int      distance;    /* Same as offset but relative to last match. -65535 -> 65535 */
 
-    guint    within;      /* Most bytes from end of previous match. Max 65535 */
+    unsigned within;      /* Most bytes from end of previous match. Max 65535 */
 
     bool     fastpattern; /* Is most distinctive content in rule */
 
@@ -62,9 +62,9 @@ typedef struct content_t {
 
     /* Pattern converted into bytes for matching against packet.
        Used for regular patterns and PCREs alike. */
-    guchar   *translated_str;
+    unsigned char   *translated_str;
     bool translated;
-    guint    translated_length;
+    unsigned translated_length;
 
     bool pcre_case_insensitive;
     bool pcre_dot_includes_newline;
@@ -83,11 +83,11 @@ typedef struct relevant_vars_t {
     bool  relevant_vars_set;
 
     #define MAX_RULE_PORT_VARS 6
-    guint num_port_vars;
+    unsigned num_port_vars;
     used_variable_t port_vars[MAX_RULE_PORT_VARS];
 
     #define MAX_RULE_IP_VARS 6
-    guint num_ip_vars;
+    unsigned num_ip_vars;
     used_variable_t ip_vars[MAX_RULE_IP_VARS];
 
 } relevant_vars_t;
@@ -98,11 +98,11 @@ typedef struct Rule_t {
 
     char *rule_string;             /* The whole rule as read from the rule file */
     char *file;                    /* Name of the rule file */
-    guint line_number;             /* Line number of rule within rule file */
+    unsigned line_number;             /* Line number of rule within rule file */
 
     char *msg;                     /* Description of the rule */
     char *classtype;
-    guint32 sid, rev;
+    uint32_t sid, rev;
 
     char *protocol;
 
@@ -122,7 +122,7 @@ typedef struct Rule_t {
     relevant_vars_t relevant_vars;
 
     /* Statistics */
-    guint matches_seen;
+    unsigned matches_seen;
 } Rule_t;
 
 
@@ -144,9 +144,9 @@ typedef struct SnortConfig_t
     GHashTable *references_prefixes;
 
     /* Statistics (that may be reset) */
-    guint stat_rules_files;
-    guint stat_rules;
-    guint stat_alerts_detected;
+    unsigned stat_rules_files;
+    unsigned stat_rules;
+    unsigned stat_alerts_detected;
 
 } SnortConfig_t;
 
@@ -158,8 +158,8 @@ void create_config(SnortConfig_t **snort_config, const char *snort_config_file);
 void delete_config(SnortConfig_t **snort_config);
 
 /* Look up rule by SID */
-Rule_t *get_rule(SnortConfig_t *snort_config, guint32 sid);
-void rule_set_alert(SnortConfig_t *snort_config, Rule_t *rule, guint *global_match_number, guint *rule_match_number);
+Rule_t *get_rule(SnortConfig_t *snort_config, uint32_t sid);
+void rule_set_alert(SnortConfig_t *snort_config, Rule_t *rule, unsigned *global_match_number, unsigned *rule_match_number);
 
 /* IP and port vars */
 void rule_set_relevant_vars(SnortConfig_t *snort_config, Rule_t *rule);
@@ -174,7 +174,7 @@ void get_global_rule_stats(SnortConfig_t *snort_config, unsigned int sid,
 void reset_global_rule_stats(SnortConfig_t *snort_config);
 
 /* Expanding a content field string to the expected binary bytes */
-guint content_convert_to_binary(content_t *content);
+unsigned content_convert_to_binary(content_t *content);
 
 bool content_convert_pcre_for_regex(content_t *content);
 

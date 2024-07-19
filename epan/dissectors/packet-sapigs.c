@@ -109,7 +109,7 @@ static int hf_sapigs_portwatcher_info;
 static int hf_sapigs_interpreter;
 static int hf_sapigs_chart_config;
 
-static gint ett_sapigs;
+static int ett_sapigs;
 
 /* Global port preference */
 static range_t *global_sapigs_port_range;
@@ -127,9 +127,9 @@ void proto_register_sapigs(void);
 static int
 dissect_sapigs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	guint32 offset = 0, err_val = 0;
-	gint data_offset = 0, data_length = 0;
-	gchar *sapigs_info_function = NULL, *illbeback_type = NULL, *is_table = NULL;
+	uint32_t offset = 0, err_val = 0;
+	int data_offset = 0, data_length = 0;
+	char *sapigs_info_function = NULL, *illbeback_type = NULL, *is_table = NULL;
 	proto_item *ti = NULL, *sapigs_tables = NULL;
 	proto_tree *sapigs_tree = NULL, *sapigs_tables_tree = NULL;
 
@@ -192,7 +192,7 @@ dissect_sapigs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 			break;
 		}
 		case 6:{	/* ADM:ILLBEBACK */
-			illbeback_type = (gchar *)tvb_get_string_enc(pinfo->pool, tvb, offset, 10, ENC_ASCII|ENC_NA);
+			illbeback_type = (char *)tvb_get_string_enc(pinfo->pool, tvb, offset, 10, ENC_ASCII|ENC_NA);
 			if (strncmp("TransMagic", illbeback_type, 10) == 0){
 				/* data is raw after eye_catcher */
 				proto_tree_add_item(sapigs_tree, hf_sapigs_eye_catcher, tvb, offset, 10, ENC_ASCII|ENC_NA);
@@ -200,7 +200,7 @@ dissect_sapigs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 				proto_tree_add_item(sapigs_tree, hf_sapigs_data, tvb, offset, -1, ENC_NA);
 			} else {
 				/* we receive sized data */
-				ws_strtoi((gchar *)tvb_get_string_enc(pinfo->pool, tvb, offset, 5, ENC_ASCII), NULL, &data_length);
+				ws_strtoi((char *)tvb_get_string_enc(pinfo->pool, tvb, offset, 5, ENC_ASCII), NULL, &data_length);
 				proto_tree_add_item(sapigs_tree, hf_sapigs_data_size, tvb, offset, 5, ENC_ASCII|ENC_NA);
 				offset += 5;
 				/* Data */
@@ -221,16 +221,16 @@ dissect_sapigs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 			proto_tree_add_item(sapigs_tree, hf_sapigs_codepage, tvb, offset, 4, ENC_ASCII|ENC_NA);
 			offset += 4;
 			/* Data offset */
-			ws_strtoi((gchar *)tvb_get_string_enc(pinfo->pool, tvb, offset, 16, ENC_ASCII), NULL, &data_offset);
+			ws_strtoi((char *)tvb_get_string_enc(pinfo->pool, tvb, offset, 16, ENC_ASCII), NULL, &data_offset);
 			proto_tree_add_item(sapigs_tree, hf_sapigs_offset_data, tvb, offset, 16, ENC_ASCII|ENC_NA);
 			offset += 16;
 			/* Data length */
-			ws_strtoi((gchar *)tvb_get_string_enc(pinfo->pool, tvb, offset, 16, ENC_ASCII), NULL, &data_length);
+			ws_strtoi((char *)tvb_get_string_enc(pinfo->pool, tvb, offset, 16, ENC_ASCII), NULL, &data_length);
 			proto_tree_add_item(sapigs_tree, hf_sapigs_data_size, tvb, offset, 16, ENC_ASCII|ENC_NA);
 			offset += 16;
 			data_offset += offset;
 			/* Definition tables */
-			is_table = (gchar *)tvb_get_string_enc(pinfo->pool, tvb, offset, 4, ENC_ASCII);
+			is_table = (char *)tvb_get_string_enc(pinfo->pool, tvb, offset, 4, ENC_ASCII);
 			/* if the 4 next char is VERS, we are at the beginning of one definition table */
 			while(strncmp("VERS", is_table, 4) == 0){
 				/* Build a tree for Tables */
@@ -250,7 +250,7 @@ dissect_sapigs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 				offset += 48;
 				proto_tree_add_item(sapigs_tables_tree, hf_sapigs_table_column_width, tvb, offset+8, 40, ENC_ASCII);
 				offset += 48;
-				is_table = (gchar *)tvb_get_string_enc(pinfo->pool, tvb, offset, 4, ENC_ASCII);
+				is_table = (char *)tvb_get_string_enc(pinfo->pool, tvb, offset, 4, ENC_ASCII);
 			}
 			/* Data */
 			if ((data_length > 0) && (tvb_reported_length_remaining(tvb, offset) >= data_length)) {
@@ -344,7 +344,7 @@ proto_register_sapigs(void)
 	};
 
 	/* Setup protocol subtre array */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_sapigs
 	};
 
@@ -371,12 +371,12 @@ proto_register_sapigs(void)
 /**
  * Helpers for dealing with the port range
  */
-static void range_delete_callback (guint32 port, gpointer ptr _U_)
+static void range_delete_callback (uint32_t port, void *ptr _U_)
 {
         dissector_delete_uint("sapni.port", port, sapigs_handle);
 }
 
-static void range_add_callback (guint32 port, gpointer ptr _U_)
+static void range_add_callback (uint32_t port, void *ptr _U_)
 {
         dissector_add_uint("sapni.port", port, sapigs_handle);
 }
@@ -388,11 +388,11 @@ void
 proto_reg_handoff_sapigs(void)
 {
 	static range_t *sapigs_port_range;
-	static gboolean initialized = FALSE;
+	static bool initialized = false;
 
 	if (!initialized) {
 		sapigs_handle = create_dissector_handle(dissect_sapigs, proto_sapigs);
-		initialized = TRUE;
+		initialized = true;
 	} else {
 		range_foreach(sapigs_port_range, range_delete_callback, NULL);
 		wmem_free(wmem_epan_scope(), sapigs_port_range);

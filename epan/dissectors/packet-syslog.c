@@ -74,23 +74,23 @@ static const value_string short_facility_vals[] = {
   { 0, NULL }
 };
 
-static gint proto_syslog;
-static gint hf_syslog_level;
-static gint hf_syslog_facility;
-static gint hf_syslog_msg;
-static gint hf_syslog_msu_present;
-static gint hf_syslog_version;
-static gint hf_syslog_timestamp;
-static gint hf_syslog_timestamp_old;
-static gint hf_syslog_hostname;
-static gint hf_syslog_appname;
-static gint hf_syslog_procid;
-static gint hf_syslog_msgid;
-static gint hf_syslog_msgid_utf8;
-static gint hf_syslog_msgid_bom;
+static int proto_syslog;
+static int hf_syslog_level;
+static int hf_syslog_facility;
+static int hf_syslog_msg;
+static int hf_syslog_msu_present;
+static int hf_syslog_version;
+static int hf_syslog_timestamp;
+static int hf_syslog_timestamp_old;
+static int hf_syslog_hostname;
+static int hf_syslog_appname;
+static int hf_syslog_procid;
+static int hf_syslog_msgid;
+static int hf_syslog_msgid_utf8;
+static int hf_syslog_msgid_bom;
 
-static gint ett_syslog;
-static gint ett_syslog_msg;
+static int ett_syslog;
+static int ett_syslog_msg;
 
 static dissector_handle_t syslog_handle;
 
@@ -103,13 +103,13 @@ static dissector_handle_t mtp_handle;
  *  packet so that it can be passed on to the mtp3 dissector for decoding.
  */
 static tvbuff_t *
-mtp3_msu_present(tvbuff_t *tvb, packet_info *pinfo, gint fac, gint level, const char *msg_str, gint chars_truncated)
+mtp3_msu_present(tvbuff_t *tvb, packet_info *pinfo, int fac, int level, const char *msg_str, int chars_truncated)
 {
   size_t nbytes;
   size_t len;
-  gchar **split_string, *msu_hex_dump;
+  char **split_string, *msu_hex_dump;
   tvbuff_t *mtp3_tvb = NULL;
-  guint8 *byte_array;
+  uint8_t *byte_array;
 
   /*  In the sample capture I have, all MSUs are LOCAL0.DEBUG.
    *  Try to optimize this routine for most syslog users by short-cutting
@@ -137,8 +137,8 @@ mtp3_msu_present(tvbuff_t *tvb, packet_info *pinfo, gint fac, gint level, const 
     byte_array = convert_string_to_hex(msu_hex_dump, &nbytes);
 
     if (byte_array) {
-        mtp3_tvb = tvb_new_child_real_data(tvb, byte_array, (guint)nbytes,
-                                           (guint)nbytes + chars_truncated / 2);
+        mtp3_tvb = tvb_new_child_real_data(tvb, byte_array, (unsigned)nbytes,
+                                           (unsigned)nbytes + chars_truncated / 2);
         tvb_set_free_cb(mtp3_tvb, g_free);
         /* ...and add the encapsulated MSU as a new data source so that it gets
          * its own tab in the packet bytes pane.
@@ -152,21 +152,21 @@ mtp3_msu_present(tvbuff_t *tvb, packet_info *pinfo, gint fac, gint level, const 
   return mtp3_tvb;
 }
 
-static gboolean dissect_syslog_info(proto_tree* tree, tvbuff_t* tvb, guint* offset, gint hfindex)
+static bool dissect_syslog_info(proto_tree* tree, tvbuff_t* tvb, unsigned* offset, int hfindex)
 {
-  gint end_offset = tvb_find_guint8(tvb, *offset, -1, ' ');
+  int end_offset = tvb_find_guint8(tvb, *offset, -1, ' ');
   if (end_offset == -1)
-    return FALSE;
+    return false;
   proto_tree_add_item(tree, hfindex, tvb, *offset, end_offset - *offset, ENC_NA);
   *offset = end_offset + 1;
-  return TRUE;
+  return true;
 }
 
 /* Dissect message as defined in RFC5424 */
 static void
-dissect_syslog_message(proto_tree* tree, tvbuff_t* tvb, guint offset)
+dissect_syslog_message(proto_tree* tree, tvbuff_t* tvb, unsigned offset)
 {
-  gint end_offset;
+  int end_offset;
 
   if (!dissect_syslog_info(tree, tvb, &offset, hf_syslog_version))
     return;
@@ -174,7 +174,7 @@ dissect_syslog_message(proto_tree* tree, tvbuff_t* tvb, guint offset)
   end_offset = tvb_find_guint8(tvb, offset, -1, ' ');
   if (end_offset == -1)
     return;
-  if ((guint)end_offset != offset) {
+  if ((unsigned)end_offset != offset) {
     /* do not call proto_tree_add_time_item with a length of 0 */
     proto_tree_add_time_item(tree, hf_syslog_timestamp, tvb, offset, end_offset - offset, ENC_ISO_8601_DATE_TIME,
       NULL, NULL, NULL);
@@ -187,7 +187,7 @@ dissect_syslog_message(proto_tree* tree, tvbuff_t* tvb, guint offset)
     return;
   if (!dissect_syslog_info(tree, tvb, &offset, hf_syslog_procid))
     return;
-  if (tvb_get_guint24(tvb, offset, ENC_BIG_ENDIAN) == 0xefbbbf) {
+  if (tvb_get_uint24(tvb, offset, ENC_BIG_ENDIAN) == 0xefbbbf) {
     proto_tree_add_item(tree, hf_syslog_msgid_bom, tvb, offset, 3, ENC_BIG_ENDIAN);
     offset += 3;
     proto_tree_add_item(tree, hf_syslog_msgid_utf8, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_UTF_8);
@@ -198,16 +198,16 @@ dissect_syslog_message(proto_tree* tree, tvbuff_t* tvb, guint offset)
 
 /* Dissect message as defined in RFC3164 */
 static void
-dissect_rfc3164_syslog_message(proto_tree* tree, tvbuff_t* tvb, guint offset)
+dissect_rfc3164_syslog_message(proto_tree* tree, tvbuff_t* tvb, unsigned offset)
 {
-  guint tvb_offset = 0;
+  unsigned tvb_offset = 0;
 
   /* Simple check if the first 16 bytes look like TIMESTAMP "Mmm dd hh:mm:ss"
    * by checking for spaces and colons. Otherwise return without processing
    * the message. */
-  if (tvb_get_guint8(tvb, offset + 3) == ' ' && tvb_get_guint8(tvb, offset + 6) == ' ' &&
-        tvb_get_guint8(tvb, offset + 9) == ':' && tvb_get_guint8(tvb, offset + 12) == ':' &&
-        tvb_get_guint8(tvb, offset + 15) == ' ') {
+  if (tvb_get_uint8(tvb, offset + 3) == ' ' && tvb_get_uint8(tvb, offset + 6) == ' ' &&
+        tvb_get_uint8(tvb, offset + 9) == ':' && tvb_get_uint8(tvb, offset + 12) == ':' &&
+        tvb_get_uint8(tvb, offset + 15) == ' ') {
     proto_tree_add_item(tree, hf_syslog_timestamp_old, tvb, offset, 15, ENC_ASCII);
     offset += 16;
   } else {
@@ -217,8 +217,8 @@ dissect_rfc3164_syslog_message(proto_tree* tree, tvbuff_t* tvb, guint offset)
   if (!dissect_syslog_info(tree, tvb, &offset, hf_syslog_hostname))
     return;
   for (tvb_offset=offset; tvb_offset < offset+32; tvb_offset++){
-    guint8 octet;
-    octet = tvb_get_guint8(tvb, tvb_offset);
+    uint8_t octet;
+    octet = tvb_get_uint8(tvb, tvb_offset);
     if (!g_ascii_isalnum(octet)){
       proto_tree_add_item(tree, hf_syslog_procid, tvb, offset, tvb_offset - offset, ENC_ASCII);
       offset = tvb_offset;
@@ -232,8 +232,8 @@ dissect_rfc3164_syslog_message(proto_tree* tree, tvbuff_t* tvb, guint offset)
 static int
 dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  gint pri = -1, lev = -1, fac = -1;
-  gint msg_off = 0, msg_len, reported_msg_len;
+  int pri = -1, lev = -1, fac = -1;
+  int msg_off = 0, msg_len, reported_msg_len;
   proto_item *ti;
   proto_tree *syslog_tree;
   proto_tree *syslog_message_tree;
@@ -243,16 +243,16 @@ dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "Syslog");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  if (tvb_get_guint8(tvb, msg_off) == '<') {
+  if (tvb_get_uint8(tvb, msg_off) == '<') {
     /* A facility and level follow. */
     msg_off++;
     pri = 0;
     while (tvb_bytes_exist(tvb, msg_off, 1) &&
-           g_ascii_isdigit(tvb_get_guint8(tvb, msg_off)) && msg_off <= MAX_DIGITS) {
-      pri = pri * 10 + (tvb_get_guint8(tvb, msg_off) - '0');
+           g_ascii_isdigit(tvb_get_uint8(tvb, msg_off)) && msg_off <= MAX_DIGITS) {
+      pri = pri * 10 + (tvb_get_uint8(tvb, msg_off) - '0');
       msg_off++;
     }
-    if (tvb_get_guint8(tvb, msg_off) == '>')
+    if (tvb_get_uint8(tvb, msg_off) == '>')
       msg_off++;
     fac = (pri & FACILITY_MASK) >> 3;
     lev = pri & PRIORITY_MASK;
@@ -309,7 +309,7 @@ dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     if (mtp3_tvb) {
       proto_item *mtp3_item;
       mtp3_item = proto_tree_add_boolean(syslog_tree, hf_syslog_msu_present,
-                                         tvb, msg_off, msg_len, TRUE);
+                                         tvb, msg_off, msg_len, true);
       proto_item_set_generated(mtp3_item);
     }
   }
@@ -406,7 +406,7 @@ void proto_register_syslog(void)
   };
 
   /* Setup protocol subtree array */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_syslog,
     &ett_syslog_msg
   };

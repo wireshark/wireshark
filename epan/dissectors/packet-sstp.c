@@ -103,30 +103,30 @@ void proto_reg_handoff_sstp(void);
 #define SSTP_ATTRIB_STATUS_VALUE_NOT_SUPPORTED 0x000004
 
 static dissector_handle_t ppp_hdlc_handle;
-static gint ett_sstp;
-static gint ett_sstp_attribute;
-static gint ett_sstp_version;
-static gint hf_sstp_attrib_id;
-static gint hf_sstp_attrib_length;
-static gint hf_sstp_attrib_length_reserved;
-static gint hf_sstp_attrib_reserved;
-static gint hf_sstp_attrib_value;
-static gint hf_sstp_cert_hash;
-static gint hf_sstp_compound_mac;
-static gint hf_sstp_control_flag;
-static gint hf_sstp_data_unknown;
-static gint hf_sstp_ecapsulated_protocol;
-static gint hf_sstp_hash_protocol;
-static gint hf_sstp_length;
-static gint hf_sstp_major;
-static gint hf_sstp_messagetype;
-static gint hf_sstp_minor;
-static gint hf_sstp_nonce;
-static gint hf_sstp_numattrib;
-static gint hf_sstp_padding;
-static gint hf_sstp_reserved;
-static gint hf_sstp_status;
-static gint proto_sstp;
+static int ett_sstp;
+static int ett_sstp_attribute;
+static int ett_sstp_version;
+static int hf_sstp_attrib_id;
+static int hf_sstp_attrib_length;
+static int hf_sstp_attrib_length_reserved;
+static int hf_sstp_attrib_reserved;
+static int hf_sstp_attrib_value;
+static int hf_sstp_cert_hash;
+static int hf_sstp_compound_mac;
+static int hf_sstp_control_flag;
+static int hf_sstp_data_unknown;
+static int hf_sstp_ecapsulated_protocol;
+static int hf_sstp_hash_protocol;
+static int hf_sstp_length;
+static int hf_sstp_major;
+static int hf_sstp_messagetype;
+static int hf_sstp_minor;
+static int hf_sstp_nonce;
+static int hf_sstp_numattrib;
+static int hf_sstp_padding;
+static int hf_sstp_reserved;
+static int hf_sstp_status;
+static int proto_sstp;
 
 static const value_string sstp_messagetypes[] = {
   {SSTP_MSG_CALL_CONNECT_REQUEST, "SSTP_MSG_CALL_CONNECT_REQUEST"},
@@ -180,15 +180,15 @@ static const value_string attrib_status[] = {
 static int
 dissect_sstp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  guint16 sstp_control_flag;
-  guint32 offset = 0;
-  guint8 sstp_major;
-  guint8 sstp_minor;
+  uint16_t sstp_control_flag;
+  uint32_t offset = 0;
+  uint8_t sstp_major;
+  uint8_t sstp_minor;
   proto_item *ti;
   proto_tree *sstp_tree;
   proto_tree *sstp_tree_attribute;
   proto_tree *sstp_tree_version;
-  guint16 sstp_numattrib;
+  uint16_t sstp_numattrib;
   tvbuff_t *tvb_next;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "SSTP");
@@ -198,9 +198,9 @@ dissect_sstp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
   ti = proto_tree_add_item(tree, proto_sstp, tvb, 0, -1, ENC_NA);
   sstp_tree = proto_item_add_subtree(ti, ett_sstp);
 
-  sstp_control_flag = tvb_get_guint8(tvb, SSTP_OFFSET_ISCONTROL) & SSTP_BITMASK_CONTROLFLAG;
-  sstp_minor = (tvb_get_guint8(tvb, SSTP_OFFSET_MINORVERSION) & SSTP_BITMASK_MINORVERSION); /* leftmost 4 bit */
-  sstp_major = (tvb_get_guint8(tvb, SSTP_OFFSET_MAJORVERSION) >> 4); /* rightmost 4 bit */
+  sstp_control_flag = tvb_get_uint8(tvb, SSTP_OFFSET_ISCONTROL) & SSTP_BITMASK_CONTROLFLAG;
+  sstp_minor = (tvb_get_uint8(tvb, SSTP_OFFSET_MINORVERSION) & SSTP_BITMASK_MINORVERSION); /* leftmost 4 bit */
+  sstp_major = (tvb_get_uint8(tvb, SSTP_OFFSET_MAJORVERSION) >> 4); /* rightmost 4 bit */
   col_append_fstr(pinfo->cinfo, COL_INFO, "SSTP-%u.%u ", sstp_major, sstp_minor);
 
   sstp_tree_version = proto_tree_add_subtree_format(sstp_tree, tvb, offset, SSTP_FSIZE_MAJORVERSION, ett_sstp_version,
@@ -213,7 +213,7 @@ dissect_sstp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
   /* check wether we got a control or data packet */
   if (sstp_control_flag) {
-    guint16 sstp_messagetype = tvb_get_guint16(tvb, SSTP_OFFSET_MSGTYPE, ENC_BIG_ENDIAN);
+    uint16_t sstp_messagetype = tvb_get_uint16(tvb, SSTP_OFFSET_MSGTYPE, ENC_BIG_ENDIAN);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "Type: CONTROL, %s; ", val_to_str_const(sstp_messagetype, sstp_messagetypes, "Unknown Messagetype"));
     proto_tree_add_item(sstp_tree, hf_sstp_messagetype, tvb,  SSTP_OFFSET_MSGTYPE, SSTP_FSIZE_MSGTYPE, ENC_BIG_ENDIAN);
@@ -222,14 +222,14 @@ dissect_sstp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
     /* display attributes */
     if (sstp_numattrib > 0) {
-      guint16 attrib_length = 0;
-      guint8 attrib_id = 0;
-      guint8 hashproto = 0;
+      uint16_t attrib_length = 0;
+      uint8_t attrib_id = 0;
+      uint8_t hashproto = 0;
       offset = SSTP_OFFSET_ATTRIBUTES;
 
       for(;sstp_numattrib > 0; sstp_numattrib--) {
         /* read attribute id and create subtree for attribute */
-        attrib_id = tvb_get_guint8(tvb, offset+1);
+        attrib_id = tvb_get_uint8(tvb, offset+1);
         sstp_tree_attribute = proto_tree_add_subtree_format(sstp_tree, tvb, offset, SSTP_FSIZE_ATTRIB_RESERVED, ett_sstp_attribute,
             NULL, "Attribute %s", val_to_str_const(attrib_id, sstp_attributes, "Unknown Attribute"));
         proto_tree_add_item(sstp_tree_attribute, hf_sstp_attrib_reserved, tvb, offset, SSTP_FSIZE_ATTRIB_RESERVED, ENC_BIG_ENDIAN);
@@ -275,7 +275,7 @@ dissect_sstp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             proto_tree_add_item(sstp_tree_attribute, hf_sstp_reserved, tvb, offset, SSTP_FSIZE_RESERVED2, ENC_NA);
             offset += SSTP_FSIZE_RESERVED2;
             proto_tree_add_item(sstp_tree_attribute, hf_sstp_hash_protocol, tvb, offset, SSTP_FSIZE_HASH_PROTOCOL, ENC_BIG_ENDIAN);
-            hashproto = tvb_get_guint8(tvb, offset);
+            hashproto = tvb_get_uint8(tvb, offset);
             offset += SSTP_FSIZE_HASH_PROTOCOL;
             proto_tree_add_item(sstp_tree_attribute, hf_sstp_nonce, tvb, offset, SSTP_FSIZE_NONCE, ENC_NA);
             offset += SSTP_FSIZE_NONCE;
@@ -325,7 +325,7 @@ dissect_sstp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
   return tvb_captured_length(tvb);
 }
 
-static guint
+static unsigned
 get_sstp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
   return tvb_get_ntohs(tvb, offset+SSTP_OFFSET_LENGTH);
@@ -334,7 +334,7 @@ get_sstp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _
 static int
 dissect_sstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  tcp_dissect_pdus(tvb, pinfo, tree, TRUE, SSTP_OFFSET_LENGTH+SSTP_FSIZE_LENGTH, get_sstp_pdu_len, dissect_sstp_pdu, data);
+  tcp_dissect_pdus(tvb, pinfo, tree, true, SSTP_OFFSET_LENGTH+SSTP_FSIZE_LENGTH, get_sstp_pdu_len, dissect_sstp_pdu, data);
   return tvb_captured_length(tvb);
 }
 
@@ -492,7 +492,7 @@ proto_register_sstp(void)
   };
 
   /* Setup protocol subtree array */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_sstp,
     &ett_sstp_attribute,
     &ett_sstp_version

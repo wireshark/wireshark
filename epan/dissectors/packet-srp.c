@@ -33,8 +33,8 @@ static int hf_srp_crc_bad;
 static int hf_ccsrl_ls;
 
 /* These are the ids of the subtrees that we may be creating */
-static gint ett_srp;
-static gint ett_ccsrl;
+static int ett_srp;
+static int ett_ccsrl;
 
 static dissector_handle_t ccsrl_handle;
 static dissector_handle_t h245dg_handle;
@@ -69,7 +69,7 @@ static int dissect_ccsrl(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 {
     proto_item *ccsrl_item;
     proto_tree *ccsrl_tree=NULL;
-    guint8 lastseg = tvb_get_guint8(tvb,0);
+    uint8_t lastseg = tvb_get_uint8(tvb,0);
     tvbuff_t *next_tvb;
 
     /* add the 'ccsrl' tree to the main tree */
@@ -92,7 +92,7 @@ static int dissect_ccsrl(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 static void dissect_srp_command(tvbuff_t * tvb, packet_info * pinfo, proto_tree * srp_tree)
 {
     tvbuff_t *next_tvb;
-    guint payload_len;
+    unsigned payload_len;
 
     if( srp_tree )
         proto_tree_add_item(srp_tree,hf_srp_seqno,tvb,1,1,ENC_BIG_ENDIAN);
@@ -112,7 +112,7 @@ static int dissect_srp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
     proto_tree *srp_tree = NULL;
     proto_item *hidden_item;
 
-    guint8 header = tvb_get_guint8(tvb,0);
+    uint8_t header = tvb_get_uint8(tvb,0);
 
     /* add the 'srp' tree to the main tree */
     if (tree) {
@@ -141,8 +141,8 @@ static int dissect_srp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
     }
 
     if( srp_tree ) {
-        guint16 crc, calc_crc;
-        guint crc_offset = tvb_reported_length(tvb)-2;
+        uint16_t crc, calc_crc;
+        unsigned crc_offset = tvb_reported_length(tvb)-2;
         crc = tvb_get_letohs(tvb,-2);
 
         /* crc includes the header */
@@ -154,7 +154,7 @@ static int dissect_srp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
                                        "0x%04x (correct)", crc);
         } else {
             hidden_item = proto_tree_add_boolean(srp_tree, hf_srp_crc_bad, tvb,
-                                          crc_offset, 2, TRUE);
+                                          crc_offset, 2, true);
             proto_item_set_hidden(hidden_item);
             proto_tree_add_uint_format_value(srp_tree, hf_srp_crc, tvb,
                                        crc_offset, 2, crc,
@@ -175,7 +175,7 @@ void proto_register_ccsrl (void)
             "Last segment indicator", HFILL}},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_ccsrl,
     };
 
@@ -202,7 +202,7 @@ void proto_register_srp (void)
             NULL, HFILL }},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_srp,
     };
 

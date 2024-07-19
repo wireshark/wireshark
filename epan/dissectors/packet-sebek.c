@@ -95,7 +95,7 @@ static int hf_sebek_socket_call;
 static int hf_sebek_socket_proto;
 
 
-static gint ett_sebek;
+static int ett_sebek;
 
 /* dissect_sebek - dissects sebek packet data
  * tvb - tvbuff for packet data (IN)
@@ -312,7 +312,7 @@ proto_register_sebek(void)
 			"Socket.ip_proto", "sebek.socket.ip_proto", FT_UINT8, BASE_DEC,
 			NULL, 0, NULL, HFILL }}
 	};
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_sebek
 	};
 

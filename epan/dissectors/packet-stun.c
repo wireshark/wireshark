@@ -121,7 +121,7 @@ enum {
  * introduced in draft-ietf-behave-rfc3849bis-04.
  */
 
-static gint stun_network_version = NET_VER_5389;
+static int stun_network_version = NET_VER_5389;
 
 static const enum_val_t stun_network_version_vals[] = {
         { "Auto", "Auto",     NET_VER_AUTO},
@@ -251,8 +251,8 @@ static expert_field ei_stun_fingerprint_bad;
 
 /* Structure containing transaction specific information */
 typedef struct _stun_transaction_t {
-    guint32 req_frame;
-    guint32 rep_frame;
+    uint32_t req_frame;
+    uint32_t rep_frame;
     nstime_t req_time;
 } stun_transaction_t;
 
@@ -441,11 +441,11 @@ typedef struct _stun_conv_info_t {
 #define MS_MULTIPLEX_TURN 0xFF10
 
 /* Initialize the subtree pointers */
-static gint ett_stun;
-static gint ett_stun_type;
-static gint ett_stun_att_all;
-static gint ett_stun_att;
-static gint ett_stun_att_type;
+static int ett_stun;
+static int ett_stun_type;
+static int ett_stun_att_all;
+static int ett_stun_att;
+static int ett_stun_att_type;
 
 #define UDP_PORT_STUN   3478
 #define TCP_PORT_STUN   3478
@@ -730,13 +730,13 @@ static const value_string google_network_cost_vals[] = {
 };
 
 
-static guint
+static unsigned
 get_stun_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                      int offset, void *data _U_)
 {
-    guint16 type;
-    guint   length;
-    guint   captured_length = tvb_captured_length(tvb);
+    uint16_t type;
+    unsigned   length;
+    unsigned   captured_length = tvb_captured_length(tvb);
 
     if ((captured_length >= TCP_FRAME_COOKIE_LEN) &&
         (tvb_get_ntohl(tvb, 6) == MESSAGE_COOKIE)) {
@@ -770,11 +770,11 @@ get_stun_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
  * re-use the packet-turnchannel.c's dissect_turnchannel_message() function?
  */
 static int
-dissect_stun_message_channel_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 msg_type, guint msg_length)
+dissect_stun_message_channel_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16_t msg_type, unsigned msg_length)
 {
     tvbuff_t *next_tvb;
     heur_dtbl_entry_t *hdtbl_entry;
-    gint offset = CHANNEL_DATA_HDR_LEN;
+    int offset = CHANNEL_DATA_HDR_LEN;
 
     /* XXX: a TURN ChannelData message is not actually a STUN message. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "STUN");
@@ -812,38 +812,38 @@ dissect_stun_message_channel_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 
 static int
-dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean heur_check, gboolean is_udp)
+dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool heur_check, bool is_udp)
 {
-    guint       captured_length;
-    guint16     msg_type;
-    guint       msg_length;
+    unsigned    captured_length;
+    uint16_t    msg_type;
+    unsigned    msg_length;
     proto_item *ti;
     proto_tree *stun_tree;
     proto_tree *stun_type_tree;
     proto_tree *att_all_tree;
     proto_tree *att_type_tree;
     proto_tree *att_tree = NULL;
-    guint16     msg_type_method;
-    guint16     msg_type_class;
+    uint16_t    msg_type_method;
+    uint16_t    msg_type_class;
     const char *msg_class_str;
     const char *msg_method_str;
-    guint16     att_type, att_type_display;
-    guint16     att_length, att_length_pad, clear_port;
-    guint32     clear_ip[4];
+    uint16_t    att_type, att_type_display;
+    uint16_t    att_length, att_length_pad, clear_port;
+    uint32_t    clear_ip[4];
     address     addr;
-    guint       i;
-    guint       offset;
-    guint       magic_cookie_first_word;
-    guint       tcp_framing_offset;
+    unsigned    i;
+    unsigned    offset;
+    unsigned    magic_cookie_first_word;
+    unsigned    tcp_framing_offset;
     conversation_t     *conversation=NULL;
     stun_conv_info_t   *stun_info;
     stun_transaction_t *stun_trans;
     wmem_tree_key_t     transaction_id_key[2];
-    guint32             transaction_id[3];
+    uint32_t            transaction_id[3];
     heur_dtbl_entry_t  *hdtbl_entry;
-    guint               reported_length;
-    gboolean            is_turn = FALSE;
-    gboolean            found_turn_attributes = FALSE;
+    unsigned            reported_length;
+    bool                is_turn = false;
+    bool                found_turn_attributes = false;
     int                 network_version; /* STUN flavour of the current message */
 
     /*
@@ -978,7 +978,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
         case CONNECT:
         case CONNECTION_BIND:
         case CONNECTION_ATTEMPT:
-            is_turn = TRUE;
+            is_turn = true;
             break;
     }
 
@@ -1129,7 +1129,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
     network_version = stun_network_version != NET_VER_AUTO ? stun_network_version : NET_VER_5389;
 
     if (msg_length != 0) {
-        const gchar       *attribute_name_str;
+        const char        *attribute_name_str;
 
         /* According to [MS-TURN] section 2.2.2.8: "This attribute MUST be the
            first attribute following the TURN message header in all TURN messages" */
@@ -1211,7 +1211,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 if (att_length < 4)
                     break;
                 proto_tree_add_item(att_tree, hf_stun_att_port, tvb, offset+2, 2, ENC_BIG_ENDIAN);
-                switch (tvb_get_guint8(tvb, offset+1))
+                switch (tvb_get_uint8(tvb, offset+1))
                 {
                 case 1:
                     if (att_length < 8)
@@ -1243,8 +1243,8 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
             case MS_ALT_MAPPED_ADDRESS:
             case MS_ALTERNATE_SERVER:
             {
-                const gchar       *addr_str = NULL;
-                guint16            att_port;
+                const char        *addr_str = NULL;
+                uint16_t           att_port;
 
                 if (att_length < 1)
                     break;
@@ -1257,7 +1257,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 proto_tree_add_item(att_tree, hf_stun_att_port, tvb, offset+2, 2, ENC_BIG_ENDIAN);
                 att_port = tvb_get_ntohs(tvb, offset + 2);
 
-                switch (tvb_get_guint8(tvb, offset+1)) {
+                switch (tvb_get_uint8(tvb, offset+1)) {
                 case 1:
                     if (att_length < 8)
                         break;
@@ -1300,7 +1300,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
             case USERNAME:
             {
                 if (network_version >  NET_VER_3489) {
-                    const guint8 *user_name_str;
+                    const uint8_t *user_name_str;
 
                     proto_tree_add_item_ret_string(att_tree, hf_stun_att_username, tvb, offset, att_length, ENC_UTF_8|ENC_NA, pinfo->pool, &user_name_str);
                     proto_item_append_text(att_tree, ": %s", user_name_str);
@@ -1327,8 +1327,8 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                     break;
                 proto_tree_add_item(att_tree, hf_stun_att_error_number, tvb, offset+3, 1, ENC_BIG_ENDIAN);
                 {
-                    int           human_error_num = tvb_get_guint8(tvb, offset+2) * 100 + tvb_get_guint8(tvb, offset+3);
-                    const gchar  *error_str = val_to_str_ext_const(human_error_num, &error_code_ext, "*Unknown error code*");
+                    int           human_error_num = tvb_get_uint8(tvb, offset+2) * 100 + tvb_get_uint8(tvb, offset+3);
+                    const char   *error_str = val_to_str_ext_const(human_error_num, &error_code_ext, "*Unknown error code*");
                     proto_item_append_text(
                         att_tree,
                         " %d (%s)",
@@ -1345,7 +1345,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 if (att_length < 5)
                     break;
                 {
-                const guint8 *error_reas_str;
+                const uint8_t *error_reas_str;
                 proto_tree_add_item_ret_string(att_tree, hf_stun_att_error_reason, tvb, offset + 4, att_length - 4, ENC_UTF_8 | ENC_NA, pinfo->pool, &error_reas_str);
 
                 proto_item_append_text(att_tree, ": %s", error_reas_str);
@@ -1360,7 +1360,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
 
             case REALM:
             {
-                const guint8 *realm_str;
+                const uint8_t *realm_str;
                 proto_tree_add_item_ret_string(att_tree, hf_stun_att_realm, tvb, offset, att_length, ENC_UTF_8|ENC_NA, pinfo->pool, &realm_str);
                 proto_item_append_text(att_tree, ": %s", realm_str);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " realm: %s", realm_str);
@@ -1368,7 +1368,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
             }
             case NONCE:
             {
-                const guint8 *nonce_str;
+                const uint8_t *nonce_str;
                 proto_tree_add_item_ret_string(att_tree, hf_stun_att_nonce, tvb, offset, att_length, ENC_UTF_8|ENC_NA, pinfo->pool, &nonce_str);
                 proto_item_append_text(att_tree, ": %s", nonce_str);
                 col_append_str(pinfo->cinfo, COL_INFO, " with nonce");
@@ -1377,10 +1377,10 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
             case PASSWORD_ALGORITHM:
             case PASSWORD_ALGORITHMS:
             {
-                guint alg, alg_param_len, alg_param_len_pad;
-                guint remaining = att_length;
+                unsigned alg, alg_param_len, alg_param_len_pad;
+                unsigned remaining = att_length;
                 while (remaining > 0) {
-                   guint loopoffset = offset + att_length - remaining;
+                   unsigned loopoffset = offset + att_length - remaining;
                    if (remaining < 4) {
                        proto_tree_add_expert_format(att_tree, pinfo, &ei_stun_short_packet, tvb,
                            loopoffset, remaining, "Too few bytes left for TLV header (%d < 4)", remaining);
@@ -1413,7 +1413,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
             }
             case XOR_PEER_ADDRESS:
             case XOR_RELAYED_ADDRESS:
-                found_turn_attributes = TRUE;
+                found_turn_attributes = true;
                 /* Fallthrough */
             case XOR_MAPPED_ADDRESS:
             case XOR_RESPONSE_TARGET:
@@ -1443,7 +1443,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 if (att_length < 8)
                     break;
 
-                switch (tvb_get_guint8(tvb, offset+1)) {
+                switch (tvb_get_uint8(tvb, offset+1)) {
                 case 1:
                     proto_tree_add_item(att_tree, hf_stun_att_xor_ipv4, tvb, offset+4, 4, ENC_NA);
 
@@ -1481,7 +1481,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 }
 
                 if (addr.type != AT_NONE) {
-                    const gchar *ipstr = address_to_str(pinfo->pool, &addr);
+                    const char *ipstr = address_to_str(pinfo->pool, &addr);
                     proto_item_append_text(att_tree, ": %s:%d", ipstr, clear_port);
                     col_append_fstr(pinfo->cinfo, COL_INFO, " %s: %s:%d",
                                     attribute_name_str, ipstr, clear_port);
@@ -1501,14 +1501,14 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 if (att_length < 1)
                     break;
                 proto_tree_add_item(att_tree, hf_stun_att_reserve_next, tvb, offset, 1, ENC_BIG_ENDIAN);
-                found_turn_attributes = TRUE;
+                found_turn_attributes = true;
                 break;
 
             case RESERVATION_TOKEN:
                 if (att_length < 8)
                     break;
                 proto_tree_add_item(att_tree, hf_stun_att_token, tvb, offset, 8, ENC_NA);
-                found_turn_attributes = TRUE;
+                found_turn_attributes = true;
                 break;
 
             case PRIORITY:
@@ -1568,7 +1568,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                     }
 
                 }
-                found_turn_attributes = TRUE;
+                found_turn_attributes = true;
                 break;
 
             case REQUESTED_TRANSPORT:
@@ -1579,8 +1579,8 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                     break;
 
                 {
-                    guint8  protoCode = tvb_get_guint8(tvb, offset);
-                    const gchar *protoCode_str = val_to_str(protoCode, transportnames, "Unknown (0x%8x)");
+                    uint8_t protoCode = tvb_get_uint8(tvb, offset);
+                    const char *protoCode_str = val_to_str(protoCode, transportnames, "Unknown (0x%8x)");
 
                     proto_item_append_text(att_tree, ": %s", protoCode_str);
                     col_append_fstr(
@@ -1590,7 +1590,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                         );
                 }
                 proto_tree_add_item(att_tree, hf_stun_att_reserved, tvb, offset+1, 3, ENC_NA);
-                found_turn_attributes = TRUE;
+                found_turn_attributes = true;
                 break;
 
             case CHANNEL_NUMBER:
@@ -1598,7 +1598,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                     break;
                 proto_tree_add_item(att_tree, hf_stun_att_channelnum, tvb, offset, 2, ENC_BIG_ENDIAN);
                 {
-                    guint16 chan = tvb_get_ntohs(tvb, offset);
+                    uint16_t chan = tvb_get_ntohs(tvb, offset);
                     proto_item_append_text(att_tree, ": 0x%x", chan);
                     col_append_fstr(
                         pinfo->cinfo, COL_INFO,
@@ -1607,7 +1607,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                         );
                 }
                 proto_tree_add_item(att_tree, hf_stun_att_reserved, tvb, offset+2, 2, ENC_NA);
-                found_turn_attributes = TRUE;
+                found_turn_attributes = true;
                 break;
 
             case MAGIC_COOKIE:
@@ -1626,7 +1626,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                     " bandwidth: %d",
                     tvb_get_ntohl(tvb, offset)
                     );
-                found_turn_attributes = TRUE;
+                found_turn_attributes = true;
                 break;
             case LIFETIME:
                 if (att_length < 4)
@@ -1638,7 +1638,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                     " lifetime: %d",
                     tvb_get_ntohl(tvb, offset)
                     );
-                found_turn_attributes = TRUE;
+                found_turn_attributes = true;
                 break;
 
             case MS_VERSION:
@@ -1703,7 +1703,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
             case MS_MULTIPLEXED_TURN_SESSION_ID:
                 proto_tree_add_item(att_tree, hf_stun_att_ms_multiplexed_turn_session_id, tvb, offset, 8, ENC_NA);
                 /* Trick to force decoding of MS-TURN Multiplexed TURN channels */
-                found_turn_attributes = TRUE;
+                found_turn_attributes = true;
                 break;
 
             case GOOG_NETWORK_INFO:
@@ -1728,7 +1728,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
          * TURN methods to setup a Channel Data, so the previous check to set
          * "is_turn" variable fails. Fortunately, standard TURN attributes are still
          * used in the replies */
-        is_turn = TRUE;
+        is_turn = true;
     }
     if (heur_check && conversation) {
         /*
@@ -1743,7 +1743,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
          * XXX: If we ever support STUN over [D]TLS (or MS-TURN's Pseudo-TLS)
          * as a heuristic dissector (instead of through ALPN), make sure to
          * set the TLS app_handle instead of changing the conversation
-         * dissector from TLS. As it is, heur_check is FALSE over [D]TLS so
+         * dissector from TLS. As it is, heur_check is false over [D]TLS so
          * we won't get here.
          */
         if (pinfo->ptype == PT_TCP) {
@@ -1766,19 +1766,19 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
 static int
 dissect_stun_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    return dissect_stun_message(tvb, pinfo, tree, FALSE, TRUE);
+    return dissect_stun_message(tvb, pinfo, tree, false, true);
 }
 
 static int
 dissect_stun_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    return dissect_stun_message(tvb, pinfo, tree, FALSE, FALSE);
+    return dissect_stun_message(tvb, pinfo, tree, false, false);
 }
 
 static int
 dissect_stun_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, MIN_HDR_LEN,
+    tcp_dissect_pdus(tvb, pinfo, tree, true, MIN_HDR_LEN,
         get_stun_message_len, dissect_stun_tcp_pdu, data);
     return tvb_reported_length(tvb);
 }
@@ -1787,11 +1787,11 @@ static bool
 dissect_stun_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     conversation_t *conversation;
-    guint captured_length;
-    guint16 msg_type;
-    guint msg_length;
-    guint tcp_framing_offset;
-    guint reported_length;
+    unsigned captured_length;
+    uint16_t msg_type;
+    unsigned msg_length;
+    unsigned tcp_framing_offset;
+    unsigned reported_length;
 
     /* There might be multiple STUN messages in a TCP payload: try finding a valid
        message and then switch to non-heuristic TCP dissector which will handle
@@ -1846,7 +1846,7 @@ dissect_stun_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 static bool
 dissect_stun_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    return dissect_stun_message(tvb, pinfo, tree, TRUE, TRUE) > 0;
+    return dissect_stun_message(tvb, pinfo, tree, true, true) > 0;
 }
 
 void
@@ -2218,7 +2218,7 @@ proto_register_stun(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_stun,
         &ett_stun_type,
         &ett_stun_att_all,
@@ -2265,7 +2265,7 @@ proto_register_stun(void)
         "stunversion", "Stun Version", "Stun Version on the Network",
                                        &stun_network_version,
                                        stun_network_version_vals,
-                                       FALSE);
+                                       false);
 
     expert_stun = expert_register_protocol(proto_stun);
     expert_register_field_array(expert_stun, ei, array_length(ei));

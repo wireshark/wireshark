@@ -56,11 +56,11 @@ static int hf_stat_stat_res_res;
 static int hf_stat_stat_res_state;
 static int hf_stat_state;
 
-static gint ett_stat;
-static gint ett_stat_stat_res;
-static gint ett_stat_mon;
-static gint ett_stat_my_id;
-static gint ett_stat_stat_chge;
+static int ett_stat;
+static int ett_stat_stat_res;
+static int ett_stat_mon;
+static int ett_stat_my_id;
+static int ett_stat_stat_chge;
 
 #define STAT_SUCC	0
 #define STAT_FAIL	1
@@ -113,7 +113,7 @@ dissect_stat_stat_res(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, v
 {
 	proto_item *sub_item;
 	proto_tree *sub_tree;
-	gint32 res;
+	int32_t res;
 	int offset = 0;
 
 	sub_item = proto_tree_add_item(tree, hf_stat_stat_res, tvb,
@@ -327,7 +327,7 @@ proto_register_stat(void)
 		},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_stat,
 		&ett_stat_stat_res,
 		&ett_stat_mon,

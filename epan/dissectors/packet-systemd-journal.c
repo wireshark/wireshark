@@ -166,9 +166,9 @@ static dissector_handle_t sje_handle;
 #define MAX_DATA_SIZE 262144 // WTAP_MAX_PACKET_SIZE_STANDARD. Increase if needed.
 
 /* Initialize the subtree pointers */
-static gint ett_systemd_journal_entry;
-static gint ett_systemd_binary_data;
-static gint ett_systemd_unknown_field;
+static int ett_systemd_journal_entry;
+static int ett_systemd_binary_data;
+static int ett_systemd_unknown_field;
 
 // XXX Use a value_string instead?
 typedef struct _journal_field_hf_map {
@@ -292,9 +292,9 @@ static void init_jf_to_hf_map(void) {
 
 static void
 dissect_sjle_time_usecs(proto_tree *tree, int hf_idx, tvbuff_t *tvb, int offset, int len) {
-    guint64 rt_ts = 0;
+    uint64_t rt_ts = 0;
     char *time_str = tvb_format_text(wmem_packet_scope(), tvb, offset, len);
-    gboolean ok = ws_strtou64(time_str, NULL, &rt_ts);
+    bool ok = ws_strtou64(time_str, NULL, &rt_ts);
     if (ok) {
         nstime_t ts;
         ts.secs = (time_t) (rt_ts / 1000000);
@@ -307,13 +307,13 @@ dissect_sjle_time_usecs(proto_tree *tree, int hf_idx, tvbuff_t *tvb, int offset,
 
 static void
 dissect_sjle_uint(proto_tree *tree, int hf_idx, tvbuff_t *tvb, int offset, int len) {
-    guint32 uint_val = (guint32) strtoul(tvb_format_text(wmem_packet_scope(), tvb, offset, len), NULL, 10);
+    uint32_t uint_val = (uint32_t) strtoul(tvb_format_text(wmem_packet_scope(), tvb, offset, len), NULL, 10);
     proto_tree_add_uint(tree, hf_idx, tvb, offset, len, uint_val);
 }
 
 static void
 dissect_sjle_int(proto_tree *tree, int hf_idx, tvbuff_t *tvb, int offset, int len) {
-    gint32 int_val = (gint32) strtol(tvb_format_text(wmem_packet_scope(), tvb, offset, len), NULL, 10);
+    int32_t int_val = (int32_t) strtol(tvb_format_text(wmem_packet_scope(), tvb, offset, len), NULL, 10);
     proto_tree_add_int(tree, hf_idx, tvb, offset, len, int_val);
 }
 
@@ -334,19 +334,19 @@ dissect_systemd_journal_line_entry(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     sje_tree = proto_item_add_subtree(ti, ett_systemd_journal_entry);
 
     while (tvb_offset_exists(tvb, offset)) {
-        int line_len = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+        int line_len = tvb_find_line_end(tvb, offset, -1, &next_offset, false);
         if (line_len < 3) {
             // Invalid or zero length.
             // XXX Add an expert item for non-empty lines.
             offset = next_offset;
             continue;
         }
-        gboolean found = FALSE;
+        bool found = false;
         int eq_off = tvb_find_guint8(tvb, offset, line_len, '=') + 1;
         int val_len = offset + line_len - eq_off;
 
         for (int i = 0; jf_to_hf[i].name; i++) {
-            if (tvb_memeql(tvb, offset, (const guint8*) jf_to_hf[i].name, strlen(jf_to_hf[i].name)) == 0) {
+            if (tvb_memeql(tvb, offset, (const uint8_t*) jf_to_hf[i].name, strlen(jf_to_hf[i].name)) == 0) {
                 int hf_idx = jf_to_hf[i].hfid;
                 switch (proto_registrar_get_ftype(hf_idx)) {
                 case FT_ABSOLUTE_TIME:
@@ -378,7 +378,7 @@ dissect_systemd_journal_line_entry(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                     col_clear(pinfo->cinfo, COL_INFO);
                     col_add_str(pinfo->cinfo, COL_INFO, (char *) tvb_get_string_enc(pinfo->pool, tvb, eq_off, val_len, ENC_UTF_8));
                 }
-                found = TRUE;
+                found = true;
             }
         }
 
@@ -396,9 +396,9 @@ dissect_systemd_journal_line_entry(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
         if (!found) {
             for (int i = 0; jf_to_hf[i].name; i++) {
                 int noeql_len = (int) strlen(jf_to_hf[i].name) - 1;
-                if (tvb_memeql(tvb, offset, (const guint8 *) jf_to_hf[i].name, (size_t) noeql_len) == 0 && tvb_memeql(tvb, offset+noeql_len, (const guint8 *) "\n", 1) == 0) {
+                if (tvb_memeql(tvb, offset, (const uint8_t *) jf_to_hf[i].name, (size_t) noeql_len) == 0 && tvb_memeql(tvb, offset+noeql_len, (const uint8_t *) "\n", 1) == 0) {
                     int hf_idx = jf_to_hf[i].hfid;
-                    guint64 data_len = tvb_get_letoh64(tvb, offset + noeql_len + 1);
+                    uint64_t data_len = tvb_get_letoh64(tvb, offset + noeql_len + 1);
                     int data_off = offset + noeql_len + 1 + 8; // \n + data len
                     next_offset = data_off + (int) data_len + 1;
                     if (proto_registrar_get_ftype(hf_idx) == FT_STRING) {
@@ -846,7 +846,7 @@ proto_register_systemd_journal(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_systemd_journal_entry,
         &ett_systemd_binary_data,
         &ett_systemd_unknown_field

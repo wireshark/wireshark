@@ -36,11 +36,11 @@ static int dissect_sipfrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 {
     proto_tree  *sipfrag_tree;
     proto_item  *ti;
-    gint        offset = 0;
-    gint        next_offset;
+    int         offset = 0;
+    int         next_offset;
     int         linelen;
     char        *string;
-    gint        lines = 0;
+    int         lines = 0;
 
     /* Append this protocol name rather than replace. */
     col_append_str(pinfo->cinfo, COL_PROTOCOL, "/sipfrag");
@@ -93,7 +93,7 @@ void proto_register_sipfrag(void)
         },
     };
 
-    static gint *ett[] =
+    static int *ett[] =
     {
         &ett_sipfrag
     };

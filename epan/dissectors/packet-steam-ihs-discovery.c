@@ -134,8 +134,8 @@ static expert_field ei_steam_ihs_discovery_invalid_length;
 #define STEAM_IHS_DISCOVERY_UDP_PORT 27036
 
 /* Initialize the subtree pointers */
-static gint ett_steam_ihs_discovery;
-static gint ett_steam_ihs_discovery_body_status_user;
+static int ett_steam_ihs_discovery;
+static int ett_steam_ihs_discovery_body_status_user;
 
 #define STEAM_IHS_DISCOVERY_MIN_LENGTH 12
 #define STEAM_IHS_DISCOVERY_SIGNATURE_LENGTH 8
@@ -154,22 +154,22 @@ static gint ett_steam_ihs_discovery_body_status_user;
 static const char * const protobuf_wiretype_names[] = {"VarInt", "64-bit", "Length-delimited", "Start group", "End group", "32-bit"};
 static const char protobuf_wiretype_name_unknown[] = "Unknown";
 
-static const char* protobuf_get_wiretype_name(guint8 wire_type) {
+static const char* protobuf_get_wiretype_name(uint8_t wire_type) {
     if (wire_type <= 5) {
         return protobuf_wiretype_names[wire_type];
     }
     return protobuf_wiretype_name_unknown;
 }
 
-static gint64
-get_varint64(tvbuff_t *tvb, gint offset, gint bytes_left, gint* len)
+static int64_t
+get_varint64(tvbuff_t *tvb, int offset, int bytes_left, int* len)
 {
-    guint8 b;
-    gint64 result = 0;
+    uint8_t b;
+    int64_t result = 0;
     *len = 0;
     while ((*len) < bytes_left) {
-        b = tvb_get_guint8(tvb, offset+(*len));
-        result |= ((gint64)b & 0x7f) << ((*len)*7);
+        b = tvb_get_uint8(tvb, offset+(*len));
+        result |= ((int64_t)b & 0x7f) << ((*len)*7);
         (*len)++;
         if ((b & 0x80) == 0) {
             break;
@@ -180,27 +180,27 @@ get_varint64(tvbuff_t *tvb, gint offset, gint bytes_left, gint* len)
 
 typedef struct {
     tvbuff_t *tvb;
-    gint offset;
-    gint bytes_left;
+    int offset;
+    int bytes_left;
 } protobuf_desc_t;
 
 typedef struct {
-    guint64 value;
-    guint64 field_number;
-    guint8 wire_type;
+    uint64_t value;
+    uint64_t field_number;
+    uint8_t wire_type;
 } protobuf_tag_t;
 
 static void
-protobuf_seek_forward(protobuf_desc_t* pb, gint len)
+protobuf_seek_forward(protobuf_desc_t* pb, int len)
 {
     pb->offset += len;
     pb->bytes_left -= len;
 }
 
-static gint
+static int
 protobuf_iter_next(protobuf_desc_t* pb, protobuf_tag_t* tag)
 {
-    gint len;
+    int len;
     if (pb->bytes_left <= 0) {
         return 0;
     }
@@ -211,18 +211,18 @@ protobuf_iter_next(protobuf_desc_t* pb, protobuf_tag_t* tag)
     return pb->bytes_left;
 }
 
-static gint
+static int
 protobuf_dissect_unknown_field(protobuf_desc_t *pb, protobuf_tag_t *tag, packet_info *pinfo, proto_tree *tree, proto_item** tiptr)
 {
-    gint len;
-    gint64 value;
+    int len;
+    int64_t value;
     proto_item* ti;
 
     switch(tag->wire_type) {
         case PROTOBUF_WIRETYPE_VARINT:
             value = get_varint64(pb->tvb, pb->offset, pb->bytes_left, &len);
             ti = proto_tree_add_uint64(tree, hf_steam_ihs_discovery_unknown_number, pb->tvb,
-                    pb->offset, len, (guint64)value);
+                    pb->offset, len, (uint64_t)value);
             expert_add_info_format(pinfo, ti, &ei_steam_ihs_discovery_unknown_number, "Unknown numeric protobuf field (wire type %d = %s)", tag->wire_type, protobuf_get_wiretype_name(tag->wire_type));
             break;
         case PROTOBUF_WIRETYPE_64BIT:
@@ -232,13 +232,13 @@ protobuf_dissect_unknown_field(protobuf_desc_t *pb, protobuf_tag_t *tag, packet_
             break;
         case PROTOBUF_WIRETYPE_LENGTHDELIMITED:
             value = get_varint64(pb->tvb, pb->offset, pb->bytes_left, &len);
-            if((guint64)value > (guint64)(pb->bytes_left-len)) {
+            if((uint64_t)value > (uint64_t)(pb->bytes_left-len)) {
                 ti = proto_tree_add_item(tree, hf_steam_ihs_discovery_unknown_data, pb->tvb, pb->offset+len, pb->bytes_left-len, ENC_NA);
-                expert_add_info_format(pinfo, ti, &ei_steam_ihs_discovery_invalid_length, "Length-delimited field %"PRIu64" has length prefix %"PRIu64", but buffer is only %d bytes long.", tag->field_number, (guint64)value, (pb->bytes_left-len));
+                expert_add_info_format(pinfo, ti, &ei_steam_ihs_discovery_invalid_length, "Length-delimited field %"PRIu64" has length prefix %"PRIu64", but buffer is only %d bytes long.", tag->field_number, (uint64_t)value, (pb->bytes_left-len));
                 len = pb->bytes_left;
             } else {
-                ti = proto_tree_add_item(tree, hf_steam_ihs_discovery_unknown_data, pb->tvb, pb->offset+len, (gint)value, ENC_NA);
-                len += (gint)value;
+                ti = proto_tree_add_item(tree, hf_steam_ihs_discovery_unknown_data, pb->tvb, pb->offset+len, (int)value, ENC_NA);
+                len += (int)value;
             }
             expert_add_info(pinfo, ti, &ei_steam_ihs_discovery_unknown_lengthdelimited);
             break;
@@ -260,21 +260,21 @@ protobuf_dissect_unknown_field(protobuf_desc_t *pb, protobuf_tag_t *tag, packet_
     return len;
 }
 
-static gint
-protobuf_verify_wiretype(protobuf_desc_t *pb, protobuf_tag_t *tag, packet_info *pinfo, proto_tree *tree, guint8 expected_wire_type)
+static int
+protobuf_verify_wiretype(protobuf_desc_t *pb, protobuf_tag_t *tag, packet_info *pinfo, proto_tree *tree, uint8_t expected_wire_type)
 {
-    gint len;
-    gint64 len_prefix;
+    int len;
+    int64_t len_prefix;
     proto_item *ti = NULL;
 
     if(expected_wire_type == tag->wire_type) {
         if(expected_wire_type == PROTOBUF_WIRETYPE_LENGTHDELIMITED) {
             len_prefix = get_varint64(pb->tvb, pb->offset, pb->bytes_left, &len);
-            if(len_prefix < 0 || len_prefix > G_MAXINT) {
+            if(len_prefix < 0 || len_prefix > INT_MAX) {
                 ti = proto_tree_add_item(tree, hf_steam_ihs_discovery_unknown_data, pb->tvb, pb->offset+len, pb->bytes_left-len, ENC_NA);
-                expert_add_info_format(pinfo, ti, &ei_steam_ihs_discovery_invalid_length, "Length-delimited field %"PRIu64" has length prefix %"PRId64" outside valid range (0 <= x <= G_MAXINT).", tag->field_number, len_prefix);
+                expert_add_info_format(pinfo, ti, &ei_steam_ihs_discovery_invalid_length, "Length-delimited field %"PRIu64" has length prefix %"PRId64" outside valid range (0 <= x <= INT_MAX).", tag->field_number, len_prefix);
                 return pb->bytes_left;
-            } else if(((gint)len_prefix) > (pb->bytes_left-len)) {
+            } else if(((int)len_prefix) > (pb->bytes_left-len)) {
                 ti = proto_tree_add_item(tree, hf_steam_ihs_discovery_unknown_data, pb->tvb, pb->offset+len, pb->bytes_left-len, ENC_NA);
                 expert_add_info_format(pinfo, ti, &ei_steam_ihs_discovery_invalid_length, "Length-delimited field %"PRIu64" has length prefix %"PRId64", but buffer is only %d bytes long.", tag->field_number, len_prefix, (pb->bytes_left-len));
                 return pb->bytes_left;
@@ -380,13 +380,13 @@ protobuf_verify_wiretype(protobuf_desc_t *pb, protobuf_tag_t *tag, packet_info *
  *         optional uint64 instance_id = 3;
  *     }
  */
-static gint64
+static int64_t
 steamdiscover_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                             gint offset, gint bytes_left)
+                             int offset, int bytes_left)
 {
-    gint len;
-    gint64 value;
-    gint64 msg_type = -1;
+    int len;
+    int64_t value;
+    int64_t msg_type = -1;
     protobuf_desc_t pb = { tvb, offset, bytes_left };
     protobuf_tag_t tag = { 0, 0, 0 };
     while (protobuf_iter_next(&pb, &tag)) {
@@ -395,20 +395,20 @@ steamdiscover_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_VARINT);
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
                 proto_tree_add_uint64(tree, hf_steam_ihs_discovery_header_clientid, pb.tvb,
-                        pb.offset, len, (guint64)value);
+                        pb.offset, len, (uint64_t)value);
                 break;
             case STEAMDISCOVER_FN_HEADER_MSGTYPE:
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_VARINT);
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
                 msg_type = value;
                 proto_tree_add_uint64(tree, hf_steam_ihs_discovery_header_msgtype, pb.tvb,
-                        pb.offset, len, (guint64)value);
+                        pb.offset, len, (uint64_t)value);
                 break;
             case STEAMDISCOVER_FN_HEADER_INSTANCEID:
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_VARINT);
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
                 proto_tree_add_uint64(tree, hf_steam_ihs_discovery_header_instanceid, pb.tvb,
-                        pb.offset, len, (guint64)value);
+                        pb.offset, len, (uint64_t)value);
                 break;
             default:
                 len = protobuf_dissect_unknown_field(&pb, &tag, pinfo, tree, NULL);
@@ -428,10 +428,10 @@ steamdiscover_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
  */
 static void
 steamdiscover_dissect_body_discovery(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                                     gint offset, gint bytes_left)
+                                     int offset, int bytes_left)
 {
-    gint len;
-    gint64 value;
+    int len;
+    int64_t value;
     protobuf_desc_t pb = { tvb, offset, bytes_left };
     protobuf_tag_t tag = { 0, 0, 0 };
     while (protobuf_iter_next(&pb, &tag)) {
@@ -440,8 +440,8 @@ steamdiscover_dissect_body_discovery(tvbuff_t *tvb, packet_info *pinfo, proto_tr
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_VARINT);
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
                 proto_tree_add_uint(tree, hf_steam_ihs_discovery_body_discovery_seqnum, pb.tvb,
-                        pb.offset, len, (guint32)value);
-                col_append_fstr(pinfo->cinfo, COL_INFO, " Seq=%"PRIu32, (guint32)value);
+                        pb.offset, len, (uint32_t)value);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " Seq=%"PRIu32, (uint32_t)value);
                 break;
             case STEAMDISCOVER_FN_DISCOVERY_CLIENTIDS:
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_VARINT);
@@ -484,15 +484,15 @@ steamdiscover_dissect_body_discovery(tvbuff_t *tvb, packet_info *pinfo, proto_tr
  */
 static void
 steamdiscover_dissect_body_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                                     gint offset, gint bytes_left)
+                                     int offset, int bytes_left)
 {
-    gint64 value;
-    gint len;
-    gint len2;
+    int64_t value;
+    int len;
+    int len2;
     protobuf_desc_t pb = { tvb, offset, bytes_left };
     protobuf_desc_t pb2 = { tvb, 0, 0 };
     protobuf_tag_t tag = { 0, 0, 0 };
-    guint8 *hostname;
+    uint8_t *hostname;
     nstime_t timestamp;
     proto_tree *user_tree;
     proto_item *user_it;
@@ -502,55 +502,55 @@ steamdiscover_dissect_body_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_VARINT);
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
                 proto_tree_add_int(tree, hf_steam_ihs_discovery_body_status_version, pb.tvb,
-                        pb.offset, len, (gint32)value);
+                        pb.offset, len, (int32_t)value);
                 break;
             case STEAMDISCOVER_FN_STATUS_MINVERSION:
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_VARINT);
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
                 proto_tree_add_int(tree, hf_steam_ihs_discovery_body_status_minversion, pb.tvb,
-                        pb.offset, len, (gint32)value);
+                        pb.offset, len, (int32_t)value);
                 break;
             case STEAMDISCOVER_FN_STATUS_CONNECTPORT:
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_VARINT);
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
                 proto_tree_add_uint(tree, hf_steam_ihs_discovery_body_status_connectport, pb.tvb,
-                        pb.offset, len, (guint32)value);
+                        pb.offset, len, (uint32_t)value);
                 break;
             case STEAMDISCOVER_FN_STATUS_HOSTNAME:
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_LENGTHDELIMITED);
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
                 proto_tree_add_item(tree, hf_steam_ihs_discovery_body_status_hostname, pb.tvb,
-                        pb.offset+len, (gint)value, ENC_UTF_8);
-                hostname = tvb_get_string_enc(pinfo->pool, pb.tvb, pb.offset+len, (gint)value, ENC_UTF_8);
+                        pb.offset+len, (int)value, ENC_UTF_8);
+                hostname = tvb_get_string_enc(pinfo->pool, pb.tvb, pb.offset+len, (int)value, ENC_UTF_8);
                 if(hostname && strlen(hostname)) {
                     col_add_fstr(pinfo->cinfo, COL_INFO, "%s from %s", hf_steam_ihs_discovery_header_msgtype_strings[STEAMDISCOVER_MSGTYPE_CLIENTBROADCASTMSGSTATUS].strptr, hostname);
                 }
-                len += (gint)value;
+                len += (int)value;
                 break;
             case STEAMDISCOVER_FN_STATUS_ENABLEDSERVICES:
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_VARINT);
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
                 proto_tree_add_uint(tree, hf_steam_ihs_discovery_body_status_enabledservices, pb.tvb,
-                        pb.offset, len, (guint32)value);
+                        pb.offset, len, (uint32_t)value);
                 break;
             case STEAMDISCOVER_FN_STATUS_OSTYPE:
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_VARINT);
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
                 proto_tree_add_int(tree, hf_steam_ihs_discovery_body_status_ostype, pb.tvb,
-                        pb.offset, len, (gint32)value);
+                        pb.offset, len, (int32_t)value);
                 break;
             case STEAMDISCOVER_FN_STATUS_IS64BIT:
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_VARINT);
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
                 proto_tree_add_boolean(tree, hf_steam_ihs_discovery_body_status_is64bit, pb.tvb,
-                        pb.offset, len, (gint32)value);
+                        pb.offset, len, (int32_t)value);
                 break;
             case STEAMDISCOVER_FN_STATUS_USERS:
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_LENGTHDELIMITED);
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
                 pb2.offset = pb.offset+len;
-                pb2.bytes_left = (gint)value;
-                len += (gint)value;
+                pb2.bytes_left = (int)value;
+                len += (int)value;
                 user_tree = proto_tree_add_subtree(tree, pb.tvb, pb.offset, len, ett_steam_ihs_discovery_body_status_user, &user_it, "User");
                 while (protobuf_iter_next(&pb2, &tag)) {
                     switch(tag.field_number) {
@@ -559,15 +559,15 @@ steamdiscover_dissect_body_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                             len2 = 8;
                             value = tvb_get_letoh64(pb2.tvb, pb2.offset);
                             proto_tree_add_uint64(user_tree, hf_steam_ihs_discovery_body_status_user_steamid, pb2.tvb,
-                                    pb2.offset, len2, (guint64)value);
-                            proto_item_append_text(user_it, ", Steam ID: %"PRIu64, (guint64)value);
+                                    pb2.offset, len2, (uint64_t)value);
+                            proto_item_append_text(user_it, ", Steam ID: %"PRIu64, (uint64_t)value);
                             break;
                         case STEAMDISCOVER_FN_STATUS_USER_AUTHKEYID:
                             if((len2 = protobuf_verify_wiretype(&pb2, &tag, pinfo, user_tree, PROTOBUF_WIRETYPE_VARINT))) break;
                             value = get_varint64(pb2.tvb, pb2.offset, pb2.bytes_left, &len2);
                             proto_tree_add_uint(user_tree, hf_steam_ihs_discovery_body_status_user_authkeyid, pb2.tvb,
-                                    pb2.offset, len2, (guint32)value);
-                            proto_item_append_text(user_it, ", Auth Key ID: %"PRIu32, (guint32)value);
+                                    pb2.offset, len2, (uint32_t)value);
+                            proto_item_append_text(user_it, ", Auth Key ID: %"PRIu32, (uint32_t)value);
                             break;
                         default:
                             len2 = protobuf_dissect_unknown_field(&pb2, &tag, pinfo, tree, NULL);
@@ -580,7 +580,7 @@ steamdiscover_dissect_body_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_VARINT);
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
                 proto_tree_add_int(tree, hf_steam_ihs_discovery_body_status_euniverse, pb.tvb,
-                        pb.offset, len, (gint32)value);
+                        pb.offset, len, (int32_t)value);
                 break;
             case STEAMDISCOVER_FN_STATUS_TIMESTAMP:
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_VARINT);
@@ -593,20 +593,20 @@ steamdiscover_dissect_body_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_VARINT);
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
                 proto_tree_add_boolean(tree, hf_steam_ihs_discovery_body_status_screenlocked, pb.tvb,
-                        pb.offset, len, (gint32)value);
+                        pb.offset, len, (int32_t)value);
                 break;
             case STEAMDISCOVER_FN_STATUS_GAMESRUNNING:
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_VARINT);
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
                 proto_tree_add_boolean(tree, hf_steam_ihs_discovery_body_status_gamesrunning, pb.tvb,
-                        pb.offset, len, (gint32)value);
+                        pb.offset, len, (int32_t)value);
                 break;
             case STEAMDISCOVER_FN_STATUS_MACADDRESSES:
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_LENGTHDELIMITED);
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
                 proto_tree_add_item(tree, hf_steam_ihs_discovery_body_status_macaddresses, pb.tvb,
-                        pb.offset+len, (gint)value, ENC_UTF_8);
-                len += (gint)value;
+                        pb.offset+len, (int)value, ENC_UTF_8);
+                len += (int)value;
                 break;
             default:
                 len = protobuf_dissect_unknown_field(&pb, &tag, pinfo, tree, NULL);
@@ -640,39 +640,39 @@ steamdiscover_dissect_body_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
  */
 static void
 steamdiscover_dissect_body_authrequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                                       gint offset, gint bytes_left)
+                                       int offset, int bytes_left)
 {
-    guint len;
-    gint64 value;
+    unsigned len;
+    int64_t value;
     protobuf_desc_t pb = { tvb, offset, bytes_left };
     protobuf_tag_t tag = { 0, 0, 0 };
-    guint8* devicename;
+    uint8_t* devicename;
     while (protobuf_iter_next(&pb, &tag)) {
         switch(tag.field_number) {
             case STEAMDISCOVER_FN_AUTHREQUEST_DEVICETOKEN:
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_LENGTHDELIMITED);
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
                 proto_tree_add_item(tree, hf_steam_ihs_discovery_body_authrequest_devicetoken, pb.tvb,
-                        pb.offset+len, (gint)value, ENC_NA);
-                len += (gint)value;
+                        pb.offset+len, (int)value, ENC_NA);
+                len += (int)value;
                 break;
             case STEAMDISCOVER_FN_AUTHREQUEST_DEVICENAME:
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_LENGTHDELIMITED);
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
                 proto_tree_add_item(tree, hf_steam_ihs_discovery_body_authrequest_devicename, pb.tvb,
-                        pb.offset+len, (gint)value, ENC_UTF_8);
-                devicename = tvb_get_string_enc(pinfo->pool, pb.tvb, pb.offset+len, (gint)value, ENC_UTF_8);
+                        pb.offset+len, (int)value, ENC_UTF_8);
+                devicename = tvb_get_string_enc(pinfo->pool, pb.tvb, pb.offset+len, (int)value, ENC_UTF_8);
                 if (devicename && strlen(devicename)) {
                     col_append_fstr(pinfo->cinfo, COL_INFO, " from %s", devicename);
                 }
-                len += (gint)value;
+                len += (int)value;
                 break;
             case STEAMDISCOVER_FN_AUTHREQUEST_ENCRYPTEDREQUEST:
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_LENGTHDELIMITED);
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
                 proto_tree_add_item(tree, hf_steam_ihs_discovery_body_authrequest_encryptedrequest, pb.tvb,
-                        pb.offset+len, (gint)value, ENC_NA);
-                len += (gint)value;
+                        pb.offset+len, (int)value, ENC_NA);
+                len += (int)value;
                 break;
             default:
                 len = protobuf_dissect_unknown_field(&pb, &tag, pinfo, tree, NULL);
@@ -690,10 +690,10 @@ steamdiscover_dissect_body_authrequest(tvbuff_t *tvb, packet_info *pinfo, proto_
  */
 static void
 steamdiscover_dissect_body_authresponse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                                        gint offset, gint bytes_left)
+                                        int offset, int bytes_left)
 {
-    gint len;
-    gint64 value;
+    int len;
+    int64_t value;
     protobuf_desc_t pb = { tvb, offset, bytes_left };
     protobuf_tag_t tag = { 0, 0, 0 };
     while (protobuf_iter_next(&pb, &tag)) {
@@ -702,9 +702,9 @@ steamdiscover_dissect_body_authresponse(tvbuff_t *tvb, packet_info *pinfo, proto
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_VARINT);
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
                 proto_tree_add_uint64(tree, hf_steam_ihs_discovery_body_authresponse_authresult, pb.tvb,
-                        pb.offset, len, (guint64)value);
+                        pb.offset, len, (uint64_t)value);
                 col_add_fstr(pinfo->cinfo, COL_INFO, "%s Result=%"PRIu64"(%s)", hf_steam_ihs_discovery_header_msgtype_strings[STEAMDISCOVER_MSGTYPE_DEVICEAUTHORIZATIONRESPONSE].strptr,
-                        (guint64)value, val64_to_str_const((guint64)value, hf_steam_ihs_discovery_body_authresponse_authresult_strings, "Unknown"));
+                        (uint64_t)value, val64_to_str_const((uint64_t)value, hf_steam_ihs_discovery_body_authresponse_authresult_strings, "Unknown"));
                 break;
             default:
                 len = protobuf_dissect_unknown_field(&pb, &tag, pinfo, tree, NULL);
@@ -732,10 +732,10 @@ steamdiscover_dissect_body_authresponse(tvbuff_t *tvb, packet_info *pinfo, proto
  */
 static void
 steamdiscover_dissect_body_streamingrequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                                            gint offset, gint bytes_left)
+                                            int offset, int bytes_left)
 {
-    gint len;
-    gint64 value;
+    int len;
+    int64_t value;
     protobuf_desc_t pb = { tvb, offset, bytes_left };
     protobuf_tag_t tag = { 0, 0, 0 };
     while (protobuf_iter_next(&pb, &tag)) {
@@ -744,68 +744,68 @@ steamdiscover_dissect_body_streamingrequest(tvbuff_t *tvb, packet_info *pinfo, p
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_VARINT);
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
                 proto_tree_add_uint(tree, hf_steam_ihs_discovery_body_streamingrequest_requestid, pb.tvb,
-                        pb.offset, len, (guint32)value);
-                col_add_fstr(pinfo->cinfo, COL_INFO, "%s ID=%08x", hf_steam_ihs_discovery_header_msgtype_strings[STEAMDISCOVER_MSGTYPE_DEVICESTREAMINGREQUEST].strptr, (guint32)value);
+                        pb.offset, len, (uint32_t)value);
+                col_add_fstr(pinfo->cinfo, COL_INFO, "%s ID=%08x", hf_steam_ihs_discovery_header_msgtype_strings[STEAMDISCOVER_MSGTYPE_DEVICESTREAMINGREQUEST].strptr, (uint32_t)value);
                 break;
             case STEAMDISCOVER_FN_STREAMINGREQUEST_MAXIMUMRESOLUTIONX:
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_VARINT);
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
                 proto_tree_add_int(tree, hf_steam_ihs_discovery_body_streamingrequest_maximumresolutionx, pb.tvb,
-                        pb.offset, len, (gint32)value);
+                        pb.offset, len, (int32_t)value);
                 break;
             case STEAMDISCOVER_FN_STREAMINGREQUEST_MAXIMUMRESOLUTIONY:
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_VARINT);
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
                 proto_tree_add_int(tree, hf_steam_ihs_discovery_body_streamingrequest_maximumresolutiony, pb.tvb,
-                        pb.offset, len, (gint32)value);
+                        pb.offset, len, (int32_t)value);
                 break;
             case STEAMDISCOVER_FN_STREAMINGREQUEST_AUDIOCHANNELCOUNT:
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_VARINT);
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
                 proto_tree_add_int(tree, hf_steam_ihs_discovery_body_streamingrequest_audiochannelcount, pb.tvb,
-                        pb.offset, len, (gint32)value);
+                        pb.offset, len, (int32_t)value);
                 break;
             case STEAMDISCOVER_FN_STREAMINGREQUEST_DEVICEVERSION:
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_LENGTHDELIMITED);
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
-                proto_tree_add_item(tree, hf_steam_ihs_discovery_body_streamingrequest_deviceversion, pb.tvb, pb.offset+len, (gint)value, ENC_UTF_8);
-                len += (gint)value;
+                proto_tree_add_item(tree, hf_steam_ihs_discovery_body_streamingrequest_deviceversion, pb.tvb, pb.offset+len, (int)value, ENC_UTF_8);
+                len += (int)value;
                 break;
             case STEAMDISCOVER_FN_STREAMINGREQUEST_STREAMDESKTOP:
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_VARINT);
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
                 proto_tree_add_boolean(tree, hf_steam_ihs_discovery_body_streamingrequest_streamdesktop, pb.tvb,
-                        pb.offset, len, (gint32)value);
+                        pb.offset, len, (int32_t)value);
                 break;
             case STEAMDISCOVER_FN_STREAMINGREQUEST_DEVICETOKEN:
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_LENGTHDELIMITED);
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
-                proto_tree_add_item(tree, hf_steam_ihs_discovery_body_streamingrequest_devicetoken, pb.tvb, pb.offset+len, (gint)value, ENC_NA);
-                len += (gint)value;
+                proto_tree_add_item(tree, hf_steam_ihs_discovery_body_streamingrequest_devicetoken, pb.tvb, pb.offset+len, (int)value, ENC_NA);
+                len += (int)value;
                 break;
             case STEAMDISCOVER_FN_STREAMINGREQUEST_PIN:
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_LENGTHDELIMITED);
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
-                proto_tree_add_item(tree, hf_steam_ihs_discovery_body_streamingrequest_pin, pb.tvb, pb.offset+len, (gint)value, ENC_NA);
-                len += (gint)value;
+                proto_tree_add_item(tree, hf_steam_ihs_discovery_body_streamingrequest_pin, pb.tvb, pb.offset+len, (int)value, ENC_NA);
+                len += (int)value;
                 break;
             case STEAMDISCOVER_FN_STREAMINGREQUEST_ENABLEVIDEOSTREAMING:
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_VARINT);
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
                 proto_tree_add_boolean(tree, hf_steam_ihs_discovery_body_streamingrequest_enablevideostreaming, pb.tvb,
-                        pb.offset, len, (gint32)value);
+                        pb.offset, len, (int32_t)value);
                 break;
             case STEAMDISCOVER_FN_STREAMINGREQUEST_ENABLEAUDIOSTREAMING:
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_VARINT);
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
                 proto_tree_add_boolean(tree, hf_steam_ihs_discovery_body_streamingrequest_enableaudiostreaming, pb.tvb,
-                        pb.offset, len, (gint32)value);
+                        pb.offset, len, (int32_t)value);
                 break;
             case STEAMDISCOVER_FN_STREAMINGREQUEST_ENABLEINPUTSTREAMING:
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_VARINT);
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
                 proto_tree_add_boolean(tree, hf_steam_ihs_discovery_body_streamingrequest_enableinputstreaming, pb.tvb,
-                        pb.offset, len, (gint32)value);
+                        pb.offset, len, (int32_t)value);
                 break;
             default:
                 len = protobuf_dissect_unknown_field(&pb, &tag, pinfo, tree, NULL);
@@ -823,10 +823,10 @@ steamdiscover_dissect_body_streamingrequest(tvbuff_t *tvb, packet_info *pinfo, p
  */
 static void
 steamdiscover_dissect_body_streamingcancelrequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                                                  gint offset, gint bytes_left)
+                                                  int offset, int bytes_left)
 {
-    guint len;
-    gint64 value;
+    unsigned len;
+    int64_t value;
     protobuf_desc_t pb = { tvb, offset, bytes_left };
     protobuf_tag_t tag = { 0, 0, 0 };
     while (protobuf_iter_next(&pb, &tag)) {
@@ -835,8 +835,8 @@ steamdiscover_dissect_body_streamingcancelrequest(tvbuff_t *tvb, packet_info *pi
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_VARINT);
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
                 proto_tree_add_uint(tree, hf_steam_ihs_discovery_body_streamingcancelrequest_requestid, pb.tvb,
-                        pb.offset, len, (guint32)value);
-                col_add_fstr(pinfo->cinfo, COL_INFO, "%s, ID=%08x", hf_steam_ihs_discovery_header_msgtype_strings[STEAMDISCOVER_MSGTYPE_DEVICESTREAMINGCANCELREQUEST].strptr, (guint32)value);
+                        pb.offset, len, (uint32_t)value);
+                col_add_fstr(pinfo->cinfo, COL_INFO, "%s, ID=%08x", hf_steam_ihs_discovery_header_msgtype_strings[STEAMDISCOVER_MSGTYPE_DEVICESTREAMINGCANCELREQUEST].strptr, (uint32_t)value);
                 break;
             default:
                 len = protobuf_dissect_unknown_field(&pb, &tag, pinfo, tree, NULL);
@@ -873,10 +873,10 @@ steamdiscover_dissect_body_streamingcancelrequest(tvbuff_t *tvb, packet_info *pi
  */
 static void
 steamdiscover_dissect_body_streamingresponse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                                                  gint offset, gint bytes_left)
+                                                  int offset, int bytes_left)
 {
-    guint len;
-    gint64 value;
+    unsigned len;
+    int64_t value;
     protobuf_desc_t pb = { tvb, offset, bytes_left };
     protobuf_tag_t tag = { 0, 0, 0 };
     while (protobuf_iter_next(&pb, &tag)) {
@@ -885,34 +885,34 @@ steamdiscover_dissect_body_streamingresponse(tvbuff_t *tvb, packet_info *pinfo, 
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_VARINT);
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
                 proto_tree_add_uint(tree, hf_steam_ihs_discovery_body_streamingresponse_requestid, pb.tvb,
-                        pb.offset, len, (guint32)value);
-                col_append_fstr(pinfo->cinfo, COL_INFO, " ID=%08x", (guint32)value);
+                        pb.offset, len, (uint32_t)value);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " ID=%08x", (uint32_t)value);
                 break;
             case STEAMDISCOVER_FN_STREAMINGRESPONSE_RESULT:
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_VARINT);
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
                 proto_tree_add_uint64(tree, hf_steam_ihs_discovery_body_streamingresponse_result, pb.tvb,
-                        pb.offset, len, (guint64)value);
-                col_append_fstr(pinfo->cinfo, COL_INFO, " Result=%"PRIu64"(%s)", (guint64)value, val64_to_str_const((guint64)value, hf_steam_ihs_discovery_body_streamingresponse_result_strings, "Unknown"));
+                        pb.offset, len, (uint64_t)value);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " Result=%"PRIu64"(%s)", (uint64_t)value, val64_to_str_const((uint64_t)value, hf_steam_ihs_discovery_body_streamingresponse_result_strings, "Unknown"));
                 break;
             case STEAMDISCOVER_FN_STREAMINGRESPONSE_PORT:
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_VARINT);
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
                 proto_tree_add_uint(tree, hf_steam_ihs_discovery_body_streamingresponse_port, pb.tvb,
-                        pb.offset, len, (guint32)value);
-                col_append_fstr(pinfo->cinfo, COL_INFO, " Port=%"PRIu32, (guint32)value);
+                        pb.offset, len, (uint32_t)value);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " Port=%"PRIu32, (uint32_t)value);
                 break;
             case STEAMDISCOVER_FN_STREAMINGRESPONSE_ENCRYPTEDSESSIONKEY:
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_LENGTHDELIMITED);
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
-                proto_tree_add_item(tree, hf_steam_ihs_discovery_body_streamingresponse_encryptedsessionkey, pb.tvb, pb.offset+len, (gint)value, ENC_NA);
-                len += (gint)value;
+                proto_tree_add_item(tree, hf_steam_ihs_discovery_body_streamingresponse_encryptedsessionkey, pb.tvb, pb.offset+len, (int)value, ENC_NA);
+                len += (int)value;
                 break;
             case STEAMDISCOVER_FN_STREAMINGRESPONSE_VIRTUALHERELICENSEDDEVICECOUNT:
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_VARINT);
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
                 proto_tree_add_int(tree, hf_steam_ihs_discovery_body_streamingresponse_virtualherelicenseddevicecount, pb.tvb,
-                        pb.offset, len, (gint32)value);
+                        pb.offset, len, (int32_t)value);
                 break;
             default:
                 len = protobuf_dissect_unknown_field(&pb, &tag, pinfo, tree, NULL);
@@ -930,10 +930,10 @@ steamdiscover_dissect_body_streamingresponse(tvbuff_t *tvb, packet_info *pinfo, 
  */
 static void
 steamdiscover_dissect_body_proofrequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                                                  gint offset, gint bytes_left)
+                                                  int offset, int bytes_left)
 {
-    gint len;
-    gint64 value;
+    int len;
+    int64_t value;
     protobuf_desc_t pb = { tvb, offset, bytes_left };
     protobuf_tag_t tag = { 0, 0, 0 };
     while (protobuf_iter_next(&pb, &tag)) {
@@ -941,8 +941,8 @@ steamdiscover_dissect_body_proofrequest(tvbuff_t *tvb, packet_info *pinfo, proto
             case STEAMDISCOVER_FN_PROOFREQUEST_CHALLENGE:
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_LENGTHDELIMITED);
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
-                proto_tree_add_item(tree, hf_steam_ihs_discovery_body_proofrequest_challenge, pb.tvb, pb.offset+len, (gint)value, ENC_NA);
-                len += (gint)value;
+                proto_tree_add_item(tree, hf_steam_ihs_discovery_body_proofrequest_challenge, pb.tvb, pb.offset+len, (int)value, ENC_NA);
+                len += (int)value;
                 break;
             default:
                 len = protobuf_dissect_unknown_field(&pb, &tag, pinfo, tree, NULL);
@@ -960,10 +960,10 @@ steamdiscover_dissect_body_proofrequest(tvbuff_t *tvb, packet_info *pinfo, proto
  */
 static void
 steamdiscover_dissect_body_proofresponse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                                         gint offset, gint bytes_left)
+                                         int offset, int bytes_left)
 {
-    gint len;
-    gint64 value;
+    int len;
+    int64_t value;
     protobuf_desc_t pb = { tvb, offset, bytes_left };
     protobuf_tag_t tag = { 0, 0, 0 };
     while (protobuf_iter_next(&pb, &tag)) {
@@ -971,8 +971,8 @@ steamdiscover_dissect_body_proofresponse(tvbuff_t *tvb, packet_info *pinfo, prot
             case STEAMDISCOVER_FN_PROOFRESPONSE_RESPONSE:
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_LENGTHDELIMITED);
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
-                proto_tree_add_item(tree, hf_steam_ihs_discovery_body_proofresponse_response, pb.tvb, pb.offset+len, (gint)value, ENC_NA);
-                len += (gint)value;
+                proto_tree_add_item(tree, hf_steam_ihs_discovery_body_proofresponse_response, pb.tvb, pb.offset+len, (int)value, ENC_NA);
+                len += (int)value;
                 break;
             default:
                 len = protobuf_dissect_unknown_field(&pb, &tag, pinfo, tree, NULL);
@@ -984,9 +984,9 @@ steamdiscover_dissect_body_proofresponse(tvbuff_t *tvb, packet_info *pinfo, prot
 
 static void
 steamdiscover_dissect_body_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                                         gint offset, gint bytes_left)
+                                         int offset, int bytes_left)
 {
-    gint len;
+    int len;
     protobuf_desc_t pb = { tvb, offset, bytes_left };
     protobuf_tag_t tag = { 0, 0, 0 };
     while (protobuf_iter_next(&pb, &tag)) {
@@ -1004,11 +1004,11 @@ dissect_steam_ihs_discovery(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *ti;
     proto_tree *steam_ihs_discovery_tree;
     /* Other misc. local variables. */
-    gint offset = 0;
-    gint header_length = 0;
-    gint body_length = 0;
-    gint total_length = 0;
-    gint64 msg_type;
+    int offset = 0;
+    int header_length = 0;
+    int body_length = 0;
+    int total_length = 0;
+    int64_t msg_type;
 
     /* Check that the packet is long enough for it to belong to us. */
     if (tvb_reported_length(tvb) < STEAM_IHS_DISCOVERY_MIN_LENGTH)
@@ -1035,10 +1035,10 @@ dissect_steam_ihs_discovery(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     total_length = STEAM_IHS_DISCOVERY_SIGNATURE_LENGTH + 4 + header_length + 4 + body_length;
 
     /* Check if expected and captured packet length are equal. */
-    if (tvb_reported_length(tvb) != (guint)total_length)
+    if (tvb_reported_length(tvb) != (unsigned)total_length)
         return 0;
 
-    if (tvb_captured_length(tvb) != (guint)total_length)
+    if (tvb_captured_length(tvb) != (unsigned)total_length)
         return 0;
 
     /* Set the Protocol column to the constant string of steam_ihs_discovery */
@@ -1373,7 +1373,7 @@ proto_register_steam_ihs_discovery(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_steam_ihs_discovery,
         &ett_steam_ihs_discovery_body_status_user
     };

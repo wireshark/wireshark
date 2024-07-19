@@ -20,12 +20,12 @@ void proto_register_scop(void);
 
 /* Structure to contain information from the SCoP packet. */
 typedef struct {
-    guint8      transport;
-    guint8      version;
-    guint16     length;
-    gboolean    encrypted;
-    guint8      service;
-    guint8      type;
+    uint8_t     transport;
+    uint8_t     version;
+    uint16_t    length;
+    bool        encrypted;
+    uint8_t     service;
+    uint8_t     type;
 } scop_packet;
 
 /* Header definitions for use with the TCP transport layer. */
@@ -63,7 +63,7 @@ void proto_reg_handoff_scop(void);
 static void dissect_scop_zip       (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_scop_bridge    (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
-static guint get_scop_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data);
+static unsigned get_scop_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data);
 
 /*  Initialize protocol and registered fields */
 static int proto_scop;
@@ -74,7 +74,7 @@ static int hf_scop_service;
 static int hf_scop_type;
 static int hf_scop_status;
 
-static gint ett_scop;
+static int ett_scop;
 
 static const value_string scop_transports [] = {
     { SCOP_TRANSPORT_UDP,       "UDP Mode 1" },
@@ -129,7 +129,7 @@ dissect_scop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     proto_item  *proto_root;
     proto_tree  *scop_tree;
 
-    guint        offset = 0;
+    unsigned     offset = 0;
     scop_packet  packet;
 
     memset(&packet, 0, sizeof(packet));
@@ -146,12 +146,12 @@ dissect_scop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     scop_tree = proto_item_add_subtree(proto_root, ett_scop);
 
     /* Extract the SCoP Transport type. */
-    packet.transport = tvb_get_guint8(tvb, offset);
+    packet.transport = tvb_get_uint8(tvb, offset);
     proto_tree_add_uint(scop_tree, hf_scop_transport, tvb, offset, 1, packet.transport);
     offset += 1;
 
     /* Extract the SCoP Version. */
-    packet.version = tvb_get_guint8(tvb, offset);
+    packet.version = tvb_get_uint8(tvb, offset);
     proto_tree_add_uint(scop_tree, hf_scop_version, tvb, offset, 1, packet.version);
     offset += 1;
 
@@ -168,7 +168,7 @@ dissect_scop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     next_tvb = tvb;
 
     /* Extract the service type. */
-    packet.service = tvb_get_guint8(next_tvb, offset);
+    packet.service = tvb_get_uint8(next_tvb, offset);
     proto_tree_add_uint(scop_tree, hf_scop_service, next_tvb, offset, 1, packet.service);
     offset += 1;
 
@@ -202,10 +202,10 @@ dissect_scop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
  *      tvbuff_t    *tvb    - pointer to buffer containing the packet.
  *      int         offset  - beginning of packet.
  *  RETURNS
- *      guint               - Length of SCoP packet
+ *      unsigned            - Length of SCoP packet
  *---------------------------------------------------------------
  */
-static guint
+static unsigned
 get_scop_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
     /* Byte  0:   Protocol Type.
@@ -232,7 +232,7 @@ get_scop_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U
 static int
 dissect_scop_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, SCOP_HEADER_LENGTH, get_scop_length, dissect_scop, data);
+    tcp_dissect_pdus(tvb, pinfo, tree, true, SCOP_HEADER_LENGTH, get_scop_length, dissect_scop, data);
     return tvb_captured_length(tvb);
 } /* dissect_scop_tcp */
 
@@ -253,9 +253,9 @@ dissect_scop_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 static void
 dissect_scop_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint       offset = 0;
-    guint8      type = tvb_get_guint8(tvb, offset);
-    guint16     status;
+    unsigned    offset = 0;
+    uint8_t     type = tvb_get_uint8(tvb, offset);
+    uint16_t    status;
 
     /* Display the Packet type*/
     proto_tree_add_uint(tree, hf_scop_type, tvb, offset, 1, type);
@@ -335,7 +335,7 @@ void proto_register_scop(void)
             "Status of the SCoP Command.", HFILL }}
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_scop
     };
 

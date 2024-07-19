@@ -73,13 +73,13 @@ static int hf_digitech_nack_request_proc_id;
 static int hf_digitech_checksum;
 static int hf_digitech_checksum_status;
 
-static gint ett_sysex_digitech;
+static int ett_sysex_digitech;
 
 static expert_field ei_digitech_checksum_bad;
 static expert_field ei_digitech_undecoded;
 
 typedef struct _digitech_conv_data_t {
-    gint protocol_version;
+    int protocol_version;
 } digitech_conv_data_t;
 
 #define DIGITECH_FAMILY_X_FLOOR  0x5C
@@ -708,18 +708,18 @@ static value_string_ext digitech_parameter_positions_ext =
     VALUE_STRING_EXT_INIT(digitech_parameter_positions);
 
 static tvbuff_t *
-unpack_digitech_message(packet_info *pinfo, tvbuff_t *tvb, gint offset)
+unpack_digitech_message(packet_info *pinfo, tvbuff_t *tvb, int offset)
 {
     tvbuff_t *next_tvb;
-    gint length = tvb_reported_length(tvb);
-    gint data_len = length - offset - 1;
-    const guint8* data_ptr;
-    gint remaining = data_len;
-    guchar* unpacked;
-    guchar* unpacked_ptr;
-    gint unpacked_size;
-    guint8 msb;
-    gint i;
+    int length = tvb_reported_length(tvb);
+    int data_len = length - offset - 1;
+    const uint8_t* data_ptr;
+    int remaining = data_len;
+    unsigned char* unpacked;
+    unsigned char* unpacked_ptr;
+    int unpacked_size;
+    uint8_t msb;
+    int i;
 
     unpacked_size = data_len - (data_len / 8);
     if (data_len % 8)
@@ -728,7 +728,7 @@ unpack_digitech_message(packet_info *pinfo, tvbuff_t *tvb, gint offset)
     }
 
     data_ptr = tvb_get_ptr(tvb, offset, data_len);
-    unpacked = (guchar*)wmem_alloc(pinfo->pool, unpacked_size);
+    unpacked = (unsigned char*)wmem_alloc(pinfo->pool, unpacked_size);
     unpacked_ptr = unpacked;
 
     while (remaining > 0)
@@ -751,7 +751,7 @@ unpack_digitech_message(packet_info *pinfo, tvbuff_t *tvb, gint offset)
 }
 
 static int
-get_digitech_hf_parameter_id_by_position(guint8 position)
+get_digitech_hf_parameter_id_by_position(uint8_t position)
 {
     int hf_parameter = hf_digitech_parameter_id;
 
@@ -841,17 +841,17 @@ get_digitech_hf_parameter_id_by_position(guint8 position)
 /* Dissects DigiTech parameter starting at data_offset.
  * Returns new data_offset.
  */
-static gint
+static int
 dissect_digitech_parameter(tvbuff_t *data_tvb, proto_tree *tree,
-                           digitech_conv_data_t *conv_data, gint data_offset)
+                           digitech_conv_data_t *conv_data, int data_offset)
 {
-    guint8 digitech_helper;
+    uint8_t digitech_helper;
     int hf_parameter = hf_digitech_parameter_id;
 
     /* Version 1 and later specify parameter position */
     if (conv_data->protocol_version >= 1)
     {
-        digitech_helper = tvb_get_guint8(data_tvb, data_offset+2);
+        digitech_helper = tvb_get_uint8(data_tvb, data_offset+2);
         hf_parameter = get_digitech_hf_parameter_id_by_position(digitech_helper);
     }
 
@@ -865,7 +865,7 @@ dissect_digitech_parameter(tvbuff_t *data_tvb, proto_tree *tree,
         data_offset++;
     }
 
-    digitech_helper = tvb_get_guint8(data_tvb, data_offset);
+    digitech_helper = tvb_get_uint8(data_tvb, data_offset);
     /* Values 0-127 fit in one byte */
     if (digitech_helper < 0x80)
     {
@@ -874,27 +874,27 @@ dissect_digitech_parameter(tvbuff_t *data_tvb, proto_tree *tree,
     }
     else /* digitech_helper >= 0x80 */
     {
-        guint16 data_count;
+        uint16_t data_count;
 
         /* Single byte data count */
         if (digitech_helper > 0x80)
         {
-            data_count = (guint16)(digitech_helper & ~0x80);
+            data_count = (uint16_t)(digitech_helper & ~0x80);
             proto_tree_add_uint(tree, hf_digitech_parameter_data_count, data_tvb,
-                                data_offset, 1, (guint32)data_count);
+                                data_offset, 1, (uint32_t)data_count);
             data_offset++;
         }
         /* Two-byte data count */
         else /* digitech_helper == 0x80 */
         {
-            data_count = (guint16)tvb_get_ntohs(data_tvb, data_offset+1);
+            data_count = (uint16_t)tvb_get_ntohs(data_tvb, data_offset+1);
             proto_tree_add_uint(tree, hf_digitech_parameter_data_two_byte_count, data_tvb,
-                                data_offset, 3, (guint32)data_count);
+                                data_offset, 3, (uint32_t)data_count);
             data_offset += 3;
         }
 
         proto_tree_add_item(tree, hf_digitech_parameter_multibyte_data, data_tvb,
-                            data_offset, (gint)data_count, ENC_NA);
+                            data_offset, (int)data_count, ENC_NA);
         data_offset += data_count;
     }
 
@@ -902,7 +902,7 @@ dissect_digitech_parameter(tvbuff_t *data_tvb, proto_tree *tree,
 }
 
 static int
-get_digitech_hf_product_by_family(guint8 family)
+get_digitech_hf_product_by_family(uint8_t family)
 {
     int hf_product = hf_digitech_unknown_product_id;
 
@@ -919,16 +919,16 @@ get_digitech_hf_product_by_family(guint8 family)
 }
 
 static void
-dissect_digitech_procedure(guint8 procedure, const gint offset,
+dissect_digitech_procedure(uint8_t procedure, const int offset,
                            tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     tvbuff_t *data_tvb;
-    gint data_offset;
-    gint data_len;
-    guint8 *tmp_string;
-    guint str_size;
-    guint16 count;
-    guint8 digitech_helper;
+    int data_offset;
+    int data_len;
+    uint8_t *tmp_string;
+    unsigned str_size;
+    uint16_t count;
+    uint8_t digitech_helper;
     conversation_t *conversation;
     digitech_conv_data_t *conv_data;
 
@@ -971,7 +971,7 @@ dissect_digitech_procedure(guint8 procedure, const gint offset,
             proto_tree_add_item(tree, hf_digitech_received_device_id, data_tvb, data_offset, 1, ENC_BIG_ENDIAN);
             data_offset++;
 
-            digitech_helper = tvb_get_guint8(data_tvb, data_offset);
+            digitech_helper = tvb_get_uint8(data_tvb, data_offset);
             proto_tree_add_item(tree, hf_digitech_family_id, data_tvb, data_offset, 1, ENC_BIG_ENDIAN);
             data_offset++;
 
@@ -1002,7 +1002,7 @@ dissect_digitech_procedure(guint8 procedure, const gint offset,
             proto_tree_add_item(tree, hf_digitech_preset_bank, data_tvb, data_offset, 1, ENC_BIG_ENDIAN);
             data_offset++;
 
-            count = (guint16)tvb_get_guint8(data_tvb, data_offset);
+            count = (uint16_t)tvb_get_uint8(data_tvb, data_offset);
             proto_tree_add_item(tree, hf_digitech_preset_count, data_tvb, data_offset, 1, ENC_BIG_ENDIAN);
             data_offset++;
 
@@ -1010,7 +1010,7 @@ dissect_digitech_procedure(guint8 procedure, const gint offset,
             {
                 tmp_string = tvb_get_string_enc(pinfo->pool, data_tvb, data_offset, str_size - 1, ENC_ASCII);
                 proto_tree_add_string(tree, hf_digitech_preset_name, data_tvb, data_offset, str_size, tmp_string);
-                data_offset += (gint)str_size;
+                data_offset += (int)str_size;
                 count--;
             }
             break;
@@ -1034,7 +1034,7 @@ dissect_digitech_procedure(guint8 procedure, const gint offset,
             str_size = tvb_strsize(data_tvb, data_offset);
             tmp_string = tvb_get_string_enc(pinfo->pool, data_tvb, data_offset, str_size - 1, ENC_ASCII);
             proto_tree_add_string(tree, hf_digitech_preset_name, data_tvb, data_offset, str_size, tmp_string);
-            data_offset += (gint)str_size;
+            data_offset += (int)str_size;
 
             /* Preset modified (0 = unmodified, !0 = modified) */
             proto_tree_add_item(tree, hf_digitech_preset_modified, data_tvb, data_offset, 1, ENC_BIG_ENDIAN);
@@ -1079,12 +1079,12 @@ dissect_digitech_procedure(guint8 procedure, const gint offset,
 static int
 dissect_sysex_digitech_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
-    gint offset = 0;
-    guint8 procedure_id;
-    guint8 digitech_helper;
+    int offset = 0;
+    uint8_t procedure_id;
+    uint8_t digitech_helper;
     proto_item *ti = NULL;
     proto_tree *tree = NULL;
-    const guint8 *data_ptr;
+    const uint8_t *data_ptr;
     int len;
     int i;
 
@@ -1097,7 +1097,7 @@ dissect_sysex_digitech_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
     proto_tree_add_item(tree, hf_digitech_device_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    digitech_helper = tvb_get_guint8(tvb, offset);
+    digitech_helper = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_digitech_family_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
@@ -1105,7 +1105,7 @@ dissect_sysex_digitech_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
                         tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    procedure_id = tvb_get_guint8(tvb, offset);
+    procedure_id = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_digitech_procedure_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
@@ -1292,7 +1292,7 @@ proto_register_sysex_digitech(void)
               VALS(proto_checksum_vals), 0, NULL, HFILL }},
     };
 
-    static gint *sysex_digitech_subtrees[] = {
+    static int *sysex_digitech_subtrees[] = {
         &ett_sysex_digitech
     };
 

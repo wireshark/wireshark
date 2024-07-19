@@ -23,7 +23,7 @@ static int hf_sysex_manufacturer_id;
 static int hf_sysex_three_byte_manufacturer_id;
 static int hf_sysex_message_eox;
 
-static gint ett_sysex;
+static int ett_sysex;
 
 static dissector_handle_t sysex_digitech_handle;
 
@@ -636,15 +636,15 @@ static value_string_ext sysex_extended_manufacturer_id_vals_ext =
 static int
 dissect_sysex_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
-    guint8 sysex_helper;
-    gint data_len;
+    uint8_t sysex_helper;
+    int data_len;
     proto_item *item;
     proto_item *ti = NULL;
     proto_tree *tree = NULL;
-    gint offset = 0;
-    gint manufacturer_payload_len;
-    guint8 manufacturer_id;
-    guint32 three_byte_manufacturer_id = 0xFFFFFF;
+    int offset = 0;
+    int manufacturer_payload_len;
+    uint8_t manufacturer_id;
+    uint32_t three_byte_manufacturer_id = 0xFFFFFF;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SYSEX");
     col_set_str(pinfo->cinfo, COL_INFO, "MIDI System Exclusive Command");
@@ -655,7 +655,7 @@ dissect_sysex_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree
     tree = proto_item_add_subtree(ti, ett_sysex);
 
     /* Check start byte (System Exclusive - 0xF0) */
-    sysex_helper = tvb_get_guint8(tvb, 0);
+    sysex_helper = tvb_get_uint8(tvb, 0);
     item = proto_tree_add_item(tree, hf_sysex_message_start, tvb, offset, 1, ENC_BIG_ENDIAN);
     if (sysex_helper != 0xF0)
     {
@@ -664,7 +664,7 @@ dissect_sysex_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree
 
     offset++;
 
-    manufacturer_id = tvb_get_guint8(tvb, offset);
+    manufacturer_id = tvb_get_uint8(tvb, offset);
     /* Three-byte manufacturer ID starts with 00 */
     if (manufacturer_id == 0)
     {
@@ -702,7 +702,7 @@ dissect_sysex_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree
     }
 
     /* Check end byte (EOX - 0xF7) */
-    sysex_helper = tvb_get_guint8(tvb, data_len - 1);
+    sysex_helper = tvb_get_uint8(tvb, data_len - 1);
     item = proto_tree_add_item(tree, hf_sysex_message_eox, tvb, data_len - 1, 1, ENC_BIG_ENDIAN);
     if (sysex_helper != 0xF7)
     {
@@ -729,7 +729,7 @@ proto_register_sysex(void)
               NULL, 0, "System Exclusive Message end (0xF7)", HFILL}},
     };
 
-    static gint *sysex_subtrees[] = {
+    static int *sysex_subtrees[] = {
         &ett_sysex
     };
 

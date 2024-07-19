@@ -45,8 +45,8 @@ static int hf_st2110_srd_data;
 static int hf_st2110_srd_rows;
 
 /* Initialize the subtree pointers */
-static gint ett_st2110_20;
-static gint ett_st2110_20_srd_row;
+static int ett_st2110_20;
+static int ett_st2110_20_srd_row;
 
 
 static int
@@ -55,7 +55,7 @@ dissect_st2110_20(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void*
     proto_item *item;
     proto_tree *st2110_20_tree;
 
-    gint offset = 0;
+    int offset = 0;
 
     struct _rtp_packet_info *rtp_pkt_info = (struct _rtp_packet_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rtp, RTP_CONVERSATION_PROTO_DATA);
 
@@ -65,14 +65,14 @@ dissect_st2110_20(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void*
     st2110_20_tree = proto_item_add_subtree(item, ett_st2110_20);
 
     /* Extract original RTP sequence number from low bits */
-    guint32 rtp_seqno = (rtp_pkt_info != NULL) ? (rtp_pkt_info->extended_seqno & 0xFFFF) : 0;
+    uint32_t rtp_seqno = (rtp_pkt_info != NULL) ? (rtp_pkt_info->extended_seqno & 0xFFFF) : 0;
     /* ST2110-20 extended sequence number field */
-    guint32 ext_seqno = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+    uint32_t ext_seqno = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
     /* Sequence number (RTP seqno is low bits, ST2110-20 ext seqno is high bits) */
-    guint32 seqno = (ext_seqno << 16) + rtp_seqno;
+    uint32_t seqno = (ext_seqno << 16) + rtp_seqno;
 
     /* Extract original RTP timestamp */
-    guint32 rtp_time = (rtp_pkt_info != NULL) ? (guint32)(rtp_pkt_info->extended_timestamp & 0xFFFFFFFF) : 0;
+    uint32_t rtp_time = (rtp_pkt_info != NULL) ? (uint32_t)(rtp_pkt_info->extended_timestamp & 0xFFFFFFFF) : 0;
 
     proto_tree_add_item(st2110_20_tree, hf_st2110_ext_seqno, tvb, offset, 2, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_GENERATED(
@@ -84,11 +84,11 @@ dissect_st2110_20(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void*
     offset += 2; /* st2110-20 ext seqno */
 
     /* According to ST2110-20:2022 6.2.1, max three SRD headers might be in a packet */
-    guint16 srd_lengths[3] = {0, 0, 0}; /* store for second pass */
+    uint16_t srd_lengths[3] = {0, 0, 0}; /* store for second pass */
     proto_tree* srd_header_trees[3] = {NULL, NULL, NULL}; /* store for second pass */
-    guint8 srd_rows = 0; /* rows count */
-    guint16 first_row; /* first row number */
-    for (guint8 srd_idx = 0; srd_idx < 3 ; srd_idx++) {
+    uint8_t srd_rows = 0; /* rows count */
+    uint16_t first_row; /* first row number */
+    for (uint8_t srd_idx = 0; srd_idx < 3 ; srd_idx++) {
         proto_tree *srd_header_tree = proto_tree_add_subtree_format(st2110_20_tree, tvb, offset, 6,
                                     ett_st2110_20_srd_row, &item, "Sample Row Data %u", srd_idx);
         srd_header_trees[srd_idx] = srd_header_tree;
@@ -96,16 +96,16 @@ dissect_st2110_20(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void*
             proto_tree_add_uint(srd_header_tree, hf_st2110_srd_index, NULL, 0, 0, srd_idx)
         );
 
-        srd_lengths[srd_idx] = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+        srd_lengths[srd_idx] = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
         proto_tree_add_item(srd_header_tree, hf_st2110_srd_length, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
-        first_row = (srd_idx == 0) ? (tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN) & 0x7FFF) : first_row;
+        first_row = (srd_idx == 0) ? (tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN) & 0x7FFF) : first_row;
         proto_tree_add_item(srd_header_tree, hf_st2110_field_ident, tvb, offset, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(srd_header_tree, hf_st2110_row_num, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
-        guint16 cont_bit = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN) >> 15;
+        uint16_t cont_bit = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN) >> 15;
         proto_tree_add_item(srd_header_tree, hf_st2110_continuation, tvb, offset, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(srd_header_tree, hf_st2110_srd_offset, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
@@ -121,8 +121,8 @@ dissect_st2110_20(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void*
     );
 
     /* Second pass, get SRD data and add it to the same trees created for SRD headers */
-    for (guint8 srd_idx = 0; srd_idx < srd_rows ; srd_idx++) {
-        guint16 srd_length = srd_lengths[srd_idx];
+    for (uint8_t srd_idx = 0; srd_idx < srd_rows ; srd_idx++) {
+        uint16_t srd_length = srd_lengths[srd_idx];
 
         proto_tree_add_item(srd_header_trees[srd_idx], hf_st2110_srd_data, tvb, offset, srd_length, ENC_NA);
         offset += srd_length;
@@ -196,7 +196,7 @@ proto_register_st2110_20(void)
         }
     };
 
-    static gint *ett[] =
+    static int *ett[] =
     {
         &ett_st2110_20,
         &ett_st2110_20_srd_row

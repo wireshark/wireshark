@@ -14,7 +14,7 @@
 
 int
 dissect_smb_server_type_flags(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			      proto_tree *parent_tree, guint8 *drep,
-			      gboolean infoflag);
+			      proto_tree *parent_tree, uint8_t *drep,
+			      bool infoflag);
 
 #endif

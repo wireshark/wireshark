@@ -3480,7 +3480,7 @@ dissect_someip_payload_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
     if (wtlv) {
         while (tvb_captured_length_remaining(tvb, offset) >= 2) {
-            uint64_t tagdata = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+            uint64_t tagdata = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
             unsigned wiretype = (tagdata & SOMEIP_WTLV_MASK_WIRE_TYPE) >> 12;
             unsigned param_id = tagdata & SOMEIP_WTLV_MASK_DATA_ID;
             offset += 2;
@@ -3508,13 +3508,13 @@ dissect_someip_payload_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
                 switch (dissect_someip_payload_peek_length_of_length(tree, pinfo, tvb, offset - 2, 0, item)) {
                 case 8:
-                    param_length = 1 + tvb_get_guint8(tvb, offset);
+                    param_length = 1 + tvb_get_uint8(tvb, offset);
                     break;
                 case 16:
-                    param_length = 2 + tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+                    param_length = 2 + tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
                     break;
                 case 32:
-                    param_length = 4 + tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+                    param_length = 4 + tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
                     break;
                 default:
                     expert_someip_payload_config_error(tree, pinfo, tvb, offset - 2, 2, "WTLV type 4 but datatype has not an appropriate length field configured");
@@ -3523,13 +3523,13 @@ dissect_someip_payload_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                 break;
 
             case 5:
-                param_length = 1 + tvb_get_guint8(tvb, offset);
+                param_length = 1 + tvb_get_uint8(tvb, offset);
                 break;
             case 6:
-                param_length = 2 + tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+                param_length = 2 + tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
                 break;
             case 7:
-                param_length = 4 + tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+                param_length = 4 + tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
                 break;
 
             default:
@@ -3856,9 +3856,9 @@ could_this_be_dtls(tvbuff_t *tvb) {
         return false;
     }
 
-    uint8_t dtls_content_type = tvb_get_guint8(tvb, 0);
-    uint16_t dtls_version = tvb_get_guint16(tvb, 1, ENC_BIG_ENDIAN);
-    uint16_t dtls_length = tvb_get_guint16(tvb, 11, ENC_BIG_ENDIAN);
+    uint8_t dtls_content_type = tvb_get_uint8(tvb, 0);
+    uint16_t dtls_version = tvb_get_uint16(tvb, 1, ENC_BIG_ENDIAN);
+    uint16_t dtls_length = tvb_get_uint16(tvb, 11, ENC_BIG_ENDIAN);
 
     bool dtls_possible = (20 <= dtls_content_type) && (dtls_content_type <= 63) &&
                              (0xfefc <= dtls_version) && (dtls_version <= 0xfeff) &&
@@ -3868,8 +3868,8 @@ could_this_be_dtls(tvbuff_t *tvb) {
         return true;
     }
 
-    uint32_t someip_length = tvb_get_guint32(tvb, 4, ENC_BIG_ENDIAN);
-    uint8_t someip_version = tvb_get_guint8(tvb, 12);
+    uint32_t someip_length = tvb_get_uint32(tvb, 4, ENC_BIG_ENDIAN);
+    uint8_t someip_version = tvb_get_uint8(tvb, 12);
 
     /* typically this is 1500 bytes or less on UDP but being conservative */
     bool someip_possible = (someip_version == 1) && (8 <= someip_length) && (someip_length <= 65535) &&
@@ -3899,15 +3899,15 @@ test_someip(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_, void *data _U
         return false;
     }
 
-    if (tvb_get_guint32(tvb, 4, ENC_BIG_ENDIAN) < 8) {
+    if (tvb_get_uint32(tvb, 4, ENC_BIG_ENDIAN) < 8) {
         return false;
     }
 
-    if ((tvb_get_guint8(tvb, 12)) != SOMEIP_PROTOCOL_VERSION) {
+    if ((tvb_get_uint8(tvb, 12)) != SOMEIP_PROTOCOL_VERSION) {
         return false;
     }
 
-    if (!try_val_to_str((tvb_get_guint8(tvb, 14) & ~SOMEIP_MSGTYPE_TP_MASK), someip_msg_type)) {
+    if (!try_val_to_str((tvb_get_uint8(tvb, 14) & ~SOMEIP_MSGTYPE_TP_MASK), someip_msg_type)) {
         return false;
     }
 

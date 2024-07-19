@@ -1204,7 +1204,7 @@ static int hf_SAPDIAG_SUPPORT_BIT_CONTAINER_LIST;
 static int hf_SAPDIAG_SUPPORT_BIT_GUI_SYSTEM_COLOR;
 static int hf_SAPDIAG_SUPPORT_BIT_GROUPBOX_WITHOUT_BOTTOMLINE;
 
-static gint ett_sapdiag;
+static int ett_sapdiag;
 
 /* Expert info */
 static expert_field ei_sapdiag_item_unknown;
@@ -1238,7 +1238,7 @@ void proto_reg_handoff_sapdiag(void);
 
 
 static void
-dissect_sapdiag_dp_req_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset){
+dissect_sapdiag_dp_req_info(tvbuff_t *tvb, proto_tree *tree, uint32_t offset){
 	proto_item *ri = NULL;
 	proto_tree *req_info_tree;
 
@@ -1285,7 +1285,7 @@ dissect_sapdiag_dp_req_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset){
 }
 
 static void
-dissect_sapdiag_dp(tvbuff_t *tvb, proto_tree *tree, guint32 offset){
+dissect_sapdiag_dp(tvbuff_t *tvb, proto_tree *tree, uint32_t offset){
 	proto_item *dp = NULL;
 	proto_tree *dp_tree;
 
@@ -1326,7 +1326,7 @@ dissect_sapdiag_dp(tvbuff_t *tvb, proto_tree *tree, guint32 offset){
 }
 
 static void
-dissect_sapdiag_support_bits(tvbuff_t *tvb, proto_tree *tree, guint32 offset){
+dissect_sapdiag_support_bits(tvbuff_t *tvb, proto_tree *tree, uint32_t offset){
 
 	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_PROGRESS_INDICATOR, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 0 */
 	proto_tree_add_item(tree, hf_SAPDIAG_SUPPORT_BIT_SAPGUI_LABELS, tvb, offset, 1, ENC_BIG_ENDIAN);  /* 1 */
@@ -1572,7 +1572,7 @@ dissect_sapdiag_support_bits(tvbuff_t *tvb, proto_tree *tree, guint32 offset){
 }
 
 static void
-dissect_sapdiag_rfc_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint32 item_length){
+dissect_sapdiag_rfc_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, uint32_t item_length){
 
 	tvbuff_t *next_tvb = NULL;
 	dissector_handle_t rfc_handle;
@@ -1594,33 +1594,33 @@ dissect_sapdiag_rfc_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 }
 
 
-static gboolean
-check_length(packet_info *pinfo, proto_tree *tree, guint32 expected, guint32 real, const char *name_string){
+static bool
+check_length(packet_info *pinfo, proto_tree *tree, uint32_t expected, uint32_t real, const char *name_string){
 	if (expected != real){
 		expert_add_info_format(pinfo, tree, &ei_sapdiag_item_length_invalid, "Item %s length is invalid", name_string);
-		return FALSE;
-	} else return TRUE;
+		return false;
+	} else return true;
 }
 
 
-static guint8
-add_item_value_uint8(tvbuff_t *tvb, proto_item *item, proto_tree *tree, int hf, guint32 offset, const char *text){
-	proto_tree_add_none_format(tree, hf, tvb, offset, 1, "%s: %d", text, tvb_get_guint8(tvb, offset));
-	proto_item_append_text(item, ", %s=%d", text, tvb_get_guint8(tvb, offset));
-	return (tvb_get_guint8(tvb, offset));
+static uint8_t
+add_item_value_uint8(tvbuff_t *tvb, proto_item *item, proto_tree *tree, int hf, uint32_t offset, const char *text){
+	proto_tree_add_none_format(tree, hf, tvb, offset, 1, "%s: %d", text, tvb_get_uint8(tvb, offset));
+	proto_item_append_text(item, ", %s=%d", text, tvb_get_uint8(tvb, offset));
+	return (tvb_get_uint8(tvb, offset));
 }
 
 
-static guint16
-add_item_value_uint16(tvbuff_t *tvb, proto_item *item, proto_tree *tree, int hf, guint32 offset, const char *text){
+static uint16_t
+add_item_value_uint16(tvbuff_t *tvb, proto_item *item, proto_tree *tree, int hf, uint32_t offset, const char *text){
 	proto_tree_add_none_format(tree, hf, tvb, offset, 2, "%s: %d", text, tvb_get_ntohs(tvb, offset));
 	proto_item_append_text(item, ", %s=%d", text, tvb_get_ntohs(tvb, offset));
 	return (tvb_get_ntohs(tvb, offset));
 }
 
 
-static guint32
-add_item_value_uint32(tvbuff_t *tvb, proto_item *item, proto_tree *tree, int hf, guint32 offset, const char *text){
+static uint32_t
+add_item_value_uint32(tvbuff_t *tvb, proto_item *item, proto_tree *tree, int hf, uint32_t offset, const char *text){
 	proto_tree_add_none_format(tree, hf, tvb, offset, 4, "%s: %d", text, tvb_get_ntohl(tvb, offset));
 	proto_item_append_text(item, ", %s=%d", text, tvb_get_ntohl(tvb, offset));
 	return (tvb_get_ntohl(tvb, offset));
@@ -1628,17 +1628,17 @@ add_item_value_uint32(tvbuff_t *tvb, proto_item *item, proto_tree *tree, int hf,
 
 
 static void
-add_item_value_string(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_tree *tree, int hf, guint32 offset, guint32 length, const char *text, int show_in_tree){
-	guint8 *string = tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_ASCII);
+add_item_value_string(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_tree *tree, int hf, uint32_t offset, uint32_t length, const char *text, int show_in_tree){
+	uint8_t *string = tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_ASCII);
 	proto_tree_add_none_format(tree, hf, tvb, offset, length, "%s: %s", text, string);
 	if (show_in_tree) proto_item_append_text(item, ", %s=%s", text, string);
 }
 
 
-static guint32
-add_item_value_stringz(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_tree *tree, int hf, guint32 offset, const char *text, int show_in_tree){
-	guint32 length = tvb_strsize(tvb, offset);
-	guint8 *string = tvb_get_string_enc(pinfo->pool, tvb, offset, length - 1, ENC_ASCII);
+static uint32_t
+add_item_value_stringz(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_tree *tree, int hf, uint32_t offset, const char *text, int show_in_tree){
+	uint32_t length = tvb_strsize(tvb, offset);
+	uint8_t *string = tvb_get_string_enc(pinfo->pool, tvb, offset, length - 1, ENC_ASCII);
 	proto_tree_add_none_format(tree, hf, tvb, offset, length, "%s: %s", text, string);
 	if (show_in_tree) proto_item_append_text(item, ", %s=%s", text, string);
 	return (length);
@@ -1646,24 +1646,24 @@ add_item_value_stringz(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, prot
 
 
 static void
-add_item_value_hexstring(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_tree *tree, int hf, guint32 offset, guint32 length, const char *text){
+add_item_value_hexstring(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_tree *tree, int hf, uint32_t offset, uint32_t length, const char *text){
 	proto_tree_add_none_format(tree, hf, tvb, offset, length, "%s: %s", text, tvb_bytes_to_str(pinfo->pool, tvb, offset, length));
 	proto_item_append_text(item, ", %s=%s", text, tvb_bytes_to_str(pinfo->pool, tvb, offset, length));
 }
 
 
 static void
-dissect_sapdiag_dyntatom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint32 length){
-	guint32 final = offset + length;
-	guint16 atom_length = 0, atom_item_length = 0;
-	guint8 etype = 0, attr = 0;
+dissect_sapdiag_dyntatom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, uint32_t length){
+	uint32_t final = offset + length;
+	uint16_t atom_length = 0, atom_item_length = 0;
+	uint8_t etype = 0, attr = 0;
 
 	proto_item *atom = NULL, *atom_item = NULL, *atom_item_attr = NULL;
 	proto_tree *atom_tree = NULL, *atom_item_tree = NULL, *atom_item_attr_tree = NULL;
 
 	while (offset < final){
 
-		etype = tvb_get_guint8(tvb, offset+4);
+		etype = tvb_get_uint8(tvb, offset+4);
 		if ((etype != 114) && (etype != 120)) {
 			/* Add a new atom subtree */
 			atom_length = 0;
@@ -1701,7 +1701,7 @@ dissect_sapdiag_dyntatom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 		atom_item_length-=1;
 
 		proto_tree_add_item(atom_item_tree, hf_sapdiag_item_dynt_atom_item_etype, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_item_append_text(atom_item, ", EType=%d", tvb_get_guint8(tvb, offset));
+		proto_item_append_text(atom_item, ", EType=%d", tvb_get_uint8(tvb, offset));
 		offset+=1;
 		atom_item_length-=1;
 
@@ -1724,7 +1724,7 @@ dissect_sapdiag_dyntatom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 		atom_item_attr = proto_tree_add_item(atom_item_tree, hf_sapdiag_item_dynt_atom_item_attr, tvb, offset, 1, ENC_BIG_ENDIAN);
 		atom_item_attr_tree = proto_item_add_subtree(atom_item_attr, ett_sapdiag);
 
-		attr = tvb_get_guint8(tvb, offset);
+		attr = tvb_get_uint8(tvb, offset);
 		proto_item_append_text(atom_item, ", Attr=%d", attr);
 		proto_tree_add_item(atom_item_attr_tree, hf_sapdiag_item_dynt_atom_item_attr_DIAG_BSD_PROTECTED, tvb, offset, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(atom_item_attr_tree, hf_sapdiag_item_dynt_atom_item_attr_DIAG_BSD_INVISIBLE, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1874,9 +1874,9 @@ dissect_sapdiag_dyntatom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 }
 
 static void
-dissect_sapdiag_menu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint32 length){
+dissect_sapdiag_menu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, uint32_t length){
 
-	guint32 final = offset + length;
+	uint32_t final = offset + length;
 
 	proto_item *menu = NULL;
 	proto_tree *menu_tree = NULL;
@@ -1938,14 +1938,14 @@ dissect_sapdiag_menu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 }
 
 static void
-dissect_sapdiag_uievent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint32 length){
+dissect_sapdiag_uievent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, uint32_t length){
 
 	proto_item *event_valid_item = NULL;
 	proto_tree *event_valid_tree = NULL;
-	guint8 event_valid = 0;
-	guint16 container_nrs = 0, i = 0;
+	uint8_t event_valid = 0;
+	uint16_t container_nrs = 0, i = 0;
 
-	event_valid = tvb_get_guint8(tvb, offset);
+	event_valid = tvb_get_uint8(tvb, offset);
 	event_valid_item = proto_tree_add_item(tree, hf_sapdiag_item_ui_event_valid, tvb, offset, 1, ENC_BIG_ENDIAN);
 	event_valid_tree = proto_item_add_subtree(event_valid_item, ett_sapdiag);
 
@@ -2008,14 +2008,14 @@ dissect_sapdiag_uievent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 }
 
 static void
-dissect_sapdiag_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_tree *item_value_tree, proto_tree *parent_tree, guint32 offset, guint8 item_type, guint8 item_id, guint8 item_sid, guint32 item_length){
+dissect_sapdiag_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_tree *item_value_tree, proto_tree *parent_tree, uint32_t offset, uint8_t item_type, uint8_t item_id, uint8_t item_sid, uint32_t item_length){
 
 	/* SES item */
 	if (item_type==0x01){
-		guint8 event_array = 0;
+		uint8_t event_array = 0;
 		check_length(pinfo, item_value_tree, 16, item_length, "SES");
 
-		event_array = tvb_get_guint8(tvb, offset);
+		event_array = tvb_get_uint8(tvb, offset);
 		add_item_value_uint8(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Event Array");
 		offset+=1;
 		add_item_value_uint8(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Event ID 1");
@@ -2152,7 +2152,7 @@ dissect_sapdiag_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_
 		add_item_value_uint16(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Internal Mode Number");
 
 	} else if (item_type==0x10 && item_id==0x06 && item_sid==0x13){		/* GUI_FKEY */
-		guint32 length = offset+item_length;
+		uint32_t length = offset+item_length;
 		offset++;  /* TODO: Skip one byte here */
 		offset+=add_item_value_stringz(tvb, pinfo, item, item_value_tree, hf_sapdiag_item_value, offset, "Virtual key number", 1);
 		while ((offset < length) && tvb_offset_exists(tvb, offset)){
@@ -2190,7 +2190,7 @@ dissect_sapdiag_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_
 		add_item_value_uint16(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "User ID");
 
 	} else if (item_type==0x10 && item_id==0x06 && item_sid==0x1f){		/* IMode uuids 2 */
-		guint8 uuids = tvb_get_guint8(tvb, offset);
+		uint8_t uuids = tvb_get_uint8(tvb, offset);
 		if (!check_length(pinfo, item_value_tree, 1 + 17 * uuids, item_length, "IMode uuids") ) return;
 		add_item_value_uint8(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Number of uuids");
 		offset+=1;
@@ -2228,7 +2228,7 @@ dissect_sapdiag_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_
 		add_item_value_stringz(tvb, pinfo, item, item_value_tree, hf_sapdiag_item_value, offset, "Kernel patch level", 1);
 
 	} else if (item_type==0x10 && item_id==0x09 && item_sid==0x0b){		/* Dynt Focus */
-		guint32 length = offset + item_length;
+		uint32_t length = offset + item_length;
 		add_item_value_uint8(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Focus Num of Area ID");
 		offset+=1;
 		add_item_value_uint16(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Focus Row");
@@ -2442,7 +2442,7 @@ dissect_sapdiag_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_
 
 	/* Control Properties */
 	} else if (item_type==0x10 && item_id==0x0e && item_sid==0x01){ /* Control Properties */
-		guint32 length = offset + item_length;
+		uint32_t length = offset + item_length;
 
 		while((offset < length) && (tvb_offset_exists(tvb, offset + 3))){  /* Check against at least three bytes (2 for ID, 1 for null-terminated value) */
 			proto_tree_add_item(item_value_tree, hf_sapdiag_item_control_properties_id, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2528,7 +2528,7 @@ dissect_sapdiag_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_
 }
 
 static const char *
-get_appl_string(guint8 item_id, guint8 item_sid){
+get_appl_string(uint8_t item_id, uint8_t item_sid){
 	const char *item_name_string = NULL;
 
 	switch (item_id){
@@ -2589,10 +2589,10 @@ get_appl_string(guint8 item_id, guint8 item_sid){
 }
 
 static void
-dissect_sapdiag_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *parent_tree, guint32 offset){
-	gint item_value_remaining_length;
-	guint8 item_type, item_long, item_id, item_sid;
-	guint32 item_length, item_value_length;
+dissect_sapdiag_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *parent_tree, uint32_t offset){
+	int item_value_remaining_length;
+	uint8_t item_type, item_long, item_id, item_sid;
+	uint32_t item_length, item_value_length;
 	const char *item_name_string = NULL;
 
 	proto_item *item = NULL, *il = NULL, *item_value = NULL;
@@ -2606,7 +2606,7 @@ dissect_sapdiag_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 		item_tree = proto_item_add_subtree(item, ett_sapdiag);
 
 		/* Get the item type */
-		item_type = tvb_get_guint8(tvb, offset);
+		item_type = tvb_get_uint8(tvb, offset);
 		proto_tree_add_item(item_tree, hf_sapdiag_item_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 		item_length++;
@@ -2666,14 +2666,14 @@ dissect_sapdiag_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 			case 0x10:  /* APPL */
 			case 0x12:{ /* APPL4 */
 				/* Get the APPL(4) ID */
-				item_id = tvb_get_guint8(tvb, offset);
+				item_id = tvb_get_uint8(tvb, offset);
 				proto_item_append_text(item, ", %s", val_to_str_const(item_id, sapdiag_item_id_vals, "Unknown"));
 				proto_tree_add_item(item_tree, hf_sapdiag_item_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 				offset++;
 				item_length++;
 
 				/* Get the APPL item sid value and set the respective name string according to them XXX: Change this for a multi array */
-				item_sid = tvb_get_guint8(tvb, offset);
+				item_sid = tvb_get_uint8(tvb, offset);
 				item_name_string = get_appl_string(item_id, item_sid);
 
 				proto_item_append_text(item, ", %s", item_name_string);
@@ -2719,9 +2719,9 @@ dissect_sapdiag_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 				expert_add_info(pinfo, il, &ei_sapdiag_item_offset_invalid);
 				return;
 			}
-			if ((guint32)item_value_remaining_length < item_value_length){
+			if ((uint32_t)item_value_remaining_length < item_value_length){
 				expert_add_info(pinfo, il, &ei_sapdiag_item_length_invalid);
-				item_value_length = (guint32)item_value_remaining_length;
+				item_value_length = (uint32_t)item_value_remaining_length;
 			}
 			item_value = proto_tree_add_item(item_tree, hf_sapdiag_item_value, tvb, offset, item_value_length, ENC_NA);
 			item_value_tree = proto_item_add_subtree(item_value, ett_sapdiag);
@@ -2732,32 +2732,32 @@ dissect_sapdiag_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 }
 
 static int
-check_sapdiag_dp(tvbuff_t *tvb, guint32 offset)
+check_sapdiag_dp(tvbuff_t *tvb, uint32_t offset)
 {
 	/* Since there's no SAP Diag mode 0xff, if the first byte is a 0xFF the
 	 * packet probably holds an initialization DP Header */
-	if ((tvb_reported_length_remaining(tvb, offset) >= 200 + 8) && tvb_get_guint8(tvb, offset) == 0xFF){
-		return TRUE;
+	if ((tvb_reported_length_remaining(tvb, offset) >= 200 + 8) && tvb_get_uint8(tvb, offset) == 0xFF){
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 
 static int
-check_sapdiag_compression(tvbuff_t *tvb, guint32 offset)
+check_sapdiag_compression(tvbuff_t *tvb, uint32_t offset)
 {
 	/* We check for the length, the algorithm value and the presence of magic bytes */
 	if ((tvb_reported_length_remaining(tvb, offset) >= 8) &&
-		((tvb_get_guint8(tvb, offset+4) == 0x11) || (tvb_get_guint8(tvb, offset+4) == 0x12)) &&
-		(tvb_get_guint16(tvb, offset+5, ENC_LITTLE_ENDIAN) == 0x9d1f)){
-		return TRUE;
+		((tvb_get_uint8(tvb, offset+4) == 0x11) || (tvb_get_uint8(tvb, offset+4) == 0x12)) &&
+		(tvb_get_uint16(tvb, offset+5, ENC_LITTLE_ENDIAN) == 0x9d1f)){
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 
 static void
-dissect_sapdiag_compressed_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *sapdiag, guint32 offset)
+dissect_sapdiag_compressed_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *sapdiag, uint32_t offset)
 {
-	guint32 reported_length = 0;
+	uint32_t reported_length = 0;
 	proto_item *compression_header = NULL;
 	proto_tree *compression_header_tree = NULL;
 
@@ -2790,14 +2790,14 @@ dissect_sapdiag_compressed_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 
 static void
-dissect_sapdiag_snc_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sapdiag_tree, proto_tree *tree, guint32 offset){
+dissect_sapdiag_snc_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sapdiag_tree, proto_tree *tree, uint32_t offset){
 
 	tvbuff_t *next_tvb = NULL;
 	proto_item *payload = NULL;
 	proto_tree *payload_tree = NULL;
 
 	/* Call the SNC dissector */
-	if (global_sapdiag_snc_dissection == TRUE){
+	if (global_sapdiag_snc_dissection == true){
 		next_tvb = dissect_sapsnc_frame(tvb, pinfo, tree, offset);
 
 		/* If the SNC dissection returned a new tvb, we've a payload to dissect */
@@ -2823,8 +2823,8 @@ dissect_sapdiag_snc_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sapdiag
 static int
 dissect_sapdiag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	guint8 compress = 0, error_no = 0;
-	guint32 offset = 0;
+	uint8_t compress = 0, error_no = 0;
+	uint32_t offset = 0;
 	proto_item *sapdiag = NULL, *header = NULL, *com_flag = NULL, *payload = NULL;
 	proto_tree *sapdiag_tree = NULL, *header_tree = NULL, *com_flag_tree = NULL, *payload_tree = NULL;
 
@@ -2874,7 +2874,7 @@ dissect_sapdiag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 	proto_tree_add_item(header_tree, hf_sapdiag_mode_stat, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
-	error_no = tvb_get_guint8(tvb, offset);
+	error_no = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(header_tree, hf_sapdiag_err_no, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 	proto_tree_add_item(header_tree, hf_sapdiag_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2884,17 +2884,17 @@ dissect_sapdiag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 	proto_tree_add_item(header_tree, hf_sapdiag_msg_rc, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
-	compress = tvb_get_guint8(tvb, offset);
+	compress = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(header_tree, hf_sapdiag_compress, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 	/* Check for error messages */
 	if ((error_no != 0x00) && (tvb_reported_length_remaining(tvb, offset) > 0)){
-		gchar *error_message = NULL;
-		guint32 error_message_length = 0;
+		char *error_message = NULL;
+		uint32_t error_message_length = 0;
 
-		error_message_length = (guint32)tvb_reported_length_remaining(tvb, offset) - 1;
-		error_message = (gchar *)tvb_get_string_enc(pinfo->pool, tvb, offset, error_message_length, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+		error_message_length = (uint32_t)tvb_reported_length_remaining(tvb, offset) - 1;
+		error_message = (char *)tvb_get_string_enc(pinfo->pool, tvb, offset, error_message_length, ENC_LITTLE_ENDIAN|ENC_UTF_16);
 		proto_tree_add_string(sapdiag_tree, hf_sapdiag_error_message, tvb, offset, error_message_length, error_message);
 
 	/* If the message is compressed */
@@ -3625,7 +3625,7 @@ proto_register_sapdiag(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_sapdiag
 	};
 
@@ -3674,12 +3674,12 @@ proto_register_sapdiag(void)
 /**
  * Helpers for dealing with the port range
  */
-static void range_delete_callback (guint32 port, gpointer ptr _U_)
+static void range_delete_callback (uint32_t port, void *ptr _U_)
 {
 	dissector_delete_uint("sapni.port", port, sapdiag_handle);
 }
 
-static void range_add_callback (guint32 port, gpointer ptr _U_)
+static void range_add_callback (uint32_t port, void *ptr _U_)
 {
 	dissector_add_uint("sapni.port", port, sapdiag_handle);
 }
@@ -3691,11 +3691,11 @@ void
 proto_reg_handoff_sapdiag(void)
 {
 	static range_t *sapdiag_port_range;
-	static gboolean initialized = FALSE;
+	static bool initialized = false;
 
 	if (!initialized) {
 		sapdiag_handle = create_dissector_handle(dissect_sapdiag, proto_sapdiag);
-		initialized = TRUE;
+		initialized = true;
 	} else {
 		range_foreach(sapdiag_port_range, range_delete_callback, NULL);
 		wmem_free(wmem_epan_scope(), sapdiag_port_range);

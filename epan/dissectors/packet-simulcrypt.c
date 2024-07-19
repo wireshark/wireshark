@@ -40,7 +40,7 @@ typedef struct Tecm_interpretation
 	int ca_system_id;
 	const char *protocol_name;
 	dissector_handle_t protocol_handle;
-	guint ecmg_port;
+	unsigned ecmg_port;
 } ecm_interpretation;
 
 #define ECM_MIKEY_INDEX 0  /* must agree with tab_ecm_inter initialization */
@@ -52,10 +52,10 @@ static ecm_interpretation tab_ecm_inter[] = {
 #define ECM_INTERPRETATION_SIZE array_length(tab_ecm_inter)
 
 static int dissect_simulcrypt_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_);
-static guint get_simulcrypt_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data);
+static unsigned get_simulcrypt_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data);
 static void dissect_simulcrypt_data(proto_tree *simulcrypt_tree, proto_item *simulcrypt_item, packet_info *pinfo _U_,
 				    tvbuff_t *tvb, proto_tree *tree, int offset,
-				    int container_data_length, guint16 iftype, gboolean is_subtree);
+				    int container_data_length, uint16_t iftype, bool is_subtree);
 
 /* Wireshark ID of the SIMULCRYPT protocol */
 static int proto_simulcrypt;
@@ -576,110 +576,110 @@ static value_string_ext psig_error_values_ext = VALUE_STRING_EXT_INIT(psig_error
 * our header fields; they are filled out when we call
 * proto_register_field_array() in proto_register_simulcrypt()
 */
-static gint hf_simulcrypt_header;
-static gint hf_simulcrypt_version;
-static gint hf_simulcrypt_message_type;
-static gint hf_simulcrypt_interface;
-static gint hf_simulcrypt_message_length;
-static gint hf_simulcrypt_message;
-static gint hf_simulcrypt_parameter;
-static gint hf_simulcrypt_parameter_type;
-static gint hf_simulcrypt_ecmg_parameter_type;
-static gint hf_simulcrypt_emmg_parameter_type;
-static gint hf_simulcrypt_parameter_length;
-static gint hf_simulcrypt_ca_system_id;
-static gint hf_simulcrypt_ca_subsystem_id;
-static gint hf_simulcrypt_super_cas_id;
-static gint hf_simulcrypt_section_tspkt_flag;
-static gint hf_simulcrypt_ecm_channel_id;
-static gint hf_simulcrypt_delay_start;
-static gint hf_simulcrypt_delay_stop;
-static gint hf_simulcrypt_ac_delay_start;
-static gint hf_simulcrypt_ac_delay_stop;
-static gint hf_simulcrypt_transition_delay_start;
-static gint hf_simulcrypt_transition_delay_stop;
-static gint hf_simulcrypt_ecm_rep_period;
-static gint hf_simulcrypt_max_streams;
-static gint hf_simulcrypt_min_cp_duration;
-static gint hf_simulcrypt_lead_cw;
-static gint hf_simulcrypt_cw_per_msg;
-static gint hf_simulcrypt_max_comp_time;
-static gint hf_simulcrypt_access_criteria;
-static gint hf_simulcrypt_ecm_stream_id;
-static gint hf_simulcrypt_nominal_cp_duration;
-static gint hf_simulcrypt_access_criteria_transfer_mode;
-static gint hf_simulcrypt_cp_number;
-static gint hf_simulcrypt_cp_duration;
-static gint hf_simulcrypt_cp_cw_combination;
-static gint hf_simulcrypt_ecm_datagram;
-static gint hf_simulcrypt_cw_encryption;
-static gint hf_simulcrypt_ecm_id;
-static gint hf_simulcrypt_client_id;
-static gint hf_simulcrypt_data_channel_id;
-static gint hf_simulcrypt_data_stream_id;
-static gint hf_simulcrypt_datagram;
-static gint hf_simulcrypt_bandwidth;
-static gint hf_simulcrypt_data_type;
-static gint hf_simulcrypt_data_id;
-static gint hf_simulcrypt_ecmg_error_status;
-static gint hf_simulcrypt_emmg_error_status;
-static gint hf_simulcrypt_error_information;
+static int hf_simulcrypt_header;
+static int hf_simulcrypt_version;
+static int hf_simulcrypt_message_type;
+static int hf_simulcrypt_interface;
+static int hf_simulcrypt_message_length;
+static int hf_simulcrypt_message;
+static int hf_simulcrypt_parameter;
+static int hf_simulcrypt_parameter_type;
+static int hf_simulcrypt_ecmg_parameter_type;
+static int hf_simulcrypt_emmg_parameter_type;
+static int hf_simulcrypt_parameter_length;
+static int hf_simulcrypt_ca_system_id;
+static int hf_simulcrypt_ca_subsystem_id;
+static int hf_simulcrypt_super_cas_id;
+static int hf_simulcrypt_section_tspkt_flag;
+static int hf_simulcrypt_ecm_channel_id;
+static int hf_simulcrypt_delay_start;
+static int hf_simulcrypt_delay_stop;
+static int hf_simulcrypt_ac_delay_start;
+static int hf_simulcrypt_ac_delay_stop;
+static int hf_simulcrypt_transition_delay_start;
+static int hf_simulcrypt_transition_delay_stop;
+static int hf_simulcrypt_ecm_rep_period;
+static int hf_simulcrypt_max_streams;
+static int hf_simulcrypt_min_cp_duration;
+static int hf_simulcrypt_lead_cw;
+static int hf_simulcrypt_cw_per_msg;
+static int hf_simulcrypt_max_comp_time;
+static int hf_simulcrypt_access_criteria;
+static int hf_simulcrypt_ecm_stream_id;
+static int hf_simulcrypt_nominal_cp_duration;
+static int hf_simulcrypt_access_criteria_transfer_mode;
+static int hf_simulcrypt_cp_number;
+static int hf_simulcrypt_cp_duration;
+static int hf_simulcrypt_cp_cw_combination;
+static int hf_simulcrypt_ecm_datagram;
+static int hf_simulcrypt_cw_encryption;
+static int hf_simulcrypt_ecm_id;
+static int hf_simulcrypt_client_id;
+static int hf_simulcrypt_data_channel_id;
+static int hf_simulcrypt_data_stream_id;
+static int hf_simulcrypt_datagram;
+static int hf_simulcrypt_bandwidth;
+static int hf_simulcrypt_data_type;
+static int hf_simulcrypt_data_id;
+static int hf_simulcrypt_ecmg_error_status;
+static int hf_simulcrypt_emmg_error_status;
+static int hf_simulcrypt_error_information;
 
-static gint hf_simulcrypt_eis_parameter_type;
-static gint hf_simulcrypt_eis_channel_id;
-static gint hf_simulcrypt_service_flag;
-static gint hf_simulcrypt_component_flag;
-static gint hf_simulcrypt_max_scg;
-static gint hf_simulcrypt_ecm_group;
-static gint hf_simulcrypt_scg_id;
-static gint hf_simulcrypt_scg_reference_id;
-static gint hf_simulcrypt_activation_time;
-static gint hf_simulcrypt_year;
-static gint hf_simulcrypt_month;
-static gint hf_simulcrypt_day;
-static gint hf_simulcrypt_hour;
-static gint hf_simulcrypt_minute;
-static gint hf_simulcrypt_second;
-static gint hf_simulcrypt_hundredth_second;
-static gint hf_simulcrypt_activation_pending_flag;
-static gint hf_simulcrypt_component_id;
-static gint hf_simulcrypt_service_id;
-static gint hf_simulcrypt_transport_stream_id;
-static gint hf_simulcrypt_ac_changed_flag;
-static gint hf_simulcrypt_scg_current_reference_id;
-static gint hf_simulcrypt_scg_pending_reference_id;
-static gint hf_simulcrypt_cp_duration_flag;
-static gint hf_simulcrypt_recommended_cp_duration;
-static gint hf_simulcrypt_scg_nominal_cp_duration;
-static gint hf_simulcrypt_original_network_id;
-static gint hf_simulcrypt_eis_error_status;
-static gint hf_simulcrypt_error_description;
+static int hf_simulcrypt_eis_parameter_type;
+static int hf_simulcrypt_eis_channel_id;
+static int hf_simulcrypt_service_flag;
+static int hf_simulcrypt_component_flag;
+static int hf_simulcrypt_max_scg;
+static int hf_simulcrypt_ecm_group;
+static int hf_simulcrypt_scg_id;
+static int hf_simulcrypt_scg_reference_id;
+static int hf_simulcrypt_activation_time;
+static int hf_simulcrypt_year;
+static int hf_simulcrypt_month;
+static int hf_simulcrypt_day;
+static int hf_simulcrypt_hour;
+static int hf_simulcrypt_minute;
+static int hf_simulcrypt_second;
+static int hf_simulcrypt_hundredth_second;
+static int hf_simulcrypt_activation_pending_flag;
+static int hf_simulcrypt_component_id;
+static int hf_simulcrypt_service_id;
+static int hf_simulcrypt_transport_stream_id;
+static int hf_simulcrypt_ac_changed_flag;
+static int hf_simulcrypt_scg_current_reference_id;
+static int hf_simulcrypt_scg_pending_reference_id;
+static int hf_simulcrypt_cp_duration_flag;
+static int hf_simulcrypt_recommended_cp_duration;
+static int hf_simulcrypt_scg_nominal_cp_duration;
+static int hf_simulcrypt_original_network_id;
+static int hf_simulcrypt_eis_error_status;
+static int hf_simulcrypt_error_description;
 
-static gint hf_simulcrypt_psig_parameter_type;
-static gint hf_simulcrypt_psig_type;
-static gint hf_simulcrypt_channel_id;
-static gint hf_simulcrypt_stream_id;
-static gint hf_simulcrypt_packet_id;
-static gint hf_simulcrypt_interface_mode_configuration;
-static gint hf_simulcrypt_max_stream;
-static gint hf_simulcrypt_table_period_pair;
-static gint hf_simulcrypt_mpeg_section;
-static gint hf_simulcrypt_repetition_rate;
-static gint hf_simulcrypt_initial_bandwidth;
-static gint hf_simulcrypt_asi_input_packet_id;
-static gint hf_simulcrypt_psig_error_status;
-static gint hf_simulcrypt_parameter_value;
+static int hf_simulcrypt_psig_parameter_type;
+static int hf_simulcrypt_psig_type;
+static int hf_simulcrypt_channel_id;
+static int hf_simulcrypt_stream_id;
+static int hf_simulcrypt_packet_id;
+static int hf_simulcrypt_interface_mode_configuration;
+static int hf_simulcrypt_max_stream;
+static int hf_simulcrypt_table_period_pair;
+static int hf_simulcrypt_mpeg_section;
+static int hf_simulcrypt_repetition_rate;
+static int hf_simulcrypt_initial_bandwidth;
+static int hf_simulcrypt_asi_input_packet_id;
+static int hf_simulcrypt_psig_error_status;
+static int hf_simulcrypt_parameter_value;
 
 /* These are the ids of the subtrees that we may be creating */
-static gint ett_simulcrypt;
-static gint ett_simulcrypt_header;
-static gint ett_simulcrypt_message;
-static gint ett_simulcrypt_parameter;
-static gint ett_simulcrypt_super_cas_id;
-static gint ett_simulcrypt_ecm_datagram;
-static gint ett_simulcrypt_ecm_group;
-static gint ett_simulcrypt_activation_time;
-static gint ett_simulcrypt_table_period_pair;
+static int ett_simulcrypt;
+static int ett_simulcrypt_header;
+static int ett_simulcrypt_message;
+static int ett_simulcrypt_parameter;
+static int ett_simulcrypt_super_cas_id;
+static int ett_simulcrypt_ecm_datagram;
+static int ett_simulcrypt_ecm_group;
+static int ett_simulcrypt_activation_time;
+static int ett_simulcrypt_table_period_pair;
 
 
 #define FRAME_HEADER_LEN 8
@@ -688,7 +688,7 @@ static gint ett_simulcrypt_table_period_pair;
 static int
 dissect_simulcrypt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-	tcp_dissect_pdus(tvb, pinfo, tree, TRUE, FRAME_HEADER_LEN,
+	tcp_dissect_pdus(tvb, pinfo, tree, true, FRAME_HEADER_LEN,
 			 get_simulcrypt_message_len, dissect_simulcrypt_message, data);
 	return tvb_captured_length(tvb);
 }
@@ -708,8 +708,8 @@ dissect_simulcrypt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 * End informative tree structure
 */
 
-static guint16
-get_interface (guint16 type)
+static uint16_t
+get_interface (uint16_t type)
 {
 	int interface;
 
@@ -755,16 +755,16 @@ get_interface (guint16 type)
 }
 
 static void
-dissect_ecmg_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
-			      guint16 plen, guint16 ptype, gchar *pvalue_char)
+dissect_ecmg_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, uint32_t offset,
+			      uint16_t plen, uint16_t ptype, char *pvalue_char)
 {
 	proto_item *simulcrypt_item;
 	proto_tree *simulcrypt_super_cas_id_tree;
 	proto_tree *simulcrypt_ecm_datagram_tree;
 	tvbuff_t   *next_tvb;
-	guint32     pvaluedec;    /* parameter decimal value */
+	uint32_t    pvaluedec;    /* parameter decimal value */
 	int         ca_system_id;
-	guint       i;
+	unsigned    i;
 
 	switch (ptype) {
 	case SIMULCRYPT_ECMG_SUPER_CAS_ID:
@@ -899,8 +899,8 @@ dissect_ecmg_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 }
 
 static void
-dissect_emmg_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, guint32 offset,
-			      guint16 plen, guint16 ptype, gchar *pvalue_char)
+dissect_emmg_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, uint32_t offset,
+			      uint16_t plen, uint16_t ptype, char *pvalue_char)
 {
 	switch (ptype) {
 	case SIMULCRYPT_EMMG_CLIENT_ID:
@@ -942,16 +942,16 @@ dissect_emmg_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 
 static void
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_eis_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, guint32 offset,
-			     guint16 plen, guint16 ptype, gchar *pvalue_char)
+dissect_eis_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, uint32_t offset,
+			     uint16_t plen, uint16_t ptype, char *pvalue_char)
 {
 	proto_item *simulcrypt_item;
 	proto_tree *simulcrypt_super_cas_id_tree;
 	proto_tree *simulcrypt_ecm_group_tree;
 	proto_tree *simulcrypt_activation_time_tree;
-	guint32     pvaluedec;    /* parameter decimal value */
+	uint32_t    pvaluedec;    /* parameter decimal value */
 	int         ca_system_id;
-	guint       i;
+	unsigned    i;
 
 	switch (ptype) {
 	case SIMULCRYPT_EIS_CHANNEL_ID:
@@ -974,7 +974,7 @@ dissect_eis_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
 		simulcrypt_ecm_group_tree = proto_item_add_subtree(simulcrypt_item, ett_simulcrypt_ecm_group);
 
 		/* dissect subtree */
-		dissect_simulcrypt_data(simulcrypt_ecm_group_tree, simulcrypt_item, pinfo, tvb, tree, offset, plen, SIMULCRYPT_EIS_SCS, TRUE);
+		dissect_simulcrypt_data(simulcrypt_ecm_group_tree, simulcrypt_item, pinfo, tvb, tree, offset, plen, SIMULCRYPT_EIS_SCS, true);
 		break;
 	case SIMULCRYPT_EIS_SCG_ID:
 		proto_tree_add_item(tree, hf_simulcrypt_scg_id, tvb, offset, plen, ENC_BIG_ENDIAN);
@@ -1084,18 +1084,18 @@ dissect_eis_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
 
 static void
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_psig_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
-			      guint16 plen, guint16 ptype, gchar *pvalue_char)
+dissect_psig_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, uint32_t offset,
+			      uint16_t plen, uint16_t ptype, char *pvalue_char)
 {
 	proto_tree *simulcrypt_psig_table_period_pair_tree;
 	proto_tree *simulcrypt_activation_time_tree;
 	proto_item *simulcrypt_item;
-	guint32     pvaluedec;    /* parameter decimal value */
+	uint32_t    pvaluedec;    /* parameter decimal value */
 
 	increment_dissection_depth(pinfo);
 	switch (ptype) {
 	case SIMULCRYPT_PSIG_PSIG_TYPE:
-		pvaluedec = tvb_get_guint8(tvb, offset);
+		pvaluedec = tvb_get_uint8(tvb, offset);
 		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_psig_type, tvb, offset, plen, ENC_BIG_ENDIAN);
 		switch(pvaluedec){
 		case 1:
@@ -1139,7 +1139,7 @@ dissect_psig_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 		simulcrypt_psig_table_period_pair_tree = proto_item_add_subtree(simulcrypt_item, ett_simulcrypt_table_period_pair);
 
 		/* dissect subtree */
-		dissect_simulcrypt_data(simulcrypt_psig_table_period_pair_tree, simulcrypt_item, pinfo, tvb, tree, offset, plen, SIMULCRYPT_MUX_CIM, TRUE);
+		dissect_simulcrypt_data(simulcrypt_psig_table_period_pair_tree, simulcrypt_item, pinfo, tvb, tree, offset, plen, SIMULCRYPT_MUX_CIM, true);
 		break;
 	case SIMULCRYPT_PSIG_MPEG_SECTION:
 		proto_tree_add_item(tree, hf_simulcrypt_mpeg_section, tvb, offset, plen, ENC_NA);
@@ -1198,7 +1198,7 @@ dissect_simulcrypt_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	proto_tree *simulcrypt_tree;
 	proto_tree *simulcrypt_header_tree;
 	proto_tree *simulcrypt_message_tree;
-	guint16     type, iftype;
+	uint16_t    type, iftype;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_TAG_SIMULCRYPT);
 	col_clear(pinfo->cinfo,COL_INFO);
@@ -1214,8 +1214,8 @@ dissect_simulcrypt_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	if (tree)
 	{
 		/* we are being asked for details */
-		guint32 offset = 0;
-		guint32 msg_length;
+		uint32_t offset = 0;
+		uint32_t msg_length;
 
 		simulcrypt_item = proto_tree_add_item(tree, proto_simulcrypt, tvb, 0, -1, ENC_NA);
 		simulcrypt_tree = proto_item_add_subtree(simulcrypt_item, ett_simulcrypt);
@@ -1258,7 +1258,7 @@ dissect_simulcrypt_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 		/*  we are being asked for details */
 		/* Navigate through message after header to find one or more parameters */
 
-		dissect_simulcrypt_data(simulcrypt_message_tree, simulcrypt_item, pinfo, tvb, tree, offset, (msg_length+5), iftype, FALSE); /* offset is from beginning of the 5 byte header */
+		dissect_simulcrypt_data(simulcrypt_message_tree, simulcrypt_item, pinfo, tvb, tree, offset, (msg_length+5), iftype, false); /* offset is from beginning of the 5 byte header */
 
 	} /* end tree */
 
@@ -1271,7 +1271,7 @@ static void
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_simulcrypt_data(proto_tree *simulcrypt_tree, proto_item *simulcrypt_item, packet_info *pinfo _U_,
 			tvbuff_t *tvb, proto_tree *tree, int offset,
-			int container_data_length, guint16 iftype, gboolean is_subtree)
+			int container_data_length, uint16_t iftype, bool is_subtree)
 {
 	int subtree_offset = 0;
 	proto_tree *simulcrypt_parameter_tree;
@@ -1288,9 +1288,9 @@ dissect_simulcrypt_data(proto_tree *simulcrypt_tree, proto_item *simulcrypt_item
 
 	while (applied_offset < container_data_length)
 	{
-		guint16 plen;         /* parameter length */
-		guint16 ptype;        /* parameter type */
-		gchar  *pvalue_char;  /* parameter value string */
+		uint16_t plen;         /* parameter length */
+		uint16_t ptype;        /* parameter type */
+		char   *pvalue_char;  /* parameter value string */
 
 		/* Parameter  Type 2 Bytes */
 		ptype = tvb_get_ntohs(tvb, offset); /* read 2 byte type value */
@@ -1382,11 +1382,11 @@ dissect_simulcrypt_data(proto_tree *simulcrypt_tree, proto_item *simulcrypt_item
 
 
 /* determine PDU length of protocol foo */
-static guint
+static unsigned
 get_simulcrypt_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                            int offset, void *data _U_)
 {
-	guint iLg;
+	unsigned iLg;
 
 	iLg = tvb_get_ntohs(tvb,offset+3); /*length is at offset 3 */
 	iLg += 5; /* add 1 byte version + 2 byte type + 2 byte length (simulcrypt "header" */
@@ -1402,7 +1402,7 @@ get_simulcrypt_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
 static void
 simulcrypt_init(void)
 {
-	guint i;
+	unsigned i;
 
 	for(i=0;i<ECM_INTERPRETATION_SIZE;i++)
 	{
@@ -1788,7 +1788,7 @@ proto_register_simulcrypt (void)
 		 NULL, HFILL }}
 	};
 
-	static gint *ett[] =
+	static int *ett[] =
 	{
 		&ett_simulcrypt,
 		&ett_simulcrypt_header,
@@ -1826,8 +1826,8 @@ proto_register_simulcrypt (void)
 void
 proto_reg_handoff_simulcrypt(void)
 {
-	static gboolean initialized=FALSE;
-	guint  i;
+	static bool initialized=false;
+	unsigned  i;
 
 	if (!initialized) {
 		for(i=0;i<ECM_INTERPRETATION_SIZE;i++)
@@ -1836,7 +1836,7 @@ proto_reg_handoff_simulcrypt(void)
 		}
 		dissector_add_for_decode_as_with_preference("udp.port", simulcrypt_handle);
 		dissector_add_for_decode_as_with_preference("tcp.port", simulcrypt_handle);
-		initialized = TRUE;
+		initialized = true;
 	}
 
 	/* update tab_ecm_inter table (always do this) */

@@ -140,10 +140,10 @@ static int hf_sigcomp_byte_code_length;
 
 
 /* Initialize the subtree pointers */
-static gint ett_sigcomp;
-static gint ett_sigcomp_udvm;
-static gint ett_sigcomp_udvm_exe;
-static gint ett_raw_text;
+static int ett_sigcomp;
+static int ett_sigcomp_udvm;
+static int ett_sigcomp_udvm_exe;
+static int ett_raw_text;
 
 static expert_field ei_sigcomp_nack_failed_op_code;
 static expert_field ei_sigcomp_invalid_instruction;
@@ -182,7 +182,7 @@ static bool decompress;
  * 3 = details level 3
  * 4 = details level 4
  */
-static gint udvm_print_detail_level;
+static int udvm_print_detail_level;
 
 /* Value strings */
 static const value_string length_encoding_vals[] = {
@@ -312,17 +312,17 @@ static value_string_ext sigcomp_nack_reason_code_vals_ext =
     VALUE_STRING_EXT_INIT(sigcomp_nack_reason_code_vals);
 
 
-static void dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcomp_udvm_tree, guint destination);
+static void dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcomp_udvm_tree, unsigned destination);
 
 static int dissect_udvm_multitype_operand(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,
-                                          gint offset,gboolean is_addr,gint *start_offset,
-                                          guint16 *value, gboolean *is_memory_address );
+                                          int offset,bool is_addr,int *start_offset,
+                                          uint16_t *value, bool *is_memory_address );
 
 static int dissect_udvm_literal_operand(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,
-                               gint offset, gint *start_offset, guint16 *value);
+                               int offset, int *start_offset, uint16_t *value);
 
 static int dissect_udvm_reference_operand(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,
-                               gint offset, gint *start_offset, guint16 *value);
+                               int offset, int *start_offset, uint16_t *value);
 static void tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree);
 
 static int dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -347,13 +347,13 @@ static proto_tree *top_tree;
  */
 #define SIP_SDP_STATE_LENGTH 0x12e4
 
-static const guint8 sip_sdp_state_identifier[STATE_BUFFER_SIZE] =
+static const uint8_t sip_sdp_state_identifier[STATE_BUFFER_SIZE] =
 {
    /* -0000, */  0xfb, 0xe5, 0x07, 0xdf, 0xe5, 0xe6, 0xaa, 0x5a, 0xf2, 0xab, 0xb9, 0x14, 0xce, 0xaa, 0x05, 0xf9,
    /* -0010, */  0x9c, 0xe6, 0x1b, 0xa5
 };
 
-static const guint8 sip_sdp_static_dictionaty_for_sigcomp[0x12e4] =
+static const uint8_t sip_sdp_static_dictionaty_for_sigcomp[0x12e4] =
 {
 
    /* -0000, */  0x0d, 0x0a, 0x52, 0x65, 0x6a, 0x65, 0x63, 0x74, 0x2d, 0x43, 0x6f, 0x6e, 0x74, 0x61, 0x63, 0x74,
@@ -669,13 +669,13 @@ static const guint8 sip_sdp_static_dictionaty_for_sigcomp[0x12e4] =
  */
 #define PRESENCE_STATE_LENGTH 0x0d93
 
-static const guint8 presence_state_identifier[STATE_BUFFER_SIZE] =
+static const uint8_t presence_state_identifier[STATE_BUFFER_SIZE] =
 {
    /* -0000, */  0xd9, 0x42, 0x29, 0x7d, 0x0b, 0xb3, 0x8f, 0xc0, 0x1d, 0x67, 0x41, 0xd6, 0xb3, 0xb4, 0x81, 0x57,
    /* -0010, */  0xac, 0x8e, 0x1b, 0xe0
 };
 
-static const guint8 presence_static_dictionary_for_sigcomp[PRESENCE_STATE_LENGTH] =
+static const uint8_t presence_static_dictionary_for_sigcomp[PRESENCE_STATE_LENGTH] =
 {
    /* -0000, */  0x63, 0x6f, 0x6e, 0x76, 0x65, 0x6e, 0x74, 0x69, 0x6f, 0x6e, 0x2d, 0x63, 0x65, 0x6e, 0x74, 0x65,
    /* -0010, */  0x72, 0x6d, 0x69, 0x6e, 0x61, 0x74, 0x65, 0x64, 0x65, 0x70, 0x72, 0x65, 0x73, 0x73, 0x65, 0x64,
@@ -902,8 +902,8 @@ static GHashTable *state_buffer_table;
 
 static void
 sigcomp_init_udvm(void) {
-    gchar  *partial_state_str;
-    guint8 *sip_sdp_buff, *presence_buff;
+    char   *partial_state_str;
+    uint8_t *sip_sdp_buff, *presence_buff;
     state_buffer_table = g_hash_table_new_full(g_str_hash,
                                                g_str_equal,
                                                g_free, /* key_destroy_func */
@@ -911,7 +911,7 @@ sigcomp_init_udvm(void) {
     /*
      * Store static dictionaries in hash table
      */
-    sip_sdp_buff = (guint8 *)g_malloc(SIP_SDP_STATE_LENGTH + 8);
+    sip_sdp_buff = (uint8_t *)g_malloc(SIP_SDP_STATE_LENGTH + 8);
 
     partial_state_str = bytes_to_str(NULL, sip_sdp_state_identifier, 6);
     memset(sip_sdp_buff, 0, 8);
@@ -922,7 +922,7 @@ sigcomp_init_udvm(void) {
     g_hash_table_insert(state_buffer_table, g_strdup(partial_state_str), sip_sdp_buff);
     wmem_free(NULL, partial_state_str);
 
-    presence_buff = (guint8 *)g_malloc(PRESENCE_STATE_LENGTH + 8);
+    presence_buff = (uint8_t *)g_malloc(PRESENCE_STATE_LENGTH + 8);
 
     partial_state_str = bytes_to_str(NULL, presence_state_identifier, 6);
 
@@ -941,19 +941,19 @@ sigcomp_cleanup_udvm(void) {
 }
 
 
-static int udvm_state_access(tvbuff_t *tvb, proto_tree *tree,guint8 *buff,guint16 p_id_start, guint16 p_id_length, guint16 state_begin, guint16 *state_length,
-                             guint16 *state_address, guint16 *state_instruction,
-                             gint hf_id)
+static int udvm_state_access(tvbuff_t *tvb, proto_tree *tree,uint8_t *buff,uint16_t p_id_start, uint16_t p_id_length, uint16_t state_begin, uint16_t *state_length,
+                             uint16_t *state_address, uint16_t *state_instruction,
+                             int hf_id)
 {
     int      result_code = 0;
-    guint32  n;
-    guint16  k;
-    guint16  buf_size_real;
-    guint16  byte_copy_right;
-    guint16  byte_copy_left;
+    uint32_t n;
+    uint16_t k;
+    uint16_t buf_size_real;
+    uint16_t byte_copy_right;
+    uint16_t byte_copy_left;
     char     partial_state[STATE_BUFFER_SIZE]; /* Size is 6 - 20 */
-    guint8  *state_buff;
-    gchar   *partial_state_str;
+    uint8_t *state_buff;
+    char    *partial_state_str;
 
     /*
      * Perform initial checks on validity of data
@@ -988,7 +988,7 @@ static int udvm_state_access(tvbuff_t *tvb, proto_tree *tree,guint8 *buff,guint1
      * ws_warning("g_hash_table_lookup = 0x%x",state_buff);
      * ws_warning("State Access: partial state =%s",partial_state_str);
      */
-    state_buff = (guint8 *)g_hash_table_lookup(state_buffer_table, partial_state_str);
+    state_buff = (uint8_t *)g_hash_table_lookup(state_buffer_table, partial_state_str);
     if ( state_buff == NULL ) {
         result_code = 2; /* No state match */
         return result_code;
@@ -1016,7 +1016,7 @@ static int udvm_state_access(tvbuff_t *tvb, proto_tree *tree,guint8 *buff,guint1
      * state_length      = Length of state
      * state_address     = Address where to store the state in the buffer(buff)
      * state_instruction =
-     * FALSE             = Indicates that state_* is in the stored state
+     * false             = Indicates that state_* is in the stored state
      */
 
     buf_size_real = (state_buff[0] << 8) | state_buff[1];
@@ -1072,7 +1072,7 @@ static int udvm_state_access(tvbuff_t *tvb, proto_tree *tree,guint8 *buff,guint1
     /* debug
      *ws_warning(" state_begin %u state_address %u",state_begin , *state_address);
      */
-    while ( (gint32) n < (state_begin + *state_length + 8) && n < UDVM_MEMORY_SIZE ) {
+    while ( (int32_t) n < (state_begin + *state_length + 8) && n < UDVM_MEMORY_SIZE ) {
         buff[k] = state_buff[n];
         /*  debug
             ws_warning(" Loading 0x%x at address %u",buff[k] , k);
@@ -1090,12 +1090,12 @@ static int udvm_state_access(tvbuff_t *tvb, proto_tree *tree,guint8 *buff,guint1
 
 }
 
-static void udvm_state_create(guint8 *state_buff,guint8 *state_identifier,guint16 p_id_length) {
+static void udvm_state_create(uint8_t *state_buff,uint8_t *state_identifier,uint16_t p_id_length) {
 
     char   partial_state[STATE_BUFFER_SIZE];
-    guint  i;
-    gchar *partial_state_str;
-    gchar *dummy_buff;
+    unsigned  i;
+    char *partial_state_str;
+    char *dummy_buff;
     /*
      * Debug
      ws_warning("Received items of state,state_length_buff[0]= %u, state_length_buff[1]= %u",
@@ -1109,7 +1109,7 @@ static void udvm_state_create(guint8 *state_buff,guint8 *state_identifier,guint1
     }
     partial_state_str = bytes_to_str(NULL, partial_state, p_id_length);
 
-    dummy_buff = (gchar *)g_hash_table_lookup(state_buffer_table, partial_state_str);
+    dummy_buff = (char *)g_hash_table_lookup(state_buffer_table, partial_state_str);
     if ( dummy_buff == NULL ) {
         g_hash_table_insert(state_buffer_table, g_strdup(partial_state_str), state_buff);
     } else {
@@ -1122,15 +1122,15 @@ static void udvm_state_create(guint8 *state_buff,guint8 *state_identifier,guint1
 }
 
 #if 1
-static void udvm_state_free(guint8 buff[] _U_,guint16 p_id_start _U_,guint16 p_id_length _U_) {
+static void udvm_state_free(uint8_t buff[] _U_,uint16_t p_id_start _U_,uint16_t p_id_length _U_) {
 }
 #else
-void udvm_state_free(guint8 buff[],guint16 p_id_start,guint16 p_id_length) {
+void udvm_state_free(uint8_t buff[],uint16_t p_id_start,uint16_t p_id_length) {
     char   partial_state[STATE_BUFFER_SIZE];
-    guint  i;
-    gchar *partial_state_str;
+    unsigned  i;
+    char *partial_state_str;
 
-    gchar *dummy_buff;
+    char *dummy_buff;
 
     i = 0;
     while ( i < p_id_length && i < STATE_BUFFER_SIZE && p_id_start + i < UDVM_MEMORY_SIZE ) {
@@ -1271,13 +1271,13 @@ static const value_string result_code_vals[] = {
   *
   */
 static int
-decode_udvm_literal_operand(guint8 *buff,guint operand_address, guint16 *value)
+decode_udvm_literal_operand(uint8_t *buff,unsigned operand_address, uint16_t *value)
 {
-    guint   bytecode;
-    guint16 operand;
-    guint   test_bits;
-    guint   offset = operand_address;
-    guint8  temp_data;
+    unsigned   bytecode;
+    uint16_t operand;
+    unsigned   test_bits;
+    unsigned   offset = operand_address;
+    uint8_t temp_data;
 
     if (operand_address >= UDVM_MEMORY_SIZE)
         return -1;
@@ -1337,14 +1337,14 @@ decode_udvm_literal_operand(guint8 *buff,guint operand_address, guint16 *value)
  *            Figure 9: Bytecode for a reference ($) operand
  */
 static int
-dissect_udvm_reference_operand_memory(guint8 *buff,guint operand_address, guint16 *value,guint *result_dest)
+dissect_udvm_reference_operand_memory(uint8_t *buff,unsigned operand_address, uint16_t *value,unsigned *result_dest)
 {
-    guint   bytecode;
-    guint16 operand;
-    guint   offset = operand_address;
-    guint   test_bits;
-    guint8  temp_data;
-    guint16 temp_data16;
+    unsigned   bytecode;
+    uint16_t operand;
+    unsigned   offset = operand_address;
+    unsigned   test_bits;
+    uint8_t temp_data;
+    uint16_t temp_data16;
 
     if (operand_address >= UDVM_MEMORY_SIZE)
         return -1;
@@ -1415,16 +1415,16 @@ dissect_udvm_reference_operand_memory(guint8 *buff,guint operand_address, guint1
  * 10000001 nnnnnnnn nnnnnnnn      memory[N]           0 - 65535        0x81
  */
 static int
-decode_udvm_multitype_operand(guint8 *buff,guint operand_address, guint16 *value)
+decode_udvm_multitype_operand(uint8_t *buff,unsigned operand_address, uint16_t *value)
 {
-    guint   test_bits;
-    guint   bytecode;
-    guint   offset = operand_address;
-    guint16 operand;
-    guint32 result;
-    guint8  temp_data;
-    guint16 temp_data16;
-    guint16 memmory_addr = 0;
+    unsigned   test_bits;
+    unsigned   bytecode;
+    unsigned   offset = operand_address;
+    uint16_t operand;
+    uint32_t result;
+    uint8_t temp_data;
+    uint16_t temp_data16;
+    uint16_t memmory_addr = 0;
 
     *value = 0;
 
@@ -1574,11 +1574,11 @@ decode_udvm_multitype_operand(guint8 *buff,guint operand_address, guint16 *value
  * placed in the UDVM memory).
  */
 static int
-decode_udvm_address_operand(guint8 *buff,guint operand_address, guint16 *value,guint current_address)
+decode_udvm_address_operand(uint8_t *buff,unsigned operand_address, uint16_t *value,unsigned current_address)
 {
-    guint32 result;
-    guint16 value1;
-    gint   next_operand_address;
+    uint32_t result;
+    uint16_t value1;
+    int    next_operand_address;
 
     next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &value1);
     result = value1 & 0xffff;
@@ -1591,7 +1591,7 @@ decode_udvm_address_operand(guint8 *buff,guint operand_address, guint16 *value,g
 /*
  * This is a lookup table used to reverse the bits in a byte.
  */
-static guint8 reverse [] = {
+static uint8_t reverse [] = {
     0x00, 0x80, 0x40, 0xC0, 0x20, 0xA0, 0x60, 0xE0,
     0x10, 0x90, 0x50, 0xD0, 0x30, 0xB0, 0x70, 0xF0,
     0x08, 0x88, 0x48, 0xC8, 0x28, 0xA8, 0x68, 0xE8,
@@ -1631,25 +1631,25 @@ static int
 decomp_dispatch_get_bits(
     tvbuff_t   *message_tvb,
     proto_tree *udvm_tree,
-    guint8      bit_order,
-    guint8     *buff,
-    guint16    *old_input_bit_order,
-    guint16    *remaining_bits,
-    guint16    *input_bits,
-    guint      *input_address,
-    guint16     length,
-    guint16    *result_code,
-    guint       msg_end,
-    gboolean    print_level_1)
+    uint8_t     bit_order,
+    uint8_t    *buff,
+    uint16_t   *old_input_bit_order,
+    uint16_t   *remaining_bits,
+    uint16_t   *input_bits,
+    unsigned   *input_address,
+    uint16_t    length,
+    uint16_t   *result_code,
+    unsigned    msg_end,
+    bool        print_level_1)
 {
-    guint16     input_bit_order;
-    guint16     bits_still_required   = length;
-    guint16     value                 = 0;
-    guint8      octet;
-    gint        extra_bytes_available = msg_end - *input_address;
-    gint        p_bit;
-    gint        prev_p_bit            = *old_input_bit_order & 0x0001;
-    gint        bits_to_use           = 0;
+    uint16_t    input_bit_order;
+    uint16_t    bits_still_required   = length;
+    uint16_t    value                 = 0;
+    uint8_t     octet;
+    int         extra_bytes_available = msg_end - *input_address;
+    int         p_bit;
+    int         prev_p_bit            = *old_input_bit_order & 0x0001;
+    int         bits_to_use           = 0;
 
 
     input_bit_order = buff[68] << 8;
@@ -1688,7 +1688,7 @@ decomp_dispatch_get_bits(
          */
         if (*remaining_bits == 0)
         {
-            octet = tvb_get_guint8(message_tvb, *input_address);
+            octet = tvb_get_uint8(message_tvb, *input_address);
             if (print_level_1 ) {
                 proto_tree_add_uint_format(udvm_tree, hf_sigcomp_getting_value, message_tvb, *input_address, 1, octet,
                                     "               Getting value: %u (0x%x) From Addr: %u", octet, octet, *input_address);
@@ -1717,8 +1717,8 @@ decomp_dispatch_get_bits(
     if ((bit_order != 0) && (length <= 16))
     {
         /* Bit reverse the entire word. */
-        guint16 lsb = reverse[(value >> 8) & 0xFF];
-        guint16 msb = reverse[value & 0xFF];
+        uint16_t lsb = reverse[(value >> 8) & 0xFF];
+        uint16_t msb = reverse[value & 0xFF];
 
         value = ((msb << 8) | lsb) >> (16 - length);
     }
@@ -1728,129 +1728,129 @@ decomp_dispatch_get_bits(
 
 static tvbuff_t*
 decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet_info *pinfo,
-                           proto_tree *udvm_tree, gint udvm_mem_dest,
-                           gint print_flags, gint hf_id,
-                           gint header_len,
-                           gint byte_code_state_len, gint byte_code_id_len,
-                           gint udvm_start_ip)
+                           proto_tree *udvm_tree, int udvm_mem_dest,
+                           int print_flags, int hf_id,
+                           int header_len,
+                           int byte_code_state_len, int byte_code_id_len,
+                           int udvm_start_ip)
 {
     tvbuff_t      *decomp_tvb;
     /* UDVM memory must be initialised to zero */
-    guint8        *buff                       = (guint8 *)wmem_alloc0(wmem_packet_scope(), UDVM_MEMORY_SIZE);
+    uint8_t       *buff                       = (uint8_t *)wmem_alloc0(wmem_packet_scope(), UDVM_MEMORY_SIZE);
     char           string[2];
-    guint8        *out_buff;    /* Largest allowed size for a message is UDVM_MEMORY_SIZE = 65536 */
-    guint32        i                          = 0;
-    guint16        n                          = 0;
-    guint16        m                          = 0;
-    guint16        x;
-    guint          k                          = 0;
-    guint16        H;
-    guint16        oldH;
-    guint          offset                     = 0;
-    guint          start_offset;
-    guint          result_dest;
-    guint          code_length                = 0;
-    guint8         current_instruction;
-    guint          current_address;
-    guint          operand_address;
-    guint          input_address;
-    guint16        output_address             = 0;
-    gint           next_operand_address;
-    guint8         octet;
-    guint8         msb;
-    guint8         lsb;
-    guint16        byte_copy_right;
-    guint16        byte_copy_left;
-    guint16        input_bit_order;
-    guint16        stack_location;
-    guint16        stack_fill;
-    guint16        result;
-    guint          msg_end                    = tvb_reported_length_remaining(message_tvb, 0);
-    guint16        result_code                = 0;
-    guint16        old_input_bit_order        = 0;
-    guint16        remaining_bits             = 0;
-    guint16        input_bits                 = 0;
-    guint8         bit_order                  = 0;
-    gboolean       outside_huffman_boundaries = TRUE;
-    gboolean       print_in_loop              = FALSE;
-    guint16        instruction_address;
-    guint8         no_of_state_create         = 0;
-    guint16        state_length_buff[5];
-    guint16        state_address_buff[5];
-    guint16        state_instruction_buff[5];
-    guint16        state_minimum_access_length_buff[5];
-    /* guint16        state_state_retention_priority_buff[5]; */
-    guint32        used_udvm_cycles           = 0;
-    guint          cycles_per_bit;
-    guint          maximum_UDVM_cycles;
-    guint8        *sha1buff;
+    uint8_t       *out_buff;    /* Largest allowed size for a message is UDVM_MEMORY_SIZE = 65536 */
+    uint32_t       i                          = 0;
+    uint16_t       n                          = 0;
+    uint16_t       m                          = 0;
+    uint16_t       x;
+    unsigned       k                          = 0;
+    uint16_t       H;
+    uint16_t       oldH;
+    unsigned       offset                     = 0;
+    unsigned       start_offset;
+    unsigned       result_dest;
+    unsigned       code_length                = 0;
+    uint8_t        current_instruction;
+    unsigned       current_address;
+    unsigned       operand_address;
+    unsigned       input_address;
+    uint16_t       output_address             = 0;
+    int            next_operand_address;
+    uint8_t        octet;
+    uint8_t        msb;
+    uint8_t        lsb;
+    uint16_t       byte_copy_right;
+    uint16_t       byte_copy_left;
+    uint16_t       input_bit_order;
+    uint16_t       stack_location;
+    uint16_t       stack_fill;
+    uint16_t       result;
+    unsigned       msg_end                    = tvb_reported_length_remaining(message_tvb, 0);
+    uint16_t       result_code                = 0;
+    uint16_t       old_input_bit_order        = 0;
+    uint16_t       remaining_bits             = 0;
+    uint16_t       input_bits                 = 0;
+    uint8_t        bit_order                  = 0;
+    bool           outside_huffman_boundaries = true;
+    bool           print_in_loop              = false;
+    uint16_t       instruction_address;
+    uint8_t        no_of_state_create         = 0;
+    uint16_t       state_length_buff[5];
+    uint16_t       state_address_buff[5];
+    uint16_t       state_instruction_buff[5];
+    uint16_t       state_minimum_access_length_buff[5];
+    /* uint16_t       state_state_retention_priority_buff[5]; */
+    uint32_t       used_udvm_cycles           = 0;
+    unsigned       cycles_per_bit;
+    unsigned       maximum_UDVM_cycles;
+    uint8_t       *sha1buff;
     unsigned char  sha1_digest_buf[STATE_BUFFER_SIZE];
     gcry_md_hd_t   sha1_handle;
     proto_item    *addr_item = NULL, *ti = NULL;
 
 
     /* UDVM operand variables */
-    guint16 length;
-    guint16 at_address;
-    guint16 destination;
-    guint16 addr;
-    guint16 value;
-    guint16 p_id_start;
-    guint16 p_id_length;
-    guint16 state_begin;
-    guint16 state_length;
-    guint16 state_address;
-    guint16 state_instruction;
-    guint16 operand_1;
-    guint16 operand_2;
-    guint16 value_1;
-    guint16 value_2;
-    guint16 at_address_1;
-    guint16 at_address_2;
-    guint16 at_address_3;
-    guint16 j;
-    guint16 bits_n;
-    guint16 lower_bound_n;
-    guint16 upper_bound_n;
-    guint16 uncompressed_n;
-    guint16 position;
-    guint16 ref_destination; /* could I have used $destination ? */
-    guint16 multy_offset;
-    guint16 output_start;
-    guint16 output_length;
-    guint16 minimum_access_length;
-    guint16 state_retention_priority;
-    guint16 requested_feedback_location;
-    guint16 returned_parameters_location;
-    guint16 start_value;
+    uint16_t length;
+    uint16_t at_address;
+    uint16_t destination;
+    uint16_t addr;
+    uint16_t value;
+    uint16_t p_id_start;
+    uint16_t p_id_length;
+    uint16_t state_begin;
+    uint16_t state_length;
+    uint16_t state_address;
+    uint16_t state_instruction;
+    uint16_t operand_1;
+    uint16_t operand_2;
+    uint16_t value_1;
+    uint16_t value_2;
+    uint16_t at_address_1;
+    uint16_t at_address_2;
+    uint16_t at_address_3;
+    uint16_t j;
+    uint16_t bits_n;
+    uint16_t lower_bound_n;
+    uint16_t upper_bound_n;
+    uint16_t uncompressed_n;
+    uint16_t position;
+    uint16_t ref_destination; /* could I have used $destination ? */
+    uint16_t multy_offset;
+    uint16_t output_start;
+    uint16_t output_length;
+    uint16_t minimum_access_length;
+    uint16_t state_retention_priority;
+    uint16_t requested_feedback_location;
+    uint16_t returned_parameters_location;
+    uint16_t start_value;
 
     /* Set print parameters */
-    gboolean print_level_1 = FALSE;
-    gboolean print_level_2 = FALSE;
-    gboolean print_level_3 = FALSE;
-    gint show_instr_detail_level = 0;
+    bool print_level_1 = false;
+    bool print_level_2 = false;
+    bool print_level_3 = false;
+    int show_instr_detail_level = 0;
 
     switch ( print_flags ) {
     case 0:
         break;
 
     case 1:
-        print_level_1 = TRUE;
+        print_level_1 = true;
         show_instr_detail_level = 1;
         break;
     case 2:
-        print_level_1 = TRUE;
-        print_level_2 = TRUE;
+        print_level_1 = true;
+        print_level_2 = true;
         show_instr_detail_level = 1;
         break;
     case 3:
-        print_level_1 = TRUE;
-        print_level_2 = TRUE;
-        print_level_3 = TRUE;
+        print_level_1 = true;
+        print_level_2 = true;
+        print_level_3 = true;
         show_instr_detail_level = 2;
         break;
     default:
-        print_level_1 = TRUE;
+        print_level_1 = true;
         show_instr_detail_level = 1;
         break;
     }
@@ -1912,7 +1912,7 @@ decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet
     if ( print_level_3 )
         proto_tree_add_uint(udvm_tree, hf_sigcomp_load_bytecode_into_udvm_start, bytecode_tvb, offset, 1, i);
     while ( code_length > offset && i < UDVM_MEMORY_SIZE ) {
-        buff[i] = tvb_get_guint8(bytecode_tvb, offset);
+        buff[i] = tvb_get_uint8(bytecode_tvb, offset);
         if ( print_level_3 )
             proto_tree_add_uint_format(udvm_tree, hf_sigcomp_instruction_code, bytecode_tvb, offset, 1, buff[i],
                                 "              Addr: %u Instruction code(0x%02x) ", i, buff[i]);
@@ -1929,7 +1929,7 @@ decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet
                         "UDVM EXECUTION STARTED at Address: %u Message size %u", current_address, msg_end);
 
     /* Largest allowed size for a message is UDVM_MEMORY_SIZE = 65536  */
-    out_buff = (guint8 *)wmem_alloc(pinfo->pool, UDVM_MEMORY_SIZE);
+    out_buff = (uint8_t *)wmem_alloc(pinfo->pool, UDVM_MEMORY_SIZE);
 
     /* Reset offset so proto_tree_add_xxx items below accurately reflect the bytes they represent */
     offset = 0;
@@ -2521,7 +2521,7 @@ execute_next_instruction:
         }
 
         while (n<length) {
-            guint16 handle_now = length;
+            uint16_t handle_now = length;
 
             if ( k < byte_copy_right && byte_copy_right <= k + (length-n) ) {
                 handle_now = byte_copy_right - position;
@@ -3536,7 +3536,7 @@ execute_next_instruction:
 
         while (n<length) {
 
-            guint16 handle_now = length - n;
+            uint16_t handle_now = length - n;
 
             if ( k < byte_copy_right && byte_copy_right <= k + (length-n) ) {
                 handle_now = byte_copy_right - k;
@@ -3544,7 +3544,7 @@ execute_next_instruction:
 
             if (k + handle_now >= UDVM_MEMORY_SIZE)
                 goto decompression_failure;
-            result = crc16_ccitt_seed(&buff[k], handle_now, (guint16) (result ^ 0xffff));
+            result = crc16_ccitt_seed(&buff[k], handle_now, (uint16_t) (result ^ 0xffff));
 
             k = ( k + handle_now ) & 0xffff;
             n = ( n + handle_now ) & 0xffff;
@@ -3667,7 +3667,7 @@ execute_next_instruction:
             if ( k == byte_copy_right ) {
                 k = byte_copy_left;
             }
-            octet = tvb_get_guint8(message_tvb, input_address);
+            octet = tvb_get_uint8(message_tvb, input_address);
             buff[k] = octet;
             if (print_level_1 ) {
                 proto_tree_add_uint_format(udvm_tree, hf_sigcomp_loading_value, message_tvb, input_address, 1,
@@ -3897,7 +3897,7 @@ execute_next_instruction:
         j = 1;
         H = 0;
         m = n;
-        outside_huffman_boundaries = TRUE;
+        outside_huffman_boundaries = true;
         print_in_loop = print_level_3;
         while ( m > 0 ) {
             /* %bits_n */
@@ -3981,10 +3981,10 @@ execute_next_instruction:
                  * failure occurs.
                  */
                 if ((H < lower_bound_n) || (H > upper_bound_n)) {
-                    outside_huffman_boundaries = TRUE;
+                    outside_huffman_boundaries = true;
                 } else {
-                    outside_huffman_boundaries = FALSE;
-                    print_in_loop = FALSE;
+                    outside_huffman_boundaries = false;
+                    print_in_loop = false;
                     /*
                      * 6. Copy (H + uncompressed_j - lower_bound_j) modulo 2^16 to the
                      * memory address specified by the destination operand.
@@ -4519,7 +4519,7 @@ execute_next_instruction:
             byte_copy_left = buff[64] << 8;
             byte_copy_left = byte_copy_left | buff[65];
             while ( n < no_of_state_create + 1 ) {
-                sha1buff = (guint8 *)g_malloc(state_length_buff[n]+8);
+                sha1buff = (uint8_t *)g_malloc(state_length_buff[n]+8);
                 sha1buff[0] = state_length_buff[n] >> 8;
                 sha1buff[1] = state_length_buff[n] & 0xff;
                 sha1buff[2] = state_address_buff[n] >> 8;
@@ -4541,7 +4541,7 @@ execute_next_instruction:
                     k = ( k + 1 ) & 0xffff;
                 }
 
-                gcry_md_hash_buffer(GCRY_MD_SHA1, sha1_digest_buf, (guint8 *) sha1buff, state_length_buff[n] + 8);
+                gcry_md_hash_buffer(GCRY_MD_SHA1, sha1_digest_buf, (uint8_t *) sha1buff, state_length_buff[n] + 8);
                 if (print_level_3 ) {
                     proto_tree_add_bytes_with_length(udvm_tree, hf_sigcomp_sha1_digest, bytecode_tvb, 0, -1, sha1_digest_buf, STATE_BUFFER_SIZE);
                 }
@@ -4627,14 +4627,14 @@ dissect_sigcomp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *_
     proto_tree *sigcomp_tree;
     tvbuff_t   *unescaped_tvb;
 
-    guint8     *buff;
+    uint8_t    *buff;
     int         offset = 0;
     int         length;
-    guint8      octet;
-    guint16     data;
+    uint8_t     octet;
+    uint16_t    data;
     int         i;
     int         n;
-    gboolean    end_off_message;
+    bool        end_off_message;
 
     top_tree = tree;
 
@@ -4643,9 +4643,9 @@ dissect_sigcomp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *_
     if (data == 0xffff) {
         /* delimiter */
         offset = offset + 2;
-        octet = tvb_get_guint8(tvb,offset);
+        octet = tvb_get_uint8(tvb,offset);
     } else {
-        octet = tvb_get_guint8(tvb,offset);
+        octet = tvb_get_uint8(tvb,offset);
     }
     if ((octet  & 0xf8) != 0xf8)
      return offset;
@@ -4681,12 +4681,12 @@ try_again:
     ti = proto_tree_add_item(tree, proto_sigcomp, tvb, 0, -1, ENC_NA);
     sigcomp_tree = proto_item_add_subtree(ti, ett_sigcomp);
     i=0;
-    end_off_message = FALSE;
-    buff = (guint8 *)wmem_alloc(pinfo->pool, length-offset);
+    end_off_message = false;
+    buff = (uint8_t *)wmem_alloc(pinfo->pool, length-offset);
     if (udvm_print_detail_level>2)
         proto_tree_add_item(sigcomp_tree, hf_sigcomp_starting_to_remove_escape_digits, tvb, offset, -1, ENC_NA);
-    while ((offset < length) && (end_off_message == FALSE)) {
-        octet = tvb_get_guint8(tvb,offset);
+    while ((offset < length) && (end_off_message == false)) {
+        octet = tvb_get_uint8(tvb,offset);
         if ( octet == 0xff ) {
             if ( offset +1 >= length ) {
                 /* if the tvb is short don't check for the second escape digit */
@@ -4696,7 +4696,7 @@ try_again:
             if (udvm_print_detail_level>2)
                 proto_tree_add_none_format(sigcomp_tree, hf_sigcomp_escape_digit_found, tvb, offset, 2,
                     "              Escape digit found (0xFF)");
-            octet = tvb_get_guint8(tvb, offset+1);
+            octet = tvb_get_uint8(tvb, offset+1);
             if ( octet == 0) {
                 buff[i] = 0xff;
                 offset = offset +2;
@@ -4714,7 +4714,7 @@ try_again:
                 if (udvm_print_detail_level>2)
                     proto_tree_add_none_format(sigcomp_tree, hf_sigcomp_end_of_sigcomp_message_indication_found, tvb, offset, 2,
                         "              End of SigComp message indication found (0xFFFF)");
-                end_off_message = TRUE;
+                end_off_message = true;
                 offset = offset+2;
                 continue;
             }
@@ -4731,7 +4731,7 @@ try_again:
                 /* if the tvb is short don't copy further than the end */
                 octet = length - offset;
             for ( n=0; n < octet; n++ ) {
-                buff[i] = tvb_get_guint8(tvb, offset);
+                buff[i] = tvb_get_uint8(tvb, offset);
                 if (udvm_print_detail_level>2)
                     proto_tree_add_uint_format(sigcomp_tree, hf_sigcomp_addr_value, tvb, offset, 1, buff[i],
                                 "                  Addr: %u tvb value(0x%0x) ", i, buff[i]);
@@ -4753,7 +4753,7 @@ try_again:
     add_new_data_source(pinfo, unescaped_tvb, "Unescaped Data handed to the SigComp dissector");
 
     proto_tree_add_item(sigcomp_tree, hf_sigcomp_data_for_sigcomp_dissector, unescaped_tvb, 0, -1, ENC_NA);
-    if (end_off_message == TRUE) {
+    if (end_off_message == true) {
         dissect_sigcomp_common(unescaped_tvb, pinfo, sigcomp_tree);
     } else {
         proto_tree_add_expert(sigcomp_tree, pinfo, &ei_sigcomp_tcp_fragment, unescaped_tvb, 0, -1);
@@ -4770,15 +4770,15 @@ dissect_sigcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 {
     proto_item *ti;
     proto_tree *sigcomp_tree;
-    gint        offset = 0;
-    gint8       octet;
+    int         offset = 0;
+    int8_t      octet;
 
     /* If we got called from SIP this might be over TCP */
     if ( pinfo->ptype == PT_TCP )
         return dissect_sigcomp_tcp(tvb, pinfo, tree, NULL);
 
     /* Is this a SigComp message or not ? */
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
     if ((octet  & 0xf8) != 0xf8)
      return 0;
 
@@ -4805,32 +4805,32 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
     tvbuff_t   *decomp_tvb   = NULL;
     proto_item *udvm_bytecode_item, *udvm_exe_item;
     proto_tree *sigcomp_udvm_tree, *sigcomp_udvm_exe_tree;
-    gint        offset       = 0;
-    gint        bytecode_offset;
-    guint16     partial_state_len;
-    guint       octet;
-    guint8      returned_feedback_field[128];
-    guint8      partial_state[12];
-    guint       tbit;
-    guint16     len          = 0;
-    guint16     bytecode_len = 0;
-    guint       destination;
-    gint        msg_len      = 0;
-    guint8     *buff;
-    guint16     p_id_start;
-    guint8      i;
-    guint16     state_begin;
-    guint16     state_length;
-    guint16     state_address;
-    guint16     state_instruction;
-    guint16     result_code;
-    gchar      *partial_state_str;
-    guint8      nack_version;
+    int         offset       = 0;
+    int         bytecode_offset;
+    uint16_t    partial_state_len;
+    unsigned    octet;
+    uint8_t     returned_feedback_field[128];
+    uint8_t     partial_state[12];
+    unsigned    tbit;
+    uint16_t    len          = 0;
+    uint16_t    bytecode_len = 0;
+    unsigned    destination;
+    int         msg_len      = 0;
+    uint8_t    *buff;
+    uint16_t    p_id_start;
+    uint8_t     i;
+    uint16_t    state_begin;
+    uint16_t    state_length;
+    uint16_t    state_address;
+    uint16_t    state_instruction;
+    uint16_t    result_code;
+    char       *partial_state_str;
+    uint8_t     nack_version;
 
 
 
 /* add an item to the subtree, see section 1.6 for more information */
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
 
 /*   A SigComp message takes one of two forms depending on whether it
  *  accesses a state item at the receiving endpoint.  The two variants of
@@ -4921,7 +4921,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
              * Returned feedback item exists
              */
             len = 1;
-            octet = tvb_get_guint8(tvb, offset);
+            octet = tvb_get_uint8(tvb, offset);
             /* 0   1   2   3   4   5   6   7       0   1   2   3   4   5   6   7
              * +---+---+---+---+---+---+---+---+   +---+---+---+---+---+---+---+---+
              * | 0 |  returned_feedback_field  |   | 1 | returned_feedback_length  |
@@ -4940,7 +4940,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
                 offset ++;
                 tvb_memcpy(tvb,returned_feedback_field,offset, len);
             } else {
-                returned_feedback_field[0] = tvb_get_guint8(tvb, offset) & 0x7f;
+                returned_feedback_field[0] = tvb_get_uint8(tvb, offset) & 0x7f;
             }
             proto_tree_add_bytes(sigcomp_tree,hf_sigcomp_returned_feedback_item,
                                  tvb, offset, len, returned_feedback_field);
@@ -4970,12 +4970,12 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
              * state_length         = Length of state
              * state_address            = Address where to store the state in the buffer(buff)
              * state_instruction    =
-             * TRUE                 = Indicates that state_* is in the stored state
+             * true                 = Indicates that state_* is in the stored state
              */
             /*
              * Note: The allocated buffer must be zeroed or some strange effects might occur.
              */
-            buff = (guint8 *)wmem_alloc0(pinfo->pool, UDVM_MEMORY_SIZE);
+            buff = (uint8_t *)wmem_alloc0(pinfo->pool, UDVM_MEMORY_SIZE);
 
 
             p_id_start = 0;
@@ -5024,8 +5024,8 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
 
             if ( decomp_tvb ) {
                 proto_item *ti;
-                guint32 compression_ratio =
-                    (guint32)(((float)tvb_reported_length(decomp_tvb) / (float)tvb_reported_length(tvb)) * 100);
+                uint32_t compression_ratio =
+                    (uint32_t)(((float)tvb_reported_length(decomp_tvb) / (float)tvb_reported_length(tvb)) * 100);
 
                 /* Show compression ratio achieved */
                 ti = proto_tree_add_uint(sigcomp_tree, hf_sigcomp_compression_ratio, decomp_tvb,
@@ -5052,7 +5052,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
              * Returned feedback item exists
              */
             len = 1;
-            octet = tvb_get_guint8(tvb, offset);
+            octet = tvb_get_uint8(tvb, offset);
             if ( (octet & 0x80) != 0 ) {
                 len = octet & 0x7f;
                 proto_tree_add_item(sigcomp_tree,hf_sigcomp_returned_feedback_item_len,
@@ -5065,18 +5065,18 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
             offset = offset + len;
         }
         len = tvb_get_ntohs(tvb, offset) >> 4;
-        nack_version = tvb_get_guint8(tvb, offset+1) & 0x0f;
+        nack_version = tvb_get_uint8(tvb, offset+1) & 0x0f;
         if ((len == 0) && (nack_version == 1)) {
             /* NACK MESSAGE */
             proto_item *reason_ti;
-            guint8 opcode;
+            uint8_t opcode;
             offset++;
             proto_tree_add_item(sigcomp_tree,hf_sigcomp_nack_ver, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
-            octet = tvb_get_guint8(tvb, offset);
+            octet = tvb_get_uint8(tvb, offset);
             reason_ti = proto_tree_add_item(sigcomp_tree,hf_sigcomp_nack_reason_code, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
-            opcode = tvb_get_guint8(tvb, offset);
+            opcode = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(sigcomp_tree,hf_sigcomp_nack_failed_op_code, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
 
@@ -5115,7 +5115,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
                 break;
             }
         } else {
-            octet = tvb_get_guint8(tvb, (offset + 1));
+            octet = tvb_get_uint8(tvb, (offset + 1));
             destination = (octet & 0x0f);
             if ( destination != 0 )
                 destination = 64 + ( destination * 64 );
@@ -5155,8 +5155,8 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
                            offset, 0, 0, destination);
                 if ( decomp_tvb ) {
                     proto_item *ti;
-                    guint32 compression_ratio =
-                        (guint32)(((float)tvb_reported_length(decomp_tvb) / (float)tvb_reported_length(tvb)) * 100);
+                    uint32_t compression_ratio =
+                        (uint32_t)(((float)tvb_reported_length(decomp_tvb) / (float)tvb_reported_length(tvb)) * 100);
 
                     /* Show compression ratio achieved */
                     ti = proto_tree_add_uint(sigcomp_tree, hf_sigcomp_compression_ratio, decomp_tvb,
@@ -5178,23 +5178,23 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
 }
 
 static void
-dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcomp_udvm_tree,guint start_address)
+dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcomp_udvm_tree,unsigned start_address)
 {
-    guint       instruction;
-    gint        offset         = 0;
-    gint        start_offset   = 0;
-    gint        len;
-    gint        n;
-    guint       instruction_no = 0;
-    guint16     value          = 0;
+    unsigned    instruction;
+    int         offset         = 0;
+    int         start_offset   = 0;
+    int         len;
+    int         n;
+    unsigned    instruction_no = 0;
+    uint16_t    value          = 0;
     proto_item *item, *item2;
-    guint       UDVM_address   = start_address;
-    gboolean    is_memory_address;
-    guint16     msg_length     = tvb_reported_length_remaining(udvm_tvb, offset);
+    unsigned    UDVM_address   = start_address;
+    bool        is_memory_address;
+    uint16_t    msg_length     = tvb_reported_length_remaining(udvm_tvb, offset);
 
 
     while (msg_length > offset) {
-        instruction = tvb_get_guint8(udvm_tvb, offset);
+        instruction = tvb_get_uint8(udvm_tvb, offset);
         instruction_no ++;
         UDVM_address = start_address + offset;
 
@@ -5213,7 +5213,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
             proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_operand_1,
                 udvm_tvb, start_offset, len, value);
             /* %operand_2*/
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, false,&start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             if ( is_memory_address ) {
                 proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_operand_2_addr,
@@ -5231,7 +5231,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
             proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_operand_1,
                 udvm_tvb, start_offset, len, value);
             /* %operand_2*/
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, false,&start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             if ( is_memory_address ) {
                 proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_operand_2_addr,
@@ -5257,7 +5257,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
             proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_operand_1,
                 udvm_tvb, start_offset, len, value);
             /* %operand_2*/
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, false,&start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             if ( is_memory_address ) {
                 proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_operand_2_addr,
@@ -5275,7 +5275,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
             proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_operand_1,
                 udvm_tvb, start_offset, len, value);
             /* %operand_2*/
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, false,&start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             if ( is_memory_address ) {
                 proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_operand_2_addr,
@@ -5293,7 +5293,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
             proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_operand_1,
                 udvm_tvb, start_offset, len, value);
             /* %operand_2*/
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, false,&start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             if ( is_memory_address ) {
                 proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_operand_2_addr,
@@ -5311,7 +5311,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
             proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_operand_1,
                 udvm_tvb, start_offset, len, value);
             /* %operand_2*/
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, false,&start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             if ( is_memory_address ) {
                 proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_operand_2_addr,
@@ -5329,7 +5329,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
             proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_operand_1,
                 udvm_tvb, start_offset, len, value);
             /* %operand_2*/
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, false,&start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             if ( is_memory_address ) {
                 proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_operand_2_addr,
@@ -5347,7 +5347,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
             proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_operand_1,
                 udvm_tvb, start_offset, len, value);
             /* %operand_2*/
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, false,&start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             if ( is_memory_address ) {
                 proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_operand_2_addr,
@@ -5365,7 +5365,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
             proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_operand_1,
                 udvm_tvb, start_offset, len, value);
             /* %operand_2*/
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, false,&start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             if ( is_memory_address ) {
                 proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_operand_2_addr,
@@ -5385,13 +5385,13 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
             break;
         case SIGCOMP_INSTR_SHA_1: /* 13 SHA-1 (%position, %length, %destination) */
             /* %position */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, false,&start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_position,
                 udvm_tvb, start_offset, len, value);
 
             /*  %length, */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, false,&start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             if ( is_memory_address ) {
                 proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_addr_length,
@@ -5410,12 +5410,12 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
 
         case SIGCOMP_INSTR_LOAD: /* 14 LOAD (%address, %value) */
             /* %address */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE,&start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, true,&start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_address,
                 udvm_tvb, start_offset, len, value);
             /* %value */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, false,&start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             if ( is_memory_address ) {
                 proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_addr_value,
@@ -5428,7 +5428,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
 
         case SIGCOMP_INSTR_MULTILOAD: /* 15 MULTILOAD (%address, #n, %value_0, ..., %value_n-1) */
             /* %address */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, true, &start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_address,
                 udvm_tvb, start_offset, len, value);
@@ -5441,7 +5441,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
             while ( n > 0) {
                 n = n -1;
                 /* %value */
-                offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
+                offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, false,&start_offset, &value, &is_memory_address);
                 len = offset - start_offset;
                 if ( is_memory_address ) {
                     proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_addr_value,
@@ -5455,7 +5455,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
 
         case SIGCOMP_INSTR_PUSH: /* 16 PUSH (%value) */
             /* %value */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, false,&start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             if ( is_memory_address ) {
                 proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_addr_value,
@@ -5468,7 +5468,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
 
         case SIGCOMP_INSTR_POP: /* 17 POP (%address) */
             /* %address */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, true, &start_offset, &value, &is_memory_address);
 
             len = offset - start_offset;
             proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_address,
@@ -5477,13 +5477,13 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
 
         case SIGCOMP_INSTR_COPY: /* 18 COPY (%position, %length, %destination) */
             /* %position */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, false,&start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_position,
                 udvm_tvb, start_offset, len, value);
 
             /*  %length, */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, false,&start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             if ( is_memory_address ) {
                 proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_addr_length,
@@ -5502,13 +5502,13 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
 
         case SIGCOMP_INSTR_COPY_LITERAL: /* 19 COPY-LITERAL (%position, %length, $destination) */
             /* %position */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, false,&start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_position,
                 udvm_tvb, start_offset, len, value);
 
             /*  %length, */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, false,&start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             if ( is_memory_address ) {
                 proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_addr_length,
@@ -5527,7 +5527,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
 
         case SIGCOMP_INSTR_COPY_OFFSET: /* 20 COPY-OFFSET (%offset, %length, $destination) */
             /* %offset */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, false,&start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             if ( is_memory_address ) {
                 proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_addr_offset,
@@ -5538,7 +5538,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
             }
 
             /*  %length, */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, false,&start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             if ( is_memory_address ) {
                 proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_addr_length,
@@ -5557,13 +5557,13 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
         case SIGCOMP_INSTR_MEMSET: /* 21 MEMSET (%address, %length, %start_value, %offset) */
 
             /* %address */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, true, &start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_address,
                 udvm_tvb, start_offset, len, value);
 
             /*  %length, */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE, &start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, false, &start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             if ( is_memory_address ) {
                 proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_addr_length,
@@ -5574,13 +5574,13 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
             }
 
             /* %start_value */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, false,&start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_start_value,
                 udvm_tvb, start_offset, len, value);
 
             /* %offset */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, false,&start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_offset,
                 udvm_tvb, start_offset, len, value);
@@ -5589,7 +5589,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
 
         case SIGCOMP_INSTR_JUMP: /* 22 JUMP (@address) */
             /* @address */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, true, &start_offset, &value, &is_memory_address);
             len = offset - start_offset;
              /* operand_value = (memory_address_of_instruction + D) modulo 2^16 */
             value = ( value + UDVM_address ) & 0xffff;
@@ -5601,7 +5601,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
             /* COMPARE (%value_1, %value_2, @address_1, @address_2, @address_3)
              */
             /* %value_1 */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, false,&start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             if ( is_memory_address ) {
                 proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_addr_value,
@@ -5612,7 +5612,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
             }
 
             /* %value_2 */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, false,&start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             if ( is_memory_address ) {
                 proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_addr_value,
@@ -5623,7 +5623,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
             }
 
             /* @address_1 */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, true, &start_offset, &value, &is_memory_address);
             len = offset - start_offset;
              /* operand_value = (memory_address_of_instruction + D) modulo 2^16 */
             value = ( value + UDVM_address ) & 0xffff;
@@ -5631,7 +5631,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
                 udvm_tvb, start_offset, len, value);
 
             /* @address_2 */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, true, &start_offset, &value, &is_memory_address);
             len = offset - start_offset;
              /* operand_value = (memory_address_of_instruction + D) modulo 2^16 */
             value = ( value + UDVM_address ) & 0xffff;
@@ -5639,7 +5639,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
                 udvm_tvb, start_offset, len, value);
 
             /* @address_3 */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, true, &start_offset, &value, &is_memory_address);
             len = offset - start_offset;
              /* operand_value = (memory_address_of_instruction + D) modulo 2^16 */
             value = ( value + UDVM_address ) & 0xffff;
@@ -5649,7 +5649,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
 
         case SIGCOMP_INSTR_CALL: /* 24 CALL (@address) (PUSH addr )*/
             /* @address */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, true, &start_offset, &value, &is_memory_address);
             len = offset - start_offset;
              /* operand_value = (memory_address_of_instruction + D) modulo 2^16 */
             value = ( value + UDVM_address ) & 0xffff;
@@ -5670,7 +5670,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
             /* Number of addresses in the instruction */
             n = value;
             /* %j */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, false,&start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             if ( is_memory_address ) {
                 proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_addr_j,
@@ -5683,7 +5683,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
             while ( n > 0) {
                 n = n -1;
                 /* @address_n-1 */
-                offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE,&start_offset, &value, &is_memory_address);
+                offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, true,&start_offset, &value, &is_memory_address);
                 len = offset - start_offset;
                  /* operand_value = (memory_address_of_instruction + D) modulo 2^16 */
                 value = ( value + UDVM_address ) & 0xffff;
@@ -5693,7 +5693,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
             break;
         case SIGCOMP_INSTR_CRC: /* 27 CRC (%value, %position, %length, @address) */
             /* %value */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, false,&start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             if ( is_memory_address ) {
                 proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_addr_value,
@@ -5704,13 +5704,13 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
             }
 
             /* %position */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, false,&start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_position,
                 udvm_tvb, start_offset, len, value);
 
             /* %length */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, false,&start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             if ( is_memory_address ) {
                 proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_addr_length,
@@ -5721,7 +5721,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
             }
 
             /* @address */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, true, &start_offset, &value, &is_memory_address);
             len = offset - start_offset;
              /* operand_value = (memory_address_of_instruction + D) modulo 2^16 */
             value = ( value + UDVM_address ) & 0xffff;
@@ -5732,7 +5732,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
 
         case SIGCOMP_INSTR_INPUT_BYTES: /* 28 INPUT-BYTES (%length, %destination, @address) */
             /* %length */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, false,&start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             if ( is_memory_address ) {
                 proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_addr_length,
@@ -5743,7 +5743,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
             }
 
             /* %destination */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, false,&start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             if ( is_memory_address ) {
                 proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_addr_destination,
@@ -5754,7 +5754,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
             }
 
             /* @address */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, true, &start_offset, &value, &is_memory_address);
             len = offset - start_offset;
              /* operand_value = (memory_address_of_instruction + D) modulo 2^16 */
             value = ( value + UDVM_address ) & 0xffff;
@@ -5763,7 +5763,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
             break;
         case SIGCOMP_INSTR_INPUT_BITS:/* 29   INPUT-BITS (%length, %destination, @address) */
             /* %length */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, false,&start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             if ( is_memory_address ) {
                 proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_addr_length,
@@ -5774,7 +5774,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
             }
 
             /* %destination */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, false,&start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             if ( is_memory_address ) {
                 proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_addr_destination,
@@ -5785,7 +5785,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
             }
 
             /* @address */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, true, &start_offset, &value, &is_memory_address);
             len = offset - start_offset;
              /* operand_value = (memory_address_of_instruction + D) modulo 2^16 */
             value = ( value + UDVM_address ) & 0xffff;
@@ -5799,7 +5799,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
              *  %upper_bound_n, %uncompressed_n)
              */
             /* %destination */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, false,&start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             if ( is_memory_address ) {
                 proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_addr_destination,
@@ -5809,7 +5809,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
                     udvm_tvb, start_offset, len, value);
             }
             /* @address */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, true, &start_offset, &value, &is_memory_address);
             len = offset - start_offset;
              /* operand_value = (memory_address_of_instruction + D) modulo 2^16 */
             value = ( value + UDVM_address ) & 0xffff;
@@ -5824,22 +5824,22 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
             while ( n > 0) {
                 n = n -1;
                 /* %bits_n */
-                offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
+                offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, false,&start_offset, &value, &is_memory_address);
                 len = offset - start_offset;
                 proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_bits,
                     udvm_tvb, start_offset, len, value);
                 /* %lower_bound_n*/
-                offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
+                offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, false,&start_offset, &value, &is_memory_address);
                 len = offset - start_offset;
                 proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_lower_bound,
                     udvm_tvb, start_offset, len, value);
                 /* %upper_bound_n */
-                offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
+                offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, false,&start_offset, &value, &is_memory_address);
                 len = offset - start_offset;
                 proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_upper_bound,
                     udvm_tvb, start_offset, len, value);
                 /* %uncompressed_n */
-                offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
+                offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, false,&start_offset, &value, &is_memory_address);
                 len = offset - start_offset;
                 proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_uncompressed,
                     udvm_tvb, start_offset, len, value);
@@ -5854,7 +5854,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
             /*
              * %partial_identifier_start
              */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value ,&is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, true, &start_offset, &value ,&is_memory_address);
             len = offset - start_offset;
             proto_tree_add_uint(sigcomp_udvm_tree, hf_partial_identifier_start,
                 udvm_tvb, start_offset, len, value);
@@ -5862,14 +5862,14 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
             /*
              * %partial_identifier_length
              */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value ,&is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, true, &start_offset, &value ,&is_memory_address);
             len = offset - start_offset;
             proto_tree_add_uint(sigcomp_udvm_tree, hf_partial_identifier_length,
                 udvm_tvb, start_offset, len, value);
             /*
              * %state_begin
              */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, true, &start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             proto_tree_add_uint(sigcomp_udvm_tree, hf_state_begin,
                 udvm_tvb, start_offset, len, value);
@@ -5877,7 +5877,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
             /*
              * %state_length
              */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, true, &start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             if ( is_memory_address ) {
                 proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_state_length_addr,
@@ -5889,7 +5889,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
             /*
              * %state_address
              */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value ,&is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, true, &start_offset, &value ,&is_memory_address);
             len = offset - start_offset;
             if ( is_memory_address ) {
                 proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_state_address_addr,
@@ -5901,7 +5901,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
             /*
              * %state_instruction
              */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, true, &start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_state_instr,
                 udvm_tvb, start_offset, len, value);
@@ -5915,7 +5915,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
             /*
              * %state_length
              */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, true, &start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             if ( is_memory_address ) {
                 proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_state_length_addr,
@@ -5927,7 +5927,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
             /*
              * %state_address
              */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, true, &start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             if ( is_memory_address ) {
                 proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_state_address_addr,
@@ -5939,21 +5939,21 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
             /*
              * %state_instruction
              */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, true, &start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_state_instr,
                 udvm_tvb, start_offset, len, value);
             /*
              * %minimum_access_length
              */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, true, &start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_min_acc_len,
                 udvm_tvb, start_offset, len, value);
             /*
              * %state_retention_priority
              */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, true, &start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_state_ret_pri,
                 udvm_tvb, start_offset, len, value);
@@ -5966,7 +5966,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
             /*
              * %partial_identifier_start
              */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, true, &start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             proto_tree_add_uint(sigcomp_udvm_tree, hf_partial_identifier_start,
                 udvm_tvb, start_offset, len, value);
@@ -5974,7 +5974,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
             /*
              * %partial_identifier_length
              */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, true, &start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             proto_tree_add_uint(sigcomp_udvm_tree, hf_partial_identifier_length,
                 udvm_tvb, start_offset, len, value);
@@ -5983,7 +5983,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
             /*
              * %output_start
              */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, true, &start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             if ( is_memory_address ) {
                 proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_addr_output_start,
@@ -5995,7 +5995,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
             /*
              * %output_length
              */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, true, &start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             if ( is_memory_address ) {
                 proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_output_length_addr,
@@ -6017,7 +6017,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
                 proto_tree_add_expert(sigcomp_udvm_tree, pinfo, &ei_sigcomp_all_remaining_parameters_zero, udvm_tvb, 0, -1);
                 return;
             }
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, true, &start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_req_feedback_loc,
                 udvm_tvb, start_offset, len, value);
@@ -6026,14 +6026,14 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
                 proto_tree_add_expert(sigcomp_udvm_tree, pinfo, &ei_sigcomp_all_remaining_parameters_zero, udvm_tvb, offset-1, -1);
                 return;
             }
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, true, &start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_ret_param_loc,
                 udvm_tvb, start_offset, len, value);
             /*
              * %state_length
              */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, true, &start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             if ( is_memory_address ) {
                 proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_state_length_addr,
@@ -6045,7 +6045,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
             /*
              * %state_address
              */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, true, &start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             if ( is_memory_address ) {
                 proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_state_address_addr,
@@ -6057,14 +6057,14 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
             /*
              * %state_instruction
              */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, true, &start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_state_instr,
                 udvm_tvb, start_offset, len, value);
             /*
              * %minimum_access_length
              */
-            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
+            offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, true, &start_offset, &value, &is_memory_address);
             len = offset - start_offset;
             proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_min_acc_len,
                 udvm_tvb, start_offset, len, value);
@@ -6072,7 +6072,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
              * %state_retention_priority
              */
             if ( tvb_reported_length_remaining(udvm_tvb, offset) != 0 ) {
-                offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
+                offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, true, &start_offset, &value, &is_memory_address);
                 len = offset - start_offset;
                 proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_state_ret_pri,
                     udvm_tvb, start_offset, len, value);
@@ -6112,14 +6112,14 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
   */
 static int
 dissect_udvm_literal_operand(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,
-                               gint offset, gint *start_offset, guint16 *value)
+                               int offset, int *start_offset, uint16_t *value)
 {
-    guint   bytecode;
-    guint16 operand;
-    guint   test_bits;
-    guint   display_bytecode;
+    unsigned   bytecode;
+    uint16_t operand;
+    unsigned   test_bits;
+    unsigned   display_bytecode;
 
-    bytecode = tvb_get_guint8(udvm_tvb, offset);
+    bytecode = tvb_get_uint8(udvm_tvb, offset);
     test_bits = bytecode >> 7;
     if (test_bits == 1) {
         test_bits = bytecode >> 6;
@@ -6184,14 +6184,14 @@ dissect_udvm_literal_operand(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,
  */
 static int
 dissect_udvm_reference_operand(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,
-                               gint offset, gint *start_offset, guint16 *value)
+                               int offset, int *start_offset, uint16_t *value)
 {
-    guint   bytecode;
-    guint16 operand;
-    guint   test_bits;
-    guint   display_bytecode;
+    unsigned   bytecode;
+    uint16_t operand;
+    unsigned   test_bits;
+    unsigned   display_bytecode;
 
-    bytecode = tvb_get_guint8(udvm_tvb, offset);
+    bytecode = tvb_get_uint8(udvm_tvb, offset);
     test_bits = bytecode >> 7;
     if (test_bits == 1) {
         test_bits = bytecode >> 6;
@@ -6253,13 +6253,13 @@ dissect_udvm_reference_operand(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree
  */
 static int
 dissect_udvm_multitype_operand(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,
-                               gint offset, gboolean is_addr _U_, gint *start_offset, guint16 *value, gboolean *is_memory_address )
+                               int offset, bool is_addr _U_, int *start_offset, uint16_t *value, bool *is_memory_address )
 {
-    guint bytecode;
-    guint display_bytecode;
-    guint16 operand;
-    guint32 result;
-    guint test_bits;
+    unsigned bytecode;
+    unsigned display_bytecode;
+    uint16_t operand;
+    uint32_t result;
+    unsigned test_bits;
     /* RFC3320
      * Figure 10: Bytecode for a multitype (%) operand
      * Bytecode:                       Operand value:      Range:               HEX val
@@ -6274,8 +6274,8 @@ dissect_udvm_multitype_operand(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree
      * 10000000 nnnnnnnn nnnnnnnn      N                   0 - 65535            0x80
      * 10000001 nnnnnnnn nnnnnnnn      memory[N]           0 - 65535            0x81
      */
-    *is_memory_address = FALSE;
-    bytecode = tvb_get_guint8(udvm_tvb, offset);
+    *is_memory_address = false;
+    bytecode = tvb_get_uint8(udvm_tvb, offset);
     test_bits = ( bytecode & 0xc0 ) >> 6;
     switch (test_bits ) {
     case 0:
@@ -6300,7 +6300,7 @@ dissect_udvm_multitype_operand(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree
             proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_multitype_bytecode,
                 udvm_tvb, offset, 1, display_bytecode);
         operand = ( bytecode & 0x3f) * 2;
-        *is_memory_address = TRUE;
+        *is_memory_address = true;
         *value = operand;
         *start_offset = offset;
         offset ++;
@@ -6344,7 +6344,7 @@ dissect_udvm_multitype_operand(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree
                     if ( display_udvm_bytecode )
                         proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_multitype_bytecode,
                                 udvm_tvb, offset, 1, display_bytecode);
-                    result = pow2(guint32, (bytecode & 0x07) + 8);
+                    result = pow2(uint32_t, (bytecode & 0x07) + 8);
                     operand = result & 0xffff;
                     *start_offset = offset;
                     *value = operand;
@@ -6359,7 +6359,7 @@ dissect_udvm_multitype_operand(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree
                         if ( display_udvm_bytecode )
                             proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_multitype_bytecode,
                                 udvm_tvb, offset, 1, display_bytecode);
-                        result = pow2(guint32, (bytecode & 0x01) + 6);
+                        result = pow2(uint32_t, (bytecode & 0x01) + 6);
                         operand = result & 0xffff;
                         *start_offset = offset;
                         *value = operand;
@@ -6374,7 +6374,7 @@ dissect_udvm_multitype_operand(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree
                             proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_multitype_bytecode,
                                 udvm_tvb, offset, 1, display_bytecode);
                         if ( (bytecode & 0x01) == 1 )
-                            *is_memory_address = TRUE;
+                            *is_memory_address = true;
                         offset ++;
                         operand = tvb_get_ntohs(udvm_tvb, offset);
                         *value = operand;
@@ -6411,7 +6411,7 @@ dissect_udvm_multitype_operand(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree
                 proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_multitype_bytecode,
                         udvm_tvb, offset, 1, display_bytecode);
             operand = (tvb_get_ntohs(udvm_tvb, offset) & 0x1fff);
-            *is_memory_address = TRUE;
+            *is_memory_address = true;
             *start_offset = offset;
             *value = operand;
             offset = offset +2;
@@ -6438,7 +6438,7 @@ tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree)
     offset = 0;
 
     while (tvb_offset_exists(tvb, offset)) {
-        tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+        tvb_find_line_end(tvb, offset, -1, &next_offset, false);
         linelen = next_offset - offset;
         proto_tree_add_format_text(raw_tree, tvb, offset, linelen);
         offset = next_offset;
@@ -6824,12 +6824,12 @@ proto_register_sigcomp(void)
     };
 
 /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_sigcomp,
         &ett_sigcomp_udvm,
         &ett_sigcomp_udvm_exe,
     };
-    static gint *ett_raw[] = {
+    static int *ett_raw[] = {
         &ett_raw_text,
     };
 
@@ -6899,7 +6899,7 @@ proto_register_sigcomp(void)
                                    "'No-Printout' = UDVM executes silently, then increasing detail "
                                      "about execution of UDVM instructions; "
                                      "Warning! CPU intense at high detail",
-                                   &udvm_print_detail_level, udvm_detail_vals, FALSE);
+                                   &udvm_print_detail_level, udvm_detail_vals, false);
 
     register_init_routine(&sigcomp_init_udvm);
     register_cleanup_routine(&sigcomp_cleanup_udvm);

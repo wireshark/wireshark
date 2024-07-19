@@ -207,7 +207,7 @@ static int hf_saprouter_admin_client_ids;
 static int hf_saprouter_admin_client_id;
 static int hf_saprouter_admin_address_mask;
 
-static gint ett_saprouter;
+static int ett_saprouter;
 
 /* Expert info */
 static expert_field ei_saprouter_route_password_found;
@@ -227,17 +227,17 @@ static dissector_handle_t saprouter_handle;
 
 /* Session state information being tracked in a SAP Router conversation */
 typedef struct saprouter_session_state {
-	gboolean route_information;
-	guint	 route_requested_in;
-	gboolean route_accepted;
-	guint	 route_accepted_in;
-	gboolean route_snc_protected;
-	gchar 	*src_hostname;			/* Source hostname (first entry in the route string) */
-	guint32  src_port;				/* Source port number */
-	gchar 	*src_password;			/* Source password XXX: Check if possible */
-	gchar 	*dest_hostname;			/* Destination hostname (last entry in the route string) */
-	guint32  dest_port;				/* Destination port number */
-	gchar 	*dest_password;			/* Destination password */
+	bool route_information;
+	unsigned	 route_requested_in;
+	bool route_accepted;
+	unsigned	 route_accepted_in;
+	bool route_snc_protected;
+	char 	*src_hostname;			/* Source hostname (first entry in the route string) */
+	uint32_t src_port;				/* Source port number */
+	char 	*src_password;			/* Source password XXX: Check if possible */
+	char 	*dest_hostname;			/* Destination hostname (last entry in the route string) */
+	uint32_t dest_port;				/* Destination port number */
+	char 	*dest_password;			/* Destination password */
 } saprouter_session_state;
 
 /*
@@ -247,27 +247,27 @@ void proto_reg_handoff_saprouter(void);
 void proto_register_saprouter(void);
 
 
-static guint32
-dissect_serviceport(gchar *port){
-	guint32 portnumber = 0;
+static uint32_t
+dissect_serviceport(char *port){
+	uint32_t portnumber = 0;
 
 	if (g_ascii_isdigit(port[0])){
-		portnumber = (guint32)strtoul(port, NULL, 10);
+		portnumber = (uint32_t)strtoul(port, NULL, 10);
 	} else if ((strlen(port)>5) && g_str_has_prefix(port, "sapdp")){
-		portnumber = 3200 + (guint32)strtoul(port+5, NULL, 10);
+		portnumber = 3200 + (uint32_t)strtoul(port+5, NULL, 10);
 	} else if ((strlen(port)>5) && g_str_has_prefix(port, "sapgw")){
-		portnumber = 3300 + (guint32)strtoul(port+5, NULL, 10);
+		portnumber = 3300 + (uint32_t)strtoul(port+5, NULL, 10);
 	} else if ((strlen(port)>5) && g_str_has_prefix(port, "sapms")){
-		portnumber = 3600 + (guint32)strtoul(port+5, NULL, 10);
+		portnumber = 3600 + (uint32_t)strtoul(port+5, NULL, 10);
 	}
 	return (portnumber);
 }
 
 static void
-dissect_routestring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, saprouter_session_state *session_state){
+dissect_routestring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, saprouter_session_state *session_state){
 	int hop = 1;
-	guint32 len, route_offset, int_port = 0;
-	gchar *hostname = NULL, *port = NULL, *password = NULL;
+	uint32_t len, route_offset, int_port = 0;
+	char *hostname = NULL, *port = NULL, *password = NULL;
 	proto_item *route_hop = NULL, *route_password = NULL;
 	proto_tree *route_hop_tree = NULL;
 
@@ -281,19 +281,19 @@ dissect_routestring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32
 
 		/* Dissect the hostname string */
 		len = tvb_strsize(tvb, offset);
-		hostname = (gchar *)tvb_get_string_enc(wmem_file_scope(), tvb, offset, len - 1, ENC_ASCII);
+		hostname = (char *)tvb_get_string_enc(wmem_file_scope(), tvb, offset, len - 1, ENC_ASCII);
 		proto_tree_add_item(route_hop_tree, hf_saprouter_route_string_hostname, tvb, offset, len, ENC_ASCII|ENC_NA);
 		offset += len;
 
 		/* Dissect the port string */
 		len = tvb_strsize(tvb, offset);
-		port = (gchar *)tvb_get_string_enc(pinfo->pool, tvb, offset, len - 1, ENC_ASCII);
+		port = (char *)tvb_get_string_enc(pinfo->pool, tvb, offset, len - 1, ENC_ASCII);
 		proto_tree_add_item(route_hop_tree, hf_saprouter_route_string_service, tvb, offset, len, ENC_ASCII|ENC_NA);
 		offset += len;
 
 		/* Dissect the password string */
 		len = tvb_strsize(tvb, offset);
-		password = (gchar *)tvb_get_string_enc(wmem_file_scope(), tvb, offset, len - 1, ENC_ASCII);
+		password = (char *)tvb_get_string_enc(wmem_file_scope(), tvb, offset, len - 1, ENC_ASCII);
 		route_password = proto_tree_add_item(route_hop_tree, hf_saprouter_route_string_password, tvb, offset, len, ENC_ASCII|ENC_NA);
 
 		/* If a password was found, add a expert warning in the security category */
@@ -333,16 +333,16 @@ dissect_routestring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32
 			session_state->dest_password = password;
 		}
 		/* Save the status of the conversation state */
-		session_state->route_information = TRUE;
-		session_state->route_accepted = FALSE;
+		session_state->route_information = true;
+		session_state->route_accepted = false;
 	}
 
 }
 
 static void
-dissect_errorstring(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
+dissect_errorstring(tvbuff_t *tvb, proto_tree *tree, uint32_t offset)
 {
-	guint32 len;
+	uint32_t len;
 
 	len = tvb_strsize(tvb, offset);
 	proto_tree_add_item(tree, hf_saprouter_error_eyecatcher, tvb, offset, len, ENC_ASCII|ENC_NA);
@@ -412,10 +412,10 @@ dissect_errorstring(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 
 
 static tvbuff_t*
-dissect_saprouter_snc_frame(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint32 offset _U_){
+dissect_saprouter_snc_frame(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, uint32_t offset _U_){
 
 	/* Call the SNC dissector */
-	if (global_saprouter_snc_dissection == TRUE){
+	if (global_saprouter_snc_dissection == true){
 		return dissect_sapsnc_frame(tvb, pinfo, tree, offset);
 	}
 
@@ -427,8 +427,8 @@ static int
 dissect_saprouter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	tvbuff_t *next_tvb = NULL;
-	guint8 opcode;
-	guint32 offset = 0, eyecatcher_length = 0;
+	uint8_t opcode;
+	uint32_t offset = 0, eyecatcher_length = 0;
 	conversation_t *conversation = NULL;
 	saprouter_session_state *session_state = NULL;
 	proto_item *ti = NULL, *ri = NULL, *ei = NULL, *ci = NULL, *gi = NULL, *admin_password = NULL;
@@ -440,11 +440,11 @@ dissect_saprouter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	if (!session_state){
 		session_state = wmem_new(wmem_file_scope(), saprouter_session_state);
 		if (session_state){
-			session_state->route_information = FALSE;
+			session_state->route_information = false;
 			session_state->route_requested_in = 0;
-			session_state->route_accepted = FALSE;
+			session_state->route_accepted = false;
 			session_state->route_accepted_in = 0;
-			session_state->route_snc_protected = FALSE;
+			session_state->route_snc_protected = false;
 			session_state->src_hostname = NULL;
 			session_state->src_port = 0;
 			session_state->src_password = NULL;
@@ -492,7 +492,7 @@ dissect_saprouter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 		proto_tree_add_item(saprouter_tree, hf_saprouter_ni_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 
-		opcode = tvb_get_guint8(tvb, offset);
+		opcode = tvb_get_uint8(tvb, offset);
 		proto_tree_add_item(saprouter_tree, hf_saprouter_admin_command, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 
@@ -523,7 +523,7 @@ dissect_saprouter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 			case 12: /* Trace Connection */
 			case 13: /* Trace Connection */
 			{
-				guint16 client_count = 0, client_count_actual = 0;
+				uint16_t client_count = 0, client_count_actual = 0;
 
 				/* Retrieve the client count first */
 				if (opcode == 6){
@@ -561,7 +561,7 @@ dissect_saprouter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
 	/* Route Message Type */
 	} else if (tvb_strneql(tvb, offset, SAPROUTER_TYPE_ROUTE_STRING, eyecatcher_length) == 0){
-		guint32 route_length = 0, route_offset = 0;
+		uint32_t route_length = 0, route_offset = 0;
 
 		col_set_str(pinfo->cinfo, COL_INFO, "Route message");
 
@@ -588,9 +588,9 @@ dissect_saprouter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 		proto_tree_add_item(saprouter_tree, hf_saprouter_route_offset, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset+=4;
 		/* Add the route tree */
-		if ((guint32)tvb_reported_length_remaining(tvb, offset) != route_length){
+		if ((uint32_t)tvb_reported_length_remaining(tvb, offset) != route_length){
 			expert_add_info_format(pinfo, saprouter_tree, &ei_saprouter_route_invalid_length, "Route string length is invalid (remaining=%d, route_length=%d)", tvb_reported_length_remaining(tvb, offset), route_length);
-			route_length = (guint32)tvb_reported_length_remaining(tvb, offset);
+			route_length = (uint32_t)tvb_reported_length_remaining(tvb, offset);
 		}
 		ri = proto_tree_add_item(saprouter_tree, hf_saprouter_route, tvb, offset, route_length, ENC_NA);
 		route_tree = proto_item_add_subtree(ri, ett_saprouter);
@@ -625,14 +625,14 @@ dissect_saprouter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
 		/* Extract the opcode if possible to determine the type of message */
 		if (tvb_offset_exists(tvb, offset + 10)) {
-			opcode = tvb_get_guint8(tvb, offset + 10);
+			opcode = tvb_get_uint8(tvb, offset + 10);
 		} else {
 			opcode = 0;
 		}
 
 		col_set_str(pinfo->cinfo, COL_INFO, (opcode==0)? "Error information" : "Control message");
 
-		guint32 text_length = 0;
+		uint32_t text_length = 0;
 
 		proto_item_append_text(ti, (opcode==0)? ", Error information" : ", Control message");
 		/* Add the fields */
@@ -677,7 +677,7 @@ dissect_saprouter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
 			/* SNC request, mark the conversation as SNC protected and dissect the SNC frame */
 			if (opcode == 70 || opcode == 71){
-				session_state->route_snc_protected = TRUE;
+				session_state->route_snc_protected = true;
 				dissect_saprouter_snc_frame(tvb, pinfo, tree, offset);
 
 			/* Other opcodes */
@@ -693,7 +693,7 @@ dissect_saprouter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 		if (session_state->route_information){
 			/* If this is the first time we're seen the packet, mark is as the one where the route was accepted */
 			if (!pinfo->fd->visited) {
-				session_state->route_accepted = TRUE;
+				session_state->route_accepted = true;
 				session_state->route_accepted_in = pinfo->num;
 			}
 
@@ -881,7 +881,7 @@ proto_register_saprouter(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_saprouter
 	};
 
@@ -924,12 +924,12 @@ proto_register_saprouter(void)
 /**
  * Helpers for dealing with the port range
  */
-static void range_delete_callback (guint32 port, gpointer ptr _U_)
+static void range_delete_callback (uint32_t port, void *ptr _U_)
 {
 	dissector_delete_uint("sapni.port", port, saprouter_handle);
 }
 
-static void range_add_callback (guint32 port, gpointer ptr _U_)
+static void range_add_callback (uint32_t port, void *ptr _U_)
 {
 	dissector_add_uint("sapni.port", port, saprouter_handle);
 }
@@ -941,12 +941,12 @@ static void range_add_callback (guint32 port, gpointer ptr _U_)
 void
 proto_reg_handoff_saprouter(void)
 {
-	static gboolean initialized = FALSE;
+	static bool initialized = false;
 	static range_t *saprouter_port_range;
 
 	if (!initialized) {
 		saprouter_handle = create_dissector_handle(dissect_saprouter, proto_saprouter);
-		initialized = TRUE;
+		initialized = true;
 	} else {
 		range_foreach(saprouter_port_range, range_delete_callback, NULL);
 		wmem_free(wmem_epan_scope(), saprouter_port_range);

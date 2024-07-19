@@ -17,9 +17,9 @@
 #include "packet-s7comm.h"
 #include "packet-s7comm_szl_ids.h"
 
-static gint ett_s7comm_szl;
-static gint hf_s7comm_userdata_szl_partial_list;           /* Partial list in szl response */
-static gint hf_s7comm_userdata_szl_id;                     /* SZL id */
+static int ett_s7comm_szl;
+static int hf_s7comm_userdata_szl_partial_list;           /* Partial list in szl response */
+static int hf_s7comm_userdata_szl_id;                     /* SZL id */
 
 static const value_string szl_module_type_names[] = {
     { 0x0,                                  "CPU" },            /* Binary: 0000 */
@@ -28,12 +28,12 @@ static const value_string szl_module_type_names[] = {
     { 0x8,                                  "FM" },             /* Binary: 1000 */
     { 0,                                    NULL }
 };
-static gint hf_s7comm_userdata_szl_id_type;
-static gint hf_s7comm_userdata_szl_id_partlist_ex;
-static gint hf_s7comm_userdata_szl_id_partlist_num;
-static gint hf_s7comm_userdata_szl_id_partlist_len;
-static gint hf_s7comm_userdata_szl_id_partlist_cnt;
-static gint ett_s7comm_userdata_szl_id;
+static int hf_s7comm_userdata_szl_id_type;
+static int hf_s7comm_userdata_szl_id_partlist_ex;
+static int hf_s7comm_userdata_szl_id_partlist_num;
+static int hf_s7comm_userdata_szl_id_partlist_len;
+static int hf_s7comm_userdata_szl_id_partlist_cnt;
+static int ett_s7comm_userdata_szl_id;
 static int * const s7comm_userdata_szl_id_fields[] = {
     &hf_s7comm_userdata_szl_id_type,
     &hf_s7comm_userdata_szl_id_partlist_ex,
@@ -239,8 +239,8 @@ static const value_string szl_partial_list_names[] = {
 };
 static value_string_ext szl_partial_list_names_ext = VALUE_STRING_EXT_INIT(szl_partial_list_names);
 
-static gint hf_s7comm_userdata_szl_index;                  /* SZL index */
-static gint hf_s7comm_userdata_szl_tree;                   /* SZL item tree */
+static int hf_s7comm_userdata_szl_index;                  /* SZL index */
+static int hf_s7comm_userdata_szl_tree;                   /* SZL item tree */
 
 /* Index description for SZL Requests */
 static const value_string szl_0111_index_names[] = {
@@ -432,12 +432,12 @@ static const value_string szl_xy1c_index_names[] = {
 };
 
 /* Header fields of the SZL */
-static gint hf_s7comm_szl_0000_0000_szl_id;
-static gint hf_s7comm_szl_0000_0000_module_type_class;
-static gint hf_s7comm_szl_0000_0000_partlist_extr_nr;
-static gint hf_s7comm_szl_0000_0000_partlist_nr;
+static int hf_s7comm_szl_0000_0000_szl_id;
+static int hf_s7comm_szl_0000_0000_module_type_class;
+static int hf_s7comm_szl_0000_0000_partlist_extr_nr;
+static int hf_s7comm_szl_0000_0000_partlist_nr;
 
-static gint hf_s7comm_szl_xy12_0x00_charac;
+static int hf_s7comm_szl_xy12_0x00_charac;
 static const value_string szl_xy12_cpu_characteristic_names[] = {
     { 0x0000,                               "MC7 processing unit group" },
     { 0x0001,                               "MC7 processing generating code" },
@@ -489,62 +489,62 @@ static const value_string szl_xy12_cpu_characteristic_names[] = {
     { 0,                                    NULL }
 };
 
-static gint hf_s7comm_szl_0013_0000_index;
+static int hf_s7comm_szl_0013_0000_index;
 
-static gint hf_s7comm_szl_0013_0000_code;
+static int hf_s7comm_szl_0013_0000_code;
 static const value_string szl_memory_type_names[] = {
     { 0x0001,                               "volatile memory (RAM)" },
     { 0x0002,                               "non-volatile memory (FEPROM)" },
     { 0x0003,                               "mixed memory (RAM + FEPROM)" },
     { 0,                                    NULL }
 };
-static gint hf_s7comm_szl_0013_0000_size;
-static gint hf_s7comm_szl_0013_0000_mode;
-static gint hf_s7comm_szl_0013_0000_mode_0;
-static gint hf_s7comm_szl_0013_0000_mode_1;
-static gint hf_s7comm_szl_0013_0000_mode_2;
-static gint hf_s7comm_szl_0013_0000_mode_3;
-static gint hf_s7comm_szl_0013_0000_mode_4;
-static gint hf_s7comm_szl_0013_0000_granu;
-static gint hf_s7comm_szl_0013_0000_ber1;
-static gint hf_s7comm_szl_0013_0000_belegt1;
-static gint hf_s7comm_szl_0013_0000_block1;
-static gint hf_s7comm_szl_0013_0000_ber2;
-static gint hf_s7comm_szl_0013_0000_belegt2;
-static gint hf_s7comm_szl_0013_0000_block2;
+static int hf_s7comm_szl_0013_0000_size;
+static int hf_s7comm_szl_0013_0000_mode;
+static int hf_s7comm_szl_0013_0000_mode_0;
+static int hf_s7comm_szl_0013_0000_mode_1;
+static int hf_s7comm_szl_0013_0000_mode_2;
+static int hf_s7comm_szl_0013_0000_mode_3;
+static int hf_s7comm_szl_0013_0000_mode_4;
+static int hf_s7comm_szl_0013_0000_granu;
+static int hf_s7comm_szl_0013_0000_ber1;
+static int hf_s7comm_szl_0013_0000_belegt1;
+static int hf_s7comm_szl_0013_0000_block1;
+static int hf_s7comm_szl_0013_0000_ber2;
+static int hf_s7comm_szl_0013_0000_belegt2;
+static int hf_s7comm_szl_0013_0000_block2;
 
-static gint hf_s7comm_szl_xy11_0001_index;
-static gint hf_s7comm_szl_xy11_0001_mlfb;
-static gint hf_s7comm_szl_xy11_0001_bgtyp;
-static gint hf_s7comm_szl_xy11_0001_ausbg;
-static gint hf_s7comm_szl_xy11_0001_ausbe;
+static int hf_s7comm_szl_xy11_0001_index;
+static int hf_s7comm_szl_xy11_0001_mlfb;
+static int hf_s7comm_szl_xy11_0001_bgtyp;
+static int hf_s7comm_szl_xy11_0001_ausbg;
+static int hf_s7comm_szl_xy11_0001_ausbe;
 
-static gint hf_s7comm_szl_xy14_000x_index;
-static gint hf_s7comm_szl_xy14_000x_code;
-static gint hf_s7comm_szl_xy14_000x_quantity;
-static gint hf_s7comm_szl_xy14_000x_reman;
+static int hf_s7comm_szl_xy14_000x_index;
+static int hf_s7comm_szl_xy14_000x_code;
+static int hf_s7comm_szl_xy14_000x_quantity;
+static int hf_s7comm_szl_xy14_000x_reman;
 
-static gint hf_s7comm_szl_xy15_000x_index;
-static gint hf_s7comm_szl_xy15_000x_maxanz;
-static gint hf_s7comm_szl_xy15_000x_maxlng;
-static gint hf_s7comm_szl_xy15_000x_maxabl;
+static int hf_s7comm_szl_xy15_000x_index;
+static int hf_s7comm_szl_xy15_000x_maxanz;
+static int hf_s7comm_szl_xy15_000x_maxlng;
+static int hf_s7comm_szl_xy15_000x_maxabl;
 
-static gint hf_s7comm_szl_xy22_00xx_info;
-static gint hf_s7comm_szl_xy22_00xx_al1;
-static gint hf_s7comm_szl_xy22_00xx_al1_0;
-static gint hf_s7comm_szl_xy22_00xx_al1_1;
-static gint hf_s7comm_szl_xy22_00xx_al1_2;
-static gint hf_s7comm_szl_xy22_00xx_al1_4;
-static gint hf_s7comm_szl_xy22_00xx_al1_5;
-static gint hf_s7comm_szl_xy22_00xx_al1_6;
-static gint hf_s7comm_szl_xy22_00xx_al2;
-static gint hf_s7comm_szl_xy22_00xx_al2_0;
-static gint hf_s7comm_szl_xy22_00xx_al2_1;
-static gint hf_s7comm_szl_xy22_00xx_al2_2;
-static gint hf_s7comm_szl_xy22_00xx_al2_3;
-static gint hf_s7comm_szl_xy22_00xx_al3;
+static int hf_s7comm_szl_xy22_00xx_info;
+static int hf_s7comm_szl_xy22_00xx_al1;
+static int hf_s7comm_szl_xy22_00xx_al1_0;
+static int hf_s7comm_szl_xy22_00xx_al1_1;
+static int hf_s7comm_szl_xy22_00xx_al1_2;
+static int hf_s7comm_szl_xy22_00xx_al1_4;
+static int hf_s7comm_szl_xy22_00xx_al1_5;
+static int hf_s7comm_szl_xy22_00xx_al1_6;
+static int hf_s7comm_szl_xy22_00xx_al2;
+static int hf_s7comm_szl_xy22_00xx_al2_0;
+static int hf_s7comm_szl_xy22_00xx_al2_1;
+static int hf_s7comm_szl_xy22_00xx_al2_2;
+static int hf_s7comm_szl_xy22_00xx_al2_3;
+static int hf_s7comm_szl_xy22_00xx_al3;
 
-static gint ett_s7comm_szl_xy22_00xx_al1;
+static int ett_s7comm_szl_xy22_00xx_al1;
 static int * const s7comm_szl_xy22_00xx_al1_fields[] = {
     &hf_s7comm_szl_xy22_00xx_al1_0,
     &hf_s7comm_szl_xy22_00xx_al1_1,
@@ -554,7 +554,7 @@ static int * const s7comm_szl_xy22_00xx_al1_fields[] = {
     &hf_s7comm_szl_xy22_00xx_al1_6,
     NULL
 };
-static gint ett_s7comm_szl_xy22_00xx_al2;
+static int ett_s7comm_szl_xy22_00xx_al2;
 static int * const s7comm_szl_xy22_00xx_al2_fields[] = {
     &hf_s7comm_szl_xy22_00xx_al2_0,
     &hf_s7comm_szl_xy22_00xx_al2_1,
@@ -563,77 +563,77 @@ static int * const s7comm_szl_xy22_00xx_al2_fields[] = {
     NULL
 };
 
-static gint hf_s7comm_szl_0131_0001_index;
-static gint hf_s7comm_szl_0131_0001_pdu;
-static gint hf_s7comm_szl_0131_0001_anz;
-static gint hf_s7comm_szl_0131_0001_mpi_bps;
-static gint hf_s7comm_szl_0131_0001_kbus_bps;
-static gint hf_s7comm_szl_0131_0001_res;
+static int hf_s7comm_szl_0131_0001_index;
+static int hf_s7comm_szl_0131_0001_pdu;
+static int hf_s7comm_szl_0131_0001_anz;
+static int hf_s7comm_szl_0131_0001_mpi_bps;
+static int hf_s7comm_szl_0131_0001_kbus_bps;
+static int hf_s7comm_szl_0131_0001_res;
 
-static gint hf_s7comm_szl_0131_0002_index;
-static gint hf_s7comm_szl_0131_0002_funkt_0;
-static gint hf_s7comm_szl_0131_0002_funkt_0_0;
-static gint hf_s7comm_szl_0131_0002_funkt_0_1;
-static gint hf_s7comm_szl_0131_0002_funkt_0_2;
-static gint hf_s7comm_szl_0131_0002_funkt_0_3;
-static gint hf_s7comm_szl_0131_0002_funkt_0_4;
-static gint hf_s7comm_szl_0131_0002_funkt_0_5;
-static gint hf_s7comm_szl_0131_0002_funkt_0_6;
-static gint hf_s7comm_szl_0131_0002_funkt_0_7;
-static gint hf_s7comm_szl_0131_0002_funkt_1;
-static gint hf_s7comm_szl_0131_0002_funkt_1_0;
-static gint hf_s7comm_szl_0131_0002_funkt_1_1;
-static gint hf_s7comm_szl_0131_0002_funkt_1_2;
-static gint hf_s7comm_szl_0131_0002_funkt_1_3;
-static gint hf_s7comm_szl_0131_0002_funkt_1_4;
-static gint hf_s7comm_szl_0131_0002_funkt_1_5;
-static gint hf_s7comm_szl_0131_0002_funkt_1_6;
-static gint hf_s7comm_szl_0131_0002_funkt_1_7;
-static gint hf_s7comm_szl_0131_0002_funkt_2;
-static gint hf_s7comm_szl_0131_0002_funkt_2_0;
-static gint hf_s7comm_szl_0131_0002_funkt_2_1;
-static gint hf_s7comm_szl_0131_0002_funkt_2_2;
-static gint hf_s7comm_szl_0131_0002_funkt_2_3;
-static gint hf_s7comm_szl_0131_0002_funkt_2_4;
-static gint hf_s7comm_szl_0131_0002_funkt_2_5;
-static gint hf_s7comm_szl_0131_0002_funkt_2_6;
-static gint hf_s7comm_szl_0131_0002_funkt_2_7;
-static gint hf_s7comm_szl_0131_0002_funkt_3;
-static gint hf_s7comm_szl_0131_0002_funkt_4;
-static gint hf_s7comm_szl_0131_0002_funkt_5;
-static gint hf_s7comm_szl_0131_0002_aseg;
-static gint hf_s7comm_szl_0131_0002_eseg;
-static gint hf_s7comm_szl_0131_0002_trgereig_0;
-static gint hf_s7comm_szl_0131_0002_trgereig_0_0;
-static gint hf_s7comm_szl_0131_0002_trgereig_0_1;
-static gint hf_s7comm_szl_0131_0002_trgereig_0_2;
-static gint hf_s7comm_szl_0131_0002_trgereig_0_3;
-static gint hf_s7comm_szl_0131_0002_trgereig_0_4;
-static gint hf_s7comm_szl_0131_0002_trgereig_0_5;
-static gint hf_s7comm_szl_0131_0002_trgereig_0_6;
-static gint hf_s7comm_szl_0131_0002_trgereig_0_7;
-static gint hf_s7comm_szl_0131_0002_trgereig_1;
-static gint hf_s7comm_szl_0131_0002_trgereig_1_0;
-static gint hf_s7comm_szl_0131_0002_trgereig_1_1;
-static gint hf_s7comm_szl_0131_0002_trgereig_1_2;
-static gint hf_s7comm_szl_0131_0002_trgereig_1_3;
-static gint hf_s7comm_szl_0131_0002_trgereig_1_4;
-static gint hf_s7comm_szl_0131_0002_trgereig_1_5;
-static gint hf_s7comm_szl_0131_0002_trgereig_1_6;
-static gint hf_s7comm_szl_0131_0002_trgereig_1_7;
-static gint hf_s7comm_szl_0131_0002_trgereig_2;
-static gint hf_s7comm_szl_0131_0002_trgbed;
-static gint hf_s7comm_szl_0131_0002_pfad;
-static gint hf_s7comm_szl_0131_0002_tiefe;
-static gint hf_s7comm_szl_0131_0002_systrig;
-static gint hf_s7comm_szl_0131_0002_erg_par;
-static gint hf_s7comm_szl_0131_0002_erg_pat_1;
-static gint hf_s7comm_szl_0131_0002_erg_pat_2;
-static gint hf_s7comm_szl_0131_0002_force;
-static gint hf_s7comm_szl_0131_0002_time;
-static gint hf_s7comm_szl_0131_0002_res;
+static int hf_s7comm_szl_0131_0002_index;
+static int hf_s7comm_szl_0131_0002_funkt_0;
+static int hf_s7comm_szl_0131_0002_funkt_0_0;
+static int hf_s7comm_szl_0131_0002_funkt_0_1;
+static int hf_s7comm_szl_0131_0002_funkt_0_2;
+static int hf_s7comm_szl_0131_0002_funkt_0_3;
+static int hf_s7comm_szl_0131_0002_funkt_0_4;
+static int hf_s7comm_szl_0131_0002_funkt_0_5;
+static int hf_s7comm_szl_0131_0002_funkt_0_6;
+static int hf_s7comm_szl_0131_0002_funkt_0_7;
+static int hf_s7comm_szl_0131_0002_funkt_1;
+static int hf_s7comm_szl_0131_0002_funkt_1_0;
+static int hf_s7comm_szl_0131_0002_funkt_1_1;
+static int hf_s7comm_szl_0131_0002_funkt_1_2;
+static int hf_s7comm_szl_0131_0002_funkt_1_3;
+static int hf_s7comm_szl_0131_0002_funkt_1_4;
+static int hf_s7comm_szl_0131_0002_funkt_1_5;
+static int hf_s7comm_szl_0131_0002_funkt_1_6;
+static int hf_s7comm_szl_0131_0002_funkt_1_7;
+static int hf_s7comm_szl_0131_0002_funkt_2;
+static int hf_s7comm_szl_0131_0002_funkt_2_0;
+static int hf_s7comm_szl_0131_0002_funkt_2_1;
+static int hf_s7comm_szl_0131_0002_funkt_2_2;
+static int hf_s7comm_szl_0131_0002_funkt_2_3;
+static int hf_s7comm_szl_0131_0002_funkt_2_4;
+static int hf_s7comm_szl_0131_0002_funkt_2_5;
+static int hf_s7comm_szl_0131_0002_funkt_2_6;
+static int hf_s7comm_szl_0131_0002_funkt_2_7;
+static int hf_s7comm_szl_0131_0002_funkt_3;
+static int hf_s7comm_szl_0131_0002_funkt_4;
+static int hf_s7comm_szl_0131_0002_funkt_5;
+static int hf_s7comm_szl_0131_0002_aseg;
+static int hf_s7comm_szl_0131_0002_eseg;
+static int hf_s7comm_szl_0131_0002_trgereig_0;
+static int hf_s7comm_szl_0131_0002_trgereig_0_0;
+static int hf_s7comm_szl_0131_0002_trgereig_0_1;
+static int hf_s7comm_szl_0131_0002_trgereig_0_2;
+static int hf_s7comm_szl_0131_0002_trgereig_0_3;
+static int hf_s7comm_szl_0131_0002_trgereig_0_4;
+static int hf_s7comm_szl_0131_0002_trgereig_0_5;
+static int hf_s7comm_szl_0131_0002_trgereig_0_6;
+static int hf_s7comm_szl_0131_0002_trgereig_0_7;
+static int hf_s7comm_szl_0131_0002_trgereig_1;
+static int hf_s7comm_szl_0131_0002_trgereig_1_0;
+static int hf_s7comm_szl_0131_0002_trgereig_1_1;
+static int hf_s7comm_szl_0131_0002_trgereig_1_2;
+static int hf_s7comm_szl_0131_0002_trgereig_1_3;
+static int hf_s7comm_szl_0131_0002_trgereig_1_4;
+static int hf_s7comm_szl_0131_0002_trgereig_1_5;
+static int hf_s7comm_szl_0131_0002_trgereig_1_6;
+static int hf_s7comm_szl_0131_0002_trgereig_1_7;
+static int hf_s7comm_szl_0131_0002_trgereig_2;
+static int hf_s7comm_szl_0131_0002_trgbed;
+static int hf_s7comm_szl_0131_0002_pfad;
+static int hf_s7comm_szl_0131_0002_tiefe;
+static int hf_s7comm_szl_0131_0002_systrig;
+static int hf_s7comm_szl_0131_0002_erg_par;
+static int hf_s7comm_szl_0131_0002_erg_pat_1;
+static int hf_s7comm_szl_0131_0002_erg_pat_2;
+static int hf_s7comm_szl_0131_0002_force;
+static int hf_s7comm_szl_0131_0002_time;
+static int hf_s7comm_szl_0131_0002_res;
 
-static gint ett_s7comm_szl_0131_0002_funkt_0;
+static int ett_s7comm_szl_0131_0002_funkt_0;
 static int * const s7comm_szl_0131_0002_funkt_0_fields[] = {
     &hf_s7comm_szl_0131_0002_funkt_0_0,
     &hf_s7comm_szl_0131_0002_funkt_0_1,
@@ -645,7 +645,7 @@ static int * const s7comm_szl_0131_0002_funkt_0_fields[] = {
     &hf_s7comm_szl_0131_0002_funkt_0_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0002_funkt_1;
+static int ett_s7comm_szl_0131_0002_funkt_1;
 static int * const s7comm_szl_0131_0002_funkt_1_fields[] = {
     &hf_s7comm_szl_0131_0002_funkt_1_0,
     &hf_s7comm_szl_0131_0002_funkt_1_1,
@@ -657,7 +657,7 @@ static int * const s7comm_szl_0131_0002_funkt_1_fields[] = {
     &hf_s7comm_szl_0131_0002_funkt_1_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0002_funkt_2;
+static int ett_s7comm_szl_0131_0002_funkt_2;
 static int * const s7comm_szl_0131_0002_funkt_2_fields[] = {
     &hf_s7comm_szl_0131_0002_funkt_2_0,
     &hf_s7comm_szl_0131_0002_funkt_2_1,
@@ -669,7 +669,7 @@ static int * const s7comm_szl_0131_0002_funkt_2_fields[] = {
     &hf_s7comm_szl_0131_0002_funkt_2_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0002_trgereig_0;
+static int ett_s7comm_szl_0131_0002_trgereig_0;
 static int * const s7comm_szl_0131_0002_trgereig_0_fields[] = {
     &hf_s7comm_szl_0131_0002_trgereig_0_0,
     &hf_s7comm_szl_0131_0002_trgereig_0_1,
@@ -681,7 +681,7 @@ static int * const s7comm_szl_0131_0002_trgereig_0_fields[] = {
     &hf_s7comm_szl_0131_0002_trgereig_0_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0002_trgereig_1;
+static int ett_s7comm_szl_0131_0002_trgereig_1;
 static int * const s7comm_szl_0131_0002_trgereig_1_fields[] = {
     &hf_s7comm_szl_0131_0002_trgereig_1_0,
     &hf_s7comm_szl_0131_0002_trgereig_1_1,
@@ -694,50 +694,50 @@ static int * const s7comm_szl_0131_0002_trgereig_1_fields[] = {
     NULL
 };
 
-static gint hf_s7comm_szl_0131_0003_index;
-static gint hf_s7comm_szl_0131_0003_funkt_0;
-static gint hf_s7comm_szl_0131_0003_funkt_0_0;
-static gint hf_s7comm_szl_0131_0003_funkt_0_1;
-static gint hf_s7comm_szl_0131_0003_funkt_0_2;
-static gint hf_s7comm_szl_0131_0003_funkt_0_3;
-static gint hf_s7comm_szl_0131_0003_funkt_0_4;
-static gint hf_s7comm_szl_0131_0003_funkt_0_5;
-static gint hf_s7comm_szl_0131_0003_funkt_0_6;
-static gint hf_s7comm_szl_0131_0003_funkt_0_7;
-static gint hf_s7comm_szl_0131_0003_funkt_1;
-static gint hf_s7comm_szl_0131_0003_funkt_1_0;
-static gint hf_s7comm_szl_0131_0003_funkt_1_1;
-static gint hf_s7comm_szl_0131_0003_funkt_1_2;
-static gint hf_s7comm_szl_0131_0003_funkt_1_3;
-static gint hf_s7comm_szl_0131_0003_funkt_1_4;
-static gint hf_s7comm_szl_0131_0003_funkt_1_5;
-static gint hf_s7comm_szl_0131_0003_funkt_1_6;
-static gint hf_s7comm_szl_0131_0003_funkt_1_7;
-static gint hf_s7comm_szl_0131_0003_funkt_2;
-static gint hf_s7comm_szl_0131_0003_funkt_2_0;
-static gint hf_s7comm_szl_0131_0003_funkt_2_1;
-static gint hf_s7comm_szl_0131_0003_funkt_2_2;
-static gint hf_s7comm_szl_0131_0003_funkt_2_3;
-static gint hf_s7comm_szl_0131_0003_funkt_2_4;
-static gint hf_s7comm_szl_0131_0003_funkt_2_5;
-static gint hf_s7comm_szl_0131_0003_funkt_2_6;
-static gint hf_s7comm_szl_0131_0003_funkt_2_7;
-static gint hf_s7comm_szl_0131_0003_funkt_3;
-static gint hf_s7comm_szl_0131_0003_funkt_3_0;
-static gint hf_s7comm_szl_0131_0003_funkt_3_1;
-static gint hf_s7comm_szl_0131_0003_funkt_3_2;
-static gint hf_s7comm_szl_0131_0003_funkt_3_3;
-static gint hf_s7comm_szl_0131_0003_funkt_3_4;
-static gint hf_s7comm_szl_0131_0003_funkt_3_5;
-static gint hf_s7comm_szl_0131_0003_funkt_3_6;
-static gint hf_s7comm_szl_0131_0003_funkt_3_7;
-static gint hf_s7comm_szl_0131_0003_data;
-static gint hf_s7comm_szl_0131_0003_anz;
-static gint hf_s7comm_szl_0131_0003_per_min;
-static gint hf_s7comm_szl_0131_0003_per_max;
-static gint hf_s7comm_szl_0131_0003_res;
+static int hf_s7comm_szl_0131_0003_index;
+static int hf_s7comm_szl_0131_0003_funkt_0;
+static int hf_s7comm_szl_0131_0003_funkt_0_0;
+static int hf_s7comm_szl_0131_0003_funkt_0_1;
+static int hf_s7comm_szl_0131_0003_funkt_0_2;
+static int hf_s7comm_szl_0131_0003_funkt_0_3;
+static int hf_s7comm_szl_0131_0003_funkt_0_4;
+static int hf_s7comm_szl_0131_0003_funkt_0_5;
+static int hf_s7comm_szl_0131_0003_funkt_0_6;
+static int hf_s7comm_szl_0131_0003_funkt_0_7;
+static int hf_s7comm_szl_0131_0003_funkt_1;
+static int hf_s7comm_szl_0131_0003_funkt_1_0;
+static int hf_s7comm_szl_0131_0003_funkt_1_1;
+static int hf_s7comm_szl_0131_0003_funkt_1_2;
+static int hf_s7comm_szl_0131_0003_funkt_1_3;
+static int hf_s7comm_szl_0131_0003_funkt_1_4;
+static int hf_s7comm_szl_0131_0003_funkt_1_5;
+static int hf_s7comm_szl_0131_0003_funkt_1_6;
+static int hf_s7comm_szl_0131_0003_funkt_1_7;
+static int hf_s7comm_szl_0131_0003_funkt_2;
+static int hf_s7comm_szl_0131_0003_funkt_2_0;
+static int hf_s7comm_szl_0131_0003_funkt_2_1;
+static int hf_s7comm_szl_0131_0003_funkt_2_2;
+static int hf_s7comm_szl_0131_0003_funkt_2_3;
+static int hf_s7comm_szl_0131_0003_funkt_2_4;
+static int hf_s7comm_szl_0131_0003_funkt_2_5;
+static int hf_s7comm_szl_0131_0003_funkt_2_6;
+static int hf_s7comm_szl_0131_0003_funkt_2_7;
+static int hf_s7comm_szl_0131_0003_funkt_3;
+static int hf_s7comm_szl_0131_0003_funkt_3_0;
+static int hf_s7comm_szl_0131_0003_funkt_3_1;
+static int hf_s7comm_szl_0131_0003_funkt_3_2;
+static int hf_s7comm_szl_0131_0003_funkt_3_3;
+static int hf_s7comm_szl_0131_0003_funkt_3_4;
+static int hf_s7comm_szl_0131_0003_funkt_3_5;
+static int hf_s7comm_szl_0131_0003_funkt_3_6;
+static int hf_s7comm_szl_0131_0003_funkt_3_7;
+static int hf_s7comm_szl_0131_0003_data;
+static int hf_s7comm_szl_0131_0003_anz;
+static int hf_s7comm_szl_0131_0003_per_min;
+static int hf_s7comm_szl_0131_0003_per_max;
+static int hf_s7comm_szl_0131_0003_res;
 
-static gint ett_s7comm_szl_0131_0003_funkt_0;
+static int ett_s7comm_szl_0131_0003_funkt_0;
 static int * const s7comm_szl_0131_0003_funkt_0_fields[] = {
     &hf_s7comm_szl_0131_0003_funkt_0_0,
     &hf_s7comm_szl_0131_0003_funkt_0_1,
@@ -749,7 +749,7 @@ static int * const s7comm_szl_0131_0003_funkt_0_fields[] = {
     &hf_s7comm_szl_0131_0003_funkt_0_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0003_funkt_1;
+static int ett_s7comm_szl_0131_0003_funkt_1;
 static int * const s7comm_szl_0131_0003_funkt_1_fields[] = {
     &hf_s7comm_szl_0131_0003_funkt_1_0,
     &hf_s7comm_szl_0131_0003_funkt_1_1,
@@ -761,7 +761,7 @@ static int * const s7comm_szl_0131_0003_funkt_1_fields[] = {
     &hf_s7comm_szl_0131_0003_funkt_1_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0003_funkt_2;
+static int ett_s7comm_szl_0131_0003_funkt_2;
 static int * const s7comm_szl_0131_0003_funkt_2_fields[] = {
     &hf_s7comm_szl_0131_0003_funkt_2_0,
     &hf_s7comm_szl_0131_0003_funkt_2_1,
@@ -773,7 +773,7 @@ static int * const s7comm_szl_0131_0003_funkt_2_fields[] = {
     &hf_s7comm_szl_0131_0003_funkt_2_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0003_funkt_3;
+static int ett_s7comm_szl_0131_0003_funkt_3;
 static int * const s7comm_szl_0131_0003_funkt_3_fields[] = {
     &hf_s7comm_szl_0131_0003_funkt_3_0,
     &hf_s7comm_szl_0131_0003_funkt_3_1,
@@ -786,63 +786,63 @@ static int * const s7comm_szl_0131_0003_funkt_3_fields[] = {
     NULL
 };
 
-static gint hf_s7comm_szl_0131_0004_index;
-static gint hf_s7comm_szl_0131_0004_funkt_0;
-static gint hf_s7comm_szl_0131_0004_funkt_0_0;
-static gint hf_s7comm_szl_0131_0004_funkt_0_1;
-static gint hf_s7comm_szl_0131_0004_funkt_0_2;
-static gint hf_s7comm_szl_0131_0004_funkt_0_3;
-static gint hf_s7comm_szl_0131_0004_funkt_0_4;
-static gint hf_s7comm_szl_0131_0004_funkt_0_5;
-static gint hf_s7comm_szl_0131_0004_funkt_0_6;
-static gint hf_s7comm_szl_0131_0004_funkt_0_7;
-static gint hf_s7comm_szl_0131_0004_funkt_1;
-static gint hf_s7comm_szl_0131_0004_funkt_1_0;
-static gint hf_s7comm_szl_0131_0004_funkt_1_1;
-static gint hf_s7comm_szl_0131_0004_funkt_1_2;
-static gint hf_s7comm_szl_0131_0004_funkt_1_3;
-static gint hf_s7comm_szl_0131_0004_funkt_1_4;
-static gint hf_s7comm_szl_0131_0004_funkt_1_5;
-static gint hf_s7comm_szl_0131_0004_funkt_1_6;
-static gint hf_s7comm_szl_0131_0004_funkt_1_7;
-static gint hf_s7comm_szl_0131_0004_funkt_2;
-static gint hf_s7comm_szl_0131_0004_funkt_2_0;
-static gint hf_s7comm_szl_0131_0004_funkt_2_1;
-static gint hf_s7comm_szl_0131_0004_funkt_2_2;
-static gint hf_s7comm_szl_0131_0004_funkt_2_3;
-static gint hf_s7comm_szl_0131_0004_funkt_2_4;
-static gint hf_s7comm_szl_0131_0004_funkt_2_5;
-static gint hf_s7comm_szl_0131_0004_funkt_2_6;
-static gint hf_s7comm_szl_0131_0004_funkt_2_7;
-static gint hf_s7comm_szl_0131_0004_funkt_3;
-static gint hf_s7comm_szl_0131_0004_funkt_3_0;
-static gint hf_s7comm_szl_0131_0004_funkt_3_1;
-static gint hf_s7comm_szl_0131_0004_funkt_3_2;
-static gint hf_s7comm_szl_0131_0004_funkt_3_3;
-static gint hf_s7comm_szl_0131_0004_funkt_3_4;
-static gint hf_s7comm_szl_0131_0004_funkt_3_5;
-static gint hf_s7comm_szl_0131_0004_funkt_3_6;
-static gint hf_s7comm_szl_0131_0004_funkt_3_7;
-static gint hf_s7comm_szl_0131_0004_funkt_4;
-static gint hf_s7comm_szl_0131_0004_funkt_4_0;
-static gint hf_s7comm_szl_0131_0004_funkt_4_1;
-static gint hf_s7comm_szl_0131_0004_funkt_4_2;
-static gint hf_s7comm_szl_0131_0004_funkt_4_3;
-static gint hf_s7comm_szl_0131_0004_funkt_4_4;
-static gint hf_s7comm_szl_0131_0004_funkt_4_5;
-static gint hf_s7comm_szl_0131_0004_funkt_4_6;
-static gint hf_s7comm_szl_0131_0004_funkt_4_7;
-static gint hf_s7comm_szl_0131_0004_funkt_5;
-static gint hf_s7comm_szl_0131_0004_funkt_6;
-static gint hf_s7comm_szl_0131_0004_funkt_7;
-static gint hf_s7comm_szl_0131_0004_kop;
-static gint hf_s7comm_szl_0131_0004_del;
-static gint hf_s7comm_szl_0131_0004_kett;
-static gint hf_s7comm_szl_0131_0004_hoch;
-static gint hf_s7comm_szl_0131_0004_ver;
-static gint hf_s7comm_szl_0131_0004_res;
+static int hf_s7comm_szl_0131_0004_index;
+static int hf_s7comm_szl_0131_0004_funkt_0;
+static int hf_s7comm_szl_0131_0004_funkt_0_0;
+static int hf_s7comm_szl_0131_0004_funkt_0_1;
+static int hf_s7comm_szl_0131_0004_funkt_0_2;
+static int hf_s7comm_szl_0131_0004_funkt_0_3;
+static int hf_s7comm_szl_0131_0004_funkt_0_4;
+static int hf_s7comm_szl_0131_0004_funkt_0_5;
+static int hf_s7comm_szl_0131_0004_funkt_0_6;
+static int hf_s7comm_szl_0131_0004_funkt_0_7;
+static int hf_s7comm_szl_0131_0004_funkt_1;
+static int hf_s7comm_szl_0131_0004_funkt_1_0;
+static int hf_s7comm_szl_0131_0004_funkt_1_1;
+static int hf_s7comm_szl_0131_0004_funkt_1_2;
+static int hf_s7comm_szl_0131_0004_funkt_1_3;
+static int hf_s7comm_szl_0131_0004_funkt_1_4;
+static int hf_s7comm_szl_0131_0004_funkt_1_5;
+static int hf_s7comm_szl_0131_0004_funkt_1_6;
+static int hf_s7comm_szl_0131_0004_funkt_1_7;
+static int hf_s7comm_szl_0131_0004_funkt_2;
+static int hf_s7comm_szl_0131_0004_funkt_2_0;
+static int hf_s7comm_szl_0131_0004_funkt_2_1;
+static int hf_s7comm_szl_0131_0004_funkt_2_2;
+static int hf_s7comm_szl_0131_0004_funkt_2_3;
+static int hf_s7comm_szl_0131_0004_funkt_2_4;
+static int hf_s7comm_szl_0131_0004_funkt_2_5;
+static int hf_s7comm_szl_0131_0004_funkt_2_6;
+static int hf_s7comm_szl_0131_0004_funkt_2_7;
+static int hf_s7comm_szl_0131_0004_funkt_3;
+static int hf_s7comm_szl_0131_0004_funkt_3_0;
+static int hf_s7comm_szl_0131_0004_funkt_3_1;
+static int hf_s7comm_szl_0131_0004_funkt_3_2;
+static int hf_s7comm_szl_0131_0004_funkt_3_3;
+static int hf_s7comm_szl_0131_0004_funkt_3_4;
+static int hf_s7comm_szl_0131_0004_funkt_3_5;
+static int hf_s7comm_szl_0131_0004_funkt_3_6;
+static int hf_s7comm_szl_0131_0004_funkt_3_7;
+static int hf_s7comm_szl_0131_0004_funkt_4;
+static int hf_s7comm_szl_0131_0004_funkt_4_0;
+static int hf_s7comm_szl_0131_0004_funkt_4_1;
+static int hf_s7comm_szl_0131_0004_funkt_4_2;
+static int hf_s7comm_szl_0131_0004_funkt_4_3;
+static int hf_s7comm_szl_0131_0004_funkt_4_4;
+static int hf_s7comm_szl_0131_0004_funkt_4_5;
+static int hf_s7comm_szl_0131_0004_funkt_4_6;
+static int hf_s7comm_szl_0131_0004_funkt_4_7;
+static int hf_s7comm_szl_0131_0004_funkt_5;
+static int hf_s7comm_szl_0131_0004_funkt_6;
+static int hf_s7comm_szl_0131_0004_funkt_7;
+static int hf_s7comm_szl_0131_0004_kop;
+static int hf_s7comm_szl_0131_0004_del;
+static int hf_s7comm_szl_0131_0004_kett;
+static int hf_s7comm_szl_0131_0004_hoch;
+static int hf_s7comm_szl_0131_0004_ver;
+static int hf_s7comm_szl_0131_0004_res;
 
-static gint ett_s7comm_szl_0131_0004_funkt_0;
+static int ett_s7comm_szl_0131_0004_funkt_0;
 static int * const s7comm_szl_0131_0004_funkt_0_fields[] = {
     &hf_s7comm_szl_0131_0004_funkt_0_0,
     &hf_s7comm_szl_0131_0004_funkt_0_1,
@@ -854,7 +854,7 @@ static int * const s7comm_szl_0131_0004_funkt_0_fields[] = {
     &hf_s7comm_szl_0131_0004_funkt_0_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0004_funkt_1;
+static int ett_s7comm_szl_0131_0004_funkt_1;
 static int * const s7comm_szl_0131_0004_funkt_1_fields[] = {
     &hf_s7comm_szl_0131_0004_funkt_1_0,
     &hf_s7comm_szl_0131_0004_funkt_1_1,
@@ -866,7 +866,7 @@ static int * const s7comm_szl_0131_0004_funkt_1_fields[] = {
     &hf_s7comm_szl_0131_0004_funkt_1_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0004_funkt_2;
+static int ett_s7comm_szl_0131_0004_funkt_2;
 static int * const s7comm_szl_0131_0004_funkt_2_fields[] = {
     &hf_s7comm_szl_0131_0004_funkt_2_0,
     &hf_s7comm_szl_0131_0004_funkt_2_1,
@@ -878,7 +878,7 @@ static int * const s7comm_szl_0131_0004_funkt_2_fields[] = {
     &hf_s7comm_szl_0131_0004_funkt_2_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0004_funkt_3;
+static int ett_s7comm_szl_0131_0004_funkt_3;
 static int * const s7comm_szl_0131_0004_funkt_3_fields[] = {
     &hf_s7comm_szl_0131_0004_funkt_3_0,
     &hf_s7comm_szl_0131_0004_funkt_3_1,
@@ -890,7 +890,7 @@ static int * const s7comm_szl_0131_0004_funkt_3_fields[] = {
     &hf_s7comm_szl_0131_0004_funkt_3_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0004_funkt_4;
+static int ett_s7comm_szl_0131_0004_funkt_4;
 static int * const s7comm_szl_0131_0004_funkt_4_fields[] = {
     &hf_s7comm_szl_0131_0004_funkt_4_0,
     &hf_s7comm_szl_0131_0004_funkt_4_1,
@@ -903,29 +903,29 @@ static int * const s7comm_szl_0131_0004_funkt_4_fields[] = {
     NULL
 };
 
-static gint hf_s7comm_szl_0131_0005_index;
-static gint hf_s7comm_szl_0131_0005_funkt_0;
-static gint hf_s7comm_szl_0131_0005_funkt_0_0;
-static gint hf_s7comm_szl_0131_0005_funkt_0_1;
-static gint hf_s7comm_szl_0131_0005_funkt_0_2;
-static gint hf_s7comm_szl_0131_0005_funkt_0_3;
-static gint hf_s7comm_szl_0131_0005_funkt_0_4;
-static gint hf_s7comm_szl_0131_0005_funkt_0_5;
-static gint hf_s7comm_szl_0131_0005_funkt_0_6;
-static gint hf_s7comm_szl_0131_0005_funkt_0_7;
-static gint hf_s7comm_szl_0131_0005_funkt_1;
-static gint hf_s7comm_szl_0131_0005_funkt_2;
-static gint hf_s7comm_szl_0131_0005_funkt_3;
-static gint hf_s7comm_szl_0131_0005_funkt_4;
-static gint hf_s7comm_szl_0131_0005_funkt_5;
-static gint hf_s7comm_szl_0131_0005_funkt_6;
-static gint hf_s7comm_szl_0131_0005_funkt_7;
-static gint hf_s7comm_szl_0131_0005_anz_sen;
-static gint hf_s7comm_szl_0131_0005_anz_ein;
-static gint hf_s7comm_szl_0131_0005_anz_mel;
-static gint hf_s7comm_szl_0131_0005_res;
+static int hf_s7comm_szl_0131_0005_index;
+static int hf_s7comm_szl_0131_0005_funkt_0;
+static int hf_s7comm_szl_0131_0005_funkt_0_0;
+static int hf_s7comm_szl_0131_0005_funkt_0_1;
+static int hf_s7comm_szl_0131_0005_funkt_0_2;
+static int hf_s7comm_szl_0131_0005_funkt_0_3;
+static int hf_s7comm_szl_0131_0005_funkt_0_4;
+static int hf_s7comm_szl_0131_0005_funkt_0_5;
+static int hf_s7comm_szl_0131_0005_funkt_0_6;
+static int hf_s7comm_szl_0131_0005_funkt_0_7;
+static int hf_s7comm_szl_0131_0005_funkt_1;
+static int hf_s7comm_szl_0131_0005_funkt_2;
+static int hf_s7comm_szl_0131_0005_funkt_3;
+static int hf_s7comm_szl_0131_0005_funkt_4;
+static int hf_s7comm_szl_0131_0005_funkt_5;
+static int hf_s7comm_szl_0131_0005_funkt_6;
+static int hf_s7comm_szl_0131_0005_funkt_7;
+static int hf_s7comm_szl_0131_0005_anz_sen;
+static int hf_s7comm_szl_0131_0005_anz_ein;
+static int hf_s7comm_szl_0131_0005_anz_mel;
+static int hf_s7comm_szl_0131_0005_res;
 
-static gint ett_s7comm_szl_0131_0005_funkt_0;
+static int ett_s7comm_szl_0131_0005_funkt_0;
 static int * const s7comm_szl_0131_0005_funkt_0_fields[] = {
     &hf_s7comm_szl_0131_0005_funkt_0_0,
     &hf_s7comm_szl_0131_0005_funkt_0_1,
@@ -938,130 +938,130 @@ static int * const s7comm_szl_0131_0005_funkt_0_fields[] = {
     NULL
 };
 
-static gint hf_s7comm_szl_0131_0006_index;
-static gint hf_s7comm_szl_0131_0006_funkt_0;
-static gint hf_s7comm_szl_0131_0006_funkt_0_0;
-static gint hf_s7comm_szl_0131_0006_funkt_0_1;
-static gint hf_s7comm_szl_0131_0006_funkt_0_2;
-static gint hf_s7comm_szl_0131_0006_funkt_0_3;
-static gint hf_s7comm_szl_0131_0006_funkt_0_4;
-static gint hf_s7comm_szl_0131_0006_funkt_0_5;
-static gint hf_s7comm_szl_0131_0006_funkt_0_6;
-static gint hf_s7comm_szl_0131_0006_funkt_0_7;
-static gint hf_s7comm_szl_0131_0006_funkt_1;
-static gint hf_s7comm_szl_0131_0006_funkt_1_0;
-static gint hf_s7comm_szl_0131_0006_funkt_1_1;
-static gint hf_s7comm_szl_0131_0006_funkt_1_2;
-static gint hf_s7comm_szl_0131_0006_funkt_1_3;
-static gint hf_s7comm_szl_0131_0006_funkt_1_4;
-static gint hf_s7comm_szl_0131_0006_funkt_1_5;
-static gint hf_s7comm_szl_0131_0006_funkt_1_6;
-static gint hf_s7comm_szl_0131_0006_funkt_1_7;
-static gint hf_s7comm_szl_0131_0006_funkt_2;
-static gint hf_s7comm_szl_0131_0006_funkt_2_0;
-static gint hf_s7comm_szl_0131_0006_funkt_2_1;
-static gint hf_s7comm_szl_0131_0006_funkt_2_2;
-static gint hf_s7comm_szl_0131_0006_funkt_2_3;
-static gint hf_s7comm_szl_0131_0006_funkt_2_4;
-static gint hf_s7comm_szl_0131_0006_funkt_2_5;
-static gint hf_s7comm_szl_0131_0006_funkt_2_6;
-static gint hf_s7comm_szl_0131_0006_funkt_2_7;
-static gint hf_s7comm_szl_0131_0006_funkt_3;
-static gint hf_s7comm_szl_0131_0006_funkt_3_0;
-static gint hf_s7comm_szl_0131_0006_funkt_3_1;
-static gint hf_s7comm_szl_0131_0006_funkt_3_2;
-static gint hf_s7comm_szl_0131_0006_funkt_3_3;
-static gint hf_s7comm_szl_0131_0006_funkt_3_4;
-static gint hf_s7comm_szl_0131_0006_funkt_3_5;
-static gint hf_s7comm_szl_0131_0006_funkt_3_6;
-static gint hf_s7comm_szl_0131_0006_funkt_3_7;
-static gint hf_s7comm_szl_0131_0006_funkt_4;
-static gint hf_s7comm_szl_0131_0006_funkt_5;
-static gint hf_s7comm_szl_0131_0006_funkt_6;
-static gint hf_s7comm_szl_0131_0006_funkt_6_0;
-static gint hf_s7comm_szl_0131_0006_funkt_6_1;
-static gint hf_s7comm_szl_0131_0006_funkt_6_2;
-static gint hf_s7comm_szl_0131_0006_funkt_6_3;
-static gint hf_s7comm_szl_0131_0006_funkt_6_4;
-static gint hf_s7comm_szl_0131_0006_funkt_6_5;
-static gint hf_s7comm_szl_0131_0006_funkt_6_6;
-static gint hf_s7comm_szl_0131_0006_funkt_6_7;
-static gint hf_s7comm_szl_0131_0006_funkt_7;
-static gint hf_s7comm_szl_0131_0006_funkt_7_0;
-static gint hf_s7comm_szl_0131_0006_funkt_7_1;
-static gint hf_s7comm_szl_0131_0006_funkt_7_2;
-static gint hf_s7comm_szl_0131_0006_funkt_7_3;
-static gint hf_s7comm_szl_0131_0006_funkt_7_4;
-static gint hf_s7comm_szl_0131_0006_funkt_7_5;
-static gint hf_s7comm_szl_0131_0006_funkt_7_6;
-static gint hf_s7comm_szl_0131_0006_funkt_7_7;
-static gint hf_s7comm_szl_0131_0006_schnell;
-static gint hf_s7comm_szl_0131_0006_zugtyp_0;
-static gint hf_s7comm_szl_0131_0006_zugtyp_0_0;
-static gint hf_s7comm_szl_0131_0006_zugtyp_0_1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_0_2;
-static gint hf_s7comm_szl_0131_0006_zugtyp_0_3;
-static gint hf_s7comm_szl_0131_0006_zugtyp_0_4;
-static gint hf_s7comm_szl_0131_0006_zugtyp_0_5;
-static gint hf_s7comm_szl_0131_0006_zugtyp_0_6;
-static gint hf_s7comm_szl_0131_0006_zugtyp_0_7;
-static gint hf_s7comm_szl_0131_0006_zugtyp_1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_1_0;
-static gint hf_s7comm_szl_0131_0006_zugtyp_1_1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_1_2;
-static gint hf_s7comm_szl_0131_0006_zugtyp_1_3;
-static gint hf_s7comm_szl_0131_0006_zugtyp_1_4;
-static gint hf_s7comm_szl_0131_0006_zugtyp_1_5;
-static gint hf_s7comm_szl_0131_0006_zugtyp_1_6;
-static gint hf_s7comm_szl_0131_0006_zugtyp_1_7;
-static gint hf_s7comm_szl_0131_0006_zugtyp_2;
-static gint hf_s7comm_szl_0131_0006_zugtyp_2_0;
-static gint hf_s7comm_szl_0131_0006_zugtyp_2_1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_2_2;
-static gint hf_s7comm_szl_0131_0006_zugtyp_2_3;
-static gint hf_s7comm_szl_0131_0006_zugtyp_2_4;
-static gint hf_s7comm_szl_0131_0006_zugtyp_2_5;
-static gint hf_s7comm_szl_0131_0006_zugtyp_2_6;
-static gint hf_s7comm_szl_0131_0006_zugtyp_2_7;
-static gint hf_s7comm_szl_0131_0006_zugtyp_3;
-static gint hf_s7comm_szl_0131_0006_zugtyp_3_0;
-static gint hf_s7comm_szl_0131_0006_zugtyp_3_1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_3_2;
-static gint hf_s7comm_szl_0131_0006_zugtyp_3_3;
-static gint hf_s7comm_szl_0131_0006_zugtyp_3_4;
-static gint hf_s7comm_szl_0131_0006_zugtyp_3_5;
-static gint hf_s7comm_szl_0131_0006_zugtyp_3_6;
-static gint hf_s7comm_szl_0131_0006_zugtyp_3_7;
-static gint hf_s7comm_szl_0131_0006_zugtyp_4;
-static gint hf_s7comm_szl_0131_0006_zugtyp_5;
-static gint hf_s7comm_szl_0131_0006_zugtyp_6;
-static gint hf_s7comm_szl_0131_0006_zugtyp_6_0;
-static gint hf_s7comm_szl_0131_0006_zugtyp_6_1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_6_2;
-static gint hf_s7comm_szl_0131_0006_zugtyp_6_3;
-static gint hf_s7comm_szl_0131_0006_zugtyp_6_4;
-static gint hf_s7comm_szl_0131_0006_zugtyp_6_5;
-static gint hf_s7comm_szl_0131_0006_zugtyp_6_6;
-static gint hf_s7comm_szl_0131_0006_zugtyp_6_7;
-static gint hf_s7comm_szl_0131_0006_zugtyp_7;
-static gint hf_s7comm_szl_0131_0006_zugtyp_7_0;
-static gint hf_s7comm_szl_0131_0006_zugtyp_7_1;
-static gint hf_s7comm_szl_0131_0006_zugtyp_7_2;
-static gint hf_s7comm_szl_0131_0006_zugtyp_7_3;
-static gint hf_s7comm_szl_0131_0006_zugtyp_7_4;
-static gint hf_s7comm_szl_0131_0006_zugtyp_7_5;
-static gint hf_s7comm_szl_0131_0006_zugtyp_7_6;
-static gint hf_s7comm_szl_0131_0006_zugtyp_7_7;
-static gint hf_s7comm_szl_0131_0006_res1;
-static gint hf_s7comm_szl_0131_0006_max_sd_empf;
-static gint hf_s7comm_szl_0131_0006_max_sd_al8p;
-static gint hf_s7comm_szl_0131_0006_max_inst;
-static gint hf_s7comm_szl_0131_0006_res2;
-static gint hf_s7comm_szl_0131_0006_verb_proj;
-static gint hf_s7comm_szl_0131_0006_verb_prog;
-static gint hf_s7comm_szl_0131_0006_res3;
+static int hf_s7comm_szl_0131_0006_index;
+static int hf_s7comm_szl_0131_0006_funkt_0;
+static int hf_s7comm_szl_0131_0006_funkt_0_0;
+static int hf_s7comm_szl_0131_0006_funkt_0_1;
+static int hf_s7comm_szl_0131_0006_funkt_0_2;
+static int hf_s7comm_szl_0131_0006_funkt_0_3;
+static int hf_s7comm_szl_0131_0006_funkt_0_4;
+static int hf_s7comm_szl_0131_0006_funkt_0_5;
+static int hf_s7comm_szl_0131_0006_funkt_0_6;
+static int hf_s7comm_szl_0131_0006_funkt_0_7;
+static int hf_s7comm_szl_0131_0006_funkt_1;
+static int hf_s7comm_szl_0131_0006_funkt_1_0;
+static int hf_s7comm_szl_0131_0006_funkt_1_1;
+static int hf_s7comm_szl_0131_0006_funkt_1_2;
+static int hf_s7comm_szl_0131_0006_funkt_1_3;
+static int hf_s7comm_szl_0131_0006_funkt_1_4;
+static int hf_s7comm_szl_0131_0006_funkt_1_5;
+static int hf_s7comm_szl_0131_0006_funkt_1_6;
+static int hf_s7comm_szl_0131_0006_funkt_1_7;
+static int hf_s7comm_szl_0131_0006_funkt_2;
+static int hf_s7comm_szl_0131_0006_funkt_2_0;
+static int hf_s7comm_szl_0131_0006_funkt_2_1;
+static int hf_s7comm_szl_0131_0006_funkt_2_2;
+static int hf_s7comm_szl_0131_0006_funkt_2_3;
+static int hf_s7comm_szl_0131_0006_funkt_2_4;
+static int hf_s7comm_szl_0131_0006_funkt_2_5;
+static int hf_s7comm_szl_0131_0006_funkt_2_6;
+static int hf_s7comm_szl_0131_0006_funkt_2_7;
+static int hf_s7comm_szl_0131_0006_funkt_3;
+static int hf_s7comm_szl_0131_0006_funkt_3_0;
+static int hf_s7comm_szl_0131_0006_funkt_3_1;
+static int hf_s7comm_szl_0131_0006_funkt_3_2;
+static int hf_s7comm_szl_0131_0006_funkt_3_3;
+static int hf_s7comm_szl_0131_0006_funkt_3_4;
+static int hf_s7comm_szl_0131_0006_funkt_3_5;
+static int hf_s7comm_szl_0131_0006_funkt_3_6;
+static int hf_s7comm_szl_0131_0006_funkt_3_7;
+static int hf_s7comm_szl_0131_0006_funkt_4;
+static int hf_s7comm_szl_0131_0006_funkt_5;
+static int hf_s7comm_szl_0131_0006_funkt_6;
+static int hf_s7comm_szl_0131_0006_funkt_6_0;
+static int hf_s7comm_szl_0131_0006_funkt_6_1;
+static int hf_s7comm_szl_0131_0006_funkt_6_2;
+static int hf_s7comm_szl_0131_0006_funkt_6_3;
+static int hf_s7comm_szl_0131_0006_funkt_6_4;
+static int hf_s7comm_szl_0131_0006_funkt_6_5;
+static int hf_s7comm_szl_0131_0006_funkt_6_6;
+static int hf_s7comm_szl_0131_0006_funkt_6_7;
+static int hf_s7comm_szl_0131_0006_funkt_7;
+static int hf_s7comm_szl_0131_0006_funkt_7_0;
+static int hf_s7comm_szl_0131_0006_funkt_7_1;
+static int hf_s7comm_szl_0131_0006_funkt_7_2;
+static int hf_s7comm_szl_0131_0006_funkt_7_3;
+static int hf_s7comm_szl_0131_0006_funkt_7_4;
+static int hf_s7comm_szl_0131_0006_funkt_7_5;
+static int hf_s7comm_szl_0131_0006_funkt_7_6;
+static int hf_s7comm_szl_0131_0006_funkt_7_7;
+static int hf_s7comm_szl_0131_0006_schnell;
+static int hf_s7comm_szl_0131_0006_zugtyp_0;
+static int hf_s7comm_szl_0131_0006_zugtyp_0_0;
+static int hf_s7comm_szl_0131_0006_zugtyp_0_1;
+static int hf_s7comm_szl_0131_0006_zugtyp_0_2;
+static int hf_s7comm_szl_0131_0006_zugtyp_0_3;
+static int hf_s7comm_szl_0131_0006_zugtyp_0_4;
+static int hf_s7comm_szl_0131_0006_zugtyp_0_5;
+static int hf_s7comm_szl_0131_0006_zugtyp_0_6;
+static int hf_s7comm_szl_0131_0006_zugtyp_0_7;
+static int hf_s7comm_szl_0131_0006_zugtyp_1;
+static int hf_s7comm_szl_0131_0006_zugtyp_1_0;
+static int hf_s7comm_szl_0131_0006_zugtyp_1_1;
+static int hf_s7comm_szl_0131_0006_zugtyp_1_2;
+static int hf_s7comm_szl_0131_0006_zugtyp_1_3;
+static int hf_s7comm_szl_0131_0006_zugtyp_1_4;
+static int hf_s7comm_szl_0131_0006_zugtyp_1_5;
+static int hf_s7comm_szl_0131_0006_zugtyp_1_6;
+static int hf_s7comm_szl_0131_0006_zugtyp_1_7;
+static int hf_s7comm_szl_0131_0006_zugtyp_2;
+static int hf_s7comm_szl_0131_0006_zugtyp_2_0;
+static int hf_s7comm_szl_0131_0006_zugtyp_2_1;
+static int hf_s7comm_szl_0131_0006_zugtyp_2_2;
+static int hf_s7comm_szl_0131_0006_zugtyp_2_3;
+static int hf_s7comm_szl_0131_0006_zugtyp_2_4;
+static int hf_s7comm_szl_0131_0006_zugtyp_2_5;
+static int hf_s7comm_szl_0131_0006_zugtyp_2_6;
+static int hf_s7comm_szl_0131_0006_zugtyp_2_7;
+static int hf_s7comm_szl_0131_0006_zugtyp_3;
+static int hf_s7comm_szl_0131_0006_zugtyp_3_0;
+static int hf_s7comm_szl_0131_0006_zugtyp_3_1;
+static int hf_s7comm_szl_0131_0006_zugtyp_3_2;
+static int hf_s7comm_szl_0131_0006_zugtyp_3_3;
+static int hf_s7comm_szl_0131_0006_zugtyp_3_4;
+static int hf_s7comm_szl_0131_0006_zugtyp_3_5;
+static int hf_s7comm_szl_0131_0006_zugtyp_3_6;
+static int hf_s7comm_szl_0131_0006_zugtyp_3_7;
+static int hf_s7comm_szl_0131_0006_zugtyp_4;
+static int hf_s7comm_szl_0131_0006_zugtyp_5;
+static int hf_s7comm_szl_0131_0006_zugtyp_6;
+static int hf_s7comm_szl_0131_0006_zugtyp_6_0;
+static int hf_s7comm_szl_0131_0006_zugtyp_6_1;
+static int hf_s7comm_szl_0131_0006_zugtyp_6_2;
+static int hf_s7comm_szl_0131_0006_zugtyp_6_3;
+static int hf_s7comm_szl_0131_0006_zugtyp_6_4;
+static int hf_s7comm_szl_0131_0006_zugtyp_6_5;
+static int hf_s7comm_szl_0131_0006_zugtyp_6_6;
+static int hf_s7comm_szl_0131_0006_zugtyp_6_7;
+static int hf_s7comm_szl_0131_0006_zugtyp_7;
+static int hf_s7comm_szl_0131_0006_zugtyp_7_0;
+static int hf_s7comm_szl_0131_0006_zugtyp_7_1;
+static int hf_s7comm_szl_0131_0006_zugtyp_7_2;
+static int hf_s7comm_szl_0131_0006_zugtyp_7_3;
+static int hf_s7comm_szl_0131_0006_zugtyp_7_4;
+static int hf_s7comm_szl_0131_0006_zugtyp_7_5;
+static int hf_s7comm_szl_0131_0006_zugtyp_7_6;
+static int hf_s7comm_szl_0131_0006_zugtyp_7_7;
+static int hf_s7comm_szl_0131_0006_res1;
+static int hf_s7comm_szl_0131_0006_max_sd_empf;
+static int hf_s7comm_szl_0131_0006_max_sd_al8p;
+static int hf_s7comm_szl_0131_0006_max_inst;
+static int hf_s7comm_szl_0131_0006_res2;
+static int hf_s7comm_szl_0131_0006_verb_proj;
+static int hf_s7comm_szl_0131_0006_verb_prog;
+static int hf_s7comm_szl_0131_0006_res3;
 
-static gint ett_s7comm_szl_0131_0006_funkt_0;
+static int ett_s7comm_szl_0131_0006_funkt_0;
 static int * const s7comm_szl_0131_0006_funkt_0_fields[] = {
     &hf_s7comm_szl_0131_0006_funkt_0_0,
     &hf_s7comm_szl_0131_0006_funkt_0_1,
@@ -1073,7 +1073,7 @@ static int * const s7comm_szl_0131_0006_funkt_0_fields[] = {
     &hf_s7comm_szl_0131_0006_funkt_0_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0006_funkt_1;
+static int ett_s7comm_szl_0131_0006_funkt_1;
 static int * const s7comm_szl_0131_0006_funkt_1_fields[] = {
     &hf_s7comm_szl_0131_0006_funkt_1_0,
     &hf_s7comm_szl_0131_0006_funkt_1_1,
@@ -1085,7 +1085,7 @@ static int * const s7comm_szl_0131_0006_funkt_1_fields[] = {
     &hf_s7comm_szl_0131_0006_funkt_1_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0006_funkt_2;
+static int ett_s7comm_szl_0131_0006_funkt_2;
 static int * const s7comm_szl_0131_0006_funkt_2_fields[] = {
     &hf_s7comm_szl_0131_0006_funkt_2_0,
     &hf_s7comm_szl_0131_0006_funkt_2_1,
@@ -1097,7 +1097,7 @@ static int * const s7comm_szl_0131_0006_funkt_2_fields[] = {
     &hf_s7comm_szl_0131_0006_funkt_2_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0006_funkt_3;
+static int ett_s7comm_szl_0131_0006_funkt_3;
 static int * const s7comm_szl_0131_0006_funkt_3_fields[] = {
     &hf_s7comm_szl_0131_0006_funkt_3_0,
     &hf_s7comm_szl_0131_0006_funkt_3_1,
@@ -1109,7 +1109,7 @@ static int * const s7comm_szl_0131_0006_funkt_3_fields[] = {
     &hf_s7comm_szl_0131_0006_funkt_3_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0006_funkt_6;
+static int ett_s7comm_szl_0131_0006_funkt_6;
 static int * const s7comm_szl_0131_0006_funkt_6_fields[] = {
     &hf_s7comm_szl_0131_0006_funkt_6_0,
     &hf_s7comm_szl_0131_0006_funkt_6_1,
@@ -1121,7 +1121,7 @@ static int * const s7comm_szl_0131_0006_funkt_6_fields[] = {
     &hf_s7comm_szl_0131_0006_funkt_6_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0006_funkt_7;
+static int ett_s7comm_szl_0131_0006_funkt_7;
 static int * const s7comm_szl_0131_0006_funkt_7_fields[] = {
     &hf_s7comm_szl_0131_0006_funkt_7_0,
     &hf_s7comm_szl_0131_0006_funkt_7_1,
@@ -1133,7 +1133,7 @@ static int * const s7comm_szl_0131_0006_funkt_7_fields[] = {
     &hf_s7comm_szl_0131_0006_funkt_7_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0006_zugtyp_0;
+static int ett_s7comm_szl_0131_0006_zugtyp_0;
 static int * const s7comm_szl_0131_0006_zugtyp_0_fields[] = {
     &hf_s7comm_szl_0131_0006_zugtyp_0_0,
     &hf_s7comm_szl_0131_0006_zugtyp_0_1,
@@ -1145,7 +1145,7 @@ static int * const s7comm_szl_0131_0006_zugtyp_0_fields[] = {
     &hf_s7comm_szl_0131_0006_zugtyp_0_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0006_zugtyp_1;
+static int ett_s7comm_szl_0131_0006_zugtyp_1;
 static int * const s7comm_szl_0131_0006_zugtyp_1_fields[] = {
     &hf_s7comm_szl_0131_0006_zugtyp_1_0,
     &hf_s7comm_szl_0131_0006_zugtyp_1_1,
@@ -1157,7 +1157,7 @@ static int * const s7comm_szl_0131_0006_zugtyp_1_fields[] = {
     &hf_s7comm_szl_0131_0006_zugtyp_1_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0006_zugtyp_2;
+static int ett_s7comm_szl_0131_0006_zugtyp_2;
 static int * const s7comm_szl_0131_0006_zugtyp_2_fields[] = {
     &hf_s7comm_szl_0131_0006_zugtyp_2_0,
     &hf_s7comm_szl_0131_0006_zugtyp_2_1,
@@ -1169,7 +1169,7 @@ static int * const s7comm_szl_0131_0006_zugtyp_2_fields[] = {
     &hf_s7comm_szl_0131_0006_zugtyp_2_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0006_zugtyp_3;
+static int ett_s7comm_szl_0131_0006_zugtyp_3;
 static int * const s7comm_szl_0131_0006_zugtyp_3_fields[] = {
     &hf_s7comm_szl_0131_0006_zugtyp_3_0,
     &hf_s7comm_szl_0131_0006_zugtyp_3_1,
@@ -1181,7 +1181,7 @@ static int * const s7comm_szl_0131_0006_zugtyp_3_fields[] = {
     &hf_s7comm_szl_0131_0006_zugtyp_3_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0006_zugtyp_6;
+static int ett_s7comm_szl_0131_0006_zugtyp_6;
 static int * const s7comm_szl_0131_0006_zugtyp_6_fields[] = {
     &hf_s7comm_szl_0131_0006_zugtyp_6_0,
     &hf_s7comm_szl_0131_0006_zugtyp_6_1,
@@ -1193,7 +1193,7 @@ static int * const s7comm_szl_0131_0006_zugtyp_6_fields[] = {
     &hf_s7comm_szl_0131_0006_zugtyp_6_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0006_zugtyp_7;
+static int ett_s7comm_szl_0131_0006_zugtyp_7;
 static int * const s7comm_szl_0131_0006_zugtyp_7_fields[] = {
     &hf_s7comm_szl_0131_0006_zugtyp_7_0,
     &hf_s7comm_szl_0131_0006_zugtyp_7_1,
@@ -1206,47 +1206,47 @@ static int * const s7comm_szl_0131_0006_zugtyp_7_fields[] = {
     NULL
 };
 
-static gint hf_s7comm_szl_0131_0007_index;
-static gint hf_s7comm_szl_0131_0007_funkt_0;
-static gint hf_s7comm_szl_0131_0007_funkt_0_0;
-static gint hf_s7comm_szl_0131_0007_funkt_0_1;
-static gint hf_s7comm_szl_0131_0007_funkt_0_2;
-static gint hf_s7comm_szl_0131_0007_funkt_0_3;
-static gint hf_s7comm_szl_0131_0007_funkt_0_4;
-static gint hf_s7comm_szl_0131_0007_funkt_0_5;
-static gint hf_s7comm_szl_0131_0007_funkt_0_6;
-static gint hf_s7comm_szl_0131_0007_funkt_0_7;
-static gint hf_s7comm_szl_0131_0007_funkt_1;
-static gint hf_s7comm_szl_0131_0007_obj_0;
-static gint hf_s7comm_szl_0131_0007_obj_0_0;
-static gint hf_s7comm_szl_0131_0007_obj_0_1;
-static gint hf_s7comm_szl_0131_0007_obj_0_2;
-static gint hf_s7comm_szl_0131_0007_obj_0_3;
-static gint hf_s7comm_szl_0131_0007_obj_0_4;
-static gint hf_s7comm_szl_0131_0007_obj_0_5;
-static gint hf_s7comm_szl_0131_0007_obj_0_6;
-static gint hf_s7comm_szl_0131_0007_obj_0_7;
-static gint hf_s7comm_szl_0131_0007_obj_1;
-static gint hf_s7comm_szl_0131_0007_kons;
-static gint hf_s7comm_szl_0131_0007_sen;
-static gint hf_s7comm_szl_0131_0007_rec;
-static gint hf_s7comm_szl_0131_0007_time;
-static gint hf_s7comm_szl_0131_0007_proj;
-static gint hf_s7comm_szl_0131_0007_alarm;
-static gint hf_s7comm_szl_0131_0007_mode;
-static gint hf_s7comm_szl_0131_0007_mode_0;
-static gint hf_s7comm_szl_0131_0007_mode_1;
-static gint hf_s7comm_szl_0131_0007_kreis;
-static gint hf_s7comm_szl_0131_0007_sk_1;
-static gint hf_s7comm_szl_0131_0007_sk_2;
-static gint hf_s7comm_szl_0131_0007_ek_1;
-static gint hf_s7comm_szl_0131_0007_ek_2;
-static gint hf_s7comm_szl_0131_0007_len_1;
-static gint hf_s7comm_szl_0131_0007_len_2;
-static gint hf_s7comm_szl_0131_0007_len_3;
-static gint hf_s7comm_szl_0131_0007_res;
+static int hf_s7comm_szl_0131_0007_index;
+static int hf_s7comm_szl_0131_0007_funkt_0;
+static int hf_s7comm_szl_0131_0007_funkt_0_0;
+static int hf_s7comm_szl_0131_0007_funkt_0_1;
+static int hf_s7comm_szl_0131_0007_funkt_0_2;
+static int hf_s7comm_szl_0131_0007_funkt_0_3;
+static int hf_s7comm_szl_0131_0007_funkt_0_4;
+static int hf_s7comm_szl_0131_0007_funkt_0_5;
+static int hf_s7comm_szl_0131_0007_funkt_0_6;
+static int hf_s7comm_szl_0131_0007_funkt_0_7;
+static int hf_s7comm_szl_0131_0007_funkt_1;
+static int hf_s7comm_szl_0131_0007_obj_0;
+static int hf_s7comm_szl_0131_0007_obj_0_0;
+static int hf_s7comm_szl_0131_0007_obj_0_1;
+static int hf_s7comm_szl_0131_0007_obj_0_2;
+static int hf_s7comm_szl_0131_0007_obj_0_3;
+static int hf_s7comm_szl_0131_0007_obj_0_4;
+static int hf_s7comm_szl_0131_0007_obj_0_5;
+static int hf_s7comm_szl_0131_0007_obj_0_6;
+static int hf_s7comm_szl_0131_0007_obj_0_7;
+static int hf_s7comm_szl_0131_0007_obj_1;
+static int hf_s7comm_szl_0131_0007_kons;
+static int hf_s7comm_szl_0131_0007_sen;
+static int hf_s7comm_szl_0131_0007_rec;
+static int hf_s7comm_szl_0131_0007_time;
+static int hf_s7comm_szl_0131_0007_proj;
+static int hf_s7comm_szl_0131_0007_alarm;
+static int hf_s7comm_szl_0131_0007_mode;
+static int hf_s7comm_szl_0131_0007_mode_0;
+static int hf_s7comm_szl_0131_0007_mode_1;
+static int hf_s7comm_szl_0131_0007_kreis;
+static int hf_s7comm_szl_0131_0007_sk_1;
+static int hf_s7comm_szl_0131_0007_sk_2;
+static int hf_s7comm_szl_0131_0007_ek_1;
+static int hf_s7comm_szl_0131_0007_ek_2;
+static int hf_s7comm_szl_0131_0007_len_1;
+static int hf_s7comm_szl_0131_0007_len_2;
+static int hf_s7comm_szl_0131_0007_len_3;
+static int hf_s7comm_szl_0131_0007_res;
 
-static gint ett_s7comm_szl_0131_0007_funkt_0;
+static int ett_s7comm_szl_0131_0007_funkt_0;
 static int * const s7comm_szl_0131_0007_funkt_0_fields[] = {
     &hf_s7comm_szl_0131_0007_funkt_0_0,
     &hf_s7comm_szl_0131_0007_funkt_0_1,
@@ -1259,7 +1259,7 @@ static int * const s7comm_szl_0131_0007_funkt_0_fields[] = {
     NULL
 };
 
-static gint ett_s7comm_szl_0131_0007_obj_0;
+static int ett_s7comm_szl_0131_0007_obj_0;
 static int * const s7comm_szl_0131_0007_obj_0_fields[] = {
     &hf_s7comm_szl_0131_0007_obj_0_0,
     &hf_s7comm_szl_0131_0007_obj_0_1,
@@ -1272,45 +1272,45 @@ static int * const s7comm_szl_0131_0007_obj_0_fields[] = {
     NULL
 };
 
-static gint ett_s7comm_szl_0131_0007_mode;
+static int ett_s7comm_szl_0131_0007_mode;
 static int * const s7comm_szl_0131_0007_mode_fields[] = {
     &hf_s7comm_szl_0131_0007_mode_0,
     &hf_s7comm_szl_0131_0007_mode_1,
     NULL
 };
 
-static gint hf_s7comm_szl_0131_0008_index;
-static gint hf_s7comm_szl_0131_0008_last_1;
-static gint hf_s7comm_szl_0131_0008_last_1_tb;
-static gint hf_s7comm_szl_0131_0008_last_2;
-static gint hf_s7comm_szl_0131_0008_last_2_tb;
-static gint hf_s7comm_szl_0131_0008_last_3;
-static gint hf_s7comm_szl_0131_0008_last_3_tb;
-static gint hf_s7comm_szl_0131_0008_merker;
-static gint hf_s7comm_szl_0131_0008_merker_tb;
-static gint hf_s7comm_szl_0131_0008_ea;
-static gint hf_s7comm_szl_0131_0008_ea_tb;
-static gint hf_s7comm_szl_0131_0008_tz;
-static gint hf_s7comm_szl_0131_0008_tz_tb;
-static gint hf_s7comm_szl_0131_0008_db;
-static gint hf_s7comm_szl_0131_0008_db_tb;
-static gint hf_s7comm_szl_0131_0008_ld;
-static gint hf_s7comm_szl_0131_0008_ld_tb;
-static gint hf_s7comm_szl_0131_0008_reg;
-static gint hf_s7comm_szl_0131_0008_reg_tb;
-static gint hf_s7comm_szl_0131_0008_ba_stali1;
-static gint hf_s7comm_szl_0131_0008_ba_stali1_tb;
-static gint hf_s7comm_szl_0131_0008_ba_stali2;
-static gint hf_s7comm_szl_0131_0008_ba_stali2_tb;
-static gint hf_s7comm_szl_0131_0008_ba_stali3;
-static gint hf_s7comm_szl_0131_0008_ba_stali3_tb;
-static gint hf_s7comm_szl_0131_0008_akku;
-static gint hf_s7comm_szl_0131_0008_akku_tb;
-static gint hf_s7comm_szl_0131_0008_address;
-static gint hf_s7comm_szl_0131_0008_address_tb;
-static gint hf_s7comm_szl_0131_0008_dbreg;
-static gint hf_s7comm_szl_0131_0008_dbreg_tb;
-static gint hf_s7comm_szl_0131_0008_res;
+static int hf_s7comm_szl_0131_0008_index;
+static int hf_s7comm_szl_0131_0008_last_1;
+static int hf_s7comm_szl_0131_0008_last_1_tb;
+static int hf_s7comm_szl_0131_0008_last_2;
+static int hf_s7comm_szl_0131_0008_last_2_tb;
+static int hf_s7comm_szl_0131_0008_last_3;
+static int hf_s7comm_szl_0131_0008_last_3_tb;
+static int hf_s7comm_szl_0131_0008_merker;
+static int hf_s7comm_szl_0131_0008_merker_tb;
+static int hf_s7comm_szl_0131_0008_ea;
+static int hf_s7comm_szl_0131_0008_ea_tb;
+static int hf_s7comm_szl_0131_0008_tz;
+static int hf_s7comm_szl_0131_0008_tz_tb;
+static int hf_s7comm_szl_0131_0008_db;
+static int hf_s7comm_szl_0131_0008_db_tb;
+static int hf_s7comm_szl_0131_0008_ld;
+static int hf_s7comm_szl_0131_0008_ld_tb;
+static int hf_s7comm_szl_0131_0008_reg;
+static int hf_s7comm_szl_0131_0008_reg_tb;
+static int hf_s7comm_szl_0131_0008_ba_stali1;
+static int hf_s7comm_szl_0131_0008_ba_stali1_tb;
+static int hf_s7comm_szl_0131_0008_ba_stali2;
+static int hf_s7comm_szl_0131_0008_ba_stali2_tb;
+static int hf_s7comm_szl_0131_0008_ba_stali3;
+static int hf_s7comm_szl_0131_0008_ba_stali3_tb;
+static int hf_s7comm_szl_0131_0008_akku;
+static int hf_s7comm_szl_0131_0008_akku_tb;
+static int hf_s7comm_szl_0131_0008_address;
+static int hf_s7comm_szl_0131_0008_address_tb;
+static int hf_s7comm_szl_0131_0008_dbreg;
+static int hf_s7comm_szl_0131_0008_dbreg_tb;
+static int hf_s7comm_szl_0131_0008_res;
 static const value_string s7comm_szl_0131_0008_timebase_names[] = {
     { 0,                                    "100 ps" },
     { 1,                                    "1 ns" },
@@ -1331,26 +1331,26 @@ static const value_string s7comm_szl_0131_0008_timebase_names[] = {
     { 0,                                    NULL }
 };
 
-static gint hf_s7comm_szl_0131_0009_index;
-static gint hf_s7comm_szl_0131_0009_sync_k;
-static gint hf_s7comm_szl_0131_0009_sync_k_0;
-static gint hf_s7comm_szl_0131_0009_sync_k_1;
-static gint hf_s7comm_szl_0131_0009_sync_k_2;
-static gint hf_s7comm_szl_0131_0009_sync_mpi;
-static gint hf_s7comm_szl_0131_0009_sync_mpi_0;
-static gint hf_s7comm_szl_0131_0009_sync_mpi_1;
-static gint hf_s7comm_szl_0131_0009_sync_mpi_2;
-static gint hf_s7comm_szl_0131_0009_sync_mfi;
-static gint hf_s7comm_szl_0131_0009_sync_mfi_0;
-static gint hf_s7comm_szl_0131_0009_sync_mfi_1;
-static gint hf_s7comm_szl_0131_0009_sync_mfi_2;
-static gint hf_s7comm_szl_0131_0009_res1;
-static gint hf_s7comm_szl_0131_0009_abw_puf;
-static gint hf_s7comm_szl_0131_0009_abw_5v;
-static gint hf_s7comm_szl_0131_0009_anz_bsz;
-static gint hf_s7comm_szl_0131_0009_res2;
+static int hf_s7comm_szl_0131_0009_index;
+static int hf_s7comm_szl_0131_0009_sync_k;
+static int hf_s7comm_szl_0131_0009_sync_k_0;
+static int hf_s7comm_szl_0131_0009_sync_k_1;
+static int hf_s7comm_szl_0131_0009_sync_k_2;
+static int hf_s7comm_szl_0131_0009_sync_mpi;
+static int hf_s7comm_szl_0131_0009_sync_mpi_0;
+static int hf_s7comm_szl_0131_0009_sync_mpi_1;
+static int hf_s7comm_szl_0131_0009_sync_mpi_2;
+static int hf_s7comm_szl_0131_0009_sync_mfi;
+static int hf_s7comm_szl_0131_0009_sync_mfi_0;
+static int hf_s7comm_szl_0131_0009_sync_mfi_1;
+static int hf_s7comm_szl_0131_0009_sync_mfi_2;
+static int hf_s7comm_szl_0131_0009_res1;
+static int hf_s7comm_szl_0131_0009_abw_puf;
+static int hf_s7comm_szl_0131_0009_abw_5v;
+static int hf_s7comm_szl_0131_0009_anz_bsz;
+static int hf_s7comm_szl_0131_0009_res2;
 
-static gint ett_s7comm_szl_0131_0009_sync_k;
+static int ett_s7comm_szl_0131_0009_sync_k;
 static int * const s7comm_szl_0131_0009_sync_k_fields[] = {
     &hf_s7comm_szl_0131_0009_sync_k_0,
     &hf_s7comm_szl_0131_0009_sync_k_1,
@@ -1358,7 +1358,7 @@ static int * const s7comm_szl_0131_0009_sync_k_fields[] = {
     NULL
 };
 
-static gint ett_s7comm_szl_0131_0009_sync_mpi;
+static int ett_s7comm_szl_0131_0009_sync_mpi;
 static int * const s7comm_szl_0131_0009_sync_mpi_fields[] = {
     &hf_s7comm_szl_0131_0009_sync_mpi_0,
     &hf_s7comm_szl_0131_0009_sync_mpi_1,
@@ -1366,7 +1366,7 @@ static int * const s7comm_szl_0131_0009_sync_mpi_fields[] = {
     NULL
 };
 
-static gint ett_s7comm_szl_0131_0009_sync_mfi;
+static int ett_s7comm_szl_0131_0009_sync_mfi;
 static int * const s7comm_szl_0131_0009_sync_mfi_fields[] = {
     &hf_s7comm_szl_0131_0009_sync_mfi_0,
     &hf_s7comm_szl_0131_0009_sync_mfi_1,
@@ -1374,51 +1374,51 @@ static int * const s7comm_szl_0131_0009_sync_mfi_fields[] = {
     NULL
 };
 
-static gint hf_s7comm_szl_0131_0010_index;
-static gint hf_s7comm_szl_0131_0010_funk_1;
-static gint hf_s7comm_szl_0131_0010_funk_1_0;
-static gint hf_s7comm_szl_0131_0010_funk_1_1;
-static gint hf_s7comm_szl_0131_0010_funk_1_2;
-static gint hf_s7comm_szl_0131_0010_funk_1_3;
-static gint hf_s7comm_szl_0131_0010_funk_1_4;
-static gint hf_s7comm_szl_0131_0010_funk_1_5;
-static gint hf_s7comm_szl_0131_0010_funk_1_6;
-static gint hf_s7comm_szl_0131_0010_funk_1_7;
-static gint hf_s7comm_szl_0131_0010_funk_2;
-static gint hf_s7comm_szl_0131_0010_ber_meld_1;
-static gint hf_s7comm_szl_0131_0010_ber_meld_1_0;
-static gint hf_s7comm_szl_0131_0010_ber_meld_1_1;
-static gint hf_s7comm_szl_0131_0010_ber_meld_1_2;
-static gint hf_s7comm_szl_0131_0010_ber_meld_1_3;
-static gint hf_s7comm_szl_0131_0010_ber_meld_1_4;
-static gint hf_s7comm_szl_0131_0010_ber_meld_1_5;
-static gint hf_s7comm_szl_0131_0010_ber_meld_1_6;
-static gint hf_s7comm_szl_0131_0010_ber_meld_1_7;
-static gint hf_s7comm_szl_0131_0010_ber_meld_2;
-static gint hf_s7comm_szl_0131_0010_ber_zus_1;
-static gint hf_s7comm_szl_0131_0010_ber_zus_1_0;
-static gint hf_s7comm_szl_0131_0010_ber_zus_1_1;
-static gint hf_s7comm_szl_0131_0010_ber_zus_1_2;
-static gint hf_s7comm_szl_0131_0010_ber_zus_1_3;
-static gint hf_s7comm_szl_0131_0010_ber_zus_1_4;
-static gint hf_s7comm_szl_0131_0010_ber_zus_1_5;
-static gint hf_s7comm_szl_0131_0010_ber_zus_1_6;
-static gint hf_s7comm_szl_0131_0010_ber_zus_1_7;
-static gint hf_s7comm_szl_0131_0010_ber_zus_2;
-static gint hf_s7comm_szl_0131_0010_typ_zus_1;
-static gint hf_s7comm_szl_0131_0010_typ_zus_1_0;
-static gint hf_s7comm_szl_0131_0010_typ_zus_1_1;
-static gint hf_s7comm_szl_0131_0010_typ_zus_1_2;
-static gint hf_s7comm_szl_0131_0010_typ_zus_1_3;
-static gint hf_s7comm_szl_0131_0010_typ_zus_1_4;
-static gint hf_s7comm_szl_0131_0010_typ_zus_1_5;
-static gint hf_s7comm_szl_0131_0010_typ_zus_1_6;
-static gint hf_s7comm_szl_0131_0010_typ_zus_1_7;
-static gint hf_s7comm_szl_0131_0010_typ_zus_2;
-static gint hf_s7comm_szl_0131_0010_maxanz_arch;
-static gint hf_s7comm_szl_0131_0010_res;
+static int hf_s7comm_szl_0131_0010_index;
+static int hf_s7comm_szl_0131_0010_funk_1;
+static int hf_s7comm_szl_0131_0010_funk_1_0;
+static int hf_s7comm_szl_0131_0010_funk_1_1;
+static int hf_s7comm_szl_0131_0010_funk_1_2;
+static int hf_s7comm_szl_0131_0010_funk_1_3;
+static int hf_s7comm_szl_0131_0010_funk_1_4;
+static int hf_s7comm_szl_0131_0010_funk_1_5;
+static int hf_s7comm_szl_0131_0010_funk_1_6;
+static int hf_s7comm_szl_0131_0010_funk_1_7;
+static int hf_s7comm_szl_0131_0010_funk_2;
+static int hf_s7comm_szl_0131_0010_ber_meld_1;
+static int hf_s7comm_szl_0131_0010_ber_meld_1_0;
+static int hf_s7comm_szl_0131_0010_ber_meld_1_1;
+static int hf_s7comm_szl_0131_0010_ber_meld_1_2;
+static int hf_s7comm_szl_0131_0010_ber_meld_1_3;
+static int hf_s7comm_szl_0131_0010_ber_meld_1_4;
+static int hf_s7comm_szl_0131_0010_ber_meld_1_5;
+static int hf_s7comm_szl_0131_0010_ber_meld_1_6;
+static int hf_s7comm_szl_0131_0010_ber_meld_1_7;
+static int hf_s7comm_szl_0131_0010_ber_meld_2;
+static int hf_s7comm_szl_0131_0010_ber_zus_1;
+static int hf_s7comm_szl_0131_0010_ber_zus_1_0;
+static int hf_s7comm_szl_0131_0010_ber_zus_1_1;
+static int hf_s7comm_szl_0131_0010_ber_zus_1_2;
+static int hf_s7comm_szl_0131_0010_ber_zus_1_3;
+static int hf_s7comm_szl_0131_0010_ber_zus_1_4;
+static int hf_s7comm_szl_0131_0010_ber_zus_1_5;
+static int hf_s7comm_szl_0131_0010_ber_zus_1_6;
+static int hf_s7comm_szl_0131_0010_ber_zus_1_7;
+static int hf_s7comm_szl_0131_0010_ber_zus_2;
+static int hf_s7comm_szl_0131_0010_typ_zus_1;
+static int hf_s7comm_szl_0131_0010_typ_zus_1_0;
+static int hf_s7comm_szl_0131_0010_typ_zus_1_1;
+static int hf_s7comm_szl_0131_0010_typ_zus_1_2;
+static int hf_s7comm_szl_0131_0010_typ_zus_1_3;
+static int hf_s7comm_szl_0131_0010_typ_zus_1_4;
+static int hf_s7comm_szl_0131_0010_typ_zus_1_5;
+static int hf_s7comm_szl_0131_0010_typ_zus_1_6;
+static int hf_s7comm_szl_0131_0010_typ_zus_1_7;
+static int hf_s7comm_szl_0131_0010_typ_zus_2;
+static int hf_s7comm_szl_0131_0010_maxanz_arch;
+static int hf_s7comm_szl_0131_0010_res;
 
-static gint ett_s7comm_szl_0131_0010_funk_1;
+static int ett_s7comm_szl_0131_0010_funk_1;
 static int * const s7comm_szl_0131_0010_funk_1_fields[] = {
     &hf_s7comm_szl_0131_0010_funk_1_0,
     &hf_s7comm_szl_0131_0010_funk_1_1,
@@ -1430,7 +1430,7 @@ static int * const s7comm_szl_0131_0010_funk_1_fields[] = {
     &hf_s7comm_szl_0131_0010_funk_1_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0010_ber_meld_1;
+static int ett_s7comm_szl_0131_0010_ber_meld_1;
 static int * const s7comm_szl_0131_0010_ber_meld_1_fields[] = {
     &hf_s7comm_szl_0131_0010_ber_meld_1_0,
     &hf_s7comm_szl_0131_0010_ber_meld_1_1,
@@ -1442,7 +1442,7 @@ static int * const s7comm_szl_0131_0010_ber_meld_1_fields[] = {
     &hf_s7comm_szl_0131_0010_ber_meld_1_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0010_ber_zus_1;
+static int ett_s7comm_szl_0131_0010_ber_zus_1;
 static int * const s7comm_szl_0131_0010_ber_zus_1_fields[] = {
     &hf_s7comm_szl_0131_0010_ber_zus_1_0,
     &hf_s7comm_szl_0131_0010_ber_zus_1_1,
@@ -1454,7 +1454,7 @@ static int * const s7comm_szl_0131_0010_ber_zus_1_fields[] = {
     &hf_s7comm_szl_0131_0010_ber_zus_1_7,
     NULL
 };
-static gint ett_s7comm_szl_0131_0010_typ_zus_1;
+static int ett_s7comm_szl_0131_0010_typ_zus_1;
 static int * const s7comm_szl_0131_0010_typ_zus_1_fields[] = {
     &hf_s7comm_szl_0131_0010_typ_zus_1_0,
     &hf_s7comm_szl_0131_0010_typ_zus_1_1,
@@ -1467,27 +1467,27 @@ static int * const s7comm_szl_0131_0010_typ_zus_1_fields[] = {
     NULL
 };
 
-static gint hf_s7comm_szl_0132_0001_index;
-static gint hf_s7comm_szl_0132_0001_res_pg;
-static gint hf_s7comm_szl_0132_0001_res_os;
-static gint hf_s7comm_szl_0132_0001_u_pg;
-static gint hf_s7comm_szl_0132_0001_u_os;
-static gint hf_s7comm_szl_0132_0001_proj;
-static gint hf_s7comm_szl_0132_0001_auf;
-static gint hf_s7comm_szl_0132_0001_free;
-static gint hf_s7comm_szl_0132_0001_used;
-static gint hf_s7comm_szl_0132_0001_last;
-static gint hf_s7comm_szl_0132_0001_res;
+static int hf_s7comm_szl_0132_0001_index;
+static int hf_s7comm_szl_0132_0001_res_pg;
+static int hf_s7comm_szl_0132_0001_res_os;
+static int hf_s7comm_szl_0132_0001_u_pg;
+static int hf_s7comm_szl_0132_0001_u_os;
+static int hf_s7comm_szl_0132_0001_proj;
+static int hf_s7comm_szl_0132_0001_auf;
+static int hf_s7comm_szl_0132_0001_free;
+static int hf_s7comm_szl_0132_0001_used;
+static int hf_s7comm_szl_0132_0001_last;
+static int hf_s7comm_szl_0132_0001_res;
 
-static gint hf_s7comm_szl_0132_0002_index;
-static gint hf_s7comm_szl_0132_0002_anz;
-static gint hf_s7comm_szl_0132_0002_res;
+static int hf_s7comm_szl_0132_0002_index;
+static int hf_s7comm_szl_0132_0002_anz;
+static int hf_s7comm_szl_0132_0002_res;
 
-static gint hf_s7comm_szl_0132_0004_index;
-static gint hf_s7comm_szl_0132_0004_key;
-static gint hf_s7comm_szl_0132_0004_param;
-static gint hf_s7comm_szl_0132_0004_real;
-static gint hf_s7comm_szl_0132_0004_bart_sch;
+static int hf_s7comm_szl_0132_0004_index;
+static int hf_s7comm_szl_0132_0004_key;
+static int hf_s7comm_szl_0132_0004_param;
+static int hf_s7comm_szl_0132_0004_real;
+static int hf_s7comm_szl_0132_0004_bart_sch;
 
 static const value_string szl_bart_sch_names[] = {
     { 0,                                    "undefined or cannot be ascertained" },
@@ -1497,27 +1497,27 @@ static const value_string szl_bart_sch_names[] = {
     { 4,                                    "MRES" },
     { 0,                                    NULL }
 };
-static gint hf_s7comm_szl_0132_0004_crst_wrst;
+static int hf_s7comm_szl_0132_0004_crst_wrst;
 static const value_string szl_crst_wrst_names[] = {
     { 0,                                    "undefined, does not exist or cannot be ascertained" },
     { 1,                                    "CRST" },
     { 2,                                    "WRST" },
     { 0,                                    NULL }
 };
-static gint hf_s7comm_szl_0132_0004_ken_f;
-static gint hf_s7comm_szl_0132_0004_ken_rel;
-static gint hf_s7comm_szl_0132_0004_ken_ver1_hw;
-static gint hf_s7comm_szl_0132_0004_ken_ver2_hw;
-static gint hf_s7comm_szl_0132_0004_ken_ver1_awp;
-static gint hf_s7comm_szl_0132_0004_ken_ver2_awp;
-static gint hf_s7comm_szl_0132_0004_res;
+static int hf_s7comm_szl_0132_0004_ken_f;
+static int hf_s7comm_szl_0132_0004_ken_rel;
+static int hf_s7comm_szl_0132_0004_ken_ver1_hw;
+static int hf_s7comm_szl_0132_0004_ken_ver2_hw;
+static int hf_s7comm_szl_0132_0004_ken_ver1_awp;
+static int hf_s7comm_szl_0132_0004_ken_ver2_awp;
+static int hf_s7comm_szl_0132_0004_res;
 
-static gint hf_s7comm_szl_0132_0005_index;
-static gint hf_s7comm_szl_0132_0005_erw;
-static gint hf_s7comm_szl_0132_0005_send;
-static gint hf_s7comm_szl_0132_0005_moeg;
-static gint hf_s7comm_szl_0132_0005_ltmerz;
-static gint hf_s7comm_szl_0132_0005_res;
+static int hf_s7comm_szl_0132_0005_index;
+static int hf_s7comm_szl_0132_0005_erw;
+static int hf_s7comm_szl_0132_0005_send;
+static int hf_s7comm_szl_0132_0005_moeg;
+static int hf_s7comm_szl_0132_0005_ltmerz;
+static int hf_s7comm_szl_0132_0005_res;
 
 static const value_string szl_0132_0005_func_exist_names[] = {
     { 0x0,                                  "No" },
@@ -1525,104 +1525,104 @@ static const value_string szl_0132_0005_func_exist_names[] = {
     { 0,                                    NULL }
 };
 
-static gint hf_s7comm_szl_0132_0006_index;
-static gint hf_s7comm_szl_0132_0006_used_0;
-static gint hf_s7comm_szl_0132_0006_used_1;
-static gint hf_s7comm_szl_0132_0006_used_2;
-static gint hf_s7comm_szl_0132_0006_used_3;
-static gint hf_s7comm_szl_0132_0006_used_4;
-static gint hf_s7comm_szl_0132_0006_used_5;
-static gint hf_s7comm_szl_0132_0006_used_6;
-static gint hf_s7comm_szl_0132_0006_used_7;
-static gint hf_s7comm_szl_0132_0006_anz_schnell;
-static gint hf_s7comm_szl_0132_0006_anz_inst;
-static gint hf_s7comm_szl_0132_0006_anz_multicast;
-static gint hf_s7comm_szl_0132_0006_res;
+static int hf_s7comm_szl_0132_0006_index;
+static int hf_s7comm_szl_0132_0006_used_0;
+static int hf_s7comm_szl_0132_0006_used_1;
+static int hf_s7comm_szl_0132_0006_used_2;
+static int hf_s7comm_szl_0132_0006_used_3;
+static int hf_s7comm_szl_0132_0006_used_4;
+static int hf_s7comm_szl_0132_0006_used_5;
+static int hf_s7comm_szl_0132_0006_used_6;
+static int hf_s7comm_szl_0132_0006_used_7;
+static int hf_s7comm_szl_0132_0006_anz_schnell;
+static int hf_s7comm_szl_0132_0006_anz_inst;
+static int hf_s7comm_szl_0132_0006_anz_multicast;
+static int hf_s7comm_szl_0132_0006_res;
 
-static gint hf_s7comm_szl_0132_0008_index;
-static gint hf_s7comm_szl_0132_0008_zykl;
-static gint hf_s7comm_szl_0132_0008_korr;
-static gint hf_s7comm_szl_0132_0008_clock0;
-static gint hf_s7comm_szl_0132_0008_clock1;
-static gint hf_s7comm_szl_0132_0008_clock2;
-static gint hf_s7comm_szl_0132_0008_clock3;
-static gint hf_s7comm_szl_0132_0008_clock4;
-static gint hf_s7comm_szl_0132_0008_clock5;
-static gint hf_s7comm_szl_0132_0008_clock6;
-static gint hf_s7comm_szl_0132_0008_clock7;
-static gint hf_s7comm_szl_0132_0008_time;
-static gint hf_s7comm_szl_0132_0008_res;
+static int hf_s7comm_szl_0132_0008_index;
+static int hf_s7comm_szl_0132_0008_zykl;
+static int hf_s7comm_szl_0132_0008_korr;
+static int hf_s7comm_szl_0132_0008_clock0;
+static int hf_s7comm_szl_0132_0008_clock1;
+static int hf_s7comm_szl_0132_0008_clock2;
+static int hf_s7comm_szl_0132_0008_clock3;
+static int hf_s7comm_szl_0132_0008_clock4;
+static int hf_s7comm_szl_0132_0008_clock5;
+static int hf_s7comm_szl_0132_0008_clock6;
+static int hf_s7comm_szl_0132_0008_clock7;
+static int hf_s7comm_szl_0132_0008_time;
+static int hf_s7comm_szl_0132_0008_res;
 
-static gint hf_s7comm_szl_0132_000b_index;
-static gint hf_s7comm_szl_0132_000b_bszl_0;
-static gint hf_s7comm_szl_0132_000b_bszl_1;
-static gint hf_s7comm_szl_0132_000b_bszu_0;
-static gint hf_s7comm_szl_0132_000b_bszu_1;
-static gint hf_s7comm_szl_0132_000b_clock0;
-static gint hf_s7comm_szl_0132_000b_clock1;
-static gint hf_s7comm_szl_0132_000b_clock2;
-static gint hf_s7comm_szl_0132_000b_clock3;
-static gint hf_s7comm_szl_0132_000b_clock4;
-static gint hf_s7comm_szl_0132_000b_clock5;
-static gint hf_s7comm_szl_0132_000b_clock6;
-static gint hf_s7comm_szl_0132_000b_clock7;
-static gint hf_s7comm_szl_0132_000b_res;
+static int hf_s7comm_szl_0132_000b_index;
+static int hf_s7comm_szl_0132_000b_bszl_0;
+static int hf_s7comm_szl_0132_000b_bszl_1;
+static int hf_s7comm_szl_0132_000b_bszu_0;
+static int hf_s7comm_szl_0132_000b_bszu_1;
+static int hf_s7comm_szl_0132_000b_clock0;
+static int hf_s7comm_szl_0132_000b_clock1;
+static int hf_s7comm_szl_0132_000b_clock2;
+static int hf_s7comm_szl_0132_000b_clock3;
+static int hf_s7comm_szl_0132_000b_clock4;
+static int hf_s7comm_szl_0132_000b_clock5;
+static int hf_s7comm_szl_0132_000b_clock6;
+static int hf_s7comm_szl_0132_000b_clock7;
+static int hf_s7comm_szl_0132_000b_res;
 
-static gint hf_s7comm_szl_0132_000c_index;
-static gint hf_s7comm_szl_0132_000c_bszl_0;
-static gint hf_s7comm_szl_0132_000c_bszl_1;
-static gint hf_s7comm_szl_0132_000c_bszu_0;
-static gint hf_s7comm_szl_0132_000c_bszu_1;
-static gint hf_s7comm_szl_0132_000c_clock8;
-static gint hf_s7comm_szl_0132_000c_clock9;
-static gint hf_s7comm_szl_0132_000c_clock10;
-static gint hf_s7comm_szl_0132_000c_clock11;
-static gint hf_s7comm_szl_0132_000c_clock12;
-static gint hf_s7comm_szl_0132_000c_clock13;
-static gint hf_s7comm_szl_0132_000c_clock14;
-static gint hf_s7comm_szl_0132_000c_clock15;
-static gint hf_s7comm_szl_0132_000c_res;
+static int hf_s7comm_szl_0132_000c_index;
+static int hf_s7comm_szl_0132_000c_bszl_0;
+static int hf_s7comm_szl_0132_000c_bszl_1;
+static int hf_s7comm_szl_0132_000c_bszu_0;
+static int hf_s7comm_szl_0132_000c_bszu_1;
+static int hf_s7comm_szl_0132_000c_clock8;
+static int hf_s7comm_szl_0132_000c_clock9;
+static int hf_s7comm_szl_0132_000c_clock10;
+static int hf_s7comm_szl_0132_000c_clock11;
+static int hf_s7comm_szl_0132_000c_clock12;
+static int hf_s7comm_szl_0132_000c_clock13;
+static int hf_s7comm_szl_0132_000c_clock14;
+static int hf_s7comm_szl_0132_000c_clock15;
+static int hf_s7comm_szl_0132_000c_res;
 
-static gint hf_s7comm_szl_001c_000x_index;
-static gint hf_s7comm_szl_001c_0001_name;
-static gint hf_s7comm_szl_001c_0002_name;
-static gint hf_s7comm_szl_001c_0003_tag;
-static gint hf_s7comm_szl_001c_0004_copyright;
-static gint hf_s7comm_szl_001c_0005_serialn;
-static gint hf_s7comm_szl_001c_0007_cputypname;
-static gint hf_s7comm_szl_001c_0008_snmcmmc;
-static gint hf_s7comm_szl_001c_0009_manufacturer_id;
-static gint hf_s7comm_szl_001c_0009_profile_id;
-static gint hf_s7comm_szl_001c_0009_profile_spec_typ;
-static gint hf_s7comm_szl_001c_000a_oem_copyright_string;
-static gint hf_s7comm_szl_001c_000a_oem_id;
-static gint hf_s7comm_szl_001c_000a_oem_add_id;
-static gint hf_s7comm_szl_001c_000b_loc_id;
-static gint hf_s7comm_szl_001c_000x_res;
+static int hf_s7comm_szl_001c_000x_index;
+static int hf_s7comm_szl_001c_0001_name;
+static int hf_s7comm_szl_001c_0002_name;
+static int hf_s7comm_szl_001c_0003_tag;
+static int hf_s7comm_szl_001c_0004_copyright;
+static int hf_s7comm_szl_001c_0005_serialn;
+static int hf_s7comm_szl_001c_0007_cputypname;
+static int hf_s7comm_szl_001c_0008_snmcmmc;
+static int hf_s7comm_szl_001c_0009_manufacturer_id;
+static int hf_s7comm_szl_001c_0009_profile_id;
+static int hf_s7comm_szl_001c_0009_profile_spec_typ;
+static int hf_s7comm_szl_001c_000a_oem_copyright_string;
+static int hf_s7comm_szl_001c_000a_oem_id;
+static int hf_s7comm_szl_001c_000a_oem_add_id;
+static int hf_s7comm_szl_001c_000b_loc_id;
+static int hf_s7comm_szl_001c_000x_res;
 
-static gint hf_s7comm_szl_0091_0000_adr1;
-static gint hf_s7comm_szl_0091_0000_adr2;
-static gint hf_s7comm_szl_0091_0000_logadr;
-static gint hf_s7comm_szl_0091_0000_solltyp;
-static gint hf_s7comm_szl_0091_0000_isttyp;
-static gint hf_s7comm_szl_0091_0000_res1;
-static gint hf_s7comm_szl_0091_0000_res1_0c_4c_4d;
-static gint hf_s7comm_szl_0091_0000_res1_0d;
-static gint hf_s7comm_szl_0091_0000_eastat;
-static gint hf_s7comm_szl_0091_0000_eastat_0;
-static gint hf_s7comm_szl_0091_0000_eastat_1;
-static gint hf_s7comm_szl_0091_0000_eastat_2;
-static gint hf_s7comm_szl_0091_0000_eastat_3;
-static gint hf_s7comm_szl_0091_0000_eastat_4;
-static gint hf_s7comm_szl_0091_0000_eastat_5;
-static gint hf_s7comm_szl_0091_0000_eastat_6;
-static gint hf_s7comm_szl_0091_0000_eastat_7;
-static gint hf_s7comm_szl_0091_0000_eastat_dataid;
-static gint hf_s7comm_szl_0091_0000_berbgbr;
-static gint hf_s7comm_szl_0091_0000_berbgbr_0_2;
-static gint hf_s7comm_szl_0091_0000_berbgbr_3;
-static gint hf_s7comm_szl_0091_0000_berbgbr_areaid;
-static gint hf_s7comm_szl_0091_0000_berbgbr_7;
+static int hf_s7comm_szl_0091_0000_adr1;
+static int hf_s7comm_szl_0091_0000_adr2;
+static int hf_s7comm_szl_0091_0000_logadr;
+static int hf_s7comm_szl_0091_0000_solltyp;
+static int hf_s7comm_szl_0091_0000_isttyp;
+static int hf_s7comm_szl_0091_0000_res1;
+static int hf_s7comm_szl_0091_0000_res1_0c_4c_4d;
+static int hf_s7comm_szl_0091_0000_res1_0d;
+static int hf_s7comm_szl_0091_0000_eastat;
+static int hf_s7comm_szl_0091_0000_eastat_0;
+static int hf_s7comm_szl_0091_0000_eastat_1;
+static int hf_s7comm_szl_0091_0000_eastat_2;
+static int hf_s7comm_szl_0091_0000_eastat_3;
+static int hf_s7comm_szl_0091_0000_eastat_4;
+static int hf_s7comm_szl_0091_0000_eastat_5;
+static int hf_s7comm_szl_0091_0000_eastat_6;
+static int hf_s7comm_szl_0091_0000_eastat_7;
+static int hf_s7comm_szl_0091_0000_eastat_dataid;
+static int hf_s7comm_szl_0091_0000_berbgbr;
+static int hf_s7comm_szl_0091_0000_berbgbr_0_2;
+static int hf_s7comm_szl_0091_0000_berbgbr_3;
+static int hf_s7comm_szl_0091_0000_berbgbr_areaid;
+static int hf_s7comm_szl_0091_0000_berbgbr_7;
 
 static const value_string szl_0091_0000_eastat_dataid_names[] = {
     { 0xb4,                                 "Input" },
@@ -1640,7 +1640,7 @@ static const value_string szl_0091_0000_berbgbr_areaid_names[] = {
     { 6,                                    "IM4 area" },
     { 0,                                    NULL }
 };
-static gint ett_s7comm_szl_0091_0000_eastat;
+static int ett_s7comm_szl_0091_0000_eastat;
 static int * const s7comm_szl_0091_0000_eastat_fields[] = {
     &hf_s7comm_szl_0091_0000_eastat_0,
     &hf_s7comm_szl_0091_0000_eastat_1,
@@ -1653,7 +1653,7 @@ static int * const s7comm_szl_0091_0000_eastat_fields[] = {
     &hf_s7comm_szl_0091_0000_eastat_dataid,
     NULL
 };
-static gint ett_s7comm_szl_0091_0000_berbgbr;
+static int ett_s7comm_szl_0091_0000_berbgbr;
 static int * const s7comm_szl_0091_0000_berbgbr_fields[] = {
     &hf_s7comm_szl_0091_0000_berbgbr_0_2,
     &hf_s7comm_szl_0091_0000_berbgbr_3,
@@ -1662,62 +1662,62 @@ static int * const s7comm_szl_0091_0000_berbgbr_fields[] = {
     NULL
 };
 
-static gint ett_s7comm_szl_xx9x_station_info;
-static gint hf_s7comm_szl_xx9x_station_info;
+static int ett_s7comm_szl_xx9x_station_info;
+static int hf_s7comm_szl_xx9x_station_info;
 
-static gint hf_s7comm_szl_0092_0xxx_status_0;
-static gint hf_s7comm_szl_0092_0xxx_status_1;
-static gint hf_s7comm_szl_0092_0xxx_status_2;
-static gint hf_s7comm_szl_0092_0xxx_status_3;
-static gint hf_s7comm_szl_0092_0xxx_status_4;
-static gint hf_s7comm_szl_0092_0xxx_status_5;
-static gint hf_s7comm_szl_0092_0xxx_status_6;
-static gint hf_s7comm_szl_0092_0xxx_status_7;
-static gint hf_s7comm_szl_0092_0xxx_status_8;
-static gint hf_s7comm_szl_0092_0xxx_status_9;
-static gint hf_s7comm_szl_0092_0xxx_status_10;
-static gint hf_s7comm_szl_0092_0xxx_status_11;
-static gint hf_s7comm_szl_0092_0xxx_status_12;
-static gint hf_s7comm_szl_0092_0xxx_status_13;
-static gint hf_s7comm_szl_0092_0xxx_status_14;
-static gint hf_s7comm_szl_0092_0xxx_status_15;
+static int hf_s7comm_szl_0092_0xxx_status_0;
+static int hf_s7comm_szl_0092_0xxx_status_1;
+static int hf_s7comm_szl_0092_0xxx_status_2;
+static int hf_s7comm_szl_0092_0xxx_status_3;
+static int hf_s7comm_szl_0092_0xxx_status_4;
+static int hf_s7comm_szl_0092_0xxx_status_5;
+static int hf_s7comm_szl_0092_0xxx_status_6;
+static int hf_s7comm_szl_0092_0xxx_status_7;
+static int hf_s7comm_szl_0092_0xxx_status_8;
+static int hf_s7comm_szl_0092_0xxx_status_9;
+static int hf_s7comm_szl_0092_0xxx_status_10;
+static int hf_s7comm_szl_0092_0xxx_status_11;
+static int hf_s7comm_szl_0092_0xxx_status_12;
+static int hf_s7comm_szl_0092_0xxx_status_13;
+static int hf_s7comm_szl_0092_0xxx_status_14;
+static int hf_s7comm_szl_0092_0xxx_status_15;
 
-static gint hf_s7comm_szl_0094_xxxx_index;
-static gint hf_s7comm_szl_0094_xxxx_status_0;
-static gint hf_s7comm_szl_0094_xxxx_status_1_2047;
+static int hf_s7comm_szl_0094_xxxx_index;
+static int hf_s7comm_szl_0094_xxxx_status_0;
+static int hf_s7comm_szl_0094_xxxx_status_1_2047;
 
-static gint hf_s7comm_szl_0096_xxxx_logadr_adr;
-static gint hf_s7comm_szl_0096_xxxx_logadr_area;
+static int hf_s7comm_szl_0096_xxxx_logadr_adr;
+static int hf_s7comm_szl_0096_xxxx_logadr_area;
 static const true_false_string tfs_szl_0096_xxx_logadr_area = {
     "Input",
     "Output"
 };
 
-static gint hf_s7comm_szl_0096_xxxx_system;
-static gint hf_s7comm_szl_0096_xxxx_api;
-static gint hf_s7comm_szl_0096_xxxx_station;
-static gint hf_s7comm_szl_0096_xxxx_slot;
-static gint hf_s7comm_szl_0096_xxxx_subslot;
-static gint hf_s7comm_szl_0096_xxxx_offset;
-static gint hf_s7comm_szl_0096_xxxx_solltyp1;
-static gint hf_s7comm_szl_0096_xxxx_solltyp2;
-static gint hf_s7comm_szl_0096_xxxx_solltyp3;
-static gint hf_s7comm_szl_0096_xxxx_solltyp4_5;
-static gint hf_s7comm_szl_0096_xxxx_solltyp6_7;
-static gint hf_s7comm_szl_0096_xxxx_expactid;
-static gint hf_s7comm_szl_0096_xxxx_reserve1;
-static gint hf_s7comm_szl_0096_xxxx_eastat;
-static gint hf_s7comm_szl_0096_xxxx_eastat_0;
-static gint hf_s7comm_szl_0096_xxxx_eastat_1;
-static gint hf_s7comm_szl_0096_xxxx_eastat_2;
-static gint hf_s7comm_szl_0096_xxxx_eastat_3;
-static gint hf_s7comm_szl_0096_xxxx_eastat_4;
-static gint hf_s7comm_szl_0096_xxxx_eastat_5;
-static gint hf_s7comm_szl_0096_xxxx_eastat_6;
-static gint hf_s7comm_szl_0096_xxxx_eastat_7;
-static gint hf_s7comm_szl_0096_xxxx_eastat_8;
-static gint hf_s7comm_szl_0096_xxxx_eastat_9;
-static gint ett_s7comm_szl_0096_xxxx_eastat;
+static int hf_s7comm_szl_0096_xxxx_system;
+static int hf_s7comm_szl_0096_xxxx_api;
+static int hf_s7comm_szl_0096_xxxx_station;
+static int hf_s7comm_szl_0096_xxxx_slot;
+static int hf_s7comm_szl_0096_xxxx_subslot;
+static int hf_s7comm_szl_0096_xxxx_offset;
+static int hf_s7comm_szl_0096_xxxx_solltyp1;
+static int hf_s7comm_szl_0096_xxxx_solltyp2;
+static int hf_s7comm_szl_0096_xxxx_solltyp3;
+static int hf_s7comm_szl_0096_xxxx_solltyp4_5;
+static int hf_s7comm_szl_0096_xxxx_solltyp6_7;
+static int hf_s7comm_szl_0096_xxxx_expactid;
+static int hf_s7comm_szl_0096_xxxx_reserve1;
+static int hf_s7comm_szl_0096_xxxx_eastat;
+static int hf_s7comm_szl_0096_xxxx_eastat_0;
+static int hf_s7comm_szl_0096_xxxx_eastat_1;
+static int hf_s7comm_szl_0096_xxxx_eastat_2;
+static int hf_s7comm_szl_0096_xxxx_eastat_3;
+static int hf_s7comm_szl_0096_xxxx_eastat_4;
+static int hf_s7comm_szl_0096_xxxx_eastat_5;
+static int hf_s7comm_szl_0096_xxxx_eastat_6;
+static int hf_s7comm_szl_0096_xxxx_eastat_7;
+static int hf_s7comm_szl_0096_xxxx_eastat_8;
+static int hf_s7comm_szl_0096_xxxx_eastat_9;
+static int ett_s7comm_szl_0096_xxxx_eastat;
 static int * const s7comm_szl_0096_xxxx_eastat_fields[] = {
     &hf_s7comm_szl_0096_xxxx_eastat_0,
     &hf_s7comm_szl_0096_xxxx_eastat_1,
@@ -1731,12 +1731,12 @@ static int * const s7comm_szl_0096_xxxx_eastat_fields[] = {
     &hf_s7comm_szl_0096_xxxx_eastat_9,
     NULL
 };
-static gint hf_s7comm_szl_0096_xxxx_berbgbr;
-static gint hf_s7comm_szl_0096_xxxx_berbgbr_0_2;
-static gint hf_s7comm_szl_0096_xxxx_berbgbr_3;
-static gint hf_s7comm_szl_0096_xxxx_berbgbr_areaid;
-static gint hf_s7comm_szl_0096_xxxx_berbgbr_7;
-static gint ett_s7comm_szl_0096_xxxx_berbgbr;
+static int hf_s7comm_szl_0096_xxxx_berbgbr;
+static int hf_s7comm_szl_0096_xxxx_berbgbr_0_2;
+static int hf_s7comm_szl_0096_xxxx_berbgbr_3;
+static int hf_s7comm_szl_0096_xxxx_berbgbr_areaid;
+static int hf_s7comm_szl_0096_xxxx_berbgbr_7;
+static int ett_s7comm_szl_0096_xxxx_berbgbr;
 static int * const s7comm_szl_0096_xxxx_berbgbr_fields[] = {
     &hf_s7comm_szl_0096_xxxx_berbgbr_0_2,
     &hf_s7comm_szl_0096_xxxx_berbgbr_3,
@@ -1744,13 +1744,13 @@ static int * const s7comm_szl_0096_xxxx_berbgbr_fields[] = {
     &hf_s7comm_szl_0096_xxxx_berbgbr_7,
     NULL
 };
-static gint hf_s7comm_szl_0096_xxxx_reserve2;
+static int hf_s7comm_szl_0096_xxxx_reserve2;
 
-static gint hf_s7comm_szl_0424_0000_ereig;
-static gint hf_s7comm_szl_0424_0000_ae;
-static gint hf_s7comm_szl_0424_0000_bzu_id;
-static gint hf_s7comm_szl_0424_0000_bzu_id_req;
-static gint hf_s7comm_szl_0424_0000_bzu_id_pre;
+static int hf_s7comm_szl_0424_0000_ereig;
+static int hf_s7comm_szl_0424_0000_ae;
+static int hf_s7comm_szl_0424_0000_bzu_id;
+static int hf_s7comm_szl_0424_0000_bzu_id_req;
+static int hf_s7comm_szl_0424_0000_bzu_id_pre;
 static const value_string szl_0424_0000_bzu_id_names[] = {
     { 0x1,                                  "STOP (update)" },
     { 0x2,                                  "STOP (memory reset)" },
@@ -1763,15 +1763,15 @@ static const value_string szl_0424_0000_bzu_id_names[] = {
     { 0xd,                                  "DEFECT" },
     { 0,                                    NULL }
 };
-static gint ett_s7comm_szl_0424_0000_bzu_id;
+static int ett_s7comm_szl_0424_0000_bzu_id;
 static int * const s7comm_szl_0424_0000_bzu_id_fields[] = {
     &hf_s7comm_szl_0424_0000_bzu_id_req,
     &hf_s7comm_szl_0424_0000_bzu_id_pre,
     NULL
 };
-static gint hf_s7comm_szl_0424_0000_res;
-static gint hf_s7comm_szl_0424_0000_anlinfo1;
-static gint hf_s7comm_szl_0424_0000_anlinfo2;
+static int hf_s7comm_szl_0424_0000_res;
+static int hf_s7comm_szl_0424_0000_anlinfo1;
+static int hf_s7comm_szl_0424_0000_anlinfo2;
 static const value_string szl_0424_0000_anlinfo2_names[] = {
     { 0x01,                                 "Complete restart in multicomputing" },
     { 0x03,                                 "Complete restart set at mode selector" },
@@ -1788,8 +1788,8 @@ static const value_string szl_0424_0000_anlinfo2_names[] = {
     { 0xa0,                                 "Automatic restart after battery backed power on according to parameter assignment" },
     { 0,                                    NULL }
 };
-static gint hf_s7comm_szl_0424_0000_anlinfo3;
-static gint hf_s7comm_szl_0424_0000_anlinfo4;
+static int hf_s7comm_szl_0424_0000_anlinfo3;
+static int hf_s7comm_szl_0424_0000_anlinfo4;
 static const value_string szl_0424_0000_anlinfo4_names[] = {
     { 0x00,                                 "No startup type" },
     { 0x01,                                 "Complete restart in multicomputing" },
@@ -1807,20 +1807,20 @@ static const value_string szl_0424_0000_anlinfo4_names[] = {
     { 0xa0,                                 "Automatic restart after battery backed power on according to parameter assignment" },
     { 0,                                    NULL }
 };
-static gint hf_s7comm_szl_0424_0000_time;
+static int hf_s7comm_szl_0424_0000_time;
 
-static gint hf_s7comm_szl_xy74_0000_cpu_led_id;
-static gint hf_s7comm_szl_xy74_0000_cpu_led_id_rackno;
-static gint hf_s7comm_szl_xy74_0000_cpu_led_id_cputype;
-static gint hf_s7comm_szl_xy74_0000_cpu_led_id_id;
-static gint hf_s7comm_szl_xy74_0000_led_on;
+static int hf_s7comm_szl_xy74_0000_cpu_led_id;
+static int hf_s7comm_szl_xy74_0000_cpu_led_id_rackno;
+static int hf_s7comm_szl_xy74_0000_cpu_led_id_cputype;
+static int hf_s7comm_szl_xy74_0000_cpu_led_id_id;
+static int hf_s7comm_szl_xy74_0000_led_on;
 static const value_string szl_xy74_0000_led_on_names[] = {
     { 0x0,                                  "Off" },
     { 0x1,                                  "On" },
     { 0,                                    NULL }
 };
 
-static gint hf_s7comm_szl_xy74_0000_led_blink;
+static int hf_s7comm_szl_xy74_0000_led_blink;
 static const value_string szl_xy74_0000_led_blink_names[] = {
     { 0x0,                                  "Not flashing" },
     { 0x1,                                  "Flashing normally (2 Hz)" },
@@ -1833,10 +1833,10 @@ static const value_string szl_xy74_0000_led_blink_names[] = {
  * Get the textual description of the szl index. Returns NULL if not description available
  *
  *******************************************************************************************************/
-static const gchar*
-s7comm_get_szl_id_index_description_text(guint16 id, guint16 idx)
+static const char*
+s7comm_get_szl_id_index_description_text(uint16_t id, uint16_t idx)
 {
-    const gchar* str = NULL;
+    const char* str = NULL;
     switch (id) {
         case 0x0111:
             str = val_to_str_const(idx, szl_0111_index_names, "No description available");
@@ -1932,12 +1932,12 @@ s7comm_szl_0000_0000_register(int proto)
 }
 
 /*----------------------------------------------------------------------------------------------------*/
-static guint32
+static uint32_t
 s7comm_decode_szl_id_xy00(tvbuff_t *tvb,
                           proto_tree *tree,
-                          guint16 id,
-                          guint16 idx,
-                          guint32 offset)
+                          uint16_t id,
+                          uint16_t idx,
+                          uint32_t offset)
 {
     if (id == 0 && idx == 0) {
         proto_tree_add_item(tree, hf_s7comm_szl_0000_0000_szl_id, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2031,10 +2031,10 @@ s7comm_szl_0013_0000_register(int proto)
 }
 
 /*----------------------------------------------------------------------------------------------------*/
-static guint32
+static uint32_t
 s7comm_decode_szl_id_0013_idx_0000(tvbuff_t *tvb,
                                    proto_tree *tree,
-                                   guint32 offset)
+                                   uint32_t offset)
 {
     proto_tree_add_item(tree, hf_s7comm_szl_0013_0000_index, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -2097,10 +2097,10 @@ s7comm_szl_xy14_000x_register(int proto)
 }
 
 /*----------------------------------------------------------------------------------------------------*/
-static guint32
+static uint32_t
 s7comm_decode_szl_id_xy14_idx_000x(tvbuff_t *tvb,
                                    proto_tree *tree,
-                                   guint32 offset)
+                                   uint32_t offset)
 {
     proto_tree_add_item(tree, hf_s7comm_szl_xy14_000x_index, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -2144,10 +2144,10 @@ s7comm_szl_xy15_000x_register(int proto)
 }
 
 /*----------------------------------------------------------------------------------------------------*/
-static guint32
+static uint32_t
 s7comm_decode_szl_id_xy15_idx_000x(tvbuff_t *tvb,
                                    proto_tree *tree,
-                                   guint32 offset)
+                                   uint32_t offset)
 {
     proto_tree_add_item(tree, hf_s7comm_szl_xy15_000x_index, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -2194,10 +2194,10 @@ s7comm_szl_xy11_0001_register(int proto)
 }
 
 /*----------------------------------------------------------------------------------------------------*/
-static guint32
+static uint32_t
 s7comm_decode_szl_id_0111_idx_0001(tvbuff_t *tvb,
                                    proto_tree *tree,
-                                   guint32 offset)
+                                   uint32_t offset)
 {
     proto_tree_add_item(tree, hf_s7comm_szl_xy11_0001_index, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -2273,10 +2273,10 @@ s7comm_szl_xy22_00xx_register(int proto)
 }
 
 /*----------------------------------------------------------------------------------------------------*/
-static guint32
+static uint32_t
 s7comm_decode_szl_id_xy22_idx_00xx(tvbuff_t *tvb,
                                    proto_tree *tree,
-                                   guint32 offset)
+                                   uint32_t offset)
 {
     proto_tree_add_item(tree, hf_s7comm_szl_xy22_00xx_info, tvb, offset, 20, ENC_NA);
     offset += 20;
@@ -2328,10 +2328,10 @@ s7comm_szl_0131_0001_register(int proto)
 }
 
 /*----------------------------------------------------------------------------------------------------*/
-static guint32
+static uint32_t
 s7comm_decode_szl_id_0131_idx_0001(tvbuff_t *tvb,
                                    proto_tree *tree,
-                                   guint32 offset)
+                                   uint32_t offset)
 {
     proto_tree_add_item(tree, hf_s7comm_szl_0131_0001_index, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -2553,10 +2553,10 @@ s7comm_szl_0131_0002_register(int proto)
 }
 
 /*----------------------------------------------------------------------------------------------------*/
-static guint32
+static uint32_t
 s7comm_decode_szl_id_0131_idx_0002(tvbuff_t *tvb,
                                    proto_tree *tree,
-                                   guint32 offset)
+                                   uint32_t offset)
 {
     proto_tree_add_item(tree, hf_s7comm_szl_0131_0002_index, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -2756,10 +2756,10 @@ s7comm_szl_0131_0003_register(int proto)
 }
 
 /*----------------------------------------------------------------------------------------------------*/
-static guint32
+static uint32_t
 s7comm_decode_szl_id_0131_idx_0003(tvbuff_t *tvb,
                                    proto_tree *tree,
-                                   guint32 offset)
+                                   uint32_t offset)
 {
     proto_tree_add_item(tree, hf_s7comm_szl_0131_0003_index, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -2973,10 +2973,10 @@ s7comm_szl_0131_0004_register(int proto)
 }
 
 /*----------------------------------------------------------------------------------------------------*/
-static guint32
+static uint32_t
 s7comm_decode_szl_id_0131_idx_0004(tvbuff_t *tvb,
                                    proto_tree *tree,
-                                   guint32 offset)
+                                   uint32_t offset)
 {
     proto_tree_add_item(tree, hf_s7comm_szl_0131_0004_index, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -3098,10 +3098,10 @@ s7comm_szl_0131_0005_register(int proto)
 }
 
 /*----------------------------------------------------------------------------------------------------*/
-static guint32
+static uint32_t
 s7comm_decode_szl_id_0131_idx_0005(tvbuff_t *tvb,
                                    proto_tree *tree,
-                                   guint32 offset)
+                                   uint32_t offset)
 {
     proto_tree_add_item(tree, hf_s7comm_szl_0131_0005_index, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -3519,10 +3519,10 @@ s7comm_szl_0131_0006_register(int proto)
 }
 
 /*----------------------------------------------------------------------------------------------------*/
-static guint32
+static uint32_t
 s7comm_decode_szl_id_0131_idx_0006(tvbuff_t *tvb,
                                    proto_tree *tree,
-                                   guint32 offset)
+                                   uint32_t offset)
 {
     proto_tree_add_item(tree, hf_s7comm_szl_0131_0006_index, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -3728,10 +3728,10 @@ s7comm_szl_0131_0007_register(int proto)
 }
 
 /*----------------------------------------------------------------------------------------------------*/
-static guint32
+static uint32_t
 s7comm_decode_szl_id_0131_idx_0007(tvbuff_t *tvb,
                                    proto_tree *tree,
-                                   guint32 offset)
+                                   uint32_t offset)
 {
     proto_tree_add_item(tree, hf_s7comm_szl_0131_0007_index, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -3901,10 +3901,10 @@ s7comm_szl_0131_0008_register(int proto)
 }
 
 /*----------------------------------------------------------------------------------------------------*/
-static guint32
+static uint32_t
 s7comm_decode_szl_id_0131_idx_0008(tvbuff_t *tvb,
                                    proto_tree *tree,
-                                   guint32 offset)
+                                   uint32_t offset)
 {
     proto_tree_add_item(tree, hf_s7comm_szl_0131_0008_index, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -4031,10 +4031,10 @@ s7comm_szl_0131_0009_register(int proto)
 }
 
 /*----------------------------------------------------------------------------------------------------*/
-static guint32
+static uint32_t
 s7comm_decode_szl_id_0131_idx_0009(tvbuff_t *tvb,
                                    proto_tree *tree,
-                                   guint32 offset)
+                                   uint32_t offset)
 {
     proto_tree_add_item(tree, hf_s7comm_szl_0131_0009_index, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -4208,10 +4208,10 @@ s7comm_szl_0131_0010_register(int proto)
 }
 
 /*----------------------------------------------------------------------------------------------------*/
-static guint32
+static uint32_t
 s7comm_decode_szl_id_0131_idx_0010(tvbuff_t *tvb,
                                    proto_tree *tree,
-                                   guint32 offset)
+                                   uint32_t offset)
 {
     proto_tree_add_item(tree, hf_s7comm_szl_0131_0010_index, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -4294,10 +4294,10 @@ s7comm_szl_0132_0001_register(int proto)
 }
 
 /*----------------------------------------------------------------------------------------------------*/
-static guint32
+static uint32_t
 s7comm_decode_szl_id_0132_idx_0001(tvbuff_t *tvb,
                                    proto_tree *tree,
-                                   guint32 offset)
+                                   uint32_t offset)
 {
     proto_tree_add_item(tree, hf_s7comm_szl_0132_0001_index, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -4352,10 +4352,10 @@ s7comm_szl_0132_0002_register(int proto)
 }
 
 /*----------------------------------------------------------------------------------------------------*/
-static guint32
+static uint32_t
 s7comm_decode_szl_id_0132_idx_0002(tvbuff_t *tvb,
                                    proto_tree *tree,
-                                   guint32 offset)
+                                   uint32_t offset)
 {
     proto_tree_add_item(tree, hf_s7comm_szl_0132_0002_index, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -4424,10 +4424,10 @@ s7comm_szl_0132_0004_register(int proto)
 }
 
 /*----------------------------------------------------------------------------------------------------*/
-static guint32
+static uint32_t
 s7comm_decode_szl_id_0132_idx_0004(tvbuff_t *tvb,
                                    proto_tree *tree,
-                                   guint32 offset)
+                                   uint32_t offset)
 {
     proto_tree_add_item(tree, hf_s7comm_szl_0132_0004_index, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -4495,10 +4495,10 @@ s7comm_szl_0132_0005_register(int proto)
 }
 
 /*----------------------------------------------------------------------------------------------------*/
-static guint32
+static uint32_t
 s7comm_decode_szl_id_0132_idx_0005(tvbuff_t *tvb,
                                    proto_tree *tree,
-                                   guint32 offset)
+                                   uint32_t offset)
 {
     proto_tree_add_item(tree, hf_s7comm_szl_0132_0005_index, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -4574,10 +4574,10 @@ s7comm_szl_0132_0006_register(int proto)
 }
 
 /*----------------------------------------------------------------------------------------------------*/
-static guint32
+static uint32_t
 s7comm_decode_szl_id_0132_idx_0006(tvbuff_t *tvb,
                                    proto_tree *tree,
-                                   guint32 offset)
+                                   uint32_t offset)
 {
     proto_tree_add_item(tree, hf_s7comm_szl_0132_0006_index, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -4714,10 +4714,10 @@ s7comm_szl_0132_0008_register(int proto)
 }
 
 /*----------------------------------------------------------------------------------------------------*/
-static guint32
+static uint32_t
 s7comm_decode_szl_id_0132_idx_0008(tvbuff_t *tvb,
                                    proto_tree *tree,
-                                   guint32 offset)
+                                   uint32_t offset)
 {
     proto_tree_add_item(tree, hf_s7comm_szl_0132_0008_index, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -4808,10 +4808,10 @@ s7comm_szl_0132_000b_register(int proto)
     proto_register_field_array(proto, hf, array_length(hf));
 }
 /*----------------------------------------------------------------------------------------------------*/
-static guint32
+static uint32_t
 s7comm_decode_szl_id_0132_idx_000b(tvbuff_t *tvb,
                                    proto_tree *tree,
-                                   guint32 offset)
+                                   uint32_t offset)
 {
     proto_tree_add_item(tree, hf_s7comm_szl_0132_000b_index, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -4905,10 +4905,10 @@ s7comm_szl_0132_000c_register(int proto)
 }
 
 /*----------------------------------------------------------------------------------------------------*/
-static guint32
+static uint32_t
 s7comm_decode_szl_id_0132_idx_000c(tvbuff_t *tvb,
                                    proto_tree *tree,
-                                   guint32 offset)
+                                   uint32_t offset)
 {
     proto_tree_add_item(tree, hf_s7comm_szl_0132_000c_index, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -4978,10 +4978,10 @@ s7comm_szl_xy74_0000_register(int proto)
 }
 
 /*----------------------------------------------------------------------------------------------------*/
-static guint32
+static uint32_t
 s7comm_decode_szl_id_xy74_idx_0000(tvbuff_t *tvb,
                                    proto_tree *tree,
-                                   guint32 offset)
+                                   uint32_t offset)
 {
     proto_tree_add_item(tree, hf_s7comm_szl_xy74_0000_cpu_led_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_s7comm_szl_xy74_0000_cpu_led_id_rackno, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -5061,12 +5061,12 @@ s7comm_szl_xy1c_000x_register(int proto)
 }
 
 /*----------------------------------------------------------------------------------------------------*/
-static guint32
+static uint32_t
 s7comm_decode_szl_id_xy1c_idx_000x(tvbuff_t *tvb,
                                    proto_tree *tree,
-                                   guint32 offset)
+                                   uint32_t offset)
 {
-    guint32 idx;
+    uint32_t idx;
     proto_tree_add_item_ret_uint(tree, hf_s7comm_szl_001c_000x_index, tvb, offset, 2, ENC_BIG_ENDIAN, &idx);
     offset += 2;
     /* For redundant H-CPUs there may be some upper bits set to identify the CPU */
@@ -5225,11 +5225,11 @@ s7comm_szl_xy91_0000_register(int proto)
 }
 
 /*----------------------------------------------------------------------------------------------------*/
-static guint32
+static uint32_t
 s7comm_decode_szl_id_xy91_idx_0000(tvbuff_t *tvb,
                                    proto_tree *tree,
-                                   guint16 id,
-                                   guint32 offset)
+                                   uint16_t id,
+                                   uint32_t offset)
 {
     proto_tree_add_item(tree, hf_s7comm_szl_0091_0000_adr1, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -5331,19 +5331,19 @@ s7comm_szl_xy92_xxxx_register(int proto)
 }
 
 /*----------------------------------------------------------------------------------------------------*/
-static guint32
+static uint32_t
 add_station_byte_with_bitinfo(tvbuff_t *tvb,
                               proto_tree *tree,
-                              gint hf,
-                              const gchar *info_text,
-                              guint32 start,
-                              guint32 offset)
+                              int hf,
+                              const char *info_text,
+                              uint32_t start,
+                              uint32_t offset)
 {
     proto_item *pi = NULL;
     proto_item *pti = NULL;
     proto_tree *pt = NULL;
-    guint32 val;
-    guint32 i;
+    uint32_t val;
+    uint32_t i;
     pi = proto_tree_add_item_ret_uint(tree, hf, tvb, offset, 1, ENC_BIG_ENDIAN, &val);
     /* Add the rack/station number when information bit is set */
     if (val) {
@@ -5359,13 +5359,13 @@ add_station_byte_with_bitinfo(tvbuff_t *tvb,
     return offset + 1;
 }
 
-static guint32
+static uint32_t
 s7comm_decode_szl_id_xy92_idx_xxxx(tvbuff_t *tvb,
                                    proto_tree *tree,
-                                   guint16 id,
-                                   guint32 offset)
+                                   uint16_t id,
+                                   uint32_t offset)
 {
-    gchar *txt;
+    char *txt;
     switch (id) {
         case 0x0092:
             txt = "Rack/Station configured";
@@ -5440,27 +5440,27 @@ s7comm_szl_0x94_xxxx_register(int proto)
 }
 
 /*----------------------------------------------------------------------------------------------------*/
-static guint32
+static uint32_t
 s7comm_decode_szl_id_0x94_idx_xxxx(tvbuff_t *tvb,
                                    proto_tree *tree,
-                                   guint16 id,
-                                   guint32 offset)
+                                   uint16_t id,
+                                   uint32_t offset)
 {
     proto_item *pi = NULL;
     proto_item *pti = NULL;
     proto_tree *pt = NULL;
-    guint8 val;
-    guint32 i, j;
-    guint32 offset_tmp;
-    guint32 n;
-    gchar *txt;
+    uint8_t val;
+    uint32_t i, j;
+    uint32_t offset_tmp;
+    uint32_t n;
+    char *txt;
 
     proto_tree_add_item(tree, hf_s7comm_szl_0094_xxxx_index, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
     proto_tree_add_item(tree, hf_s7comm_szl_0094_xxxx_status_0, tvb, offset, 1, ENC_BIG_ENDIAN);
     pi = proto_tree_add_item(tree, hf_s7comm_szl_0094_xxxx_status_1_2047, tvb, offset, 256, ENC_NA);
     offset_tmp = offset;
-    val = tvb_get_guint8(tvb, offset_tmp);
+    val = tvb_get_uint8(tvb, offset_tmp);
     /* If first bit is set, there is at least one station with active information */
     if (val & 1) {
         switch (id) {
@@ -5487,7 +5487,7 @@ s7comm_decode_szl_id_0x94_idx_xxxx(tvbuff_t *tvb,
         n = 0;
         /* Add the rack/station number when information bit is set */
         for (i = 0; i < 256; i++) {
-            val = tvb_get_guint8(tvb, offset_tmp);
+            val = tvb_get_uint8(tvb, offset_tmp);
             if (val) {
                 for (j = 0; j < 8; j++) {
                     if ((val & 1) && !(n == 0 && j == 0)) {  /* skip group information bit */
@@ -5618,10 +5618,10 @@ s7comm_szl_xy96_xxxx_register(int proto)
 }
 
 /*----------------------------------------------------------------------------------------------------*/
-static guint32
+static uint32_t
 s7comm_decode_szl_id_xy96_idx_xxxx(tvbuff_t *tvb,
                                    proto_tree *tree,
-                                   guint32 offset)
+                                   uint32_t offset)
 {
     proto_tree_add_item(tree, hf_s7comm_szl_0096_xxxx_logadr_adr, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_s7comm_szl_0096_xxxx_logadr_area, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -5715,10 +5715,10 @@ s7comm_szl_0424_0000_register(int proto)
 }
 
 /*----------------------------------------------------------------------------------------------------*/
-static guint32
+static uint32_t
 s7comm_decode_szl_id_0424_idx_0000(tvbuff_t *tvb,
                                    proto_tree *tree,
-                                   guint32 offset)
+                                   uint32_t offset)
 {
     proto_tree_add_item(tree, hf_s7comm_szl_0424_0000_ereig, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -5796,7 +5796,7 @@ s7comm_register_szl_types(int proto)
     };
 
     /* Register Subtrees */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_s7comm_szl,
         &ett_s7comm_userdata_szl_id,
         &ett_s7comm_szl_xy22_00xx_al1,
@@ -5887,26 +5887,26 @@ s7comm_register_szl_types(int proto)
  * PDU Type: User Data -> Function group 4 -> SZL functions
  *
  *******************************************************************************************************/
-guint32
+uint32_t
 s7comm_decode_ud_cpu_szl_subfunc(tvbuff_t *tvb,
                                  packet_info *pinfo,
                                  proto_tree *data_tree,
-                                 guint8 type,                /* Type of data (request/response) */
-                                 guint8 ret_val,             /* Return value in data part */
-                                 guint32 dlength,
-                                 guint32 offset)
+                                 uint8_t type,                /* Type of data (request/response) */
+                                 uint8_t ret_val,             /* Return value in data part */
+                                 uint32_t dlength,
+                                 uint32_t offset)
 {
-    guint16 id;
-    guint16 idx;
-    guint16 list_len;
-    guint16 list_count;
-    guint16 i;
-    guint32 start_offset;
+    uint16_t id;
+    uint16_t idx;
+    uint16_t list_len;
+    uint16_t list_count;
+    uint16_t i;
+    uint32_t start_offset;
     proto_item *szl_item = NULL;
     proto_tree *szl_item_tree = NULL;
     proto_item *szl_item_entry = NULL;
-    const gchar* szl_index_description;
-    gboolean szl_decoded = FALSE;
+    const char* szl_index_description;
+    bool szl_decoded = false;
 
     start_offset = offset;
     if (type == S7COMM_UD_TYPE_REQ) {
@@ -5947,7 +5947,7 @@ s7comm_decode_ud_cpu_szl_subfunc(tvbuff_t *tvb,
             proto_tree_add_uint(data_tree, hf_s7comm_userdata_szl_id_partlist_cnt, tvb, offset, 2, list_count);
             offset += 2;
             /* Check the listcount, as in fragmented packets some CPUs (firmware bug?) send 0xffff as list count */
-            if (((guint32)list_count * (guint32)list_len) > (dlength - (offset - start_offset))) {
+            if (((uint32_t)list_count * (uint32_t)list_len) > (dlength - (offset - start_offset))) {
                 /* TODO: Make entry in expert field */
                 list_count = (dlength - (offset - start_offset)) / list_len;
             }
@@ -5958,45 +5958,45 @@ s7comm_decode_ud_cpu_szl_subfunc(tvbuff_t *tvb,
                     szl_item = proto_tree_add_item(data_tree, hf_s7comm_userdata_szl_tree, tvb, offset, list_len, ENC_NA);
                     szl_item_tree = proto_item_add_subtree(szl_item, ett_s7comm_szl);
                     proto_item_append_text(szl_item, " (list count no. %d)", i);
-                    szl_decoded = FALSE;
+                    szl_decoded = false;
                     /* lets try to decode some known szl-id and indexes */
                     switch (id) {
                         case 0x0000:
                             offset = s7comm_decode_szl_id_xy00(tvb, szl_item_tree, id, idx, offset);
-                            szl_decoded = TRUE;
+                            szl_decoded = true;
                             break;
                         case 0x0012:
                         case 0x0112:
                             proto_tree_add_item(szl_item_tree, hf_s7comm_szl_xy12_0x00_charac, tvb, offset, 2, ENC_BIG_ENDIAN);
                             offset += 2;
-                            szl_decoded = TRUE;
+                            szl_decoded = true;
                             break;
                         case 0x0013:
                         case 0x0113:
                             if (idx == 0x0000) {
                                 offset = s7comm_decode_szl_id_0013_idx_0000(tvb, szl_item_tree, offset);
-                                szl_decoded = TRUE;
+                                szl_decoded = true;
                             }
                             break;
                         case 0x0014:
                         case 0x0114:
                             offset = s7comm_decode_szl_id_xy14_idx_000x(tvb, szl_item_tree, offset);
-                            szl_decoded = TRUE;
+                            szl_decoded = true;
                             break;
                         case 0x0015:
                         case 0x0115:
                             offset = s7comm_decode_szl_id_xy15_idx_000x(tvb, szl_item_tree, offset);
-                            szl_decoded = TRUE;
+                            szl_decoded = true;
                             break;
                         case 0x0011:
                         case 0x0111:
                             /* It's (almost) the same structure for all possible indexes */
                             offset = s7comm_decode_szl_id_0111_idx_0001(tvb, szl_item_tree, offset);
-                            szl_decoded = TRUE;
+                            szl_decoded = true;
                             break;
                         case 0x0222:
                             offset = s7comm_decode_szl_id_xy22_idx_00xx(tvb, szl_item_tree, offset);
-                            szl_decoded = TRUE;
+                            szl_decoded = true;
                             break;
                         case 0x00a0:
                         case 0x01a0:
@@ -6012,57 +6012,57 @@ s7comm_decode_ud_cpu_szl_subfunc(tvbuff_t *tvb,
                         case 0x0da0:
                         case 0x0ea0:
                             /* the data structure is the same as used when CPU is sending online such messages */
-                            offset = s7comm_decode_ud_cpu_diagnostic_message(tvb, pinfo, FALSE, szl_item_tree, offset);
-                            szl_decoded = TRUE;
+                            offset = s7comm_decode_ud_cpu_diagnostic_message(tvb, pinfo, false, szl_item_tree, offset);
+                            szl_decoded = true;
                             break;
                         case 0x001c:
                         case 0x011c:
                         case 0x021c:
                         case 0x031c:
                             offset = s7comm_decode_szl_id_xy1c_idx_000x(tvb, szl_item_tree, offset);
-                            szl_decoded = TRUE;
+                            szl_decoded = true;
                             break;
                         case 0x0131:
                             switch (idx) {
                                 case 0x0001:
                                     offset = s7comm_decode_szl_id_0131_idx_0001(tvb, szl_item_tree, offset);
-                                    szl_decoded = TRUE;
+                                    szl_decoded = true;
                                     break;
                                 case 0x0002:
                                     offset = s7comm_decode_szl_id_0131_idx_0002(tvb, szl_item_tree, offset);
-                                    szl_decoded = TRUE;
+                                    szl_decoded = true;
                                     break;
                                 case 0x0003:
                                     offset = s7comm_decode_szl_id_0131_idx_0003(tvb, szl_item_tree, offset);
-                                    szl_decoded = TRUE;
+                                    szl_decoded = true;
                                     break;
                                 case 0x0004:
                                     offset = s7comm_decode_szl_id_0131_idx_0004(tvb, szl_item_tree, offset);
-                                    szl_decoded = TRUE;
+                                    szl_decoded = true;
                                     break;
                                 case 0x0005:
                                     offset = s7comm_decode_szl_id_0131_idx_0005(tvb, szl_item_tree, offset);
-                                    szl_decoded = TRUE;
+                                    szl_decoded = true;
                                     break;
                                 case 0x0006:
                                     offset = s7comm_decode_szl_id_0131_idx_0006(tvb, szl_item_tree, offset);
-                                    szl_decoded = TRUE;
+                                    szl_decoded = true;
                                     break;
                                 case 0x0007:
                                     offset = s7comm_decode_szl_id_0131_idx_0007(tvb, szl_item_tree, offset);
-                                    szl_decoded = TRUE;
+                                    szl_decoded = true;
                                     break;
                                 case 0x0008:
                                     offset = s7comm_decode_szl_id_0131_idx_0008(tvb, szl_item_tree, offset);
-                                    szl_decoded = TRUE;
+                                    szl_decoded = true;
                                     break;
                                 case 0x0009:
                                     offset = s7comm_decode_szl_id_0131_idx_0009(tvb, szl_item_tree, offset);
-                                    szl_decoded = TRUE;
+                                    szl_decoded = true;
                                     break;
                                 case 0x0010:
                                     offset = s7comm_decode_szl_id_0131_idx_0010(tvb, szl_item_tree, offset);
-                                    szl_decoded = TRUE;
+                                    szl_decoded = true;
                                     break;
                             }
                             break;
@@ -6070,35 +6070,35 @@ s7comm_decode_ud_cpu_szl_subfunc(tvbuff_t *tvb,
                             switch (idx) {
                                 case 0x0001:
                                     offset = s7comm_decode_szl_id_0132_idx_0001(tvb, szl_item_tree, offset);
-                                    szl_decoded = TRUE;
+                                    szl_decoded = true;
                                     break;
                                 case 0x0002:
                                     offset = s7comm_decode_szl_id_0132_idx_0002(tvb, szl_item_tree, offset);
-                                    szl_decoded = TRUE;
+                                    szl_decoded = true;
                                     break;
                                 case 0x0004:
                                     offset = s7comm_decode_szl_id_0132_idx_0004(tvb, szl_item_tree, offset);
-                                    szl_decoded = TRUE;
+                                    szl_decoded = true;
                                     break;
                                 case 0x0005:
                                     offset = s7comm_decode_szl_id_0132_idx_0005(tvb, szl_item_tree, offset);
-                                    szl_decoded = TRUE;
+                                    szl_decoded = true;
                                     break;
                                 case 0x0006:
                                     offset = s7comm_decode_szl_id_0132_idx_0006(tvb, szl_item_tree, offset);
-                                    szl_decoded = TRUE;
+                                    szl_decoded = true;
                                     break;
                                 case 0x0008:
                                     offset = s7comm_decode_szl_id_0132_idx_0008(tvb, szl_item_tree, offset);
-                                    szl_decoded = TRUE;
+                                    szl_decoded = true;
                                     break;
                                 case 0x000b:
                                     offset = s7comm_decode_szl_id_0132_idx_000b(tvb, szl_item_tree, offset);
-                                    szl_decoded = TRUE;
+                                    szl_decoded = true;
                                     break;
                                 case 0x000c:
                                     offset = s7comm_decode_szl_id_0132_idx_000c(tvb, szl_item_tree, offset);
-                                    szl_decoded = TRUE;
+                                    szl_decoded = true;
                                     break;
                             }
                             break;
@@ -6107,7 +6107,7 @@ s7comm_decode_ud_cpu_szl_subfunc(tvbuff_t *tvb,
                         case 0x0074:
                         case 0x0174:
                                 offset = s7comm_decode_szl_id_xy74_idx_0000(tvb, szl_item_tree, offset);
-                                szl_decoded = TRUE;
+                                szl_decoded = true;
                             break;
                         case 0x0091:
                         case 0x0191:
@@ -6122,7 +6122,7 @@ s7comm_decode_ud_cpu_szl_subfunc(tvbuff_t *tvb,
                         case 0x0d91:
                         case 0x0e91:
                             offset = s7comm_decode_szl_id_xy91_idx_0000(tvb, szl_item_tree, id, offset);
-                            szl_decoded = TRUE;
+                            szl_decoded = true;
                             break;
                         case 0x0092:
                         case 0x0192:
@@ -6135,7 +6135,7 @@ s7comm_decode_ud_cpu_szl_subfunc(tvbuff_t *tvb,
                         case 0x4292:
                         case 0x4692:
                             offset = s7comm_decode_szl_id_xy92_idx_xxxx(tvb, szl_item_tree, id, offset);
-                            szl_decoded = TRUE;
+                            szl_decoded = true;
                             break;
                         case 0x0094:
                         case 0x0194:
@@ -6143,25 +6143,25 @@ s7comm_decode_ud_cpu_szl_subfunc(tvbuff_t *tvb,
                         case 0x0694:
                         case 0x0794:
                             offset = s7comm_decode_szl_id_0x94_idx_xxxx(tvb, szl_item_tree, id, offset);
-                            szl_decoded = TRUE;
+                            szl_decoded = true;
                             break;
                         case 0x0696:
                         case 0x0c96:
                             offset = s7comm_decode_szl_id_xy96_idx_xxxx(tvb, szl_item_tree, offset);
-                            szl_decoded = TRUE;
+                            szl_decoded = true;
                             break;
                         case 0x0124:
                         case 0x0424:
                             if (idx == 0x0000) {
                                 offset = s7comm_decode_szl_id_0424_idx_0000(tvb, szl_item_tree, offset);
-                                szl_decoded = TRUE;
+                                szl_decoded = true;
                             }
                             break;
                         default:
-                            szl_decoded = FALSE;
+                            szl_decoded = false;
                             break;
                     }
-                    if (szl_decoded == FALSE) {
+                    if (szl_decoded == false) {
                         proto_tree_add_item(szl_item_tree, hf_s7comm_userdata_szl_partial_list, tvb, offset, list_len, ENC_NA);
                         offset += list_len;
                     }

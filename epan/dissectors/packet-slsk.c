@@ -117,15 +117,15 @@ static int hf_slsk_number_of_priv_users;
 static int hf_slsk_num_parent_address;
 
 /* Initialize the subtree pointers */
-static gint ett_slsk;
-static gint ett_slsk_compr_packet;
-static gint ett_slsk_directory;
-static gint ett_slsk_file;
-static gint ett_slsk_file_attribute;
-static gint ett_slsk_user;
-static gint ett_slsk_recommendation;
-static gint ett_slsk_room;
-static gint ett_slsk_string;
+static int ett_slsk;
+static int ett_slsk_compr_packet;
+static int ett_slsk_directory;
+static int ett_slsk_file;
+static int ett_slsk_file_attribute;
+static int ett_slsk_user;
+static int ett_slsk_recommendation;
+static int ett_slsk_room;
+static int ett_slsk_string;
 
 static expert_field ei_slsk_unknown_data;
 static expert_field ei_slsk_zlib_decompression_failed;
@@ -246,10 +246,10 @@ static const char* connection_type(char con_type[]) {
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
-static gboolean check_slsk_format(tvbuff_t *tvb, packet_info *pinfo, int offset, const char format[]){
+static bool check_slsk_format(tvbuff_t *tvb, packet_info *pinfo, int offset, const char format[]){
 
   /*
-  * Returns TRUE if tvbuff beginning at offset matches a certain format
+  * Returns true if tvbuff beginning at offset matches a certain format
   * The format is given by an array of characters standing for a special field type
   *     i - integer  (4 bytes)
   *     b - byte  (1 byte)
@@ -260,31 +260,31 @@ static gboolean check_slsk_format(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
   switch ( format[0] ) {
     case 'i':
-      if (tvb_captured_length_remaining(tvb, offset) < 4) return FALSE;
+      if (tvb_captured_length_remaining(tvb, offset) < 4) return false;
       offset += 4;
     break;
     case 'b':
-      if (tvb_captured_length_remaining(tvb, offset) < 1) return FALSE;
+      if (tvb_captured_length_remaining(tvb, offset) < 1) return false;
       offset += 1;
     break;
     case 's':
-      if (tvb_captured_length_remaining(tvb, offset) < 4) return FALSE;
-      if (tvb_captured_length_remaining(tvb, offset) < (int)tvb_get_letohl(tvb, offset)+4) return FALSE;
+      if (tvb_captured_length_remaining(tvb, offset) < 4) return false;
+      if (tvb_captured_length_remaining(tvb, offset) < (int)tvb_get_letohl(tvb, offset)+4) return false;
       offset += tvb_get_letohl(tvb, offset)+4;
     break;
     case '*':
-      return TRUE;
+      return true;
     default:
-      return FALSE;
+      return false;
   }
 
   if (format[1] == '\0' ) {
     if (tvb_captured_length_remaining(tvb, offset) > 0) /* Checks for additional bytes at the end */
-      return FALSE;
-    return TRUE;
+      return false;
+    return true;
   }
   increment_dissection_depth(pinfo);
-  gboolean valid = check_slsk_format(tvb, pinfo, offset, &format[1]);
+  bool valid = check_slsk_format(tvb, pinfo, offset, &format[1]);
   decrement_dissection_depth(pinfo);
   return valid;
 
@@ -297,7 +297,7 @@ static const char* get_message_type(tvbuff_t *tvb, packet_info *pinfo) {
   * Returns the Message Type.
   */
   int msg_code = tvb_get_letohl(tvb, 4);
-  const gchar *message_type =  try_val_to_str(msg_code, slsk_tcp_msgs);
+  const char *message_type =  try_val_to_str(msg_code, slsk_tcp_msgs);
   if (message_type == NULL) {
     if (check_slsk_format(tvb, pinfo, 4, "bisis"))
       message_type = "Distributed Search";
@@ -311,10 +311,10 @@ static const char* get_message_type(tvbuff_t *tvb, packet_info *pinfo) {
   return message_type;
 }
 
-static guint get_slsk_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+static unsigned get_slsk_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                               int offset, void *data _U_)
 {
-  guint32 msg_len;
+  uint32_t msg_len;
   msg_len = tvb_get_letohl(tvb, offset);
   /* That length doesn't include the length field itself; add that in. */
   msg_len += 4;
@@ -331,8 +331,8 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   proto_tree *slsk_tree, *subtree, *subtree2, *subtree3;
 
   int offset = 0, i, j;
-  guint32 msg_len, msg_code;
-  guint8 *str;
+  uint32_t msg_len, msg_code;
+  uint8_t *str;
   int str_len, start_offset, start_offset2;
 
   int comprlen = 0, uncomprlen = 0, uncompr_tvb_offset = 0;
@@ -378,7 +378,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Login Reply (Code: %02d)", msg_code);
           offset += 4;
-          i=tvb_get_guint8(tvb, offset);
+          i=tvb_get_uint8(tvb, offset);
           proto_tree_add_item(slsk_tree, hf_slsk_login_successful, tvb, offset, 1, ENC_NA);
           offset += 1;
           proto_tree_add_item_ret_length(slsk_tree, hf_slsk_login_message, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
@@ -461,7 +461,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           /* [zlib compressed] */
           comprlen = tvb_captured_length_remaining(tvb, offset);
 
-          if (slsk_decompress == TRUE){
+          if (slsk_decompress == true){
 
             tvbuff_t *uncompr_tvb = tvb_child_uncompress_zlib(tvb, tvb, offset, comprlen);
 
@@ -573,7 +573,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           /* [zlib compressed] */
           comprlen = tvb_captured_length_remaining(tvb, offset);
 
-          if (slsk_decompress == TRUE){
+          if (slsk_decompress == true){
 
             tvbuff_t *uncompr_tvb = tvb_child_uncompress_zlib(tvb, tvb, offset, comprlen);
 
@@ -812,7 +812,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           offset += str_len;
           proto_tree_add_item(slsk_tree, hf_slsk_picture_exists, tvb, offset, 1, ENC_NA);
           offset += 1;
-          if ( tvb_get_guint8(tvb, offset -1 ) == 1 ) {
+          if ( tvb_get_uint8(tvb, offset -1 ) == 1 ) {
             proto_tree_add_item_ret_length(slsk_tree, hf_slsk_picture, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
             offset += str_len;
           }
@@ -841,7 +841,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       case 18:
         if (check_slsk_format(tvb, pinfo, offset, "iiss")) {
           /* Client-to-Server */
-          guint32 len;
+          uint32_t len;
 
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Connect To Peer (Code: %02d)", msg_code);
@@ -859,7 +859,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
         else if (check_slsk_format(tvb, pinfo, offset, "issiii")) {
           /* Server-to-Client */
-          guint32 len;
+          uint32_t len;
 
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Connect To Peer (Code: %02d)", msg_code);
@@ -1028,7 +1028,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           /* [zlib compressed] */
           comprlen = tvb_captured_length_remaining(tvb, offset);
 
-          if (slsk_decompress == TRUE){
+          if (slsk_decompress == true){
 
             tvbuff_t *uncompr_tvb = tvb_child_uncompress_zlib(tvb, tvb, offset, comprlen);
 
@@ -1050,7 +1050,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
               uncompr_tvb_offset = 0;
               if (check_slsk_format(uncompr_tvb, pinfo, uncompr_tvb_offset, "isi*")) {
-                guint32 len;
+                uint32_t len;
 
                 proto_tree_add_item(slsk_compr_packet_tree, hf_slsk_token, uncompr_tvb, uncompr_tvb_offset, 4, ENC_LITTLE_ENDIAN);
                 uncompr_tvb_offset += 4;
@@ -1156,7 +1156,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           offset += 4;
           proto_tree_add_item(slsk_tree, hf_slsk_token, tvb, offset, 4, ENC_LITTLE_ENDIAN);
           offset += 4;
-          i = tvb_get_guint8(tvb, offset);
+          i = tvb_get_uint8(tvb, offset);
           proto_tree_add_item(slsk_tree, hf_slsk_allowed, tvb, offset, 1, ENC_NA);
           offset += 1;
           if ( i == 1 ) {
@@ -1778,7 +1778,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Embedded Message (Code: %02d)", msg_code);
           offset += 4;
-          if ( tvb_get_guint8(tvb, offset) == 3 ){
+          if ( tvb_get_uint8(tvb, offset) == 3 ){
             /* Client-to-Client */
             proto_tree_add_uint_format_value(slsk_tree, hf_slsk_embedded_message_type, tvb, offset, 1, msg_code,
                        "Distributed Search (Byte: %d)", 3);
@@ -1978,7 +1978,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
       default:
         if (check_slsk_format(tvb, pinfo, offset, "bisis")) {
-          if ( tvb_get_guint8(tvb, offset) == 3 ){
+          if ( tvb_get_uint8(tvb, offset) == 3 ){
             /* Client-to-Client */
             proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 1, msg_code,
                        "Distributed Search (Byte: %d)", 3);
@@ -1994,9 +1994,9 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           }
         }
         else if (check_slsk_format(tvb, pinfo, offset, "bssi")) {
-          if ( tvb_get_guint8(tvb, offset) == 1 ){
+          if ( tvb_get_uint8(tvb, offset) == 1 ){
             /* Client-to-Client */
-            guint32 len;
+            uint32_t len;
 
             proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 1, msg_code,
                        "Peer Init (Byte: %d)", 1);
@@ -2014,7 +2014,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           }
         }
         else if (check_slsk_format(tvb, pinfo, offset, "bi")) {
-          if ( tvb_get_guint8(tvb, offset) == 0 ){
+          if ( tvb_get_uint8(tvb, offset) == 0 ){
             /* Client-to-Client */
             proto_tree_add_uint_format_value(slsk_tree, hf_slsk_message_code, tvb, offset, 1, msg_code,
                        "Pierce Fw (Byte: %d)", 0);
@@ -2311,7 +2311,7 @@ proto_register_slsk(void)
   };
 
 /* Setup protocol subtree array */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_slsk,
     &ett_slsk_compr_packet,
     &ett_slsk_directory,

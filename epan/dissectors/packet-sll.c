@@ -100,19 +100,19 @@ static int hf_sll_src_other;
 static int hf_sll_trailer;
 static int hf_sll_unused;
 
-static gint ett_sll;
+static int ett_sll;
 
 static dissector_table_t sll_hatype_dissector_table;
 static dissector_table_t sll_ltype_dissector_table;
 static dissector_table_t gre_dissector_table;
 
-static void sll_prompt(packet_info *pinfo, gchar* result)
+static void sll_prompt(packet_info *pinfo, char* result)
 {
 	snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "SLL protocol type 0x%04x as",
 		GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_sll, 0)));
 }
 
-static gpointer sll_value(packet_info *pinfo)
+static void *sll_value(packet_info *pinfo)
 {
 	return p_get_proto_data(pinfo->pool, pinfo, proto_sll, 0);
 }
@@ -177,19 +177,19 @@ sll_endpoint_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 
 	const sll_tap_data *tap_data = (const sll_tap_data*)vip;
 
-	add_endpoint_table_data(hash, &tap_data->src_address, 0, TRUE, 1, pinfo->fd->pkt_len, &sll_endpoint_dissector_info, ENDPOINT_NONE);
+	add_endpoint_table_data(hash, &tap_data->src_address, 0, true, 1, pinfo->fd->pkt_len, &sll_endpoint_dissector_info, ENDPOINT_NONE);
 
 	return TAP_PACKET_REDRAW;
 }
 
 static bool
-capture_sll(const guchar *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
+capture_sll(const unsigned char *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
-	guint16 hatype;
-	guint16 protocol;
+	uint16_t hatype;
+	uint16_t protocol;
 
 	if (!BYTES_ARE_IN_FRAME(0, len, SLL_HEADER_SIZE))
-		return FALSE;
+		return false;
 
 	protocol = pntoh16(&pd[14]);
 	if (protocol <= 1536) {	/* yes, 1536 - that's how Linux does it */
@@ -200,22 +200,22 @@ capture_sll(const guchar *pd, int offset _U_, int len, capture_packet_info_t *cp
 		hatype = pntoh16(&pd[2]);
 		if (try_capture_dissector("sll.hatype", hatype, pd,
 		    SLL_HEADER_SIZE, len, cpinfo, pseudo_header))
-			return TRUE;
+			return true;
 		return try_capture_dissector("sll.ltype", protocol, pd, SLL_HEADER_SIZE, len, cpinfo, pseudo_header);
 	} else {
 		return try_capture_dissector("ethertype", protocol, pd, SLL_HEADER_SIZE, len, cpinfo, pseudo_header);
 	}
-	return FALSE;
+	return false;
 }
 
 static bool
-capture_sll2(const guchar *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
+capture_sll2(const unsigned char *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
-	guint16 hatype;
-	guint16 protocol;
+	uint16_t hatype;
+	uint16_t protocol;
 
 	if (!BYTES_ARE_IN_FRAME(0, len, SLL2_HEADER_SIZE))
-		return FALSE;
+		return false;
 
 	protocol = pntoh16(&pd[0]);
 	if (protocol <= 1536) {	/* yes, 1536 - that's how Linux does it */
@@ -226,19 +226,19 @@ capture_sll2(const guchar *pd, int offset _U_, int len, capture_packet_info_t *c
 		hatype = pntoh16(&pd[8]);
 		if (try_capture_dissector("sll.hatype", hatype, pd,
 		    SLL2_HEADER_SIZE, len, cpinfo, pseudo_header))
-			return TRUE;
+			return true;
 		return try_capture_dissector("sll.ltype", protocol, pd, SLL2_HEADER_SIZE, len, cpinfo, pseudo_header);
 	} else {
 		return try_capture_dissector("ethertype", protocol, pd, SLL2_HEADER_SIZE, len, cpinfo, pseudo_header);
 	}
-	return FALSE;
+	return false;
 }
 
 static void
 add_ll_address(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
     int halen_offset, int halen_len, sll_tap_data *tap_data)
 {
-	guint32 ha_len;
+	uint32_t ha_len;
 	int ha_offset = halen_offset + halen_len;
 
 	/*
@@ -275,11 +275,11 @@ add_ll_address(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 				SLL_ADDRLEN - ha_len, ENC_NA);
 }
 
-static guint16
+static uint16_t
 add_protocol_type(proto_tree *fh_tree, tvbuff_t *tvb, int protocol_offset,
     int hatype)
 {
-	guint16 protocol;
+	uint16_t protocol;
 
 	protocol = tvb_get_ntohs(tvb, protocol_offset);
 	if (protocol <= 1536) {	/* yes, 1536 - that's how Linux does it */
@@ -319,7 +319,7 @@ add_protocol_type(proto_tree *fh_tree, tvbuff_t *tvb, int protocol_offset,
 
 static void
 dissect_payload(proto_tree *tree, packet_info *pinfo, proto_tree *fh_tree,
-    tvbuff_t *tvb, int header_size, int hatype, guint16 protocol)
+    tvbuff_t *tvb, int header_size, int hatype, uint16_t protocol)
 {
 	tvbuff_t *next_tvb;
 	ethertype_data_t ethertype_data;
@@ -335,7 +335,7 @@ dissect_payload(proto_tree *tree, packet_info *pinfo, proto_tree *fh_tree,
 		 */
 		if (!dissector_try_uint(sll_hatype_dissector_table, hatype,
 		    next_tvb, pinfo, tree)) {
-			p_add_proto_data(pinfo->pool, pinfo, proto_sll, 0, GUINT_TO_POINTER((guint)protocol));
+			p_add_proto_data(pinfo->pool, pinfo, proto_sll, 0, GUINT_TO_POINTER((unsigned)protocol));
 			if (!dissector_try_uint(sll_ltype_dissector_table,
 			    protocol, next_tvb, pinfo, tree)) {
 				call_data_dissector(next_tvb, pinfo, tree);
@@ -373,9 +373,9 @@ dissect_payload(proto_tree *tree, packet_info *pinfo, proto_tree *fh_tree,
 static int
 dissect_sll_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int encap)
 {
-	guint16 pkttype;
-	guint16 protocol;
-	guint16 hatype;
+	uint16_t pkttype;
+	uint16_t protocol;
+	uint16_t hatype;
 	int header_size;
 	int version;
 	proto_item *ti;
@@ -572,7 +572,7 @@ proto_register_sll(void)
 		},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_sll
 	};
 
@@ -618,7 +618,7 @@ proto_register_sll(void)
 	);
 	register_capture_dissector_table("sll.ltype", "Linux SLL protocol");
 
-	register_conversation_table(proto_sll, TRUE, sll_conversation_packet, sll_endpoint_packet);
+	register_conversation_table(proto_sll, true, sll_conversation_packet, sll_endpoint_packet);
 
 	register_decode_as(&sll_da);
 }

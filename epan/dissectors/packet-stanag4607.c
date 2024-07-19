@@ -185,11 +185,11 @@ static int hf_4607_platloc_speed;
 static int hf_4607_platloc_vertical_velocity;
 
 /* Subtree pointers */
-static gint ett_4607_hdr;
-static gint ett_4607_seg;
-static gint ett_4607_rpt;
-static gint ett_4607_mask;
-static gint ett_4607_ver;
+static int ett_4607_hdr;
+static int ett_4607_seg;
+static int ett_4607_rpt;
+static int ett_4607_mask;
+static int ett_4607_ver;
 
 /* Error pointers */
 static expert_field ei_bad_length;
@@ -436,10 +436,10 @@ static const value_string stanag4607_platform_vals[] = {
 };
 
 static void
-prt_sa32(gchar *buff, guint32 val)
+prt_sa32(char *buff, uint32_t val)
 {
 	double deg, min, sec;
-	double x = (double) ((gint32) val);
+	double x = (double) ((int32_t) val);
 	x /= (double) (1UL<<30);
 	x *= 45.0;
 	deg = floor(x);
@@ -450,7 +450,7 @@ prt_sa32(gchar *buff, guint32 val)
 }
 
 static void
-prt_ba32(gchar *buff, guint32 val)
+prt_ba32(char *buff, uint32_t val)
 {
 	double deg, min, sec;
 	double x = (double) val;
@@ -464,16 +464,16 @@ prt_ba32(gchar *buff, guint32 val)
 }
 
 static void
-prt_sa16(gchar *buff, guint32 val)
+prt_sa16(char *buff, uint32_t val)
 {
-	double x = (double) ((gint32) val);
+	double x = (double) ((int32_t) val);
 	x /= (double) (1<<14);
 	x *= 90.0;
 	snprintf(buff, ITEM_LABEL_LENGTH, "%.3f degrees", x);
 }
 
 static void
-prt_ba16(gchar *buff, guint32 val)
+prt_ba16(char *buff, uint32_t val)
 {
 	double x = (double) val;
 	x /= (double) (1<<14);
@@ -482,7 +482,7 @@ prt_ba16(gchar *buff, guint32 val)
 }
 
 static void
-prt_ba16_none(gchar *buff, guint32 val)
+prt_ba16_none(char *buff, uint32_t val)
 {
 	double x = (double) val;
 	x /= (double) (1<<14);
@@ -494,38 +494,38 @@ prt_ba16_none(gchar *buff, guint32 val)
 }
 
 static void
-prt_kilo(gchar *buff, guint32 val)
+prt_kilo(char *buff, uint32_t val)
 {
-	double x = (double) ((gint32) val);
+	double x = (double) ((int32_t) val);
 	x /= 128.0;
 	snprintf(buff, ITEM_LABEL_LENGTH, "%.2f kilometers", x);
 }
 
 static void
-prt_meters(gchar *buff, guint32 val)
+prt_meters(char *buff, uint32_t val)
 {
-	double x = (double) ((gint32) val);
+	double x = (double) ((int32_t) val);
 	snprintf(buff, ITEM_LABEL_LENGTH, "%.0f meters", x);
 }
 
 static void
-prt_decimeters(gchar *buff, guint32 val)
+prt_decimeters(char *buff, uint32_t val)
 {
-	double x = (double) ((gint32) val);
+	double x = (double) ((int32_t) val);
 	x /= 10.0;
 	snprintf(buff, ITEM_LABEL_LENGTH, "%.1f meters", x);
 }
 
 static void
-prt_centimeters(gchar *buff, guint32 val)
+prt_centimeters(char *buff, uint32_t val)
 {
-	double x = (double) ((gint32) val);
+	double x = (double) ((int32_t) val);
 	x /= 100.0;
 	snprintf(buff, ITEM_LABEL_LENGTH, "%.2f meters", x);
 }
 
 static void
-prt_speed(gchar *buff, guint32 val)
+prt_speed(char *buff, uint32_t val)
 {
 	double x = (double) val;
 	x /= 1000.0;
@@ -533,24 +533,24 @@ prt_speed(gchar *buff, guint32 val)
 }
 
 static void
-prt_speed_centi(gchar *buff, guint32 val)
+prt_speed_centi(char *buff, uint32_t val)
 {
-	double x = (double) ((gint32) val);
+	double x = (double) ((int32_t) val);
 	x /= 100.0;
 	snprintf(buff, ITEM_LABEL_LENGTH, "%.2f meters/second", x);
 }
 
 static void
-prt_speed_deci(gchar *buff, guint32 val)
+prt_speed_deci(char *buff, uint32_t val)
 {
 	/* Usually 8-bit, signed */
-	double x = (double) ((gint32) val);
+	double x = (double) ((int32_t) val);
 	x /= 10.0;
 	snprintf(buff, ITEM_LABEL_LENGTH, "%.1f meters/second", x);
 }
 
 static void
-prt_millisec(gchar *buff, guint32 val)
+prt_millisec(char *buff, uint32_t val)
 {
 	double x = (double) val;
 	x /= 1000.0;
@@ -558,7 +558,7 @@ prt_millisec(gchar *buff, guint32 val)
 }
 
 static void
-prt_none8(gchar *buff, guint32 val)
+prt_none8(char *buff, uint32_t val)
 {
 	if (0xff == val)
 		snprintf(buff, ITEM_LABEL_LENGTH, "No Statement");
@@ -567,7 +567,7 @@ prt_none8(gchar *buff, guint32 val)
 }
 
 static void
-prt_none16(gchar *buff, guint32 val)
+prt_none16(char *buff, uint32_t val)
 {
 	if (0xffff == val)
 		snprintf(buff, ITEM_LABEL_LENGTH, "No Statement");
@@ -576,8 +576,8 @@ prt_none16(gchar *buff, guint32 val)
 }
 
 
-static gint
-dissect_mission(tvbuff_t *tvb, proto_tree *seg_tree, gint offset)
+static int
+dissect_mission(tvbuff_t *tvb, proto_tree *seg_tree, int offset)
 {
 	proto_tree_add_item(seg_tree, hf_4607_mission_plan, tvb, offset, 12, ENC_ASCII);
 	offset += 12;
@@ -604,7 +604,7 @@ dissect_mission(tvbuff_t *tvb, proto_tree *seg_tree, gint offset)
  * close to this).  The m and n values of the m*8+n offset below are
  * given in Figure 2-1 titled "Dwell Segment Existence Mask Mapping."
  */
-#define SET(MASK,OFF) (((MASK)>>(OFF)) & G_GINT64_CONSTANT(1))
+#define SET(MASK,OFF) (((MASK)>>(OFF)) & INT64_C(1))
 #define D2      7*8+7
 #define D3      7*8+6
 #define D4      7*8+5
@@ -655,8 +655,8 @@ dissect_mission(tvbuff_t *tvb, proto_tree *seg_tree, gint offset)
 #define D32_18  2*8+0
 
 /* Target Report */
-static gint
-dissect_target(tvbuff_t *tvb, proto_tree *seg_tree, gint offset, guint64 mask)
+static int
+dissect_target(tvbuff_t *tvb, proto_tree *seg_tree, int offset, uint64_t mask)
 {
 	proto_item *rpt_item = NULL;
 	proto_tree *rpt_tree = seg_tree;
@@ -745,11 +745,11 @@ dissect_target(tvbuff_t *tvb, proto_tree *seg_tree, gint offset, guint64 mask)
 }
 
 /* Dwell Segment */
-static gint
-dissect_dwell(tvbuff_t *tvb, proto_tree *seg_tree, gint offset)
+static int
+dissect_dwell(tvbuff_t *tvb, proto_tree *seg_tree, int offset)
 {
-	guint64 mask;
-	guint32 count;
+	uint64_t mask;
+	uint32_t count;
 
 	mask = tvb_get_ntoh64(tvb, offset);
 
@@ -932,8 +932,8 @@ dissect_dwell(tvbuff_t *tvb, proto_tree *seg_tree, gint offset)
 }
 
 /* Job Definition */
-static gint
-dissect_jobdef(tvbuff_t *tvb, proto_tree *seg_tree, gint offset)
+static int
+dissect_jobdef(tvbuff_t *tvb, proto_tree *seg_tree, int offset)
 {
 	proto_tree_add_item(seg_tree, hf_4607_jobdef_job_id, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
@@ -995,8 +995,8 @@ dissect_jobdef(tvbuff_t *tvb, proto_tree *seg_tree, gint offset)
 	return offset;
 }
 
-static gint
-dissect_platform_location(tvbuff_t *tvb, proto_tree *seg_tree, gint offset)
+static int
+dissect_platform_location(tvbuff_t *tvb, proto_tree *seg_tree, int offset)
 {
 	proto_tree_add_item(seg_tree, hf_4607_platloc_time, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
@@ -1035,13 +1035,13 @@ dissect_platform_location(tvbuff_t *tvb, proto_tree *seg_tree, gint offset)
 static int
 dissect_stanag4607(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	guint32 offset = 0;
-	gint8 first_segment;
+	uint32_t offset = 0;
+	int8_t first_segment;
 
-	guint32 pkt_size = 0, job_id;
+	uint32_t pkt_size = 0, job_id;
 	proto_item *ti, *seg_type, *pver, *pedition;
 	proto_tree *hdr_tree, *seg_tree, *ver_tree;
-	guint8 seg_id = 0;
+	uint8_t seg_id = 0;
 
 	/* Basic length check */
 	if (tvb_captured_length(tvb) < STANAG4607_MIN_LENGTH)
@@ -1052,13 +1052,13 @@ dissect_stanag4607(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	/* Put type of first segment in the info column */
-	first_segment = tvb_get_guint8(tvb, 32);
+	first_segment = tvb_get_uint8(tvb, 32);
 	col_add_str(pinfo->cinfo, COL_INFO,
 			val_to_str(first_segment, stanag4607_segment_vals, "Unknown (0x%02x)"));
 
 	/* Put the timestamp, if available in the time column */
 	if (PLATFORM_LOCATION_SEGMENT == first_segment) {
-		guint32 millisecs;
+		uint32_t millisecs;
 		nstime_t ts;
 		millisecs = tvb_get_ntohl(tvb, 37);
 		ts.secs = millisecs / 1000;
@@ -1081,7 +1081,7 @@ dissect_stanag4607(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	pver = proto_tree_add_item(hdr_tree, hf_4607_version, tvb, 0, 2, ENC_ASCII);
 	ver_tree = proto_item_add_subtree(pver, ett_4607_ver);
 	pedition = proto_tree_add_item(ver_tree, hf_4607_version_edition, tvb, 0, 1, ENC_ASCII);
-	guint8 edition = tvb_get_guint8(tvb, 0);
+	uint8_t edition = tvb_get_uint8(tvb, 0);
 	if(edition >= 48 && edition <= 51) {
 		/* ASCII char 48-51 (0-3) */
 		proto_item_append_text(pedition, " (STANAG 4607 Edition %c)", edition);
@@ -1100,7 +1100,7 @@ dissect_stanag4607(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	proto_tree_add_item(hdr_tree, hf_4607_platform_id, tvb, 14, 10, ENC_ASCII);
 	proto_tree_add_item(hdr_tree, hf_4607_mission_id, tvb, 24, 4, ENC_BIG_ENDIAN);
 	proto_tree_add_item(hdr_tree, hf_4607_job_id, tvb, 28, 4, ENC_BIG_ENDIAN);
-	job_id = tvb_get_guint32(tvb, 28, ENC_BIG_ENDIAN);
+	job_id = tvb_get_uint32(tvb, 28, ENC_BIG_ENDIAN);
 	offset = 32;
 
 	pkt_size = tvb_get_ntohl(tvb, 2);
@@ -1113,13 +1113,13 @@ dissect_stanag4607(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
 	/* Loop over all segments in the packet */
 	while (offset < pkt_size) {
-		guint32 seg_size = 0;
-		guint32 saved_offset = offset;
+		uint32_t seg_size = 0;
+		uint32_t saved_offset = offset;
 
 		proto_item * pi;
 		/* Segment header */
 		seg_type = proto_tree_add_item(hdr_tree, hf_4607_segment_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-		seg_id = tvb_get_guint8(tvb, offset);
+		seg_id = tvb_get_uint8(tvb, offset);
 		offset += 1;
 
 		seg_tree = proto_item_add_subtree(seg_type, ett_4607_seg);
@@ -2143,7 +2143,7 @@ proto_register_stanag4607(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_4607_hdr,
 		&ett_4607_seg,
 		&ett_4607_rpt,

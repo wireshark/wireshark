@@ -68,69 +68,69 @@ static dissector_table_t scte35_cmd_dissector_table;
 
 
 /* splice_info_section table */
-static gint ett_scte35_splice_info_section;
+static int ett_scte35_splice_info_section;
 
 /* splice_info_section fields */
-static gint hf_table_id;
-static gint hf_section_syntax_indicator;
-static gint hf_private_indicator;
-static gint hf_reserved;
-static gint hf_section_length;
-static gint hf_protocol_version;
-static gint hf_encrypted_packet;
-static gint hf_encryption_algorithm;
-static gint hf_pts_adjustment;
-static gint hf_cw_index;
-static gint hf_tier;
-static gint hf_splice_command_length;
-static gint hf_splice_command_type;
-static gint hf_descriptor_loop_length;
-static gint hf_splice_descriptor_tag;
-static gint hf_splice_descriptor_length;
-static gint hf_splice_descriptor_identifier;
-static gint hf_descriptor_provider_avail_id;
-static gint hf_descriptor_preroll;
-static gint hf_descriptor_dtmf_count;
-static gint hf_descriptor_dtmf_reserved;
-static gint hf_descriptor_dtmf;
-static gint hf_descriptor_event_id;
-static gint hf_descriptor_cancel_indicator;
-static gint hf_descriptor_reserved0;
-static gint hf_descriptor_psf;
-static gint hf_descriptor_segmentation_duration_flag;
-static gint hf_descriptor_delivery_not_restricted_flag;
-static gint hf_descriptor_web_delivery_allowed_flag;
-static gint hf_descriptor_no_regional_blackout_flag;
-static gint hf_descriptor_archive_allow_flag;
-static gint hf_descriptor_device_restrictions;
-static gint hf_descriptor_reserved1;
-static gint hf_descriptor_component_count;
-static gint hf_descriptor_component_tag;
-static gint hf_descriptor_component_reserved;
-static gint hf_descriptor_component_pts_offset;
-static gint hf_descriptor_segmentation_duration;
-static gint hf_descriptor_segmentation_upid_type;
-static gint hf_descriptor_segmentation_upid_length;
-static gint hf_descriptor_segmentation_upid;
-static gint hf_descriptor_segmentation_type_id;
-static gint hf_descriptor_segment_num;
-static gint hf_descriptor_segments_expected;
-static gint hf_e_crc32;
-static gint hf_crc32;
+static int hf_table_id;
+static int hf_section_syntax_indicator;
+static int hf_private_indicator;
+static int hf_reserved;
+static int hf_section_length;
+static int hf_protocol_version;
+static int hf_encrypted_packet;
+static int hf_encryption_algorithm;
+static int hf_pts_adjustment;
+static int hf_cw_index;
+static int hf_tier;
+static int hf_splice_command_length;
+static int hf_splice_command_type;
+static int hf_descriptor_loop_length;
+static int hf_splice_descriptor_tag;
+static int hf_splice_descriptor_length;
+static int hf_splice_descriptor_identifier;
+static int hf_descriptor_provider_avail_id;
+static int hf_descriptor_preroll;
+static int hf_descriptor_dtmf_count;
+static int hf_descriptor_dtmf_reserved;
+static int hf_descriptor_dtmf;
+static int hf_descriptor_event_id;
+static int hf_descriptor_cancel_indicator;
+static int hf_descriptor_reserved0;
+static int hf_descriptor_psf;
+static int hf_descriptor_segmentation_duration_flag;
+static int hf_descriptor_delivery_not_restricted_flag;
+static int hf_descriptor_web_delivery_allowed_flag;
+static int hf_descriptor_no_regional_blackout_flag;
+static int hf_descriptor_archive_allow_flag;
+static int hf_descriptor_device_restrictions;
+static int hf_descriptor_reserved1;
+static int hf_descriptor_component_count;
+static int hf_descriptor_component_tag;
+static int hf_descriptor_component_reserved;
+static int hf_descriptor_component_pts_offset;
+static int hf_descriptor_segmentation_duration;
+static int hf_descriptor_segmentation_upid_type;
+static int hf_descriptor_segmentation_upid_length;
+static int hf_descriptor_segmentation_upid;
+static int hf_descriptor_segmentation_type_id;
+static int hf_descriptor_segment_num;
+static int hf_descriptor_segments_expected;
+static int hf_e_crc32;
+static int hf_crc32;
 
 /* time_signal protocol and fields */
 static int proto_scte35_time;
-static gint ett_scte35_time_signal;
-static gint ett_scte35_time_signal_splice_time;
-static gint hf_time_specified;
-static gint hf_time_reserved;
-static gint hf_time_pts;
+static int ett_scte35_time_signal;
+static int ett_scte35_time_signal_splice_time;
+static int hf_time_specified;
+static int hf_time_reserved;
+static int hf_time_pts;
 
 /* private_command protocol and fields */
 static int proto_private_command;
-static gint ett_private_command;
-static gint hf_identifier;
-static gint hf_private_byte;
+static int ett_private_command;
+static int hf_identifier;
+static int hf_private_byte;
 
 /* Dissector table for scte35_private_command.identifier */
 static dissector_table_t private_identifier_table;
@@ -143,51 +143,51 @@ static dissector_handle_t scte35_ss_handle;
 
 /* splice_insert protocol and fields */
 static int proto_scte35_si;
-static gint ett_scte35_splice_insert;
-static gint hf_splice_insert_event_id;
-static gint hf_splice_cancel_indicator;
-static gint hf_reserved0;
-static gint hf_out_of_network_indicator;
-static gint hf_program_splice_flag;
-static gint hf_duration_flag;
-static gint hf_splice_immediate_flag;
-static gint hf_reserved1;
-static gint hf_splice_time_specified_flag;
-static gint hf_splice_time_reserved;
-static gint hf_splice_time_pts_time;
-static gint hf_component_count;
-static gint hf_component_tag;
-static gint hf_component_splice_time_tsf;
-static gint hf_component_splice_time_reserved;
-static gint hf_component_splice_time_pts_time;
-static gint hf_break_duration_auto_return;
-static gint hf_break_duration_reserved;
-static gint hf_break_duration_duration;
-static gint hf_unique_program_id;
-static gint hf_avail_num;
-static gint hf_avails_expected;
+static int ett_scte35_splice_insert;
+static int hf_splice_insert_event_id;
+static int hf_splice_cancel_indicator;
+static int hf_reserved0;
+static int hf_out_of_network_indicator;
+static int hf_program_splice_flag;
+static int hf_duration_flag;
+static int hf_splice_immediate_flag;
+static int hf_reserved1;
+static int hf_splice_time_specified_flag;
+static int hf_splice_time_reserved;
+static int hf_splice_time_pts_time;
+static int hf_component_count;
+static int hf_component_tag;
+static int hf_component_splice_time_tsf;
+static int hf_component_splice_time_reserved;
+static int hf_component_splice_time_pts_time;
+static int hf_break_duration_auto_return;
+static int hf_break_duration_reserved;
+static int hf_break_duration_duration;
+static int hf_unique_program_id;
+static int hf_avail_num;
+static int hf_avails_expected;
 
 /* splice_schedule protocol and fields */
 static int proto_scte35_splice_schedule;
-static gint ett_scte35_splice_schedule;
-static gint hf_splice_count;
-static gint hf_splice_event_id;
-static gint hf_splice_event_cancel_indicator;
-static gint hf_splice_reserved0;
-static gint hf_splice_out_of_network;
-static gint hf_splice_program_splice_flag;
-static gint hf_splice_duration_flag;
-static gint hf_splice_reserved1;
-static gint hf_splice_utc_splice_time;
-static gint hf_splice_component_count;
-static gint hf_splice_component_tag;
-static gint hf_splice_component_utc_splice_time;
-static gint hf_splice_break_duration_auto_return;
-static gint hf_splice_break_duration_reserved;
-static gint hf_splice_break_duration_duration;
-static gint hf_splice_unique_program_id;
-static gint hf_splice_avail_num;
-static gint hf_splice_avails_expected;
+static int ett_scte35_splice_schedule;
+static int hf_splice_count;
+static int hf_splice_event_id;
+static int hf_splice_event_cancel_indicator;
+static int hf_splice_reserved0;
+static int hf_splice_out_of_network;
+static int hf_splice_program_splice_flag;
+static int hf_splice_duration_flag;
+static int hf_splice_reserved1;
+static int hf_splice_utc_splice_time;
+static int hf_splice_component_count;
+static int hf_splice_component_tag;
+static int hf_splice_component_utc_splice_time;
+static int hf_splice_break_duration_auto_return;
+static int hf_splice_break_duration_reserved;
+static int hf_splice_break_duration_duration;
+static int hf_splice_unique_program_id;
+static int hf_splice_avail_num;
+static int hf_splice_avails_expected;
 
 static const true_false_string tfs_section_syntax_indicator = {
     "Reserved", "MPEG short sections in use"};
@@ -304,17 +304,17 @@ static const range_string rv_encryption_algorithm[] = {
 /* time_signal dissector */
 static int
 dissect_scte35_time_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
-    gint tvb_len, min_length = 1, offset = 0;
-    guint8 time_specified_flag;
+    int tvb_len, min_length = 1, offset = 0;
+    uint8_t time_specified_flag;
     proto_item *ti;
     proto_tree *time_tree;
 
     /* Check packet length. */
-    tvb_len = (gint)tvb_reported_length(tvb);
+    tvb_len = (int)tvb_reported_length(tvb);
     if (tvb_len < min_length)
         return 0;
 
-    time_specified_flag = tvb_get_guint8(tvb, offset) & 0x80;
+    time_specified_flag = tvb_get_uint8(tvb, offset) & 0x80;
     if (time_specified_flag)
         min_length += 4;
     if (tvb_len < min_length)
@@ -343,7 +343,7 @@ dissect_scte35_time_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 void
 proto_register_scte35_time_signal(void)
 {
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_scte35_time_signal,
         &ett_scte35_time_signal_splice_time,
     };
@@ -357,7 +357,7 @@ proto_register_scte35_time_signal(void)
              NULL, 0x7E, NULL, HFILL}},
         {&hf_time_pts,
          {"PTS Time", "scte35_time.splice.pts", FT_UINT64, BASE_DEC,
-             NULL, G_GUINT64_CONSTANT(0x01FFFFFFFF), NULL, HFILL}},
+             NULL, UINT64_C(0x01FFFFFFFF), NULL, HFILL}},
     };
 
     proto_scte35_time = proto_register_protocol("SCTE-35 Time Signal", "SCTE35 TS", "scte35_time");
@@ -379,13 +379,13 @@ proto_reg_handoff_scte35_time_signal(void)
 static int
 dissect_scte35_private_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    gint tvb_len;
-    guint32 identifier;
-    gint offset = 0;
+    int tvb_len;
+    uint32_t identifier;
+    int offset = 0;
     proto_item *ti;
     proto_tree *pc_tree;
 
-    tvb_len = (gint)tvb_reported_length(tvb);
+    tvb_len = (int)tvb_reported_length(tvb);
     if (tvb_len < 4)
         return 0;
 
@@ -407,7 +407,7 @@ dissect_scte35_private_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 void
 proto_register_scte35_private_command(void)
 {
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_private_command,
     };
 
@@ -443,20 +443,20 @@ proto_reg_handoff_scte35_private_command(void)
 
 /* scte35 splice_insert dissector */
 static int
-dissect_component(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint8 sif, int idx)
+dissect_component(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, uint8_t sif, int idx)
 {
-    gint offset = 0;
-    guint8 component_tag, tsf = 0;
+    int offset = 0;
+    uint8_t component_tag, tsf = 0;
     proto_tree *component_tree;
-    gint tvb_len, min_length = sif ? 1 : 2;
+    int tvb_len, min_length = sif ? 1 : 2;
 
-    tvb_len = (gint)tvb_reported_length(tvb);
+    tvb_len = (int)tvb_reported_length(tvb);
     if (tvb_len < min_length)
         return 0;
 
     if (!sif) {
         /* Check whether time is present in the component. */
-        tsf = tvb_get_guint8(tvb, offset + 1) & 0x80;
+        tsf = tvb_get_uint8(tvb, offset + 1) & 0x80;
         if (tsf) {
             min_length += 4;
             if (tvb_len < min_length)
@@ -465,7 +465,7 @@ dissect_component(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
     }
 
     /* Create a subtree for the component. */
-    component_tag = tvb_get_guint8(tvb, offset);
+    component_tag = tvb_get_uint8(tvb, offset);
     proto_tree_add_subtree_format(
         tree, tvb, offset, min_length, idx, &component_tree,
         "Component %d (0x%02x)", idx, component_tag);
@@ -496,11 +496,11 @@ dissect_component(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 static int
 dissect_scte35_splice_insert(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    gint tvb_len, min_length = 5, dissected_length;
-    guint8 cancel_flag, psf, df, sif, tsf, component_count;
-    guint32 event_id;
-    gint component;
-    gint offset = 0;
+    int tvb_len, min_length = 5, dissected_length;
+    uint8_t cancel_flag, psf, df, sif, tsf, component_count;
+    uint32_t event_id;
+    int component;
+    int offset = 0;
     proto_item *ti;
     proto_tree *si_tree, *st_tree;
 
@@ -514,11 +514,11 @@ dissect_scte35_splice_insert(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     };
 
     /* Check with no optional subfields */
-    tvb_len = (gint)tvb_reported_length(tvb);
+    tvb_len = (int)tvb_reported_length(tvb);
     if (tvb_len < min_length)
         return 0;
 
-    cancel_flag = tvb_get_guint8(tvb, offset + 4) & 0x80;
+    cancel_flag = tvb_get_uint8(tvb, offset + 4) & 0x80;
     event_id = tvb_get_ntohl(tvb, 0);
 
     if (!cancel_flag) {
@@ -547,9 +547,9 @@ dissect_scte35_splice_insert(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     if (!cancel_flag) {
 
         /* Parse out the 'new event' fields. */
-        psf = tvb_get_guint8(tvb, offset) & 0x40;
-        df = tvb_get_guint8(tvb, offset) & 0x20;
-        sif = tvb_get_guint8(tvb, offset) & 0x10;
+        psf = tvb_get_uint8(tvb, offset) & 0x40;
+        df = tvb_get_uint8(tvb, offset) & 0x20;
+        sif = tvb_get_uint8(tvb, offset) & 0x10;
 
         proto_tree_add_bitmask_list(si_tree, tvb, offset, 1, new_event_fields, ENC_BIG_ENDIAN);
         offset++;
@@ -583,7 +583,7 @@ dissect_scte35_splice_insert(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             if (tvb_len < min_length)
                 return offset;
 
-            component_count = tvb_get_guint8(tvb, offset);
+            component_count = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(si_tree, hf_component_count, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
 
@@ -666,7 +666,7 @@ proto_register_scte35_splice_insert(void)
              NULL, 0x7E, NULL, HFILL}},
         {&hf_splice_time_pts_time,
          {"PTS Time", "scte35_si.splice_time.pts", FT_UINT64, 5,
-             NULL, G_GUINT64_CONSTANT(0x1FFFFFFFF), NULL, HFILL}},
+             NULL, UINT64_C(0x1FFFFFFFF), NULL, HFILL}},
         {&hf_component_count,
          {"Component Count", "scte35_si.component_count", FT_UINT8, BASE_DEC,
              NULL, 0, NULL, HFILL}},
@@ -681,7 +681,7 @@ proto_register_scte35_splice_insert(void)
              NULL, 0x7E, NULL, HFILL}},
         {&hf_component_splice_time_pts_time,
          {"PTS Time", "scte35_si.component.pts", FT_UINT64, 5,
-             NULL, G_GUINT64_CONSTANT(0x1FFFFFFFF), NULL, HFILL}},
+             NULL, UINT64_C(0x1FFFFFFFF), NULL, HFILL}},
         {&hf_break_duration_auto_return,
          {"Auto Return", "scte35_si.break.auto_return", FT_BOOLEAN, 8,
              NULL, 0x80, NULL, HFILL}},
@@ -690,7 +690,7 @@ proto_register_scte35_splice_insert(void)
              NULL, 0x7E, NULL, HFILL}},
         {&hf_break_duration_duration,
          {"Duration", "scte35_si.break.duration", FT_UINT64, 5,
-             NULL, G_GUINT64_CONSTANT(0x1FFFFFFFF), NULL, HFILL}},
+             NULL, UINT64_C(0x1FFFFFFFF), NULL, HFILL}},
         {&hf_unique_program_id,
          {"Unique Program ID", "scte35_si.upid", FT_UINT16, BASE_HEX,
              NULL, 0, NULL, HFILL}},
@@ -702,7 +702,7 @@ proto_register_scte35_splice_insert(void)
              NULL, 0, NULL, HFILL}},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_scte35_splice_insert,
     };
 
@@ -726,10 +726,10 @@ proto_reg_handoff_scte35_splice_insert(void)
 static int
 dissect_scte35_splice_schedule(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    gint tvb_len, min_length = 1;
-    guint8 splice_count, cancel_flag, psf, df, component_count;
-    gint component, splice;
-    gint offset = 0, splice_length;
+    int tvb_len, min_length = 1;
+    uint8_t splice_count, cancel_flag, psf, df, component_count;
+    int component, splice;
+    int offset = 0, splice_length;
     proto_item *ti;
     proto_tree *ss_tree, *sp_tree, *component_tree;
 
@@ -742,12 +742,12 @@ dissect_scte35_splice_schedule(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     };
 
     /* Check with no optional subfields */
-    tvb_len = (gint)tvb_reported_length(tvb);
+    tvb_len = (int)tvb_reported_length(tvb);
     if (tvb_len < min_length)
         return 0;
 
     /* Set up headers in the packet list */
-    splice_count = tvb_get_guint8(tvb, 0);
+    splice_count = tvb_get_uint8(tvb, 0);
     min_length += splice_count * 5;
     if (tvb_len < min_length)
         return 0;
@@ -767,7 +767,7 @@ dissect_scte35_splice_schedule(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         cancel_flag = tvb_get_bits8(tvb, offset * 8 + 32, 1);
         psf = cancel_flag ? 0 : tvb_get_bits8(tvb, offset * 8 + 41, 1);
         df = cancel_flag ? 0 : tvb_get_bits8(tvb, offset * 8 + 42, 1);
-        component_count = cancel_flag ? 0 : (psf ? 0 : tvb_get_guint8(tvb, offset + 6));
+        component_count = cancel_flag ? 0 : (psf ? 0 : tvb_get_uint8(tvb, offset + 6));
 
         splice_length = 5;
         if (!cancel_flag)
@@ -813,7 +813,7 @@ dissect_scte35_splice_schedule(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                                     offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
             } else {
-                component_count = tvb_get_guint8(tvb, offset);
+                component_count = tvb_get_uint8(tvb, offset);
                 proto_tree_add_item(ss_tree, hf_splice_component_count, tvb, offset, 1, ENC_NA);
                 offset++;
 
@@ -912,7 +912,7 @@ proto_register_scte35_splice_schedule(void)
              FT_UINT8, BASE_HEX, NULL, 0x7E, NULL, HFILL}},
         {&hf_splice_break_duration_duration,
          {"Duration", "scte35_splice_schedule.splice.break_duration.duration",
-             FT_UINT64, BASE_DEC, NULL, G_GUINT64_CONSTANT(0x1FFFFFFFF), NULL, HFILL}},
+             FT_UINT64, BASE_DEC, NULL, UINT64_C(0x1FFFFFFFF), NULL, HFILL}},
         {&hf_splice_unique_program_id,
          {"Unique Program ID", "scte35_splice_schedule.splice.unique_program_id",
              FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL}},
@@ -924,7 +924,7 @@ proto_register_scte35_splice_schedule(void)
              FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL}},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_scte35_splice_schedule,
     };
 
@@ -947,11 +947,11 @@ proto_reg_handoff_scte35_splice_schedule(void)
 static int
 dissect_scte35_avail_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    gint offset = 0;
-    gint tvb_len;
+    int offset = 0;
+    int tvb_len;
 
     /* Check length. */
-    tvb_len = (gint)tvb_reported_length(tvb);
+    tvb_len = (int)tvb_reported_length(tvb);
     if (tvb_len < 4)
         return 0;
 
@@ -965,12 +965,12 @@ dissect_scte35_avail_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 static int
 dissect_scte35_dtmf_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    gint offset = 0;
-    gint tvb_len, min_length = 2;
-    guint8 dtmf_count;
+    int offset = 0;
+    int tvb_len, min_length = 2;
+    uint8_t dtmf_count;
 
     /* Check length. */
-    tvb_len = (gint)tvb_reported_length(tvb);
+    tvb_len = (int)tvb_reported_length(tvb);
     if (tvb_len < min_length)
         return 0;
 
@@ -999,7 +999,7 @@ dissect_scte35_dtmf_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
 static int
 dissect_scte35_component(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int idx) {
-    gint offset = 0;
+    int offset = 0;
     proto_tree *subtree;
 
     /* Create the subtree. */
@@ -1022,8 +1022,8 @@ dissect_scte35_component(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 static int
 dissect_scte35_segmentation_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    gint offset = 0, dissected_length = 0, component;
-    guint8 cancel_indicator, psf, sdf, dnr, component_count, upid_length;
+    int offset = 0, dissected_length = 0, component;
+    uint8_t cancel_indicator, psf, sdf, dnr, component_count, upid_length;
 
     /* Parse the common header */
     proto_tree_add_item(tree, hf_descriptor_event_id, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1064,7 +1064,7 @@ dissect_scte35_segmentation_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_
 
         /* Parse component segmentation offsets if not switched as a program. */
         if (!psf) {
-            component_count = tvb_get_guint8(tvb, offset);
+            component_count = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(tree, hf_descriptor_component_count, tvb,
                                 offset, 1, ENC_NA);
             offset++;
@@ -1094,7 +1094,7 @@ dissect_scte35_segmentation_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_
                             offset, 1, ENC_NA);
         offset++;
 
-        upid_length = tvb_get_guint8(tvb, offset);
+        upid_length = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(tree, hf_descriptor_segmentation_upid_length, tvb,
                             offset, 1, ENC_NA);
         offset++;
@@ -1125,12 +1125,12 @@ dissect_scte35_splice_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 {
     proto_tree *subtree;
     tvbuff_t *descriptor_tvb;
-    gint offset = 0, dissected_length = 0;
-    guint8 tag, length = 0;
+    int offset = 0, dissected_length = 0;
+    uint8_t tag, length = 0;
 
     /* Create the subtree header for the descriptor. */
-    tag = tvb_get_guint8(tvb, offset);
-    length = tvb_get_guint8(tvb, offset + 1);
+    tag = tvb_get_uint8(tvb, offset);
+    length = tvb_get_uint8(tvb, offset + 1);
     proto_tree_add_subtree_format(
             tree, tvb, offset, length + 2, idx, &subtree,
             "Descriptor %d (0x%02x)", idx, tag);
@@ -1177,13 +1177,13 @@ dissect_scte35_splice_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 static int
 dissect_scte35_splice_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    gint tvb_len, min_length = SCTE35_SI_MIN_LEN, dissected_length = 0;
-    guint8 table_id, encrypted_packet, command_type;
-    guint16 command_length, descriptor_loop_length, i;
+    int tvb_len, min_length = SCTE35_SI_MIN_LEN, dissected_length = 0;
+    uint8_t table_id, encrypted_packet, command_type;
+    uint16_t command_length, descriptor_loop_length, i;
 
     proto_item *ti;
     proto_tree *splice_info_tree;
-    gint offset = 0, descriptor_offset = 0;
+    int offset = 0, descriptor_offset = 0;
     tvbuff_t *command_tvb;
 
     static int * const section_flags[] = {
@@ -1201,14 +1201,14 @@ dissect_scte35_splice_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         NULL
     };
 
-    tvb_len = (gint)tvb_reported_length(tvb);
+    tvb_len = (int)tvb_reported_length(tvb);
     if (tvb_len < min_length)
         return 0;
 
     /* Pre-fetch a few fields in the message. */
-    table_id = tvb_get_guint8(tvb, offset);
-    encrypted_packet = tvb_get_guint8(tvb, offset + 4) & 0x80;
-    command_type = tvb_get_guint8(tvb, offset + 13);
+    table_id = tvb_get_uint8(tvb, offset);
+    encrypted_packet = tvb_get_uint8(tvb, offset + 4) & 0x80;
+    command_type = tvb_get_uint8(tvb, offset + 13);
     command_length = tvb_get_ntohs(tvb, offset + 11) & 0xFFF;
 
     /* Check for excessive length before indexing past the command. */
@@ -1296,7 +1296,7 @@ dissect_scte35_splice_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
     /* We've reached the end. Run a child dissector for the splice command. */
     dissector_try_uint_new(scte35_cmd_dissector_table, command_type, command_tvb, pinfo, tree,
-        FALSE, NULL);
+        false, NULL);
 
     return offset;
 }
@@ -1305,7 +1305,7 @@ dissect_scte35_splice_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 void
 proto_register_scte35(void)
 {
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_scte35_splice_info_section,
     };
 
@@ -1333,14 +1333,14 @@ proto_register_scte35(void)
              NULL, 0, NULL, HFILL}},
         {&hf_encrypted_packet,
          {"Encrypted Packet", "scte35.encrypted_packet", FT_BOOLEAN, 40,
-             TFS(&tfs_encrypted_packet), G_GUINT64_CONSTANT(0x8000000000), NULL, HFILL}},
+             TFS(&tfs_encrypted_packet), UINT64_C(0x8000000000), NULL, HFILL}},
         {&hf_encryption_algorithm,
          {"Encryption Algorithm", "scte35.encryption_algorithm", FT_UINT40,
              BASE_HEX | BASE_RANGE_STRING, RVALS(rv_encryption_algorithm),
-             G_GUINT64_CONSTANT(0x7E00000000), NULL, HFILL}},
+             UINT64_C(0x7E00000000), NULL, HFILL}},
         {&hf_pts_adjustment,
          {"PTS Adjustment", "scte35.pts_adjustment", FT_UINT40, BASE_DEC,
-             NULL, G_GUINT64_CONSTANT(0x1FFFFFFFF), NULL, HFILL}},
+             NULL, UINT64_C(0x1FFFFFFFF), NULL, HFILL}},
         {&hf_cw_index,
          {"Control Word Index", "scte35.cw_index", FT_UINT8, BASE_HEX,
              NULL, 0, NULL, HFILL}},

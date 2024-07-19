@@ -41,8 +41,8 @@ GHashTable *sid_name_table;
 static GHashTable *ctx_handle_table;
 
 
-static gboolean lsa_policy_information_tap_installed;
-static gboolean samr_query_dispinfo_tap_installed;
+static bool lsa_policy_information_tap_installed;
+static bool samr_query_dispinfo_tap_installed;
 
 
 const char *
@@ -230,8 +230,8 @@ lsa_policy_information(void *dummy _U_, packet_info *pinfo _U_, epan_dissect_t *
 }
 
 
-static gint
-ctx_handle_equal(gconstpointer k1, gconstpointer k2)
+static int
+ctx_handle_equal(const void *k1, const void *k2)
 {
 	int sn1 = GPOINTER_TO_INT(k1);
 	int sn2 = GPOINTER_TO_INT(k2);
@@ -239,8 +239,8 @@ ctx_handle_equal(gconstpointer k1, gconstpointer k2)
 	return sn1==sn2;
 }
 
-static guint
-ctx_handle_hash(gconstpointer k)
+static unsigned
+ctx_handle_hash(const void *k)
 {
 	int sn = GPOINTER_TO_INT(k);
 
@@ -255,11 +255,11 @@ sid_snooping_init(void)
 
 	if(lsa_policy_information_tap_installed){
 		remove_tap_listener(&lsa_policy_information_tap_installed);
-		lsa_policy_information_tap_installed=FALSE;
+		lsa_policy_information_tap_installed=false;
 	}
 	if(samr_query_dispinfo_tap_installed){
 		remove_tap_listener(&samr_query_dispinfo_tap_installed);
-		samr_query_dispinfo_tap_installed=FALSE;
+		samr_query_dispinfo_tap_installed=false;
 	}
 
 	sid_name_table = g_hash_table_new_full(g_str_hash, g_str_equal,
@@ -269,7 +269,7 @@ sid_snooping_init(void)
    disabling it now so that it won't cause wireshark to abort due to
    unknown hf fields
  */
-sid_name_snooping=FALSE;
+sid_name_snooping=false;
 
 	if(!sid_name_snooping){
 		return;
@@ -299,10 +299,10 @@ sid_name_snooping=FALSE;
 
 		report_failure( "Couldn't register proto_reg_handoff_smb_sidsnooping()/lsa_policy_information tap: %s\n",
 		    error_string->str);
-		g_string_free(error_string, TRUE);
+		g_string_free(error_string, true);
 		return;
 	}
-	lsa_policy_information_tap_installed=TRUE;
+	lsa_policy_information_tap_installed=true;
 
 	error_string=register_tap_listener("dcerpc",
 	    &samr_query_dispinfo_tap_installed,
@@ -313,10 +313,10 @@ sid_name_snooping=FALSE;
 
 		report_failure( "Couldn't register proto_reg_handoff_smb_sidsnooping()/samr_query_dispinfo tap: %s\n",
 		    error_string->str);
-		g_string_free(error_string, TRUE);
+		g_string_free(error_string, true);
 		return;
 	}
-	samr_query_dispinfo_tap_installed=TRUE;
+	samr_query_dispinfo_tap_installed=true;
 }
 
 static void

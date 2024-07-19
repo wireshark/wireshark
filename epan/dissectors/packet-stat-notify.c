@@ -23,7 +23,7 @@ static int hf_statnotify_name;
 static int hf_statnotify_state;
 static int hf_statnotify_priv;
 
-static gint ett_statnotify;
+static int ett_statnotify;
 
 
 static int
@@ -80,7 +80,7 @@ proto_register_statnotify(void)
 			NULL, 0, "Client supplied opaque data", HFILL }},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_statnotify,
 	};
 

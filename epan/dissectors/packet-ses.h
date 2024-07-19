@@ -121,8 +121,8 @@ reason code
 #define SPM_reason_not_specified        128+5
 #define SPM_implementation_restriction  128+6
 
-#define         NON_TOKENS_SPDU                 FALSE
-#define         TOKENS_SPDU                     TRUE
+#define         NON_TOKENS_SPDU                 false
+#define         TOKENS_SPDU                     true
 
 #define         TWO_BYTE_LEN                    0xff
 
@@ -186,11 +186,11 @@ reason code
 /* data for presentation selector      */
 struct SESSION_DATA_STRUCTURE
 {
-	guint8   spdu_type;
-	guint8   abort_type;
-	guint8   pres_ctx_id;
-	guint32  ros_op;
-	gboolean rtse_reassemble;
+	uint8_t  spdu_type;
+	uint8_t  abort_type;
+	uint8_t  pres_ctx_id;
+	uint32_t ros_op;
+	bool rtse_reassemble;
 };
 
 extern value_string_ext ses_vals_ext;
