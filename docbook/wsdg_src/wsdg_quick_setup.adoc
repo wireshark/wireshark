@@ -234,7 +234,7 @@ Source code tarball::
   Build the `dist` target.
 
 deb (Debian) package::
-  Create a symlink in the top-level source directory to _packaging/debian_, then run `dpkg-buildpackage`.
+  Create a symlink named _debian_ in the top-level source directory to _packaging/debian_, then run `dpkg-buildpackage`.
 
 RPM package::
   Build the `wireshark_rpm` target.
