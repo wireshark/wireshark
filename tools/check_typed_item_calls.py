@@ -606,14 +606,16 @@ class ValueString:
                                    'other', 'for further study', 'future', 'vendor specific', 'obsolete', 'none',
                                    'shall not be used', 'national use', 'unassigned', 'oem', 'user defined',
                                    'manufacturer specific', 'not specified', 'proprietary', 'operator-defined',
-                                   'dynamically allocated', 'user specified', 'xxx', 'default', 'planned', 'not req' ]
+                                   'dynamically allocated', 'user specified', 'xxx', 'default', 'planned', 'not req',
+                                   'deprecated', 'not measured', 'unspecified', 'nationally defined', 'nondisplay', 'general',
+                                   'tbd' ]
                     excepted = False
                     for ex in exceptions:
                         if label.lower().find(ex) != -1:
                             excepted = True
                             break
 
-                    if not excepted:
+                    if not excepted and len(label)>2:
                         print('Warning:', self.file, ': value_string', self.name, '- label ', label, 'repeated')
                         warnings_found += 1
                 else:
@@ -1392,7 +1394,7 @@ class Item:
     def check_boolean_length(self):
         global errors_found
         # If mask is 0, display must be BASE_NONE.
-        if self.item_type == 'FT_BOOLEAN' and self.mask_read and self.mask_value == 0 and self.display != 'BASE_NONE':
+        if self.item_type == 'FT_BOOLEAN' and self.mask_read and self.mask_value == 0 and self.display.find('BASE_NONE') == -1:
             print('Error:', self.filename, self.hf, 'type is FT_BOOLEAN, no mask set (', self.mask, ') - display should be BASE_NONE, is instead', self.display)
             errors_found += 1
         # TODO: check for length > 64?
@@ -1400,7 +1402,7 @@ class Item:
     def check_string_display(self):
         global warnings_found
         if self.item_type in { 'FT_STRING', 'FT_STRINGZ', 'FT_UINT_STRING'}:
-            if self.display != 'BASE_NONE':
+            if self.display.find('BASE_NONE')==-1:
                 print('Warning:', self.filename, self.hf, 'type is', self.item_type, 'display must be BASE_NONE, is instead', self.display)
                 warnings_found += 1
 

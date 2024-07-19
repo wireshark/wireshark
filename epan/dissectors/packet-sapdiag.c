@@ -745,6 +745,7 @@ static const value_string sapdiag_item_dynt_atom_item_etype_vals[] = {
 	{ 107, "DIAG_DGOTYP_FRAME_3" },
 	{ 108, "DIAG_DGOTYP_LOOP_6" },
 	{ 109, "DIAG_DGOTYP_SUBSCREEN" },
+	/* No value for 110? */
 	{ 111, "DIAG_DGOTYP_PROPERTY" },
 	{ 112, "DIAG_DGOTYP_ICON_0" },
 	{ 113, "DIAG_DGOTYP_PUSHBUTTON_1" },
@@ -768,7 +769,7 @@ static const value_string sapdiag_item_dynt_atom_item_etype_vals[] = {
 	{ 131, "DIAG_DGOTYP_OFIELD_2" },
 	{ 132, "DIAG_DGOTYP_KEYWORD_2" },
 	/* NULL */
-	{ 000, NULL }
+	{ 0, NULL }
 };
 
 /* SAP Diag UI Event Source Event Type Values */

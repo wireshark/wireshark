@@ -632,7 +632,7 @@ void proto_register_nmf(void)
 		FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 	{ &hf_nmf_negotiate_length,
 		{ "Negotiate Length", "nmf.negotiate.length",
-		FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	{ &hf_nmf_protect_length,
 		{ "Protect Length", "nmf.protect.length",
 		FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},

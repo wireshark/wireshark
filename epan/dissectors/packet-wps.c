@@ -257,6 +257,7 @@ static const value_string eapwps_tlv_types[] = {
 #define WPS_WFA_EXT_NETWORK_KEY_SHAREABLE 0x02
 #define WPS_WFA_EXT_REQUEST_TO_ENROLL     0x03
 #define WPS_WFA_EXT_SETTINGS_DELAY_TIME   0x04
+#define WPS_WFA_EXT_REG_CFG_METHODS       0x05
 #define WPS_WFA_EXT_MULTI_AP              0x06
 #define WPS_WFA_EXT_MULTI_AP_PROFILE      0x07
 #define WPS_WFA_EXT_MULTI_AP_8021Q        0x08
@@ -268,6 +269,7 @@ static const value_string eapwps_wfa_ext_types[] = {
   { WPS_WFA_EXT_NETWORK_KEY_SHAREABLE, "Network Key Shareable" },
   { WPS_WFA_EXT_REQUEST_TO_ENROLL,     "Request to Enroll" },
   { WPS_WFA_EXT_SETTINGS_DELAY_TIME,   "Settings Delay Time" },
+  { WPS_WFA_EXT_REG_CFG_METHODS,       "Register configuration methods" },
   { WPS_WFA_EXT_MULTI_AP,              "Multi-AP Extension" },
   { WPS_WFA_EXT_MULTI_AP_PROFILE,      "Multi-AP Profile" },
   { WPS_WFA_EXT_MULTI_AP_8021Q,        "Multi-AP Profile 8021Q Settings" },

@@ -220,12 +220,12 @@ static const value_string dlsw_vector_vals[] = {
   { 0x8e        , "Reserved for future use" },
   { 0x8f        , "Reserved for future use" },
   { 0x90        , "Reserved for future use" },
-  { 0x91        , " Control Vector" },
-  { 0x92        , " Control Vector" },
-  { 0x93        , " Control Vector" },
-  { 0x94        , " Control Vector" },
-  { 0x95        , " Control Vector" },
-  { 0x96        , " Control Vector" },
+  { 0x91        , "Control Vector" },
+  { 0x92        , "Control Vector" },
+  { 0x93        , "Control Vector" },
+  { 0x94        , "Control Vector" },
+  { 0x95        , "Control Vector" },
+  { 0x96        , "Control Vector" },
   { 0x00        , NULL }
 };
 
