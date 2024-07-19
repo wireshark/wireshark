@@ -2996,7 +2996,7 @@ dissect_someip_payload_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     buf = tvb_get_string_enc(pinfo->pool, tvb, offset, length, str_encoding);
 
     /* sanitizing buffer */
-    if (str_encoding & ENC_ASCII || str_encoding & ENC_UTF_8) {
+    if ((str_encoding == (ENC_ASCII | ENC_NA)) || (str_encoding & ENC_UTF_8)) {
         for (i = 0; i < length; i++) {
             if (buf[i] > 0x00 && buf[i] < 0x20) {
                 buf[i] = 0x20;
