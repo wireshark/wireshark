@@ -96,6 +96,18 @@
         <file>stock_icons/16x16/x-colorize-packets.png</file>
         <file>stock_icons/16x16/x-colorize-packets@2x.png</file>
         <file>stock_icons/16x16/x-hide-ro.png</file>
+        <file>stock_icons/16x16/x-reset-layout_1.png</file>
+        <file>stock_icons/16x16/x-reset-layout_1@2x.png</file>
+        <file>stock_icons/16x16/x-reset-layout_2.png</file>
+        <file>stock_icons/16x16/x-reset-layout_2@2x.png</file>
+        <file>stock_icons/16x16/x-reset-layout_3.png</file>
+        <file>stock_icons/16x16/x-reset-layout_3@2x.png</file>
+        <file>stock_icons/16x16/x-reset-layout_4.png</file>
+        <file>stock_icons/16x16/x-reset-layout_4@2x.png</file>
+        <file>stock_icons/16x16/x-reset-layout_5.png</file>
+        <file>stock_icons/16x16/x-reset-layout_5@2x.png</file>
+        <file>stock_icons/16x16/x-reset-layout_6.png</file>
+        <file>stock_icons/16x16/x-reset-layout_6@2x.png</file>
         <file>stock_icons/16x16/x-reset.template.png</file>
         <file>stock_icons/16x16/x-reset.template@2x.png</file>
         <file>stock_icons/16x16/x-resize-columns.png</file>
@@ -147,6 +159,18 @@
         <file>stock_icons/24x24/x-colorize-packets.png</file>
         <file>stock_icons/24x24/x-colorize-packets@2x.png</file>
         <file>stock_icons/24x24/x-hide-ro.png</file>
+        <file>stock_icons/24x24/x-reset-layout_1.png</file>
+        <file>stock_icons/24x24/x-reset-layout_1@2x.png</file>
+        <file>stock_icons/24x24/x-reset-layout_2.png</file>
+        <file>stock_icons/24x24/x-reset-layout_2@2x.png</file>
+        <file>stock_icons/24x24/x-reset-layout_3.png</file>
+        <file>stock_icons/24x24/x-reset-layout_3@2x.png</file>
+        <file>stock_icons/24x24/x-reset-layout_4.png</file>
+        <file>stock_icons/24x24/x-reset-layout_4@2x.png</file>
+        <file>stock_icons/24x24/x-reset-layout_5.png</file>
+        <file>stock_icons/24x24/x-reset-layout_5@2x.png</file>
+        <file>stock_icons/24x24/x-reset-layout_6.png</file>
+        <file>stock_icons/24x24/x-reset-layout_6@2x.png</file>
         <file>stock_icons/24x24/x-resize-columns.png</file>
         <file>stock_icons/24x24/x-resize-columns@2x.png</file>
         <file>stock_icons/24x24/x-stay-last.png</file>

@@ -330,6 +330,16 @@ void LograyMainWindow::layoutToolbars()
     }
 }
 
+static const char* layout_icons[] = {
+    NULL,
+    "x-reset-layout_5",
+    "x-reset-layout_2",
+    "x-reset-layout_1",
+    "x-reset-layout_4",
+    "x-reset-layout_3",
+    "x-reset-layout_6"
+};
+
 void LograyMainWindow::updatePreferenceActions()
 {
     main_ui_->actionViewPacketList->setEnabled(prefs_has_layout_pane_content(layout_pane_content_plist));
@@ -339,6 +349,9 @@ void LograyMainWindow::updatePreferenceActions()
     main_ui_->actionViewNameResolutionPhysical->setChecked(gbl_resolv_flags.mac_name);
     main_ui_->actionViewNameResolutionNetwork->setChecked(gbl_resolv_flags.network_name);
     main_ui_->actionViewNameResolutionTransport->setChecked(gbl_resolv_flags.transport_name);
+
+    if (prefs.gui_layout_type > 0)
+        main_ui_->actionViewResetLayout->setIcon(StockIcon(layout_icons[prefs.gui_layout_type]));
 }
 
 void LograyMainWindow::updateRecentActions()
