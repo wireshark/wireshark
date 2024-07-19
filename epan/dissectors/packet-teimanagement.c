@@ -35,7 +35,7 @@ static int hf_tei_management_message;
 static int hf_tei_management_action;
 static int hf_tei_management_extend;
 
-static gint ett_tei_management_subtree;
+static int ett_tei_management_subtree;
 
 #define TEI_ID_REQUEST    0x01
 #define TEI_ID_ASSIGNED   0x02
@@ -61,7 +61,7 @@ dissect_teimanagement(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 {
     proto_tree *tei_tree = NULL;
     proto_item *tei_ti;
-    guint8 message;
+    uint8_t message;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "TEI");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -74,7 +74,7 @@ dissect_teimanagement(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
         proto_tree_add_item(tei_tree, hf_tei_management_reference,  tvb, 1, 2, ENC_BIG_ENDIAN);
     }
 
-    message = tvb_get_guint8(tvb, 3);
+    message = tvb_get_uint8(tvb, 3);
         col_add_str(pinfo->cinfo, COL_INFO,
             val_to_str(message, tei_msg_vals, "Unknown message type (0x%04x)"));
     if (tree) {
@@ -88,7 +88,7 @@ dissect_teimanagement(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 void
 proto_register_teimanagement(void)
 {
-    static gint *subtree[]={
+    static int *subtree[]={
         &ett_tei_management_subtree
     };
 

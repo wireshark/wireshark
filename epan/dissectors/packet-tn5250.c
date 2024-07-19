@@ -29,8 +29,8 @@ void proto_register_tn5250(void);
 
 typedef struct tn5250_conv_info_t {
   struct tn5250_conv_info_t *next;
-  guint32 outbound_port;
-  gint extended;
+  uint32_t outbound_port;
+  int extended;
 } tn5250_conv_info_t;
 
 /* 13.4 SNA LU 4 and LU 7 Negative Responses */
@@ -2840,66 +2840,66 @@ static int hf_tn5250_vac_prefix;
 static int hf_tn5250_wssf_ttw_flag;
 static int hf_tn5250_wssf_ttw_data;
 
-static gint ett_tn5250;
-static gint ett_tn5250_wcc;
-static gint ett_sf;
-static gint ett_tn5250_field_attribute;
-static gint ett_tn5250_dfdpck_mask;
-static gint ett_tn5250_field_validation;
-static gint ett_tn5250_header_flags;
-static gint ett_tn5250_roll_mask;
-static gint ett_tn5250_soh_mask;
-static gint ett_tn5250_soh_pf16to9_mask;
-static gint ett_tn5250_soh_pf24to17_mask;
-static gint ett_tn5250_soh_pf8to1_mask;
-static gint ett_tn5250_sps_mask;
-static gint ett_tn5250_wdsf_cw_bp_mask;
-static gint ett_tn5250_wdsf_cw_mask;
-static gint ett_tn5250_wdsf_cw_tf_mask;
-static gint ett_tn5250_wdsf_deg_mask;
-static gint ett_tn5250_wdsf_deg_ms_mask;
-static gint ett_tn5250_wdsf_ds_ci_mask;
-static gint ett_tn5250_wdsf_ds_cpda_mask;
-static gint ett_tn5250_wdsf_ds_ct_mask;
-static gint ett_tn5250_wdsf_ds_mask;
-static gint ett_tn5250_wdsf_ds_mbs_mask;
-static gint ett_tn5250_wdsf_ds_sbi_mask;
-static gint ett_tn5250_wdsf_dsb_mask;
-static gint ett_tn5250_wdsf_pmb_mask;
-static gint ett_tn5250_wdsf_ragc_mask;
-static gint ett_tn5250_wdsf_rgw_mask;
-static gint ett_tn5250_wdsf_wdf_mask;
-static gint ett_tn5250_wsf_dpo_mask;
-static gint ett_tn5250_wsf_dsl_mask;
-static gint ett_tn5250_wsf_dtsf_mask;
-static gint ett_tn5250_wsf_qss_mask;
-static gint ett_tn5250_wsf_rts_mask;
-static gint ett_tn5250_wssf_cc_mask;
-static gint ett_tn5250_wssf_ifc_mask;
-static gint ett_tn5250_wssf_ifd_mask;
-static gint ett_tn5250_wssf_kbc_mask;
-static gint ett_tn5250_wssf_mask;
-static gint ett_tn5250_wts_mask;
-static gint ett_tn5250_qr_mask;
-static gint ett_tn5250_wea_prim_attr;
-static gint ett_cc;
+static int ett_tn5250;
+static int ett_tn5250_wcc;
+static int ett_sf;
+static int ett_tn5250_field_attribute;
+static int ett_tn5250_dfdpck_mask;
+static int ett_tn5250_field_validation;
+static int ett_tn5250_header_flags;
+static int ett_tn5250_roll_mask;
+static int ett_tn5250_soh_mask;
+static int ett_tn5250_soh_pf16to9_mask;
+static int ett_tn5250_soh_pf24to17_mask;
+static int ett_tn5250_soh_pf8to1_mask;
+static int ett_tn5250_sps_mask;
+static int ett_tn5250_wdsf_cw_bp_mask;
+static int ett_tn5250_wdsf_cw_mask;
+static int ett_tn5250_wdsf_cw_tf_mask;
+static int ett_tn5250_wdsf_deg_mask;
+static int ett_tn5250_wdsf_deg_ms_mask;
+static int ett_tn5250_wdsf_ds_ci_mask;
+static int ett_tn5250_wdsf_ds_cpda_mask;
+static int ett_tn5250_wdsf_ds_ct_mask;
+static int ett_tn5250_wdsf_ds_mask;
+static int ett_tn5250_wdsf_ds_mbs_mask;
+static int ett_tn5250_wdsf_ds_sbi_mask;
+static int ett_tn5250_wdsf_dsb_mask;
+static int ett_tn5250_wdsf_pmb_mask;
+static int ett_tn5250_wdsf_ragc_mask;
+static int ett_tn5250_wdsf_rgw_mask;
+static int ett_tn5250_wdsf_wdf_mask;
+static int ett_tn5250_wsf_dpo_mask;
+static int ett_tn5250_wsf_dsl_mask;
+static int ett_tn5250_wsf_dtsf_mask;
+static int ett_tn5250_wsf_qss_mask;
+static int ett_tn5250_wsf_rts_mask;
+static int ett_tn5250_wssf_cc_mask;
+static int ett_tn5250_wssf_ifc_mask;
+static int ett_tn5250_wssf_ifd_mask;
+static int ett_tn5250_wssf_kbc_mask;
+static int ett_tn5250_wssf_mask;
+static int ett_tn5250_wts_mask;
+static int ett_tn5250_qr_mask;
+static int ett_tn5250_wea_prim_attr;
+static int ett_cc;
 
 static expert_field ei_tn5250_command_code;
 
-static guint32 dissect_tn5250_orders_and_data(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset);
+static uint32_t dissect_tn5250_orders_and_data(proto_tree *tn5250_tree, tvbuff_t *tvb, int offset);
 
 typedef struct hf_items {
   int *phf;
-  gint bitmask_ett;
+  int bitmask_ett;
   int length;
   int * const *bitmask;
-  gint encoding;
+  int encoding;
 } hf_items;
 
 /* Utility Functions */
 
-static gint
-tn5250_is_valid_aid(gint aid)
+static int
+tn5250_is_valid_aid(int aid)
 {
   switch (aid) {
     case AID_CLEAR:
@@ -2949,8 +2949,8 @@ tn5250_is_valid_aid(gint aid)
   return 0;
 }
 
-static guint32
-tn5250_add_hf_items(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset,
+static uint32_t
+tn5250_add_hf_items(proto_tree *tn5250_tree, tvbuff_t *tvb, int offset,
                     const hf_items *fields)
 {
   int start=offset, byte;
@@ -2959,7 +2959,7 @@ tn5250_add_hf_items(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset,
   for (i = 0; fields[i].phf; ++i) {
     if (fields[i].bitmask == 0) {
       /* Skip an 0xFF byte acting as an escape byte */
-      byte = tvb_get_guint8(tvb,offset);
+      byte = tvb_get_uint8(tvb,offset);
       if (byte == 0xFF) {
         offset++;
       }
@@ -2975,9 +2975,9 @@ tn5250_add_hf_items(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset,
   return (offset - start);
 }
 
-static guint32
-dissect_unknown_data(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset,
-                     gint start, gint sf_length)
+static uint32_t
+dissect_unknown_data(proto_tree *tn5250_tree, tvbuff_t *tvb, int offset,
+                     int start, int sf_length)
 {
   int len_left;
 
@@ -2991,8 +2991,8 @@ dissect_unknown_data(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset,
   return 0;
 }
 
-static guint32
-dissect_wcc(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
+static uint32_t
+dissect_wcc(proto_tree *tn5250_tree, tvbuff_t *tvb, int offset)
 {
 
   static int * const wcc_byte[] = {
@@ -3019,8 +3019,8 @@ dissect_wcc(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
 
 }
 
-static guint32
-dissect_row_column(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
+static uint32_t
+dissect_row_column(proto_tree *tn5250_tree, tvbuff_t *tvb, int offset)
 {
   int start = offset;
   proto_tree_add_item(tn5250_tree, hf_tn5250_buffer_x, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3037,15 +3037,15 @@ dissect_row_column(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
 /* Start: Handle WCC, Orders and Data */
 
 /* 15.6.8 Erase to Address Order */
-static guint32
-dissect_erase_to_address(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
+static uint32_t
+dissect_erase_to_address(proto_tree *tn5250_tree, tvbuff_t *tvb, int offset)
 {
   int start = offset;
   int i, length = 0;
 
   dissect_row_column(tn5250_tree, tvb, offset);
 
-  length = tvb_get_guint8(tvb, offset);
+  length = tvb_get_uint8(tvb, offset);
   proto_tree_add_item(tn5250_tree, hf_tn5250_length, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset++;
 
@@ -3059,8 +3059,8 @@ dissect_erase_to_address(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
 }
 
 /* 15.6.9 Start of Header Order */
-static guint32
-dissect_start_of_header(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
+static uint32_t
+dissect_start_of_header(proto_tree *tn5250_tree, tvbuff_t *tvb, int offset)
 {
   int start = offset;
 
@@ -3113,8 +3113,8 @@ dissect_start_of_header(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
 }
 
 /* 15.6.10 Transparent Data */
-static guint32
-dissect_twobyte_length_and_data(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
+static uint32_t
+dissect_twobyte_length_and_data(proto_tree *tn5250_tree, tvbuff_t *tvb, int offset)
 {
   int start = offset;
   int length = 0;
@@ -3136,8 +3136,8 @@ dissect_twobyte_length_and_data(proto_tree *tn5250_tree, tvbuff_t *tvb, gint off
 }
 
 /* 15.6.11 Write Extended Attribute Order */
-static guint32
-dissect_field_attribute_pair(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
+static uint32_t
+dissect_field_attribute_pair(proto_tree *tn5250_tree, tvbuff_t *tvb, int offset)
 {
   int start = offset;
   int attribute_type;
@@ -3149,7 +3149,7 @@ dissect_field_attribute_pair(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset
      NULL
   };
 
-  attribute_type = tvb_get_guint8(tvb, offset);
+  attribute_type = tvb_get_uint8(tvb, offset);
   proto_tree_add_item(tn5250_tree, hf_tn5250_attribute_type, tvb, offset, 1,
                       ENC_BIG_ENDIAN);
   offset++;
@@ -3178,8 +3178,8 @@ dissect_field_attribute_pair(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset
 }
 
 /* 15.6.12 Start of Field Order */
-static guint32
-dissect_start_of_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
+static uint32_t
+dissect_start_of_field(proto_tree *tn5250_tree, tvbuff_t *tvb, int offset)
 {
   int start = offset;
   int done = 0;
@@ -3217,13 +3217,13 @@ dissect_start_of_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
     { NULL, 0, 0, 0, 0 }
   };
 
-  ffw = tvb_get_guint8(tvb, offset);
+  ffw = tvb_get_uint8(tvb, offset);
 
   if (ffw & FFW_ID) {
     offset += tn5250_add_hf_items(tn5250_tree, tvb, offset,
                                   outbound_text_header_fields);
     while (tvb_reported_length_remaining(tvb, offset) > 0 && !done) {
-      fcw = tvb_get_guint8(tvb, offset);
+      fcw = tvb_get_uint8(tvb, offset);
       switch (fcw) {
         case SELECTOR:
         case IDEOGRAPHIC:
@@ -3246,7 +3246,7 @@ dissect_start_of_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
     }
   }
 
-  fa = tvb_get_guint8(tvb, offset);
+  fa = tvb_get_uint8(tvb, offset);
 
   if (fa & FA_ID) {
     proto_tree_add_bitmask(tn5250_tree, tvb, offset, hf_tn5250_fa,
@@ -3265,8 +3265,8 @@ dissect_start_of_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
 }
 
 /* 15.6.13 Write To Display Structured Field Order */
-static guint32
-dissect_create_window(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
+static uint32_t
+dissect_create_window(proto_tree *tn5250_tree, tvbuff_t *tvb, int offset)
 {
   int start = offset;
   int length = 0;
@@ -3333,13 +3333,13 @@ dissect_create_window(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
   offset += tn5250_add_hf_items(tn5250_tree, tvb, offset, cw_fields);
 
   while (tvb_reported_length_remaining(tvb, offset) > 0 && !done) {
-    minor_structure = tvb_get_guint8(tvb, offset+1);
+    minor_structure = tvb_get_uint8(tvb, offset+1);
     switch (minor_structure) {
       case CW_BORDER_PRESENTATION:
         offset += tn5250_add_hf_items(tn5250_tree, tvb, offset, cwbp_fields);
         break;
       case CW_TITLE_FOOTER:
-        length = tvb_get_guint8(tvb,offset);
+        length = tvb_get_uint8(tvb,offset);
         offset += tn5250_add_hf_items(tn5250_tree, tvb, offset, cw_tf_fields);
         if (length < 6) {
           /* XXX - expert info on the length field */
@@ -3347,7 +3347,7 @@ dissect_create_window(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
         }
         proto_tree_add_item(tn5250_tree, hf_tn5250_wdsf_cw_tf_text, tvb, offset,
                             (length - 6), ENC_EBCDIC);
-        offset += (guint32)((length - 6));
+        offset += (uint32_t)((length - 6));
         break;
       default:
         done = 1;
@@ -3358,8 +3358,8 @@ dissect_create_window(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
   return (offset - start);
 }
 
-static guint32
-dissect_define_selection(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
+static uint32_t
+dissect_define_selection(proto_tree *tn5250_tree, tvbuff_t *tvb, int offset)
 {
   int start = offset;
   int length = 0;
@@ -3539,11 +3539,11 @@ dissect_define_selection(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
   offset += tn5250_add_hf_items(tn5250_tree, tvb, offset, ds_fields);
 
   while (tvb_reported_length_remaining(tvb, offset) > 0 && !done) {
-    minor_structure = tvb_get_guint8(tvb, offset+1);
+    minor_structure = tvb_get_uint8(tvb, offset+1);
     switch (minor_structure) {
       case DS_CHOICE_TEXT:
-        length = tvb_get_guint8(tvb, offset);
-        digit_selection = tvb_get_guint8(tvb, offset+2);
+        length = tvb_get_uint8(tvb, offset);
+        digit_selection = tvb_get_uint8(tvb, offset+2);
         /*
          * XXX - the document says the AID field is present only if
          * the "AID if selected" flag bit is set.
@@ -3566,7 +3566,7 @@ dissect_define_selection(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
         proto_tree_add_item(tn5250_tree, hf_tn5250_wdsf_ds_ct_text, tvb, offset,
                             (length - (offset - minor_structure_start)),
                             ENC_EBCDIC);
-        offset += (guint32)((length - (offset - minor_structure_start)));
+        offset += (uint32_t)((length - (offset - minor_structure_start)));
         break;
       case DS_MENU_BAR_SEPARATOR:
         offset += tn5250_add_hf_items(tn5250_tree, tvb, offset, ds_mbs_fields);
@@ -3588,8 +3588,8 @@ dissect_define_selection(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
   return (offset - start);
 }
 
-static guint32
-dissect_define_scrollbar(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
+static uint32_t
+dissect_define_scrollbar(proto_tree *tn5250_tree, tvbuff_t *tvb, int offset)
 {
   int start = offset;
   int done = 0, minor_structure = 0;
@@ -3633,7 +3633,7 @@ dissect_define_scrollbar(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
   offset += tn5250_add_hf_items(tn5250_tree, tvb, offset, dsb_fields);
 
   while (tvb_reported_length_remaining(tvb, offset) > 0 && !done) {
-    minor_structure = tvb_get_guint8(tvb, offset+1);
+    minor_structure = tvb_get_uint8(tvb, offset+1);
     switch (minor_structure) {
       case DS_SCROLLBAR_INDICATORS:
         offset += tn5250_add_hf_items(tn5250_tree, tvb, offset, ds_sbi_fields);
@@ -3646,8 +3646,8 @@ dissect_define_scrollbar(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
   return (offset - start);
 }
 
-static guint32
-dissect_draw_erase_gridlines(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
+static uint32_t
+dissect_draw_erase_gridlines(proto_tree *tn5250_tree, tvbuff_t *tvb, int offset)
 {
   int start = offset;
   int done = 0, minor_structure=0;
@@ -3696,7 +3696,7 @@ dissect_draw_erase_gridlines(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset
   offset += tn5250_add_hf_items(tn5250_tree, tvb, offset, deg_fields);
 
   while (tvb_reported_length_remaining(tvb, offset) > 0 && !done) {
-    minor_structure = tvb_get_guint8(tvb, offset+1);
+    minor_structure = tvb_get_uint8(tvb, offset+1);
     switch (minor_structure) {
       case UPPER_HORIZONTAL_LINE:
       case LOWER_HORIZONTAL_LINE:
@@ -3716,8 +3716,8 @@ dissect_draw_erase_gridlines(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset
   return (offset - start);
 }
 
-static guint32
-dissect_wdsf_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
+static uint32_t
+dissect_wdsf_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, int offset)
 {
   int start = offset;
   int minor_structure_start;
@@ -3795,7 +3795,7 @@ dissect_wdsf_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offse
   };
 
   length = tvb_get_ntohs(tvb,offset);
-  type = tvb_get_guint8(tvb, offset+3);
+  type = tvb_get_uint8(tvb, offset+3);
 
   offset += tn5250_add_hf_items(tn5250_tree, tvb, offset, standard_fields);
 
@@ -3833,7 +3833,7 @@ dissect_wdsf_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offse
         }
         proto_tree_add_item(tn5250_tree, hf_tn5250_field_data, tvb, offset,
                             (length - 6), ENC_EBCDIC);
-        offset += (guint32)((length - 6));
+        offset += (uint32_t)((length - 6));
         break;
       case PROGRAMMABLE_MOUSE_BUTTONS:
         minor_structure_start = start;
@@ -3870,14 +3870,14 @@ dissect_wdsf_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offse
 
 
 /* 15.6 WRITE TO DISPLAY Command - Orders and Data */
-static guint32
-dissect_tn5250_ra_data(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
+static uint32_t
+dissect_tn5250_ra_data(proto_tree *tn5250_tree, tvbuff_t *tvb, int offset)
 {
-  gint order_code, done = 0;
-  gint start = offset;
+  int order_code, done = 0;
+  int start = offset;
 
   while (tvb_reported_length_remaining(tvb, offset) > 0 && !done) {
-    order_code = tvb_get_guint8(tvb, offset);
+    order_code = tvb_get_uint8(tvb, offset);
     switch (order_code) {
       case TN5250_IC:
       case TN5250_MC:
@@ -3906,18 +3906,18 @@ dissect_tn5250_ra_data(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
 
 }
 
-static guint32
-dissect_tn5250_orders_and_data(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
+static uint32_t
+dissect_tn5250_orders_and_data(proto_tree *tn5250_tree, tvbuff_t *tvb, int offset)
 {
-  gint start = offset, done = 0;
-  gint order_code;
+  int start = offset, done = 0;
+  int order_code;
   proto_tree   *cc_tree;
   proto_item   *ti;
 
   /* Order Code */
 
   while (tvb_reported_length_remaining(tvb, offset) > 0 && !done) {
-    order_code = tvb_get_guint8(tvb, offset);
+    order_code = tvb_get_uint8(tvb, offset);
     switch (order_code) {
       case TN5250_IC:
       case TN5250_MC:
@@ -3989,8 +3989,8 @@ dissect_tn5250_orders_and_data(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
 }
 
 /* 15.22 SAVE PARTIAL SCREEN Command */
-static guint32
-dissect_save_partial_screen(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
+static uint32_t
+dissect_save_partial_screen(proto_tree *tn5250_tree, tvbuff_t *tvb, int offset)
 {
   int start = offset;
   int length = 0;
@@ -4011,7 +4011,7 @@ dissect_save_partial_screen(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
     { NULL, 0, 0, 0, 0 }
   };
 
-  length = tvb_get_guint8(tvb, offset);
+  length = tvb_get_uint8(tvb, offset);
 
   offset += tn5250_add_hf_items(tn5250_tree, tvb, offset,
                                 save_partial_screen_fields);
@@ -4022,8 +4022,8 @@ dissect_save_partial_screen(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
 }
 
 /* 15.25 ROLL Command */
-static guint32
-dissect_roll(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
+static uint32_t
+dissect_roll(proto_tree *tn5250_tree, tvbuff_t *tvb, int offset)
 {
   int start = offset;
 
@@ -4048,9 +4048,9 @@ dissect_roll(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
 }
 
 /* 15.26 WRITE SINGLE STRUCTURED FIELD Command */
-static guint32
+static uint32_t
 dissect_write_single_structured_field_minor_fields(proto_tree *tn5250_tree,
-                                                   tvbuff_t *tvb, gint offset)
+                                                   tvbuff_t *tvb, int offset)
 {
 
   int start = offset;
@@ -4085,7 +4085,7 @@ dissect_write_single_structured_field_minor_fields(proto_tree *tn5250_tree,
   };
 
   while (tvb_reported_length_remaining(tvb, offset) > 0 && !done) {
-    type = tvb_get_guint8(tvb, offset+1);
+    type = tvb_get_uint8(tvb, offset+1);
     switch (type) {
       case KEYSTROKE_BUFFERING_CONTROL:
         offset += tn5250_add_hf_items(tn5250_tree, tvb, offset,
@@ -4105,13 +4105,13 @@ dissect_write_single_structured_field_minor_fields(proto_tree *tn5250_tree,
 
 }
 
-static guint32
+static uint32_t
 dissect_write_single_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb,
-                                      gint offset)
+                                      int offset)
 {
   int start = offset;
   int length, type, done = 0;
-  guint32 namelength;
+  uint32_t namelength;
 
   static int * const byte[] = {
     &hf_tn5250_wssf_flag2_0,
@@ -4192,7 +4192,7 @@ dissect_write_single_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb,
   };
 
   length = tvb_get_ntohs(tvb,offset);
-  type = tvb_get_guint8(tvb, offset+3);
+  type = tvb_get_uint8(tvb, offset+3);
 
   offset += tn5250_add_hf_items(tn5250_tree, tvb, offset, standard_fields);
 
@@ -4214,7 +4214,7 @@ dissect_write_single_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb,
         proto_tree_add_item(tn5250_tree, hf_tn5250_wssf_ifc_imagefax_name, tvb, offset,
                             (length - (start + offset)), ENC_EBCDIC);
         if (length > (start + offset))
-          offset += (guint32)(length - (start + offset));
+          offset += (uint32_t)(length - (start + offset));
         break;
       case IMAGE_FAX_DOWNLOAD:
         namelength = tvb_get_ntohs(tvb,offset+6);
@@ -4226,7 +4226,7 @@ dissect_write_single_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb,
         proto_tree_add_item(tn5250_tree, hf_tn5250_wssf_ifd_imagefax_data, tvb, offset,
                             (length - (start + offset)), ENC_NA);
         if (length > (start + offset))
-          offset += (guint32)(length - (start + offset));
+          offset += (uint32_t)(length - (start + offset));
         break;
       case VIDEO_AUDIO_CONTROLS:
         proto_tree_add_item(tn5250_tree, hf_tn5250_vac_prefix, tvb, offset,
@@ -4243,7 +4243,7 @@ dissect_write_single_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb,
         proto_tree_add_item(tn5250_tree, hf_tn5250_wssf_ttw_data, tvb, offset,
                             (length - (start + offset)), ENC_NA);
         if (length > (start + offset))
-          offset += (guint32)(length - (start + offset));
+          offset += (uint32_t)(length - (start + offset));
         break;
       default:
         done = 1;
@@ -4256,11 +4256,11 @@ dissect_write_single_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb,
 }
 
 /* 15.27 WRITE STRUCTURED FIELD Command */
-static guint32
-dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
+static uint32_t
+dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, int offset)
 {
   int start = offset;
-  guint16 sf_length = 0;
+  uint16_t sf_length = 0;
   int length, type, done = 0, used = 0;
 
   hf_items standard_fields[] = {
@@ -4578,7 +4578,7 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
 
   while (tvb_reported_length_remaining(tvb, offset) > 0 && !done) {
     sf_length = tvb_get_ntohs(tvb,offset);
-    type = tvb_get_guint8(tvb, offset+3);
+    type = tvb_get_uint8(tvb, offset+3);
 
     offset += tn5250_add_hf_items(tn5250_tree, tvb, offset, standard_fields);
 
@@ -4586,7 +4586,7 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
       case PASS_THROUGH:
         proto_tree_add_item(tn5250_tree, hf_tn5250_field_data, tvb, offset,
                             (sf_length - (start + offset)), ENC_EBCDIC);
-        offset += (guint32)(sf_length - (start + offset));
+        offset += (uint32_t)(sf_length - (start + offset));
         break;
       case TN5250_QUERY:
         proto_tree_add_item(tn5250_tree, hf_tn5250_reserved, tvb, offset,
@@ -4601,7 +4601,7 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
                             1, ENC_BIG_ENDIAN);
         offset += 1;
         while ((offset - start) < sf_length) {
-          length = tvb_get_guint8(tvb,offset);
+          length = tvb_get_uint8(tvb,offset);
           offset += tn5250_add_hf_items(tn5250_tree, tvb, offset, dawt_fields);
           if (length < 2) {
             /* XXX - expert info on the length field */
@@ -4617,7 +4617,7 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
                             1, ENC_BIG_ENDIAN);
         offset++;
         while ((offset - start) < sf_length) {
-          length = tvb_get_guint8(tvb,offset);
+          length = tvb_get_uint8(tvb,offset);
           offset += tn5250_add_hf_items(tn5250_tree, tvb, offset,
                                         dckf_fields);
           if (length < 2) {
@@ -4642,14 +4642,14 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
         offset += tn5250_add_hf_items(tn5250_tree, tvb, offset, dsl_fields);
         while ((offset - start) < sf_length) {
           /* XXX length unused
-          length = tvb_get_guint8(tvb,offset); */
+          length = tvb_get_uint8(tvb,offset); */
           offset += tn5250_add_hf_items(tn5250_tree, tvb, offset, dsl_fields2);
         }
         break;
       case WRITE_TEXT_SCREEN:
         offset += tn5250_add_hf_items(tn5250_tree, tvb, offset,
                                       wts_fields);
-        length = tvb_get_guint8(tvb,offset);
+        length = tvb_get_uint8(tvb,offset);
         used = tn5250_add_hf_items(tn5250_tree, tvb, offset,
                                    wts_line_data_fields);
         offset += used;
@@ -4669,7 +4669,7 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
                             1, ENC_BIG_ENDIAN);
         offset++;
         while ((offset - start) < sf_length) {
-          length = tvb_get_guint8(tvb,offset);
+          length = tvb_get_uint8(tvb,offset);
           offset += tn5250_add_hf_items(tn5250_tree, tvb, offset,
                                         dorm_fields);
           if (length < 2) {
@@ -4704,8 +4704,8 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
         offset += tn5250_add_hf_items(tn5250_tree, tvb, offset,
                                       dfdpck_fields);
         while ((offset - start) < sf_length) {
-          length = tvb_get_guint8(tvb,offset);
-          type = tvb_get_guint8(tvb,offset+1);
+          length = tvb_get_uint8(tvb,offset);
+          type = tvb_get_uint8(tvb,offset+1);
           if (type == CORE_AREA_COMMAND_KEYS) {
             offset += tn5250_add_hf_items(tn5250_tree, tvb, offset,
                                           dfdpck_core_area_fields);
@@ -4713,7 +4713,7 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
             offset += tn5250_add_hf_items(tn5250_tree, tvb, offset,
                                           dfdpck_top_row_fields);
           } else {
-            guint32 step;
+            uint32_t step;
 
             step = dissect_unknown_data(tn5250_tree, tvb, offset, start, length);
             if (step==0)
@@ -4735,8 +4735,8 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
 
 /* 15.27.2 5250 Query Command - Response */
 /*TN5250 - RFC1205 - Query Reply Fields */
-static guint32
-dissect_query_reply(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
+static uint32_t
+dissect_query_reply(proto_tree *tn5250_tree, tvbuff_t *tvb, int offset)
 {
   int start = offset;
 
@@ -4824,8 +4824,8 @@ dissect_query_reply(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
 /* End: Handle WCC, Orders and Data */
 
 
-static guint32
-dissect_tn5250_header(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
+static uint32_t
+dissect_tn5250_header(proto_tree *tn5250_tree, tvbuff_t *tvb, int offset)
 {
 
   int start=offset;
@@ -4851,7 +4851,7 @@ dissect_tn5250_header(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
     { NULL, 0, 0, 0, 0 }
   };
 
-  error_flag = tvb_get_guint8(tvb, offset+8);
+  error_flag = tvb_get_uint8(tvb, offset+8);
 
   offset += tn5250_add_hf_items(tn5250_tree, tvb, offset, fields);
 
@@ -4865,14 +4865,14 @@ dissect_tn5250_header(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
 #if 0
 /* XXX - unused */
 /* Detect and Handle Direction of Stream */
-static gint
-dissect_tn5250_data_until_next_command(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
+static int
+dissect_tn5250_data_until_next_command(proto_tree *tn5250_tree, tvbuff_t *tvb, int offset)
 {
-  gint order_code, done = 0;
-  gint start = offset;
+  int order_code, done = 0;
+  int start = offset;
 
   while (tvb_reported_length_remaining(tvb, offset) > 0 && !done) {
-    order_code = tvb_get_guint8(tvb, offset);
+    order_code = tvb_get_uint8(tvb, offset);
     switch (order_code) {
       case CLEAR_UNIT:
       case CLEAR_FORMAT_TABLE:
@@ -4916,12 +4916,12 @@ dissect_tn5250_data_until_next_command(proto_tree *tn5250_tree, tvbuff_t *tvb, g
 }
 #endif
 
-static guint32
+static uint32_t
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_outbound_stream(proto_tree *tn5250_tree, packet_info *pinfo, tvbuff_t *tvb, gint offset)
+dissect_outbound_stream(proto_tree *tn5250_tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
 {
-  gint command_code;
-  gint start = offset, length = 0;
+  int command_code;
+  int start = offset, length = 0;
   proto_tree   *cc_tree;
   proto_item   *ti, *item;
 
@@ -4932,7 +4932,7 @@ dissect_outbound_stream(proto_tree *tn5250_tree, packet_info *pinfo, tvbuff_t *t
   cc_tree = proto_item_add_subtree(ti, ett_cc);
 
   /* Command Code*/
-  command_code = tvb_get_guint8(tvb, offset);
+  command_code = tvb_get_uint8(tvb, offset);
   item = proto_tree_add_item(cc_tree, hf_tn5250_command_code, tvb, offset, 1,
                           ENC_BIG_ENDIAN);
   offset++;
@@ -4959,7 +4959,7 @@ dissect_outbound_stream(proto_tree *tn5250_tree, packet_info *pinfo, tvbuff_t *t
       proto_tree_add_item(cc_tree, hf_tn5250_field_data, tvb, offset,
                           tvb_reported_length_remaining(tvb, offset) - 1,
                           ENC_EBCDIC);
-      offset += (guint32)(tvb_reported_length_remaining(tvb, offset) - 1);
+      offset += (uint32_t)(tvb_reported_length_remaining(tvb, offset) - 1);
       proto_tree_add_item(cc_tree, hf_tn5250_fa, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset++;
       break;
@@ -5030,11 +5030,11 @@ dissect_outbound_stream(proto_tree *tn5250_tree, packet_info *pinfo, tvbuff_t *t
   return (offset - start);
 }
 
-static guint32
-dissect_inbound_stream(proto_tree *tn5250_tree, packet_info *pinfo, tvbuff_t *tvb, gint offset, gint sna_flag)
+static uint32_t
+dissect_inbound_stream(proto_tree *tn5250_tree, packet_info *pinfo, tvbuff_t *tvb, int offset, int sna_flag)
 {
-  gint start = offset, aid;
-  guint32 commands;
+  int start = offset, aid;
+  uint32_t commands;
 
 
   if (sna_flag & 0x01) { /* Stream contains error code */
@@ -5049,7 +5049,7 @@ dissect_inbound_stream(proto_tree *tn5250_tree, packet_info *pinfo, tvbuff_t *tv
     return (offset - start);
   }
 
-  aid = tvb_get_guint8(tvb,offset+2);
+  aid = tvb_get_uint8(tvb,offset+2);
   if (tn5250_is_valid_aid(aid)) {
     switch(aid) {
       case AID_IMAGE_FAX_REQUEST:
@@ -5077,7 +5077,7 @@ dissect_inbound_stream(proto_tree *tn5250_tree, packet_info *pinfo, tvbuff_t *tv
   } else {
     /* FIXME: need to know when escape/commands are expected. */
     /* Check the response data for commands */
-    if (tvb_get_guint8(tvb,offset) == TN5250_ESCAPE) {
+    if (tvb_get_uint8(tvb,offset) == TN5250_ESCAPE) {
       commands = dissect_outbound_stream(tn5250_tree, pinfo, tvb, offset);
       /* It if contained commands then we're done. Anything else is unexpected data */
       if (commands) {
@@ -5108,7 +5108,7 @@ dissect_tn5250(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 {
   proto_tree   *tn5250_tree;
   proto_item   *ti;
-  gint         offset = 0;
+  int          offset = 0;
   conversation_t *conversation;
   tn5250_conv_info_t *tn5250_info = NULL;
   int sna_flag;
@@ -7473,7 +7473,7 @@ proto_register_tn5250(void)
 
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_tn5250,
     &ett_sf,
     &ett_tn5250_wcc,

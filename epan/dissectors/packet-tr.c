@@ -46,9 +46,9 @@ static int hf_tr_rif_ring;
 static int hf_tr_rif_bridge;
 static int hf_tr_extra_rif;
 
-static gint ett_token_ring;
-static gint ett_token_ring_ac;
-static gint ett_token_ring_fc;
+static int ett_token_ring;
+static int ett_token_ring_ac;
+static int ett_token_ring_fc;
 
 static expert_field ei_token_empty_rif;
 static expert_field ei_token_fake_llc_snap_header;
@@ -169,8 +169,8 @@ tr_endpoint_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const
 	/* Take two "add" passes per packet, adding for each direction, ensures that all
 	packets are counted properly (even if address is sending to itself)
 	XXX - this could probably be done more efficiently inside endpoint_table */
-	add_endpoint_table_data(hash, &trhdr->src, 0, TRUE, 1, pinfo->fd->pkt_len, &tr_endpoint_dissector_info, ENDPOINT_NONE);
-	add_endpoint_table_data(hash, &trhdr->dst, 0, FALSE, 1, pinfo->fd->pkt_len, &tr_endpoint_dissector_info, ENDPOINT_NONE);
+	add_endpoint_table_data(hash, &trhdr->src, 0, true, 1, pinfo->fd->pkt_len, &tr_endpoint_dissector_info, ENDPOINT_NONE);
+	add_endpoint_table_data(hash, &trhdr->dst, 0, false, 1, pinfo->fd->pkt_len, &tr_endpoint_dissector_info, ENDPOINT_NONE);
 
 	return TAP_PACKET_REDRAW;
 }
@@ -200,7 +200,7 @@ tr_endpoint_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const
 static
 int check_for_old_linux_tvb(tvbuff_t *tvb)
 {
-	const guint8	*data;
+	const uint8_t	*data;
 	int		 x, bytes;
 
 	/* Restrict our looping to the boundaries of the frame */
@@ -222,7 +222,7 @@ int check_for_old_linux_tvb(tvbuff_t *tvb)
 }
 
 static
-int check_for_old_linux(const guchar * pd)
+int check_for_old_linux(const unsigned char * pd)
 {
 	int x;
 	for(x=1;x<=18;x++)
@@ -240,21 +240,21 @@ static void
 add_ring_bridge_pairs(int rcf_len, tvbuff_t*, proto_tree *tree);
 
 static bool
-capture_tr(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_) {
+capture_tr(const unsigned char *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_) {
 
 	int			source_routed = 0;
 	int			frame_type;
 	int			x;
-	guint8			trn_rif_bytes;
-	guint8			actual_rif_bytes;
-	guint16			first2_sr;
+	uint8_t			trn_rif_bytes;
+	uint8_t			actual_rif_bytes;
+	uint16_t			first2_sr;
 
 	/* The trn_hdr struct, as separate variables */
-	guint8			trn_fc;		/* field control field */
-	const guint8		*trn_shost;	/* source host */
+	uint8_t			trn_fc;		/* field control field */
+	const uint8_t		*trn_shost;	/* source host */
 
 	if (!BYTES_ARE_IN_FRAME(offset, len, TR_MIN_HEADER_LEN))
-		return FALSE;
+		return false;
 
 	if ((x = check_for_old_linux(pd)))
 	{
@@ -356,7 +356,7 @@ capture_tr(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo,
 			return call_capture_dissector(llc_cap_handle, pd, offset, len, cpinfo, pseudo_header);
 	}
 
-	return FALSE;
+	return false;
 }
 
 
@@ -365,17 +365,17 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree	*tr_tree;
 	proto_item	*ti, *hidden_item;
-	guint8		 rcf1, rcf2;
+	uint8_t		 rcf1, rcf2;
 	tvbuff_t	*next_tvb;
 
 	volatile int		frame_type;
 	volatile int		fixoffset = 0;
 	volatile int		source_routed = 0;
-	volatile guint8		trn_rif_bytes;
-	volatile guint8		actual_rif_bytes;
-	volatile guint8		c1_nonsr;
-	volatile guint8		c2_nonsr;
-	volatile guint16	first2_sr;
+	volatile uint8_t		trn_rif_bytes;
+	volatile uint8_t		actual_rif_bytes;
+	volatile uint8_t		c1_nonsr;
+	volatile uint8_t		c2_nonsr;
+	volatile uint16_t	first2_sr;
 	tvbuff_t		*volatile tr_tvb;
 
 	static tr_hdr trh_arr[4];
@@ -383,7 +383,7 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	tr_hdr *volatile trh;
 
 	/* non-source-routed version of source addr */
-	guint8		*trn_shost_nonsr = (guint8*)wmem_alloc(pinfo->pool, 6);
+	uint8_t		*trn_shost_nonsr = (uint8_t*)wmem_alloc(pinfo->pool, 6);
 	int			x;
 
 	/* Token-Ring Strings */
@@ -412,7 +412,7 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	}
 
 	/* Get the data */
-	trh->fc		= tvb_get_guint8(tr_tvb, 1);
+	trh->fc		= tvb_get_uint8(tr_tvb, 1);
 	set_address_tvb(&trh->src, AT_ETHER, 6, tr_tvb, 8);
 	set_address_tvb(&trh->dst, AT_ETHER, 6, tr_tvb, 2);
 
@@ -426,7 +426,7 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Token-Ring %s", fc[frame_type]);
 
-	trn_rif_bytes = tvb_get_guint8(tr_tvb, 14) & 31;
+	trn_rif_bytes = tvb_get_uint8(tr_tvb, 14) & 31;
 
 	if (fix_linux_botches) {
 		/* the Linux 2.0 TR code strips source-route bits in
@@ -444,15 +444,15 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 		if (frame_type == 1 && !source_routed && trn_rif_bytes > 0) {
 			TRY {
 
-				c1_nonsr = tvb_get_guint8(tr_tvb, 14);
-				c2_nonsr = tvb_get_guint8(tr_tvb, 15);
+				c1_nonsr = tvb_get_uint8(tr_tvb, 14);
+				c2_nonsr = tvb_get_uint8(tr_tvb, 15);
 
 				if (c1_nonsr != c2_nonsr) {
 
 					first2_sr = tvb_get_ntohs(tr_tvb, trn_rif_bytes + 0x0e);
 
 					if ( ( first2_sr == 0xaaaa &&
-						tvb_get_guint8(tr_tvb, trn_rif_bytes + 0x10) == 0x03)   ||
+						tvb_get_uint8(tr_tvb, trn_rif_bytes + 0x10) == 0x03)   ||
 
 						first2_sr == 0xe0e0 ||
 						first2_sr == 0xe0aa ) {
@@ -489,7 +489,7 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 				/* look for SNAP or IPX only */
 				if (
 					(tvb_get_ntohs(tr_tvb, 0x20) == 0xaaaa &&
-					tvb_get_guint8(tr_tvb, 0x22) == 0x03)
+					tvb_get_uint8(tr_tvb, 0x22) == 0x03)
 				 ||
 					tvb_get_ntohs(tr_tvb, 0x20) == 0xe0e0 ) {
 
@@ -497,7 +497,7 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 				}
 				else if (
 					tvb_get_ntohl(tr_tvb, 0x23) == 0 &&
-					tvb_get_guint8(tr_tvb, 0x27) == 0x11) {
+					tvb_get_uint8(tr_tvb, 0x27) == 0x11) {
 
 					actual_rif_bytes = 18;
 
@@ -550,17 +550,17 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 		tr_tree = proto_item_add_subtree(ti, ett_token_ring);
 
 		/* Create the Access Control bitfield tree */
-		trh->ac = tvb_get_guint8(tr_tvb, 0);
+		trh->ac = tvb_get_uint8(tr_tvb, 0);
 		proto_tree_add_bitmask(tr_tree, tr_tvb, 0, hf_tr_ac, ett_token_ring_ac, ac, ENC_NA);
 
 		/* Create the Frame Control bitfield tree */
 		proto_tree_add_bitmask(tr_tree, tr_tvb, 1, hf_tr_fc, ett_token_ring_fc, fc_flags, ENC_NA);
 
-		proto_tree_add_ether(tr_tree, hf_tr_dst, tr_tvb, 2, 6, (const guint8 *)trh->dst.data);
-		proto_tree_add_ether(tr_tree, hf_tr_src, tr_tvb, 8, 6, (const guint8 *)trh->src.data);
-		hidden_item = proto_tree_add_ether(tr_tree, hf_tr_addr, tr_tvb, 2, 6, (const guint8 *)trh->dst.data);
+		proto_tree_add_ether(tr_tree, hf_tr_dst, tr_tvb, 2, 6, (const uint8_t *)trh->dst.data);
+		proto_tree_add_ether(tr_tree, hf_tr_src, tr_tvb, 8, 6, (const uint8_t *)trh->src.data);
+		hidden_item = proto_tree_add_ether(tr_tree, hf_tr_addr, tr_tvb, 2, 6, (const uint8_t *)trh->dst.data);
 		proto_item_set_hidden(hidden_item);
-		hidden_item = proto_tree_add_ether(tr_tree, hf_tr_addr, tr_tvb, 8, 6, (const guint8 *)trh->src.data);
+		hidden_item = proto_tree_add_ether(tr_tree, hf_tr_addr, tr_tvb, 8, 6, (const uint8_t *)trh->src.data);
 		proto_item_set_hidden(hidden_item);
 
 		proto_tree_add_boolean(tr_tree, hf_tr_sr, tr_tvb, 8, 1, source_routed);
@@ -571,12 +571,12 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
 		if (source_routed) {
 			/* RCF Byte 1 */
-			rcf1 = tvb_get_guint8(tr_tvb, 14);
+			rcf1 = tvb_get_uint8(tr_tvb, 14);
 			proto_tree_add_uint(tr_tree, hf_tr_rif_bytes, tr_tvb, 14, 1, trn_rif_bytes);
 			proto_tree_add_uint(tr_tree, hf_tr_broadcast, tr_tvb, 14, 1, rcf1 & 224);
 
 			/* RCF Byte 2 */
-			rcf2 = tvb_get_guint8(tr_tvb, 15);
+			rcf2 = tvb_get_uint8(tr_tvb, 15);
 			proto_tree_add_uint(tr_tree, hf_tr_max_frame_size, tr_tvb, 15, 1, rcf2 & 112);
 			proto_tree_add_uint(tr_tree, hf_tr_direction, tr_tvb, 15, 1, rcf2 & 128);
 
@@ -657,7 +657,7 @@ add_ring_bridge_pairs(int rcf_len, tvbuff_t *tvb, proto_tree *tree)
 			proto_item_set_hidden(hidden_item);
 		}
 		segment = tvb_get_ntohs(tvb, RIF_OFFSET + 1 + j) >> 4;
-		brdgnmb = tvb_get_guint8(tvb, RIF_OFFSET + j) & 0x0f;
+		brdgnmb = tvb_get_uint8(tvb, RIF_OFFSET + j) & 0x0f;
 		wmem_strbuf_append_printf(buf, "-%01X-%03X", brdgnmb, segment);
 		hidden_item = proto_tree_add_uint(tree, hf_tr_rif_ring, tvb, TR_MIN_HEADER_LEN + 3 + j, 2, segment);
 		proto_item_set_hidden(hidden_item);
@@ -757,7 +757,7 @@ proto_register_tr(void)
 			NULL, HFILL }},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_token_ring,
 		&ett_token_ring_ac,
 		&ett_token_ring_fc,
@@ -786,7 +786,7 @@ proto_register_tr(void)
 	tr_handle = register_dissector("tr", dissect_tr, proto_tr);
 	tr_tap=register_tap("tr");
 
-	register_conversation_table(proto_tr, TRUE, tr_conversation_packet, tr_endpoint_packet);
+	register_conversation_table(proto_tr, true, tr_conversation_packet, tr_endpoint_packet);
 
 	register_capture_dissector("tr", capture_tr, proto_tr);
 }

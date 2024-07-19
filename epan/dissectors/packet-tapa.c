@@ -128,23 +128,23 @@ static const value_string tapa_discover_unknown_vals[] = {
 };
 #endif
 
-static gboolean
-check_ascii(tvbuff_t *tvb, gint offset, gint length)
+static bool
+check_ascii(tvbuff_t *tvb, int offset, int length)
 {
-	gint i;
-	guint8 buf;
+	int i;
+	uint8_t buf;
 
 	for (i = 0; i < length; i++) {
-		buf = tvb_get_guint8(tvb, offset+i);
+		buf = tvb_get_uint8(tvb, offset+i);
 		if (buf < 0x20 || buf >= 0x80) {
-			return FALSE;
+			return false;
 		}
 	}
-	return TRUE;
+	return true;
 }
 
 static int
-dissect_tapa_discover_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tapa_discover_tree, guint32 offset, gint remaining)
+dissect_tapa_discover_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tapa_discover_tree, uint32_t offset, int remaining)
 {
 	proto_tree_add_item(tapa_discover_tree, hf_tapa_discover_reply_switchip, tvb, offset, 4,
 		ENC_BIG_ENDIAN);
@@ -171,16 +171,16 @@ dissect_tapa_discover_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tapa_
 }
 
 static int
-dissect_tapa_discover_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tapa_discover_tree, guint32 offset, gint remaining)
+dissect_tapa_discover_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tapa_discover_tree, uint32_t offset, int remaining)
 {
 	proto_tree	*tapa_discover_item_tree;
-	guint8		 item_type;
-	gint		 item_length;
-	gchar		*item_text;
-	const gchar	*item_type_text;
+	uint8_t		 item_type;
+	int		 item_length;
+	char		*item_text;
+	const char	*item_type_text;
 
 	while (remaining > 0) {
-		item_type = tvb_get_guint8(tvb, offset);
+		item_type = tvb_get_uint8(tvb, offset);
 		item_type_text = val_to_str(item_type, tapa_discover_request_vals, "%d");
 		item_length = tvb_get_ntohs(tvb, offset + 2);
 		item_text = tvb_format_text(pinfo->pool, tvb, offset + 4, item_length);
@@ -213,18 +213,18 @@ dissect_tapa_discover_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tapa_di
 }
 
 static int
-dissect_tapa_discover_unknown_new_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tapa_discover_tree, guint32 offset, gint remaining)
+dissect_tapa_discover_unknown_new_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tapa_discover_tree, uint32_t offset, int remaining)
 {
 	proto_tree	*tapa_discover_item_tree;
 	proto_item	*item, *discover_item;
-	guint8		 item_type;
-	gint		 item_length;
-	const gchar	*item_text;
-	/*const gchar	*item_type_text;*/
-	gboolean	 is_ascii;
+	uint8_t		 item_type;
+	int		 item_length;
+	const char	*item_text;
+	/*const char	*item_type_text;*/
+	bool	 is_ascii;
 
 	while (remaining > 3) {  /* type(1) + flags(1) + length(2) */
-		item_type = tvb_get_guint8(tvb, offset);
+		item_type = tvb_get_uint8(tvb, offset);
 		/*item_type_text = val_to_str(item_type, tapa_discover_unknown_vals, "%d");*/
 		item_length = tvb_get_ntohs(tvb, offset + 2) - 4;
 
@@ -276,11 +276,11 @@ dissect_tapa_discover(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
 	proto_tree *tapa_discover_tree = NULL;
-	gint offset = 0;
-	guint8 packet_type;
-	gint remaining;
+	int offset = 0;
+	uint8_t packet_type;
+	int remaining;
 
-	packet_type = tvb_get_guint8(tvb, 0);
+	packet_type = tvb_get_uint8(tvb, 0);
 	remaining = tvb_get_ntohs(tvb, 2) - 4;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
@@ -337,13 +337,13 @@ dissect_tapa_tunnel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
 	proto_tree *tapa_tunnel_tree = NULL;
-	guint32 offset = 0;
-	guint8 version;
-	guint8 type;
-	guint remaining;
+	uint32_t offset = 0;
+	uint8_t version;
+	uint8_t type;
+	unsigned remaining;
 
-	version = tvb_get_guint8(tvb, 0) & 0xF0;
-	type = tvb_get_guint8(tvb, 1);
+	version = tvb_get_uint8(tvb, 0) & 0xF0;
+	type = tvb_get_uint8(tvb, 1);
 	remaining = tvb_reported_length(tvb);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
@@ -411,44 +411,44 @@ dissect_tapa_tunnel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	return offset;
 }
 
-static gboolean
+static bool
 test_tapa_discover(tvbuff_t *tvb)
 {
-	guint8 type, req_type;
-	guint16 length;
+	uint8_t type, req_type;
+	uint16_t length;
 
 	if (tvb_captured_length(tvb) < 4)
-		return FALSE;
+		return false;
 
 	/* Type(1 byte) <= 5, unknown(1 byte), length(2 bytes) */
-	type = tvb_get_guint8(tvb, 0);
-	/* unknown = tvb_get_guint8(tvb, 1); */
+	type = tvb_get_uint8(tvb, 0);
+	/* unknown = tvb_get_uint8(tvb, 1); */
 	length = tvb_get_ntohs(tvb, 2);
-	req_type = tvb_get_guint8(tvb, 4);
+	req_type = tvb_get_uint8(tvb, 4);
 
 	if (type < TAPA_TYPE_REQUEST		||
 	    type > TAPA_TYPE_REPLY_NEW		||
 	    length < 12				||
 	    length > 1472			||
 	    (type == TAPA_TYPE_REQUEST && (req_type < TAPA_REQUEST_SERIAL || req_type > TAPA_REQUEST_MODEL))) {
-		return FALSE;
+		return false;
 	}
 
-	return TRUE;
+	return true;
 }
 
-static gboolean
+static bool
 test_tapa_tunnel(tvbuff_t *tvb)
 {
 	/* If it isn't IPv4, it's TAPA. IPv4: Version(1 byte) = 4,
 		length(2 bytes) >= 20 */
 	if (tvb_captured_length(tvb) < 4 ||
-	    (tvb_get_guint8(tvb, 0) & 0xF0) >= 0x40 ||
+	    (tvb_get_uint8(tvb, 0) & 0xF0) >= 0x40 ||
 	    tvb_get_ntohs(tvb, 2) > 0 ||
-	    tvb_get_guint8(tvb, 1) > 1) {	/* Is tunnel type known? */
-		return FALSE;
+	    tvb_get_uint8(tvb, 1) > 1) {	/* Is tunnel type known? */
+		return false;
 	}
-	return TRUE;
+	return true;
 }
 
 static int
@@ -467,7 +467,7 @@ static bool
 dissect_tapa_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *iph)
 {
 	/* The TAPA protocol also uses IP protocol number 4 but it isn't really IPIP */
-	if ((ws_ip_protocol(iph) == IP_PROTO_IPIP) && ((tvb_get_guint8(tvb, 0) & 0xF0) != 0x40) &&
+	if ((ws_ip_protocol(iph) == IP_PROTO_IPIP) && ((tvb_get_uint8(tvb, 0) & 0xF0) != 0x40) &&
 	    (tvb_get_ntohs(tvb, 2)) < 20) {
 		dissect_tapa_static(tvb, pinfo, tree, iph);
 		return true;
@@ -606,7 +606,7 @@ proto_register_tapa(void)
 		    0x0, NULL, HFILL }},
 
 	};
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_tapa_discover,
 		&ett_tapa_discover_req,
 		&ett_tapa_tunnel,

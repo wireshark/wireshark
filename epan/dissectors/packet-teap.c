@@ -20,9 +20,9 @@ void proto_reg_handoff_teap(void);
 
 static int proto_teap;
 
-static gint ett_teap;
-static gint ett_teap_tlv;
-static gint ett_pac_attr_tlv;
+static int ett_teap;
+static int ett_teap_tlv;
+static int ett_pac_attr_tlv;
 
 static expert_field ei_teap_bad_length;
 
@@ -253,18 +253,18 @@ static int
 dissect_teap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_);
 
 static int
-dissect_teap_tlv_pac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint16 len);
+dissect_teap_tlv_pac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint16_t len);
 
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_pac_attr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-  guint16 type;
-  guint16 len;
+  uint16_t type;
+  uint16_t len;
   int start_offset = offset;
 
-  type = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
-  len = tvb_get_guint16(tvb, offset + 2, ENC_BIG_ENDIAN);
+  type = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
+  len = tvb_get_uint16(tvb, offset + 2, ENC_BIG_ENDIAN);
 
   proto_tree_add_item(tree, hf_pac_attr_type, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
@@ -332,7 +332,7 @@ dissect_pac_attr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_teap_tlv_pac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint16 len)
+dissect_teap_tlv_pac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint16_t len)
 {
   int start_offset = offset;
 
@@ -346,17 +346,17 @@ dissect_teap_tlv_pac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_teap_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, gboolean top)
+dissect_teap_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, bool top)
 {
   int start_offset = offset;
-  guint16 type;
-  guint16 len;
+  uint16_t type;
+  uint16_t len;
   proto_tree *tlv_tree;
   proto_tree *ti_len;
   tvbuff_t *next_tvb;
 
-  type = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN) & TEAP_TLV_TYPE;
-  len = tvb_get_guint16(tvb, offset + 2, ENC_BIG_ENDIAN);
+  type = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN) & TEAP_TLV_TYPE;
+  len = tvb_get_uint16(tvb, offset + 2, ENC_BIG_ENDIAN);
 
   tlv_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4 + len,
       ett_teap_tlv, NULL, "TLV %s (%u): ",
@@ -430,7 +430,7 @@ dissect_teap_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 
     case TEAP_EAP_PAYLOAD:
     {
-      guint16 eaplen = tvb_get_guint16(tvb, offset + 2, ENC_BIG_ENDIAN);
+      uint16_t eaplen = tvb_get_uint16(tvb, offset + 2, ENC_BIG_ENDIAN);
 
       next_tvb = tvb_new_subset_length(tvb, offset, eaplen);
       call_dissector(eap_handle, next_tvb, pinfo, tlv_tree);
@@ -460,14 +460,14 @@ dissect_teap_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 
     case TEAP_CRYPTO_BINDING:
     {
-      guint8 flags;
+      uint8_t flags;
       proto_tree_add_item(tlv_tree, hf_teap_crypto_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset += 1;
       proto_tree_add_item(tlv_tree, hf_teap_crypto_version, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset += 1;
       proto_tree_add_item(tlv_tree, hf_teap_crypto_rcv_version, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset += 1;
-      flags = (tvb_get_guint8(tvb, offset) & TEAP_CRYPTO_FLAGS) >> 4;
+      flags = (tvb_get_uint8(tvb, offset) & TEAP_CRYPTO_FLAGS) >> 4;
       proto_tree_add_item(tlv_tree, hf_teap_crypto_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item(tlv_tree, hf_teap_crypto_subtype, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset += 1;
@@ -493,14 +493,14 @@ dissect_teap_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 
     case TEAP_BASIC_PWD_AUTH_RESPONSE:
     {
-      guint8 auth_len;
-      auth_len = tvb_get_guint8(tvb, offset);
+      uint8_t auth_len;
+      auth_len = tvb_get_uint8(tvb, offset);
       proto_tree_add_item(tlv_tree, hf_teap_user_len, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset += 1;
       proto_tree_add_item(tlv_tree, hf_teap_username, tvb, offset, auth_len, ENC_ASCII | ENC_NA);
       offset += auth_len;
 
-      auth_len = tvb_get_guint8(tvb, offset);
+      auth_len = tvb_get_uint8(tvb, offset);
       proto_tree_add_item(tlv_tree, hf_teap_pass_len, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset += 1;
       proto_tree_add_item(tlv_tree, hf_teap_password, tvb, offset, auth_len, ENC_ASCII | ENC_NA);
@@ -514,7 +514,7 @@ dissect_teap_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
     case TEAP_PKCS10:
     default:
       ti_len = proto_tree_add_item(tlv_tree, hf_teap_tlv_val, tvb, offset, len, ENC_NA);
-      if ((guint)len + 4 > tvb_reported_length(tvb)) {
+      if ((unsigned)len + 4 > tvb_reported_length(tvb)) {
         expert_add_info(pinfo, ti_len, &ei_teap_bad_length);
       }
       offset += len;
@@ -735,7 +735,7 @@ proto_register_teap(void)
       NULL, HFILL }},
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_teap,
     &ett_teap_tlv,
     &ett_pac_attr_tlv,

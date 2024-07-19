@@ -29,7 +29,7 @@ WS_DLL_PUBLIC int is_tpkt(tvbuff_t *tvb, int min_len);
  * Dissect TPKT-encapsulated data in a TCP stream.
  */
 WS_DLL_PUBLIC void dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo,
-    proto_tree *tree, gboolean desegment,
+    proto_tree *tree, bool desegment,
     dissector_handle_t subdissector_handle);
 
 /*
@@ -41,7 +41,7 @@ WS_DLL_PUBLIC void dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo,
  * TPKT header must be at least "8+min_len" in order for this to be a
  * valid TPKT PDU for the protocol in question.
  */
-extern guint16 is_asciitpkt(tvbuff_t *tvb);
+extern uint16_t is_asciitpkt(tvbuff_t *tvb);
 
 /*
  * Dissect ASCII TPKT-encapsulated data in a TCP stream.

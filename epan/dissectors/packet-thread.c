@@ -419,30 +419,30 @@ static int hf_thread_bcn_tlv_unknown;
 
 /* Tree types */
 
-static gint ett_thread_address;
-static gint ett_thread_address_tlv;
-static gint ett_thread_dg;
-static gint ett_thread_dg_tlv;
-static gint ett_thread_mc;
-static gint ett_thread_mc_tlv;
-static gint ett_thread_mc_chan_mask;
-static gint ett_thread_mc_el_count;
-static gint ett_thread_nwd;
-static gint ett_thread_nwd_tlv;
-static gint ett_thread_nwd_has_route;
-static gint ett_thread_nwd_6co_flag;
-static gint ett_thread_nwd_border_router;
-static gint ett_thread_nwd_prefix_sub_tlvs;
-static gint ett_thread_bcn;
-static gint ett_thread_bcn_tlv;
-static gint ett_thread_nm;
-static gint ett_thread_nm_tlv;
-static gint ett_thread_bl;
-static gint ett_thread_bl_tlv;
+static int ett_thread_address;
+static int ett_thread_address_tlv;
+static int ett_thread_dg;
+static int ett_thread_dg_tlv;
+static int ett_thread_mc;
+static int ett_thread_mc_tlv;
+static int ett_thread_mc_chan_mask;
+static int ett_thread_mc_el_count;
+static int ett_thread_nwd;
+static int ett_thread_nwd_tlv;
+static int ett_thread_nwd_has_route;
+static int ett_thread_nwd_6co_flag;
+static int ett_thread_nwd_border_router;
+static int ett_thread_nwd_prefix_sub_tlvs;
+static int ett_thread_bcn;
+static int ett_thread_bcn_tlv;
+static int ett_thread_nm;
+static int ett_thread_nm_tlv;
+static int ett_thread_bl;
+static int ett_thread_bl_tlv;
 
-static gint ett_thread;
-/* static gint ett_thread_header_ie; */
-static gint ett_thread_ie_fields;
+static int ett_thread;
+/* static int ett_thread_header_ie; */
+static int ett_thread_ie_fields;
 
 
 
@@ -547,10 +547,10 @@ typedef enum {
 } tlv_len_len_e;
 
 typedef struct {
-    guint16 src_port;
-    guint16 dst_port;
-    guint16 length;
-    guint16 checksum;
+    uint16_t src_port;
+    uint16_t dst_port;
+    uint16_t length;
+    uint16_t checksum;
 } udp_hdr_t;
 
 /* TLV values */
@@ -1025,16 +1025,16 @@ dissect_thread_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
 /* Preferences */
 static bool thread_use_pan_id_in_key;
-static const gchar *thread_seq_ctr_str;
+static const char *thread_seq_ctr_str;
 static bool thread_auto_acq_seq_ctr = true;
 
 
-static gboolean thread_seq_ctr_acqd;
-static guint8 thread_seq_ctr_bytes[4];
-static const guint8 thread_well_known_key[IEEE802154_CIPHER_SIZE] =
+static bool thread_seq_ctr_acqd;
+static uint8_t thread_seq_ctr_bytes[4];
+static const uint8_t thread_well_known_key[IEEE802154_CIPHER_SIZE] =
 { 0x78, 0x58, 0x16, 0x86, 0xfd, 0xb4, 0x58, 0x0f, 0xb0, 0x92, 0x54, 0x6a, 0xec, 0xbd, 0x15, 0x66 };
 
-static GByteArray *set_thread_seq_ctr_from_key_index(guint8 key_index)
+static GByteArray *set_thread_seq_ctr_from_key_index(uint8_t key_index)
 {
     GByteArray *seq_ctr_bytes = NULL;
 
@@ -1043,7 +1043,7 @@ static GByteArray *set_thread_seq_ctr_from_key_index(guint8 key_index)
         seq_ctr_bytes = g_byte_array_set_size(seq_ctr_bytes, 4);
         memcpy(seq_ctr_bytes->data, thread_seq_ctr_bytes, 4);
     } else {
-        hex_str_to_bytes(thread_seq_ctr_str, seq_ctr_bytes, FALSE);
+        hex_str_to_bytes(thread_seq_ctr_str, seq_ctr_bytes, false);
         if (seq_ctr_bytes->len != 4) {
             /* Not read correctly - assume value is 0 */
             seq_ctr_bytes = g_byte_array_set_size(seq_ctr_bytes, 4);
@@ -1056,23 +1056,23 @@ static GByteArray *set_thread_seq_ctr_from_key_index(guint8 key_index)
     return seq_ctr_bytes;
 }
 
-static void create_thread_temp_keys(GByteArray *seq_ctr_bytes, guint16 src_pan, ieee802154_key_t* key, unsigned char *mac_key, unsigned char *mle_key)
+static void create_thread_temp_keys(GByteArray *seq_ctr_bytes, uint16_t src_pan, ieee802154_key_t* key, unsigned char *mac_key, unsigned char *mle_key)
 {
     GByteArray *bytes;
     char       buffer[10];
-    gboolean   res;
-    gboolean   key_valid;
-    gboolean   verbatim_key = TRUE;
+    bool       res;
+    bool       key_valid;
+    bool       verbatim_key = true;
 
     /* Get the IEEE 802.15.4 decryption key. */
     bytes = g_byte_array_new();
-    res = hex_str_to_bytes(key->pref_key, bytes, FALSE);
+    res = hex_str_to_bytes(key->pref_key, bytes, false);
     key_valid = (res && bytes->len >= IEEE802154_CIPHER_SIZE);
     if (key_valid) {
         if (thread_use_pan_id_in_key) {
             /* Substitute the bottom two keys bytes with PAN ID */
-            bytes->data[0] = (guint8)(src_pan & 0xFF);
-            bytes->data[1] = (guint8)(src_pan >> 8);
+            bytes->data[0] = (uint8_t)(src_pan & 0xFF);
+            bytes->data[1] = (uint8_t)(src_pan >> 8);
         }
         if (key->hash_type != KEY_HASH_NONE) {
             char digest[32];
@@ -1090,7 +1090,7 @@ static void create_thread_temp_keys(GByteArray *seq_ctr_bytes, guint16 src_pan, 
                     if (mle_key) {
                         memcpy(mle_key, digest, IEEE802154_CIPHER_SIZE);
                     }
-                    verbatim_key = FALSE;
+                    verbatim_key = false;
                 }
             }
         }
@@ -1104,11 +1104,11 @@ static void create_thread_temp_keys(GByteArray *seq_ctr_bytes, guint16 src_pan, 
             }
         }
     }
-    g_byte_array_free(bytes, TRUE);
+    g_byte_array_free(bytes, true);
 }
 
 /* Set MAC key for Thread hash */
-static guint set_thread_mac_key(ieee802154_packet *packet, unsigned char *key, unsigned char *alt_key, ieee802154_key_t *uat_key)
+static unsigned set_thread_mac_key(ieee802154_packet *packet, unsigned char *key, unsigned char *alt_key, ieee802154_key_t *uat_key)
 {
     GByteArray *seq_ctr_bytes = NULL;
 
@@ -1127,7 +1127,7 @@ static guint set_thread_mac_key(ieee802154_packet *packet, unsigned char *key, u
         /* Create an alternate key based on the wraparound case */
         seq_ctr_bytes->data[3] ^= 0x80;
         create_thread_temp_keys(seq_ctr_bytes, packet->src_pan, uat_key, alt_key, NULL);
-        g_byte_array_free(seq_ctr_bytes, TRUE);
+        g_byte_array_free(seq_ctr_bytes, true);
         return 2;
     }
 
@@ -1135,7 +1135,7 @@ static guint set_thread_mac_key(ieee802154_packet *packet, unsigned char *key, u
 }
 
 /* Set MLE key for Thread hash */
-static guint set_thread_mle_key(ieee802154_packet *packet, unsigned char *key, unsigned char *alt_key, ieee802154_key_t *uat_key)
+static unsigned set_thread_mle_key(ieee802154_packet *packet, unsigned char *key, unsigned char *alt_key, ieee802154_key_t *uat_key)
 {
     GByteArray *seq_ctr_bytes = NULL;
     if (packet->key_id_mode == KEY_ID_MODE_KEY_INDEX) {
@@ -1152,7 +1152,7 @@ static guint set_thread_mle_key(ieee802154_packet *packet, unsigned char *key, u
         /* Acquire the sequence counter if configured in preferences */
         if (thread_auto_acq_seq_ctr && !thread_seq_ctr_acqd) {
             memcpy(thread_seq_ctr_bytes, seq_ctr_bytes->data, 4);
-            thread_seq_ctr_acqd = TRUE;
+            thread_seq_ctr_acqd = true;
         }
     }
     if (seq_ctr_bytes != NULL) {
@@ -1160,17 +1160,17 @@ static guint set_thread_mle_key(ieee802154_packet *packet, unsigned char *key, u
         /* Create an alternate key based on the wraparound case */
         seq_ctr_bytes->data[3] ^= 0x80;
         create_thread_temp_keys(seq_ctr_bytes, packet->src_pan, uat_key, NULL, alt_key);
-        g_byte_array_free(seq_ctr_bytes, TRUE);
+        g_byte_array_free(seq_ctr_bytes, true);
         return 2;
     }
 
     return 0;
 }
 
-static guint
-count_bits_in_byte(guint8 byte)
+static unsigned
+count_bits_in_byte(uint8_t byte)
 {
-    static const guint8 lut[16] = {0, /* 0b0000 */
+    static const uint8_t lut[16] = {0, /* 0b0000 */
                                    1, /* 0b0001 */
                                    1, /* 0b0010 */
                                    2, /* 0b0011 */
@@ -1189,14 +1189,14 @@ count_bits_in_byte(guint8 byte)
     return lut[byte >> 4] + lut[byte & 0xf];
 }
 
-static guint
+static unsigned
 get_chancount(tvbuff_t *tvb)
 {
-    guint         offset;
-    guint8        tlv_type;
-    guint16       tlv_len;
+    unsigned      offset;
+    uint8_t       tlv_type;
+    uint16_t      tlv_len;
     tlv_len_len_e tlv_len_len;
-    guint         chancount = THREAD_MC_INVALID_CHAN_COUNT;
+    unsigned      chancount = THREAD_MC_INVALID_CHAN_COUNT;
 
     offset = 0;
 
@@ -1205,8 +1205,8 @@ get_chancount(tvbuff_t *tvb)
 
         /* Get the type and length ahead of time to pass to next function so we can highlight
            proper amount of bytes */
-        tlv_type = tvb_get_guint8(tvb, offset);
-        tlv_len = (guint16)tvb_get_guint8(tvb, offset + 1);
+        tlv_type = tvb_get_uint8(tvb, offset);
+        tlv_len = (uint16_t)tvb_get_uint8(tvb, offset + 1);
 
         /* TODO: need to make sure this applies to all MeshCoP TLVs */
         if (THREAD_TLV_LENGTH_ESC == tlv_len) {
@@ -1225,15 +1225,15 @@ get_chancount(tvbuff_t *tvb)
             case THREAD_MC_TLV_CHANNEL_MASK:
                 {
                     int i, j;
-                    guint8 entries = 0;
-                    gint32 check_len = tlv_len;
-                    gint check_offset = offset + 1; /* Channel page first */
-                    guint16 masklen;
+                    uint8_t entries = 0;
+                    int32_t check_len = tlv_len;
+                    int check_offset = offset + 1; /* Channel page first */
+                    uint16_t masklen;
 
                     /* Check consistency of entries */
                     while (check_len > 0) {
 
-                        masklen = tvb_get_guint8(tvb, check_offset);
+                        masklen = tvb_get_uint8(tvb, check_offset);
                         if (masklen == 0) {
                             break; /* Get out or we might spin forever */
                         }
@@ -1252,11 +1252,11 @@ get_chancount(tvbuff_t *tvb)
                         for (i = 0; i < entries; i++) {
                             /* Skip over channel page */
                             offset++;
-                            masklen = tvb_get_guint8(tvb, offset);
+                            masklen = tvb_get_uint8(tvb, offset);
                             offset++;
                             /* Count the number of channels in the channel mask */
                             for (j = 0; j < masklen; j++) {
-                                chancount += count_bits_in_byte(tvb_get_guint8(tvb, offset));
+                                chancount += count_bits_in_byte(tvb_get_uint8(tvb, offset));
                                 offset++;
                             }
                         }
@@ -1279,9 +1279,9 @@ dissect_thread_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     proto_tree  *thread_address_tree;
     proto_tree  *tlv_tree;
     tvbuff_t    *sub_tvb;
-    guint       offset = 0;
+    unsigned    offset = 0;
     proto_item  *ti;
-    guint8      tlv_type, tlv_len;
+    uint8_t     tlv_type, tlv_len;
 
     /* Create the protocol tree. */
     proto_root = proto_tree_add_item(tree, proto_thread_address, tvb, 0, tvb_reported_length(tvb), ENC_NA);
@@ -1292,14 +1292,14 @@ dissect_thread_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
         /* Get the length ahead of time to pass to next function so we can highlight
            proper amount of bytes */
-        tlv_len = tvb_get_guint8(tvb, offset + 1);
+        tlv_len = tvb_get_uint8(tvb, offset + 1);
 
         ti = proto_tree_add_item(thread_address_tree, hf_thread_address_tlv, tvb, offset, tlv_len+2, ENC_NA);
         tlv_tree = proto_item_add_subtree(ti, ett_thread_address_tlv);
 
         /* Type */
         proto_tree_add_item(tlv_tree, hf_thread_address_tlv_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-        tlv_type = tvb_get_guint8(tvb, offset);
+        tlv_type = tvb_get_uint8(tvb, offset);
         offset++;
 
         /* Add value name to value root label */
@@ -1496,9 +1496,9 @@ dissect_thread_nm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     proto_tree  *thread_nm_tree;
     proto_tree  *tlv_tree;
     tvbuff_t    *sub_tvb;
-    guint       offset = 0;
+    unsigned    offset = 0;
     proto_item  *ti;
-    guint8      tlv_type, tlv_len;
+    uint8_t     tlv_type, tlv_len;
 
     /* Create the protocol tree. */
     proto_root = proto_tree_add_item(tree, proto_thread_nm, tvb, 0, tvb_reported_length(tvb), ENC_NA);
@@ -1509,7 +1509,7 @@ dissect_thread_nm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
         /* Get the length ahead of time to pass to next function so we can highlight
            proper amount of bytes */
-        tlv_len = tvb_get_guint8(tvb, offset + 1);
+        tlv_len = tvb_get_uint8(tvb, offset + 1);
 
         /* Create the tree */
         ti = proto_tree_add_item(thread_nm_tree, hf_thread_nm_tlv, tvb, offset, tlv_len+2, ENC_NA);
@@ -1517,7 +1517,7 @@ dissect_thread_nm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
         /* Type */
         proto_tree_add_item(tlv_tree, hf_thread_nm_tlv_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-        tlv_type = tvb_get_guint8(tvb, offset);
+        tlv_type = tvb_get_uint8(tvb, offset);
         offset++;
 
         /* Add value name to value root label */
@@ -1733,9 +1733,9 @@ dissect_thread_bl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     proto_tree  *thread_bl_tree;
     proto_tree  *tlv_tree;
     tvbuff_t    *sub_tvb;
-    guint       offset = 0;
+    unsigned    offset = 0;
     proto_item  *ti;
-    guint8      tlv_type, tlv_len;
+    uint8_t     tlv_type, tlv_len;
 
     /* Create the protocol tree. */
     proto_root = proto_tree_add_item(tree, proto_thread_bl, tvb, 0, tvb_reported_length(tvb), ENC_NA);
@@ -1746,14 +1746,14 @@ dissect_thread_bl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
         /* Get the length ahead of time to pass to next function so we can highlight
            proper amount of bytes */
-        tlv_len = tvb_get_guint8(tvb, offset + 1);
+        tlv_len = tvb_get_uint8(tvb, offset + 1);
 
        ti = proto_tree_add_item(thread_bl_tree, hf_thread_bl_tlv, tvb, offset, tlv_len+2, ENC_NA);
         tlv_tree = proto_item_add_subtree(ti, ett_thread_bl_tlv);
 
         /* Type */
         proto_tree_add_item(tlv_tree, hf_thread_bl_tlv_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-        tlv_type = tvb_get_guint8(tvb, offset);
+        tlv_type = tvb_get_uint8(tvb, offset);
         offset++;
 
         /* Add value name to value root label */
@@ -1954,10 +1954,10 @@ dissect_thread_dg(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void 
     proto_item    *proto_root;
     proto_tree    *thread_dg_tree;
     proto_tree    *tlv_tree;
-    guint         offset = 0;
+    unsigned      offset = 0;
     proto_item    *ti;
-    guint8        tlv_type;
-    guint16       tlv_len;
+    uint8_t       tlv_type;
+    uint16_t      tlv_len;
     tlv_len_len_e tlv_len_len;
 
     /* Create the protocol tree. */
@@ -1969,8 +1969,8 @@ dissect_thread_dg(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void 
 
         /* Get the type and length ahead of time to pass to next function so we can highlight
            proper amount of bytes */
-        tlv_type = tvb_get_guint8(tvb, offset);
-        tlv_len = (guint16)tvb_get_guint8(tvb, offset + 1);
+        tlv_type = tvb_get_uint8(tvb, offset);
+        tlv_len = (uint16_t)tvb_get_uint8(tvb, offset + 1);
 
         /* TODO: need to make sure this applies to all Diagnostic TLVs */
         if (THREAD_TLV_LENGTH_ESC == tlv_len) {
@@ -2065,13 +2065,13 @@ dissect_thread_mc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     proto_item    *proto_root;
     proto_tree    *thread_mc_tree;
     proto_tree    *tlv_tree;
-    guint         offset = 0;
+    unsigned      offset = 0;
     proto_item    *ti;
     proto_item    *pi;
-    guint8        tlv_type;
-    guint16       tlv_len;
+    uint8_t       tlv_type;
+    uint16_t      tlv_len;
     tlv_len_len_e tlv_len_len;
-    guint         chancount;
+    unsigned      chancount;
 
 
     /* Create the protocol tree. */
@@ -2086,8 +2086,8 @@ dissect_thread_mc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
         /* Get the type and length ahead of time to pass to next function so we can highlight
            proper amount of bytes */
-        tlv_type = tvb_get_guint8(tvb, offset);
-        tlv_len = (guint16)tvb_get_guint8(tvb, offset + 1);
+        tlv_type = tvb_get_uint8(tvb, offset);
+        tlv_len = (uint16_t)tvb_get_uint8(tvb, offset + 1);
 
         /* TODO: need to make sure this applies to all MeshCoP TLVs */
         if (THREAD_TLV_LENGTH_ESC == tlv_len) {
@@ -2230,7 +2230,7 @@ dissect_thread_mc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                         ws_in6_addr prefix;
 
                         memset(&prefix, 0, sizeof(prefix));
-                        tvb_memcpy(tvb, (guint8 *)&prefix.bytes, offset, tlv_len);
+                        tvb_memcpy(tvb, (uint8_t *)&prefix.bytes, offset, tlv_len);
                         pi = proto_tree_add_ipv6(tlv_tree, hf_thread_mc_tlv_ml_prefix, tvb, offset, tlv_len, &prefix);
                         proto_item_append_text(pi, "/%d", tlv_len * 8);
                     }
@@ -2519,16 +2519,16 @@ dissect_thread_mc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                         proto_tree_add_item(tlv_tree, hf_thread_mc_tlv_unknown, tvb, offset, tlv_len, ENC_NA);
                         offset += tlv_len;
                     } else {
-                        guint8 build_u8;
-                        guint16 build;
+                        uint8_t build_u8;
+                        uint16_t build;
 
                         proto_tree_add_item(tlv_tree, hf_thread_mc_tlv_vendor_stack_ver_oui, tvb, offset, 3, ENC_BIG_ENDIAN);
                         offset += 3;
-                        build_u8 = tvb_get_guint8(tvb, offset);
+                        build_u8 = tvb_get_uint8(tvb, offset);
                         offset++;
-                        build = (guint16)build_u8 << 4;
-                        build_u8 = tvb_get_guint8(tvb, offset);
-                        build |= (guint16)build_u8 >> 4;
+                        build = (uint16_t)build_u8 << 4;
+                        build_u8 = tvb_get_uint8(tvb, offset);
+                        build |= (uint16_t)build_u8 >> 4;
                         pi = proto_tree_add_uint(tlv_tree, hf_thread_mc_tlv_vendor_stack_ver_build, tvb, 0, 0, build);
                         proto_item_set_generated(pi);
                         proto_tree_add_item(tlv_tree, hf_thread_mc_tlv_vendor_stack_ver_rev, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2543,8 +2543,8 @@ dissect_thread_mc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             case THREAD_MC_TLV_UDP_ENCAPSULATION:
                 {
                     tvbuff_t *sub_tvb;
-                    guint16 src_port;
-                    guint16 dst_port;
+                    uint16_t src_port;
+                    uint16_t dst_port;
 
                     src_port = tvb_get_ntohs(tvb, offset);
                     proto_tree_add_item(tlv_tree, hf_thread_mc_tlv_udp_encap_src_port, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2566,7 +2566,7 @@ dissect_thread_mc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                         /* Copy UDP payload in */
                         tvb_memcpy(tvb, udp_hdr + 1, offset, tlv_len - 4);
                         /* Create child tvb */
-                        sub_tvb = tvb_new_child_real_data(tvb, (guint8 *)udp_hdr, tlv_len + 4, tvb_reported_length(tvb) + 4);
+                        sub_tvb = tvb_new_child_real_data(tvb, (uint8_t *)udp_hdr, tlv_len + 4, tvb_reported_length(tvb) + 4);
                         call_dissector(thread_udp_handle, sub_tvb, pinfo, tree);
                     }
                     offset += (tlv_len-4);
@@ -2604,15 +2604,15 @@ dissect_thread_mc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                 {
                     proto_tree *cm_tree;
                     int i;
-                    guint8 entries = 0;
-                    gint32 check_len = tlv_len;
-                    gint check_offset = offset + 1; /* Channel page first */
-                    guint16 masklen;
+                    uint8_t entries = 0;
+                    int32_t check_len = tlv_len;
+                    int check_offset = offset + 1; /* Channel page first */
+                    uint16_t masklen;
 
                     /* Check consistency of entries */
                     while (check_len > 0) {
 
-                        masklen = tvb_get_guint8(tvb, check_offset);
+                        masklen = tvb_get_uint8(tvb, check_offset);
                         if (masklen == 0) {
                             break; /* Get out or we might spin forever */
                         }
@@ -2633,7 +2633,7 @@ dissect_thread_mc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                             cm_tree = proto_item_add_subtree(pi, ett_thread_mc_chan_mask);
                             proto_tree_add_item(cm_tree, hf_thread_mc_tlv_chan_mask_page, tvb, offset, 1, ENC_BIG_ENDIAN);
                             offset++;
-                            masklen = tvb_get_guint8(tvb, offset);
+                            masklen = tvb_get_uint8(tvb, offset);
                             proto_tree_add_item(cm_tree, hf_thread_mc_tlv_chan_mask_len, tvb, offset, 1, ENC_BIG_ENDIAN);
                             offset++;
                             proto_tree_add_item(cm_tree, hf_thread_mc_tlv_chan_mask_mask, tvb, offset, masklen, ENC_NA);
@@ -2686,7 +2686,7 @@ dissect_thread_mc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
                     if ((chancount != THREAD_MC_INVALID_CHAN_COUNT) && (chancount != 0) && ((tlv_len % chancount) == 0)) {
                         /* Go through the number of el_counts of scan */
-                        for (i = 0; i < (int)(tlv_len / (guint16)chancount); i++) {
+                        for (i = 0; i < (int)(tlv_len / (uint16_t)chancount); i++) {
                             pi = proto_tree_add_item(tlv_tree, hf_thread_mc_tlv_el_count, tvb, offset, 1, ENC_NA);
                             proto_item_append_text(pi, " %d", i + 1);
                             it_tree = proto_item_add_subtree(pi, ett_thread_mc_el_count);
@@ -2851,10 +2851,10 @@ dissect_thread_nwd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     proto_tree  *thread_nwd_tree;
     proto_tree  *tlv_tree;
     tvbuff_t    *sub_tvb;
-    guint       offset = 0, tlv_offset;
+    unsigned    offset = 0, tlv_offset;
     proto_item  *ti;
-    guint8      tlv_type, tlv_len;
-    gint        g_server_decode = 1;  /* used to check if the full decoding of Server TLV has to be done or not */
+    uint8_t     tlv_type, tlv_len;
+    int         g_server_decode = 1;  /* used to check if the full decoding of Server TLV has to be done or not */
 
     /* Create the protocol tree. */
     proto_root = proto_tree_add_item(tree, proto_thread_nwd, tvb, 0, tvb_reported_length(tvb), ENC_NA);
@@ -2866,14 +2866,14 @@ dissect_thread_nwd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
         /* Get the length ahead of time to pass to next function so we can highlight
            proper amount of bytes */
-        tlv_len = tvb_get_guint8(tvb, offset + 1);
+        tlv_len = tvb_get_uint8(tvb, offset + 1);
 
         ti = proto_tree_add_item(thread_nwd_tree, hf_thread_nwd_tlv, tvb, offset, tlv_len+2, ENC_NA);
         tlv_tree = proto_item_add_subtree(ti, ett_thread_nwd_tlv);
 
         /* Type */
         proto_tree_add_item(tlv_tree, hf_thread_nwd_tlv_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-        tlv_type = tvb_get_guint8(tvb, offset) >> 1;
+        tlv_type = tvb_get_uint8(tvb, offset) >> 1;
 
         /* Stable */
         proto_tree_add_item(tlv_tree, hf_thread_nwd_tlv_stable, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2899,8 +2899,8 @@ dissect_thread_nwd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                         offset += tlv_len;
                     } else {
                         proto_tree *has_route_tree;
-                        guint i;
-                        guint count = tlv_len / THREAD_NWD_TLV_HAS_ROUTE_SIZE;
+                        unsigned i;
+                        unsigned count = tlv_len / THREAD_NWD_TLV_HAS_ROUTE_SIZE;
 
                         /* Add subtrees */
                         for (i = 0; i < count; i++) {
@@ -2919,8 +2919,8 @@ dissect_thread_nwd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
             case THREAD_NWD_TLV_PREFIX:
                 {
-                    guint8 prefix_len;
-                    guint8 prefix_byte_len;
+                    uint8_t prefix_len;
+                    uint8_t prefix_byte_len;
                     ws_in6_addr prefix;
                     address prefix_addr;
 
@@ -2931,7 +2931,7 @@ dissect_thread_nwd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
                     /* Prefix Length */
                     proto_tree_add_item(tlv_tree, hf_thread_nwd_tlv_prefix_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    prefix_len = tvb_get_guint8(tvb, offset);
+                    prefix_len = tvb_get_uint8(tvb, offset);
                     prefix_byte_len = (prefix_len + 7) / 8;
                     offset++;
                     tlv_offset++;
@@ -2939,7 +2939,7 @@ dissect_thread_nwd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                     /* Prefix */
                     memset(&prefix.bytes, 0, sizeof(prefix));
                     if (prefix_byte_len <= sizeof(prefix))
-                        tvb_memcpy(tvb, (guint8 *)&prefix.bytes, offset, prefix_byte_len);
+                        tvb_memcpy(tvb, (uint8_t *)&prefix.bytes, offset, prefix_byte_len);
                     proto_tree_add_ipv6(tlv_tree, hf_thread_nwd_tlv_prefix, tvb, offset, prefix_byte_len, &prefix);
                     set_address(&prefix_addr, AT_IPv6, 16, prefix.bytes);
                     proto_item_append_text(ti, " = %s/%d", address_to_str(pinfo->pool, &prefix_addr), prefix_len);
@@ -2948,7 +2948,7 @@ dissect_thread_nwd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
                     if (tlv_offset < tlv_len) {
                         proto_tree *sub_tlv_tree;
-                        guint remaining = tlv_len - tlv_offset;
+                        unsigned remaining = tlv_len - tlv_offset;
 
                         ti = proto_tree_add_item(tlv_tree, hf_thread_nwd_tlv_sub_tlvs, tvb, offset, 1, ENC_NA);
                         sub_tlv_tree = proto_item_add_subtree(ti, ett_thread_nwd_prefix_sub_tlvs);
@@ -2972,8 +2972,8 @@ dissect_thread_nwd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                         offset += tlv_len;
                     } else {
                         proto_tree *border_router_tree;
-                        guint i;
-                        guint count = tlv_len / 4;
+                        unsigned i;
+                        unsigned count = tlv_len / 4;
 
                         /* Add subtrees */
                         for (i = 0; i < count; i++) {
@@ -3029,11 +3029,11 @@ dissect_thread_nwd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
             case THREAD_NWD_TLV_SERVICE:
                 {
-                    guint8 flags;
-                    guint8 s_data_len;
+                    uint8_t flags;
+                    uint8_t s_data_len;
 
                     /* Flags and S_id */
-                    flags = tvb_get_guint8(tvb, offset);
+                    flags = tvb_get_uint8(tvb, offset);
                     proto_tree_add_item(tlv_tree, hf_thread_nwd_tlv_service_t, tvb, offset, 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item(tlv_tree, hf_thread_nwd_tlv_service_s_id, tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset++;
@@ -3047,11 +3047,11 @@ dissect_thread_nwd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                     }
 
                     /* S_data */
-                    s_data_len = tvb_get_guint8(tvb, offset);
+                    s_data_len = tvb_get_uint8(tvb, offset);
                     proto_tree_add_item(tlv_tree, hf_thread_nwd_tlv_service_s_data_len, tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset++;
                     tlv_offset++;
-                    guint8 thread_service_data = tvb_get_guint8(tvb, offset);
+                    uint8_t thread_service_data = tvb_get_uint8(tvb, offset);
                     // Thread 1.3 Service TLV code
                     if((s_data_len == 2) && (thread_service_data == 0x5c))
                     {
@@ -3112,7 +3112,7 @@ dissect_thread_nwd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
                     if (tlv_offset < tlv_len) {
                         proto_tree *sub_tlv_tree;
-                        guint remaining = tlv_len - tlv_offset;
+                        unsigned remaining = tlv_len - tlv_offset;
 
                         ti = proto_tree_add_item(tlv_tree, hf_thread_nwd_tlv_sub_tlvs, tvb, offset, 1, ENC_NA);
                         sub_tlv_tree = proto_item_add_subtree(ti, ett_thread_nwd_prefix_sub_tlvs);
@@ -3149,7 +3149,7 @@ dissect_thread_nwd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
                         if (tlv_offset < tlv_len)
                         {
-                            guint remaining = tlv_len - tlv_offset;
+                            unsigned remaining = tlv_len - tlv_offset;
                             //remaining bytes - server data
                             proto_tree_add_item(tlv_tree, hf_thread_nwd_tlv_server_data, tvb, offset, remaining, ENC_NA);
                             offset += remaining;
@@ -3164,7 +3164,7 @@ dissect_thread_nwd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                         tlv_offset = 2;
                         if (tlv_offset < tlv_len)
                         {
-                            guint remaining = tlv_len - tlv_offset;
+                            unsigned remaining = tlv_len - tlv_offset;
                             //remaining bytes - server data
                             proto_tree_add_item(tlv_tree, hf_thread_nwd_tlv_server_data, tvb, offset, remaining, ENC_NA);
                             offset += remaining;
@@ -3182,7 +3182,7 @@ dissect_thread_nwd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
                         if (tlv_offset < tlv_len)
                         {
-                            guint remaining = tlv_len - tlv_offset;
+                            unsigned remaining = tlv_len - tlv_offset;
                             //remaining bytes - server data
                             proto_tree_add_item(tlv_tree, hf_thread_nwd_tlv_server_data, tvb, offset, remaining, ENC_NA);
                             offset += remaining;
@@ -3205,8 +3205,8 @@ static int
 dissect_thread_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     coap_info           *coinfo;
-    const gchar         *uri;
-    gchar               **tokens;
+    const char          *uri;
+    char                **tokens;
 
     /* Obtain the CoAP info */
     coinfo = (coap_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_coap, 0);
@@ -3230,9 +3230,9 @@ static int dissect_thread_bcn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     ieee802154_packet   *packet = (ieee802154_packet *)data;
     proto_item  *ti, *beacon_root;
     proto_tree  *beacon_tree;
-    guint       offset = 0;
-    const guint8  *ssid;
-    guint8      tlv_type, tlv_len;
+    unsigned    offset = 0;
+    const uint8_t *ssid;
+    uint8_t     tlv_type, tlv_len;
     proto_tree  *tlv_tree = NULL;
 
     /* Reject the packet if data is NULL */
@@ -3281,14 +3281,14 @@ static int dissect_thread_bcn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     /* Get the length ahead of time to pass to next function so we can highlight
        proper amount of bytes */
-    tlv_len = tvb_get_guint8(tvb, offset+1);
+    tlv_len = tvb_get_uint8(tvb, offset+1);
 
     /* Type */
     ti = proto_tree_add_item(beacon_tree, hf_thread_bcn_tlv, tvb, offset, tlv_len+2, ENC_NA);
     tlv_tree = proto_item_add_subtree(ti, ett_thread_bcn_tlv);
     proto_tree_add_item(tlv_tree, hf_thread_bcn_tlv_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-    tlv_type = tvb_get_guint8(tvb, offset);
+    tlv_type = tvb_get_uint8(tvb, offset);
     offset++;
 
     /* Add value name to value root label */
@@ -3325,7 +3325,7 @@ dissect_thread_bcn_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
     if (tvb_captured_length(tvb) > 0) {
         /* Thread beacons begin with a protocol identifier. */
-        if (tvb_get_guint8(tvb, 0) != THREAD_BCN_PROTOCOL_ID) return false;
+        if (tvb_get_uint8(tvb, 0) != THREAD_BCN_PROTOCOL_ID) return false;
         dissect_thread_bcn(tvb, pinfo, tree, packet);
         return true;
     }
@@ -3470,7 +3470,7 @@ proto_register_thread_nm(void)
             }
         };
 
-        static gint *ett[] = {
+        static int *ett[] = {
             &ett_thread_nm,
             &ett_thread_nm_tlv,
         };
@@ -3645,7 +3645,7 @@ proto_register_thread_bl(void)
 
         };
 
-        static gint *ett[] = {
+        static int *ett[] = {
             &ett_thread_bl,
             &ett_thread_bl_tlv,
         };
@@ -3812,7 +3812,7 @@ proto_register_thread_address(void)
         }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_thread_address,
         &ett_thread_address_tlv,
     };
@@ -3890,7 +3890,7 @@ proto_register_thread_dg(void)
         }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_thread_dg,
         &ett_thread_dg_tlv,
     };
@@ -4532,7 +4532,7 @@ proto_register_thread_mc(void)
         }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_thread_mc,
         &ett_thread_mc_tlv,
         &ett_thread_mc_chan_mask,
@@ -4927,7 +4927,7 @@ proto_register_thread_nwd(void)
 
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_thread_nwd,
         &ett_thread_nwd_tlv,
         &ett_thread_nwd_has_route,
@@ -5004,7 +5004,7 @@ void proto_register_thread_bcn(void)
     };
 
     /*  NWK Layer subtrees */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_thread_bcn,
         &ett_thread_bcn_tlv
     };
@@ -5022,7 +5022,7 @@ static void
 proto_init_thread(void)
 {
     /* Reset the sequence counter variables */
-    thread_seq_ctr_acqd = FALSE;
+    thread_seq_ctr_acqd = false;
     memset(thread_seq_ctr_bytes, 0, 4);
 }
 
@@ -5059,7 +5059,7 @@ proto_register_thread(void)
                 THREAD_IE_LENGTH_MASK, NULL, HFILL }}
      };
 
-      static gint *ett[] = {
+      static int *ett[] = {
         &ett_thread_header_ie,
      };*/
 
@@ -5150,11 +5150,11 @@ dissect_thread_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void 
 
     proto_tree *subtree;
     //tvbuff_t   *ie_tvb;
-    guint16     thread_ie;
-    guint16     id;
-    guint16     length;
-    guint       pie_length;
-    guint       offset = 0;
+    uint16_t    thread_ie;
+    uint16_t    id;
+    uint16_t    length;
+    unsigned    pie_length;
+    unsigned    offset = 0;
 
     static int * fields[] = {
         &hf_ieee802154_thread_ie_id,
@@ -5162,7 +5162,7 @@ dissect_thread_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void 
         NULL
     };
 
-    pie_length = *(gint *)data;
+    pie_length = *(int *)data;
 
     do {
         thread_ie =  tvb_get_letohs(tvb, offset);

@@ -39,7 +39,7 @@ static int hf_teklink_vtc_mode;
 static int hf_teklink_vtc_edge;
 static int hf_teklink_vtc_sigfeedback;
 
-static gint ett_teklink;
+static int ett_teklink;
 
 static const value_string teklink_vtc_srcnames[] = {
 	{ 0, "VTC_SRC_APPSIG0" },
@@ -269,8 +269,8 @@ static int dissect_teklink_vtc_outen(tvbuff_t *tvb, packet_info *pinfo _U_,
 	proto_tree *tree, void* data _U_)
 {
 	int offset = 0;
-	guint32 sig = tvb_get_ntohl(tvb, offset);
-	guint32 sigon = tvb_get_ntohl(tvb, offset + 4);
+	uint32_t sig = tvb_get_ntohl(tvb, offset);
+	uint32_t sigon = tvb_get_ntohl(tvb, offset + 4);
 
 	offset = dissect_rpc_uint32(tvb, tree, hf_teklink_vtc_dstnames, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_teklink_vtc_sigen, offset);
@@ -284,7 +284,7 @@ static int dissect_teklink_vtc_outen(tvbuff_t *tvb, packet_info *pinfo _U_,
 static int dissect_teklink_vtc_map(tvbuff_t *tvb, packet_info *pinfo _U_,
 	proto_tree *tree, void* data _U_)
 {
-	guint32 src, dst;
+	uint32_t src, dst;
 	int offset = 0;
 
 	src = tvb_get_ntohl(tvb, offset);
@@ -302,7 +302,7 @@ static int dissect_teklink_vtc_map(tvbuff_t *tvb, packet_info *pinfo _U_,
 static int dissect_teklink_vtc_clk(tvbuff_t *tvb, packet_info *pinfo _U_,
 	proto_tree *tree, void* data _U_)
 {
-	guint32 sig, clksource, clkedge, clkmode;
+	uint32_t sig, clksource, clkedge, clkmode;
 	int offset = 0;
 
 	sig = tvb_get_ntohl(tvb, offset);
@@ -326,7 +326,7 @@ static int dissect_teklink_vtc_clk(tvbuff_t *tvb, packet_info *pinfo _U_,
 static int dissect_teklink_vtc_mode(tvbuff_t *tvb, packet_info *pinfo _U_,
 	proto_tree *tree, void* data _U_)
 {
-	guint32 sig, edge, mode;
+	uint32_t sig, edge, mode;
 	int offset = 0;
 
 	sig = tvb_get_ntohl(tvb, offset);
@@ -348,7 +348,7 @@ static int dissect_teklink_vtc_mode(tvbuff_t *tvb, packet_info *pinfo _U_,
 static int dissect_teklink_vtc_outsetup(tvbuff_t *tvb, packet_info *pinfo _U_,
 	proto_tree *tree, void* data _U_)
 {
-	guint32 sig, en, pol, feedback;
+	uint32_t sig, en, pol, feedback;
 	int offset = 0;
 
 	sig = tvb_get_ntohl(tvb, offset);
@@ -373,7 +373,7 @@ static int dissect_teklink_vtc_res(tvbuff_t *tvb, packet_info *pinfo _U_,
 	proto_tree *tree, void* data _U_)
 {
 	int offset = 0;
-	guint32 sig = tvb_get_ntohl(tvb, offset);
+	uint32_t sig = tvb_get_ntohl(tvb, offset);
 
 	offset = dissect_rpc_uint32(tvb, tree, hf_teklink_vtc_dstnames, offset);
 
@@ -552,7 +552,7 @@ proto_register_teklink(void)
 				VALS(teklink_vtc_sigfeedback), 0, NULL, HFILL }}
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_teklink
 	};
 

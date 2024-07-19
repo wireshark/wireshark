@@ -122,11 +122,11 @@ typedef enum {
 /// Finer grained locating than just the frame number
 typedef struct {
     /// Index of the frame
-    guint32 frame_num;
+    uint32_t frame_num;
     /// Source index within the frame
-    gint src_ix;
+    int src_ix;
     /// Offset within the source TVB
-    gint raw_offset;
+    int raw_offset;
 } tcpcl_frame_loc_t;
 
 typedef struct {
@@ -137,42 +137,42 @@ typedef struct {
     wmem_list_t *ack_list;
 
     /// Optional Transfer Length extension
-    guint64 *total_length;
+    uint64_t *total_length;
 } tcpcl_transfer_t;
 
 typedef struct {
     /// Address for this peer
     address addr;
     /// Port for the this peer
-    guint32 port;
+    uint32_t port;
 
     /// True if a contact header was not seen at the start of connection
-    gboolean chdr_missing;
+    bool chdr_missing;
     /// Frame number in which the contact header starts
     tcpcl_frame_loc_t *chdr_seen;
     /// TCPCL version seen from this peer
-    guint8 version;
+    uint8_t version;
     /// CAN_TLS flag from the contact header
-    gboolean can_tls;
+    bool can_tls;
 
     /// Frame number in which the v4 SESS_INIT message starts
     tcpcl_frame_loc_t *sess_init_seen;
     /// Keepalive duration (s) from v4 SESS_INIT
-    guint16 keepalive;
+    uint16_t keepalive;
     /// Segment MRU
-    guint64 segment_mru;
+    uint64_t segment_mru;
     /// Transfer MRU
-    guint64 transfer_mru;
+    uint64_t transfer_mru;
 
     /// Frame number in which the SESS_TERM message starts
     tcpcl_frame_loc_t *sess_term_seen;
     /// SESS_TERM reason
-    guint8 sess_term_reason;
+    uint8_t sess_term_reason;
 
-    /// Map from tcpcl_frame_loc_t* to possible associated transfer ID guint64*
+    /// Map from tcpcl_frame_loc_t* to possible associated transfer ID uint64_t*
     wmem_map_t *frame_loc_to_transfer;
 
-    /// Map from transfer ID guint64* to tcpcl_transfer_t* sent from this peer
+    /// Map from transfer ID uint64_t* to tcpcl_transfer_t* sent from this peer
     wmem_map_t *transfers;
 } tcpcl_peer_t;
 
@@ -185,18 +185,18 @@ typedef struct {
 
     /// Set to the first TCPCL version seen.
     /// Used later for validity check.
-    guint8 *version;
+    uint8_t *version;
     /// True when contact negotiation is finished
-    gboolean contact_negotiated;
+    bool contact_negotiated;
     /// Negotiated use of TLS from @c can_tls of the peers
-    gboolean session_use_tls;
+    bool session_use_tls;
     /// The last frame before TLS handshake
     tcpcl_frame_loc_t *session_tls_start;
 
     /// True when session negotiation is finished
-    gboolean sess_negotiated;
+    bool sess_negotiated;
     /// Negotiated session keepalive
-    guint16 sess_keepalive;
+    uint16_t sess_keepalive;
 } tcpcl_conversation_t;
 
 /// Context for a single packet dissection
@@ -205,7 +205,7 @@ typedef struct {
     /// Dissection cursor
     tcpcl_frame_loc_t *cur_loc;
     /// True if the dissection is on a contact header
-    gboolean is_contact;
+    bool is_contact;
     /// The sending peer
     tcpcl_peer_t *tx_peer;
     /// The receiving peer
@@ -222,7 +222,7 @@ typedef struct {
  * @return ctx The new packet context.
  */
 WS_DLL_PUBLIC
-tcpcl_dissect_ctx_t * tcpcl_dissect_ctx_get(tvbuff_t *tvb, packet_info *pinfo, const gint offset);
+tcpcl_dissect_ctx_t * tcpcl_dissect_ctx_get(tvbuff_t *tvb, packet_info *pinfo, const int offset);
 
 #ifdef __cplusplus
 }

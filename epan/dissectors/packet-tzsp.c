@@ -90,8 +90,8 @@ static const value_string tzsp_encapsulation[] = {
     {0, NULL}
 };
 
-static gint ett_tzsp;
-static gint ett_tag;
+static int ett_tzsp;
+static int ett_tag;
 
 /* ************************************************************************* */
 /*                WLAN radio header fields                                    */
@@ -190,17 +190,17 @@ static const value_string option_tag_vals[] = {
 static int
 add_option_info(tvbuff_t *tvb, int pos, proto_tree *tree, proto_item *ti)
 {
-    guint8      tag, length, fcs_err = 0, encr = 0, seen_fcs_err = 0;
+    uint8_t     tag, length, fcs_err = 0, encr = 0, seen_fcs_err = 0;
     proto_tree *tag_tree;
 
     /*
      * Read all option tags in an endless loop. If the packet is malformed this
      * loop might be a problem.
      */
-    while (TRUE) {
-        tag = tvb_get_guint8(tvb, pos);
+    while (true) {
+        tag = tvb_get_uint8(tvb, pos);
         if ((tag != TZSP_HDR_PAD) && (tag != TZSP_HDR_END)) {
-            length = tvb_get_guint8(tvb, pos+1);
+            length = tvb_get_uint8(tvb, pos+1);
             tag_tree = proto_tree_add_subtree(tree, tvb, pos, 2+length, ett_tag, NULL, val_to_str_const(tag, option_tag_vals, "Unknown"));
         } else {
             tag_tree = proto_tree_add_subtree(tree, tvb, pos, 1, ett_tag, NULL, val_to_str_const(tag, option_tag_vals, "Unknown"));
@@ -280,13 +280,13 @@ add_option_info(tvbuff_t *tvb, int pos, proto_tree *tree, proto_item *ti)
 
         case WLAN_RADIO_HDR_UN_DECR:
             proto_tree_add_item(tag_tree, hf_status_undecrypted, tvb, pos, 1, ENC_NA);
-            encr = tvb_get_guint8(tvb, pos);
+            encr = tvb_get_uint8(tvb, pos);
             break;
 
         case WLAN_RADIO_HDR_FCS_ERR:
             seen_fcs_err = 1;
             proto_tree_add_item(tag_tree, hf_status_fcs_error, tvb, pos, 1, ENC_NA);
-            fcs_err = tvb_get_guint8(tvb, pos);
+            fcs_err = tvb_get_uint8(tvb, pos);
             break;
 
         case WLAN_RADIO_HDR_CHANNEL:
@@ -317,14 +317,14 @@ dissect_tzsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     proto_item         *ti            = NULL;
     int                 pos           = 0;
     tvbuff_t           *next_tvb;
-    guint16             encapsulation = 0;
+    uint16_t            encapsulation = 0;
     const char         *info;
-    guint8              type;
+    uint8_t             type;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "TZSP");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    type = tvb_get_guint8(tvb, 1);
+    type = tvb_get_uint8(tvb, 1);
 
     /* Find the encapsulation. */
     encapsulation = tvb_get_ntohs(tvb, 2);
@@ -612,7 +612,7 @@ proto_register_tzsp(void)
             NULL, 0, "PacketId", HFILL }}
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_tzsp,
         &ett_tag
     };

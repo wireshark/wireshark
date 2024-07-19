@@ -40,21 +40,21 @@ static int hf_teredo_orig;
 static int hf_teredo_orig_port;
 static int hf_teredo_orig_addr;
 
-static gint ett_teredo;
-static gint ett_teredo_auth;
-static gint ett_teredo_orig;
+static int ett_teredo;
+static int ett_teredo_auth;
+static int ett_teredo_orig;
 
 typedef struct {
-	guint16 th_indtyp;
-	guint8 th_cidlen;
-	guint8 th_authdlen;
-	guint8 th_nonce[8];
-	guint8 th_conf;
+	uint16_t th_indtyp;
+	uint8_t th_cidlen;
+	uint8_t th_authdlen;
+	uint8_t th_nonce[8];
+	uint8_t th_conf;
 
-	guint8 th_ip_v_hl;
-	guint16 th_header;
-	guint16 th_orgport;
-	guint32 th_iporgaddr;
+	uint8_t th_ip_v_hl;
+	uint16_t th_header;
+	uint16_t th_orgport;
+	uint32_t th_iporgaddr;
 } e_teredohdr;
 
 static dissector_table_t teredo_dissector_table;
@@ -66,7 +66,7 @@ static int
 parse_teredo_auth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			int offset, e_teredohdr *teredoh)
 {
-	guint idlen, aulen;
+	unsigned idlen, aulen;
 
 	col_append_sep_str (pinfo->cinfo, COL_INFO, ", ",
 					"Authentication header");
@@ -74,11 +74,11 @@ parse_teredo_auth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	teredoh->th_indtyp = 1;
 	offset += 2;
 
-	idlen = tvb_get_guint8(tvb, offset);
+	idlen = tvb_get_uint8(tvb, offset);
 	teredoh->th_cidlen = idlen;
 	offset++;
 
-	aulen = tvb_get_guint8(tvb, offset);
+	aulen = tvb_get_uint8(tvb, offset);
 	teredoh->th_authdlen = aulen;
 	offset++;
 
@@ -120,7 +120,7 @@ parse_teredo_auth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		offset += idlen + aulen + 9;
 
 	tvb_memcpy(tvb, teredoh->th_nonce, offset - 9, 8);
-	teredoh->th_conf = tvb_get_guint8(tvb, offset - 1);
+	teredoh->th_conf = tvb_get_uint8(tvb, offset - 1);
 
 	return offset;
 }
@@ -158,7 +158,7 @@ parse_teredo_orig(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 */
 		proto_tree_add_uint(tree, hf_teredo_orig_port, tvb,
 					offset, 2,
-					(guint16)~teredoh->th_orgport);
+					(uint16_t)~teredoh->th_orgport);
 	}
 	offset += 2;
 
@@ -227,7 +227,7 @@ dissect_teredo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 						offset, teredoh);
 	}
 
-	teredoh->th_ip_v_hl = tvb_get_guint8(tvb, offset);
+	teredoh->th_ip_v_hl = tvb_get_uint8(tvb, offset);
 
 	decode_teredo_ports(tvb, offset, pinfo, tree, teredoh->th_header /* , teredoh->th_orgport*/);
 	tap_queue_packet(teredo_tap, pinfo, teredoh);
@@ -238,7 +238,7 @@ dissect_teredo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 static bool
 dissect_teredo_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	guint16 val;
+	uint16_t val;
 	int offset = 0;
 
 	if (tvb_captured_length_remaining(tvb, offset) < 40)
@@ -248,14 +248,14 @@ dissect_teredo_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 
 	if (val == 1) /* possible auth header */
 	{
-		guint8 idlen, aulen;
+		uint8_t idlen, aulen;
 
 		offset += 2;
 
-		idlen = tvb_get_guint8(tvb, offset);
+		idlen = tvb_get_uint8(tvb, offset);
 		offset++;
 
-		aulen = tvb_get_guint8(tvb, offset);
+		aulen = tvb_get_uint8(tvb, offset);
 		offset += 10;
 
 		if (tvb_captured_length_remaining(tvb, offset) < idlen + aulen + 40)
@@ -362,7 +362,7 @@ proto_register_teredo(void)
 		  NULL, HFILL }},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_teredo, &ett_teredo_auth, &ett_teredo_orig
 	};
 

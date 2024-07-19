@@ -37,12 +37,12 @@ static int hf_eth_src;
 static int hf_eth_type;
 
 /* preference value pointers */
-static guint32    tte_pref_ct_marker    = 0xFFFFFFFF;
-static guint32    tte_pref_ct_mask      = 0x0;
+static uint32_t   tte_pref_ct_marker    = 0xFFFFFFFF;
+static uint32_t   tte_pref_ct_mask      = 0x0;
 
 /* Initialize the subtree pointers */
-static gint ett_tte;
-static gint ett_tte_macdest;
+static int ett_tte;
+static int ett_tte_macdest;
 
 
 /* Code to actually dissect the packets */
@@ -146,7 +146,7 @@ proto_register_tte(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_tte,
         &ett_tte_macdest
     };

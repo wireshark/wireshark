@@ -63,10 +63,10 @@ static int hf_trmac_ring_station_status;
 static int hf_trmac_frame_forward;
 static int hf_trmac_response_code32;
 
-static gint ett_tr_mac;
-static gint ett_tr_sv;
-static gint ett_tr_ierr_cnt;
-static gint ett_tr_nerr_cnt;
+static int ett_tr_mac;
+static int ett_tr_sv;
+static int ett_tr_ierr_cnt;
+static int ett_tr_nerr_cnt;
 
 static expert_field ei_trmac_sv_len;
 
@@ -152,18 +152,18 @@ static const value_string beacon_vs[] = {
 static int
 sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 {
-	guint	sv_length, sv_id;
-	guint16	beacon_type, ring;
-	guint32	error_report_timer_value;
+	unsigned	sv_length, sv_id;
+	uint16_t	beacon_type, ring;
+	uint32_t	error_report_timer_value;
 
 	proto_tree	*sv_tree, *sv_subtree;
 	proto_item	*sv_item, *len_item, *ti;
 
-	guchar		errors[6];	/* isolating or non-isolating */
+	unsigned char		errors[6];	/* isolating or non-isolating */
 
 	sv_tree = proto_tree_add_subtree(tree, tvb, svoff+0, 1, ett_tr_sv, &sv_item, "Subvector");
 
-	sv_length = tvb_get_guint8(tvb, svoff+0);
+	sv_length = tvb_get_uint8(tvb, svoff+0);
 	len_item = proto_tree_add_item(sv_tree, hf_trmac_sv_len, tvb, svoff+0, 1, ENC_BIG_ENDIAN);
 
 	/* Check the SV length; it must be at least 2, to include
@@ -174,7 +174,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 		return 0;	/* tells our caller to give up */
 	}
 
-	sv_id = tvb_get_guint8(tvb, svoff+1);
+	sv_id = tvb_get_uint8(tvb, svoff+1);
 	proto_tree_add_item(sv_tree, hf_trmac_sv_id, tvb, svoff+1, 1, ENC_BIG_ENDIAN);
 	proto_item_append_text(sv_item, " (%s)", val_to_str_ext(sv_id, &subvector_vs_ext, "Unknown subvector ID 0x%02X"));
 
@@ -303,22 +303,22 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 			if (sv_length == 4) {
 				proto_tree_add_uint_format_value(sv_tree, hf_trmac_response_code32, tvb, svoff+2, sv_length-2,
 					tvb_get_ntohl(tvb, svoff+2), "0x%04X 0x%02X 0x%02x",
-					tvb_get_ntohs(tvb, svoff+2), tvb_get_guint8(tvb, svoff+4), tvb_get_guint8(tvb, svoff+5));
+					tvb_get_ntohs(tvb, svoff+2), tvb_get_uint8(tvb, svoff+4), tvb_get_uint8(tvb, svoff+5));
 				proto_item_append_text(sv_item,
 					": 0x%04X 0x%02X 0x%02x",
 					tvb_get_ntohs(tvb, svoff+2),
-					tvb_get_guint8(tvb, svoff+4),
-					tvb_get_guint8(tvb, svoff+5));
+					tvb_get_uint8(tvb, svoff+4),
+					tvb_get_uint8(tvb, svoff+5));
 			} else {
 				proto_tree_add_uint64_format_value(sv_tree, hf_trmac_response_code48, tvb, svoff+2, sv_length-2,
 					tvb_get_ntoh48(tvb, svoff+2), "0x%04X 0x%02X 0x%06X",
 					tvb_get_ntohs(tvb, svoff+2),
-					tvb_get_guint8(tvb, svoff+4),
+					tvb_get_uint8(tvb, svoff+4),
 					tvb_get_ntoh24(tvb, svoff+5));
 				proto_item_append_text(sv_item,
 					": 0x%04X 0x%02X 0x%06X",
 					tvb_get_ntohs(tvb, svoff+2),
-					tvb_get_guint8(tvb, svoff+4),
+					tvb_get_uint8(tvb, svoff+4),
 					tvb_get_ntoh24(tvb, svoff+5));
 			}
 			break;
@@ -467,7 +467,7 @@ dissect_trmac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 	proto_tree	*mac_tree;
 	proto_item	*ti;
 	int		sv_additional;
-	guint32		mv_val, mv_length, sv_offset;
+	uint32_t		mv_val, mv_length, sv_offset;
 
 	if (tvb_captured_length(tvb) < 3)
 		return 0;
@@ -659,7 +659,7 @@ proto_register_trmac(void)
 		{ &hf_trmac_unknown_subvector, { "Unknown Subvector", "trmac.unknown_subvector", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 	};
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_tr_mac,
 		&ett_tr_sv,
 		&ett_tr_ierr_cnt,

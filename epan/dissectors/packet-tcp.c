@@ -5386,7 +5386,7 @@ dissect_tcpopt_tarr_data(tvbuff_t *tvb, int data_offset, unsigned data_len,
         col_append_str(pinfo->cinfo, COL_INFO, " TARR");
         break;
     case 1:
-        rate = (tvb_get_guint8(tvb, data_offset) & TCPOPT_TARR_RATE_MASK) >> TCPOPT_TARR_RATE_SHIFT;
+        rate = (tvb_get_uint8(tvb, data_offset) & TCPOPT_TARR_RATE_MASK) >> TCPOPT_TARR_RATE_SHIFT;
         proto_tree_add_item(tree, hf_tcp_option_tarr_rate, tvb, data_offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_tcp_option_tarr_reserved, tvb, data_offset, 1, ENC_BIG_ENDIAN);
         tcp_info_append_uint(pinfo, "TARR", rate);
@@ -5408,12 +5408,12 @@ dissect_tcpopt_acc_ecn_data(tvbuff_t *tvb, int data_offset, unsigned data_len,
         break;
     case 3:
         if (is_order_0) {
-            ee0b = tvb_get_guint24(tvb, data_offset, ENC_BIG_ENDIAN);
+            ee0b = tvb_get_uint24(tvb, data_offset, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_tcp_option_acc_ecn_ee0b, tvb, data_offset, 3, ENC_BIG_ENDIAN);
             proto_item_append_text(item, " (Order 0): EE0B %u", ee0b);
             tcp_info_append_uint(pinfo, "EE0B", ee0b);
         } else {
-            ee1b = tvb_get_guint24(tvb, data_offset, ENC_BIG_ENDIAN);
+            ee1b = tvb_get_uint24(tvb, data_offset, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_tcp_option_acc_ecn_ee1b, tvb, data_offset, 3, ENC_BIG_ENDIAN);
             proto_item_append_text(item, " (Order 1): EE1B %u", ee1b);
             tcp_info_append_uint(pinfo, "EE1B", ee1b);
@@ -5421,15 +5421,15 @@ dissect_tcpopt_acc_ecn_data(tvbuff_t *tvb, int data_offset, unsigned data_len,
         break;
     case 6:
         if (is_order_0) {
-            ee0b = tvb_get_guint24(tvb, data_offset, ENC_BIG_ENDIAN);
+            ee0b = tvb_get_uint24(tvb, data_offset, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_tcp_option_acc_ecn_ee0b, tvb, data_offset, 3, ENC_BIG_ENDIAN);
             tcp_info_append_uint(pinfo, "EE0B", ee0b);
         } else {
-            ee1b = tvb_get_guint24(tvb, data_offset, ENC_BIG_ENDIAN);
+            ee1b = tvb_get_uint24(tvb, data_offset, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_tcp_option_acc_ecn_ee1b, tvb, data_offset, 3, ENC_BIG_ENDIAN);
             tcp_info_append_uint(pinfo, "EE1B", ee1b);
         }
-        eceb = tvb_get_guint24(tvb, data_offset + 3, ENC_BIG_ENDIAN);
+        eceb = tvb_get_uint24(tvb, data_offset + 3, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_tcp_option_acc_ecn_eceb, tvb, data_offset + 3, 3, ENC_BIG_ENDIAN);
         tcp_info_append_uint(pinfo, "ECEB", eceb);
         if (is_order_0) {
@@ -5440,24 +5440,24 @@ dissect_tcpopt_acc_ecn_data(tvbuff_t *tvb, int data_offset, unsigned data_len,
         break;
     case 9:
         if (is_order_0) {
-            ee0b = tvb_get_guint24(tvb, data_offset, ENC_BIG_ENDIAN);
+            ee0b = tvb_get_uint24(tvb, data_offset, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_tcp_option_acc_ecn_ee0b, tvb, data_offset, 3, ENC_BIG_ENDIAN);
             tcp_info_append_uint(pinfo, "EE0B", ee0b);
         } else {
-            ee1b = tvb_get_guint24(tvb, data_offset, ENC_BIG_ENDIAN);
+            ee1b = tvb_get_uint24(tvb, data_offset, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_tcp_option_acc_ecn_ee1b, tvb, data_offset, 3, ENC_BIG_ENDIAN);
             tcp_info_append_uint(pinfo, "EE1B", ee1b);
         }
-        eceb = tvb_get_guint24(tvb, data_offset + 3, ENC_BIG_ENDIAN);
+        eceb = tvb_get_uint24(tvb, data_offset + 3, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_tcp_option_acc_ecn_eceb, tvb, data_offset + 3, 3, ENC_BIG_ENDIAN);
         tcp_info_append_uint(pinfo, "ECEB", eceb);
         if (is_order_0) {
-            ee1b = tvb_get_guint24(tvb, data_offset + 6, ENC_BIG_ENDIAN);
+            ee1b = tvb_get_uint24(tvb, data_offset + 6, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_tcp_option_acc_ecn_ee1b, tvb, data_offset + 6, 3, ENC_BIG_ENDIAN);
             tcp_info_append_uint(pinfo, "EE1B", ee1b);
             proto_item_append_text(item, " (Order 0): EE0B %u, ECEB %u, EE1B %u", ee0b, eceb, ee1b);
         } else {
-            ee0b = tvb_get_guint24(tvb, data_offset + 6, ENC_BIG_ENDIAN);
+            ee0b = tvb_get_uint24(tvb, data_offset + 6, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_tcp_option_acc_ecn_ee0b, tvb, data_offset + 6, 3, ENC_BIG_ENDIAN);
             tcp_info_append_uint(pinfo, "EE0B", ee0b);
             proto_item_append_text(item, " (Order 1): EE1B %u, ECEB %u, EE0B %u", ee1b, eceb, ee0b);
@@ -5481,10 +5481,10 @@ dissect_tcpopt_acc_ecn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     offset = 0;
     item = proto_tree_add_item(tree, proto_tcp_option_acc_ecn, tvb, offset, -1, ENC_NA);
     acc_ecn_tree = proto_item_add_subtree(item, ett_tcp_option_acc_ecn);
-    kind = tvb_get_guint8(tvb, offset);
+    kind = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(acc_ecn_tree, hf_tcp_option_kind, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
-    length = tvb_get_guint8(tvb, offset);
+    length = tvb_get_uint8(tvb, offset);
     length_item = proto_tree_add_item(acc_ecn_tree, hf_tcp_option_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     if (length != 2 && length != 5 && length != 8 && length != 11) {
@@ -5508,7 +5508,7 @@ dissect_tcpopt_exp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     item = proto_tree_add_item(tree, proto_tcp_option_exp, tvb, offset, -1, ENC_NA);
     exp_tree = proto_item_add_subtree(item, ett_tcp_option_exp);
     proto_tree_add_item(exp_tree, hf_tcp_option_kind, tvb, offset, 1, ENC_BIG_ENDIAN);
-    kind = tvb_get_guint8(tvb, offset);
+    kind = tvb_get_uint8(tvb, offset);
     length_item = proto_tree_add_item(exp_tree, hf_tcp_option_len, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
     if (tcp_exp_options_rfc6994) {
         if (optlen >= TCPOLEN_EXP_MIN) {
@@ -5663,7 +5663,7 @@ dissect_tcpopt_wscale(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
     gen_pi = proto_tree_add_uint(wscale_tree, hf_tcp_option_wscale_multiplier, tvb,
                                  offset, 1, 1 << shift);
     proto_item_set_generated(gen_pi);
-    val = tvb_get_guint8(tvb, offset);
+    val = tvb_get_uint8(tvb, offset);
 
     proto_item_append_text(wscale_pi, ": %u (multiply by %u)", val, 1 << shift);
 
@@ -6124,7 +6124,7 @@ dissect_tcpopt_mptcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     proto_tree_add_item(mptcp_tree, hf_tcp_option_mptcp_subtype, tvb,
                         offset, 1, ENC_BIG_ENDIAN);
 
-    subtype = tvb_get_guint8(tvb, offset) >> 4;
+    subtype = tvb_get_uint8(tvb, offset) >> 4;
     proto_item_append_text(main_item, ": %s", val_to_str(subtype, mptcp_subtype_vs, "Unknown (%d)"));
 
     /** preemptively allocate mptcpd when subtype won't allow to find a meta */
@@ -6144,7 +6144,7 @@ dissect_tcpopt_mptcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                          ett_tcp_option_mptcp,
                          version == 1 ? tcp_option_mptcp_capable_v1_flags : tcp_option_mptcp_capable_v0_flags,
                          ENC_BIG_ENDIAN);
-            mph->mh_capable_flags = tvb_get_guint8(tvb, offset);
+            mph->mh_capable_flags = tvb_get_uint8(tvb, offset);
             if ((mph->mh_capable_flags & MPTCP_CAPABLE_CRYPTO_MASK) == 0) {
                 expert_add_info(pinfo, item, &ei_mptcp_analysis_missing_algorithm);
             }
@@ -6228,7 +6228,7 @@ dissect_tcpopt_mptcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                          ett_tcp_option_mptcp, tcp_option_mptcp_join_flags,
                          ENC_BIG_ENDIAN);
                     offset += 1;
-                    tcpd->fwd->mptcp_subflow->address_id = tvb_get_guint8(tvb, offset);
+                    tcpd->fwd->mptcp_subflow->address_id = tvb_get_uint8(tvb, offset);
                     proto_tree_add_item(mptcp_tree, hf_tcp_option_mptcp_address_id, tvb, offset,
                             1, ENC_BIG_ENDIAN);
                     offset += 1;
@@ -6292,7 +6292,7 @@ dissect_tcpopt_mptcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
             mph->mh_dss = true;
 
             offset += 1;
-            mph->mh_dss_flags = tvb_get_guint8(tvb, offset) & 0x1F;
+            mph->mh_dss_flags = tvb_get_uint8(tvb, offset) & 0x1F;
 
             proto_tree_add_bitmask(mptcp_tree, tvb, offset, hf_tcp_option_mptcp_flags,
                          ett_tcp_option_mptcp, tcp_option_mptcp_dss_flags,
@@ -6396,7 +6396,7 @@ dissect_tcpopt_mptcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
         case TCPOPT_MPTCP_ADD_ADDR:
             mph->mh_add = true;
-            ipver = tvb_get_guint8(tvb, offset) & 0x0F;
+            ipver = tvb_get_uint8(tvb, offset) & 0x0F;
             if (ipver == 4 || ipver == 6)
                 proto_tree_add_item(mptcp_tree,
                             hf_tcp_option_mptcp_ipver, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -6626,7 +6626,7 @@ dissect_tcpopt_qs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     if (!tcp_option_len_check(length_item, pinfo, tvb_reported_length(tvb), TCPOLEN_QS))
         return tvb_captured_length(tvb);
 
-    rate = tvb_get_guint8(tvb, offset + 2) & 0x0f;
+    rate = tvb_get_uint8(tvb, offset + 2) & 0x0f;
     col_append_lstr(pinfo->cinfo, COL_INFO,
         " QSresp=", val_to_str_ext_const(rate, &qs_rate_vals_ext, "Unknown"),
         COL_ADD_LSTR_TERMINATOR);
@@ -6696,7 +6696,7 @@ dissect_tcpopt_scps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
                             offset + 2, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(flags_tree, hf_tcp_scpsoption_flags_reserved, tvb,
                             offset + 2, 1, ENC_BIG_ENDIAN);
-        capvector = tvb_get_guint8(tvb, offset + 2);
+        capvector = tvb_get_uint8(tvb, offset + 2);
 
         if (capvector) {
             struct capvec
@@ -6732,7 +6732,7 @@ dissect_tcpopt_scps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
         proto_tree_add_item(field_tree, hf_tcp_scpsoption_connection_id, tvb,
                             offset + 3, 1, ENC_BIG_ENDIAN);
-        connid = tvb_get_guint8(tvb, offset + 3);
+        connid = tvb_get_uint8(tvb, offset + 3);
         flow->scps_capable = 1;
 
         if (connid)
@@ -6767,14 +6767,14 @@ dissect_tcpopt_scps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
             while (optlen > local_offset) {
 
                 /* 1st octet is Extended Capability Binding Space */
-                binding_space = tvb_get_guint8(tvb, (offset + local_offset));
+                binding_space = tvb_get_uint8(tvb, (offset + local_offset));
 
                 /* 2nd octet (upper 4-bits) has binding space length in 16-bit words.
                  * As defined by the specification, this length is exclusive of the
                  * octets containing the extended capability type and length
                  */
                 extended_cap_length =
-                    (tvb_get_guint8(tvb, (offset + local_offset + 1)) >> 4);
+                    (tvb_get_uint8(tvb, (offset + local_offset + 1)) >> 4);
 
                 /* Convert the extended capabilities length into bytes for display */
                 extended_cap_length = (extended_cap_length << 1);
@@ -7054,7 +7054,7 @@ dissect_tcpopt_rvbd_probe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     }
 
     rvbd_probe_decode_version_type(
-        tvb_get_guint8(tvb, offset + PROBE_VERSION_TYPE_OFFSET),
+        tvb_get_uint8(tvb, offset + PROBE_VERSION_TYPE_OFFSET),
         &ver, &type);
 
     proto_item_append_text(pitem, ": %s", val_to_str_const(type, rvbd_probe_type_vs, "Probe Unknown"));
@@ -7155,7 +7155,7 @@ dissect_tcpopt_rvbd_probe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         case PROBE_QUERY_INFO:
         case PROBE_QUERY_INFO_SH:
         case PROBE_QUERY_INFO_SID:
-            flags = tvb_get_guint8(tvb, offset + PROBE_V2_INFO_OFFSET);
+            flags = tvb_get_uint8(tvb, offset + PROBE_V2_INFO_OFFSET);
             flag_pi = proto_tree_add_uint(field_tree, hf_tcp_option_rvbd_probe_flags,
                                           tvb, offset + PROBE_V2_INFO_OFFSET,
                                           1, flags);
@@ -7359,7 +7359,7 @@ tcp_dissect_options(tvbuff_t *tvb, int offset, unsigned length,
     bool              sack_perm_seen = false;
 
     while (length > 0) {
-        opt = tvb_get_guint8(tvb, offset);
+        opt = tvb_get_uint8(tvb, offset);
         if (eol_seen && opt != TCPOPT_EOL) {
             proto_tree_add_expert_format(opt_tree, pinfo, &ei_tcp_non_zero_bytes_after_eol, tvb, offset, length,
                                          "Non-zero header padding");
@@ -7417,7 +7417,7 @@ tcp_dissect_options(tvbuff_t *tvb, int offset, unsigned length,
                 return;
             }
 
-            optlen = tvb_get_guint8(tvb, offset + 1);  /* total including type, len */
+            optlen = tvb_get_uint8(tvb, offset + 1);  /* total including type, len */
             --length;    /* account for length byte */
 
             if (optlen < 2) {
@@ -7915,7 +7915,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     tcph->th_seq = tcph->th_rawseq;
     tcph->th_rawack = tvb_get_ntohl(tvb, offset + 8);
     tcph->th_ack = tcph->th_rawack;
-    th_off_x2 = tvb_get_guint8(tvb, offset + 12);
+    th_off_x2 = tvb_get_uint8(tvb, offset + 12);
     tcpinfo.flags = tcph->th_flags = tvb_get_ntohs(tvb, offset + 12) & TH_MASK;
     tcph->th_win = tvb_get_ntohs(tvb, offset + 14);
     real_window = tcph->th_win;

@@ -199,25 +199,25 @@ static int hf_tns_data_sns_srvcnt;
 static int hf_tns_data_descriptor_row_count;
 static int hf_tns_data_descriptor_row_size;
 
-static gint ett_tns;
-static gint ett_tns_connect;
-static gint ett_tns_accept;
-static gint ett_tns_refuse;
-static gint ett_tns_abort;
-static gint ett_tns_redirect;
-static gint ett_tns_marker;
-static gint ett_tns_attention;
-static gint ett_tns_control;
-static gint ett_tns_data;
-static gint ett_tns_data_flag;
-static gint ett_tns_acc_versions;
-static gint ett_tns_opi_params;
-static gint ett_tns_opi_par;
-static gint ett_tns_sopt_flag;
-static gint ett_tns_ntp_flag;
-static gint ett_tns_conn_flag;
-static gint ett_tns_rows;
-static gint ett_sql;
+static int ett_tns;
+static int ett_tns_connect;
+static int ett_tns_accept;
+static int ett_tns_refuse;
+static int ett_tns_abort;
+static int ett_tns_redirect;
+static int ett_tns_marker;
+static int ett_tns_attention;
+static int ett_tns_control;
+static int ett_tns_data;
+static int ett_tns_data_flag;
+static int ett_tns_acc_versions;
+static int ett_tns_opi_params;
+static int ett_tns_opi_par;
+static int ett_tns_sopt_flag;
+static int ett_tns_ntp_flag;
+static int ett_tns_conn_flag;
+static int ett_tns_rows;
+static int ett_sql;
 
 static expert_field ei_tns_connect_data_next_packet;
 static expert_field ei_tns_data_descriptor_size_mismatch;
@@ -489,26 +489,26 @@ tns_get_conv_info(packet_info *pinfo)
 	return tns_info;
 }
 
-static guint get_data_func_id(tvbuff_t *tvb, int offset)
+static unsigned get_data_func_id(tvbuff_t *tvb, int offset)
 {
 	/* Determine Data Function id */
-	guint8 first_byte;
+	uint8_t first_byte;
 
 	first_byte =
-	    tvb_reported_length_remaining(tvb, offset) > 0 ? tvb_get_guint8(tvb, offset) : 0;
+	    tvb_reported_length_remaining(tvb, offset) > 0 ? tvb_get_uint8(tvb, offset) : 0;
 
 	if ( tvb_bytes_exist(tvb, offset, 4) && first_byte == 0xDE &&
-	     tvb_get_guint24(tvb, offset+1, ENC_BIG_ENDIAN) == 0xADBEEF )
+	     tvb_get_uint24(tvb, offset+1, ENC_BIG_ENDIAN) == 0xADBEEF )
 	{
 		return SQLNET_SNS;
 	}
 	else
 	{
-		return (guint)first_byte;
+		return (unsigned)first_byte;
 	}
 }
 
-static void vsnum_to_vstext_basecustom(gchar *result, guint32 vsnum)
+static void vsnum_to_vstext_basecustom(char *result, uint32_t vsnum)
 {
 	/*
 	 * Translate hex value to human readable version value, described at
@@ -572,8 +572,8 @@ static void dissect_tns_data_descriptor(tvbuff_t *tvb, int offset, packet_info *
 static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tns_tree)
 {
 	proto_tree *data_tree;
-	guint data_func_id;
-	gboolean is_request;
+	unsigned data_func_id;
+	bool is_request;
 	static int * const flags[] = {
 		&hf_tns_data_flag_send,
 		&hf_tns_data_flag_rc,
@@ -645,9 +645,9 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 					 * Add each accepted version as a
 					 * separate item.
 					 */
-					guint8 vers;
+					uint8_t vers;
 
-					vers = tvb_get_guint8(tvb, offset);
+					vers = tvb_get_uint8(tvb, offset);
 					if (vers == 0) {
 						/*
 						 * A version of 0 terminates
@@ -668,16 +668,16 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 			}
 			else
 			{
-				gint len;
+				int len;
 				versions_tree = proto_tree_add_subtree(data_tree, tvb, offset, -1, ett_tns_acc_versions, &ti, "Versions");
 				sep = ':';
 				for (;;) {
 					/*
 					 * Add each version as a separate item.
 					 */
-					guint8 vers;
+					uint8_t vers;
 
-					vers = tvb_get_guint8(tvb, offset);
+					vers = tvb_get_uint8(tvb, offset);
 					if (vers == 0) {
 						/*
 						 * A version of 0 terminates
@@ -705,7 +705,7 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 
 		case SQLNET_RETURN_OPI_PARAM:
 		{
-			guint8 skip = 0, opi = 0;
+			uint8_t skip = 0, opi = 0;
 
 			if ( tvb_bytes_exist(tvb, offset, 11) )
 			{
@@ -788,7 +788,7 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 				proto_tree_add_item(data_tree, hf_tns_data_unused, tvb, offset, skip, ENC_NA);
 				offset += skip;
 
-				guint8 len = tvb_get_guint8(tvb, offset);
+				uint8_t len = tvb_get_uint8(tvb, offset);
 
 				proto_tree_add_item(data_tree, hf_tns_data_opi_version2_banner_len, tvb, offset, 1, ENC_BIG_ENDIAN);
 				offset += 1;
@@ -803,7 +803,7 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 			{
 				proto_tree *params_tree;
 				proto_item *params_ti;
-				guint par, params;
+				unsigned par, params;
 
 				if ( skip == 1 )
 				{
@@ -831,7 +831,7 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 				{
 					proto_tree *par_tree;
 					proto_item *par_ti;
-					guint len, offset_prev;
+					unsigned len, offset_prev;
 
 					par_tree = proto_tree_add_subtree(params_tree, tvb, offset, -1, ett_tns_opi_par, &par_ti, "Parameter");
 					proto_item_append_text(par_ti, " %u", par);
@@ -854,11 +854,11 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 					/* Value length */
 					if ( opi == OPI_OSESSKEY )
 					{
-						len = tvb_get_guint8(tvb, offset);
+						len = tvb_get_uint8(tvb, offset);
 					}
 					else /* OPI_OAUTH */
 					{
-						len = tvb_get_guint8(tvb, offset_prev) == 0 ? 0 : tvb_get_guint8(tvb, offset);
+						len = tvb_get_uint8(tvb, offset_prev) == 0 ? 0 : tvb_get_uint8(tvb, offset);
 					}
 
 					/*
@@ -887,7 +887,7 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 					if ( opi == OPI_OSESSKEY )
 					{
 						/* SQL Developer specific fix */
-						offset += tvb_get_guint8(tvb, offset) == 2 ? 5 : 3;
+						offset += tvb_get_uint8(tvb, offset) == 2 ? 5 : 3;
 					}
 					else /* OPI_OAUTH */
 					{
@@ -948,7 +948,7 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tns_tree)
 {
 	proto_tree *connect_tree;
-	guint32 cd_offset, cd_len;
+	uint32_t cd_offset, cd_len;
 	int tns_offset = offset-8;
 	static int * const flags[] = {
 		&hf_tns_ntp_flag_hangon,
@@ -1025,7 +1025,7 @@ static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo _U
 	 * XXX - sometimes it appears that this stuff isn't present
 	 * in the packet.
 	 */
-	if ((guint32)(offset + 16) <= tns_offset+cd_offset)
+	if ((uint32_t)(offset + 16) <= tns_offset+cd_offset)
 	{
 		proto_tree_add_item(connect_tree, hf_tns_trace_cf1, tvb,
 				offset, 4, ENC_BIG_ENDIAN);
@@ -1061,7 +1061,7 @@ static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo _U
 static void dissect_tns_accept(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tns_tree)
 {
 	proto_tree *accept_tree;
-	guint32 accept_offset, accept_len;
+	uint32_t accept_offset, accept_len;
 	int tns_offset = offset-8;
 
 	accept_tree = proto_tree_add_subtree(tns_tree, tvb, offset, -1,
@@ -1216,7 +1216,7 @@ static void dissect_tns_control(tvbuff_t *tvb, int offset, packet_info *pinfo _U
 			offset, -1, ENC_NA);
 }
 
-static guint
+static unsigned
 get_tns_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
 	/*
@@ -1224,7 +1224,7 @@ get_tns_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U
 	 */
 	unsigned length = tvb_get_ntohs(tvb, offset);
 	offset += 4;
-	uint8_t type = tvb_get_guint8(tvb, offset);
+	uint8_t type = tvb_get_uint8(tvb, offset);
 	/* Type 0xf (data descriptor, LOB/FILE data) has data which follows
 	 * immediately (no new PDU header) but is not counted in the PDU
 	 * length field either.
@@ -1243,7 +1243,7 @@ get_tns_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U
 	return length;
 }
 
-static guint
+static unsigned
 get_tns_pdu_len_nochksum(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
 	/*
@@ -1251,7 +1251,7 @@ get_tns_pdu_len_nochksum(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void
 	 */
 	unsigned length = tvb_get_ntohl(tvb, offset);
 	offset += 4;
-	uint8_t type = tvb_get_guint8(tvb, offset);
+	uint8_t type = tvb_get_uint8(tvb, offset);
 	/* Type 0xf (data descriptor, LOB/FILE data) has data which follows
 	 * immediately (no new PDU header) but is not counted in the PDU
 	 * length field either.
@@ -1274,9 +1274,9 @@ get_tns_pdu_len_nochksum(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void
 static int
 dissect_tns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	guint32 length;
-	guint16 chksum;
-	guint8  type;
+	uint32_t length;
+	uint16_t chksum;
+	uint8_t type;
 
 	/*
 	 * First, do a sanity check to make sure what we have
@@ -1287,7 +1287,7 @@ dissect_tns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 		 * Well, we have the packet type; let's make sure
 		 * it's a known type.
 		 */
-		type = tvb_get_guint8(tvb, 4);
+		type = tvb_get_uint8(tvb, 4);
 		if (type < TNS_TYPE_CONNECT || type > TNS_TYPE_MAX)
 			return 0;	/* it's not a known type */
 	}
@@ -1320,9 +1320,9 @@ dissect_tns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 	proto_tree *tns_tree, *ti;
 	proto_item *hidden_item;
 	int offset = 0;
-	guint32 length;
-	guint16 chksum;
-	guint8  type;
+	uint32_t length;
+	uint16_t chksum;
+	uint8_t type;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TNS");
 
@@ -1335,12 +1335,12 @@ dissect_tns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 	if (pinfo->match_uint == pinfo->destport)
 	{
 		hidden_item = proto_tree_add_boolean(tns_tree, hf_tns_request,
-					tvb, offset, 0, TRUE);
+					tvb, offset, 0, true);
 	}
 	else
 	{
 		hidden_item = proto_tree_add_boolean(tns_tree, hf_tns_response,
-					tvb, offset, 0, TRUE);
+					tvb, offset, 0, true);
 	}
 	proto_item_set_hidden(hidden_item);
 
@@ -1362,7 +1362,7 @@ dissect_tns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 		offset += 4;
 	}
 
-	type = tvb_get_guint8(tvb, offset);
+	type = tvb_get_uint8(tvb, offset);
 	proto_tree_add_uint(tns_tree, hf_tns_packet_type, tvb,
 			offset, 1, type);
 	offset += 1;
@@ -1423,10 +1423,10 @@ void proto_register_tns(void)
 	static hf_register_info hf[] = {
 		{ &hf_tns_response, {
 			"Response", "tns.response", FT_BOOLEAN, BASE_NONE,
-			NULL, 0x0, "TRUE if TNS response", HFILL }},
+			NULL, 0x0, "true if TNS response", HFILL }},
 		{ &hf_tns_request, {
 			"Request", "tns.request", FT_BOOLEAN, BASE_NONE,
-			NULL, 0x0, "TRUE if TNS request", HFILL }},
+			NULL, 0x0, "true if TNS request", HFILL }},
 		{ &hf_tns_length, {
 			"Packet Length", "tns.length", FT_UINT32, BASE_DEC,
 			NULL, 0x0, "Length of TNS packet", HFILL }},
@@ -1773,7 +1773,7 @@ void proto_register_tns(void)
 
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_tns,
 		&ett_tns_connect,
 		&ett_tns_accept,

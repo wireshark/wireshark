@@ -13,8 +13,8 @@
 #include "ws_symbol_export.h"
 
 typedef struct _tr_hdr {
-	guint8 ac;
-	guint8 fc;
+	uint8_t ac;
+	uint8_t fc;
 	address dst;
 	address src;
 } tr_hdr;

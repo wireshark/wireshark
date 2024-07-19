@@ -59,48 +59,48 @@ enum SpecialFieldType {
 /* The linked list for storing information about specific data fields. */
 typedef struct tpncp_data_field_info
 {
-    gchar *name;
-    gint   descr;
-    gint   ipv6_descr;
-    gint   array_dim;
+    char *name;
+    int    descr;
+    int    ipv6_descr;
+    int    array_dim;
     enum SpecialFieldType special_type;
-    guchar size;
-    guchar sign;
-    gint   since;
+    unsigned char size;
+    unsigned char sign;
+    int    since;
     struct tpncp_data_field_info *p_next;
 } tpncp_data_field_info;
 
 /*---------------------------------------------------------------------------
  * Desegmentation of TPNCP over TCP */
-static gboolean tpncp_desegment = TRUE;
+static bool tpncp_desegment = true;
 
 /* Database for storing information about all TPNCP events. */
 static tpncp_data_field_info **tpncp_events_info_db;
-guint tpncp_events_info_len;
+unsigned tpncp_events_info_len;
 
 /* Database for storing information about all TPNCP commands. */
 static tpncp_data_field_info **tpncp_commands_info_db;
-guint tpncp_commands_info_len;
+unsigned tpncp_commands_info_len;
 
 /* Global variables for bitfields representation. */
-static gint bits[] = {0x1, 0x2, 0x4, 0x8, 0x10, 0x20, 0x40, 0x80};
+static int bits[] = {0x1, 0x2, 0x4, 0x8, 0x10, 0x20, 0x40, 0x80};
 
 /* TPNCP packet header fields. */
-static gint proto_tpncp;
-static gint hf_tpncp_version;
-static gint hf_tpncp_length;
-static gint hf_tpncp_seq_number;
-static gint hf_tpncp_length_ext;
-static gint hf_tpncp_reserved;
-static gint hf_tpncp_command_id;
-static gint hf_tpncp_event_id;
-static gint hf_tpncp_cid;
+static int proto_tpncp;
+static int hf_tpncp_version;
+static int hf_tpncp_length;
+static int hf_tpncp_seq_number;
+static int hf_tpncp_length_ext;
+static int hf_tpncp_reserved;
+static int hf_tpncp_command_id;
+static int hf_tpncp_event_id;
+static int hf_tpncp_cid;
 
 static expert_field ei_tpncp_unknown_data;
 
 /* TPNCP fields defining a subtree. */
-static gint ett_tpncp;
-static gint ett_tpncp_body;
+static int ett_tpncp;
+static int ett_tpncp_body;
 
 static bool global_tpncp_load_db;
 
@@ -111,13 +111,13 @@ static dissector_handle_t tpncp_tcp_handle;
 static value_string *tpncp_commands_id_vals;
 static value_string *tpncp_events_id_vals;
 static value_string **tpncp_enums_id_vals;
-static gchar **tpncp_enums_name_vals;
+static char **tpncp_enums_name_vals;
 
-static gint hf_size;
-static gint hf_allocated;
+static int hf_size;
+static int hf_allocated;
 static hf_register_info *hf;
 
-static gboolean db_initialized;
+static bool db_initialized;
 
 /*---------------------------------------------------------------------------*/
 
@@ -128,18 +128,18 @@ enum AddressFamily {
 };
 
 static void
-dissect_tpncp_data(guint data_id, packet_info *pinfo, tvbuff_t *tvb, proto_tree *ltree,
-                   gint *offset, tpncp_data_field_info **data_fields_info, gint ver, guint encoding)
+dissect_tpncp_data(unsigned data_id, packet_info *pinfo, tvbuff_t *tvb, proto_tree *ltree,
+                   int *offset, tpncp_data_field_info **data_fields_info, int ver, unsigned encoding)
 {
-    gint8 g_char;
-    guint8 g_uchar;
-    gint g_str_len, counter, bitshift, bitmask;
+    int8_t g_char;
+    uint8_t g_uchar;
+    int g_str_len, counter, bitshift, bitmask;
     tpncp_data_field_info *field = NULL;
-    gint bitindex = encoding == ENC_LITTLE_ENDIAN ? 7 : 0;
+    int bitindex = encoding == ENC_LITTLE_ENDIAN ? 7 : 0;
     enum AddressFamily address_family = TPNCP_IPV4;
-    gint open_channel_start = -1, security_offset = 0, rtp_state_offset = 0;
-    gint channel_b_offset = 0, rtp_tx_state_offset = 0, rtp_state_size = 0;
-    const gint initial_offset = *offset;
+    int open_channel_start = -1, security_offset = 0, rtp_state_offset = 0;
+    int channel_b_offset = 0, rtp_tx_state_offset = 0, rtp_state_size = 0;
+    const int initial_offset = *offset;
 
     for (field = data_fields_info[data_id]; field; field = field->p_next) {
         if (field->since > 0 && field->since > ver)
@@ -149,7 +149,7 @@ dissect_tpncp_data(guint data_id, packet_info *pinfo, tvbuff_t *tvb, proto_tree 
             open_channel_start = *offset;
             break;
         case TPNCP_SECURITY_OFFSET: {
-            const guint32 sec_offset = tvb_get_guint32(tvb, *offset, encoding);
+            const uint32_t sec_offset = tvb_get_uint32(tvb, *offset, encoding);
             if (sec_offset > 0 && open_channel_start >= 0)
                 security_offset = open_channel_start + sec_offset;
             break;
@@ -160,7 +160,7 @@ dissect_tpncp_data(guint data_id, packet_info *pinfo, tvbuff_t *tvb, proto_tree 
             security_offset = 0;
             break;
         case RTP_STATE_OFFSET:
-            rtp_state_offset = tvb_get_gint32(tvb, *offset, encoding);
+            rtp_state_offset = tvb_get_int32(tvb, *offset, encoding);
             if (rtp_state_offset > 0)
                 rtp_state_offset += initial_offset + 4; /* The offset starts after CID */
             break;
@@ -180,7 +180,7 @@ dissect_tpncp_data(guint data_id, packet_info *pinfo, tvbuff_t *tvb, proto_tree 
             break;
         case TPNCP_CHANNEL_CONFIGURATION:
             if (channel_b_offset == 0) {
-                gint channel_configuration_size = tvb_reported_length_remaining(tvb, *offset) / 2;
+                int channel_configuration_size = tvb_reported_length_remaining(tvb, *offset) / 2;
                 channel_b_offset = *offset + channel_configuration_size;
             } else {
                 *offset = channel_b_offset;
@@ -188,7 +188,7 @@ dissect_tpncp_data(guint data_id, packet_info *pinfo, tvbuff_t *tvb, proto_tree 
             }
             break;
         case TPNCP_ADDRESS_FAMILY:
-            address_family = (enum AddressFamily)tvb_get_guint32(tvb, *offset, encoding);
+            address_family = (enum AddressFamily)tvb_get_uint32(tvb, *offset, encoding);
             // fall-through
         default:
             if (open_channel_start != -1 && security_offset > 0 && *offset >= security_offset)
@@ -210,7 +210,7 @@ dissect_tpncp_data(guint data_id, packet_info *pinfo, tvbuff_t *tvb, proto_tree 
                 proto_tree_add_item(ltree, field->descr, tvb, *offset, g_str_len, ENC_NA | ENC_ASCII);
                 (*offset) += g_str_len;
             } else { /* add single char */
-                g_uchar = tvb_get_guint8(tvb, *offset);
+                g_uchar = tvb_get_uint8(tvb, *offset);
 
                 /* bitfields */
 
@@ -228,7 +228,7 @@ dissect_tpncp_data(guint data_id, packet_info *pinfo, tvbuff_t *tvb, proto_tree 
                     proto_tree_add_uint(ltree, field->descr, tvb, *offset, 1, g_uchar);
                 } else {
                     /* signed*/
-                    g_char = (gint8) g_uchar;
+                    g_char = (int8_t) g_uchar;
                     proto_tree_add_int(ltree, field->descr, tvb, *offset, 1, g_char);
                 }
                 if (((bitindex == 0 || bitindex == 8) && encoding == ENC_BIG_ENDIAN) ||
@@ -274,11 +274,11 @@ dissect_tpncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 {
     proto_item *item = NULL;
     proto_tree *tpncp_tree = NULL, *event_tree, *command_tree;
-    gint offset = 0, cid = -1;
-    guint id;
-    guint seq_number, len, ver;
-    guint len_ext, reserved, encoding;
-    guint32 fullLength;
+    int offset = 0, cid = -1;
+    unsigned id;
+    unsigned seq_number, len, ver;
+    unsigned len_ext, reserved, encoding;
+    uint32_t fullLength;
 
     if (!db_initialized)
         return 0;
@@ -297,9 +297,9 @@ dissect_tpncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     proto_tree_add_item_ret_uint(tpncp_tree, hf_tpncp_reserved, tvb, 7, 1, encoding, &reserved);
     fullLength = 0xffff * len_ext + len;
 
-    id = tvb_get_guint32(tvb, 8, encoding);
+    id = tvb_get_uint32(tvb, 8, encoding);
     if (len > 8)
-        cid = tvb_get_gint32(tvb, 12, encoding);
+        cid = tvb_get_int32(tvb, 12, encoding);
     if (pinfo->srcport == UDP_PORT_TPNCP_TRUNKPACK ||
         pinfo->srcport == HA_PORT_TPNCP_TRUNKPACK) {
         if (try_val_to_str(id, tpncp_events_id_vals)) {
@@ -344,13 +344,13 @@ dissect_tpncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
 /*---------------------------------------------------------------------------*/
 
-static guint
+static unsigned
 get_tpncp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
-    guint32 plen;
+    uint32_t plen;
 
     /* Get the length of the TPNCP packet. */
-    plen = tvb_get_ntohs(tvb, offset + 2) + 0xffff * tvb_get_guint8(tvb, offset + 6);
+    plen = tvb_get_ntohs(tvb, offset + 2) + 0xffff * tvb_get_uint8(tvb, offset + 6);
 
     /* Length does not include the version+length field. */
     plen += 4;
@@ -382,7 +382,7 @@ dissect_acdr_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 {
     int res = 0;
     acdr_dissector_data_t *acdr_data = (acdr_dissector_data_t *) data;
-    guint32 orig_port = pinfo->srcport;
+    uint32_t orig_port = pinfo->srcport;
 
     if (acdr_data == NULL)
         return 0;
@@ -405,7 +405,7 @@ static int
 dissect_acdr_tpncp_by_tracepoint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     acdr_dissector_data_t *acdr_data = (acdr_dissector_data_t *) data;
-    guint32 orig_port = pinfo->srcport;
+    uint32_t orig_port = pinfo->srcport;
     int res = 0;
 
     if (acdr_data == NULL)
@@ -428,8 +428,8 @@ dissect_acdr_tpncp_by_tracepoint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 /*---------------------------------------------------------------------------*/
 
-static gboolean
-fgetline(gchar *buffer, int size, FILE *file)
+static bool
+fgetline(char *buffer, int size, FILE *file)
 {
     if (!fgets(buffer, size, file))
         return 0;
@@ -439,26 +439,26 @@ fgetline(gchar *buffer, int size, FILE *file)
     return 1;
 }
 
-static gint
+static int
 fill_tpncp_id_vals(value_string **strings, FILE *file)
 {
     wmem_array_t *vs_arr;
-    gchar *line_in_file;
+    char *line_in_file;
 
     if (file == NULL) return -1;
 
-    line_in_file = (gchar *) g_malloc(MAX_TPNCP_DB_ENTRY_LEN);
+    line_in_file = (char *) g_malloc(MAX_TPNCP_DB_ENTRY_LEN);
     vs_arr = wmem_array_new(NULL, sizeof **strings);
 
     while (fgetline(line_in_file, MAX_TPNCP_DB_ENTRY_LEN, file) && !feof(file)) {
-        gint tpncp_id = 0;
-        gchar tpncp_name[256];
+        int tpncp_id = 0;
+        char tpncp_name[256];
 
         if (!strncmp(line_in_file, "#####", 5))
             break;
         if (sscanf(line_in_file, "%255s %d", tpncp_name, &tpncp_id) == 2) {
             value_string const string = {
-                .value  = (guint32)tpncp_id,
+                .value  = (uint32_t)tpncp_id,
                 .strptr = wmem_strdup(wmem_epan_scope(), tpncp_name)
             };
             wmem_array_append_one(vs_arr, string);
@@ -474,22 +474,22 @@ fill_tpncp_id_vals(value_string **strings, FILE *file)
 
 /*---------------------------------------------------------------------------*/
 
-static gint
-fill_enums_id_vals(gchar ***enum_names, value_string ***enum_value_strings, FILE *file)
+static int
+fill_enums_id_vals(char ***enum_names, value_string ***enum_value_strings, FILE *file)
 {
     wmem_array_t *enum_name_arr, *enum_vs_arr, *enum_vs = NULL;
-    gchar *line_in_file;
-    gchar enum_type[256];
+    char *line_in_file;
+    char enum_type[256];
 
-    line_in_file = (gchar *) g_malloc(MAX_TPNCP_DB_ENTRY_LEN);
+    line_in_file = (char *) g_malloc(MAX_TPNCP_DB_ENTRY_LEN);
     enum_type[0] = '\0';
 
     enum_name_arr = wmem_array_new(NULL, sizeof **enum_names);
     enum_vs_arr = wmem_array_new(NULL, sizeof **enum_value_strings);
 
     while (fgetline(line_in_file, MAX_TPNCP_DB_ENTRY_LEN, file)) {
-        gchar enum_name[256], enum_str[256];
-        gint enum_id;
+        char enum_name[256], enum_str[256];
+        int enum_id;
 
         if (!strncmp(line_in_file, "#####", 5))
             break;
@@ -504,7 +504,7 @@ fill_enums_id_vals(gchar ***enum_names, value_string ***enum_value_strings, FILE
                 }
                 enum_vs = wmem_array_sized_new(NULL, sizeof ***enum_value_strings, 10);
 
-                gchar *enum_name_alloc = wmem_strdup(wmem_epan_scope(), enum_name);
+                char *enum_name_alloc = wmem_strdup(wmem_epan_scope(), enum_name);
                 wmem_array_append_one(enum_name_arr, enum_name_alloc);
                 g_strlcpy(enum_type, enum_name, sizeof enum_type);
             }
@@ -524,7 +524,7 @@ fill_enums_id_vals(gchar ***enum_names, value_string ***enum_value_strings, FILE
     }
 
     wmem_array_set_null_terminator(enum_name_arr);
-    *enum_names = (gchar **)wmem_array_finalize(enum_name_arr);
+    *enum_names = (char **)wmem_array_finalize(enum_name_arr);
 
     wmem_array_set_null_terminator(enum_vs_arr);
     *enum_value_strings = (value_string **)wmem_array_finalize(enum_vs_arr);
@@ -535,10 +535,10 @@ fill_enums_id_vals(gchar ***enum_names, value_string ***enum_value_strings, FILE
 
 /*---------------------------------------------------------------------------*/
 
-static gint
-get_enum_name_val(const gchar *enum_name)
+static int
+get_enum_name_val(const char *enum_name)
 {
-    gint enum_val = 0;
+    int enum_val = 0;
 
     while (tpncp_enums_name_vals[enum_val]) {
         if (!strcmp(enum_name, tpncp_enums_name_vals[enum_val]))
@@ -551,33 +551,33 @@ get_enum_name_val(const gchar *enum_name)
 
 /*---------------------------------------------------------------------------*/
 
-static gboolean add_hf(hf_register_info *hf_entr)
+static bool add_hf(hf_register_info *hf_entr)
 {
     if (hf_size >= hf_allocated) {
         void *newbuf;
         hf_allocated += 1024;
         newbuf = wmem_realloc(wmem_epan_scope(), hf, hf_allocated * sizeof (hf_register_info));
         if (!newbuf)
-            return FALSE;
+            return false;
         hf = (hf_register_info *) newbuf;
     }
     memcpy(hf + hf_size, hf_entr, sizeof (hf_register_info));
     hf_size++;
-    return TRUE;
+    return true;
 }
 
-static gint
-init_tpncp_data_fields_info(tpncp_data_field_info ***data_fields_info, guint *data_fields_len, FILE *file)
+static int
+init_tpncp_data_fields_info(tpncp_data_field_info ***data_fields_info, unsigned *data_fields_len, FILE *file)
 {
-    static gboolean was_registered = FALSE;
-    gchar tpncp_db_entry[MAX_TPNCP_DB_ENTRY_LEN];
-    gchar entry_copy[MAX_TPNCP_DB_ENTRY_LEN];
-    const gchar *name = NULL, *tmp = NULL;
-    gint enum_val, data_id, current_data_id = -1, array_dim;
-    guchar size;
+    static bool was_registered = false;
+    char tpncp_db_entry[MAX_TPNCP_DB_ENTRY_LEN];
+    char entry_copy[MAX_TPNCP_DB_ENTRY_LEN];
+    const char *name = NULL, *tmp = NULL;
+    int enum_val, data_id, current_data_id = -1, array_dim;
+    unsigned char size;
     enum SpecialFieldType special_type;
-    gboolean sign, is_address_family;
-    guint idx, since, ip_addr_field;
+    bool sign, is_address_family;
+    unsigned idx, since, ip_addr_field;
     tpncp_data_field_info *field = NULL;
     hf_register_info hf_entr;
     wmem_array_t *data_fields_info_arr;
@@ -701,10 +701,10 @@ init_tpncp_data_fields_info(tpncp_data_field_info ***data_fields_info, guint *da
             memcpy(hf + hf_size, hf_tpncp + idx, sizeof (hf_register_info));
             hf_size++;
         }
-        was_registered = TRUE;
+        was_registered = true;
     }
 
-    is_address_family = FALSE;
+    is_address_family = false;
     ip_addr_field = 0;
 
     data_fields_info_arr = wmem_array_new(NULL, sizeof **data_fields_info);
@@ -725,7 +725,7 @@ init_tpncp_data_fields_info(tpncp_data_field_info ***data_fields_info, guint *da
                 entry_copy);
             continue;
         }
-        data_id = (gint) g_ascii_strtoll(tmp, NULL, 10);
+        data_id = (int) g_ascii_strtoll(tmp, NULL, 10);
         if ((name = strtok(NULL, " ")) == NULL) {
             report_failure(
                 "ERROR! Badly formed data base entry: %s - corresponding field's registration is skipped.",
@@ -765,21 +765,21 @@ init_tpncp_data_fields_info(tpncp_data_field_info ***data_fields_info, guint *da
                  (data_id == 1611 && strstr(name, "dtls_remote_fingerprint_alg"))) {
             since = 7401;
         }
-        sign = !!((gboolean) g_ascii_strtoll(tmp, NULL, 10));
+        sign = !!((bool) g_ascii_strtoll(tmp, NULL, 10));
         if ((tmp = strtok(NULL, " ")) == NULL) {
             report_failure(
                 "ERROR! Badly formed data base entry: %s - corresponding field's registration is skipped.",
                 entry_copy);
             continue;
         }
-        size = (guchar) g_ascii_strtoll(tmp, NULL, 10);
+        size = (unsigned char) g_ascii_strtoll(tmp, NULL, 10);
         if ((tmp = strtok(NULL, " ")) == NULL) {
             report_failure(
                 "ERROR! Badly formed data base entry: %s - corresponding field's registration is skipped.",
                 entry_copy);
             continue;
         }
-        array_dim = (gint) g_ascii_strtoll(tmp, NULL, 10);
+        array_dim = (int) g_ascii_strtoll(tmp, NULL, 10);
         if ((tmp = strtok(NULL, " ")) == NULL) {
             report_failure(
                 "ERROR! Badly formed data base entry: %s - corresponding field's registration is skipped.",
@@ -815,11 +815,11 @@ init_tpncp_data_fields_info(tpncp_data_field_info ***data_fields_info, guint *da
             }
         }
 
-        is_address_family = FALSE;
+        is_address_family = false;
         if (current_data_id != data_id) { /* new data */
             tpncp_data_field_info **fp;
 
-            while (wmem_array_get_count(data_fields_info_arr) <= (guint)data_id) {
+            while (wmem_array_get_count(data_fields_info_arr) <= (unsigned)data_id) {
                 static const tpncp_data_field_info **empty = NULL;
                 wmem_array_append_one(data_fields_info_arr, empty);
             }
@@ -849,7 +849,7 @@ init_tpncp_data_fields_info(tpncp_data_field_info ***data_fields_info, guint *da
             } else {
                 hf_entr.hfinfo.strings = VALS(tpncp_enums_id_vals[enum_val]);
                 if (!strcmp(tmp, "AddressFamily")) {
-                    is_address_family = TRUE;
+                    is_address_family = true;
                     ip_addr_field = 4;
                 }
             }
@@ -915,10 +915,10 @@ init_tpncp_data_fields_info(tpncp_data_field_info ***data_fields_info, guint *da
 
 /*---------------------------------------------------------------------------*/
 
-static gint
+static int
 init_tpncp_db(void)
 {
-    gchar tpncp_dat_file_path[MAX_TPNCP_DB_ENTRY_LEN];
+    char tpncp_dat_file_path[MAX_TPNCP_DB_ENTRY_LEN];
     FILE *file;
 
     snprintf(tpncp_dat_file_path, MAX_TPNCP_DB_ENTRY_LEN,
@@ -942,7 +942,7 @@ init_tpncp_db(void)
 void
 proto_reg_handoff_tpncp(void)
 {
-    static gboolean initialized = FALSE;
+    static bool initialized = false;
 
     if (proto_tpncp <= 0) return;
 
@@ -955,7 +955,7 @@ proto_reg_handoff_tpncp(void)
         dissector_add_uint("acdr.media_type", ACDR_TPNCP,
                            create_dissector_handle(dissect_acdr_tpncp_by_tracepoint, proto_tpncp));
         dissector_add_uint("acdr.tls_application", TLS_APP_TPNCP, tpncp_handle);
-        initialized = TRUE;
+        initialized = true;
     }
     /*  If we weren't able to load the database (and thus the hf_ entries)
      *  do not attach to any ports (if we did then we'd get a "dissector bug"
@@ -980,7 +980,7 @@ proto_reg_handoff_tpncp(void)
      * least the rest of the protocol dissectors will still work.
      */
     TRY {
-        gint idx;
+        int idx;
         /* The function proto_register_field_array does not work with dynamic
          * arrays, so pass dynamic array elements one-by-one in the loop.
          */
@@ -993,7 +993,7 @@ proto_reg_handoff_tpncp(void)
     }
 
     ENDTRY;
-    db_initialized = TRUE;
+    db_initialized = true;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -1003,7 +1003,7 @@ proto_register_tpncp(void)
 {
     module_t *tpncp_module;
     expert_module_t* expert_tpncp;
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_tpncp,
         &ett_tpncp_body
     };

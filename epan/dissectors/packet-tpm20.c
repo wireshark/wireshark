@@ -19,15 +19,15 @@
 #include <epan/wmem_scopes.h>
 
 typedef struct {
-	guint32 com_pnum;
-	guint32 resp_type;
-	guint32 command;
-	guint32 num_auths;
+	uint32_t com_pnum;
+	uint32_t resp_type;
+	uint32_t command;
+	uint32_t num_auths;
 } tpm_entry;
 
 static wmem_tree_t *cmd_tree;
-static guint last_command_pnum;
-static bool response_size = TRUE;
+static unsigned last_command_pnum;
+static bool response_size = true;
 
 /* sub tree items */
 static int proto_tpm20;
@@ -104,13 +104,13 @@ static int hf_tpm_digest;
 static int hf_params;
 
 /* sub trees */
-static gint ett_tpm;
-static gint ett_tpm_header;
-static gint ett_tpm_response_header;
-static gint ett_tpm_handles;
-static gint ett_tpm_auth;
-static gint ett_tpm_params;
-static gint ett_tpm_attrib;
+static int ett_tpm;
+static int ett_tpm_header;
+static int ett_tpm_response_header;
+static int ett_tpm_handles;
+static int ett_tpm_auth;
+static int ett_tpm_params;
+static int ett_tpm_attrib;
 
 static expert_field ei_invalid_tag;
 static expert_field ei_invalid_auth_size;
@@ -131,10 +131,10 @@ static dissector_handle_t tpm20_handle;
 #define TPM_COMMAND_HEADER_LEN 10
 
 struct num_handles {
-	guint32 command;
-	guint8 num_req_handles;
+	uint32_t command;
+	uint8_t num_req_handles;
 	int *req_pd[MAX_HNDL];
-	guint8 num_resp_handles;
+	uint8_t num_resp_handles;
 	int *resp_pd[MAX_HNDL];
 };
 
@@ -260,7 +260,7 @@ static struct num_handles tpm_handles_map[] = {
 
 static void get_num_hndl(struct num_handles *map)
 {
-	guint8 i, y;
+	uint8_t i, y;
 
 	for (i = 0; i < array_length(tpm_handles_map); i++) {
 		if (map->command == tpm_handles_map[i].command) {
@@ -618,7 +618,7 @@ static const value_string responses [] = {
 #define TPMA_SESSION_ENCRYPT         0x40
 #define TPMA_SESSION_AUDIT           0x80
 
-static tpm_entry *get_command_entry(wmem_tree_t *tree, guint32 pnum)
+static tpm_entry *get_command_entry(wmem_tree_t *tree, uint32_t pnum)
 {
 	tpm_entry *entry = (tpm_entry *)wmem_tree_lookup32(tree, pnum);
 	DISSECTOR_ASSERT(entry != NULL);
@@ -632,7 +632,7 @@ static void
 dissect_tpm20_platform_command(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree)
 {
-	guint32 command;
+	uint32_t command;
 
 	proto_tree_add_item_ret_uint(tree, hf_tpm20_platform_cmd, tvb, 0,
 				4, ENC_BIG_ENDIAN, &command);
@@ -642,14 +642,14 @@ dissect_tpm20_platform_command(tvbuff_t *tvb, packet_info *pinfo,
 
 	proto_item_append_text(tree, ", %s", val_to_str(command,
 				platform_commands, "Unknown (0x%02x)"));
-	response_size = FALSE;
+	response_size = false;
 }
 
 static void
 dissect_auth_common(tvbuff_t *tvb, packet_info *pinfo _U_,
-	proto_tree *auth, proto_tree *tree _U_, gint *offset)
+	proto_tree *auth, proto_tree *tree _U_, int *offset)
 {
-	guint nonce_size, auth_size;
+	unsigned nonce_size, auth_size;
 	static int * const attrib_fields[] = {
 		&hf_session_attribs_cont,
 		&hf_session_attribs_auditex,
@@ -678,10 +678,10 @@ dissect_auth_common(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 static void
 dissect_auth_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *auth,
-	proto_tree *tree, gint *offset)
+	proto_tree *tree, int *offset)
 {
 	tpm_entry *command_entry = get_command_entry(cmd_tree, pinfo->num);
-	guint32 i;
+	uint32_t i;
 
 	for (i = 0; i < command_entry->num_auths; i++)
 		dissect_auth_common(tvb, pinfo, auth, tree, offset);
@@ -689,10 +689,10 @@ dissect_auth_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *auth,
 
 static void
 dissect_auth_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *auth,
-		proto_tree *tree, gint *offset)
+		proto_tree *tree, int *offset)
 {
-	guint32 auth_area_size;
-	guint32 num_auths = 0;
+	uint32_t auth_area_size;
+	uint32_t num_auths = 0;
 	tpm_entry *entry = (tpm_entry *)wmem_tree_lookup32(cmd_tree, pinfo->num);
 	DISSECTOR_ASSERT(entry != NULL);
 
@@ -704,7 +704,7 @@ dissect_auth_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *auth,
 		proto_tree_add_expert_format(auth, pinfo, &ei_invalid_auth_size, tvb, 0, 0,
 					"Error: Auth size: %d", auth_area_size);
 	while (auth_area_size) {
-		guint32 size;
+		uint32_t size;
 		proto_tree_add_item(auth, hf_tpmi_sh_auth_session, tvb, *offset, 4, ENC_BIG_ENDIAN);
 		*offset += 4;
 		auth_area_size -= 4;
@@ -722,7 +722,7 @@ dissect_auth_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *auth,
 
 static void
 dissect_startup(tvbuff_t *tvb, packet_info *pinfo _U_,
-	proto_tree *header, proto_tree *tree _U_, gint *offset)
+	proto_tree *header, proto_tree *tree _U_, int *offset)
 {
 	proto_tree_add_item(header, hf_tpm20_startup_type, tvb, *offset, 2, ENC_BIG_ENDIAN);
 	*offset += 2;
@@ -730,9 +730,9 @@ dissect_startup(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 static void
 dissect_start_auth_session(tvbuff_t *tvb, packet_info *pinfo _U_,
-	proto_tree *header _U_, proto_tree *tree, gint *offset)
+	proto_tree *header _U_, proto_tree *tree, int *offset)
 {
-	guint32 nonce_size, encrypted, sym_alg;
+	uint32_t nonce_size, encrypted, sym_alg;
 	proto_tree_add_item_ret_uint(tree, hf_session_nonce_size, tvb, *offset, 2,
 			ENC_BIG_ENDIAN, &nonce_size);
 	*offset += 2;
@@ -761,9 +761,9 @@ dissect_start_auth_session(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 static void
 dissect_create_primary(tvbuff_t *tvb, packet_info *pinfo _U_,
-	proto_tree *header _U_, proto_tree *tree, gint *offset)
+	proto_tree *header _U_, proto_tree *tree, int *offset)
 {
-	guint32 sensitive_size, pub_size, data_size;
+	uint32_t sensitive_size, pub_size, data_size;
 
 	proto_tree_add_item_ret_uint(tree, hf_tpm_sensitive_crate_size, tvb, *offset, 2,
 			ENC_BIG_ENDIAN, &sensitive_size);
@@ -786,9 +786,9 @@ dissect_create_primary(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 static void
 dissect_create_loaded(tvbuff_t *tvb, packet_info *pinfo _U_,
-	proto_tree *header _U_, proto_tree *tree, gint *offset)
+	proto_tree *header _U_, proto_tree *tree, int *offset)
 {
-	guint32 sensitive_size, template_size;
+	uint32_t sensitive_size, template_size;
 
 	proto_tree_add_item_ret_uint(tree, hf_tpm_sensitive_crate_size, tvb, *offset, 2,
 			ENC_BIG_ENDIAN, &sensitive_size);
@@ -804,8 +804,8 @@ dissect_create_loaded(tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 static void
-dissect_command(guint32 command, tvbuff_t *tvb, packet_info *pinfo,
-	proto_tree *header, proto_tree *tree, gint *offset)
+dissect_command(uint32_t command, tvbuff_t *tvb, packet_info *pinfo,
+	proto_tree *header, proto_tree *tree, int *offset)
 {
 	last_command_pnum = pinfo->num;
 
@@ -829,9 +829,9 @@ static void
 dissect_tpm20_tpm_command(tvbuff_t *tvb, packet_info *pinfo _U_,
 	proto_tree *tree)
 {
-	gint offset = 0;
-	guint32 command = tvb_get_guint32(tvb, 6, ENC_BIG_ENDIAN);
-	guint16 tag = tvb_get_guint16(tvb, 0, ENC_BIG_ENDIAN);
+	int offset = 0;
+	uint32_t command = tvb_get_uint32(tvb, 6, ENC_BIG_ENDIAN);
+	uint16_t tag = tvb_get_uint16(tvb, 0, ENC_BIG_ENDIAN);
 	struct num_handles handl_map;
 	unsigned int i;
 
@@ -880,7 +880,7 @@ dissect_tpm20_tpm_command(tvbuff_t *tvb, packet_info *pinfo _U_,
 	}
 
 	dissect_command(command, tvb, pinfo, header, tree, &offset);
-	response_size = TRUE;
+	response_size = true;
 }
 
 #define PNUM_UNINIT 0xFFFFFFFF
@@ -890,18 +890,18 @@ static void
 dissect_tpm20_platform_response(tvbuff_t *tvb, packet_info *pinfo _U_,
 	proto_tree *tree)
 {
-	guint32 rc = tvb_get_guint32(tvb, 0, ENC_BIG_ENDIAN);
+	uint32_t rc = tvb_get_uint32(tvb, 0, ENC_BIG_ENDIAN);
 
 	tpm_entry *entry = (tpm_entry *)wmem_tree_lookup32(cmd_tree, pinfo->num);
 	DISSECTOR_ASSERT(entry != NULL);
 
 	if (entry->resp_type == PNUM_UNINIT) {
-		if (response_size == TRUE) {
+		if (response_size == true) {
 			entry->resp_type = RESP_SIZE;
-			response_size = FALSE;
+			response_size = false;
 		} else {
 			entry->resp_type = RESP_CODE;
-			response_size = TRUE;
+			response_size = true;
 		}
 	}
 
@@ -919,9 +919,9 @@ dissect_tpm20_platform_response(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 static void
 dissect_start_auth_session_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-	gint *offset, guint32 param_size _U_)
+	int *offset, uint32_t param_size _U_)
 {
-	guint32 nonce_size;
+	uint32_t nonce_size;
 
 	proto_tree_add_item_ret_uint(tree, hf_session_nonce_size, tvb, *offset, 2,
 			ENC_BIG_ENDIAN, &nonce_size);
@@ -932,9 +932,9 @@ dissect_start_auth_session_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 static void
 dissect_create_primary_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-	gint *offset, guint32 param_size _U_)
+	int *offset, uint32_t param_size _U_)
 {
-	guint32 pub_size, creation_data_size, digest_size, name_size;
+	uint32_t pub_size, creation_data_size, digest_size, name_size;
 
 	proto_tree_add_item_ret_uint(tree, hf_tpm_pub_size, tvb, *offset, 2,
 			ENC_BIG_ENDIAN, &pub_size);
@@ -963,9 +963,9 @@ dissect_create_primary_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 
 static void
 dissect_create_loaded_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-	gint *offset, guint32 param_size _U_)
+	int *offset, uint32_t param_size _U_)
 {
-	guint32 priv_size, pub_size, name_size;
+	uint32_t priv_size, pub_size, name_size;
 
 	proto_tree_add_item_ret_uint(tree, hf_tpm_priv_size, tvb, *offset, 2,
 			ENC_BIG_ENDIAN, &priv_size);
@@ -988,7 +988,7 @@ dissect_create_loaded_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
 static void
 dissect_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-	gint *offset, guint32 param_size)
+	int *offset, uint32_t param_size)
 {
 	tpm_entry *entry = get_command_entry(cmd_tree, pinfo->num);
 
@@ -1016,11 +1016,11 @@ static void
 dissect_tpm20_tpm_response(tvbuff_t *tvb, packet_info *pinfo _U_,
 	proto_tree *tree)
 {
-	gint offset = 0;
+	int offset = 0;
 	struct num_handles handl_map;
-	guint16 tag = tvb_get_guint16(tvb, 0, ENC_BIG_ENDIAN);
-	guint32 rc = tvb_get_guint32(tvb, 6, ENC_BIG_ENDIAN);
-	guint32 param_size;
+	uint16_t tag = tvb_get_uint16(tvb, 0, ENC_BIG_ENDIAN);
+	uint32_t rc = tvb_get_uint32(tvb, 6, ENC_BIG_ENDIAN);
+	uint32_t param_size;
 	unsigned int i;
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Response Code %s",
@@ -1069,7 +1069,7 @@ dissect_tpm20_tpm_response(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 	if (tag == 0x8002) {
 		/* Dissect response params size and params */
-		param_size = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+		param_size = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_resp_param_size, tvb, offset, 4,
 				ENC_BIG_ENDIAN);
 		offset += 4;
@@ -1106,7 +1106,7 @@ dissect_tpm20(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	col_append_ports(pinfo->cinfo, COL_INFO, PT_NONE, pinfo->srcport,
 			 pinfo->destport);
 
-	gint length = tvb_reported_length(tvb);
+	int length = tvb_reported_length(tvb);
 	entry = (tpm_entry *)wmem_tree_lookup32(cmd_tree, pinfo->num);
 
 	if (entry == NULL) {
@@ -1350,7 +1350,7 @@ static hf_register_info hf[] = {
 	   0x0, NULL, HFILL }},
 };
 
-static gint *ett[] = {
+static int *ett[] = {
 	&ett_tpm,
 	&ett_tpm_header,
 	&ett_tpm_response_header,

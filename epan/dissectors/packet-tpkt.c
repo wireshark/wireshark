@@ -40,7 +40,7 @@ static int hf_tpkt_continuation_data;
 
 
 /* TPKT fields defining a sub tree */
-static gint ett_tpkt;
+static int ett_tpkt;
 
 /* desegmentation of OSI over TPKT over TCP */
 static bool tpkt_desegment = true;
@@ -68,7 +68,7 @@ static dissector_handle_t tpkt_handle;
 int
 is_tpkt(tvbuff_t *tvb, int min_len)
 {
-    guint16 pkt_len;
+    uint16_t pkt_len;
 
     /*
      * If TPKT is disabled, don't dissect it, just return -1, meaning
@@ -86,7 +86,7 @@ is_tpkt(tvbuff_t *tvb, int min_len)
      * The H.323 implementers guide suggests that this might not
      * always be the case....
      */
-    if (!(tvb_get_guint8(tvb, 0) == 3 && tvb_get_guint8(tvb, 1) == 0))
+    if (!(tvb_get_uint8(tvb, 0) == 3 && tvb_get_uint8(tvb, 1) == 0))
         return -1;  /* they're not */
 
     /*
@@ -102,10 +102,10 @@ is_tpkt(tvbuff_t *tvb, int min_len)
      */
     return pkt_len;
 }
-guint16
+uint16_t
 is_asciitpkt(tvbuff_t *tvb)
 {
-    guint16 count;
+    uint16_t count;
         /*
          * If TPKT is disabled, don't dissect it, just return -1, meaning
          * "this isn't TPKT".
@@ -122,7 +122,7 @@ is_asciitpkt(tvbuff_t *tvb)
          */
     for (count = 0; count <=7 ; count ++)
         {
-        if(!g_ascii_isalnum(tvb_get_guint8(tvb,count)))
+        if(!g_ascii_isalnum(tvb_get_uint8(tvb,count)))
           {
           return 0;
           }
@@ -132,10 +132,10 @@ is_asciitpkt(tvbuff_t *tvb)
 
 }
 static int
-parseLengthText ( guint8* pTpktData )
+parseLengthText ( uint8_t* pTpktData )
 {
     int value = 0;
-    const guint8 * pData = pTpktData;
+    const uint8_t * pData = pTpktData;
     int bitvalue = 0, count1 = 3;
     int count;
     for (count = 0; count <= 3; count++)
@@ -153,10 +153,10 @@ parseLengthText ( guint8* pTpktData )
     return value;
 }
 static int
-parseVersionText ( guint8* pTpktData )
+parseVersionText ( uint8_t* pTpktData )
 {
     int value = 0;
-    guint8 * pData = pTpktData;
+    uint8_t * pData = pTpktData;
     int bitvalue = 0, count1 = 1;
     int count;
     for (count = 0; count <= 1; count++)
@@ -175,10 +175,10 @@ parseVersionText ( guint8* pTpktData )
     return value;
 }
 static int
-parseReservedText ( guint8* pTpktData )
+parseReservedText ( uint8_t* pTpktData )
 {
     int value = 0;
-    guint8 * pData = pTpktData;
+    uint8_t * pData = pTpktData;
     int bitvalue = 0, count1 = 1;
     int count;
     for (count = 0; count <= 1; count++)
@@ -220,7 +220,7 @@ dissect_asciitpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     volatile int length;
     tvbuff_t *volatile next_tvb;
     const char *saved_proto;
-    guint8 string[4];
+    uint8_t string[4];
 
     /*
      * If we're reassembling segmented TPKT PDUs, empty the COL_INFO
@@ -240,7 +240,7 @@ dissect_asciitpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          * Is the first byte of this putative TPKT header
          * a valid TPKT version number, i.e. 3?
          */
-        if (tvb_get_guint8(tvb, offset) != 48) {
+        if (tvb_get_uint8(tvb, offset) != 48) {
             /*
              * No, so don't assume this is a TPKT header;
              * we might be in the middle of TPKT data,
@@ -265,11 +265,11 @@ dissect_asciitpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          * Get the length from the TPKT header.
          */
 
-        tvb_memcpy(tvb, (guint8 *)string, offset, 2);
+        tvb_memcpy(tvb, (uint8_t *)string, offset, 2);
         mgcp_version = parseVersionText(string);
-        tvb_memcpy(tvb, (guint8 *)string, offset +2, 2);
+        tvb_memcpy(tvb, (uint8_t *)string, offset +2, 2);
         mgcp_reserved = parseReservedText(string);
-        tvb_memcpy(tvb, (guint8 *)string, offset + 4, 4);
+        tvb_memcpy(tvb, (uint8_t *)string, offset + 4, 4);
         mgcp_packet_len = parseLengthText(string);
         data_len = mgcp_packet_len;
 
@@ -357,7 +357,7 @@ dissect_asciitpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  */
 void
 dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-           gboolean desegment, dissector_handle_t subdissector_handle)
+           bool desegment, dissector_handle_t subdissector_handle)
 {
     proto_item *ti = NULL;
     proto_tree *tpkt_tree = NULL;
@@ -387,7 +387,7 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          * Is the first byte of this putative TPKT header
          * a valid TPKT version number, i.e. 3?
          */
-        if (tvb_get_guint8(tvb, offset) != 3) {
+        if (tvb_get_uint8(tvb, offset) != 3) {
             /*
              * No, so don't assume this is a TPKT header;
              * we might be in the middle of TPKT data,
@@ -664,7 +664,7 @@ proto_register_tpkt(void)
         },
     };
 
-    static gint *ett[] =
+    static int *ett[] =
     {
         &ett_tpkt,
     };

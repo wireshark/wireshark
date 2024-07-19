@@ -40,7 +40,7 @@ void proto_reg_handoff_tacplus(void);
 void proto_register_tacplus(void);
 static dissector_handle_t tacplus_handle;
 
-static void md5_xor( guint8 *data, const char *key, int data_len, guint8 *session_id, guint8 version, guint8 seq_no );
+static void md5_xor( uint8_t *data, const char *key, int data_len, uint8_t *session_id, uint8_t version, uint8_t seq_no );
 static int  dissect_tacplus_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
 
 static int proto_tacacs;
@@ -60,7 +60,7 @@ static int hf_tacacs_result3;
 static int hf_tacacs_username;
 static int hf_tacacs_password;
 
-static gint ett_tacacs;
+static int ett_tacacs;
 
 static bool tacplus_preference_desegment = true;
 
@@ -130,17 +130,17 @@ dissect_tacacs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 {
 	proto_tree      *tacacs_tree;
 	proto_item      *ti;
-	guint32         version,type,userlen,passlen;
+	uint32_t        version,type,userlen,passlen;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TACACS");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	version = tvb_get_guint8(tvb,0);
+	version = tvb_get_uint8(tvb,0);
 	if (version != 0) {
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "XTACACS");
 	}
 
-	type = tvb_get_guint8(tvb,1);
+	type = tvb_get_uint8(tvb,1);
 	col_add_str(pinfo->cinfo, COL_INFO,
 		    val_to_str(type, tacacs_type_vals, "Unknown (0x%02x)"));
 
@@ -257,7 +257,7 @@ proto_register_tacacs(void)
 	      NULL, HFILL }},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_tacacs,
 	};
 	proto_tacacs = proto_register_protocol("TACACS", "TACACS", "tacacs");
@@ -342,11 +342,11 @@ static int hf_tacplus_chap_data_length;
 static int hf_tacplus_password_length;
 static int hf_tacplus_data_length;
 
-static gint ett_tacplus;
-static gint ett_tacplus_body;
-static gint ett_tacplus_body_chap;
-static gint ett_tacplus_flags;
-static gint ett_tacplus_acct_flags;
+static int ett_tacplus;
+static int ett_tacplus_body;
+static int ett_tacplus_body_chap;
+static int ett_tacplus_flags;
+static int ett_tacplus_acct_flags;
 
 static expert_field ei_tacplus_packet_len_invalid;
 static expert_field ei_tacplus_unencrypted;
@@ -358,21 +358,21 @@ typedef struct _tacplus_key_entry {
 	char	*k; /* Key */
 } tacplus_key_entry;
 
-static gint
-tacplus_decrypted_tvb_setup( tvbuff_t *tvb, tvbuff_t **dst_tvb, packet_info *pinfo, guint32 len, guint8 version, const char *key )
+static int
+tacplus_decrypted_tvb_setup( tvbuff_t *tvb, tvbuff_t **dst_tvb, packet_info *pinfo, uint32_t len, uint8_t version, const char *key )
 {
-	guint8	*buff;
-	guint8 session_id[4];
+	uint8_t	*buff;
+	uint8_t session_id[4];
 
 	/* TODO Check the possibility to use pinfo->decrypted_data */
 	/* session_id is in NETWORK Byte Order, and is used as byte array in the md5_xor */
 
 	tvb_memcpy(tvb, session_id, 4,4);
 
-	buff = (guint8 *)tvb_memdup(pinfo->pool, tvb, TAC_PLUS_HDR_SIZE, len);
+	buff = (uint8_t *)tvb_memdup(pinfo->pool, tvb, TAC_PLUS_HDR_SIZE, len);
 
 
-	md5_xor( buff, key, len, session_id,version, tvb_get_guint8(tvb,2) );
+	md5_xor( buff, key, len, session_id,version, tvb_get_uint8(tvb,2) );
 
 	/* Allocate a new tvbuff, referring to the decrypted data. */
 	*dst_tvb = tvb_new_child_real_data(tvb,  buff, len, len );
@@ -387,9 +387,9 @@ dissect_tacplus_args_list( tvbuff_t *tvb, proto_tree *tree, int data_off, int le
 {
 	int i;
 	int len;
-	guint8 *value;
+	uint8_t *value;
 	for(i=0;i<arg_cnt;i++){
-		len=tvb_get_guint8(tvb,len_off+i);
+		len=tvb_get_uint8(tvb,len_off+i);
 		proto_tree_add_uint_format(tree, hf_tacplus_arg_length, tvb, len_off+i, 1, len,
 									"Arg[%d] length: %d", i, len);
 		value=tvb_get_string_enc(wmem_packet_scope(), tvb, data_off, len, ENC_ASCII|ENC_NA);
@@ -417,7 +417,7 @@ proto_tree_add_tacplus_common_fields( tvbuff_t *tvb, proto_tree *tree,  int offs
 	offset++;
 
 	/* user_len && user */
-	val=tvb_get_guint8(tvb,offset);
+	val=tvb_get_uint8(tvb,offset);
 	proto_tree_add_uint(tree, hf_tacplus_user_len, tvb, offset, 1, val);
 
 	if( val ){
@@ -428,7 +428,7 @@ proto_tree_add_tacplus_common_fields( tvbuff_t *tvb, proto_tree *tree,  int offs
 
 
 	/* port_len && port */
-	val=tvb_get_guint8(tvb,offset);
+	val=tvb_get_uint8(tvb,offset);
 	proto_tree_add_uint(tree, hf_tacplus_port_len, tvb, offset, 1, val);
 	if( val ){
 		proto_tree_add_item(tree, hf_tacplus_port, tvb, var_off, val, ENC_ASCII);
@@ -437,7 +437,7 @@ proto_tree_add_tacplus_common_fields( tvbuff_t *tvb, proto_tree *tree,  int offs
 	offset++;
 
 	/* rem_addr_len && rem_addr */
-	val=tvb_get_guint8(tvb,offset);
+	val=tvb_get_uint8(tvb,offset);
 	proto_tree_add_uint(tree, hf_tacplus_remote_address_len, tvb, offset, 1, val);
 	if( val ){
 		proto_tree_add_item(tree, hf_tacplus_remote_address, tvb, var_off, val, ENC_ASCII);
@@ -449,10 +449,10 @@ proto_tree_add_tacplus_common_fields( tvbuff_t *tvb, proto_tree *tree,  int offs
 static void
 dissect_tacplus_body_authen_req_login( tvbuff_t* tvb, proto_tree *tree, int var_off )
 {
-	guint8 val;
-	val=tvb_get_guint8( tvb, AUTHEN_S_DATA_LEN_OFF );
+	uint8_t val;
+	val=tvb_get_uint8( tvb, AUTHEN_S_DATA_LEN_OFF );
 
-	switch ( tvb_get_guint8(tvb, AUTHEN_S_AUTHEN_TYPE_OFF ) ) { /* authen_type */
+	switch ( tvb_get_uint8(tvb, AUTHEN_S_AUTHEN_TYPE_OFF ) ) { /* authen_type */
 
 		case TAC_PLUS_AUTHEN_TYPE_ASCII:
 			proto_tree_add_item(tree, hf_tacplus_ascii_length, tvb, AUTHEN_S_DATA_LEN_OFF, 1, ENC_BIG_ENDIAN);
@@ -471,7 +471,7 @@ dissect_tacplus_body_authen_req_login( tvbuff_t* tvb, proto_tree *tree, int var_
 			proto_tree_add_item(tree, hf_tacplus_chap_data_length, tvb, AUTHEN_S_DATA_LEN_OFF, 1, ENC_BIG_ENDIAN);
 			if( val ) {
 				proto_tree *pt;
-				guint8 chal_len=val-(1+16); /* Response field alwayes 16 octets */
+				uint8_t chal_len=val-(1+16); /* Response field alwayes 16 octets */
 				pt = proto_tree_add_subtree(tree, tvb, var_off, val, ett_tacplus_body_chap, NULL, "CHAP Data" );
 				proto_tree_add_item(pt, hf_tacplus_chap_id, tvb, var_off, 1, ENC_BIG_ENDIAN);
 				var_off++;
@@ -484,7 +484,7 @@ dissect_tacplus_body_authen_req_login( tvbuff_t* tvb, proto_tree *tree, int var_
 			proto_tree_add_item(tree, hf_tacplus_mschap_data_length, tvb, AUTHEN_S_DATA_LEN_OFF, 1, ENC_BIG_ENDIAN);
 			if( val ) {
 				proto_tree *pt;
-				guint8 chal_len=val-(1+49);  /* Response field alwayes 49 octets */
+				uint8_t chal_len=val-(1+49);  /* Response field alwayes 49 octets */
 				pt = proto_tree_add_subtree(tree, tvb, var_off, val, ett_tacplus_body_chap, NULL, "MSCHAP Data" );
 				proto_tree_add_item(pt, hf_tacplus_mschap_id, tvb, var_off, 1, ENC_BIG_ENDIAN);
 				var_off++;
@@ -517,11 +517,11 @@ dissect_tacplus_body_authen_req_login( tvbuff_t* tvb, proto_tree *tree, int var_
 static void
 dissect_tacplus_body_authen_req( tvbuff_t* tvb, proto_tree *tree )
 {
-	guint8 val;
+	uint8_t val;
 	int var_off=AUTHEN_S_VARDATA_OFF;
 
 	/* Action */
-	val=tvb_get_guint8( tvb, AUTHEN_S_ACTION_OFF );
+	val=tvb_get_uint8( tvb, AUTHEN_S_ACTION_OFF );
 	proto_tree_add_item(tree, hf_tacplus_authen_action, tvb, AUTHEN_S_ACTION_OFF, 1, ENC_BIG_ENDIAN);
 	var_off=proto_tree_add_tacplus_common_fields( tvb, tree , AUTHEN_S_PRIV_LVL_OFF, AUTHEN_S_VARDATA_OFF );
 
@@ -541,7 +541,7 @@ dissect_tacplus_body_authen_req_cont( tvbuff_t *tvb, proto_tree *tree )
 	int var_off=AUTHEN_C_VARDATA_OFF;
 	proto_item* ti;
 
-	val=tvb_get_guint8( tvb, AUTHEN_C_FLAGS_OFF );
+	val=tvb_get_uint8( tvb, AUTHEN_C_FLAGS_OFF );
 	ti = proto_tree_add_item(tree, hf_tacplus_body_authen_req_cont_flags, tvb, AUTHEN_C_FLAGS_OFF, 1, ENC_BIG_ENDIAN);
 	if (val&TAC_PLUS_CONTINUE_FLAG_ABORT)
 		proto_item_append_text(ti, "(Abort)");
@@ -571,7 +571,7 @@ dissect_tacplus_body_authen_rep( tvbuff_t *tvb, proto_tree *tree )
 
 	proto_tree_add_item(tree, hf_tacplus_body_authen_rep_status, tvb, AUTHEN_R_STATUS_OFF, 1, ENC_BIG_ENDIAN);
 
-	val=tvb_get_guint8( tvb, AUTHEN_R_FLAGS_OFF );
+	val=tvb_get_uint8( tvb, AUTHEN_R_FLAGS_OFF );
 	ti = proto_tree_add_item(tree, hf_tacplus_body_authen_rep_flags, tvb, AUTHEN_R_FLAGS_OFF, 1, ENC_BIG_ENDIAN);
 	if (val&TAC_PLUS_REPLY_FLAG_NOECHO)
 		proto_item_append_text(ti, "(NoEcho)");
@@ -599,7 +599,7 @@ dissect_tacplus_body_author_req( tvbuff_t* tvb, proto_tree *tree )
 
 	proto_tree_add_item(tree, hf_tacplus_body_author_req_auth_method, tvb, AUTHOR_Q_AUTH_METH_OFF, 1, ENC_BIG_ENDIAN);
 
-	val = tvb_get_guint8( tvb, AUTHOR_Q_ARGC_OFF );
+	val = tvb_get_uint8( tvb, AUTHOR_Q_ARGC_OFF );
 	var_off=proto_tree_add_tacplus_common_fields( tvb, tree ,
 			AUTHOR_Q_PRIV_LVL_OFF,
 			AUTHOR_Q_VARDATA_OFF + val);
@@ -627,7 +627,7 @@ dissect_tacplus_body_author_rep( tvbuff_t* tvb, proto_tree *tree )
 	offset+=val;
 	proto_tree_add_item(tree, hf_tacplus_body_author_rep_server_data_len, tvb, AUTHOR_R_DATA_LEN_OFF, 2, ENC_BIG_ENDIAN);
 
-	val=tvb_get_guint8( tvb, AUTHOR_R_ARGC_OFF);
+	val=tvb_get_uint8( tvb, AUTHOR_R_ARGC_OFF);
 	offset+=val;
 	proto_tree_add_item(tree, hf_tacplus_body_author_rep_arg_count, tvb, AUTHOR_R_ARGC_OFF, 1, ENC_BIG_ENDIAN);
 
@@ -651,7 +651,7 @@ dissect_tacplus_body_acct_req( tvbuff_t* tvb, proto_tree *tree )
 	proto_tree_add_item(flags_tree, hf_tacplus_acct_flags_watchdog, tvb, ACCT_Q_FLAGS_OFF, 1, ENC_BIG_ENDIAN);
 
 	proto_tree_add_item(tree, hf_tacplus_acct_authen_method, tvb, ACCT_Q_METHOD_OFF, 1, ENC_BIG_ENDIAN);
-	val=tvb_get_guint8( tvb, ACCT_Q_ARG_CNT_OFF );
+	val=tvb_get_uint8( tvb, ACCT_Q_ARG_CNT_OFF );
 
 	/* authen_type */
 	var_off=proto_tree_add_tacplus_common_fields( tvb, tree ,
@@ -695,8 +695,8 @@ dissect_tacplus_body_acct_rep( tvbuff_t* tvb, proto_tree *tree )
 static void
 dissect_tacplus_body(tvbuff_t * hdr_tvb, packet_info *pinfo, tvbuff_t * tvb, proto_tree * tree )
 {
-	int type = tvb_get_guint8( hdr_tvb, H_TYPE_OFF );
-	int seq_no = tvb_get_guint8( hdr_tvb, H_SEQ_NO_OFF );
+	int type = tvb_get_uint8( hdr_tvb, H_TYPE_OFF );
+	int seq_no = tvb_get_uint8( hdr_tvb, H_SEQ_NO_OFF );
 
 	switch (type) {
 	  case TAC_PLUS_AUTHEN:
@@ -729,10 +729,10 @@ dissect_tacplus_body(tvbuff_t * hdr_tvb, packet_info *pinfo, tvbuff_t * tvb, pro
 
 #ifdef DEB_TACPLUS
 static void
-tacplus_print_key_entry( gpointer data, gpointer user_data )
+tacplus_print_key_entry( void *data, void *user_data )
 {
 	tacplus_key_entry *tacplus_data=(tacplus_key_entry *)data;
-	gchar *s_str, *c_str;
+	char *s_str, *c_str;
 
 	s_str = address_to_str( NULL, tacplus_data->s );
 	c_str = address_to_str( NULL, tacplus_data->c );
@@ -746,11 +746,11 @@ tacplus_print_key_entry( gpointer data, gpointer user_data )
 }
 #endif
 static int
-cmp_conv_address( gconstpointer p1, gconstpointer p2 )
+cmp_conv_address( const void *p1, const void *p2 )
 {
 	const tacplus_key_entry *a1=(const tacplus_key_entry *)p1;
 	const tacplus_key_entry *a2=(const tacplus_key_entry *)p2;
-	gint32	ret;
+	int32_t	ret;
 	/*
 	ws_debug_printf("p1=>");
 	tacplus_print_key_entry( p1, NULL );
@@ -778,8 +778,8 @@ find_key( address *srv, address *cln )
 	data.s=srv;
 	data.c=cln;
 /*	ws_debug_printf("Looking for: ");
-	tacplus_print_key_entry( (gconstpointer)&data, NULL ); */
-	match=g_slist_find_custom( tacplus_keys, (gpointer)&data, cmp_conv_address );
+	tacplus_print_key_entry( (const void *)&data, NULL ); */
+	match=g_slist_find_custom( tacplus_keys, (void *)&data, cmp_conv_address );
 /*	ws_debug_printf("Finished (%p)\n", match);  */
 	if( match )
 		return ((tacplus_key_entry*)match->data)->k;
@@ -862,10 +862,10 @@ parse_tacplus_keys( const char *keys_from_option )
 #endif
 }
 
-static guint
+static unsigned
 get_tacplus_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
-	return (guint)tvb_get_ntohl(tvb, offset+H_LENGTH_OFF) +  TAC_PLUS_HDR_SIZE;
+	return (unsigned)tvb_get_ntohl(tvb, offset+H_LENGTH_OFF) +  TAC_PLUS_HDR_SIZE;
 }
 
 static int
@@ -881,12 +881,12 @@ dissect_tacplus_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	tvbuff_t	*new_tvb=NULL;
 	proto_tree      *tacplus_tree, *body_tree;
 	proto_item      *ti, *hidden_item;
-	guint8		version,flags;
+	uint8_t		version,flags;
 	proto_tree      *flags_tree;
 	proto_item      *tf;
 	proto_item	*tmp_pi;
-	guint32		len;
-	gboolean	request=( pinfo->destport == TCP_PORT_TACACS );
+	uint32_t		len;
+	bool	request=( pinfo->destport == TCP_PORT_TACACS );
 	const char	*key=NULL;
 
 	len = tvb_get_ntohl(tvb, 8);
@@ -900,7 +900,7 @@ dissect_tacplus_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
 	col_add_fstr( pinfo->cinfo, COL_INFO, "%s: %s",
 				request ? "Q" : "R",
-				val_to_str(tvb_get_guint8(tvb,1), tacplus_type_vals, "Unknown (0x%02x)"));
+				val_to_str(tvb_get_uint8(tvb,1), tacplus_type_vals, "Unknown (0x%02x)"));
 
 	/* if (tree) */
 	{
@@ -910,16 +910,16 @@ dissect_tacplus_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 		if (pinfo->match_uint == pinfo->destport)
 		{
 			hidden_item = proto_tree_add_boolean(tacplus_tree,
-			    hf_tacplus_request, tvb, 0, 0, TRUE);
+			    hf_tacplus_request, tvb, 0, 0, true);
 		}
 		else
 		{
 			hidden_item = proto_tree_add_boolean(tacplus_tree,
-			    hf_tacplus_response, tvb, 0, 0, TRUE);
+			    hf_tacplus_response, tvb, 0, 0, true);
 		}
 		proto_item_set_hidden(hidden_item);
 
-		version = tvb_get_guint8(tvb,0);
+		version = tvb_get_uint8(tvb,0);
 		proto_tree_add_uint_format_value(tacplus_tree, hf_tacplus_majvers, tvb, 0, 1,
 		    version,
 		    "%s",
@@ -930,7 +930,7 @@ dissect_tacplus_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 		    ENC_BIG_ENDIAN);
 		proto_tree_add_item(tacplus_tree, hf_tacplus_seqno, tvb, 2, 1,
 		    ENC_BIG_ENDIAN);
-		flags = tvb_get_guint8(tvb,3);
+		flags = tvb_get_uint8(tvb,3);
 		tf = proto_tree_add_uint_format_value(tacplus_tree, hf_tacplus_flags,
 		    tvb, 3, 1, flags,
 		    "0x%02x (%s payload, %s)", flags,
@@ -948,7 +948,7 @@ dissect_tacplus_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 		    ENC_BIG_ENDIAN);
 
 		tmp_pi = proto_tree_add_uint(tacplus_tree, hf_tacplus_packet_len, tvb, 8, 4, len);
-		if ((gint)len < 1) {
+		if ((int)len < 1) {
 			expert_add_info_format(pinfo, tmp_pi, &ei_tacplus_packet_len_invalid, "Invalid length: %u", len);
 		}
 
@@ -988,11 +988,11 @@ proto_register_tacplus(void)
 	  { &hf_tacplus_response,
 	    { "Response", "tacplus.response",
 	      FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	      "TRUE if TACACS+ response", HFILL }},
+	      "true if TACACS+ response", HFILL }},
 	  { &hf_tacplus_request,
 	    { "Request", "tacplus.request",
 	      FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	      "TRUE if TACACS+ request", HFILL }},
+	      "true if TACACS+ request", HFILL }},
 	  { &hf_tacplus_majvers,
 	    { "Major version", "tacplus.majvers",
 	      FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -1239,7 +1239,7 @@ proto_register_tacplus(void)
 	  { &hf_tacplus_data_length, { "Data", "tacplus.data_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_tacplus,
 		&ett_tacplus_flags,
 		&ett_tacplus_acct_flags,
@@ -1277,18 +1277,18 @@ proto_reg_handoff_tacplus(void)
 }
 
 static void
-md5_xor( guint8 *data, const char *key, int data_len, guint8 *session_id, guint8 version, guint8 seq_no )
+md5_xor( uint8_t *data, const char *key, int data_len, uint8_t *session_id, uint8_t version, uint8_t seq_no )
 {
 	int i,j;
 	size_t md5_len;
-	guint8 *md5_buff;
-	guint8 hash[HASH_MD5_LENGTH];				/* the md5 hash */
-	guint8 *mdp;
+	uint8_t *md5_buff;
+	uint8_t hash[HASH_MD5_LENGTH];				/* the md5 hash */
+	uint8_t *mdp;
 
 	md5_len = 4 /* sizeof(session_id) */ + strlen(key)
 			+ sizeof(version) + sizeof(seq_no);
 
-	md5_buff = (guint8*)wmem_alloc(wmem_packet_scope(), md5_len + HASH_MD5_LENGTH);
+	md5_buff = (uint8_t*)wmem_alloc(wmem_packet_scope(), md5_len + HASH_MD5_LENGTH);
 
 
 	mdp = md5_buff;

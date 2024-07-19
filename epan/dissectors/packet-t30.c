@@ -133,8 +133,8 @@ static int hf_t30_partial_page_i3;
 static int hf_t30_partial_page_request_frame_count;
 static int hf_t30_partial_page_request_frames;
 
-static gint ett_t30;
-static gint ett_t30_fif;
+static int ett_t30;
+static int ett_t30_fif;
 
 static expert_field ei_t30_bad_length;
 static expert_field ei_t30_Address_FF;
@@ -482,8 +482,8 @@ static const true_false_string t30_res_type_sel_value = {
     "metric based resolution",
 };
 
-static guint8
-reverse_byte(guint8 val)
+static uint8_t
+reverse_byte(uint8_t val)
 {
     return ( ((val & 0x80)>>7) | ((val & 0x40)>>5) |
         ((val & 0x20)>>3) | ((val & 0x10)>>1) |
@@ -492,10 +492,10 @@ reverse_byte(guint8 val)
 }
 
 #define LENGTH_T30_NUM  20
-static gchar *
+static char *
 t30_get_string_numbers(wmem_allocator_t *pool, tvbuff_t *tvb, int offset, int len)
 {
-    gchar buf[LENGTH_T30_NUM+1];
+    char buf[LENGTH_T30_NUM+1];
     int    i;
 
     /* the length must be 20 bytes per T30 rec*/
@@ -503,7 +503,7 @@ t30_get_string_numbers(wmem_allocator_t *pool, tvbuff_t *tvb, int offset, int le
         return NULL;
 
     for (i=0; i<LENGTH_T30_NUM; i++)
-        buf[LENGTH_T30_NUM-i-1] = reverse_byte(tvb_get_guint8(tvb, offset+i));
+        buf[LENGTH_T30_NUM-i-1] = reverse_byte(tvb_get_uint8(tvb, offset+i));
 
     /* add end of string */
     buf[LENGTH_T30_NUM] = '\0';
@@ -516,7 +516,7 @@ t30_get_string_numbers(wmem_allocator_t *pool, tvbuff_t *tvb, int offset, int le
 static void
 dissect_t30_numbers(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, proto_tree *tree, t38_packet_info* t38)
 {
-    gchar *str_num;
+    char *str_num;
 
     str_num = t30_get_string_numbers(pinfo->pool, tvb, offset, len);
     if (str_num) {
@@ -538,7 +538,7 @@ dissect_t30_numbers(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
 static void
 dissect_t30_facsimile_coded_data(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, proto_tree *tree, t38_packet_info* t38)
 {
-    guint8 octet;
+    uint8_t octet;
 
     if (len < 2) {
         proto_tree_add_expert_format(tree, pinfo, &ei_t30_bad_length, tvb,
@@ -547,7 +547,7 @@ dissect_t30_facsimile_coded_data(tvbuff_t *tvb, int offset, packet_info *pinfo, 
         return;
     }
 
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
     proto_tree_add_uint(tree, hf_t30_t4_frame_num, tvb, offset, 1, reverse_byte(octet));
     offset++;
 
@@ -579,7 +579,7 @@ dissect_t30_non_standard_cap(tvbuff_t *tvb, int offset, packet_info *pinfo, int 
 static void
 dissect_t30_partial_page_signal(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, proto_tree *tree, t38_packet_info* t38)
 {
-    guint8 octet, page_count, block_count, frame_count;
+    uint8_t octet, page_count, block_count, frame_count;
 
     if (len != 4) {
         proto_tree_add_expert_format(tree, pinfo, &ei_t30_bad_length, tvb,
@@ -591,17 +591,17 @@ dissect_t30_partial_page_signal(tvbuff_t *tvb, int offset, packet_info *pinfo, i
     proto_tree_add_item(tree, hf_t30_partial_page_fcf2, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
     page_count = reverse_byte(octet);
     proto_tree_add_uint(tree, hf_t30_partial_page_i1, tvb, offset, 1, page_count);
     offset++;
 
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
     block_count = reverse_byte(octet);
     proto_tree_add_uint(tree, hf_t30_partial_page_i2, tvb, offset, 1, block_count);
     offset++;
 
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
     frame_count = reverse_byte(octet);
     proto_tree_add_uint(tree, hf_t30_partial_page_i3, tvb, offset, 1, frame_count);
     offset++;
@@ -621,8 +621,8 @@ dissect_t30_partial_page_request(tvbuff_t *tvb, int offset, packet_info *pinfo, 
     int frame_count = 0;
     int frame;
 #define BUF_SIZE  (10*1 + 90*2 + 156*3 + 256*2 + 1) /* 0..9 + 10..99 + 100..255 + 256*', ' + \0 */
-    gchar *buf = (gchar *)wmem_alloc(pinfo->pool, BUF_SIZE);
-    gchar *buf_top = buf;
+    char *buf = (char *)wmem_alloc(pinfo->pool, BUF_SIZE);
+    char *buf_top = buf;
 
     if (len != 32) {
         proto_tree_add_expert_format(tree, pinfo, &ei_t30_bad_length, tvb,
@@ -633,8 +633,8 @@ dissect_t30_partial_page_request(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
     start_offset = offset;
     for (frame=0; frame < 255; ) {
-        guint8 octet = tvb_get_guint8(tvb, offset);
-        guint8 bit = 1<<7;
+        uint8_t octet = tvb_get_uint8(tvb, offset);
+        uint8_t bit = 1<<7;
 
         for (;bit;) {
             if (octet & bit) {
@@ -658,9 +658,9 @@ dissect_t30_partial_page_request(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 }
 
 static void
-dissect_t30_dis_dtc(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, proto_tree *tree, gboolean dis_dtc, t38_packet_info* t38)
+dissect_t30_dis_dtc(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, proto_tree *tree, bool dis_dtc, t38_packet_info* t38)
 {
-    guint8 octet;
+    uint8_t octet;
 
     if (len < 3) {
         proto_tree_add_expert_format(tree, pinfo, &ei_t30_bad_length, tvb,
@@ -679,7 +679,7 @@ dissect_t30_dis_dtc(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
     }
     /* bits 9 to 16 */
     offset += 1;
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
 
     if (dis_dtc)
         proto_tree_add_item(tree, hf_t30_fif_rtfc, tvb, offset, 1, ENC_NA);
@@ -711,7 +711,7 @@ dissect_t30_dis_dtc(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
 
     /* bits 17 to 24 */
     offset += 1;
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
 
     if (dis_dtc) {
         proto_tree_add_item(tree, hf_t30_fif_rwc, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -729,7 +729,7 @@ dissect_t30_dis_dtc(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
 
     /* bits 25 to 32 */
     offset += 1;
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
 
     proto_tree_add_item(tree, hf_t30_fif_cm, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(tree, hf_t30_fif_ecm, tvb, offset, 1, ENC_NA);
@@ -743,7 +743,7 @@ dissect_t30_dis_dtc(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
 
     /* bits 33 to 40 */
     offset += 1;
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
 
     proto_tree_add_item(tree, hf_t30_fif_fvc, tvb, offset, 1, ENC_NA);
     if (dis_dtc) {
@@ -760,7 +760,7 @@ dissect_t30_dis_dtc(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
 
     /* bits 41 to 48 */
     offset += 1;
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
 
     proto_tree_add_item(tree, hf_t30_fif_r8x15, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(tree, hf_t30_fif_300x300, tvb, offset, 1, ENC_NA);
@@ -780,7 +780,7 @@ dissect_t30_dis_dtc(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
 
     /* bits 49 to 56 */
     offset += 1;
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
 
     proto_tree_add_item(tree, hf_t30_fif_sc, tvb, offset, 1, ENC_NA);
     if (dis_dtc) {
@@ -799,7 +799,7 @@ dissect_t30_dis_dtc(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
 
     /* bits 57 to 64 */
     offset += 1;
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
 
     proto_tree_add_item(tree, hf_t30_fif_btm, tvb, offset, 1, ENC_NA);
     if (dis_dtc)
@@ -813,7 +813,7 @@ dissect_t30_dis_dtc(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
 
     /* bits 65 to 72 */
     offset += 1;
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
 
     proto_tree_add_item(tree, hf_t30_fif_pm26, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(tree, hf_t30_fif_dnc, tvb, offset, 1, ENC_NA);
@@ -830,7 +830,7 @@ dissect_t30_dis_dtc(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
 
     /* bits 73 to 80 */
     offset += 1;
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
 
     proto_tree_add_item(tree, hf_t30_fif_ns, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(tree, hf_t30_fif_ci, tvb, offset, 1, ENC_NA);
@@ -846,7 +846,7 @@ dissect_t30_dis_dtc(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
 
     /* bits 81 to 88 */
     offset += 1;
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
 
     proto_tree_add_item(tree, hf_t30_fif_hkm, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(tree, hf_t30_fif_rsa, tvb, offset, 1, ENC_NA);
@@ -862,7 +862,7 @@ dissect_t30_dis_dtc(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
 
     /* bits 89 to 96 */
     offset += 1;
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
 
     proto_tree_add_item(tree, hf_t30_fif_ahsn2, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(tree, hf_t30_fif_ahsn3, tvb, offset, 1, ENC_NA);
@@ -877,7 +877,7 @@ dissect_t30_dis_dtc(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
 
     /* bits 97 to 104 */
     offset += 1;
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
 
     proto_tree_add_item(tree, hf_t30_fif_cg300, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(tree, hf_t30_fif_100x100cg, tvb, offset, 1, ENC_NA);
@@ -894,7 +894,7 @@ dissect_t30_dis_dtc(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
 
     /* bits 105 to 112 */
     offset += 1;
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
 
     proto_tree_add_item(tree, hf_t30_fif_600x600, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(tree, hf_t30_fif_1200x1200, tvb, offset, 1, ENC_NA);
@@ -910,7 +910,7 @@ dissect_t30_dis_dtc(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
 
     /* bits 113 to 120 */
     offset += 1;
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
 
     proto_tree_add_item(tree, hf_t30_fif_dspcam, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(tree, hf_t30_fif_dspccm, tvb, offset, 1, ENC_NA);
@@ -933,8 +933,8 @@ dissect_t30_hdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     proto_tree *tr;
     proto_tree *tr_fif;
     proto_item *it_fcf;
-    guint8      octet;
-    guint32     frag_len;
+    uint8_t     octet;
+    uint32_t    frag_len;
     proto_item *item;
     t38_packet_info *t38 = (t38_packet_info*)data;
 
@@ -951,19 +951,19 @@ dissect_t30_hdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                                       "ITU-T Recommendation T.30");
     tr=proto_item_add_subtree(it, ett_t30);
 
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
     item = proto_tree_add_item(tr, hf_t30_Address, tvb, offset, 1, ENC_BIG_ENDIAN);
     if (octet != 0xFF)
         expert_add_info(pinfo, item, &ei_t30_Address_FF);
     offset += 1;
 
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
     item = proto_tree_add_item(tr, hf_t30_Control, tvb, offset, 1, ENC_BIG_ENDIAN);
     if ((octet != 0xC0) && (octet != 0xC8))
         expert_add_info(pinfo, item, &ei_t30_Control_C0C8);
     offset += 1;
 
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
     it_fcf = proto_tree_add_item(tr, hf_t30_Facsimile_Control, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -984,7 +984,7 @@ dissect_t30_hdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
     switch (octet) {
         case T30_FC_DTC:
-            dissect_t30_dis_dtc(tvb, offset, pinfo, frag_len, tr_fif, TRUE, t38);
+            dissect_t30_dis_dtc(tvb, offset, pinfo, frag_len, tr_fif, true, t38);
             break;
         case T30_FC_CIG:
         case T30_FC_PWD:
@@ -998,10 +998,10 @@ dissect_t30_hdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         default:
             switch (octet & 0x7F) {
             case T30_FC_DIS:
-                dissect_t30_dis_dtc(tvb, offset, pinfo, frag_len, tr_fif, TRUE, t38);
+                dissect_t30_dis_dtc(tvb, offset, pinfo, frag_len, tr_fif, true, t38);
                 break;
             case T30_FC_DCS:
-                dissect_t30_dis_dtc(tvb, offset, pinfo, frag_len, tr_fif, FALSE, t38);
+                dissect_t30_dis_dtc(tvb, offset, pinfo, frag_len, tr_fif, false, t38);
                 break;
             case T30_FC_CSI:
             case T30_FC_TSI:
@@ -1375,7 +1375,7 @@ proto_register_t30(void)
 
     };
 
-    static gint *t30_ett[] =
+    static int *t30_ett[] =
     {
         &ett_t30,
         &ett_t30_fif,

@@ -52,34 +52,34 @@ static dissector_handle_t tplink_smarthome_message_handle;
 		/* Initialize the protocol and registered fields */
 
 static int	proto_tplink_smarthome;
-static gint	ett_tplink_smarthome;		/* Initialize the subtree pointers */
+static int	ett_tplink_smarthome;		/* Initialize the subtree pointers */
 
 static int	hf_tplink_smarthome_Len;
 static int	hf_tplink_smarthome_Msg;
 
-static gboolean
+static bool
 test_tplink_smarthome(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
-	guint8		key = 171;
-	guint8		c, d;
+	uint8_t		key = 171;
+	uint8_t		c, d;
 	if (tvb_captured_length_remaining(tvb, offset) < 2) {
-		return FALSE;
+		return false;
 	}
 
 	/* The message is always JSON, so test the first two characters.
          * They must be {" or {}, as the protocol doesn't appear to
          * have whitespace.). */
-	c = tvb_get_guint8(tvb, offset);
+	c = tvb_get_uint8(tvb, offset);
 	d = c ^ key;
 	if (d != '{') {
-		return FALSE;
+		return false;
 	}
-	d = c ^ tvb_get_guint8(tvb, offset+1);
+	d = c ^ tvb_get_uint8(tvb, offset+1);
 	if (d != '"' && d != '}') {
-		return FALSE;
+		return false;
 	}
 
-	return TRUE;
+	return true;
 }
 
 static int
@@ -88,10 +88,10 @@ dissect_tplink_smarthome_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 {
 	proto_item	*ti;
 	proto_tree	*tplink_smarthome_tree;
-	gint8		start = 0;
-	guint8		c, d;
-	guint8		key = 171;
-	gint32		len = tvb_captured_length(tvb);
+	int8_t		start = 0;
+	uint8_t		c, d;
+	uint8_t		key = 171;
+	int32_t		len = tvb_captured_length(tvb);
 
 	switch (pinfo->ptype) {                                                                 /* look at the IP port type */
 	       case PT_UDP:
@@ -118,13 +118,13 @@ dissect_tplink_smarthome_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		proto_tree_add_item(tplink_smarthome_tree, hf_tplink_smarthome_Len,
 					tvb, 0, FRAME_HEADER_LEN, ENC_BIG_ENDIAN);		/* decode the 4 byte message length field pre-pended in a TCP message, */
 	}
-	gint	i_offset	= start;
-	gint	o_offset	= 0;
-	gint	decode_len	= len - start;
+	int	i_offset	= start;
+	int	o_offset	= 0;
+	int	decode_len	= len - start;
 	char	*ascii_buffer	= (char *)wmem_alloc(pinfo->pool, 1 + len - start);		/* create a buffer for the decoded (JSON) message */
 
 	for (; o_offset < decode_len; i_offset++, o_offset++) {					/* decrypt 'Autokey XOR' message (into ASCII) */
-		c	= tvb_get_guint8(tvb, i_offset);
+		c	= tvb_get_uint8(tvb, i_offset);
 		d	= c ^ key;								/* XOR the byte with the key to get the decoded byte */
 		key	= c;									/* then use that decoded byte as the value for the next key */
 		*(ascii_buffer + o_offset) = g_ascii_isprint(d) ? d : '.';			/* buffer a printable version (for display and JSON decoding) */
@@ -139,7 +139,7 @@ dissect_tplink_smarthome_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	proto_tree_add_string_format(tplink_smarthome_tree, hf_tplink_smarthome_Msg, tvb,
 					start, -1, ascii_buffer, "%s: %s", mtype, ascii_buffer);	    /* add the decrypted data to the subtree so you can 'expand' on it */
 
-	tvbuff_t *next_tvb = tvb_new_child_real_data(tvb, (guint8 *)ascii_buffer, decode_len, decode_len);	/* create a new TVB and insert the decrypted ASCII string, and */
+	tvbuff_t *next_tvb = tvb_new_child_real_data(tvb, (uint8_t *)ascii_buffer, decode_len, decode_len);	/* create a new TVB and insert the decrypted ASCII string, and */
 	add_new_data_source(pinfo, next_tvb, "JSON Message");					    	/* add it so you can click on this JSON entry and see the decoded buffer */
 	call_dissector(find_dissector("json"), next_tvb, pinfo, ti);			    		/* and decode/dissect it as JSON so you can drill down into it as well */
 
@@ -150,10 +150,10 @@ dissect_tplink_smarthome_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	return tvb_captured_length(tvb);								/* finally return the amount of data this dissector was able to dissect */
 }
 
-static guint
+static unsigned
 get_tplink_smarthome_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {													/* the PDU size is... the value in the length field */
-    return (guint)tvb_get_ntohl(tvb, offset) + FRAME_HEADER_LEN;					/* plus the 'size of' the length field itself */
+    return (unsigned)tvb_get_ntohl(tvb, offset) + FRAME_HEADER_LEN;					/* plus the 'size of' the length field itself */
 }
 
 static int
@@ -166,7 +166,7 @@ dissect_tplink_smarthome(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 		}
 		conversation_add_proto_data(conv, proto_tplink_smarthome, GUINT_TO_POINTER(1));
 	}
-	tcp_dissect_pdus(tvb, pinfo, tree, TRUE, FRAME_HEADER_LEN,
+	tcp_dissect_pdus(tvb, pinfo, tree, true, FRAME_HEADER_LEN,
 		get_tplink_smarthome_message_len, dissect_tplink_smarthome_message, data);
 	return tvb_captured_length(tvb);
 }
@@ -189,7 +189,7 @@ proto_register_tplink_smarthome(void)
 		}
 	};
 
-	static gint *ett[] = {										/* setup protocol subtree array */
+	static int *ett[] = {										/* setup protocol subtree array */
 		&ett_tplink_smarthome
 	};
 

@@ -37,7 +37,7 @@ static int hf_tte_pcf_type;
 static int hf_tte_pcf_tc;
 
 /* Initialize the subtree pointers */
-static gint ett_tte_pcf;
+static int ett_tte_pcf;
 
 static dissector_handle_t tte_pcf_handle;
 
@@ -58,8 +58,8 @@ dissect_tte_pcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     proto_tree *tte_pcf_tree;
 
     /* variables used to store the fields displayed in the info_column */
-    guint8 sync_priority = 0;
-    guint8 sync_domain   = 0;
+    uint8_t sync_priority = 0;
+    uint8_t sync_domain   = 0;
 
     /* Check that there's enough data */
     if (tvb_reported_length(tvb) < TTE_PCF_LENGTH )
@@ -68,9 +68,9 @@ dissect_tte_pcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     }
 
     /* get sync_priority and sync_domain */
-    sync_priority = tvb_get_guint8(tvb, TTE_PCF_IC_LENGTH+TTE_PCF_MN_LENGTH+
+    sync_priority = tvb_get_uint8(tvb, TTE_PCF_IC_LENGTH+TTE_PCF_MN_LENGTH+
         TTE_PCF_RES0_LENGTH);
-    sync_domain = tvb_get_guint8(tvb, TTE_PCF_IC_LENGTH+TTE_PCF_MN_LENGTH+
+    sync_domain = tvb_get_uint8(tvb, TTE_PCF_IC_LENGTH+TTE_PCF_MN_LENGTH+
         TTE_PCF_RES0_LENGTH+TTE_PCF_SP_LENGTH);
 
     /* Make entries in Protocol column and Info column on summary display */
@@ -180,7 +180,7 @@ proto_register_tte_pcf(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_tte_pcf
     };
 

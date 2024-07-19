@@ -7544,8 +7544,8 @@ ssl_dissect_hnd_hello_ext_alpn(ssl_common_dissect_t *hf, tvbuff_t *tvb,
         proto_tree_add_item(alpn_tree, hf->hf.hs_ext_alpn_str,
                             tvb, offset, name_length, ENC_ASCII|ENC_NA);
         if (ja4_data && wmem_strbuf_get_len(ja4_data->alpn) == 0) {
-            const char alpn_first_char = (char)tvb_get_guint8(tvb,offset);
-            const char alpn_last_char = (char)tvb_get_guint8(tvb,offset + name_length - 1);
+            const char alpn_first_char = (char)tvb_get_uint8(tvb,offset);
+            const char alpn_last_char = (char)tvb_get_uint8(tvb,offset + name_length - 1);
             if ((g_ascii_isprint(alpn_first_char)) && g_ascii_isprint(alpn_last_char)) {
                 wmem_strbuf_append_printf(ja4_data->alpn, "%c%c", alpn_first_char, alpn_last_char);
             }
@@ -8269,7 +8269,7 @@ ssl_dissect_hnd_hello_ext_cert_type(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
     switch(hnd_type){
     case SSL_HND_CLIENT_HELLO:
-        cert_list_length = tvb_get_guint8(tvb, offset);
+        cert_list_length = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(tree, hf->hf.hs_ext_cert_types_len,
                             tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
@@ -8294,7 +8294,7 @@ ssl_dissect_hnd_hello_ext_cert_type(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     case SSL_HND_SERVER_HELLO:
     case SSL_HND_ENCRYPTED_EXTENSIONS:
     case SSL_HND_CERTIFICATE:
-        cert_type = tvb_get_guint8(tvb, offset);
+        cert_type = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(tree, hf->hf.hs_ext_cert_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
         if (ext_type == SSL_HND_HELLO_EXT_CERT_TYPE || ext_type == SSL_HND_HELLO_EXT_CLIENT_CERT_TYPE) {
@@ -8879,7 +8879,7 @@ ssl_dissect_hnd_hello_common(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     /* No Session ID with TLS 1.3 on Server Hello before draft -22 */
     if (from_server == 0 || !(session->version == TLSV1DOT3_VERSION && draft_version > 0 && draft_version < 22)) {
         /* show the session id (length followed by actual Session ID) */
-        sessid_length = tvb_get_guint8(tvb, offset);
+        sessid_length = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(tree, hf->hf.hs_session_id_len,
                 tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
@@ -8931,7 +8931,7 @@ ssl_dissect_hnd_hello_ext_status_request(ssl_common_dissect_t *hf, tvbuff_t *tvb
      */
     unsigned cert_status_type;
 
-    cert_status_type = tvb_get_guint8(tvb, offset);
+    cert_status_type = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf->hf.hs_ext_cert_status_type,
                         tvb, offset, 1, ENC_NA);
     offset++;
@@ -9152,7 +9152,7 @@ ssl_dissect_hnd_hello_ext_ec_point_formats(ssl_common_dissect_t *hf, tvbuff_t *t
     proto_tree *ecpf_tree;
     proto_item *ti;
 
-    ecpf_length = tvb_get_guint8(tvb, offset);
+    ecpf_length = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf->hf.hs_ext_ec_point_formats_len,
         tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -9657,7 +9657,7 @@ ssl_dissect_hnd_hello_ext_connection_id(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                         proto_tree *tree, uint32_t offset, uint8_t hnd_type,
                                         SslSession *session, SslDecryptSession *ssl)
 {
-    uint8_t cidl = tvb_get_guint8(tvb, offset);
+    uint8_t cidl = tvb_get_uint8(tvb, offset);
 
     switch (hnd_type) {
     case SSL_HND_CLIENT_HELLO:
@@ -9769,7 +9769,7 @@ tls_scan_server_hello(tvbuff_t *tvb, uint32_t offset, uint32_t offset_end,
             *is_hrr = tvb_memeql(tvb, offset, tls13_hrr_random_magic, sizeof(tls13_hrr_random_magic)) == 0;
         }
         offset += 32;
-        session_id_length = tvb_get_guint8(tvb, offset);
+        session_id_length = tvb_get_uint8(tvb, offset);
         offset++;
         if (offset_end - offset < session_id_length + 5u) {
             return false;
@@ -9821,14 +9821,14 @@ tls_scan_client_hello(tvbuff_t *tvb, uint32_t offset, uint32_t offset_end)
     if ((client_version == TLSV1DOT2_VERSION || client_version == DTLSV1DOT2_VERSION) && offset_end - offset >= 46) {
         offset += 2;
         offset += 32;
-        session_id_length = tvb_get_guint8(tvb, offset);
+        session_id_length = tvb_get_uint8(tvb, offset);
         offset++;
         if (offset_end - offset < session_id_length + 2u) {
             return false;
         }
         offset += session_id_length;
         if (client_version == DTLSV1DOT2_VERSION) {
-            uint8_t cookie_length = tvb_get_guint8(tvb, offset);
+            uint8_t cookie_length = tvb_get_uint8(tvb, offset);
             offset++;
             if (offset_end - offset < cookie_length + 2u) {
                 return false;
@@ -9840,7 +9840,7 @@ tls_scan_client_hello(tvbuff_t *tvb, uint32_t offset, uint32_t offset_end)
             return false;
         }
         offset += cipher_suites_length;
-        uint8_t compression_methods_length = tvb_get_guint8(tvb, offset);
+        uint8_t compression_methods_length = tvb_get_uint8(tvb, offset);
         offset++;
         if (offset_end - offset < compression_methods_length + 2u) {
             return false;
@@ -10099,7 +10099,7 @@ ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                       "", "s"));
     cs_tree = proto_item_add_subtree(ti, hf->ett.comp_methods);
     while (offset < next_offset) {
-        compression_method = tvb_get_guint8(tvb, offset);
+        compression_method = tvb_get_uint8(tvb, offset);
         /* TODO: make reserved/private comp meth. fields selectable */
         if (compression_method < 64)
             proto_tree_add_uint(cs_tree, hf->hf.hs_comp_method,
@@ -10283,7 +10283,7 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     if (!(session->version == TLSV1DOT3_VERSION && draft_version > 0 && draft_version < 22)) {
         if (ssl) {
             /* store selected compression method for decryption */
-            ssl->session.compression = tvb_get_guint8(tvb, offset);
+            ssl->session.compression = tvb_get_uint8(tvb, offset);
         }
         /* and the server-selected compression method */
         proto_tree_add_item(tree, hf->hf.hs_comp_method,
@@ -11239,7 +11239,7 @@ dissect_ssl3_hnd_cli_keyex_ecdh(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                   hf->ett.keyex_params, NULL, "EC Diffie-Hellman Client Params");
 
     /* point */
-    point_len = tvb_get_guint8(tvb, offset);
+    point_len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(ssl_ecdh_tree, hf->hf.hs_client_keyex_point_len, tvb,
                         offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(ssl_ecdh_tree, hf->hf.hs_client_keyex_point, tvb,
@@ -11420,7 +11420,7 @@ dissect_ssl3_hnd_cli_keyex_ecjpake(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                               "EC J-PAKE Client Params");
 
     /* ECJPAKEKeyKP.X */
-    point_len = tvb_get_guint8(tvb, offset);
+    point_len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(ssl_ecjpake_tree, hf->hf.hs_client_keyex_xc_len, tvb,
                         offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(ssl_ecjpake_tree, hf->hf.hs_client_keyex_xc, tvb,
@@ -11428,7 +11428,7 @@ dissect_ssl3_hnd_cli_keyex_ecjpake(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     offset += 1 + point_len;
 
     /* ECJPAKEKeyKP.zkp.V */
-    point_len = tvb_get_guint8(tvb, offset);
+    point_len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(ssl_ecjpake_tree, hf->hf.hs_client_keyex_vc_len, tvb,
                         offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(ssl_ecjpake_tree, hf->hf.hs_client_keyex_vc, tvb,
@@ -11436,7 +11436,7 @@ dissect_ssl3_hnd_cli_keyex_ecjpake(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     offset += 1 + point_len;
 
     /* ECJPAKEKeyKP.zkp.r */
-    point_len = tvb_get_guint8(tvb, offset);
+    point_len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(ssl_ecjpake_tree, hf->hf.hs_client_keyex_rc_len, tvb,
                         offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(ssl_ecjpake_tree, hf->hf.hs_client_keyex_rc, tvb,
@@ -11546,7 +11546,7 @@ dissect_tls_ecparameters(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tr
     int         curve_type;
 
     /* ECParameters.curve_type */
-    curve_type = tvb_get_guint8(tvb, offset);
+    curve_type = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf->hf.hs_server_keyex_curve_type, tvb,
                         offset, 1, ENC_BIG_ENDIAN);
     offset++;
@@ -11597,7 +11597,7 @@ dissect_ssl3_hnd_srv_keyex_ecdh(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_
         return; /* only named_curves are supported */
 
     /* ECPoint.point */
-    point_len = tvb_get_guint8(tvb, offset);
+    point_len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(ssl_ecdh_tree, hf->hf.hs_server_keyex_point_len, tvb,
                         offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(ssl_ecdh_tree, hf->hf.hs_server_keyex_point, tvb,
@@ -11782,7 +11782,7 @@ dissect_ssl3_hnd_srv_keyex_ecjpake(ssl_common_dissect_t *hf, tvbuff_t *tvb,
         return; /* only named_curves are supported */
 
     /* ECJPAKEKeyKP.X */
-    point_len = tvb_get_guint8(tvb, offset);
+    point_len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(ssl_ecjpake_tree, hf->hf.hs_server_keyex_xs_len, tvb,
                         offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(ssl_ecjpake_tree, hf->hf.hs_server_keyex_xs, tvb,
@@ -11790,7 +11790,7 @@ dissect_ssl3_hnd_srv_keyex_ecjpake(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     offset += 1 + point_len;
 
     /* ECJPAKEKeyKP.zkp.V */
-    point_len = tvb_get_guint8(tvb, offset);
+    point_len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(ssl_ecjpake_tree, hf->hf.hs_server_keyex_vs_len, tvb,
                         offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(ssl_ecjpake_tree, hf->hf.hs_server_keyex_vs, tvb,
@@ -11798,7 +11798,7 @@ dissect_ssl3_hnd_srv_keyex_ecjpake(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     offset += 1 + point_len;
 
     /* ECJPAKEKeyKP.zkp.r */
-    point_len = tvb_get_guint8(tvb, offset);
+    point_len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(ssl_ecjpake_tree, hf->hf.hs_server_keyex_rs_len, tvb,
                         offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(ssl_ecjpake_tree, hf->hf.hs_server_keyex_rs, tvb,

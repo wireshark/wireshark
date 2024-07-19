@@ -28,7 +28,7 @@ void proto_register_telkonet(void);
 static int proto_telkonet;
 static int hf_telkonet_type;
 
-static gint ett_telkonet;
+static int ett_telkonet;
 
 static dissector_handle_t telkonet_handle;
 static dissector_handle_t eth_withoutfcs_handle;
@@ -53,7 +53,7 @@ dissect_telkonet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TELKONET");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	type = (telkonet_type_t)tvb_get_guint8(tvb, offset);
+	type = (telkonet_type_t)tvb_get_uint8(tvb, offset);
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Telkonet type: %s",
 		val_to_str(type, telkonet_type_vals, "Unknown (0x%02x)"));
 
@@ -78,7 +78,7 @@ proto_register_telkonet(void)
 		{ "Type", "telkonet.type", FT_BYTES, BASE_NONE, NULL,
 			0x0, "TELKONET type", HFILL }},
 	};
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_telkonet,
 	};
 

@@ -36,12 +36,12 @@ static int hf_tdmoe_packet_counter;
 static int hf_tdmoe_channels;
 static int hf_tdmoe_sig_bits;
 
-static gint ett_tdmoe;
-static gint ett_tdmoe_flags;
+static int ett_tdmoe;
+static int ett_tdmoe_flags;
 
 static dissector_handle_t lapd_handle;
 
-static gint pref_tdmoe_d_channel = 24;
+static int pref_tdmoe_d_channel = 24;
 
 static int
 dissect_tdmoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -49,9 +49,9 @@ dissect_tdmoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 	proto_item *ti;
 	proto_tree *tdmoe_tree;
 	tvbuff_t   *next_client;
-	guint16     channels;
-	guint16     subaddress;
-	gint32 offset = 0;
+	uint16_t    channels;
+	uint16_t    subaddress;
+	int32_t offset = 0;
 	static int * const flags[] = { &hf_tdmoe_yellow_alarm, &hf_tdmoe_sig_bits_present, NULL };
 	int         chan;
 
@@ -66,7 +66,7 @@ dissect_tdmoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Subaddress: %d Channels: %d %s",
 		subaddress,
 		channels,
-		(tvb_get_guint8(tvb, 3) & TDMOE_YELLOW_ALARM_BITMASK ? "[YELLOW ALARM]" : "")
+		(tvb_get_uint8(tvb, 3) & TDMOE_YELLOW_ALARM_BITMASK ? "[YELLOW ALARM]" : "")
 	);
 
 
@@ -94,9 +94,9 @@ dissect_tdmoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 	proto_tree_add_item(tdmoe_tree, hf_tdmoe_channels, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset+=2;
 
-	if (tvb_get_guint8(tvb, 3) & TDMOE_SIGBITS_BITMASK) {
+	if (tvb_get_uint8(tvb, 3) & TDMOE_SIGBITS_BITMASK) {
 		/* 4 sigbits per channel. Might be different on other sub-protocols? */
-		guint16 length = (channels >> 1) + ((channels & 0x01) ? 1 : 0);
+		uint16_t length = (channels >> 1) + ((channels & 0x01) ? 1 : 0);
 
 		proto_tree_add_item(tdmoe_tree, hf_tdmoe_sig_bits, tvb, offset, length, ENC_NA);
 		offset += length;
@@ -144,7 +144,7 @@ proto_register_tdmoe(void)
 		  { "Sig bits", "tdmoe.sig_bits", FT_BYTES, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
 	};
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_tdmoe,
 		&ett_tdmoe_flags
 	};

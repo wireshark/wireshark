@@ -42,18 +42,18 @@ static int hf_tivoconnect_identity;
 static int hf_tivoconnect_services;
 static int hf_tivoconnect_version;
 
-static gint ett_tivoconnect;
+static int ett_tivoconnect;
 
 static int
-dissect_tivoconnect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_tcp)
+dissect_tivoconnect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_tcp)
 {
     /* parsing variables */
-    gchar * string;
-    gint length;
+    char * string;
+    int length;
     /* value strings */
-    const gchar * proto_name;
-    gchar * packet_identity = NULL;
-    gchar * packet_machine = NULL;
+    const char * proto_name;
+    char * packet_identity = NULL;
+    char * packet_machine = NULL;
 
     /* validate that we have a tivoconnect packet */
     if ( tvb_strncaseeql(tvb, 0, "tivoconnect", 11) != 0) {
@@ -61,7 +61,7 @@ dissect_tivoconnect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
     }
 
     length = tvb_captured_length(tvb);
-    string = (gchar*)tvb_get_string_enc(pinfo->pool, tvb, 0, length, ENC_ASCII);
+    string = (char*)tvb_get_string_enc(pinfo->pool, tvb, 0, length, ENC_ASCII);
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "TiVoConnect");
@@ -77,8 +77,8 @@ dissect_tivoconnect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
         proto_tree *tivoconnect_tree;
 
         /* parsing variables */
-        guint offset = 0;
-        gchar * field;
+        unsigned offset = 0;
+        char * field;
 
         /* create display subtree for the protocol */
         ti = proto_tree_add_item(tree, proto_tivoconnect, tvb, 0, -1, ENC_NA);
@@ -89,8 +89,8 @@ dissect_tivoconnect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
         for ( field = strtok(string, "\n");
               field;
               offset += length, field = strtok(NULL, "\n") ) {
-            gchar * value;
-            gint fieldlen;
+            char * value;
+            int fieldlen;
 
             length = (int)strlen(field) + 1;
 
@@ -171,13 +171,13 @@ dissect_tivoconnect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
 static int
 dissect_tivoconnect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    return dissect_tivoconnect(tvb, pinfo, tree, TRUE);
+    return dissect_tivoconnect(tvb, pinfo, tree, true);
 }
 
 static int
 dissect_tivoconnect_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    return dissect_tivoconnect(tvb, pinfo, tree, FALSE);
+    return dissect_tivoconnect(tvb, pinfo, tree, false);
 }
 
 void
@@ -214,7 +214,7 @@ proto_register_tivoconnect(void)
             "System software version", HFILL }},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_tivoconnect,
     };
 

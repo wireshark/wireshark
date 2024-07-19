@@ -41,8 +41,8 @@ static int hf_trel_packetno;
 
 static int proto_trel;
 
-static gint ett_trel;
-static gint ett_trel_hdr;
+static int ett_trel;
+static int ett_trel_hdr;
 
 void proto_register_trel(void);
 
@@ -59,7 +59,7 @@ dissect_trel(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_
     proto_tree* volatile trel_tree = NULL, * volatile trel_hdr_tree;
     proto_item* volatile proto_root = NULL;
 
-    guint                   offset = 0;
+    unsigned                offset = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "TREL");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -75,7 +75,7 @@ dissect_trel(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_
     proto_tree_add_item(trel_hdr_tree, hf_trel_ack, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(trel_hdr_tree, hf_trel_type, tvb, offset, 1, ENC_NA);
 
-    guint8 type = tvb_get_guint8(tvb, offset);
+    uint8_t type = tvb_get_uint8(tvb, offset);
     col_add_str(pinfo->cinfo, COL_INFO, val_to_str(type, trel_command_vals, "Unknown (%x)"));
     ++offset;
     proto_tree_add_item(trel_hdr_tree, hf_trel_channel, tvb, offset, 1, ENC_NA);
@@ -112,7 +112,7 @@ dissect_trel_heur(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* dat
         return false;
     }
 
-    guint8 first = tvb_get_guint8(tvb, 0);
+    uint8_t first = tvb_get_uint8(tvb, 0);
     if ((first & 0xE0) != 0)
         return false;
 
@@ -201,7 +201,7 @@ proto_register_trel(void)
         }
     };
 
-    static gint* ett[] = {
+    static int* ett[] = {
       &ett_trel,
       &ett_trel_hdr
     };

@@ -71,24 +71,24 @@ typedef enum {
 #define THRIFT_SUBDISSECTOR_ERROR       (-2)
 
 typedef struct _thrift_option_data_t {
-    guint32 canary;                     /* Ensure that we don't read garbage.
+    uint32_t canary;                     /* Ensure that we don't read garbage.
                                          * Sub-dissectors should check against THRIFT_OPTION_DATA_CANARY. */
     thrift_method_type_enum_t mtype;    /* Method type necessary to know how to decode the message. */
     thrift_protocol_enum_t tprotocol;   /* Type and version of Thrift TProtocol.
                                          * Framed?((Strict? Binary)|Compact) */
-    gint64 reply_field_id;              /* First (and theoretically only) field id of the current REPLY.
+    int64_t reply_field_id;              /* First (and theoretically only) field id of the current REPLY.
                                          * This is useful for the sub-dissectors to handle exceptions. */
-    gint64 previous_field_id;           /* Last field id that was present in the current struct.
+    int64_t previous_field_id;           /* Last field id that was present in the current struct.
                                          * Set by dissect_thrift_t_struct after the field has been
                                          * entirely read.
                                          * Read by the next dissect_thrift_t_field_header if only
                                          * a delta is available (for TCompactProtocol). */
     proto_tree *reassembly_tree;        /* Tree were the reassembly was requested. */
                                         /* Useful if the caller can't reassemble (Framed). */
-    gint32 reassembly_offset;           /* Where the incomplete data starts. */
-    gint32 reassembly_length;           /* Expected size of the data. */
-    guint32 nested_type_depth;          /* Number of nested types allowed below the parameter or result type. */
-    gboolean use_std_dissector;         /* Allow the raw dissector to reactivate the standard dissector. */
+    int32_t reassembly_offset;           /* Where the incomplete data starts. */
+    int32_t reassembly_length;           /* Expected size of the data. */
+    uint32_t nested_type_depth;          /* Number of nested types allowed below the parameter or result type. */
+    bool use_std_dissector;         /* Allow the raw dissector to reactivate the standard dissector. */
     void *data;                         /* Pointer to the sub-dissector data. */
 } thrift_option_data_t;
 
@@ -96,13 +96,13 @@ typedef struct _thrift_option_data_t {
 
 typedef struct _thrift_member_t thrift_member_t;
 struct _thrift_member_t {
-    const gint *p_hf_id;                    /* The hf field for the struct member. */
-    const gint16 fid;                       /* The Thrift field id of the struct member. */
-    const gboolean optional;                /* TRUE if element is optional, FALSE otherwise. */
+    const int *p_hf_id;                    /* The hf field for the struct member. */
+    const int16_t fid;                       /* The Thrift field id of the struct member. */
+    const bool optional;                /* true if element is optional, false otherwise. */
     const thrift_type_enum_t type;          /* The thrift type of the struct member. */
-    const gint *p_ett_id;                   /* An ett field used for the subtree created if the member is a compound type. */
+    const int *p_ett_id;                   /* An ett field used for the subtree created if the member is a compound type. */
     union {
-        const guint encoding;               /* Encoding used for string display. */
+        const unsigned encoding;               /* Encoding used for string display. */
         const thrift_member_t *element;     /* Description of the elements of a list or a set. */
         struct {
             const thrift_member_t *members; /* Array describing the members of a struct, union, or exception. */
@@ -124,7 +124,7 @@ struct _thrift_member_t {
  * param[in] offset         Offset from the beginning of the tvbuff_t where the Thrift field is. Function will dissect type, id, & data.
  * param[in] thrift_opt     Options from the Thrift dissector that will be necessary for sub-dissection (binary vs. compact, ...)
  * param[in] is_field       Indicate if the offset point to a field element and if field type and field id must be dissected.
- *                          Only for containers internal use. Sub-dissectors must always use TRUE except for struct (see below).
+ *                          Only for containers internal use. Sub-dissectors must always use true except for struct (see below).
  * param[in] field_id       Thrift field identifier, to check that the right field is being dissected (in case of optional fields).
  * param[in] hf_id          Header field info that describes the field to display (display name, filter name, FT_TYPE, ...).
  *
@@ -140,17 +140,17 @@ struct _thrift_member_t {
  *                          in this dissector (thrift.fallback_on_generic option).
  */
 WS_DLL_PUBLIC int dissect_thrift_t_stop      (tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset);
-WS_DLL_PUBLIC int dissect_thrift_t_bool      (tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id);
-WS_DLL_PUBLIC int dissect_thrift_t_i8        (tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id);
-WS_DLL_PUBLIC int dissect_thrift_t_i16       (tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id);
-WS_DLL_PUBLIC int dissect_thrift_t_i32       (tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id);
-WS_DLL_PUBLIC int dissect_thrift_t_i64       (tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id);
-WS_DLL_PUBLIC int dissect_thrift_t_double    (tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id);
-WS_DLL_PUBLIC int dissect_thrift_t_uuid      (tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id);
-WS_DLL_PUBLIC int dissect_thrift_t_binary    (tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id);
-WS_DLL_PUBLIC int dissect_thrift_t_string    (tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id);
-WS_DLL_PUBLIC int dissect_thrift_t_string_enc(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id, guint encoding);
-WS_DLL_PUBLIC int dissect_thrift_t_raw_data  (tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id, thrift_type_enum_t type, dissector_t field_dissector);
+WS_DLL_PUBLIC int dissect_thrift_t_bool      (tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, thrift_option_data_t *thrift_opt, bool is_field, int field_id, int hf_id);
+WS_DLL_PUBLIC int dissect_thrift_t_i8        (tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, thrift_option_data_t *thrift_opt, bool is_field, int field_id, int hf_id);
+WS_DLL_PUBLIC int dissect_thrift_t_i16       (tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, thrift_option_data_t *thrift_opt, bool is_field, int field_id, int hf_id);
+WS_DLL_PUBLIC int dissect_thrift_t_i32       (tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, thrift_option_data_t *thrift_opt, bool is_field, int field_id, int hf_id);
+WS_DLL_PUBLIC int dissect_thrift_t_i64       (tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, thrift_option_data_t *thrift_opt, bool is_field, int field_id, int hf_id);
+WS_DLL_PUBLIC int dissect_thrift_t_double    (tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, thrift_option_data_t *thrift_opt, bool is_field, int field_id, int hf_id);
+WS_DLL_PUBLIC int dissect_thrift_t_uuid      (tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, thrift_option_data_t *thrift_opt, bool is_field, int field_id, int hf_id);
+WS_DLL_PUBLIC int dissect_thrift_t_binary    (tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, thrift_option_data_t *thrift_opt, bool is_field, int field_id, int hf_id);
+WS_DLL_PUBLIC int dissect_thrift_t_string    (tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, thrift_option_data_t *thrift_opt, bool is_field, int field_id, int hf_id);
+WS_DLL_PUBLIC int dissect_thrift_t_string_enc(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, thrift_option_data_t *thrift_opt, bool is_field, int field_id, int hf_id, unsigned encoding);
+WS_DLL_PUBLIC int dissect_thrift_t_raw_data  (tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, thrift_option_data_t *thrift_opt, bool is_field, int field_id, int hf_id, thrift_type_enum_t type, dissector_t field_dissector);
 
 /* Dissect a Thrift struct
  * Dissect a Thrift struct by calling the struct member dissector in turn from the thrift_member_t array
@@ -161,10 +161,10 @@ WS_DLL_PUBLIC int dissect_thrift_t_raw_data  (tvbuff_t* tvb, packet_info* pinfo,
  * param[in] offset         Offset from the beginning of the tvbuff_t where the Thrift field is. Function will dissect type, id, & data.
  * param[in] thrift_opt     Options from the Thrift dissector that will be necessary for sub-dissection (binary vs. compact, ...)
  * param[in] is_field       Indicate if the offset point to a field element and if field type and field id must be dissected.
- *                          Only for internal use in containers. Sub-dissectors must always use TRUE except for struct (see below).
- *                          Sub-dissectors should always use TRUE except in one case:
+ *                          Only for internal use in containers. Sub-dissectors must always use true except for struct (see below).
+ *                          Sub-dissectors should always use true except in one case:
  *                          - Define the parameters of the Thrift command as a struct (including T_STOP at the end)
- *                          - Single call to dissect_thrift_t_struct with is_field = FALSE.
+ *                          - Single call to dissect_thrift_t_struct with is_field = false.
  * param[in] field_id       Thrift field identifier, to check that the right field is being dissected (in case of optional fields).
  * param[in] hf_id          A header field of FT_BYTES which will be the struct header field
  *
@@ -181,9 +181,9 @@ WS_DLL_PUBLIC int dissect_thrift_t_raw_data  (tvbuff_t* tvb, packet_info* pinfo,
  * return                   Offset of the first non-dissected byte in case of success,
  *                          Same error values and remarks as above.
  */
-WS_DLL_PUBLIC int dissect_thrift_t_map   (tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id, gint ett_id, const thrift_member_t *key, const thrift_member_t *val);
-WS_DLL_PUBLIC int dissect_thrift_t_set   (tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id, gint ett_id, const thrift_member_t *elt);
-WS_DLL_PUBLIC int dissect_thrift_t_list  (tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id, gint ett_id, const thrift_member_t *elt);
-WS_DLL_PUBLIC int dissect_thrift_t_struct(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, thrift_option_data_t *thrift_opt, gboolean is_field, int field_id, gint hf_id, gint ett_id, const thrift_member_t *seq);
+WS_DLL_PUBLIC int dissect_thrift_t_map   (tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, thrift_option_data_t *thrift_opt, bool is_field, int field_id, int hf_id, int ett_id, const thrift_member_t *key, const thrift_member_t *val);
+WS_DLL_PUBLIC int dissect_thrift_t_set   (tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, thrift_option_data_t *thrift_opt, bool is_field, int field_id, int hf_id, int ett_id, const thrift_member_t *elt);
+WS_DLL_PUBLIC int dissect_thrift_t_list  (tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, thrift_option_data_t *thrift_opt, bool is_field, int field_id, int hf_id, int ett_id, const thrift_member_t *elt);
+WS_DLL_PUBLIC int dissect_thrift_t_struct(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, thrift_option_data_t *thrift_opt, bool is_field, int field_id, int hf_id, int ett_id, const thrift_member_t *seq);
 
 #endif /*__PACKET_THRIFT_H__ */

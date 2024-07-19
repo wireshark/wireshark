@@ -29,35 +29,35 @@ void proto_register_tfp(void);
 static dissector_handle_t tfp_handle_tcp;
 
 /* variables for creating the tree */
-static gint proto_tfp;
-static gint ett_tfp;
+static int proto_tfp;
+static int ett_tfp;
 
 /* header field variables */
-static gint hf_tfp_uid;
-static gint hf_tfp_uid_numeric;
-static gint hf_tfp_len;
-static gint hf_tfp_fid;
-static gint hf_tfp_seq;
-static gint hf_tfp_r;
-static gint hf_tfp_a;
-static gint hf_tfp_oo;
-static gint hf_tfp_e;
-static gint hf_tfp_future_use;
-static gint hf_tfp_payload;
+static int hf_tfp_uid;
+static int hf_tfp_uid_numeric;
+static int hf_tfp_len;
+static int hf_tfp_fid;
+static int hf_tfp_seq;
+static int hf_tfp_r;
+static int hf_tfp_a;
+static int hf_tfp_oo;
+static int hf_tfp_e;
+static int hf_tfp_future_use;
+static int hf_tfp_payload;
 
 /* bit and byte offsets for dissection */
-static const gint byte_offset_len	   = 4;
-static const gint byte_offset_fid	   = 5;
-static const gint byte_count_tfp_uid	   = 4;
-static const gint byte_count_tfp_len	   = 1;
-static const gint byte_count_tfp_fid	   = 1;
-static const gint byte_count_tfp_flags	   = 2;
-static const gint bit_count_tfp_seq	   = 4;
-static const gint bit_count_tfp_r	   = 1;
-static const gint bit_count_tfp_a	   = 1;
-static const gint bit_count_tfp_oo	   = 2;
-static const gint bit_count_tfp_e	   = 2;
-static const gint bit_count_tfp_future_use = 6;
+static const int byte_offset_len	   = 4;
+static const int byte_offset_fid	   = 5;
+static const int byte_count_tfp_uid	   = 4;
+static const int byte_count_tfp_len	   = 1;
+static const int byte_count_tfp_fid	   = 1;
+static const int byte_count_tfp_flags	   = 2;
+static const int bit_count_tfp_seq	   = 4;
+static const int bit_count_tfp_r	   = 1;
+static const int bit_count_tfp_a	   = 1;
+static const int bit_count_tfp_oo	   = 2;
+static const int bit_count_tfp_e	   = 2;
+static const int bit_count_tfp_future_use = 6;
 
 /* base58 encoding variable */
 static const char BASE58_ALPHABET[] =
@@ -65,12 +65,12 @@ static const char BASE58_ALPHABET[] =
 
 /* function for encoding a number to base58 string */
 static void
-base58_encode(guint32 value, char *str) {
+base58_encode(uint32_t value, char *str) {
 
-	guint32 mod;
-	gint    i = 0;
-	gint    k;
-	gchar	reverse_str[BASE58_MAX_STR_SIZE] = {'\0'};
+	uint32_t mod;
+	int     i = 0;
+	int     k;
+	char	reverse_str[BASE58_MAX_STR_SIZE] = {'\0'};
 
 	while (value >= 58) {
 		mod = value % 58;
@@ -94,19 +94,19 @@ base58_encode(guint32 value, char *str) {
 static void
 dissect_tfp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
-	gint   byte_offset = 0;
-	gint   bit_offset  = 48;
+	int    byte_offset = 0;
+	int    bit_offset  = 48;
 
-	guint8 hv_tfp_len;
-	guint8 hv_tfp_fid;
-	guint8 hv_tfp_seq;
+	uint8_t hv_tfp_len;
+	uint8_t hv_tfp_fid;
+	uint8_t hv_tfp_seq;
 
-	gchar  tfp_uid_string[BASE58_MAX_STR_SIZE];
+	char   tfp_uid_string[BASE58_MAX_STR_SIZE];
 
 	base58_encode(tvb_get_letohl(tvb, 0), &tfp_uid_string[0]);
 
-	hv_tfp_len = tvb_get_guint8(tvb, byte_offset_len);
-	hv_tfp_fid = tvb_get_guint8(tvb, byte_offset_fid);
+	hv_tfp_len = tvb_get_uint8(tvb, byte_offset_len);
+	hv_tfp_fid = tvb_get_uint8(tvb, byte_offset_fid);
 	hv_tfp_seq = tvb_get_bits8(tvb, bit_offset, bit_count_tfp_seq);
 
 	col_add_fstr(pinfo->cinfo, COL_INFO,
@@ -380,7 +380,7 @@ proto_register_tfp(void)
 	};
 
 	/* setup protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_tfp
 	};
 

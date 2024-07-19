@@ -60,24 +60,24 @@ enum twamp_control_state {
 };
 
 typedef struct _twamp_session {
-    guint8 accepted;
+    uint8_t accepted;
     int padding;
-    guint16 sender_port;
-    guint16 receiver_port;
-    guint32 sender_address[4];
-    guint32 receiver_address[4];
-    guint8 ipvn;
+    uint16_t sender_port;
+    uint16_t receiver_port;
+    uint32_t sender_address[4];
+    uint32_t receiver_address[4];
+    uint8_t ipvn;
 } twamp_session_t;
 
 typedef struct twamp_control_packet {
-    guint32 fd;
+    uint32_t fd;
     enum twamp_control_state state;
     conversation_t *conversation;
 } twamp_control_packet_t;
 
 typedef struct twamp_control_transaction {
     enum twamp_control_state last_state;
-    guint32 first_data_frame;
+    uint32_t first_data_frame;
     GSList *sessions;
     proto_tree *tree;
 } twamp_control_transaction_t;
@@ -90,10 +90,10 @@ static dissector_handle_t twamp_control_handle;
 static int proto_owamp_test;
 static int proto_twamp_test;
 static int proto_twamp_control;
-static gint ett_owamp_test;
-static gint ett_twamp_test;
-static gint ett_twamp_control;
-static gint ett_twamp_error_estimate;
+static int ett_owamp_test;
+static int ett_twamp_test;
+static int ett_twamp_control;
+static int ett_twamp_error_estimate;
 
 /* Twamp test fields */
 static int hf_twamp_seq_number;
@@ -182,15 +182,15 @@ static const value_string twamp_control_state_vals[] = {
 };
 
 static
-gint find_twamp_session_by_sender_port (gconstpointer element, gconstpointer compared)
+int find_twamp_session_by_sender_port (const void *element, const void *compared)
 {
-    const guint16 *sender_port = (const guint16*) compared;
+    const uint16_t *sender_port = (const uint16_t*) compared;
     const twamp_session_t *session = (const twamp_session_t*) element;
     return !(session->sender_port == *sender_port);
 }
 
 static
-gint find_twamp_session_by_first_accept_waiting (gconstpointer element, gconstpointer dummy _U_)
+int find_twamp_session_by_first_accept_waiting (const void *element, const void *dummy _U_)
 {
     const twamp_session_t *session = (const twamp_session_t*) element;
     if (session->accepted == 0)
@@ -202,35 +202,35 @@ gint find_twamp_session_by_first_accept_waiting (gconstpointer element, gconstpo
 static int
 dissect_twamp_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    gint offset = 0;
-    gboolean is_request;
+    int offset = 0;
+    bool is_request;
     proto_item *twamp_tree;
     proto_tree *it;
     conversation_t *conversation;
     twamp_control_transaction_t *ct;
     twamp_control_packet_t *cp;
     twamp_session_t *session = NULL;
-    guint8 accept;
-    guint16 sender_port;
-    guint16 receiver_port;
+    uint8_t accept;
+    uint16_t sender_port;
+    uint16_t receiver_port;
     GSList *list;
     nstime_t ts;
     proto_tree *item;
-    guint32 modes;
-    guint32 type_p;
-    guint8 command_number;
-    guint8 ipvn;
+    uint32_t modes;
+    uint32_t type_p;
+    uint8_t command_number;
+    uint8_t ipvn;
 
     if (pinfo->destport == TWAMP_CONTROL_PORT) {
-        is_request = TRUE;
+        is_request = true;
     } else {
-        is_request = FALSE;
+        is_request = false;
     }
 
     conversation = find_or_create_conversation(pinfo);
     ct = (twamp_control_transaction_t *) conversation_get_proto_data(conversation, proto_twamp_control);
     if (ct == NULL) {
-        if (is_request == FALSE && tvb_reported_length(tvb) == TWAMP_CONTROL_SERVER_GREETING_LEN) {
+        if (is_request == false && tvb_reported_length(tvb) == TWAMP_CONTROL_SERVER_GREETING_LEN) {
             /* We got server greeting */
             ct = wmem_new0(wmem_file_scope(), twamp_control_transaction_t);
             conversation_add_proto_data(conversation, proto_twamp_control, ct);
@@ -263,7 +263,7 @@ dissect_twamp_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
                 session->sender_port = sender_port;
                 session->receiver_port = receiver_port;
                 session->accepted = 0;
-                ipvn = tvb_get_guint8(tvb, 1) & 0x0F;
+                ipvn = tvb_get_uint8(tvb, 1) & 0x0F;
 
                 if (ipvn == 6) {
                     tvb_get_ipv6(tvb, 16, (struct e_in6_addr*) &session->sender_address);
@@ -288,7 +288,7 @@ dissect_twamp_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
             }
         } else if (ct->last_state == CONTROL_STATE_REQUEST_SESSION) {
             ct->last_state = CONTROL_STATE_ACCEPT_SESSION;
-            accept = tvb_get_guint8(tvb, 0);
+            accept = tvb_get_uint8(tvb, 0);
             if (accept == TWAMP_SESSION_ACCEPT_OK) {
                 receiver_port = tvb_get_ntohs(tvb, 2);
 
@@ -313,7 +313,7 @@ dissect_twamp_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
             }
         } else if (ct->last_state == CONTROL_STATE_ACCEPT_SESSION) {
             /* We shall check the Command Number to determine current CONTROL_STATE_XXX */
-            command_number = tvb_get_guint8(tvb, 0);
+            command_number = tvb_get_uint8(tvb, 0);
             switch(command_number){
                 case 2: /* Start-Sessions */
                     ct->last_state = CONTROL_STATE_START_SESSIONS;
@@ -373,7 +373,7 @@ dissect_twamp_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     case CONTROL_STATE_SERVER_START:
         proto_tree_add_item(twamp_tree, hf_twamp_control_mbz1, tvb, offset, 15, ENC_NA);
         offset += 15;
-        accept = tvb_get_guint8(tvb, offset);
+        accept = tvb_get_uint8(tvb, offset);
         proto_tree_add_uint(twamp_tree, hf_twamp_control_accept, tvb, offset, 1, accept);
         col_append_fstr(pinfo->cinfo, COL_INFO, ", (%s%s)",
                 (accept == 0) ? "" : "Error: ", val_to_str(accept, twamp_control_accept_vals, "%u"));
@@ -390,7 +390,7 @@ dissect_twamp_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         proto_tree_add_item(twamp_tree, hf_twamp_control_command, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        ipvn = tvb_get_guint8(tvb, offset) & 0x0F;
+        ipvn = tvb_get_uint8(tvb, offset) & 0x0F;
         proto_tree_add_uint(twamp_tree, hf_twamp_control_ipvn, tvb, offset, 1, ipvn);
         offset += 1;
 
@@ -444,7 +444,7 @@ dissect_twamp_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         break;
 
     case CONTROL_STATE_ACCEPT_SESSION:
-        accept = tvb_get_guint8(tvb, offset);
+        accept = tvb_get_uint8(tvb, offset);
         proto_tree_add_uint(twamp_tree, hf_twamp_control_accept, tvb, offset, 1, accept);
         col_append_fstr(pinfo->cinfo, COL_INFO, ", (%s%s)",
                 (accept == 0) ? "" : "Error: ", val_to_str(accept, twamp_control_accept_vals, "%u"));
@@ -466,7 +466,7 @@ dissect_twamp_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         /* offset += 16; */
         break;
     case CONTROL_STATE_START_SESSIONS_ACK:
-        accept = tvb_get_guint8(tvb, offset);
+        accept = tvb_get_uint8(tvb, offset);
         proto_tree_add_uint(twamp_tree, hf_twamp_control_accept, tvb, offset, 1, accept);
         col_append_fstr(pinfo->cinfo, COL_INFO, ", (%s%s)",
                 (accept == 0) ? "" : "Error: ", val_to_str(accept, twamp_control_accept_vals, "%u"));
@@ -499,7 +499,7 @@ dissect_twamp_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 }
 
 static
-guint get_server_greeting_len(packet_info *pinfo _U_, tvbuff_t *tvb _U_, int offset _U_, void *data _U_)
+unsigned get_server_greeting_len(packet_info *pinfo _U_, tvbuff_t *tvb _U_, int offset _U_, void *data _U_)
 {
     conversation_t *conversation;
     twamp_control_transaction_t *ct;
@@ -518,7 +518,7 @@ static int
 dissect_twamp_server_greeting(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     /* Try to reassemble server greeting message */
-    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 0, get_server_greeting_len, dissect_twamp_control, data);
+    tcp_dissect_pdus(tvb, pinfo, tree, true, 0, get_server_greeting_len, dissect_twamp_control, data);
     return tvb_captured_length(tvb);
 }
 
@@ -585,7 +585,7 @@ dissect_owamp_test(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 static int
 dissect_twamp_test(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    gint offset = 0;
+    int offset = 0;
     proto_item *ti = NULL;
     proto_item *twamp_tree = NULL;
     int padding = 0;
@@ -704,7 +704,7 @@ void proto_register_twamp(void)
           TFS(&tfs_twamp_sbit_tfs), 0x8000, NULL, HFILL } },
     };
 
-    static gint *ett_twamp_test_arr[] = {
+    static int *ett_twamp_test_arr[] = {
         &ett_owamp_test,
         &ett_twamp_test
     };
@@ -811,7 +811,7 @@ void proto_register_twamp(void)
         }
     };
 
-    static gint *ett_twamp_control_arr[] = {
+    static int *ett_twamp_control_arr[] = {
         &ett_twamp_control,
         &ett_twamp_error_estimate
     };

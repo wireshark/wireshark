@@ -55,7 +55,7 @@ void proto_reg_handoff_tcpcl(void);
 /// Contact header magic bytes
 static const char magic[] = {'d', 't', 'n', '!'};
 /// Minimum size of contact header for any version
-static const guint minimum_chdr_size = 6;
+static const unsigned minimum_chdr_size = 6;
 
 /// Options for missing contact header handling
 enum AllowContactHeaderMissing {
@@ -80,7 +80,7 @@ static int proto_tcpcl_exts;
 /// Protocol column name
 static const char *const proto_name_tcpcl = "TCPCL";
 
-static gint tcpcl_chdr_missing = CHDRMSN_V4FIRST;
+static int tcpcl_chdr_missing = CHDRMSN_V4FIRST;
 static bool tcpcl_desegment_transfer = true;
 static bool tcpcl_analyze_sequence = true;
 static bool tcpcl_decode_bundle = true;
@@ -505,26 +505,26 @@ static int *const v4_xferext_flags[] = {
 };
 
 /* Tree Node Variables */
-static gint ett_proto_tcpcl;
-static gint ett_chdr;
-static gint ett_tcpclv3_chdr_flags;
-static gint ett_tcpclv3_mhdr;
-static gint ett_tcpclv3_data_procflags;
-static gint ett_tcpclv3_shutdown_flags;
-static gint ett_xfer_fragment;
-static gint ett_xfer_fragments;
-static gint ett_tcpclv4_chdr_flags;
-static gint ett_tcpclv4_mhdr;
-static gint ett_tcpclv4_sess_term_flags;
-static gint ett_tcpclv4_xfer_flags;
-static gint ett_tcpclv4_sessext;
-static gint ett_tcpclv4_sessext_flags;
-static gint ett_tcpclv4_sessext_data;
-static gint ett_tcpclv4_xferext;
-static gint ett_tcpclv4_xferext_flags;
-static gint ett_tcpclv4_xferext_data;
+static int ett_proto_tcpcl;
+static int ett_chdr;
+static int ett_tcpclv3_chdr_flags;
+static int ett_tcpclv3_mhdr;
+static int ett_tcpclv3_data_procflags;
+static int ett_tcpclv3_shutdown_flags;
+static int ett_xfer_fragment;
+static int ett_xfer_fragments;
+static int ett_tcpclv4_chdr_flags;
+static int ett_tcpclv4_mhdr;
+static int ett_tcpclv4_sess_term_flags;
+static int ett_tcpclv4_xfer_flags;
+static int ett_tcpclv4_sessext;
+static int ett_tcpclv4_sessext_flags;
+static int ett_tcpclv4_sessext_data;
+static int ett_tcpclv4_xferext;
+static int ett_tcpclv4_xferext_flags;
+static int ett_tcpclv4_xferext_data;
 
-static gint *ett[] = {
+static int *ett[] = {
     &ett_proto_tcpcl,
     &ett_chdr,
     &ett_tcpclv3_chdr_flags,
@@ -638,11 +638,11 @@ static const fragment_items xfer_frag_items = {
     "Transfer fragments"
 };
 
-static guint tvb_get_sdnv(tvbuff_t *tvb, guint offset, guint64 *value) {
+static unsigned tvb_get_sdnv(tvbuff_t *tvb, unsigned offset, uint64_t *value) {
     return tvb_get_varint(tvb, offset, FT_VARINT_MAX_LEN, value, ENC_VARINT_SDNV);
 }
 
-static void tcpcl_frame_loc_init(tcpcl_frame_loc_t *loc, const packet_info *pinfo, tvbuff_t *tvb, const gint offset) {
+static void tcpcl_frame_loc_init(tcpcl_frame_loc_t *loc, const packet_info *pinfo, tvbuff_t *tvb, const int offset) {
     loc->frame_num = pinfo->num;
     // This is a messy way to determine the index,
     // but no other public functions allow determining how two TVB are related
@@ -659,7 +659,7 @@ static void tcpcl_frame_loc_init(tcpcl_frame_loc_t *loc, const packet_info *pinf
 
 /** Construct a new object on the file allocator.
  */
-static tcpcl_frame_loc_t * tcpcl_frame_loc_new(wmem_allocator_t *alloc, const packet_info *pinfo, tvbuff_t *tvb, const gint offset) {
+static tcpcl_frame_loc_t * tcpcl_frame_loc_new(wmem_allocator_t *alloc, const packet_info *pinfo, tvbuff_t *tvb, const int offset) {
     tcpcl_frame_loc_t *obj = wmem_new(alloc, tcpcl_frame_loc_t);
     tcpcl_frame_loc_init(obj, pinfo, tvb, offset);
     return obj;
@@ -677,7 +677,7 @@ static tcpcl_frame_loc_t * tcpcl_frame_loc_clone(wmem_allocator_t *alloc, const 
 
 /** Function to match the GCompareDataFunc signature.
  */
-static gint tcpcl_frame_loc_compare(gconstpointer a, gconstpointer b, gpointer user_data _U_) {
+static int tcpcl_frame_loc_compare(const void *a, const void *b, void *user_data _U_) {
     const tcpcl_frame_loc_t *aloc = a;
     const tcpcl_frame_loc_t *bloc = b;
 
@@ -699,7 +699,7 @@ static gint tcpcl_frame_loc_compare(gconstpointer a, gconstpointer b, gpointer u
 
 /** Function to match the GCompareFunc signature.
  */
-static gboolean tcpcl_frame_loc_equal(gconstpointer a, gconstpointer b) {
+static gboolean tcpcl_frame_loc_equal(const void *a, const void *b) {
     const tcpcl_frame_loc_t *aobj = a;
     const tcpcl_frame_loc_t *bobj = b;
     return (
@@ -710,7 +710,7 @@ static gboolean tcpcl_frame_loc_equal(gconstpointer a, gconstpointer b) {
 
 /** Function to match the GHashFunc signature.
  */
-static guint tcpcl_frame_loc_hash(gconstpointer key) {
+static unsigned tcpcl_frame_loc_hash(const void *key) {
     const tcpcl_frame_loc_t *obj = key;
     return (
         g_int_hash(&(obj->frame_num))
@@ -729,9 +729,9 @@ struct tcpcl_seg_meta {
     /// Timestamp on the frame (end time if reassembled)
     nstime_t frame_time;
     /// Copy of message flags
-    guint8 flags;
+    uint8_t flags;
     /// Total transfer length including this segment
-    guint64 seen_len;
+    uint64_t seen_len;
 
     /// Potential related start segment
     tcpcl_seg_meta_t *related_start;
@@ -756,7 +756,7 @@ static void tcpcl_seg_meta_free(tcpcl_seg_meta_t *obj) {
 
 /** Function to match the GCompareFunc signature.
  */
-static gint tcpcl_seg_meta_compare_loc(gconstpointer a, gconstpointer b) {
+static int tcpcl_seg_meta_compare_loc(const void *a, const void *b) {
     return tcpcl_frame_loc_compare(
         &(((tcpcl_seg_meta_t *)a)->frame_loc),
         &(((tcpcl_seg_meta_t *)b)->frame_loc),
@@ -770,9 +770,9 @@ struct tcpcl_ack_meta {
     /// Timestamp on the frame (end time if reassembled)
     nstime_t frame_time;
     /// Copy of message flags
-    guint8 flags;
+    uint8_t flags;
     /// Total acknowledged length including this ack
-    guint64 seen_len;
+    uint64_t seen_len;
 
     /// Potential related start segment
     tcpcl_seg_meta_t *related_start;
@@ -797,7 +797,7 @@ static void tcpcl_ack_meta_free(tcpcl_ack_meta_t *obj) {
 
 /** Function to match the GCompareFunc signature.
  */
-static gint tcpcl_ack_meta_compare_loc(gconstpointer a, gconstpointer b) {
+static int tcpcl_ack_meta_compare_loc(const void *a, const void *b) {
     return tcpcl_frame_loc_compare(
         &(((tcpcl_seg_meta_t *)a)->frame_loc),
         &(((tcpcl_seg_meta_t *)b)->frame_loc),
@@ -813,10 +813,10 @@ static tcpcl_transfer_t * tcpcl_transfer_new(void) {
     return obj;
 }
 
-static tcpcl_transfer_t * get_or_create_transfer_t(wmem_map_t *table, const guint64 xfer_id) {
+static tcpcl_transfer_t * get_or_create_transfer_t(wmem_map_t *table, const uint64_t xfer_id) {
     tcpcl_transfer_t *xfer = wmem_map_lookup(table, &xfer_id);
     if (!xfer) {
-        guint64 *key = wmem_new(wmem_file_scope(), guint64);
+        uint64_t *key = wmem_new(wmem_file_scope(), uint64_t);
         *key = xfer_id;
         xfer = tcpcl_transfer_new();
         wmem_map_insert(table, key, xfer);
@@ -832,11 +832,11 @@ static tcpcl_peer_t * tcpcl_peer_new(void) {
     return obj;
 }
 
-static void tcpcl_peer_associate_transfer(tcpcl_peer_t *peer, const tcpcl_frame_loc_t *loc, const guint64 xfer_id) {
-    gpointer *xfer = wmem_map_lookup(peer->frame_loc_to_transfer, loc);
+static void tcpcl_peer_associate_transfer(tcpcl_peer_t *peer, const tcpcl_frame_loc_t *loc, const uint64_t xfer_id) {
+    void * *xfer = wmem_map_lookup(peer->frame_loc_to_transfer, loc);
     if (!xfer) {
         tcpcl_frame_loc_t *key = tcpcl_frame_loc_clone(wmem_file_scope(), loc);
-        guint64 *val = wmem_new(wmem_file_scope(), guint64);
+        uint64_t *val = wmem_new(wmem_file_scope(), uint64_t);
         *val = xfer_id;
         wmem_map_insert(peer->frame_loc_to_transfer, key, val);
     }
@@ -849,7 +849,7 @@ static tcpcl_conversation_t * tcpcl_conversation_new(void) {
     return obj;
 }
 
-tcpcl_dissect_ctx_t * tcpcl_dissect_ctx_get(tvbuff_t *tvb, packet_info *pinfo, const gint offset) {
+tcpcl_dissect_ctx_t * tcpcl_dissect_ctx_get(tvbuff_t *tvb, packet_info *pinfo, const int offset) {
     conversation_t *convo = find_or_create_conversation(pinfo);
     tcpcl_conversation_t *tcpcl_convo = (tcpcl_conversation_t *)conversation_get_proto_data(convo, proto_tcpcl);
     if (!tcpcl_convo) {
@@ -859,7 +859,7 @@ tcpcl_dissect_ctx_t * tcpcl_dissect_ctx_get(tvbuff_t *tvb, packet_info *pinfo, c
     ctx->convo = tcpcl_convo;
     ctx->cur_loc = tcpcl_frame_loc_new(wmem_packet_scope(), pinfo, tvb, offset);
 
-    const gboolean src_is_active = (
+    const bool src_is_active = (
         addresses_equal(&(ctx->convo->active->addr), &(pinfo->src))
         && (ctx->convo->active->port == pinfo->srcport)
     );
@@ -883,12 +883,12 @@ tcpcl_dissect_ctx_t * tcpcl_dissect_ctx_get(tvbuff_t *tvb, packet_info *pinfo, c
     return ctx;
 }
 
-static void set_chdr_missing(tcpcl_peer_t *peer, guint8 version) {
-    peer->chdr_missing = TRUE;
+static void set_chdr_missing(tcpcl_peer_t *peer, uint8_t version) {
+    peer->chdr_missing = true;
     peer->version = version;
     // assumed parameters
-    peer->segment_mru = G_MAXUINT64;
-    peer->transfer_mru = G_MAXUINT64;
+    peer->segment_mru = UINT64_MAX;
+    peer->transfer_mru = UINT64_MAX;
 }
 
 
@@ -899,7 +899,7 @@ static void try_negotiate(tcpcl_dissect_ctx_t *ctx, packet_info *pinfo) {
         ctx->convo->session_use_tls = (
             ctx->convo->active->can_tls & ctx->convo->passive->can_tls
         );
-        ctx->convo->contact_negotiated = TRUE;
+        ctx->convo->contact_negotiated = true;
 
         if (ctx->convo->session_use_tls
             && (!(ctx->convo->session_tls_start))) {
@@ -916,7 +916,7 @@ static void try_negotiate(tcpcl_dissect_ctx_t *ctx, packet_info *pinfo) {
             ctx->convo->active->keepalive,
             ctx->convo->passive->keepalive
         );
-        ctx->convo->sess_negotiated = TRUE;
+        ctx->convo->sess_negotiated = true;
 
     }
 }
@@ -925,10 +925,10 @@ typedef struct {
     // key type for addresses_ports_reassembly_table_functions
     void *addr_port;
     // TCPCL ID
-    guint64 xfer_id;
+    uint64_t xfer_id;
 } tcpcl_fragment_key_t;
 
-static guint fragment_key_hash(gconstpointer ptr) {
+static unsigned fragment_key_hash(const void *ptr) {
     const tcpcl_fragment_key_t *obj = (const tcpcl_fragment_key_t *)ptr;
     return (
         addresses_ports_reassembly_table_functions.hash_func(obj->addr_port)
@@ -936,7 +936,7 @@ static guint fragment_key_hash(gconstpointer ptr) {
     );
 }
 
-static gboolean fragment_key_equal(gconstpointer ptrA, gconstpointer ptrB) {
+static gboolean fragment_key_equal(const void *ptrA, const void *ptrB) {
     const tcpcl_fragment_key_t *objA = (const tcpcl_fragment_key_t *)ptrA;
     const tcpcl_fragment_key_t *objB = (const tcpcl_fragment_key_t *)ptrB;
     return (
@@ -945,21 +945,21 @@ static gboolean fragment_key_equal(gconstpointer ptrA, gconstpointer ptrB) {
     );
 }
 
-static gpointer fragment_key_temporary(const packet_info *pinfo, const guint32 id, const void *data) {
+static void *fragment_key_temporary(const packet_info *pinfo, const uint32_t id, const void *data) {
     tcpcl_fragment_key_t *obj = g_slice_new(tcpcl_fragment_key_t);
     obj->addr_port = addresses_ports_reassembly_table_functions.temporary_key_func(pinfo, id, NULL);
-    obj->xfer_id = *((const guint64 *)data);
-    return (gpointer)obj;
+    obj->xfer_id = *((const uint64_t *)data);
+    return (void *)obj;
 }
 
-static gpointer fragment_key_persistent(const packet_info *pinfo, const guint32 id, const void *data) {
+static void *fragment_key_persistent(const packet_info *pinfo, const uint32_t id, const void *data) {
     tcpcl_fragment_key_t *obj = g_slice_new(tcpcl_fragment_key_t);
     obj->addr_port = addresses_ports_reassembly_table_functions.persistent_key_func(pinfo, id, NULL);
-    obj->xfer_id = *((const guint64 *)data);
-    return (gpointer)obj;
+    obj->xfer_id = *((const uint64_t *)data);
+    return (void *)obj;
 }
 
-static void fragment_key_free_temporary(gpointer ptr) {
+static void fragment_key_free_temporary(void *ptr) {
     tcpcl_fragment_key_t *obj = (tcpcl_fragment_key_t *)ptr;
     if (obj) {
         addresses_ports_reassembly_table_functions.free_temporary_key_func(obj->addr_port);
@@ -967,7 +967,7 @@ static void fragment_key_free_temporary(gpointer ptr) {
     }
 }
 
-static void fragment_key_free_persistent(gpointer ptr) {
+static void fragment_key_free_persistent(void *ptr) {
     tcpcl_fragment_key_t *obj = (tcpcl_fragment_key_t *)ptr;
     if (obj) {
         addresses_ports_reassembly_table_functions.free_persistent_key_func(obj->addr_port);
@@ -986,13 +986,13 @@ static reassembly_table_functions xfer_reassembly_table_functions = {
 
 /** Record metadata about one segment in a transfer.
  */
-static void transfer_add_segment(tcpcl_dissect_ctx_t *ctx, guint64 xfer_id, guint8 flags,
-                                 guint64 data_len,
+static void transfer_add_segment(tcpcl_dissect_ctx_t *ctx, uint64_t xfer_id, uint8_t flags,
+                                 uint64_t data_len,
                                  packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree_msg,
                                  proto_item *item_msg, proto_item *item_flags) {
     tcpcl_transfer_t *xfer = get_or_create_transfer_t(ctx->tx_peer->transfers, xfer_id);
 
-    guint8 flag_start, flag_end;
+    uint8_t flag_start, flag_end;
     if (ctx->tx_peer->version == 3) {
         flag_start = TCPCLV3_DATA_START_FLAG;
         flag_end = TCPCLV3_DATA_END_FLAG;
@@ -1026,7 +1026,7 @@ static void transfer_add_segment(tcpcl_dissect_ctx_t *ctx, guint64 xfer_id, guin
     }
 
     // accumulate segment sizes
-    guint64 prev_seen_len;
+    uint64_t prev_seen_len;
     wmem_list_frame_t *frm_prev = wmem_list_frame_prev(frm);
     if (!frm_prev) {
         if (!(flags & flag_start)) {
@@ -1095,8 +1095,8 @@ static void transfer_add_segment(tcpcl_dissect_ctx_t *ctx, guint64 xfer_id, guin
     }
 }
 
-static void transfer_add_ack(tcpcl_dissect_ctx_t *ctx, guint64 xfer_id, guint8 flags,
-                             guint64 ack_len,
+static void transfer_add_ack(tcpcl_dissect_ctx_t *ctx, uint64_t xfer_id, uint8_t flags,
+                             uint64_t ack_len,
                              packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree_msg,
                              proto_item *item_msg, proto_item *item_flags) {
     tcpcl_transfer_t *xfer = get_or_create_transfer_t(ctx->rx_peer->transfers, xfer_id);
@@ -1168,7 +1168,7 @@ static void transfer_add_ack(tcpcl_dissect_ctx_t *ctx, guint64 xfer_id, guint8 f
     }
 }
 
-static void transfer_add_refuse(tcpcl_dissect_ctx_t *ctx, guint64 xfer_id,
+static void transfer_add_refuse(tcpcl_dissect_ctx_t *ctx, uint64_t xfer_id,
                                 packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree_msg,
                                 proto_item *item_msg) {
     const tcpcl_transfer_t *xfer = wmem_map_lookup(ctx->rx_peer->transfers, &xfer_id);
@@ -1188,28 +1188,28 @@ static void transfer_add_refuse(tcpcl_dissect_ctx_t *ctx, guint64 xfer_id,
     }
 }
 
-static gint get_clamped_length(guint64 orig, packet_info *pinfo, proto_item *item) {
-    gint clamped;
-    if (orig > G_MAXINT) {
-        clamped = G_MAXINT;
+static int get_clamped_length(uint64_t orig, packet_info *pinfo, proto_item *item) {
+    int clamped;
+    if (orig > INT_MAX) {
+        clamped = INT_MAX;
         if (pinfo && item) {
             expert_add_info(pinfo, item, &ei_length_clamped);
         }
     }
     else {
-        clamped = (gint) orig;
+        clamped = (int) orig;
     }
     return clamped;
 }
 
-static guint
+static unsigned
 get_v3_msg_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset,
                tcpcl_dissect_ctx_t *ctx _U_)
 {
     const int orig_offset = offset;
-    guint64 len;
-    guint bytecount;
-    guint8 conv_hdr = tvb_get_guint8(tvb, offset);
+    uint64_t len;
+    unsigned bytecount;
+    uint8_t conv_hdr = tvb_get_uint8(tvb, offset);
     offset += 1;
 
     switch (conv_hdr & TCPCLV3_TYPE_MASK)
@@ -1220,7 +1220,7 @@ get_v3_msg_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset,
         if (bytecount == 0) {
             return 0;
         }
-        const gint len_clamp = get_clamped_length(len, NULL, NULL);
+        const int len_clamp = get_clamped_length(len, NULL, NULL);
         offset += bytecount + len_clamp;
         break;
     }
@@ -1267,21 +1267,21 @@ static int
 dissect_v3_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                tcpcl_dissect_ctx_t *ctx)
 {
-    guint8         conv_hdr;
+    uint8_t        conv_hdr;
     const char *msgtype_name;
-    guint8         refuse_bundle_hdr;
+    uint8_t        refuse_bundle_hdr;
     int            offset = 0;
-    gint sdnv_length;
-    guint64 segment_length;
+    int sdnv_length;
+    uint64_t segment_length;
     proto_item    *conv_item, *sub_item;
     proto_tree    *conv_tree, *sub_tree;
-    guint64 *xfer_id = NULL;
+    uint64_t *xfer_id = NULL;
     proto_item *item_xfer_id = NULL;
 
     conv_item = proto_tree_add_item(tree, hf_tcpclv3_mhdr, tvb, 0, -1, ENC_NA);
     conv_tree = proto_item_add_subtree(conv_item, ett_tcpclv3_mhdr);
 
-    conv_hdr = tvb_get_guint8(tvb, offset);
+    conv_hdr = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(conv_tree, hf_tcpclv3_pkt_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     msgtype_name = val_to_str_const((conv_hdr>>4)&0xF, v3_message_type_vals, "Unknown");
@@ -1311,12 +1311,12 @@ dissect_v3_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             return 0;
         }
         offset += sdnv_length;
-        const gint data_len_clamp = get_clamped_length(segment_length, pinfo, sub_item);
+        const int data_len_clamp = get_clamped_length(segment_length, pinfo, sub_item);
 
         // implied transfer ID
         xfer_id = wmem_map_lookup(ctx->tx_peer->frame_loc_to_transfer, ctx->cur_loc);
         if (!xfer_id) {
-            xfer_id = wmem_new(wmem_packet_scope(), guint64);
+            xfer_id = wmem_new(wmem_packet_scope(), uint64_t);
             *xfer_id = wmem_map_size(ctx->tx_peer->transfers);
 
             if (conv_hdr & TCPCLV3_DATA_START_FLAG) {
@@ -1371,7 +1371,7 @@ dissect_v3_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         // implied transfer ID
         xfer_id = wmem_map_lookup(ctx->rx_peer->frame_loc_to_transfer, ctx->cur_loc);
         if (!xfer_id) {
-            xfer_id = wmem_new(wmem_packet_scope(), guint64);
+            xfer_id = wmem_new(wmem_packet_scope(), uint64_t);
             *xfer_id = wmem_map_size(ctx->rx_peer->transfers);
 
             tcpcl_peer_associate_transfer(ctx->rx_peer, ctx->cur_loc, *xfer_id);
@@ -1419,7 +1419,7 @@ dissect_v3_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /*No valid flags*/
         offset += 1;
 
-        refuse_bundle_hdr = tvb_get_guint8(tvb, offset);
+        refuse_bundle_hdr = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(conv_tree, hf_tcpclv3_refuse_reason_code, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
         col_add_str(pinfo->cinfo, COL_INFO, val_to_str_const((refuse_bundle_hdr>>4)&0xF, v3_refuse_reason_code, "Unknown"));
@@ -1427,7 +1427,7 @@ dissect_v3_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         // implied transfer ID
         xfer_id = wmem_map_lookup(ctx->rx_peer->frame_loc_to_transfer, ctx->cur_loc);
         if (!xfer_id) {
-            xfer_id = wmem_new(wmem_packet_scope(), guint64);
+            xfer_id = wmem_new(wmem_packet_scope(), uint64_t);
             *xfer_id = wmem_map_size(ctx->rx_peer->transfers);
 
             tcpcl_peer_associate_transfer(ctx->rx_peer, ctx->cur_loc, *xfer_id);
@@ -1449,25 +1449,25 @@ dissect_v3_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return offset;
 }
 
-static guint get_v4_msg_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset,
+static unsigned get_v4_msg_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset,
                             tcpcl_dissect_ctx_t *ctx _U_) {
     const int init_offset = offset;
-    guint8 msgtype = tvb_get_guint8(tvb, offset);
+    uint8_t msgtype = tvb_get_uint8(tvb, offset);
     offset += 1;
     switch(msgtype) {
         case TCPCLV4_MSGTYPE_SESS_INIT: {
-            const gint buflen = tvb_reported_length(tvb);
+            const int buflen = tvb_reported_length(tvb);
             offset += 2 + 8 + 8;
             if (buflen < offset + 2) {
                 return 0;
             }
-            guint16 nodeid_len = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+            uint16_t nodeid_len = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
             offset += 2;
             offset += nodeid_len;
             if (buflen < offset + 4) {
                 return 0;
             }
-            guint32 extlist_len = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+            uint32_t extlist_len = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
             offset += 4;
             offset += extlist_len;
             break;
@@ -1477,27 +1477,27 @@ static guint get_v4_msg_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset,
             break;
         }
         case TCPCLV4_MSGTYPE_XFER_SEGMENT: {
-            const gint buflen = tvb_reported_length(tvb);
+            const int buflen = tvb_reported_length(tvb);
             if (buflen < offset + 1) {
                 return 0;
             }
-            guint8 flags = tvb_get_guint8(tvb, offset);
+            uint8_t flags = tvb_get_uint8(tvb, offset);
             offset += 1;
             offset += 8;
             if (flags & TCPCLV4_TRANSFER_FLAG_START) {
                 if (buflen < offset + 4) {
                     return 0;
                 }
-                guint32 extlist_len = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+                uint32_t extlist_len = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
                 offset += 4;
                 offset += extlist_len;
             }
             if (buflen < offset + 8) {
                 return 0;
             }
-            guint64 data_len = tvb_get_guint64(tvb, offset, ENC_BIG_ENDIAN);
+            uint64_t data_len = tvb_get_uint64(tvb, offset, ENC_BIG_ENDIAN);
             offset += 8;
-            const gint data_len_clamp = get_clamped_length(data_len, NULL, NULL);
+            const int data_len_clamp = get_clamped_length(data_len, NULL, NULL);
             offset += data_len_clamp;
             break;
         }
@@ -1528,15 +1528,15 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                tcpcl_dissect_ctx_t *ctx _U_) {
     int offset  = 0;
     // Length of non-protocol 'payload' data in this message
-    gint payload_len = 0;
+    int payload_len = 0;
 
-    guint8 msgtype = 0;
+    uint8_t msgtype = 0;
     const char *msgtype_name = NULL;
 
     proto_item *item_msg = proto_tree_add_item(tree, hf_tcpclv4_mhdr_tree, tvb, offset, 0, ENC_NA);
     proto_tree *tree_msg = proto_item_add_subtree(item_msg, ett_tcpclv4_mhdr);
 
-    msgtype = tvb_get_guint8(tvb, offset);
+    msgtype = tvb_get_uint8(tvb, offset);
     proto_tree_add_uint(tree_msg, hf_tcpclv4_mhdr_type, tvb, offset, 1, msgtype);
     offset += 1;
     msgtype_name = val_to_str(msgtype, v4_message_type_vals, "type 0x%02" PRIx32);
@@ -1544,48 +1544,48 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     switch(msgtype) {
         case TCPCLV4_MSGTYPE_SESS_INIT: {
-            guint16 keepalive = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+            uint16_t keepalive = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
             proto_tree_add_uint(tree_msg, hf_tcpclv4_sess_init_keepalive, tvb, offset, 2, keepalive);
             offset += 2;
 
-            guint64 seg_mru = tvb_get_guint64(tvb, offset, ENC_BIG_ENDIAN);
+            uint64_t seg_mru = tvb_get_uint64(tvb, offset, ENC_BIG_ENDIAN);
             proto_tree_add_uint64(tree_msg, hf_tcpclv4_sess_init_seg_mru, tvb, offset, 8, seg_mru);
             offset += 8;
 
-            guint64 xfer_mru = tvb_get_guint64(tvb, offset, ENC_BIG_ENDIAN);
+            uint64_t xfer_mru = tvb_get_uint64(tvb, offset, ENC_BIG_ENDIAN);
             proto_tree_add_uint64(tree_msg, hf_tcpclv4_sess_init_xfer_mru, tvb, offset, 8, xfer_mru);
             offset += 8;
 
-            guint16 nodeid_len = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+            uint16_t nodeid_len = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
             proto_tree_add_uint(tree_msg, hf_tcpclv4_sess_init_nodeid_len, tvb, offset, 2, nodeid_len);
             offset += 2;
 
             {
-                guint8 *nodeid_data = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, nodeid_len, ENC_UTF_8);
+                uint8_t *nodeid_data = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, nodeid_len, ENC_UTF_8);
                 proto_tree_add_string(tree_msg, hf_tcpclv4_sess_init_nodeid_data, tvb, offset, nodeid_len, (const char *)nodeid_data);
                 wmem_free(wmem_packet_scope(), nodeid_data);
             }
             offset += nodeid_len;
 
-            guint32 extlist_len = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+            uint32_t extlist_len = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
             proto_tree_add_uint(tree_msg, hf_tcpclv4_sess_init_extlist_len, tvb, offset, 4, extlist_len);
             offset += 4;
 
-            gint extlist_offset = 0;
+            int extlist_offset = 0;
             while (extlist_offset < (int)extlist_len) {
-                gint extitem_offset = 0;
+                int extitem_offset = 0;
                 proto_item *item_ext = proto_tree_add_item(tree_msg, hf_tcpclv4_sessext_tree, tvb, offset + extlist_offset, 0, ENC_NA);
                 proto_tree *tree_ext = proto_item_add_subtree(item_ext, ett_tcpclv4_sessext);
 
-                guint8 extitem_flags = tvb_get_guint8(tvb, offset + extlist_offset + extitem_offset);
+                uint8_t extitem_flags = tvb_get_uint8(tvb, offset + extlist_offset + extitem_offset);
                 proto_tree_add_bitmask(tree_ext, tvb, offset + extlist_offset + extitem_offset, hf_tcpclv4_sessext_flags, ett_tcpclv4_sessext_flags, v4_sessext_flags, ENC_BIG_ENDIAN);
                 extitem_offset += 1;
-                const gboolean is_critical = (extitem_flags & TCPCLV4_EXTENSION_FLAG_CRITICAL);
+                const bool is_critical = (extitem_flags & TCPCLV4_EXTENSION_FLAG_CRITICAL);
                 if (is_critical) {
                     expert_add_info(pinfo, item_ext, &ei_tcpclv4_extitem_critical);
                 }
 
-                guint16 extitem_type = tvb_get_guint16(tvb, offset + extlist_offset + extitem_offset, ENC_BIG_ENDIAN);
+                uint16_t extitem_type = tvb_get_uint16(tvb, offset + extlist_offset + extitem_offset, ENC_BIG_ENDIAN);
                 proto_item *item_type = proto_tree_add_uint(tree_ext, hf_tcpclv4_sessext_type, tvb, offset + extlist_offset + extitem_offset, 2, extitem_type);
                 extitem_offset += 2;
 
@@ -1595,7 +1595,7 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     proto_item_set_text(item_type, "Item Type: %s (0x%04" PRIx16 ")", subname, extitem_type);
                 }
 
-                guint16 extitem_len = tvb_get_guint16(tvb, offset + extlist_offset + extitem_offset, ENC_BIG_ENDIAN);
+                uint16_t extitem_len = tvb_get_uint16(tvb, offset + extlist_offset + extitem_offset, ENC_BIG_ENDIAN);
                 proto_tree_add_uint(tree_ext, hf_tcpclv4_sessext_len, tvb, offset + extlist_offset + extitem_offset, 2, extitem_len);
                 extitem_offset += 2;
 
@@ -1645,11 +1645,11 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             break;
         }
         case TCPCLV4_MSGTYPE_SESS_TERM: {
-            guint8 flags = tvb_get_guint8(tvb, offset);
+            uint8_t flags = tvb_get_uint8(tvb, offset);
             proto_tree_add_bitmask(tree_msg, tvb, offset, hf_tcpclv4_sess_term_flags, ett_tcpclv4_sess_term_flags, v4_sess_term_flags, ENC_BIG_ENDIAN);
             offset += 1;
 
-            guint8 reason = tvb_get_guint8(tvb, offset);
+            uint8_t reason = tvb_get_uint8(tvb, offset);
             proto_tree_add_uint(tree_msg, hf_tcpclv4_sess_term_reason, tvb, offset, 1, reason);
             offset += 1;
 
@@ -1682,34 +1682,34 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             break;
         }
         case TCPCLV4_MSGTYPE_XFER_SEGMENT:{
-            guint8 flags = tvb_get_guint8(tvb, offset);
+            uint8_t flags = tvb_get_uint8(tvb, offset);
             proto_item *item_flags = proto_tree_add_bitmask(tree_msg, tvb, offset, hf_tcpclv4_xfer_flags, ett_tcpclv4_xfer_flags, v4_xfer_flags, ENC_BIG_ENDIAN);
             offset += 1;
 
-            guint64 xfer_id = tvb_get_guint64(tvb, offset, ENC_BIG_ENDIAN);
+            uint64_t xfer_id = tvb_get_uint64(tvb, offset, ENC_BIG_ENDIAN);
             proto_tree_add_uint64(tree_msg, hf_tcpclv4_xfer_id, tvb, offset, 8, xfer_id);
             offset += 8;
 
             if (flags & TCPCLV4_TRANSFER_FLAG_START) {
-                guint32 extlist_len = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+                uint32_t extlist_len = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
                 proto_tree_add_uint(tree_msg, hf_tcpclv4_xfer_segment_extlist_len, tvb, offset, 4, extlist_len);
                 offset += 4;
 
-                gint extlist_offset = 0;
+                int extlist_offset = 0;
                 while (extlist_offset < (int)extlist_len) {
-                    gint extitem_offset = 0;
+                    int extitem_offset = 0;
                     proto_item *item_ext = proto_tree_add_item(tree_msg, hf_tcpclv4_xferext_tree, tvb, offset + extlist_offset, 0, ENC_NA);
                     proto_tree *tree_ext = proto_item_add_subtree(item_ext, ett_tcpclv4_xferext);
 
-                    guint8 extitem_flags = tvb_get_guint8(tvb, offset + extlist_offset + extitem_offset);
+                    uint8_t extitem_flags = tvb_get_uint8(tvb, offset + extlist_offset + extitem_offset);
                     proto_tree_add_bitmask(tree_ext, tvb, offset + extlist_offset + extitem_offset, hf_tcpclv4_xferext_flags, ett_tcpclv4_xferext_flags, v4_xferext_flags, ENC_BIG_ENDIAN);
                     extitem_offset += 1;
-                    const gboolean is_critical = (extitem_flags & TCPCLV4_EXTENSION_FLAG_CRITICAL);
+                    const bool is_critical = (extitem_flags & TCPCLV4_EXTENSION_FLAG_CRITICAL);
                     if (is_critical) {
                         expert_add_info(pinfo, item_ext, &ei_tcpclv4_extitem_critical);
                     }
 
-                    guint16 extitem_type = tvb_get_guint16(tvb, offset + extlist_offset + extitem_offset, ENC_BIG_ENDIAN);
+                    uint16_t extitem_type = tvb_get_uint16(tvb, offset + extlist_offset + extitem_offset, ENC_BIG_ENDIAN);
                     proto_item *item_type = proto_tree_add_uint(tree_ext, hf_tcpclv4_xferext_type, tvb, offset + extlist_offset + extitem_offset, 2, extitem_type);
                     extitem_offset += 2;
 
@@ -1719,7 +1719,7 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         proto_item_set_text(item_type, "Item Type: %s (0x%04" PRIx16 ")", subname, extitem_type);
                     }
 
-                    guint16 extitem_len = tvb_get_guint16(tvb, offset + extlist_offset + extitem_offset, ENC_BIG_ENDIAN);
+                    uint16_t extitem_len = tvb_get_uint16(tvb, offset + extlist_offset + extitem_offset, ENC_BIG_ENDIAN);
                     proto_tree_add_uint(tree_ext, hf_tcpclv4_xferext_len, tvb, offset + extlist_offset + extitem_offset, 2, extitem_len);
                     extitem_offset += 2;
 
@@ -1756,17 +1756,17 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 offset += extlist_len;
             }
 
-            guint64 data_len = tvb_get_guint64(tvb, offset, ENC_BIG_ENDIAN);
+            uint64_t data_len = tvb_get_uint64(tvb, offset, ENC_BIG_ENDIAN);
             proto_item *item_len = proto_tree_add_uint64(tree_msg, hf_tcpclv4_xfer_segment_data_len, tvb, offset, 8, data_len);
             offset += 8;
 
             if (data_len > ctx->rx_peer->segment_mru) {
                 expert_add_info(pinfo, item_len, &ei_tcpclv4_xfer_seg_over_seg_mru);
             }
-            const gint data_len_clamp = get_clamped_length(data_len, pinfo, item_len);
+            const int data_len_clamp = get_clamped_length(data_len, pinfo, item_len);
 
             // Treat data as payload layer
-            const gint data_offset = offset;
+            const int data_offset = offset;
             proto_tree_add_item(tree_msg, hf_tcpclv4_xfer_segment_data, tvb, offset, data_len_clamp, ENC_NA);
             offset += data_len_clamp;
             payload_len = data_len_clamp;
@@ -1775,10 +1775,10 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             if (flags) {
                 wmem_strbuf_append(suffix_text, ", Flags: ");
-                gboolean sep = FALSE;
+                bool sep = false;
                 if (flags & TCPCLV4_TRANSFER_FLAG_START) {
                     wmem_strbuf_append(suffix_text, "START");
-                    sep = TRUE;
+                    sep = true;
                 }
                 if (flags & TCPCLV4_TRANSFER_FLAG_END) {
                     if (sep) {
@@ -1814,15 +1814,15 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             break;
         }
         case TCPCLV4_MSGTYPE_XFER_ACK:{
-            guint8 flags = tvb_get_guint8(tvb, offset);
+            uint8_t flags = tvb_get_uint8(tvb, offset);
             proto_item *item_flags = proto_tree_add_bitmask(tree_msg, tvb, offset, hf_tcpclv4_xfer_flags, ett_tcpclv4_xfer_flags, v4_xfer_flags, ENC_BIG_ENDIAN);
             offset += 1;
 
-            guint64 xfer_id = tvb_get_guint64(tvb, offset, ENC_BIG_ENDIAN);
+            uint64_t xfer_id = tvb_get_uint64(tvb, offset, ENC_BIG_ENDIAN);
             proto_tree_add_uint64(tree_msg, hf_tcpclv4_xfer_id, tvb, offset, 8, xfer_id);
             offset += 8;
 
-            guint64 ack_len = tvb_get_guint64(tvb, offset, ENC_BIG_ENDIAN);
+            uint64_t ack_len = tvb_get_uint64(tvb, offset, ENC_BIG_ENDIAN);
             proto_tree_add_uint64(tree_msg, hf_tcpclv4_xfer_ack_ack_len, tvb, offset, 8, ack_len);
             offset += 8;
 
@@ -1830,10 +1830,10 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             if (flags) {
                 wmem_strbuf_append(suffix_text, ", Flags: ");
-                gboolean sep = FALSE;
+                bool sep = false;
                 if (flags & TCPCLV4_TRANSFER_FLAG_START) {
                     wmem_strbuf_append(suffix_text, "START");
-                    sep = TRUE;
+                    sep = true;
                 }
                 if (flags & TCPCLV4_TRANSFER_FLAG_END) {
                     if (sep) {
@@ -1850,11 +1850,11 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             break;
         }
         case TCPCLV4_MSGTYPE_XFER_REFUSE: {
-            guint8 reason = tvb_get_guint8(tvb, offset);
+            uint8_t reason = tvb_get_uint8(tvb, offset);
             proto_tree_add_uint(tree_msg, hf_tcpclv4_xfer_refuse_reason, tvb, offset, 1, reason);
             offset += 1;
 
-            guint64 xfer_id = tvb_get_guint64(tvb, offset, ENC_BIG_ENDIAN);
+            uint64_t xfer_id = tvb_get_uint64(tvb, offset, ENC_BIG_ENDIAN);
             proto_tree_add_uint64(tree_msg, hf_tcpclv4_xfer_id, tvb, offset, 8, xfer_id);
             offset += 8;
 
@@ -1870,11 +1870,11 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             break;
         }
         case TCPCLV4_MSGTYPE_MSG_REJECT: {
-            guint8 reason = tvb_get_guint8(tvb, offset);
+            uint8_t reason = tvb_get_uint8(tvb, offset);
             proto_tree_add_uint(tree_msg, hf_tcpclv4_msg_reject_reason, tvb, offset, 1, reason);
             offset += 1;
 
-            guint8 rej_head = tvb_get_guint8(tvb, offset);
+            uint8_t rej_head = tvb_get_uint8(tvb, offset);
             proto_tree_add_uint(tree_msg, hf_tcpclv4_msg_reject_head, tvb, offset, 1, rej_head);
             offset += 1;
 
@@ -1897,7 +1897,7 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             }
             else {
                 // This message is before SESS_INIT (but is not the SESS_INIT)
-                const gint cmp_sess_init = tcpcl_frame_loc_compare(ctx->cur_loc, ctx->tx_peer->sess_init_seen, NULL);
+                const int cmp_sess_init = tcpcl_frame_loc_compare(ctx->cur_loc, ctx->tx_peer->sess_init_seen, NULL);
                 if (((msgtype == TCPCLV4_MSGTYPE_SESS_INIT) && (cmp_sess_init < 0))
                     || ((msgtype != TCPCLV4_MSGTYPE_SESS_INIT) && (cmp_sess_init <= 0))) {
                     expert_add_info(pinfo, item_msg, &ei_tcpclv4_sess_init_missing);
@@ -1931,11 +1931,11 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 /** Function to extract a message length, or zero if not valid.
  * This will call set_chdr_missing() if valid.
  */
-typedef guint (*chdr_missing_check)(packet_info *, tvbuff_t *, int offset, tcpcl_dissect_ctx_t *);
+typedef unsigned (*chdr_missing_check)(packet_info *, tvbuff_t *, int offset, tcpcl_dissect_ctx_t *);
 
 /** Inspect a single segment to determine if this looks like a TLS record set.
  */
-static guint chdr_missing_tls(packet_info *pinfo, tvbuff_t *tvb, int offset,
+static unsigned chdr_missing_tls(packet_info *pinfo, tvbuff_t *tvb, int offset,
                               tcpcl_dissect_ctx_t *ctx) {
     if (ctx->convo->session_tls_start) {
         // already in a TLS context
@@ -1946,9 +1946,9 @@ static guint chdr_missing_tls(packet_info *pinfo, tvbuff_t *tvb, int offset,
     if (tvb_captured_length(tvb) < 5) {
         return 0;
     }
-    guint8 rectype = tvb_get_guint8(tvb, offset);
-    guint16 recvers = tvb_get_guint16(tvb, offset+1, ENC_BIG_ENDIAN);
-    guint16 reclen = tvb_get_guint16(tvb, offset+1+2, ENC_BIG_ENDIAN);
+    uint8_t rectype = tvb_get_uint8(tvb, offset);
+    uint16_t recvers = tvb_get_uint16(tvb, offset+1, ENC_BIG_ENDIAN);
+    uint16_t reclen = tvb_get_uint16(tvb, offset+1+2, ENC_BIG_ENDIAN);
 
     switch(rectype) {
         // These overlap with TCPCLV3_DATA_SEGMENT but have invalid flags
@@ -1969,7 +1969,7 @@ static guint chdr_missing_tls(packet_info *pinfo, tvbuff_t *tvb, int offset,
     }
 
     // post-STARTTLS
-    ctx->convo->session_use_tls = TRUE;
+    ctx->convo->session_use_tls = true;
     ctx->convo->session_tls_start = tcpcl_frame_loc_clone(wmem_file_scope(), ctx->cur_loc);
     ssl_starttls_post_ack(tls_handle, pinfo, tcpcl_handle);
 
@@ -1977,18 +1977,18 @@ static guint chdr_missing_tls(packet_info *pinfo, tvbuff_t *tvb, int offset,
 
 }
 
-static guint chdr_missing_v3(packet_info *pinfo, tvbuff_t *tvb, int offset,
+static unsigned chdr_missing_v3(packet_info *pinfo, tvbuff_t *tvb, int offset,
                              tcpcl_dissect_ctx_t *ctx) {
-    guint sublen = get_v3_msg_len(pinfo, tvb, offset, ctx);
+    unsigned sublen = get_v3_msg_len(pinfo, tvb, offset, ctx);
     if (sublen > 0) {
         set_chdr_missing(ctx->tx_peer, 3);
     }
     return sublen;
 }
 
-static guint chdr_missing_v4(packet_info *pinfo, tvbuff_t *tvb, int offset,
+static unsigned chdr_missing_v4(packet_info *pinfo, tvbuff_t *tvb, int offset,
                              tcpcl_dissect_ctx_t *ctx) {
-    guint sublen = get_v4_msg_len(pinfo, tvb, offset, ctx);
+    unsigned sublen = get_v4_msg_len(pinfo, tvb, offset, ctx);
     if (sublen > 0) {
         set_chdr_missing(ctx->tx_peer, 4);
     }
@@ -2016,13 +2016,13 @@ static const chdr_missing_check chdr_missing_v4only[] = {
     NULL
 };
 
-static guint get_message_len(packet_info *pinfo, tvbuff_t *tvb, int ext_offset, void *data _U_) {
+static unsigned get_message_len(packet_info *pinfo, tvbuff_t *tvb, int ext_offset, void *data _U_) {
     tcpcl_dissect_ctx_t *ctx = tcpcl_dissect_ctx_get(tvb, pinfo, ext_offset);
     if (!ctx) {
         return 0;
     }
-    const guint init_offset = ext_offset;
-    guint offset = ext_offset;
+    const unsigned init_offset = ext_offset;
+    unsigned offset = ext_offset;
 
     if (ctx->is_contact) {
         if (tvb_memeql(tvb, offset, magic, sizeof(magic)) != 0) {
@@ -2044,7 +2044,7 @@ static guint get_message_len(packet_info *pinfo, tvbuff_t *tvb, int ext_offset, 
             }
             if (checks) {
                 for (const chdr_missing_check *chk = checks; *chk; ++chk) {
-                    guint sublen = (**chk)(pinfo, tvb, offset, ctx);
+                    unsigned sublen = (**chk)(pinfo, tvb, offset, ctx);
                     if (sublen > 0) {
                         return sublen;
                     }
@@ -2054,7 +2054,7 @@ static guint get_message_len(packet_info *pinfo, tvbuff_t *tvb, int ext_offset, 
             }
             else {
                 // require the contact header
-                const guint available = tvb_captured_length(tvb) - offset;
+                const unsigned available = tvb_captured_length(tvb) - offset;
                 if (available < sizeof(magic) + 1) {
                     return DESEGMENT_ONE_MORE_SEGMENT;
                 }
@@ -2064,13 +2064,13 @@ static guint get_message_len(packet_info *pinfo, tvbuff_t *tvb, int ext_offset, 
         }
         offset += sizeof(magic);
 
-        guint8 version = tvb_get_guint8(tvb, offset);
+        uint8_t version = tvb_get_uint8(tvb, offset);
         offset += 1;
         if (version == 3) {
             offset += 3; // flags + keepalive
-            guint64 eid_len;
-            const guint bytecount = tvb_get_sdnv(tvb, offset, &eid_len);
-            const gint len_clamp = get_clamped_length(eid_len, NULL, NULL);
+            uint64_t eid_len;
+            const unsigned bytecount = tvb_get_sdnv(tvb, offset, &eid_len);
+            const int len_clamp = get_clamped_length(eid_len, NULL, NULL);
             offset += bytecount + len_clamp;
         }
         else if (version == 4) {
@@ -2082,14 +2082,14 @@ static guint get_message_len(packet_info *pinfo, tvbuff_t *tvb, int ext_offset, 
     }
     else {
         if (ctx->tx_peer->version == 3) {
-            guint sublen = get_v3_msg_len(pinfo, tvb, offset, ctx);
+            unsigned sublen = get_v3_msg_len(pinfo, tvb, offset, ctx);
             if (sublen == 0) {
                 return 0;
             }
             offset += sublen;
         }
         else if (ctx->tx_peer->version == 4) {
-            guint sublen = get_v4_msg_len(pinfo, tvb, offset, ctx);
+            unsigned sublen = get_v4_msg_len(pinfo, tvb, offset, ctx);
             if (sublen == 0) {
                 return 0;
             }
@@ -2103,15 +2103,15 @@ static guint get_message_len(packet_info *pinfo, tvbuff_t *tvb, int ext_offset, 
     return needlen;
 }
 
-static gint dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
-    gint offset = 0;
+static int dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+    int offset = 0;
     tcpcl_dissect_ctx_t *ctx = tcpcl_dissect_ctx_get(tvb, pinfo, offset);
     if (!ctx) {
         return 0;
     }
 
     {
-        const gchar *proto_name = col_get_text(pinfo->cinfo, COL_PROTOCOL);
+        const char *proto_name = col_get_text(pinfo->cinfo, COL_PROTOCOL);
         if (g_strcmp0(proto_name, proto_name_tcpcl) != 0) {
             col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_name_tcpcl);
             col_clear(pinfo->cinfo, COL_INFO);
@@ -2147,13 +2147,13 @@ static gint dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
         offset += sizeof(magic);
 
-        ctx->tx_peer->version = tvb_get_guint8(tvb, offset);
+        ctx->tx_peer->version = tvb_get_uint8(tvb, offset);
         proto_item *item_version = proto_tree_add_uint(tree_chdr, hf_chdr_version, tvb, offset, 1, ctx->tx_peer->version);
         offset += 1;
 
         // Mark or check version match
         if (!ctx->convo->version) {
-            ctx->convo->version = wmem_new(wmem_file_scope(), guint8);
+            ctx->convo->version = wmem_new(wmem_file_scope(), uint8_t);
             *(ctx->convo->version) = ctx->tx_peer->version;
         }
         else if (*(ctx->convo->version) != ctx->tx_peer->version) {
@@ -2176,7 +2176,7 @@ static gint dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             /*
              * New format Contact header has length field followed by EID.
              */
-            guint64 eid_length;
+            uint64_t eid_length;
             int sdnv_length;
             proto_item *sub_item = proto_tree_add_item_ret_varint(tree_chdr, hf_tcpclv3_chdr_local_eid_length, tvb, offset, -1, ENC_VARINT_SDNV, &eid_length, &sdnv_length);
             if (sdnv_length == 0) {
@@ -2184,17 +2184,17 @@ static gint dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 return 0;
             }
             offset += sdnv_length;
-            const gint eid_len_clamp = get_clamped_length(eid_length, pinfo, sub_item);
+            const int eid_len_clamp = get_clamped_length(eid_length, pinfo, sub_item);
 
             proto_tree_add_item(tree_chdr, hf_tcpclv3_chdr_local_eid, tvb, offset, eid_len_clamp, ENC_NA|ENC_ASCII);
             offset += eid_len_clamp;
 
             // assumed parameters
-            ctx->tx_peer->segment_mru = G_MAXUINT64;
-            ctx->tx_peer->transfer_mru = G_MAXUINT64;
+            ctx->tx_peer->segment_mru = UINT64_MAX;
+            ctx->tx_peer->transfer_mru = UINT64_MAX;
         }
         else if (ctx->tx_peer->version == 4) {
-            guint8 flags = tvb_get_guint8(tvb, offset);
+            uint8_t flags = tvb_get_uint8(tvb, offset);
             proto_tree_add_bitmask(tree_chdr, tvb, offset, hf_tcpclv4_chdr_flags, ett_tcpclv4_chdr_flags, v4_chdr_flags, ENC_BIG_ENDIAN);
             offset += 1;
 
@@ -2237,7 +2237,7 @@ static gint dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     const int item_len = proto_item_get_len(item_tcpcl);
-    gboolean is_new_item_tcpcl = (item_len <= 0);
+    bool is_new_item_tcpcl = (item_len <= 0);
     if (is_new_item_tcpcl) {
         proto_item_set_len(item_tcpcl, offset);
         proto_item_append_text(item_tcpcl, " Version %d", ctx->tx_peer->version);
@@ -2281,9 +2281,9 @@ dissect_tcpcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         tcpcl_convo->passive->port = pinfo->destport;
     }
 
-    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 1, get_message_len, dissect_message, NULL);
+    tcp_dissect_pdus(tvb, pinfo, tree, true, 1, get_message_len, dissect_message, NULL);
 
-    const guint buflen = tvb_captured_length(tvb);
+    const unsigned buflen = tvb_captured_length(tvb);
     return buflen;
 }
 
@@ -2312,7 +2312,7 @@ static int dissect_xferext_transferlen(tvbuff_t *tvb, packet_info *pinfo _U_, pr
         return 0;
     }
 
-    guint64 total_len = tvb_get_guint64(tvb, offset, ENC_BIG_ENDIAN);
+    uint64_t total_len = tvb_get_uint64(tvb, offset, ENC_BIG_ENDIAN);
     proto_item *item_len = proto_tree_add_uint64(tree, hf_tcpclv4_xferext_transferlen_total_len, tvb, offset, 8, total_len);
     offset += 8;
     if (total_len > ctx->rx_peer->transfer_mru) {
@@ -2320,10 +2320,10 @@ static int dissect_xferext_transferlen(tvbuff_t *tvb, packet_info *pinfo _U_, pr
     }
 
     if (tcpcl_analyze_sequence) {
-        guint64 *xfer_id = wmem_map_lookup(ctx->tx_peer->frame_loc_to_transfer, ctx->cur_loc);
+        uint64_t *xfer_id = wmem_map_lookup(ctx->tx_peer->frame_loc_to_transfer, ctx->cur_loc);
         if (xfer_id) {
             tcpcl_transfer_t *xfer = get_or_create_transfer_t(ctx->tx_peer->transfers, *xfer_id);
-            xfer->total_length = wmem_new(wmem_file_scope(), guint64);
+            xfer->total_length = wmem_new(wmem_file_scope(), uint64_t);
             *(xfer->total_length) = total_len;
         }
     }
@@ -2334,9 +2334,9 @@ static int dissect_xferext_transferlen(tvbuff_t *tvb, packet_info *pinfo _U_, pr
 static int dissect_othername_bundleeid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
     int offset = 0;
     asn1_ctx_t actx;
-    asn1_ctx_init(&actx, ASN1_ENC_BER, TRUE, pinfo);
+    asn1_ctx_init(&actx, ASN1_ENC_BER, true, pinfo);
     offset += dissect_ber_restricted_string(
-        FALSE, BER_UNI_TAG_IA5String,
+        false, BER_UNI_TAG_IA5String,
         &actx, tree, tvb, offset, hf_othername_bundleeid, NULL
     );
     return offset;
@@ -2384,7 +2384,7 @@ proto_register_tcpcl(void)
         "(if the capture misses the start of session).",
         &tcpcl_chdr_missing,
         chdr_missing_choices,
-        FALSE
+        false
     );
     prefs_register_bool_preference(
         module_tcpcl,

@@ -173,13 +173,13 @@ static int hf_tipcv2_media_id;
 static int hf_tipcv2_syn;
 
 
-static gint ett_tipc_msg_fragment;
-static gint ett_tipc_msg_fragments;
+static int ett_tipc_msg_fragment;
+static int ett_tipc_msg_fragments;
 
 
 /* Initialize the subtree pointer */
-static gint ett_tipc;
-static gint ett_tipc_data;
+static int ett_tipc;
+static int ett_tipc_data;
 
 static expert_field ei_tipc_field_not_specified;
 static expert_field ei_tipc_invalid_bundle_size;
@@ -194,7 +194,7 @@ static bool try_heuristic_first;
 #define V2_AS_ALL  0x1
 #define V2_AS_1_6  0x2
 #define V2_AS_1_7  0x4
-static gint     handle_v2_as = V2_AS_ALL;
+static int      handle_v2_as = V2_AS_ALL;
 static bool tipc_tcp_desegment = true;
 
 static dissector_handle_t tipc_handle;
@@ -568,12 +568,12 @@ void proto_reg_handoff_tipc(void);
 
 static reassembly_table tipc_msg_reassembly_table;
 
-static gchar*
-tipc_addr_value_to_buf(guint tipc_address, gchar *buf, int buf_len)
+static char*
+tipc_addr_value_to_buf(unsigned tipc_address, char *buf, int buf_len)
 {
-	guint8 zone;
-	guint16 subnetwork;
-	guint16 processor;
+	uint8_t zone;
+	uint16_t subnetwork;
+	uint16_t processor;
 
 	processor = tipc_address & 0x0fff;
 
@@ -587,20 +587,20 @@ tipc_addr_value_to_buf(guint tipc_address, gchar *buf, int buf_len)
 	return buf;
 }
 
-static gchar *
-tipc_addr_to_str(guint tipc_address)
+static char *
+tipc_addr_to_str(unsigned tipc_address)
 {
-	gchar *buf;
+	char *buf;
 
-	buf = (gchar *)wmem_alloc(wmem_packet_scope(), MAX_TIPC_ADDRESS_STR_LEN);
+	buf = (char *)wmem_alloc(wmem_packet_scope(), MAX_TIPC_ADDRESS_STR_LEN);
 	return tipc_addr_value_to_buf(tipc_address, buf, MAX_TIPC_ADDRESS_STR_LEN);
 }
 
 static int
-tipc_addr_to_str_buf(const address* addr, gchar *buf, int buf_len)
+tipc_addr_to_str_buf(const address* addr, char *buf, int buf_len)
 {
-	const guint8 *data = (const guint8 *)addr->data;
-	guint32 tipc_address;
+	const uint8_t *data = (const uint8_t *)addr->data;
+	uint32_t tipc_address;
 
 	tipc_address = data[0];
 	tipc_address = (tipc_address << 8) ^ data[1];
@@ -630,11 +630,11 @@ tipc_addr_str_len(const address* addr _U_)
    };
    */
 static void
-dissect_tipc_name_dist_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 item_size)
+dissect_tipc_name_dist_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint8_t item_size)
 {
 	int offset = 0;
-	guint32 dword;
-	gchar *addr_str_ptr;
+	uint32_t dword;
+	char *addr_str_ptr;
 
 	if ((handle_v2_as & V2_AS_1_6) || ((handle_v2_as & (V2_AS_ALL) && item_size == 0))) {
 		/* TIPC 1.6 */
@@ -681,12 +681,12 @@ dissect_tipc_name_dist_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 /* Set message type in COL INFO and return type of message (data or Internal message type */
 static void
-tipc_v2_set_info_col(tvbuff_t *tvb, packet_info *pinfo, guint8 user, guint8 msg_type, guint8 hdr_size)
+tipc_v2_set_info_col(tvbuff_t *tvb, packet_info *pinfo, uint8_t user, uint8_t msg_type, uint8_t hdr_size)
 {
-	guint32 portNameInst, dword;
-	guint32 portNameType, portNameInstLow, portNameInstHigh;
-	guint8 error;
-	/*guint8 item_size = 0;*/
+	uint32_t portNameInst, dword;
+	uint32_t portNameType, portNameInstLow, portNameInstHigh;
+	uint8_t error;
+	/*uint8_t item_size = 0;*/
 
 	switch (user) {
 		case TIPCv2_DATA_LOW:
@@ -772,10 +772,10 @@ tipc_v2_set_info_col(tvbuff_t *tvb, packet_info *pinfo, guint8 user, guint8 msg_
 }
 
 /* Set message type in COL INFO and return type of message (data or Internal message type */
-static gboolean
-tipc_v1_set_col_msgtype(packet_info *pinfo, guint8 user, guint8 msg_type)
+static bool
+tipc_v1_set_col_msgtype(packet_info *pinfo, uint8_t user, uint8_t msg_type)
 {
-	gboolean datatype_hdr = FALSE;
+	bool datatype_hdr = false;
 
 	switch (user) {
 		case TIPC_DATA_PRIO_0:
@@ -785,7 +785,7 @@ tipc_v1_set_col_msgtype(packet_info *pinfo, guint8 user, guint8 msg_type)
 			/*
 			 * src and dest address will be found at different location depending on User as hdr_size
 			 */
-			datatype_hdr = TRUE;
+			datatype_hdr = true;
 			col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str_const(msg_type, tipc_data_msg_type_values, "unknown"), msg_type);
 			break;
 		case TIPC_NAME_DISTRIBUTOR:
@@ -849,29 +849,29 @@ w9:|          msg count            |       link tolerance          |
 
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_info *pinfo, int offset, guint8 user, guint32 msg_size, guint8 orig_hdr_size)
+dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_info *pinfo, int offset, uint8_t user, uint32_t msg_size, uint8_t orig_hdr_size)
 {
-	guint32 dword;
-	gchar *addr_str_ptr;
+	uint32_t dword;
+	char *addr_str_ptr;
 	tvbuff_t *data_tvb;
-	guint8 message_type;
-	guint8 item_size = 0;
-	guint16 message_count;
-	guint msg_no = 0;
-	guint32 msg_in_bundle_size;
-	guint8 msg_in_bundle_user;
-	guint32 b_inst_strlen;
-	gint padlen;
+	uint8_t message_type;
+	uint8_t item_size = 0;
+	uint16_t message_count;
+	unsigned msg_no = 0;
+	uint32_t msg_in_bundle_size;
+	uint8_t msg_in_bundle_user;
+	uint32_t b_inst_strlen;
+	int padlen;
 
 	/* for fragmented messages */
-	gint len, reported_len;
-	gboolean save_fragmented;
-	guint32 frag_no, frag_msg_no;
+	int len, reported_len;
+	bool save_fragmented;
+	uint32_t frag_no, frag_msg_no;
 	tvbuff_t* new_tvb = NULL;
 	fragment_head *frag_msg = NULL;
 	proto_item *ti;
 
-	message_type = (tvb_get_guint8(tipc_tvb, offset) >>5) & 0x7;
+	message_type = (tvb_get_uint8(tipc_tvb, offset) >>5) & 0x7;
 
 	switch (user) {
 		case TIPCv2_BCAST_PROTOCOL:
@@ -1003,7 +1003,7 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 			offset = offset + 4;
 			/* This should give equal results like
 			 * while (message_count-- > 0) */
-			while ((guint32)offset < msg_size) {
+			while ((uint32_t)offset < msg_size) {
 				msg_no++;
 
 				dword = tvb_get_ntohl(tipc_tvb, offset);
@@ -1109,10 +1109,10 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 				 * If there's any data left, show it as
 				 * padding for MTU discovery.
 				 */
-				if ((guint32)offset < msg_size) {
-					guint32 filler_len;
+				if ((uint32_t)offset < msg_size) {
+					uint32_t filler_len;
 
-					filler_len = msg_size - (guint32)offset;
+					filler_len = msg_size - (uint32_t)offset;
 					proto_tree_add_bytes_format_value(tipc_tree, hf_tipcv2_filler_mtu_discovery, tipc_tvb, offset, filler_len, NULL,
 													"%d byte%c", filler_len, (filler_len!=1?'s':0));
 				}
@@ -1128,7 +1128,7 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 
 			/* Options Position: 3 bits */
 			/* this is not used by this user according to Jon Maloy in tipc-discussion mailing list
-			   opt_p = tvb_get_guint8(tipc_tvb, offset+1) & 0x7;
+			   opt_p = tvb_get_uint8(tipc_tvb, offset+1) & 0x7;
 			   proto_tree_add_item(tipc_tree, hf_tipcv2_opt_p , tipc_tvb, offset, 4, ENC_BIG_ENDIAN);
 			   if (opt_p != 0) {
 			   hdr_size = hdr_size - (opt_p << 2);
@@ -1502,7 +1502,7 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 			if (tipc_defragment) {
 				/* reassemble fragmented packages */
 				save_fragmented = pinfo->fragmented;
-				pinfo->fragmented = TRUE;
+				pinfo->fragmented = true;
 
 				frag_msg = fragment_add_seq_check(&tipc_msg_reassembly_table,
 						tipc_tvb, offset,
@@ -1662,10 +1662,10 @@ wA:|                    multicast upper bound                      |
 
 /* this function tries to call subdissectors for encapsulated data
  * @name_type pointer to the used port name type, NULL if not available
- * @user      guint8 holding the used TIPC user, is allways available
+ * @user      uint8_t holding the used TIPC user, is allways available
  */
 static void
-call_tipc_v2_data_subdissectors(tvbuff_t *data_tvb, packet_info *pinfo, guint32 *name_type_p, guint8 user)
+call_tipc_v2_data_subdissectors(tvbuff_t *data_tvb, packet_info *pinfo, uint32_t *name_type_p, uint8_t user)
 {
 	if (dissect_tipc_data) {
 		heur_dtbl_entry_t *hdtbl_entry;
@@ -1731,19 +1731,19 @@ call_tipc_v2_data_subdissectors(tvbuff_t *data_tvb, packet_info *pinfo, guint32 
 
 static void
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_tipc_v2(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_info *pinfo, int offset, guint8 user, guint32 msg_size, guint8 hdr_size, gboolean datatype_hdr)
+dissect_tipc_v2(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_info *pinfo, int offset, uint8_t user, uint32_t msg_size, uint8_t hdr_size, bool datatype_hdr)
 {
-	guint32 dword;
-	gchar *addr_str_ptr;
-	guint8 opt_p = 0;
+	uint32_t dword;
+	char *addr_str_ptr;
+	uint8_t opt_p = 0;
 	proto_item *item;
 	/* The unit used is 32 bit words */
-	guint8 orig_hdr_size;
+	uint8_t orig_hdr_size;
 
-	guint32 name_type = 0;
-	guint32 *name_type_p = NULL;
+	uint32_t name_type = 0;
+	uint32_t *name_type_p = NULL;
 	tvbuff_t *data_tvb;
-	gint len, reported_len;
+	int len, reported_len;
 
 	orig_hdr_size = hdr_size;
 
@@ -1789,7 +1789,7 @@ dissect_tipc_v2(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_info *pinfo, i
 
 	/* Options Position: 3 bits */
 	if (handle_v2_as & (V2_AS_ALL + V2_AS_1_6)) {
-		opt_p = tvb_get_guint8(tipc_tvb, offset+1) & 0x7;
+		opt_p = tvb_get_uint8(tipc_tvb, offset+1) & 0x7;
 		proto_tree_add_item(tipc_tree, hf_tipcv2_opt_p, tipc_tvb, offset, 4, ENC_BIG_ENDIAN);
 		if (opt_p != 0) {
 			hdr_size = hdr_size - (opt_p << 2);
@@ -1921,19 +1921,19 @@ NB: Connection Manager and Name Distributor use data message format.
 
 static void
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tree, int offset, guint8 user, guint32 msg_size)
+dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tree, int offset, uint8_t user, uint32_t msg_size)
 {
-	guint8 msg_type;
+	uint8_t msg_type;
 	tvbuff_t *data_tvb;
-	guint32 msg_in_bundle_size;
-	guint32 dword;
-	guint msg_no = 0;
-	guint8 link_sel;
-	guint16 link_lev_seq_no;
-	guint32 reassembled_msg_length = 0;
-	guint32 no_of_segments = 0;
+	uint32_t msg_in_bundle_size;
+	uint32_t dword;
+	unsigned msg_no = 0;
+	uint8_t link_sel;
+	uint16_t link_lev_seq_no;
+	uint32_t reassembled_msg_length = 0;
+	uint32_t no_of_segments = 0;
 
-	gboolean save_fragmented;
+	bool save_fragmented;
 	tvbuff_t* new_tvb = NULL;
 	tvbuff_t* next_tvb = NULL;
 	fragment_head *frag_msg = NULL;
@@ -1943,7 +1943,7 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 	/* Internal Protocol Header */
 	/* Unused */
 
-	msg_type = tvb_get_guint8(tvb, 20)>>4;
+	msg_type = tvb_get_uint8(tvb, 20)>>4;
 	/* W3 */
 	dword = tvb_get_ntohl(tvb, offset);
 	link_sel = dword & 0x7;
@@ -2046,7 +2046,7 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 		case TIPC_SEGMENTATION_MANAGER:
 			save_fragmented = pinfo->fragmented;
 			if (tipc_defragment) {
-				pinfo->fragmented = TRUE;
+				pinfo->fragmented = true;
 
 				frag_msg = fragment_add_seq_next(&tipc_msg_reassembly_table,
 						tvb, offset,
@@ -2054,7 +2054,7 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 						link_sel,				/* ID for fragments belonging together - NEEDS IMPROVING? */
 						NULL,
 						tvb_captured_length_remaining(tvb, offset),	/* fragment length - to the end */
-						TRUE);					/* More fragments? */
+						true);					/* More fragments? */
 				if (msg_type == TIPC_FIRST_SEGMENT) {
 					reassembled_msg_length = tvb_get_ntohl(tvb, offset) & 0x1ffff;
 					/* The number of segments needed for he complete message (Including header) will be
@@ -2101,12 +2101,12 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 			break;
 		case TIPC_MSG_BUNDLER:
 			proto_tree_add_item(tipc_tree, hf_tipc_message_bundle, tvb, offset, -1, ENC_NA);
-			while ((guint32)offset < msg_size) {
+			while ((uint32_t)offset < msg_size) {
 				msg_no++;
 				msg_in_bundle_size = tvb_get_ntohl(tvb, offset) & 0x1FFFF;
 				item = proto_tree_add_uint_format(tipc_tree, hf_tipc_msg_no_bundle, tvb, offset, 1, msg_no, "%u Message in Bundle", msg_no);
-				gint remaining = tvb_reported_length_remaining(tvb, offset);
-				if (remaining > 0 && msg_in_bundle_size <= (guint)remaining) {
+				int remaining = tvb_reported_length_remaining(tvb, offset);
+				if (remaining > 0 && msg_in_bundle_size <= (unsigned)remaining) {
 					proto_item_set_len(item, msg_in_bundle_size);
 					data_tvb = tvb_new_subset_length(tvb, offset, msg_in_bundle_size);
 					col_set_fence(pinfo->cinfo, COL_INFO);
@@ -2126,7 +2126,7 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 
 
 /* determines the length of a TIPC package */
-static guint
+static unsigned
 get_tipc_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
 	return tvb_get_ntohl(tvb, offset) & 0x0001FFFF;
@@ -2150,15 +2150,15 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	proto_item *ti, *item;
 	proto_tree *tipc_tree, *tipc_data_tree;
 	int offset = 0;
-	guint32 srcport, destport = 0, dword;
-	guint8  version;
-	guint32 msg_size;
-	guint8  hdr_size;
-	guint8  user;
-	gchar  *addr_str_ptr;
+	uint32_t srcport, destport = 0, dword;
+	uint8_t version;
+	uint32_t msg_size;
+	uint8_t hdr_size;
+	uint8_t user;
+	char   *addr_str_ptr;
 	tvbuff_t *data_tvb, *tipc_tvb;
-	gboolean datatype_hdr = FALSE;
-	guint8   msg_type = 0;
+	bool datatype_hdr = false;
+	uint8_t  msg_type = 0;
 
 	/* Make entry in Protocol column on summary display */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TIPC");
@@ -2179,7 +2179,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	}
 	p_set_proto_depth(pinfo, proto_tipc, recursion_depth);
 
-	if ((guint32)tvb_reported_length_remaining(tvb, offset) < msg_size) {
+	if ((uint32_t)tvb_reported_length_remaining(tvb, offset) < msg_size) {
 		tipc_tvb = tvb;
 	} else {
 		tipc_tvb = tvb_new_subset_length(tvb, offset, msg_size);
@@ -2190,7 +2190,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	switch (version) {
 		case 0:
 		case TIPCv1:
-			msg_type = tvb_get_guint8(tipc_tvb, offset + 20)>>4;
+			msg_type = tvb_get_uint8(tipc_tvb, offset + 20)>>4;
 			col_append_fstr(pinfo->cinfo, COL_INFO, " %s(%u) ", val_to_str_const(user, tipc_user_values, "unknown"), user);
 			/* Set msg type in info col and find out if it's a data hdr or not */
 			datatype_hdr = tipc_v1_set_col_msgtype(pinfo, user, msg_type);
@@ -2213,7 +2213,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 			}
 			break;
 		case TIPCv2:
-			msg_type = tvb_get_guint8(tipc_tvb, offset + 4)>>5;
+			msg_type = tvb_get_uint8(tipc_tvb, offset + 4)>>5;
 			col_append_fstr(pinfo->cinfo, COL_INFO, "%-12s", val_to_str_const(user, tipcv2_user_short_str_vals, "unknown"));
 			/* Set msg type in info col */
 			tipc_v2_set_info_col(tvb, pinfo, user, msg_type, hdr_size);
@@ -2224,10 +2224,10 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 				case TIPCv2_DATA_NORMAL:
 				case TIPCv2_DATA_HIGH:
 				case TIPCv2_DATA_NON_REJECTABLE:
-					datatype_hdr = TRUE;
+					datatype_hdr = true;
 					break;
 				default:
-					datatype_hdr = FALSE;
+					datatype_hdr = false;
 					break;
 			}
 
@@ -2396,8 +2396,8 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
 		if (user < 4 && dissect_tipc_data) { /* DATA type user */
 			tvbuff_t *next_tvb;
-			guint32 msg_type32 = msg_type;
-			guint32 *name_type_p = &msg_type32;
+			uint32_t msg_type32 = msg_type;
+			uint32_t *name_type_p = &msg_type32;
 			switch (msg_type) {
 				case TIPC_CONNECTED_MSG:
 					proto_tree_add_item(tipc_tree, hf_tipc_data, tipc_tvb, offset, -1, ENC_NA);
@@ -3063,7 +3063,7 @@ proto_register_tipc(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_tipc,
 		&ett_tipc_data,
 		&ett_tipc_msg_fragment,
@@ -3144,7 +3144,7 @@ proto_register_tipc(void)
 			"TIPC 1.7 removes/adds fields (not) available in TIPC 1.5/1.6 while keeping the version number 2 in the packages. \"ALL\" shows all fields that were ever used in both versions.",
 			&handle_v2_as,
 			handle_v2_as_options,
-			TRUE);
+			true);
 
 	prefs_register_bool_preference(tipc_module, "desegment",
 			"Reassemble TIPC-over-TCP messages spanning multiple TCP segments",

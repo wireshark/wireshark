@@ -1073,7 +1073,7 @@ is_sslv3_or_tls(tvbuff_t *tvb)
         return false;
     }
 
-    content_type = tvb_get_guint8(tvb, 0);
+    content_type = tvb_get_uint8(tvb, 0);
     protocol_version = tvb_get_ntohs(tvb, 1);
     record_length = tvb_get_ntohs(tvb, 3);
 
@@ -1131,12 +1131,12 @@ is_sslv2_clienthello(tvbuff_t *tvb)
     }
 
     /* Assume that message length is less than 256 (at most 64 cipherspecs). */
-    if (tvb_get_guint8(tvb, 0) != 0x80) {
+    if (tvb_get_uint8(tvb, 0) != 0x80) {
         return false;
     }
 
     /* msg_type must be 1 for Client Hello */
-    if (tvb_get_guint8(tvb, 2) != 1) {
+    if (tvb_get_uint8(tvb, 2) != 1) {
         return false;
     }
 
@@ -2044,7 +2044,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
          session->version==TLSV1DOT1_VERSION ||
          session->version==TLSV1DOT2_VERSION ||
          session->version==TLCPV1_VERSION ) &&
-        (available_bytes >=1 ) && !ssl_is_valid_content_type(tvb_get_guint8(tvb, offset))) {
+        (available_bytes >=1 ) && !ssl_is_valid_content_type(tvb_get_uint8(tvb, offset))) {
         proto_tree_add_expert(tree, pinfo, &ei_tls_ignored_unknown_record, tvb, offset, available_bytes);
         col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Ignored Unknown Record");
         return offset + available_bytes;
@@ -2079,7 +2079,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
     /*
      * Get the record layer fields of interest
      */
-    content_type  = tvb_get_guint8(tvb, offset);
+    content_type  = tvb_get_uint8(tvb, offset);
     version       = tvb_get_ntohs(tvb, offset + 1);
     record_version = version;
     record_length = tvb_get_ntohs(tvb, offset + 3);
@@ -2161,7 +2161,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
      * (i.e. it is a Client Hello), then this version will still be used for
      * display purposes only (it will not be stored in the conversation).
      */
-    next_byte = tvb_get_guint8(tvb, offset);
+    next_byte = tvb_get_uint8(tvb, offset);
     if (session->version == SSL_VER_UNKNOWN) {
         ssl_try_set_version(session, ssl, content_type, next_byte, false, version);
         /* Version has possibly changed, adjust the column accordingly. */
@@ -2394,10 +2394,10 @@ dissect_ssl3_alert(tvbuff_t *tvb, packet_info *pinfo,
      */
 
     /* first lookup the names for the alert level and description */
-    level_byte = tvb_get_guint8(tvb, offset); /* grab the level byte */
+    level_byte = tvb_get_uint8(tvb, offset); /* grab the level byte */
     level = val_to_str_const(level_byte, ssl_31_alert_level, "Unknown");
 
-    desc_byte = tvb_get_guint8(tvb, offset+1); /* grab the desc byte */
+    desc_byte = tvb_get_uint8(tvb, offset+1); /* grab the desc byte */
     desc = val_to_str_const(desc_byte, ssl_31_alert_description, "Unknown");
     if (desc_byte == 0) {
         /* If this is a close_notify, mark it as the end of the stream.
@@ -2477,7 +2477,7 @@ is_encrypted_handshake_message(tvbuff_t *tvb, packet_info *pinfo, uint32_t offse
          * - Disallow handshake fragmentation except for some common cases like
          *   Certificate messages (due to large certificates).
          */
-        msg_type = tvb_get_guint8(tvb, offset);
+        msg_type = tvb_get_uint8(tvb, offset);
         maybe_encrypted = try_val_to_str(msg_type, ssl_31_handshake_type) == NULL;
         if (!maybe_encrypted) {
             msg_length = tvb_get_ntoh24(tvb, offset + 1);
@@ -2709,7 +2709,7 @@ dissect_tls_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 *hs_reassembly_id_p = 0;
             } else {
                 // Check if the handshake message is complete.
-                uint8_t msg_type = tvb_get_guint8(len_tvb, 0);
+                uint8_t msg_type = tvb_get_uint8(len_tvb, 0);
                 bool is_last = frags_len + subset_len == msg_len;
                 frag_info = save_tls_handshake_fragment(pinfo, curr_layer_num_tls, record_id, *hs_reassembly_id_p,
                         tvb, offset, subset_len, frags_len, msg_type, is_last, session);
@@ -2793,7 +2793,7 @@ dissect_tls_handshake(tvbuff_t *tvb, packet_info *pinfo,
         if (msg_len == 0 || subset_len < msg_len) {
             // Need more data to find the message length or complete it.
             if (!PINFO_FD_VISITED(pinfo)) {
-                uint8_t msg_type = tvb_get_guint8(tvb, offset);
+                uint8_t msg_type = tvb_get_uint8(tvb, offset);
                 *hs_reassembly_id_p = ++hs_reassembly_id_count;
                 frag_info = save_tls_handshake_fragment(pinfo, curr_layer_num_tls, record_id, *hs_reassembly_id_p,
                         tvb, offset, subset_len, 0, msg_type, false, session);
@@ -2857,7 +2857,7 @@ dissect_tls_handshake_full(tvbuff_t *tvb, packet_info *pinfo,
         uint32_t hs_offset = offset;
         bool is_hrr = false;
 
-        msg_type = tvb_get_guint8(tvb, offset);
+        msg_type = tvb_get_uint8(tvb, offset);
         length   = tvb_get_ntoh24(tvb, offset + 1);
         // The caller should have given us a fully reassembled record.
         DISSECTOR_ASSERT((unsigned)tvb_reported_length_remaining(tvb, offset + 4) >= length);
@@ -3135,7 +3135,7 @@ dissect_ssl3_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
      */
 
     /* first lookup the names for the message type and the payload length */
-    byte = tvb_get_guint8(tvb, offset);
+    byte = tvb_get_uint8(tvb, offset);
     type = try_val_to_str(byte, tls_heartbeat_type);
 
     payload_length = tvb_get_ntohs(tvb, offset + 1);
@@ -3203,7 +3203,7 @@ dissect_ssl3_hnd_encrypted_exts(tvbuff_t *tvb, proto_tree *tree,
     uint8_t      selected_protocol_len;
     uint8_t      padding_len;
 
-    selected_protocol_len = tvb_get_guint8(tvb, offset);
+    selected_protocol_len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_tls_handshake_npn_selected_protocol_len,
         tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
@@ -3211,7 +3211,7 @@ dissect_ssl3_hnd_encrypted_exts(tvbuff_t *tvb, proto_tree *tree,
         tvb, offset, selected_protocol_len, ENC_ASCII);
     offset += selected_protocol_len;
 
-    padding_len = tvb_get_guint8(tvb, offset);
+    padding_len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_tls_handshake_npn_padding_len,
         tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
@@ -3256,7 +3256,7 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * length is three bytes due to padding; otherwise
      * record length is two bytes
      */
-    byte = tvb_get_guint8(tvb, offset);
+    byte = tvb_get_uint8(tvb, offset);
     record_length_length = (byte & 0x80) ? 2 : 3;
 
     available_bytes = tvb_reported_length_remaining(tvb, offset);
@@ -3291,15 +3291,15 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     switch (record_length_length) {
     case 2:                     /* two-byte record length */
         record_length = (byte & 0x7f) << 8;
-        byte = tvb_get_guint8(tvb, offset + 1);
+        byte = tvb_get_uint8(tvb, offset + 1);
         record_length += byte;
         break;
     case 3:                     /* three-byte record length */
         is_escape = (byte & 0x40) ? true : false;
         record_length = (byte & 0x3f) << 8;
-        byte = tvb_get_guint8(tvb, offset + 1);
+        byte = tvb_get_uint8(tvb, offset + 1);
         record_length += byte;
-        byte = tvb_get_guint8(tvb, offset + 2);
+        byte = tvb_get_uint8(tvb, offset + 2);
         padding_length = byte;
     }
 
@@ -3335,7 +3335,7 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     ssl_record_tree = proto_item_add_subtree(ti, ett_tls_record);
 
     /* pull the msg_type so we can bail if it's unknown */
-    msg_type = tvb_get_guint8(tvb, initial_offset + record_length_length);
+    msg_type = tvb_get_uint8(tvb, initial_offset + record_length_length);
 
     /* if we get a server_hello or later handshake in v2, then set
      * this to sslv2
@@ -3935,13 +3935,13 @@ ssl_is_v2_client_hello(tvbuff_t *tvb, const uint32_t offset)
 {
     uint8_t byte;
 
-    byte = tvb_get_guint8(tvb, offset);
+    byte = tvb_get_uint8(tvb, offset);
     if (byte != 0x80)           /* v2 client hello should start this way */
     {
         return 0;
     }
 
-    byte = tvb_get_guint8(tvb, offset+2);
+    byte = tvb_get_uint8(tvb, offset+2);
     if (byte != 0x01)           /* v2 client hello msg type */
     {
         return 0;
@@ -3969,7 +3969,7 @@ ssl_looks_like_sslv2(tvbuff_t *tvb, const uint32_t offset)
 
     /* get the first byte; must have high bit set */
     uint8_t byte;
-    byte = tvb_get_guint8(tvb, offset);
+    byte = tvb_get_uint8(tvb, offset);
 
     if (byte < 0x80)
     {
@@ -3980,7 +3980,7 @@ ssl_looks_like_sslv2(tvbuff_t *tvb, const uint32_t offset)
      * unencrypted handshake messages (we can't tell the type for
      * encrypted messages), we just check against that list
      */
-    byte = tvb_get_guint8(tvb, offset + 2);
+    byte = tvb_get_uint8(tvb, offset + 2);
     switch (byte) {
     case SSL2_HND_ERROR:
     case SSL2_HND_CLIENT_HELLO:
@@ -4006,7 +4006,7 @@ ssl_looks_like_sslv3(tvbuff_t *tvb, const uint32_t offset)
     uint16_t version;
 
     /* see if the first byte is a valid content type */
-    byte = tvb_get_guint8(tvb, offset);
+    byte = tvb_get_uint8(tvb, offset);
     if (!ssl_is_valid_content_type(byte))
     {
         return 0;
@@ -4053,7 +4053,7 @@ ssl_looks_like_valid_v2_handshake(tvbuff_t *tvb, const uint32_t offset,
     int     ret = 0;
 
     /* fetch the msg_type */
-    msg_type = tvb_get_guint8(tvb, offset);
+    msg_type = tvb_get_uint8(tvb, offset);
 
     switch (msg_type) {
     case SSL2_HND_CLIENT_HELLO:
