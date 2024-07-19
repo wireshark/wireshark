@@ -1658,6 +1658,10 @@ typedef enum
     DE_EMM_UE_REQUEST_TYPE,     /* 9.9.3.65 UE request type */
     DE_EMM_PAGING_RESTRICTION,  /* 9.9.3.66 Paging restriction */
     DE_EMM_EPS_ADD_REQ_RESULT,  /* 9.9.3.67 EPS additional request result */
+    DE_EMM_UNAVAIL_INFO,        /* 9.9.3.69 Unavailability information */
+    DE_EMM_UNAVAIL_CONFIG,      /* 9.9.3.70 Unavailability configuration */
+    DE_EMM_UE_INFO_REQ,         /* 9.9.3.71 UE information request */
+    DE_EMM_UE_COARSE_LOC_INFO,  /* 9.9.3.72 UE coarse location information */
     DE_EMM_NONE                 /* NONE */
 }
 nas_emm_elem_idx_t;

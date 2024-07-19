@@ -9,7 +9,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 24.301 V17.11.0 (2023-09)
+ * References: 3GPP TS 24.301 V18.7.0 (2024-06)
  */
 
 #include "config.h"
@@ -27,6 +27,7 @@
 #include "packet-gsm_map.h"
 #include "packet-gsm_a_common.h"
 #include "packet-lcsap.h"
+#include "packet-lpp.h"
 
 void proto_register_nas_eps(void);
 void proto_reg_handoff_nas_eps(void);
@@ -102,6 +103,7 @@ static int hf_nas_eps_emm_epco;
 static int hf_nas_eps_emm_hc_cp_ciot;
 static int hf_nas_eps_emm_s1_u_data;
 static int hf_nas_eps_emm_up_ciot;
+static int hf_nas_eps_emm_edc;
 static int hf_nas_eps_emm_ptcc;
 static int hf_nas_eps_emm_pr;
 static int hf_nas_eps_emm_rpr;
@@ -210,6 +212,8 @@ static int hf_nas_eps_up_mt_edt_cap;
 static int hf_nas_eps_cp_mt_edt_cap;
 static int hf_nas_eps_wsua_cap;
 static int hf_nas_eps_racs_cap;
+static int hf_nas_eps_rclin_cap;
+static int hf_nas_eps_edc_cap;
 static int hf_nas_eps_ptcc_cap;
 static int hf_nas_eps_pr_cap;
 static int hf_nas_eps_emm_ue_ra_cap_inf_upd_need_flg;
@@ -331,6 +335,17 @@ static int hf_nas_eps_emm_paging_restriction_ebi10;
 static int hf_nas_eps_emm_paging_restriction_ebi9;
 static int hf_nas_eps_emm_paging_restriction_ebi8;
 static int hf_nas_eps_emm_paging_restriction_decision;
+static int hf_nas_eps_emm_unavail_info_suppi;
+static int hf_nas_eps_emm_unavail_info_updpi;
+static int hf_nas_eps_emm_unavail_info_type;
+static int hf_nas_eps_emm_unavail_info_unavail_period_duration;
+static int hf_nas_eps_emm_unavail_info_start_unavail_period;
+static int hf_nas_eps_emm_unavail_config_suppi;
+static int hf_nas_eps_emm_unavail_config_updpi;
+static int hf_nas_eps_emm_unavail_config_eupr;
+static int hf_nas_eps_emm_unavail_config_unavail_period_duration;
+static int hf_nas_eps_emm_unavail_config_start_unavail_period;
+static int hf_nas_eps_emm_ue_info_req_uclir;
 
 static int hf_nas_eps_esm_qci;
 static int hf_nas_eps_esm_mbr_ul;
@@ -361,10 +376,16 @@ static int hf_nas_eps_esm_remote_ue_context_list_ue_context_encr_imsi;
 static int hf_nas_eps_esm_remote_ue_context_list_ue_context_msisdn;
 static int hf_nas_eps_esm_remote_ue_context_list_ue_context_imei;
 static int hf_nas_eps_esm_remote_ue_context_list_ue_context_imeisv;
+static int hf_nas_eps_esm_remote_ue_context_list_ue_context_upri4;
+static int hf_nas_eps_esm_remote_ue_context_list_ue_context_tpri4i;
 static int hf_nas_eps_esm_remote_ue_context_list_ue_context_address_type;
 static int hf_nas_eps_esm_remote_ue_context_list_ue_context_ipv4;
 static int hf_nas_eps_esm_remote_ue_context_list_ue_context_port_number;
 static int hf_nas_eps_esm_remote_ue_context_list_ue_context_ipv6_prefix;
+static int hf_nas_eps_esm_remote_ue_context_list_ue_context_ipv4_udp_port_low;
+static int hf_nas_eps_esm_remote_ue_context_list_ue_context_ipv4_udp_port_high;
+static int hf_nas_eps_esm_remote_ue_context_list_ue_context_ipv4_tcp_port_low;
+static int hf_nas_eps_esm_remote_ue_context_list_ue_context_ipv4_tcp_port_high;
 static int hf_nas_eps_esm_pkmf_address_type;
 static int hf_nas_eps_esm_pkmf_ipv4;
 static int hf_nas_eps_esm_pkmf_ipv6;
@@ -936,6 +957,10 @@ static const value_string nas_emm_elem_strings[] = {
     { DE_EMM_UE_REQUEST_TYPE, "UE request type" },                             /* 9.9.3.65 UE request type */
     { DE_EMM_PAGING_RESTRICTION, "Paging restriction" },                       /* 9.9.3.66 Paging restriction */
     { DE_EMM_EPS_ADD_REQ_RESULT, "EPS additional request result" },            /* 9.9.3.67 EPS additional request result */
+    { DE_EMM_UNAVAIL_INFO, "Unavailability information" },                     /* 9.9.3.69 Unavailability information */
+    { DE_EMM_UNAVAIL_CONFIG, "Unavailability configuration" },                 /* 9.9.3.70 Unavailability configuration */
+    { DE_EMM_UE_INFO_REQ, "UE information request" },                          /* 9.9.3.71 UE information request */
+    { DE_EMM_UE_COARSE_LOC_INFO, "UE coarse location information" },           /* 9.9.3.72 UE coarse location information */
 
     { 0, NULL }
 };
@@ -1033,6 +1058,10 @@ typedef enum
     DE_EMM_UE_REQUEST_TYPE,     /* 9.9.3.65 UE request type */
     DE_EMM_PAGING_RESTRICTION,  /* 9.9.3.66 Paging restriction */
     DE_EMM_EPS_ADD_REQ_RESULT,  /* 9.9.3.67 EPS additional request result */
+    DE_EMM_UNAVAIL_INFO,        /* 9.9.3.69 Unavailability information */
+    DE_EMM_UNAVAIL_CONFIG,      /* 9.9.3.70 Unavailability configuration */
+    DE_EMM_UE_INFO_REQ,         /* 9.9.3.71 UE information request */
+    DE_EMM_UE_COARSE_LOC_INFO,  /* 9.9.3.72 UE coarse location information */
     DE_EMM_NONE                 /* NONE */
 }
 nas_emm_elem_idx_t;
@@ -1467,6 +1496,7 @@ de_emm_eps_net_feature_sup(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _
     };
 
     static int* const oct5_flags[] = {
+        &hf_nas_eps_emm_edc,
         &hf_nas_eps_emm_ptcc,
         &hf_nas_eps_emm_pr,
         &hf_nas_eps_emm_rpr,
@@ -1491,7 +1521,7 @@ de_emm_eps_net_feature_sup(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _
     if ((curr_offset - offset) >= len)
         return (len);
 
-    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3), 3, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3), 2, ENC_BIG_ENDIAN);
     proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, oct5_flags, ENC_NA);
     curr_offset++;
 
@@ -2200,6 +2230,8 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     };
 
     static int * const oct11_flags[] = {
+        &hf_nas_eps_rclin_cap,
+        &hf_nas_eps_edc_cap,
         &hf_nas_eps_ptcc_cap,
         &hf_nas_eps_pr_cap,
         NULL
@@ -2276,9 +2308,9 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         return (len);
 
     /* Octet 11
-     * 0    0    0    0    0    0    PTCC    PR
+     * 0    0    0    0    RCLIN    EDC    PTCC    PR
      */
-    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3), 6, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3), 4, ENC_BIG_ENDIAN);
     proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, oct11_flags, ENC_NA);
     curr_offset++;
 
@@ -2704,8 +2736,8 @@ de_emm_replayed_nas_msg_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
  * 9.9.3.52 Network policy
  */
 static const true_false_string nas_eps_redir_policy_vals = {
-    "Unsecured redirection to GERAN not allowed",
-    "Unsecured redirection to GERAN allowed"
+    "Unsecured redirection to GERAN or UTRAN not allowed",
+    "Unsecured redirection to GERAN or UTRAN allowed"
 };
 
 static uint16_t
@@ -3159,6 +3191,103 @@ de_emm_eps_add_req_result(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U
 
     return len;
 }
+
+/*
+ * 9.9.3.69    Unavailability information
+ */
+static const value_string nas_eps_emm_unavail_info_type[] = {
+    { 0x0, "unavailability due to UE reasons"},
+    { 0x1, "unavailability due to discontinuous coverage"},
+    { 0, NULL }
+};
+
+static uint16_t
+de_emm_unavail_info(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_,
+    uint32_t offset, unsigned len, char* add_string _U_, int string_len _U_)
+{
+    static int * const oct3[] = {
+        &hf_nas_eps_emm_unavail_info_suppi,
+        &hf_nas_eps_emm_unavail_info_updpi,
+        &hf_nas_eps_emm_unavail_info_type,
+        NULL
+    };
+    uint64_t flags;
+
+    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, offset<<3, 3, ENC_NA);
+    proto_tree_add_bitmask_list_ret_uint64(tree, tvb, offset, 1, oct3, ENC_NA, &flags);
+    offset++;
+    if (flags & 0x08) {
+        proto_tree_add_item(tree, hf_nas_eps_emm_unavail_info_unavail_period_duration, tvb, offset, 3, ENC_BIG_ENDIAN);
+        offset += 3;
+    }
+    if (flags & 0x10) {
+        proto_tree_add_item(tree, hf_nas_eps_emm_unavail_info_start_unavail_period, tvb, offset, 3, ENC_BIG_ENDIAN);
+        offset += 3;
+    }
+
+    return len;
+}
+
+/*
+ * 9.9.3.70    Unavailability configuration
+ */
+static const true_false_string nas_eps_emm_unavail_config_eupr_flg = {
+    "UE does not need to report end of unavailability period",
+    "UE needs to report end of unavailability period"
+};
+
+static uint16_t
+de_emm_unavail_config(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_,
+    uint32_t offset, unsigned len, char* add_string _U_, int string_len _U_)
+{
+    static int * const oct3[] = {
+        &hf_nas_eps_emm_unavail_config_suppi,
+        &hf_nas_eps_emm_unavail_config_updpi,
+        &hf_nas_eps_emm_unavail_config_eupr,
+        NULL
+    };
+    uint64_t flags;
+
+    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, offset<<3, 5, ENC_NA);
+    proto_tree_add_bitmask_list_ret_uint64(tree, tvb, offset, 1, oct3, ENC_NA, &flags);
+    offset++;
+    if (flags & 0x02) {
+        proto_tree_add_item(tree, hf_nas_eps_emm_unavail_config_unavail_period_duration, tvb, offset, 3, ENC_BIG_ENDIAN);
+        offset += 3;
+    }
+    if (flags & 0x04) {
+        proto_tree_add_item(tree, hf_nas_eps_emm_unavail_config_start_unavail_period, tvb, offset, 3, ENC_BIG_ENDIAN);
+        offset += 3;
+    }
+
+    return len;
+}
+
+/*
+ * 9.9.3.71    UE information request
+ */
+static uint16_t
+de_emm_ue_info_req(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_,
+    uint32_t offset, unsigned len _U_, char* add_string _U_, int string_len _U_)
+{
+    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (offset<<3) + 4, 3, ENC_NA);
+    proto_tree_add_item(tree, hf_nas_eps_emm_ue_info_req_uclir, tvb, offset, 1, ENC_NA);
+
+    return len;
+}
+
+/*
+ * 9.9.3.72    UE coarse location information
+ */
+static uint16_t
+de_emm_ue_coarse_loc_info(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_,
+    uint32_t offset, unsigned len, char* add_string _U_, int string_len _U_)
+{
+    dissect_lpp_Ellipsoid_Point_PDU(tvb_new_subset_length(tvb, offset, len), pinfo, tree, NULL);
+
+    return len;
+}
+
 /*
  * 9.9.4    EPS Session Management (ESM) information elements
  */
@@ -3495,7 +3624,7 @@ const value_string nas_eps_esm_cause_vals[] = {
     { 0x1a, "Insufficient resources"},
     { 0x1b, "Missing or unknown APN"},
     { 0x1c, "Unknown PDN type"},
-    { 0x1d, "User authentication failed"},
+    { 0x1d, "User authentication or authorization failed"},
     { 0x1e, "Request rejected by Serving GW or PDN GW"},
     { 0x1f, "Request rejected, unspecified"},
     { 0x20, "Service option not supported"},
@@ -3840,6 +3969,7 @@ de_esm_remote_ue_context_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
 {
     uint32_t curr_offset = offset;
     uint32_t nb_ue_contexts, ue_context_len, nb_user_id, user_id_len, user_id_type, remote_address_type, i, j;
+    bool upri4, tpri4i;
     proto_tree *subtree;
     proto_item *subtree_item;
 
@@ -3892,7 +4022,9 @@ de_esm_remote_ue_context_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
                     break;
             }
         }
-        proto_tree_add_bits_item(subtree, hf_nas_eps_spare_bits, tvb, curr_offset<<3, 5, ENC_BIG_ENDIAN);
+        proto_tree_add_bits_item(subtree, hf_nas_eps_spare_bits, tvb, curr_offset<<3, 3, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_boolean(subtree, hf_nas_eps_esm_remote_ue_context_list_ue_context_upri4, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &upri4);
+        proto_tree_add_item_ret_boolean(subtree, hf_nas_eps_esm_remote_ue_context_list_ue_context_tpri4i, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &tpri4i);
         proto_tree_add_item_ret_uint(subtree, hf_nas_eps_esm_remote_ue_context_list_ue_context_address_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &remote_address_type);
         curr_offset++;
         switch (remote_address_type) {
@@ -3914,6 +4046,18 @@ de_esm_remote_ue_context_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
             case 0:
             default:
                 break;
+        }
+        if (upri4) {
+            proto_tree_add_item(subtree, hf_nas_eps_esm_remote_ue_context_list_ue_context_ipv4_udp_port_low, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+            curr_offset +=2;
+            proto_tree_add_item(subtree, hf_nas_eps_esm_remote_ue_context_list_ue_context_ipv4_udp_port_high, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+            curr_offset +=2;
+        }
+        if (tpri4i) {
+            proto_tree_add_item(subtree, hf_nas_eps_esm_remote_ue_context_list_ue_context_ipv4_tcp_port_low, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+            curr_offset +=2;
+            proto_tree_add_item(subtree, hf_nas_eps_esm_remote_ue_context_list_ue_context_ipv4_tcp_port_high, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+            curr_offset +=2;
         }
     }
 
@@ -4397,6 +4541,10 @@ uint16_t (*emm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
     de_emm_ue_request_type,     /* 9.9.3.65 UE request type */
     de_emm_paging_restriction,  /* 9.9.3.66 Paging restriction */
     de_emm_eps_add_req_result,  /* 9.9.3.67 EPS additional request result */
+    de_emm_unavail_info,        /* 9.9.3.69 Unavailability information */
+    de_emm_unavail_config,      /* 9.9.3.70 Unavailability configuration */
+    de_emm_ue_info_req,         /* 9.9.3.71 UE information request */
+    de_emm_ue_coarse_loc_info,  /* 9.9.3.72 UE coarse location information */
 
     NULL,   /* NONE */
 };
@@ -4614,6 +4762,8 @@ nas_emm_attach_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t
     ELEM_OPT_TLV(0x1D, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID_LST, " - Forbidden TAI(s) for the list of \"forbidden tracking areas for roaming\"");
     /* 1E   Forbidden TAI(s) for the list of "forbidden tracking areas for regional provision of service" Tracking area identity list 9.9.3.33 O TLV 8-98 */
     ELEM_OPT_TLV(0x1E, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID_LST, " - Forbidden TAI(s) for the list of \"forbidden tracking areas for regional provision of service\"");
+    /* 1F   Unavailability configuration Unavailability configuration 9.9.3.70 O TLV 3-9 */
+    ELEM_OPT_TLV(0x1F, NAS_PDU_TYPE_EMM, DE_EMM_UNAVAIL_CONFIG, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -5245,6 +5395,8 @@ nas_emm_sec_mode_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32
     ELEM_OPT_TLV(0x6F, NAS_PDU_TYPE_EMM, DE_EMM_UE_ADD_SEC_CAP, " - Replayed UE additional security capability");
     /* 37   UE radio capability ID request UE radio capability ID request 9.9.3.59 O TLV 3 */
     ELEM_OPT_TLV(0x37, NAS_PDU_TYPE_EMM, DE_EMM_UE_RADIO_CAP_ID_REQ, NULL);
+    /* D-   UE coarse location information request UE information request 9.9.3.71 O TV 1 */
+    ELEM_OPT_TV_SHORT(0xD0, NAS_PDU_TYPE_EMM, DE_EMM_UE_INFO_REQ, " - UE coarse location information request");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -5269,6 +5421,8 @@ nas_emm_sec_mode_comp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint3
     ELEM_OPT_TLV_E(0x79, NAS_PDU_TYPE_EMM, DE_EMM_REPLAYED_NAS_MSG_CONT, NULL);
     /* 66   UE radio capability ID UE radio capability ID 9.9.3.60 O   TLV  3-n */
     ELEM_OPT_TLV(0x66, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_UE_RADIO_CAP_ID, NULL);
+    /* 67   UE coarse location information UE coarse location information 9.9.3.72 O   TLV  8 */
+    ELEM_OPT_TLV(0x66, NAS_5GS_PDU_TYPE_MM, DE_EMM_UE_COARSE_LOC_INFO, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -5449,6 +5603,10 @@ nas_emm_trac_area_upd_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, u
     ELEM_OPT_TLV(0x1D, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID_LST, " - Forbidden TAI(s) for the list of \"forbidden tracking areas for roaming\"");
     /* 1E   Forbidden TAI(s) for the list of "forbidden tracking areas for regional provision of service" Tracking area identity list 9.9.3.33 O TLV 8-98 */
     ELEM_OPT_TLV(0x1E, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID_LST, " - Forbidden TAI(s) for the list of \"forbidden tracking areas for regional provision of service\"");
+    /* 39   Maximum time offset GPRS timer 3 9.9.3.16B O   TLV  3 */
+    ELEM_OPT_TLV(0x39, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - Maximum time offset");
+    /* 1F   Unavailability configuration Unavailability configuration 9.9.3.70 O TLV 3-9 */
+    ELEM_OPT_TLV(0x1F, NAS_PDU_TYPE_EMM, DE_EMM_UNAVAIL_CONFIG, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -5585,6 +5743,8 @@ nas_emm_trac_area_upd_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, u
     ELEM_OPT_TLV(0x35, NAS_PDU_TYPE_EMM, DE_EMM_WUS_ASSIST_INFO, " - Requested");
     /* 36   DRX parameter in NB-S1 mode NB-S1 DRX parameter 9.9.3.63 O TLV 3 */
     ELEM_OPT_TLV(0x36, NAS_PDU_TYPE_EMM, DE_EMM_NB_S1_DRX_PARAM, NULL);
+    /* 30   Unavailability information Unavailability information 9.9.3.69 O TLV 3-9 */
+    ELEM_OPT_TLV(0x30, NAS_PDU_TYPE_EMM, DE_EMM_UNAVAIL_INFO, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -7308,6 +7468,11 @@ proto_register_nas_eps(void)
         FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
         NULL, HFILL }
     },
+    { &hf_nas_eps_emm_edc,
+        { "Enhanced discontinuous coverage","nas-eps.emm.edc",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+        NULL, HFILL }
+    },
     { &hf_nas_eps_emm_ptcc,
         { "Paging timing collision control","nas-eps.emm.ptcc",
         FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
@@ -7850,6 +8015,16 @@ proto_register_nas_eps(void)
         FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
         NULL, HFILL }
     },
+    { &hf_nas_eps_rclin_cap,
+        { "Reporting coarse location information via NAS","nas-eps.emm.rclin_cap",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_edc_cap,
+        { "Enhanced discontinuous coverage","nas-eps.emm.edc_cap",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+        NULL, HFILL }
+    },
     { &hf_nas_eps_ptcc_cap,
         { "Paging timing collision control","nas-eps.emm.ptcc_cap",
         FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
@@ -7936,7 +8111,7 @@ proto_register_nas_eps(void)
         NULL, HFILL }
     },
     { &hf_nas_eps_redir_policy,
-        { "Redirection to GERAN security policy", "nas-eps.emm.redic_policy",
+        { "Redirection to GERAN or UTRAN security policy", "nas-eps.emm.redic_policy",
         FT_BOOLEAN, 8, TFS(&nas_eps_redir_policy_vals), 0x01,
         NULL, HFILL }
     },
@@ -8440,6 +8615,16 @@ proto_register_nas_eps(void)
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
+    { &hf_nas_eps_esm_remote_ue_context_list_ue_context_upri4,
+        { "UDP port range for IPv4 indicator","nas-eps.esm.remote_ue_context_list.ue_context.upri4",
+        FT_BOOLEAN, 8, TFS(&tfs_present_absent), 0x10,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_esm_remote_ue_context_list_ue_context_tpri4i,
+        { "TCP port range for IPv4 indicator","nas-eps.esm.remote_ue_context_list.ue_context.tpri4i",
+        FT_BOOLEAN, 8, TFS(&tfs_present_absent), 0x08,
+        NULL, HFILL }
+    },
     { &hf_nas_eps_esm_remote_ue_context_list_ue_context_address_type,
         { "Address type","nas-eps.esm.remote_ue_context_list.ue_context.address_type",
         FT_UINT8, BASE_DEC, VALS(nas_eps_esm_address_type_values), 0x07,
@@ -8458,6 +8643,26 @@ proto_register_nas_eps(void)
     { &hf_nas_eps_esm_remote_ue_context_list_ue_context_ipv6_prefix,
         { "IPv6 prefix","nas-eps.esm.remote_ue_context_list.ue_context.ipv6_prefix",
         FT_IPv6, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_esm_remote_ue_context_list_ue_context_ipv4_udp_port_low,
+        { "IPv4 UDP port low","nas-eps.esm.remote_ue_context_list.ue_context.ipv4_udp_port_low",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_esm_remote_ue_context_list_ue_context_ipv4_udp_port_high,
+        { "IPv4 UDP port high","nas-eps.esm.remote_ue_context_list.ue_context.ipv4_udp_port_high",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_esm_remote_ue_context_list_ue_context_ipv4_tcp_port_low,
+        { "IPv4 TCP port low","nas-eps.esm.remote_ue_context_list.ue_context.ipv4_tcp_port_low",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_esm_remote_ue_context_list_ue_context_ipv4_tcp_port_high,
+        { "IPv4 TCP port high","nas-eps.esm.remote_ue_context_list.ue_context.ipv4_tcp_port_high",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_nas_eps_esm_pkmf_address_type,
@@ -8812,88 +9017,143 @@ proto_register_nas_eps(void)
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_paging_restriction_ebi7,
-        { "EBI(7)", "nas-eps.esm.paging_restriction.ebi7",
+        { "EBI(7)", "nas-eps.emm.paging_restriction.ebi7",
         FT_BOOLEAN, 16, TFS(&tfs_not_restricted_restricted), 0x8000,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_paging_restriction_ebi6,
-        { "EBI(6)", "nas-eps.esm.paging_restriction.ebi6",
+        { "EBI(6)", "nas-eps.emm.paging_restriction.ebi6",
         FT_BOOLEAN, 16, TFS(&tfs_not_restricted_restricted), 0x4000,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_paging_restriction_ebi5,
-        { "EBI(5)", "nas-eps.esm.paging_restriction.ebi5",
+        { "EBI(5)", "nas-eps.emm.paging_restriction.ebi5",
         FT_BOOLEAN, 16, TFS(&tfs_not_restricted_restricted), 0x2000,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_paging_restriction_ebi4,
-        { "EBI(4)", "nas-eps.esm.paging_restriction.ebi4",
+        { "EBI(4)", "nas-eps.emm.paging_restriction.ebi4",
         FT_BOOLEAN, 16, TFS(&tfs_not_restricted_restricted), 0x1000,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_paging_restriction_ebi3,
-        { "EBI(3)", "nas-eps.esm.paging_restriction.ebi3",
+        { "EBI(3)", "nas-eps.emm.paging_restriction.ebi3",
         FT_BOOLEAN, 16, TFS(&tfs_not_restricted_restricted), 0x0800,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_paging_restriction_ebi2,
-        { "EBI(2)", "nas-eps.esm.paging_restriction.ebi2",
+        { "EBI(2)", "nas-eps.emm.paging_restriction.ebi2",
         FT_BOOLEAN, 16, TFS(&tfs_not_restricted_restricted), 0x0400,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_paging_restriction_ebi1,
-        { "EBI(1)", "nas-eps.esm.paging_restriction.ebi1",
+        { "EBI(1)", "nas-eps.emm.paging_restriction.ebi1",
         FT_BOOLEAN, 16, TFS(&tfs_not_restricted_restricted), 0x0200,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_paging_restriction_ebi0,
-        { "EBI(0)", "nas-eps.esm.paging_restriction.ebi0",
+        { "EBI(0)", "nas-eps.emm.paging_restriction.ebi0",
         FT_BOOLEAN, 16, TFS(&tfs_not_restricted_restricted), 0x0100,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_paging_restriction_ebi15,
-        { "EBI(15)", "nas-eps.esm.paging_restriction.ebi15",
+        { "EBI(15)", "nas-eps.emm.paging_restriction.ebi15",
         FT_BOOLEAN, 16, TFS(&tfs_not_restricted_restricted), 0x0080,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_paging_restriction_ebi14,
-        { "EBI(14)", "nas-eps.esm.paging_restriction.ebi14",
+        { "EBI(14)", "nas-eps.emm.paging_restriction.ebi14",
         FT_BOOLEAN, 16, TFS(&tfs_not_restricted_restricted), 0x0040,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_paging_restriction_ebi13,
-        { "EBI(13)", "nas-eps.esm.paging_restriction.ebi13",
+        { "EBI(13)", "nas-eps.emm.paging_restriction.ebi13",
         FT_BOOLEAN, 16, TFS(&tfs_not_restricted_restricted), 0x0020,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_paging_restriction_ebi12,
-        { "EBI(12)", "nas-eps.esm.paging_restriction.ebi12",
+        { "EBI(12)", "nas-eps.emm.paging_restriction.ebi12",
         FT_BOOLEAN, 16, TFS(&tfs_not_restricted_restricted), 0x0010,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_paging_restriction_ebi11,
-        { "EBI(11)", "nas-eps.esm.paging_restriction.ebi11",
+        { "EBI(11)", "nas-eps.emm.paging_restriction.ebi11",
         FT_BOOLEAN, 16, TFS(&tfs_not_restricted_restricted), 0x0008,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_paging_restriction_ebi10,
-        { "EBI(10)", "nas-eps.esm.paging_restriction.ebi10",
+        { "EBI(10)", "nas-eps.emm.paging_restriction.ebi10",
         FT_BOOLEAN, 16, TFS(&tfs_not_restricted_restricted), 0x0004,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_paging_restriction_ebi9,
-        { "EBI(9)", "nas-eps.esm.paging_restriction.ebi9",
+        { "EBI(9)", "nas-eps.emm.paging_restriction.ebi9",
         FT_BOOLEAN, 16, TFS(&tfs_not_restricted_restricted), 0x0002,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_paging_restriction_ebi8,
-        { "EBI(8)", "nas-eps.esm.paging_restriction.ebi8",
+        { "EBI(8)", "nas-eps.emm.paging_restriction.ebi8",
         FT_BOOLEAN, 16, TFS(&tfs_not_restricted_restricted), 0x0001,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_paging_restriction_decision,
-        { "Paging restriction decision", "nas-eps.esm.paging_restriction.decision",
+        { "Paging restriction decision", "nas-eps.emm.paging_restriction.decision",
         FT_UINT8, BASE_DEC, VALS(nas_eps_emm_eps_add_req_result_vals), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_unavail_info_suppi,
+        { "Start of unavailability period presence indication", "nas-eps.emm.unavailability_info.suppi",
+        FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x10,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_unavail_info_updpi,
+        { "Unavailability period duration presence indication", "nas-eps.emm.unavailability_info.updpi",
+        FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x08,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_unavail_info_type,
+        { "Unavailability type", "nas-eps.emm.unavailability_info.type",
+        FT_UINT8, BASE_DEC, VALS(nas_eps_emm_unavail_info_type), 0x07,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_unavail_info_unavail_period_duration,
+        { "Unavailability period duration", "nas-eps.emm.unavailability_info.unavailability_period_duration",
+        FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_unavail_info_start_unavail_period,
+        { "Start of unavailability period", "nas-eps.emm.unavailability_info.start_unavailability_period",
+        FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_unavail_config_suppi,
+        { "Start of unavailability period presence indication", "nas-eps.emm.unavailability_config.suppi",
+        FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x04,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_unavail_config_updpi,
+        { "Unavailability period duration presence indication", "nas-eps.emm.unavailability_config.updpi",
+        FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_unavail_config_eupr,
+        { "End of unavailability period report", "nas-eps.emm.unavailability_config.eupr",
+        FT_BOOLEAN, 8, TFS(&nas_eps_emm_unavail_config_eupr_flg), 0x01,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_unavail_config_unavail_period_duration,
+        { "Unavailability period duration", "nas-eps.emm.unavailability_config.unavailability_period_duration",
+        FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_unavail_config_start_unavail_period,
+        { "Start of unavailability period", "nas-eps.emm.unavailability_config.start_unavailability_period",
+        FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_ue_info_req_uclir,
+        { "UE coarse location information request", "nas-eps.emm.ue_info_request.uclir",
+        FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x01,
         NULL, HFILL }
     },
   };
