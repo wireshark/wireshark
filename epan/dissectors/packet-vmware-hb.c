@@ -40,7 +40,7 @@ static int hf_vmware_hb_verification_signature;
 
 static dissector_handle_t vmware_hb_handle;
 
-static gint ett_vmware_hb;
+static int ett_vmware_hb;
 
 static const value_string vmware_hb_build_number[] = {
     { 164009, "ESXi 4.0.0 GA" },
@@ -413,8 +413,8 @@ dissect_vmware_hb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     proto_item *ti;
     proto_tree *vmware_hb_tree;
-    guint       offset = 0, host_key_length, ip4_length;
-    const guint8 *host_key, *ip4_str;
+    unsigned    offset = 0, host_key_length, ip4_length;
+    const uint8_t *host_key, *ip4_str;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "VMWARE-HB");
 
@@ -548,7 +548,7 @@ proto_register_vmware_hb(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_vmware_hb
     };
 

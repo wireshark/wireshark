@@ -43,7 +43,7 @@ static int hf_vssmonitoring_time;
 static int hf_vssmonitoring_clksrc;
 static int hf_vssmonitoring_srcport;
 
-static gint ett_vssmonitoring;
+static int ett_vssmonitoring;
 
 static bool vss_dissect_portstamping_only;
 static bool vss_two_byte_portstamps;
@@ -53,13 +53,13 @@ dissect_vssmonitoring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 {
   proto_tree    *ti = NULL;
   proto_tree    *vssmonitoring_tree = NULL;
-  guint         offset = 0;
+  unsigned      offset = 0;
 
-  guint         trailer_len;
-  guint         portstamp_len = (vss_two_byte_portstamps) ? 2 : 1;
+  unsigned      trailer_len;
+  unsigned      portstamp_len = (vss_two_byte_portstamps) ? 2 : 1;
   nstime_t      vssmonitoring_time;
-  guint8        vssmonitoring_clksrc = 0;
-  guint32       vssmonitoring_srcport = 0;
+  uint8_t       vssmonitoring_clksrc = 0;
+  uint32_t      vssmonitoring_srcport = 0;
 
   struct tm     *tmp;
 
@@ -131,7 +131,7 @@ dissect_vssmonitoring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
   if ( trailer_len >= 8 ) {
     vssmonitoring_time.secs  = tvb_get_ntohl(tvb, offset);
     vssmonitoring_time.nsecs = tvb_get_ntohl(tvb, offset + 4);
-    vssmonitoring_clksrc     = (guint8)(((guint32)vssmonitoring_time.nsecs) >> CLKSRC_SHIFT);
+    vssmonitoring_clksrc     = (uint8_t)(((uint32_t)vssmonitoring_time.nsecs) >> CLKSRC_SHIFT);
     vssmonitoring_time.nsecs &= VSS_NS_MASK;
 
       /* Probably padding passed to this dissector (e.g., a 802.1Q tagged
@@ -230,7 +230,7 @@ proto_register_vssmonitoring(void)
         "VSS Monitoring Source Port", HFILL }}
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_vssmonitoring
   };
 

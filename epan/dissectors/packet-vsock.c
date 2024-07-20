@@ -53,8 +53,8 @@ static int hf_virtio_flags;
 static int hf_virtio_buf_alloc;
 static int hf_virtio_fwd_cnt;
 
-static gint ett_vsock;
-static gint ett_virtio;
+static int ett_vsock;
+static int ett_virtio;
 
 static const value_string af_vsockmon_op_names[] = {
     { 0, "Unknown" },
@@ -97,9 +97,9 @@ static const value_string virtio_vsock_op_names[] = {
 
 #define VSOCK_MIN_LENGTH 32
 
-static int vsock_addr_to_str(const address* addr, gchar *buf, int buf_len)
+static int vsock_addr_to_str(const address* addr, char *buf, int buf_len)
 {
-    const guint8 *addrp = (const guint8 *)addr->data;
+    const uint8_t *addrp = (const uint8_t *)addr->data;
 
     if(pletoh64(&addrp[0])==2){
         (void) g_strlcpy(buf, "host", buf_len);
@@ -123,9 +123,9 @@ dissect_vsock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *ti, *virtio_ti;
     proto_tree *vsock_tree, *virtio_tree;
 
-    guint32 t_len, payload_len, virtio_buf_alloc, op, type,
+    uint32_t t_len, payload_len, virtio_buf_alloc, op, type,
             virtio_fwd_cnt, virtio_op, virtio_type;
-    guint16 payload_offset = 0, offset = 0;
+    uint16_t payload_offset = 0, offset = 0;
 
     if (tvb_reported_length(tvb) < VSOCK_MIN_LENGTH)
         return 0;
@@ -291,7 +291,7 @@ proto_register_vsock(void)
             {"Fwd cnt", "vsock.virtio.fwd_cnt", FT_UINT32, BASE_DEC, NULL,
                 0x0, NULL, HFILL }}
     };
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_vsock,
         &ett_virtio
     };

@@ -65,11 +65,11 @@ static int hf_vtp_vlan_backup_crf_mode;
 static int hf_vtp_vlan_data;
 static int hf_vtp_reserved;
 
-static gint ett_vtp;
-static gint ett_vtp_vlan_info;
-static gint ett_vtp_vlan_status;
-static gint ett_vtp_tlv;
-static gint ett_vtp_pruning;
+static int ett_vtp;
+static int ett_vtp_vlan_info;
+static int ett_vtp_vlan_status;
+static int ett_vtp_tlv;
+static int ett_vtp_pruning;
 
 static expert_field ei_vtp_vlan_tlvlength_bad;
 
@@ -77,7 +77,7 @@ static int
 dissect_vlan_info(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree);
 static void
 dissect_vlan_info_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
-		      proto_tree *tree, proto_item *ti, guint8 type);
+		      proto_tree *tree, proto_item *ti, uint8_t type);
 
 #define SUMMARY_ADVERT		0x01
 #define SUBSET_ADVERT		0x02
@@ -95,15 +95,15 @@ static const value_string type_vals[] = {
 static void
 set_vtp_info_col(tvbuff_t *tvb, packet_info *pinfo)
 {
-	switch (tvb_get_guint8(tvb, 1)) {
+	switch (tvb_get_uint8(tvb, 1)) {
 
 	case SUMMARY_ADVERT:
 		col_add_fstr(pinfo->cinfo, COL_INFO,
 		    "Summary Advertisement, Revision: %u", tvb_get_ntohl(tvb, 36));
 
-		if (tvb_get_guint8(tvb, 2) > 0) {
+		if (tvb_get_uint8(tvb, 2) > 0) {
 			col_append_fstr(pinfo->cinfo, COL_INFO,
-			    ", Followers: %u", tvb_get_guint8(tvb, 2));
+			    ", Followers: %u", tvb_get_uint8(tvb, 2));
 		}
 
 		break;
@@ -111,7 +111,7 @@ set_vtp_info_col(tvbuff_t *tvb, packet_info *pinfo)
 	case SUBSET_ADVERT:
 		col_add_fstr(pinfo->cinfo, COL_INFO,
 		    "Subset Advertisement, Revision: %u, Seq: %u",
-		    tvb_get_ntohl(tvb, 36), tvb_get_guint8(tvb, 2));
+		    tvb_get_ntohl(tvb, 36), tvb_get_uint8(tvb, 2));
 		break;
 
 	case ADVERT_REQUEST:
@@ -134,8 +134,8 @@ dissect_vtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	proto_item *ti;
 	proto_tree *vtp_tree = NULL, *vtp_pruning_tree = NULL;
 	int offset = 0;
-	guint8 code;
-	guint8 *upd_timestamp;
+	uint8_t code;
+	uint8_t *upd_timestamp;
 	int vlan_info_len;
 	int pruning_vlan_id;
 	int yy, mm, dd, hh, _mm, ss;
@@ -150,7 +150,7 @@ dissect_vtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	proto_tree_add_item(vtp_tree, hf_vtp_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	code = tvb_get_guint8(tvb, offset);
+	code = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(vtp_tree, hf_vtp_code, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
@@ -241,10 +241,10 @@ dissect_vtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 			ett_vtp_pruning, NULL, "Advertised active (i.e. not pruned) VLANs");
 
 		while (tvb_reported_length_remaining(tvb, offset) > 0) {
-			guint8 vlan_usage_bitmap;
+			uint8_t vlan_usage_bitmap;
 			int shift;
 
-			vlan_usage_bitmap = tvb_get_guint8(tvb, offset);
+			vlan_usage_bitmap = tvb_get_uint8(tvb, offset);
 
 			for (shift = 0; shift < 8; shift++) {
 				if (vlan_usage_bitmap & (1<<7)) {
@@ -306,15 +306,15 @@ dissect_vlan_info(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tre
 	proto_item *ti;
 	proto_tree *vlan_info_tree;
 	proto_tree *status_tree;
-	guint8 vlan_info_len;
+	uint8_t vlan_info_len;
 	int vlan_info_left;
-	guint8 status;
-	guint8 vlan_name_len;
-	guint8 type;
+	uint8_t status;
+	uint8_t vlan_name_len;
+	uint8_t type;
 	int length;
 	proto_tree *tlv_tree;
 
-	vlan_info_len = tvb_get_guint8(tvb, offset);
+	vlan_info_len = tvb_get_uint8(tvb, offset);
 	vlan_info_tree = proto_tree_add_subtree(tree, tvb, offset, vlan_info_len,
 	    ett_vtp_vlan_info, NULL, "VLAN Information");
 	vlan_info_left = vlan_info_len;
@@ -324,7 +324,7 @@ dissect_vlan_info(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tre
 	offset += 1;
 	vlan_info_left -= 1;
 
-	status = tvb_get_guint8(tvb, offset);
+	status = tvb_get_uint8(tvb, offset);
 	ti = proto_tree_add_uint(vlan_info_tree, hf_vtp_vlan_status, tvb, offset, 1, status);
 	if (status & VLAN_SUSPENDED)
 	    proto_item_append_text(ti, " (VLAN suspended)");
@@ -338,7 +338,7 @@ dissect_vlan_info(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tre
 	offset += 1;
 	vlan_info_left -= 1;
 
-	vlan_name_len = tvb_get_guint8(tvb, offset);
+	vlan_name_len = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(vlan_info_tree, hf_vtp_vlan_name_len, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	vlan_info_left -= 1;
@@ -362,8 +362,8 @@ dissect_vlan_info(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tre
 	vlan_info_left -= vlan_name_len;
 
 	while (vlan_info_left > 0) {
-		type = tvb_get_guint8(tvb, offset + 0);
-		length = tvb_get_guint8(tvb, offset + 1);
+		type = tvb_get_uint8(tvb, offset + 0);
+		length = tvb_get_uint8(tvb, offset + 1);
 
 		tlv_tree = proto_tree_add_subtree(vlan_info_tree, tvb, offset,
 		    2 + length*2, ett_vtp_tlv, &ti,
@@ -411,7 +411,7 @@ static const value_string backup_crf_mode_vals[] = {
 
 static void
 dissect_vlan_info_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
-		      proto_tree *tree, proto_item *ti, guint8 type)
+		      proto_tree *tree, proto_item *ti, uint8_t type)
 {
 	switch (type) {
 
@@ -654,7 +654,7 @@ proto_register_vtp(void)
 			NULL, HFILL }},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_vtp,
 		&ett_vtp_vlan_info,
 		&ett_vtp_vlan_status,

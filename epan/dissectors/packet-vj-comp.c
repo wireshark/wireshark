@@ -35,10 +35,10 @@
 #include "packet-ppp.h"
 
 /* Shorthand macros for reading/writing 16/32 bit values from
- * possibly-unaligned indexes into a guint8[]
+ * possibly-unaligned indexes into a uint8_t[]
  */
-#define GET_16(p,i) (guint16)(((p)[(i)] << 8) | ((p)[(i)+1]))
-#define GET_32(p,i) (guint32)(((p)[(i)] << 24) | ((p)[(i)+1] << 16) | ((p)[(i)+2] << 8) | ((p)[(i)+3]))
+#define GET_16(p,i) (uint16_t)(((p)[(i)] << 8) | ((p)[(i)+1]))
+#define GET_32(p,i) (uint32_t)(((p)[(i)] << 24) | ((p)[(i)+1] << 16) | ((p)[(i)+2] << 8) | ((p)[(i)+3]))
 #define PUT_16(p,i,v) G_STMT_START { \
     (p)[(i)]   = ((v) & 0xFF00) >> 8; \
     (p)[(i)+1] = ((v) & 0x00FF); \
@@ -54,8 +54,8 @@
  * Only used on the first pass, in case the connection number itself
  * gets compressed out.
  */
-#define CNUM_INVALID G_MAXUINT16
-static guint16 last_cnum = CNUM_INVALID;
+#define CNUM_INVALID UINT16_MAX
+static uint16_t last_cnum = CNUM_INVALID;
 
 /* Location in an IPv4 packet of the IP Next Protocol field
  * (which VJC replaces with the connection ID in uncompressed packets)
@@ -69,21 +69,21 @@ static guint16 last_cnum = CNUM_INVALID;
 
 /* Structure for tracking the changeable parts of a packet header */
 typedef struct vjc_hdr_s {
-    guint16 tcp_chksum;
-    guint16 urg;
-    guint16 win;
-    guint32 seq;
-    guint32 ack;
-    guint32 ip_id;
-    gboolean psh;
+    uint16_t tcp_chksum;
+    uint16_t urg;
+    uint16_t win;
+    uint32_t seq;
+    uint32_t ack;
+    uint32_t ip_id;
+    bool psh;
 } vjc_hdr_t;
 
 /* The structure used in a wireshark "conversation" */
 typedef struct vjc_conv_s {
-    guint32     last_frame;     // On first pass, where to get the previous info
-    guint32     last_frame_len; // On first pass, length of prev. frame (for SAWU/SWU)
-    guint8     *frame_headers;  // Full copy of the IP header
-    guint8      header_len;     // Length of the stored IP header
+    uint32_t    last_frame;     // On first pass, where to get the previous info
+    uint32_t    last_frame_len; // On first pass, length of prev. frame (for SAWU/SWU)
+    uint8_t    *frame_headers;  // Full copy of the IP header
+    uint8_t     header_len;     // Length of the stored IP header
     wmem_map_t *vals;           // Hash of frame_number => vjc_hdr_t*
 } vjc_conv_t;
 
@@ -96,8 +96,8 @@ void proto_reg_handoff_vjc(void);
 
 static int proto_vjc;
 
-static gint ett_vjc;
-static gint ett_vjc_change_mask;
+static int ett_vjc;
+static int ett_vjc_change_mask;
 
 static expert_field ei_vjc_sawu;
 static expert_field ei_vjc_swu;
@@ -172,7 +172,7 @@ vjc_cleanup_protocol(void)
 
 /* Find (or optionally create) a VJC conversation. */
 static conversation_t *
-vjc_find_conversation(packet_info *pinfo, guint32 vjc_cnum, gboolean create)
+vjc_find_conversation(packet_info *pinfo, uint32_t vjc_cnum, bool create)
 {
     /* PPP gives us almost nothing to hook a conversation on; just whether
      * the packet is considered to be P2P_DIR_RECV or P2P_DIR_SENT.
@@ -205,11 +205,11 @@ vjc_find_conversation(packet_info *pinfo, guint32 vjc_cnum, gboolean create)
  * header. If the initial byte is 0, that means the following 2 bytes are the
  * 16-bit value of the delta. Otherwise, the initial byte is the 8-bit value.
  */
-static guint32
-vjc_delta_uint(proto_tree *tree, int hf, tvbuff_t *tvb, guint *offset)
+static uint32_t
+vjc_delta_uint(proto_tree *tree, int hf, tvbuff_t *tvb, unsigned *offset)
 {
-    guint32 ret_val;
-    if (0 != tvb_get_guint8(tvb, *offset)) {
+    uint32_t ret_val;
+    if (0 != tvb_get_uint8(tvb, *offset)) {
         proto_tree_add_item_ret_uint(tree, hf, tvb, *offset, 1,
                 ENC_BIG_ENDIAN, &ret_val);
         (*offset)++;
@@ -224,11 +224,11 @@ vjc_delta_uint(proto_tree *tree, int hf, tvbuff_t *tvb, guint *offset)
 }
 
 /* Same thing but signed, since the TCP window delta can be negative */
-static gint32
-vjc_delta_int(proto_tree *tree, int hf, tvbuff_t *tvb, guint *offset)
+static int32_t
+vjc_delta_int(proto_tree *tree, int hf, tvbuff_t *tvb, unsigned *offset)
 {
-    gint32 ret_val;
-    if (0 != tvb_get_gint8(tvb, *offset)) {
+    int32_t ret_val;
+    if (0 != tvb_get_int8(tvb, *offset)) {
         proto_tree_add_item_ret_int(tree, hf, tvb, *offset, 1,
                 ENC_BIG_ENDIAN, &ret_val);
         (*offset)++;
@@ -255,17 +255,17 @@ dissect_vjc_uncomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
      */
     proto_tree     *subtree     = NULL;
     proto_item     *ti          = NULL;
-    guint8          ip_ver      = 0;
-    guint8          ip_len      = 0;
-    guint           tcp_len     = 0;
-    guint32         vjc_cnum    = 0;
+    uint8_t         ip_ver      = 0;
+    uint8_t         ip_len      = 0;
+    unsigned        tcp_len     = 0;
+    uint32_t        vjc_cnum    = 0;
     tvbuff_t       *tcpip_tvb   = NULL;
     tvbuff_t       *sub_tvb     = NULL;
     conversation_t *conv        = NULL;
     vjc_hdr_t      *this_hdr    = NULL;
     vjc_conv_t     *pkt_data    = NULL;
-    guint8         *pdata       = NULL;
-    static guint8   real_proto  = IP_PROTO_TCP;
+    uint8_t        *pdata       = NULL;
+    static uint8_t  real_proto  = IP_PROTO_TCP;
 
     ti = proto_tree_add_item(tree, proto_vjc, tvb, 0, -1, ENC_NA);
     subtree = proto_item_add_subtree(ti, ett_vjc);
@@ -277,8 +277,8 @@ dissect_vjc_uncomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
                 "Packet truncated before Connection ID field");
         return tvb_captured_length(tvb);
     }
-    ip_ver = (tvb_get_guint8(tvb, 0) & 0xF0) >> 4;
-    ip_len = (tvb_get_guint8(tvb, 0) & 0x0F) << 2;
+    ip_ver = (tvb_get_uint8(tvb, 0) & 0xF0) >> 4;
+    ip_len = (tvb_get_uint8(tvb, 0) & 0x0F) << 2;
     tcp_len = ip_len + VJC_TCP_HDR_LEN;
     if (4 != ip_ver) {
         proto_tree_add_expert_format(subtree, pinfo, &ei_vjc_bad_data, tvb, 0, 1,
@@ -287,7 +287,7 @@ dissect_vjc_uncomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     }
 
     /* So far so good, continue the dissection */
-    ti = proto_tree_add_boolean(subtree, hf_vjc_comp, tvb, 0, 0, FALSE);
+    ti = proto_tree_add_boolean(subtree, hf_vjc_comp, tvb, 0, 0, false);
     proto_item_set_generated(ti);
 
     proto_tree_add_item_ret_uint(subtree, hf_vjc_cnum, tvb, VJC_CONNID_OFFSET, 1,
@@ -326,7 +326,7 @@ dissect_vjc_uncomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
          * decompressing future packets.
          */
         last_cnum = vjc_cnum;
-        conv = vjc_find_conversation(pinfo, vjc_cnum, TRUE);
+        conv = vjc_find_conversation(pinfo, vjc_cnum, true);
         pkt_data = (vjc_conv_t *)conversation_get_proto_data(conv, proto_vjc);
         if (NULL == pkt_data) {
             pkt_data = wmem_new0(wmem_file_scope(), vjc_conv_t);
@@ -335,7 +335,7 @@ dissect_vjc_uncomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
         }
         pdata = // shorthand
             pkt_data->frame_headers =
-            (guint8 *)tvb_memdup(wmem_file_scope(), tcpip_tvb, 0, tcp_len);
+            (uint8_t *)tvb_memdup(wmem_file_scope(), tcpip_tvb, 0, tcp_len);
 
         pkt_data->last_frame = pinfo->num;
         pkt_data->header_len = tcp_len;
@@ -371,25 +371,25 @@ dissect_vjc_comp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* 
      */
     proto_tree     *subtree     = NULL;
     proto_item     *ti          = NULL;
-    guint           hdr_len     = 3;    // See below
-    gboolean        hdr_error   = FALSE;
-    guint           ip_len      = 0;
-    guint           pkt_len     = 0;
-    guint           d_ipid      = 0;
-    guint           d_seq       = 0;
-    guint           d_ack       = 0;
-    gint            d_win       = 0;
-    guint8          flags       = 0;
-    guint           offset      = 0;
-    guint32         urg         = 0;
-    guint32         ip_chksum   = 0;
-    guint32         tcp_chksum  = 0;
-    guint32         vjc_cnum    = 0;
+    unsigned        hdr_len     = 3;    // See below
+    bool            hdr_error   = false;
+    unsigned        ip_len      = 0;
+    unsigned        pkt_len     = 0;
+    unsigned        d_ipid      = 0;
+    unsigned        d_seq       = 0;
+    unsigned        d_ack       = 0;
+    int             d_win       = 0;
+    uint8_t         flags       = 0;
+    unsigned        offset      = 0;
+    uint32_t        urg         = 0;
+    uint32_t        ip_chksum   = 0;
+    uint32_t        tcp_chksum  = 0;
+    uint32_t        vjc_cnum    = 0;
     conversation_t *conv        = NULL;
     vjc_hdr_t      *this_hdr    = NULL;
     vjc_hdr_t      *last_hdr    = NULL;
     vjc_conv_t     *pkt_data    = NULL;
-    guint8         *pdata       = NULL;
+    uint8_t        *pdata       = NULL;
     tvbuff_t       *tcpip_tvb   = NULL;
     tvbuff_t       *sub_tvb     = NULL;
 
@@ -399,10 +399,10 @@ dissect_vjc_comp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* 
      * an 8-bit change mask and a 16-bit TCP checksum.
      */
 #define TEST_HDR_LEN \
-    if (hdr_len > tvb_captured_length(tvb)) { hdr_error = TRUE; goto done_header_len; }
+    if (hdr_len > tvb_captured_length(tvb)) { hdr_error = true; goto done_header_len; }
 
     TEST_HDR_LEN;
-    flags = tvb_get_guint8(tvb, offset);
+    flags = tvb_get_uint8(tvb, offset);
     if (flags & VJC_FLAG_C) {
         // have connection number
         hdr_len++;
@@ -430,7 +430,7 @@ dissect_vjc_comp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* 
         }
         if (flags & VJC_FLAG_W) {
             // have d_win
-            if (0 == tvb_get_gint8(tvb, offset + hdr_len))
+            if (0 == tvb_get_int8(tvb, offset + hdr_len))
                 hdr_len += 3;
             else
                 hdr_len++;
@@ -438,7 +438,7 @@ dissect_vjc_comp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* 
         }
         if (flags & VJC_FLAG_A) {
             // have d_ack
-            if (0 == tvb_get_guint8(tvb, offset + hdr_len))
+            if (0 == tvb_get_uint8(tvb, offset + hdr_len))
                 hdr_len += 3;
             else
                 hdr_len++;
@@ -446,7 +446,7 @@ dissect_vjc_comp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* 
         }
         if (flags & VJC_FLAG_S) {
             // have d_seq
-            if (0 == tvb_get_guint8(tvb, offset + hdr_len))
+            if (0 == tvb_get_uint8(tvb, offset + hdr_len))
                 hdr_len += 3;
             else
                 hdr_len++;
@@ -455,7 +455,7 @@ dissect_vjc_comp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* 
     }
     if (flags & VJC_FLAG_I) {
         // have IP ID
-        if (0 == tvb_get_guint8(tvb, offset + hdr_len))
+        if (0 == tvb_get_uint8(tvb, offset + hdr_len))
             hdr_len += 3;
         else
             hdr_len++;
@@ -477,7 +477,7 @@ done_header_len:
         return tvb_captured_length(tvb);
     }
 
-    ti = proto_tree_add_boolean(subtree, hf_vjc_comp, tvb, 0, 0, TRUE);
+    ti = proto_tree_add_boolean(subtree, hf_vjc_comp, tvb, 0, 0, true);
     proto_item_set_generated(ti);
 
    proto_tree_add_bitmask(subtree, tvb, 0, hf_vjc_change_mask,
@@ -507,7 +507,7 @@ done_header_len:
             proto_tree_add_expert(subtree, pinfo, &ei_vjc_no_cnum, tvb, 0, 0);
         }
     }
-    conv = vjc_find_conversation(pinfo, vjc_cnum, FALSE);
+    conv = vjc_find_conversation(pinfo, vjc_cnum, false);
     if (NULL != conv) {
         pkt_data = (vjc_conv_t *)conversation_get_proto_data(conv, proto_vjc);
         // Will be testing that pkt_data exists below
@@ -629,8 +629,8 @@ done_header_len:
 
         if (NULL != last_hdr) {
             this_hdr = wmem_new0(wmem_file_scope(), vjc_hdr_t);
-            this_hdr->tcp_chksum = (guint16)tcp_chksum;
-            this_hdr->urg = (guint16)urg;
+            this_hdr->tcp_chksum = (uint16_t)tcp_chksum;
+            this_hdr->urg = (uint16_t)urg;
             this_hdr->win = last_hdr->win + d_win;
             this_hdr->seq = last_hdr->seq + d_seq;
             this_hdr->ack = last_hdr->ack + d_ack;
@@ -802,7 +802,7 @@ proto_register_vjc(void)
                 NULL, 0x0, "Original TCP payload", HFILL}},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_vjc,
         &ett_vjc_change_mask,
     };

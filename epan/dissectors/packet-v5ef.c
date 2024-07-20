@@ -33,8 +33,8 @@ static int hf_v5ef_ea1;
 static int hf_v5ef_eal;
 static int hf_v5ef_ea2;
 
-static gint ett_v5ef;
-static gint ett_v5ef_address;
+static int ett_v5ef;
+static int ett_v5ef_address;
 
 static dissector_handle_t v5dl_handle, lapd_phdr_handle, v5ef_handle;
 
@@ -65,7 +65,7 @@ dissect_v5ef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	proto_item	*v5ef_ti, *addr_ti;
 	int		 direction;
 	int		 v5ef_header_len;
-	guint16		 addr, eah, eal, efaddr;
+	uint16_t		 addr, eah, eal, efaddr;
 	tvbuff_t	*next_tvb;
 	const char	*srcname = "src";
 	const char	*dstname = "dst";
@@ -163,7 +163,7 @@ proto_register_v5ef(void)
 	  	"Second Address Extension bit", HFILL }},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_v5ef,
 		&ett_v5ef_address,
 	};

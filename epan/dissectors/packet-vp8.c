@@ -93,15 +93,15 @@ static expert_field ei_vp8_first_partition_split;
 static expert_field ei_vp8_first_partition_plus;
 
 static void
-dissect_vp8_payload_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *vp8_tree, gint *offset, gboolean *hasHeader);
+dissect_vp8_payload_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *vp8_tree, int *offset, bool *hasHeader);
 
 static void
-dissect_vp8_payload_header(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *vp8_tree, gint *offset, gint *frametype, gint *partition1_size);
+dissect_vp8_payload_header(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *vp8_tree, int *offset, int *frametype, int *partition1_size);
 
 static void
-dissect_vp8_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *vp8_tree, gint *offset, gint *frametype, gint *partition1_size);
+dissect_vp8_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *vp8_tree, int *offset, int *frametype, int *partition1_size);
 
-static gint *ett[] = {
+static int *ett[] = {
     &ett_vp8,
     &ett_vp8_payload_descriptor,
     &ett_vp8_payload_header,
@@ -175,9 +175,9 @@ dissect_vp8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 
     proto_item *item;
-    gint offset = 0, frametype = 0, partition1_size = -1;
+    int offset = 0, frametype = 0, partition1_size = -1;
     proto_tree *vp8_tree;
-    gboolean hasHeader = FALSE;
+    bool hasHeader = false;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "VP8");
 
@@ -201,10 +201,10 @@ dissect_vp8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 }
 
 static void
-dissect_vp8_payload_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *vp8_tree, gint *offset, gboolean *hasHeader)
+dissect_vp8_payload_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *vp8_tree, int *offset, bool *hasHeader)
 {
     proto_item *item_descriptor;
-    guint8      extended_bit, s_bit, partId;
+    uint8_t     extended_bit, s_bit, partId;
     proto_tree *vp8_payload_descriptor_tree;
 
 /*
@@ -233,17 +233,17 @@ The first octets after the RTP header are the VP8 payload descriptor,
     proto_tree_add_item(vp8_payload_descriptor_tree, hf_vp8_pld_n_bit,   tvb, *offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(vp8_payload_descriptor_tree, hf_vp8_pld_s_bit,   tvb, *offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(vp8_payload_descriptor_tree, hf_vp8_pld_part_id, tvb, *offset, 1, ENC_BIG_ENDIAN);
-    extended_bit = tvb_get_guint8(tvb, *offset) & BIT_1_MASK;
-    s_bit  = tvb_get_guint8(tvb, *offset) & BIT_4_MASK;
-    partId = tvb_get_guint8(tvb, *offset) & BIT_5678_MASK;
+    extended_bit = tvb_get_uint8(tvb, *offset) & BIT_1_MASK;
+    s_bit  = tvb_get_uint8(tvb, *offset) & BIT_4_MASK;
+    partId = tvb_get_uint8(tvb, *offset) & BIT_5678_MASK;
 
     if ((s_bit > 0) && (partId == 0)) {
-        *hasHeader=TRUE;
+        *hasHeader=true;
     }
 
     if (extended_bit)
     {
-        guint8 i_bit, l_bit, t_bit, k_bit;
+        uint8_t i_bit, l_bit, t_bit, k_bit;
         (*offset)++;
         proto_tree_add_item(vp8_payload_descriptor_tree, hf_vp8_pld_i_bit, tvb, *offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(vp8_payload_descriptor_tree, hf_vp8_pld_l_bit, tvb, *offset, 1, ENC_BIG_ENDIAN);
@@ -251,14 +251,14 @@ The first octets after the RTP header are the VP8 payload descriptor,
         proto_tree_add_item(vp8_payload_descriptor_tree, hf_vp8_pld_k_bit, tvb, *offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(vp8_payload_descriptor_tree, hf_vp8_pld_rsv_a, tvb, *offset, 1, ENC_BIG_ENDIAN);
 
-        i_bit = tvb_get_guint8(tvb, *offset) & BIT_1_MASK;
-        l_bit = tvb_get_guint8(tvb, *offset) & BIT_2_MASK;
-        t_bit = tvb_get_guint8(tvb, *offset) & BIT_3_MASK;
-        k_bit = tvb_get_guint8(tvb, *offset) & BIT_4_MASK;
+        i_bit = tvb_get_uint8(tvb, *offset) & BIT_1_MASK;
+        l_bit = tvb_get_uint8(tvb, *offset) & BIT_2_MASK;
+        t_bit = tvb_get_uint8(tvb, *offset) & BIT_3_MASK;
+        k_bit = tvb_get_uint8(tvb, *offset) & BIT_4_MASK;
         if (i_bit)
         {
             (*offset)++;
-            if(tvb_get_guint8(tvb, *offset) & BIT_1_MASK)
+            if(tvb_get_uint8(tvb, *offset) & BIT_1_MASK)
             {
                 proto_tree_add_item(vp8_payload_descriptor_tree, hf_vp8_pld_extended_picture_id, tvb, *offset, 2, ENC_BIG_ENDIAN);
                 (*offset)++;
@@ -288,11 +288,11 @@ The first octets after the RTP header are the VP8 payload descriptor,
 }
 
 static void
-dissect_vp8_payload_header(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *vp8_tree, gint *offset, gint *frametype, gint *partition1_size)
+dissect_vp8_payload_header(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *vp8_tree, int *offset, int *frametype, int *partition1_size)
 {
     proto_item *item_header;
     proto_tree *vp8_payload_header_tree;
-    gint size0, size1, size2;
+    int size0, size1, size2;
 
 /*
 The first three octets of an encoded VP8 frame are referred to as an
@@ -332,37 +332,37 @@ The first three octets of an encoded VP8 frame are referred to as an
     proto_tree_add_item(vp8_payload_header_tree, hf_vp8_hdr_version,   tvb, *offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(vp8_payload_header_tree, hf_vp8_hdr_show_bit,  tvb, *offset, 1, ENC_BIG_ENDIAN);
 
-    *frametype = tvb_get_guint8(tvb, *offset) & BIT_8_MASK;
+    *frametype = tvb_get_uint8(tvb, *offset) & BIT_8_MASK;
 
-    size0 = (tvb_get_guint8(tvb, *offset) & BIT_123_MASK) >> 5;
-    size1 = tvb_get_guint8(tvb, *offset + 1);
-    size2 = tvb_get_guint8(tvb, *offset + 2);
+    size0 = (tvb_get_uint8(tvb, *offset) & BIT_123_MASK) >> 5;
+    size1 = tvb_get_uint8(tvb, *offset + 1);
+    size2 = tvb_get_uint8(tvb, *offset + 2);
     (*partition1_size) = size0 + (size1*8) + (size2*2048);
     proto_tree_add_uint(vp8_payload_header_tree, hf_vp8_hdr_first_partition_size, tvb, *offset, 3, *partition1_size);
     (*offset) += 3;
 }
 
 static void
-dissect_vp8_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *vp8_tree, gint *offset, gint *frametype, gint *partition1_size)
+dissect_vp8_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *vp8_tree, int *offset, int *frametype, int *partition1_size)
 {
     proto_tree *vp8_payload_tree;
     proto_item *payload_item;
-    gint remainder;
+    int remainder;
 
     vp8_payload_tree = proto_tree_add_subtree(vp8_tree, tvb, *offset, -1, ett_vp8_payload, &payload_item, "Payload");
 
     if (*frametype == 0)
     {
-        guint16 width, height;
-        gint start1, start2, start3, horizontal_scale, vertical_scale;
+        uint16_t width, height;
+        int start1, start2, start3, horizontal_scale, vertical_scale;
         proto_tree *vp8_keyframe_tree;
 
         vp8_keyframe_tree = proto_tree_add_subtree(vp8_payload_tree, tvb, *offset, -1, ett_vp8_keyframe, NULL, "Keyframe header");
 
         proto_tree_add_item(vp8_keyframe_tree, hf_vp8_keyframe_start_code, tvb, *offset, 3, ENC_BIG_ENDIAN);
-        start1 = tvb_get_guint8(tvb, *offset);
-        start2 = tvb_get_guint8(tvb, *offset + 1);
-        start3 = tvb_get_guint8(tvb, *offset + 2);
+        start1 = tvb_get_uint8(tvb, *offset);
+        start2 = tvb_get_uint8(tvb, *offset + 1);
+        start3 = tvb_get_uint8(tvb, *offset + 2);
 
         /* check start code is correct */
         if ((start1 != 0x9d) || (start2 != 0x01) || (start3 != 0x2a))

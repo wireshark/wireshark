@@ -26,26 +26,26 @@ void proto_reg_handoff_vrrp(void);
 
 static dissector_handle_t vrrp_handle;
 
-static gint proto_vrrp;
-static gint ett_vrrp;
-static gint ett_vrrp_ver_type;
+static int proto_vrrp;
+static int ett_vrrp;
+static int ett_vrrp_ver_type;
 
-static gint hf_vrrp_ver_type;
-static gint hf_vrrp_version;
-static gint hf_vrrp_type;
-static gint hf_vrrp_virt_rtr_id;
-static gint hf_vrrp_prio;
-static gint hf_vrrp_addr_count;
-static gint hf_vrrp_checksum;
-static gint hf_vrrp_checksum_status;
-static gint hf_vrrp_auth_type;
-static gint hf_vrrp_adver_int;
-static gint hf_vrrp_reserved_mbz;
-static gint hf_vrrp_short_adver_int;
-static gint hf_vrrp_ip;
-static gint hf_vrrp_ip6;
-static gint hf_vrrp_auth_string;
-static gint hf_vrrp_md5_auth_data;
+static int hf_vrrp_ver_type;
+static int hf_vrrp_version;
+static int hf_vrrp_type;
+static int hf_vrrp_virt_rtr_id;
+static int hf_vrrp_prio;
+static int hf_vrrp_addr_count;
+static int hf_vrrp_checksum;
+static int hf_vrrp_checksum_status;
+static int hf_vrrp_auth_type;
+static int hf_vrrp_adver_int;
+static int hf_vrrp_reserved_mbz;
+static int hf_vrrp_short_adver_int;
+static int hf_vrrp_ip;
+static int hf_vrrp_ip6;
+static int hf_vrrp_auth_string;
+static int hf_vrrp_md5_auth_data;
 
 static bool g_vrrp_v3_checksum_as_in_v2 = true;
 
@@ -89,30 +89,30 @@ static int
 dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     int         offset = 0;
-    gint        vrrp_len;
-    guint8      ver_type;
+    int         vrrp_len;
+    uint8_t     ver_type;
     vec_t       cksum_vec[4];
-    guint32     phdr[2];
-    gboolean    is_ipv6;
+    uint32_t    phdr[2];
+    bool        is_ipv6;
     proto_item *ti, *tv;
     proto_tree *vrrp_tree, *ver_type_tree;
-    guint8      priority, addr_count = 0, auth_type = VRRP_AUTH_TYPE_NONE;
-    guint16     computed_cksum = 0;
+    uint8_t     priority, addr_count = 0, auth_type = VRRP_AUTH_TYPE_NONE;
+    uint16_t    computed_cksum = 0;
 
     is_ipv6 = (pinfo->src.type == AT_IPv6);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "VRRP");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    ver_type = tvb_get_guint8(tvb, 0);
+    ver_type = tvb_get_uint8(tvb, 0);
     col_add_fstr(pinfo->cinfo, COL_INFO, "Announcement (v%u)",
             hi_nibble(ver_type));
 
     ti = proto_tree_add_item(tree, proto_vrrp, tvb, 0, -1, ENC_NA);
     vrrp_tree = proto_item_add_subtree(ti, ett_vrrp);
 
-    priority = tvb_get_guint8(tvb, 2);
-    addr_count = tvb_get_guint8(tvb, 3);
+    priority = tvb_get_uint8(tvb, 2);
+    addr_count = tvb_get_uint8(tvb, 3);
 
     tv = proto_tree_add_uint_format(vrrp_tree, hf_vrrp_ver_type,
             tvb, offset, 1, ver_type,
@@ -149,7 +149,7 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         case 2:
         default:
             /* 1 byte auth type + 1 byte interval */
-            auth_type = tvb_get_guint8(tvb, offset);
+            auth_type = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(vrrp_tree, hf_vrrp_auth_type, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
 
@@ -161,19 +161,19 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         offset += 6;
     }
 
-    vrrp_len = (gint)tvb_reported_length(tvb);
-    if (!pinfo->fragmented && (gint)tvb_captured_length(tvb) >= vrrp_len) {
+    vrrp_len = (int)tvb_reported_length(tvb);
+    if (!pinfo->fragmented && (int)tvb_captured_length(tvb) >= vrrp_len) {
         /* The packet isn't part of a fragmented datagram
            and isn't truncated, so we can checksum it. */
         switch(hi_nibble(ver_type)) {
             case 3:
-                if((g_vrrp_v3_checksum_as_in_v2 == FALSE)||(pinfo->src.type == AT_IPv6)){
+                if((g_vrrp_v3_checksum_as_in_v2 == false)||(pinfo->src.type == AT_IPv6)){
                     /* Set up the fields of the pseudo-header. */
-                    SET_CKSUM_VEC_PTR(cksum_vec[0], (const guint8 *)pinfo->src.data, pinfo->src.len);
-                    SET_CKSUM_VEC_PTR(cksum_vec[1], (const guint8 *)pinfo->dst.data, pinfo->dst.len);
+                    SET_CKSUM_VEC_PTR(cksum_vec[0], (const uint8_t *)pinfo->src.data, pinfo->src.len);
+                    SET_CKSUM_VEC_PTR(cksum_vec[1], (const uint8_t *)pinfo->dst.data, pinfo->dst.len);
                     phdr[0] = g_htonl(vrrp_len);
                     phdr[1] = g_htonl(IP_PROTO_VRRP);
-                    SET_CKSUM_VEC_PTR(cksum_vec[2], (const guint8 *)&phdr, 8);
+                    SET_CKSUM_VEC_PTR(cksum_vec[2], (const uint8_t *)&phdr, 8);
                     SET_CKSUM_VEC_TVB(cksum_vec[3], tvb, 0, vrrp_len);
                     computed_cksum = in_cksum(cksum_vec, 4);
                     break;
@@ -302,7 +302,7 @@ void proto_register_vrrp(void)
                 "MD5 digest string is contained.", HFILL }},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_vrrp,
         &ett_vrrp_ver_type
     };

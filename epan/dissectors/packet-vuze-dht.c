@@ -280,17 +280,17 @@ static int hf_vuze_dht_signature_len;
 static int hf_vuze_dht_signature;
 
 /* trees */
-static gint ett_vuze_dht;
-static gint ett_vuze_dht_address;
-static gint ett_vuze_dht_contacts;
-static gint ett_vuze_dht_contact;
-static gint ett_vuze_dht_keys;
-static gint ett_vuze_dht_key;
-static gint ett_vuze_dht_value_groups;
-static gint ett_vuze_dht_value_group;
-static gint ett_vuze_dht_value;
-static gint ett_vuze_dht_network_coordinates;
-static gint ett_vuze_dht_network_coordinate;
+static int ett_vuze_dht;
+static int ett_vuze_dht_address;
+static int ett_vuze_dht_contacts;
+static int ett_vuze_dht_contact;
+static int ett_vuze_dht_keys;
+static int ett_vuze_dht_key;
+static int ett_vuze_dht_value_groups;
+static int ett_vuze_dht_value_group;
+static int ett_vuze_dht_value;
+static int ett_vuze_dht_network_coordinates;
+static int ett_vuze_dht_network_coordinate;
 
 static dissector_handle_t vuze_dht_handle;
 
@@ -306,12 +306,12 @@ short:         port number
 static int
 dissect_vuze_dht_address(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, int offset, const char* addr_name)
 {
-  guint8 ip_length;
+  uint8_t ip_length;
   proto_tree *sub_tree;
   proto_item *ti;
   address addr;
 
-  ip_length = tvb_get_guint8(tvb,offset);
+  ip_length = tvb_get_uint8(tvb,offset);
   /* the decoded length is ip length+3, see the format above */
   ti = proto_tree_add_none_format(tree, hf_vuze_dht_address, tvb, offset, ip_length+3, "%s: ", addr_name );
   sub_tree = proto_item_add_subtree(ti, ett_vuze_dht_address);
@@ -356,10 +356,10 @@ dissect_vuze_dht_contact(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
   proto_tree *sub_tree;
 
   /* the decoded length is ip length+5, see the format above */
-  ti = proto_tree_add_none_format( tree, hf_vuze_dht_contact, tvb, offset, tvb_get_guint8(tvb,offset+2)+5,
+  ti = proto_tree_add_none_format( tree, hf_vuze_dht_contact, tvb, offset, tvb_get_uint8(tvb,offset+2)+5,
       "%s contact, version %d",
-      val_to_str_const( tvb_get_guint8(tvb, offset), vuze_dht_contact_type_vals, "Unknown"),
-      tvb_get_guint8(tvb, offset+1) );
+      val_to_str_const( tvb_get_uint8(tvb, offset), vuze_dht_contact_type_vals, "Unknown"),
+      tvb_get_uint8(tvb, offset+1) );
   sub_tree = proto_item_add_subtree(ti, ett_vuze_dht_contact);
 
   proto_tree_add_item(sub_tree, hf_vuze_dht_contact_type, tvb, offset, TL_BYTE, ENC_BIG_ENDIAN);
@@ -397,9 +397,9 @@ dissect_vuze_dht_key(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, int
 {
   proto_item *ti;
   proto_tree *sub_tree;
-  guint key_len;
+  unsigned key_len;
 
-  key_len = tvb_get_guint8( tvb, offset );
+  key_len = tvb_get_uint8( tvb, offset );
   ti = proto_tree_add_item( tree, hf_vuze_dht_key, tvb, offset, key_len+1, ENC_NA );
   sub_tree = proto_item_add_subtree(ti, ett_vuze_dht_key);
 
@@ -564,16 +564,16 @@ dissect_vuze_dht_network_coordinate(tvbuff_t *tvb, packet_info _U_*pinfo, proto_
 {
   proto_item *ti;
   proto_tree *sub_tree;
-  guint coordinate_size;
-  guint coordinate_type;
+  unsigned coordinate_size;
+  unsigned coordinate_type;
 
-  coordinate_type = tvb_get_guint8( tvb, offset );
-  coordinate_size = tvb_get_guint8( tvb, offset+1 );
+  coordinate_type = tvb_get_uint8( tvb, offset );
+  coordinate_size = tvb_get_uint8( tvb, offset+1 );
 
   ti = proto_tree_add_item( tree, hf_vuze_dht_network_coordinate, tvb, offset, coordinate_size+2, ENC_NA );
   sub_tree = proto_item_add_subtree(ti, ett_vuze_dht_network_coordinate);
 
-  proto_item_append_text( ti, ": type %d, length %d", tvb_get_guint8(tvb,offset), tvb_get_guint8(tvb,offset+TL_BYTE) );
+  proto_item_append_text( ti, ": type %d, length %d", tvb_get_uint8(tvb,offset), tvb_get_uint8(tvb,offset+TL_BYTE) );
 
   if (coordinate_type == NC_VIVALDI) {
     proto_item_append_text( ti, " ( %.2f, %.2f, %.2f, %.2f )",
@@ -618,13 +618,13 @@ dissect_vuze_dht_network_coordinates(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 {
   proto_item *ti;
   proto_tree *sub_tree;
-  guint i;
-  guint network_coordinates_count;
+  unsigned i;
+  unsigned network_coordinates_count;
 
   if( ver >= PV_GENERIC_NETPOS )
   {
     proto_tree_add_item(tree, hf_vuze_dht_network_coordinates_count, tvb, offset, TL_BYTE, ENC_BIG_ENDIAN);
-    network_coordinates_count = tvb_get_guint8( tvb, offset );
+    network_coordinates_count = tvb_get_uint8( tvb, offset );
     offset += TL_BYTE;
 
     ti = proto_tree_add_none_format( tree, hf_vuze_dht_network_coordinates, tvb, offset, 0, "%d network coordinates", network_coordinates_count );
@@ -669,7 +669,7 @@ dissect_vuze_dht_request_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
   offset += TL_INT;
 
   proto_tree_add_item(tree, hf_vuze_dht_proto_ver, tvb, offset, TL_BYTE, ENC_BIG_ENDIAN);
-  *ver = tvb_get_guint8( tvb, offset );
+  *ver = tvb_get_uint8( tvb, offset );
   offset += TL_BYTE;
 
   if( *ver >= PV_VENDOR_ID )
@@ -738,7 +738,7 @@ dissect_vuze_dht_reply_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   offset += TL_LONG;
 
   proto_tree_add_item(tree, hf_vuze_dht_proto_ver, tvb, offset, TL_BYTE, ENC_BIG_ENDIAN);
-  *ver = tvb_get_guint8( tvb, offset );
+  *ver = tvb_get_uint8( tvb, offset );
   offset += TL_BYTE;
 
   if( *ver >= PV_VENDOR_ID )
@@ -799,20 +799,20 @@ VALUES             value groups always             Groups of values, one for eac
 static int
 dissect_vuze_dht_request_store(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int ver )
 {
-  guint8 keys_count, value_groups_count;
+  uint8_t keys_count, value_groups_count;
   if( ver >= PV_ANTI_SPOOF )
   {
     proto_tree_add_item(tree, hf_vuze_dht_spoof_id, tvb, offset, TL_INT, ENC_BIG_ENDIAN);
     offset += TL_INT;
   }
   proto_tree_add_item(tree, hf_vuze_dht_keys_count, tvb, offset, TL_BYTE, ENC_BIG_ENDIAN);
-  keys_count = tvb_get_guint8( tvb, offset );
+  keys_count = tvb_get_uint8( tvb, offset );
   offset += TL_BYTE;
 
   offset = dissect_vuze_dht_keys( tvb, pinfo, tree, offset, keys_count );
 
   proto_tree_add_item(tree, hf_vuze_dht_value_groups_count, tvb, offset, TL_BYTE, ENC_BIG_ENDIAN);
-  value_groups_count = tvb_get_guint8( tvb, offset );
+  value_groups_count = tvb_get_uint8( tvb, offset );
   offset += TL_BYTE;
 
   offset = dissect_vuze_dht_value_groups( tvb, pinfo, tree, offset, value_groups_count, ver );
@@ -832,9 +832,9 @@ dissect_vuze_dht_reply_store(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *t
 {
   if( ver >= PV_DIV_AND_CONT )
   {
-    guint diversifications_len;
+    unsigned diversifications_len;
     proto_tree_add_item(tree, hf_vuze_dht_diversifications_len, tvb, offset, TL_BYTE, ENC_BIG_ENDIAN);
-    diversifications_len = tvb_get_guint8( tvb, offset );
+    diversifications_len = tvb_get_uint8( tvb, offset );
     offset += TL_BYTE;
 
     proto_tree_add_item(tree, hf_vuze_dht_diversifications, tvb, offset, diversifications_len, ENC_NA);
@@ -856,10 +856,10 @@ DHT_SIZE    int    >=MORE_NODE_STATUS  Estimated size of the DHT; Unknown value 
 static int
 dissect_vuze_dht_request_find_node(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, int offset, int ver )
 {
-  guint id_len;
+  unsigned id_len;
 
   proto_tree_add_item(tree, hf_vuze_dht_id_len, tvb, offset, TL_BYTE, ENC_BIG_ENDIAN);
-  id_len = tvb_get_guint8( tvb, offset );
+  id_len = tvb_get_uint8( tvb, offset );
   offset += TL_BYTE;
 
   proto_tree_add_item(tree, hf_vuze_dht_id, tvb, offset, id_len, ENC_NA);
@@ -894,7 +894,7 @@ CONTACTS            contacts            always             List with contacts.
 static int
 dissect_vuze_dht_reply_find_node(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int ver )
 {
-  guint contacts_count;
+  unsigned contacts_count;
 
   if( ver >= PV_ANTI_SPOOF )
   {
@@ -966,15 +966,15 @@ VALUES               value group         HAS_VALUES == true              Values 
 static int
 dissect_vuze_dht_reply_find_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int ver )
 {
-  guint8 has_values;
-  guint contacts_count;
+  uint8_t has_values;
+  unsigned contacts_count;
   if( ver >= PV_DIV_AND_CONT )
   {
     proto_tree_add_item(tree, hf_vuze_dht_has_continuation, tvb, offset, TL_BOOL, ENC_BIG_ENDIAN);
     offset += TL_BOOL;
   }
   proto_tree_add_item(tree, hf_vuze_dht_has_values, tvb, offset, TL_BOOL, ENC_BIG_ENDIAN);
-  has_values = tvb_get_guint8( tvb, offset );
+  has_values = tvb_get_uint8( tvb, offset );
   offset += TL_BOOL;
 
   if( has_values )
@@ -1015,9 +1015,9 @@ SIGNATURE                byte[]   ERROR_TYPE == KEY_BLOCKED   Signature of the r
 static int
 dissect_vuze_dht_reply_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int ver _U_ )
 {
-  guint error_type;
-  guint8 key_block_request_len;
-  guint signature_len;
+  unsigned error_type;
+  uint8_t key_block_request_len;
+  unsigned signature_len;
 
   proto_tree_add_item(tree, hf_vuze_dht_error_type, tvb, offset, TL_INT, ENC_BIG_ENDIAN);
   error_type = tvb_get_ntohl( tvb, offset );
@@ -1031,7 +1031,7 @@ dissect_vuze_dht_reply_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     break;
   case ET_KEY_BLOCKED:
     proto_tree_add_item(tree, hf_vuze_dht_key_block_request_len, tvb, offset, TL_BYTE, ENC_BIG_ENDIAN);
-    key_block_request_len = tvb_get_guint8( tvb, offset );
+    key_block_request_len = tvb_get_uint8( tvb, offset );
     offset += TL_BYTE;
 
     proto_tree_add_item(tree, hf_vuze_dht_key_block_request, tvb, offset, key_block_request_len, ENC_NA);
@@ -1064,14 +1064,14 @@ SIGNATURE                 byte[]  Signature of the request.
 static int
 dissect_vuze_dht_request_key_block(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, int offset, int ver _U_ )
 {
-  guint8 key_block_request_len;
-  guint signature_len;
+  uint8_t key_block_request_len;
+  unsigned signature_len;
 
   proto_tree_add_item(tree, hf_vuze_dht_spoof_id, tvb, offset, TL_INT, ENC_BIG_ENDIAN);
   offset += TL_INT;
 
   proto_tree_add_item(tree, hf_vuze_dht_key_block_request_len, tvb, offset, TL_BYTE, ENC_BIG_ENDIAN);
-  key_block_request_len = tvb_get_guint8( tvb, offset );
+  key_block_request_len = tvb_get_uint8( tvb, offset );
   offset += TL_BYTE;
 
   proto_tree_add_item(tree, hf_vuze_dht_key_block_request, tvb, offset, key_block_request_len, ENC_NA);
@@ -1108,7 +1108,7 @@ dissect_vuze_dht(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     Replies always start with the action, which always has the MSB clear
     Therefore, the MSB of an incoming packet should be used to distinguish requests from replies.
   */
-  if( tvb_get_guint8(tvb,0) & 0x80 )
+  if( tvb_get_uint8(tvb,0) & 0x80 )
   {
     decoded_length = dissect_vuze_dht_request_header(tvb, pinfo, sub_tree, decoded_length, &action, &proto_ver );
   }
@@ -1502,7 +1502,7 @@ proto_register_vuze_dht(void)
   };
 
   /* Setup protocol subtree array */
-  static gint *ett[] = {
+  static int *ett[] = {
       &ett_vuze_dht,
       &ett_vuze_dht_address,
       &ett_vuze_dht_contacts,

@@ -73,9 +73,9 @@ static dissector_handle_t vcdu_handle;
 static dissector_handle_t ccsds_handle;
 
 /* Initialize the subtree pointers */
-static gint ett_vcdu;
-static gint ett_smex;
-static gint ett_vcduh;
+static int ett_vcdu;
+static int ett_smex;
+static int ett_vcduh;
 
 static expert_field ei_vcdu_fhp_too_close_to_end_of_vcdu;
 
@@ -161,12 +161,12 @@ static int bitstream_channels[] =
 };
 
 typedef struct {
-    guint channel;
+    unsigned channel;
 } uat_channel_t;
 
 static uat_channel_t *uat_bitchannels;
 static uat_t         *vcdu_uat;
-static guint          num_channels_uat;
+static unsigned       num_channels_uat;
 
 UAT_DEC_CB_DEF(uat_bitchannels, channel, uat_channel_t)
 
@@ -176,15 +176,15 @@ vcdu_uat_data_update_cb(void *p, char **err) {
 
     if (ud->channel >= 64) {
         *err = g_strdup("Channel must be between 0-63.");
-        return FALSE;
+        return false;
     }
-    return TRUE;
+    return true;
 }
 
 static void
 vcdu_prefs_apply_cb(void)
 {
-    guint i;
+    unsigned i;
 
     if (num_channels_uat > 0)
     {
@@ -243,7 +243,7 @@ smex_time_to_string (wmem_allocator_t *pool, int pb5_days_since_midnight_9_10_oc
     t.secs = (pb5_days_since_midnight_9_10_oct_1995 * 86400) + pb5_seconds + utcdiff;
     t.nsecs = pb5_milliseconds*1000000; /* msecs to nsecs */
 
-    return abs_time_to_str(pool, &t, ABSOLUTE_TIME_DOY_UTC, TRUE);
+    return abs_time_to_str(pool, &t, ABSOLUTE_TIME_DOY_UTC, true);
 }
 
 
@@ -251,7 +251,7 @@ static int
 dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     int offset           = 0;
-    gboolean ccsds_tree_added = FALSE;
+    bool ccsds_tree_added = false;
 
     proto_item *smex_header;
     proto_tree *smex_tree;
@@ -259,8 +259,8 @@ dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     proto_tree *vcdu_tree;
     proto_item *vcdu_item;
 
-    guint16 first_word;
-    guint32 long_word;
+    uint16_t first_word;
+    uint32_t long_word;
 
     int vcid, pb5_days, pb5_seconds, pb5_milliseconds;
     const char *time_string;
@@ -342,7 +342,7 @@ dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     /* do bitstream channel processing */
     if (bitstream_channels[vcid])
     {
-        guint16 new_ptr;
+        uint16_t new_ptr;
 
         /* extract last bit pointer for bitstream channels */
         new_ptr = first_word & LBP_MASK;
@@ -372,7 +372,7 @@ dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     /* do ccsds channel processing */
     else
     {
-        guint16 new_ptr;
+        uint16_t new_ptr;
 
         /* extract first header pointer for ccsds channels */
         new_ptr = first_word & FHP_MASK;
@@ -409,7 +409,7 @@ dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                 int ccsds_len;
                 tvbuff_t *new_tvb;
 
-                ccsds_tree_added = TRUE;
+                ccsds_tree_added = true;
                 ccsds_len = tvb_get_ntohs(tvb, new_offset+4);
 
                 new_tvb = tvb_new_subset_remaining(tvb, new_offset);
@@ -605,7 +605,7 @@ proto_register_vcdu(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_vcdu,
         &ett_smex,
         &ett_vcduh,
@@ -634,7 +634,7 @@ proto_register_vcdu(void)
     vcdu_uat = uat_new("Bitstream Channel Table",
         sizeof(uat_channel_t),
         "vcdu_bitstream_channels",
-        TRUE,
+        true,
         &uat_bitchannels,
         &num_channels_uat,
         UAT_AFFECTS_DISSECTION, /* affects dissection of packets, but not set of named fields */

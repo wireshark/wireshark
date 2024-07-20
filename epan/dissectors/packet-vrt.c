@@ -242,26 +242,26 @@ static int context_size_cif1[32] = { 0, 8, 4, 4, 4, 8, 4, 0, 0, 0, 52, 0, 0, 8, 
     4, 4, 4, 4, 4, 0, 0, 0, 4, 4, 4, 4, 0, 4, 4, 4 };
 
 /* subtree state variables */
-static gint ett_vrt;
-static gint ett_header;
-static gint ett_trailer;
-static gint ett_indicators;
-static gint ett_ind_enables;
-static gint ett_cid;
-static gint ett_cif0;
-static gint ett_cif1;
-static gint ett_gain;
-static gint ett_device_id;
-static gint ett_state_event;
-static gint ett_signal_data_format;
-static gint ett_gps;
-static gint ett_ins;
-static gint ett_ecef_ephem;
-static gint ett_rel_ephem;
-static gint ett_gps_ascii;
-static gint ett_assoc_lists;
-static gint ett_pol;
-static gint ett_ver;
+static int ett_vrt;
+static int ett_header;
+static int ett_trailer;
+static int ett_indicators;
+static int ett_ind_enables;
+static int ett_cid;
+static int ett_cif0;
+static int ett_cif1;
+static int ett_gain;
+static int ett_device_id;
+static int ett_state_event;
+static int ett_signal_data_format;
+static int ett_gps;
+static int ett_ins;
+static int ett_ecef_ephem;
+static int ett_rel_ephem;
+static int ett_gps_ascii;
+static int ett_assoc_lists;
+static int ett_pol;
+static int ett_ver;
 
 /* constants (unit conversion) */
 static const double FEMTOSEC_PER_SEC = 1e-15;
@@ -458,42 +458,42 @@ static complex_dissector_t complex_dissector_cif1[32] = {
 static int dissect_vrt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     int     offset = 0;
-    guint8  type;
+    uint8_t type;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "VITA 49");
     col_clear(pinfo->cinfo,COL_INFO);
 
     /* HACK to support UHD's weird header offset on data packets. */
-    if (vrt_use_ettus_uhd_header_format && tvb_get_guint8(tvb, 0) == 0)
+    if (vrt_use_ettus_uhd_header_format && tvb_get_uint8(tvb, 0) == 0)
         offset += 4;
 
     /* get packet type */
-    type = tvb_get_guint8(tvb, offset) >> 4;
+    type = tvb_get_uint8(tvb, offset) >> 4;
     col_add_str(pinfo->cinfo, COL_INFO, val_to_str(type, packet_types, "Reserved packet type (0x%02x)"));
 
     if (tree) { /* we're being asked for details */
-        guint8  sidflag;
-        guint8  cidflag;
-        guint8  tflag;
-        guint8  tsitype;
-        guint8  tsftype;
-        guint16 len;
-        guint16 nsamps;
+        uint8_t sidflag;
+        uint8_t cidflag;
+        uint8_t tflag;
+        uint8_t tsitype;
+        uint8_t tsftype;
+        uint16_t len;
+        uint16_t nsamps;
 
         proto_tree *vrt_tree;
         proto_item *ti;
 
         /* get SID, CID, T flags and TSI, TSF types */
         sidflag = (((type & 0x01) != 0) || (type == 4)) ? 1 : 0;
-        cidflag = (tvb_get_guint8(tvb, offset) >> 3) & 0x01;
+        cidflag = (tvb_get_uint8(tvb, offset) >> 3) & 0x01;
         /* tflag is in data packets but not context packets */
-        tflag =   (tvb_get_guint8(tvb, offset) >> 2) & 0x01;
+        tflag =   (tvb_get_uint8(tvb, offset) >> 2) & 0x01;
         if (type == 4)
             tflag = 0; /* this should be unnecessary but we do it just in case */
         /* tsmflag is in context packets but not data packets
-           tsmflag = (tvb_get_guint8(tvb, offset) >> 0) & 0x01; */
-        tsitype = (tvb_get_guint8(tvb, offset+1) >> 6) & 0x03;
-        tsftype = (tvb_get_guint8(tvb, offset+1) >> 4) & 0x03;
+           tsmflag = (tvb_get_uint8(tvb, offset) >> 0) & 0x01; */
+        tsitype = (tvb_get_uint8(tvb, offset+1) >> 6) & 0x03;
+        tsftype = (tvb_get_uint8(tvb, offset+1) >> 4) & 0x03;
         len     = tvb_get_ntohs(tvb, offset+2);
 
         nsamps  = len - 1;  /* (Before adjusting word count for optional fields) */
@@ -590,8 +590,8 @@ static void dissect_trailer(tvbuff_t *tvb, proto_tree *tree, int offset)
     proto_tree *enable_tree;
     proto_tree *ind_tree;
     proto_tree *trailer_tree;
-    guint16     en_bits;
-    gint16      i;
+    uint16_t    en_bits;
+    int16_t     i;
 
     trailer_item = proto_tree_add_item(tree, hf_vrt_trailer, tvb, offset, 4, ENC_BIG_ENDIAN);
     trailer_tree = proto_item_add_subtree(trailer_item, ett_trailer);
@@ -697,14 +697,14 @@ static int dissect_context_array_of_records(proto_tree *tree _U_, tvbuff_t *tvb,
 
 static int dissect_context_assoc_lists(proto_tree *tree, tvbuff_t *tvb, int offset) {
     // compute number of variable words in field
-    guint32 word1 = tvb_get_ntohl(tvb, offset);
-    guint32 src_size = (word1 >> 16) & 0x01FF;
-    guint32 sys_size = word1 & 0x01FF;
-    guint32 word2 = tvb_get_ntohl(tvb, offset + 4);
-    guint32 vec_size = word2 >> 16;
-    gboolean a_bit = (word2 & 0x8000) != 0;
-    guint32 asy_size = word2 & 0x7FFF;
-    guint32 num_words = src_size + sys_size + vec_size + asy_size + a_bit*asy_size;
+    uint32_t word1 = tvb_get_ntohl(tvb, offset);
+    uint32_t src_size = (word1 >> 16) & 0x01FF;
+    uint32_t sys_size = word1 & 0x01FF;
+    uint32_t word2 = tvb_get_ntohl(tvb, offset + 4);
+    uint32_t vec_size = word2 >> 16;
+    bool a_bit = (word2 & 0x8000) != 0;
+    uint32_t asy_size = word2 & 0x7FFF;
+    uint32_t num_words = src_size + sys_size + vec_size + asy_size + a_bit*asy_size;
 
     proto_tree *assoc_tree = proto_tree_add_subtree(tree, tvb, offset, 8 + num_words*4, ETT_IDX_ASSOC_LISTS, NULL,
                                                     "Context association lists");
@@ -818,7 +818,7 @@ static void dissect_context_ephemeris(const ephemeris_fields *s, proto_tree *tre
     proto_tree_add_item(tree, s->oui, tvb, offset + 1, 3, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, s->ts_int, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
 
-    guint8 tsftype = tvb_get_guint8(tvb, offset) & 0x03;
+    uint8_t tsftype = tvb_get_uint8(tvb, offset) & 0x03;
     if (tsftype == 1 || tsftype == 3) {
         proto_tree_add_item(tree, s->ts_frac_sample, tvb, offset + 8, 8, ENC_BIG_ENDIAN);
     } else if (tsftype == 2) {
@@ -843,7 +843,7 @@ static void dissect_context_formatted_gps_ins(const formatted_gps_ins_fields *s,
     proto_tree_add_item(tree, s->oui, tvb, offset + 1, 3, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, s->ts_int, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
 
-    guint8 tsftype = tvb_get_guint8(tvb, offset) & 0x03;
+    uint8_t tsftype = tvb_get_uint8(tvb, offset) & 0x03;
     if (tsftype == 1 || tsftype == 3) {
         proto_tree_add_item(tree, s->ts_frac_sample, tvb, offset + 8, 8, ENC_BIG_ENDIAN);
     } else if (tsftype == 2) {
@@ -873,7 +873,7 @@ static int dissect_context_gps(proto_tree *tree, tvbuff_t *tvb, int offset) {
 }
 
 static int dissect_context_gps_ascii(proto_tree *tree, tvbuff_t *tvb, int offset) {
-    guint32 nword = tvb_get_ntohl(tvb, offset + 4);
+    uint32_t nword = tvb_get_ntohl(tvb, offset + 4);
     proto_tree *gps_tree = proto_tree_add_subtree(tree, tvb, offset, 8 + nword*4, ETT_IDX_GPS_ASCII, NULL, "GPS ASCII");
     proto_tree_add_item(gps_tree, hf_vrt_context_gps_ascii_oui, tvb, offset + 1, 3, ENC_BIG_ENDIAN);
     proto_tree_add_item(gps_tree, hf_vrt_context_gps_ascii_size, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
@@ -2417,7 +2417,7 @@ proto_register_vrt(void)
     };
 
     // update ETT_IDX_* as new items added to track indices
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_vrt,
         &ett_header,
         &ett_trailer,

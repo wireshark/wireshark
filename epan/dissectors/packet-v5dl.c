@@ -52,10 +52,10 @@ static int hf_v5dl_ftype_s_u_ext;
 static int hf_v5dl_checksum;
 static int hf_v5dl_checksum_status;
 #endif
-static gint ett_v5dl;
-static gint ett_v5dl_address;
-static gint ett_v5dl_control;
-/* static gint ett_v5dl_checksum; */
+static int ett_v5dl;
+static int ett_v5dl_address;
+static int ett_v5dl_control;
+/* static int ett_v5dl_checksum; */
 
 static expert_field ei_v5dl_checksum;
 
@@ -123,18 +123,18 @@ dissect_v5dl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	proto_tree	*v5dl_tree, *addr_tree;
 	proto_item	*v5dl_ti, *addr_ti;
 	int		direction;
-	guint		v5dl_header_len;
-	guint16		control;
+	unsigned		v5dl_header_len;
+	uint16_t		control;
 #if 0
 	proto_tree	*checksum_tree;
 	proto_item	*checksum_ti;
-	guint16		checksum, checksum_calculated;
-	guint		checksum_offset;
+	uint16_t		checksum, checksum_calculated;
+	unsigned		checksum_offset;
 #endif
-	guint16		addr, cr, eah, eal, v5addr;
-	gboolean	is_response = 0;
+	uint16_t		addr, cr, eah, eal, v5addr;
+	bool	is_response = 0;
 #if 0
-	guint		length, reported_length;
+	unsigned		length, reported_length;
 #endif
 	tvbuff_t	*next_tvb;
 	const char	*srcname = "?";
@@ -152,12 +152,12 @@ dissect_v5dl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
 	direction = pinfo->p2p_dir;
 	if (pinfo->p2p_dir == P2P_DIR_RECV) {
-	    is_response = cr ? FALSE : TRUE;
+	    is_response = cr ? false : true;
 	    srcname = "Network";
 	    dstname = "User";
 	}
 	else if (pinfo->p2p_dir == P2P_DIR_SENT) {
-	    is_response = cr ? TRUE : FALSE;
+	    is_response = cr ? true : false;
 	    srcname = "User";
 	    dstname = "Network";
 	}
@@ -197,8 +197,8 @@ dissect_v5dl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
 	control = dissect_xdlc_control(tvb, 2, pinfo, v5dl_tree, hf_v5dl_control,
 	    ett_v5dl_control, &v5dl_cf_items, &v5dl_cf_items_ext, NULL, NULL,
-	    is_response, TRUE, FALSE);
-	v5dl_header_len += XDLC_CONTROL_LEN(control, TRUE);
+	    is_response, true, false);
+	v5dl_header_len += XDLC_CONTROL_LEN(control, true);
 
 	if (tree)
 		proto_item_set_len(v5dl_ti, v5dl_header_len);
@@ -385,7 +385,7 @@ proto_register_v5dl(void)
 #endif
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_v5dl,
 		&ett_v5dl_address,
 		&ett_v5dl_control,

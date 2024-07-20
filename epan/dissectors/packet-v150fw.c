@@ -64,8 +64,8 @@ static int hf_v150fw_extension_len; /* 11 bits */
 static int hf_v150fw_remainder;
 
 /* initialize the subtree pointers */
-static gint ett_v150fw;
-static gint ett_available_modulations;
+static int ett_v150fw;
+static int ett_available_modulations;
 
 /* for some "range_string"s, there's only one value in the range  */
 #define V150FW_VALUE_RANGE(a) a,a
@@ -239,18 +239,18 @@ static const value_string v150fw_ric_info_cleardown_type[] = {
 static bool
 dissect_v150fw_heur(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_)
 {
-    guint8 octet1;
-    guint8 extb, ric;
-    guint16 ric_info;
-    gint payload_length = tvb_captured_length(tvb);
+    uint8_t octet1;
+    uint8_t extb, ric;
+    uint16_t ric_info;
+    int payload_length = tvb_captured_length(tvb);
     unsigned int offset = 0;
 
     /* see appendix C (State Signalling Events) in ITU-T Rec. V.150.1 for details */
 
     /* Get the fields */
-    octet1 = tvb_get_guint8(tvb, offset);
+    octet1 = tvb_get_uint8(tvb, offset);
     extb = octet1 & 0x01;
-    ric = tvb_get_guint8(tvb, offset + 1) & 0xFF;
+    ric = tvb_get_uint8(tvb, offset + 1) & 0xFF;
 
     ric_info = tvb_get_ntohs(tvb, offset + 2);
 
@@ -295,8 +295,8 @@ dissect_v150fw(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *da
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti;
     proto_tree *v150fw_tree, *field_tree;
-    guint8 extb, ric;
-    gint payload_length;
+    uint8_t extb, ric;
+    int payload_length;
     unsigned int offset = 0;
 
     if(tree)
@@ -308,8 +308,8 @@ dissect_v150fw(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *da
         payload_length = tvb_reported_length(tvb);
 
         /* Get fields needed for further dissection */
-        extb = tvb_get_guint8(tvb, offset) & 0x01; /* extension bit */
-        ric = tvb_get_guint8(tvb, offset + 1);
+        extb = tvb_get_uint8(tvb, offset) & 0x01; /* extension bit */
+        ric = tvb_get_uint8(tvb, offset + 1);
 
         proto_tree_add_item(v150fw_tree, hf_v150fw_event_id, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(v150fw_tree, hf_v150fw_force_response_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -764,7 +764,7 @@ proto_register_v150fw(void)
     }; /* hf_register_info hf[] */
 
     /* setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_v150fw,
         &ett_available_modulations
     };

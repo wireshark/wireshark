@@ -46,11 +46,11 @@ static expert_field ei_vpp_major_version_error;
 static expert_field ei_vpp_minor_version_error;
 static expert_field ei_vpp_protocol_hint_error;
 
-static gint ett_vpp;
-static gint ett_vpp_opaque;
-static gint ett_vpp_opaque2;
-static gint ett_vpp_metadata;
-static gint ett_vpp_trace;
+static int ett_vpp;
+static int ett_vpp_opaque;
+static int ett_vpp_opaque2;
+static int ett_vpp_metadata;
+static int ett_vpp_trace;
 
 static dissector_handle_t vpp_dissector_handle;
 static dissector_handle_t vpp_opaque_dissector_handle;
@@ -86,15 +86,15 @@ _(VLIB_NODE_PROTO_HINT_UDP, udp)
 
 static void
 add_multi_line_string_to_tree(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
-                              gint start,
-                              gint len, int hf)
+                              int start,
+                              int len, int hf)
 {
-    gint next;
+    int next;
     int line_len;
     int data_len;
 
     while(len > 0) {
-        line_len = tvb_find_line_end(tvb, start, len, &next, FALSE);
+        line_len = tvb_find_line_end(tvb, start, len, &next, false);
         data_len = next - start;
         proto_tree_add_string(tree, hf, tvb, start, data_len,
                               tvb_format_stringzpad(pinfo->pool, tvb, start, line_len));
@@ -110,7 +110,7 @@ dissect_vpp_metadata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int offset = 0;
     proto_item *ti;
     proto_tree *metadata_tree;
-    gint metadata_string_length;
+    int metadata_string_length;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "VPP-Metadata");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -134,7 +134,7 @@ dissect_vpp_trace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int offset = 0;
     proto_item *ti;
     proto_tree *trace_tree;
-    gint trace_string_length;
+    int trace_string_length;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "VPP-Trace");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -159,7 +159,7 @@ dissect_vpp_opaque(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int offset = 0;
     proto_item *ti;
     proto_tree *opaque_tree;
-    gint opaque_string_length;
+    int opaque_string_length;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "VPP-Opaque");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -181,7 +181,7 @@ dissect_vpp_opaque2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int offset = 0;
     proto_item *ti;
     proto_tree *opaque2_tree;
-    gint opaque2_string_length;
+    int opaque2_string_length;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "VPP-Opaque2");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -204,10 +204,10 @@ dissect_vpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     proto_tree *vpp_tree;
     tvbuff_t *metadata_tvb, *opaque_tvb, *opaque2_tvb, *eth_tvb, *trace_tvb;
     int offset = 0;
-    guint8 major_version, minor_version, string_count, protocol_hint;
-    guint8 *name;
-    guint len;
-    guint8 maybe_protocol_id;
+    uint8_t major_version, minor_version, string_count, protocol_hint;
+    uint8_t *name;
+    unsigned len;
+    uint8_t maybe_protocol_id;
     dissector_handle_t use_this_dissector;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "VPP");
@@ -216,7 +216,7 @@ dissect_vpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     ti = proto_tree_add_item(tree, proto_vpp, tvb, offset, -1, ENC_NA);
     vpp_tree = proto_item_add_subtree(ti, ett_vpp);
 
-    major_version = tvb_get_guint8(tvb, offset);
+    major_version = tvb_get_uint8(tvb, offset);
     /* If the major version doesn't match, quit on the spot */
     if(major_version != VPP_MAJOR_VERSION) {
         proto_item *major_version_item;
@@ -231,7 +231,7 @@ dissect_vpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     }
     offset++;
 
-    minor_version = tvb_get_guint8(tvb, offset);
+    minor_version = tvb_get_uint8(tvb, offset);
     /* If the minor version doesn't match, make a note and try to continue */
     if(minor_version != VPP_MINOR_VERSION) {
         proto_item *minor_version_item;
@@ -246,7 +246,7 @@ dissect_vpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     offset++;
 
     /* Number of counted strings in this trace record */
-    string_count = tvb_get_guint8(tvb, offset);
+    string_count = tvb_get_uint8(tvb, offset);
     offset++;
 
     /*
@@ -254,7 +254,7 @@ dissect_vpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
      * It will be a while before vpp sends useful hints for every
      * possible node, see heuristic below.
      */
-    protocol_hint = tvb_get_guint8(tvb, offset);
+    protocol_hint = tvb_get_uint8(tvb, offset);
 
     if(protocol_hint >= array_length(next_dissectors)) {
         proto_item *protocol_hint_item;
@@ -320,7 +320,7 @@ dissect_vpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     /* See setup for hint == 0 below */
     use_this_dissector = next_dissectors [protocol_hint];
     if(protocol_hint == 0) {
-        maybe_protocol_id = tvb_get_guint8(tvb, offset);
+        maybe_protocol_id = tvb_get_uint8(tvb, offset);
 
         switch(maybe_protocol_id) {
         case IP4_TYPICAL_VERSION_LENGTH:
@@ -403,19 +403,19 @@ proto_register_vpp(void)
         },
     };
 
-    static gint *vpp_ett[] = {
+    static int *vpp_ett[] = {
         &ett_vpp,
     };
-    static gint *ett_metadata[] = {
+    static int *ett_metadata[] = {
         &ett_vpp_metadata,
     };
-    static gint *ett_opaque[] = {
+    static int *ett_opaque[] = {
         &ett_vpp_opaque,
     };
-    static gint *ett_opaque2[] = {
+    static int *ett_opaque2[] = {
         &ett_vpp_opaque2,
     };
-    static gint *ett_trace[] = {
+    static int *ett_trace[] = {
         &ett_vpp_trace,
     };
 

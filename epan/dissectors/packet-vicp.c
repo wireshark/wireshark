@@ -24,7 +24,7 @@ static int hf_vicp_sequence;
 static int hf_vicp_unused;
 static int hf_vicp_length;
 static int hf_vicp_data;
-static gint ett_vicp;
+static int ett_vicp;
 
 #define VICP_PORT 1861
 
@@ -39,7 +39,7 @@ static int dissect_vicp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
    proto_tree *vicp_tree;
    ptvcursor_t* cursor;
 
-   guint len;
+   unsigned len;
 
    if (tvb_reported_length_remaining(tvb, 0) < 8)
    {
@@ -93,7 +93,7 @@ void proto_register_vicp(void)
       }
    };
 
-   static gint *ett[] =
+   static int *ett[] =
    {  &ett_vicp
    };
 

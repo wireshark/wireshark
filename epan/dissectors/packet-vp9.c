@@ -98,11 +98,11 @@ dissect_vp9(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data 
          |I|P|L|F|B|E|V|Z| (REQUIRED)
          +-+-+-+-+-+-+-+-+
     */
-    guint8 i = tvb_get_guint8(tvb, offset) & VP9_1_BIT_MASK;
-    guint8 p = tvb_get_guint8(tvb, offset) & VP9_2_BIT_MASK;
-    guint8 l = tvb_get_guint8(tvb, offset) & VP9_3_BIT_MASK;
-    guint8 f = tvb_get_guint8(tvb, offset) & VP9_4_BIT_MASK;
-    guint8 v = tvb_get_guint8(tvb, offset) & VP9_7_BIT_MASK;
+    uint8_t i = tvb_get_uint8(tvb, offset) & VP9_1_BIT_MASK;
+    uint8_t p = tvb_get_uint8(tvb, offset) & VP9_2_BIT_MASK;
+    uint8_t l = tvb_get_uint8(tvb, offset) & VP9_3_BIT_MASK;
+    uint8_t f = tvb_get_uint8(tvb, offset) & VP9_4_BIT_MASK;
+    uint8_t v = tvb_get_uint8(tvb, offset) & VP9_7_BIT_MASK;
     proto_tree_add_item(vp9_descriptor_tree, hf_vp9_pld_i_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(vp9_descriptor_tree, hf_vp9_pld_p_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(vp9_descriptor_tree, hf_vp9_pld_l_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -121,7 +121,7 @@ dissect_vp9(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data 
     M:   | EXTENDED PID  | (RECOMMENDED)
          +-+-+-+-+-+-+-+-+
     */
-    guint8 m = tvb_get_guint8(tvb, offset) & VP9_1_BIT_MASK;
+    uint8_t m = tvb_get_uint8(tvb, offset) & VP9_1_BIT_MASK;
     proto_tree_add_item(vp9_descriptor_tree, hf_vp9_pld_m_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
     if (f)
     {
@@ -205,7 +205,7 @@ dissect_vp9(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data 
     */
     if (p && f)
     {
-        guint8 n = tvb_get_guint8(tvb, offset) & (VP9_1_BIT_MASK >> 7);
+        uint8_t n = tvb_get_uint8(tvb, offset) & (VP9_1_BIT_MASK >> 7);
         int idx = 0;
         int max_p_diff = 3;
         while (n && idx < max_p_diff)
@@ -214,7 +214,7 @@ dissect_vp9(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data 
             proto_tree_add_item(vp9_descriptor_tree, hf_vp9_pld_n_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_item_set_len(vp9_descriptor_item, 6);
             offset++;
-            n = tvb_get_guint8(tvb, offset) & (VP9_1_BIT_MASK >> 7);
+            n = tvb_get_uint8(tvb, offset) & (VP9_1_BIT_MASK >> 7);
             idx++;
             if (n && idx == max_p_diff)
             {
@@ -237,10 +237,10 @@ dissect_vp9(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data 
              +-+-+-+-+-+-+-+-+
         */
         proto_item* n_s_numbers_field;
-        guint8 n_s = (tvb_get_guint8(tvb, offset) & (VP9_3_BITS_MASK)) >> 5;
-        guint8 y = tvb_get_guint8(tvb, offset) & (VP9_1_BIT_MASK >> 3);
-        guint8 g = tvb_get_guint8(tvb, offset) & (VP9_1_BIT_MASK >> 4);
-        guint8 number_of_spatial_layers = n_s + 1;
+        uint8_t n_s = (tvb_get_uint8(tvb, offset) & (VP9_3_BITS_MASK)) >> 5;
+        uint8_t y = tvb_get_uint8(tvb, offset) & (VP9_1_BIT_MASK >> 3);
+        uint8_t g = tvb_get_uint8(tvb, offset) & (VP9_1_BIT_MASK >> 4);
+        uint8_t number_of_spatial_layers = n_s + 1;
 
         proto_tree_add_item(vp9_descriptor_tree, hf_vp9_pld_n_s_bits, tvb, offset, 1, ENC_BIG_ENDIAN);
         n_s_numbers_field = proto_tree_add_uint(vp9_descriptor_tree, hf_vp9_pld_n_s_numbers, tvb, offset, 1, number_of_spatial_layers);
@@ -261,7 +261,7 @@ dissect_vp9(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data 
              |               | (OPTIONAL)    .
              +-+-+-+-+-+-+-+-+              -/
         */
-        guint8 spatial_layer = 0;
+        uint8_t spatial_layer = 0;
         while (spatial_layer < number_of_spatial_layers)
         {
             if (y)

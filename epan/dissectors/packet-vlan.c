@@ -37,7 +37,7 @@ enum version_value {
   IEEE_8021Q_2011
 };
 
-static gint vlan_version = (gint)IEEE_8021Q_2011;
+static int vlan_version = (int)IEEE_8021Q_2011;
 
 enum priority_drop_value {
   Priority_Drop_8P0D,
@@ -46,7 +46,7 @@ enum priority_drop_value {
   Priority_Drop_5P3D,
 };
 
-static gint vlan_priority_drop = (gint)Priority_Drop_8P0D;
+static int vlan_priority_drop = (int)Priority_Drop_8P0D;
 
 static dissector_handle_t vlan_handle;
 static dissector_handle_t ethertype_handle;
@@ -69,7 +69,7 @@ static int hf_vlan_priority_7;
 static int hf_vlan_priority_old;
 static int hf_vlan_trailer;
 
-static gint ett_vlan;
+static int ett_vlan;
 
 static expert_field ei_vlan_len;
 static expert_field ei_vlan_too_many_tags;
@@ -151,10 +151,10 @@ static const true_false_string tfs_eligible_ineligible = { "Eligible", "Ineligib
 #define VLAN_MAX_NESTED_TAGS 20
 
 static bool
-capture_vlan(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_ ) {
-  guint16 encap_proto;
+capture_vlan(const unsigned char *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_ ) {
+  uint16_t encap_proto;
   if ( !BYTES_ARE_IN_FRAME(offset,len,5) )
-    return FALSE;
+    return false;
 
   encap_proto = pntoh16( &pd[offset+2] );
   if ( encap_proto <= IEEE_802_3_MAX_LEN) {
@@ -169,7 +169,7 @@ capture_vlan(const guchar *pd, int offset, int len, capture_packet_info_t *cpinf
 }
 
 static void
-columns_set_vlan(column_info *cinfo, guint16 tci)
+columns_set_vlan(column_info *cinfo, uint16_t tci)
 {
   char id_str[16];
 
@@ -190,12 +190,12 @@ static int
 dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_item *ti;
-  guint16 tci, vlan_id;
-  guint16 encap_proto;
-  gboolean is_802_2;
+  uint16_t tci, vlan_id;
+  uint16_t encap_proto;
+  bool is_802_2;
   proto_tree *vlan_tree;
   proto_item *item;
-  guint vlan_nested_count;
+  unsigned vlan_nested_count;
   int hf1, hf2;
 
   int * const flags[] = {
@@ -294,12 +294,12 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
        straight 802.3 packet, so presumably the same applies for
        Ethernet VLAN packets). A non-0xffff value means that there's an
        802.2 layer inside the VLAN layer */
-    is_802_2 = TRUE;
+    is_802_2 = true;
 
     /* Don't throw an exception for this check (even a BoundsError) */
     if (tvb_captured_length_remaining(tvb, 4) >= 2) {
       if (tvb_get_ntohs(tvb, 4) == 0xffff) {
-        is_802_2 = FALSE;
+        is_802_2 = false;
       }
     }
 
@@ -319,9 +319,9 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     /* deinterlacing requested */
     if(prefs.conversation_deinterlacing_key>0) {
       conversation_t *conv;
-      guint conv_type;
-      guint32 dtlc_iface = 0;
-      guint32 dtlc_vlan = 0;
+      unsigned conv_type;
+      uint32_t dtlc_iface = 0;
+      uint32_t dtlc_vlan = 0;
 
       if(prefs.conversation_deinterlacing_key&CONV_DEINT_KEY_INTERFACE &&
          pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID) {
@@ -437,7 +437,7 @@ proto_register_vlan(void)
     },
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_vlan
   };
 
@@ -482,18 +482,18 @@ proto_register_vlan(void)
   prefs_register_enum_preference(vlan_module, "version",
         "IEEE 802.1Q version",
         "IEEE 802.1Q specification version used (802.1Q-1998 uses 802.1D-2004 for PRI values)",
-        &vlan_version, version_vals, TRUE);
+        &vlan_version, version_vals, true);
   prefs_register_enum_preference(vlan_module, "priority_drop",
         "Priorities and drop eligibility",
         "Number of priorities supported, and number of those drop eligible (not used for 802.1Q-1998)",
-        &vlan_priority_drop, priority_drop_vals, FALSE);
+        &vlan_priority_drop, priority_drop_vals, false);
   vlan_handle = register_dissector("vlan", dissect_vlan, proto_vlan);
 }
 
 void
 proto_reg_handoff_vlan(void)
 {
-  static gboolean prefs_initialized = FALSE;
+  static bool prefs_initialized = false;
   static unsigned int old_q_in_q_ethertype;
   capture_dissector_handle_t vlan_cap_handle;
 
@@ -503,7 +503,7 @@ proto_reg_handoff_vlan(void)
     vlan_cap_handle = create_capture_dissector_handle(capture_vlan, proto_vlan);
     capture_dissector_add_uint("ethertype", ETHERTYPE_VLAN, vlan_cap_handle);
 
-    prefs_initialized = TRUE;
+    prefs_initialized = true;
   }
   else
   {

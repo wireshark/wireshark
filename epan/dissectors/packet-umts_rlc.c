@@ -1549,13 +1549,13 @@ rlc_find_old_counter(void *key, void *value, void *data) {
 
     /*If true we found the correct frame*/
     if( (uint32_t)GPOINTER_TO_INT(key) >= ((uint32_t *)data)[0] ){
-        return true;
+        return TRUE;
     }
     /*Overwrite the data since the previous one wasn't correct*/
     ((uint32_t*)data)[1] = ((uint32_t*)value)[0];
     ((uint32_t*)data)[2] = ((uint32_t*)value)[1];
 
-    return false;
+    return FALSE;
 }
 
 static void

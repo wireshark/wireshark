@@ -830,10 +830,10 @@ static int ett_vsipErrorVAResponse;
 static int ett_vsip;
 
 
-static guint32 vsip_ValueTypeString(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset, int hf_string)
+static uint32_t vsip_ValueTypeString(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset, int hf_string)
 {
    int soffset = offset;
-   guint16 length;
+   uint16_t length;
    proto_item *ti;
 
    tree = proto_tree_add_subtree(tree, tvb, offset, 2, ett_vsipValueTypeString, &ti, "ValueTypeString");
@@ -853,10 +853,10 @@ static guint32 vsip_ValueTypeString(proto_tree *tree, packet_info *pinfo _U_, tv
    return offset - soffset;
 }
 
-static guint32 vsip_ValueTypeBinary(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset, int hf_bin)
+static uint32_t vsip_ValueTypeBinary(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset, int hf_bin)
 {
    int soffset = offset;
-   guint32 length;
+   uint32_t length;
    proto_item *ti;
 
    tree = proto_tree_add_subtree(tree, tvb, offset, 4, ett_vsipValueTypeBinary, &ti, "Binary");
@@ -876,7 +876,7 @@ static guint32 vsip_ValueTypeBinary(proto_tree *tree, packet_info *pinfo _U_, tv
    return offset - soffset;
 }
 
-static guint32 vsip_PingReq(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+static uint32_t vsip_PingReq(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
    int soffset = offset;
 
@@ -894,10 +894,10 @@ static guint32 vsip_PingReq(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *
    return offset - soffset;
 }
 
-static guint32 vsip_PingResp(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+static uint32_t vsip_PingResp(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
    int soffset = offset;
-   guint16 len;
+   uint16_t len;
    proto_item *ti;
    static int * const supp_conn_types[] = {
         &hf_vsip_PingResp_SuppConnTypes_VOLATILE,
@@ -949,7 +949,7 @@ static guint32 vsip_PingResp(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t 
    return offset - soffset;
 }
 
-static guint32 vsip_ContentTypeSwitchReq(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+static uint32_t vsip_ContentTypeSwitchReq(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
    int soffset = offset;
 
@@ -966,7 +966,7 @@ static guint32 vsip_ContentTypeSwitchReq(proto_tree *tree, packet_info *pinfo _U
    return offset - soffset;
 }
 
-static guint32 vsip_ContentTypeSwitchResp(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+static uint32_t vsip_ContentTypeSwitchResp(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
    int soffset = offset;
 
@@ -979,7 +979,7 @@ static guint32 vsip_ContentTypeSwitchResp(proto_tree *tree, packet_info *pinfo _
    return offset - soffset;
 }
 
-static guint32 vsip_GetCapabilitiesReq(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+static uint32_t vsip_GetCapabilitiesReq(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
    int soffset = offset;
 
@@ -991,7 +991,7 @@ static guint32 vsip_GetCapabilitiesReq(proto_tree *tree, packet_info *pinfo _U_,
    return offset - soffset;
 }
 
-static guint32 vsip_GetCapabilitiesResp_CapabilityArray(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+static uint32_t vsip_GetCapabilitiesResp_CapabilityArray(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
    int soffset = offset;
 
@@ -1012,11 +1012,11 @@ static guint32 vsip_GetCapabilitiesResp_CapabilityArray(proto_tree *tree, packet
    return offset - soffset;
 }
 
-static guint32 vsip_GetCapabilitiesResp(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
+static uint32_t vsip_GetCapabilitiesResp(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
 {
    int soffset = offset;
-   guint16 count;
-   guint32 i;
+   uint16_t count;
+   uint32_t i;
    proto_item *ti;
 
    tree = proto_tree_add_subtree(tree, tvb, offset, 2, ett_vsipGetCapabilitiesResp, &ti, "GetCapabilitiesResp");
@@ -1035,7 +1035,7 @@ static guint32 vsip_GetCapabilitiesResp(proto_tree *tree, packet_info *pinfo, tv
    return offset - soffset;
 }
 
-static guint32 vsip_StartDevice(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+static uint32_t vsip_StartDevice(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
    int soffset = offset;
 
@@ -1060,7 +1060,7 @@ static guint32 vsip_StartDevice(proto_tree *tree, packet_info *pinfo _U_, tvbuff
 }
 
 
-static guint32 vsip_StartDeviceEx(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+static uint32_t vsip_StartDeviceEx(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
    int soffset = offset;
 
@@ -1088,7 +1088,7 @@ static guint32 vsip_StartDeviceEx(proto_tree *tree, packet_info *pinfo _U_, tvbu
 }
 
 
-static guint32 vsip_StopDevice(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+static uint32_t vsip_StopDevice(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
    int soffset = offset;
 
@@ -1100,7 +1100,7 @@ static guint32 vsip_StopDevice(proto_tree *tree, packet_info *pinfo _U_, tvbuff_
    return offset - soffset;
 }
 
-static guint32 vsip_StopDeviceEx(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+static uint32_t vsip_StopDeviceEx(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
    int soffset = offset;
 
@@ -1115,10 +1115,10 @@ static guint32 vsip_StopDeviceEx(proto_tree *tree, packet_info *pinfo _U_, tvbuf
    return offset - soffset;
 }
 
-static guint32 vsip_SetConfigReq_ConfigItemArray(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
+static uint32_t vsip_SetConfigReq_ConfigItemArray(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
 {
    int soffset = offset;
-   guint8 type;
+   uint8_t type;
    proto_item *ti;
 
    tree = proto_tree_add_subtree(tree, tvb, offset, 3, ett_vsipSetConfigReq_ConfigItemArray, &ti, "ConfigItemArray");
@@ -1126,7 +1126,7 @@ static guint32 vsip_SetConfigReq_ConfigItemArray(proto_tree *tree, packet_info *
    proto_tree_add_item(tree, hf_vsip_SetConfigReq_ConfigItemArray_ConfigItemID, tvb, offset, 2, ENC_BIG_ENDIAN);
    offset += 2;
 
-   type = tvb_get_guint8(tvb, offset);
+   type = tvb_get_uint8(tvb, offset);
    proto_tree_add_item(tree, hf_vsip_SetConfigReq_ConfigItemArray_ValueType, tvb, offset, 1, ENC_BIG_ENDIAN);
    offset++;
 
@@ -1180,11 +1180,11 @@ static guint32 vsip_SetConfigReq_ConfigItemArray(proto_tree *tree, packet_info *
 }
 
 
-static guint32 vsip_SetConfigReq(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
+static uint32_t vsip_SetConfigReq(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
 {
    int soffset = offset;
-   guint16 count;
-   guint32 i;
+   uint16_t count;
+   uint32_t i;
    proto_item *ti;
 
    tree = proto_tree_add_subtree(tree, tvb, offset, 18, ett_vsipSetConfigReq, &ti, "SetConfigReq");
@@ -1206,7 +1206,7 @@ static guint32 vsip_SetConfigReq(proto_tree *tree, packet_info *pinfo, tvbuff_t 
    return offset - soffset;
 }
 
-static guint32 vsip_GetConfigReq_ConfigItemArray(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+static uint32_t vsip_GetConfigReq_ConfigItemArray(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
    int soffset = offset;
 
@@ -1218,11 +1218,11 @@ static guint32 vsip_GetConfigReq_ConfigItemArray(proto_tree *tree, packet_info *
    return offset - soffset;
 }
 
-static guint32 vsip_GetConfigReq(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
+static uint32_t vsip_GetConfigReq(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
 {
    int soffset = offset;
-   guint16 count;
-   guint32 i;
+   uint16_t count;
+   uint32_t i;
    proto_item *ti;
 
    tree = proto_tree_add_subtree(tree, tvb, offset, 18, ett_vsipGetConfigReq, &ti, "GetConfigReq");
@@ -1244,10 +1244,10 @@ static guint32 vsip_GetConfigReq(proto_tree *tree, packet_info *pinfo, tvbuff_t 
    return offset - soffset;
 }
 
-static guint32 vsip_GetConfigResp_ConfigItemArray(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
+static uint32_t vsip_GetConfigResp_ConfigItemArray(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
 {
    int soffset = offset;
-   guint8 type;
+   uint8_t type;
    proto_item *ti;
 
    tree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_vsipGetConfigResp_ConfigItemArray, &ti, "ConfigItemArray");
@@ -1255,7 +1255,7 @@ static guint32 vsip_GetConfigResp_ConfigItemArray(proto_tree *tree, packet_info 
    proto_tree_add_item(tree, hf_vsip_GetConfigResp_ConfigItemArray_ConfigItemID, tvb, offset, 2, ENC_BIG_ENDIAN);
    offset += 2;
 
-   type = tvb_get_guint8(tvb, offset);
+   type = tvb_get_uint8(tvb, offset);
    proto_tree_add_item(tree, hf_vsip_GetConfigResp_ConfigItemArray_ValueType, tvb, offset, 1, ENC_NA);
    offset++;
 
@@ -1308,11 +1308,11 @@ static guint32 vsip_GetConfigResp_ConfigItemArray(proto_tree *tree, packet_info 
    return offset - soffset;
 }
 
-static guint32 vsip_GetConfigResp(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
+static uint32_t vsip_GetConfigResp(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
 {
    int soffset = offset;
-   guint16 count;
-   guint32 i;
+   uint16_t count;
+   uint32_t i;
    proto_item *ti;
 
    tree = proto_tree_add_subtree(tree, tvb, offset, 18, ett_vsipGetConfigResp, &ti, "GetConfigResp");
@@ -1334,7 +1334,7 @@ static guint32 vsip_GetConfigResp(proto_tree *tree, packet_info *pinfo, tvbuff_t
    return offset - soffset;
 }
 
-static guint32 vsip_SendCommand(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+static uint32_t vsip_SendCommand(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
    int soffset = offset;
    proto_item *ti;
@@ -1356,15 +1356,15 @@ static guint32 vsip_SendCommand(proto_tree *tree, packet_info *pinfo _U_, tvbuff
    return offset - soffset;
 }
 
-static guint32 vsip_SendCommandEx_AddArgsArray(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
+static uint32_t vsip_SendCommandEx_AddArgsArray(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
 {
    int soffset = offset;
-   guint8 type;
+   uint8_t type;
    proto_item *ti;
 
    tree = proto_tree_add_subtree(tree, tvb, offset, 3, ett_vsipSendCommandEx_AddArgsArray, &ti, "AddArgsArray");
 
-   type = tvb_get_guint8(tvb, offset);
+   type = tvb_get_uint8(tvb, offset);
    proto_tree_add_item(tree, hf_vsip_SendCommandEx_AddArgsArray_ValueType, tvb, offset, 1, ENC_NA);
    offset++;
 
@@ -1417,11 +1417,11 @@ static guint32 vsip_SendCommandEx_AddArgsArray(proto_tree *tree, packet_info *pi
    return offset - soffset;
 }
 
-static guint32 vsip_SendCommandEx(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
+static uint32_t vsip_SendCommandEx(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
 {
    int soffset = offset;
-   guint16 count;
-   guint32 i;
+   uint16_t count;
+   uint32_t i;
    proto_item *ti;
 
    tree = proto_tree_add_subtree(tree, tvb, offset, 27, ett_vsipSendCommandEx, &ti, "SendCommandEx");
@@ -1452,7 +1452,7 @@ static guint32 vsip_SendCommandEx(proto_tree *tree, packet_info *pinfo, tvbuff_t
    return offset - soffset;
 }
 
-static guint32 vsip_EventNotify(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+static uint32_t vsip_EventNotify(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
    int soffset = offset;
 
@@ -1470,7 +1470,7 @@ static guint32 vsip_EventNotify(proto_tree *tree, packet_info *pinfo _U_, tvbuff
    return offset - soffset;
 }
 
-static guint32 vsip_EventSubscribeReq(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+static uint32_t vsip_EventSubscribeReq(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
    int soffset = offset;
 
@@ -1488,7 +1488,7 @@ static guint32 vsip_EventSubscribeReq(proto_tree *tree, packet_info *pinfo _U_, 
    return offset - soffset;
 }
 
-static guint32 vsip_EventSubscribeExReq(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+static uint32_t vsip_EventSubscribeExReq(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
    int soffset = offset;
 
@@ -1509,7 +1509,7 @@ static guint32 vsip_EventSubscribeExReq(proto_tree *tree, packet_info *pinfo _U_
    return offset - soffset;
 }
 
-static guint32 vsip_ErrorResponse(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+static uint32_t vsip_ErrorResponse(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
    int soffset = offset;
 
@@ -1524,15 +1524,15 @@ static guint32 vsip_ErrorResponse(proto_tree *tree, packet_info *pinfo _U_, tvbu
    return offset - soffset;
 }
 
-static guint32 vsip_ErrorVAResponse_AddArgsArray(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
+static uint32_t vsip_ErrorVAResponse_AddArgsArray(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
 {
    int soffset = offset;
-   guint8 type;
+   uint8_t type;
    proto_item* ti;
 
    tree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_vsipErrorVAResponse_AddArgsArray, &ti, "AddArgsArray");
 
-   type = tvb_get_guint8(tvb, offset);
+   type = tvb_get_uint8(tvb, offset);
    proto_tree_add_item(tree, hf_vsip_ErrorVAResponse_AddArgsArray_ValueType, tvb, offset, 1, ENC_NA);
    offset++;
 
@@ -1585,11 +1585,11 @@ static guint32 vsip_ErrorVAResponse_AddArgsArray(proto_tree *tree, packet_info *
    return offset - soffset;
 }
 
-static guint32 vsip_ErrorVAResponse(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
+static uint32_t vsip_ErrorVAResponse(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
 {
    int soffset = offset;
-   guint16 count;
-   guint32 i;
+   uint16_t count;
+   uint32_t i;
    proto_item *ti;
 
    tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_vsipErrorVAResponse, &ti, "ErrorVAResponse");
@@ -1610,17 +1610,17 @@ static guint32 vsip_ErrorVAResponse(proto_tree *tree, packet_info *pinfo, tvbuff
    return offset - soffset;
 }
 
-static guint32 vsip_dissect_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree  *tree)
+static uint32_t vsip_dissect_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree  *tree)
 {
     int soffset = offset;
-    guint32 version;
-    guint8 type;
+    uint32_t version;
+    uint8_t type;
     proto_item *ti;
 
     proto_tree_add_item_ret_uint(tree, hf_vsip_Version, tvb, offset, 2, ENC_BIG_ENDIAN, &version);
     offset += 2;
 
-    type = tvb_get_guint8(tvb, offset);
+    type = tvb_get_uint8(tvb, offset);
     proto_tree_add_uint(tree, hf_vsip_Type, tvb, offset, 1, type);
     col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(type, &EVsipMessageType_vals_ext, "Unknown") );
     offset++;
@@ -1735,7 +1735,7 @@ static guint32 vsip_dissect_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 static int dissect_vsip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *ti;
-    guint16    version;
+    uint16_t   version;
 
     /* Make sure we have a supported version */
     version = tvb_get_ntohs(tvb, 0);
@@ -1753,9 +1753,9 @@ static int dissect_vsip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 }
 
 static void
-vsip_fmt_revision( gchar *result, guint32 revision )
+vsip_fmt_revision( char *result, uint32_t revision )
 {
-   snprintf( result, ITEM_LABEL_LENGTH, "%d.%02d", (guint8)(( revision & 0xFF00 ) >> 8), (guint8)(revision & 0xFF) );
+   snprintf( result, ITEM_LABEL_LENGTH, "%d.%02d", (uint8_t)(( revision & 0xFF00 ) >> 8), (uint8_t)(revision & 0xFF) );
 }
 
 void proto_register_vsip(void)
