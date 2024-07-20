@@ -225,6 +225,9 @@ if(ASCIIDOCTOR_EXECUTABLE)
                     ${_output_pdf}
             COMMAND ${_asciidoctor_pdf_common_command}
                     --out-file "${_output_pdf}"
+                    -a pdf-fontsdir=${CMAKE_SOURCE_DIR}/resources/fonts
+                    -a pdf-themesdir=${CMAKE_SOURCE_DIR}/doc/asciidoctor-themes
+                    --theme wsug
                     ${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
             DEPENDS
                     ${CMAKE_SOURCE_DIR}/doc/attributes.adoc

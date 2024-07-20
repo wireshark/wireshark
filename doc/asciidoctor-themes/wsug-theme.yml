@@ -1,0 +1,12 @@
+extends: default-with-fallback-font
+
+font:
+  catalog:
+    merge: true
+    Noto Sans Symbols: NotoSansSymbols-VariableFont_wght.ttf
+    Noto Sans Math: NotoSansMath-Regular.ttf
+  fallbacks:
+  - M+ 1p Fallback
+  - Noto Emoji
+  - Noto Sans Symbols
+  - Noto Sans Math

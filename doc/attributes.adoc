@@ -20,6 +20,12 @@ endif::[]
 :pdf-page-size: 210mm x 280mm
 
 // Include glyphs for up/down arrows
+// We have a custom theme that adds fallback fonts for more symbols,
+// like ⌃ and ⌄ (Up Arrowhead and Down Arrowhead), but setting the
+// proper directory to look for theme so that it will work for all
+// documents is somewhat annoying and done in FindAsciidoctor.cmake
+// This built-in theme should be an acceptable fallback when not
+// using the CMake target.
 :pdf-theme: default-with-fallback-font
 
 //
