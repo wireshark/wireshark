@@ -3561,7 +3561,7 @@ proto_register_6lowpan(void)
             FT_UINT8, BASE_HEX, VALS(lowpan_patterns_rh), 0x0, NULL, HFILL }},
         { &hf_6lowpan_pagenb,
           { "Page Number",                    "6lowpan.pagenb",
-            FT_UINT16, 16, NULL, 0x0, NULL, HFILL }}
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }}
     };
 
     static int *ett[] = {
