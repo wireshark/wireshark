@@ -42,8 +42,8 @@ static int hf_x75_u_modifier_resp;
 static int hf_x75_ftype_i;
 static int hf_x75_ftype_s_u;
 
-static gint ett_x75;
-static gint ett_x75_control;
+static int ett_x75;
+static int ett_x75_control;
 
 static dissector_handle_t data_handle;
 static dissector_handle_t x75_handle;
@@ -64,15 +64,15 @@ static int
 dissect_x75(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree          *x75_tree, *ti;
-    guint16             control;
+    uint16_t            control;
     int                 is_response;
-    guint8              byte0;
+    uint8_t             byte0;
     tvbuff_t            *next_tvb;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "X.75");
     col_set_str(pinfo->cinfo, COL_RES_NET_DST, "Broadcast");
 
-    byte0 = tvb_get_guint8(tvb, 0);
+    byte0 = tvb_get_uint8(tvb, 0);
 
     if (byte0 != X75_ADDRESS_SLP_STE_A && byte0 != X75_ADDRESS_SLP_STE_B &&
         byte0 != X75_ADDRESS_MLP_STE_C && byte0 != X75_ADDRESS_MLP_STE_D) /* invalid X.75 frame */
@@ -103,9 +103,9 @@ dissect_x75(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         }
 
         if (byte0 == X75_ADDRESS_SLP_STE_A || byte0 == X75_ADDRESS_MLP_STE_C)
-            is_response = TRUE;
+            is_response = true;
         else
-            is_response = FALSE;
+            is_response = false;
         break;
 
     case P2P_DIR_RECV:
@@ -121,13 +121,13 @@ dissect_x75(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         }
 
         if (byte0 == X75_ADDRESS_SLP_STE_B || byte0 == X75_ADDRESS_MLP_STE_D)
-            is_response = TRUE;
+            is_response = true;
         else
-            is_response = FALSE;
+            is_response = false;
         break;
 
     default:
-        is_response = FALSE;
+        is_response = false;
         break;
     }
 
@@ -147,7 +147,7 @@ dissect_x75(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     control = dissect_xdlc_control(tvb, 1, pinfo, x75_tree, hf_x75_control,
             ett_x75_control, &x75_cf_items, NULL, NULL, NULL,
-            is_response, FALSE, FALSE);
+            is_response, false, false);
 
     /* information frame ==> data */
     if (XDLC_IS_INFORMATION(control)) {
@@ -161,7 +161,7 @@ dissect_x75(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
         col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", tvb_format_text(pinfo->pool, next_tvb, 0, len));
 
-	if (!dissector_try_payload_new(x75_subdissector_table, next_tvb, pinfo, tree, TRUE, NULL)) {
+	if (!dissector_try_payload_new(x75_subdissector_table, next_tvb, pinfo, tree, true, NULL)) {
             call_dissector(data_handle, next_tvb, pinfo, tree);
 	}
     }
@@ -216,7 +216,7 @@ proto_register_x75(void)
           { "Frame type", "x75.control.ftype", FT_UINT8, BASE_HEX,
             VALS(ftype_vals), XDLC_S_U_MASK, NULL, HFILL }},
     };
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_x75,
         &ett_x75_control,
     };

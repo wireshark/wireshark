@@ -34,7 +34,7 @@ static int hf_x29_break_value;
 static int hf_x29_parameter;
 static int hf_x29_value;
 
-static gint ett_x29;
+static int ett_x29;
 
 /*
  * PAD messages.
@@ -85,17 +85,17 @@ dissect_x29(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	int         offset = 0;
 	proto_tree *x29_tree;
 	proto_item *ti;
-	gboolean   *q_bit_set;
-	guint8      msg_code;
-	guint8      error_type;
-	guint8      type_ref;
-	gint        next_offset;
+	bool       *q_bit_set;
+	uint8_t     msg_code;
+	uint8_t     error_type;
+	uint8_t     type_ref;
+	int         next_offset;
 	int         linelen;
 
 	/* Reject the packet if data is NULL */
 	if (data == NULL)
 		return 0;
-	q_bit_set = (gboolean *)data;
+	q_bit_set = (bool *)data;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "X.29");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -107,7 +107,7 @@ dissect_x29(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 		/*
 		 * Q bit set - this is a PAD message.
 		 */
-		msg_code = tvb_get_guint8(tvb, offset);
+		msg_code = tvb_get_uint8(tvb, offset);
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s PAD message",
 			    val_to_str(msg_code, message_code_vals,
 			        "Unknown (0x%02x)"));
@@ -140,7 +140,7 @@ dissect_x29(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 			break;
 
 		case ERROR_MSG:
-			error_type = tvb_get_guint8(tvb, offset);
+			error_type = tvb_get_uint8(tvb, offset);
 			proto_tree_add_uint(x29_tree, hf_error_type, tvb,
 			    offset, 1, error_type);
 			offset++;
@@ -152,7 +152,7 @@ dissect_x29(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
 		case BREAK_IND_MSG:
 			if (tvb_reported_length_remaining(tvb, offset) > 0) {
-				type_ref = tvb_get_guint8(tvb, offset);
+				type_ref = tvb_get_uint8(tvb, offset);
 				proto_tree_add_item(x29_tree, hf_x29_type_reference, tvb, offset, 1, ENC_BIG_ENDIAN);
 				offset++;
 				switch (type_ref) {
@@ -208,7 +208,7 @@ dissect_x29(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 				 * Find the end of the line.
 				 */
 				tvb_find_line_end(tvb, offset, -1,
-				    &next_offset, FALSE);
+				    &next_offset, false);
 
 				/*
 				 * Now compute the length of the line
@@ -254,7 +254,7 @@ proto_register_x29(void)
 		{ &hf_x29_parameter, { "Parameter", "x29.parameter", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_x29_value, { "Value", "x29.value", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	};
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_x29,
 	};
 

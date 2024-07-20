@@ -36,10 +36,10 @@ static int hf_xmcp_response_to;
 static int hf_xmcp_time;
 
 typedef struct _xmcp_transaction_t {
-  guint32 request_frame;
-  guint32 response_frame;
+  uint32_t request_frame;
+  uint32_t response_frame;
   nstime_t request_time;
-  gboolean request_is_keepalive;
+  bool request_is_keepalive;
 } xmcp_transaction_t;
 
 typedef struct _xmcp_conv_info_t {
@@ -100,11 +100,11 @@ static int hf_xmcp_attr_subscription_id;
 static int hf_xmcp_attr_service_removed_reason;
 static int hf_xmcp_attr_domain;
 
-static gint ett_xmcp;
-static gint ett_xmcp_type;
-static gint ett_xmcp_attr_all;
-static gint ett_xmcp_attr;
-static gint ett_xmcp_attr_flag;
+static int ett_xmcp;
+static int ett_xmcp_type;
+static int ett_xmcp_attr_all;
+static int ett_xmcp_attr;
+static int ett_xmcp_attr_flag;
 
 static expert_field ei_xmcp_message_class_reserved;
 static expert_field ei_xmcp_attr_length_bad;
@@ -296,22 +296,22 @@ static const value_string service_removed_reasons[] = {
 };
 
 /* Dissector state variables */
-static guint16 xmcp_msg_type_method = XMCP_METHOD_ILLEGAL;
-static guint16 xmcp_msg_type_class = XMCP_CLASS_RESERVED;
-static gboolean xmcp_msg_is_keepalive;
-static gint16 xmcp_service_protocol = -1;
-static gint32 xmcp_service_port = -1;
+static uint16_t xmcp_msg_type_method = XMCP_METHOD_ILLEGAL;
+static uint16_t xmcp_msg_type_class = XMCP_CLASS_RESERVED;
+static bool xmcp_msg_is_keepalive;
+static int16_t xmcp_service_protocol = -1;
+static int32_t xmcp_service_port = -1;
 static proto_item *xmcp_it_service_port;
 
-static guint
+static unsigned
 get_xmcp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                      int offset, void *data _U_)
 {
   return XMCP_HDR_LEN + tvb_get_ntohs(tvb, offset+2);
 }
 
-static guint16
-get_xmcp_attr_padded_len(guint16 attr_length)
+static uint16_t
+get_xmcp_attr_padded_len(uint16_t attr_length)
 {
   /*
    * As in STUN, all XMCP attributes report their length in bytes,
@@ -320,8 +320,8 @@ get_xmcp_attr_padded_len(guint16 attr_length)
   return (attr_length + 3) & 0xfffc;
 }
 
-static guint16
-get_xmcp_attr_fixed_len(guint16 xmcp_attr)
+static uint16_t
+get_xmcp_attr_fixed_len(uint16_t xmcp_attr)
 {
   /*
    * For fixed-length attributes, return their length.
@@ -345,8 +345,8 @@ get_xmcp_attr_fixed_len(guint16 xmcp_attr)
   }
 }
 
-static guint16
-get_xmcp_attr_min_len(guint16 xmcp_attr)
+static uint16_t
+get_xmcp_attr_min_len(uint16_t xmcp_attr)
 {
   switch (xmcp_attr) {
   case XMCP_USERNAME:
@@ -365,9 +365,9 @@ get_xmcp_attr_min_len(guint16 xmcp_attr)
   }
 }
 
-static guint16
-get_xmcp_attr_max_len(guint16 xmcp_attr) {
-  guint16 fixed_len;
+static uint16_t
+get_xmcp_attr_max_len(uint16_t xmcp_attr) {
+  uint16_t fixed_len;
 
   switch (xmcp_attr) {
   case XMCP_SERVICE_TRANSPORT:
@@ -409,8 +409,8 @@ add_xmcp_port_name (packet_info *pinfo)
 }
 
 static void
-decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
-                        guint16 attr_length, tvbuff_t *tvb, guint16 offset,
+decode_xmcp_attr_value (proto_tree *attr_tree, uint16_t attr_type,
+                        uint16_t attr_length, tvbuff_t *tvb, uint16_t offset,
                         packet_info *pinfo)
 {
   proto_item *it;
@@ -434,7 +434,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
     proto_tree_add_item(attr_tree, hf_xmcp_attr_message_integrity, tvb, offset,
                         attr_length, ENC_NA);
     /* Message-integrity should be the last attribute in the message */
-    if ((guint)(offset + get_xmcp_attr_padded_len(attr_length)) < tvb_reported_length(tvb)) {
+    if ((unsigned)(offset + get_xmcp_attr_padded_len(attr_length)) < tvb_reported_length(tvb)) {
       expert_add_info(pinfo, attr_tree, &ei_xmcp_data_following_message_integrity);
     }
     break;
@@ -446,13 +446,13 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
     proto_tree_add_item(attr_tree, hf_xmcp_attr_error_class, tvb, offset,
                         3, ENC_BIG_ENDIAN);
     {
-      guint8 error_class, error_number;
-      guint16 error_code;
+      uint8_t error_class, error_number;
+      uint16_t error_code;
       it = proto_tree_add_item(attr_tree, hf_xmcp_attr_error_number, tvb,
                                (offset+3), 1, ENC_BIG_ENDIAN);
 
-      error_class = tvb_get_guint8(tvb, offset+2) & 0x07;
-      error_number = tvb_get_guint8(tvb, offset+3);
+      error_class = tvb_get_uint8(tvb, offset+2) & 0x07;
+      error_number = tvb_get_uint8(tvb, offset+3);
 
       if (error_number > 99) {
         expert_add_info(pinfo, it, &ei_xmcp_attr_error_number_out_of_range);
@@ -497,7 +497,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
     it = proto_tree_add_item(attr_tree, hf_xmcp_attr_realm, tvb, offset,
                         attr_length, ENC_ASCII);
     {
-      guint8 *realm;
+      uint8_t *realm;
       realm = tvb_get_string_enc(pinfo->pool, tvb, offset, attr_length, ENC_ASCII);
       proto_item_append_text(attr_tree, ": %s", realm);
       /* In XMCP the REALM string should always be "SAF" including the quotes */
@@ -534,7 +534,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
      */
     if (xmcp_msg_type_method == XMCP_METHOD_REGISTER &&
         xmcp_msg_type_class == XMCP_CLASS_REQUEST) {
-      xmcp_msg_is_keepalive = TRUE;
+      xmcp_msg_is_keepalive = true;
     }
     break;
   case XMCP_PROTOCOL_VERSION:
@@ -617,7 +617,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
     if (xmcp_service_protocol != -1) {
       add_xmcp_port_name(pinfo);
     }
-    switch (tvb_get_guint8(tvb, (offset+1))) {
+    switch (tvb_get_uint8(tvb, (offset+1))) {
     case 0x01: /* IPv4 */
       if (attr_length != 8) {
         expert_add_info_format(pinfo, attr_tree, &ei_xmcp_attr_length_bad, "Malformed IPv4 address");
@@ -650,7 +650,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
     proto_tree_add_item(attr_tree, hf_xmcp_attr_reserved, tvb, offset, 3, ENC_NA);
     proto_tree_add_item(attr_tree, hf_xmcp_attr_service_protocol, tvb,
                         (offset+3), 1, ENC_BIG_ENDIAN);
-    xmcp_service_protocol = tvb_get_guint8(tvb, (offset+3));
+    xmcp_service_protocol = tvb_get_uint8(tvb, (offset+3));
     proto_item_append_text(attr_tree, ": %u (%s)", xmcp_service_protocol,
                            val_to_str_ext_const(xmcp_service_protocol,
                                                 &ipproto_val_ext, "Unknown"));
@@ -665,7 +665,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
       expert_add_info_format(pinfo, attr_tree, &ei_xmcp_attr_length_bad, "Malformed Flags - length not divisible by 4");
     }
     {
-      guint16 flag_type, flag_value, current_offset = offset;
+      uint16_t flag_type, flag_value, current_offset = offset;
       proto_item *ti;
       proto_tree *flag_tree;
       while ((current_offset-offset)+3 < attr_length) {
@@ -738,7 +738,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
                         attr_length, ENC_NA);
     if (attr_length > 0) {
       tvbuff_t *next_tvb;
-      guint8 *test_string, *tok;
+      uint8_t *test_string, *tok;
 
       next_tvb = tvb_new_subset_length(tvb, offset, attr_length);
       /*
@@ -806,13 +806,13 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
 static int
 dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  guint16 msg_type, msg_length;
+  uint16_t msg_type, msg_length;
   proto_item *ti = NULL;
   proto_tree *xmcp_tree, *attr_all_tree, *attr_tree;
-  guint16 offset, attr_type, attr_length;
+  uint16_t offset, attr_type, attr_length;
 
   /* For request/response association */
-  guint32 transaction_id[3];
+  uint32_t transaction_id[3];
   wmem_tree_key_t transaction_id_key[2];
   conversation_t *conversation;
   xmcp_conv_info_t *xmcp_conv_info;
@@ -870,7 +870,7 @@ dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
       xmcp_trans->request_frame = 0;
       xmcp_trans->response_frame = 0;
       xmcp_trans->request_time = pinfo->abs_ts;
-      xmcp_trans->request_is_keepalive = FALSE;
+      xmcp_trans->request_is_keepalive = false;
       wmem_tree_insert32_array(xmcp_conv_info->transaction_pdus,
                              transaction_id_key, (void *)xmcp_trans);
   }
@@ -919,7 +919,7 @@ dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
   /* After the class/method, we have a 2 byte length...*/
   ti = proto_tree_add_item(xmcp_tree, hf_xmcp_length, tvb, 2, 2, ENC_BIG_ENDIAN);
   msg_length = tvb_get_ntohs(tvb, 2);
-  if ((guint)(msg_length + XMCP_HDR_LEN) > tvb_reported_length(tvb)) {
+  if ((unsigned)(msg_length + XMCP_HDR_LEN) > tvb_reported_length(tvb)) {
     expert_add_info_format(pinfo, ti, &ei_xmcp_length_bad, "XMCP message length (%u-byte header + %u) exceeds packet length (%u)", XMCP_HDR_LEN, msg_length, tvb_reported_length(tvb));
     return tvb_captured_length(tvb);
   }
@@ -1016,7 +1016,7 @@ dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
       col_prepend_fstr(pinfo->cinfo, COL_INFO, "[Keepalive] ");
     }
     if (xmcp_msg_type_class == XMCP_CLASS_REQUEST) {
-      xmcp_trans->request_is_keepalive = TRUE;
+      xmcp_trans->request_is_keepalive = true;
     }
   } else if (xmcp_msg_type_class == XMCP_CLASS_REQUEST ||
              xmcp_msg_type_class == XMCP_CLASS_RESPONSE_SUCCESS) {
@@ -1034,7 +1034,7 @@ dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 static int
 dissect_xmcp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-  tcp_dissect_pdus(tvb, pinfo, tree, TRUE, XMCP_HDR_LEN,
+  tcp_dissect_pdus(tvb, pinfo, tree, true, XMCP_HDR_LEN,
                    get_xmcp_message_len, dissect_xmcp_message, data);
   return tvb_captured_length(tvb);
 }
@@ -1056,7 +1056,7 @@ dissect_xmcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
   }
 
   /* Good enough to consider a match! */
-  tcp_dissect_pdus(tvb, pinfo, tree, TRUE, XMCP_HDR_LEN,
+  tcp_dissect_pdus(tvb, pinfo, tree, true, XMCP_HDR_LEN,
                    get_xmcp_message_len, dissect_xmcp_message, data);
   return true;
 }
@@ -1297,7 +1297,7 @@ proto_register_xmcp(void)
   };
 
   /* Setup protocol subtree array */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_xmcp,
     &ett_xmcp_type,
     &ett_xmcp_attr_all,

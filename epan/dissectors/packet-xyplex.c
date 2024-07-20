@@ -29,7 +29,7 @@ static int hf_xyplex_reserved;
 static int hf_xyplex_reply;
 static int hf_xyplex_data;
 
-static gint ett_xyplex;
+static int ett_xyplex;
 
 static dissector_handle_t xyplex_handle;
 
@@ -50,14 +50,14 @@ dissect_xyplex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
   proto_tree     *xyplex_tree;
   proto_item     *ti;
   conversation_t *conversation;
-  gint            offset = 0;
+  int             offset = 0;
 
-  guint8  prototype;
-  guint8  padding;
-  guint16 server_port;
-  guint16 return_port;
-  guint16 reserved;
-  guint16 reply;
+  uint8_t prototype;
+  uint8_t padding;
+  uint16_t server_port;
+  uint16_t return_port;
+  uint16_t reserved;
+  uint16_t reply;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "XYPLEX");
 
@@ -71,8 +71,8 @@ dissect_xyplex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
      * return_port tells the Xyplex server what TCP port
      * to open to the Unix server.
      */
-    prototype = tvb_get_guint8(tvb, offset);
-    padding = tvb_get_guint8(tvb, offset+1);
+    prototype = tvb_get_uint8(tvb, offset);
+    padding = tvb_get_uint8(tvb, offset+1);
     server_port = tvb_get_ntohs(tvb, offset+2);
     return_port = tvb_get_ntohs(tvb, offset+4);
     reserved = tvb_get_ntohs(tvb, offset+6);
@@ -109,8 +109,8 @@ dissect_xyplex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
   }
 
   if (pinfo->srcport == UDP_PORT_XYPLEX) {
-    prototype = tvb_get_guint8(tvb, offset);
-    padding = tvb_get_guint8(tvb, offset+1);
+    prototype = tvb_get_uint8(tvb, offset);
+    padding = tvb_get_uint8(tvb, offset+1);
     reply = tvb_get_ntohs(tvb, offset+2);
     col_add_fstr(pinfo->cinfo, COL_INFO, "Registration Reply: %s",
                  val_to_str(reply, xyplex_reg_vals, "Unknown (0x%02x)"));
@@ -181,7 +181,7 @@ proto_register_xyplex(void)
         NULL, HFILL }},
 
   };
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_xyplex,
   };
 

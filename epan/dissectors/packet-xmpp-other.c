@@ -120,7 +120,7 @@ xmpp_vcard(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *
     {
         xmpp_attr_t *fake_cdata;
         fake_cdata = xmpp_ep_init_attr_t(pinfo->pool, xmpp_element_to_string(pinfo->pool, tvb, cdata), cdata->offset, cdata->length);
-        g_hash_table_insert(element->attrs,(gpointer)"value", fake_cdata);
+        g_hash_table_insert(element->attrs,(void *)"value", fake_cdata);
 
     }
     xmpp_display_attrs(vcard_tree, element, pinfo, tvb, attrs_info, array_length(attrs_info));
@@ -146,7 +146,7 @@ xmpp_vcard_x_update(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp_el
     if((photo = xmpp_steal_element_by_name(element, "photo"))!=NULL)
     {
         xmpp_attr_t *fake_photo = xmpp_ep_init_attr_t(pinfo->pool, photo->data?photo->data->value:"", photo->offset, photo->length);
-        g_hash_table_insert(element->attrs, (gpointer)"photo", fake_photo);
+        g_hash_table_insert(element->attrs, (void *)"photo", fake_photo);
     }
 
     xmpp_display_attrs(x_tree, element,pinfo, tvb, attrs_info, array_length(attrs_info));
@@ -232,8 +232,8 @@ xmpp_roster_item(proto_tree *tree, tvbuff_t *tvb, packet_info* pinfo, xmpp_eleme
     proto_item *item_item;
     proto_tree *item_tree;
 
-    static const gchar *ask_enums[] = {"subscribe"};
-    static const gchar *subscription_enums[] = {"both", "from", "none", "remove", "to"};
+    static const char *ask_enums[] = {"subscribe"};
+    static const char *subscription_enums[] = {"both", "from", "none", "remove", "to"};
 
     xmpp_array_t *ask_enums_array = xmpp_ep_init_array_t(pinfo->pool, ask_enums,array_length(ask_enums));
     xmpp_array_t *subscription_array = xmpp_ep_init_array_t(pinfo->pool, subscription_enums,array_length(subscription_enums));
@@ -339,7 +339,7 @@ xmpp_bytestreams_query(proto_tree *tree,  tvbuff_t *tvb, packet_info *pinfo, xmp
     proto_item *query_item;
     proto_tree *query_tree;
 
-    static const gchar *mode_enums[] = {"tcp", "udp"};
+    static const char *mode_enums[] = {"tcp", "udp"};
     xmpp_array_t *mode_array = xmpp_ep_init_array_t(pinfo->pool, mode_enums, array_length(mode_enums));
 
     xmpp_attr_info attrs_info[] = {
@@ -508,7 +508,7 @@ xmpp_si_file(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp_element_t
     if((desc = xmpp_steal_element_by_name(element, "desc"))!=NULL)
     {
          xmpp_attr_t *fake_desc = xmpp_ep_init_attr_t(pinfo->pool, desc->data?desc->data->value:"", desc->offset, desc->length);
-         g_hash_table_insert(element->attrs, (gpointer)"desc", fake_desc);
+         g_hash_table_insert(element->attrs, (void *)"desc", fake_desc);
     }
 
     if((range = xmpp_steal_element_by_name(element, "range"))!=NULL)
@@ -573,7 +573,7 @@ xmpp_x_data(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp_element_t*
     proto_item *x_item;
     proto_tree *x_tree;
 
-    static const gchar *type_enums[] = {"cancel", "form", "result", "submit"};
+    static const char *type_enums[] = {"cancel", "form", "result", "submit"};
     xmpp_array_t *type_array = xmpp_ep_init_array_t(pinfo->pool, type_enums, array_length(type_enums));
 
     xmpp_attr_info attrs_info[] = {
@@ -603,7 +603,7 @@ xmpp_x_data_field(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp_elem
     proto_item *field_item;
     proto_tree *field_tree;
 
-    static const gchar *type_enums[] = {"boolean", "fixed", "hidden", "jid-multi",
+    static const char *type_enums[] = {"boolean", "fixed", "hidden", "jid-multi",
         "jid-single", "list-multi", "list-single", "text-multi", "text-single",
         "text-private"
     };
@@ -655,7 +655,7 @@ xmpp_x_data_field_option(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xm
     if((value = xmpp_steal_element_by_name(element, "value"))!=NULL)
     {
         xmpp_attr_t *fake_value = xmpp_ep_init_attr_t(pinfo->pool, value->data?value->data->value:"",value->offset, value->length);
-        g_hash_table_insert(element->attrs, (gpointer)"value", fake_value);
+        g_hash_table_insert(element->attrs, (void *)"value", fake_value);
     }
 
     xmpp_display_attrs(option_tree, element, pinfo, tvb, attrs_info, array_length(attrs_info));
@@ -681,7 +681,7 @@ xmpp_x_data_field_value(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmp
 
 
    fake_value = xmpp_ep_init_attr_t(pinfo->pool, element->data?element->data->value:"",element->offset, element->length);
-   g_hash_table_insert(element->attrs, (gpointer)"value", fake_value);
+   g_hash_table_insert(element->attrs, (void *)"value", fake_value);
 
 
     xmpp_display_attrs(value_tree, element, pinfo, tvb, attrs_info, array_length(attrs_info));
@@ -702,7 +702,7 @@ xmpp_ibb_open(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_
     proto_item *open_item;
     proto_tree *open_tree;
 
-    static const gchar *stanza_enums[] = {"iq", "message"};
+    static const char *stanza_enums[] = {"iq", "message"};
     xmpp_array_t *stanza_array = xmpp_ep_init_array_t(pinfo->pool, stanza_enums, array_length(stanza_enums));
 
     xmpp_attr_info attrs_info[] = {
@@ -762,7 +762,7 @@ xmpp_ibb_data(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_
     if(element->data)
     {
         xmpp_attr_t *fake_data = xmpp_ep_init_attr_t(pinfo->pool, element->data->value, element->offset, element->length);
-        g_hash_table_insert(element->attrs, (gpointer)"value", fake_data);
+        g_hash_table_insert(element->attrs, (void *)"value", fake_data);
     }
 
     xmpp_display_attrs(data_tree, element, pinfo, tvb, attrs_info, array_length(attrs_info));
@@ -790,7 +790,7 @@ xmpp_delay(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *
     if(element->data)
     {
         xmpp_attr_t *fake_value = xmpp_ep_init_attr_t(pinfo->pool, element->data->value, element->offset, element->length);
-        g_hash_table_insert(element->attrs, (gpointer)"value", fake_value);
+        g_hash_table_insert(element->attrs, (void *)"value", fake_value);
     }
 
     xmpp_display_attrs(delay_tree, element, pinfo, tvb, attrs_info, array_length(attrs_info));
@@ -834,13 +834,13 @@ xmpp_x_event(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t
         {"id", NULL, false, true, NULL, NULL}
     };
 
-    static const gchar *cond_names[] = {"offline", "delivered", "displayed", "composing"};
+    static const char *cond_names[] = {"offline", "delivered", "displayed", "composing"};
 
     xmpp_attr_t *fake_cond;
 
     xmpp_element_t *cond, *id;
 
-    gchar *cond_value = wmem_strdup(pinfo->pool, "");
+    char *cond_value = wmem_strdup(pinfo->pool, "");
 
     x_item =  proto_tree_add_item(tree, hf_xmpp_x_event, tvb, element->offset, element->length, ENC_BIG_ENDIAN);
     x_tree = proto_item_add_subtree(x_item, ett_xmpp_x_event);
@@ -848,7 +848,7 @@ xmpp_x_event(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t
     if((id = xmpp_steal_element_by_name(element, "id"))!=NULL)
     {
         xmpp_attr_t *fake_id = xmpp_ep_init_attr_t(pinfo->pool, id->data?id->data->value:"", id->offset, id->length);
-        g_hash_table_insert(element->attrs, (gpointer)"id", fake_id);
+        g_hash_table_insert(element->attrs, (void *)"id", fake_id);
     }
 
     while((cond = xmpp_steal_element_by_names(element, cond_names, array_length(cond_names))) != NULL)
@@ -860,7 +860,7 @@ xmpp_x_event(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t
     }
 
     fake_cond = xmpp_ep_init_attr_t(pinfo->pool, cond_value, element->offset, element->length);
-    g_hash_table_insert(element->attrs, (gpointer)"condition", fake_cond);
+    g_hash_table_insert(element->attrs, (void *)"condition", fake_cond);
 
 
     xmpp_display_attrs(x_tree, element, pinfo, tvb, attrs_info, array_length(attrs_info));
@@ -888,7 +888,7 @@ xmpp_muc_x(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *
     if((pass = xmpp_steal_element_by_name(element, "password"))!=NULL)
     {
         xmpp_attr_t *fake_pass = xmpp_ep_init_attr_t(pinfo->pool, pass->data?pass->data->value:"",pass->offset, pass->length);
-        g_hash_table_insert(element->attrs, (gpointer)"password", fake_pass);
+        g_hash_table_insert(element->attrs, (void *)"password", fake_pass);
     }
 
     xmpp_display_attrs(x_tree, element, pinfo, tvb, attrs_info, array_length(attrs_info));
@@ -941,7 +941,7 @@ xmpp_muc_user_x(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_elemen
     if((password = xmpp_steal_element_by_name(element, "password"))!=NULL)
     {
         xmpp_attr_t *fake_pass = xmpp_ep_init_attr_t(pinfo->pool, password->data?password->data->value:"",password->offset, password->length);
-        g_hash_table_insert(element->attrs, (gpointer)"password", fake_pass);
+        g_hash_table_insert(element->attrs, (void *)"password", fake_pass);
     }
 
     xmpp_display_attrs(x_tree, element, pinfo, tvb, attrs_info, array_length(attrs_info));
@@ -970,10 +970,10 @@ xmpp_muc_user_item(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_ele
     proto_item *item_item;
     proto_tree *item_tree;
 
-    static const gchar *affiliation_enums[] = {"admin", "member", "none", "outcast", "owner"};
+    static const char *affiliation_enums[] = {"admin", "member", "none", "outcast", "owner"};
     xmpp_array_t  *affil_array = xmpp_ep_init_array_t(pinfo->pool, affiliation_enums, array_length(affiliation_enums));
 
-    static const gchar *role_enums[] = {"none", "moderator", "participant", "visitor"};
+    static const char *role_enums[] = {"none", "moderator", "participant", "visitor"};
     xmpp_array_t *role_array = xmpp_ep_init_array_t(pinfo->pool, role_enums, array_length(role_enums));
 
     xmpp_attr_info attrs_info [] ={
@@ -994,14 +994,14 @@ xmpp_muc_user_item(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_ele
     if((reason = xmpp_steal_element_by_name(element, "reason"))!=NULL)
     {
         xmpp_attr_t *fake_reason = xmpp_ep_init_attr_t(pinfo->pool, reason->data?reason->data->value:"",reason->offset, reason->length);
-        g_hash_table_insert(element->attrs,(gpointer)"reason",fake_reason);
+        g_hash_table_insert(element->attrs,(void *)"reason",fake_reason);
     }
 
     if((actor = xmpp_steal_element_by_name(element, "actor"))!=NULL)
     {
         xmpp_attr_t *jid = xmpp_get_attr(actor, "jid");
         xmpp_attr_t *fake_actor_jid = xmpp_ep_init_attr_t(pinfo->pool, jid?jid->value:"",actor->offset, actor->length);
-        g_hash_table_insert(element->attrs, (gpointer)"actor_jid", fake_actor_jid);
+        g_hash_table_insert(element->attrs, (void *)"actor_jid", fake_actor_jid);
     }
 
     xmpp_display_attrs(item_tree, element, pinfo, tvb, attrs_info, array_length(attrs_info));
@@ -1039,7 +1039,7 @@ xmpp_muc_user_invite(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_e
     if((reason = xmpp_steal_element_by_name(element, "reason"))!=NULL)
     {
         xmpp_attr_t *fake_reason = xmpp_ep_init_attr_t(pinfo->pool, reason->data?reason->data->value:"",reason->offset, reason->length);
-        g_hash_table_insert(element->attrs, (gpointer)"reason", fake_reason);
+        g_hash_table_insert(element->attrs, (void *)"reason", fake_reason);
     }
 
     xmpp_display_attrs(invite_tree, element, pinfo, tvb, attrs_info, array_length(attrs_info));
@@ -1127,7 +1127,7 @@ xmpp_last_query(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_elemen
     if(element->data)
     {
         xmpp_attr_t *fake_data = xmpp_ep_init_attr_t(pinfo->pool, element->data->value, element->data->offset, element->data->length);
-        g_hash_table_insert(element->attrs, (gpointer)"value", fake_data);
+        g_hash_table_insert(element->attrs, (void *)"value", fake_data);
     }
 
     xmpp_display_attrs(query_tree, element, pinfo, tvb, attrs_info, array_length(attrs_info));
@@ -1158,19 +1158,19 @@ xmpp_version_query(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_ele
     if((name = xmpp_steal_element_by_name(element,"name"))!=NULL)
     {
         xmpp_attr_t *fake_name = xmpp_ep_init_attr_t(pinfo->pool, name->data?name->data->value:"", name->offset, name->length);
-        g_hash_table_insert(element->attrs, (gpointer)"name", fake_name);
+        g_hash_table_insert(element->attrs, (void *)"name", fake_name);
     }
 
     if((version = xmpp_steal_element_by_name(element,"version"))!=NULL)
     {
         xmpp_attr_t *fake_version = xmpp_ep_init_attr_t(pinfo->pool, version->data?version->data->value:"", version->offset, version->length);
-        g_hash_table_insert(element->attrs, (gpointer)"version", fake_version);
+        g_hash_table_insert(element->attrs, (void *)"version", fake_version);
     }
 
     if((os = xmpp_steal_element_by_name(element,"os"))!=NULL)
     {
         xmpp_attr_t *fake_os = xmpp_ep_init_attr_t(pinfo->pool, os->data?os->data->value:"", os->offset, os->length);
-        g_hash_table_insert(element->attrs, (gpointer)"os", fake_os);
+        g_hash_table_insert(element->attrs, (void *)"os", fake_os);
     }
 
     xmpp_display_attrs(query_tree, element, pinfo, tvb, attrs_info, array_length(attrs_info));
@@ -1227,7 +1227,7 @@ xmpp_hashes_hash(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_eleme
     };
 
     xmpp_attr_t *fake_cdata = xmpp_ep_init_attr_t(pinfo->pool, xmpp_elem_cdata(element), element->offset, element->length);
-    g_hash_table_insert(element->attrs, (gpointer)"value", fake_cdata);
+    g_hash_table_insert(element->attrs, (void *)"value", fake_cdata);
 
     hash_tree = proto_tree_add_subtree(tree, tvb, element->offset, element->length, ett_xmpp_hashes_hash, NULL, "HASH");
 
@@ -1274,12 +1274,12 @@ xmpp_jitsi_inputevt_rmt_ctrl(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
     };
 
     xmpp_element_t *action;
-    static const gchar *action_names[] = {"mouse-move", "mouse-press", "mouse-release", "key-press", "key-release"};
+    static const char *action_names[] = {"mouse-move", "mouse-press", "mouse-release", "key-press", "key-release"};
 
     if((action = xmpp_steal_element_by_names(element, action_names, array_length(action_names)))!=NULL)
     {
         xmpp_attr_t *fake_action = xmpp_ep_init_attr_t(pinfo->pool, action->name, action->offset, action->length);
-        g_hash_table_insert(element->attrs,(gpointer)"action", fake_action);
+        g_hash_table_insert(element->attrs,(void *)"action", fake_action);
 
         if(strcmp(action->name,"mouse-move") == 0)
         {
@@ -1287,21 +1287,21 @@ xmpp_jitsi_inputevt_rmt_ctrl(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
             xmpp_attr_t *y = xmpp_get_attr(action,"y");
 
             if(x)
-                g_hash_table_insert(element->attrs,(gpointer)"x",x);
+                g_hash_table_insert(element->attrs,(void *)"x",x);
             if(y)
-                g_hash_table_insert(element->attrs,(gpointer)"y",y);
+                g_hash_table_insert(element->attrs,(void *)"y",y);
         } else if(strcmp(action->name,"mouse-press") == 0 || strcmp(action->name,"mouse-release") == 0)
         {
             xmpp_attr_t *btns = xmpp_get_attr(action,"btns");
 
             if(btns)
-                g_hash_table_insert(element->attrs,(gpointer)"btns",btns);
+                g_hash_table_insert(element->attrs,(void *)"btns",btns);
         } else if(strcmp(action->name,"key-press") == 0 || strcmp(action->name,"key-release") == 0)
         {
             xmpp_attr_t *keycode = xmpp_get_attr(action,"keycode");
 
             if(keycode)
-                g_hash_table_insert(element->attrs,(gpointer)"keycode",keycode);
+                g_hash_table_insert(element->attrs,(void *)"keycode",keycode);
         }
 
     }

@@ -151,7 +151,7 @@ xmpp_gtalk_session_reason(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, x
     xmpp_element_t *condition;
     xmpp_element_t *text;
 
-    static const gchar *reason_names[] = { "success", "busy", "cancel"};
+    static const char *reason_names[] = { "success", "busy", "cancel"};
 
     reason_tree = proto_tree_add_subtree(tree, tvb, element->offset, element->length, ett_xmpp_gtalk_session_reason, NULL, "REASON");
 
@@ -160,14 +160,14 @@ xmpp_gtalk_session_reason(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, x
     if((condition = xmpp_steal_element_by_names(element, reason_names, array_length(reason_names)))!=NULL)
     {
         xmpp_attr_t *fake_cond = xmpp_ep_init_attr_t(pinfo->pool, condition->name, condition->offset, condition->length);
-        g_hash_table_insert(element->attrs, (gpointer)"condition", fake_cond);
+        g_hash_table_insert(element->attrs, (void *)"condition", fake_cond);
 
     }
 
     if((text = xmpp_steal_element_by_name(element, "text"))!=NULL)
     {
         xmpp_attr_t *fake_text = xmpp_ep_init_attr_t(pinfo->pool, text->data?text->data->value:"", text->offset, text->length);
-        g_hash_table_insert(element->attrs, (gpointer)"text", fake_text);
+        g_hash_table_insert(element->attrs, (void *)"text", fake_text);
     }
 
     xmpp_display_attrs(reason_tree, element, pinfo, tvb, attrs_info, array_length(attrs_info));
@@ -252,7 +252,7 @@ xmpp_gtalk_jingleinfo_relay(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo,
     if((token  = xmpp_steal_element_by_name(element, "token"))!=NULL)
     {
         xmpp_attr_t *fake_token = xmpp_ep_init_attr_t(pinfo->pool, token->data?token->data->value:"", token->offset, token->length);
-        g_hash_table_insert(element->attrs, (gpointer)"token", fake_token);
+        g_hash_table_insert(element->attrs, (void *)"token", fake_token);
     }
 
     xmpp_display_attrs(relay_tree, element, pinfo, tvb, attrs_info, array_length(attrs_info));
@@ -287,7 +287,7 @@ xmpp_gtalk_usersetting(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp
         {"xmlns", &hf_xmpp_xmlns, true, true, NULL, NULL}
     };
 
-    guint i;
+    unsigned i;
 
     sett_item = proto_tree_add_item(tree, hf_xmpp_gtalk_setting, tvb, element->offset, element->length, ENC_BIG_ENDIAN);
     sett_tree = proto_item_add_subtree(sett_item, ett_xmpp_gtalk_setting);
@@ -404,12 +404,12 @@ xmpp_gtalk_mail_mail_info(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, x
     if((labels = xmpp_steal_element_by_name(element,"labels"))!=NULL)
     {
         xmpp_attr_t *fake_labels = xmpp_ep_init_attr_t(pinfo->pool, labels->data?labels->data->value:"",labels->offset, labels->length);
-        g_hash_table_insert(element->attrs, (gpointer)"labels", fake_labels);
+        g_hash_table_insert(element->attrs, (void *)"labels", fake_labels);
     }
     if((subject = xmpp_steal_element_by_name(element,"subject"))!=NULL)
     {
         xmpp_attr_t *fake_subject = xmpp_ep_init_attr_t(pinfo->pool, subject->data?subject->data->value:"",subject->offset, subject->length);
-        g_hash_table_insert(element->attrs, (gpointer)"subject", fake_subject);
+        g_hash_table_insert(element->attrs, (void *)"subject", fake_subject);
     }
 
     xmpp_display_attrs(mail_info_tree, element, pinfo, tvb, attrs_info, array_length(attrs_info));
@@ -500,20 +500,20 @@ xmpp_gtalk_status_query(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmp
     if((status = xmpp_steal_element_by_name(element,"status"))!=NULL)
     {
         xmpp_attr_t *fake_status = xmpp_ep_init_attr_t(pinfo->pool, status->data?status->data->value:"",status->offset, status->length);
-        g_hash_table_insert(element->attrs, (gpointer)"status", fake_status);
+        g_hash_table_insert(element->attrs, (void *)"status", fake_status);
     }
 
     if((show = xmpp_steal_element_by_name(element,"show"))!=NULL)
     {
         xmpp_attr_t *fake_show = xmpp_ep_init_attr_t(pinfo->pool, show->data?show->data->value:"",show->offset, show->length);
-        g_hash_table_insert(element->attrs, (gpointer)"show", fake_show);
+        g_hash_table_insert(element->attrs, (void *)"show", fake_show);
     }
 
     if((invisible = xmpp_steal_element_by_name(element,"invisible"))!=NULL)
     {
         xmpp_attr_t *value = xmpp_get_attr(invisible, "value");
         xmpp_attr_t *fake_invisible = xmpp_ep_init_attr_t(pinfo->pool, value?value->value:"",invisible->offset, invisible->length);
-        g_hash_table_insert(element->attrs, (gpointer)"invisible", fake_invisible);
+        g_hash_table_insert(element->attrs, (void *)"invisible", fake_invisible);
     }
 
     xmpp_display_attrs(query_tree, element, pinfo, tvb, attrs_info, array_length(attrs_info));

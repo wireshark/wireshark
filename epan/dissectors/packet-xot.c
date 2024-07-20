@@ -62,27 +62,27 @@ static const value_string xot_pvc_status_vals[] = {
    { 0,   NULL}
 };
 
-static gint proto_xot;
-static gint ett_xot;
-static gint hf_xot_version;
-static gint hf_xot_length;
+static int proto_xot;
+static int ett_xot;
+static int hf_xot_version;
+static int hf_xot_length;
 
-static gint hf_x25_gfi;
-static gint hf_x25_lcn;
-static gint hf_x25_type;
+static int hf_x25_gfi;
+static int hf_x25_lcn;
+static int hf_x25_type;
 
-static gint hf_xot_pvc_version;
-static gint hf_xot_pvc_status;
-static gint hf_xot_pvc_init_itf_name_len;
-static gint hf_xot_pvc_init_lcn;
-static gint hf_xot_pvc_resp_itf_name_len;
-static gint hf_xot_pvc_resp_lcn;
-static gint hf_xot_pvc_send_inc_window;
-static gint hf_xot_pvc_send_out_window;
-static gint hf_xot_pvc_send_inc_pkt_size;
-static gint hf_xot_pvc_send_out_pkt_size;
-static gint hf_xot_pvc_init_itf_name;
-static gint hf_xot_pvc_resp_itf_name;
+static int hf_xot_pvc_version;
+static int hf_xot_pvc_status;
+static int hf_xot_pvc_init_itf_name_len;
+static int hf_xot_pvc_init_lcn;
+static int hf_xot_pvc_resp_itf_name_len;
+static int hf_xot_pvc_resp_lcn;
+static int hf_xot_pvc_send_inc_window;
+static int hf_xot_pvc_send_out_window;
+static int hf_xot_pvc_send_inc_pkt_size;
+static int hf_xot_pvc_send_out_pkt_size;
+static int hf_xot_pvc_init_itf_name;
+static int hf_xot_pvc_resp_itf_name;
 
 static dissector_handle_t xot_handle;
 static dissector_handle_t xot_tcp_handle;
@@ -94,10 +94,10 @@ static bool xot_desegment = true;
 /* desegmentation of X.25 packet sequences */
 static bool x25_desegment;
 
-static guint get_xot_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+static unsigned get_xot_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                              int offset, void *data _U_)
 {
-   guint16 plen;
+   uint16_t plen;
    int remain = tvb_captured_length_remaining(tvb, offset);
    if ( remain < XOT_HEADER_LENGTH){
       /* We did not get the data we asked for, use up what we can */
@@ -111,7 +111,7 @@ static guint get_xot_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
    return XOT_HEADER_LENGTH + plen;
 }
 
-static guint get_xot_pdu_len_mult(packet_info *pinfo _U_, tvbuff_t *tvb,
+static unsigned get_xot_pdu_len_mult(packet_info *pinfo _U_, tvbuff_t *tvb,
                                   int offset, void *data _U_)
 {
    int offset_before = offset; /* offset where we start this test */
@@ -119,11 +119,11 @@ static guint get_xot_pdu_len_mult(packet_info *pinfo _U_, tvbuff_t *tvb,
    int tvb_len;
 
    while ((tvb_len = tvb_captured_length_remaining(tvb, offset)) > 0){
-      guint16 plen = 0;
+      uint16_t plen = 0;
       int modulo;
-      guint16 bytes0_1;
-      guint8 pkt_type;
-      gboolean m_bit_set;
+      uint16_t bytes0_1;
+      uint8_t pkt_type;
+      bool m_bit_set;
       int offset_x25 = offset + XOT_HEADER_LENGTH;
 
       /* Minimum where next starts */
@@ -146,7 +146,7 @@ static guint get_xot_pdu_len_mult(packet_info *pinfo _U_, tvbuff_t *tvb,
 
       /*Some minor code copied from packet-x25.c */
       bytes0_1 = tvb_get_ntohs(tvb,  offset_x25+0);
-      pkt_type = tvb_get_guint8(tvb, offset_x25+2);
+      pkt_type = tvb_get_uint8(tvb, offset_x25+2);
 
       /* If this is the first packet and it is not data, no sequence needed */
       if (offset == offset_before && !PACKET_IS_DATA(pkt_type)) {
@@ -159,7 +159,7 @@ static guint get_xot_pdu_len_mult(packet_info *pinfo _U_, tvbuff_t *tvb,
          if (modulo == 8) {
             m_bit_set = pkt_type & X25_MBIT_MOD8;
          } else {
-            m_bit_set = tvb_get_guint8(tvb, offset_x25+3) & X25_MBIT_MOD128;
+            m_bit_set = tvb_get_uint8(tvb, offset_x25+3) & X25_MBIT_MOD128;
          }
 
          if (!m_bit_set){
@@ -179,9 +179,9 @@ static guint get_xot_pdu_len_mult(packet_info *pinfo _U_, tvbuff_t *tvb,
 static int dissect_xot_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
    int offset = 0;
-   guint16 version;
-   guint16 plen;
-   guint8 pkt_type;
+   uint16_t version;
+   uint16_t plen;
+   uint8_t pkt_type;
    proto_item *ti = NULL;
    proto_tree *xot_tree = NULL;
    tvbuff_t   *next_tvb;
@@ -215,10 +215,10 @@ static int dissect_xot_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     * X.25-over-TCP packet.
     */
    if (plen >= X25_MIN_HEADER_LENGTH) {
-      pkt_type = tvb_get_guint8(tvb, offset + 2);
+      pkt_type = tvb_get_uint8(tvb, offset + 2);
       if (pkt_type == XOT_PVC_SETUP) {
-         guint init_itf_name_len, resp_itf_name_len, pkt_size;
-         gint hdr_offset = offset;
+         unsigned init_itf_name_len, resp_itf_name_len, pkt_size;
+         int hdr_offset = offset;
 
          col_set_str(pinfo->cinfo, COL_INFO, "XOT PVC Setup");
          proto_item_set_len(ti, XOT_HEADER_LENGTH + plen);
@@ -235,12 +235,12 @@ static int dissect_xot_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
          proto_tree_add_item(xot_tree, hf_xot_pvc_status, tvb, hdr_offset, 1, ENC_BIG_ENDIAN);
          hdr_offset += 1;
          proto_tree_add_item(xot_tree, hf_xot_pvc_init_itf_name_len, tvb, hdr_offset, 1, ENC_BIG_ENDIAN);
-         init_itf_name_len = tvb_get_guint8(tvb, hdr_offset);
+         init_itf_name_len = tvb_get_uint8(tvb, hdr_offset);
          hdr_offset += 1;
          proto_tree_add_item(xot_tree, hf_xot_pvc_init_lcn, tvb, hdr_offset, 2, ENC_BIG_ENDIAN);
          hdr_offset += 2;
          proto_tree_add_item(xot_tree, hf_xot_pvc_resp_itf_name_len, tvb, hdr_offset, 1, ENC_BIG_ENDIAN);
-         resp_itf_name_len = tvb_get_guint8(tvb, hdr_offset);
+         resp_itf_name_len = tvb_get_uint8(tvb, hdr_offset);
          hdr_offset += 1;
          proto_tree_add_item(xot_tree, hf_xot_pvc_resp_lcn, tvb, hdr_offset, 2, ENC_BIG_ENDIAN);
          hdr_offset += 2;
@@ -248,10 +248,10 @@ static int dissect_xot_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
          hdr_offset += 1;
          proto_tree_add_item(xot_tree, hf_xot_pvc_send_out_window, tvb, hdr_offset, 1, ENC_BIG_ENDIAN);
          hdr_offset += 1;
-         pkt_size = tvb_get_guint8(tvb, hdr_offset);
+         pkt_size = tvb_get_uint8(tvb, hdr_offset);
          proto_tree_add_uint_format_value(xot_tree, hf_xot_pvc_send_inc_pkt_size, tvb, hdr_offset, 1, pkt_size, "2^%u", pkt_size);
          hdr_offset += 1;
-         pkt_size = tvb_get_guint8(tvb, hdr_offset);
+         pkt_size = tvb_get_uint8(tvb, hdr_offset);
          proto_tree_add_uint_format_value(xot_tree, hf_xot_pvc_send_out_pkt_size, tvb, hdr_offset, 1, pkt_size, "2^%u", pkt_size);
          hdr_offset += 1;
          proto_tree_add_item(xot_tree, hf_xot_pvc_init_itf_name, tvb, hdr_offset, init_itf_name_len, ENC_ASCII);
@@ -400,7 +400,7 @@ proto_register_xot(void)
           NULL, 0, NULL, HFILL }}
    };
 
-   static gint *ett[] = {
+   static int *ett[] = {
       &ett_xot
    };
    module_t *xot_module;

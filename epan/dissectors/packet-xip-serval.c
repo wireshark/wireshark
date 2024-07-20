@@ -23,34 +23,34 @@ void proto_reg_handoff_xip_serval(void);
 static dissector_handle_t tcp_handle;
 static dissector_handle_t udp_handle;
 
-static gint proto_xip_serval;
+static int proto_xip_serval;
 
 /* XIP Serval header. */
-static gint hf_xip_serval_hl;
-static gint hf_xip_serval_proto;
-static gint hf_xip_serval_check;
-static gint hf_xip_serval_check_status;
+static int hf_xip_serval_hl;
+static int hf_xip_serval_proto;
+static int hf_xip_serval_check;
+static int hf_xip_serval_check_status;
 
 /* XIP Serval general extension header. */
-static gint hf_xip_serval_ext_type;
-static gint hf_xip_serval_ext_length;
+static int hf_xip_serval_ext_type;
+static int hf_xip_serval_ext_length;
 
 /* XIP Serval control extension header. */
-static gint hf_xip_serval_cext;
-static gint hf_xip_serval_cext_flags;
-static gint hf_xip_serval_cext_syn;
-static gint hf_xip_serval_cext_rsyn;
-static gint hf_xip_serval_cext_ack;
-static gint hf_xip_serval_cext_nack;
-static gint hf_xip_serval_cext_rst;
-static gint hf_xip_serval_cext_fin;
-static gint hf_xip_serval_cext_verno;
-static gint hf_xip_serval_cext_ackno;
-static gint hf_xip_serval_cext_nonce;
+static int hf_xip_serval_cext;
+static int hf_xip_serval_cext_flags;
+static int hf_xip_serval_cext_syn;
+static int hf_xip_serval_cext_rsyn;
+static int hf_xip_serval_cext_ack;
+static int hf_xip_serval_cext_nack;
+static int hf_xip_serval_cext_rst;
+static int hf_xip_serval_cext_fin;
+static int hf_xip_serval_cext_verno;
+static int hf_xip_serval_cext_ackno;
+static int hf_xip_serval_cext_nonce;
 
-static gint ett_xip_serval_tree;
-static gint ett_xip_serval_cext;
-static gint ett_xip_serval_cext_flags;
+static int ett_xip_serval_tree;
+static int ett_xip_serval_cext;
+static int ett_xip_serval_cext_flags;
 
 static expert_field ei_xip_serval_bad_len;
 static expert_field ei_xip_serval_bad_proto;
@@ -90,9 +90,9 @@ static int * const xip_serval_cext_flags[] = {
 #define XSRVL_CHK			2
 #define XSRVL_EXT			4
 
-static guint8
+static uint8_t
 display_xip_serval_control_ext(tvbuff_t *tvb, proto_tree *xip_serval_tree,
-	gint offset, guint8 type, guint8 length)
+	int offset, uint8_t type, uint8_t length)
 {
 	proto_tree *cext_tree;
 	proto_item *ti;
@@ -141,12 +141,12 @@ display_xip_serval_control_ext(tvbuff_t *tvb, proto_tree *xip_serval_tree,
 	return XIP_SERVAL_CEXT_LEN;
 }
 
-static guint8
+static uint8_t
 display_xip_serval_ext(tvbuff_t *tvb, packet_info *pinfo, proto_item *ti,
-	proto_tree *xip_serval_tree, gint offset)
+	proto_tree *xip_serval_tree, int offset)
 {
-	guint8 type = tvb_get_guint8(tvb, offset) & XIP_SERVAL_EXT_TYPE_MASK;
-	guint8 length = tvb_get_guint8(tvb, offset + 1);
+	uint8_t type = tvb_get_uint8(tvb, offset) & XIP_SERVAL_EXT_TYPE_MASK;
+	uint8_t length = tvb_get_uint8(tvb, offset + 1);
 
 	/* For now, the only type of extension header in XIP Serval is
 	 * the control extension header.
@@ -171,11 +171,11 @@ display_xip_serval(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tvbuff_t *next_tvb;
 
 	vec_t cksum_vec;
-	gint offset;
-	guint8 xsh_len, protocol, bytes_remaining;
+	int offset;
+	uint8_t xsh_len, protocol, bytes_remaining;
 
 	/* Get XIP Serval header length, stored as number of 32-bit words. */
-	xsh_len = tvb_get_guint8(tvb, XSRVL_LEN) << 2;
+	xsh_len = tvb_get_uint8(tvb, XSRVL_LEN) << 2;
 
 	/* Create XIP Serval header tree. */
 	ti = proto_tree_add_item(tree, proto_xip_serval, tvb,
@@ -195,7 +195,7 @@ display_xip_serval(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	proto_tree_add_item(xip_serval_tree, hf_xip_serval_proto, tvb,
 		XSRVL_PRO, 1, ENC_BIG_ENDIAN);
-	protocol = tvb_get_guint8(tvb, XSRVL_PRO);
+	protocol = tvb_get_uint8(tvb, XSRVL_PRO);
 	if (!try_val_to_str(protocol, xip_serval_proto_vals))
 		expert_add_info_format(pinfo, ti, &ei_xip_serval_bad_proto,
 			"Unrecognized protocol type: %d", protocol);
@@ -210,7 +210,7 @@ display_xip_serval(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* If there's still more room, check for extension headers. */
 	bytes_remaining = xsh_len - offset;
 	while (bytes_remaining >= XIP_SERVAL_EXT_MIN_LEN) {
-		gint8 bytes_displayed = display_xip_serval_ext(tvb, pinfo, ti,
+		int8_t bytes_displayed = display_xip_serval_ext(tvb, pinfo, ti,
 			xip_serval_tree, offset);
 
 		/* Extension headers are malformed, so we can't say
@@ -233,7 +233,7 @@ display_xip_serval(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * the high nibble of the 12th octet and represents the
 		 * size of the TCP header of 32-bit words.
 		 */
-		guint8 tcp_len = hi_nibble(tvb_get_guint8(tvb, offset + 12))*4;
+		uint8_t tcp_len = hi_nibble(tvb_get_uint8(tvb, offset + 12))*4;
 		next_tvb = tvb_new_subset_length(tvb, offset, tcp_len);
 		call_dissector(tcp_handle, next_tvb, pinfo, tree);
 		break;
@@ -248,7 +248,7 @@ display_xip_serval(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 }
 
-static gint
+static int
 dissect_xip_serval(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	void *data _U_)
 {
@@ -341,7 +341,7 @@ proto_register_xip_serval(void)
 		  SEP_SPACE, NULL, 0x0, NULL, HFILL }}
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_xip_serval_tree,
 		&ett_xip_serval_cext,
 		&ett_xip_serval_cext_flags

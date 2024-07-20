@@ -31,319 +31,319 @@ int proto_xmpp;
 
 static bool xmpp_desegment = true;
 
-gint hf_xmpp_xmlns;
-gint hf_xmpp_id;
-gint hf_xmpp_from;
-gint hf_xmpp_to;
-gint hf_xmpp_type;
-gint hf_xmpp_cdata;
-gint hf_xmpp_attribute;
+int hf_xmpp_xmlns;
+int hf_xmpp_id;
+int hf_xmpp_from;
+int hf_xmpp_to;
+int hf_xmpp_type;
+int hf_xmpp_cdata;
+int hf_xmpp_attribute;
 
-gint hf_xmpp_iq;
+int hf_xmpp_iq;
 
-gint hf_xmpp_query;
-gint hf_xmpp_query_node;
+int hf_xmpp_query;
+int hf_xmpp_query_node;
 
-gint hf_xmpp_query_item;
-gint hf_xmpp_query_item_jid;
-gint hf_xmpp_query_item_name;
-gint hf_xmpp_query_item_subscription;
-gint hf_xmpp_query_item_ask;
-gint hf_xmpp_query_item_group;
-gint hf_xmpp_query_item_node;
-gint hf_xmpp_query_item_approved;
+int hf_xmpp_query_item;
+int hf_xmpp_query_item_jid;
+int hf_xmpp_query_item_name;
+int hf_xmpp_query_item_subscription;
+int hf_xmpp_query_item_ask;
+int hf_xmpp_query_item_group;
+int hf_xmpp_query_item_node;
+int hf_xmpp_query_item_approved;
 
-gint hf_xmpp_query_identity;
-gint hf_xmpp_query_identity_category;
-gint hf_xmpp_query_identity_type;
-gint hf_xmpp_query_identity_name;
-static gint hf_xmpp_query_identity_lang;
+int hf_xmpp_query_identity;
+int hf_xmpp_query_identity_category;
+int hf_xmpp_query_identity_type;
+int hf_xmpp_query_identity_name;
+static int hf_xmpp_query_identity_lang;
 
-gint hf_xmpp_query_feature;
+int hf_xmpp_query_feature;
 
-gint hf_xmpp_query_streamhost;
-gint hf_xmpp_query_streamhost_used;
-gint hf_xmpp_query_activate;
-gint hf_xmpp_query_udpsuccess;
+int hf_xmpp_query_streamhost;
+int hf_xmpp_query_streamhost_used;
+int hf_xmpp_query_activate;
+int hf_xmpp_query_udpsuccess;
 
-gint hf_xmpp_error;
-gint hf_xmpp_error_type;
-gint hf_xmpp_error_code;
-gint hf_xmpp_error_condition;
-gint hf_xmpp_error_text;
+int hf_xmpp_error;
+int hf_xmpp_error_type;
+int hf_xmpp_error_code;
+int hf_xmpp_error_condition;
+int hf_xmpp_error_text;
 
-gint hf_xmpp_iq_bind;
-gint hf_xmpp_iq_bind_jid;
-gint hf_xmpp_iq_bind_resource;
+int hf_xmpp_iq_bind;
+int hf_xmpp_iq_bind_jid;
+int hf_xmpp_iq_bind_resource;
 
-gint hf_xmpp_services;
-gint hf_xmpp_channel;
+int hf_xmpp_services;
+int hf_xmpp_channel;
 
-gint hf_xmpp_iq_session;
-gint hf_xmpp_stream;
-gint hf_xmpp_features;
+int hf_xmpp_iq_session;
+int hf_xmpp_stream;
+int hf_xmpp_features;
 
-gint hf_xmpp_vcard;
-gint hf_xmpp_vcard_x_update;
+int hf_xmpp_vcard;
+int hf_xmpp_vcard_x_update;
 
-gint hf_xmpp_jingle;
-gint hf_xmpp_jingle_sid;
-gint hf_xmpp_jingle_initiator;
-gint hf_xmpp_jingle_responder;
-gint hf_xmpp_jingle_action;
+int hf_xmpp_jingle;
+int hf_xmpp_jingle_sid;
+int hf_xmpp_jingle_initiator;
+int hf_xmpp_jingle_responder;
+int hf_xmpp_jingle_action;
 
-gint hf_xmpp_jingle_content;
-gint hf_xmpp_jingle_content_creator;
-gint hf_xmpp_jingle_content_name;
-gint hf_xmpp_jingle_content_disposition;
-gint hf_xmpp_jingle_content_senders;
+int hf_xmpp_jingle_content;
+int hf_xmpp_jingle_content_creator;
+int hf_xmpp_jingle_content_name;
+int hf_xmpp_jingle_content_disposition;
+int hf_xmpp_jingle_content_senders;
 
-gint hf_xmpp_jingle_content_description;
-gint hf_xmpp_jingle_content_description_media;
-gint hf_xmpp_jingle_content_description_ssrc;
+int hf_xmpp_jingle_content_description;
+int hf_xmpp_jingle_content_description_media;
+int hf_xmpp_jingle_content_description_ssrc;
 
-gint hf_xmpp_jingle_cont_desc_payload;
-gint hf_xmpp_jingle_cont_desc_payload_id;
-gint hf_xmpp_jingle_cont_desc_payload_channels;
-gint hf_xmpp_jingle_cont_desc_payload_clockrate;
-gint hf_xmpp_jingle_cont_desc_payload_maxptime;
-gint hf_xmpp_jingle_cont_desc_payload_name;
-gint hf_xmpp_jingle_cont_desc_payload_ptime;
+int hf_xmpp_jingle_cont_desc_payload;
+int hf_xmpp_jingle_cont_desc_payload_id;
+int hf_xmpp_jingle_cont_desc_payload_channels;
+int hf_xmpp_jingle_cont_desc_payload_clockrate;
+int hf_xmpp_jingle_cont_desc_payload_maxptime;
+int hf_xmpp_jingle_cont_desc_payload_name;
+int hf_xmpp_jingle_cont_desc_payload_ptime;
 
-gint hf_xmpp_jingle_cont_desc_payload_param;
-gint hf_xmpp_jingle_cont_desc_payload_param_value;
-gint hf_xmpp_jingle_cont_desc_payload_param_name;
+int hf_xmpp_jingle_cont_desc_payload_param;
+int hf_xmpp_jingle_cont_desc_payload_param_value;
+int hf_xmpp_jingle_cont_desc_payload_param_name;
 
-gint hf_xmpp_jingle_cont_desc_enc;
-gint hf_xmpp_jingle_cont_desc_enc_zrtp_hash;
-gint hf_xmpp_jingle_cont_desc_enc_crypto;
+int hf_xmpp_jingle_cont_desc_enc;
+int hf_xmpp_jingle_cont_desc_enc_zrtp_hash;
+int hf_xmpp_jingle_cont_desc_enc_crypto;
 
-gint hf_xmpp_jingle_cont_desc_rtp_hdr;
-gint hf_xmpp_jingle_cont_desc_bandwidth;
+int hf_xmpp_jingle_cont_desc_rtp_hdr;
+int hf_xmpp_jingle_cont_desc_bandwidth;
 
-gint hf_xmpp_jingle_cont_trans;
-gint hf_xmpp_jingle_cont_trans_pwd;
-gint hf_xmpp_jingle_cont_trans_ufrag;
+int hf_xmpp_jingle_cont_trans;
+int hf_xmpp_jingle_cont_trans_pwd;
+int hf_xmpp_jingle_cont_trans_ufrag;
 
-gint hf_xmpp_jingle_cont_trans_cand;
-gint hf_xmpp_jingle_cont_trans_rem_cand;
-gint hf_xmpp_jingle_cont_trans_activated;
-gint hf_xmpp_jingle_cont_trans_candidate_error;
-gint hf_xmpp_jingle_cont_trans_candidate_used;
-gint hf_xmpp_jingle_cont_trans_proxy_error;
+int hf_xmpp_jingle_cont_trans_cand;
+int hf_xmpp_jingle_cont_trans_rem_cand;
+int hf_xmpp_jingle_cont_trans_activated;
+int hf_xmpp_jingle_cont_trans_candidate_error;
+int hf_xmpp_jingle_cont_trans_candidate_used;
+int hf_xmpp_jingle_cont_trans_proxy_error;
 
 
-gint hf_xmpp_jingle_reason;
-gint hf_xmpp_jingle_reason_condition;
-gint hf_xmpp_jingle_reason_text;
+int hf_xmpp_jingle_reason;
+int hf_xmpp_jingle_reason_condition;
+int hf_xmpp_jingle_reason_text;
 
-gint hf_xmpp_jingle_rtp_info;
+int hf_xmpp_jingle_rtp_info;
 
-gint hf_xmpp_jingle_file_transfer_offer;
-gint hf_xmpp_jingle_file_transfer_request;
-gint hf_xmpp_jingle_file_transfer_received;
-gint hf_xmpp_jingle_file_transfer_abort;
-gint hf_xmpp_jingle_file_transfer_checksum;
+int hf_xmpp_jingle_file_transfer_offer;
+int hf_xmpp_jingle_file_transfer_request;
+int hf_xmpp_jingle_file_transfer_received;
+int hf_xmpp_jingle_file_transfer_abort;
+int hf_xmpp_jingle_file_transfer_checksum;
 
-gint hf_xmpp_si;
-gint hf_xmpp_si_file;
+int hf_xmpp_si;
+int hf_xmpp_si_file;
 
-gint hf_xmpp_iq_feature_neg;
-gint hf_xmpp_x_data;
-gint hf_xmpp_x_data_field;
-gint hf_xmpp_x_data_field_value;
-gint hf_xmpp_x_data_instructions;
-gint hf_xmpp_muc_user_status;
+int hf_xmpp_iq_feature_neg;
+int hf_xmpp_x_data;
+int hf_xmpp_x_data_field;
+int hf_xmpp_x_data_field_value;
+int hf_xmpp_x_data_instructions;
+int hf_xmpp_muc_user_status;
 
-gint hf_xmpp_message;
-gint hf_xmpp_message_chatstate;
+int hf_xmpp_message;
+int hf_xmpp_message_chatstate;
 
-gint hf_xmpp_message_thread;
-gint hf_xmpp_message_thread_parent;
+int hf_xmpp_message_thread;
+int hf_xmpp_message_thread_parent;
 
-gint hf_xmpp_message_body;
-gint hf_xmpp_message_subject;
+int hf_xmpp_message_body;
+int hf_xmpp_message_subject;
 
-gint hf_xmpp_ibb_open;
-gint hf_xmpp_ibb_close;
-gint hf_xmpp_ibb_data;
+int hf_xmpp_ibb_open;
+int hf_xmpp_ibb_close;
+int hf_xmpp_ibb_data;
 
-gint hf_xmpp_delay;
+int hf_xmpp_delay;
 
-gint hf_xmpp_x_event;
-gint hf_xmpp_x_event_condition;
+int hf_xmpp_x_event;
+int hf_xmpp_x_event_condition;
 
-gint hf_xmpp_presence;
-gint hf_xmpp_presence_show;
-gint hf_xmpp_presence_status;
-gint hf_xmpp_presence_caps;
+int hf_xmpp_presence;
+int hf_xmpp_presence_show;
+int hf_xmpp_presence_status;
+int hf_xmpp_presence_caps;
 
-gint hf_xmpp_auth;
-gint hf_xmpp_failure;
-gint hf_xmpp_failure_text;
-gint hf_xmpp_starttls;
-gint hf_xmpp_proceed;
-gint hf_xmpp_xml_header_version;
-gint hf_xmpp_stream_end;
+int hf_xmpp_auth;
+int hf_xmpp_failure;
+int hf_xmpp_failure_text;
+int hf_xmpp_starttls;
+int hf_xmpp_proceed;
+int hf_xmpp_xml_header_version;
+int hf_xmpp_stream_end;
 
-gint hf_xmpp_muc_x;
-gint hf_xmpp_muc_user_x;
-gint hf_xmpp_muc_user_item;
-gint hf_xmpp_muc_user_invite;
+int hf_xmpp_muc_x;
+int hf_xmpp_muc_user_x;
+int hf_xmpp_muc_user_item;
+int hf_xmpp_muc_user_invite;
 
-gint hf_xmpp_gtalk_session;
-gint hf_xmpp_gtalk_session_type;
-gint hf_xmpp_gtalk;
-gint hf_xmpp_gtalk_setting;
-gint hf_xmpp_gtalk_setting_element;
-gint hf_xmpp_gtalk_nosave_x;
-gint hf_xmpp_gtalk_mail_mailbox;
-gint hf_xmpp_gtalk_mail_new_mail;
-gint hf_xmpp_gtalk_transport_p2p;
-gint hf_xmpp_gtalk_mail_snippet;
-gint hf_xmpp_gtalk_status_status_list;
+int hf_xmpp_gtalk_session;
+int hf_xmpp_gtalk_session_type;
+int hf_xmpp_gtalk;
+int hf_xmpp_gtalk_setting;
+int hf_xmpp_gtalk_setting_element;
+int hf_xmpp_gtalk_nosave_x;
+int hf_xmpp_gtalk_mail_mailbox;
+int hf_xmpp_gtalk_mail_new_mail;
+int hf_xmpp_gtalk_transport_p2p;
+int hf_xmpp_gtalk_mail_snippet;
+int hf_xmpp_gtalk_status_status_list;
 
-gint hf_xmpp_conf_info;
-gint hf_xmpp_conf_info_sid;
+int hf_xmpp_conf_info;
+int hf_xmpp_conf_info_sid;
 
-gint hf_xmpp_unknown;
-gint hf_xmpp_unknown_attr;
+int hf_xmpp_unknown;
+int hf_xmpp_unknown_attr;
 
-static gint hf_xmpp_out;
-static gint hf_xmpp_in;
-gint hf_xmpp_response_in;
-gint hf_xmpp_response_to;
-gint hf_xmpp_jingle_session;
-gint hf_xmpp_ibb;
+static int hf_xmpp_out;
+static int hf_xmpp_in;
+int hf_xmpp_response_in;
+int hf_xmpp_response_to;
+int hf_xmpp_jingle_session;
+int hf_xmpp_ibb;
 
-gint hf_xmpp_ping;
-gint hf_xmpp_hashes;
+int hf_xmpp_ping;
+int hf_xmpp_hashes;
 
-gint hf_xmpp_jitsi_inputevt;
-gint hf_xmpp_jitsi_inputevt_rmt_ctrl;
+int hf_xmpp_jitsi_inputevt;
+int hf_xmpp_jitsi_inputevt_rmt_ctrl;
 
-static gint ett_xmpp;
-gint ett_xmpp_iq;
-gint ett_xmpp_query;
-gint ett_xmpp_query_item;
-gint ett_xmpp_query_identity;
-static gint ett_xmpp_query_feature;
+static int ett_xmpp;
+int ett_xmpp_iq;
+int ett_xmpp_query;
+int ett_xmpp_query_item;
+int ett_xmpp_query_identity;
+static int ett_xmpp_query_feature;
 
-gint ett_xmpp_query_streamhost;
-gint ett_xmpp_query_streamhost_used;
-gint ett_xmpp_query_udpsuccess;
+int ett_xmpp_query_streamhost;
+int ett_xmpp_query_streamhost_used;
+int ett_xmpp_query_udpsuccess;
 
-static gint ett_xmpp_iq_error;
-gint ett_xmpp_iq_bind;
-gint ett_xmpp_iq_session;
-gint ett_xmpp_vcard;
-gint ett_xmpp_vcard_x_update;
+static int ett_xmpp_iq_error;
+int ett_xmpp_iq_bind;
+int ett_xmpp_iq_session;
+int ett_xmpp_vcard;
+int ett_xmpp_vcard_x_update;
 
-gint ett_xmpp_jingle;
-gint ett_xmpp_jingle_content;
-gint ett_xmpp_jingle_content_description;
-gint ett_xmpp_jingle_cont_desc_enc;
-gint ett_xmpp_jingle_cont_desc_enc_zrtp_hash;
-gint ett_xmpp_jingle_cont_desc_enc_crypto;
-gint ett_xmpp_jingle_cont_desc_rtp_hdr;
-gint ett_xmpp_jingle_cont_desc_bandwidth;
-gint ett_xmpp_jingle_cont_desc_payload;
-gint ett_xmpp_jingle_cont_desc_payload_param;
-gint ett_xmpp_jingle_cont_trans;
-gint ett_xmpp_jingle_cont_trans_cand;
-gint ett_xmpp_jingle_cont_trans_rem_cand;
-gint ett_xmpp_jingle_reason;
-gint ett_xmpp_jingle_rtp_info;
+int ett_xmpp_jingle;
+int ett_xmpp_jingle_content;
+int ett_xmpp_jingle_content_description;
+int ett_xmpp_jingle_cont_desc_enc;
+int ett_xmpp_jingle_cont_desc_enc_zrtp_hash;
+int ett_xmpp_jingle_cont_desc_enc_crypto;
+int ett_xmpp_jingle_cont_desc_rtp_hdr;
+int ett_xmpp_jingle_cont_desc_bandwidth;
+int ett_xmpp_jingle_cont_desc_payload;
+int ett_xmpp_jingle_cont_desc_payload_param;
+int ett_xmpp_jingle_cont_trans;
+int ett_xmpp_jingle_cont_trans_cand;
+int ett_xmpp_jingle_cont_trans_rem_cand;
+int ett_xmpp_jingle_reason;
+int ett_xmpp_jingle_rtp_info;
 
-gint ett_xmpp_jingle_file_transfer_offer;
-gint ett_xmpp_jingle_file_transfer_request;
-gint ett_xmpp_jingle_file_transfer_abort;
-gint ett_xmpp_jingle_file_transfer_received;
-gint ett_xmpp_jingle_file_transfer_checksum;
-gint ett_xmpp_jingle_file_transfer_file;
+int ett_xmpp_jingle_file_transfer_offer;
+int ett_xmpp_jingle_file_transfer_request;
+int ett_xmpp_jingle_file_transfer_abort;
+int ett_xmpp_jingle_file_transfer_received;
+int ett_xmpp_jingle_file_transfer_checksum;
+int ett_xmpp_jingle_file_transfer_file;
 
-gint ett_xmpp_services;
-gint ett_xmpp_services_relay;
-gint ett_xmpp_channel;
+int ett_xmpp_services;
+int ett_xmpp_services_relay;
+int ett_xmpp_channel;
 
-gint ett_xmpp_si;
-gint ett_xmpp_si_file;
-gint ett_xmpp_si_file_range;
+int ett_xmpp_si;
+int ett_xmpp_si_file;
+int ett_xmpp_si_file_range;
 
-gint ett_xmpp_iq_feature_neg;
-gint ett_xmpp_x_data;
-gint ett_xmpp_x_data_field;
-gint ett_xmpp_x_data_field_value;
+int ett_xmpp_iq_feature_neg;
+int ett_xmpp_x_data;
+int ett_xmpp_x_data_field;
+int ett_xmpp_x_data_field_value;
 
-gint ett_xmpp_ibb_open;
-gint ett_xmpp_ibb_close;
-gint ett_xmpp_ibb_data;
+int ett_xmpp_ibb_open;
+int ett_xmpp_ibb_close;
+int ett_xmpp_ibb_data;
 
-gint ett_xmpp_delay;
+int ett_xmpp_delay;
 
-gint ett_xmpp_x_event;
+int ett_xmpp_x_event;
 
-gint ett_xmpp_message;
-gint ett_xmpp_message_thread;
-gint ett_xmpp_message_body;
-gint ett_xmpp_message_subject;
+int ett_xmpp_message;
+int ett_xmpp_message_thread;
+int ett_xmpp_message_body;
+int ett_xmpp_message_subject;
 
-gint ett_xmpp_presence;
-gint ett_xmpp_presence_status;
-gint ett_xmpp_presence_caps;
+int ett_xmpp_presence;
+int ett_xmpp_presence_status;
+int ett_xmpp_presence_caps;
 
-gint ett_xmpp_auth;
-static gint ett_xmpp_challenge;
-static gint ett_xmpp_response;
-static gint ett_xmpp_success;
-gint ett_xmpp_failure;
-gint ett_xmpp_stream;
-gint ett_xmpp_features;
-gint ett_xmpp_features_mechanisms;
-gint ett_xmpp_starttls;
-gint ett_xmpp_proceed;
+int ett_xmpp_auth;
+static int ett_xmpp_challenge;
+static int ett_xmpp_response;
+static int ett_xmpp_success;
+int ett_xmpp_failure;
+int ett_xmpp_stream;
+int ett_xmpp_features;
+int ett_xmpp_features_mechanisms;
+int ett_xmpp_starttls;
+int ett_xmpp_proceed;
 
-gint ett_xmpp_muc_x;
-gint ett_xmpp_muc_hist;
-gint ett_xmpp_muc_user_x;
-gint ett_xmpp_muc_user_item;
-gint ett_xmpp_muc_user_invite;
+int ett_xmpp_muc_x;
+int ett_xmpp_muc_hist;
+int ett_xmpp_muc_user_x;
+int ett_xmpp_muc_user_item;
+int ett_xmpp_muc_user_invite;
 
-gint ett_xmpp_gtalk_session;
-gint ett_xmpp_gtalk_session_desc;
-gint ett_xmpp_gtalk_session_cand;
-gint ett_xmpp_gtalk_session_desc_payload;
-gint ett_xmpp_gtalk_session_reason;
-gint ett_xmpp_gtalk_jingleinfo_stun;
-gint ett_xmpp_gtalk_jingleinfo_server;
-gint ett_xmpp_gtalk_jingleinfo_relay;
-gint ett_xmpp_gtalk_jingleinfo_relay_serv;
-gint ett_xmpp_gtalk_setting;
-gint ett_xmpp_gtalk_nosave_x;
-gint ett_xmpp_gtalk_mail_mailbox;
-gint ett_xmpp_gtalk_mail_mail_info;
-gint ett_xmpp_gtalk_mail_senders;
-gint ett_xmpp_gtalk_mail_sender;
-gint ett_xmpp_gtalk_status_status_list;
-gint ett_xmpp_gtalk_transport_p2p;
-gint ett_xmpp_gtalk_transport_p2p_cand;
+int ett_xmpp_gtalk_session;
+int ett_xmpp_gtalk_session_desc;
+int ett_xmpp_gtalk_session_cand;
+int ett_xmpp_gtalk_session_desc_payload;
+int ett_xmpp_gtalk_session_reason;
+int ett_xmpp_gtalk_jingleinfo_stun;
+int ett_xmpp_gtalk_jingleinfo_server;
+int ett_xmpp_gtalk_jingleinfo_relay;
+int ett_xmpp_gtalk_jingleinfo_relay_serv;
+int ett_xmpp_gtalk_setting;
+int ett_xmpp_gtalk_nosave_x;
+int ett_xmpp_gtalk_mail_mailbox;
+int ett_xmpp_gtalk_mail_mail_info;
+int ett_xmpp_gtalk_mail_senders;
+int ett_xmpp_gtalk_mail_sender;
+int ett_xmpp_gtalk_status_status_list;
+int ett_xmpp_gtalk_transport_p2p;
+int ett_xmpp_gtalk_transport_p2p_cand;
 
-gint ett_xmpp_conf_info;
-gint ett_xmpp_conf_desc;
-gint ett_xmpp_conf_state;
-gint ett_xmpp_conf_users;
-gint ett_xmpp_conf_user;
-gint ett_xmpp_conf_endpoint;
-gint ett_xmpp_conf_media;
+int ett_xmpp_conf_info;
+int ett_xmpp_conf_desc;
+int ett_xmpp_conf_state;
+int ett_xmpp_conf_users;
+int ett_xmpp_conf_user;
+int ett_xmpp_conf_endpoint;
+int ett_xmpp_conf_media;
 
-gint ett_xmpp_ping;
-gint ett_xmpp_hashes;
-gint ett_xmpp_hashes_hash;
+int ett_xmpp_ping;
+int ett_xmpp_hashes;
+int ett_xmpp_hashes_hash;
 
-gint ett_xmpp_jitsi_inputevt;
-gint ett_xmpp_jitsi_inputevt_rmt_ctrl;
+int ett_xmpp_jitsi_inputevt;
+int ett_xmpp_jitsi_inputevt_rmt_ctrl;
 
-gint ett_unknown[ETT_UNKNOWN_LEN];
+int ett_unknown[ETT_UNKNOWN_LEN];
 
 static expert_field ei_xmpp_xml_disabled;
 static expert_field ei_xmpp_packet_unknown;
@@ -376,7 +376,7 @@ dissect_xmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     xml_frame_t *xml_frame;
     xml_frame_t *xml_dissector_frame;
-    gboolean     out_packet;
+    bool         out_packet;
 
     conversation_t   *conversation;
     xmpp_conv_info_t *xmpp_info;
@@ -389,25 +389,25 @@ dissect_xmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     int proto_xml = dissector_handle_get_protocol_index(xml_handle);
 
-    gboolean whitespace_keepalive = ((tvb_reported_length(tvb) == 1) && tvb_get_guint8(tvb, 0) == ' ');
+    bool whitespace_keepalive = ((tvb_reported_length(tvb) == 1) && tvb_get_uint8(tvb, 0) == ' ');
 
     /*check if desegment
      * now it checks that last char is '>',
      * TODO checks that first element in packet is closed*/
     int   indx;
-    gchar last_char;
+    char last_char;
 
     if (xmpp_desegment && !whitespace_keepalive)
     {
         indx = tvb_reported_length(tvb) - 1;
         if (indx >= 0)
         {
-            last_char = tvb_get_guint8(tvb, indx);
+            last_char = tvb_get_uint8(tvb, indx);
 
             while ((last_char <= ' ') && (indx - 1 >= 0))
             {
                 indx--;
-                last_char = tvb_get_guint8(tvb, indx);
+                last_char = tvb_get_uint8(tvb, indx);
             }
 
             if ((indx >= 0) && (last_char != '>'))
@@ -473,9 +473,9 @@ dissect_xmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     }
 
     if (pinfo->match_uint == pinfo->destport)
-        out_packet = TRUE;
+        out_packet = true;
     else
-        out_packet = FALSE;
+        out_packet = false;
 
     while(xml_frame)
     {
@@ -494,9 +494,9 @@ dissect_xmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         }
 
         if (out_packet)
-            outin_item = proto_tree_add_boolean(xmpp_tree, hf_xmpp_out, tvb, 0, 0, TRUE);
+            outin_item = proto_tree_add_boolean(xmpp_tree, hf_xmpp_out, tvb, 0, 0, true);
         else
-            outin_item = proto_tree_add_boolean(xmpp_tree, hf_xmpp_in, tvb, 0, 0, TRUE);
+            outin_item = proto_tree_add_boolean(xmpp_tree, hf_xmpp_in, tvb, 0, 0, true);
 
         proto_item_set_hidden(outin_item);
 
@@ -1326,7 +1326,7 @@ proto_register_xmpp(void) {
           }},
     };
 
-    static gint * ett[] = {
+    static int * ett[] = {
         &ett_xmpp,
         &ett_xmpp_iq,
         &ett_xmpp_query,
@@ -1450,8 +1450,8 @@ proto_register_xmpp(void) {
     module_t *xmpp_module;
     expert_module_t* expert_xmpp;
 
-    static gint* ett_unknown_ptr[ETT_UNKNOWN_LEN];
-    gint i;
+    static int* ett_unknown_ptr[ETT_UNKNOWN_LEN];
+    int i;
     for(i=0;i<ETT_UNKNOWN_LEN;i++)
     {
         ett_unknown_ptr[i] = &ett_unknown[i];

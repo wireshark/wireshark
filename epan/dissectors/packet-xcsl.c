@@ -34,7 +34,7 @@ static int hf_xcsl_result;
 static int hf_xcsl_transaction_id;
 
 /* Initialize the subtree pointers */
-static gint ett_xcsl;
+static int ett_xcsl;
 
 /* Xcsl result codes */
 #define XCSL_SUCCESS      0
@@ -68,16 +68,16 @@ static ws_mempbrk_pattern pbrk_param_end;
 /* Dissector for xcsl */
 static void dissect_xcsl_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
-    guint        offset = 0;
-    gint         length_remaining;
-    guint8       idx;
-    gboolean     request;
-    guint8       par;
-    guint8      *str;
-    guint8       result;
-    const gchar *code;
-    guint        len;
-    gint         next_offset;
+    unsigned     offset = 0;
+    int          length_remaining;
+    uint8_t      idx;
+    bool         request;
+    uint8_t      par;
+    uint8_t     *str;
+    uint8_t      result;
+    const char *code;
+    unsigned     len;
+    int          next_offset;
     proto_tree  *xcsl_tree = NULL;
 
     /* color support */
@@ -98,7 +98,7 @@ static void dissect_xcsl_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     par = 0;
 
     /* switch whether it concerns a command or an answer */
-    request = FALSE;
+    request = false;
 
     while ((length_remaining = tvb_reported_length_remaining(tvb, offset)) > 0) {
 
@@ -169,7 +169,7 @@ static void dissect_xcsl_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 if ( g_ascii_isdigit(str[0]) ) {
                     proto_item *xcsl_item;
 
-                    request = FALSE;
+                    request = false;
                     result = XCSL_UNDEFINED;
                     ws_strtou8(str, NULL, &result);
                     if ( result >= XCSL_NONE ) {
@@ -186,7 +186,7 @@ static void dissect_xcsl_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
                 } else {
 
-                    request = TRUE;
+                    request = true;
                     proto_tree_add_item(xcsl_tree, hf_xcsl_command, tvb, offset, len, ENC_ASCII);
 
                     col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", str);
@@ -198,7 +198,7 @@ static void dissect_xcsl_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             default:
                 proto_tree_add_item(xcsl_tree, hf_xcsl_parameter, tvb, offset, len, ENC_ASCII);
 
-                if ( request == TRUE ) {
+                if ( request == true ) {
                     col_append_fstr(pinfo->cinfo, COL_INFO, ": %s ",str);
                 } else {
                     if (par == 0) {
@@ -227,7 +227,7 @@ static void dissect_xcsl_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 /* This function determines whether the first 4 octets equals to xcsl and the fifth is an ; or - */
 static bool dissect_xcsl_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
 
-    guint8 *protocol;
+    uint8_t *protocol;
 
     if (tvb_captured_length (tvb) >= 5) {
         protocol = tvb_get_string_enc(pinfo->pool, tvb, 0, 5, ENC_ASCII);
@@ -281,7 +281,7 @@ void proto_register_xcsl(void) {
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_xcsl
     };
 
