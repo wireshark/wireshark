@@ -34,9 +34,9 @@ CODE START
 extern struct access_mask_info spoolss_printer_access_mask_info;
 
 static int
-iremotewinspool_dissect_sec_desc_buf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+iremotewinspool_dissect_sec_desc_buf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep)
 {
-	guint32 len;
+	uint32_t len;
 
 	if(di->conformant_run){
 		/*just a run to handle conformant arrays, nothing to dissect */
@@ -47,7 +47,7 @@ iremotewinspool_dissect_sec_desc_buf(tvbuff_t *tvb, int offset, packet_info *pin
 		hf_iremotewinspool_sec_desc_buf_len, &len);
 
 	dissect_nt_sec_desc(
-		tvb, offset, pinfo, tree, drep, TRUE, len,
+		tvb, offset, pinfo, tree, drep, true, len,
 		&spoolss_printer_access_mask_info);
 
 	offset += len;

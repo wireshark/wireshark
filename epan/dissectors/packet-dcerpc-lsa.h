@@ -269,8 +269,8 @@ int lsarpc_dissect_struct_lsa_revision_info1(tvbuff_t *tvb _U_, int offset _U_, 
 int lsarpc_dissect_struct_lsa_ForestTrustRecord2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 int lsarpc_dissect_struct_lsa_ForestTrustInformation2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 extern int
-lsarpc_dissect_sec_desc_buf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+lsarpc_dissect_sec_desc_buf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep);
 extern int
-lsarpc_dissect_struct_dom_sid2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int unused1, int unused2);
+lsarpc_dissect_struct_dom_sid2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep, int unused1, int unused2);
 
 #endif /* __PACKET_DCERPC_LSARPC_H */

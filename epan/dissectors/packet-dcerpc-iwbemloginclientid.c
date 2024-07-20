@@ -58,7 +58,7 @@ static int IWbemLoginClientID_dissect_element_SetClientInfo_orpcthat_(tvbuff_t *
 	#include "packet-dcom.h"
 /* SetClientInfo */
 static int
-IWbemLoginClientID_dissect_element_SetClientInfo_orpcthis(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLoginClientID_dissect_element_SetClientInfo_orpcthis(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	proto_item *sub_item;
 	proto_tree *sub_tree;
@@ -68,7 +68,7 @@ IWbemLoginClientID_dissect_element_SetClientInfo_orpcthis(tvbuff_t *tvb _U_, int
 	return offset;
 }
 static int
-IWbemLoginClientID_dissect_element_SetClientInfo_orpcthat_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLoginClientID_dissect_element_SetClientInfo_orpcthat_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	proto_item *sub_item;
 	proto_tree *sub_tree;

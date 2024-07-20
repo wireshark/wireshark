@@ -134,21 +134,21 @@ static int fsrvp_dissect_element_DeleteShareMapping_ShareName_(tvbuff_t *tvb _U_
 static int fsrvp_dissect_element_PrepareShadowCopySet_ShadowCopySetId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int fsrvp_dissect_element_PrepareShadowCopySet_TimeOutInMilliseconds(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int
-fsrvp_dissect_SetContext_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+fsrvp_dissect_SetContext_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="SetContext";
 	offset = fsrvp_dissect_element_SetContext_Context(tvb, offset, pinfo, tree, di, drep);
 	return offset;
 }
 static int
-fsrvp_dissect_StartShadowCopySet_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+fsrvp_dissect_StartShadowCopySet_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="StartShadowCopySet";
 	offset = fsrvp_dissect_element_StartShadowCopySet_ClientShadowCopySetId(tvb, offset, pinfo, tree, di, drep);
 	return offset;
 }
 static int
-fsrvp_dissect_AddToShadowCopySet_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+fsrvp_dissect_AddToShadowCopySet_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="AddToShadowCopySet";
 	offset = fsrvp_dissect_element_AddToShadowCopySet_ClientShadowCopyId(tvb, offset, pinfo, tree, di, drep);
@@ -158,7 +158,7 @@ fsrvp_dissect_AddToShadowCopySet_request(tvbuff_t *tvb _U_, int offset _U_, pack
 	return offset;
 }
 static int
-fsrvp_dissect_CommitShadowCopySet_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+fsrvp_dissect_CommitShadowCopySet_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="CommitShadowCopySet";
 	offset = fsrvp_dissect_element_CommitShadowCopySet_ShadowCopySetId(tvb, offset, pinfo, tree, di, drep);
@@ -166,7 +166,7 @@ fsrvp_dissect_CommitShadowCopySet_request(tvbuff_t *tvb _U_, int offset _U_, pac
 	return offset;
 }
 static int
-fsrvp_dissect_ExposeShadowCopySet_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+fsrvp_dissect_ExposeShadowCopySet_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="ExposeShadowCopySet";
 	offset = fsrvp_dissect_element_ExposeShadowCopySet_ShadowCopySetId(tvb, offset, pinfo, tree, di, drep);
@@ -174,21 +174,21 @@ fsrvp_dissect_ExposeShadowCopySet_request(tvbuff_t *tvb _U_, int offset _U_, pac
 	return offset;
 }
 static int
-fsrvp_dissect_RecoveryCompleteShadowCopySet_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+fsrvp_dissect_RecoveryCompleteShadowCopySet_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="RecoveryCompleteShadowCopySet";
 	offset = fsrvp_dissect_element_RecoveryCompleteShadowCopySet_ShadowCopySetId(tvb, offset, pinfo, tree, di, drep);
 	return offset;
 }
 static int
-fsrvp_dissect_AbortShadowCopySet_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+fsrvp_dissect_AbortShadowCopySet_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="AbortShadowCopySet";
 	offset = fsrvp_dissect_element_AbortShadowCopySet_ShadowCopySetId(tvb, offset, pinfo, tree, di, drep);
 	return offset;
 }
 static int
-fsrvp_dissect_GetShareMapping_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+fsrvp_dissect_GetShareMapping_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="GetShareMapping";
 	offset = fsrvp_dissect_element_GetShareMapping_ShadowCopyId(tvb, offset, pinfo, tree, di, drep);
@@ -199,7 +199,7 @@ fsrvp_dissect_GetShareMapping_request(tvbuff_t *tvb _U_, int offset _U_, packet_
 	return offset;
 }
 static int
-fsrvp_dissect_DeleteShareMapping_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+fsrvp_dissect_DeleteShareMapping_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="DeleteShareMapping";
 	offset = fsrvp_dissect_element_DeleteShareMapping_ShadowCopySetId(tvb, offset, pinfo, tree, di, drep);
@@ -209,7 +209,7 @@ fsrvp_dissect_DeleteShareMapping_request(tvbuff_t *tvb _U_, int offset _U_, pack
 	return offset;
 }
 static int
-fsrvp_dissect_PrepareShadowCopySet_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+fsrvp_dissect_PrepareShadowCopySet_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="PrepareShadowCopySet";
 	offset = fsrvp_dissect_element_PrepareShadowCopySet_ShadowCopySetId(tvb, offset, pinfo, tree, di, drep);

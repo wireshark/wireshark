@@ -2045,7 +2045,7 @@ static int samr_dissect_element_ChangePasswordUser4_account_(tvbuff_t *tvb _U_, 
 static int samr_dissect_element_ChangePasswordUser4_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int samr_dissect_element_ChangePasswordUser4_password_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static void
-samr_connect_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
+samr_connect_specific_rights(tvbuff_t *tvb, int offset, proto_tree *tree, uint32_t access)
 {
 	static int* const access_flags[] = {
 		&hf_samr_samr_ConnectAccessMask_SAMR_ACCESS_LOOKUP_DOMAIN,
@@ -2065,7 +2065,7 @@ static struct access_mask_info samr_connect_access_mask_info = {
 	NULL				/* Standard mapping table */
 };
 int
-samr_dissect_bitmap_ConnectAccessMask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index _U_, guint32 param _U_)
+samr_dissect_bitmap_ConnectAccessMask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep, int hf_index _U_, uint32_t param _U_)
 {
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, di, drep, hf_samr_connect_access_mask,
@@ -2073,7 +2073,7 @@ samr_dissect_bitmap_ConnectAccessMask(tvbuff_t *tvb, int offset, packet_info *pi
 	return offset;
 }
 static void
-samr_alias_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
+samr_alias_specific_rights(tvbuff_t *tvb, int offset, proto_tree *tree, uint32_t access)
 {
 	static int* const access_flags[] = {
 		&hf_samr_samr_AliasAccessMask_SAMR_ALIAS_ACCESS_ADD_MEMBER,
@@ -2092,7 +2092,7 @@ static struct access_mask_info samr_alias_access_mask_info = {
 	NULL				/* Standard mapping table */
 };
 int
-samr_dissect_bitmap_AliasAccessMask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index _U_, guint32 param _U_)
+samr_dissect_bitmap_AliasAccessMask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep, int hf_index _U_, uint32_t param _U_)
 {
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, di, drep, hf_samr_alias_access_mask,
@@ -2100,7 +2100,7 @@ samr_dissect_bitmap_AliasAccessMask(tvbuff_t *tvb, int offset, packet_info *pinf
 	return offset;
 }
 static void
-samr_group_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
+samr_group_specific_rights(tvbuff_t *tvb, int offset, proto_tree *tree, uint32_t access)
 {
 	static int* const access_flags[] = {
 		&hf_samr_samr_GroupAccessMask_SAMR_GROUP_ACCESS_GET_MEMBERS,
@@ -2119,7 +2119,7 @@ static struct access_mask_info samr_group_access_mask_info = {
 	NULL				/* Standard mapping table */
 };
 int
-samr_dissect_bitmap_GroupAccessMask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index _U_, guint32 param _U_)
+samr_dissect_bitmap_GroupAccessMask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep, int hf_index _U_, uint32_t param _U_)
 {
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, di, drep, hf_samr_group_access_mask,
@@ -2127,7 +2127,7 @@ samr_dissect_bitmap_GroupAccessMask(tvbuff_t *tvb, int offset, packet_info *pinf
 	return offset;
 }
 static void
-samr_domain_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
+samr_domain_specific_rights(tvbuff_t *tvb, int offset, proto_tree *tree, uint32_t access)
 {
 	static int* const access_flags[] = {
 		&hf_samr_samr_DomainAccessMask_SAMR_DOMAIN_ACCESS_LOOKUP_INFO_1,
@@ -2152,7 +2152,7 @@ static struct access_mask_info samr_domain_access_mask_info = {
 	NULL				/* Standard mapping table */
 };
 int
-samr_dissect_bitmap_DomainAccessMask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index _U_, guint32 param _U_)
+samr_dissect_bitmap_DomainAccessMask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep, int hf_index _U_, uint32_t param _U_)
 {
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, di, drep, hf_samr_domain_access_mask,
@@ -2160,7 +2160,7 @@ samr_dissect_bitmap_DomainAccessMask(tvbuff_t *tvb, int offset, packet_info *pin
 	return offset;
 }
 static void
-samr_user_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
+samr_user_specific_rights(tvbuff_t *tvb, int offset, proto_tree *tree, uint32_t access)
 {
 	static int* const access_flags[] = {
 		&hf_samr_samr_UserAccessMask_SAMR_USER_ACCESS_CHANGE_GROUP_MEMBERSHIP,
@@ -2185,7 +2185,7 @@ struct access_mask_info samr_user_access_mask_info = {
 	NULL				/* Standard mapping table */
 };
 int
-samr_dissect_bitmap_UserAccessMask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index _U_, guint32 param _U_)
+samr_dissect_bitmap_UserAccessMask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep, int hf_index _U_, uint32_t param _U_)
 {
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, di, drep, hf_samr_user_access_mask,
@@ -2193,25 +2193,25 @@ samr_dissect_bitmap_UserAccessMask(tvbuff_t *tvb, int offset, packet_info *pinfo
 	return offset;
 }
 static int
-cnf_dissect_lsa_AsciiString(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, guint32 param _U_, int hfindex)
+cnf_dissect_lsa_AsciiString(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep, uint32_t param _U_, int hfindex)
 {
 	offset = dissect_ndr_counted_ascii_string(tvb, offset, pinfo, tree, di, drep,
 		hfindex, 0);
 	return offset;
 }
 static int
-cnf_dissect_hyper(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, guint32 param _U_, int hfindex)
+cnf_dissect_hyper(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep, uint32_t param _U_, int hfindex)
 {
 	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, di, drep, hfindex, NULL);
 	return offset;
 }
 static int
-cnf_dissect_sec_desc_buf_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+cnf_dissect_sec_desc_buf_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep)
 {
-	guint64 len;
+	uint64_t len;
 	e_ctx_hnd *polhnd = NULL;
 	dcerpc_call_value *dcv = NULL;
-	guint32 type=0;
+	uint32_t type=0;
 	struct access_mask_info *ami=NULL;
 	if(di->conformant_run){
 		/*just a run to handle conformant arrays, nothing to dissect */
@@ -2244,14 +2244,14 @@ cnf_dissect_sec_desc_buf_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 		ami=&samr_alias_access_mask_info;
 		break;
 	}
-	dissect_nt_sec_desc(tvb, offset, pinfo, tree, drep, TRUE, (int)len, ami);
+	dissect_nt_sec_desc(tvb, offset, pinfo, tree, drep, true, (int)len, ami);
 	offset += (int)len;
 	return offset;
 }
 static int
-cnf_dissect_sec_desc_buf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+cnf_dissect_sec_desc_buf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep)
 {
-	guint64 len;
+	uint64_t len;
 	if(di->conformant_run){
 		/*just a run to handle conformant arrays, nothing to dissect */
 		return offset;
@@ -2264,19 +2264,19 @@ cnf_dissect_sec_desc_buf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 	return offset;
 }
 static int
-cnf_dissect_dom_sid2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+cnf_dissect_dom_sid2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep)
 {
 	offset = dissect_ndr_nt_SID(tvb, offset, pinfo, tree, di, drep);
 	return offset;
 }
 static int
-cnf_dissect_lsa_SidArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+cnf_dissect_lsa_SidArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep)
 {
 	offset = dissect_ndr_nt_PSID_ARRAY(tvb, offset, pinfo, tree, di, drep);
 	return offset;
 }
 static int
-cnf_dissect_samr_security_secinfo(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint8 *drep _U_)
+cnf_dissect_samr_security_secinfo(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, uint8_t *drep _U_)
 {
 	offset = dissect_nt_security_information(tvb, offset, tree);
 	return offset;

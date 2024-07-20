@@ -43,9 +43,9 @@ CODE START
 	#include "packet-smb-browse.h"
 
 static int
-srvsvc_dissect_NetShareCtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
+srvsvc_dissect_NetShareCtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 static int
-srvsvc_dissect_element_NetShareInfoCtr_ctr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, guint32 *level)
+srvsvc_dissect_element_NetShareInfoCtr_ctr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *level)
 {
 	ALIGN_TO_5_BYTES
 	offset = srvsvc_dissect_NetShareCtr(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_srvsvc_NetShareInfoCtr_ctr, *level);
@@ -55,11 +55,11 @@ srvsvc_dissect_element_NetShareInfoCtr_ctr(tvbuff_t *tvb _U_, int offset _U_, pa
 
 
 static int
-srvsvc_dissect_sec_desc_buf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index);
+srvsvc_dissect_sec_desc_buf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep, int hf_index);
 static int
-srvsvc_dissect_sec_desc_buf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index _U_)
+srvsvc_dissect_sec_desc_buf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep, int hf_index _U_)
 {
-	guint32 len;
+	uint32_t len;
 
 	if(di->conformant_run){
 		/*just a run to handle conformant arrays, nothing to dissect */
@@ -69,7 +69,7 @@ srvsvc_dissect_sec_desc_buf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
 		hf_srvsvc_sec_desc_buf_len, &len);
 
-	dissect_nt_sec_desc(tvb, offset, pinfo, tree, drep, TRUE, len,
+	dissect_nt_sec_desc(tvb, offset, pinfo, tree, drep, true, len,
 		NULL);
 
 	offset += len;
@@ -77,32 +77,32 @@ srvsvc_dissect_sec_desc_buf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 	return offset;
 }
 static int
-srvsvc_dissect_element_NetShareInfo_info1501_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+srvsvc_dissect_element_NetShareInfo_info1501_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep)
 {
 	return srvsvc_dissect_sec_desc_buf(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_srvsvc_NetShareInfo_info1501);
 }
 static int
-srvsvc_dissect_element_NetGetFileSecurity_sd_buf_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+srvsvc_dissect_element_NetGetFileSecurity_sd_buf_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep)
 {
 	return srvsvc_dissect_sec_desc_buf(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_srvsvc_NetGetFileSecurity_sd_buf);
 }
 static int
-srvsvc_dissect_element_NetSetFileSecurity_sd_buf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+srvsvc_dissect_element_NetSetFileSecurity_sd_buf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep)
 {
 	return srvsvc_dissect_sec_desc_buf(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_srvsvc_NetSetFileSecurity_sd_buf);
 }
 static int
-srvsvc_dissect_element_NetShareCtr1501_array__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+srvsvc_dissect_element_NetShareCtr1501_array__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep)
 {
 	return srvsvc_dissect_sec_desc_buf(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_srvsvc_NetShareCtr1501_array);
 }
 static int
-srvsvc_dissect_element_NetShareInfo502_sd_buf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+srvsvc_dissect_element_NetShareInfo502_sd_buf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	return  srvsvc_dissect_sec_desc_buf(tvb,offset,pinfo,tree,di,drep, hf_srvsvc_srvsvc_NetShareInfo502_sd_buf);
 }
 static int
-srvsvc_dissect_ServerType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+srvsvc_dissect_ServerType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep)
 {
 	if(di->conformant_run){
 		/*just a run to handle conformant arrays, nothing to dissect */
@@ -114,18 +114,18 @@ srvsvc_dissect_ServerType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 	return offset;
 }
 static int
-srvsvc_dissect_element_NetSrvInfo101_server_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+srvsvc_dissect_element_NetSrvInfo101_server_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep)
 {
 	return srvsvc_dissect_ServerType(tvb, offset, pinfo, tree, di, drep);
 }
 
 static int
-srvsvc_dissect_element_NetSrvInfo102_server_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+srvsvc_dissect_element_NetSrvInfo102_server_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep)
 {
 	return srvsvc_dissect_ServerType(tvb, offset, pinfo, tree, di, drep);
 }
 static int
-srvsvc_dissect_secinfo(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, dcerpc_info* di, guint8 *drep _U_, int hf_index _U_)
+srvsvc_dissect_secinfo(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, dcerpc_info* di, uint8_t *drep _U_, int hf_index _U_)
 {
 	if(di->conformant_run){
 		/*just a run to handle conformant arrays, nothing to dissect */
@@ -137,12 +137,12 @@ srvsvc_dissect_secinfo(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
 	return offset;
 }
 static int
-srvsvc_dissect_element_NetGetFileSecurity_securityinformation(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+srvsvc_dissect_element_NetGetFileSecurity_securityinformation(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep)
 {
 	 return srvsvc_dissect_secinfo(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_srvsvc_NetGetFileSecurity_securityinformation);
 }
 static int
-srvsvc_dissect_element_NetSetFileSecurity_securityinformation(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+srvsvc_dissect_element_NetSetFileSecurity_securityinformation(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep)
 {
 	 return srvsvc_dissect_secinfo(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_srvsvc_NetSetFileSecurity_securityinformation);
 }

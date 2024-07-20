@@ -141,7 +141,7 @@ static int mdssvc_dissect_element_close_out_handle_(tvbuff_t *tvb _U_, int offse
 static int mdssvc_dissect_element_close_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int mdssvc_dissect_element_close_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int
-mdssvc_dissect_element_blob_spotlight_blob(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep _U_)
+mdssvc_dissect_element_blob_spotlight_blob(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep _U_)
 {
 	tvbuff_t *spotlight_tvb;
 	dissector_handle_t spotlight_handle;

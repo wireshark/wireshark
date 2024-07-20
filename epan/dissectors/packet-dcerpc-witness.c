@@ -217,27 +217,27 @@ static int witness_dissect_element_RegisterEx_flags(tvbuff_t *tvb _U_, int offse
 static int witness_dissect_element_RegisterEx_timeout(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
  #include "to_str.h"
 static int
-witness_dissect_notifyResponse_message(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
+witness_dissect_notifyResponse_message(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 static int
 witness_dissect_notifyResponse_message_(tvbuff_t *tvb, int offset, int length _U_, packet_info *pinfo,
-				        proto_tree *tree, dcerpc_info *di, guint8 *drep _U_)
+				        proto_tree *tree, dcerpc_info *di, uint8_t *drep _U_)
 {
-	guint32 *type = (guint32 *)di->private_data;
-	guint8 le_drep[4] = { DREP_LITTLE_ENDIAN, };
+	uint32_t *type = (uint32_t *)di->private_data;
+	uint8_t le_drep[4] = { DREP_LITTLE_ENDIAN, };
 	return witness_dissect_notifyResponse_message(tvb, offset, pinfo, tree, di, le_drep,
 						      hf_witness_witness_notifyResponse_messages_, *type);
 }
 static int
-witness_dissect_element_notifyResponse_messages(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info *di _U_, guint8 *drep _U_)
+witness_dissect_element_notifyResponse_messages(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info *di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray_block(tvb, offset, pinfo, tree, di, drep,
 					   witness_dissect_notifyResponse_message_);
 	return offset;
 }
 int
-witness_dissect_struct_notifyResponse(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+witness_dissect_struct_notifyResponse(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
-	guint32 *type = NULL;
+	uint32_t *type = NULL;
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
@@ -248,7 +248,7 @@ witness_dissect_struct_notifyResponse(tvbuff_t *tvb _U_, int offset _U_, packet_
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_witness_witness_notifyResponse);
 	}
-	type = wmem_new0(pinfo->pool, guint32);
+	type = wmem_new0(pinfo->pool, uint32_t);
 	offset = witness_dissect_element_notifyResponse_type(tvb, offset, pinfo, tree, di, drep, type);
 	offset = witness_dissect_element_notifyResponse_length(tvb, offset, pinfo, tree, di, drep);
 	offset = witness_dissect_element_notifyResponse_num(tvb, offset, pinfo, tree, di, drep);
@@ -264,20 +264,20 @@ witness_dissect_struct_notifyResponse(tvbuff_t *tvb _U_, int offset _U_, packet_
 	return offset;
 }
 static int
-witness_dissect_element_IPaddrInfoList_addr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_IPaddrInfoList_addr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = witness_dissect_struct_IPaddrInfo(tvb,offset,pinfo,tree,di,drep,hf_witness_witness_IPaddrInfoList_addr,0);
 	return offset;
 }
 int
-witness_dissect_struct_IPaddrInfoList(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+witness_dissect_struct_IPaddrInfoList(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	gboolean oldalign = di->no_align;
+	bool oldalign = di->no_align;
 	int old_offset;
-	guint32 i, num;
-	di->no_align = TRUE;
+	uint32_t i, num;
+	di->no_align = true;
 	old_offset = offset;
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
@@ -295,7 +295,7 @@ witness_dissect_struct_IPaddrInfoList(tvbuff_t *tvb _U_, int offset _U_, packet_
 	return offset;
 }
 static int
-witness_dissect_element_interfaceInfo_group_name(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_)
+witness_dissect_element_interfaceInfo_group_name(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, uint8_t *drep _U_)
 {
 	int totlen, stringlen;
 	char *str;
@@ -351,7 +351,7 @@ witness_dissect_element_interfaceInfo_group_name(tvbuff_t *tvb, int offset, pack
 	return offset + 2*260;
 }
 static int
-PIDL_dissect_ipv4address(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep _U_, int hfindex, guint32 param)
+PIDL_dissect_ipv4address(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep _U_, int hfindex, uint32_t param)
 {
 	if (di->conformant_run) {
 		/* just a run to handle conformant arrays, no scalars to dissect */
@@ -370,7 +370,7 @@ PIDL_dissect_ipv4address(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 	return offset + 4;
 }
 static int
-PIDL_dissect_ipv6address(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep _U_, int hfindex, guint32 param)
+PIDL_dissect_ipv6address(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep _U_, int hfindex, uint32_t param)
 {
 	if (di->conformant_run) {
 		/* just a run to handle conformant arrays, no scalars to dissect */

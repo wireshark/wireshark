@@ -2604,68 +2604,68 @@ static int drsuapi_dissect_element_ReadNgcKey_pOutVersion_(tvbuff_t *tvb _U_, in
 static int drsuapi_dissect_element_ReadNgcKey_ngcReply(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int drsuapi_dissect_element_ReadNgcKey_ngcReply_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int
-drsuapi_dissect_element_DsBindInfoCtr_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, guint3264 *length _U_)
+drsuapi_dissect_element_DsBindInfoCtr_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, guint3264 *length _U_)
 {
 	offset = dissect_ndr_uint3264(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_drsuapi_DsBindInfoCtr_length, NULL);
 	return offset;
 }
 static int
-drsuapi_dissect_DsBindInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
+drsuapi_dissect_DsBindInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 static int
-drsuapi_dissect_element_DsBindInfoCtr_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, guint3264 *length)
+drsuapi_dissect_element_DsBindInfoCtr_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, guint3264 *length)
 {
 	if(di->conformant_run){
 		return offset;
 	}
-	offset = drsuapi_dissect_DsBindInfo(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_drsuapi_DsBindInfoCtr_info, (guint32)*length);
+	offset = drsuapi_dissect_DsBindInfo(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_drsuapi_DsBindInfoCtr_info, (uint32_t)*length);
 	return offset;
 }
 static int
-drsuapi_dissect_DsNameCtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
+drsuapi_dissect_DsNameCtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 static int
-drsuapi_dissect_element_DsCrackNames_ctr_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+drsuapi_dissect_element_DsCrackNames_ctr_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	ALIGN_TO_5_BYTES;
 	offset = drsuapi_dissect_DsNameCtr(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_drsuapi_DsCrackNames_ctr, 0);
 	return offset;
 }
 static int
-drsuapi_dissect_element_DsAddEntry_AttrErrListItem_V1_next_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+drsuapi_dissect_element_DsAddEntry_AttrErrListItem_V1_next_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = drsuapi_dissect_struct_DsAddEntry_AttrErrListItem_V1(tvb,offset,pinfo,tree,di,drep,hf_drsuapi_drsuapi_DsAddEntry_AttrErrListItem_V1_next,0);
 	return offset;
 }
 static int
-drsuapi_dissect_element_DsReplicaObjectListItemEx_next_object_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+drsuapi_dissect_element_DsReplicaObjectListItemEx_next_object_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = drsuapi_dissect_struct_DsReplicaObjectListItemEx(tvb,offset,pinfo,tree,di,drep,hf_drsuapi_drsuapi_DsGetNCChangesCtr1_first_object,0);
 	return offset;
 }
 static int
-drsuapi_dissect_element_DsReplicaObjectListItem_next_object_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+drsuapi_dissect_element_DsReplicaObjectListItem_next_object_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = drsuapi_dissect_struct_DsReplicaObjectListItem(tvb,offset,pinfo,tree,di,drep,hf_drsuapi_drsuapi_DsAddEntryRequest2_first_object,0);
 	return offset;
 }
 static int
-drsuapi_dissect_element_DsaAddressListItem_V1_next_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+drsuapi_dissect_element_DsaAddressListItem_V1_next_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = drsuapi_dissect_struct_DsaAddressListItem_V1(tvb,offset,pinfo,tree,di,drep,hf_drsuapi_drsuapi_DsAddEntry_RefErrListItem_V1_addr_list,0);
 	return offset;
 }
 static int
-drsuapi_dissect_element_DsAddEntry_RefErrListItem_V1_next_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+drsuapi_dissect_element_DsAddEntry_RefErrListItem_V1_next_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = drsuapi_dissect_struct_DsAddEntry_RefErrListItem_V1(tvb,offset,pinfo,tree,di,drep,hf_drsuapi_drsuapi_DsAddEntryErrorInfo_Referr_V1_refer,0);
 	return offset;
 }
 static int
-drsuapi_dissect_ReadNgcKeyReply(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+drsuapi_dissect_ReadNgcKeyReply(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level;
+	uint32_t level;
 	ALIGN_TO_5_BYTES;
 	old_offset = offset;
 	if (parent_tree) {

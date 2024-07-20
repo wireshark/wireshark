@@ -126,7 +126,7 @@ static int IWbemLevel1Login_dissect_element_NTLMLogin_ppNamespace__(tvbuff_t *tv
 	#include "packet-dcom.h"
 /* EstablishPosition */
 static int
-IWbemLevel1Login_dissect_element_EstablishPosition_orpcthis(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_EstablishPosition_orpcthis(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	proto_item *sub_item;
 	proto_tree *sub_tree;
@@ -136,7 +136,7 @@ IWbemLevel1Login_dissect_element_EstablishPosition_orpcthis(tvbuff_t *tvb _U_, i
 	return offset;
 }
 static int
-IWbemLevel1Login_dissect_element_EstablishPosition_orpcthat_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_EstablishPosition_orpcthat_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	proto_item *sub_item;
 	proto_tree *sub_tree;
@@ -147,7 +147,7 @@ IWbemLevel1Login_dissect_element_EstablishPosition_orpcthat_(tvbuff_t *tvb _U_, 
 }
 /* RequestChallenge */
 static int
-IWbemLevel1Login_dissect_element_RequestChallenge_orpcthis(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_RequestChallenge_orpcthis(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	proto_item *sub_item;
 	proto_tree *sub_tree;
@@ -157,7 +157,7 @@ IWbemLevel1Login_dissect_element_RequestChallenge_orpcthis(tvbuff_t *tvb _U_, in
 	return offset;
 }
 static int
-IWbemLevel1Login_dissect_element_RequestChallenge_orpcthat_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_RequestChallenge_orpcthat_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	proto_item *sub_item;
 	proto_tree *sub_tree;
@@ -168,7 +168,7 @@ IWbemLevel1Login_dissect_element_RequestChallenge_orpcthat_(tvbuff_t *tvb _U_, i
 }
 /* WBEMLogin */
 static int
-IWbemLevel1Login_dissect_element_WBEMLogin_orpcthis(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_WBEMLogin_orpcthis(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	proto_item *sub_item;
 	proto_tree *sub_tree;
@@ -178,7 +178,7 @@ IWbemLevel1Login_dissect_element_WBEMLogin_orpcthis(tvbuff_t *tvb _U_, int offse
 	return offset;
 }
 static int
-IWbemLevel1Login_dissect_element_WBEMLogin_orpcthat_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_WBEMLogin_orpcthat_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	proto_item *sub_item;
 	proto_tree *sub_tree;
@@ -189,7 +189,7 @@ IWbemLevel1Login_dissect_element_WBEMLogin_orpcthat_(tvbuff_t *tvb _U_, int offs
 }
 /* NTLMLogin */
 static int
-IWbemLevel1Login_dissect_element_NTLMLogin_orpcthis(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_NTLMLogin_orpcthis(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	proto_item *sub_item;
 	proto_tree *sub_tree;
@@ -199,7 +199,7 @@ IWbemLevel1Login_dissect_element_NTLMLogin_orpcthis(tvbuff_t *tvb _U_, int offse
 	return offset;
 }
 static int
-IWbemLevel1Login_dissect_element_NTLMLogin_orpcthat_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_NTLMLogin_orpcthat_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	proto_item *sub_item;
 	proto_tree *sub_tree;
@@ -209,16 +209,16 @@ IWbemLevel1Login_dissect_element_NTLMLogin_orpcthat_(tvbuff_t *tvb _U_, int offs
 	return offset;
 }
 static int
-IWbemLevel1Login_dissect_element_IWbemServices_services_(tvbuff_t *tvb, int offset, int length _U_, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_IWbemServices_services_(tvbuff_t *tvb, int offset, int length _U_, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep _U_)
 ;
 static int
-IWbemLevel1Login_dissect_element_IWbemServices_services(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_IWbemServices_services(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = dissect_ndr_ucarray_block(tvb, offset, pinfo, tree, di, drep, &IWbemLevel1Login_dissect_element_IWbemServices_services_);
 	return offset;
 }
 static int
-IWbemLevel1Login_dissect_element_IWbemServices_services_(tvbuff_t *tvb, int offset, int length _U_, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep _U_)
+IWbemLevel1Login_dissect_element_IWbemServices_services_(tvbuff_t *tvb, int offset, int length _U_, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep _U_)
 {
 	proto_item *sub_item;
 	proto_tree *sub_tree;

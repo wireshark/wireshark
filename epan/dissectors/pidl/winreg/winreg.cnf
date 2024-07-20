@@ -136,7 +136,7 @@ MANUAL winreg_dissect_bitmap_AccessMask
 CODE START
  #include "packet-dcerpc-lsa.h"
 static void
-winreg_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
+winreg_specific_rights(tvbuff_t *tvb, int offset, proto_tree *tree, uint32_t access)
 {
 	static int* const access_flags[] = {
 		&hf_winreg_winreg_AccessMask_KEY_WOW64_32KEY,
@@ -161,9 +161,9 @@ static struct access_mask_info winreg_access_mask_info = {
 };
 
 static int
-winreg_dissect_element_KeySecurityData_data_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+winreg_dissect_element_KeySecurityData_data_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep)
 {
-	guint32 len;
+	uint32_t len;
 
 	if(di->conformant_run){
 		/*just a run to handle conformant arrays, nothing to dissect */
@@ -175,7 +175,7 @@ winreg_dissect_element_KeySecurityData_data_(tvbuff_t *tvb, int offset, packet_i
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep, hf_winreg_sd_offset, NULL);
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep, hf_winreg_sd_actual_size, &len);
 
-	dissect_nt_sec_desc(tvb, offset, pinfo, tree, drep, TRUE, len,
+	dissect_nt_sec_desc(tvb, offset, pinfo, tree, drep, true, len,
 		&winreg_access_mask_info);
 
 	offset += len;
@@ -184,7 +184,7 @@ winreg_dissect_element_KeySecurityData_data_(tvbuff_t *tvb, int offset, packet_i
 }
 
 int
-winreg_dissect_bitmap_AccessMask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index _U_, guint32 param _U_)
+winreg_dissect_bitmap_AccessMask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep, int hf_index _U_, uint32_t param _U_)
 {
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, di, drep, hf_winreg_access_mask,
@@ -200,7 +200,7 @@ winreg_dissect_bitmap_AccessMask(tvbuff_t *tvb, int offset, packet_info *pinfo, 
  *	} winreg_String;
  */
 static int
-cnf_dissect_winreg_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, guint32 param, int hfindex)
+cnf_dissect_winreg_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, uint8_t *drep, uint32_t param, int hfindex)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;

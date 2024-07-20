@@ -19,15 +19,15 @@ CODE START
 	https://github.com/fortra/impacket/blob/4888172ce638910104da4bda2c3301c24e17564c/impacket/dcerpc/v5/scmr.py#L1274
 */
 static int
-svcctl_dissect_struct_ENUM_SERVICE_STATUSW_ptr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, gint starting_offset);
+svcctl_dissect_struct_ENUM_SERVICE_STATUSW_ptr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, uint8_t *drep, int hf_index, int starting_offset);
 static int
-svcctl_dissect_struct_ENUM_SERVICE_STATUSW_ptr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, gint starting_offset)
+svcctl_dissect_struct_ENUM_SERVICE_STATUSW_ptr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, uint8_t *drep, int hf_index, int starting_offset)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	proto_tree *tr = NULL;
 	int old_offset;
-	guint32 _referent_id = 0;
+	uint32_t _referent_id = 0;
 
 	ALIGN_TO_5_BYTES;
 
@@ -64,15 +64,15 @@ svcctl_dissect_struct_ENUM_SERVICE_STATUSW_ptr(tvbuff_t *tvb, int offset, packet
 	https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-scmr/22b4ff3d-29c6-481f-b598-8ce66a46944a
 */
 static int
-svcctl_dissect_EnumServicesStatusW_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+svcctl_dissect_EnumServicesStatusW_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep)
 {
-	guint32 status;
-	guint32 services_returned= 0;
+	uint32_t status;
+	uint32_t services_returned= 0;
 	proto_item *item;
 	proto_tree  *tr           = NULL;
-	gint        services_buffer_offset;
-	gint        payload_starting_offset = offset;
-	guint64 buffer_size = 0;
+	int         services_buffer_offset;
+	int         payload_starting_offset = offset;
+	uint64_t buffer_size = 0;
 
 	ALIGN_TO_5_BYTES
 

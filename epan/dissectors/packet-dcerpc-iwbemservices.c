@@ -98,13 +98,13 @@ static int IWbemServices_dissect_element_ExecMethod_orpcthat(tvbuff_t *tvb _U_, 
 static int IWbemServices_dissect_element_ExecMethod_orpcthat_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 	#include "packet-dcom.h"
 static int
-IWbemServices_dissect_element_IWbemClassObject_objects_(tvbuff_t *tvb, int offset, int length, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep);
+IWbemServices_dissect_element_IWbemClassObject_objects_(tvbuff_t *tvb, int offset, int length, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep);
 static int
-IWbemServices_dissect_element_GetObject_strObjectPath_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+IWbemServices_dissect_element_GetObject_strObjectPath_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep);
 extern void register_dcom_wmio (void);
 /* GetObject */
 static int
-IWbemServices_dissect_element_GetObject_orpcthis(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+IWbemServices_dissect_element_GetObject_orpcthis(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep)
 {
 	proto_item *sub_item;
 	proto_tree *sub_tree;
@@ -113,7 +113,7 @@ IWbemServices_dissect_element_GetObject_orpcthis(tvbuff_t *tvb, int offset, pack
 	return dissect_dcom_this(tvb, offset, pinfo, sub_tree, di, drep);
 }
 static int
-IWbemServices_dissect_element_GetObject_orpcthat_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+IWbemServices_dissect_element_GetObject_orpcthat_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep)
 {
 	proto_item *sub_item;
 	proto_tree *sub_tree;
@@ -124,7 +124,7 @@ IWbemServices_dissect_element_GetObject_orpcthat_(tvbuff_t *tvb, int offset, pac
 }
 /* ExecMethod */
 static int
-IWbemServices_dissect_element_ExecMethod_orpcthis(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+IWbemServices_dissect_element_ExecMethod_orpcthis(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep)
 {
 	proto_item *sub_item;
 	proto_tree *sub_tree;
@@ -133,7 +133,7 @@ IWbemServices_dissect_element_ExecMethod_orpcthis(tvbuff_t *tvb, int offset, pac
 	return dissect_dcom_this(tvb, offset, pinfo, sub_tree, di, drep);
 }
 static int
-IWbemServices_dissect_element_ExecMethod_orpcthat_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+IWbemServices_dissect_element_ExecMethod_orpcthat_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep)
 {
 	proto_item *sub_item;
 	proto_tree *sub_tree;
@@ -143,21 +143,21 @@ IWbemServices_dissect_element_ExecMethod_orpcthat_(tvbuff_t *tvb, int offset, pa
 	return dissect_dcom_that(tvb, offset, pinfo, sub_tree, di, drep);
 }
 static int
-IWbemServices_dissect_element_IWbemClassObject_objects(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+IWbemServices_dissect_element_IWbemClassObject_objects(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep)
 {
 	return dissect_ndr_ucarray_block(tvb, offset, pinfo, tree, di, drep, &IWbemServices_dissect_element_IWbemClassObject_objects_);
 }
 static int
-IWbemServices_dissect_element_IWbemClassObject_objects_(tvbuff_t *tvb, int offset, int length, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+IWbemServices_dissect_element_IWbemClassObject_objects_(tvbuff_t *tvb, int offset, int length, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	dissect_dcom_OBJREF(tvb, offset, pinfo, tree, di, drep, hf_IWbemServices_IWbemClassObject_objects, NULL);
 	return offset + length;
 }
 static int
-IWbemServices_dissect_element_GetObject_strObjectPath_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+IWbemServices_dissect_element_GetObject_strObjectPath_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep)
 {
 	char *data = NULL;
-	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_IWbemServices_GetObject_strObjectPath, FALSE, &data);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_IWbemServices_GetObject_strObjectPath, false, &data);
 	if (data){
 		proto_item_append_text(tree, ": %s", data);
 		col_append_fstr(pinfo->cinfo, COL_INFO, " Object=%s", data);
