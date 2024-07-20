@@ -30,7 +30,7 @@ static int hf_ypbind_addr;
 static int hf_ypbind_port;
 static int hf_ypbind_setdom_version;
 
-static gint ett_ypbind;
+static int ett_ypbind;
 
 
 static int
@@ -63,7 +63,7 @@ static const value_string error_vals[] = {
 static int
 dissect_ypbind_domain_v2_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	guint32 type;
+	uint32_t type;
 	int offset = 0;
 
 	/* response type */
@@ -195,7 +195,7 @@ proto_register_ypbind(void)
 
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_ypbind,
 	};
 

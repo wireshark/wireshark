@@ -19,8 +19,8 @@
 
 void proto_reg_handoff_zbncp(void);
 void proto_register_zbncp(void);
-extern void dissect_zbee_nwk_status_code(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
-extern void dissect_zbee_aps_status_code(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
+extern void dissect_zbee_nwk_status_code(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset);
+extern void dissect_zbee_aps_status_code(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset);
 
 #define ZBNCP_PROTOABBREV "zbncp"
 
@@ -54,14 +54,14 @@ extern void dissect_zbee_aps_status_code(tvbuff_t *tvb, packet_info *pinfo, prot
 
 
 /* decryption helpers */
-static guint dissect_zbncp_ll_hdr(tvbuff_t *, packet_info *, proto_tree *, guint, guint8 *);
-static void dissect_zbncp_body(tvbuff_t *, packet_info *, proto_tree *, guint, guint16 *);
-static void dissect_zbncp_high_level(tvbuff_t *, packet_info *, proto_tree *, guint, guint16 *);
-static guint dissect_zbncp_high_level_hdr(tvbuff_t *, packet_info *, proto_tree *, guint, guint8 *, guint16 *);
-static void dissect_zbncp_high_level_body(tvbuff_t *, packet_info *, proto_tree *, guint, guint8, guint16);
-static void dissect_zbncp_fragmentation_body(tvbuff_t *, packet_info *, proto_tree *, guint);
-static guint dissect_zbncp_packet(tvbuff_t *, packet_info *, proto_tree *, guint);
-static guint dissect_zbncp_status(tvbuff_t *, packet_info *, proto_tree *, guint);
+static unsigned dissect_zbncp_ll_hdr(tvbuff_t *, packet_info *, proto_tree *, unsigned, uint8_t *);
+static void dissect_zbncp_body(tvbuff_t *, packet_info *, proto_tree *, unsigned, uint16_t *);
+static void dissect_zbncp_high_level(tvbuff_t *, packet_info *, proto_tree *, unsigned, uint16_t *);
+static unsigned dissect_zbncp_high_level_hdr(tvbuff_t *, packet_info *, proto_tree *, unsigned, uint8_t *, uint16_t *);
+static void dissect_zbncp_high_level_body(tvbuff_t *, packet_info *, proto_tree *, unsigned, uint8_t, uint16_t);
+static void dissect_zbncp_fragmentation_body(tvbuff_t *, packet_info *, proto_tree *, unsigned);
+static unsigned dissect_zbncp_packet(tvbuff_t *, packet_info *, proto_tree *, unsigned);
+static unsigned dissect_zbncp_status(tvbuff_t *, packet_info *, proto_tree *, unsigned);
 
 static tvbuff_t *dissect_zbncp_dump_info(tvbuff_t *, packet_info *, proto_tree *);
 
@@ -448,38 +448,38 @@ static int hf_zbncp_dump_options_int_state;
 static int hf_zbncp_dump_options_tx_conflict;
 
 /* Initialize subtree pointers */
-static gint ett_zbncp_hdr;
-static gint ett_zbncp_hdr_flags;
-static gint ett_zbncp_ll_body;
-static gint ett_zbncp_hl_hdr;
-static gint ett_zbncp_hl_body;
-static gint ett_zbncp_data_in_cl_list;
-static gint ett_zbncp_data_out_cl_list;
-static gint ett_zbncp_data_mac_cap;
-static gint ett_zbncp_data_pwr_src;
-static gint ett_zbncp_data_cur_pwr_src;
-static gint ett_zbncp_data_asoc_nwk_list;
-static gint ett_zbncp_data_pwr_desc;
-static gint ett_zbncp_data_desc_cap;
-static gint ett_zbncp_data_flags;
-static gint ett_zbncp_data_server_mask;
-static gint ett_zbncp_data_ep_list;
-static gint ett_zbncp_data_leave_flags;
-static gint ett_zbncp_data_tx_opt;
-static gint ett_zbncp_data_zdo_rejoin_flags;
-static gint ett_zbncp_data_apc_fc;
-static gint ett_zbncp_data_prod_conf_hdr;
-static gint ett_zbncp_data_aps_key_attr;
-static gint ett_zbncp_data_ch_list;
-static gint ett_zbncp_data_channel;
-static gint ett_zbncp_data_nwk_descr;
-static gint ett_zbncp_data_cmd_opt;
-static gint ett_zbncp_data_joind_bitmask;
-static gint ett_zbncp_data_trace_bitmask;
-static gint ett_zbncp_data_conf_params;
+static int ett_zbncp_hdr;
+static int ett_zbncp_hdr_flags;
+static int ett_zbncp_ll_body;
+static int ett_zbncp_hl_hdr;
+static int ett_zbncp_hl_body;
+static int ett_zbncp_data_in_cl_list;
+static int ett_zbncp_data_out_cl_list;
+static int ett_zbncp_data_mac_cap;
+static int ett_zbncp_data_pwr_src;
+static int ett_zbncp_data_cur_pwr_src;
+static int ett_zbncp_data_asoc_nwk_list;
+static int ett_zbncp_data_pwr_desc;
+static int ett_zbncp_data_desc_cap;
+static int ett_zbncp_data_flags;
+static int ett_zbncp_data_server_mask;
+static int ett_zbncp_data_ep_list;
+static int ett_zbncp_data_leave_flags;
+static int ett_zbncp_data_tx_opt;
+static int ett_zbncp_data_zdo_rejoin_flags;
+static int ett_zbncp_data_apc_fc;
+static int ett_zbncp_data_prod_conf_hdr;
+static int ett_zbncp_data_aps_key_attr;
+static int ett_zbncp_data_ch_list;
+static int ett_zbncp_data_channel;
+static int ett_zbncp_data_nwk_descr;
+static int ett_zbncp_data_cmd_opt;
+static int ett_zbncp_data_joind_bitmask;
+static int ett_zbncp_data_trace_bitmask;
+static int ett_zbncp_data_conf_params;
 
-static gint ett_zbncp_dump;
-static gint ett_zbncp_dump_opt;
+static int ett_zbncp_dump;
+static int ett_zbncp_dump_opt;
 
 static dissector_handle_t zbncp_handle;
 
@@ -1170,17 +1170,17 @@ static const true_false_string tfs_cinfo_device_type = {"FFD", "RFD"};
 static const true_false_string tfs_cinfo_power_src = {"AC/Mains Power", "Battery"};
 
 /* Returns changed offset */
-static guint
-dissect_zbncp_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+static unsigned
+dissect_zbncp_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
 {
-    guint status_category = tvb_get_guint8(tvb, offset);
-    guint status;
+    unsigned status_category = tvb_get_uint8(tvb, offset);
+    unsigned status;
 
     proto_tree_add_item(tree, hf_zbncp_data_hl_status_cat, tvb, offset, 1, ENC_NA);
     offset += 1;
 
     /* Add status */
-    status = tvb_get_guint8(tvb, offset);
+    status = tvb_get_uint8(tvb, offset);
     switch (status_category)
     {
     case ZBNCP_HIGH_LVL_STAT_CAT_GENERIC:
@@ -1220,8 +1220,8 @@ static tvbuff_t *
 dissect_zbncp_dump_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *zbncp_dump_info_tree;
-    guint idx, offset;
-    guint8 options;
+    unsigned idx, offset;
+    uint8_t options;
 
     static int *const options_field[] = {
         &hf_zbncp_dump_options_dir,
@@ -1232,14 +1232,14 @@ dissect_zbncp_dump_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* check is it ZBNCP dump sign or not */
     for (idx = 0; idx < ZBNCP_DUMP_INFO_SIGN_SIZE; idx++)
     {
-        if (tvb_get_guint8(tvb, idx) != ZBNCP_DUMP_INFO_SIGN[idx])
+        if (tvb_get_uint8(tvb, idx) != ZBNCP_DUMP_INFO_SIGN[idx])
         {
             return tvb;
         }
     }
 
     /* Check type */
-    if (tvb_get_guint8(tvb, ZBNCP_DUMP_INFO_SIGN_SIZE + 1) != ZBNCP_DUMP_INFO_NCP_TYPE)
+    if (tvb_get_uint8(tvb, ZBNCP_DUMP_INFO_SIGN_SIZE + 1) != ZBNCP_DUMP_INFO_NCP_TYPE)
     {
         return tvb;
     }
@@ -1256,7 +1256,7 @@ dissect_zbncp_dump_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += 1;
 
     /* options subtree */
-    options = tvb_get_guint8(tvb, offset);
+    options = tvb_get_uint8(tvb, offset);
     proto_tree_add_bitmask(zbncp_dump_info_tree, tvb, offset, hf_zbncp_dump_options, ett_zbncp_dump_opt, options_field, ENC_NA);
     offset += 1;
 
@@ -1279,8 +1279,8 @@ dissect_zbncp_dump_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     return tvb_new_subset_remaining(tvb, offset);
 }
 
-static guint
-dissect_zbncp_high_level_hdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, guint8 *ptype, guint16 *call_id)
+static unsigned
+dissect_zbncp_high_level_hdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, uint8_t *ptype, uint16_t *call_id)
 {
     proto_tree *zbncp_comm_hdr_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4, ett_zbncp_hl_hdr, NULL, "High Level Header");
 
@@ -1289,11 +1289,11 @@ dissect_zbncp_high_level_hdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     proto_tree_add_item(zbncp_comm_hdr_tree, hf_zbncp_data_hl_version, tvb, offset, 1, ENC_NA);
     offset += 1;
 
-    *ptype = tvb_get_guint8(tvb, offset);
+    *ptype = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(zbncp_comm_hdr_tree, hf_zbncp_data_hl_packet_type, tvb, offset, 1, ENC_NA);
     offset += 1;
 
-    *call_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+    *call_id = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(zbncp_comm_hdr_tree, hf_zbncp_data_hl_call_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
@@ -1320,9 +1320,9 @@ dissect_zbncp_high_level_hdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 }
 
 static void
-dissect_zbncp_high_level(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, guint16 *cmd_id)
+dissect_zbncp_high_level(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, uint16_t *cmd_id)
 {
-    guint8 packet_type;
+    uint8_t packet_type;
 
     offset = dissect_zbncp_high_level_hdr(tvb, pinfo, tree, offset, &packet_type, cmd_id);
 
@@ -1330,9 +1330,9 @@ dissect_zbncp_high_level(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 }
 
 static void
-dissect_zbncp_dst_addrs(proto_tree *zbncp_hl_body_tree, tvbuff_t *tvb, guint dst_addr_mode_offset, guint *offset)
+dissect_zbncp_dst_addrs(proto_tree *zbncp_hl_body_tree, tvbuff_t *tvb, unsigned dst_addr_mode_offset, unsigned *offset)
 {
-    guint8 dst_addr_mode = tvb_get_guint8(tvb, dst_addr_mode_offset);
+    uint8_t dst_addr_mode = tvb_get_uint8(tvb, dst_addr_mode_offset);
 
     if (dst_addr_mode == ZB_APSDE_DST_ADDR_MODE_DST_ADDR_ENDP_NOT_PRESENT || dst_addr_mode == ZB_APSDE_DST_ADDR_MODE_64_ENDP_PRESENT || dst_addr_mode == ZB_APSDE_DST_ADDR_MODE_BIND_TBL_ID)
     {
@@ -1347,7 +1347,7 @@ dissect_zbncp_dst_addrs(proto_tree *zbncp_hl_body_tree, tvbuff_t *tvb, guint dst
 }
 
 static void
-dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, guint8 ptype _U_, guint16 cmd_id)
+dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, uint8_t ptype _U_, uint16_t cmd_id)
 {
     proto_tree *zbncp_hl_body_tree;
 
@@ -1402,8 +1402,8 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     case ZBNCP_CMD_GET_ZIGBEE_CHANNEL_MASK:
         if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_RESPONSE)
         {
-            guint i;
-            guint8 ch_list_len = tvb_get_guint8(tvb, offset);
+            unsigned i;
+            uint8_t ch_list_len = tvb_get_uint8(tvb, offset);
 
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_ch_list_len, tvb, offset, 1, ENC_NA);
             offset += 1;
@@ -1638,7 +1638,7 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     case ZBNCP_CMD_GET_VENDOR_DATA:
         if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_RESPONSE)
         {
-            guint8 size = tvb_get_guint8(tvb, offset);
+            uint8_t size = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_size, tvb, offset, 1, ENC_NA);
             offset += 1;
 
@@ -1686,9 +1686,9 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     case ZBNCP_CMD_BIG_PKT_TO_NCP:
         if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_REQUEST)
         {
-            guint16 pkt_len;
+            uint16_t pkt_len;
 
-            pkt_len = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+            pkt_len = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_pkt_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
 
@@ -1739,9 +1739,9 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     case ZBNCP_CMD_DEBUG_WRITE:
         if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_REQUEST)
         {
-            gint dump_len;
+            int dump_len;
 
-            guint8 dump_type = tvb_get_guint8(tvb, offset);
+            uint8_t dump_type = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_dump_type, tvb, offset, 1, ENC_NA);
             offset += 1;
 
@@ -1767,9 +1767,9 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
         }
         else if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_RESPONSE)
         {
-            guint8 param_id;
+            uint8_t param_id;
 
-            param_id = tvb_get_guint8(tvb, offset);
+            param_id = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_parameter_id, tvb, offset, 1, ENC_NA);
             offset += 1;
 
@@ -1891,10 +1891,10 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     case ZBNCP_CMD_NVRAM_WRITE:
         if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_REQUEST)
         {
-            guint dataset_count, idx;
-            guint16 dataset_len;
+            unsigned dataset_count, idx;
+            uint16_t dataset_len;
 
-            dataset_count = tvb_get_guint8(tvb, offset);
+            dataset_count = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_nvram_dataset_quantity, tvb, offset, 1, ENC_NA);
             offset += 1;
 
@@ -1907,7 +1907,7 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
                 proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_dataset_version, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset += 2;
 
-                dataset_len = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+                dataset_len = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
                 proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_dataset_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset += 2;
 
@@ -1925,7 +1925,7 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
         }
         else if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_RESPONSE)
         {
-            guint16 dataset_len;
+            uint16_t dataset_len;
 
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_nvram_version, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
@@ -1936,7 +1936,7 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_dataset_version, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
 
-            dataset_len = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+            dataset_len = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_dataset_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
 
@@ -2126,9 +2126,9 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     case ZBNCP_CMD_AF_SET_SIMPLE_DESC:
         if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_REQUEST)
         {
-            guint i;
-            guint8 in_cl_cnt;
-            guint8 out_cl_cnt;
+            unsigned i;
+            uint8_t in_cl_cnt;
+            uint8_t out_cl_cnt;
 
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_endpoint, tvb, offset, 1, ENC_NA);
             offset += 1;
@@ -2142,11 +2142,11 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_dev_version, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            in_cl_cnt = tvb_get_guint8(tvb, offset);
+            in_cl_cnt = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_in_cl_cnt, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            out_cl_cnt = tvb_get_guint8(tvb, offset);
+            out_cl_cnt = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_out_cl_cnt, tvb, offset, 1, ENC_NA);
             offset += 1;
 
@@ -2271,14 +2271,14 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 
             if (offset < tvb_reported_length(tvb))
             {
-                guint8 num_assoc_dev = tvb_get_guint8(tvb, offset);
+                uint8_t num_assoc_dev = tvb_get_uint8(tvb, offset);
 
                 proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_num_asoc_dec, tvb, offset, 1, ENC_NA);
                 offset += 1;
 
                 if (num_assoc_dev)
                 {
-                    guint i;
+                    unsigned i;
                     proto_tree *zbncp_hl_body_asoc_nwk_list;
 
                     proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_start_idx, tvb, offset, 1, ENC_NA);
@@ -2325,14 +2325,14 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 
             if (offset < tvb_reported_length(tvb))
             {
-                guint8 num_assoc_dev = tvb_get_guint8(tvb, offset);
+                uint8_t num_assoc_dev = tvb_get_uint8(tvb, offset);
 
                 proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_num_asoc_dec, tvb, offset, 1, ENC_NA);
                 offset += 1;
 
                 if (num_assoc_dev)
                 {
-                    guint i;
+                    unsigned i;
                     proto_tree *zbncp_hl_body_asoc_nwk_list;
 
                     proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_start_idx, tvb, offset, 1, ENC_NA);
@@ -2457,9 +2457,9 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
         }
         else if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_RESPONSE)
         {
-            guint i;
-            guint8 in_cl_cnt;
-            guint8 out_cl_cnt;
+            unsigned i;
+            uint8_t in_cl_cnt;
+            uint8_t out_cl_cnt;
 
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_endpoint, tvb, offset, 1, ENC_NA);
             offset += 1;
@@ -2473,11 +2473,11 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_dev_version, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            in_cl_cnt = tvb_get_guint8(tvb, offset);
+            in_cl_cnt = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_in_cl_cnt, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            out_cl_cnt = tvb_get_guint8(tvb, offset);
+            out_cl_cnt = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_out_cl_cnt, tvb, offset, 1, ENC_NA);
             offset += 1;
 
@@ -2516,8 +2516,8 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
         }
         else if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_RESPONSE)
         {
-            guint i;
-            guint8 ep_cnt = tvb_get_guint8(tvb, offset);
+            unsigned i;
+            uint8_t ep_cnt = tvb_get_uint8(tvb, offset);
 
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_ep_cnt, tvb, offset, 1, ENC_NA);
             offset += 1;
@@ -2541,9 +2541,9 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     case ZBNCP_CMD_ZDO_MATCH_DESC_REQ:
         if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_REQUEST)
         {
-            guint i;
-            guint8 in_cl_cnt;
-            guint8 out_cl_cnt;
+            unsigned i;
+            uint8_t in_cl_cnt;
+            uint8_t out_cl_cnt;
 
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_nwk_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
@@ -2551,11 +2551,11 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_profile_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
 
-            in_cl_cnt = tvb_get_guint8(tvb, offset);
+            in_cl_cnt = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_in_cl_cnt, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            out_cl_cnt = tvb_get_guint8(tvb, offset);
+            out_cl_cnt = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_out_cl_cnt, tvb, offset, 1, ENC_NA);
             offset += 1;
 
@@ -2583,8 +2583,8 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
         }
         else if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_RESPONSE)
         {
-            guint i;
-            guint8 ep_cnt = tvb_get_guint8(tvb, offset);
+            unsigned i;
+            uint8_t ep_cnt = tvb_get_uint8(tvb, offset);
 
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_ep_cnt, tvb, offset, 1, ENC_NA);
             offset += 1;
@@ -2714,13 +2714,13 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     case ZBNCP_CMD_ZDO_REJOIN:
         if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_REQUEST)
         {
-            guint i;
-            guint8 ch_list_len;
+            unsigned i;
+            uint8_t ch_list_len;
 
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_ext_pan_id, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             offset += 8;
 
-            ch_list_len = tvb_get_guint8(tvb, offset);
+            ch_list_len = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_ch_list_len, tvb, offset, 1, ENC_NA);
             offset += 1;
 
@@ -2797,7 +2797,7 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     case ZBNCP_CMD_ZDO_REMOTE_CMD_IND:
         if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_INDICATION)
         {
-            guint16 data_len;
+            uint16_t data_len;
             static int *const aps_fc[] = {
                 &hf_zbncp_data_aps_fc_deliv_mode,
                 &hf_zbncp_data_aps_fc_secur,
@@ -2812,7 +2812,7 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_param_len, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            data_len = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+            data_len = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_dlen16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
 
@@ -2989,14 +2989,14 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     case ZBNCP_CMD_ZDO_DEV_AUTHORIZED_IND:
         if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_INDICATION)
         {
-            guint8 auth_type;
+            uint8_t auth_type;
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_ieee_addr, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             offset += 8;
 
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_nwk_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
 
-            auth_type = tvb_get_guint8(tvb, offset);
+            auth_type = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_zdo_auth_type, tvb, offset, 1, ENC_NA);
             offset += 1;
 
@@ -3095,10 +3095,10 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     case ZBNCP_CMD_HL_ZDO_MGMT_BEACON_SURVEY_REQ:
         if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_REQUEST)
         {
-            guint i;
-            guint8 ch_list_len;
+            unsigned i;
+            uint8_t ch_list_len;
 
-            ch_list_len = tvb_get_guint8(tvb, offset);
+            ch_list_len = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_channel_page_count, tvb, offset, 1, ENC_NA);
             offset += 1;
 
@@ -3120,8 +3120,8 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
         }
         else if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_RESPONSE)
         {
-            guint i;
-            guint8 parent_list_len;
+            unsigned i;
+            uint8_t parent_list_len;
 
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_hl_status, tvb, offset, 1, ENC_NA);
             offset += 1;
@@ -3130,7 +3130,7 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_current_parents_lqi, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            parent_list_len = tvb_get_guint8(tvb, offset);
+            parent_list_len = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_potential_parent_count, tvb, offset, 1, ENC_NA);
             offset += 1;
 
@@ -3170,13 +3170,13 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     case ZBNCP_CMD_HL_ZDO_DECOMMISSION_REQ:
         if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_REQUEST)
         {
-            guint i;
-            guint8 eui64_list_len;
+            unsigned i;
+            uint8_t eui64_list_len;
 
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_dest_short_address, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
 
-            eui64_list_len = tvb_get_guint8(tvb, offset);
+            eui64_list_len = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_eui64_count, tvb, offset, 1, ENC_NA);
             offset += 1;
 
@@ -3216,7 +3216,7 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     case ZBNCP_CMD_APSDE_DATA_REQ:
         if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_REQUEST)
         {
-            guint16 data_len;
+            uint16_t data_len;
             static int *const tx_options[] = {
                 &hf_zbncp_data_tx_opt_secur,
                 &hf_zbncp_data_tx_opt_obsolete,
@@ -3230,7 +3230,7 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_param_len, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            data_len = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+            data_len = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_dlen16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
 
@@ -3315,7 +3315,7 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 
         if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_REQUEST || ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_RESPONSE)
         {
-            guint16 data_len;
+            uint16_t data_len;
             /* Binding table ID - it's an additional field for SNCP only */
             data_len = tvb_reported_length(tvb) - offset;
             if (data_len == 1)
@@ -3349,7 +3349,7 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 
         if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_REQUEST || ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_RESPONSE)
         {
-            guint16 data_len;
+            uint16_t data_len;
             /* Binding table ID - it's an additional field for SNCP only */
             data_len = tvb_reported_length(tvb) - offset;
             if (data_len == 1)
@@ -3385,7 +3385,7 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     case ZBNCP_CMD_APSDE_DATA_IND:
         if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_INDICATION)
         {
-            guint16 data_len;
+            uint16_t data_len;
             static int *const aps_fc[] = {
                 &hf_zbncp_data_aps_fc_deliv_mode,
                 &hf_zbncp_data_aps_fc_secur,
@@ -3400,7 +3400,7 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_param_len, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            data_len = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+            data_len = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_dlen16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
 
@@ -3467,8 +3467,8 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     case ZBNCP_CMD_APS_GET_GROUP_TABLE:
         if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_RESPONSE)
         {
-            guint8 group_num;
-            group_num = tvb_get_gint8(tvb, offset);
+            uint8_t group_num;
+            group_num = tvb_get_int8(tvb, offset);
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_aps_group_num, tvb, offset++, 1, ENC_NA);
 
             if (group_num)
@@ -3585,8 +3585,8 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     case ZBNCP_CMD_NWK_FORMATION:
         if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_REQUEST)
         {
-            guint i;
-            guint8 ch_list_len = tvb_get_guint8(tvb, offset);
+            unsigned i;
+            uint8_t ch_list_len = tvb_get_uint8(tvb, offset);
 
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_ch_list_len, tvb, offset, 1, ENC_NA);
             offset += 1;
@@ -3625,8 +3625,8 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     case ZBNCP_CMD_NWK_DISCOVERY:
         if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_REQUEST)
         {
-            guint i;
-            guint8 ch_list_len = tvb_get_guint8(tvb, offset);
+            unsigned i;
+            uint8_t ch_list_len = tvb_get_uint8(tvb, offset);
 
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_ch_list_len, tvb, offset, 1, ENC_NA);
             offset += 1;
@@ -3653,8 +3653,8 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
         }
         else if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_RESPONSE)
         {
-            guint i;
-            guint8 nwk_count = tvb_get_guint8(tvb, offset);
+            unsigned i;
+            uint8_t nwk_count = tvb_get_uint8(tvb, offset);
             static int *flags[] = {
                 &hf_zbncp_data_flags_permit_join,
                 &hf_zbncp_data_flags_router_cap,
@@ -3700,8 +3700,8 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     case ZBNCP_CMD_NWK_NLME_JOIN:
         if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_REQUEST)
         {
-            guint i;
-            guint8 ch_list_len;
+            unsigned i;
+            uint8_t ch_list_len;
             static int *const mac_capability[] = {
                 &hf_ieee802154_cinfo_alt_coord,
                 &hf_ieee802154_cinfo_device_type,
@@ -3717,7 +3717,7 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_rejoin_nwk, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            ch_list_len = tvb_get_guint8(tvb, offset);
+            ch_list_len = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_ch_list_len, tvb, offset, 1, ENC_NA);
             offset += 1;
 
@@ -3881,14 +3881,14 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     case ZBNCP_CMD_NWK_REJOIN_FAILED_IND:
         if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_INDICATION)
         {
-            guint status_category = tvb_get_guint8(tvb, offset);
-            guint status;
+            unsigned status_category = tvb_get_uint8(tvb, offset);
+            unsigned status;
 
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_hl_status_cat, tvb, offset, 1, ENC_NA);
             offset += 1;
 
             /* Add status */
-            status = tvb_get_guint8(tvb, offset);
+            status = tvb_get_uint8(tvb, offset);
             switch (status_category)
             {
             case ZBNCP_HIGH_LVL_STAT_CAT_GENERIC:
@@ -4087,8 +4087,8 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     case ZBNCP_CMD_NWK_PAN_ID_CONFLICT_RESOLVE:
         if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_REQUEST)
         {
-            guint i;
-            guint16 pan_id_cnt = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+            unsigned i;
+            uint16_t pan_id_cnt = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
 
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_pan_id_cnt, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
@@ -4104,8 +4104,8 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     case ZBNCP_CMD_NWK_PAN_ID_CONFLICT_IND:
         if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_INDICATION)
         {
-            guint i;
-            guint16 pan_id_cnt = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+            unsigned i;
+            uint16_t pan_id_cnt = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
 
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_pan_id_cnt, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
@@ -4381,7 +4381,7 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     case ZBNCP_CMD_SECUR_ADD_CERT:
         if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_REQUEST)
         {
-            guint8 crypto_suite = tvb_get_guint8(tvb, offset);
+            uint8_t crypto_suite = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_cs, tvb, offset, 1, ENC_NA);
             offset += 1;
 
@@ -4435,14 +4435,14 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
         }
         else if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_RESPONSE)
         {
-            guint status_category = tvb_get_guint8(tvb, offset);
-            guint status;
+            unsigned status_category = tvb_get_uint8(tvb, offset);
+            unsigned status;
 
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_hl_status_cat, tvb, offset, 1, ENC_NA);
             offset += 1;
 
             /* Add status */
-            status = tvb_get_guint8(tvb, offset);
+            status = tvb_get_uint8(tvb, offset);
             switch (status_category)
             {
             case ZBNCP_HIGH_LVL_STAT_CAT_GENERIC:
@@ -4488,14 +4488,14 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     case ZBNCP_CMD_SECUR_CBKE_SRV_FINISHED_IND:
         if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_INDICATION)
         {
-            guint status_category = tvb_get_guint8(tvb, offset);
-            guint status;
+            unsigned status_category = tvb_get_uint8(tvb, offset);
+            unsigned status;
 
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_hl_status_cat, tvb, offset, 1, ENC_NA);
             offset += 1;
 
             /* Add status */
-            status = tvb_get_guint8(tvb, offset);
+            status = tvb_get_uint8(tvb, offset);
             switch (status_category)
             {
             case ZBNCP_HIGH_LVL_STAT_CAT_GENERIC:
@@ -4596,7 +4596,7 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
         }
         else if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_RESPONSE)
         {
-            guint8 crypto_suite = tvb_get_guint8(tvb, offset);
+            uint8_t crypto_suite = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_cs, tvb, offset, 1, ENC_NA);
             offset += 1;
 
@@ -4845,7 +4845,7 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     case ZBNCP_CMD_NCP_HL_MANUF_SEND_SINGLE_PACKET:
         if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_REQUEST)
         {
-            guint8 data_len = tvb_get_guint8(tvb, offset);
+            uint8_t data_len = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_dlen8, tvb, offset, 1, ENC_NA);
             offset += 1;
 
@@ -4870,7 +4870,7 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     case ZBNCP_CMD_MANUF_RX_PACKET_IND:
         if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_INDICATION)
         {
-            guint16 data_len = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+            uint16_t data_len = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_dlen16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
 
@@ -4902,7 +4902,7 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     case ZBNCP_CMD_OTA_SEND_PORTION_FW:
         if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_REQUEST)
         {
-            guint16 data_len = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+            uint16_t data_len = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_dlen16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
 
@@ -4927,9 +4927,9 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
         }
         else if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_RESPONSE)
         {
-            guint8 data_len;
+            uint8_t data_len;
 
-            data_len = tvb_get_guint8(tvb, offset);
+            data_len = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_dlen8, tvb, offset, 1, ENC_NA);
             offset += 1;
 
@@ -4945,7 +4945,7 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     case ZBNCP_CMD_WRITE_NVRAM_RESERVED:
         if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_REQUEST)
         {
-            guint8 data_len;
+            uint8_t data_len;
 
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_do_erase, tvb, offset, 1, ENC_NA);
             offset += 1;
@@ -4953,7 +4953,7 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
 
-            data_len = tvb_get_guint8(tvb, offset);
+            data_len = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_dlen8, tvb, offset, 1, ENC_NA);
             offset += 1;
 
@@ -4988,7 +4988,7 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 }
 
 static void
-dissect_zbncp_fragmentation_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
+dissect_zbncp_fragmentation_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset)
 {
     proto_tree *zbncp_body_tree = proto_tree_add_subtree_format(tree, tvb, offset, tvb_reported_length(tvb) - offset, ett_zbncp_ll_body, NULL, "ZBNCP Packet Body");
 
@@ -5005,7 +5005,7 @@ dissect_zbncp_fragmentation_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 }
 
 static void
-dissect_zbncp_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, guint16 *cmd_id)
+dissect_zbncp_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, uint16_t *cmd_id)
 {
     proto_tree *zbncp_body_tree = proto_tree_add_subtree_format(tree, tvb, offset, tvb_reported_length(tvb) - offset, ett_zbncp_ll_body, NULL, "ZBNCP Packet Body");
 
@@ -5016,8 +5016,8 @@ dissect_zbncp_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
     dissect_zbncp_high_level(tvb, pinfo, zbncp_body_tree, offset, cmd_id);
 }
 
-static guint
-dissect_zbncp_ll_hdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, guint8 *hdr_flags)
+static unsigned
+dissect_zbncp_ll_hdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, uint8_t *hdr_flags)
 {
     proto_tree *ncp_ll_hdr_tree;
     proto_item *proto_root;
@@ -5031,8 +5031,8 @@ dissect_zbncp_ll_hdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
         &hf_zbncp_hdr_flags_last_frag,
         NULL};
 
-    if (tvb_get_guint8(tvb, 0) != ZBNCP_SIGN_FST_BYTE ||
-        tvb_get_guint8(tvb, 1) != ZBNCP_SIGN_SEC_BYTE)
+    if (tvb_get_uint8(tvb, 0) != ZBNCP_SIGN_FST_BYTE ||
+        tvb_get_uint8(tvb, 1) != ZBNCP_SIGN_SEC_BYTE)
     {
         return 0;
     }
@@ -5055,7 +5055,7 @@ dissect_zbncp_ll_hdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
     offset += 1;
 
     /* hdr flags */
-    *hdr_flags = tvb_get_guint8(tvb, offset);
+    *hdr_flags = tvb_get_uint8(tvb, offset);
     proto_tree_add_bitmask(ncp_ll_hdr_tree, tvb, offset, hf_zbncp_hdr_flags, ett_zbncp_hdr_flags, packet_flags, ENC_NA);
     offset += 1;
 
@@ -5071,14 +5071,14 @@ dissect_zbncp_ll_hdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
     return offset;
 }
 
-static guint
-dissect_zbncp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+static unsigned
+dissect_zbncp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
 {
-    guint8 flags;
-    guint16 cmd_id;
+    uint8_t flags;
+    uint16_t cmd_id;
 
     conversation_t *conversation;
-    gchar *zbncp_ctx_str;
+    char *zbncp_ctx_str;
 
     flags = 0;
     offset = dissect_zbncp_ll_hdr(tvb, pinfo, tree, offset, &flags);
@@ -5098,7 +5098,7 @@ dissect_zbncp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
             /* First fragment */
             if (!ZBNCP_GET_PACKET_FLAGS_LAST_FRAG_BIT(flags))
             {
-                const gchar *tmp = val_to_str_const(cmd_id, zbncp_hl_call_id, "Unknown Call ID");
+                const char *tmp = val_to_str_const(cmd_id, zbncp_hl_call_id, "Unknown Call ID");
                 zbncp_ctx_str = wmem_alloc(wmem_file_scope(), 64);
 
                 if(zbncp_ctx_str != NULL)
@@ -5126,7 +5126,7 @@ dissect_zbncp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
 
             if (conversation != NULL)
             {
-                zbncp_ctx_str = (gchar *) conversation_get_proto_data(conversation, zbncp_frame);
+                zbncp_ctx_str = (char *) conversation_get_proto_data(conversation, zbncp_frame);
 
                 if (zbncp_ctx_str != NULL)
                 {
@@ -6344,7 +6344,7 @@ void proto_register_zbncp(void)
           "Whether this device wishes to use a 16-bit short address instead of its IEEE 802.15.4 64-bit long address.", HFILL}}};
 
     /* Protocol subtrees */
-    static gint *ett[] =
+    static int *ett[] =
         {
             &ett_zbncp_hdr,
             &ett_zbncp_hdr_flags,

@@ -34,9 +34,9 @@ static int hf_ymsg_content_line;
 static int hf_ymsg_content_line_key;
 static int hf_ymsg_content_line_value;
 
-static gint ett_ymsg;
-static gint ett_ymsg_content;
-static gint ett_ymsg_content_line;
+static int ett_ymsg;
+static int ett_ymsg_content;
+static int ett_ymsg_content_line;
 
 #define TCP_PORT_YMSG     23    /* XXX - this is Telnet! */
 #define TCP_PORT_YMSG_2   25    /* And this is SMTP! */
@@ -1091,10 +1091,10 @@ static int get_content_item_length(tvbuff_t *tvb, int offset)
     return offset - origoffset;
 }
 
-static guint
+static unsigned
 get_ymsg_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
-    guint plen;
+    unsigned plen;
 
     /*
      * Get the length of the YMSG packet.
@@ -1109,7 +1109,7 @@ get_ymsg_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _
 
 static bool is_field_with_field_value(int key)
 {
-    for (guint i = 0; i < G_N_ELEMENTS(yahoo_fields_with_field_values); i++) {
+    for (unsigned i = 0; i < G_N_ELEMENTS(yahoo_fields_with_field_values); i++) {
         if (key == yahoo_fields_with_field_values[i]) {
             return true;
         }
@@ -1124,7 +1124,7 @@ dissect_ymsg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     proto_tree *ymsg_tree, *ti;
     proto_item *content_item;
     proto_tree *content_tree;
-    const gchar *val_buf;
+    const char *val_buf;
     int         val_len;
     int         val_key;
     int         key_len;
@@ -1252,7 +1252,7 @@ dissect_ymsg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     if (tvb_captured_length(tvb) < 4) {
         return false;
     }
-    if (tvb_memeql(tvb, 0, (const guint8*)"YMSG", 4) == -1) {
+    if (tvb_memeql(tvb, 0, (const uint8_t*)"YMSG", 4) == -1) {
         /* Not a Yahoo Messenger packet. */
         return false;
     }
@@ -1298,7 +1298,7 @@ proto_register_ymsg(void)
                 "Value", "ymsg.content-line.value", FT_STRING, BASE_NONE,
                 NULL, 0, "Content line value", HFILL }}
     };
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_ymsg,
         &ett_ymsg_content,
         &ett_ymsg_content_line

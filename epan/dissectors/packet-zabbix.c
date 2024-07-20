@@ -255,7 +255,7 @@ dissect_zabbix_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         /* Encrypted or not Zabbix at all */
         return 0;
     }
-    flags = tvb_get_guint8(tvb, offset+4);
+    flags = tvb_get_uint8(tvb, offset+4);
     if (!(flags & ZABBIX_FLAG_ZABBIX_COMMUNICATIONS)) {
         return 0;
     }
@@ -925,16 +925,16 @@ get_zabbix_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data
     uint8_t flags;
     uint64_t length;
 
-    flags = tvb_get_guint8(tvb, offset+4);
+    flags = tvb_get_uint8(tvb, offset+4);
     if (flags & ZABBIX_FLAG_LARGEPACKET) {
         /* 8-byte length field
          * Note that ZABBIX_HDR_MIN_LEN check (in dissect_zabbix()) is still enough
          * due to the header structure (there are reserved bytes)
          */
-        length = tvb_get_guint64(tvb, offset+5, ENC_LITTLE_ENDIAN) + ZABBIX_HDR_MAX_LEN;
+        length = tvb_get_uint64(tvb, offset+5, ENC_LITTLE_ENDIAN) + ZABBIX_HDR_MAX_LEN;
     } else {
         /* 4-byte length */
-        length = tvb_get_guint32(tvb, offset+5, ENC_LITTLE_ENDIAN) + ZABBIX_HDR_MIN_LEN;
+        length = tvb_get_uint32(tvb, offset+5, ENC_LITTLE_ENDIAN) + ZABBIX_HDR_MIN_LEN;
     }
     return (unsigned)length;
 }
@@ -953,7 +953,7 @@ dissect_zabbix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         /* Encrypted or not Zabbix at all */
         return 0;
     }
-    flags = tvb_get_guint8(tvb, 4);
+    flags = tvb_get_uint8(tvb, 4);
     if (!(flags & ZABBIX_FLAG_ZABBIX_COMMUNICATIONS)) {
         return 0;
     }

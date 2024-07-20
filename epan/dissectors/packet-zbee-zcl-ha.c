@@ -96,7 +96,7 @@ void proto_register_zbee_zcl_appl_idt(void);
 void proto_reg_handoff_zbee_zcl_appl_idt(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_appl_idt_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
+static void dissect_zcl_appl_idt_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr);
 
 /* Private functions prototype */
 
@@ -116,8 +116,8 @@ static int hf_zbee_zcl_appl_idt_prod_type_id;
 static int hf_zbee_zcl_appl_idt_ceced_spec_ver;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_appl_idt;
-static gint ett_zbee_zcl_appl_idt_basic;
+static int ett_zbee_zcl_appl_idt;
+static int ett_zbee_zcl_appl_idt_basic;
 
 /* Attributes */
 static const value_string zbee_zcl_appl_idt_attr_names[] = {
@@ -216,10 +216,10 @@ dissect_zbee_zcl_appl_idt(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree 
  *@param client_attr ZCL client
 */
 void
-dissect_zcl_appl_idt_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
+dissect_zcl_appl_idt_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
 {
     proto_tree  *sub_tree;
-    guint64     value64;
+    uint64_t    value64;
 
     /* Dissect attribute data type and data */
     switch ( attr_id ) {
@@ -313,7 +313,7 @@ proto_register_zbee_zcl_appl_idt(void)
     };
 
     /* ZCL Appliance Identification subtrees */
-    gint *ett[ZBEE_ZCL_APPL_IDT_NUM_ETT];
+    int *ett[ZBEE_ZCL_APPL_IDT_NUM_ETT];
 
     ett[0] = &ett_zbee_zcl_appl_idt;
     ett[1] = &ett_zbee_zcl_appl_idt_basic;
@@ -397,7 +397,7 @@ void proto_register_zbee_zcl_met_idt(void);
 void proto_reg_handoff_zbee_zcl_met_idt(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_met_idt_attr_data  (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
+static void dissect_zcl_met_idt_attr_data  (proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr);
 
 /* Private functions prototype */
 
@@ -413,7 +413,7 @@ static int hf_zbee_zcl_met_idt_meter_type_id;
 static int hf_zbee_zcl_met_idt_data_quality_id;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_met_idt;
+static int ett_zbee_zcl_met_idt;
 
 /* Attributes */
 static const value_string zbee_zcl_met_idt_attr_names[] = {
@@ -481,7 +481,7 @@ dissect_zbee_zcl_met_idt(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *
  *@param client_attr ZCL client
 */
 void
-dissect_zcl_met_idt_attr_data (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
+dissect_zcl_met_idt_attr_data (proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
 {
     /* Dissect attribute data type and data */
     switch ( attr_id ) {
@@ -527,7 +527,7 @@ proto_register_zbee_zcl_met_idt(void)
     };
 
     /* ZCL Meter Identification subtrees */
-    gint *ett[] = {
+    int *ett[] = {
         &ett_zbee_zcl_met_idt
     };
 
@@ -619,8 +619,8 @@ void proto_register_zbee_zcl_appl_evtalt(void);
 void proto_reg_handoff_zbee_zcl_appl_evtalt(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_appl_evtalt_get_alerts_rsp        (tvbuff_t *tvb, proto_tree *tree, guint *offset);
-static void dissect_zcl_appl_evtalt_event_notif           (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_appl_evtalt_get_alerts_rsp        (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
+static void dissect_zcl_appl_evtalt_event_notif           (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
 
 /*************************/
 /* Global Variables      */
@@ -641,8 +641,8 @@ static int hf_zbee_zcl_appl_evtalt_event_hdr;
 static int hf_zbee_zcl_appl_evtalt_event_id;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_appl_evtalt;
-static gint ett_zbee_zcl_appl_evtalt_alerts_struct[ZBEE_ZCL_APPL_EVTALT_NUM_STRUCT_ETT];
+static int ett_zbee_zcl_appl_evtalt;
+static int ett_zbee_zcl_appl_evtalt_alerts_struct[ZBEE_ZCL_APPL_EVTALT_NUM_STRUCT_ETT];
 
 /* Server Commands Received */
 static const value_string zbee_zcl_appl_evtalt_srv_rx_cmd_names[] = {
@@ -702,9 +702,9 @@ dissect_zbee_zcl_appl_evtalt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 {
     proto_tree        *payload_tree;
     zbee_zcl_packet   *zcl;
-    guint             offset = 0;
-    guint8            cmd_id;
-    gint              rem_len;
+    unsigned          offset = 0;
+    uint8_t           cmd_id;
+    int               rem_len;
 
     /* Reject the packet if data is NULL */
     if (data == NULL)
@@ -780,7 +780,7 @@ dissect_zbee_zcl_appl_evtalt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
  *@param offset offset in the tvb buffer
 */
 static void
-dissect_zcl_appl_evtalt_alerts_struct(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+dissect_zcl_appl_evtalt_alerts_struct(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
     proto_tree_add_item(tree, hf_zbee_zcl_appl_evtalt_alert_id, tvb, *offset, 3, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_zbee_zcl_appl_evtalt_category, tvb, *offset, 3, ENC_BIG_ENDIAN);
@@ -798,14 +798,14 @@ dissect_zcl_appl_evtalt_alerts_struct(tvbuff_t *tvb, proto_tree *tree, guint *of
  *@param offset offset in the tvb buffer
 */
 static void
-dissect_zcl_appl_evtalt_get_alerts_rsp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+dissect_zcl_appl_evtalt_get_alerts_rsp(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
     proto_tree  *sub_tree = NULL;
-    guint       i;
-    guint8      count;
+    unsigned    i;
+    uint8_t     count;
 
     /* Retrieve "Alert Count" field */
-    count = tvb_get_guint8(tvb, *offset) & ZBEE_ZCL_APPL_EVTALT_COUNT_NUM_MASK;
+    count = tvb_get_uint8(tvb, *offset) & ZBEE_ZCL_APPL_EVTALT_COUNT_NUM_MASK;
     proto_tree_add_item(tree, hf_zbee_zcl_appl_evtalt_count_num, tvb, *offset, 1, ENC_NA);
     proto_tree_add_item(tree, hf_zbee_zcl_appl_evtalt_count_type, tvb, *offset, 1, ENC_NA);
     *offset += 1;
@@ -829,7 +829,7 @@ dissect_zcl_appl_evtalt_get_alerts_rsp(tvbuff_t *tvb, proto_tree *tree, guint *o
  *@param offset offset in the tvb buffer
 */
 static void
-dissect_zcl_appl_evtalt_event_notif(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+dissect_zcl_appl_evtalt_event_notif(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
     /* Retrieve "Event Header" field */
     proto_tree_add_item(tree, hf_zbee_zcl_appl_evtalt_event_hdr, tvb, *offset, 1, ENC_NA);
@@ -846,7 +846,7 @@ dissect_zcl_appl_evtalt_event_notif(tvbuff_t *tvb, proto_tree *tree, guint *offs
 void
 proto_register_zbee_zcl_appl_evtalt(void)
 {
-    guint i, j;
+    unsigned i, j;
 
     static hf_register_info hf[] = {
 
@@ -897,7 +897,7 @@ proto_register_zbee_zcl_appl_evtalt(void)
     };
 
     /* ZCL Appliance Events And Alerts subtrees */
-    gint *ett[ZBEE_ZCL_APPL_EVTALT_NUM_ETT];
+    int *ett[ZBEE_ZCL_APPL_EVTALT_NUM_ETT];
 
     ett[0] = &ett_zbee_zcl_appl_evtalt;
 
@@ -972,12 +972,12 @@ void proto_register_zbee_zcl_appl_stats(void);
 void proto_reg_handoff_zbee_zcl_appl_stats(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_appl_stats_log_req              (tvbuff_t *tvb, proto_tree *tree, guint *offset);
-static void dissect_zcl_appl_stats_log_rsp              (tvbuff_t *tvb, proto_tree *tree, guint *offset);
-static void dissect_zcl_appl_stats_log_queue_rsp        (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_appl_stats_log_req              (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
+static void dissect_zcl_appl_stats_log_rsp              (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
+static void dissect_zcl_appl_stats_log_queue_rsp        (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
 
 /* Private functions prototype */
-static void decode_zcl_appl_stats_utc_time              (gchar *s, guint32 value);
+static void decode_zcl_appl_stats_utc_time              (char *s, uint32_t value);
 
 /*************************/
 /* Global Variables      */
@@ -995,8 +995,8 @@ static int hf_zbee_zcl_appl_stats_log_queue_size;
 static int hf_zbee_zcl_appl_stats_log_id;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_appl_stats;
-static gint ett_zbee_zcl_appl_stats_logs[ZBEE_ZCL_APPL_STATS_NUM_LOGS_ETT];
+static int ett_zbee_zcl_appl_stats;
+static int ett_zbee_zcl_appl_stats_logs[ZBEE_ZCL_APPL_STATS_NUM_LOGS_ETT];
 
 /* Attributes */
 static const value_string zbee_zcl_appl_stats_attr_names[] = {
@@ -1037,9 +1037,9 @@ dissect_zbee_zcl_appl_stats (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 {
     proto_tree        *payload_tree;
     zbee_zcl_packet   *zcl;
-    guint             offset = 0;
-    guint8            cmd_id;
-    gint              rem_len;
+    unsigned          offset = 0;
+    uint8_t           cmd_id;
+    int               rem_len;
 
     /* Reject the packet if data is NULL */
     if (data == NULL)
@@ -1120,7 +1120,7 @@ dissect_zbee_zcl_appl_stats (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
  *@param offset pointer to buffer offset
 */
 static void
-dissect_zcl_appl_stats_log_req(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+dissect_zcl_appl_stats_log_req(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
     /* Retrieve 'Log ID' field */
     proto_tree_add_item(tree, hf_zbee_zcl_appl_stats_log_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
@@ -1135,9 +1135,9 @@ dissect_zcl_appl_stats_log_req(tvbuff_t *tvb, proto_tree *tree, guint *offset)
  *@param offset pointer to buffer offset
 */
 static void
-dissect_zcl_appl_stats_log_rsp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+dissect_zcl_appl_stats_log_rsp(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
-    guint32 log_len;
+    uint32_t log_len;
 
     /* Retrieve 'UTCTime' field */
     proto_tree_add_item(tree, hf_zbee_zcl_appl_stats_utc_time, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
@@ -1165,9 +1165,9 @@ dissect_zcl_appl_stats_log_rsp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
  *@param offset pointer to buffer offset
 */
 static void
-dissect_zcl_appl_stats_log_queue_rsp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+dissect_zcl_appl_stats_log_queue_rsp(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
-    gint list_len;
+    int list_len;
 
     /* Retrieve 'Log Queue Size' field */
     proto_tree_add_item(tree, hf_zbee_zcl_appl_stats_log_queue_size, tvb, *offset, 1, ENC_NA);
@@ -1176,7 +1176,7 @@ dissect_zcl_appl_stats_log_queue_rsp(tvbuff_t *tvb, proto_tree *tree, guint *off
     /* Dissect the attribute id list */
     list_len = tvb_reported_length_remaining(tvb, *offset);
     if ( list_len > 0 ) {
-        while ( *offset < (guint)list_len ) {
+        while ( *offset < (unsigned)list_len ) {
             /* Retrieve 'Log ID' field */
             proto_tree_add_item(tree, hf_zbee_zcl_appl_stats_log_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
             *offset += 4;
@@ -1191,14 +1191,14 @@ dissect_zcl_appl_stats_log_queue_rsp(tvbuff_t *tvb, proto_tree *tree, guint *off
  *@param value value to decode
 */
 static void
-decode_zcl_appl_stats_utc_time(gchar *s, guint32 value)
+decode_zcl_appl_stats_utc_time(char *s, uint32_t value)
 {
     if (value == ZBEE_ZCL_APPL_STATS_INVALID_TIME)
         snprintf(s, ITEM_LABEL_LENGTH, "Invalid UTC Time");
     else {
-        gchar *utc_time;
+        char *utc_time;
         value += EPOCH_DELTA_2000_01_01_00_00_00_UTC;
-        utc_time = abs_time_secs_to_str (NULL, value, ABSOLUTE_TIME_LOCAL, TRUE);
+        utc_time = abs_time_secs_to_str (NULL, value, ABSOLUTE_TIME_LOCAL, true);
         snprintf(s, ITEM_LABEL_LENGTH, "%s", utc_time);
         wmem_free(NULL, utc_time);
     }
@@ -1211,7 +1211,7 @@ decode_zcl_appl_stats_utc_time(gchar *s, guint32 value)
 void
 proto_register_zbee_zcl_appl_stats(void)
 {
-    guint i, j;
+    unsigned i, j;
 
     static hf_register_info hf[] = {
 
@@ -1250,7 +1250,7 @@ proto_register_zbee_zcl_appl_stats(void)
     };
 
     /* ZCL ApplianceStatistics subtrees */
-    static gint *ett[ZBEE_ZCL_APPL_STATS_NUM_ETT];
+    static int *ett[ZBEE_ZCL_APPL_STATS_NUM_ETT];
 
     ett[0] = &ett_zbee_zcl_appl_stats;
 

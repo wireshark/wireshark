@@ -29,8 +29,8 @@ static int hf_yppasswd_newpw_gecos;
 static int hf_yppasswd_newpw_dir;
 static int hf_yppasswd_newpw_shell;
 
-static gint ett_yppasswd;
-static gint ett_yppasswd_newpw;
+static int ett_yppasswd;
+static int ett_yppasswd_newpw;
 
 static int
 dissect_yppasswd_call(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
@@ -138,7 +138,7 @@ proto_register_yppasswd(void)
 
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_yppasswd,
 		&ett_yppasswd_newpw,
 	};

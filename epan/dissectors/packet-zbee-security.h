@@ -16,14 +16,14 @@
 /*  Structure containing the fields stored in the Aux Header */
 typedef struct{
     /*  The fields of the Aux Header */
-    guint8      control; /* needed to decrypt */
-    guint32     counter; /* needed to decrypt */
-    guint64     src64;   /* needed to decrypt */
-    guint8      key_seqno;
+    uint8_t     control; /* needed to decrypt */
+    uint32_t    counter; /* needed to decrypt */
+    uint64_t    src64;   /* needed to decrypt */
+    uint8_t     key_seqno;
 
-    guint8      level;
-    guint8      key_id;  /* needed to decrypt */
-    gboolean    nonce;
+    uint8_t     level;
+    uint8_t     key_id;  /* needed to decrypt */
+    bool        nonce;
 } zbee_security_packet;
 
 /* Bit masks for the Security Control Field. */
@@ -65,11 +65,11 @@ typedef struct{
 extern void     zbee_security_register  (module_t *module, int proto);
 
 /* Security Dissector Routine. */
-extern tvbuff_t *dissect_zbee_secure(tvbuff_t *, packet_info *, proto_tree *, guint);
-extern gboolean zbee_sec_ccm_decrypt(const gchar *, const gchar *, const gchar *, const gchar *, gchar *, guint, guint, guint);
+extern tvbuff_t *dissect_zbee_secure(tvbuff_t *, packet_info *, proto_tree *, unsigned);
+extern bool zbee_sec_ccm_decrypt(const char *, const char *, const char *, const char *, char *, unsigned, unsigned, unsigned);
 
 /* nwk key ring update */
-extern void zbee_sec_add_key_to_keyring(packet_info *, const guint8 *);
+extern void zbee_sec_add_key_to_keyring(packet_info *, const uint8_t *);
 
 #endif /* PACKET_ZBEE_SECURITY_H */
 

@@ -68,10 +68,10 @@ static int hf_zmtp_ping_ttl;
 static int hf_zmtp_ping_context;
 
 /* Subtrees */
-static gint ett_zmtp;
-static gint ett_zmtp_flags;
-static gint ett_zmtp_version;
-static gint ett_zmtp_curvezmq_version;
+static int ett_zmtp;
+static int ett_zmtp_flags;
+static int ett_zmtp_version;
+static int ett_zmtp_curvezmq_version;
 
 static dissector_handle_t zmtp_handle;
 
@@ -108,7 +108,7 @@ static const value_string mechanism_vals[] =
 typedef struct
 {
     mechanism_type mechanism;
-    guint32        mechanism_frame;
+    uint32_t       mechanism_frame;
 } zmtp_conversation_t;
 
 static const value_string flags_vals[] =
@@ -131,11 +131,11 @@ static const value_string flags_vals[] =
 /* The data payload type of the data on certain TCP ports */
 typedef struct {
     range_t  *tcp_port_range; /* dissect data on these tcp ports as protocol */
-    gchar    *protocol;       /* protocol of data on these tcp ports */
+    char     *protocol;       /* protocol of data on these tcp ports */
 } zmtp_tcp_protocol_t;
 
 static zmtp_tcp_protocol_t* zmtp_tcp_protocols = NULL;
-static guint num_zmtp_tcp_protocols = 0;
+static unsigned num_zmtp_tcp_protocols = 0;
 
 static void *
 zmtp_tcp_protocols_copy_cb(void* n, const void* o, size_t siz _U_)
@@ -143,7 +143,7 @@ zmtp_tcp_protocols_copy_cb(void* n, const void* o, size_t siz _U_)
     zmtp_tcp_protocol_t* new_rec = (zmtp_tcp_protocol_t*)n;
     const zmtp_tcp_protocol_t* old_rec = (const zmtp_tcp_protocol_t*)o;
 
-    /* Cpy interval values like gint */
+    /* Cpy interval values like int */
     memcpy(new_rec, old_rec, sizeof(zmtp_tcp_protocol_t));
 
     if (old_rec->tcp_port_range) {
@@ -190,8 +190,8 @@ static const char*
 find_data_dissector_by_tcp_port(packet_info *pinfo)
 {
     range_t* tcp_port_range;
-    const gchar* protocol;
-    guint i;
+    const char* protocol;
+    unsigned i;
     for (i = 0; i < num_zmtp_tcp_protocols; ++i) {
         tcp_port_range = zmtp_tcp_protocols[i].tcp_port_range;
         if (value_is_in_range(tcp_port_range, pinfo->srcport) ||
@@ -209,11 +209,11 @@ find_data_dissector_by_tcp_port(packet_info *pinfo)
 
 
 /* How long is this message (by checking flags+length). cb for tcp_dissect_pdus()  */
-static guint
+static unsigned
 get_zmtp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
-    guint8 flags = tvb_get_guint8(tvb, offset);
-    guint64 length;
+    uint8_t flags = tvb_get_uint8(tvb, offset);
+    uint64_t length;
 
     switch (flags) {
         case 0xff:        /* Greeting */
@@ -223,8 +223,8 @@ get_zmtp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *da
         case 0:           /* data short (last) */
         case 1:           /* data short (and more) */
         case 4:           /* command (short) */
-            length = tvb_get_guint8(tvb, offset+1);
-            return (guint)length + 2;
+            length = tvb_get_uint8(tvb, offset+1);
+            return (unsigned)length + 2;
 
         /* 8-byte length field */
         case 2:           /* data long (last) */
@@ -234,14 +234,14 @@ get_zmtp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *da
                 return 0;
             }
             length = tvb_get_ntoh64(tvb, offset+1);
-            return (guint)length + 9;
+            return (unsigned)length + 9;
     }
 
     return 0;
 }
 
 /* Dissect the payload of a data message */
-static void dissect_zmtp_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint64 length,
+static void dissect_zmtp_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, uint64_t length,
                               zmtp_conversation_t *p_conv_data)
 {
     if (length == 0 || !p_conv_data) {
@@ -255,8 +255,8 @@ static void dissect_zmtp_data(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 
     /* Is data all text? */
     bool all_text = true;
-    for (guint64 n=offset; n < tvb_captured_length(tvb); n++) {
-        if (!g_ascii_isprint(tvb_get_guint8(tvb, offset))) {
+    for (uint64_t n=offset; n < tvb_captured_length(tvb); n++) {
+        if (!g_ascii_isprint(tvb_get_uint8(tvb, offset))) {
             all_text = false;
             break;
         }
@@ -312,19 +312,19 @@ static void dissect_zmtp_data(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 /* Dissect key=data pairs to end of frame */
 static void dissect_zmtp_metadata(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-    guint length;
+    unsigned length;
     while (tvb_reported_length_remaining(tvb, offset)) {
         /* Key */
-        length = tvb_get_guint8(tvb, offset);
+        length = tvb_get_uint8(tvb, offset);
         offset++;
-        const guchar *key;
+        const unsigned char *key;
         proto_tree_add_item_ret_string(tree, hf_zmtp_metadata_key, tvb, offset, length, ENC_ASCII, pinfo->pool, &key);
         offset += length;
         /* Data */
         length = tvb_get_ntohl(tvb, offset);
         offset += 4;
         if (length) {
-            const guchar *value;
+            const unsigned char *value;
             proto_tree_add_item_ret_string(tree, hf_zmtp_metadata_value, tvb, offset, length, ENC_ASCII, pinfo->pool, &value);
             offset += length;
             col_append_fstr(pinfo->cinfo, COL_INFO, " %s=%s", key, value);
@@ -347,8 +347,8 @@ static int dissect_zmtp_command(tvbuff_t *tvb, int offset, packet_info *pinfo _U
     proto_item_set_generated(mech_ti);
 
     /* command-name (len + bytes) */
-    guint32 command_name_length;
-    const guchar *command_name;
+    uint32_t command_name_length;
+    const unsigned char *command_name;
     len_ti = proto_tree_add_item_ret_uint(tree, hf_zmtp_command_name_length, tvb, offset, 1, ENC_BIG_ENDIAN, &command_name_length);
     proto_item_set_hidden(len_ti);
     offset++;
@@ -375,11 +375,11 @@ static int dissect_zmtp_command(tvbuff_t *tvb, int offset, packet_info *pinfo _U
             case MECH_PLAIN:
             {
                 /* TODO: these could be empty. Check and show? */
-                guint8 len;
+                uint8_t len;
 
                 /* Username */
-                const guchar *username;
-                len = tvb_get_guint8(tvb, offset);
+                const unsigned char *username;
+                len = tvb_get_uint8(tvb, offset);
                 offset++;
                 proto_item *username_ti = proto_tree_add_item_ret_string(tree, hf_zmtp_username, tvb, offset, len, ENC_ASCII, pinfo->pool, &username);
                 offset += len;
@@ -388,8 +388,8 @@ static int dissect_zmtp_command(tvbuff_t *tvb, int offset, packet_info *pinfo _U
                 }
 
                 /* Password */
-                const guchar *password;
-                len = tvb_get_guint8(tvb, offset);
+                const unsigned char *password;
+                len = tvb_get_uint8(tvb, offset);
                 offset++;
                 proto_item *password_ti = proto_tree_add_item_ret_string(tree, hf_zmtp_password, tvb, offset, len, ENC_ASCII, pinfo->pool, &password);
                 offset += len;
@@ -413,7 +413,7 @@ static int dissect_zmtp_command(tvbuff_t *tvb, int offset, packet_info *pinfo _U
             case MECH_CURVE:
             {
                 /* Version */
-                guint32 major, minor;
+                uint32_t major, minor;
                 /* subtree */
                 proto_item *version_ti = proto_tree_add_string_format(tree, hf_zmtp_curvezmq_version, tvb, offset, 2, "", "Version");
                 proto_tree *version_tree = proto_item_add_subtree(version_ti, ett_zmtp_curvezmq_version);
@@ -486,9 +486,9 @@ static int dissect_zmtp_command(tvbuff_t *tvb, int offset, packet_info *pinfo _U
     }
     else if (strcmp(command_name, "ERROR") == 0) {
         /* 1 byte length, followed by reason */
-        guint8 len = tvb_get_guint8(tvb, offset);
+        uint8_t len = tvb_get_uint8(tvb, offset);
         offset++;
-        const guchar *reason;
+        const unsigned char *reason;
         proto_tree_add_item_ret_string(tree, hf_zmtp_error_reason, tvb, offset, len, ENC_ASCII, pinfo->pool, &reason);
         col_append_fstr(pinfo->cinfo, COL_INFO, " reason=%s", reason);
         offset += len;
@@ -517,7 +517,7 @@ dissect_zmtp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 {
     proto_tree *zmtp_tree;
     proto_item *root_ti;
-    gint offset = 0;
+    int offset = 0;
 
     /* Protocol column */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "zmtp");
@@ -552,7 +552,7 @@ dissect_zmtp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     }
 
     /* Flags */
-    guint8 flags = tvb_get_guint8(tvb, offset);
+    uint8_t flags = tvb_get_uint8(tvb, offset);
     if (flags == 0xff) {
         /* Greeting value not broken down */
         proto_tree_add_item(zmtp_tree, hf_zmtp_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -573,7 +573,7 @@ dissect_zmtp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                     val_to_str(flags, flags_vals, "Unknown(%u)"));
     proto_item_append_text(root_ti, " (%s)", val_to_str(flags, flags_vals, "Unknown(%u)"));
 
-    guint64 length;
+    uint64_t length;
 
     switch (flags) {
         case 0xff:        /* Greeting */
@@ -583,7 +583,7 @@ dissect_zmtp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
             offset += 9;
 
             /* version = version-major version-minor */
-            guint32 major, minor;
+            uint32_t major, minor;
             /* subtree */
             proto_item *version_ti = proto_tree_add_string_format(zmtp_tree, hf_zmtp_version, tvb, offset, 2, "", "Version");
             proto_tree *version_tree = proto_item_add_subtree(version_ti, ett_zmtp_version);
@@ -597,8 +597,8 @@ dissect_zmtp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
             proto_item_append_text(version_ti, " (%u.%u)", major, minor);
 
             /* mechanism (20 bytes). N.B. *must* must match setting from peer */
-            const guchar *mechanism;
-            guint mechanism_len;
+            const unsigned char *mechanism;
+            unsigned mechanism_len;
             proto_tree_add_item_ret_string_and_length(zmtp_tree, hf_zmtp_mechanism, tvb, offset, 20, ENC_ASCII,
                                                       pinfo->pool, &mechanism, &mechanism_len);
             offset += mechanism_len;
@@ -681,7 +681,7 @@ dissect_zmtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     p_add_proto_data(wmem_file_scope(), pinfo, proto_zmtp, 0, &false_value);
 
     /* Find whole PDUs and send them to dissect_zmtp_message() */
-    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, /* desegment */
+    tcp_dissect_pdus(tvb, pinfo, tree, true, /* desegment */
                      2,                      /* need flags bytes + long-size */
                      get_zmtp_message_len,
                      dissect_zmtp_message, data);
@@ -794,7 +794,7 @@ proto_register_zmtp(void)
           NULL, 0x0, NULL, HFILL }}
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_zmtp,
         &ett_zmtp_flags,
         &ett_zmtp_version,

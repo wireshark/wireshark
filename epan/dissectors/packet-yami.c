@@ -93,9 +93,9 @@ dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
 	char *name;
 	int name_offset;
-	guint32 name_len;
+	uint32_t name_len;
 
-	guint32 type;
+	uint32_t type;
 
 	ti = proto_tree_add_item(tree, hf_yami_param, tvb, offset, 0, ENC_NA);
 	yami_param = proto_item_add_subtree(ti, ett_yami_param);
@@ -117,7 +117,7 @@ dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 	switch (type) {
 		case YAMI_TYPE_BOOLEAN:
 		{
-			guint32 val = tvb_get_letohl(tvb, offset);
+			uint32_t val = tvb_get_letohl(tvb, offset);
 			proto_item_append_text(ti, ", Type: boolean, Value: %s", val ? "True" : "False");
 			proto_tree_add_item(yami_param, hf_yami_param_value_bool, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
@@ -126,7 +126,7 @@ dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
 		case YAMI_TYPE_INTEGER:
 		{
-			gint32 val = tvb_get_letohl(tvb, offset);
+			int32_t val = tvb_get_letohl(tvb, offset);
 			proto_item_append_text(ti, ", Type: integer, Value: %d", val);
 			proto_tree_add_item(yami_param, hf_yami_param_value_int, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
@@ -135,7 +135,7 @@ dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
 		case YAMI_TYPE_LONGLONG:
 		{
-			gint64 val = tvb_get_letoh64(tvb, offset);
+			int64_t val = tvb_get_letoh64(tvb, offset);
 			proto_item_append_text(ti, ", Type: long, Value: %" PRId64, val);
 			proto_tree_add_item(yami_param, hf_yami_param_value_long, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 			offset += 8;
@@ -144,7 +144,7 @@ dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
 		case YAMI_TYPE_DOUBLE:
 		{
-			gdouble val = tvb_get_letohieee_double(tvb, offset);
+			double val = tvb_get_letohieee_double(tvb, offset);
 			proto_item_append_text(ti, ", Type: double, Value: %g", val);
 			proto_tree_add_item(yami_param, hf_yami_param_value_double, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 			offset += 8;
@@ -154,7 +154,7 @@ dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 		case YAMI_TYPE_STRING:
 		{
 			const int val_offset = offset;
-			guint32 val_len;
+			uint32_t val_len;
 			char *val;
 
 			val_len = tvb_get_letohl(tvb, offset);
@@ -171,8 +171,8 @@ dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 		case YAMI_TYPE_BINARY:
 		{
 			const int val_offset = offset;
-			guint32 val_len;
-			const guint8 *val;
+			uint32_t val_len;
+			const uint8_t *val;
 			char *repr;
 
 			val_len = tvb_get_letohl(tvb, offset);
@@ -189,8 +189,8 @@ dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
 		case YAMI_TYPE_BOOLEAN_ARRAY:
 		{
-			guint32 count;
-			guint i;
+			uint32_t count;
+			unsigned i;
 			int j;
 
 			count = tvb_get_letohl(tvb, offset);
@@ -200,7 +200,7 @@ dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 			proto_item_append_text(ti, ", Type: boolean[], %u items: {", count);
 
 			for (i = 0; i < count/32; i++) {
-				guint32 val = tvb_get_letohl(tvb, offset);
+				uint32_t val = tvb_get_letohl(tvb, offset);
 
 				for (j = 0; j < 32; j++) {
 					int r = !!(val & (1U << j));
@@ -212,7 +212,7 @@ dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 			}
 
 			if (count % 32) {
-				guint32 val = tvb_get_letohl(tvb, offset);
+				uint32_t val = tvb_get_letohl(tvb, offset);
 				int tmp = count % 32;
 
 				for (j = 0; j < tmp; j++) {
@@ -230,8 +230,8 @@ dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
 		case YAMI_TYPE_INTEGER_ARRAY:
 		{
-			guint32 count;
-			guint i;
+			uint32_t count;
+			unsigned i;
 
 			count = tvb_get_letohl(tvb, offset);
 			proto_tree_add_item(yami_param, hf_yami_items_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -239,7 +239,7 @@ dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
 			proto_item_append_text(ti, ", Type: integer[], %u items: {", count);
 			for (i = 0; i < count; i++) {
-				gint32 val = tvb_get_letohl(tvb, offset);
+				int32_t val = tvb_get_letohl(tvb, offset);
 
 				proto_item_append_text(ti, "%d, ", val);
 				proto_tree_add_item(yami_param, hf_yami_param_value_int, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -251,8 +251,8 @@ dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
 		case YAMI_TYPE_LONGLONG_ARRAY:
 		{
-			guint32 count;
-			guint i;
+			uint32_t count;
+			unsigned i;
 
 			count = tvb_get_letohl(tvb, offset);
 			proto_tree_add_item(yami_param, hf_yami_items_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -261,7 +261,7 @@ dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 			proto_item_append_text(ti, ", Type: long long[], %u items: {", count);
 
 			for (i = 0; i < count; i++) {
-				gint64 val = tvb_get_letoh64(tvb, offset);
+				int64_t val = tvb_get_letoh64(tvb, offset);
 
 				proto_item_append_text(ti, "%" PRId64 ", ", val);
 				proto_tree_add_item(yami_param, hf_yami_param_value_long, tvb, offset, 8, ENC_LITTLE_ENDIAN);
@@ -273,8 +273,8 @@ dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
 		case YAMI_TYPE_DOUBLE_ARRAY:
 		{
-			guint32 count;
-			guint i;
+			uint32_t count;
+			unsigned i;
 
 			count = tvb_get_letohl(tvb, offset);
 			proto_tree_add_item(yami_param, hf_yami_items_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -283,7 +283,7 @@ dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 			proto_item_append_text(ti, ", Type: double[], %u items: {", count);
 
 			for (i = 0; i < count; i++) {
-				gdouble val = tvb_get_letohieee_double(tvb, offset);
+				double val = tvb_get_letohieee_double(tvb, offset);
 
 				proto_item_append_text(ti, "%g, ", val);
 				proto_tree_add_item(yami_param, hf_yami_param_value_double, tvb, offset, 8, ENC_LITTLE_ENDIAN);
@@ -295,8 +295,8 @@ dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
 		case YAMI_TYPE_STRING_ARRAY:
 		{
-			guint32 count;
-			guint i;
+			uint32_t count;
+			unsigned i;
 
 			count = tvb_get_letohl(tvb, offset);
 			proto_tree_add_item(yami_param, hf_yami_items_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -306,7 +306,7 @@ dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
 			for (i = 0; i < count; i++) {
 				const int val_offset = offset;
-				guint32 val_len;
+				uint32_t val_len;
 				char *val;
 
 				val_len = tvb_get_letohl(tvb, offset);
@@ -324,8 +324,8 @@ dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
 		case YAMI_TYPE_BINARY_ARRAY:
 		{
-			guint32 count;
-			guint i;
+			uint32_t count;
+			unsigned i;
 
 			count = tvb_get_letohl(tvb, offset);
 			proto_tree_add_item(yami_param, hf_yami_items_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -335,8 +335,8 @@ dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
 			for (i = 0; i < count; i++) {
 				const int val_offset = offset;
-				guint32 val_len;
-				const guint8 *val;
+				uint32_t val_len;
+				const uint8_t *val;
 				char *repr;
 
 				val_len = tvb_get_letohl(tvb, offset);
@@ -355,8 +355,8 @@ dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
 		case YAMI_TYPE_NESTED:
 		{
-			guint32 count;
-			guint i;
+			uint32_t count;
+			unsigned i;
 
 			count = tvb_get_letohl(tvb, offset);
 			proto_tree_add_item(yami_param, hf_yami_params_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -385,15 +385,15 @@ dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 }
 
 static int
-dissect_yami_data(tvbuff_t *tvb, packet_info *pinfo, gboolean data, proto_tree *tree, int offset)
+dissect_yami_data(tvbuff_t *tvb, packet_info *pinfo, bool data, proto_tree *tree, int offset)
 {
 	const int orig_offset = offset;
 
 	proto_tree *yami_data_tree;
 	proto_item *ti;
 
-	guint32 count;
-	guint i;
+	uint32_t count;
+	unsigned i;
 
 	ti = proto_tree_add_item(tree, (data) ? hf_yami_message_data : hf_yami_message_hdr, tvb, offset, 0, ENC_NA);
 	yami_data_tree = proto_item_add_subtree(ti, (data) ? ett_yami_msg_data : ett_yami_msg_hdr);
@@ -422,10 +422,10 @@ dissect_yami_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 	proto_tree *yami_tree;
 	proto_item *ti;
 
-	gint frame_number;
-	gint message_header_size;
-	gint frame_payload_size;
-	gint frame_size;
+	int frame_number;
+	int message_header_size;
+	int frame_payload_size;
+	int frame_size;
 	int offset;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "YAMI");
@@ -462,13 +462,13 @@ dissect_yami_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 		if (message_header_size <= frame_payload_size) {
 			const int orig_offset = offset;
 
-			offset = dissect_yami_data(tvb, pinfo, FALSE, yami_tree, offset);
+			offset = dissect_yami_data(tvb, pinfo, false, yami_tree, offset);
 			if (offset != orig_offset + message_header_size) {
 				/* XXX, expert info */
 				offset = orig_offset + message_header_size;
 			}
 
-			dissect_yami_data(tvb, pinfo, TRUE, yami_tree, offset);
+			dissect_yami_data(tvb, pinfo, true, yami_tree, offset);
 		}
 	}
 
@@ -477,11 +477,11 @@ dissect_yami_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
 #define FRAME_HEADER_LEN 16
 
-static guint
+static unsigned
 get_yami_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                      int offset, void *data _U_)
 {
-	guint32 len = tvb_get_letohl(tvb, offset + 12);
+	uint32_t len = tvb_get_letohl(tvb, offset + 12);
 
 	return len + FRAME_HEADER_LEN;
 }
@@ -584,7 +584,7 @@ proto_register_yami(void)
 		},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_yami,
 		&ett_yami_msg_hdr,
 		&ett_yami_msg_data,

@@ -69,13 +69,13 @@ void proto_register_zbee_zcl_illum_meas(void);
 void proto_reg_handoff_zbee_zcl_illum_meas(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_illum_meas_attr_data     (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
+static void dissect_zcl_illum_meas_attr_data     (proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr);
 
 /* Private functions prototype */
-static void decode_illum_meas_value              (gchar *s, guint16 value);
-static void decode_illum_meas_min_value          (gchar *s, guint16 value);
-static void decode_illum_meas_max_value          (gchar *s, guint16 value);
-static void decode_illum_meas_tolerance          (gchar *s, guint16 value);
+static void decode_illum_meas_value              (char *s, uint16_t value);
+static void decode_illum_meas_min_value          (char *s, uint16_t value);
+static void decode_illum_meas_max_value          (char *s, uint16_t value);
+static void decode_illum_meas_tolerance          (char *s, uint16_t value);
 
 /*************************/
 /* Global Variables      */
@@ -92,7 +92,7 @@ static int hf_zbee_zcl_illum_meas_tolerance;
 static int hf_zbee_zcl_illum_meas_sensor_type;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_illum_meas;
+static int ett_zbee_zcl_illum_meas;
 
 /* Attributes */
 static const value_string zbee_zcl_illum_meas_attr_names[] = {
@@ -138,7 +138,7 @@ dissect_zbee_zcl_illum_meas(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
  *@param client_attr ZCL client
 */
 static void
-dissect_zcl_illum_meas_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
+dissect_zcl_illum_meas_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
 {
     /* Dissect attribute data type and data */
     switch ( attr_id ) {
@@ -181,7 +181,7 @@ dissect_zcl_illum_meas_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset,
  *@param value value to decode
 */
 static void
-decode_illum_meas_value(gchar *s, guint16 value)
+decode_illum_meas_value(char *s, uint16_t value)
 {
     if (value == ZBEE_ZCL_ATTR_ID_ILLUM_MEAS_TOO_LOW_VALUE)
         snprintf(s, ITEM_LABEL_LENGTH, "Value too low to be measured");
@@ -201,7 +201,7 @@ decode_illum_meas_value(gchar *s, guint16 value)
  *@param value value to decode
 */
 static void
-decode_illum_meas_min_value(gchar *s, guint16 value)
+decode_illum_meas_min_value(char *s, uint16_t value)
 {
     if ( (value < ZBEE_ZCL_ATTR_ID_ILLUM_MEAS_MIN_LO_VALUE) ||
          (value > ZBEE_ZCL_ATTR_ID_ILLUM_MEAS_MIN_HI_VALUE) )
@@ -219,7 +219,7 @@ decode_illum_meas_min_value(gchar *s, guint16 value)
  *@param value value to decode
 */
 static void
-decode_illum_meas_max_value(gchar *s, guint16 value)
+decode_illum_meas_max_value(char *s, uint16_t value)
 {
     if ( (value < ZBEE_ZCL_ATTR_ID_ILLUM_MEAS_MAX_LO_VALUE) ||
          (value > ZBEE_ZCL_ATTR_ID_ILLUM_MEAS_MAX_HI_VALUE) )
@@ -237,7 +237,7 @@ decode_illum_meas_max_value(gchar *s, guint16 value)
  *@param value value to decode
 */
 static void
-decode_illum_meas_tolerance(gchar *s, guint16 value)
+decode_illum_meas_tolerance(char *s, uint16_t value)
 {
     if (value > ZBEE_ZCL_ATTR_ID_ILLUM_MEAS_TOL_HI_VALUE)
         snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
@@ -282,7 +282,7 @@ proto_register_zbee_zcl_illum_meas(void)
     };
 
     /* ZCL Illuminance Measurement subtrees */
-    gint *ett[] = {
+    int *ett[] = {
         &ett_zbee_zcl_illum_meas
     };
 
@@ -355,10 +355,10 @@ void proto_register_zbee_zcl_illum_level_sen(void);
 void proto_reg_handoff_zbee_zcl_illum_level_sen(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_illum_level_sen_attr_data               (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
+static void dissect_zcl_illum_level_sen_attr_data               (proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr);
 
 /* Private functions prototype */
-static void decode_illum_level_sen_target_level                 (gchar *s, guint16 value);
+static void decode_illum_level_sen_target_level                 (char *s, uint16_t value);
 
 /*************************/
 /* Global Variables      */
@@ -373,7 +373,7 @@ static int hf_zbee_zcl_illum_level_sen_light_sensor_type;
 static int hf_zbee_zcl_illum_level_sen_illum_target_level;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_illum_level_sen;
+static int ett_zbee_zcl_illum_level_sen;
 
 /* Attributes */
 static const value_string zbee_zcl_illum_level_sen_attr_names[] = {
@@ -424,7 +424,7 @@ dissect_zbee_zcl_illum_level_sen(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
  *@param client_attr ZCL client
 */
 static void
-dissect_zcl_illum_level_sen_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
+dissect_zcl_illum_level_sen_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
 {
     /* Dissect attribute data type and data */
     switch ( attr_id ) {
@@ -457,7 +457,7 @@ dissect_zcl_illum_level_sen_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *of
  *@param value value to decode
 */
 static void
-decode_illum_level_sen_target_level(gchar *s, guint16 value)
+decode_illum_level_sen_target_level(char *s, uint16_t value)
 {
     if (value == ZBEE_ZCL_ATTR_ID_ILLUM_LEVEL_SEN_TOO_LOW_VALUE)
         snprintf(s, ITEM_LABEL_LENGTH, "Value too low to be measured");
@@ -497,7 +497,7 @@ proto_register_zbee_zcl_illum_level_sen(void)
     };
 
     /* ZCL Illuminance Level Sensing subtrees */
-    gint *ett[] = {
+    int *ett[] = {
         &ett_zbee_zcl_illum_level_sen
     };
 
@@ -573,13 +573,13 @@ void proto_register_zbee_zcl_temp_meas(void);
 void proto_reg_handoff_zbee_zcl_temp_meas(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_temp_meas_attr_data     (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
+static void dissect_zcl_temp_meas_attr_data     (proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr);
 
 /* Private functions prototype */
-static void decode_temp_meas_value              (gchar *s, gint16 value);
-static void decode_temp_meas_min_value          (gchar *s, gint16 value);
-static void decode_temp_meas_max_value          (gchar *s, gint16 value);
-static void decode_temp_meas_tolerance          (gchar *s, guint16 value);
+static void decode_temp_meas_value              (char *s, int16_t value);
+static void decode_temp_meas_min_value          (char *s, int16_t value);
+static void decode_temp_meas_max_value          (char *s, int16_t value);
+static void decode_temp_meas_tolerance          (char *s, uint16_t value);
 
 /*************************/
 /* Global Variables      */
@@ -595,7 +595,7 @@ static int hf_zbee_zcl_temp_meas_max_measured_value;
 static int hf_zbee_zcl_temp_meas_tolerance;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_temp_meas;
+static int ett_zbee_zcl_temp_meas;
 
 /* Attributes */
 static const value_string zbee_zcl_temp_meas_attr_names[] = {
@@ -634,7 +634,7 @@ dissect_zbee_zcl_temp_meas(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
  *@param client_attr ZCL client
 */
 static void
-dissect_zcl_temp_meas_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
+dissect_zcl_temp_meas_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
 {
     /* Dissect attribute data type and data */
     switch ( attr_id ) {
@@ -673,9 +673,9 @@ dissect_zcl_temp_meas_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, 
  *@param value value to decode
 */
 static void
-decode_temp_meas_value(gchar *s, gint16 value)
+decode_temp_meas_value(char *s, int16_t value)
 {
-    if (value == (gint16)ZBEE_ZCL_ATTR_ID_TEMP_MEAS_INVALID_VALUE)
+    if (value == (int16_t)ZBEE_ZCL_ATTR_ID_TEMP_MEAS_INVALID_VALUE)
         snprintf(s, ITEM_LABEL_LENGTH, "Invalid value");
     else
         snprintf(s, ITEM_LABEL_LENGTH, "%.2f [" UTF8_DEGREE_SIGN "C]", value/100.0);
@@ -690,10 +690,10 @@ decode_temp_meas_value(gchar *s, gint16 value)
  *@param value value to decode
 */
 static void
-decode_temp_meas_min_value(gchar *s, gint16 value)
+decode_temp_meas_min_value(char *s, int16_t value)
 {
-    if ( (value < (gint16)ZBEE_ZCL_ATTR_ID_TEMP_MEAS_MIN_LO_VALUE) ||
-         (value > (gint16)ZBEE_ZCL_ATTR_ID_TEMP_MEAS_MIN_HI_VALUE) )
+    if ( (value < (int16_t)ZBEE_ZCL_ATTR_ID_TEMP_MEAS_MIN_LO_VALUE) ||
+         (value > (int16_t)ZBEE_ZCL_ATTR_ID_TEMP_MEAS_MIN_HI_VALUE) )
         snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
     else
         snprintf(s, ITEM_LABEL_LENGTH, "%.2f [" UTF8_DEGREE_SIGN "C]", value/100.0);
@@ -708,9 +708,9 @@ decode_temp_meas_min_value(gchar *s, gint16 value)
  *@param value value to decode
 */
 static void
-decode_temp_meas_max_value(gchar *s, gint16 value)
+decode_temp_meas_max_value(char *s, int16_t value)
 {
-    if (value < (gint16)ZBEE_ZCL_ATTR_ID_TEMP_MEAS_MAX_LO_VALUE)
+    if (value < (int16_t)ZBEE_ZCL_ATTR_ID_TEMP_MEAS_MAX_LO_VALUE)
         snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
     else
         snprintf(s, ITEM_LABEL_LENGTH, "%.2f [" UTF8_DEGREE_SIGN "C]", value/100.0);
@@ -725,7 +725,7 @@ decode_temp_meas_max_value(gchar *s, gint16 value)
  *@param value value to decode
 */
 static void
-decode_temp_meas_tolerance(gchar *s, guint16 value)
+decode_temp_meas_tolerance(char *s, uint16_t value)
 {
     if (value > ZBEE_ZCL_ATTR_ID_TEMP_MEAS_TOL_HI_VALUE)
         snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
@@ -767,7 +767,7 @@ proto_register_zbee_zcl_temp_meas(void)
     };
 
     /* ZCL Temperature Measurement subtrees */
-    gint *ett[] = {
+    int *ett[] = {
         &ett_zbee_zcl_temp_meas
     };
 
@@ -848,13 +848,13 @@ void proto_register_zbee_zcl_press_meas(void);
 void proto_reg_handoff_zbee_zcl_press_meas(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_press_meas_attr_data     (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
+static void dissect_zcl_press_meas_attr_data     (proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr);
 
 /* Private functions prototype */
-static void decode_press_meas_value              (gchar *s, gint16 value);
-static void decode_press_meas_min_value          (gchar *s, gint16 value);
-static void decode_press_meas_max_value          (gchar *s, gint16 value);
-static void decode_press_meas_tolerance          (gchar *s, guint16 value);
+static void decode_press_meas_value              (char *s, int16_t value);
+static void decode_press_meas_min_value          (char *s, int16_t value);
+static void decode_press_meas_max_value          (char *s, int16_t value);
+static void decode_press_meas_tolerance          (char *s, uint16_t value);
 
 /*************************/
 /* Global Variables      */
@@ -875,7 +875,7 @@ static int hf_zbee_zcl_press_meas_scaled_tolerance;
 static int hf_zbee_zcl_press_meas_scale;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_press_meas;
+static int ett_zbee_zcl_press_meas;
 
 /* Attributes */
 static const value_string zbee_zcl_press_meas_attr_names[] = {
@@ -919,7 +919,7 @@ dissect_zbee_zcl_press_meas(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
  *@param client_attr ZCL client
 */
 static void
-dissect_zcl_press_meas_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
+dissect_zcl_press_meas_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
 {
     /* Dissect attribute data type and data */
     switch ( attr_id ) {
@@ -982,11 +982,11 @@ dissect_zcl_press_meas_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset,
  *@param value value to decode
 */
 static void
-decode_press_meas_value(gchar *s, gint16 value)
+decode_press_meas_value(char *s, int16_t value)
 {
-    if (value == (gint16)ZBEE_ZCL_ATTR_ID_PRESS_MEAS_INVALID_VALUE)
+    if (value == (int16_t)ZBEE_ZCL_ATTR_ID_PRESS_MEAS_INVALID_VALUE)
         snprintf(s, ITEM_LABEL_LENGTH, "Invalid value");
-    if (value < (gint16)ZBEE_ZCL_ATTR_ID_PRESS_MEAS_MIN_LO_VALUE)
+    if (value < (int16_t)ZBEE_ZCL_ATTR_ID_PRESS_MEAS_MIN_LO_VALUE)
         snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
     else
         snprintf(s, ITEM_LABEL_LENGTH, "%d.%d [kPa]", value/10, value%10);
@@ -1001,9 +1001,9 @@ decode_press_meas_value(gchar *s, gint16 value)
  *@param value value to decode
 */
 static void
-decode_press_meas_min_value(gchar *s, gint16 value)
+decode_press_meas_min_value(char *s, int16_t value)
 {
-    if (value > (gint16)ZBEE_ZCL_ATTR_ID_PRESS_MEAS_MIN_HI_VALUE)
+    if (value > (int16_t)ZBEE_ZCL_ATTR_ID_PRESS_MEAS_MIN_HI_VALUE)
         snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
     else
         snprintf(s, ITEM_LABEL_LENGTH, "%d.%d [kPa]", value/10, value%10);
@@ -1018,9 +1018,9 @@ decode_press_meas_min_value(gchar *s, gint16 value)
  *@param value value to decode
 */
 static void
-decode_press_meas_max_value(gchar *s, gint16 value)
+decode_press_meas_max_value(char *s, int16_t value)
 {
-    if (value < (gint16)ZBEE_ZCL_ATTR_ID_PRESS_MEAS_MAX_LO_VALUE)
+    if (value < (int16_t)ZBEE_ZCL_ATTR_ID_PRESS_MEAS_MAX_LO_VALUE)
         snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
     else
         snprintf(s, ITEM_LABEL_LENGTH, "%d.%d [kPa]", value/10, value%10);
@@ -1035,9 +1035,9 @@ decode_press_meas_max_value(gchar *s, gint16 value)
  *@param value value to decode
 */
 static void
-decode_press_meas_tolerance(gchar *s, guint16 value)
+decode_press_meas_tolerance(char *s, uint16_t value)
 {
-    if (value > (guint16)ZBEE_ZCL_ATTR_ID_PRESS_MEAS_TOL_HI_VALUE)
+    if (value > (uint16_t)ZBEE_ZCL_ATTR_ID_PRESS_MEAS_TOL_HI_VALUE)
         snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
     else
          snprintf(s, ITEM_LABEL_LENGTH, "%d.%d [kPa]", value/10, value%10);
@@ -1097,7 +1097,7 @@ proto_register_zbee_zcl_press_meas(void)
     };
 
     /* ZCL Pressure Measurement subtrees */
-    gint *ett[] = {
+    int *ett[] = {
         &ett_zbee_zcl_press_meas
     };
 
@@ -1170,13 +1170,13 @@ void proto_register_zbee_zcl_flow_meas(void);
 void proto_reg_handoff_zbee_zcl_flow_meas(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_flow_meas_attr_data     (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
+static void dissect_zcl_flow_meas_attr_data     (proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr);
 
 /* Private functions prototype */
-static void decode_flow_meas_value              (gchar *s, guint16 value);
-static void decode_flow_meas_min_value          (gchar *s, guint16 value);
-static void decode_flow_meas_max_value          (gchar *s, guint16 value);
-static void decode_flow_meas_tolerance          (gchar *s, guint16 value);
+static void decode_flow_meas_value              (char *s, uint16_t value);
+static void decode_flow_meas_min_value          (char *s, uint16_t value);
+static void decode_flow_meas_max_value          (char *s, uint16_t value);
+static void decode_flow_meas_tolerance          (char *s, uint16_t value);
 
 /*************************/
 /* Global Variables      */
@@ -1192,7 +1192,7 @@ static int hf_zbee_zcl_flow_meas_max_measured_value;
 static int hf_zbee_zcl_flow_meas_tolerance;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_flow_meas;
+static int ett_zbee_zcl_flow_meas;
 
 /* Attributes */
 static const value_string zbee_zcl_flow_meas_attr_names[] = {
@@ -1231,7 +1231,7 @@ dissect_zbee_zcl_flow_meas(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
  *@param client_attr ZCL client
 */
 static void
-dissect_zcl_flow_meas_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
+dissect_zcl_flow_meas_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
 {
     /* Dissect attribute data type and data */
     switch ( attr_id ) {
@@ -1269,7 +1269,7 @@ dissect_zcl_flow_meas_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, 
  *@param value value to decode
 */
 static void
-decode_flow_meas_value(gchar *s, guint16 value)
+decode_flow_meas_value(char *s, uint16_t value)
 {
     if (value == ZBEE_ZCL_ATTR_ID_FLOW_MEAS_TOO_LOW_VALUE)
         snprintf(s, ITEM_LABEL_LENGTH, "Value too low to be measured");
@@ -1289,7 +1289,7 @@ decode_flow_meas_value(gchar *s, guint16 value)
  *@param value value to decode
 */
 static void
-decode_flow_meas_min_value(gchar *s, guint16 value)
+decode_flow_meas_min_value(char *s, uint16_t value)
 {
     if ( /*(value < ZBEE_ZCL_ATTR_ID_FLOW_MEAS_MIN_LO_VALUE) ||*/
          (value > ZBEE_ZCL_ATTR_ID_FLOW_MEAS_MIN_HI_VALUE) )
@@ -1307,7 +1307,7 @@ decode_flow_meas_min_value(gchar *s, guint16 value)
  *@param value value to decode
 */
 static void
-decode_flow_meas_max_value(gchar *s, guint16 value)
+decode_flow_meas_max_value(char *s, uint16_t value)
 {
     if ( (value < ZBEE_ZCL_ATTR_ID_FLOW_MEAS_MAX_LO_VALUE) ||
          (value > ZBEE_ZCL_ATTR_ID_FLOW_MEAS_MAX_HI_VALUE) )
@@ -1325,7 +1325,7 @@ decode_flow_meas_max_value(gchar *s, guint16 value)
  *@param value value to decode
 */
 static void
-decode_flow_meas_tolerance(gchar *s, guint16 value)
+decode_flow_meas_tolerance(char *s, uint16_t value)
 {
     if (value > ZBEE_ZCL_ATTR_ID_FLOW_MEAS_TOL_HI_VALUE)
         snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
@@ -1366,7 +1366,7 @@ proto_register_zbee_zcl_flow_meas(void)
     };
 
     /* ZCL Flow Measurement subtrees */
-    gint *ett[] = {
+    int *ett[] = {
         &ett_zbee_zcl_flow_meas
     };
 
@@ -1441,13 +1441,13 @@ void proto_register_zbee_zcl_relhum_meas(void);
 void proto_reg_handoff_zbee_zcl_relhum_meas(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_relhum_meas_attr_data     (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
+static void dissect_zcl_relhum_meas_attr_data     (proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr);
 
 /* Private functions prototype */
-static void decode_relhum_meas_value              (gchar *s, guint16 value);
-static void decode_relhum_meas_min_value          (gchar *s, guint16 value);
-static void decode_relhum_meas_max_value          (gchar *s, guint16 value);
-static void decode_relhum_meas_tolerance          (gchar *s, guint16 value);
+static void decode_relhum_meas_value              (char *s, uint16_t value);
+static void decode_relhum_meas_min_value          (char *s, uint16_t value);
+static void decode_relhum_meas_max_value          (char *s, uint16_t value);
+static void decode_relhum_meas_tolerance          (char *s, uint16_t value);
 
 /*************************/
 /* Global Variables      */
@@ -1463,7 +1463,7 @@ static int hf_zbee_zcl_relhum_meas_max_measured_value;
 static int hf_zbee_zcl_relhum_meas_tolerance;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_relhum_meas;
+static int ett_zbee_zcl_relhum_meas;
 
 /* Attributes */
 static const value_string zbee_zcl_relhum_meas_attr_names[] = {
@@ -1502,7 +1502,7 @@ dissect_zbee_zcl_relhum_meas(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
  *@param client_attr ZCL client
 */
 static void
-dissect_zcl_relhum_meas_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
+dissect_zcl_relhum_meas_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
 {
     /* Dissect attribute data type and data */
     switch ( attr_id ) {
@@ -1540,7 +1540,7 @@ dissect_zcl_relhum_meas_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset
  *@param value value to decode
 */
 static void
-decode_relhum_meas_value(gchar *s, guint16 value)
+decode_relhum_meas_value(char *s, uint16_t value)
 {
     if (value == ZBEE_ZCL_ATTR_ID_RELHUM_MEAS_INVALID_VALUE)
         snprintf(s, ITEM_LABEL_LENGTH, "Invalid value");
@@ -1557,7 +1557,7 @@ decode_relhum_meas_value(gchar *s, guint16 value)
  *@param value value to decode
 */
 static void
-decode_relhum_meas_min_value(gchar *s, guint16 value)
+decode_relhum_meas_min_value(char *s, uint16_t value)
 {
     if (value > ZBEE_ZCL_ATTR_ID_RELHUM_MEAS_MIN_HI_VALUE)
         snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
@@ -1574,7 +1574,7 @@ decode_relhum_meas_min_value(gchar *s, guint16 value)
  *@param value value to decode
 */
 static void
-decode_relhum_meas_max_value(gchar *s, guint16 value)
+decode_relhum_meas_max_value(char *s, uint16_t value)
 {
     if (value > ZBEE_ZCL_ATTR_ID_RELHUM_MEAS_MAX_HI_VALUE)
         snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
@@ -1591,7 +1591,7 @@ decode_relhum_meas_max_value(gchar *s, guint16 value)
  *@param value value to decode
 */
 static void
-decode_relhum_meas_tolerance(gchar *s, guint16 value)
+decode_relhum_meas_tolerance(char *s, uint16_t value)
 {
     if (value > ZBEE_ZCL_ATTR_ID_RELHUM_MEAS_TOL_HI_VALUE)
         snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
@@ -1633,7 +1633,7 @@ proto_register_zbee_zcl_relhum_meas(void)
     };
 
     /* ZCL Relative Humidity Measurement subtrees */
-    gint *ett[] = {
+    int *ett[] = {
         &ett_zbee_zcl_relhum_meas
     };
 
@@ -1707,7 +1707,7 @@ void proto_register_zbee_zcl_occ_sen(void);
 void proto_reg_handoff_zbee_zcl_occ_sen(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_occ_sen_attr_data               (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
+static void dissect_zcl_occ_sen_attr_data               (proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr);
 
 /*************************/
 /* Global Variables      */
@@ -1722,8 +1722,8 @@ static int hf_zbee_zcl_occ_sen_occupancy_occupied;
 static int hf_zbee_zcl_occ_sen_occ_sensor_type;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_occ_sen;
-static gint ett_zbee_zcl_occ_sen_occupancy;
+static int ett_zbee_zcl_occ_sen;
+static int ett_zbee_zcl_occ_sen_occupancy;
 
 /* Attributes */
 static const value_string zbee_zcl_occ_sen_attr_names[] = {
@@ -1774,7 +1774,7 @@ dissect_zbee_zcl_occ_sen(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *
  *@param client_attr ZCL client
 */
 static void
-dissect_zcl_occ_sen_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
+dissect_zcl_occ_sen_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
 {
     static int * const occupancy[] = {
         &hf_zbee_zcl_occ_sen_occupancy_occupied,
@@ -1834,7 +1834,7 @@ proto_register_zbee_zcl_occ_sen(void)
 
 
     /* ZCL Occupancy Sensing subtrees */
-    static gint *ett[ZBEE_ZCL_OCC_SEN_NUM_ETT];
+    static int *ett[ZBEE_ZCL_OCC_SEN_NUM_ETT];
     ett[0] = &ett_zbee_zcl_occ_sen;
     ett[1] = &ett_zbee_zcl_occ_sen_occupancy;
 
@@ -2039,10 +2039,10 @@ void proto_register_zbee_zcl_elec_mes(void);
 void proto_reg_handoff_zbee_zcl_elec_mes(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_elec_mes_attr_data                              (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
-static void dissect_zcl_elec_mes_get_measurement_profile_info           (tvbuff_t *tvb, proto_tree *tree, guint *offset);
-static void dissect_zcl_elec_mes_get_profile_info_response              (tvbuff_t *tvb, proto_tree *tree, guint *offset);
-static void dissect_zcl_elec_mes_get_measurement_profile_info_response  (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_elec_mes_attr_data                              (proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr);
+static void dissect_zcl_elec_mes_get_measurement_profile_info           (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
+static void dissect_zcl_elec_mes_get_profile_info_response              (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
+static void dissect_zcl_elec_mes_get_measurement_profile_info_response  (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
 
 /*************************/
 /* Global Variables      */
@@ -2064,7 +2064,7 @@ static int hf_zbee_zcl_elec_mes_number_of_intervals_delivered;
 static int hf_zbee_zcl_elec_mes_intervals;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_elec_mes;
+static int ett_zbee_zcl_elec_mes;
 
 /* Attributes */
 static const value_string zbee_zcl_elec_mes_attr_names[] = {
@@ -2251,9 +2251,9 @@ dissect_zbee_zcl_elec_mes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 {
     proto_tree        *payload_tree;
     zbee_zcl_packet   *zcl;
-    guint             offset = 0;
-    guint8            cmd_id;
-    gint              rem_len;
+    unsigned          offset = 0;
+    uint8_t           cmd_id;
+    int               rem_len;
 
     /* Reject the packet if data is NULL */
     if (data == NULL)
@@ -2337,7 +2337,7 @@ dissect_zbee_zcl_elec_mes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
  *@param client_attr ZCL client
 */
 static void
-dissect_zcl_elec_mes_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
+dissect_zcl_elec_mes_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
 {
     /* Dissect attribute data type and data */
     switch ( attr_id ) {
@@ -2354,7 +2354,7 @@ dissect_zcl_elec_mes_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, g
  *@param tree pointer to data tree Wireshark uses to display packet.
  *@param offset pointer to offset from caller
 */
-static void dissect_zcl_elec_mes_get_measurement_profile_info(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+static void dissect_zcl_elec_mes_get_measurement_profile_info(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
     proto_tree_add_item(tree, hf_zbee_zcl_elec_mes_attr_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
     *offset += 2;
@@ -2373,7 +2373,7 @@ static void dissect_zcl_elec_mes_get_measurement_profile_info(tvbuff_t *tvb, pro
  *@param tree pointer to data tree Wireshark uses to display packet.
  *@param offset pointer to offset from caller
 */
-static void dissect_zcl_elec_mes_get_profile_info_response(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+static void dissect_zcl_elec_mes_get_profile_info_response(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
     proto_tree_add_item(tree, hf_zbee_zcl_elec_mes_profile_count, tvb, *offset, 1, ENC_NA);
     *offset += 1;
@@ -2397,9 +2397,9 @@ static void dissect_zcl_elec_mes_get_profile_info_response(tvbuff_t *tvb, proto_
  *@param tree pointer to data tree Wireshark uses to display packet.
  *@param offset pointer to offset from caller
 */
-static void dissect_zcl_elec_mes_get_measurement_profile_info_response(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+static void dissect_zcl_elec_mes_get_measurement_profile_info_response(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
-    guint rem_len;
+    unsigned rem_len;
 
     proto_tree_add_item(tree, hf_zbee_zcl_elec_mes_start_time, tvb, *offset, 4, ENC_TIME_ZBEE_ZCL|ENC_LITTLE_ENDIAN);
     *offset += 4;
@@ -2476,7 +2476,7 @@ proto_register_zbee_zcl_elec_mes(void)
     };
 
     /* ZCL Electrical Measurement subtrees */
-    static gint *ett[ZBEE_ZCL_ELEC_MES_NUM_ETT];
+    static int *ett[ZBEE_ZCL_ELEC_MES_NUM_ETT];
     ett[0] = &ett_zbee_zcl_elec_mes;
 
     /* Register the ZigBee ZCL Electrical Measurement cluster protocol name and description */

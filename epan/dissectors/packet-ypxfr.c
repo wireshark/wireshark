@@ -21,7 +21,7 @@ void proto_reg_handoff_ypxfr(void);
 static int proto_ypxfr;
 static int hf_ypxfr_procedure_v1;
 
-static gint ett_ypxfr;
+static int ett_ypxfr;
 
 /* proc number, "proc name", dissect_request, dissect_reply */
 static const vsff ypxfr1_proc[] = {
@@ -50,7 +50,7 @@ proto_register_ypxfr(void)
 			VALS(ypxfr1_proc_vals), 0, NULL, HFILL }}
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_ypxfr
 	};
 

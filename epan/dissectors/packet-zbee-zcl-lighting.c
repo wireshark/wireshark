@@ -113,8 +113,8 @@
 #define ZBEE_ZCL_CMD_ID_COLOR_CONTROL_MOVE_COLOR_TEMP                               0x4b  /* Move Color Temperature */
 #define ZBEE_ZCL_CMD_ID_COLOR_CONTROL_STEP_COLOR_TEMP                               0x4c  /* Step Color Temperature */
 
-#define ZBEE_ZCL_NORMAL_HUE                                                         FALSE
-#define ZBEE_ZCL_ENHANCED_HUE                                                       TRUE
+#define ZBEE_ZCL_NORMAL_HUE                                                         false
+#define ZBEE_ZCL_ENHANCED_HUE                                                       true
 
 /* Server Commands Generated - None */
 
@@ -126,20 +126,20 @@ void proto_register_zbee_zcl_color_control(void);
 void proto_reg_handoff_zbee_zcl_color_control(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_color_control_move_to_hue                               (tvbuff_t *tvb, proto_tree *tree, guint *offset, gboolean enhanced);
-static void dissect_zcl_color_control_move_hue_saturation                       (tvbuff_t *tvb, proto_tree *tree, guint *offset, gboolean enhanced);
-static void dissect_zcl_color_control_step_hue_saturation                       (tvbuff_t *tvb, proto_tree *tree, guint *offset, gboolean enhanced);
-static void dissect_zcl_color_control_move_to_saturation                        (tvbuff_t *tvb, proto_tree *tree, guint *offset);
-static void dissect_zcl_color_control_move_to_hue_and_saturation                (tvbuff_t *tvb, proto_tree *tree, guint *offset, gboolean enhanced);
-static void dissect_zcl_color_control_move_to_color                             (tvbuff_t *tvb, proto_tree *tree, guint *offset);
-static void dissect_zcl_color_control_move_color                                (tvbuff_t *tvb, proto_tree *tree, guint *offset);
-static void dissect_zcl_color_control_step_color                                (tvbuff_t *tvb, proto_tree *tree, guint *offset);
-static void dissect_zcl_color_control_move_to_color_temp                        (tvbuff_t *tvb, proto_tree *tree, guint *offset);
-static void dissect_zcl_color_control_color_loop_set                            (tvbuff_t *tvb, proto_tree *tree, guint *offset);
-static void dissect_zcl_color_control_move_color_temp                           (tvbuff_t *tvb, proto_tree *tree, guint *offset);
-static void dissect_zcl_color_control_step_color_temp                           (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_color_control_move_to_hue                               (tvbuff_t *tvb, proto_tree *tree, unsigned *offset, bool enhanced);
+static void dissect_zcl_color_control_move_hue_saturation                       (tvbuff_t *tvb, proto_tree *tree, unsigned *offset, bool enhanced);
+static void dissect_zcl_color_control_step_hue_saturation                       (tvbuff_t *tvb, proto_tree *tree, unsigned *offset, bool enhanced);
+static void dissect_zcl_color_control_move_to_saturation                        (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
+static void dissect_zcl_color_control_move_to_hue_and_saturation                (tvbuff_t *tvb, proto_tree *tree, unsigned *offset, bool enhanced);
+static void dissect_zcl_color_control_move_to_color                             (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
+static void dissect_zcl_color_control_move_color                                (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
+static void dissect_zcl_color_control_step_color                                (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
+static void dissect_zcl_color_control_move_to_color_temp                        (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
+static void dissect_zcl_color_control_color_loop_set                            (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
+static void dissect_zcl_color_control_move_color_temp                           (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
+static void dissect_zcl_color_control_step_color_temp                           (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
 
-static void dissect_zcl_color_control_attr_data                                 (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
+static void dissect_zcl_color_control_attr_data                                 (proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr);
 
 /* Private functions prototype */
 
@@ -237,9 +237,9 @@ static int hf_zbee_zcl_color_control_color_temp_max;
 static int hf_zbee_zcl_color_control_srv_rx_cmd_id;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_color_control;
-static gint ett_zbee_zcl_color_control_color_capabilities;
-static gint ett_zbee_zcl_color_control_color_loop_settings;
+static int ett_zbee_zcl_color_control;
+static int ett_zbee_zcl_color_control_color_capabilities;
+static int ett_zbee_zcl_color_control_color_loop_settings;
 
 /* Attributes */
 static const value_string zbee_zcl_color_control_attr_names[] = {
@@ -397,9 +397,9 @@ dissect_zbee_zcl_color_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 {
     proto_tree        *payload_tree;
     zbee_zcl_packet   *zcl;
-    guint             offset = 0;
-    guint8            cmd_id;
-    gint              rem_len;
+    unsigned          offset = 0;
+    uint8_t           cmd_id;
+    int               rem_len;
 
     /* Reject the packet if data is NULL */
     if (data == NULL)
@@ -515,7 +515,7 @@ dissect_zbee_zcl_color_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
  *@param  offset offset of data in tvb
 */
 static void
-dissect_zcl_color_control_move_to_hue(tvbuff_t *tvb, proto_tree *tree, guint *offset, gboolean enhanced)
+dissect_zcl_color_control_move_to_hue(tvbuff_t *tvb, proto_tree *tree, unsigned *offset, bool enhanced)
 {
     /* Retrieve "Hue" field */
     if (enhanced)
@@ -548,7 +548,7 @@ dissect_zcl_color_control_move_to_hue(tvbuff_t *tvb, proto_tree *tree, guint *of
  *@param  offset offset of data in tvb
 */
 static void
-dissect_zcl_color_control_move_hue_saturation(tvbuff_t *tvb, proto_tree *tree, guint *offset, gboolean enhanced)
+dissect_zcl_color_control_move_hue_saturation(tvbuff_t *tvb, proto_tree *tree, unsigned *offset, bool enhanced)
 {
     /* Retrieve "Move Mode" field */
     proto_tree_add_item(tree, hf_zbee_zcl_color_control_move_mode, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
@@ -577,7 +577,7 @@ dissect_zcl_color_control_move_hue_saturation(tvbuff_t *tvb, proto_tree *tree, g
  *@param  offset offset of data in tvb
 */
 static void
-dissect_zcl_color_control_step_hue_saturation(tvbuff_t *tvb, proto_tree *tree, guint *offset, gboolean enhanced)
+dissect_zcl_color_control_step_hue_saturation(tvbuff_t *tvb, proto_tree *tree, unsigned *offset, bool enhanced)
 {
     /* Retrieve "Step Mode" field */
     proto_tree_add_item(tree, hf_zbee_zcl_color_control_step_mode, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
@@ -610,7 +610,7 @@ dissect_zcl_color_control_step_hue_saturation(tvbuff_t *tvb, proto_tree *tree, g
  *@param  offset offset of data in tvb
 */
 static void
-dissect_zcl_color_control_move_to_saturation(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+dissect_zcl_color_control_move_to_saturation(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
     /* Retrieve "Saturation" field */
     proto_tree_add_item(tree, hf_zbee_zcl_color_control_saturation, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
@@ -631,7 +631,7 @@ dissect_zcl_color_control_move_to_saturation(tvbuff_t *tvb, proto_tree *tree, gu
  *@param  offset offset of data in tvb
 */
 static void
-dissect_zcl_color_control_move_to_hue_and_saturation(tvbuff_t *tvb, proto_tree *tree, guint *offset, gboolean enhanced)
+dissect_zcl_color_control_move_to_hue_and_saturation(tvbuff_t *tvb, proto_tree *tree, unsigned *offset, bool enhanced)
 {
     /* Retrieve "Hue" field */
     if (enhanced)
@@ -664,7 +664,7 @@ dissect_zcl_color_control_move_to_hue_and_saturation(tvbuff_t *tvb, proto_tree *
  *@param  offset offset of data in tvb
 */
 static void
-dissect_zcl_color_control_move_to_color(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+dissect_zcl_color_control_move_to_color(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
    /* Retrieve "Color X" field */
    proto_tree_add_item(tree, hf_zbee_zcl_color_control_color_X, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
@@ -688,7 +688,7 @@ dissect_zcl_color_control_move_to_color(tvbuff_t *tvb, proto_tree *tree, guint *
  *@param  offset offset of data in tvb
 */
 static void
-dissect_zcl_color_control_move_color(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+dissect_zcl_color_control_move_color(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
    /* Retrieve "Rate X" field */
    proto_tree_add_item(tree, hf_zbee_zcl_color_control_rate_X, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
@@ -709,7 +709,7 @@ dissect_zcl_color_control_move_color(tvbuff_t *tvb, proto_tree *tree, guint *off
  *@param  offset offset of data in tvb
 */
 static void
-dissect_zcl_color_control_step_color(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+dissect_zcl_color_control_step_color(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
    /* Retrieve "Step X" field */
    proto_tree_add_item(tree, hf_zbee_zcl_color_control_step_X, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
@@ -733,7 +733,7 @@ dissect_zcl_color_control_step_color(tvbuff_t *tvb, proto_tree *tree, guint *off
  *@param  offset offset of data in tvb
 */
 static void
-dissect_zcl_color_control_move_to_color_temp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+dissect_zcl_color_control_move_to_color_temp(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
    /* Retrieve "Color Temperature" field */
    proto_tree_add_item(tree, hf_zbee_zcl_color_control_color_temp, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
@@ -753,7 +753,7 @@ dissect_zcl_color_control_move_to_color_temp(tvbuff_t *tvb, proto_tree *tree, gu
  *@param  offset offset of data in tvb
 */
 static void
-dissect_zcl_color_control_color_loop_set(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+dissect_zcl_color_control_color_loop_set(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
     static int * const color_loop_update_fields[] = {
         &hf_zbee_zcl_color_control_color_loop_update_action,
@@ -793,7 +793,7 @@ dissect_zcl_color_control_color_loop_set(tvbuff_t *tvb, proto_tree *tree, guint 
   *@param  offset offset of data in tvb
   */
 static void
-dissect_zcl_color_control_move_color_temp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+dissect_zcl_color_control_move_color_temp(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
     /* Retrieve "Move Mode" field */
     proto_tree_add_item(tree, hf_zbee_zcl_color_control_move_mode, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
@@ -821,7 +821,7 @@ dissect_zcl_color_control_move_color_temp(tvbuff_t *tvb, proto_tree *tree, guint
   *@param  offset offset of data in tvb
   */
 static void
-dissect_zcl_color_control_step_color_temp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+dissect_zcl_color_control_step_color_temp(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
     /* Retrieve "Step Mode" field */
     proto_tree_add_item(tree, hf_zbee_zcl_color_control_step_mode, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
@@ -851,14 +851,14 @@ dissect_zcl_color_control_step_color_temp(tvbuff_t *tvb, proto_tree *tree, guint
  *  DESCRIPTION
  *    this function decodes color xy values
  *  PARAMETERS
- *      guint *s        - string to display
- *      guint16 value   - value to decode
+ *      unsigned *s        - string to display
+ *      uint16_t value   - value to decode
  *  RETURNS
  *    none
  *---------------------------------------------------------------
  */
 static void
-decode_color_xy(gchar *s, guint16 value)
+decode_color_xy(char *s, uint16_t value)
 {
     snprintf(s, ITEM_LABEL_LENGTH, "%.4lf", value/65535.0);
     return;
@@ -870,14 +870,14 @@ decode_color_xy(gchar *s, guint16 value)
   *  DESCRIPTION
   *    this function decodes color temperature values
   *  PARAMETERS
-  *      guint *s        - string to display
-  *      guint16 value   - value to decode
+  *      unsigned *s        - string to display
+  *      uint16_t value   - value to decode
   *  RETURNS
   *    none
   *---------------------------------------------------------------
   */
 static void
-decode_color_temperature(gchar *s, guint16 value)
+decode_color_temperature(char *s, uint16_t value)
 {
     if (value == 0) {
         snprintf(s, ITEM_LABEL_LENGTH, "%u [Mired]", value);
@@ -893,14 +893,14 @@ decode_color_temperature(gchar *s, guint16 value)
   *  DESCRIPTION
   *    this function decodes color temperature values
   *  PARAMETERS
-  *      guint *s        - string to display
-  *      guint16 value   - value to decode
+  *      unsigned *s        - string to display
+  *      uint16_t value   - value to decode
   *  RETURNS
   *    none
   *---------------------------------------------------------------
   */
 static void
-decode_startup_color_temperature(gchar *s, guint16 value)
+decode_startup_color_temperature(char *s, uint16_t value)
 {
     if (value == 0xffff)
     {
@@ -924,7 +924,7 @@ decode_startup_color_temperature(gchar *s, guint16 value)
  *@param client_attr ZCL client
 */
 void
-dissect_zcl_color_control_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
+dissect_zcl_color_control_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
 {
     static int * const capabilities_fields[] = {
         &hf_zbee_zcl_color_control_attr_color_capabilities_hs,
@@ -1548,7 +1548,7 @@ proto_register_zbee_zcl_color_control(void)
     };
 
     /* ZCL Color Control subtrees */
-    static gint *ett[ZBEE_ZCL_COLOR_CONTROL_NUM_ETT];
+    static int *ett[ZBEE_ZCL_COLOR_CONTROL_NUM_ETT];
     ett[0] = &ett_zbee_zcl_color_control;
     ett[1] = &ett_zbee_zcl_color_control_color_capabilities;
     ett[2] = &ett_zbee_zcl_color_control_color_loop_settings;
@@ -1632,7 +1632,7 @@ void proto_register_zbee_zcl_ballast_configuration(void);
 void proto_reg_handoff_zbee_zcl_ballast_configuration(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_ballast_configuration_attr_data      (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
+static void dissect_zcl_ballast_configuration_attr_data      (proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr);
 
 /* Private functions prototype */
 
@@ -1650,9 +1650,9 @@ static int hf_zbee_zcl_ballast_configuration_lamp_alarm_mode;
 static int hf_zbee_zcl_ballast_configuration_lamp_alarm_mode_lamp_burn_hours;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_ballast_configuration;
-static gint ett_zbee_zcl_ballast_configuration_status;
-static gint ett_zbee_zcl_ballast_configuration_lamp_alarm_mode;
+static int ett_zbee_zcl_ballast_configuration;
+static int ett_zbee_zcl_ballast_configuration_status;
+static int ett_zbee_zcl_ballast_configuration_lamp_alarm_mode;
 
 /* Attributes */
 static const value_string zbee_zcl_ballast_configuration_attr_names[] = {
@@ -1720,7 +1720,7 @@ dissect_zbee_zcl_ballast_configuration(tvbuff_t *tvb _U_, packet_info *pinfo _U_
  *@param client_attr ZCL client
 */
 void
-dissect_zcl_ballast_configuration_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
+dissect_zcl_ballast_configuration_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
 {
     static int * const ballast_status[] = {
         &hf_zbee_zcl_ballast_configuration_status_non_operational,
@@ -1808,7 +1808,7 @@ proto_register_zbee_zcl_ballast_configuration(void)
     };
 
     /* ZCL Ballast Configuration subtrees */
-    static gint *ett[ZBEE_ZCL_BALLAST_CONFIGURATION_NUM_ETT];
+    static int *ett[ZBEE_ZCL_BALLAST_CONFIGURATION_NUM_ETT];
 
     ett[0] = &ett_zbee_zcl_ballast_configuration;
     ett[1] = &ett_zbee_zcl_ballast_configuration_status;

@@ -1752,7 +1752,7 @@
 
 /* Helper Functions */
 /* Helper Functions */
-extern guint zbee_get_bit_field(guint input, guint mask);
+extern unsigned zbee_get_bit_field(unsigned input, unsigned mask);
 
 #endif /* PACKET_ZBEE_H */
 

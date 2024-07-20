@@ -94,7 +94,7 @@ void proto_register_zbee_zcl_pump_config_control(void);
 void proto_reg_handoff_zbee_zcl_pump_config_control(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_pump_config_control_attr_data      (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
+static void dissect_zcl_pump_config_control_attr_data      (proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr);
 
 /* Private functions prototype */
 
@@ -136,9 +136,9 @@ static int hf_zbee_zcl_pump_config_control_alarm_fatal_fail;
 static int hf_zbee_zcl_pump_config_control_alarm_gen_fault;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_pump_config_control;
-static gint ett_zbee_zcl_pump_config_control_status;
-static gint ett_zbee_zcl_pump_config_control_alarm;
+static int ett_zbee_zcl_pump_config_control;
+static int ett_zbee_zcl_pump_config_control_status;
+static int ett_zbee_zcl_pump_config_control_alarm;
 
 /* Attributes */
 static const value_string zbee_zcl_pump_config_control_attr_names[] = {
@@ -221,7 +221,7 @@ dissect_zbee_zcl_pump_config_control(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
  *@param client_attr ZCL client
 */
 void
-dissect_zcl_pump_config_control_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
+dissect_zcl_pump_config_control_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
 {
     static int * const pump_status[] = {
         &hf_zbee_zcl_pump_config_control_status_device_fault,
@@ -449,7 +449,7 @@ proto_register_zbee_zcl_pump_config_control(void)
     };
 
     /* ZCL Pump Configuration and Control subtrees */
-    static gint *ett[ZBEE_ZCL_PUMP_CONFIG_CONTROL_NUM_ETT];
+    static int *ett[ZBEE_ZCL_PUMP_CONFIG_CONTROL_NUM_ETT];
 
     ett[0] = &ett_zbee_zcl_pump_config_control;
     ett[1] = &ett_zbee_zcl_pump_config_control_status;
@@ -510,7 +510,7 @@ void proto_register_zbee_zcl_fan_control(void);
 void proto_reg_handoff_zbee_zcl_fan_control(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_fan_control_attr_data      (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
+static void dissect_zcl_fan_control_attr_data      (proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr);
 
 /* Private functions prototype */
 
@@ -525,7 +525,7 @@ static int hf_zbee_zcl_fan_control_attr_fan_mode;
 static int hf_zbee_zcl_fan_control_attr_fan_mode_seq;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_fan_control;
+static int ett_zbee_zcl_fan_control;
 
 /* Attributes */
 static const value_string zbee_zcl_fan_control_attr_names[] = {
@@ -586,7 +586,7 @@ dissect_zbee_zcl_fan_control(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
  *@param client_attr ZCL client
 */
 void
-dissect_zcl_fan_control_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
+dissect_zcl_fan_control_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
 {
     /* Dissect attribute data type and data */
     switch (attr_id) {
@@ -633,7 +633,7 @@ proto_register_zbee_zcl_fan_control(void)
     };
 
     /* ZCL Fan Control subtrees */
-    static gint *ett[ZBEE_ZCL_FAN_CONTROL_NUM_ETT];
+    static int *ett[ZBEE_ZCL_FAN_CONTROL_NUM_ETT];
 
     ett[0] = &ett_zbee_zcl_fan_control;
 
@@ -698,7 +698,7 @@ void proto_register_zbee_zcl_dehumidification_control(void);
 void proto_reg_handoff_zbee_zcl_dehumidification_control(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_dehumidification_control_attr_data      (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
+static void dissect_zcl_dehumidification_control_attr_data      (proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr);
 
 /* Private functions prototype */
 
@@ -714,7 +714,7 @@ static int hf_zbee_zcl_dehumidification_control_attr_dehum_lockout;
 static int hf_zbee_zcl_dehumidification_control_attr_rel_hum_display;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_dehumidification_control;
+static int ett_zbee_zcl_dehumidification_control;
 
 /* Attributes */
 static const value_string zbee_zcl_dehumidification_control_attr_names[] = {
@@ -780,7 +780,7 @@ dissect_zbee_zcl_dehumidification_control(tvbuff_t *tvb _U_, packet_info *pinfo 
  *@param client_attr ZCL client
 */
 void
-dissect_zcl_dehumidification_control_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
+dissect_zcl_dehumidification_control_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
 {
     /* Dissect attribute data type and data */
     switch (attr_id) {
@@ -841,7 +841,7 @@ proto_register_zbee_zcl_dehumidification_control(void)
     };
 
     /* ZCL Dehumidification Control subtrees */
-    static gint *ett[ZBEE_ZCL_DEHUMIDIFICATION_CONTROL_NUM_ETT];
+    static int *ett[ZBEE_ZCL_DEHUMIDIFICATION_CONTROL_NUM_ETT];
 
     ett[0] = &ett_zbee_zcl_dehumidification_control;
 
@@ -900,7 +900,7 @@ void proto_register_zbee_zcl_thermostat_ui_config(void);
 void proto_reg_handoff_zbee_zcl_thermostat_ui_config(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_thermostat_ui_config_attr_data      (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
+static void dissect_zcl_thermostat_ui_config_attr_data      (proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr);
 
 /* Private functions prototype */
 
@@ -915,7 +915,7 @@ static int hf_zbee_zcl_thermostat_ui_config_attr_temp_disp_mode;
 static int hf_zbee_zcl_thermostat_ui_config_attr_keypad_lockout;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_thermostat_ui_config;
+static int ett_zbee_zcl_thermostat_ui_config;
 
 /* Attributes */
 static const value_string zbee_zcl_thermostat_ui_config_attr_names[] = {
@@ -972,7 +972,7 @@ dissect_zbee_zcl_thermostat_ui_config(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
  *@param client_attr ZCL client
 */
 void
-dissect_zcl_thermostat_ui_config_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
+dissect_zcl_thermostat_ui_config_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
 {
     /* Dissect attribute data type and data */
     switch (attr_id) {
@@ -1019,7 +1019,7 @@ proto_register_zbee_zcl_thermostat_ui_config(void)
     };
 
     /* ZCL Thermostat User Interface Configuration subtrees */
-    static gint *ett[ZBEE_ZCL_THERMOSTAT_UI_CONFIG_NUM_ETT];
+    static int *ett[ZBEE_ZCL_THERMOSTAT_UI_CONFIG_NUM_ETT];
     ett[0] = &ett_zbee_zcl_thermostat_ui_config;
 
     /* Register the ZigBee ZCL Thermostat User Interface Configuration cluster protocol name and description */

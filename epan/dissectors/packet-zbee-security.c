@@ -35,11 +35,11 @@
 #include "packet-zbee-security.h"
 
 /* Helper Functions */
-static void        zbee_sec_key_hash(guint8 *, guint8, guint8 *);
-static void        zbee_sec_make_nonce (zbee_security_packet *, guint8 *);
-static gboolean    zbee_sec_decrypt_payload(zbee_security_packet *, const gchar *, const gchar, guint8 *,
-        guint, guint, guint8 *);
-static gboolean    zbee_security_parse_key(const gchar *, guint8 *, gboolean);
+static void        zbee_sec_key_hash(uint8_t *, uint8_t, uint8_t *);
+static void        zbee_sec_make_nonce (zbee_security_packet *, uint8_t *);
+static bool        zbee_sec_decrypt_payload(zbee_security_packet *, const char *, const char, uint8_t *,
+        unsigned, unsigned, uint8_t *);
+static bool        zbee_security_parse_key(const char *, uint8_t *, bool);
 
 /* Field pointers. */
 static int hf_zbee_sec_field;
@@ -56,8 +56,8 @@ static int hf_zbee_sec_key_origin;
 static int hf_zbee_sec_decryption_key;
 
 /* Subtree pointers. */
-static gint ett_zbee_sec;
-static gint ett_zbee_sec_control;
+static int ett_zbee_sec;
+static int ett_zbee_sec_control;
 
 static expert_field ei_zbee_sec_encrypted_payload;
 static expert_field ei_zbee_sec_encrypted_payload_sliced;
@@ -102,7 +102,7 @@ static const enum_val_t zbee_sec_level_enums[] = {
     { NULL, NULL, 0 }
 };
 
-static gint         gPREF_zbee_sec_level = ZBEE_SEC_ENC_MIC32;
+static int          gPREF_zbee_sec_level = ZBEE_SEC_ENC_MIC32;
 static uat_t       *zbee_sec_key_table_uat;
 
 static const value_string byte_order_vals[] = {
@@ -113,18 +113,18 @@ static const value_string byte_order_vals[] = {
 
 /* UAT Key Entry */
 typedef struct _uat_key_record_t {
-    gchar    *string;
-    guint8    byte_order;
-    gchar    *label;
+    char     *string;
+    uint8_t   byte_order;
+    char     *label;
 } uat_key_record_t;
 
 UAT_CSTRING_CB_DEF(uat_key_records, string, uat_key_record_t)
-UAT_VS_DEF(uat_key_records, byte_order, uat_key_record_t, guint8, 0, "Normal")
+UAT_VS_DEF(uat_key_records, byte_order, uat_key_record_t, uint8_t, 0, "Normal")
 UAT_CSTRING_CB_DEF(uat_key_records, label, uat_key_record_t)
 
 static GSList           *zbee_pc_keyring;
 static uat_key_record_t *uat_key_records;
-static guint             num_uat_key_records;
+static unsigned          num_uat_key_records;
 
 static void* uat_key_record_copy_cb(void* n, const void* o, size_t siz _U_) {
     uat_key_record_t* new_key = (uat_key_record_t *)n;
@@ -139,11 +139,11 @@ static void* uat_key_record_copy_cb(void* n, const void* o, size_t siz _U_) {
 
 static bool uat_key_record_update_cb(void* r, char** err) {
     uat_key_record_t* rec = (uat_key_record_t *)r;
-    guint8 key[ZBEE_SEC_CONST_KEYSIZE];
+    uint8_t key[ZBEE_SEC_CONST_KEYSIZE];
 
     if (rec->string == NULL) {
         *err = g_strdup("Key can't be blank");
-        return FALSE;
+        return false;
     } else {
         g_strstrip(rec->string);
 
@@ -152,14 +152,14 @@ static bool uat_key_record_update_cb(void* r, char** err) {
             if ( !zbee_security_parse_key(rec->string, key, rec->byte_order) ) {
                 *err = ws_strdup_printf("Expecting %d hexadecimal bytes or\n"
                         "a %d character double-quoted string", ZBEE_SEC_CONST_KEYSIZE, ZBEE_SEC_CONST_KEYSIZE);
-                return FALSE;
+                return false;
             }
         } else {
             *err = g_strdup("Key can't be blank");
-            return FALSE;
+            return false;
         }
     }
-    return TRUE;
+    return true;
 }
 
 static void uat_key_record_free_cb(void*r) {
@@ -169,7 +169,7 @@ static void uat_key_record_free_cb(void*r) {
     g_free(key->label);
 }
 
-static void zbee_free_key_record(gpointer ptr)
+static void zbee_free_key_record(void *ptr)
 {
     key_record_t *k = (key_record_t *)ptr;
 
@@ -178,9 +178,9 @@ static void zbee_free_key_record(gpointer ptr)
 }
 
 static void uat_key_record_post_update(void) {
-    guint           i;
+    unsigned        i;
     key_record_t    key_record;
-    guint8          key[ZBEE_SEC_CONST_KEYSIZE];
+    uint8_t         key[ZBEE_SEC_CONST_KEYSIZE];
 
     /* empty the key ring */
     if (zbee_pc_keyring) {
@@ -271,7 +271,7 @@ void zbee_security_register(module_t *zbee_prefs, int proto)
             NULL, HFILL }}
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_zbee_sec,
         &ett_zbee_sec_control
     };
@@ -305,12 +305,12 @@ void zbee_security_register(module_t *zbee_prefs, int proto)
                  "Specifies the security level to use in the\n"
                  "decryption process. This value is ignored\n"
                  "for ZigBee 2004 and unsecured networks.",
-                 &gPREF_zbee_sec_level, zbee_sec_level_enums, FALSE);
+                 &gPREF_zbee_sec_level, zbee_sec_level_enums, false);
 
     zbee_sec_key_table_uat = uat_new("Pre-configured Keys",
                                sizeof(uat_key_record_t),
                                "zigbee_pc_keys",
-                               TRUE,
+                               true,
                                &uat_key_records,
                                &num_uat_key_records,
                                UAT_AFFECTS_DISSECTION, /* affects dissection of packets, but not set of named fields */
@@ -343,24 +343,24 @@ void zbee_security_register(module_t *zbee_prefs, int proto)
  *      increasing (normal byte order) or decreasing (reverse byte
  *      order) address.
  *  PARAMETERS
- *      const gchar    *key_str - pointer to the string
- *      guint8         *key_buf - destination buffer in memory
- *      gboolean        big_end - fill key_buf with incrementing address
+ *      const char     *key_str - pointer to the string
+ *      uint8_t        *key_buf - destination buffer in memory
+ *      bool            big_end - fill key_buf with incrementing address
  *  RETURNS
- *      gboolean
+ *      bool
  *---------------------------------------------------------------
  */
-static gboolean
-zbee_security_parse_key(const gchar *key_str, guint8 *key_buf, gboolean byte_order)
+static bool
+zbee_security_parse_key(const char *key_str, uint8_t *key_buf, bool byte_order)
 {
     int             i, j;
-    gchar           temp;
-    gboolean        string_mode = FALSE;
+    char            temp;
+    bool            string_mode = false;
 
     /* Clear the key. */
     memset(key_buf, 0, ZBEE_SEC_CONST_KEYSIZE);
     if (key_str == NULL) {
-        return FALSE;
+        return false;
     }
 
     /*
@@ -370,7 +370,7 @@ zbee_security_parse_key(const gchar *key_str, guint8 *key_buf, gboolean byte_ord
      * alphanumeric characters after a double-quote.
      */
     if ( (temp = *key_str++) == '"') {
-        string_mode = TRUE;
+        string_mode = true;
         temp = *key_str++;
     }
 
@@ -381,7 +381,7 @@ zbee_security_parse_key(const gchar *key_str, guint8 *key_buf, gboolean byte_ord
                 key_buf[j] = temp;
                 temp = *key_str++;
             } else {
-                return FALSE;
+                return false;
             }
         }
         else {
@@ -390,14 +390,14 @@ zbee_security_parse_key(const gchar *key_str, guint8 *key_buf, gboolean byte_ord
 
             /* Process a nibble. */
             if ( g_ascii_isxdigit (temp) ) key_buf[j] = g_ascii_xdigit_value(temp)<<4;
-            else return FALSE;
+            else return false;
 
             /* Get the next nibble. */
             temp = *(key_str++);
 
             /* Process another nibble. */
             if ( g_ascii_isxdigit (temp) ) key_buf[j] |= g_ascii_xdigit_value(temp);
-            else return FALSE;
+            else return false;
 
             /* Get the next nibble. */
             temp = *(key_str++);
@@ -413,7 +413,7 @@ zbee_security_parse_key(const gchar *key_str, guint8 *key_buf, gboolean byte_ord
     } /* for */
 
     /* If we get this far, then the key was good. */
-    return TRUE;
+    return true;
 } /* zbee_security_parse_key */
 
 /*FUNCTION:------------------------------------------------------
@@ -429,27 +429,27 @@ zbee_security_parse_key(const gchar *key_str, guint8 *key_buf, gboolean byte_ord
  *      tvbuff_t    *tvb    - pointer to buffer containing raw packet.
  *      packet_info *pinfo  - pointer to packet information fields
  *      proto_tree  *tree   - pointer to data tree Wireshark uses to display packet.
- *      guint       offset  - pointer to the start of the auxiliary security header.
- *      guint64     src64   - extended source address, or 0 if unknown.
+ *      unsigned    offset  - pointer to the start of the auxiliary security header.
+ *      uint64_t    src64   - extended source address, or 0 if unknown.
  *  RETURNS
  *      tvbuff_t *
  *---------------------------------------------------------------
  */
 tvbuff_t *
-dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint offset)
+dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, unsigned offset)
 {
     proto_tree     *sec_tree;
 
     zbee_security_packet    packet;
-    guint           mic_len;
-    gint            payload_len;
+    unsigned        mic_len;
+    int             payload_len;
     tvbuff_t       *payload_tvb;
 
     proto_item         *ti;
     proto_item         *key_item;
-    guint8             *enc_buffer;
-    guint8             *dec_buffer;
-    gboolean            decrypted;
+    uint8_t            *enc_buffer;
+    uint8_t            *dec_buffer;
+    bool                decrypted;
     GSList            **nwk_keyring;
     GSList             *GSList_i;
     key_record_t       *key_rec = NULL;
@@ -478,7 +478,7 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
     sec_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_zbee_sec, NULL, "ZigBee Security Header");
 
     /*  Get and display the Security control field */
-    packet.control  = tvb_get_guint8(tvb, offset);
+    packet.control  = tvb_get_uint8(tvb, offset);
 
     /* Patch the security level. */
     packet.control &= ~ZBEE_SEC_CONTROL_LEVEL;
@@ -491,7 +491,7 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
      * so we can fix these 3 bits. Memory allocated by tvb_memdup(pinfo->pool,...)
      * is automatically freed before the next packet is processed.
      */
-    enc_buffer = (guint8 *)tvb_memdup(pinfo->pool, tvb, 0, tvb_captured_length(tvb));
+    enc_buffer = (uint8_t *)tvb_memdup(pinfo->pool, tvb, 0, tvb_captured_length(tvb));
     /*
      * Override the const qualifiers and patch the security level field, we
      * know it is safe to overide the const qualifiers because we just
@@ -598,7 +598,7 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
 
     if (packet.key_id == ZBEE_SEC_KEY_NWK) {
         /* Get and display the key sequence number. */
-        packet.key_seqno = tvb_get_guint8(tvb, offset);
+        packet.key_seqno = tvb_get_uint8(tvb, offset);
         proto_tree_add_uint(sec_tree, hf_zbee_sec_key_seqno, tvb, offset, 1, packet.key_seqno);
         offset += 1;
     }
@@ -630,7 +630,7 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
     /* Get and display the MIC. */
     if (mic_len) {
         /* Display the MIC. */
-        proto_tree_add_item(sec_tree, hf_zbee_sec_mic, tvb, (gint)(tvb_captured_length(tvb)-mic_len),
+        proto_tree_add_item(sec_tree, hf_zbee_sec_mic, tvb, (int)(tvb_captured_length(tvb)-mic_len),
                 mic_len, ENC_NA);
     }
 
@@ -674,9 +674,9 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
     }
 
     /* Allocate memory to decrypt the payload into. */
-    dec_buffer = (guint8 *)wmem_alloc(pinfo->pool, payload_len);
+    dec_buffer = (uint8_t *)wmem_alloc(pinfo->pool, payload_len);
 
-    decrypted = FALSE;
+    decrypted = false;
     if ( packet.src64 ) {
         if (pinfo->fd->visited) {
             if ( nwk_hints ) {
@@ -796,19 +796,19 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
  *  DESCRIPTION
  *      Creates a nonce and decrypts a secured payload.
  *  PARAMETERS
- *      gchar                *nonce  - Nonce Buffer.
+ *      char                 *nonce  - Nonce Buffer.
  *      zbee_security_packet *packet - Security information.
  *  RETURNS
  *      void
  *---------------------------------------------------------------
  */
-static gboolean
-zbee_sec_decrypt_payload(zbee_security_packet *packet, const gchar *enc_buffer, const gchar offset, guint8 *dec_buffer,
-        guint payload_len, guint mic_len, guint8 *key)
+static bool
+zbee_sec_decrypt_payload(zbee_security_packet *packet, const char *enc_buffer, const char offset, uint8_t *dec_buffer,
+        unsigned payload_len, unsigned mic_len, uint8_t *key)
 {
-    guint8  nonce[ZBEE_SEC_CONST_NONCE_LEN];
-    guint8  buffer[ZBEE_SEC_CONST_BLOCKSIZE+1];
-    guint8 *key_buffer = buffer;
+    uint8_t nonce[ZBEE_SEC_CONST_NONCE_LEN];
+    uint8_t buffer[ZBEE_SEC_CONST_BLOCKSIZE+1];
+    uint8_t *key_buffer = buffer;
 
     switch (packet->key_id) {
         case ZBEE_SEC_KEY_NWK:
@@ -848,9 +848,9 @@ zbee_sec_decrypt_payload(zbee_security_packet *packet, const gchar *enc_buffer, 
                         offset,             /* l(a) */
                         payload_len,        /* l(m) */
                         mic_len) ) {        /* M */
-        return TRUE;
+        return true;
     }
-    else return FALSE;
+    else return false;
 }
 
 /*FUNCTION:------------------------------------------------------
@@ -861,13 +861,13 @@ zbee_sec_decrypt_payload(zbee_security_packet *packet, const gchar *enc_buffer, 
  *      packet structure.
  *  PARAMETERS
  *      zbee_security_packet *packet - Security information.
- *      gchar           *nonce  - Nonce Buffer.
+ *      char            *nonce  - Nonce Buffer.
  *  RETURNS
  *      void
  *---------------------------------------------------------------
  */
 static void
-zbee_sec_make_nonce(zbee_security_packet *packet, guint8 *nonce)
+zbee_sec_make_nonce(zbee_security_packet *packet, uint8_t *nonce)
 {
     /* First 8 bytes are the extended source address (little endian). */
     phtole64(nonce, packet->src64);
@@ -894,44 +894,44 @@ zbee_sec_make_nonce(zbee_security_packet *packet, guint8 *nonce)
  *      payload is in plaintext), and this function will perform
  *      MIC verification only. When l_m is 0, m may be NULL.
  *  PARAMETERS
- *      gchar   *key    - ZigBee Security Key (must be ZBEE_SEC_CONST_KEYSIZE) in length.
- *      gchar   *nonce  - ZigBee CCM* Nonce (must be ZBEE_SEC_CONST_NONCE_LEN) in length.
- *      gchar   *a      - CCM* Parameter a (must be l(a) in length). Additional data covered
+ *      char    *key    - ZigBee Security Key (must be ZBEE_SEC_CONST_KEYSIZE) in length.
+ *      char    *nonce  - ZigBee CCM* Nonce (must be ZBEE_SEC_CONST_NONCE_LEN) in length.
+ *      char    *a      - CCM* Parameter a (must be l(a) in length). Additional data covered
  *                          by the authentication process.
- *      gchar   *c      - CCM* Parameter c (must be l(c) = l(m) + M in length). Encrypted
+ *      char    *c      - CCM* Parameter c (must be l(c) = l(m) + M in length). Encrypted
  *                          payload + encrypted authentication tag U.
- *      gchar   *m      - CCM* Output (must be l(m) in length). Decrypted Payload.
- *      guint   l_a     - l(a), length of CCM* parameter a.
- *      guint   l_m     - l(m), length of expected payload.
- *      guint   M       - M, length of CCM* authentication tag.
+ *      char    *m      - CCM* Output (must be l(m) in length). Decrypted Payload.
+ *      unsigned   l_a     - l(a), length of CCM* parameter a.
+ *      unsigned   l_m     - l(m), length of expected payload.
+ *      unsigned   M       - M, length of CCM* authentication tag.
  *  RETURNS
- *      gboolean        - TRUE if successful.
+ *      bool            - true if successful.
  *---------------------------------------------------------------
  */
-gboolean
-zbee_sec_ccm_decrypt(const gchar    *key,   /* Input */
-                    const gchar     *nonce, /* Input */
-                    const gchar     *a,     /* Input */
-                    const gchar     *c,     /* Input */
-                    gchar           *m,     /* Output */
-                    guint           l_a,    /* sizeof(a) */
-                    guint           l_m,    /* sizeof(m) */
-                    guint           M)      /* sizeof(c) - sizeof(m) = sizeof(MIC) */
+bool
+zbee_sec_ccm_decrypt(const char     *key,   /* Input */
+                    const char      *nonce, /* Input */
+                    const char      *a,     /* Input */
+                    const char      *c,     /* Input */
+                    char            *m,     /* Output */
+                    unsigned        l_a,    /* sizeof(a) */
+                    unsigned        l_m,    /* sizeof(m) */
+                    unsigned        M)      /* sizeof(c) - sizeof(m) = sizeof(MIC) */
 {
-    guint8              cipher_in[ZBEE_SEC_CONST_BLOCKSIZE];
-    guint8              cipher_out[ZBEE_SEC_CONST_BLOCKSIZE];
-    guint8              decrypted_mic[ZBEE_SEC_CONST_BLOCKSIZE];
-    guint               i, j;
+    uint8_t             cipher_in[ZBEE_SEC_CONST_BLOCKSIZE];
+    uint8_t             cipher_out[ZBEE_SEC_CONST_BLOCKSIZE];
+    uint8_t             decrypted_mic[ZBEE_SEC_CONST_BLOCKSIZE];
+    unsigned            i, j;
     /* Cipher Instance. */
     gcry_cipher_hd_t    cipher_hd;
 
     /* Sanity-Check. */
-    if (M > ZBEE_SEC_CONST_BLOCKSIZE) return FALSE;
+    if (M > ZBEE_SEC_CONST_BLOCKSIZE) return false;
     /*
      * The CCM* counter is L bytes in length, ensure that the payload
      * isn't long enough to overflow it.
      */
-    if ((1 + (l_a/ZBEE_SEC_CONST_BLOCKSIZE)) > (1<<(ZBEE_SEC_CONST_L*8))) return FALSE;
+    if ((1 + (l_a/ZBEE_SEC_CONST_BLOCKSIZE)) > (1<<(ZBEE_SEC_CONST_L*8))) return false;
 
     /******************************************************
      * Step 1: Encryption/Decryption Transformation
@@ -947,17 +947,17 @@ zbee_sec_ccm_decrypt(const gchar    *key,   /* Input */
      * block is the last two bytes, and is big-endian.
      */
     if (gcry_cipher_open(&cipher_hd, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CTR, 0)) {
-        return FALSE;
+        return false;
     }
     /* Set the Key. */
     if (gcry_cipher_setkey(cipher_hd, key, ZBEE_SEC_CONST_KEYSIZE)) {
         gcry_cipher_close(cipher_hd);
-        return FALSE;
+        return false;
     }
     /* Set the counter. */
     if (gcry_cipher_setctr(cipher_hd, cipher_in, ZBEE_SEC_CONST_BLOCKSIZE)) {
         gcry_cipher_close(cipher_hd);
-        return FALSE;
+        return false;
     }
     /*
      * Copy the MIC into the stack buffer. We need to feed the cipher a full
@@ -971,12 +971,12 @@ zbee_sec_ccm_decrypt(const gchar    *key,   /* Input */
     /* Encrypt/Decrypt the MIC in-place. */
     if (gcry_cipher_encrypt(cipher_hd, decrypted_mic, ZBEE_SEC_CONST_BLOCKSIZE, decrypted_mic, ZBEE_SEC_CONST_BLOCKSIZE)) {
         gcry_cipher_close(cipher_hd);
-        return FALSE;
+        return false;
     }
     /* Encrypt/Decrypt the payload. */
     if (gcry_cipher_encrypt(cipher_hd, m, l_m, c, l_m)) {
         gcry_cipher_close(cipher_hd);
-        return FALSE;
+        return false;
     }
     /* Done with the CTR Cipher. */
     gcry_cipher_close(cipher_hd);
@@ -987,7 +987,7 @@ zbee_sec_ccm_decrypt(const gchar    *key,   /* Input */
      */
     if (M == 0) {
         /* There is no authentication tag. We're done! */
-        return TRUE;
+        return true;
     }
     /*
      * The authentication process in CCM* operates in CBC-MAC mode, but
@@ -1003,25 +1003,25 @@ zbee_sec_ccm_decrypt(const gchar    *key,   /* Input */
      */
     /* Re-open the cipher in ECB mode. */
     if (gcry_cipher_open(&cipher_hd, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_ECB, 0)) {
-        return FALSE;
+        return false;
     }
     /* Re-load the key. */
     if (gcry_cipher_setkey(cipher_hd, key, ZBEE_SEC_CONST_KEYSIZE)) {
         gcry_cipher_close(cipher_hd);
-        return FALSE;
+        return false;
     }
     /* Generate the first cipher block B0. */
     cipher_in[0] = ZBEE_SEC_CCM_FLAG_M(M) |
                     ZBEE_SEC_CCM_FLAG_ADATA(l_a) |
                     ZBEE_SEC_CCM_FLAG_L;
-    memcpy(cipher_in+sizeof(gchar), nonce, ZBEE_SEC_CONST_NONCE_LEN);
+    memcpy(cipher_in+sizeof(char), nonce, ZBEE_SEC_CONST_NONCE_LEN);
     for (i=0;i<ZBEE_SEC_CONST_L; i++) {
         cipher_in[(ZBEE_SEC_CONST_BLOCKSIZE-1)-i] = (l_m >> (8*i)) & 0xff;
     } /* for */
     /* Generate the first cipher block, X1 = E(Key, 0^128 XOR B0). */
     if (gcry_cipher_encrypt(cipher_hd, cipher_out, ZBEE_SEC_CONST_BLOCKSIZE, cipher_in, ZBEE_SEC_CONST_BLOCKSIZE)) {
         gcry_cipher_close(cipher_hd);
-        return FALSE;
+        return false;
     }
     /*
      * We avoid mallocing() big chunks of memory by recycling small stack
@@ -1056,7 +1056,7 @@ zbee_sec_ccm_decrypt(const gchar    *key,   /* Input */
                 if (gcry_cipher_encrypt(cipher_hd, cipher_out, ZBEE_SEC_CONST_BLOCKSIZE, cipher_in,
                             ZBEE_SEC_CONST_BLOCKSIZE)) {
                     gcry_cipher_close(cipher_hd);
-                    return FALSE;
+                    return false;
                 }
                 /* Reset j to point back to the start of the new cipher block. */
                 j = 0;
@@ -1075,7 +1075,7 @@ zbee_sec_ccm_decrypt(const gchar    *key,   /* Input */
             if (gcry_cipher_encrypt(cipher_hd, cipher_out, ZBEE_SEC_CONST_BLOCKSIZE, cipher_in,
                        ZBEE_SEC_CONST_BLOCKSIZE)) {
                 gcry_cipher_close(cipher_hd);
-                return FALSE;
+                return false;
             }
             /* Reset j to point back to the start of the new cipher block. */
             j = 0;
@@ -1089,7 +1089,7 @@ zbee_sec_ccm_decrypt(const gchar    *key,   /* Input */
     /* Generate the last cipher block, which will be the MIC tag. */
     if (gcry_cipher_encrypt(cipher_hd, cipher_out, ZBEE_SEC_CONST_BLOCKSIZE, cipher_in, ZBEE_SEC_CONST_BLOCKSIZE)) {
         gcry_cipher_close(cipher_hd);
-        return FALSE;
+        return false;
     }
     /* Done with the Cipher. */
     gcry_cipher_close(cipher_hd);
@@ -1117,18 +1117,18 @@ zbee_sec_ccm_decrypt(const gchar    *key,   /* Input */
  *          Hash[i] = E(Hash[i-1], M[i]) XOR M[j];
  *          M[i] = i'th block of text, with some padding and flags concatenated.
  *  PARAMETERS
- *      guint8 *    input       - Hash Input (any length).
- *      guint8      input_len   - Hash Input Length.
- *      guint8 *    output      - Hash Output (exactly one block in length).
+ *      uint8_t *    input       - Hash Input (any length).
+ *      uint8_t     input_len   - Hash Input Length.
+ *      uint8_t *    output      - Hash Output (exactly one block in length).
  *  RETURNS
  *      void
  *---------------------------------------------------------------
  */
 static void
-zbee_sec_hash(guint8 *input, guint input_len, guint8 *output)
+zbee_sec_hash(uint8_t *input, unsigned input_len, uint8_t *output)
 {
-    guint8              cipher_in[ZBEE_SEC_CONST_BLOCKSIZE];
-    guint               i, j;
+    uint8_t             cipher_in[ZBEE_SEC_CONST_BLOCKSIZE];
+    unsigned            i, j;
     /* Cipher Instance. */
     gcry_cipher_hd_t    cipher_hd;
 
@@ -1220,20 +1220,20 @@ zbee_sec_hash(guint8 *input, guint input_len, guint8 *output)
  *          opad = 0x5c repeated.
  *          H() = ZigBee Cryptographic Hash (B.1.3 and B.6).
  *  PARAMETERS
- *      guint8  *key      - ZigBee Security Key (must be ZBEE_SEC_CONST_KEYSIZE) in length.
- *      guint8  input     - ZigBee CCM* Nonce (must be ZBEE_SEC_CONST_NONCE_LEN) in length.
- *      guint8  *hash_out - buffer into which the key-hashed output is placed
+ *      uint8_t *key      - ZigBee Security Key (must be ZBEE_SEC_CONST_KEYSIZE) in length.
+ *      uint8_t input     - ZigBee CCM* Nonce (must be ZBEE_SEC_CONST_NONCE_LEN) in length.
+ *      uint8_t *hash_out - buffer into which the key-hashed output is placed
  *  RETURNS
  *      void
  *---------------------------------------------------------------
  */
 static void
-zbee_sec_key_hash(guint8 *key, guint8 input, guint8 *hash_out)
+zbee_sec_key_hash(uint8_t *key, uint8_t input, uint8_t *hash_out)
 {
-    guint8              hash_in[2*ZBEE_SEC_CONST_BLOCKSIZE];
+    uint8_t             hash_in[2*ZBEE_SEC_CONST_BLOCKSIZE];
     int                 i;
-    static const guint8 ipad = 0x36;
-    static const guint8 opad = 0x5c;
+    static const uint8_t ipad = 0x36;
+    static const uint8_t opad = 0x5c;
 
     /* Copy the key into hash_in and XOR with opad to form: (Key XOR opad) */
     for (i=0; i<ZBEE_SEC_CONST_KEYSIZE; i++) hash_in[i] = key[i] ^ opad;
@@ -1255,7 +1255,7 @@ zbee_sec_key_hash(guint8 *key, guint8 input, guint8 *hash_out)
  *@param pinfo pointer to packet information fields
  *@param key APS or NWK key
  */
-void zbee_sec_add_key_to_keyring(packet_info *pinfo, const guint8 *key)
+void zbee_sec_add_key_to_keyring(packet_info *pinfo, const uint8_t *key)
 {
     GSList            **nwk_keyring;
     key_record_t        key_record;

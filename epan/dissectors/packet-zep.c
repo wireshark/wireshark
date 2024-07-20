@@ -79,7 +79,7 @@ static int hf_zep_protocol_id;
 static int hf_zep_reserved_field;
 
 /* Initialize protocol subtrees. */
-static gint ett_zep;
+static int ett_zep;
 
 /*  Dissector handle */
 static dissector_handle_t zep_handle;
@@ -106,11 +106,11 @@ static int dissect_zep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     tvbuff_t      *next_tvb;
     proto_item    *proto_root;
     proto_tree    *zep_tree;
-    guint8        ieee_packet_len;
-    guint8        zep_header_len;
-    guint8        version;
-    guint8        type;
-    guint32       channel_id, seqno;
+    uint8_t       ieee_packet_len;
+    uint8_t       zep_header_len;
+    uint8_t       version;
+    uint8_t       type;
+    uint32_t      channel_id, seqno;
     bool          lqi_mode = false;
 
     dissector_handle_t  next_dissector;
@@ -125,7 +125,7 @@ static int dissect_zep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     }
 
     /*  Extract the protocol version from the ZEP header. */
-    version = tvb_get_guint8(tvb, 2);
+    version = tvb_get_uint8(tvb, 2);
     if (version == 1) {
         /* Type indicates a ZEP_v1 packet. */
 
@@ -134,13 +134,13 @@ static int dissect_zep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             return 0;
 
         type = 0;
-        ieee_packet_len = (tvb_get_guint8(tvb, ZEP_V1_HEADER_LEN - 1) & ZEP_LENGTH_MASK);
+        ieee_packet_len = (tvb_get_uint8(tvb, ZEP_V1_HEADER_LEN - 1) & ZEP_LENGTH_MASK);
     }
     else {
         /* At the time of writing, v2 is the latest version of ZEP, assuming
          * anything higher than v2 has identical format. */
 
-        type = tvb_get_guint8(tvb, 3);
+        type = tvb_get_uint8(tvb, 3);
         if (type == ZEP_V2_TYPE_ACK) {
             /* ZEP Ack has only the seqno. */
             zep_header_len = ZEP_V2_ACK_LEN;
@@ -152,7 +152,7 @@ static int dissect_zep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             if (tvb_reported_length(tvb) < ZEP_V2_HEADER_LEN)
                 return 0;
 
-            ieee_packet_len = (tvb_get_guint8(tvb, ZEP_V2_HEADER_LEN - 1) & ZEP_LENGTH_MASK);
+            ieee_packet_len = (tvb_get_uint8(tvb, ZEP_V2_HEADER_LEN - 1) & ZEP_LENGTH_MASK);
         }
     }
 
@@ -295,7 +295,7 @@ void proto_register_zep(void)
             NULL, HFILL }},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_zep
     };
 

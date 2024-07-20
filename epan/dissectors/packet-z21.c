@@ -625,7 +625,7 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     proto_tree_add_item_ret_uint(z21_tree, hf_z21_datalen,
         tvb, offset, 2, ENC_LITTLE_ENDIAN, &datalen);
     offset += 2;
-    command = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+    command = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
     if (command == Z21_LAN_X_BC) {
         proto_tree_add_boolean(z21_tree, hf_z21_x_bus, tvb, offset, 2, true);
         /* Note that we do not increment the offset yet */
@@ -640,7 +640,7 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
          *    determine the exact command (as their two "command bytes" are the
          *    same), so check for those and set x_bus_command manually for them.
          */
-        temp_uint = 0x40000000 + tvb_get_guint16(tvb, offset+2, ENC_BIG_ENDIAN);
+        temp_uint = 0x40000000 + tvb_get_uint16(tvb, offset+2, ENC_BIG_ENDIAN);
         unsigned x_bus_command = temp_uint >> 8;
         /* Check for all the "one-byte" commands */
         if (x_bus_command == Z21_LAN_X_SET_STOP ||
@@ -667,7 +667,7 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
             if (x_bus_command == Z21_LAN_X_CV_POM_COMMANDS ||
                 x_bus_command == Z21_LAN_X_CV_POM_ACCESSORY_COMMANDS) {
                 /* Read DB3 from data, get the two interesting bits */
-                temp_uint = tvb_get_guint8(tvb, offset + 6) >> 2 & 0x3;
+                temp_uint = tvb_get_uint8(tvb, offset + 6) >> 2 & 0x3;
                 switch (x_bus_command) {
                 case Z21_LAN_X_CV_POM_COMMANDS:
                     if (temp_uint == 0x1)
@@ -708,7 +708,7 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         case Z21_LAN_X_SET_LOCO_DRIVE_DCC14:
         case Z21_LAN_X_SET_LOCO_DRIVE_DCC28:
         case Z21_LAN_X_SET_LOCO_DRIVE_DCC128:
-            address_bytes = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+            address_bytes = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
             addr = address_bytes & 0x3FFF;
             proto_tree_add_uint(z21_tree, hf_z21_loco_address, tvb, offset, 2, addr);
             switch (x_bus_command) {
@@ -742,7 +742,7 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
                 direction_and_speed & 0x7F);
             break;
         case Z21_LAN_X_GET_LOCO_INFO:
-            address_bytes = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+            address_bytes = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
             addr = address_bytes & 0x3FFF;
             proto_tree_add_uint(z21_tree, hf_z21_loco_address, tvb, offset, 2, addr);
             offset += 2;
@@ -751,7 +751,7 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
             col_append_fstr(pinfo->cinfo, COL_INFO, ", Loco=%d", addr);
             break;
         case Z21_LAN_X_LOCO_INFO:
-            address_bytes = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+            address_bytes = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
             addr = address_bytes & 0x3FFF;
             proto_tree_add_uint(z21_tree, hf_z21_loco_address, tvb, offset, 2, addr);
             offset += 2;
@@ -817,7 +817,7 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
             }
             break;
         case Z21_LAN_X_PURGE_LOCO:
-            address_bytes = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+            address_bytes = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
             addr = address_bytes & 0x3FFF;
             proto_tree_add_uint(z21_tree, hf_z21_loco_address, tvb, offset, 2, addr);
             offset += 2;
@@ -827,7 +827,7 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
             proto_item_append_text(z21_tree, ", Loco: %d", addr);
             break;
         case Z21_LAN_X_SET_LOCO_E_STOP:
-            address_bytes = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+            address_bytes = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
             addr = address_bytes & 0x3FFF;
             proto_tree_add_uint(z21_tree, hf_z21_loco_address, tvb, offset, 2, addr);
             offset += 2;
@@ -840,7 +840,7 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
             col_append_str(pinfo->cinfo, COL_INFO, ", TO BE COMPLETED");
             break;
         case Z21_LAN_X_SET_LOCO_FUNCTION:
-            address_bytes = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+            address_bytes = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
             addr = address_bytes & 0x3FFF;
             proto_tree_add_uint(z21_tree, hf_z21_loco_address, tvb, offset, 2, addr);
             offset += 2;
@@ -860,7 +860,7 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
                 val_to_str_const((uint32_t)temp_guint64 >> 6, z21_loco_func_vals, "unknown"));
             break;
         case Z21_LAN_X_GET_TURNOUT_INFO:
-            addr = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+            addr = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
             proto_tree_add_uint(z21_tree, hf_z21_function_address,
                 tvb, offset, 2, addr);
             offset += 2;
@@ -870,7 +870,7 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
             proto_item_append_text(z21_tree, ", Function: %d", addr);
             break;
         case Z21_LAN_X_TURNOUT_INFO:
-            addr = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+            addr = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
             proto_tree_add_uint(z21_tree, hf_z21_function_address,
                 tvb, offset, 2, addr);
             offset += 2;
@@ -888,7 +888,7 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
                 val_to_str_const((uint32_t)temp_guint64 & 0x03, z21_turnout_state_vals, "unknown"));
             break;
         case Z21_LAN_X_SET_TURNOUT:
-            addr = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+            addr = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
             proto_tree_add_uint(z21_tree, hf_z21_function_address,
                 tvb, offset, 2, addr);
             offset += 2;
@@ -910,7 +910,7 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
                 tfs_get_string((bool)(temp_guint64 & 0x01), &tfs_turnout_output));
             break;
         case Z21_LAN_X_GET_EXT_ACCESSORY_INFO:
-            addr = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+            addr = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
             proto_tree_add_uint(z21_tree, hf_z21_accessory_address,
                 tvb, offset, 2, addr);
             offset += 2;
@@ -920,13 +920,13 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
             proto_item_append_text(z21_tree, ", Address: %d", addr);
             break;
         case Z21_LAN_X_EXT_ACCESSORY_INFO:
-            addr = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+            addr = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
             proto_tree_add_uint(z21_tree, hf_z21_accessory_address,
                 tvb, offset, 2, addr);
             offset += 2;
             calculated_checksum ^= addr >> 8;
             calculated_checksum ^= addr & 0xFF;
-            temp_uint = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+            temp_uint = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
             proto_tree_add_uint(z21_tree, hf_z21_accessory_state,
                 tvb, offset, 1, temp_uint >> 8);
             offset += 1;
@@ -941,13 +941,13 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
                 addr, temp_uint >> 8, temp_uint & 0xff);
             break;
         case Z21_LAN_X_SET_EXT_ACCESSORY:
-            addr = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+            addr = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
             proto_tree_add_uint(z21_tree, hf_z21_accessory_address,
                 tvb, offset, 2, addr);
             offset += 2;
             calculated_checksum ^= addr >> 8;
             calculated_checksum ^= addr & 0xFF;
-            temp_uint = tvb_get_guint8(tvb, offset);
+            temp_uint = tvb_get_uint8(tvb, offset);
             proto_tree_add_uint(z21_tree, hf_z21_accessory_state,
                 tvb, offset, 1, temp_uint);
             offset += 1;
@@ -958,7 +958,7 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
                 addr, temp_uint);
             break;
         case Z21_LAN_X_CV_READ:
-            cv_addr = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+            cv_addr = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
             /* CV addresses are 1-based, update checksum first */
             calculated_checksum ^= cv_addr >> 8;
             calculated_checksum ^= cv_addr & 0xFF;
@@ -970,7 +970,7 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
             proto_item_append_text(z21_tree, ", CV%d", cv_addr);
             break;
         case Z21_LAN_X_CV_WRITE:
-            cv_addr = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+            cv_addr = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
             /* CV addresses are 1-based, update checksum first */
             calculated_checksum ^= cv_addr >> 8;
             calculated_checksum ^= cv_addr & 0xFF;
@@ -978,7 +978,7 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
             proto_tree_add_uint(z21_tree, hf_z21_cv_address,
                 tvb, offset, 2, cv_addr);
             offset += 2;
-            temp_uint = tvb_get_guint8(tvb, offset);
+            temp_uint = tvb_get_uint8(tvb, offset);
             proto_tree_add_uint(z21_tree, hf_z21_cv_value,
                 tvb, offset, 1, temp_uint);
             offset += 1;
@@ -989,7 +989,7 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
                 cv_addr, temp_uint);
             break;
         case Z21_LAN_X_CV_RESULT:
-            cv_addr = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+            cv_addr = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
             /* CV addresses are 1-based, update checksum first */
             calculated_checksum ^= cv_addr >> 8;
             calculated_checksum ^= cv_addr & 0xFF;
@@ -997,7 +997,7 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
             proto_tree_add_uint(z21_tree, hf_z21_cv_address,
                 tvb, offset, 2, cv_addr);
             offset += 2;
-            temp_uint = tvb_get_guint8(tvb, offset);
+            temp_uint = tvb_get_uint8(tvb, offset);
             proto_tree_add_uint(z21_tree, hf_z21_cv_value,
                 tvb, offset, 1, temp_uint);
             offset += 1;
@@ -1008,13 +1008,13 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
                 cv_addr, temp_uint);
             break;
         case Z21_LAN_X_CV_POM_WRITE_BYTE:
-            address_bytes = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+            address_bytes = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
             addr = address_bytes & 0x3FFF;
             proto_tree_add_uint(z21_tree, hf_z21_loco_address, tvb, offset, 2, addr);
             offset += 2;
             calculated_checksum ^= address_bytes >> 8;
             calculated_checksum ^= address_bytes & 0xFF;
-            temp_uint = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+            temp_uint = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
             calculated_checksum ^= temp_uint >> 8;
             calculated_checksum ^= temp_uint & 0xff;
             proto_tree_add_uint(z21_tree, hf_z21_pom_operation,
@@ -1033,13 +1033,13 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
                 addr, cv_addr, temp_uint);
             break;
         case Z21_LAN_X_CV_POM_WRITE_BIT:
-            address_bytes = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+            address_bytes = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
             addr = address_bytes & 0x3FFF;
             proto_tree_add_uint(z21_tree, hf_z21_loco_address, tvb, offset, 2, addr);
             offset += 2;
             calculated_checksum ^= address_bytes >> 8;
             calculated_checksum ^= address_bytes & 0xFF;
-            temp_uint = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+            temp_uint = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
             calculated_checksum ^= temp_uint >> 8;
             calculated_checksum ^= temp_uint & 0xff;
             proto_tree_add_uint(z21_tree, hf_z21_pom_operation,
@@ -1058,13 +1058,13 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
                 addr, cv_addr, temp_guint64 & 0x07, temp_guint64 >> 3 & 0x01);
             break;
         case Z21_LAN_X_CV_POM_READ_BYTE:
-            address_bytes = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+            address_bytes = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
             addr = address_bytes & 0x3FFF;
             proto_tree_add_uint(z21_tree, hf_z21_loco_address, tvb, offset, 2, addr);
             offset += 2;
             calculated_checksum ^= address_bytes >> 8;
             calculated_checksum ^= address_bytes & 0xFF;
-            temp_uint = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+            temp_uint = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
             calculated_checksum ^= temp_uint >> 8;
             calculated_checksum ^= temp_uint & 0xff;
             proto_tree_add_uint(z21_tree, hf_z21_pom_operation,
@@ -1084,7 +1084,7 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
             col_append_fstr(pinfo->cinfo, COL_INFO, ", *** TO BE COMPLETED ***");
             break;
         case Z21_LAN_X_DCC_READ_REGISTER:
-            temp_uint = tvb_get_guint8(tvb, offset);
+            temp_uint = tvb_get_uint8(tvb, offset);
             proto_tree_add_uint(z21_tree, hf_z21_register,
                 tvb, offset, 1, temp_uint);
             offset += 1;
@@ -1095,7 +1095,7 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
                 temp_uint);
             break;
         case Z21_LAN_X_DCC_WRITE_REGISTER:
-            temp_uint = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+            temp_uint = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
             proto_tree_add_uint(z21_tree, hf_z21_register,
                 tvb, offset, 1, temp_uint >> 8);
             offset += 1;
@@ -1112,7 +1112,7 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         case Z21_LAN_X_MM_WRITE_BYTE:
             /* Skip one zero byte */
             offset += 1;
-            temp_uint = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+            temp_uint = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
             proto_tree_add_uint(z21_tree, hf_z21_register,
                 tvb, offset, 1, temp_uint >> 8);
             offset += 1;
@@ -1127,7 +1127,7 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
                 temp_uint >> 8, temp_uint & 0xff);
             break;
         case Z21_LAN_X_GET_FIRMWARE_VERSION_REPLY:
-            version = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+            version = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
             buffer = wmem_strdup_printf(pinfo->pool, "%x.%02x",
                 version >> 8, version & 0xff);
             proto_tree_add_string(z21_tree, hf_z21_firmware_version,
@@ -1141,7 +1141,7 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 
         /* Calculate checksum for the rest of the bytes (if any) for now */
         while (offset < datalen-1) {
-            one_byte = tvb_get_guint8(tvb, offset);
+            one_byte = tvb_get_uint8(tvb, offset);
             offset += 1;
             calculated_checksum ^= one_byte;
         }
@@ -1175,29 +1175,29 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
             }
             break;
         case Z21_LAN_SYSTEMSTATE_DATACHANGED:
-            main_current = tvb_get_gint16(tvb, offset, ENC_LITTLE_ENDIAN);
+            main_current = tvb_get_int16(tvb, offset, ENC_LITTLE_ENDIAN);
             proto_tree_add_int_format_value(z21_tree, hf_z21_main_current,
                 tvb, offset, 2, main_current, "%d mA", main_current);
             offset += 2;
 
-            temp_gint32 = tvb_get_gint16(tvb, offset, ENC_LITTLE_ENDIAN);
+            temp_gint32 = tvb_get_int16(tvb, offset, ENC_LITTLE_ENDIAN);
             proto_tree_add_int_format_value(z21_tree, hf_z21_prog_current,
                 tvb, offset, 2, temp_gint32, "%d mA", temp_gint32);
             offset += 2;
 
-            temp_gint32 = tvb_get_gint16(tvb, offset, ENC_LITTLE_ENDIAN);
+            temp_gint32 = tvb_get_int16(tvb, offset, ENC_LITTLE_ENDIAN);
             proto_tree_add_int_format_value(z21_tree, hf_z21_filtered_main_current,
                 tvb, offset, 2, temp_gint32, "%d mA", temp_gint32);
             offset += 2;
 
-            temp_gint32 = tvb_get_gint16(tvb, offset, ENC_LITTLE_ENDIAN);
+            temp_gint32 = tvb_get_int16(tvb, offset, ENC_LITTLE_ENDIAN);
             proto_tree_add_int_format_value(z21_tree, hf_z21_temperature,
                 tvb, offset, 2, temp_gint32, "%d°C", temp_gint32);
             offset += 2;
             col_append_fstr(pinfo->cinfo, COL_INFO,
                 ", Temperature=%d°C", temp_gint32);
 
-            temp_uint = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+            temp_uint = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
             temp_float = (float)temp_uint / 1000;
             proto_tree_add_float_format_value(z21_tree, hf_z21_supply_voltage,
                 tvb, offset, 2, temp_float, "%.3f V", temp_float);
@@ -1205,7 +1205,7 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
             col_append_fstr(pinfo->cinfo, COL_INFO,
                 ", Track=%.3f V/%d mA", temp_float, main_current);
 
-            temp_uint = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+            temp_uint = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
             temp_float = (float)temp_uint / 1000;
             proto_tree_add_float_format_value(z21_tree, hf_z21_track_voltage,
                 tvb, offset, 2, temp_float, "%.3f V", temp_float);
@@ -1220,7 +1220,7 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
             proto_tree_add_item(z21_tree, hf_z21_systemstate_reserved,
                 tvb, offset, 1, ENC_NA);
             offset += 1;
-            temp_uint = tvb_get_guint8(tvb, offset);
+            temp_uint = tvb_get_uint8(tvb, offset);
             if (temp_uint == 0) {
                 /* Don't interpret the flags */
                 proto_tree_add_uint_format_value(z21_tree, hf_z21_capabilities,
@@ -1378,11 +1378,11 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
             proto_tree_add_bitmask(z21_tree, tvb, offset,
                 hf_z21_can_booster_state, ett_z21, booster_state_bits, ENC_LITTLE_ENDIAN);
             offset += 2;
-            temp_uint = tvb_get_gint16(tvb, offset, ENC_LITTLE_ENDIAN);
+            temp_uint = tvb_get_int16(tvb, offset, ENC_LITTLE_ENDIAN);
             proto_tree_add_uint_format_value(z21_tree, hf_z21_can_booster_vcc,
                 tvb, offset, 2, temp_uint, "%d mV", temp_uint);
             offset += 2;
-            temp_uint = tvb_get_gint16(tvb, offset, ENC_LITTLE_ENDIAN);
+            temp_uint = tvb_get_int16(tvb, offset, ENC_LITTLE_ENDIAN);
             proto_tree_add_uint_format_value(z21_tree, hf_z21_can_booster_current,
                 tvb, offset, 2, temp_uint, "%d mA", temp_uint);
             offset += 2;
@@ -1477,13 +1477,13 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
             break;
         case Z21_LAN_GET_LOCOMODE:
         case Z21_LAN_SET_LOCOMODE:
-            address_bytes = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+            address_bytes = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
             addr = address_bytes & 0x3FFF;
             proto_tree_add_uint(z21_tree, hf_z21_loco_address, tvb, offset, 2, addr);
             offset += 2;
             col_append_fstr(pinfo->cinfo, COL_INFO, ", Loco=%d", addr);
             if (datalen > 6) {
-                unsigned mode = tvb_get_guint8(tvb, offset);
+                unsigned mode = tvb_get_uint8(tvb, offset);
                 proto_tree_add_uint(z21_tree, hf_z21_loco_mode, tvb, offset, 1, mode);
                 offset += 1;
                 col_append_fstr(pinfo->cinfo, COL_INFO, ", Mode: %d", mode);
@@ -1499,10 +1499,10 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
             break;
         case Z21_LAN_GET_HWINFO:
             if (datalen == 12) {
-                unsigned hwtype = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
+                unsigned hwtype = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
                 proto_tree_add_uint(z21_tree, hf_z21_hw_type, tvb, offset, 1, hwtype);
                 offset += 4;
-                version = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
+                version = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
                 buffer = wmem_strdup_printf(pinfo->pool, "%x.%02x",
                     version >> 8, version & 0xff);
                 proto_tree_add_string(z21_tree, hf_z21_firmware_version,
@@ -1523,7 +1523,7 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 static unsigned
 get_z21_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
-    return tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+    return tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
 }
 
 static bool
@@ -1537,7 +1537,7 @@ check_z21_header(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _
     if (pdu_len < Z21_MIN_LENGTH || pdu_len > remaining_length) {
         return false;
     }
-    uint16_t command = tvb_get_guint16(tvb, offset + 2, ENC_BIG_ENDIAN);
+    uint16_t command = tvb_get_uint16(tvb, offset + 2, ENC_BIG_ENDIAN);
     if (!try_val_to_str(command, z21_command_vals)) {
         return false;
     }

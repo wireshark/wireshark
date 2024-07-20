@@ -34,11 +34,11 @@
 void
 dissect_zbee_zdp_req_nwk_addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint       offset = 0;
+    unsigned    offset = 0;
 
-    guint64 ext_addr;
+    uint64_t ext_addr;
 
-    ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, sizeof(guint64), NULL);
+    ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, sizeof(uint64_t), NULL);
     proto_tree_add_item(tree, hf_zbee_zdp_req_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
     proto_tree_add_item(tree, hf_zbee_zdp_index, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -60,9 +60,9 @@ dissect_zbee_zdp_req_nwk_addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 void
 dissect_zbee_zdp_req_ext_addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint       offset = 0;
+    unsigned    offset = 0;
 
-    guint32 device;
+    uint32_t device;
 
     proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_nwk_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN, &device);
     offset += 2;
@@ -87,8 +87,8 @@ dissect_zbee_zdp_req_ext_addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 void
 dissect_zbee_zdp_req_node_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint   offset = 0;
-    guint32 device;
+    unsigned   offset = 0;
+    uint32_t device;
 
     proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_nwk_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN, &device);
     offset += 2;
@@ -111,8 +111,8 @@ dissect_zbee_zdp_req_node_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 void
 dissect_zbee_zdp_req_power_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint   offset = 0;
-    guint32 device;
+    unsigned   offset = 0;
+    uint32_t device;
 
     proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_nwk_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN, &device);
     offset += 2;
@@ -133,8 +133,8 @@ dissect_zbee_zdp_req_power_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 void
 dissect_zbee_zdp_req_simple_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint   offset = 0;
-    guint32 device, endpt;
+    unsigned   offset = 0;
+    uint32_t device, endpt;
 
     proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_nwk_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN, &device);
     offset += 2;
@@ -157,8 +157,8 @@ dissect_zbee_zdp_req_simple_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 void
 dissect_zbee_zdp_req_active_ep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint   offset = 0;
-    guint32 device;
+    unsigned   offset = 0;
+    uint32_t device;
 
     proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_nwk_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN, &device);
     offset += 2;
@@ -177,14 +177,14 @@ dissect_zbee_zdp_req_active_ep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
  *@param tree pointer to data tree Wireshark uses to display packet.
 */
 void
-dissect_zbee_zdp_req_match_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 version)
+dissect_zbee_zdp_req_match_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint8_t version)
 {
     proto_item      *ti;
     proto_tree      *field_tree = NULL;
-    guint           offset = 0, i;
-    guint           sizeof_cluster = (version >= ZBEE_VERSION_2007)?(int)sizeof(guint16):(int)sizeof(guint8);
+    unsigned        offset = 0, i;
+    unsigned        sizeof_cluster = (version >= ZBEE_VERSION_2007)?(int)sizeof(uint16_t):(int)sizeof(uint8_t);
 
-    guint32 device, profile, cluster, in_count, out_count;
+    uint32_t device, profile, cluster, in_count, out_count;
 
     proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_nwk_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN, &device);
     offset += 2;
@@ -232,8 +232,8 @@ dissect_zbee_zdp_req_match_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 void
 dissect_zbee_zdp_req_complex_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint   offset = 0;
-    guint32 device;
+    unsigned   offset = 0;
+    uint32_t device;
 
     proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_nwk_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN, &device);
     offset += 2;
@@ -254,8 +254,8 @@ dissect_zbee_zdp_req_complex_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 void
 dissect_zbee_zdp_req_user_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint   offset = 0;
-    guint32 device;
+    unsigned   offset = 0;
+    uint32_t device;
 
     proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_nwk_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN, &device);
     offset += 2;
@@ -276,12 +276,12 @@ dissect_zbee_zdp_req_user_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 void
 dissect_zbee_zdp_req_discovery_cache(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint   offset = 0;
-    guint64 ext_addr;
+    unsigned   offset = 0;
+    uint64_t ext_addr;
 
     proto_tree_add_item(tree, hf_zbee_zdp_nwk_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
-    ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, (int)sizeof(guint64), NULL);
+    ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, (int)sizeof(uint64_t), NULL);
 
     zbee_append_info(tree, pinfo, ", Ext Addr: %s", eui64_to_display(pinfo->pool, ext_addr));
 
@@ -299,14 +299,14 @@ dissect_zbee_zdp_req_discovery_cache(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 void
 dissect_zbee_zdp_device_annce(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint   offset = 0;
-    guint64 ext_addr;
-    guint32 short_addr;
-    /*guint8  capability;*/
+    unsigned   offset = 0;
+    uint64_t ext_addr;
+    uint32_t short_addr;
+    /*uint8_t capability;*/
 
     proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_nwk_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN, &short_addr);
     offset += 2;
-    ext_addr    = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, (int)sizeof(guint64), NULL);
+    ext_addr    = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, (int)sizeof(uint64_t), NULL);
     /*capability  =*/ zdp_parse_cinfo(tree, ett_zbee_zdp_cinfo, tvb, &offset);
 
     zbee_append_info(tree, pinfo, ", Nwk Addr: 0x%04x, Ext Addr: %s", short_addr, eui64_to_display(pinfo->pool, ext_addr));
@@ -325,10 +325,10 @@ dissect_zbee_zdp_device_annce(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 void
 dissect_zbee_zdp_parent_annce(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint   offset = 0;
-    guint   n_children;
-    guint   i;
-    guint64 ext_addr;
+    unsigned   offset = 0;
+    unsigned   n_children;
+    unsigned   i;
+    uint64_t ext_addr;
 
     proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_number_of_children, tvb, offset, 1, ENC_LITTLE_ENDIAN, &n_children);
     offset += 1;
@@ -336,7 +336,7 @@ dissect_zbee_zdp_parent_annce(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     zbee_append_info(tree, pinfo, ", # children %d :", n_children);
     for (i = 0 ; i < n_children ; ++i)
     {
-        ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, (int)sizeof(guint64), NULL);
+        ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, (int)sizeof(uint64_t), NULL);
         if (i == 0)
         {
             zbee_append_info(tree, pinfo, n_children == 1 ? " %s" : " %s ...", eui64_to_display(pinfo->pool, ext_addr));
@@ -358,11 +358,11 @@ dissect_zbee_zdp_parent_annce(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 void
 dissect_zbee_zdp_rsp_parent_annce(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint   offset = 0;
-    guint   n_children;
-    guint   i;
-    guint64 ext_addr;
-    guint8  status;
+    unsigned   offset = 0;
+    unsigned   n_children;
+    unsigned   i;
+    uint64_t ext_addr;
+    uint8_t status;
 
     status = zdp_parse_status(tree, tvb, &offset);
     proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_number_of_children, tvb, offset, 1, ENC_LITTLE_ENDIAN, &n_children);
@@ -371,7 +371,7 @@ dissect_zbee_zdp_rsp_parent_annce(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     zbee_append_info(tree, pinfo, ", # children %d :", n_children);
     for (i = 0 ; i < n_children ; ++i)
     {
-        ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, (int)sizeof(guint64), NULL);
+        ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, (int)sizeof(uint64_t), NULL);
         if (i == 0)
         {
             zbee_append_info(tree, pinfo, n_children == 1 ? " %s" : " %s ...", eui64_to_display(pinfo->pool, ext_addr));
@@ -390,11 +390,11 @@ dissect_zbee_zdp_rsp_parent_annce(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
  *@param tree pointer to data tree Wireshark uses to display packet.
 */
 void
-dissect_zbee_zdp_req_set_user_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 version)
+dissect_zbee_zdp_req_set_user_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint8_t version)
 {
-    guint   offset = 0;
-    guint32 device, user_length;
-    const guint8   *user;
+    unsigned   offset = 0;
+    uint32_t device, user_length;
+    const uint8_t  *user;
 
     proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_nwk_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN, &device);
     offset += 2;
@@ -425,8 +425,8 @@ dissect_zbee_zdp_req_set_user_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 void
 dissect_zbee_zdp_req_system_server_disc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint   offset = 0;
-    /*guint16 server_flags;*/
+    unsigned   offset = 0;
+    /*uint16_t server_flags;*/
 
     /*server_flags =*/ zdp_parse_server_flags(tree, ett_zbee_zdp_server, tvb, &offset);
 
@@ -445,15 +445,15 @@ void
 dissect_zbee_zdp_req_store_discovery(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree  *field_tree;
-    guint       offset = 0;
-    guint       i;
+    unsigned    offset = 0;
+    unsigned    i;
 
-    guint64 ext_addr;
-    guint32  simple_count;
+    uint64_t ext_addr;
+    uint32_t simple_count;
 
     proto_tree_add_item(tree, hf_zbee_zdp_nwk_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
-    ext_addr    = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, (int)sizeof(guint64), NULL);
+    ext_addr    = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, (int)sizeof(uint64_t), NULL);
     proto_tree_add_item(tree, hf_zbee_zdp_disc_node_size, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
     proto_tree_add_item(tree, hf_zbee_zdp_disc_power_size, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -484,15 +484,15 @@ dissect_zbee_zdp_req_store_discovery(tvbuff_t *tvb, packet_info *pinfo, proto_tr
  *@param tree pointer to data tree Wireshark uses to display packet.
 */
 void
-dissect_zbee_zdp_req_store_node_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 version)
+dissect_zbee_zdp_req_store_node_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint8_t version)
 {
-    guint   offset = 0;
-    guint64 ext_addr;
+    unsigned   offset = 0;
+    uint64_t ext_addr;
 
     proto_tree_add_item(tree, hf_zbee_zdp_nwk_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
-    ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, (int)sizeof(guint64), NULL);
-    zdp_parse_node_desc(tree, pinfo, FALSE, ett_zbee_zdp_node, tvb, &offset, version);
+    ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, (int)sizeof(uint64_t), NULL);
+    zdp_parse_node_desc(tree, pinfo, false, ett_zbee_zdp_node, tvb, &offset, version);
 
     zbee_append_info(tree, pinfo, ", Address: %s", eui64_to_display(pinfo->pool, ext_addr));
 
@@ -510,12 +510,12 @@ dissect_zbee_zdp_req_store_node_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 void
 dissect_zbee_zdp_req_store_power_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint   offset = 0;
-    guint64 ext_addr;
+    unsigned   offset = 0;
+    uint64_t ext_addr;
 
     proto_tree_add_item(tree, hf_zbee_zdp_nwk_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
-    ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, (int)sizeof(guint64), NULL);
+    ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, (int)sizeof(uint64_t), NULL);
     zdp_parse_power_desc(tree, ett_zbee_zdp_power, tvb, &offset);
 
     zbee_append_info(tree, pinfo, ", Address: %s", eui64_to_display(pinfo->pool, ext_addr));
@@ -535,15 +535,15 @@ void
 dissect_zbee_zdp_req_store_active_ep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree  *field_tree;
-    guint       offset = 0;
-    guint       i;
+    unsigned    offset = 0;
+    unsigned    i;
 
-    guint64     ext_addr;
-    guint32     ep_count;
+    uint64_t    ext_addr;
+    uint32_t    ep_count;
 
     proto_tree_add_item(tree, hf_zbee_zdp_nwk_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
-    ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, (int)sizeof(guint64), NULL);
+    ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, (int)sizeof(uint64_t), NULL);
     proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_disc_simple_count, tvb, offset, 1, ENC_LITTLE_ENDIAN, &ep_count);
     offset += 1;
 
@@ -568,14 +568,14 @@ dissect_zbee_zdp_req_store_active_ep(tvbuff_t *tvb, packet_info *pinfo, proto_tr
  *@param tree pointer to data tree Wireshark uses to display packet.
 */
 void
-dissect_zbee_zdp_req_store_simple_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 version)
+dissect_zbee_zdp_req_store_simple_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint8_t version)
 {
-    guint   offset = 0;
-    guint64 ext_addr;
+    unsigned   offset = 0;
+    uint64_t ext_addr;
 
     proto_tree_add_item(tree, hf_zbee_zdp_nwk_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
-    ext_addr    = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, (int)sizeof(guint64), NULL);
+    ext_addr    = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, (int)sizeof(uint64_t), NULL);
     proto_tree_add_item(tree, hf_zbee_zdp_simple_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
     zdp_parse_simple_desc(tree, ett_zbee_zdp_simple, tvb, &offset, version);
@@ -596,12 +596,12 @@ dissect_zbee_zdp_req_store_simple_desc(tvbuff_t *tvb, packet_info *pinfo, proto_
 void
 dissect_zbee_zdp_req_remove_node_cache(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint   offset   = 0;
-    guint64 ext_addr;
+    unsigned   offset   = 0;
+    uint64_t ext_addr;
 
     proto_tree_add_item(tree, hf_zbee_zdp_nwk_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
-    ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, (int)sizeof(guint64), NULL);
+    ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, (int)sizeof(uint64_t), NULL);
 
     zbee_append_info(tree, pinfo, ", Device: %s", eui64_to_display(pinfo->pool, ext_addr));
 
@@ -619,12 +619,12 @@ dissect_zbee_zdp_req_remove_node_cache(tvbuff_t *tvb, packet_info *pinfo, proto_
 void
 dissect_zbee_zdp_req_find_node_cache(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint   offset = 0;
-    guint64 ext_addr;
+    unsigned   offset = 0;
+    uint64_t ext_addr;
 
     proto_tree_add_item(tree, hf_zbee_zdp_nwk_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
-    ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, (int)sizeof(guint64), NULL);
+    ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, (int)sizeof(uint64_t), NULL);
 
     zbee_append_info(tree, pinfo, ", Address: %s", eui64_to_display(pinfo->pool, ext_addr));
 
@@ -642,8 +642,8 @@ dissect_zbee_zdp_req_find_node_cache(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 void
 dissect_zbee_zdp_req_ext_simple_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint   offset = 0;
-    guint32 device, endpt;
+    unsigned   offset = 0;
+    uint32_t device, endpt;
 
     proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_nwk_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN, &device);
     offset += 2;
@@ -668,9 +668,9 @@ dissect_zbee_zdp_req_ext_simple_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 void
 dissect_zbee_zdp_req_ext_active_ep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint   offset = 0;
-    guint32 device;
-    /*guint8  idx;*/
+    unsigned   offset = 0;
+    uint32_t device;
+    /*uint8_t idx;*/
 
     proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_nwk_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN, &device);
     offset += 2;
@@ -698,15 +698,15 @@ void
 dissect_zbee_zdp_rsp_nwk_addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree  *field_tree = NULL;
-    guint       offset = 0;
-    guint       i;
+    unsigned    offset = 0;
+    unsigned    i;
 
-    guint8      status;
-    guint64     ext_addr;
-    guint32     device, assoc;
+    uint8_t     status;
+    uint64_t    ext_addr;
+    uint32_t    device, assoc;
 
     status   = zdp_parse_status(tree, tvb, &offset);
-    ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, (int)sizeof(guint64), NULL);
+    ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, (int)sizeof(uint64_t), NULL);
     proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_nwk_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN, &device);
     offset += 2;
 
@@ -719,7 +719,7 @@ dissect_zbee_zdp_rsp_nwk_addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             proto_tree_add_item(tree, hf_zbee_zdp_index, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
 
-            field_tree = proto_tree_add_subtree(tree, tvb, offset, assoc*(int)sizeof(guint16),
+            field_tree = proto_tree_add_subtree(tree, tvb, offset, assoc*(int)sizeof(uint16_t),
                             ett_zbee_zdp_assoc_device, NULL, "Associated Device List");
         }
         for (i=0; i<assoc; i++) {
@@ -749,15 +749,15 @@ void
 dissect_zbee_zdp_rsp_ext_addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree  *field_tree = NULL;
-    guint       offset = 0;
-    guint       i;
+    unsigned    offset = 0;
+    unsigned    i;
 
-    guint8      status;
-    guint64     ext_addr;
-    guint32     device, assoc;
+    uint8_t     status;
+    uint64_t    ext_addr;
+    uint32_t    device, assoc;
 
     status   = zdp_parse_status(tree, tvb, &offset);
-    ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, (int)sizeof(guint64), NULL);
+    ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, (int)sizeof(uint64_t), NULL);
     proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_nwk_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN, &device);
     offset += 2;
 
@@ -770,7 +770,7 @@ dissect_zbee_zdp_rsp_ext_addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             proto_tree_add_item(tree, hf_zbee_zdp_index, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
 
-            field_tree = proto_tree_add_subtree(tree, tvb, offset, assoc*(int)sizeof(guint16),
+            field_tree = proto_tree_add_subtree(tree, tvb, offset, assoc*(int)sizeof(uint16_t),
                     ett_zbee_zdp_assoc_device, NULL, "Associated Device List");
         }
         for (i=0; i<assoc; i++) {
@@ -796,18 +796,18 @@ dissect_zbee_zdp_rsp_ext_addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
  *@param tree pointer to data tree Wireshark uses to display packet.
 */
 void
-dissect_zbee_zdp_rsp_node_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 version)
+dissect_zbee_zdp_rsp_node_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint8_t version)
 {
-    guint       offset = 0;
+    unsigned    offset = 0;
 
-    guint8      status;
-    guint32     device;
+    uint8_t     status;
+    uint32_t    device;
 
     status   = zdp_parse_status(tree, tvb, &offset);
     proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_nwk_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN, &device);
     offset += 2;
     if (status == ZBEE_ZDP_STATUS_SUCCESS) {
-        zdp_parse_node_desc(tree, pinfo, TRUE, ett_zbee_zdp_node, tvb, &offset, version);
+        zdp_parse_node_desc(tree, pinfo, true, ett_zbee_zdp_node, tvb, &offset, version);
     }
 
     zbee_append_info(tree, pinfo, ", Nwk Addr: 0x%04x", device);
@@ -829,10 +829,10 @@ dissect_zbee_zdp_rsp_node_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 void
 dissect_zbee_zdp_rsp_power_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint       offset = 0;
+    unsigned    offset = 0;
 
-    guint8      status;
-    guint32     device;
+    uint8_t     status;
+    uint32_t    device;
 
     status   = zdp_parse_status(tree, tvb, &offset);
     proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_nwk_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN, &device);
@@ -856,13 +856,13 @@ dissect_zbee_zdp_rsp_power_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
  *@param tree pointer to data tree Wireshark uses to display packet.
 */
 void
-dissect_zbee_zdp_rsp_simple_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 version)
+dissect_zbee_zdp_rsp_simple_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint8_t version)
 {
-    guint       offset = 0;
+    unsigned    offset = 0;
 
-    guint8      status;
-    /*guint8      length;*/
-    guint32     device;
+    uint8_t     status;
+    /*uint8_t     length;*/
+    uint32_t    device;
 
     status   = zdp_parse_status(tree, tvb, &offset);
     proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_nwk_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN, &device);
@@ -891,11 +891,11 @@ void
 dissect_zbee_zdp_rsp_active_ep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree  *field_tree = NULL;
-    guint       offset = 0;
-    guint       i;
+    unsigned    offset = 0;
+    unsigned    i;
 
-    guint8      status;
-    guint32     device, ep_count;
+    uint8_t     status;
+    uint32_t    device, ep_count;
 
     status   = zdp_parse_status(tree, tvb, &offset);
     proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_nwk_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN, &device);
@@ -905,7 +905,7 @@ dissect_zbee_zdp_rsp_active_ep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 
     if (tree && ep_count) {
-        field_tree = proto_tree_add_subtree(tree, tvb, offset, ep_count*(int)sizeof(guint8),
+        field_tree = proto_tree_add_subtree(tree, tvb, offset, ep_count*(int)sizeof(uint8_t),
                     ett_zbee_zdp_endpoint, NULL, "Active Endpoint List");
     }
     for (i=0; i<ep_count; i++) {
@@ -931,11 +931,11 @@ void
 dissect_zbee_zdp_rsp_match_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree  *field_tree = NULL;
-    guint       offset = 0;
-    guint       i;
+    unsigned    offset = 0;
+    unsigned    i;
 
-    guint8      status;
-    guint32     device, ep_count;
+    uint8_t     status;
+    uint32_t    device, ep_count;
 
     status   = zdp_parse_status(tree, tvb, &offset);
     proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_nwk_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN, &device);
@@ -944,7 +944,7 @@ dissect_zbee_zdp_rsp_match_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     offset += 1;
 
     if (tree && ep_count) {
-        field_tree = proto_tree_add_subtree(tree, tvb, offset, ep_count*(int)sizeof(guint8),
+        field_tree = proto_tree_add_subtree(tree, tvb, offset, ep_count*(int)sizeof(uint8_t),
                         ett_zbee_zdp_endpoint, NULL, "Matching Endpoint List");
     }
     for (i=0; i<ep_count; i++) {
@@ -969,10 +969,10 @@ dissect_zbee_zdp_rsp_match_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 void
 dissect_zbee_zdp_rsp_complex_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint       offset = 0;
+    unsigned    offset = 0;
 
-    guint8      status;
-    guint32     device, length;
+    uint8_t     status;
+    uint32_t    device, length;
 
     status = zdp_parse_status(tree, tvb, &offset);
 
@@ -1006,12 +1006,12 @@ dissect_zbee_zdp_rsp_complex_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
  *@param tree pointer to data tree Wireshark uses to display packet.
 */
 void
-dissect_zbee_zdp_rsp_user_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 version)
+dissect_zbee_zdp_rsp_user_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint8_t version)
 {
-    guint       offset = 0;
-    guint8      status;
-    guint32     device, user_length;
-    gchar       *user;
+    unsigned    offset = 0;
+    uint8_t     status;
+    uint32_t    device, user_length;
+    char        *user;
 
     status = zdp_parse_status(tree, tvb, &offset);
     if ((status == ZBEE_ZDP_STATUS_SUCCESS) || (tvb_bytes_exist(tvb, offset, 2))) {
@@ -1049,11 +1049,11 @@ dissect_zbee_zdp_rsp_user_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
  *@param tree pointer to data tree Wireshark uses to display packet.
 */
 void
-dissect_zbee_zdp_rsp_user_desc_conf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 version)
+dissect_zbee_zdp_rsp_user_desc_conf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint8_t version)
 {
-    guint       offset = 0;
-    guint8      status;
-    guint32     device = 0;
+    unsigned    offset = 0;
+    uint8_t     status;
+    uint32_t    device = 0;
 
     status = zdp_parse_status(tree, tvb, &offset);
     if (version >= ZBEE_VERSION_2007) {
@@ -1081,8 +1081,8 @@ dissect_zbee_zdp_rsp_user_desc_conf(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 void
 dissect_zbee_zdp_rsp_discovery_cache(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint  offset = 0;
-    guint8 status;
+    unsigned  offset = 0;
+    uint8_t status;
 
     status = zdp_parse_status(tree, tvb, &offset);
     zbee_append_info(tree, pinfo, ", Status: %s", zdp_status_name(status));
@@ -1101,8 +1101,8 @@ dissect_zbee_zdp_rsp_discovery_cache(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 void
 dissect_zbee_zdp_rsp_system_server_disc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint   offset = 0;
-    guint8  status;
+    unsigned   offset = 0;
+    uint8_t status;
 
     status   = zdp_parse_status(tree, tvb, &offset);
 
@@ -1126,8 +1126,8 @@ dissect_zbee_zdp_rsp_system_server_disc(tvbuff_t *tvb, packet_info *pinfo, proto
 void
 dissect_zbee_zdp_rsp_discovery_store(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint  offset = 0;
-    guint8 status;
+    unsigned  offset = 0;
+    uint8_t status;
 
     status = zdp_parse_status(tree, tvb, &offset);
     zbee_append_info(tree, pinfo, ", Status: %s", zdp_status_name(status));
@@ -1146,8 +1146,8 @@ dissect_zbee_zdp_rsp_discovery_store(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 void
 dissect_zbee_zdp_rsp_store_node_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint  offset = 0;
-    guint8 status;
+    unsigned  offset = 0;
+    uint8_t status;
 
     status = zdp_parse_status(tree, tvb, &offset);
     zbee_append_info(tree, pinfo, ", Status: %s", zdp_status_name(status));
@@ -1166,8 +1166,8 @@ dissect_zbee_zdp_rsp_store_node_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 void
 dissect_zbee_zdp_rsp_store_power_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint  offset = 0;
-    guint8 status;
+    unsigned  offset = 0;
+    uint8_t status;
 
     status = zdp_parse_status(tree, tvb, &offset);
     zbee_append_info(tree, pinfo, ", Status: %s", zdp_status_name(status));
@@ -1186,8 +1186,8 @@ dissect_zbee_zdp_rsp_store_power_desc(tvbuff_t *tvb, packet_info *pinfo, proto_t
 void
 dissect_zbee_zdp_rsp_store_active_ep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint  offset = 0;
-    guint8 status;
+    unsigned  offset = 0;
+    uint8_t status;
 
     status = zdp_parse_status(tree, tvb, &offset);
     zbee_append_info(tree, pinfo, ", Status: %s", zdp_status_name(status));
@@ -1206,8 +1206,8 @@ dissect_zbee_zdp_rsp_store_active_ep(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 void
 dissect_zbee_zdp_rsp_store_simple_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint  offset = 0;
-    guint8 status;
+    unsigned  offset = 0;
+    uint8_t status;
 
     status = zdp_parse_status(tree, tvb, &offset);
     zbee_append_info(tree, pinfo, ", Status: %s", zdp_status_name(status));
@@ -1226,8 +1226,8 @@ dissect_zbee_zdp_rsp_store_simple_desc(tvbuff_t *tvb, packet_info *pinfo, proto_
 void
 dissect_zbee_zdp_rsp_remove_node_cache(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint  offset = 0;
-    guint8 status;
+    unsigned  offset = 0;
+    uint8_t status;
 
     status = zdp_parse_status(tree, tvb, &offset);
     zbee_append_info(tree, pinfo, ", Status: %s", zdp_status_name(status));
@@ -1246,15 +1246,15 @@ dissect_zbee_zdp_rsp_remove_node_cache(tvbuff_t *tvb, packet_info *pinfo, proto_
 void
 dissect_zbee_zdp_rsp_find_node_cache(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint   offset = 0;
-    guint32 device, cache;
+    unsigned   offset = 0;
+    uint32_t device, cache;
 
     /* Find Node Cache does NOT start with status */
     proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_cache, tvb, offset, 2, ENC_LITTLE_ENDIAN, &cache);
     offset += 2;
     proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_nwk_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN, &device);
     offset += 2;
-    /*ext_addr =*/ zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, (int)sizeof(guint64), NULL);
+    /*ext_addr =*/ zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, (int)sizeof(uint64_t), NULL);
 
     zbee_append_info(tree, pinfo, ", Cache: 0x%04x", cache);
     zbee_append_info(tree, pinfo, ", Nwk Addr: 0x%04x", device);
@@ -1274,11 +1274,11 @@ void
 dissect_zbee_zdp_rsp_ext_simple_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item  *ti;
-    guint       offset = 0;
-    guint       i;
-    guint       sizeof_cluster = (int)sizeof(guint16);
-    guint8      status;
-    guint32     device, cluster, in_count, out_count, idx;
+    unsigned    offset = 0;
+    unsigned    i;
+    unsigned    sizeof_cluster = (int)sizeof(uint16_t);
+    uint8_t     status;
+    uint32_t    device, cluster, in_count, out_count, idx;
 
     status = zdp_parse_status(tree, tvb, &offset);
     if ((status == ZBEE_ZDP_STATUS_SUCCESS) || (tvb_bytes_exist(tvb, offset, 2))) {
@@ -1326,11 +1326,11 @@ void
 dissect_zbee_zdp_rsp_ext_active_ep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree  *field_tree = NULL;
-    guint       offset = 0;
-    guint       i;
+    unsigned    offset = 0;
+    unsigned    i;
 
-    guint8      status;
-    guint32     device, ep_count, idx;
+    uint8_t     status;
+    uint32_t    device, ep_count, idx;
 
     status   = zdp_parse_status(tree, tvb, &offset);
     if ((status == ZBEE_ZDP_STATUS_SUCCESS) || (tvb_bytes_exist(tvb, offset, 2))) {
@@ -1347,9 +1347,9 @@ dissect_zbee_zdp_rsp_ext_active_ep(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         offset += 1;
 
         if (tree && ep_count) {
-            field_tree = proto_tree_add_subtree(tree, tvb, offset, ep_count*(int)sizeof(guint8),
+            field_tree = proto_tree_add_subtree(tree, tvb, offset, ep_count*(int)sizeof(uint8_t),
                             ett_zbee_zdp_endpoint, NULL, "Active Endpoint List");
-            for (i=idx; (i<ep_count) && tvb_bytes_exist(tvb, offset, (int)sizeof(guint8)); i++) {
+            for (i=idx; (i<ep_count) && tvb_bytes_exist(tvb, offset, (int)sizeof(uint8_t)); i++) {
                 proto_tree_add_item(field_tree, hf_zbee_zdp_endpoint, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset += 1;
             }

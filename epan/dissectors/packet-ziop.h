@@ -25,19 +25,19 @@
 #define ZIOP_MAGIC 	 "ZIOP"
 
 typedef struct ZIOPHeader_1_0 {
-  guint8 magic[4];
-  guint8 giop_version_major;
-  guint8 giop_version_minor;
-  guint8 flags;
-  guint8 message_type;
-  guint32 message_size;
+  uint8_t magic[4];
+  uint8_t giop_version_major;
+  uint8_t giop_version_minor;
+  uint8_t flags;
+  uint8_t message_type;
+  uint32_t message_size;
 } ZIOPHeader;
 
 
 typedef struct ZIOP_CompressionData {
-  guint16 compressor_id;
-  guint16 padding; /* to be skipped due to CDR rules */
-  guint32 original_length;
+  uint16_t compressor_id;
+  uint16_t padding; /* to be skipped due to CDR rules */
+  uint32_t original_length;
   /* Compression::Buffer data; */
 } CompressionData;
 

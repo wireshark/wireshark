@@ -128,30 +128,30 @@
 #define ZBEE_SEC_CONST_KEYSIZE              16
 
 typedef struct{
-    gboolean    security;
-    gboolean    discovery;
-    gboolean    multicast;          /* ZigBee 2006 and Later */
-    gboolean    route;              /* ZigBee 2006 and Later */
-    gboolean    ext_dst;            /* ZigBee 2006 and Later */
-    gboolean    ext_src;            /* ZigBee 2006 and Later */
-    guint16     type;
-    guint8      version;
+    bool        security;
+    bool        discovery;
+    bool        multicast;          /* ZigBee 2006 and Later */
+    bool        route;              /* ZigBee 2006 and Later */
+    bool        ext_dst;            /* ZigBee 2006 and Later */
+    bool        ext_src;            /* ZigBee 2006 and Later */
+    uint16_t    type;
+    uint8_t     version;
 
-    guint16     dst;
-    guint16     src;
-    guint64     dst64;              /* ZigBee 2006 and Later */
-    guint64     src64;              /* ZigBee 2006 and Later */
-    guint8      radius;
-    guint8      seqno;
+    uint16_t    dst;
+    uint16_t    src;
+    uint64_t    dst64;              /* ZigBee 2006 and Later */
+    uint64_t    src64;              /* ZigBee 2006 and Later */
+    uint8_t     radius;
+    uint8_t     seqno;
 
-    guint8      mcast_mode;         /* ZigBee 2006 and Later */
-    guint8      mcast_radius;       /* ZigBee 2006 and Later */
-    guint8      mcast_max_radius;   /* ZigBee 2006 and Later */
+    uint8_t     mcast_mode;         /* ZigBee 2006 and Later */
+    uint8_t     mcast_radius;       /* ZigBee 2006 and Later */
+    uint8_t     mcast_max_radius;   /* ZigBee 2006 and Later */
 
-    guint8      payload_offset;
-    guint8      payload_len;
+    uint8_t     payload_offset;
+    uint8_t     payload_len;
 
-    guint16     cluster_id;     /* an application-specific message identifier that
+    uint16_t    cluster_id;     /* an application-specific message identifier that
                                  * happens to be included in the transport (APS) layer header.
                                  */
 
@@ -160,8 +160,8 @@ typedef struct{
 
 /* Key used for link key hash table. */
 typedef struct {
-    guint64     lt_addr64; /* lesser than address */
-    guint64     gt_addr64; /* greater than address */
+    uint64_t    lt_addr64; /* lesser than address */
+    uint64_t    gt_addr64; /* greater than address */
 } table_link_key_t;
 
 
@@ -174,22 +174,22 @@ typedef enum
 
 /* Values in the key rings. */
 typedef struct {
-    guint       frame_num;
-    gchar      *label;
-    guint8      key[ZBEE_SEC_CONST_KEYSIZE];
+    unsigned    frame_num;
+    char       *label;
+    uint8_t     key[ZBEE_SEC_CONST_KEYSIZE];
 } key_record_t;
 
 typedef struct {
-    gint                    src_pan;    /* source pan */
-    gint                    src;        /* short source address from nwk */
+    int                     src_pan;    /* source pan */
+    int                     src;        /* short source address from nwk */
 #if 0
-    gint                    ieee_src;   /* short source address from mac */
+    int                     ieee_src;   /* short source address from mac */
 #endif
     ieee802154_map_rec     *map_rec;    /* extended src from nwk */
     key_record_t           *nwk;        /* Network key found for this packet */
     key_record_t           *link;       /* Link key found for this packet */
     aps_relay_type_t        relay_type ; /* Is it upstream/downstream relayed packet? */
-    guint64                 joiner_addr64; /* long address from Relay frame */
+    uint64_t                joiner_addr64; /* long address from Relay frame */
 } zbee_nwk_hints_t;
 
 extern ieee802154_map_tab_t zbee_nwk_map;

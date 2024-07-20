@@ -245,9 +245,9 @@ static int hf_zbee_zcl_thermostat_schedule_time;
 static int hf_zbee_zcl_thermostat_schedule_heat;
 static int hf_zbee_zcl_thermostat_schedule_cool;
 
-static gint ett_zbee_zcl_thermostat;
-static gint ett_zbee_zcl_thermostat_schedule_days;
-static gint ett_zbee_zcl_thermostat_schedule_mode;
+static int ett_zbee_zcl_thermostat;
+static int ett_zbee_zcl_thermostat_schedule_days;
+static int ett_zbee_zcl_thermostat_schedule_mode;
 
 /*************************/
 /* Function Declarations */
@@ -256,11 +256,11 @@ void proto_register_zbee_zcl_thermostat(void);
 void proto_reg_handoff_zbee_zcl_thermostat(void);
 
 /* Attribute Dissector Helpers */
-static void dissect_zcl_thermostat_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
+static void dissect_zcl_thermostat_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr);
 
-static int  dissect_zcl_thermostat_schedule(proto_tree *tree, tvbuff_t *tvb, guint offset);
-static void dissect_zcl_thermostat_schedule_days(proto_tree *tree, tvbuff_t *tvb, guint offset);
-static void dissect_zcl_thermostat_schedule_mode(proto_tree *tree, tvbuff_t *tvb, guint offset);
+static int  dissect_zcl_thermostat_schedule(proto_tree *tree, tvbuff_t *tvb, unsigned offset);
+static void dissect_zcl_thermostat_schedule_days(proto_tree *tree, tvbuff_t *tvb, unsigned offset);
+static void dissect_zcl_thermostat_schedule_mode(proto_tree *tree, tvbuff_t *tvb, unsigned offset);
 
 /**
  *Helper function to dissect a Thermostat scheduling days bitmask.
@@ -270,7 +270,7 @@ static void dissect_zcl_thermostat_schedule_mode(proto_tree *tree, tvbuff_t *tvb
  *@param offset payload offset of the ZoneStatus value.
 */
 static void
-dissect_zcl_thermostat_schedule_days(proto_tree *tree, tvbuff_t *tvb, guint offset)
+dissect_zcl_thermostat_schedule_days(proto_tree *tree, tvbuff_t *tvb, unsigned offset)
 {
 
     static int * const thermostat_schedule_days[] = {
@@ -298,7 +298,7 @@ dissect_zcl_thermostat_schedule_days(proto_tree *tree, tvbuff_t *tvb, guint offs
  *@param offset payload offset of the ZoneStatus value.
 */
 static void
-dissect_zcl_thermostat_schedule_mode(proto_tree *tree, tvbuff_t *tvb, guint offset)
+dissect_zcl_thermostat_schedule_mode(proto_tree *tree, tvbuff_t *tvb, unsigned offset)
 {
 
     static int * const thermostat_schedule_modes[] = {
@@ -320,14 +320,14 @@ dissect_zcl_thermostat_schedule_mode(proto_tree *tree, tvbuff_t *tvb, guint offs
  *@return length of parsed data.
 */
 static int
-dissect_zcl_thermostat_schedule(proto_tree *tree, tvbuff_t *tvb, guint offset)
+dissect_zcl_thermostat_schedule(proto_tree *tree, tvbuff_t *tvb, unsigned offset)
 {
-    guint       start = offset;
-    guint8      num_transitions;
-    guint8      mode_sequence;
+    unsigned    start = offset;
+    uint8_t     num_transitions;
+    uint8_t     mode_sequence;
     int         i;
 
-    num_transitions = tvb_get_guint8(tvb, offset);
+    num_transitions = tvb_get_uint8(tvb, offset);
     proto_tree_add_uint(tree, hf_zbee_zcl_thermostat_schedule_num_trans, tvb, offset, 1,
         num_transitions);
     offset++;
@@ -335,7 +335,7 @@ dissect_zcl_thermostat_schedule(proto_tree *tree, tvbuff_t *tvb, guint offset)
     dissect_zcl_thermostat_schedule_days(tree, tvb, offset);
     offset++;
 
-    mode_sequence = tvb_get_guint8(tvb, offset);
+    mode_sequence = tvb_get_uint8(tvb, offset);
     dissect_zcl_thermostat_schedule_mode(tree, tvb, offset);
     offset++;
 
@@ -378,8 +378,8 @@ static int
 dissect_zbee_zcl_thermostat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     zbee_zcl_packet   *zcl;
-    guint             offset = 0;
-    guint8            cmd_id;
+    unsigned          offset = 0;
+    uint8_t           cmd_id;
     float             amount;
 
     /* Reject the packet if data is NULL */
@@ -405,7 +405,7 @@ dissect_zbee_zcl_thermostat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_tree_add_item(tree, hf_zbee_zcl_thermostat_setpoint_mode,
                     tvb, offset, 1, ENC_NA);
                 offset++;
-                amount = tvb_get_gint8(tvb, offset);
+                amount = tvb_get_int8(tvb, offset);
                 proto_tree_add_float(tree, hf_zbee_zcl_thermostat_setpoint_amount,
                     tvb, offset, 1, (amount / 100.0f));
                 offset++;
@@ -468,7 +468,7 @@ dissect_zbee_zcl_thermostat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  *@param client_attr ZCL client
 */
 static void
-dissect_zcl_thermostat_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
+dissect_zcl_thermostat_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
 {
     /* Dissect attribute data type and data */
     switch (attr_id) {
@@ -571,7 +571,7 @@ proto_register_zbee_zcl_thermostat(void)
     };
 
     /* ZCL IAS Zone subtrees */
-    static gint *ett[ZBEE_ZCL_THERMOSTAT_NUM_ETT];
+    static int *ett[ZBEE_ZCL_THERMOSTAT_NUM_ETT];
 
     ett[0] = &ett_zbee_zcl_thermostat;
     ett[1] = &ett_zbee_zcl_thermostat_schedule_days;
@@ -762,8 +762,8 @@ static const true_false_string tfs_trouble_failure = {
     "OK"
 };
 
-static gint ett_zbee_zcl_ias_zone;
-static gint ett_zbee_zcl_ias_zone_status;
+static int ett_zbee_zcl_ias_zone;
+static int ett_zbee_zcl_ias_zone_status;
 
 /*************************/
 /* Function Declarations */
@@ -775,10 +775,10 @@ void proto_reg_handoff_zbee_zcl_ias_zone(void);
 static int dissect_zbee_zcl_ias_zone   (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
 
 /* Attribute Dissector Helpers */
-static void dissect_zcl_ias_zone_attr_data  (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
+static void dissect_zcl_ias_zone_attr_data  (proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr);
 
 /* ZoneStatus bitmask helper */
-static void dissect_zcl_ias_zone_status     (proto_tree *tree, tvbuff_t *tvb, guint offset);
+static void dissect_zcl_ias_zone_status     (proto_tree *tree, tvbuff_t *tvb, unsigned offset);
 
 /**
  *Helper function to dissect the IAS ZoneStatus bitmask.
@@ -788,7 +788,7 @@ static void dissect_zcl_ias_zone_status     (proto_tree *tree, tvbuff_t *tvb, gu
  *@param offset payload offset of the ZoneStatus value.
 */
 static void
-dissect_zcl_ias_zone_status(proto_tree *tree, tvbuff_t *tvb, guint offset)
+dissect_zcl_ias_zone_status(proto_tree *tree, tvbuff_t *tvb, unsigned offset)
 {
     static int * const ias_zone_statuses[] = {
         &hf_zbee_zcl_ias_zone_status_alarm1,
@@ -819,8 +819,8 @@ static int
 dissect_zbee_zcl_ias_zone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     zbee_zcl_packet   *zcl;
-    guint             offset = 0;
-    guint8            cmd_id;
+    unsigned          offset = 0;
+    uint8_t           cmd_id;
 
     /* Reject the packet if data is NULL */
     if (data == NULL)
@@ -902,7 +902,7 @@ dissect_zbee_zcl_ias_zone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
  *@param client_attr ZCL client
 */
 static void
-dissect_zcl_ias_zone_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
+dissect_zcl_ias_zone_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
 {
     /* Dissect attribute data type and data */
     switch (attr_id) {
@@ -1032,7 +1032,7 @@ proto_register_zbee_zcl_ias_zone(void)
     };
 
     /* ZCL IAS Zone subtrees */
-    static gint *ett[ZBEE_ZCL_IAS_ZONE_NUM_ETT];
+    static int *ett[ZBEE_ZCL_IAS_ZONE_NUM_ETT];
 
     ett[0] = &ett_zbee_zcl_ias_zone;
     ett[1] = &ett_zbee_zcl_ias_zone_status;

@@ -45,16 +45,16 @@ static int proto_ziop;
  * (sub)Tree declares
  */
 
-static gint hf_ziop_magic;
-static gint hf_ziop_giop_version_major;
-static gint hf_ziop_giop_version_minor;
-static gint hf_ziop_flags;
-static gint hf_ziop_message_type;
-static gint hf_ziop_message_size;
-static gint hf_ziop_compressor_id;
-static gint hf_ziop_original_length;
+static int hf_ziop_magic;
+static int hf_ziop_giop_version_major;
+static int hf_ziop_giop_version_minor;
+static int hf_ziop_flags;
+static int hf_ziop_message_type;
+static int hf_ziop_message_size;
+static int hf_ziop_compressor_id;
+static int hf_ziop_original_length;
 
-static gint ett_ziop;
+static int ett_ziop;
 
 static expert_field ei_ziop_version;
 
@@ -89,19 +89,19 @@ static const value_string giop_message_types[] = {
 };
 
 
-static gboolean ziop_desegment = TRUE;
+static bool ziop_desegment = true;
 
 
 /* Main entry point */
 static int
 dissect_ziop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_) {
-  guint offset = 0;
-  guint8 giop_version_major, giop_version_minor, message_type;
+  unsigned offset = 0;
+  uint8_t giop_version_major, giop_version_minor, message_type;
 
   proto_tree *ziop_tree = NULL;
   proto_item *ti;
-  guint8 flags;
-  guint byte_order;
+  uint8_t flags;
+  unsigned byte_order;
   const char *label = "none";
 
   if (tvb_reported_length(tvb) < 7)
@@ -118,10 +118,10 @@ dissect_ziop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
   proto_tree_add_item(ziop_tree, hf_ziop_magic, tvb, offset, 4, ENC_ASCII);
   offset += 4;
   proto_tree_add_item(ziop_tree, hf_ziop_giop_version_major, tvb, offset, 1, ENC_BIG_ENDIAN);
-  giop_version_major = tvb_get_guint8(tvb, offset);
+  giop_version_major = tvb_get_uint8(tvb, offset);
   offset++;
   proto_tree_add_item(ziop_tree, hf_ziop_giop_version_minor, tvb, offset, 1, ENC_BIG_ENDIAN);
-  giop_version_minor = tvb_get_guint8(tvb, offset);
+  giop_version_minor = tvb_get_uint8(tvb, offset);
   offset++;
 
   if ( (giop_version_major < 1) ||
@@ -139,7 +139,7 @@ dissect_ziop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
       return tvb_reported_length(tvb);
   }
 
-  flags = tvb_get_guint8(tvb, offset);
+  flags = tvb_get_uint8(tvb, offset);
   byte_order = (flags & 0x01) ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN;
 
   if (flags & 0x01) {
@@ -150,7 +150,7 @@ dissect_ziop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
   offset++;
 
   proto_tree_add_item(ziop_tree, hf_ziop_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-  message_type = tvb_get_guint8(tvb, offset);
+  message_type = tvb_get_uint8(tvb, offset);
   offset++;
 
   col_add_fstr (pinfo->cinfo, COL_INFO, "ZIOP %u.%u %s",
@@ -169,17 +169,17 @@ dissect_ziop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
   return tvb_reported_length(tvb);
 }
 
-static guint
+static unsigned
 get_ziop_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
-  guint8 flags;
-  guint message_size;
-  gboolean stream_is_big_endian;
+  uint8_t flags;
+  unsigned message_size;
+  bool stream_is_big_endian;
 
-  if ( tvb_memeql(tvb, 0, (const guint8 *)ZIOP_MAGIC, 4) != 0)
+  if ( tvb_memeql(tvb, 0, (const uint8_t *)ZIOP_MAGIC, 4) != 0)
     return 0;
 
-  flags = tvb_get_guint8(tvb, offset + 6);
+  flags = tvb_get_uint8(tvb, offset + 6);
 
   stream_is_big_endian =  ((flags & 0x1) == 0);
 
@@ -194,7 +194,7 @@ get_ziop_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _
 static int
 dissect_ziop_tcp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 {
-  if ( tvb_memeql(tvb, 0, (const guint8 *)ZIOP_MAGIC, 4) != 0)
+  if ( tvb_memeql(tvb, 0, (const uint8_t *)ZIOP_MAGIC, 4) != 0)
     {
       if (tvb_get_ntohl(tvb, 0) == GIOP_MAGIC_NUMBER)
         {
@@ -213,7 +213,7 @@ dissect_ziop_tcp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* 
 bool
 dissect_ziop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data)
 {
-  guint tot_len;
+  unsigned tot_len;
 
   conversation_t *conversation;
   /* check magic number and version */
@@ -226,7 +226,7 @@ dissect_ziop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void 
          to interpret it as GIOP. */
       return false;
     }
-  if ( tvb_memeql(tvb, 0, (const guint8 *)ZIOP_MAGIC, 4) != 0)
+  if ( tvb_memeql(tvb, 0, (const uint8_t *)ZIOP_MAGIC, 4) != 0)
     {
       return false;
     }
@@ -292,7 +292,7 @@ proto_register_ziop (void)
         "ZIOP original_length", HFILL }}
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_ziop
   };
 

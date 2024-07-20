@@ -56,7 +56,7 @@ void proto_register_zbee_zcl_shade_configuration(void);
 void proto_reg_handoff_zbee_zcl_shade_configuration(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_shade_configuration_attr_data      (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
+static void dissect_zcl_shade_configuration_attr_data      (proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr);
 
 /* Private functions prototype */
 
@@ -75,8 +75,8 @@ static int hf_zbee_zcl_shade_configuration_status_motor_forward_direction;
 static int hf_zbee_zcl_shade_configuration_mode;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_shade_configuration;
-static gint ett_zbee_zcl_shade_configuration_status;
+static int ett_zbee_zcl_shade_configuration;
+static int ett_zbee_zcl_shade_configuration_status;
 
 /* Attributes */
 static const value_string zbee_zcl_shade_configuration_attr_names[] = {
@@ -133,7 +133,7 @@ dissect_zbee_zcl_shade_configuration(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
  *@param client_attr ZCL client
 */
 void
-dissect_zcl_shade_configuration_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
+dissect_zcl_shade_configuration_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
 {
     static int * const shade_config_status[] = {
         &hf_zbee_zcl_shade_configuration_status_shade_operational,
@@ -209,7 +209,7 @@ proto_register_zbee_zcl_shade_configuration(void)
     };
 
     /* ZCL Shade Configuration subtrees */
-    static gint *ett[ZBEE_ZCL_SHADE_CONFIGURATION_NUM_ETT];
+    static int *ett[ZBEE_ZCL_SHADE_CONFIGURATION_NUM_ETT];
 
     ett[0] = &ett_zbee_zcl_shade_configuration;
     ett[1] = &ett_zbee_zcl_shade_configuration_status;
@@ -279,9 +279,9 @@ void proto_register_zbee_zcl_door_lock(void);
 void proto_reg_handoff_zbee_zcl_door_lock(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_door_lock_lock_unlock_door_response        (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_door_lock_lock_unlock_door_response        (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
 
-static void dissect_zcl_door_lock_attr_data                        (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
+static void dissect_zcl_door_lock_attr_data                        (proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr);
 
 /* Private functions prototype */
 
@@ -301,7 +301,7 @@ static int hf_zbee_zcl_door_lock_srv_rx_cmd_id;
 static int hf_zbee_zcl_door_lock_srv_tx_cmd_id;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_door_lock;
+static int ett_zbee_zcl_door_lock;
 
 /* Attributes */
 static const value_string zbee_zcl_door_lock_attr_names[] = {
@@ -372,9 +372,9 @@ dissect_zbee_zcl_door_lock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 {
     proto_tree        *payload_tree;
     zbee_zcl_packet   *zcl;
-    guint             offset = 0;
-    guint8            cmd_id;
-    gint              rem_len;
+    unsigned          offset = 0;
+    uint8_t           cmd_id;
+    int               rem_len;
 
     /* Reject the packet if data is NULL */
     if (data == NULL)
@@ -446,7 +446,7 @@ dissect_zbee_zcl_door_lock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
  *@param  offset offset of data in tvb
 */
 static void
-dissect_zcl_door_lock_lock_unlock_door_response(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+dissect_zcl_door_lock_lock_unlock_door_response(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
     /* Retrieve "Status" field */
     proto_tree_add_item(tree, hf_zbee_zcl_door_lock_status, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
@@ -466,7 +466,7 @@ dissect_zcl_door_lock_lock_unlock_door_response(tvbuff_t *tvb, proto_tree *tree,
  *@param client_attr ZCL client
 */
 void
-dissect_zcl_door_lock_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
+dissect_zcl_door_lock_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
 {
     /* Dissect attribute data type and data */
     switch ( attr_id ) {
@@ -547,7 +547,7 @@ proto_register_zbee_zcl_door_lock(void)
     };
 
     /* ZCL Door Lock subtrees */
-    static gint *ett[ZBEE_ZCL_DOOR_LOCK_NUM_ETT];
+    static int *ett[ZBEE_ZCL_DOOR_LOCK_NUM_ETT];
     ett[0] = &ett_zbee_zcl_door_lock;
 
     /* Register the ZigBee ZCL Door Lock cluster protocol name and description */
@@ -615,7 +615,7 @@ proto_reg_handoff_zbee_zcl_door_lock(void)
 void proto_register_zbee_zcl_window_covering(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_window_covering_go_to_percentage(tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_window_covering_go_to_percentage(tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
 
 /* Private functions prototype */
 
@@ -634,7 +634,7 @@ static int hf_zbee_zcl_window_covering_go_to_percentage;
 static int hf_zbee_zcl_window_covering_srv_rx_cmd_id;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_window_covering;
+static int ett_zbee_zcl_window_covering;
 
 /* Attributes */
 static const value_string zbee_zcl_window_covering_attr_names[] = {
@@ -670,9 +670,9 @@ dissect_zbee_zcl_window_covering(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 {
     proto_tree        *payload_tree;
     zbee_zcl_packet   *zcl;
-    guint             offset = 0;
-    guint8            cmd_id;
-    gint              rem_len;
+    unsigned          offset = 0;
+    uint8_t           cmd_id;
+    int               rem_len;
 
     /* Reject the packet if data is NULL */
     if (data == NULL)
@@ -723,7 +723,7 @@ dissect_zbee_zcl_window_covering(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
  *@param  offset offset of data in tvb
 */
 static void
-dissect_zcl_window_covering_go_to_percentage(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+dissect_zcl_window_covering_go_to_percentage(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
     /* Retrieve "go to lift/tilt percentage" field */
     proto_tree_add_item(tree, hf_zbee_zcl_window_covering_go_to_percentage, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
@@ -742,7 +742,7 @@ dissect_zcl_window_covering_go_to_percentage(tvbuff_t *tvb, proto_tree *tree, gu
  *@param client_attr ZCL client
 */
 static void
-dissect_zcl_window_covering_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
+dissect_zcl_window_covering_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
 {
     /* Dissect attribute data type and data */
     switch ( attr_id ) {
@@ -802,7 +802,7 @@ proto_register_zbee_zcl_window_covering(void)
     };
 
     /* ZCL Window Covering subtrees */
-    static gint *ett[ZBEE_ZCL_WINDOW_COVERING_NUM_ETT];
+    static int *ett[ZBEE_ZCL_WINDOW_COVERING_NUM_ETT];
     ett[0] = &ett_zbee_zcl_window_covering;
 
     /* Register the ZigBee ZCL Window Covering cluster protocol name and description */

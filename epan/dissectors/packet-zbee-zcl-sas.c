@@ -65,19 +65,19 @@ void proto_register_zbee_zcl_ias_ace(void);
 void proto_reg_handoff_zbee_zcl_ias_ace(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_ias_ace_arm                     (tvbuff_t *tvb, proto_tree *tree, guint *offset);
-static void dissect_zcl_ias_ace_bypass                  (tvbuff_t *tvb, proto_tree *tree, guint *offset);
-static void dissect_zcl_ias_ace_get_zone_info           (tvbuff_t *tvb, proto_tree *tree, guint *offset);
-static void dissect_zcl_ias_ace_get_zone_status         (tvbuff_t *tvb, proto_tree *tree, guint *offset);
-static void dissect_zcl_ias_ace_arm_res                 (tvbuff_t *tvb, proto_tree *tree, guint *offset);
-static void dissect_zcl_ias_ace_get_zone_id_map_res     (tvbuff_t *tvb, proto_tree *tree, guint *offset);
-static void dissect_zcl_ias_ace_get_zone_info_res       (tvbuff_t *tvb, proto_tree *tree, guint *offset);
-static void dissect_zcl_ias_ace_zone_status_changed     (tvbuff_t *tvb, proto_tree *tree, guint *offset);
-static void dissect_zcl_ias_ace_panel_status_changed    (tvbuff_t *tvb, proto_tree *tree, guint *offset);
-static void dissect_zcl_ias_ace_get_panel_status_res    (tvbuff_t *tvb, proto_tree *tree, guint *offset);
-static void dissect_zcl_ias_ace_set_bypassed_zone_list  (tvbuff_t *tvb, proto_tree *tree, guint *offset);
-static void dissect_zcl_ias_ace_bypassed_res            (tvbuff_t *tvb, proto_tree *tree, guint *offset);
-static void dissect_zcl_ias_ace_get_zone_status_res     (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_ias_ace_arm                     (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
+static void dissect_zcl_ias_ace_bypass                  (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
+static void dissect_zcl_ias_ace_get_zone_info           (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
+static void dissect_zcl_ias_ace_get_zone_status         (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
+static void dissect_zcl_ias_ace_arm_res                 (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
+static void dissect_zcl_ias_ace_get_zone_id_map_res     (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
+static void dissect_zcl_ias_ace_get_zone_info_res       (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
+static void dissect_zcl_ias_ace_zone_status_changed     (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
+static void dissect_zcl_ias_ace_panel_status_changed    (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
+static void dissect_zcl_ias_ace_get_panel_status_res    (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
+static void dissect_zcl_ias_ace_set_bypassed_zone_list  (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
+static void dissect_zcl_ias_ace_bypassed_res            (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
+static void dissect_zcl_ias_ace_get_zone_status_res     (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
 
 /* Private functions prototype */
 
@@ -111,13 +111,13 @@ static int hf_zbee_zcl_ias_ace_number_of_zones;
 static int hf_zbee_zcl_ias_ace_zone_status_complete;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_ias_ace;
-static gint ett_zbee_zcl_ias_ace_zone_id;
-static gint ett_zbee_zcl_ias_ace_zone_id_map_sec;
-static gint ett_zbee_zcl_ias_ace_zone_id_map_sec_elem;
-static gint ett_zbee_zcl_ias_ace_bypassed_zone_list;
-static gint ett_zbee_zcl_ias_ace_bypassed_resp_list;
-static gint ett_zbee_zcl_ias_ace_get_zone_status_resp_list;
+static int ett_zbee_zcl_ias_ace;
+static int ett_zbee_zcl_ias_ace_zone_id;
+static int ett_zbee_zcl_ias_ace_zone_id_map_sec;
+static int ett_zbee_zcl_ias_ace_zone_id_map_sec_elem;
+static int ett_zbee_zcl_ias_ace_bypassed_zone_list;
+static int ett_zbee_zcl_ias_ace_bypassed_resp_list;
+static int ett_zbee_zcl_ias_ace_get_zone_status_resp_list;
 
 /* Server Commands Received */
 static const value_string zbee_zcl_ias_ace_srv_rx_cmd_names[] = {
@@ -217,9 +217,9 @@ dissect_zbee_zcl_ias_ace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 {
     proto_tree        *payload_tree;
     zbee_zcl_packet   *zcl;
-    guint             offset = 0;
-    guint8            cmd_id;
-    gint              rem_len;
+    unsigned          offset = 0;
+    uint8_t           cmd_id;
+    int               rem_len;
 
     /* Reject the packet if data is NULL */
     if (data == NULL)
@@ -338,7 +338,7 @@ dissect_zbee_zcl_ias_ace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
  *@param  offset offset of data in tvb
 */
 static void
-dissect_zcl_ias_ace_arm(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+dissect_zcl_ias_ace_arm(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
     /* Retrieve "Arm Mode" field */
     proto_tree_add_item(tree, hf_zbee_zcl_ias_ace_arm_mode, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
@@ -355,14 +355,14 @@ dissect_zcl_ias_ace_arm(tvbuff_t *tvb, proto_tree *tree, guint *offset)
  *@param  offset offset of data in tvb
 */
 static void
-dissect_zcl_ias_ace_bypass(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+dissect_zcl_ias_ace_bypass(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
     proto_item *zone_id_list = NULL;
     proto_tree *sub_tree = NULL;
-    guint8 num, i;
+    uint8_t num, i;
 
     /* Retrieve "Number of Zones" field */
-    num = tvb_get_guint8(tvb, *offset);
+    num = tvb_get_uint8(tvb, *offset);
     proto_tree_add_item(tree, hf_zbee_zcl_ias_ace_no_of_zones, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
     *offset += 1;
 
@@ -385,7 +385,7 @@ dissect_zcl_ias_ace_bypass(tvbuff_t *tvb, proto_tree *tree, guint *offset)
  *@param  offset offset of data in tvb
 */
 static void
-dissect_zcl_ias_ace_get_zone_info(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+dissect_zcl_ias_ace_get_zone_info(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
    /* Retrieve "Zone ID" field */
    proto_tree_add_item(tree, hf_zbee_zcl_ias_ace_zone_id, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
@@ -402,7 +402,7 @@ dissect_zcl_ias_ace_get_zone_info(tvbuff_t *tvb, proto_tree *tree, guint *offset
  *@param  offset offset of data in tvb
 */
 static void
-dissect_zcl_ias_ace_get_zone_status(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+dissect_zcl_ias_ace_get_zone_status(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
     /* Retrieve "Starting Zone ID" field */
     proto_tree_add_item(tree, hf_zbee_zcl_ias_ace_starting_zone_id, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
@@ -431,7 +431,7 @@ dissect_zcl_ias_ace_get_zone_status(tvbuff_t *tvb, proto_tree *tree, guint *offs
  *@param  offset offset of data in tvb
 */
 static void
-dissect_zcl_ias_ace_zone_status_changed(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+dissect_zcl_ias_ace_zone_status_changed(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
     int length;
 
@@ -462,7 +462,7 @@ dissect_zcl_ias_ace_zone_status_changed(tvbuff_t *tvb, proto_tree *tree, guint *
  *@param  offset offset of data in tvb
 */
 static void
-dissect_zcl_ias_ace_panel_status_changed(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+dissect_zcl_ias_ace_panel_status_changed(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
     /* Retrieve "Panel Status" field */
     proto_tree_add_item(tree, hf_zbee_zcl_ias_ace_panel_status, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
@@ -491,7 +491,7 @@ dissect_zcl_ias_ace_panel_status_changed(tvbuff_t *tvb, proto_tree *tree, guint 
  *@param  offset offset of data in tvb
 */
 static void
-dissect_zcl_ias_ace_get_panel_status_res(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+dissect_zcl_ias_ace_get_panel_status_res(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
     /* Retrieve "Panel Status" field */
     proto_tree_add_item(tree, hf_zbee_zcl_ias_ace_panel_status, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
@@ -520,9 +520,9 @@ dissect_zcl_ias_ace_get_panel_status_res(tvbuff_t *tvb, proto_tree *tree, guint 
  *@param  offset offset of data in tvb
 */
 static void
-dissect_zcl_ias_ace_set_bypassed_zone_list(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+dissect_zcl_ias_ace_set_bypassed_zone_list(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
-    size_t length = tvb_get_guint8(tvb, *offset);
+    size_t length = tvb_get_uint8(tvb, *offset);
 
     /* Retrieve "Number of Zones" field */
     proto_tree_add_item(tree, hf_zbee_zcl_ias_ace_number_of_zones, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
@@ -549,9 +549,9 @@ dissect_zcl_ias_ace_set_bypassed_zone_list(tvbuff_t *tvb, proto_tree *tree, guin
  *@param  offset offset of data in tvb
 */
 static void
-dissect_zcl_ias_ace_bypassed_res(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+dissect_zcl_ias_ace_bypassed_res(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
-    size_t length = tvb_get_guint8(tvb, *offset);
+    size_t length = tvb_get_uint8(tvb, *offset);
 
     /* Retrieve "Number of Zones" field */
     proto_tree_add_item(tree, hf_zbee_zcl_ias_ace_number_of_zones, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
@@ -579,7 +579,7 @@ dissect_zcl_ias_ace_bypassed_res(tvbuff_t *tvb, proto_tree *tree, guint *offset)
  *@param  offset offset of data in tvb
 */
 static void
-dissect_zcl_ias_ace_get_zone_status_res(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+dissect_zcl_ias_ace_get_zone_status_res(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
     size_t length = 0;
 
@@ -587,7 +587,7 @@ dissect_zcl_ias_ace_get_zone_status_res(tvbuff_t *tvb, proto_tree *tree, guint *
     proto_tree_add_item(tree, hf_zbee_zcl_ias_ace_zone_status_complete, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
     *offset += 1;
 
-    length = tvb_get_guint8(tvb, *offset);
+    length = tvb_get_uint8(tvb, *offset);
 
     /* Retrieve "Number of Zones" field */
     proto_tree_add_item(tree, hf_zbee_zcl_ias_ace_number_of_zones, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
@@ -613,7 +613,7 @@ dissect_zcl_ias_ace_get_zone_status_res(tvbuff_t *tvb, proto_tree *tree, guint *
  *@param  offset offset of data in tvb
 */
 static void
-dissect_zcl_ias_ace_arm_res(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+dissect_zcl_ias_ace_arm_res(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
    /* Retrieve "Arm Notification" field */
    proto_tree_add_item(tree, hf_zbee_zcl_ias_ace_arm_notif, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
@@ -630,9 +630,9 @@ dissect_zcl_ias_ace_arm_res(tvbuff_t *tvb, proto_tree *tree, guint *offset)
  *@param  offset offset of data in tvb
 */
 static void
-dissect_zcl_ias_ace_get_zone_id_map_res(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+dissect_zcl_ias_ace_get_zone_id_map_res(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
-   guint8 i;
+   uint8_t i;
 
    /* Retrieve "Zone ID" fields */
    for(i = 0; i < 16; i++){
@@ -650,7 +650,7 @@ dissect_zcl_ias_ace_get_zone_id_map_res(tvbuff_t *tvb, proto_tree *tree, guint *
  *@param  offset offset of data in tvb
 */
 static void
-dissect_zcl_ias_ace_get_zone_info_res(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+dissect_zcl_ias_ace_get_zone_info_res(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
    /* Retrieve "Zone ID" field */
    proto_tree_add_item(tree, hf_zbee_zcl_ias_ace_zone_id, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
@@ -767,7 +767,7 @@ proto_register_zbee_zcl_ias_ace(void)
     };
 
     /* ZCL IAS ACE subtrees */
-    static gint *ett[ZBEE_ZCL_IAS_ACE_NUM_ETT];
+    static int *ett[ZBEE_ZCL_IAS_ACE_NUM_ETT];
     ett[0] = &ett_zbee_zcl_ias_ace;
     ett[1] = &ett_zbee_zcl_ias_ace_zone_id;
     ett[2] = &ett_zbee_zcl_ias_ace_zone_id_map_sec;
@@ -836,9 +836,9 @@ void proto_register_zbee_zcl_ias_wd(void);
 void proto_reg_handoff_zbee_zcl_ias_wd(void);
 
 /* Command Dissector Helpers */
-static void dissect_zcl_ias_wd_attr_data                (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
-static void dissect_zcl_ias_wd_start_warning            (tvbuff_t *tvb, proto_tree *tree, guint *offset);
-static void dissect_zcl_ias_wd_squawk                   (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_ias_wd_attr_data                (proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr);
+static void dissect_zcl_ias_wd_start_warning            (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
+static void dissect_zcl_ias_wd_squawk                   (tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
 
 /* Private functions prototype */
 
@@ -858,7 +858,7 @@ static int hf_zbee_zcl_ias_wd_squawk_level;
 static int hf_zbee_zcl_ias_wd_srv_rx_cmd_id;
 
 /* Initialize the subtree pointers */
-static gint ett_zbee_zcl_ias_wd;
+static int ett_zbee_zcl_ias_wd;
 
 /* Attributes */
 static const value_string zbee_zcl_ias_wd_attr_names[] = {
@@ -928,9 +928,9 @@ dissect_zbee_zcl_ias_wd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 {
     proto_tree        *payload_tree;
     zbee_zcl_packet   *zcl;
-    guint             offset = 0;
-    guint8            cmd_id;
-    gint              rem_len;
+    unsigned          offset = 0;
+    uint8_t           cmd_id;
+    int               rem_len;
 
     /* Reject the packet if data is NULL */
     if (data == NULL)
@@ -982,7 +982,7 @@ dissect_zbee_zcl_ias_wd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
  *@param  offset offset of data in tvb
 */
 static void
-dissect_zcl_ias_wd_start_warning(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+dissect_zcl_ias_wd_start_warning(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
     /* Retrieve "Warning Mode" field */
     proto_tree_add_item(tree, hf_zbee_zcl_ias_wd_warning_mode, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
@@ -1006,7 +1006,7 @@ dissect_zcl_ias_wd_start_warning(tvbuff_t *tvb, proto_tree *tree, guint *offset)
  *@param  offset offset of data in tvb
 */
 static void
-dissect_zcl_ias_wd_squawk(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+dissect_zcl_ias_wd_squawk(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
     /* Retrieve "Squawk Mode" field */
     proto_tree_add_item(tree, hf_zbee_zcl_ias_wd_squawk_mode, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
@@ -1032,7 +1032,7 @@ dissect_zcl_ias_wd_squawk(tvbuff_t *tvb, proto_tree *tree, guint *offset)
  *@param client_attr ZCL client
 */
 void
-dissect_zcl_ias_wd_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
+dissect_zcl_ias_wd_attr_data(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint16_t attr_id, unsigned data_type, bool client_attr)
 {
     /* Dissect attribute data type and data */
     switch (attr_id) {
@@ -1089,7 +1089,7 @@ proto_register_zbee_zcl_ias_wd(void)
     };
 
     /* ZCL IAS WD subtrees */
-    static gint *ett[ZBEE_ZCL_IAS_WD_NUM_ETT];
+    static int *ett[ZBEE_ZCL_IAS_WD_NUM_ETT];
     ett[0] = &ett_zbee_zcl_ias_wd;
 
     /* Register the ZigBee ZCL IAS WD cluster protocol name and description */

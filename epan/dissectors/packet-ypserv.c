@@ -39,8 +39,8 @@ static int hf_ypserv_status;
 static int hf_ypserv_map_parms;
 static int hf_ypserv_xfrstat;
 
-static gint ett_ypserv;
-static gint ett_ypserv_map_parms;
+static int ett_ypserv;
+static int ett_ypserv_map_parms;
 
 static const value_string ypstat[] =
 {
@@ -80,9 +80,9 @@ static const value_string xfrstat[] =
 };
 
 static int
-dissect_ypserv_status(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, gint32 *rstatus)
+dissect_ypserv_status(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int32_t *rstatus)
 {
-	gint32 status;
+	int32_t status;
 	const char *err;
 
 	status=tvb_get_ntohl(tvb, offset);
@@ -180,7 +180,7 @@ dissect_match_call(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void
 static int
 dissect_match_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	gint32 status;
+	int32_t status;
 	const char *str;
 	int offset = 0;
 
@@ -392,7 +392,7 @@ dissect_master_call(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, voi
 static int
 dissect_all_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	guint32	more;
+	uint32_t	more;
 	int offset = 0;
 
 	proto_item_append_text(tree, " ALL reply");
@@ -429,7 +429,7 @@ dissect_master_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 static int
 dissect_order_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	guint32 num;
+	uint32_t num;
 	int offset = 0;
 
 	proto_item_append_text(tree, " ORDER reply");
@@ -618,7 +618,7 @@ proto_register_ypserv(void)
 			"Xfrstat", "ypserv.xfrstat", FT_INT32, BASE_DEC,
 			VALS(xfrstat), 0, NULL, HFILL }},
 	};
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_ypserv,
 		&ett_ypserv_map_parms,
 	};

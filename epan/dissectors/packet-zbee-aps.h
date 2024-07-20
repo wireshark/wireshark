@@ -274,34 +274,34 @@
 
 /*  Structure to contain the APS frame information */
 typedef struct{
-    gboolean    indirect_mode;  /* ZigBee 2004 and Earlier  */
-    guint8      type;
-    guint8      delivery;
-    gboolean    ack_format;     /* ZigBee 2007 and Later    */
-    gboolean    security;
-    gboolean    ack_req;
-    gboolean    ext_header;     /* ZigBee 2007 and Later    */
+    bool        indirect_mode;  /* ZigBee 2004 and Earlier  */
+    uint8_t     type;
+    uint8_t     delivery;
+    bool        ack_format;     /* ZigBee 2007 and Later    */
+    bool        security;
+    bool        ack_req;
+    bool        ext_header;     /* ZigBee 2007 and Later    */
 
-    guint8      dst;
-    guint16     group;          /* ZigBee 2006 and Later    */
-    guint16     profile;
-    guint8      src;
-    guint8      counter;
+    uint8_t     dst;
+    uint16_t    group;          /* ZigBee 2006 and Later    */
+    uint16_t    profile;
+    uint8_t     src;
+    uint8_t     counter;
 
     /* Fragmentation Fields. */
-    guint8      fragmentation;  /* ZigBee 2007 and Later    */
-    guint8      block_number;   /* ZigBee 2007 and Later    */
+    uint8_t     fragmentation;  /* ZigBee 2007 and Later    */
+    uint8_t     block_number;   /* ZigBee 2007 and Later    */
 
     /* Some helpers for the upper layers. */
-    gboolean    profile_present;
-    gboolean    dst_present;
-    gboolean    src_present;
+    bool        profile_present;
+    bool        dst_present;
+    bool        src_present;
 } zbee_aps_packet;
 
 /*  Structure to contain APS node information */
 struct zbee_aps_node_info
 {
-    guint32 extended_counter;                         /**> the counter, extended to a 32-bit
+    uint32_t extended_counter;                         /**> the counter, extended to a 32-bit
                                                        * int to guarantee it increasing monotonically
                                                        */
 };
@@ -309,13 +309,13 @@ struct zbee_aps_node_info
 /*  Structure to contain APS node information for a packet */
 struct zbee_aps_node_packet_info
 {
-    guint32 extended_counter;                         /**> the counter, extended to a 32-bit
+    uint32_t extended_counter;                         /**> the counter, extended to a 32-bit
                                                        * int to guarantee it increasing monotonically
                                                        */
 };
 
 /* ZigBee Smart Energy version used for preferences */
-extern gint  gPREF_zbee_se_protocol_version;
+extern int   gPREF_zbee_se_protocol_version;
 
 enum {
     ZBEE_SE_VERSION_1_1B,
