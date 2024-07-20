@@ -497,7 +497,7 @@ _tvb_memcpy_reverse(tvbuff_t *tvb, void *target, int offset, size_t length)
 
 	while (length > 0) {
 		length--;
-		t[length] = tvb_get_guint8(tvb, offset);
+		t[length] = tvb_get_uint8(tvb, offset);
 		offset++;
 	}
 	return target;
@@ -565,7 +565,7 @@ dissect_gadu_gadu_login_hash(tvbuff_t *tvb, proto_tree *tree, int offset)
 	uint8_t hash[4];
 	int i;
 
-	hash_type = tvb_get_guint8(tvb, offset);
+	hash_type = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(tree, hf_gadu_gadu_login_hash_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
@@ -575,7 +575,7 @@ dissect_gadu_gadu_login_hash(tvbuff_t *tvb, proto_tree *tree, int offset)
 			_tvb_memcpy_reverse(tvb, hash, offset, 4);
 			proto_tree_add_bytes_format_value(tree, hf_gadu_gadu_login_hash, tvb, offset, 4, hash, "0x%.8x", tvb_get_letohl(tvb, offset));
 			for (i = 4; i < 64; i++) {
-				if (tvb_get_guint8(tvb, offset+i)) {
+				if (tvb_get_uint8(tvb, offset+i)) {
 					proto_tree_add_item(tree, hf_gadu_gadu_data, tvb, offset + 4, 64-4, ENC_NA);
 					break;
 				}
@@ -585,7 +585,7 @@ dissect_gadu_gadu_login_hash(tvbuff_t *tvb, proto_tree *tree, int offset)
 		case GG_LOGIN_HASH_SHA1:
 			proto_tree_add_item(tree, hf_gadu_gadu_login_hash, tvb, offset, 20, ENC_NA);
 			for (i = 20; i < 64; i++) {
-				if (tvb_get_guint8(tvb, offset+i)) {
+				if (tvb_get_uint8(tvb, offset+i)) {
 					proto_tree_add_item(tree, hf_gadu_gadu_data, tvb, offset + 20, 64-20, ENC_NA);
 					break;
 				}
@@ -975,7 +975,7 @@ dissect_gadu_gadu_status60(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	proto_tree_add_uint(tree, hf_gadu_gadu_status_uin, tvb, offset, 4, uin);
 	offset += 4;
 
-	status = tvb_get_guint8(tvb, offset);
+	status = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(tree, hf_gadu_gadu_status_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
@@ -1012,7 +1012,7 @@ dissect_gadu_gadu_status77(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	proto_tree_add_uint(tree, hf_gadu_gadu_status_uin, tvb, offset, 4, uin);
 	offset += 4;
 
-	status = tvb_get_guint8(tvb, offset);
+	status = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(tree, hf_gadu_gadu_status_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
@@ -1150,7 +1150,7 @@ dissect_gadu_gadu_notify105_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	proto_tree_add_item(tree, hf_gadu_gadu_data, tvb, offset, 1, ENC_NA); /* unknown 00 */
 	offset += 1;
 
-	uin_len = tvb_get_guint8(tvb, offset);
+	uin_len = tvb_get_uint8(tvb, offset);
 	offset += 1;
 	uin = tvb_get_string_enc(pinfo->pool, tvb, offset, uin_len, ENC_ASCII | ENC_NA);
 	proto_tree_add_string(tree, hf_gadu_gadu_contact_uin_str, tvb, offset - 1, 1 + uin_len, uin);
@@ -1308,7 +1308,7 @@ dissect_gadu_gadu_userlist_request80(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
 	col_set_str(pinfo->cinfo, COL_INFO, "Userlist request (8.0)");
 
-	type = tvb_get_guint8(tvb, offset);
+	type = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(tree, hf_gadu_gadu_userlist_request_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
@@ -1331,14 +1331,14 @@ dissect_gadu_gadu_userlist_request100(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
 	col_set_str(pinfo->cinfo, COL_INFO, "Userlist request (10.0)");
 
-	type = tvb_get_guint8(tvb, offset);
+	type = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(tree, hf_gadu_gadu_userlist_request_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
 	proto_tree_add_item(tree, hf_gadu_gadu_userlist_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
-	format = tvb_get_guint8(tvb, offset);
+	format = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(tree, hf_gadu_gadu_userlist_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
@@ -1362,7 +1362,7 @@ dissect_gadu_gadu_userlist_reply80(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 	col_set_str(pinfo->cinfo, COL_INFO, "Userlist reply (8.0)");
 
-	type = tvb_get_guint8(tvb, offset);
+	type = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(tree, hf_gadu_gadu_userlist_reply_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
@@ -1382,14 +1382,14 @@ dissect_gadu_gadu_userlist_reply100(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 	col_set_str(pinfo->cinfo, COL_INFO, "Userlist reply (10.0)");
 
-	type = tvb_get_guint8(tvb, offset);
+	type = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(tree, hf_gadu_gadu_userlist_reply_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
 	proto_tree_add_item(tree, hf_gadu_gadu_userlist_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
-	format = tvb_get_guint8(tvb, offset);
+	format = tvb_get_uint8(tvb, offset);
 	proto_tree_add_item(tree, hf_gadu_gadu_userlist_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 

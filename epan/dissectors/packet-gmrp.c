@@ -141,7 +141,7 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             int           msg_start = offset;
 
             /* Read in attribute type. */
-            attribute_type = octet = tvb_get_guint8(tvb, offset);
+            attribute_type = octet = tvb_get_uint8(tvb, offset);
 
             /* Check for end of mark */
             if (octet == GARP_END_OF_MARK)
@@ -185,7 +185,7 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                 proto_item   *attr_item;
 
                 /* Read in attribute length. */
-                octet = tvb_get_guint8(tvb, offset);
+                octet = tvb_get_uint8(tvb, offset);
 
                 /* Check for end of mark */
                 if (octet == GARP_END_OF_MARK)
@@ -225,7 +225,7 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                                         tvb, attr_start, 1, octet);
 
                     /* Read in attribute event */
-                    event = tvb_get_guint8(tvb, offset);
+                    event = tvb_get_uint8(tvb, offset);
 
                     proto_tree_add_uint(attr_tree, hf_gmrp_attribute_event,
                                         tvb, offset, 1, event);

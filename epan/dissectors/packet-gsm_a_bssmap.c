@@ -1226,7 +1226,7 @@ bssmap_dissect_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32
 
     curr_offset = offset;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
 
     proto_tree_add_item(tree, hf_gsm_a_bssmap_cause_extension, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
@@ -1447,14 +1447,14 @@ be_chan_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offse
     uint32_t     curr_offset = offset;
     const char *str;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
     sdi = oct & 0x0f;
 
     proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_spare_bits, tvb, curr_offset<<3, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gsm_a_bssmap_speech_data_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
     if (add_string)
-        snprintf(add_string, string_len, " - (%s)", val_to_str_const(tvb_get_guint8(tvb, curr_offset) & 0x0f,
+        snprintf(add_string, string_len, " - (%s)", val_to_str_const(tvb_get_uint8(tvb, curr_offset) & 0x0f,
                 gsm_a_bssap_speech_data_ind_vals,
                 "Unknown"));
 
@@ -1462,7 +1462,7 @@ be_chan_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offse
 
     NO_MORE_DATA_CHECK(len);
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
 
     if ((sdi == 0x01)||(sdi == 0x04))
     {
@@ -1510,7 +1510,7 @@ be_chan_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offse
 
         NO_MORE_DATA_CHECK(len);
 
-        oct = tvb_get_guint8(tvb, curr_offset);
+        oct = tvb_get_uint8(tvb, curr_offset);
 
         proto_tree_add_item(tree, hf_gsm_a_bssmap_chan_type_extension, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_gsm_a_bssmap_transparent_service, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
@@ -1905,7 +1905,7 @@ be_cell_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset,
 
     curr_offset = offset;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
 
     proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_spare_bits, tvb, curr_offset<<3, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gsm_a_bssmap_be_cell_id_disc, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
@@ -1951,7 +1951,7 @@ be_prio(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset
 
     curr_offset = offset;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
 
     proto_tree_add_item(tree, hf_gsm_a_b8spare, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gsm_a_bssmap_pci, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
@@ -2125,7 +2125,7 @@ be_dlci(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset
     proto_tree_add_subtree(tree, tvb, curr_offset, 1,
         ett_dlci, NULL, "Data Link Connection Identifier");
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
 
     proto_tree_add_uint(subtree, hf_gsm_a_bssmap_dlci_cc, tvb, curr_offset, 1, oct);
     proto_tree_add_uint(subtree, hf_gsm_a_bssmap_dlci_spare, tvb, curr_offset, 1, oct);
@@ -2171,7 +2171,7 @@ be_cell_id_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t of
 
     curr_offset = offset;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
 
     proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_spare_bits, tvb, curr_offset<<3, 4, ENC_BIG_ENDIAN);
 
@@ -2716,7 +2716,7 @@ be_chosen_enc_alg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint3
 
     curr_offset = offset;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
 
     proto_tree_add_item(tree, hf_gsm_a_bssmap_algorithm_identifier, tvb, curr_offset, 1, ENC_NA);
 
@@ -2742,7 +2742,7 @@ be_cct_pool(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t of
 
     curr_offset = offset;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
 
     ti = proto_tree_add_item(tree, hf_gsm_a_bssmap_circuit_pool_number, tvb, curr_offset, 1, ENC_NA);
     if (oct <= 50)
@@ -2863,7 +2863,7 @@ be_speech_ver(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t 
 
     curr_offset = offset;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
 
     proto_tree_add_item(tree, hf_gsm_a_b8spare, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
@@ -3033,7 +3033,7 @@ be_loc_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t of
     curr_offset = offset;
 
     /* Extract the location information and add to protocol tree */
-    location_information = tvb_get_guint8(tvb, offset);
+    location_information = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_gsm_a_bssmap_location_type_location_information, tvb, offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
@@ -3154,7 +3154,7 @@ be_apdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, un
      * equivalent octet in the APDU element of 3GPP TS 49.031 BSSAP-LE.
      */
 
-    apdu_protocol_id = tvb_get_guint8(tvb,curr_offset);
+    apdu_protocol_id = tvb_get_uint8(tvb,curr_offset);
     proto_tree_add_item(tree, hf_gsm_a_bssmap_apdu_protocol_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
     len--;
@@ -3978,7 +3978,7 @@ be_speech_codec_lst(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_
         consumed = 0;
         subtree = proto_tree_add_subtree_format(tree, tvb, curr_offset, 1,
                     ett_codec_lst, &item, "Speech Codec Element %u",number);
-        codec = tvb_get_guint8(tvb,curr_offset)&0x0f;
+        codec = tvb_get_uint8(tvb,curr_offset)&0x0f;
         switch (codec) {
             case 0:
                 /* GSM_FR is coded "0000" */
@@ -4000,7 +4000,7 @@ be_speech_codec_lst(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_
                 /* Codec Type */
                 proto_tree_add_item(subtree, hf_gsm_a_bssap_speech_codec, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
                 proto_item_append_text(item, " - %s",
-                                       val_to_str_const(tvb_get_guint8(tvb, curr_offset) & 0x0f,
+                                       val_to_str_const(tvb_get_uint8(tvb, curr_offset) & 0x0f,
                                                         bssap_speech_codec_values,
                                                         "Unknown"));
                 curr_offset++;
@@ -4026,7 +4026,7 @@ be_speech_codec_lst(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_
                 /* Codec Type */
                 proto_tree_add_item(subtree, hf_gsm_a_bssap_speech_codec, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
                 proto_item_append_text(item, " - %s",
-                                       val_to_str_const(tvb_get_guint8(tvb, curr_offset) & 0x0f,
+                                       val_to_str_const(tvb_get_uint8(tvb, curr_offset) & 0x0f,
                                                         bssap_speech_codec_values,
                                                         "Unknown"));
                 curr_offset++;
@@ -4055,7 +4055,7 @@ be_speech_codec_lst(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_
                 /* Codec Type */
                 proto_tree_add_item(subtree, hf_gsm_a_bssap_speech_codec, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
                 proto_item_append_text(item, " - %s",
-                                       val_to_str_const(tvb_get_guint8(tvb, curr_offset) & 0x0f,
+                                       val_to_str_const(tvb_get_uint8(tvb, curr_offset) & 0x0f,
                                                         bssap_speech_codec_values,
                                                         "Unknown"));
                 curr_offset++;
@@ -4077,7 +4077,7 @@ be_speech_codec_lst(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_
                 /* Codec Extension */
                 proto_tree_add_item(subtree, hf_gsm_a_bssap_extended_codec, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
                 proto_item_append_text(item, " - %s",
-                                       val_to_str_const(tvb_get_guint8(tvb, curr_offset),
+                                       val_to_str_const(tvb_get_uint8(tvb, curr_offset),
                                                         bssap_extended_codec_values,
                                                         "Unknown"));
                 curr_offset++;
@@ -4132,7 +4132,7 @@ be_speech_codec(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t of
         consumed = 0;
         subtree = proto_tree_add_subtree_format(tree, tvb, curr_offset, 1, ett_codec_lst, &item,
                         "Speech Codec Element %u",number);
-        codec = tvb_get_guint8(tvb,curr_offset)&0x0f;
+        codec = tvb_get_uint8(tvb,curr_offset)&0x0f;
         switch (codec) {
             case 0:
                 /* GSM_FR is coded "0000" */
@@ -4154,7 +4154,7 @@ be_speech_codec(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t of
                 /* Codec Type */
                 proto_tree_add_item(subtree, hf_gsm_a_bssap_speech_codec, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
                 proto_item_append_text(item, " - %s",
-                                       val_to_str_const(tvb_get_guint8(tvb, curr_offset) & 0x0f,
+                                       val_to_str_const(tvb_get_uint8(tvb, curr_offset) & 0x0f,
                                                         bssap_speech_codec_values,
                                                         "Unknown"));
                 curr_offset++;
@@ -4180,7 +4180,7 @@ be_speech_codec(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t of
                 /* Codec Type */
                 proto_tree_add_item(subtree, hf_gsm_a_bssap_speech_codec, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
                 proto_item_append_text(item, " - %s",
-                                       val_to_str_const(tvb_get_guint8(tvb, curr_offset) & 0x0f,
+                                       val_to_str_const(tvb_get_uint8(tvb, curr_offset) & 0x0f,
                                                         bssap_speech_codec_values,
                                                         "Unknown"));
                 curr_offset++;
@@ -4209,7 +4209,7 @@ be_speech_codec(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t of
                 /* Codec Type */
                 proto_tree_add_item(subtree, hf_gsm_a_bssap_speech_codec, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
                 proto_item_append_text(item, " - %s",
-                                       val_to_str_const(tvb_get_guint8(tvb, curr_offset) & 0x0f,
+                                       val_to_str_const(tvb_get_uint8(tvb, curr_offset) & 0x0f,
                                                         bssap_speech_codec_values,
                                                         "Unknown"));
                 curr_offset++;
@@ -5103,7 +5103,7 @@ be_field_element_dissect(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, ui
          * add name
          */
         ie_id_off = curr_offset;
-        oct = tvb_get_guint8(tvb, curr_offset++);
+        oct = tvb_get_uint8(tvb, curr_offset++);
 
         str = try_val_to_str_idx((uint32_t) oct, bssmap_field_element_ids, &idx);
         /* It looks like a few IEs come without length Check for those here */
@@ -5116,7 +5116,7 @@ be_field_element_dissect(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, ui
             break;
         default:
             len_len = 1;
-            ie_len = tvb_get_guint8(tvb, curr_offset++);
+            ie_len = tvb_get_uint8(tvb, curr_offset++);
             break;
         }
 
@@ -7562,7 +7562,7 @@ dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     /*
      * add BSSMAP message name
      */
-    oct = tvb_get_guint8(tvb, offset++);
+    oct = tvb_get_uint8(tvb, offset++);
 
     str = try_val_to_str_idx_ext((uint32_t) oct, &gsm_a_bssmap_msg_strings_ext, &idx);
 

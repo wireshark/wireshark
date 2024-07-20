@@ -56,7 +56,7 @@ dissect_l2rcop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	/* we currently support RLP v0 + v1 (first octet is always status octet) */
 
 	for (cur = 0; cur < (unsigned)reported_len; ) {
-		uint8_t oct = tvb_get_guint8(tvb, cur);
+		uint8_t oct = tvb_get_uint8(tvb, cur);
 		uint8_t addr = oct & 0x1f;
 		proto_tree *l2rcop_tree;
 		proto_item *ti;
@@ -85,7 +85,7 @@ dissect_l2rcop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 			return reported_len;
 		case 27: /* extended address in ext octet */
 			cur++;
-			addr = tvb_get_guint8(tvb, cur) & 0x3f;
+			addr = tvb_get_uint8(tvb, cur) & 0x3f;
 			/* This "cannot happen"; let's abort processing right now. */
 			if (addr == 0)
 				return reported_len;

@@ -576,7 +576,7 @@ Media_Specifier_dissect(tvbuff_t* tvb, proto_tree* tree, int* offset, uint32_t l
 {
 	uint8_t media_protocol;
 
-	media_protocol = tvb_get_guint8(tvb, *offset);
+	media_protocol = tvb_get_uint8(tvb, *offset);
 	proto_tree_add_item(tree, hf_ged125_floating_media_protocol, tvb, *offset, 1, ENC_NA|ENC_ASCII);
 	*offset += 1;
 
@@ -623,14 +623,14 @@ floating_fields(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tree, int offset,
 	/*The Universal Floating-Fields Loop of Fun*/
 	while (offset < size-2)
 	{
-		floating_type = tvb_get_guint8(tvb, offset);
+		floating_type = tvb_get_uint8(tvb, offset);
 		ti = proto_tree_add_uint_format(ged125_tree, hf_ged125_floating, tvb, offset, 1,
 											floating_type, "%s", val_to_str(floating_type,
 											vals_floating_point_types, "Unknown %d"));
 		float_tree = proto_item_add_subtree(ti, ett_ged125_float_field);
 		offset += 1;
 
-		length = tvb_get_guint8(tvb, offset);
+		length = tvb_get_uint8(tvb, offset);
 		proto_tree_add_uint(float_tree, hf_ged125_length, tvb, offset, 1, length);
 		offset += 1;
 

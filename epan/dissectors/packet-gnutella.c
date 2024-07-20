@@ -214,7 +214,7 @@ static void dissect_gnutella_queryhit(tvbuff_t *tvb, unsigned offset, proto_tree
 	int name_at_offset, extra_at_offset;
 	int cur_char, remaining, used;
 
-	hit_count = tvb_get_guint8(tvb, offset + GNUTELLA_QUERYHIT_COUNT_OFFSET);
+	hit_count = tvb_get_uint8(tvb, offset + GNUTELLA_QUERYHIT_COUNT_OFFSET);
 
 	proto_tree_add_uint(tree,
 		hf_gnutella_queryhit_count,
@@ -258,7 +258,7 @@ static void dissect_gnutella_queryhit(tvbuff_t *tvb, unsigned offset, proto_tree
 		name_at_offset = hit_offset;
 
 		while(hit_offset - offset < size) {
-			cur_char = tvb_get_guint8(tvb, hit_offset);
+			cur_char = tvb_get_uint8(tvb, hit_offset);
 			if(cur_char == '\0')
 				break;
 
@@ -271,7 +271,7 @@ static void dissect_gnutella_queryhit(tvbuff_t *tvb, unsigned offset, proto_tree
 		extra_at_offset = hit_offset;
 
 		while(hit_offset - offset < size) {
-			cur_char = tvb_get_guint8(tvb, hit_offset);
+			cur_char = tvb_get_uint8(tvb, hit_offset);
 			if(cur_char == '\0')
 				break;
 
@@ -427,7 +427,7 @@ static int dissect_gnutella_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 			GNUTELLA_HEADER_SIZE_OFFSET);
 	}
 
-	payload_descriptor = tvb_get_guint8(
+	payload_descriptor = tvb_get_uint8(
 		tvb,
 		GNUTELLA_HEADER_PAYLOAD_OFFSET);
 

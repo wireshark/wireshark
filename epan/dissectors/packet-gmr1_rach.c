@@ -171,7 +171,7 @@ dissect_gmr1_rach_kls1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 	                    tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	/* Establishment Cause */
-	ec = (tvb_get_guint8(tvb, offset) >> 1) & 0x1f;
+	ec = (tvb_get_uint8(tvb, offset) >> 1) & 0x1f;
 
 	*is_moc = !!(ec & 0x10);
 	*is_pdt = (ec == 14);
@@ -456,16 +456,16 @@ _parse_dialed_number(char *s, int slen, tvbuff_t *tvb, int offset)
 	uint16_t grp[5];
 	int rv, i, done;
 
-	grp[0] = ((tvb_get_guint8(tvb, offset+0) & 0x3f) << 4) |
-	         ((tvb_get_guint8(tvb, offset+1) & 0xf0) >> 4);
-	grp[1] = ((tvb_get_guint8(tvb, offset+1) & 0x0f) << 6) |
-	         ((tvb_get_guint8(tvb, offset+2) & 0xfc) >> 2);
-	grp[2] = ((tvb_get_guint8(tvb, offset+2) & 0x03) << 8) |
-	           tvb_get_guint8(tvb, offset+3);
-	grp[3] = ((tvb_get_guint8(tvb, offset+4) & 0xff) << 2) |
-	         ((tvb_get_guint8(tvb, offset+5) & 0xc0) >> 6);
-	grp[4] = ((tvb_get_guint8(tvb, offset+5) & 0x3f) << 5) |
-	         ((tvb_get_guint8(tvb, offset+6) & 0xf8) >> 3);
+	grp[0] = ((tvb_get_uint8(tvb, offset+0) & 0x3f) << 4) |
+	         ((tvb_get_uint8(tvb, offset+1) & 0xf0) >> 4);
+	grp[1] = ((tvb_get_uint8(tvb, offset+1) & 0x0f) << 6) |
+	         ((tvb_get_uint8(tvb, offset+2) & 0xfc) >> 2);
+	grp[2] = ((tvb_get_uint8(tvb, offset+2) & 0x03) << 8) |
+	           tvb_get_uint8(tvb, offset+3);
+	grp[3] = ((tvb_get_uint8(tvb, offset+4) & 0xff) << 2) |
+	         ((tvb_get_uint8(tvb, offset+5) & 0xc0) >> 6);
+	grp[4] = ((tvb_get_uint8(tvb, offset+5) & 0x3f) << 5) |
+	         ((tvb_get_uint8(tvb, offset+6) & 0xf8) >> 3);
 
 	rv = 0;
 	done = 0;
@@ -673,8 +673,8 @@ dissect_gmprs_rach_type1_kls2(tvbuff_t *tvb, int offset,
 		rach_gmprs_type1_term_type_crumbs,
 		NULL);
 
-	term_type = ((tvb_get_guint8(tvb, offset) >> 1) & 0x78 ) |
-	            ( tvb_get_guint8(tvb, offset + 3)   & 0x07);
+	term_type = ((tvb_get_uint8(tvb, offset) >> 1) & 0x78 ) |
+	            ( tvb_get_uint8(tvb, offset + 3)   & 0x07);
 
 	is_class_d = (term_type == 0x0d) ||
 	             (term_type == 0x0e) ||
@@ -802,7 +802,7 @@ dissect_gmprs_rach_type2_kls2(tvbuff_t *tvb, int offset,
 	                    tvb, offset + 4, 4, ENC_BIG_ENDIAN);
 
 	/* Request type */
-	req_type = tvb_get_guint8(tvb, offset + 8) & 0x1f;
+	req_type = tvb_get_uint8(tvb, offset + 8) & 0x1f;
 
 	if ((req_type & 0x1c) == 0) {
 		/* Paging response */
@@ -875,7 +875,7 @@ dissect_gmr1_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	ies  = 0;
 
 	if (len == 18) {
-		uint8_t ec = (tvb_get_guint8(tvb, 0) >> 1) & 0x1f;
+		uint8_t ec = (tvb_get_uint8(tvb, 0) >> 1) & 0x1f;
 
 		ies |= RACH_IE_CLASS1;
 

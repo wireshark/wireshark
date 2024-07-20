@@ -229,7 +229,7 @@ dissect_gfp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
     pti = tvb_get_bits8(tvb, 8*(*offset), 3);
     pfi = tvb_get_bits8(tvb, 8*(*offset)+3, 1);
     exi = tvb_get_bits8(tvb, 8*(*offset)+4, 4);
-    upi = tvb_get_guint8(tvb, *offset+1);
+    upi = tvb_get_uint8(tvb, *offset+1);
     p_add_proto_data(pinfo->pool, pinfo, proto_gfp, 0, GUINT_TO_POINTER(upi));
 
     col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pti, gfp_pti_vals, "Reserved PTI (%d)"));

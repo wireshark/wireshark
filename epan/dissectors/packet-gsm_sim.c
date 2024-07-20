@@ -1208,13 +1208,13 @@ dissect_bertlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 		proto_tree_add_item(tree, hf_cat_ber_tag, tvb, pos, 1, ENC_BIG_ENDIAN);
 
 		/* FIXME: properly follow BER coding rules */
-		tag = tvb_get_guint8(tvb, pos++);
+		tag = tvb_get_uint8(tvb, pos++);
 		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
 				val_to_str(tag, ber_tlv_cat_tag_vals, "%02x "));
-		len = tvb_get_guint8(tvb, pos++);
+		len = tvb_get_uint8(tvb, pos++);
 		switch (len) {
 		case 0x81:
-			len = tvb_get_guint8(tvb, pos++);
+			len = tvb_get_uint8(tvb, pos++);
 			break;
 		case 0x82:
 			len = tvb_get_ntohs(tvb, pos);
@@ -1547,13 +1547,13 @@ dissect_cmd_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 	int rc = -1;
 	unsigned tvb_len = tvb_reported_length(tvb);
 
-	cla = tvb_get_guint8(tvb, offset);
-	ins = tvb_get_guint8(tvb, offset+1);
-	p1 = tvb_get_guint8(tvb, offset+2);
-	p2 = tvb_get_guint8(tvb, offset+3);
+	cla = tvb_get_uint8(tvb, offset);
+	ins = tvb_get_uint8(tvb, offset+1);
+	p1 = tvb_get_uint8(tvb, offset+2);
+	p2 = tvb_get_uint8(tvb, offset+3);
 
 	if (tvb_reported_length_remaining(tvb, offset+3) > 1) {
-		p3 = tvb_get_guint8(tvb, offset+4);
+		p3 = tvb_get_uint8(tvb, offset+4);
 	} else {
 		/* Parameter 3 not present. */
 		p3 = 0;

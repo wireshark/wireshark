@@ -276,24 +276,24 @@ dlms_date_time(tvbuff_t *tvb, unsigned offset, nstime_t *date_time)
     tm.tm_yday = 0;
     tm.tm_isdst = -1;
 
-    tm.tm_year = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN) - 1900;
+    tm.tm_year = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN) - 1900;
     offset += 2;
 
-    tm.tm_mon = tvb_get_guint8(tvb, offset) - 1; // tm.tm_mon [0-11]
+    tm.tm_mon = tvb_get_uint8(tvb, offset) - 1; // tm.tm_mon [0-11]
     offset += 1;
 
-    tm.tm_mday = tvb_get_guint8(tvb, offset);
+    tm.tm_mday = tvb_get_uint8(tvb, offset);
     offset += 1;
 
     offset += 1; //Skip week day
 
-    tm.tm_hour = tvb_get_guint8(tvb, offset);
+    tm.tm_hour = tvb_get_uint8(tvb, offset);
     offset += 1;
 
-    tm.tm_min = tvb_get_guint8(tvb, offset);
+    tm.tm_min = tvb_get_uint8(tvb, offset);
     offset += 1;
 
-    tm.tm_sec = tvb_get_guint8(tvb, offset);
+    tm.tm_sec = tvb_get_uint8(tvb, offset);
 
     date_time->secs = mktime_utc(&tm);
     date_time->nsecs = 0;
@@ -694,7 +694,7 @@ static int dissect_gbcs_gbz(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             break;
         case GBCS_GBZ_ALERT_FUTURE_DATE_HAN_INTERFACE_CMD_SUCCESS_ACTIONED:
         case GBCS_GBZ_ALERT_FUTURE_DATE_HAN_INTERFACE_CMD_NOT_SUCCESS_ACTION:
-            if (tvb_get_guint8(tvb, offset) == 0x0E) {
+            if (tvb_get_uint8(tvb, offset) == 0x0E) {
                 proto_tree_add_item(gbz_tree, hf_gbcs_gbz_future_alert_start, tvb, offset, 1, ENC_NA);
                 offset += 1;
 
@@ -894,7 +894,7 @@ static int dissect_gbcs_tunnel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     unsigned offset = 0;
     uint8_t command;
 
-    command = tvb_get_guint8(tvb, offset);
+    command = tvb_get_uint8(tvb, offset);
     switch (command) {
         case GBCS_TUNNEL_COMMAND_GET:
         case GBCS_TUNNEL_COMMAND_GET_RESPONSE:
@@ -941,7 +941,7 @@ static int dissect_gbcs_tunnel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 static bool
 dissect_gbcs_tunnel_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    switch (tvb_get_guint8(tvb, 0)) {
+    switch (tvb_get_uint8(tvb, 0)) {
         case GBCS_TUNNEL_COMMAND_GET:
         case GBCS_TUNNEL_COMMAND_PUT:
         case GBCS_TUNNEL_COMMAND_GET_RESPONSE:
@@ -1254,7 +1254,7 @@ dissect_gbcs_message_grouping_header(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     proto_tree_add_item(grouping_header_tree, hf_gbcs_message_grouping_header_general_signing, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
-    *cra = tvb_get_guint8(tvb, *offset + 1);
+    *cra = tvb_get_uint8(tvb, *offset + 1);
     col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, val_to_str_const(*cra, gbcs_message_cra_names, "Unknown CRA"));
     dissect_gbcs_message_element_transaction_id(grouping_header_tree,
             hf_gbcs_message_grouping_header_cra_flag, hf_gbcs_message_grouping_header_originator_counter, tvb, offset);
@@ -1329,11 +1329,11 @@ dissect_gbcs_message_routing_header(tvbuff_t *tvb, proto_tree *tree, unsigned *o
     proto_tree_add_item(routing_header_tree, hf_gbcs_message_routing_header_general_ciphering, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
-    *originator_counter = tvb_get_guint64(tvb, *offset + 2, ENC_BIG_ENDIAN);
+    *originator_counter = tvb_get_uint64(tvb, *offset + 2, ENC_BIG_ENDIAN);
     dissect_gbcs_message_element_transaction_id(routing_header_tree,
             hf_gbcs_message_routing_header_cra_flag, hf_gbcs_message_routing_header_originator_counter, tvb, offset);
 
-    *business_originator = tvb_get_guint64(tvb, *offset + 1, ENC_BIG_ENDIAN);
+    *business_originator = tvb_get_uint64(tvb, *offset + 1, ENC_BIG_ENDIAN);
     dissect_gbcs_message_element(routing_header_tree, hf_gbcs_message_routing_header_business_originator_id, tvb, offset);
 
     dissect_gbcs_message_element(routing_header_tree, hf_gbcs_message_routing_header_business_target_id, tvb, offset);
@@ -1385,12 +1385,12 @@ dissect_gbcs_message_gbt_header(tvbuff_t *tvb, proto_tree *tree, unsigned *offse
             NULL
     };
 
-    *last = tvb_get_guint8(tvb, *offset) & GBCS_MESSAGE_GBT_BLOCK_CONTROL_LAST_BLOCK;
+    *last = tvb_get_uint8(tvb, *offset) & GBCS_MESSAGE_GBT_BLOCK_CONTROL_LAST_BLOCK;
     proto_tree_add_bitmask(gbt_header_tree, tvb, *offset, hf_gbcs_message_gbt_header_block_control,
             ett_gbcs_message_gbt_header_block_control, block_control, ENC_BIG_ENDIAN);
     *offset += 1;
 
-    *block_number = tvb_get_guint16(tvb, *offset, ENC_BIG_ENDIAN);
+    *block_number = tvb_get_uint16(tvb, *offset, ENC_BIG_ENDIAN);
     proto_tree_add_item(gbt_header_tree, hf_gbcs_message_gbt_header_block_number, tvb, *offset, 2, ENC_BIG_ENDIAN);
     *offset += 2;
 
@@ -1444,9 +1444,9 @@ dissect_gbcs_message_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         // Dissect GBZ payload
         call_dissector_with_data(gbcs_gbz_handle, payload_tvb, pinfo, tree, &cra);
     }
-    else if (tvb_get_guint8(payload_tvb, 0) == GBCS_MESSAGE_ACCESS_REQUEST
-            || tvb_get_guint8(payload_tvb, 0) == GBCS_MESSAGE_ACCESS_RESPONSE
-            || tvb_get_guint8(payload_tvb, 0) == GBCS_MESSAGE_DATA_NOTIFICATION) {
+    else if (tvb_get_uint8(payload_tvb, 0) == GBCS_MESSAGE_ACCESS_REQUEST
+            || tvb_get_uint8(payload_tvb, 0) == GBCS_MESSAGE_ACCESS_RESPONSE
+            || tvb_get_uint8(payload_tvb, 0) == GBCS_MESSAGE_DATA_NOTIFICATION) {
         //TODO Dissect DLMS payload
         proto_tree *dlms_tree;
 
@@ -1498,10 +1498,10 @@ dissect_gbcs_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     ti = proto_tree_add_item(tree, proto_gbcs_message, tvb, offset, -1, ENC_NA);
     gbcs_message_tree = proto_item_add_subtree(ti, ett_gbcs_message);
 
-    if ((tvb_get_guint8(tvb, offset) == GBCS_MESSAGE_GENERAL_CIPHERING && tvb_get_guint8(tvb, offset + 1) == 0)
-            || tvb_get_guint8(tvb, offset) == GBCS_MESSAGE_GENERAL_SIGNING) {
+    if ((tvb_get_uint8(tvb, offset) == GBCS_MESSAGE_GENERAL_CIPHERING && tvb_get_uint8(tvb, offset + 1) == 0)
+            || tvb_get_uint8(tvb, offset) == GBCS_MESSAGE_GENERAL_SIGNING) {
         // Normal GBCS message
-        bool mac = tvb_get_guint8(tvb, offset) == GBCS_MESSAGE_GENERAL_CIPHERING;
+        bool mac = tvb_get_uint8(tvb, offset) == GBCS_MESSAGE_GENERAL_CIPHERING;
         unsigned grouping_len;
         uint8_t grouping_cra;
 
@@ -1519,7 +1519,7 @@ dissect_gbcs_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
             dissect_gbcs_message_mac(tvb, gbcs_message_tree, &offset);
         }
     }
-    else if (tvb_get_guint8(tvb, offset) == GBCS_MESSAGE_GENERAL_CIPHERING && tvb_get_guint8(tvb, offset + 1) == 0x09) {
+    else if (tvb_get_uint8(tvb, offset) == GBCS_MESSAGE_GENERAL_CIPHERING && tvb_get_uint8(tvb, offset + 1) == 0x09) {
         // GBCS General Block Transfer
         unsigned gbt_len;
         uint64_t business_originator;

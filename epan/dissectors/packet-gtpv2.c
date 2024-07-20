@@ -2154,7 +2154,7 @@ dissect_gtpv2_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pro
     uint8_t tmp;
 
     /* Cause value octet 5 */
-    tmp = tvb_get_guint8(tvb, offset);
+    tmp = tvb_get_uint8(tvb, offset);
     if (g_gtp_session) {
         args->last_cause = tmp;
     }
@@ -2214,7 +2214,7 @@ dissect_gtpv2_recovery(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
     int    offset = 0;
     uint8_t recovery;
 
-    recovery = tvb_get_guint8(tvb, offset);
+    recovery = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_rec, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_item_append_text(item, "%u", recovery);
 
@@ -2344,7 +2344,7 @@ dissect_gtpv2_mm_con_eutran_srvcc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
      then the associated length field shall be set to zero, and the particular parameter field shall not be present.
      */
   /* Length of Mobile Station Classmark2  */
-    elm_len = tvb_get_guint8(tvb, offset);
+    elm_len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_len_ms_classmark2, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     if (elm_len) {
@@ -2355,7 +2355,7 @@ dissect_gtpv2_mm_con_eutran_srvcc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     }
 
   /* Length of Mobile Station Classmark3  */
-    elm_len = tvb_get_guint8(tvb, offset);
+    elm_len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_len_ms_classmark3, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     if (elm_len) {
@@ -2366,7 +2366,7 @@ dissect_gtpv2_mm_con_eutran_srvcc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     }
 
    /*Length of Supported Codec List  */
-    elm_len = tvb_get_guint8(tvb, offset);
+    elm_len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_len_supp_codec_list, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     if (elm_len) {
@@ -2401,7 +2401,7 @@ dissect_gtpv2_mm_con_utran_srvcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
    */
 
     /*Length of Mobile Station Classmark2  */
-    elm_len = tvb_get_guint8(tvb, offset);
+    elm_len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_len_ms_classmark2, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     if (elm_len) {
@@ -2412,7 +2412,7 @@ dissect_gtpv2_mm_con_utran_srvcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     }
 
     /*Length of Mobile Station Classmark3  */
-    elm_len = tvb_get_guint8(tvb, offset);
+    elm_len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_len_ms_classmark3, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     if (elm_len) {
@@ -2423,7 +2423,7 @@ dissect_gtpv2_mm_con_utran_srvcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     }
 
     /*Length of Supported Codec List  */
-    elm_len = tvb_get_guint8(tvb, offset);
+    elm_len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_len_supp_codec_list, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     if (elm_len) {
@@ -2458,7 +2458,7 @@ dissect_gtpv2_srvcc_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     int    offset = 0;
     uint8_t srvcc_cause;
 
-    srvcc_cause = tvb_get_guint8(tvb, offset);
+    srvcc_cause = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_srvcc_cause, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_item_append_text(item, "%s (%u)", val_to_str_ext_const(srvcc_cause, &gtpv2_srvcc_cause_vals_ext, "Unknown"), srvcc_cause);
 
@@ -2482,12 +2482,12 @@ dissect_gtpv2_tgt_rnc_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pr
     /*ra_type_flag = 1;*/ /*Flag to be set to differentiate GERAN and UTRAN*/
     curr_offset = offset;
 
-    mcc  = (tvb_get_guint8(tvb, curr_offset)   & 0x0f) << 8;
-    mcc |= (tvb_get_guint8(tvb, curr_offset)   & 0xf0);
-    mcc |= (tvb_get_guint8(tvb, curr_offset+1) & 0x0f);
-    mnc  = (tvb_get_guint8(tvb, curr_offset+2) & 0x0f) << 8;
-    mnc |= (tvb_get_guint8(tvb, curr_offset+2) & 0xf0);
-    mnc |= (tvb_get_guint8(tvb, curr_offset+1) & 0xf0) >> 4;
+    mcc  = (tvb_get_uint8(tvb, curr_offset)   & 0x0f) << 8;
+    mcc |= (tvb_get_uint8(tvb, curr_offset)   & 0xf0);
+    mcc |= (tvb_get_uint8(tvb, curr_offset+1) & 0x0f);
+    mnc  = (tvb_get_uint8(tvb, curr_offset+2) & 0x0f) << 8;
+    mnc |= (tvb_get_uint8(tvb, curr_offset+2) & 0xf0);
+    mnc |= (tvb_get_uint8(tvb, curr_offset+1) & 0xf0) >> 4;
     if ((mnc & 0x000f) == 0x000f)
         mnc = mnc >> 4;
 
@@ -2542,17 +2542,17 @@ dissect_gtpv2_tgt_global_cell_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
     curr_offset = offset;
 
-    mcc  = (tvb_get_guint8(tvb, curr_offset)   & 0x0f) << 8;
-    mcc |= (tvb_get_guint8(tvb, curr_offset)   & 0xf0);
-    mcc |= (tvb_get_guint8(tvb, curr_offset+1) & 0x0f);
-    mnc  = (tvb_get_guint8(tvb, curr_offset+2) & 0x0f) << 8;
-    mnc |= (tvb_get_guint8(tvb, curr_offset+2) & 0xf0);
-    mnc |= (tvb_get_guint8(tvb, curr_offset+1) & 0xf0) >> 4;
+    mcc  = (tvb_get_uint8(tvb, curr_offset)   & 0x0f) << 8;
+    mcc |= (tvb_get_uint8(tvb, curr_offset)   & 0xf0);
+    mcc |= (tvb_get_uint8(tvb, curr_offset+1) & 0x0f);
+    mnc  = (tvb_get_uint8(tvb, curr_offset+2) & 0x0f) << 8;
+    mnc |= (tvb_get_uint8(tvb, curr_offset+2) & 0xf0);
+    mnc |= (tvb_get_uint8(tvb, curr_offset+1) & 0xf0) >> 4;
     if ((mnc & 0x000f) == 0x000f)
         mnc = mnc >> 4;
 
     lac = tvb_get_ntohs(tvb, curr_offset + 3);
-    tgt_cell_id = tvb_get_guint8(tvb,  curr_offset + 5);
+    tgt_cell_id = tvb_get_uint8(tvb,  curr_offset + 5);
 
     subtree = proto_tree_add_subtree_format(tree,
                                    tvb, curr_offset, 6, ett_gtpv2_rai, NULL,
@@ -2704,7 +2704,7 @@ dissect_gtpv2_ebi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
     /* Spare (all bits set to 0) B8 - B5*/
     proto_tree_add_bits_item(tree, hf_gtpv2_spare_bits, tvb, offset, 4, ENC_BIG_ENDIAN);
     /* EPS Bearer ID (EBI) B4 - B1 */
-    ebi = tvb_get_guint8(tvb, offset);
+    ebi = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_ebi, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_item_append_text(item, "%u", ebi);
 
@@ -3046,7 +3046,7 @@ dissect_gtpv2_paa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
     int    offset = 0;
     uint8_t pdn_type;
 
-    pdn_type = tvb_get_guint8(tvb, offset);
+    pdn_type = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_pdn_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     switch (pdn_type)
@@ -3197,7 +3197,7 @@ dissect_gtpv2_rat_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 {
     uint8_t rat_type;
 
-    rat_type = tvb_get_guint8(tvb, 0);
+    rat_type = tvb_get_uint8(tvb, 0);
     proto_tree_add_item(tree, hf_gtpv2_rat_type, tvb, 0, 1, ENC_BIG_ENDIAN);
     proto_item_append_text(item, "%s (%u)", val_to_str_ext_const(rat_type, &gtpv2_rat_type_vals_ext, "Unknown"), rat_type);
 
@@ -3299,7 +3299,7 @@ dissect_gtpv2_ecgi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *off
         * thus we directly read 4 bytes from the tvb
         */
 
-    octet = tvb_get_guint8(tvb, *offset);
+    octet = tvb_get_uint8(tvb, *offset);
     spare = octet & 0xF0;
     octet4 = tvb_get_ntohl(tvb, *offset);
     ECGI = octet4 & 0x0FFFFFFF;
@@ -3576,7 +3576,7 @@ dissect_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_ite
         NULL
     };
 
-    flags = tvb_get_guint8(tvb, offset) & 0x3f;
+    flags = tvb_get_uint8(tvb, offset) & 0x3f;
     proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_gtpv2_uli_flags,
         ett_gtpv2_uli_flags, gtpv2_uli_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE| BMT_NO_INT);
 
@@ -3816,7 +3816,7 @@ dissect_gtpv2_f_teid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
     address *ipv4 = NULL, *ipv6 = NULL;
     uint32_t teid_cp, *teid, session;
 
-    flags = tvb_get_guint8(tvb, offset);
+    flags = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_f_teid_v4, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gtpv2_f_teid_v6, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* NOTE:  "Interface type" IE is defined with 5 bits only in the earlier releases of this specification,
@@ -3916,7 +3916,7 @@ dissect_gtpv2_s103pdf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto
      * PDN connection. The number of EPS bearer Ids included is specified by the value of EPS Bearer ID Number.
      */
     /* Octet 5 HSGW Address for forwarding Length = m */
-    m = tvb_get_guint8(tvb, offset);
+    m = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_hsgw_addr_f_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -3944,7 +3944,7 @@ dissect_gtpv2_s103pdf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto
     offset += 4;
 
     /* (m+10) EPS Bearer ID Number = k */
-    k = tvb_get_guint8(tvb, offset);
+    k = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_eps_bearer_id_number, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -3972,7 +3972,7 @@ dissect_gtpv2_s1udf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
     proto_tree_add_item(tree, hf_gtpv2_ebi, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     /* 6 Serving GW Address Length = m */
-    m = tvb_get_guint8(tvb, offset);
+    m = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_serving_gw_address_length, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     /* 7 to (m+6) Serving GW Address [4..16] */
@@ -4091,7 +4091,7 @@ dissect_gtpv2_pdn_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
     }
 
     proto_tree_add_bits_item(tree, hf_gtpv2_spare_bits, tvb, offset << 3, 5, ENC_BIG_ENDIAN);
-    pdn = tvb_get_guint8(tvb, offset)& 0x7;
+    pdn = tvb_get_uint8(tvb, offset)& 0x7;
     proto_tree_add_item(tree, hf_gtpv2_pdn_type, tvb, offset, length, ENC_BIG_ENDIAN);
     proto_item_append_text(item, "%s", val_to_str_const(pdn, gtpv2_pdn_type_vals, "Unknown"));
 
@@ -4679,7 +4679,7 @@ dissect_gtpv2_mm_context_common_data(tvbuff_t *tvb, packet_info *pinfo, proto_tr
         offset += 4;
     }
     /* q Length of UE Network Capability */
-    ue_net_cap_len = tvb_get_guint8(tvb, offset);
+    ue_net_cap_len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_mm_context_ue_net_cap_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     /* (q+1) to k UE Network Capability */
@@ -4693,7 +4693,7 @@ dissect_gtpv2_mm_context_common_data(tvbuff_t *tvb, packet_info *pinfo, proto_tr
         offset += de_emm_ue_net_cap(tvb, net_cap_tree, pinfo, offset, ue_net_cap_len, NULL, 0);
     }
     /* k+1 Length of MS Network Capability */
-    ms_net_cap_len = tvb_get_guint8(tvb, offset);
+    ms_net_cap_len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_mm_context_ms_net_cap_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     /* (k+2) to m MS Network Capability
@@ -4706,7 +4706,7 @@ dissect_gtpv2_mm_context_common_data(tvbuff_t *tvb, packet_info *pinfo, proto_tr
         offset += de_gmm_ms_net_cap(tvb, msnt_cap_tree, pinfo, offset, ms_net_cap_len, NULL, 0);
     }
     /* m+1 Length of Mobile Equipment Identity (MEI) */
-    mei_len = tvb_get_guint8(tvb, offset);
+    mei_len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_mm_context_mei_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     /* (m+2) to r Mobile Equipment Identity (MEI) */
@@ -4752,7 +4752,7 @@ dissect_gtpv2_mm_context_gsm_t(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
     /* Octet 5 */
     /* Security Mode | Spare | DRXI | CKSN */
-    drxi = (tvb_get_guint8(tvb, offset) & 0x08) >> 3;
+    drxi = (tvb_get_uint8(tvb, offset) & 0x08) >> 3;
     proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_sm,   tvb, offset,      1, ENC_BIG_ENDIAN);
     proto_tree_add_bits_item(flag_tree, hf_gtpv2_spare_bits, tvb, offset << 3, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_drxi, tvb, offset,      1, ENC_BIG_ENDIAN);
@@ -4760,7 +4760,7 @@ dissect_gtpv2_mm_context_gsm_t(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     offset += 1;
     /* Octet 6 */
     /* Number of Triplet | Spare  | UAMB RI | SAMB RI */
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
     num_triplet = oct >> 5;
     uamb_ri = (oct & 0x02) >> 1;
     samb_ri = oct & 0x01;
@@ -4814,13 +4814,13 @@ dissect_gtpv2_mm_context_utms_cq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
     /* Octet 5 */
     proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_sm, tvb, offset, 1, ENC_BIG_ENDIAN);
-    drxi = (tvb_get_guint8(tvb, offset) & 0x08) >> 3;
+    drxi = (tvb_get_uint8(tvb, offset) & 0x08) >> 3;
     proto_tree_add_bits_item(flag_tree, hf_gtpv2_spare_bits, tvb, ((offset << 3) + 3), 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_drxi, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_cksn_ksi, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     /* Octet 6 */
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
     nr_qui = oct >> 5;
     uamb_ri = (oct & 0x02) >> 1;
     samb_ri = oct & 0x01;
@@ -4875,7 +4875,7 @@ dissect_gtpv2_mm_context_utms_cq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     }
 
     /* r+2 Length of Voice Domain Preference and UE's Usage Setting */
-    vdp_len = tvb_get_guint8(tvb, offset);
+    vdp_len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_mm_context_vdp_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     /* (r+3) to s Voice Domain Preference and UE's Usage Setting */
@@ -4886,7 +4886,7 @@ dissect_gtpv2_mm_context_utms_cq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
     /* s+1 Length of Higher bitrates than 16 Mbps flag */
     if (offset == (int)length) {
-        hbr_len = tvb_get_guint8(tvb, offset);
+        hbr_len = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(tree, hf_gtpv2_mm_context_higher_br_16mb_flg_len, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
         /* s+2 Higher bitrates than 16 Mbps flag */
@@ -4917,13 +4917,13 @@ dissect_gtpv2_mm_context_gsm_cq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
     /* Octet 5 */
     proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_sm, tvb, offset, 1, ENC_BIG_ENDIAN);
-    drxi = (tvb_get_guint8(tvb, offset) & 0x08) >> 3;
+    drxi = (tvb_get_uint8(tvb, offset) & 0x08) >> 3;
     proto_tree_add_bits_item(flag_tree, hf_gtpv2_spare_bits, tvb, ((offset << 3) + 3), 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_drxi, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_cksn_ksi, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     /* Octet 6 */
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
     nr_qui = oct >> 5;
     uamb_ri = (oct & 0x02) >> 1;
     samb_ri = oct & 0x01;
@@ -4974,7 +4974,7 @@ dissect_gtpv2_mm_context_gsm_cq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     }
 
     /* r+2 Length of Voice Domain Preference and UE's Usage Setting */
-    vdp_len = tvb_get_guint8(tvb, offset);
+    vdp_len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_mm_context_vdp_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     /* (r+3) to s Voice Domain Preference and UE's Usage Setting */
@@ -4985,7 +4985,7 @@ dissect_gtpv2_mm_context_gsm_cq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
     /* s+1 Length of Higher bitrates than 16 Mbps flag */
     if (offset < (int)length) {
-        hbr_len = tvb_get_guint8(tvb, offset);
+        hbr_len = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(tree, hf_gtpv2_mm_context_higher_br_16mb_flg_len, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
         /* s+2 Higher bitrates than 16 Mbps flag */
@@ -5018,13 +5018,13 @@ dissect_gtpv2_mm_context_utms_q(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     /* Security Mode Spare DRXI KSI */
     proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_sm, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_bits_item(flag_tree, hf_gtpv2_spare_bits, tvb, ((offset << 3) + 3), 1, ENC_BIG_ENDIAN);
-    drxi = (tvb_get_guint8(tvb, offset) & 0x08) >> 3;
+    drxi = (tvb_get_uint8(tvb, offset) & 0x08) >> 3;
     proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_drxi, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_ksi, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     /* Octet 6 */
     /* Number of Quintuplets Spare UAMB RI SAMB RI */
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
     nr_qui = oct >> 5;
     uamb_ri = (oct & 0x02) >> 1;
     samb_ri = oct & 0x01;
@@ -5078,7 +5078,7 @@ dissect_gtpv2_mm_context_utms_q(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     }
 
     /* r+2 Length of Voice Domain Preference and UE's Usage Setting */
-    vdp_len = tvb_get_guint8(tvb, offset);
+    vdp_len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_mm_context_vdp_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     /* (r+3) to s Voice Domain Preference and UE's Usage Setting */
@@ -5089,7 +5089,7 @@ dissect_gtpv2_mm_context_utms_q(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
     /* s+1 Length of Higher bitrates than 16 Mbps flag */
     if (offset < (int)length) {
-        hbr_len = tvb_get_guint8(tvb, offset);
+        hbr_len = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(tree, hf_gtpv2_mm_context_higher_br_16mb_flg_len, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
         /* s+2 Higher bitrates than 16 Mbps flag */
@@ -5110,7 +5110,7 @@ dissect_gtpv2_mm_context_utms_q(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     }
     /* s+4    Length of Extended Access Restriction Data */
     if (offset < (int)length) {
-        ear_len = tvb_get_guint8(tvb, offset);
+        ear_len = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(tree, hf_gtpv2_mm_context_ear_len, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
         static int * const ear_flags[] = {
@@ -5163,7 +5163,7 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
      * then the optional parameters NH (Next Hop) and NCC (Next
      * Hop Chaining Count) are both present, otherwise their octets are not present.
      */
-    tmp = tvb_get_guint8(tvb, offset);
+    tmp = tvb_get_uint8(tvb, offset);
     nhi = (tmp & 0x10) >> 4;
     drxi = (tmp & 0x08) >> 3;
     proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_drxi, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -5176,7 +5176,7 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
      * Number of        | Number of       | UAMB  | OSCI
      * Quintuplets      | Quadruplet      |  RI   |
      */
-    tmp = tvb_get_guint8(tvb, offset);
+    tmp = tvb_get_uint8(tvb, offset);
     nr_qui = (tmp & 0xe0) >> 5;
     nr_qua = tmp & 0x1c;
     nr_qua >>= 2;
@@ -5193,7 +5193,7 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
     /* Octet 7 SAMB RI Used NAS integrity protection algorithm Used NAS Cipher*/
     /* SAMB RI */
-    samb_ri = tvb_get_guint8(tvb, offset) >> 7;
+    samb_ri = tvb_get_uint8(tvb, offset) >> 7;
     proto_tree_add_bits_item(flag_tree, hf_gtpv2_mm_context_samb_ri, tvb, offset << 3, 1, ENC_BIG_ENDIAN);
     /* Used NAS integrity protection algorithm */
     proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_unipa, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -5293,7 +5293,7 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     }
 
     /* w Length of Voice Domain Preference and UE's Usage Setting */
-    vdp_len = tvb_get_guint8(tvb, offset);
+    vdp_len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_mm_context_vdp_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     /* (r+3) to s Voice Domain Preference and UE's Usage Setting */
@@ -5461,7 +5461,7 @@ dissect_gtpv2_mm_context_utms_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
      */
     proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_sm, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_bits_item(flag_tree, hf_gtpv2_spare_bits, tvb, ((offset << 3) + 3), 1, ENC_BIG_ENDIAN);
-    drxi = (tvb_get_guint8(tvb, offset) & 0x08) >> 3;
+    drxi = (tvb_get_uint8(tvb, offset) & 0x08) >> 3;
     proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_drxi, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_ksi_a, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
@@ -5472,7 +5472,7 @@ dissect_gtpv2_mm_context_utms_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
      * Number of        | Number of       | UAMB  | SAMB
      * Quintuplets      | Quadruplet      |  RI   |  RI
      */
-    tmp = tvb_get_guint8(tvb, offset);
+    tmp = tvb_get_uint8(tvb, offset);
     nr_qui = (tmp & 0xe0) >> 5;
     nr_qua = tmp & 0x1c;
     nr_qua >>= 2;
@@ -5526,7 +5526,7 @@ dissect_gtpv2_mm_context_utms_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
      * Setting parameter shall not be present.
      */
     /* r+2 */
-    vdp_length = tvb_get_guint8(tvb, offset);
+    vdp_length = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_vdp_length, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
@@ -5567,7 +5567,7 @@ dissect_gtpv2_pdn_numbers(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     uint8_t     nsapi;
     int         offset = 0;
 
-    nsapi = (tvb_get_guint8(tvb, offset) & 0x08);
+    nsapi = (tvb_get_uint8(tvb, offset) & 0x08);
     nsapi_ti = proto_tree_add_item(tree, hf_gtpv2_nsapi08, tvb, offset, 1, ENC_BIG_ENDIAN);
     nsapi_tree = proto_item_add_subtree(nsapi_ti, ett_gtpv2_pdn_numbers_nsapi);
     proto_tree_add_bits_item(nsapi_tree, hf_gtpv2_spare_bits, tvb, offset << 3, 4, ENC_BIG_ENDIAN);
@@ -5626,7 +5626,7 @@ dissect_gtpv2_hop_counter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     int    offset = 0;
     uint8_t hop_counter;
 
-    hop_counter = tvb_get_guint8(tvb, offset);
+    hop_counter = tvb_get_uint8(tvb, offset);
 
     proto_tree_add_item(tree, hf_gtpv2_hop_counter, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_item_append_text(item, "%d", hop_counter);
@@ -5782,7 +5782,7 @@ dissect_gtpv2_F_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
             proto_tree_add_item(sub_tree, hf_gtpv2_bss_con_sapi_flg, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(sub_tree, hf_gtpv2_bss_con_rp_flg, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(sub_tree, hf_gtpv2_bss_con_pfi_flg, tvb, offset, 1, ENC_BIG_ENDIAN);
-            container_flags = tvb_get_guint8(tvb, offset);
+            container_flags = tvb_get_uint8(tvb, offset);
             offset += 1;
             if ((container_flags & 0x01) == 1) {
                 /* Packet Flow ID present */
@@ -5804,7 +5804,7 @@ dissect_gtpv2_F_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
                 /* XiD parameters length is present in Octet c.
                  * XiD parameters are present in Octet d to n.
                  */
-                xid_len = tvb_get_guint8(tvb, offset);
+                xid_len = tvb_get_uint8(tvb, offset);
                 proto_tree_add_item(sub_tree, hf_gtpv2_bss_con_xid_len, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
                 proto_tree_add_item(sub_tree, hf_gtpv2_bss_con_xid, tvb, offset, xid_len, ENC_NA);
@@ -5970,7 +5970,7 @@ dissect_gtpv2_F_cause(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto
         case 0:
             proto_item_append_text(item, "[RAN Cause]");
             proto_tree_add_item(tree, hf_gtpv2_cause_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-            cause_type = tvb_get_guint8(tvb, offset);
+            cause_type = tvb_get_uint8(tvb, offset);
             offset += 1;
             dissect_gtpv2_s1ap_cause(tvb, pinfo, tree, offset, cause_type);
             return;
@@ -5991,7 +5991,7 @@ dissect_gtpv2_F_cause(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto
             /* Instance 0 S1-AP Cause */
             proto_item_append_text(item, "[S1-AP Cause]");
             proto_tree_add_item(tree, hf_gtpv2_cause_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-            cause_type = tvb_get_guint8(tvb, offset);
+            cause_type = tvb_get_uint8(tvb, offset);
             offset++;
             dissect_gtpv2_s1ap_cause(tvb, pinfo, tree, offset, cause_type);
             return;
@@ -6142,7 +6142,7 @@ dissect_gtpv2_target_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
     uint8_t   target_type, oct;
 
     proto_tree_add_item(tree, hf_gtpv2_target_type, tvb, 0, 1, ENC_BIG_ENDIAN);
-    target_type = tvb_get_guint8(tvb, offset);
+    target_type = tvb_get_uint8(tvb, offset);
     offset += 1;
     switch (target_type) {
     case 0:
@@ -6230,7 +6230,7 @@ dissect_gtpv2_target_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
         dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, offset, E212_NONE, true);
         offset += 3;
         /* Octet 9 5TAC ETAC en-gNB ID Length */
-        oct = tvb_get_guint8(tvb, offset);
+        oct = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(tree, hf_gtpv2_5tac, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_gtpv2_etac, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_gtpv2_en_gnb_id_len, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -6351,7 +6351,7 @@ dissect_gtpv2_apn_rest(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
     int    offset = 0;
 
     /* APN restriction value octet 5 */
-    type_value = tvb_get_guint8(tvb, offset);
+    type_value = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_apn_rest, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* Add APN restriction to ie_tree */
@@ -6379,7 +6379,7 @@ dissect_gtpv2_selec_mode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     int    offset = 0;
     uint8_t ss_mode;
 
-    ss_mode = tvb_get_guint8(tvb, offset) & 0x03;
+    ss_mode = tvb_get_uint8(tvb, offset) & 0x03;
     proto_tree_add_item(tree, hf_gtpv2_selec_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_item_append_text(item, "%s", val_to_str_const(ss_mode, gtpv2_selec_mode_vals, "Unknown"));
 }
@@ -6406,7 +6406,7 @@ dissect_gtpv2_source_ident(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     de_cell_id(tvb, tree, pinfo, offset, 8, NULL, 0);
     offset += 8;
     /* Octet 13 Source Type */
-    source_type = tvb_get_guint8(tvb, offset);
+    source_type = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_source_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     /* Octet 14 to (n+4) Source ID */
@@ -6457,7 +6457,7 @@ dissect_gtpv2_bearer_control_mode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 
     proto_tree_add_item(tree, hf_gtpv2_bearer_control_mode, tvb, 0, 1, ENC_BIG_ENDIAN);
     /* Add Bearer Control Mode to tree */
-    bcm = tvb_get_guint8(tvb, 0);
+    bcm = tvb_get_uint8(tvb, 0);
     proto_item_append_text(item, "%s", val_to_str_const(bcm, gtpv2_bearer_control_mode_short_vals, "Unknown"));
 
 }
@@ -6481,7 +6481,7 @@ dissect_gtpv2_cng_rep_act(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     uint8_t action;
 
     /* Add Action to tree */
-    action = tvb_get_guint8(tvb, 0);
+    action = tvb_get_uint8(tvb, 0);
     proto_tree_add_item(tree, hf_gtpv2_cng_rep_act, tvb, 0, 1, ENC_BIG_ENDIAN);
 
     proto_item_append_text(item, "%s", val_to_str_const(action, gtpv2_cng_rep_act_vals, "Unknown"));
@@ -6506,7 +6506,7 @@ dissect_gtpv2_fq_csid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto
 
     /* Octet 5 Node-ID Type Number of CSIDs= m */
 
-    octet = tvb_get_guint8(tvb, offset);
+    octet = tvb_get_uint8(tvb, offset);
     node_id_type = octet >> 4;
     csids = octet & 0x0f;
     proto_tree_add_item(tree, hf_gtpv2_fq_csid_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -6594,7 +6594,7 @@ dissect_gtpv2_node_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
     proto_tree_add_item(tree, hf_gtpv2_node_type, tvb, 0, 1, ENC_BIG_ENDIAN);
     /* Append Node Type to tree */
-    node_type = tvb_get_guint8(tvb, 0);
+    node_type = tvb_get_uint8(tvb, 0);
     proto_item_append_text(item, "%s", val_to_str_const(node_type, gtpv2_node_type_vals, "Unknown"));
 
 }
@@ -6615,7 +6615,7 @@ decode_gtpv2_fqdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_ite
      * XXX: is compression possible?
      */
     if (offset < length) {
-        name_len = tvb_get_guint8(tvb, offset);
+        name_len = tvb_get_uint8(tvb, offset);
 
         /* "NOTE 1: The FQDN field in the IE is not encoded as a dotted string"
          * but if the first byte is large (in the letter range or higher),
@@ -6742,7 +6742,7 @@ dissect_gtpv2_mbms_service_area(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     uint16_t    real_nr;
     uint16_t    sai;
 
-    binary_nr = tvb_get_guint8(tvb, offset);
+    binary_nr = tvb_get_uint8(tvb, offset);
     real_nr = (uint16_t)binary_nr + 1;
 
     /* 3GPP TS 29.061 17.7.6 MBMS-Service-Area AVP */
@@ -6814,12 +6814,12 @@ dissect_gtpv2_mbms_ip_mc_dist(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     proto_tree_add_item(tree, hf_gtpv2_ip_addr_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gtpv2_ip_addr_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* IP Multicast Distribution Address */
-    if ((tvb_get_guint8(tvb, offset) & 0x3f) == 4) {
+    if ((tvb_get_uint8(tvb, offset) & 0x3f) == 4) {
         offset += 1;
         proto_tree_add_item(tree, hf_gtpv2_mbms_ip_mc_dist_addrv4, tvb, offset, 4, ENC_BIG_ENDIAN);
         proto_item_append_text(item, " IPv4 Dist %s", tvb_ip_to_str(pinfo->pool, tvb, offset));
         offset += 4;
-    } else if ((tvb_get_guint8(tvb, offset) & 0x3f) == 16) {
+    } else if ((tvb_get_uint8(tvb, offset) & 0x3f) == 16) {
         offset += 1;
         proto_tree_add_item(tree, hf_gtpv2_mbms_ip_mc_dist_addrv6, tvb, offset, 16, ENC_NA);
         proto_item_append_text(item, " IPv6 Dist %s", tvb_ip6_to_str(pinfo->pool, tvb, offset));
@@ -6829,12 +6829,12 @@ dissect_gtpv2_mbms_ip_mc_dist(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     proto_tree_add_item(tree, hf_gtpv2_ip_addr_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gtpv2_ip_addr_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* IP Multicast Source Address */
-    if ((tvb_get_guint8(tvb, offset) & 0x3f) == 4) {
+    if ((tvb_get_uint8(tvb, offset) & 0x3f) == 4) {
         offset += 1;
         proto_tree_add_item(tree, hf_gtpv2_mbms_ip_mc_src_addrv4, tvb, offset, 4, ENC_BIG_ENDIAN);
         proto_item_append_text(item, " IPv4 Src %s", tvb_ip_to_str(pinfo->pool, tvb, offset));
         offset += 4;
-    } else if ((tvb_get_guint8(tvb, offset) & 0x3f) == 16) {
+    } else if ((tvb_get_uint8(tvb, offset) & 0x3f) == 16) {
         offset += 1;
         proto_tree_add_item(tree, hf_gtpv2_mbms_ip_mc_src_addrv6, tvb, offset, 16, ENC_NA);
         proto_item_append_text(item, " IPv6 Src %s", tvb_ip6_to_str(pinfo->pool, tvb, offset));
@@ -7042,7 +7042,7 @@ dissect_gtpv2_mbms_time_to_data_xfer(tvbuff_t *tvb, packet_info *pinfo _U_, prot
     uint8_t binary_secs;
     uint16_t real_secs;
 
-    binary_secs = tvb_get_guint8(tvb, offset);
+    binary_secs = tvb_get_uint8(tvb, offset);
     real_secs = (uint16_t)binary_secs + 1;
 
     proto_tree_add_string_format_value(tree, hf_gtpv2_time_to_data_xfer, tvb, offset, 1, "", "%d second(s)", real_secs);
@@ -7073,7 +7073,7 @@ dissect_gtpv2_throttling(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     proto_tree_add_item(tree, hf_gtpv2_throttling_delay_value, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_throttling_factor, tvb, offset, 1, ENC_BIG_ENDIAN);
     if (oct > 0x64)
         proto_item_append_text(item, "Throttling factor: value beyond (0,100) is considered as 0");
@@ -7168,7 +7168,7 @@ dissect_gtpv2_add_mm_cont_for_srvcc(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     uint8_t     elm_len;
 
     /* Length of Mobile Station Classmark 2 */
-    elm_len = tvb_get_guint8(tvb, offset);
+    elm_len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_len_ms_classmark2, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -7185,7 +7185,7 @@ dissect_gtpv2_add_mm_cont_for_srvcc(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     }
 
     /* Length of Mobile Station Classmark 3 */
-    elm_len = tvb_get_guint8(tvb, offset);
+    elm_len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_len_ms_classmark3, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     if (elm_len > 0) {
@@ -7197,7 +7197,7 @@ dissect_gtpv2_add_mm_cont_for_srvcc(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     }
 
     /* Length of Supported Codec List */
-    elm_len = tvb_get_guint8(tvb, offset);
+    elm_len = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_len_supp_codec_list, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     if (elm_len > 0) {
@@ -7396,7 +7396,7 @@ dissect_gtpv2_twan_identifier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     };
 
     /* Octet 5 Spare    LAII OPNAI PLMNI CIVAI BSSIDI */
-    flags = tvb_get_guint8(tvb, offset);
+    flags = tvb_get_uint8(tvb, offset);
     proto_tree_add_bitmask(tree, tvb, offset, hf_gtpv2_twan_flags, ett_gtpv2_twan_flags, twan_id_flags, ENC_BIG_ENDIAN);
     offset++;
     /* Octet 6 SSID Length */
@@ -7533,7 +7533,7 @@ static void
 dissect_gtpv2_ran_nas_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, uint16_t length _U_, uint8_t message_type _U_, uint8_t instance _U_, session_args_t * args _U_)
 {
     int offset = 0;
-    uint8_t octet = tvb_get_guint8(tvb, offset);
+    uint8_t octet = tvb_get_uint8(tvb, offset);
     uint8_t proto_type = (octet >> 4);
     int cause_type = 0;
 
@@ -7995,12 +7995,12 @@ dissect_gtpv2_apn_and_relative_capacity(tvbuff_t *tvb, packet_info *pinfo _U_, p
     uint8_t oct, apn_length;
     const uint8_t *apn    = NULL;
 
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_relative_capacity, tvb, offset, 1, ENC_BIG_ENDIAN);
     if((oct > 0x64) || (oct < 0x01))
         proto_item_append_text(item, "Relative Capacity: value beyond (1,100) is considered as 0");
     offset += 1;
-    apn_length = tvb_get_guint8(tvb, offset);
+    apn_length = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_apn_length, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -8029,7 +8029,7 @@ dissect_gtpv2_paging_and_service_inf(tvbuff_t *tvb, packet_info *pinfo _U_, prot
     /* Spare B8 - B2 */
     proto_tree_add_bits_item(tree, hf_gtpv2_spare_bits, tvb, offset << 3, 7, ENC_BIG_ENDIAN);
     /* Paging Policy Indication flag (PPI) */
-    ppi_flag = tvb_get_guint8(tvb, offset);
+    ppi_flag = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_ppi_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -8037,7 +8037,7 @@ dissect_gtpv2_paging_and_service_inf(tvbuff_t *tvb, packet_info *pinfo _U_, prot
         /* Spare B8 - B7 */
         proto_tree_add_bits_item(tree, hf_gtpv2_spare_bits, tvb, offset << 3, 2, ENC_BIG_ENDIAN);
         /* Paging Policy Indication Value */
-        proto_item_append_text(tree, " (PPI Value: %s)", val_to_str_ext_const(tvb_get_guint8(tvb, offset), &dscp_vals_ext, "Unknown"));
+        proto_item_append_text(tree, " (PPI Value: %s)", val_to_str_ext_const(tvb_get_uint8(tvb, offset), &dscp_vals_ext, "Unknown"));
         proto_tree_add_item(tree, hf_gtpv2_ppi_value, tvb, offset, 1, ENC_BIG_ENDIAN);
     }
 }
@@ -8403,7 +8403,7 @@ dissect_gtpv2_max_pkt_loss_rte(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree
         NULL
     };
     /*5 Spare DL UL*/
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_oct1, ENC_BIG_ENDIAN);
     offset++;
 
@@ -9401,7 +9401,7 @@ dissect_gtpv2_ie_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
                 "Not enough data left for IE and length, %i bytes", remaining_length);
             return;
         }
-        type    = tvb_get_guint8(tvb, offset);
+        type    = tvb_get_uint8(tvb, offset);
         length  = tvb_get_ntohs(tvb, offset + 1);
         remaining_length = remaining_length -4;
         if (remaining_length < length) {
@@ -9428,12 +9428,12 @@ dissect_gtpv2_ie_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
 
         /* ch8.120 breaks the format described in ch8.2.1 */
         if (type == GTPV2_IE_MON_EVENT_INF) {
-            instance = tvb_get_guint8(tvb, offset) & 0x0f;
+            instance = tvb_get_uint8(tvb, offset) & 0x0f;
         } else {
             /* CR Spare Instance Octet 4*/
             proto_tree_add_item(ie_tree, hf_gtpv2_cr, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-            instance = tvb_get_guint8(tvb, offset) & 0x0f;
+            instance = tvb_get_uint8(tvb, offset) & 0x0f;
             proto_tree_add_item(ie_tree, hf_gtpv2_instance, tvb, offset, 1, ENC_BIG_ENDIAN);
 
             /* Add Info element on IE types with multiple instances in same group */
@@ -9514,7 +9514,7 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
     col_clear(pinfo->cinfo, COL_INFO);
 
     /* message type is in octet 2 */
-    message_type = tvb_get_guint8(tvb, 1);
+    message_type = tvb_get_uint8(tvb, 1);
     col_set_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(message_type, &gtpv2_message_type_vals_ext, "Unknown"));
 
 
@@ -9594,7 +9594,7 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
     offset += 1;
 
     /* Octet 2 */
-    gtpv2_hdr->message = tvb_get_guint8(tvb, offset);
+    gtpv2_hdr->message = tvb_get_uint8(tvb, offset);
     proto_tree_add_uint(gtpv2_tree, hf_gtpv2_message_type, tvb, offset, 1, gtpv2_hdr->message);
     offset += 1;
     /* Octet 3 - 4 */

@@ -909,7 +909,7 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
             if (length < 8)
                 return offset;
             /* Uncertainty code */
-            value = tvb_get_guint8(tvb,offset)&0x7f;
+            value = tvb_get_uint8(tvb,offset)&0x7f;
             uncer_item = proto_tree_add_item(tree, hf_gsm_a_geo_loc_uncertainty_code, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_item_append_text(uncer_item, " (%.1f m)", 10 * (pow(1.1, (double)value) - 1));
         }else if (type_of_shape == ELLIPSOID_POINT_WITH_UNCERT_ELLIPSE) {
@@ -917,14 +917,14 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
             /* Uncertainty semi-major octet 10
              * To convert to metres 10*(((1.1)^X)-1)
              */
-            value      = tvb_get_guint8(tvb,offset) & 0x7f;
+            value      = tvb_get_uint8(tvb,offset) & 0x7f;
             major_item = proto_tree_add_item(tree, hf_gsm_a_geo_loc_uncertainty_semi_major, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_item_append_text(major_item, " (%.1f m)", 10 * (pow(1.1, (double)value) - 1));
             offset++;
             /* Uncertainty semi-minor Octet 11
              * To convert to metres 10*(((1.1)^X)-1)
              */
-            value      = tvb_get_guint8(tvb,offset)&0x7f;
+            value      = tvb_get_uint8(tvb,offset)&0x7f;
             minor_item = proto_tree_add_item(tree, hf_gsm_a_geo_loc_uncertainty_semi_minor, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_item_append_text(minor_item, " (%.1f m)", 10 * (pow(1.1, (double)value) - 1));
             offset++;
@@ -953,14 +953,14 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
             /* Uncertainty semi-major octet 10
              * To convert to metres 10*(((1.1)^X)-1)
              */
-            value      = tvb_get_guint8(tvb,offset)&0x7f;
+            value      = tvb_get_uint8(tvb,offset)&0x7f;
             major_item = proto_tree_add_item(tree, hf_gsm_a_geo_loc_uncertainty_semi_major, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_item_append_text(major_item, " (%.1f m)", 10 * (pow(1.1, (double)value) - 1));
             offset++;
             /* Uncertainty semi-minor Octet 11
              * To convert to metres 10*(((1.1)^X)-1)
              */
-            value      = tvb_get_guint8(tvb,offset)&0x7f;
+            value      = tvb_get_uint8(tvb,offset)&0x7f;
             minor_item = proto_tree_add_item(tree, hf_gsm_a_geo_loc_uncertainty_semi_minor, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_item_append_text(minor_item, " (%.1f m)", 10 * (pow(1.1, (double)value) - 1));
             offset++;
@@ -968,13 +968,13 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
              * allowed value from 0-179 to convert
              * to actual degrees multiply by 2.
              */
-            value = tvb_get_guint8(tvb,offset)&0x7f;
+            value = tvb_get_uint8(tvb,offset)&0x7f;
             proto_tree_add_uint(tree, hf_gsm_a_geo_loc_orientation_of_major_axis, tvb, offset, 1, value*2);
             offset++;
             /* Uncertainty Altitude 13
              * to convert to metres 45*(((1.025)^X)-1)
              */
-            value = tvb_get_guint8(tvb,offset)&0x7f;
+            value = tvb_get_uint8(tvb,offset)&0x7f;
             alt_item = proto_tree_add_item(tree, hf_gsm_a_geo_loc_uncertainty_altitude, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_item_append_text(alt_item, " (%.1f m)", 45 * (pow(1.025, (double)value) - 1));
             offset++;
@@ -1132,7 +1132,7 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
         offset++;
 
         /* High accuracy uncertainty altitude */
-        value = tvb_get_guint8(tvb, offset) & 0x7f;
+        value = tvb_get_uint8(tvb, offset) & 0x7f;
         alt_item = proto_tree_add_item(tree, hf_gsm_a_geo_loc_high_acc_uncertainty_alt, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_item_append_text(alt_item, " (%.1f m)", 45 * (pow(1.025, (double)value) - 1));
         offset++;
@@ -1446,10 +1446,10 @@ uint16_t elem_tlv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint8_t i
 
     SET_ELEM_VARS(pdu_type, elem_names_ext, elem_ett, elem_funcs, &ei_gsm_a_unknown_pdu_type);
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
 
     if (oct == iei) {
-        parm_len = tvb_get_guint8(tvb, curr_offset + 1);
+        parm_len = tvb_get_uint8(tvb, curr_offset + 1);
 
         elem_name = try_val_to_str_ext(idx, &elem_names_ext);
 
@@ -1529,10 +1529,10 @@ uint16_t elem_telv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint8_t 
 
     SET_ELEM_VARS(pdu_type, elem_names_ext, elem_ett, elem_funcs, &ei_gsm_a_unknown_pdu_type);
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
 
     if (oct == iei) {
-        parm_len = tvb_get_guint8(tvb, curr_offset + 1);
+        parm_len = tvb_get_uint8(tvb, curr_offset + 1);
         if ((parm_len&0x80) == 0) {
             /* length in 2 octets */
             parm_len = tvb_get_ntohs(tvb, curr_offset + 1);
@@ -1618,7 +1618,7 @@ uint16_t elem_tlv_e(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint8_t
 
     SET_ELEM_VARS(pdu_type, elem_names_ext, elem_ett, elem_funcs, &ei_gsm_a_unknown_pdu_type);
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
 
     if (oct == iei) {
         parm_len = tvb_get_ntohs(tvb, curr_offset + 1);
@@ -1697,7 +1697,7 @@ uint16_t elem_tv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint8_t ie
 
     SET_ELEM_VARS(pdu_type, elem_names_ext, elem_ett, elem_funcs, &ei_gsm_a_unknown_pdu_type);
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
 
     if (oct == iei)
     {
@@ -1771,7 +1771,7 @@ uint16_t elem_tv_short(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint
 
     SET_ELEM_VARS(pdu_type, elem_names_ext, elem_ett, elem_funcs, &ei_gsm_a_unknown_pdu_type);
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
 
     if ((oct & 0xf0) == (iei & 0xf0))
     {
@@ -1838,7 +1838,7 @@ uint16_t elem_t(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint8_t iei
     (void)elem_ett;
     (void)elem_funcs;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
 
     if (oct == iei)
     {
@@ -1876,7 +1876,7 @@ elem_lv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int pdu_type, int i
 
     SET_ELEM_VARS(pdu_type, elem_names_ext, elem_ett, elem_funcs, &ei_gsm_a_unknown_pdu_type);
 
-    parm_len = tvb_get_guint8(tvb, curr_offset);
+    parm_len = tvb_get_uint8(tvb, curr_offset);
 
     elem_name = try_val_to_str_ext(idx, &elem_names_ext);
 
@@ -2226,7 +2226,7 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, uns
 
     curr_offset = offset;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
 
     switch (oct & 0x07)
     {

@@ -57,7 +57,7 @@ dissect_gmr1_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	offset = 0;
 
 	/* Protocol descriptor */
-	oct[0] = tvb_get_guint8(tvb, offset++);
+	oct[0] = tvb_get_uint8(tvb, offset++);
 
 	if ((oct[0] & GMR1_PD_EXT_MSK) == GMR1_PD_EXT_VAL)
 		pd = oct[0] & 0xff;
@@ -77,7 +77,7 @@ dissect_gmr1_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 		val_to_str(pd, gmr1_pd_short_vals, "Unknown (%u)"));
 
 	/* Get message parameters */
-	oct[1] = tvb_get_guint8(tvb, offset);
+	oct[1] = tvb_get_uint8(tvb, offset);
 
 	gmr1_get_msg_params((gmr1_pd_e)pd, oct[1], &msg_str, &ett_tree, &hf_idx, &msg_func);
 

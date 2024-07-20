@@ -224,7 +224,7 @@ dissect_gmhdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
   proto_tree *gmhdr_tree = NULL;
   unsigned    offset = 0;
 
-  length = tvb_get_guint8(tvb, offset); /* Length of the Gigamon header */
+  length = tvb_get_uint8(tvb, offset); /* Length of the Gigamon header */
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_gmhdr, tvb, offset, length, ENC_NA);
@@ -369,7 +369,7 @@ dissect_gmtrailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
           return 0;
       }
   }
-  length  = tvb_get_guint8(tvb, tvblen-extra_trailer-5); /* length of Gigamon header */
+  length  = tvb_get_uint8(tvb, tvblen-extra_trailer-5); /* length of Gigamon header */
   if ((tvblen-extra_trailer-5) != length)
     return 0;
 

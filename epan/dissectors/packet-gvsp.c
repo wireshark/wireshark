@@ -1640,7 +1640,7 @@ static int dissect_multizone_image_leader(proto_tree *gvsp_tree, tvbuff_t *tvb, 
 static int dissect_multi_part_leader(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
     /* Get the number of parts from the header. As we are already looking at the beginning of the sixth DWORD here we must step back */
-    int part_count_from_leader = tvb_get_guint8(tvb, offset - 13);
+    int part_count_from_leader = tvb_get_uint8(tvb, offset - 13);
     int part_count_from_remaining_bytes = tvb_reported_length_remaining(tvb, offset + 12) / GVSP_SIZE_OF_PART_INFO_LEADER;
     /* In case the leader contains incorrect data rely on the number of reported bytes instead */
     int part_count = part_count_from_leader <= part_count_from_remaining_bytes ? part_count_from_leader : part_count_from_remaining_bytes;
@@ -1889,7 +1889,7 @@ static void dissect_packet_payload_gendc(proto_tree *gvsp_tree, tvbuff_t *tvb, p
 {
     if (status_with_payload(info) && tvb_reported_length_remaining(tvb, offset))
     {
-        const uint8_t data_flags = tvb_get_guint8(tvb, offset + 12);
+        const uint8_t data_flags = tvb_get_uint8(tvb, offset + 12);
 
         /* Data size */
         proto_tree_add_item(gvsp_tree, hf_gvsp_gendc_payload_data_size_v2_2, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1910,7 +1910,7 @@ static void dissect_packet_payload_gendc(proto_tree *gvsp_tree, tvbuff_t *tvb, p
 
         if ((data_flags & GENDC_DESCRIPTOR_FLAG) && (data_flags & GENDC_DESCRIPTOR_START_FLAG))
         {
-            const uint32_t component_count = tvb_get_guint32(tvb, offset + 68, ENC_LITTLE_ENDIAN);
+            const uint32_t component_count = tvb_get_uint32(tvb, offset + 68, ENC_LITTLE_ENDIAN);
             proto_tree* gvsp_gendc_container_descriptor_tree = proto_tree_add_subtree(gvsp_tree, tvb, offset + 16, -1, ett_gvsp_gendc_container_descriptor, NULL, "GenDC Container Descriptor");
             proto_tree* gvsp_gendc_container_header_component_offsets_tree = 0;
 
@@ -1968,8 +1968,8 @@ static void dissect_packet_payload_gendc(proto_tree *gvsp_tree, tvbuff_t *tvb, p
 
             for (uint32_t i = 0; i < component_count; i++)
             {
-                unsigned component_offset = offset + 16 + (int)tvb_get_guint64(tvb, offset + 72 + 8 * i, ENC_LITTLE_ENDIAN);
-                uint16_t part_count = tvb_get_guint16(tvb, component_offset + 46, ENC_LITTLE_ENDIAN);
+                unsigned component_offset = offset + 16 + (int)tvb_get_uint64(tvb, offset + 72 + 8 * i, ENC_LITTLE_ENDIAN);
+                uint16_t part_count = tvb_get_uint16(tvb, component_offset + 46, ENC_LITTLE_ENDIAN);
 
                 proto_tree* gvsp_gendc_component_header_tree = proto_tree_add_subtree(gvsp_gendc_container_descriptor_tree, tvb, offset + 16 + component_offset, -1, ett_gvsp_gendc_component_header, NULL, "Component Header");
                 proto_tree* gvsp_gendc_component_header_part_offsets_tree = 0;
@@ -2042,8 +2042,8 @@ static void dissect_packet_payload_gendc(proto_tree *gvsp_tree, tvbuff_t *tvb, p
 
                 for (uint16_t j = 0; j < part_count; j++)
                 {
-                    unsigned part_offset = offset + 16 + (int)tvb_get_guint64(tvb, component_offset + 48 + 8 * j, ENC_LITTLE_ENDIAN);
-                    uint16_t part_type = tvb_get_guint16(tvb, part_offset, ENC_LITTLE_ENDIAN);
+                    unsigned part_offset = offset + 16 + (int)tvb_get_uint64(tvb, component_offset + 48 + 8 * j, ENC_LITTLE_ENDIAN);
+                    uint16_t part_type = tvb_get_uint16(tvb, part_offset, ENC_LITTLE_ENDIAN);
 
                     proto_tree* gvsp_gendc_part_header_tree = proto_tree_add_subtree(gvsp_gendc_component_header_tree, tvb, offset + 16 + part_offset, -1, ett_gvsp_gendc_part_header, NULL, "Part Header");
 
@@ -2360,7 +2360,7 @@ static int dissect_gvsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
     memset(&info, 0x00, sizeof(info));
 
-    info.format = tvb_get_guint8(tvb, 4);
+    info.format = tvb_get_uint8(tvb, 4);
 
     if ((info.format & GVSP_EXTENDED_ID_BIT) && tvb_reported_length(tvb) < GVSP_V2_MIN_PACKET_SIZE)
     {
@@ -2398,7 +2398,7 @@ static int dissect_gvsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     else
     {
         uint8_t flags;
-        flags = tvb_get_guint8(tvb, offset + 1);
+        flags = tvb_get_uint8(tvb, offset + 1);
         info.flag_resendrangeerror = flags & 0x04;
         info.flag_previousblockdropped = flags & 0x02;
         info.flag_packetresend = flags & 0x01;
@@ -2424,12 +2424,12 @@ static int dissect_gvsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         offset += 2;
         if (info.format == GVSP_PACKET_LEADER)
         {
-            if (tvb_get_guint8(tvb, 23) == GVSP_PAYLOAD_MULTIZONEIMAGE)
+            if (tvb_get_uint8(tvb, 23) == GVSP_PAYLOAD_MULTIZONEIMAGE)
             {
                 /* packet id contains the number of additional zones for multi-zone */
                 proto_tree_add_item(gvsp_tree, hf_gvsp_add_zones, tvb, offset, 1, ENC_BIG_ENDIAN);
             }
-            else if (tvb_get_guint8(tvb, 23) == GVSP_PAYLOAD_MULTIPART)
+            else if (tvb_get_uint8(tvb, 23) == GVSP_PAYLOAD_MULTIPART)
             {
                 /* packet id contains the number of parts for multi-part */
                 proto_tree_add_item(gvsp_tree, hf_gvsp_numparts, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2546,7 +2546,7 @@ static bool dissect_gvsp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     }
 
     /* Larger packet size if Extended ID flag is set */
-    format = tvb_get_guint8(tvb, 4);
+    format = tvb_get_uint8(tvb, 4);
 
     if ((format & GVSP_EXTENDED_ID_BIT) && tvb_reported_length(tvb) < GVSP_V2_MIN_PACKET_SIZE)
     {

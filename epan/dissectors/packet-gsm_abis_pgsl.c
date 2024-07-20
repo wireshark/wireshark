@@ -301,7 +301,7 @@ dissect_pgsl_access_burst(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 	/* Access Delay is encoded as 10-bit field with the lowest 8
 	 * bits in the first octet, with the two highest bits in the
 	 * lowest bits of the second octet */
-	acc_delay = tvb_get_guint8(tvb, offset);
+	acc_delay = tvb_get_uint8(tvb, offset);
 	acc_delay |= tvb_get_bits8(tvb, (offset+1)*8+6, 2) << 8;
 	proto_tree_add_uint(pacch_tree, hf_pgsl_ab_acc_delay, tvb, offset, 2, acc_delay);
 	/* ABI and AB Type are in the same octet as the acc_dely msb's */
@@ -421,7 +421,7 @@ dissect_abis_pgsl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 		proto_tree_add_item_ret_uint(pgsl_tree, hf_pgsl_afnd, tvb, offset, 3, ENC_LITTLE_ENDIAN, &fn);
 		rlcmac_data.frame_number = fn;
 		offset += 3;
-		ack_data_ind = tvb_get_guint8(tvb, offset);
+		ack_data_ind = tvb_get_uint8(tvb, offset);
 		proto_tree_add_item(pgsl_tree, hf_pgsl_ack_ind, tvb, offset, 1, ENC_NA);
 		proto_tree_add_item(pgsl_tree, hf_pgsl_data_ind, tvb, offset++, 1, ENC_NA);
 		if (ack_data_ind & 1) {

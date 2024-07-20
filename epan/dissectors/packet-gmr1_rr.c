@@ -1216,7 +1216,7 @@ GMR1_MSG_FUNC(gmr1_rr_msg_imm_ass)
 	GMR1_MSG_FUNC_BEGIN
 
 	/* MES Information Flag			[1] 11.5.2.44	- M V 1 */
-	mif = tvb_get_guint8(tvb, curr_offset);
+	mif = tvb_get_uint8(tvb, curr_offset);
 
 	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_MES_INFO_FLG, NULL, ei_gmr1_missing_mandatory_element);
 
@@ -1288,7 +1288,7 @@ GMR1_MSG_FUNC(gmr1_rr_msg_imm_ass_rej_1)
 	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_GPS_DISCR, NULL, ei_gmr1_missing_mandatory_element);
 
 	/* Reject Cause				[1] 11.5.2.56	- M V 1 */
-	rej_cause = tvb_get_guint8(tvb, curr_offset);
+	rej_cause = tvb_get_uint8(tvb, curr_offset);
 
 	ELEM_MAND_V(GMR1_IE_RR, GMR1_IE_RR_REJECT_CAUSE, NULL, ei_gmr1_missing_mandatory_element);
 
@@ -1499,7 +1499,7 @@ GMR1_MSG_FUNC(gmr1_rr_msg_pag_req_3)
 
 	/* Page Mode				[1] 11.5.2.26	- M V 1/2 */
 	/* TMSI Availability Mask		[1] 11.5.2.62	- M V 1/2 */
-	tam = (tvb_get_guint8(tvb, curr_offset) & 0xf0) >> 4;
+	tam = (tvb_get_uint8(tvb, curr_offset) & 0xf0) >> 4;
 
 	ELEM_MAND_VV_SHORT(GMR1_IE_RR, GMR1_IE_RR_PAGE_MODE,
 	                   GMR1_IE_RR, GMR1_IE_RR_TMSI_AVAIL_MSK, ei_gmr1_missing_mandatory_element);
@@ -1866,10 +1866,10 @@ dissect_gmr1_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	col_append_str(pinfo->cinfo, COL_INFO, "(CCCH) ");
 
 	/* First octet with pseudo len */
-	oct[0] = tvb_get_guint8(tvb, offset++);
+	oct[0] = tvb_get_uint8(tvb, offset++);
 
 	/* Check protocol descriptor */
-	oct[1] = tvb_get_guint8(tvb, offset++);
+	oct[1] = tvb_get_uint8(tvb, offset++);
 
 	if ((oct[1] & GMR1_PD_EXT_MSK) == GMR1_PD_EXT_VAL)
 		pd = oct[1] & 0xff;
@@ -1883,7 +1883,7 @@ dissect_gmr1_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 		goto err;	/* CCCH is only RR */
 
 	/* Get message parameters */
-	oct[2] = tvb_get_guint8(tvb, offset);
+	oct[2] = tvb_get_uint8(tvb, offset);
 
 	gmr1_get_msg_rr_params(oct[2], 0, &msg_str, &ett_tree, &hf_idx, &msg_func);
 

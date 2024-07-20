@@ -118,7 +118,7 @@ static void
 gcsna_message_decode(proto_item *item, tvbuff_t *tvb, proto_tree *tree, unsigned *offset, proto_tree *mainTree, uint16_t *noerror, packet_info *pinfo)
 {
     uint16_t msgId = -1;
-    msgId = tvb_get_guint8(tvb, *offset);
+    msgId = tvb_get_uint8(tvb, *offset);
     *offset += 1;
 
     switch (msgId)

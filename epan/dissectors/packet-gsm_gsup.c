@@ -548,7 +548,7 @@ static void dissect_sm_rp_da_ie(tvbuff_t *tvb, packet_info *pinfo, unsigned offs
 
 	/* Parse ID type */
 	ti = proto_tree_add_item(tree, hf_gsup_sm_rp_da_id_type, tvb, offset, 1, ENC_NA);
-	id_type = tvb_get_guint8(tvb, offset);
+	id_type = tvb_get_uint8(tvb, offset);
 
 	switch (id_type) {
 	case OSMO_GSUP_SMS_SM_RP_ODA_IMSI:
@@ -594,7 +594,7 @@ static void dissect_sm_rp_oa_ie(tvbuff_t *tvb, packet_info *pinfo, unsigned offs
 
 	/* Parse ID type */
 	ti = proto_tree_add_item(tree, hf_gsup_sm_rp_oa_id_type, tvb, offset, 1, ENC_NA);
-	id_type = tvb_get_guint8(tvb, offset);
+	id_type = tvb_get_uint8(tvb, offset);
 
 	switch (id_type) {
 	case OSMO_GSUP_SMS_SM_RP_ODA_MSISDN:
@@ -726,10 +726,10 @@ dissect_gsup_tlvs(tvbuff_t *tvb, int base_offs, int length, packet_info *pinfo, 
 		uint8_t i;
 		tvbuff_t *subset_tvb;
 
-		tag = tvb_get_guint8(tvb, offset);
+		tag = tvb_get_uint8(tvb, offset);
 		offset++;
 
-		len = tvb_get_guint8(tvb, offset);
+		len = tvb_get_uint8(tvb, offset);
 		offset++;
 
 		if (offset - base_offs + len > length) {
@@ -802,7 +802,7 @@ dissect_gsup_tlvs(tvbuff_t *tvb, int base_offs, int length, packet_info *pinfo, 
 			break;
 		case OSMO_GSUP_ACCESS_POINT_NAME_IE:
 			if (len == 1) {
-				uint8_t ch = tvb_get_guint8(tvb, offset);
+				uint8_t ch = tvb_get_uint8(tvb, offset);
 				proto_tree_add_item(att_tree, hf_gsup_ie_payload, tvb, offset, len, ENC_NA);
 				if (ch == '*')
 					proto_item_append_text(ti, ", '*' (Wildcard)");
@@ -912,9 +912,9 @@ dissect_gsup_tlvs(tvbuff_t *tvb, int base_offs, int length, packet_info *pinfo, 
 			proto_tree_add_item(att_tree, hf_gsup_pdp_addr_type_org, tvb, offset, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(att_tree, hf_gsup_pdp_addr_type_nr, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
 			if (len > 2) {
-				switch (tvb_get_guint8(tvb, offset) & 0x0f) {
+				switch (tvb_get_uint8(tvb, offset) & 0x0f) {
 				case 0x01: /* IETF */
-					switch (tvb_get_guint8(tvb, offset + 1)) {
+					switch (tvb_get_uint8(tvb, offset + 1)) {
 					case 0x21:
 						proto_tree_add_item(att_tree, hf_gsup_pdp_addr_v4, tvb, offset + 3, 4, ENC_BIG_ENDIAN);
 						break;
@@ -960,7 +960,7 @@ dissect_gsup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
 
 	len = tvb_reported_length(tvb);
-	msg_type = tvb_get_guint8(tvb, offset + 0);
+	msg_type = tvb_get_uint8(tvb, offset + 0);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSUP");
 

@@ -203,7 +203,7 @@ de_rp_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t of
 
 	curr_offset = offset;
 
-	oct = tvb_get_guint8(tvb, curr_offset);
+	oct = tvb_get_uint8(tvb, curr_offset);
 
 	proto_tree_add_item(tree, hf_gsm_a_rp_extension, tvb, curr_offset, 1, ENC_NA);
 	proto_tree_add_item(tree, hf_gsm_a_rp_cause, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
@@ -436,7 +436,7 @@ dissect_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	/*
 	 * add RP message name
 	 */
-	oct = tvb_get_guint8(tvb, offset++);
+	oct = tvb_get_uint8(tvb, offset++);
 
 	str = try_val_to_str_idx((uint32_t) oct, gsm_rp_msg_strings, &idx);
 

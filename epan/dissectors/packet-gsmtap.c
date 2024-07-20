@@ -500,8 +500,8 @@ dissect_sacch_l1h(tvbuff_t *tvb, proto_tree *tree)
 
 	ti = proto_tree_add_protocol_format(tree, proto_gsmtap, tvb, 0, 2,
 			"SACCH L1 Header, Power Level: %u, Timing Advance: %u",
-			tvb_get_guint8(tvb, 0) & 0x1f,
-			tvb_get_guint8(tvb, 1));
+			tvb_get_uint8(tvb, 0) & 0x1f,
+			tvb_get_uint8(tvb, 1));
 	l1h_tree = proto_item_add_subtree(ti, ett_gsmtap);
 	/* Power Level */
 	proto_tree_add_item(l1h_tree, hf_sacch_l1h_power_lev, tvb, 0, 1, ENC_BIG_ENDIAN);
@@ -571,7 +571,7 @@ static void
 dissect_um_voice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	tvbuff_t *payload_tvb;
-	uint8_t vtype = tvb_get_guint8(tvb, 0);
+	uint8_t vtype = tvb_get_uint8(tvb, 0);
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "GSM CS User Plane (Voice/CSD): %s",
 			val_to_str(vtype, gsmtap_um_voice_types, "Unknown %d"));
@@ -820,13 +820,13 @@ dissect_gsmtap_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 
 	len = tvb_reported_length(tvb);
 
-	hdr_len = tvb_get_guint8(tvb, offset + 1) <<2;
-	type = tvb_get_guint8(tvb, offset + 2);
-	timeslot = tvb_get_guint8(tvb, offset + 3);
+	hdr_len = tvb_get_uint8(tvb, offset + 1) <<2;
+	type = tvb_get_uint8(tvb, offset + 2);
+	timeslot = tvb_get_uint8(tvb, offset + 3);
 	arfcn = tvb_get_ntohs(tvb, offset + 4);
 	frame_nr = tvb_get_ntohl(tvb, offset + 8);
-	sub_type = tvb_get_guint8(tvb, offset + 12);
-	subslot = tvb_get_guint8(tvb, offset + 14);
+	sub_type = tvb_get_uint8(tvb, offset + 12);
+	subslot = tvb_get_uint8(tvb, offset + 14);
 
 	/* In case of a SACCH, there is a two-byte L1 header in front
 	 * of the packet (see TS 04.04) */
@@ -881,7 +881,7 @@ dissect_gsmtap_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	if (tree) {
 		uint8_t channel;
 		const char *channel_str;
-		channel = tvb_get_guint8(tvb, offset+12);
+		channel = tvb_get_uint8(tvb, offset+12);
 		if (type == GSMTAP_TYPE_TETRA_I1)
 			channel_str = val_to_str(channel, gsmtap_tetra_channels, "Unknown: %d");
 		else if (type == GSMTAP_TYPE_GMR1_UM)
@@ -893,9 +893,9 @@ dissect_gsmtap_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 			"GSM TAP Header, ARFCN: %u (%s), TS: %u, Channel: %s (%u)",
 			arfcn & GSMTAP_ARFCN_MASK,
 			arfcn & GSMTAP_ARFCN_F_UPLINK ? "Uplink" : "Downlink",
-			tvb_get_guint8(tvb, offset+3),
+			tvb_get_uint8(tvb, offset+3),
 			channel_str,
-			tvb_get_guint8(tvb, offset+14));
+			tvb_get_uint8(tvb, offset+14));
 		gsmtap_tree = proto_item_add_subtree(ti, ett_gsmtap);
 		proto_tree_add_item(gsmtap_tree, hf_gsmtap_version,
 				    tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1044,7 +1044,7 @@ dissect_gsmtap_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 		sub_handle = GSMTAP_SUB_SNDCP;
 		break;
 	case GSMTAP_TYPE_TETRA_I1:
-		handle_tetra(tvb_get_guint8(tvb, offset+12), payload_tvb, pinfo, tree);
+		handle_tetra(tvb_get_uint8(tvb, offset+12), payload_tvb, pinfo, tree);
 		return tvb_captured_length(tvb);
 	case GSMTAP_TYPE_WMX_BURST:
 		switch (sub_type) {
@@ -1187,7 +1187,7 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	proto_tree *gsmtap_tree;
 	proto_item *ti, *tf;
 
-	version = tvb_get_guint8(tvb, 0);
+	version = tvb_get_uint8(tvb, 0);
 
 	if (version == 2) {
 		return dissect_gsmtap_v2(tvb, pinfo, tree, data);

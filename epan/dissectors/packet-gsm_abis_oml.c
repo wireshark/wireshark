@@ -1540,7 +1540,7 @@ dissect_ipacc_test_rep(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
 		proto_item *ti;
 		proto_tree *att_tree;
 
-		ie = tvb_get_guint8(tvb, offset);
+		ie = tvb_get_uint8(tvb, offset);
 		len = tvb_get_ntohs(tvb, offset+1);
 		ti = proto_tree_add_item(tree, hf_oml_ipa_tres_attr_tag, tvb,
 					 offset++, 1, ENC_BIG_ENDIAN);
@@ -1584,7 +1584,7 @@ dissect_oml_attrs(tvbuff_t *tvb, int base_offs, int length,
 		tvbuff_t *sub_tvb;
 		int ie_offset;
 
-		tag = tvb_get_guint8(tvb, offset);
+		tag = tvb_get_uint8(tvb, offset);
 		ti = proto_tree_add_item(tree, hf_oml_fom_attr_tag, tvb,
 					 offset, 1, ENC_BIG_ENDIAN);
 		att_tree = proto_item_add_subtree(ti, ett_oml_fom_att);
@@ -1610,18 +1610,18 @@ dissect_oml_attrs(tvbuff_t *tvb, int base_offs, int length,
 		case TLV_TYPE_TLV:
 			hlen = 2;
 			len_len = 1;
-			len = tvb_get_guint8(tvb, offset+1);
+			len = tvb_get_uint8(tvb, offset+1);
 			break;
 		case TLV_TYPE_TL16V:
 			hlen = 3;
 			len_len = 2;
-			len = tvb_get_guint8(tvb, offset+1) << 8 |
-						tvb_get_guint8(tvb, offset+2);
+			len = tvb_get_uint8(tvb, offset+1) << 8 |
+						tvb_get_uint8(tvb, offset+2);
 			break;
 		case TLV_TYPE_TLV16:
 			hlen = 2;
 			len_len = 1;
-			len = tvb_get_guint8(tvb, offset+1) * 2;
+			len = tvb_get_uint8(tvb, offset+1) * 2;
 			break;
 		case TLV_TYPE_UNKNOWN: /* fall through */
 		default:
@@ -1653,7 +1653,7 @@ dissect_oml_attrs(tvbuff_t *tvb, int base_offs, int length,
 		case NM_ATT_ADM_STATE:
 			proto_tree_add_item(att_tree, hf_attr_adm_state, tvb,
 					    offset, len, ENC_BIG_ENDIAN);
-			val8 = tvb_get_guint8(tvb, offset);
+			val8 = tvb_get_uint8(tvb, offset);
 			col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
 					val_to_str(val8, oml_adm_state_vals,
 						   "%02x"));
@@ -1666,14 +1666,14 @@ dissect_oml_attrs(tvbuff_t *tvb, int base_offs, int length,
 			}
 			break;
 		case NM_ATT_RF_MAXPOWR_R:
-			val8 = tvb_get_guint8(tvb, offset); /* 2 dB steps */
+			val8 = tvb_get_uint8(tvb, offset); /* 2 dB steps */
 			proto_tree_add_uint(att_tree, hf_attr_rf_max_pwr_red,
 					    tvb, offset, 1, val8 * 2);
 			break;
 		case NM_ATT_AVAIL_STATUS:
 			/* Availability status can have length 0 */
 			if (len) {
-				val8 = tvb_get_guint8(tvb, offset);
+				val8 = tvb_get_uint8(tvb, offset);
 				proto_tree_add_item(att_tree,
 						    hf_attr_avail_state, tvb,
 					    	    offset, len, ENC_BIG_ENDIAN);
@@ -1706,7 +1706,7 @@ dissect_oml_attrs(tvbuff_t *tvb, int base_offs, int length,
 		case NM_ATT_OPER_STATE:
 			proto_tree_add_item(att_tree, hf_attr_oper_state, tvb,
 					    offset, len, ENC_BIG_ENDIAN);
-			val8 = tvb_get_guint8(tvb, offset);
+			val8 = tvb_get_uint8(tvb, offset);
 			col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
 					val_to_str(val8, oml_oper_state_vals,
 						   "%02x"));
@@ -1733,7 +1733,7 @@ dissect_oml_attrs(tvbuff_t *tvb, int base_offs, int length,
 		case NM_ATT_TEST_NO:
 			proto_tree_add_item(att_tree, hf_attr_test_no, tvb,
 					    offset, len, ENC_LITTLE_ENDIAN);
-			val8 = tvb_get_guint8(tvb, offset);
+			val8 = tvb_get_uint8(tvb, offset);
 			col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
 					val_to_str(val8, oml_test_no_vals,
 						   "%02x"));
@@ -1761,7 +1761,7 @@ dissect_oml_attrs(tvbuff_t *tvb, int base_offs, int length,
 
 				loffset = offset;
 
-				not_counted = tvb_get_guint8(tvb, offset);
+				not_counted = tvb_get_uint8(tvb, offset);
 				proto_tree_add_item(att_tree, hf_attr_ari_not_reported_cnt,
 						    tvb, loffset, 1,
 						    ENC_LITTLE_ENDIAN);
@@ -1826,10 +1826,10 @@ dissect_oml_attrs(tvbuff_t *tvb, int base_offs, int length,
 		case NM_ATT_IPACC_NV_FLAGS:
 			{
 				unsigned flags, mask;
-				flags = tvb_get_guint8(tvb, offset);
-				mask = tvb_get_guint8(tvb, offset+1);
-				flags |= tvb_get_guint8(tvb, offset+2) << 8;
-				mask |= tvb_get_guint8(tvb, offset+3) << 8;
+				flags = tvb_get_uint8(tvb, offset);
+				mask = tvb_get_uint8(tvb, offset+1);
+				flags |= tvb_get_uint8(tvb, offset+2) << 8;
+				mask |= tvb_get_uint8(tvb, offset+3) << 8;
 				proto_tree_add_uint(att_tree, hf_attr_ipa_nv_flags,
 						    tvb, offset, 3, flags);
 				proto_tree_add_uint(att_tree, hf_attr_ipa_nv_mask,
@@ -1880,7 +1880,7 @@ dissect_oml_attrs(tvbuff_t *tvb, int base_offs, int length,
 					    tvb, ie_offset++, 1, ENC_NA);
 			break;
 		case NM_ATT_IPACC_GPRS_PAGING_CFG:
-			val8 = tvb_get_guint8(tvb, ie_offset); /* units: 50 ms */
+			val8 = tvb_get_uint8(tvb, ie_offset); /* units: 50 ms */
 			proto_tree_add_uint(att_tree, hf_attr_ipa_gprs_paging_rep_time,
 					    tvb, ie_offset++, 1, val8 * 50);
 			proto_tree_add_item(att_tree, hf_attr_ipa_gprs_paging_rep_count,
@@ -1893,7 +1893,7 @@ dissect_oml_attrs(tvbuff_t *tvb, int base_offs, int length,
 					    tvb, ie_offset++, 1, ENC_NA);
 			proto_tree_add_item(att_tree, hf_attr_ipa_rlc_cfg_t3191,
 					    tvb, ie_offset++, 1, ENC_NA);
-			val8 = tvb_get_guint8(tvb, ie_offset); /* units: 10 ms */
+			val8 = tvb_get_uint8(tvb, ie_offset); /* units: 10 ms */
 			proto_tree_add_uint(att_tree, hf_attr_ipa_rlc_cfg_t3193,
 					    tvb, ie_offset++, 1, val8 * 10);
 			proto_tree_add_item(att_tree, hf_attr_ipa_rlc_cfg_t3195,
@@ -1908,11 +1908,11 @@ dissect_oml_attrs(tvbuff_t *tvb, int base_offs, int length,
 					    tvb, ie_offset++, 1, ENC_NA);
 			break;
 		case NM_ATT_IPACC_RLC_CFG_2:
-			val16 = tvb_get_guint16(tvb, ie_offset, ENC_BIG_ENDIAN); /* units: 10 ms */
+			val16 = tvb_get_uint16(tvb, ie_offset, ENC_BIG_ENDIAN); /* units: 10 ms */
 			proto_tree_add_uint(att_tree, hf_attr_ipa_rlc_cfg2_t_dl_tbf_ext,
 					    tvb, ie_offset, 2, val16 * 10);
 			ie_offset += 2;
-			val16 = tvb_get_guint16(tvb, ie_offset, ENC_BIG_ENDIAN); /* units: 10 ms */
+			val16 = tvb_get_uint16(tvb, ie_offset, ENC_BIG_ENDIAN); /* units: 10 ms */
 			proto_tree_add_uint(att_tree, hf_attr_ipa_rlc_cfg2_t_ul_tbf_ext,
 					    tvb, ie_offset, 2, val16 * 10);
 			ie_offset += 2;
@@ -1946,11 +1946,11 @@ dissect_oml_fom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree *fom_tree;
 	char formatted[ITEM_LABEL_LENGTH];
 
-	msg_type = tvb_get_guint8(tvb, offset);
-	obj_class = tvb_get_guint8(tvb, offset+1);
-	bts_nr = tvb_get_guint8(tvb, offset+2);
-	trx_nr = tvb_get_guint8(tvb, offset+3);
-	ts_nr = tvb_get_guint8(tvb, offset+4);
+	msg_type = tvb_get_uint8(tvb, offset);
+	obj_class = tvb_get_uint8(tvb, offset+1);
+	bts_nr = tvb_get_uint8(tvb, offset+2);
+	trx_nr = tvb_get_uint8(tvb, offset+3);
+	ts_nr = tvb_get_uint8(tvb, offset+4);
 	format_custom_msgtype(formatted, msg_type);
 	proto_item_append_text(top_ti, ", %s(%02x,%02x,%02x) %s ",
 			val_to_str(obj_class, oml_fom_objclass_vals, "%02x"),
@@ -2004,8 +2004,8 @@ dissect_abis_oml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 	uint32_t remain_len;
 	int offset = 0;
 
-	uint8_t	    msg_disc = tvb_get_guint8(tvb, offset);
-	uint8_t	    len	     = tvb_get_guint8(tvb, offset+3);
+	uint8_t	    msg_disc = tvb_get_uint8(tvb, offset);
+	uint8_t	    len	     = tvb_get_uint8(tvb, offset+3);
 
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "OML");
@@ -2026,7 +2026,7 @@ dissect_abis_oml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
 	/* Check whether the indicated length is correct */
 	if (msg_disc == ABIS_OM_MDISC_MANUF) /* TS 12.21 sec 8.1.4 NOTE 1 */
-		remain_len = tvb_reported_length_remaining(tvb, offset + 1 + tvb_get_guint8(tvb, offset));
+		remain_len = tvb_reported_length_remaining(tvb, offset + 1 + tvb_get_uint8(tvb, offset));
 	else
 		remain_len = tvb_reported_length_remaining(tvb, offset);
 	if (len != remain_len) {

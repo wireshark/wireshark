@@ -178,8 +178,8 @@ dissect_gelf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool heur_chec
             return 0;
 
         if (header == HEADER_CHUNKED && captured_length >= 10) {
-            number = tvb_get_guint8(tvb, 10);
-            count = tvb_get_guint8(tvb, 11);
+            number = tvb_get_uint8(tvb, 10);
+            count = tvb_get_uint8(tvb, 11);
             if (number >= count)
                 return 0;
         }

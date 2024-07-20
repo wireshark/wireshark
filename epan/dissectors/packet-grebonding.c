@@ -312,7 +312,7 @@ dissect_greb_filter_list_ack(tvbuff_t *tvb, proto_tree *attrb_tree, unsigned off
 {
     proto_item *it_filter;
     proto_tree *filter_tree;
-    unsigned filter_commit_count = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+    unsigned filter_commit_count = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
 
     it_filter = proto_tree_add_none_format(attrb_tree, hf_greb_attr_val_none, tvb, offset, attrb_length,
         "Filter list ACK - Commit %d", filter_commit_count);
@@ -327,9 +327,9 @@ dissect_greb_filter_list(packet_info *pinfo, tvbuff_t *tvb, proto_tree *attrb_tr
 {
     proto_item *it_filter;
     proto_tree *filter_tree;
-    unsigned filter_commit_count = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
-    unsigned filter_packet_sum = tvb_get_guint16(tvb, offset + 4, ENC_BIG_ENDIAN);
-    unsigned filter_packet_id = tvb_get_guint16(tvb, offset + 6, ENC_BIG_ENDIAN);
+    unsigned filter_commit_count = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
+    unsigned filter_packet_sum = tvb_get_uint16(tvb, offset + 4, ENC_BIG_ENDIAN);
+    unsigned filter_packet_id = tvb_get_uint16(tvb, offset + 6, ENC_BIG_ENDIAN);
     it_filter = proto_tree_add_none_format(attrb_tree, hf_greb_attr_val_none, tvb, offset, attrb_length,
         "Filter list - Commit %d, Packet %d/%d", filter_commit_count, filter_packet_id, filter_packet_sum);
     filter_tree = proto_item_add_subtree(it_filter, ett_grebonding_filter_list);
@@ -342,8 +342,8 @@ dissect_greb_filter_list(packet_info *pinfo, tvbuff_t *tvb, proto_tree *attrb_tr
     while (offset < attrb_length) {
         proto_item *it_filter_item;
         proto_tree *filter_item_tree;
-        unsigned filter_item_length = tvb_get_guint16(tvb, offset + 2, ENC_BIG_ENDIAN);
-        unsigned filter_item_desc_length = tvb_get_guint16(tvb, offset + 6, ENC_BIG_ENDIAN);
+        unsigned filter_item_length = tvb_get_uint16(tvb, offset + 2, ENC_BIG_ENDIAN);
+        unsigned filter_item_desc_length = tvb_get_uint16(tvb, offset + 6, ENC_BIG_ENDIAN);
         // bound lengths to not exceed packet
         if (filter_item_length > (unsigned) tvb_reported_length_remaining(tvb, offset + 2))
             filter_item_length = tvb_reported_length_remaining(tvb, offset + 2);
@@ -377,7 +377,7 @@ dissect_greb_ipv6_prefix(packet_info *pinfo, tvbuff_t *tvb, proto_tree *attrb_tr
 
     ipv6_prefix_tree = proto_tree_add_subtree_format(attrb_tree, tvb, offset, attrb_length,
         ett_grebonding_ipv6_prefix, &item_ipv6_prefix, "IPv6 prefix - %s/%d",
-        tvb_ip6_to_str(pinfo->pool, tvb, offset), tvb_get_guint8(tvb, offset + addr_length));
+        tvb_ip6_to_str(pinfo->pool, tvb, offset), tvb_get_uint8(tvb, offset + addr_length));
     proto_tree_add_item(ipv6_prefix_tree, hf_greb_attr_val_ipv6, tvb, offset, addr_length, ENC_NA);
     proto_tree_add_item(ipv6_prefix_tree, hf_greb_attr_val_uint64, tvb, offset + addr_length, 1, ENC_BIG_ENDIAN);
 }
@@ -388,7 +388,7 @@ dissect_greb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     proto_item *ti, *it_attrb;
     proto_tree *greb_tree, *attrb_tree = NULL;
     unsigned offset = 0;
-    unsigned message_type = tvb_get_guint8(tvb, offset) >> 4;
+    unsigned message_type = tvb_get_uint8(tvb, offset) >> 4;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "GREbond");
     ti = proto_tree_add_protocol_format(tree, proto_greb, tvb, offset, -1, "Huawei GRE bonding control message (%s)",
@@ -402,8 +402,8 @@ dissect_greb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     // going through the attributes, off by one to assure length field exists
     while (offset + 1 < tvb_captured_length(tvb)) {
-        unsigned attrb_type = tvb_get_guint8(tvb, offset);
-        unsigned attrb_length = tvb_get_guint16(tvb, offset + 1, ENC_BIG_ENDIAN);
+        unsigned attrb_type = tvb_get_uint8(tvb, offset);
+        unsigned attrb_length = tvb_get_uint16(tvb, offset + 1, ENC_BIG_ENDIAN);
 
         it_attrb = proto_tree_add_none_format(greb_tree, hf_greb_attr, tvb, offset, attrb_length + 3, "Attribute - %s",
             val_to_str(attrb_type, greb_attribute_types, "unknown (%d)"));

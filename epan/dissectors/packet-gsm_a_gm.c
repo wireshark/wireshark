@@ -1152,9 +1152,9 @@ de_gmm_rec_npdu_lst(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_
 	do
 	{
 		uint32_t	oct;
-		oct = tvb_get_guint8(tvb, curr_offset);
+		oct = tvb_get_uint8(tvb, curr_offset);
 		oct <<= 8;
-		oct |= tvb_get_guint8(tvb, curr_offset+1);
+		oct |= tvb_get_uint8(tvb, curr_offset+1);
 		curr_len -= 2;
 		oct <<= 8;
 
@@ -1163,7 +1163,7 @@ de_gmm_rec_npdu_lst(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_
 
 		if (curr_len > 2)
 		{
-			oct |= tvb_get_guint8(tvb, curr_offset+2);
+			oct |= tvb_get_uint8(tvb, curr_offset+2);
 			curr_len--;
 			oct <<= 12;
 
@@ -1412,7 +1412,7 @@ de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t 
 		{ \
 			proto_tree_add_expert(tf_tree, pinfo, &ei_gsm_a_gm_not_enough_data, tvb, curr_offset, 1); \
 		} \
-		tmp_oct = tvb_get_guint8(tvb, curr_offset); \
+		tmp_oct = tvb_get_uint8(tvb, curr_offset); \
 		oct |= tmp_oct<<(32-8-bits_in_oct); \
 		curr_len--; \
 		curr_offset++; \
@@ -3522,17 +3522,17 @@ de_gmm_rai(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset,
 
 	curr_offset = offset;
 
-	mcc = (tvb_get_guint8(tvb, curr_offset) & 0x0f) <<8;
-	mcc |= (tvb_get_guint8(tvb, curr_offset) & 0xf0);
-	mcc |= (tvb_get_guint8(tvb, curr_offset+1) & 0x0f);
-	mnc = (tvb_get_guint8(tvb, curr_offset+2) & 0x0f) <<8;
-	mnc |= (tvb_get_guint8(tvb, curr_offset+2) & 0xf0);
-	mnc |= (tvb_get_guint8(tvb, curr_offset+1) & 0xf0) >>4;
+	mcc = (tvb_get_uint8(tvb, curr_offset) & 0x0f) <<8;
+	mcc |= (tvb_get_uint8(tvb, curr_offset) & 0xf0);
+	mcc |= (tvb_get_uint8(tvb, curr_offset+1) & 0x0f);
+	mnc = (tvb_get_uint8(tvb, curr_offset+2) & 0x0f) <<8;
+	mnc |= (tvb_get_uint8(tvb, curr_offset+2) & 0xf0);
+	mnc |= (tvb_get_uint8(tvb, curr_offset+1) & 0xf0) >>4;
 	if ((mnc&0x000f) == 0x000f)
 		 mnc = mnc>>4;
 
 	lac = tvb_get_ntohs(tvb, curr_offset+3);
-	rac = tvb_get_guint8(tvb, curr_offset+5);
+	rac = tvb_get_uint8(tvb, curr_offset+5);
 
 	subtree = proto_tree_add_subtree_format(tree,
 		tvb, curr_offset, 6, ett_gmm_rai, NULL,
@@ -4145,14 +4145,14 @@ de_gc_context_stat(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t
 
 	curr_offset = offset;
 
-	oct = tvb_get_guint8(tvb, curr_offset);
+	oct = tvb_get_uint8(tvb, curr_offset);
 
 	for (pdp_nr=0; pdp_nr<16; pdp_nr++)
 	{
 		if (pdp_nr == 8)
 		{
 			curr_offset++;
-			oct = tvb_get_guint8(tvb, curr_offset);
+			oct = tvb_get_uint8(tvb, curr_offset);
 		}
 		proto_tree_add_uint_format(tree, hf_gsm_a_gm_nsapi, tvb, curr_offset, 1, oct&1, "NSAPI %d: %s (%u)", pdp_nr, pdp_str[oct&1], oct&1);
 		oct>>=1;
@@ -4212,7 +4212,7 @@ de_gc_timer(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t of
 	proto_item  *item = NULL;
 	proto_tree  *subtree;
 
-	oct = tvb_get_guint8(tvb, offset);
+	oct = tvb_get_uint8(tvb, offset);
 	val = oct&0x1f;
 
 	switch (oct>>5)
@@ -4260,7 +4260,7 @@ de_gc_timer2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t o
 
 	curr_offset = offset;
 
-	oct = tvb_get_guint8(tvb, curr_offset);
+	oct = tvb_get_uint8(tvb, curr_offset);
 
 	val = oct&0x1f;
 
@@ -4320,7 +4320,7 @@ de_gc_timer3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t o
 
 	curr_offset = offset;
 
-	oct = tvb_get_guint8(tvb, curr_offset);
+	oct = tvb_get_uint8(tvb, curr_offset);
 
 	val = oct&0x1f;
 
@@ -4380,7 +4380,7 @@ de_gc_mbms_context_stat(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 
 	for (i=0; i<len; i++)
 	{
-		oct = tvb_get_guint8(tvb, curr_offset);
+		oct = tvb_get_uint8(tvb, curr_offset);
 
 		for (j=0; j<8; j++)
 		{
@@ -4495,7 +4495,7 @@ de_sm_nsapi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t of
 
 	curr_offset = offset;
 
-	oct = tvb_get_guint8(tvb, curr_offset);
+	oct = tvb_get_uint8(tvb, curr_offset);
 
 	proto_tree_add_uint_format_value(tree, hf_gsm_a_gm_nsapi, tvb, curr_offset, 1, oct&0x0f, "0x%02x (%u) %s", oct&0x0f, oct&0x0f, add_string ? add_string : "");
 
@@ -4715,7 +4715,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, 
 	curr_len    = (int)len; /* length field is only 1 or 2 bytes long */
 	curr_offset = offset;
 
-	oct = tvb_get_guint8(tvb, curr_offset);
+	oct = tvb_get_uint8(tvb, curr_offset);
 
 	link_dir = pinfo->link_dir;
 	generated_item = proto_tree_add_int(tree, hf_gsm_a_gm_link_dir, tvb, curr_offset, 0, link_dir);
@@ -5187,9 +5187,9 @@ de_sm_pdp_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t off
 	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset << 3), 4, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_gsm_a_sm_pdp_type_org, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-	pdp_type_org = tvb_get_guint8(tvb, curr_offset) & 0x0f;
+	pdp_type_org = tvb_get_uint8(tvb, curr_offset) & 0x0f;
 	curr_offset += 1;
-	pdp_type_num = tvb_get_guint8(tvb, curr_offset);
+	pdp_type_num = tvb_get_uint8(tvb, curr_offset);
 
 	if (pdp_type_org == 0)
 	{
@@ -5485,7 +5485,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, 
 	NO_MORE_DATA_CHECK(len);
 
 	/* Octet 7 */
-	oct = tvb_get_guint8(tvb, curr_offset);
+	oct = tvb_get_uint8(tvb, curr_offset);
 
 	switch (oct)
 	{
@@ -5507,7 +5507,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, 
 	NO_MORE_DATA_CHECK(len);
 
 	/* Octet 8 */
-	oct = tvb_get_guint8(tvb, curr_offset);
+	oct = tvb_get_uint8(tvb, curr_offset);
 
 	switch (oct)
 	{
@@ -5523,7 +5523,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, 
 	NO_MORE_DATA_CHECK(len);
 
 	/* Octet 9 */
-	oct = tvb_get_guint8(tvb, curr_offset);
+	oct = tvb_get_uint8(tvb, curr_offset);
 
 	switch (oct)
 	{
@@ -5546,7 +5546,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, 
 	NO_MORE_DATA_CHECK(len);
 
 	/* Octet 11 */
-	oct = tvb_get_guint8(tvb, curr_offset);
+	oct = tvb_get_uint8(tvb, curr_offset);
 
 	tmp_oct = oct>>2;
 	switch (tmp_oct)
@@ -5572,7 +5572,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, 
 	NO_MORE_DATA_CHECK(len);
 
 	/* Octet 12 */
-	oct = tvb_get_guint8(tvb, curr_offset);
+	oct = tvb_get_uint8(tvb, curr_offset);
 
 	switch (oct)
 	{
@@ -5588,7 +5588,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, 
 	NO_MORE_DATA_CHECK(len);
 
 	/* Octet 13 */
-	oct = tvb_get_guint8(tvb, curr_offset);
+	oct = tvb_get_uint8(tvb, curr_offset);
 
 	switch (oct)
 	{
@@ -5604,7 +5604,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, 
 	NO_MORE_DATA_CHECK(len);
 
 	/* Ocet 14 */
-	oct = tvb_get_guint8(tvb, curr_offset);
+	oct = tvb_get_uint8(tvb, curr_offset);
 	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset << 3), 3, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_gsm_a_sm_qos_signalling_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
@@ -5621,7 +5621,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, 
 	NO_MORE_DATA_CHECK(len);
 
 	/* Octet 15 */
-	oct = tvb_get_guint8(tvb, curr_offset);
+	oct = tvb_get_uint8(tvb, curr_offset);
 
 	if (oct == 0x00)
 		str = "Use the value indicated by the Maximum bit rate for downlink";
@@ -5640,7 +5640,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, 
 	NO_MORE_DATA_CHECK(len);
 
 	/* Octet 16 */
-	oct = tvb_get_guint8(tvb, curr_offset);
+	oct = tvb_get_uint8(tvb, curr_offset);
 
 	if (oct == 0x00)
 		str = "Use the value indicated by the Guaranteed bit rate for downlink";
@@ -5659,7 +5659,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, 
 	NO_MORE_DATA_CHECK(len);
 
 	/* Maximum bit rate for uplink (extended) Octet 17 */
-	oct = tvb_get_guint8(tvb, curr_offset);
+	oct = tvb_get_uint8(tvb, curr_offset);
 
 	if (oct == 0x00)
 		str = "Use the value indicated by the Maximum bit rate for uplink";
@@ -5678,7 +5678,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, 
 	NO_MORE_DATA_CHECK(len);
 
 	/* Guaranteed bit rate for uplink (extended) Octet 18 */
-	oct = tvb_get_guint8(tvb, curr_offset);
+	oct = tvb_get_uint8(tvb, curr_offset);
 
 	if (oct == 0x00)
 		str = "Use the value indicated by the Guaranteed bit rate for uplink";
@@ -5697,7 +5697,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, 
 	NO_MORE_DATA_CHECK(len);
 
 	/* Maximum bit rate for downlink (extended-2) Octet 19 */
-	oct = tvb_get_guint8(tvb, curr_offset);
+	oct = tvb_get_uint8(tvb, curr_offset);
 
 	if (oct == 0x00)
 		str = "Use the value indicated by the Maximum bit rate for downlink";
@@ -5713,7 +5713,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, 
 	NO_MORE_DATA_CHECK(len);
 
 	/* Guaranteed bit rate for downlink (extended-2) Octet 20 */
-	oct = tvb_get_guint8(tvb, curr_offset);
+	oct = tvb_get_uint8(tvb, curr_offset);
 
 	if (oct == 0x00)
 		str = "Use the value indicated by the Guaranteed bit rate for downlink";
@@ -5729,7 +5729,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, 
 	NO_MORE_DATA_CHECK(len);
 
 	/* Maximum bit rate for uplink (extended-2) Octet 21 */
-	oct = tvb_get_guint8(tvb, curr_offset);
+	oct = tvb_get_uint8(tvb, curr_offset);
 
 	if (oct == 0x00)
 		str = "Use the value indicated by the Maximum bit rate for uplink";
@@ -5745,7 +5745,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, 
 	NO_MORE_DATA_CHECK(len);
 
 	/* Guaranteed bit rate for uplink (extended-2) Octet 22 */
-	oct = tvb_get_guint8(tvb, curr_offset);
+	oct = tvb_get_uint8(tvb, curr_offset);
 
 	if (oct == 0x00)
 		str = "Use the value indicated by the Guaranteed bit rate for uplink";
@@ -5869,7 +5869,7 @@ de_sm_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t of
 	uint8_t      oct;
 	const char *str;
 
-	oct = tvb_get_guint8(tvb, offset);
+	oct = tvb_get_uint8(tvb, offset);
 
 	/* SM Cause can be sent in both directions */
 	str = val_to_str_ext_const(oct, &gsm_a_sm_cause_vals_ext,
@@ -5891,7 +5891,7 @@ de_sm_cause_2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t 
 	uint8_t      oct;
 	const char *str;
 
-	oct = tvb_get_guint8(tvb, offset);
+	oct = tvb_get_uint8(tvb, offset);
 
 	/* SM Cause 2 is sent only in the Network-to-MS direction */
 	str = val_to_str_ext_const(oct, &gsm_a_sm_cause_vals_ext,
@@ -5922,7 +5922,7 @@ de_sm_linked_ti(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t of
 	curr_len    = len;
 	curr_offset = offset;
 
-	oct = tvb_get_guint8(tvb, curr_offset);
+	oct = tvb_get_uint8(tvb, curr_offset);
 
 	proto_tree_add_item(tree, hf_gsm_a_sm_ti_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -5935,7 +5935,7 @@ de_sm_linked_ti(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t of
 	if (curr_len > 1)
 	{
 		curr_offset++;
-		oct = tvb_get_guint8(tvb, curr_offset);
+		oct = tvb_get_uint8(tvb, curr_offset);
 
 		proto_tree_add_uint(tree, hf_gsm_a_gm_ti_value, tvb, curr_offset, 1, oct&0x7f);
 
@@ -6015,7 +6015,7 @@ de_sm_pflow_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t off
 	unsigned   value;
 
 	curr_offset = offset;
-	value = tvb_get_guint8(tvb, curr_offset);
+	value = tvb_get_uint8(tvb, curr_offset);
 	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset << 3, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_gsm_a_sm_packet_flow_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset++;
@@ -6109,7 +6109,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t o
 	/*
 	 * parse first octet. It contain TFT operation code, E bit and Number of packet filters
 	 */
-	oct = tvb_get_guint8(tvb, curr_offset);
+	oct = tvb_get_uint8(tvb, curr_offset);
 
 	op_code = oct>>5;
 	pkt_fil_count = oct&0x0f;
@@ -6144,7 +6144,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t o
 		if (op_code == 5)  /* Delete packet filters from existing TFT - just a list of identifiers */
 		{
 			proto_tree_add_bits_item(tf_tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3), 4, ENC_BIG_ENDIAN);
-			oct = tvb_get_guint8(tvb, curr_offset) & 0x0f;
+			oct = tvb_get_uint8(tvb, curr_offset) & 0x0f;
 			proto_tree_add_uint_format_value(tf_tree, hf_gsm_a_sm_tft_pkt_flt_id, tvb, curr_offset, 1, oct, "%d (%d)", oct+1, oct);
 			curr_offset++;
 			curr_len--;
@@ -6154,7 +6154,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t o
 		{
 			proto_tree_add_bits_item(tf_tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3), 2, ENC_BIG_ENDIAN);
 			proto_tree_add_item(tf_tree, hf_gsm_a_sm_tft_pkt_flt_dir, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-			oct = tvb_get_guint8(tvb, curr_offset) & 0x0f;
+			oct = tvb_get_uint8(tvb, curr_offset) & 0x0f;
 			proto_tree_add_uint_format_value(tf_tree, hf_gsm_a_sm_tft_pkt_flt_id, tvb, curr_offset, 1, oct, "%d (%d)", oct+1, oct);
 			curr_offset++;
 			curr_len--;
@@ -6171,7 +6171,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t o
 				proto_tree_add_expert(tf_tree, pinfo, &ei_gsm_a_gm_not_enough_data, tvb, curr_offset, 1);
 				return (len);
 			}
-			pf_length = tvb_get_guint8(tvb, curr_offset);
+			pf_length = tvb_get_uint8(tvb, curr_offset);
 			proto_tree_add_item(tf_tree, hf_gsm_a_sm_tft_packet_filter_length, tvb, curr_offset, 1, ENC_NA);
 			curr_offset++;
 			curr_len--;
@@ -6189,7 +6189,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t o
 					proto_tree_add_expert(tf_tree, pinfo, &ei_gsm_a_gm_not_enough_data, tvb, curr_offset, 1);
 					return (len);
 				}
-				pack_component_type = tvb_get_guint8(tvb, curr_offset);
+				pack_component_type = tvb_get_uint8(tvb, curr_offset);
 				tf = proto_tree_add_item(tf_tree, hf_gsm_a_sm_tft_packet_filter_component_type_id, tvb, curr_offset, 1, ENC_NA);
 				comp_tree = proto_item_add_subtree(tf, ett_sm_tft);
 
@@ -6364,9 +6364,9 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t o
 		count = 0;
 		while (curr_len) {
 			proto_tree *tf_tree;
-			pf_length = tvb_get_guint8(tvb, curr_offset+1);
+			pf_length = tvb_get_uint8(tvb, curr_offset+1);
 			tf_tree   = proto_tree_add_subtree_format(tree, tvb, curr_offset, pf_length+2, ett_sm_tft, NULL, "Parameter %d", count);
-			param     = tvb_get_guint8(tvb, curr_offset);
+			param     = tvb_get_uint8(tvb, curr_offset);
 			proto_tree_add_item(tf_tree, hf_gsm_a_sm_tft_param_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 			curr_offset += 2;
 			curr_len    -= 2;
@@ -6382,7 +6382,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t o
 
 			case 0x03:
 				for (i=0; i<pf_length; i++) {
-					oct = tvb_get_guint8(tvb, curr_offset+i) & 0x0f;
+					oct = tvb_get_uint8(tvb, curr_offset+i) & 0x0f;
 					proto_tree_add_uint_format(tf_tree, hf_gsm_a_sm_tft_packet_filter_identifier, tvb, curr_offset+i, 1, oct+1, "Packet filter identifier %d: %d (%d)", i, oct+1, oct);
 				}
 				break;
@@ -6435,7 +6435,7 @@ de_sm_mbms_bearer_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint3
 
 	curr_offset = offset;
 
-	oct = tvb_get_guint8(tvb, curr_offset);
+	oct = tvb_get_uint8(tvb, curr_offset);
 
 	switch (oct)
 	{
@@ -6450,7 +6450,7 @@ de_sm_mbms_bearer_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint3
 
 	NO_MORE_DATA_CHECK(len);
 
-	oct = tvb_get_guint8(tvb, curr_offset);
+	oct = tvb_get_uint8(tvb, curr_offset);
 
 	if (oct == 0x00)
 		str = "Use the value indicated by the Maximum bit rate for downlink";
@@ -6498,7 +6498,7 @@ de_sm_enh_nsapi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_
 	uint8_t      oct;
 	const char *str;
 
-	oct = tvb_get_guint8(tvb, offset);
+	oct = tvb_get_uint8(tvb, offset);
 
 	if(oct < 0x80)
 		str = "Reserved";

@@ -223,8 +223,8 @@ dissect_gre_3gpp2_attribs(tvbuff_t *tvb, int offset, proto_tree *tree)
 
     while(last_attrib != true)
     {
-        uint8_t attrib_id = tvb_get_guint8(tvb, offset);
-        uint8_t attrib_length = tvb_get_guint8(tvb, offset + 1);
+        uint8_t attrib_id = tvb_get_uint8(tvb, offset);
+        uint8_t attrib_length = tvb_get_uint8(tvb, offset + 1);
 
         attr_tree = proto_tree_add_subtree(atree, tvb, offset, attrib_length + 1 + 1, ett_3gpp2_attr, &attr_item,
                                         val_to_str((attrib_id&0x7f), gre_3gpp2_attrib_id_vals, "%u (Unknown)"));
@@ -240,14 +240,14 @@ dissect_gre_3gpp2_attribs(tvbuff_t *tvb, int offset, proto_tree *tree)
         {
         case ID_3GPP2_FLOW_DISCRIMINATOR:
         {
-            value = tvb_get_guint8(tvb,offset);
+            value = tvb_get_uint8(tvb,offset);
             proto_tree_add_item(attr_tree, hf_gre_3gpp2_flow_disc, tvb, offset, attrib_length, ENC_NA);
             proto_item_append_text(attr_item," - 0x%x",value);
         }
         break;
         case ID_3GPP2_SDI_FLAG:
         {
-            value = tvb_get_guint8(tvb,offset);
+            value = tvb_get_uint8(tvb,offset);
             proto_tree_add_item(attr_tree, hf_gre_3gpp2_sdi, tvb, offset, attrib_length, ENC_BIG_ENDIAN);
             proto_item_append_text(attr_item," - %s",
                                    (value & 0x80) ? "Packet suitable for 1x SDB or HRPD DOS transmission" : "Reserved");
@@ -256,14 +256,14 @@ dissect_gre_3gpp2_attribs(tvbuff_t *tvb, int offset, proto_tree *tree)
         break;
         case ID_3GPP2_SEG:
         {
-            value = tvb_get_guint8(tvb,offset) >>6;
+            value = tvb_get_uint8(tvb,offset) >>6;
             proto_tree_add_item(attr_tree, hf_gre_3gpp2_seg, tvb, offset, attrib_length, ENC_BIG_ENDIAN);
             proto_item_append_text(attr_item," - %s",val_to_str(value, gre_3gpp2_seg_vals, "0x%02X - Unknown"));
         }
         break;
         case ID_3GPP2_FLOW_CTRL:
         {
-            value = tvb_get_guint8(tvb,offset);
+            value = tvb_get_uint8(tvb,offset);
             proto_tree_add_item(attr_tree, hf_gre_3gpp2_fci, tvb, offset, attrib_length, ENC_BIG_ENDIAN);
             proto_item_append_text(attr_item," - %s",
                                    (value & 0x80) ? "XON" : "XOFF");
@@ -347,7 +347,7 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         /* WCCP2 puts an extra 4 octets into the header, but uses the same
            encapsulation type; if it looks as if the first octet of the packet
            isn't the beginning of an IPv4 header, assume it's WCCP2. */
-        if ((tvb_get_guint8(tvb, offset + 2 + 2) & 0xF0) != 0x40) {
+        if ((tvb_get_uint8(tvb, offset + 2 + 2) & 0xF0) != 0x40) {
             is_wccp2 = true;
         }
         break;
@@ -460,7 +460,7 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 proto_tree_add_item(r_tree, hf_gre_routing_sre_offset , tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
 
-                sre_length = tvb_get_guint8(tvb, offset);
+                sre_length = tvb_get_uint8(tvb, offset);
                 proto_tree_add_item(r_tree, hf_gre_routing_sre_length , tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
 

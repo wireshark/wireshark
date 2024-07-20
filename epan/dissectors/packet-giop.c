@@ -3126,7 +3126,7 @@ void get_CDR_any(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item
 bool get_CDR_boolean(tvbuff_t *tvb, int *offset) {
   uint8_t val;
 
-  val = tvb_get_guint8(tvb, *offset); /* easy */
+  val = tvb_get_uint8(tvb, *offset); /* easy */
   (*offset)++;
   return val;
 }
@@ -3141,7 +3141,7 @@ bool get_CDR_boolean(tvbuff_t *tvb, int *offset) {
 uint8_t get_CDR_char(tvbuff_t *tvb, int *offset) {
   uint8_t val;
 
-  val = tvb_get_guint8(tvb, *offset); /* easy */
+  val = tvb_get_uint8(tvb, *offset); /* easy */
   (*offset)++;
   return val;
 }
@@ -3497,7 +3497,7 @@ void get_CDR_object(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *of
 uint8_t get_CDR_octet(tvbuff_t *tvb, int *offset) {
   uint8_t val;
 
-  val = tvb_get_guint8(tvb, *offset); /* easy */
+  val = tvb_get_uint8(tvb, *offset); /* easy */
   (*offset)++;
   return val;
 }
@@ -4652,7 +4652,7 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
   col_append_fstr(pinfo->cinfo, COL_INFO, " id=%u", request_id);
   proto_tree_add_uint (request_tree, hf_giop_req_id, tvb, offset-4, 4, request_id);
 
-  response_expected = tvb_get_guint8( tvb, offset );
+  response_expected = tvb_get_uint8( tvb, offset );
   col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
                     response_expected ? "two-way" : "one-way");
   proto_tree_add_item(request_tree, hf_giop_rsp_expected, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -5249,8 +5249,8 @@ get_giop_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _
     return 0;
 
   /* Get minimal header information to determine endianness, size */
-  header.GIOP_version.minor = tvb_get_guint8(tvb, 5 + offset);
-  header.flags = tvb_get_guint8(tvb, 6 + offset);
+  header.GIOP_version.minor = tvb_get_uint8(tvb, 5 + offset);
+  header.flags = tvb_get_uint8(tvb, 6 + offset);
 
   if (is_big_endian (&header))
     message_size = tvb_get_ntohl(tvb, 8 + offset);

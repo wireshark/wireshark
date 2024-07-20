@@ -180,8 +180,8 @@ dissect_gsmrlp_xid(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree
 	int cur;
 
 	for (cur = offset; cur < (int) tvb_reported_length(tvb);) {
-		uint8_t len = tvb_get_guint8(tvb, cur) & 0x0f;
-		uint8_t type = tvb_get_guint8(tvb, cur) >> 4;
+		uint8_t len = tvb_get_uint8(tvb, cur) & 0x0f;
+		uint8_t type = tvb_get_uint8(tvb, cur) >> 4;
 		proto_tree *xid_tree;
 
 		proto_tree_add_subtree_format(tree, tvb, cur, 1 + len, ett_gsmrlp_xid, &xid_tree, "XID Parameter: %s",
@@ -212,8 +212,8 @@ dissect_gsmrlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM-RLP");
 
-	n_s = (tvb_get_guint8(tvb, 0)) >> 3 | ((tvb_get_guint8(tvb, 1) & 1) << 5);
-	n_r = (tvb_get_guint8(tvb, 1) >> 2);
+	n_s = (tvb_get_uint8(tvb, 0)) >> 3 | ((tvb_get_uint8(tvb, 1) & 1) << 5);
+	n_r = (tvb_get_uint8(tvb, 1) >> 2);
 
 	ti = proto_tree_add_protocol_format(tree, proto_gsmrlp, tvb, 0, reported_len,
 					    "GSM RLP");

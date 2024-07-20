@@ -177,11 +177,11 @@ dissect_ipa_attr(tvbuff_t *tvb, int base_offs, proto_tree *tree)
 	int offset = base_offs;
 
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
-		attr_type = tvb_get_guint8(tvb, offset);
+		attr_type = tvb_get_uint8(tvb, offset);
 
 		switch (attr_type) {
 		case 0x00:	/* a string prefixed by its length */
-			len = tvb_get_guint8(tvb, offset+1);
+			len = tvb_get_uint8(tvb, offset+1);
 			proto_tree_add_item(tree, hf_ipaccess_attr_tag,
 					    tvb, offset+2, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(tree, hf_ipaccess_attr_string,
@@ -211,7 +211,7 @@ dissect_ipaccess(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *ipaccess_tree;
 	uint8_t msg_type;
 
-	msg_type = tvb_get_guint8(tvb, 0);
+	msg_type = tvb_get_uint8(tvb, 0);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
 	                val_to_str(msg_type, ipaccess_msgtype_vals,
@@ -238,7 +238,7 @@ dissect_osmo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ipatree, proto_tree 
 	uint8_t osmo_proto;
 	const char *name;
 
-	osmo_proto = tvb_get_guint8(tvb, 0);
+	osmo_proto = tvb_get_uint8(tvb, 0);
 	name = val_to_str(osmo_proto, ipa_osmo_proto_vals, "unknown 0x%02x");
 	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", name);
 	if (ipatree) {
@@ -283,7 +283,7 @@ dissect_ipa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_udp)
 		return false;
 
 	//sanity check the message type
-	msg_type = tvb_get_guint8(tvb, 2);
+	msg_type = tvb_get_uint8(tvb, 2);
 	if ((try_val_to_str(msg_type, ipa_protocol_vals) == NULL) &&
 		(msg_type >= ABISIP_RSL_MAX))
 		return false;
@@ -297,7 +297,7 @@ dissect_ipa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_udp)
 		tvbuff_t *next_tvb;
 
 		len = tvb_get_ntohs(tvb, offset);
-		msg_type = tvb_get_guint8(tvb, offset+2);
+		msg_type = tvb_get_uint8(tvb, offset+2);
 
 		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
 		                val_to_str(msg_type, ipa_protocol_vals,

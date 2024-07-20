@@ -154,7 +154,7 @@ dissect_pkt_line(tvbuff_t *tvb, packet_info *pinfo, proto_tree *git_tree,
    * lacking that, let's assume for now that all pkt-lines starting with \1, \2, or \3
    * are using sideband.
    */
-  int sideband_code = tvb_get_guint8(tvb, *offset);
+  int sideband_code = tvb_get_uint8(tvb, *offset);
 
   if (1 <= sideband_code && sideband_code <= 3) {
     proto_tree_add_uint(git_tree, hf_git_sideband_control_code, tvb, *offset, 1,

@@ -196,7 +196,7 @@ dissect_body_data(proto_tree *grpc_tree, packet_info *pinfo, tvbuff_t *tvb, cons
     * content-type application/grpc by json dissector insteadof protobuf dissector.
     */
     if (grpc_detect_json_automatically && length > 3
-        && tvb_get_guint8(next_tvb, 0) == '{')  /* start with '{' */
+        && tvb_get_uint8(next_tvb, 0) == '{')  /* start with '{' */
     {
         uint8_t end_bytes[3];
         tvb_memcpy(next_tvb, end_bytes, length - 3, 3);

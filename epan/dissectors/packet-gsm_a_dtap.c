@@ -915,7 +915,7 @@ de_network_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t of
 
     curr_offset = offset;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
 
     proto_tree_add_item(tree, hf_gsm_a_extension, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
@@ -991,7 +991,7 @@ de_rej_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t o
     uint8_t      oct;
     const char *str;
 
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
 
     str = try_rval_to_str(oct, gsm_a_dtap_rej_cause_vals);
     if (!str)
@@ -1035,7 +1035,7 @@ de_time_zone(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t o
      * represents the algebraic sign of this difference (0: positive, 1: negative).
      */
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
     sign = (oct & 0x08)?'-':'+';
     oct = (oct >> 4) + (oct & 0x07) * 10;
 
@@ -1066,17 +1066,17 @@ de_time_zone_time(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint3
     tm.tm_yday = 0;
     tm.tm_isdst = -1;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
     tm.tm_year = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4) + 100;
-    oct = tvb_get_guint8(tvb, curr_offset+1);
+    oct = tvb_get_uint8(tvb, curr_offset+1);
     tm.tm_mon = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4) - 1;
-    oct = tvb_get_guint8(tvb, curr_offset+2);
+    oct = tvb_get_uint8(tvb, curr_offset+2);
     tm.tm_mday = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4);
-    oct = tvb_get_guint8(tvb, curr_offset+3);
+    oct = tvb_get_uint8(tvb, curr_offset+3);
     tm.tm_hour = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4);
-    oct = tvb_get_guint8(tvb, curr_offset+4);
+    oct = tvb_get_uint8(tvb, curr_offset+4);
     tm.tm_min = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4);
-    oct = tvb_get_guint8(tvb, curr_offset+5);
+    oct = tvb_get_uint8(tvb, curr_offset+5);
     tm.tm_sec = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4);
 
     tv.secs = mktime(&tm);
@@ -1095,7 +1095,7 @@ de_time_zone_time(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint3
      * represents the algebraic sign of this difference (0: positive, 1: negative).
      */
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
     sign = (oct & 0x08)?'-':'+';
     oct = (oct >> 4) + (oct & 0x07) * 10;
 
@@ -1186,7 +1186,7 @@ de_emerg_num_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t 
          * NOTE 1: The length contains the number of octets used to encode the
          * Emergency Service Category Value and the Number digits.
          */
-        en_len = tvb_get_guint8(tvb, curr_offset);
+        en_len = tvb_get_uint8(tvb, curr_offset);
 
         item = proto_tree_add_uint(tree, hf_gsm_a_dtap_emergency_number_information,
             tvb, curr_offset, en_len + 1, count);
@@ -1274,7 +1274,7 @@ de_mm_timer(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t of
     proto_tree  *subtree;
     proto_item  *item = NULL;
 
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
     val = oct&0x1f;
 
     switch (oct>>5)
@@ -1613,7 +1613,7 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offs
 
     curr_offset = offset;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
 
     /* octet 3 */
 
@@ -1718,7 +1718,7 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offs
 
         do
         {
-            oct = tvb_get_guint8(tvb, curr_offset);
+            oct = tvb_get_uint8(tvb, curr_offset);
 
             extended = (oct & 0x80) ? false : true;
 
@@ -1762,7 +1762,7 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offs
         tvb, curr_offset, 1,
         ett_bc_oct_5, NULL, "Octet 5");
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
 
     extended = (oct & 0x80) ? false : true;
 
@@ -1783,7 +1783,7 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offs
         tvb, curr_offset, 1,
         ett_bc_oct_5a, NULL, "Octet 5a");
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
 
     extended = (oct & 0x80) ? false : true;
 
@@ -1826,7 +1826,7 @@ bc_octet_6:
         tvb, curr_offset, 1,
         ett_bc_oct_6, NULL, "Octet 6");
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
 
     extended = (oct & 0x80) ? false : true;
 
@@ -1853,7 +1853,7 @@ bc_octet_6:
         tvb, curr_offset, 1,
         ett_bc_oct_6a, NULL, "Octet 6a");
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
 
     extended = (oct & 0x80) ? false : true;
 
@@ -1878,7 +1878,7 @@ bc_octet_6:
         tvb, curr_offset, 1,
         ett_bc_oct_6b, NULL, "Octet 6b");
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
 
     extended = (oct & 0x80) ? false : true;
 
@@ -1900,7 +1900,7 @@ bc_octet_6:
         tvb, curr_offset, 1,
         ett_bc_oct_6c, NULL, "Octet 6c");
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
 
     extended = (oct & 0x80) ? false : true;
 
@@ -1922,7 +1922,7 @@ bc_octet_6:
         tvb, curr_offset, 1,
         ett_bc_oct_6d, NULL, "Octet 6d");
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
 
     extended = (oct & 0x80) ? false : true;
 
@@ -1943,7 +1943,7 @@ bc_octet_6:
         tvb, curr_offset, 1,
         ett_bc_oct_6e, NULL, "Octet 6e");
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
 
     extended = (oct & 0x80) ? false : true;
 
@@ -1980,7 +1980,7 @@ bc_octet_6:
         tvb, curr_offset, 1,
         ett_bc_oct_6f, NULL, "Octet 6f");
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
 
     extended = (oct & 0x80) ? false : true;
 
@@ -2010,7 +2010,7 @@ bc_octet_6:
         tvb, curr_offset, 1,
         ett_bc_oct_6g, NULL, "Octet 6g");
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
 
     proto_tree_add_item(subtree, hf_gsm_a_extension, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
@@ -2089,7 +2089,7 @@ de_cc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, 
 
     curr_offset = offset;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
 
     if (((oct & 0xf0) >> 4) == 0)
     {
@@ -2168,7 +2168,7 @@ de_call_state(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t 
 
     proto_tree_add_item(subtree, hf_gsm_a_dtap_coding_standard, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
     coding_standard = (oct & 0xc0) >> 6;
     call_state = oct & 0x3f;
 
@@ -2251,7 +2251,7 @@ de_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset,
     *extracted_address = NULL;
     curr_offset = offset;
 
-    extension = tvb_get_guint8(tvb, curr_offset) & 0x80;
+    extension = tvb_get_uint8(tvb, curr_offset) & 0x80;
     proto_tree_add_item(tree, hf_gsm_a_extension, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gsm_a_dtap_type_of_number, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gsm_a_dtap_numbering_plan_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
@@ -2312,14 +2312,14 @@ de_sub_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset
     proto_tree_add_item(tree, hf_gsm_a_dtap_type_of_sub_addr, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gsm_a_dtap_odd_even_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+5, 3, ENC_BIG_ENDIAN);
-    type_of_sub_addr = (tvb_get_guint8(tvb, curr_offset) & 0x70) >> 4;
+    type_of_sub_addr = (tvb_get_uint8(tvb, curr_offset) & 0x70) >> 4;
     curr_offset++;
 
     NO_MORE_DATA_CHECK(len);
 
     if (!type_of_sub_addr)
     {
-        afi = tvb_get_guint8(tvb, curr_offset);
+        afi = tvb_get_uint8(tvb, curr_offset);
         proto_tree_add_item(tree, hf_gsm_a_dtap_afi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
         curr_offset++;
 
@@ -2472,7 +2472,7 @@ de_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, u
     proto_tree_add_item(tree, hf_gsm_a_dtap_location, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
 
     if (!(oct & 0x80))
     {
@@ -2481,7 +2481,7 @@ de_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, u
 
     curr_offset++;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
     }
 
     proto_tree_add_item(tree, hf_gsm_a_extension, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
@@ -2711,7 +2711,7 @@ de_keypad_facility(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t
 
     curr_offset = offset;
 
-    keypad_char = tvb_get_guint8(tvb, curr_offset) & 0x7f;
+    keypad_char = tvb_get_uint8(tvb, curr_offset) & 0x7f;
 
     proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 1, ENC_BIG_ENDIAN);
 
@@ -2805,7 +2805,7 @@ de_prog_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset
 
     curr_offset = offset;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
     coding_standard = (oct & 0x60) >> 5;
     proto_tree_add_item(tree, hf_gsm_a_extension, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gsm_a_dtap_prog_coding_standard, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
@@ -2813,7 +2813,7 @@ de_prog_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset
     proto_tree_add_item(tree, hf_gsm_a_dtap_location, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
     progress_description = oct & 0x7f;
     proto_tree_add_item(tree, hf_gsm_a_extension, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
@@ -2911,7 +2911,7 @@ de_repeat_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t 
 
     curr_offset = offset;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
 
     proto_tree_add_uint_format_value(tree, hf_gsm_a_dtap_repeat_indicator, tvb, curr_offset, 1, oct,
         "%s", val_to_str_const(oct & 0xF, gsm_a_dtap_repeat_indicator_vals, "Reserved"));
@@ -2982,7 +2982,7 @@ de_ss_ver_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offs
 
     curr_offset = offset;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
 
     proto_tree_add_uint_format_value(tree, hf_gsm_a_dtap_ss_version_indicator, tvb, curr_offset, 1,
         oct, "%s", val_to_str_const(oct, gsm_a_dtap_ss_ver_ind_vals, "Reserved"));
@@ -3122,7 +3122,7 @@ de_stream_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offse
 
     curr_offset = offset;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
     if (oct == 0x00)
     {
         proto_tree_add_uint_format_value(tree, hf_gsm_a_dtap_stream_identifier, tvb, curr_offset, 1, oct,
@@ -3188,7 +3188,7 @@ de_ca_of_no_cli(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t of
 
     curr_offset = offset;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
     proto_tree_add_uint_format_value(tree, hf_gsm_a_dtap_cause_of_no_cli, tvb, curr_offset, 1, oct,
                    "%s (%u)",
                    val_to_str_const(oct, gsm_a_cause_of_no_cli_values, "Unavailable"),
@@ -3243,7 +3243,7 @@ de_sup_codec_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint3
         curr_offset++;
         /*  Length Of Bitmap for SysID */
         proto_tree_add_item(tree, hf_gsm_a_dtap_bitmap_length, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-        length = tvb_get_guint8(tvb,curr_offset);
+        length = tvb_get_uint8(tvb,curr_offset);
         curr_offset++;
         if (length > 0)
         {
@@ -3408,7 +3408,7 @@ de_cp_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t of
 
     curr_offset = offset;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
     str = val_to_str_const(oct, gsm_a_dtap_cp_cause_values, "Reserved, treat as Protocol error, unspecified");
     proto_tree_add_uint_format_value(tree, hf_gsm_a_dtap_cp_cause, tvb, curr_offset, 1,
         oct, "(%u) %s", oct, str);
@@ -3434,7 +3434,7 @@ de_tp_sub_channel(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint3
 
     curr_offset = offset;
 
-    oct = tvb_get_guint8(tvb, curr_offset) & 0x3f;
+    oct = tvb_get_uint8(tvb, curr_offset) & 0x3f;
     if ((oct & 0x38) == 0x38)
         str = "I";
     else if ((oct & 0x38) == 0x18)
@@ -3467,7 +3467,7 @@ de_tp_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offs
 
     curr_offset = offset;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
 
     if ((oct & 0xF0) == 0x80)
         proto_tree_add_uint(tree, hf_gsm_a_dtap_ack_element, tvb, curr_offset, 1, oct&0x01);
@@ -3507,7 +3507,7 @@ de_tp_loop_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_
 
     curr_offset = offset;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
 
     proto_tree_add_item(tree, hf_gsm_a_dtap_channel_coding03, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gsm_a_dtap_loop_mechanism1C, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
@@ -3553,7 +3553,7 @@ de_tp_tested_device(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uin
 
     curr_offset = offset;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
     proto_tree_add_uint_format_value(tree, hf_gsm_a_dtap_tp_tested_device, tvb, curr_offset, 1,
         oct, "%s", val_to_str(oct, gsm_tp_tested_device_vals, "Reserved (%d)"));
     curr_offset+= 1;
@@ -3633,7 +3633,7 @@ de_tp_ms_positioning_technology(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 
     curr_offset = offset;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
     proto_tree_add_uint_format_value(tree, hf_gsm_a_dtap_ms_positioning_technology, tvb, curr_offset, 1,
         oct, "%s", val_to_str(oct, gsm_positioning_technology_vals, "Reserved (%d)"));
     curr_offset+= 1;
@@ -3659,7 +3659,7 @@ de_tp_ue_test_loop_mode(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 
     curr_offset = offset;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
     proto_tree_add_item(tree, hf_gsm_a_dtap_ue_test_loop_mode, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset+= 1;
 
@@ -3667,7 +3667,7 @@ de_tp_ue_test_loop_mode(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     {
     case 0:
     {
-        lb_setup_length = tvb_get_guint8(tvb, curr_offset);
+        lb_setup_length = tvb_get_uint8(tvb, curr_offset);
         curr_offset += 1;
         for (i=0,j=0; (i<lb_setup_length) && (j<4); i+=3,j++)
         {
@@ -3680,7 +3680,7 @@ de_tp_ue_test_loop_mode(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         break;
     }
     case 2:
-        oct = tvb_get_guint8(tvb, curr_offset);
+        oct = tvb_get_uint8(tvb, curr_offset);
         curr_offset+= 1;
         proto_tree_add_uint(tree, hf_gsm_a_dtap_mbms_short_transmission_identity, tvb, curr_offset, 1, (oct & 0x1f)+1);
         break;
@@ -3697,7 +3697,7 @@ de_tp_ue_positioning_technology(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 
     curr_offset = offset;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
 
     proto_tree_add_uint_format_value(tree, hf_gsm_a_dtap_ue_positioning_technology, tvb, curr_offset, 1,
         oct, "%s", val_to_str(oct, gsm_positioning_technology_vals, "Reserved (%d)"));
@@ -3742,7 +3742,7 @@ de_tp_epc_ue_test_loop_mode(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo 
     bit_offset += 5;
     proto_tree_add_bits_item(tree, hf_gsm_a_dtap_epc_ue_tl_mode, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
     /* Store test loop mode to know how to dissect Close UE Test Loop message */
-    epc_test_loop_mode = tvb_get_guint8(tvb, curr_offset) & 0x07;
+    epc_test_loop_mode = tvb_get_uint8(tvb, curr_offset) & 0x07;
     curr_offset++;
 
     return (curr_offset - offset);
@@ -3770,7 +3770,7 @@ de_tp_epc_ue_tl_a_lb_setup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
 
         proto_tree_add_bits_item(lb_setup_tree, hf_gsm_a_dtap_epc_ue_tl_a_ul_sdu_size, tvb, curr_offset<<3, 16, ENC_BIG_ENDIAN);
         curr_offset += 2;
-        drb = tvb_get_guint8(tvb, curr_offset) & 0x1f;
+        drb = tvb_get_uint8(tvb, curr_offset) & 0x1f;
         proto_tree_add_uint_format_value(lb_setup_tree, hf_gsm_a_dtap_epc_ue_tl_a_drb, tvb, curr_offset, 1,
                                          drb, "%d (%d)", drb+1, drb);
         curr_offset++;
@@ -4489,7 +4489,7 @@ dtap_gcc_imm_setup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t
     /*
      * special dissection for Cipher Key Sequence Number
      */
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
 
     proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 4, ENC_BIG_ENDIAN);
 
@@ -4714,7 +4714,7 @@ dtap_bcc_imm_setup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t
     /*
      * special dissection for Cipher Key Sequence Number
      */
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
 
     proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 4, ENC_BIG_ENDIAN);
 
@@ -4763,7 +4763,7 @@ dtap_bcc_imm_setup2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_
     /*
      * special dissection for Cipher Key Sequence Number
      */
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
 
     proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 4, ENC_BIG_ENDIAN);
 
@@ -4916,7 +4916,7 @@ dtap_mm_auth_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32
     /*
      * special dissection for Cipher Key Sequence Number
      */
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
 
     proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 4, ENC_BIG_ENDIAN);
 
@@ -5013,7 +5013,7 @@ dtap_mm_cm_reestab_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
     /*
      * special dissection for Cipher Key Sequence Number
      */
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
 
     proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 4, ENC_BIG_ENDIAN);
 
@@ -5153,7 +5153,7 @@ dtap_mm_cm_srvc_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uin
     /*
      * special dissection for CM Service Type
      */
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
 
     subtree =
     proto_tree_add_subtree(tree,
@@ -5384,7 +5384,7 @@ dtap_mm_loc_upd_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uin
     /*
      * special dissection for Location Updating Type
      */
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
 
     subtree =
     proto_tree_add_subtree(tree,
@@ -5638,7 +5638,7 @@ dtap_cc_congestion_control(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     /*
      * special dissection for Congestion Level
      */
-    oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_uint8(tvb, curr_offset);
 
     proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 4, ENC_BIG_ENDIAN);
 
@@ -6870,7 +6870,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     /*
      * get protocol discriminator
      */
-    oct_1 = tvb_get_guint8(tvb, offset++);
+    oct_1 = tvb_get_uint8(tvb, offset++);
 
     if ((((oct_1 & DTAP_TI_MASK) >> 4) & DTAP_TIE_PRES_MASK) == DTAP_TIE_PRES_MASK)
     {
@@ -6886,7 +6886,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         offset++;
     }
 
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
 
     pd = oct_1 & DTAP_PD_MASK;
     ti = -1;

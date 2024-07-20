@@ -276,7 +276,7 @@ de_cell_id_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t of
     proto_tree  *subtree = NULL;
 
     curr_offset = offset;
-    cell_id_disc = tvb_get_guint8(tvb,curr_offset);
+    cell_id_disc = tvb_get_uint8(tvb,curr_offset);
     num_cells = 0;
 
     while(len>0){
@@ -791,7 +791,7 @@ dissect_gsm_bsslap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 /* Make entries in Protocol column and Info column on summary display */
     col_append_str(pinfo->cinfo, COL_PROTOCOL, "/BSSLAP");
     if (tree) {
-        octet = tvb_get_guint8(tvb, offset);
+        octet = tvb_get_uint8(tvb, offset);
         item = proto_tree_add_item(tree, proto_gsm_bsslap, tvb, 0, -1, ENC_NA);
         sub_tree = proto_item_add_subtree(item, ett_gsm_bsslap);
 

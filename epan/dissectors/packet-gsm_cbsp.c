@@ -577,7 +577,7 @@ dissect_failure_list_ie(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, unsi
 		unsigned remain_len, cause;
 		int rc;
 
-		uint8_t discr = tvb_get_guint8(tvb, offset) & 0x0f;
+		uint8_t discr = tvb_get_uint8(tvb, offset) & 0x0f;
 		elem_tree = proto_tree_add_subtree(tree, tvb, offset, cell_id_len(discr)+2,
 						   ett_cbsp_fail_list, &ti,
 						   "Failure List Item");
@@ -654,7 +654,7 @@ dissect_cbsp_tlvs(tvbuff_t *tvb, int base_offs, int length, packet_info *pinfo, 
 		uint32_t tmp_u;
 		int secs;
 
-		tag = tvb_get_guint8(tvb, offset);
+		tag = tvb_get_uint8(tvb, offset);
 		offset++;
 
 		switch (cbsp_att_tlvdef.def[tag].type) {
@@ -667,10 +667,10 @@ dissect_cbsp_tlvs(tvbuff_t *tvb, int base_offs, int length, packet_info *pinfo, 
 			len_len = 0;
 			break;
 		case TLV_TYPE_TLV:
-			len = tvb_get_guint8(tvb, offset);
+			len = tvb_get_uint8(tvb, offset);
 			break;
 		case TLV_TYPE_TL16V:
-			len = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+			len = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
 			len_len = 2;
 			break;
 		default:
@@ -762,12 +762,12 @@ dissect_cbsp_tlvs(tvbuff_t *tvb, int base_offs, int length, packet_info *pinfo, 
 			proto_item_append_text(ti, ": %s", val_to_str_const(tmp_u, cbsp_bcast_msg_type_vals, ""));
 			break;
 		case CBSP_IEI_WARNING_PERIOD:
-			secs = cbsp_warn_period_to_secs(tvb_get_guint8(tvb, offset));
+			secs = cbsp_warn_period_to_secs(tvb_get_uint8(tvb, offset));
 			proto_tree_add_uint(att_tree, hf_cbsp_warning_period, tvb, offset, len, secs);
 			proto_item_append_text(ti, ": %u (s)", secs);
 			break;
 		case CBSP_IEI_KEEP_ALIVE_REP_PERIOD:
-			secs = cbsp_warn_period_to_secs(tvb_get_guint8(tvb, offset));
+			secs = cbsp_warn_period_to_secs(tvb_get_uint8(tvb, offset));
 			proto_tree_add_uint(att_tree, hf_cbsp_keepalive_period, tvb, offset, len, secs);
 			proto_item_append_text(ti, ": %u (s)", secs);
 			break;
@@ -808,8 +808,8 @@ dissect_cbsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
 
 	//len = tvb_reported_length(tvb);
-	msg_type = tvb_get_guint8(tvb, offset + 0);
-	len_ind = tvb_get_guint24(tvb, offset + 1, ENC_BIG_ENDIAN);
+	msg_type = tvb_get_uint8(tvb, offset + 0);
+	len_ind = tvb_get_uint24(tvb, offset + 1, ENC_BIG_ENDIAN);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CBSP");
 

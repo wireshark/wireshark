@@ -8509,7 +8509,7 @@ static int construct_gprs_data_segment_li_array(tvbuff_t *tvb, proto_tree *tree,
     item = proto_tree_add_bits_item(tree, hf_li, tvb, offset * 8, 6, ENC_BIG_ENDIAN);
     if (*li_count < li_array_size)
     {
-      li_array[*li_count].li = tvb_get_guint8(tvb, offset);
+      li_array[*li_count].li = tvb_get_uint8(tvb, offset);
       li_array[*li_count].offset = offset;
       (*li_count)++;
     }
@@ -8539,7 +8539,7 @@ static int construct_egprs_data_segment_li_array(tvbuff_t *tvb, proto_tree *tree
     {
       /* store the LI and offset for use later when dissecting the rlc segments */
       li_array[*li_count].offset = offset;
-      li_array[*li_count].li = tvb_get_guint8(tvb, offset);
+      li_array[*li_count].li = tvb_get_uint8(tvb, offset);
       (*li_count)++;
     }
     else

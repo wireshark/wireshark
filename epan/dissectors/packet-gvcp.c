@@ -2471,7 +2471,7 @@ static int dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	}
 
 	/* check for valid key/ack code */
-	key_code = (char) tvb_get_guint8(tvb, offset);
+	key_code = (char) tvb_get_uint8(tvb, offset);
 	ack_code = tvb_get_ntohs(tvb, offset+2);
 	ack_string = try_val_to_str(ack_code, acknowledgenames);
 
@@ -2508,7 +2508,7 @@ static int dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 		offset++;
 
 		/* Add the flags */
-		flags = (char) tvb_get_guint8(tvb, offset);
+		flags = (char) tvb_get_uint8(tvb, offset);
 		item = proto_tree_add_item(gvcp_tree, hf_gvcp_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
 		gvcp_tree_flag  = proto_item_add_subtree(item, ett_gvcp_flags);
 		if (command == GVCP_ACTION_CMD)
@@ -2521,7 +2521,7 @@ static int dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 			(command == GVCP_PACKETRESEND_CMD))
 		{
 			proto_tree_add_item(gvcp_tree_flag, hf_gvcp_64bitid_flag_v2_0, tvb, offset, 1, ENC_BIG_ENDIAN);
-			flags = (char) tvb_get_guint8(tvb, offset );
+			flags = (char) tvb_get_uint8(tvb, offset );
 			extendedblockids = (flags & 0x10);
 		}
 		if ((command == GVCP_DISCOVERY_CMD) ||

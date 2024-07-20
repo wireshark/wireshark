@@ -323,13 +323,13 @@ llc_gprs_dissect_xid(tvbuff_t *tvb, packet_info *pinfo, proto_item *llcgprs_tree
 	while (location < info_len)
 	{
 		/* parse the XID parameters */
-		byte1 = tvb_get_guint8(tvb, location);
+		byte1 = tvb_get_uint8(tvb, location);
 
 		if (byte1 & 0x80)
 		{
 			uint8_t xid_param_len_high = 0;
 			uint8_t xid_param_len_low = 0;
-			byte2 = tvb_get_guint8(tvb, location + 1);
+			byte2 = tvb_get_uint8(tvb, location + 1);
 
 			/* XL bit is set - length is continued in second byte */
 			xid_param_len_high = byte1 & 0x03;
@@ -397,7 +397,7 @@ llc_gprs_dissect_xid(tvbuff_t *tvb, packet_info *pinfo, proto_item *llcgprs_tree
 				for (i=1;i<=xid_param_len;i++)
 				{
 					value <<= 8;
-					value |= (uint32_t)tvb_get_guint8(tvb, location+i );
+					value |= (uint32_t)tvb_get_uint8(tvb, location+i );
 				}
 				uinfo_tree = proto_tree_add_subtree_format(xid_tree, tvb, location, item_len,
 					ett_llcgprs_ui, NULL, "XID Parameter Type: %s - Value: %u",
@@ -431,7 +431,7 @@ llc_gprs_dissect_xid(tvbuff_t *tvb, packet_info *pinfo, proto_item *llcgprs_tree
 			for (loop_counter = 0; loop_counter < xid_param_len; loop_counter++)
 			{
 				/* grab the information in the XID param */
-				byte2 = tvb_get_guint8(tvb, location);
+				byte2 = tvb_get_uint8(tvb, location);
 				proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_byte, tvb, location,
 					1, byte2);
 				location++;
@@ -494,7 +494,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 	/*
 	 * Address field.
 	 */
-	addr_fld = tvb_get_guint8(tvb, offset);
+	addr_fld = tvb_get_uint8(tvb, offset);
 	offset++;
 
 	if (addr_fld > 128 )
@@ -530,7 +530,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 	/*
 	 * Control field.
 	 */
-	ctrl_fld_fb = tvb_get_guint8(tvb, offset);
+	ctrl_fld_fb = tvb_get_uint8(tvb, offset);
 	if (ctrl_fld_fb < 0xC0)
 	{
 		frame_format = (ctrl_fld_fb < 0x80)? I_FORMAT : S_FORMAT;
@@ -586,7 +586,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 		{
 			uint8_t kmask;
 			/* SACK Frame */
-			k = kmask = tvb_get_guint8(tvb, offset);
+			k = kmask = tvb_get_uint8(tvb, offset);
 			k = k & 0x1F;
 
 			/* advance past the k field */
@@ -613,7 +613,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 				/* display the R Bitmap */
 				for (loop_count = 0; loop_count < k; loop_count++)
 				{
-					r_byte = tvb_get_guint8(tvb, location);
+					r_byte = tvb_get_uint8(tvb, location);
 					proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_rbyte, tvb, location, 1, r_byte);
 					location++;
 				}
@@ -668,7 +668,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 				/* display the R Bitmap */
 				for (loop_count = 0; loop_count < sack_length; loop_count++)
 				{
-					r_byte = tvb_get_guint8(tvb, location);
+					r_byte = tvb_get_uint8(tvb, location);
 					proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_rbyte, tvb,
 							    location, 1, r_byte);
 					location++;
@@ -804,7 +804,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 				uint8_t tom_pd = 0;
 				int loop_counter = 0;
 
-				tom_byte = tvb_get_guint8(tvb, offset);
+				tom_byte = tvb_get_uint8(tvb, offset);
 				remaining_length = (tom_byte >> 4) & 0x0F;
 				tom_pd = tom_byte & 0x0F;
 
@@ -825,7 +825,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 					/* parse the rest of the TOM header */
 					for (loop_counter = 0; loop_counter < remaining_length; loop_counter++)
 					{
-						tom_byte = tvb_get_guint8(tvb, offset);
+						tom_byte = tvb_get_uint8(tvb, offset);
 
 						proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_tom_header, tvb,
 								    offset, 1, tom_byte);
@@ -839,7 +839,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 					/* parse the TOM message capsule */
 					for (loop_counter = 0; loop_counter < remaining_length; loop_counter++)
 					{
-						tom_byte = tvb_get_guint8(tvb, offset);
+						tom_byte = tvb_get_uint8(tvb, offset);
 
 						proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_tom_data, tvb,
 								    offset, 1, tom_byte);
@@ -874,7 +874,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 				uint8_t tom_pd = 0;
 				int loop_counter = 0;
 
-				tom_byte = tvb_get_guint8(tvb, offset);
+				tom_byte = tvb_get_uint8(tvb, offset);
 				remaining_length = (tom_byte >> 4) & 0x0F;
 				tom_pd = tom_byte & 0x0F;
 
@@ -895,7 +895,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 					/* parse the rest of the TOM header */
 					for (loop_counter = 0; loop_counter < remaining_length; loop_counter++)
 					{
-						tom_byte = tvb_get_guint8(tvb, offset);
+						tom_byte = tvb_get_uint8(tvb, offset);
 						proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_tom_header, tvb,
 								    offset, 1, tom_byte);
 
@@ -909,7 +909,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 					/* parse the TOM message capsule */
 					for (loop_counter = 0; loop_counter < remaining_length; loop_counter++)
 					{
-						tom_byte = tvb_get_guint8(tvb, offset);
+						tom_byte = tvb_get_uint8(tvb, offset);
 						proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_tom_data, tvb,
 								    offset, 1, tom_byte);
 
@@ -953,7 +953,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 					uint8_t tom_pd = 0;
 					int loop_counter = 0;
 
-					tom_byte = tvb_get_guint8(tvb, offset);
+					tom_byte = tvb_get_uint8(tvb, offset);
 					remaining_length = (tom_byte >> 4) & 0x0F;
 					tom_pd = tom_byte & 0x0F;
 
@@ -974,7 +974,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 						/* parse the rest of the TOM header */
 						for (loop_counter = 0; loop_counter < remaining_length; loop_counter++)
 						{
-							tom_byte = tvb_get_guint8(tvb, offset);
+							tom_byte = tvb_get_uint8(tvb, offset);
 
 							proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_tom_header, tvb,
 									    offset, 1, tom_byte);
@@ -989,7 +989,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 						/* parse the TOM message capsule */
 						for (loop_counter = 0; loop_counter < remaining_length; loop_counter++)
 						{
-							tom_byte = tvb_get_guint8(tvb, offset);
+							tom_byte = tvb_get_uint8(tvb, offset);
 
 							proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_tom_data, tvb,
 									    offset, 1, tom_byte);

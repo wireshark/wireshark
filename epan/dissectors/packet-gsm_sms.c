@@ -610,7 +610,7 @@ dis_field_addr(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, uint32_t *of
 
     offset = *offset_p;
 
-    addrlength = tvb_get_guint8(tvb, offset);
+    addrlength = tvb_get_uint8(tvb, offset);
     numdigocts = (addrlength + 1) / 2;
 
     length = tvb_reported_length_remaining(tvb, offset);
@@ -632,7 +632,7 @@ dis_field_addr(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, uint32_t *of
         addrlength, "%d address digits", addrlength);
 
     offset++;
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
     nt_mp = oct & 0x7f;
 
     proto_tree_add_item(subtree, hf_gsm_sms_dis_field_addr_extension, tvb, offset, 1, ENC_NA);
@@ -925,32 +925,32 @@ dis_field_scts_aux(tvbuff_t *tvb, proto_tree *tree, uint32_t offset)
     uint16_t value;
     char   sign;
 
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
     value = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4);
     proto_tree_add_uint(tree, hf_gsm_sms_scts_year, tvb, offset, 1, value);
     offset++;
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
     value = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4);
     proto_tree_add_uint(tree, hf_gsm_sms_scts_month, tvb, offset, 1, value);
     offset++;
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
     value = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4);
     proto_tree_add_uint(tree, hf_gsm_sms_scts_day, tvb, offset, 1, value);
     offset++;
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
     value = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4);
     proto_tree_add_uint(tree, hf_gsm_sms_scts_hour, tvb, offset, 1, value);
     offset++;
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
     value = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4);
     proto_tree_add_uint(tree, hf_gsm_sms_scts_minutes, tvb, offset, 1, value);
     offset++;
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
     value = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4);
     proto_tree_add_uint(tree, hf_gsm_sms_scts_seconds, tvb, offset, 1, value);
     offset++;
 
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
 
     sign = (oct & 0x08)?'-':'+';
     oct = (oct >> 4) + (oct & 0x07) * 10;
@@ -1043,7 +1043,7 @@ dis_field_vp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, uint32_t *offs
 
             subtree = proto_tree_add_subtree(tree, tvb, offset, 7, ett_vp, NULL, "TP-Validity-Period");
 
-            oct = tvb_get_guint8(tvb, offset);
+            oct = tvb_get_uint8(tvb, offset);
 
             proto_tree_add_item(subtree, hf_gsm_sms_vp_extension, tvb, offset, 1, ENC_NA);
             if (oct & 0x80)
@@ -1072,7 +1072,7 @@ dis_field_vp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, uint32_t *offs
 
             case 0x02:
                 offset++;
-                oct = tvb_get_guint8(tvb, offset);
+                oct = tvb_get_uint8(tvb, offset);
                 proto_tree_add_uint_format_value(subtree, hf_gsm_sms_vp_validity_period, tvb, offset, 1,
                     oct, "%d seconds", oct);
                 done = true;
@@ -1080,15 +1080,15 @@ dis_field_vp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, uint32_t *offs
 
             case 0x03:
                 offset++;
-                oct = tvb_get_guint8(tvb, offset);
+                oct = tvb_get_uint8(tvb, offset);
                 value = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4);
                 proto_tree_add_uint(subtree, hf_gsm_sms_vp_validity_period_hour, tvb, offset, 1, value);
                 offset++;
-                oct = tvb_get_guint8(tvb, offset);
+                oct = tvb_get_uint8(tvb, offset);
                 value = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4);
                 proto_tree_add_uint(subtree, hf_gsm_sms_vp_validity_period_minutes, tvb, offset, 1, value);
                 offset++;
-                oct = tvb_get_guint8(tvb, offset);
+                oct = tvb_get_uint8(tvb, offset);
                 value = (oct & 0x0f)*10 + ((oct & 0xf0) >> 4);
                 proto_tree_add_uint(subtree, hf_gsm_sms_vp_validity_period_seconds, tvb, offset, 1, value);
                 offset++;
@@ -1102,7 +1102,7 @@ dis_field_vp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, uint32_t *offs
             break;
 
         case 2:
-            oct = tvb_get_guint8(tvb, offset);
+            oct = tvb_get_uint8(tvb, offset);
 
             if (oct <= 143)
             {
@@ -1401,18 +1401,18 @@ dis_iei_csm8(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, uint32_t offse
     uint8_t       oct;
 
     EXACT_DATA_CHECK(length, 3);
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
     p_udh_fields->sm_id = oct;
     proto_tree_add_uint (tree, hf_gsm_sms_ud_multiple_messages_msg_id,
                          tvb, offset, 1, oct);
     offset++;
 
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
     p_udh_fields->frags = oct;
     proto_tree_add_uint (tree, hf_gsm_sms_ud_multiple_messages_msg_parts,
                          tvb, offset, 1, oct);
     offset++;
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
     p_udh_fields->frag = oct;
     proto_tree_add_uint (tree,
                          hf_gsm_sms_ud_multiple_messages_msg_part,
@@ -1474,10 +1474,10 @@ dis_iei_apa_8bit(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, uint32_t o
 {
     EXACT_DATA_CHECK(length, 2);
 
-    p_udh_fields->port_dst = tvb_get_guint8(tvb, offset);
+    p_udh_fields->port_dst = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_gsm_sms_destination_port8, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    p_udh_fields->port_src = tvb_get_guint8(tvb, offset);
+    p_udh_fields->port_src = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_gsm_sms_originator_port8, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
@@ -1554,14 +1554,14 @@ dis_iei_csm16(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, uint32_t offs
                          hf_gsm_sms_ud_multiple_messages_msg_id,
                          tvb, offset, 2, oct_ref);
     offset+=2;
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
     p_udh_fields->frags = oct;
     proto_tree_add_uint (tree,
                          hf_gsm_sms_ud_multiple_messages_msg_parts,
                          tvb , offset , 1, oct);
 
     offset++;
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
     p_udh_fields->frag = oct;
     proto_tree_add_uint (tree,
                          hf_gsm_sms_ud_multiple_messages_msg_part,
@@ -1875,7 +1875,7 @@ dis_field_ud_iei(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, uint32_t o
     {
         iei_fcn = NULL;
 
-        oct = tvb_get_guint8(tvb, offset);
+        oct = tvb_get_uint8(tvb, offset);
 
         switch (oct)
         {
@@ -1938,7 +1938,7 @@ dis_field_ud_iei(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, uint32_t o
                 break;
         }
 
-        iei_len = tvb_get_guint8(tvb, offset + 1);
+        iei_len = tvb_get_uint8(tvb, offset + 1);
 
         subtree = proto_tree_add_subtree_format(tree,
                                 tvb, offset, iei_len + 2,
@@ -1983,7 +1983,7 @@ dis_field_udh(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, uint32_t *off
 
     /* step over header */
 
-    oct = tvb_get_guint8(tvb, *offset);
+    oct = tvb_get_uint8(tvb, *offset);
 
     udh_subtree =
         proto_tree_add_subtree(tree, tvb,
@@ -2352,7 +2352,7 @@ dis_msg_deliver(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t of
     saved_offset = offset;
     length = tvb_reported_length_remaining(tvb, offset);
 
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
     udhi = oct & 0x40;
 
     proto_tree_add_item(tree, hf_gsm_sms_tp_rp, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2366,19 +2366,19 @@ dis_msg_deliver(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t of
 
     dis_field_addr(tvb, pinfo, tree, &offset, "TP-Originating-Address");
 
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
 
     dis_field_pid(tvb, tree, offset, oct);
 
     offset++;
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
 
     dis_field_dcs(tvb, tree, offset, oct, &cset, &compressed);
 
     offset++;
     dis_field_scts(tvb, pinfo, tree, &offset);
 
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
     udl = oct;
 
     DIS_FIELD_UDL(tree, offset);
@@ -2413,7 +2413,7 @@ dis_msg_deliver_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint
     saved_offset = offset;
     length = tvb_reported_length_remaining(tvb, offset);
 
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
     udhi = oct & 0x40;
 
     proto_tree_add_item(tree, hf_gsm_sms_tp_udhi, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2438,7 +2438,7 @@ dis_msg_deliver_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint
      * is an FCS otherwise PI
      */
     offset++;
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
 
     if (oct & 0x80)
     {
@@ -2446,7 +2446,7 @@ dis_msg_deliver_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint
         offset++;
     }
 
-    pi = tvb_get_guint8(tvb, offset);
+    pi = tvb_get_uint8(tvb, offset);
 
     dis_field_pi(tvb, tree, offset);
 
@@ -2460,7 +2460,7 @@ dis_msg_deliver_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint
         }
 
         offset++;
-        oct = tvb_get_guint8(tvb, offset);
+        oct = tvb_get_uint8(tvb, offset);
 
         dis_field_pid(tvb, tree, offset, oct);
     }
@@ -2475,7 +2475,7 @@ dis_msg_deliver_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint
         }
 
         offset++;
-        oct = tvb_get_guint8(tvb, offset);
+        oct = tvb_get_uint8(tvb, offset);
 
         dis_field_dcs(tvb, tree, offset, oct, &cset, &compressed);
     }
@@ -2490,7 +2490,7 @@ dis_msg_deliver_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint
         }
 
         offset++;
-        oct = tvb_get_guint8(tvb, offset);
+        oct = tvb_get_uint8(tvb, offset);
         udl = oct;
 
         DIS_FIELD_UDL(tree, offset);
@@ -2525,7 +2525,7 @@ dis_msg_submit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t off
     saved_offset = offset;
     length = tvb_reported_length_remaining(tvb, offset);
 
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
     udhi = oct & 0x40;
     vp_form = ((oct & 0x18) >> 3);
 
@@ -2544,19 +2544,19 @@ dis_msg_submit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t off
 
     dis_field_addr(tvb, pinfo, tree, &offset, "TP-Destination-Address");
 
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
 
     dis_field_pid(tvb, tree, offset, oct);
 
     offset++;
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
 
     dis_field_dcs(tvb, tree, offset, oct, &cset, &compressed);
 
     offset++;
     dis_field_vp(tvb, pinfo, tree, &offset, vp_form);
 
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
     udl = oct;
 
     DIS_FIELD_UDL(tree, offset);
@@ -2591,7 +2591,7 @@ dis_msg_submit_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint3
     saved_offset = offset;
     length = tvb_reported_length_remaining(tvb, offset);
 
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
     udhi = oct & 0x40;
 
     proto_tree_add_item(tree, hf_gsm_sms_tp_udhi, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2609,7 +2609,7 @@ dis_msg_submit_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint3
      * is an FCS otherwise PI
      */
     offset++;
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
 
     if (oct & 0x80)
     {
@@ -2617,7 +2617,7 @@ dis_msg_submit_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint3
         offset++;
     }
 
-    pi = tvb_get_guint8(tvb, offset);
+    pi = tvb_get_uint8(tvb, offset);
     dis_field_pi(tvb, tree, offset);
     offset++;
 
@@ -2630,7 +2630,7 @@ dis_msg_submit_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint3
             return;
         }
 
-        oct = tvb_get_guint8(tvb, offset);
+        oct = tvb_get_uint8(tvb, offset);
 
         dis_field_pid(tvb, tree, offset, oct);
         offset++;
@@ -2645,7 +2645,7 @@ dis_msg_submit_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint3
             return;
         }
 
-        oct = tvb_get_guint8(tvb, offset);
+        oct = tvb_get_uint8(tvb, offset);
 
         dis_field_dcs(tvb, tree, offset, oct, &cset, &compressed);
         offset++;
@@ -2660,7 +2660,7 @@ dis_msg_submit_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint3
             return;
         }
 
-        oct = tvb_get_guint8(tvb, offset);
+        oct = tvb_get_uint8(tvb, offset);
         udl = oct;
 
         DIS_FIELD_UDL(tree, offset);
@@ -2695,7 +2695,7 @@ dis_msg_status_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint3
     saved_offset = offset;
     length = tvb_reported_length_remaining(tvb, offset);
 
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
     udhi = oct & 0x40;
 
     proto_tree_add_item(tree, hf_gsm_sms_tp_udhi, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2730,7 +2730,7 @@ dis_msg_status_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint3
     }
 
     /* Read Parameter Indicator byte */
-    pi = tvb_get_guint8(tvb, offset);
+    pi = tvb_get_uint8(tvb, offset);
     dis_field_pi(tvb, tree, offset);
     offset++;
 
@@ -2745,7 +2745,7 @@ dis_msg_status_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint3
             return;
         }
 
-        oct = tvb_get_guint8(tvb, offset);
+        oct = tvb_get_uint8(tvb, offset);
         dis_field_pid(tvb, tree, offset, oct);
         offset++;
     }
@@ -2759,7 +2759,7 @@ dis_msg_status_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint3
             return;
         }
 
-        oct = tvb_get_guint8(tvb, offset);
+        oct = tvb_get_uint8(tvb, offset);
         dis_field_dcs(tvb, tree, offset, oct, &cset, &compressed);
         offset++;
     }
@@ -2773,7 +2773,7 @@ dis_msg_status_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint3
             return;
         }
 
-        oct = tvb_get_guint8(tvb, offset);
+        oct = tvb_get_uint8(tvb, offset);
         udl = oct;
 
         DIS_FIELD_UDL(tree, offset);
@@ -2806,7 +2806,7 @@ dis_msg_command(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, uint32_
     proto_tree_add_item(tree, hf_gsm_sms_tp_mr, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     offset++;
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
 
     dis_field_pid(tvb, tree, offset, oct);
 
@@ -2822,7 +2822,7 @@ dis_msg_command(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, uint32_
 
     dis_field_addr(tvb, pinfo, tree, &offset, "TP-Destination-Address");
 
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
     cdl = oct;
 
     DIS_FIELD_CDL(tree, offset);
@@ -2881,7 +2881,7 @@ dissect_gsm_sms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         offset = 0;
 
-        oct = tvb_get_guint8(tvb, offset);
+        oct = tvb_get_uint8(tvb, offset);
 
         oct &= 0x03;
         msg_type = oct;

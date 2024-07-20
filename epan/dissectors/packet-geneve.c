@@ -159,7 +159,7 @@ dissect_option(wmem_allocator_t *scope, tvbuff_t *tvb, proto_tree *opts_tree, in
     proto_item_set_hidden(hidden_item);
     offset += 1;
 
-    flags = tvb_get_guint8(tvb, offset) >> OPT_FLAGS_SHIFT;
+    flags = tvb_get_uint8(tvb, offset) >> OPT_FLAGS_SHIFT;
     flag_item = proto_tree_add_uint(opt_tree, hf_geneve_option_flags, tvb,
                                     offset, 1, flags);
     flag_tree = proto_item_add_subtree(flag_item, ett_geneve_opt_flags);
@@ -215,8 +215,8 @@ dissect_geneve_options(tvbuff_t *tvb, packet_info *pinfo,
 
     while (len > 0) {
         opt_class = tvb_get_ntohs(tvb, offset);
-        opt_type = tvb_get_guint8(tvb, offset + 2);
-        opt_len = 4 + ((tvb_get_guint8(tvb, offset + 3) & OPT_LEN_MASK) * 4);
+        opt_type = tvb_get_uint8(tvb, offset + 2);
+        opt_len = 4 + ((tvb_get_uint8(tvb, offset + 3) & OPT_LEN_MASK) * 4);
 
         if (opt_len > len) {
             proto_tree_add_expert_format(opts_tree, pinfo,
@@ -261,7 +261,7 @@ dissect_geneve(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     geneve_tree = proto_item_add_subtree(ti, ett_geneve);
 
     /* Version. */
-    ver_opt = tvb_get_guint8(tvb, offset);
+    ver_opt = tvb_get_uint8(tvb, offset);
     ver = ver_opt >> VER_SHIFT;
     proto_tree_add_uint(geneve_tree, hf_geneve_version, tvb,
                         offset, 1, ver);
@@ -280,7 +280,7 @@ dissect_geneve(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     offset += 1;
 
     /* Flags. */
-    flags = tvb_get_guint8(tvb, offset);
+    flags = tvb_get_uint8(tvb, offset);
     proto_tree_add_bitmask(geneve_tree, tvb, offset, hf_geneve_flags, ett_geneve_flags, flag_fields, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -304,7 +304,7 @@ dissect_geneve(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     /* Reserved. */
     rsvd_item = proto_tree_add_item(geneve_tree, hf_geneve_reserved, tvb,
                                     offset, 1, ENC_BIG_ENDIAN);
-    if (!tvb_get_guint8(tvb, offset)) {
+    if (!tvb_get_uint8(tvb, offset)) {
         proto_item_set_hidden(rsvd_item);
     }
     offset += 1;

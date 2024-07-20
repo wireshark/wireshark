@@ -186,10 +186,10 @@ dissect_glbp_hello(tvbuff_t *tvb, int offset,
   proto_tree_add_item(tlv_tree, hf_glbp_hello_unknown13, tvb, offset, 2, ENC_NA);
   offset += 2;
   proto_tree_add_item(tlv_tree, hf_glbp_hello_addrtype,  tvb, offset, 1, ENC_BIG_ENDIAN);
-  addrtype = tvb_get_guint8(                             tvb, offset);
+  addrtype = tvb_get_uint8(                             tvb, offset);
   offset++;
   proto_tree_add_item(tlv_tree, hf_glbp_hello_addrlen,   tvb, offset, 1, ENC_BIG_ENDIAN);
-  addrlen = tvb_get_guint8(tvb, offset);
+  addrlen = tvb_get_uint8(tvb, offset);
   offset++;
   switch (addrtype) {
     case 1:
@@ -251,10 +251,10 @@ dissect_glbp_auth(tvbuff_t *tvb, int offset,
   uint8_t authlength;
 
   proto_tree_add_item(tlv_tree, hf_glbp_auth_authtype,   tvb, offset, 1, ENC_BIG_ENDIAN);
-  authtype = tvb_get_guint8(tvb, offset);
+  authtype = tvb_get_uint8(tvb, offset);
   offset++;
   proto_tree_add_item(tlv_tree, hf_glbp_auth_authlength, tvb, offset, 1, ENC_BIG_ENDIAN);
-  authlength = tvb_get_guint8(tvb, offset);
+  authlength = tvb_get_uint8(tvb, offset);
   offset++;
   switch(authtype) {
   case 1:
@@ -322,8 +322,8 @@ dissect_glbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   offset += 6;
   while (tvb_reported_length_remaining(tvb, offset) > 0) {
 
-    type = tvb_get_guint8(tvb, offset);
-    length = tvb_get_guint8(tvb, offset+1);
+    type = tvb_get_uint8(tvb, offset);
+    length = tvb_get_uint8(tvb, offset+1);
     if (length < 2) {
       expert_add_info_format(pinfo, NULL, &ei_glbp_tlv_length_too_small,
         "Length %u too small", length);
@@ -375,8 +375,8 @@ test_glbp(tvbuff_t *tvb, packet_info *pinfo)
   uint32_t unknown1;
   if ( tvb_captured_length(tvb) < 2)
     return false;
-  unknown1 = tvb_get_guint8(tvb, 1);
-  if (tvb_get_guint8(tvb, 0) != 1 /* version? */
+  unknown1 = tvb_get_uint8(tvb, 1);
+  if (tvb_get_uint8(tvb, 0) != 1 /* version? */
       || unknown1 > 4
       || pinfo->srcport != pinfo->destport
 #if 0 /* XXX */

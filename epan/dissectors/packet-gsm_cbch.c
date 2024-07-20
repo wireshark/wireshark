@@ -140,7 +140,7 @@ dissect_schedule_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree
     sched_tree = proto_item_add_subtree(schedule_item, ett_schedule_msg);
 
     proto_tree_add_item(sched_tree, hf_gsm_cbch_sched_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-    octet1 = tvb_get_guint8(tvb, offset);
+    octet1 = tvb_get_uint8(tvb, offset);
     if (0 == (octet1 & 0xC0))
     {
         proto_item* slot_item;
@@ -151,7 +151,7 @@ dissect_schedule_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree
             valid_message = false;
         }
         proto_tree_add_item(sched_tree, hf_gsm_cbch_sched_spare, tvb, offset, 1, ENC_BIG_ENDIAN);
-        sched_end = tvb_get_guint8(tvb, offset);
+        sched_end = tvb_get_uint8(tvb, offset);
         slot_item = proto_tree_add_item(sched_tree, hf_gsm_cbch_sched_end_slot, tvb, offset++, 1, ENC_BIG_ENDIAN);
         if (sched_end < sched_begin)
         {
@@ -169,7 +169,7 @@ dissect_schedule_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree
             for (i=0; i<6; i++)
             {
                 uint8_t j;
-                octet1 = tvb_get_guint8(tvb, offset++);
+                octet1 = tvb_get_uint8(tvb, offset++);
 
                 /* iterate over the bits */
                 for (j=0; j<8; j++)
@@ -186,14 +186,14 @@ dissect_schedule_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree
             for (i=0; i<k; i++)
             {
                 DISSECTOR_ASSERT(new_slots[i] <= 48);
-                octet1 = tvb_get_guint8(tvb, offset);
+                octet1 = tvb_get_uint8(tvb, offset);
                 if ((octet1 & 0x80) == 0x80)
                 {
                     /* MDT 1 */
                     uint8_t octet2;
                     uint16_t msg_id;
 
-                    octet2 = tvb_get_guint8(tvb, offset + 1);
+                    octet2 = tvb_get_uint8(tvb, offset + 1);
                     msg_id = ((octet1 &0x7F) << 8) + octet2;
                     proto_tree_add_uint_format_value(sched_subtree, hf_gsm_cbch_slot, tvb, offset, 2, new_slots[i],
                                         "%d, Message ID: %d, First transmission of an SMSCB within the Schedule Period",
@@ -266,7 +266,7 @@ dissect_schedule_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree
                 if (k >= sched_end)
                     break;
 
-                octet1 = tvb_get_guint8(tvb, offset);
+                octet1 = tvb_get_uint8(tvb, offset);
                 if ((octet1 & 0x80) == 0x80)
                 {
                     if ((offset+1)<len)
@@ -275,7 +275,7 @@ dissect_schedule_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree
                         uint8_t octet2;
                         uint16_t msg_id;
 
-                        octet2 = tvb_get_guint8(tvb, offset + 1);
+                        octet2 = tvb_get_uint8(tvb, offset + 1);
                         msg_id = ((octet1 &0x7F) << 8) + octet2;
                         other_slots[k] = msg_id;
                         k++;
@@ -353,7 +353,7 @@ dissect_cbch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data  _U
     tvbuff_t      *reass_tvb = NULL, *msg_tvb = NULL;
 
     offset = 0;
-    octet  = tvb_get_guint8(tvb, offset);
+    octet  = tvb_get_uint8(tvb, offset);
 
     /*
      * create the protocol tree
@@ -428,7 +428,7 @@ dissect_cbch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data  _U
                We use this to determine whether this is a normal message or a scheduling message */
             offset = 0;
 
-            octet = tvb_get_guint8(reass_tvb, offset++);
+            octet = tvb_get_uint8(reass_tvb, offset++);
             msg_tvb = tvb_new_subset_remaining(reass_tvb, offset);
 
             if (octet & 0x08)
