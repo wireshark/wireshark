@@ -40,25 +40,25 @@ static dissector_handle_t gssapi_wrap_handle;
 
 static dissector_handle_t xml_handle;
 
-static int proto_nmf = -1;
+static int proto_nmf;
 
-static int ett_nmf = -1;
-static int ett_nmf_payload = -1;
+static int ett_nmf;
+static int ett_nmf_payload;
 
-static int hf_nmf_record = -1;
-static int hf_nmf_record_type = -1;
-static int hf_nmf_version_major = -1;
-static int hf_nmf_version_minor = -1;
-static int hf_nmf_mode_value = -1;
-static int hf_nmf_via_length = -1;
-static int hf_nmf_via_value = -1;
-static int hf_nmf_known_mode_value = -1;
-static int hf_nmf_sized_envelope_length = -1;
-static int hf_nmf_upgrade_length = -1;
-static int hf_nmf_upgrade_protocol = -1;
-static int hf_nmf_negotiate_type = -1;
-static int hf_nmf_negotiate_length = -1;
-static int hf_nmf_protect_length = -1;
+static int hf_nmf_record;
+static int hf_nmf_record_type;
+static int hf_nmf_version_major;
+static int hf_nmf_version_minor;
+static int hf_nmf_mode_value;
+static int hf_nmf_via_length;
+static int hf_nmf_via_value;
+static int hf_nmf_known_mode_value;
+static int hf_nmf_sized_envelope_length;
+static int hf_nmf_upgrade_length;
+static int hf_nmf_upgrade_protocol;
+static int hf_nmf_negotiate_type;
+static int hf_nmf_negotiate_length;
+static int hf_nmf_protect_length;
 
 static bool nmf_reassemble = true;
 
