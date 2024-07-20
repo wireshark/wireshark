@@ -2225,7 +2225,7 @@ _tvb_get_bits64(tvbuff_t *tvb, unsigned bit_offset, const int total_no_of_bits)
 	{
 		/* the required bits don't extend to the end of the first octet */
 		uint8_t right_shift = required_bits_in_first_octet - total_no_of_bits;
-		value = (tvb_get_guint8(tvb, octet_offset) >> right_shift) & bit_mask8[total_no_of_bits % 8];
+		value = (tvb_get_uint8(tvb, octet_offset) >> right_shift) & bit_mask8[total_no_of_bits % 8];
 	}
 	else
 	{
@@ -2236,7 +2236,7 @@ _tvb_get_bits64(tvbuff_t *tvb, unsigned bit_offset, const int total_no_of_bits)
 		required_bits_in_first_octet %= 8;
 		if(required_bits_in_first_octet != 0)
 		{
-			value = tvb_get_guint8(tvb, octet_offset) & bit_mask8[required_bits_in_first_octet];
+			value = tvb_get_uint8(tvb, octet_offset) & bit_mask8[required_bits_in_first_octet];
 			remaining_bit_length -= required_bits_in_first_octet;
 			octet_offset ++;
 		}
@@ -2248,7 +2248,7 @@ _tvb_get_bits64(tvbuff_t *tvb, unsigned bit_offset, const int total_no_of_bits)
 			case 0:
 				/* 8 - 15 bits. (note that 0 - 7 would have dropped out of the while() loop) */
 				value <<= 8;
-				value += tvb_get_guint8(tvb, octet_offset);
+				value += tvb_get_uint8(tvb, octet_offset);
 				remaining_bit_length -= 8;
 				octet_offset ++;
 				break;
@@ -2282,7 +2282,7 @@ _tvb_get_bits64(tvbuff_t *tvb, unsigned bit_offset, const int total_no_of_bits)
 		if(remaining_bit_length)
 		{
 			value <<= remaining_bit_length;
-			value += (tvb_get_guint8(tvb, octet_offset) >> (8 - remaining_bit_length));
+			value += (tvb_get_uint8(tvb, octet_offset) >> (8 - remaining_bit_length));
 		}
 	}
 	return value;
@@ -2310,7 +2310,7 @@ _tvb_get_bits64_le(tvbuff_t *tvb, unsigned bit_offset, const int total_no_of_bit
 	{
 		/* not aligned, extract bits from first octet */
 		shift = 8 - (bit_offset % 8);
-		value = tvb_get_guint8(tvb, octet_offset) >> (bit_offset % 8);
+		value = tvb_get_uint8(tvb, octet_offset) >> (bit_offset % 8);
 		if (shift > remaining_bits)
 		{
 			/* keep only the requested bits */
@@ -2343,7 +2343,7 @@ _tvb_get_bits64_le(tvbuff_t *tvb, unsigned bit_offset, const int total_no_of_bit
 		}
 		else if (remaining_bits >= 8)
 		{
-			value |= ((uint64_t)tvb_get_guint8(tvb, octet_offset) << shift);
+			value |= ((uint64_t)tvb_get_uint8(tvb, octet_offset) << shift);
 			shift += 8;
 			remaining_bits -= 8;
 			octet_offset += 1;
@@ -2351,7 +2351,7 @@ _tvb_get_bits64_le(tvbuff_t *tvb, unsigned bit_offset, const int total_no_of_bit
 		else
 		{
 			unsigned mask = (1 << remaining_bits) - 1;
-			value |= (((uint64_t)tvb_get_guint8(tvb, octet_offset) & mask) << shift);
+			value |= (((uint64_t)tvb_get_uint8(tvb, octet_offset) & mask) << shift);
 			shift += remaining_bits;
 			remaining_bits = 0;
 			octet_offset += 1;
@@ -4208,7 +4208,7 @@ tvb_find_line_end(tvbuff_t *tvb, const int offset, int len, int *next_offset, co
 				 * Well, we can at least look at the next
 				 * byte.
 				 */
-				if (tvb_get_guint8(tvb, eol_offset + 1) == '\n') {
+				if (tvb_get_uint8(tvb, eol_offset + 1) == '\n') {
 					/*
 					 * It's an LF; skip over the CR.
 					 */
@@ -4339,7 +4339,7 @@ tvb_find_line_end_unquoted(tvbuff_t *tvb, const int offset, int len, int *next_o
 					 * Yes; is it followed by an LF?
 					 */
 					if (char_offset + 1 < eob_offset &&
-						tvb_get_guint8(tvb, char_offset + 1)
+						tvb_get_uint8(tvb, char_offset + 1)
 						  == '\n') {
 						/*
 						 * Yes; skip over the CR.
@@ -4418,7 +4418,7 @@ tvb_skip_wsp(tvbuff_t *tvb, const int offset, const int maxlength)
 	/* Skip past spaces, tabs, CRs and LFs until run out or meet something else */
 	for (counter = offset;
 		 counter < end &&
-		  ((tempchar = tvb_get_guint8(tvb,counter)) == ' ' ||
+		  ((tempchar = tvb_get_uint8(tvb,counter)) == ' ' ||
 		  tempchar == '\t' || tempchar == '\r' || tempchar == '\n');
 		 counter++);
 
@@ -4434,7 +4434,7 @@ tvb_skip_wsp_return(tvbuff_t *tvb, const int offset)
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
 	for (counter = offset; counter > 0 &&
-		((tempchar = tvb_get_guint8(tvb,counter)) == ' ' ||
+		((tempchar = tvb_get_uint8(tvb,counter)) == ' ' ||
 		tempchar == '\t' || tempchar == '\n' || tempchar == '\r'); counter--);
 	counter++;
 
@@ -4457,7 +4457,7 @@ tvb_skip_guint8(tvbuff_t *tvb, int offset, const int maxlength, const uint8_t ch
 		end = tvb_len;
 
 	while (offset < end) {
-		uint8_t tempch = tvb_get_guint8(tvb, offset);
+		uint8_t tempch = tvb_get_uint8(tvb, offset);
 
 		if (tempch != ch)
 			break;
@@ -4736,7 +4736,7 @@ tvb_get_varint(tvbuff_t *tvb, unsigned offset, unsigned maxlen, uint64_t *value,
 		uint64_t b; /* current byte */
 
 		for (i = 0; ((i < FT_VARINT_MAX_LEN) && (i < maxlen)); ++i) {
-			b = tvb_get_guint8(tvb, offset++);
+			b = tvb_get_uint8(tvb, offset++);
 			*value |= ((b & 0x7F) << (i * 7)); /* add lower 7 bits to val */
 
 			if (b < 0x80) {
@@ -4753,7 +4753,7 @@ tvb_get_varint(tvbuff_t *tvb, unsigned offset, unsigned maxlen, uint64_t *value,
 		uint64_t b; /* current byte */
 
 		for (i = 0; ((i < FT_VARINT_MAX_LEN) && (i < maxlen)); ++i) {
-			b = tvb_get_guint8(tvb, offset++);
+			b = tvb_get_uint8(tvb, offset++);
 			*value |= ((b & 0x7F) << (i * 7)); /* add lower 7 bits to val */
 
 			if (b < 0x80) {
@@ -4772,7 +4772,7 @@ tvb_get_varint(tvbuff_t *tvb, unsigned offset, unsigned maxlen, uint64_t *value,
 		uint64_t b; /* current byte */
 
 		for (i = 0; ((i < FT_VARINT_MAX_LEN) && (i < maxlen)); ++i) {
-			b = tvb_get_guint8(tvb, offset++);
+			b = tvb_get_uint8(tvb, offset++);
 			if ((i == 9) && (*value >= UINT64_C(1)<<(64-7))) {
 				// guaranteed overflow, not valid SDNV
 				return 0;
@@ -4791,7 +4791,7 @@ tvb_get_varint(tvbuff_t *tvb, unsigned offset, unsigned maxlen, uint64_t *value,
 	case ENC_VARINT_QUIC:
 	{
 		/* calculate variable length */
-		*value = tvb_get_guint8(tvb, offset);
+		*value = tvb_get_uint8(tvb, offset);
 		switch((*value) >> 6) {
 		case 0: /* 0b00 => 1 byte length (6 bits Usable) */
 			(*value) &= 0x3F;

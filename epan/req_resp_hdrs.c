@@ -160,7 +160,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 				 * line and doing expensive string comparisons if the first
 				 * character doesn't match. Shaves about 20% off the load time of
 				 * one of my sample files that's HTTP-alike. */
-				unsigned char first_byte = tvb_get_guint8(tvb, next_offset_sav);
+				unsigned char first_byte = tvb_get_uint8(tvb, next_offset_sav);
 				if (! (first_byte == 'c' || first_byte == 'C' ||
 				       first_byte == 't' || first_byte == 'T')) {
 					continue;

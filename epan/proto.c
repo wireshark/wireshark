@@ -1612,7 +1612,7 @@ get_uint_value(proto_tree *tree, tvbuff_t *tvb, int offset, int length, const un
 	switch (length) {
 
 	case 1:
-		value = tvb_get_guint8(tvb, offset);
+		value = tvb_get_uint8(tvb, offset);
 		if (encoding & ENC_ZIGBEE) {
 			if (value == 0xFF) { /* Invalid Zigbee length, set to 0 */
 				value = 0;
@@ -1664,7 +1664,7 @@ get_uint64_value(proto_tree *tree, tvbuff_t *tvb, int offset, unsigned length, c
 	switch (length) {
 
 	case 1:
-		value = tvb_get_guint8(tvb, offset);
+		value = tvb_get_uint8(tvb, offset);
 		break;
 
 	case 2:
@@ -1726,7 +1726,7 @@ get_int_value(proto_tree *tree, tvbuff_t *tvb, int offset, int length, const uns
 	switch (length) {
 
 	case 1:
-		value = tvb_get_gint8(tvb, offset);
+		value = tvb_get_int8(tvb, offset);
 		break;
 
 	case 2:
@@ -3189,7 +3189,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 				report_type_length_mismatch(tree, "a IEEE 11073 SFLOAT", length, length_error);
 			}
 
-			fvalue_set_uinteger(new_fi->value, tvb_get_guint16(tvb, start, encoding));
+			fvalue_set_uinteger(new_fi->value, tvb_get_uint16(tvb, start, encoding));
 
 			break;
 		case FT_IEEE_11073_FLOAT:
@@ -6518,7 +6518,7 @@ get_hfi_length(header_field_info *hfinfo, tvbuff_t *tvb, const int start, int *l
 				*item_length = *length;
 				return;
 			} else if (encoding & ENC_VARINT_QUIC) {
-				switch (tvb_get_guint8(tvb, start) >> 6)
+				switch (tvb_get_uint8(tvb, start) >> 6)
 				{
 				case 0: /* 0b00 => 1 byte length (6 bits Usable) */
 					*item_length = 1;
@@ -12285,7 +12285,7 @@ construct_match_selected_string(const field_info *finfo, epan_dissect_t *edt,
 				ptr += snprintf(ptr, buf_len-(ptr-*filter),
 					"frame[%d:%d] == ", finfo->start, length);
 				for (i=0; i<length; i++) {
-					c = tvb_get_guint8(finfo->ds_tvb, start);
+					c = tvb_get_uint8(finfo->ds_tvb, start);
 					start++;
 					if (i == 0 ) {
 						ptr += snprintf(ptr, buf_len-(ptr-*filter), "%02x", c);

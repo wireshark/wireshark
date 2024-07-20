@@ -166,7 +166,7 @@ unsigned
 dvb_analyze_string_charset(tvbuff_t *tvb, int offset, int length, dvb_encoding_e *encoding)
 {
    if (length >= 1) {
-      uint8_t byte0 = tvb_get_guint8(tvb, offset + 0);
+      uint8_t byte0 = tvb_get_uint8(tvb, offset + 0);
 
       if (byte0 >= 0x20) {
          /* the first byte is a normal character, not the number of a character table */
@@ -175,7 +175,7 @@ dvb_analyze_string_charset(tvbuff_t *tvb, int offset, int length, dvb_encoding_e
 
       } else if (byte0 == 0x1F) {
          if (length >= 2) {
-            *encoding = dvb_analyze_string_charset0_1F(tvb_get_guint8(tvb, offset + 1));
+            *encoding = dvb_analyze_string_charset0_1F(tvb_get_uint8(tvb, offset + 1));
             return 2;
          }
          *encoding = DVB_ENCODING_INVALID;

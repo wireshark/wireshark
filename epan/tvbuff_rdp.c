@@ -59,7 +59,7 @@ bitstream_getbits(bitstream_t *b, uint8_t nbits, bool *ok) {
 		}
 
 		b->currentValue <<= 8;
-		b->currentValue += tvb_get_guint8(b->input, b->offset++);
+		b->currentValue += tvb_get_uint8(b->input, b->offset++);
 
 		b->currentBits += 8;
 	}
@@ -332,7 +332,7 @@ rdp8_decompress_segment(zgfx_context_t *zgfx, tvbuff_t *tvb)
 	bitstream_t bitstream;
 	int offset = 0;
 	int len = tvb_reported_length(tvb);
-	uint8_t flags = tvb_get_guint8(tvb, offset);
+	uint8_t flags = tvb_get_uint8(tvb, offset);
 	uint8_t v;
 	offset++;
 	len--;
@@ -346,7 +346,7 @@ rdp8_decompress_segment(zgfx_context_t *zgfx, tvbuff_t *tvb)
 		return true;
 	}
 
-	v = tvb_get_guint8(tvb, offset + len - 1);
+	v = tvb_get_uint8(tvb, offset + len - 1);
 	if (v > 7)
 		return false;
 	len--;
@@ -479,7 +479,7 @@ rdp8_decompress(zgfx_context_t *zgfx, wmem_allocator_t *allocator, tvbuff_t *tvb
 	void *output;
 	uint8_t descriptor;
 
-	descriptor = tvb_get_guint8(tvb, offset);
+	descriptor = tvb_get_uint8(tvb, offset);
 	offset++;
 
 	switch (descriptor) {
@@ -497,15 +497,15 @@ rdp8_decompress(zgfx_context_t *zgfx, wmem_allocator_t *allocator, tvbuff_t *tvb
 		uint32_t output_consumed, uncompressed_size;
 		uint8_t *output_ptr;
 
-		segment_count = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+		segment_count = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
 		offset += 2;
-		uncompressed_size = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
+		uncompressed_size = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		output = output_ptr = wmem_alloc(allocator, uncompressed_size);
 		output_consumed = 0;
 		for (i = 0; i < segment_count; i++) {
-			uint32_t segment_size = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
+			uint32_t segment_size = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
 			offset += 4;
 
 			zgfx->outputCount = 0;

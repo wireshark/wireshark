@@ -173,7 +173,7 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
     const char *modifier;
 
     info=(char *)wmem_alloc(pinfo->pool, 80);
-    switch (tvb_get_guint8(tvb, offset) & 0x03) {
+    switch (tvb_get_uint8(tvb, offset) & 0x03) {
 
     case XDLC_S:
         /*
@@ -185,7 +185,7 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
             cf_items = cf_items_ext;
             control_format = "Control field: %s (0x%04X)";
         } else {
-            control = tvb_get_guint8(tvb, offset);
+            control = tvb_get_uint8(tvb, offset);
             control_len = 1;
             cf_items = cf_items_nonext;
             control_format = "Control field: %s (0x%02X)";
@@ -265,7 +265,7 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 u_modifier_short_vals_cmd = modifier_short_vals_cmd;
         if (u_modifier_short_vals_resp == NULL)
                 u_modifier_short_vals_resp = modifier_short_vals_resp;
-        control = tvb_get_guint8(tvb, offset);
+        control = tvb_get_uint8(tvb, offset);
         control_len = 1;
         cf_items = cf_items_nonext;
         control_format = "Control field: %s (0x%02X)";
@@ -323,7 +323,7 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
                         (control & XDLC_N_R_EXT_MASK) >> XDLC_N_R_EXT_SHIFT,
                         (control & XDLC_N_S_EXT_MASK) >> XDLC_N_S_EXT_SHIFT);
         } else {
-            control = tvb_get_guint8(tvb, offset);
+            control = tvb_get_uint8(tvb, offset);
             control_len = 1;
             cf_items = cf_items_nonext;
             control_format = "Control field: %s (0x%02X)";

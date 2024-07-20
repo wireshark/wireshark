@@ -30,11 +30,11 @@ uncompress_chunk(tvbuff_t *tvb, int offset, int in_size, wmem_array_t *obuf)
 	out_start = wmem_array_get_count(obuf);
 
 	while (in_off < in_size) {
-		flags = tvb_get_guint8(tvb, offset+in_off);
+		flags = tvb_get_uint8(tvb, offset+in_off);
 		in_off++;
 		for (i = 0; i < 8; i++) {
 			if (0 == ((flags>>i)&1)) {
-				val = tvb_get_guint8(tvb, offset+in_off);
+				val = tvb_get_uint8(tvb, offset+in_off);
 				in_off++;
 				wmem_array_append_one(obuf, val);
 				out_off++;
@@ -91,7 +91,7 @@ do_uncompress(tvbuff_t *tvb, int offset, int in_size, wmem_array_t *obuf)
 		length = (header & 0x0FFF) + 1;
 		if (!(header & 0x8000)) {
 			for (i = 0; i < length; i++) {
-				uint8_t v = tvb_get_guint8(tvb, offset+in_off);
+				uint8_t v = tvb_get_uint8(tvb, offset+in_off);
 				wmem_array_append_one(obuf, v);
 				in_off++;
 			}

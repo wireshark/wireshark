@@ -174,9 +174,9 @@ static int PrefixCodeTreeRebuild( struct hf_tree *tree,
 
 	for (i = 0; i < ENCODED_TREE_SIZE; i++) {
 		symbolInfo[2*i].symbol = 2*i;
-		symbolInfo[2*i].length = tvb_get_guint8(input->tvb, input->offset+i) & 15;
+		symbolInfo[2*i].length = tvb_get_uint8(input->tvb, input->offset+i) & 15;
 		symbolInfo[2*i+1].symbol = 2*i+1;
-		symbolInfo[2*i+1].length = tvb_get_guint8(input->tvb, input->offset+i) >> 4;
+		symbolInfo[2*i+1].length = tvb_get_uint8(input->tvb, input->offset+i) >> 4;
 	}
 
 	qsort(symbolInfo, SYMBOL_INFO_SIZE, sizeof(symbolInfo[0]), compare_symbols);
@@ -325,7 +325,7 @@ static bool do_uncompress(struct input *input,
 			if (length == 15) {
 				if (bstr.bitstring_index >= bstr.input->size)
 					return false;
-				length = tvb_get_guint8(bstr.input->tvb,
+				length = tvb_get_uint8(bstr.input->tvb,
 							bstr.input->offset+bstr.bitstring_index) + 15;
 				bstr.bitstring_index += 1;
 

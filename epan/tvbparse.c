@@ -136,7 +136,7 @@ static int cond_char (tvbparse_t* tt, const int offset, const tvbparse_wanted_t 
     if ( offset + 1 > tt->end_offset )
         return -1;
 
-    t = (char) tvb_get_guint8(tt->tvb,offset);
+    t = (char) tvb_get_uint8(tt->tvb,offset);
 
     for(i = 0; (c = wanted->control.str[i]) && offset <= tt->end_offset; i++) {
         if ( c == t ) {
@@ -184,7 +184,7 @@ static int cond_chars_common(tvbparse_t* tt, int offset, const tvbparse_wanted_t
     left = left < (int) wanted->max ? left :  (int) wanted->max;
 
     while( left > 0 ) {
-        uint8_t t = tvb_get_guint8(tt->tvb,offset++);
+        uint8_t t = tvb_get_uint8(tt->tvb,offset++);
 
         if (!wanted->control.str[t])
             break;
@@ -247,7 +247,7 @@ static int cond_not_char(tvbparse_t* tt, const int offset, const tvbparse_wanted
         return -1;
     }
 
-    t = (char) tvb_get_guint8(tt->tvb,offset);
+    t = (char) tvb_get_uint8(tt->tvb,offset);
 
     for(i = 0; (c = wanted->control.str[i]); i++) {
         if ( c == t ) {

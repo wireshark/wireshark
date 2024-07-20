@@ -39,7 +39,7 @@ static bool do_uncompress(tvbuff_t *tvb, int offset, int in_size,
 		}
 		buf_flag_count--;
 		if ((buf_flags & (1u << buf_flag_count)) == 0) {
-			uint8_t v = tvb_get_guint8(tvb, offset+in_off);
+			uint8_t v = tvb_get_uint8(tvb, offset+in_off);
 			wmem_array_append_one(obuf, v);
 			in_off++;
 		} else {
@@ -51,17 +51,17 @@ static bool do_uncompress(tvbuff_t *tvb, int offset, int in_size,
 			match_off = (match_bytes/8) + 1;
 			if (match_len == 7) {
 				if (last_length_half_byte == 0) {
-					match_len = tvb_get_guint8(tvb, offset+in_off);
+					match_len = tvb_get_uint8(tvb, offset+in_off);
 					match_len = match_len % 16;
 					last_length_half_byte = in_off;
 					in_off++;
 				} else {
-					match_len = tvb_get_guint8(tvb, offset+last_length_half_byte);
+					match_len = tvb_get_uint8(tvb, offset+last_length_half_byte);
 					match_len = match_len / 16;
 					last_length_half_byte = 0;
 				}
 				if (match_len == 15) {
-					match_len = tvb_get_guint8(tvb, offset+in_off);
+					match_len = tvb_get_uint8(tvb, offset+in_off);
 					in_off++;
 					if (match_len == 255) {
 						match_len = tvb_get_letohs(tvb, offset+in_off);

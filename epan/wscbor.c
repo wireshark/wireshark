@@ -60,19 +60,19 @@ typedef struct {
 static void wscbor_read_unsigned(wscbor_head_t *head, tvbuff_t *tvb) {
     switch (head->type_minor) {
         case 0x18:
-            head->rawvalue = tvb_get_guint8(tvb, head->start + head->length);
+            head->rawvalue = tvb_get_uint8(tvb, head->start + head->length);
             head->length += 1;
             break;
         case 0x19:
-            head->rawvalue = tvb_get_guint16(tvb, head->start + head->length, ENC_BIG_ENDIAN);
+            head->rawvalue = tvb_get_uint16(tvb, head->start + head->length, ENC_BIG_ENDIAN);
             head->length += 2;
             break;
         case 0x1A:
-            head->rawvalue = tvb_get_guint32(tvb, head->start + head->length, ENC_BIG_ENDIAN);
+            head->rawvalue = tvb_get_uint32(tvb, head->start + head->length, ENC_BIG_ENDIAN);
             head->length += 4;
             break;
         case 0x1B:
-            head->rawvalue = tvb_get_guint64(tvb, head->start + head->length, ENC_BIG_ENDIAN);
+            head->rawvalue = tvb_get_uint64(tvb, head->start + head->length, ENC_BIG_ENDIAN);
             head->length += 8;
             break;
         default:
@@ -96,7 +96,7 @@ static wscbor_head_t * wscbor_head_read(wmem_allocator_t *alloc, tvbuff_t *tvb, 
     wscbor_head_t *head = wmem_new0(alloc, wscbor_head_t);
 
     head->start = *offset;
-    const uint8_t first = tvb_get_guint8(tvb, head->start);
+    const uint8_t first = tvb_get_uint8(tvb, head->start);
     head->length += 1;
 
     // Match libcbor enums

@@ -54,7 +54,7 @@ bool check_fcs(tvbuff_t *p, uint8_t len, uint8_t offset, uint8_t received_fcs){
 	while (len--) {
 		uint8_t tmp;
 
-		tmp = FCS^tvb_get_guint8(p,offset);
+		tmp = FCS^tvb_get_uint8(p,offset);
 		offset++;
 		FCS=crctable[tmp];
 	}
@@ -77,7 +77,7 @@ uint8_t get_crc8_ieee8023_epon(tvbuff_t *p, uint8_t len, uint8_t offset) {
 	while (len--) {
 		uint8_t tmp;
 
-		tmp = FCS^tvb_get_guint8(p,offset);
+		tmp = FCS^tvb_get_uint8(p,offset);
 		offset++;
 		FCS=crctable[tmp];
 	}
