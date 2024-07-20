@@ -335,7 +335,7 @@ static const value_string njack_authfailtrap[] = {
 /* End SNMP TAB */
 
 static int
-dissect_portsettings(tvbuff_t *tvb, proto_tree *port_tree, guint32 offset)
+dissect_portsettings(tvbuff_t *tvb, proto_tree *port_tree, uint32_t offset)
 {
 	/* XXX This is still work in progress, the information here
 	 *     may be wrong and is obviously incomplete
@@ -368,14 +368,14 @@ dissect_portsettings(tvbuff_t *tvb, proto_tree *port_tree, guint32 offset)
 }
 
 static int
-dissect_tlvs(tvbuff_t *tvb, proto_tree *njack_tree, guint32 offset)
+dissect_tlvs(tvbuff_t *tvb, proto_tree *njack_tree, uint32_t offset)
 {
-	guint8      tlv_type;
-	guint8      tlv_length;
+	uint8_t     tlv_type;
+	uint8_t     tlv_length;
 	proto_item *tlv_tree;
 
 	for (;;) {
-		tlv_type = tvb_get_guint8(tvb, offset);
+		tlv_type = tvb_get_uint8(tvb, offset);
 		/* Special cases that don't have a length field */
 		if (tlv_type == NJACK_CMD_ENDOFPACKET) {
 			proto_tree_add_item(njack_tree, hf_njack_tlv_type,
@@ -389,7 +389,7 @@ dissect_tlvs(tvbuff_t *tvb, proto_tree *njack_tree, guint32 offset)
 			offset += 1;
 			continue;
 		}
-		tlv_length = tvb_get_guint8(tvb, offset + 1);
+		tlv_length = tvb_get_uint8(tvb, offset + 1);
 		tlv_tree = proto_tree_add_subtree_format(njack_tree, tvb,
 			offset, tlv_length + 2, ett_njack_tlv_header, NULL,
 			"T %02x, L %02x: %s",
@@ -500,7 +500,7 @@ dissect_tlvs(tvbuff_t *tvb, proto_tree *njack_tree, guint32 offset)
 #if 0
 #include <wsutil/wsgcrypt.h>
 
-static gboolean
+static bool
 verify_password(tvbuff_t *tvb, const char *password)
 {
 	/* 1. pad non-terminated password-string to a length of 32 bytes
@@ -509,14 +509,14 @@ verify_password(tvbuff_t *tvb, const char *password)
 	 * 3. Calculate MD5 of resulting packet and write it to offset 12 of packet
 	 */
 
-	gboolean      is_valid = TRUE;
-	const guint8 *packetdata;
-	guint32       length;
-	guint8       *workbuffer;
-	guint         i;
-	guint8        byte;
+	bool          is_valid = true;
+	const uint8_t *packetdata;
+	uint32_t      length;
+	uint8_t      *workbuffer;
+	unsigned      i;
+	uint8_t       byte;
 	gcry_md_hd_t  md5_handle;
-	guint8       *digest;
+	uint8_t      *digest;
 
 	workbuffer=wmem_alloc(pinfo->pool, 32);
 	digest=wmem_alloc(pinfo->pool, 16);
@@ -531,7 +531,7 @@ verify_password(tvbuff_t *tvb, const char *password)
 	}
 
 	if (gcry_md_open (&md5_handle, GCRY_MD_MD5, 0)) {
-		return FALSE;
+		return false;
 	}
 	gcry_md_write(md5_handle, workbuffer, 32);
 	memcpy(digest, gcry_md_read(md5_handle, 0), 16);
@@ -547,7 +547,7 @@ verify_password(tvbuff_t *tvb, const char *password)
 	for (i = 0; i < 16; i++) {
 		fprintf(stderr, "%02X", digest[i]); /* debugging */
 		if (digest[i] != *(packetdata + 12 + i)) {
-			is_valid = FALSE;
+			is_valid = false;
 			break;
 		}
 	}
@@ -562,12 +562,12 @@ dissect_njack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 {
 	proto_item *ti;
 	proto_tree *njack_tree;
-	guint32     offset     = 0;
-	guint8      packet_type;
-	guint8      setresult;
-	gint        remaining;
+	uint32_t    offset     = 0;
+	uint8_t     packet_type;
+	uint8_t     setresult;
+	int         remaining;
 
-	packet_type = tvb_get_guint8(tvb, 5);
+	packet_type = tvb_get_uint8(tvb, 5);
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
 	col_add_str(pinfo->cinfo, COL_INFO, val_to_str(packet_type, njack_type_vals, "Type 0x%02x"));
 
@@ -598,7 +598,7 @@ dissect_njack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 		break;
 	case NJACK_TYPE_SETRESULT:
 		/* Type 0x08: M -> S, Magic, type, setresult (8 bit) */
-		setresult = tvb_get_guint8(tvb, offset);
+		setresult = tvb_get_uint8(tvb, offset);
 		proto_tree_add_item(njack_tree, hf_njack_setresult, tvb, offset,
 				    1, ENC_BIG_ENDIAN);
 		offset += 1;
@@ -632,15 +632,15 @@ dissect_njack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 	return offset;
 }
 
-static gboolean
+static bool
 test_njack(tvbuff_t *tvb)
 {
 	/* We need at least 'NJ200' + 1 Byte packet type */
 	if ( (tvb_captured_length(tvb) < 6) ||
 	     (tvb_strncaseeql(tvb, 0, "NJ200", 5) != 0) ) {
-		return FALSE;
+		return false;
 	}
-	return TRUE;
+	return true;
 }
 
 static bool
@@ -765,7 +765,7 @@ proto_register_njack(void)
 			0x0, NULL, HFILL }},
 
 	};
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_njack,
 		&ett_njack_tlv_header,
 	};

@@ -25,7 +25,7 @@ static int proto_3com_xns;
 static int hf_3com_xns_type_ethertype;
 static int hf_3com_xns_type_retix_bpdu;
 
-static gint ett_3com_xns;
+static int ett_3com_xns;
 
 static const value_string retix_bpdu_type_vals[] = {
 	{ 0x0004, "Retix Spanning Tree" },
@@ -55,7 +55,7 @@ dissect_3com_xns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 {
 	proto_tree *subtree;
 	proto_tree *ti;
-	guint16 type;
+	uint16_t type;
 	tvbuff_t *next_tvb;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "3Com XNS");
@@ -94,7 +94,7 @@ proto_register_3com_xns(void)
 			VALS(retix_bpdu_type_vals), 0x0, NULL, HFILL }},
 	};
 
-	static gint *ett[] ={
+	static int *ett[] ={
 		&ett_3com_xns,
 	};
 
