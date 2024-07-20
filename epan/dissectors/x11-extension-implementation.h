@@ -23,10 +23,10 @@ static void mesa_CallLists(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned 
 {
     int n;
     int type;
-    n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_render_CallLists_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    type = tvb_get_guint32(tvb, *offsetp, byte_order);
+    type = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_render_CallLists_type, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     switch(type) {
@@ -1324,7 +1324,7 @@ static void mesa_PixelMapfv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned
     int mapsize;
     proto_tree_add_item(t, hf_x11_glx_render_PixelMapfv_map, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    mapsize = tvb_get_guint32(tvb, *offsetp, byte_order);
+    mapsize = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_render_PixelMapfv_mapsize, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_PixelMapfv_values, hf_x11_glx_render_PixelMapfv_values_item, mapsize, byte_order);
@@ -1335,7 +1335,7 @@ static void mesa_PixelMapuiv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigne
     int mapsize;
     proto_tree_add_item(t, hf_x11_glx_render_PixelMapuiv_map, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    mapsize = tvb_get_guint32(tvb, *offsetp, byte_order);
+    mapsize = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_render_PixelMapuiv_mapsize, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfCard32(tvb, offsetp, t, hf_x11_glx_render_PixelMapuiv_values, hf_x11_glx_render_PixelMapuiv_values_item, mapsize, byte_order);
@@ -1346,7 +1346,7 @@ static void mesa_PixelMapusv(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigne
     int mapsize;
     proto_tree_add_item(t, hf_x11_glx_render_PixelMapusv_map, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    mapsize = tvb_get_guint32(tvb, *offsetp, byte_order);
+    mapsize = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_render_PixelMapusv_mapsize, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfCard16(tvb, offsetp, t, hf_x11_glx_render_PixelMapusv_values, hf_x11_glx_render_PixelMapusv_values_item, mapsize, byte_order);
@@ -1726,7 +1726,7 @@ static void mesa_BindTexture(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigne
 static void mesa_PrioritizeTextures(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int n;
-    n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_render_PrioritizeTextures_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfCard32(tvb, offsetp, t, hf_x11_glx_render_PrioritizeTextures_textures, hf_x11_glx_render_PrioritizeTextures_textures_item, n, byte_order);
@@ -2255,7 +2255,7 @@ static void mesa_CompressedTexImage3D(tvbuff_t *tvb, int *offsetp, proto_tree *t
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_render_CompressedTexImage3D_border, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    imageSize = tvb_get_guint32(tvb, *offsetp, byte_order);
+    imageSize = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_render_CompressedTexImage3D_imageSize, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_CompressedTexImage3D_data, imageSize, byte_order);
@@ -2276,7 +2276,7 @@ static void mesa_CompressedTexImage2D(tvbuff_t *tvb, int *offsetp, proto_tree *t
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_render_CompressedTexImage2D_border, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    imageSize = tvb_get_guint32(tvb, *offsetp, byte_order);
+    imageSize = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_render_CompressedTexImage2D_imageSize, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_CompressedTexImage2D_data, imageSize, byte_order);
@@ -2295,7 +2295,7 @@ static void mesa_CompressedTexImage1D(tvbuff_t *tvb, int *offsetp, proto_tree *t
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_render_CompressedTexImage1D_border, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    imageSize = tvb_get_guint32(tvb, *offsetp, byte_order);
+    imageSize = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_render_CompressedTexImage1D_imageSize, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_CompressedTexImage1D_data, imageSize, byte_order);
@@ -2322,7 +2322,7 @@ static void mesa_CompressedTexSubImage3D(tvbuff_t *tvb, int *offsetp, proto_tree
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_render_CompressedTexSubImage3D_format, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    imageSize = tvb_get_guint32(tvb, *offsetp, byte_order);
+    imageSize = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_render_CompressedTexSubImage3D_imageSize, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_CompressedTexSubImage3D_data, imageSize, byte_order);
@@ -2345,7 +2345,7 @@ static void mesa_CompressedTexSubImage2D(tvbuff_t *tvb, int *offsetp, proto_tree
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_render_CompressedTexSubImage2D_format, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    imageSize = tvb_get_guint32(tvb, *offsetp, byte_order);
+    imageSize = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_render_CompressedTexSubImage2D_imageSize, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_CompressedTexSubImage2D_data, imageSize, byte_order);
@@ -2364,7 +2364,7 @@ static void mesa_CompressedTexSubImage1D(tvbuff_t *tvb, int *offsetp, proto_tree
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_render_CompressedTexSubImage1D_format, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    imageSize = tvb_get_guint32(tvb, *offsetp, byte_order);
+    imageSize = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_render_CompressedTexSubImage1D_imageSize, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_CompressedTexSubImage1D_data, imageSize, byte_order);
@@ -2482,7 +2482,7 @@ static void mesa_BlendEquationSeparate(tvbuff_t *tvb, int *offsetp, proto_tree *
 static void mesa_DrawBuffers(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int n;
-    n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_render_DrawBuffers_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfCard32(tvb, offsetp, t, hf_x11_glx_render_DrawBuffers_bufs, hf_x11_glx_render_DrawBuffers_bufs_item, n, byte_order);
@@ -2658,7 +2658,7 @@ static void mesa_CurrentPaletteMatrixARB(tvbuff_t *tvb, int *offsetp, proto_tree
 static void mesa_MatrixIndexubvARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int size;
-    size = tvb_get_guint32(tvb, *offsetp, byte_order);
+    size = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_render_MatrixIndexubvARB_size, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_MatrixIndexubvARB_indices, size, byte_order);
@@ -2667,7 +2667,7 @@ static void mesa_MatrixIndexubvARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, u
 static void mesa_MatrixIndexusvARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int size;
-    size = tvb_get_guint32(tvb, *offsetp, byte_order);
+    size = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_render_MatrixIndexusvARB_size, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfCard16(tvb, offsetp, t, hf_x11_glx_render_MatrixIndexusvARB_indices, hf_x11_glx_render_MatrixIndexusvARB_indices_item, size, byte_order);
@@ -2676,7 +2676,7 @@ static void mesa_MatrixIndexusvARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, u
 static void mesa_MatrixIndexuivARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int size;
-    size = tvb_get_guint32(tvb, *offsetp, byte_order);
+    size = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_render_MatrixIndexuivARB_size, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfCard32(tvb, offsetp, t, hf_x11_glx_render_MatrixIndexuivARB_indices, hf_x11_glx_render_MatrixIndexuivARB_indices_item, size, byte_order);
@@ -2717,7 +2717,7 @@ static void mesa_ProgramStringARB(tvbuff_t *tvb, int *offsetp, proto_tree *t, un
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_render_ProgramStringARB_format, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    len = tvb_get_guint32(tvb, *offsetp, byte_order);
+    len = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_render_ProgramStringARB_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_ProgramStringARB_string, len, byte_order);
@@ -2774,7 +2774,7 @@ static void mesa_TexFilterFuncSGIS(tvbuff_t *tvb, int *offsetp, proto_tree *t, u
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_render_TexFilterFuncSGIS_filter, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_render_TexFilterFuncSGIS_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_TexFilterFuncSGIS_weights, hf_x11_glx_render_TexFilterFuncSGIS_weights_item, n, byte_order);
@@ -2869,7 +2869,7 @@ static void mesa_DetailTexFuncSGIS(tvbuff_t *tvb, int *offsetp, proto_tree *t, u
     int n;
     proto_tree_add_item(t, hf_x11_glx_render_DetailTexFuncSGIS_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_render_DetailTexFuncSGIS_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_DetailTexFuncSGIS_points, hf_x11_glx_render_DetailTexFuncSGIS_points_item, n, byte_order);
@@ -2880,7 +2880,7 @@ static void mesa_SharpenTexFuncSGIS(tvbuff_t *tvb, int *offsetp, proto_tree *t, 
     int n;
     proto_tree_add_item(t, hf_x11_glx_render_SharpenTexFuncSGIS_target, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_render_SharpenTexFuncSGIS_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_SharpenTexFuncSGIS_points, hf_x11_glx_render_SharpenTexFuncSGIS_points_item, n, byte_order);
@@ -2918,7 +2918,7 @@ static void mesa_ReferencePlaneSGIX(tvbuff_t *tvb, int *offsetp, proto_tree *t, 
 static void mesa_FogFuncSGIS(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int n;
-    n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_render_FogFuncSGIS_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_FogFuncSGIS_points, hf_x11_glx_render_FogFuncSGIS_points_item, n, byte_order);
@@ -3055,7 +3055,7 @@ static void mesa_LoadProgramNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsig
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_render_LoadProgramNV_id, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    len = tvb_get_guint32(tvb, *offsetp, byte_order);
+    len = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_render_LoadProgramNV_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_LoadProgramNV_program, len, byte_order);
@@ -3068,7 +3068,7 @@ static void mesa_ProgramParameters4dvNV(tvbuff_t *tvb, int *offsetp, proto_tree 
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_render_ProgramParameters4dvNV_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    num = tvb_get_guint32(tvb, *offsetp, byte_order);
+    num = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_render_ProgramParameters4dvNV_num, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_ProgramParameters4dvNV_params, hf_x11_glx_render_ProgramParameters4dvNV_params_item, num, byte_order);
@@ -3081,7 +3081,7 @@ static void mesa_ProgramParameters4fvNV(tvbuff_t *tvb, int *offsetp, proto_tree 
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_render_ProgramParameters4fvNV_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    num = tvb_get_guint32(tvb, *offsetp, byte_order);
+    num = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_render_ProgramParameters4fvNV_num, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_ProgramParameters4fvNV_params, hf_x11_glx_render_ProgramParameters4fvNV_params_item, num, byte_order);
@@ -3090,7 +3090,7 @@ static void mesa_ProgramParameters4fvNV(tvbuff_t *tvb, int *offsetp, proto_tree 
 static void mesa_RequestResidentProgramsNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int n;
-    n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_render_RequestResidentProgramsNV_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfCard32(tvb, offsetp, t, hf_x11_glx_render_RequestResidentProgramsNV_ids, hf_x11_glx_render_RequestResidentProgramsNV_ids_item, n, byte_order);
@@ -3204,7 +3204,7 @@ static void mesa_VertexAttribs1svNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, 
     int n;
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttribs1svNV_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttribs1svNV_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfInt16(tvb, offsetp, t, hf_x11_glx_render_VertexAttribs1svNV_v, hf_x11_glx_render_VertexAttribs1svNV_v_item, n, byte_order);
@@ -3215,7 +3215,7 @@ static void mesa_VertexAttribs2svNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, 
     int n;
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttribs2svNV_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttribs2svNV_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfInt16(tvb, offsetp, t, hf_x11_glx_render_VertexAttribs2svNV_v, hf_x11_glx_render_VertexAttribs2svNV_v_item, n, byte_order);
@@ -3226,7 +3226,7 @@ static void mesa_VertexAttribs3svNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, 
     int n;
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttribs3svNV_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttribs3svNV_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfInt16(tvb, offsetp, t, hf_x11_glx_render_VertexAttribs3svNV_v, hf_x11_glx_render_VertexAttribs3svNV_v_item, n, byte_order);
@@ -3237,7 +3237,7 @@ static void mesa_VertexAttribs4svNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, 
     int n;
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttribs4svNV_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttribs4svNV_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfInt16(tvb, offsetp, t, hf_x11_glx_render_VertexAttribs4svNV_v, hf_x11_glx_render_VertexAttribs4svNV_v_item, n, byte_order);
@@ -3248,7 +3248,7 @@ static void mesa_VertexAttribs1fvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, 
     int n;
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttribs1fvNV_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttribs1fvNV_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_VertexAttribs1fvNV_v, hf_x11_glx_render_VertexAttribs1fvNV_v_item, n, byte_order);
@@ -3259,7 +3259,7 @@ static void mesa_VertexAttribs2fvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, 
     int n;
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttribs2fvNV_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttribs2fvNV_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_VertexAttribs2fvNV_v, hf_x11_glx_render_VertexAttribs2fvNV_v_item, n, byte_order);
@@ -3270,7 +3270,7 @@ static void mesa_VertexAttribs3fvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, 
     int n;
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttribs3fvNV_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttribs3fvNV_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_VertexAttribs3fvNV_v, hf_x11_glx_render_VertexAttribs3fvNV_v_item, n, byte_order);
@@ -3281,7 +3281,7 @@ static void mesa_VertexAttribs4fvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, 
     int n;
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttribs4fvNV_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttribs4fvNV_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfFloat(tvb, offsetp, t, hf_x11_glx_render_VertexAttribs4fvNV_v, hf_x11_glx_render_VertexAttribs4fvNV_v_item, n, byte_order);
@@ -3292,7 +3292,7 @@ static void mesa_VertexAttribs1dvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, 
     int n;
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttribs1dvNV_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttribs1dvNV_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_VertexAttribs1dvNV_v, hf_x11_glx_render_VertexAttribs1dvNV_v_item, n, byte_order);
@@ -3303,7 +3303,7 @@ static void mesa_VertexAttribs2dvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, 
     int n;
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttribs2dvNV_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttribs2dvNV_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_VertexAttribs2dvNV_v, hf_x11_glx_render_VertexAttribs2dvNV_v_item, n, byte_order);
@@ -3314,7 +3314,7 @@ static void mesa_VertexAttribs3dvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, 
     int n;
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttribs3dvNV_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttribs3dvNV_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_VertexAttribs3dvNV_v, hf_x11_glx_render_VertexAttribs3dvNV_v_item, n, byte_order);
@@ -3325,7 +3325,7 @@ static void mesa_VertexAttribs4dvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t, 
     int n;
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttribs4dvNV_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttribs4dvNV_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfDouble(tvb, offsetp, t, hf_x11_glx_render_VertexAttribs4dvNV_v, hf_x11_glx_render_VertexAttribs4dvNV_v_item, n, byte_order);
@@ -3336,7 +3336,7 @@ static void mesa_VertexAttribs4ubvNV(tvbuff_t *tvb, int *offsetp, proto_tree *t,
     int n;
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttribs4ubvNV_index, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_render_VertexAttribs4ubvNV_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_VertexAttribs4ubvNV_v, n, byte_order);
@@ -3353,7 +3353,7 @@ static void mesa_ProgramNamedParameter4fvNV(tvbuff_t *tvb, int *offsetp, proto_t
     int len;
     proto_tree_add_item(t, hf_x11_glx_render_ProgramNamedParameter4fvNV_id, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    len = tvb_get_guint32(tvb, *offsetp, byte_order);
+    len = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_render_ProgramNamedParameter4fvNV_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_ProgramNamedParameter4fvNV_name, len, byte_order);
@@ -3365,7 +3365,7 @@ static void mesa_ProgramNamedParameter4dvNV(tvbuff_t *tvb, int *offsetp, proto_t
     int len;
     proto_tree_add_item(t, hf_x11_glx_render_ProgramNamedParameter4dvNV_id, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    len = tvb_get_guint32(tvb, *offsetp, byte_order);
+    len = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_render_ProgramNamedParameter4dvNV_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfByte(tvb, offsetp, t, hf_x11_glx_render_ProgramNamedParameter4dvNV_name, len, byte_order);
@@ -3752,9 +3752,9 @@ static void dispatch_glx_render(tvbuff_t *tvb, packet_info *pinfo, int *offsetp,
         proto_item *ti;
         proto_tree *tt;
 
-        len = tvb_get_guint16(tvb, *offsetp, byte_order);
+        len = tvb_get_uint16(tvb, *offsetp, byte_order);
 
-        op = tvb_get_guint16(tvb, *offsetp + 2, byte_order);
+        op = tvb_get_uint16(tvb, *offsetp + 2, byte_order);
         ti = proto_tree_add_uint(t, hf_x11_glx_render_op_name, tvb, *offsetp, len, op);
 
         tt = proto_item_add_subtree(ti, ett_x11_list_of_rectangle);
@@ -4878,7 +4878,7 @@ static void bigreqEnable_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, 
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (bigreq-Enable)", sequence_number);
     *offsetp += 2;
@@ -4946,7 +4946,7 @@ static int struct_size_xproto_STR(tvbuff_t *tvb _U_, int *offsetp _U_, unsigned 
 {
     int size = 0;
     int f_name_len;
-    f_name_len = tvb_get_guint8(tvb, *offsetp + size + 0);
+    f_name_len = tvb_get_uint8(tvb, *offsetp + size + 0);
     size += f_name_len * 1;
     return size + 1;
 }
@@ -4961,7 +4961,7 @@ static void struct_xproto_STR(tvbuff_t *tvb, int *offsetp, proto_tree *root, uns
 
         item = proto_tree_add_item(root, hf_x11_struct_xproto_STR, tvb, *offsetp, struct_size_xproto_STR(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-        f_name_len = tvb_get_guint8(tvb, *offsetp);
+        f_name_len = tvb_get_uint8(tvb, *offsetp);
         proto_tree_add_item(t, hf_x11_struct_xproto_STR_name_len, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
         listOfByte(tvb, offsetp, t, hf_x11_struct_xproto_STR_name, f_name_len, byte_order);
@@ -5038,7 +5038,7 @@ static int struct_size_render_PICTDEPTH(tvbuff_t *tvb _U_, int *offsetp _U_, uns
 {
     int size = 0;
     int f_num_visuals;
-    f_num_visuals = tvb_get_guint16(tvb, *offsetp + size + 2, byte_order);
+    f_num_visuals = tvb_get_uint16(tvb, *offsetp + size + 2, byte_order);
     size += f_num_visuals * 8;
     return size + 8;
 }
@@ -5057,7 +5057,7 @@ static void struct_render_PICTDEPTH(tvbuff_t *tvb, int *offsetp, proto_tree *roo
         *offsetp += 1;
         proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
         *offsetp += 1;
-        f_num_visuals = tvb_get_guint16(tvb, *offsetp, byte_order);
+        f_num_visuals = tvb_get_uint16(tvb, *offsetp, byte_order);
         proto_tree_add_item(t, hf_x11_struct_render_PICTDEPTH_num_visuals, tvb, *offsetp, 2, byte_order);
         *offsetp += 2;
         proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
@@ -5071,7 +5071,7 @@ static int struct_size_render_PICTSCREEN(tvbuff_t *tvb _U_, int *offsetp _U_, un
     int size = 0;
     int i, off;
     int f_num_depths;
-    f_num_depths = tvb_get_guint32(tvb, *offsetp + size + 0, byte_order);
+    f_num_depths = tvb_get_uint32(tvb, *offsetp + size + 0, byte_order);
     for (i = 0; i < f_num_depths; i++) {
         off = (*offsetp) + size + 8;
         size += struct_size_render_PICTDEPTH(tvb, &off, byte_order);
@@ -5089,7 +5089,7 @@ static void struct_render_PICTSCREEN(tvbuff_t *tvb, int *offsetp, proto_tree *ro
 
         item = proto_tree_add_item(root, hf_x11_struct_render_PICTSCREEN, tvb, *offsetp, struct_size_render_PICTSCREEN(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-        f_num_depths = tvb_get_guint32(tvb, *offsetp, byte_order);
+        f_num_depths = tvb_get_uint32(tvb, *offsetp, byte_order);
         proto_tree_add_item(t, hf_x11_struct_render_PICTSCREEN_num_depths, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
         proto_tree_add_item(t, hf_x11_struct_render_PICTSCREEN_fallback, tvb, *offsetp, 4, byte_order);
@@ -5321,7 +5321,7 @@ static void compositeQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (composite-QueryVersion)", sequence_number);
     *offsetp += 2;
@@ -5401,7 +5401,7 @@ static void compositeGetOverlayWindow_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (composite-GetOverlayWindow)", sequence_number);
     *offsetp += 2;
@@ -5502,7 +5502,7 @@ static void damageQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (damage-QueryVersion)", sequence_number);
     *offsetp += 2;
@@ -5654,7 +5654,7 @@ static int struct_size_dbe_VisualInfos(tvbuff_t *tvb _U_, int *offsetp _U_, unsi
 {
     int size = 0;
     int f_n_infos;
-    f_n_infos = tvb_get_guint32(tvb, *offsetp + size + 0, byte_order);
+    f_n_infos = tvb_get_uint32(tvb, *offsetp + size + 0, byte_order);
     size += f_n_infos * 8;
     return size + 4;
 }
@@ -5669,7 +5669,7 @@ static void struct_dbe_VisualInfos(tvbuff_t *tvb, int *offsetp, proto_tree *root
 
         item = proto_tree_add_item(root, hf_x11_struct_dbe_VisualInfos, tvb, *offsetp, struct_size_dbe_VisualInfos(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-        f_n_infos = tvb_get_guint32(tvb, *offsetp, byte_order);
+        f_n_infos = tvb_get_uint32(tvb, *offsetp, byte_order);
         proto_tree_add_item(t, hf_x11_struct_dbe_VisualInfos_n_infos, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
         struct_dbe_VisualInfo(tvb, offsetp, t, byte_order, f_n_infos);
@@ -5694,7 +5694,7 @@ static void dbeQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (dbe-QueryVersion)", sequence_number);
     *offsetp += 2;
@@ -5729,7 +5729,7 @@ static void dbeDeallocateBackBuffer(tvbuff_t *tvb, packet_info *pinfo _U_, int *
 static void dbeSwapBuffers(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_n_actions;
-    f_n_actions = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_n_actions = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_dbe_SwapBuffers_n_actions, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     struct_dbe_SwapInfo(tvb, offsetp, t, byte_order, f_n_actions);
@@ -5747,7 +5747,7 @@ static void dbeEndIdiom(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int *offsetp 
 static void dbeGetVisualInfo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_n_drawables;
-    f_n_drawables = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_n_drawables = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_dbe_GetVisualInfo_n_drawables, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfCard32(tvb, offsetp, t, hf_x11_dbe_GetVisualInfo_drawables, hf_x11_dbe_GetVisualInfo_drawables_item, f_n_drawables, byte_order);
@@ -5763,13 +5763,13 @@ static void dbeGetVisualInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (dbe-GetVisualInfo)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_n_supported_visuals = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_n_supported_visuals = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_dbe_GetVisualInfo_reply_n_supported_visuals, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
@@ -5791,7 +5791,7 @@ static void dbeGetBackBufferAttributes_Reply(tvbuff_t *tvb, packet_info *pinfo, 
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (dbe-GetBackBufferAttributes)", sequence_number);
     *offsetp += 2;
@@ -5882,7 +5882,7 @@ static void dpmsGetVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (dpms-GetVersion)", sequence_number);
     *offsetp += 2;
@@ -5906,7 +5906,7 @@ static void dpmsCapable_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (dpms-Capable)", sequence_number);
     *offsetp += 2;
@@ -5930,7 +5930,7 @@ static void dpmsGetTimeouts_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (dpms-GetTimeouts)", sequence_number);
     *offsetp += 2;
@@ -5981,7 +5981,7 @@ static void dpmsInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, prot
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (dpms-Info)", sequence_number);
     *offsetp += 2;
@@ -6127,7 +6127,7 @@ static void dri2QueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (dri2-QueryVersion)", sequence_number);
     *offsetp += 2;
@@ -6156,16 +6156,16 @@ static void dri2Connect_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (dri2-Connect)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_driver_name_length = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_driver_name_length = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_dri2_Connect_reply_driver_name_length, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_device_name_length = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_device_name_length = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_dri2_Connect_reply_device_name_length, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 16, ENC_NA);
@@ -6191,7 +6191,7 @@ static void dri2Authenticate_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (dri2-Authenticate)", sequence_number);
     *offsetp += 2;
@@ -6231,7 +6231,7 @@ static void dri2GetBuffers_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (dri2-GetBuffers)", sequence_number);
     *offsetp += 2;
@@ -6241,7 +6241,7 @@ static void dri2GetBuffers_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_dri2_GetBuffers_reply_height, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_count = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_count = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_dri2_GetBuffers_reply_count, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
@@ -6269,7 +6269,7 @@ static void dri2CopyRegion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (dri2-CopyRegion)", sequence_number);
     *offsetp += 2;
@@ -6295,7 +6295,7 @@ static void dri2GetBuffersWithFormat_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (dri2-GetBuffersWithFormat)", sequence_number);
     *offsetp += 2;
@@ -6305,7 +6305,7 @@ static void dri2GetBuffersWithFormat_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_dri2_GetBuffersWithFormat_reply_height, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_count = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_count = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_dri2_GetBuffersWithFormat_reply_count, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
@@ -6339,7 +6339,7 @@ static void dri2SwapBuffers_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (dri2-SwapBuffers)", sequence_number);
     *offsetp += 2;
@@ -6365,7 +6365,7 @@ static void dri2GetMSC_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pr
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (dri2-GetMSC)", sequence_number);
     *offsetp += 2;
@@ -6411,7 +6411,7 @@ static void dri2WaitMSC_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (dri2-WaitMSC)", sequence_number);
     *offsetp += 2;
@@ -6449,7 +6449,7 @@ static void dri2WaitSBC_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (dri2-WaitSBC)", sequence_number);
     *offsetp += 2;
@@ -6493,7 +6493,7 @@ static void dri2GetParam_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, 
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_dri2_GetParam_reply_is_param_recognized, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (dri2-GetParam)", sequence_number);
     *offsetp += 2;
@@ -6628,7 +6628,7 @@ static void dri3QueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (dri3-QueryVersion)", sequence_number);
     *offsetp += 2;
@@ -6656,7 +6656,7 @@ static void dri3Open_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, prot
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_dri3_Open_reply_nfd, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (dri3-Open)", sequence_number);
     *offsetp += 2;
@@ -6700,7 +6700,7 @@ static void dri3BufferFromPixmap_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_dri3_BufferFromPixmap_reply_nfd, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (dri3-BufferFromPixmap)", sequence_number);
     *offsetp += 2;
@@ -6750,7 +6750,7 @@ static void dri3FDFromFence_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_dri3_FDFromFence_reply_nfd, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (dri3-FDFromFence)", sequence_number);
     *offsetp += 2;
@@ -6782,16 +6782,16 @@ static void dri3GetSupportedModifiers_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (dri3-GetSupportedModifiers)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_window_modifiers = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_window_modifiers = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_dri3_GetSupportedModifiers_reply_num_window_modifiers, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_screen_modifiers = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_screen_modifiers = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_dri3_GetSupportedModifiers_reply_num_screen_modifiers, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 16, ENC_NA);
@@ -6807,7 +6807,7 @@ static void dri3PixmapFromBuffers(tvbuff_t *tvb, packet_info *pinfo _U_, int *of
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_dri3_PixmapFromBuffers_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_buffers = tvb_get_guint8(tvb, *offsetp);
+    f_num_buffers = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_dri3_PixmapFromBuffers_num_buffers, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
@@ -6856,10 +6856,10 @@ static void dri3BuffersFromPixmap_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     col_append_fstr(pinfo->cinfo, COL_INFO, "-BuffersFromPixmap");
 
     REPLY(reply);
-    f_nfd = tvb_get_guint8(tvb, *offsetp);
+    f_nfd = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_dri3_BuffersFromPixmap_reply_nfd, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (dri3-BuffersFromPixmap)", sequence_number);
     *offsetp += 2;
@@ -7006,7 +7006,7 @@ static void geQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (ge-QueryVersion)", sequence_number);
     *offsetp += 2;
@@ -7094,7 +7094,7 @@ static void glxRenderLarge(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_glx_RenderLarge_request_total, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_data_len = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_data_len = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_RenderLarge_data_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfByte(tvb, offsetp, t, hf_x11_glx_RenderLarge_data, f_data_len, byte_order);
@@ -7141,7 +7141,7 @@ static void glxMakeCurrent_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-MakeCurrent)", sequence_number);
     *offsetp += 2;
@@ -7167,7 +7167,7 @@ static void glxIsDirect_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-IsDirect)", sequence_number);
     *offsetp += 2;
@@ -7195,7 +7195,7 @@ static void glxQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-QueryVersion)", sequence_number);
     *offsetp += 2;
@@ -7282,11 +7282,11 @@ static void glxGetVisualConfigs_Reply(tvbuff_t *tvb, packet_info *pinfo, int *of
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetVisualConfigs)", sequence_number);
     *offsetp += 2;
-    f_length = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_length = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetVisualConfigs_reply_num_visuals, tvb, *offsetp, 4, byte_order);
@@ -7331,11 +7331,11 @@ static void glxVendorPrivateWithReply_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-VendorPrivateWithReply)", sequence_number);
     *offsetp += 2;
-    f_length = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_length = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_VendorPrivateWithReply_reply_retval, tvb, *offsetp, 4, byte_order);
@@ -7358,7 +7358,7 @@ static void glxQueryExtensionsString_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-QueryExtensionsString)", sequence_number);
     *offsetp += 2;
@@ -7389,7 +7389,7 @@ static void glxQueryServerString_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-QueryServerString)", sequence_number);
     *offsetp += 2;
@@ -7397,7 +7397,7 @@ static void glxQueryServerString_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
     *offsetp += 4;
-    f_str_len = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_str_len = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_QueryServerString_reply_str_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 16, ENC_NA);
@@ -7412,7 +7412,7 @@ static void glxClientInfo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, p
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_ClientInfo_minor_version, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_str_len = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_str_len = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_ClientInfo_str_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfByte(tvb, offsetp, t, hf_x11_glx_ClientInfo_string, f_str_len, byte_order);
@@ -7434,11 +7434,11 @@ static void glxGetFBConfigs_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetFBConfigs)", sequence_number);
     *offsetp += 2;
-    f_length = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_length = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetFBConfigs_reply_num_FB_configs, tvb, *offsetp, 4, byte_order);
@@ -7461,7 +7461,7 @@ static void glxCreatePixmap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_CreatePixmap_glx_pixmap, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_attribs = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_attribs = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_CreatePixmap_num_attribs, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfCard32(tvb, offsetp, t, hf_x11_glx_CreatePixmap_attribs, hf_x11_glx_CreatePixmap_attribs_item, (f_num_attribs * 2), byte_order);
@@ -7507,13 +7507,13 @@ static void glxQueryContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-QueryContext)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_attribs = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_attribs = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_QueryContext_reply_num_attribs, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
@@ -7541,7 +7541,7 @@ static void glxMakeContextCurrent_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-MakeContextCurrent)", sequence_number);
     *offsetp += 2;
@@ -7562,7 +7562,7 @@ static void glxCreatePbuffer(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_CreatePbuffer_pbuffer, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_attribs = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_attribs = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_CreatePbuffer_num_attribs, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfCard32(tvb, offsetp, t, hf_x11_glx_CreatePbuffer_attribs, hf_x11_glx_CreatePbuffer_attribs_item, (f_num_attribs * 2), byte_order);
@@ -7590,13 +7590,13 @@ static void glxGetDrawableAttributes_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetDrawableAttributes)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_attribs = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_attribs = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_GetDrawableAttributes_reply_num_attribs, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
@@ -7609,7 +7609,7 @@ static void glxChangeDrawableAttributes(tvbuff_t *tvb, packet_info *pinfo _U_, i
     int f_num_attribs;
     proto_tree_add_item(t, hf_x11_glx_ChangeDrawableAttributes_drawable, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_attribs = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_attribs = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_ChangeDrawableAttributes_num_attribs, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfCard32(tvb, offsetp, t, hf_x11_glx_ChangeDrawableAttributes_attribs, hf_x11_glx_ChangeDrawableAttributes_attribs_item, (f_num_attribs * 2), byte_order);
@@ -7627,7 +7627,7 @@ static void glxCreateWindow(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_CreateWindow_glx_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_attribs = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_attribs = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_CreateWindow_num_attribs, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfCard32(tvb, offsetp, t, hf_x11_glx_CreateWindow_attribs, hf_x11_glx_CreateWindow_attribs_item, (f_num_attribs * 2), byte_order);
@@ -7649,13 +7649,13 @@ static void glxSetClientInfoARB(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_SetClientInfoARB_minor_version, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_versions = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_versions = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_SetClientInfoARB_num_versions, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_gl_str_len = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_gl_str_len = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_SetClientInfoARB_gl_str_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_glx_str_len = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_glx_str_len = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_SetClientInfoARB_glx_str_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfCard32(tvb, offsetp, t, hf_x11_glx_SetClientInfoARB_gl_versions, hf_x11_glx_SetClientInfoARB_gl_versions_item, (f_num_versions * 2), byte_order);
@@ -7686,7 +7686,7 @@ static void glxCreateContextAttribsARB(tvbuff_t *tvb, packet_info *pinfo _U_, in
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
     *offsetp += 3;
-    f_num_attribs = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_attribs = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_CreateContextAttribsARB_num_attribs, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfCard32(tvb, offsetp, t, hf_x11_glx_CreateContextAttribsARB_attribs, hf_x11_glx_CreateContextAttribsARB_attribs_item, (f_num_attribs * 2), byte_order);
@@ -7702,13 +7702,13 @@ static void glxSetClientInfo2ARB(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_SetClientInfo2ARB_minor_version, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_versions = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_versions = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_SetClientInfo2ARB_num_versions, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_gl_str_len = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_gl_str_len = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_SetClientInfo2ARB_gl_str_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_glx_str_len = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_glx_str_len = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_SetClientInfo2ARB_glx_str_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfCard32(tvb, offsetp, t, hf_x11_glx_SetClientInfo2ARB_gl_versions, hf_x11_glx_SetClientInfo2ARB_gl_versions_item, (f_num_versions * 3), byte_order);
@@ -7766,7 +7766,7 @@ static void glxGenLists_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GenLists)", sequence_number);
     *offsetp += 2;
@@ -7811,7 +7811,7 @@ static void glxRenderMode_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp,
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-RenderMode)", sequence_number);
     *offsetp += 2;
@@ -7819,7 +7819,7 @@ static void glxRenderMode_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp,
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_RenderMode_reply_ret_val, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_RenderMode_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_RenderMode_reply_new_mode, tvb, *offsetp, 4, byte_order);
@@ -7843,7 +7843,7 @@ static void glxFinish_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-Finish)", sequence_number);
     *offsetp += 2;
@@ -7902,11 +7902,11 @@ static void glxReadPixels_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp,
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-ReadPixels)", sequence_number);
     *offsetp += 2;
-    f_length = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_length = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 24, ENC_NA);
@@ -7931,7 +7931,7 @@ static void glxGetBooleanv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetBooleanv)", sequence_number);
     *offsetp += 2;
@@ -7939,7 +7939,7 @@ static void glxGetBooleanv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
     *offsetp += 4;
-    f_n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_GetBooleanv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetBooleanv_reply_datum, tvb, *offsetp, 1, byte_order);
@@ -7966,11 +7966,11 @@ static void glxGetClipPlane_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetClipPlane)", sequence_number);
     *offsetp += 2;
-    f_length = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_length = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 24, ENC_NA);
@@ -7995,7 +7995,7 @@ static void glxGetDoublev_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp,
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetDoublev)", sequence_number);
     *offsetp += 2;
@@ -8003,7 +8003,7 @@ static void glxGetDoublev_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp,
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
     *offsetp += 4;
-    f_n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_GetDoublev_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetDoublev_reply_datum, tvb, *offsetp, 8, byte_order);
@@ -8027,7 +8027,7 @@ static void glxGetError_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetError)", sequence_number);
     *offsetp += 2;
@@ -8054,7 +8054,7 @@ static void glxGetFloatv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, 
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetFloatv)", sequence_number);
     *offsetp += 2;
@@ -8062,7 +8062,7 @@ static void glxGetFloatv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, 
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
     *offsetp += 4;
-    f_n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_GetFloatv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetFloatv_reply_datum, tvb, *offsetp, 4, byte_order);
@@ -8089,7 +8089,7 @@ static void glxGetIntegerv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetIntegerv)", sequence_number);
     *offsetp += 2;
@@ -8097,7 +8097,7 @@ static void glxGetIntegerv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
     *offsetp += 4;
-    f_n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_GetIntegerv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetIntegerv_reply_datum, tvb, *offsetp, 4, byte_order);
@@ -8126,7 +8126,7 @@ static void glxGetLightfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp,
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetLightfv)", sequence_number);
     *offsetp += 2;
@@ -8134,7 +8134,7 @@ static void glxGetLightfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp,
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
     *offsetp += 4;
-    f_n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_GetLightfv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetLightfv_reply_datum, tvb, *offsetp, 4, byte_order);
@@ -8163,7 +8163,7 @@ static void glxGetLightiv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp,
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetLightiv)", sequence_number);
     *offsetp += 2;
@@ -8171,7 +8171,7 @@ static void glxGetLightiv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp,
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
     *offsetp += 4;
-    f_n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_GetLightiv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetLightiv_reply_datum, tvb, *offsetp, 4, byte_order);
@@ -8200,7 +8200,7 @@ static void glxGetMapdv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetMapdv)", sequence_number);
     *offsetp += 2;
@@ -8208,7 +8208,7 @@ static void glxGetMapdv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
     *offsetp += 4;
-    f_n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_GetMapdv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetMapdv_reply_datum, tvb, *offsetp, 8, byte_order);
@@ -8237,7 +8237,7 @@ static void glxGetMapfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetMapfv)", sequence_number);
     *offsetp += 2;
@@ -8245,7 +8245,7 @@ static void glxGetMapfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
     *offsetp += 4;
-    f_n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_GetMapfv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetMapfv_reply_datum, tvb, *offsetp, 4, byte_order);
@@ -8274,7 +8274,7 @@ static void glxGetMapiv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetMapiv)", sequence_number);
     *offsetp += 2;
@@ -8282,7 +8282,7 @@ static void glxGetMapiv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
     *offsetp += 4;
-    f_n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_GetMapiv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetMapiv_reply_datum, tvb, *offsetp, 4, byte_order);
@@ -8311,7 +8311,7 @@ static void glxGetMaterialfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetMaterialfv)", sequence_number);
     *offsetp += 2;
@@ -8319,7 +8319,7 @@ static void glxGetMaterialfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
     *offsetp += 4;
-    f_n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_GetMaterialfv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetMaterialfv_reply_datum, tvb, *offsetp, 4, byte_order);
@@ -8348,7 +8348,7 @@ static void glxGetMaterialiv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetMaterialiv)", sequence_number);
     *offsetp += 2;
@@ -8356,7 +8356,7 @@ static void glxGetMaterialiv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
     *offsetp += 4;
-    f_n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_GetMaterialiv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetMaterialiv_reply_datum, tvb, *offsetp, 4, byte_order);
@@ -8383,7 +8383,7 @@ static void glxGetPixelMapfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetPixelMapfv)", sequence_number);
     *offsetp += 2;
@@ -8391,7 +8391,7 @@ static void glxGetPixelMapfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
     *offsetp += 4;
-    f_n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_GetPixelMapfv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetPixelMapfv_reply_datum, tvb, *offsetp, 4, byte_order);
@@ -8418,7 +8418,7 @@ static void glxGetPixelMapuiv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetPixelMapuiv)", sequence_number);
     *offsetp += 2;
@@ -8426,7 +8426,7 @@ static void glxGetPixelMapuiv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
     *offsetp += 4;
-    f_n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_GetPixelMapuiv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetPixelMapuiv_reply_datum, tvb, *offsetp, 4, byte_order);
@@ -8453,7 +8453,7 @@ static void glxGetPixelMapusv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetPixelMapusv)", sequence_number);
     *offsetp += 2;
@@ -8461,7 +8461,7 @@ static void glxGetPixelMapusv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
     *offsetp += 4;
-    f_n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_GetPixelMapusv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetPixelMapusv_reply_datum, tvb, *offsetp, 2, byte_order);
@@ -8488,11 +8488,11 @@ static void glxGetPolygonStipple_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetPolygonStipple)", sequence_number);
     *offsetp += 2;
-    f_length = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_length = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 24, ENC_NA);
@@ -8517,7 +8517,7 @@ static void glxGetString_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, 
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetString)", sequence_number);
     *offsetp += 2;
@@ -8525,7 +8525,7 @@ static void glxGetString_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, 
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
     *offsetp += 4;
-    f_n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_GetString_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 16, ENC_NA);
@@ -8552,7 +8552,7 @@ static void glxGetTexEnvfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetTexEnvfv)", sequence_number);
     *offsetp += 2;
@@ -8560,7 +8560,7 @@ static void glxGetTexEnvfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
     *offsetp += 4;
-    f_n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_GetTexEnvfv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetTexEnvfv_reply_datum, tvb, *offsetp, 4, byte_order);
@@ -8589,7 +8589,7 @@ static void glxGetTexEnviv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetTexEnviv)", sequence_number);
     *offsetp += 2;
@@ -8597,7 +8597,7 @@ static void glxGetTexEnviv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
     *offsetp += 4;
-    f_n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_GetTexEnviv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetTexEnviv_reply_datum, tvb, *offsetp, 4, byte_order);
@@ -8626,7 +8626,7 @@ static void glxGetTexGendv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetTexGendv)", sequence_number);
     *offsetp += 2;
@@ -8634,7 +8634,7 @@ static void glxGetTexGendv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
     *offsetp += 4;
-    f_n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_GetTexGendv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetTexGendv_reply_datum, tvb, *offsetp, 8, byte_order);
@@ -8663,7 +8663,7 @@ static void glxGetTexGenfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetTexGenfv)", sequence_number);
     *offsetp += 2;
@@ -8671,7 +8671,7 @@ static void glxGetTexGenfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
     *offsetp += 4;
-    f_n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_GetTexGenfv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetTexGenfv_reply_datum, tvb, *offsetp, 4, byte_order);
@@ -8700,7 +8700,7 @@ static void glxGetTexGeniv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetTexGeniv)", sequence_number);
     *offsetp += 2;
@@ -8708,7 +8708,7 @@ static void glxGetTexGeniv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
     *offsetp += 4;
-    f_n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_GetTexGeniv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetTexGeniv_reply_datum, tvb, *offsetp, 4, byte_order);
@@ -8743,11 +8743,11 @@ static void glxGetTexImage_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetTexImage)", sequence_number);
     *offsetp += 2;
-    f_length = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_length = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 8, ENC_NA);
@@ -8782,7 +8782,7 @@ static void glxGetTexParameterfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetTexParameterfv)", sequence_number);
     *offsetp += 2;
@@ -8790,7 +8790,7 @@ static void glxGetTexParameterfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
     *offsetp += 4;
-    f_n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_GetTexParameterfv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetTexParameterfv_reply_datum, tvb, *offsetp, 4, byte_order);
@@ -8819,7 +8819,7 @@ static void glxGetTexParameteriv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetTexParameteriv)", sequence_number);
     *offsetp += 2;
@@ -8827,7 +8827,7 @@ static void glxGetTexParameteriv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
     *offsetp += 4;
-    f_n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_GetTexParameteriv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetTexParameteriv_reply_datum, tvb, *offsetp, 4, byte_order);
@@ -8858,7 +8858,7 @@ static void glxGetTexLevelParameterfv_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetTexLevelParameterfv)", sequence_number);
     *offsetp += 2;
@@ -8866,7 +8866,7 @@ static void glxGetTexLevelParameterfv_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
     *offsetp += 4;
-    f_n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_GetTexLevelParameterfv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetTexLevelParameterfv_reply_datum, tvb, *offsetp, 4, byte_order);
@@ -8897,7 +8897,7 @@ static void glxGetTexLevelParameteriv_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetTexLevelParameteriv)", sequence_number);
     *offsetp += 2;
@@ -8905,7 +8905,7 @@ static void glxGetTexLevelParameteriv_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
     *offsetp += 4;
-    f_n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_GetTexLevelParameteriv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetTexLevelParameteriv_reply_datum, tvb, *offsetp, 4, byte_order);
@@ -8931,7 +8931,7 @@ static void glxIsEnabled_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, 
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-IsEnabled)", sequence_number);
     *offsetp += 2;
@@ -8957,7 +8957,7 @@ static void glxIsList_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-IsList)", sequence_number);
     *offsetp += 2;
@@ -8978,7 +8978,7 @@ static void glxAreTexturesResident(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
     int f_n;
     proto_tree_add_item(t, hf_x11_glx_AreTexturesResident_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_AreTexturesResident_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfCard32(tvb, offsetp, t, hf_x11_glx_AreTexturesResident_textures, hf_x11_glx_AreTexturesResident_textures_item, f_n, byte_order);
@@ -8994,11 +8994,11 @@ static void glxAreTexturesResident_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-AreTexturesResident)", sequence_number);
     *offsetp += 2;
-    f_length = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_length = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_AreTexturesResident_reply_ret_val, tvb, *offsetp, 4, byte_order);
@@ -9013,7 +9013,7 @@ static void glxDeleteTextures(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset
     int f_n;
     proto_tree_add_item(t, hf_x11_glx_DeleteTextures_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_DeleteTextures_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfCard32(tvb, offsetp, t, hf_x11_glx_DeleteTextures_textures, hf_x11_glx_DeleteTextures_textures_item, f_n, byte_order);
@@ -9037,11 +9037,11 @@ static void glxGenTextures_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GenTextures)", sequence_number);
     *offsetp += 2;
-    f_length = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_length = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 24, ENC_NA);
@@ -9065,7 +9065,7 @@ static void glxIsTexture_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, 
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-IsTexture)", sequence_number);
     *offsetp += 2;
@@ -9098,11 +9098,11 @@ static void glxGetColorTable_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetColorTable)", sequence_number);
     *offsetp += 2;
-    f_length = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_length = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 8, ENC_NA);
@@ -9133,7 +9133,7 @@ static void glxGetColorTableParameterfv_Reply(tvbuff_t *tvb, packet_info *pinfo,
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetColorTableParameterfv)", sequence_number);
     *offsetp += 2;
@@ -9141,7 +9141,7 @@ static void glxGetColorTableParameterfv_Reply(tvbuff_t *tvb, packet_info *pinfo,
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
     *offsetp += 4;
-    f_n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_GetColorTableParameterfv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetColorTableParameterfv_reply_datum, tvb, *offsetp, 4, byte_order);
@@ -9170,7 +9170,7 @@ static void glxGetColorTableParameteriv_Reply(tvbuff_t *tvb, packet_info *pinfo,
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetColorTableParameteriv)", sequence_number);
     *offsetp += 2;
@@ -9178,7 +9178,7 @@ static void glxGetColorTableParameteriv_Reply(tvbuff_t *tvb, packet_info *pinfo,
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
     *offsetp += 4;
-    f_n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_GetColorTableParameteriv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetColorTableParameteriv_reply_datum, tvb, *offsetp, 4, byte_order);
@@ -9211,11 +9211,11 @@ static void glxGetConvolutionFilter_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetConvolutionFilter)", sequence_number);
     *offsetp += 2;
-    f_length = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_length = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 8, ENC_NA);
@@ -9248,7 +9248,7 @@ static void glxGetConvolutionParameterfv_Reply(tvbuff_t *tvb, packet_info *pinfo
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetConvolutionParameterfv)", sequence_number);
     *offsetp += 2;
@@ -9256,7 +9256,7 @@ static void glxGetConvolutionParameterfv_Reply(tvbuff_t *tvb, packet_info *pinfo
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
     *offsetp += 4;
-    f_n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_GetConvolutionParameterfv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetConvolutionParameterfv_reply_datum, tvb, *offsetp, 4, byte_order);
@@ -9285,7 +9285,7 @@ static void glxGetConvolutionParameteriv_Reply(tvbuff_t *tvb, packet_info *pinfo
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetConvolutionParameteriv)", sequence_number);
     *offsetp += 2;
@@ -9293,7 +9293,7 @@ static void glxGetConvolutionParameteriv_Reply(tvbuff_t *tvb, packet_info *pinfo
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
     *offsetp += 4;
-    f_n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_GetConvolutionParameteriv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetConvolutionParameteriv_reply_datum, tvb, *offsetp, 4, byte_order);
@@ -9326,11 +9326,11 @@ static void glxGetSeparableFilter_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetSeparableFilter)", sequence_number);
     *offsetp += 2;
-    f_length = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_length = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 8, ENC_NA);
@@ -9369,11 +9369,11 @@ static void glxGetHistogram_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetHistogram)", sequence_number);
     *offsetp += 2;
-    f_length = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_length = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 8, ENC_NA);
@@ -9404,7 +9404,7 @@ static void glxGetHistogramParameterfv_Reply(tvbuff_t *tvb, packet_info *pinfo, 
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetHistogramParameterfv)", sequence_number);
     *offsetp += 2;
@@ -9412,7 +9412,7 @@ static void glxGetHistogramParameterfv_Reply(tvbuff_t *tvb, packet_info *pinfo, 
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
     *offsetp += 4;
-    f_n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_GetHistogramParameterfv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetHistogramParameterfv_reply_datum, tvb, *offsetp, 4, byte_order);
@@ -9441,7 +9441,7 @@ static void glxGetHistogramParameteriv_Reply(tvbuff_t *tvb, packet_info *pinfo, 
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetHistogramParameteriv)", sequence_number);
     *offsetp += 2;
@@ -9449,7 +9449,7 @@ static void glxGetHistogramParameteriv_Reply(tvbuff_t *tvb, packet_info *pinfo, 
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
     *offsetp += 4;
-    f_n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_GetHistogramParameteriv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetHistogramParameteriv_reply_datum, tvb, *offsetp, 4, byte_order);
@@ -9484,11 +9484,11 @@ static void glxGetMinmax_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, 
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetMinmax)", sequence_number);
     *offsetp += 2;
-    f_length = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_length = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 24, ENC_NA);
@@ -9515,7 +9515,7 @@ static void glxGetMinmaxParameterfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetMinmaxParameterfv)", sequence_number);
     *offsetp += 2;
@@ -9523,7 +9523,7 @@ static void glxGetMinmaxParameterfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
     *offsetp += 4;
-    f_n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_GetMinmaxParameterfv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetMinmaxParameterfv_reply_datum, tvb, *offsetp, 4, byte_order);
@@ -9552,7 +9552,7 @@ static void glxGetMinmaxParameteriv_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetMinmaxParameteriv)", sequence_number);
     *offsetp += 2;
@@ -9560,7 +9560,7 @@ static void glxGetMinmaxParameteriv_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
     *offsetp += 4;
-    f_n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_GetMinmaxParameteriv_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetMinmaxParameteriv_reply_datum, tvb, *offsetp, 4, byte_order);
@@ -9589,11 +9589,11 @@ static void glxGetCompressedTexImageARB_Reply(tvbuff_t *tvb, packet_info *pinfo,
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetCompressedTexImageARB)", sequence_number);
     *offsetp += 2;
-    f_length = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_length = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 8, ENC_NA);
@@ -9610,7 +9610,7 @@ static void glxDeleteQueriesARB(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
     int f_n;
     proto_tree_add_item(t, hf_x11_glx_DeleteQueriesARB_context_tag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_DeleteQueriesARB_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfCard32(tvb, offsetp, t, hf_x11_glx_DeleteQueriesARB_ids, hf_x11_glx_DeleteQueriesARB_ids_item, f_n, byte_order);
@@ -9634,11 +9634,11 @@ static void glxGenQueriesARB_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GenQueriesARB)", sequence_number);
     *offsetp += 2;
-    f_length = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_length = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 24, ENC_NA);
@@ -9662,7 +9662,7 @@ static void glxIsQueryARB_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp,
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-IsQueryARB)", sequence_number);
     *offsetp += 2;
@@ -9691,7 +9691,7 @@ static void glxGetQueryivARB_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetQueryivARB)", sequence_number);
     *offsetp += 2;
@@ -9699,7 +9699,7 @@ static void glxGetQueryivARB_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
     *offsetp += 4;
-    f_n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_GetQueryivARB_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetQueryivARB_reply_datum, tvb, *offsetp, 4, byte_order);
@@ -9728,7 +9728,7 @@ static void glxGetQueryObjectivARB_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetQueryObjectivARB)", sequence_number);
     *offsetp += 2;
@@ -9736,7 +9736,7 @@ static void glxGetQueryObjectivARB_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
     *offsetp += 4;
-    f_n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_GetQueryObjectivARB_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetQueryObjectivARB_reply_datum, tvb, *offsetp, 4, byte_order);
@@ -9765,7 +9765,7 @@ static void glxGetQueryObjectuivARB_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (glx-GetQueryObjectuivARB)", sequence_number);
     *offsetp += 2;
@@ -9773,7 +9773,7 @@ static void glxGetQueryObjectuivARB_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
     *offsetp += 4;
-    f_n = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_n = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_glx_GetQueryObjectuivARB_reply_n, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_glx_GetQueryObjectuivARB_reply_datum, tvb, *offsetp, 4, byte_order);
@@ -10308,7 +10308,7 @@ static int struct_size_randr_RefreshRates(tvbuff_t *tvb _U_, int *offsetp _U_, u
 {
     int size = 0;
     int f_nRates;
-    f_nRates = tvb_get_guint16(tvb, *offsetp + size + 0, byte_order);
+    f_nRates = tvb_get_uint16(tvb, *offsetp + size + 0, byte_order);
     size += f_nRates * 2;
     return size + 2;
 }
@@ -10323,7 +10323,7 @@ static void struct_randr_RefreshRates(tvbuff_t *tvb, int *offsetp, proto_tree *r
 
         item = proto_tree_add_item(root, hf_x11_struct_randr_RefreshRates, tvb, *offsetp, struct_size_randr_RefreshRates(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-        f_nRates = tvb_get_guint16(tvb, *offsetp, byte_order);
+        f_nRates = tvb_get_uint16(tvb, *offsetp, byte_order);
         proto_tree_add_item(t, hf_x11_struct_randr_RefreshRates_nRates, tvb, *offsetp, 2, byte_order);
         *offsetp += 2;
         listOfCard16(tvb, offsetp, t, hf_x11_struct_randr_RefreshRates_rates, hf_x11_struct_randr_RefreshRates_rates_item, f_nRates, byte_order);
@@ -10558,7 +10558,7 @@ static int struct_size_randr_MonitorInfo(tvbuff_t *tvb _U_, int *offsetp _U_, un
 {
     int size = 0;
     int f_nOutput;
-    f_nOutput = tvb_get_guint16(tvb, *offsetp + size + 6, byte_order);
+    f_nOutput = tvb_get_uint16(tvb, *offsetp + size + 6, byte_order);
     size += f_nOutput * 4;
     return size + 24;
 }
@@ -10579,7 +10579,7 @@ static void struct_randr_MonitorInfo(tvbuff_t *tvb, int *offsetp, proto_tree *ro
         *offsetp += 1;
         proto_tree_add_item(t, hf_x11_struct_randr_MonitorInfo_automatic, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
-        f_nOutput = tvb_get_guint16(tvb, *offsetp, byte_order);
+        f_nOutput = tvb_get_uint16(tvb, *offsetp, byte_order);
         proto_tree_add_item(t, hf_x11_struct_randr_MonitorInfo_nOutput, tvb, *offsetp, 2, byte_order);
         *offsetp += 2;
         proto_tree_add_item(t, hf_x11_struct_randr_MonitorInfo_x, tvb, *offsetp, 2, byte_order);
@@ -10640,7 +10640,7 @@ static int struct_size_sync_SYSTEMCOUNTER(tvbuff_t *tvb _U_, int *offsetp _U_, u
 {
     int size = 0;
     int f_name_len;
-    f_name_len = tvb_get_guint16(tvb, *offsetp + size + 12, byte_order);
+    f_name_len = tvb_get_uint16(tvb, *offsetp + size + 12, byte_order);
     size += f_name_len * 1;
     size = (size + 3) & ~3;
     return size + 14;
@@ -10659,7 +10659,7 @@ static void struct_sync_SYSTEMCOUNTER(tvbuff_t *tvb, int *offsetp, proto_tree *r
         proto_tree_add_item(t, hf_x11_struct_sync_SYSTEMCOUNTER_counter, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
         struct_sync_INT64(tvb, offsetp, t, byte_order, 1);
-        f_name_len = tvb_get_guint16(tvb, *offsetp, byte_order);
+        f_name_len = tvb_get_uint16(tvb, *offsetp, byte_order);
         proto_tree_add_item(t, hf_x11_struct_sync_SYSTEMCOUNTER_name_len, tvb, *offsetp, 2, byte_order);
         *offsetp += 2;
         listOfByte(tvb, offsetp, t, hf_x11_struct_sync_SYSTEMCOUNTER_name, f_name_len, byte_order);
@@ -10733,7 +10733,7 @@ static void presentQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *of
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (present-QueryVersion)", sequence_number);
     *offsetp += 2;
@@ -10829,7 +10829,7 @@ static void presentQueryCapabilities_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (present-QueryCapabilities)", sequence_number);
     *offsetp += 2;
@@ -11042,7 +11042,7 @@ static void randrQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (randr-QueryVersion)", sequence_number);
     *offsetp += 2;
@@ -11092,7 +11092,7 @@ static void randrSetScreenConfig_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
 
     REPLY(reply);
     field8(tvb, offsetp, t, hf_x11_randr_SetScreenConfig_reply_status, byte_order);
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (randr-SetScreenConfig)", sequence_number);
     *offsetp += 2;
@@ -11159,7 +11159,7 @@ static void randrGetScreenInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_randr_GetScreenInfo_reply_rotations, ett_x11_rectangle, rotations_bits, byte_order);
     }
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (randr-GetScreenInfo)", sequence_number);
     *offsetp += 2;
@@ -11171,7 +11171,7 @@ static void randrGetScreenInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_randr_GetScreenInfo_reply_config_timestamp, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_nSizes = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_nSizes = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_randr_GetScreenInfo_reply_nSizes, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_randr_GetScreenInfo_reply_sizeID, tvb, *offsetp, 2, byte_order);
@@ -11191,7 +11191,7 @@ static void randrGetScreenInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_randr_GetScreenInfo_reply_rate, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_nInfo = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_nInfo = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_randr_GetScreenInfo_reply_nInfo, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
@@ -11214,7 +11214,7 @@ static void randrGetScreenSizeRange_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (randr-GetScreenSizeRange)", sequence_number);
     *offsetp += 2;
@@ -11264,7 +11264,7 @@ static void randrGetScreenResources_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (randr-GetScreenResources)", sequence_number);
     *offsetp += 2;
@@ -11274,16 +11274,16 @@ static void randrGetScreenResources_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_randr_GetScreenResources_reply_config_timestamp, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_crtcs = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_num_crtcs = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_randr_GetScreenResources_reply_num_crtcs, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_num_outputs = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_num_outputs = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_randr_GetScreenResources_reply_num_outputs, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_num_modes = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_num_modes = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_randr_GetScreenResources_reply_num_modes, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_names_len = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_names_len = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_randr_GetScreenResources_reply_names_len, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 8, ENC_NA);
@@ -11313,7 +11313,7 @@ static void randrGetOutputInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
 
     REPLY(reply);
     field8(tvb, offsetp, t, hf_x11_randr_GetOutputInfo_reply_status, byte_order);
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (randr-GetOutputInfo)", sequence_number);
     *offsetp += 2;
@@ -11329,18 +11329,18 @@ static void randrGetOutputInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     *offsetp += 4;
     field8(tvb, offsetp, t, hf_x11_randr_GetOutputInfo_reply_connection, byte_order);
     field8(tvb, offsetp, t, hf_x11_randr_GetOutputInfo_reply_subpixel_order, byte_order);
-    f_num_crtcs = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_num_crtcs = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_randr_GetOutputInfo_reply_num_crtcs, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_num_modes = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_num_modes = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_randr_GetOutputInfo_reply_num_modes, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_randr_GetOutputInfo_reply_num_preferred, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_num_clones = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_num_clones = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_randr_GetOutputInfo_reply_num_clones, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_name_len = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_name_len = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_randr_GetOutputInfo_reply_name_len, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     listOfCard32(tvb, offsetp, t, hf_x11_randr_GetOutputInfo_reply_crtcs, hf_x11_randr_GetOutputInfo_reply_crtcs_item, f_num_crtcs, byte_order);
@@ -11364,13 +11364,13 @@ static void randrListOutputProperties_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (randr-ListOutputProperties)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_atoms = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_num_atoms = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_randr_ListOutputProperties_reply_num_atoms, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 22, ENC_NA);
@@ -11395,11 +11395,11 @@ static void randrQueryOutputProperty_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (randr-QueryOutputProperty)", sequence_number);
     *offsetp += 2;
-    f_length = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_length = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_randr_QueryOutputProperty_reply_pending, tvb, *offsetp, 1, byte_order);
@@ -11438,13 +11438,13 @@ static void randrChangeOutputProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_randr_ChangeOutputProperty_type, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_format = tvb_get_guint8(tvb, *offsetp);
+    f_format = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_randr_ChangeOutputProperty_format, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     field8(tvb, offsetp, t, hf_x11_randr_ChangeOutputProperty_mode, byte_order);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
     *offsetp += 2;
-    f_num_units = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_units = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_randr_ChangeOutputProperty_num_units, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfByte(tvb, offsetp, t, hf_x11_randr_ChangeOutputProperty_data, ((f_num_units * f_format) / 8), byte_order);
@@ -11486,10 +11486,10 @@ static void randrGetOutputProperty_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetOutputProperty");
 
     REPLY(reply);
-    f_format = tvb_get_guint8(tvb, *offsetp);
+    f_format = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_randr_GetOutputProperty_reply_format, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (randr-GetOutputProperty)", sequence_number);
     *offsetp += 2;
@@ -11498,7 +11498,7 @@ static void randrGetOutputProperty_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     field32(tvb, offsetp, t, hf_x11_randr_GetOutputProperty_reply_type, byte_order);
     proto_tree_add_item(t, hf_x11_randr_GetOutputProperty_reply_bytes_after, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_items = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_items = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_randr_GetOutputProperty_reply_num_items, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
@@ -11522,7 +11522,7 @@ static void randrCreateMode_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (randr-CreateMode)", sequence_number);
     *offsetp += 2;
@@ -11573,7 +11573,7 @@ static void randrGetCrtcInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
 
     REPLY(reply);
     field8(tvb, offsetp, t, hf_x11_randr_GetCrtcInfo_reply_status, byte_order);
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (randr-GetCrtcInfo)", sequence_number);
     *offsetp += 2;
@@ -11617,10 +11617,10 @@ static void randrGetCrtcInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_randr_GetCrtcInfo_reply_rotations, ett_x11_rectangle, rotations_bits, byte_order);
     }
     *offsetp += 2;
-    f_num_outputs = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_num_outputs = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_randr_GetCrtcInfo_reply_num_outputs, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_num_possible_outputs = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_num_possible_outputs = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_randr_GetCrtcInfo_reply_num_possible_outputs, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     listOfCard32(tvb, offsetp, t, hf_x11_randr_GetCrtcInfo_reply_outputs, hf_x11_randr_GetCrtcInfo_reply_outputs_item, f_num_outputs, byte_order);
@@ -11666,7 +11666,7 @@ static void randrSetCrtcConfig_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
 
     REPLY(reply);
     field8(tvb, offsetp, t, hf_x11_randr_SetCrtcConfig_reply_status, byte_order);
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (randr-SetCrtcConfig)", sequence_number);
     *offsetp += 2;
@@ -11692,7 +11692,7 @@ static void randrGetCrtcGammaSize_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (randr-GetCrtcGammaSize)", sequence_number);
     *offsetp += 2;
@@ -11719,13 +11719,13 @@ static void randrGetCrtcGamma_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (randr-GetCrtcGamma)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_size = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_size = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_randr_GetCrtcGamma_reply_size, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 22, ENC_NA);
@@ -11740,7 +11740,7 @@ static void randrSetCrtcGamma(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset
     int f_size;
     proto_tree_add_item(t, hf_x11_randr_SetCrtcGamma_crtc, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_size = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_size = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_randr_SetCrtcGamma_size, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
@@ -11771,7 +11771,7 @@ static void randrGetScreenResourcesCurrent_Reply(tvbuff_t *tvb, packet_info *pin
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (randr-GetScreenResourcesCurrent)", sequence_number);
     *offsetp += 2;
@@ -11781,16 +11781,16 @@ static void randrGetScreenResourcesCurrent_Reply(tvbuff_t *tvb, packet_info *pin
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_randr_GetScreenResourcesCurrent_reply_config_timestamp, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_crtcs = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_num_crtcs = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_randr_GetScreenResourcesCurrent_reply_num_crtcs, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_num_outputs = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_num_outputs = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_randr_GetScreenResourcesCurrent_reply_num_outputs, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_num_modes = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_num_modes = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_randr_GetScreenResourcesCurrent_reply_num_modes, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_names_len = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_names_len = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_randr_GetScreenResourcesCurrent_reply_names_len, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 8, ENC_NA);
@@ -11807,7 +11807,7 @@ static void randrSetCrtcTransform(tvbuff_t *tvb, packet_info *pinfo _U_, int *of
     proto_tree_add_item(t, hf_x11_randr_SetCrtcTransform_crtc, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     struct_render_TRANSFORM(tvb, offsetp, t, byte_order, 1);
-    f_filter_len = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_filter_len = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_randr_SetCrtcTransform_filter_len, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
@@ -11840,7 +11840,7 @@ static void randrGetCrtcTransform_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (randr-GetCrtcTransform)", sequence_number);
     *offsetp += 2;
@@ -11854,16 +11854,16 @@ static void randrGetCrtcTransform_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     struct_render_TRANSFORM(tvb, offsetp, t, byte_order, 1);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
     *offsetp += 4;
-    f_pending_len = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_pending_len = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_randr_GetCrtcTransform_reply_pending_len, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_pending_nparams = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_pending_nparams = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_randr_GetCrtcTransform_reply_pending_nparams, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_current_len = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_current_len = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_randr_GetCrtcTransform_reply_current_len, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_current_nparams = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_current_nparams = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_randr_GetCrtcTransform_reply_current_nparams, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     listOfByte(tvb, offsetp, t, hf_x11_randr_GetCrtcTransform_reply_pending_filter_name, f_pending_len, byte_order);
@@ -11893,7 +11893,7 @@ static void randrGetPanning_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
 
     REPLY(reply);
     field8(tvb, offsetp, t, hf_x11_randr_GetPanning_reply_status, byte_order);
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (randr-GetPanning)", sequence_number);
     *offsetp += 2;
@@ -11966,7 +11966,7 @@ static void randrSetPanning_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
 
     REPLY(reply);
     field8(tvb, offsetp, t, hf_x11_randr_SetPanning_reply_status, byte_order);
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (randr-SetPanning)", sequence_number);
     *offsetp += 2;
@@ -11998,7 +11998,7 @@ static void randrGetOutputPrimary_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (randr-GetOutputPrimary)", sequence_number);
     *offsetp += 2;
@@ -12023,7 +12023,7 @@ static void randrGetProviders_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (randr-GetProviders)", sequence_number);
     *offsetp += 2;
@@ -12031,7 +12031,7 @@ static void randrGetProviders_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_randr_GetProviders_reply_timestamp, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_providers = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_num_providers = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_randr_GetProviders_reply_num_providers, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 18, ENC_NA);
@@ -12059,7 +12059,7 @@ static void randrGetProviderInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_randr_GetProviderInfo_reply_status, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (randr-GetProviderInfo)", sequence_number);
     *offsetp += 2;
@@ -12078,16 +12078,16 @@ static void randrGetProviderInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_randr_GetProviderInfo_reply_capabilities, ett_x11_rectangle, capabilities_bits, byte_order);
     }
     *offsetp += 4;
-    f_num_crtcs = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_num_crtcs = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_randr_GetProviderInfo_reply_num_crtcs, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_num_outputs = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_num_outputs = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_randr_GetProviderInfo_reply_num_outputs, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_num_associated_providers = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_num_associated_providers = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_randr_GetProviderInfo_reply_num_associated_providers, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_name_len = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_name_len = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_randr_GetProviderInfo_reply_name_len, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 8, ENC_NA);
@@ -12134,13 +12134,13 @@ static void randrListProviderProperties_Reply(tvbuff_t *tvb, packet_info *pinfo,
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (randr-ListProviderProperties)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_atoms = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_num_atoms = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_randr_ListProviderProperties_reply_num_atoms, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 22, ENC_NA);
@@ -12165,11 +12165,11 @@ static void randrQueryProviderProperty_Reply(tvbuff_t *tvb, packet_info *pinfo, 
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (randr-QueryProviderProperty)", sequence_number);
     *offsetp += 2;
-    f_length = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_length = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_randr_QueryProviderProperty_reply_pending, tvb, *offsetp, 1, byte_order);
@@ -12208,14 +12208,14 @@ static void randrChangeProviderProperty(tvbuff_t *tvb, packet_info *pinfo _U_, i
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_randr_ChangeProviderProperty_type, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_format = tvb_get_guint8(tvb, *offsetp);
+    f_format = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_randr_ChangeProviderProperty_format, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_randr_ChangeProviderProperty_mode, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
     *offsetp += 2;
-    f_num_items = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_items = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_randr_ChangeProviderProperty_num_items, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfByte(tvb, offsetp, t, hf_x11_randr_ChangeProviderProperty_data, (f_num_items * (f_format / 8)), byte_order);
@@ -12258,10 +12258,10 @@ static void randrGetProviderProperty_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetProviderProperty");
 
     REPLY(reply);
-    f_format = tvb_get_guint8(tvb, *offsetp);
+    f_format = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_randr_GetProviderProperty_reply_format, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (randr-GetProviderProperty)", sequence_number);
     *offsetp += 2;
@@ -12271,7 +12271,7 @@ static void randrGetProviderProperty_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_randr_GetProviderProperty_reply_bytes_after, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_items = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_items = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_randr_GetProviderProperty_reply_num_items, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
@@ -12296,7 +12296,7 @@ static void randrGetMonitors_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (randr-GetMonitors)", sequence_number);
     *offsetp += 2;
@@ -12304,7 +12304,7 @@ static void randrGetMonitors_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_randr_GetMonitors_reply_timestamp, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_nMonitors = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_nMonitors = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_randr_GetMonitors_reply_nMonitors, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_randr_GetMonitors_reply_nOutputs, tvb, *offsetp, 4, byte_order);
@@ -12337,10 +12337,10 @@ static void randrCreateLease(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_randr_CreateLease_lid, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_crtcs = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_num_crtcs = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_randr_CreateLease_num_crtcs, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_num_outputs = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_num_outputs = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_randr_CreateLease_num_outputs, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     listOfCard32(tvb, offsetp, t, hf_x11_randr_CreateLease_crtcs, hf_x11_randr_CreateLease_crtcs_item, f_num_crtcs, byte_order);
@@ -12357,7 +12357,7 @@ static void randrCreateLease_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_randr_CreateLease_reply_nfd, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (randr-CreateLease)", sequence_number);
     *offsetp += 2;
@@ -12721,7 +12721,7 @@ static int struct_size_record_ClientInfo(tvbuff_t *tvb _U_, int *offsetp _U_, un
 {
     int size = 0;
     int f_num_ranges;
-    f_num_ranges = tvb_get_guint32(tvb, *offsetp + size + 4, byte_order);
+    f_num_ranges = tvb_get_uint32(tvb, *offsetp + size + 4, byte_order);
     size += f_num_ranges * 24;
     return size + 8;
 }
@@ -12738,7 +12738,7 @@ static void struct_record_ClientInfo(tvbuff_t *tvb, int *offsetp, proto_tree *ro
         t = proto_item_add_subtree(item, ett_x11_rectangle);
         proto_tree_add_item(t, hf_x11_struct_record_ClientInfo_client_resource, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
-        f_num_ranges = tvb_get_guint32(tvb, *offsetp, byte_order);
+        f_num_ranges = tvb_get_uint32(tvb, *offsetp, byte_order);
         proto_tree_add_item(t, hf_x11_struct_record_ClientInfo_num_ranges, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
         struct_record_Range(tvb, offsetp, t, byte_order, f_num_ranges);
@@ -12761,7 +12761,7 @@ static void recordQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (record-QueryVersion)", sequence_number);
     *offsetp += 2;
@@ -12783,10 +12783,10 @@ static void recordCreateContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
     *offsetp += 3;
-    f_num_client_specs = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_client_specs = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_record_CreateContext_num_client_specs, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_ranges = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_ranges = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_record_CreateContext_num_ranges, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfCard32(tvb, offsetp, t, hf_x11_record_CreateContext_client_specs, hf_x11_record_CreateContext_client_specs_item, f_num_client_specs, byte_order);
@@ -12805,10 +12805,10 @@ static void recordRegisterClients(tvbuff_t *tvb, packet_info *pinfo _U_, int *of
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
     *offsetp += 3;
-    f_num_client_specs = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_client_specs = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_record_RegisterClients_num_client_specs, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_ranges = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_ranges = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_record_RegisterClients_num_ranges, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfCard32(tvb, offsetp, t, hf_x11_record_RegisterClients_client_specs, hf_x11_record_RegisterClients_client_specs_item, f_num_client_specs, byte_order);
@@ -12822,7 +12822,7 @@ static void recordUnregisterClients(tvbuff_t *tvb, packet_info *pinfo _U_, int *
     int f_num_client_specs;
     proto_tree_add_item(t, hf_x11_record_UnregisterClients_context, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_client_specs = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_client_specs = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_record_UnregisterClients_num_client_specs, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfCard32(tvb, offsetp, t, hf_x11_record_UnregisterClients_client_specs, hf_x11_record_UnregisterClients_client_specs_item, f_num_client_specs, byte_order);
@@ -12844,7 +12844,7 @@ static void recordGetContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_record_GetContext_reply_enabled, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (record-GetContext)", sequence_number);
     *offsetp += 2;
@@ -12854,7 +12854,7 @@ static void recordGetContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
     *offsetp += 3;
-    f_num_intercepted_clients = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_intercepted_clients = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_record_GetContext_reply_num_intercepted_clients, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 16, ENC_NA);
@@ -12877,11 +12877,11 @@ static void recordEnableContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *of
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_record_EnableContext_reply_category, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (record-EnableContext)", sequence_number);
     *offsetp += 2;
-    f_length = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_length = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_record_EnableContext_reply_element_header, tvb, *offsetp, 1, byte_order);
@@ -12993,7 +12993,7 @@ static void renderQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (render-QueryVersion)", sequence_number);
     *offsetp += 2;
@@ -13022,23 +13022,23 @@ static void renderQueryPictFormats_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (render-QueryPictFormats)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_formats = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_formats = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_render_QueryPictFormats_reply_num_formats, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_screens = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_screens = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_render_QueryPictFormats_reply_num_screens, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_render_QueryPictFormats_reply_num_depths, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_render_QueryPictFormats_reply_num_visuals, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_subpixel = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_subpixel = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_render_QueryPictFormats_reply_num_subpixel, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 4, ENC_NA);
@@ -13063,13 +13063,13 @@ static void renderQueryPictIndexValues_Reply(tvbuff_t *tvb, packet_info *pinfo, 
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (render-QueryPictIndexValues)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_values = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_values = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_render_QueryPictIndexValues_reply_num_values, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
@@ -13086,7 +13086,7 @@ static void renderCreatePicture(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_render_CreatePicture_format, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_value_mask = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_value_mask = tvb_get_uint32(tvb, *offsetp, byte_order);
     {
         static int* const value_mask_bits [] = {
         &hf_x11_render_CreatePicture_value_mask_mask_Repeat,
@@ -13162,7 +13162,7 @@ static void renderChangePicture(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
     int f_value_mask;
     proto_tree_add_item(t, hf_x11_render_ChangePicture_picture, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_value_mask = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_value_mask = tvb_get_uint32(tvb, *offsetp, byte_order);
     {
         static int* const value_mask_bits [] = {
         &hf_x11_render_ChangePicture_value_mask_mask_Repeat,
@@ -13377,7 +13377,7 @@ static void renderAddGlyphs(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     int f_glyphs_len;
     proto_tree_add_item(t, hf_x11_render_AddGlyphs_glyphset, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_glyphs_len = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_glyphs_len = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_render_AddGlyphs_glyphs_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfCard32(tvb, offsetp, t, hf_x11_render_AddGlyphs_glyphids, hf_x11_render_AddGlyphs_glyphids_item, f_glyphs_len, byte_order);
@@ -13500,16 +13500,16 @@ static void renderQueryFilters_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (render-QueryFilters)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_aliases = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_aliases = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_render_QueryFilters_reply_num_aliases, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_filters = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_filters = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_render_QueryFilters_reply_num_filters, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 16, ENC_NA);
@@ -13523,7 +13523,7 @@ static void renderSetPictureFilter(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
     int f_filter_len;
     proto_tree_add_item(t, hf_x11_render_SetPictureFilter_picture, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_filter_len = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_filter_len = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_render_SetPictureFilter_filter_len, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
@@ -13570,7 +13570,7 @@ static void renderCreateLinearGradient(tvbuff_t *tvb, packet_info *pinfo _U_, in
     *offsetp += 4;
     struct_render_POINTFIX(tvb, offsetp, t, byte_order, 1);
     struct_render_POINTFIX(tvb, offsetp, t, byte_order, 1);
-    f_num_stops = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_stops = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_render_CreateLinearGradient_num_stops, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfInt32(tvb, offsetp, t, hf_x11_render_CreateLinearGradient_stops, hf_x11_render_CreateLinearGradient_stops_item, f_num_stops, byte_order);
@@ -13590,7 +13590,7 @@ static void renderCreateRadialGradient(tvbuff_t *tvb, packet_info *pinfo _U_, in
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_render_CreateRadialGradient_outer_radius, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_stops = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_stops = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_render_CreateRadialGradient_num_stops, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfInt32(tvb, offsetp, t, hf_x11_render_CreateRadialGradient_stops, hf_x11_render_CreateRadialGradient_stops_item, f_num_stops, byte_order);
@@ -13607,7 +13607,7 @@ static void renderCreateConicalGradient(tvbuff_t *tvb, packet_info *pinfo _U_, i
     struct_render_POINTFIX(tvb, offsetp, t, byte_order, 1);
     proto_tree_add_item(t, hf_x11_render_CreateConicalGradient_angle, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_stops = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_stops = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_render_CreateConicalGradient_num_stops, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfInt32(tvb, offsetp, t, hf_x11_render_CreateConicalGradient_stops, hf_x11_render_CreateConicalGradient_stops_item, f_num_stops, byte_order);
@@ -13832,7 +13832,7 @@ static int struct_size_res_ClientIdValue(tvbuff_t *tvb _U_, int *offsetp _U_, un
 {
     int size = 0;
     int f_length;
-    f_length = tvb_get_guint32(tvb, *offsetp + size + 8, byte_order);
+    f_length = tvb_get_uint32(tvb, *offsetp + size + 8, byte_order);
     size += (f_length / 4) * 4;
     return size + 12;
 }
@@ -13848,7 +13848,7 @@ static void struct_res_ClientIdValue(tvbuff_t *tvb, int *offsetp, proto_tree *ro
         item = proto_tree_add_item(root, hf_x11_struct_res_ClientIdValue, tvb, *offsetp, struct_size_res_ClientIdValue(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
         struct_res_ClientIdSpec(tvb, offsetp, t, byte_order, 1);
-        f_length = tvb_get_guint32(tvb, *offsetp, byte_order);
+        f_length = tvb_get_uint32(tvb, *offsetp, byte_order);
         proto_tree_add_item(t, hf_x11_struct_res_ClientIdValue_length, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
         listOfCard32(tvb, offsetp, t, hf_x11_struct_res_ClientIdValue_value, hf_x11_struct_res_ClientIdValue_value_item, (f_length / 4), byte_order);
@@ -13894,7 +13894,7 @@ static int struct_size_res_ResourceSizeValue(tvbuff_t *tvb _U_, int *offsetp _U_
 {
     int size = 0;
     int f_num_cross_references;
-    f_num_cross_references = tvb_get_guint32(tvb, *offsetp + size + 20, byte_order);
+    f_num_cross_references = tvb_get_uint32(tvb, *offsetp + size + 20, byte_order);
     size += f_num_cross_references * 20;
     return size + 24;
 }
@@ -13910,7 +13910,7 @@ static void struct_res_ResourceSizeValue(tvbuff_t *tvb, int *offsetp, proto_tree
         item = proto_tree_add_item(root, hf_x11_struct_res_ResourceSizeValue, tvb, *offsetp, struct_size_res_ResourceSizeValue(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
         struct_res_ResourceSizeSpec(tvb, offsetp, t, byte_order, 1);
-        f_num_cross_references = tvb_get_guint32(tvb, *offsetp, byte_order);
+        f_num_cross_references = tvb_get_uint32(tvb, *offsetp, byte_order);
         proto_tree_add_item(t, hf_x11_struct_res_ResourceSizeValue_num_cross_references, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
         struct_res_ResourceSizeSpec(tvb, offsetp, t, byte_order, f_num_cross_references);
@@ -13933,7 +13933,7 @@ static void resQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (res-QueryVersion)", sequence_number);
     *offsetp += 2;
@@ -13958,13 +13958,13 @@ static void resQueryClients_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (res-QueryClients)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_clients = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_clients = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_res_QueryClients_reply_num_clients, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
@@ -13987,13 +13987,13 @@ static void resQueryClientResources_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (res-QueryClientResources)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_types = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_types = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_res_QueryClientResources_reply_num_types, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
@@ -14015,7 +14015,7 @@ static void resQueryClientPixmapBytes_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (res-QueryClientPixmapBytes)", sequence_number);
     *offsetp += 2;
@@ -14030,7 +14030,7 @@ static void resQueryClientPixmapBytes_Reply(tvbuff_t *tvb, packet_info *pinfo, i
 static void resQueryClientIds(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_num_specs;
-    f_num_specs = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_specs = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_res_QueryClientIds_num_specs, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     struct_res_ClientIdSpec(tvb, offsetp, t, byte_order, f_num_specs);
@@ -14046,13 +14046,13 @@ static void resQueryClientIds_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (res-QueryClientIds)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_ids = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_ids = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_res_QueryClientIds_reply_num_ids, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
@@ -14065,7 +14065,7 @@ static void resQueryResourceBytes(tvbuff_t *tvb, packet_info *pinfo _U_, int *of
     int f_num_specs;
     proto_tree_add_item(t, hf_x11_res_QueryResourceBytes_client, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_specs = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_specs = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_res_QueryResourceBytes_num_specs, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     struct_res_ResourceIdSpec(tvb, offsetp, t, byte_order, f_num_specs);
@@ -14081,13 +14081,13 @@ static void resQueryResourceBytes_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (res-QueryResourceBytes)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_sizes = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_sizes = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_res_QueryResourceBytes_reply_num_sizes, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
@@ -14172,7 +14172,7 @@ static void screensaverQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (screensaver-QueryVersion)", sequence_number);
     *offsetp += 2;
@@ -14200,7 +14200,7 @@ static void screensaverQueryInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_screensaver_QueryInfo_reply_state, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (screensaver-QueryInfo)", sequence_number);
     *offsetp += 2;
@@ -14254,7 +14254,7 @@ static void screensaverSetAttributes(tvbuff_t *tvb, packet_info *pinfo _U_, int 
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_screensaver_SetAttributes_visual, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_value_mask = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_value_mask = tvb_get_uint32(tvb, *offsetp, byte_order);
     {
         static int* const value_mask_bits [] = {
         &hf_x11_screensaver_SetAttributes_value_mask_mask_BackPixmap,
@@ -14471,7 +14471,7 @@ static void shapeQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (shape-QueryVersion)", sequence_number);
     *offsetp += 2;
@@ -14558,7 +14558,7 @@ static void shapeQueryExtents_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (shape-QueryExtents)", sequence_number);
     *offsetp += 2;
@@ -14612,7 +14612,7 @@ static void shapeInputSelected_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_shape_InputSelected_reply_enabled, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (shape-InputSelected)", sequence_number);
     *offsetp += 2;
@@ -14637,13 +14637,13 @@ static void shapeGetRectangles_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
 
     REPLY(reply);
     field8(tvb, offsetp, t, hf_x11_shape_GetRectangles_reply_ordering, byte_order);
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (shape-GetRectangles)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_rectangles_len = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_rectangles_len = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_shape_GetRectangles_reply_rectangles_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
@@ -14732,7 +14732,7 @@ static void shmQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_shm_QueryVersion_reply_shared_pixmaps, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (shm-QueryVersion)", sequence_number);
     *offsetp += 2;
@@ -14838,7 +14838,7 @@ static void shmGetImage_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_shm_GetImage_reply_depth, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (shm-GetImage)", sequence_number);
     *offsetp += 2;
@@ -14900,7 +14900,7 @@ static void shmCreateSegment_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_shm_CreateSegment_reply_nfd, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (shm-CreateSegment)", sequence_number);
     *offsetp += 2;
@@ -14990,7 +14990,7 @@ static void syncInitialize_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (sync-Initialize)", sequence_number);
     *offsetp += 2;
@@ -15017,13 +15017,13 @@ static void syncListSystemCounters_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (sync-ListSystemCounters)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_counters_len = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_counters_len = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_sync_ListSystemCounters_reply_counters_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
@@ -15058,7 +15058,7 @@ static void syncQueryCounter_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (sync-QueryCounter)", sequence_number);
     *offsetp += 2;
@@ -15091,7 +15091,7 @@ static void syncCreateAlarm(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     int f_value_mask;
     proto_tree_add_item(t, hf_x11_sync_CreateAlarm_id, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_value_mask = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_value_mask = tvb_get_uint32(tvb, *offsetp, byte_order);
     {
         static int* const value_mask_bits [] = {
         &hf_x11_sync_CreateAlarm_value_mask_mask_Counter,
@@ -15132,7 +15132,7 @@ static void syncChangeAlarm(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     int f_value_mask;
     proto_tree_add_item(t, hf_x11_sync_ChangeAlarm_id, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_value_mask = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_value_mask = tvb_get_uint32(tvb, *offsetp, byte_order);
     {
         static int* const value_mask_bits [] = {
         &hf_x11_sync_ChangeAlarm_value_mask_mask_Counter,
@@ -15188,7 +15188,7 @@ static void syncQueryAlarm_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (sync-QueryAlarm)", sequence_number);
     *offsetp += 2;
@@ -15225,7 +15225,7 @@ static void syncGetPriority_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (sync-GetPriority)", sequence_number);
     *offsetp += 2;
@@ -15277,7 +15277,7 @@ static void syncQueryFence_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (sync-QueryFence)", sequence_number);
     *offsetp += 2;
@@ -15443,7 +15443,7 @@ static void xc_miscGetVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xc_misc-GetVersion)", sequence_number);
     *offsetp += 2;
@@ -15467,7 +15467,7 @@ static void xc_miscGetXIDRange_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xc_misc-GetXIDRange)", sequence_number);
     *offsetp += 2;
@@ -15494,13 +15494,13 @@ static void xc_miscGetXIDList_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xc_misc-GetXIDList)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_ids_len = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_ids_len = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xc_misc_GetXIDList_reply_ids_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
@@ -15568,7 +15568,7 @@ static void xevieQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xevie-QueryVersion)", sequence_number);
     *offsetp += 2;
@@ -15596,7 +15596,7 @@ static void xevieStart_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pr
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xevie-Start)", sequence_number);
     *offsetp += 2;
@@ -15620,7 +15620,7 @@ static void xevieEnd_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, prot
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xevie-End)", sequence_number);
     *offsetp += 2;
@@ -15661,7 +15661,7 @@ static void xevieSend_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xevie-Send)", sequence_number);
     *offsetp += 2;
@@ -15685,7 +15685,7 @@ static void xevieSelectInput_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xevie-SelectInput)", sequence_number);
     *offsetp += 2;
@@ -15781,7 +15781,7 @@ static void xf86driQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *of
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xf86dri-QueryVersion)", sequence_number);
     *offsetp += 2;
@@ -15809,7 +15809,7 @@ static void xf86driQueryDirectRenderingCapable_Reply(tvbuff_t *tvb, packet_info 
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xf86dri-QueryDirectRenderingCapable)", sequence_number);
     *offsetp += 2;
@@ -15834,7 +15834,7 @@ static void xf86driOpenConnection_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xf86dri-OpenConnection)", sequence_number);
     *offsetp += 2;
@@ -15844,7 +15844,7 @@ static void xf86driOpenConnection_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xf86dri_OpenConnection_reply_sarea_handle_high, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_bus_id_len = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_bus_id_len = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xf86dri_OpenConnection_reply_bus_id_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
@@ -15873,7 +15873,7 @@ static void xf86driGetClientDriverName_Reply(tvbuff_t *tvb, packet_info *pinfo, 
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xf86dri-GetClientDriverName)", sequence_number);
     *offsetp += 2;
@@ -15885,7 +15885,7 @@ static void xf86driGetClientDriverName_Reply(tvbuff_t *tvb, packet_info *pinfo, 
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xf86dri_GetClientDriverName_reply_client_driver_patch_version, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_client_driver_name_len = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_client_driver_name_len = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xf86dri_GetClientDriverName_reply_client_driver_name_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 8, ENC_NA);
@@ -15911,7 +15911,7 @@ static void xf86driCreateContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xf86dri-CreateContext)", sequence_number);
     *offsetp += 2;
@@ -15945,7 +15945,7 @@ static void xf86driCreateDrawable_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xf86dri-CreateDrawable)", sequence_number);
     *offsetp += 2;
@@ -15981,7 +15981,7 @@ static void xf86driGetDrawableInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xf86dri-GetDrawableInfo)", sequence_number);
     *offsetp += 2;
@@ -15999,14 +15999,14 @@ static void xf86driGetDrawableInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xf86dri_GetDrawableInfo_reply_drawable_size_H, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_num_clip_rects = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_clip_rects = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xf86dri_GetDrawableInfo_reply_num_clip_rects, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xf86dri_GetDrawableInfo_reply_back_x, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xf86dri_GetDrawableInfo_reply_back_y, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_num_back_clip_rects = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_back_clip_rects = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xf86dri_GetDrawableInfo_reply_num_back_clip_rects, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     struct_xf86dri_DrmClipRect(tvb, offsetp, t, byte_order, f_num_clip_rects);
@@ -16028,7 +16028,7 @@ static void xf86driGetDeviceInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xf86dri-GetDeviceInfo)", sequence_number);
     *offsetp += 2;
@@ -16044,7 +16044,7 @@ static void xf86driGetDeviceInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xf86dri_GetDeviceInfo_reply_framebuffer_stride, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_device_private_size = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_device_private_size = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xf86dri_GetDeviceInfo_reply_device_private_size, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfCard32(tvb, offsetp, t, hf_x11_xf86dri_GetDeviceInfo_reply_device_private, hf_x11_xf86dri_GetDeviceInfo_reply_device_private_item, f_device_private_size, byte_order);
@@ -16066,7 +16066,7 @@ static void xf86driAuthConnection_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xf86dri-AuthConnection)", sequence_number);
     *offsetp += 2;
@@ -16232,7 +16232,7 @@ static void xf86vidmodeQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xf86vidmode-QueryVersion)", sequence_number);
     *offsetp += 2;
@@ -16261,7 +16261,7 @@ static void xf86vidmodeGetModeLine_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xf86vidmode-GetModeLine)", sequence_number);
     *offsetp += 2;
@@ -16311,7 +16311,7 @@ static void xf86vidmodeGetModeLine_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
     *offsetp += 12;
-    f_privsize = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_privsize = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xf86vidmode_GetModeLine_reply_privsize, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfByte(tvb, offsetp, t, hf_x11_xf86vidmode_GetModeLine_reply_private, f_privsize, byte_order);
@@ -16364,7 +16364,7 @@ static void xf86vidmodeModModeLine(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
     *offsetp += 12;
-    f_privsize = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_privsize = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xf86vidmode_ModModeLine_privsize, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfByte(tvb, offsetp, t, hf_x11_xf86vidmode_ModModeLine_private, f_privsize, byte_order);
@@ -16399,22 +16399,22 @@ static void xf86vidmodeGetMonitor_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xf86vidmode-GetMonitor)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_vendor_length = tvb_get_guint8(tvb, *offsetp);
+    f_vendor_length = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xf86vidmode_GetMonitor_reply_vendor_length, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    f_model_length = tvb_get_guint8(tvb, *offsetp);
+    f_model_length = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xf86vidmode_GetMonitor_reply_model_length, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    f_num_hsync = tvb_get_guint8(tvb, *offsetp);
+    f_num_hsync = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xf86vidmode_GetMonitor_reply_num_hsync, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    f_num_vsync = tvb_get_guint8(tvb, *offsetp);
+    f_num_vsync = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xf86vidmode_GetMonitor_reply_num_vsync, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
@@ -16451,13 +16451,13 @@ static void xf86vidmodeGetAllModeLines_Reply(tvbuff_t *tvb, packet_info *pinfo, 
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xf86vidmode-GetAllModeLines)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_modecount = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_modecount = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xf86vidmode_GetAllModeLines_reply_modecount, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
@@ -16514,7 +16514,7 @@ static void xf86vidmodeAddModeLine(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
     *offsetp += 12;
-    f_privsize = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_privsize = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xf86vidmode_AddModeLine_privsize, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xf86vidmode_AddModeLine_after_dotclock, tvb, *offsetp, 4, byte_order);
@@ -16614,7 +16614,7 @@ static void xf86vidmodeDeleteModeLine(tvbuff_t *tvb, packet_info *pinfo _U_, int
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
     *offsetp += 12;
-    f_privsize = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_privsize = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xf86vidmode_DeleteModeLine_privsize, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfByte(tvb, offsetp, t, hf_x11_xf86vidmode_DeleteModeLine_private, f_privsize, byte_order);
@@ -16670,7 +16670,7 @@ static void xf86vidmodeValidateModeLine(tvbuff_t *tvb, packet_info *pinfo _U_, i
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
     *offsetp += 12;
-    f_privsize = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_privsize = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xf86vidmode_ValidateModeLine_privsize, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfByte(tvb, offsetp, t, hf_x11_xf86vidmode_ValidateModeLine_private, f_privsize, byte_order);
@@ -16685,7 +16685,7 @@ static void xf86vidmodeValidateModeLine_Reply(tvbuff_t *tvb, packet_info *pinfo,
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xf86vidmode-ValidateModeLine)", sequence_number);
     *offsetp += 2;
@@ -16746,7 +16746,7 @@ static void xf86vidmodeSwitchToMode(tvbuff_t *tvb, packet_info *pinfo _U_, int *
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
     *offsetp += 12;
-    f_privsize = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_privsize = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xf86vidmode_SwitchToMode_privsize, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfByte(tvb, offsetp, t, hf_x11_xf86vidmode_SwitchToMode_private, f_privsize, byte_order);
@@ -16769,7 +16769,7 @@ static void xf86vidmodeGetViewPort_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xf86vidmode-GetViewPort)", sequence_number);
     *offsetp += 2;
@@ -16813,13 +16813,13 @@ static void xf86vidmodeGetDotClocks_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xf86vidmode-GetDotClocks)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_flags = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_flags = tvb_get_uint32(tvb, *offsetp, byte_order);
     {
         static int* const flags_bits [] = {
         &hf_x11_xf86vidmode_GetDotClocks_reply_flags_mask_Programable,
@@ -16828,7 +16828,7 @@ static void xf86vidmodeGetDotClocks_Reply(tvbuff_t *tvb, packet_info *pinfo, int
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xf86vidmode_GetDotClocks_reply_flags, ett_x11_rectangle, flags_bits, byte_order);
     }
     *offsetp += 4;
-    f_clocks = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_clocks = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xf86vidmode_GetDotClocks_reply_clocks, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xf86vidmode_GetDotClocks_reply_maxclocks, tvb, *offsetp, 4, byte_order);
@@ -16878,7 +16878,7 @@ static void xf86vidmodeGetGamma_Reply(tvbuff_t *tvb, packet_info *pinfo, int *of
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xf86vidmode-GetGamma)", sequence_number);
     *offsetp += 2;
@@ -16911,13 +16911,13 @@ static void xf86vidmodeGetGammaRamp_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xf86vidmode-GetGammaRamp)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_size = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_size = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xf86vidmode_GetGammaRamp_reply_size, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 22, ENC_NA);
@@ -16932,7 +16932,7 @@ static void xf86vidmodeSetGammaRamp(tvbuff_t *tvb, packet_info *pinfo _U_, int *
     int f_size;
     proto_tree_add_item(t, hf_x11_xf86vidmode_SetGammaRamp_screen, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_size = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_size = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xf86vidmode_SetGammaRamp_size, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     listOfCard16(tvb, offsetp, t, hf_x11_xf86vidmode_SetGammaRamp_red, hf_x11_xf86vidmode_SetGammaRamp_red_item, ((f_size + 1) & (~1)), byte_order);
@@ -16959,7 +16959,7 @@ static void xf86vidmodeGetGammaRampSize_Reply(tvbuff_t *tvb, packet_info *pinfo,
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xf86vidmode-GetGammaRampSize)", sequence_number);
     *offsetp += 2;
@@ -16987,7 +16987,7 @@ static void xf86vidmodeGetPermissions_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xf86vidmode-GetPermissions)", sequence_number);
     *offsetp += 2;
@@ -17146,7 +17146,7 @@ static void xfixesQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xfixes-QueryVersion)", sequence_number);
     *offsetp += 2;
@@ -17233,7 +17233,7 @@ static void xfixesGetCursorImage_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xfixes-GetCursorImage)", sequence_number);
     *offsetp += 2;
@@ -17243,10 +17243,10 @@ static void xfixesGetCursorImage_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xfixes_GetCursorImage_reply_y, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_width = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_width = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xfixes_GetCursorImage_reply_width, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_height = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_height = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xfixes_GetCursorImage_reply_height, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xfixes_GetCursorImage_reply_xhot, tvb, *offsetp, 2, byte_order);
@@ -17395,11 +17395,11 @@ static void xfixesFetchRegion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xfixes-FetchRegion)", sequence_number);
     *offsetp += 2;
-    f_length = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_length = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     struct_xproto_RECTANGLE(tvb, offsetp, t, byte_order, 1);
@@ -17449,7 +17449,7 @@ static void xfixesSetCursorName(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
     int f_nbytes;
     proto_tree_add_item(t, hf_x11_xfixes_SetCursorName_cursor, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_nbytes = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_nbytes = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xfixes_SetCursorName_nbytes, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
@@ -17473,14 +17473,14 @@ static void xfixesGetCursorName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *of
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xfixes-GetCursorName)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     field32(tvb, offsetp, t, hf_x11_xfixes_GetCursorName_reply_atom, byte_order);
-    f_nbytes = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_nbytes = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xfixes_GetCursorName_reply_nbytes, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 18, ENC_NA);
@@ -17503,7 +17503,7 @@ static void xfixesGetCursorImageAndName_Reply(tvbuff_t *tvb, packet_info *pinfo,
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xfixes-GetCursorImageAndName)", sequence_number);
     *offsetp += 2;
@@ -17513,10 +17513,10 @@ static void xfixesGetCursorImageAndName_Reply(tvbuff_t *tvb, packet_info *pinfo,
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xfixes_GetCursorImageAndName_reply_y, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_width = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_width = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xfixes_GetCursorImageAndName_reply_width, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_height = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_height = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xfixes_GetCursorImageAndName_reply_height, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xfixes_GetCursorImageAndName_reply_xhot, tvb, *offsetp, 2, byte_order);
@@ -17526,7 +17526,7 @@ static void xfixesGetCursorImageAndName_Reply(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree_add_item(t, hf_x11_xfixes_GetCursorImageAndName_reply_cursor_serial, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     field32(tvb, offsetp, t, hf_x11_xfixes_GetCursorImageAndName_reply_cursor_atom, byte_order);
-    f_nbytes = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_nbytes = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xfixes_GetCursorImageAndName_reply_nbytes, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
@@ -17548,7 +17548,7 @@ static void xfixesChangeCursorByName(tvbuff_t *tvb, packet_info *pinfo _U_, int 
     int f_nbytes;
     proto_tree_add_item(t, hf_x11_xfixes_ChangeCursorByName_src, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_nbytes = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_nbytes = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xfixes_ChangeCursorByName_nbytes, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
@@ -17613,7 +17613,7 @@ static void xfixesCreatePointerBarrier(tvbuff_t *tvb, packet_info *pinfo _U_, in
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
     *offsetp += 2;
-    f_num_devices = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_num_devices = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xfixes_CreatePointerBarrier_num_devices, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     listOfCard16(tvb, offsetp, t, hf_x11_xfixes_CreatePointerBarrier_devices, hf_x11_xfixes_CreatePointerBarrier_devices_item, f_num_devices, byte_order);
@@ -17650,7 +17650,7 @@ static void xfixesGetClientDisconnectMode_Reply(tvbuff_t *tvb, packet_info *pinf
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xfixes-GetClientDisconnectMode)", sequence_number);
     *offsetp += 2;
@@ -17880,7 +17880,7 @@ static void xineramaQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinerama-QueryVersion)", sequence_number);
     *offsetp += 2;
@@ -17906,7 +17906,7 @@ static void xineramaGetState_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_xinerama_GetState_reply_state, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinerama-GetState)", sequence_number);
     *offsetp += 2;
@@ -17930,7 +17930,7 @@ static void xineramaGetScreenCount_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_xinerama_GetScreenCount_reply_screen_count, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinerama-GetScreenCount)", sequence_number);
     *offsetp += 2;
@@ -17956,7 +17956,7 @@ static void xineramaGetScreenSize_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinerama-GetScreenSize)", sequence_number);
     *offsetp += 2;
@@ -17984,7 +17984,7 @@ static void xineramaIsActive_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinerama-IsActive)", sequence_number);
     *offsetp += 2;
@@ -18007,13 +18007,13 @@ static void xineramaQueryScreens_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinerama-QueryScreens)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_number = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_number = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xinerama_QueryScreens_reply_number, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
@@ -18099,7 +18099,7 @@ static void struct_xinput_FP3232(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
 static void xinputGetExtensionVersion(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_name_len;
-    f_name_len = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_name_len = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_GetExtensionVersion_name_len, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
@@ -18116,7 +18116,7 @@ static void xinputGetExtensionVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_xinput_GetExtensionVersion_reply_xi_reply_type, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinput-GetExtensionVersion)", sequence_number);
     *offsetp += 2;
@@ -18206,7 +18206,7 @@ static void struct_xinput_InputInfo(tvbuff_t *tvb, int *offsetp, proto_tree *roo
         }
         if (f_class_id == 2) {
             int f_axes_len;
-            f_axes_len = tvb_get_guint8(tvb, *offsetp);
+            f_axes_len = tvb_get_uint8(tvb, *offsetp);
             proto_tree_add_item(t, hf_x11_struct_xinput_InputInfo_Valuator_axes_len, tvb, *offsetp, 1, byte_order);
             *offsetp += 1;
             field8(tvb, offsetp, t, hf_x11_struct_xinput_InputInfo_Valuator_mode, byte_order);
@@ -18231,13 +18231,13 @@ static void xinputListInputDevices_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_xinput_ListInputDevices_reply_xi_reply_type, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinput-ListInputDevices)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_devices_len = tvb_get_guint8(tvb, *offsetp);
+    f_devices_len = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xinput_ListInputDevices_reply_devices_len, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 23, ENC_NA);
@@ -18283,13 +18283,13 @@ static void xinputOpenDevice_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_xinput_OpenDevice_reply_xi_reply_type, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinput-OpenDevice)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_classes = tvb_get_guint8(tvb, *offsetp);
+    f_num_classes = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xinput_OpenDevice_reply_num_classes, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 23, ENC_NA);
@@ -18326,7 +18326,7 @@ static void xinputSetDeviceMode_Reply(tvbuff_t *tvb, packet_info *pinfo, int *of
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_xinput_SetDeviceMode_reply_xi_reply_type, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinput-SetDeviceMode)", sequence_number);
     *offsetp += 2;
@@ -18342,7 +18342,7 @@ static void xinputSelectExtensionEvent(tvbuff_t *tvb, packet_info *pinfo _U_, in
     int f_num_classes;
     proto_tree_add_item(t, hf_x11_xinput_SelectExtensionEvent_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_classes = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_num_classes = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_SelectExtensionEvent_num_classes, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
@@ -18367,16 +18367,16 @@ static void xinputGetSelectedExtensionEvents_Reply(tvbuff_t *tvb, packet_info *p
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_xinput_GetSelectedExtensionEvents_reply_xi_reply_type, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinput-GetSelectedExtensionEvents)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_this_classes = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_num_this_classes = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_GetSelectedExtensionEvents_reply_num_this_classes, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_num_all_classes = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_num_all_classes = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_GetSelectedExtensionEvents_reply_num_all_classes, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
@@ -18390,7 +18390,7 @@ static void xinputChangeDeviceDontPropagateList(tvbuff_t *tvb, packet_info *pinf
     int f_num_classes;
     proto_tree_add_item(t, hf_x11_xinput_ChangeDeviceDontPropagateList_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_classes = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_num_classes = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_ChangeDeviceDontPropagateList_num_classes, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     field8(tvb, offsetp, t, hf_x11_xinput_ChangeDeviceDontPropagateList_mode, byte_order);
@@ -18415,13 +18415,13 @@ static void xinputGetDeviceDontPropagateList_Reply(tvbuff_t *tvb, packet_info *p
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_xinput_GetDeviceDontPropagateList_reply_xi_reply_type, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinput-GetDeviceDontPropagateList)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_classes = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_num_classes = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_GetDeviceDontPropagateList_reply_num_classes, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 22, ENC_NA);
@@ -18472,16 +18472,16 @@ static void xinputGetDeviceMotionEvents_Reply(tvbuff_t *tvb, packet_info *pinfo,
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_xinput_GetDeviceMotionEvents_reply_xi_reply_type, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinput-GetDeviceMotionEvents)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_events = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_events = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_GetDeviceMotionEvents_reply_num_events, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_axes = tvb_get_guint8(tvb, *offsetp);
+    f_num_axes = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xinput_GetDeviceMotionEvents_reply_num_axes, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     field8(tvb, offsetp, t, hf_x11_xinput_GetDeviceMotionEvents_reply_device_mode, byte_order);
@@ -18506,7 +18506,7 @@ static void xinputChangeKeyboardDevice_Reply(tvbuff_t *tvb, packet_info *pinfo, 
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_xinput_ChangeKeyboardDevice_reply_xi_reply_type, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinput-ChangeKeyboardDevice)", sequence_number);
     *offsetp += 2;
@@ -18537,7 +18537,7 @@ static void xinputChangePointerDevice_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_xinput_ChangePointerDevice_reply_xi_reply_type, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinput-ChangePointerDevice)", sequence_number);
     *offsetp += 2;
@@ -18554,7 +18554,7 @@ static void xinputGrabDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
     proto_tree_add_item(t, hf_x11_xinput_GrabDevice_grab_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     field32(tvb, offsetp, t, hf_x11_xinput_GrabDevice_time, byte_order);
-    f_num_classes = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_num_classes = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_GrabDevice_num_classes, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     field8(tvb, offsetp, t, hf_x11_xinput_GrabDevice_this_device_mode, byte_order);
@@ -18577,7 +18577,7 @@ static void xinputGrabDevice_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_xinput_GrabDevice_reply_xi_reply_type, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinput-GrabDevice)", sequence_number);
     *offsetp += 2;
@@ -18602,7 +18602,7 @@ static void xinputGrabDeviceKey(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
     int f_num_classes;
     proto_tree_add_item(t, hf_x11_xinput_GrabDeviceKey_grab_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_classes = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_num_classes = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_GrabDeviceKey_num_classes, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     {
@@ -18669,7 +18669,7 @@ static void xinputGrabDeviceButton(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
     proto_tree_add_item(t, hf_x11_xinput_GrabDeviceButton_grabbed_device, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     field8(tvb, offsetp, t, hf_x11_xinput_GrabDeviceButton_modifier_device, byte_order);
-    f_num_classes = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_num_classes = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_GrabDeviceButton_num_classes, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     {
@@ -18753,7 +18753,7 @@ static void xinputGetDeviceFocus_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_xinput_GetDeviceFocus_reply_xi_reply_type, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinput-GetDeviceFocus)", sequence_number);
     *offsetp += 2;
@@ -18832,7 +18832,7 @@ static void struct_xinput_FeedbackState(tvbuff_t *tvb, int *offsetp, proto_tree 
             int f_num_keysyms;
             proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_String_max_symbols, tvb, *offsetp, 2, byte_order);
             *offsetp += 2;
-            f_num_keysyms = tvb_get_guint16(tvb, *offsetp, byte_order);
+            f_num_keysyms = tvb_get_uint16(tvb, *offsetp, byte_order);
             proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_String_num_keysyms, tvb, *offsetp, 2, byte_order);
             *offsetp += 2;
             listOfCard32(tvb, offsetp, t, hf_x11_struct_xinput_FeedbackState_String_keysyms, hf_x11_struct_xinput_FeedbackState_String_keysyms_item, f_num_keysyms, byte_order);
@@ -18881,13 +18881,13 @@ static void xinputGetFeedbackControl_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_xinput_GetFeedbackControl_reply_xi_reply_type, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinput-GetFeedbackControl)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_feedbacks = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_num_feedbacks = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_GetFeedbackControl_reply_num_feedbacks, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 22, ENC_NA);
@@ -18948,7 +18948,7 @@ static void struct_xinput_FeedbackCtl(tvbuff_t *tvb, int *offsetp, proto_tree *r
             int f_num_keysyms;
             proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
             *offsetp += 2;
-            f_num_keysyms = tvb_get_guint16(tvb, *offsetp, byte_order);
+            f_num_keysyms = tvb_get_uint16(tvb, *offsetp, byte_order);
             proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_String_num_keysyms, tvb, *offsetp, 2, byte_order);
             *offsetp += 2;
             listOfCard32(tvb, offsetp, t, hf_x11_struct_xinput_FeedbackCtl_String_keysyms, hf_x11_struct_xinput_FeedbackCtl_String_keysyms_item, f_num_keysyms, byte_order);
@@ -19023,11 +19023,11 @@ static void xinputGetDeviceKeyMapping_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_xinput_GetDeviceKeyMapping_reply_xi_reply_type, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinput-GetDeviceKeyMapping)", sequence_number);
     *offsetp += 2;
-    f_length = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_length = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xinput_GetDeviceKeyMapping_reply_keysyms_per_keycode, tvb, *offsetp, 1, byte_order);
@@ -19045,10 +19045,10 @@ static void xinputChangeDeviceKeyMapping(tvbuff_t *tvb, packet_info *pinfo _U_, 
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xinput_ChangeDeviceKeyMapping_first_keycode, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    f_keysyms_per_keycode = tvb_get_guint8(tvb, *offsetp);
+    f_keysyms_per_keycode = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xinput_ChangeDeviceKeyMapping_keysyms_per_keycode, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    f_keycode_count = tvb_get_guint8(tvb, *offsetp);
+    f_keycode_count = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xinput_ChangeDeviceKeyMapping_keycode_count, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     listOfCard32(tvb, offsetp, t, hf_x11_xinput_ChangeDeviceKeyMapping_keysyms, hf_x11_xinput_ChangeDeviceKeyMapping_keysyms_item, (f_keycode_count * f_keysyms_per_keycode), byte_order);
@@ -19072,13 +19072,13 @@ static void xinputGetDeviceModifierMapping_Reply(tvbuff_t *tvb, packet_info *pin
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_xinput_GetDeviceModifierMapping_reply_xi_reply_type, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinput-GetDeviceModifierMapping)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_keycodes_per_modifier = tvb_get_guint8(tvb, *offsetp);
+    f_keycodes_per_modifier = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xinput_GetDeviceModifierMapping_reply_keycodes_per_modifier, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 23, ENC_NA);
@@ -19091,7 +19091,7 @@ static void xinputSetDeviceModifierMapping(tvbuff_t *tvb, packet_info *pinfo _U_
     int f_keycodes_per_modifier;
     proto_tree_add_item(t, hf_x11_xinput_SetDeviceModifierMapping_device_id, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    f_keycodes_per_modifier = tvb_get_guint8(tvb, *offsetp);
+    f_keycodes_per_modifier = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xinput_SetDeviceModifierMapping_keycodes_per_modifier, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
@@ -19108,7 +19108,7 @@ static void xinputSetDeviceModifierMapping_Reply(tvbuff_t *tvb, packet_info *pin
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_xinput_SetDeviceModifierMapping_reply_xi_reply_type, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinput-SetDeviceModifierMapping)", sequence_number);
     *offsetp += 2;
@@ -19136,13 +19136,13 @@ static void xinputGetDeviceButtonMapping_Reply(tvbuff_t *tvb, packet_info *pinfo
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_xinput_GetDeviceButtonMapping_reply_xi_reply_type, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinput-GetDeviceButtonMapping)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_map_size = tvb_get_guint8(tvb, *offsetp);
+    f_map_size = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xinput_GetDeviceButtonMapping_reply_map_size, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 23, ENC_NA);
@@ -19159,7 +19159,7 @@ static void xinputSetDeviceButtonMapping(tvbuff_t *tvb, packet_info *pinfo _U_, 
     int f_map_size;
     proto_tree_add_item(t, hf_x11_xinput_SetDeviceButtonMapping_device_id, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    f_map_size = tvb_get_guint8(tvb, *offsetp);
+    f_map_size = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xinput_SetDeviceButtonMapping_map_size, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
@@ -19176,7 +19176,7 @@ static void xinputSetDeviceButtonMapping_Reply(tvbuff_t *tvb, packet_info *pinfo
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_xinput_SetDeviceButtonMapping_reply_xi_reply_type, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinput-SetDeviceButtonMapping)", sequence_number);
     *offsetp += 2;
@@ -19222,7 +19222,7 @@ static void struct_xinput_InputState(tvbuff_t *tvb, int *offsetp, proto_tree *ro
         }
         if (f_class_id == 2) {
             int f_num_valuators;
-            f_num_valuators = tvb_get_guint8(tvb, *offsetp);
+            f_num_valuators = tvb_get_uint8(tvb, *offsetp);
             proto_tree_add_item(t, hf_x11_struct_xinput_InputState_Valuator_num_valuators, tvb, *offsetp, 1, byte_order);
             *offsetp += 1;
             {
@@ -19256,13 +19256,13 @@ static void xinputQueryDeviceState_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_xinput_QueryDeviceState_reply_xi_reply_type, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinput-QueryDeviceState)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_classes = tvb_get_guint8(tvb, *offsetp);
+    f_num_classes = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xinput_QueryDeviceState_reply_num_classes, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 23, ENC_NA);
@@ -19289,7 +19289,7 @@ static void xinputSetDeviceValuators(tvbuff_t *tvb, packet_info *pinfo _U_, int 
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xinput_SetDeviceValuators_first_valuator, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    f_num_valuators = tvb_get_guint8(tvb, *offsetp);
+    f_num_valuators = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xinput_SetDeviceValuators_num_valuators, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
@@ -19306,7 +19306,7 @@ static void xinputSetDeviceValuators_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_xinput_SetDeviceValuators_reply_xi_reply_type, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinput-SetDeviceValuators)", sequence_number);
     *offsetp += 2;
@@ -19338,7 +19338,7 @@ static void struct_xinput_DeviceState(tvbuff_t *tvb, int *offsetp, proto_tree *r
         *offsetp += 2;
         if (f_control_id == 1) {
             int f_num_valuators;
-            f_num_valuators = tvb_get_guint32(tvb, *offsetp, byte_order);
+            f_num_valuators = tvb_get_uint32(tvb, *offsetp, byte_order);
             proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_resolution_num_valuators, tvb, *offsetp, 4, byte_order);
             *offsetp += 4;
             listOfCard32(tvb, offsetp, t, hf_x11_struct_xinput_DeviceState_resolution_resolution_values, hf_x11_struct_xinput_DeviceState_resolution_resolution_values_item, f_num_valuators, byte_order);
@@ -19411,7 +19411,7 @@ static void xinputGetDeviceControl_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_xinput_GetDeviceControl_reply_xi_reply_type, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinput-GetDeviceControl)", sequence_number);
     *offsetp += 2;
@@ -19446,7 +19446,7 @@ static void struct_xinput_DeviceCtl(tvbuff_t *tvb, int *offsetp, proto_tree *roo
             int f_num_valuators;
             proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_resolution_first_valuator, tvb, *offsetp, 1, byte_order);
             *offsetp += 1;
-            f_num_valuators = tvb_get_guint8(tvb, *offsetp);
+            f_num_valuators = tvb_get_uint8(tvb, *offsetp);
             proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_resolution_num_valuators, tvb, *offsetp, 1, byte_order);
             *offsetp += 1;
             proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
@@ -19518,7 +19518,7 @@ static void xinputChangeDeviceControl_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_xinput_ChangeDeviceControl_reply_xi_reply_type, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinput-ChangeDeviceControl)", sequence_number);
     *offsetp += 2;
@@ -19546,13 +19546,13 @@ static void xinputListDeviceProperties_Reply(tvbuff_t *tvb, packet_info *pinfo, 
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_xinput_ListDeviceProperties_reply_xi_reply_type, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinput-ListDeviceProperties)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_atoms = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_num_atoms = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_ListDeviceProperties_reply_num_atoms, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 22, ENC_NA);
@@ -19574,7 +19574,7 @@ static void xinputChangeDeviceProperty(tvbuff_t *tvb, packet_info *pinfo _U_, in
     field8(tvb, offsetp, t, hf_x11_xinput_ChangeDeviceProperty_mode, byte_order);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    f_num_items = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_items = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_ChangeDeviceProperty_num_items, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     if (f_format == 8) {
@@ -19639,7 +19639,7 @@ static void xinputGetDeviceProperty_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_xinput_GetDeviceProperty_reply_xi_reply_type, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinput-GetDeviceProperty)", sequence_number);
     *offsetp += 2;
@@ -19649,7 +19649,7 @@ static void xinputGetDeviceProperty_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xinput_GetDeviceProperty_reply_bytes_after, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_items = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_items = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_GetDeviceProperty_reply_num_items, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     f_format = field8(tvb, offsetp, t, hf_x11_xinput_GetDeviceProperty_reply_format, byte_order);
@@ -19734,7 +19734,7 @@ static void xinputXIQueryPointer_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinput-XIQueryPointer)", sequence_number);
     *offsetp += 2;
@@ -19756,7 +19756,7 @@ static void xinputXIQueryPointer_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    f_buttons_len = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_buttons_len = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_XIQueryPointer_reply_buttons_len, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     struct_xinput_ModifierInfo(tvb, offsetp, t, byte_order, 1);
@@ -19819,7 +19819,7 @@ static void struct_xinput_HierarchyChange(tvbuff_t *tvb, int *offsetp, proto_tre
         *offsetp += 2;
         if (f_type == 1) {
             int f_name_len;
-            f_name_len = tvb_get_guint16(tvb, *offsetp, byte_order);
+            f_name_len = tvb_get_uint16(tvb, *offsetp, byte_order);
             proto_tree_add_item(t, hf_x11_struct_xinput_HierarchyChange_AddMaster_name_len, tvb, *offsetp, 2, byte_order);
             *offsetp += 2;
             proto_tree_add_item(t, hf_x11_struct_xinput_HierarchyChange_AddMaster_send_core, tvb, *offsetp, 1, byte_order);
@@ -19855,7 +19855,7 @@ static void struct_xinput_HierarchyChange(tvbuff_t *tvb, int *offsetp, proto_tre
 static void xinputXIChangeHierarchy(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_num_changes;
-    f_num_changes = tvb_get_guint8(tvb, *offsetp);
+    f_num_changes = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xinput_XIChangeHierarchy_num_changes, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
@@ -19887,7 +19887,7 @@ static void xinputXIGetClientPointer_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinput-XIGetClientPointer)", sequence_number);
     *offsetp += 2;
@@ -19906,7 +19906,7 @@ static int struct_size_xinput_EventMask(tvbuff_t *tvb _U_, int *offsetp _U_, uns
 {
     int size = 0;
     int f_mask_len;
-    f_mask_len = tvb_get_guint16(tvb, *offsetp + size + 2, byte_order);
+    f_mask_len = tvb_get_uint16(tvb, *offsetp + size + 2, byte_order);
     size += f_mask_len * 4;
     return size + 4;
 }
@@ -19922,7 +19922,7 @@ static void struct_xinput_EventMask(tvbuff_t *tvb, int *offsetp, proto_tree *roo
         item = proto_tree_add_item(root, hf_x11_struct_xinput_EventMask, tvb, *offsetp, struct_size_xinput_EventMask(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
         field16(tvb, offsetp, t, hf_x11_struct_xinput_EventMask_deviceid, byte_order);
-        f_mask_len = tvb_get_guint16(tvb, *offsetp, byte_order);
+        f_mask_len = tvb_get_uint16(tvb, *offsetp, byte_order);
         proto_tree_add_item(t, hf_x11_struct_xinput_EventMask_mask_len, tvb, *offsetp, 2, byte_order);
         *offsetp += 2;
         listOfCard32(tvb, offsetp, t, hf_x11_struct_xinput_EventMask_mask, hf_x11_struct_xinput_EventMask_mask_item, f_mask_len, byte_order);
@@ -19934,7 +19934,7 @@ static void xinputXISelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *off
     int f_num_mask;
     proto_tree_add_item(t, hf_x11_xinput_XISelectEvents_window, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_mask = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_num_mask = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_XISelectEvents_num_mask, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
@@ -19959,7 +19959,7 @@ static void xinputXIQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinput-XIQueryVersion)", sequence_number);
     *offsetp += 2;
@@ -19996,14 +19996,14 @@ static void struct_xinput_DeviceClass(tvbuff_t *tvb, int *offsetp, proto_tree *r
         *offsetp += 2;
         if (f_type == 0) {
             int f_num_keys;
-            f_num_keys = tvb_get_guint16(tvb, *offsetp, byte_order);
+            f_num_keys = tvb_get_uint16(tvb, *offsetp, byte_order);
             proto_tree_add_item(t, hf_x11_struct_xinput_DeviceClass_Key_num_keys, tvb, *offsetp, 2, byte_order);
             *offsetp += 2;
             listOfCard32(tvb, offsetp, t, hf_x11_struct_xinput_DeviceClass_Key_keys, hf_x11_struct_xinput_DeviceClass_Key_keys_item, f_num_keys, byte_order);
         }
         if (f_type == 1) {
             int f_num_buttons;
-            f_num_buttons = tvb_get_guint16(tvb, *offsetp, byte_order);
+            f_num_buttons = tvb_get_uint16(tvb, *offsetp, byte_order);
             proto_tree_add_item(t, hf_x11_struct_xinput_DeviceClass_Button_num_buttons, tvb, *offsetp, 2, byte_order);
             *offsetp += 2;
             listOfCard32(tvb, offsetp, t, hf_x11_struct_xinput_DeviceClass_Button_state, hf_x11_struct_xinput_DeviceClass_Button_state_item, ((f_num_buttons + 31) / 32), byte_order);
@@ -20060,8 +20060,8 @@ static int struct_size_xinput_XIDeviceInfo(tvbuff_t *tvb _U_, int *offsetp _U_, 
     int i, off;
     int f_name_len;
     int f_num_classes;
-    f_num_classes = tvb_get_guint16(tvb, *offsetp + size + 6, byte_order);
-    f_name_len = tvb_get_guint16(tvb, *offsetp + size + 8, byte_order);
+    f_num_classes = tvb_get_uint16(tvb, *offsetp + size + 6, byte_order);
+    f_name_len = tvb_get_uint16(tvb, *offsetp + size + 8, byte_order);
     size += f_name_len * 1;
     size = (size + 3) & ~3;
     for (i = 0; i < f_num_classes; i++) {
@@ -20085,10 +20085,10 @@ static void struct_xinput_XIDeviceInfo(tvbuff_t *tvb, int *offsetp, proto_tree *
         field16(tvb, offsetp, t, hf_x11_struct_xinput_XIDeviceInfo_deviceid, byte_order);
         field16(tvb, offsetp, t, hf_x11_struct_xinput_XIDeviceInfo_type, byte_order);
         field16(tvb, offsetp, t, hf_x11_struct_xinput_XIDeviceInfo_attachment, byte_order);
-        f_num_classes = tvb_get_guint16(tvb, *offsetp, byte_order);
+        f_num_classes = tvb_get_uint16(tvb, *offsetp, byte_order);
         proto_tree_add_item(t, hf_x11_struct_xinput_XIDeviceInfo_num_classes, tvb, *offsetp, 2, byte_order);
         *offsetp += 2;
-        f_name_len = tvb_get_guint16(tvb, *offsetp, byte_order);
+        f_name_len = tvb_get_uint16(tvb, *offsetp, byte_order);
         proto_tree_add_item(t, hf_x11_struct_xinput_XIDeviceInfo_name_len, tvb, *offsetp, 2, byte_order);
         *offsetp += 2;
         proto_tree_add_item(t, hf_x11_struct_xinput_XIDeviceInfo_enabled, tvb, *offsetp, 1, byte_order);
@@ -20120,13 +20120,13 @@ static void xinputXIQueryDevice_Reply(tvbuff_t *tvb, packet_info *pinfo, int *of
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinput-XIQueryDevice)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_infos = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_num_infos = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_XIQueryDevice_reply_num_infos, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 22, ENC_NA);
@@ -20159,7 +20159,7 @@ static void xinputXIGetFocus_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinput-XIGetFocus)", sequence_number);
     *offsetp += 2;
@@ -20185,7 +20185,7 @@ static void xinputXIGrabDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int *offse
     field8(tvb, offsetp, t, hf_x11_xinput_XIGrabDevice_owner_events, byte_order);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    f_mask_len = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_mask_len = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_XIGrabDevice_mask_len, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     listOfCard32(tvb, offsetp, t, hf_x11_xinput_XIGrabDevice_mask, hf_x11_xinput_XIGrabDevice_mask_item, f_mask_len, byte_order);
@@ -20200,7 +20200,7 @@ static void xinputXIGrabDevice_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinput-XIGrabDevice)", sequence_number);
     *offsetp += 2;
@@ -20260,10 +20260,10 @@ static void xinputXIPassiveGrabDevice(tvbuff_t *tvb, packet_info *pinfo _U_, int
     proto_tree_add_item(t, hf_x11_xinput_XIPassiveGrabDevice_detail, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     field16(tvb, offsetp, t, hf_x11_xinput_XIPassiveGrabDevice_deviceid, byte_order);
-    f_num_modifiers = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_num_modifiers = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_XIPassiveGrabDevice_num_modifiers, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_mask_len = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_mask_len = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_XIPassiveGrabDevice_mask_len, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     field8(tvb, offsetp, t, hf_x11_xinput_XIPassiveGrabDevice_grab_type, byte_order);
@@ -20287,13 +20287,13 @@ static void xinputXIPassiveGrabDevice_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinput-XIPassiveGrabDevice)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_modifiers = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_num_modifiers = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_XIPassiveGrabDevice_reply_num_modifiers, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 22, ENC_NA);
@@ -20309,7 +20309,7 @@ static void xinputXIPassiveUngrabDevice(tvbuff_t *tvb, packet_info *pinfo _U_, i
     proto_tree_add_item(t, hf_x11_xinput_XIPassiveUngrabDevice_detail, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     field16(tvb, offsetp, t, hf_x11_xinput_XIPassiveUngrabDevice_deviceid, byte_order);
-    f_num_modifiers = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_num_modifiers = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_XIPassiveUngrabDevice_num_modifiers, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     field8(tvb, offsetp, t, hf_x11_xinput_XIPassiveUngrabDevice_grab_type, byte_order);
@@ -20335,13 +20335,13 @@ static void xinputXIListProperties_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinput-XIListProperties)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_properties = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_num_properties = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_XIListProperties_reply_num_properties, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 22, ENC_NA);
@@ -20360,7 +20360,7 @@ static void xinputXIChangeProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xinput_XIChangeProperty_type, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_items = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_items = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_XIChangeProperty_num_items, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     if (f_format == 8) {
@@ -20423,7 +20423,7 @@ static void xinputXIGetProperty_Reply(tvbuff_t *tvb, packet_info *pinfo, int *of
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinput-XIGetProperty)", sequence_number);
     *offsetp += 2;
@@ -20433,7 +20433,7 @@ static void xinputXIGetProperty_Reply(tvbuff_t *tvb, packet_info *pinfo, int *of
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xinput_XIGetProperty_reply_bytes_after, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_items = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_items = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_XIGetProperty_reply_num_items, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     f_format = field8(tvb, offsetp, t, hf_x11_xinput_XIGetProperty_reply_format, byte_order);
@@ -20473,13 +20473,13 @@ static void xinputXIGetSelectedEvents_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xinput-XIGetSelectedEvents)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_masks = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_num_masks = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_XIGetSelectedEvents_reply_num_masks, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 22, ENC_NA);
@@ -20510,7 +20510,7 @@ static void struct_xinput_BarrierReleasePointerInfo(tvbuff_t *tvb, int *offsetp,
 static void xinputXIBarrierReleasePointer(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_num_barriers;
-    f_num_barriers = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_barriers = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_XIBarrierReleasePointer_num_barriers, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     struct_xinput_BarrierReleasePointerInfo(tvb, offsetp, t, byte_order, f_num_barriers);
@@ -20700,7 +20700,7 @@ static void xinputDeviceChanged(tvbuff_t *tvb, int length _U_, int *offsetp, pro
                                "DeviceChanged (1)");
     field16(tvb, offsetp, t, hf_x11_xinput_DeviceChanged_deviceid, byte_order);
     field32(tvb, offsetp, t, hf_x11_xinput_DeviceChanged_time, byte_order);
-    f_num_classes = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_num_classes = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_DeviceChanged_num_classes, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     field16(tvb, offsetp, t, hf_x11_xinput_DeviceChanged_sourceid, byte_order);
@@ -20736,10 +20736,10 @@ static void xinputKeyPress(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tr
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xinput_KeyPress_event_y, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_buttons_len = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_buttons_len = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_KeyPress_buttons_len, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_valuators_len = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_valuators_len = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_KeyPress_valuators_len, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     field16(tvb, offsetp, t, hf_x11_xinput_KeyPress_sourceid, byte_order);
@@ -20759,7 +20759,7 @@ static void xinputKeyPress(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tr
     {
         int i;
         for (i = 0; i < f_valuators_len; i++) {
-            sumof_valuator_mask += tvb_get_guint32(tvb, *offsetp + i * 4, byte_order);
+            sumof_valuator_mask += tvb_get_uint32(tvb, *offsetp + i * 4, byte_order);
         }
     }
     listOfCard32(tvb, offsetp, t, hf_x11_xinput_KeyPress_valuator_mask, hf_x11_xinput_KeyPress_valuator_mask_item, f_valuators_len, byte_order);
@@ -20792,10 +20792,10 @@ static void xinputButtonPress(tvbuff_t *tvb, int length _U_, int *offsetp, proto
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xinput_ButtonPress_event_y, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_buttons_len = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_buttons_len = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_ButtonPress_buttons_len, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_valuators_len = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_valuators_len = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_ButtonPress_valuators_len, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     field16(tvb, offsetp, t, hf_x11_xinput_ButtonPress_sourceid, byte_order);
@@ -20815,7 +20815,7 @@ static void xinputButtonPress(tvbuff_t *tvb, int length _U_, int *offsetp, proto
     {
         int i;
         for (i = 0; i < f_valuators_len; i++) {
-            sumof_valuator_mask += tvb_get_guint32(tvb, *offsetp + i * 4, byte_order);
+            sumof_valuator_mask += tvb_get_uint32(tvb, *offsetp + i * 4, byte_order);
         }
     }
     listOfCard32(tvb, offsetp, t, hf_x11_xinput_ButtonPress_valuator_mask, hf_x11_xinput_ButtonPress_valuator_mask_item, f_valuators_len, byte_order);
@@ -20851,7 +20851,7 @@ static void xinputEnter(tvbuff_t *tvb, int length _U_, int *offsetp, proto_tree 
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xinput_Enter_focus, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    f_buttons_len = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_buttons_len = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_Enter_buttons_len, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     struct_xinput_ModifierInfo(tvb, offsetp, t, byte_order, 1);
@@ -20916,7 +20916,7 @@ static void xinputHierarchy(tvbuff_t *tvb, int length _U_, int *offsetp, proto_t
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xinput_Hierarchy_flags, ett_x11_rectangle, flags_bits, byte_order);
     }
     *offsetp += 4;
-    f_num_infos = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_num_infos = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_Hierarchy_num_infos, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 10, ENC_NA);
@@ -20951,7 +20951,7 @@ static void xinputRawKeyPress(tvbuff_t *tvb, int length _U_, int *offsetp, proto
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xinput_RawKeyPress_sourceid, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_valuators_len = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_valuators_len = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_RawKeyPress_valuators_len, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     {
@@ -20967,7 +20967,7 @@ static void xinputRawKeyPress(tvbuff_t *tvb, int length _U_, int *offsetp, proto
     {
         int i;
         for (i = 0; i < f_valuators_len; i++) {
-            sumof_valuator_mask += tvb_get_guint32(tvb, *offsetp + i * 4, byte_order);
+            sumof_valuator_mask += tvb_get_uint32(tvb, *offsetp + i * 4, byte_order);
         }
     }
     listOfCard32(tvb, offsetp, t, hf_x11_xinput_RawKeyPress_valuator_mask, hf_x11_xinput_RawKeyPress_valuator_mask_item, f_valuators_len, byte_order);
@@ -20988,7 +20988,7 @@ static void xinputRawButtonPress(tvbuff_t *tvb, int length _U_, int *offsetp, pr
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xinput_RawButtonPress_sourceid, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_valuators_len = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_valuators_len = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_RawButtonPress_valuators_len, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     {
@@ -21004,7 +21004,7 @@ static void xinputRawButtonPress(tvbuff_t *tvb, int length _U_, int *offsetp, pr
     {
         int i;
         for (i = 0; i < f_valuators_len; i++) {
-            sumof_valuator_mask += tvb_get_guint32(tvb, *offsetp + i * 4, byte_order);
+            sumof_valuator_mask += tvb_get_uint32(tvb, *offsetp + i * 4, byte_order);
         }
     }
     listOfCard32(tvb, offsetp, t, hf_x11_xinput_RawButtonPress_valuator_mask, hf_x11_xinput_RawButtonPress_valuator_mask_item, f_valuators_len, byte_order);
@@ -21038,10 +21038,10 @@ static void xinputTouchBegin(tvbuff_t *tvb, int length _U_, int *offsetp, proto_
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xinput_TouchBegin_event_y, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_buttons_len = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_buttons_len = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_TouchBegin_buttons_len, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_valuators_len = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_valuators_len = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_TouchBegin_valuators_len, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     field16(tvb, offsetp, t, hf_x11_xinput_TouchBegin_sourceid, byte_order);
@@ -21062,7 +21062,7 @@ static void xinputTouchBegin(tvbuff_t *tvb, int length _U_, int *offsetp, proto_
     {
         int i;
         for (i = 0; i < f_valuators_len; i++) {
-            sumof_valuator_mask += tvb_get_guint32(tvb, *offsetp + i * 4, byte_order);
+            sumof_valuator_mask += tvb_get_uint32(tvb, *offsetp + i * 4, byte_order);
         }
     }
     listOfCard32(tvb, offsetp, t, hf_x11_xinput_TouchBegin_valuator_mask, hf_x11_xinput_TouchBegin_valuator_mask_item, f_valuators_len, byte_order);
@@ -21105,7 +21105,7 @@ static void xinputRawTouchBegin(tvbuff_t *tvb, int length _U_, int *offsetp, pro
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xinput_RawTouchBegin_sourceid, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_valuators_len = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_valuators_len = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_RawTouchBegin_valuators_len, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     {
@@ -21122,7 +21122,7 @@ static void xinputRawTouchBegin(tvbuff_t *tvb, int length _U_, int *offsetp, pro
     {
         int i;
         for (i = 0; i < f_valuators_len; i++) {
-            sumof_valuator_mask += tvb_get_guint32(tvb, *offsetp + i * 4, byte_order);
+            sumof_valuator_mask += tvb_get_uint32(tvb, *offsetp + i * 4, byte_order);
         }
     }
     listOfCard32(tvb, offsetp, t, hf_x11_xinput_RawTouchBegin_valuator_mask, hf_x11_xinput_RawTouchBegin_valuator_mask_item, f_valuators_len, byte_order);
@@ -21274,10 +21274,10 @@ static void xinputSendExtensionEvent(tvbuff_t *tvb, packet_info *pinfo _U_, int 
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xinput_SendExtensionEvent_propagate, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    f_num_classes = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_num_classes = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xinput_SendExtensionEvent_num_classes, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_num_events = tvb_get_guint8(tvb, *offsetp);
+    f_num_events = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xinput_SendExtensionEvent_num_events, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 3, ENC_NA);
@@ -21809,7 +21809,7 @@ static int struct_size_xkb_CountedString16(tvbuff_t *tvb _U_, int *offsetp _U_, 
 {
     int size = 0;
     int f_length;
-    f_length = tvb_get_guint16(tvb, *offsetp + size + 0, byte_order);
+    f_length = tvb_get_uint16(tvb, *offsetp + size + 0, byte_order);
     size += f_length * 1;
     size += (((f_length + 5) & (~3)) - (f_length + 2)) * 1;
     return size + 2;
@@ -21825,7 +21825,7 @@ static void struct_xkb_CountedString16(tvbuff_t *tvb, int *offsetp, proto_tree *
 
         item = proto_tree_add_item(root, hf_x11_struct_xkb_CountedString16, tvb, *offsetp, struct_size_xkb_CountedString16(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-        f_length = tvb_get_guint16(tvb, *offsetp, byte_order);
+        f_length = tvb_get_uint16(tvb, *offsetp, byte_order);
         proto_tree_add_item(t, hf_x11_struct_xkb_CountedString16_length, tvb, *offsetp, 2, byte_order);
         *offsetp += 2;
         listOfByte(tvb, offsetp, t, hf_x11_struct_xkb_CountedString16_string, f_length, byte_order);
@@ -21911,8 +21911,8 @@ static int struct_size_xkb_KeyType(tvbuff_t *tvb _U_, int *offsetp _U_, unsigned
     int size = 0;
     int f_hasPreserve;
     int f_nMapEntries;
-    f_nMapEntries = tvb_get_guint8(tvb, *offsetp + size + 5);
-    f_hasPreserve = tvb_get_guint8(tvb, *offsetp + size + 6);
+    f_nMapEntries = tvb_get_uint8(tvb, *offsetp + size + 5);
+    f_hasPreserve = tvb_get_uint8(tvb, *offsetp + size + 6);
     size += f_nMapEntries * 8;
     size += (f_hasPreserve * f_nMapEntries) * 4;
     return size + 8;
@@ -21986,10 +21986,10 @@ static void struct_xkb_KeyType(tvbuff_t *tvb, int *offsetp, proto_tree *root, un
         *offsetp += 2;
         proto_tree_add_item(t, hf_x11_struct_xkb_KeyType_numLevels, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
-        f_nMapEntries = tvb_get_guint8(tvb, *offsetp);
+        f_nMapEntries = tvb_get_uint8(tvb, *offsetp);
         proto_tree_add_item(t, hf_x11_struct_xkb_KeyType_nMapEntries, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
-        f_hasPreserve = tvb_get_guint8(tvb, *offsetp);
+        f_hasPreserve = tvb_get_uint8(tvb, *offsetp);
         proto_tree_add_item(t, hf_x11_struct_xkb_KeyType_hasPreserve, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
         proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
@@ -22003,7 +22003,7 @@ static int struct_size_xkb_KeySymMap(tvbuff_t *tvb _U_, int *offsetp _U_, unsign
 {
     int size = 0;
     int f_nSyms;
-    f_nSyms = tvb_get_guint16(tvb, *offsetp + size + 6, byte_order);
+    f_nSyms = tvb_get_uint16(tvb, *offsetp + size + 6, byte_order);
     size += f_nSyms * 4;
     return size + 8;
 }
@@ -22023,7 +22023,7 @@ static void struct_xkb_KeySymMap(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
         *offsetp += 1;
         proto_tree_add_item(t, hf_x11_struct_xkb_KeySymMap_width, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
-        f_nSyms = tvb_get_guint16(tvb, *offsetp, byte_order);
+        f_nSyms = tvb_get_uint16(tvb, *offsetp, byte_order);
         proto_tree_add_item(t, hf_x11_struct_xkb_KeySymMap_nSyms, tvb, *offsetp, 2, byte_order);
         *offsetp += 2;
         listOfCard32(tvb, offsetp, t, hf_x11_struct_xkb_KeySymMap_syms, hf_x11_struct_xkb_KeySymMap_syms_item, f_nSyms, byte_order);
@@ -22305,8 +22305,8 @@ static int struct_size_xkb_SetKeyType(tvbuff_t *tvb _U_, int *offsetp _U_, unsig
     int size = 0;
     int f_nMapEntries;
     int f_preserve;
-    f_nMapEntries = tvb_get_guint8(tvb, *offsetp + size + 5);
-    f_preserve = tvb_get_guint8(tvb, *offsetp + size + 6);
+    f_nMapEntries = tvb_get_uint8(tvb, *offsetp + size + 5);
+    f_preserve = tvb_get_uint8(tvb, *offsetp + size + 6);
     size += f_nMapEntries * 4;
     size += (f_preserve * f_nMapEntries) * 4;
     return size + 8;
@@ -22380,10 +22380,10 @@ static void struct_xkb_SetKeyType(tvbuff_t *tvb, int *offsetp, proto_tree *root,
         *offsetp += 2;
         proto_tree_add_item(t, hf_x11_struct_xkb_SetKeyType_numLevels, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
-        f_nMapEntries = tvb_get_guint8(tvb, *offsetp);
+        f_nMapEntries = tvb_get_uint8(tvb, *offsetp);
         proto_tree_add_item(t, hf_x11_struct_xkb_SetKeyType_nMapEntries, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
-        f_preserve = tvb_get_guint8(tvb, *offsetp);
+        f_preserve = tvb_get_uint8(tvb, *offsetp);
         proto_tree_add_item(t, hf_x11_struct_xkb_SetKeyType_preserve, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
         proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
@@ -22397,7 +22397,7 @@ static int struct_size_xkb_Listing(tvbuff_t *tvb _U_, int *offsetp _U_, unsigned
 {
     int size = 0;
     int f_length;
-    f_length = tvb_get_guint16(tvb, *offsetp + size + 2, byte_order);
+    f_length = tvb_get_uint16(tvb, *offsetp + size + 2, byte_order);
     size += f_length * 1;
     size = (size + 1) & ~1;
     return size + 4;
@@ -22415,7 +22415,7 @@ static void struct_xkb_Listing(tvbuff_t *tvb, int *offsetp, proto_tree *root, un
         t = proto_item_add_subtree(item, ett_x11_rectangle);
         proto_tree_add_item(t, hf_x11_struct_xkb_Listing_flags, tvb, *offsetp, 2, byte_order);
         *offsetp += 2;
-        f_length = tvb_get_guint16(tvb, *offsetp, byte_order);
+        f_length = tvb_get_uint16(tvb, *offsetp, byte_order);
         proto_tree_add_item(t, hf_x11_struct_xkb_Listing_length, tvb, *offsetp, 2, byte_order);
         *offsetp += 2;
         listOfByte(tvb, offsetp, t, hf_x11_struct_xkb_Listing_string, f_length, byte_order);
@@ -22431,8 +22431,8 @@ static int struct_size_xkb_DeviceLedInfo(tvbuff_t *tvb _U_, int *offsetp _U_, un
     int size = 0;
     int f_mapsPresent;
     int f_namesPresent;
-    f_namesPresent = tvb_get_guint32(tvb, *offsetp + size + 4, byte_order);
-    f_mapsPresent = tvb_get_guint32(tvb, *offsetp + size + 8, byte_order);
+    f_namesPresent = tvb_get_uint32(tvb, *offsetp + size + 4, byte_order);
+    f_mapsPresent = tvb_get_uint32(tvb, *offsetp + size + 8, byte_order);
     size += ws_count_ones(f_namesPresent) * 4;
     size += ws_count_ones(f_mapsPresent) * 12;
     return size + 20;
@@ -22451,10 +22451,10 @@ static void struct_xkb_DeviceLedInfo(tvbuff_t *tvb, int *offsetp, proto_tree *ro
         t = proto_item_add_subtree(item, ett_x11_rectangle);
         field16(tvb, offsetp, t, hf_x11_struct_xkb_DeviceLedInfo_ledClass, byte_order);
         field16(tvb, offsetp, t, hf_x11_struct_xkb_DeviceLedInfo_ledID, byte_order);
-        f_namesPresent = tvb_get_guint32(tvb, *offsetp, byte_order);
+        f_namesPresent = tvb_get_uint32(tvb, *offsetp, byte_order);
         proto_tree_add_item(t, hf_x11_struct_xkb_DeviceLedInfo_namesPresent, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
-        f_mapsPresent = tvb_get_guint32(tvb, *offsetp, byte_order);
+        f_mapsPresent = tvb_get_uint32(tvb, *offsetp, byte_order);
         proto_tree_add_item(t, hf_x11_struct_xkb_DeviceLedInfo_mapsPresent, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
         proto_tree_add_item(t, hf_x11_struct_xkb_DeviceLedInfo_physIndicators, tvb, *offsetp, 4, byte_order);
@@ -23229,7 +23229,7 @@ static void xkbUseExtension_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_xkb_UseExtension_reply_supported, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xkb-UseExtension)", sequence_number);
     *offsetp += 2;
@@ -23250,7 +23250,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     int f_selectAll;
     proto_tree_add_item(t, hf_x11_xkb_SelectEvents_deviceSpec, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_affectWhich = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_affectWhich = tvb_get_uint16(tvb, *offsetp, byte_order);
     {
         static int* const affectWhich_bits [] = {
         &hf_x11_xkb_SelectEvents_affectWhich_mask_NewKeyboardNotify,
@@ -23270,7 +23270,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SelectEvents_affectWhich, ett_x11_rectangle, affectWhich_bits, byte_order);
     }
     *offsetp += 2;
-    f_clear = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_clear = tvb_get_uint16(tvb, *offsetp, byte_order);
     {
         static int* const clear_bits [] = {
         &hf_x11_xkb_SelectEvents_clear_mask_NewKeyboardNotify,
@@ -23290,7 +23290,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SelectEvents_clear, ett_x11_rectangle, clear_bits, byte_order);
     }
     *offsetp += 2;
-    f_selectAll = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_selectAll = tvb_get_uint16(tvb, *offsetp, byte_order);
     {
         static int* const selectAll_bits [] = {
         &hf_x11_xkb_SelectEvents_selectAll_mask_NewKeyboardNotify,
@@ -23622,7 +23622,7 @@ static void xkbGetState_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_xkb_GetState_reply_deviceID, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xkb-GetState)", sequence_number);
     *offsetp += 2;
@@ -23885,7 +23885,7 @@ static void xkbGetControls_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_xkb_GetControls_reply_deviceID, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xkb-GetControls)", sequence_number);
     *offsetp += 2;
@@ -24597,7 +24597,7 @@ static void xkbGetMap_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_xkb_GetMap_reply_deviceID, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xkb-GetMap)", sequence_number);
     *offsetp += 2;
@@ -24609,7 +24609,7 @@ static void xkbGetMap_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_GetMap_reply_maxKeyCode, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    f_present = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_present = tvb_get_uint16(tvb, *offsetp, byte_order);
     {
         static int* const present_bits [] = {
         &hf_x11_xkb_GetMap_reply_present_mask_KeyTypes,
@@ -24627,7 +24627,7 @@ static void xkbGetMap_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xkb_GetMap_reply_firstType, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    f_nTypes = tvb_get_guint8(tvb, *offsetp);
+    f_nTypes = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xkb_GetMap_reply_nTypes, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_GetMap_reply_totalTypes, tvb, *offsetp, 1, byte_order);
@@ -24636,48 +24636,48 @@ static void xkbGetMap_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_GetMap_reply_totalSyms, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_nKeySyms = tvb_get_guint8(tvb, *offsetp);
+    f_nKeySyms = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xkb_GetMap_reply_nKeySyms, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_GetMap_reply_firstKeyAction, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    f_totalActions = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_totalActions = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xkb_GetMap_reply_totalActions, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_nKeyActions = tvb_get_guint8(tvb, *offsetp);
+    f_nKeyActions = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xkb_GetMap_reply_nKeyActions, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_GetMap_reply_firstKeyBehavior, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_GetMap_reply_nKeyBehaviors, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    f_totalKeyBehaviors = tvb_get_guint8(tvb, *offsetp);
+    f_totalKeyBehaviors = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xkb_GetMap_reply_totalKeyBehaviors, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_GetMap_reply_firstKeyExplicit, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_GetMap_reply_nKeyExplicit, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    f_totalKeyExplicit = tvb_get_guint8(tvb, *offsetp);
+    f_totalKeyExplicit = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xkb_GetMap_reply_totalKeyExplicit, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_GetMap_reply_firstModMapKey, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_GetMap_reply_nModMapKeys, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    f_totalModMapKeys = tvb_get_guint8(tvb, *offsetp);
+    f_totalModMapKeys = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xkb_GetMap_reply_totalModMapKeys, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_GetMap_reply_firstVModMapKey, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_GetMap_reply_nVModMapKeys, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    f_totalVModMapKeys = tvb_get_guint8(tvb, *offsetp);
+    f_totalVModMapKeys = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xkb_GetMap_reply_totalVModMapKeys, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    f_virtualMods = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_virtualMods = tvb_get_uint16(tvb, *offsetp, byte_order);
     {
         static int* const virtualMods_bits [] = {
         &hf_x11_xkb_GetMap_reply_virtualMods_mask_0,
@@ -24758,7 +24758,7 @@ static void xkbSetMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto
     int f_virtualMods;
     proto_tree_add_item(t, hf_x11_xkb_SetMap_deviceSpec, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_present = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_present = tvb_get_uint16(tvb, *offsetp, byte_order);
     {
         static int* const present_bits [] = {
         &hf_x11_xkb_SetMap_present_mask_KeyTypes,
@@ -24789,53 +24789,53 @@ static void xkbSetMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_SetMap_firstType, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    f_nTypes = tvb_get_guint8(tvb, *offsetp);
+    f_nTypes = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xkb_SetMap_nTypes, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_SetMap_firstKeySym, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    f_nKeySyms = tvb_get_guint8(tvb, *offsetp);
+    f_nKeySyms = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xkb_SetMap_nKeySyms, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_SetMap_totalSyms, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xkb_SetMap_firstKeyAction, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    f_nKeyActions = tvb_get_guint8(tvb, *offsetp);
+    f_nKeyActions = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xkb_SetMap_nKeyActions, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    f_totalActions = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_totalActions = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xkb_SetMap_totalActions, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xkb_SetMap_firstKeyBehavior, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_SetMap_nKeyBehaviors, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    f_totalKeyBehaviors = tvb_get_guint8(tvb, *offsetp);
+    f_totalKeyBehaviors = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xkb_SetMap_totalKeyBehaviors, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_SetMap_firstKeyExplicit, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_SetMap_nKeyExplicit, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    f_totalKeyExplicit = tvb_get_guint8(tvb, *offsetp);
+    f_totalKeyExplicit = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xkb_SetMap_totalKeyExplicit, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_SetMap_firstModMapKey, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_SetMap_nModMapKeys, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    f_totalModMapKeys = tvb_get_guint8(tvb, *offsetp);
+    f_totalModMapKeys = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xkb_SetMap_totalModMapKeys, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_SetMap_firstVModMapKey, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_SetMap_nVModMapKeys, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    f_totalVModMapKeys = tvb_get_guint8(tvb, *offsetp);
+    f_totalVModMapKeys = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xkb_SetMap_totalVModMapKeys, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    f_virtualMods = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_virtualMods = tvb_get_uint16(tvb, *offsetp, byte_order);
     {
         static int* const virtualMods_bits [] = {
         &hf_x11_xkb_SetMap_virtualMods_mask_0,
@@ -24938,13 +24938,13 @@ static void xkbGetCompatMap_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_xkb_GetCompatMap_reply_deviceID, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xkb-GetCompatMap)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_groupsRtrn = tvb_get_guint8(tvb, *offsetp);
+    f_groupsRtrn = tvb_get_uint8(tvb, *offsetp);
     {
         static int* const groupsRtrn_bits [] = {
         &hf_x11_xkb_GetCompatMap_reply_groupsRtrn_mask_Group1,
@@ -24960,7 +24960,7 @@ static void xkbGetCompatMap_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_GetCompatMap_reply_firstSIRtrn, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_nSIRtrn = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_nSIRtrn = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xkb_GetCompatMap_reply_nSIRtrn, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xkb_GetCompatMap_reply_nTotalSI, tvb, *offsetp, 2, byte_order);
@@ -24983,7 +24983,7 @@ static void xkbSetCompatMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_SetCompatMap_truncateSI, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    f_groups = tvb_get_guint8(tvb, *offsetp);
+    f_groups = tvb_get_uint8(tvb, *offsetp);
     {
         static int* const groups_bits [] = {
         &hf_x11_xkb_SetCompatMap_groups_mask_Group1,
@@ -24997,7 +24997,7 @@ static void xkbSetCompatMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_SetCompatMap_firstSI, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_nSI = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_nSI = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xkb_SetCompatMap_nSI, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
@@ -25024,7 +25024,7 @@ static void xkbGetIndicatorState_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_xkb_GetIndicatorState_reply_deviceID, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xkb-GetIndicatorState)", sequence_number);
     *offsetp += 2;
@@ -25055,13 +25055,13 @@ static void xkbGetIndicatorMap_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_xkb_GetIndicatorMap_reply_deviceID, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xkb-GetIndicatorMap)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_which = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_which = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xkb_GetIndicatorMap_reply_which, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xkb_GetIndicatorMap_reply_realIndicators, tvb, *offsetp, 4, byte_order);
@@ -25080,7 +25080,7 @@ static void xkbSetIndicatorMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offse
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
     *offsetp += 2;
-    f_which = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_which = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xkb_SetIndicatorMap_which, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     struct_xkb_IndicatorMap(tvb, offsetp, t, byte_order, ws_count_ones(f_which));
@@ -25107,7 +25107,7 @@ static void xkbGetNamedIndicator_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_xkb_GetNamedIndicator_reply_deviceID, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xkb-GetNamedIndicator)", sequence_number);
     *offsetp += 2;
@@ -25414,13 +25414,13 @@ static void xkbGetNames_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_xkb_GetNames_reply_deviceID, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xkb-GetNames)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_which = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_which = tvb_get_uint32(tvb, *offsetp, byte_order);
     {
         static int* const which_bits [] = {
         &hf_x11_xkb_GetNames_reply_which_mask_Keycodes,
@@ -25446,10 +25446,10 @@ static void xkbGetNames_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_GetNames_reply_maxKeyCode, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    f_nTypes = tvb_get_guint8(tvb, *offsetp);
+    f_nTypes = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xkb_GetNames_reply_nTypes, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    f_groupNames = tvb_get_guint8(tvb, *offsetp);
+    f_groupNames = tvb_get_uint8(tvb, *offsetp);
     {
         static int* const groupNames_bits [] = {
         &hf_x11_xkb_GetNames_reply_groupNames_mask_Group1,
@@ -25461,7 +25461,7 @@ static void xkbGetNames_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetNames_reply_groupNames, ett_x11_rectangle, groupNames_bits, byte_order);
     }
     *offsetp += 1;
-    f_virtualMods = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_virtualMods = tvb_get_uint16(tvb, *offsetp, byte_order);
     {
         static int* const virtualMods_bits [] = {
         &hf_x11_xkb_GetNames_reply_virtualMods_mask_0,
@@ -25487,16 +25487,16 @@ static void xkbGetNames_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xkb_GetNames_reply_firstKey, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    f_nKeys = tvb_get_guint8(tvb, *offsetp);
+    f_nKeys = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xkb_GetNames_reply_nKeys, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    f_indicators = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_indicators = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xkb_GetNames_reply_indicators, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_nRadioGroups = tvb_get_guint8(tvb, *offsetp);
+    f_nRadioGroups = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xkb_GetNames_reply_nRadioGroups, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    f_nKeyAliases = tvb_get_guint8(tvb, *offsetp);
+    f_nKeyAliases = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xkb_GetNames_reply_nKeyAliases, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_GetNames_reply_nKTLevels, tvb, *offsetp, 2, byte_order);
@@ -25535,7 +25535,7 @@ static void xkbGetNames_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
         {
             int i;
             for (i = 0; i < f_nTypes; i++) {
-                sumof_nLevelsPerType += tvb_get_guint8(tvb, *offsetp + i * 1);
+                sumof_nLevelsPerType += tvb_get_uint8(tvb, *offsetp + i * 1);
             }
         }
         listOfByte(tvb, offsetp, t, hf_x11_xkb_GetNames_reply_KTLevelNames_nLevelsPerType, f_nTypes, byte_order);
@@ -25577,7 +25577,7 @@ static void xkbSetNames(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pro
     int f_nKeyAliases;
     proto_tree_add_item(t, hf_x11_xkb_SetNames_deviceSpec, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_virtualMods = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_virtualMods = tvb_get_uint16(tvb, *offsetp, byte_order);
     {
         static int* const virtualMods_bits [] = {
         &hf_x11_xkb_SetNames_virtualMods_mask_0,
@@ -25601,7 +25601,7 @@ static void xkbSetNames(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pro
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetNames_virtualMods, ett_x11_rectangle, virtualMods_bits, byte_order);
     }
     *offsetp += 2;
-    f_which = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_which = tvb_get_uint32(tvb, *offsetp, byte_order);
     {
         static int* const which_bits [] = {
         &hf_x11_xkb_SetNames_which_mask_Keycodes,
@@ -25625,17 +25625,17 @@ static void xkbSetNames(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pro
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xkb_SetNames_firstType, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    f_nTypes = tvb_get_guint8(tvb, *offsetp);
+    f_nTypes = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xkb_SetNames_nTypes, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_SetNames_firstKTLevelt, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_SetNames_nKTLevels, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    f_indicators = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_indicators = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xkb_SetNames_indicators, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_groupNames = tvb_get_guint8(tvb, *offsetp);
+    f_groupNames = tvb_get_uint8(tvb, *offsetp);
     {
         static int* const groupNames_bits [] = {
         &hf_x11_xkb_SetNames_groupNames_mask_Group1,
@@ -25647,15 +25647,15 @@ static void xkbSetNames(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pro
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetNames_groupNames, ett_x11_rectangle, groupNames_bits, byte_order);
     }
     *offsetp += 1;
-    f_nRadioGroups = tvb_get_guint8(tvb, *offsetp);
+    f_nRadioGroups = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xkb_SetNames_nRadioGroups, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_SetNames_firstKey, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    f_nKeys = tvb_get_guint8(tvb, *offsetp);
+    f_nKeys = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xkb_SetNames_nKeys, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    f_nKeyAliases = tvb_get_guint8(tvb, *offsetp);
+    f_nKeyAliases = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xkb_SetNames_nKeyAliases, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
@@ -25695,7 +25695,7 @@ static void xkbSetNames(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pro
         {
             int i;
             for (i = 0; i < f_nTypes; i++) {
-                sumof_nLevelsPerType += tvb_get_guint8(tvb, *offsetp + i * 1);
+                sumof_nLevelsPerType += tvb_get_uint8(tvb, *offsetp + i * 1);
             }
         }
         listOfByte(tvb, offsetp, t, hf_x11_xkb_SetNames_KTLevelNames_nLevelsPerType, f_nTypes, byte_order);
@@ -25834,7 +25834,7 @@ static void xkbPerClientFlags_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_xkb_PerClientFlags_reply_deviceID, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xkb-PerClientFlags)", sequence_number);
     *offsetp += 2;
@@ -25930,28 +25930,28 @@ static void xkbListComponents_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_xkb_ListComponents_reply_deviceID, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xkb-ListComponents)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_nKeymaps = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_nKeymaps = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xkb_ListComponents_reply_nKeymaps, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_nKeycodes = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_nKeycodes = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xkb_ListComponents_reply_nKeycodes, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_nTypes = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_nTypes = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xkb_ListComponents_reply_nTypes, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_nCompatMaps = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_nCompatMaps = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xkb_ListComponents_reply_nCompatMaps, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_nSymbols = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_nSymbols = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xkb_ListComponents_reply_nSymbols, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_nGeometries = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_nGeometries = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xkb_ListComponents_reply_nGeometries, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xkb_ListComponents_reply_extra, tvb, *offsetp, 2, byte_order);
@@ -26015,7 +26015,7 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_deviceID, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xkb-GetKbdByName)", sequence_number);
     *offsetp += 2;
@@ -26044,7 +26044,7 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetKbdByName_reply_found, ett_x11_rectangle, found_bits, byte_order);
     }
     *offsetp += 2;
-    f_reported = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_reported = tvb_get_uint16(tvb, *offsetp, byte_order);
     {
         static int* const reported_bits [] = {
         &hf_x11_xkb_GetKbdByName_reply_reported_mask_Types,
@@ -26087,7 +26087,7 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
         *offsetp += 1;
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_Types_typeMaxKeyCode, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
-        f_present = tvb_get_guint16(tvb, *offsetp, byte_order);
+        f_present = tvb_get_uint16(tvb, *offsetp, byte_order);
         {
             static int* const present_bits [] = {
                 &hf_x11_xkb_GetKbdByName_reply_Types_present_mask_KeyTypes,
@@ -26105,7 +26105,7 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
         *offsetp += 2;
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_Types_firstType, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
-        f_nTypes = tvb_get_guint8(tvb, *offsetp);
+        f_nTypes = tvb_get_uint8(tvb, *offsetp);
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_Types_nTypes, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_Types_totalTypes, tvb, *offsetp, 1, byte_order);
@@ -26114,48 +26114,48 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
         *offsetp += 1;
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_Types_totalSyms, tvb, *offsetp, 2, byte_order);
         *offsetp += 2;
-        f_nKeySyms = tvb_get_guint8(tvb, *offsetp);
+        f_nKeySyms = tvb_get_uint8(tvb, *offsetp);
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_Types_nKeySyms, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_Types_firstKeyAction, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
-        f_totalActions = tvb_get_guint16(tvb, *offsetp, byte_order);
+        f_totalActions = tvb_get_uint16(tvb, *offsetp, byte_order);
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_Types_totalActions, tvb, *offsetp, 2, byte_order);
         *offsetp += 2;
-        f_nKeyActions = tvb_get_guint8(tvb, *offsetp);
+        f_nKeyActions = tvb_get_uint8(tvb, *offsetp);
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_Types_nKeyActions, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_Types_firstKeyBehavior, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_Types_nKeyBehaviors, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
-        f_totalKeyBehaviors = tvb_get_guint8(tvb, *offsetp);
+        f_totalKeyBehaviors = tvb_get_uint8(tvb, *offsetp);
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_Types_totalKeyBehaviors, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_Types_firstKeyExplicit, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_Types_nKeyExplicit, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
-        f_totalKeyExplicit = tvb_get_guint8(tvb, *offsetp);
+        f_totalKeyExplicit = tvb_get_uint8(tvb, *offsetp);
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_Types_totalKeyExplicit, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_Types_firstModMapKey, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_Types_nModMapKeys, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
-        f_totalModMapKeys = tvb_get_guint8(tvb, *offsetp);
+        f_totalModMapKeys = tvb_get_uint8(tvb, *offsetp);
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_Types_totalModMapKeys, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_Types_firstVModMapKey, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_Types_nVModMapKeys, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
-        f_totalVModMapKeys = tvb_get_guint8(tvb, *offsetp);
+        f_totalVModMapKeys = tvb_get_uint8(tvb, *offsetp);
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_Types_totalVModMapKeys, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
         proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
         *offsetp += 1;
-        f_virtualMods = tvb_get_guint16(tvb, *offsetp, byte_order);
+        f_virtualMods = tvb_get_uint16(tvb, *offsetp, byte_order);
         {
             static int* const virtualMods_bits [] = {
                 &hf_x11_xkb_GetKbdByName_reply_Types_virtualMods_mask_0,
@@ -26232,7 +26232,7 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
         *offsetp += 2;
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_CompatMap_compatmap_length, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
-        f_groupsRtrn = tvb_get_guint8(tvb, *offsetp);
+        f_groupsRtrn = tvb_get_uint8(tvb, *offsetp);
         {
             static int* const groupsRtrn_bits [] = {
                 &hf_x11_xkb_GetKbdByName_reply_CompatMap_groupsRtrn_mask_Group1,
@@ -26248,7 +26248,7 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
         *offsetp += 1;
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_CompatMap_firstSIRtrn, tvb, *offsetp, 2, byte_order);
         *offsetp += 2;
-        f_nSIRtrn = tvb_get_guint16(tvb, *offsetp, byte_order);
+        f_nSIRtrn = tvb_get_uint16(tvb, *offsetp, byte_order);
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_CompatMap_nSIRtrn, tvb, *offsetp, 2, byte_order);
         *offsetp += 2;
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_CompatMap_nTotalSI, tvb, *offsetp, 2, byte_order);
@@ -26272,7 +26272,7 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
         *offsetp += 4;
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_IndicatorMaps_realIndicators, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
-        f_nIndicators = tvb_get_guint8(tvb, *offsetp);
+        f_nIndicators = tvb_get_uint8(tvb, *offsetp);
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_IndicatorMaps_nIndicators, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
         proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 15, ENC_NA);
@@ -26296,7 +26296,7 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
         *offsetp += 2;
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_KeyNames_keyname_length, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
-        f_which = tvb_get_guint32(tvb, *offsetp, byte_order);
+        f_which = tvb_get_uint32(tvb, *offsetp, byte_order);
         {
             static int* const which_bits [] = {
                 &hf_x11_xkb_GetKbdByName_reply_KeyNames_which_mask_Keycodes,
@@ -26322,10 +26322,10 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
         *offsetp += 1;
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_KeyNames_keyMaxKeyCode, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
-        f_nTypes = tvb_get_guint8(tvb, *offsetp);
+        f_nTypes = tvb_get_uint8(tvb, *offsetp);
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_KeyNames_nTypes, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
-        f_groupNames = tvb_get_guint8(tvb, *offsetp);
+        f_groupNames = tvb_get_uint8(tvb, *offsetp);
         {
             static int* const groupNames_bits [] = {
                 &hf_x11_xkb_GetKbdByName_reply_KeyNames_groupNames_mask_Group1,
@@ -26337,7 +26337,7 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
             proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetKbdByName_reply_KeyNames_groupNames, ett_x11_rectangle, groupNames_bits, byte_order);
         }
         *offsetp += 1;
-        f_virtualMods = tvb_get_guint16(tvb, *offsetp, byte_order);
+        f_virtualMods = tvb_get_uint16(tvb, *offsetp, byte_order);
         {
             static int* const virtualMods_bits [] = {
                 &hf_x11_xkb_GetKbdByName_reply_KeyNames_virtualMods_mask_0,
@@ -26363,16 +26363,16 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
         *offsetp += 2;
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_KeyNames_firstKey, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
-        f_nKeys = tvb_get_guint8(tvb, *offsetp);
+        f_nKeys = tvb_get_uint8(tvb, *offsetp);
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_KeyNames_nKeys, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
-        f_indicators = tvb_get_guint32(tvb, *offsetp, byte_order);
+        f_indicators = tvb_get_uint32(tvb, *offsetp, byte_order);
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_KeyNames_indicators, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
-        f_nRadioGroups = tvb_get_guint8(tvb, *offsetp);
+        f_nRadioGroups = tvb_get_uint8(tvb, *offsetp);
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_KeyNames_nRadioGroups, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
-        f_nKeyAliases = tvb_get_guint8(tvb, *offsetp);
+        f_nKeyAliases = tvb_get_uint8(tvb, *offsetp);
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_KeyNames_nKeyAliases, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_KeyNames_nKTLevels, tvb, *offsetp, 2, byte_order);
@@ -26411,7 +26411,7 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
             {
                 int i;
                 for (i = 0; i < f_nTypes; i++) {
-                    sumof_nLevelsPerType += tvb_get_guint8(tvb, *offsetp + i * 1);
+                    sumof_nLevelsPerType += tvb_get_uint8(tvb, *offsetp + i * 1);
                 }
             }
             listOfByte(tvb, offsetp, t, hf_x11_xkb_GetKbdByName_reply_KeyNames_KTLevelNames_nLevelsPerType, f_nTypes, byte_order);
@@ -26518,7 +26518,7 @@ static void xkbGetDeviceInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_xkb_GetDeviceInfo_reply_deviceID, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xkb-GetDeviceInfo)", sequence_number);
     *offsetp += 2;
@@ -26560,7 +26560,7 @@ static void xkbGetDeviceInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_GetDeviceInfo_reply_unsupported, ett_x11_rectangle, unsupported_bits, byte_order);
     }
     *offsetp += 2;
-    f_nDeviceLedFBs = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_nDeviceLedFBs = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xkb_GetDeviceInfo_reply_nDeviceLedFBs, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xkb_GetDeviceInfo_reply_firstBtnWanted, tvb, *offsetp, 1, byte_order);
@@ -26569,7 +26569,7 @@ static void xkbGetDeviceInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_GetDeviceInfo_reply_firstBtnRtrn, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    f_nBtnsRtrn = tvb_get_guint8(tvb, *offsetp);
+    f_nBtnsRtrn = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xkb_GetDeviceInfo_reply_nBtnsRtrn, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     proto_tree_add_item(t, hf_x11_xkb_GetDeviceInfo_reply_totalBtns, tvb, *offsetp, 1, byte_order);
@@ -26582,7 +26582,7 @@ static void xkbGetDeviceInfo_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xkb_GetDeviceInfo_reply_devType, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_nameLen = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_nameLen = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xkb_GetDeviceInfo_reply_nameLen, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     listOfByte(tvb, offsetp, t, hf_x11_xkb_GetDeviceInfo_reply_name, f_nameLen, byte_order);
@@ -26602,7 +26602,7 @@ static void xkbSetDeviceInfo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_xkb_SetDeviceInfo_firstBtn, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    f_nBtns = tvb_get_guint8(tvb, *offsetp);
+    f_nBtns = tvb_get_uint8(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xkb_SetDeviceInfo_nBtns, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     {
@@ -26617,7 +26617,7 @@ static void xkbSetDeviceInfo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
         proto_tree_add_bitmask(t,  tvb, *offsetp, hf_x11_xkb_SetDeviceInfo_change, ett_x11_rectangle, change_bits, byte_order);
     }
     *offsetp += 2;
-    f_nDeviceLedFBs = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_nDeviceLedFBs = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xkb_SetDeviceInfo_nDeviceLedFBs, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     struct_xkb_Action(tvb, offsetp, t, byte_order, f_nBtns);
@@ -26629,7 +26629,7 @@ static void xkbSetDeviceInfo(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp
 static void xkbSetDebuggingFlags(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_msgLength;
-    f_msgLength = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_msgLength = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xkb_SetDebuggingFlags_msgLength, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 2, ENC_NA);
@@ -26654,7 +26654,7 @@ static void xkbSetDebuggingFlags_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xkb-SetDebuggingFlags)", sequence_number);
     *offsetp += 2;
@@ -27528,10 +27528,10 @@ static int struct_size_xprint_PRINTER(tvbuff_t *tvb _U_, int *offsetp _U_, unsig
     int size = 0;
     int f_descLen;
     int f_nameLen;
-    f_nameLen = tvb_get_guint32(tvb, *offsetp + size + 0, byte_order);
+    f_nameLen = tvb_get_uint32(tvb, *offsetp + size + 0, byte_order);
     size += f_nameLen * 1;
     size = (size + 3) & ~3;
-    f_descLen = tvb_get_guint32(tvb, *offsetp + size + 4, byte_order);
+    f_descLen = tvb_get_uint32(tvb, *offsetp + size + 4, byte_order);
     size += f_descLen * 1;
     size = (size + 3) & ~3;
     return size + 8;
@@ -27548,7 +27548,7 @@ static void struct_xprint_PRINTER(tvbuff_t *tvb, int *offsetp, proto_tree *root,
 
         item = proto_tree_add_item(root, hf_x11_struct_xprint_PRINTER, tvb, *offsetp, struct_size_xprint_PRINTER(tvb, offsetp, byte_order), ENC_NA);
         t = proto_item_add_subtree(item, ett_x11_rectangle);
-        f_nameLen = tvb_get_guint32(tvb, *offsetp, byte_order);
+        f_nameLen = tvb_get_uint32(tvb, *offsetp, byte_order);
         proto_tree_add_item(t, hf_x11_struct_xprint_PRINTER_nameLen, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
         listOfByte(tvb, offsetp, t, hf_x11_struct_xprint_PRINTER_name, f_nameLen, byte_order);
@@ -27556,7 +27556,7 @@ static void struct_xprint_PRINTER(tvbuff_t *tvb, int *offsetp, proto_tree *root,
             proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, (4 - *offsetp % 4), ENC_NA);
             *offsetp += (4 - *offsetp % 4);
         }
-        f_descLen = tvb_get_guint32(tvb, *offsetp, byte_order);
+        f_descLen = tvb_get_uint32(tvb, *offsetp, byte_order);
         proto_tree_add_item(t, hf_x11_struct_xprint_PRINTER_descLen, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
         listOfByte(tvb, offsetp, t, hf_x11_struct_xprint_PRINTER_description, f_descLen, byte_order);
@@ -27579,7 +27579,7 @@ static void xprintPrintQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xprint-PrintQueryVersion)", sequence_number);
     *offsetp += 2;
@@ -27595,10 +27595,10 @@ static void xprintPrintGetPrinterList(tvbuff_t *tvb, packet_info *pinfo _U_, int
 {
     int f_printerNameLen;
     int f_localeLen;
-    f_printerNameLen = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_printerNameLen = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xprint_PrintGetPrinterList_printerNameLen, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_localeLen = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_localeLen = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xprint_PrintGetPrinterList_localeLen, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfByte(tvb, offsetp, t, hf_x11_xprint_PrintGetPrinterList_printer_name, f_printerNameLen, byte_order);
@@ -27621,13 +27621,13 @@ static void xprintPrintGetPrinterList_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xprint-PrintGetPrinterList)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_listCount = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_listCount = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xprint_PrintGetPrinterList_reply_listCount, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
@@ -27645,10 +27645,10 @@ static void xprintCreateContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
     int f_localeLen;
     proto_tree_add_item(t, hf_x11_xprint_CreateContext_context_id, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_printerNameLen = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_printerNameLen = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xprint_CreateContext_printerNameLen, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_localeLen = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_localeLen = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xprint_CreateContext_localeLen, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfByte(tvb, offsetp, t, hf_x11_xprint_CreateContext_printerName, f_printerNameLen, byte_order);
@@ -27680,7 +27680,7 @@ static void xprintPrintGetContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xprint-PrintGetContext)", sequence_number);
     *offsetp += 2;
@@ -27708,7 +27708,7 @@ static void xprintPrintGetScreenOfContext_Reply(tvbuff_t *tvb, packet_info *pinf
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xprint-PrintGetScreenOfContext)", sequence_number);
     *offsetp += 2;
@@ -27749,13 +27749,13 @@ static void xprintPrintPutDocumentData(tvbuff_t *tvb, packet_info *pinfo _U_, in
     int f_len_options;
     proto_tree_add_item(t, hf_x11_xprint_PrintPutDocumentData_drawable, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_len_data = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_len_data = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xprint_PrintPutDocumentData_len_data, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_len_fmt = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_len_fmt = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xprint_PrintPutDocumentData_len_fmt, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    f_len_options = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_len_options = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xprint_PrintPutDocumentData_len_options, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     listOfByte(tvb, offsetp, t, hf_x11_xprint_PrintPutDocumentData_data, f_len_data, byte_order);
@@ -27793,7 +27793,7 @@ static void xprintPrintGetDocumentData_Reply(tvbuff_t *tvb, packet_info *pinfo, 
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xprint-PrintGetDocumentData)", sequence_number);
     *offsetp += 2;
@@ -27803,7 +27803,7 @@ static void xprintPrintGetDocumentData_Reply(tvbuff_t *tvb, packet_info *pinfo, 
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xprint_PrintGetDocumentData_reply_finished_flag, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_dataLen = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_dataLen = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xprint_PrintGetDocumentData_reply_dataLen, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 12, ENC_NA);
@@ -27847,7 +27847,7 @@ static void xprintPrintInputSelected_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xprint-PrintInputSelected)", sequence_number);
     *offsetp += 2;
@@ -27878,13 +27878,13 @@ static void xprintPrintGetAttributes_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xprint-PrintGetAttributes)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_stringLen = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_stringLen = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xprint_PrintGetAttributes_reply_stringLen, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
@@ -27897,7 +27897,7 @@ static void xprintPrintGetOneAttributes(tvbuff_t *tvb, packet_info *pinfo _U_, i
     int f_nameLen;
     proto_tree_add_item(t, hf_x11_xprint_PrintGetOneAttributes_context, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_nameLen = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_nameLen = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xprint_PrintGetOneAttributes_nameLen, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xprint_PrintGetOneAttributes_pool, tvb, *offsetp, 1, byte_order);
@@ -27917,13 +27917,13 @@ static void xprintPrintGetOneAttributes_Reply(tvbuff_t *tvb, packet_info *pinfo,
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xprint-PrintGetOneAttributes)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_valueLen = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_valueLen = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xprint_PrintGetOneAttributes_reply_valueLen, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
@@ -27960,7 +27960,7 @@ static void xprintPrintGetPageDimensions_Reply(tvbuff_t *tvb, packet_info *pinfo
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xprint-PrintGetPageDimensions)", sequence_number);
     *offsetp += 2;
@@ -27993,13 +27993,13 @@ static void xprintPrintQueryScreens_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xprint-PrintQueryScreens)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_listCount = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_listCount = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xprint_PrintQueryScreens_reply_listCount, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
@@ -28023,7 +28023,7 @@ static void xprintPrintSetImageResolution_Reply(tvbuff_t *tvb, packet_info *pinf
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_xprint_PrintSetImageResolution_reply_status, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xprint-PrintSetImageResolution)", sequence_number);
     *offsetp += 2;
@@ -28047,7 +28047,7 @@ static void xprintPrintGetImageResolution_Reply(tvbuff_t *tvb, packet_info *pinf
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xprint-PrintGetImageResolution)", sequence_number);
     *offsetp += 2;
@@ -28225,7 +28225,7 @@ static void xselinuxQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xselinux-QueryVersion)", sequence_number);
     *offsetp += 2;
@@ -28240,7 +28240,7 @@ static void xselinuxQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
 static void xselinuxSetDeviceCreateContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_context_len;
-    f_context_len = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_context_len = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xselinux_SetDeviceCreateContext_context_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfByte(tvb, offsetp, t, hf_x11_xselinux_SetDeviceCreateContext_context, f_context_len, byte_order);
@@ -28260,13 +28260,13 @@ static void xselinuxGetDeviceCreateContext_Reply(tvbuff_t *tvb, packet_info *pin
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xselinux-GetDeviceCreateContext)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_context_len = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_context_len = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xselinux_GetDeviceCreateContext_reply_context_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
@@ -28279,7 +28279,7 @@ static void xselinuxSetDeviceContext(tvbuff_t *tvb, packet_info *pinfo _U_, int 
     int f_context_len;
     proto_tree_add_item(t, hf_x11_xselinux_SetDeviceContext_device, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_context_len = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_context_len = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xselinux_SetDeviceContext_context_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfByte(tvb, offsetp, t, hf_x11_xselinux_SetDeviceContext_context, f_context_len, byte_order);
@@ -28301,13 +28301,13 @@ static void xselinuxGetDeviceContext_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xselinux-GetDeviceContext)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_context_len = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_context_len = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xselinux_GetDeviceContext_reply_context_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
@@ -28318,7 +28318,7 @@ static void xselinuxGetDeviceContext_Reply(tvbuff_t *tvb, packet_info *pinfo, in
 static void xselinuxSetWindowCreateContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_context_len;
-    f_context_len = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_context_len = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xselinux_SetWindowCreateContext_context_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfByte(tvb, offsetp, t, hf_x11_xselinux_SetWindowCreateContext_context, f_context_len, byte_order);
@@ -28338,13 +28338,13 @@ static void xselinuxGetWindowCreateContext_Reply(tvbuff_t *tvb, packet_info *pin
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xselinux-GetWindowCreateContext)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_context_len = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_context_len = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xselinux_GetWindowCreateContext_reply_context_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
@@ -28367,13 +28367,13 @@ static void xselinuxGetWindowContext_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xselinux-GetWindowContext)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_context_len = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_context_len = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xselinux_GetWindowContext_reply_context_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
@@ -28386,8 +28386,8 @@ static int struct_size_xselinux_ListItem(tvbuff_t *tvb _U_, int *offsetp _U_, un
     int size = 0;
     int f_data_context_len;
     int f_object_context_len;
-    f_object_context_len = tvb_get_guint32(tvb, *offsetp + size + 4, byte_order);
-    f_data_context_len = tvb_get_guint32(tvb, *offsetp + size + 8, byte_order);
+    f_object_context_len = tvb_get_uint32(tvb, *offsetp + size + 4, byte_order);
+    f_data_context_len = tvb_get_uint32(tvb, *offsetp + size + 8, byte_order);
     size += f_object_context_len * 1;
     size = (size + 3) & ~3;
     size += f_data_context_len * 1;
@@ -28408,10 +28408,10 @@ static void struct_xselinux_ListItem(tvbuff_t *tvb, int *offsetp, proto_tree *ro
         t = proto_item_add_subtree(item, ett_x11_rectangle);
         proto_tree_add_item(t, hf_x11_struct_xselinux_ListItem_name, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
-        f_object_context_len = tvb_get_guint32(tvb, *offsetp, byte_order);
+        f_object_context_len = tvb_get_uint32(tvb, *offsetp, byte_order);
         proto_tree_add_item(t, hf_x11_struct_xselinux_ListItem_object_context_len, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
-        f_data_context_len = tvb_get_guint32(tvb, *offsetp, byte_order);
+        f_data_context_len = tvb_get_uint32(tvb, *offsetp, byte_order);
         proto_tree_add_item(t, hf_x11_struct_xselinux_ListItem_data_context_len, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
         listOfByte(tvb, offsetp, t, hf_x11_struct_xselinux_ListItem_object_context, f_object_context_len, byte_order);
@@ -28430,7 +28430,7 @@ static void struct_xselinux_ListItem(tvbuff_t *tvb, int *offsetp, proto_tree *ro
 static void xselinuxSetPropertyCreateContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_context_len;
-    f_context_len = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_context_len = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xselinux_SetPropertyCreateContext_context_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfByte(tvb, offsetp, t, hf_x11_xselinux_SetPropertyCreateContext_context, f_context_len, byte_order);
@@ -28450,13 +28450,13 @@ static void xselinuxGetPropertyCreateContext_Reply(tvbuff_t *tvb, packet_info *p
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xselinux-GetPropertyCreateContext)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_context_len = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_context_len = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xselinux_GetPropertyCreateContext_reply_context_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
@@ -28467,7 +28467,7 @@ static void xselinuxGetPropertyCreateContext_Reply(tvbuff_t *tvb, packet_info *p
 static void xselinuxSetPropertyUseContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_context_len;
-    f_context_len = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_context_len = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xselinux_SetPropertyUseContext_context_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfByte(tvb, offsetp, t, hf_x11_xselinux_SetPropertyUseContext_context, f_context_len, byte_order);
@@ -28487,13 +28487,13 @@ static void xselinuxGetPropertyUseContext_Reply(tvbuff_t *tvb, packet_info *pinf
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xselinux-GetPropertyUseContext)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_context_len = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_context_len = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xselinux_GetPropertyUseContext_reply_context_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
@@ -28518,13 +28518,13 @@ static void xselinuxGetPropertyContext_Reply(tvbuff_t *tvb, packet_info *pinfo, 
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xselinux-GetPropertyContext)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_context_len = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_context_len = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xselinux_GetPropertyContext_reply_context_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
@@ -28549,13 +28549,13 @@ static void xselinuxGetPropertyDataContext_Reply(tvbuff_t *tvb, packet_info *pin
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xselinux-GetPropertyDataContext)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_context_len = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_context_len = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xselinux_GetPropertyDataContext_reply_context_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
@@ -28578,13 +28578,13 @@ static void xselinuxListProperties_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xselinux-ListProperties)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_properties_len = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_properties_len = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xselinux_ListProperties_reply_properties_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
@@ -28595,7 +28595,7 @@ static void xselinuxListProperties_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
 static void xselinuxSetSelectionCreateContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_context_len;
-    f_context_len = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_context_len = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xselinux_SetSelectionCreateContext_context_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfByte(tvb, offsetp, t, hf_x11_xselinux_SetSelectionCreateContext_context, f_context_len, byte_order);
@@ -28615,13 +28615,13 @@ static void xselinuxGetSelectionCreateContext_Reply(tvbuff_t *tvb, packet_info *
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xselinux-GetSelectionCreateContext)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_context_len = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_context_len = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xselinux_GetSelectionCreateContext_reply_context_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
@@ -28632,7 +28632,7 @@ static void xselinuxGetSelectionCreateContext_Reply(tvbuff_t *tvb, packet_info *
 static void xselinuxSetSelectionUseContext(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto_tree *t, unsigned byte_order, int length _U_)
 {
     int f_context_len;
-    f_context_len = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_context_len = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xselinux_SetSelectionUseContext_context_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     listOfByte(tvb, offsetp, t, hf_x11_xselinux_SetSelectionUseContext_context, f_context_len, byte_order);
@@ -28652,13 +28652,13 @@ static void xselinuxGetSelectionUseContext_Reply(tvbuff_t *tvb, packet_info *pin
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xselinux-GetSelectionUseContext)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_context_len = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_context_len = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xselinux_GetSelectionUseContext_reply_context_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
@@ -28681,13 +28681,13 @@ static void xselinuxGetSelectionContext_Reply(tvbuff_t *tvb, packet_info *pinfo,
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xselinux-GetSelectionContext)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_context_len = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_context_len = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xselinux_GetSelectionContext_reply_context_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
@@ -28710,13 +28710,13 @@ static void xselinuxGetSelectionDataContext_Reply(tvbuff_t *tvb, packet_info *pi
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xselinux-GetSelectionDataContext)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_context_len = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_context_len = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xselinux_GetSelectionDataContext_reply_context_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
@@ -28737,13 +28737,13 @@ static void xselinuxListSelections_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xselinux-ListSelections)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_selections_len = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_selections_len = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xselinux_ListSelections_reply_selections_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
@@ -28766,13 +28766,13 @@ static void xselinuxGetClientContext_Reply(tvbuff_t *tvb, packet_info *pinfo, in
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xselinux-GetClientContext)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_context_len = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_context_len = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xselinux_GetClientContext_reply_context_len, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
@@ -28935,7 +28935,7 @@ static void xtestGetVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_xtest_GetVersion_reply_major_version, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xtest-GetVersion)", sequence_number);
     *offsetp += 2;
@@ -28961,7 +28961,7 @@ static void xtestCompareCursor_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_xtest_CompareCursor_reply_same, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xtest-CompareCursor)", sequence_number);
     *offsetp += 2;
@@ -29087,8 +29087,8 @@ static int struct_size_xv_AdaptorInfo(tvbuff_t *tvb _U_, int *offsetp _U_, unsig
     int size = 0;
     int f_name_size;
     int f_num_formats;
-    f_name_size = tvb_get_guint16(tvb, *offsetp + size + 4, byte_order);
-    f_num_formats = tvb_get_guint16(tvb, *offsetp + size + 8, byte_order);
+    f_name_size = tvb_get_uint16(tvb, *offsetp + size + 4, byte_order);
+    f_num_formats = tvb_get_uint16(tvb, *offsetp + size + 8, byte_order);
     size += f_name_size * 1;
     size = (size + 3) & ~3;
     size += f_num_formats * 8;
@@ -29108,12 +29108,12 @@ static void struct_xv_AdaptorInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root,
         t = proto_item_add_subtree(item, ett_x11_rectangle);
         proto_tree_add_item(t, hf_x11_struct_xv_AdaptorInfo_base_id, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
-        f_name_size = tvb_get_guint16(tvb, *offsetp, byte_order);
+        f_name_size = tvb_get_uint16(tvb, *offsetp, byte_order);
         proto_tree_add_item(t, hf_x11_struct_xv_AdaptorInfo_name_size, tvb, *offsetp, 2, byte_order);
         *offsetp += 2;
         proto_tree_add_item(t, hf_x11_struct_xv_AdaptorInfo_num_ports, tvb, *offsetp, 2, byte_order);
         *offsetp += 2;
-        f_num_formats = tvb_get_guint16(tvb, *offsetp, byte_order);
+        f_num_formats = tvb_get_uint16(tvb, *offsetp, byte_order);
         proto_tree_add_item(t, hf_x11_struct_xv_AdaptorInfo_num_formats, tvb, *offsetp, 2, byte_order);
         *offsetp += 2;
         {
@@ -29143,7 +29143,7 @@ static int struct_size_xv_EncodingInfo(tvbuff_t *tvb _U_, int *offsetp _U_, unsi
 {
     int size = 0;
     int f_name_size;
-    f_name_size = tvb_get_guint16(tvb, *offsetp + size + 4, byte_order);
+    f_name_size = tvb_get_uint16(tvb, *offsetp + size + 4, byte_order);
     size += f_name_size * 1;
     size = (size + 3) & ~3;
     return size + 20;
@@ -29161,7 +29161,7 @@ static void struct_xv_EncodingInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root
         t = proto_item_add_subtree(item, ett_x11_rectangle);
         proto_tree_add_item(t, hf_x11_struct_xv_EncodingInfo_encoding, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
-        f_name_size = tvb_get_guint16(tvb, *offsetp, byte_order);
+        f_name_size = tvb_get_uint16(tvb, *offsetp, byte_order);
         proto_tree_add_item(t, hf_x11_struct_xv_EncodingInfo_name_size, tvb, *offsetp, 2, byte_order);
         *offsetp += 2;
         proto_tree_add_item(t, hf_x11_struct_xv_EncodingInfo_width, tvb, *offsetp, 2, byte_order);
@@ -29183,7 +29183,7 @@ static int struct_size_xv_AttributeInfo(tvbuff_t *tvb _U_, int *offsetp _U_, uns
 {
     int size = 0;
     int f_size;
-    f_size = tvb_get_guint32(tvb, *offsetp + size + 12, byte_order);
+    f_size = tvb_get_uint32(tvb, *offsetp + size + 12, byte_order);
     size += f_size * 1;
     size = (size + 3) & ~3;
     return size + 16;
@@ -29212,7 +29212,7 @@ static void struct_xv_AttributeInfo(tvbuff_t *tvb, int *offsetp, proto_tree *roo
         *offsetp += 4;
         proto_tree_add_item(t, hf_x11_struct_xv_AttributeInfo_max, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
-        f_size = tvb_get_guint32(tvb, *offsetp, byte_order);
+        f_size = tvb_get_uint32(tvb, *offsetp, byte_order);
         proto_tree_add_item(t, hf_x11_struct_xv_AttributeInfo_size, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
         listOfByte(tvb, offsetp, t, hf_x11_struct_xv_AttributeInfo_name, f_size, byte_order);
@@ -29311,7 +29311,7 @@ static void xvQueryExtension_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xv-QueryExtension)", sequence_number);
     *offsetp += 2;
@@ -29338,13 +29338,13 @@ static void xvQueryAdaptors_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xv-QueryAdaptors)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_adaptors = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_num_adaptors = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xv_QueryAdaptors_reply_num_adaptors, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 22, ENC_NA);
@@ -29367,13 +29367,13 @@ static void xvQueryEncodings_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xv-QueryEncodings)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_encodings = tvb_get_guint16(tvb, *offsetp, byte_order);
+    f_num_encodings = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xv_QueryEncodings_reply_num_encodings, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 22, ENC_NA);
@@ -29395,7 +29395,7 @@ static void xvGrabPort_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pr
 
     REPLY(reply);
     field8(tvb, offsetp, t, hf_x11_xv_GrabPort_reply_result, byte_order);
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xv-GrabPort)", sequence_number);
     *offsetp += 2;
@@ -29568,7 +29568,7 @@ static void xvQueryBestSize_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xv-QueryBestSize)", sequence_number);
     *offsetp += 2;
@@ -29606,7 +29606,7 @@ static void xvGetPortAttribute_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xv-GetPortAttribute)", sequence_number);
     *offsetp += 2;
@@ -29631,13 +29631,13 @@ static void xvQueryPortAttributes_Reply(tvbuff_t *tvb, packet_info *pinfo, int *
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xv-QueryPortAttributes)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_attributes = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_attributes = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xv_QueryPortAttributes_reply_num_attributes, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xv_QueryPortAttributes_reply_text_size, tvb, *offsetp, 4, byte_order);
@@ -29662,13 +29662,13 @@ static void xvListImageFormats_Reply(tvbuff_t *tvb, packet_info *pinfo, int *off
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xv-ListImageFormats)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_formats = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_formats = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xv_ListImageFormats_reply_num_formats, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
@@ -29697,13 +29697,13 @@ static void xvQueryImageAttributes_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xv-QueryImageAttributes)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num_planes = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num_planes = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xv_QueryImageAttributes_reply_num_planes, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xv_QueryImageAttributes_reply_data_size, tvb, *offsetp, 4, byte_order);
@@ -29952,7 +29952,7 @@ static void xvmcQueryVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xvmc-QueryVersion)", sequence_number);
     *offsetp += 2;
@@ -29979,13 +29979,13 @@ static void xvmcListSurfaceTypes_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xvmc-ListSurfaceTypes)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xvmc_ListSurfaceTypes_reply_num, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
@@ -30018,11 +30018,11 @@ static void xvmcCreateContext_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xvmc-CreateContext)", sequence_number);
     *offsetp += 2;
-    f_length = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_length = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xvmc_CreateContext_reply_width_actual, tvb, *offsetp, 2, byte_order);
@@ -30059,11 +30059,11 @@ static void xvmcCreateSurface_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offs
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xvmc-CreateSurface)", sequence_number);
     *offsetp += 2;
-    f_length = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_length = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 24, ENC_NA);
@@ -30100,11 +30100,11 @@ static void xvmcCreateSubpicture_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xvmc-CreateSubpicture)", sequence_number);
     *offsetp += 2;
-    f_length = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_length = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_xvmc_CreateSubpicture_reply_width_actual, tvb, *offsetp, 2, byte_order);
@@ -30144,13 +30144,13 @@ static void xvmcListSubpictureTypes_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     REPLY(reply);
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 1, ENC_NA);
     *offsetp += 1;
-    sequence_number = tvb_get_guint16(tvb, *offsetp, byte_order);
+    sequence_number = tvb_get_uint16(tvb, *offsetp, byte_order);
     proto_tree_add_uint_format_value(t, hf_x11_reply_sequencenumber, tvb, *offsetp, 2, sequence_number,
             "%d (xvmc-ListSubpictureTypes)", sequence_number);
     *offsetp += 2;
     proto_tree_add_item(t, hf_x11_replylength, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    f_num = tvb_get_guint32(tvb, *offsetp, byte_order);
+    f_num = tvb_get_uint32(tvb, *offsetp, byte_order);
     proto_tree_add_item(t, hf_x11_xvmc_ListSubpictureTypes_reply_num, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
     proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, 20, ENC_NA);
