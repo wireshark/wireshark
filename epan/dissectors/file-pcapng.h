@@ -28,8 +28,8 @@ typedef void (local_block_dissect_t)(proto_tree *tree, packet_info *pinfo, tvbuf
 typedef void (local_block_option_dissect_t)(proto_tree *option_tree, proto_item *option_item,
                                             packet_info *pinfo, tvbuff_t *tvb, int offset,
                                             int unknown_option_hf,
-                                            guint32 option_code, guint32 option_length,
-                                            guint encoding);
+                                            uint32_t option_code, uint32_t option_length,
+                                            unsigned encoding);
 
 typedef struct {
     const char* name;
@@ -41,12 +41,12 @@ typedef struct {
 
 /* Routine for a local block dissector to register with main pcapng dissector.
  * For an in-tree example, please see file-pcapng-darwin.c */
-void register_pcapng_local_block_dissector(guint32 block_number, local_block_callback_info_t *info);
+void register_pcapng_local_block_dissector(uint32_t block_number, local_block_callback_info_t *info);
 
 
 /* Can be called by local block type dissectors block dissector callback */
-gint dissect_options(proto_tree *tree, packet_info *pinfo,
-        guint32 block_type, tvbuff_t *tvb, int offset, guint encoding,
+int dissect_options(proto_tree *tree, packet_info *pinfo,
+        uint32_t block_type, tvbuff_t *tvb, int offset, unsigned encoding,
         void *user_data);
 
 
@@ -55,28 +55,28 @@ gint dissect_options(proto_tree *tree, packet_info *pinfo,
 
 /* File info */
 struct info {
-    guint32        block_number;
-    guint32        section_number;
-    guint32        interface_number;
-    guint32        darwin_process_event_number;
-    guint32        frame_number;
-    guint          encoding;
+    uint32_t       block_number;
+    uint32_t       section_number;
+    uint32_t       interface_number;
+    uint32_t       darwin_process_event_number;
+    uint32_t       frame_number;
+    unsigned       encoding;
     wmem_array_t  *interfaces;
     wmem_array_t  *darwin_process_events;
 };
 
 struct interface_description {
-    guint32  link_type;
-    guint32  snap_len;
-    guint64  timestamp_resolution;
-    guint64  timestamp_offset;
+    uint32_t link_type;
+    uint32_t snap_len;
+    uint64_t timestamp_resolution;
+    uint64_t timestamp_offset;
 };
 
 struct darwin_process_event_description {
-    guint32  process_id;
+    uint32_t process_id;
 };
 
 /* Dissect one PCAPNG Block */
-extern gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, struct info *info);
+extern int dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, struct info *info);
 
 #endif

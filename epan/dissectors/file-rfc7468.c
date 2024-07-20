@@ -18,10 +18,10 @@ void proto_reg_handoff_rfc7468(void);
 
 static int proto_rfc7468;
 
-static gint ett_rfc7468;
-static gint ett_rfc7468_preeb;
-static gint ett_rfc7468_data;
-static gint ett_rfc7468_posteb;
+static int ett_rfc7468;
+static int ett_rfc7468_preeb;
+static int ett_rfc7468_data;
+static int ett_rfc7468_posteb;
 
 static int hf_rfc7468_preeb_label;
 static int hf_rfc7468_ber_data;
@@ -32,13 +32,13 @@ static dissector_handle_t ber_handle;
 
 static dissector_table_t rfc7468_label_table;
 
-static gboolean
-line_is_eb(const guchar *line, int linelen, const char *prefix,
-           size_t prefixlen, const guchar **labelpp, int *labellenp)
+static bool
+line_is_eb(const unsigned char *line, int linelen, const char *prefix,
+           size_t prefixlen, const unsigned char **labelpp, int *labellenp)
 {
     static const char suffix[] = "-----";
 #define suffixlen (sizeof suffix - 1)
-    const guchar *labelp;
+    const unsigned char *labelp;
     int labellen;
 
     /*
@@ -52,7 +52,7 @@ line_is_eb(const guchar *line, int linelen, const char *prefix,
         /*
          * No - it's too short.
          */
-        return FALSE;
+        return false;
     }
 
     /*
@@ -62,7 +62,7 @@ line_is_eb(const guchar *line, int linelen, const char *prefix,
         /*
          * No - it doesn't begin with the prefix.
          */
-        return FALSE;
+        return false;
     }
 
     /*
@@ -72,7 +72,7 @@ line_is_eb(const guchar *line, int linelen, const char *prefix,
         /*
          * No - it doesn't end with the suffix.
          */
-        return FALSE;
+        return false;
     }
 
     /*
@@ -85,7 +85,7 @@ line_is_eb(const guchar *line, int linelen, const char *prefix,
     *labellenp = labellen;
     if (labellen == 0) {
         /* The label is empty. */
-        return TRUE;
+        return true;
     }
 
     /*
@@ -93,7 +93,7 @@ line_is_eb(const guchar *line, int linelen, const char *prefix,
      * i.e., printable ASCII other than SP or '-'.
      */
     if (*labelp == ' ' || *labelp == '-')
-        return FALSE;
+        return false;
     labelp++;
     labellen--;
 
@@ -103,25 +103,25 @@ line_is_eb(const guchar *line, int linelen, const char *prefix,
     for (int i = 0; i < labellen; i++, labelp++) {
         if (*labelp < 0x20 || *labelp > 0x7E) {
             /* Not printable ASCII. */
-            return FALSE;
+            return false;
         }
     }
-    return TRUE;
+    return true;
 }
 
-static gboolean
-line_is_blank(const guchar *line, int linelen)
+static bool
+line_is_blank(const unsigned char *line, int linelen)
 {
-    const guchar *p;
+    const unsigned char *p;
 
     p = line;
     for (int i = 0; i < linelen; i++, p++) {
         if (*p != ' ' && *p != '\t') {
             /* Not space or tab */
-            return FALSE;
+            return false;
         }
     }
-    return TRUE;
+    return true;
 }
 
 static const char preeb_prefix[] = "-----BEGIN ";
@@ -129,14 +129,14 @@ static const char preeb_prefix[] = "-----BEGIN ";
 static const char posteb_prefix[] = "-----END ";
 #define posteb_prefix_len (sizeof posteb_prefix - 1)
 
-static gint
+static int
 dissect_rfc7468(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     int offset;
     int linelen;
     int next_offset = 0;
-    const guchar *line;
-    const guchar *labelp = NULL;
+    const unsigned char *line;
+    const unsigned char *labelp = NULL;
     int labellen = 0;
     char *label;
     proto_tree *rfc7468_tree, *preeb_tree, *posteb_tree;
@@ -153,7 +153,7 @@ dissect_rfc7468(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
      * boundary; they're explanatory text lines.
      */
     while (tvb_offset_exists(tvb, offset)) {
-        linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+        linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, false);
         if (linelen == -1) {
             /* No complete line was found.  Nothing more to do. */
             return tvb_captured_length(tvb);
@@ -215,7 +215,7 @@ dissect_rfc7468(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
      * Skip over any blank lines before the base64 information.
      */
     while (tvb_offset_exists(tvb, offset)) {
-        linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+        linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, false);
         if (linelen == -1) {
             /* No complete line was found.  We're done. */
             return tvb_captured_length(tvb);
@@ -254,13 +254,13 @@ dissect_rfc7468(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     /*
      * OK, this should be base64-encoded binary data.
      */
-    guint8 *databuf = NULL;
-    gsize databufsize = 0;
-    gint base64_state = 0;
-    guint base64_save = 0;
-    guint datasize = 0;
+    uint8_t *databuf = NULL;
+    size_t databufsize = 0;
+    int base64_state = 0;
+    unsigned base64_save = 0;
+    unsigned datasize = 0;
     while (tvb_offset_exists(tvb, offset)) {
-        linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+        linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, false);
         if (linelen == -1) {
             /*
              * No complete line was found.  Nothing more to do.
@@ -298,12 +298,12 @@ dissect_rfc7468(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
          * First, grow the buffer as needed.
          */
         databufsize += (linelen / 4) * 3 + 3;
-        databuf = (guint8 *)wmem_realloc(pinfo->pool, databuf, databufsize);
+        databuf = (uint8_t *)wmem_realloc(pinfo->pool, databuf, databufsize);
 
         /*
          * Now decode into it.
          */
-        guint decodesize = (guint)g_base64_decode_step(line, linelen,
+        unsigned decodesize = (unsigned)g_base64_decode_step(line, linelen,
                                                        &databuf[datasize],
                                                        &base64_state,
                                                        &base64_save);
@@ -369,10 +369,10 @@ dissect_rfc7468_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     int offset;
     int linelen;
     int next_offset;
-    const guchar *line;
-    const guchar *labelp;
+    const unsigned char *line;
+    const unsigned char *labelp;
     int labellen;
-    gboolean found = FALSE;
+    bool found = false;
 
     /*
      * Look for a pre-encapsulation boundary.
@@ -381,7 +381,7 @@ dissect_rfc7468_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
      */
     offset = 0;
     for (unsigned int i = 0; i < MAX_EXPLANATORY_TEXT_LINES; i++) {
-        linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+        linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, false);
         if (linelen == -1) {
             /*
              * No complete line was found; we ran out of file data
@@ -408,7 +408,7 @@ dissect_rfc7468_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
             /*
              * Yes - we're done looking.
              */
-            found = TRUE;
+            found = true;
             break;
         }
 
@@ -446,7 +446,7 @@ proto_register_rfc7468(void)
                 NULL, 0, NULL, HFILL } },
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_rfc7468,
         &ett_rfc7468_preeb,
         &ett_rfc7468_data,

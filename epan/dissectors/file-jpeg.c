@@ -464,87 +464,87 @@ static const value_string vals_exif_types[] = {
 static int proto_jfif;
 
 /* Marker */
-static gint hf_marker;
+static int hf_marker;
 /* Marker segment */
-static gint hf_marker_segment;
-static gint hf_len;
+static int hf_marker_segment;
+static int hf_len;
 /* MARKER_APP0 */
-static gint hf_identifier;
+static int hf_identifier;
 /* MARKER_APP0 - JFIF */
-static gint hf_version;
-static gint hf_version_major;
-static gint hf_version_minor;
-static gint hf_units;
-static gint hf_xdensity;
-static gint hf_ydensity;
-static gint hf_xthumbnail;
-static gint hf_ythumbnail;
-static gint hf_rgb;
+static int hf_version;
+static int hf_version_major;
+static int hf_version_minor;
+static int hf_units;
+static int hf_xdensity;
+static int hf_ydensity;
+static int hf_xthumbnail;
+static int hf_ythumbnail;
+static int hf_rgb;
 /* MARKER_APP0 - JFXX */
-static gint hf_extension_code;
+static int hf_extension_code;
 /* start of Frame */
-static gint hf_sof_header;
-static gint hf_sof_precision;
-static gint hf_sof_lines;
-static gint hf_sof_samples_per_line;
-static gint hf_sof_nf;
-static gint hf_sof_c_i;
-static gint hf_sof_h_i;
-static gint hf_sof_v_i;
-static gint hf_sof_tq_i;
+static int hf_sof_header;
+static int hf_sof_precision;
+static int hf_sof_lines;
+static int hf_sof_samples_per_line;
+static int hf_sof_nf;
+static int hf_sof_c_i;
+static int hf_sof_h_i;
+static int hf_sof_v_i;
+static int hf_sof_tq_i;
 
 /* Start of Scan */
-static gint hf_sos_header;
-static gint hf_sos_ns;
-static gint hf_sos_cs_j;
-static gint hf_sos_td_j;
-static gint hf_sos_ta_j;
-static gint hf_sos_ss;
-static gint hf_sos_se;
-static gint hf_sos_ah;
-static gint hf_sos_al;
+static int hf_sos_header;
+static int hf_sos_ns;
+static int hf_sos_cs_j;
+static int hf_sos_td_j;
+static int hf_sos_ta_j;
+static int hf_sos_ss;
+static int hf_sos_se;
+static int hf_sos_ah;
+static int hf_sos_al;
 
 /* Comment */
-static gint hf_comment_header;
-static gint hf_comment;
+static int hf_comment_header;
+static int hf_comment;
 
-static gint hf_remain_seg_data;
-static gint hf_endianness;
-static gint hf_start_ifd_offset;
-static gint hf_next_ifd_offset;
-static gint hf_exif_flashpix_marker;
-static gint hf_entropy_coded_segment;
-static gint hf_fill_bytes;
-static gint hf_skipped_tiff_data;
-static gint hf_ifd_num_fields;
-static gint hf_ifd_tag;
-static gint hf_ifd_tag_exif;
-static gint hf_ifd_tag_gps;
-static gint hf_ifd_tag_interop;
-static gint hf_ifd_type;
-static gint hf_ifd_count;
-static gint hf_ifd_offset;
-static gint hf_ifd_value_byte;
-static gint hf_ifd_value_ascii;
-static gint hf_ifd_value_short;
-static gint hf_ifd_value_long;
-static gint hf_ifd_value_rational;
-static gint hf_ifd_value_rational_numerator;
-static gint hf_ifd_value_rational_denominator;
-static gint hf_ifd_value_undefined;
-static gint hf_ifd_value_slong;
-static gint hf_ifd_value_srational;
-static gint hf_ifd_value_srational_numerator;
-static gint hf_ifd_value_srational_denominator;
+static int hf_remain_seg_data;
+static int hf_endianness;
+static int hf_start_ifd_offset;
+static int hf_next_ifd_offset;
+static int hf_exif_flashpix_marker;
+static int hf_entropy_coded_segment;
+static int hf_fill_bytes;
+static int hf_skipped_tiff_data;
+static int hf_ifd_num_fields;
+static int hf_ifd_tag;
+static int hf_ifd_tag_exif;
+static int hf_ifd_tag_gps;
+static int hf_ifd_tag_interop;
+static int hf_ifd_type;
+static int hf_ifd_count;
+static int hf_ifd_offset;
+static int hf_ifd_value_byte;
+static int hf_ifd_value_ascii;
+static int hf_ifd_value_short;
+static int hf_ifd_value_long;
+static int hf_ifd_value_rational;
+static int hf_ifd_value_rational_numerator;
+static int hf_ifd_value_rational_denominator;
+static int hf_ifd_value_undefined;
+static int hf_ifd_value_slong;
+static int hf_ifd_value_srational;
+static int hf_ifd_value_srational_numerator;
+static int hf_ifd_value_srational_denominator;
 
 
 /* Initialize the subtree pointers */
-static gint ett_jfif;
-static gint ett_marker_segment;
-static gint ett_details;
-static gint ett_ifd;
-static gint ett_rational;
-static gint ett_srational;
+static int ett_jfif;
+static int ett_marker_segment;
+static int ett_details;
+static int ett_ifd;
+static int ett_rational;
+static int ett_srational;
 
 static expert_field ei_file_jpeg_first_identifier_not_jfif;
 static expert_field ei_start_ifd_offset;
@@ -558,8 +558,8 @@ static expert_field ei_ifd_value_offset;
  * Process a marker segment (with length).
  */
 static void
-process_marker_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
-        guint16 marker, const char *marker_name)
+process_marker_segment(proto_tree *tree, tvbuff_t *tvb, uint32_t len,
+        uint16_t marker, const char *marker_name)
 {
     proto_item *ti;
     proto_tree *subtree;
@@ -583,13 +583,13 @@ process_marker_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
  * Process a Start of Frame header (with length).
  */
 static void
-process_sof_header(proto_tree *tree, tvbuff_t *tvb, guint32 len _U_,
-        guint16 marker, const char *marker_name)
+process_sof_header(proto_tree *tree, tvbuff_t *tvb, uint32_t len _U_,
+        uint16_t marker, const char *marker_name)
 {
     proto_item *ti;
     proto_tree *subtree;
-    guint8 count;
-    guint32 offset;
+    uint8_t count;
+    uint32_t offset;
 
     if (!tree)
         return;
@@ -610,7 +610,7 @@ process_sof_header(proto_tree *tree, tvbuff_t *tvb, guint32 len _U_,
     proto_tree_add_item(subtree, hf_sof_samples_per_line, tvb, 7, 2, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(subtree, hf_sof_nf, tvb, 9, 1, ENC_BIG_ENDIAN);
-    count = tvb_get_guint8(tvb, 9);
+    count = tvb_get_uint8(tvb, 9);
     offset = 10;
     while (count > 0) {
         proto_tree_add_item(subtree, hf_sof_c_i, tvb, offset++, 1, ENC_BIG_ENDIAN);
@@ -625,13 +625,13 @@ process_sof_header(proto_tree *tree, tvbuff_t *tvb, guint32 len _U_,
  * Process a Start of Segment header (with length).
  */
 static void
-process_sos_header(proto_tree *tree, tvbuff_t *tvb, guint32 len _U_,
-        guint16 marker, const char *marker_name)
+process_sos_header(proto_tree *tree, tvbuff_t *tvb, uint32_t len _U_,
+        uint16_t marker, const char *marker_name)
 {
     proto_item *ti;
     proto_tree *subtree;
-    guint8 count;
-    guint32 offset;
+    uint8_t count;
+    uint32_t offset;
 
     if (!tree)
         return;
@@ -646,7 +646,7 @@ process_sos_header(proto_tree *tree, tvbuff_t *tvb, guint32 len _U_,
     proto_tree_add_item(subtree, hf_len, tvb, 2, 2, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(subtree, hf_sos_ns, tvb, 4, 1, ENC_BIG_ENDIAN);
-    count = tvb_get_guint8(tvb, 4);
+    count = tvb_get_uint8(tvb, 4);
     offset = 5;
     while (count > 0) {
         proto_tree_add_item(subtree, hf_sos_cs_j, tvb, offset++, 1, ENC_BIG_ENDIAN);
@@ -667,8 +667,8 @@ process_sos_header(proto_tree *tree, tvbuff_t *tvb, guint32 len _U_,
  * Process a Comment header (with length).
  */
 static void
-process_comment_header(proto_tree *tree, tvbuff_t *tvb, guint32 len,
-        guint16 marker, const char *marker_name)
+process_comment_header(proto_tree *tree, tvbuff_t *tvb, uint32_t len,
+        uint16_t marker, const char *marker_name)
 {
     proto_item *ti;
     proto_tree *subtree;
@@ -694,16 +694,16 @@ process_comment_header(proto_tree *tree, tvbuff_t *tvb, guint32 len,
  * XXX - This code only works on US-ASCII systems!!!
  */
 static int
-process_app0_segment(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint32 len,
-        guint16 marker, const char *marker_name)
+process_app0_segment(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, uint32_t len,
+        uint16_t marker, const char *marker_name)
 {
     proto_item *ti;
     proto_tree *subtree;
     proto_tree *subtree_details = NULL;
-    guint32 offset;
+    uint32_t offset;
     char *str;
-    gint str_size;
-    guint16 x, y;
+    int str_size;
+    uint16_t x, y;
 
     if (!tree)
         return 0;
@@ -723,8 +723,8 @@ process_app0_segment(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint3
         /* Version */
         ti = proto_tree_add_none_format(subtree, hf_version,
                 tvb, 9, 2, "Version: %u.%u",
-                tvb_get_guint8(tvb, 9),
-                tvb_get_guint8(tvb, 10));
+                tvb_get_uint8(tvb, 9),
+                tvb_get_uint8(tvb, 10));
         subtree_details = proto_item_add_subtree(ti, ett_details);
         proto_tree_add_item(subtree_details, hf_version_major,
                 tvb, 9, 1, ENC_BIG_ENDIAN);
@@ -745,8 +745,8 @@ process_app0_segment(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint3
                 tvb, 16, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(subtree, hf_ythumbnail,
                 tvb, 17, 1, ENC_BIG_ENDIAN);
-        x = tvb_get_guint8(tvb, 16);
-        y = tvb_get_guint8(tvb, 17);
+        x = tvb_get_uint8(tvb, 16);
+        y = tvb_get_uint8(tvb, 17);
         if (x || y) {
             proto_tree_add_item(subtree, hf_rgb,
                     tvb, 18, 3 * (x * y), ENC_NA);
@@ -773,24 +773,24 @@ process_app0_segment(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint3
 static void
 // NOLINTNEXTLINE(misc-no-recursion)
 process_tiff_ifd_chain(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
-        guint encoding, guint32 start_ifd_offset,
+        unsigned encoding, uint32_t start_ifd_offset,
         int hf_tag, const char *ifd_type_desc)
 {
-    guint32 next_ifd_offset = start_ifd_offset;
+    uint32_t next_ifd_offset = start_ifd_offset;
 
     for (unsigned ifd_index = 0;; ++ifd_index) {
         int offset = next_ifd_offset;
         /*
          * Process the IFD
          */
-        guint32 num_fields = tvb_get_guint16(tvb, offset, encoding);
+        uint32_t num_fields = tvb_get_uint16(tvb, offset, encoding);
         proto_tree *subtree_ifd = proto_tree_add_subtree_format(tree, tvb, offset, num_fields * 12 + 6,
                 ett_ifd, NULL, "%s #%u", ifd_type_desc, ifd_index);
         proto_tree_add_item(subtree_ifd, hf_ifd_num_fields, tvb, offset, 2, encoding);
         offset += 2;
         while (num_fields-- > 0) {
-            guint32 field_tag, field_type, value_count, value_size;
-            gint value_hf;
+            uint32_t field_tag, field_type, value_count, value_size;
+            int value_hf;
 
             proto_tree_add_item_ret_uint(subtree_ifd, hf_tag, tvb, offset, 2, encoding, &field_tag);
             offset += 2;
@@ -825,7 +825,7 @@ process_tiff_ifd_chain(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 
             if (value_size == 0 || 4 / value_size < value_count) {
                 /* The value(s) are located outside the IFD, and the offset field points to them. */
-                guint32 value_offset_uint;
+                uint32_t value_offset_uint;
                 proto_item *offset_item = proto_tree_add_item_ret_uint(
                         subtree_ifd, hf_ifd_offset, tvb, offset, 4, encoding, &value_offset_uint);
 
@@ -847,13 +847,13 @@ process_tiff_ifd_chain(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                 if (value_hf == hf_ifd_value_ascii || value_hf == hf_ifd_value_undefined)
                     proto_tree_add_item(value_parent, value_hf, tvb, value_offset, value_count, ENC_NA);
                 else if (value_size != 0)
-                    for (guint32 i = 0; i < value_count; ++i) {
+                    for (uint32_t i = 0; i < value_count; ++i) {
                         proto_item *value_item = proto_tree_add_item(value_parent, value_hf, tvb,
                                 value_offset, value_size, encoding);
 
                         if (value_hf == hf_ifd_value_rational) {
                             proto_tree *subtree_value = proto_item_add_subtree(value_item, ett_rational);
-                            guint32 num, denom;
+                            uint32_t num, denom;
                             proto_tree_add_item_ret_uint(
                                     subtree_value, hf_ifd_value_rational_numerator, tvb,
                                     value_offset, 4, encoding, &num);
@@ -864,7 +864,7 @@ process_tiff_ifd_chain(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                         }
                         else if (value_hf == hf_ifd_value_srational) {
                             proto_tree *subtree_value = proto_item_add_subtree(value_item, ett_srational);
-                            gint32 num, denom;
+                            int32_t num, denom;
                             proto_tree_add_item_ret_int(
                                     subtree_value, hf_ifd_value_srational_numerator, tvb,
                                     value_offset, 4, encoding, &num);
@@ -874,7 +874,7 @@ process_tiff_ifd_chain(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                             proto_item_set_text(value_item, "Value: %"PRIi32"/%"PRIi32, num, denom);
                         }
                         else if (value_hf == hf_ifd_value_long && value_count == 1 && hf_tag == hf_ifd_tag) {
-                            guint32 extension_ifd_offset = tvb_get_guint32(tvb, value_offset, encoding);
+                            uint32_t extension_ifd_offset = tvb_get_uint32(tvb, value_offset, encoding);
                             int extension_hf_ifd_tag = -1;
                             const char *extension_ifd_type_desc = NULL;
 
@@ -922,7 +922,7 @@ process_tiff_ifd_chain(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
         if (next_ifd_offset == 0)
             break;
 
-        if (next_ifd_offset < (guint32)offset) {
+        if (next_ifd_offset < (uint32_t)offset) {
             expert_add_info_format(pinfo, next_ifd_offset_item, &ei_next_ifd_offset,
                     " (bogus, should be >= %u)", offset);
             return;
@@ -936,10 +936,10 @@ process_tiff(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
     /*
      * Endianness
      */
-    guint encoding;
+    unsigned encoding;
     int offset = 0;
 
-    guint16 byte_order = tvb_get_ntohs(tvb, offset);
+    uint16_t byte_order = tvb_get_ntohs(tvb, offset);
     if (byte_order == 0x4949) {
         encoding = ENC_LITTLE_ENDIAN;
         proto_tree_add_uint_format_value(tree, hf_endianness, tvb, offset, 2, byte_order, "little endian");
@@ -960,7 +960,7 @@ process_tiff(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
     /*
      * Offset to IFD
      */
-    guint32 start_ifd_offset;
+    uint32_t start_ifd_offset;
     proto_item* start_ifd_offset_item = proto_tree_add_item_ret_uint(
             tree, hf_start_ifd_offset, tvb, offset, 4, encoding, &start_ifd_offset);
     offset += 4;
@@ -971,7 +971,7 @@ process_tiff(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
      * Or should it just check against the segment length,
      * which is 16 bits?
      */
-    if (start_ifd_offset < (guint32)offset) {
+    if (start_ifd_offset < (uint32_t)offset) {
         expert_add_info_format(pinfo, start_ifd_offset_item, &ei_start_ifd_offset,
                 " (bogus, should be >= %u)", offset);
         return;
@@ -986,13 +986,13 @@ process_tiff(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
  * XXX - This code only works on US-ASCII systems!!!
  */
 static void
-process_app1_segment(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint32 len,
-        guint16 marker, const char *marker_name, gboolean show_first_identifier_not_jfif)
+process_app1_segment(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, uint32_t len,
+        uint16_t marker, const char *marker_name, bool show_first_identifier_not_jfif)
 {
     proto_item *ti;
     proto_tree *subtree;
     char *str;
-    gint str_size;
+    int str_size;
     int offset = 0;
 
     ti = proto_tree_add_item(tree, hf_marker_segment,
@@ -1030,13 +1030,13 @@ process_app1_segment(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint3
  * XXX - This code only works on US-ASCII systems!!!
  */
 static void
-process_app2_segment(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint32 len,
-        guint16 marker, const char *marker_name)
+process_app2_segment(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, uint32_t len,
+        uint16_t marker, const char *marker_name)
 {
     proto_item *ti;
     proto_tree *subtree;
     char *str;
-    gint str_size;
+    int str_size;
 
     if (!tree)
         return;
@@ -1060,15 +1060,15 @@ process_app2_segment(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint3
     }
 }
 
-static gint
+static int
 dissect_jfif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_tree *subtree;
     proto_item *ti;
-    gint tvb_len = tvb_reported_length(tvb);
-    gint32 start_entropy = 0;
-    gint32 start_fill, start_marker;
-    gboolean show_first_identifier_not_jfif = FALSE;
+    int tvb_len = tvb_reported_length(tvb);
+    int32_t start_entropy = 0;
+    int32_t start_fill, start_marker;
+    bool show_first_identifier_not_jfif = false;
 
     /* check if we have a full JFIF in tvb */
     if (tvb_len < 20)
@@ -1078,10 +1078,10 @@ dissect_jfif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         return 0;
     /* Check identifier field in first App segment is "JFIF", although "Exif" from App1
        can/does appear here too... */
-    if (tvb_memeql(tvb, 6, (const guint8*)"Exif", 5) == 0) {
-        show_first_identifier_not_jfif = TRUE;
+    if (tvb_memeql(tvb, 6, (const uint8_t*)"Exif", 5) == 0) {
+        show_first_identifier_not_jfif = true;
     }
-    else if (tvb_memeql(tvb, 6, (const guint8*)"JFIF", 5)) {
+    else if (tvb_memeql(tvb, 6, (const uint8_t*)"JFIF", 5)) {
         return 0;
     }
 
@@ -1094,7 +1094,7 @@ dissect_jfif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
     for (; ; ) {
         const char *str;
-        guint16 marker;
+        uint16_t marker;
 
         start_fill = start_entropy;
 
@@ -1102,7 +1102,7 @@ dissect_jfif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             start_fill = tvb_find_guint8(tvb, start_fill, -1, 0xFF);
 
             if (start_fill == -1 || tvb_len - start_fill == 1
-              || tvb_get_guint8(tvb, start_fill + 1) != 0) /* FF 00 is FF escaped */
+              || tvb_get_uint8(tvb, start_fill + 1) != 0) /* FF 00 is FF escaped */
                 break;
 
             start_fill += 2;
@@ -1117,7 +1117,7 @@ dissect_jfif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
         start_marker = start_fill;
 
-        while (tvb_get_guint8(tvb, start_marker + 1) == 0xFF)
+        while (tvb_get_uint8(tvb, start_marker + 1) == 0xFF)
             ++start_marker;
 
         if (start_marker != start_fill)
@@ -1128,7 +1128,7 @@ dissect_jfif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         if (str) { /* Known marker */
             if (marker_has_length(marker)) { /* Marker segment */
                 /* Length of marker segment = 2 + len */
-                const guint16 len = tvb_get_ntohs(tvb, start_marker + 2);
+                const uint16_t len = tvb_get_ntohs(tvb, start_marker + 2);
                 tvbuff_t *tmp_tvb = tvb_new_subset_length(tvb, start_marker, 2 + len);
                 switch (marker) {
                     case MARKER_APP0:
@@ -1136,7 +1136,7 @@ dissect_jfif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                         break;
                     case MARKER_APP1:
                         process_app1_segment(subtree, tmp_tvb, pinfo, len, marker, str, show_first_identifier_not_jfif);
-                        show_first_identifier_not_jfif = FALSE;
+                        show_first_identifier_not_jfif = false;
                         break;
                     case MARKER_APP2:
                         process_app2_segment(subtree, tmp_tvb, pinfo, len, marker, str);
@@ -1725,7 +1725,7 @@ proto_register_jfif(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_jfif,
         &ett_marker_segment,
         &ett_details,

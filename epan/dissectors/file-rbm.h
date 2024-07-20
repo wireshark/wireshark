@@ -12,9 +12,9 @@
 #define __FILE_RBM_H__
 
 // Dissect one ruby marshal object
-void dissect_rbm_inline(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset, gchar** type, gchar** value);
+void dissect_rbm_inline(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, unsigned* offset, char** type, char** value);
 
 // Extract a ruby marshal integer
-void get_rbm_integer(tvbuff_t* tvb, guint offset, gint32* value, gint* len);
+void get_rbm_integer(tvbuff_t* tvb, unsigned offset, int32_t* value, int* len);
 
 #endif

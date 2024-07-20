@@ -157,8 +157,8 @@ static int hf_png_time_month;
 static int hf_png_time_second;
 static int hf_png_time_year;
 
-static gint ett_png;
-static gint ett_png_chunk;
+static int ett_png;
+static int ett_png_chunk;
 
 static expert_field ei_png_chunk_too_large;
 
@@ -187,7 +187,7 @@ dissect_png_srgb(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 dissect_png_text(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    gint offset=0, nul_offset;
+    int offset=0, nul_offset;
 
     nul_offset = tvb_find_guint8(tvb, offset, tvb_captured_length_remaining(tvb, offset), 0);
     /* nul_offset == 0 means empty keyword, this is not allowed by the png standard */
@@ -244,7 +244,7 @@ static void
 dissect_png_chrm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
     float  wx, wy, rx, ry, gx, gy, bx, by;
-    gint   offset = 0;
+    int    offset = 0;
 
     wx = tvb_get_ntohl(tvb, offset) / 100000.0f;
     proto_tree_add_float(tree, hf_png_chrm_white_x,
@@ -296,14 +296,14 @@ dissect_png_gama(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
             tvb, 0, 4, gamma);
 }
 
-static gint
+static int
 dissect_png(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
     proto_tree *tree;
     proto_item *ti;
-    gint        offset=0;
+    int         offset=0;
     /* http://libpng.org/pub/png/spec/1.2/PNG-Structure.html#PNG-file-signature */
-    static const guint8 magic[8] = { 137, 80, 78, 71, 13, 10, 26, 10 };
+    static const uint8_t magic[8] = { 137, 80, 78, 71, 13, 10, 26, 10 };
 
     if (tvb_captured_length(tvb) < 20)
         return 0;
@@ -319,11 +319,11 @@ dissect_png(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *da
     offset+=8;
 
     while(tvb_reported_length_remaining(tvb, offset) > 0){
-        guint32     len_field;
+        uint32_t    len_field;
         proto_item *len_it;
         proto_tree *chunk_tree;
-        guint32     type;
-        guint8     *type_str;
+        uint32_t    type;
+        uint8_t    *type_str;
         tvbuff_t   *chunk_tvb;
 
         len_field = tvb_get_ntohl(tvb, offset);
@@ -339,7 +339,7 @@ dissect_png(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *da
         len_it = proto_tree_add_item(chunk_tree, hf_png_chunk_len,
                 tvb, offset, 4, ENC_BIG_ENDIAN);
         offset+=4;
-        if (len_field > G_MAXINT) {
+        if (len_field > INT_MAX) {
             expert_add_info(pinfo, len_it, &ei_png_chunk_too_large);
             return offset;
         }
@@ -604,7 +604,7 @@ proto_register_png(void)
         },
     };
 
-    static gint *ett[] =
+    static int *ett[] =
     {
         &ett_png,
         &ett_png_chunk,

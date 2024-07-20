@@ -141,8 +141,8 @@ static
 void dissect_darwin_process_info_option(proto_tree *option_tree, proto_item *option_item,
                                         packet_info *pinfo, tvbuff_t *tvb, int offset,
                                         int unknown_option_hf,
-                                        guint32 option_code, guint32 option_length,
-                                        guint encoding _U_)
+                                        uint32_t option_code, uint32_t option_length,
+                                        unsigned encoding _U_)
 {
     char         *str;
     e_guid_t      uuid;

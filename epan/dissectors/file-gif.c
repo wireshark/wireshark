@@ -81,26 +81,26 @@ static int hf_trailer;
 static int hf_version;
 
 /* Initialize the subtree pointers */
-static gint ett_gif;
-static gint ett_global_flags;
-static gint ett_local_flags;
-static gint ett_extension;
-static gint ett_image;
+static int ett_gif;
+static int ett_global_flags;
+static int ett_local_flags;
+static int ett_extension;
+static int ett_image;
 
 static expert_field ei_gif_unknown_data_block_type;
 
 /****************** GIF protocol dissection functions ******************/
 
-static gint
-dissect_gif_data_block_seq(tvbuff_t *tvb, gint offset, proto_tree *tree)
+static int
+dissect_gif_data_block_seq(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-    gint offset_start = offset;
-    guint8 len;
+    int offset_start = offset;
+    uint8_t len;
     proto_item *db_ti;
 
     do {
         /* Read length of data block */
-        len = tvb_get_guint8(tvb, offset);
+        len = tvb_get_uint8(tvb, offset);
         db_ti = proto_tree_add_item(tree, hf_data_block,
                 tvb, offset, 1, ENC_NA);
         proto_item_append_text(db_ti, " (length = %u)", len);
@@ -115,19 +115,19 @@ dissect_gif_data_block_seq(tvbuff_t *tvb, gint offset, proto_tree *tree)
  * string representation of the version: "GIF87a" or "GIF89a".
  */
 
-static gint
+static int
 dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item *ti;
     proto_tree *gif_tree; /* Main GIF tree */
     proto_tree *subtree;
-    guint offset = 0;
-    guint8 peek;
-    gboolean color_map_present;
-    guint8 color_resolution;
-    guint8 image_bpp;
-    const guint8 *ver_str;
-    guint8 version;
+    unsigned offset = 0;
+    uint8_t peek;
+    bool color_map_present;
+    uint8_t color_resolution;
+    uint8_t image_bpp;
+    const uint8_t *ver_str;
+    uint8_t version;
 
     if (tvb_reported_length(tvb) < 20)
         return 0;
@@ -159,7 +159,7 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     proto_tree_add_item(gif_tree, hf_screen_height, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
-    peek = tvb_get_guint8(tvb, offset);
+    peek = tvb_get_uint8(tvb, offset);
     /* Bitfield gccc 0ppp
      *          g... .... : global color map present
      *          .ccc .... : color resolution in bits (add one)
@@ -202,7 +202,7 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
      * where the aspect-ratio is not computed if pixel-aspect-ratio == 0
      */
     if (version == GIF_89a) {
-        peek = tvb_get_guint8(tvb, offset);
+        peek = tvb_get_uint8(tvb, offset);
         if (peek) {
             /* Only display if different from 0 */
             proto_tree_add_uint_format(gif_tree, hf_pixel_aspect_ratio,
@@ -218,7 +218,7 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
      * that contain the Red, Green and Blue intensity of the colors
      * in the Global Color Map */
     if (color_map_present) {
-        guint len;
+        unsigned len;
 
         len = 3 * (1 << image_bpp);
         proto_tree_add_item(gif_tree, hf_global_color_map,
@@ -280,10 +280,10 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
      * - Before the GIF termination character
      */
     while (tvb_reported_length_remaining(tvb, offset)) {
-        gint ret;
-        gint offset_start = offset;
+        int ret;
+        int offset_start = offset;
 
-        peek = tvb_get_guint8(tvb, offset);
+        peek = tvb_get_uint8(tvb, offset);
         if (peek == 0x21) { /* GIF extension block */
             ti = proto_tree_add_item(gif_tree, hf_extension,
                     tvb, offset, 1, ENC_NA);
@@ -291,7 +291,7 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             offset++;
             proto_tree_add_item(subtree, hf_extension_label,
                     tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            peek = tvb_get_guint8(tvb, offset);
+            peek = tvb_get_uint8(tvb, offset);
             proto_item_append_text(ti, ": %s",
                     val_to_str(peek, vals_extensions,
                         "<Warning: Unknown extension 0x%02X>"));
@@ -318,7 +318,7 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             proto_tree_add_item(subtree, hf_image_height,
                     tvb, offset, 2, ENC_LITTLE_ENDIAN); offset += 2;
             /* bit field */
-            peek = tvb_get_guint8(tvb, offset);
+            peek = tvb_get_uint8(tvb, offset);
             color_map_present = peek & 0x80;
             color_resolution = 1 + ((peek & 0x60) >> 4);
             image_bpp = 1 + (peek & 0x07);
@@ -348,7 +348,7 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
              * that contain the Red, Green and Blue intensity of the colors
              * in the Local Color Map */
             if (color_map_present) {
-                guint len;
+                unsigned len;
 
                 len = 3 * (1 << image_bpp);
                 proto_tree_add_item(subtree, hf_local_color_map,
@@ -526,7 +526,7 @@ proto_register_gif(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_gif,
         &ett_global_flags,
         &ett_local_flags,

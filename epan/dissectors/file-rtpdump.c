@@ -28,32 +28,32 @@ void proto_reg_handoff_rtpdump(void);
 /* Initialize the protocol and registered fields */
 static int proto_rtpdump;
 
-static gint hf_rtpdump_text_header;
-static gint hf_rtpdump_play_program;
-static gint hf_rtpdump_version;
-static gint hf_rtpdump_txt_ipv4;
-static gint hf_rtpdump_txt_ipv6;
-static gint hf_rtpdump_txt_port;
+static int hf_rtpdump_text_header;
+static int hf_rtpdump_play_program;
+static int hf_rtpdump_version;
+static int hf_rtpdump_txt_ipv4;
+static int hf_rtpdump_txt_ipv6;
+static int hf_rtpdump_txt_port;
 
-static gint hf_rtpdump_binary_header;
-static gint hf_rtpdump_ts_sec;
-static gint hf_rtpdump_ts_usec;
-static gint hf_rtpdump_ts;
-static gint hf_rtpdump_bin_addr;
-static gint hf_rtpdump_bin_port;
-static gint hf_rtpdump_padding;
+static int hf_rtpdump_binary_header;
+static int hf_rtpdump_ts_sec;
+static int hf_rtpdump_ts_usec;
+static int hf_rtpdump_ts;
+static int hf_rtpdump_bin_addr;
+static int hf_rtpdump_bin_port;
+static int hf_rtpdump_padding;
 
-static gint hf_rtpdump_pkt;
-static gint hf_rtpdump_pkt_len;
-static gint hf_rtpdump_pkt_plen;
-static gint hf_rtpdump_pkt_offset;
-static gint hf_rtpdump_pkt_data;
+static int hf_rtpdump_pkt;
+static int hf_rtpdump_pkt_len;
+static int hf_rtpdump_pkt_plen;
+static int hf_rtpdump_pkt_offset;
+static int hf_rtpdump_pkt_data;
 
 /* Initialize the subtree pointers */
-static gint ett_rtpdump;
-static gint ett_rtpdump_text_header;
-static gint ett_rtpdump_binary_header;
-static gint ett_rtpdump_pkt;
+static int ett_rtpdump;
+static int ett_rtpdump_text_header;
+static int ett_rtpdump_binary_header;
+static int ett_rtpdump_pkt;
 
 static expert_field ei_rtpdump_unknown_program;
 static expert_field ei_rtpdump_unknown_version;
@@ -75,31 +75,31 @@ static expert_field ei_rtpdump_caplen;
  */
 #define RTP_HEADER_MIN_LEN 24+WS_INET_ADDRSTRLEN
 
-static gint
+static int
 dissect_rtpdump(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
     proto_tree *tree, *subtree;
     proto_item *ti;
-    gint tvb_len = tvb_captured_length(tvb);
-    guint pkt_num = 1;
-    static const guint8 shebang[] = {'#', '!'};
+    int tvb_len = tvb_captured_length(tvb);
+    unsigned pkt_num = 1;
+    static const uint8_t shebang[] = {'#', '!'};
     static const char rtpplay[] = "rtpplay";
     static const char rtpver[] = "1.0";
-    gint offset = 0;
-    gint i = 0;
-    gint slash = 0;
-    gint eol = 0;
-    gint space = 0;
-    guint8 *str = NULL;
-    guint16 txt_port = 0;
-    guint32 bin_port = 0;
+    int offset = 0;
+    int i = 0;
+    int slash = 0;
+    int eol = 0;
+    int space = 0;
+    uint8_t *str = NULL;
+    uint16_t txt_port = 0;
+    uint32_t bin_port = 0;
     ws_in4_addr txt_ipv4 = 0;
     ws_in6_addr txt_ipv6 = {0};
     ws_in4_addr bin_ipv4 = 0;
-    gboolean txt_is_ipv6 = FALSE;
+    bool txt_is_ipv6 = false;
     nstime_t start_time = NSTIME_INIT_ZERO;
-    gint pkt_length;
-    gint data_length;
+    int pkt_length;
+    int data_length;
 
     if (tvb_len < RTP_HEADER_MIN_LEN)
         return 0;
@@ -120,11 +120,11 @@ dissect_rtpdump(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
 
     /* Get the program name */
     offset += 2;
-    for (i = offset; g_ascii_isalpha(tvb_get_guint8(tvb, i)); i++)
+    for (i = offset; g_ascii_isalpha(tvb_get_uint8(tvb, i)); i++)
         /* empty loop */ ;
     ti = proto_tree_add_item_ret_string(subtree, hf_rtpdump_play_program,
                                         tvb, offset, i-offset, ENC_ASCII,
-                                        pinfo->pool, (const guint8 **)&str);
+                                        pinfo->pool, (const uint8_t **)&str);
     if (0 != g_strcmp0(str, rtpplay)) {
         expert_add_info(pinfo, ti, &ei_rtpdump_unknown_program);
     }
@@ -133,7 +133,7 @@ dissect_rtpdump(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
     offset = i;
     ti = proto_tree_add_item_ret_string(subtree, hf_rtpdump_version,
                                         tvb, offset, space-offset, ENC_ASCII,
-                                        pinfo->pool, (const guint8 **)&str);
+                                        pinfo->pool, (const uint8_t **)&str);
     if (0 != g_strcmp0(str, rtpver)) {
         expert_add_info(pinfo, ti, &ei_rtpdump_unknown_version);
     }
@@ -145,7 +145,7 @@ dissect_rtpdump(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
         proto_tree_add_ipv4(subtree, hf_rtpdump_txt_ipv4, tvb, offset, slash-offset, txt_ipv4);
     }
     else if (ws_inet_pton6(str, &txt_ipv6)) {
-        txt_is_ipv6 = TRUE;
+        txt_is_ipv6 = true;
         proto_tree_add_ipv6(subtree, hf_rtpdump_txt_ipv6, tvb, offset, slash-offset, &txt_ipv6);
     }
     else {
@@ -170,7 +170,7 @@ dissect_rtpdump(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
     subtree = proto_item_add_subtree(ti, ett_rtpdump_binary_header);
 
     proto_tree_add_item_ret_uint(subtree, hf_rtpdump_ts_sec, tvb, offset, 4, ENC_BIG_ENDIAN,
-                                 (guint32 *)&start_time.secs);
+                                 (uint32_t *)&start_time.secs);
     proto_tree_add_item_ret_uint(subtree, hf_rtpdump_ts_usec, tvb, offset+4, 4, ENC_BIG_ENDIAN,
                                  &start_time.nsecs);
     start_time.nsecs *= 1000;
@@ -180,7 +180,7 @@ dissect_rtpdump(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
 
     ti = proto_tree_add_item(subtree, hf_rtpdump_bin_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
     /* Force internal representation to big-endian as per wsutil/inet_ipv4.h */
-    bin_ipv4 = g_htonl(tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN));
+    bin_ipv4 = g_htonl(tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN));
     offset += 4;
     proto_tree_add_item_ret_uint(subtree, hf_rtpdump_bin_port, tvb, offset, 2, ENC_BIG_ENDIAN, &bin_port);
     offset += 2;
@@ -332,7 +332,7 @@ proto_register_rtpdump(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_rtpdump,
         &ett_rtpdump_text_header,
         &ett_rtpdump_binary_header,

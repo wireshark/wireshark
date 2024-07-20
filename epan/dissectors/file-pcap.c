@@ -44,11 +44,11 @@ static int hf_pcap_packet_data;
 static expert_field ei_pcap_capt_larger_than_orig;
 static expert_field ei_pcap_capt_larger_than_snap;
 
-static gint ett_pcap;
-static gint ett_pcap_header;
-static gint ett_pcap_packet;
-static gint ett_pcap_packet_data;
-static gint ett_pcap_timestamp;
+static int ett_pcap;
+static int ett_pcap_header;
+static int ett_pcap_packet;
+static int ett_pcap_packet_data;
+static int ett_pcap_timestamp;
 
 static bool pref_dissect_next_layer;
 
@@ -60,19 +60,19 @@ void proto_reg_handoff_file_pcap(void);
 static int
 dissect_pcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    static const guint8 pcap_big_endian_magic[MAGIC_NUMBER_SIZE] = {
+    static const uint8_t pcap_big_endian_magic[MAGIC_NUMBER_SIZE] = {
         0xa1, 0xb2, 0xc3, 0xd4
     };
-    static const guint8 pcap_little_endian_magic[MAGIC_NUMBER_SIZE] = {
+    static const uint8_t pcap_little_endian_magic[MAGIC_NUMBER_SIZE] = {
         0xd4, 0xc3, 0xb2, 0xa1
     };
-    static const guint8 pcap_nsec_big_endian_magic[MAGIC_NUMBER_SIZE] = {
+    static const uint8_t pcap_nsec_big_endian_magic[MAGIC_NUMBER_SIZE] = {
         0xa1, 0xb2, 0x3c, 0x4d
     };
-    static const guint8 pcap_nsec_little_endian_magic[MAGIC_NUMBER_SIZE] = {
+    static const uint8_t pcap_nsec_little_endian_magic[MAGIC_NUMBER_SIZE] = {
         0x4d, 0x3c, 0xb2, 0xa1
     };
-    volatile gint    offset = 0;
+    volatile int     offset = 0;
     proto_tree      *main_tree;
     proto_item      *main_item;
     proto_tree      *header_tree;
@@ -85,14 +85,14 @@ dissect_pcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     proto_tree      *packet_data_tree;
     proto_item      *packet_data_item;
     proto_item      *capt_len_item;
-    volatile guint32 encoding;
-    volatile guint   timestamp_scale_factor;
+    volatile uint32_t encoding;
+    volatile unsigned   timestamp_scale_factor;
     const char      *magic;
-    guint32          snap_length;
-    guint32          captured_length;
-    guint32          original_length;
-    guint32          link_type;
-    volatile guint32 frame_number = 1;
+    uint32_t         snap_length;
+    uint32_t         captured_length;
+    uint32_t         original_length;
+    uint32_t         link_type;
+    volatile uint32_t frame_number = 1;
     nstime_t         timestamp;
 
     if (tvb_memeql(tvb, 0, pcap_big_endian_magic, MAGIC_NUMBER_SIZE) == 0) {
@@ -145,16 +145,16 @@ dissect_pcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     offset += 4;
 
     proto_tree_add_item(header_tree, hf_pcap_header_link_type, tvb, offset, 4, encoding);
-    link_type = tvb_get_guint32(tvb, offset, encoding);
+    link_type = tvb_get_uint32(tvb, offset, encoding);
     offset += 4;
 
-    while (offset < (gint) tvb_reported_length(tvb)) {
+    while (offset < (int) tvb_reported_length(tvb)) {
         packet_item = proto_tree_add_item(main_tree, hf_pcap_packet, tvb, offset, 4 * 4, ENC_NA);
         packet_tree = proto_item_add_subtree(packet_item, ett_pcap_packet);
         proto_item_append_text(packet_item, " %u", frame_number);
 
-        timestamp.secs = tvb_get_guint32(tvb, offset, encoding);
-        timestamp.nsecs = tvb_get_guint32(tvb, offset + 4, encoding) * timestamp_scale_factor;
+        timestamp.secs = tvb_get_uint32(tvb, offset, encoding);
+        timestamp.nsecs = tvb_get_uint32(tvb, offset + 4, encoding) * timestamp_scale_factor;
 
         timestamp_item = proto_tree_add_time(packet_tree, hf_pcap_packet_timestamp, tvb, offset, 8, &timestamp);
         timestamp_tree = proto_item_add_subtree(timestamp_item, ett_pcap_timestamp);
@@ -308,7 +308,7 @@ proto_register_file_pcap(void)
                 EXPFILL }}
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_pcap,
         &ett_pcap_header,
         &ett_pcap_packet,

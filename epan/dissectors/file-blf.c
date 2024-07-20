@@ -138,12 +138,12 @@ static expert_field ei_blf_file_header_length_too_short;
 static expert_field ei_blf_object_header_length_too_short;
 static expert_field ei_blf_object_length_less_than_header_length;
 
-static gint ett_blf;
-static gint ett_blf_header;
-static gint ett_blf_obj;
-static gint ett_blf_obj_header;
-static gint ett_blf_logcontainer_payload;
-static gint ett_blf_app_text_payload;
+static int ett_blf;
+static int ett_blf_header;
+static int ett_blf_obj;
+static int ett_blf_obj_header;
+static int ett_blf_logcontainer_payload;
+static int ett_blf_app_text_payload;
 
 static const value_string blf_object_names[] = {
     { BLF_OBJTYPE_UNKNOWN,                          "Unknown" },
@@ -444,15 +444,15 @@ static const value_string blf_eth_phystate_eventstate_vals[] = {
 
 void proto_register_file_blf(void);
 void proto_reg_handoff_file_blf(void);
-static int dissect_blf_next_object(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset);
+static int dissect_blf_next_object(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
 
 #define MAGIC_NUMBER_SIZE 4
-static const guint8 blf_file_magic[MAGIC_NUMBER_SIZE] = { 'L', 'O', 'G', 'G' };
-static const guint8 blf_lobj_magic[MAGIC_NUMBER_SIZE] = { 'L', 'O', 'B', 'J' };
+static const uint8_t blf_file_magic[MAGIC_NUMBER_SIZE] = { 'L', 'O', 'G', 'G' };
+static const uint8_t blf_lobj_magic[MAGIC_NUMBER_SIZE] = { 'L', 'O', 'B', 'J' };
 
 
 static proto_item *
-dissect_blf_header_date(proto_tree *tree, int hf, tvbuff_t *tvb, gint offset, gint length) {
+dissect_blf_header_date(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length) {
     static const value_string weekday_names[] = {
     { 0,    "Sunday"},
     { 1,    "Monday"},
@@ -464,14 +464,14 @@ dissect_blf_header_date(proto_tree *tree, int hf, tvbuff_t *tvb, gint offset, gi
     { 0, NULL }
     };
 
-    guint16 year        = tvb_get_guint16(tvb, offset +  0, ENC_LITTLE_ENDIAN);
-    guint16 month       = tvb_get_guint16(tvb, offset +  2, ENC_LITTLE_ENDIAN);
-    guint16 day_of_week = tvb_get_guint16(tvb, offset +  4, ENC_LITTLE_ENDIAN);
-    guint16 day         = tvb_get_guint16(tvb, offset +  6, ENC_LITTLE_ENDIAN);
-    guint16 hour        = tvb_get_guint16(tvb, offset +  8, ENC_LITTLE_ENDIAN);
-    guint16 minute      = tvb_get_guint16(tvb, offset + 10, ENC_LITTLE_ENDIAN);
-    guint16 sec         = tvb_get_guint16(tvb, offset + 12, ENC_LITTLE_ENDIAN);
-    guint16 ms          = tvb_get_guint16(tvb, offset + 14, ENC_LITTLE_ENDIAN);
+    uint16_t year        = tvb_get_uint16(tvb, offset +  0, ENC_LITTLE_ENDIAN);
+    uint16_t month       = tvb_get_uint16(tvb, offset +  2, ENC_LITTLE_ENDIAN);
+    uint16_t day_of_week = tvb_get_uint16(tvb, offset +  4, ENC_LITTLE_ENDIAN);
+    uint16_t day         = tvb_get_uint16(tvb, offset +  6, ENC_LITTLE_ENDIAN);
+    uint16_t hour        = tvb_get_uint16(tvb, offset +  8, ENC_LITTLE_ENDIAN);
+    uint16_t minute      = tvb_get_uint16(tvb, offset + 10, ENC_LITTLE_ENDIAN);
+    uint16_t sec         = tvb_get_uint16(tvb, offset + 12, ENC_LITTLE_ENDIAN);
+    uint16_t ms          = tvb_get_uint16(tvb, offset + 14, ENC_LITTLE_ENDIAN);
 
     header_field_info *hfinfo = proto_registrar_get_nth(hf);
 
@@ -483,11 +483,11 @@ dissect_blf_header_date(proto_tree *tree, int hf, tvbuff_t *tvb, gint offset, gi
 }
 
 static proto_item *
-dissect_blf_api_version(proto_tree *tree, int hf, tvbuff_t *tvb, gint offset, gint length) {
-    guint8 major = tvb_get_guint8(tvb, offset + 0);
-    guint8 minor = tvb_get_guint8(tvb, offset + 1);
-    guint8 build = tvb_get_guint8(tvb, offset + 2);
-    guint8 patch = tvb_get_guint8(tvb, offset + 3);
+dissect_blf_api_version(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length) {
+    uint8_t major = tvb_get_uint8(tvb, offset + 0);
+    uint8_t minor = tvb_get_uint8(tvb, offset + 1);
+    uint8_t build = tvb_get_uint8(tvb, offset + 2);
+    uint8_t patch = tvb_get_uint8(tvb, offset + 3);
 
     header_field_info *hfinfo = proto_registrar_get_nth(hf);
 
@@ -497,19 +497,19 @@ dissect_blf_api_version(proto_tree *tree, int hf, tvbuff_t *tvb, gint offset, gi
 
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset_orig) {
+dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset_orig) {
     proto_item    *ti_root = NULL;
     proto_item    *ti = NULL;
     proto_item    *ti_lobj_hdr;
     proto_tree    *objtree = NULL;
     proto_tree    *subtree = NULL;
-    volatile gint  offset = offset_orig;
+    volatile int   offset = offset_orig;
     tvbuff_t      *sub_tvb;
 
-    guint32        hdr_length;
-    guint32        obj_length;
-    guint          obj_type;
-    guint32        comp_method;
+    uint32_t       hdr_length;
+    uint32_t       obj_length;
+    unsigned       obj_type;
+    uint32_t       comp_method;
 
     /* this should never happen since we should only be called with at least 16 Bytes present */
     if (tvb_captured_length_remaining(tvb, offset_orig) < 16) {
@@ -541,7 +541,7 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint o
     proto_item_set_end(ti_lobj_hdr, tvb, offset);
 
     /* check if the whole object is present or if it was truncated */
-    if (tvb_captured_length_remaining(tvb, offset_orig) < (gint)obj_length) {
+    if (tvb_captured_length_remaining(tvb, offset_orig) < (int)obj_length) {
         proto_item_set_end(ti_root, tvb, offset_orig + tvb_captured_length_remaining(tvb, offset_orig));
         proto_item_append_text(ti_root, " TRUNCATED");
         return tvb_captured_length_remaining(tvb, offset_orig);
@@ -573,11 +573,11 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint o
 
             /* TODO: actually the objects might overlap containers, which we do not consider here... */
             if (sub_tvb) {
-                guint offset_sub = 0;
+                unsigned offset_sub = 0;
                 ti = proto_tree_add_item(objtree, hf_blf_cont_payload, sub_tvb, 0, offset_orig + obj_length - offset, ENC_NA);
                 subtree = proto_item_add_subtree(ti, ett_blf_logcontainer_payload);
 
-                guint tmp = 42;
+                unsigned tmp = 42;
                 while ((offset_sub + 16 <= offset_orig + obj_length - offset) && (tmp > 0)) {
                     tmp = dissect_blf_next_object(sub_tvb, pinfo, subtree, offset_sub);
                     offset_sub += tmp;
@@ -586,9 +586,9 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint o
             break;
         case BLF_OBJTYPE_APP_TEXT:
         {
-            guint source;
-            guint textlength;
-            if (offset - offset_orig < (gint)hdr_length) {
+            unsigned source;
+            unsigned textlength;
+            if (offset - offset_orig < (int)hdr_length) {
                 proto_tree_add_item(subtree, hf_blf_lobj_hdr_remains, tvb, offset, hdr_length - (offset - offset_orig), ENC_NA);
                 offset = offset_orig + hdr_length;
             }
@@ -669,7 +669,7 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint o
             uint32_t namelength;
             uint32_t datalength;
 
-            if (offset - offset_orig < (gint)hdr_length) {
+            if (offset - offset_orig < (int)hdr_length) {
                 proto_tree_add_item(subtree, hf_blf_lobj_hdr_remains, tvb, offset, hdr_length - (offset - offset_orig), ENC_NA);
                 offset = offset_orig + hdr_length;
             }
@@ -716,7 +716,7 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint o
                 &hf_blf_eth_status_flags1_b0,
                 NULL
             };
-            if (offset - offset_orig < (gint)hdr_length) {
+            if (offset - offset_orig < (int)hdr_length) {
                 proto_tree_add_item(subtree, hf_blf_lobj_hdr_remains, tvb, offset, hdr_length - (offset - offset_orig), ENC_NA);
                 offset = offset_orig + hdr_length;
             }
@@ -764,7 +764,7 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint o
             break;
         case BLF_OBJTYPE_ETHERNET_FRAME_EX:
         {
-            if (offset - offset_orig < (gint)hdr_length) {
+            if (offset - offset_orig < (int)hdr_length) {
                 proto_tree_add_item(subtree, hf_blf_lobj_hdr_remains, tvb, offset, hdr_length - (offset - offset_orig), ENC_NA);
                 offset = offset_orig + hdr_length;
             }
@@ -809,7 +809,7 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint o
             uint32_t triggerblocknamelength;
             uint32_t triggerconditionlength;
 
-            if (offset - offset_orig < (gint)hdr_length) {
+            if (offset - offset_orig < (int)hdr_length) {
                 proto_tree_add_item(subtree, hf_blf_lobj_hdr_remains, tvb, offset, hdr_length - (offset - offset_orig), ENC_NA);
                 offset = offset_orig + hdr_length;
             }
@@ -842,7 +842,7 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint o
                 &hf_blf_eth_phy_state_flags1_b0,
                 NULL
             };
-            if (offset - offset_orig < (gint)hdr_length) {
+            if (offset - offset_orig < (int)hdr_length) {
                 proto_tree_add_item(subtree, hf_blf_lobj_hdr_remains, tvb, offset, hdr_length - (offset - offset_orig), ENC_NA);
                 offset = offset_orig + hdr_length;
             }
@@ -871,7 +871,7 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint o
         }
         break;
         default:
-            if (offset - offset_orig < (gint)hdr_length) {
+            if (offset - offset_orig < (int)hdr_length) {
                 proto_tree_add_item(subtree, hf_blf_lobj_hdr_remains, tvb, offset, hdr_length - (offset - offset_orig), ENC_NA);
                 offset = offset_orig + hdr_length;
             }
@@ -881,13 +881,13 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint o
             break;
     }
 
-    return (gint)obj_length;
+    return (int)obj_length;
 }
 
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_blf_next_object(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset) {
-    gint offset_orig = offset;
+dissect_blf_next_object(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset) {
+    int offset_orig = offset;
 
     while (tvb_captured_length_remaining(tvb, offset) >= 16) {
         if (tvb_memeql(tvb, offset, blf_lobj_magic, MAGIC_NUMBER_SIZE) != 0) {
@@ -910,12 +910,12 @@ dissect_blf_next_object(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gin
 
 static int
 dissect_blf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
-    volatile gint    offset = 0;
+    volatile int     offset = 0;
     proto_tree      *blf_tree;
-    guint32          header_length;
+    uint32_t         header_length;
     proto_tree      *subtree;
     proto_item      *ti;
-    guint            length;
+    unsigned         length;
 
     if (tvb_captured_length(tvb) < 8 || tvb_memeql(tvb, 0, blf_file_magic, MAGIC_NUMBER_SIZE) != 0) {
         /* does not start with LOGG, so this is not BLF it seems */
@@ -924,7 +924,7 @@ dissect_blf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     ti = proto_tree_add_item(tree, proto_blf, tvb, offset, -1, ENC_NA);
     blf_tree = proto_item_add_subtree(ti, ett_blf);
-    length = tvb_get_guint32(tvb, 4, ENC_LITTLE_ENDIAN);
+    length = tvb_get_uint32(tvb, 4, ENC_LITTLE_ENDIAN);
 
     ti = proto_tree_add_item(blf_tree, hf_blf_file_header, tvb, offset, length, ENC_NA);
     subtree = proto_item_add_subtree(ti, ett_blf_header);
@@ -1071,7 +1071,7 @@ dissect_blf_ethernetstatus_obj(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tr
     }
     offset += 4;
 
-    if ((gint)tvb_captured_length(tvb) >= offset + 8) {
+    if ((int)tvb_captured_length(tvb) >= offset + 8) {
         /* uint64_t linkUpDuration {}; */
         ti = proto_tree_add_item(blf_tree, hf_blf_eth_status_linkupduration, tvb, offset, 8, ENC_BIG_ENDIAN);
         if ((flags & BLF_ETH_STATUS_LINKUPDURATION) == 0) {
@@ -1382,7 +1382,7 @@ proto_register_file_blf(void) {
                 EXPFILL }},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_blf,
         &ett_blf_header,
         &ett_blf_obj,

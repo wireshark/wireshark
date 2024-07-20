@@ -36,23 +36,23 @@ static int hf_dlt_file_message_counter;
 static int hf_dlt_file_length;
 static int hf_dlt_file_data;
 
-static gint ett_dlt;
-static gint ett_dlt_item;
+static int ett_dlt;
+static int ett_dlt_item;
 
 void proto_register_file_dlt(void);
 void proto_reg_handoff_file_dlt(void);
 
 #define MAGIC_NUMBER_SIZE 4
-static const guint8 dlt_file_magic[MAGIC_NUMBER_SIZE] = { 'D', 'L', 'T', 0x01 };
+static const uint8_t dlt_file_magic[MAGIC_NUMBER_SIZE] = { 'D', 'L', 'T', 0x01 };
 
 static int
 dissect_dlt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
-    volatile gint    offset = 0;
+    volatile int     offset = 0;
     proto_tree      *dlt_tree;
     proto_tree      *item_tree;
     proto_item      *ti;
     proto_item      *ti_item;
-    guint32          len = 0;
+    uint32_t         len = 0;
 
     if (tvb_captured_length(tvb) < 16 || tvb_memeql(tvb, 0, dlt_file_magic, MAGIC_NUMBER_SIZE) != 0) {
         /* does not start with DLT\x1, so this is not DLT it seems */
@@ -62,29 +62,29 @@ dissect_dlt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     ti = proto_tree_add_item(tree, proto_dlt, tvb, offset, -1, ENC_NA);
     dlt_tree = proto_item_add_subtree(ti, ett_dlt);
 
-    gint tvb_length = tvb_captured_length(tvb);
+    int tvb_length = tvb_captured_length(tvb);
 
     while (offset + 20 <= tvb_length) {
         item_tree = proto_tree_add_subtree_format(dlt_tree, tvb, offset, -1, ett_dlt_item, &ti_item, "DLT Log Line");
         proto_tree_add_item(item_tree, hf_dlt_file_magic, tvb, offset, 4, ENC_ASCII | ENC_NA);
         offset += 4;
 
-        guint32 tstamp_s = 0;
+        uint32_t tstamp_s = 0;
         proto_tree_add_item_ret_uint(item_tree, hf_dlt_file_tstamp_s, tvb, offset, 4, ENC_LITTLE_ENDIAN, &tstamp_s);
         offset += 4;
 
-        guint32 tstamp_us = 0;
+        uint32_t tstamp_us = 0;
         proto_tree_add_item_ret_uint(item_tree, hf_dlt_file_tstamp_us, tvb, offset, 4, ENC_LITTLE_ENDIAN, &tstamp_us);
         offset += 4;
 
-        const guint8 *ecuid;
+        const uint8_t *ecuid;
         proto_tree_add_item_ret_string(item_tree, hf_dlt_file_ecuid, tvb, offset, 4, ENC_ASCII | ENC_NA, pinfo->pool, &ecuid);
         offset += 4;
 
         proto_tree_add_item(item_tree, hf_dlt_file_header_type, tvb, offset, 1, ENC_NA);
         offset += 1;
 
-        guint counter = 0;
+        unsigned counter = 0;
         proto_tree_add_item_ret_uint(item_tree, hf_dlt_file_message_counter, tvb, offset, 1, ENC_NA, &counter);
         offset += 1;
 
@@ -128,7 +128,7 @@ proto_register_file_dlt(void) {
             { "Data", "file-dlt.data", FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }},
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_dlt,
         &ett_dlt_item,
     };

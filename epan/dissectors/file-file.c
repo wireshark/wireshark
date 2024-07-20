@@ -45,7 +45,7 @@ static int hf_file_proto_name_and_key;
 static int hf_file_color_filter_name;
 static int hf_file_color_filter_text;
 
-static gint ett_file;
+static int ett_file;
 
 static int file_tap;
 
@@ -59,13 +59,13 @@ dissector_table_t file_encap_dissector_table;
 void
 register_file_record_end_routine(packet_info *pinfo, void (*func)(void))
 {
-	pinfo->frame_end_routines = g_slist_append(pinfo->frame_end_routines, (gpointer)func);
+	pinfo->frame_end_routines = g_slist_append(pinfo->frame_end_routines, (void *)func);
 }
 
 typedef void (*void_func_t)(void);
 
 static void
-call_file_record_end_routine(gpointer routine, gpointer dummy _U_)
+call_file_record_end_routine(void *routine, void *dummy _U_)
 {
 	void_func_t func = (void_func_t)routine;
 	(*func)();
@@ -79,7 +79,7 @@ dissect_file_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 	proto_tree  *volatile fh_tree = NULL;
 	proto_tree  *volatile tree;
 	proto_item  *item;
-	const gchar *cap_plurality, *frame_plurality;
+	const char *cap_plurality, *frame_plurality;
 	const color_filter_t *color_filter;
 	file_data_t *file_data = (file_data_t*)data;
 
@@ -92,7 +92,7 @@ dissect_file_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 	if(!proto_field_is_referenced(tree, proto_file)) {
 		tree=NULL;
 	} else {
-		guint	     cap_len, frame_len;
+		unsigned	     cap_len, frame_len;
 
 		/* Put in frame header information. */
 		cap_len = tvb_captured_length(tvb);
@@ -126,12 +126,12 @@ dissect_file_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 
 		if(pinfo->fd->pfd != 0){
 			proto_item *ppd_item;
-			guint num_entries = g_slist_length(pinfo->fd->pfd);
-			guint i;
+			unsigned num_entries = g_slist_length(pinfo->fd->pfd);
+			unsigned i;
 			ppd_item = proto_tree_add_uint(fh_tree, hf_file_num_p_prot_data, tvb, 0, 0, num_entries);
 			proto_item_set_generated(ppd_item);
 			for(i=0; i<num_entries; i++){
-				gchar* str = p_get_proto_name_and_key(wmem_file_scope(), pinfo, i);
+				char* str = p_get_proto_name_and_key(wmem_file_scope(), pinfo, i);
 				proto_tree_add_string_format(fh_tree, hf_file_proto_name_and_key, tvb, 0, 0, str, "%s", str);
 			}
 		}
@@ -149,7 +149,7 @@ dissect_file_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 	if (pinfo->fd->ignored) {
 		/* Ignored package, stop handling here */
 		col_set_str(pinfo->cinfo, COL_INFO, "<Ignored>");
-		proto_tree_add_boolean_format(tree, hf_file_ignored, tvb, 0, -1, TRUE, "This record is marked as ignored");
+		proto_tree_add_boolean_format(tree, hf_file_ignored, tvb, 0, -1, true, "This record is marked as ignored");
 		return tvb_captured_length(tvb);
 	}
 
@@ -361,7 +361,7 @@ proto_register_file(void)
 		    NULL, HFILL }},
 	};
 
- 	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_file
 	};
 
