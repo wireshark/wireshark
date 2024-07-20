@@ -25,6 +25,7 @@
 #include <wsutil/str_util.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/expert.h>
 #include <epan/proto_data.h>
 #include "packet-tcp.h"
 #include "packet-windows-common.h"
@@ -59,6 +60,8 @@ static int hf_nmf_upgrade_protocol;
 static int hf_nmf_negotiate_type;
 static int hf_nmf_negotiate_length;
 static int hf_nmf_protect_length;
+
+static expert_field ei_nmf_bad_record_size;
 
 static bool nmf_reassemble = true;
 
@@ -120,32 +123,41 @@ typedef struct nmf_conv_info_t {
 	uint32_t fnum_negotiated;
 } nmf_conv_info_t;
 
+/* Read the the varint holding the record size.
+ * Callers MUST check for a 0 return value, which indicates that
+ * parsing the varint failed, to avoid infinite loops.
+ */
 static int
 dissect_nmf_record_size(tvbuff_t *tvb, proto_tree *tree,
 			int hf_index, int offset, uint32_t *_size)
 {
-	uint8_t byte = tvb_get_uint8(tvb, offset);
-	uint32_t size = 0;
-	uint8_t shift = 0;
+	uint64_t size = 0;
 	int start_offset = offset;
 
-	do {
-		byte = tvb_get_uint8(tvb, offset);
-		offset += 1;
-
-		size |= (uint32_t)(byte & 0x7F) << shift;
-		shift += 7;
-	} while (byte & 0x80);
+	/* 5 is the encoded size for UINT32_MAX (but can also contain larger
+	 * varints).
+	 */
+	unsigned len = tvb_get_varint(tvb, offset, 5, &size, ENC_VARINT_PROTOBUF);
+	if (len == 0) {
+		proto_tree_add_expert_format(tree, NULL, &ei_nmf_bad_record_size, tvb, offset, 5,
+			"Invalid record size; varint does not end in five bytes");
+		return 0;
+	}
+	if  (size > UINT32_MAX) {
+		proto_tree_add_expert_format(tree, NULL, &ei_nmf_bad_record_size, tvb, offset, len,
+			"Invalid record size %" PRIu64, size);
+		return 0;
+	}
 
 	if (_size != NULL) {
-		*_size = size;
+		*_size = (uint32_t)size;
 	}
 
 	if (tree != NULL && hf_index != -1) {
 		proto_item *item = NULL;
 		item = proto_tree_add_item(tree, hf_index, tvb,
 					   start_offset, -1, ENC_NA);
-		proto_item_set_end(item, tvb, offset);
+		proto_item_set_len(item, (int)len);
 		proto_item_append_text(item, ": %u (0x%x)",
 				       (unsigned)size, (unsigned)size);
 	}
@@ -298,7 +310,6 @@ nmf_get_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *_info)
 {
 	nmf_conv_info_t *nmf_info = (nmf_conv_info_t *)_info;
 	enum nmf_record_type record_type;
-	uint32_t size = 0;
 	int start_offset = offset;
 
 	if (pinfo->fd->num > nmf_info->fnum_negotiated) {
@@ -339,19 +350,44 @@ nmf_get_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *_info)
 	offset += 1;
 
 	switch (record_type) {
+	case NMF_VIA_RECORD:
+	case NMF_SIZED_ENVELOPE_RECORD:
+	case NMF_UPGRADE_REQUEST_RECORD:
+        {
+		/* Variable sized record. We must not throw an exception. */
+		uint64_t size = 0;
+		unsigned len = tvb_get_varint(tvb, offset,
+					      tvb_captured_length_remaining(tvb, offset),
+					      &size, ENC_VARINT_PROTOBUF);
+		/* [MC-NMF] 2.2.2 The record length can be up to UINT32_MAX,
+		 * with an encoded size of 5 bytes.
+		 */
+		if (len == 0) {
+			/* Parsing failed. */
+			if (tvb_captured_length_remaining(tvb, offset) < 5) {
+				/* Fewer than five bytes, so ask for one more segment. */
+				return 0;
+			}
+
+			/* We had at least 5 bytes, so the length is invalid.
+			 * Just take the rest of this segment.
+			 * The expert info will be handled in the main dissection
+			 * routine. */
+			return tvb_reported_length_remaining(tvb, start_offset);
+		}
+		if (size > UINT32_MAX) {
+			/* Invalid length */
+			return tvb_reported_length_remaining(tvb, start_offset);
+		}
+		offset += (int)len;
+		offset += (int)size;
+		break;
+        }
 	case NMF_VERSION_RECORD:
 		offset += 2;
 		break;
 	case NMF_MODE_RECORD:
 		offset += 1;
-		break;
-	case NMF_VIA_RECORD:
-		offset = dissect_nmf_record_size(tvb, NULL, -1,
-						 offset, &size);
-		if (offset <= 0) {
-			return 0;
-		}
-		offset += size;
 		break;
 	case NMF_KNOWN_ENCODING_RECORD:
 		offset += 1;
@@ -362,29 +398,12 @@ nmf_get_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *_info)
 	case NMF_UNSIZED_ENVELOPE_RECORD:
 		/* TODO */
 		break;
-	case NMF_SIZED_ENVELOPE_RECORD:
-		offset = dissect_nmf_record_size(tvb, NULL, -1,
-						 offset, &size);
-		if (offset <= 0) {
-			return 0;
-		}
-		offset += size;
-		break;
 	case NMF_END_RECORD:
 		/* TODO */
 		break;
 	case NMF_FAULT_RECORD:
 		/* TODO */
 		break;
-	case NMF_UPGRADE_REQUEST_RECORD:
-		offset = dissect_nmf_record_size(tvb, NULL, -1,
-						 offset, &size);
-		if (offset <= 0) {
-			return 0;
-		}
-		offset += size;
-		break;
-
 	case NMF_UPGRADE_RESPONSE_RECORD:
 		break;
 	case NMF_PREAMBLE_ACK_RECORD:
@@ -645,6 +664,16 @@ void proto_register_nmf(void)
 	proto_register_field_array(proto_nmf, hf, array_length(hf));
 
 	nmf_module = prefs_register_protocol(proto_nmf, NULL);
+
+	expert_module_t *expert_nmf;
+	static ei_register_info ei[] = {
+		{ &ei_nmf_bad_record_size,
+		{ "nmf.bad_record_size", PI_MALFORMED, PI_WARN, "Invalid record size varint", EXPFILL }},
+	};
+
+	expert_nmf = expert_register_protocol(proto_nmf);
+	expert_register_field_array(expert_nmf, ei, array_length(ei));
+
 	prefs_register_bool_preference(nmf_module,
 				       "reassemble_nmf",
 				       "Reassemble NMF fragments",
