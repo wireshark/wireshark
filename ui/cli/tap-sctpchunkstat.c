@@ -46,7 +46,7 @@ typedef struct _sctpstat_t {
 } sctpstat_t;
 
 #define CHUNK_TYPE_OFFSET 0
-#define CHUNK_TYPE(x)(tvb_get_guint8((x), CHUNK_TYPE_OFFSET))
+#define CHUNK_TYPE(x)(tvb_get_uint8((x), CHUNK_TYPE_OFFSET))
 
 static void
 sctpstat_reset(void *phs)
