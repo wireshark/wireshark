@@ -60,18 +60,18 @@ static int hf_wol_mac;
 static int hf_wol_passwd;
 
 /* Initialize the subtree pointers */
-static gint ett_wol;
-static gint ett_wol_macblock;
+static int ett_wol;
+static int ett_wol_macblock;
 
 /* Code to actually dissect the packets */
 static int
 dissect_wol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    guint         len;
-    gint          offset;
-    guint8       *mac;
-    const guint8 *passwd;
-    guint64       qword;
+    unsigned      len;
+    int           offset;
+    uint8_t      *mac;
+    const uint8_t *passwd;
+    uint64_t      qword;
     address      mac_addr;
 
 /* Set up structures needed to add the protocol subtree and manage it */
@@ -99,13 +99,13 @@ dissect_wol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
      * quite expensive and seriously hinder Wireshark performance.  For now,
      * unless we need to change it later, just compare the 1st 6 bytes. */
     qword = tvb_get_ntoh48(tvb,0);
-    if(qword != G_GUINT64_CONSTANT(0xffffffffffff))
+    if(qword != UINT64_C(0xffffffffffff))
         return 0;
 
     /* So far so good.  Now get the next 6 bytes, which we'll assume is the
      * target's MAC address, and do 15 memory chunk comparisons, since if this
      * is a real MagicPacket, the target's MAC will be duplicated 16 times. */
-    mac = (guint8 *)tvb_memdup(pinfo->pool, tvb, 6, 6);
+    mac = (uint8_t *)tvb_memdup(pinfo->pool, tvb, 6, 6);
     for ( offset = 12; offset < 102; offset += 6 )
         if ( tvb_memeql(tvb, offset, mac, 6) != 0 )
             return 0;
@@ -286,7 +286,7 @@ proto_register_wol(void)
     };
 
 /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_wol,
         &ett_wol_macblock
     };

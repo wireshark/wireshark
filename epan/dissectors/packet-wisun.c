@@ -311,56 +311,56 @@ static int hf_wisun_netricity_scr_segment_count;
 static int hf_wisun_netricity_scr_reassembled_in;
 static int hf_wisun_netricity_scr_reassembled_length;
 
-static gint ett_wisun_phy_mode_id;
-static gint ett_wisun_unknown_ie;
-static gint ett_wisun_uttie;
-static gint ett_wisun_btie;
-static gint ett_wisun_fcie;
-static gint ett_wisun_rslie;
-static gint ett_wisun_vhie;
-static gint ett_wisun_eaie;
-static gint ett_wisun_pie;
-static gint ett_wisun_wsie_bitmap;
-static gint ett_wisun_usie;
-static gint ett_wisun_bsie;
-static gint ett_wisun_vpie;
-static gint ett_wisun_lcpie;
-static gint ett_wisun_usie_channel_control;
-static gint ett_wisun_usie_explicit;
-static gint ett_wisun_luttie;
-static gint ett_wisun_nrie;
-static gint ett_wisun_lusie;
-static gint ett_wisun_flusie;
-static gint ett_wisun_lbsie;
-static gint ett_wisun_lndie;
-static gint ett_wisun_ltoie;
-static gint ett_wisun_panidie;
-static gint ett_wisun_rtie;
-static gint ett_wisun_lbcie;
-static gint ett_wisun_panie;
-static gint ett_wisun_panie_flags;
-static gint ett_wisun_netnameie;
-static gint ett_wisun_panverie;
-static gint ett_wisun_gtkhashie;
-static gint ett_wisun_pomie;
-static gint ett_wisun_pomie_hdr;
-static gint ett_wisun_lfnverie;
-static gint ett_wisun_lgtkhashie;
-static gint ett_wisun_lgtkhashie_flags;
-static gint ett_wisun_lbatsie;
-static gint ett_wisun_jmie;
-static gint ett_wisun_jmie_metric_hdr;
-static gint ett_wisun_jmie_metric_plf;
-static gint ett_wisun_jmie_metric_unknown;
-static gint ett_wisun_sec;
-static gint ett_wisun_eapol_relay;
+static int ett_wisun_phy_mode_id;
+static int ett_wisun_unknown_ie;
+static int ett_wisun_uttie;
+static int ett_wisun_btie;
+static int ett_wisun_fcie;
+static int ett_wisun_rslie;
+static int ett_wisun_vhie;
+static int ett_wisun_eaie;
+static int ett_wisun_pie;
+static int ett_wisun_wsie_bitmap;
+static int ett_wisun_usie;
+static int ett_wisun_bsie;
+static int ett_wisun_vpie;
+static int ett_wisun_lcpie;
+static int ett_wisun_usie_channel_control;
+static int ett_wisun_usie_explicit;
+static int ett_wisun_luttie;
+static int ett_wisun_nrie;
+static int ett_wisun_lusie;
+static int ett_wisun_flusie;
+static int ett_wisun_lbsie;
+static int ett_wisun_lndie;
+static int ett_wisun_ltoie;
+static int ett_wisun_panidie;
+static int ett_wisun_rtie;
+static int ett_wisun_lbcie;
+static int ett_wisun_panie;
+static int ett_wisun_panie_flags;
+static int ett_wisun_netnameie;
+static int ett_wisun_panverie;
+static int ett_wisun_gtkhashie;
+static int ett_wisun_pomie;
+static int ett_wisun_pomie_hdr;
+static int ett_wisun_lfnverie;
+static int ett_wisun_lgtkhashie;
+static int ett_wisun_lgtkhashie_flags;
+static int ett_wisun_lbatsie;
+static int ett_wisun_jmie;
+static int ett_wisun_jmie_metric_hdr;
+static int ett_wisun_jmie_metric_plf;
+static int ett_wisun_jmie_metric_unknown;
+static int ett_wisun_sec;
+static int ett_wisun_eapol_relay;
 // Netricity
-static gint ett_wisun_netricity_nftie;
-static gint ett_wisun_netricity_lqiie;
-static gint ett_wisun_netricity_sc;
-static gint ett_wisun_netricity_sc_bitmask;
-static gint ett_wisun_netricity_scr_segment;
-static gint ett_wisun_netricity_scr_segments;
+static int ett_wisun_netricity_nftie;
+static int ett_wisun_netricity_lqiie;
+static int ett_wisun_netricity_sc;
+static int ett_wisun_netricity_sc_bitmask;
+static int ett_wisun_netricity_scr_segment;
+static int ett_wisun_netricity_scr_segments;
 
 static const fragment_items netricity_scr_frag_items = {
         /* Fragment subtrees */
@@ -661,14 +661,14 @@ static expert_field ei_wisun_edfe_start_not_found;
 static expert_field ei_wisun_usie_explicit_reserved_bits_not_zero;
 static expert_field ei_wisun_jmie_metric_unsupported;
 
-static guint
-wisun_add_wbxml_uint(tvbuff_t *tvb, proto_tree *tree, int hf, guint offset)
+static unsigned
+wisun_add_wbxml_uint(tvbuff_t *tvb, proto_tree *tree, int hf, unsigned offset)
 {
-    guint val = 0;
-    guint len = 0;
-    guint8 b;
+    unsigned val = 0;
+    unsigned len = 0;
+    uint8_t b;
     do {
-        b = tvb_get_guint8(tvb, offset + len++);
+        b = tvb_get_uint8(tvb, offset + len++);
         val = (val << 7) | (b & 0x7f);
     } while (b & 0x80);
     proto_tree_add_uint(tree, hf, tvb, offset, len, val);
@@ -677,10 +677,10 @@ wisun_add_wbxml_uint(tvbuff_t *tvb, proto_tree *tree, int hf, guint offset)
 
 static void
 wisun_add_phy_mode_id(tvbuff_t *tvb, proto_tree *tree,
-                      const guint offset, const int hf, int *const hf_type,
+                      const unsigned offset, const int hf, int *const hf_type,
                       int *const hf_fsk, int *const hf_ofdm)
 {
-    guint8 phy_type = (tvb_get_guint8(tvb, offset) & WISUN_PIE_PHY_TYPE) >> 4;
+    uint8_t phy_type = (tvb_get_uint8(tvb, offset) & WISUN_PIE_PHY_TYPE) >> 4;
     int *const wisun_phy_mode_fsk_fields[] = {
         hf_type,
         hf_fsk,
@@ -706,7 +706,7 @@ wisun_add_phy_mode_id(tvbuff_t *tvb, proto_tree *tree,
  * Wi-SUN Header IE Dissection
  *---------------------------------------------*/
 static proto_tree *
-wisun_create_hie_tree(tvbuff_t *tvb, proto_tree *tree, int hf, gint ett)
+wisun_create_hie_tree(tvbuff_t *tvb, proto_tree *tree, int hf, int ett)
 {
     proto_tree *subtree = ieee802154_create_hie_tree(tvb, tree, hf, ett);
     proto_tree_add_item(subtree, hf_wisun_subid, tvb, 2, 1, ENC_LITTLE_ENDIAN);
@@ -714,9 +714,9 @@ wisun_create_hie_tree(tvbuff_t *tvb, proto_tree *tree, int hf, gint ett)
 }
 
 static int
-dissect_wisun_uttie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+dissect_wisun_uttie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
 {
-    guint8 frame_type = tvb_get_guint8(tvb, offset);
+    uint8_t frame_type = tvb_get_uint8(tvb, offset);
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Wi-SUN");
     col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(frame_type, wisun_frame_type_vals, "Unknown Wi-SUN Frame"));
     proto_tree_add_item(tree, hf_wisun_uttie_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -725,7 +725,7 @@ dissect_wisun_uttie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint o
 }
 
 static int
-dissect_wisun_btie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
+dissect_wisun_btie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset)
 {
     proto_tree_add_item(tree, hf_wisun_btie_slot, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     /* as of FAN TPS 1v14, this is 3 bytes instead of 4 */
@@ -734,7 +734,7 @@ dissect_wisun_btie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
 }
 
 static void
-edfe_insert_exchange(guint64* addr, edfe_exchange_t* exchange)
+edfe_insert_exchange(uint64_t* addr, edfe_exchange_t* exchange)
 {
     wmem_tree_t* byframe = (wmem_tree_t *)wmem_map_lookup(edfe_byaddr, addr);
     if (!byframe) {
@@ -745,11 +745,11 @@ edfe_insert_exchange(guint64* addr, edfe_exchange_t* exchange)
 }
 
 static int
-dissect_wisun_fcie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, ieee802154_packet *packet)
+dissect_wisun_fcie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, ieee802154_packet *packet)
 {
-    guint32 tx;
+    uint32_t tx;
     proto_tree_add_item_ret_uint(tree, hf_wisun_fcie_tx, tvb, offset, 1, ENC_LITTLE_ENDIAN, &tx);
-    guint32 rx;
+    uint32_t rx;
     proto_tree_add_item_ret_uint(tree, hf_wisun_fcie_rx, tvb, offset+1, 1, ENC_LITTLE_ENDIAN, &rx);
 
     // EDFE processing
@@ -763,8 +763,8 @@ dissect_wisun_fcie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint of
             ex->target.proto = "Wi-SUN";
             ex->initiator.start_fnum = pinfo->num;
             ex->target.start_fnum = pinfo->num;
-            ex->initiator.end_fnum = ~(guint)0;
-            ex->target.end_fnum = ~(guint)0;
+            ex->initiator.end_fnum = ~(unsigned)0;
+            ex->target.end_fnum = ~(unsigned)0;
 
             ex->initiator.addr64 = packet->src64;
             ex->target.addr64 = packet->dst64;
@@ -787,7 +787,7 @@ dissect_wisun_fcie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint of
             if (hints->map_rec) {
                 // Set address to ensure that 6LoWPAN reassembly works
                 // Adapted from packet-ieee802.15.4.c
-                guint64 *p_addr = wmem_new(pinfo->pool, guint64);
+                uint64_t *p_addr = wmem_new(pinfo->pool, uint64_t);
                 /* Copy and convert the address to network byte order. */
                 *p_addr = pntoh64(&(hints->map_rec->addr64));
                 set_address(&pinfo->dl_src, AT_EUI64, 8, p_addr);
@@ -806,9 +806,9 @@ dissect_wisun_fcie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint of
 }
 
 static int
-dissect_wisun_rslie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
+dissect_wisun_rslie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset)
 {
-    guint32 rsl = tvb_get_guint8(tvb, offset);
+    uint32_t rsl = tvb_get_uint8(tvb, offset);
     if (rsl == 0xff) {
         // "A value of 255 MUST be used to indicate not measured" [FANTPS 1v21]
         proto_tree_add_uint_format_value(tree, hf_wisun_rslie_rsl, tvb, offset, 1, rsl, "not measured");
@@ -820,24 +820,24 @@ dissect_wisun_rslie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
 }
 
 static int
-dissect_wisun_vhie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+dissect_wisun_vhie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
 {
-    guint vidlen = wisun_add_wbxml_uint(tvb, tree, hf_wisun_vhie_vid, offset);
+    unsigned vidlen = wisun_add_wbxml_uint(tvb, tree, hf_wisun_vhie_vid, offset);
     call_data_dissector(tvb_new_subset_remaining(tvb, offset + vidlen), pinfo, tree);
     return tvb_reported_length(tvb);
 }
 
 static int
-dissect_wisun_eaie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
+dissect_wisun_eaie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset)
 {
     proto_tree_add_item(tree, hf_wisun_eaie_eui, tvb, offset, 8, ENC_BIG_ENDIAN);
     return 8;
 }
 
 static int
-dissect_wisun_luttie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+dissect_wisun_luttie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
 {
-    guint8 frame_type = tvb_get_guint8(tvb, offset);
+    uint8_t frame_type = tvb_get_uint8(tvb, offset);
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Wi-SUN");
     col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(frame_type, wisun_frame_type_vals, "Unknown LFN Wi-SUN Frame"));
     proto_tree_add_item(tree, hf_wisun_uttie_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -847,10 +847,10 @@ dissect_wisun_luttie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
 }
 
 static int
-dissect_wisun_nrie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
+dissect_wisun_nrie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset)
 {
-    guint start_offset = offset;
-    guint8 node_role = tvb_get_guint8(tvb, offset) & WISUN_WSIE_NODE_ROLE_MASK;
+    unsigned start_offset = offset;
+    uint8_t node_role = tvb_get_uint8(tvb, offset) & WISUN_WSIE_NODE_ROLE_MASK;
 
     proto_tree_add_item(tree, hf_wisun_nrie_nr_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset++;
@@ -858,7 +858,7 @@ dissect_wisun_nrie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
     proto_tree_add_item(tree, hf_wisun_usie_clock_drift, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset++;
 
-    guint clock_drift = tvb_get_guint8(tvb, offset);
+    unsigned clock_drift = tvb_get_uint8(tvb, offset);
     // "Resolution is 10 microseconds and the valid range of the field value is 0-255 (0 to 2.55msec)" [FANTPS 1v21]
     proto_tree_add_uint_format_value(tree, hf_wisun_nrie_timing_accuracy, tvb, offset, 1, clock_drift, "%1.2fms", clock_drift/100.0);
     offset++;
@@ -874,7 +874,7 @@ dissect_wisun_nrie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
 }
 
 static int
-dissect_wisun_lusie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
+dissect_wisun_lusie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset)
 {
     proto_tree_add_item(tree, hf_wisun_lusie_listen_interval, tvb, offset, 3, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_wisun_lusie_channel_plan_tag, tvb, offset+3, 1, ENC_LITTLE_ENDIAN);
@@ -882,7 +882,7 @@ dissect_wisun_lusie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
 }
 
 static int
-dissect_wisun_lbtie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
+dissect_wisun_lbtie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset)
 {
     proto_tree_add_item(tree, hf_wisun_lbtie_slot, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     /* as of FAN TPS 1v14, this is 3 bytes instead of 4 */
@@ -891,7 +891,7 @@ dissect_wisun_lbtie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
 }
 
 static int
-dissect_wisun_flusie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
+dissect_wisun_flusie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset)
 {
     proto_tree_add_item(tree, hf_wisun_flusie_dwell_interval, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_wisun_flusie_channel_plan_tag, tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
@@ -899,7 +899,7 @@ dissect_wisun_flusie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
 }
 
 static int
-dissect_wisun_lbsie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
+dissect_wisun_lbsie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset)
 {
     proto_tree_add_item(tree, hf_wisun_lbsie_broadcast_interval, tvb, offset, 3, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_wisun_lbsie_broadcast_id, tvb, offset+3, 2, ENC_LITTLE_ENDIAN);
@@ -909,7 +909,7 @@ dissect_wisun_lbsie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
 }
 
 static int
-dissect_wisun_lndie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
+dissect_wisun_lndie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset)
 {
     proto_tree_add_item(tree, hf_wisun_lndie_response_threshold, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_wisun_lndie_response_delay, tvb, offset+1, 3, ENC_LITTLE_ENDIAN);
@@ -920,7 +920,7 @@ dissect_wisun_lndie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
 }
 
 static int
-dissect_wisun_ltoie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
+dissect_wisun_ltoie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset)
 {
     proto_tree_add_item(tree, hf_wisun_ltoie_offset, tvb, offset, 3, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_wisun_ltoie_listening_interval, tvb, offset+3, 3, ENC_LITTLE_ENDIAN);
@@ -928,14 +928,14 @@ dissect_wisun_ltoie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
 }
 
 static int
-dissect_wisun_panidie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
+dissect_wisun_panidie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset)
 {
     proto_tree_add_item(tree, hf_wisun_panidie_panid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     return 2;
 }
 
 static int
-dissect_wisun_rtie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
+dissect_wisun_rtie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset)
 {
     proto_tree_add_item(tree, hf_wisun_rtie_rendezvous_time, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_wisun_rtie_wakeup_interval, tvb, offset+2, 2, ENC_LITTLE_ENDIAN);
@@ -943,7 +943,7 @@ dissect_wisun_rtie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
 }
 
 static int
-dissect_wisun_lbcie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
+dissect_wisun_lbcie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset)
 {
     proto_tree_add_item(tree, hf_wisun_lbcie_broadcast_interval, tvb, offset, 3, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_wisun_lbcie_broadcast_sync_period, tvb, offset+3, 1, ENC_LITTLE_ENDIAN);
@@ -951,9 +951,9 @@ dissect_wisun_lbcie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
 }
 
 static int
-dissect_wisun_netricity_nftie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
+dissect_wisun_netricity_nftie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset)
 {
-    guint8 frame_type = tvb_get_guint8(tvb, offset);
+    uint8_t frame_type = tvb_get_uint8(tvb, offset);
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Wi-SUN Netricity");
     col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(frame_type, wisun_frame_type_vals, "Unknown Wi-SUN Netricity Frame"));
     proto_tree_add_item(tree, hf_wisun_netricity_nftie_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -961,9 +961,9 @@ dissect_wisun_netricity_nftie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 }
 
 static int
-dissect_wisun_netricity_lqiie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
+dissect_wisun_netricity_lqiie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset)
 {
-    guint8 lqi = tvb_get_guint8(tvb, offset);
+    uint8_t lqi = tvb_get_uint8(tvb, offset);
     switch (lqi) {
         case 0:
             // "-10 dB or lower (0x00)" [IEEE1901.2-2013]
@@ -984,9 +984,9 @@ dissect_wisun_netricity_lqiie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 static int
 dissect_wisun_hie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    guint offset;
+    unsigned offset;
     proto_tree *subtree;
-    guint8 subid = tvb_get_guint8(tvb, 2);
+    uint8_t subid = tvb_get_uint8(tvb, 2);
     ieee802154_packet *packet = (ieee802154_packet*)data;
 
     offset = 3;
@@ -1100,7 +1100,7 @@ dissect_wisun_hie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
  * Wi-SUN Payload IE Dissection
  *---------------------------------------------*/
 static int
-dissect_wisun_schedule_common(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree)
+dissect_wisun_schedule_common(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree)
 {
     static int * const fields_usie_channel[] = {
             &hf_wisun_usie_channel_plan,
@@ -1115,10 +1115,10 @@ dissect_wisun_schedule_common(tvbuff_t *tvb, packet_info *pinfo, guint offset, p
             &hf_wisun_usie_explicit_reserved,
             NULL
     };
-    gint count;
+    int count;
     proto_item *ti;
 
-    guint8 control = tvb_get_guint8(tvb, offset);
+    uint8_t control = tvb_get_uint8(tvb, offset);
     proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_wisun_usie_channel_control, ett_wisun_usie_channel_control,
                                       fields_usie_channel, ENC_LITTLE_ENDIAN, BMT_NO_FLAGS);
     offset++;
@@ -1135,7 +1135,7 @@ dissect_wisun_schedule_common(tvbuff_t *tvb, packet_info *pinfo, guint offset, p
             ti = proto_tree_add_bitmask(tree, tvb, offset, hf_wisun_usie_explicit, ett_wisun_usie_explicit,
                                         fields_usie_channel_plan_explicit, ENC_LITTLE_ENDIAN);
             offset += 3;
-            if (tvb_get_guint8(tvb, offset) & 0xf0) {
+            if (tvb_get_uint8(tvb, offset) & 0xf0) {
                 expert_add_info(pinfo, ti, &ei_wisun_usie_explicit_reserved_bits_not_zero);
             }
             offset++;
@@ -1162,7 +1162,7 @@ dissect_wisun_schedule_common(tvbuff_t *tvb, packet_info *pinfo, guint offset, p
             break;
 
         case WISUN_CHANNEL_FUNCTION_VENDOR:
-            count = tvb_get_guint8(tvb, offset);
+            count = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(tree, hf_wisun_usie_hop_count, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
             while (count--) {
@@ -1178,7 +1178,7 @@ dissect_wisun_schedule_common(tvbuff_t *tvb, packet_info *pinfo, guint offset, p
 
     switch ((control & WISUN_CHANNEL_EXCLUDE) >> 6) {
         case WISUN_CHANNEL_EXCLUDE_RANGE:
-            count = tvb_get_guint8(tvb, offset);
+            count = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(tree, hf_wisun_usie_number_ranges, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
             while (count) {
@@ -1204,14 +1204,14 @@ dissect_wisun_schedule_common(tvbuff_t *tvb, packet_info *pinfo, guint offset, p
 }
 
 static int
-dissect_wisun_usie_btie_common(tvbuff_t *tvb, packet_info *pinfo _U_, guint offset, proto_tree *tree)
+dissect_wisun_usie_btie_common(tvbuff_t *tvb, packet_info *pinfo _U_, unsigned offset, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_wisun_usie_dwell_interval, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset++;
     proto_tree_add_item(tree, hf_wisun_usie_clock_drift, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset++;
 
-    guint clock_drift = tvb_get_guint8(tvb, offset);
+    unsigned clock_drift = tvb_get_uint8(tvb, offset);
     // "Resolution is 10 microseconds and the valid range of the field value is 0-255 (0 to 2.55msec)" [FANTPS 1v21]
     proto_tree_add_uint_format_value(tree, hf_wisun_usie_timing_accuracy, tvb, offset, 1, clock_drift, "%1.2fms", clock_drift/100.0);
     offset++;
@@ -1224,7 +1224,7 @@ dissect_wisun_usie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 {
     proto_item *item;
     proto_tree *subtree;
-    guint offset = 0;
+    unsigned offset = 0;
 
     item = proto_tree_add_item(tree, hf_wisun_usie, tvb, 0, tvb_reported_length_remaining(tvb, 0), ENC_NA);
     subtree = proto_item_add_subtree(item, ett_wisun_usie);
@@ -1242,7 +1242,7 @@ dissect_wisun_bsie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 {
     proto_item *item;
     proto_tree *subtree;
-    guint offset = 0;
+    unsigned offset = 0;
 
     item = proto_tree_add_item(tree, hf_wisun_bsie, tvb, 0, tvb_reported_length(tvb), ENC_NA);
     subtree = proto_item_add_subtree(item, ett_wisun_bsie);
@@ -1264,7 +1264,7 @@ dissect_wisun_vpie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void
 {
     proto_item *item;
     proto_tree *subtree;
-    guint vidlen;
+    unsigned vidlen;
 
     item = proto_tree_add_item(tree, hf_wisun_vpie, tvb, 0, tvb_reported_length(tvb), ENC_NA);
     subtree = proto_item_add_subtree(item, ett_wisun_vpie);
@@ -1279,7 +1279,7 @@ dissect_wisun_lcpie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 {
     proto_item *item;
     proto_tree *subtree;
-    guint offset = 0;
+    unsigned offset = 0;
 
     item = proto_tree_add_item(tree, hf_wisun_lcpie, tvb, 0, tvb_reported_length_remaining(tvb, 0), ENC_NA);
     subtree = proto_item_add_subtree(item, ett_wisun_lcpie);
@@ -1298,8 +1298,8 @@ dissect_wisun_panie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, voi
 {
     proto_item *item;
     proto_tree *subtree;
-    guint offset = 0;
-    guint32 routingCost;
+    unsigned offset = 0;
+    uint32_t routingCost;
     static int * const fields_panie_flags[] = {
         &hf_wisun_panie_flag_parent_bsie,
         &hf_wisun_panie_flag_routing_method,
@@ -1355,7 +1355,7 @@ dissect_wisun_panverie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
     proto_tree_add_bitmask(subtree, tvb, 0, hf_wisun_wsie, ett_wisun_wsie_bitmap, wisun_format_nested_ie_short, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, hf_wisun_panverie_version, tvb, 2, 2, ENC_LITTLE_ENDIAN);
 
-    col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "PAN Version: %d", tvb_get_guint16(tvb, 2, ENC_LITTLE_ENDIAN));
+    col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "PAN Version: %d", tvb_get_uint16(tvb, 2, ENC_LITTLE_ENDIAN));
 
     return tvb_reported_length(tvb);
 }
@@ -1382,8 +1382,8 @@ dissect_wisun_pomie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, voi
 {
     proto_item *item;
     proto_tree *subtree;
-    guint8 number_operating_modes;
-    guint offset = 0;
+    uint8_t number_operating_modes;
+    unsigned offset = 0;
 
     static int* const wisun_pomie_fields[] = {
         &hf_wisun_pomie_number_operating_modes,
@@ -1398,11 +1398,11 @@ dissect_wisun_pomie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, voi
     proto_tree_add_bitmask(subtree, tvb, offset, hf_wisun_wsie, ett_wisun_wsie_bitmap, wisun_format_nested_ie_short, ENC_LITTLE_ENDIAN);
 
     offset += 2;
-    number_operating_modes = tvb_get_guint8(tvb, offset) & WISUN_PIE_PHY_OPERATING_MODES_MASK;
+    number_operating_modes = tvb_get_uint8(tvb, offset) & WISUN_PIE_PHY_OPERATING_MODES_MASK;
     proto_tree_add_bitmask(subtree, tvb, offset, hf_wisun_pomie_hdr, ett_wisun_pomie_hdr, wisun_pomie_fields, ENC_NA);
 
     offset++;
-    for (guint8 i = 0; i < number_operating_modes; i++) {
+    for (uint8_t i = 0; i < number_operating_modes; i++) {
         wisun_add_phy_mode_id(tvb, subtree, offset, hf_wisun_pomie_phy_mode_id, &hf_wisun_pomie_phy_type,
                               &hf_wisun_pomie_phy_mode_fsk, &hf_wisun_pomie_phy_mode_ofdm);
         offset++;
@@ -1423,7 +1423,7 @@ dissect_wisun_lfnverie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
     proto_tree_add_bitmask(subtree, tvb, 0, hf_wisun_wsie, ett_wisun_wsie_bitmap, wisun_format_nested_ie_short, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, hf_wisun_lfnverie_version, tvb, 2, 2, ENC_LITTLE_ENDIAN);
 
-    col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "LFN Version: %d", tvb_get_guint16(tvb, 2, ENC_LITTLE_ENDIAN));
+    col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "LFN Version: %d", tvb_get_uint16(tvb, 2, ENC_LITTLE_ENDIAN));
 
     return tvb_reported_length(tvb);
 }
@@ -1433,8 +1433,8 @@ dissect_wisun_lgtkhashie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 {
     proto_item *item;
     proto_tree *subtree;
-    guint offset = 0;
-    guint8 lgtkhash_control = 0;
+    unsigned offset = 0;
+    uint8_t lgtkhash_control = 0;
 
     static int * const fields_lgtkhashie_flags[] = {
         &hf_wisun_lgtkhashie_flag_includes_lgtk0,
@@ -1450,7 +1450,7 @@ dissect_wisun_lgtkhashie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     proto_tree_add_bitmask(subtree, tvb, offset, hf_wisun_wsie, ett_wisun_wsie_bitmap, wisun_format_nested_ie_short, ENC_LITTLE_ENDIAN);
     offset += 2;
 
-    lgtkhash_control = tvb_get_guint8(tvb, offset);
+    lgtkhash_control = tvb_get_uint8(tvb, offset);
     proto_tree_add_bitmask_with_flags(subtree, tvb, offset, hf_wisun_lgtkhashie_flags, ett_wisun_lgtkhashie_flags,
                                       fields_lgtkhashie_flags, ENC_LITTLE_ENDIAN, BMT_NO_FLAGS);
     offset++;
@@ -1476,7 +1476,7 @@ dissect_wisun_lgtkhashie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 static int
 dissect_wisun_lbatsie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    guint offset = 0;
+    unsigned offset = 0;
     proto_item *item;
     proto_tree *subtree;
 
@@ -1500,7 +1500,7 @@ dissect_wisun_jmie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void
         &hf_wisun_jmie_metric_len,
         NULL
     };
-    guint offset = 0;
+    unsigned offset = 0;
     proto_item *item;
     proto_tree *subtree;
 
@@ -1512,8 +1512,8 @@ dissect_wisun_jmie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void
     proto_tree_add_item(subtree, hf_wisun_jmie_version, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
-        guint8 metric_hdr = tvb_get_guint8(tvb, offset);
-        guint8 metric_len = (metric_hdr & WISUN_PIE_JM_LEN_MASK) >> 6;
+        uint8_t metric_hdr = tvb_get_uint8(tvb, offset);
+        uint8_t metric_len = (metric_hdr & WISUN_PIE_JM_LEN_MASK) >> 6;
         proto_tree *metric_subtree;
 
         if (metric_len == 3)
@@ -1545,11 +1545,11 @@ static int
 dissect_wisun_pie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ies_tree, void *data)
 {
     proto_tree *tree = ieee802154_create_pie_tree(tvb, ies_tree, hf_wisun_pie, ett_wisun_pie);
-    guint offset = 2;
+    unsigned offset = 2;
     while (tvb_reported_length_remaining(tvb, offset) > 1) {
         /* Wi-SUN Payload IE contains nested IE's using the same format as IEEE802.15.4 */
-        guint16     wsie_ie = tvb_get_letohs(tvb, offset);
-        guint16     wsie_len;
+        uint16_t    wsie_ie = tvb_get_letohs(tvb, offset);
+        uint16_t    wsie_len;
         tvbuff_t *  wsie_tvb;
 
         if (wsie_ie & IEEE802154_PSIE_TYPE_MASK) {
@@ -1629,10 +1629,10 @@ dissect_wisun_pie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ies_tree, void 
 static int
 dissect_wisun_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    guint offset = 0;
-    guint8 cmd_subid;
+    unsigned offset = 0;
+    uint8_t cmd_subid;
 
-    cmd_subid = tvb_get_guint8(tvb, offset);
+    cmd_subid = tvb_get_uint8(tvb, offset);
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Wi-SUN");
     col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(cmd_subid, wisun_cmd_vals, "Unknown Wi-SUN MAC Command"));
     proto_tree_add_item(tree, hf_wisun_cmd_subid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -1657,7 +1657,7 @@ dissect_wisun_sec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 {
     proto_item *ws_root;
     proto_tree *ws_tree;
-    guint8 function = tvb_get_guint8(tvb, 0);
+    uint8_t function = tvb_get_uint8(tvb, 0);
     const char *function_name = val_to_str_const(function, wisun_sec_functions, "Unknown Function");
 
     /* Create the protocol tree. */
@@ -1672,7 +1672,7 @@ dissect_wisun_sec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     proto_tree_add_item(ws_tree, hf_wisun_sec_function, tvb, 0, 1, ENC_LITTLE_ENDIAN);
     switch (function) {
         case 0x01:{
-            const char *err_name = val_to_str_const(tvb_get_guint8(tvb, 1), wisun_sec_sm_errors, "Unknown Error");
+            const char *err_name = val_to_str_const(tvb_get_uint8(tvb, 1), wisun_sec_sm_errors, "Unknown Error");
             col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", err_name);
             proto_item_append_text(ws_root, ": %s", err_name);
 
@@ -1694,7 +1694,7 @@ dissect_wisun_sec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
 static int dissect_wisun_eapol_relay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    guint offset = 0;
+    unsigned offset = 0;
     proto_item *subitem = proto_tree_add_item(tree, proto_wisun_eapol_relay, tvb, offset, 9, ENC_NA);
     proto_tree *subtree = proto_item_add_subtree(subitem, ett_wisun_eapol_relay);
 
@@ -1705,12 +1705,12 @@ static int dissect_wisun_eapol_relay(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
     int up = 0;
     // eapol.type == EAP_PACKET?
-    if (tvb_get_guint8(tvb, offset+1) == 0) {
-        up = tvb_get_guint8(tvb, offset+4) == 2;  // eap.code == EAP_CODE_RESPONSE
+    if (tvb_get_uint8(tvb, offset+1) == 0) {
+        up = tvb_get_uint8(tvb, offset+4) == 2;  // eap.code == EAP_CODE_RESPONSE
     } else {
-        up = (tvb_get_guint8(tvb, offset+6) & 0x80) == 0;  // Key Info ACK==0
+        up = (tvb_get_uint8(tvb, offset+6) & 0x80) == 0;  // Key Info ACK==0
     }
-    proto_item* diritem = proto_tree_add_boolean(subtree, hf_wisun_eapol_relay_direction, tvb, offset, 0, (guint64) up);
+    proto_item* diritem = proto_tree_add_boolean(subtree, hf_wisun_eapol_relay_direction, tvb, offset, 0, (uint64_t) up);
     proto_item_set_generated(diritem);
 
     int r = call_dissector(eapol_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
@@ -1736,27 +1736,27 @@ static int dissect_wisun_netricity_sc(tvbuff_t *tvb, packet_info *pinfo, proto_t
         NULL
     };
 
-    guint offset = 0;
+    unsigned offset = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Wi-SUN Netricity");
 
     proto_item *subitem = proto_tree_add_item(tree, proto_wisun_netricity_sc, tvb, offset, -1, ENC_NA);
     proto_tree *subtree = proto_item_add_subtree(subitem, ett_wisun_netricity_sc);
 
-    gboolean is_last = tvb_get_guint8(tvb, 0) & 1;
+    bool is_last = tvb_get_uint8(tvb, 0) & 1;
     proto_tree_add_bitmask(subtree, tvb, offset++, hf_wisun_netricity_sc_flags, ett_wisun_netricity_sc_bitmask, fields_sc, ENC_BIG_ENDIAN);
-    guint32 seg_count;
-    guint32 seg_len;
+    uint32_t seg_count;
+    uint32_t seg_len;
     proto_tree_add_item_ret_uint(subtree, hf_wisun_netricity_sc_segment_count, tvb, offset, 2, ENC_BIG_ENDIAN, &seg_count);
     proto_tree_add_item_ret_uint(subtree, hf_wisun_netricity_sc_segment_length, tvb, offset, 2, ENC_BIG_ENDIAN, &seg_len);
     offset += 2;
 
-    gboolean is_segmented = !is_last || seg_count != 0;
+    bool is_segmented = !is_last || seg_count != 0;
     proto_tree *ieee802154_tree;
     ieee802154_packet *packet;
     tvbuff_t *frame = tvb_new_subset_remaining(tvb, offset);
     // if security is used, all segments have the flag set in the FCF, but only the first has the Auxiliary Security Header
-    guint mhr_len = ieee802154_dissect_header(frame, pinfo,
+    unsigned mhr_len = ieee802154_dissect_header(frame, pinfo,
                                               is_segmented ? subtree : tree,
                                               seg_count == 0 ? 0 : IEEE802154_DISSECT_HEADER_OPTION_NO_AUX_SEC_HDR,
                                               &ieee802154_tree, &packet);
@@ -1766,8 +1766,8 @@ static int dissect_wisun_netricity_sc(tvbuff_t *tvb, packet_info *pinfo, proto_t
     frame = tvb_new_subset_length(frame, 0, mhr_len + seg_len);
 
     if (is_segmented) {
-        gboolean save_fragmented = pinfo->fragmented;
-        pinfo->fragmented = TRUE;
+        bool save_fragmented = pinfo->fragmented;
+        pinfo->fragmented = true;
         fragment_head *frag_msg = fragment_add_seq_check(&netricity_reassembly_table,
                                                          frame,
                                                          seg_count == 0 ? 0 : mhr_len,
@@ -1791,9 +1791,9 @@ static int dissect_wisun_netricity_sc(tvbuff_t *tvb, packet_info *pinfo, proto_t
     } else {
         tvbuff_t *payload = ieee802154_decrypt_payload(frame, mhr_len, pinfo, ieee802154_tree, packet);
         if (payload) {
-            guint pie_size = ieee802154_dissect_payload_ies(payload, pinfo, ieee802154_tree, packet);
+            unsigned pie_size = ieee802154_dissect_payload_ies(payload, pinfo, ieee802154_tree, packet);
             payload = tvb_new_subset_remaining(payload, pie_size);
-            ieee802154_dissect_frame_payload(payload, pinfo, ieee802154_tree, packet, TRUE);
+            ieee802154_dissect_frame_payload(payload, pinfo, ieee802154_tree, packet, true);
         }
     }
 
@@ -2670,7 +2670,7 @@ void proto_register_wisun(void)
     };
 
     /* Subtrees */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_wisun_phy_mode_id,
         &ett_wisun_unknown_ie,
         &ett_wisun_uttie,

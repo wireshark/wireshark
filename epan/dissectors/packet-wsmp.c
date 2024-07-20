@@ -132,12 +132,12 @@ static const value_string wsmp_tpid_vals[] = {
     indicates a three-octet PSID; and a binary "1110" in the four most-significant bits indicates a four-octet PSID.
 */
 static int
-dissect_wsmp_psid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint32 *psid)
+dissect_wsmp_psid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, uint32_t *psid)
 {
-    guint8 oct;
-    guint32 psidLen = 0;
+    uint8_t oct;
+    uint32_t psidLen = 0;
 
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
     *psid = 0;
 
     if ((oct & 0xF0) == 0xF0) {
@@ -172,10 +172,10 @@ dissect_wsmp_psid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int o
 
 /* 8.1.3 Length and Count field encoding*/
 static int
-dissect_wsmp_length_and_count(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int hf_id, guint16* value)
+dissect_wsmp_length_and_count(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int hf_id, uint16_t* value)
 {
-    guint8 oct, len;
-    guint16 val;
+    uint8_t oct, len;
+    uint16_t val;
     /* For values in the range of 0 through 127, Length and Count values
      * are represented in a single-octet encoded as an unsigned integer. For values in the range 128 through 16
      * 383, values are represented as two octets encoded as follows. If the most significant bit of the field is 0b0,
@@ -183,7 +183,7 @@ dissect_wsmp_length_and_count(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
      * the Length or Count field is a two-octet field, with the remaining 14 bits representing the value encoded as
      * an unsigned integer.*/
 
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
     if ((oct & 0x80) == 0x80) {
         if ((oct & 0xc0) == 0x80) {
             /* Two bytes */
@@ -212,15 +212,15 @@ dissect_wsmp_length_and_count(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 }
 
 static int
-dissect_wsmp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 oct)
+dissect_wsmp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint8_t oct)
 {
     proto_tree *sub_tree, *n_tree, *t_tree, *data_tree;
     proto_item *item, *n_tree_item, *t_tree_item;
     int offset = 0, ie_start, len_to_set;
-    guint8 header_opt_ind = (oct & 0x08) >> 3;
-    guint8 ie;
-    guint16 count, ie_len, wsm_len;
-    guint32 tpid, psid = 0;
+    uint8_t header_opt_ind = (oct & 0x08) >> 3;
+    uint8_t ie;
+    uint16_t count, ie_len, wsm_len;
+    uint32_t tpid, psid = 0;
 
     static int * const flags[] = {
         &hf_wsmp_subtype,
@@ -253,7 +253,7 @@ dissect_wsmp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 oct)
             proto_tree* ie_tree;
             ie_start = offset;
             /* WAVE Element ID 1 octet*/
-            ie = tvb_get_guint8(tvb, offset);
+            ie = tvb_get_uint8(tvb, offset);
             ie_tree = proto_tree_add_subtree_format(sub_tree, tvb, offset, -1, ett_wsmp_ie, &item, "%s",
                 val_to_str_const(ie, wsmp_wave_information_elements_vals, "Unknown"));
 
@@ -300,11 +300,11 @@ dissect_wsmp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 oct)
     /* WSM Data */
     data_tree = proto_tree_add_subtree(tree, tvb, offset, wsm_len, ett_wsmdata, NULL, "Wave Short Message");
 
-    if((psid == (guint32)psid_vehicle_to_vehicle_safety_and_awarenesss) && (IEEE1609dot2_handle)){
+    if((psid == (uint32_t)psid_vehicle_to_vehicle_safety_and_awarenesss) && (IEEE1609dot2_handle)){
         ieee1609dot2_set_next_default_psid(pinfo, psid);
         tvbuff_t * tvb_new = tvb_new_subset_remaining(tvb, offset);
         call_dissector(IEEE1609dot2_handle, tvb_new, pinfo, data_tree);
-    } else if ((psid == (guint32)psid_intersection_safety_and_awareness) && (IEEE1609dot2_handle)) {
+    } else if ((psid == (uint32_t)psid_intersection_safety_and_awareness) && (IEEE1609dot2_handle)) {
         ieee1609dot2_set_next_default_psid(pinfo, psid);
         tvbuff_t * tvb_new = tvb_new_subset_remaining(tvb, offset);
         call_dissector(IEEE1609dot2_handle, tvb_new, pinfo, data_tree);
@@ -319,9 +319,9 @@ dissect_wsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     proto_item *ti;
     proto_tree *wsmp_tree, *wsmdata_tree;
     tvbuff_t   *wsmdata_tvb;
-    guint16     wsmlength, offset = 0;
-    guint32     psid, supLen;
-    guint8      elemenId, elemenLen, msb, oct, version;
+    uint16_t    wsmlength, offset = 0;
+    uint32_t    psid, supLen;
+    uint8_t     elemenId, elemenLen, msb, oct, version;
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "WSMP");
@@ -337,7 +337,7 @@ dissect_wsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
      * Subtype    |WSMP-NHeader      | WSMP Version
      *            | Option Indicator
      */
-    oct = tvb_get_guint8(tvb, offset);
+    oct = tvb_get_uint8(tvb, offset);
     version = oct & 0x07;
     if (version == 3) {
         /* Version 3 */
@@ -350,13 +350,13 @@ dissect_wsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     offset = dissect_wsmp_psid(tvb, pinfo, wsmp_tree, offset, &psid);
 
     /* TLV decoder that does not display the T and L elements */
-    elemenId = tvb_get_guint8(tvb, offset);
+    elemenId = tvb_get_uint8(tvb, offset);
     while ((elemenId != WSMP) && (elemenId != WSMP_S) && (elemenId != WSMP_I))
     {
         offset++;
         if (elemenId == CHANNUM)
         {
-            elemenLen = tvb_get_guint8(tvb, offset);
+            elemenLen = tvb_get_uint8(tvb, offset);
             offset++;
             proto_tree_add_item(wsmp_tree,
                                 hf_wsmp_channel, tvb, offset, elemenLen, ENC_BIG_ENDIAN);
@@ -364,7 +364,7 @@ dissect_wsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         }
         else if (elemenId == DATARATE)
         {
-            elemenLen = tvb_get_guint8(tvb, offset);
+            elemenLen = tvb_get_uint8(tvb, offset);
             offset++;
             proto_tree_add_item(wsmp_tree,
                                 hf_wsmp_rate, tvb, offset, elemenLen, ENC_BIG_ENDIAN);
@@ -372,13 +372,13 @@ dissect_wsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         }
         else if (elemenId == TRANSMITPW)
         {
-            elemenLen = tvb_get_guint8(tvb, offset);
+            elemenLen = tvb_get_uint8(tvb, offset);
             offset++;
             proto_tree_add_item(wsmp_tree,
                                 hf_wsmp_txpower, tvb, offset, elemenLen, ENC_BIG_ENDIAN);
             offset += elemenLen;
         }
-        elemenId  = tvb_get_guint8(tvb, offset);
+        elemenId  = tvb_get_uint8(tvb, offset);
     }
 
     proto_tree_add_item(wsmp_tree,
@@ -396,7 +396,7 @@ dissect_wsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         supLen = 0;
         while (msb)
         {
-            msb = tvb_get_guint8(tvb, offset + supLen);
+            msb = tvb_get_uint8(tvb, offset + supLen);
             msb = msb & 0x80;
             supLen++;
         }
@@ -497,7 +497,7 @@ proto_register_wsmp(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_wsmp,
         &ett_wsmdata,
         &ett_wsmp_n_hdr,

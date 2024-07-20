@@ -78,8 +78,8 @@ static int hf_wfd_subelem_ext_capab_reserved;
 
 static int hf_wfd_subelem_alt_mac_addr;
 
-static gint ett_wfd_subelem;
-static gint ett_wfd_dev_info_descr;
+static int ett_wfd_subelem;
+static int ett_wfd_dev_info_descr;
 
 static expert_field ei_wfd_subelem_len_invalid;
 static expert_field ei_wfd_subelem_session_descr_invalid;
@@ -218,14 +218,14 @@ dissect_wfd_subelem_coupled_sink(packet_info *pinfo, proto_tree *tree,
 
 static void
 dissect_wfd_subelem_session_info(packet_info *pinfo, proto_tree *tree,
-                                 tvbuff_t *tvb, int offset, guint16 len)
+                                 tvbuff_t *tvb, int offset, uint16_t len)
 {
   int end = offset + len, next;
   proto_item *item;
   proto_tree *descr;
 
   while (offset < end) {
-    guint8 dlen = tvb_get_guint8(tvb, offset);
+    uint8_t dlen = tvb_get_uint8(tvb, offset);
     next = offset + 1 + dlen;
 
     descr = proto_tree_add_subtree(tree, tvb, offset, 1 + dlen,
@@ -353,8 +353,8 @@ dissect_wifi_display_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 {
   int end = tvb_reported_length(tvb);
   int offset = 0;
-  guint8 id;
-  guint16 len;
+  uint8_t id;
+  uint16_t len;
   proto_tree *wfd_tree;
   proto_item *subelem;
 
@@ -364,7 +364,7 @@ dissect_wifi_display_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
       break;
     }
 
-    id = tvb_get_guint8(tvb, offset);
+    id = tvb_get_uint8(tvb, offset);
     len = tvb_get_ntohs(tvb, offset + 1);
     wfd_tree = proto_tree_add_subtree(tree, tvb, offset, 3 + len,
                                   ett_wfd_subelem, &subelem,
@@ -605,7 +605,7 @@ proto_register_wifi_display(void)
       { "Alternative MAC Address", "wifi_display.subelem.alt_mac_addr",
         FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
   };
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_wfd_subelem,
     &ett_wfd_dev_info_descr
   };

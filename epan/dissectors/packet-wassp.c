@@ -104,9 +104,9 @@
 
 typedef struct   tlv_mac_add
 {
-	guint16 tlvType ;
-	guint16 tlvLen;
-	guint8    tlvMac[6/* MAC_ADDR_SIZE */];
+	uint16_t tlvType ;
+	uint16_t tlvLen;
+	uint8_t   tlvMac[6/* MAC_ADDR_SIZE */];
 }  TLV_MAC_ADD;
 #define TLV_MAC_ADD_SIZE sizeof (TLV_MAC_ADD)
 
@@ -115,20 +115,20 @@ typedef struct   tlv_mac_add
 
 typedef struct
 {
-	guint16      tlvType;
-	guint16      tlvLen;
+	uint16_t     tlvType;
+	uint16_t     tlvLen;
 	TLV_MAC_ADD  tlvMacAddress;
-	guint32      radioId;
+	uint32_t     radioId;
 } TLV_RADIO_BLOCK;
 
 
 typedef struct tlvVnsBlock
 {
-	guint16      tlvType;
-	guint16      tlvLen;
-	guint32      radioId;
-	guint32      bssidId;
-	guint32      ssidId;
+	uint16_t     tlvType;
+	uint16_t     tlvLen;
+	uint32_t     radioId;
+	uint32_t     bssidId;
+	uint32_t     ssidId;
 } TLV_VNS_BLOCK;
 
 
@@ -145,18 +145,18 @@ typedef struct
 /* @*@ */
 typedef struct
 {
-	guint16    tlvId;
+	uint16_t   tlvId;
 	char     *name;
-	guint16    type;
-	guint16    length;
+	uint16_t   type;
+	uint16_t   length;
 #define WASSP_TAB_IDX length
-	guint32    (*parseFunc)(void);
-	guint32    (*setFunc)(void);
-	guint32    offset;
-	guint8     flags;
-	guint32    minValue;
-	guint32    maxValue;
-	guint32    (*customCheckFunc)(void);
+	uint32_t   (*parseFunc)(void);
+	uint32_t   (*setFunc)(void);
+	uint32_t   offset;
+	uint8_t    flags;
+	uint32_t   minValue;
+	uint32_t   maxValue;
+	uint32_t   (*customCheckFunc)(void);
 } TLV_PARSER_ENTRY;
 
 /* @*@ */
@@ -4013,8 +4013,8 @@ static int hf_wassp_fragment_error;
 static int hf_wassp_fragment_count;
 static int hf_wassp_reassembled_in;
 static int hf_wassp_reassembled_length;
-static gint ett_wassp_fragment;
-static gint ett_wassp_fragments;
+static int ett_wassp_fragment;
+static int ett_wassp_fragments;
 
 
 static const fragment_items wassp_frag_items =
@@ -4041,52 +4041,52 @@ static const fragment_items wassp_frag_items =
 
 
 /* Wassp protocol registered subtrees */
-static gint ett_wassp;
-static gint ett_seq_flags;
-static gint ett_wassp_header;
-static gint ett_mu_data_header;
-static gint ett_mu_action_field;
+static int ett_wassp;
+static int ett_seq_flags;
+static int ett_wassp_header;
+static int ett_mu_data_header;
+static int ett_mu_action_field;
 
-static gint ett_ru_discover_header;
-static gint ett_wassp_tlv;
-static gint ett_wassp_filter_rule;
-static gint ett_lbs_header;
+static int ett_ru_discover_header;
+static int ett_wassp_tlv;
+static int ett_wassp_filter_rule;
+static int ett_lbs_header;
 
-static gint ett_wassp_mu_appl_stats;
-static gint ett_wassp_data;
-static gint ett_wassp_mu_data_netflow;
-static gint ett_wassp_mu_data_netflow_header;
-static gint ett_wassp_tlv_missing;
-static gint ett_wassp_ap_stats_block;
-static gint ett_wassp_mu_rf_stats_block;
-static gint ett_wassp_config_error_block;
-static gint ett_wassp_config_modified_block;
-static gint ett_wassp_global_config_block;
-static gint ett_wassp_radio_config_block;
-static gint ett_wassp_vns_config_block;
-static gint ett_wassp_mu_stats_block;
-static gint ett_wassp_radio_stats_block;
-static gint ett_wassp_ether_stats_block;
-static gint ett_wassp_wds_stats_block;
-static gint ett_wassp_dot1x_stats_block;
-static gint ett_wassp_filter_config_block;
-static gint ett_wassp_site_filter_config_block;
-static gint ett_wassp_filter_ext_config_block;
-static gint ett_wassp_vns_stats_block;
-static gint ett_wassp_radius_config_block;
-static gint ett_wassp_eid_main_tlv_block;
-static gint ett_wassp_radius_server_config_block;
-static gint ett_wassp_site_config_block;
-static gint ett_wassp_policy_config_block;
-static gint ett_wassp_cos_config_block;
-static gint ett_wassp_localbase_lookup_block;
-static gint ett_wassp_app_policy_fixed_block;
-static gint ett_wassp_app_policy_entry_block;
-static gint ett_wassp_s_topo_m_filter_entry_block;
-static gint ett_wassp_s_topo_m_filter_ext_entry_block;
-static gint ett_wassp_11u_config_entry_block;
-static gint ett_wassp_hs2_config_entry_block;
-static gint ett_wassp_extapp_config_entry_block;
+static int ett_wassp_mu_appl_stats;
+static int ett_wassp_data;
+static int ett_wassp_mu_data_netflow;
+static int ett_wassp_mu_data_netflow_header;
+static int ett_wassp_tlv_missing;
+static int ett_wassp_ap_stats_block;
+static int ett_wassp_mu_rf_stats_block;
+static int ett_wassp_config_error_block;
+static int ett_wassp_config_modified_block;
+static int ett_wassp_global_config_block;
+static int ett_wassp_radio_config_block;
+static int ett_wassp_vns_config_block;
+static int ett_wassp_mu_stats_block;
+static int ett_wassp_radio_stats_block;
+static int ett_wassp_ether_stats_block;
+static int ett_wassp_wds_stats_block;
+static int ett_wassp_dot1x_stats_block;
+static int ett_wassp_filter_config_block;
+static int ett_wassp_site_filter_config_block;
+static int ett_wassp_filter_ext_config_block;
+static int ett_wassp_vns_stats_block;
+static int ett_wassp_radius_config_block;
+static int ett_wassp_eid_main_tlv_block;
+static int ett_wassp_radius_server_config_block;
+static int ett_wassp_site_config_block;
+static int ett_wassp_policy_config_block;
+static int ett_wassp_cos_config_block;
+static int ett_wassp_localbase_lookup_block;
+static int ett_wassp_app_policy_fixed_block;
+static int ett_wassp_app_policy_entry_block;
+static int ett_wassp_s_topo_m_filter_entry_block;
+static int ett_wassp_s_topo_m_filter_ext_entry_block;
+static int ett_wassp_11u_config_entry_block;
+static int ett_wassp_hs2_config_entry_block;
+static int ett_wassp_extapp_config_entry_block;
 
 
 /* aeroscout */
@@ -4384,7 +4384,7 @@ static const char* wassp_match_strval(const WASSP_SUBTLV_DECODER_INFO_t *in_ptr,
 }
 
 static void
-port_range_print(char *buf, guint32 temp)
+port_range_print(char *buf, uint32_t temp)
 {
 	snprintf(buf, ITEM_LABEL_LENGTH, " %d - %d", (temp & 0xffff), (temp >> 16));
 }
@@ -4392,10 +4392,10 @@ port_range_print(char *buf, guint32 temp)
 
 
 
-static void topology_moder_print(char *buf, guint16 temp)
+static void topology_moder_print(char *buf, uint16_t temp)
 {
-	guint16 temp3 = temp & 0xc000;
-	guint16 temp4 = temp & 0x0fff;
+	uint16_t temp3 = temp & 0xc000;
+	uint16_t temp4 = temp & 0x0fff;
 	switch (temp3)
 	{
 	case 0xc000:
@@ -4428,19 +4428,19 @@ static void topology_moder_print(char *buf, guint16 temp)
 
 
 static void
-maskbit_priority_print(char *buf, guint8 temp)
+maskbit_priority_print(char *buf, uint8_t temp)
 {
 	snprintf(buf, ITEM_LABEL_LENGTH, " Type of Service Mask bits  : %d     Priority TxQ : %d", (temp >> 4) & 0xf, temp & 0xf);
 }
 
 static void
-cos_priority_txq_print(char *buf, guint8 temp)
+cos_priority_txq_print(char *buf, uint8_t temp)
 {
 	snprintf(buf, ITEM_LABEL_LENGTH, " Class of Service priority bits  : %d     Class of Service Transmit Queue : %d", (temp >> 4) & 0xf, temp & 0xf);
 }
 
 static void
-cos_rate_id_print(char *buf, guint8 temp)
+cos_rate_id_print(char *buf, uint8_t temp)
 {
 	snprintf(buf, ITEM_LABEL_LENGTH, " Class of Service Inbound Rate Limit ID  : %d    Class of Service Outbound Rate Limit ID : %d", (temp >> 4) & 0xf, temp & 0xf);
 }
@@ -4743,11 +4743,11 @@ int dissect_wassp_sub_tlv(proto_tree *wassp_tree, tvbuff_t *tvb, packet_info *pi
 	proto_item *ti;
 	proto_tree *tmp_tree;
 	const char *label;
-	guint32 value;
-	guint16 tlv_type = EID_PARSE_ERROR;
-	guint16 length = 0, org_offset = offset;
+	uint32_t value;
+	uint16_t tlv_type = EID_PARSE_ERROR;
+	uint16_t length = 0, org_offset = offset;
 	const WASSP_SUBTLV_DECODER_INFO_t *tmp_decr = NULL;
-	guint32 i, tableNo;
+	uint32_t i, tableNo;
 	int suboffset;
 
 	if (which_tab >= TAB_MAX)
@@ -4830,11 +4830,11 @@ int dissect_wassp_sub_tlv(proto_tree *wassp_tree, tvbuff_t *tvb, packet_info *pi
 			{
 				if (WASSP_SUBTLV_GET_ENTRY_IDX_TYPE(tmp_decr, tlv_type) != TLV_TYPE_BLOCK_TLV)
 				{
-					proto_tree_add_item(tmp_tree, wassp_type_converter(WASSP_SUBTLV_GET_ENTRY_IDX_TYPE(tmp_decr, tlv_type)), tvb, offset + TLV_VALUE, length - 4, FALSE);
+					proto_tree_add_item(tmp_tree, wassp_type_converter(WASSP_SUBTLV_GET_ENTRY_IDX_TYPE(tmp_decr, tlv_type)), tvb, offset + TLV_VALUE, length - 4, false);
 					if ((which_tab == TAB_CONFIG_SITE) && (tlv_type == EID_SITE_TOPOLOGY_BLOCK))
 					{
 						suboffset = offset + 4;
-						for (i = 0; i < (guint32)(length / 4 - 1); i++)
+						for (i = 0; i < (uint32_t)(length / 4 - 1); i++)
 						{
 							proto_tree_add_item(tmp_tree, hf_wassp_topologykey, tvb, suboffset, 2, ENC_BIG_ENDIAN);
 							suboffset += 2;
@@ -4941,9 +4941,9 @@ int dissect_wassp_tlv(proto_tree *wassp_tree, tvbuff_t *tvb, packet_info *pinfo,
 {
 	proto_item *tlvi = NULL;
 	proto_tree *tlv_tree;
-	guint16 tlv_type = WASSP_RU_UNUSED_0;
-	guint16 length;
-	guint32 value;
+	uint16_t tlv_type = WASSP_RU_UNUSED_0;
+	uint16_t length;
+	uint32_t value;
 	int suboffset;
 	wassp_ru_msg_t ru_msg_type = rumsg_type;
 	const char *label;
@@ -4986,7 +4986,7 @@ int dissect_wassp_tlv(proto_tree *wassp_tree, tvbuff_t *tvb, packet_info *pinfo,
 			break;
 
 		case EID_STATUS:                    // 1
-			ru_msg_type = (wassp_ru_msg_t) tvb_get_guint8(tvb, WASSP_HDR_TYPE);
+			ru_msg_type = (wassp_ru_msg_t) tvb_get_uint8(tvb, WASSP_HDR_TYPE);
 
 			/*this is an action TLV*/
 			if (WASSP_RU_SW_Version_Validate_Rsp == ru_msg_type)
@@ -5203,7 +5203,7 @@ int dissect_wassp_tlv(proto_tree *wassp_tree, tvbuff_t *tvb, packet_info *pinfo,
 		case EID_RU_STATE:                     // 11
 			proto_tree_add_item(tlv_tree, hf_wassp_tlv_eid_rustate, tvb, offset + TLV_VALUE, length - 4, ENC_BIG_ENDIAN);
 			proto_item_append_text(tlvi, ": %s",
-					       tfs_get_string(tvb_get_guint8(tvb, offset + TLV_VALUE), &wassp_eid_rustate_types));
+					       tfs_get_string(tvb_get_uint8(tvb, offset + TLV_VALUE), &wassp_eid_rustate_types));
 			offset += length;
 			break;
 
@@ -5603,7 +5603,7 @@ int dissect_wassp_tlv(proto_tree *wassp_tree, tvbuff_t *tvb, packet_info *pinfo,
 
 
 static void
-mu_association_status(char *buf, guint8 value)
+mu_association_status(char *buf, uint8_t value)
 {
 	if (value == 1)
 		snprintf(buf, ITEM_LABEL_LENGTH, " Success (%d)", value);
@@ -5619,7 +5619,7 @@ static int dissect_mu_netflow(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
 	proto_item *ti, *temp;
 	proto_tree *wassp_mu_netflow_tree, *mu_netflow_header_tree;
-	guint16 netflowLen, totalRecord, i;
+	uint16_t netflowLen, totalRecord, i;
 
 	ti = proto_tree_add_item(tree, hf_wassp_mu_netflow_tree, tvb, offset, -1, ENC_NA);
 	wassp_mu_netflow_tree = proto_item_add_subtree(ti, ett_wassp_mu_data_netflow);
@@ -5689,11 +5689,11 @@ static int dissect_wassp_mu(proto_tree *wassp_tree, tvbuff_t *tvb, packet_info *
 	proto_tree *wassp_mu_tree, *mu_data_header_tree, *mu_action_field_tree;
 	wassp_mu_msg_t mu_msg_type;
 	char *label;
-	guint16 length = WASSP_MU_HDR_WITHOUT_ASSO_STATUS_LEN;
+	uint16_t length = WASSP_MU_HDR_WITHOUT_ASSO_STATUS_LEN;
 
 	if (tvb_reported_length_remaining(tvb, offset) > 0)
 	{
-		mu_msg_type = (wassp_mu_msg_t)tvb_get_guint8(tvb, offset + WASSP_MU_HDR_TYPE);
+		mu_msg_type = (wassp_mu_msg_t)tvb_get_uint8(tvb, offset + WASSP_MU_HDR_TYPE);
 		ti = proto_tree_add_item(wassp_tree, hf_wassp_mu_data_tree, tvb, offset, -1, ENC_NA);
 		wassp_mu_tree = proto_item_add_subtree(ti, ett_wassp_data);
 		label = (char*)try_val_to_str(mu_msg_type, wassp_mu_header_types);
@@ -5764,12 +5764,12 @@ static int dissect_wassp_mu(proto_tree *wassp_tree, tvbuff_t *tvb, packet_info *
 
 
 
-static void dissect_unfragmented_wassp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 plength2, wassp_ru_msg_t ru_msg_type, int offset2)
+static void dissect_unfragmented_wassp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16_t plength2, wassp_ru_msg_t ru_msg_type, int offset2)
 {
 	proto_tree *wassp_tree;
 	int offset = offset2;
-	guint16 plength = plength2;
-	guint16 lsbHeaderMagic = 0;
+	uint16_t plength = plength2;
+	uint16_t lsbHeaderMagic = 0;
 
 	if (tree)
 	{
@@ -5888,15 +5888,15 @@ static int dissect_wassp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	proto_tree *wassp_header_tree, *ru_discover_header_tree, *wassp_seq_flag_tree;
 	wassp_ru_msg_t ru_msg_type;
 	int offset = 0;
-	guint16  flag = 0, seq_number = 0;
-	guint32  fragment = FALSE, complete = TRUE;
-	guint32  remain_len = 0, length;
+	uint16_t flag = 0, seq_number = 0;
+	uint32_t fragment = false, complete = true;
+	uint32_t remain_len = 0, length;
 	fragment_head *wassp_frag_msg = NULL;
-	gboolean   save_fragmented;
+	bool       save_fragmented;
 	tvbuff_t *next_tvb = NULL, *combined_tvb = NULL;
 	const char *label;
 	conversation_t  *conv = NULL;
-	guint32 reassembly_id;
+	uint32_t reassembly_id;
 
 	/**********************************************************************************************************************************************************
 	   UDP Port = 13910 --> Wassp Protocol
@@ -5915,11 +5915,11 @@ static int dissect_wassp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
 	remain_len = tvb_reported_length_remaining(tvb, WASSP_HDR_VERSION);
 	next_tvb = tvb;
-	ru_msg_type = (wassp_ru_msg_t)tvb_get_guint8(tvb, WASSP_HDR_TYPE);
+	ru_msg_type = (wassp_ru_msg_t)tvb_get_uint8(tvb, WASSP_HDR_TYPE);
 
 	if ( ru_msg_type == WASSP_Data ) // wassp mu header
 	{
-		label = val_to_str_const(tvb_get_guint8(tvb, WASSP_HDR_LEN + WASSP_MU_HDR_TYPE), wassp_mu_header_types, "Unknown WASSP MU Message Type");
+		label = val_to_str_const(tvb_get_uint8(tvb, WASSP_HDR_LEN + WASSP_MU_HDR_TYPE), wassp_mu_header_types, "Unknown WASSP MU Message Type");
 		col_add_str(pinfo->cinfo, COL_INFO, label);
 	}
 	else if (ru_msg_type == WASSP_RU_Discov) /* ap discover header*/
@@ -5931,7 +5931,7 @@ static int dissect_wassp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	}
 	else
         {
-		col_add_str(pinfo->cinfo, COL_INFO, val_to_str_const(tvb_get_guint8(tvb, WASSP_HDR_TYPE), wassp_header_types, "Unknown WASSP Message Type"));
+		col_add_str(pinfo->cinfo, COL_INFO, val_to_str_const(tvb_get_uint8(tvb, WASSP_HDR_TYPE), wassp_header_types, "Unknown WASSP Message Type"));
         }
 
 	save_fragmented = pinfo->fragmented;
@@ -5984,8 +5984,8 @@ static int dissect_wassp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
 		if ( flag & RU_WASSP_FLAGS_USE_FRAGMENTATION)
 		{
-			fragment = TRUE;
-			complete = FALSE;
+			fragment = true;
+			complete = false;
 		}
 		offset = WASSP_HDR_LEN;
 	}
@@ -5993,7 +5993,7 @@ static int dissect_wassp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
 	if (fragment)   /* fragmented */
 	{
-		pinfo->fragmented = TRUE;
+		pinfo->fragmented = true;
 		offset = WASSP_HDR_LEN;
 		conv = find_conversation_pinfo(pinfo, 0);
 		DISSECTOR_ASSERT(conv);
@@ -6006,7 +6006,7 @@ static int dissect_wassp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		{
 			col_append_str(pinfo->cinfo, COL_INFO, " (Message Reassembled)");
 			next_tvb = combined_tvb;
-			complete = TRUE;
+			complete = true;
 			offset = 0;
 		}
 		else
@@ -6975,7 +6975,7 @@ void proto_register_wassp(void)
 		},
 	};
 
-	static gint * ett[] =
+	static int * ett[] =
 	{
 		&ett_wassp,
 		&ett_wassp_tlv,
@@ -7040,19 +7040,19 @@ void proto_register_wassp(void)
 }
 
 
-static gboolean
+static bool
 test_wassp(tvbuff_t *tvb)
 {
 	/* Minimum of 8 bytes, first byte (version) has value of 3 */
 	if (tvb_captured_length(tvb) < 8
-			|| tvb_get_guint8(tvb, 0) != 3
-			/* || tvb_get_guint8(tvb, 2) != 0
+			|| tvb_get_uint8(tvb, 0) != 3
+			/* || tvb_get_uint8(tvb, 2) != 0
 			|| tvb_get_ntohs(tvb, 6) > tvb_reported_length(tvb) */
 	   )
 	{
-		return FALSE;
+		return false;
 	}
-	return TRUE;
+	return true;
 }
 
 

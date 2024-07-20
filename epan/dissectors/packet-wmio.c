@@ -27,7 +27,7 @@ static int proto_WMIO;
  */
 static e_guid_t iid_WMIO = { 0xdc12a681, 0x737f, 0x11cf, { 0x88, 0x4d, 0x00, 0xaa, 0x00, 0x4b, 0x2e, 0x24} };
 
-static guint32 wmio_signature = 0x12345678;
+static uint32_t wmio_signature = 0x12345678;
 
 #define CLASS_HEADER_LENGTH 13
 
@@ -350,30 +350,30 @@ static int * const wmio_encoded_string_flags[] = {
     NULL
 };
 
-static gint ett_wmio;
-static gint ett_wmio_object_flags;
-static gint ett_wmio_encoded_string;
-static gint ett_wmio_encoded_string_flags;
-static gint ett_wmio_class_part;
-static gint ett_wmio_class_header;
-static gint ett_wmio_decoration;
-static gint ett_wmio_class_derivation;
-static gint ett_wmio_qualifierset;
-static gint ett_wmio_qualifier;
-static gint ett_wmio_flavor;
-static gint ett_wmio_propertylookuptable;
-static gint ett_wmio_propertylookup;
-static gint ett_wmio_heap;
-static gint ett_methodspart;
-static gint ett_parentclass;
-static gint ett_currentclass;
-static gint ett_methodspart_methods;
-static gint ett_methodspart_methoddescription;
-static gint ett_methodsignature;
-static gint ett_property_info;
+static int ett_wmio;
+static int ett_wmio_object_flags;
+static int ett_wmio_encoded_string;
+static int ett_wmio_encoded_string_flags;
+static int ett_wmio_class_part;
+static int ett_wmio_class_header;
+static int ett_wmio_decoration;
+static int ett_wmio_class_derivation;
+static int ett_wmio_qualifierset;
+static int ett_wmio_qualifier;
+static int ett_wmio_flavor;
+static int ett_wmio_propertylookuptable;
+static int ett_wmio_propertylookup;
+static int ett_wmio_heap;
+static int ett_methodspart;
+static int ett_parentclass;
+static int ett_currentclass;
+static int ett_methodspart_methods;
+static int ett_methodspart_methoddescription;
+static int ett_methodsignature;
+static int ett_property_info;
 
 /* Tree */
-static gint *ett[] = {
+static int *ett[] = {
     &ett_wmio,
     &ett_wmio_object_flags,
     &ett_wmio_encoded_string,
@@ -397,23 +397,23 @@ static gint *ett[] = {
     &ett_property_info,
 };
 
-static int dissect_wmio_objectblock(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree);
-static int dissect_wmio_object_decoration(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree);
-static int dissect_wmio_encoded_string(tvbuff_t *tvb, gint offset, int hfindex, packet_info *pinfo, proto_tree *tree, gboolean withlength, gint heapoffset);
-static int dissect_wmio_encoding_classtype(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree);
-static int dissect_wmio_encoding_classandmethodspart(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, int hf_index, gint ett, bool methods);
-static int dissect_wmio_encoding_classpart(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree);
-static int dissect_wmio_encoding_classheader(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, guint32 *pPartlength, guint32 *pNdLength, gint classheapoffset);
-static int dissect_wmio_encoding_methodpart(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree);
-static int dissect_wmio_encoding_methodpart_methods(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, guint32 methodscount, gint methodsheapoffset);
-static int dissect_wmio_encoding_methodpart_methoddescription(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, gint methodsheapoffset);
-static int dissect_wmio_encoding_derivationlist(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree);
-static int dissect_wmio_encoding_qualifierset(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *parent_tree, gint classheapoffset);
+static int dissect_wmio_objectblock(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+static int dissect_wmio_object_decoration(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+static int dissect_wmio_encoded_string(tvbuff_t *tvb, int offset, int hfindex, packet_info *pinfo, proto_tree *tree, bool withlength, int heapoffset);
+static int dissect_wmio_encoding_classtype(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+static int dissect_wmio_encoding_classandmethodspart(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index, int ett, bool methods);
+static int dissect_wmio_encoding_classpart(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+static int dissect_wmio_encoding_classheader(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, uint32_t *pPartlength, uint32_t *pNdLength, int classheapoffset);
+static int dissect_wmio_encoding_methodpart(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+static int dissect_wmio_encoding_methodpart_methods(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, uint32_t methodscount, int methodsheapoffset);
+static int dissect_wmio_encoding_methodpart_methoddescription(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int methodsheapoffset);
+static int dissect_wmio_encoding_derivationlist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+static int dissect_wmio_encoding_qualifierset(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, int classheapoffset);
 
 /* DictionaryReference
  * https://learn.microsoft.com/de-de/openspecs/windows_protocols/ms-wmio/40adf451-f5bc-4b0a-ab97-d620bb638470
  */
-static const gchar* stringDictionary[] =
+static const char* stringDictionary[] =
   { "'"
   , "key"
   , ""
@@ -437,16 +437,16 @@ static const gchar* stringDictionary[] =
  *  UnicodeCharacter = 2OCTET
  */
 static int
-dissect_wmio_encoded_string(tvbuff_t *tvb, gint offset, int hfindex, packet_info *pinfo,
-        proto_tree *tree, gboolean withlength, gint heapoffset)
+dissect_wmio_encoded_string(tvbuff_t *tvb, int offset, int hfindex, packet_info *pinfo,
+        proto_tree *tree, bool withlength, int heapoffset)
 {
     proto_item *sub_item;
     proto_tree *sub_tree;
-    gint old_offset = offset;
+    int old_offset = offset;
     int fn_len = 0;
     header_field_info *hfinfo;
     char *s= NULL;
-    guint32 foffset = 0;
+    uint32_t foffset = 0;
 
     /* Make sure this really is a string field. */
     hfinfo = proto_registrar_get_nth(hfindex);
@@ -459,7 +459,7 @@ dissect_wmio_encoded_string(tvbuff_t *tvb, gint offset, int hfindex, packet_info
          *   and the most significant bit of the 32-bit HeapStringRef value is set, the reference is actually to an implied
          *   dictionary-based string entry and does not point to a literal Encoded-String within the Heap.
          */
-        foffset = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
+        foffset = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
 
         if (foffset < 0x80000000){
             offset = heapoffset + foffset;
@@ -490,7 +490,7 @@ dissect_wmio_encoded_string(tvbuff_t *tvb, gint offset, int hfindex, packet_info
             }
         }
     } else {
-        guint64 encoded_string_flags;
+        uint64_t encoded_string_flags;
 
         if(heapoffset > 0){
             proto_tree_add_item(sub_tree, hf_heap_offset, tvb, old_offset, 4, ENC_LITTLE_ENDIAN);
@@ -529,9 +529,9 @@ dissect_wmio_encoded_string(tvbuff_t *tvb, gint offset, int hfindex, packet_info
  */
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_wmio_objectblock(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree)
+dissect_wmio_objectblock(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-    gint8 flags = tvb_get_guint8(tvb, offset);
+    int8_t flags = tvb_get_uint8(tvb, offset);
 
     proto_tree_add_bitmask(tree, tvb, offset, hf_wmio_object_flags,
                 ett_wmio_object_flags, wmio_object_flags, ENC_NA);
@@ -557,17 +557,17 @@ dissect_wmio_objectblock(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_t
  *  Decoration = DecServerName DecNamespaceName
  */
 static int
-dissect_wmio_object_decoration(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *parent_tree)
+dissect_wmio_object_decoration(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree)
 {
     proto_item *item = NULL;
     proto_tree *tree = NULL;
-    gint old_offset = offset;
+    int old_offset = offset;
 
     item = proto_tree_add_item(parent_tree, hf_wmio_decoration, tvb, offset, -1, ENC_NA);
     tree = proto_item_add_subtree(item, ett_wmio_decoration);
 
-    offset = dissect_wmio_encoded_string(tvb, offset, hf_wmio_decoration_server_name, pinfo, tree, FALSE, 0);
-    offset = dissect_wmio_encoded_string(tvb, offset, hf_wmio_decoration_namespace, pinfo, tree, FALSE, 0);
+    offset = dissect_wmio_encoded_string(tvb, offset, hf_wmio_decoration_server_name, pinfo, tree, false, 0);
+    offset = dissect_wmio_encoded_string(tvb, offset, hf_wmio_decoration_namespace, pinfo, tree, false, 0);
 
     proto_item_set_len(item, offset-old_offset);
 
@@ -576,7 +576,7 @@ dissect_wmio_object_decoration(tvbuff_t *tvb, gint offset, packet_info *pinfo, p
 
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_wmio_encoding_classtype(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree)
+dissect_wmio_encoding_classtype(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     increment_dissection_depth(pinfo);
 
@@ -597,11 +597,11 @@ dissect_wmio_encoding_classtype(tvbuff_t *tvb, gint offset, packet_info *pinfo, 
  */
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_wmio_encoding_classandmethodspart(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *parent_tree, int hf_index, gint ett_id, bool methods)
+dissect_wmio_encoding_classandmethodspart(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, int hf_index, int ett_id, bool methods)
 {
     proto_item *item = NULL;
     proto_tree *tree = NULL;
-    gint old_offset = offset;
+    int old_offset = offset;
 
     item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
     tree = proto_item_add_subtree(item, ett_id);
@@ -620,17 +620,17 @@ dissect_wmio_encoding_classandmethodspart(tvbuff_t *tvb, gint offset, packet_inf
  *  Qualifier = QualifierName QualifierFlavor QualifierType QualifierValue
  */
 static int
-dissect_wmio_qualifier(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-        proto_tree *parent_tree, gint classheapoffset)
+dissect_wmio_qualifier(tvbuff_t *tvb, int offset, packet_info *pinfo,
+        proto_tree *parent_tree, int classheapoffset)
 {
     proto_item *item = NULL;
     proto_tree *tree = NULL;
-    gint old_offset = offset;
+    int old_offset = offset;
 
     item = proto_tree_add_item(parent_tree, hf_wmio_qualifier, tvb, offset, -1, ENC_NA);
     tree = proto_item_add_subtree(item, ett_wmio_qualifier);
 
-    dissect_wmio_encoded_string(tvb, offset, hf_wmio_qualifiername, pinfo, tree, FALSE, classheapoffset);
+    dissect_wmio_encoded_string(tvb, offset, hf_wmio_qualifiername, pinfo, tree, false, classheapoffset);
     offset+= 4;
 
     proto_tree_add_bitmask(tree, tvb, offset, hf_wmio_flavor, ett_wmio_flavor, wmio_flavor, ENC_NA);
@@ -638,13 +638,13 @@ dissect_wmio_qualifier(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
     // QualifierType = CimType
     // CimType is a 32-bit value
-    gint32 cimType = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
+    int32_t cimType = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_wmio_cimtype, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset+= 4;
 
     // QualifierValue = EncodedValue
     if (cimType & CIM_ARRAY_FLAG){
-        guint32 array_count = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
+        uint32_t array_count = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
         offset += 4;
 
         // CimArrayType
@@ -656,28 +656,28 @@ dissect_wmio_qualifier(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                 offset += array_count;
                 break;
             case CIM_ARRAY_SINT16:
-                offset += (sizeof(gint16) * array_count);
+                offset += (sizeof(int16_t) * array_count);
                 break;
             case CIM_ARRAY_UINT16:
-                offset += (sizeof(guint16) * array_count);
+                offset += (sizeof(uint16_t) * array_count);
                 break;
             case CIM_ARRAY_SINT32:
-                offset += (sizeof(gint32) * array_count);
+                offset += (sizeof(int32_t) * array_count);
                 break;
             case CIM_ARRAY_UINT32:
-                offset += (sizeof(guint32) * array_count);
+                offset += (sizeof(uint32_t) * array_count);
                 break;
             case CIM_ARRAY_SINT64:
-                offset += (sizeof(gint64) * array_count);
+                offset += (sizeof(int64_t) * array_count);
                 break;
             case CIM_ARRAY_UINT64:
-                offset += (sizeof(guint64) * array_count);
+                offset += (sizeof(uint64_t) * array_count);
                 break;
             case CIM_ARRAY_REAL32:
-                offset += (sizeof(gint32) * array_count);
+                offset += (sizeof(int32_t) * array_count);
                 break;
             case CIM_ARRAY_REAL64:
-                offset += (sizeof(gint64) * array_count);
+                offset += (sizeof(int64_t) * array_count);
                 break;
             case CIM_ARRAY_BOOLEAN:
                 offset += (2 * array_count);
@@ -688,12 +688,12 @@ dissect_wmio_qualifier(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                 // TODO
                 break;
             case CIM_ARRAY_CHAR16:
-                offset += (sizeof(gint16) * array_count);
+                offset += (sizeof(int16_t) * array_count);
                 break;
             case CIM_ARRAY_OBJECT:
                 {
-                    for (guint32 i=0; i < array_count; i++){
-                        gint32 objEncLength = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
+                    for (uint32_t i=0; i < array_count; i++){
+                        int32_t objEncLength = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
                         offset += objEncLength;
                     }
                     break;
@@ -707,7 +707,7 @@ dissect_wmio_qualifier(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             case CIM_TYPE_SINT8:
                 {
                 proto_item *vitem = proto_tree_add_item(tree, hf_wmio_qualifiervalue, tvb, offset, -1, ENC_ASCII);
-                proto_item_set_text(vitem, "%s: %d", proto_registrar_get_name(hf_wmio_qualifiervalue), tvb_get_gint8(tvb, offset));
+                proto_item_set_text(vitem, "%s: %d", proto_registrar_get_name(hf_wmio_qualifiervalue), tvb_get_int8(tvb, offset));
                 proto_item_set_len(vitem, 1);
                 offset+= 1;
                 }
@@ -715,7 +715,7 @@ dissect_wmio_qualifier(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             case CIM_TYPE_UINT8:
                 {
                 proto_item *vitem = proto_tree_add_item(tree, hf_wmio_qualifiervalue, tvb, offset, -1, ENC_ASCII);
-                proto_item_set_text(vitem, "%s: %u", proto_registrar_get_name(hf_wmio_qualifiervalue), tvb_get_gint8(tvb, offset));
+                proto_item_set_text(vitem, "%s: %u", proto_registrar_get_name(hf_wmio_qualifiervalue), tvb_get_int8(tvb, offset));
                 proto_item_set_len(vitem, 1);
                 offset+= 1;
                 }
@@ -724,7 +724,7 @@ dissect_wmio_qualifier(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             case CIM_TYPE_CHAR16:
                 {
                 proto_item *vitem = proto_tree_add_item(tree, hf_wmio_qualifiervalue, tvb, offset, -1, ENC_ASCII);
-                proto_item_set_text(vitem, "%s: %d", proto_registrar_get_name(hf_wmio_qualifiervalue), tvb_get_gint16(tvb, offset, ENC_LITTLE_ENDIAN));
+                proto_item_set_text(vitem, "%s: %d", proto_registrar_get_name(hf_wmio_qualifiervalue), tvb_get_int16(tvb, offset, ENC_LITTLE_ENDIAN));
                 proto_item_set_len(vitem, 2);
                 offset+= 2;
                 }
@@ -732,7 +732,7 @@ dissect_wmio_qualifier(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             case CIM_TYPE_UINT16:
                 {
                 proto_item *vitem = proto_tree_add_item(tree, hf_wmio_qualifiervalue, tvb, offset, -1, ENC_ASCII);
-                proto_item_set_text(tree, "%s: %u", proto_registrar_get_name(hf_wmio_qualifiervalue), tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN));
+                proto_item_set_text(tree, "%s: %u", proto_registrar_get_name(hf_wmio_qualifiervalue), tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN));
                 proto_item_set_len(vitem, 2);
                 offset+= 2;
                 }
@@ -740,7 +740,7 @@ dissect_wmio_qualifier(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             case CIM_TYPE_SINT32:
                 {
                 proto_item *vitem = proto_tree_add_item(tree, hf_wmio_qualifiervalue, tvb, offset, -1, ENC_ASCII);
-                proto_item_set_text(vitem, "%s: %d", proto_registrar_get_name(hf_wmio_qualifiervalue), tvb_get_gint32(tvb, offset, ENC_LITTLE_ENDIAN));
+                proto_item_set_text(vitem, "%s: %d", proto_registrar_get_name(hf_wmio_qualifiervalue), tvb_get_int32(tvb, offset, ENC_LITTLE_ENDIAN));
                 proto_item_set_len(vitem, 4);
                 offset+= 4;
                 }
@@ -748,7 +748,7 @@ dissect_wmio_qualifier(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             case CIM_TYPE_UINT32:
                 {
                 proto_item *vitem = proto_tree_add_item(tree, hf_wmio_qualifiervalue, tvb, offset, -1, ENC_ASCII);
-                proto_item_set_text(vitem, "%s: %u", proto_registrar_get_name(hf_wmio_qualifiervalue), tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN));
+                proto_item_set_text(vitem, "%s: %u", proto_registrar_get_name(hf_wmio_qualifiervalue), tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN));
                 proto_item_set_len(vitem, 4);
                 offset+= 4;
                 }
@@ -756,7 +756,7 @@ dissect_wmio_qualifier(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             case CIM_TYPE_SINT64:
                 {
                 proto_item *vitem = proto_tree_add_item(tree, hf_wmio_qualifiervalue, tvb, offset, -1, ENC_ASCII);
-                proto_item_set_text(vitem, "%s: %" PRIi64, proto_registrar_get_name(hf_wmio_qualifiervalue), tvb_get_gint64(tvb, offset, ENC_LITTLE_ENDIAN));
+                proto_item_set_text(vitem, "%s: %" PRIi64, proto_registrar_get_name(hf_wmio_qualifiervalue), tvb_get_int64(tvb, offset, ENC_LITTLE_ENDIAN));
                 proto_item_set_len(vitem, 8);
                 offset+= 8;
                 }
@@ -764,7 +764,7 @@ dissect_wmio_qualifier(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             case CIM_TYPE_UINT64:
                 {
                 proto_item *vitem = proto_tree_add_item(tree, hf_wmio_qualifiervalue, tvb, offset, -1, ENC_ASCII);
-                proto_item_set_text(vitem, "%s: %" PRIu64, proto_registrar_get_name(hf_wmio_qualifiervalue), tvb_get_guint64(tvb, offset, ENC_LITTLE_ENDIAN));
+                proto_item_set_text(vitem, "%s: %" PRIu64, proto_registrar_get_name(hf_wmio_qualifiervalue), tvb_get_uint64(tvb, offset, ENC_LITTLE_ENDIAN));
                 proto_item_set_len(vitem, 8);
                 offset+= 8;
                 }
@@ -788,7 +788,7 @@ dissect_wmio_qualifier(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             case CIM_TYPE_BOOLEAN:
                 {
                 proto_item *vitem = proto_tree_add_item(tree, hf_wmio_qualifiervalue, tvb, offset, -1, ENC_ASCII);
-                proto_item_set_text(vitem, "%s: %s", proto_registrar_get_name(hf_wmio_qualifiervalue), 0 != tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN) ? "TRUE" : "FALSE");
+                proto_item_set_text(vitem, "%s: %s", proto_registrar_get_name(hf_wmio_qualifiervalue), 0 != tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN) ? "TRUE" : "FALSE");
                 proto_item_set_len(vitem, 2);
                 offset+= 2;
                 }
@@ -796,12 +796,12 @@ dissect_wmio_qualifier(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             case CIM_TYPE_STRING:
             case CIM_TYPE_DATETIME:
             case CIM_TYPE_REFERENCE:
-                dissect_wmio_encoded_string(tvb, offset, hf_wmio_qualifiervalue, pinfo, tree, FALSE, classheapoffset);
+                dissect_wmio_encoded_string(tvb, offset, hf_wmio_qualifiervalue, pinfo, tree, false, classheapoffset);
                 offset+= 4;
                 break;
             case CIM_TYPE_OBJECT:
                 {
-                    gint32 objEncLength = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
+                    int32_t objEncLength = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
                     offset += objEncLength;
                 }
                 break;
@@ -820,13 +820,13 @@ dissect_wmio_qualifier(tvbuff_t *tvb, gint offset, packet_info *pinfo,
  *  QualifierSet = EncodingLength *Qualifier
  */
 static int
-dissect_wmio_encoding_qualifierset(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-        proto_tree *parent_tree, gint classheapoffset)
+dissect_wmio_encoding_qualifierset(tvbuff_t *tvb, int offset, packet_info *pinfo,
+        proto_tree *parent_tree, int classheapoffset)
 {
     proto_item *item = NULL;
     proto_tree *tree = NULL;
-    gint old_offset = offset;
-    guint32 length;
+    int old_offset = offset;
+    uint32_t length;
 
     item = proto_tree_add_item(parent_tree, hf_wmio_qualifierset, tvb, offset, -1, ENC_NA);
     tree = proto_item_add_subtree(item, ett_wmio_qualifierset);
@@ -834,7 +834,7 @@ dissect_wmio_encoding_qualifierset(tvbuff_t *tvb, gint offset, packet_info *pinf
     proto_tree_add_item_ret_uint(tree, hf_wmio_qualifierset_length, tvb, offset, 4, ENC_LITTLE_ENDIAN, &length);
     offset += 4;
 
-    while((guint32)offset < (old_offset + length)){
+    while((uint32_t)offset < (old_offset + length)){
         /* N.B. guaranteed to advance offset */
         offset = dissect_wmio_qualifier(tvb, offset, pinfo, tree, classheapoffset);
     }
@@ -849,13 +849,13 @@ dissect_wmio_encoding_qualifierset(tvbuff_t *tvb, gint offset, packet_info *pinf
  *  PropertyInfo = PropertyType DeclarationOrder ValueTableOffset ClassOfOrigin PropertyQualifierSet
  */
 static void
-dissect_wmio_encoding_propertyinfo(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-        proto_tree *parent_tree, gint classheapoffset)
+dissect_wmio_encoding_propertyinfo(tvbuff_t *tvb, int offset, packet_info *pinfo,
+        proto_tree *parent_tree, int classheapoffset)
 {
     proto_item *item = NULL;
     proto_tree *tree = NULL;
-    guint32 propertyinfo_offset;
-    gint old_offset = 0;
+    uint32_t propertyinfo_offset;
+    int old_offset = 0;
 
     item = proto_tree_add_item(parent_tree, hf_property_info, tvb, offset, -1, ENC_NA);
     tree = proto_item_add_subtree(item, ett_property_info);
@@ -865,7 +865,7 @@ dissect_wmio_encoding_propertyinfo(tvbuff_t *tvb, gint offset, packet_info *pinf
     offset = classheapoffset + propertyinfo_offset;
     old_offset = offset;
 
-    gint32 propType = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
+    int32_t propType = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
     proto_tree_add_uint(tree, hf_wmio_cimtype, tvb, offset, 4, propType & 0x3FFF);
     proto_tree_add_boolean(tree, hf_propertyinfo_inherited, tvb, offset, 4, propType);
     offset += 4;
@@ -889,17 +889,17 @@ dissect_wmio_encoding_propertyinfo(tvbuff_t *tvb, gint offset, packet_info *pinf
  *  PropertyLookup = PropertyNameRef PropertyInfoRef
  */
 static int
-dissect_wmio_encoding_propertylookup(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-        proto_tree *parent_tree, gint classheapoffset)
+dissect_wmio_encoding_propertylookup(tvbuff_t *tvb, int offset, packet_info *pinfo,
+        proto_tree *parent_tree, int classheapoffset)
 {
     proto_item *item = NULL;
     proto_tree *tree = NULL;
-    gint old_offset = offset;
+    int old_offset = offset;
 
     item = proto_tree_add_item(parent_tree, hf_wmio_propertylookup, tvb, offset, -1, ENC_NA);
     tree = proto_item_add_subtree(item, ett_wmio_propertylookup);
 
-    dissect_wmio_encoded_string(tvb, offset, hf_wmio_propertynameref, pinfo, tree, FALSE, classheapoffset);
+    dissect_wmio_encoded_string(tvb, offset, hf_wmio_propertynameref, pinfo, tree, false, classheapoffset);
     offset += 4;
 
 
@@ -916,13 +916,13 @@ dissect_wmio_encoding_propertylookup(tvbuff_t *tvb, gint offset, packet_info *pi
  *  PropertyLookupTable = PropertyCount *PropertyLookup
  */
 static int
-dissect_wmio_encoding_propertylookuptable(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-        proto_tree *parent_tree, guint32 *property_count, gint classheapoffset)
+dissect_wmio_encoding_propertylookuptable(tvbuff_t *tvb, int offset, packet_info *pinfo,
+        proto_tree *parent_tree, uint32_t *property_count, int classheapoffset)
 {
     proto_item *item = NULL;
     proto_tree *tree = NULL;
-    gint old_offset = offset;
-    guint32 count;
+    int old_offset = offset;
+    uint32_t count;
 
     item = proto_tree_add_item(parent_tree, hf_wmio_propertylookuptable, tvb, offset, -1, ENC_NA);
     tree = proto_item_add_subtree(item, ett_wmio_propertylookuptable);
@@ -931,7 +931,7 @@ dissect_wmio_encoding_propertylookuptable(tvbuff_t *tvb, gint offset, packet_inf
     proto_tree_add_item_ret_uint(tree, hf_wmio_propertylookuptable_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &count);
     offset += 4;
 
-    for(guint32 i = 0; i < count; ++i){
+    for(uint32_t i = 0; i < count; ++i){
         offset = dissect_wmio_encoding_propertylookup(tvb, offset, pinfo, tree, classheapoffset);
     }
 
@@ -947,25 +947,25 @@ dissect_wmio_encoding_propertylookuptable(tvbuff_t *tvb, gint offset, packet_inf
  *  ClassPart = ClassHeader DerivationList ClassQualifierSet PropertyLookupTable [NdTable ValueTable] ClassHeap
  */
 static int
-dissect_wmio_encoding_classpart(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *parent_tree)
+dissect_wmio_encoding_classpart(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree)
 {
     proto_item *item = NULL;
     proto_tree *tree = NULL;
-    gint old_offset = offset;
-    gint classheapoffset = 0;
+    int old_offset = offset;
+    int classheapoffset = 0;
 
-    guint32 partlength, ndLength;
-    guint32 property_count;
+    uint32_t partlength, ndLength;
+    uint32_t property_count;
 
     item = proto_tree_add_item(parent_tree, hf_wmio_class_part, tvb, offset, -1, ENC_NA);
     tree = proto_item_add_subtree(item, ett_wmio_class_part);
 
     {
         /* Jump through the various structures to find the heap offset. */
-        guint32 derivationListLength = tvb_get_guint32(tvb, offset + CLASS_HEADER_LENGTH, ENC_LITTLE_ENDIAN);
-        guint32 classQualifierSetLength = tvb_get_guint32(tvb, offset + CLASS_HEADER_LENGTH + derivationListLength, ENC_LITTLE_ENDIAN);
-        guint32 propertyLookupTableLength = 4 + 8 * tvb_get_guint32(tvb, offset + CLASS_HEADER_LENGTH + derivationListLength + classQualifierSetLength, ENC_LITTLE_ENDIAN);
-        guint32 ndTableLength = tvb_get_guint32(tvb, offset + (CLASS_HEADER_LENGTH - 4), ENC_LITTLE_ENDIAN);
+        uint32_t derivationListLength = tvb_get_uint32(tvb, offset + CLASS_HEADER_LENGTH, ENC_LITTLE_ENDIAN);
+        uint32_t classQualifierSetLength = tvb_get_uint32(tvb, offset + CLASS_HEADER_LENGTH + derivationListLength, ENC_LITTLE_ENDIAN);
+        uint32_t propertyLookupTableLength = 4 + 8 * tvb_get_uint32(tvb, offset + CLASS_HEADER_LENGTH + derivationListLength + classQualifierSetLength, ENC_LITTLE_ENDIAN);
+        uint32_t ndTableLength = tvb_get_uint32(tvb, offset + (CLASS_HEADER_LENGTH - 4), ENC_LITTLE_ENDIAN);
 
         classheapoffset = offset                    /* Starting offset */
                         + CLASS_HEADER_LENGTH       /* ClassHeader */
@@ -992,7 +992,7 @@ dissect_wmio_encoding_classpart(tvbuff_t *tvb, gint offset, packet_info *pinfo, 
         heapitem = proto_tree_add_item(tree, hf_wmio_heap, tvb, offset, -1, ENC_NA);
         heaptree = proto_item_add_subtree(heapitem, ett_wmio_heap);
 
-        gint32 heaplength = 0x7FFFFFFF & tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
+        int32_t heaplength = 0x7FFFFFFF & tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
 
         proto_tree_add_uint(heaptree, hf_wmio_heap_length, tvb, offset, 4, heaplength);
 
@@ -1009,14 +1009,14 @@ dissect_wmio_encoding_classpart(tvbuff_t *tvb, gint offset, packet_info *pinfo, 
  *  ClassHeader = EncodingLength ReservedOctet ClassNameRef NdTableValueTableLength
  */
 static int
-dissect_wmio_encoding_classheader(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-        proto_tree *parent_tree, guint32 *pPartlength, guint32 *pNdLength, gint classheapoffset)
+dissect_wmio_encoding_classheader(tvbuff_t *tvb, int offset, packet_info *pinfo,
+        proto_tree *parent_tree, uint32_t *pPartlength, uint32_t *pNdLength, int classheapoffset)
 {
     proto_item *item = NULL;
     proto_tree *tree = NULL;
-    gint old_offset = offset;
+    int old_offset = offset;
 
-    guint32 partlength, length;
+    uint32_t partlength, length;
 
     item = proto_tree_add_item(parent_tree, hf_wmio_class_header, tvb, offset, -1, ENC_NA);
     tree = proto_item_add_subtree(item, ett_wmio_class_header);
@@ -1028,7 +1028,7 @@ dissect_wmio_encoding_classheader(tvbuff_t *tvb, gint offset, packet_info *pinfo
     // ReservedOctet
     offset+= 1;
 
-    dissect_wmio_encoded_string(tvb, offset, hf_wmio_class_header_nameref, pinfo, tree, FALSE, classheapoffset);
+    dissect_wmio_encoded_string(tvb, offset, hf_wmio_class_header_nameref, pinfo, tree, false, classheapoffset);
     offset+= 4;
 
     proto_tree_add_item_ret_uint(tree, hf_wmio_class_header_ndtablevaluetablelength, tvb, offset, 4, ENC_LITTLE_ENDIAN, &length);
@@ -1045,14 +1045,14 @@ dissect_wmio_encoding_classheader(tvbuff_t *tvb, gint offset, packet_info *pinfo
  *  DerivationList = EncodingLength *ClassNameEncoding
  */
 static int
-dissect_wmio_encoding_derivationlist(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+dissect_wmio_encoding_derivationlist(tvbuff_t *tvb, int offset, packet_info *pinfo,
         proto_tree *parent_tree)
 {
     proto_item *item = NULL;
     proto_tree *tree = NULL;
-    gint old_offset = offset;
+    int old_offset = offset;
 
-    guint32 length;
+    uint32_t length;
 
     item = proto_tree_add_item(parent_tree, hf_wmio_class_derivation, tvb, offset, -1, ENC_NA);
     tree = proto_item_add_subtree(item, ett_wmio_class_derivation);
@@ -1060,9 +1060,9 @@ dissect_wmio_encoding_derivationlist(tvbuff_t *tvb, gint offset, packet_info *pi
     proto_tree_add_item_ret_uint(tree, hf_wmio_class_derivation_length, tvb, offset, 4, ENC_LITTLE_ENDIAN, &length);
     offset+= 4;
 
-    while((guint32)offset < (old_offset + length)) {
+    while((uint32_t)offset < (old_offset + length)) {
         /* Offset is guaranteed to increase here as heapoffset (last arg) is 0 */
-        offset = dissect_wmio_encoded_string(tvb, offset, hf_wmio_derivation_classname, pinfo, tree, TRUE, 0);
+        offset = dissect_wmio_encoded_string(tvb, offset, hf_wmio_derivation_classname, pinfo, tree, true, 0);
     }
 
     proto_item_set_len(item, length);
@@ -1076,14 +1076,14 @@ dissect_wmio_encoding_derivationlist(tvbuff_t *tvb, gint offset, packet_info *pi
  */
 static void
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_wmio_encoding_methodsignature(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-    proto_tree *parent_tree, int hfindex, gint methodsheapoffset)
+dissect_wmio_encoding_methodsignature(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *parent_tree, int hfindex, int methodsheapoffset)
 {
     proto_item *item = NULL;
     proto_tree *tree = NULL;
-    gint old_offset = 0;
+    int old_offset = 0;
 
-    gint32 signatureHeapOffset = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
+    int32_t signatureHeapOffset = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
 
     old_offset = methodsheapoffset + signatureHeapOffset;
 
@@ -1108,17 +1108,17 @@ dissect_wmio_encoding_methodsignature(tvbuff_t *tvb, gint offset, packet_info *p
  */
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_wmio_encoding_methodpart_methoddescription(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-    proto_tree *parent_tree, gint methodsheapoffset)
+dissect_wmio_encoding_methodpart_methoddescription(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *parent_tree, int methodsheapoffset)
 {
     proto_item *item = NULL;
     proto_tree *tree = NULL;
-    gint old_offset = offset;
+    int old_offset = offset;
 
     item = proto_tree_add_item(parent_tree, hf_methodspart_methoddescription, tvb, offset, -1, ENC_NA);
     tree = proto_item_add_subtree(item, ett_methodspart_methoddescription);
 
-    dissect_wmio_encoded_string(tvb, offset, hf_methoddescription_methodname, pinfo, tree, FALSE, methodsheapoffset);
+    dissect_wmio_encoded_string(tvb, offset, hf_methoddescription_methodname, pinfo, tree, false, methodsheapoffset);
     offset+= 4;
 
     proto_tree_add_item(tree, hf_methoddescription_methodflags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -1146,17 +1146,17 @@ dissect_wmio_encoding_methodpart_methoddescription(tvbuff_t *tvb, gint offset, p
 
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_wmio_encoding_methodpart_methods(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-    proto_tree *parent_tree, guint32 methodscount, gint methodsheapoffset)
+dissect_wmio_encoding_methodpart_methods(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *parent_tree, uint32_t methodscount, int methodsheapoffset)
 {
     proto_item *item = NULL;
     proto_tree *tree = NULL;
-    gint old_offset = offset;
+    int old_offset = offset;
 
     item = proto_tree_add_item(parent_tree, hf_methodspart_methods, tvb, offset, -1, ENC_NA);
     tree = proto_item_add_subtree(item, ett_methodspart_methods);
 
-    for(guint32 methodi = 0; methodi < methodscount; ++methodi){
+    for(uint32_t methodi = 0; methodi < methodscount; ++methodi){
         offset = dissect_wmio_encoding_methodpart_methoddescription(tvb, offset, pinfo, tree, methodsheapoffset);
     }
 
@@ -1170,14 +1170,14 @@ dissect_wmio_encoding_methodpart_methods(tvbuff_t *tvb, gint offset, packet_info
  */
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_wmio_encoding_methodpart(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *parent_tree)
+dissect_wmio_encoding_methodpart(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree)
 {
     proto_item *item = NULL;
     proto_tree *tree = NULL;
-    gint old_offset = offset;
+    int old_offset = offset;
 
-    guint32 length;
-    guint32 methodscount;
+    uint32_t length;
+    uint32_t methodscount;
 
     item = proto_tree_add_item(parent_tree, hf_methodspart, tvb, offset, -1, ENC_NA);
     tree = proto_item_add_subtree(item, ett_methodspart);
@@ -1192,7 +1192,7 @@ dissect_wmio_encoding_methodpart(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     offset+= 2;
 
     if(methodscount > 0){
-        gint methodsHeapOffset = offset + (methodscount * 24);
+        int methodsHeapOffset = offset + (methodscount * 24);
         methodsHeapOffset += 4;
         offset = dissect_wmio_encoding_methodpart_methods(tvb, offset, pinfo, tree, methodscount, methodsHeapOffset);
     }
@@ -1204,7 +1204,7 @@ dissect_wmio_encoding_methodpart(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         heapitem = proto_tree_add_item(tree, hf_wmio_heap, tvb, offset, -1, ENC_NA);
         heaptree = proto_item_add_subtree(heapitem, ett_wmio_heap);
 
-        gint32 heaplength = 0x7FFFFFFF & tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
+        int32_t heaplength = 0x7FFFFFFF & tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
 
         proto_tree_add_uint(heaptree, hf_wmio_heap_length, tvb, offset, 4, heaplength);
 
@@ -1218,12 +1218,12 @@ dissect_wmio_encoding_methodpart(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 
 static int
-dissect_wmio(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di _U_, guint8 *drep _U_, gint size)
+dissect_wmio(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di _U_, uint8_t *drep _U_, int size)
 {
     proto_item *sub_item;
     proto_tree *sub_tree;
     int old_offset = offset;
-    guint32 signature;
+    uint32_t signature;
 
     sub_item = proto_tree_add_item(tree, hf_wmio, tvb, offset, size, ENC_NA);
     sub_tree = proto_item_add_subtree(sub_item, ett_wmio);

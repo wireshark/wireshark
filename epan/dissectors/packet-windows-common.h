@@ -5699,9 +5699,9 @@ extern value_string_ext ms_country_codes_ext;
 WS_DLL_PUBLIC
 int dissect_nt_64bit_time(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date);
 WS_DLL_PUBLIC
-int dissect_nt_64bit_time_opt(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date, gboolean onesec_resolution);
+int dissect_nt_64bit_time_opt(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date, bool onesec_resolution);
 WS_DLL_PUBLIC
-int dissect_nt_64bit_time_ex(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date, proto_item **createdItem, gboolean onesec_resolution);
+int dissect_nt_64bit_time_ex(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date, proto_item **createdItem, bool onesec_resolution);
 
 /*
  *  SIDs and RIDs
@@ -5766,25 +5766,25 @@ int dissect_nt_sid_ret_item(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 
 #define SPECIFIC_RIGHTS_MASK 0x0000FFFF /* Specific rights defined per-object */
 
-typedef void (nt_access_mask_fn_t)(tvbuff_t *tvb, gint offset,
-				   proto_tree *tree, guint32 access);
+typedef void (nt_access_mask_fn_t)(tvbuff_t *tvb, int offset,
+				   proto_tree *tree, uint32_t access);
 
 /* Map generic access permissions to specific permissions */
 
 struct generic_mapping {
-	guint32 generic_read;
-	guint32 generic_write;
-	guint32 generic_execute;
-	guint32 generic_all;
+	uint32_t generic_read;
+	uint32_t generic_write;
+	uint32_t generic_execute;
+	uint32_t generic_all;
 };
 
 /* Map standard access permissions to specific permissions */
 
 struct standard_mapping {
-	guint32 std_read;
-	guint32 std_write;
-	guint32 std_execute;
-	guint32 std_all;
+	uint32_t std_read;
+	uint32_t std_write;
+	uint32_t std_execute;
+	uint32_t std_all;
 };
 
 struct access_mask_info {
@@ -5795,15 +5795,15 @@ struct access_mask_info {
 };
 
 int
-dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-		       proto_tree *tree, dcerpc_info *di, guint8 *drep, int hfindex,
+dissect_nt_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo,
+		       proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex,
 		       struct access_mask_info *ami,
-		       guint32 *perms);
+		       uint32_t *perms);
 
 int
 dissect_nt_sec_desc(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		    proto_tree *parent_tree, guint8 *drep,
-		    gboolean len_supplied, int len,
+		    proto_tree *parent_tree, uint8_t *drep,
+		    bool len_supplied, int len,
 		    struct access_mask_info *ami);
 
 void

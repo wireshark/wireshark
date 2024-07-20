@@ -23,19 +23,19 @@ void proto_reg_handoff_wreth(void);
 
 static dissector_handle_t wreth_handle;
 
-static gint WrethIdentPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree);
-static gint WrethConnectPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree);
-static gint WrethDisconnectPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree);
-static gint WrethBlinkyPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree);
-static gint WrethGetValuePacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree);
-static gint WrethSetValuePacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree);
-static gint WrethBoostPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree);
-static gint WrethAckPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree);
-static gint WrethNackPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree);
-static gint WrethMailPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree);
-static gint WrethMailDissection(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree, guint8 fragmented);
-static gint WrethCodefMasterInfoDissection(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethMailboxTree);
-static gint WrethCodefEquipmentInfoDissection(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethMailboxTree);
+static int WrethIdentPacket(tvbuff_t *tvb, uint8_t Offset, packet_info * pInfo, proto_tree * pWrethTree);
+static int WrethConnectPacket(tvbuff_t *tvb, uint8_t Offset, packet_info * pInfo, proto_tree * pWrethTree);
+static int WrethDisconnectPacket(tvbuff_t *tvb, uint8_t Offset, packet_info * pInfo, proto_tree * pWrethTree);
+static int WrethBlinkyPacket(tvbuff_t *tvb, uint8_t Offset, packet_info * pInfo, proto_tree * pWrethTree);
+static int WrethGetValuePacket(tvbuff_t *tvb, uint8_t Offset, packet_info * pInfo, proto_tree * pWrethTree);
+static int WrethSetValuePacket(tvbuff_t *tvb, uint8_t Offset, packet_info * pInfo, proto_tree * pWrethTree);
+static int WrethBoostPacket(tvbuff_t *tvb, uint8_t Offset, packet_info * pInfo, proto_tree * pWrethTree);
+static int WrethAckPacket(tvbuff_t *tvb, uint8_t Offset, packet_info * pInfo, proto_tree * pWrethTree);
+static int WrethNackPacket(tvbuff_t *tvb, uint8_t Offset, packet_info * pInfo, proto_tree * pWrethTree);
+static int WrethMailPacket(tvbuff_t *tvb, uint8_t Offset, packet_info * pInfo, proto_tree * pWrethTree);
+static int WrethMailDissection(tvbuff_t *tvb, uint8_t Offset, packet_info * pInfo, proto_tree * pWrethTree, uint8_t fragmented);
+static int WrethCodefMasterInfoDissection(tvbuff_t *tvb, uint8_t Offset, packet_info * pInfo, proto_tree * pWrethMailboxTree);
+static int WrethCodefEquipmentInfoDissection(tvbuff_t *tvb, uint8_t Offset, packet_info * pInfo, proto_tree * pWrethMailboxTree);
 
 /* Remote ethernet sub packet type */
 #define WSE_RETH_SUBTYPE    0x0200
@@ -64,9 +64,9 @@ static gint WrethCodefEquipmentInfoDissection(tvbuff_t *tvb, guint8 Offset, pack
 #define WRETH_TASK_REGISTERED           9
 
 /* Initialize the protocol and registered fields */
-static gint wreth_proto = -1;
+static int wreth_proto = -1;
 
-/* static gint wreth_mail_proto = -1; */
+/* static int wreth_mail_proto = -1; */
 static int hf_Wreth_Subtype;
 static int hf_Wreth_Size;
 static int hf_Wreth_FunctionCode;
@@ -175,7 +175,7 @@ static int hf_Wreth_Mail_Equinf_DataFormat;
 static int hf_Wreth_Mail_Equinf_BreakIBit;
 
 /* Initialize the subtree pointers */
-static gint ett_wreth;
+static int ett_wreth;
 
 /* Note: vals are stored as unsigned 32 bit quantities */
 static const value_string tabStatus[] = {
@@ -727,11 +727,11 @@ static value_string_ext ErrorCode_vals_ext = VALUE_STRING_EXT_INIT(ErrorCode_val
 
 static int dissect_wreth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    guint16     packet_type,functionCode;
-    guint8      fragmented;
+    uint16_t    packet_type,functionCode;
+    uint8_t     fragmented;
     proto_item *mi, *ti;
     proto_tree *pWrethTree ;
-    guint8      Offset = 0 ;
+    uint8_t     Offset = 0 ;
 
 
     /*Read the packet type, if not good, exit*/
@@ -746,7 +746,7 @@ static int dissect_wreth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     pWrethTree = proto_item_add_subtree(mi, ett_wreth);
 
     functionCode = tvb_get_letohs(tvb,4);
-    fragmented   = tvb_get_guint8(tvb,10);
+    fragmented   = tvb_get_uint8(tvb,10);
 
     if(fragmented > 2)
     {
@@ -844,9 +844,9 @@ static const value_string IdentState[] = {
     { 0, NULL }
 };
 
-gint WrethIdentPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree)
+int WrethIdentPacket(tvbuff_t *tvb, uint8_t Offset, packet_info * pInfo, proto_tree * pWrethTree)
 {
-    guint16 Size;
+    uint16_t Size;
 
     Size = tvb_get_letohs(tvb, 2);
 
@@ -888,9 +888,9 @@ gint WrethIdentPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_t
 
 /*****************************************************************************/
 
-gint WrethConnectPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree _U_)
+int WrethConnectPacket(tvbuff_t *tvb, uint8_t Offset, packet_info * pInfo, proto_tree * pWrethTree _U_)
 {
-    guint16    Size;
+    uint16_t   Size;
 
     Size = tvb_get_letohs(tvb,2);
 
@@ -912,9 +912,9 @@ gint WrethConnectPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto
 
 /*****************************************************************************/
 
-gint WrethDisconnectPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree _U_)
+int WrethDisconnectPacket(tvbuff_t *tvb, uint8_t Offset, packet_info * pInfo, proto_tree * pWrethTree _U_)
 {
-    guint16    Size;
+    uint16_t   Size;
 
     Size = tvb_get_letohs(tvb,2);
 
@@ -932,9 +932,9 @@ gint WrethDisconnectPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, pr
 
 /*****************************************************************************/
 
-gint WrethBlinkyPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree)
+int WrethBlinkyPacket(tvbuff_t *tvb, uint8_t Offset, packet_info * pInfo, proto_tree * pWrethTree)
 {
-    guint16    Size;
+    uint16_t   Size;
 
     Size = tvb_get_letohs(tvb,2);
 
@@ -954,9 +954,9 @@ gint WrethBlinkyPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_
 
 /*****************************************************************************/
 
-gint WrethGetValuePacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree)
+int WrethGetValuePacket(tvbuff_t *tvb, uint8_t Offset, packet_info * pInfo, proto_tree * pWrethTree)
 {
-    guint16    Size;
+    uint16_t   Size;
 
     Size = tvb_get_letohs(tvb,2);
 
@@ -979,9 +979,9 @@ gint WrethGetValuePacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, prot
 
 /*****************************************************************************/
 
-gint WrethSetValuePacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree)
+int WrethSetValuePacket(tvbuff_t *tvb, uint8_t Offset, packet_info * pInfo, proto_tree * pWrethTree)
 {
-    guint16    Size;
+    uint16_t   Size;
 
     Size = tvb_get_letohs(tvb,2);
 
@@ -1004,9 +1004,9 @@ static const value_string BoostValue[] = {
     { 0, NULL }
 };
 
-gint WrethBoostPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree)
+int WrethBoostPacket(tvbuff_t *tvb, uint8_t Offset, packet_info * pInfo, proto_tree * pWrethTree)
 {
-    guint16    Size;
+    uint16_t   Size;
 
     Size = tvb_get_letohs(tvb,2);
 
@@ -1026,9 +1026,9 @@ gint WrethBoostPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_t
 
 /*****************************************************************************/
 
-gint WrethAckPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree _U_)
+int WrethAckPacket(tvbuff_t *tvb, uint8_t Offset, packet_info * pInfo, proto_tree * pWrethTree _U_)
 {
-    guint16    Size;
+    uint16_t   Size;
 
     Size = tvb_get_letohs(tvb,2);
 
@@ -1046,10 +1046,10 @@ gint WrethAckPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tre
 
 /*****************************************************************************/
 
-gint WrethNackPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree)
+int WrethNackPacket(tvbuff_t *tvb, uint8_t Offset, packet_info * pInfo, proto_tree * pWrethTree)
 {
-    guint16 Size;
-    guint16 ErrorCode;
+    uint16_t Size;
+    uint16_t ErrorCode;
 
     Size      = tvb_get_letohs(tvb,2);
     ErrorCode = tvb_get_letohs(tvb,8);
@@ -1074,7 +1074,7 @@ gint WrethNackPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tr
 
 /*****************************************************************************/
 
-gint WrethMailPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree)
+int WrethMailPacket(tvbuff_t *tvb, uint8_t Offset, packet_info * pInfo, proto_tree * pWrethTree)
 {
 
     proto_tree_add_item(pWrethTree, hf_Wreth_MailDestTic, tvb, Offset, 2, ENC_LITTLE_ENDIAN);
@@ -1090,12 +1090,12 @@ gint WrethMailPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tr
 
 /*****************************************************************************/
 
-gint WrethMailDissection(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree, guint8 fragmented)
+int WrethMailDissection(tvbuff_t *tvb, uint8_t Offset, packet_info * pInfo, proto_tree * pWrethTree, uint8_t fragmented)
 {
     proto_item *mi;
     proto_tree *pWrethMailboxTree;
-    guint32     Nb    = 0;
-    guint16     Codef = 0;
+    uint32_t    Nb    = 0;
+    uint16_t    Codef = 0;
 
     mi = proto_tree_add_protocol_format(pWrethTree, wreth_proto, tvb, Offset, -1, "MailBox");
     pWrethMailboxTree = proto_item_add_subtree(mi, ett_wreth);
@@ -1103,15 +1103,15 @@ gint WrethMailDissection(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, prot
     /*If it's not the last fragment, display the header of the MailBox*/
     if (2 != fragmented)
     {
-        guint16 Card, Chan;
-        gint Status;
+        uint16_t Card, Chan;
+        int Status;
 
         /*Codef*/
         Codef = tvb_get_letohs(tvb,Offset);
         proto_tree_add_item(pWrethMailboxTree, hf_Wreth_Mail_Codef, tvb, Offset, 2, ENC_LITTLE_ENDIAN);
         Offset += 2;
         /*Status*/
-        Status = (gint16)tvb_get_letohs(tvb,Offset); /* cast fetched value to signed so sign is extended */
+        Status = (int16_t)tvb_get_letohs(tvb,Offset); /* cast fetched value to signed so sign is extended */
                                                      /*  so that lookup of 32-bit unsigned in tabCodef   */
                                                      /*  value_string array will work properly.          */
         proto_tree_add_item(pWrethMailboxTree, hf_Wreth_Mail_Status, tvb, Offset, 2, ENC_LITTLE_ENDIAN);
@@ -1208,7 +1208,7 @@ gint WrethMailDissection(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, prot
 
 /*****************************************************************************/
 
-gint WrethCodefMasterInfoDissection(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo _U_, proto_tree * pWrethMailboxTree)
+int WrethCodefMasterInfoDissection(tvbuff_t *tvb, uint8_t Offset, packet_info * pInfo _U_, proto_tree * pWrethMailboxTree)
 {
     proto_item *mi;
     proto_tree *pWrethMailboxDataTree;
@@ -1246,7 +1246,7 @@ gint WrethCodefMasterInfoDissection(tvbuff_t *tvb, guint8 Offset, packet_info * 
 
 /*****************************************************************************/
 
-gint WrethCodefEquipmentInfoDissection(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo _U_, proto_tree * pWrethMailboxTree)
+int WrethCodefEquipmentInfoDissection(tvbuff_t *tvb, uint8_t Offset, packet_info * pInfo _U_, proto_tree * pWrethMailboxTree)
 {
     proto_item *mi;
     proto_tree *pWrethMailboxDataTree;
@@ -1974,7 +1974,7 @@ void proto_register_wreth(void)
         }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_wreth
     };
 

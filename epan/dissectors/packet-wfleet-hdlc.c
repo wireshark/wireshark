@@ -21,7 +21,7 @@ static int proto_wfleet_hdlc;
 static int hf_wfleet_hdlc_addr;
 static int hf_wfleet_hdlc_cmd;
 
-static gint ett_wfleet_hdlc;
+static int ett_wfleet_hdlc;
 
 static dissector_handle_t eth_withoutfcs_handle;
 static dissector_handle_t wfleet_hdlc_handle;
@@ -37,16 +37,16 @@ dissect_wfleet_hdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
   proto_item *ti;
   proto_tree *fh_tree = NULL;
   tvbuff_t   *next_tvb;
-  guint8     addr;
-  guint8     cmd;
+  uint8_t    addr;
+  uint8_t    cmd;
 
   col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "N/A");
   col_set_str(pinfo->cinfo, COL_RES_DL_DST, "N/A");
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "WHDLC");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  addr = tvb_get_guint8(tvb, 0);
-  cmd = tvb_get_guint8(tvb, 1);
+  addr = tvb_get_uint8(tvb, 0);
+  cmd = tvb_get_uint8(tvb, 1);
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_wfleet_hdlc, tvb, 0, 2, ENC_NA);
@@ -79,7 +79,7 @@ proto_register_wfleet_hdlc(void)
       { "Command", "wfleet_hdlc.command", FT_UINT8, BASE_HEX,
         VALS(wfleet_hdlc_cmd_vals), 0x0, NULL, HFILL }},
   };
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_wfleet_hdlc,
   };
 

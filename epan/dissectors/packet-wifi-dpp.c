@@ -33,7 +33,7 @@ static dissector_handle_t wifi_dpp_ie_handle;
 static dissector_handle_t wifi_dpp_pubact_handle;
 
 #define WIFI_DPP_TCP_PORT (7871)
-static guint wifi_dpp_tcp_port = WIFI_DPP_TCP_PORT;
+static unsigned wifi_dpp_tcp_port = WIFI_DPP_TCP_PORT;
 
 enum {
   DPP_STATUS_OK =                0,
@@ -207,12 +207,12 @@ static const range_string dpp_protocol_version_rvals[] = {
 
 static int proto_wifi_dpp;
 
-static gint ett_wifi_dpp_ie_generic;
-static gint ett_wifi_dpp_attributes;
-static gint ett_wifi_dpp_pa;
-static gint ett_wifi_dpp_attribute;
-static gint ett_wifi_dpp_attr_header;
-static gint ett_wifi_dpp_attr_value;
+static int ett_wifi_dpp_ie_generic;
+static int ett_wifi_dpp_attributes;
+static int ett_wifi_dpp_pa;
+static int ett_wifi_dpp_attribute;
+static int ett_wifi_dpp_attr_header;
+static int ett_wifi_dpp_attr_value;
 
 static int hf_wifi_dpp_ie_attr_id;
 static int hf_wifi_dpp_ie_attr_len;
@@ -269,7 +269,7 @@ static int
 dissect_wifi_dpp_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
   proto_item *ie;
-  guint remaining_len = tvb_reported_length(tvb);
+  unsigned remaining_len = tvb_reported_length(tvb);
 
   ie = proto_tree_add_subtree(tree, tvb, 0, remaining_len, ett_wifi_dpp_ie_generic, NULL, "Generic DPP IE");
   proto_tree_add_item(ie, hf_wifi_dpp_ie_generic, tvb, 0, remaining_len,
@@ -282,16 +282,16 @@ dissect_wifi_dpp_attributes(packet_info *pinfo _U_, proto_tree *tree,
                             tvbuff_t *tvb, int offset _U_)
 {
   proto_item *si = NULL;
-  guint8 status;
+  uint8_t status;
   proto_tree *attr, *specific_attr, *attr_hdr;
-  guint16 attribute_id;
-  guint16 attribute_len;
-  guint attributes_len = 0;
-  guint remaining_len = tvb_reported_length_remaining(tvb, offset);
+  uint16_t attribute_id;
+  uint16_t attribute_len;
+  unsigned attributes_len = 0;
+  unsigned remaining_len = tvb_reported_length_remaining(tvb, offset);
 
   while (remaining_len) {
-    attribute_id = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
-    attribute_len = tvb_get_guint16(tvb, offset + 2, ENC_LITTLE_ENDIAN);
+    attribute_id = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
+    attribute_len = tvb_get_uint16(tvb, offset + 2, ENC_LITTLE_ENDIAN);
     attr = proto_tree_add_subtree_format(tree, tvb, offset,
                                 attribute_len + 4, ett_wifi_dpp_attribute,
                                 &si, "%s Attribute",
@@ -315,7 +315,7 @@ dissect_wifi_dpp_attributes(packet_info *pinfo _U_, proto_tree *tree,
 
     switch (attribute_id) {
     case DPP_STATUS:
-      status = tvb_get_guint8(tvb, offset);
+      status = tvb_get_uint8(tvb, offset);
       proto_item_append_text(si, ": %s", val_to_str(status,
                                          dpp_status_codes,
                                          "Unknown (%u)"));
@@ -426,7 +426,7 @@ dissect_wifi_dpp_config_proto(packet_info *pinfo _U_, proto_tree *tree,
 {
   proto_item *dpp_item;
   proto_tree *dpp_tree, *attr_tree;
-  guint remaining_len = tvb_reported_length_remaining(tvb, offset);
+  unsigned remaining_len = tvb_reported_length_remaining(tvb, offset);
 
   dpp_item = proto_tree_add_item(tree, proto_wifi_dpp, tvb, offset, -1, ENC_NA);
   dpp_tree = proto_item_add_subtree(dpp_item, ett_wifi_dpp_pa);
@@ -446,17 +446,17 @@ int
 dissect_wifi_dpp_public_action(tvbuff_t *tvb, packet_info *pinfo,
                                proto_tree *tree, void *data _U_)
 {
-  guint8 subtype;
-  guint remaining_len;
+  uint8_t subtype;
+  unsigned remaining_len;
   proto_item *dpp_item;
   proto_tree *dpp_tree, *attr_tree;
-  guint16 attributes_len;
+  uint16_t attributes_len;
   int offset = 0;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "wifi_dpp");
 
   /* The Crypto suite comes before the DPP frame type */
-  subtype = tvb_get_guint8(tvb, offset + 1);
+  subtype = tvb_get_uint8(tvb, offset + 1);
   col_append_fstr(pinfo->cinfo, COL_INFO, ", DPP - %s",
                   val_to_str(subtype, dpp_public_action_subtypes,
                              "Unknown (%u)"));
@@ -494,7 +494,7 @@ dissect_wifi_dpp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo _U_,
   proto_tree *tree, void *data _U_)
 {
   int offset = 0;
-  guint8 action;
+  uint8_t action;
   tvbuff_t *newtvb;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "dpp");
@@ -507,7 +507,7 @@ dissect_wifi_dpp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo _U_,
                       ENC_BIG_ENDIAN);
   offset += 4;
 
-  action = tvb_get_guint8(tvb, offset);
+  action = tvb_get_uint8(tvb, offset);
   proto_tree_add_item(tree, hf_wifi_dpp_tcp_pdu_action_field, tvb, offset, 1,
                       ENC_NA);
   offset += 1;
@@ -555,7 +555,7 @@ dissect_wifi_dpp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo _U_,
 
     offset += dissect_wifi_dpp_config_proto(pinfo, tree, tvb, offset);
   } else if (action == 0x0b || action == 0x0d) {
-    guint16 qr_len;
+    uint16_t qr_len;
 
     col_append_str(pinfo->cinfo, COL_INFO, ", DPP - Configuration Response");
 
@@ -610,11 +610,11 @@ dissect_wifi_dpp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo _U_,
   return offset;
 }
 
-static guint
+static unsigned
 get_wifi_dpp_tcp_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset,
   void *data _U_)
 {
-  guint pkt_len;
+  unsigned pkt_len;
 
   pkt_len = tvb_get_ntohl(tvb, offset);
 
@@ -632,7 +632,7 @@ dissect_wifi_dpp_tcp_pdus(tvbuff_t *tvb, packet_info *pinfo _U_,
   if (!tvb_bytes_exist(tvb, 0, DPP_TCP_HEADER_LEN))
     return 0;
 
-  tcp_dissect_pdus(tvb, pinfo, tree, TRUE, DPP_TCP_HEADER_LEN,
+  tcp_dissect_pdus(tvb, pinfo, tree, true, DPP_TCP_HEADER_LEN,
                    get_wifi_dpp_tcp_len, dissect_wifi_dpp_tcp_pdu, data);
   return tvb_reported_length(tvb);
 }
@@ -780,7 +780,7 @@ proto_register_wifi_dpp(void)
       { "DPP TCP PDU Query Resp Len", "dpp.tcp.query_resp_len",
         FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
   };
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_wifi_dpp_ie_generic,
     &ett_wifi_dpp_attributes,
     &ett_wifi_dpp_pa,
@@ -809,7 +809,7 @@ proto_register_wifi_dpp(void)
 void
 proto_reg_handoff_wifi_dpp(void)
 {
-  static gboolean initialized = FALSE;
+  static bool initialized = false;
   static int current_port;
 
   dissector_add_uint("wlan.anqp.wifi_alliance.subtype", WFA_SUBTYPE_DPP, wifi_dpp_handle);
@@ -820,7 +820,7 @@ proto_reg_handoff_wifi_dpp(void)
    * Register the TCP port
    */
   if (!initialized) {
-    initialized = TRUE;
+    initialized = true;
   } else {
     dissector_delete_uint("tcp.port", current_port, wifi_dpp_tcp_handle);
   }

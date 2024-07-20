@@ -33,13 +33,13 @@ static int hf_whois_response_time;
 static expert_field ei_whois_nocrlf;
 static expert_field ei_whois_encoding;
 
-static gint ett_whois;
+static int ett_whois;
 
 typedef struct _whois_transaction_t {
-    guint32  req_frame;
-    guint32  rep_frame;
+    uint32_t req_frame;
+    uint32_t rep_frame;
     nstime_t req_time;
-    guint8*  query;
+    uint8_t*  query;
 } whois_transaction_t;
 
 static int
@@ -50,30 +50,30 @@ dissect_whois(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree          *whois_tree;
     conversation_t      *conversation;
     whois_transaction_t *whois_trans;
-    gboolean             is_query;
-    guint                len;
+    bool                 is_query;
+    unsigned             len;
     struct tcpinfo      *tcpinfo = (struct tcpinfo*)data;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "WHOIS");
 
     if (pinfo->destport == WHOIS_PORT) {
-        is_query = TRUE;
+        is_query = true;
         col_set_str(pinfo->cinfo, COL_INFO, "Query");
     } else {
-        is_query = FALSE;
+        is_query = false;
         col_set_str(pinfo->cinfo, COL_INFO, "Answer");
     }
 
     conversation = find_or_create_conversation(pinfo);
     whois_trans = (whois_transaction_t *)conversation_get_proto_data(conversation, proto_whois);
     if (whois_trans == NULL) {
-        gint linelen;
+        int linelen;
         whois_trans = wmem_new0(wmem_file_scope(), whois_transaction_t);
 
         /*
          * Find the end of the first line.
          */
-        linelen = tvb_find_line_end(tvb, 0, -1, NULL, FALSE);
+        linelen = tvb_find_line_end(tvb, 0, -1, NULL, false);
         if (linelen != -1)
             whois_trans->query = tvb_get_string_enc(wmem_file_scope(), tvb, 0, linelen, ENC_ASCII|ENC_NA);
         conversation_add_proto_data(conversation, proto_whois, whois_trans);
@@ -88,7 +88,7 @@ dissect_whois(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (!PINFO_FD_VISITED(pinfo)) {
         if (pinfo->can_desegment) {
             if (is_query) {
-                if ((len < 2) || (tvb_memeql(tvb, len - 2, (const guint8*)"\r\n", 2))) {
+                if ((len < 2) || (tvb_memeql(tvb, len - 2, (const uint8_t*)"\r\n", 2))) {
                     pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
                     pinfo->desegment_offset = 0;
                     return -1;
@@ -138,7 +138,7 @@ dissect_whois(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      */
     if (is_query) {
         expert_ti = proto_tree_add_item(whois_tree, hf_whois_query, tvb, 0, -1, ENC_ASCII);
-        if ((len < 2) || (tvb_memeql(tvb, len - 2, (const guint8*)"\r\n", 2))) {
+        if ((len < 2) || (tvb_memeql(tvb, len - 2, (const uint8_t*)"\r\n", 2))) {
             /*
              * From RFC3912, section 2:
              * All requests are terminated with ASCII CR and then ASCII LF.
@@ -177,7 +177,7 @@ dissect_whois(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             /*
              * Find the end of the line.
              */
-            tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+            tvb_find_line_end(tvb, offset, -1, &next_offset, false);
 
             /*
              * Put this line.
@@ -223,7 +223,7 @@ proto_register_whois(void)
         }
     };
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_whois
     };
 

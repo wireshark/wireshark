@@ -156,13 +156,13 @@ static int hf_waveagent_relaysrcid;
 static int hf_waveagent_relaymessagest;
 
 /* Initialize the subtree pointers */
-static gint ett_waveagent;
-static gint ett_statechange;
-static gint ett_phytypes;
-static gint ett_fsflags;
-static gint ett_scindex[8];  /* NUM_STATE_CHANGES */
-static gint ett_bss[8];  /* NUM_BSS           */
-static gint ett_relaymessage;
+static int ett_waveagent;
+static int ett_statechange;
+static int ett_phytypes;
+static int ett_fsflags;
+static int ett_scindex[8];  /* NUM_STATE_CHANGES */
+static int ett_bss[8];  /* NUM_BSS           */
+static int ett_relaymessage;
 
 
 static const value_string control_words[] = {
@@ -206,11 +206,11 @@ static const value_string control_words[] = {
 static value_string_ext control_words_ext = VALUE_STRING_EXT_INIT(control_words);
 
 /* Dissects the WLAN interface stats structure */
-static void dissect_wlan_if_stats(guint32 starting_offset, proto_item *parent_tree, tvbuff_t *tvb)
+static void dissect_wlan_if_stats(uint32_t starting_offset, proto_item *parent_tree, tvbuff_t *tvb)
 {
     proto_item *phy_types;
     proto_tree *phy_types_tree;
-    guint32     phy_types_bitfield, noise_floor;
+    uint32_t    phy_types_bitfield, noise_floor;
 
     proto_tree_add_item(parent_tree,
         hf_waveagent_ifwlanbssid, tvb, starting_offset, 6, ENC_NA);
@@ -263,7 +263,7 @@ static void dissect_wlan_if_stats(guint32 starting_offset, proto_item *parent_tr
         hf_waveagent_ifwlancipher, tvb, starting_offset + 60, 4, ENC_BIG_ENDIAN);
 }
 
-static void dissect_wa_payload(guint32 starting_offset, proto_item *parent_tree, tvbuff_t *tvb, guint32 control_word, guint8 version)
+static void dissect_wa_payload(uint32_t starting_offset, proto_item *parent_tree, tvbuff_t *tvb, uint32_t control_word, uint8_t version)
 {
     switch (control_word)
     {
@@ -312,7 +312,7 @@ static void dissect_wa_payload(guint32 starting_offset, proto_item *parent_tree,
             break;
 
         case 0x30: {  /* Interface stats response */
-            guint32 if_type;
+            uint32_t if_type;
 
             proto_tree_add_item(parent_tree,
                 hf_waveagent_ifindex, tvb, starting_offset, 4, ENC_BIG_ENDIAN);
@@ -377,10 +377,10 @@ static void dissect_wa_payload(guint32 starting_offset, proto_item *parent_tree,
         }
 
         case 0x31:  {  /* Interface change info response */
-            guint32 offset;
-            guint32 if_type;
-            guint32 delta;
-            guint32 iLoop;
+            uint32_t offset;
+            uint32_t if_type;
+            uint32_t delta;
+            uint32_t iLoop;
 
             proto_tree_add_item(parent_tree,
                 hf_waveagent_ifindex, tvb, starting_offset, 4, ENC_BIG_ENDIAN);
@@ -396,7 +396,7 @@ static void dissect_wa_payload(guint32 starting_offset, proto_item *parent_tree,
             for (iLoop = 0; iLoop < NUM_STATE_CHANGES; iLoop++) {
                 proto_item *stIndex;
                 proto_tree *st_change_index_tree;
-                guint32     if_status;
+                uint32_t    if_status;
                 int         current_offset;
 
                 current_offset = offset + iLoop * delta;
@@ -463,12 +463,12 @@ static void dissect_wa_payload(guint32 starting_offset, proto_item *parent_tree,
             break;
 
         case 0x2e: {  /* scan results response message */
-            guint32        offset;
+            uint32_t       offset;
             proto_item    *pi;
-            guint32        num_bss_entries;
-            guint32        tag_len;
-            guint32        delta;
-            guint32        iLoop;
+            uint32_t       num_bss_entries;
+            uint32_t       tag_len;
+            uint32_t       delta;
+            uint32_t       iLoop;
             wmem_strbuf_t *sb;
 
             proto_tree_add_item(parent_tree,
@@ -512,11 +512,11 @@ static void dissect_wa_payload(guint32 starting_offset, proto_item *parent_tree,
                 tag_len = tvb_get_ntohl(tvb, current_offset + 52);
 
                 if (tag_len != 0) {
-                    guint32       isr;
-                    guint8        isr_value;
+                    uint32_t      isr;
+                    uint8_t       isr_value;
 
                     for (isr = 0; isr < tag_len; isr++) {
-                        isr_value = tvb_get_guint8(tvb, offset + 36 + isr);
+                        isr_value = tvb_get_uint8(tvb, offset + 36 + isr);
                         if (isr_value == 0xFF){
                             proto_tree_add_string (bss_tree, hf_waveagent_ifwlansupprates, tvb, offset + 36 + isr,
                                                    1,
@@ -732,10 +732,10 @@ static void dissect_wa_payload(guint32 starting_offset, proto_item *parent_tree,
             break;
 
         case 0x40: {
-            guint32 offset;
-            guint32 delta;
-            guint32 iLoop;
-            guint32 num_bss_entries;
+            uint32_t offset;
+            uint32_t delta;
+            uint32_t iLoop;
+            uint32_t num_bss_entries;
 
             proto_tree_add_item(parent_tree,
                 hf_waveagent_ifindex, tvb, starting_offset, 4, ENC_BIG_ENDIAN);
@@ -850,7 +850,7 @@ static void dissect_wa_payload(guint32 starting_offset, proto_item *parent_tree,
         case 0x85: {   /* Flow setup */
             proto_tree *fs_flags;
             proto_tree *fs_flags_tree;
-            guint32     flags_bitfield;
+            uint32_t    flags_bitfield;
 
             if (version < 3) {
                 proto_tree_add_item(parent_tree,
@@ -940,9 +940,9 @@ static void dissect_wa_payload(guint32 starting_offset, proto_item *parent_tree,
 
 
 
-static guint32 dissect_wa_header(guint32 starting_offset, proto_item *parent_tree, tvbuff_t *tvb, guint8 version)
+static uint32_t dissect_wa_header(uint32_t starting_offset, proto_item *parent_tree, tvbuff_t *tvb, uint8_t version)
 {
-    guint32 wa_payload_offset;
+    uint32_t wa_payload_offset;
 
     proto_tree_add_item(parent_tree,
         hf_waveagent_controlword, tvb, 30+starting_offset, 2, ENC_BIG_ENDIAN);
@@ -983,11 +983,11 @@ static int dissect_waveagent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 {
     proto_item *ti, *rmi;
     proto_tree *waveagent_tree, *relay_message_tree, *payload_tree;
-    guint8      signature_start, signature_end;
-    guint8      version;
-    guint32     magic_number;
-    guint32     control_word, paylen;
-    guint32     wa_payload_offset;
+    uint8_t     signature_start, signature_end;
+    uint8_t     version;
+    uint32_t    magic_number;
+    uint32_t    control_word, paylen;
+    uint32_t    wa_payload_offset;
 
     /* Check that there's enough data */
     if (tvb_captured_length(tvb) < 52 )
@@ -998,8 +998,8 @@ static int dissect_waveagent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         return 0;
     }
 
-    signature_start = tvb_get_guint8(tvb, 0);
-    signature_end   = tvb_get_guint8(tvb, 15);
+    signature_start = tvb_get_uint8(tvb, 0);
+    signature_end   = tvb_get_uint8(tvb, 15);
 
     if ( ((signature_start != 0xcc) && (signature_start !=0xdd)) ||
          (signature_end != 0xE2))
@@ -1859,7 +1859,7 @@ void proto_register_waveagent(void)
     };
 
 /* Setup protocol subtree array */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_waveagent,
         &ett_statechange,
         &ett_phytypes,

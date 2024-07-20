@@ -397,37 +397,37 @@ static const value_string phy_type_80211_vs[] = {
 struct subdissector_returns_t
 {
 	static int consumed
-	static gboolean mic_flag;
-	static gboolean tlv_flag;
+	static bool mic_flag;
+	static bool tlv_flag;
 }; * struct flags_t declaration *
 */
 
 
 
 /* Forward declarations we need below */
-static guint dissect_wlccp_ccm_msg(proto_tree *_tree, tvbuff_t *_tvb, guint _offset, guint8 _base_message_type);
-static guint dissect_wlccp_sec_msg(proto_tree *_tree, tvbuff_t *_tvb, guint _offset, guint8 _base_message_type);
-static guint dissect_wlccp_rrm_msg(proto_tree *_tree, tvbuff_t *_tvb, guint _offset, guint8 _base_message_type);
-static guint dissect_wlccp_qos_msg(proto_tree *_tree, tvbuff_t *_tvb, guint _offset, guint8 _base_message_type);
-static guint dissect_wlccp_nm_msg(proto_tree *_tree, tvbuff_t *_tvb, guint _offset, guint8 _base_message_type);
-static guint dissect_wlccp_mip_msg(proto_tree *_tree, tvbuff_t *_tvb, guint _offset, guint8 _base_message_type);
+static unsigned dissect_wlccp_ccm_msg(proto_tree *_tree, tvbuff_t *_tvb, unsigned _offset, uint8_t _base_message_type);
+static unsigned dissect_wlccp_sec_msg(proto_tree *_tree, tvbuff_t *_tvb, unsigned _offset, uint8_t _base_message_type);
+static unsigned dissect_wlccp_rrm_msg(proto_tree *_tree, tvbuff_t *_tvb, unsigned _offset, uint8_t _base_message_type);
+static unsigned dissect_wlccp_qos_msg(proto_tree *_tree, tvbuff_t *_tvb, unsigned _offset, uint8_t _base_message_type);
+static unsigned dissect_wlccp_nm_msg(proto_tree *_tree, tvbuff_t *_tvb, unsigned _offset, uint8_t _base_message_type);
+static unsigned dissect_wlccp_mip_msg(proto_tree *_tree, tvbuff_t *_tvb, unsigned _offset, uint8_t _base_message_type);
 
-static guint dissect_wlccp_tlvs(proto_tree *_tree, tvbuff_t *tvb, guint tlv_offset, guint _depth);
+static unsigned dissect_wlccp_tlvs(proto_tree *_tree, tvbuff_t *tvb, unsigned tlv_offset, unsigned _depth);
 
-static guint dissect_wlccp_ccm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _offset, gint _type_id, guint _length, proto_item *_ti);
-static guint dissect_wlccp_sec_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _offset, gint _type_id, guint _length, proto_item *_ti);
-static guint dissect_wlccp_rrm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _offset, gint _type_id, guint _length, proto_item *_ti);
-static guint dissect_wlccp_qos_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _offset, gint _type_id, guint _length, proto_item *_ti);
-static guint dissect_wlccp_nm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _offset, gint _type_id, guint _length, proto_item *_ti);
-static guint dissect_wlccp_mip_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _offset, gint _type_id, guint _length, proto_item *_ti);
+static unsigned dissect_wlccp_ccm_tlv(proto_tree *_tree, tvbuff_t *_tvb, unsigned _offset, int _type_id, unsigned _length, proto_item *_ti);
+static unsigned dissect_wlccp_sec_tlv(proto_tree *_tree, tvbuff_t *_tvb, unsigned _offset, int _type_id, unsigned _length, proto_item *_ti);
+static unsigned dissect_wlccp_rrm_tlv(proto_tree *_tree, tvbuff_t *_tvb, unsigned _offset, int _type_id, unsigned _length, proto_item *_ti);
+static unsigned dissect_wlccp_qos_tlv(proto_tree *_tree, tvbuff_t *_tvb, unsigned _offset, int _type_id, unsigned _length, proto_item *_ti);
+static unsigned dissect_wlccp_nm_tlv(proto_tree *_tree, tvbuff_t *_tvb, unsigned _offset, int _type_id, unsigned _length, proto_item *_ti);
+static unsigned dissect_wlccp_mip_tlv(proto_tree *_tree, tvbuff_t *_tvb, unsigned _offset, int _type_id, unsigned _length, proto_item *_ti);
 
-static void set_mic_flag(gboolean flag);
-static void set_tlv_flag(gboolean flag);
-static gboolean get_tlv_flag(void);
-static gboolean get_mic_flag(void);
+static void set_mic_flag(bool flag);
+static void set_tlv_flag(bool flag);
+static bool get_tlv_flag(void);
+static bool get_mic_flag(void);
 
 /* Initialize some utility variables */
-static gboolean mic_flag=0, tlv_flag=0;
+static bool mic_flag=0, tlv_flag=0;
 
 /* Initialize the protocol and registered fields */
 static int proto_wlccp;
@@ -654,26 +654,26 @@ static int hf_80211_imm_block_ack;
 static int hf_wlccp_tlv_unknown_value;
 
 /* Initialize the subtree pointers */
-static gint ett_wlccp;
-static gint ett_wlccp_sap_tree;
-static gint ett_wlccp_type;
-static gint ett_wlccp_cm_flags;
-static gint ett_wlccp_scm_flags;
-static gint ett_wlccp_scm_priority_flags;
-static gint ett_wlccp_scm_bridge_priority_flags;
-static gint ett_wlccp_rm_flags;
-static gint ett_wlccp_nm_flags;
+static int ett_wlccp;
+static int ett_wlccp_sap_tree;
+static int ett_wlccp_type;
+static int ett_wlccp_cm_flags;
+static int ett_wlccp_scm_flags;
+static int ett_wlccp_scm_priority_flags;
+static int ett_wlccp_scm_bridge_priority_flags;
+static int ett_wlccp_rm_flags;
+static int ett_wlccp_nm_flags;
 
 
-static gint ett_wlccp_flags;
-static gint ett_wlccp_ap_node_id;
-static gint ett_wlccp_eapol_msg_tree;
-static gint ett_wlccp_eap_tree;
-static gint ett_wlccp_tlv_tree;
-static gint ett_tlv_flags_tree;
-static gint ett_tlv_sub_tree;
-static gint ett_80211_capability_flags_tree;
-static gint ett_framereport_elements_tree;
+static int ett_wlccp_flags;
+static int ett_wlccp_ap_node_id;
+static int ett_wlccp_eapol_msg_tree;
+static int ett_wlccp_eap_tree;
+static int ett_wlccp_tlv_tree;
+static int ett_tlv_flags_tree;
+static int ett_tlv_sub_tree;
+static int ett_80211_capability_flags_tree;
+static int ett_framereport_elements_tree;
 
 
 
@@ -685,21 +685,21 @@ dissect_wlccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 	proto_item *ti;
 	proto_tree *wlccp_tree, *wlccp_sap_tree, *wlccp_type_tree;
 
-	guint offset = 0, old_offset;
+	unsigned offset = 0, old_offset;
 
-	guint8 version=0, sap_id=0;
+	uint8_t version=0, sap_id=0;
 
-	guint16 type;
-	guint8 base_message_type=0, message_sub_type=0;
+	uint16_t type;
+	uint8_t base_message_type=0, message_sub_type=0;
 
 	/* Make entries in Protocol column and Info column on summary display */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "WLCCP");
 
-	if(tvb_get_guint8(tvb, 0) == 0xC1)  /* Get the version number */
+	if(tvb_get_uint8(tvb, 0) == 0xC1)  /* Get the version number */
 	{
-		sap_id = tvb_get_guint8(tvb,1) & SAP_VALUE_MASK;
-		base_message_type=(tvb_get_guint8(tvb,6)) & MT_BASE_MSG_TYPE;
-		message_sub_type=(tvb_get_guint8(tvb, 6) &  MT_SUBTYPE ) >> 6;
+		sap_id = tvb_get_uint8(tvb,1) & SAP_VALUE_MASK;
+		base_message_type=(tvb_get_uint8(tvb,6)) & MT_BASE_MSG_TYPE;
+		message_sub_type=(tvb_get_uint8(tvb, 6) &  MT_SUBTYPE ) >> 6;
 
 		switch (sap_id)
 		{
@@ -767,7 +767,7 @@ dissect_wlccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
 		} /* switch sap */
 
-	} /* if version=0xC1 (tvb_get_guint8(tvb, 0) == 0xC1)*/
+	} /* if version=0xC1 (tvb_get_uint8(tvb, 0) == 0xC1)*/
 
 	if (tree) {
 		/* create display subtree for the protocol */
@@ -778,7 +778,7 @@ dissect_wlccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 				    tvb, offset, 1, ENC_BIG_ENDIAN);
 
 		/* interpretation of the packet is determined by WLCCP version */
-		version = tvb_get_guint8(tvb, 0);
+		version = tvb_get_uint8(tvb, 0);
 		offset += 1;
 
 		if(version == 0x0) {
@@ -818,7 +818,7 @@ dissect_wlccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 			proto_tree_add_item(wlccp_sap_tree, hf_wlccp_sap_id,
 					    tvb, offset, 1, ENC_BIG_ENDIAN);
 
- 			sap_id = tvb_get_guint8(tvb,offset) & SAP_VALUE_MASK;
+			sap_id = tvb_get_uint8(tvb,offset) & SAP_VALUE_MASK;
 
 			offset += 1;
 
@@ -912,15 +912,15 @@ dissect_wlccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
 			} /* switch sap */
 
- 			base_message_type=(tvb_get_guint8(tvb,offset) & MT_BASE_MSG_TYPE );
+			base_message_type=(tvb_get_uint8(tvb,offset) & MT_BASE_MSG_TYPE );
 
 			offset += 1;
 			} /* Message Type Field */
 
 			/* after the Message Type Field things change based on SAP and Message Type */
 
-			set_mic_flag(FALSE);
-			set_tlv_flag(FALSE);
+			set_mic_flag(false);
+			set_tlv_flag(false);
 
 			switch (sap_id)
 			{
@@ -1030,36 +1030,36 @@ dissect_wlccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
 /* these could be implemented with a struct */
 
-static void set_mic_flag(gboolean flag)
+static void set_mic_flag(bool flag)
 {
 	mic_flag=flag;
 } /*set_mic_flag */
 
-static void set_tlv_flag(gboolean flag)
+static void set_tlv_flag(bool flag)
 {
 	tlv_flag=flag;
 } /* set_tlv_flag */
 
-static gboolean get_tlv_flag(void)
+static bool get_tlv_flag(void)
 {
 	return tlv_flag;
 } /* get_tlv_flag */
 
-static gboolean get_mic_flag(void)
+static bool get_mic_flag(void)
 {
 	return mic_flag;
 } /* get_mic_flag */
 
 /*******************************************************************************************/
 
-static guint dissect_wlccp_ccm_msg(proto_tree *_tree, tvbuff_t *_tvb, guint _offset, guint8 _base_message_type)
+static unsigned dissect_wlccp_ccm_msg(proto_tree *_tree, tvbuff_t *_tvb, unsigned _offset, uint8_t _base_message_type)
 {
 	proto_item *_ti;
 	proto_tree *_wlccp_eapol_msg_tree, *_wlccp_cm_flags_tree, *_wlccp_scm_flags_tree, *_wlccp_scm_priority_flags_tree, *_wlccp_scm_bridge_priority_flags_tree;
 
-	gboolean _relay_flag=0, _mic_flag=0, _tlv_flag=0;
-	guint8 _aaa_msg_type=0, _eapol_type=0;
-	guint16 _eap_msg_length=0;
+	bool _relay_flag=0, _mic_flag=0, _tlv_flag=0;
+	uint8_t _aaa_msg_type=0, _eapol_type=0;
+	uint16_t _eap_msg_length=0;
 
 	proto_tree_add_item(_tree, hf_wlccp_hops,
 			    _tvb, _offset, 1, ENC_BIG_ENDIAN);
@@ -1312,7 +1312,7 @@ static guint dissect_wlccp_ccm_msg(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 
 			proto_tree_add_item(_tree, hf_wlccp_aaa_msg_type,
 					    _tvb, _offset, 1, ENC_BIG_ENDIAN);
-			_aaa_msg_type=tvb_get_guint8(_tvb,_offset);
+			_aaa_msg_type=tvb_get_uint8(_tvb,_offset);
 			_offset += 1;
 
 			proto_tree_add_item(_tree, hf_wlccp_aaa_auth_type,
@@ -1352,7 +1352,7 @@ handle things. To be investigated further */
 
 				proto_tree_add_item(_wlccp_eapol_msg_tree, hf_wlccp_eapol_type,
 			        	            _tvb, _offset, 1, ENC_BIG_ENDIAN);
-				_eapol_type=tvb_get_guint8(_tvb, _offset);
+				_eapol_type=tvb_get_uint8(_tvb, _offset);
 				_offset += 1;
 
 				if (_eapol_type == 0)
@@ -1426,7 +1426,7 @@ handle things. To be investigated further */
 	return _offset;
 } /* dissect_wlccp_ccm_msg */
 
-static guint dissect_wlccp_sec_msg(proto_tree *_tree _U_, tvbuff_t *_tvb _U_, guint _offset, guint8 _base_message_type)
+static unsigned dissect_wlccp_sec_msg(proto_tree *_tree _U_, tvbuff_t *_tvb _U_, unsigned _offset, uint8_t _base_message_type)
 {
 
 /* at the moment we have no more data to use to write this dissector code */
@@ -1455,13 +1455,13 @@ static guint dissect_wlccp_sec_msg(proto_tree *_tree _U_, tvbuff_t *_tvb _U_, gu
 
 } /* dissect_wlccp_sec_msg */
 
-static guint dissect_wlccp_rrm_msg(proto_tree *_tree, tvbuff_t *_tvb, guint _offset, guint8 _base_message_type)
+static unsigned dissect_wlccp_rrm_msg(proto_tree *_tree, tvbuff_t *_tvb, unsigned _offset, uint8_t _base_message_type)
 {
 
 	proto_tree *_wlccp_rm_flags_tree;
 	proto_item *_ti;
 
-	gboolean _mic_flag=0;
+	bool _mic_flag=0;
 
 
 
@@ -1475,11 +1475,11 @@ static guint dissect_wlccp_rrm_msg(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 	proto_tree_add_item(_wlccp_rm_flags_tree, hf_wlccp_rm_mic_flag,
 			    _tvb, _offset, 1, ENC_BIG_ENDIAN);
 
-	_mic_flag = (tvb_get_guint8(_tvb, _offset) & RM_F_MIC) >> 1;
+	_mic_flag = (tvb_get_uint8(_tvb, _offset) & RM_F_MIC) >> 1;
 
 	set_mic_flag(_mic_flag);
 
-	set_tlv_flag(TRUE);
+	set_tlv_flag(true);
 
 	proto_tree_add_item(_wlccp_rm_flags_tree, hf_wlccp_rm_request_reply_flag,
 			    _tvb, _offset, 1, ENC_BIG_ENDIAN);
@@ -1542,7 +1542,7 @@ static guint dissect_wlccp_rrm_msg(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 
 
 
-static guint dissect_wlccp_qos_msg(proto_tree *_tree _U_, tvbuff_t *_tvb _U_, guint _offset, guint8 _base_message_type)
+static unsigned dissect_wlccp_qos_msg(proto_tree *_tree _U_, tvbuff_t *_tvb _U_, unsigned _offset, uint8_t _base_message_type)
 {
 /* at the moment we have no more data to use to write this dissector code */
 /* it's just a place holder for now                                       */
@@ -1571,12 +1571,12 @@ static guint dissect_wlccp_qos_msg(proto_tree *_tree _U_, tvbuff_t *_tvb _U_, gu
 } /* dissect_wlccp_qos_msg */
 
 
-static guint dissect_wlccp_nm_msg(proto_tree *_tree, tvbuff_t *_tvb, guint _offset, guint8 _base_message_type)
+static unsigned dissect_wlccp_nm_msg(proto_tree *_tree, tvbuff_t *_tvb, unsigned _offset, uint8_t _base_message_type)
 {
 	proto_item *_ti;
 	proto_tree *_wlccp_ap_node_id_tree, *_wlccp_nm_flags_tree;
 
-	gboolean _mic_flag=0, _tlv_flag=0;
+	bool _mic_flag=0, _tlv_flag=0;
 
 
 	proto_tree_add_item(_tree, hf_wlccp_nm_version,
@@ -1766,7 +1766,7 @@ static guint dissect_wlccp_nm_msg(proto_tree *_tree, tvbuff_t *_tvb, guint _offs
 
 } /* dissect_wlccp_nm_msg */
 
-static guint dissect_wlccp_mip_msg(proto_tree *_tree _U_, tvbuff_t *_tvb _U_, guint _offset, guint8 _base_message_type)
+static unsigned dissect_wlccp_mip_msg(proto_tree *_tree _U_, tvbuff_t *_tvb _U_, unsigned _offset, uint8_t _base_message_type)
 {
 /* at the moment we have no more data to use to write this dissector code */
 /* it's just a place holder for now                                       */
@@ -1796,18 +1796,18 @@ static guint dissect_wlccp_mip_msg(proto_tree *_tree _U_, tvbuff_t *_tvb _U_, gu
 /***************************************************************************************************/
 
 // NOLINTNEXTLINE(misc-no-recursion)
-static guint dissect_wlccp_tlvs( proto_tree *_tree, tvbuff_t *_tvb, guint _offset, guint _depth)
+static unsigned dissect_wlccp_tlvs( proto_tree *_tree, tvbuff_t *_tvb, unsigned _offset, unsigned _depth)
 {
 
 	proto_item *_ti, *_temp_ti;
 	proto_tree *_tlv_tree;
 	proto_tree *_tlv_flags_tree;
 
-	gboolean _container_flag=0;
-	gint  _group_id=0, _type_id=0;
-	guint _length=0;
-	guint _tlv_end=0;
-	guint _old_offset;
+	bool _container_flag=0;
+	int   _group_id=0, _type_id=0;
+	unsigned _length=0;
+	unsigned _tlv_end=0;
+	unsigned _old_offset;
 
 
 
@@ -2017,7 +2017,7 @@ static guint dissect_wlccp_tlvs( proto_tree *_tree, tvbuff_t *_tvb, guint _offse
 /* THE CALLING FUNCTION dissect_wlccp_tlvs.  BESIDES, IT'S JUST GOOD FORM :-)                                    */
 
 
-static guint dissect_wlccp_ccm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _offset, gint _type_id, guint _length, proto_item *_ti)
+static unsigned dissect_wlccp_ccm_tlv(proto_tree *_tree, tvbuff_t *_tvb, unsigned _offset, int _type_id, unsigned _length, proto_item *_ti)
 {
 
 	switch (_type_id)
@@ -2064,7 +2064,7 @@ static guint dissect_wlccp_ccm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 
 
 
-static guint dissect_wlccp_sec_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _offset, gint _type_id, guint _length, proto_item *_ti)
+static unsigned dissect_wlccp_sec_tlv(proto_tree *_tree, tvbuff_t *_tvb, unsigned _offset, int _type_id, unsigned _length, proto_item *_ti)
 {
 
 	switch (_type_id)
@@ -2156,7 +2156,7 @@ static guint dissect_wlccp_sec_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 		case 0x08: /* MIC */
 		{
 
-			guint16 _mic_length=0;
+			uint16_t _mic_length=0;
 
 			proto_item_append_text(_ti, "     mic");
 
@@ -2222,7 +2222,7 @@ static guint dissect_wlccp_sec_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 
 
 
-static guint dissect_wlccp_rrm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _offset, gint _type_id, guint _length, proto_item *_ti)
+static unsigned dissect_wlccp_rrm_tlv(proto_tree *_tree, tvbuff_t *_tvb, unsigned _offset, int _type_id, unsigned _length, proto_item *_ti)
 {
 
 	switch (_type_id)
@@ -2292,7 +2292,7 @@ static guint dissect_wlccp_rrm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 		case 0x14: /* frameRequest */
 		{
 
-			guint _count=0, _counter=0;
+			unsigned _count=0, _counter=0;
 
 			proto_item_append_text(_ti, "     frameRequest");
 
@@ -2306,7 +2306,7 @@ static guint dissect_wlccp_rrm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 			_offset += 1;
 
 			proto_tree_add_item(_tree, hf_wlccp_count, _tvb, _offset, 1, ENC_BIG_ENDIAN);
-			_count = tvb_get_guint8(_tvb,_offset);
+			_count = tvb_get_uint8(_tvb,_offset);
 			_offset += 1;
 
 			proto_tree_add_item(_tree, hf_wlccp_duration, _tvb, _offset, 2, ENC_BIG_ENDIAN);
@@ -2331,7 +2331,7 @@ static guint dissect_wlccp_rrm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 			proto_item *_fr_ti;
 			proto_tree *_fr_elems_tree;
 
-			guint _counter=0, _arraylen=0;
+			unsigned _counter=0, _arraylen=0;
 
 			proto_item_append_text(_ti, "     frameReport");
 
@@ -2456,7 +2456,7 @@ static guint dissect_wlccp_rrm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 		case 0x19: /* rpiHistReport */
 		{
 
-			guint _rpi_density_length=0;
+			unsigned _rpi_density_length=0;
 
 			proto_item_append_text(_ti, "     rpiHistReport");
 
@@ -2513,7 +2513,7 @@ static guint dissect_wlccp_rrm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 			proto_tree *_80211_capabilities_tree;
 			proto_item *_new_ti;
 
-			guint _tlv80211length=0;
+			unsigned _tlv80211length=0;
 
 			proto_item_append_text(_ti, "     commonBeaconReport");
 
@@ -2635,7 +2635,7 @@ static guint dissect_wlccp_rrm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 		case 0x20: /* rmReqRoutingList */
 		{
 
-			guint _counter=0, _arraylen=0;
+			unsigned _counter=0, _arraylen=0;
 
 			proto_item_append_text(_ti, "     rmReqRoutingList");
 
@@ -2665,7 +2665,7 @@ static guint dissect_wlccp_rrm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 		case 0x21: /* rmReqRoutingResp */
 		{
 
-			guint _counter=0, _arraylen=0;
+			unsigned _counter=0, _arraylen=0;
 
 			proto_item_append_text(_ti, "     rmReqRoutingResp");
 
@@ -2761,7 +2761,7 @@ static guint dissect_wlccp_rrm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 
 } /* dissect_wlccp_rrm_tlv */
 
-static guint dissect_wlccp_qos_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _offset, gint _type_id, guint _length, proto_item *_ti)
+static unsigned dissect_wlccp_qos_tlv(proto_tree *_tree, tvbuff_t *_tvb, unsigned _offset, int _type_id, unsigned _length, proto_item *_ti)
 {
 
 	switch (_type_id)
@@ -2785,7 +2785,7 @@ static guint dissect_wlccp_qos_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 
 } /* dissect_wlccp_qos_tlv */
 
-static guint dissect_wlccp_nm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _offset, gint _type_id, guint _length, proto_item *_ti)
+static unsigned dissect_wlccp_nm_tlv(proto_tree *_tree, tvbuff_t *_tvb, unsigned _offset, int _type_id, unsigned _length, proto_item *_ti)
 {
 
 	switch (_type_id)
@@ -2794,7 +2794,7 @@ static guint dissect_wlccp_nm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _offs
 		case 0x20: /* nmClientEventIntoWDS */
 		{
 
-			guint _radius_user_name_length = 0;
+			unsigned _radius_user_name_length = 0;
 
 			proto_item_append_text(_ti, "     nmClientEventIntoWDS");
 
@@ -2911,7 +2911,7 @@ static guint dissect_wlccp_nm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _offs
 		case 0x26: /* nmClientEventRefresh */
 		{
 
-			guint _radius_user_name_length = 0;
+			unsigned _radius_user_name_length = 0;
 
 			proto_item_append_text(_ti, "     nmClientEventRefresh");
 
@@ -2986,7 +2986,7 @@ static guint dissect_wlccp_nm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _offs
 
 } /* dissect_wlccp_nm_tlv */
 
-static guint dissect_wlccp_mip_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _offset, gint _type_id, guint _length, proto_item *_ti)
+static unsigned dissect_wlccp_mip_tlv(proto_tree *_tree, tvbuff_t *_tvb, unsigned _offset, int _type_id, unsigned _length, proto_item *_ti)
 {
 
 	switch (_type_id)
@@ -4067,7 +4067,7 @@ proto_register_wlccp(void)
 	};
 
 	/* Setup protocol subtree array */
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_wlccp,
 		&ett_wlccp_sap_tree,
 		&ett_wlccp_type,
@@ -4086,7 +4086,7 @@ proto_register_wlccp(void)
 		&ett_tlv_sub_tree,
 		&ett_80211_capability_flags_tree,
 		&ett_framereport_elements_tree
-	}; /* static gint *ett[] */
+	}; /* static int *ett[] */
 
 	/* Register the protocol name and description */
 	proto_wlccp = proto_register_protocol("Cisco Wireless LAN Context Control Protocol", "WLCCP", "wlccp");

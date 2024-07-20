@@ -20,13 +20,13 @@
 
 /* The types used in [MS-DTYP] v20180912 should be interpreted as
  * follows (all multi-byte integer types are little endian):
- * typedef guint8 MS_BYTE;
- * typedef guint16 MS_WORD;
- * typedef guint32 MS_DWORD;
- * typedef guint64 MS_QWORD;
- * typedef guint64 MS_ULONG64;
- * typedef guint64 MS_DWORD64;
- * typedef gint64 MS_LONG64;
+ * typedef uint8_t MS_BYTE;
+ * typedef uint16_t MS_WORD;
+ * typedef uint32_t MS_DWORD;
+ * typedef uint64_t MS_QWORD;
+ * typedef uint64_t MS_ULONG64;
+ * typedef uint64_t MS_DWORD64;
+ * typedef int64_t MS_LONG64;
  */
 
 enum cond_ace_token {
@@ -43,15 +43,15 @@ static const value_string ace_cond_token_vals[] = {
 	{ 0, NULL }
 };
 
-static gboolean
-ace_cond_token_has_data(guint8 token) {
+static bool
+ace_cond_token_has_data(uint8_t token) {
 	switch (token) {
 #define DEF_COND_ACE_TOKEN(VAL, VAR, STR)
 #define DEF_COND_ACE_TOKEN_WITH_DATA(VAL, VAR, STR) case VAL:
 #include "cond_ace_token_enum.h"
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 
 static const value_string ace_cond_base_vals[] = {
@@ -185,21 +185,21 @@ static int hf_nt_offset_to_group_sid;
 static int hf_nt_ace_flags;
 static int hf_nt_offset_to_sacl;
 
-static gint ett_nt_sec_desc;
-static gint ett_nt_sec_desc_type;
-static gint ett_nt_sid;
-static gint ett_nt_acl;
-static gint ett_nt_ace;
-static gint ett_nt_ace_flags;
-static gint ett_nt_ace_object;
-static gint ett_nt_ace_object_flags;
-static gint ett_nt_security_information;
-static gint ett_nt_ace_cond;
-static gint ett_nt_ace_cond_data;
-static gint ett_nt_ace_sra;
-static gint ett_nt_ace_sra_flags;
-static gint ett_nt_ace_sra_value_offsets;
-static gint ett_nt_ace_sra_values;
+static int ett_nt_sec_desc;
+static int ett_nt_sec_desc_type;
+static int ett_nt_sid;
+static int ett_nt_acl;
+static int ett_nt_ace;
+static int ett_nt_ace_flags;
+static int ett_nt_ace_object;
+static int ett_nt_ace_object_flags;
+static int ett_nt_security_information;
+static int ett_nt_ace_cond;
+static int ett_nt_ace_cond_data;
+static int ett_nt_ace_sra;
+static int ett_nt_ace_sra_flags;
+static int ett_nt_ace_sra_value_offsets;
+static int ett_nt_ace_sra_values;
 
 static expert_field ei_nt_owner_sid_beyond_data;
 static expert_field ei_nt_owner_sid_beyond_reassembled_data;
@@ -1245,7 +1245,7 @@ value_string_ext ms_country_codes_ext = VALUE_STRING_EXT_INIT(ms_country_codes);
  * to an "nstime_t".
  * A FILETIME is a 64-bit integer, giving the time since Jan 1, 1601,
  * midnight "UTC", in 100ns units.
- * Return TRUE if the conversion succeeds, FALSE otherwise.
+ * Return true if the conversion succeeds, false otherwise.
  *
  * According to the Samba code, it appears to be kludge-GMT (at least for
  * file listings). This means it's the GMT you get by taking a local time
@@ -1260,15 +1260,15 @@ value_string_ext ms_country_codes_ext = VALUE_STRING_EXT_INIT(ms_country_codes);
  *	time handling functions
  *	Copyright (C) Andrew Tridgell 1992-1998
  */
-static gboolean
-nt_time_to_nstime(guint32 filetime_high, guint32 filetime_low, nstime_t *tv, gboolean onesec_resolution)
+static bool
+nt_time_to_nstime(uint32_t filetime_high, uint32_t filetime_low, nstime_t *tv, bool onesec_resolution)
 {
-	guint64 d;
+	uint64_t d;
 
 	if (filetime_high == 0)
-		return FALSE;
+		return false;
 
-	d = ((guint64)filetime_high << 32) | filetime_low;
+	d = ((uint64_t)filetime_high << 32) | filetime_low;
 
 	if (onesec_resolution) {
 		d *= 10000000;
@@ -1278,15 +1278,15 @@ nt_time_to_nstime(guint32 filetime_high, guint32 filetime_low, nstime_t *tv, gbo
 }
 
 int
-dissect_nt_64bit_time_opt(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date, gboolean onesec_resolution _U_)
+dissect_nt_64bit_time_opt(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date, bool onesec_resolution _U_)
 {
-	return dissect_nt_64bit_time_ex(tvb, tree, offset, hf_date, NULL, FALSE);
+	return dissect_nt_64bit_time_ex(tvb, tree, offset, hf_date, NULL, false);
 }
 
 int
-dissect_nt_64bit_time_ex(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date, proto_item **createdItem, gboolean onesec_resolution)
+dissect_nt_64bit_time_ex(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date, proto_item **createdItem, bool onesec_resolution)
 {
-	guint32 filetime_high, filetime_low;
+	uint32_t filetime_high, filetime_low;
 	nstime_t ts;
 
 	/* XXX there seems also to be another special time value which is fairly common :
@@ -1334,7 +1334,7 @@ dissect_nt_64bit_time_ex(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_dat
 int
 dissect_nt_64bit_time(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date)
 {
-	return dissect_nt_64bit_time_opt(tvb, tree, offset, hf_date, FALSE);
+	return dissect_nt_64bit_time_opt(tvb, tree, offset, hf_date, false);
 }
 
 /* Well-known SIDs defined in
@@ -1515,23 +1515,23 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 {
 	int offset_sid_start = offset, sa_offset, rid_offset=0, wkwn_sid1_len=0,
 		wkwn_sid2_len = 0, i;
-	guint8 revision, num_auth;
-	guint32 sa_field, rid=0;
-	guint64 authority=0;
+	uint8_t revision, num_auth;
+	uint32_t sa_field, rid=0;
+	uint64_t authority=0;
 	wmem_strbuf_t *sa_str = NULL, *sid_in_dec_str = NULL, *sid_in_hex_str = NULL, *label_str = NULL,
 				  *domain_str = NULL, *wkwn_sid1_str = NULL, *wkwn_sid2_str = NULL;
 	const char *mapped_name = NULL, *mapped_rid = NULL;
-	gboolean domain_sid = FALSE, s_1_5_32 = FALSE, s_1_5_64 = FALSE, locally_defined = FALSE,
-		S_1_16 = FALSE;
+	bool domain_sid = false, s_1_5_32 = false, s_1_5_64 = false, locally_defined = false,
+		S_1_16 = false;
 	proto_item *item = NULL, *hidden_item;
 	proto_tree *subtree = NULL;
 
 	/* Revision of SID */
-	revision = tvb_get_guint8(tvb, offset);
+	revision = tvb_get_uint8(tvb, offset);
 	offset++;
 
 	/* Number of subauthority fields */
-	num_auth = tvb_get_guint8(tvb, offset);
+	num_auth = tvb_get_uint8(tvb, offset);
 	offset++;
 
 	if(sid_str)
@@ -1547,7 +1547,7 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 
 	/* Identifier Authority */
 	for(i=0; i<6; i++){
-		authority = (authority << 8) + tvb_get_guint8(tvb, offset);
+		authority = (authority << 8) + tvb_get_uint8(tvb, offset);
 		offset++;
 	}
 
@@ -1565,7 +1565,7 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 	label_str = wmem_strbuf_create(wmem_packet_scope());
 
 	if (strcmp(wmem_strbuf_get_str(sid_in_dec_str), "S-1-16")==0)
-		S_1_16 = TRUE;
+		S_1_16 = true;
 
 	/* Check for Scoped Policy ID (S-1-17-<subauth1>...) */
 	if (authority == 17) {
@@ -1634,13 +1634,13 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 				/* The following three SID types have (unique) RIDs */
 				if (strcmp(wmem_strbuf_get_str(sid_in_dec_str), "S-1-5-21")==0) {
 					/* Domain SID */
-					domain_sid = TRUE;
+					domain_sid = true;
 				} else if (strcmp(wmem_strbuf_get_str(sid_in_dec_str), "S-1-5-32")==0) {
 					/* Local Group (S-1-5-32) SID */
-					s_1_5_32 = TRUE;
+					s_1_5_32 = true;
 				} else if (strcmp(wmem_strbuf_get_str(sid_in_dec_str), "S-1-5-64")==0) {
 					/* Authentication (S-1-5-64) SID */
-					s_1_5_64 = TRUE;
+					s_1_5_64 = true;
 				}
 			}
 		} else if (i==2  && !domain_sid) {
@@ -1658,12 +1658,12 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 					wkwn_sid2_len=16;
 				} else {
 					/* The RID not well-known. */
-					locally_defined = TRUE;
+					locally_defined = true;
 				}
 			} else {
 				if (mapped_name) {
 					/* A level 1 well-known SID appended with locally defined value */
-					locally_defined = TRUE;
+					locally_defined = true;
 				}
 			}
 		} else {
@@ -1684,7 +1684,7 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 						wmem_strbuf_append_printf(label_str, "-%s", mapped_rid);
 
 					} else {
-						locally_defined = TRUE;
+						locally_defined = true;
 					}
 				} else {
 					mapped_name = "Corrupt domain SID";
@@ -1692,7 +1692,7 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 			} else {
 				if (mapped_name) {
 					/* A locally defined value appended to a level 2 well-known SID*/
-					locally_defined = TRUE;
+					locally_defined = true;
 				}
 			}
 		}
@@ -1790,16 +1790,16 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 /* Dissect SYSTEM_RESOURCE_ATTRIBUTE_ACE Value, see [MS-DTYP] v20180912 section 2.4.4.15 */
 static int
 dissect_nt_ace_system_resource_attribute_value(tvbuff_t *tvb, int value_offset, proto_tree *tree,
-					       guint16 value_type, proto_item *sra_item)
+					       uint16_t value_type, proto_item *sra_item)
 {
-	guint value_len;
-	guint32 blob_len;
+	unsigned value_len;
+	uint32_t blob_len;
 	proto_item *value_item = NULL;
 	char *value_str = NULL; /* packet scope, do not free */
-	gboolean quote = FALSE;
+	bool quote = false;
 	switch (value_type) {
 	    case CLAIM_SECURITY_ATTRIBUTE_TYPE_INT64:
-		value_len = sizeof(gint64);
+		value_len = sizeof(int64_t);
 		value_item = proto_tree_add_item(tree, hf_nt_ace_sra_value_int64,
 						 tvb, value_offset, value_len,
 						 ENC_LITTLE_ENDIAN);
@@ -1807,7 +1807,7 @@ dissect_nt_ace_system_resource_attribute_value(tvbuff_t *tvb, int value_offset, 
 		break;
 
 	    case CLAIM_SECURITY_ATTRIBUTE_TYPE_UINT64:
-		value_len = sizeof(guint64);
+		value_len = sizeof(uint64_t);
 		value_item = proto_tree_add_item(tree, hf_nt_ace_sra_value_uint64,
 						 tvb, value_offset, value_len,
 						 ENC_LITTLE_ENDIAN);
@@ -1819,7 +1819,7 @@ dissect_nt_ace_system_resource_attribute_value(tvbuff_t *tvb, int value_offset, 
 		value_item = proto_tree_add_item(tree, hf_nt_ace_sra_value_string,
 						 tvb, value_offset, value_len,
 						 ENC_UTF_16 | ENC_LITTLE_ENDIAN);
-		quote = TRUE;
+		quote = true;
 		value_offset += value_len;
 		break;
 
@@ -1829,7 +1829,7 @@ dissect_nt_ace_system_resource_attribute_value(tvbuff_t *tvb, int value_offset, 
 		break;
 
 	    case CLAIM_SECURITY_ATTRIBUTE_TYPE_BOOLEAN:
-		value_len = sizeof(guint64);
+		value_len = sizeof(uint64_t);
 		value_item = proto_tree_add_item(tree, hf_nt_ace_sra_value_boolean,
 						 tvb, value_offset, value_len,
 						 ENC_LITTLE_ENDIAN);
@@ -1872,16 +1872,16 @@ dissect_nt_ace_system_resource_attribute_value(tvbuff_t *tvb, int value_offset, 
 
 /* Dissect SYSTEM_RESOURCE_ATTRIBUTE_ACE, see [MS-DTYP] v20180912 section 2.4.4.15 */
 static int
-dissect_nt_ace_system_resource_attribute(tvbuff_t *tvb, int offset, guint16 size, proto_tree *parent_tree)
+dissect_nt_ace_system_resource_attribute(tvbuff_t *tvb, int offset, uint16_t size, proto_tree *parent_tree)
 {
 	/* The caller has already dissected Header, Mask and Sid. Therefore
 	   this function only dissects Attribute Data. This data takes
 	   the form of a CLAIM_SECURITY_ATTRIBUTE_RELATIVE_V1. The
 	   following code dissects the structure piecemeal */
 	int start_offset = offset;
-	guint32 name; /* offset, relative to start_offset */
-	guint16 value_type;
-	guint32 value_count;
+	uint32_t name; /* offset, relative to start_offset */
+	uint16_t value_type;
+	uint32_t value_count;
 
 	/* Add a subtree to hold the system resource attribute details */
 	proto_item *sra_item;
@@ -1895,7 +1895,7 @@ dissect_nt_ace_system_resource_attribute(tvbuff_t *tvb, int offset, guint16 size
 			    tvb, offset, sizeof(name), name);
 
 	int name_offset = (start_offset + name);
-	guint name_len = tvb_unicode_strsize(tvb, name_offset);
+	unsigned name_len = tvb_unicode_strsize(tvb, name_offset);
 	proto_item *name_item;
 	name_item = proto_tree_add_item(sra_tree, hf_nt_ace_sra_name,
 					tvb, name_offset, name_len,
@@ -1912,9 +1912,9 @@ dissect_nt_ace_system_resource_attribute(tvbuff_t *tvb, int offset, guint16 size
 
 	/* Reserved */
 	proto_tree_add_item(sra_tree, hf_nt_ace_sra_reserved,
-			    tvb, offset, sizeof(guint16),
+			    tvb, offset, sizeof(uint16_t),
 			    ENC_LITTLE_ENDIAN);
-	offset += sizeof(guint16);
+	offset += sizeof(uint16_t);
 
 	/* Flags */
 	static int * const flags[] = {
@@ -1931,7 +1931,7 @@ dissect_nt_ace_system_resource_attribute(tvbuff_t *tvb, int offset, guint16 size
 
 	proto_tree_add_bitmask(sra_tree, tvb, offset, hf_nt_ace_sra_flags,
 			       ett_nt_ace_sra_flags, flags, ENC_LITTLE_ENDIAN);
-	offset += sizeof(guint32);
+	offset += sizeof(uint32_t);
 
 	/* ValueCount */
 	value_count = tvb_get_letohl(tvb, offset);
@@ -1940,7 +1940,7 @@ dissect_nt_ace_system_resource_attribute(tvbuff_t *tvb, int offset, guint16 size
 	offset += sizeof(value_count);
 
 	/* Value Offsets and Values */
-	guint32 value_offset;
+	uint32_t value_offset;
 	proto_tree *value_offset_tree = sra_tree;
 	proto_tree *value_tree = sra_tree;
 	if (value_count > 1) {
@@ -1967,7 +1967,7 @@ dissect_nt_ace_system_resource_attribute(tvbuff_t *tvb, int offset, guint16 size
 	}
 
 	proto_item_append_text(sra_item, "{");
-	for (guint32 i = 0; i < value_count; ++i) {
+	for (uint32_t i = 0; i < value_count; ++i) {
 		if (i) {
 			proto_item_append_text(sra_item, ", ");
 		}
@@ -1986,13 +1986,13 @@ dissect_nt_ace_system_resource_attribute(tvbuff_t *tvb, int offset, guint16 size
 /* Dissect Condition ACE token, see [MS-DTYP] v20180912 section 2.4.4.17.4 */
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_nt_conditional_ace_token(tvbuff_t *tvb, packet_info *pinfo, int offset, guint16 size, proto_tree *parent_tree)
+dissect_nt_conditional_ace_token(tvbuff_t *tvb, packet_info *pinfo, int offset, uint16_t size, proto_tree *parent_tree)
 {
 	int start_offset = offset;
 	proto_tree *tree = parent_tree;
 	proto_item *item = NULL;
-	guint8 token = tvb_get_guint8(tvb, offset);
-	guint32 len;
+	uint8_t token = tvb_get_uint8(tvb, offset);
+	uint32_t len;
 
 	item = proto_tree_add_uint(tree, hf_nt_ace_cond_token,
 				   tvb, offset, sizeof(token), token);
@@ -2005,70 +2005,70 @@ dissect_nt_conditional_ace_token(tvbuff_t *tvb, packet_info *pinfo, int offset, 
 	switch (token) {
 	    case COND_ACE_TOKEN_INT8:
 		proto_tree_add_item(tree, hf_nt_ace_cond_value_int8,
-				    tvb, offset, sizeof(guint64),
+				    tvb, offset, sizeof(uint64_t),
 				    ENC_LITTLE_ENDIAN);
-		offset += sizeof(guint64);
+		offset += sizeof(uint64_t);
 
 		proto_tree_add_item(tree, hf_nt_ace_cond_sign,
-				    tvb, offset, sizeof(guint8),
+				    tvb, offset, sizeof(uint8_t),
 				    ENC_LITTLE_ENDIAN);
-		offset += sizeof(guint8);
+		offset += sizeof(uint8_t);
 
 		proto_tree_add_item(tree, hf_nt_ace_cond_base,
-				    tvb, offset, sizeof(guint8),
+				    tvb, offset, sizeof(uint8_t),
 				    ENC_LITTLE_ENDIAN);
-		offset += sizeof(guint8);
+		offset += sizeof(uint8_t);
 		break;
 
 	    case COND_ACE_TOKEN_INT16:
 		proto_tree_add_item(tree, hf_nt_ace_cond_value_int16,
-				    tvb, offset, sizeof(guint64),
+				    tvb, offset, sizeof(uint64_t),
 				    ENC_LITTLE_ENDIAN);
-		offset += sizeof(guint64);
+		offset += sizeof(uint64_t);
 
 		proto_tree_add_item(tree, hf_nt_ace_cond_sign,
-				    tvb, offset, sizeof(guint8),
+				    tvb, offset, sizeof(uint8_t),
 				    ENC_LITTLE_ENDIAN);
-		offset += sizeof(guint8);
+		offset += sizeof(uint8_t);
 
 		proto_tree_add_item(tree, hf_nt_ace_cond_base,
-				    tvb, offset, sizeof(guint8),
+				    tvb, offset, sizeof(uint8_t),
 				    ENC_LITTLE_ENDIAN);
-		offset += sizeof(guint8);
+		offset += sizeof(uint8_t);
 		break;
 
 	    case COND_ACE_TOKEN_INT32:
 		proto_tree_add_item(tree, hf_nt_ace_cond_value_int32,
-				    tvb, offset, sizeof(guint64),
+				    tvb, offset, sizeof(uint64_t),
 				    ENC_LITTLE_ENDIAN);
-		offset += sizeof(guint64);
+		offset += sizeof(uint64_t);
 
 		proto_tree_add_item(tree, hf_nt_ace_cond_sign,
-				    tvb, offset, sizeof(guint8),
+				    tvb, offset, sizeof(uint8_t),
 				    ENC_LITTLE_ENDIAN);
-		offset += sizeof(guint8);
+		offset += sizeof(uint8_t);
 
 		proto_tree_add_item(tree, hf_nt_ace_cond_base,
-				    tvb, offset, sizeof(guint8),
+				    tvb, offset, sizeof(uint8_t),
 				    ENC_LITTLE_ENDIAN);
-		offset += sizeof(guint8);
+		offset += sizeof(uint8_t);
 		break;
 
 	    case COND_ACE_TOKEN_INT64:
 		proto_tree_add_item(tree, hf_nt_ace_cond_value_int64,
-				    tvb, offset, sizeof(guint64),
+				    tvb, offset, sizeof(uint64_t),
 				    ENC_LITTLE_ENDIAN);
-		offset += sizeof(guint64);
+		offset += sizeof(uint64_t);
 
 		proto_tree_add_item(tree, hf_nt_ace_cond_sign,
-				    tvb, offset, sizeof(guint8),
+				    tvb, offset, sizeof(uint8_t),
 				    ENC_LITTLE_ENDIAN);
-		offset += sizeof(guint8);
+		offset += sizeof(uint8_t);
 
 		proto_tree_add_item(tree, hf_nt_ace_cond_base,
-				    tvb, offset, sizeof(guint8),
+				    tvb, offset, sizeof(uint8_t),
 				    ENC_LITTLE_ENDIAN);
-		offset += sizeof(guint8);
+		offset += sizeof(uint8_t);
 		break;
 
 	    case COND_ACE_TOKEN_UNICODE_STRING:
@@ -2170,14 +2170,14 @@ dissect_nt_conditional_ace_token(tvbuff_t *tvb, packet_info *pinfo, int offset, 
 
 /* Dissect Conditional ACE (if present), see [MS-DTYP] v20180912 section 2.4.4.17.4 */
 static int
-dissect_nt_conditional_ace(tvbuff_t *tvb, packet_info *pinfo, int offset, guint16 size, proto_tree *parent_tree)
+dissect_nt_conditional_ace(tvbuff_t *tvb, packet_info *pinfo, int offset, uint16_t size, proto_tree *parent_tree)
 {
 	int start_offset = offset;
 
 	/* Conditional ACE Application Data starts with "artx" */
 	if (size >= 4) {
-		const guint32 artx = 0x78747261; /* "xtra" (LE) */
-		guint32 prefix = tvb_get_letohl(tvb, offset);
+		const uint32_t artx = 0x78747261; /* "xtra" (LE) */
+		uint32_t prefix = tvb_get_letohl(tvb, offset);
 		offset += sizeof(prefix);
 
 		if (prefix == artx) {
@@ -2188,7 +2188,7 @@ dissect_nt_conditional_ace(tvbuff_t *tvb, packet_info *pinfo, int offset, guint1
 
 			/* Add the tokens to the subtree */
 			int remaining;
-			while (TRUE) {
+			while (true) {
 				remaining = size - (offset - start_offset);
 				if (remaining <= 0)
 					break;
@@ -2204,10 +2204,10 @@ dissect_nt_conditional_ace(tvbuff_t *tvb, packet_info *pinfo, int offset, guint1
      https://docs.microsoft.com/en-us/windows/win32/secauthz/access-mask-format
 
 */
-static gint ett_nt_access_mask;
-static gint ett_nt_access_mask_generic;
-static gint ett_nt_access_mask_standard;
-static gint ett_nt_access_mask_specific;
+static int ett_nt_access_mask;
+static int ett_nt_access_mask_generic;
+static int ett_nt_access_mask_standard;
+static int ett_nt_access_mask_specific;
 
 static int hf_access_sacl;
 static int hf_access_maximum_allowed;
@@ -2239,7 +2239,7 @@ static int hf_access_specific_0;
 
 /* Map generic permissions to specific permissions */
 
-static void map_generic_access(guint32 *access_mask,
+static void map_generic_access(uint32_t *access_mask,
 			       struct generic_mapping *mapping)
 {
 	if (*access_mask & GENERIC_READ_ACCESS) {
@@ -2265,7 +2265,7 @@ static void map_generic_access(guint32 *access_mask,
 
 /* Map standard permissions to specific permissions */
 
-static void map_standard_access(guint32 *access_mask,
+static void map_standard_access(uint32_t *access_mask,
 				struct standard_mapping *mapping)
 {
 	if (*access_mask & READ_CONTROL_ACCESS) {
@@ -2283,13 +2283,13 @@ static void map_standard_access(guint32 *access_mask,
 }
 
 int
-dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-		       proto_tree *tree, dcerpc_info *di, guint8 *drep, int hfindex,
-		       struct access_mask_info *ami, guint32 *perms)
+dissect_nt_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo,
+		       proto_tree *tree, dcerpc_info *di, uint8_t *drep, int hfindex,
+		       struct access_mask_info *ami, uint32_t *perms)
 {
 	proto_item *item;
 	proto_tree *subtree, *generic_tree, *standard_tree, *specific_tree;
-	guint32 access;
+	uint32_t access;
 
 	static int * const generic_access_flags[] = {
 		&hf_access_generic_read,
@@ -2389,7 +2389,7 @@ dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 					   access & SPECIFIC_RIGHTS_MASK);
 
 	if (ami && ami->specific_rights_fn) {
-		guint32 mapped_access = access;
+		uint32_t mapped_access = access;
 		proto_tree *specific_mapped;
 
 		specific_mapped = proto_item_add_subtree(
@@ -2573,7 +2573,7 @@ dissect_nt_ace_object(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 	proto_item *item;
 	proto_tree *tree;
 	proto_item *flags_item;
-	guint32 flags;
+	uint32_t flags;
 	int old_offset=offset;
 	const char *sep = " ";
 	static int * const ace_flags[] = {
@@ -2613,10 +2613,10 @@ dissect_nt_ace_object(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 
 static int
 dissect_nt_v2_ace_flags(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
-			guint8 *data)
+			uint8_t *data)
 {
 	proto_item *item = NULL;
-	guint8 mask;
+	uint8_t mask;
 	const char *sep = " ";
 	static int * const ace_flags[] = {
 		&hf_nt_ace_flags_failed_access,
@@ -2629,7 +2629,7 @@ dissect_nt_v2_ace_flags(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 		NULL
 	};
 
-	mask = tvb_get_guint8(tvb, offset);
+	mask = tvb_get_uint8(tvb, offset);
 
 	if (data)
 		*data = mask;
@@ -2652,24 +2652,24 @@ dissect_nt_v2_ace_flags(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 
 static int
 dissect_nt_v2_ace(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		  proto_tree *parent_tree, guint8 *drep,
+		  proto_tree *parent_tree, uint8_t *drep,
 		  struct access_mask_info *ami)
 {
 	proto_item *item;
 	proto_tree *tree;
 	int old_offset = offset;
 	char *sid_str = NULL;
-	guint16 size;
-	guint16 data_size;
-	guint8 type;
-	guint8 flags;
-	guint32 perms = 0;
+	uint16_t size;
+	uint16_t data_size;
+	uint8_t type;
+	uint8_t flags;
+	uint32_t perms = 0;
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
 					   ett_nt_ace, &item, "NT ACE: ");
 
 	/* type */
-	type = tvb_get_guint8(tvb, offset);
+	type = tvb_get_uint8(tvb, offset);
 	proto_tree_add_uint(tree, hf_nt_ace_type, tvb, offset, 1, type);
 	offset += 1;
 
@@ -2775,18 +2775,18 @@ dissect_nt_v2_ace(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 dissect_nt_acl(tvbuff_t *tvb, int offset_a, packet_info *pinfo,
-	       proto_tree *parent_tree, guint8 *drep, const char *name,
+	       proto_tree *parent_tree, uint8_t *drep, const char *name,
 	       struct access_mask_info *ami)
 {
 	proto_item *item;
 	proto_tree *tree;
 	int old_offset = offset_a;
 	int pre_ace_offset;
-	guint16 revision;
-	guint32 num_aces;
+	uint16_t revision;
+	uint32_t num_aces;
 	volatile int offset_v = offset_a;
-	volatile gboolean missing_data = FALSE;
-	volatile gboolean bad_ace = FALSE;
+	volatile bool missing_data = false;
+	volatile bool bad_ace = false;
 
 	tree = proto_tree_add_subtree_format(parent_tree, tvb, offset_v, -1,
 					   ett_nt_acl, &item, "NT %s ACL", name);
@@ -2843,18 +2843,18 @@ dissect_nt_acl(tvbuff_t *tvb, int offset_a, packet_info *pinfo,
 			/*
 			 * Bogus ACE, with a length < 4.
 			 */
-			bad_ace = TRUE;
+			bad_ace = true;
 		  }
 		}
 
 		CATCH(ContainedBoundsError) {
 			proto_tree_add_expert(tree, pinfo, &ei_nt_ace_extends_beyond_data, tvb, offset_v, 0);
-			missing_data = TRUE;
+			missing_data = true;
 		}
 
 		CATCH(ReportedBoundsError) {
 			proto_tree_add_expert(tree, pinfo, &ei_nt_ace_extends_beyond_reassembled_data, tvb, offset_v, 0);
-			missing_data = TRUE;
+			missing_data = true;
 		}
 
 		ENDTRY;
@@ -2965,7 +2965,7 @@ int
 dissect_nt_security_information(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 {
 	proto_item *item = NULL;
-	guint32 mask;
+	uint32_t mask;
 	static int * const flags[] = {
 		&hf_nt_security_information_sacl,
 		&hf_nt_security_information_dacl,
@@ -2998,24 +2998,24 @@ dissect_nt_security_information(tvbuff_t *tvb, int offset, proto_tree *parent_tr
 
 int
 dissect_nt_sec_desc(tvbuff_t *tvb, int offset_a, packet_info *pinfo,
-		    proto_tree *parent_tree, guint8 *drep,
-		    gboolean len_supplied _U_, int len,
+		    proto_tree *parent_tree, uint8_t *drep,
+		    bool len_supplied _U_, int len,
 		    struct access_mask_info *ami)
 {
 	proto_item *item = NULL;
 	proto_tree * volatile tree = NULL;
-	guint16 revision;
+	uint16_t revision;
 	int start_offset = offset_a;
 	volatile int offset_v=offset_a;
 	volatile int end_offset;
 	volatile int item_offset;
-	guint32 owner_sid_offset;
+	uint32_t owner_sid_offset;
 	proto_item *it_owner_sid_offs = NULL;
-	volatile guint32 group_sid_offset;
+	volatile uint32_t group_sid_offset;
 	proto_item * volatile it_gr_sid_offs = NULL;
-	volatile guint32 sacl_offset;
+	volatile uint32_t sacl_offset;
 	proto_item * volatile it_sacl_offs = NULL;
-	volatile guint32 dacl_offset;
+	volatile uint32_t dacl_offset;
 	proto_item * volatile it_dacl_offs = NULL;
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset_v, -1,
@@ -3677,7 +3677,7 @@ proto_do_register_windows_common(int proto_smb)
 		{ &hf_nt_offset_to_dacl, { "Offset to DACL", "nt.offset_to_dacl", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_nt_sec_desc,
 		&ett_nt_sec_desc_type,
 		&ett_nt_sid,

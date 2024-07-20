@@ -33,16 +33,16 @@ WS_DLL_PUBLIC value_string_ext wsp_vals_status_ext;
 /*
  * exported functionality
  */
-void add_post_data (proto_tree *, tvbuff_t *, guint, const char *,
+void add_post_data (proto_tree *, tvbuff_t *, unsigned, const char *,
 		packet_info *);
-guint32 add_content_type (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
-		guint32 val_start,
-		guint32 *well_known_content, const char **textual_content);
+uint32_t add_content_type (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
+		uint32_t val_start,
+		uint32_t *well_known_content, const char **textual_content);
 
 /* statistics */
 typedef struct _wsp_info_value_t	/* see README.tapping and tap-wspstat.c */
 {
-	gint status_code;
-	guint8 pdut;
+	int status_code;
+	uint8_t pdut;
 } wsp_info_value_t;
 #endif /* packet-wsp.h */
