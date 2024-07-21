@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/exceptions.h>
 #include <epan/prefs.h>
 #include <epan/proto_data.h>
@@ -72,6 +73,10 @@ static int ett_zmtp;
 static int ett_zmtp_flags;
 static int ett_zmtp_version;
 static int ett_zmtp_curvezmq_version;
+
+/* Expert info */
+static expert_field ei_zmtp_unknown_flags_value;
+static expert_field ei_zmtp_unsupported_version;
 
 static dissector_handle_t zmtp_handle;
 
@@ -306,20 +311,26 @@ static void dissect_zmtp_data(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
         return;
     }
 
-    /* TODO: maybe call simple data dissector? */
+    /* Last resort (if wasn't text) - call data dissector */
+    if (!all_text) {
+        proto_item_set_hidden(raw_data_ti);
+        call_data_dissector(data_tvb, pinfo, tree);
+    }
 }
 
 /* Dissect key=data pairs to end of frame */
 static void dissect_zmtp_metadata(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     unsigned length;
+    const unsigned char *key;
+
     while (tvb_reported_length_remaining(tvb, offset)) {
         /* Key */
         length = tvb_get_uint8(tvb, offset);
         offset++;
-        const unsigned char *key;
         proto_tree_add_item_ret_string(tree, hf_zmtp_metadata_key, tvb, offset, length, ENC_ASCII, pinfo->pool, &key);
         offset += length;
+
         /* Data */
         length = tvb_get_ntohl(tvb, offset);
         offset += 4;
@@ -374,7 +385,7 @@ static int dissect_zmtp_command(tvbuff_t *tvb, int offset, packet_info *pinfo _U
         switch (mechanism) {
             case MECH_PLAIN:
             {
-                /* TODO: these could be empty. Check and show? */
+                /* N.B., these may be empty. */
                 uint8_t len;
 
                 /* Username */
@@ -399,6 +410,7 @@ static int dissect_zmtp_command(tvbuff_t *tvb, int offset, packet_info *pinfo _U
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, "(username=%s, password=%s) ",
                                 username, password);
+
                 /* Also tap credentials */
                 tap_credential_t* auth = wmem_new0(wmem_packet_scope(), tap_credential_t);
                 auth->num = pinfo->num;
@@ -412,9 +424,8 @@ static int dissect_zmtp_command(tvbuff_t *tvb, int offset, packet_info *pinfo _U
             }
             case MECH_CURVE:
             {
-                /* Version */
+                /* Version (in its own subtree) */
                 uint32_t major, minor;
-                /* subtree */
                 proto_item *version_ti = proto_tree_add_string_format(tree, hf_zmtp_curvezmq_version, tvb, offset, 2, "", "Version");
                 proto_tree *version_tree = proto_item_add_subtree(version_ti, ett_zmtp_curvezmq_version);
 
@@ -441,11 +452,14 @@ static int dissect_zmtp_command(tvbuff_t *tvb, int offset, packet_info *pinfo _U
                     proto_tree_add_item(tree, hf_zmtp_curvezmq_signature, tvb, offset, 80, ENC_ASCII);
                     offset += 80;
                 }
-                /* Else */
-                /*     unsupported version (TODO: expert info?) */
+                else {
+                    expert_add_info_format(pinfo, version_ti, &ei_zmtp_unsupported_version,
+                                           "Unsupported version (%u.%u)", major, minor);
+                }
                 break;
             }
             default:
+                /* Unexpected mechanism for receiving "HELLO" */
                 break;
         }
     }
@@ -460,6 +474,7 @@ static int dissect_zmtp_command(tvbuff_t *tvb, int offset, packet_info *pinfo _U
                 offset += 128;
                 break;
             default:
+                /* Unexpected mechanism for receiving "WELCOME" */
                 break;
         }
 
@@ -481,6 +496,7 @@ static int dissect_zmtp_command(tvbuff_t *tvb, int offset, packet_info *pinfo _U
                 proto_tree_add_item(tree, hf_zmtp_curvezmq_box, tvb, offset, -1, ENC_ASCII);
                 break;
             default:
+                /* Unexpected mechanism for receiving "INITIATE" */
                 break;
         }
     }
@@ -552,6 +568,7 @@ dissect_zmtp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     }
 
     /* Flags */
+    proto_item *flags_ti;
     uint8_t flags = tvb_get_uint8(tvb, offset);
     if (flags == 0xff) {
         /* Greeting value not broken down */
@@ -565,8 +582,8 @@ dissect_zmtp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                                              &hf_zmtp_flags_more,
                                              NULL
                                            };
-        proto_tree_add_bitmask(zmtp_tree, tvb, offset, hf_zmtp_flags,
-                               ett_zmtp_flags, flags_fields, ENC_BIG_ENDIAN);
+        flags_ti = proto_tree_add_bitmask(zmtp_tree, tvb, offset, hf_zmtp_flags,
+                                          ett_zmtp_flags, flags_fields, ENC_BIG_ENDIAN);
     }
 	offset += 1;
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
@@ -603,6 +620,7 @@ dissect_zmtp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                                                       pinfo->pool, &mechanism, &mechanism_len);
             offset += mechanism_len;
             col_append_fstr(pinfo->cinfo, COL_INFO, " mechanism=%s", mechanism);
+
             /* Store in conversation data whether NULL, PLAIN or CURVE */
             /* This affects what we expect to find in commands, and also whether can call dissectors to data payloads */
             if (!PINFO_FD_VISITED(pinfo)) {
@@ -661,7 +679,9 @@ dissect_zmtp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
             break;
 
         default:
-            /* TODO: expert info? */
+            /* Expert info for unexpected flags value */
+            expert_add_info_format(pinfo, flags_ti, &ei_zmtp_unknown_flags_value,
+                                   "Unexpected flags value %u", flags);
             break;
     }
 
@@ -801,6 +821,13 @@ proto_register_zmtp(void)
         &ett_zmtp_curvezmq_version
     };
 
+    expert_module_t* expert_zmtp;
+
+    static ei_register_info ei[] = {
+        { &ei_zmtp_unknown_flags_value, { "zmtp.unknown_flags_value", PI_UNDECODED, PI_WARN, "Unsupported Flags value", EXPFILL }},
+        { &ei_zmtp_unsupported_version, { "zmtp.unsupported_version", PI_PROTOCOL, PI_WARN, "Unsupported Version", EXPFILL }},
+    };
+
     module_t *zmtp_module;
 
     static uat_field_t zmtp_tcp_protocols_table_columns[] = {
@@ -815,6 +842,9 @@ proto_register_zmtp(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     zmtp_handle = register_dissector("zmtp", dissect_zmtp, proto_zmtp);
+
+    expert_zmtp = expert_register_protocol(proto_zmtp);
+    expert_register_field_array(expert_zmtp, ei, array_length(ei));
 
     zmtp_module = prefs_register_protocol(proto_zmtp, proto_reg_handoff_zmtp);
 
