@@ -196,6 +196,7 @@ if(ASCIIDOCTOR_EXECUTABLE)
     FIND_PROGRAM(ASCIIDOCTOR_PDF_EXECUTABLE
         NAMES
             asciidoctorj
+            asciidoctor-pdf.bat
             asciidoctor-pdf
         PATHS
             /bin
@@ -251,6 +252,7 @@ if(ASCIIDOCTOR_EXECUTABLE)
     FIND_PROGRAM(ASCIIDOCTOR_EPUB_EXECUTABLE
         NAMES
             asciidoctorj
+            asciidoctor-epub3.bat
             asciidoctor-epub3
         PATHS
             /bin
