@@ -104,7 +104,7 @@ tvb_api_map = {
 def convert_file(file):
     lines = ''
     try:
-        with open(file, 'r') as f:
+        with open(file, 'r', encoding='utf-8') as f:
             lines = f.read()
             for glib_type, c99_type in padded_type_map.items():
                 lines = lines.replace(glib_type, c99_type)
