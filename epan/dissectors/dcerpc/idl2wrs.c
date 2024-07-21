@@ -1226,11 +1226,11 @@ find_type(char *name)
 			FPRINTF(eth_code, "static proto_item *hnd_item;\n");
 			FPRINTF(eth_code, "\n");
 			FPRINTF(eth_code, "static int\n");
-			FPRINTF(eth_code, "%s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep, int hf_index, guint32 param)\n", dissectorname);
+			FPRINTF(eth_code, "%s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep, int hf_index, uint32_t param)\n", dissectorname);
 			FPRINTF(eth_code, "{\n");
 			FPRINTF(eth_code, "    offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, di, drep,\n");
 			FPRINTF(eth_code, " 				  hf_index, &policy_hnd, &hnd_item,\n");
-			FPRINTF(eth_code, " 				  param&0x01, param&0x02);\n");
+			FPRINTF(eth_code, " 				  param);\n");
 
 			FPRINTF(eth_code, "    return offset;\n");
 			FPRINTF(eth_code, "}\n");

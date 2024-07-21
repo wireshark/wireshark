@@ -196,7 +196,7 @@ dissect_ndr_nt_SID28(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 void
 dcerpc_smb_store_pol_pkts(e_ctx_hnd *policy_hnd, packet_info *pinfo,
-			  gboolean is_open, gboolean is_close);
+			  uint32_t param);
 
 /* Store a name with a policy handle */
 
@@ -232,18 +232,18 @@ int
 dissect_nt_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		      proto_tree *tree, dcerpc_info *di, guint8 *drep, int hfindex,
 		      e_ctx_hnd *pdata, proto_item **pitem,
-		      gboolean is_open, gboolean is_close);
+		      uint32_t param);
 
 int
 PIDL_dissect_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		      proto_tree *tree, dcerpc_info* di, guint8 *drep, int hfindex,
-		      guint32 param);
+		      uint32_t param);
 
 int
 dissect_nt_guid_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		      proto_tree *tree, dcerpc_info *di, guint8 *drep, int hfindex,
 		      e_ctx_hnd *pdata, proto_item **pitem,
-		      gboolean is_open, gboolean is_close);
+		      uint32_t param);
 
 int
 dissect_nt_LUID(tvbuff_t *tvb, int offset,

@@ -647,7 +647,7 @@ static void add_pol_handle(e_ctx_hnd *policy_hnd, guint32 frame,
 /* Store the open and close frame numbers of a policy handle */
 
 void dcerpc_smb_store_pol_pkts(e_ctx_hnd *policy_hnd, packet_info *pinfo,
-			       gboolean is_open, gboolean is_close)
+			       uint32_t param)
 {
 	pol_hash_value *value;
 	pol_value *pol;
@@ -670,7 +670,7 @@ void dcerpc_smb_store_pol_pkts(e_ctx_hnd *policy_hnd, packet_info *pinfo,
 		/*
 		 * Update the existing value as appropriate.
 		 */
-		if (is_open) {
+		if (param & PIDL_POLHND_OPEN) {
 			/*
 			 * This is an open; we assume that we missed
 			 * a close of this handle, so we set its
@@ -694,7 +694,7 @@ void dcerpc_smb_store_pol_pkts(e_ctx_hnd *policy_hnd, packet_info *pinfo,
 			pol->last_frame = pinfo->num;
 			pol = NULL;
 		} else {
-			if (is_close) {
+			if (param & PIDL_POLHND_CLOSE) {
 				pol->close_frame = pinfo->num;
 				pol->last_frame = pinfo->num;
 			}
@@ -706,8 +706,8 @@ void dcerpc_smb_store_pol_pkts(e_ctx_hnd *policy_hnd, packet_info *pinfo,
 
 	pol = wmem_new(wmem_file_scope(), pol_value);
 
-	pol->open_frame = is_open ? pinfo->num : 0;
-	pol->close_frame = is_close ? pinfo->num : 0;
+	pol->open_frame = (param & PIDL_POLHND_OPEN) ? pinfo->num : 0;
+	pol->close_frame = (param & PIDL_POLHND_CLOSE) ? pinfo->num : 0;
 	pol->first_frame = pinfo->num;
 	pol->last_frame = pol->close_frame;	/* if 0, unknown; if non-0, known */
 	pol->type=0;
@@ -804,9 +804,9 @@ void dcerpc_store_polhnd_name(e_ctx_hnd *policy_hnd, packet_info *pinfo,
 /*
  * Retrieve a policy handle.
  *
- * XXX - should this get an "is_close" argument, and match even closed
- * policy handles if the call is a close, so we can handle retransmitted
- * close operations?
+ * XXX - should this get a "param" argument, and match even closed
+ * policy handles if the call closes the handle, so we can handle
+ * retransmitted close operations?
  */
 
 gboolean dcerpc_fetch_polhnd_data(e_ctx_hnd *policy_hnd,
@@ -940,7 +940,7 @@ static int
 dissect_nt_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		      proto_tree *tree, dcerpc_info *di, guint8 *drep, int hfindex,
 		      e_ctx_hnd *pdata, proto_item **pitem,
-		      gboolean is_open, gboolean is_close, e_hnd_type type)
+		      uint32_t param, e_hnd_type type)
 {
 	proto_item *item=NULL;
 	proto_tree *subtree;
@@ -988,7 +988,7 @@ dissect_nt_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	 * and no entry already exists, and, in any case, set the
 	 * open, close, first, and last frame information as appropriate.
 	 */
-	dcerpc_smb_store_pol_pkts(&hnd, pinfo, is_open, is_close);
+	dcerpc_smb_store_pol_pkts(&hnd, pinfo, param);
 
 	/* Insert open/close/name information if known */
 	if (dcerpc_fetch_polhnd_data(&hnd, &name, NULL, &open_frame,
@@ -1033,12 +1033,12 @@ int
 dissect_nt_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		      proto_tree *tree, dcerpc_info *di, guint8 *drep, int hfindex,
 		      e_ctx_hnd *pdata, proto_item **pitem,
-		      gboolean is_open, gboolean is_close)
+		      uint32_t param)
 {
 	offset=dissect_nt_hnd(tvb, offset, pinfo,
 		      tree, di, drep, hfindex,
 		      pdata, pitem,
-		      is_open, is_close, HND_TYPE_CTX_HANDLE);
+		      param, HND_TYPE_CTX_HANDLE);
 
 	return offset;
 }
@@ -1067,8 +1067,7 @@ PIDL_dissect_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	offset=dissect_nt_hnd(tvb, offset, pinfo,
 		      tree, di, drep, hfindex,
 		      &policy_hnd, NULL,
-		      param&PIDL_POLHND_OPEN, param&PIDL_POLHND_CLOSE,
-		      HND_TYPE_CTX_HANDLE);
+		      param, HND_TYPE_CTX_HANDLE);
 
 	/* If this was an open/create and we don't yet have a policy name
 	 * then create one.
@@ -1111,12 +1110,12 @@ int
 dissect_nt_guid_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		      proto_tree *tree, dcerpc_info *di, guint8 *drep, int hfindex,
 		      e_ctx_hnd *pdata, proto_item **pitem,
-		      gboolean is_open, gboolean is_close)
+		      uint32_t param)
 {
 	offset=dissect_nt_hnd(tvb, offset, pinfo,
 		      tree, di, drep, hfindex,
 		      pdata, pitem,
-		      is_open, is_close, HND_TYPE_GUID);
+		      param, HND_TYPE_GUID);
 
 	return offset;
 }

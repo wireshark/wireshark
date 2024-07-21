@@ -662,7 +662,7 @@ SpoolssClosePrinter_q(tvbuff_t *tvb, int offset,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, di, drep, hf_hnd, &policy_hnd, NULL,
-		FALSE, TRUE);
+		PIDL_POLHND_CLOSE);
 
 	dcerpc_fetch_polhnd_data(&policy_hnd, &pol_name, NULL, NULL, NULL,
 			     pinfo->num);
@@ -683,7 +683,7 @@ SpoolssClosePrinter_r(tvbuff_t *tvb, int offset,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, di, drep, hf_hnd, NULL, NULL,
-		FALSE, FALSE);
+		PIDL_POLHND_USE);
 
 
 	offset = dissect_doserror(
@@ -787,7 +787,7 @@ SpoolssGetPrinterData_q(tvbuff_t *tvb, int offset,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, di, drep, hf_hnd, NULL, NULL,
-		FALSE, FALSE);
+		PIDL_POLHND_USE);
 
 
 	value_name = NULL;
@@ -865,7 +865,7 @@ SpoolssGetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, di, drep, hf_hnd, NULL, NULL,
-		FALSE, FALSE);
+		PIDL_POLHND_USE);
 
 	key_name=NULL;
 	offset = dissect_ndr_cvstring(
@@ -958,7 +958,7 @@ SpoolssSetPrinterData_q(tvbuff_t *tvb, int offset,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, di, drep, hf_hnd, NULL, NULL,
-		FALSE, FALSE);
+		PIDL_POLHND_USE);
 
 	value_name=NULL;
 	offset = dissect_ndr_cvstring(
@@ -1034,7 +1034,7 @@ SpoolssSetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, di, drep, hf_hnd, NULL, NULL,
-		FALSE, FALSE);
+		PIDL_POLHND_USE);
 
 	offset = dissect_ndr_cvstring(
 		tvb, offset, pinfo, tree, di, drep, sizeof(guint16),
@@ -2652,7 +2652,7 @@ SpoolssOpenPrinterEx_r(tvbuff_t *tvb, int offset,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, di, drep, hf_hnd, &policy_hnd, &hnd_item,
-		TRUE, FALSE);
+		PIDL_POLHND_OPEN);
 
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, di, drep, hf_rc, &status);
@@ -3089,7 +3089,7 @@ SpoolssRFFPCNEX_q(tvbuff_t *tvb, int offset,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, di, drep, hf_hnd, NULL, NULL,
-		FALSE, FALSE);
+		PIDL_POLHND_USE);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep, -1, &flags);
 
@@ -3189,7 +3189,7 @@ SpoolssReplyOpenPrinter_r(tvbuff_t *tvb, int offset,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, di, drep, hf_hnd, &policy_hnd, &hnd_item,
-		TRUE, FALSE);
+		PIDL_POLHND_OPEN);
 
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, di, drep, hf_rc, &status);
@@ -3230,7 +3230,7 @@ SpoolssGetPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, di, drep, hf_hnd, NULL, NULL,
- 		FALSE, FALSE);
+		PIDL_POLHND_USE);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, di, drep, hf_level, &level);
@@ -3448,7 +3448,7 @@ SpoolssSetPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, di, drep, hf_hnd, NULL, NULL,
-		FALSE, FALSE);
+		PIDL_POLHND_USE);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, di, drep, hf_level, &level);
@@ -3563,7 +3563,7 @@ SpoolssEnumForms_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, di, drep, hf_hnd, NULL, NULL,
-		FALSE, FALSE);
+		PIDL_POLHND_USE);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, di, drep, hf_level, &level);
@@ -3645,7 +3645,7 @@ SpoolssDeletePrinter_q(tvbuff_t *tvb, int offset,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, di, drep, hf_hnd, NULL, NULL,
-		FALSE, FALSE);
+		PIDL_POLHND_USE);
 
 	return offset;
 }
@@ -3659,7 +3659,7 @@ SpoolssDeletePrinter_r(tvbuff_t *tvb, int offset,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, di, drep, hf_hnd, NULL, NULL,
-		FALSE, FALSE);
+		PIDL_POLHND_USE);
 
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, di, drep, hf_rc, NULL);
@@ -3680,7 +3680,7 @@ SpoolssAddPrinterEx_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, di, drep, hf_hnd, &policy_hnd, &hnd_item,
-		TRUE, FALSE);
+		PIDL_POLHND_OPEN);
 
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, di, drep, hf_rc, &status);
@@ -3732,7 +3732,7 @@ SpoolssEnumPrinterData_q(tvbuff_t *tvb, int offset,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, di, drep, hf_hnd, NULL, NULL,
-		FALSE, FALSE);
+		PIDL_POLHND_USE);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, di, drep,
@@ -4068,7 +4068,7 @@ SpoolssAddForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, di, drep, hf_hnd, NULL, NULL,
-		FALSE, FALSE);
+		PIDL_POLHND_USE);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, di, drep, hf_form_level, &level);
@@ -4122,7 +4122,7 @@ SpoolssDeleteForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, di, drep, hf_hnd, NULL, NULL,
-		FALSE, FALSE);
+		PIDL_POLHND_USE);
 
 	offset = dissect_ndr_cvstring(
 		tvb, offset, pinfo, tree, di, drep,
@@ -4172,7 +4172,7 @@ SpoolssSetForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, di, drep, hf_hnd, NULL, NULL,
-		FALSE, FALSE);
+		PIDL_POLHND_USE);
 
 	offset = dissect_ndr_cvstring(
 		tvb, offset, pinfo, tree, di, drep,
@@ -4230,7 +4230,7 @@ SpoolssGetForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, di, drep, hf_hnd, NULL, NULL,
-		FALSE, FALSE);
+		PIDL_POLHND_USE);
 
 	offset = dissect_ndr_cvstring(
 		tvb, offset, pinfo, tree, di, drep,
@@ -4525,7 +4525,7 @@ SpoolssEnumJobs_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, di, drep,
-		hf_hnd, NULL, NULL, FALSE, FALSE);
+		hf_hnd, NULL, NULL, PIDL_POLHND_USE);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, di, drep, hf_enumjobs_firstjob, NULL);
@@ -4625,7 +4625,7 @@ SpoolssSetJob_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, di, drep, hf_hnd, NULL, NULL,
-		FALSE, FALSE);
+		PIDL_POLHND_USE);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, di, drep, hf_job_id, &jobid);
@@ -4671,7 +4671,7 @@ SpoolssGetJob_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, di, drep, hf_hnd, NULL, NULL,
-		FALSE, FALSE);
+		PIDL_POLHND_USE);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, di, drep, hf_job_id, &jobid);
@@ -4749,7 +4749,7 @@ SpoolssStartPagePrinter_q(tvbuff_t *tvb, int offset,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, di, drep, hf_hnd, &policy_hnd, NULL,
-		FALSE, FALSE);
+		PIDL_POLHND_USE);
 
 	dcerpc_fetch_polhnd_data(&policy_hnd, &pol_name, NULL, NULL, NULL,
 			     pinfo->num);
@@ -4790,7 +4790,7 @@ SpoolssEndPagePrinter_q(tvbuff_t *tvb, int offset,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, di, drep, hf_hnd, &policy_hnd, NULL,
-		FALSE, FALSE);
+		PIDL_POLHND_USE);
 
 	dcerpc_fetch_polhnd_data(&policy_hnd, &pol_name, NULL, NULL, NULL,
 			     pinfo->num);
@@ -4922,7 +4922,7 @@ SpoolssStartDocPrinter_q(tvbuff_t *tvb, int offset,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, di, drep, hf_hnd, &policy_hnd, NULL,
-		FALSE, FALSE);
+		PIDL_POLHND_USE);
 
 	dcerpc_fetch_polhnd_data(&policy_hnd, &pol_name, NULL, NULL, NULL,
 			     pinfo->num);
@@ -4968,7 +4968,7 @@ SpoolssEndDocPrinter_q(tvbuff_t *tvb, int offset,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, di, drep, hf_hnd, &policy_hnd, NULL,
-		FALSE, FALSE);
+		PIDL_POLHND_USE);
 
 	dcerpc_fetch_polhnd_data(&policy_hnd, &pol_name, NULL, NULL, NULL,
 			     pinfo->num);
@@ -5016,7 +5016,7 @@ SpoolssWritePrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, di, drep, hf_hnd, &policy_hnd, NULL,
-		FALSE, FALSE);
+		PIDL_POLHND_USE);
 
 	dcerpc_fetch_polhnd_data(&policy_hnd, &pol_name, NULL, NULL, NULL,
 			     pinfo->num);
@@ -5084,7 +5084,7 @@ SpoolssDeletePrinterData_q(tvbuff_t *tvb, int offset,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, di, drep, hf_hnd, NULL, NULL,
-		FALSE, FALSE);
+		PIDL_POLHND_USE);
 
 	offset = dissect_ndr_cvstring(
 		tvb, offset, pinfo, tree, di, drep, sizeof(guint16),
@@ -5672,7 +5672,7 @@ SpoolssGetPrinterDriver2_q(tvbuff_t *tvb, int offset,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, di, drep, hf_hnd, &policy_hnd, NULL,
-		FALSE, FALSE);
+		PIDL_POLHND_USE);
 
 	dcerpc_fetch_polhnd_data(&policy_hnd, &pol_name, NULL, NULL, NULL,
 			     pinfo->num);
@@ -6293,7 +6293,7 @@ SpoolssRFNPCNEX_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, di, drep, hf_hnd, NULL, NULL,
-		FALSE, FALSE);
+		PIDL_POLHND_USE);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, di, drep, hf_rrpcn_changelow, &changeid);
@@ -6340,7 +6340,7 @@ SpoolssRRPCN_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, di, drep, hf_hnd, NULL, NULL,
-		FALSE, FALSE);
+		PIDL_POLHND_USE);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, di, drep, hf_rrpcn_changelow, &changeid);
@@ -6395,7 +6395,7 @@ SpoolssReplyClosePrinter_q(tvbuff_t *tvb, int offset,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, di, drep, hf_hnd, NULL, NULL,
-		FALSE, TRUE);
+		PIDL_POLHND_CLOSE);
 
 	return offset;
 }
@@ -6409,7 +6409,7 @@ SpoolssReplyClosePrinter_r(tvbuff_t *tvb, int offset,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, di, drep, hf_hnd, NULL, NULL,
-		FALSE, FALSE);
+		PIDL_POLHND_USE);
 
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, di, drep, hf_rc, NULL);
@@ -6429,7 +6429,7 @@ SpoolssFCPN_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, di, drep, hf_hnd, NULL, NULL,
-		FALSE, FALSE);
+		PIDL_POLHND_USE);
 
 	return offset;
 }
@@ -6462,7 +6462,7 @@ SpoolssRouterReplyPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, di, drep, hf_hnd, NULL, NULL,
-		FALSE, FALSE);
+		PIDL_POLHND_USE);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, di, drep,
@@ -6538,7 +6538,7 @@ SpoolssEnumPrinterKey_q(tvbuff_t *tvb, int offset,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, di, drep, hf_hnd, NULL, NULL,
-		FALSE, FALSE);
+		PIDL_POLHND_USE);
 
 	offset = dissect_ndr_cvstring(
 		tvb, offset, pinfo, tree, di, drep, sizeof(guint16),
@@ -6601,7 +6601,7 @@ SpoolssEnumPrinterDataEx_q(tvbuff_t *tvb, int offset,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, di, drep, hf_hnd, NULL, NULL,
-		FALSE, FALSE);
+		PIDL_POLHND_USE);
 
 	offset = dissect_ndr_cvstring(
 		tvb, offset, pinfo, tree, di, drep, sizeof(guint16),

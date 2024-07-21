@@ -545,7 +545,7 @@ init_ndr_pointer_list(dcerpc_info *di);
 /* Policy handle tracking. Describes in which function a handle is
  * opened/closed.  See "winreg.cnf" for example.
  *
- * The guint32 param is divided up into multiple fields
+ * The uint32_t param is divided up into multiple fields
  *
  * +--------+--------+--------+--------+
  * | Flags  | Type   |        |        |
@@ -554,6 +554,7 @@ init_ndr_pointer_list(dcerpc_info *di);
 /* Flags : */
 #define PIDL_POLHND_OPEN		0x80000000
 #define PIDL_POLHND_CLOSE		0x40000000
+#define PIDL_POLHND_USE			0x00000000 /* just use, not open or cose */
 /* To "save" a pointer to the string in dcv->private_data */
 #define PIDL_STR_SAVE			0x20000000
 /* To make this value appear on the summary line for the packet */
