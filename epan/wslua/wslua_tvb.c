@@ -435,7 +435,7 @@ WSLUA_METHOD TvbRange_uint(lua_State* L) {
 
     switch (tvbr->len) {
         case 1:
-            lua_pushinteger(L,tvb_get_guint8(tvbr->tvb->ws_tvb,tvbr->offset));
+            lua_pushinteger(L,tvb_get_uint8(tvbr->tvb->ws_tvb,tvbr->offset));
             return 1;
         case 2:
             lua_pushinteger(L,tvb_get_ntohs(tvbr->tvb->ws_tvb,tvbr->offset));
@@ -468,7 +468,7 @@ WSLUA_METHOD TvbRange_le_uint(lua_State* L) {
     switch (tvbr->len) {
         case 1:
             /* XXX unsigned anyway */
-            lua_pushinteger(L,(lua_Integer)(unsigned)tvb_get_guint8(tvbr->tvb->ws_tvb,tvbr->offset));
+            lua_pushinteger(L,(lua_Integer)(unsigned)tvb_get_uint8(tvbr->tvb->ws_tvb,tvbr->offset));
             return 1;
         case 2:
             lua_pushinteger(L,tvb_get_letohs(tvbr->tvb->ws_tvb,tvbr->offset));
@@ -500,7 +500,7 @@ WSLUA_METHOD TvbRange_uint64(lua_State* L) {
 
     switch (tvbr->len) {
         case 1:
-            pushUInt64(L,tvb_get_guint8(tvbr->tvb->ws_tvb,tvbr->offset));
+            pushUInt64(L,tvb_get_uint8(tvbr->tvb->ws_tvb,tvbr->offset));
             return 1;
         case 2:
             pushUInt64(L,tvb_get_ntohs(tvbr->tvb->ws_tvb,tvbr->offset));
@@ -544,7 +544,7 @@ WSLUA_METHOD TvbRange_le_uint64(lua_State* L) {
 
     switch (tvbr->len) {
         case 1:
-            pushUInt64(L,tvb_get_guint8(tvbr->tvb->ws_tvb,tvbr->offset));
+            pushUInt64(L,tvb_get_uint8(tvbr->tvb->ws_tvb,tvbr->offset));
             return 1;
         case 2:
             pushUInt64(L,tvb_get_letohs(tvbr->tvb->ws_tvb,tvbr->offset));
@@ -588,7 +588,7 @@ WSLUA_METHOD TvbRange_int(lua_State* L) {
 
     switch (tvbr->len) {
         case 1:
-            lua_pushinteger(L,tvb_get_gint8(tvbr->tvb->ws_tvb,tvbr->offset));
+            lua_pushinteger(L,tvb_get_int8(tvbr->tvb->ws_tvb,tvbr->offset));
             return 1;
         case 2:
             lua_pushinteger(L,tvb_get_ntohis(tvbr->tvb->ws_tvb,tvbr->offset));
@@ -627,7 +627,7 @@ WSLUA_METHOD TvbRange_le_int(lua_State* L) {
 
     switch (tvbr->len) {
         case 1:
-            lua_pushinteger(L,tvb_get_gint8(tvbr->tvb->ws_tvb,tvbr->offset));
+            lua_pushinteger(L,tvb_get_int8(tvbr->tvb->ws_tvb,tvbr->offset));
             return 1;
         case 2:
             lua_pushinteger(L,tvb_get_letohis(tvbr->tvb->ws_tvb,tvbr->offset));
@@ -659,7 +659,7 @@ WSLUA_METHOD TvbRange_int64(lua_State* L) {
 
     switch (tvbr->len) {
         case 1:
-            pushInt64(L,tvb_get_gint8(tvbr->tvb->ws_tvb,tvbr->offset));
+            pushInt64(L,tvb_get_int8(tvbr->tvb->ws_tvb,tvbr->offset));
             return 1;
         case 2:
             pushInt64(L,tvb_get_ntohis(tvbr->tvb->ws_tvb,tvbr->offset));
@@ -703,7 +703,7 @@ WSLUA_METHOD TvbRange_le_int64(lua_State* L) {
 
     switch (tvbr->len) {
         case 1:
-            pushInt64(L,tvb_get_gint8(tvbr->tvb->ws_tvb,tvbr->offset));
+            pushInt64(L,tvb_get_int8(tvbr->tvb->ws_tvb,tvbr->offset));
             return 1;
         case 2:
             pushInt64(L,tvb_get_letohis(tvbr->tvb->ws_tvb,tvbr->offset));
