@@ -52,6 +52,24 @@ btatt_handle_tap_reset(void *tapinfo_ptr)
         tapinfo->tap_reset(tapinfo);
 }
 
+static QTreeWidgetItem *
+item_with_handle_get(QTreeWidget *tableTree, uint16_t handle)
+{
+    QTreeWidgetItemIterator i_item(tableTree);
+
+    while (*i_item) {
+        QTreeWidgetItem *item = static_cast<QTreeWidgetItem*>(*i_item);
+
+        if (item->data(1, Qt::UserRole).value<uint32_t>() == handle) {
+            return item;
+        }
+
+        ++i_item;
+    }
+
+    return NULL;
+}
+
 BluetoothAttServerAttributesDialog::BluetoothAttServerAttributesDialog(QWidget &parent, CaptureFile &cf) :
     WiresharkDialog(parent, cf),
     ui(new Ui::BluetoothAttServerAttributesDialog)
@@ -287,24 +305,48 @@ tap_packet_status BluetoothAttServerAttributesDialog::tapPacket(void *tapinfo_pt
     uuid_name = QString(print_bluetooth_uuid(pinfo->pool, &tap_handles->uuid));
 
     if (dialog->ui->removeDuplicatesCheckBox->checkState() == Qt::Checked) {
-        QTreeWidgetItemIterator i_item(dialog->ui->tableTreeWidget);
+        QTreeWidgetItem *item = item_with_handle_get(dialog->ui->tableTreeWidget,
+                                                     tap_handles->handle);
 
-        while (*i_item) {
-            QTreeWidgetItem *item = static_cast<QTreeWidgetItem*>(*i_item);
-
+        if (item) {
             if (item->text(column_number_handle) == handle &&
                     item->text(column_number_uuid) == uuid &&
                     item->text(column_number_uuid_name) == uuid_name)
                 return TAP_PACKET_REDRAW;
-            ++i_item;
         }
     }
 
-    QTreeWidgetItem *item = new QTreeWidgetItem(dialog->ui->tableTreeWidget);
-    item->setText(column_number_handle, handle);
-    item->setText(column_number_uuid, uuid);
-    item->setText(column_number_uuid_name,  uuid_name);
-    item->setData(0, Qt::UserRole, QVariant::fromValue(pinfo->num));
+    QTreeWidgetItem *parent = NULL;
+
+    if (tap_handles->attribute_type == ATTRIBUTE_TYPE_SERVICE) {
+        /* Service declarations are the top level items */
+        parent = dialog->ui->tableTreeWidget->invisibleRootItem();
+    } else if ((tap_handles->uuid.bt_uuid == UUID_GATT_INCLUDE_DECLARATION) ||
+               (tap_handles->uuid.bt_uuid == UUID_GATT_CHARACTERISTIC_DECLARATION)) {
+        /* Characteristic and include declarations are part of services. */
+        parent = item_with_handle_get(dialog->ui->tableTreeWidget,
+                                      tap_handles->service_handle);
+    } else {
+        /* Each characteristic may have several attributes. */
+        parent = item_with_handle_get(dialog->ui->tableTreeWidget,
+                                      tap_handles->char_decl_handle);
+    }
+
+    if (parent) {
+        QTreeWidgetItem *item = new QTreeWidgetItem(parent);
+
+        item->setText(column_number_handle, handle);
+        item->setText(column_number_uuid, uuid);
+        item->setText(column_number_uuid_name,  uuid_name);
+        item->setData(0, Qt::UserRole, QVariant::fromValue(pinfo->num));
+        item->setData(1, Qt::UserRole, QVariant::fromValue(tap_handles->handle));
+
+        parent->setExpanded(true);
+    } else {
+        /* Do not insert items without a known parent into the tree.
+         * The parent will likely be found later.
+         */
+    }
 
     for (int i = 0; i < dialog->ui->tableTreeWidget->columnCount(); i++) {
         dialog->ui->tableTreeWidget->resizeColumnToContents(i);

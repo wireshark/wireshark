@@ -4105,12 +4105,6 @@ typedef struct _request_data_t {
     union request_parameters_union  parameters;
 } request_data_t;
 
-enum attribute_type {
-    ATTRIBUTE_TYPE_SERVICE,
-    ATTRIBUTE_TYPE_CHARACTERISTIC,
-    ATTRIBUTE_TYPE_OTHER
-};
-
 typedef struct _handle_data_t {
     bluetooth_uuid_t uuid;
 
@@ -4188,6 +4182,14 @@ static bool is_writeable_response(uint8_t opcode)
     return (opcode == ATT_OPCODE_WRITE_RESPONSE ||
             opcode == ATT_OPCODE_WRITE_PREPARE_RESPONSE);
 }
+
+static uint16_t
+get_gatt_service_handle_from_handle(packet_info *pinfo, uint32_t handle,
+    bluetooth_data_t *bluetooth_data);
+
+static uint16_t
+get_gatt_char_decl_handle_from_handle(packet_info *pinfo, uint32_t handle,
+    bluetooth_data_t *bluetooth_data);
 
 bool bluetooth_gatt_has_no_parameter(uint8_t opcode)
 {
@@ -4380,6 +4382,13 @@ save_handle(packet_info *pinfo, bluetooth_uuid_t uuid, uint32_t handle,
         tap_handles = wmem_new(pinfo->pool, tap_handles_t);
         tap_handles->handle = handle;
         tap_handles->uuid = uuid;
+        tap_handles->attribute_type = attribute_type;
+
+        tap_handles->service_handle =
+            get_gatt_service_handle_from_handle(pinfo, handle, bluetooth_data);
+        tap_handles->char_decl_handle =
+            get_gatt_char_decl_handle_from_handle(pinfo, handle, bluetooth_data);
+
         tap_queue_packet(btatt_tap_handles, pinfo, tap_handles);
     }
 
@@ -4452,6 +4461,87 @@ get_gatt_bluetooth_uuid_from_handle(packet_info *pinfo, uint32_t handle, uint8_t
     }
 
     return uuid;
+}
+
+static uint16_t
+get_gatt_service_handle_from_handle(packet_info *pinfo, uint32_t handle,
+    bluetooth_data_t *bluetooth_data)
+{
+    wmem_tree_key_t  key[5];
+    uint32_t         frame_number, direction;
+    handle_data_t   *handle_data;
+    wmem_tree_t     *sub_wmemtree;
+
+    if (bluetooth_data) {
+        frame_number = pinfo->num;
+        direction = pinfo->p2p_dir;;
+
+        key[0].length = 1;
+        key[0].key    = &bluetooth_data->interface_id;
+        key[1].length = 1;
+        key[1].key    = &bluetooth_data->adapter_id;
+        key[2].length = 1;
+        key[2].key    = &direction;
+        key[3].length = 1;
+        key[3].key    = &handle;
+        key[4].length = 0;
+        key[4].key    = NULL;
+
+        while (handle > 0) {
+            sub_wmemtree = (wmem_tree_t *) wmem_tree_lookup32_array(handle_to_uuid, key);
+            handle_data = (sub_wmemtree) ? (handle_data_t *) wmem_tree_lookup32_le(sub_wmemtree, frame_number) : NULL;
+
+            if (handle_data && handle_data->type == ATTRIBUTE_TYPE_SERVICE) {
+                return handle;
+            }
+
+            handle -= 1;
+        }
+    }
+
+    return 0;
+}
+
+static uint16_t
+get_gatt_char_decl_handle_from_handle(packet_info *pinfo, uint32_t handle,
+    bluetooth_data_t *bluetooth_data)
+{
+    wmem_tree_key_t  key[5];
+    uint32_t         frame_number, direction;
+    handle_data_t   *handle_data;
+    wmem_tree_t     *sub_wmemtree;
+
+    if (bluetooth_data) {
+        frame_number = pinfo->num;
+        direction = pinfo->p2p_dir;;
+
+        key[0].length = 1;
+        key[0].key    = &bluetooth_data->interface_id;
+        key[1].length = 1;
+        key[1].key    = &bluetooth_data->adapter_id;
+        key[2].length = 1;
+        key[2].key    = &direction;
+        key[3].length = 1;
+        key[3].key    = &handle;
+        key[4].length = 0;
+        key[4].key    = NULL;
+
+        while (handle > 0) {
+            sub_wmemtree = (wmem_tree_t *) wmem_tree_lookup32_array(handle_to_uuid, key);
+            handle_data = (sub_wmemtree) ? (handle_data_t *) wmem_tree_lookup32_le(sub_wmemtree, frame_number) : NULL;
+
+            if (handle_data) {
+                if ((handle_data->uuid.bt_uuid == UUID_GATT_INCLUDE_DECLARATION) ||
+                    (handle_data->uuid.bt_uuid == UUID_GATT_CHARACTERISTIC_DECLARATION)) {
+                    return handle;
+                }
+            }
+
+            handle -= 1;
+        }
+    }
+
+    return 0;
 }
 
 static bluetooth_uuid_t

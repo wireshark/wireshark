@@ -55,10 +55,24 @@ typedef struct _btatt_data_t {
     uint32_t  handle;
 } btatt_data_t;
 
+enum attribute_type {
+    ATTRIBUTE_TYPE_SERVICE,
+    ATTRIBUTE_TYPE_CHARACTERISTIC,
+    ATTRIBUTE_TYPE_OTHER
+};
 
 typedef struct _tap_handles_t {
     uint32_t  handle;
     bluetooth_uuid_t uuid;
+    enum attribute_type attribute_type;
+
+    /** Store the service and characteristic declaration.
+     *
+     * This allows us to find the parent item service or
+     * characteristic.
+     */
+    uint16_t service_handle;
+    uint16_t char_decl_handle;
 } tap_handles_t;
 
 
