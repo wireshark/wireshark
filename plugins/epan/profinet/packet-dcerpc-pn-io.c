@@ -11336,7 +11336,7 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
         offset = dissect_dcerpc_uint16(tvb, offset, pinfo, api_tree, drep,
                             hf_pn_io_number_of_iocs, &u16NumberOfIOCSInAPI);
 
-        /* Set global Vairant for NumberOfIOCS */
+        /* Set global Variant for NumberOfIOCS */
         if (!PINFO_FD_VISITED(pinfo)) {
             u16NumberOfIOCSInCR += u16NumberOfIOCSInAPI;
         }

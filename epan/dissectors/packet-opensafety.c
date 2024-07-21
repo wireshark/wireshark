@@ -575,7 +575,7 @@ static bool findSafetyFrame ( packet_info *pinfo, tvbuff_t *message_tvb, unsigne
                      * calculate it here again, to have a sane value */
                     rem_length = tvb_reported_length_remaining(message_tvb, ctr);
 
-                    /* Plausability check on length */
+                    /* Plausibility check on length */
                     if ( (unsigned)( b_Length * 2 ) < ( rem_length + OSS_MINIMUM_LENGTH ) )
                     {
 

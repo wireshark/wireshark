@@ -205,6 +205,9 @@ class File:
             v = v.replace('?', ' ')
             v = v.replace('=', ' ')
             v = v.replace('*', ' ')
+            v = v.replace('%u', '')
+            v = v.replace('%d', '')
+            v = v.replace('%s', '')
             v = v.replace('%', ' ')
             v = v.replace('#', ' ')
             v = v.replace('&', ' ')
@@ -215,9 +218,6 @@ class File:
             v = v.replace("'", ' ')
             v = v.replace('"', ' ')
             v = v.replace('~', ' ')
-            v = v.replace('%u', '')
-            v = v.replace('%d', '')
-            v = v.replace('%s', '')
 
             # Split into words.
             value_words = v.split()

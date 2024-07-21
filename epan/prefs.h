@@ -32,8 +32,8 @@ extern "C" {
 #define TAP_UPDATE_DEFAULT_INTERVAL 3000
 #define ST_DEF_BURSTRES 5
 #define ST_DEF_BURSTLEN 100
-#define ST_MAX_BURSTRES 600000 /* somewhat arbirary limit of 10 minutes */
-#define ST_MAX_BURSTBUCKETS 100 /* somewhat arbirary limit - more buckets degrade performance */
+#define ST_MAX_BURSTRES 600000 /* somewhat arbitrary limit of 10 minutes */
+#define ST_MAX_BURSTBUCKETS 100 /* somewhat arbitrary limit - more buckets degrade performance */
 #define DEF_GUI_DECIMAL_PLACES1 2
 #define DEF_GUI_DECIMAL_PLACES2 4
 #define DEF_GUI_DECIMAL_PLACES3 6

@@ -662,7 +662,7 @@ struct message_data {
 	union {
 		struct CPMSetBindingsIn bindingsin;/* CPMBindingIn request */
 		struct rows_data rowsin; /*CPMGetRowsIn request*/
-		uint32_t version; /*CPMConnectIn request/respose */
+		uint32_t version; /*CPMConnectIn request/response */
 	} content;
 };
 

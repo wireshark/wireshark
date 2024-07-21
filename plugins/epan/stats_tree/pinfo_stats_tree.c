@@ -144,7 +144,7 @@ static void ip_srcdst_stats_tree_init(stats_tree *st,
 	*st_node_src_ptr = stats_tree_create_node(st, st_str_src, 0, STAT_DT_INT, true);
 	/* set flag so this branch will always be sorted to top of tree */
 	stat_node_set_flags(st, st_str_src, 0, false, ST_FLG_SORT_TOP);
-	/* creat another top level node for destination branch */
+	/* create another top level node for destination branch */
 	*st_node_dst_ptr = stats_tree_create_node(st, st_str_dst, 0, STAT_DT_INT, true);
 	/* set flag so this branch will not be expanded by default */
 	stat_node_set_flags(st, st_str_dst, 0, false, ST_FLG_DEF_NOEXPAND);

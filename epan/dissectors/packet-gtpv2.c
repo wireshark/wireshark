@@ -10284,7 +10284,7 @@ void proto_register_gtpv2(void)
           FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL}
         },
         { &hf_gtpv2_lapcosi,
-         {"LAPCOSI (Large Additionl Protocol Configuration Options Support Indication)", "gtpv2.lapcosi",
+         {"LAPCOSI (Large Additional Protocol Configuration Options Support Indication)", "gtpv2.lapcosi",
           FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL}
         },
         { &hf_gtpv2_ltemsai,

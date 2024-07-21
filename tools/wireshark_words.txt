@@ -70,6 +70,7 @@ alloc
 allocator
 allocators
 alteon
+altera
 altsvc
 american
 ampdu
@@ -124,6 +125,7 @@ asn1cnf
 asn2deb
 asn2wrs
 assembler
+assignate
 assignee
 assignor
 assistive
@@ -221,6 +223,7 @@ bootfile
 bootloader
 bootopt
 bootp
+bootup
 bosch
 bouygues
 bratislava
@@ -815,6 +818,8 @@ extpfx
 extractors
 extrainformation
 eyesdn
+f1removal
+f1setup
 f5eth
 fa1922dfa9a
 facch
@@ -1100,8 +1105,10 @@ instrumented
 intcon
 intel
 intensities
+interchangibly
 interferer
 interleaving
+internacional
 interop
 interpolated
 interruptible
@@ -1117,6 +1124,7 @@ invalidity
 invalidly
 invariance
 invariant
+inversed
 ioctl
 ioepoch
 ioerr
@@ -1246,6 +1254,7 @@ lnpdqp
 localise
 locamation
 locoinfof
+log3gpp
 logcat
 loghans
 loginack
@@ -1319,6 +1328,7 @@ megaco
 mellanox
 memcache
 memcpy
+memset
 menubar
 mergecap
 merkle
@@ -1347,6 +1357,7 @@ milano
 millimeters
 milliwatt
 mingw
+minimap
 miniport
 minislot
 minislots
@@ -1445,9 +1456,11 @@ nagle
 namelen
 nameor
 namespace
+nanosec
 naptr
 narrowband
 nasdaq
+natively
 nbifom
 nbrar
 ndpsm
@@ -1455,6 +1468,7 @@ ndriver
 nederland
 negotiability
 neighbour
+neighbouring
 neighbours
 nessie
 netboot
@@ -1575,6 +1589,7 @@ ofpet
 ofpfmfc
 ofpgmfc
 ofpgt
+ofpit
 ofpmf
 ofpmmfc
 ofpmp
@@ -1737,6 +1752,7 @@ precompute
 preconfiguration
 preconfigured
 predef
+predefines
 preempting
 preemption
 prefetch
@@ -1748,6 +1764,8 @@ prepay
 prepend
 preprocessor
 preshared
+prespecified
+presubscribed
 prettification
 printf
 prioritised
@@ -1846,6 +1864,7 @@ rdtci
 reachability
 readdir
 readme
+realise
 realloc
 realtek
 realtime
@@ -2042,6 +2061,7 @@ rtpmux
 rtpstream
 ruleset
 russian
+russwin
 rwanda
 rxbitmask
 rxchannel
@@ -2120,6 +2140,7 @@ serialize
 serialized
 serializes
 serverlst
+serversrt
 servlet
 sessionid
 sessionkey
@@ -2222,6 +2243,7 @@ srtcp
 srvcc
 srvsvc
 ss7pcs
+sscanf
 sscop
 sshdump
 sshkey
@@ -2317,6 +2339,7 @@ swissvoice
 switchinfo
 sydney
 symantec
+symbian
 symbl
 symlink
 synchronisation
@@ -2439,6 +2462,7 @@ truncates
 truncating
 truphone
 trustdom
+truthiness
 tshark
 tspec
 tstamp
@@ -2465,6 +2489,7 @@ type3
 typedef
 typeof
 uarfcn
+uaudp
 uavcan
 ubertooth
 ubiquisys
@@ -2535,6 +2560,7 @@ undelimited
 undeliverable
 underflow
 underrun
+undisplayed
 undisposed
 undissectable
 undissected

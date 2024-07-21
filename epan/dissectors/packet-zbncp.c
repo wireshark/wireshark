@@ -6149,7 +6149,7 @@ void proto_register_zbncp(void)
          {"PAN ID Conflict TLV", "zbncp.data.pan_id_conflict_tlv", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
         {&hf_zbncp_data_eui64_count,
-         {"Ammount of EUI64s'", "zbncp.data.eui64_count", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+         {"Amount of EUI64s'", "zbncp.data.eui64_count", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
         {&hf_zbncp_data_eui64,
          {"EUI64", "zbncp.data.eui64", FT_EUI64, BASE_NONE, NULL, 0x0, NULL, HFILL}},
