@@ -685,7 +685,7 @@ dissect_cimd_operation(tvbuff_t *tvb, proto_tree *tree, int etxp, uint16_t check
   offset = CIMD_PN_OFFSET + CIMD_PN_LENGTH;
   while (offset < etxp && tvb_get_uint8(tvb, offset) == CIMD_DELIM)
   {
-    endOffset = tvb_find_guint8(tvb, offset + 1, etxp, CIMD_DELIM);
+    endOffset = tvb_find_uint8(tvb, offset + 1, etxp, CIMD_DELIM);
     if (endOffset == -1)
       break;
 
@@ -717,7 +717,7 @@ dissect_cimd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   bool checksumIsValid = true;
   uint8_t  last1, last2, last3;
 
-  etxp = tvb_find_guint8(tvb, CIMD_PN_OFFSET + CIMD_PN_LENGTH, -1, CIMD_ETX);
+  etxp = tvb_find_uint8(tvb, CIMD_PN_OFFSET + CIMD_PN_LENGTH, -1, CIMD_ETX);
   if (etxp == -1) return 0;
 
   OC = (uint8_t)strtoul(tvb_get_string_enc(pinfo->pool, tvb, CIMD_OC_OFFSET, CIMD_OC_LENGTH, ENC_ASCII), NULL, 10);
@@ -771,7 +771,7 @@ dissect_cimd_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
   if (tvb_get_uint8(tvb, 0) != CIMD_STX)
     return false;
 
-  etxp = tvb_find_guint8(tvb, CIMD_OC_OFFSET, -1, CIMD_ETX);
+  etxp = tvb_find_uint8(tvb, CIMD_OC_OFFSET, -1, CIMD_ETX);
   if (etxp == -1)
   { /* XXX - should we have an option to request reassembly? */
     return false;

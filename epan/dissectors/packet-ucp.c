@@ -736,7 +736,7 @@ check_ucp(tvbuff_t *tvb, int *endpkt)
     int          pkt_check, tmp;
     int          length;
 
-    length = tvb_find_guint8(tvb, offset, -1, UCP_ETX);
+    length = tvb_find_uint8(tvb, offset, -1, UCP_ETX);
     if (length == -1) {
         *endpkt = tvb_reported_length_remaining(tvb, offset);
         return UCP_MALFORMED;
@@ -819,7 +819,7 @@ ucp_handle_string(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
     proto_item  *ti = NULL;
     int          idx, len;
 
-    idx = tvb_find_guint8(tvb, *offset, -1, '/');
+    idx = tvb_find_uint8(tvb, *offset, -1, '/');
     if (idx == -1) {
         /* Force the appropriate exception to be thrown. */
         len = tvb_captured_length_remaining(tvb, *offset);
@@ -843,7 +843,7 @@ ucp_handle_IRAstring(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
     int           idx, len;
     int           tmpoff;
 
-    idx = tvb_find_guint8(tvb, *offset, -1, '/');
+    idx = tvb_find_uint8(tvb, *offset, -1, '/');
     if (idx == -1) {
         /* Force the appropriate exception to be thrown. */
         len = tvb_captured_length_remaining(tvb, *offset);
@@ -901,7 +901,7 @@ ucp_handle_int(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, int field, i
     bool          intval_valid;
     proto_item   *pi;
 
-    idx = tvb_find_guint8(tvb, *offset, -1, '/');
+    idx = tvb_find_uint8(tvb, *offset, -1, '/');
     if (idx == -1) {
         /* Force the appropriate exception to be thrown. */
         len = tvb_captured_length_remaining(tvb, *offset);
@@ -930,7 +930,7 @@ ucp_handle_time(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
     time_t      tval;
     nstime_t    tmptime;
 
-    idx = tvb_find_guint8(tvb, *offset, -1, '/');
+    idx = tvb_find_uint8(tvb, *offset, -1, '/');
     if (idx == -1) {
         /* Force the appropriate exception to be thrown. */
         len = tvb_captured_length_remaining(tvb, *offset);
@@ -1063,7 +1063,7 @@ ucp_handle_alphanum_OAdC(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, in
     int           idx, len;
     int           tmpoff;
 
-    idx = tvb_find_guint8(tvb, *offset, -1, '/');
+    idx = tvb_find_uint8(tvb, *offset, -1, '/');
     if (idx == -1) {
         /* Force the appropriate exception to be thrown. */
         len = tvb_captured_length_remaining(tvb, *offset);

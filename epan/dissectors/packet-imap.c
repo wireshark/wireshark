@@ -56,7 +56,7 @@ static dissector_handle_t imf_handle;
 
 static bool imap_ssl_heuristic = true;
 
-/* patterns used for tvb_ws_mempbrk_pattern_guint8 */
+/* patterns used for tvb_ws_mempbrk_pattern_uint8 */
 static ws_mempbrk_pattern pbrk_whitespace;
 
 #define TCP_PORT_IMAP     143
@@ -205,17 +205,17 @@ dissect_imap_fetch(tvbuff_t *tvb, packet_info *pinfo,
   bool need_more = true;
 
   //All information in encapsulated in () so make sure there are existing and matching parenthesis
-  int first_parenthesis = tvb_find_guint8(tvb, fetch_offset, -1, '(');
+  int first_parenthesis = tvb_find_uint8(tvb, fetch_offset, -1, '(');
   if (first_parenthesis >= 0)
   {
     int remaining_size = tvb_reported_length_remaining(tvb, first_parenthesis + 1);
     if (remaining_size > 0)
     {
       //look for the size field
-      int size_start = tvb_find_guint8(tvb, first_parenthesis, remaining_size, '{');
+      int size_start = tvb_find_uint8(tvb, first_parenthesis, remaining_size, '{');
       if (size_start >= 0)
       {
-        int size_end = tvb_find_guint8(tvb, size_start + 1, remaining_size - (size_start - first_parenthesis), '}');
+        int size_end = tvb_find_uint8(tvb, size_start + 1, remaining_size - (size_start - first_parenthesis), '}');
         if (size_end > 0)
         {
           //Have a size field, convert it to an integer to see how long the contents are
@@ -227,7 +227,7 @@ dissect_imap_fetch(tvbuff_t *tvb, packet_info *pinfo,
             if (remaining > 0)
             {
               //Look for the ) after the size field
-              int parenthesis_end = tvb_find_guint8(tvb, size_end + size, remaining, ')');
+              int parenthesis_end = tvb_find_uint8(tvb, size_end + size, remaining, ')');
               if (parenthesis_end >= 0)
               {
                 need_more = false;
@@ -404,7 +404,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
       do
       {
         start_offset = next_pattern+1;
-        next_pattern = tvb_ws_mempbrk_pattern_guint8(tvb, start_offset, next_offset - start_offset, &pbrk_whitespace, NULL);
+        next_pattern = tvb_ws_mempbrk_pattern_uint8(tvb, start_offset, next_offset - start_offset, &pbrk_whitespace, NULL);
         if (next_pattern > start_offset)
         {
           tokens[token_count].token = tvb_get_string_enc(pinfo->pool, tvb, start_offset, next_pattern-start_offset, ENC_ASCII);

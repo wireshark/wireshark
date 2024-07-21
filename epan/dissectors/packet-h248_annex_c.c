@@ -845,10 +845,10 @@ static void dissect_h248_annexc_SDP_M(proto_tree* tree, tvbuff_t* tvb, packet_in
 		&param_tvb);
 
 	if (param_tvb){
-		offset = tvb_find_guint8(param_tvb, 0, -1, ' ');
+		offset = tvb_find_uint8(param_tvb, 0, -1, ' ');
 		if (offset != -1){
 			offset++;
-			next_offset = tvb_find_guint8(param_tvb, offset, -1, ' ');
+			next_offset = tvb_find_uint8(param_tvb, offset, -1, ' ');
 			if (next_offset > 0){
 				tokenlen = next_offset - offset;
 				port_str = tvb_get_string_enc(pinfo->pool, param_tvb, offset, tokenlen, ENC_UTF_8 | ENC_NA);

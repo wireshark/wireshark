@@ -189,7 +189,7 @@ dissect_png_text(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
     int offset=0, nul_offset;
 
-    nul_offset = tvb_find_guint8(tvb, offset, tvb_captured_length_remaining(tvb, offset), 0);
+    nul_offset = tvb_find_uint8(tvb, offset, tvb_captured_length_remaining(tvb, offset), 0);
     /* nul_offset == 0 means empty keyword, this is not allowed by the png standard */
     if (nul_offset<=0) {
         /* XXX exception */

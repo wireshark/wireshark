@@ -218,7 +218,7 @@ dissect_rsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
      * then it must be session data only and we can skip looking
      * for the other fields.
      */
-    if(tvb_find_guint8(tvb, tvb_captured_length(tvb)-1, 1, '\0') == -1){
+    if(tvb_find_uint8(tvb, tvb_captured_length(tvb)-1, 1, '\0') == -1){
         hash_info->state = WAIT_FOR_DATA;
     }
 

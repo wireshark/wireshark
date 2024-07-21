@@ -721,7 +721,7 @@ parse_msh(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset,
 
     while (offset < end_of_segment_offset) {
         field_separator_offset =
-            tvb_find_guint8(tvb, offset, end_of_segment_offset - offset,
+            tvb_find_uint8(tvb, offset, end_of_segment_offset - offset,
                             msh->field_separator);
         if (field_separator_offset == -1) {
             if (field_number < 9) {
@@ -787,7 +787,7 @@ dissect_hl7_segment(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_,
 
         /* get next '|' offset */
         field_separator_offset =
-            tvb_find_guint8(tvb, offset,
+            tvb_find_uint8(tvb, offset,
                             segment_len - segment_consumed,
                             msh->field_separator);
 
@@ -938,7 +938,7 @@ dissect_hl7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     while (offset < tvb_reported_length(tvb)) {
         int available = tvb_reported_length_remaining(tvb, offset);
-        int llp_eob_offset = tvb_find_guint16(tvb, offset, offset + available, LLP_EOB);
+        int llp_eob_offset = tvb_find_uint16(tvb, offset, offset + available, LLP_EOB);
 
         if (llp_eob_offset == -1) {
             /* we ran out of data: ask for more */
@@ -1002,7 +1002,7 @@ dissect_hl7_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *
      * to continue the next processing from the beginning of the PDU
      * (desegment_offset = 0) because we did not consume/dissect
      * anything in this cycle. */
-    int llp_eob_offset = tvb_find_guint16(tvb, 0, -1, LLP_EOB);
+    int llp_eob_offset = tvb_find_uint16(tvb, 0, -1, LLP_EOB);
 
     if (llp_eob_offset == -1) {
         pinfo->desegment_offset = 0;

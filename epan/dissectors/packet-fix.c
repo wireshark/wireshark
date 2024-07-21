@@ -120,13 +120,13 @@ static fix_parameter *fix_param(tvbuff_t *tvb, int offset)
     static fix_parameter ret;
     int                  equals;
 
-    ret.ctrla_offset = tvb_find_guint8(tvb, offset, -1, 0x01);
+    ret.ctrla_offset = tvb_find_uint8(tvb, offset, -1, 0x01);
     if (ret.ctrla_offset == -1) {
         return NULL;
     }
 
     ret.field_len = ret.ctrla_offset - offset + 1;
-    equals = tvb_find_guint8(tvb, offset, ret.field_len, '=');
+    equals = tvb_find_uint8(tvb, offset, ret.field_len, '=');
     if (equals == -1) {
         return NULL;
     }
@@ -153,7 +153,7 @@ static int fix_header_len(tvbuff_t *tvb, int offset)
     }
 
     /* begin string */
-    ctrla_offset = tvb_find_guint8(tvb, offset, -1, 0x01);
+    ctrla_offset = tvb_find_uint8(tvb, offset, -1, 0x01);
     if (ctrla_offset == -1) {
         /* it should be there, (minimum size is big enough)
          * if not maybe it's not really
@@ -183,7 +183,7 @@ static int fix_header_len(tvbuff_t *tvb, int offset)
             /* No? bogus packet, try to find the next header */
             return fix_next_header(tvb, base_offset +MARKER_LEN)  +MARKER_LEN;
         }
-        ctrla_offset = tvb_find_guint8(tvb, offset, -1, 0x01);
+        ctrla_offset = tvb_find_uint8(tvb, offset, -1, 0x01);
         if (ctrla_offset == -1) {
             /* assume checksum is 7 bytes 10=xxx\01 */
             return size+7;
@@ -233,7 +233,7 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     fix_tree = proto_item_add_subtree(ti, ett_fix);
 
     /* begin string */
-    ctrla_offset = tvb_find_guint8(tvb, offset, -1, 0x01);
+    ctrla_offset = tvb_find_uint8(tvb, offset, -1, 0x01);
     if (ctrla_offset == -1) {
         expert_add_info_format(pinfo, ti, &ei_fix_missing_field, "Missing BeginString field");
         return tvb_captured_length(tvb);
@@ -241,7 +241,7 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     offset = ctrla_offset + 1;
 
     /* msg length */
-    ctrla_offset = tvb_find_guint8(tvb, offset, -1, 0x01);
+    ctrla_offset = tvb_find_uint8(tvb, offset, -1, 0x01);
     if (ctrla_offset == -1) {
         expert_add_info_format(pinfo, ti, &ei_fix_missing_field, "Missing BodyLength field");
         return tvb_captured_length(tvb);

@@ -135,9 +135,9 @@ find_printer_string(tvbuff_t *tvb, int offset)
 	int	i;
 
 	/* try to find end of string, either '\n' or '\0' */
-	i = tvb_find_guint8(tvb, offset, -1, '\0');
+	i = tvb_find_uint8(tvb, offset, -1, '\0');
 	if (i == -1)
-		i = tvb_find_guint8(tvb, offset, -1, '\n');
+		i = tvb_find_uint8(tvb, offset, -1, '\n');
 	if (i == -1)
 		return -1;
 	return i - offset;	/* length of string */

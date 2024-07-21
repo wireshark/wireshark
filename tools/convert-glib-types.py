@@ -99,12 +99,15 @@ tvb_api_map = {
     'tvb_get_gint56': 'tvb_get_int56',
     'tvb_get_guint64': 'tvb_get_uint64',
     'tvb_get_gint64': 'tvb_get_int64',
+    'tvb_find_guint8': 'tvb_find_uint8',
+    'tvb_find_guint16': 'tvb_find_uint16',
+    'tvb_ws_mempbrk_pattern_guint8': 'tvb_ws_mempbrk_pattern_uint8',
 }
 
 def convert_file(file):
     lines = ''
     try:
-        with open(file, 'r', encoding='utf-8') as f:
+        with open(file, 'r') as f:
             lines = f.read()
             for glib_type, c99_type in padded_type_map.items():
                 lines = lines.replace(glib_type, c99_type)

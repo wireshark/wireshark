@@ -154,7 +154,7 @@ mtp3_msu_present(tvbuff_t *tvb, packet_info *pinfo, int fac, int level, const ch
 
 static bool dissect_syslog_info(proto_tree* tree, tvbuff_t* tvb, unsigned* offset, int hfindex)
 {
-  int end_offset = tvb_find_guint8(tvb, *offset, -1, ' ');
+  int end_offset = tvb_find_uint8(tvb, *offset, -1, ' ');
   if (end_offset == -1)
     return false;
   proto_tree_add_item(tree, hfindex, tvb, *offset, end_offset - *offset, ENC_NA);
@@ -171,7 +171,7 @@ dissect_syslog_message(proto_tree* tree, tvbuff_t* tvb, unsigned offset)
   if (!dissect_syslog_info(tree, tvb, &offset, hf_syslog_version))
     return;
 
-  end_offset = tvb_find_guint8(tvb, offset, -1, ' ');
+  end_offset = tvb_find_uint8(tvb, offset, -1, ' ');
   if (end_offset == -1)
     return;
   if ((unsigned)end_offset != offset) {

@@ -1087,7 +1087,7 @@ dissect_dpnss_sup_info_str(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
             number_of_found_par = 0;
             /* offset points to start of supplementary information string */
             offset++;
-            hash_offset = tvb_find_guint8(tvb, offset, -1, '#');
+            hash_offset = tvb_find_uint8(tvb, offset, -1, '#');
             sup_str_tree = proto_tree_add_subtree_format(tree, tvb, start_offset, hash_offset-start_offset+1,
                                                ett_dpnss_sup_str, NULL, "Supplementary Information %u: %s",str_no,
                                                tvb_format_text(pinfo->pool, tvb,start_offset,hash_offset-start_offset+1));
@@ -1095,7 +1095,7 @@ dissect_dpnss_sup_info_str(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
              * Get the parameter number string and translate it to an index into the dpnns_sup_serv_set.
              * The number may have a trailing alpha character at the end.
              */
-            sup_inf_str_end_offset = tvb_find_guint8(tvb, offset, hash_offset-offset, '*');
+            sup_inf_str_end_offset = tvb_find_uint8(tvb, offset, hash_offset-offset, '*');
             if (sup_inf_str_end_offset==-1) {
                 /* no parameters */
                 has_par = false;
@@ -1112,7 +1112,7 @@ dissect_dpnss_sup_info_str(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
                     number_of_found_par++;
                     /* 1:st Parameter */
                     par_start_offset = offset;
-                    par_end_offset = tvb_find_guint8(tvb, offset, -1, '*');
+                    par_end_offset = tvb_find_uint8(tvb, offset, -1, '*');
                     if (par_end_offset == -1) {
                         /* last parameter */
                         par_end_offset = hash_offset;

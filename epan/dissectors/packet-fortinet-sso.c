@@ -78,12 +78,12 @@ dissect_fortinet_sso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
     if(client_ip == 0xFFFFFFFF) { //if client_ip equal 255.255.255.255 (0xFFFFFFFF) is KeepAlive packet
         /* Domain / KeepAlive (User) / Version */
-        len = tvb_find_guint8(tvb, offset, string_length, '/') - offset;
+        len = tvb_find_uint8(tvb, offset, string_length, '/') - offset;
         proto_tree_add_item(fsso_tree, hf_fsso_domain, tvb, offset, len, ENC_ASCII);
         offset += (len + 1);
         string_length -= (len + 1);
 
-        len = tvb_find_guint8(tvb, offset, string_length, '/') - offset;
+        len = tvb_find_uint8(tvb, offset, string_length, '/') - offset;
         proto_tree_add_item(fsso_tree, hf_fsso_user, tvb, offset, len, ENC_ASCII);
         offset += (len + 1);
         string_length -= (len + 1);
@@ -93,12 +93,12 @@ dissect_fortinet_sso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
     } else {
         /* Host / Domain / User */
-        len = tvb_find_guint8(tvb, offset, string_length, '/') - offset;
+        len = tvb_find_uint8(tvb, offset, string_length, '/') - offset;
         proto_tree_add_item(fsso_tree, hf_fsso_host, tvb, offset, len, ENC_ASCII);
         offset += (len + 1);
         string_length -= (len + 1);
 
-        len = tvb_find_guint8(tvb, offset, string_length, '/') - offset;
+        len = tvb_find_uint8(tvb, offset, string_length, '/') - offset;
         proto_tree_add_item(fsso_tree, hf_fsso_domain, tvb, offset, len, ENC_ASCII);
         offset += (len + 1);
         string_length -= (len + 1);

@@ -67,7 +67,7 @@ static const value_string plugin_proto_checksum_vals[] = {
 static tvbuff_t *
 unescape_data(tvbuff_t *tvb, packet_info *pinfo)
 {
-	if (tvb_find_guint8(tvb, 0, -1, SIR_CE) == -1) {
+	if (tvb_find_uint8(tvb, 0, -1, SIR_CE) == -1) {
 		return tvb;
 	} else {
 		unsigned length = tvb_captured_length(tvb);
@@ -115,9 +115,9 @@ dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root, void* data _U_)
 	int eof_offset;
 
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
-		bof_offset = tvb_find_guint8(tvb, offset, -1, SIR_BOF);
+		bof_offset = tvb_find_uint8(tvb, offset, -1, SIR_BOF);
 		eof_offset = (bof_offset == -1) ? -1 :
-			tvb_find_guint8(tvb, bof_offset, -1, SIR_EOF);
+			tvb_find_uint8(tvb, bof_offset, -1, SIR_EOF);
 
 		if (bof_offset == -1 || eof_offset == -1) {
 			if (pinfo->can_desegment) {

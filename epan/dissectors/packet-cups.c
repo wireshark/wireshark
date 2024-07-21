@@ -93,7 +93,7 @@ static int hf_cups_make_model;
 static int ett_cups;
 static int ett_cups_ptype;
 
-/* patterns used for tvb_ws_mempbrk_pattern_guint8 */
+/* patterns used for tvb_ws_mempbrk_pattern_uint8 */
 static ws_mempbrk_pattern pbrk_whitespace;
 
 /* This protocol is heavily related to IPP, but it is CUPS-specific
@@ -259,7 +259,7 @@ get_quoted_string(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int *next_
 
     c = tvb_get_uint8(tvb, offset);
     if (c == '"') {
-        o = tvb_find_guint8(tvb, offset+1, -1, '"');
+        o = tvb_find_uint8(tvb, offset+1, -1, '"');
         if (o != -1) {
             offset++;
             l = o - offset;
@@ -281,7 +281,7 @@ get_unquoted_string(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int *nex
     unsigned l = 0;
     int o;
 
-    o = tvb_ws_mempbrk_pattern_guint8(tvb, offset, -1, &pbrk_whitespace, NULL);
+    o = tvb_ws_mempbrk_pattern_uint8(tvb, offset, -1, &pbrk_whitespace, NULL);
     if (o != -1) {
         l = o - offset;
         s = tvb_get_string_enc(scope, tvb, offset, l, ENC_UTF_8);

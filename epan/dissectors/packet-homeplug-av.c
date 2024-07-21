@@ -5468,7 +5468,7 @@ dissect_homeplug_av_st_iotecha_stp_user_message_ind(ptvcursor_t *cursor, packet_
     ptvcursor_advance(cursor, 4); // not used fields
     ptvcursor_advance(cursor, 4); // not used fields
 
-    null_offset = tvb_find_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor) + 1, -1, 0);
+    null_offset = tvb_find_uint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor) + 1, -1, 0);
 
     if (null_offset > -1) {
         col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
@@ -5487,7 +5487,7 @@ dissect_homeplug_av_st_iotecha_stp_user_message_ind(ptvcursor_t *cursor, packet_
                       ENC_ASCII);
     }
 
-    null_offset = tvb_find_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor) + 1, -1, 0);
+    null_offset = tvb_find_uint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor) + 1, -1, 0);
 
     if (null_offset > -1) {
         ptvcursor_add(cursor,

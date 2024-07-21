@@ -296,7 +296,7 @@ rtpproxy_add_tag(tvbuff_t *tvb, packet_info* pinfo, proto_tree* rtpproxy_tree, u
     unsigned end;
     const uint8_t* tmpstr;
 
-    new_offset = tvb_find_guint8(tvb, begin, -1, ' ');
+    new_offset = tvb_find_uint8(tvb, begin, -1, ' ');
     if(new_offset < 0)
         end = realsize; /* No more parameters */
     else
@@ -305,7 +305,7 @@ rtpproxy_add_tag(tvbuff_t *tvb, packet_info* pinfo, proto_tree* rtpproxy_tree, u
     /* SER/OpenSER/OpenSIPS/Kamailio adds Media-ID right after the Tag
      * separated by a semicolon
      */
-    new_offset = tvb_find_guint8(tvb, begin, end, ';');
+    new_offset = tvb_find_uint8(tvb, begin, end, ';');
     if(new_offset == -1){
         ti = proto_tree_add_item_ret_string(rtpproxy_tree, hf_rtpproxy_tag, tvb, begin, end - begin, ENC_ASCII | ENC_NA, pinfo->pool, &tmpstr);
         col_append_fstr(pinfo->cinfo, COL_INFO, ", Tag: %s", tmpstr);
@@ -489,10 +489,10 @@ rtpproxy_add_notify_addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtpproxy
     uint32_t ipaddr[4]; /* Enough room for IPv4 or IPv6 */
 
     /* Check for at least one colon */
-    offset = tvb_find_guint8(tvb, begin, end, ':');
+    offset = tvb_find_uint8(tvb, begin, end, ':');
     if(offset != -1){
         /* Find if it's the latest colon (not in case of a IPv6) */
-        while((tmp = tvb_find_guint8(tvb, offset+1, end, ':')) != -1){
+        while((tmp = tvb_find_uint8(tvb, offset+1, end, ':')) != -1){
             ipv6 = true;
             offset = tmp;
         }
@@ -560,7 +560,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         return 0;
 
     /* Extract Cookie */
-    offset = tvb_find_guint8(tvb, offset, -1, ' ');
+    offset = tvb_find_uint8(tvb, offset, -1, ' ');
     if(offset == -1)
         return 0;
 
@@ -678,7 +678,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
             /* Extract parameters */
             /* Parameters should be right after the command and before EOL (in case of Info command) or before whitespace */
-            new_offset = (tmp == 'i' ? (realsize - 1 > offset ? offset + (int)strlen("Ib") : offset + (int)strlen("I")) : tvb_find_guint8(tvb, offset, -1, ' '));
+            new_offset = (tmp == 'i' ? (realsize - 1 > offset ? offset + (int)strlen("Ib") : offset + (int)strlen("I")) : tvb_find_uint8(tvb, offset, -1, ' '));
 
             if (new_offset != offset + 1){
                 rtpproxy_tree = proto_item_add_subtree(ti, ett_rtpproxy_command);
@@ -696,7 +696,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset = tvb_skip_wsp(tvb, new_offset+1, -1);
 
             /* Extract Call-ID */
-            new_offset = tvb_find_guint8(tvb, offset, -1, ' ');
+            new_offset = tvb_find_uint8(tvb, offset, -1, ' ');
             proto_tree_add_item_ret_string(rtpproxy_tree, hf_rtpproxy_callid, tvb, offset, new_offset - offset, ENC_ASCII | ENC_NA, pinfo->pool, &tmpstr);
             col_append_fstr(pinfo->cinfo, COL_INFO, ", Call-ID: %s", tmpstr);
             if(rtpproxy_info && !rtpproxy_info->callid)
@@ -707,8 +707,8 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             /* Extract IP and Port in case of Offer/Answer */
             if ((tmp == 'u') || (tmp == 'l')){
                 /* Extract IP */
-                new_offset = tvb_find_guint8(tvb, offset, -1, ' ');
-                if (tvb_find_guint8(tvb, offset, new_offset - offset, ':') == -1){
+                new_offset = tvb_find_uint8(tvb, offset, -1, ' ');
+                if (tvb_find_uint8(tvb, offset, new_offset - offset, ':') == -1){
                     tmpstr = tvb_get_string_enc(pinfo->pool, tvb, offset, new_offset - offset, ENC_ASCII);
                     if (str_to_ip(tmpstr, ipaddr)) {
                         col_append_fstr(pinfo->cinfo, COL_INFO, ", IP: %s", tmpstr);
@@ -730,7 +730,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                 offset = tvb_skip_wsp(tvb, new_offset+1, -1);
 
                 /* Extract Port */
-                new_offset = tvb_find_guint8(tvb, offset, -1, ' ');
+                new_offset = tvb_find_uint8(tvb, offset, -1, ' ');
                 tmpstr = tvb_get_string_enc(pinfo->pool, tvb, offset, new_offset - offset, ENC_ASCII);
                 col_append_fstr(pinfo->cinfo, COL_INFO, ":%s", tmpstr);
                 proto_tree_add_uint(rtpproxy_tree, hf_rtpproxy_port, tvb, offset, new_offset - offset,
@@ -741,7 +741,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
             /* Extract Copy target */
             if (tmp == 'c'){
-                new_offset = tvb_find_guint8(tvb, offset, -1, ' ');
+                new_offset = tvb_find_uint8(tvb, offset, -1, ' ');
                 proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_copy_target, tvb, offset, new_offset - offset, ENC_ASCII | ENC_NA);
                 /* Skip whitespace */
                 offset = tvb_skip_wsp(tvb, new_offset+1, -1);
@@ -750,13 +750,13 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             /* Extract Playback file and codecs */
             if (tmp == 'p'){
                 /* Extract filename */
-                new_offset = tvb_find_guint8(tvb, offset, -1, ' ');
+                new_offset = tvb_find_uint8(tvb, offset, -1, ' ');
                 proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_playback_filename, tvb, offset, new_offset - offset, ENC_ASCII | ENC_NA);
                 /* Skip whitespace */
                 offset = tvb_skip_wsp(tvb, new_offset+1, -1);
 
                 /* Extract codec */
-                new_offset = tvb_find_guint8(tvb, offset, -1, ' ');
+                new_offset = tvb_find_uint8(tvb, offset, -1, ' ');
                 proto_tree_add_uint(rtpproxy_tree, hf_rtpproxy_playback_codec, tvb, offset, new_offset - offset,
                         (uint16_t) g_ascii_strtoull((char*)tvb_get_string_enc(pinfo->pool, tvb, offset, new_offset - offset, ENC_ASCII), NULL, 10));
                 /* Skip whitespace */
@@ -784,7 +784,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                 rtpproxy_tree = proto_item_add_subtree(ti, ett_rtpproxy_notify);
 
                 /* Check for NotifyTag parameter (separated by space) */
-                new_offset = tvb_find_guint8(tvb, offset, -1, ' ');
+                new_offset = tvb_find_uint8(tvb, offset, -1, ' ');
                 if(new_offset == -1){
                     /* NotifyTag wasn't found (we should re-use Call-ID instead) */
                     rtpproxy_add_notify_addr(tvb, pinfo, rtpproxy_tree, offset, realsize);
@@ -855,7 +855,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             }
 
             /* Extract Port */
-            new_offset = tvb_find_guint8(tvb, offset, -1, ' ');
+            new_offset = tvb_find_uint8(tvb, offset, -1, ' ');
             /* Convert port to unsigned 16-bit number */
             port = (uint16_t) g_ascii_strtoull((char*)tvb_get_string_enc(pinfo->pool, tvb, offset, new_offset - offset, ENC_ASCII), NULL, 10);
             proto_tree_add_uint(rtpproxy_tree, hf_rtpproxy_port, tvb, offset, new_offset - offset, port);
@@ -869,7 +869,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
              * 6 depending on type of the IP. See
              * https://github.com/sipwise/rtpengine/blob/eea3256/daemon/call_interfaces.c#L74
              * for further details */
-            tmp = tvb_find_guint8(tvb, offset, -1, ' ');
+            tmp = tvb_find_uint8(tvb, offset, -1, ' ');
             if(tmp == (unsigned)(-1)){
                 /* No extension - operate normally */
                 tmp = tvb_find_line_end(tvb, offset, -1, &new_offset, false);
@@ -878,7 +878,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                 tmp -= offset;
             }
 
-            if (tvb_find_guint8(tvb, offset, -1, ':') == -1){
+            if (tvb_find_uint8(tvb, offset, -1, ':') == -1){
                 if (str_to_ip((char*)tvb_get_string_enc(pinfo->pool, tvb, offset, tmp, ENC_ASCII), ipaddr)){
                     addr.type = AT_IPv4;
                     addr.len  = 4;

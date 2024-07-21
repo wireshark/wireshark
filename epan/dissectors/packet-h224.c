@@ -270,7 +270,7 @@ dissect_h224_cme_client_data(tvbuff_t* tvb, proto_tree* tree, unsigned offset)
                 offset++;
                 source_id = (oct & 0xf0) >> 4;
                 if (source_id > 5) {
-                    zero_offset = tvb_find_guint8(tvb, offset, FECC_MAX_LENGTH_ASCII_STR, 0);
+                    zero_offset = tvb_find_uint8(tvb, offset, FECC_MAX_LENGTH_ASCII_STR, 0);
                     if (zero_offset > offset) {
                         proto_tree_add_item(ext_tree, hf_h224_encoded_characters, tvb, offset, zero_offset - offset, ENC_ASCII);
                         offset = zero_offset;
@@ -432,9 +432,9 @@ dissect_h224(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_
     /*
     * CLIENT ID: The client to receive the contents of the datagram. The Client ID may be any
     * of the following formats:
-    * - Standard Client ID – Single octet.
-    * - Extended Client ID – Two octets (0x7E, extended Client ID).
-    * - Non-standard Client ID – Six octets (0x7F, country, manufacturer code, ID)
+    * - Standard Client ID - Single octet.
+    * - Extended Client ID - Two octets (0x7E, extended Client ID).
+    * - Non-standard Client ID - Six octets (0x7F, country, manufacturer code, ID)
     */
     oct = tvb_get_uint8(tvb, offset);
     offset = dissect_h224_standard_clients_ids(tvb, h224_tree, offset, oct);

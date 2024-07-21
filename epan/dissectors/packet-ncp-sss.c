@@ -380,7 +380,7 @@ find_delimiter(tvbuff_t *tvb, int foffset)
 {
     int offset;
 
-    offset = tvb_find_guint8(tvb, foffset, 256, '*');
+    offset = tvb_find_uint8(tvb, foffset, 256, '*');
     if (offset >= foffset) {
         return offset - foffset;
     }

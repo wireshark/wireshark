@@ -461,7 +461,7 @@ dissect_tn3270e_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t
             device_type = tvb_get_uint8(tvb, offset-1);
             if (device_type == TN3270_DEVICE_TYPE) {
                 /* If there is a terminal type to display, then it will be followed by CONNECT */
-                connect_offset = tvb_find_guint8(tvb, offset + 1, len, TN3270_CONNECT);
+                connect_offset = tvb_find_uint8(tvb, offset + 1, len, TN3270_CONNECT);
                 if (connect_offset != -1) {
                   datalen = connect_offset - (offset + 1);
                   if (datalen > 0) {
@@ -547,7 +547,7 @@ dissect_outmark_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t
     len--;
 
     /* Look for a GS */
-    gs_offset = tvb_find_guint8(tvb, offset, len, 29);
+    gs_offset = tvb_find_uint8(tvb, offset, len, 29);
     if (gs_offset == -1) {
       /* None found - run to the end of the packet. */
       gs_offset = offset + len;
@@ -2006,7 +2006,7 @@ telnet_sub_option(packet_info *pinfo, proto_tree *option_tree, proto_item *optio
   cur_offset = offset;
   len = tvb_reported_length_remaining(tvb, offset);
   do {
-    iac_offset = tvb_find_guint8(tvb, cur_offset, len, TN_IAC);
+    iac_offset = tvb_find_uint8(tvb, cur_offset, len, TN_IAC);
     iac_found = true;
     if (iac_offset == -1) {
       /* None found - run to the end of the packet. */
@@ -2225,7 +2225,7 @@ static int find_unescaped_iac(tvbuff_t *tvb, int offset, int len)
 
   /* If we find an IAC (0XFF), make sure it is not followed by another 0XFF.
      Such cases indicate that it is not an IAC at all */
-  while ((iac_offset = tvb_find_guint8(tvb, iac_offset, len, TN_IAC)) != -1 &&
+  while ((iac_offset = tvb_find_uint8(tvb, iac_offset, len, TN_IAC)) != -1 &&
          (tvb_get_uint8(tvb, iac_offset + 1) == TN_IAC))
   {
     iac_offset+=2;

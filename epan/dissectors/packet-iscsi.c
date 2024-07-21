@@ -527,7 +527,7 @@ iscsi_dissect_TargetAddress(packet_info *pinfo, tvbuff_t* tvb, proto_tree *tree,
     int end_offset;
     char *ip_str, *port_str;
 
-    colon_offset = tvb_find_guint8(tvb, offset, -1, ':');
+    colon_offset = tvb_find_uint8(tvb, offset, -1, ':');
     if (colon_offset == -1) {
         /* RFC 7143 13.8 TargetAddress "If the TCP port is not specified,
          * it is assumed to be the IANA-assigned default port for iSCSI",
@@ -540,13 +540,13 @@ iscsi_dissect_TargetAddress(packet_info *pinfo, tvbuff_t* tvb, proto_tree *tree,
     if (tvb_get_uint8(tvb, offset) == '[') {
         offset++;
         /* could be an ipv6 address */
-        end_offset = tvb_find_guint8(tvb, offset, -1, ']');
+        end_offset = tvb_find_uint8(tvb, offset, -1, ']');
         if (end_offset == -1) {
             return;
         }
 
         /* look for the colon before the port, if any */
-        colon_offset = tvb_find_guint8(tvb, end_offset, -1, ':');
+        colon_offset = tvb_find_uint8(tvb, end_offset, -1, ':');
         if (colon_offset == -1) {
             return;
         }
@@ -572,7 +572,7 @@ iscsi_dissect_TargetAddress(packet_info *pinfo, tvbuff_t* tvb, proto_tree *tree,
     }
 
     /* Extract the port */
-    end_offset = tvb_find_guint8(tvb, colon_offset, -1, ',');
+    end_offset = tvb_find_uint8(tvb, colon_offset, -1, ',');
     int port_len;
     if (end_offset == -1) {
         port_len = tvb_reported_length_remaining(tvb, colon_offset + 1);
@@ -612,7 +612,7 @@ addTextKeys(packet_info *pinfo, proto_tree *tt, tvbuff_t *tvb, int offset, uint3
          */
         proto_tree_add_item_ret_length(tt, hf_iscsi_KeyValue, tvb, offset, -1, ENC_ASCII, &len);
         keyvalue_tvb = tvb_new_subset_length(tvb, offset, len);
-        value_offset = tvb_find_guint8(keyvalue_tvb, 0, len, '=');
+        value_offset = tvb_find_uint8(keyvalue_tvb, 0, len, '=');
         if (value_offset == -1) {
             break;
         }

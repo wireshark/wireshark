@@ -778,7 +778,7 @@ static int dissect_otrxc(tvbuff_t *tvb, packet_info *pinfo,
 		expert_add_info(pinfo, delim_item, &ei_otrxc_bad_delimiter);
 
 	/* The message type is followed by a verb, e.g. "IND CLOCK", "CMD POWEROFF" */
-	end_verb = tvb_find_guint8(tvb, offset, -1, (char) delimiter);
+	end_verb = tvb_find_uint8(tvb, offset, -1, (char) delimiter);
 	if (end_verb < 0) {
 		/* Just a command without parameters, e.g. "CMD POWERON" */
 		proto_tree_add_item(otrxc_tree, hf_otrxc_verb, tvb,
@@ -800,7 +800,7 @@ static int dissect_otrxc(tvbuff_t *tvb, packet_info *pinfo,
 	offset += 1;
 
 	if (msg_type == OTRXC_MSG_TYPE_RESPONSE) {
-		end_status = tvb_find_guint8(tvb, offset, -1, (char) delimiter);
+		end_status = tvb_find_uint8(tvb, offset, -1, (char) delimiter);
 		if (end_status > 0) {
 			proto_tree_add_item(otrxc_tree, hf_otrxc_status,
 					    tvb, offset, end_status - offset, ENC_ASCII | ENC_NA);

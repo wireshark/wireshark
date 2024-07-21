@@ -154,7 +154,7 @@ dissect_gdb_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     while (tvb_captured_length_remaining(tvb, offset) > 0) {
         packet_tvb = NULL;
         offset_start = offset;
-        pos = tvb_find_guint8(tvb, offset, -1, '#');
+        pos = tvb_find_uint8(tvb, offset, -1, '#');
         if (pos != -1) {
             offset += pos;
             offset++; /* skip the hash sign */

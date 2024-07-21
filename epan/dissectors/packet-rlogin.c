@@ -275,7 +275,7 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 		offset += str_len;
 
 		/* Terminal type/speed. */
-		slash_offset = tvb_find_guint8(tvb, offset, -1, '/');
+		slash_offset = tvb_find_uint8(tvb, offset, -1, '/');
 		if (slash_offset != -1)
 		{
 			uint8_t* str = NULL;
@@ -311,7 +311,7 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 
 	/* Test for terminal information, the data will have 2 0xff bytes */
 	/* look for first 0xff byte */
-	ti_offset = tvb_find_guint8(tvb, offset, -1, 0xff);
+	ti_offset = tvb_find_uint8(tvb, offset, -1, 0xff);
 
 	/* Next byte must also be 0xff */
 	if (ti_offset != -1 &&
@@ -442,7 +442,7 @@ dissect_rlogin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 		{
 			/* Search for 2 consecutive ff bytes
 			  (signifies window change control message) */
-			ti_offset = tvb_find_guint8(tvb, 0, -1, 0xff);
+			ti_offset = tvb_find_uint8(tvb, 0, -1, 0xff);
 			if (ti_offset != -1 &&
 			    tvb_bytes_exist(tvb, ti_offset + 1, 1) &&
 			    tvb_get_uint8(tvb, ti_offset + 1) == 0xff)

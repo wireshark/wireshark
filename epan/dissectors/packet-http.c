@@ -168,7 +168,7 @@ static dissector_handle_t ntlmssp_handle;
 static dissector_handle_t gssapi_handle;
 
 /* RFC 3986 Ch 2.2 Reserved characters*/
-/* patterns used for tvb_ws_mempbrk_pattern_guint8 */
+/* patterns used for tvb_ws_mempbrk_pattern_uint8 */
 static ws_mempbrk_pattern pbrk_gen_delims;
 static ws_mempbrk_pattern pbrk_sub_delims;
 
@@ -532,9 +532,9 @@ http_add_path_components_to_tree(tvbuff_t* tvb, packet_info* pinfo _U_, proto_it
 	 * RFC 7540 8.1.2.3. Request Pseudo-Header Fields
 	 * Look for a ? to mark a query.
 	 */
-	query_offset = tvb_find_guint8(tvb, offset, length, '?');
+	query_offset = tvb_find_uint8(tvb, offset, length, '?');
 	end_path_offset = (query_offset == -1) ? end_offset : query_offset;
-	parameter_offset = tvb_ws_mempbrk_pattern_guint8(tvb, offset + 1, end_path_offset - offset - 1, &pbrk_sub_delims, NULL);
+	parameter_offset = tvb_ws_mempbrk_pattern_uint8(tvb, offset + 1, end_path_offset - offset - 1, &pbrk_sub_delims, NULL);
 	if (query_offset == -1 && parameter_offset == -1) {
 		/* Nothing interesting, no need to split. */
 		return;
@@ -542,11 +542,11 @@ http_add_path_components_to_tree(tvbuff_t* tvb, packet_info* pinfo _U_, proto_it
 	uri_tree = proto_item_add_subtree(item, ett_http_request_uri);
 	path_len = end_path_offset - offset;
 	proto_tree_add_item(uri_tree, hf_http_request_path, tvb, offset, path_len, ENC_ASCII);
-	parameter_offset = tvb_ws_mempbrk_pattern_guint8(tvb, offset + 1, end_path_offset - offset - 1, &pbrk_sub_delims, NULL);
+	parameter_offset = tvb_ws_mempbrk_pattern_uint8(tvb, offset + 1, end_path_offset - offset - 1, &pbrk_sub_delims, NULL);
 	if (parameter_offset != -1) {
 		proto_tree* path_tree = proto_item_add_subtree(item, ett_http_request_path);
 		while (offset < end_path_offset) {
-			parameter_offset = tvb_ws_mempbrk_pattern_guint8(tvb, offset + 1, end_path_offset - offset - 1, &pbrk_sub_delims, NULL);
+			parameter_offset = tvb_ws_mempbrk_pattern_uint8(tvb, offset + 1, end_path_offset - offset - 1, &pbrk_sub_delims, NULL);
 			if (parameter_offset == -1) {
 				parameter_offset = end_path_offset;
 			}
@@ -564,7 +564,7 @@ http_add_path_components_to_tree(tvbuff_t* tvb, packet_info* pinfo _U_, proto_it
 	ti = proto_tree_add_item(uri_tree, hf_http_request_query, tvb, query_offset, query_len, ENC_ASCII);
 	proto_tree *query_tree = proto_item_add_subtree(ti, ett_http_request_query);
 	while (offset < end_offset) {
-		parameter_offset = tvb_ws_mempbrk_pattern_guint8(tvb, offset + 1, end_offset - offset - 1, &pbrk_sub_delims, NULL);
+		parameter_offset = tvb_ws_mempbrk_pattern_uint8(tvb, offset + 1, end_offset - offset - 1, &pbrk_sub_delims, NULL);
 		if (parameter_offset == -1) {
 			parameter_offset = end_offset;
 		}
@@ -4056,7 +4056,7 @@ check_auth_digest(proto_item* hdr_item, tvbuff_t* tvb, packet_info* pinfo _U_, c
 		len -= 21;
 		while (len > 0) {
 			/* Find comma/end of line */
-			queried_offset = tvb_find_guint8(tvb, offset, len, ',');
+			queried_offset = tvb_find_uint8(tvb, offset, len, ',');
 			if (queried_offset > 0) {
 				proto_tree_add_format_text(hdr_tree, tvb, offset, queried_offset - offset);
 				len -= (queried_offset - offset);

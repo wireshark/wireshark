@@ -328,7 +328,7 @@ check_msrp_header(tvbuff_t *tvb)
 
     linelen = tvb_find_line_end(tvb, 0, -1, &next_offset, false);
     /* Find the first SP */
-    space_offset = tvb_find_guint8(tvb, 0, linelen, ' ');
+    space_offset = tvb_find_uint8(tvb, 0, linelen, ' ');
 
     if (space_offset <= 0) {
         /*
@@ -343,7 +343,7 @@ check_msrp_header(tvbuff_t *tvb)
 
     token_1_len = space_offset;
     token_2_start = space_offset + 1;
-    space_offset = tvb_find_guint8(tvb, token_2_start, linelen, ' ');
+    space_offset = tvb_find_uint8(tvb, token_2_start, linelen, ' ');
     if (space_offset == -1) {
         /*
          * There's no space after the second token, so we don't
@@ -458,15 +458,15 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     linelen = tvb_find_line_end(tvb, 0, -1, &next_offset, false);
 
     /* Find the first SP and skip the first token */
-    token_2_start = tvb_find_guint8(tvb, 0, linelen, ' ') + 1;
+    token_2_start = tvb_find_uint8(tvb, 0, linelen, ' ') + 1;
 
     /* Work out 2nd token's length by finding next space */
-    space_offset = tvb_find_guint8(tvb, token_2_start, linelen-token_2_start, ' ');
+    space_offset = tvb_find_uint8(tvb, token_2_start, linelen-token_2_start, ' ');
     token_2_len = space_offset - token_2_start;
 
     /* Look for another space in this line to indicate a 4th token */
     token_3_start = space_offset + 1;
-    space_offset = tvb_find_guint8(tvb, token_3_start,linelen-token_3_start, ' ');
+    space_offset = tvb_find_uint8(tvb, token_3_start,linelen-token_3_start, ' ');
     if ( space_offset == -1){
         /* 3rd token runs to the end of the line */
         token_3_len = linelen - token_3_start;
@@ -575,7 +575,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                 break;
             }
             line_end_offset = offset + linelen;
-            colon_offset = tvb_find_guint8(tvb, offset, linelen, ':');
+            colon_offset = tvb_find_uint8(tvb, offset, linelen, ':');
             if (colon_offset == -1) {
                 /*
                  * Malformed header - no colon after the name.
@@ -621,7 +621,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
                         case MSRP_CONTENT_TYPE :
                             content_type_len = value_len;
-                            semi_colon_offset = tvb_find_guint8(tvb, value_offset,linelen, ';');
+                            semi_colon_offset = tvb_find_uint8(tvb, value_offset,linelen, ';');
                             if ( semi_colon_offset != -1) {
                                 parameter_offset = semi_colon_offset +1;
                                 /*

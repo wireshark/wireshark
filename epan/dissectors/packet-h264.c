@@ -2525,13 +2525,13 @@ dissect_h264_bytestream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
          * Find \0\0 and then check if \0\1 is in the next offset or
          * the one after that. (Note none of this throws exceptions.)
          */
-        end_offset = tvb_find_guint16(tvb, offset, -1, 0);
+        end_offset = tvb_find_uint16(tvb, offset, -1, 0);
         while (end_offset != -1) {
-            if (tvb_find_guint16(tvb, end_offset + 1, 3, 1) != -1) {
+            if (tvb_find_uint16(tvb, end_offset + 1, 3, 1) != -1) {
                 nal_length = end_offset - offset;
                 break;
             }
-            end_offset = tvb_find_guint16(tvb, end_offset + 1, -1, 0);
+            end_offset = tvb_find_uint16(tvb, end_offset + 1, -1, 0);
         }
 
         /* If end_offset is -1, we got to the end; assume this is the end

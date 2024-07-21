@@ -342,7 +342,7 @@ dissect_systemd_journal_line_entry(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
             continue;
         }
         bool found = false;
-        int eq_off = tvb_find_guint8(tvb, offset, line_len, '=') + 1;
+        int eq_off = tvb_find_uint8(tvb, offset, line_len, '=') + 1;
         int val_len = offset + line_len - eq_off;
 
         for (int i = 0; jf_to_hf[i].name; i++) {

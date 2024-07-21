@@ -65,7 +65,7 @@ static expert_field ei_irc_tag_data_invalid;
 
 /* This must be a null-terminated string */
 static const uint8_t TAG_DELIMITER[] = {0x01, 0x00};
-/* patterns used for tvb_ws_mempbrk_pattern_guint8 */
+/* patterns used for tvb_ws_mempbrk_pattern_uint8 */
 static ws_mempbrk_pattern pbrk_tag_delimiter;
 
 static dissector_handle_t ctcp_handle;
@@ -83,7 +83,7 @@ dissect_irc_ctcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     ti = proto_tree_add_item(tree, hf_irc_ctcp, tvb, 0, -1, ENC_ASCII|ENC_NA);
     ctcp_tree = proto_item_add_subtree(ti, ett_irc);
 
-    space_offset = tvb_find_guint8(tvb, 1, -1, ' ');
+    space_offset = tvb_find_uint8(tvb, 1, -1, ' ');
     if (space_offset == -1) {
         proto_tree_add_item_ret_string(ctcp_tree, hf_irc_ctcp_command, tvb, 0, tvb_reported_length(tvb), ENC_ASCII|ENC_NA, pinfo->pool, &str_command);
     }
@@ -103,14 +103,14 @@ dissect_irc_tag_data(proto_tree *tree, proto_item *item, tvbuff_t *tvb, int offs
     int    tag_start_offset, tag_end_offset;
     tvbuff_t *next_tvb;
 
-    tag_start_offset = tvb_ws_mempbrk_pattern_guint8(tvb, offset, datalen, &pbrk_tag_delimiter, &found_start_needle);
+    tag_start_offset = tvb_ws_mempbrk_pattern_uint8(tvb, offset, datalen, &pbrk_tag_delimiter, &found_start_needle);
     if (tag_start_offset == -1)
     {
         /* no tag data */
         return;
     }
 
-    tag_end_offset = tvb_ws_mempbrk_pattern_guint8(tvb, tag_start_offset+1, datalen, &pbrk_tag_delimiter, &found_end_needle);
+    tag_end_offset = tvb_ws_mempbrk_pattern_uint8(tvb, tag_start_offset+1, datalen, &pbrk_tag_delimiter, &found_end_needle);
     if (tag_end_offset == -1)
     {
         expert_add_info(pinfo, item, &ei_irc_missing_end_delimiter);
@@ -155,7 +155,7 @@ dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
     if (tvb_get_uint8(tvb, offset) == ':')
     {
         /* find the end of the prefix */
-        eop_offset = tvb_find_guint8(tvb, offset+1, linelen-1, ' ');
+        eop_offset = tvb_find_uint8(tvb, offset+1, linelen-1, ' ');
         if (eop_offset == -1)
         {
             expert_add_info(pinfo, request_item, &ei_irc_prefix_missing_ending_space);
@@ -177,7 +177,7 @@ dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
         return;
     }
 
-    eoc_offset = tvb_find_guint8(tvb, offset, end_offset-offset, ' ');
+    eoc_offset = tvb_find_uint8(tvb, offset, end_offset-offset, ' ');
     if (eoc_offset == -1)
     {
         const uint8_t* col_str;
@@ -230,8 +230,8 @@ dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
 
     while(offset < end_offset)
     {
-        eocp_offset = tvb_find_guint8(tvb, offset, end_offset-offset, ' ');
-        tag_start_offset = tvb_ws_mempbrk_pattern_guint8(tvb, offset, end_offset-offset, &pbrk_tag_delimiter, &found_tag_needle);
+        eocp_offset = tvb_find_uint8(tvb, offset, end_offset-offset, ' ');
+        tag_start_offset = tvb_ws_mempbrk_pattern_uint8(tvb, offset, end_offset-offset, &pbrk_tag_delimiter, &found_tag_needle);
 
         /* Create subtree when the first parameter is found */
         if (first_command_param)
@@ -280,7 +280,7 @@ dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
             /* tag data dissected */
 
             found_tag_needle = 0;
-            tag_end_offset = tvb_ws_mempbrk_pattern_guint8(tvb, tag_start_offset+1, end_offset-tag_start_offset-1, &pbrk_tag_delimiter, &found_tag_needle);
+            tag_end_offset = tvb_ws_mempbrk_pattern_uint8(tvb, tag_start_offset+1, end_offset-tag_start_offset-1, &pbrk_tag_delimiter, &found_tag_needle);
             if (tag_end_offset == -1)
             {
                 expert_add_info(pinfo, request_item, &ei_irc_missing_end_delimiter);
@@ -319,7 +319,7 @@ dissect_irc_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
     if (tvb_get_uint8(tvb, offset) == ':')
     {
         /* find the end of the prefix */
-        eop_offset = tvb_find_guint8(tvb, offset+1, linelen-1, ' ');
+        eop_offset = tvb_find_uint8(tvb, offset+1, linelen-1, ' ');
         if (eop_offset == -1)
         {
             expert_add_info(pinfo, response_item, &ei_irc_prefix_missing_ending_space);
@@ -341,7 +341,7 @@ dissect_irc_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
         return;
     }
 
-    eoc_offset = tvb_find_guint8(tvb, offset, end_offset-offset, ' ');
+    eoc_offset = tvb_find_uint8(tvb, offset, end_offset-offset, ' ');
     if (eoc_offset == -1)
     {
         const uint8_t* col_str;
@@ -398,8 +398,8 @@ dissect_irc_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
 
     while(offset < end_offset)
     {
-        eocp_offset = tvb_find_guint8(tvb, offset, end_offset-offset, ' ');
-        tag_start_offset = tvb_ws_mempbrk_pattern_guint8(tvb, offset, end_offset-offset, &pbrk_tag_delimiter, &found_tag_needle);
+        eocp_offset = tvb_find_uint8(tvb, offset, end_offset-offset, ' ');
+        tag_start_offset = tvb_ws_mempbrk_pattern_uint8(tvb, offset, end_offset-offset, &pbrk_tag_delimiter, &found_tag_needle);
 
         /* Create subtree when the first parameter is found */
         if (first_command_param)
@@ -445,7 +445,7 @@ dissect_irc_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
             /* tag data dissected */
 
             found_tag_needle = 0;
-            tag_end_offset = tvb_ws_mempbrk_pattern_guint8(tvb, tag_start_offset+1, end_offset-tag_start_offset-1, &pbrk_tag_delimiter, &found_tag_needle);
+            tag_end_offset = tvb_ws_mempbrk_pattern_uint8(tvb, tag_start_offset+1, end_offset-tag_start_offset-1, &pbrk_tag_delimiter, &found_tag_needle);
             if (tag_end_offset == -1)
             {
                 expert_add_info(pinfo, response_item, &ei_irc_missing_end_delimiter);

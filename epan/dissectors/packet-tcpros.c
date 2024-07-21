@@ -86,7 +86,7 @@ dissect_ros_connection_header_field(tvbuff_t *tvb, proto_tree *tree, packet_info
 		ti = proto_tree_add_item(field_tree, hf_tcpros_connection_header_field_data, tvb, offset, fLen, ENC_UTF_8);
 
 		/** Look for the '=' separator */
-		sep = (tvb_find_guint8(tvb, offset, fLen, '=') - offset);
+		sep = (tvb_find_uint8(tvb, offset, fLen, '=') - offset);
 
 		/** If we find a separator, then split field name and value */
 		if( sep > 0 ) {

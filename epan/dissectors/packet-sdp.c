@@ -213,7 +213,7 @@ static expert_field ei_sdp_invalid_media_format;
 static expert_field ei_sdp_invalid_crypto_tag;
 static expert_field ei_sdp_invalid_crypto_mki_length;
 
-/* patterns used for tvb_ws_mempbrk_pattern_guint8 */
+/* patterns used for tvb_ws_mempbrk_pattern_uint8 */
 static ws_mempbrk_pattern pbrk_digits;
 static ws_mempbrk_pattern pbrk_alpha;
 
@@ -438,7 +438,7 @@ find_next_optional_token_in_line(tvbuff_t *tvb, proto_tree *tree,
 
     if (tvb_offset_exists(tvb, off)) {
         while (tokenlen == 0) {
-            next_off = tvb_find_guint8(tvb, off, -1, ' ');
+            next_off = tvb_find_uint8(tvb, off, -1, ' ');
             if (next_off == -1) {
                 tokenlen = tvb_captured_length_remaining(tvb, off);
                 break; /* Nothing more left */
@@ -680,7 +680,7 @@ dissect_sdp_connection_info(packet_info *pinfo, tvbuff_t *tvb, proto_item* ti, s
 
     /* Find the connection address */
     /* XXX - what if there's a <number of addresses> value? */
-    next_offset = tvb_find_guint8(tvb, offset, -1, '/');
+    next_offset = tvb_find_uint8(tvb, offset, -1, '/');
     if (next_offset == -1) {
         tokenlen = -1; /* end of tvbuff */
         /* Save connection address */
@@ -712,7 +712,7 @@ dissect_sdp_connection_info(packet_info *pinfo, tvbuff_t *tvb, proto_item* ti, s
                         tokenlen, ENC_UTF_8);
     if (next_offset != -1) {
         offset = next_offset + 1;
-        next_offset = tvb_find_guint8(tvb, offset, -1, '/');
+        next_offset = tvb_find_uint8(tvb, offset, -1, '/');
         if (next_offset == -1) {
             tokenlen = -1; /* end of tvbuff */
         } else {
@@ -741,7 +741,7 @@ dissect_sdp_bandwidth(tvbuff_t *tvb, proto_item *ti) {
     sdp_bandwidth_tree = proto_item_add_subtree(ti, ett_sdp_bandwidth);
 
     /* find the modifier */
-    next_offset = tvb_find_guint8(tvb, offset, -1, ':');
+    next_offset = tvb_find_uint8(tvb, offset, -1, ':');
 
     if (next_offset == -1)
         return;
@@ -873,7 +873,7 @@ static void dissect_sdp_encryption_key(tvbuff_t *tvb, proto_item * ti) {
 
     sdp_encryption_key_tree = proto_item_add_subtree(ti, ett_sdp_encryption_key);
 
-    next_offset = tvb_find_guint8(tvb, offset, -1, ':');
+    next_offset = tvb_find_uint8(tvb, offset, -1, ':');
 
     if (next_offset == -1)
         return;
@@ -946,7 +946,7 @@ static void dissect_sdp_session_attribute(tvbuff_t *tvb, packet_info * pinfo, pr
     sdp_session_attribute_tree = proto_item_add_subtree(ti,
                                                         ett_sdp_session_attribute);
 
-    next_offset = tvb_find_guint8(tvb, offset, -1, ':');
+    next_offset = tvb_find_uint8(tvb, offset, -1, ':');
 
     if (next_offset == -1)
         return;
@@ -964,7 +964,7 @@ static void dissect_sdp_session_attribute(tvbuff_t *tvb, packet_info * pinfo, pr
     }
 
     if (strcmp((const char *)field_name, "ipbcp") == 0) {
-        offset = tvb_ws_mempbrk_pattern_guint8(tvb, offset, -1,&pbrk_digits, NULL);
+        offset = tvb_ws_mempbrk_pattern_uint8(tvb, offset, -1,&pbrk_digits, NULL);
 
         if (offset == -1)
             return;
@@ -975,7 +975,7 @@ static void dissect_sdp_session_attribute(tvbuff_t *tvb, packet_info * pinfo, pr
 
         proto_tree_add_item(sdp_session_attribute_tree, hf_ipbcp_version, tvb, offset, tokenlen, ENC_UTF_8);
 
-        offset = tvb_ws_mempbrk_pattern_guint8(tvb, offset, -1,&pbrk_alpha, NULL);
+        offset = tvb_ws_mempbrk_pattern_uint8(tvb, offset, -1,&pbrk_alpha, NULL);
 
         if (offset == -1)
             return;
@@ -1050,7 +1050,7 @@ dissect_sdp_media(tvbuff_t *tvb, packet_info* pinfo, proto_item *ti,
     if (tokenlen == 0)
         return;
 
-    next_offset = tvb_find_guint8(tvb, offset, tokenlen, '/');
+    next_offset = tvb_find_uint8(tvb, offset, tokenlen, '/');
 
     if (next_offset != -1) {
         tokenlen = next_offset - offset;
@@ -1239,7 +1239,7 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset,
        parameter name to the value, as well as dissect some of them here,
        depending on the media type.
      */
-    next_offset = tvb_find_guint8(tvb, offset, tokenlen, '=');
+    next_offset = tvb_find_uint8(tvb, offset, tokenlen, '=');
     if (next_offset == -1)
     {
         /* Some media types, like telephone-event and RED, don't have the
@@ -1353,7 +1353,7 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset,
             const uint8_t *data_p = NULL;
             int    comma_offset;
 
-            comma_offset = tvb_find_guint8(tvb, offset, -1, ',');
+            comma_offset = tvb_find_uint8(tvb, offset, -1, ',');
             if (comma_offset != -1) {
                 tokenlen = comma_offset - offset;
             } else {
@@ -1585,7 +1585,7 @@ dissect_sdp_media_attribute_rtpmap(proto_tree *tree, packet_info *pinfo, tvbuff_
           encoding-params = channels
           channels = integer
      */
-    next_offset = tvb_find_guint8(tvb, offset, -1, ' ');
+    next_offset = tvb_find_uint8(tvb, offset, -1, ' ');
 
     if (next_offset == -1)
         return;
@@ -1597,7 +1597,7 @@ dissect_sdp_media_attribute_rtpmap(proto_tree *tree, packet_info *pinfo, tvbuff_
 
     offset = next_offset + 1;
 
-    next_offset = tvb_find_guint8(tvb, offset, -1, '/');
+    next_offset = tvb_find_uint8(tvb, offset, -1, '/');
 
     if (next_offset == -1) {
         return;
@@ -1617,7 +1617,7 @@ dissect_sdp_media_attribute_rtpmap(proto_tree *tree, packet_info *pinfo, tvbuff_
 
     offset = next_offset + 1;
 
-    next_offset = tvb_find_guint8(tvb, offset, length - offset, '/');
+    next_offset = tvb_find_uint8(tvb, offset, length - offset, '/');
     if (next_offset == -1) {
         next_offset = length;
     }
@@ -1702,7 +1702,7 @@ dissect_sdp_media_attribute_fmtp(proto_tree *tree, packet_info *pinfo, tvbuff_t 
     /* Skip leading space, if any */
     offset = tvb_skip_wsp(tvb, offset, tvb_captured_length_remaining(tvb, offset));
     /* Media format extends to the next space */
-    next_offset = tvb_find_guint8(tvb, offset, -1, ' ');
+    next_offset = tvb_find_uint8(tvb, offset, -1, ' ');
 
     if (next_offset == -1)
         return;
@@ -1737,7 +1737,7 @@ dissect_sdp_media_attribute_fmtp(proto_tree *tree, packet_info *pinfo, tvbuff_t 
     offset = next_offset + 1;
 
     while (has_more_pars == true) {
-        next_offset = tvb_find_guint8(tvb, offset, -1, ';');
+        next_offset = tvb_find_uint8(tvb, offset, -1, ';');
         offset = tvb_skip_wsp(tvb, offset, tvb_captured_length_remaining(tvb, offset));
 
         if (next_offset == -1) {
@@ -1795,14 +1795,14 @@ dissect_sdp_media_attribute_path(packet_info *pinfo, tvbuff_t *tvb, uint8_t *att
         address_offset = offset + (int)strlen(msrp_res);
 
         /* Port is after next ':' */
-        port_offset = tvb_find_guint8(tvb, address_offset, -1, ':');
+        port_offset = tvb_find_uint8(tvb, address_offset, -1, ':');
         /* Check if port is present if not skipp */
         if (port_offset!= -1) {
             /* Port ends with '/' */
-            port_end_offset = tvb_find_guint8(tvb, port_offset, -1, '/');
+            port_end_offset = tvb_find_uint8(tvb, port_offset, -1, '/');
             if (port_end_offset == -1) {
                 /* No "/" look for the ";" */
-                port_end_offset = tvb_find_guint8(tvb, port_offset, -1, ';');
+                port_end_offset = tvb_find_uint8(tvb, port_offset, -1, ';');
             }
             /* Attempt to convert address */
             uint32_t msrp_ipaddr;
@@ -1952,13 +1952,13 @@ dissect_sdp_media_attribute_crypto(proto_tree *tree, packet_info *pinfo, tvbuff_
         tvbuff_t *key_salt_tvb;
         char     *data_p = NULL;
 
-        param_end_offset = tvb_find_guint8(tvb, offset, -1, ';');
+        param_end_offset = tvb_find_uint8(tvb, offset, -1, ';');
         if (param_end_offset == -1) {
             has_more_pars = false;
             param_end_offset = tvb_captured_length(tvb);
         }
         /* key-method or key-method-ext */
-        next_offset = tvb_find_guint8(tvb, offset, -1, ':');
+        next_offset = tvb_find_uint8(tvb, offset, -1, ':');
         if (next_offset == -1) {
             expert_add_info(pinfo, parameter_item, &ei_sdp_invalid_key_param);
             break;
@@ -1970,7 +1970,7 @@ dissect_sdp_media_attribute_crypto(proto_tree *tree, packet_info *pinfo, tvbuff_
             /* XXX only for SRTP? */
             /* srtp-key-info       = key-salt ["|" lifetime] ["|" mki] */
             offset      = next_offset +1;
-            next_offset = tvb_find_guint8(tvb, offset, -1, '|');
+            next_offset = tvb_find_uint8(tvb, offset, -1, '|');
             if (next_offset == -1) {
                 tokenlen = param_end_offset - offset;
             } else {
@@ -1992,7 +1992,7 @@ dissect_sdp_media_attribute_crypto(proto_tree *tree, packet_info *pinfo, tvbuff_
             /*  ["|" lifetime] ["|" mki] are optional */
             if (next_offset != -1) {
                 offset = next_offset + 1;
-                next_offset = tvb_find_guint8(tvb, offset, -1, '|');
+                next_offset = tvb_find_uint8(tvb, offset, -1, '|');
                 if (next_offset == -1) {
                     if (next_offset < param_end_offset){
                         next_offset = param_end_offset;
@@ -2012,7 +2012,7 @@ dissect_sdp_media_attribute_crypto(proto_tree *tree, packet_info *pinfo, tvbuff_
                 if (offset>param_end_offset) {
                     next_offset = -1;
                 } else {
-                    next_offset = tvb_find_guint8(tvb, offset, -1, ':');
+                    next_offset = tvb_find_uint8(tvb, offset, -1, ':');
                 }
                 if (next_offset != -1) {
                     tokenlen    = next_offset - offset;
@@ -2059,7 +2059,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
     sdp_media_attribute_tree = proto_item_add_subtree(ti,
                                                       ett_sdp_media_attribute);
     /* Find end of field */
-    colon_offset = tvb_find_guint8(tvb, offset, -1, ':');
+    colon_offset = tvb_find_uint8(tvb, offset, -1, ':');
 
     if (colon_offset == -1)
       return;

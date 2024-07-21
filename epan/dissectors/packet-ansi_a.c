@@ -10519,7 +10519,7 @@ dissect_sip_dtap_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             msg_type = (uint8_t *) wmem_alloc(pinfo->pool, 1);
             msg_type[0] = (uint8_t) strtoul(tvb_get_string_enc(pinfo->pool, tvb, offset, 2, ENC_ASCII|ENC_NA), NULL, 16);
 
-            if ((begin = tvb_find_guint8(tvb, offset, linelen, '"')) > 0)
+            if ((begin = tvb_find_uint8(tvb, offset, linelen, '"')) > 0)
             {
                 if (tvb_get_uint8(tvb, begin + 1) == '1')
                 {
@@ -10540,7 +10540,7 @@ dissect_sip_dtap_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
             while ((linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, true)) > 0)
             {
-                if ((begin = tvb_find_guint8(tvb, offset, linelen, '=')) > 0)
+                if ((begin = tvb_find_uint8(tvb, offset, linelen, '=')) > 0)
                 {
                     begin++;
                     tvb_composite_append(ansi_a_tvb, base64_to_tvb(tvb, tvb_get_string_enc(pinfo->pool, tvb, begin, offset + linelen - begin, ENC_ASCII|ENC_NA)));

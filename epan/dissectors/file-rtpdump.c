@@ -105,9 +105,9 @@ dissect_rtpdump(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
         return 0;
     if (0 != tvb_memeql(tvb, 0, shebang, sizeof(shebang)))
         return 0;
-    if (-1 == (eol = tvb_find_guint8(tvb, 0, -1, '\n')) ||
-            -1 == (slash = tvb_find_guint8(tvb, 0, eol, '/')) ||
-            -1 == (space = tvb_find_guint8(tvb, 0, slash, ' '))) {
+    if (-1 == (eol = tvb_find_uint8(tvb, 0, -1, '\n')) ||
+            -1 == (slash = tvb_find_uint8(tvb, 0, eol, '/')) ||
+            -1 == (space = tvb_find_uint8(tvb, 0, slash, ' '))) {
         return 0;
     }
 

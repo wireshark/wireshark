@@ -11343,7 +11343,7 @@ dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
          * Start with a quick search for 0xFFFF, then do the heavier
          * tvb_memeql() once we find it.
          */
-        offset = tvb_find_guint16(tvb, offset, -1, 0xFFFF);
+        offset = tvb_find_uint16(tvb, offset, -1, 0xFFFF);
         if (offset < 0) {
             /* Didn't find even the start of a marker */
             return 0;

@@ -62,7 +62,7 @@ static const value_string xcsl_action_vals[] = {
     { 0, NULL }
 };
 
-/* patterns used for tvb_ws_mempbrk_pattern_guint8 */
+/* patterns used for tvb_ws_mempbrk_pattern_uint8 */
 static ws_mempbrk_pattern pbrk_param_end;
 
 /* Dissector for xcsl */
@@ -103,7 +103,7 @@ static void dissect_xcsl_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     while ((length_remaining = tvb_reported_length_remaining(tvb, offset)) > 0) {
 
         /* get next item */
-        next_offset = tvb_ws_mempbrk_pattern_guint8(tvb, offset, length_remaining, &pbrk_param_end, NULL);
+        next_offset = tvb_ws_mempbrk_pattern_uint8(tvb, offset, length_remaining, &pbrk_param_end, NULL);
         if (next_offset == -1) {
             len = length_remaining;
             next_offset = offset + len;

@@ -546,7 +546,7 @@ icqv5_decode_msgType(proto_tree *tree, tvbuff_t *tvb, int offset, int size,
     case MSG_URL:
         for (n = 0; n < N_URL_FIELDS; n++) {
             if (n != N_URL_FIELDS - 1) {
-                sep_offset = tvb_find_guint8(tvb, offset, left, 0xfe);
+                sep_offset = tvb_find_uint8(tvb, offset, left, 0xfe);
                 sz = sep_offset - offset + 1;
             } else {
                 sz = left;
@@ -564,7 +564,7 @@ icqv5_decode_msgType(proto_tree *tree, tvbuff_t *tvb, int offset, int size,
     case MSG_EMAIL:
     for (n = 0; n < N_EMAIL_FIELDS; n++) {
         if (n != N_EMAIL_FIELDS - 1) {
-            sep_offset = tvb_find_guint8(tvb, offset, left, 0xfe);
+            sep_offset = tvb_find_uint8(tvb, offset, left, 0xfe);
             sz = sep_offset - offset + 1;
         } else {
             sz = left;
@@ -596,7 +596,7 @@ icqv5_decode_msgType(proto_tree *tree, tvbuff_t *tvb, int offset, int size,
     case MSG_AUTH_REQ:
         for (n = 0; n < N_AUTH_REQ_FIELDS; n++) {
             if (n != N_AUTH_REQ_FIELDS - 1) {
-                sep_offset = tvb_find_guint8(tvb, offset, left, 0xfe);
+                sep_offset = tvb_find_uint8(tvb, offset, left, 0xfe);
                 sz = sep_offset - offset + 1;
             } else {
                 sz = left;
@@ -614,7 +614,7 @@ icqv5_decode_msgType(proto_tree *tree, tvbuff_t *tvb, int offset, int size,
     case MSG_USER_ADDED:
     for (n = 0; n < N_USER_ADDED_FIELDS; n++) {
         if (n != N_USER_ADDED_FIELDS - 1) {
-            sep_offset = tvb_find_guint8(tvb, offset, left, 0xfe);
+            sep_offset = tvb_find_uint8(tvb, offset, left, 0xfe);
             sz = sep_offset - offset + 1;
         } else {
             sz = left;
@@ -637,7 +637,7 @@ icqv5_decode_msgType(proto_tree *tree, tvbuff_t *tvb, int offset, int size,
         bool last = false;
 
         while (!last) {
-            sep_offset = tvb_find_guint8(tvb, offset, left, 0xfe);
+            sep_offset = tvb_find_uint8(tvb, offset, left, 0xfe);
             if (sep_offset != -1) {
                 sz_local = sep_offset - offset + 1;
             }
@@ -656,7 +656,7 @@ icqv5_decode_msgType(proto_tree *tree, tvbuff_t *tvb, int offset, int size,
 
                 left -= sz_local;
                 sep_offset_prev = sep_offset;
-                sep_offset = tvb_find_guint8(tvb, sep_offset_prev, left, 0xfe);
+                sep_offset = tvb_find_uint8(tvb, sep_offset_prev, left, 0xfe);
                 if (sep_offset != -1)
                     sz_local = sep_offset - offset + 1;
                 else {

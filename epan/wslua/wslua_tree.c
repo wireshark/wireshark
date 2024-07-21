@@ -402,7 +402,7 @@ WSLUA_METHOD TreeItem_add_packet_field(lua_State *L) {
             break;
 
         default:
-            if (tvb_find_guint8 (tvbr->tvb->ws_tvb, tvbr->offset, -1, 0) == -1) {
+            if (tvb_find_uint8 (tvbr->tvb->ws_tvb, tvbr->offset, -1, 0) == -1) {
                 luaL_error(L,"out of bounds");
                 return 0;
             }
@@ -489,7 +489,7 @@ static int TreeItem_add_item_any(lua_State *L, bool little_endian) {
         /* hfid is > 0 when the first arg was a ProtoField or Proto */
 
         if (type == FT_STRINGZ) {
-            if (tvb_find_guint8 (tvbr->tvb->ws_tvb, tvbr->offset, -1, 0) == -1) {
+            if (tvb_find_uint8 (tvbr->tvb->ws_tvb, tvbr->offset, -1, 0) == -1) {
                 luaL_error(L,"out of bounds");
                 return 0;
             }

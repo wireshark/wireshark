@@ -955,7 +955,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
         /*
          * colon_offset may be -1
          */
-        colon_offset = tvb_find_guint8(tvb, offset, linelen, ':');
+        colon_offset = tvb_find_uint8(tvb, offset, linelen, ':');
 
 
         /*
@@ -1155,7 +1155,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 offset = offset + (int)STRLEN_CONST(rtsp_content_type);
                 /* Skip wsp */
                 offset = tvb_skip_wsp(tvb, offset, value_len);
-                semi_colon_offset = tvb_find_guint8(tvb, value_offset, value_len, ';');
+                semi_colon_offset = tvb_find_uint8(tvb, value_offset, value_len, ';');
                 if ( semi_colon_offset != -1) {
                     /* m-parameter present */
                     par_end_offset = tvb_skip_wsp_return(tvb, semi_colon_offset-1);

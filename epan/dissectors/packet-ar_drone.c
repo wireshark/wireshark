@@ -131,7 +131,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     while (tvb_reported_length_remaining(tvb, master_offset) > 3)
     {
         /* Get a string to compare our command strings (aka "AT*PCMD", etc.) to */
-        offset = tvb_find_guint8(tvb, master_offset, -1, '=');
+        offset = tvb_find_uint8(tvb, master_offset, -1, '=');
         if (offset < master_offset)
             return master_offset;
 
@@ -150,7 +150,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset = master_offset + 8;
 
             /* Add PCMD ID */
-            length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
+            length = tvb_find_uint8(tvb, offset, -1, ',') - offset;
             if (length < 0) {
                 expert_add_info(pinfo, sub_item, &ei_NO_COMMA);
                 return offset;
@@ -159,7 +159,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset += (length + 1);
 
             /* Add PCMD Flag */
-            length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
+            length = tvb_find_uint8(tvb, offset, -1, ',') - offset;
             if (length < 0) {
                 expert_add_info(pinfo, sub_item, &ei_NO_COMMA);
                 return offset;
@@ -168,7 +168,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset += (length + 1);
 
             /* Add PCMD Roll */
-            length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
+            length = tvb_find_uint8(tvb, offset, -1, ',') - offset;
             if (length < 0) {
                 expert_add_info(pinfo, sub_item, &ei_NO_COMMA);
                 return offset;
@@ -200,7 +200,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset += (length + 1);
 
             /* Add PCMD Pitch */
-            length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
+            length = tvb_find_uint8(tvb, offset, -1, ',') - offset;
             if (length < 0) {
                 expert_add_info(pinfo, sub_item, &ei_NO_COMMA);
                 return offset;
@@ -232,7 +232,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset += (length + 1);
 
             /* Add PCMD Gaz */
-            length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
+            length = tvb_find_uint8(tvb, offset, -1, ',') - offset;
             if (length < 0) {
                 expert_add_info(pinfo, sub_item, &ei_NO_COMMA);
                 return offset;
@@ -264,7 +264,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset += (length + 1);
 
             /* Add PCMD Yaw */
-            length = tvb_find_guint8(tvb, offset, -1, 0x0d) - offset;
+            length = tvb_find_uint8(tvb, offset, -1, 0x0d) - offset;
             if (length < 0) {
                 expert_add_info(pinfo, sub_item, &ei_NO_CR);
                 return offset;
@@ -303,7 +303,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset = master_offset + 7;
 
             /* Add REF ID */
-            length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
+            length = tvb_find_uint8(tvb, offset, -1, ',') - offset;
             if (length < 0) {
                 expert_add_info(pinfo, sub_item, &ei_NO_COMMA);
                 return offset;
@@ -312,7 +312,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset += (length + 1);
 
             /* Add REF ctrl */
-            length = tvb_find_guint8(tvb, offset, -1, 0x0d) - offset;
+            length = tvb_find_uint8(tvb, offset, -1, 0x0d) - offset;
             if (length < 0) {
                 expert_add_info(pinfo, sub_item, &ei_NO_CR);
                 return offset;
@@ -328,7 +328,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset = master_offset + 14;
 
             /* Add Sequence Number */
-            length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
+            length = tvb_find_uint8(tvb, offset, -1, ',') - offset;
             if (length < 0) {
                 expert_add_info(pinfo, sub_item, &ei_NO_COMMA);
                 return offset;
@@ -337,7 +337,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset += (length + 1);
 
             /* Add Session ID */
-            length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
+            length = tvb_find_uint8(tvb, offset, -1, ',') - offset;
             if (length < 0) {
                 expert_add_info(pinfo, sub_item, &ei_NO_COMMA);
                 return offset;
@@ -346,7 +346,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset += (length + 1);
 
             /* Add User ID */
-            length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
+            length = tvb_find_uint8(tvb, offset, -1, ',') - offset;
             if (length < 0) {
                 expert_add_info(pinfo, sub_item, &ei_NO_COMMA);
                 return offset;
@@ -355,7 +355,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset += (length + 1);
 
             /* Add Application ID */
-            length = tvb_find_guint8(tvb, offset, -1, 0x0d) - offset;
+            length = tvb_find_uint8(tvb, offset, -1, 0x0d) - offset;
             if (length < 0) {
                 expert_add_info(pinfo, sub_item, &ei_NO_CR);
                 return offset;
@@ -371,7 +371,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset = master_offset + 8;
 
             /* Add sequence */
-            length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
+            length = tvb_find_uint8(tvb, offset, -1, ',') - offset;
             if (length < 0) {
                 expert_add_info(pinfo, sub_item, &ei_NO_COMMA);
                 return offset;
@@ -380,7 +380,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset += (length + 1);
 
             /* Add Animation */
-            length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
+            length = tvb_find_uint8(tvb, offset, -1, ',') - offset;
             if (length < 0) {
                 expert_add_info(pinfo, sub_item, &ei_NO_COMMA);
                 return offset;
@@ -389,7 +389,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset += (length + 1);
 
             /* Add animation time(sec) */
-            length = tvb_find_guint8(tvb, offset, -1, 0x0d) - offset;
+            length = tvb_find_uint8(tvb, offset, -1, 0x0d) - offset;
             if (length < 0) {
                 expert_add_info(pinfo, sub_item, &ei_NO_CR);
                 return offset;
@@ -405,7 +405,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset = master_offset + 9;
 
             /* Add sequence number */
-            length = tvb_find_guint8(tvb, offset, -1, 0x0d) - offset;
+            length = tvb_find_uint8(tvb, offset, -1, 0x0d) - offset;
             if (length < 0) {
                 expert_add_info(pinfo, sub_item, &ei_NO_CR);
                 return offset;
@@ -421,7 +421,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset = master_offset + 10;
 
             /* Add sequence */
-            length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
+            length = tvb_find_uint8(tvb, offset, -1, ',') - offset;
             if (length < 0) {
                 expert_add_info(pinfo, sub_item, &ei_NO_COMMA);
                 return offset;
@@ -430,7 +430,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset += (length + 1);
 
             /* Add Name */
-            length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
+            length = tvb_find_uint8(tvb, offset, -1, ',') - offset;
             if (length < 0) {
                 expert_add_info(pinfo, sub_item, &ei_NO_COMMA);
                 return offset;
@@ -439,7 +439,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset += (length + 1);
 
             /* Add Value */
-            length = tvb_find_guint8(tvb, offset, -1, 0x0d) - offset;
+            length = tvb_find_uint8(tvb, offset, -1, 0x0d) - offset;
             if (length < 0) {
                 expert_add_info(pinfo, sub_item, &ei_NO_CR);
                 return offset;
@@ -455,7 +455,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset = master_offset + 7;
 
             /* Add sequence */
-            length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
+            length = tvb_find_uint8(tvb, offset, -1, ',') - offset;
             if (length < 0) {
                 expert_add_info(pinfo, sub_item, &ei_NO_COMMA);
                 return offset;
@@ -464,7 +464,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset += (length + 1);
 
             /* Add animation to play */
-            length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
+            length = tvb_find_uint8(tvb, offset, -1, ',') - offset;
             if (length < 0) {
                 expert_add_info(pinfo, sub_item, &ei_NO_COMMA);
                 return offset;
@@ -473,7 +473,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset += (length + 1);
 
             /* Add frequency */
-            length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
+            length = tvb_find_uint8(tvb, offset, -1, ',') - offset;
             if (length < 0) {
                 expert_add_info(pinfo, sub_item, &ei_NO_COMMA);
                 return offset;
@@ -482,7 +482,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset += (length + 1);
 
             /* Add Time to play in sec  */
-            length = tvb_find_guint8(tvb, offset, -1, 0x0d) - offset;
+            length = tvb_find_uint8(tvb, offset, -1, 0x0d) - offset;
             if (length < 0) {
                 expert_add_info(pinfo, sub_item, &ei_NO_CR);
                 return offset;
@@ -498,7 +498,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset = master_offset + 10;
 
             /* Add sequence number */
-            length = tvb_find_guint8(tvb, offset, -1, 0x0d) - offset;
+            length = tvb_find_uint8(tvb, offset, -1, 0x0d) - offset;
             if (length < 0) {
                 expert_add_info(pinfo, sub_item, &ei_NO_CR);
                 return offset;
@@ -516,7 +516,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset = master_offset + 8;
 
             /* Add sequence */
-            length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
+            length = tvb_find_uint8(tvb, offset, -1, ',') - offset;
             if (length < 0) {
                 expert_add_info(pinfo, sub_item, &ei_NO_COMMA);
                 return offset;
@@ -525,7 +525,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset += (length + 1);
 
             /* Add Mode */
-            length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
+            length = tvb_find_uint8(tvb, offset, -1, ',') - offset;
             if (length < 0) {
                 expert_add_info(pinfo, sub_item, &ei_NO_COMMA);
                 return offset;
@@ -535,7 +535,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset += (length + 1);
 
             /* Add File Size */
-            length = tvb_find_guint8(tvb, offset, -1, 0x0d) - offset;
+            length = tvb_find_uint8(tvb, offset, -1, 0x0d) - offset;
             if (length < 0) {
                 expert_add_info(pinfo, sub_item, &ei_NO_CR);
                 return offset;

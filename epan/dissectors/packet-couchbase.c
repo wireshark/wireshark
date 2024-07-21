@@ -1247,7 +1247,7 @@ static void dissect_dcp_xattrs(tvbuff_t *tvb, proto_tree *tree,
     offset += 4;
     xattr_size -= 4;
 
-    mark = tvb_find_guint8(tvb, offset, pair_len, 0x00);
+    mark = tvb_find_uint8(tvb, offset, pair_len, 0x00);
     if (mark == -1) {
       expert_add_info_format(pinfo, ti, &ei_separator_not_found, "Null byte not found");
       return;
@@ -1258,7 +1258,7 @@ static void dissect_dcp_xattrs(tvbuff_t *tvb, proto_tree *tree,
     pair_len -= (mark - offset) + 1;
     offset = mark + 1;
 
-    mark = tvb_find_guint8(tvb, offset, pair_len, 0x00);
+    mark = tvb_find_uint8(tvb, offset, pair_len, 0x00);
     if (mark == -1) {
       expert_add_info_format(pinfo, ti, &ei_separator_not_found, "Null byte not found");
       return;
@@ -2663,7 +2663,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       /* There are 2 main items stored in the value. The bucket type (represented by a path to the engine) and the
        * bucket config. These are separated by a NULL byte with the bucket type coming first.*/
 
-      sep = tvb_find_guint8(tvb, offset, value_len, 0x00);
+      sep = tvb_find_uint8(tvb, offset, value_len, 0x00);
       if (sep == -1) {
         ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII);
         expert_add_info_format(pinfo, ti, &ei_separator_not_found, "Null byte not found");
@@ -2682,7 +2682,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* The config is arranged as "key=value;key=value..."*/
         while (config_len > 0) {
           // Get the key
-          equals_pos = tvb_find_guint8(tvb, offset, config_len, 0x3d);
+          equals_pos = tvb_find_uint8(tvb, offset, config_len, 0x3d);
           if (equals_pos == -1) {
             expert_add_info_format(pinfo, ti, &ei_illegal_value, "Each key needs a value");
             break; // Break out the while loop
@@ -2697,7 +2697,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           }
 
           // Get the value
-          sep_pos = tvb_find_guint8(tvb, offset, config_len, 0x3b);
+          sep_pos = tvb_find_uint8(tvb, offset, config_len, 0x3b);
           if (sep_pos == -1) {
             expert_add_info_format(pinfo, ti, &ei_separator_not_found, "Each key-value pair must be terminated by semi-colon");
             break; // Break out the while loop

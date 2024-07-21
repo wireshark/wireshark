@@ -21,8 +21,8 @@ struct tvb_ops {
 	const uint8_t *(*tvb_get_ptr)(struct tvbuff *tvb, unsigned abs_offset, unsigned abs_length);
 	void *(*tvb_memcpy)(struct tvbuff *tvb, void *target, unsigned offset, unsigned length);
 
-	int (*tvb_find_guint8)(tvbuff_t *tvb, unsigned abs_offset, unsigned limit, uint8_t needle);
-	int (*tvb_ws_mempbrk_pattern_guint8)(tvbuff_t *tvb, unsigned abs_offset, unsigned limit, const ws_mempbrk_pattern* pattern, unsigned char *found_needle);
+	int (*tvb_find_uint8)(tvbuff_t *tvb, unsigned abs_offset, unsigned limit, uint8_t needle);
+	int (*tvb_ws_mempbrk_pattern_uint8)(tvbuff_t *tvb, unsigned abs_offset, unsigned limit, const ws_mempbrk_pattern* pattern, unsigned char *found_needle);
 
 	tvbuff_t *(*tvb_clone)(tvbuff_t *tvb, unsigned abs_offset, unsigned abs_length);
 };

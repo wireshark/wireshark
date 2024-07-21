@@ -43,7 +43,7 @@ get_form_key_value(wmem_allocator_t *pool, tvbuff_t *tvb, char **ptr, int offset
 
 	len = 0;
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
-		found_offset = tvb_ws_mempbrk_pattern_guint8(tvb, offset, -1, pbrk, &ch);
+		found_offset = tvb_ws_mempbrk_pattern_uint8(tvb, offset, -1, pbrk, &ch);
 		if (found_offset == -1) {
 			len += tvb_reported_length_remaining(tvb, offset);
 			break;
@@ -78,7 +78,7 @@ get_form_key_value(wmem_allocator_t *pool, tvbuff_t *tvb, char **ptr, int offset
 	len = 0;
 	offset = orig_offset;
 	while (tvb_reported_length_remaining(tvb, offset)) {
-		found_offset = tvb_ws_mempbrk_pattern_guint8(tvb, offset, -1, pbrk, &ch);
+		found_offset = tvb_ws_mempbrk_pattern_uint8(tvb, offset, -1, pbrk, &ch);
 		if (found_offset == -1) {
 			tvb_memcpy(tvb, &tmp[len], offset, tvb_reported_length_remaining(tvb, offset));
 			offset = tvb_reported_length(tvb);
@@ -158,7 +158,7 @@ dissect_form_urlencoded(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 		char *key, *value;
 		char *key_decoded, *value_decoded;
 
-		end_offset = tvb_find_guint8(tvb, offset, -1, '&');
+		end_offset = tvb_find_uint8(tvb, offset, -1, '&');
 		if (end_offset == -1) {
 			end_offset = (int)tvb_reported_length(tvb);
 		}

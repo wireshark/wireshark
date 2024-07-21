@@ -366,7 +366,7 @@ is_proxy_v1(tvbuff_t *tvb, int *header_length)
 static bool
 proxy_v1_get_token_length(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int header_length, char *token, int *token_length)
 {
-    int space_pos = tvb_find_guint8(tvb, offset, header_length - offset, ' ');
+    int space_pos = tvb_find_uint8(tvb, offset, header_length - offset, ' ');
     if (space_pos == -1) {
         proto_tree_add_expert(tree, pinfo, &ei_proxy_bad_format, tvb, offset, header_length - offset);
         return false;

@@ -393,7 +393,7 @@ dissect_imf_address(tvbuff_t *tvb, int offset, int length, proto_item *item, pac
   int addr_pos;
 
   /* if there is a colon present it is a group */
-  if((addr_pos = tvb_find_guint8(tvb, offset, length, ':')) == -1) {
+  if((addr_pos = tvb_find_uint8(tvb, offset, length, ':')) == -1) {
 
     /* there isn't - so it must be a mailbox */
     dissect_imf_mailbox(tvb, offset, length, item, pinfo);
@@ -438,7 +438,7 @@ dissect_imf_mailbox(tvbuff_t *tvb, int offset, int length, proto_item *item, pac
      anything before the opening angle bracket
   */
 
-  if((addr_pos = tvb_find_guint8(tvb, offset, length, '<')) == -1) {
+  if((addr_pos = tvb_find_uint8(tvb, offset, length, '<')) == -1) {
     /* we can't find an angle bracket - the whole field is therefore the address */
 
     (void) proto_tree_add_item(mbox_tree, hf_imf_address, tvb, offset, length, ENC_ASCII);
@@ -456,7 +456,7 @@ dissect_imf_mailbox(tvbuff_t *tvb, int offset, int length, proto_item *item, pac
     if(offset != addr_pos) { /* there is a display name */
       (void) proto_tree_add_item(mbox_tree, hf_imf_display_name, tvb, offset, addr_pos - offset - 1, ENC_ASCII);
     }
-    end_pos = tvb_find_guint8(tvb, addr_pos + 1, length - (addr_pos + 1 - offset), '>');
+    end_pos = tvb_find_uint8(tvb, addr_pos + 1, length - (addr_pos + 1 - offset), '>');
 
     if(end_pos != -1) {
       (void) proto_tree_add_item(mbox_tree, hf_imf_address, tvb, addr_pos + 1, end_pos - addr_pos - 1, ENC_ASCII);
@@ -481,7 +481,7 @@ dissect_imf_address_list(tvbuff_t *tvb, int offset, int length, proto_item *item
 
   do {
 
-    end_offset = tvb_find_guint8(tvb, item_offset, length - (item_offset - offset), ',');
+    end_offset = tvb_find_uint8(tvb, item_offset, length - (item_offset - offset), ',');
 
     count++; /* increase the number of items */
 
@@ -520,7 +520,7 @@ dissect_imf_mailbox_list(tvbuff_t *tvb, int offset, int length, proto_item *item
 
   do {
 
-    end_offset = tvb_find_guint8(tvb, item_offset, length - (item_offset - offset), ',');
+    end_offset = tvb_find_uint8(tvb, item_offset, length - (item_offset - offset), ',');
 
     count++; /* increase the number of items */
 
@@ -559,7 +559,7 @@ dissect_imf_siolabel(tvbuff_t *tvb, int offset, int length, proto_item *item, pa
   item_offset = offset;
 
   do {
-    end_offset = tvb_find_guint8(tvb, item_offset, length - (item_offset - offset), ';');
+    end_offset = tvb_find_uint8(tvb, item_offset, length - (item_offset - offset), ';');
 
     /* skip leading space */
     while (g_ascii_isspace(tvb_get_uint8(tvb, item_offset))) {
@@ -573,7 +573,7 @@ dissect_imf_siolabel(tvbuff_t *tvb, int offset, int length, proto_item *item, pa
       item_length = end_offset - item_offset;
     }
 
-    value_offset = tvb_find_guint8(tvb, item_offset, length - (item_offset - offset), '=') + 1;
+    value_offset = tvb_find_uint8(tvb, item_offset, length - (item_offset - offset), '=') + 1;
     while (g_ascii_isspace(tvb_get_uint8(tvb, value_offset))) {
       value_offset++;
     }
@@ -652,7 +652,7 @@ dissect_imf_content_type(tvbuff_t *tvb, packet_info *pinfo, int offset, int leng
   }
 
   /* find the first colon - there has to be a colon as there will have to be a boundary */
-  first_colon = tvb_find_guint8(tvb, offset, length, ';');
+  first_colon = tvb_find_uint8(tvb, offset, length, ';');
 
   if(first_colon != -1) {
     ct_tree = proto_item_add_subtree(item, ett_imf_content_type);
@@ -677,7 +677,7 @@ imf_find_field_end(tvbuff_t *tvb, int offset, int max_length, bool *last_field)
   while(offset < max_length) {
 
     /* look for CR */
-    offset = tvb_find_guint8(tvb, offset, max_length - offset, '\r');
+    offset = tvb_find_uint8(tvb, offset, max_length - offset, '\r');
 
     if(offset != -1) {
       /* protect against buffer overrun and only then look for next char */
@@ -768,7 +768,7 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   while(!last_field) {
 
     /* look for a colon first */
-    end_offset = tvb_find_guint8(tvb, start_offset, max_length - start_offset, ':');
+    end_offset = tvb_find_uint8(tvb, start_offset, max_length - start_offset, ':');
 
     if(end_offset == -1) {
       /* we couldn't find another colon - strange - we should have broken out of here by now */

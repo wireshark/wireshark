@@ -64,7 +64,7 @@ subset_find_guint8(tvbuff_t *tvb, unsigned abs_offset, unsigned limit, uint8_t n
 	struct tvb_subset *subset_tvb = (struct tvb_subset *) tvb;
 	int result;
 
-	result = tvb_find_guint8(subset_tvb->subset.tvb, subset_tvb->subset.offset + abs_offset, limit, needle);
+	result = tvb_find_uint8(subset_tvb->subset.tvb, subset_tvb->subset.offset + abs_offset, limit, needle);
 	if (result == -1)
 		return result;
 
@@ -82,7 +82,7 @@ subset_pbrk_guint8(tvbuff_t *tvb, unsigned abs_offset, unsigned limit, const ws_
 	struct tvb_subset *subset_tvb = (struct tvb_subset *) tvb;
 	int result;
 
-	result = tvb_ws_mempbrk_pattern_guint8(subset_tvb->subset.tvb, subset_tvb->subset.offset + abs_offset, limit, pattern, found_needle);
+	result = tvb_ws_mempbrk_pattern_uint8(subset_tvb->subset.tvb, subset_tvb->subset.offset + abs_offset, limit, pattern, found_needle);
 	if (result == -1)
 		return result;
 

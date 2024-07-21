@@ -91,17 +91,17 @@ find_dir_tokens(tvbuff_t *tvb, int name_start, int *sel_start, int *host_start, 
         return false;
 
     remain = *line_len;
-    *sel_start = tvb_find_guint8(tvb, name_start, remain, '\t') + 1;
+    *sel_start = tvb_find_uint8(tvb, name_start, remain, '\t') + 1;
     if (*sel_start < name_start + 1)
         return false;
 
     remain -= *sel_start - name_start;
-    *host_start = tvb_find_guint8(tvb, *sel_start, remain, '\t') + 1;
+    *host_start = tvb_find_uint8(tvb, *sel_start, remain, '\t') + 1;
     if (*host_start < *sel_start + 1)
         return false;
 
     remain -= *host_start - *sel_start;
-    *port_start = tvb_find_guint8(tvb, *host_start, remain, '\t') + 1;
+    *port_start = tvb_find_uint8(tvb, *host_start, remain, '\t') + 1;
     if (*port_start < *host_start + 1)
         return false;
 

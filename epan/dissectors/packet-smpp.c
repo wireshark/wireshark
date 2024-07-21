@@ -2732,7 +2732,7 @@ dissect_smpp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             return false;
 
         //address must be NULL-terminated string of up to 65 ascii characters
-        int end = tvb_find_guint8(tvb, 18, -1, 0);
+        int end = tvb_find_uint8(tvb, 18, -1, 0);
         if ((end <= 0) || (end > 65))
             return false;
 

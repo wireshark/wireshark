@@ -5455,7 +5455,7 @@ s7comm_decode_ud_ncprg_subfunc(tvbuff_t *tvb,
             /* File path and file data aren't always there */
             if (dlength > 24) {
                 if (subfunc == S7COMM_NCPRG_FUNCDOWNLOADBLOCK || subfunc == S7COMM_NCPRG_FUNCSTARTUPLOAD || subfunc == S7COMM_NCPRG_FUNCUPLOAD) {
-                    string_end_offset = tvb_find_guint8(tvb, offset, dlength-8-16, 0x0a);
+                    string_end_offset = tvb_find_uint8(tvb, offset, dlength-8-16, 0x0a);
                     if (string_end_offset > 0) {
                         string_len = string_end_offset - offset + 1;    /* include 0x0a */
                         proto_tree_add_item(data_tree, hf_s7comm_data_ncprg_filepath, tvb, offset, string_len, ENC_ASCII);

@@ -430,7 +430,7 @@ tvb_find_end_of_nmea0183_field(tvbuff_t *tvb, const int offset)
         return tvb_captured_length(tvb);
     }
 
-    int end_of_field_offset = tvb_find_guint8(tvb, offset, -1, ',');
+    int end_of_field_offset = tvb_find_uint8(tvb, offset, -1, ',');
     if (end_of_field_offset == -1)
     {
         return tvb_captured_length(tvb);
@@ -973,7 +973,7 @@ dissect_nmea0183(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     offset += 3;
 
     /* Start of checksum */
-    start_checksum_offset = tvb_find_guint8(tvb, offset, -1, '*');
+    start_checksum_offset = tvb_find_uint8(tvb, offset, -1, '*');
     if (start_checksum_offset == -1)
     {
         expert_add_info(pinfo, nmea0183_tree, &ei_nmea0183_missing_checksum_character);

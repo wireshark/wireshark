@@ -1099,7 +1099,7 @@ dissect_jfif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         start_fill = start_entropy;
 
         for (; ; ) {
-            start_fill = tvb_find_guint8(tvb, start_fill, -1, 0xFF);
+            start_fill = tvb_find_uint8(tvb, start_fill, -1, 0xFF);
 
             if (start_fill == -1 || tvb_len - start_fill == 1
               || tvb_get_uint8(tvb, start_fill + 1) != 0) /* FF 00 is FF escaped */

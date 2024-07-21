@@ -2368,7 +2368,7 @@ tvb_get_bits(tvbuff_t *tvb, const unsigned bit_offset, const int no_of_bits, con
 }
 
 static int
-tvb_find_guint8_generic(tvbuff_t *tvb, unsigned abs_offset, unsigned limit, uint8_t needle)
+tvb_find_uint8_generic(tvbuff_t *tvb, unsigned abs_offset, unsigned limit, uint8_t needle)
 {
 	const uint8_t *ptr;
 	const uint8_t *result;
@@ -2392,7 +2392,7 @@ tvb_find_guint8_generic(tvbuff_t *tvb, unsigned abs_offset, unsigned limit, uint
  * in that case, -1 will be returned if the boundary is reached before
  * finding needle. */
 int
-tvb_find_guint8(tvbuff_t *tvb, const int offset, const int maxlength, const uint8_t needle)
+tvb_find_uint8(tvbuff_t *tvb, const int offset, const int maxlength, const uint8_t needle)
 {
 	const uint8_t *result;
 	unsigned	      abs_offset = 0;
@@ -2423,15 +2423,15 @@ tvb_find_guint8(tvbuff_t *tvb, const int offset, const int maxlength, const uint
 		}
 	}
 
-	if (tvb->ops->tvb_find_guint8)
-		return tvb->ops->tvb_find_guint8(tvb, abs_offset, limit, needle);
+	if (tvb->ops->tvb_find_uint8)
+		return tvb->ops->tvb_find_uint8(tvb, abs_offset, limit, needle);
 
-	return tvb_find_guint8_generic(tvb, offset, limit, needle);
+	return tvb_find_uint8_generic(tvb, offset, limit, needle);
 }
 
-/* Same as tvb_find_guint8() with 16bit needle. */
+/* Same as tvb_find_uint8() with 16bit needle. */
 int
-tvb_find_guint16(tvbuff_t *tvb, const int offset, const int maxlength,
+tvb_find_uint16(tvbuff_t *tvb, const int offset, const int maxlength,
 		 const uint16_t needle)
 {
 	unsigned	      abs_offset = 0;
@@ -2456,7 +2456,7 @@ tvb_find_guint16(tvbuff_t *tvb, const int offset, const int maxlength,
 
 	do {
 		int offset1 =
-			tvb_find_guint8(tvb, pos, limit - searched_bytes, needle1);
+			tvb_find_uint8(tvb, pos, limit - searched_bytes, needle1);
 		int offset2 = -1;
 
 		if (offset1 == -1) {
@@ -2469,7 +2469,7 @@ tvb_find_guint16(tvbuff_t *tvb, const int offset, const int maxlength,
 			return -1;
 		}
 
-		offset2 = tvb_find_guint8(tvb, offset1 + 1, 1, needle2);
+		offset2 = tvb_find_uint8(tvb, offset1 + 1, 1, needle2);
 
 		searched_bytes += 1;
 
@@ -2512,7 +2512,7 @@ tvb_ws_mempbrk_guint8_generic(tvbuff_t *tvb, unsigned abs_offset, unsigned limit
  * in that case, -1 will be returned if the boundary is reached before
  * finding needle. */
 int
-tvb_ws_mempbrk_pattern_guint8(tvbuff_t *tvb, const int offset, const int maxlength,
+tvb_ws_mempbrk_pattern_uint8(tvbuff_t *tvb, const int offset, const int maxlength,
 			const ws_mempbrk_pattern* pattern, unsigned char *found_needle)
 {
 	const uint8_t *result;
@@ -2544,8 +2544,8 @@ tvb_ws_mempbrk_pattern_guint8(tvbuff_t *tvb, const int offset, const int maxleng
 		}
 	}
 
-	if (tvb->ops->tvb_ws_mempbrk_pattern_guint8)
-		return tvb->ops->tvb_ws_mempbrk_pattern_guint8(tvb, abs_offset, limit, pattern, found_needle);
+	if (tvb->ops->tvb_ws_mempbrk_pattern_uint8)
+		return tvb->ops->tvb_ws_mempbrk_pattern_uint8(tvb, abs_offset, limit, pattern, found_needle);
 
 	return tvb_ws_mempbrk_guint8_generic(tvb, abs_offset, limit, pattern, found_needle);
 }
@@ -2564,7 +2564,7 @@ tvb_strsize(tvbuff_t *tvb, const int offset)
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
 	check_offset_length(tvb, offset, 0, &abs_offset, &junk_length);
-	nul_offset = tvb_find_guint8(tvb, abs_offset, -1, 0);
+	nul_offset = tvb_find_uint8(tvb, abs_offset, -1, 0);
 	if (nul_offset == -1) {
 		/*
 		 * OK, we hit the end of the tvbuff, so we should throw
@@ -2616,7 +2616,7 @@ tvb_strnlen(tvbuff_t *tvb, const int offset, const unsigned maxlength)
 
 	check_offset_length(tvb, offset, 0, &abs_offset, &junk_length);
 
-	result_offset = tvb_find_guint8(tvb, abs_offset, maxlength, 0);
+	result_offset = tvb_find_uint8(tvb, abs_offset, maxlength, 0);
 
 	if (result_offset == -1) {
 		return -1;
@@ -4150,7 +4150,7 @@ tvb_find_line_end(tvbuff_t *tvb, const int offset, int len, int *next_offset, co
 	/*
 	 * Look either for a CR or an LF.
 	 */
-	eol_offset = tvb_ws_mempbrk_pattern_guint8(tvb, offset, len, &pbrk_crlf, &found_needle);
+	eol_offset = tvb_ws_mempbrk_pattern_uint8(tvb, offset, len, &pbrk_crlf, &found_needle);
 	if (eol_offset == -1) {
 		/*
 		 * No CR or LF - line is presumably continued in next packet.
@@ -4283,13 +4283,13 @@ tvb_find_line_end_unquoted(tvbuff_t *tvb, const int offset, int len, int *next_o
 			/*
 			 * Yes - look only for the terminating quote.
 			 */
-			char_offset = tvb_find_guint8(tvb, cur_offset, len,
+			char_offset = tvb_find_uint8(tvb, cur_offset, len,
 				'"');
 		} else {
 			/*
 			 * Look either for a CR, an LF, or a '"'.
 			 */
-			char_offset = tvb_ws_mempbrk_pattern_guint8(tvb, cur_offset, len, &pbrk_crlf_dquote, &c);
+			char_offset = tvb_ws_mempbrk_pattern_uint8(tvb, cur_offset, len, &pbrk_crlf_dquote, &c);
 		}
 		if (char_offset == -1) {
 			/*
@@ -4494,7 +4494,7 @@ int tvb_get_token_len(tvbuff_t *tvb, const int offset, int len, int *next_offset
 	/*
 	* Look either for a space, CR, or LF.
 	*/
-	eot_offset = tvb_ws_mempbrk_pattern_guint8(tvb, offset, len, &pbrk_whitespace, &found_needle);
+	eot_offset = tvb_ws_mempbrk_pattern_uint8(tvb, offset, len, &pbrk_whitespace, &found_needle);
 	if (eot_offset == -1) {
 		/*
 		* No space, CR or LF - token is presumably continued in next packet.

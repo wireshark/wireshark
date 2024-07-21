@@ -1161,7 +1161,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		do
 		{
 			tvb_current_len = tvb_reported_length_remaining(tvb, tvb_previous_offset);
-			tvb_current_offset = tvb_find_guint8(tvb, tvb_previous_offset, tvb_current_len, ' ');
+			tvb_current_offset = tvb_find_uint8(tvb, tvb_previous_offset, tvb_current_len, ' ');
 			if (tvb_current_offset == -1)
 			{
 				tvb_current_offset = tvb_len;
@@ -2245,7 +2245,7 @@ static int tvb_find_dot_line(tvbuff_t* tvb, int offset, int len, int* next_offse
 
 	do
 	{
-		tvb_current_offset = tvb_find_guint8(tvb, tvb_current_offset+1,
+		tvb_current_offset = tvb_find_uint8(tvb, tvb_current_offset+1,
 		                                     tvb_current_len, '.');
 		tvb_current_len = maxoffset - tvb_current_offset + 1;
 

@@ -1256,7 +1256,7 @@ dissect_diameter_3gpp_path(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_diameter_3gpp_path, NULL, "Paths");
 
     while (offset < end_offset) {
-        comma_offset = tvb_find_guint8(tvb, offset, -1, ',');
+        comma_offset = tvb_find_uint8(tvb, offset, -1, ',');
         if(comma_offset == -1) {
             proto_tree_add_item(sub_tree, hf_diameter_3gpp_path, tvb, offset, comma_offset, ENC_ASCII);
             return end_offset;

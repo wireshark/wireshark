@@ -1715,7 +1715,7 @@ ssh_dissect_protocol(tvbuff_t *tvb, packet_info *pinfo,
     remain_length = tvb_ensure_captured_length_remaining(tvb, offset);
     /*linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, false);
      */
-    linelen = tvb_find_guint8(tvb, offset, -1, '\n');
+    linelen = tvb_find_uint8(tvb, offset, -1, '\n');
 
     if (ssh_desegment && pinfo->can_desegment) {
         if (linelen == -1 || remain_length < (unsigned)linelen-offset) {

@@ -306,7 +306,7 @@ dissect_fullcollectionname(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
   ti = proto_tree_add_item(tree, hf_mongo_fullcollectionname, tvb, offset, fcn_length, ENC_ASCII);
 
   /* If this doesn't find anything, we'll just throw an exception below */
-  dbn_length = tvb_find_guint8(tvb, offset, fcn_length, '.') - offset;
+  dbn_length = tvb_find_uint8(tvb, offset, fcn_length, '.') - offset;
 
   fcn_tree = proto_item_add_subtree(ti, ett_mongo_fcn);
 
