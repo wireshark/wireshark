@@ -2,6 +2,8 @@ Wireshark 4.0.17 Release Notes
 
  What is Wireshark?
 
+  This is expected to be the final release of the 4.0 branch.
+
   Wireshark is the world’s most popular network protocol analyzer. It is
   used for troubleshooting, analysis, development and education.
 
