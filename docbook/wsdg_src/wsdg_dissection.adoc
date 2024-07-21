@@ -569,7 +569,7 @@ other things we can do to make things look even more pretty. At the moment our
 dissection shows the packets as "Foo Protocol" which whilst correct is a little
 uninformative. We can enhance this by adding a little more detail. First, let’s
 get hold of the actual value of the protocol type. We can use the handy function
-`tvb_get_guint8()` to do this. With this value in hand, there are a couple of
+`tvb_get_uint8()` to do this. With this value in hand, there are a couple of
 things we can do. First we can set the INFO column of the non-detailed view to
 show what sort of PDU it is - which is extremely helpful when looking at
 protocol traces. Second, we can also display this information in the dissection
@@ -582,7 +582,7 @@ static int
 dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     int offset = 0;
-    uint8_t packet_type = tvb_get_guint8(tvb, 0);
+    uint8_t packet_type = tvb_get_uint8(tvb, 0);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FOO");
     /* Clear out stuff in the info column */
@@ -749,7 +749,7 @@ effect.
 .Decompressing data packets for dissection.
 [source,c]
 ----
-    uint8_t flags = tvb_get_guint8(tvb, offset);
+    uint8_t flags = tvb_get_uint8(tvb, offset);
     offset ++;
     if (flags & FLAG_COMPRESSED) { /* the remainder of the packet is compressed */
         uint16_t orig_size = tvb_get_ntohs(tvb, offset);
@@ -851,7 +851,7 @@ msg_pkt ::= SEQUENCE {
 #include <epan/reassemble.h>
    ...
 save_fragmented = pinfo->fragmented;
-flags = tvb_get_guint8(tvb, offset); offset++;
+flags = tvb_get_uint8(tvb, offset); offset++;
 if (flags & FL_FRAGMENT) { /* fragmented */
     tvbuff_t* new_tvb = NULL;
     fragment_data *frag_msg = NULL;
@@ -1189,7 +1189,7 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
        ...
     struct FooTap *fooinfo = wmem_new0(pinfo->pool, struct FooTap);
-    fooinfo->packet_type = tvb_get_guint8(tvb, 0);
+    fooinfo->packet_type = tvb_get_uint8(tvb, 0);
     fooinfo->priority = tvb_get_ntohs(tvb, 8);
        ...
     tap_queue_packet(foo_tap, pinfo, fooinfo);
