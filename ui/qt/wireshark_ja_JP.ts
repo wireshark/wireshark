@@ -4503,6 +4503,30 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>%1 インターバル</translation>
     </message>
     <message>
+        <source>Move to top left</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move to top center</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move to top right</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move to bottom left</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move to bottom center</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move to bottom right</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Portable Document Format (*.pdf)</source>
         <translation>PDF形式 (*.pdf)</translation>
     </message>
@@ -8866,7 +8890,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>THROUGHPUT</source>
-        <translation type="unfinished"></translation>
+        <translation>スループット</translation>
     </message>
     <message>
         <source>LOAD</source>
@@ -11358,7 +11382,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Decode as</source>
-        <translation>としてでコード</translation>
+        <translation>としてデコード</translation>
     </message>
     <message>
         <source>Show as</source>
@@ -11476,7 +11500,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Decoded as %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 としてデコードされました</translation>
     </message>
     <message>
         <source>Save Selected Packet Bytes As…</source>
@@ -11484,12 +11508,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>compressed %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 を圧縮しました</translation>
     </message>
     <message numerus="yes">
         <source>Using %Ln byte(s).</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln バイトを利用</numerusform>
         </translation>
     </message>
     <message>
@@ -14302,11 +14326,11 @@ a:hover {
     </message>
     <message>
         <source>&amp;User&apos;s Guide</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;ユーザーズガイド</translation>
     </message>
     <message>
         <source>Wireshark User&apos;s Guide</source>
-        <translation type="unfinished"></translation>
+        <translation>ワイヤーシャークユーザーズガイド</translation>
     </message>
     <message>
         <source>Display Filters</source>
