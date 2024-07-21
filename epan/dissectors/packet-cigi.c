@@ -1397,7 +1397,7 @@ static int hf_cigi3_2_rate_control_roll_rate;
 static int hf_cigi3_2_rate_control_pitch_rate;
 static int hf_cigi3_2_rate_control_yaw_rate;
 
-static const true_false_string cigi3_2_rate_control_coord_sys_select_vals = {
+static const true_false_string local_worldparent_tfs = {
     "Local",
     "World/Parent"
 };
@@ -1420,10 +1420,6 @@ static int  hf_cigi4_velocity_control_yaw_rate;
 
 static int  ett_cigi4_velocity_control_flags;
 
-static const true_false_string cigi4_velocity_control_coord_sys_select_vals = {
-    "Local",
-    "World/Parent"
-};
 
 /* CIGI3 Celestial Sphere Control */
 #define CIGI3_PACKET_SIZE_CELESTIAL_SPHERE_CONTROL 16
@@ -2003,10 +1999,6 @@ static int hf_cigi4_acceleration_control_acceleration_roll;
 static int hf_cigi4_acceleration_control_acceleration_pitch;
 static int hf_cigi4_acceleration_control_acceleration_yaw;
 
-static const true_false_string cigi4_trajectory_coord_sys_select_vals = {
-    "Local",
-    "World/Parent"
-};
 
 /* CIGI3 View Definition */
 #define CIGI3_PACKET_SIZE_VIEW_DEFINITION 32
@@ -11874,7 +11866,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_2_rate_control_coordinate_system,
             { "Coordinate System", "cigi.rate_control.coordinate_system",
-                FT_BOOLEAN, 8, TFS(&cigi3_2_rate_control_coord_sys_select_vals), 0x02,
+                FT_BOOLEAN, 8, TFS(&local_worldparent_tfs), 0x02,
                 "Specifies the reference coordinate system to which the linear and angular rates are applied", HFILL }
         },
         { &hf_cigi3_2_rate_control_x_rate,
@@ -11936,7 +11928,7 @@ proto_register_cigi(void)
         },
         { & hf_cigi4_velocity_control_coordinate_system,
             { "Coordinate System", "cigi.rate_control.coordinate_system",
-                FT_BOOLEAN, 8, TFS(&cigi4_velocity_control_coord_sys_select_vals), 0x02,
+                FT_BOOLEAN, 8, TFS(&local_worldparent_tfs), 0x02,
                 "Specifies the reference coordinate system to which the linear and angular rates are applied", HFILL }
         },
         { & hf_cigi4_velocity_control_x_rate,
@@ -13746,7 +13738,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi4_acceleration_control_coord_system,
             { "Sequence Direction", "cigi.acceleration_control.coord_system",
-                FT_BOOLEAN, 8, TFS(&cigi4_trajectory_coord_sys_select_vals), 0x02,
+                FT_BOOLEAN, 8, TFS(&local_worldparent_tfs), 0x02,
                 "Indicates the reference coordinate system to which the linear and angular accelerations may be applied", HFILL }
         },
 
