@@ -4283,7 +4283,7 @@ static void
 dissect_hytec_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	uint8_t subtype, group, identifier;
-	int32_t bit_offset, msg_len, expected_data_length, maximum_data_length, temp_gint32;
+	int32_t bit_offset, msg_len, expected_data_length, maximum_data_length, temp_int32;
 	proto_tree *hytec_data = NULL;
 	proto_item *tf = NULL;
 	proto_item *group_proto_item, *identifier_proto_item;
@@ -4383,8 +4383,8 @@ dissect_hytec_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 			case HYTEC_MD__TX_CURRENT_OUTPUT_POWER:
 				if(msg_len == expected_data_length)
 				{
-					temp_gint32 = tvb_get_ntohil(tvb, offset);
-					float_value = (float) 0.1 * (float) temp_gint32;
+					temp_int32 = tvb_get_ntohil(tvb, offset);
+					float_value = (float) 0.1 * (float) temp_int32;
 					proto_tree_add_float(tree, hf_hytec_tx_current_output_power, tvb, offset, msg_len, float_value);
 				}
 				else
@@ -4396,8 +4396,8 @@ dissect_hytec_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 			case HYTEC_MD__RX_CURRENT_INPUT_POWER:
 				if(msg_len == expected_data_length)
 				{
-					temp_gint32 = tvb_get_ntohil(tvb, offset);
-					float_value = (float) 0.1 * (float) temp_gint32;
+					temp_int32 = tvb_get_ntohil(tvb, offset);
+					float_value = (float) 0.1 * (float) temp_int32;
 					proto_tree_add_float(tree, hf_hytec_rx_current_input_power, tvb, offset, msg_len, float_value);
 				}
 				else
@@ -4409,10 +4409,10 @@ dissect_hytec_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 			case HYTEC_MD__RX_INPUT_SNR:
 				if(msg_len == expected_data_length)
 				{
-					temp_gint32 = tvb_get_ntohil(tvb, offset);
-					if(temp_gint32 < 0) float_value = (float)-1.0 * (float)((~temp_gint32) >> 8);
-					else float_value = (float) (temp_gint32 >> 8);
-					float_value += (float)(temp_gint32 & 0xFF) * (float)0.00390625; /* 0.00390625 == 0.5 ^ 8 */
+					temp_int32 = tvb_get_ntohil(tvb, offset);
+					if(temp_int32 < 0) float_value = (float)-1.0 * (float)((~temp_int32) >> 8);
+					else float_value = (float) (temp_int32 >> 8);
+					float_value += (float)(temp_int32 & 0xFF) * (float)0.00390625; /* 0.00390625 == 0.5 ^ 8 */
 					proto_tree_add_float(tree, hf_hytec_rx_input_snr, tvb, offset, msg_len, float_value);
 				}
 				else
@@ -4424,10 +4424,10 @@ dissect_hytec_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 			case HYTEC_MD__LINELOSS:
 				if(msg_len == expected_data_length)
 				{
-					temp_gint32 = tvb_get_ntohil(tvb, offset);
-					if(temp_gint32 < 0) float_value = (float)-1.0 * (float)((~temp_gint32) >> 8);
-					else float_value = (float) (temp_gint32 >> 8);
-					float_value += (float)(temp_gint32 & 0xFF) * (float)0.00390625; /* 0.5 ^ 8 */
+					temp_int32 = tvb_get_ntohil(tvb, offset);
+					if(temp_int32 < 0) float_value = (float)-1.0 * (float)((~temp_int32) >> 8);
+					else float_value = (float) (temp_int32 >> 8);
+					float_value += (float)(temp_int32 & 0xFF) * (float)0.00390625; /* 0.5 ^ 8 */
 					proto_tree_add_float(tree, hf_hytec_lineloss, tvb, offset, msg_len, float_value);
 				}
 				else

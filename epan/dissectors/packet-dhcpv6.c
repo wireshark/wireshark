@@ -1854,7 +1854,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
     proto_tree *subtree_2;
     int         i;
     uint16_t    duidtype;
-    uint32_t    enterprise_no, temp_guint32;
+    uint32_t    enterprise_no, temp_uint32;
     unsigned    algorithm;
 
     /* option type and length must be present */
@@ -2940,8 +2940,8 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "Client link-layer address: malformed option");
             break;
         }
-        proto_tree_add_item_ret_uint(subtree, hf_client_link_layer_addr_hwtype, tvb, off, 2, ENC_BIG_ENDIAN, &temp_guint32);
-        hwtype = temp_guint32 & 0xffff;
+        proto_tree_add_item_ret_uint(subtree, hf_client_link_layer_addr_hwtype, tvb, off, 2, ENC_BIG_ENDIAN, &temp_uint32);
+        hwtype = temp_uint32 & 0xffff;
         if (optlen > 2) {
             proto_tree_add_string(subtree, hf_client_link_layer_addr, tvb, off+2, optlen-2,
                 tvb_arphrdaddr_to_str(pinfo->pool, tvb, off+2, optlen-2, hwtype));

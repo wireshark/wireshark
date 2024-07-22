@@ -2150,7 +2150,7 @@ spdu_ieee_float_from_32bits(uint32_t value) {
 static uint64_t
 dissect_shifted_and_shortened_uint(tvbuff_t *tvb, int offset, int offset_bits, int offset_end, int offset_end_bits, bool big_endian) {
     int32_t i;
-    uint64_t value_guint64 = 0;
+    uint64_t value_uint64 = 0;
 
     if (!big_endian) {
         /* offset and offset_end need to be included */
@@ -2171,8 +2171,8 @@ dissect_shifted_and_shortened_uint(tvbuff_t *tvb, int offset, int offset_bits, i
                     tmp_bit_count = 8 - offset_bits;
                 }
 
-                value_guint64 <<= (unsigned)tmp_bit_count;
-                value_guint64 |= tmp;
+                value_uint64 <<= (unsigned)tmp_bit_count;
+                value_uint64 |= tmp;
             }
         }
     } else {
@@ -2195,12 +2195,12 @@ dissect_shifted_and_shortened_uint(tvbuff_t *tvb, int offset, int offset_bits, i
                     tmp_bit_count = offset_end_bits;
                 }
 
-                value_guint64 <<= (unsigned)tmp_bit_count;
-                value_guint64 |= tmp;
+                value_uint64 <<= (unsigned)tmp_bit_count;
+                value_uint64 |= tmp;
             }
         }
     }
-    return value_guint64;
+    return value_uint64;
 }
 
 static int
@@ -2254,7 +2254,7 @@ dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         expert_spdu_config_error(tree, pinfo, tvb, offset, signal_length);
     }
 
-    uint64_t value_guint64 = dissect_shifted_and_shortened_uint(tvb, offset, offset_bits, offset_end, offset_end_bits, item->big_endian);
+    uint64_t value_uint64 = dissect_shifted_and_shortened_uint(tvb, offset, offset_bits, offset_end, offset_end_bits, item->big_endian);
 
     /* we need to reset this because it is reused */
     ti = NULL;
@@ -2263,17 +2263,17 @@ dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     switch (item->data_type) {
     case SPDU_DATA_TYPE_UINT: {
-        value_gdouble = (double)value_guint64;
+        value_gdouble = (double)value_uint64;
 
         if (item->multiplexer) {
-            *multiplexer = (int)value_guint64;
+            *multiplexer = (int)value_uint64;
         }
 
         /* show names for values */
         if (item->sig_val_names != NULL) {
             uint32_t i;
             for (i = 0; i < item->sig_val_names->num_of_items; i++) {
-                if (item->sig_val_names->items[i].value_start <= value_guint64 && value_guint64 <= item->sig_val_names->items[i].value_end) {
+                if (item->sig_val_names->items[i].value_start <= value_uint64 && value_uint64 <= item->sig_val_names->items[i].value_end) {
                     value_name = item->sig_val_names->items[i].name;
                 }
             }
@@ -2284,26 +2284,26 @@ dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             value_gdouble = item->scaler * value_gdouble + item->offset;
             ti = proto_tree_add_double(tree, hf_id_effective, tvb, offset, signal_length, value_gdouble);
         } else {
-            ti = proto_tree_add_uint64(tree, hf_id_effective, tvb, offset, signal_length, value_guint64);
+            ti = proto_tree_add_uint64(tree, hf_id_effective, tvb, offset, signal_length, value_uint64);
         }
         if (value_name != NULL) {
-            proto_item_append_text(ti, " [raw: 0x%" PRIx64 ": %s]", value_guint64, value_name);
+            proto_item_append_text(ti, " [raw: 0x%" PRIx64 ": %s]", value_uint64, value_name);
         } else {
-            proto_item_append_text(ti, " [raw: 0x%" PRIx64 "]", value_guint64);
+            proto_item_append_text(ti, " [raw: 0x%" PRIx64 "]", value_uint64);
         }
 
         subtree = proto_item_add_subtree(ti, ett_spdu_signal);
-        ti = proto_tree_add_uint64(subtree, hf_id_raw, tvb, offset, signal_length, value_guint64);
-        proto_item_append_text(ti, " (0x%" PRIx64 ")", value_guint64);
+        ti = proto_tree_add_uint64(subtree, hf_id_raw, tvb, offset, signal_length, value_uint64);
+        proto_item_append_text(ti, " (0x%" PRIx64 ")", value_uint64);
     }
         break;
 
     case SPDU_DATA_TYPE_INT: {
-        int64_t value_gint64 = ws_sign_ext64(value_guint64, (int)item->bitlength_encoded_type);
-        value_gdouble = (double)value_gint64;
+        int64_t value_int64 = ws_sign_ext64(value_uint64, (int)item->bitlength_encoded_type);
+        value_gdouble = (double)value_int64;
 
         if (item->multiplexer) {
-            *multiplexer = (int)value_gint64;
+            *multiplexer = (int)value_int64;
         }
 
         /* scale and output */
@@ -2311,17 +2311,17 @@ dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             value_gdouble = item->scaler * value_gdouble + item->offset;
             ti = proto_tree_add_double(tree, hf_id_effective, tvb, offset, signal_length, value_gdouble);
         } else {
-            ti = proto_tree_add_int64(tree, hf_id_effective, tvb, offset, signal_length, value_gint64);
+            ti = proto_tree_add_int64(tree, hf_id_effective, tvb, offset, signal_length, value_int64);
         }
         if (value_name != NULL) {
-            proto_item_append_text(ti, " [raw: %" PRIx64 ": %s]", value_gint64, value_name);
+            proto_item_append_text(ti, " [raw: %" PRIx64 ": %s]", value_int64, value_name);
         } else {
-            proto_item_append_text(ti, " [raw: %" PRIx64 "]", value_gint64);
+            proto_item_append_text(ti, " [raw: %" PRIx64 "]", value_int64);
         }
 
         subtree = proto_item_add_subtree(ti, ett_spdu_signal);
-        ti = proto_tree_add_int64(subtree, hf_id_raw, tvb, offset, signal_length, value_gint64);
-        proto_item_append_text(ti, " (0x%" PRIx64 ")", value_gint64);
+        ti = proto_tree_add_int64(subtree, hf_id_raw, tvb, offset, signal_length, value_int64);
+        proto_item_append_text(ti, " (0x%" PRIx64 ")", value_int64);
     }
         break;
 
@@ -2330,10 +2330,10 @@ dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         switch (item->bitlength_base_type) {
         case 64:
-            value_gdouble = spdu_ieee_double_from_64bits(value_guint64);
+            value_gdouble = spdu_ieee_double_from_64bits(value_uint64);
             break;
         case 32:
-            value_gdouble = (double)spdu_ieee_float_from_32bits((uint32_t)value_guint64);
+            value_gdouble = (double)spdu_ieee_float_from_32bits((uint32_t)value_uint64);
             break;
         default:
             /* not supported and cannot occur since the config is checked! */
@@ -2345,14 +2345,14 @@ dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         ti = proto_tree_add_double(tree, hf_id_effective, tvb, offset, signal_length, value_gdouble);
 
         if (value_name != NULL) {
-            proto_item_append_text(ti, " [raw: 0x%" PRIx64 ": %s]", value_guint64, value_name);
+            proto_item_append_text(ti, " [raw: 0x%" PRIx64 ": %s]", value_uint64, value_name);
         } else {
-            proto_item_append_text(ti, " [raw: 0x%" PRIx64 "]", value_guint64);
+            proto_item_append_text(ti, " [raw: 0x%" PRIx64 "]", value_uint64);
         }
 
         subtree = proto_item_add_subtree(ti, ett_spdu_signal);
         ti = proto_tree_add_double(subtree, hf_id_raw, tvb, offset, signal_length, value_gdouble);
-        proto_item_append_text(ti, " [raw: 0x%" PRIx64 "]", value_guint64);
+        proto_item_append_text(ti, " [raw: 0x%" PRIx64 "]", value_uint64);
     }
         break;
 

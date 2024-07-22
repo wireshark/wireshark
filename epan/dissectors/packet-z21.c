@@ -474,8 +474,8 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     unsigned offset = 0, datalen, command;
     unsigned checksum, calculated_checksum, one_byte, version, temp_uint;
     unsigned address_bytes, addr, speed_steps = 0, cv_addr;
-    uint64_t status, direction_and_speed, temp_guint64;
-    int32_t main_current, temp_gint32;
+    uint64_t status, direction_and_speed, temp_uint64;
+    int32_t main_current, temp_int32;
     char *buffer;
     float temp_float;
     static int * const broadcast_flags_bits[] = {
@@ -761,52 +761,52 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
             proto_item_append_text(z21_tree, ", Loco: %d", addr);
 
             proto_tree_add_bitmask_list_ret_uint64(z21_tree, tvb, offset, 1,
-                loco_info_bits1, ENC_NA, &temp_guint64);
+                loco_info_bits1, ENC_NA, &temp_uint64);
             offset += 1;
-            calculated_checksum ^= temp_guint64;
+            calculated_checksum ^= temp_uint64;
             col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
-                val_to_str_const((uint32_t)temp_guint64 & 0x07,
+                val_to_str_const((uint32_t)temp_uint64 & 0x07,
                     z21_loco_info_speed_steps_vals, "unknown"));
 
             proto_tree_add_bitmask_list_ret_uint64(z21_tree, tvb, offset, 1,
-                loco_info_bits2, ENC_NA, &temp_guint64);
+                loco_info_bits2, ENC_NA, &temp_uint64);
             offset += 1;
-            calculated_checksum ^= temp_guint64;
+            calculated_checksum ^= temp_uint64;
             col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-                tfs_get_string((bool)(temp_guint64 >> 7), &tfs_forward_reverse));
+                tfs_get_string((bool)(temp_uint64 >> 7), &tfs_forward_reverse));
             col_append_fstr(pinfo->cinfo, COL_INFO, ", Speed=0x%02" PRIx64,
-                temp_guint64 & 0x7f);
+                temp_uint64 & 0x7f);
 
             proto_tree_add_bitmask_list_ret_uint64(z21_tree, tvb, offset, 1,
-                loco_info_bits3, ENC_NA, &temp_guint64);
+                loco_info_bits3, ENC_NA, &temp_uint64);
             offset += 1;
-            calculated_checksum ^= temp_guint64;
-            if (temp_guint64 & 0x40) {
+            calculated_checksum ^= temp_uint64;
+            if (temp_uint64 & 0x40) {
                 col_append_str(pinfo->cinfo, COL_INFO, ", in double traction");
             }
 
             proto_tree_add_bitmask_list_ret_uint64(z21_tree, tvb, offset, 1,
-                loco_info_bits4, ENC_NA, &temp_guint64);
+                loco_info_bits4, ENC_NA, &temp_uint64);
             offset += 1;
-            calculated_checksum ^= temp_guint64;
+            calculated_checksum ^= temp_uint64;
 
             proto_tree_add_bitmask_list_ret_uint64(z21_tree, tvb, offset, 1,
-                loco_info_bits5, ENC_NA, &temp_guint64);
+                loco_info_bits5, ENC_NA, &temp_uint64);
             offset += 1;
-            calculated_checksum ^= temp_guint64;
+            calculated_checksum ^= temp_uint64;
 
             /* The following bytes are not always there it seems */
             if (offset < datalen-1) {
                 proto_tree_add_bitmask_list_ret_uint64(z21_tree, tvb, offset, 1,
-                    loco_info_bits6, ENC_NA, &temp_guint64);
+                    loco_info_bits6, ENC_NA, &temp_uint64);
                 offset += 1;
-                calculated_checksum ^= temp_guint64;
+                calculated_checksum ^= temp_uint64;
             }
             if (offset < datalen-1) {
                 proto_tree_add_bitmask_list_ret_uint64(z21_tree, tvb, offset, 1,
-                    loco_info_bits7, ENC_NA, &temp_guint64);
+                    loco_info_bits7, ENC_NA, &temp_uint64);
                 offset += 1;
-                calculated_checksum ^= temp_guint64;
+                calculated_checksum ^= temp_uint64;
             }
             /* If still something, dissect as bytes */
             if (offset < datalen-1) {
@@ -849,15 +849,15 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
             col_append_fstr(pinfo->cinfo, COL_INFO, ", Loco=%d", addr);
             proto_item_append_text(z21_tree, ", Loco: %d", addr);
             proto_tree_add_bitmask_list_ret_uint64(z21_tree, tvb, offset, 1,
-                loco_func_bits, ENC_NA, &temp_guint64);
+                loco_func_bits, ENC_NA, &temp_uint64);
             offset += 1;
-            calculated_checksum ^= temp_guint64;
+            calculated_checksum ^= temp_uint64;
             col_append_fstr(pinfo->cinfo, COL_INFO, ", Function=%" PRIu64 ", State=%s",
-                temp_guint64 & 0x3f,
-                val_to_str_const((uint32_t)temp_guint64 >> 6, z21_loco_func_vals, "unknown"));
+                temp_uint64 & 0x3f,
+                val_to_str_const((uint32_t)temp_uint64 >> 6, z21_loco_func_vals, "unknown"));
             proto_item_append_text(z21_tree, ", Function: %" PRIu64 ", State: %s",
-                temp_guint64 & 0x3f,
-                val_to_str_const((uint32_t)temp_guint64 >> 6, z21_loco_func_vals, "unknown"));
+                temp_uint64 & 0x3f,
+                val_to_str_const((uint32_t)temp_uint64 >> 6, z21_loco_func_vals, "unknown"));
             break;
         case Z21_LAN_X_GET_TURNOUT_INFO:
             addr = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
@@ -877,15 +877,15 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
             calculated_checksum ^= addr >> 8;
             calculated_checksum ^= addr & 0xFF;
             proto_tree_add_bitmask_list_ret_uint64(z21_tree, tvb, offset, 1,
-                turnout_state_bits, ENC_NA, &temp_guint64);
+                turnout_state_bits, ENC_NA, &temp_uint64);
             offset += 1;
-            calculated_checksum ^= temp_guint64;
+            calculated_checksum ^= temp_uint64;
             col_append_fstr(pinfo->cinfo, COL_INFO, ", Address=%d, State=%s",
                 addr,
-                val_to_str_const((uint32_t)temp_guint64 & 0x03, z21_turnout_state_vals, "unknown"));
+                val_to_str_const((uint32_t)temp_uint64 & 0x03, z21_turnout_state_vals, "unknown"));
             proto_item_append_text(z21_tree, ", Address: %d, State: %s",
                 addr,
-                val_to_str_const((uint32_t)temp_guint64 & 0x03, z21_turnout_state_vals, "unknown"));
+                val_to_str_const((uint32_t)temp_uint64 & 0x03, z21_turnout_state_vals, "unknown"));
             break;
         case Z21_LAN_X_SET_TURNOUT:
             addr = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
@@ -897,17 +897,17 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
             col_append_fstr(pinfo->cinfo, COL_INFO, ", Address=%d", addr);
             proto_item_append_text(z21_tree, ", Address: %d", addr);
             proto_tree_add_bitmask_list_ret_uint64(z21_tree, tvb, offset, 1,
-                turnout_set_bits, ENC_NA, &temp_guint64);
+                turnout_set_bits, ENC_NA, &temp_uint64);
             offset += 1;
-            calculated_checksum ^= temp_guint64;
+            calculated_checksum ^= temp_uint64;
             col_append_fstr(pinfo->cinfo, COL_INFO, ", Address=%d, %s, Output=%s",
                 addr,
-                tfs_get_string((bool)(temp_guint64 & 0x08), &tfs_turnout_command),
-                tfs_get_string((bool)(temp_guint64 & 0x01), &tfs_turnout_output));
+                tfs_get_string((bool)(temp_uint64 & 0x08), &tfs_turnout_command),
+                tfs_get_string((bool)(temp_uint64 & 0x01), &tfs_turnout_output));
             proto_item_append_text(z21_tree, ", Address: %d, %s, Output: %s",
                 addr,
-                tfs_get_string((bool)(temp_guint64 & 0x08), &tfs_turnout_command),
-                tfs_get_string((bool)(temp_guint64 & 0x01), &tfs_turnout_output));
+                tfs_get_string((bool)(temp_uint64 & 0x08), &tfs_turnout_command),
+                tfs_get_string((bool)(temp_uint64 & 0x01), &tfs_turnout_output));
             break;
         case Z21_LAN_X_GET_EXT_ACCESSORY_INFO:
             addr = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
@@ -1049,13 +1049,13 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
                 tvb, offset, 2, cv_addr);
             offset += 2;
             proto_tree_add_bitmask_list_ret_uint64(z21_tree, tvb, offset, 1,
-                cv_bits, ENC_NA, &temp_guint64);
+                cv_bits, ENC_NA, &temp_uint64);
             offset += 1;
-            calculated_checksum ^= (unsigned)temp_guint64;
+            calculated_checksum ^= (unsigned)temp_uint64;
             col_append_fstr(pinfo->cinfo, COL_INFO, ", Loco=%d, CV%d, Bit position=%" PRIu64 ", Value=%" PRIu64,
-                addr, cv_addr, temp_guint64 & 0x07, temp_guint64 >> 3 & 0x01);
+                addr, cv_addr, temp_uint64 & 0x07, temp_uint64 >> 3 & 0x01);
             proto_item_append_text(z21_tree, ", Loco: %d, CV%d, Bit position: %" PRIu64 ", Value: %" PRIu64,
-                addr, cv_addr, temp_guint64 & 0x07, temp_guint64 >> 3 & 0x01);
+                addr, cv_addr, temp_uint64 & 0x07, temp_uint64 >> 3 & 0x01);
             break;
         case Z21_LAN_X_CV_POM_READ_BYTE:
             address_bytes = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
@@ -1180,22 +1180,22 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
                 tvb, offset, 2, main_current, "%d mA", main_current);
             offset += 2;
 
-            temp_gint32 = tvb_get_int16(tvb, offset, ENC_LITTLE_ENDIAN);
+            temp_int32 = tvb_get_int16(tvb, offset, ENC_LITTLE_ENDIAN);
             proto_tree_add_int_format_value(z21_tree, hf_z21_prog_current,
-                tvb, offset, 2, temp_gint32, "%d mA", temp_gint32);
+                tvb, offset, 2, temp_int32, "%d mA", temp_int32);
             offset += 2;
 
-            temp_gint32 = tvb_get_int16(tvb, offset, ENC_LITTLE_ENDIAN);
+            temp_int32 = tvb_get_int16(tvb, offset, ENC_LITTLE_ENDIAN);
             proto_tree_add_int_format_value(z21_tree, hf_z21_filtered_main_current,
-                tvb, offset, 2, temp_gint32, "%d mA", temp_gint32);
+                tvb, offset, 2, temp_int32, "%d mA", temp_int32);
             offset += 2;
 
-            temp_gint32 = tvb_get_int16(tvb, offset, ENC_LITTLE_ENDIAN);
+            temp_int32 = tvb_get_int16(tvb, offset, ENC_LITTLE_ENDIAN);
             proto_tree_add_int_format_value(z21_tree, hf_z21_temperature,
-                tvb, offset, 2, temp_gint32, "%d°C", temp_gint32);
+                tvb, offset, 2, temp_int32, "%d°C", temp_int32);
             offset += 2;
             col_append_fstr(pinfo->cinfo, COL_INFO,
-                ", Temperature=%d°C", temp_gint32);
+                ", Temperature=%d°C", temp_int32);
 
             temp_uint = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
             temp_float = (float)temp_uint / 1000;

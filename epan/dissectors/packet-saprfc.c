@@ -605,18 +605,18 @@ dissect_saprfc_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_t
 		proto_item_append_text(item, ", Table Name=%s", value_str);
 
 	} else if (item_id1==0x03 && item_id2==0x02){
-		uint32_t value_guint32;
+		uint32_t value_uint32;
 
 		if (item_length != 8) {
 			expert_add_info_format(pinfo, item_value_tree, &ei_saprfc_item_length_invalid, "Table Info length is invalid");
 		}
-		value_guint32 = tvb_get_ntohl(tvb, offset);
-		proto_tree_add_none_format(item_value_tree, hf_saprfc_item_value, tvb, offset, 4, "Row Width: %d", value_guint32);
-		proto_item_append_text(item, ", Row Width=%d", value_guint32);
+		value_uint32 = tvb_get_ntohl(tvb, offset);
+		proto_tree_add_none_format(item_value_tree, hf_saprfc_item_value, tvb, offset, 4, "Row Width: %d", value_uint32);
+		proto_item_append_text(item, ", Row Width=%d", value_uint32);
 		offset+=4;
-		value_guint32 = tvb_get_ntohl(tvb, offset);
-		proto_tree_add_none_format(item_value_tree, hf_saprfc_item_value, tvb, offset, 4, "Total Row Count: %d", value_guint32);
-		proto_item_append_text(item, ", Total Row Count=%d", value_guint32);
+		value_uint32 = tvb_get_ntohl(tvb, offset);
+		proto_tree_add_none_format(item_value_tree, hf_saprfc_item_value, tvb, offset, 4, "Total Row Count: %d", value_uint32);
+		proto_item_append_text(item, ", Total Row Count=%d", value_uint32);
 
 	} else if (item_id1==0x03 && item_id2==0x05){
 		global_saprfc_table_content_counter+= 1;
@@ -641,12 +641,12 @@ dissect_saprfc_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_t
 
 	} else if (item_id1==0x01 && item_id2==0x36){
 		int8_t *value_str;
-		uint8_t value_guint8;
-		uint32_t value_guint32;
+		uint8_t value_uint8;
+		uint32_t value_uint32;
 
-		value_guint8 = tvb_get_uint8(tvb, offset);
-		proto_tree_add_none_format(item_value_tree, hf_saprfc_item_value, tvb, offset, 1, "#: %u", value_guint8);
-		proto_item_append_text(item, ", #=%u", value_guint8);
+		value_uint8 = tvb_get_uint8(tvb, offset);
+		proto_tree_add_none_format(item_value_tree, hf_saprfc_item_value, tvb, offset, 1, "#: %u", value_uint8);
+		proto_item_append_text(item, ", #=%u", value_uint8);
 		offset+=1;
 		value_str = tvb_bytes_to_str(pinfo->pool, tvb, offset, 16);
 		proto_tree_add_none_format(item_value_tree, hf_saprfc_item_value, tvb, offset, 16, "Root-id: %s", value_str);
@@ -656,9 +656,9 @@ dissect_saprfc_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_t
 		proto_tree_add_none_format(item_value_tree, hf_saprfc_item_value, tvb, offset, 16, "Coon-id: %s", value_str);
 		proto_item_append_text(item, ", Coon-id=%s", value_str);
 		offset+=16;
-		value_guint32 = tvb_get_ntohl(tvb, offset);
-		proto_tree_add_none_format(item_value_tree, hf_saprfc_item_value, tvb, offset, 4, "#: %d", value_guint32);
-		proto_item_append_text(item, ", #=%u", value_guint32);
+		value_uint32 = tvb_get_ntohl(tvb, offset);
+		proto_tree_add_none_format(item_value_tree, hf_saprfc_item_value, tvb, offset, 4, "#: %d", value_uint32);
+		proto_item_append_text(item, ", #=%u", value_uint32);
 
 	} else if (item_id1==0xFF && item_id2==0xFF){
 		proto_item_append_text(item, ", End of RFC message");
