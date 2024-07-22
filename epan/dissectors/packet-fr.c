@@ -937,7 +937,7 @@ proto_register_fr(void)
 
     { &hf_fr_dc,
       { "DC", "fr.dc",
-        FT_BOOLEAN, 16, TFS(&ctrl_string), FRELAY_DC,
+        FT_BOOLEAN, 8, TFS(&ctrl_string), FRELAY_DC,
         "Address/Control", HFILL }},
 
     { &hf_fr_dlci,

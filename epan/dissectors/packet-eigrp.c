@@ -210,7 +210,7 @@
  * bit set in the flags field of the fixed header. It tells the neighbor
  * to down-load his topology table.
  */
-#define EIGRP_INIT_FLAG 0x01
+#define EIGRP_INIT_FLAG 0x00000001
 
 /*
  * CR bit (Conditionally Received) definition in flags field on header. Any
@@ -220,7 +220,7 @@
  * This allows multicasts to be transmitted in order and reliably at the
  * same time as unicasts are transmitted.
  */
-#define EIGRP_CR_FLAG 0x02
+#define EIGRP_CR_FLAG   0x00000002
 
 /*
  * RS bit.  The Restart flag is set in the hello and the init
@@ -229,7 +229,7 @@
  * and maintain the adjacency. A restarting router looks at
  * this flag to determine if the peer is helping out with the restart.
  */
-#define EIGRP_RS_FLAG 0x04
+#define EIGRP_RS_FLAG   0x00000004
 
 /*
  * EOT bit.  The End-of-Table flag marks the end of the start-up updates
@@ -238,7 +238,7 @@
  * peers.  A nsf-aware router waits for this flag before cleaning up
  * the stale routes from the restarting peer.
  */
-#define EIGRP_EOT_FLAG 0x08
+#define EIGRP_EOT_FLAG  0x00000008
 
 /**
  * EIGRP Virtual Router ID

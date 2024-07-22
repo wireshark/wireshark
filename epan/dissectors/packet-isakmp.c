@@ -632,9 +632,9 @@ static const fragment_items isakmp_frag_items = {
 /*
 * IPSEC Situation Definition (RFC2407)
 */
-#define SIT_IDENTITY_ONLY       0x01
-#define SIT_SECRECY             0x02
-#define SIT_INTEGRITY           0x04
+#define SIT_IDENTITY_ONLY       0x00000001
+#define SIT_SECRECY             0x00000002
+#define SIT_INTEGRITY           0x00000004
 
 
 static const value_string exchange_v1_type[] = {

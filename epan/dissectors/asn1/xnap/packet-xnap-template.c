@@ -580,7 +580,7 @@ void proto_register_xnap(void) {
         NULL, HFILL }},
     { &hf_xnap_ReportCharacteristicsForDataCollection_MeasuredUETrajectory,
       { "MeasuredUETrajectory", "xnap.ReportCharacteristicsForDataCollection.MeasuredUETrajectory",
-        FT_BOOLEAN, 32, TFS(&tfs_requested_not_requested), 0x008000000,
+        FT_BOOLEAN, 32, TFS(&tfs_requested_not_requested), 0x00800000,
         NULL, HFILL }},
     { &hf_xnap_ReportCharacteristicsForDataCollection_Reserved,
       { "Reserved", "xnap.ReportCharacteristicsForDataCollection.Reserved",

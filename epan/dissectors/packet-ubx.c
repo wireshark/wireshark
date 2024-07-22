@@ -2559,7 +2559,7 @@ void proto_register_ubx(void) {
                 FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         {&hf_ubx_rxm_measx_flags_towset,
             {"TOW set", "ubx.rxm.measx.flags.towset",
-                FT_BOOLEAN, 2, NULL, 0x03, NULL, HFILL}},
+                FT_BOOLEAN, 8, NULL, 0x03, NULL, HFILL}},
         {&hf_ubx_rxm_measx_reserved4,
             {"Reserved", "ubx.rxm.measx.reserved4",
                 FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}},

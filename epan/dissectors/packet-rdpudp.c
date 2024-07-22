@@ -794,7 +794,7 @@ proto_register_rdpudp(void) {
 		{"Flags", "rdpudp.synex.flags", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL}
 	  },
 	  { &hf_rdpudp_synex_flag_version,
-		{"Version info", "rdpudp.synex.flags.versioninfo", FT_BOOLEAN, 8, NULL, 0x0001, NULL, HFILL}
+		{"Version info", "rdpudp.synex.flags.versioninfo", FT_BOOLEAN, 16, NULL, 0x0001, NULL, HFILL}
 	  },
 	  { &hf_rdpudp_synex_version,
 		{"Version", "rdpudp.synex.version", FT_UINT16, BASE_HEX, VALS(rdpudp_version_vals), 0, NULL, HFILL}
