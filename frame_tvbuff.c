@@ -114,7 +114,7 @@ frame_memcpy(tvbuff_t *tvb, void *target, unsigned abs_offset, unsigned abs_leng
 }
 
 static int
-frame_find_guint8(tvbuff_t *tvb, unsigned abs_offset, unsigned limit, uint8_t needle)
+frame_find_uint8(tvbuff_t *tvb, unsigned abs_offset, unsigned limit, uint8_t needle)
 {
     struct tvb_frame *frame_tvb = (struct tvb_frame *) tvb;
     const uint8_t *result;
@@ -129,7 +129,7 @@ frame_find_guint8(tvbuff_t *tvb, unsigned abs_offset, unsigned limit, uint8_t ne
 }
 
 static int
-frame_pbrk_guint8(tvbuff_t *tvb, unsigned abs_offset, unsigned limit, const ws_mempbrk_pattern* pattern, unsigned char *found_needle)
+frame_pbrk_uint8(tvbuff_t *tvb, unsigned abs_offset, unsigned limit, const ws_mempbrk_pattern* pattern, unsigned char *found_needle)
 {
     struct tvb_frame *frame_tvb = (struct tvb_frame *) tvb;
 
@@ -154,8 +154,8 @@ static const struct tvb_ops tvb_frame_ops = {
     frame_offset,         /* offset */
     frame_get_ptr,        /* get_ptr */
     frame_memcpy,         /* memcpy */
-    frame_find_guint8,    /* find_guint8 */
-    frame_pbrk_guint8,    /* pbrk_guint8 */
+    frame_find_uint8,     /* find_uint8 */
+    frame_pbrk_uint8,     /* pbrk_uint8 */
     frame_clone,          /* clone */
 };
 
