@@ -589,6 +589,7 @@ WS_DLL_PUBLIC const uint8_t *tvb_get_ptr(tvbuff_t *tvb, const int offset,
 WS_DLL_PUBLIC int tvb_find_uint8(tvbuff_t *tvb, const int offset,
     const int maxlength, const uint8_t needle);
 
+WS_DEPRECATED_X("Use tvb_find_uint8 instead")
 static inline int tvb_find_guint8(tvbuff_t* tvb, const int offset,
 	const int maxlength, const uint8_t needle) { return tvb_find_uint8(tvb, offset, maxlength, needle); }
 
@@ -596,6 +597,7 @@ static inline int tvb_find_guint8(tvbuff_t* tvb, const int offset,
 WS_DLL_PUBLIC int tvb_find_uint16(tvbuff_t *tvb, const int offset,
     const int maxlength, const uint16_t needle);
 
+WS_DEPRECATED_X("Use tvb_find_uint16 instead")
 static inline int tvb_find_guint16(tvbuff_t* tvb, const int offset,
 	const int maxlength, const uint16_t needle) {
 	return tvb_find_uint16(tvb, offset, maxlength, needle);
@@ -611,6 +613,7 @@ static inline int tvb_find_guint16(tvbuff_t* tvb, const int offset,
 WS_DLL_PUBLIC int tvb_ws_mempbrk_pattern_uint8(tvbuff_t *tvb, const int offset,
     const int maxlength, const ws_mempbrk_pattern* pattern, unsigned char *found_needle);
 
+WS_DEPRECATED_X("Use tvb_ws_mempbrk_pattern_uint8 instead")
 static inline int tvb_ws_mempbrk_pattern_guint8(tvbuff_t* tvb, const int offset,
 	const int maxlength, const ws_mempbrk_pattern* pattern, unsigned char* found_needle) {
 	return tvb_ws_mempbrk_pattern_uint8(tvb, offset, maxlength, pattern, found_needle);
@@ -974,7 +977,11 @@ WS_DLL_PUBLIC int tvb_skip_wsp(tvbuff_t *tvb, const int offset,
 
 WS_DLL_PUBLIC int tvb_skip_wsp_return(tvbuff_t *tvb, const int offset);
 
-int tvb_skip_guint8(tvbuff_t *tvb, int offset, const int maxlength, const uint8_t ch);
+int tvb_skip_uint8(tvbuff_t *tvb, int offset, const int maxlength, const uint8_t ch);
+WS_DEPRECATED_X("Use tvb_skip_uint8 instead")
+static inline int tvb_skip_guint8(tvbuff_t *tvb, int offset, const int maxlength, const uint8_t ch) {
+	return tvb_skip_uint8(tvb, offset, maxlength, ch);
+}
 
 /**
 * Given a tvbuff, an offset into the tvbuff, and a length that starts

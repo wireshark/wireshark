@@ -4442,7 +4442,7 @@ tvb_skip_wsp_return(tvbuff_t *tvb, const int offset)
 }
 
 int
-tvb_skip_guint8(tvbuff_t *tvb, int offset, const int maxlength, const uint8_t ch)
+tvb_skip_uint8(tvbuff_t *tvb, int offset, const int maxlength, const uint8_t ch)
 {
 	int end, tvb_len;
 

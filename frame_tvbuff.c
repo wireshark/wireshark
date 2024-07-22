@@ -135,7 +135,7 @@ frame_pbrk_guint8(tvbuff_t *tvb, unsigned abs_offset, unsigned limit, const ws_m
 
     frame_cache(frame_tvb);
 
-    return tvb_ws_mempbrk_pattern_guint8(tvb, abs_offset, limit, pattern, found_needle);
+    return tvb_ws_mempbrk_pattern_uint8(tvb, abs_offset, limit, pattern, found_needle);
 }
 
 static unsigned

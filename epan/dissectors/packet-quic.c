@@ -2266,7 +2266,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
 
             /* A padding frame consists of a single zero octet, but for brevity
              * sake let's combine multiple zeroes into a single field. */
-            pad_len = 1 + tvb_skip_guint8(tvb, offset, tvb_reported_length_remaining(tvb, offset), '\0') - offset;
+            pad_len = 1 + tvb_skip_uint8(tvb, offset, tvb_reported_length_remaining(tvb, offset), '\0') - offset;
             ti = proto_tree_add_uint(ft_tree, hf_quic_padding_length, tvb, offset, 0, pad_len);
             proto_item_set_generated(ti);
             proto_item_append_text(ti_ft, " Length: %u", pad_len);
