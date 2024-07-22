@@ -106,19 +106,19 @@ DIAG_OFF_FLEX()
 #define ECHO g_string_append(yyextra->current,yytext);
 
 struct _dtd_preparse_scanner_state {
-	const gchar* dtd_dirname;
-	const gchar* filename;
-	guint linenum;
+	const char* dtd_dirname;
+	const char* filename;
+	unsigned linenum;
 
 	GString* error;
 
 	GHashTable* entities;
 	GString* current;
 	GString* output;
-	gchar* entity_name;
+	char* entity_name;
 };
 
-static const gchar* replace_entity(Dtd_PreParse_scanner_state_t* state, gchar* s);
+static const char* replace_entity(Dtd_PreParse_scanner_state_t* state, char* s);
 
 #define YY_USER_INIT { \
 	BEGIN OUTSIDE; \
@@ -215,7 +215,7 @@ newline    \n
  */
 DIAG_ON_FLEX()
 
-static const gchar* replace_entity(Dtd_PreParse_scanner_state_t* state, gchar* entity) {
+static const char* replace_entity(Dtd_PreParse_scanner_state_t* state, char* entity) {
 	GString* replacement;
 
 	*entity = '%';
@@ -231,8 +231,8 @@ static const gchar* replace_entity(Dtd_PreParse_scanner_state_t* state, gchar* e
 
 }
 
-const gchar* dtd_location(Dtd_PreParse_scanner_state_t* state) {
-	static gchar* loc = NULL;
+const char* dtd_location(Dtd_PreParse_scanner_state_t* state) {
+	static char* loc = NULL;
 
 	g_free(loc);
 
@@ -243,14 +243,14 @@ const gchar* dtd_location(Dtd_PreParse_scanner_state_t* state) {
 	return loc;
 }
 
-static gboolean free_gstring_hash_items(gpointer k,gpointer v,gpointer p _U_) {
+static gboolean free_gstring_hash_items(void *k,void *v,void *p _U_) {
 	g_free(k);
-	g_string_free((GString*)v,TRUE);
-	return TRUE;
+	g_string_free((GString*)v,true);
+	return true;
 }
 
-extern GString* dtd_preparse(const gchar* dname,const  gchar* fname, GString* err) {
-	gchar* fullname = ws_strdup_printf("%s%c%s",dname,G_DIR_SEPARATOR,fname);
+extern GString* dtd_preparse(const char* dname,const  char* fname, GString* err) {
+	char* fullname = ws_strdup_printf("%s%c%s",dname,G_DIR_SEPARATOR,fname);
 	FILE *in;
 	yyscan_t scanner;
 	Dtd_PreParse_scanner_state_t state;

@@ -95,8 +95,8 @@
 DIAG_OFF_FLEX()
 
 	struct _proto_xmlpi_attr {
-		const gchar* name;
-		void (*act)(gchar*);
+		const char* name;
+		void (*act)(char*);
 	};
 
 	typedef struct {
@@ -104,21 +104,21 @@ DIAG_OFF_FLEX()
 		size_t offsetx;
 		size_t len;
 		void* pParser;
-		gchar* location;
-		gchar* attr_name;
+		char* location;
+		char* attr_name;
 	} Dtd_Parse_scanner_state_t;
 
 	static size_t my_yyinput(Dtd_Parse_scanner_state_t *state,char* buff,size_t size);
 
-	static dtd_token_data_t* new_token(gchar*,gchar*);
+	static dtd_token_data_t* new_token(char*,char*);
 
 	static dtd_build_data_t* build_data;
 
-	static void set_proto_name (gchar* val) { g_free(build_data->proto_name); build_data->proto_name = g_strdup(val); }
-	static void set_media_type (gchar* val) { g_free(build_data->media_type); build_data->media_type = g_strdup(val); }
-	static void set_proto_root (gchar* val) { g_free(build_data->proto_root); build_data->proto_root = g_strdup(val); }
-	static void set_description (gchar* val) { g_free(build_data->description); build_data->description = g_strdup(val); }
-	static void set_recursive (gchar* val) { build_data->recursion = ( g_ascii_strcasecmp(val,"yes") == 0 ) ? TRUE : FALSE; }
+	static void set_proto_name (char* val) { g_free(build_data->proto_name); build_data->proto_name = g_strdup(val); }
+	static void set_media_type (char* val) { g_free(build_data->media_type); build_data->media_type = g_strdup(val); }
+	static void set_proto_root (char* val) { g_free(build_data->proto_root); build_data->proto_root = g_strdup(val); }
+	static void set_description (char* val) { g_free(build_data->description); build_data->description = g_strdup(val); }
+	static void set_recursive (char* val) { build_data->recursion = ( g_ascii_strcasecmp(val,"yes") == 0 ) ? true : false; }
 
 #ifdef DEBUG_DTD_PARSER
 #define DEBUG_DTD_TOKEN fprintf(stderr,"->%s (%i)%s\n",location,token_type,yytext)
@@ -272,7 +272,7 @@ squoted        ['][^\']*[']
 <GET_ATTR_VAL>[^"]+ {
 	/*"*/
 	struct _proto_xmlpi_attr* pa;
-	gboolean got_it = FALSE;
+	bool got_it = false;
 	static struct _proto_xmlpi_attr proto_attrs[] =
 	{
 		{ "proto_name", set_proto_name },
@@ -286,7 +286,7 @@ squoted        ['][^\']*[']
 	for(pa = proto_attrs; pa->name; pa++) {
 		if (g_ascii_strcasecmp(yyextra->attr_name,pa->name) == 0) {
 			pa->act(yytext);
-			got_it = TRUE;
+			got_it = true;
 			break;
 		}
 	}
@@ -355,7 +355,7 @@ squoted        ['][^\']*[']
  */
 DIAG_ON_FLEX()
 
-static dtd_token_data_t* new_token(gchar* text, gchar* location) {
+static dtd_token_data_t* new_token(char* text, char* location) {
 	dtd_token_data_t* t = g_new(dtd_token_data_t,1);
 
 	t->text = g_strdup(text);
@@ -409,7 +409,7 @@ extern dtd_build_data_t* dtd_parse(GString* s) {
 	build_data->media_type = NULL;
 	build_data->description = NULL;
 	build_data->proto_root = NULL;
-	build_data->recursion = FALSE;
+	build_data->recursion = false;
 
 	build_data->elements = g_ptr_array_new();
 	build_data->attributes = g_ptr_array_new();
