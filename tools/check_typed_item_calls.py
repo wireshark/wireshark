@@ -240,13 +240,13 @@ class ProtoTreeAddItemCheck(APICheck):
         if not ptv:
             # proto_item *
             # proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-            #                     const gint start, gint length, const guint encoding)
+            #                     const gint start, gint length, const unsigned encoding)
             self.fun_name = 'proto_tree_add_item'
             self.p = re.compile('[^\n]*' + self.fun_name + r'\s*\(\s*[a-zA-Z0-9_]+?,\s*([a-zA-Z0-9_]+?),\s*[a-zA-Z0-9_\+\s]+?,\s*[^,.]+?,\s*(.+),\s*([^,.]+?)\);')
         else:
             # proto_item *
             # ptvcursor_add(ptvcursor_t *ptvc, int hfindex, gint length,
-            #               const guint encoding)
+            #               const unsigned encoding)
             self.fun_name = 'ptvcursor_add'
             self.p = re.compile('[^\n]*' + self.fun_name + r'\s*\([^,.]+?,\s*([^,.]+?),\s*([^,.]+?),\s*([a-zA-Z0-9_\-\>]+)')
 
@@ -1162,7 +1162,7 @@ class Item:
     def check_bit(self, value, n):
         return (value & (0x1 << n)) != 0
 
-    # Output a warning if non-contiguous bits are found in the mask (guint64).
+    # Output a warning if non-contiguous bits are found in the mask (uint64_t).
     # Note that this legimately happens in several dissectors where multiple reserved/unassigned
     # bits are conflated into one field.
     # - there is probably a cool/efficient way to check this (+1 => 1-bit set?)

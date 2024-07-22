@@ -3675,7 +3675,7 @@ find_rpc_over_tcp_reply_start(tvbuff_t *tvb, int offset)
 	 * preceding msg_type and record_mark fields.
 	 */
 
-	const int      cbZeroTail = 4 * 4;     /* four guint32s of zeros */
+	const int      cbZeroTail = 4 * 4;     /* four uint32_t of zeros */
 	const int      ibPatternStart = 3 * 4;    /* offset of zero fill from reply start */
 	const uint8_t * pbWholeBuf;    /* all of tvb, from offset onwards */
 	const int      NoMatch = -1;

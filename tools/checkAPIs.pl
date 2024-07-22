@@ -454,14 +454,14 @@ sub check_value_string_arrays($$$)
                 my $expectedTrailer;
                 my $trailerHint;
                 if ($type eq "string_string") {
-                        # XXX shouldn't we reject 0 since it is gchar*?
+                        # XXX shouldn't we reject 0 since it is char *?
                         $expectedTrailer = "(NULL|0), NULL";
                         $trailerHint = "NULL, NULL";
                 } elsif ($type eq "range_string") {
                         $expectedTrailer = "0(x0+)?, 0(x0+)?, NULL";
                         $trailerHint = "0, 0, NULL";
                 } elsif ($type eq "bytes_string") {
-                        # XXX shouldn't we reject 0 since it is guint8*?
+                        # XXX shouldn't we reject 0 since it is uint8_t *?
                         $expectedTrailer = "(NULL|0), 0, NULL";
                         $trailerHint = "NULL, NULL";
                 } else {

@@ -5,7 +5,7 @@
  * This implementation will detect up to 4 errors in a codeword (without
  * being able to correct them); it will correct up to 3 errors.
  *
- * We use guint32s to hold the 24-bit codewords, with the data part in
+ * We use uint32_t to hold the 24-bit codewords, with the data part in
  * the bottom 12 bits and the parity in bits 12-23.
  *
  *

@@ -126,7 +126,7 @@ DIAG_ON_LEMON()
 %type extend { pbl_node_t* }
 %type extendBody { pbl_node_t* }
 
-%type intLit { guint64 }
+%type intLit { uint64_t }
 
 %type fieldNumber { int }
 %type enumNumber { int }

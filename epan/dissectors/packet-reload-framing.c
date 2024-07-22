@@ -186,7 +186,7 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   transaction_id_key[0].key = &sequence; /* sequence number */
 
   /* When the wmem_tree_* functions iterate through the keys, they
-   * perform pointer arithmetic with guint32s, so we have to divide
+   * perform pointer arithmetic with uint32_t, so we have to divide
    * our length fields by that to make things work, but we still want
    * to g_malloc and memcpy the entire amounts, since those both operate
    * in raw bytes. */

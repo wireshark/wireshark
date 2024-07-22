@@ -119,7 +119,7 @@ WS_DLL_PUBLIC void oids_cleanup(void);
  * These functions convert through the various formats:
  * string: is  like "0.1.3.4.5.30" (not resolved)
  * encoded: is BER encoded (as per X.690 section 8.19)
- * subids: is an array of guint32s
+ * subids: is an array of uint32_t
  */
 
 /* return length of encoded buffer */

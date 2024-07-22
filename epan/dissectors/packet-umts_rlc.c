@@ -1541,8 +1541,8 @@ iter_same(void *key, void *value, void *data) {
 /**
  * Used for looking up and old ciphering counter value in the counter_map tree.
  * @param key is created with GINT_TO_POINTER
- * @param value is pointer to an array of 2 guint32s
- * @param data is a pointer to an array of 3 guint32s
+ * @param value is pointer to an array of 2 uint32_t
+ * @param data is a pointer to an array of 3 uint32_t
  */
 static gboolean
 rlc_find_old_counter(void *key, void *value, void *data) {
