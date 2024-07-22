@@ -1294,7 +1294,7 @@ static value_string_ext aruba_mgt_typevals_ext = VALUE_STRING_EXT_INIT(aruba_mgt
 #define CAT_UNPROTECTED_DMG       20
 #define CAT_VHT                   21
 #define CAT_S1G                   22
-#define CAT_S1G_RELAY             23
+#define CAT_PROTECTED_S1G         23
 #define CAT_FLOW_CONTROL          24
 #define CAT_CONTROL_RESPONSE_MCS_NEG 25
 #define CAT_FILS                  26
@@ -2407,7 +2407,7 @@ static const value_string category_codes[] = {
   {CAT_UNPROTECTED_DMG,                  "Unprotected DMG"},
   {CAT_VHT,                              "VHT"},
   {CAT_S1G,                              "S1G"},
-  {CAT_S1G_RELAY,                        "S1G Relay"},
+  {CAT_PROTECTED_S1G,                    "Protected S1G"},
   {CAT_FLOW_CONTROL,                     "Flow Control"},
   {CAT_CONTROL_RESPONSE_MCS_NEG,         "Control Response MCS Negotiation"},
   {CAT_FILS,                             "FILS"},
@@ -3402,6 +3402,41 @@ static const value_string s1g_action_vals[] = {
   {S1G_ACT_SECT_ID_FEEDBACK, "Sector ID Feedback"},
   {S1G_ACT_RESERVED, "Reserved"},
   {S1G_ACT_TWT_INFORMATION, "TWT Information"},
+  {0,   NULL},
+};
+
+#define PROT_S1G_ACT_REACH_ADDR_UPDATE    0
+#define PROT_S1G_ACT_RELAY_ACTIVATE_REQ   1
+#define PROT_S1G_ACT_RELAY_ACTIVATE_RESP  2
+#define PROT_S1G_ACT_HEADER_COMPRESSION   3
+#define PROT_S1G_ACT_TWT_SETUP            4
+#define PROT_S1G_ACT_TWT_TEARDOWN         5
+#define PROT_S1G_ACT_TWT_INFORMATION      6
+#define PROT_S1G_ACT_AID_SWITCH_REQUEST   7
+#define PROT_S1G_ACT_AID_SWITCH_RESPONSE  8
+#define PROT_S1G_ACT_SYNC_CONTROL         9
+#define PROT_S1G_ACT_STA_INFO_ANNOUNCE    10
+#define PROT_S1G_ACT_EDCA_PARAM_SET       11
+#define PROT_S1G_ACT_EL_OPERATION         12
+#define PROT_S1G_ACT_SECT_GROUP_ID_LIST   13
+#define PROT_S1G_ACT_SECT_ID_FEEDBACK     14
+
+static const value_string prot_s1g_action_vals[] = {
+  {PROT_S1G_ACT_REACH_ADDR_UPDATE, "Reachable Address Update"},
+  {PROT_S1G_ACT_RELAY_ACTIVATE_REQ, "Relay Activation Request"},
+  {PROT_S1G_ACT_RELAY_ACTIVATE_RESP, "Relay Activation Response"},
+  {PROT_S1G_ACT_HEADER_COMPRESSION, "Header Compression"},
+  {PROT_S1G_ACT_TWT_SETUP, "Protected TWT Setup"},
+  {PROT_S1G_ACT_TWT_TEARDOWN, "Protected TWT Teardown"},
+  {PROT_S1G_ACT_TWT_INFORMATION, "Protected TWT Information"},
+  {PROT_S1G_ACT_AID_SWITCH_REQUEST, "Protected AID Switch Request"},
+  {PROT_S1G_ACT_AID_SWITCH_RESPONSE, "Protected AID Switch Response"},
+  {PROT_S1G_ACT_SYNC_CONTROL, "Protected Sync Control"},
+  {PROT_S1G_ACT_STA_INFO_ANNOUNCE, "Protected STA Information Announcement"},
+  {PROT_S1G_ACT_EDCA_PARAM_SET, "Protected EDCA Parameter Set"},
+  {PROT_S1G_ACT_EL_OPERATION, "Protected EL Operation"},
+  {PROT_S1G_ACT_SECT_GROUP_ID_LIST, "Protected Sectorized Group ID List"},
+  {PROT_S1G_ACT_SECT_ID_FEEDBACK, "Protected Sector ID Feedback"},
   {0,   NULL},
 };
 
@@ -5298,6 +5333,7 @@ static int hf_ieee80211_tack_next_twt;
 static int hf_ieee80211_tack_flow_identifier;
 
 static int hf_ieee80211_ff_s1g_action;
+static int hf_ieee80211_ff_prot_s1g_action;
 static int hf_ieee80211_ff_s1g_timestamp;
 static int hf_ieee80211_ff_s1g_change_sequence;
 static int hf_ieee80211_ff_s1g_next_tbtt;
@@ -13562,6 +13598,14 @@ add_ff_s1g_action(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int o
   return 1;
 }
 
+static unsigned
+add_ff_prot_s1g_action(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
+{
+  proto_tree_add_item(tree, hf_ieee80211_ff_prot_s1g_action, tvb, offset, 1,
+                      ENC_LITTLE_ENDIAN);
+  return 1;
+}
+
 static unsigned get_group_element_len(unsigned group) {
   switch (group) {
     /* Diffie-Hellman groups */
@@ -16037,6 +16081,68 @@ add_ff_action_s1g(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
     break;
   default:
     break;
+  }
+
+  return offset - start;
+}
+
+static unsigned
+add_ff_action_protected_s1g(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
+{
+  unsigned start = offset;
+  uint8_t s1g_action;
+
+  offset += add_ff_category_code(tree, tvb, pinfo, offset);
+
+  s1g_action = tvb_get_guint8(tvb, offset);
+  offset += add_ff_prot_s1g_action(tree, tvb, pinfo, offset);
+
+  switch(s1g_action) {
+    case PROT_S1G_ACT_REACH_ADDR_UPDATE:
+    case PROT_S1G_ACT_RELAY_ACTIVATE_REQ:
+    case PROT_S1G_ACT_RELAY_ACTIVATE_RESP:
+    case PROT_S1G_ACT_HEADER_COMPRESSION:
+      // TODO
+      break;
+    case PROT_S1G_ACT_TWT_SETUP:
+      offset += add_ff_dialog_token(tree, tvb, pinfo, offset);
+      offset += add_ff_s1g_twt_setup(tree, tvb, pinfo, offset);
+      break;
+    case PROT_S1G_ACT_TWT_TEARDOWN:
+      offset += add_ff_s1g_twt_teardown(tree, tvb, pinfo, offset);
+      break;
+    case PROT_S1G_ACT_TWT_INFORMATION:
+      offset += add_ff_twt_information(tree, tvb, pinfo, offset);
+      break;
+    case PROT_S1G_ACT_AID_SWITCH_REQUEST:
+      offset += add_ff_dialog_token(tree, tvb, pinfo, offset);
+      offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+      break;
+    case PROT_S1G_ACT_AID_SWITCH_RESPONSE:
+      offset += add_ff_dialog_token(tree, tvb, pinfo, offset);
+      offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+      break;
+    case PROT_S1G_ACT_SYNC_CONTROL:
+      offset += add_ff_dialog_token(tree, tvb, pinfo, offset);
+      offset += add_ff_sync_control(tree, tvb, pinfo, offset);
+      break;
+    case PROT_S1G_ACT_STA_INFO_ANNOUNCE:
+      offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+      break;
+    case PROT_S1G_ACT_EDCA_PARAM_SET:
+      offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+      break;
+    case PROT_S1G_ACT_EL_OPERATION:
+      offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+      break;
+    case PROT_S1G_ACT_SECT_GROUP_ID_LIST:
+      offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+      break;
+    case PROT_S1G_ACT_SECT_ID_FEEDBACK:
+      offset += add_ff_sector_id_index(tree, tvb, pinfo, offset);
+      break;
+    default:
+      break;
   }
 
   return offset - start;
@@ -18521,6 +18627,8 @@ add_ff_action(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset,
     return add_ff_action_vht(tree, tvb, pinfo, offset);
   case CAT_S1G: /* 22 */
     return add_ff_action_s1g(tree, tvb, pinfo, offset);
+  case CAT_PROTECTED_S1G: /* 23 */
+    return add_ff_action_protected_s1g(tree, tvb, pinfo, offset);
   case CAT_HE:
     return add_ff_action_he(tree, tvb, pinfo, offset);
   case CAT_PROTECTED_HE:
@@ -57652,6 +57760,10 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_ff_s1g_action,
       {"S1G Action", "wlan.s1g.action",
        FT_UINT8, BASE_DEC, VALS(s1g_action_vals), 0, NULL, HFILL }},
+
+    {&hf_ieee80211_ff_prot_s1g_action,
+      {"Protected S1G Action", "wlan.s1g.prot_action",
+       FT_UINT8, BASE_DEC, VALS(prot_s1g_action_vals), 0, NULL, HFILL }},
 
     {&hf_ieee80211_ff_s1g_timestamp,
      {"Timestamp", "wlan.s1g.timestamp",
