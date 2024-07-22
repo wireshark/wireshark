@@ -38,7 +38,7 @@
 #include <epan/proto_data.h>
 #include <epan/strutil.h>
 #include <epan/iana_charsets.h>
-/* We need the function tvb_get_guintvar() */
+/* We need the function tvb_get_uintvar() */
 #include "packet-wap.h"
 
 void proto_register_wbxml(void);
@@ -266,7 +266,7 @@ static char *
 default_opaque_binary_tag(tvbuff_t *tvb, uint32_t offset,
 			  uint8_t token _U_, uint8_t codepage _U_, uint32_t *length, packet_info *pinfo)
 {
-	uint32_t data_len = tvb_get_guintvar(tvb, offset, length, pinfo, &ei_wbxml_oversized_uintvar);
+	uint32_t data_len = tvb_get_uintvar(tvb, offset, length, pinfo, &ei_wbxml_oversized_uintvar);
 	char *str = wmem_strdup_printf(pinfo->pool, "(%u bytes of opaque data)", data_len);
 	*length += data_len;
 	return str;
@@ -276,7 +276,7 @@ static char *
 default_opaque_literal_tag(tvbuff_t *tvb, uint32_t offset,
 			   const char *token _U_, uint8_t codepage _U_, uint32_t *length, packet_info *pinfo)
 {
-	uint32_t data_len = tvb_get_guintvar(tvb, offset, length, pinfo, &ei_wbxml_oversized_uintvar);
+	uint32_t data_len = tvb_get_uintvar(tvb, offset, length, pinfo, &ei_wbxml_oversized_uintvar);
 	char *str = wmem_strdup_printf(pinfo->pool, "(%u bytes of opaque data)", data_len);
 	*length += data_len;
 	return str;
@@ -286,7 +286,7 @@ static char *
 default_opaque_binary_attr(tvbuff_t *tvb, uint32_t offset,
 			   uint8_t token _U_, uint8_t codepage _U_, uint32_t *length, packet_info *pinfo)
 {
-	uint32_t data_len = tvb_get_guintvar(tvb, offset, length, pinfo, &ei_wbxml_oversized_uintvar);
+	uint32_t data_len = tvb_get_uintvar(tvb, offset, length, pinfo, &ei_wbxml_oversized_uintvar);
 	char *str = wmem_strdup_printf(pinfo->pool, "(%u bytes of opaque data)", data_len);
 	*length += data_len;
 	return str;
@@ -296,7 +296,7 @@ static char *
 default_opaque_literal_attr(tvbuff_t *tvb, uint32_t offset,
 			    const char *token _U_, uint8_t codepage _U_, uint32_t *length, packet_info *pinfo)
 {
-	uint32_t data_len = tvb_get_guintvar(tvb, offset, length, pinfo, &ei_wbxml_oversized_uintvar);
+	uint32_t data_len = tvb_get_uintvar(tvb, offset, length, pinfo, &ei_wbxml_oversized_uintvar);
 	char *str = wmem_strdup_printf(pinfo->pool, "(%u bytes of opaque data)", data_len);
 	*length += data_len;
 	return str;
@@ -439,7 +439,7 @@ static char *
 wv_csp10_opaque_binary_tag(tvbuff_t *tvb, uint32_t offset,
 			   uint8_t token, uint8_t codepage, uint32_t *length, packet_info *pinfo)
 {
-	uint32_t data_len = tvb_get_guintvar(tvb, offset, length, pinfo, &ei_wbxml_oversized_uintvar);
+	uint32_t data_len = tvb_get_uintvar(tvb, offset, length, pinfo, &ei_wbxml_oversized_uintvar);
 	char *str = NULL;
 
 	switch (codepage) {
@@ -502,7 +502,7 @@ static char *
 wv_csp10_opaque_literal_tag(tvbuff_t *tvb, uint32_t offset,
 			    const char *token, uint8_t codepage _U_, uint32_t *length, packet_info *pinfo)
 {
-	uint32_t data_len = tvb_get_guintvar(tvb, offset, length, pinfo, &ei_wbxml_oversized_uintvar);
+	uint32_t data_len = tvb_get_uintvar(tvb, offset, length, pinfo, &ei_wbxml_oversized_uintvar);
 	char *str = NULL;
 
 	if ( token && ( (strcmp(token, "Code") == 0)
@@ -537,7 +537,7 @@ static char *
 wv_csp11_opaque_binary_tag(tvbuff_t *tvb, uint32_t offset,
 			   uint8_t token, uint8_t codepage, uint32_t *length, packet_info *pinfo)
 {
-	uint32_t data_len = tvb_get_guintvar(tvb, offset, length, pinfo, &ei_wbxml_oversized_uintvar);
+	uint32_t data_len = tvb_get_uintvar(tvb, offset, length, pinfo, &ei_wbxml_oversized_uintvar);
 	char *str = NULL;
 
 	switch (codepage) {
@@ -609,7 +609,7 @@ static char *
 wv_csp11_opaque_literal_tag(tvbuff_t *tvb, uint32_t offset,
 			    const char *token, uint8_t codepage _U_, uint32_t *length, packet_info *pinfo)
 {
-	uint32_t data_len = tvb_get_guintvar(tvb, offset, length, pinfo, &ei_wbxml_oversized_uintvar);
+	uint32_t data_len = tvb_get_uintvar(tvb, offset, length, pinfo, &ei_wbxml_oversized_uintvar);
 	char *str = NULL;
 
 	if ( token && ( (strcmp(token, "Code") == 0)
@@ -646,7 +646,7 @@ static char *
 wv_csp12_opaque_binary_tag(tvbuff_t *tvb, uint32_t offset,
 			   uint8_t token, uint8_t codepage, uint32_t *length, packet_info *pinfo)
 {
-	uint32_t data_len = tvb_get_guintvar(tvb, offset, length, pinfo, &ei_wbxml_oversized_uintvar);
+	uint32_t data_len = tvb_get_uintvar(tvb, offset, length, pinfo, &ei_wbxml_oversized_uintvar);
 	char *str = NULL;
 
 	switch (codepage) {
@@ -729,7 +729,7 @@ static char *
 wv_csp12_opaque_literal_tag(tvbuff_t *tvb, uint32_t offset,
 			    const char *token, uint8_t codepage _U_, uint32_t *length, packet_info *pinfo)
 {
-	uint32_t data_len = tvb_get_guintvar(tvb, offset, length, pinfo, &ei_wbxml_oversized_uintvar);
+	uint32_t data_len = tvb_get_uintvar(tvb, offset, length, pinfo, &ei_wbxml_oversized_uintvar);
 	char *str = NULL;
 
 	if ( token && ( (strcmp(token, "Code") == 0)
@@ -767,7 +767,7 @@ static char *
 wv_csp13_opaque_binary_tag(tvbuff_t *tvb, uint32_t offset,
 			   uint8_t token, uint8_t codepage, uint32_t *length, packet_info *pinfo)
 {
-	uint32_t data_len = tvb_get_guintvar(tvb, offset, length, pinfo, &ei_wbxml_oversized_uintvar);
+	uint32_t data_len = tvb_get_uintvar(tvb, offset, length, pinfo, &ei_wbxml_oversized_uintvar);
 	char *str = NULL;
 
 	switch (codepage)
@@ -906,7 +906,7 @@ static char *
 wv_csp13_opaque_literal_tag(tvbuff_t *tvb, uint32_t offset,
 			    const char *token, uint8_t codepage _U_, uint32_t *length, packet_info *pinfo)
 {
-	uint32_t data_len = tvb_get_guintvar(tvb, offset, length, pinfo, &ei_wbxml_oversized_uintvar);
+	uint32_t data_len = tvb_get_uintvar(tvb, offset, length, pinfo, &ei_wbxml_oversized_uintvar);
 	char *str = NULL;
 
 	if ( token && ( (strcmp(token, "Code") == 0)
@@ -964,7 +964,7 @@ static char *
 sic10_opaque_literal_attr(tvbuff_t *tvb, uint32_t offset,
 			  const char *token, uint8_t codepage _U_, uint32_t *length, packet_info *pinfo)
 {
-	uint32_t data_len = tvb_get_guintvar(tvb, offset, length, pinfo, &ei_wbxml_oversized_uintvar);
+	uint32_t data_len = tvb_get_uintvar(tvb, offset, length, pinfo, &ei_wbxml_oversized_uintvar);
 	char *str = NULL;
 
 	if ( token && ( (strcmp(token, "created") == 0)
@@ -984,7 +984,7 @@ static char *
 sic10_opaque_binary_attr(tvbuff_t *tvb, uint32_t offset,
 			 uint8_t token, uint8_t codepage, uint32_t *length, packet_info *pinfo)
 {
-	uint32_t data_len = tvb_get_guintvar(tvb, offset, length, pinfo, &ei_wbxml_oversized_uintvar);
+	uint32_t data_len = tvb_get_uintvar(tvb, offset, length, pinfo, &ei_wbxml_oversized_uintvar);
 	char *str = NULL;
 
 	switch (codepage) {
@@ -1014,7 +1014,7 @@ static char *
 emnc10_opaque_literal_attr(tvbuff_t *tvb, uint32_t offset,
 			   const char *token, uint8_t codepage _U_, uint32_t *length, packet_info *pinfo)
 {
-	uint32_t data_len = tvb_get_guintvar(tvb, offset, length, pinfo, &ei_wbxml_oversized_uintvar);
+	uint32_t data_len = tvb_get_uintvar(tvb, offset, length, pinfo, &ei_wbxml_oversized_uintvar);
 	char *str = NULL;
 
 	if ( token && (strcmp(token, "timestamp") == 0) )
@@ -1033,7 +1033,7 @@ static char *
 emnc10_opaque_binary_attr(tvbuff_t *tvb, uint32_t offset,
 			  uint8_t token, uint8_t codepage, uint32_t *length, packet_info *pinfo)
 {
-	uint32_t data_len = tvb_get_guintvar(tvb, offset, length, pinfo, &ei_wbxml_oversized_uintvar);
+	uint32_t data_len = tvb_get_uintvar(tvb, offset, length, pinfo, &ei_wbxml_oversized_uintvar);
 	char *str = NULL;
 
 	switch (codepage) {
@@ -7085,7 +7085,7 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb, packet_info
 				  recursion_level, off - offset));
 			return (off - offset);
 		case 0x02: /* ENTITY */
-			ent = tvb_get_guintvar (tvb, off+1, &len, pinfo, &ei_wbxml_oversized_uintvar);
+			ent = tvb_get_uintvar (tvb, off+1, &len, pinfo, &ei_wbxml_oversized_uintvar);
 			if (len <= tvb_len) {
 				proto_tree_add_uint_format(tree, hf_wbxml_entity, tvb, off, 1+len, ent,
 					         "  %3d |  Attr | A %3d    | ENTITY                          |     %s'&#%u;'",
@@ -7107,7 +7107,7 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb, packet_info
 			/* ALWAYS means the start of a new attribute,
 			 * and may only contain the NAME of the attribute.
 			 */
-			idx = tvb_get_guintvar (tvb, off+1, &len, pinfo, &ei_wbxml_oversized_uintvar);
+			idx = tvb_get_uintvar (tvb, off+1, &len, pinfo, &ei_wbxml_oversized_uintvar);
 			if (len <= tvb_len) {
 				attr_save_known = 0;
 				attr_save_literal = tvb_get_stringz_enc(pinfo->pool, tvb, str_tbl+idx, &str_len, encoding);
@@ -7137,7 +7137,7 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb, packet_info
 		case 0x81: /* EXT_T_1 */
 		case 0x82: /* EXT_T_2 */
 			/* Extension tokens */
-			idx = tvb_get_guintvar (tvb, off+1, &len, pinfo, &ei_wbxml_oversized_uintvar);
+			idx = tvb_get_uintvar (tvb, off+1, &len, pinfo, &ei_wbxml_oversized_uintvar);
 			{
 				char *s;
 				if (map != NULL) {
@@ -7163,7 +7163,7 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb, packet_info
 			}
 			break;
 		case 0x83: /* STR_T */
-			idx = tvb_get_guintvar (tvb, off+1, &len, pinfo, &ei_wbxml_oversized_uintvar);
+			idx = tvb_get_uintvar (tvb, off+1, &len, pinfo, &ei_wbxml_oversized_uintvar);
 			if (len <= tvb_len) {
 				str = tvb_get_stringz_enc(pinfo->pool, tvb, str_tbl+idx, &str_len, encoding);
 				proto_tree_add_string_format(tree, hf_wbxml_str_t, tvb, off, 1+len, str,
@@ -7218,7 +7218,7 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb, packet_info
 						off = tvb_len;
 					}
 				} else {
-					idx = tvb_get_guintvar (tvb, off+1, &len, pinfo, &ei_wbxml_oversized_uintvar);
+					idx = tvb_get_uintvar (tvb, off+1, &len, pinfo, &ei_wbxml_oversized_uintvar);
 					if ((len <= tvb_len) && (idx < tvb_len)) {
 						proto_tree_add_bytes_format(tree, hf_wbxml_opaque_data, tvb, off, 1 + len + idx, NULL,
 							     "  %3d |  Attr | A %3d    | OPAQUE (Opaque data)            |       %s(%u bytes of opaque data)",
@@ -7369,7 +7369,7 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, ui
 			DebugLog(("STAG: level = %u, Return: len = %u\n", recursion_level, off - offset));
 			return (off - offset);
 		case 0x02: /* ENTITY */
-			ent = tvb_get_guintvar (tvb, off+1, &len, pinfo, &ei_wbxml_oversized_uintvar);
+			ent = tvb_get_uintvar (tvb, off+1, &len, pinfo, &ei_wbxml_oversized_uintvar);
 			proto_tree_add_uint_format(tree, hf_wbxml_entity, tvb, off, 1+len, ent,
 					     "  %3d | Tag   | T %3d    | ENTITY                          | %s'&#%u;'",
 					     recursion_level, *codepage_stag, Indent (recursion_level), ent);
@@ -7417,7 +7417,7 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, ui
 		case 0x81: /* EXT_T_1 */
 		case 0x82: /* EXT_T_2 */
 			/* Extension tokens */
-			idx = tvb_get_guintvar (tvb, off+1, &len, pinfo, &ei_wbxml_oversized_uintvar);
+			idx = tvb_get_uintvar (tvb, off+1, &len, pinfo, &ei_wbxml_oversized_uintvar);
 			{
 				char *s;
 				if (map)
@@ -7439,7 +7439,7 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, ui
 			off += 1+len;
 			break;
 		case 0x83: /* STR_T */
-			idx = tvb_get_guintvar (tvb, off+1, &len, pinfo, &ei_wbxml_oversized_uintvar);
+			idx = tvb_get_uintvar (tvb, off+1, &len, pinfo, &ei_wbxml_oversized_uintvar);
 			str = tvb_get_stringz_enc(pinfo->pool, tvb, str_tbl+idx, &str_len, encoding);
 			proto_tree_add_string_format(tree, hf_wbxml_str_t, tvb, off, 1+len, str,
 					     "  %3d | Tag   | T %3d    | STR_T (Tableref string)         | %s\'%s\'",
@@ -7483,7 +7483,7 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, ui
 						     recursion_level, *codepage_stag, Indent (recursion_level), tmp_str);
 					off += 1 + len;
 				} else {
-					idx = tvb_get_guintvar (tvb, off+1, &len, pinfo, &ei_wbxml_oversized_uintvar);
+					idx = tvb_get_uintvar (tvb, off+1, &len, pinfo, &ei_wbxml_oversized_uintvar);
 					if ((len <= tvb_len) && (idx < tvb_len))
 					{
 						proto_tree_add_bytes_format(tree, hf_wbxml_opaque_data, tvb, off, 1 + len + idx, NULL,
@@ -7525,7 +7525,7 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, ui
 			tag_len = 0;
 			if ((peek & 0x3F) == 4) { /* LITERAL */
 				DebugLog(("STAG: LITERAL tag (peek = 0x%02X, off = %u) - TableRef follows!\n", peek, off));
-				idx = tvb_get_guintvar (tvb, off+1, &tag_len, pinfo, &ei_wbxml_oversized_uintvar);
+				idx = tvb_get_uintvar (tvb, off+1, &tag_len, pinfo, &ei_wbxml_oversized_uintvar);
 				tag_new_literal = tvb_get_stringz_enc(pinfo->pool, tvb, str_tbl+idx, &str_len, encoding);
 				tag_new_known = 0; /* invalidate known tag_new */
 			} else { /* Known tag */
@@ -7744,10 +7744,10 @@ dissect_wbxml_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 */
 
 	/* Public ID */
-	publicid = tvb_get_guintvar(tvb, 1, &publicid_len, pinfo, &ei_wbxml_oversized_uintvar);
+	publicid = tvb_get_uintvar(tvb, 1, &publicid_len, pinfo, &ei_wbxml_oversized_uintvar);
 	if (! publicid) {
 		/* Public identifier in string table */
-		publicid_index = tvb_get_guintvar (tvb, 1+publicid_len, &len, pinfo, &ei_wbxml_oversized_uintvar);
+		publicid_index = tvb_get_uintvar (tvb, 1+publicid_len, &len, pinfo, &ei_wbxml_oversized_uintvar);
 		publicid_len += len;
 	}
 	offset = 1 + publicid_len;
@@ -7762,7 +7762,7 @@ dissect_wbxml_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	case 0x02: /* WBXML/1.2 */
 	case 0x03: /* WBXML/1.3 */
 		/* Get charset */
-		charset = tvb_get_guintvar (tvb, offset, &charset_len, pinfo, &ei_wbxml_oversized_uintvar);
+		charset = tvb_get_uintvar (tvb, offset, &charset_len, pinfo, &ei_wbxml_oversized_uintvar);
 		offset += charset_len;
 		break;
 
@@ -7783,7 +7783,7 @@ dissect_wbxml_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	p_add_proto_data(pinfo->pool, pinfo, proto_wbxml, 0, GUINT_TO_POINTER(encoding));
 
 	/* String table: read string table length in bytes */
-	tvb_get_guintvar (tvb, offset, &str_tbl_len_len, pinfo, &ei_wbxml_oversized_uintvar);
+	tvb_get_uintvar (tvb, offset, &str_tbl_len_len, pinfo, &ei_wbxml_oversized_uintvar);
 	str_tbl = offset + str_tbl_len_len; /* Start of 1st string in string table */
 
 	/* Compose the summary line */
@@ -7830,7 +7830,7 @@ dissect_wbxml_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		offset += charset_len;
 	}
 
-	str_tbl_len = tvb_get_guintvar (tvb, offset, &len, pinfo, &ei_wbxml_oversized_uintvar);
+	str_tbl_len = tvb_get_uintvar (tvb, offset, &len, pinfo, &ei_wbxml_oversized_uintvar);
 	str_tbl = offset + len; /* Start of 1st string in string table */
 
 	/* String Table */

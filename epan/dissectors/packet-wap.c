@@ -32,9 +32,9 @@
  * XXX This seems to be used exclusively for fetching size values. We should
  * probably rename this to wap_get_checked_size or something along those lines.
  */
-#define MAX_WAP_GUINTVAR (100 * 1000 * 1000) // Arbitrary. We need a large number that won't overflow a unsigned.
+#define MAX_WAP_UINTVAR (100 * 1000 * 1000) // Arbitrary. We need a large number that won't overflow a unsigned.
 unsigned
-tvb_get_guintvar (tvbuff_t *tvb, unsigned offset,
+tvb_get_uintvar (tvbuff_t *tvb, unsigned offset,
         unsigned *octetCount, packet_info *pinfo, expert_field *ei)
 {
     unsigned value   = 0, previous_value;
@@ -43,7 +43,7 @@ tvb_get_guintvar (tvbuff_t *tvb, unsigned offset,
 
 #ifdef DEBUG
     fprintf (stderr,
-            "dissect_wap: Starting tvb_get_guintvar at offset %d\n", offset);
+            "dissect_wap: Starting tvb_get_uintvar at offset %d\n", offset);
 #endif
 
     do {
@@ -54,10 +54,10 @@ tvb_get_guintvar (tvbuff_t *tvb, unsigned offset,
         previous_value = value;
         value <<= 7;  /* Value only exists in 7 of the 8 bits */
         value += (octet & 0x7F);
-        if (value < previous_value || value > MAX_WAP_GUINTVAR) {
+        if (value < previous_value || value > MAX_WAP_UINTVAR) {
             /* overflow; clamp the value at UINT_MAX */
             proto_tree_add_expert(NULL, pinfo, ei, tvb, offset, counter);
-            value = MAX_WAP_GUINTVAR;
+            value = MAX_WAP_UINTVAR;
             break;
         }
 
@@ -70,7 +70,7 @@ tvb_get_guintvar (tvbuff_t *tvb, unsigned offset,
 
 #ifdef DEBUG
     fprintf (stderr,
-            "dissect_wap: Leaving tvb_get_guintvar count=%d, value=%u\n",
+            "dissect_wap: Leaving tvb_get_uintvar count=%d, value=%u\n",
             counter, value);
 #endif
 

@@ -1282,7 +1282,7 @@ static void add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *p
 #define is_uri_value(x)             is_text_string(x)
 
 #define get_uintvar_integer(val,tvb,start,len,ok) \
-    val = tvb_get_guintvar(tvb,start,&len, pinfo, &ei_wsp_oversized_uintvar); \
+    val = tvb_get_uintvar(tvb,start,&len, pinfo, &ei_wsp_oversized_uintvar); \
     if (len>5 || len==0) ok = false; else ok = true;
 #define get_short_integer(val,tvb,start,len,ok) \
     val = tvb_get_uint8(tvb,start); \
@@ -1429,7 +1429,7 @@ parameter_value_q (proto_tree *tree, packet_info *pinfo, proto_item *ti, tvbuff_
         /* END */ \
     } else { /* val_start points to 1st byte of length field */ \
         if (val_id == 0x1F) { /* Value Length = guintvar */ \
-            val_len = tvb_get_guintvar(tvb, val_start + 1, &val_len_len, pinfo, &ei_wsp_oversized_uintvar); \
+            val_len = tvb_get_uintvar(tvb, val_start + 1, &val_len_len, pinfo, &ei_wsp_oversized_uintvar); \
             val_len_len++; /* 0x1F length indicator byte */ \
         } else { /* Short length followed by Len data octets */ \
             val_len = tvb_get_uint8(tvb, offset); \
@@ -4458,7 +4458,7 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *pinfo)
                         val_len += val_id;
                     } else if (val_id == 0x1F) {
                         /* value is a uintvar following the val_id */
-                        val_len += tvb_get_guintvar(tvb, val_start + 1, &val_len_len, pinfo, &ei_wsp_oversized_uintvar);
+                        val_len += tvb_get_uintvar(tvb, val_start + 1, &val_len_len, pinfo, &ei_wsp_oversized_uintvar);
                         val_len += val_len_len; /* count the length itself */
                     }
                     proto_tree_add_expert_format(wsp_headers, pinfo, &ei_wsp_text_field_invalid, tvb, hdr_start, hdr_len,
@@ -4525,7 +4525,7 @@ dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             tvb, 0, 1, version);
 
     /* Length of Application-Id headers list */
-    val_len = tvb_get_guintvar(tvb, 1, &len, pinfo, &ei_wsp_oversized_uintvar);
+    val_len = tvb_get_uintvar(tvb, 1, &len, pinfo, &ei_wsp_oversized_uintvar);
     proto_tree_add_uint(subtree, hf_sir_app_id_list_len,
             tvb, 1, len, val_len);
     offset = 1 + len;
@@ -4535,7 +4535,7 @@ dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     offset += val_len;
 
     /* Length of WSP contact points list */
-    val_len = tvb_get_guintvar(tvb, offset, &len, pinfo, &ei_wsp_oversized_uintvar);
+    val_len = tvb_get_uintvar(tvb, offset, &len, pinfo, &ei_wsp_oversized_uintvar);
     proto_tree_add_uint(subtree, hf_sir_wsp_contact_points_len,
             tvb, offset, len, val_len);
     offset += len;
@@ -4550,7 +4550,7 @@ dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     offset += val_len;
 
     /* Length of non-WSP contact points list */
-    val_len = tvb_get_guintvar(tvb, offset, &len, pinfo, &ei_wsp_oversized_uintvar);
+    val_len = tvb_get_uintvar(tvb, offset, &len, pinfo, &ei_wsp_oversized_uintvar);
     proto_tree_add_uint(subtree, hf_sir_contact_points_len,
             tvb, offset, len, val_len);
     offset += len;
@@ -4561,7 +4561,7 @@ dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     offset += val_len;
 
     /* Number of entries in the Protocol Options list */
-    val_len = tvb_get_guintvar(tvb, offset, &len, pinfo, &ei_wsp_oversized_uintvar);
+    val_len = tvb_get_uintvar(tvb, offset, &len, pinfo, &ei_wsp_oversized_uintvar);
     proto_tree_add_uint(subtree, hf_sir_protocol_options_len,
             tvb, offset, len, val_len);
     offset += len;
@@ -4570,14 +4570,14 @@ dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     val_len_save = val_len;
     for (i = 0; i < val_len_save; i++) {
-        val_len = tvb_get_guintvar(tvb, offset, &len, pinfo, &ei_wsp_oversized_uintvar);
+        val_len = tvb_get_uintvar(tvb, offset, &len, pinfo, &ei_wsp_oversized_uintvar);
         proto_tree_add_uint(subtree, hf_sir_protocol_options,
                 tvb, offset, len, val_len);
         offset += len;
     }
 
     /* Length of ProvURL */
-    val_len = tvb_get_guintvar(tvb, offset, &len, pinfo, &ei_wsp_oversized_uintvar);
+    val_len = tvb_get_uintvar(tvb, offset, &len, pinfo, &ei_wsp_oversized_uintvar);
     proto_tree_add_uint(subtree, hf_sir_prov_url_len,
             tvb, offset, len, val_len);
     offset += len;
@@ -4587,7 +4587,7 @@ dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     offset += val_len;
 
     /* Number of entries in the CPITag list */
-    val_len = tvb_get_guintvar(tvb, offset, &len, pinfo, &ei_wsp_oversized_uintvar);
+    val_len = tvb_get_uintvar(tvb, offset, &len, pinfo, &ei_wsp_oversized_uintvar);
     proto_tree_add_uint(subtree, hf_sir_cpi_tag_len,
             tvb, offset, len, val_len);
     offset += len;
@@ -4698,7 +4698,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 offset++;
             } else {
                 count = 0;  /* Initialise count */
-                value = tvb_get_guintvar (tvb, offset, &count, pinfo, &ei_wsp_oversized_uintvar);
+                value = tvb_get_uintvar (tvb, offset, &count, pinfo, &ei_wsp_oversized_uintvar);
                 proto_tree_add_uint (wsp_tree,
                         hf_wsp_server_session_id,
                         tvb, offset, count, value);
@@ -4706,7 +4706,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 offset += count;
             }
             count = 0;  /* Initialise count */
-            capabilityLength = tvb_get_guintvar (tvb, offset, &count, pinfo, &ei_wsp_oversized_uintvar);
+            capabilityLength = tvb_get_uintvar (tvb, offset, &count, pinfo, &ei_wsp_oversized_uintvar);
             ti = proto_tree_add_uint (wsp_tree, hf_capabilities_length,
                     tvb, offset, count, capabilityLength);
             offset += count;
@@ -4719,7 +4719,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             if (pdut != WSP_PDU_RESUME)
             {
                 count = 0;  /* Initialise count */
-                headerLength = tvb_get_guintvar (tvb, offset, &count, pinfo, &ei_wsp_oversized_uintvar);
+                headerLength = tvb_get_uintvar (tvb, offset, &count, pinfo, &ei_wsp_oversized_uintvar);
                 proto_tree_add_uint (wsp_tree, hf_wsp_header_length,
                         tvb, offset, count, headerLength);
                 offset += count;
@@ -4755,7 +4755,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         case WSP_PDU_DISCONNECT:
         case WSP_PDU_SUSPEND:
             count = 0;  /* Initialise count */
-            value = tvb_get_guintvar (tvb, offset, &count, pinfo,
+            value = tvb_get_uintvar (tvb, offset, &count, pinfo,
                     &ei_wsp_oversized_uintvar);
             proto_tree_add_uint (wsp_tree, hf_wsp_server_session_id,
                     tvb, offset, count, value);
@@ -4769,7 +4769,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         case WSP_PDU_TRACE:
             count = 0;  /* Initialise count */
             /* Length of URI and size of URILen field */
-            value = tvb_get_guintvar (tvb, offset, &count, pinfo, &ei_wsp_oversized_uintvar);
+            value = tvb_get_uintvar (tvb, offset, &count, pinfo, &ei_wsp_oversized_uintvar);
             nextOffset = offset + count;
             add_uri (wsp_tree, pinfo, tvb, offset, nextOffset, proto_ti);
             offset += value + count; /* VERIFY */
@@ -4781,10 +4781,10 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         case WSP_PDU_PUT:
             uriStart = offset;
             count = 0;  /* Initialise count */
-            uriLength = tvb_get_guintvar (tvb, offset, &count, pinfo, &ei_wsp_oversized_uintvar);
+            uriLength = tvb_get_uintvar (tvb, offset, &count, pinfo, &ei_wsp_oversized_uintvar);
             headerStart = uriStart+count;
             count = 0;  /* Initialise count */
-            headersLength = tvb_get_guintvar (tvb, headerStart, &count, pinfo, &ei_wsp_oversized_uintvar);
+            headersLength = tvb_get_uintvar (tvb, headerStart, &count, pinfo, &ei_wsp_oversized_uintvar);
             offset = headerStart + count;
 
             add_uri (wsp_tree, pinfo, tvb, uriStart, offset, proto_ti);
@@ -4860,7 +4860,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         case WSP_PDU_REPLY:
             count = 0;  /* Initialise count */
-            headersLength = tvb_get_guintvar (tvb, offset+1, &count, pinfo, &ei_wsp_oversized_uintvar);
+            headersLength = tvb_get_uintvar (tvb, offset+1, &count, pinfo, &ei_wsp_oversized_uintvar);
             headerStart = offset + count + 1;
             {
                 uint8_t reply_status = tvb_get_uint8(tvb, offset);
@@ -4947,7 +4947,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         case WSP_PDU_PUSH:
         case WSP_PDU_CONFIRMEDPUSH:
             count = 0;  /* Initialise count */
-            headersLength = tvb_get_guintvar (tvb, offset, &count, pinfo, &ei_wsp_oversized_uintvar);
+            headersLength = tvb_get_uintvar (tvb, offset, &count, pinfo, &ei_wsp_oversized_uintvar);
             headerStart = offset + count;
 
             proto_tree_add_uint (wsp_tree, hf_wsp_header_length,
@@ -5090,7 +5090,7 @@ add_uri (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         unsigned URILenOffset, unsigned URIOffset, proto_item *proto_ti)
 {
     unsigned  count  = 0;
-    unsigned  uriLen = tvb_get_guintvar (tvb, URILenOffset, &count, pinfo, &ei_wsp_oversized_uintvar);
+    unsigned  uriLen = tvb_get_uintvar (tvb, URILenOffset, &count, pinfo, &ei_wsp_oversized_uintvar);
     char *str;
 
     proto_tree_add_uint (tree, hf_wsp_header_uri_len,
@@ -5178,7 +5178,7 @@ add_capabilities (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, uint8_t p
          * Now Offset points to the 1st byte of a capability field.
          * Get the length of the capability field
          */
-        capaValueLen = tvb_get_guintvar(tvb, offset, &len, pinfo, &ei_wsp_oversized_uintvar);
+        capaValueLen = tvb_get_uintvar(tvb, offset, &len, pinfo, &ei_wsp_oversized_uintvar);
         if (len == 0)
             return;
         capaLen = capaValueLen + len;
@@ -5243,12 +5243,12 @@ add_capabilities (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, uint8_t p
         /* Now the capability type is known */
         switch (peek) {
             case WSP_CAPA_CLIENT_SDU_SIZE:
-                value = tvb_get_guintvar(tvb, offset, &len, pinfo, &ei_wsp_oversized_uintvar);
+                value = tvb_get_uintvar(tvb, offset, &len, pinfo, &ei_wsp_oversized_uintvar);
                 proto_tree_add_uint(cap_subtree, hf_capa_client_sdu_size,
                         tvb, offset, len, value);
                 break;
             case WSP_CAPA_SERVER_SDU_SIZE:
-                value = tvb_get_guintvar(tvb, offset, &len, pinfo, &ei_wsp_oversized_uintvar);
+                value = tvb_get_uintvar(tvb, offset, &len, pinfo, &ei_wsp_oversized_uintvar);
                 proto_tree_add_uint(cap_subtree, hf_capa_server_sdu_size,
                         tvb, offset, len, value);
                 break;
@@ -5351,12 +5351,12 @@ add_capabilities (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, uint8_t p
                         tvb, capaStart, capaLen, ENC_NA);
                 break;
             case WSP_CAPA_CLIENT_MESSAGE_SIZE:
-                value = tvb_get_guintvar(tvb, offset, &len, pinfo, &ei_wsp_oversized_uintvar);
+                value = tvb_get_uintvar(tvb, offset, &len, pinfo, &ei_wsp_oversized_uintvar);
                 proto_tree_add_uint(cap_subtree, hf_capa_client_message_size,
                         tvb, offset, len, value);
                 break;
             case WSP_CAPA_SERVER_MESSAGE_SIZE:
-                value = tvb_get_guintvar(tvb, offset, &len, pinfo, &ei_wsp_oversized_uintvar);
+                value = tvb_get_uintvar(tvb, offset, &len, pinfo, &ei_wsp_oversized_uintvar);
                 proto_tree_add_uint(cap_subtree, hf_capa_server_message_size,
                         tvb, offset, len, value);
                 break;
@@ -5483,7 +5483,7 @@ add_multipart_data (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
 
     heur_dtbl_entry_t       *hdtbl_entry;
 
-    nEntries = tvb_get_guintvar (tvb, offset, &count, pinfo, &ei_wsp_oversized_uintvar);
+    nEntries = tvb_get_uintvar (tvb, offset, &count, pinfo, &ei_wsp_oversized_uintvar);
     offset += count;
     if (nEntries)
     {
@@ -5493,9 +5493,9 @@ add_multipart_data (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
     while (nEntries--)
     {
         part_start = offset;
-        HeadersLen = tvb_get_guintvar (tvb, offset, &count, pinfo, &ei_wsp_oversized_uintvar);
+        HeadersLen = tvb_get_uintvar (tvb, offset, &count, pinfo, &ei_wsp_oversized_uintvar);
         offset += count;
-        DataLen = tvb_get_guintvar (tvb, offset, &count, pinfo, &ei_wsp_oversized_uintvar);
+        DataLen = tvb_get_uintvar (tvb, offset, &count, pinfo, &ei_wsp_oversized_uintvar);
         offset += count;
 
         ti = proto_tree_add_uint(sub_tree, hf_wsp_mpart, tvb, part_start,

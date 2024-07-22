@@ -60,7 +60,7 @@
  */
 
 /* Utility function for reading Uintvar encoded values */
-unsigned tvb_get_guintvar (tvbuff_t *, unsigned , unsigned *, packet_info *, expert_field *);
+unsigned tvb_get_uintvar (tvbuff_t *, unsigned , unsigned *, packet_info *, expert_field *);
 
 /*
  * Misc TODO:
