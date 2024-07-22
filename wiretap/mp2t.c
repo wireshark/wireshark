@@ -372,7 +372,7 @@ found:
                             return WTAP_OPEN_ERROR;
                         return WTAP_OPEN_NOT_MINE;
                     }
-                    for (i = 0; i < MP2T_SIZE; i++) {
+                    for (i = 0; i < trailer_len; i++) {
                         if (MP2T_SYNC_BYTE == buffer[i]) {
                             first += i;
                             trailer_len -= i;
