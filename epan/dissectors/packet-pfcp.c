@@ -2490,12 +2490,12 @@ decode_pfcp_network_instance(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     int      name_len;
 
     if (length > 0) {
-        name_len = tvb_get_guint8(tvb, offset);
+        name_len = tvb_get_uint8(tvb, offset);
         if (name_len < 0x41) {
             /* APN */
             uint8_t *apn = NULL;
 
-            name_len = tvb_get_guint8(tvb, offset);
+            name_len = tvb_get_uint8(tvb, offset);
 
             if (name_len < 0x20) {
                 apn = tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_APN_STR);
@@ -3862,7 +3862,7 @@ decode_pfcp_fqdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item
     */
     if (length > 0)
     {
-        name_len = tvb_get_guint8(tvb, offset);
+        name_len = tvb_get_uint8(tvb, offset);
         /* NOTE 1: The FQDN field in the IE is not encoded as a dotted string as commonly used in DNS master zone files. */
         if (name_len < 0x40) {
             fqdn = tvb_get_string_enc(pinfo->pool, tvb, offset, length - 1, ENC_APN_STR);
@@ -4622,7 +4622,7 @@ decode_pfcp_urr_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, prot
     * or predefined in the UP function. If set to 0, it indicates that the Rule is dynamically provisioned
     * by the CP Function. If set to 1, it indicates that the Rule is predefined in the UP Function
     */
-    urr_id = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+    urr_id = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(tree, hf_pfcp_urr_id_flg, tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_pfcp_urr_id, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -5384,7 +5384,7 @@ decode_pfcp_far_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, prot
      * the Rule is dynamically provisioned by the CP Function. If set to 1, it indicates that
      * the Rule is predefined in the UP Function.
      */
-    far_id = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+    far_id = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(tree, hf_pfcp_far_id_flg, tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_pfcp_far_id, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -5425,7 +5425,7 @@ decode_pfcp_qer_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, prot
     * or predefined in the UP function. If set to 0, it indicates that the Rule is dynamically provisioned
     * by the CP Function. If set to 1, it indicates that the Rule is predefined in the UP Function
     */
-    qer_id = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+    qer_id = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(tree, hf_pfcp_qer_id_flg, tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_pfcp_qer_id, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -11026,7 +11026,7 @@ dissect_pfcp_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PFCP");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    message_type = tvb_get_guint8(tvb, 1);
+    message_type = tvb_get_uint8(tvb, 1);
     col_set_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(message_type, &pfcp_message_type_ext, "Unknown"));
 
     args = wmem_new0(pinfo->pool, pfcp_session_args_t);
@@ -11078,7 +11078,7 @@ dissect_pfcp_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     offset += 1;
 
     /* Octet 2 Message Type */
-    pfcp_hdr->message = tvb_get_guint8(tvb, offset);
+    pfcp_hdr->message = tvb_get_uint8(tvb, offset);
     proto_tree_add_uint(sub_tree, hf_pfcp_msg_type, tvb, offset, 1, pfcp_hdr->message);
     offset += 1;
 
@@ -11154,10 +11154,10 @@ dissect_pfcp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *data 
     {
         /* The first octet of header, Bit 3 represents the "FO" (Follow On) flag. */
         /* If the "FO" flag is set to "1", then another PFCP message follows in the UDP/IP packet */
-        bool follow_on = (tvb_get_guint8(tvb, offset) & 0x04);
+        bool follow_on = (tvb_get_uint8(tvb, offset) & 0x04);
 
         /* length of the message in octets plus the excluded mandatory part of the PFCP header (the first 4 octets) */
-        uint16_t message_length = (tvb_get_guint16(tvb, (offset + 2), 0) + 4);
+        uint16_t message_length = (tvb_get_uint16(tvb, (offset + 2), 0) + 4);
 
         tvbuff_t *message_tvb = tvb_new_subset_length(tvb, offset, message_length);
         offset += dissect_pfcp_message(message_tvb, pinfo, tree);
