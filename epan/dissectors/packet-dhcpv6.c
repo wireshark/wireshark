@@ -124,6 +124,7 @@ static int hf_reconf_msg;
 static int hf_sip_server_domain_search_fqdn;
 static int hf_sip_server_a;
 static int hf_dns_servers;
+static int hf_dhcp4o6_servers;
 static int hf_domain_search_list_entry;
 static int hf_nis_servers;
 static int hf_nisp_servers;
@@ -318,6 +319,7 @@ static expert_field ei_dhcpv6_bulk_leasequery_bad_msg_type;
 
 static dissector_handle_t dhcpv6_handle;
 static dissector_handle_t dhcpv6_cablelabs_handle;
+static dissector_handle_t dhcpv4_handle;
 
 static dissector_table_t dhcpv6_enterprise_opts_dissector_table;
 
@@ -354,9 +356,9 @@ static dissector_table_t dhcpv6_enterprise_opts_dissector_table;
 #define RECONFIGURE_REQUEST     18  /* SERVER  (Server requests client to send requests)    */
 #define RECONFIGURE_REPLY       19  /* CLIENT  (Client replies with the requested requests) */
 
+#define DHCPV4_QUERY            20  /* [RFC7341] */
+#define DHCPV4_RESPONSE         21  /* [RFC7341] */
 /* TODO: add support the following message types
-#define DHCPV4-QUERY            20  [RFC7341]
-#define DHCPV4-RESPONSE         21  [RFC7341]
 #define ACTIVELEASEQUERY        22  [RFC7653]
 #define STARTTLS                23  [RFC7653]
 #define BNDUPD                  24  [RFC8156]
@@ -547,6 +549,8 @@ static const value_string msgtype_vals[] = {
     { LEASEQUERY_DATA,               "Leasequery-data" },
     { RECONFIGURE_REQUEST,           "Reconfigure-request" },
     { RECONFIGURE_REPLY,             "Reconfigure-reply" },
+    { DHCPV4_QUERY,                  "4o6 Query" },
+    { DHCPV4_RESPONSE,               "4o6 Response" },
     { 0, NULL }
 };
 static value_string_ext msgtype_vals_ext = VALUE_STRING_EXT_INIT(msgtype_vals);
@@ -2426,6 +2430,35 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         }
         break;
 
+    case OPTION_DHCP4_O_DHCP6_SERVER:
+        if (optlen % 16) {
+            expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "DHCP4_O_DHCP6_SERVER: malformed option");
+            break;
+        }
+
+        for (i = 0; i < optlen; i += 16) {
+            ti = proto_tree_add_item(subtree, hf_dhcp4o6_servers, tvb, off + i, 16, ENC_NA);
+            proto_item_prepend_text(ti, " %d ", i/16 + 1);
+        }
+        break;
+
+    case OPTION_DHCPV4_MSG:
+    {
+        tvbuff_t *dhcpv4_tvb;
+
+        dhcpv4_tvb = tvb_new_subset_length(tvb, off, optlen);
+        call_dissector(dhcpv4_handle, dhcpv4_tvb, pinfo, subtree);
+
+        /* the DHCP(v4) dissector overwrites COL_PROTOCOL.  This is probably
+         * good, because the DHCP(v4) message will be the main content of this
+         * packet.  But at least disambiguate it a little bit vs. "regular"
+         * DHCP.
+         */
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "DHCPv4o6");
+        col_prepend_fstr(pinfo->cinfo, COL_INFO, "%-12s ", val_to_str_ext(msgtype, &msgtype_vals_ext, "Message Type %u"));
+        break;
+    }
+
     case OPTION_DOMAIN_LIST:
         if (optlen > 0) {
             subtree_2 = proto_tree_add_subtree(subtree, tvb, off, optlen, ett_dhcpv6_dns_domain_search_list_option, &ti,
@@ -3277,6 +3310,8 @@ proto_register_dhcpv6(void)
           { "SIP server address", "dhcpv6.sip_server_a", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}},
         { &hf_dns_servers,
           { "DNS server address", "dhcpv6.dns_server", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        { &hf_dhcp4o6_servers,
+          { "DHCP4o6 server address", "dhcpv6.dhcp4o6_server", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}},
         { &hf_domain_search_list_entry,
           { "List entry", "dhcpv6.search_list_entry", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_nis_servers,
@@ -3655,6 +3690,8 @@ proto_reg_handoff_dhcpv6(void)
     dissector_add_uint_range_with_preference("udp.port", UDP_PORT_DHCPV6_RANGE, dhcpv6_handle);
 
     dissector_add_uint_with_preference("tcp.port", TCP_PORT_DHCPV6_UPSTREAM, find_dissector("dhcpv6.bulk_leasequery"));
+
+    dhcpv4_handle = find_dissector_add_dependency("dhcp", proto_dhcpv6);
 }
 
 /*
