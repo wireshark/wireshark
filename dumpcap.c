@@ -1830,7 +1830,7 @@ cap_pipe_open_live(char *pipename,
     ws_statb64         pipe_stat;
     struct sockaddr_un sa;
 #else /* _WIN32 */
-    guintptr extcap_pipe_handle;
+    uintptr_t extcap_pipe_handle;
 #endif
     bool extcap_pipe = false;
     ssize_t  b;

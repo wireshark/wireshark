@@ -294,7 +294,7 @@ pcapng_write_block(FILE* pfile,
      * getting the trailing block_total_length from the length argument gives
      * us an implicit check of correctness without needing to do an endian swap
      */
-    if (((length & 3) != 0) || (((gintptr)data & 3) != 0)) {
+    if (((length & 3) != 0) || (((intptr_t)data & 3) != 0)) {
         *err = EINVAL;
         return false;
     }

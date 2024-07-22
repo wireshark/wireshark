@@ -1389,7 +1389,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
          * {t, offsetof(_STRUCT, _ElementCountField), (void*)CSNDESCR_##_MEMBER_TYPE, offsetof(_STRUCT, _MEMBER), #_MEMBER, (StreamSerializeFcn_t)sizeof(_MEMBER_TYPE), NULL, NULL, (void_fn_t)array_length(((_STRUCT*)0)->_MEMBER)}
          */
         int16_t nSizeElement = (int16_t)(int32_t)pDescr->value;
-        uint32_t nSizeArray = (uint32_t)((guintptr)pDescr->aux_fn);
+        uint32_t nSizeArray = (uint32_t)((uintptr_t)pDescr->aux_fn);
         uint8_t ElementCount = 0;
 
         while (existNextElement(tvb, bit_offset, Tag))
@@ -1466,7 +1466,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
          * {t, offsetof(_STRUCT, _ElementCountField), (void*)CSNDESCR_##_MEMBER_TYPE, offsetof(_STRUCT, _MEMBER), #_MEMBER, (StreamSerializeFcn_t)sizeof(_MEMBER_TYPE), NULL, NULL, (void_fn_t)array_length(((_STRUCT*)0)->_MEMBER)}
          */
         int16_t     nSizeElement = (int16_t)(int32_t)pDescr->value;
-        uint32_t    nSizeArray = (uint32_t)((guintptr)pDescr->aux_fn);
+        uint32_t    nSizeArray = (uint32_t)((uintptr_t)pDescr->aux_fn);
         uint8_t      ElementCount = 0;
         csnStream_t arT          = *ar;
         bool         EndOfList    = false;

@@ -2427,7 +2427,7 @@ decrypt_krb5_krb_cfx_dce_cb(const krb5_keyblock *key,
 
 	if (state->gssapi_header_ptr != NULL) {
 		iov[1].flags = KRB5_CRYPTO_TYPE_SIGN_ONLY;
-		iov[1].data.data = (uint8_t *)(guintptr)state->gssapi_header_ptr;
+		iov[1].data.data = (uint8_t *)(uintptr_t)state->gssapi_header_ptr;
 		iov[1].data.length = state->gssapi_header_len;
 	} else {
 		iov[1].flags = KRB5_CRYPTO_TYPE_EMPTY;
@@ -2439,7 +2439,7 @@ decrypt_krb5_krb_cfx_dce_cb(const krb5_keyblock *key,
 
 	if (state->gssapi_trailer_ptr != NULL) {
 		iov[3].flags = KRB5_CRYPTO_TYPE_SIGN_ONLY;
-		iov[3].data.data = (uint8_t *)(guintptr)state->gssapi_trailer_ptr;
+		iov[3].data.data = (uint8_t *)(uintptr_t)state->gssapi_trailer_ptr;
 		iov[3].data.length = state->gssapi_trailer_len;
 	} else {
 		iov[3].flags = KRB5_CRYPTO_TYPE_EMPTY;

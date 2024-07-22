@@ -86,7 +86,7 @@ in_cksum_ret_partial(const vec_t *vec, int veclen, uint16_t *partial)
 		/*
 		 * Force to even boundary.
 		 */
-		if ((1 & (gintptr)w) && (mlen > 0)) {
+		if ((1 & (intptr_t)w) && (mlen > 0)) {
 			REDUCE;
 			sum <<= 8;
 			s_util.c[0] = *(const uint8_t *)w;

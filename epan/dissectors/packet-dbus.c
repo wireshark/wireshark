@@ -523,7 +523,7 @@ is_dbus_signature_valid(const char *signature, dbus_packet_t *packet) {
 		case SIG_CODE_STRUCT_CLOSE:
 		case SIG_CODE_DICT_ENTRY_CLOSE:
 			if (wmem_stack_count(expected_chars) == 0 ||
-				(char)(guintptr)wmem_stack_pop(expected_chars) != sig_code) {
+				(char)(uintptr_t)wmem_stack_pop(expected_chars) != sig_code) {
 				return false;
 			}
 			break;
