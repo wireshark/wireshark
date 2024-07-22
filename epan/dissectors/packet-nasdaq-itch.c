@@ -198,7 +198,7 @@ price(tvbuff_t *tvb, packet_info *pinfo, proto_tree *nasdaq_itch_tree, int id, i
   int size = (big) ? 19 : 10;
 
   const char *str_value = tvb_get_string_enc(pinfo->pool, tvb, offset, size, ENC_ASCII);
-  double      value     = guint64_to_gdouble(g_ascii_strtoull(str_value, NULL, 10))/((big)?1000000.0:10000.0);
+  double      value     = uint64_to_double(g_ascii_strtoull(str_value, NULL, 10))/((big)?1000000.0:10000.0);
 
   proto_tree_add_double(nasdaq_itch_tree, id, tvb, offset, size, value);
   col_append_fstr(pinfo->cinfo, COL_INFO, "price %g ", value);

@@ -496,11 +496,11 @@ _geonw_to_str(const uint8_t* addrdata, char *buf, int buf_len _U_)
         *buf++ = '0';
     *buf++ = '.';
     // Station Type
-    guint32_to_str_buf((addrdata[0] & 0x7C) >> 2, buf, 26);
+    uint32_to_str_buf((addrdata[0] & 0x7C) >> 2, buf, 26);
     buf += (unsigned) strlen(buf);
     *buf++ = '.';
     // Country Code
-    guint32_to_str_buf(((uint32_t)(addrdata[0] & 0x03) << 8) + addrdata[1], buf, 23); // > 23
+    uint32_to_str_buf(((uint32_t)(addrdata[0] & 0x03) << 8) + addrdata[1], buf, 23); // > 23
     buf += (unsigned) strlen(buf);
     *buf++ = '.';
     // LL_ADDR
@@ -582,7 +582,7 @@ geonw_addr_resolve(hashgeonw_t *tp) {
     val = (addr[0] & 0x7C) >> 2;
     const char *string = try_val_to_str(val, itss_type_small_names);
     if (string == NULL) {
-        guint32_to_str_buf(val, rname, MAXNAMELEN-2);
+        uint32_to_str_buf(val, rname, MAXNAMELEN-2);
         l1 = (uint8_t) strlen(rname);
     }
     else {
@@ -594,7 +594,7 @@ geonw_addr_resolve(hashgeonw_t *tp) {
     val = ((uint32_t)(addr[0] & 0x03) << 8) + addr[1];
     string = try_val_to_str(val, E164_ISO3166_country_code_short_value);
     if (string == NULL) {
-        guint32_to_str_buf(val, rname, MAXNAMELEN-12);
+        uint32_to_str_buf(val, rname, MAXNAMELEN-12);
         l2 = (uint8_t) strlen(rname);
     }
     else {

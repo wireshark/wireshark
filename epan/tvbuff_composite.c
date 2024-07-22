@@ -174,8 +174,8 @@ static const struct tvb_ops tvb_composite_ops = {
 	composite_offset,     /* offset */
 	composite_get_ptr,    /* get_ptr */
 	composite_memcpy,     /* memcpy */
-	NULL,                 /* find_guint8 XXX */
-	NULL,                 /* pbrk_guint8 XXX */
+	NULL,                 /* find_uint8 XXX */
+	NULL,                 /* pbrk_uint8 XXX */
 	NULL,                 /* clone */
 };
 

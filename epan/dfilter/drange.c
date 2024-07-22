@@ -32,7 +32,7 @@ drange_node_new(void)
 }
 
 static bool
-drange_str_to_gint32(const char *s, int32_t *pint, char **endptr, char **err_ptr)
+drange_str_to_int32(const char *s, int32_t *pint, char **endptr, char **err_ptr)
 {
     long integer;
 
@@ -77,7 +77,7 @@ drange_node_from_str(const char *range_str, char **err_ptr)
         /* Do not advance 'str' here. */
     }
     else {
-        if (!drange_str_to_gint32(str, &lower, &endptr, err_ptr))
+        if (!drange_str_to_int32(str, &lower, &endptr, err_ptr))
             return NULL;
         str = endptr;
     }
@@ -88,7 +88,7 @@ drange_node_from_str(const char *range_str, char **err_ptr)
     if (*str == '-') {
         str++;
         end = DRANGE_NODE_END_T_OFFSET;
-        ok = drange_str_to_gint32(str, &upper, &endptr, err_ptr);
+        ok = drange_str_to_int32(str, &upper, &endptr, err_ptr);
         str = endptr;
     }
     else if (*str == ':') {
@@ -99,7 +99,7 @@ drange_node_from_str(const char *range_str, char **err_ptr)
         }
         else {
             end = DRANGE_NODE_END_T_LENGTH;
-            ok = drange_str_to_gint32(str, &upper, &endptr, err_ptr);
+            ok = drange_str_to_int32(str, &upper, &endptr, err_ptr);
             str = endptr;
         }
     }

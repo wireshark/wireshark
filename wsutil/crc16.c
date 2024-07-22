@@ -375,7 +375,7 @@ static const uint16_t crc16_usb_xorout = 0xFFFF;
 static uint16_t crc16_unreflected(const uint8_t *buf, unsigned len,
                                  uint16_t crc_in, const unsigned table[])
 {
-    /* we use guints, rather than guint16s, as they are likely to be
+    /* we use uints, rather than uint16s, as they are likely to be
        faster. We just ignore the top 16 bits and let them do what they want.
     */
     unsigned crc16 = (unsigned)crc_in;
@@ -389,7 +389,7 @@ static uint16_t crc16_unreflected(const uint8_t *buf, unsigned len,
 static uint16_t crc16_reflected(const uint8_t *buf, unsigned len,
                                 uint16_t crc_in, const unsigned table[])
 {
-    /* we use guints, rather than guint16s, as they are likely to be
+    /* we use uints, rather than uint16s, as they are likely to be
        faster. We just ignore the top 16 bits and let them do what they want.
        XXX - does any time saved not zero-extending uint16_t's to 32 bits
        into a register outweigh any increased cache footprint from the

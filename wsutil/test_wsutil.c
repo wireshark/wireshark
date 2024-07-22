@@ -284,7 +284,7 @@ static void test_word_to_hex(void)
     static char buf[32];
     char *str;     /* String is not NULL terminated. */
 
-    str = guint8_to_hex(buf, 0x34);
+    str = uint8_to_hex(buf, 0x34);
     g_assert_true(str == buf + 2);
     g_assert_cmpint(str[-1], ==, '4');
     g_assert_cmpint(str[-2], ==, '3');

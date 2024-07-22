@@ -366,9 +366,6 @@ static inline uint64_t pletoh56(const void *p)
            (uint64_t)*((const uint8_t *)(p)+0)<<0;
 }
 
-/* Subtract two guint32s with respect to wraparound */
-#define guint32_wraparound_diff(higher, lower) ((higher>lower)?(higher-lower):(higher+0xffffffff-lower+1))
-
 #endif /* PINT_H */
 
 /*

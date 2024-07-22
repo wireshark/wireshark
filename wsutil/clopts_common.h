@@ -47,10 +47,18 @@ WS_DLL_PUBLIC int
 get_positive_int(const char *string, const char *name);
 
 WS_DLL_PUBLIC uint32_t
-get_guint32(const char *string, const char *name);
+get_uint32(const char *string, const char *name);
+
+WS_DEPRECATED_X("Use get_uint32 instead")
+static inline uint32_t
+get_guint32(const char *string, const char *name) { return get_uint32(string, name); }
 
 WS_DLL_PUBLIC uint32_t
-get_nonzero_guint32(const char *string, const char *name);
+get_nonzero_uint32(const char *string, const char *name);
+
+WS_DEPRECATED_X("Use get_nonzero_uint32 instead")
+static inline uint32_t
+get_nonzero_guint32(const char *string, const char *name) { return get_nonzero_uint32(string, name); }
 
 WS_DLL_PUBLIC uint64_t
 get_uint64(const char *string, const char *name);

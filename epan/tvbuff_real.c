@@ -49,8 +49,8 @@ static const struct tvb_ops tvb_real_ops = {
 	real_offset,          /* offset */
 	NULL,                 /* get_ptr */
 	NULL,                 /* memcpy */
-	NULL,                 /* find_guint8 */
-	NULL,                 /* pbrk_guint8 */
+	NULL,                 /* find_uint8 */
+	NULL,                 /* pbrk_uint8 */
 	NULL,                 /* clone */
 };
 

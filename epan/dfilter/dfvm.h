@@ -150,7 +150,7 @@ dfvm_value_t*
 dfvm_value_new_pcre(ws_regex_t *re);
 
 dfvm_value_t*
-dfvm_value_new_guint(unsigned num);
+dfvm_value_new_uint(unsigned num);
 
 void
 dfvm_dump(FILE *f, dfilter_t *df, uint16_t flags);

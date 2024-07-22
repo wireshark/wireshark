@@ -95,7 +95,7 @@ byte_to_hex(char *out, uint32_t dword)
 }
 
 char *
-guint8_to_hex(char *out, uint8_t val)
+uint8_to_hex(char *out, uint8_t val)
 {
 	return byte_to_hex(out, val);
 }
@@ -476,7 +476,7 @@ int64_to_str_back(char *ptr, int64_t value)
 }
 
 static size_t
-guint32_to_str_buf_len(const uint32_t u)
+uint32_to_str_buf_len(const uint32_t u)
 {
 	/* ((2^32)-1) == 2147483647 */
 	if (u >= 1000000000)return 10;
@@ -493,9 +493,9 @@ guint32_to_str_buf_len(const uint32_t u)
 }
 
 void
-guint32_to_str_buf(uint32_t u, char *buf, size_t buf_len)
+uint32_to_str_buf(uint32_t u, char *buf, size_t buf_len)
 {
-	size_t str_len = guint32_to_str_buf_len(u)+1;
+	size_t str_len = uint32_to_str_buf_len(u)+1;
 
 	char *bp = &buf[str_len];
 
@@ -507,7 +507,7 @@ guint32_to_str_buf(uint32_t u, char *buf, size_t buf_len)
 }
 
 static size_t
-guint64_to_str_buf_len(const uint64_t u)
+uint64_to_str_buf_len(const uint64_t u)
 {
 	/* ((2^64)-1) == 18446744073709551615 */
 
@@ -535,9 +535,9 @@ guint64_to_str_buf_len(const uint64_t u)
 }
 
 void
-guint64_to_str_buf(uint64_t u, char *buf, size_t buf_len)
+uint64_to_str_buf(uint64_t u, char *buf, size_t buf_len)
 {
-	size_t str_len = guint64_to_str_buf_len(u)+1;
+	size_t str_len = uint64_to_str_buf_len(u)+1;
 
 	char *bp = &buf[str_len];
 

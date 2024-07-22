@@ -1615,7 +1615,7 @@ main(int argc, char *argv[])
         case 'D':
             dup_detect = true;
             dup_detect_by_time = false;
-            dup_window = get_guint32(ws_optarg, "duplicate window");
+            dup_window = get_uint32(ws_optarg, "duplicate window");
             if (dup_window > MAX_DUP_DEPTH) {
                 cmdarg_err("\"%d\" duplicate window value must be between 0 and %d inclusive.",
                         dup_window, MAX_DUP_DEPTH);
@@ -1666,7 +1666,7 @@ main(int argc, char *argv[])
             break;
 
         case 'I': /* ignored_bytes at the beginning of the frame for duplications removal */
-            ignored_bytes = get_guint32(ws_optarg, "number of bytes to ignore");
+            ignored_bytes = get_uint32(ws_optarg, "number of bytes to ignore");
             break;
 
         case 'L':
@@ -1674,7 +1674,7 @@ main(int argc, char *argv[])
             break;
 
         case 'o':
-            change_offset = get_guint32(ws_optarg, "change offset");
+            change_offset = get_uint32(ws_optarg, "change offset");
             break;
 
         case 'r':
@@ -1687,7 +1687,7 @@ main(int argc, char *argv[])
             break;
 
         case 's':
-            snaplen = get_nonzero_guint32(ws_optarg, "snapshot length");
+            snaplen = get_nonzero_uint32(ws_optarg, "snapshot length");
             break;
 
         case 'S':

@@ -338,7 +338,7 @@ set_autostop_criterion(capture_options *capture_opts, const char *autostoparg)
         capture_opts->autostop_duration = get_positive_double(p,"autostop duration");
     } else if (strcmp(autostoparg,"filesize") == 0) {
         capture_opts->has_autostop_filesize = true;
-        capture_opts->autostop_filesize = get_nonzero_guint32(p,"autostop filesize");
+        capture_opts->autostop_filesize = get_nonzero_uint32(p,"autostop filesize");
     } else if (strcmp(autostoparg,"files") == 0) {
         capture_opts->multi_files_on = true;
         capture_opts->has_autostop_files = true;
@@ -463,10 +463,10 @@ get_ring_arguments(capture_options *capture_opts, const char *arg)
 
     if (strcmp(arg,"files") == 0) {
         capture_opts->has_ring_num_files = true;
-        capture_opts->ring_num_files = get_nonzero_guint32(p, "number of ring buffer files");
+        capture_opts->ring_num_files = get_nonzero_uint32(p, "number of ring buffer files");
     } else if (strcmp(arg,"filesize") == 0) {
         capture_opts->has_autostop_filesize = true;
-        capture_opts->autostop_filesize = get_nonzero_guint32(p, "ring buffer filesize");
+        capture_opts->autostop_filesize = get_nonzero_uint32(p, "ring buffer filesize");
     } else if (strcmp(arg,"duration") == 0) {
         capture_opts->has_file_duration = true;
         capture_opts->file_duration = get_positive_double(p, "ring buffer duration");

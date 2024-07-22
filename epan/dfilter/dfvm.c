@@ -233,7 +233,7 @@ dfvm_value_new_pcre(ws_regex_t *re)
 }
 
 dfvm_value_t*
-dfvm_value_new_guint(unsigned num)
+dfvm_value_new_uint(unsigned num)
 {
 	dfvm_value_t *v = dfvm_value_new(INTEGER);
 	v->value.numeric = num;

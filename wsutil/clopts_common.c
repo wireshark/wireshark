@@ -59,7 +59,7 @@ get_positive_int(const char *string, const char *name)
 }
 
 uint32_t
-get_guint32(const char *string, const char *name)
+get_uint32(const char *string, const char *name)
 {
     uint32_t number;
 
@@ -76,11 +76,11 @@ get_guint32(const char *string, const char *name)
 }
 
 uint32_t
-get_nonzero_guint32(const char *string, const char *name)
+get_nonzero_uint32(const char *string, const char *name)
 {
     uint32_t number;
 
-    number = get_guint32(string, name);
+    number = get_uint32(string, name);
 
     if (number == 0) {
         cmdarg_err("The specified %s is zero", name);

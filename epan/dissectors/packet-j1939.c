@@ -258,7 +258,7 @@ static int J1939_addr_to_str(const address* addr, char *buf, int buf_len)
 {
     const uint8_t *addrdata = (const uint8_t *)addr->data;
 
-    guint32_to_str_buf(*addrdata, buf, buf_len);
+    uint32_to_str_buf(*addrdata, buf, buf_len);
     return (int)strlen(buf);
 }
 

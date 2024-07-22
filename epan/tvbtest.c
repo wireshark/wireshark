@@ -243,7 +243,7 @@ test(tvbuff_t *tvb, const char* name,
 
 		if (ex_thrown) {
 			printf("07: Failed TVB=%s Exception when retrieving "
-					"guint32 from offset 0\n", name);
+					"uint32_t from offset 0\n", name);
 			failed = true;
 			return false;
 		}
@@ -270,7 +270,7 @@ test(tvbuff_t *tvb, const char* name,
 
 		if (ex_thrown) {
 			printf("09: Failed TVB=%s Exception when retrieving "
-					"guint32 from offset 0\n", name);
+					"uint32_t from offset 0\n", name);
 			failed = true;
 			return false;
 		}

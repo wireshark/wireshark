@@ -2487,7 +2487,7 @@ tvb_find_uint16(tvbuff_t *tvb, const int offset, const int maxlength,
 }
 
 static inline int
-tvb_ws_mempbrk_guint8_generic(tvbuff_t *tvb, unsigned abs_offset, unsigned limit, const ws_mempbrk_pattern* pattern, unsigned char *found_needle)
+tvb_ws_mempbrk_uint8_generic(tvbuff_t *tvb, unsigned abs_offset, unsigned limit, const ws_mempbrk_pattern* pattern, unsigned char *found_needle)
 {
 	const uint8_t *ptr;
 	const uint8_t *result;
@@ -2547,7 +2547,7 @@ tvb_ws_mempbrk_pattern_uint8(tvbuff_t *tvb, const int offset, const int maxlengt
 	if (tvb->ops->tvb_ws_mempbrk_pattern_uint8)
 		return tvb->ops->tvb_ws_mempbrk_pattern_uint8(tvb, abs_offset, limit, pattern, found_needle);
 
-	return tvb_ws_mempbrk_guint8_generic(tvb, abs_offset, limit, pattern, found_needle);
+	return tvb_ws_mempbrk_uint8_generic(tvb, abs_offset, limit, pattern, found_needle);
 }
 
 /* Find size of stringz (NUL-terminated string) by looking for terminating

@@ -939,8 +939,8 @@ wmem_utoa(wmem_allocator_t *allocator, unsigned port)
 {
     char *bp = (char *)wmem_alloc(allocator, MAXNAMELEN);
 
-    /* XXX, guint32_to_str() ? */
-    guint32_to_str_buf(port, bp, MAXNAMELEN);
+    /* XXX, uint32_to_str() ? */
+    uint32_to_str_buf(port, bp, MAXNAMELEN);
     return bp;
 }
 

@@ -88,7 +88,7 @@ dfw_append_stack_pop(dfwork_t *dfw, unsigned count)
 	dfvm_value_t	*val;
 
 	insn = dfvm_insn_new(DFVM_STACK_POP);
-	val = dfvm_value_new_guint(count);
+	val = dfvm_value_new_uint(count);
 	insn->arg1 = dfvm_value_ref(val);
 	dfw_append_insn(dfw, insn);
 }
@@ -392,7 +392,7 @@ dfw_append_function(dfwork_t *dfw, stnode_t *node, GSList **jumps_ptr)
 		count++;
 		params = params->next;
 	}
-	val3 = dfvm_value_new_guint(count);
+	val3 = dfvm_value_new_uint(count);
 	insn->arg3 = dfvm_value_ref(val3);
 	dfw_append_insn(dfw, insn);
 	dfw_append_stack_pop(dfw, count);

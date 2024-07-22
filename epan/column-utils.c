@@ -494,7 +494,7 @@ col_append_str_uint(column_info *cinfo, const int col, const char *abbrev, uint3
 {
   char buf[16];
 
-  guint32_to_str_buf(val, buf, sizeof(buf));
+  uint32_to_str_buf(val, buf, sizeof(buf));
   col_append_lstr(cinfo, col, sep ? sep : "", abbrev, "=", buf, COL_ADD_LSTR_TERMINATOR);
 }
 
@@ -1721,11 +1721,11 @@ col_set_port(packet_info *pinfo, const int col, const bool is_res, const bool is
     if (is_res)
       (void) g_strlcpy(col_item->col_buf, sctp_port_to_display(pinfo->pool, port), COL_MAX_LEN);
     else
-      guint32_to_str_buf(port, col_item->col_buf, COL_MAX_LEN);
+      uint32_to_str_buf(port, col_item->col_buf, COL_MAX_LEN);
     break;
 
   case PT_TCP:
-    guint32_to_str_buf(port, pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN);
+    uint32_to_str_buf(port, pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN);
     if (is_res)
       (void) g_strlcpy(col_item->col_buf, tcp_port_to_display(pinfo->pool, port), COL_MAX_LEN);
     else
@@ -1737,7 +1737,7 @@ col_set_port(packet_info *pinfo, const int col, const bool is_res, const bool is
     break;
 
   case PT_UDP:
-    guint32_to_str_buf(port, pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN);
+    uint32_to_str_buf(port, pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN);
     if (is_res)
       (void) g_strlcpy(col_item->col_buf, udp_port_to_display(pinfo->pool, port), COL_MAX_LEN);
     else
@@ -1753,7 +1753,7 @@ col_set_port(packet_info *pinfo, const int col, const bool is_res, const bool is
       pinfo->cinfo->col_expr.col_expr[col] = "ddp.src_socket";
     else
       pinfo->cinfo->col_expr.col_expr[col] = "ddp.dst_socket";
-    guint32_to_str_buf(port, pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN);
+    uint32_to_str_buf(port, pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN);
     (void) g_strlcpy(col_item->col_buf, pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN);
     break;
 
@@ -1827,7 +1827,7 @@ col_fill_in_frame_data(const frame_data *fd, column_info *cinfo, const int col, 
 
   switch (col_item->col_fmt) {
   case COL_NUMBER:
-    guint32_to_str_buf(fd->num, col_item->col_buf, COL_MAX_LEN);
+    uint32_to_str_buf(fd->num, col_item->col_buf, COL_MAX_LEN);
     col_item->col_data = col_item->col_buf;
     break;
 
@@ -1846,12 +1846,12 @@ col_fill_in_frame_data(const frame_data *fd, column_info *cinfo, const int col, 
     break;
 
   case COL_PACKET_LENGTH:
-    guint32_to_str_buf(fd->pkt_len, col_item->col_buf, COL_MAX_LEN);
+    uint32_to_str_buf(fd->pkt_len, col_item->col_buf, COL_MAX_LEN);
     col_item->col_data = col_item->col_buf;
     break;
 
   case COL_CUMULATIVE_BYTES:
-    guint32_to_str_buf(fd->cum_bytes, col_item->col_buf, COL_MAX_LEN);
+    uint32_to_str_buf(fd->cum_bytes, col_item->col_buf, COL_MAX_LEN);
     col_item->col_data = col_item->col_buf;
     break;
 

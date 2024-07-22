@@ -288,7 +288,7 @@ main(int argc, char *argv[])
                 break;
 
             case 's':
-                snaplen = get_nonzero_guint32(ws_optarg, "snapshot length");
+                snaplen = get_nonzero_uint32(ws_optarg, "snapshot length");
                 break;
 
             case 'V':

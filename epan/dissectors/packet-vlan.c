@@ -173,7 +173,7 @@ columns_set_vlan(column_info *cinfo, uint16_t tci)
 {
   char id_str[16];
 
-  guint32_to_str_buf(tci & 0xFFF, id_str, sizeof(id_str));
+  uint32_to_str_buf(tci & 0xFFF, id_str, sizeof(id_str));
 
   if (vlan_version < IEEE_8021Q_2011) {
     col_add_fstr(cinfo, COL_INFO,

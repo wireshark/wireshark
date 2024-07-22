@@ -20,13 +20,13 @@
 #include <wsutil/inet_addr.h>
 
 typedef struct {
-	guint32	addr;	/* stored in host order */
-	guint32	nmask;	/* stored in host order */
+	uint32_t	addr;	/* stored in host order */
+	uint32_t	nmask;	/* stored in host order */
 } ipv4_addr_and_mask;
 
 typedef struct {
 	ws_in6_addr addr;
-	guint32 prefix;
+	uint32_t prefix;
 } ipv6_addr_and_prefix;
 
 /*

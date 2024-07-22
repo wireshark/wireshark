@@ -467,7 +467,7 @@ UAVCAN_addr_to_str(const address *addr, char *buf, int buf_len)
         return (int) snprintf(buf, buf_len, "Broadcast");
     } else {
         uint8_t real_addr = (uint8_t) (*addrdata & ADDR_MASK);
-        guint32_to_str_buf(real_addr, buf, buf_len);
+        uint32_to_str_buf(real_addr, buf, buf_len);
         return (int) strlen(buf);
     }
 }

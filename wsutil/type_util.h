@@ -29,16 +29,16 @@
  */
 
 WS_DLL_PUBLIC
-uint64_t        type_util_gdouble_to_guint64(double value);
+uint64_t        type_util_double_to_uint64(double value);
 WS_DLL_PUBLIC
-double          type_util_guint64_to_gdouble(uint64_t value);
+double          type_util_uint64_to_double(uint64_t value);
 
 #ifdef _WIN32
-#define         gdouble_to_guint64(value)   type_util_gdouble_to_guint64(value)
-#define         guint64_to_gdouble(value)   type_util_guint64_to_gdouble(value)
+#define         double_to_uint64(value)   type_util_double_to_uint64(value)
+#define         uint64_to_double(value)   type_util_uint64_to_double(value)
 #else
-#define         gdouble_to_guint64(value)   ((uint64_t)(value))
-#define         guint64_to_gdouble(value)   ((double)(value))
+#define         double_to_uint64(value)   ((uint64_t)(value))
+#define         uint64_to_double(value)   ((double)(value))
 #endif
 
 #endif /* __TYPE_UTIL_H__ */

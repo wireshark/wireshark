@@ -36,7 +36,7 @@
  */
 
 double
-type_util_guint64_to_gdouble(uint64_t value)
+type_util_uint64_to_double(uint64_t value)
 {
   if (value & UINT64_C (0x8000000000000000))
     return (double) ((int64_t) value) + (double) 18446744073709551616.;
@@ -45,7 +45,7 @@ type_util_guint64_to_gdouble(uint64_t value)
 }
 
 uint64_t
-type_util_gdouble_to_guint64(double value)
+type_util_double_to_uint64(double value)
 {
   if (value < (double) 9223372036854775808.)   /* 1 << 63 */
     return ((uint64_t) ((int64_t) value));
