@@ -1398,7 +1398,7 @@ so that the tree can be given an arbitrary depth.
 
 Subtree types are integers, assigned by
 "proto_register_subtree_array()". To register subtree types, pass an
-array of pointers to "gint" variables to hold the subtree type values to
+array of pointers to "int" variables to hold the subtree type values to
 "proto_register_subtree_array()":
 
     static int ett_eg;
