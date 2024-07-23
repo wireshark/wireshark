@@ -1054,7 +1054,7 @@ static int dissect_zb_direct_dump_info(tvbuff_t    *tvb,
 
         case ZB_DUMP_INFO_ENCRYPTION_STATUS:
         {
-            gboolean is_enabled = tvb_get_guint8(tvb, offset);
+            gboolean is_enabled = tvb_get_uint8(tvb, offset);
 
             if (is_enabled)
             {
@@ -1158,7 +1158,7 @@ static int dissect_zb_direct_secur_common(tvbuff_t    *tvb,
     proto_item_set_generated(ti);
 
     /* Discover type of the message */
-    guint8 msg_type = tvb_get_guint8(tvb, offset);
+    guint8 msg_type = tvb_get_uint8(tvb, offset);
 
     proto_tree_add_item(tree, hf_zb_direct_msg_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;

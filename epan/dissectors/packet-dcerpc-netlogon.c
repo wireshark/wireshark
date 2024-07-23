@@ -961,7 +961,7 @@ netlogon_dissect_LOGOFF_UAS_INFO(tvbuff_t *tvb, int offset,
         return offset;
     }
 
-    duration = tvb_get_guint32(tvb, offset, DREP_ENC_INTEGER(drep));
+    duration = tvb_get_uint32(tvb, offset, DREP_ENC_INTEGER(drep));
     proto_tree_add_uint_format_value(tree, hf_netlogon_logon_duration, tvb, offset, 4, duration, "unknown time format");
     offset+= 4;
 
@@ -4625,7 +4625,7 @@ netlogon_dissect_UAS_INFO_0(tvbuff_t *tvb, int offset,
     proto_tree_add_item(tree, hf_netlogon_computer_name, tvb, offset, 16, ENC_ASCII);
     offset += 16;
 
-    time_created = tvb_get_guint32(tvb, offset, DREP_ENC_INTEGER(drep));
+    time_created = tvb_get_uint32(tvb, offset, DREP_ENC_INTEGER(drep));
     proto_tree_add_uint_format_value(tree, hf_netlogon_time_created, tvb, offset, 4, time_created, "unknown time format");
     offset+= 4;
 

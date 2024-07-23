@@ -16094,7 +16094,7 @@ add_ff_action_protected_s1g(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 
   offset += add_ff_category_code(tree, tvb, pinfo, offset);
 
-  s1g_action = tvb_get_guint8(tvb, offset);
+  s1g_action = tvb_get_uint8(tvb, offset);
   offset += add_ff_prot_s1g_action(tree, tvb, pinfo, offset);
 
   switch(s1g_action) {

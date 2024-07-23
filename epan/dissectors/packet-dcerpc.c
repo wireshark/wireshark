@@ -2168,7 +2168,7 @@ dissect_dcerpc_char(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     /*
      * XXX - fix to handle EBCDIC if we ever support EBCDIC FT_CHAR.
      */
-    data = tvb_get_guint8(tvb, offset);
+    data = tvb_get_uint8(tvb, offset);
     if (hfindex != -1) {
         proto_tree_add_item(tree, hfindex, tvb, offset, 1, ENC_ASCII|DREP_ENC_INTEGER(drep));
     }
@@ -2185,7 +2185,7 @@ dissect_dcerpc_uint8(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 {
     guint8 data;
 
-    data = tvb_get_guint8(tvb, offset);
+    data = tvb_get_uint8(tvb, offset);
     if (hfindex != -1) {
         proto_tree_add_item(tree, hfindex, tvb, offset, 1, DREP_ENC_INTEGER(drep));
     }
@@ -3589,7 +3589,7 @@ dissect_sec_vt_header(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb)
                                             ett_dcerpc_sec_vt_header,
                                             &ti, "header2");
     guint8 drep[4];
-    guint8 ptype = tvb_get_guint8(tvb, offset);
+    guint8 ptype = tvb_get_uint8(tvb, offset);
 
     proto_tree_add_uint(tr, hf_dcerpc_packet_type, tvb, offset, 1, ptype);
     offset += 1;
@@ -5536,13 +5536,13 @@ is_dcerpc(tvbuff_t *tvb, int offset, packet_info *pinfo _U_)
     if (!tvb_bytes_exist(tvb, offset, sizeof(e_dce_cn_common_hdr_t)))
         return FALSE;   /* not enough information to check */
 
-    rpc_ver = tvb_get_guint8(tvb, offset++);
+    rpc_ver = tvb_get_uint8(tvb, offset++);
     if (rpc_ver != 5)
         return FALSE;
-    rpc_ver_minor = tvb_get_guint8(tvb, offset++);
+    rpc_ver_minor = tvb_get_uint8(tvb, offset++);
     if ((rpc_ver_minor != 0) && (rpc_ver_minor != 1))
         return FALSE;
-    ptype = tvb_get_guint8(tvb, offset++);
+    ptype = tvb_get_uint8(tvb, offset++);
     if (ptype > PDU_RTS)
         return FALSE;
     /* Skip flags, nothing good to check */
@@ -5616,11 +5616,11 @@ dissect_dcerpc_cn(tvbuff_t *tvb, int offset, packet_info *pinfo,
         return FALSE;
 
     start_offset = offset;
-    hdr.rpc_ver = tvb_get_guint8(tvb, offset++);
-    hdr.rpc_ver_minor = tvb_get_guint8(tvb, offset++);
-    hdr.ptype = tvb_get_guint8(tvb, offset++);
+    hdr.rpc_ver = tvb_get_uint8(tvb, offset++);
+    hdr.rpc_ver_minor = tvb_get_uint8(tvb, offset++);
+    hdr.ptype = tvb_get_uint8(tvb, offset++);
 
-    hdr.flags = tvb_get_guint8(tvb, offset++);
+    hdr.flags = tvb_get_uint8(tvb, offset++);
     tvb_memcpy(tvb, (guint8 *)hdr.drep, offset, sizeof (hdr.drep));
     offset += (int)sizeof (hdr.drep);
 
@@ -6052,7 +6052,7 @@ dissect_dcerpc_dg_auth(tvbuff_t *tvb, int offset, proto_tree *dcerpc_tree,
 
         case DCE_C_RPC_AUTHN_PROTOCOL_KRB5:
             auth_tree = proto_tree_add_subtree(dcerpc_tree, tvb, offset, -1, ett_dcerpc_krb5_auth_verf, NULL, "Kerberos authentication verifier");
-            protection_level = tvb_get_guint8(tvb, offset);
+            protection_level = tvb_get_uint8(tvb, offset);
             if (auth_level_p != NULL)
                 *auth_level_p = protection_level;
             proto_tree_add_uint(auth_tree, hf_dcerpc_krb5_av_prot_level, tvb, offset, 1, protection_level);
@@ -6515,26 +6515,26 @@ dissect_dcerpc_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     }
 
     /* Version must be 4 */
-    hdr.rpc_ver = tvb_get_guint8(tvb, offset++);
+    hdr.rpc_ver = tvb_get_uint8(tvb, offset++);
     if (hdr.rpc_ver != 4)
         return false;
 
     /* Type must be <= PDU_CANCEL_ACK or it's not connectionless DCE/RPC */
-    hdr.ptype = tvb_get_guint8(tvb, offset++);
+    hdr.ptype = tvb_get_uint8(tvb, offset++);
     if (hdr.ptype > PDU_CANCEL_ACK)
         return false;
 
     /* flags1 has bit 1 and 8 as reserved for implementations, with no
        indication that they must be set to 0, so we don't check them.
     */
-    hdr.flags1 = tvb_get_guint8(tvb, offset++);
+    hdr.flags1 = tvb_get_uint8(tvb, offset++);
 
     /* flags2 has bit 1 reserved for implementations, bit 2 used,
        and the other bits reserved for future use and specified
        as "must be set to 0", so if any of the other bits are set
        it is probably not DCE/RPC.
     */
-    hdr.flags2 = tvb_get_guint8(tvb, offset++);
+    hdr.flags2 = tvb_get_uint8(tvb, offset++);
     if (hdr.flags2&0xfc)
         return false;
 
@@ -6548,7 +6548,7 @@ dissect_dcerpc_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DCERPC");
     col_add_str(pinfo->cinfo, COL_INFO, pckt_vals[hdr.ptype].strptr);
 
-    hdr.serial_hi = tvb_get_guint8(tvb, offset++);
+    hdr.serial_hi = tvb_get_uint8(tvb, offset++);
     dcerpc_tvb_get_uuid(tvb, offset, hdr.drep, &hdr.obj_id);
     offset += 16;
     dcerpc_tvb_get_uuid(tvb, offset, hdr.drep, &hdr.if_id);
@@ -6571,8 +6571,8 @@ dissect_dcerpc_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     offset += 2;
     hdr.frag_num = dcerpc_tvb_get_ntohs(tvb, offset, hdr.drep);
     offset += 2;
-    hdr.auth_proto = tvb_get_guint8(tvb, offset++);
-    hdr.serial_lo = tvb_get_guint8(tvb, offset++);
+    hdr.auth_proto = tvb_get_uint8(tvb, offset++);
+    hdr.serial_lo = tvb_get_uint8(tvb, offset++);
 
     if (tree) {
         ti = proto_tree_add_item(tree, proto_dcerpc, tvb, 0, -1, ENC_NA);

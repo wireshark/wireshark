@@ -327,7 +327,7 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
         proto_tree_add_uint(tr, hf_epm_tower_lhs_len, tvb, offset, 2, len);
         offset += 2;
 
-        proto_id = tvb_get_guint8(tvb, offset);
+        proto_id = tvb_get_uint8(tvb, offset);
         proto_tree_add_uint(tr, hf_epm_tower_proto_id, tvb, offset, 1, proto_id);
 
         switch(proto_id){
@@ -369,8 +369,8 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
                                            uuid.data4[2], uuid.data4[3],
                                            uuid.data4[4], uuid.data4[5],
                                            uuid.data4[6], uuid.data4[7],
-                                           tvb_get_guint8(tvb, offset+17),
-                                           tvb_get_guint8(tvb, offset+18));
+                                           tvb_get_uint8(tvb, offset+17),
+                                           tvb_get_uint8(tvb, offset+18));
                 }
             }
             break;

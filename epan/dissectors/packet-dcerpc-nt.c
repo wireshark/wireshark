@@ -1831,7 +1831,7 @@ nt_dissect_MIDL_NDRHEADERBLOB(proto_tree *parent_tree, tvbuff_t *tvb, int offset
 	proto_tree_add_item(tree, hf_nt_midl_version, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset++;
 
-	val = tvb_get_guint8(tvb, offset);
+	val = tvb_get_uint8(tvb, offset);
 	proto_tree_add_uint(tree, hf_dcerpc_drep_byteorder, tvb, offset, 1, val>>4);
 
 	offset++;
