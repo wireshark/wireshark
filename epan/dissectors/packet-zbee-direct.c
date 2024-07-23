@@ -29,7 +29,7 @@
  */
 
 static int dissect_zb_direct_dump_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
-static int dissect_zb_direct_secur_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data, unsigned offset, guint msg_id);
+static int dissect_zb_direct_secur_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data, unsigned offset, unsigned msg_id);
 static int dissect_zb_direct_secur_c25519_aesmmo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
 static int dissect_zb_direct_secur_c25519_sha256(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
 static int dissect_zb_direct_secur_p256(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
@@ -43,7 +43,7 @@ static int dissect_zb_direct_identify(tvbuff_t *tvb, packet_info *pinfo, proto_t
 static int dissect_zb_direct_finding_binding(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
 static int dissect_zb_direct_tunneling(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
 
-static int dissect_zb_direct_common(tvbuff_t **tvb, packet_info *pinfo, proto_tree **tree, void *data, unsigned offset, const guint8 *serv_uuid, const guint8 *char_uuid);
+static int dissect_zb_direct_common(tvbuff_t **tvb, packet_info *pinfo, proto_tree **tree, void *data, unsigned offset, const uint8_t *serv_uuid, const uint8_t *char_uuid);
 
 /* Used dissectors */
 static dissector_handle_t zbee_nwk_handle;
@@ -87,37 +87,37 @@ static int hf_zb_direct_char_tunneling;
 static expert_field ei_zb_direct_crypt_error;
 
 /* Trees entities */
-static gint ett_zb_direct;
+static int ett_zb_direct;
 
-static const guint8 serv_secur_uuid[]           = { 0xe3, 0x29, 0xb4, 0x99, 0x02, 0x6d, 0xe9, 0xbf,
+static const uint8_t serv_secur_uuid[]           = { 0xe3, 0x29, 0xb4, 0x99, 0x02, 0x6d, 0xe9, 0xbf,
                                                     0x81, 0x44, 0x00, 0x00, 0xf4, 0x4a, 0x14, 0x29 };
-static const guint8 char_p256_uuid[]            = { 0xe3, 0x29, 0xb4, 0x99, 0x02, 0x6d, 0xe9, 0xbf,
+static const uint8_t char_p256_uuid[]            = { 0xe3, 0x29, 0xb4, 0x99, 0x02, 0x6d, 0xe9, 0xbf,
                                                     0x81, 0x44, 0x03, 0x00, 0xf4, 0x4a, 0x14, 0x29 };
-static const guint8 char_c25519_aesmmo_uuid[]   = { 0xe3, 0x29, 0xb4, 0x99, 0x02, 0x6d, 0xe9, 0xbf,
+static const uint8_t char_c25519_aesmmo_uuid[]   = { 0xe3, 0x29, 0xb4, 0x99, 0x02, 0x6d, 0xe9, 0xbf,
                                                     0x81, 0x44, 0x01, 0x00, 0xf4, 0x4a, 0x14, 0x29 };
-static const guint8 char_c25519_sha256_uuid[]   = { 0xe3, 0x29, 0xb4, 0x99, 0x02, 0x6d, 0xe9, 0xbf,
+static const uint8_t char_c25519_sha256_uuid[]   = { 0xe3, 0x29, 0xb4, 0x99, 0x02, 0x6d, 0xe9, 0xbf,
                                                     0x81, 0x44, 0x02, 0x00, 0xf4, 0x4a, 0x14, 0x29 };
-static const guint8 serv_comm_uuid[]            = { 0xfb, 0x34, 0x9b, 0x5f, 0x80, 0x00, 0x00, 0x80,
+static const uint8_t serv_comm_uuid[]            = { 0xfb, 0x34, 0x9b, 0x5f, 0x80, 0x00, 0x00, 0x80,
                                                     0x00, 0x10, 0x00, 0x00, 0xf7, 0xff, 0x00, 0x00 };
-static const guint8 char_form_uuid[]            = { 0x61, 0x3a, 0x33, 0x27, 0x1c, 0x49, 0x63, 0xb1,
+static const uint8_t char_form_uuid[]            = { 0x61, 0x3a, 0x33, 0x27, 0x1c, 0x49, 0x63, 0xb1,
                                                     0x1c, 0x42, 0x01, 0x00, 0x7d, 0x37, 0x72, 0x70 };
-static const guint8 char_join_uuid[]            = { 0x61, 0x3a, 0x33, 0x27, 0x1c, 0x49, 0x63, 0xb1,
+static const uint8_t char_join_uuid[]            = { 0x61, 0x3a, 0x33, 0x27, 0x1c, 0x49, 0x63, 0xb1,
                                                     0x1c, 0x42, 0x02, 0x00, 0x7d, 0x37, 0x72, 0x70 };
-static const guint8 char_permit_uuid[]          = { 0x61, 0x3a, 0x33, 0x27, 0x1c, 0x49, 0x63, 0xb1,
+static const uint8_t char_permit_uuid[]          = { 0x61, 0x3a, 0x33, 0x27, 0x1c, 0x49, 0x63, 0xb1,
                                                     0x1c, 0x42, 0x03, 0x00, 0x7d, 0x37, 0x72, 0x70 };
-static const guint8 char_leave_uuid[]           = { 0x61, 0x3a, 0x33, 0x27, 0x1c, 0x49, 0x63, 0xb1,
+static const uint8_t char_leave_uuid[]           = { 0x61, 0x3a, 0x33, 0x27, 0x1c, 0x49, 0x63, 0xb1,
                                                     0x1c, 0x42, 0x04, 0x00, 0x7d, 0x37, 0x72, 0x70 };
-static const guint8 char_status_uuid[]          = { 0x61, 0x3a, 0x33, 0x27, 0x1c, 0x49, 0x63, 0xb1,
+static const uint8_t char_status_uuid[]          = { 0x61, 0x3a, 0x33, 0x27, 0x1c, 0x49, 0x63, 0xb1,
                                                     0x1c, 0x42, 0x05, 0x00, 0x7d, 0x37, 0x72, 0x70 };
-static const guint8 char_identify_uuid[]        = { 0x61, 0x3a, 0x33, 0x27, 0x1c, 0x49, 0x63, 0xb1,
+static const uint8_t char_identify_uuid[]        = { 0x61, 0x3a, 0x33, 0x27, 0x1c, 0x49, 0x63, 0xb1,
                                                     0x1c, 0x42, 0x07, 0x00, 0x7d, 0x37, 0x72, 0x70 };
-static const guint8 char_manage_joiners_uuid[]  = { 0x61, 0x3a, 0x33, 0x27, 0x1c, 0x49, 0x63, 0xb1,
+static const uint8_t char_manage_joiners_uuid[]  = { 0x61, 0x3a, 0x33, 0x27, 0x1c, 0x49, 0x63, 0xb1,
                                                     0x1c, 0x42, 0x06, 0x00, 0x7d, 0x37, 0x72, 0x70 };
-static const guint8 char_finding_binding_uuid[] = { 0x61, 0x3a, 0x33, 0x27, 0x1c, 0x49, 0x63, 0xb1,
+static const uint8_t char_finding_binding_uuid[] = { 0x61, 0x3a, 0x33, 0x27, 0x1c, 0x49, 0x63, 0xb1,
                                                     0x1c, 0x42, 0x08, 0x00, 0x7d, 0x37, 0x72, 0x70 };
-static const guint8 serv_tunnel_uuid[]          = { 0x3f, 0x31, 0xd5, 0x8b, 0x37, 0xb2, 0x20, 0x81,
+static const uint8_t serv_tunnel_uuid[]          = { 0x3f, 0x31, 0xd5, 0x8b, 0x37, 0xb2, 0x20, 0x81,
                                                     0xf4, 0x45, 0x00, 0x00, 0xfd, 0x78, 0xd1, 0x8b };
-static const guint8 char_tunnel_uuid[]          = { 0x3f, 0x31, 0xd5, 0x8b, 0x37, 0xb2, 0x20, 0x81,
+static const uint8_t char_tunnel_uuid[]          = { 0x3f, 0x31, 0xd5, 0x8b, 0x37, 0xb2, 0x20, 0x81,
                                                     0xf4, 0x45, 0x01, 0x00, 0xfd, 0x78, 0xd1, 0x8b };
 #define ZIGBEE_DIRECT_MAX_ATT_SIZE  248
 #define ZIGBEE_DIRECT_AUTH_STR_SIZE (16 + 1 + 16 + 1)
@@ -138,20 +138,20 @@ static uat_t *zbd_secur_key_table_uat;
 /* Values in the key rings. */
 typedef struct
 {
-    guint  frame_num;
-    guint8 zdd_ieee[8];
-    guint8 zvd_ieee[8];
-    guint8 key[KEY_LEN];
-    gchar *label;
+    unsigned  frame_num;
+    uint8_t zdd_ieee[8];
+    uint8_t zvd_ieee[8];
+    uint8_t key[KEY_LEN];
+    char *label;
 } zb_direct_key_record_t;
 
 /* UAT Key Entry */
 typedef struct uat_key_record_s
 {
-    gchar *zdd_ieee;
-    gchar *zvd_ieee;
-    gchar *key;
-    gchar *label;
+    char *zdd_ieee;
+    char *zvd_ieee;
+    char *key;
+    char *label;
 } uat_key_record_t;
 
 UAT_CSTRING_CB_DEF(uat_key_records, zdd_ieee, uat_key_record_t)
@@ -161,10 +161,10 @@ UAT_CSTRING_CB_DEF(uat_key_records, label, uat_key_record_t)
 
 static GSList           *zbee_pc_keyring;
 static uat_key_record_t *uat_key_records;
-static guint             num_uat_key_records;
+static unsigned          num_uat_key_records;
 
 /* Common data */
-static guint8 g_conn_id;
+static uint8_t g_conn_id;
 
 static bool ignore_late_keys = true;
 
@@ -214,11 +214,11 @@ static const value_string msg_type_str[] =
  * @param  src pointer to source (copy from)
  * @param  len number of bytes
  */
-static inline void memcpy_reverse(guint8 *dst, const guint8 *src, gsize len)
+static inline void memcpy_reverse(uint8_t *dst, const uint8_t *src, size_t len)
 {
     len -= 1;
 
-    for (gsize i = 0; i <= len; ++i)
+    for (size_t i = 0; i <= len; ++i)
     {
         dst[i] = src[len - i];
     }
@@ -236,19 +236,19 @@ static inline void memcpy_reverse(guint8 *dst, const guint8 *src, gsize len)
  * @param  bytes_num number of bytes to retrive from the string
  * @return success
  */
-static gboolean zbd_parse_uat_hexline(const gchar *str,
-                                      guint8      *buf,
-                                      guint        bytes_num)
+static bool zbd_parse_uat_hexline(const char *str,
+                                      uint8_t     *buf,
+                                      unsigned     bytes_num)
 {
-    gint      i, j;
-    gchar     temp;
-    gboolean  string_mode = FALSE;
+    int       i, j;
+    char      temp;
+    bool      string_mode = false;
 
     /* Clear the key. */
     memset(buf, 0, bytes_num);
     if (str == NULL)
     {
-        return FALSE;
+        return false;
     }
 
     /**
@@ -259,7 +259,7 @@ static gboolean zbd_parse_uat_hexline(const gchar *str,
      */
     if ((temp = *str++) == '"')
     {
-        string_mode = TRUE;
+        string_mode = true;
         temp = *str++;
     }
 
@@ -275,7 +275,7 @@ static gboolean zbd_parse_uat_hexline(const gchar *str,
             }
             else
             {
-                return FALSE;
+                return false;
             }
         }
         else
@@ -293,7 +293,7 @@ static gboolean zbd_parse_uat_hexline(const gchar *str,
             }
             else
             {
-                return FALSE;
+                return false;
             }
 
             /* Get the next nibble. */
@@ -306,7 +306,7 @@ static gboolean zbd_parse_uat_hexline(const gchar *str,
             }
             else
             {
-                return FALSE;
+                return false;
             }
 
             /* Get the next nibble. */
@@ -318,7 +318,7 @@ static gboolean zbd_parse_uat_hexline(const gchar *str,
     }
 
     /* If we get this far, then the key was good. */
-    return TRUE;
+    return true;
 }
 
 /**
@@ -351,28 +351,28 @@ static void *uat_key_record_copy_cb(void *n, const void *o, size_t size _U_)
 static bool uat_key_record_update_cb(void *r, char **err)
 {
     uat_key_record_t *rec = (uat_key_record_t *)r;
-    guint8            zdd_ieee[8];
-    guint8            zvd_ieee[8];
-    guint8            key[KEY_LEN];
+    uint8_t           zdd_ieee[8];
+    uint8_t           zvd_ieee[8];
+    uint8_t           key[KEY_LEN];
 
     *err = NULL;
 
     if (rec->zdd_ieee == NULL)
     {
         *err = g_strdup("ZDD IEEE can't be blank");
-        return FALSE;
+        return false;
     }
 
     if (rec->zvd_ieee == NULL)
     {
         *err = g_strdup("ZVD IEEE can't be blank");
-        return FALSE;
+        return false;
     }
 
     if (rec->key == NULL)
     {
         *err = g_strdup("Key can't be blank");
-        return FALSE;
+        return false;
     }
 
     g_strstrip(rec->zdd_ieee);
@@ -382,40 +382,40 @@ static bool uat_key_record_update_cb(void *r, char **err)
     if (rec->zdd_ieee[0] == 0)
     {
         *err = g_strdup("ZDD IEEE can't be blank");
-        return FALSE;
+        return false;
     }
 
     if (rec->zvd_ieee[0] == 0)
     {
         *err = g_strdup("ZVD IEEE can't be blank");
-        return FALSE;
+        return false;
     }
 
     if (rec->key[0] == 0)
     {
         *err = g_strdup("Key can't be blank");
-        return FALSE;
+        return false;
     }
 
     if (!zbd_parse_uat_hexline(rec->zdd_ieee, zdd_ieee, 8))
     {
         *err = g_strdup_printf("Expecting %d hexadecimal bytes or a %d character double-quoted string", 8, 8);
-        return FALSE;
+        return false;
     }
 
     if (!zbd_parse_uat_hexline(rec->zvd_ieee, zvd_ieee, 8))
     {
         *err = g_strdup_printf("Expecting %d hexadecimal bytes or a %d character double-quoted string", 8, 8);
-        return FALSE;
+        return false;
     }
 
     if (!zbd_parse_uat_hexline(rec->key, key, 16))
     {
         *err = g_strdup_printf("Expecting %d hexadecimal bytes or a %d character double-quoted string", 16, 16);
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 /**
@@ -438,7 +438,7 @@ static void uat_key_record_free_cb(void *r)
  *
  * @param  ptr  pointer to a zb_direct_key_record_t
  */
-static void zbd_free_key_record(gpointer ptr)
+static void zbd_free_key_record(void *ptr)
 {
     zb_direct_key_record_t *k = (zb_direct_key_record_t *)ptr;
 
@@ -453,9 +453,9 @@ static void zbd_free_key_record(gpointer ptr)
 static void uat_key_record_post_update(void)
 {
     zb_direct_key_record_t key_record;
-    guint8                 zdd_ieee[8];
-    guint8                 zvd_ieee[8];
-    guint8                 key[KEY_LEN];
+    uint8_t                zdd_ieee[8];
+    uint8_t                zvd_ieee[8];
+    uint8_t                key[KEY_LEN];
 
     /* Empty UAT keys */
     GSList *element = zbee_pc_keyring;
@@ -478,11 +478,11 @@ static void uat_key_record_post_update(void)
     }
 
     /* Load the pre-configured slist from the UAT */
-    for (guint i = 0U; uat_key_records && i < num_uat_key_records; i++)
+    for (unsigned i = 0U; uat_key_records && i < num_uat_key_records; i++)
     {
-        bool success = zbd_parse_uat_hexline(uat_key_records[i].zdd_ieee, zdd_ieee, sizeof(zdd_ieee))
-            | zbd_parse_uat_hexline(uat_key_records[i].zvd_ieee, zvd_ieee, sizeof(zvd_ieee))
-            | zbd_parse_uat_hexline(uat_key_records[i].key, key, sizeof(key));
+        bool success = (int)zbd_parse_uat_hexline(uat_key_records[i].zdd_ieee, zdd_ieee, sizeof(zdd_ieee))
+            | (int)zbd_parse_uat_hexline(uat_key_records[i].zvd_ieee, zvd_ieee, sizeof(zvd_ieee))
+            | (int)zbd_parse_uat_hexline(uat_key_records[i].key, key, sizeof(key));
 
         if (success)
         {
@@ -508,9 +508,9 @@ static void uat_key_record_post_update(void)
 typedef struct encryption_states_handler_s
 {
     /* How many toggles were performed */
-    guint16 counter;
+    uint16_t counter;
     /* Even entries point, where encryption enabled region starts, odd ones point, where they end */
-    guint32 states[MAX_CRYPT_TOGGLES];
+    uint32_t states[MAX_CRYPT_TOGGLES];
 } encryption_states_handler_t;
 
 static encryption_states_handler_t enc_h[MAX_CONNECTIONS];
@@ -575,40 +575,40 @@ static void zb_direct_encryption_disable(packet_info *pinfo)
  * @param  pinfo  pointer to packet
  * @return true, if decryption is needed, false, otherwise
  */
-static gboolean zb_direct_decryption_needed(packet_info *pinfo)
+static bool zb_direct_decryption_needed(packet_info *pinfo)
 {
     encryption_states_handler_t *h = &enc_h[g_conn_id];
 
-    for (gint i = 0; i < h->counter; i += 2)
+    for (int i = 0; i < h->counter; i += 2)
     {
         if (h->states[i] < pinfo->num)
         {
             /* If the packet is before the beginning of current crypted block, shutdown the search */
             if (pinfo->num < h->states[i])
             {
-                return FALSE;
+                return false;
             }
 
             /* If encrypted block was opened and not closed till now, or closed after current packet */
             if (i == h->counter - 1 || pinfo->num < h->states[i + 1])
             {
-                return TRUE;
+                return true;
             }
         }
     }
 
-    return FALSE;
+    return false;
 }
 
-static gboolean decrypt_data(const guint8 *serv_uuid,
-                             const guint8 *char_uuid,
-                             gboolean      to_zdd,
-                             const guint8 *in,
-                             guint8       *out,
-                             guint16      *len,
-                             guint8        zdd_ieee[8],
-                             guint8        zvd_ieee[8],
-                             guint8        key[KEY_LEN]);
+static bool decrypt_data(const uint8_t *serv_uuid,
+                             const uint8_t *char_uuid,
+                             bool          to_zdd,
+                             const uint8_t *in,
+                             uint8_t      *out,
+                             uint16_t     *len,
+                             uint8_t       zdd_ieee[8],
+                             uint8_t       zvd_ieee[8],
+                             uint8_t       key[KEY_LEN]);
 
 /**
  * Tries to decrypt packet payload as ZDD and ZVD.
@@ -623,20 +623,20 @@ static gboolean decrypt_data(const guint8 *serv_uuid,
  * @param  key        key for decryption
  * @return success
  */
-static gboolean try_decrypt(const guint8 *serv_uuid,
-                            const guint8 *char_uuid,
-                            const guint8 *in,
-                            guint8       *out,
-                            guint16      *len,
-                            guint8        zdd_ieee[8],
-                            guint8        zvd_ieee[8],
-                            guint8        key[KEY_LEN])
+static bool try_decrypt(const uint8_t *serv_uuid,
+                            const uint8_t *char_uuid,
+                            const uint8_t *in,
+                            uint8_t      *out,
+                            uint16_t     *len,
+                            uint8_t       zdd_ieee[8],
+                            uint8_t       zvd_ieee[8],
+                            uint8_t       key[KEY_LEN])
 {
     /* As there is no reliable way known to determine,
      * if the packet is from zdd or zvd, try both cases */
 
-    guint16 len_buf  = *len;
-    gboolean success = decrypt_data(serv_uuid, char_uuid,
+    uint16_t len_buf  = *len;
+    bool success = decrypt_data(serv_uuid, char_uuid,
                                     true,
                                     in,
                                     out, len,
@@ -661,7 +661,7 @@ static gboolean try_decrypt(const guint8 *serv_uuid,
  * @param mac_address BLE MAC in BE
  * @param ieee        generated IEEE in BE
  */
-static void zb_direct_ieee_from_mac(const guint8 *mac_address, guint8 *ieee)
+static void zb_direct_ieee_from_mac(const uint8_t *mac_address, uint8_t *ieee)
 {
     ieee[0] = mac_address[0] ^ 0x02;
     ieee[1] = mac_address[1];
@@ -680,7 +680,7 @@ static void zb_direct_ieee_from_mac(const guint8 *mac_address, guint8 *ieee)
  * @param  mac   BLE MAC (bd_addr) corresponding to current packet sender
  */
 static void zb_direct_bd_addr_from_packet_data(const packet_info *pinfo,
-                                               guint8            *mac)
+                                               uint8_t           *mac)
 {
     (void)address_to_bytes(&pinfo->dl_src, mac, 6);
 }
@@ -692,9 +692,9 @@ static void zb_direct_bd_addr_from_packet_data(const packet_info *pinfo,
  * @param  ieee  calculated IEEE in BE
  */
 static void zb_direct_ieee_from_packet_data(const packet_info *pinfo,
-                                            guint8            *ieee)
+                                            uint8_t           *ieee)
 {
-    guint8 mac[6];
+    uint8_t mac[6];
     zb_direct_bd_addr_from_packet_data(pinfo, mac);
     zb_direct_ieee_from_mac(mac, ieee);
 }
@@ -716,18 +716,18 @@ static int zb_direct_decrypt(tvbuff_t    **tvb,
                              proto_tree   *tree,
                              void         *data  _U_,
                              unsigned      offset,
-                             const guint8 *serv_uuid,
-                             const guint8 *char_uuid)
+                             const uint8_t *serv_uuid,
+                             const uint8_t *char_uuid)
 {
     if (zb_direct_decryption_needed(pinfo))
     {
-        guint8   ieee[8];
-        gboolean success = FALSE;
-        guint16  size = tvb_reported_length_remaining(*tvb, offset);
-        guint8  *decrypted = (guint8 *)wmem_alloc(pinfo->pool, 512);
+        uint8_t  ieee[8];
+        bool success = false;
+        uint16_t size = tvb_reported_length_remaining(*tvb, offset);
+        uint8_t *decrypted = (uint8_t *)wmem_alloc(pinfo->pool, 512);
         GList   *pan_keyring;
         GSList  *i = zbee_pc_keyring;
-        guint16  init_size = size;
+        uint16_t init_size = size;
 
         zb_direct_ieee_from_packet_data(pinfo, ieee);
 
@@ -773,7 +773,7 @@ static int zb_direct_decrypt(tvbuff_t    **tvb,
                 {
                     if (!ignore_late_keys || ((key_record_t*)i->data)->frame_num > pinfo->num)
                     {
-                        success = decrypt_data(serv_uuid, char_uuid, FALSE,
+                        success = decrypt_data(serv_uuid, char_uuid, false,
                                                tvb_get_ptr(*tvb, offset, size),
                                                decrypted, &size,
                                                ieee, NULL, ((key_record_t*)i->data)->key);
@@ -816,9 +816,9 @@ __attribute__((__packed__))
 #endif
     zb_secur_ccm_nonce_s
 {
-    guint8   source_address[8];
-    guint32  frame_counter;
-    guint8   secur_control;
+    uint8_t  source_address[8];
+    uint32_t frame_counter;
+    uint8_t  secur_control;
 } zb_secur_ccm_nonce_t;
 #ifdef _MSC_VER
 # pragma pack(pop)
@@ -831,9 +831,9 @@ __attribute__((__packed__))
  * @param  char_uuid    characteristic UUID
  * @param  auth_string  output buffer
  */
-static void create_auth_string(const guint8 serv_uuid[16],
-                               const guint8 char_uuid[16],
-                               guint8 auth_string[ZIGBEE_DIRECT_AUTH_STR_SIZE])
+static void create_auth_string(const uint8_t serv_uuid[16],
+                               const uint8_t char_uuid[16],
+                               uint8_t auth_string[ZIGBEE_DIRECT_AUTH_STR_SIZE])
 {
     /* 6.4.5. Unique address */
     memcpy_reverse(auth_string, serv_uuid, 16);
@@ -856,24 +856,24 @@ static void create_auth_string(const guint8 serv_uuid[16],
  * @param  key        key for decryption
  * @return success
  */
-static gboolean decrypt_data(const guint8 *serv_uuid,
-                             const guint8 *char_uuid,
-                             gboolean      to_zdd,
-                             const guint8 *in,
-                             guint8       *out,
-                             guint16      *len,
-                             guint8        zdd_ieee[8],
-                             guint8        zvd_ieee[8],
-                             guint8        key[KEY_LEN])
+static bool decrypt_data(const uint8_t *serv_uuid,
+                             const uint8_t *char_uuid,
+                             bool          to_zdd,
+                             const uint8_t *in,
+                             uint8_t      *out,
+                             uint16_t     *len,
+                             uint8_t       zdd_ieee[8],
+                             uint8_t       zvd_ieee[8],
+                             uint8_t       key[KEY_LEN])
 {
-    gboolean success = true;
-    guint8   auth_str[ZIGBEE_DIRECT_AUTH_STR_SIZE];
-    guint8   decrypted_data[ZIGBEE_DIRECT_MAX_ATT_SIZE + 16];
-    guint16  decrypted_data_len = sizeof(decrypted_data);
+    bool success = true;
+    uint8_t  auth_str[ZIGBEE_DIRECT_AUTH_STR_SIZE];
+    uint8_t  decrypted_data[ZIGBEE_DIRECT_MAX_ATT_SIZE + 16];
+    uint16_t decrypted_data_len = sizeof(decrypted_data);
 
     /* Remove 32-bit counter from the beginning */
-    const guint8 *encrypted_data     = in + sizeof(guint32);
-    guint16       encrypted_data_len = *len - sizeof(guint32);
+    const uint8_t *encrypted_data     = in + sizeof(uint32_t);
+    uint16_t      encrypted_data_len = *len - sizeof(uint32_t);
 
     /* Form the nonce */
     zb_secur_ccm_nonce_t nonce = (zb_secur_ccm_nonce_t)
@@ -882,7 +882,7 @@ static gboolean decrypt_data(const guint8 *serv_uuid,
     };
 
     /* Fetch counter from the packet (don't check) */
-    memcpy(&nonce.frame_counter, in, sizeof(guint32));
+    memcpy(&nonce.frame_counter, in, sizeof(uint32_t));
     memcpy(&nonce.source_address, to_zdd ? zvd_ieee : zdd_ieee, 8);
 
     if (*len < 8) return false;
@@ -890,7 +890,7 @@ static gboolean decrypt_data(const guint8 *serv_uuid,
     create_auth_string(serv_uuid, char_uuid, auth_str);
 
     success = zbee_sec_ccm_decrypt(key,
-                                   (guint8*)&nonce,
+                                   (uint8_t*)&nonce,
                                    auth_str,
                                    encrypted_data,
                                    decrypted_data,
@@ -934,8 +934,8 @@ static int dissect_zb_direct_common(tvbuff_t    **tvb,
                                     proto_tree  **tree,
                                     void         *data,
                                     unsigned      offset,
-                                    const guint8 *serv_uuid,
-                                    const guint8 *char_uuid)
+                                    const uint8_t *serv_uuid,
+                                    const uint8_t *char_uuid)
 {
     proto_item *ti;
 
@@ -996,7 +996,7 @@ static int dissect_zb_direct_dump_info(tvbuff_t    *tvb,
 {
     proto_item* ti;
     unsigned offset = 0;
-    guint32 type;
+    uint32_t type;
 
     offset = dissect_zb_direct_common(&tvb, pinfo, &tree, data, offset, NULL, NULL);
     col_set_str(pinfo->cinfo, COL_INFO, "Dump info");
@@ -1054,7 +1054,7 @@ static int dissect_zb_direct_dump_info(tvbuff_t    *tvb,
 
         case ZB_DUMP_INFO_ENCRYPTION_STATUS:
         {
-            gboolean is_enabled = tvb_get_uint8(tvb, offset);
+            bool is_enabled = tvb_get_uint8(tvb, offset);
 
             if (is_enabled)
             {
@@ -1107,12 +1107,12 @@ static int dissect_zb_direct_secur_common(tvbuff_t    *tvb,
                                           proto_tree  *tree,
                                           void        *data,
                                           unsigned     offset,
-                                          guint        msg_id)
+                                          unsigned     msg_id)
 {
     unsigned cap_len = tvb_captured_length(tvb);
     proto_item* ti;
 
-    const guint8 *decrypt_char_uuid;
+    const uint8_t *decrypt_char_uuid;
 
     switch (msg_id)
     {
@@ -1129,7 +1129,7 @@ static int dissect_zb_direct_secur_common(tvbuff_t    *tvb,
             break;
 
         default:
-            DISSECTOR_ASSERT(FALSE);
+            DISSECTOR_ASSERT(false);
             break;
     }
 
@@ -1158,7 +1158,7 @@ static int dissect_zb_direct_secur_common(tvbuff_t    *tvb,
     proto_item_set_generated(ti);
 
     /* Discover type of the message */
-    guint8 msg_type = tvb_get_uint8(tvb, offset);
+    uint8_t msg_type = tvb_get_uint8(tvb, offset);
 
     proto_tree_add_item(tree, hf_zb_direct_msg_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
@@ -1177,7 +1177,7 @@ static int dissect_zb_direct_secur_common(tvbuff_t    *tvb,
 
     if (msg_type >= MSG_SE1 && msg_type <= MSG_SE4)
     {
-        gsize msg_type_idx = msg_type - MSG_SE1;
+        size_t msg_type_idx = msg_type - MSG_SE1;
         col_set_str(pinfo->cinfo, COL_INFO, msg_type_str[msg_type_idx].strptr);
     }
     else
@@ -1366,7 +1366,7 @@ static int dissect_zb_direct_permit_join(tvbuff_t    *tvb,
 
     if (offset < tvb_reported_length(tvb))
     {
-        guint32 parent_time;
+        uint32_t parent_time;
 
         proto_tree_add_item_ret_uint(tree, hf_zb_direct_comm_permit_time, tvb, offset, 1, ENC_LITTLE_ENDIAN, &parent_time);
         offset += 1;
@@ -1481,7 +1481,7 @@ static int dissect_zb_direct_identify(tvbuff_t    *tvb,
 
     if (offset < tvb_reported_length(tvb))
     {
-        guint32 parent_time;
+        uint32_t parent_time;
 
         proto_tree_add_item_ret_uint(tree, hf_zb_direct_comm_identify_time, tvb, offset, 2, ENC_LITTLE_ENDIAN, &parent_time);
         offset += 2;
@@ -1524,7 +1524,7 @@ static int dissect_zb_direct_finding_binding(tvbuff_t    *tvb,
 
     if (offset < tvb_reported_length(tvb))
     {
-        guint32 endpoint;
+        uint32_t endpoint;
         bool initiator;
 
         proto_tree_add_item_ret_uint(tree, hf_zb_direct_comm_fb_endpoint, tvb, offset, 1, ENC_LITTLE_ENDIAN, &endpoint);
@@ -1583,11 +1583,11 @@ static int dissect_zb_direct_tunneling(tvbuff_t    *tvb,
  */
 static void zb_direct_init(void)
 {
-    for (gint i = 0; i < MAX_CONNECTIONS; i++)
+    for (int i = 0; i < MAX_CONNECTIONS; i++)
     {
         enc_h[i].counter = 0;
 
-        for (gint j = 0; j < MAX_CRYPT_TOGGLES && enc_h[i].states[j] != 0; j++)
+        for (int j = 0; j < MAX_CRYPT_TOGGLES && enc_h[i].states[j] != 0; j++)
         {
             enc_h[i].states[j] = 0;
         }
@@ -1787,7 +1787,7 @@ void proto_register_zb_direct(void)
     };
 
     /* Setup protocol subtree array */
-    static gint *ett[] =
+    static int *ett[] =
     {
         &ett_zb_direct,
     };
@@ -1829,12 +1829,12 @@ void proto_register_zb_direct(void)
     };
 
     /* Affects dissection of packets, but not set of named fields */
-    guint uat_flags = UAT_AFFECTS_DISSECTION;
+    unsigned uat_flags = UAT_AFFECTS_DISSECTION;
 
     zbd_secur_key_table_uat = uat_new("Pre-configured Keys",
                                       sizeof(uat_key_record_t),
                                       "zigbee_direct_pc_keys",
-                                      TRUE,
+                                      true,
                                       &uat_key_records,
                                       &num_uat_key_records,
                                       uat_flags,
@@ -1896,7 +1896,7 @@ void proto_reg_handoff_zb_direct(void)
         { NULL, NULL },
     };
 
-    for (gsize i = 0; services[i].uuid; i++)
+    for (size_t i = 0; services[i].uuid; i++)
     {
         dissector_handle_t handle = create_dissector_handle(services[i].dissector, proto_zb_direct);
         dissector_add_string("bluetooth.uuid", services[i].uuid, handle);
