@@ -888,25 +888,25 @@ static void write_pdu_label_and_info(proto_item *ti1, proto_item *ti2,
     }
 }
 
-/* Add section (type + PRB range) for C-Plane, U-Plane */
+/* Add section labels (type + PRB range) for C-Plane, U-Plane */
 static void
 write_section_info(proto_item *section_heading, packet_info *pinfo, proto_item *protocol_item,
                    uint32_t section_id, uint32_t start_prbx, uint32_t num_prbx, uint32_t rb)
 {
     switch (num_prbx) {
-    case 0:
-        write_pdu_label_and_info(section_heading, protocol_item, pinfo, ", Id: %d (all PRBs)", section_id);
-        break;
-    case 1:
-        write_pdu_label_and_info(section_heading, protocol_item, pinfo, ", Id: %d (PRB: %3u)", section_id, start_prbx);
-        break;
-    default:
-        write_pdu_label_and_info(section_heading, protocol_item, pinfo, ", Id: %d (PRB: %3u-%3u%s)", section_id, start_prbx,
-                                 start_prbx + (num_prbx-1)*(1+rb), rb ? " (every-other)" : "");
+        case 0:
+            write_pdu_label_and_info(section_heading, protocol_item, pinfo, ", Id: %d (all PRBs)", section_id);
+            break;
+        case 1:
+            write_pdu_label_and_info(section_heading, protocol_item, pinfo, ", Id: %d (PRB: %3u)", section_id, start_prbx);
+            break;
+        default:
+            write_pdu_label_and_info(section_heading, protocol_item, pinfo, ", Id: %d (PRB: %3u-%3u%s)", section_id, start_prbx,
+                                     start_prbx + (num_prbx-1)*(1+rb), rb ? " (every-other)" : "");
     }
 }
 
-/* 5.1.3.2.7 (real time control data / IQ data transfer message series identifier */
+/* 5.1.3.2.7 (real time control data / IQ data transfer message series identifier) */
 static void
 addPcOrRtcid(tvbuff_t *tvb, proto_tree *tree, int *offset, const char *name, uint16_t *eAxC)
 {
@@ -949,7 +949,7 @@ addPcOrRtcid(tvbuff_t *tvb, proto_tree *tree, int *offset, const char *name, uin
     proto_item_set_generated(pi);
 }
 
-/* 5.1.3.2.8 (message identifier) */
+/* 5.1.3.2.8  ecpriSeqid (message identifier) */
 static void
 addSeqid(tvbuff_t *tvb, proto_tree *oran_tree, int *offset)
 {
@@ -965,14 +965,9 @@ addSeqid(tvbuff_t *tvb, proto_tree *oran_tree, int *offset)
     /* Subsequence ID */
     proto_tree_add_item_ret_uint(oran_seqid_tree, hf_oran_subsequence_id, tvb, *offset, 1, ENC_NA, &subSeqId);
     *offset += 1;
-    proto_item_append_text(seqIdItem, ", SeqId: %d, SubSeqId: %d, E: %d", seqId, subSeqId, e);
-}
 
-/* Special case for uncompressed/16-bit value */
-static float uncompressed_to_float(uint32_t h)
-{
-    int16_t i16 = h & 0x0000ffff;
-    return ((float)i16) / 0x7fff;
+    /* Summary */
+    proto_item_append_text(seqIdItem, ", SeqId: %d, SubSeqId: %d, E: %d", seqId, subSeqId, e);
 }
 
 /* 7.7.1.2 bfwCompHdr (beamforming weight compression header) */
@@ -1074,6 +1069,14 @@ static int dissect_bfwCompParam(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 }
 
 
+/* Special case for uncompressed/16-bit value */
+static float uncompressed_to_float(uint32_t h)
+{
+    int16_t i16 = h & 0x0000ffff;
+    return ((float)i16) / 0x7fff;
+}
+
+/* Decompress I/Q value, taking into account method, width, other input-specific methods */
 static float decompress_value(uint32_t bits, uint32_t comp_method, uint8_t iq_width, uint32_t exponent)
 {
     switch (comp_method) {
@@ -1179,14 +1182,14 @@ static uint32_t dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info 
     proto_item_set_generated(wpb_ti);
 
     /* Add the weights for this bundle */
-    for (unsigned m=0; m < num_weights_per_bundle; m++) {
+    for (unsigned w=0; w < num_weights_per_bundle; w++) {
 
         /* Create subtree */
         bfw_offset = bit_offset / 8;
         uint8_t bfw_extent = ((bit_offset + (iq_width*2)) / 8) - bfw_offset;
         proto_item *bfw_ti = proto_tree_add_string_format(bundle_tree, hf_oran_bfw,
                                                           tvb, bfw_offset, bfw_extent,
-                                                          "", "TRX %3u: (", m);
+                                                          "", "TRX %3u: (", w);
         proto_tree *bfw_tree = proto_item_add_subtree(bfw_ti, ett_oran_bfw);
 
         /* I */
@@ -1194,18 +1197,18 @@ static uint32_t dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info 
         uint32_t bits = tvb_get_bits(tvb, bit_offset, iq_width, ENC_BIG_ENDIAN);
         float value = decompress_value(bits, bfwcomphdr_comp_meth, iq_width, exponent);
         /* Add to tree. */
-        proto_tree_add_float_format_value(bfw_tree, hf_oran_bfw_i, tvb, bit_offset/8, (iq_width+7)/8, value, "#%u=%f", m, value);
+        proto_tree_add_float_format_value(bfw_tree, hf_oran_bfw_i, tvb, bit_offset/8, (iq_width+7)/8, value, "#%u=%f", w, value);
         bit_offset += iq_width;
-        proto_item_append_text(bfw_ti, "I%u=%f ", m, value);
+        proto_item_append_text(bfw_ti, "I%u=%f ", w, value);
 
         /* Q */
         /* Get bits, and convert to float. */
         bits = tvb_get_bits(tvb, bit_offset, iq_width, ENC_BIG_ENDIAN);
         value = decompress_value(bits, bfwcomphdr_comp_meth, iq_width, exponent);
         /* Add to tree. */
-        proto_tree_add_float_format_value(bfw_tree, hf_oran_bfw_q, tvb, bit_offset/8, (iq_width+7)/8, value, "#%u=%f", m, value);
+        proto_tree_add_float_format_value(bfw_tree, hf_oran_bfw_q, tvb, bit_offset/8, (iq_width+7)/8, value, "#%u=%f", w, value);
         bit_offset += iq_width;
-        proto_item_append_text(bfw_ti, "Q%u=%f)", m, value);
+        proto_item_append_text(bfw_ti, "Q%u=%f)", w, value);
     }
 
     /* Set extent of bundle */
@@ -1215,7 +1218,7 @@ static uint32_t dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info 
 }
 
 /* Return new bit offset.  in/out will always be byte-aligned.. */
-static int dissect_ciCompParam(tvbuff_t *tvb _U_, proto_tree *tree _U_, packet_info *pinfo _U_, unsigned bit_offset,
+static int dissect_ciCompParam(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, unsigned bit_offset,
                                unsigned comp_meth, uint8_t *exponent)
 {
     /* Subtree */
@@ -1470,6 +1473,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
     }
     else if (sectionType == SEC_C_LAA) {   /* Section Type 7 */
         /* 7.2.5 Table 6.4-6 */
+        /* TODO: untested */
 
         /* laaMsgType */
         uint32_t laa_msg_type;
@@ -2507,7 +2511,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 break;
 
             default:
-                /* Other/unexpected extension types. */
+                /* Other/unexpected extension types. TODO: expert info */
                 break;
         }
 
@@ -2735,7 +2739,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             offset = dissect_udcomphdr(tvb, pinfo, section_tree, offset, &bit_width, NULL);
             break;
 
-        case SEC_C_CH_INFO:
+        case SEC_C_CH_INFO:     /* Section Type 6 */
             /* numberOfUEs */
             proto_tree_add_item_ret_uint(section_tree, hf_oran_numberOfUEs, tvb, offset, 1, ENC_NA, &num_ues);
             offset += 1;
