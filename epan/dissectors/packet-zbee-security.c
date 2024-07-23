@@ -634,11 +634,9 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, unsigne
                 mic_len, ENC_NA);
     }
 
+    /* Empty payload has to be security checked as well,
+     * since it contains MIC authentication tag */
     payload_len = tvb_reported_length_remaining(tvb, offset+mic_len);
-
-    /* Check for null payload. */
-    if (payload_len == 0)
-        return NULL;
 
     /**********************************************
      *  Perform Security Operations on the Frame  *
@@ -673,7 +671,8 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, unsigne
         return NULL;
     }
 
-    /* Allocate memory to decrypt the payload into. */
+    /* Allocate memory to decrypt the payload into.
+     * If there is no payload, dec_buffer will be NULL */
     dec_buffer = (uint8_t *)wmem_alloc(pinfo->pool, payload_len);
 
     decrypted = false;
@@ -760,7 +759,8 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, unsigne
 
     if ( decrypted ) {
         if ( tree && key_rec ) {
-            key_item = proto_tree_add_bytes(sec_tree, hf_zbee_sec_key, tvb, 0, ZBEE_SEC_CONST_KEYSIZE, key_rec->key);
+            /* Key is not present in decrypted payload, so its length may not match bytes length */
+            key_item = proto_tree_add_bytes_with_length(sec_tree, hf_zbee_sec_key, tvb, 0, 0, key_rec->key, ZBEE_SEC_CONST_KEYSIZE);
             proto_item_set_generated(key_item);
 
             if ( key_rec->frame_num == ZBEE_SEC_PC_KEY ) {
@@ -773,8 +773,14 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, unsigne
         }
 
         /* Found a key that worked, setup the new tvbuff_t and return */
-        payload_tvb = tvb_new_child_real_data(tvb, dec_buffer, payload_len, payload_len);
-        add_new_data_source(pinfo, payload_tvb, "Decrypted ZigBee Payload");
+        if(dec_buffer != NULL) {
+            payload_tvb = tvb_new_child_real_data(tvb, dec_buffer, payload_len, payload_len);
+            add_new_data_source(pinfo, payload_tvb, "Decrypted ZigBee Payload");
+        }
+        else {
+            /* Only MIC authentication tag was checked */
+            payload_tvb = NULL;
+        }
 
         /* Done! */
         return payload_tvb;
