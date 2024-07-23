@@ -25,19 +25,19 @@ void proto_reg_handoff_fldb (void);
 static int proto_fldb;
 static int hf_fldb_opnum;
 
-static gint ett_fldb;
-static gint ett_fldb_vldbentry;
-static gint ett_fldb_afsnetaddr;
-static gint ett_fldb_siteflags;
-static gint ett_fldb_afsflags;
-static gint ett_fldb_vlconf_cell;
-static gint ett_fldb_afsNameString_t;
+static int ett_fldb;
+static int ett_fldb_vldbentry;
+static int ett_fldb_afsnetaddr;
+static int ett_fldb_siteflags;
+static int ett_fldb_afsflags;
+static int ett_fldb_vlconf_cell;
+static int ett_fldb_afsNameString_t;
 
 
 static e_guid_t uuid_fldb =
   { 0x4d37f2dd, 0xed43, 0x0000, {0x02, 0xc0, 0x37, 0xcf, 0x2e, 0x00, 0x00, 0x01}
 };
-static guint16 ver_fldb = 4;
+static uint16_t ver_fldb = 4;
 
 #if 0
 static int hf_fldb_getentrybyname_rqst_var1;
@@ -175,8 +175,8 @@ static int hf_fldb_uuid_owner;
 static int hf_fldb_volid_high;
 static int hf_fldb_volid_low;
 static int hf_fldb_voltype;
-static guint32 st;
-static const guint8 *st_str;
+static uint32_t st;
+static const uint8_t *st_str;
 
 #define AFS_FLAG_RETURNTOKEN         0x00001
 #define AFS_FLAG_TOKENJUMPQUEUE      0x00002
@@ -225,13 +225,13 @@ static const guint8 *st_str;
 static int
 dissect_afsnetaddr (tvbuff_t *tvb, int offset,
                     packet_info *pinfo, proto_tree *parent_tree,
-                    dcerpc_info *di, guint8 *drep)
+                    dcerpc_info *di, uint8_t *drep)
 {
   proto_item *item       = NULL;
   proto_tree *tree       = NULL;
   int         old_offset = offset;
-  guint16     type;
-  guint8      data;
+  uint16_t    type;
+  uint8_t     data;
   int         i;
 
   if (parent_tree)
@@ -296,16 +296,16 @@ dissect_afsnetaddr (tvbuff_t *tvb, int offset,
 static int
 dissect_vlconf_cell (tvbuff_t *tvb, int offset,
                      packet_info *pinfo, proto_tree *parent_tree,
-                     dcerpc_info *di, guint8 *drep)
+                     dcerpc_info *di, uint8_t *drep)
 {
   proto_item   *item       = NULL;
   proto_tree   *tree       = NULL;
   int           old_offset = offset;
 #define MAXVLCELLCHARS    128
 #define MAXVLHOSTSPERCELL 64
-  const guint8 *name, *hostname;
+  const uint8_t *name, *hostname;
   int           i;
-  guint32       cellid_high, cellid_low, numservers, spare1, spare2, spare3, spare4,
+  uint32_t      cellid_high, cellid_low, numservers, spare1, spare2, spare3, spare4,
     spare5;
 
   if (parent_tree)
@@ -392,7 +392,7 @@ dissect_vlconf_cell (tvbuff_t *tvb, int offset,
 static int
 dissect_afsNameString_t (tvbuff_t *tvb, int offset,
                          packet_info *pinfo, proto_tree *parent_tree,
-                         dcerpc_info *di, guint8 *drep)
+                         dcerpc_info *di, uint8_t *drep)
 {
 /*
 typedef [string] byte   NameString_t[AFS_NAMEMAX];
@@ -402,8 +402,8 @@ typedef [string] byte   NameString_t[AFS_NAMEMAX];
   proto_tree   *tree       = NULL;
   int           old_offset = offset;
 #define AFS_NAMEMAX 256
-  guint32       string_size;
-  const guint8 *namestring;
+  uint32_t      string_size;
+  const uint8_t *namestring;
 
   if (di->conformant_run)
     {
@@ -441,12 +441,12 @@ typedef [string] byte   NameString_t[AFS_NAMEMAX];
 static int
 dissect_afsflags (tvbuff_t *tvb, int offset,
                   packet_info *pinfo, proto_tree *parent_tree,
-                  dcerpc_info *di, guint8 *drep)
+                  dcerpc_info *di, uint8_t *drep)
 {
   proto_item *item       = NULL;
   proto_tree *tree       = NULL;
   int         old_offset = offset;
-  guint32     afsflags;
+  uint32_t    afsflags;
 
   if (parent_tree)
     {
@@ -552,12 +552,12 @@ dissect_afsflags (tvbuff_t *tvb, int offset,
 static int
 dissect_siteflags (tvbuff_t *tvb, int offset,
                    packet_info *pinfo, proto_tree *parent_tree,
-                   dcerpc_info *di, guint8 *drep)
+                   dcerpc_info *di, uint8_t *drep)
 {
   proto_item *item       = NULL;
   proto_tree *tree       = NULL;
   int         old_offset = offset;
-  guint32     siteflags;
+  uint32_t    siteflags;
 
   if (parent_tree)
     {
@@ -615,19 +615,19 @@ dissect_siteflags (tvbuff_t *tvb, int offset,
 static int
 dissect_vldbentry (tvbuff_t *tvb, int offset,
                    packet_info *pinfo, proto_tree *parent_tree,
-                   dcerpc_info *di, guint8 *drep)
+                   dcerpc_info *di, uint8_t *drep)
 {
   proto_item   *item;
   proto_tree   *tree;
   int           old_offset = offset;
-  const guint8 *volumename, *siteprincipal, *charspares, *lockername;
-  guint32       volumetype, nservers, sitepartition, sitemaxreplicalatency;
-  guint32       volids_high, volids_low, voltypes, cloneid_high, cloneid_low;
-  guint32       maxtotallatency, hardmaxtotallatency, minimumpouncedally;
-  guint32       defaultmaxreplicalatency, reclaimdally, whenlocked;
-  guint32       spare1, spare2, spare3, spare4;
+  const uint8_t *volumename, *siteprincipal, *charspares, *lockername;
+  uint32_t      volumetype, nservers, sitepartition, sitemaxreplicalatency;
+  uint32_t      volids_high, volids_low, voltypes, cloneid_high, cloneid_low;
+  uint32_t      maxtotallatency, hardmaxtotallatency, minimumpouncedally;
+  uint32_t      defaultmaxreplicalatency, reclaimdally, whenlocked;
+  uint32_t      spare1, spare2, spare3, spare4;
   e_guid_t      siteowner, siteobjid;
-  gint          i;
+  int           i;
 #define MAXNSERVERS 16
 #define MAXVOLTYPES 8
 #define MAXLOCKNAMELEN 64
@@ -734,7 +734,7 @@ dissect_vldbentry (tvbuff_t *tvb, int offset,
     }
 
   /* afsHyper        VolIDs[MAXVOLTYPES]; */
-  /* XXX for these hypers, I will skip trying to use non portable guint64, and just read both, and use only low.
+  /* XXX for these hypers, I will skip trying to use non portable uint64_t, and just read both, and use only low.
      never seen a case of a volid going anywhere the overflow of the 32 low; */
   for (i = 0; i < MAXVOLTYPES; i++)
     {
@@ -864,7 +864,7 @@ dissect_vldbentry (tvbuff_t *tvb, int offset,
 static int
 fldb_dissect_getcellinfo_resp (tvbuff_t *tvb, int offset,
                                packet_info *pinfo, proto_tree *tree,
-                               dcerpc_info *di, guint8 *drep)
+                               dcerpc_info *di, uint8_t *drep)
 {
   if (di->conformant_run)
     {
@@ -881,7 +881,7 @@ fldb_dissect_getcellinfo_resp (tvbuff_t *tvb, int offset,
 static int
 fldb_dissect_getentrybyname_rqst (tvbuff_t *tvb, int offset,
                                   packet_info *pinfo, proto_tree *tree,
-                                  dcerpc_info *di, guint8 *drep)
+                                  dcerpc_info *di, uint8_t *drep)
 {
   if (di->conformant_run)
     {
@@ -902,7 +902,7 @@ fldb_dissect_getentrybyname_rqst (tvbuff_t *tvb, int offset,
 static int
 fldb_dissect_getentrybyname_resp (tvbuff_t *tvb, int offset,
                                   packet_info *pinfo, proto_tree *tree,
-                                  dcerpc_info *di, guint8 *drep)
+                                  dcerpc_info *di, uint8_t *drep)
 {
   /*
      [out] vldbentry *entry
@@ -922,7 +922,7 @@ fldb_dissect_getentrybyname_resp (tvbuff_t *tvb, int offset,
 static int
 fldb_dissect_getsiteinfo_rqst (tvbuff_t *tvb, int offset,
                                packet_info *pinfo, proto_tree *tree,
-                               dcerpc_info *di, guint8 *drep)
+                               dcerpc_info *di, uint8_t *drep)
 {
   if (di->conformant_run)
     {
@@ -950,12 +950,12 @@ fldb_dissect_getsiteinfo_rqst (tvbuff_t *tvb, int offset,
 static int
 fldb_dissect_getsiteinfo_resp (tvbuff_t *tvb, int offset,
                                packet_info *pinfo, proto_tree *tree,
-                               dcerpc_info *di, guint8 *drep)
+                               dcerpc_info *di, uint8_t *drep)
 {
-  const guint8 *namestring;
+  const uint8_t *namestring;
   e_guid_t      owner, objid;
-  guint32       creationquota, creationuses, deletedflag;
-  guint32       spare2, spare3, spare4, spare5;
+  uint32_t      creationquota, creationuses, deletedflag;
+  uint32_t      spare2, spare3, spare4, spare5;
 
   if (di->conformant_run)
     {
@@ -1041,9 +1041,9 @@ fldb_dissect_getsiteinfo_resp (tvbuff_t *tvb, int offset,
 static int
 fldb_dissect_listentry_rqst (tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *tree,
-                             dcerpc_info *di, guint8 *drep)
+                             dcerpc_info *di, uint8_t *drep)
 {
-  guint32 var1, previous_index;
+  uint32_t var1, previous_index;
 
   if (di->conformant_run)
     {
@@ -1076,9 +1076,9 @@ fldb_dissect_listentry_rqst (tvbuff_t *tvb, int offset,
 static int
 fldb_dissect_listentry_resp (tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *tree,
-                             dcerpc_info *di, guint8 *drep)
+                             dcerpc_info *di, uint8_t *drep)
 {
-  guint32 count, next_index;
+  uint32_t count, next_index;
 
   if (di->conformant_run)
     {
@@ -1105,9 +1105,9 @@ fldb_dissect_listentry_resp (tvbuff_t *tvb, int offset,
 static int
 fldb_dissect_setlock_rqst (tvbuff_t *tvb, int offset,
                            packet_info *pinfo, proto_tree *tree,
-                           dcerpc_info *di, guint8 *drep)
+                           dcerpc_info *di, uint8_t *drep)
 {
-  guint32 fsid_high, fsid_low, voltype, voloper;
+  uint32_t fsid_high, fsid_low, voltype, voloper;
 
   if (di->conformant_run)
     {
@@ -1138,7 +1138,7 @@ fldb_dissect_setlock_rqst (tvbuff_t *tvb, int offset,
 static int
 fldb_dissect_setlock_resp (tvbuff_t *tvb, int offset,
                            packet_info *pinfo, proto_tree *tree,
-                           dcerpc_info *di, guint8 *drep)
+                           dcerpc_info *di, uint8_t *drep)
 {
   if (di->conformant_run)
     {
@@ -1154,7 +1154,7 @@ fldb_dissect_setlock_resp (tvbuff_t *tvb, int offset,
 static int
 fldb_dissect_deleteentry_resp (tvbuff_t *tvb, int offset,
                                packet_info *pinfo, proto_tree *tree,
-                               dcerpc_info *di, guint8 *drep)
+                               dcerpc_info *di, uint8_t *drep)
 {
   if (di->conformant_run)
     {
@@ -1170,14 +1170,14 @@ fldb_dissect_deleteentry_resp (tvbuff_t *tvb, int offset,
 static int
 fldb_dissect_deleteentry_rqst (tvbuff_t *tvb, int offset,
                                packet_info *pinfo, proto_tree *tree,
-                               dcerpc_info *di, guint8 *drep)
+                               dcerpc_info *di, uint8_t *drep)
 {
 /*
                 [in] afsHyper *Volid,
                 [in] unsigned32 voltype
 */
 
-  guint32 fsid_high, fsid_low, voltype, voloper;
+  uint32_t fsid_high, fsid_low, voltype, voloper;
 
   if (di->conformant_run)
     {
@@ -1208,7 +1208,7 @@ fldb_dissect_deleteentry_rqst (tvbuff_t *tvb, int offset,
 static int
 fldb_dissect_createentry_resp (tvbuff_t *tvb, int offset,
                                packet_info *pinfo, proto_tree *tree,
-                               dcerpc_info *di, guint8 *drep)
+                               dcerpc_info *di, uint8_t *drep)
 {
   if (di->conformant_run)
     {
@@ -1224,7 +1224,7 @@ fldb_dissect_createentry_resp (tvbuff_t *tvb, int offset,
 static int
 fldb_dissect_createentry_rqst (tvbuff_t *tvb, int offset,
                                packet_info *pinfo, proto_tree *tree,
-                               dcerpc_info *di, guint8 *drep)
+                               dcerpc_info *di, uint8_t *drep)
 {
   if (di->conformant_run)
     {
@@ -1239,9 +1239,9 @@ fldb_dissect_createentry_rqst (tvbuff_t *tvb, int offset,
 static int
 fldb_dissect_getentrybyid_rqst (tvbuff_t *tvb, int offset,
                                 packet_info *pinfo, proto_tree *tree,
-                                dcerpc_info *di, guint8 *drep)
+                                dcerpc_info *di, uint8_t *drep)
 {
-  guint32 volid_high, volid_low, voltype;
+  uint32_t volid_high, volid_low, voltype;
 
   if (di->conformant_run)
     {
@@ -1274,12 +1274,12 @@ fldb_dissect_getentrybyid_rqst (tvbuff_t *tvb, int offset,
 static int
 fldb_dissect_getnewvolumeids_rqst (tvbuff_t *tvb, int offset,
                                    packet_info *pinfo, proto_tree *tree,
-                                   dcerpc_info *di, guint8 *drep)
+                                   dcerpc_info *di, uint8_t *drep)
 {
 /*              [in] unsigned32 numWanted,
                 [in] afsNetAddr *ServerAddr,
 */
-  guint32 numwanted;
+  uint32_t numwanted;
 
   if (di->conformant_run)
     {
@@ -1300,7 +1300,7 @@ fldb_dissect_getnewvolumeids_rqst (tvbuff_t *tvb, int offset,
 static int
 fldb_dissect_getentrybyid_resp (tvbuff_t *tvb, int offset,
                                 packet_info *pinfo, proto_tree *tree,
-                                dcerpc_info *di, guint8 *drep)
+                                dcerpc_info *di, uint8_t *drep)
 {
   if (di->conformant_run)
     {
@@ -1315,7 +1315,7 @@ fldb_dissect_getentrybyid_resp (tvbuff_t *tvb, int offset,
 static int
 fldb_dissect_releaselock_resp (tvbuff_t *tvb, int offset,
                                packet_info *pinfo, proto_tree *tree,
-                               dcerpc_info *di, guint8 *drep)
+                               dcerpc_info *di, uint8_t *drep)
 {
   if (di->conformant_run)
     {
@@ -1332,9 +1332,9 @@ fldb_dissect_releaselock_resp (tvbuff_t *tvb, int offset,
 static int
 fldb_dissect_releaselock_rqst (tvbuff_t *tvb, int offset,
                                packet_info *pinfo, proto_tree *tree,
-                               dcerpc_info *di, guint8 *drep)
+                               dcerpc_info *di, uint8_t *drep)
 {
-  guint32 fsid_high, fsid_low, voltype, voloper;
+  uint32_t fsid_high, fsid_low, voltype, voloper;
 
   if (di->conformant_run)
     {
@@ -1365,7 +1365,7 @@ fldb_dissect_releaselock_rqst (tvbuff_t *tvb, int offset,
 static int
 fldb_dissect_replaceentry_resp (tvbuff_t *tvb, int offset,
                                 packet_info *pinfo, proto_tree *tree,
-                                dcerpc_info *di, guint8 *drep)
+                                dcerpc_info *di, uint8_t *drep)
 {
   if (di->conformant_run)
     {
@@ -1381,9 +1381,9 @@ fldb_dissect_replaceentry_resp (tvbuff_t *tvb, int offset,
 static int
 fldb_dissect_getnextserversbyid_resp (tvbuff_t *tvb, int offset,
                                       packet_info *pinfo, proto_tree *tree,
-                                      dcerpc_info *di, guint8 *drep)
+                                      dcerpc_info *di, uint8_t *drep)
 {
-  guint32 nextstartp, flagsp;
+  uint32_t nextstartp, flagsp;
 
   if (di->conformant_run)
     {
@@ -1416,9 +1416,9 @@ fldb_dissect_getnextserversbyid_resp (tvbuff_t *tvb, int offset,
 static int
 fldb_dissect_replaceentry_rqst (tvbuff_t *tvb, int offset,
                                 packet_info *pinfo, proto_tree *tree,
-                                dcerpc_info *di, guint8 *drep)
+                                dcerpc_info *di, uint8_t *drep)
 {
-  guint32 fsid_high, fsid_low, voltype;
+  uint32_t fsid_high, fsid_low, voltype;
 
   if (di->conformant_run)
     {
@@ -1899,7 +1899,7 @@ proto_register_fldb (void)
      {"voltype", "fldb.voltype", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_fldb,
     &ett_fldb_vldbentry,
     &ett_fldb_afsnetaddr,

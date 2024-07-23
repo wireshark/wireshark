@@ -22,9 +22,9 @@
  */
 
 int
-dissect_ndr_uint8(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                  proto_tree *tree, dcerpc_info *di, guint8 *drep,
-                  int hfindex, guint8 *pdata)
+dissect_ndr_uint8(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                  proto_tree *tree, dcerpc_info *di, uint8_t *drep,
+                  int hfindex, uint8_t *pdata)
 {
     /* Some callers expect us to initialize pdata, even in error conditions, so
      * do it right away in case we forget later */
@@ -42,11 +42,11 @@ dissect_ndr_uint8(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 }
 
 int
-PIDL_dissect_uint8_val(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                       proto_tree *tree, dcerpc_info *di, guint8 *drep,
-                       int hfindex, guint32 param, guint8 *pval)
+PIDL_dissect_uint8_val(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                       proto_tree *tree, dcerpc_info *di, uint8_t *drep,
+                       int hfindex, uint32_t param, uint8_t *pval)
 {
-    guint8       val;
+    uint8_t      val;
 
     if (di->conformant_run) {
         /* just a run to handle conformant arrays, no scalars to dissect */
@@ -95,18 +95,18 @@ PIDL_dissect_uint8_val(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 }
 
 int
-PIDL_dissect_uint8(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                   proto_tree *tree, dcerpc_info *di, guint8 *drep,
-                   int hfindex, guint32 param)
+PIDL_dissect_uint8(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                   proto_tree *tree, dcerpc_info *di, uint8_t *drep,
+                   int hfindex, uint32_t param)
 {
     return PIDL_dissect_uint8_val(tvb, offset, pinfo, tree, di, drep, hfindex, param, NULL);
 }
 
 
 int
-dissect_ndr_uint16(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                   proto_tree *tree, dcerpc_info *di, guint8 *drep,
-                   int hfindex, guint16 *pdata)
+dissect_ndr_uint16(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                   proto_tree *tree, dcerpc_info *di, uint8_t *drep,
+                   int hfindex, uint16_t *pdata)
 {
     /* Some callers expect us to initialize pdata, even in error conditions, so
      * do it right away in case we forget later */
@@ -127,11 +127,11 @@ dissect_ndr_uint16(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 }
 
 int
-PIDL_dissect_uint16_val(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                        proto_tree *tree, dcerpc_info *di, guint8 *drep,
-                        int hfindex, guint32 param, guint16 *pval)
+PIDL_dissect_uint16_val(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                        proto_tree *tree, dcerpc_info *di, uint8_t *drep,
+                        int hfindex, uint32_t param, uint16_t *pval)
 {
-    guint16      val;
+    uint16_t     val;
 
     if (di->conformant_run) {
         /* just a run to handle conformant arrays, no scalars to dissect */
@@ -183,17 +183,17 @@ PIDL_dissect_uint16_val(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 }
 
 int
-PIDL_dissect_uint16(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                    proto_tree *tree, dcerpc_info *di, guint8 *drep,
-                    int hfindex, guint32 param)
+PIDL_dissect_uint16(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                    proto_tree *tree, dcerpc_info *di, uint8_t *drep,
+                    int hfindex, uint32_t param)
 {
     return PIDL_dissect_uint16_val(tvb, offset, pinfo, tree, di, drep, hfindex, param, NULL);
 }
 
 int
-dissect_ndr_uint32(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                   proto_tree *tree, dcerpc_info *di, guint8 *drep,
-                   int hfindex, guint32 *pdata)
+dissect_ndr_uint32(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                   proto_tree *tree, dcerpc_info *di, uint8_t *drep,
+                   int hfindex, uint32_t *pdata)
 {
     /* Some callers expect us to initialize pdata, even in error conditions, so
      * do it right away in case we forget later */
@@ -217,14 +217,14 @@ dissect_ndr_uint32(tvbuff_t *tvb, gint offset, packet_info *pinfo,
    data, which is 4 bytes in size in NDR but 8 bytes in NDR64.
 */
 int
-dissect_ndr_uint3264(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                     proto_tree *tree, dcerpc_info *di, guint8 *drep,
+dissect_ndr_uint3264(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                     proto_tree *tree, dcerpc_info *di, uint8_t *drep,
                      int hfindex, guint3264 *pdata)
 {
     if (di->call_data->flags & DCERPC_IS_NDR64) {
         return dissect_ndr_uint64(tvb, offset, pinfo, tree, di, drep, hfindex, pdata);
     } else {
-        guint32 val = 0;
+        uint32_t val = 0;
         offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hfindex, &val);
         if (pdata) {
             *pdata = val;
@@ -237,14 +237,14 @@ dissect_ndr_uint3264(tvbuff_t *tvb, gint offset, packet_info *pinfo,
    that are 2 bytes in size in NDR but 4 bytes in NDR64.
 */
 int
-dissect_ndr_uint1632(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                     proto_tree *tree, dcerpc_info *di, guint8 *drep,
+dissect_ndr_uint1632(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                     proto_tree *tree, dcerpc_info *di, uint8_t *drep,
                      int hfindex, guint1632 *pdata)
 {
     if (di->call_data->flags & DCERPC_IS_NDR64) {
         return dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hfindex, pdata);
     } else {
-        guint16 val = 0;
+        uint16_t val = 0;
         offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, di, drep, hfindex, &val);
         if (pdata) {
             *pdata = val;
@@ -254,11 +254,11 @@ dissect_ndr_uint1632(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 }
 
 int
-PIDL_dissect_uint32_val(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                    proto_tree *tree, dcerpc_info *di, guint8 *drep,
-                    int hfindex, guint32 param, guint32 *rval)
+PIDL_dissect_uint32_val(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                    proto_tree *tree, dcerpc_info *di, uint8_t *drep,
+                    int hfindex, uint32_t param, uint32_t *rval)
 {
-    guint32      val;
+    uint32_t     val;
 
     if (di->conformant_run) {
         /* just a run to handle conformant arrays, no scalars to dissect */
@@ -309,9 +309,9 @@ PIDL_dissect_uint32_val(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 }
 
 int
-PIDL_dissect_uint32(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                    proto_tree *tree, dcerpc_info *di, guint8 *drep,
-                    int hfindex, guint32 param)
+PIDL_dissect_uint32(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                    proto_tree *tree, dcerpc_info *di, uint8_t *drep,
+                    int hfindex, uint32_t param)
 {
     return PIDL_dissect_uint32_val(tvb, offset, pinfo, tree, di, drep, hfindex, param, NULL);
 }
@@ -322,9 +322,9 @@ PIDL_dissect_uint32(tvbuff_t *tvb, gint offset, packet_info *pinfo,
    It is really just 2 uint32's
 */
 int
-dissect_ndr_duint32(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                    proto_tree *tree, dcerpc_info *di, guint8 *drep,
-                    int hfindex, guint64 *pdata)
+dissect_ndr_duint32(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                    proto_tree *tree, dcerpc_info *di, uint8_t *drep,
+                    int hfindex, uint64_t *pdata)
 {
     /* Some callers expect us to initialize pdata, even in error conditions, so
      * do it right away in case we forget later */
@@ -347,9 +347,9 @@ dissect_ndr_duint32(tvbuff_t *tvb, gint offset, packet_info *pinfo,
    a 64 bit integer  aligned to proper 8 byte boundaries
 */
 int
-dissect_ndr_uint64(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                   proto_tree *tree, dcerpc_info *di, guint8 *drep,
-                   int hfindex, guint64 *pdata)
+dissect_ndr_uint64(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                   proto_tree *tree, dcerpc_info *di, uint8_t *drep,
+                   int hfindex, uint64_t *pdata)
 {
     /* Some callers expect us to initialize pdata, even in error conditions, so
      * do it right away in case we forget later */
@@ -362,7 +362,7 @@ dissect_ndr_uint64(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     }
 
     if (!di->no_align && (offset % 8)) {
-        gint padding = 8 - (offset % 8);
+        int padding = 8 - (offset % 8);
         proto_tree_add_item(tree, hf_dcerpc_ndr_padding, tvb, offset, padding, ENC_NA);
         offset += padding;
     }
@@ -371,11 +371,11 @@ dissect_ndr_uint64(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 }
 
 int
-PIDL_dissect_uint64_val(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                        proto_tree *tree, dcerpc_info *di, guint8 *drep,
-                        int hfindex, guint32 param, guint64 *pval)
+PIDL_dissect_uint64_val(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                        proto_tree *tree, dcerpc_info *di, uint8_t *drep,
+                        int hfindex, uint32_t param, uint64_t *pval)
 {
-    guint64      val;
+    uint64_t     val;
 
     if (di->conformant_run) {
         /* just a run to handle conformant arrays, no scalars to dissect */
@@ -400,14 +400,14 @@ PIDL_dissect_uint64_val(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         switch (hf_info->display) {
         case BASE_DEC:
             if (hf_info->strings) {
-                snprintf(valstr, 64, "%s(%" PRIu64 ")",val_to_str( (guint32) val, (const value_string *)hf_info->strings, "Unknown:%u"), val);
+                snprintf(valstr, 64, "%s(%" PRIu64 ")",val_to_str( (uint32_t) val, (const value_string *)hf_info->strings, "Unknown:%u"), val);
             } else {
                 snprintf(valstr, 64, "%" PRIu64, val);
             }
             break;
         case BASE_HEX:
             if (hf_info->strings) {
-                snprintf(valstr, 64, "%s(0x%" PRIx64 ")",val_to_str( (guint32) val, (const value_string *)hf_info->strings, "Unknown:%u"), val);
+                snprintf(valstr, 64, "%s(0x%" PRIx64 ")",val_to_str( (uint32_t) val, (const value_string *)hf_info->strings, "Unknown:%u"), val);
             } else {
                 snprintf(valstr, 64, "0x%" PRIx64, val);
             }
@@ -426,17 +426,17 @@ PIDL_dissect_uint64_val(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 }
 
 int
-PIDL_dissect_uint64(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                    proto_tree *tree, dcerpc_info *di, guint8 *drep,
-                    int hfindex, guint32 param)
+PIDL_dissect_uint64(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                    proto_tree *tree, dcerpc_info *di, uint8_t *drep,
+                    int hfindex, uint32_t param)
 {
     return PIDL_dissect_uint64_val(tvb, offset, pinfo, tree, di, drep, hfindex, param, NULL);
 }
 
 int
-dissect_ndr_float(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                  proto_tree *tree, dcerpc_info *di, guint8 *drep,
-                  int hfindex, gfloat *pdata)
+dissect_ndr_float(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                  proto_tree *tree, dcerpc_info *di, uint8_t *drep,
+                  int hfindex, float *pdata)
 {
     /* Some callers expect us to initialize pdata, even in error conditions, so
      * do it right away in case we forget later */
@@ -458,9 +458,9 @@ dissect_ndr_float(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 
 int
-dissect_ndr_double(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                   proto_tree *tree, dcerpc_info *di, guint8 *drep,
-                   int hfindex, gdouble *pdata)
+dissect_ndr_double(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                   proto_tree *tree, dcerpc_info *di, uint8_t *drep,
+                   int hfindex, double *pdata)
 {
     /* Some callers expect us to initialize pdata, even in error conditions, so
      * do it right away in case we forget later */
@@ -481,9 +481,9 @@ dissect_ndr_double(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 /* handles unix 32 bit time_t */
 int
-dissect_ndr_time_t(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                   proto_tree *tree, dcerpc_info *di, guint8 *drep,
-                   int hfindex, guint32 *pdata)
+dissect_ndr_time_t(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                   proto_tree *tree, dcerpc_info *di, uint8_t *drep,
+                   int hfindex, uint32_t *pdata)
 {
     /* Some callers expect us to initialize pdata, even in error conditions, so
      * do it right away in case we forget later */
@@ -504,8 +504,8 @@ dissect_ndr_time_t(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 }
 
 int
-dissect_ndr_uuid_t(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                   proto_tree *tree, dcerpc_info *di, guint8 *drep,
+dissect_ndr_uuid_t(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                   proto_tree *tree, dcerpc_info *di, uint8_t *drep,
                    int hfindex, e_guid_t *pdata)
 {
     /* Some callers expect us to initialize pdata, even in error conditions, so
@@ -536,8 +536,8 @@ dissect_ndr_uuid_t(tvbuff_t *tvb, gint offset, packet_info *pinfo,
  * attributes and the uuid_t?
  */
 int
-dissect_ndr_ctx_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
-                    proto_tree *tree, dcerpc_info *di, guint8 *drep,
+dissect_ndr_ctx_hnd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+                    proto_tree *tree, dcerpc_info *di, uint8_t *drep,
                     int hfindex, e_ctx_hnd *pdata)
 {
     static e_ctx_hnd ctx_hnd;

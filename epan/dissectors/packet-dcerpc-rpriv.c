@@ -31,17 +31,17 @@ static int hf_rpriv_get_eptgt_rqst_key_size2;
 static int hf_rpriv_get_eptgt_rqst_key_t;
 static int hf_rpriv_get_eptgt_rqst_key_t2;
 
-static gint ett_rpriv;
+static int ett_rpriv;
 
 
 static e_guid_t uuid_rpriv = { 0xb1e338f8, 0x9533, 0x11c9, { 0xa3, 0x4a, 0x08, 0x00, 0x1e, 0x01, 0x9c, 0x1e } };
-static guint16  ver_rpriv = 1;
+static uint16_t ver_rpriv = 1;
 
 
 static int
 rpriv_dissect_get_eptgt_rqst (tvbuff_t *tvb, int offset,
 			      packet_info *pinfo, proto_tree *tree,
-			      dcerpc_info *di, guint8 *drep)
+			      dcerpc_info *di, uint8_t *drep)
 {
 	/*        [in]        handle_t         handle,
 	 *        [in]        unsigned32       authn_svc,
@@ -52,9 +52,9 @@ rpriv_dissect_get_eptgt_rqst (tvbuff_t *tvb, int offset,
 	 *                    byte            bytes[];
 	 */
 
-	guint32 authn_svc, authz_svc, key_size, key_size2, var1;
-	const guint8 *key_t1 = NULL;
-	const guint8 *key_t2 = NULL;
+	uint32_t authn_svc, authz_svc, key_size, key_size2, var1;
+	const uint8_t *key_t1 = NULL;
+	const uint8_t *key_t2 = NULL;
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_rpriv_get_eptgt_rqst_authn_svc, &authn_svc);
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_rpriv_get_eptgt_rqst_authz_svc, &authz_svc);
@@ -113,7 +113,7 @@ proto_register_rpriv (void)
 
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_rpriv,
 	};
 	proto_rpriv = proto_register_protocol ("Privilege Server operations", "rpriv", "rpriv");

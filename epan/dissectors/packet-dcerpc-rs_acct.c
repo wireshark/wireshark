@@ -31,20 +31,20 @@ static int hf_rs_acct_get_projlist_rqst_key_size;
 static int hf_rs_acct_get_projlist_rqst_key_t;
 
 
-static gint ett_rs_acct;
+static int ett_rs_acct;
 
 
 
 static e_guid_t uuid_rs_acct = { 0x4c878280, 0x2000, 0x0000, { 0x0d, 0x00, 0x02, 0x87, 0x14, 0x00, 0x00, 0x00 } };
-static guint16  ver_rs_acct = 1;
+static uint16_t ver_rs_acct = 1;
 
 
 static int
 rs_acct_dissect_lookup_rqst (tvbuff_t *tvb, int offset,
-		packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+		packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-	guint32 key_size;
-	const guint8 *keyx_t = NULL;
+	uint32_t key_size;
+	const uint8_t *keyx_t = NULL;
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_rs_acct_lookup_rqst_var, NULL);
@@ -69,10 +69,10 @@ rs_acct_dissect_lookup_rqst (tvbuff_t *tvb, int offset,
 
 static int
 rs_acct_dissect_get_projlist_rqst (tvbuff_t *tvb, int offset,
-		packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+		packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-	guint32 key_size;
-	const guint8 *keyx_t = NULL;
+	uint32_t key_size;
+	const uint8_t *keyx_t = NULL;
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_rs_acct_get_projlist_rqst_var1, NULL);
@@ -120,7 +120,7 @@ proto_register_rs_acct (void)
 		{ "Var1", "rs_acct.get_projlist_rqst_key_t", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }}
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_rs_acct,
 	};
 	proto_rs_acct = proto_register_protocol ("DCE/RPC RS_ACCT", "RS_ACCT", "rs_acct");

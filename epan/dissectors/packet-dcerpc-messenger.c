@@ -26,7 +26,7 @@ static int hf_messenger_server;
 static int hf_messenger_client;
 static int hf_messenger_message;
 
-static gint ett_dcerpc_messenger;
+static int ett_dcerpc_messenger;
 
 
 /* Windows messenger service listens on two endpoints:
@@ -39,7 +39,7 @@ static e_guid_t uuid_dcerpc_messenger = {
 	{ 0xa9, 0xb2, 0x00, 0xc0, 0x4f, 0xb6, 0xe6, 0xfc}
 };
 
-static guint16 ver_dcerpc_messenger = 1;
+static uint16_t ver_dcerpc_messenger = 1;
 
 
 
@@ -50,7 +50,7 @@ static guint16 ver_dcerpc_messenger = 1;
  */
 static int
 messenger_dissect_send_message_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			    proto_tree *tree, dcerpc_info *di, guint8 *drep)
+			    proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
 			dissect_ndr_char_cvstring, NDR_POINTER_REF,
@@ -67,7 +67,7 @@ messenger_dissect_send_message_rqst(tvbuff_t *tvb, int offset, packet_info *pinf
 }
 static int
 messenger_dissect_send_message_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			    proto_tree *tree, dcerpc_info *di, guint8 *drep)
+			    proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep,
 				  hf_messenger_rc, NULL);
@@ -110,7 +110,7 @@ proto_register_dcerpc_messenger(void)
 
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_dcerpc_messenger
 	};
 

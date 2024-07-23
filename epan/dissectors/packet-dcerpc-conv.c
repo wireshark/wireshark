@@ -30,17 +30,17 @@ static int hf_conv_who_are_you_resp_seq;
 static int hf_conv_who_are_you2_resp_seq;
 static int hf_conv_who_are_you2_resp_casuuid;
 
-static gint ett_conv;
+static int ett_conv;
 
 
 static e_guid_t uuid_conv = { 0x333a2276, 0x0000, 0x0000, { 0x0d, 0x00, 0x00, 0x80, 0x9c, 0x00, 0x00, 0x00 } };
-static guint16  ver_conv = 3;
+static uint16_t ver_conv = 3;
 
 
 static int
 conv_dissect_who_are_you_rqst (tvbuff_t *tvb, int offset,
 			       packet_info *pinfo, proto_tree *tree,
-			       dcerpc_info *di, guint8 *drep)
+			       dcerpc_info *di, uint8_t *drep)
 {
 	/*
 	 *         [in]    uuid_t          *actuid,
@@ -63,13 +63,13 @@ conv_dissect_who_are_you_rqst (tvbuff_t *tvb, int offset,
 static int
 conv_dissect_who_are_you_resp (tvbuff_t *tvb, int offset,
 			       packet_info *pinfo, proto_tree *tree,
-			       dcerpc_info *di, guint8 *drep)
+			       dcerpc_info *di, uint8_t *drep)
 {
 	/*
 	 *         [out]   unsigned32      *seq,
 	 *         [out]   unsigned32      *st
 	 */
-	guint32 seq, st;
+	uint32_t seq, st;
 
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep, hf_conv_who_are_you_resp_seq, &seq);
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep, hf_conv_rc, &st);
@@ -86,7 +86,7 @@ conv_dissect_who_are_you_resp (tvbuff_t *tvb, int offset,
 static int
 conv_dissect_who_are_you2_rqst (tvbuff_t *tvb, int offset,
 				packet_info *pinfo, proto_tree *tree,
-				dcerpc_info *di, guint8 *drep)
+				dcerpc_info *di, uint8_t *drep)
 {
 	/*
 	 *         [in]    uuid_t          *actuid,
@@ -108,7 +108,7 @@ conv_dissect_who_are_you2_rqst (tvbuff_t *tvb, int offset,
 static int
 conv_dissect_who_are_you2_resp (tvbuff_t *tvb, int offset,
 				packet_info *pinfo, proto_tree *tree,
-				dcerpc_info *di, guint8 *drep)
+				dcerpc_info *di, uint8_t *drep)
 {
 	/*
 	 *         [out]   unsigned32      *seq,
@@ -116,7 +116,7 @@ conv_dissect_who_are_you2_resp (tvbuff_t *tvb, int offset,
 	 *
 	 *         [out]   unsigned32      *st
 	 */
-	guint32 seq, st;
+	uint32_t seq, st;
 	e_guid_t cas_uuid;
 
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep, hf_conv_who_are_you2_resp_seq, &seq);
@@ -174,7 +174,7 @@ proto_register_conv (void)
 	    {"Client's address space UUID", "conv.who_are_you2_resp_casuuid", FT_GUID, BASE_NONE, NULL, 0x0, NULL, HFILL }}
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_conv
 	};
 	proto_conv = proto_register_protocol ("DCE/RPC Conversation Manager", "CONV", "conv");

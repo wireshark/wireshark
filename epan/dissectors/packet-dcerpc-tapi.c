@@ -31,7 +31,7 @@ static int hf_tapi_unknown_long;
 static int hf_tapi_unknown_string;
 static int hf_tapi_unknown_bytes;
 
-static gint ett_dcerpc_tapi;
+static int ett_dcerpc_tapi;
 
 /*
   IDL [ uuid(2f5f6520-ca46-1067-b319-00dd010662da),
@@ -45,7 +45,7 @@ static e_guid_t uuid_dcerpc_tapi = {
 	{ 0xb3, 0x19, 0x00, 0xdd, 0x01, 0x06, 0x62, 0xda }
 };
 
-static guint16 ver_dcerpc_tapi = 1;
+static uint16_t ver_dcerpc_tapi = 1;
 
 /*
   IDL   long ClientAttach(
@@ -59,7 +59,7 @@ static guint16 ver_dcerpc_tapi = 1;
 static int
 dissect_tapi_client_attach_rqst(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			dcerpc_info *di, guint8 *drep)
+			dcerpc_info *di, uint8_t *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 		hf_tapi_unknown_long, NULL);
@@ -77,7 +77,7 @@ dissect_tapi_client_attach_rqst(tvbuff_t *tvb, int offset,
 static int
 dissect_tapi_client_attach_reply(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			dcerpc_info *di, guint8 *drep)
+			dcerpc_info *di, uint8_t *drep)
 {
 	offset = dissect_ndr_ctx_hnd(tvb, offset, pinfo, tree, di, drep,
 			hf_tapi_hnd, NULL);
@@ -101,7 +101,7 @@ dissect_tapi_client_attach_reply(tvbuff_t *tvb, int offset,
 static int
 dissect_tapi_TYPE_1(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			dcerpc_info *di, guint8 *drep)
+			dcerpc_info *di, uint8_t *drep)
 {
 	if(di->conformant_run){
 		/* this call is to make wireshark eat the array header for the conformant run */
@@ -120,7 +120,7 @@ dissect_tapi_TYPE_1(tvbuff_t *tvb, int offset,
 static int
 dissect_tapi_client_request_rqst(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			dcerpc_info *di, guint8 *drep)
+			dcerpc_info *di, uint8_t *drep)
 {
 	offset = dissect_ndr_ctx_hnd(tvb, offset, pinfo, tree, di, drep,
 			hf_tapi_hnd, NULL);
@@ -137,7 +137,7 @@ dissect_tapi_client_request_rqst(tvbuff_t *tvb, int offset,
 static int
 dissect_tapi_client_request_reply(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			dcerpc_info *di, guint8 *drep)
+			dcerpc_info *di, uint8_t *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 		hf_tapi_rc, NULL);
@@ -154,14 +154,14 @@ dissect_tapi_client_request_reply(tvbuff_t *tvb, int offset,
 static int
 dissect_tapi_client_detach_rqst(tvbuff_t *tvb _U_, int offset,
 			packet_info *pinfo _U_, proto_tree *tree _U_,
-			dcerpc_info *di _U_, guint8 *drep _U_)
+			dcerpc_info *di _U_, uint8_t *drep _U_)
 {
 	return offset;
 }
 static int
 dissect_tapi_client_detach_reply(tvbuff_t *tvb _U_, int offset,
 			packet_info *pinfo _U_, proto_tree *tree _U_,
-			dcerpc_info *di _U_, guint8 *drep _U_)
+			dcerpc_info *di _U_, uint8_t *drep _U_)
 {
 	return offset;
 }
@@ -207,7 +207,7 @@ static hf_register_info hf[] = {
 		NULL, 0x0, "Unknown bytes. If you know what this is, contact wireshark developers.", HFILL }}
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_dcerpc_tapi
 	};
 

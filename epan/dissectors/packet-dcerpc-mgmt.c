@@ -24,18 +24,18 @@ static int hf_mgmt_proto;
 static int hf_mgmt_rc;
 static int hf_mgmt_princ_size;
 static int hf_mgmt_princ_name;
-static gint ett_mgmt;
+static int ett_mgmt;
 
 
 static e_guid_t uuid_mgmt = { 0xafa8bd80, 0x7d8a, 0x11c9, { 0xbe, 0xf4, 0x08, 0x00, 0x2b, 0x10, 0x29, 0x89 } };
-static guint16  ver_mgmt = 1;
+static uint16_t ver_mgmt = 1;
 
 static int
-mgmtrpc_dissect_inq_princ_name_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+mgmtrpc_dissect_inq_princ_name_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 
 	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep,
-					sizeof(guint8), hf_mgmt_princ_name, TRUE, NULL);
+					sizeof(uint8_t), hf_mgmt_princ_name, true, NULL);
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_mgmt_rc, NULL);
 
@@ -43,7 +43,7 @@ mgmtrpc_dissect_inq_princ_name_response(tvbuff_t *tvb, int offset, packet_info *
 	return offset;
 }
 static int
-mgmtrpc_dissect_inq_princ_name_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
+mgmtrpc_dissect_inq_princ_name_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_mgmt_proto, NULL);
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_mgmt_princ_size, NULL);
@@ -82,7 +82,7 @@ proto_register_mgmt (void)
 		    NULL, 0x0, NULL, HFILL }},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_mgmt
 	};
 	proto_mgmt = proto_register_protocol ("DCE/RPC Remote Management", "MGMT", "mgmt");
