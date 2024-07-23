@@ -2218,7 +2218,7 @@ static void device_sid_callback_fnct(packet_info *pinfo _U_,
      * so we should allocate the device_sid on wmem_epan_scope()
      */
     args->device_sid = wmem_strdup_printf(wmem_epan_scope(),
-                                          "%*.*s-%" PRIu32 "",
+                                          "%*.*s-%" PRIu32,
                                           (int)len, (int)len,
                                           args->domain_sid,
                                           args->user_rid);

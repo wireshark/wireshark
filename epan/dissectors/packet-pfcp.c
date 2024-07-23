@@ -12078,7 +12078,7 @@ static int dissect_pfcp_nokia_detailed_statistics(tvbuff_t *tvb, packet_info *pi
 
            uint64_t octets;
            it = proto_tree_add_item_ret_uint64(tree, hf_pfcp_nokia_detailed_stats_octets, tvb, offset, len, ENC_BIG_ENDIAN, &octets);
-           proto_item_set_text(it, "%s: %" G_GINT64_MODIFIER "u", counter_name, octets);
+           proto_item_set_text(it, "%s: %" PRIu64, counter_name, octets);
 
            num++;
            offset += len;

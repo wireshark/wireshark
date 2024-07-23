@@ -2908,7 +2908,7 @@ dissect_ptp_v2_timetstamp(tvbuff_t *tvb, uint16_t *cur_offset, proto_tree *tree,
                                                          10,
                                                          ett_ptp_v2_timeInterval,
                                                          NULL,
-                                                         "%s: %" G_GINT64_MODIFIER "d%s%09" G_GINT32_MODIFIER "d nanoseconds",
+                                                         "%s: %" PRIu64 "%s%09" PRId32 " nanoseconds",
                                                          name, time_s, decimal_point, time_ns);
 
     proto_tree_add_uint64(ptptimestamp_subtree,

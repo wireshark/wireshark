@@ -694,7 +694,7 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 	proto_tree_add_item(ltp_data_tree, hf_ltp_data_clidata, tvb, frame_offset, (int) data_length, ENC_NA);
 
 	col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
-			"range %" G_GINT64_MODIFIER "u-%" G_GINT64_MODIFIER "u",
+			"range %" PRIu64 "-%" PRIu64,
 			data_fst, data_lst);
 
 	if (ltp_reassemble_block)
@@ -915,7 +915,7 @@ dissect_report_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ltp_tree, 
 		proto_tree_add_uint64(ltp_rpt_tree, hf_ltp_rpt_len, tvb, 0, 0, upper_bound - lower_bound)
 	);
 	col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
-		"range %" G_GINT64_MODIFIER "u-%" G_GINT64_MODIFIER "u",
+		"range %" PRIu64 "-%" PRIu64,
 		lower_bound, upper_bound-1);
 
 	bool newdata = true;
@@ -967,7 +967,7 @@ dissect_report_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ltp_tree, 
 	 */
 	if (rcpt_clm_cnt > (uint64_t)tvb_captured_length_remaining(tvb, frame_offset + segment_offset) / 2) {
 		expert_add_info_format(pinfo, ltp_rpt_clm_cnt, &ei_ltp_mal_reception_claim,
-				"Reception claim count impossibly large: %" G_GINT64_MODIFIER "d > %d", rcpt_clm_cnt,
+				"Reception claim count impossibly large: %" PRIu64 " > %d", rcpt_clm_cnt,
 				tvb_captured_length_remaining(tvb, frame_offset + segment_offset) / 2);
 		return 0;
 	}

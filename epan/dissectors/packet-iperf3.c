@@ -211,7 +211,7 @@ dissect_iperf3_control_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         {
             uint32_t json_size = tvb_get_uint32(tvb, 0, ENC_BIG_ENDIAN);
             col_append_fstr(pinfo->cinfo, COL_INFO,
-                " Next message is JSON of this length: %" PRIu32 "", json_size);
+                " Next message is JSON of this length: %" PRIu32, json_size);
             proto_tree_add_item(iperf3_tree, hf_iperf3_prejson, tvb, 0, 4, ENC_BIG_ENDIAN);
 
             conversation_data->pdu_size = json_size;
@@ -234,7 +234,7 @@ dissect_iperf3_control_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         {
             uint32_t json_size = tvb_get_uint32(tvb, 0, ENC_BIG_ENDIAN);
             col_append_fstr(pinfo->cinfo, COL_INFO,
-                " Next message is JSON of this length: %" PRIu32 "", json_size);
+                " Next message is JSON of this length: %" PRIu32, json_size);
             proto_tree_add_item(iperf3_tree, hf_iperf3_prejson, tvb, 0, 4, ENC_BIG_ENDIAN);
 
             conversation_data->pdu_size = json_size;
@@ -256,7 +256,7 @@ dissect_iperf3_control_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         {
             uint32_t json_size = tvb_get_uint32(tvb, 0, ENC_BIG_ENDIAN);
             col_append_fstr(pinfo->cinfo, COL_INFO,
-                " Next message is JSON of this length: %" PRIu32 "", json_size);
+                " Next message is JSON of this length: %" PRIu32, json_size);
             proto_tree_add_item(iperf3_tree, hf_iperf3_prejson, tvb, 0, 4, ENC_BIG_ENDIAN);
 
             conversation_data->pdu_size = json_size;
