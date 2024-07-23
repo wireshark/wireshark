@@ -12,13 +12,8 @@
 
 # include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
-#include <epan/conversation.h>
 #include <epan/sctpppids.h>
-
-#include <stdio.h>
-#include <string.h>
 
 #include "packet-ber.h"
 #include "packet-gdt.h"
