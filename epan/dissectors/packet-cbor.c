@@ -1118,7 +1118,7 @@ proto_register_cbor(void)
 	expert_register_field_array(expert_cbor, ei, array_length(ei));
 
 	cbor_handle = register_dissector("cbor", dissect_cbor, proto_cbor);
-	cborseq_handle = register_dissector("cborseq", dissect_cborseq, proto_cbor);
+	cborseq_handle = register_dissector_with_description("cborseq", "CBOR Sequence", dissect_cborseq, proto_cbor);
 }
 
 void
