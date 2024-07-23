@@ -196,6 +196,7 @@ static int hf_smb_server_cap_compressed_data;
 static int hf_smb_server_cap_dynamic_reauth;
 static int hf_smb_server_cap_extended_security;
 static int hf_smb_system_time;
+static int hf_smb_secondaries_will_follow;
 static int hf_smb_unknown;
 static int hf_smb_dir_name;
 static int hf_smb_echo_count;
@@ -12464,11 +12465,15 @@ dissect_4_2_16_2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 		/* EA data */
 
-		CHECK_BYTE_COUNT_SUBR(data_len);
+		/* If the data length is greater than the buffer size then SECONDARY requests will follow.
+		* This often occurs with LOI "Info Set EAs". */
+		if (data_len > *bcp)
+			break;
+
 		proto_tree_add_item(
 			subtree, hf_smb_ea_data, tvb, offset, data_len, ENC_NA);
-		COUNT_BYTES_SUBR(data_len);
 
+		COUNT_BYTES_SUBR(data_len);
 		proto_item_set_len(item, offset - start_offset);
 	}
 
@@ -14071,6 +14076,12 @@ dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
 		break;
 	}
 
+	/* If the LOI is "Info Set EAs (2), and dc is greater than zero, SECONDARY requests will follow
+	* carrying the remainder of the data. */
+	if (si->info_level == 2 && dc > 0) {
+		proto_tree_add_item(tree, hf_smb_secondaries_will_follow, tvb, offset, dc, ENC_NA);
+		dc = 0;
+	}
 	/* ooops there were data we didn't know how to process */
 	if (dc != 0) {
 		proto_tree_add_item(tree, hf_smb_unknown, tvb, offset, dc, ENC_NA);
@@ -18953,6 +18964,10 @@ proto_register_smb(void)
 	{ &hf_smb_system_time,
 		{ "System Time", "smb.system.time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 		NULL, 0, NULL, HFILL }},
+
+	{ &hf_smb_secondaries_will_follow,
+		{ "Secondaries will follow", "smb.secondaries_will_follow", FT_BYTES, BASE_NONE,
+		NULL, 0, "Level of interest is Info Set EAs and TDC > DC so SECONDARY reqs will follow", HFILL }},
 
 	{ &hf_smb_unknown,
 		{ "Unknown Data", "smb.unknown_data", FT_BYTES, BASE_NONE,
