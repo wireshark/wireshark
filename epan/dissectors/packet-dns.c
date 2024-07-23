@@ -2331,7 +2331,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
   int           data_offset;
   int           cur_offset;
   int           data_start;
-  gushort       data_len;
+  uint16_t      data_len;
   proto_tree   *rr_tree = NULL;
   proto_item   *trr     = NULL;
   unsigned      used_bytes;
@@ -4295,7 +4295,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       proto_tree *caa_tree;
       uint8_t tag_len;
       const char *tag;
-      gushort value_len;
+      uint16_t value_len;
       const unsigned char *value;
       int cur_hf = -1;
 

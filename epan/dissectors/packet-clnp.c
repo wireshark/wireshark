@@ -158,9 +158,9 @@ static const value_string npdu_type_vals[] = {
 #define SEGMENTATION_PART_LEN   6
 
 struct clnp_segment {
-    gushort       cng_id;         /* data unit identifier */
-    gushort       cng_off;        /* segment offset */
-    gushort       cng_tot_len;    /* total length */
+    uint16_t      cng_id;         /* data unit identifier */
+    uint16_t      cng_off;        /* segment offset */
+    uint16_t      cng_tot_len;    /* total length */
 };
 
 /* NSAP selector */

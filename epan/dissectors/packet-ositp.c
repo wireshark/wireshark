@@ -1408,7 +1408,7 @@ static int ositp_decode_RJ(tvbuff_t *tvb, int offset, uint8_t li, uint8_t tpdu,
   proto_item *item = NULL;
   uint16_t dst_ref;
   unsigned tpdu_nr;
-  gushort  credit = 0;
+  uint16_t credit = 0;
 
   /* note: in the ATN the user is up to chose between 3 different checksums:
    *       standard OSI, 2 or 4 octet extended checksum.
@@ -1671,7 +1671,7 @@ static int ositp_decode_AK(tvbuff_t *tvb, int offset, uint8_t li, uint8_t tpdu,
   proto_item *ti;
   uint16_t   dst_ref;
   unsigned   tpdu_nr;
-  gushort    cdt_in_ak;
+  uint16_t   cdt_in_ak;
   unsigned   tpdu_len;
 
   if (!cotp_decode_atn) {

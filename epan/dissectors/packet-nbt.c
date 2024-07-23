@@ -312,7 +312,7 @@ static void
 add_rr_to_tree(proto_tree *rr_tree, packet_info *pinfo, tvbuff_t *tvb, int offset,
                const char *name, int namelen,
                int type, int class_val,
-               unsigned ttl, gushort data_len)
+               unsigned ttl, uint16_t data_len)
 {
     proto_tree_add_string(rr_tree, hf_nbns_name, tvb, offset+1, namelen-1, name);
     offset += namelen;
@@ -579,7 +579,7 @@ static void
 nbns_add_nb_flags(proto_tree *rr_tree, tvbuff_t *tvb, int offset)
 {
     proto_item *tf;
-    gushort flag;
+    uint16_t flag;
     static int * const flags[] = {
         &hf_nbns_nb_flags_group,
         &hf_nbns_nb_flags_ont,
@@ -624,7 +624,7 @@ dissect_nbns_answer(tvbuff_t *tvb, packet_info *pinfo, int offset, int nbns_data
     const char *type_name;
     int         cur_offset;
     unsigned    ttl;
-    gushort     data_len;
+    uint16_t    data_len;
     proto_tree *rr_tree = NULL;
     char       *name_str;
     unsigned    num_names;

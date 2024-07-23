@@ -22,6 +22,8 @@ type_map = {
     'gboolean': 'bool',
     'gchar': 'char',
     'guchar': 'unsigned char',
+    'gshort': 'int16_t',
+    'gushort': 'uint16_t',
     'gint': 'int',
     'guint': 'unsigned', # Matches README.developer
     # Our remaining glong instances probably shouldn't be converted, e.g.

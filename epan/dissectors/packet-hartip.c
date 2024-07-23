@@ -481,13 +481,13 @@ dissect_float(proto_tree *tree, int hf, tvbuff_t *tvb, int offset)
 static int
 dissect_packAscii(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int len)
 {
-  gushort     usIdx;
-  gushort     usGroupCnt;
-  gushort     usMaxGroups;      /* Number of 4 byte groups to pack. */
-  gushort     usMask;
+  uint16_t    usIdx;
+  uint16_t    usGroupCnt;
+  uint16_t    usMaxGroups;      /* Number of 4 byte groups to pack. */
+  uint16_t    usMask;
   int         iIndex;
   int         i   = 0;
-  gushort     buf[4];
+  uint16_t    buf[4];
   uint8_t    *tmp;
   char       *str = NULL;
 
@@ -498,22 +498,22 @@ dissect_packAscii(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int len)
   str = (char *)wmem_alloc(wmem_packet_scope(), ((len / 3) * 4)+1);
 
   iIndex = 0;
-  usMaxGroups = (gushort)(len / 3);
+  usMaxGroups = (uint16_t)(len / 3);
   for (usGroupCnt = 0; usGroupCnt < usMaxGroups; usGroupCnt++) {
     /*
      * First unpack 3 bytes into a group of 4 bytes, clearing bits 6 & 7.
      */
-    buf[0] = (gushort)(tmp[iIndex] >> 2);
-    buf[1] = (gushort)(((tmp[iIndex] << 4) & 0x30) | (tmp[iIndex + 1] >> 4));
-    buf[2] = (gushort)(((tmp[iIndex + 1] << 2) & 0x3C) | (tmp[iIndex + 2] >> 6));
-    buf[3] = (gushort)(tmp[iIndex + 2] & 0x3F);
+    buf[0] = (uint16_t)(tmp[iIndex] >> 2);
+    buf[1] = (uint16_t)(((tmp[iIndex] << 4) & 0x30) | (tmp[iIndex + 1] >> 4));
+    buf[2] = (uint16_t)(((tmp[iIndex + 1] << 2) & 0x3C) | (tmp[iIndex + 2] >> 6));
+    buf[3] = (uint16_t)(tmp[iIndex + 2] & 0x3F);
     iIndex += 3;
 
     /*
      * Now transfer to unpacked area, setting bit 6 to complement of bit 5.
      */
     for (usIdx = 0; usIdx < 4; usIdx++) {
-      usMask = (gushort)(((buf[usIdx] & 0x20) << 1) ^ 0x40);
+      usMask = (uint16_t)(((buf[usIdx] & 0x20) << 1) ^ 0x40);
       DISSECTOR_ASSERT(i < 256);
       str[i++] = (char)(buf[usIdx] | usMask);
     }
