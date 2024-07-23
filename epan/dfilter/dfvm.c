@@ -265,13 +265,13 @@ dfvm_value_tostr(dfvm_value_t *v)
 			s = ws_strdup(ws_regex_pattern(v->value.pcre));
 			break;
 		case REGISTER:
-			s = ws_strdup_printf("R%"G_GUINT32_FORMAT, v->value.numeric);
+			s = ws_strdup_printf("R%"PRIu32, v->value.numeric);
 			break;
 		case FUNCTION_DEF:
 			s = ws_strdup(v->value.funcdef->name);
 			break;
 		case INTEGER:
-			s = ws_strdup_printf("%"G_GUINT32_FORMAT, v->value.numeric);
+			s = ws_strdup_printf("%"PRIu32, v->value.numeric);
 			break;
 		case EMPTY:
 			s = ws_strdup("EMPTY");
@@ -1418,7 +1418,7 @@ debug_register(GSList *reg, uint32_t num)
 
 	buf = wmem_strbuf_new(NULL, NULL);
 
-	wmem_strbuf_append_printf(buf, "Reg#%"G_GUINT32_FORMAT" = { ", num);
+	wmem_strbuf_append_printf(buf, "Reg#%"PRIu32" = { ", num);
 	for (l = reg; l != NULL; l = l->next) {
 		s = fvalue_to_debug_repr(NULL, l->data);
 		wmem_strbuf_append_printf(buf, "%s <%s>", s, fvalue_type_name(l->data));
