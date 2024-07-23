@@ -354,7 +354,6 @@ static const value_string vals_ctype[] = {
 	{ 322, "application/senml-etch+cbor" },
 	{ 340, "application/yang-data+cbor" },
 	{ 341, "application/yang-data+cbor; id=name" },
-	{ 322, "application/senml-etch+cbor" },
 	{ 432, "application/td+json" },
 	{ 433, "application/tm+json" },
 	{ 1542, "application/vnd.oma.lwm2m+tlv" },
@@ -1852,7 +1851,7 @@ proto_register_coap(void)
 	 */
 	coap_tmf_media_type_dissector_table =
 	    register_dissector_table("coap_tmf_media_type",
-		"Internet media type for CoAP-TMF", proto_coap, FT_STRING, STRING_CASE_SENSITIVE);
+		"Internet media type for CoAP-TMF", proto_coap, FT_STRING, STRING_CASE_INSENSITIVE);
 }
 
 void
