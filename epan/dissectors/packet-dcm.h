@@ -7,9 +7,9 @@
  *
  * Generated automatically by make-packet-dcm.py from the following sources:
  *
- * DICOM PS3.5 2024a - Data Structures and Encoding
- * DICOM PS3.6 2024a - Data Dictionary
- * DICOM PS3.7 2024a - Message Exchange
+ * DICOM PS3.5 2024c - Data Structures and Encoding
+ * DICOM PS3.6 2024c - Data Dictionary
+ * DICOM PS3.7 2024c - Message Exchange
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -159,6 +159,7 @@ static dcm_tag_t const dcm_tag_data[] = {
     { 0x00080019, "Pyramid UID", "UI", "1", 0, 0},
     { 0x0008001A, "Related General SOP Class UID", "UI", "1-n", 0, 0},
     { 0x0008001B, "Original Specialized SOP Class UID", "UI", "1", 0, 0},
+    { 0x0008001C, "Synthetic Data", "CS", "1", 0, 0},
     { 0x00080020, "Study Date", "DA", "1", 0, 0},
     { 0x00080021, "Series Date", "DA", "1", 0, 0},
     { 0x00080022, "Acquisition Date", "DA", "1", 0, 0},
@@ -464,6 +465,7 @@ static dcm_tag_t const dcm_tag_data[] = {
     { 0x00102154, "Patient's Telephone Numbers", "SH", "1-n", 0, 0},
     { 0x00102155, "Patient's Telecom Information", "LT", "1", 0, 0},
     { 0x00102160, "Ethnic Group", "SH", "1", 0, 0},
+    { 0x00102161, "Ethnic Group Code Sequence", "SQ", "1", 0, 0},
     { 0x00102180, "Occupation", "SH", "1", 0, 0},
     { 0x001021A0, "Smoking Status", "CS", "1", 0, 0},
     { 0x001021B0, "Additional Patient History", "LT", "1", 0, 0},
@@ -487,21 +489,28 @@ static dcm_tag_t const dcm_tag_data[] = {
     { 0x00120010, "Clinical Trial Sponsor Name", "LO", "1", 0, 0},
     { 0x00120020, "Clinical Trial Protocol ID", "LO", "1", 0, 0},
     { 0x00120021, "Clinical Trial Protocol Name", "LO", "1", 0, 0},
+    { 0x00120022, "Issuer of Clinical Trial Protocol ID", "LO", "1", 0, 0},
+    { 0x00120023, "Other Clinical Trial Protocol IDs Sequence", "SQ", "1", 0, 0},
     { 0x00120030, "Clinical Trial Site ID", "LO", "1", 0, 0},
     { 0x00120031, "Clinical Trial Site Name", "LO", "1", 0, 0},
+    { 0x00120032, "Issuer of Clinical Trial Site ID", "LO", "1", 0, 0},
     { 0x00120040, "Clinical Trial Subject ID", "LO", "1", 0, 0},
+    { 0x00120041, "Issuer of Clinical Trial Subject ID", "LO", "1", 0, 0},
     { 0x00120042, "Clinical Trial Subject Reading ID", "LO", "1", 0, 0},
+    { 0x00120043, "Issuer of Clinical Trial Subject Reading ID", "LO", "1", 0, 0},
     { 0x00120050, "Clinical Trial Time Point ID", "LO", "1", 0, 0},
     { 0x00120051, "Clinical Trial Time Point Description", "ST", "1", 0, 0},
     { 0x00120052, "Longitudinal Temporal Offset from Event", "FD", "1", 0, 0},
     { 0x00120053, "Longitudinal Temporal Event Type", "CS", "1", 0, 0},
     { 0x00120054, "Clinical Trial Time Point Type Code Sequence", "SQ", "1", 0, 0},
+    { 0x00120055, "Issuer of Clinical Trial Time Point ID", "LO", "1", 0, 0},
     { 0x00120060, "Clinical Trial Coordinating Center Name", "LO", "1", 0, 0},
     { 0x00120062, "Patient Identity Removed", "CS", "1", 0, 0},
     { 0x00120063, "De-identification Method", "LO", "1-n", 0, 0},
     { 0x00120064, "De-identification Method Code Sequence", "SQ", "1", 0, 0},
     { 0x00120071, "Clinical Trial Series ID", "LO", "1", 0, 0},
     { 0x00120072, "Clinical Trial Series Description", "LO", "1", 0, 0},
+    { 0x00120073, "Issuer of Clinical Trial Series ID", "LO", "1", 0, 0},
     { 0x00120081, "Clinical Trial Protocol Ethics Committee Name", "LO", "1", 0, 0},
     { 0x00120082, "Clinical Trial Protocol Ethics Committee Approval Number", "LO", "1", 0, 0},
     { 0x00120083, "Consent for Clinical Trial Use Sequence", "SQ", "1", 0, 0},
@@ -1855,6 +1864,7 @@ static dcm_tag_t const dcm_tag_data[] = {
     { 0x0022000C, "Horizontal Field of View", "FL", "1", 0, 0},
     { 0x0022000D, "Pupil Dilated", "CS", "1", 0, 0},
     { 0x0022000E, "Degree of Dilation", "FL", "1", 0, 0},
+    { 0x0022000F, "Vertex Distance", "FD", "1", 0, 0},
     { 0x00220010, "Stereo Baseline Angle", "FL", "1", 0, 0},
     { 0x00220011, "Stereo Baseline Displacement", "FL", "1", 0, 0},
     { 0x00220012, "Stereo Horizontal Pixel Offset", "FL", "1", 0, 0},
@@ -3465,8 +3475,8 @@ static dcm_tag_t const dcm_tag_data[] = {
     { 0x00701804, "Volumetric Presentation Input Index", "US", "1", 0, 0},
     { 0x00701805, "Presentation State Compositor Component Sequence", "SQ", "1", 0, 0},
     { 0x00701806, "Weighting Transfer Function Sequence", "SQ", "1", 0, 0},
-    { 0x00701807, "Weighting Lookup Table Descriptor", "US", "3", 0, 0},
-    { 0x00701808, "Weighting Lookup Table Data", "OB", "1", 0, 0},
+    { 0x00701807, "Weighting Lookup Table Descriptor", "US", "3", -1, 0},
+    { 0x00701808, "Weighting Lookup Table Data", "OB", "1", -1, 0},
     { 0x00701901, "Volumetric Annotation Sequence", "SQ", "1", 0, 0},
     { 0x00701903, "Referenced Structured Context Sequence", "SQ", "1", 0, 0},
     { 0x00701904, "Referenced Content Item", "UI", "1", 0, 0},
@@ -4241,6 +4251,7 @@ static dcm_tag_t const dcm_tag_data[] = {
     { 0x300A0051, "Table Top Vertical Position Tolerance", "DS", "1", 0, 0},
     { 0x300A0052, "Table Top Longitudinal Position Tolerance", "DS", "1", 0, 0},
     { 0x300A0053, "Table Top Lateral Position Tolerance", "DS", "1", 0, 0},
+    { 0x300A0054, "Table Top Position Alignment UID", "UI", "1", 0, 0},
     { 0x300A0055, "RT Plan Relationship", "CS", "1", 0, 0},
     { 0x300A0070, "Fraction Group Sequence", "SQ", "1", 0, 0},
     { 0x300A0071, "Fraction Group Number", "IS", "1", 0, 0},
@@ -4807,6 +4818,9 @@ static dcm_tag_t const dcm_tag_data[] = {
     { 0x300A079C, "Patient Support Displacement Sequence", "SQ", "1", 0, 0},
     { 0x300A079D, "Displacement Reference Location Code Sequence", "SQ", "1", 0, 0},
     { 0x300A079E, "RT Radiation Set Delivery Usage", "CS", "1", 0, 0},
+    { 0x300A079F, "Patient Treatment Preparation Sequence", "SQ", "1", 0, 0},
+    { 0x300A07A0, "Patient to Equipment Relationship Sequence", "SQ", "1", 0, 0},
+    { 0x300A07A1, "Imaging Equipment to Treatment Delivery Device Relationship Sequence", "SQ", "1", 0, 0},
     { 0x300C0002, "Referenced RT Plan Sequence", "SQ", "1", 0, 0},
     { 0x300C0004, "Referenced Beam Sequence", "SQ", "1", 0, 0},
     { 0x300C0006, "Referenced Beam Number", "IS", "1", 0, 0},
@@ -5595,6 +5609,7 @@ typedef struct dcm_uid {
 #define DCM_UID_SOP_CLASS_PLANNED_IMAGING_AGENT_ADMINISTRATION_SR_STORAGE "1.2.840.10008.5.1.4.1.1.88.74"
 #define DCM_UID_SOP_CLASS_PERFORMED_IMAGING_AGENT_ADMINISTRATION_SR_STORAGE "1.2.840.10008.5.1.4.1.1.88.75"
 #define DCM_UID_SOP_CLASS_ENHANCED_X_RAY_RADIATION_DOSE_SR_STORAGE "1.2.840.10008.5.1.4.1.1.88.76"
+#define DCM_UID_SOP_CLASS_WAVEFORM_ANNOTATION_SR_STORAGE "1.2.840.10008.5.1.4.1.1.88.77"
 #define DCM_UID_SOP_CLASS_CONTENT_ASSESSMENT_RESULTS_STORAGE "1.2.840.10008.5.1.4.1.1.90.1"
 #define DCM_UID_SOP_CLASS_MICROSCOPY_BULK_SIMPLE_ANNOTATIONS_STORAGE "1.2.840.10008.5.1.4.1.1.91.1"
 #define DCM_UID_SOP_CLASS_ENCAPSULATED_PDF_STORAGE "1.2.840.10008.5.1.4.1.1.104.1"
@@ -6078,6 +6093,7 @@ static dcm_uid_t const dcm_uid_data[] = {
     { DCM_UID_SOP_CLASS_PLANNED_IMAGING_AGENT_ADMINISTRATION_SR_STORAGE, "Planned Imaging Agent Administration SR Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_PERFORMED_IMAGING_AGENT_ADMINISTRATION_SR_STORAGE, "Performed Imaging Agent Administration SR Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_ENHANCED_X_RAY_RADIATION_DOSE_SR_STORAGE, "Enhanced X-Ray Radiation Dose SR Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_WAVEFORM_ANNOTATION_SR_STORAGE, "Waveform Annotation SR Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_CONTENT_ASSESSMENT_RESULTS_STORAGE, "Content Assessment Results Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_MICROSCOPY_BULK_SIMPLE_ANNOTATIONS_STORAGE, "Microscopy Bulk Simple Annotations Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_ENCAPSULATED_PDF_STORAGE, "Encapsulated PDF Storage", "SOP Class"},
