@@ -7,6 +7,10 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+/*
+ * More info https://github.com/real-logic/aeron/wiki/Transport-Protocol-Specification
+ */
+
 #include "config.h"
 
 #include <epan/packet.h>
@@ -820,6 +824,7 @@ static char * aeron_format_transport_uri(const aeron_conversation_info_t * cinfo
 #define HDR_TYPE_ERR 0x0004
 #define HDR_TYPE_SETUP 0x0005
 #define HDR_TYPE_RTT 0x0006
+#define HDR_TYPE_RES 0x0007
 #define HDR_TYPE_EXT 0xFFFF
 
 #define DATA_FLAGS_BEGIN 0x80
@@ -841,9 +846,10 @@ static const value_string aeron_frame_type[] =
     { HDR_TYPE_DATA,  "Data" },
     { HDR_TYPE_NAK,   "NAK" },
     { HDR_TYPE_SM,    "Status" },
-    { HDR_TYPE_RTT,   "RTT" },
     { HDR_TYPE_ERR,   "Error" },
     { HDR_TYPE_SETUP, "Setup" },
+    { HDR_TYPE_RTT,   "RTT" },
+    { HDR_TYPE_RES,   "Resolution" },
     { HDR_TYPE_EXT,   "Extension" },
     { 0x0, NULL }
 };
@@ -2977,6 +2983,7 @@ static int dissect_aeron(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
             case HDR_TYPE_SETUP:
                 dissected_length = dissect_aeron_setup(tvb, offset, pinfo, aeron_tree, cinfo, finfo);
                 break;
+            case HDR_TYPE_RES:
             case HDR_TYPE_EXT:
             default:
                 return (total_dissected_length);
@@ -3024,6 +3031,7 @@ static bool test_aeron_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * 
         case HDR_TYPE_RTT:
         case HDR_TYPE_ERR:
         case HDR_TYPE_SETUP:
+        case HDR_TYPE_RES:
         case HDR_TYPE_EXT:
             break;
         default:
