@@ -23,6 +23,8 @@
  *
  *     Protocol Spec: http://www.artisticlicence.com/WebSiteMaster/User%20Guides/art-net.pdf
  *     OEM Codes: https://artisticlicence.com/WebSiteMaster/Software/Art-Net/Art-NetOemCodes.h
+ *     or rather https://art-net.org.uk/join-the-club/oem-code-listing/
+ *     but you first have to select 'All' before downloading the CSV to process...
  *     ESTA Codes: https://tsp.esta.org/tsp/working_groups/CP/mfctrIDs.php
  */
 
@@ -151,7 +153,7 @@ static const value_string artnet_opcode_vals[] = {
 static value_string_ext artnet_opcode_vals_ext = VALUE_STRING_EXT_INIT(artnet_opcode_vals);
 
 /*
- * OEM code database date: 2024-01-24
+ * OEM code database date: 2024-06-28
  *
  * String format:
  * <MANUFACTURER>: <PRODUCT>
@@ -2177,6 +2179,70 @@ static const value_string artnet_oem_code_vals[] = {
   { 0x2C9D, "LaserAV: DistroNode" },
   { 0x2C9E, "LumenRadio AB: CRMX Galileo MAX" },
   { 0x2C9F, "Martin Professional: MAC One" },
+  { 0x2CA0, "LSC Control Systems Pty Ltd: GENX" },
+  { 0x2CA1, "LSC Control Systems Pty Ltd: APSX" },
+  { 0x2CA2, "Chauvet Professional: Strike Rail" },
+  { 0x2CA3, "Rift Labs: Kelvin" },
+  { 0x2CA4, "SG Product: ArtnetWirelessSerialLed" },
+  { 0x2CA5, "Constell8: KLSTR CTRL" },
+  { 0x2CA6, "Chauvet Professional: Maverick Storm 3X BeamWash" },
+  { 0x2CA7, "Steinigke Showtechnic GmbH: LED PIX 12 Swing QCL Zoom Bar" },
+  { 0x2CA8, "Chauvet Professional: Maverick Storm 2 Profile M" },
+  { 0x2CA9, "OSRAM: RGBI controller" },
+  { 0x2CAA, "Elation Lighting: EP1D" },
+  { 0x2CAB, "Elation Lighting: EN6D" },
+  { 0x2CAC, "Elation Lighting: DA2410V" },
+  { 0x2CAD, "Acme: XP 400 BEAM IP" },
+  { 0x2CAE, "Acme: STROBE 7 IP" },
+  { 0x2CAF, "Acme: CM 7 IP" },
+  { 0x2CB0, "Acme: XP 500 BEAM IP" },
+  { 0x2CB1, "Acme: TB 5 IP" },
+  { 0x2CB2, "Acme: BLB 10 IP" },
+  { 0x2CB3, "Acme: BLB 5 IP" },
+  { 0x2CB4, "Acme: AECO 30 IP" },
+  { 0x2CB5, "Acme: XA 2000 BSWF IP" },
+  { 0x2CB6, "Acme: XA 600 BSWF IP" },
+  { 0x2CB7, "Acme: XA 600 BSW IP" },
+  { 0x2CB8, "Cindy Professional Lighting Co Ltd: TOUGH 800 BAR" },
+  { 0x2CB9, "Imlight Electronics: Apollo CCS" },
+  { 0x2CBA, "FTSLED: Cerise 1U USB" },
+  { 0x2CBB, "FTSLED: Cerise 2U Pro" },
+  { 0x2CBC, "FTSLED: Cerise 2U Pro Wired" },
+  { 0x2CBD, "FTSLED: Cerise 4U Pro" },
+  { 0x2CBE, "FTSLED: Cerise 4U Pro Wired" },
+  { 0x2CBF, "FTSLED: Cerise Wired 1U" },
+  { 0x2CC0, "NEWSUBSTANCE Ltd: LoRa LED Controller" },
+  { 0x2CC1, "tarm AG: tarm BLAZE" },
+  { 0x2CC2, "Hondel Lighting Limited: HDS308A" },
+  { 0x2CC3, "Lighthaus: Lighthaus Controller A" },
+  { 0x2CC4, "Advatek Lighting Pty Ltd: PixLite T16X S Mk3" },
+  { 0x2CC5, "Chauvet Professional: Maverick Silens 2 SoloWash" },
+  { 0x2CC6, "kuwatec Inc: Ex4" },
+  { 0x2CC7, "Vari Lite: RigSwitchPlus" },
+  { 0x2CC8, "Cameo: P6" },
+  { 0x2CC9, "Cameo: OTOS W12" },
+  { 0x2CCA, "Cameo: OTOS W6" },
+  { 0x2CCB, "Cameo: OTOS W3" },
+  { 0x2CCC, "Cameo: OPUS X4" },
+  { 0x2CCD, "Cameo: ORON H2" },
+  { 0x2CCE, "Resolume: Resolume Arena" },
+  { 0x2CCF, "Martin Professional: MAC Viper XIP" },
+  { 0x2CD0, "RT DMX: RT DMX Device" },
+  { 0x2CD1, "Particle Studio: Pixel Postie" },
+  { 0x2CD2, "Colordreamer Technology Co Limited: CD Titan R8" },
+  { 0x2CD3, "Tea Engineering Ltd: RazzleDMX" },
+  { 0x2CD4, "DELTACAST: TriggersManager" },
+  { 0x2CD5, "Event Lighting Pty Ltd: APRO4-IP" },
+  { 0x2CD6, "Event Lighting Pty Ltd: APRO8" },
+  { 0x2CD7, "Event Lighting Pty Ltd: APRO4" },
+  { 0x2CD8, "Event Lighting Pty Ltd: APRO2" },
+  { 0x2CD9, "GLP German Light Products GmbH: XDC1 IP Hybrid" },
+  { 0x2CDA, "GLP German Light Products GmbH: JDC2 IP" },
+  { 0x2CDB, "GLP German Light Products GmbH: impression X5 Bar 1000" },
+  { 0x2CDC, "GLP German Light Products GmbH: impression X5 IP Bar" },
+  { 0x2CDD, "GLP German Light Products GmbH: impression X5 IP Maxx" },
+  { 0x2CDE, "GLP German Light Products GmbH: impression X5 Compact" },
+  { 0x2CDF, "GLP German Light Products GmbH: impression X5" },
   { 0x8000, "Artistic Licence Engineering Ltd: Netgate XT" },
   { 0x8001, "Artistic Licence Engineering Ltd: Net Patch" },
   { 0x8002, "Artistic Licence Engineering Ltd: DMX Hub XT" },
@@ -3887,13 +3953,19 @@ static const value_string artnet_tod_data_command_vals[] = {
   { 0,                      NULL }
 };
 
-#define ARTNET_TCC_ATC_NONE  0x00
-#define ARTNET_TCC_ATC_FLUSH 0x01
+#define ARTNET_TCC_ATC_NONE     0x00
+#define ARTNET_TCC_ATC_FLUSH    0x01
+#define ARTNET_TCC_ATC_END      0x02
+#define ARTNET_TCC_ATC_INC_ON   0x03
+#define ARTNET_TCC_ATC_INC_OFF  0x04
 
 static const value_string artnet_tod_control_command_vals[] = {
-  { ARTNET_TCC_ATC_NONE,  "AtcNone" },
-  { ARTNET_TCC_ATC_FLUSH, "AtcFlush" },
-  { 0,                    NULL }
+  { ARTNET_TCC_ATC_NONE,    "AtcNone" },
+  { ARTNET_TCC_ATC_FLUSH,   "AtcFlush" },
+  { ARTNET_TCC_ATC_END,     "AtcEnd" },
+  { ARTNET_TCC_ATC_INC_ON,  "AtcIncOn" },
+  { ARTNET_TCC_ATC_INC_OFF, "AtcIncOff" },
+  { 0,                      NULL }
 };
 
 #define ARTNET_RC_AR_PROCESS  0x00
