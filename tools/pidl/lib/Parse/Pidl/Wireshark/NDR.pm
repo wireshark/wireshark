@@ -625,7 +625,7 @@ sub Function($$$)
 		$self->pidl_code("uint32_t status;\n");
 	} elsif (my $type = getType($fn->{RETURN_TYPE})) {
 		if ($type->{DATA}->{TYPE} eq "ENUM") {
-			$self->pidl_code("g".Parse::Pidl::Typelist::enum_type_fn($type->{DATA}) . " status;\n");
+			$self->pidl_code(Parse::Pidl::Typelist::enum_type_fn($type->{DATA}) . "_t status;\n");
 		} elsif ($type->{DATA}->{TYPE} eq "SCALAR") {
 			$self->pidl_code(mapWireScalarType($fn->{RETURN_TYPE}) . " status;\n");
 		} else {

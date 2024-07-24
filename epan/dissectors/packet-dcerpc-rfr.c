@@ -318,7 +318,7 @@ rfr_dissect_element_RfrGetNewDSA_ppszServer__(tvbuff_t *tvb _U_, int offset _U_,
 static int
 rfr_dissect_RfrGetNewDSA_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="RfrGetNewDSA";
 	offset = rfr_dissect_element_RfrGetNewDSA_ppszUnused(tvb, offset, pinfo, tree, di, drep);
@@ -421,7 +421,7 @@ rfr_dissect_element_RfrGetFQDNFromLegacyDN_ppszServerFQDN__(tvbuff_t *tvb _U_, i
 static int
 rfr_dissect_RfrGetFQDNFromLegacyDN_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="RfrGetFQDNFromLegacyDN";
 	offset = rfr_dissect_element_RfrGetFQDNFromLegacyDN_ppszServerFQDN(tvb, offset, pinfo, tree, di, drep);
