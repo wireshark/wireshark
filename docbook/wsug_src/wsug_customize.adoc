@@ -877,6 +877,8 @@ The _SMI (MIB and PIB) paths_ btn:[Edit...] button provides access to the dialog
 
 The _SMI (MIB and PIB) modules_ btn:[Edit...] button provides access to the dialog to manage the MIB/PIB modules to be loaded.
 
+Selecting _Enable IP geolocation_ causes the background MaxMind database IP geolocation resolver to be used to attempt to geolocate IP addresses in the packets.
+
 The _MaxMind database directories_ btn:[Edit...] button provides access to the dialog to manage the directories where the MaxMind database files can be found. See <<ChMaxMindDbPaths>>.
 
 [#ChCustPrefsProtocolsSection]
