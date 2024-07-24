@@ -12,7 +12,6 @@ set(PIDL_DISSECTOR_NAMES
 	browser
 	clusapi
 	dfs
-	dnsserver
 	drsuapi
 	dssetup
 	efs
@@ -40,6 +39,7 @@ set(PIDL_DISSECTOR_NAMES
 #
 # These cannot be built using from source:
 #
+# dnsserver - "dnsserver.idl:159: error: Inline arrays not supported"
 # eventlog - "eventlog.idl:54: error: Inline arrays not supported"
 # nspi - "nspi.idl:154: error: Syntax error near '/'"
 # mapi - includes nspi.idl, so it gets the above error
@@ -50,10 +50,13 @@ set(PIDL_DISSECTOR_browser_EXTRA_DEPS
 	srvsvc/srvsvc.idl
 )
 set(PIDL_DISSECTOR_clusapi_EXTRA_DEPS
-	clusapi/clusapi.idl
+	winreg/winreg.idl
+	misc/misc.idl
 )
 set(PIDL_DISSECTOR_drsuapi_EXTRA_DEPS
 	misc/misc.idl
+	lsa/lsa.idl
+	samr/samr.idl
 )
 set(PIDL_DISSECTOR_dssetup_EXTRA_DEPS
 	misc/misc.idl
