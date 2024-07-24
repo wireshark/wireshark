@@ -19,7 +19,7 @@
 #include "ui/capture.h"
 
 #include "capture_info_dialog.h"
-#include "ui_capture_info_dialog.h"
+#include <ui_capture_info_dialog.h>
 
 #include "main_application.h"
 
