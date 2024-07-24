@@ -1858,6 +1858,24 @@ typedef enum
     DE_NAS_5GS_MM_RELAY_KEY_REQ_PARAMS,      /* 9.11.3.89    Relay key request parameters */
     DE_NAS_5GS_MM_RELAY_KEY_RESP_PARAMS,     /* 9.11.3.90    Relay key response parameters */
     DE_NAS_5GS_MM_PRIO_IND,                  /* 9.11.3.91    Priority indicator */
+    DE_NAS_5GS_MM_SNPN_LIST,                 /* 9.11.3.92    SNPN list */
+    DE_NAS_5GS_MM_N3IWF_ID,                  /* 9.11.3.93    N3IWF identifier */
+    DE_NAS_5GS_MM_TNAN_INFO,                 /* 9.11.3.94    TNAN information */
+    DE_NAS_5GS_MM_RAN_TIMING_SYNC,           /* 9.11.3.95    RAN timing synchronization */
+    DE_NAS_5GS_MM_EXT_LADN_INFO,             /* 9.11.3.96    Extended LADN information */
+    DE_NAS_5GS_MM_ALT_NSSAI,                 /* 9.11.3.97    Alternative NSSAI */
+    DE_NAS_5GS_MM_TYPE_6_IE_CONT,            /* 9.11.3.98    Type 6 IE container */
+    DE_NAS_5GS_MM_N3GPP_ACC_PATH_SWITCH_IND, /* 9.11.9.99    Non-3GPP access path switching indication */
+    DE_NAS_5GS_MM_S_NSSAI_LOC_VALID_INFO,    /* 9.11.3.100   S-NSSAI location validity information */
+    DE_NAS_5GS_MM_S_NSSAI_TIME_VALID_INFO,   /* 9.11.3.101   S-NSSAI time validity information */
+    DE_NAS_5GS_MM_N3GPP_PATH_SWITCH_INFO,    /* 9.11.3.102   Non-3GPP path switching information */
+    DE_NAS_5GS_MM_PARTIAL_NSSAI,             /* 9.11.3.103   Partial NSSAI */
+    DE_NAS_5GS_MM_AU3N_IND,                  /* 9.11.3.104   AUN3 indication */
+    DE_NAS_5GS_MM_FEAT_AUTH_IND,             /* 9.11.3.105   Feature authorization indication */
+    DE_NAS_5GS_MM_PAYLOAD_CONT_INFO,         /* 9.11.3.106   Payload container information */
+    DE_NAS_5GS_MM_AUN3_DEVICE_SEC_KEY,       /* 9.11.3.107   AUN3 device security key */
+    DE_NAS_5GS_MM_ON_DEMAND_NSSAI,           /* 9.11.3.108   On-demand NSSAI */
+    DE_NAS_5GS_MM_EXT_5GMM_CAUSE,            /* 9.11.3.109   Extended 5GMM cause */
     DE_NAS_5GS_MM_NONE        /* NONE */
 }
 nas_5gs_mm_elem_idx_t;
