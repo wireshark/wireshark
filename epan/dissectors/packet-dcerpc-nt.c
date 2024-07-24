@@ -73,7 +73,7 @@ dissect_ndr_datablob(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			int use_remaining_space)
 {
 	proto_item *item;
-	guint3264 len;
+	uint3264_t len;
 	proto_tree *subtree;
 
 	subtree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_nt_data_blob, &item,

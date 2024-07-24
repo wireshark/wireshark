@@ -325,7 +325,7 @@ IWbemLevel1Login_dissect_struct_IWbemServices(tvbuff_t *tvb _U_, int offset _U_,
 static int
 IWbemLevel1Login_dissect_iwbemlevel1login_opnum0_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="iwbemlevel1login_opnum0";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_IWbemLevel1Login_werror, &status);
@@ -350,7 +350,7 @@ IWbemLevel1Login_dissect_iwbemlevel1login_opnum0_request(tvbuff_t *tvb _U_, int 
 static int
 IWbemLevel1Login_dissect_iwbemlevel1login_opnum1_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="iwbemlevel1login_opnum1";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_IWbemLevel1Login_werror, &status);
@@ -375,7 +375,7 @@ IWbemLevel1Login_dissect_iwbemlevel1login_opnum1_request(tvbuff_t *tvb _U_, int 
 static int
 IWbemLevel1Login_dissect_iwbemlevel1login_opnum2_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="iwbemlevel1login_opnum2";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_IWbemLevel1Login_werror, &status);
@@ -455,7 +455,7 @@ IWbemLevel1Login_dissect_element_EstablishPosition_LocaleVersion_(tvbuff_t *tvb 
 static int
 IWbemLevel1Login_dissect_EstablishPosition_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="EstablishPosition";
 	offset = IWbemLevel1Login_dissect_element_EstablishPosition_orpcthat(tvb, offset, pinfo, tree, di, drep);
@@ -566,7 +566,7 @@ IWbemLevel1Login_dissect_element_RequestChallenge_reserved3__(tvbuff_t *tvb _U_,
 static int
 IWbemLevel1Login_dissect_RequestChallenge_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="RequestChallenge";
 	offset = IWbemLevel1Login_dissect_element_RequestChallenge_orpcthat(tvb, offset, pinfo, tree, di, drep);
@@ -708,7 +708,7 @@ IWbemLevel1Login_dissect_element_WBEMLogin_ppNamespace__(tvbuff_t *tvb _U_, int 
 static int
 IWbemLevel1Login_dissect_WBEMLogin_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="WBEMLogin";
 	offset = IWbemLevel1Login_dissect_element_WBEMLogin_orpcthat(tvb, offset, pinfo, tree, di, drep);
@@ -849,7 +849,7 @@ IWbemLevel1Login_dissect_element_NTLMLogin_ppNamespace__(tvbuff_t *tvb _U_, int 
 static int
 IWbemLevel1Login_dissect_NTLMLogin_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NTLMLogin";
 	offset = IWbemLevel1Login_dissect_element_NTLMLogin_orpcthat(tvb, offset, pinfo, tree, di, drep);

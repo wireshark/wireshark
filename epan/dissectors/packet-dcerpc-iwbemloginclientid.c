@@ -131,7 +131,7 @@ IWbemLoginClientID_dissect_struct_ORPCTHAT(tvbuff_t *tvb _U_, int offset _U_, pa
 static int
 IWbemLoginClientID_dissect_iwbemloginclientid_opnum0_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="iwbemloginclientid_opnum0";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_IWbemLoginClientID_werror, &status);
@@ -156,7 +156,7 @@ IWbemLoginClientID_dissect_iwbemloginclientid_opnum0_request(tvbuff_t *tvb _U_, 
 static int
 IWbemLoginClientID_dissect_iwbemloginclientid_opnum1_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="iwbemloginclientid_opnum1";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_IWbemLoginClientID_werror, &status);
@@ -181,7 +181,7 @@ IWbemLoginClientID_dissect_iwbemloginclientid_opnum1_request(tvbuff_t *tvb _U_, 
 static int
 IWbemLoginClientID_dissect_iwbemloginclientid_opnum2_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="iwbemloginclientid_opnum2";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_IWbemLoginClientID_werror, &status);
@@ -253,7 +253,7 @@ IWbemLoginClientID_dissect_element_SetClientInfo_orpcthat(tvbuff_t *tvb _U_, int
 static int
 IWbemLoginClientID_dissect_SetClientInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="SetClientInfo";
 	offset = IWbemLoginClientID_dissect_element_SetClientInfo_orpcthat(tvb, offset, pinfo, tree, di, drep);

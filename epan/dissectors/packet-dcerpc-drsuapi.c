@@ -2604,7 +2604,7 @@ static int drsuapi_dissect_element_ReadNgcKey_pOutVersion_(tvbuff_t *tvb _U_, in
 static int drsuapi_dissect_element_ReadNgcKey_ngcReply(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int drsuapi_dissect_element_ReadNgcKey_ngcReply_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int
-drsuapi_dissect_element_DsBindInfoCtr_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, guint3264 *length _U_)
+drsuapi_dissect_element_DsBindInfoCtr_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint3264_t *length _U_)
 {
 	offset = dissect_ndr_uint3264(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_drsuapi_DsBindInfoCtr_length, NULL);
 	return offset;
@@ -2612,7 +2612,7 @@ drsuapi_dissect_element_DsBindInfoCtr_length(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 drsuapi_dissect_DsBindInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_);
 static int
-drsuapi_dissect_element_DsBindInfoCtr_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, guint3264 *length)
+drsuapi_dissect_element_DsBindInfoCtr_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint3264_t *length)
 {
 	if(di->conformant_run){
 		return offset;
@@ -6908,12 +6908,12 @@ drsuapi_dissect_element_DsGetNCChangesMSZIPCtr1_ts(tvbuff_t *tvb _U_, int offset
 static int
 drsuapi_dissect_element_DsGetNCChangesMSZIPCtr1_ts_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint3264 size;
+	uint3264_t size;
 	int conformant = di->conformant_run;
 	tvbuff_t *subtvb;
 
 	if (!conformant) {
-		guint32 saved_flags = di->call_data->flags;
+		uint32_t saved_flags = di->call_data->flags;
 		offset = dissect_ndr_uint3264(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_drsuapi_DsGetNCChangesMSZIPCtr1_ts_, &size);
 		di->call_data->flags &= ~DCERPC_IS_NDR64;
 		subtvb = tvb_new_subset_length_caplen(tvb, offset, (const int)size, -1);
@@ -7000,12 +7000,12 @@ drsuapi_dissect_element_DsGetNCChangesMSZIPCtr6_ts(tvbuff_t *tvb _U_, int offset
 static int
 drsuapi_dissect_element_DsGetNCChangesMSZIPCtr6_ts_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint3264 size;
+	uint3264_t size;
 	int conformant = di->conformant_run;
 	tvbuff_t *subtvb;
 
 	if (!conformant) {
-		guint32 saved_flags = di->call_data->flags;
+		uint32_t saved_flags = di->call_data->flags;
 		offset = dissect_ndr_uint3264(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_drsuapi_DsGetNCChangesMSZIPCtr6_ts_, &size);
 		di->call_data->flags &= ~DCERPC_IS_NDR64;
 		subtvb = tvb_new_subset_length_caplen(tvb, offset, (const int)size, -1);
@@ -7092,12 +7092,12 @@ drsuapi_dissect_element_DsGetNCChangesWIN2K3_LZ77_DIRECT2Ctr1_ts(tvbuff_t *tvb _
 static int
 drsuapi_dissect_element_DsGetNCChangesWIN2K3_LZ77_DIRECT2Ctr1_ts_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint3264 size;
+	uint3264_t size;
 	int conformant = di->conformant_run;
 	tvbuff_t *subtvb;
 
 	if (!conformant) {
-		guint32 saved_flags = di->call_data->flags;
+		uint32_t saved_flags = di->call_data->flags;
 		offset = dissect_ndr_uint3264(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_drsuapi_DsGetNCChangesWIN2K3_LZ77_DIRECT2Ctr1_ts_, &size);
 		di->call_data->flags &= ~DCERPC_IS_NDR64;
 		subtvb = tvb_new_subset_length_caplen(tvb, offset, (const int)size, -1);
@@ -7184,12 +7184,12 @@ drsuapi_dissect_element_DsGetNCChangesWIN2K3_LZ77_DIRECT2Ctr6_ts(tvbuff_t *tvb _
 static int
 drsuapi_dissect_element_DsGetNCChangesWIN2K3_LZ77_DIRECT2Ctr6_ts_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint3264 size;
+	uint3264_t size;
 	int conformant = di->conformant_run;
 	tvbuff_t *subtvb;
 
 	if (!conformant) {
-		guint32 saved_flags = di->call_data->flags;
+		uint32_t saved_flags = di->call_data->flags;
 		offset = dissect_ndr_uint3264(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_drsuapi_DsGetNCChangesWIN2K3_LZ77_DIRECT2Ctr6_ts_, &size);
 		di->call_data->flags &= ~DCERPC_IS_NDR64;
 		subtvb = tvb_new_subset_length_caplen(tvb, offset, (const int)size, -1);
@@ -7308,7 +7308,7 @@ drsuapi_dissect_DsGetNCChangesCompressedCtr(tvbuff_t *tvb _U_, int offset _U_, p
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level = param;
+	uint32_t level = param;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -17029,7 +17029,7 @@ drsuapi_dissect_element_DsBind_bind_handle_(tvbuff_t *tvb _U_, int offset _U_, p
 static int
 drsuapi_dissect_DsBind_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="DsBind";
 	offset = drsuapi_dissect_element_DsBind_bind_info(tvb, offset, pinfo, tree, di, drep);
@@ -17080,7 +17080,7 @@ drsuapi_dissect_element_DsUnbind_bind_handle_(tvbuff_t *tvb _U_, int offset _U_,
 static int
 drsuapi_dissect_DsUnbind_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="DsUnbind";
 	offset = drsuapi_dissect_element_DsUnbind_bind_handle(tvb, offset, pinfo, tree, di, drep);
@@ -17152,7 +17152,7 @@ drsuapi_dissect_element_DsReplicaSync_req_(tvbuff_t *tvb _U_, int offset _U_, pa
 static int
 drsuapi_dissect_DsReplicaSync_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="DsReplicaSync";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
@@ -17259,7 +17259,7 @@ drsuapi_dissect_element_DsGetNCChanges_ctr_(tvbuff_t *tvb _U_, int offset _U_, p
 static int
 drsuapi_dissect_DsGetNCChanges_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="DsGetNCChanges";
 	offset = drsuapi_dissect_element_DsGetNCChanges_level_out(tvb, offset, pinfo, tree, di, drep);
@@ -17330,7 +17330,7 @@ drsuapi_dissect_element_DsReplicaUpdateRefs_req(tvbuff_t *tvb _U_, int offset _U
 static int
 drsuapi_dissect_DsReplicaUpdateRefs_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="DsReplicaUpdateRefs";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
@@ -17395,7 +17395,7 @@ drsuapi_dissect_element_DsReplicaAdd_req(tvbuff_t *tvb _U_, int offset _U_, pack
 static int
 drsuapi_dissect_DsReplicaAdd_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="DsReplicaAdd";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
@@ -17460,7 +17460,7 @@ drsuapi_dissect_element_DsReplicaDel_req(tvbuff_t *tvb _U_, int offset _U_, pack
 static int
 drsuapi_dissect_DsReplicaDel_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="DsReplicaDel";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
@@ -17525,7 +17525,7 @@ drsuapi_dissect_element_DsReplicaMod_req(tvbuff_t *tvb _U_, int offset _U_, pack
 static int
 drsuapi_dissect_DsReplicaMod_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="DsReplicaMod";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
@@ -17556,7 +17556,7 @@ drsuapi_dissect_DsReplicaMod_request(tvbuff_t *tvb _U_, int offset _U_, packet_i
 static int
 drsuapi_dissect_DRSUAPI_VERIFY_NAMES_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="DRSUAPI_VERIFY_NAMES";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
@@ -17657,7 +17657,7 @@ drsuapi_dissect_element_DsGetMemberships_ctr_(tvbuff_t *tvb _U_, int offset _U_,
 static int
 drsuapi_dissect_DsGetMemberships_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="DsGetMemberships";
 	offset = drsuapi_dissect_element_DsGetMemberships_level_out(tvb, offset, pinfo, tree, di, drep);
@@ -17694,7 +17694,7 @@ drsuapi_dissect_DsGetMemberships_request(tvbuff_t *tvb _U_, int offset _U_, pack
 static int
 drsuapi_dissect_DRSUAPI_INTER_DOMAIN_MOVE_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="DRSUAPI_INTER_DOMAIN_MOVE";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
@@ -17795,7 +17795,7 @@ drsuapi_dissect_element_DsGetNT4ChangeLog_info_(tvbuff_t *tvb _U_, int offset _U
 static int
 drsuapi_dissect_DsGetNT4ChangeLog_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="DsGetNT4ChangeLog";
 	offset = drsuapi_dissect_element_DsGetNT4ChangeLog_level_out(tvb, offset, pinfo, tree, di, drep);
@@ -17900,7 +17900,7 @@ drsuapi_dissect_element_DsCrackNames_ctr(tvbuff_t *tvb _U_, int offset _U_, pack
 static int
 drsuapi_dissect_DsCrackNames_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="DsCrackNames";
 	offset = drsuapi_dissect_element_DsCrackNames_level_out(tvb, offset, pinfo, tree, di, drep);
@@ -18013,7 +18013,7 @@ drsuapi_dissect_element_DsWriteAccountSpn_res_(tvbuff_t *tvb _U_, int offset _U_
 static int
 drsuapi_dissect_DsWriteAccountSpn_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="DsWriteAccountSpn";
 	offset = drsuapi_dissect_element_DsWriteAccountSpn_level_out(tvb, offset, pinfo, tree, di, drep);
@@ -18126,7 +18126,7 @@ drsuapi_dissect_element_DsRemoveDSServer_res_(tvbuff_t *tvb _U_, int offset _U_,
 static int
 drsuapi_dissect_DsRemoveDSServer_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="DsRemoveDSServer";
 	offset = drsuapi_dissect_element_DsRemoveDSServer_level_out(tvb, offset, pinfo, tree, di, drep);
@@ -18163,7 +18163,7 @@ drsuapi_dissect_DsRemoveDSServer_request(tvbuff_t *tvb _U_, int offset _U_, pack
 static int
 drsuapi_dissect_DRSUAPI_REMOVE_DS_DOMAIN_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="DRSUAPI_REMOVE_DS_DOMAIN";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
@@ -18264,7 +18264,7 @@ drsuapi_dissect_element_DsGetDomainControllerInfo_ctr_(tvbuff_t *tvb _U_, int of
 static int
 drsuapi_dissect_DsGetDomainControllerInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="DsGetDomainControllerInfo";
 	offset = drsuapi_dissect_element_DsGetDomainControllerInfo_level_out(tvb, offset, pinfo, tree, di, drep);
@@ -18377,7 +18377,7 @@ drsuapi_dissect_element_DsAddEntry_ctr_(tvbuff_t *tvb _U_, int offset _U_, packe
 static int
 drsuapi_dissect_DsAddEntry_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="DsAddEntry";
 	offset = drsuapi_dissect_element_DsAddEntry_level_out(tvb, offset, pinfo, tree, di, drep);
@@ -18456,7 +18456,7 @@ drsuapi_dissect_element_DsExecuteKCC_req_(tvbuff_t *tvb _U_, int offset _U_, pac
 static int
 drsuapi_dissect_DsExecuteKCC_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="DsExecuteKCC";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
@@ -18563,7 +18563,7 @@ drsuapi_dissect_element_DsReplicaGetInfo_info_(tvbuff_t *tvb _U_, int offset _U_
 static int
 drsuapi_dissect_DsReplicaGetInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="DsReplicaGetInfo";
 	offset = drsuapi_dissect_element_DsReplicaGetInfo_info_type(tvb, offset, pinfo, tree, di, drep);
@@ -18600,7 +18600,7 @@ drsuapi_dissect_DsReplicaGetInfo_request(tvbuff_t *tvb _U_, int offset _U_, pack
 static int
 drsuapi_dissect_DRSUAPI_ADD_SID_HISTORY_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="DRSUAPI_ADD_SID_HISTORY";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
@@ -18701,7 +18701,7 @@ drsuapi_dissect_element_DsGetMemberships2_ctr_(tvbuff_t *tvb _U_, int offset _U_
 static int
 drsuapi_dissect_DsGetMemberships2_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="DsGetMemberships2";
 	offset = drsuapi_dissect_element_DsGetMemberships2_level_out(tvb, offset, pinfo, tree, di, drep);
@@ -18738,7 +18738,7 @@ drsuapi_dissect_DsGetMemberships2_request(tvbuff_t *tvb _U_, int offset _U_, pac
 static int
 drsuapi_dissect_DRSUAPI_REPLICA_VERIFY_OBJECTS_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="DRSUAPI_REPLICA_VERIFY_OBJECTS";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
@@ -18763,7 +18763,7 @@ drsuapi_dissect_DRSUAPI_REPLICA_VERIFY_OBJECTS_request(tvbuff_t *tvb _U_, int of
 static int
 drsuapi_dissect_DRSUAPI_GET_OBJECT_EXISTENCE_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="DRSUAPI_GET_OBJECT_EXISTENCE";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
@@ -18864,7 +18864,7 @@ drsuapi_dissect_element_QuerySitesByCost_ctr_(tvbuff_t *tvb _U_, int offset _U_,
 static int
 drsuapi_dissect_QuerySitesByCost_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="QuerySitesByCost";
 	offset = drsuapi_dissect_element_QuerySitesByCost_level_out(tvb, offset, pinfo, tree, di, drep);
@@ -18901,7 +18901,7 @@ drsuapi_dissect_QuerySitesByCost_request(tvbuff_t *tvb _U_, int offset _U_, pack
 static int
 drsuapi_dissect_InitDemotion_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="InitDemotion";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
@@ -18926,7 +18926,7 @@ drsuapi_dissect_InitDemotion_request(tvbuff_t *tvb _U_, int offset _U_, packet_i
 static int
 drsuapi_dissect_ReplicaDemotion_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="ReplicaDemotion";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
@@ -18951,7 +18951,7 @@ drsuapi_dissect_ReplicaDemotion_request(tvbuff_t *tvb _U_, int offset _U_, packe
 static int
 drsuapi_dissect_FinishDemotion_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="FinishDemotion";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
@@ -18976,7 +18976,7 @@ drsuapi_dissect_FinishDemotion_request(tvbuff_t *tvb _U_, int offset _U_, packet
 static int
 drsuapi_dissect_AddCloneDC_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="AddCloneDC";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
@@ -19001,7 +19001,7 @@ drsuapi_dissect_AddCloneDC_request(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 static int
 drsuapi_dissect_WriteNgcKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="WriteNgcKey";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_werror, &status);
@@ -19102,7 +19102,7 @@ drsuapi_dissect_element_ReadNgcKey_ngcReply_(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 drsuapi_dissect_ReadNgcKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="ReadNgcKey";
 	offset = drsuapi_dissect_element_ReadNgcKey_pOutVersion(tvb, offset, pinfo, tree, di, drep);

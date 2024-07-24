@@ -1238,7 +1238,7 @@ browser_dissect_element_BrowserrServerEnum_unknown8_(tvbuff_t *tvb _U_, int offs
 static int
 browser_dissect_BrowserrServerEnum_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="BrowserrServerEnum";
 	offset = browser_dissect_element_BrowserrServerEnum_info(tvb, offset, pinfo, tree, di, drep);
@@ -1325,7 +1325,7 @@ browser_dissect_element_BrowserrDebugCall_unknown3(tvbuff_t *tvb _U_, int offset
 static int
 browser_dissect_BrowserrDebugCall_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="BrowserrDebugCall";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_werror, &status);
@@ -1409,7 +1409,7 @@ browser_dissect_element_BrowserrQueryOtherDomains_total_entries_(tvbuff_t *tvb _
 static int
 browser_dissect_BrowserrQueryOtherDomains_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="BrowserrQueryOtherDomains";
 	offset = browser_dissect_element_BrowserrQueryOtherDomains_info(tvb, offset, pinfo, tree, di, drep);
@@ -1463,7 +1463,7 @@ browser_dissect_element_BrowserrResetNetlogonState_unknown_(tvbuff_t *tvb _U_, i
 static int
 browser_dissect_BrowserrResetNetlogonState_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="BrowserrResetNetlogonState";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_werror, &status);
@@ -1529,7 +1529,7 @@ browser_dissect_element_BrowserrDebugTrace_unknown2_(tvbuff_t *tvb _U_, int offs
 static int
 browser_dissect_BrowserrDebugTrace_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="BrowserrDebugTrace";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_werror, &status);
@@ -1602,7 +1602,7 @@ browser_dissect_element_BrowserrQueryStatistics_unknown2__(tvbuff_t *tvb _U_, in
 static int
 browser_dissect_BrowserrQueryStatistics_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="BrowserrQueryStatistics";
 	offset = browser_dissect_element_BrowserrQueryStatistics_unknown2(tvb, offset, pinfo, tree, di, drep);
@@ -1651,7 +1651,7 @@ browser_dissect_element_BrowserrResetStatistics_unknown_(tvbuff_t *tvb _U_, int 
 static int
 browser_dissect_BrowserrResetStatistics_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="BrowserrResetStatistics";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_werror, &status);
@@ -1697,7 +1697,7 @@ browser_dissect_element_NetrBrowserStatisticsClear_unknown_(tvbuff_t *tvb _U_, i
 static int
 browser_dissect_NetrBrowserStatisticsClear_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetrBrowserStatisticsClear";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_werror, &status);
@@ -1769,7 +1769,7 @@ browser_dissect_element_NetrBrowserStatisticsGet_unknown3_(tvbuff_t *tvb _U_, in
 static int
 browser_dissect_NetrBrowserStatisticsGet_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetrBrowserStatisticsGet";
 	offset = browser_dissect_element_NetrBrowserStatisticsGet_unknown3(tvb, offset, pinfo, tree, di, drep);
@@ -1871,7 +1871,7 @@ browser_dissect_element_BrowserrSetNetlogonState_unknown4(tvbuff_t *tvb _U_, int
 static int
 browser_dissect_BrowserrSetNetlogonState_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="BrowserrSetNetlogonState";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_browser_werror, &status);
@@ -1940,7 +1940,7 @@ browser_dissect_element_BrowserrQueryEmulatedDomains_unknown2_(tvbuff_t *tvb _U_
 static int
 browser_dissect_BrowserrQueryEmulatedDomains_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="BrowserrQueryEmulatedDomains";
 	offset = browser_dissect_element_BrowserrQueryEmulatedDomains_unknown2(tvb, offset, pinfo, tree, di, drep);
@@ -2123,7 +2123,7 @@ browser_dissect_element_BrowserrServerEnumEx_unknown8_(tvbuff_t *tvb _U_, int of
 static int
 browser_dissect_BrowserrServerEnumEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="BrowserrServerEnumEx";
 	offset = browser_dissect_element_BrowserrServerEnumEx_info(tvb, offset, pinfo, tree, di, drep);

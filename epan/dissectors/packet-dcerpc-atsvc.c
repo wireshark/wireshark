@@ -832,7 +832,7 @@ atsvc_dissect_element_JobAdd_job_id_(tvbuff_t *tvb _U_, int offset _U_, packet_i
 static int
 atsvc_dissect_JobAdd_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="JobAdd";
 	offset = atsvc_dissect_element_JobAdd_job_id(tvb, offset, pinfo, tree, di, drep);
@@ -901,7 +901,7 @@ atsvc_dissect_element_JobDel_max_job_id(tvbuff_t *tvb _U_, int offset _U_, packe
 static int
 atsvc_dissect_JobDel_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="JobDel";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_atsvc_status, &status);
@@ -1011,7 +1011,7 @@ atsvc_dissect_element_JobEnum_resume_handle_(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 atsvc_dissect_JobEnum_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="JobEnum";
 	offset = atsvc_dissect_element_JobEnum_ctr(tvb, offset, pinfo, tree, di, drep);
@@ -1106,7 +1106,7 @@ atsvc_dissect_element_JobGetInfo_job_info__(tvbuff_t *tvb _U_, int offset _U_, p
 static int
 atsvc_dissect_JobGetInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="JobGetInfo";
 	offset = atsvc_dissect_element_JobGetInfo_job_info(tvb, offset, pinfo, tree, di, drep);

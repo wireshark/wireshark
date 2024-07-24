@@ -5693,7 +5693,7 @@ clusapi_dissect_element_CloseCluster_Cluster_(tvbuff_t *tvb _U_, int offset _U_,
 static int
 clusapi_dissect_CloseCluster_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="CloseCluster";
 	offset = clusapi_dissect_element_CloseCluster_Cluster(tvb, offset, pinfo, tree, di, drep);
@@ -5759,7 +5759,7 @@ clusapi_dissect_element_SetClusterName_rpc_status_(tvbuff_t *tvb _U_, int offset
 static int
 clusapi_dissect_SetClusterName_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="SetClusterName";
 	offset = clusapi_dissect_element_SetClusterName_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -5844,7 +5844,7 @@ clusapi_dissect_element_GetClusterName_NodeName__(tvbuff_t *tvb _U_, int offset 
 static int
 clusapi_dissect_GetClusterName_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="GetClusterName";
 	offset = clusapi_dissect_element_GetClusterName_ClusterName(tvb, offset, pinfo, tree, di, drep);
@@ -5981,7 +5981,7 @@ clusapi_dissect_element_GetClusterVersion_lpszCSDVersion__(tvbuff_t *tvb _U_, in
 static int
 clusapi_dissect_GetClusterVersion_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="GetClusterVersion";
 	offset = clusapi_dissect_element_GetClusterVersion_lpwMajorVersion(tvb, offset, pinfo, tree, di, drep);
@@ -6110,7 +6110,7 @@ clusapi_dissect_element_GetQuorumResource_rpc_status_(tvbuff_t *tvb _U_, int off
 static int
 clusapi_dissect_GetQuorumResource_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="GetQuorumResource";
 	offset = clusapi_dissect_element_GetQuorumResource_lpszResourceName(tvb, offset, pinfo, tree, di, drep);
@@ -6201,7 +6201,7 @@ clusapi_dissect_element_SetQuorumResource_rpc_status_(tvbuff_t *tvb _U_, int off
 static int
 clusapi_dissect_SetQuorumResource_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="SetQuorumResource";
 	offset = clusapi_dissect_element_SetQuorumResource_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -6285,7 +6285,7 @@ clusapi_dissect_element_CreateEnum_rpc_status_(tvbuff_t *tvb _U_, int offset _U_
 static int
 clusapi_dissect_CreateEnum_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="CreateEnum";
 	offset = clusapi_dissect_element_CreateEnum_ReturnEnum(tvb, offset, pinfo, tree, di, drep);
@@ -6585,7 +6585,7 @@ clusapi_dissect_element_DeleteResource_rpc_status_(tvbuff_t *tvb _U_, int offset
 static int
 clusapi_dissect_DeleteResource_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="DeleteResource";
 	offset = clusapi_dissect_element_DeleteResource_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -6631,7 +6631,7 @@ clusapi_dissect_element_CloseResource_Resource_(tvbuff_t *tvb _U_, int offset _U
 static int
 clusapi_dissect_CloseResource_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="CloseResource";
 	offset = clusapi_dissect_element_CloseResource_Resource(tvb, offset, pinfo, tree, di, drep);
@@ -6759,7 +6759,7 @@ clusapi_dissect_element_GetResourceState_rpc_status_(tvbuff_t *tvb _U_, int offs
 static int
 clusapi_dissect_GetResourceState_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="GetResourceState";
 	offset = clusapi_dissect_element_GetResourceState_State(tvb, offset, pinfo, tree, di, drep);
@@ -6843,7 +6843,7 @@ clusapi_dissect_element_SetResourceName_rpc_status_(tvbuff_t *tvb _U_, int offse
 static int
 clusapi_dissect_SetResourceName_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="SetResourceName";
 	offset = clusapi_dissect_element_SetResourceName_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -6928,7 +6928,7 @@ clusapi_dissect_element_GetResourceId_rpc_status_(tvbuff_t *tvb _U_, int offset 
 static int
 clusapi_dissect_GetResourceId_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="GetResourceId";
 	offset = clusapi_dissect_element_GetResourceId_pGuid(tvb, offset, pinfo, tree, di, drep);
@@ -7014,7 +7014,7 @@ clusapi_dissect_element_GetResourceType_rpc_status_(tvbuff_t *tvb _U_, int offse
 static int
 clusapi_dissect_GetResourceType_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="GetResourceType";
 	offset = clusapi_dissect_element_GetResourceType_lpszResourceType(tvb, offset, pinfo, tree, di, drep);
@@ -7072,7 +7072,7 @@ clusapi_dissect_element_FailResource_rpc_status_(tvbuff_t *tvb _U_, int offset _
 static int
 clusapi_dissect_FailResource_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="FailResource";
 	offset = clusapi_dissect_element_FailResource_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -7127,7 +7127,7 @@ clusapi_dissect_element_OnlineResource_rpc_status_(tvbuff_t *tvb _U_, int offset
 static int
 clusapi_dissect_OnlineResource_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="OnlineResource";
 	offset = clusapi_dissect_element_OnlineResource_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -7182,7 +7182,7 @@ clusapi_dissect_element_OfflineResource_rpc_status_(tvbuff_t *tvb _U_, int offse
 static int
 clusapi_dissect_OfflineResource_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="OfflineResource";
 	offset = clusapi_dissect_element_OfflineResource_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -7246,7 +7246,7 @@ clusapi_dissect_element_AddResourceDependency_rpc_status_(tvbuff_t *tvb _U_, int
 static int
 clusapi_dissect_AddResourceDependency_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="AddResourceDependency";
 	offset = clusapi_dissect_element_AddResourceDependency_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -7312,7 +7312,7 @@ clusapi_dissect_element_RemoveResourceDependency_rpc_status_(tvbuff_t *tvb _U_, 
 static int
 clusapi_dissect_RemoveResourceDependency_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="RemoveResourceDependency";
 	offset = clusapi_dissect_element_RemoveResourceDependency_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -7378,7 +7378,7 @@ clusapi_dissect_element_CanResourceBeDependent_rpc_status_(tvbuff_t *tvb _U_, in
 static int
 clusapi_dissect_CanResourceBeDependent_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="CanResourceBeDependent";
 	offset = clusapi_dissect_element_CanResourceBeDependent_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -7469,7 +7469,7 @@ clusapi_dissect_element_CreateResEnum_rpc_status_(tvbuff_t *tvb _U_, int offset 
 static int
 clusapi_dissect_CreateResEnum_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="CreateResEnum";
 	offset = clusapi_dissect_element_CreateResEnum_ReturnEnum(tvb, offset, pinfo, tree, di, drep);
@@ -7538,7 +7538,7 @@ clusapi_dissect_element_AddResourceNode_rpc_status_(tvbuff_t *tvb _U_, int offse
 static int
 clusapi_dissect_AddResourceNode_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="AddResourceNode";
 	offset = clusapi_dissect_element_AddResourceNode_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -7604,7 +7604,7 @@ clusapi_dissect_element_RemoveResourceNode_rpc_status_(tvbuff_t *tvb _U_, int of
 static int
 clusapi_dissect_RemoveResourceNode_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="RemoveResourceNode";
 	offset = clusapi_dissect_element_RemoveResourceNode_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -7670,7 +7670,7 @@ clusapi_dissect_element_ChangeResourceGroup_rpc_status_(tvbuff_t *tvb _U_, int o
 static int
 clusapi_dissect_ChangeResourceGroup_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="ChangeResourceGroup";
 	offset = clusapi_dissect_element_ChangeResourceGroup_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -7796,7 +7796,7 @@ clusapi_dissect_element_CreateResourceType_rpc_status_(tvbuff_t *tvb _U_, int of
 static int
 clusapi_dissect_CreateResourceType_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="CreateResourceType";
 	offset = clusapi_dissect_element_CreateResourceType_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -7870,7 +7870,7 @@ clusapi_dissect_element_DeleteResourceType_rpc_status_(tvbuff_t *tvb _U_, int of
 static int
 clusapi_dissect_DeleteResourceType_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="DeleteResourceType";
 	offset = clusapi_dissect_element_DeleteResourceType_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -8359,7 +8359,7 @@ clusapi_dissect_element_EnumKey_rpc_status_(tvbuff_t *tvb _U_, int offset _U_, p
 static int
 clusapi_dissect_EnumKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="EnumKey";
 	offset = clusapi_dissect_element_EnumKey_KeyName(tvb, offset, pinfo, tree, di, drep);
@@ -8485,7 +8485,7 @@ clusapi_dissect_element_SetValue_rpc_status_(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 clusapi_dissect_SetValue_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="SetValue";
 	offset = clusapi_dissect_element_SetValue_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -8568,7 +8568,7 @@ clusapi_dissect_element_DeleteValue_rpc_status_(tvbuff_t *tvb _U_, int offset _U
 static int
 clusapi_dissect_DeleteValue_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="DeleteValue";
 	offset = clusapi_dissect_element_DeleteValue_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -8713,7 +8713,7 @@ clusapi_dissect_element_QueryValue_rpc_status_(tvbuff_t *tvb _U_, int offset _U_
 static int
 clusapi_dissect_QueryValue_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="QueryValue";
 	offset = clusapi_dissect_element_QueryValue_lpValueType(tvb, offset, pinfo, tree, di, drep);
@@ -8801,7 +8801,7 @@ clusapi_dissect_element_DeleteKey_rpc_status_(tvbuff_t *tvb _U_, int offset _U_,
 static int
 clusapi_dissect_DeleteKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="DeleteKey";
 	offset = clusapi_dissect_element_DeleteKey_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -8971,7 +8971,7 @@ clusapi_dissect_element_EnumValue_rpc_status_(tvbuff_t *tvb _U_, int offset _U_,
 static int
 clusapi_dissect_EnumValue_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="EnumValue";
 	offset = clusapi_dissect_element_EnumValue_lpValueName(tvb, offset, pinfo, tree, di, drep);
@@ -9036,7 +9036,7 @@ clusapi_dissect_element_CloseKey_pKey_(tvbuff_t *tvb _U_, int offset _U_, packet
 static int
 clusapi_dissect_CloseKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="CloseKey";
 	offset = clusapi_dissect_element_CloseKey_pKey(tvb, offset, pinfo, tree, di, drep);
@@ -9210,7 +9210,7 @@ clusapi_dissect_element_QueryInfoKey_rpc_status_(tvbuff_t *tvb _U_, int offset _
 static int
 clusapi_dissect_QueryInfoKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="QueryInfoKey";
 	offset = clusapi_dissect_element_QueryInfoKey_lpcSubKeys(tvb, offset, pinfo, tree, di, drep);
@@ -9312,7 +9312,7 @@ clusapi_dissect_element_SetKeySecurity_rpc_status_(tvbuff_t *tvb _U_, int offset
 static int
 clusapi_dissect_SetKeySecurity_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="SetKeySecurity";
 	offset = clusapi_dissect_element_SetKeySecurity_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -9397,7 +9397,7 @@ clusapi_dissect_element_GetKeySecurity_rpc_status_(tvbuff_t *tvb _U_, int offset
 static int
 clusapi_dissect_GetKeySecurity_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="GetKeySecurity";
 	offset = clusapi_dissect_element_GetKeySecurity_pRpcSecurityDescriptor(tvb, offset, pinfo, tree, di, drep);
@@ -9666,7 +9666,7 @@ clusapi_dissect_element_DeleteGroup_rpc_status_(tvbuff_t *tvb _U_, int offset _U
 static int
 clusapi_dissect_DeleteGroup_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="DeleteGroup";
 	offset = clusapi_dissect_element_DeleteGroup_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -9714,7 +9714,7 @@ clusapi_dissect_element_CloseGroup_Group_(tvbuff_t *tvb _U_, int offset _U_, pac
 static int
 clusapi_dissect_CloseGroup_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="CloseGroup";
 	offset = clusapi_dissect_element_CloseGroup_Group(tvb, offset, pinfo, tree, di, drep);
@@ -9814,7 +9814,7 @@ clusapi_dissect_element_GetGroupState_rpc_status_(tvbuff_t *tvb _U_, int offset 
 static int
 clusapi_dissect_GetGroupState_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="GetGroupState";
 	offset = clusapi_dissect_element_GetGroupState_State(tvb, offset, pinfo, tree, di, drep);
@@ -9895,7 +9895,7 @@ clusapi_dissect_element_SetGroupName_rpc_status_(tvbuff_t *tvb _U_, int offset _
 static int
 clusapi_dissect_SetGroupName_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="SetGroupName";
 	offset = clusapi_dissect_element_SetGroupName_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -9980,7 +9980,7 @@ clusapi_dissect_element_GetGroupId_rpc_status_(tvbuff_t *tvb _U_, int offset _U_
 static int
 clusapi_dissect_GetGroupId_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="GetGroupId";
 	offset = clusapi_dissect_element_GetGroupId_pGuid(tvb, offset, pinfo, tree, di, drep);
@@ -10066,7 +10066,7 @@ clusapi_dissect_element_GetNodeId_rpc_status_(tvbuff_t *tvb _U_, int offset _U_,
 static int
 clusapi_dissect_GetNodeId_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="GetNodeId";
 	offset = clusapi_dissect_element_GetNodeId_pGuid(tvb, offset, pinfo, tree, di, drep);
@@ -10124,7 +10124,7 @@ clusapi_dissect_element_OnlineGroup_rpc_status_(tvbuff_t *tvb _U_, int offset _U
 static int
 clusapi_dissect_OnlineGroup_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="OnlineGroup";
 	offset = clusapi_dissect_element_OnlineGroup_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -10179,7 +10179,7 @@ clusapi_dissect_element_OfflineGroup_rpc_status_(tvbuff_t *tvb _U_, int offset _
 static int
 clusapi_dissect_OfflineGroup_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="OfflineGroup";
 	offset = clusapi_dissect_element_OfflineGroup_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -10234,7 +10234,7 @@ clusapi_dissect_element_MoveGroup_rpc_status_(tvbuff_t *tvb _U_, int offset _U_,
 static int
 clusapi_dissect_MoveGroup_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="MoveGroup";
 	offset = clusapi_dissect_element_MoveGroup_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -10298,7 +10298,7 @@ clusapi_dissect_element_MoveGroupToNode_rpc_status_(tvbuff_t *tvb _U_, int offse
 static int
 clusapi_dissect_MoveGroupToNode_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="MoveGroupToNode";
 	offset = clusapi_dissect_element_MoveGroupToNode_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -10389,7 +10389,7 @@ clusapi_dissect_element_CreateGroupResourceEnum_rpc_status_(tvbuff_t *tvb _U_, i
 static int
 clusapi_dissect_CreateGroupResourceEnum_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="CreateGroupResourceEnum";
 	offset = clusapi_dissect_element_CreateGroupResourceEnum_ReturnEnum(tvb, offset, pinfo, tree, di, drep);
@@ -10483,7 +10483,7 @@ clusapi_dissect_element_SetGroupNodeList_rpc_status_(tvbuff_t *tvb _U_, int offs
 static int
 clusapi_dissect_SetGroupNodeList_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="SetGroupNodeList";
 	offset = clusapi_dissect_element_SetGroupNodeList_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -10610,7 +10610,7 @@ clusapi_dissect_element_CloseNotify_Notify_(tvbuff_t *tvb _U_, int offset _U_, p
 static int
 clusapi_dissect_CloseNotify_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="CloseNotify";
 	offset = clusapi_dissect_element_CloseNotify_Notify(tvb, offset, pinfo, tree, di, drep);
@@ -10692,7 +10692,7 @@ clusapi_dissect_element_AddNotifyCluster_rpc_status_(tvbuff_t *tvb _U_, int offs
 static int
 clusapi_dissect_AddNotifyCluster_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="AddNotifyCluster";
 	offset = clusapi_dissect_element_AddNotifyCluster_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -10797,7 +10797,7 @@ clusapi_dissect_element_AddNotifyNode_rpc_status_(tvbuff_t *tvb _U_, int offset 
 static int
 clusapi_dissect_AddNotifyNode_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="AddNotifyNode";
 	offset = clusapi_dissect_element_AddNotifyNode_dwStateSequence(tvb, offset, pinfo, tree, di, drep);
@@ -10905,7 +10905,7 @@ clusapi_dissect_element_AddNotifyGroup_rpc_status_(tvbuff_t *tvb _U_, int offset
 static int
 clusapi_dissect_AddNotifyGroup_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="AddNotifyGroup";
 	offset = clusapi_dissect_element_AddNotifyGroup_dwStateSequence(tvb, offset, pinfo, tree, di, drep);
@@ -11013,7 +11013,7 @@ clusapi_dissect_element_AddNotifyResource_rpc_status_(tvbuff_t *tvb _U_, int off
 static int
 clusapi_dissect_AddNotifyResource_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="AddNotifyResource";
 	offset = clusapi_dissect_element_AddNotifyResource_dwStateSequence(tvb, offset, pinfo, tree, di, drep);
@@ -11113,7 +11113,7 @@ clusapi_dissect_element_AddNotifyKey_rpc_status_(tvbuff_t *tvb _U_, int offset _
 static int
 clusapi_dissect_AddNotifyKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="AddNotifyKey";
 	offset = clusapi_dissect_element_AddNotifyKey_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -11212,7 +11212,7 @@ clusapi_dissect_element_ReAddNotifyNode_rpc_status_(tvbuff_t *tvb _U_, int offse
 static int
 clusapi_dissect_ReAddNotifyNode_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="ReAddNotifyNode";
 	offset = clusapi_dissect_element_ReAddNotifyNode_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -11311,7 +11311,7 @@ clusapi_dissect_element_ReAddNotifyGroup_rpc_status_(tvbuff_t *tvb _U_, int offs
 static int
 clusapi_dissect_ReAddNotifyGroup_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="ReAddNotifyGroup";
 	offset = clusapi_dissect_element_ReAddNotifyGroup_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -11410,7 +11410,7 @@ clusapi_dissect_element_ReAddNotifyResource_rpc_status_(tvbuff_t *tvb _U_, int o
 static int
 clusapi_dissect_ReAddNotifyResource_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="ReAddNotifyResource";
 	offset = clusapi_dissect_element_ReAddNotifyResource_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -11552,7 +11552,7 @@ clusapi_dissect_element_GetNotify_rpc_status_(tvbuff_t *tvb _U_, int offset _U_,
 static int
 clusapi_dissect_GetNotify_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="GetNotify";
 	offset = clusapi_dissect_element_GetNotify_dwNotifyKey(tvb, offset, pinfo, tree, di, drep);
@@ -11709,7 +11709,7 @@ clusapi_dissect_element_CloseNode_Node_(tvbuff_t *tvb _U_, int offset _U_, packe
 static int
 clusapi_dissect_CloseNode_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="CloseNode";
 	offset = clusapi_dissect_element_CloseNode_Node(tvb, offset, pinfo, tree, di, drep);
@@ -11781,7 +11781,7 @@ clusapi_dissect_element_GetNodeState_rpc_status_(tvbuff_t *tvb _U_, int offset _
 static int
 clusapi_dissect_GetNodeState_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="GetNodeState";
 	offset = clusapi_dissect_element_GetNodeState_State(tvb, offset, pinfo, tree, di, drep);
@@ -11839,7 +11839,7 @@ clusapi_dissect_element_PauseNode_rpc_status_(tvbuff_t *tvb _U_, int offset _U_,
 static int
 clusapi_dissect_PauseNode_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="PauseNode";
 	offset = clusapi_dissect_element_PauseNode_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -11894,7 +11894,7 @@ clusapi_dissect_element_ResumeNode_rpc_status_(tvbuff_t *tvb _U_, int offset _U_
 static int
 clusapi_dissect_ResumeNode_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="ResumeNode";
 	offset = clusapi_dissect_element_ResumeNode_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -11949,7 +11949,7 @@ clusapi_dissect_element_EvictNode_rpc_status_(tvbuff_t *tvb _U_, int offset _U_,
 static int
 clusapi_dissect_EvictNode_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="EvictNode";
 	offset = clusapi_dissect_element_EvictNode_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -12124,7 +12124,7 @@ clusapi_dissect_element_NodeResourceControl_rpc_status_(tvbuff_t *tvb _U_, int o
 static int
 clusapi_dissect_NodeResourceControl_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NodeResourceControl";
 	offset = clusapi_dissect_element_NodeResourceControl_lpOutBuffer(tvb, offset, pinfo, tree, di, drep);
@@ -12309,7 +12309,7 @@ clusapi_dissect_element_ResourceControl_rpc_status_(tvbuff_t *tvb _U_, int offse
 static int
 clusapi_dissect_ResourceControl_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="ResourceControl";
 	offset = clusapi_dissect_element_ResourceControl_lpOutBuffer(tvb, offset, pinfo, tree, di, drep);
@@ -12521,7 +12521,7 @@ clusapi_dissect_element_NodeResourceTypeControl_rpc_status_(tvbuff_t *tvb _U_, i
 static int
 clusapi_dissect_NodeResourceTypeControl_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NodeResourceTypeControl";
 	offset = clusapi_dissect_element_NodeResourceTypeControl_lpOutBuffer(tvb, offset, pinfo, tree, di, drep);
@@ -12728,7 +12728,7 @@ clusapi_dissect_element_ResourceTypeControl_rpc_status_(tvbuff_t *tvb _U_, int o
 static int
 clusapi_dissect_ResourceTypeControl_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="ResourceTypeControl";
 	offset = clusapi_dissect_element_ResourceTypeControl_lpOutBuffer(tvb, offset, pinfo, tree, di, drep);
@@ -12922,7 +12922,7 @@ clusapi_dissect_element_NodeGroupControl_rpc_status_(tvbuff_t *tvb _U_, int offs
 static int
 clusapi_dissect_NodeGroupControl_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NodeGroupControl";
 	offset = clusapi_dissect_element_NodeGroupControl_lpOutBuffer(tvb, offset, pinfo, tree, di, drep);
@@ -13107,7 +13107,7 @@ clusapi_dissect_element_GroupControl_rpc_status_(tvbuff_t *tvb _U_, int offset _
 static int
 clusapi_dissect_GroupControl_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="GroupControl";
 	offset = clusapi_dissect_element_GroupControl_lpOutBuffer(tvb, offset, pinfo, tree, di, drep);
@@ -13299,7 +13299,7 @@ clusapi_dissect_element_NodeNodeControl_rpc_status_(tvbuff_t *tvb _U_, int offse
 static int
 clusapi_dissect_NodeNodeControl_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NodeNodeControl";
 	offset = clusapi_dissect_element_NodeNodeControl_lpOutBuffer(tvb, offset, pinfo, tree, di, drep);
@@ -13484,7 +13484,7 @@ clusapi_dissect_element_NodeControl_rpc_status_(tvbuff_t *tvb _U_, int offset _U
 static int
 clusapi_dissect_NodeControl_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NodeControl";
 	offset = clusapi_dissect_element_NodeControl_lpOutBuffer(tvb, offset, pinfo, tree, di, drep);
@@ -13531,7 +13531,7 @@ clusapi_dissect_NodeControl_request(tvbuff_t *tvb _U_, int offset _U_, packet_in
 static int
 clusapi_dissect_Opnum80NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="Opnum80NotUsedOnWire";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
@@ -13671,7 +13671,7 @@ clusapi_dissect_element_CloseNetwork_Network_(tvbuff_t *tvb _U_, int offset _U_,
 static int
 clusapi_dissect_CloseNetwork_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="CloseNetwork";
 	offset = clusapi_dissect_element_CloseNetwork_Network(tvb, offset, pinfo, tree, di, drep);
@@ -13743,7 +13743,7 @@ clusapi_dissect_element_GetNetworkState_rpc_status_(tvbuff_t *tvb _U_, int offse
 static int
 clusapi_dissect_GetNetworkState_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="GetNetworkState";
 	offset = clusapi_dissect_element_GetNetworkState_State(tvb, offset, pinfo, tree, di, drep);
@@ -13821,7 +13821,7 @@ clusapi_dissect_element_SetNetworkName_rpc_status_(tvbuff_t *tvb _U_, int offset
 static int
 clusapi_dissect_SetNetworkName_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="SetNetworkName";
 	offset = clusapi_dissect_element_SetNetworkName_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -13912,7 +13912,7 @@ clusapi_dissect_element_CreateNetworkEnum_rpc_status_(tvbuff_t *tvb _U_, int off
 static int
 clusapi_dissect_CreateNetworkEnum_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="CreateNetworkEnum";
 	offset = clusapi_dissect_element_CreateNetworkEnum_ReturnEnum(tvb, offset, pinfo, tree, di, drep);
@@ -14000,7 +14000,7 @@ clusapi_dissect_element_GetNetworkId_rpc_status_(tvbuff_t *tvb _U_, int offset _
 static int
 clusapi_dissect_GetNetworkId_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="GetNetworkId";
 	offset = clusapi_dissect_element_GetNetworkId_pGuid(tvb, offset, pinfo, tree, di, drep);
@@ -14070,7 +14070,7 @@ clusapi_dissect_element_SetNetworkPriorityOrder_rpc_status_(tvbuff_t *tvb _U_, i
 static int
 clusapi_dissect_SetNetworkPriorityOrder_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="SetNetworkPriorityOrder";
 	offset = clusapi_dissect_element_SetNetworkPriorityOrder_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -14247,7 +14247,7 @@ clusapi_dissect_element_NodeNetworkControl_rpc_status_(tvbuff_t *tvb _U_, int of
 static int
 clusapi_dissect_NodeNetworkControl_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NodeNetworkControl";
 	offset = clusapi_dissect_element_NodeNetworkControl_lpOutBuffer(tvb, offset, pinfo, tree, di, drep);
@@ -14432,7 +14432,7 @@ clusapi_dissect_element_NetworkControl_rpc_status_(tvbuff_t *tvb _U_, int offset
 static int
 clusapi_dissect_NetworkControl_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetworkControl";
 	offset = clusapi_dissect_element_NetworkControl_lpOutBuffer(tvb, offset, pinfo, tree, di, drep);
@@ -14548,7 +14548,7 @@ clusapi_dissect_element_AddNotifyNetwork_rpc_status_(tvbuff_t *tvb _U_, int offs
 static int
 clusapi_dissect_AddNotifyNetwork_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="AddNotifyNetwork";
 	offset = clusapi_dissect_element_AddNotifyNetwork_dwStateSequence(tvb, offset, pinfo, tree, di, drep);
@@ -14648,7 +14648,7 @@ clusapi_dissect_element_ReAddNotifyNetwork_rpc_status_(tvbuff_t *tvb _U_, int of
 static int
 clusapi_dissect_ReAddNotifyNetwork_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="ReAddNotifyNetwork";
 	offset = clusapi_dissect_element_ReAddNotifyNetwork_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -14801,7 +14801,7 @@ clusapi_dissect_element_CloseNetInterface_NetInterface_(tvbuff_t *tvb _U_, int o
 static int
 clusapi_dissect_CloseNetInterface_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="CloseNetInterface";
 	offset = clusapi_dissect_element_CloseNetInterface_NetInterface(tvb, offset, pinfo, tree, di, drep);
@@ -14873,7 +14873,7 @@ clusapi_dissect_element_GetNetInterfaceState_rpc_status_(tvbuff_t *tvb _U_, int 
 static int
 clusapi_dissect_GetNetInterfaceState_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="GetNetInterfaceState";
 	offset = clusapi_dissect_element_GetNetInterfaceState_State(tvb, offset, pinfo, tree, di, drep);
@@ -14990,7 +14990,7 @@ clusapi_dissect_element_GetNetInterface_rpc_status_(tvbuff_t *tvb _U_, int offse
 static int
 clusapi_dissect_GetNetInterface_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="GetNetInterface";
 	offset = clusapi_dissect_element_GetNetInterface_lppszInterfaceName(tvb, offset, pinfo, tree, di, drep);
@@ -15078,7 +15078,7 @@ clusapi_dissect_element_GetNetInterfaceId_rpc_status_(tvbuff_t *tvb _U_, int off
 static int
 clusapi_dissect_GetNetInterfaceId_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="GetNetInterfaceId";
 	offset = clusapi_dissect_element_GetNetInterfaceId_pGuid(tvb, offset, pinfo, tree, di, drep);
@@ -15256,7 +15256,7 @@ clusapi_dissect_element_NodeNetInterfaceControl_rpc_status_(tvbuff_t *tvb _U_, i
 static int
 clusapi_dissect_NodeNetInterfaceControl_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NodeNetInterfaceControl";
 	offset = clusapi_dissect_element_NodeNetInterfaceControl_lpOutBuffer(tvb, offset, pinfo, tree, di, drep);
@@ -15441,7 +15441,7 @@ clusapi_dissect_element_NetInterfaceControl_rpc_status_(tvbuff_t *tvb _U_, int o
 static int
 clusapi_dissect_NetInterfaceControl_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetInterfaceControl";
 	offset = clusapi_dissect_element_NetInterfaceControl_lpOutBuffer(tvb, offset, pinfo, tree, di, drep);
@@ -15557,7 +15557,7 @@ clusapi_dissect_element_AddNotifyNetInterface_rpc_status_(tvbuff_t *tvb _U_, int
 static int
 clusapi_dissect_AddNotifyNetInterface_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="AddNotifyNetInterface";
 	offset = clusapi_dissect_element_AddNotifyNetInterface_dwStateSequence(tvb, offset, pinfo, tree, di, drep);
@@ -15657,7 +15657,7 @@ clusapi_dissect_element_ReAddNotifyNetInterface_rpc_status_(tvbuff_t *tvb _U_, i
 static int
 clusapi_dissect_ReAddNotifyNetInterface_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="ReAddNotifyNetInterface";
 	offset = clusapi_dissect_element_ReAddNotifyNetInterface_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -15754,7 +15754,7 @@ clusapi_dissect_element_CreateNodeEnum_rpc_status_(tvbuff_t *tvb _U_, int offset
 static int
 clusapi_dissect_CreateNodeEnum_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="CreateNodeEnum";
 	offset = clusapi_dissect_element_CreateNodeEnum_ReturnEnum(tvb, offset, pinfo, tree, di, drep);
@@ -15937,7 +15937,7 @@ clusapi_dissect_element_GetClusterVersion2_rpc_status_(tvbuff_t *tvb _U_, int of
 static int
 clusapi_dissect_GetClusterVersion2_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="GetClusterVersion2";
 	offset = clusapi_dissect_element_GetClusterVersion2_lpwMajorVersion(tvb, offset, pinfo, tree, di, drep);
@@ -16053,7 +16053,7 @@ clusapi_dissect_element_CreateResTypeEnum_rpc_status_(tvbuff_t *tvb _U_, int off
 static int
 clusapi_dissect_CreateResTypeEnum_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="CreateResTypeEnum";
 	offset = clusapi_dissect_element_CreateResTypeEnum_ReturnEnum(tvb, offset, pinfo, tree, di, drep);
@@ -16124,7 +16124,7 @@ clusapi_dissect_element_BackupClusterDatabase_rpc_status_(tvbuff_t *tvb _U_, int
 static int
 clusapi_dissect_BackupClusterDatabase_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="BackupClusterDatabase";
 	offset = clusapi_dissect_element_BackupClusterDatabase_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -16299,7 +16299,7 @@ clusapi_dissect_element_NodeClusterControl_rpc_status_(tvbuff_t *tvb _U_, int of
 static int
 clusapi_dissect_NodeClusterControl_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NodeClusterControl";
 	offset = clusapi_dissect_element_NodeClusterControl_lpOutBuffer(tvb, offset, pinfo, tree, di, drep);
@@ -16484,7 +16484,7 @@ clusapi_dissect_element_ClusterControl_rpc_status_(tvbuff_t *tvb _U_, int offset
 static int
 clusapi_dissect_ClusterControl_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="ClusterControl";
 	offset = clusapi_dissect_element_ClusterControl_lpOutBuffer(tvb, offset, pinfo, tree, di, drep);
@@ -16539,7 +16539,7 @@ clusapi_dissect_element_UnblockGetNotifyCall_hNotify(tvbuff_t *tvb _U_, int offs
 static int
 clusapi_dissect_UnblockGetNotifyCall_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="UnblockGetNotifyCall";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
@@ -16654,7 +16654,7 @@ clusapi_dissect_element_SetServiceAccountPassword_ExpectedBufferSize_(tvbuff_t *
 static int
 clusapi_dissect_SetServiceAccountPassword_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="SetServiceAccountPassword";
 	offset = clusapi_dissect_element_SetServiceAccountPassword_ReturnStatusBufferPtr(tvb, offset, pinfo, tree, di, drep);
@@ -16739,7 +16739,7 @@ clusapi_dissect_element_SetResourceDependencyExpression_rpc_status_(tvbuff_t *tv
 static int
 clusapi_dissect_SetResourceDependencyExpression_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="SetResourceDependencyExpression";
 	offset = clusapi_dissect_element_SetResourceDependencyExpression_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -16824,7 +16824,7 @@ clusapi_dissect_element_GetResourceDependencyExpression_rpc_status_(tvbuff_t *tv
 static int
 clusapi_dissect_GetResourceDependencyExpression_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="GetResourceDependencyExpression";
 	offset = clusapi_dissect_element_GetResourceDependencyExpression_lpszDependencyExpression(tvb, offset, pinfo, tree, di, drep);
@@ -16857,7 +16857,7 @@ clusapi_dissect_GetResourceDependencyExpression_request(tvbuff_t *tvb _U_, int o
 static int
 clusapi_dissect_Opnum111NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="Opnum111NotUsedOnWire";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
@@ -16935,7 +16935,7 @@ clusapi_dissect_element_GetResourceNetworkName_rpc_status_(tvbuff_t *tvb _U_, in
 static int
 clusapi_dissect_GetResourceNetworkName_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="GetResourceNetworkName";
 	offset = clusapi_dissect_element_GetResourceNetworkName_lpszName(tvb, offset, pinfo, tree, di, drep);
@@ -17044,7 +17044,7 @@ clusapi_dissect_element_ExecuteBatch_rpc_status_(tvbuff_t *tvb _U_, int offset _
 static int
 clusapi_dissect_ExecuteBatch_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="ExecuteBatch";
 	offset = clusapi_dissect_element_ExecuteBatch_pdwFailedCommand(tvb, offset, pinfo, tree, di, drep);
@@ -17123,7 +17123,7 @@ clusapi_dissect_element_CreateBatchPort_rpc_status_(tvbuff_t *tvb _U_, int offse
 static int
 clusapi_dissect_CreateBatchPort_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="CreateBatchPort";
 	offset = clusapi_dissect_element_CreateBatchPort_phBatchPort(tvb, offset, pinfo, tree, di, drep);
@@ -17214,7 +17214,7 @@ clusapi_dissect_element_GetBatchNotification_lpData___(tvbuff_t *tvb _U_, int of
 static int
 clusapi_dissect_GetBatchNotification_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="GetBatchNotification";
 	offset = clusapi_dissect_element_GetBatchNotification_cbData(tvb, offset, pinfo, tree, di, drep);
@@ -17263,7 +17263,7 @@ clusapi_dissect_element_CloseBatchPort_phBatchPort_(tvbuff_t *tvb _U_, int offse
 static int
 clusapi_dissect_CloseBatchPort_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="CloseBatchPort";
 	offset = clusapi_dissect_element_CloseBatchPort_phBatchPort(tvb, offset, pinfo, tree, di, drep);
@@ -18065,7 +18065,7 @@ clusapi_dissect_element_ChangeCsvState_rpc_status_(tvbuff_t *tvb _U_, int offset
 static int
 clusapi_dissect_ChangeCsvState_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="ChangeCsvState";
 	offset = clusapi_dissect_element_ChangeCsvState_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -18190,7 +18190,7 @@ clusapi_dissect_element_CreateNodeEnumEx_rpc_status_(tvbuff_t *tvb _U_, int offs
 static int
 clusapi_dissect_CreateNodeEnumEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="CreateNodeEnumEx";
 	offset = clusapi_dissect_element_CreateNodeEnumEx_ReturnIdEnum(tvb, offset, pinfo, tree, di, drep);
@@ -18323,7 +18323,7 @@ clusapi_dissect_element_CreateEnumEx_rpc_status_(tvbuff_t *tvb _U_, int offset _
 static int
 clusapi_dissect_CreateEnumEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="CreateEnumEx";
 	offset = clusapi_dissect_element_CreateEnumEx_ReturnIdEnum(tvb, offset, pinfo, tree, di, drep);
@@ -18406,7 +18406,7 @@ clusapi_dissect_element_PauseNodeEx_rpc_status_(tvbuff_t *tvb _U_, int offset _U
 static int
 clusapi_dissect_PauseNodeEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="PauseNodeEx";
 	offset = clusapi_dissect_element_PauseNodeEx_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -18483,7 +18483,7 @@ clusapi_dissect_element_PauseNodeWithDrainTarget_rpc_status_(tvbuff_t *tvb _U_, 
 static int
 clusapi_dissect_PauseNodeWithDrainTarget_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="PauseNodeWithDrainTarget";
 	offset = clusapi_dissect_element_PauseNodeWithDrainTarget_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -18560,7 +18560,7 @@ clusapi_dissect_element_ResumeNodeEx_rpc_status_(tvbuff_t *tvb _U_, int offset _
 static int
 clusapi_dissect_ResumeNodeEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="ResumeNodeEx";
 	offset = clusapi_dissect_element_ResumeNodeEx_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -18780,7 +18780,7 @@ clusapi_dissect_element_OnlineGroupEx_rpc_status_(tvbuff_t *tvb _U_, int offset 
 static int
 clusapi_dissect_OnlineGroupEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="OnlineGroupEx";
 	offset = clusapi_dissect_element_OnlineGroupEx_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -18884,7 +18884,7 @@ clusapi_dissect_element_OfflineGroupEx_rpc_status_(tvbuff_t *tvb _U_, int offset
 static int
 clusapi_dissect_OfflineGroupEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="OfflineGroupEx";
 	offset = clusapi_dissect_element_OfflineGroupEx_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -18988,7 +18988,7 @@ clusapi_dissect_element_MoveGroupEx_rpc_status_(tvbuff_t *tvb _U_, int offset _U
 static int
 clusapi_dissect_MoveGroupEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="MoveGroupEx";
 	offset = clusapi_dissect_element_MoveGroupEx_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -19101,7 +19101,7 @@ clusapi_dissect_element_MoveGroupToNodeEx_rpc_status_(tvbuff_t *tvb _U_, int off
 static int
 clusapi_dissect_MoveGroupToNodeEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="MoveGroupToNodeEx";
 	offset = clusapi_dissect_element_MoveGroupToNodeEx_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -19173,7 +19173,7 @@ clusapi_dissect_element_CancelClusterGroupOperation_rpc_status_(tvbuff_t *tvb _U
 static int
 clusapi_dissect_CancelClusterGroupOperation_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="CancelClusterGroupOperation";
 	offset = clusapi_dissect_element_CancelClusterGroupOperation_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -19273,7 +19273,7 @@ clusapi_dissect_element_OnlineResourceEx_rpc_status_(tvbuff_t *tvb _U_, int offs
 static int
 clusapi_dissect_OnlineResourceEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="OnlineResourceEx";
 	offset = clusapi_dissect_element_OnlineResourceEx_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -19377,7 +19377,7 @@ clusapi_dissect_element_OfflineResourceEx_rpc_status_(tvbuff_t *tvb _U_, int off
 static int
 clusapi_dissect_OfflineResourceEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="OfflineResourceEx";
 	offset = clusapi_dissect_element_OfflineResourceEx_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -19560,7 +19560,7 @@ clusapi_dissect_element_AddNotifyV2_rpc_status_(tvbuff_t *tvb _U_, int offset _U
 static int
 clusapi_dissect_AddNotifyV2_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="AddNotifyV2";
 	offset = clusapi_dissect_element_AddNotifyV2_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -19658,7 +19658,7 @@ clusapi_dissect_element_GetNotifyV2_dwNumNotifications_(tvbuff_t *tvb _U_, int o
 static int
 clusapi_dissect_GetNotifyV2_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="GetNotifyV2";
 	offset = clusapi_dissect_element_GetNotifyV2_Notifications(tvb, offset, pinfo, tree, di, drep);
@@ -19774,7 +19774,7 @@ clusapi_dissect_element_QueryAllValues_rpc_status_(tvbuff_t *tvb _U_, int offset
 static int
 clusapi_dissect_QueryAllValues_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="QueryAllValues";
 	offset = clusapi_dissect_element_QueryAllValues_pcbData(tvb, offset, pinfo, tree, di, drep);
@@ -19923,7 +19923,7 @@ clusapi_dissect_element_StmFindDisk_rpc_status_(tvbuff_t *tvb _U_, int offset _U
 static int
 clusapi_dissect_StmFindDisk_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="StmFindDisk";
 	offset = clusapi_dissect_element_StmFindDisk_pDiskId(tvb, offset, pinfo, tree, di, drep);
@@ -20112,7 +20112,7 @@ clusapi_dissect_element_ClusterMrr_rpc_status_(tvbuff_t *tvb _U_, int offset _U_
 static int
 clusapi_dissect_ClusterMrr_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="ClusterMrr";
 	offset = clusapi_dissect_element_ClusterMrr_ppInfo(tvb, offset, pinfo, tree, di, drep);
@@ -20277,7 +20277,7 @@ clusapi_dissect_element_CreateGroupEnum_rpc_status_(tvbuff_t *tvb _U_, int offse
 static int
 clusapi_dissect_CreateGroupEnum_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="CreateGroupEnum";
 	offset = clusapi_dissect_element_CreateGroupEnum_ppResultList(tvb, offset, pinfo, tree, di, drep);
@@ -20436,7 +20436,7 @@ clusapi_dissect_element_CreateResourceEnum_rpc_status_(tvbuff_t *tvb _U_, int of
 static int
 clusapi_dissect_CreateResourceEnum_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="CreateResourceEnum";
 	offset = clusapi_dissect_element_CreateResourceEnum_ppResultList(tvb, offset, pinfo, tree, di, drep);
@@ -20586,7 +20586,7 @@ clusapi_dissect_element_ExecuteReadBatch_rpc_status_(tvbuff_t *tvb _U_, int offs
 static int
 clusapi_dissect_ExecuteReadBatch_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="ExecuteReadBatch";
 	offset = clusapi_dissect_element_ExecuteReadBatch_cbOutData(tvb, offset, pinfo, tree, di, drep);
@@ -20660,7 +20660,7 @@ clusapi_dissect_element_RestartResource_rpc_status_(tvbuff_t *tvb _U_, int offse
 static int
 clusapi_dissect_RestartResource_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="RestartResource";
 	offset = clusapi_dissect_element_RestartResource_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -20750,7 +20750,7 @@ clusapi_dissect_element_GetNotifyAsync_dwNumNotifications_(tvbuff_t *tvb _U_, in
 static int
 clusapi_dissect_GetNotifyAsync_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="GetNotifyAsync";
 	offset = clusapi_dissect_element_GetNotifyAsync_Notifications(tvb, offset, pinfo, tree, di, drep);
@@ -20783,7 +20783,7 @@ clusapi_dissect_GetNotifyAsync_request(tvbuff_t *tvb _U_, int offset _U_, packet
 static int
 clusapi_dissect_Opnum148NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="Opnum148NotUsedOnWire";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
@@ -20808,7 +20808,7 @@ clusapi_dissect_Opnum148NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_,
 static int
 clusapi_dissect_Opnum149otUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="Opnum149otUsedOnWire";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
@@ -20833,7 +20833,7 @@ clusapi_dissect_Opnum149otUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 clusapi_dissect_Opnum150NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="Opnum150NotUsedOnWire";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
@@ -20858,7 +20858,7 @@ clusapi_dissect_Opnum150NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_,
 static int
 clusapi_dissect_Opnum151NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="Opnum151NotUsedOnWire";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
@@ -20883,7 +20883,7 @@ clusapi_dissect_Opnum151NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_,
 static int
 clusapi_dissect_Opnum152NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="Opnum152NotUsedOnWire";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
@@ -20908,7 +20908,7 @@ clusapi_dissect_Opnum152NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_,
 static int
 clusapi_dissect_Opnum153NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="Opnum153NotUsedOnWire";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
@@ -20933,7 +20933,7 @@ clusapi_dissect_Opnum153NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_,
 static int
 clusapi_dissect_Opnum154NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="Opnum154NotUsedOnWire";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
@@ -21030,7 +21030,7 @@ clusapi_dissect_element_AddNotifyResourceTypeV2_rpc_status_(tvbuff_t *tvb _U_, i
 static int
 clusapi_dissect_AddNotifyResourceTypeV2_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="AddNotifyResourceTypeV2";
 	offset = clusapi_dissect_element_AddNotifyResourceTypeV2_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -21068,7 +21068,7 @@ clusapi_dissect_AddNotifyResourceTypeV2_request(tvbuff_t *tvb _U_, int offset _U
 static int
 clusapi_dissect_Opnum156NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="Opnum156NotUsedOnWire";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
@@ -21211,7 +21211,7 @@ clusapi_dissect_element_ExecuteReadBatchEx_rpc_status_(tvbuff_t *tvb _U_, int of
 static int
 clusapi_dissect_ExecuteReadBatchEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="ExecuteReadBatchEx";
 	offset = clusapi_dissect_element_ExecuteReadBatchEx_cbOutData(tvb, offset, pinfo, tree, di, drep);
@@ -21253,7 +21253,7 @@ clusapi_dissect_ExecuteReadBatchEx_request(tvbuff_t *tvb _U_, int offset _U_, pa
 static int
 clusapi_dissect_Opnum158NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="Opnum158NotUsedOnWire";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
@@ -21278,7 +21278,7 @@ clusapi_dissect_Opnum158NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_,
 static int
 clusapi_dissect_Opnum159NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="Opnum159NotUsedOnWire";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
@@ -21303,7 +21303,7 @@ clusapi_dissect_Opnum159NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_,
 static int
 clusapi_dissect_Opnum160NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="Opnum160NotUsedOnWire";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
@@ -21328,7 +21328,7 @@ clusapi_dissect_Opnum160NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_,
 static int
 clusapi_dissect_Opnum161NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="Opnum161NotUsedOnWire";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
@@ -21353,7 +21353,7 @@ clusapi_dissect_Opnum161NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_,
 static int
 clusapi_dissect_Opnum162NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="Opnum162NotUsedOnWire";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
@@ -21592,7 +21592,7 @@ clusapi_dissect_element_CloseGroupSet_GroupSet_(tvbuff_t *tvb _U_, int offset _U
 static int
 clusapi_dissect_CloseGroupSet_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="CloseGroupSet";
 	offset = clusapi_dissect_element_CloseGroupSet_GroupSet(tvb, offset, pinfo, tree, di, drep);
@@ -21647,7 +21647,7 @@ clusapi_dissect_element_DeleteGroupSet_rpc_status_(tvbuff_t *tvb _U_, int offset
 static int
 clusapi_dissect_DeleteGroupSet_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="DeleteGroupSet";
 	offset = clusapi_dissect_element_DeleteGroupSet_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -21711,7 +21711,7 @@ clusapi_dissect_element_AddGroupToGroupSet_rpc_status_(tvbuff_t *tvb _U_, int of
 static int
 clusapi_dissect_AddGroupToGroupSet_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="AddGroupToGroupSet";
 	offset = clusapi_dissect_element_AddGroupToGroupSet_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -21768,7 +21768,7 @@ clusapi_dissect_element_RemoveGroupFromGroupSet_rpc_status_(tvbuff_t *tvb _U_, i
 static int
 clusapi_dissect_RemoveGroupFromGroupSet_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="RemoveGroupFromGroupSet";
 	offset = clusapi_dissect_element_RemoveGroupFromGroupSet_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -21832,7 +21832,7 @@ clusapi_dissect_element_MoveGroupToGroupSet_rpc_status_(tvbuff_t *tvb _U_, int o
 static int
 clusapi_dissect_MoveGroupToGroupSet_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="MoveGroupToGroupSet";
 	offset = clusapi_dissect_element_MoveGroupToGroupSet_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -21864,7 +21864,7 @@ clusapi_dissect_MoveGroupToGroupSet_request(tvbuff_t *tvb _U_, int offset _U_, p
 static int
 clusapi_dissect_Opnum170NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="Opnum170NotUsedOnWire";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_clusapi_werror, &status);
@@ -21923,7 +21923,7 @@ clusapi_dissect_element_AddGroupSetDependency_rpc_status_(tvbuff_t *tvb _U_, int
 static int
 clusapi_dissect_AddGroupSetDependency_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="AddGroupSetDependency";
 	offset = clusapi_dissect_element_AddGroupSetDependency_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -21989,7 +21989,7 @@ clusapi_dissect_element_AddGroupToGroupSetDependency_rpc_status_(tvbuff_t *tvb _
 static int
 clusapi_dissect_AddGroupToGroupSetDependency_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="AddGroupToGroupSetDependency";
 	offset = clusapi_dissect_element_AddGroupToGroupSetDependency_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -22166,7 +22166,7 @@ clusapi_dissect_element_NodeGroupSetControl_rpc_status_(tvbuff_t *tvb _U_, int o
 static int
 clusapi_dissect_NodeGroupSetControl_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NodeGroupSetControl";
 	offset = clusapi_dissect_element_NodeGroupSetControl_lpOutBuffer(tvb, offset, pinfo, tree, di, drep);
@@ -22351,7 +22351,7 @@ clusapi_dissect_element_GroupSetControl_rpc_status_(tvbuff_t *tvb _U_, int offse
 static int
 clusapi_dissect_GroupSetControl_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="GroupSetControl";
 	offset = clusapi_dissect_element_GroupSetControl_lpOutBuffer(tvb, offset, pinfo, tree, di, drep);
@@ -22443,7 +22443,7 @@ clusapi_dissect_element_SetGroupDependencyExpression_rpc_status_(tvbuff_t *tvb _
 static int
 clusapi_dissect_SetGroupDependencyExpression_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="SetGroupDependencyExpression";
 	offset = clusapi_dissect_element_SetGroupDependencyExpression_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -22509,7 +22509,7 @@ clusapi_dissect_element_RemoveClusterGroupDependency_rpc_status_(tvbuff_t *tvb _
 static int
 clusapi_dissect_RemoveClusterGroupDependency_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="RemoveClusterGroupDependency";
 	offset = clusapi_dissect_element_RemoveClusterGroupDependency_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -22586,7 +22586,7 @@ clusapi_dissect_element_SetGroupSetDependencyExpression_rpc_status_(tvbuff_t *tv
 static int
 clusapi_dissect_SetGroupSetDependencyExpression_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="SetGroupSetDependencyExpression";
 	offset = clusapi_dissect_element_SetGroupSetDependencyExpression_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -22652,7 +22652,7 @@ clusapi_dissect_element_RemoveGroupSetDependency_rpc_status_(tvbuff_t *tvb _U_, 
 static int
 clusapi_dissect_RemoveGroupSetDependency_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="RemoveGroupSetDependency";
 	offset = clusapi_dissect_element_RemoveGroupSetDependency_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -22718,7 +22718,7 @@ clusapi_dissect_element_RemoveClusterGroupToGroupSetDependency_rpc_status_(tvbuf
 static int
 clusapi_dissect_RemoveClusterGroupToGroupSetDependency_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="RemoveClusterGroupToGroupSetDependency";
 	offset = clusapi_dissect_element_RemoveClusterGroupToGroupSetDependency_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -22800,7 +22800,7 @@ clusapi_dissect_element_CreateGroupSetEnum_rpc_status_(tvbuff_t *tvb _U_, int of
 static int
 clusapi_dissect_CreateGroupSetEnum_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="CreateGroupSetEnum";
 	offset = clusapi_dissect_element_CreateGroupSetEnum_ReturnEnum(tvb, offset, pinfo, tree, di, drep);
@@ -22923,7 +22923,7 @@ clusapi_dissect_element_CreateNetInterfaceEnum_rpc_status_(tvbuff_t *tvb _U_, in
 static int
 clusapi_dissect_CreateNetInterfaceEnum_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="CreateNetInterfaceEnum";
 	offset = clusapi_dissect_element_CreateNetInterfaceEnum_ReturnEnum(tvb, offset, pinfo, tree, di, drep);
@@ -23014,7 +23014,7 @@ clusapi_dissect_element_ChangeCsvStateEx_rpc_status_(tvbuff_t *tvb _U_, int offs
 static int
 clusapi_dissect_ChangeCsvStateEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="ChangeCsvStateEx";
 	offset = clusapi_dissect_element_ChangeCsvStateEx_rpc_status(tvb, offset, pinfo, tree, di, drep);
@@ -23126,7 +23126,7 @@ clusapi_dissect_element_AddGroupToGroupSetEx_rpc_status_(tvbuff_t *tvb _U_, int 
 static int
 clusapi_dissect_AddGroupToGroupSetEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="AddGroupToGroupSetEx";
 	offset = clusapi_dissect_element_AddGroupToGroupSetEx_rpc_status(tvb, offset, pinfo, tree, di, drep);

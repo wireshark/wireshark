@@ -1614,7 +1614,7 @@ frstrans_dissect_element_CheckConnectivity_connection_guid(tvbuff_t *tvb _U_, in
 static int
 frstrans_dissect_CheckConnectivity_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="CheckConnectivity";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_frstrans_werror, &status);
@@ -1712,7 +1712,7 @@ frstrans_dissect_element_EstablishConnection_upstream_flags_(tvbuff_t *tvb _U_, 
 static int
 frstrans_dissect_EstablishConnection_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="EstablishConnection";
 	offset = frstrans_dissect_element_EstablishConnection_upstream_protocol_version(tvb, offset, pinfo, tree, di, drep);
@@ -1768,7 +1768,7 @@ frstrans_dissect_element_EstablishSession_content_set_guid(tvbuff_t *tvb _U_, in
 static int
 frstrans_dissect_EstablishSession_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="EstablishSession";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_frstrans_werror, &status);
@@ -1968,7 +1968,7 @@ frstrans_dissect_element_RequestUpdates_gvsn_version_(tvbuff_t *tvb _U_, int off
 static int
 frstrans_dissect_RequestUpdates_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="RequestUpdates";
 	offset = frstrans_dissect_element_RequestUpdates_frs_update(tvb, offset, pinfo, tree, di, drep);
@@ -2075,7 +2075,7 @@ frstrans_dissect_element_RequestVersionVector_vv_generation(tvbuff_t *tvb _U_, i
 static int
 frstrans_dissect_RequestVersionVector_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="RequestVersionVector";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_frstrans_werror, &status);
@@ -2137,7 +2137,7 @@ frstrans_dissect_element_AsyncPoll_response_(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 frstrans_dissect_AsyncPoll_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="AsyncPoll";
 	offset = frstrans_dissect_element_AsyncPoll_response(tvb, offset, pinfo, tree, di, drep);
@@ -2454,7 +2454,7 @@ frstrans_dissect_element_InitializeFileTransferAsync_is_end_of_file_(tvbuff_t *t
 static int
 frstrans_dissect_InitializeFileTransferAsync_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="InitializeFileTransferAsync";
 	offset = frstrans_dissect_element_InitializeFileTransferAsync_frs_update(tvb, offset, pinfo, tree, di, drep);

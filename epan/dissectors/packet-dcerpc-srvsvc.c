@@ -15102,7 +15102,7 @@ srvsvc_dissect_element_NetCharDevEnum_resume_handle_(tvbuff_t *tvb _U_, int offs
 static int
 srvsvc_dissect_NetCharDevEnum_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetCharDevEnum";
 	offset = srvsvc_dissect_element_NetCharDevEnum_info_ctr(tvb, offset, pinfo, tree, di, drep);
@@ -15201,7 +15201,7 @@ srvsvc_dissect_element_NetCharDevGetInfo_info_(tvbuff_t *tvb _U_, int offset _U_
 static int
 srvsvc_dissect_NetCharDevGetInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetCharDevGetInfo";
 	offset = srvsvc_dissect_element_NetCharDevGetInfo_info(tvb, offset, pinfo, tree, di, drep);
@@ -15275,7 +15275,7 @@ srvsvc_dissect_element_NetCharDevControl_opcode(tvbuff_t *tvb _U_, int offset _U
 static int
 srvsvc_dissect_NetCharDevControl_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetCharDevControl";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_werror, &status);
@@ -15405,7 +15405,7 @@ srvsvc_dissect_element_NetCharDevQEnum_resume_handle_(tvbuff_t *tvb _U_, int off
 static int
 srvsvc_dissect_NetCharDevQEnum_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetCharDevQEnum";
 	offset = srvsvc_dissect_element_NetCharDevQEnum_info_ctr(tvb, offset, pinfo, tree, di, drep);
@@ -15518,7 +15518,7 @@ srvsvc_dissect_element_NetCharDevQGetInfo_info_(tvbuff_t *tvb _U_, int offset _U
 static int
 srvsvc_dissect_NetCharDevQGetInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetCharDevQGetInfo";
 	offset = srvsvc_dissect_element_NetCharDevQGetInfo_info(tvb, offset, pinfo, tree, di, drep);
@@ -15620,7 +15620,7 @@ srvsvc_dissect_element_NetCharDevQSetInfo_parm_error_(tvbuff_t *tvb _U_, int off
 static int
 srvsvc_dissect_NetCharDevQSetInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetCharDevQSetInfo";
 	offset = srvsvc_dissect_element_NetCharDevQSetInfo_parm_error(tvb, offset, pinfo, tree, di, drep);
@@ -15689,7 +15689,7 @@ srvsvc_dissect_element_NetCharDevQPurge_queue_name(tvbuff_t *tvb _U_, int offset
 static int
 srvsvc_dissect_NetCharDevQPurge_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetCharDevQPurge";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_werror, &status);
@@ -15761,7 +15761,7 @@ srvsvc_dissect_element_NetCharDevQPurgeSelf_computer_name(tvbuff_t *tvb _U_, int
 static int
 srvsvc_dissect_NetCharDevQPurgeSelf_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetCharDevQPurgeSelf";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_werror, &status);
@@ -15891,7 +15891,7 @@ srvsvc_dissect_element_NetConnEnum_resume_handle_(tvbuff_t *tvb _U_, int offset 
 static int
 srvsvc_dissect_NetConnEnum_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetConnEnum";
 	offset = srvsvc_dissect_element_NetConnEnum_info_ctr(tvb, offset, pinfo, tree, di, drep);
@@ -16054,7 +16054,7 @@ srvsvc_dissect_element_NetFileEnum_resume_handle_(tvbuff_t *tvb _U_, int offset 
 static int
 srvsvc_dissect_NetFileEnum_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetFileEnum";
 	offset = srvsvc_dissect_element_NetFileEnum_info_ctr(tvb, offset, pinfo, tree, di, drep);
@@ -16154,7 +16154,7 @@ srvsvc_dissect_element_NetFileGetInfo_info_(tvbuff_t *tvb _U_, int offset _U_, p
 static int
 srvsvc_dissect_NetFileGetInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetFileGetInfo";
 	offset = srvsvc_dissect_element_NetFileGetInfo_info(tvb, offset, pinfo, tree, di, drep);
@@ -16216,7 +16216,7 @@ srvsvc_dissect_element_NetFileClose_fid(tvbuff_t *tvb _U_, int offset _U_, packe
 static int
 srvsvc_dissect_NetFileClose_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetFileClose";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_werror, &status);
@@ -16364,7 +16364,7 @@ srvsvc_dissect_element_NetSessEnum_resume_handle_(tvbuff_t *tvb _U_, int offset 
 static int
 srvsvc_dissect_NetSessEnum_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetSessEnum";
 	offset = srvsvc_dissect_element_NetSessEnum_info_ctr(tvb, offset, pinfo, tree, di, drep);
@@ -16469,7 +16469,7 @@ srvsvc_dissect_element_NetSessDel_user_(tvbuff_t *tvb _U_, int offset _U_, packe
 static int
 srvsvc_dissect_NetSessDel_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetSessDel";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_werror, &status);
@@ -16562,7 +16562,7 @@ srvsvc_dissect_element_NetShareAdd_parm_error_(tvbuff_t *tvb _U_, int offset _U_
 static int
 srvsvc_dissect_NetShareAdd_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetShareAdd";
 	offset = srvsvc_dissect_element_NetShareAdd_parm_error(tvb, offset, pinfo, tree, di, drep);
@@ -16677,7 +16677,7 @@ srvsvc_dissect_element_NetShareEnumAll_resume_handle_(tvbuff_t *tvb _U_, int off
 static int
 srvsvc_dissect_NetShareEnumAll_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetShareEnumAll";
 	offset = srvsvc_dissect_element_NetShareEnumAll_info_ctr(tvb, offset, pinfo, tree, di, drep);
@@ -16776,7 +16776,7 @@ srvsvc_dissect_element_NetShareGetInfo_info_(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 srvsvc_dissect_NetShareGetInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetShareGetInfo";
 	offset = srvsvc_dissect_element_NetShareGetInfo_info(tvb, offset, pinfo, tree, di, drep);
@@ -16884,7 +16884,7 @@ srvsvc_dissect_element_NetShareSetInfo_parm_error_(tvbuff_t *tvb _U_, int offset
 static int
 srvsvc_dissect_NetShareSetInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetShareSetInfo";
 	offset = srvsvc_dissect_element_NetShareSetInfo_parm_error(tvb, offset, pinfo, tree, di, drep);
@@ -16962,7 +16962,7 @@ srvsvc_dissect_element_NetShareDel_reserved(tvbuff_t *tvb _U_, int offset _U_, p
 static int
 srvsvc_dissect_NetShareDel_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetShareDel";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_werror, &status);
@@ -17033,7 +17033,7 @@ srvsvc_dissect_element_NetShareDelSticky_reserved(tvbuff_t *tvb _U_, int offset 
 static int
 srvsvc_dissect_NetShareDelSticky_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetShareDelSticky";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_werror, &status);
@@ -17112,7 +17112,7 @@ srvsvc_dissect_element_NetShareCheck_type_(tvbuff_t *tvb _U_, int offset _U_, pa
 static int
 srvsvc_dissect_NetShareCheck_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetShareCheck";
 	offset = srvsvc_dissect_element_NetShareCheck_type(tvb, offset, pinfo, tree, di, drep);
@@ -17189,7 +17189,7 @@ srvsvc_dissect_element_NetSrvGetInfo_info_(tvbuff_t *tvb _U_, int offset _U_, pa
 static int
 srvsvc_dissect_NetSrvGetInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetSrvGetInfo";
 	offset = srvsvc_dissect_element_NetSrvGetInfo_info(tvb, offset, pinfo, tree, di, drep);
@@ -17283,7 +17283,7 @@ srvsvc_dissect_element_NetSrvSetInfo_parm_error_(tvbuff_t *tvb _U_, int offset _
 static int
 srvsvc_dissect_NetSrvSetInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetSrvSetInfo";
 	offset = srvsvc_dissect_element_NetSrvSetInfo_parm_error(tvb, offset, pinfo, tree, di, drep);
@@ -17407,7 +17407,7 @@ srvsvc_dissect_element_NetDiskEnum_resume_handle_(tvbuff_t *tvb _U_, int offset 
 static int
 srvsvc_dissect_NetDiskEnum_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetDiskEnum";
 	offset = srvsvc_dissect_element_NetDiskEnum_info(tvb, offset, pinfo, tree, di, drep);
@@ -17533,7 +17533,7 @@ srvsvc_dissect_element_NetServerStatisticsGet_stats__(tvbuff_t *tvb _U_, int off
 static int
 srvsvc_dissect_NetServerStatisticsGet_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetServerStatisticsGet";
 	offset = srvsvc_dissect_element_NetServerStatisticsGet_stats(tvb, offset, pinfo, tree, di, drep);
@@ -17606,7 +17606,7 @@ srvsvc_dissect_element_NetTransportAdd_info(tvbuff_t *tvb _U_, int offset _U_, p
 static int
 srvsvc_dissect_NetTransportAdd_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetTransportAdd";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_werror, &status);
@@ -17716,7 +17716,7 @@ srvsvc_dissect_element_NetTransportEnum_resume_handle_(tvbuff_t *tvb _U_, int of
 static int
 srvsvc_dissect_NetTransportEnum_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetTransportEnum";
 	offset = srvsvc_dissect_element_NetTransportEnum_transports(tvb, offset, pinfo, tree, di, drep);
@@ -17803,7 +17803,7 @@ srvsvc_dissect_element_NetTransportDel_info0_(tvbuff_t *tvb _U_, int offset _U_,
 static int
 srvsvc_dissect_NetTransportDel_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetTransportDel";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_werror, &status);
@@ -17878,7 +17878,7 @@ srvsvc_dissect_element_NetRemoteTOD_info__(tvbuff_t *tvb _U_, int offset _U_, pa
 static int
 srvsvc_dissect_NetRemoteTOD_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetRemoteTOD";
 	offset = srvsvc_dissect_element_NetRemoteTOD_info(tvb, offset, pinfo, tree, di, drep);
@@ -17965,7 +17965,7 @@ srvsvc_dissect_element_NetSetServiceBits_updateimmediately(tvbuff_t *tvb _U_, in
 static int
 srvsvc_dissect_NetSetServiceBits_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetSetServiceBits";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_werror, &status);
@@ -18055,7 +18055,7 @@ srvsvc_dissect_element_NetPathType_pathtype_(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 srvsvc_dissect_NetPathType_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetPathType";
 	offset = srvsvc_dissect_element_NetPathType_pathtype(tvb, offset, pinfo, tree, di, drep);
@@ -18184,7 +18184,7 @@ srvsvc_dissect_element_NetPathCanonicalize_pathflags(tvbuff_t *tvb _U_, int offs
 static int
 srvsvc_dissect_NetPathCanonicalize_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetPathCanonicalize";
 	offset = srvsvc_dissect_element_NetPathCanonicalize_can_path(tvb, offset, pinfo, tree, di, drep);
@@ -18288,7 +18288,7 @@ srvsvc_dissect_element_NetPathCompare_pathflags(tvbuff_t *tvb _U_, int offset _U
 static int
 srvsvc_dissect_NetPathCompare_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetPathCompare";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_werror, &status);
@@ -18372,7 +18372,7 @@ srvsvc_dissect_element_NetNameValidate_flags(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 srvsvc_dissect_NetNameValidate_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetNameValidate";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_werror, &status);
@@ -18405,7 +18405,7 @@ srvsvc_dissect_NetNameValidate_request(tvbuff_t *tvb _U_, int offset _U_, packet
 static int
 srvsvc_dissect_NETRPRNAMECANONICALIZE_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NETRPRNAMECANONICALIZE";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_werror, &status);
@@ -18491,7 +18491,7 @@ srvsvc_dissect_element_NetPRNameCompare_flags(tvbuff_t *tvb _U_, int offset _U_,
 static int
 srvsvc_dissect_NetPRNameCompare_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetPRNameCompare";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_werror, &status);
@@ -18605,7 +18605,7 @@ srvsvc_dissect_element_NetShareEnum_resume_handle_(tvbuff_t *tvb _U_, int offset
 static int
 srvsvc_dissect_NetShareEnum_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetShareEnum";
 	offset = srvsvc_dissect_element_NetShareEnum_info_ctr(tvb, offset, pinfo, tree, di, drep);
@@ -18712,7 +18712,7 @@ srvsvc_dissect_element_NetShareDelStart_hnd_(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 srvsvc_dissect_NetShareDelStart_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetShareDelStart";
 	offset = srvsvc_dissect_element_NetShareDelStart_hnd(tvb, offset, pinfo, tree, di, drep);
@@ -18762,7 +18762,7 @@ srvsvc_dissect_element_NetShareDelCommit_hnd_(tvbuff_t *tvb _U_, int offset _U_,
 static int
 srvsvc_dissect_NetShareDelCommit_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetShareDelCommit";
 	offset = srvsvc_dissect_element_NetShareDelCommit_hnd(tvb, offset, pinfo, tree, di, drep);
@@ -18853,7 +18853,7 @@ srvsvc_dissect_element_NetGetFileSecurity_sd_buf(tvbuff_t *tvb _U_, int offset _
 static int
 srvsvc_dissect_NetGetFileSecurity_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetGetFileSecurity";
 	offset = srvsvc_dissect_element_NetGetFileSecurity_sd_buf(tvb, offset, pinfo, tree, di, drep);
@@ -18942,7 +18942,7 @@ srvsvc_dissect_element_NetSetFileSecurity_file(tvbuff_t *tvb _U_, int offset _U_
 static int
 srvsvc_dissect_NetSetFileSecurity_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetSetFileSecurity";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_werror, &status);
@@ -19014,7 +19014,7 @@ srvsvc_dissect_element_NetServerTransportAddEx_info(tvbuff_t *tvb _U_, int offse
 static int
 srvsvc_dissect_NetServerTransportAddEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetServerTransportAddEx";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_werror, &status);
@@ -19131,7 +19131,7 @@ srvsvc_dissect_element_NetServerSetServiceBitsEx_updateimmediately(tvbuff_t *tvb
 static int
 srvsvc_dissect_NetServerSetServiceBitsEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NetServerSetServiceBitsEx";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_werror, &status);
@@ -19168,7 +19168,7 @@ srvsvc_dissect_NetServerSetServiceBitsEx_request(tvbuff_t *tvb _U_, int offset _
 static int
 srvsvc_dissect_NETRDFSGETVERSION_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NETRDFSGETVERSION";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_werror, &status);
@@ -19193,7 +19193,7 @@ srvsvc_dissect_NETRDFSGETVERSION_request(tvbuff_t *tvb _U_, int offset _U_, pack
 static int
 srvsvc_dissect_NETRDFSCREATELOCALPARTITION_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NETRDFSCREATELOCALPARTITION";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_werror, &status);
@@ -19218,7 +19218,7 @@ srvsvc_dissect_NETRDFSCREATELOCALPARTITION_request(tvbuff_t *tvb _U_, int offset
 static int
 srvsvc_dissect_NETRDFSDELETELOCALPARTITION_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NETRDFSDELETELOCALPARTITION";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_werror, &status);
@@ -19243,7 +19243,7 @@ srvsvc_dissect_NETRDFSDELETELOCALPARTITION_request(tvbuff_t *tvb _U_, int offset
 static int
 srvsvc_dissect_NETRDFSSETLOCALVOLUMESTATE_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NETRDFSSETLOCALVOLUMESTATE";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_werror, &status);
@@ -19268,7 +19268,7 @@ srvsvc_dissect_NETRDFSSETLOCALVOLUMESTATE_request(tvbuff_t *tvb _U_, int offset 
 static int
 srvsvc_dissect_NETRDFSSETSERVERINFO_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NETRDFSSETSERVERINFO";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_werror, &status);
@@ -19293,7 +19293,7 @@ srvsvc_dissect_NETRDFSSETSERVERINFO_request(tvbuff_t *tvb _U_, int offset _U_, p
 static int
 srvsvc_dissect_NETRDFSCREATEEXITPOINT_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NETRDFSCREATEEXITPOINT";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_werror, &status);
@@ -19318,7 +19318,7 @@ srvsvc_dissect_NETRDFSCREATEEXITPOINT_request(tvbuff_t *tvb _U_, int offset _U_,
 static int
 srvsvc_dissect_NETRDFSDELETEEXITPOINT_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NETRDFSDELETEEXITPOINT";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_werror, &status);
@@ -19343,7 +19343,7 @@ srvsvc_dissect_NETRDFSDELETEEXITPOINT_request(tvbuff_t *tvb _U_, int offset _U_,
 static int
 srvsvc_dissect_NETRDFSMODIFYPREFIX_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NETRDFSMODIFYPREFIX";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_werror, &status);
@@ -19368,7 +19368,7 @@ srvsvc_dissect_NETRDFSMODIFYPREFIX_request(tvbuff_t *tvb _U_, int offset _U_, pa
 static int
 srvsvc_dissect_NETRDFSFIXLOCALVOLUME_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NETRDFSFIXLOCALVOLUME";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_werror, &status);
@@ -19393,7 +19393,7 @@ srvsvc_dissect_NETRDFSFIXLOCALVOLUME_request(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 srvsvc_dissect_NETRDFSMANAGERREPORTSITEINFO_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NETRDFSMANAGERREPORTSITEINFO";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_werror, &status);
@@ -19418,7 +19418,7 @@ srvsvc_dissect_NETRDFSMANAGERREPORTSITEINFO_request(tvbuff_t *tvb _U_, int offse
 static int
 srvsvc_dissect_NETRSERVERTRANSPORTDELEX_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NETRSERVERTRANSPORTDELEX";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_srvsvc_werror, &status);

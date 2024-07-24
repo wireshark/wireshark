@@ -315,18 +315,20 @@ int dissect_ndr_ctx_hnd (tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 #define FT_UINT1632 FT_UINT32
 typedef uint32_t guint1632;
+typedef uint32_t uint1632_t;
 
 WS_DLL_PUBLIC
 int dissect_ndr_uint1632 (tvbuff_t *tvb, int offset, packet_info *pinfo,
 		        proto_tree *tree, dcerpc_info *di, uint8_t *drep,
-		        int hfindex, guint1632 *pdata);
+		        int hfindex, uint1632_t *pdata);
 
 typedef uint64_t guint3264;
+typedef uint64_t uint3264_t;
 
 WS_DLL_PUBLIC
 int dissect_ndr_uint3264 (tvbuff_t *tvb, int offset, packet_info *pinfo,
 		        proto_tree *tree, dcerpc_info *di, uint8_t *drep,
-		        int hfindex, guint3264 *pdata);
+		        int hfindex, uint3264_t *pdata);
 
 typedef int (dcerpc_dissect_fnct_t)(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep);
 typedef int (dcerpc_dissect_fnct_blk_t)(tvbuff_t *tvb, int offset, int length, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep);

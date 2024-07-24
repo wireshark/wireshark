@@ -919,7 +919,7 @@ witness_dissect_notifyResponse_message(tvbuff_t *tvb _U_, int offset _U_, packet
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level = param;
+	uint32_t level = param;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -1048,7 +1048,7 @@ witness_dissect_element_GetInterfaceList_interface_list__(tvbuff_t *tvb _U_, int
 static int
 witness_dissect_GetInterfaceList_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="GetInterfaceList";
 	offset = witness_dissect_element_GetInterfaceList_interface_list(tvb, offset, pinfo, tree, di, drep);
@@ -1161,7 +1161,7 @@ witness_dissect_element_Register_client_computer_name_(tvbuff_t *tvb _U_, int of
 static int
 witness_dissect_Register_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="Register";
 	offset = witness_dissect_element_Register_context_handle(tvb, offset, pinfo, tree, di, drep);
@@ -1205,7 +1205,7 @@ witness_dissect_element_UnRegister_context_handle(tvbuff_t *tvb _U_, int offset 
 static int
 witness_dissect_UnRegister_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="UnRegister";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_witness_werror, &status);
@@ -1265,7 +1265,7 @@ witness_dissect_element_AsyncNotify_response__(tvbuff_t *tvb _U_, int offset _U_
 static int
 witness_dissect_AsyncNotify_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="AsyncNotify";
 	offset = witness_dissect_element_AsyncNotify_response(tvb, offset, pinfo, tree, di, drep);
@@ -1418,7 +1418,7 @@ witness_dissect_element_RegisterEx_timeout(tvbuff_t *tvb _U_, int offset _U_, pa
 static int
 witness_dissect_RegisterEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="RegisterEx";
 	offset = witness_dissect_element_RegisterEx_context_handle(tvb, offset, pinfo, tree, di, drep);
