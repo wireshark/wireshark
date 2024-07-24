@@ -1164,13 +1164,13 @@ dissect_rtcp_nack( tvbuff_t *tvb, int offset, proto_tree *tree )
 }
 
 static int
-dissect_rtcp_rtpfb_tmmbr_tmmbn_fci( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_item *top_item, int num_fci, int is_notification)
+dissect_rtcp_rtpfb_tmmbr_tmmbn_fci( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_item *top_item, int num_fci, bool is_notification)
 {
     uint8_t exp;
     uint32_t mantissa;
     proto_tree *fci_tree;
 
-    if (is_notification == 1) {
+    if (is_notification) {
         fci_tree = proto_tree_add_subtree_format( rtcp_tree, tvb, offset, 8, ett_ssrc, NULL, "TMMBN %d", num_fci );
     } else {
         fci_tree = proto_tree_add_subtree_format( rtcp_tree, tvb, offset, 8, ett_ssrc, NULL, "TMMBR %d", num_fci );
