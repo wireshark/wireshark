@@ -442,44 +442,51 @@ static const value_string os_abi_vals[] = {
     { 0x0E,  "Hewlett-Packard Non-Stop Kernel" },
     { 0x0F,  "Amiga Research OS" },
     { 0x10,  "The FenixOS highly scalable multi-core OS" },
+    { 0x11,  "Nuxi CloudABI" },
+    { 0x12,  "Stratus Technologies OpenVOS" },
     { 0, NULL }
 };
 static value_string_ext os_abi_vals_ext = VALUE_STRING_EXT_INIT(os_abi_vals);
 
-static const value_string p_type_vals[] = {
-    { 0,  "PT_NULL" },
-    { 1,  "PT_LOAD" },
-    { 2,  "PT_DYNAMIC" },
-    { 3,  "PT_INTERP" },
-    { 4,  "PT_NOTE" },
-    { 5,  "PT_SHLIB" },
-    { 6,  "PT_PHDR" },
-    { 7,  "PT_TLS" },
-    { 0, NULL }
+/* https://www.sco.com/developers/gabi/latest/ch5.pheader.html */
+static const range_string p_type_rvals[] = {
+    { 0, 0, "PT_NULL" },
+    { 1, 1, "PT_LOAD" },
+    { 2, 2, "PT_DYNAMIC" },
+    { 3, 3, "PT_INTERP" },
+    { 4, 4, "PT_NOTE" },
+    { 5, 5, "PT_SHLIB" },
+    { 6, 6, "PT_PHDR" },
+    { 7, 7, "PT_TLS" },
+    { 0x60000000, 0x6fffffff, "PT_OS" },
+    { 0x70000000, 0x7fffffff, "PT_PROC" },
+    { 0, 0, NULL }
 };
 
-static const value_string sh_type_vals[] = {
-    {  0,  "SHT_NULL" },
-    {  1,  "SHT_PROGBITS" },
-    {  2,  "SHT_SYMTAB" },
-    {  3,  "SHT_STRTAB" },
-    {  4,  "SHT_RELA" },
-    {  5,  "SHT_HASH" },
-    {  6,  "SHT_DYNAMIC" },
-    {  7,  "SHT_NOTE" },
-    {  8,  "SHT_NOBITS" },
-    {  9,  "SHT_REL" },
-    { 10,  "SHT_SHLIB" },
-    { 11,  "SHT_DYNSYM" },
-    { 14,  "SHT_INIT_ARRAY" },
-    { 15,  "SHT_FINI_ARRAY" },
-    { 16,  "SHT_PREINIT_ARRAY" },
-    { 17,  "SHT_GROUP" },
-    { 18,  "SHT_SYMTAB_SHNDX" },
-    /* TODO: https://www.sco.com/developers/gabi/latest/ch4.sheader.html range_string? */
-    { 0, NULL }
+/* https://www.sco.com/developers/gabi/latest/ch4.sheader.html */
+static const range_string sh_type_rvals[] = {
+    {  0,  0, "SHT_NULL" },
+    {  1,  1, "SHT_PROGBITS" },
+    {  2,  2, "SHT_SYMTAB" },
+    {  3,  3, "SHT_STRTAB" },
+    {  4,  4, "SHT_RELA" },
+    {  5,  5, "SHT_HASH" },
+    {  6,  6, "SHT_DYNAMIC" },
+    {  7,  7, "SHT_NOTE" },
+    {  8,  8, "SHT_NOBITS" },
+    {  9,  9, "SHT_REL" },
+    { 10, 10, "SHT_SHLIB" },
+    { 11, 11, "SHT_DYNSYM" },
+    { 14, 14, "SHT_INIT_ARRAY" },
+    { 15, 15, "SHT_FINI_ARRAY" },
+    { 16, 16, "SHT_PREINIT_ARRAY" },
+    { 17, 17, "SHT_GROUP" },
+    { 18, 18, "SHT_SYMTAB_SHNDX" },
+    { 0x60000000, 0x6fffffff, "SHT_OS" },
+    { 0x70000000, 0x7fffffff, "SHT_PROC" },
+    { 0x80000000, 0xffffffff, "SHT_USER" },
+    { 0, 0, NULL }
 };
-static value_string_ext sh_type_vals_ext = VALUE_STRING_EXT_INIT(sh_type_vals);
 
 static const value_string eh_dwarf_upper[] = {
     { 0x0,  "Normal Value"  },
@@ -1363,7 +1370,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             ph_entry_tree = proto_tree_add_subtree_format(program_header_tree,
                      tvb, offset, phentsize, ett_elf_program_header_entry, NULL,
                     "Entry #%d: %s", phnum - i_16 - 1,
-                    val_to_str_const(p_type, p_type_vals, "Unknown"));
+                    rval_to_str_const(p_type, p_type_rvals, "Unknown"));
             proto_tree_add_item(ph_entry_tree, hf_elf_p_type, tvb, offset, 4, machine_encoding);
         }
         offset += 4;
@@ -1532,7 +1539,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             proto_item_append_text(sh_entry_item, "User Specific (0x%08x)", sh_type);
             proto_tree_add_item(sh_entry_tree, hf_elf_sh_type_user_specific, tvb, offset, 4, machine_encoding);
         }else {
-            proto_item_append_text(sh_entry_item, "%s", val_to_str_ext_const(sh_type, &sh_type_vals_ext, "Unknown"));
+            proto_item_append_text(sh_entry_item, "%s", rval_to_str_const(sh_type, sh_type_rvals, "Unknown"));
             proto_tree_add_item(sh_entry_tree, hf_elf_sh_type, tvb, offset, 4, machine_encoding);
         }
         offset += 4;
@@ -1934,7 +1941,7 @@ proto_register_elf(void)
         /* Program Header */
         { &hf_elf_p_type,
             { "Element Type",                              "elf.p_type",
-            FT_UINT32, BASE_HEX_DEC, VALS(p_type_vals), 0x00,
+            FT_UINT32, BASE_HEX_DEC | BASE_RANGE_STRING, RVALS(p_type_rvals), 0x00,
             "This member tells what kind of segment this array element describes or how to interpret the array element's information.", HFILL }
         },
         { &hf_elf_p_type_operating_system_specific,
@@ -2045,7 +2052,7 @@ proto_register_elf(void)
         },
         { &hf_elf_sh_type,
             { "Type",                                      "elf.sh_type",
-            FT_UINT32, BASE_HEX_DEC | BASE_EXT_STRING, &sh_type_vals_ext, 0x00,
+            FT_UINT32, BASE_HEX_DEC | BASE_RANGE_STRING, RVALS(sh_type_rvals), 0x00,
             "This member categorizes the section's contents and semantics.", HFILL }
         },
         { &hf_elf_sh_type_operating_system_specific,
