@@ -36,6 +36,7 @@
 #define NEWER_REFERENCE_EXT 'Z'
 #define PORT_EXT            'f'
 #define NEW_PORT_EXT        'Y'
+#define V4_PORT_EXT         'x'
 #define NEW_FLOAT_EXT       'F'
 #define PID_EXT             'g'
 #define NEW_PID_EXT         'X'
@@ -52,6 +53,7 @@
 #define EXPORT_EXT          'q'
 #define FUN_EXT             'u'
 #define MAP_EXT             't'
+#define LOCAL_EXT           'y'
 
 #define DIST_HEADER         'D'
 #define DIST_FRAG_HEADER    'E'
@@ -79,6 +81,7 @@ static const value_string etf_tag_vals[] = {
   { NEWER_REFERENCE_EXT , "NEWER_REFERENCE_EXT" },
   { PORT_EXT            , "PORT_EXT" },
   { NEW_PORT_EXT        , "NEW_PORT_EXT" },
+  { V4_PORT_EXT         , "V4_PORT_EXT" },
   { NEW_FLOAT_EXT       , "NEW_FLOAT_EXT" },
   { PID_EXT             , "PID_EXT" },
   { NEW_PID_EXT         , "NEW_PID_EXT" },
@@ -95,6 +98,7 @@ static const value_string etf_tag_vals[] = {
   { EXPORT_EXT          , "EXPORT_EXT" },
   { FUN_EXT             , "FUN_EXT" },
   { MAP_EXT             , "MAP_EXT" },
+  { LOCAL_EXT           , "LOCAL_EXT" },
   { DIST_HEADER         , "DIST_HEADER" },
   { DIST_FRAG_HEADER    , "DIST_FRAG_HEADER" },
   { ATOM_CACHE_REF      , "ATOM_CACHE_REF" },
@@ -195,6 +199,8 @@ static int hf_erldp_internal_segment_index;
 static int hf_erldp_atom_length;
 static int hf_erldp_atom_length2;
 static int hf_erldp_atom_text;
+static int hf_erldp_string_ext_len;
+static int hf_erldp_string_ext;
 static int hf_erldp_atom_cache_ref;
 static int hf_erldp_small_int_ext;
 static int hf_erldp_int_ext;
@@ -206,6 +212,7 @@ static int hf_erldp_big_ext_bytes;
 static int hf_erldp_float_ext;
 static int hf_erldp_new_float_ext;
 static int hf_erldp_port_ext_id;
+static int hf_erldp_port_ext_v4_id;
 static int hf_erldp_port_ext_creation;
 static int hf_erldp_pid_ext_id;
 static int hf_erldp_pid_ext_serial;
@@ -213,6 +220,7 @@ static int hf_erldp_pid_ext_creation;
 static int hf_erldp_list_ext_len;
 static int hf_erldp_map_ext_len;
 static int hf_erldp_binary_ext_len;
+static int hf_erldp_binary_ext_bits;
 static int hf_erldp_binary_ext;
 static int hf_erldp_new_ref_ext_len;
 static int hf_erldp_new_ref_ext_creation;
@@ -500,6 +508,15 @@ static int dissect_etf_type_content(uint8_t tag, packet_info *pinfo, tvbuff_t *t
         *value_str = (const char *)str_val;
       break;
 
+    case STRING_EXT:
+      proto_tree_add_item_ret_uint(tree, hf_erldp_string_ext_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
+      offset += 2;
+      proto_tree_add_item_ret_string(tree, hf_erldp_string_ext, tvb, offset, len, ENC_NA|ENC_UTF_8, pinfo->pool, &str_val);
+      offset += len;
+      if (value_str)
+        *value_str = (const char *)str_val;
+      break;
+
     case PORT_EXT:
       offset = dissect_etf_type("Node", pinfo, tvb, offset, tree);
       proto_tree_add_item(tree, hf_erldp_port_ext_id, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -512,6 +529,14 @@ static int dissect_etf_type_content(uint8_t tag, packet_info *pinfo, tvbuff_t *t
       offset = dissect_etf_type("Node", pinfo, tvb, offset, tree);
       proto_tree_add_item(tree, hf_erldp_port_ext_id, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
+      proto_tree_add_item(tree, hf_erldp_port_ext_creation, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+      break;
+
+    case V4_PORT_EXT:
+      offset = dissect_etf_type("Node", pinfo, tvb, offset, tree);
+      proto_tree_add_item(tree, hf_erldp_port_ext_v4_id, tvb, offset, 8, ENC_BIG_ENDIAN);
+      offset += 8;
       proto_tree_add_item(tree, hf_erldp_port_ext_creation, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
       break;
@@ -570,6 +595,15 @@ static int dissect_etf_type_content(uint8_t tag, packet_info *pinfo, tvbuff_t *t
     case BINARY_EXT:
       proto_tree_add_item_ret_uint(tree, hf_erldp_binary_ext_len, tvb, offset, 4, ENC_BIG_ENDIAN, &len);
       offset += 4;
+      proto_tree_add_item(tree, hf_erldp_binary_ext, tvb, offset, len, ENC_NA);
+      offset += len;
+      break;
+
+    case BIT_BINARY_EXT:
+      proto_tree_add_item_ret_uint(tree, hf_erldp_binary_ext_len, tvb, offset, 4, ENC_BIG_ENDIAN, &len);
+      offset += 4;
+      proto_tree_add_item(tree, hf_erldp_binary_ext_bits, tvb, offset, 1, ENC_BIG_ENDIAN);
+      offset++;
       proto_tree_add_item(tree, hf_erldp_binary_ext, tvb, offset, len, ENC_NA);
       offset += len;
       break;
@@ -638,6 +672,12 @@ static int dissect_etf_type_content(uint8_t tag, packet_info *pinfo, tvbuff_t *t
           snprintf(buf, sizeof(buf), "Free Var[%u]", i + 1);
           offset = dissect_etf_type(buf, pinfo, tvb, offset, tree);
       }
+      break;
+
+    case EXPORT_EXT:
+      offset = dissect_etf_type("Module", pinfo, tvb, offset, tree);
+      offset = dissect_etf_type("Function", pinfo, tvb, offset, tree);
+      offset = dissect_etf_type("Arity", pinfo, tvb, offset, tree);
       break;
   }
 
@@ -1144,6 +1184,12 @@ void proto_register_erldp(void) {
     { &hf_erldp_atom_text, { "AtomText", "erldp.atom_text",
                         FT_STRING, BASE_NONE, NULL, 0x0,
                         NULL, HFILL}},
+    { &hf_erldp_string_ext_len, { "Len", "erldp.string_ext_len",
+                        FT_UINT16, BASE_DEC, NULL, 0x0,
+                        NULL, HFILL}},
+    { &hf_erldp_string_ext, { "String", "erldp.string_ext",
+                        FT_STRING, BASE_SHOW_ASCII_PRINTABLE, NULL, 0x0,
+                        NULL, HFILL}},
     { &hf_erldp_atom_cache_ref, { "AtomCacheReferenceIndex", "erldp.atom_cache_ref",
                         FT_UINT8, BASE_DEC, NULL, 0x0,
                         NULL, HFILL}},
@@ -1177,6 +1223,9 @@ void proto_register_erldp(void) {
     { &hf_erldp_port_ext_id, { "ID", "erldp.port_ext.id",
                         FT_UINT32, BASE_HEX, NULL, 0x0,
                         NULL, HFILL}},
+    { &hf_erldp_port_ext_v4_id, { "ID", "erldp.port_ext.v4_id",
+                        FT_UINT64, BASE_HEX, NULL, 0x0,
+                        NULL, HFILL}},
     { &hf_erldp_port_ext_creation, { "Creation", "erldp.port_ext.creation",
                         FT_UINT32, BASE_DEC, NULL, 0x0,
                         NULL, HFILL}},
@@ -1197,6 +1246,9 @@ void proto_register_erldp(void) {
                         NULL, HFILL}},
     { &hf_erldp_binary_ext_len, { "Len", "erldp.binary_ext.len",
                         FT_UINT32, BASE_DEC, NULL, 0x0,
+                        NULL, HFILL}},
+    { &hf_erldp_binary_ext_bits, { "Num bits in last byte", "erldp.binary_ext.bits",
+                        FT_UINT8, BASE_DEC, NULL, 0x0,
                         NULL, HFILL}},
     { &hf_erldp_binary_ext, { "Binary", "erldp.binary_ext",
                         FT_BYTES, BASE_SHOW_ASCII_PRINTABLE, NULL, 0x0,
