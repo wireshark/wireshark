@@ -784,7 +784,7 @@ eventlog_dissect_element_ClearEventLogW_backupfilename_(tvbuff_t *tvb _U_, int o
 static int
 eventlog_dissect_ClearEventLogW_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="ClearEventLogW";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_eventlog_status, &status);
@@ -846,7 +846,7 @@ eventlog_dissect_element_BackupEventLogW_backupfilename_(tvbuff_t *tvb _U_, int 
 static int
 eventlog_dissect_BackupEventLogW_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="BackupEventLogW";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_eventlog_status, &status);
@@ -891,7 +891,7 @@ eventlog_dissect_element_CloseEventLog_handle_(tvbuff_t *tvb _U_, int offset _U_
 static int
 eventlog_dissect_CloseEventLog_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="CloseEventLog";
 	offset = eventlog_dissect_element_CloseEventLog_handle(tvb, offset, pinfo, tree, di, drep);
@@ -937,7 +937,7 @@ eventlog_dissect_element_DeregisterEventSource_handle_(tvbuff_t *tvb _U_, int of
 static int
 eventlog_dissect_DeregisterEventSource_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="DeregisterEventSource";
 	offset = eventlog_dissect_element_DeregisterEventSource_handle(tvb, offset, pinfo, tree, di, drep);
@@ -1000,7 +1000,7 @@ eventlog_dissect_element_GetNumRecords_number_(tvbuff_t *tvb _U_, int offset _U_
 static int
 eventlog_dissect_GetNumRecords_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="GetNumRecords";
 	offset = eventlog_dissect_element_GetNumRecords_number(tvb, offset, pinfo, tree, di, drep);
@@ -1063,7 +1063,7 @@ eventlog_dissect_element_GetOldestRecord_oldest_(tvbuff_t *tvb _U_, int offset _
 static int
 eventlog_dissect_GetOldestRecord_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="GetOldestRecord";
 	offset = eventlog_dissect_element_GetOldestRecord_oldest(tvb, offset, pinfo, tree, di, drep);
@@ -1135,7 +1135,7 @@ eventlog_dissect_element_ChangeNotify_unknown3(tvbuff_t *tvb _U_, int offset _U_
 static int
 eventlog_dissect_ChangeNotify_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="ChangeNotify";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_eventlog_status, &status);
@@ -1235,7 +1235,7 @@ eventlog_dissect_element_OpenEventLogW_handle_(tvbuff_t *tvb _U_, int offset _U_
 static int
 eventlog_dissect_OpenEventLogW_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="OpenEventLogW";
 	offset = eventlog_dissect_element_OpenEventLogW_handle(tvb, offset, pinfo, tree, di, drep);
@@ -1342,7 +1342,7 @@ eventlog_dissect_element_RegisterEventSourceW_handle_(tvbuff_t *tvb _U_, int off
 static int
 eventlog_dissect_RegisterEventSourceW_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="RegisterEventSourceW";
 	offset = eventlog_dissect_element_RegisterEventSourceW_handle(tvb, offset, pinfo, tree, di, drep);
@@ -1440,7 +1440,7 @@ eventlog_dissect_element_OpenBackupEventLogW_handle_(tvbuff_t *tvb _U_, int offs
 static int
 eventlog_dissect_OpenBackupEventLogW_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="OpenBackupEventLogW";
 	offset = eventlog_dissect_element_OpenBackupEventLogW_handle(tvb, offset, pinfo, tree, di, drep);
@@ -1562,7 +1562,7 @@ eventlog_dissect_element_ReadEventLogW_real_size_(tvbuff_t *tvb _U_, int offset 
 static int
 eventlog_dissect_ReadEventLogW_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="ReadEventLogW";
 	offset = eventlog_dissect_element_ReadEventLogW_data(tvb, offset, pinfo, tree, di, drep);
@@ -1683,7 +1683,7 @@ eventlog_dissect_element_ReportEventW_computer_name(tvbuff_t *tvb _U_, int offse
 static int
 eventlog_dissect_ReportEventW_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="ReportEventW";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_eventlog_status, &status);
@@ -1724,7 +1724,7 @@ eventlog_dissect_ReportEventW_request(tvbuff_t *tvb _U_, int offset _U_, packet_
 static int
 eventlog_dissect_ClearEventLogA_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="ClearEventLogA";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_eventlog_status, &status);
@@ -1749,7 +1749,7 @@ eventlog_dissect_ClearEventLogA_request(tvbuff_t *tvb _U_, int offset _U_, packe
 static int
 eventlog_dissect_BackupEventLogA_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="BackupEventLogA";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_eventlog_status, &status);
@@ -1774,7 +1774,7 @@ eventlog_dissect_BackupEventLogA_request(tvbuff_t *tvb _U_, int offset _U_, pack
 static int
 eventlog_dissect_OpenEventLogA_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="OpenEventLogA";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_eventlog_status, &status);
@@ -1799,7 +1799,7 @@ eventlog_dissect_OpenEventLogA_request(tvbuff_t *tvb _U_, int offset _U_, packet
 static int
 eventlog_dissect_RegisterEventSourceA_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="RegisterEventSourceA";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_eventlog_status, &status);
@@ -1824,7 +1824,7 @@ eventlog_dissect_RegisterEventSourceA_request(tvbuff_t *tvb _U_, int offset _U_,
 static int
 eventlog_dissect_OpenBackupEventLogA_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="OpenBackupEventLogA";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_eventlog_status, &status);
@@ -1849,7 +1849,7 @@ eventlog_dissect_OpenBackupEventLogA_request(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 eventlog_dissect_ReadEventLogA_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="ReadEventLogA";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_eventlog_status, &status);
@@ -1874,7 +1874,7 @@ eventlog_dissect_ReadEventLogA_request(tvbuff_t *tvb _U_, int offset _U_, packet
 static int
 eventlog_dissect_ReportEventA_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="ReportEventA";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_eventlog_status, &status);
@@ -1899,7 +1899,7 @@ eventlog_dissect_ReportEventA_request(tvbuff_t *tvb _U_, int offset _U_, packet_
 static int
 eventlog_dissect_RegisterClusterSvc_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="RegisterClusterSvc";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_eventlog_status, &status);
@@ -1924,7 +1924,7 @@ eventlog_dissect_RegisterClusterSvc_request(tvbuff_t *tvb _U_, int offset _U_, p
 static int
 eventlog_dissect_DeregisterClusterSvc_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="DeregisterClusterSvc";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_eventlog_status, &status);
@@ -1949,7 +1949,7 @@ eventlog_dissect_DeregisterClusterSvc_request(tvbuff_t *tvb _U_, int offset _U_,
 static int
 eventlog_dissect_WriteClusterEvents_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="WriteClusterEvents";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_eventlog_status, &status);
@@ -2042,7 +2042,7 @@ eventlog_dissect_element_GetLogInformation_cbBytesNeeded_(tvbuff_t *tvb _U_, int
 static int
 eventlog_dissect_GetLogInformation_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="GetLogInformation";
 	offset = eventlog_dissect_element_GetLogInformation_lpBuffer(tvb, offset, pinfo, tree, di, drep);
@@ -2095,7 +2095,7 @@ eventlog_dissect_element_FlushEventLog_handle_(tvbuff_t *tvb _U_, int offset _U_
 static int
 eventlog_dissect_FlushEventLog_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="FlushEventLog";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_eventlog_status, &status);

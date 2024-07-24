@@ -1658,7 +1658,7 @@ iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pClientInfo_(tvbuff_t 
 static int
 iremotewinspool_dissect_winspool_AsyncOpenPrinter_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncOpenPrinter";
 	offset = iremotewinspool_dissect_element_winspool_AsyncOpenPrinter_pHandle(tvb, offset, pinfo, tree, di, drep);
@@ -1800,7 +1800,7 @@ iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pHandle_(tvbuff_t *tvb 
 static int
 iremotewinspool_dissect_winspool_AsyncAddPrinter_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncAddPrinter";
 	offset = iremotewinspool_dissect_element_winspool_AsyncAddPrinter_pHandle(tvb, offset, pinfo, tree, di, drep);
@@ -1881,7 +1881,7 @@ iremotewinspool_dissect_element_winspool_AsyncSetJob_Command(tvbuff_t *tvb _U_, 
 static int
 iremotewinspool_dissect_winspool_AsyncSetJob_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncSetJob";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
@@ -1991,7 +1991,7 @@ iremotewinspool_dissect_element_winspool_AsyncGetJob_pcbNeeded_(tvbuff_t *tvb _U
 static int
 iremotewinspool_dissect_winspool_AsyncGetJob_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncGetJob";
 	offset = iremotewinspool_dissect_element_winspool_AsyncGetJob_pJob(tvb, offset, pinfo, tree, di, drep);
@@ -2135,7 +2135,7 @@ iremotewinspool_dissect_element_winspool_AsyncEnumJobs_pcReturned_(tvbuff_t *tvb
 static int
 iremotewinspool_dissect_winspool_AsyncEnumJobs_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncEnumJobs";
 	offset = iremotewinspool_dissect_element_winspool_AsyncEnumJobs_pJob(tvb, offset, pinfo, tree, di, drep);
@@ -2249,7 +2249,7 @@ iremotewinspool_dissect_element_winspool_AsyncAddJob_pcbNeeded_(tvbuff_t *tvb _U
 static int
 iremotewinspool_dissect_winspool_AsyncAddJob_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncAddJob";
 	offset = iremotewinspool_dissect_element_winspool_AsyncAddJob_pAddJob(tvb, offset, pinfo, tree, di, drep);
@@ -2305,7 +2305,7 @@ iremotewinspool_dissect_element_winspool_AsyncScheduleJob_JobId(tvbuff_t *tvb _U
 static int
 iremotewinspool_dissect_winspool_AsyncScheduleJob_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncScheduleJob";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
@@ -2342,7 +2342,7 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePrinter_hPrinter(tvbuff_t *t
 static int
 iremotewinspool_dissect_winspool_AsyncDeletePrinter_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncDeletePrinter";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
@@ -2437,7 +2437,7 @@ iremotewinspool_dissect_element_winspool_AsyncSetPrinter_Command(tvbuff_t *tvb _
 static int
 iremotewinspool_dissect_winspool_AsyncSetPrinter_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncSetPrinter";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
@@ -2540,7 +2540,7 @@ iremotewinspool_dissect_element_winspool_AsyncGetPrinter_pcbNeeded_(tvbuff_t *tv
 static int
 iremotewinspool_dissect_winspool_AsyncGetPrinter_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncGetPrinter";
 	offset = iremotewinspool_dissect_element_winspool_AsyncGetPrinter_pPrinter(tvb, offset, pinfo, tree, di, drep);
@@ -2621,7 +2621,7 @@ iremotewinspool_dissect_element_winspool_AsyncStartDocPrinter_pJobId_(tvbuff_t *
 static int
 iremotewinspool_dissect_winspool_AsyncStartDocPrinter_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncStartDocPrinter";
 	offset = iremotewinspool_dissect_element_winspool_AsyncStartDocPrinter_pJobId(tvb, offset, pinfo, tree, di, drep);
@@ -2661,7 +2661,7 @@ iremotewinspool_dissect_element_winspool_AsyncStartPagePrinter_hPrinter(tvbuff_t
 static int
 iremotewinspool_dissect_winspool_AsyncStartPagePrinter_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncStartPagePrinter";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
@@ -2747,7 +2747,7 @@ iremotewinspool_dissect_element_winspool_AsyncWritePrinter_pcWritten_(tvbuff_t *
 static int
 iremotewinspool_dissect_winspool_AsyncWritePrinter_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncWritePrinter";
 	offset = iremotewinspool_dissect_element_winspool_AsyncWritePrinter_pcWritten(tvb, offset, pinfo, tree, di, drep);
@@ -2789,7 +2789,7 @@ iremotewinspool_dissect_element_winspool_AsyncEndPagePrinter_hPrinter(tvbuff_t *
 static int
 iremotewinspool_dissect_winspool_AsyncEndPagePrinter_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncEndPagePrinter";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
@@ -2824,7 +2824,7 @@ iremotewinspool_dissect_element_winspool_AsyncEndDocPrinter_hPrinter(tvbuff_t *t
 static int
 iremotewinspool_dissect_winspool_AsyncEndDocPrinter_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncEndDocPrinter";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
@@ -2859,7 +2859,7 @@ iremotewinspool_dissect_element_winspool_AsyncAbortPrinter_hPrinter(tvbuff_t *tv
 static int
 iremotewinspool_dissect_winspool_AsyncAbortPrinter_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncAbortPrinter";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
@@ -2982,7 +2982,7 @@ iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pcbNeeded_(tvbuff_t
 static int
 iremotewinspool_dissect_winspool_AsyncGetPrinterData_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncGetPrinterData";
 	offset = iremotewinspool_dissect_element_winspool_AsyncGetPrinterData_pType(tvb, offset, pinfo, tree, di, drep);
@@ -3138,7 +3138,7 @@ iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pcbNeeded_(tvbuff
 static int
 iremotewinspool_dissect_winspool_AsyncGetPrinterDataEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncGetPrinterDataEx";
 	offset = iremotewinspool_dissect_element_winspool_AsyncGetPrinterDataEx_pType(tvb, offset, pinfo, tree, di, drep);
@@ -3251,7 +3251,7 @@ iremotewinspool_dissect_element_winspool_AsyncSetPrinterData_cbData(tvbuff_t *tv
 static int
 iremotewinspool_dissect_winspool_AsyncSetPrinterData_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncSetPrinterData";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
@@ -3377,7 +3377,7 @@ iremotewinspool_dissect_element_winspool_AsyncSetPrinterDataEx_cbData(tvbuff_t *
 static int
 iremotewinspool_dissect_winspool_AsyncSetPrinterDataEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncSetPrinterDataEx";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
@@ -3430,7 +3430,7 @@ iremotewinspool_dissect_element_winspool_AsyncClosePrinter_phPrinter_(tvbuff_t *
 static int
 iremotewinspool_dissect_winspool_AsyncClosePrinter_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncClosePrinter";
 	offset = iremotewinspool_dissect_element_winspool_AsyncClosePrinter_phPrinter(tvb, offset, pinfo, tree, di, drep);
@@ -3485,7 +3485,7 @@ iremotewinspool_dissect_element_winspool_AsyncAddForm_pFormInfoContainer_(tvbuff
 static int
 iremotewinspool_dissect_winspool_AsyncAddForm_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncAddForm";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
@@ -3542,7 +3542,7 @@ iremotewinspool_dissect_element_winspool_AsyncDeleteForm_pFormName_(tvbuff_t *tv
 static int
 iremotewinspool_dissect_winspool_AsyncDeleteForm_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncDeleteForm";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
@@ -3659,7 +3659,7 @@ iremotewinspool_dissect_element_winspool_AsyncGetForm_pcbNeeded_(tvbuff_t *tvb _
 static int
 iremotewinspool_dissect_winspool_AsyncGetForm_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncGetForm";
 	offset = iremotewinspool_dissect_element_winspool_AsyncGetForm_pForm(tvb, offset, pinfo, tree, di, drep);
@@ -3745,7 +3745,7 @@ iremotewinspool_dissect_element_winspool_AsyncSetForm_pFormInfoContainer_(tvbuff
 static int
 iremotewinspool_dissect_winspool_AsyncSetForm_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncSetForm";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
@@ -3861,7 +3861,7 @@ iremotewinspool_dissect_element_winspool_AsyncEnumForms_pcReturned_(tvbuff_t *tv
 static int
 iremotewinspool_dissect_winspool_AsyncEnumForms_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncEnumForms";
 	offset = iremotewinspool_dissect_element_winspool_AsyncEnumForms_pForm(tvb, offset, pinfo, tree, di, drep);
@@ -4043,7 +4043,7 @@ iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pdwServerMinVersi
 static int
 iremotewinspool_dissect_winspool_AsyncGetPrinterDriver_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncGetPrinterDriver";
 	offset = iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriver_pDriver(tvb, offset, pinfo, tree, di, drep);
@@ -4230,7 +4230,7 @@ iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pcbData_(tvbuff_t 
 static int
 iremotewinspool_dissect_winspool_AsyncEnumPrinterData_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncEnumPrinterData";
 	offset = iremotewinspool_dissect_element_winspool_AsyncEnumPrinterData_pValueName(tvb, offset, pinfo, tree, di, drep);
@@ -4374,7 +4374,7 @@ iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pnEnumValues_(tv
 static int
 iremotewinspool_dissect_winspool_AsyncEnumPrinterDataEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncEnumPrinterDataEx";
 	offset = iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDataEx_pEnumValues(tvb, offset, pinfo, tree, di, drep);
@@ -4493,7 +4493,7 @@ iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_pcbSubkey_(tvbuff_t
 static int
 iremotewinspool_dissect_winspool_AsyncEnumPrinterKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncEnumPrinterKey";
 	offset = iremotewinspool_dissect_element_winspool_AsyncEnumPrinterKey_pSubkey(tvb, offset, pinfo, tree, di, drep);
@@ -4558,7 +4558,7 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePrinterData_pValueName_(tvbu
 static int
 iremotewinspool_dissect_winspool_AsyncDeletePrinterData_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncDeletePrinterData";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
@@ -4635,7 +4635,7 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDataEx_pValueName_(tv
 static int
 iremotewinspool_dissect_winspool_AsyncDeletePrinterDataEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncDeletePrinterDataEx";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
@@ -4694,7 +4694,7 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePrinterKey_pKeyName_(tvbuff_
 static int
 iremotewinspool_dissect_winspool_AsyncDeletePrinterKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncDeletePrinterKey";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
@@ -4853,7 +4853,7 @@ iremotewinspool_dissect_element_winspool_AsyncXcvData_pdwStatus_(tvbuff_t *tvb _
 static int
 iremotewinspool_dissect_winspool_AsyncXcvData_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncXcvData";
 	offset = iremotewinspool_dissect_element_winspool_AsyncXcvData_pOutputData(tvb, offset, pinfo, tree, di, drep);
@@ -4969,7 +4969,7 @@ iremotewinspool_dissect_element_winspool_AsyncSendRecvBidiData_ppRespData__(tvbu
 static int
 iremotewinspool_dissect_winspool_AsyncSendRecvBidiData_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncSendRecvBidiData";
 	offset = iremotewinspool_dissect_element_winspool_AsyncSendRecvBidiData_ppRespData(tvb, offset, pinfo, tree, di, drep);
@@ -5045,7 +5045,7 @@ iremotewinspool_dissect_element_winspool_AsyncCreatePrinterIC_pDevModeContainer_
 static int
 iremotewinspool_dissect_winspool_AsyncCreatePrinterIC_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncCreatePrinterIC";
 	offset = iremotewinspool_dissect_element_winspool_AsyncCreatePrinterIC_pHandle(tvb, offset, pinfo, tree, di, drep);
@@ -5162,7 +5162,7 @@ iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_ul(tvbuff
 static int
 iremotewinspool_dissect_winspool_AsyncPlayGdiScriptOnPrinterIC_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncPlayGdiScriptOnPrinterIC";
 	offset = iremotewinspool_dissect_element_winspool_AsyncPlayGdiScriptOnPrinterIC_pOut(tvb, offset, pinfo, tree, di, drep);
@@ -5216,7 +5216,7 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePrinterIC_phPrinterIC_(tvbuf
 static int
 iremotewinspool_dissect_winspool_AsyncDeletePrinterIC_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncDeletePrinterIC";
 	offset = iremotewinspool_dissect_element_winspool_AsyncDeletePrinterIC_phPrinterIC(tvb, offset, pinfo, tree, di, drep);
@@ -5351,7 +5351,7 @@ iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pcReturned_(tvbuff_t 
 static int
 iremotewinspool_dissect_winspool_AsyncEnumPrinters_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncEnumPrinters";
 	offset = iremotewinspool_dissect_element_winspool_AsyncEnumPrinters_pPrinterEnum(tvb, offset, pinfo, tree, di, drep);
@@ -5440,7 +5440,7 @@ iremotewinspool_dissect_element_winspool_AsyncAddPrinterDriver_dwFileCopyFlags(t
 static int
 iremotewinspool_dissect_winspool_AsyncAddPrinterDriver_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncAddPrinterDriver";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
@@ -5587,7 +5587,7 @@ iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pcReturned_(tvb
 static int
 iremotewinspool_dissect_winspool_AsyncEnumPrinterDrivers_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncEnumPrinterDrivers";
 	offset = iremotewinspool_dissect_element_winspool_AsyncEnumPrinterDrivers_pDrivers(tvb, offset, pinfo, tree, di, drep);
@@ -5730,7 +5730,7 @@ iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pcbNeede
 static int
 iremotewinspool_dissect_winspool_AsyncGetPrinterDriverDirectory_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncGetPrinterDriverDirectory";
 	offset = iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverDirectory_pDriverDirectory(tvb, offset, pinfo, tree, di, drep);
@@ -5830,7 +5830,7 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriver_pDriverName_(t
 static int
 iremotewinspool_dissect_winspool_AsyncDeletePrinterDriver_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncDeletePrinterDriver";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
@@ -5938,7 +5938,7 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverEx_dwVersionNum
 static int
 iremotewinspool_dissect_winspool_AsyncDeletePrinterDriverEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncDeletePrinterDriverEx";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
@@ -6052,7 +6052,7 @@ iremotewinspool_dissect_element_winspool_AsyncAddPrintProcessor_pPrintProcessorN
 static int
 iremotewinspool_dissect_winspool_AsyncAddPrintProcessor_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncAddPrintProcessor";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
@@ -6201,7 +6201,7 @@ iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pcReturned_(tv
 static int
 iremotewinspool_dissect_winspool_AsyncEnumPrintProcessors_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncEnumPrintProcessors";
 	offset = iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessors_pPrintProcessorInfo(tvb, offset, pinfo, tree, di, drep);
@@ -6344,7 +6344,7 @@ iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pcbNeed
 static int
 iremotewinspool_dissect_winspool_AsyncGetPrintProcessorDirectory_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncGetPrintProcessorDirectory";
 	offset = iremotewinspool_dissect_element_winspool_AsyncGetPrintProcessorDirectory_pPrintProcessorDirectory(tvb, offset, pinfo, tree, di, drep);
@@ -6481,7 +6481,7 @@ iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pcReturned_(tvbuff_t *tv
 static int
 iremotewinspool_dissect_winspool_AsyncEnumPorts_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncEnumPorts";
 	offset = iremotewinspool_dissect_element_winspool_AsyncEnumPorts_pPort(tvb, offset, pinfo, tree, di, drep);
@@ -6619,7 +6619,7 @@ iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pcReturned_(tvbuff_t 
 static int
 iremotewinspool_dissect_winspool_AsyncEnumMonitors_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncEnumMonitors";
 	offset = iremotewinspool_dissect_element_winspool_AsyncEnumMonitors_pMonitor(tvb, offset, pinfo, tree, di, drep);
@@ -6734,7 +6734,7 @@ iremotewinspool_dissect_element_winspool_AsyncAddPort_pMonitorName_(tvbuff_t *tv
 static int
 iremotewinspool_dissect_winspool_AsyncAddPort_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncAddPort";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
@@ -6823,7 +6823,7 @@ iremotewinspool_dissect_element_winspool_AsyncSetPort_pPortContainer_(tvbuff_t *
 static int
 iremotewinspool_dissect_winspool_AsyncSetPort_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncSetPort";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
@@ -6890,7 +6890,7 @@ iremotewinspool_dissect_element_winspool_AsyncAddMonitor_pMonitorContainer_(tvbu
 static int
 iremotewinspool_dissect_winspool_AsyncAddMonitor_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncAddMonitor";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
@@ -6978,7 +6978,7 @@ iremotewinspool_dissect_element_winspool_AsyncDeleteMonitor_pMonitorName_(tvbuff
 static int
 iremotewinspool_dissect_winspool_AsyncDeleteMonitor_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncDeleteMonitor";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
@@ -7068,7 +7068,7 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePrintProcessor_pPrintProcess
 static int
 iremotewinspool_dissect_winspool_AsyncDeletePrintProcessor_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncDeletePrintProcessor";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
@@ -7215,7 +7215,7 @@ iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pcRetu
 static int
 iremotewinspool_dissect_winspool_AsyncEnumPrintProcessorDatatypes_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncEnumPrintProcessorDatatypes";
 	offset = iremotewinspool_dissect_element_winspool_AsyncEnumPrintProcessorDatatypes_pDatatypes(tvb, offset, pinfo, tree, di, drep);
@@ -7338,7 +7338,7 @@ iremotewinspool_dissect_element_winspool_AsyncAddPerMachineConnection_pProvider_
 static int
 iremotewinspool_dissect_winspool_AsyncAddPerMachineConnection_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncAddPerMachineConnection";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
@@ -7410,7 +7410,7 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePerMachineConnection_pPrinte
 static int
 iremotewinspool_dissect_winspool_AsyncDeletePerMachineConnection_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncDeletePerMachineConnection";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
@@ -7526,7 +7526,7 @@ iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pcReturn
 static int
 iremotewinspool_dissect_winspool_AsyncEnumPerMachineConnections_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncEnumPerMachineConnections";
 	offset = iremotewinspool_dissect_element_winspool_AsyncEnumPerMachineConnections_pPrinterEnum(tvb, offset, pinfo, tree, di, drep);
@@ -7608,7 +7608,7 @@ iremotewinspool_dissect_element_winspool_SyncRegisterForRemoteNotifications_phRp
 static int
 iremotewinspool_dissect_winspool_SyncRegisterForRemoteNotifications_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_SyncRegisterForRemoteNotifications";
 	offset = iremotewinspool_dissect_element_winspool_SyncRegisterForRemoteNotifications_phRpcHandle(tvb, offset, pinfo, tree, di, drep);
@@ -7656,7 +7656,7 @@ iremotewinspool_dissect_element_winspool_SyncUnRegisterForRemoteNotifications_ph
 static int
 iremotewinspool_dissect_winspool_SyncUnRegisterForRemoteNotifications_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_SyncUnRegisterForRemoteNotifications";
 	offset = iremotewinspool_dissect_element_winspool_SyncUnRegisterForRemoteNotifications_phRpcHandle(tvb, offset, pinfo, tree, di, drep);
@@ -7736,7 +7736,7 @@ iremotewinspool_dissect_element_winspool_SyncRefreshRemoteNotifications_ppNotify
 static int
 iremotewinspool_dissect_winspool_SyncRefreshRemoteNotifications_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_SyncRefreshRemoteNotifications";
 	offset = iremotewinspool_dissect_element_winspool_SyncRefreshRemoteNotifications_ppNotifyData(tvb, offset, pinfo, tree, di, drep);
@@ -7801,7 +7801,7 @@ iremotewinspool_dissect_element_winspool_AsyncGetRemoteNotifications_ppNotifyDat
 static int
 iremotewinspool_dissect_winspool_AsyncGetRemoteNotifications_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncGetRemoteNotifications";
 	offset = iremotewinspool_dissect_element_winspool_AsyncGetRemoteNotifications_ppNotifyData(tvb, offset, pinfo, tree, di, drep);
@@ -7919,7 +7919,7 @@ iremotewinspool_dissect_element_winspool_AsyncInstallPrinterDriverFromPackage_dw
 static int
 iremotewinspool_dissect_winspool_AsyncInstallPrinterDriverFromPackage_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncInstallPrinterDriverFromPackage";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_hresult, &status);
@@ -8064,7 +8064,7 @@ iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pcchDes
 static int
 iremotewinspool_dissect_winspool_AsyncUploadPrinterDriverPackage_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncUploadPrinterDriverPackage";
 	offset = iremotewinspool_dissect_element_winspool_AsyncUploadPrinterDriverPackage_pszDestInfPath(tvb, offset, pinfo, tree, di, drep);
@@ -8214,7 +8214,7 @@ iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pCorePrinter
 static int
 iremotewinspool_dissect_winspool_AsyncGetCorePrinterDrivers_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncGetCorePrinterDrivers";
 	offset = iremotewinspool_dissect_element_winspool_AsyncGetCorePrinterDrivers_pCorePrinterDrivers(tvb, offset, pinfo, tree, di, drep);
@@ -8335,7 +8335,7 @@ iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_pbDrive
 static int
 iremotewinspool_dissect_winspool_AsyncCorePrinterDriverInstalled_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncCorePrinterDriverInstalled";
 	offset = iremotewinspool_dissect_element_winspool_AsyncCorePrinterDriverInstalled_pbDriverInstalled(tvb, offset, pinfo, tree, di, drep);
@@ -8503,7 +8503,7 @@ iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pcchRe
 static int
 iremotewinspool_dissect_winspool_AsyncGetPrinterDriverPackagePath_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncGetPrinterDriverPackagePath";
 	offset = iremotewinspool_dissect_element_winspool_AsyncGetPrinterDriverPackagePath_pszDriverPackageCab(tvb, offset, pinfo, tree, di, drep);
@@ -8605,7 +8605,7 @@ iremotewinspool_dissect_element_winspool_AsyncDeletePrinterDriverPackage_pszEnvi
 static int
 iremotewinspool_dissect_winspool_AsyncDeletePrinterDriverPackage_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncDeletePrinterDriverPackage";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_hresult, &status);
@@ -8695,7 +8695,7 @@ iremotewinspool_dissect_element_winspool_AsyncReadPrinter_pcNoBytesRead_(tvbuff_
 static int
 iremotewinspool_dissect_winspool_AsyncReadPrinter_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncReadPrinter";
 	offset = iremotewinspool_dissect_element_winspool_AsyncReadPrinter_pBuf(tvb, offset, pinfo, tree, di, drep);
@@ -8775,7 +8775,7 @@ iremotewinspool_dissect_element_winspool_AsyncResetPrinter_pDevModeContainer_(tv
 static int
 iremotewinspool_dissect_winspool_AsyncResetPrinter_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncResetPrinter";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
@@ -8860,7 +8860,7 @@ iremotewinspool_dissect_element_winspool_AsyncGetJobNamedPropertyValue_pValue_(t
 static int
 iremotewinspool_dissect_winspool_AsyncGetJobNamedPropertyValue_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncGetJobNamedPropertyValue";
 	offset = iremotewinspool_dissect_element_winspool_AsyncGetJobNamedPropertyValue_pValue(tvb, offset, pinfo, tree, di, drep);
@@ -8928,7 +8928,7 @@ iremotewinspool_dissect_element_winspool_AsyncSetJobNamedProperty_pProperty_(tvb
 static int
 iremotewinspool_dissect_winspool_AsyncSetJobNamedProperty_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncSetJobNamedProperty";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
@@ -8996,7 +8996,7 @@ iremotewinspool_dissect_element_winspool_AsyncDeleteJobNamedProperty_pszName_(tv
 static int
 iremotewinspool_dissect_winspool_AsyncDeleteJobNamedProperty_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncDeleteJobNamedProperty";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);
@@ -9094,7 +9094,7 @@ iremotewinspool_dissect_element_winspool_AsyncEnumJobNamedProperties_ppPropertie
 static int
 iremotewinspool_dissect_winspool_AsyncEnumJobNamedProperties_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncEnumJobNamedProperties";
 	offset = iremotewinspool_dissect_element_winspool_AsyncEnumJobNamedProperties_pcProperties(tvb, offset, pinfo, tree, di, drep);
@@ -9154,7 +9154,7 @@ iremotewinspool_dissect_element_winspool_AsyncLogJobInfoForBranchOffice_pBranchO
 static int
 iremotewinspool_dissect_winspool_AsyncLogJobInfoForBranchOffice_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="winspool_AsyncLogJobInfoForBranchOffice";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_iremotewinspool_werror, &status);

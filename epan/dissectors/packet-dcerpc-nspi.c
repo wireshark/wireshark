@@ -9512,7 +9512,7 @@ nspi_dissect_element_NspiBind_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_
 static int
 nspi_dissect_NspiBind_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NspiBind";
 	offset = nspi_dissect_element_NspiBind_mapiuid(tvb, offset, pinfo, tree, di, drep);
@@ -9573,7 +9573,7 @@ nspi_dissect_element_NspiUnbind_status(tvbuff_t *tvb _U_, int offset _U_, packet
 static int
 nspi_dissect_NspiUnbind_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NspiUnbind";
 	offset = nspi_dissect_element_NspiUnbind_handle(tvb, offset, pinfo, tree, di, drep);
@@ -9749,7 +9749,7 @@ nspi_dissect_element_NspiQueryRows_RowSet__(tvbuff_t *tvb _U_, int offset _U_, p
 static int
 nspi_dissect_NspiQueryRows_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NspiQueryRows";
 	offset = nspi_dissect_element_NspiQueryRows_settings(tvb, offset, pinfo, tree, di, drep);
@@ -9964,7 +9964,7 @@ nspi_dissect_element_NspiGetMatches_RowSet__(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 nspi_dissect_NspiGetMatches_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NspiGetMatches";
 	offset = nspi_dissect_element_NspiGetMatches_settings(tvb, offset, pinfo, tree, di, drep);
@@ -10107,7 +10107,7 @@ nspi_dissect_element_NspiDNToEph_instance_key_(tvbuff_t *tvb _U_, int offset _U_
 static int
 nspi_dissect_NspiDNToEph_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NspiDNToEph";
 	offset = nspi_dissect_element_NspiDNToEph_instance_key(tvb, offset, pinfo, tree, di, drep);
@@ -10244,7 +10244,7 @@ nspi_dissect_element_NspiGetProps_REPL_values__(tvbuff_t *tvb _U_, int offset _U
 static int
 nspi_dissect_NspiGetProps_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NspiGetProps";
 	offset = nspi_dissect_element_NspiGetProps_REPL_values(tvb, offset, pinfo, tree, di, drep);
@@ -10399,7 +10399,7 @@ nspi_dissect_element_NspiGetHierarchyInfo_RowSet__(tvbuff_t *tvb _U_, int offset
 static int
 nspi_dissect_NspiGetHierarchyInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="NspiGetHierarchyInfo";
 	offset = nspi_dissect_element_NspiGetHierarchyInfo_unknown2(tvb, offset, pinfo, tree, di, drep);

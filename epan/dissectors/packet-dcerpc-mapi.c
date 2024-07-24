@@ -13559,7 +13559,7 @@ mapi_dissect_ActionData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level = param;
+	uint32_t level = param;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -14959,7 +14959,7 @@ mapi_dissect_IsGhosted(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level = param;
+	uint32_t level = param;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -15063,7 +15063,7 @@ mapi_dissect_OpenFolder_repl_status(tvbuff_t *tvb _U_, int offset _U_, packet_in
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level = param;
+	uint32_t level = param;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -15209,7 +15209,7 @@ mapi_dissect_String(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, p
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level = param;
+	uint32_t level = param;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -15608,7 +15608,7 @@ mapi_dissect_recipient_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinf
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level = param;
+	uint32_t level = param;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -15662,7 +15662,7 @@ mapi_dissect_recipient_SimpleDisplayName(tvbuff_t *tvb _U_, int offset _U_, pack
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level = param;
+	uint32_t level = param;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -15721,7 +15721,7 @@ mapi_dissect_recipient_TransmittableDisplayName(tvbuff_t *tvb _U_, int offset _U
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level = param;
+	uint32_t level = param;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -15784,7 +15784,7 @@ mapi_dissect_recipient_DisplayName(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level = param;
+	uint32_t level = param;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -15841,7 +15841,7 @@ mapi_dissect_recipient_EmailAddress(tvbuff_t *tvb _U_, int offset _U_, packet_in
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level = param;
+	uint32_t level = param;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -16217,7 +16217,7 @@ mapi_dissect_OpenMessage_repl_status(tvbuff_t *tvb _U_, int offset _U_, packet_i
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level = param;
+	uint32_t level = param;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -16477,7 +16477,7 @@ mapi_dissect_GetHierarchyTable_repl_status(tvbuff_t *tvb _U_, int offset _U_, pa
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level = param;
+	uint32_t level = param;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -16696,7 +16696,7 @@ mapi_dissect_GetContentsTable_repl_status(tvbuff_t *tvb _U_, int offset _U_, pac
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level = param;
+	uint32_t level = param;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -16896,7 +16896,7 @@ mapi_dissect_CreateMessage_MessageId(tvbuff_t *tvb _U_, int offset _U_, packet_i
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level = param;
+	uint32_t level = param;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -16989,7 +16989,7 @@ mapi_dissect_CreateMessage_repl_status(tvbuff_t *tvb _U_, int offset _U_, packet
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level = param;
+	uint32_t level = param;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -17249,7 +17249,7 @@ mapi_dissect_GetProps_repl_status(tvbuff_t *tvb _U_, int offset _U_, packet_info
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level = param;
+	uint32_t level = param;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -17468,7 +17468,7 @@ mapi_dissect_GetPropsAll_repl_status(tvbuff_t *tvb _U_, int offset _U_, packet_i
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level = param;
+	uint32_t level = param;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -19073,7 +19073,7 @@ mapi_dissect_SetMessageReadFlag_LogonId(tvbuff_t *tvb _U_, int offset _U_, packe
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level = param;
+	uint32_t level = param;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -19123,7 +19123,7 @@ mapi_dissect_SetMessageReadFlag_ClientData(tvbuff_t *tvb _U_, int offset _U_, pa
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level = param;
+	uint32_t level = param;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -20367,7 +20367,7 @@ mapi_dissect_RestrictionVariable(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level = param;
+	uint32_t level = param;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -20580,7 +20580,7 @@ mapi_dissect_SRestriction_CTR(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level = param;
+	uint32_t level = param;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -21934,7 +21934,7 @@ mapi_dissect_LPTSTR(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, p
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level = param;
+	uint32_t level = param;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -22178,7 +22178,7 @@ mapi_dissect_CreateFolder_GhostUnion(tvbuff_t *tvb _U_, int offset _U_, packet_i
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level = param;
+	uint32_t level = param;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -23591,7 +23591,7 @@ mapi_dissect_hyperbool(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level = param;
+	uint32_t level = param;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -23814,7 +23814,7 @@ mapi_dissect_MessageClass(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo 
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level = param;
+	uint32_t level = param;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -24531,7 +24531,7 @@ mapi_dissect_HierarchyTableChangeUnion(tvbuff_t *tvb _U_, int offset _U_, packet
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level = param;
+	uint32_t level = param;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -25545,7 +25545,7 @@ mapi_dissect_ContentsTableChangeUnion(tvbuff_t *tvb _U_, int offset _U_, packet_
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level = param;
+	uint32_t level = param;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -26081,7 +26081,7 @@ mapi_dissect_NotificationData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level = param;
+	uint32_t level = param;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -26429,7 +26429,7 @@ mapi_dissect_MaximumByteCount(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level = param;
+	uint32_t level = param;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -27610,7 +27610,7 @@ mapi_dissect_Folder_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level = param;
+	uint32_t level = param;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -29522,7 +29522,7 @@ mapi_dissect_LongTermIdFromId_repl_status(tvbuff_t *tvb _U_, int offset _U_, pac
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level = param;
+	uint32_t level = param;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -30486,7 +30486,7 @@ mapi_dissect_TransportSend_lpProps(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level = param;
+	uint32_t level = param;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -31359,7 +31359,7 @@ mapi_dissect_Kind(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, pro
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level = param;
+	uint32_t level = param;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -32649,7 +32649,7 @@ mapi_dissect_QueryNamedProperties_guid(tvbuff_t *tvb _U_, int offset _U_, packet
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level = param;
+	uint32_t level = param;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -34184,7 +34184,7 @@ mapi_dissect_OptionsData_HelpFileName(tvbuff_t *tvb _U_, int offset _U_, packet_
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level = param;
+	uint32_t level = param;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -38340,7 +38340,7 @@ mapi_dissect_RopRequest(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level = param;
+	uint32_t level = param;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -39932,7 +39932,7 @@ mapi_dissect_RopReply(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_,
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level = param;
+	uint32_t level = param;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -42534,7 +42534,7 @@ mapi_dissect_AuxDataVersion1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level = param;
+	uint32_t level = param;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -42869,7 +42869,7 @@ mapi_dissect_AuxDataVersion2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level = param;
+	uint32_t level = param;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -43744,7 +43744,7 @@ mapi_dissect_element_EcDoConnect_pullTimeStamp_(tvbuff_t *tvb _U_, int offset _U
 static int
 mapi_dissect_EcDoConnect_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="EcDoConnect";
 	offset = mapi_dissect_element_EcDoConnect_hBinding(tvb, offset, pinfo, tree, di, drep);
@@ -43837,7 +43837,7 @@ mapi_dissect_element_EcDoDisconnect_pcxh_(tvbuff_t *tvb _U_, int offset _U_, pac
 static int
 mapi_dissect_EcDoDisconnect_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="EcDoDisconnect";
 	offset = mapi_dissect_element_EcDoDisconnect_pcxh(tvb, offset, pinfo, tree, di, drep);
@@ -43945,7 +43945,7 @@ mapi_dissect_element_EcDoRpc_max_data(tvbuff_t *tvb _U_, int offset _U_, packet_
 static int
 mapi_dissect_EcDoRpc_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="EcDoRpc";
 	offset = mapi_dissect_element_EcDoRpc_handle(tvb, offset, pinfo, tree, di, drep);
@@ -44064,7 +44064,7 @@ mapi_dissect_element_EcGetMoreRpc_usSize(tvbuff_t *tvb _U_, int offset _U_, pack
 static int
 mapi_dissect_EcGetMoreRpc_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="EcGetMoreRpc";
 	offset = mapi_dissect_element_EcGetMoreRpc_pcxh(tvb, offset, pinfo, tree, di, drep);
@@ -44225,7 +44225,7 @@ mapi_dissect_element_EcRRegisterPushNotification_hNotification_(tvbuff_t *tvb _U
 static int
 mapi_dissect_EcRRegisterPushNotification_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="EcRRegisterPushNotification";
 	offset = mapi_dissect_element_EcRRegisterPushNotification_handle(tvb, offset, pinfo, tree, di, drep);
@@ -44304,7 +44304,7 @@ mapi_dissect_element_EcRUnregisterPushNotification_hNotification(tvbuff_t *tvb _
 static int
 mapi_dissect_EcRUnregisterPushNotification_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="EcRUnregisterPushNotification";
 	offset = mapi_dissect_element_EcRUnregisterPushNotification_handle(tvb, offset, pinfo, tree, di, drep);
@@ -44338,7 +44338,7 @@ mapi_dissect_EcRUnregisterPushNotification_request(tvbuff_t *tvb _U_, int offset
 static int
 mapi_dissect_EcDummyRpc_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="EcDummyRpc";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_mapi_werror, &status);
@@ -44418,7 +44418,7 @@ mapi_dissect_element_EcRGetDCName_rgchDomainController_(tvbuff_t *tvb _U_, int o
 static int
 mapi_dissect_EcRGetDCName_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="EcRGetDCName";
 	offset = mapi_dissect_element_EcRGetDCName_handle(tvb, offset, pinfo, tree, di, drep);
@@ -44491,7 +44491,7 @@ mapi_dissect_element_EcRNetGetDCName_rgchDomainController_(tvbuff_t *tvb _U_, in
 static int
 mapi_dissect_EcRNetGetDCName_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="EcRNetGetDCName";
 	offset = mapi_dissect_element_EcRNetGetDCName_rgchDomainController(tvb, offset, pinfo, tree, di, drep);
@@ -44649,7 +44649,7 @@ mapi_dissect_element_EcDoRpcExt_pulTransTime_(tvbuff_t *tvb _U_, int offset _U_,
 static int
 mapi_dissect_EcDoRpcExt_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="EcDoRpcExt";
 	offset = mapi_dissect_element_EcDoRpcExt_pcxh(tvb, offset, pinfo, tree, di, drep);
@@ -44988,7 +44988,7 @@ mapi_dissect_element_EcDoConnectEx_pcbAuxOut_(tvbuff_t *tvb _U_, int offset _U_,
 static int
 mapi_dissect_EcDoConnectEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="EcDoConnectEx";
 	offset = mapi_dissect_element_EcDoConnectEx_handle(tvb, offset, pinfo, tree, di, drep);
@@ -45231,7 +45231,7 @@ mapi_dissect_element_EcDoRpcExt2_pulTransTime_(tvbuff_t *tvb _U_, int offset _U_
 static int
 mapi_dissect_EcDoRpcExt2_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="EcDoRpcExt2";
 	offset = mapi_dissect_element_EcDoRpcExt2_pcxh(tvb, offset, pinfo, tree, di, drep);
@@ -45326,7 +45326,7 @@ mapi_dissect_element_EcDoAsyncConnect_pacxh_(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 mapi_dissect_EcDoAsyncConnect_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="EcDoAsyncConnect";
 	offset = mapi_dissect_element_EcDoAsyncConnect_pacxh(tvb, offset, pinfo, tree, di, drep);
@@ -45398,7 +45398,7 @@ mapi_dissect_element_EcDoAsyncWait_pulFlagsOut_(tvbuff_t *tvb _U_, int offset _U
 static int
 mapi_dissect_EcDoAsyncWait_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="EcDoAsyncWait";
 	offset = mapi_dissect_element_EcDoAsyncWait_pulFlagsOut(tvb, offset, pinfo, tree, di, drep);
@@ -45463,7 +45463,7 @@ mapi_dissect_element_EcDoAsyncConnectEx_pacxh_(tvbuff_t *tvb _U_, int offset _U_
 static int
 mapi_dissect_EcDoAsyncConnectEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	guint32 status;
+	uint32_t status;
 
 	di->dcerpc_procedure_name="EcDoAsyncConnectEx";
 	offset = mapi_dissect_element_EcDoAsyncConnectEx_pacxh(tvb, offset, pinfo, tree, di, drep);
