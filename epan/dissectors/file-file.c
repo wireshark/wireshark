@@ -162,7 +162,7 @@ dissect_file_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 		/* Note: A Windows "exceptional exception" may leave the kazlib's (Portable Exception Handling)
 		   stack in an inconsistent state thus causing a crash at some point in the
 		   handling of the exception.
-		   See: https://www.wireshark.org/lists/wireshark-dev/200704/msg00243.html
+		   See: https://lists.wireshark.org/archives/wireshark-dev/200704/msg00243.html
 		*/
 		__try {
 #endif
@@ -235,7 +235,7 @@ dissect_file_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 			/* Note: A Windows "exceptional exception" may leave the kazlib's (Portable Exception Handling)
 			   stack in an inconsistent state thus causing a crash at some point in the
 			   handling of the exception.
-			   See: https://www.wireshark.org/lists/wireshark-dev/200704/msg00243.html
+			   See: https://lists.wireshark.org/archives/wireshark-dev/200704/msg00243.html
 			*/
 			__try {
 #endif

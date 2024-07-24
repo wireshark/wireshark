@@ -35,7 +35,7 @@
  * to represent an actual payload byte of 0xFF.  A function from the packet-telnet.c dissector has
  * been borrowed to automatically pre-process any Ethernet-based packet and remove these 'extra'
  * 0xFF bytes.  Wireshark Notes on Telnet 0xFF doubling are discussed here:
- * https://www.wireshark.org/lists/wireshark-bugs/201204/msg00198.html
+ * https://lists.wireshark.org/archives/wireshark-bugs/201204/msg00198.html
  *
  * 2) The auto-configuration process for Fast Meter will exchange several "configuration" messages
  * that describe various data regions (METER, DEMAND, PEAK, etc) that will later have corresponding

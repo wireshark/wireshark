@@ -13,7 +13,7 @@ Correct use of these functions will make your code faster, and greatly reduce
 the chances that it will leak memory in exceptional cases.
 
 Wmem was originally conceived in this email to the wireshark-dev mailing list:
-https://www.wireshark.org/lists/wireshark-dev/201210/msg00178.html
+https://lists.wireshark.org/archives/wireshark-dev/201210/msg00178.html
 
 2. Usage for Consumers
 

@@ -478,8 +478,7 @@ https://www.wireshark.org/docs/
 Community support is available on
 https://ask.wireshark.org/[Wireshark’s Q&A site]
 and on the wireshark-users mailing list.
-Subscription information and archives for all of Wireshark’s mailing lists can be found on
-https://www.wireshark.org/lists/[the web site].
+Subscription information and archives for all of Wireshark’s mailing lists can be found on https://lists.wireshark.org/lists/[the mailing list site].
 
 Bugs and feature requests can be reported on
 https://gitlab.com/wireshark/wireshark/-/issues[the issue tracker].

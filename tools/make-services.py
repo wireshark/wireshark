@@ -230,7 +230,7 @@ def main(argv):
  * service names, e.g. TCP port 80 -> http.
  *
  * It is subject to copyright and being used with IANA's permission:
- * https://www.wireshark.org/lists/wireshark-dev/200708/msg00160.html
+ * https://lists.wireshark.org/archives/wireshark-dev/200708/msg00160.html
  *
  * The original file can be found at:
  * %s

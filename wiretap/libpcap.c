@@ -842,7 +842,7 @@ static int libpcap_try_record(wtap *wth, int *err, char **err_info)
 	         * This is not a fatal error, and packets that have one
 	         * such packet probably have thousands. For discussion,
 	         * see
-	         * https://www.wireshark.org/lists/wireshark-dev/201307/msg00076.html
+	         * https://lists.wireshark.org/archives/wireshark-dev/201307/msg00076.html
 	         * and related messages.
 	         *
 	         * The packet contents will be copied to a Buffer, which

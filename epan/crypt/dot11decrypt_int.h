@@ -109,7 +109,7 @@
 
 /*
  * XXX - According to the thread at
- * https://www.wireshark.org/lists/wireshark-dev/200612/msg00384.html we
+ * https://lists.wireshark.org/archives/wireshark-dev/200612/msg00384.html we
  * shouldn't have to worry about packing our structs, since the largest
  * elements are 8 bits wide.
  */

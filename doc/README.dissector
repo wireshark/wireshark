@@ -2419,7 +2419,7 @@ section of epan/dissectors/CMakeLists.txt
 
   - Subscribe to <mailto:wireshark-dev[AT]wireshark.org> by sending an email to
     <mailto:wireshark-dev-request[AT]wireshark.org?body="help"> or visiting
-    <https://www.wireshark.org/lists/>.
+    <https://lists.wireshark.org/>.
 
   - 'git diff' to verify all your changes look good.
 

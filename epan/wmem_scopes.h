@@ -32,7 +32,7 @@ wmem_epan_scope(void);
  *
  * Allocated memory is freed when wmem_leave_packet_scope() is called, which is normally at the end of packet dissection.
  * N.B. Please use pinfo->pool in new code when possible. See
- * <https://www.wireshark.org/lists/wireshark-dev/202107/msg00052.html>
+ * <https://lists.wireshark.org/archives/wireshark-dev/202107/msg00052.html>
  */
 WS_DLL_PUBLIC
 wmem_allocator_t *

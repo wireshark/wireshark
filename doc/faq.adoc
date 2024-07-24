@@ -35,11 +35,8 @@ https://www.wireshark.org/about.html[About Wireshark] page.
 [#wheretogethelp]
 === Where can I get help?
 
-Community support is available on the
-https://ask.wireshark.org/[Q&A site]
-and on the wireshark-users mailing list.
-Subscription information and archives for all of Wireshark's mailing lists can be found at
-https://www.wireshark.org/mailman/listinfo[https://www.wireshark.org/mailman/listinfo].
+Community support is available on the https://ask.wireshark.org/[Q&A site] and on the wireshark-users mailing list.
+Subscription information and archives for all of Wireshark's mailing lists can be found at https://lists.wireshark.org/.
 // An IRC channel dedicated to Wireshark can be found at
 // irc://irc.freenode.net/wireshark[irc://irc.freenode.net/wireshark].
 

@@ -437,7 +437,7 @@ Example: add an 'in' display filter operation
 
 This example has been discussed on ethereal-dev in April 2004.
 [Ethereal-dev] Need for an 'in' dfilter operator?
-(https://www.wireshark.org/lists/ethereal-dev/200404/msg00372.html)
+(https://lists.wireshark.org/archives/ethereal-dev/200404/msg00372.html)
 It illustrates how a more complex operation can be added to the display filter language.
 
 Question:
