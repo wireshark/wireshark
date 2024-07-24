@@ -14109,9 +14109,9 @@ static value_string_ext q708_sanc_areas_ext = VALUE_STRING_EXT_INIT(q708_sanc_ar
  * bulletins. This function takes an ISPC and analyzes it according to these tables.
  */
 void
-analyze_q708_ispc(tvbuff_t *tvb, proto_tree *tree, int offset, int length, guint16 ispc)
+analyze_q708_ispc(tvbuff_t *tvb, proto_tree *tree, int offset, int length, uint16_t ispc)
 {
-	guint16 sanc;
+	uint16_t sanc;
 
 	sanc = ispc >> 3;
 

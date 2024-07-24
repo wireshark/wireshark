@@ -148,7 +148,7 @@ static const value_string company_pid_vals[] = {
 /*
  * struct _timestamps_t {
  * 	uint8_t version;
- * 	guint24 reserved;
+ * 	uint24_t reserved;
  * 	struct _timestamp_t timestamps[8];
  * };
  */

@@ -1428,7 +1428,7 @@ parameter_value_q (proto_tree *tree, packet_info *pinfo, proto_item *ti, tvbuff_
 #define wkh_3_ValueWithLength               /* Parse Value With Length */ \
         /* END */ \
     } else { /* val_start points to 1st byte of length field */ \
-        if (val_id == 0x1F) { /* Value Length = guintvar */ \
+        if (val_id == 0x1F) { /* Value Length = uintvar */ \
             val_len = tvb_get_uintvar(tvb, val_start + 1, &val_len_len, pinfo, &ei_wsp_oversized_uintvar); \
             val_len_len++; /* 0x1F length indicator byte */ \
         } else { /* Short length followed by Len data octets */ \
@@ -4350,8 +4350,8 @@ static const hdr_parse_func_ptr WellKnownOpenwaveHeader[128] = {
  *       Followed with:
  *         2nd byte: 0x00 -- 0x1E: <Value Length (bytes)>
  *             Followed with: <Len> bytes of data
- *         2nd byte: 0x1F        : <Value Length is a guintvar>
- *             Followed with: <guintvar Len>
+ *         2nd byte: 0x1F        : <Value Length is a uintvar>
+ *             Followed with: <uintvar Len>
  *             Followed with: <Len> bytes of data
  *         2nd byte: 0x20 -- 0x7F: <Textual header value (C string)>
  *         2nd byte: 0x80 -- 0xFF: <Binary value (7-bit encoded ID)>
@@ -4566,7 +4566,7 @@ dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             tvb, offset, len, val_len);
     offset += len;
     /* Protocol Options list.
-     * Each protocol option is encoded as a guintvar */
+     * Each protocol option is encoded as a uintvar */
 
     val_len_save = val_len;
     for (i = 0; i < val_len_save; i++) {

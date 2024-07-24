@@ -96,13 +96,13 @@ manuf_hash_to_qstringlist(void *key, void *value, void *sl_ptr)
 {
     QList<QStringList> *values = (QList<QStringList> *) sl_ptr;
     hashmanuf_t *manuf = (hashmanuf_t*)value;
-    unsigned eth_as_guint = GPOINTER_TO_UINT(key);
+    unsigned eth_as_uint = GPOINTER_TO_UINT(key);
 
     if (get_hash_manuf_used(manuf)) {
         QString entry = QString("%1:%2:%3")
-                .arg((eth_as_guint >> 16 & 0xff), 2, 16, QChar('0'))
-                .arg((eth_as_guint >>  8 & 0xff), 2, 16, QChar('0'))
-                .arg((eth_as_guint & 0xff), 2, 16, QChar('0'));
+                .arg((eth_as_uint >> 16 & 0xff), 2, 16, QChar('0'))
+                .arg((eth_as_uint >>  8 & 0xff), 2, 16, QChar('0'))
+                .arg((eth_as_uint & 0xff), 2, 16, QChar('0'));
 
         *values << (QStringList() << entry << QString(get_hash_manuf_resolved_name(manuf)));
     }

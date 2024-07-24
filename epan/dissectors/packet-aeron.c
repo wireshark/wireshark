@@ -371,13 +371,13 @@ struct aeron_fragment_t_stct
 /*----------------------------------------------------------------------------*/
 /* Aeron transport management.                                                */
 /*----------------------------------------------------------------------------*/
-static unsigned aeron_guint32_hash_func(const void *key)
+static unsigned aeron_uint32_hash_func(const void *key)
 {
     uint32_t value = *((const uint32_t *) key);
     return ((unsigned) value);
 }
 
-static gboolean aeron_guint32_compare_func(const void *lhs, const void *rhs)
+static gboolean aeron_uint32_compare_func(const void *lhs, const void *rhs)
 {
     uint32_t key1 = *((const uint32_t *) lhs);
     uint32_t key2 = *((const uint32_t *) rhs);
@@ -402,7 +402,7 @@ static aeron_transport_t * aeron_transport_add(const aeron_conversation_info_t *
     session_map = (wmem_map_t *) conversation_get_proto_data(conv, proto_aeron);
     if (session_map == NULL)
     {
-        session_map = wmem_map_new(wmem_file_scope(), aeron_guint32_hash_func, aeron_guint32_compare_func);
+        session_map = wmem_map_new(wmem_file_scope(), aeron_uint32_hash_func, aeron_uint32_compare_func);
         conversation_add_proto_data(conv, proto_aeron, (void *) session_map);
     }
     transport = (aeron_transport_t *) wmem_map_lookup(session_map, (const void *) &session_id);
@@ -412,7 +412,7 @@ static aeron_transport_t * aeron_transport_add(const aeron_conversation_info_t *
     }
     transport = wmem_new0(wmem_file_scope(), aeron_transport_t);
     transport->channel_id = aeron_channel_id_assign();
-    transport->stream = wmem_map_new(wmem_file_scope(), aeron_guint32_hash_func, aeron_guint32_compare_func);
+    transport->stream = wmem_map_new(wmem_file_scope(), aeron_uint32_hash_func, aeron_uint32_compare_func);
     transport->last_frame = NULL;
     copy_address_wmem(wmem_file_scope(), &(transport->addr1), cinfo->addr1);
     copy_address_wmem(wmem_file_scope(), &(transport->addr2), cinfo->addr2);
@@ -440,7 +440,7 @@ static aeron_stream_t * aeron_transport_stream_add(aeron_transport_t * transport
     {
         stream = wmem_new0(wmem_file_scope(), aeron_stream_t);
         stream->transport = transport;
-        stream->term = wmem_map_new(wmem_file_scope(), aeron_guint32_hash_func, aeron_guint32_compare_func);
+        stream->term = wmem_map_new(wmem_file_scope(), aeron_uint32_hash_func, aeron_uint32_compare_func);
         stream->rcv = wmem_list_new(wmem_file_scope());
         stream->rcv_count = 0;
         stream->last_frame = NULL;
@@ -491,7 +491,7 @@ static aeron_term_t * aeron_stream_term_add(aeron_stream_t * stream, uint32_t te
     {
         term = wmem_new0(wmem_file_scope(), aeron_term_t);
         term->stream = stream;
-        term->fragment = wmem_map_new(wmem_file_scope(), aeron_guint32_hash_func, aeron_guint32_compare_func);
+        term->fragment = wmem_map_new(wmem_file_scope(), aeron_uint32_hash_func, aeron_uint32_compare_func);
         term->message = wmem_tree_new(wmem_file_scope());
         term->orphan_fragment = wmem_list_new(wmem_file_scope());
         term->nak = wmem_list_new(wmem_file_scope());

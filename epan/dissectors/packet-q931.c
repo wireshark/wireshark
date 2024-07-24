@@ -1839,7 +1839,7 @@ dissect_q931_information_rate_ie(tvbuff_t *tvb, packet_info *pinfo, int offset, 
 }
 
 static int
-dissect_q931_guint16_value(tvbuff_t *tvb, packet_info *pinfo, int offset, int len,
+dissect_q931_uint16_value(tvbuff_t *tvb, packet_info *pinfo, int offset, int len,
     proto_tree *tree, proto_item* item, int hf_value)
 {
     uint8_t octet;
@@ -1921,7 +1921,7 @@ dissect_q931_e2e_transit_delay_ie(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
     if (len == 0)
         return;
-    value_len = dissect_q931_guint16_value(tvb, pinfo, offset, len, tree, item, hf_q931_cumulative_transit_delay);
+    value_len = dissect_q931_uint16_value(tvb, pinfo, offset, len, tree, item, hf_q931_cumulative_transit_delay);
     if (value_len < 0)
         return; /* error */
     offset += value_len;
@@ -1929,7 +1929,7 @@ dissect_q931_e2e_transit_delay_ie(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
     if (len == 0)
         return;
-    value_len = dissect_q931_guint16_value(tvb, pinfo, offset, len, tree, item, hf_q931_requested_end_to_end_transit_delay);
+    value_len = dissect_q931_uint16_value(tvb, pinfo, offset, len, tree, item, hf_q931_requested_end_to_end_transit_delay);
     if (value_len < 0)
         return; /* error */
     offset += value_len;
@@ -1937,7 +1937,7 @@ dissect_q931_e2e_transit_delay_ie(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
     if (len == 0)
         return;
-    dissect_q931_guint16_value(tvb, pinfo, offset, len, tree, item, hf_q931_maximum_end_to_end_transit_delay);
+    dissect_q931_uint16_value(tvb, pinfo, offset, len, tree, item, hf_q931_maximum_end_to_end_transit_delay);
 }
 
 /*
@@ -1949,7 +1949,7 @@ dissect_q931_td_selection_and_int_ie(tvbuff_t *tvb, packet_info *pinfo, int offs
 {
     if (len == 0)
         return;
-    dissect_q931_guint16_value(tvb, pinfo, offset, len, tree, item, hf_q931_transit_delay);
+    dissect_q931_uint16_value(tvb, pinfo, offset, len, tree, item, hf_q931_transit_delay);
 }
 
 /*

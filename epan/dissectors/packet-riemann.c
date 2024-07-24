@@ -201,7 +201,7 @@ riemann_verify_wire_format(uint64_t field_number, const char *field_name, int ex
     }
 
 static uint64_t
-riemann_get_guint64(tvbuff_t *tvb, unsigned offset, unsigned *len)
+riemann_get_uint64(tvbuff_t *tvb, unsigned offset, unsigned *len)
 {
     uint64_t num   = 0;
     unsigned   shift = 0;
@@ -228,7 +228,7 @@ riemann_get_string(wmem_allocator_t *scope, tvbuff_t *tvb, int offset)
     uint64_t size;
     unsigned   len = 0;
 
-    size = riemann_get_guint64(tvb, offset, &len);
+    size = riemann_get_uint64(tvb, offset, &len);
     offset += len;
     return tvb_get_string_enc(scope, tvb, offset, (int)size, ENC_ASCII);
 }
@@ -239,7 +239,7 @@ riemann_dissect_int64(proto_tree *riemann_tree, tvbuff_t *tvb, unsigned offset, 
     uint64_t num;
     unsigned   len = 0;
 
-    num = riemann_get_guint64(tvb, offset, &len);
+    num = riemann_get_uint64(tvb, offset, &len);
     proto_tree_add_int64(riemann_tree, hf_index, tvb, offset, len, num);
     return len;
 }
@@ -251,7 +251,7 @@ riemann_dissect_sint64(proto_tree *riemann_tree, tvbuff_t *tvb, unsigned offset,
     int64_t snum;
     unsigned len = 0;
 
-    num = riemann_get_guint64(tvb, offset, &len);
+    num = riemann_get_uint64(tvb, offset, &len);
     /* zigzag decoding */
     if (num & 1) {
         snum = -((int64_t)(num >> 1)) - 1;
@@ -269,7 +269,7 @@ riemann_dissect_string(proto_tree *riemann_tree, tvbuff_t *tvb, unsigned offset,
     uint64_t size;
     unsigned   len = 0, orig_offset = offset;
 
-    size = riemann_get_guint64(tvb, offset, &len);
+    size = riemann_get_uint64(tvb, offset, &len);
     offset += len;
     proto_tree_add_item(riemann_tree, hf_index, tvb, offset, (int)size, ENC_ASCII);
     offset += (int)size;
@@ -289,13 +289,13 @@ riemann_dissect_attribute(packet_info *pinfo, proto_tree *riemann_tree,
     proto_item *pi;
     proto_tree *attribute_tree;
 
-    size = (int64_t)riemann_get_guint64(tvb, offset, &len);
+    size = (int64_t)riemann_get_uint64(tvb, offset, &len);
     pi = proto_tree_add_item(riemann_tree, hf_riemann_attribute, tvb, (int)offset, (int)(size + len), ENC_NA);
     attribute_tree = proto_item_add_subtree(pi, ett_attribute);
     offset += len;
 
     while (size > 0) {
-        tag  = riemann_get_guint64(tvb, offset, &len);
+        tag  = riemann_get_uint64(tvb, offset, &len);
         fn   = tag >> 3;
         wire = tag & 0x7;
         offset += len;
@@ -332,13 +332,13 @@ riemann_dissect_query(packet_info *pinfo, proto_tree *riemann_tree,
     proto_item *pi;
     proto_tree *query_tree;
 
-    size = (int64_t)riemann_get_guint64(tvb, offset, &len);
+    size = (int64_t)riemann_get_uint64(tvb, offset, &len);
     pi = proto_tree_add_item(riemann_tree, hf_riemann_query, tvb, (int)offset, (int)(size + len), ENC_NA);
     query_tree = proto_item_add_subtree(pi, ett_query);
     offset += len;
 
     while (size > 0) {
-        tag  = riemann_get_guint64(tvb, offset, &len);
+        tag  = riemann_get_uint64(tvb, offset, &len);
         fn   = tag >> 3;
         wire = tag & 0x7;
         offset += len;
@@ -373,14 +373,14 @@ riemann_dissect_event(packet_info *pinfo, proto_tree *riemann_tree,
     proto_tree *event_tree;
     bool        need_comma  = false;
 
-    size = riemann_get_guint64(tvb, offset, &len);
+    size = riemann_get_uint64(tvb, offset, &len);
     pi = proto_tree_add_item(riemann_tree, hf_riemann_event, tvb, (int)offset, (int)(size + len), ENC_NA);
     event_tree = proto_item_add_subtree(pi, ett_event);
     offset += len;
 
     while (size > 0) {
         const char *comma = need_comma ? ", " : "";
-        tag  = riemann_get_guint64(tvb, offset, &len);
+        tag  = riemann_get_uint64(tvb, offset, &len);
         fn   = tag >> 3;
         wire = tag & 0x7;
         offset += len;
@@ -466,14 +466,14 @@ riemann_dissect_state(packet_info *pinfo, proto_tree *riemann_tree,
     proto_tree *state_tree;
     bool        need_comma  = false;
 
-    size = riemann_get_guint64(tvb, offset, &len);
+    size = riemann_get_uint64(tvb, offset, &len);
     pi   = proto_tree_add_item(riemann_tree, hf_riemann_state, tvb, offset, (int)(size + len), ENC_NA);
     state_tree = proto_item_add_subtree(pi, ett_state);
     offset += len;
 
     while (size > 0) {
         const char *comma = need_comma ? ", " : "";
-        tag  = riemann_get_guint64(tvb, offset, &len);
+        tag  = riemann_get_uint64(tvb, offset, &len);
         fn   = tag >> 3;
         wire = tag & 0x7;
         offset += len;
@@ -541,7 +541,7 @@ riemann_dissect_msg(packet_info *pinfo, proto_item *pi, proto_tree *riemann_tree
     bool cinfo_set = false;
 
     while (size > 0) {
-        tag  = riemann_get_guint64(tvb, offset, &len);
+        tag  = riemann_get_uint64(tvb, offset, &len);
         fn   = tag >> 3;
         wire = tag & 0x7;
         offset += len;
@@ -605,7 +605,7 @@ is_riemann(tvbuff_t *tvb, unsigned offset)
         (captured_length < RIEMANN_MIN_NEEDED_FOR_HEURISTICS)) {
         return false;
     }
-    tag = riemann_get_guint64(tvb, offset, &len);
+    tag = riemann_get_uint64(tvb, offset, &len);
     field_number = tag >> 3;
     wire_format  = tag & 0x7;
     if ((field_number == RIEMANN_FN_MSG_OK     && wire_format == RIEMANN_WIRE_INTEGER) ||

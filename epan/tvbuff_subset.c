@@ -59,7 +59,7 @@ subset_get_ptr(tvbuff_t *tvb, unsigned abs_offset, unsigned abs_length)
 }
 
 static int
-subset_find_guint8(tvbuff_t *tvb, unsigned abs_offset, unsigned limit, uint8_t needle)
+subset_find_uint8(tvbuff_t *tvb, unsigned abs_offset, unsigned limit, uint8_t needle)
 {
 	struct tvb_subset *subset_tvb = (struct tvb_subset *) tvb;
 	int result;
@@ -77,7 +77,7 @@ subset_find_guint8(tvbuff_t *tvb, unsigned abs_offset, unsigned limit, uint8_t n
 }
 
 static int
-subset_pbrk_guint8(tvbuff_t *tvb, unsigned abs_offset, unsigned limit, const ws_mempbrk_pattern* pattern, unsigned char *found_needle)
+subset_pbrk_uint8(tvbuff_t *tvb, unsigned abs_offset, unsigned limit, const ws_mempbrk_pattern* pattern, unsigned char *found_needle)
 {
 	struct tvb_subset *subset_tvb = (struct tvb_subset *) tvb;
 	int result;
@@ -109,8 +109,8 @@ static const struct tvb_ops tvb_subset_ops = {
 	subset_offset,        /* offset */
 	subset_get_ptr,       /* get_ptr */
 	subset_memcpy,        /* memcpy */
-	subset_find_guint8,   /* find_guint8 */
-	subset_pbrk_guint8,   /* pbrk_guint8 */
+	subset_find_uint8,   /* find_uint8 */
+	subset_pbrk_uint8,   /* pbrk_uint8 */
 	subset_clone,         /* clone */
 };
 

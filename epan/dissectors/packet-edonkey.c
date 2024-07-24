@@ -2354,9 +2354,9 @@ static int dissect_kademlia_tag(tvbuff_t *tvb, packet_info *pinfo,
         tag_type = tvb_get_uint8( tvb, offset+2 );
         offset = dissect_kademlia_tagname( tvb, pinfo, offset, subtree, &tagname_string, &tagname_extended_string );
         if ( strlen( tagname_string ) == 1 ) {
-            const uint8_t tagname_guint = *(const uint8_t*)tagname_string;
+            const uint8_t tagname_uint = *(const uint8_t*)tagname_string;
 
-            proto_item_append_text( tag_node, " 0x%02X [%s] = ", tagname_guint, tagname_extended_string );
+            proto_item_append_text( tag_node, " 0x%02X [%s] = ", tagname_uint, tagname_extended_string );
         }
         else
             proto_item_append_text( tag_node, " \"%s\" [%s] = ", tagname_string, tagname_extended_string );

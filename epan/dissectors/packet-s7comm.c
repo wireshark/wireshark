@@ -2571,7 +2571,7 @@ s7comm_get_timestring_from_s7time(tvbuff_t *tvb, unsigned offset, char *str, int
  *
  *******************************************************************************************************/
 static uint8_t
-s7comm_guint8_from_bcd(uint8_t i)
+s7comm_uint8_from_bcd(uint8_t i)
 {
     return 10 * (i /16) + (i % 16);
 }
@@ -2603,7 +2603,7 @@ s7comm_add_timestamp_to_tree(tvbuff_t *tvb,
     if (has_ten_bytes) {
         /* The low nibble of byte 10 is weekday, the high nibble the LSD of msec */
         for (i = 0; i < 9; i++) {
-            timestamp[i] = s7comm_guint8_from_bcd(tvb_get_uint8(tvb, offset + i));
+            timestamp[i] = s7comm_uint8_from_bcd(tvb_get_uint8(tvb, offset + i));
         }
         tmp = tvb_get_uint8(tvb, offset + 9) >> 4;
     } else {
@@ -2612,11 +2612,11 @@ s7comm_add_timestamp_to_tree(tvbuff_t *tvb,
         timestamp[0] = 0;
         timestamp[1] = 19;  /* start with 19.., will be corrected later */
         for (i = 0; i < 7; i++) {
-            timestamp[i + 2] = s7comm_guint8_from_bcd(tvb_get_uint8(tvb, offset + i));
+            timestamp[i + 2] = s7comm_uint8_from_bcd(tvb_get_uint8(tvb, offset + i));
         }
         tmp = tvb_get_uint8(tvb, offset + 7) >> 4;
     }
-    timestamp[9] = s7comm_guint8_from_bcd(tmp);
+    timestamp[9] = s7comm_uint8_from_bcd(tmp);
 
     msec = (uint16_t)timestamp[8] * 10 + (uint16_t)timestamp[9];
     year_org = timestamp[1];

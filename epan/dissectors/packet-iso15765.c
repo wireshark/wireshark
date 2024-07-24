@@ -352,12 +352,12 @@ post_update_config_can_addr_mappings_cb(void) {
 }
 
 static uint16_t
-masked_guint16_value(const uint16_t value, const uint16_t mask) {
+masked_uint16_value(const uint16_t value, const uint16_t mask) {
     return (value & mask) >> ws_ctz(mask);
 }
 
 static uint32_t
-masked_guint32_value(const uint32_t value, const uint32_t mask) {
+masked_uint32_value(const uint32_t value, const uint32_t mask) {
     return (value & mask) >> ws_ctz(mask);
 }
 
@@ -386,14 +386,14 @@ find_config_can_addr_mapping(bool ext_id, uint32_t can_id, uint16_t *source_addr
 
     if (tmp != NULL) {
         if (tmp->ecu_addr_mask != 0) {
-            *source_addr = masked_guint32_value(can_id, tmp->ecu_addr_mask);
+            *source_addr = masked_uint32_value(can_id, tmp->ecu_addr_mask);
             *target_addr = *source_addr;
             *addr_len = (7 + ws_count_ones(tmp->ecu_addr_mask)) / 8;
             return 1;
         }
         if (tmp->source_addr_mask != 0 && tmp->target_addr_mask != 0) {
-            *source_addr = masked_guint32_value(can_id, tmp->source_addr_mask);
-            *target_addr = masked_guint32_value(can_id, tmp->target_addr_mask);
+            *source_addr = masked_uint32_value(can_id, tmp->source_addr_mask);
+            *target_addr = masked_uint32_value(can_id, tmp->target_addr_mask);
             uint8_t tmp_len = ws_count_ones(tmp->source_addr_mask);
             if (ws_count_ones(tmp->target_addr_mask) > tmp_len) {
                 tmp_len = ws_count_ones(tmp->target_addr_mask);
@@ -759,7 +759,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t b
             /* we need to assume that all following bytes are of the first frame data */
             data_length = tvb_reported_length(tvb) - offset;
 
-            frag_id_low = masked_guint16_value(pci, ISO15765_MESSAGE_SEQUENCE_NUMBER_MASK);
+            frag_id_low = masked_uint16_value(pci, ISO15765_MESSAGE_SEQUENCE_NUMBER_MASK);
             fragmented = true;
 
             /* FlexRay data_length cut off, if configured */

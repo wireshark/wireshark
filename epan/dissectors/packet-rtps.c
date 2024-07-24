@@ -5809,7 +5809,7 @@ static int rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, packet_info *
 
         /* - - - - - - -      Default index      - - - - - - - */
         LONG_ALIGN(offset);
-        /*defaultIdx = NEXT_guint32(tvb, offset, encoding);*/
+        /*defaultIdx = NEXT_uint32(tvb, offset, encoding);*/
         offset += 4;
 
         /* - - - - - - -      Discriminator type code     - - - - - - - */

@@ -4004,7 +4004,7 @@ static const fragment_items ndps_frag_items = {
  * We construct a conversation specified by the client and server
  * addresses and the connection number; the key representing the unique
  * NDPS request then is composed of the pointer to the conversation
- * structure, cast to a "guint" (which may throw away the upper 32
+ * structure, cast to a "uint" (which may throw away the upper 32
  * bits of the pointer on a P64 platform, but the low-order 32 bits
  * are more likely to differ between conversations than the upper 32 bits),
  * and the sequence number.

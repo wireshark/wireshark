@@ -69,8 +69,8 @@ def test_replacements():
     test_string = """\
 (if_info_t*) g_malloc0(sizeof(if_info_t))
 (oui_info_t *)g_malloc(sizeof (oui_info_t))
-(guint8 *)g_malloc(16 * sizeof(guint8))
-(guint32 *)g_malloc(sizeof(guint32)*2)
+(uint8_t *)g_malloc(16 * sizeof(uint8_t))
+(uint32_t *)g_malloc(sizeof(uint32_t)*2)
 (struct imf_field *)g_malloc (sizeof (struct imf_field))
 (rtspstat_t *)g_malloc( sizeof(rtspstat_t) )
 (proto_data_t *)wmem_alloc(scope, sizeof(proto_data_t))
@@ -85,8 +85,8 @@ def test_replacements():
     expected_output = """\
 g_new0(if_info_t, 1)
 g_new(oui_info_t, 1)
-g_new(guint8, 16)
-g_new(guint32, 2)
+g_new(uint8_t, 16)
+g_new(uint32_t, 2)
 g_new(struct imf_field, 1)
 g_new(rtspstat_t, 1)
 wmem_new(scope, proto_data_t)

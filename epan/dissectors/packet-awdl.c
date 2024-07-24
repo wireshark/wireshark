@@ -618,7 +618,7 @@ awdl_tag_sync_tree(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void
 }
 
 inline static bool
-test_bit_guint32(unsigned i, uint32_t n) {
+test_bit_uint32(unsigned i, uint32_t n) {
   return ((n >> i) & 1) == 1;
 }
 
@@ -691,14 +691,14 @@ awdl_tag_service_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
   if (bitmask != 0) {
     unsigned count = 0;
     for (unsigned i = 0; i < 32; i++) {
-      if (test_bit_guint32(i, bitmask)) {
+      if (test_bit_uint32(i, bitmask)) {
         proto_item *value_item;
         unsigned shift = i << 3;
         value_item = proto_tree_add_bitmask(values_tree, tvb, offset, hf_awdl_serviceparams_values,
                                ett_awdl_serviceparams_value, value_fields, ENC_LITTLE_ENDIAN);
         uint8_t value = tvb_get_uint8(tvb, offset);
         for (unsigned k = 0; k < 8; k++) {
-          if (test_bit_guint32(k, value)) {
+          if (test_bit_uint32(k, value)) {
             if (count == 0) {
               proto_item_append_text(values_item, ": %u", k + shift);
             } else {

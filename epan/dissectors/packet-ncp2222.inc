@@ -2011,7 +2011,7 @@ process_ptvc_record(ptvcursor_t *ptvc, packet_info *pinfo, const ptvc_record *re
  * We construct a conversation specified by the client and server
  * addresses and the connection number; the key representing the unique
  * NCP request then is composed of the pointer to the conversation
- * structure, cast to a "guint" (which may throw away the upper 32
+ * structure, cast to a "uint" (which may throw away the upper 32
  * bits of the pointer on a P64 platform, but the low-order 32 bits
  * are more likely to differ between conversations than the upper 32 bits),
  * and the sequence number.
@@ -7661,7 +7661,7 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
             process_multivalues(ncp_tree, tvb, pinfo, &temp_value);
             break;
         case NDS_TAG_REMOTE_ENTRY:
-            nds_offset += 4;   /* GUINT32 reserved field */
+            nds_offset += 4;   /* UINT32 reserved field */
             proto_tree_add_item(ncp_tree, hf_nds_eid, tvb, nds_offset, 4, ENC_LITTLE_ENDIAN);
             nds_offset += 4;
             temp_value.vvalue = tvb_get_letohl(tvb, nds_offset);

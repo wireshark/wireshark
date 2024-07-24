@@ -121,15 +121,15 @@ static dissector_handle_t asp_handle;
 static dissector_handle_t pap_handle;
 
 static int proto_atp;
-static int hf_atp_ctrlinfo; /* guint8_t    control information */
+static int hf_atp_ctrlinfo; /* uint8_t    control information */
 static int hf_atp_function; /* bits 7,6    function */
 static int hf_atp_xo; /* bit 5       exactly-once */
 static int hf_atp_eom; /* bit 4       end-of-message */
 static int hf_atp_sts; /* bit 3       send transaction status */
 static int hf_atp_treltimer; /* bits 2,1,0  TRel timeout indicator */
 
-static int hf_atp_bitmap;   /* guint8_t  bitmap or sequence number */
-static int hf_atp_tid;      /* guint16_t transaction id. */
+static int hf_atp_bitmap;   /* uint8_t  bitmap or sequence number */
+static int hf_atp_tid;      /* uint16_t transaction id. */
 static int hf_atp_user_bytes;
 
 static int hf_atp_segments;

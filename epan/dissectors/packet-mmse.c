@@ -1200,7 +1200,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint8_t pdut,
                         proto_tree_add_string_format(mmse_tree, hf_mmse_header_string, tvb, offset - 1,
                                 length + 1, str, "%s: %s (Not decoded)", hdr_name, str);
                     } else { /* General form with length */
-                        if (peek == 0x1F) { /* Value length in guintvar */
+                        if (peek == 0x1F) { /* Value length in uintvar */
                             unsigned length_len = 0;
                             length = 1 + tvb_get_uintvar(tvb, offset + 1,
                                     &length_len, pinfo, &ei_mmse_oversized_uintvar);

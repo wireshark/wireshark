@@ -573,7 +573,7 @@ bp_block_canonical_t * bp_block_canonical_new(wmem_allocator_t *alloc, uint64_t 
     return obj;
 }
 
-static uint64_t * guint64_new(wmem_allocator_t *alloc, const uint64_t val) {
+static uint64_t * uint64_new(wmem_allocator_t *alloc, const uint64_t val) {
     uint64_t *obj = wmem_new(alloc, uint64_t);
     *obj = val;
     return obj;
@@ -1261,7 +1261,7 @@ static int dissect_block_canonical(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     if (block->type_code) {
         wmem_list_t *type_list = wmem_map_lookup(bundle->block_types, block->type_code);
         if (!type_list) {
-            uint64_t *key = guint64_new(wmem_file_scope(), *(block->type_code));
+            uint64_t *key = uint64_new(wmem_file_scope(), *(block->type_code));
             type_list = wmem_list_new(wmem_file_scope());
             wmem_map_insert(bundle->block_types, key, type_list);
         }
@@ -1273,7 +1273,7 @@ static int dissect_block_canonical(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             expert_add_info(pinfo, item_block_num, &ei_block_num_dupe);
         }
         else {
-            uint64_t *key = guint64_new(wmem_file_scope(), *(block->block_number));
+            uint64_t *key = uint64_new(wmem_file_scope(), *(block->block_number));
             wmem_map_insert(bundle->block_nums, key, block);
         }
     }
