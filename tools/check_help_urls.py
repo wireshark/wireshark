@@ -22,7 +22,7 @@ with open("ui/help_url.c") as f:
             chapter = url.group(1)
             found[chapter] = False
 
-adoc_files = glob("docbook/wsug_src/*.adoc")
+adoc_files = glob("doc/wsug_src/*.adoc")
 
 for adoc_file in adoc_files:
     with open(adoc_file) as f:

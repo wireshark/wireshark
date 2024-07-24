@@ -60,7 +60,6 @@ set(PROGRAM_NAME ${CMAKE_PROJECT_NAME})
 file(TO_NATIVE_PATH "${CMAKE_SOURCE_DIR}" TOP_SRC_DIR)
 # STAGING_DIR depends on the build configuration so we pass it
 # on the command line below.
-file(TO_NATIVE_PATH "${CMAKE_BINARY_DIR}/docbook" DOCBOOK_DIR)
 file(TO_NATIVE_PATH "${CMAKE_BINARY_DIR}/doc" DOC_DIR)
 
 # To do:
@@ -197,7 +196,7 @@ set(WIX_CANDLE_DEFINES
 	-dQtTranslationDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/translations
 	-dRadiusDictDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/radius
 	-dSnmpMibDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/snmp/mibs
-	-dUsersGuideDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/docbook/wsug_html_chunked
+	-dUsersGuideDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/doc/wsug_html_chunked
 	-dVCRedistVersion=${MSVC_CRT_VERSION}
 	-dVCRedistDir=${MERGE_MODULE_DIR}
 	${d_smi_dir}
@@ -253,7 +252,7 @@ macro( ADD_WIX_PACKAGE_TARGET )
 		# UsersGuide.wxs. Collects the contents of wsug_html_chunked.
 		# Generated with heat.exe
 		add_custom_command(OUTPUT ${_wix_binary_dir}/UsersGuide.wxs
-			COMMAND ${WIX_HEAT_EXECUTABLE} dir ${CMAKE_BINARY_DIR}/docbook/wsug_html_chunked
+			COMMAND ${WIX_HEAT_EXECUTABLE} dir ${CMAKE_BINARY_DIR}/doc/wsug_html_chunked
 					${WIX_HEAT_FLAGS} -cg CG.Documentation -dr dirUsersGuide -var var.UsersGuideDir
 					-out ${_wix_binary_dir}/UsersGuide.wxs
 		)

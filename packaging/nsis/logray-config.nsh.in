@@ -23,7 +23,6 @@
 #cmakedefine MMDBRESOLVE_EXE @MMDBRESOLVE_EXE@
 
 # Skip the User's Guide and FAQ until we have one of our own.
-#cmakeundefine DOCBOOK_DIR
 #cmakeundefine DOC_DIR
 
 #cmakedefine SMI_DIR "@SMI_DIR@"

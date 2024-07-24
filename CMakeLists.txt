@@ -1698,7 +1698,6 @@ set(PLUGIN_INSTALL_VERSION_LIBDIR "${PLUGIN_INSTALL_LIBDIR}/${PLUGIN_PATH_ID}")
 set(PLUGIN_VERSION_DIR "plugins/${PLUGIN_PATH_ID}")
 
 add_subdirectory( capture )
-add_subdirectory( doc )
 add_subdirectory( epan )
 add_subdirectory( extcap )
 add_subdirectory( randpkt_core )
@@ -1754,9 +1753,9 @@ endif()
 # learn about the directory location.
 add_subdirectory( wsutil )
 
-# docbook must be added after DATAFILE_DIR is set so that the guides can be
+# doc/ must be added after DATAFILE_DIR is set so that the guides can be
 # copied there for running from the build directory
-add_subdirectory( docbook EXCLUDE_FROM_ALL )
+add_subdirectory( doc EXCLUDE_FROM_ALL )
 
 if(BUILD_wireshark AND QT_FOUND)
 	add_subdirectory( ui/qt )
@@ -4091,13 +4090,13 @@ install(
 
 if(ASCIIDOCTOR_FOUND AND XSLTPROC_EXECUTABLE)
 	install(
-		DIRECTORY "${CMAKE_BINARY_DIR}/docbook/wsug_html_chunked"
+		DIRECTORY "${CMAKE_BINARY_DIR}/doc/wsug_html_chunked"
 		DESTINATION "${CMAKE_INSTALL_DOCDIR}"
 		COMPONENT "UserGuide"
 		EXCLUDE_FROM_ALL
 	)
 	install(
-		DIRECTORY "${CMAKE_BINARY_DIR}/docbook/wsdg_html_chunked"
+		DIRECTORY "${CMAKE_BINARY_DIR}/doc/wsdg_html_chunked"
 		DESTINATION "${CMAKE_INSTALL_DOCDIR}"
 		COMPONENT "DeveloperGuide"
 		EXCLUDE_FROM_ALL

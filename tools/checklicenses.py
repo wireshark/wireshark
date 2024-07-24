@@ -72,10 +72,10 @@ PATH_SPECIFIC_ALLOWED_LICENSES = {
     'doc/': [
         'UNKNOWN',
     ],
-    'docbook/custom_layer_chm.xsl': [
+    'doc/custom_layer_chm.xsl': [
         'UNKNOWN',
     ],
-    'docbook/custom_layer_single_html.xsl': [
+    'doc/custom_layer_single_html.xsl': [
         'UNKNOWN',
     ],
     'fix': [

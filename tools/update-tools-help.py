@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# update-tools-help.py - Update the command line help output in docbook/wsug_src.
+# update-tools-help.py - Update the command line help output in doc/wsug_src.
 #
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
@@ -9,7 +9,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 '''Update tools help
 
-For each file that matches docbook/wsug_src/<command>-<flag>.txt, run
+For each file that matches doc/wsug_src/<command>-<flag>.txt, run
 that command and flag. Update the file if the output differs.
 '''
 
@@ -28,7 +28,7 @@ def main():
     args = parser.parse_args()
 
     this_dir = os.path.dirname(__file__)
-    wsug_src_dir = os.path.join(this_dir, '..', 'docbook', 'wsug_src')
+    wsug_src_dir = os.path.join(this_dir, '..', 'doc', 'wsug_src')
 
     tools_help_files = glob.glob(os.path.join(wsug_src_dir, '*-*.txt'))
     tools_help_files.sort()

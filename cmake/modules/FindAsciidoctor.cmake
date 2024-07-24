@@ -45,7 +45,7 @@ if(ASCIIDOCTOR_EXECUTABLE)
         # --failure-level=WARN
         # --trace
         --quiet
-        --attribute build_dir=${CMAKE_BINARY_DIR}/docbook
+        --attribute build_dir=${CMAKE_BINARY_DIR}/doc
         --attribute css_dir=${CMAKE_SOURCE_DIR}/doc
         --require ${CMAKE_SOURCE_DIR}/doc/asciidoctor-macros/ws_utils.rb
         --require ${CMAKE_SOURCE_DIR}/doc/asciidoctor-macros/commaize-block.rb

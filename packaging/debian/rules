@@ -60,7 +60,7 @@ override_dh_auto_build:
 	dh_auto_build
 	$(MAKE) -C $(CURDIR)/obj-* user_guide_html developer_guide_html
 	# fix links in documentation
-	sed -i "s|$(CURDIR)/docbook|..|" obj-*/docbook/ws*g_html_chunked/*.html
+	sed -i "s|$(CURDIR)/doc|..|" obj-*/doc/ws*g_html_chunked/*.html
 ifeq (,$(filter $(DEB_BUILD_OPTIONS),nocheck))
 	# Required for the "unittests" suite.
 	$(MAKE) -C $(CURDIR)/obj-* test-programs

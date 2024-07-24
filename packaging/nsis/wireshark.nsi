@@ -1229,17 +1229,15 @@ Section "-Clear Partial Selected"
 !insertmacro ClearSectionFlag ${SecExtcapGroup} ${SF_PSELECTED}
 SectionEnd
 
-!ifdef DOCBOOK_DIR
 !ifdef DOC_DIR
 Section "-Documentation"
 
 SetOutPath "$INSTDIR\Wireshark User's Guide"
-File /r "${DOCBOOK_DIR}\wsug_html_chunked\*.*"
+File /r "${DOC_DIR}\wsug_html_chunked\*.*"
 
 SetOutPath $INSTDIR
 File "${DOC_DIR}\faq.html"
 SectionEnd
-!endif
 !endif
 
 Section "-Finally"

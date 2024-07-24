@@ -41,6 +41,6 @@ Complete details on doing so can be found in the [Developer’s Guide](https://w
 When you submit a merge request, a series of automated tests will be run in order to ensure that compiles across different platforms and conforms to our coding guidelines.
 The change will also be manually reviewed by a core developer and will be merged when the change passes both automated and manual review.
 
-The Wireshark User’s Guide and Developer’s Guide are maintained in the [docbook directory](https://gitlab.com/wireshark/wireshark/-/tree/master/docbook) in the main repository.
+The Wireshark User’s Guide and Developer’s Guide are maintained in the [doc directory](https://gitlab.com/wireshark/wireshark/-/tree/master/doc) in the main repository.
 You don’t need a complete development environment to contribute to them, but you do need git and a text editor.
 Documentation updates must be made via a merge request similar to source code changes.

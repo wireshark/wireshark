@@ -109,7 +109,7 @@
         <ComponentGroupRef Id="CG.Tools.Wifidump" />
       </Feature>
     </Feature>
-    <?ifdef DOCBOOK_DIR?>
+    <?ifdef DOC_DIR?>
       <Feature Id="Fe.Documentation" Title="Documentation" Level="1" AllowAdvertise="yes" Display="expand" Description="Install an offline copy of the User's Guide and FAQ.">
         <ComponentGroupRef Id="CG.Documentation" />
       </Feature>

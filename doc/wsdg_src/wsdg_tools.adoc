@@ -487,9 +487,7 @@ Edition, it will include an SDK.
 === Documentation Toolchain
 
 Wireshark’s documentation is split across two directories.
-The `doc` directory contains man pages written in Asciidoctor markup.
-The `docbook` directory contains the User’s Guide, Developer’s Guide, and the release notes, which are also written in Asciidoctor markup.
-The split is for historical reasons (described below), and the documentation will likely be consolidated into one directory in the future.
+The `doc` directory contains man pages, User’s Guide, Developer’s Guide, and the release notes, which are written in Asciidoctor markup.
 
 Our various output formats are generated using the following tools.
 Intermediate formats are in _italics_.

@@ -6,7 +6,7 @@ Installing Wireshark on FreeBSD/OpenBSD/NetBSD/DragonFly BSD
 
 For general installation instructions, see the INSTALL file, along with
 the Developer's Guide located at https://www.wireshark.org/docs/ and
-in the docbook/ directory.  Additional BSD specific notes and requirements
+in the doc/ directory.  Additional BSD specific notes and requirements
 follow.
 
 1. Berkeley Packet Filter (BPF) requirement

@@ -1,4 +1,4 @@
-// dot -Tsvg -o docbook/wsdg_graphics/git-triangular-workflow.svg docbook/wsdg_graphics/git-triangular-workflow.gv
+// dot -Tsvg -o doc/wsdg_graphics/git-triangular-workflow.svg doc/wsdg_graphics/git-triangular-workflow.gv
 
 digraph G {
     // XXX Integrate ws.css. Match it manually for now.
