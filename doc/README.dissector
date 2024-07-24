@@ -276,7 +276,7 @@ signed integers (int8_t):
 uint8_t tvb_get_uint8(tvbuff_t *tvb, const int offset);
 int8_t tvb_get_int8(tvbuff_t *tvb, const int offset);
 
-These functions were previously named tvb_get_guint8 and tvb_get_int8. You
+These functions were previously named tvb_get_guint8 and tvb_get_gint8. You
 can still use the old names but they have been deprecated.
 
 Network-to-host-order accessors:
