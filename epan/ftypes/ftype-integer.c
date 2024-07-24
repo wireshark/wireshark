@@ -581,7 +581,7 @@ uint64_unary_minus(fvalue_t *dst, const fvalue_t *src, char **err_ptr)
 	/* Unsigned64 integers are promoted to signed 64 bits. */
 	if (src->value.uinteger64 > INT64_MAX) {
 		if (err_ptr)
-			*err_ptr = ws_strdup_printf("%"PRIu64" overflows gint64",
+			*err_ptr = ws_strdup_printf("%"PRIu64" overflows int64",
 							src->value.uinteger64);
 		return FT_ERROR;
 	}

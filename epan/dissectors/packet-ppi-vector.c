@@ -378,7 +378,7 @@ dissect_ppi_vector_v1(tvbuff_t *tvb, packet_info *pinfo, int offset, int length_
             if (length_remaining < 4)
                 break;
             t_val = tvb_get_letohl(tvb, offset);
-            rot_x = ppi_fixed3_6_to_gdouble(t_val);
+            rot_x = ppi_fixed3_6_to_double(t_val);
             if (ppi_vector_tree) {
                 ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_rot_x, tvb, offset, 4, rot_x);
                 if (flags &  PPI_VECTOR_VFLAGS_ROTS_ABSOLUTE)
@@ -393,7 +393,7 @@ dissect_ppi_vector_v1(tvbuff_t *tvb, packet_info *pinfo, int offset, int length_
             if (length_remaining < 4)
                 break;
             t_val = tvb_get_letohl(tvb, offset);
-            rot_y = ppi_fixed3_6_to_gdouble(t_val);
+            rot_y = ppi_fixed3_6_to_double(t_val);
             if (ppi_vector_tree) {
                 ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_rot_y, tvb, offset, 4, rot_y);
                 if (flags &  PPI_VECTOR_VFLAGS_ROTS_ABSOLUTE)
@@ -408,7 +408,7 @@ dissect_ppi_vector_v1(tvbuff_t *tvb, packet_info *pinfo, int offset, int length_
             if (length_remaining < 4)
                 break;
             t_val = tvb_get_letohl(tvb, offset);
-            rot_z = ppi_fixed3_6_to_gdouble(t_val);
+            rot_z = ppi_fixed3_6_to_double(t_val);
             if (ppi_vector_tree) {
                 ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_rot_z, tvb, offset, 4, rot_z);
                 if (flags &  PPI_VECTOR_VFLAGS_ROTS_ABSOLUTE)
@@ -423,7 +423,7 @@ dissect_ppi_vector_v1(tvbuff_t *tvb, packet_info *pinfo, int offset, int length_
             if (length_remaining < 4)
                 break;
             t_val = tvb_get_letohl(tvb, offset);
-            off_r = ppi_fixed6_4_to_gdouble(t_val);
+            off_r = ppi_fixed6_4_to_double(t_val);
             if (ppi_vector_tree) {
                 ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_off_r, tvb, offset, 4, off_r);
                 if (flags &  PPI_VECTOR_VFLAGS_OFFSETS_FROM_GPS)
@@ -438,7 +438,7 @@ dissect_ppi_vector_v1(tvbuff_t *tvb, packet_info *pinfo, int offset, int length_
             if (length_remaining < 4)
                 break;
             t_val = tvb_get_letohl(tvb, offset);
-            off_f = ppi_fixed6_4_to_gdouble(t_val);
+            off_f = ppi_fixed6_4_to_double(t_val);
             if (ppi_vector_tree) {
                 ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_off_f, tvb, offset, 4, off_f);
                 if (flags &  PPI_VECTOR_VFLAGS_OFFSETS_FROM_GPS)
@@ -453,7 +453,7 @@ dissect_ppi_vector_v1(tvbuff_t *tvb, packet_info *pinfo, int offset, int length_
             if (length_remaining < 4)
                 break;
             t_val = tvb_get_letohl(tvb, offset);
-            off_u = ppi_fixed6_4_to_gdouble(t_val);
+            off_u = ppi_fixed6_4_to_double(t_val);
             if (ppi_vector_tree) {
                 ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_off_u, tvb, offset, 4, off_u);
                 if (flags &  PPI_VECTOR_VFLAGS_OFFSETS_FROM_GPS)
@@ -468,7 +468,7 @@ dissect_ppi_vector_v1(tvbuff_t *tvb, packet_info *pinfo, int offset, int length_
             if (length_remaining < 4)
                 break;
             t_val = tvb_get_letohl(tvb, offset);
-            vel_r = ppi_fixed6_4_to_gdouble(t_val);
+            vel_r = ppi_fixed6_4_to_double(t_val);
             proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_vel_r, tvb, offset, 4, vel_r);
             offset+=4;
             length_remaining-=4;
@@ -477,7 +477,7 @@ dissect_ppi_vector_v1(tvbuff_t *tvb, packet_info *pinfo, int offset, int length_
             if (length_remaining < 4)
                 break;
             t_val = tvb_get_letohl(tvb, offset);
-            vel_f = ppi_fixed6_4_to_gdouble(t_val);
+            vel_f = ppi_fixed6_4_to_double(t_val);
             proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_vel_f, tvb, offset, 4, vel_f);
             offset+=4;
             length_remaining-=4;
@@ -486,7 +486,7 @@ dissect_ppi_vector_v1(tvbuff_t *tvb, packet_info *pinfo, int offset, int length_
             if (length_remaining < 4)
                 break;
             t_val = tvb_get_letohl(tvb, offset);
-            vel_u = ppi_fixed6_4_to_gdouble(t_val);
+            vel_u = ppi_fixed6_4_to_double(t_val);
             proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_vel_u, tvb, offset, 4, vel_u);
             offset+=4;
             length_remaining-=4;
@@ -495,7 +495,7 @@ dissect_ppi_vector_v1(tvbuff_t *tvb, packet_info *pinfo, int offset, int length_
             if (length_remaining < 4)
                 break;
             t_val = tvb_get_letohl(tvb, offset);
-            vel_t = ppi_fixed6_4_to_gdouble(t_val);
+            vel_t = ppi_fixed6_4_to_double(t_val);
             proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_vel_t, tvb, offset, 4, vel_t);
             offset+=4;
             length_remaining-=4;
@@ -504,7 +504,7 @@ dissect_ppi_vector_v1(tvbuff_t *tvb, packet_info *pinfo, int offset, int length_
             if (length_remaining < 4)
                 break;
             t_val = tvb_get_letohl(tvb, offset);
-            acc_r = ppi_fixed6_4_to_gdouble(t_val);
+            acc_r = ppi_fixed6_4_to_double(t_val);
             proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_acc_r, tvb, offset, 4, acc_r);
             offset+=4;
             length_remaining-=4;
@@ -513,7 +513,7 @@ dissect_ppi_vector_v1(tvbuff_t *tvb, packet_info *pinfo, int offset, int length_
             if (length_remaining < 4)
                 break;
             t_val = tvb_get_letohl(tvb, offset);
-            acc_f = ppi_fixed6_4_to_gdouble(t_val);
+            acc_f = ppi_fixed6_4_to_double(t_val);
             proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_acc_f, tvb, offset, 4, acc_f);
             offset+=4;
             length_remaining-=4;
@@ -522,7 +522,7 @@ dissect_ppi_vector_v1(tvbuff_t *tvb, packet_info *pinfo, int offset, int length_
             if (length_remaining < 4)
                 break;
             t_val = tvb_get_letohl(tvb, offset);
-            acc_u = ppi_fixed6_4_to_gdouble(t_val);
+            acc_u = ppi_fixed6_4_to_double(t_val);
             proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_acc_u, tvb, offset, 4, acc_u);
             offset+=4;
             length_remaining-=4;
@@ -531,7 +531,7 @@ dissect_ppi_vector_v1(tvbuff_t *tvb, packet_info *pinfo, int offset, int length_
             if (length_remaining < 4)
                 break;
             t_val = tvb_get_letohl(tvb, offset);
-            acc_t = ppi_fixed6_4_to_gdouble(t_val);
+            acc_t = ppi_fixed6_4_to_double(t_val);
             proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_acc_t, tvb, offset, 4, acc_t);
             offset+=4;
             length_remaining-=4;
@@ -540,7 +540,7 @@ dissect_ppi_vector_v1(tvbuff_t *tvb, packet_info *pinfo, int offset, int length_
             if (length_remaining < 4)
                 break;
             t_val   = tvb_get_letohl(tvb, offset);
-            err_rot = ppi_fixed3_6_to_gdouble(t_val);
+            err_rot = ppi_fixed3_6_to_double(t_val);
             proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_err_rot, tvb, offset, 4, err_rot);
             offset+=4;
             length_remaining-=4;
@@ -549,7 +549,7 @@ dissect_ppi_vector_v1(tvbuff_t *tvb, packet_info *pinfo, int offset, int length_
             if (length_remaining < 4)
                 break;
             t_val   = tvb_get_letohl(tvb, offset);
-            err_off = ppi_fixed6_4_to_gdouble(t_val);
+            err_off = ppi_fixed6_4_to_double(t_val);
             proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_err_off, tvb, offset, 4, err_off);
             offset+=4;
             length_remaining-=4;
@@ -558,7 +558,7 @@ dissect_ppi_vector_v1(tvbuff_t *tvb, packet_info *pinfo, int offset, int length_
             if (length_remaining < 4)
                 break;
             t_val   = tvb_get_letohl(tvb, offset);
-            err_vel = ppi_fixed6_4_to_gdouble(t_val);
+            err_vel = ppi_fixed6_4_to_double(t_val);
             proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_err_vel, tvb, offset, 4, err_vel);
             offset+=4;
             length_remaining-=4;
@@ -567,7 +567,7 @@ dissect_ppi_vector_v1(tvbuff_t *tvb, packet_info *pinfo, int offset, int length_
             if (length_remaining < 4)
                 break;
             t_val   = tvb_get_letohl(tvb, offset);
-            err_acc = ppi_fixed6_4_to_gdouble(t_val);
+            err_acc = ppi_fixed6_4_to_double(t_val);
             if (ppi_vector_tree) {
                 ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_err_acc, tvb, offset, 4, err_acc);
                 proto_item_append_text(ti, " (m/s)/s");
@@ -758,7 +758,7 @@ dissect_ppi_vector_v2(tvbuff_t *tvb, packet_info *pinfo, int offset, int length_
             if (length_remaining < 4)
                 break;
             t_val = tvb_get_letohl(tvb, offset);
-            rot_x = ppi_fixed3_6_to_gdouble(t_val);
+            rot_x = ppi_fixed3_6_to_double(t_val);
             if (ppi_vector_tree) {
                 ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_rot_x, tvb, offset, 4, rot_x);
                 proto_item_append_text(ti, " Degrees RelativeTo: %s", relativeto_str);
@@ -771,7 +771,7 @@ dissect_ppi_vector_v2(tvbuff_t *tvb, packet_info *pinfo, int offset, int length_
             if (length_remaining < 4)
                 break;
             t_val = tvb_get_letohl(tvb, offset);
-            rot_y = ppi_fixed3_6_to_gdouble(t_val);
+            rot_y = ppi_fixed3_6_to_double(t_val);
             if (ppi_vector_tree) {
                 ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_rot_y, tvb, offset, 4, rot_y);
                 proto_item_append_text(ti, " Degrees RelativeTo: %s", relativeto_str);
@@ -784,7 +784,7 @@ dissect_ppi_vector_v2(tvbuff_t *tvb, packet_info *pinfo, int offset, int length_
             if (length_remaining < 4)
                 break;
             t_val = tvb_get_letohl(tvb, offset);
-            rot_z =  ppi_fixed3_6_to_gdouble(t_val);
+            rot_z =  ppi_fixed3_6_to_double(t_val);
             if (ppi_vector_tree) {
                 ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_rot_z, tvb, offset, 4, rot_z);
                 proto_item_append_text(ti, " Degrees RelativeTo: %s", relativeto_str);
@@ -797,7 +797,7 @@ dissect_ppi_vector_v2(tvbuff_t *tvb, packet_info *pinfo, int offset, int length_
             if (length_remaining < 4)
                 break;
             t_val = tvb_get_letohl(tvb, offset);
-            off_x = ppi_fixed6_4_to_gdouble(t_val);
+            off_x = ppi_fixed6_4_to_double(t_val);
             if (ppi_vector_tree) {
                 ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_off_x, tvb, offset, 4, off_x);
                 proto_item_append_text(ti, " Meters RelativeTo: %s", relativeto_str);
@@ -810,7 +810,7 @@ dissect_ppi_vector_v2(tvbuff_t *tvb, packet_info *pinfo, int offset, int length_
             if (length_remaining < 4)
                 break;
             t_val = tvb_get_letohl(tvb, offset);
-            off_y = ppi_fixed6_4_to_gdouble(t_val);
+            off_y = ppi_fixed6_4_to_double(t_val);
             if (ppi_vector_tree) {
                 ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_off_y, tvb, offset, 4, off_y);
                 proto_item_append_text(ti, " Meters RelativeTo: %s", relativeto_str);
@@ -823,7 +823,7 @@ dissect_ppi_vector_v2(tvbuff_t *tvb, packet_info *pinfo, int offset, int length_
             if (length_remaining < 4)
                 break;
             t_val = tvb_get_letohl(tvb, offset);
-            off_z = ppi_fixed6_4_to_gdouble(t_val);
+            off_z = ppi_fixed6_4_to_double(t_val);
             if (ppi_vector_tree) {
                 ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_off_z, tvb, offset, 4, off_z);
                 proto_item_append_text(ti, " Meters RelativeTo: %s", relativeto_str);
@@ -836,7 +836,7 @@ dissect_ppi_vector_v2(tvbuff_t *tvb, packet_info *pinfo, int offset, int length_
             if (length_remaining < 4)
                 break;
             t_val   = tvb_get_letohl(tvb, offset);
-            err_rot = ppi_fixed3_6_to_gdouble(t_val);
+            err_rot = ppi_fixed3_6_to_double(t_val);
             proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_err_rot, tvb, offset, 4, err_rot);
             offset+=4;
             length_remaining-=4;
@@ -845,7 +845,7 @@ dissect_ppi_vector_v2(tvbuff_t *tvb, packet_info *pinfo, int offset, int length_
             if (length_remaining < 4)
                 break;
             t_val   = tvb_get_letohl(tvb, offset);
-            err_off = ppi_fixed6_4_to_gdouble(t_val);
+            err_off = ppi_fixed6_4_to_double(t_val);
             proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_err_off, tvb, offset, 4, err_off);
             offset+=4;
             length_remaining-=4;

@@ -1363,7 +1363,7 @@ dissect_q933_ns_facilities_ie(tvbuff_t *tvb, int offset, int len,
 }
 
 static int
-dissect_q933_guint16_value(tvbuff_t *tvb, packet_info *pinfo, int offset, int len,
+dissect_q933_uint16_value(tvbuff_t *tvb, packet_info *pinfo, int offset, int len,
 			   proto_tree *tree, int hf)
 {
 	uint8_t octet;
@@ -1445,7 +1445,7 @@ dissect_q933_e2e_transit_delay_ie(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 	if (len == 0)
 		return;
-	value_len = dissect_q933_guint16_value(tvb, pinfo, offset, len, tree,
+	value_len = dissect_q933_uint16_value(tvb, pinfo, offset, len, tree,
 	    hf_q933_cumulative_transit_delay);
 	if (value_len < 0)
 		return;	/* error */
@@ -1454,7 +1454,7 @@ dissect_q933_e2e_transit_delay_ie(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 	if (len == 0)
 		return;
-	value_len = dissect_q933_guint16_value(tvb, pinfo, offset, len, tree,
+	value_len = dissect_q933_uint16_value(tvb, pinfo, offset, len, tree,
 	    hf_q933_requested_end_to_end_transit_delay);
 	if (value_len < 0)
 		return;	/* error */
@@ -1463,7 +1463,7 @@ dissect_q933_e2e_transit_delay_ie(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 	if (len == 0)
 		return;
-	/*value_len = */dissect_q933_guint16_value(tvb, pinfo, offset, len, tree,
+	/*value_len = */dissect_q933_uint16_value(tvb, pinfo, offset, len, tree,
 	     hf_q933_max_end_to_end_transit_delay);
 }
 
@@ -1476,7 +1476,7 @@ dissect_q933_td_selection_and_int_ie(tvbuff_t *tvb, packet_info *pinfo, int offs
 {
 	if (len == 0)
 		return;
-	dissect_q933_guint16_value(tvb, pinfo, offset, len, tree, hf_q933_transit_delay);
+	dissect_q933_uint16_value(tvb, pinfo, offset, len, tree, hf_q933_transit_delay);
 }
 
 static const true_false_string tfs_link_by_link_end_to_end = { "Link-by-link", "End-to-end" };

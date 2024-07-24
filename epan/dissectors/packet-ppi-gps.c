@@ -238,7 +238,7 @@ dissect_ppi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
             if (length_remaining < 4)
                 break;
             t_lat = tvb_get_letohl(tvb, offset);
-            lat =  ppi_fixed3_7_to_gdouble(t_lat);
+            lat =  ppi_fixed3_7_to_double(t_lat);
             if (tree)
             {
                 proto_tree_add_double(ppi_gps_tree, hf_ppi_gps_lat, tvb, offset, 4, lat);
@@ -251,7 +251,7 @@ dissect_ppi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
             if (length_remaining < 4)
                 break;
             t_lon = tvb_get_letohl(tvb, offset);
-            lon =  ppi_fixed3_7_to_gdouble(t_lon);
+            lon =  ppi_fixed3_7_to_double(t_lon);
             if (tree)
             {
                 proto_tree_add_double(ppi_gps_tree, hf_ppi_gps_lon, tvb, offset, 4, lon);
@@ -264,7 +264,7 @@ dissect_ppi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
             if (length_remaining < 4)
                 break;
             t_alt = tvb_get_letohl(tvb, offset);
-            alt = ppi_fixed6_4_to_gdouble(t_alt);
+            alt = ppi_fixed6_4_to_double(t_alt);
             if (tree)
             {
                 proto_tree_add_double(ppi_gps_tree, hf_ppi_gps_alt, tvb, offset, 4, alt);
@@ -277,7 +277,7 @@ dissect_ppi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
             if (length_remaining < 4)
                 break;
             t_alt_gnd = tvb_get_letohl(tvb, offset);
-            alt_gnd = ppi_fixed6_4_to_gdouble(t_alt_gnd);
+            alt_gnd = ppi_fixed6_4_to_double(t_alt_gnd);
             if (tree)
             {
                 proto_tree_add_double(ppi_gps_tree, hf_ppi_gps_alt_gnd, tvb, offset, 4, alt_gnd);
@@ -319,7 +319,7 @@ dissect_ppi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
             if (length_remaining < 4)
                 break;
             t_herr = tvb_get_letohl(tvb, offset);
-            eph  =  ppi_fixed3_6_to_gdouble(t_herr);
+            eph  =  ppi_fixed3_6_to_double(t_herr);
             proto_tree_add_double(ppi_gps_tree, hf_ppi_gps_eph, tvb, offset, 4, eph);
             offset+=4;
             length_remaining-=4;
@@ -328,7 +328,7 @@ dissect_ppi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
             if (length_remaining < 4)
                 break;
             t_verr = tvb_get_letohl(tvb, offset);
-            epv  =  ppi_fixed3_6_to_gdouble(t_verr);
+            epv  =  ppi_fixed3_6_to_double(t_verr);
             proto_tree_add_double(ppi_gps_tree, hf_ppi_gps_epv, tvb, offset, 4, epv);
             offset+=4;
             length_remaining-=4;
@@ -337,7 +337,7 @@ dissect_ppi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
             if (length_remaining < 4)
                 break;
             t_terr = tvb_get_letohl(tvb, offset);
-            ept  =  ppi_ns_counter_to_gdouble(t_terr);
+            ept  =  ppi_ns_counter_to_double(t_terr);
             proto_tree_add_double(ppi_gps_tree, hf_ppi_gps_ept, tvb, offset, 4, ept);
             offset+=4;
             length_remaining-=4;

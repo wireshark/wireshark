@@ -46,6 +46,6 @@ typedef struct dlt_info {
 #define DLT_MSG_TYPE_INFO_CTRL_TIME                     0x36
 
 int32_t
-dlt_ecu_id_to_gint32(const char *ecu_id);
+dlt_ecu_id_to_int32(const char *ecu_id);
 
 #endif /* __PACKET_DLT_H__ */

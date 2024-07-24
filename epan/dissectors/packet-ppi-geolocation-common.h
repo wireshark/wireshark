@@ -12,6 +12,8 @@
 #ifndef __PPI_GEOLOCATION_COMMON_H
 #define __PPI_GEOLOCATION_COMMON_H
 
+#include <inttypes.h>
+
 /*
  * Declarations from shared PPI-GEOLOCATION functions.
  *
@@ -41,17 +43,17 @@
 /*
  * Floating point numbers are stored on disk in a handful of fixed-point formats (fixedX_Y)
  * designed to preserve the appropriate amount of precision vs range. These functions convert
- * the fixedX_Y fixed point values into 'native' gdoubles for displaying.
+ * the fixedX_Y fixed point values into 'native' doubles for displaying.
  * Documentation on these formats can be found in the PPI-GEOLOCATION specification
  */
-double ppi_fixed3_7_to_gdouble(guint32 in);
-double ppi_fixed3_6_to_gdouble(guint32 in);
-double ppi_fixed6_4_to_gdouble(guint32 in);
+double ppi_fixed3_7_to_double(uint32_t in);
+double ppi_fixed3_6_to_double(uint32_t in);
+double ppi_fixed6_4_to_double(uint32_t in);
 /*
  * Some values are encoded as 32-bit unsigned nano-second counters.
  * Usually we want to display these values as doubles.
  */
-double ppi_ns_counter_to_gdouble(guint32 in);
+double ppi_ns_counter_to_double(uint32_t in);
 
 
 typedef enum {

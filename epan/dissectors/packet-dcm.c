@@ -1083,7 +1083,7 @@ dcm_set_syntax(dcm_state_pctx_t *pctx, char *xfer_uid, const char *xfer_desc)
 }
 
 static void
-dcm_guint16_to_le(uint8_t *buffer, uint16_t value)
+dcm_uint16_to_le(uint8_t *buffer, uint16_t value)
 {
 
     buffer[0]=(uint8_t) (value & 0x00FF);
@@ -1091,7 +1091,7 @@ dcm_guint16_to_le(uint8_t *buffer, uint16_t value)
 }
 
 static void
-dcm_guint32_to_le(uint8_t *buffer, uint32_t value)
+dcm_uint32_to_le(uint8_t *buffer, uint32_t value)
 {
 
     buffer[0]=(uint8_t) (value & 0x000000FF);
@@ -1113,9 +1113,9 @@ dcm_export_create_tag_base(uint8_t *buffer, uint32_t bufflen, uint32_t offset,
 
     if (offset + 6 > bufflen) return bufflen;
 
-    dcm_guint16_to_le(buffer + offset, grp);
+    dcm_uint16_to_le(buffer + offset, grp);
     offset += 2;
-    dcm_guint16_to_le(buffer + offset, elm);
+    dcm_uint16_to_le(buffer + offset, elm);
     offset += 2;
     memmove(buffer + offset, dcm_tag_vr_lookup[vr], 2);
     offset += 2;
@@ -1136,11 +1136,11 @@ dcm_export_create_tag_base(uint8_t *buffer, uint32_t bufflen, uint32_t offset,
         if (offset + 6 > bufflen) return bufflen;
 
         /* Add two reserved 0x00 bytes */
-        dcm_guint16_to_le(buffer + offset, 0);
+        dcm_uint16_to_le(buffer + offset, 0);
         offset += 2;
 
         /* Length is a 4 byte field */
-        dcm_guint32_to_le(buffer + offset, value_len);
+        dcm_uint32_to_le(buffer + offset, value_len);
         offset += 4;
 
         break;
@@ -1149,7 +1149,7 @@ dcm_export_create_tag_base(uint8_t *buffer, uint32_t bufflen, uint32_t offset,
         /* Length is a 2 byte field */
         if (offset + 2 > bufflen) return bufflen;
 
-        dcm_guint16_to_le(buffer + offset, (uint16_t)value_len);
+        dcm_uint16_to_le(buffer + offset, (uint16_t)value_len);
         offset += 2;
     }
 
@@ -1162,7 +1162,7 @@ dcm_export_create_tag_base(uint8_t *buffer, uint32_t bufflen, uint32_t offset,
 }
 
 static uint32_t
-dcm_export_create_tag_guint16(uint8_t *buffer, uint32_t bufflen, uint32_t offset,
+dcm_export_create_tag_uint16(uint8_t *buffer, uint32_t bufflen, uint32_t offset,
                               uint16_t grp, uint16_t elm, uint16_t vr, uint16_t value)
 {
 
@@ -1170,7 +1170,7 @@ dcm_export_create_tag_guint16(uint8_t *buffer, uint32_t bufflen, uint32_t offset
 }
 
 static uint32_t
-dcm_export_create_tag_guint32(uint8_t *buffer, uint32_t bufflen, uint32_t offset,
+dcm_export_create_tag_uint32(uint8_t *buffer, uint32_t bufflen, uint32_t offset,
                               uint16_t grp, uint16_t elm, uint16_t vr, uint32_t value)
 {
 
@@ -1230,7 +1230,7 @@ dcm_export_create_header(packet_info *pinfo, uint32_t *dcm_header_len, const cha
         (0002,0013)     Implementation Version Name         SH
     */
 
-    offset=dcm_export_create_tag_guint16(dcm_header, DCM_HEADER_MAX, offset,
+    offset=dcm_export_create_tag_uint16(dcm_header, DCM_HEADER_MAX, offset,
         0x0002, 0x0001, DCM_VR_OB, 0x0100);  /* will result on 00 01 since it is little endian */
 
     offset=dcm_export_create_tag_str(dcm_header, DCM_HEADER_MAX, offset,
@@ -1249,7 +1249,7 @@ dcm_export_create_header(packet_info *pinfo, uint32_t *dcm_header_len, const cha
         0x0002, 0x0013, DCM_VR_SH, WIRESHARK_IMPLEMENTATION_VERSION);
 
     /* Finally write the meta header length */
-    dcm_export_create_tag_guint32(dcm_header, DCM_HEADER_MAX, offset_header_len,
+    dcm_export_create_tag_uint32(dcm_header, DCM_HEADER_MAX, offset_header_len,
         0x0002, 0x0000, DCM_VR_UL, offset-offset_header_len-12);
 
     *dcm_header_len=offset;

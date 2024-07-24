@@ -441,7 +441,7 @@ expert_dlt_parsing_error(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, in
  *****************************/
 
 int32_t
-dlt_ecu_id_to_gint32(const char *ecu_id) {
+dlt_ecu_id_to_int32(const char *ecu_id) {
     if (ecu_id == NULL) {
         return 0;
     }

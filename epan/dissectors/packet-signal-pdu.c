@@ -1842,7 +1842,7 @@ post_update_spdu_dlt_mapping_cb(void) {
         for (i = 0; i < spdu_dlt_mapping_num; i++) {
             int64_t *key = wmem_new(wmem_epan_scope(), int64_t);
             *key = spdu_dlt_mapping[i].dlt_message_id;
-            *key |= (int64_t)(dlt_ecu_id_to_gint32(spdu_dlt_mapping[i].ecu_id)) << 32;
+            *key |= (int64_t)(dlt_ecu_id_to_int32(spdu_dlt_mapping[i].ecu_id)) << 32;
 
             g_hash_table_insert(data_spdu_dlt_mappings, key, &spdu_dlt_mapping[i]);
         }
@@ -1856,7 +1856,7 @@ get_dlt_mapping(uint32_t pdu_id, const char *ecu_id) {
     }
 
     int64_t key = pdu_id;
-    key |= (int64_t)dlt_ecu_id_to_gint32(ecu_id) << 32;
+    key |= (int64_t)dlt_ecu_id_to_int32(ecu_id) << 32;
 
     return (spdu_dlt_mapping_uat_t *)g_hash_table_lookup(data_spdu_dlt_mappings, &key);
 }
@@ -2259,11 +2259,11 @@ dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* we need to reset this because it is reused */
     ti = NULL;
 
-    double value_gdouble = 0.0;
+    double value_double = 0.0;
 
     switch (item->data_type) {
     case SPDU_DATA_TYPE_UINT: {
-        value_gdouble = (double)value_uint64;
+        value_double = (double)value_uint64;
 
         if (item->multiplexer) {
             *multiplexer = (int)value_uint64;
@@ -2281,8 +2281,8 @@ dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         /* scale and output */
         if (item->scale_or_offset) {
-            value_gdouble = item->scaler * value_gdouble + item->offset;
-            ti = proto_tree_add_double(tree, hf_id_effective, tvb, offset, signal_length, value_gdouble);
+            value_double = item->scaler * value_double + item->offset;
+            ti = proto_tree_add_double(tree, hf_id_effective, tvb, offset, signal_length, value_double);
         } else {
             ti = proto_tree_add_uint64(tree, hf_id_effective, tvb, offset, signal_length, value_uint64);
         }
@@ -2300,7 +2300,7 @@ dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     case SPDU_DATA_TYPE_INT: {
         int64_t value_int64 = ws_sign_ext64(value_uint64, (int)item->bitlength_encoded_type);
-        value_gdouble = (double)value_int64;
+        value_double = (double)value_int64;
 
         if (item->multiplexer) {
             *multiplexer = (int)value_int64;
@@ -2308,8 +2308,8 @@ dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         /* scale and output */
         if (item->scale_or_offset) {
-            value_gdouble = item->scaler * value_gdouble + item->offset;
-            ti = proto_tree_add_double(tree, hf_id_effective, tvb, offset, signal_length, value_gdouble);
+            value_double = item->scaler * value_double + item->offset;
+            ti = proto_tree_add_double(tree, hf_id_effective, tvb, offset, signal_length, value_double);
         } else {
             ti = proto_tree_add_int64(tree, hf_id_effective, tvb, offset, signal_length, value_int64);
         }
@@ -2326,14 +2326,14 @@ dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         break;
 
     case SPDU_DATA_TYPE_FLOAT: {
-        value_gdouble = 0.0;
+        value_double = 0.0;
 
         switch (item->bitlength_base_type) {
         case 64:
-            value_gdouble = spdu_ieee_double_from_64bits(value_uint64);
+            value_double = spdu_ieee_double_from_64bits(value_uint64);
             break;
         case 32:
-            value_gdouble = (double)spdu_ieee_float_from_32bits((uint32_t)value_uint64);
+            value_double = (double)spdu_ieee_float_from_32bits((uint32_t)value_uint64);
             break;
         default:
             /* not supported and cannot occur since the config is checked! */
@@ -2342,7 +2342,7 @@ dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         /* scaler, offset, multiplexer not allowed by config checks */
 
-        ti = proto_tree_add_double(tree, hf_id_effective, tvb, offset, signal_length, value_gdouble);
+        ti = proto_tree_add_double(tree, hf_id_effective, tvb, offset, signal_length, value_double);
 
         if (value_name != NULL) {
             proto_item_append_text(ti, " [raw: 0x%" PRIx64 ": %s]", value_uint64, value_name);
@@ -2351,7 +2351,7 @@ dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
 
         subtree = proto_item_add_subtree(ti, ett_spdu_signal);
-        ti = proto_tree_add_double(subtree, hf_id_raw, tvb, offset, signal_length, value_gdouble);
+        ti = proto_tree_add_double(subtree, hf_id_raw, tvb, offset, signal_length, value_double);
         proto_item_append_text(ti, " [raw: 0x%" PRIx64 "]", value_uint64);
     }
         break;
@@ -2395,7 +2395,7 @@ dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_item_set_hidden(ti);
     }
 
-    /* Value passed in with value_gdouble, tree via subtree. */
+    /* Value passed in with value_double, tree via subtree. */
     if (item->aggregate_sum || item->aggregate_avg || item->aggregate_int) {
         int hf_id_eff = *(item->hf_id_effective);
         spdu_aggregation_t *agg_data = get_or_create_aggregation_data(pinfo, hf_id_eff);
@@ -2404,7 +2404,7 @@ dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (!PINFO_FD_VISITED(pinfo)) {
             nstime_t delta;
 
-            agg_data->sum += value_gdouble;
+            agg_data->sum += value_double;
             agg_data->count++;
 
             nstime_delta(&delta, &(pinfo->abs_ts), &(agg_data->last_time));
@@ -2414,7 +2414,7 @@ dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 agg_data->sum_time_value_products += delta_s * agg_data->last_value;
                 agg_data->last_time = pinfo->abs_ts;
             }
-            agg_data->last_value = value_gdouble;
+            agg_data->last_value = value_double;
 
             if (!spdu_frame_data) {
                 spdu_frame_data = wmem_new0(wmem_file_scope(), spdu_frame_data_t);

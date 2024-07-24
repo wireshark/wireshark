@@ -33,8 +33,8 @@ void proto_register_sparkplug(void);
 static int proto_sparkplugb;
 
 /* Initialize the subtree pointers */
-static gint ett_sparkplugb;
-static gint ett_sparkplugb_namespace;
+static int ett_sparkplugb;
+static int ett_sparkplugb_namespace;
 
 /* The handle to the protobuf dissector */
 dissector_handle_t protobuf_handle;
@@ -149,7 +149,7 @@ void proto_register_sparkplug(void)
 {
     expert_module_t* expert_sparkplugb;
 
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_sparkplugb,
         &ett_sparkplugb_namespace
     };

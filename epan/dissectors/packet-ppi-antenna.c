@@ -223,7 +223,7 @@ dissect_ppi_antenna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
             if (length_remaining < 4)
                 break;
             t_hbw = tvb_get_letohl(tvb, offset);
-            horizbw =  ppi_fixed3_6_to_gdouble(t_hbw);
+            horizbw =  ppi_fixed3_6_to_double(t_hbw);
             if (tree) {
                 proto_tree_add_double(ppi_antenna_tree, hf_ppi_antenna_horizbw, tvb, offset, 4, horizbw);
                 proto_item_append_text(antenna_line, " HorizBw: %f", horizbw);
@@ -235,7 +235,7 @@ dissect_ppi_antenna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
             if (length_remaining < 4)
                 break;
             t_vbw = tvb_get_letohl(tvb, offset);
-            vertbw =  ppi_fixed3_6_to_gdouble(t_vbw);
+            vertbw =  ppi_fixed3_6_to_double(t_vbw);
             proto_tree_add_double(ppi_antenna_tree, hf_ppi_antenna_vertbw, tvb, offset, 4, vertbw);
             offset+=4;
             length_remaining-=4;
@@ -244,7 +244,7 @@ dissect_ppi_antenna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
             if (length_remaining < 4)
                 break;
             t_pgain = tvb_get_letohl(tvb, offset);
-            pgain   = ppi_fixed3_6_to_gdouble(t_pgain);
+            pgain   = ppi_fixed3_6_to_double(t_pgain);
             proto_tree_add_double(ppi_antenna_tree, hf_ppi_antenna_pgain, tvb, offset, 4, pgain);
             offset+=4;
             length_remaining-=4;

@@ -182,7 +182,7 @@ static const value_string corosync_totemsrp_ip_address_family[] = {
 };
 
 static uint16_t
-corosync_totemsrp_get_guint16(tvbuff_t* tvb, int offset, const unsigned encoding)
+corosync_totemsrp_get_uint16(tvbuff_t* tvb, int offset, const unsigned encoding)
 {
   if (encoding == ENC_LITTLE_ENDIAN)
     return tvb_get_letohs(tvb, offset);
@@ -192,7 +192,7 @@ corosync_totemsrp_get_guint16(tvbuff_t* tvb, int offset, const unsigned encoding
 
 
 static uint32_t
-corosync_totemsrp_get_guint32(tvbuff_t* tvb, int offset, const unsigned encoding)
+corosync_totemsrp_get_uint32(tvbuff_t* tvb, int offset, const unsigned encoding)
 {
   if (encoding == ENC_LITTLE_ENDIAN)
     return tvb_get_letohl(tvb, offset);
@@ -201,7 +201,7 @@ corosync_totemsrp_get_guint32(tvbuff_t* tvb, int offset, const unsigned encoding
 }
 
 static uint64_t
-corosync_totemsrp_get_guint64(tvbuff_t* tvb, int offset, const unsigned encoding)
+corosync_totemsrp_get_uint64(tvbuff_t* tvb, int offset, const unsigned encoding)
 {
   if (encoding == ENC_LITTLE_ENDIAN)
     return tvb_get_letoh64(tvb, offset);
@@ -233,10 +233,10 @@ dissect_corosync_totemsrp_ip_address(tvbuff_t *tvb,
   proto_item *item;
   int len;
 
-  nid = corosync_totemsrp_get_guint32(tvb, offset, encoding);
+  nid = corosync_totemsrp_get_uint32(tvb, offset, encoding);
   if (nodeid)
     *nodeid = nid;
-  family = corosync_totemsrp_get_guint16(tvb, offset + 4, encoding);
+  family = corosync_totemsrp_get_uint16(tvb, offset + 4, encoding);
 
   item = proto_tree_add_item(parent_tree, hf_corosync_totemsrp_ip_address, tvb, offset,
                              -1, ENC_NA);
@@ -317,7 +317,7 @@ dissect_corosync_totemsrp_memb_ring_id(tvbuff_t *tvb,
 
   proto_tree_add_item(tree, hf_corosync_totemsrp_memb_ring_id_seq,
                         tvb, offset, 8, encoding);
-  rid = corosync_totemsrp_get_guint64(tvb, offset, encoding);
+  rid = corosync_totemsrp_get_uint64(tvb, offset, encoding);
   offset += 8;
 
   proto_item_append_text(item, " (ring: %" PRIu64 ")", rid);
@@ -358,7 +358,7 @@ dissect_corosync_totemsrp_rtr_list(tvbuff_t *tvb,
   proto_tree_add_item(tree, hf_corosync_totemsrp_rtr_item_seq,
                         tvb, offset, 4, encoding);
 
-  seq = corosync_totemsrp_get_guint32(tvb, offset, encoding);
+  seq = corosync_totemsrp_get_uint32(tvb, offset, encoding);
   proto_item_append_text(item, " (ring: %" PRIu64 " node: %u seq: %u)",
                            ring_id, node_id, seq);
   offset += 4;
@@ -390,12 +390,12 @@ dissect_corosync_totemsrp_orf_token(tvbuff_t *tvb,
 
   proto_tree_add_item(tree, hf_corosync_totemsrp_orf_token_token_seq,
                         tvb, offset, 4, encoding);
-  seq = corosync_totemsrp_get_guint32(tvb, offset, encoding);
+  seq = corosync_totemsrp_get_uint32(tvb, offset, encoding);
   offset += 4;
 
   proto_tree_add_item(tree, hf_corosync_totemsrp_orf_token_aru,
                         tvb, offset, 4, encoding);
-  aru = corosync_totemsrp_get_guint32(tvb, offset, encoding);
+  aru = corosync_totemsrp_get_uint32(tvb, offset, encoding);
   offset += 4;
 
   proto_tree_add_item(tree, hf_corosync_totemsrp_orf_token_aru_addr,
@@ -422,7 +422,7 @@ dissect_corosync_totemsrp_orf_token(tvbuff_t *tvb,
 
   proto_tree_add_item(tree, hf_corosync_totemsrp_orf_token_rtr_list_entries,
                         tvb, offset, 4, encoding);
-  rtr_list_entries = corosync_totemsrp_get_guint32(tvb, offset, encoding);
+  rtr_list_entries = corosync_totemsrp_get_uint32(tvb, offset, encoding);
   offset += 4;
 
   for (i = 0; i < rtr_list_entries; i++) {
@@ -614,12 +614,12 @@ dissect_corosync_totemsrp_memb_join(tvbuff_t *tvb,
 
   proc_item = proto_tree_add_item(tree, hf_corosync_totemsrp_memb_join_proc_list_entries,
                                     tvb, offset, 4, encoding);
-  proc_list_entries = corosync_totemsrp_get_guint32(tvb, offset, encoding);
+  proc_list_entries = corosync_totemsrp_get_uint32(tvb, offset, encoding);
   offset += 4;
 
   failed_item = proto_tree_add_item(tree, hf_corosync_totemsrp_memb_join_failed_list_entries,
                                       tvb, offset, 4, encoding);
-  failed_list_entries = corosync_totemsrp_get_guint32(tvb, offset, encoding);
+  failed_list_entries = corosync_totemsrp_get_uint32(tvb, offset, encoding);
   offset += 4;
 
   proto_tree_add_item(tree, hf_corosync_totemsrp_memb_join_ring_seq,
@@ -715,7 +715,7 @@ dissect_corosync_totemsrp_memb_commit_token(tvbuff_t *tvb,
 
   proto_tree_add_item(tree, hf_corosync_totemsrp_memb_commit_token_token_seq,
                         tvb, offset, 4, encoding);
-  seq = corosync_totemsrp_get_guint32(tvb, offset, encoding);
+  seq = corosync_totemsrp_get_uint32(tvb, offset, encoding);
   offset += 4;
 
   offset += dissect_corosync_totemsrp_memb_ring_id(tvb, pinfo, tree,
@@ -734,7 +734,7 @@ dissect_corosync_totemsrp_memb_commit_token(tvbuff_t *tvb,
 
   proto_tree_add_item(tree, hf_corosync_totemsrp_memb_commit_token_addr_entries,
                         tvb, offset, 4, encoding);
-  addr_entries = corosync_totemsrp_get_guint32(tvb, offset, encoding);
+  addr_entries = corosync_totemsrp_get_uint32(tvb, offset, encoding);
   offset += 4;
 
   for (i = 0; i < addr_entries; i++) {
@@ -867,7 +867,7 @@ dissect_corosync_totemsrp0(tvbuff_t *tvb,
                         hf_corosync_totemsrp_message_header_nodeid,
                         tvb, offset, 4, encoding);
   info.encoding = encoding;
-  info.nodeid = corosync_totemsrp_get_guint32(tvb, offset, encoding);
+  info.nodeid = corosync_totemsrp_get_uint32(tvb, offset, encoding);
   offset += 4;
 
   increment_dissection_depth(pinfo);

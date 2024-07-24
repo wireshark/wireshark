@@ -280,7 +280,7 @@ dissect_ppi_sensor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
             if (length_remaining < 4)
                 break;
             val_t = tvb_get_letohl(tvb, offset);
-            c_val = ppi_fixed6_4_to_gdouble(val_t);
+            c_val = ppi_fixed6_4_to_double(val_t);
             if (tree) {
                 my_pt = proto_tree_add_double(ppi_sensor_tree, hf_ppi_sensor_val_x, tvb, offset, 4, c_val);
                 proto_item_append_text (my_pt, " %s", unit_str);
@@ -294,7 +294,7 @@ dissect_ppi_sensor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
             if (length_remaining < 4)
                 break;
             val_t = tvb_get_letohl(tvb, offset);
-            c_val = ppi_fixed6_4_to_gdouble(val_t);
+            c_val = ppi_fixed6_4_to_double(val_t);
             if (tree) {
                 my_pt = proto_tree_add_double(ppi_sensor_tree, hf_ppi_sensor_val_y, tvb, offset, 4, c_val);
                 proto_item_append_text (my_pt, " %s", unit_str);
@@ -309,7 +309,7 @@ dissect_ppi_sensor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
             if (length_remaining < 4)
                 break;
             val_t = tvb_get_letohl(tvb, offset);
-            c_val = ppi_fixed6_4_to_gdouble(val_t);
+            c_val = ppi_fixed6_4_to_double(val_t);
             if (tree) {
                 my_pt = proto_tree_add_double(ppi_sensor_tree, hf_ppi_sensor_val_z, tvb, offset, 4, c_val);
                 proto_item_append_text (my_pt, " %s", unit_str);
@@ -323,7 +323,7 @@ dissect_ppi_sensor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
             if (length_remaining < 4)
                 break;
             val_t = tvb_get_letohl(tvb, offset);
-            c_val = ppi_fixed6_4_to_gdouble(val_t);
+            c_val = ppi_fixed6_4_to_double(val_t);
             if (tree) {
                 my_pt = proto_tree_add_double(ppi_sensor_tree, hf_ppi_sensor_val_t, tvb, offset, 4, c_val);
                 proto_item_append_text (my_pt, " %s", unit_str);
@@ -337,7 +337,7 @@ dissect_ppi_sensor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
             if (length_remaining < 4)
                 break;
             val_t = tvb_get_letohl(tvb, offset);
-            c_val = ppi_fixed6_4_to_gdouble(val_t);
+            c_val = ppi_fixed6_4_to_double(val_t);
             if (tree) {
                 my_pt = proto_tree_add_double(ppi_sensor_tree, hf_ppi_sensor_val_e, tvb, offset, 4, c_val);
                 proto_item_append_text (my_pt, " %s", unit_str);
