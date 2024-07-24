@@ -6,6 +6,7 @@
  * https://tools.ietf.org/wg/ancp/
  * https://tools.ietf.org/html/draft-ietf-ancp-protocol-09
  * https://tools.ietf.org/html/rfc6320
+ * https://tools.ietf.org/html/rfc7256
  * https://www.iana.org/assignments/ancp/ancp.xhtml
  *
  * Copyright 2010, Aniruddha.A (anira@cisco.com)
@@ -25,7 +26,7 @@
 #include <wsutil/ws_roundup.h>
 #include "packet-tcp.h"
 
-#define ANCP_PORT 6068 /* The ANCP TCP port:draft-ietf-ancp-protocol-09.txt */
+#define ANCP_PORT 6068 /* The ANCP TCP port */
 
 #define ANCP_MIN_HDR  4
 #define ANCP_GSMP_ETHER_TYPE  0x880C
@@ -157,14 +158,21 @@ struct ancp_tap_t {
 
 /* Value Strings */
 static const value_string mtype_names[] = {
-    { 10, "Adjacency" },
-    { 32, "Port-Management" },
-    { 80, "Port-Up" },
-    { 81, "Port-Down" },
-    { 85, "Adjacency Update" },
-    { 91, "Generic Response" },
-    { 93, "Provisioning" },
-    {  0,  NULL }
+    {  10, "Adjacency" },
+    {  32, "Port-Management" },
+    {  80, "Port-Up" },
+    {  81, "Port-Down" },
+    {  85, "Adjacency Update" },
+    {  91, "Generic Response" },
+    {  93, "Provisioning" },
+    { 144, "Multicast Replication Control" },
+    { 145, "Multicast Admission Control" },
+    { 146, "Bandwidth Reallocation Request" },
+    { 147, "Bandwidth Transfer" },
+    { 148, "Delegated Bandwidth Query" },
+    { 149, "Mulicast Flow Query" },
+    { 150, "Committed Bandwidth Report" },
+    {   0,  NULL }
 };
 
 static const value_string adj_code_names[] = {
@@ -201,6 +209,12 @@ static const value_string codetype_names[] = {
     { 0x053, "Malformed message" },
     { 0x054, "Mandatory TLV missing" },
     { 0x055, "Invalid TLV contents" },
+    { 0x064, "Command error" },
+    { 0x065, "Invalid flow address" },
+    { 0x066, "Mulicast flow does not exist" },
+    { 0x067, "Invalid preferred bandwith amount" },
+    { 0x068, "Inconsistent views of delegated bandwidth amount" },
+    { 0x069, "Bandwidth request conflict" },
     { 0x500, "One or more of the specified ports do not exist" },
     { 0x501, "Loopback test timed out" },
     { 0x502, "Reserved" },
@@ -289,6 +303,7 @@ static const value_string function_names[] = {
 };
 
 static const value_string ext_tlv_types[] = {
+    { 0x0000, "Reserved" },
     { 0x0001, "Access-Loop-Circuit-ID" },
     { 0x0002, "Access-Loop-Remote-ID" },
     { 0x0003, "Access-Aggregation-Circuit-ID-ASCII" },
