@@ -663,7 +663,6 @@ sub Function($$$)
 		$return_types{$ifname}->{"hresult"} = ["HRESULT", "HRES Windows Error"];
 	} elsif (my $type = getType($fn->{RETURN_TYPE})) {
 		if ($type->{DATA}->{TYPE} eq "ENUM") {
-			my $return_type = "g".Parse::Pidl::Typelist::enum_type_fn($type->{DATA});
 			my $return_dissect = "dissect_ndr_" .Parse::Pidl::Typelist::enum_type_fn($type->{DATA});
 
 			$self->pidl_code("offset = $return_dissect(tvb, offset, pinfo, tree, di, drep, hf\_$ifname\_$fn->{RETURN_TYPE}_status, &status);");
