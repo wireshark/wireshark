@@ -2806,8 +2806,8 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             connection_info = (connection_info_t *) wmem_tree_lookup32_le(wmem_tree, pinfo->num);
             if (connection_info) {
                 char   *str_addr_src, *str_addr_dst;
-                /* Holds "unknown" + access_address + NULL, which is the longest string */
-                int     str_addr_len = 18 + 1;
+                /* Holds "Peripheral_0x" (13 chars) + access_address (as %08x, 8 chars) + NULL, which is the longest string */
+                int     str_addr_len = 13 + 8 + 1;
 
                 str_addr_src = (char *) wmem_alloc(pinfo->pool, str_addr_len);
                 str_addr_dst = (char *) wmem_alloc(pinfo->pool, str_addr_len);
