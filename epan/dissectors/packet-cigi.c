@@ -15894,7 +15894,7 @@ proto_register_cigi(void)
 
         /* CIGI4 Symbol Clone */
         { &hf_cigi4_symbol_clone,
-            { "Symbol Surface Definition", "cigi.symbol_clone",
+            { "Symbol Clone", "cigi.symbol_clone",
                 FT_NONE, BASE_NONE, NULL, 0x0,
                 "Symbol Clone Packet", HFILL }
         },
