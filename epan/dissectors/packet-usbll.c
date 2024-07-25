@@ -1673,6 +1673,20 @@ packet_ends_transfer(usbll_endpoint_info_t *ep_info, uint32_t offset, int data_s
          */
         if (ep_info->type != USBLL_EP_BULK)
         {
+            /* For High-Bandwidth endpoints allow up to Total Payload Length */
+            if (USB_MPS_ADDNL(ep_info->max_packet_size))
+            {
+                uint32_t total_payload = USB_MPS_TPL(ep_info->max_packet_size);
+
+                /* Short packet always ends transfer */
+                if (data_size < USB_MPS_EP_SIZE(ep_info->max_packet_size))
+                {
+                    return true;
+                }
+
+                return offset + data_size >= total_payload;
+            }
+
             return true;
         }
     }
@@ -2013,7 +2027,7 @@ dissect_usbll_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
                  */
             }
             else if ((ep_info->active_transfer_key == 0) ||
-                     packet_ends_transfer(ep_info, ep_info->transfer_offset, ep_info->last_data_len))
+                     packet_ends_transfer(ep_info, ep_info->transfer_offset - ep_info->last_data_len, ep_info->last_data_len))
             {
                  /* Packet starts new transfer */
                  transfer = wmem_new0(wmem_file_scope(), usbll_transfer_info_t);
