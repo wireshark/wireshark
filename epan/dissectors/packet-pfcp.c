@@ -10881,7 +10881,7 @@ dissect_pfcp_generic_enterprise_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 static void pfcp_register_generic_ie_dissector(uint16_t enterprise_id, const char* dissector_name, const char* table_name, const char* ui_name, pfcp_generic_ie_t* ies, unsigned num_ies)
 {
     // Register a tree-type for each IE and store it in the ie-struct
-    int** ie_refs = g_alloca(sizeof(int*) * num_ies);
+    int** ie_refs = (int** )wmem_alloc(wmem_epan_scope(), (sizeof(int*) * num_ies));
     for (unsigned i = 0; i < num_ies; i++) {
         ies[i].ett = -1;
         ie_refs[i] = &ies[i].ett;
