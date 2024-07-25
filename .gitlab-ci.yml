@@ -34,11 +34,11 @@ variables:
   # Skip irrelevant SAST scanners:
   SAST_EXCLUDED_ANALYZERS: "brakeman,eslint,security-code-scan,semgrep,spotbugs"
 
-# Automatically cancel pipelines if new changes are pushed to a branch.
-# workflow:auto_cancel:on_new_commit defaults to "conservative", which
-# prevents pipeline cancellation if we have any non-interruptible jobs.
-default:
-  interruptible: true
+workflow:
+  auto_cancel:
+    # Automatically cancel pipelines if new changes are pushed to a branch
+    # and the job is interruptible. Jobs are not interruptible by default.
+    on_new_commit: interruptible
 
 # Scheduled builds additionally set SCHEDULE_TYPE, which can be one of:
 # - daily: Daily at 10:00 UTC
@@ -72,10 +72,12 @@ default:
 # Incoming merge requests.
 .if-merge-request:
   - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    interruptible: true
 # Incoming non-detached merge requests. Must be used for runners which are only
 # available in wireshark/wireshark, e.g. wireshark-windows-*
 .if-w-w-only-merge-request:
   - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
+    interruptible: true
 # Scheduled jobs. Care should be taken when changing this since the scheduler
 # often doesn't report errors.
 .if-daily-schedule:
