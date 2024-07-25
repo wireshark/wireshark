@@ -374,10 +374,10 @@ typedef struct _sync_dns_data
 static ares_channel ghba_chan; /* ares_gethostbyaddr -- Usually non-interactive, no timeout */
 static ares_channel ghbn_chan; /* ares_gethostbyname -- Usually interactive, timeout */
 
-static  bool      async_dns_initialized;
+static  bool        async_dns_initialized;
 static  unsigned    async_dns_in_flight;
 static  wmem_list_t *async_dns_queue_head;
-static  GMutex async_dns_queue_mtx;
+static  GMutex      async_dns_queue_mtx;
 
 //UAT for providing a list of DNS servers to C-ARES for name resolution
 bool use_custom_dns_server_list;
@@ -1008,7 +1008,7 @@ _serv_name_lookup(port_type proto, unsigned port, serv_port_t **value_ret)
 const char *
 try_serv_name_lookup(port_type proto, unsigned port)
 {
-    return _serv_name_lookup(proto, port, NULL);
+    return (proto == PT_NONE) ? NULL : _serv_name_lookup(proto, port, NULL);
 }
 
 const char *
@@ -2807,34 +2807,31 @@ extern resolved_name_t* get_edited_resolved_name(const char* addr)
 }
 
 /*
- * Add the resolved addresses that are in use to the list used to create the NRB
+ * Add the resolved addresses that are in use to the list used to create the pcapng NRB
  */
 static void
 ipv4_hash_table_resolved_to_list(void *key _U_, void *value, void *user_data)
 {
-    addrinfo_lists_t *lists = (addrinfo_lists_t*)user_data;
+    addrinfo_lists_t *lists = (addrinfo_lists_t *)user_data;
     hashipv4_t *ipv4_hash_table_entry = (hashipv4_t *)value;
 
     if ((ipv4_hash_table_entry->flags & USED_AND_RESOLVED_MASK) == USED_AND_RESOLVED_MASK) {
         lists->ipv4_addr_list = g_list_prepend(lists->ipv4_addr_list, ipv4_hash_table_entry);
     }
-
 }
 
 /*
- * Add the resolved addresses that are in use to the list used to create the NRB
+ * Add the resolved addresses that are in use to the list used to create the pcapng NRB
  */
-
 static void
 ipv6_hash_table_resolved_to_list(void *key _U_, void *value, void *user_data)
 {
-    addrinfo_lists_t *lists = (addrinfo_lists_t*)user_data;
+    addrinfo_lists_t *lists = (addrinfo_lists_t *)user_data;
     hashipv6_t *ipv6_hash_table_entry = (hashipv6_t *)value;
 
     if ((ipv6_hash_table_entry->flags & USED_AND_RESOLVED_MASK) == USED_AND_RESOLVED_MASK) {
-        lists->ipv6_addr_list = g_list_prepend (lists->ipv6_addr_list, ipv6_hash_table_entry);
+        lists->ipv6_addr_list = g_list_prepend(lists->ipv6_addr_list, ipv6_hash_table_entry);
     }
-
 }
 
 addrinfo_lists_t *

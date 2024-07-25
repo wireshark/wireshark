@@ -87,7 +87,7 @@ typedef struct _resolved_name {
 /*
  * Flags for various resolved name hash table entries.
  */
-#define TRIED_RESOLVE_ADDRESS    (1U<<0)  /* XXX - what does this bit *really* mean? */
+#define TRIED_RESOLVE_ADDRESS    (1U<<0)  /* name resolution is being/has been tried */
 #define NAME_RESOLVED            (1U<<1)  /* the name field contains a host name, not a printable address */
 #define RESOLVED_ADDRESS_USED    (1U<<2)  /* a get_hostname* call returned the host name */
 #define STATIC_HOSTNAME          (1U<<3)  /* do not update entries from hosts file with DNS responses */
