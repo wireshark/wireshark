@@ -314,7 +314,6 @@ int dissect_ndr_ctx_hnd (tvbuff_t *tvb, int offset, packet_info *pinfo,
                         int hfindex, e_ctx_hnd *pdata);
 
 #define FT_UINT1632 FT_UINT32
-typedef uint32_t guint1632;
 typedef uint32_t uint1632_t;
 
 WS_DLL_PUBLIC
@@ -322,7 +321,6 @@ int dissect_ndr_uint1632 (tvbuff_t *tvb, int offset, packet_info *pinfo,
 		        proto_tree *tree, dcerpc_info *di, uint8_t *drep,
 		        int hfindex, uint1632_t *pdata);
 
-typedef uint64_t guint3264;
 typedef uint64_t uint3264_t;
 
 WS_DLL_PUBLIC

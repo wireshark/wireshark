@@ -219,7 +219,7 @@ dissect_ndr_uint32(tvbuff_t *tvb, int offset, packet_info *pinfo,
 int
 dissect_ndr_uint3264(tvbuff_t *tvb, int offset, packet_info *pinfo,
                      proto_tree *tree, dcerpc_info *di, uint8_t *drep,
-                     int hfindex, guint3264 *pdata)
+                     int hfindex, uint3264_t *pdata)
 {
     if (di->call_data->flags & DCERPC_IS_NDR64) {
         return dissect_ndr_uint64(tvb, offset, pinfo, tree, di, drep, hfindex, pdata);
@@ -239,7 +239,7 @@ dissect_ndr_uint3264(tvbuff_t *tvb, int offset, packet_info *pinfo,
 int
 dissect_ndr_uint1632(tvbuff_t *tvb, int offset, packet_info *pinfo,
                      proto_tree *tree, dcerpc_info *di, uint8_t *drep,
-                     int hfindex, guint1632 *pdata)
+                     int hfindex, uint1632_t *pdata)
 {
     if (di->call_data->flags & DCERPC_IS_NDR64) {
         return dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hfindex, pdata);

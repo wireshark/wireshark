@@ -460,7 +460,7 @@ epm_dissect_tower (tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *tree,
                              dcerpc_info *di, uint8_t *drep)
 {
-    guint3264 len;
+    uint3264_t len;
 
     if(di->conformant_run){
         return offset;
