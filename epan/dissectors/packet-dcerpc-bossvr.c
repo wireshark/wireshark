@@ -26,11 +26,11 @@ static int proto_bossvr;
 static int hf_bossvr_opnum;
 
 
-static gint ett_bossvr;
+static int ett_bossvr;
 
 
 static e_guid_t uuid_bossvr = { 0x4d37f2dd, 0xed43, 0x0000, { 0x02, 0xc0, 0x37, 0xcf, 0x1e, 0x00, 0x00, 0x01 } };
-static guint16  ver_bossvr;
+static uint16_t ver_bossvr;
 
 
 static const dcerpc_sub_dissector bossvr_dissectors[] = {
@@ -80,7 +80,7 @@ proto_register_dcerpc_bossvr (void)
 		    NULL, 0x0, NULL, HFILL }}
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_bossvr,
 	};
 	proto_bossvr = proto_register_protocol ("DCE DFS Basic Overseer Server", "BOSSVR", "bossvr");

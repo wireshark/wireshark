@@ -25,12 +25,12 @@ static int proto_rs_prop_attr;
 static int hf_rs_prop_attr_opnum;
 
 
-static gint ett_rs_prop_attr;
+static int ett_rs_prop_attr;
 static e_guid_t uuid_rs_prop_attr =
   { 0x0eff23e6, 0x555a, 0x11cd, {0x95, 0xbf, 0x08, 0x00, 0x09, 0x27, 0x84,
                                  0xc3} };
 
-static guint16 ver_rs_prop_attr = 1;
+static uint16_t ver_rs_prop_attr = 1;
 
 
 static const dcerpc_sub_dissector rs_prop_attr_dissectors[] = {
@@ -48,7 +48,7 @@ proto_register_rs_prop_attr (void)
       NULL, HFILL}},
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_rs_prop_attr,
   };
   proto_rs_prop_attr =

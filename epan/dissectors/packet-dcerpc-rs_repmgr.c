@@ -25,12 +25,12 @@ static int proto_rs_repmgr;
 static int hf_rs_repmgr_opnum;
 
 
-static gint ett_rs_repmgr;
+static int ett_rs_repmgr;
 static e_guid_t uuid_rs_repmgr =
   { 0xb62dc198, 0xdfd4, 0x11ca, {0x94, 0x8f, 0x08, 0x00, 0x1e, 0x02, 0x59,
                                  0x4c} };
 
-static guint16 ver_rs_repmgr = 2;
+static uint16_t ver_rs_repmgr = 2;
 
 
 static const dcerpc_sub_dissector rs_repmgr_dissectors[] = {
@@ -55,7 +55,7 @@ proto_register_rs_repmgr (void)
       NULL, HFILL}},
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_rs_repmgr,
   };
   proto_rs_repmgr =

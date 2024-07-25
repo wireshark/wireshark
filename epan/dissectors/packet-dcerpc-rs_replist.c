@@ -25,11 +25,11 @@ static int proto_rs_replist;
 static int hf_rs_replist_opnum;
 
 
-static gint ett_rs_replist;
+static int ett_rs_replist;
 
 
 static e_guid_t uuid_rs_replist = { 0x850446b0, 0xe95b, 0x11CA, { 0xad, 0x90, 0x08, 0x00, 0x1e, 0x01, 0x45, 0xb1 } };
-static guint16  ver_rs_replist = 2;
+static uint16_t ver_rs_replist = 2;
 
 
 static const dcerpc_sub_dissector rs_replist_dissectors[] = {
@@ -54,7 +54,7 @@ proto_register_rs_replist (void)
 		{ "Operation", "rs_replist.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_rs_replist,
 	};
 	proto_rs_replist = proto_register_protocol ("DCE/RPC Repserver Calls", "RS_REPLIST", "rs_replist");

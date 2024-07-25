@@ -26,11 +26,11 @@ static int proto_cds_clerkserver;
 static int hf_cds_clerkserver_opnum;
 
 
-static gint ett_cds_clerkserver;
+static int ett_cds_clerkserver;
 
 
 static e_guid_t uuid_cds_clerkserver = { 0x257df1c9, 0xc6d3, 0x11ca, { 0x85, 0x54, 0x08, 0x00, 0x2b, 0x1c, 0x8f, 0x1f } };
-static guint16  ver_cds_clerkserver = 1;
+static uint16_t ver_cds_clerkserver = 1;
 
 
 
@@ -74,7 +74,7 @@ proto_register_cds_clerkserver (void)
 	      NULL, 0x0, NULL, HFILL }}
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_cds_clerkserver,
 	};
 	proto_cds_clerkserver = proto_register_protocol ("CDS Clerk Server Calls", "CDS_CLERK", "cds_clerkserver");

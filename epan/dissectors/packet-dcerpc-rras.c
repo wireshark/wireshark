@@ -23,7 +23,7 @@ static int proto_dcerpc_rras;
 
 static int hf_rras_opnum;
 
-static gint ett_dcerpc_rras;
+static int ett_dcerpc_rras;
 
 /*
  * The rras MSRPC interface is typically reached using the ncacn_np transport
@@ -35,7 +35,7 @@ static e_guid_t uuid_dcerpc_rras = {
 	{ 0xbb, 0xd2, 0x00, 0x00, 0x1a, 0x18, 0x1c, 0xad }
 };
 
-static guint16 ver_dcerpc_rras;
+static uint16_t ver_dcerpc_rras;
 
 
 static const dcerpc_sub_dissector dcerpc_rras_dissectors[] = {
@@ -127,7 +127,7 @@ proto_register_dcerpc_rras(void)
 	};
 
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_dcerpc_rras,
 	};
 

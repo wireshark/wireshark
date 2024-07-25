@@ -25,11 +25,11 @@ static int proto_roverride;
 static int hf_roverride_opnum;
 
 
-static gint ett_roverride;
+static int ett_roverride;
 
 
 static e_guid_t uuid_roverride = { 0x5d978990, 0x4851, 0x11ca, { 0x99, 0x37, 0x08, 0x00, 0x1e, 0x03, 0x94, 0x48 } };
-static guint16  ver_roverride = 1;
+static uint16_t ver_roverride = 1;
 
 
 static const dcerpc_sub_dissector roverride_dissectors[] = {
@@ -51,7 +51,7 @@ proto_register_roverride (void)
 		  { "Operation", "roverride.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_roverride,
 	};
 	proto_roverride = proto_register_protocol ("Remote Override interface", "roverride", "roverride");

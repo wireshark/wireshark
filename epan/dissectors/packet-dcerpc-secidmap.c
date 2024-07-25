@@ -25,10 +25,10 @@ static int proto_secidmap;
 static int hf_secidmap_opnum;
 
 
-static gint ett_secidmap;
+static int ett_secidmap;
 
 static e_guid_t uuid_secidmap = { 0x0d7c1e50, 0x113a, 0x11ca, { 0xb7, 0x1f, 0x08, 0x00, 0x1e, 0x01, 0xdc, 0x6c } };
-static guint16  ver_secidmap = 1;
+static uint16_t ver_secidmap = 1;
 
 
 
@@ -51,7 +51,7 @@ proto_register_secidmap (void)
 	      NULL, 0x0, NULL, HFILL }}
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_secidmap,
 	};
 	proto_secidmap = proto_register_protocol ("DCE Security ID Mapper", "SECIDMAP", "secidmap");

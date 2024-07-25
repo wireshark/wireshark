@@ -24,9 +24,9 @@ static int proto_rs_prop_acct;
 static int hf_rs_prop_acct_opnum;
 
 
-static gint ett_rs_prop_acct;
+static int ett_rs_prop_acct;
 static e_guid_t uuid_rs_prop_acct = { 0x68097130, 0xde43, 0x11ca, { 0xa5, 0x54, 0x08, 0x00, 0x1e, 0x03, 0x94, 0xc7 } };
-static guint16  ver_rs_prop_acct = 1;
+static uint16_t ver_rs_prop_acct = 1;
 
 
 static const dcerpc_sub_dissector rs_prop_acct_dissectors[] = {
@@ -47,7 +47,7 @@ proto_register_rs_prop_acct (void)
 		{ "Operation", "rs_prop_acct.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_rs_prop_acct,
 	};
 	proto_rs_prop_acct = proto_register_protocol ("DCE/RPC RS_PROP_ACCT", "rs_prop_acct", "rs_prop_acct");

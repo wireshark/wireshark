@@ -25,11 +25,11 @@ static int proto_rs_attr;
 static int hf_rs_attr_opnum;
 
 
-static gint ett_rs_attr;
+static int ett_rs_attr;
 
 
 static e_guid_t uuid_rs_attr = { 0xa71fc1e8, 0x567f, 0x11cb, { 0x98, 0xa0, 0x08, 0x00, 0x1e, 0x04, 0xde, 0x8c } };
-static guint16  ver_rs_attr;
+static uint16_t ver_rs_attr;
 
 
 static const dcerpc_sub_dissector rs_attr_dissectors[] = {
@@ -53,7 +53,7 @@ proto_register_rs_attr (void)
 		  { "Operation", "rs_attr.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_rs_attr,
 	};
 	proto_rs_attr = proto_register_protocol ("Registry Server Attributes Manipulation Interface", "RS_ATTR", "rs_attr");

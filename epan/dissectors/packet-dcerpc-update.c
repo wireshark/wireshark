@@ -24,13 +24,13 @@ void proto_reg_handoff_dce_update(void);
 static int proto_dce_update;
 static int hf_dce_update_opnum;
 
-static gint ett_dce_update;
+static int ett_dce_update;
 
 static e_guid_t uuid_dce_update =
   { 0x4d37f2dd, 0xed43, 0x0000, {0x02, 0xc0, 0x37, 0xcf, 0x1e, 0x00, 0x10,
                                  0x00}
 };
-static guint16 ver_dce_update = 4;
+static uint16_t ver_dce_update = 4;
 
 
 static const dcerpc_sub_dissector dce_update_dissectors[] = {
@@ -51,7 +51,7 @@ proto_register_dce_update (void)
 
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_dce_update,
   };
   proto_dce_update =

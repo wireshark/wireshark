@@ -25,11 +25,11 @@ static int proto_ubikdisk;
 static int hf_ubikdisk_opnum;
 
 
-static gint ett_ubikdisk;
+static int ett_ubikdisk;
 
 
 static e_guid_t uuid_ubikdisk = { 0x4d37f2dd, 0xed43, 0x0002, { 0x02, 0xc0, 0x37, 0xcf, 0x1e, 0x00, 0x00, 0x00 } };
-static guint16  ver_ubikdisk = 4;
+static uint16_t ver_ubikdisk = 4;
 
 
 static const dcerpc_sub_dissector ubikdisk_dissectors[] = {
@@ -58,7 +58,7 @@ proto_register_ubikdisk (void)
 	      NULL, 0x0, NULL, HFILL }}
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_ubikdisk,
 	};
 	proto_ubikdisk = proto_register_protocol ("DCE DFS FLDB UBIK TRANSFER", "UBIKDISK", "ubikdisk");

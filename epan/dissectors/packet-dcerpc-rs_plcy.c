@@ -24,14 +24,14 @@ void proto_reg_handoff_dcerpc_rs_plcy(void);
 
 static int proto_dcerpc_rs_plcy;
 static int hf_rs_plcy_opnum;
-static gint ett_dcerpc_rs_plcy;
+static int ett_dcerpc_rs_plcy;
 
 static e_guid_t uuid_dcerpc_rs_plcy = {
 	0x4c878280, 0x4000, 0x0000,
 	{ 0x0D, 0x00, 0x02, 0x87, 0x14, 0x00, 0x00, 0x00 }
 };
 
-static guint16 ver_dcerpc_rs_plcy = 1;
+static uint16_t ver_dcerpc_rs_plcy = 1;
 
 static const dcerpc_sub_dissector dcerpc_rs_plcy_dissectors[] = {
 	{ 0,  "rs_properties_get_info",       NULL, NULL },
@@ -61,7 +61,7 @@ proto_register_dcerpc_rs_plcy(void)
 
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_dcerpc_rs_plcy
 	};
 

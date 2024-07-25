@@ -24,11 +24,11 @@ void proto_reg_handoff_rs_unix (void);
 static int proto_rs_unix;
 static int hf_rs_unix_opnum;
 
-static gint ett_rs_unix;
+static int ett_rs_unix;
 
 
 static e_guid_t uuid_rs_unix = { 0x361993c0, 0xb000, 0x0000, { 0x0d, 0x00, 0x00, 0x87, 0x84, 0x00, 0x00, 0x00 } };
-static guint16  ver_rs_unix = 1;
+static uint16_t ver_rs_unix = 1;
 
 
 static const dcerpc_sub_dissector rs_unix_dissectors[] = {
@@ -45,7 +45,7 @@ proto_register_rs_unix (void)
 		    NULL, 0x0, NULL, HFILL }}
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_rs_unix,
 	};
 	proto_rs_unix = proto_register_protocol ("DCE/RPC RS_UNIX", "RS_UNIX", "rs_unix");

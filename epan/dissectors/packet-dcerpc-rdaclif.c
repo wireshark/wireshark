@@ -25,12 +25,12 @@ static int proto_rdaclif;
 static int hf_rdaclif_opnum;
 
 
-static gint ett_rdaclif;
+static int ett_rdaclif;
 static e_guid_t uuid_rdaclif =
   { 0x47b33331, 0x8000, 0x0000, {0x0d, 0x00, 0x01, 0xdc, 0x6c, 0x00, 0x00,
                                  0x00} };
 
-static guint16 ver_rdaclif = 1;
+static uint16_t ver_rdaclif = 1;
 
 
 static const dcerpc_sub_dissector rdaclif_dissectors[] = {
@@ -55,7 +55,7 @@ proto_register_rdaclif (void)
       NULL, HFILL}},
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_rdaclif,
   };
   proto_rdaclif =

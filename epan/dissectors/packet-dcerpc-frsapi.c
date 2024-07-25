@@ -23,7 +23,7 @@ static int proto_dcerpc_frsapi;
 
 static int hf_frsapi_opnum;
 
-static gint ett_dcerpc_frsapi;
+static int ett_dcerpc_frsapi;
 
 /*
 IDL [ uuid(d049b186-814f-11d1-9a3c-00c04fc9b232),
@@ -37,7 +37,7 @@ static e_guid_t uuid_dcerpc_frsapi = {
 	{ 0x9a, 0x3c, 0x00, 0xc0, 0x4f, 0xc9, 0xb2, 0x32 }
 };
 
-static guint16 ver_dcerpc_frsapi = 1;
+static uint16_t ver_dcerpc_frsapi = 1;
 
 
 static const dcerpc_sub_dissector dcerpc_frsapi_dissectors[] = {
@@ -66,7 +66,7 @@ proto_register_dcerpc_frsapi(void)
 	};
 
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_dcerpc_frsapi,
 	};
 

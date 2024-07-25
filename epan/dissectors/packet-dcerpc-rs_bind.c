@@ -24,7 +24,7 @@ void proto_reg_handoff_rs_bind (void);
 static int proto_rs_bind;
 static int hf_rs_bind_opnum;
 
-static gint ett_rs_bind;
+static int ett_rs_bind;
 
 
 static e_guid_t uuid_rs_bind =
@@ -32,7 +32,7 @@ static e_guid_t uuid_rs_bind =
                                  0xa5}
 
 };
-static guint16 ver_rs_bind = 2;
+static uint16_t ver_rs_bind = 2;
 
 
 static const dcerpc_sub_dissector rs_bind_dissectors[] = {
@@ -49,7 +49,7 @@ proto_register_rs_bind (void)
                 { "Operation", "rs_bind.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
   };
 
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_rs_bind,
   };
   proto_rs_bind =

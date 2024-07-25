@@ -25,11 +25,11 @@ static int proto_rep_proc;
 static int hf_rep_proc_opnum;
 
 
-static gint ett_rep_proc;
+static int ett_rep_proc;
 
 
 static e_guid_t uuid_rep_proc = { 0x4d37f2dd, 0xed43, 0x0005, { 0x02, 0xc0, 0x37, 0xcf, 0x1e, 0x00, 0x00, 0x00 } };
-static guint16  ver_rep_proc = 4;
+static uint16_t ver_rep_proc = 4;
 
 
 static const dcerpc_sub_dissector rep_proc_dissectors[] = {
@@ -56,7 +56,7 @@ proto_register_rep_proc (void)
 	      NULL, 0x0, NULL, HFILL }}
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_rep_proc,
 	};
 	proto_rep_proc = proto_register_protocol ("DCE DFS Replication Server", "REP_PROC", "rep_proc");

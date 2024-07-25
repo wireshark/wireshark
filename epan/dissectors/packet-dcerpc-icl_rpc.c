@@ -24,10 +24,10 @@ static int proto_icl_rpc;
 static int hf_icl_rpc_opnum;
 
 
-static gint ett_icl_rpc;
+static int ett_icl_rpc;
 
 static e_guid_t uuid_icl_rpc = { 0x003fd39c, 0x7feb, 0x1bbc, { 0xbe, 0xbe, 0x02, 0x60, 0x8c, 0x2e, 0xf4, 0xd2 } };
-static guint16  ver_icl_rpc = 1;
+static uint16_t ver_icl_rpc = 1;
 
 
 
@@ -50,7 +50,7 @@ proto_register_icl_rpc (void)
 		{ "Operation", "icl_rpc.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_icl_rpc,
 	};
 	proto_icl_rpc = proto_register_protocol ("DCE DFS ICL RPC", "ICL_RPC", "icl_rpc");

@@ -24,11 +24,11 @@ void proto_reg_handoff_rsec_login (void);
 static int proto_rsec_login;
 static int hf_rsec_login_opnum;
 
-static gint ett_rsec_login;
+static int ett_rsec_login;
 
 
 static e_guid_t uuid_rsec_login = { 0xa76e832a, 0x10df, 0x11cd, { 0x90, 0x56, 0x08, 0x00, 0x09, 0x24, 0x24, 0x44 } };
-static guint16  ver_rsec_login = 2;
+static uint16_t ver_rsec_login = 2;
 
 
 static const dcerpc_sub_dissector rsec_login_dissectors[] = {
@@ -44,7 +44,7 @@ proto_register_rsec_login (void)
 		{ "Operation", "rsec_login.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }}
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_rsec_login,
 	};
 	proto_rsec_login = proto_register_protocol ("Remote sec_login preauth interface.", "rsec_login", "rsec_login");

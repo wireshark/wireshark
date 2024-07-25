@@ -25,11 +25,11 @@ static int proto_tkn4int;
 static int hf_tkn4int_opnum;
 
 
-static gint ett_tkn4int;
+static int ett_tkn4int;
 
 
 static e_guid_t uuid_tkn4int = { 0x4d37f2dd, 0xed96, 0x0000, { 0x02, 0xc0, 0x37, 0xcf, 0x1e, 0x00, 0x00, 0x00 } };
-static guint16  ver_tkn4int = 4;
+static uint16_t ver_tkn4int = 4;
 
 
 static const dcerpc_sub_dissector tkn4int_dissectors[] = {
@@ -55,7 +55,7 @@ proto_register_tkn4int (void)
 	      NULL, 0x0, NULL, HFILL }}
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_tkn4int,
 	};
 	proto_tkn4int = proto_register_protocol ("DCE DFS Token Server", "TKN4Int", "tkn4int");

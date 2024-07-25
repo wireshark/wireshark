@@ -24,11 +24,11 @@ static int proto_dtsstime_req;
 static int hf_dtsstime_req_opnum;
 
 
-static gint ett_dtsstime_req;
+static int ett_dtsstime_req;
 
 
 static e_guid_t uuid_dtsstime_req = { 0x019ee420, 0x682d, 0x11c9, { 0xa6, 0x07, 0x08, 0x00, 0x2b, 0x0d, 0xea, 0x7a } };
-static guint16  ver_dtsstime_req = 1;
+static uint16_t ver_dtsstime_req = 1;
 
 
 static const dcerpc_sub_dissector dtsstime_req_dissectors[] = {
@@ -45,7 +45,7 @@ proto_register_dtsstime_req (void)
 		{ "Operation", "dtsstime_req.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }}
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_dtsstime_req,
 	};
 	proto_dtsstime_req = proto_register_protocol ("DCE Distributed Time Service Local Server", "DTSSTIME_REQ", "dtsstime_req");

@@ -25,11 +25,11 @@ static int hf_dtsprovider_opnum;
 /* static int hf_dtsprovider_status; */
 
 
-static gint ett_dtsprovider;
+static int ett_dtsprovider;
 
 
 static e_guid_t uuid_dtsprovider = { 0xbfca1238, 0x628a, 0x11c9, { 0xa0, 0x73, 0x08, 0x00, 0x2b, 0x0d, 0xea, 0x7a } };
-static guint16  ver_dtsprovider = 1;
+static uint16_t ver_dtsprovider = 1;
 
 
 static const dcerpc_sub_dissector dtsprovider_dissectors[] = {
@@ -52,7 +52,7 @@ proto_register_dtsprovider (void)
 #endif
 	};
 
-	static gint *ett[] = {
+	static int *ett[] = {
 		&ett_dtsprovider,
 	};
 	proto_dtsprovider = proto_register_protocol ("DCE Distributed Time Service Provider", "DTSPROVIDER", "dtsprovider");
