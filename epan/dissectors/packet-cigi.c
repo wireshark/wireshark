@@ -119,69 +119,68 @@ static int cigi3_3_add_short_symbol_control(tvbuff_t*, packet_info*, proto_tree*
 
 
 static void cigi4_add_tree(tvbuff_t*, packet_info*, proto_tree*);
-static int cigi4_add_ig_control(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_entity_position(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_conformal_clamped_entity_position(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_component_control(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_short_component_control(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_articulated_part_control(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_short_articulated_part_control(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_velocity_control(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_celestial_sphere_control(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_atmosphere_control(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_environmental_region_control(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_weather_control(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_maritime_surface_conditions_control(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_wave_control(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_terrestrial_surface_conditions_control(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_view_control(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_sensor_control(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_motion_tracker_control(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_earth_reference_model_definition(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_acceleration_control(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_view_definition(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_collision_detection_segment_definition(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_collision_detection_volume_definition(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_hat_hot_request(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_line_of_sight_segment_request(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_line_of_sight_vector_request(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_position_request(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_environmental_conditions_request(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_symbol_surface_definition(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_symbol_text_definition(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_symbol_circle_definition(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_symbol_polygon_definition(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_symbol_clone(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_symbol_control(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_short_symbol_control(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_symbol_circle_textured(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_entity_control(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_animation_control(tvbuff_t*, proto_tree*, int);
+static int cigi4_add_ig_control(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_entity_position(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_conformal_clamped_entity_position(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_component_control(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_short_component_control(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_articulated_part_control(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_short_articulated_part_control(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_velocity_control(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_celestial_sphere_control(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_atmosphere_control(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_environmental_region_control(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_weather_control(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_maritime_surface_conditions_control(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_wave_control(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_terrestrial_surface_conditions_control(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_view_control(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_sensor_control(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_motion_tracker_control(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_earth_reference_model_definition(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_acceleration_control(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_view_definition(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_collision_detection_segment_definition(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_collision_detection_volume_definition(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_hat_hot_request(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_line_of_sight_segment_request(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_line_of_sight_vector_request(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_position_request(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_environmental_conditions_request(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_symbol_surface_definition(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_symbol_text_definition(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_symbol_circle_definition(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_symbol_polygon_definition(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_symbol_clone(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_symbol_control(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_short_symbol_control(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_symbol_circle_textured(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_entity_control(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_animation_control(tvbuff_t*, packet_info*, proto_tree*, void*);
 
-static int cigi4_add_start_of_frame(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_hat_hot_response(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_hat_hot_extended_response(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_line_of_sight_response(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_line_of_sight_extended_response(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_sensor_response(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_sensor_extended_response(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_position_response(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_weather_conditions_response(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_aerosol_concentration_response(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_maritime_surface_conditions_response(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_terrestrial_surface_conditions_response(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_collision_detection_segment_notification(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_collision_detection_volume_notification(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_animation_stop_notification(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_event_notification(tvbuff_t*, proto_tree*, int);
-static int cigi4_add_image_generator_message(tvbuff_t*, proto_tree*, int);
-static int cigi_add_locally_defined(tvbuff_t*, proto_tree*, int);
-static int cigi_add_registered(tvbuff_t*, proto_tree*, int);
+static int cigi4_add_start_of_frame(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_hat_hot_response(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_hat_hot_extended_response(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_line_of_sight_response(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_line_of_sight_extended_response(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_sensor_response(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_sensor_extended_response(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_position_response(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_weather_conditions_response(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_aerosol_concentration_response(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_maritime_surface_conditions_response(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_terrestrial_surface_conditions_response(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_collision_detection_segment_notification(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_collision_detection_volume_notification(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_animation_stop_notification(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_event_notification(tvbuff_t*, packet_info*, proto_tree*, void*);
+static int cigi4_add_image_generator_message(tvbuff_t*, packet_info*, proto_tree*, void*);
 
 /* CIGI Handle */
 static dissector_handle_t cigi_handle;
 
 static dissector_table_t cigi3_packet_id_table;
+static dissector_table_t cigi4_packet_id_table;
 
 /* Initialize the protocol and registered fields */
 static int proto_cigi;
@@ -943,14 +942,12 @@ static const value_string cigi3_ig_control_ig_mode_vals[] = {
 
 /* CIGI3_2 IG Control */
 #define CIGI3_2_PACKET_SIZE_IG_CONTROL 24
-static int hf_cigi3_2_ig_control;
 static int hf_cigi3_2_ig_control_minor_version;
 static int hf_cigi3_2_ig_control_host_frame_number;
 static int hf_cigi3_2_ig_control_last_ig_frame_number;
 
 /* CIGI3_3 IG Control */
 #define CIGI3_3_PACKET_SIZE_IG_CONTROL 24
-static int hf_cigi3_3_ig_control;
 static int hf_cigi3_3_ig_control_extrapolation_enable;
 
 /* CIGI3 Entity Control */
@@ -1021,6 +1018,8 @@ static const value_string cigi3_entity_control_animation_state_vals[] = {
 static int hf_cigi3_3_entity_control_extrapolation_enable;
 
 /* CIGI4 Entity Control */
+/* Subset of previous packet by this name containing parameters expected to
+ * change infrequently.*/
 #define CIGI4_PACKET_SIZE_ENTITY_CONTROL                            16
 static int hf_cigi4_entity_control;
 static int hf_cigi4_entity_control_entity_state;
@@ -1225,23 +1224,7 @@ static int hf_cigi3_articulated_part_control_yaw;
 
 /* CIGI4 Articulated Part Control */
 #define CIGI4_PACKET_SIZE_ARTICULATED_PART_CONTROL 32
-static int hf_cigi4_articulated_part_control;
-static int hf_cigi4_articulated_part_control_entity_id;
-static int hf_cigi4_articulated_part_control_part_id;
 static int hf_cigi4_articulated_part_control_part_enable_flags;
-static int hf_cigi4_articulated_part_control_part_enable;
-static int hf_cigi4_articulated_part_control_xoff_enable;
-static int hf_cigi4_articulated_part_control_yoff_enable;
-static int hf_cigi4_articulated_part_control_zoff_enable;
-static int hf_cigi4_articulated_part_control_roll_enable;
-static int hf_cigi4_articulated_part_control_pitch_enable;
-static int hf_cigi4_articulated_part_control_yaw_enable;
-static int hf_cigi4_articulated_part_control_xoff;
-static int hf_cigi4_articulated_part_control_yoff;
-static int hf_cigi4_articulated_part_control_zoff;
-static int hf_cigi4_articulated_part_control_roll;
-static int hf_cigi4_articulated_part_control_pitch;
-static int hf_cigi4_articulated_part_control_yaw;
 
 static int ett_cigi4_articulated_part_control_part_enable_flags;
 
@@ -1272,30 +1255,9 @@ static const value_string cigi3_short_articulated_part_control_dof_select_vals[]
 
 /* CIGI4 Short Articulated Part Control */
 #define CIGI4_PACKET_SIZE_SHORT_ARTICULATED_PART_CONTROL            24
-static int hf_cigi4_short_articulated_part_control;
-static int hf_cigi4_short_articulated_part_control_entity_id;
-static int hf_cigi4_short_articulated_part_control_part_id_1;
-static int hf_cigi4_short_articulated_part_control_part_id_2;
 static int hf_cigi4_short_articulated_part_control_part_enable_flags;
-static int hf_cigi4_short_articulated_part_control_dof_select_1;
-static int hf_cigi4_short_articulated_part_control_dof_select_2;
-static int hf_cigi4_short_articulated_part_control_part_enable_1;
-static int hf_cigi4_short_articulated_part_control_part_enable_2;
-static int hf_cigi4_short_articulated_part_control_dof_1;
-static int hf_cigi4_short_articulated_part_control_dof_2;
 
 static int ett_cigi4_short_articulated_part_control_part_enable_flags;
-
-static const value_string cigi4_short_articulated_part_control_dof_select_vals[] = {
-    {0, "Not Used"},
-    {1, "X Offset"},
-    {2, "Y Offset"},
-    {3, "Z Offset"},
-    {4, "Yaw"},
-    {5, "Pitch"},
-    {6, "Roll"},
-    {0, NULL},
-};
 
 /* CIGI3 Rate Control */
 #define CIGI3_PACKET_SIZE_RATE_CONTROL 32
@@ -1316,7 +1278,8 @@ static const true_false_string local_worldparent_tfs = {
     "World/Parent"
 };
 
-/* CIGI4 Rate Control */
+/* CIGI4 Velocity Control */
+/* Rate Control packet renamed. */
 #define CIGI4_PACKET_SIZE_VELOCITY_CONTROL       32
 
 static int  hf_cigi4_velocity_control;
@@ -1350,18 +1313,9 @@ static int hf_cigi3_celestial_sphere_control_star_intensity;
 
 /* CIGI4 Celestial Sphere Control */
 #define CIGI4_PACKET_SIZE_CELESTIAL_SPHERE_CONTROL 24
-static int hf_cigi4_celestial_sphere_control;
 static int hf_cigi4_celestial_sphere_control_enable_flags;
-static int hf_cigi4_celestial_sphere_control_hour;
-static int hf_cigi4_celestial_sphere_control_minute;
-static int hf_cigi4_celestial_sphere_control_ephemeris_enable;
-static int hf_cigi4_celestial_sphere_control_sun_enable;
-static int hf_cigi4_celestial_sphere_control_moon_enable;
-static int hf_cigi4_celestial_sphere_control_star_enable;
-static int hf_cigi4_celestial_sphere_control_date_time_valid;
 static int hf_cigi4_celestial_sphere_control_seconds;
 static int hf_cigi4_celestial_sphere_control_date;
-static int hf_cigi4_celestial_sphere_control_star_intensity;
 
 static int ett_cigi4_celestial_sphere_control_flags;
 
@@ -1379,15 +1333,6 @@ static int hf_cigi3_atmosphere_control_barometric_pressure;
 
 /* CIGI4 Atmosphere Control */
 #define CIGI4_PACKET_SIZE_ATMOSPHERE_CONTROL 32
-static int hf_cigi4_atmosphere_control;
-static int hf_cigi4_atmosphere_control_atmospheric_model_enable;
-static int hf_cigi4_atmosphere_control_humidity;
-static int hf_cigi4_atmosphere_control_air_temp;
-static int hf_cigi4_atmosphere_control_visibility_range;
-static int hf_cigi4_atmosphere_control_horiz_wind;
-static int hf_cigi4_atmosphere_control_vert_wind;
-static int hf_cigi4_atmosphere_control_wind_direction;
-static int hf_cigi4_atmosphere_control_barometric_pressure;
 
 /* CIGI3 Environmental Region Control */
 #define CIGI3_PACKET_SIZE_ENVIRONMENTAL_REGION_CONTROL 48
@@ -1421,33 +1366,6 @@ static const true_false_string cigi3_environmental_region_control_merge_properti
 
 /* CIGI4 Environmental Region Control */
 #define CIGI4_PACKET_SIZE_ENVIRONMENTAL_REGION_CONTROL 48
-static int hf_cigi4_environmental_region_control;
-static int hf_cigi4_environmental_region_control_region_id;
-static int hf_cigi4_environmental_region_control_region_state;
-static int hf_cigi4_environmental_region_control_merge_weather;
-static int hf_cigi4_environmental_region_control_merge_aerosol;
-static int hf_cigi4_environmental_region_control_merge_maritime;
-static int hf_cigi4_environmental_region_control_merge_terrestrial;
-static int hf_cigi4_environmental_region_control_lat;
-static int hf_cigi4_environmental_region_control_lon;
-static int hf_cigi4_environmental_region_control_size_x;
-static int hf_cigi4_environmental_region_control_size_y;
-static int hf_cigi4_environmental_region_control_corner_radius;
-static int hf_cigi4_environmental_region_control_rotation;
-static int hf_cigi4_environmental_region_control_transition_perimeter;
-
-static const value_string cigi4_environmental_region_control_region_state_vals[] = {
-    {0, "Inactive"},
-    {1, "Active"},
-    {2, "Destroyed"},
-    {0, NULL},
-};
-
-static const true_false_string cigi4_environmental_region_control_merge_properties_tfs = {
-    "Merge",
-    "Use Last"
-};
-
 
 /* CIGI3 Weather Control */
 #define CIGI3_PACKET_SIZE_WEATHER_CONTROL 56
@@ -1519,75 +1437,10 @@ static const value_string cigi3_weather_control_scope_vals[] = {
 
 /* CIGI4 Weather Control */
 #define CIGI4_PACKET_SIZE_WEATHER_CONTROL 72
-static int hf_cigi4_weather_control;
-static int hf_cigi4_weather_control_entity_region_id;
-static int hf_cigi4_weather_control_layer_id;
-static int hf_cigi4_weather_control_humidity;
 static int hf_cigi4_weather_control_flags;
-static int hf_cigi4_weather_control_weather_enable;
-static int hf_cigi4_weather_control_scud_enable;
-static int hf_cigi4_weather_control_random_winds_enable;
-static int hf_cigi4_weather_control_random_lightning_enable;
-static int hf_cigi4_weather_control_cloud_type;
-static int hf_cigi4_weather_control_scope;
-static int hf_cigi4_weather_control_severity;
 static int hf_cigi4_weather_control_top_scud_enable;
-static int hf_cigi4_weather_control_air_temp;
-static int hf_cigi4_weather_control_visibility_range;
-static int hf_cigi4_weather_control_scud_frequency;
-static int hf_cigi4_weather_control_coverage;
-static int hf_cigi4_weather_control_base_elevation;
-static int hf_cigi4_weather_control_thickness;
-static int hf_cigi4_weather_control_transition_band;
-static int hf_cigi4_weather_control_horiz_wind;
-static int hf_cigi4_weather_control_vert_wind;
-static int hf_cigi4_weather_control_wind_direction;
-static int hf_cigi4_weather_control_barometric_pressure;
-static int hf_cigi4_weather_control_aerosol_concentration;
 static int hf_cigi4_weather_control_top_scud_freq;
 static int hf_cigi4_weather_control_top_transition_band;
-
-static const value_string cigi4_weather_control_layer_id_vals[] = {
-    {0, "Ground Fog"},
-    {1, "Cloud Layer 1"},
-    {2, "Cloud Layer 2"},
-    {3, "Cloud Layer 3"},
-    {4, "Rain"},
-    {5, "Snow"},
-    {6, "Sleet"},
-    {7, "Hail"},
-    {8, "Sand"},
-    {9, "Dust"},
-    {0, NULL},
-};
-
-static const value_string cigi4_weather_control_cloud_type_vals[] = {
-    {0, "None"},
-    {1, "Altocumulus"},
-    {2, "Altostratus"},
-    {3, "Cirrocumulus"},
-    {4, "Cirrostratus"},
-    {5, "Cirrus"},
-    {6, "Cumulonimbus"},
-    {7, "Cumulus"},
-    {8, "Nimbostratus"},
-    {9, "Stratocumulus"},
-    {10, "Stratus"},
-    {11, "Other"},
-    {12, "Other"},
-    {13, "Other"},
-    {14, "Other"},
-    {15, "Other"},
-    {0, NULL},
-};
-
-static const value_string cigi4_weather_control_scope_vals[] = {
-    {0, "Global"},
-    {1, "Regional"},
-    {2, "Entity"},
-    {0, NULL},
-};
-
 
 /* CIGI3 Maritime Surface Conditions Control */
 #define CIGI3_PACKET_SIZE_MARITIME_SURFACE_CONDITIONS_CONTROL 24
@@ -1607,27 +1460,8 @@ static const value_string cigi3_maritime_surface_conditions_control_scope_vals[]
     {0, NULL},
 };
 
-
-
 /* CIGI4 Maritime Surface Conditions Control */
 #define CIGI4_PACKET_SIZE_MARITIME_SURFACE_CONDITIONS_CONTROL 24
-static int hf_cigi4_maritime_surface_conditions_control;
-static int hf_cigi4_maritime_surface_conditions_control_wave_id;
-static int hf_cigi4_maritime_surface_conditions_control_entity_region_id;
-static int hf_cigi4_maritime_surface_conditions_control_surface_conditions_enable;
-static int hf_cigi4_maritime_surface_conditions_control_whitecap_enable;
-static int hf_cigi4_maritime_surface_conditions_control_scope;
-static int hf_cigi4_maritime_surface_conditions_control_sea_surface_height;
-static int hf_cigi4_maritime_surface_conditions_control_surface_water_temp;
-static int hf_cigi4_maritime_surface_conditions_control_surface_clarity;
-
-static const value_string cigi4_maritime_surface_conditions_control_scope_vals[] = {
-    {0, "Global"},
-    {1, "Regional"},
-    {2, "Entity"},
-    {0, NULL},
-};
-
 
 /* CIGI3 Wave Control */
 #define CIGI3_PACKET_SIZE_WAVE_CONTROL 32
@@ -1660,32 +1494,6 @@ static const value_string cigi3_wave_control_breaker_type_vals[] = {
 
 /* CIGI4 Wave Control */
 #define CIGI4_PACKET_SIZE_WAVE_CONTROL 32
-static int hf_cigi4_wave_control;
-static int hf_cigi4_wave_control_entity_region_id;
-static int hf_cigi4_wave_control_wave_id;
-static int hf_cigi4_wave_control_wave_enable;
-static int hf_cigi4_wave_control_scope;
-static int hf_cigi4_wave_control_breaker_type;
-static int hf_cigi4_wave_control_height;
-static int hf_cigi4_wave_control_wavelength;
-static int hf_cigi4_wave_control_period;
-static int hf_cigi4_wave_control_direction;
-static int hf_cigi4_wave_control_phase_offset;
-static int hf_cigi4_wave_control_leading;
-
-static const value_string cigi4_wave_control_scope_vals[] = {
-    {0, "Global"},
-    {1, "Regional"},
-    {2, "Entity"},
-    {0, NULL},
-};
-
-static const value_string cigi4_wave_control_breaker_type_vals[] = {
-    {0, "Plunging"},
-    {1, "Spilling"},
-    {2, "Surging"},
-    {0, NULL},
-};
 
 /* CIGI3 Terrestrial Surface Conditions Control */
 #define CIGI3_PACKET_SIZE_TERRESTRIAL_SURFACE_CONDITIONS_CONTROL 8
@@ -1706,22 +1514,6 @@ static const value_string cigi3_terrestrial_surface_conditions_control_scope_val
 
 /* CIGI4 Terrestrial Surface Conditions Control */
 #define CIGI4_PACKET_SIZE_TERRESTRIAL_SURFACE_CONDITIONS_CONTROL 16
-static int hf_cigi4_terrestrial_surface_conditions_control;
-static int hf_cigi4_terrestrial_surface_conditions_control_entity_region_id;
-static int hf_cigi4_terrestrial_surface_conditions_control_surface_condition_id;
-static int hf_cigi4_terrestrial_surface_conditions_control_surface_condition_enable;
-static int hf_cigi4_terrestrial_surface_conditions_control_scope;
-static int hf_cigi4_terrestrial_surface_conditions_control_severity;
-static int hf_cigi4_terrestrial_surface_conditions_control_coverage;
-static int hf_cigi4_terrestrial_surface_conditions_control_condition_id;
-
-static const value_string cigi4_terrestrial_surface_conditions_control_scope_vals[] = {
-    {0, "Global"},
-    {1, "Regional"},
-    {2, "Entity"},
-    {0, NULL},
-};
-
 
 /* CIGI3 View Control */
 #define CIGI3_PACKET_SIZE_VIEW_CONTROL 32
@@ -1744,23 +1536,7 @@ static int hf_cigi3_view_control_yaw;
 
 /* CIGI4 View Control */
 #define CIGI4_PACKET_SIZE_VIEW_CONTROL 40
-static int hf_cigi4_view_control;
-static int hf_cigi4_view_control_view_id;
-static int hf_cigi4_view_control_group_id;
 static int hf_cigi4_view_control_enable_flags;
-static int hf_cigi4_view_control_xoff_enable;
-static int hf_cigi4_view_control_yoff_enable;
-static int hf_cigi4_view_control_zoff_enable;
-static int hf_cigi4_view_control_roll_enable;
-static int hf_cigi4_view_control_pitch_enable;
-static int hf_cigi4_view_control_yaw_enable;
-static int hf_cigi4_view_control_entity_id;
-static int hf_cigi4_view_control_xoff;
-static int hf_cigi4_view_control_yoff;
-static int hf_cigi4_view_control_zoff;
-static int hf_cigi4_view_control_roll;
-static int hf_cigi4_view_control_pitch;
-static int hf_cigi4_view_control_yaw;
 
 static int  ett_cigi4_view_control_enable_flags;
 
@@ -1801,38 +1577,6 @@ static const true_false_string cigi3_sensor_control_polarity_tfs = {
 
 /* CIGI4 Sensor Control */
 #define CIGI4_PACKET_SIZE_SENSOR_CONTROL 32
-static int hf_cigi4_sensor_control;
-static int hf_cigi4_sensor_control_view_id;
-static int hf_cigi4_sensor_control_sensor_id;
-static int hf_cigi4_sensor_control_sensor_on_off;
-static int hf_cigi4_sensor_control_polarity;
-static int hf_cigi4_sensor_control_line_dropout_enable;
-static int hf_cigi4_sensor_control_auto_gain;
-static int hf_cigi4_sensor_control_track_white_black;
-static int hf_cigi4_sensor_control_track_mode;
-static int hf_cigi4_sensor_control_response_type;
-static int hf_cigi4_sensor_control_gain;
-static int hf_cigi4_sensor_control_level;
-static int hf_cigi4_sensor_control_ac_coupling;
-static int hf_cigi4_sensor_control_noise;
-
-static const value_string cigi4_sensor_control_track_mode_vals[] = {
-    {0, "Off"},
-    {1, "Force Correlate"},
-    {2, "Scene"},
-    {3, "Target"},
-    {4, "Ship"},
-    {5, "Defined by IG"},
-    {6, "Defined by IG"},
-    {7, "Defined by IG"},
-    {0, NULL},
-};
-
-static const true_false_string cigi4_sensor_control_polarity_tfs = {
-    "Black hot",
-    "White hot"
-};
-
 
 /* CIGI3 Motion Tracker Control */
 #define CIGI3_PACKET_SIZE_MOTION_TRACKER_CONTROL 8
@@ -1856,23 +1600,6 @@ static const true_false_string cigi3_motion_tracker_control_view_group_select_tf
 
 /* CIGI4 Motion Tracker Control */
 #define CIGI4_PACKET_SIZE_MOTION_TRACKER_CONTROL 16
-static int hf_cigi4_motion_tracker_control;
-static int hf_cigi4_motion_tracker_control_view_group_id;
-static int hf_cigi4_motion_tracker_control_tracker_id;
-static int hf_cigi4_motion_tracker_control_tracker_enable;
-static int hf_cigi4_motion_tracker_control_boresight_enable;
-static int hf_cigi4_motion_tracker_control_x_enable;
-static int hf_cigi4_motion_tracker_control_y_enable;
-static int hf_cigi4_motion_tracker_control_z_enable;
-static int hf_cigi4_motion_tracker_control_roll_enable;
-static int hf_cigi4_motion_tracker_control_pitch_enable;
-static int hf_cigi4_motion_tracker_control_yaw_enable;
-static int hf_cigi4_motion_tracker_control_view_group_select;
-
-static const true_false_string cigi4_motion_tracker_control_view_group_select_tfs = {
-    "View Group",
-    "View"
-};
 
 /* CIGI3 Earth Reference Model Definition */
 #define CIGI3_PACKET_SIZE_EARTH_REFERENCE_MODEL_DEFINITION 24
@@ -1883,10 +1610,6 @@ static int hf_cigi3_earth_reference_model_definition_flattening;
 
 /* CIGI4 Earth Reference Model Definition */
 #define CIGI4_PACKET_SIZE_EARTH_REFERENCE_MODEL_DEFINITION 24
-static int hf_cigi4_earth_reference_model_definition;
-static int hf_cigi4_earth_reference_model_definition_erm_enable;
-static int hf_cigi4_earth_reference_model_definition_equatorial_radius;
-static int hf_cigi4_earth_reference_model_definition_flattening;
 
 /* CIGI3 Trajectory Definition */
 #define CIGI3_PACKET_SIZE_TRAJECTORY_DEFINITION 24
@@ -1969,56 +1692,6 @@ static const true_false_string cigi3_view_definition_reorder_tfs = {
 
 /* CIGI4 View Definition */
 #define CIGI4_PACKET_SIZE_VIEW_DEFINITION 40
-static int hf_cigi4_view_definition;
-static int hf_cigi4_view_definition_view_id;
-static int hf_cigi4_view_definition_group_id;
-static int hf_cigi4_view_definition_near_enable;
-static int hf_cigi4_view_definition_far_enable;
-static int hf_cigi4_view_definition_left_enable;
-static int hf_cigi4_view_definition_right_enable;
-static int hf_cigi4_view_definition_top_enable;
-static int hf_cigi4_view_definition_bottom_enable;
-static int hf_cigi4_view_definition_mirror_mode;
-static int hf_cigi4_view_definition_pixel_replication;
-static int hf_cigi4_view_definition_projection_type;
-static int hf_cigi4_view_definition_reorder;
-static int hf_cigi4_view_definition_view_type;
-static int hf_cigi4_view_definition_near;
-static int hf_cigi4_view_definition_far;
-static int hf_cigi4_view_definition_left;
-static int hf_cigi4_view_definition_right;
-static int hf_cigi4_view_definition_top;
-static int hf_cigi4_view_definition_bottom;
-
-static const value_string cigi4_view_definition_mirror_mode_vals[] = {
-    {0, "None"},
-    {1, "Horizontal"},
-    {2, "Vertical"},
-    {3, "Horizontal and Vertical"},
-    {0, NULL},
-};
-
-static const value_string cigi4_view_definition_pixel_replication_vals[] = {
-    {0, "None"},
-    {1, "1x2"},
-    {2, "2x1"},
-    {3, "2x2"},
-    {4, "Defined by IG"},
-    {5, "Defined by IG"},
-    {6, "Defined by IG"},
-    {7, "Defined by IG"},
-    {0, NULL},
-};
-
-static const true_false_string cigi4_view_definition_projection_type_tfs = {
-    "Orthographic Parallel",
-    "Perspective"
-};
-
-static const true_false_string cigi4_view_definition_reorder_tfs = {
-    "Bring to Top",
-    "No Reorder"
-};
 
 /* CIGI3 Collision Detection Segment Definition */
 #define CIGI3_PACKET_SIZE_COLLISION_DETECTION_SEGMENT_DEFINITION 40
@@ -2037,17 +1710,6 @@ static int hf_cigi3_collision_detection_segment_definition_material_mask;
 
 /* CIGI4 Collision Detection Segment Definition */
 #define CIGI4_PACKET_SIZE_COLLISION_DETECTION_SEGMENT_DEFINITION 40
-static int hf_cigi4_collision_detection_segment_definition;
-static int hf_cigi4_collision_detection_segment_definition_entity_id;
-static int hf_cigi4_collision_detection_segment_definition_segment_id;
-static int hf_cigi4_collision_detection_segment_definition_segment_enable;
-static int hf_cigi4_collision_detection_segment_definition_x1;
-static int hf_cigi4_collision_detection_segment_definition_y1;
-static int hf_cigi4_collision_detection_segment_definition_z1;
-static int hf_cigi4_collision_detection_segment_definition_x2;
-static int hf_cigi4_collision_detection_segment_definition_y2;
-static int hf_cigi4_collision_detection_segment_definition_z2;
-static int hf_cigi4_collision_detection_segment_definition_material_mask;
 
 /* CIGI3 Collision Detection Volume Definition */
 #define CIGI3_PACKET_SIZE_COLLISION_DETECTION_VOLUME_DEFINITION 48
@@ -2073,25 +1735,7 @@ static const true_false_string cigi3_collision_detection_volume_definition_volum
 
 /* CIGI4 Collision Detection Volume Definition */
 #define CIGI4_PACKET_SIZE_COLLISION_DETECTION_VOLUME_DEFINITION 48
-static int hf_cigi4_collision_detection_volume_definition;
-static int hf_cigi4_collision_detection_volume_definition_entity_id;
-static int hf_cigi4_collision_detection_volume_definition_volume_id;
-static int hf_cigi4_collision_detection_volume_definition_volume_enable;
-static int hf_cigi4_collision_detection_volume_definition_volume_type;
-static int hf_cigi4_collision_detection_volume_definition_x;
-static int hf_cigi4_collision_detection_volume_definition_y;
-static int hf_cigi4_collision_detection_volume_definition_z;
-static int hf_cigi4_collision_detection_volume_definition_radius_height;
-static int hf_cigi4_collision_detection_volume_definition_width;
-static int hf_cigi4_collision_detection_volume_definition_depth;
-static int hf_cigi4_collision_detection_volume_definition_roll;
-static int hf_cigi4_collision_detection_volume_definition_pitch;
-static int hf_cigi4_collision_detection_volume_definition_yaw;
 
-static const true_false_string cigi4_collision_detection_volume_definition_volume_type_tfs = {
-    "Cuboid",
-    "Sphere"
-};
 /* CIGI3 HAT/HOT Request */
 #define CIGI3_PACKET_SIZE_HAT_HOT_REQUEST 32
 static int hf_cigi3_hat_hot_request;
@@ -2111,6 +1755,12 @@ static const value_string cigi3_hat_hot_request_type_vals[] = {
     {0, NULL},
 };
 
+/* CIGI4 HAT/HOT Request */
+#define CIGI4_PACKET_SIZE_HAT_HOT_REQUEST    40
+static int hf_cigi4_hat_hot_request_flags;
+
+static int ett_cigi4_hat_hot_request_flags;
+
 /* CIGI3 Line of Sight Segment Request */
 #define CIGI3_PACKET_SIZE_LINE_OF_SIGHT_SEGMENT_REQUEST 64
 static int hf_cigi3_line_of_sight_segment_request;
@@ -2120,7 +1770,7 @@ static int hf_cigi3_line_of_sight_segment_request_source_coord;
 static int hf_cigi3_line_of_sight_segment_request_destination_coord;
 static int hf_cigi3_line_of_sight_segment_request_response_coord;
 static int hf_cigi3_line_of_sight_segment_request_alpha_threshold;
-static int hf_cigi3_line_of_sight_segment_request_entity_id;
+static int hf_cigi3_line_of_sight_segment_request_source_entity_id;
 static int hf_cigi3_line_of_sight_segment_request_source_lat_xoff;
 static int hf_cigi3_line_of_sight_segment_request_source_lon_yoff;
 static int hf_cigi3_line_of_sight_segment_request_source_alt_zoff;
@@ -2136,24 +1786,6 @@ static int hf_cigi3_2_line_of_sight_segment_request_destination_entity_id;
 
 /* CIGI4 Line of Sight Segment Request */
 #define CIGI4_PACKET_SIZE_LINE_OF_SIGHT_SEGMENT_REQUEST 72
-static int hf_cigi4_line_of_sight_segment_request;
-static int hf_cigi4_line_of_sight_segment_request_los_id;
-static int hf_cigi4_line_of_sight_segment_request_type;
-static int hf_cigi4_line_of_sight_segment_request_source_coord;
-static int hf_cigi4_line_of_sight_segment_request_destination_coord;
-static int hf_cigi4_line_of_sight_segment_request_response_coord;
-static int hf_cigi4_line_of_sight_segment_request_destination_entity_id_valid;
-static int hf_cigi4_line_of_sight_segment_request_alpha_threshold;
-static int hf_cigi4_line_of_sight_segment_request_source_entity_id;
-static int hf_cigi4_line_of_sight_segment_request_source_lat_xoff;
-static int hf_cigi4_line_of_sight_segment_request_source_lon_yoff;
-static int hf_cigi4_line_of_sight_segment_request_source_alt_zoff;
-static int hf_cigi4_line_of_sight_segment_request_destination_lat_xoff;
-static int hf_cigi4_line_of_sight_segment_request_destination_lon_yoff;
-static int hf_cigi4_line_of_sight_segment_request_destination_alt_zoff;
-static int hf_cigi4_line_of_sight_segment_request_material_mask;
-static int hf_cigi4_line_of_sight_segment_request_update_period;
-static int hf_cigi4_line_of_sight_segment_request_destination_entity_id;
 
 /* CIGI3 Line of Sight Vector Request */
 #define CIGI3_PACKET_SIZE_LINE_OF_SIGHT_VECTOR_REQUEST 56
@@ -2178,22 +1810,6 @@ static int hf_cigi3_2_line_of_sight_vector_request_update_period;
 
 /* CIGI4 Line of Sight Vector Request */
 #define CIGI4_PACKET_SIZE_LINE_OF_SIGHT_VECTOR_REQUEST 64
-static int hf_cigi4_line_of_sight_vector_request;
-static int hf_cigi4_line_of_sight_vector_request_los_id;
-static int hf_cigi4_line_of_sight_vector_request_type;
-static int hf_cigi4_line_of_sight_vector_request_source_coord;
-static int hf_cigi4_line_of_sight_vector_request_response_coord;
-static int hf_cigi4_line_of_sight_vector_request_alpha;
-static int hf_cigi4_line_of_sight_vector_request_entity_id;
-static int hf_cigi4_line_of_sight_vector_request_azimuth;
-static int hf_cigi4_line_of_sight_vector_request_elevation;
-static int hf_cigi4_line_of_sight_vector_request_min_range;
-static int hf_cigi4_line_of_sight_vector_request_max_range;
-static int hf_cigi4_line_of_sight_vector_request_source_lat_xoff;
-static int hf_cigi4_line_of_sight_vector_request_source_lon_yoff;
-static int hf_cigi4_line_of_sight_vector_request_source_alt_zoff;
-static int hf_cigi4_line_of_sight_vector_request_material_mask;
-static int hf_cigi4_line_of_sight_vector_request_update_period;
 
 /* CIGI3 Position Request */
 #define CIGI3_PACKET_SIZE_POSITION_REQUEST 8
@@ -2227,33 +1843,6 @@ static const value_string cigi3_position_request_coord_system_vals[] = {
 
 /* CIGI4 Position Request */
 #define CIGI4_PACKET_SIZE_POSITION_REQUEST 8
-static int hf_cigi4_position_request;
-static int hf_cigi4_position_request_object_id;
-static int hf_cigi4_position_request_part_id;
-static int hf_cigi4_position_request_update_mode;
-static int hf_cigi4_position_request_object_class;
-static int hf_cigi4_position_request_coord_system;
-
-static const true_false_string cigi4_position_request_update_mode_tfs = {
-    "Continuous",
-    "One-Shot"
-};
-
-static const value_string cigi4_position_request_object_class_vals[] = {
-    {0, "Entity"},
-    {1, "Articulated Part"},
-    {2, "View"},
-    {3, "View Group"},
-    {4, "Motion Tracker"},
-    {0, NULL},
-};
-
-static const value_string cigi4_position_request_coord_system_vals[] = {
-    {0, "Geodetic"},
-    {1, "Parent Entity"},
-    {2, "Submodel"},
-    {0, NULL},
-};
 
 /* CIGI3 Environmental Conditions Request */
 #define CIGI3_PACKET_SIZE_ENVIRONMENTAL_CONDITIONS_REQUEST 32
@@ -2285,31 +1874,6 @@ static const value_string cigi3_environmental_conditions_request_type_vals[] = {
 
 /* CIGI4 Environmental Conditions Request */
 #define CIGI4_PACKET_SIZE_ENVIRONMENTAL_CONDITIONS_REQUEST 32
-static int hf_cigi4_environmental_conditions_request;
-static int hf_cigi4_environmental_conditions_request_type;
-static int hf_cigi4_environmental_conditions_request_id;
-static int hf_cigi4_environmental_conditions_request_lat;
-static int hf_cigi4_environmental_conditions_request_lon;
-static int hf_cigi4_environmental_conditions_request_alt;
-
-static const value_string cigi4_environmental_conditions_request_type_vals[] = {
-    {1, "Maritime Surface Conditions"},
-    {2, "Terrestrial Surface Conditions"},
-    {3, "Maritime+Terrestrial Surface Conditions"},
-    {4, "Weather Conditions"},
-    {5, "Maritime+Weather Surface Conditions"},
-    {6, "Terrestrial+Weather Surface Conditions"},
-    {7, "Maritime+Terrestrial+Weather Surface Conditions"},
-    {8, "Aerosol Concentrations"},
-    {9, "Maritime Surface Conditions+Aerosol Concentrations"},
-    {10, "Terrestrial Surface Conditions+Aerosol Concentrations"},
-    {11, "Maritime+Terrestrial Surface Conditions+Aerosol Concentrations"},
-    {12, "Weather Conditions+Aerosol Concentrations"},
-    {13, "Maritime+Weather Surface Conditions+Aerosol Concentrations"},
-    {14, "Terrestrial+Weather Surface Conditions+Aerosol Concentrations"},
-    {15, "Maritime+Terrestrial+Weather Surface Conditions+Aerosol Concentrations"},
-    {0, NULL},
-};
 
 /* CIGI3_3 Symbol Surface Definition */
 #define CIGI3_PACKET_SIZE_SYMBOL_SURFACE_DEFINITION 56
@@ -2351,40 +1915,6 @@ static const true_false_string cigi3_3_symbol_surface_definition_billboard_tfs =
 
 /* CIGI4 Symbol Surface Definition */
 #define CIGI4_PACKET_SIZE_SYMBOL_SURFACE_DEFINITION 64
-static int hf_cigi4_symbol_surface_definition;
-static int hf_cigi4_symbol_surface_definition_surface_id;
-static int hf_cigi4_symbol_surface_definition_surface_state;
-static int hf_cigi4_symbol_surface_definition_attach_type;
-static int hf_cigi4_symbol_surface_definition_billboard;
-static int hf_cigi4_symbol_surface_definition_perspective_growth_enable;
-static int hf_cigi4_symbol_surface_definition_entity_view_id;
-static int hf_cigi4_symbol_surface_definition_xoff_left;
-static int hf_cigi4_symbol_surface_definition_yoff_right;
-static int hf_cigi4_symbol_surface_definition_zoff_top;
-static int hf_cigi4_symbol_surface_definition_yaw_bottom;
-static int hf_cigi4_symbol_surface_definition_pitch;
-static int hf_cigi4_symbol_surface_definition_roll;
-static int hf_cigi4_symbol_surface_definition_width;
-static int hf_cigi4_symbol_surface_definition_height;
-static int hf_cigi4_symbol_surface_definition_min_u;
-static int hf_cigi4_symbol_surface_definition_max_u;
-static int hf_cigi4_symbol_surface_definition_min_v;
-static int hf_cigi4_symbol_surface_definition_max_v;
-
-static const true_false_string cigi4_symbol_surface_definition_surface_state_tfs = {
-    "Destroyed",
-    "Active"
-};
-
-static const true_false_string cigi4_symbol_surface_definition_attach_type_tfs = {
-    "View",
-    "Entity"
-};
-
-static const true_false_string cigi4_symbol_surface_definition_billboard_tfs = {
-    "Billboard",
-    "Non-Billboard"
-};
 
 /* CIGI3_3 Symbol Text Definition */
 // Variable Length
@@ -2440,55 +1970,6 @@ static const value_string cigi3_3_symbol_text_definition_font_ident_vals[] = {
 
 /* CIGI4 Symbol Text Definition */
 //#define CIGI4_PACKET_SIZE_SYMBOL_TEXT_DEFINITION                    (12 + text_length)
-static int hf_cigi4_symbol_text_definition;
-static int hf_cigi4_symbol_text_definition_symbol_id;
-static int hf_cigi4_symbol_text_definition_orientation;
-static int hf_cigi4_symbol_text_definition_alignment;
-static int hf_cigi4_symbol_text_definition_font_ident;
-static int hf_cigi4_symbol_text_definition_font_size;
-static int hf_cigi4_symbol_text_definition_text;
-
-static const value_string cigi4_symbol_text_definition_alignment_vals[] = {
-    {0, "Top Left"},
-    {1, "Top Center"},
-    {2, "Top Right"},
-    {3, "Center Left"},
-    {4, "Center"},
-    {5, "Center Right"},
-    {6, "Bottom Left"},
-    {7, "Bottom Center"},
-    {8, "Bottom Right"},
-    {0, NULL}
-};
-
-static const value_string cigi4_symbol_text_definition_orientation_vals[] = {
-    {0, "Left To Right"},
-    {1, "Top To Bottom"},
-    {2, "Right To Left"},
-    {3, "Bottom To Top"},
-    {0, NULL}
-};
-
-static const value_string cigi4_symbol_text_definition_font_ident_vals[] = {
-    {0, "IG Default"},
-    {1, "Proportional Sans Serif"},
-    {2, "Proportional Sans Serif Bold"},
-    {3, "Proportional Sans Serif Italic"},
-    {4, "Proportional Sans Serif Bold Italic"},
-    {5, "Proportional Serif"},
-    {6, "Proportional Serif Bold"},
-    {7, "Proportional Serif Italic"},
-    {8, "Proportional Serif Bold Italic"},
-    {9, "Monospace Sans Serif"},
-    {10, "Monospace Sans Serif Bold"},
-    {11, "Monospace Sans Serif Italic"},
-    {12, "Monospace Sans Serif Bold Italic"},
-    {13, "Monospace Serif"},
-    {14, "Monospace Serif Bold"},
-    {15, "Monospace Serif Italic"},
-    {16, "Monospace Serif Bold Italic"},
-    {0, NULL}
-};
 
 /* CIGI3_3 Symbol Circle Definition */
 // Variable length
@@ -2512,26 +1993,9 @@ static const true_false_string cigi3_3_symbol_circle_definition_drawing_style_tf
 
 /* CIGI4 Symbol Circle Definition */
 //#define CIGI4_PACKET_SIZE_SYMBOL_CIRCLE_DEFINITION (24 + (8*n))
-static int hf_cigi4_symbol_circle_definition;
-static int hf_cigi4_symbol_circle_definition_symbol_id;
-static int hf_cigi4_symbol_circle_definition_drawing_style;
-static int hf_cigi4_symbol_circle_definition_stipple_pattern;
-static int hf_cigi4_symbol_circle_definition_line_width;
-static int hf_cigi4_symbol_circle_definition_stipple_pattern_length;
-static int hf_cigi4_symbol_circle_definition_center_u[9];
-static int hf_cigi4_symbol_circle_definition_center_v[9];
-static int hf_cigi4_symbol_circle_definition_radius[9];
-static int hf_cigi4_symbol_circle_definition_inner_radius[9];
-static int hf_cigi4_symbol_circle_definition_start_angle[9];
-static int hf_cigi4_symbol_circle_definition_end_angle[9];
 static int hf_cigi4_symbol_circle_definition_circles;
 
 static int ett_cigi4_symbol_circle_definition_circles;
-
-static const true_false_string cigi4_symbol_circle_definition_drawing_style_tfs = {
-    "Fill",
-    "Line"
-};
 
 /* CIGI3_3 Symbol Line Definition */
 // Variable length
@@ -2556,6 +2020,7 @@ static const value_string cigi3_3_symbol_line_definition_primitive_type_vals[] =
 };
 
 /* CIGI4 Symbol Polygon Definition */
+/* Symbol Line Definition packet renamed. */
 //#define CIGI4_PACKET_SIZE_SYMBOL_POLYGON_DEFINITION                 24 + (8 x n)
 static int hf_cigi4_symbol_polygon_definition;
 static int hf_cigi4_symbol_polygon_definition_symbol_id;
@@ -2583,15 +2048,6 @@ static const true_false_string cigi3_3_symbol_clone_source_type_tfs = {
 
 /* CIG4 Symbol Clone */
 #define CIGI4_PACKET_SIZE_SYMBOL_CLONE 16
-static int hf_cigi4_symbol_clone;
-static int hf_cigi4_symbol_clone_symbol_id;
-static int hf_cigi4_symbol_clone_source_type;
-static int hf_cigi4_symbol_clone_source_id;
-
-static const true_false_string cigi4_symbol_clone_source_type_tfs = {
-    "Symbol Template",
-    "Symbol"
-};
 
 /* CIGI3_3 Symbol Control */
 #define CIGI3_PACKET_SIZE_SYMBOL_CONTROL 40
@@ -2631,39 +2087,6 @@ static const true_false_string cigi3_3_symbol_control_flash_control_tfs = {
 
 /* CIGI4 Symbol Control */
 #define CIGI4_PACKET_SIZE_SYMBOL_CONTROL 48
-static int hf_cigi4_symbol_control;
-static int hf_cigi4_symbol_control_symbol_id;
-static int hf_cigi4_symbol_control_symbol_state;
-static int hf_cigi4_symbol_control_attach_state;
-static int hf_cigi4_symbol_control_flash_control;
-static int hf_cigi4_symbol_control_inherit_color;
-static int hf_cigi4_symbol_control_parent_symbol_ident;
-static int hf_cigi4_symbol_control_surface_ident;
-static int hf_cigi4_symbol_control_layer;
-static int hf_cigi4_symbol_control_flash_duty_cycle;
-static int hf_cigi4_symbol_control_flash_period;
-static int hf_cigi4_symbol_control_position_u;
-static int hf_cigi4_symbol_control_position_v;
-static int hf_cigi4_symbol_control_rotation;
-static int hf_cigi4_symbol_control_red;
-static int hf_cigi4_symbol_control_green;
-static int hf_cigi4_symbol_control_blue;
-static int hf_cigi4_symbol_control_alpha;
-static int hf_cigi4_symbol_control_scale_u;
-static int hf_cigi4_symbol_control_scale_v;
-
-static const value_string cigi4_symbol_control_symbol_state_vals[] = {
-    {0, "Hidden"},
-    {1, "Visible"},
-    {2, "Destroyed"},
-    {0, NULL}
-};
-
-static const true_false_string cigi4_symbol_control_flash_control_tfs = {
-    "Reset",
-    "Continue"
-};
-
 
 /* CIGI3_3 Short Symbol Control */
 #define CIGI3_PACKET_SIZE_SHORT_SYMBOL_CONTROL 32
@@ -2706,34 +2129,7 @@ static const value_string cigi3_3_short_symbol_control_attribute_select_vals[] =
 
 
 /* CIGI4 Short Symbol Control */
-#define CIGI4_PACKET_SIZE_SHORT_SYMBOL_CONTROL_DEFINITION 24
-static int hf_cigi4_short_symbol_control;
-static int hf_cigi4_short_symbol_control_symbol_id;
-static int hf_cigi4_short_symbol_control_inherit_color;
-static int hf_cigi4_short_symbol_control_flash_control;
-static int hf_cigi4_short_symbol_control_attach_state;
-static int hf_cigi4_short_symbol_control_symbol_state;
-static int hf_cigi4_short_symbol_control_attribute_select1;
-static int hf_cigi4_short_symbol_control_attribute_select2;
-static int hf_cigi4_short_symbol_control_attribute_value1;
-static int hf_cigi4_short_symbol_control_attribute_value2;
-
-static const value_string cigi4_short_symbol_control_attribute_select_vals[] = {
-    {0, "None"},
-    {1, "Surface ID"},
-    {2, "Parent Symbol ID"},
-    {3, "Layer"},
-    {4, "Flash Duty Cycle Percentage"},
-    {5, "Flash Period"},
-    {6, "Position U"},
-    {7, "Position V"},
-    {8, "Rotation"},
-    {9, "Color"},
-    {10,"Scale U"},
-    {11,"Scale V"},
-    {0, NULL}
-};
-
+#define CIGI4_PACKET_SIZE_SHORT_SYMBOL_CONTROL 24
 
 /* CIGI4 Symbol Textured Circle */
 //#define CIGI4_PACKET_SIZE_SYMBOL_CIRCLE_TEXTURED_DEFINITION         16 + (40 x n)
@@ -2820,13 +2216,7 @@ static int hf_cigi3_2_hat_hot_response_host_frame_number_lsn;
 
 /* CIGI4 HAT/HOT Response */
 #define CIGI4_PACKET_SIZE_HAT_HOT_RESPONSE 16
-static int hf_cigi4_hat_hot_response;
-static int hf_cigi4_hat_hot_response_hat_hot_id;
 static int hf_cigi4_hat_hot_response_flags;
-static int hf_cigi4_hat_hot_response_valid;
-static int hf_cigi4_hat_hot_response_type;
-static int hf_cigi4_hat_hot_response_host_frame_number_lsn;
-static int hf_cigi4_hat_hot_response_height;
 
 static int ett_cigi4_hat_hot_response_flags;
 
@@ -2846,16 +2236,7 @@ static int hf_cigi3_2_hat_hot_extended_response_host_frame_number_lsn;
 
 /* CIGI4 HAT/HOT Extended Response */
 #define CIGI4_PACKET_SIZE_HAT_HOT_EXTENDED_RESPONSE 40
-static int hf_cigi4_hat_hot_extended_response;
-static int hf_cigi4_hat_hot_extended_response_hat_hot_id;
 static int hf_cigi4_hat_hot_extended_response_flags;
-static int hf_cigi4_hat_hot_extended_response_valid;
-static int hf_cigi4_hat_hot_extended_response_host_frame_number_lsn;
-static int hf_cigi4_hat_hot_extended_response_hat;
-static int hf_cigi4_hat_hot_extended_response_hot;
-static int hf_cigi4_hat_hot_extended_response_material_code;
-static int hf_cigi4_hat_hot_extended_response_normal_vector_azimuth;
-static int hf_cigi4_hat_hot_extended_response_normal_vector_elevation;
 
 static int ett_cigi4_hat_hot_extended_response_flags;
 
@@ -2875,15 +2256,6 @@ static int hf_cigi3_2_line_of_sight_response_host_frame_number_lsn;
 
 /* CIGI4 Line of Sight Response */
 #define CIGI4_PACKET_SIZE_LINE_OF_SIGHT_RESPONSE 24
-static int hf_cigi4_line_of_sight_response;
-static int hf_cigi4_line_of_sight_response_los_id;
-static int hf_cigi4_line_of_sight_response_entity_id;
-static int hf_cigi4_line_of_sight_response_valid;
-static int hf_cigi4_line_of_sight_response_entity_id_valid;
-static int hf_cigi4_line_of_sight_response_visible;
-static int hf_cigi4_line_of_sight_response_host_frame_number_lsn;
-static int hf_cigi4_line_of_sight_response_count;
-static int hf_cigi4_line_of_sight_response_range;
 
 /* CIGI3 Line of Sight Extended Response */
 #define CIGI3_PACKET_SIZE_LINE_OF_SIGHT_EXTENDED_RESPONSE 56
@@ -2913,26 +2285,6 @@ static int hf_cigi3_2_line_of_sight_extended_response_host_frame_number_lsn;
 
 /* CIGI4 Line of Sight Extended Response */
 #define CIGI4_PACKET_SIZE_LINE_OF_SIGHT_EXTENDED_RESPONSE 64
-static int hf_cigi4_line_of_sight_extended_response;
-static int hf_cigi4_line_of_sight_extended_response_los_id;
-static int hf_cigi4_line_of_sight_extended_response_valid;
-static int hf_cigi4_line_of_sight_extended_response_entity_id_valid;
-static int hf_cigi4_line_of_sight_extended_response_range_valid;
-static int hf_cigi4_line_of_sight_extended_response_visible;
-static int hf_cigi4_line_of_sight_extended_response_host_frame_number_lsn;
-static int hf_cigi4_line_of_sight_extended_response_response_count;
-static int hf_cigi4_line_of_sight_extended_response_entity_id;
-static int hf_cigi4_line_of_sight_extended_response_range;
-static int hf_cigi4_line_of_sight_extended_response_lat_xoff;
-static int hf_cigi4_line_of_sight_extended_response_lon_yoff;
-static int hf_cigi4_line_of_sight_extended_response_alt_zoff;
-static int hf_cigi4_line_of_sight_extended_response_red;
-static int hf_cigi4_line_of_sight_extended_response_green;
-static int hf_cigi4_line_of_sight_extended_response_blue;
-static int hf_cigi4_line_of_sight_extended_response_alpha;
-static int hf_cigi4_line_of_sight_extended_response_material_code;
-static int hf_cigi4_line_of_sight_extended_response_normal_vector_azimuth;
-static int hf_cigi4_line_of_sight_extended_response_normal_vector_elevation;
 
 /* CIGI3 Sensor Response */
 #define CIGI3_PACKET_SIZE_SENSOR_RESPONSE 24
@@ -2956,24 +2308,6 @@ static const value_string cigi3_sensor_response_sensor_status_vals[] = {
 
 /* CIGI4 Sensor Response */
 #define CIGI4_PACKET_SIZE_SENSOR_RESPONSE 24
-static int hf_cigi4_sensor_response;
-static int hf_cigi4_sensor_response_view_id;
-static int hf_cigi4_sensor_response_sensor_id;
-static int hf_cigi4_sensor_response_sensor_status;
-static int hf_cigi4_sensor_response_gate_x_size;
-static int hf_cigi4_sensor_response_gate_y_size;
-static int hf_cigi4_sensor_response_gate_x_pos;
-static int hf_cigi4_sensor_response_gate_y_pos;
-static int hf_cigi4_sensor_response_frame_ctr;
-
-static const value_string cigi4_sensor_response_sensor_status_vals[] = {
-    {0, "Searching for target"},
-    {1, "Tracking target"},
-    {2, "Impending breaklock"},
-    {3, "Breaklock"},
-    {0, NULL},
-};
-
 
 /* CIGI3 Sensor Extended Response */
 #define CIGI3_PACKET_SIZE_SENSOR_EXTENDED_RESPONSE 48
@@ -3003,28 +2337,6 @@ static const value_string cigi3_sensor_extended_response_sensor_status_vals[] = 
 
 /* CIGI4 Sensor Extended Response */
 #define CIGI4_PACKET_SIZE_SENSOR_EXTENDED_RESPONSE 56
-static int hf_cigi4_sensor_extended_response;
-static int hf_cigi4_sensor_extended_response_view_id;
-static int hf_cigi4_sensor_extended_response_sensor_id;
-static int hf_cigi4_sensor_extended_response_sensor_status;
-static int hf_cigi4_sensor_extended_response_entity_id_valid;
-static int hf_cigi4_sensor_extended_response_entity_id;
-static int hf_cigi4_sensor_extended_response_gate_x_size;
-static int hf_cigi4_sensor_extended_response_gate_y_size;
-static int hf_cigi4_sensor_extended_response_gate_x_pos;
-static int hf_cigi4_sensor_extended_response_gate_y_pos;
-static int hf_cigi4_sensor_extended_response_frame_ctr;
-static int hf_cigi4_sensor_extended_response_track_lat;
-static int hf_cigi4_sensor_extended_response_track_lon;
-static int hf_cigi4_sensor_extended_response_track_alt;
-
-static const value_string cigi4_sensor_extended_response_sensor_status_vals[] = {
-    {0, "Searching for target"},
-    {1, "Tracking target"},
-    {2, "Impending breaklock"},
-    {3, "Breaklock"},
-    {0, NULL},
-};
 
 /* CIGI3 Position Response */
 #define CIGI3_PACKET_SIZE_POSITION_RESPONSE 48
@@ -3059,33 +2371,6 @@ static const value_string cigi3_position_response_coord_system_vals[] = {
 
 /* CIGI4 Position Response */
 #define CIGI4_PACKET_SIZE_POSITION_RESPONSE 48
-static int hf_cigi4_position_response;
-static int hf_cigi4_position_response_object_id;
-static int hf_cigi4_position_response_part_id;
-static int hf_cigi4_position_response_object_class;
-static int hf_cigi4_position_response_coord_system;
-static int hf_cigi4_position_response_lat_xoff;
-static int hf_cigi4_position_response_lon_yoff;
-static int hf_cigi4_position_response_alt_zoff;
-static int hf_cigi4_position_response_roll;
-static int hf_cigi4_position_response_pitch;
-static int hf_cigi4_position_response_yaw;
-
-static const value_string cigi4_position_response_object_class_vals[] = {
-    {0, "Entity"},
-    {1, "Articulated Part"},
-    {2, "View"},
-    {3, "View Group"},
-    {4, "Motion Tracker"},
-    {0, NULL},
-};
-
-static const value_string cigi4_position_response_coord_system_vals[] = {
-    {0, "Geodetic"},
-    {1, "Parent Entity"},
-    {2, "Submodel"},
-    {0, NULL},
-};
 
 /* CIGI3 Weather Conditions Response */
 #define CIGI3_PACKET_SIZE_WEATHER_CONDITIONS_RESPONSE 32
@@ -3101,15 +2386,6 @@ static int hf_cigi3_weather_conditions_response_barometric_pressure;
 
 /* CIGI4 Weather Conditions Response */
 #define CIGI4_PACKET_SIZE_WEATHER_CONDITIONS_RESPONSE 32
-static int hf_cigi4_weather_conditions_response;
-static int hf_cigi4_weather_conditions_response_request_id;
-static int hf_cigi4_weather_conditions_response_humidity;
-static int hf_cigi4_weather_conditions_response_air_temp;
-static int hf_cigi4_weather_conditions_response_visibility_range;
-static int hf_cigi4_weather_conditions_response_horiz_speed;
-static int hf_cigi4_weather_conditions_response_vert_speed;
-static int hf_cigi4_weather_conditions_response_wind_direction;
-static int hf_cigi4_weather_conditions_response_barometric_pressure;
 
 /* CIGI3 Aerosol Concentration Response */
 #define CIGI3_PACKET_SIZE_AEROSOL_CONCENTRATION_RESPONSE 8
@@ -3120,10 +2396,6 @@ static int hf_cigi3_aerosol_concentration_response_aerosol_concentration;
 
 /* CIGI4 Aerosol Concentration Response */
 #define CIGI4_PACKET_SIZE_AEROSOL_CONCENTRATION_RESPONSE 16
-static int hf_cigi4_aerosol_concentration_response;
-static int hf_cigi4_aerosol_concentration_response_request_id;
-static int hf_cigi4_aerosol_concentration_response_layer_id;
-static int hf_cigi4_aerosol_concentration_response_aerosol_concentration;
 
 /* CIGI3 Maritime Surface Conditions Response */
 #define CIGI3_PACKET_SIZE_MARITIME_SURFACE_CONDITIONS_RESPONSE 16
@@ -3135,11 +2407,6 @@ static int hf_cigi3_maritime_surface_conditions_response_surface_clarity;
 
 /* CIGI4 Maritime Surface Conditions Response */
 #define CIGI4_PACKET_SIZE_MARITIME_SURFACE_CONDITIONS_RESPONSE 24
-static int hf_cigi4_maritime_surface_conditions_response;
-static int hf_cigi4_maritime_surface_conditions_response_request_id;
-static int hf_cigi4_maritime_surface_conditions_response_sea_surface_height;
-static int hf_cigi4_maritime_surface_conditions_response_surface_water_temp;
-static int hf_cigi4_maritime_surface_conditions_response_surface_clarity;
 
 /* CIGI3 Terrestrial Surface Conditions Response */
 #define CIGI3_PACKET_SIZE_TERRESTRIAL_SURFACE_CONDITIONS_RESPONSE 8
@@ -3149,9 +2416,6 @@ static int hf_cigi3_terrestrial_surface_conditions_response_surface_id;
 
 /* CIGI4 Terrestrial Surface Conditions Response */
 #define CIGI4_PACKET_SIZE_TERRESTRIAL_SURFACE_CONDITIONS_RESPONSE 16
-static int hf_cigi4_terrestrial_surface_conditions_response;
-static int hf_cigi4_terrestrial_surface_conditions_response_request_id;
-static int hf_cigi4_terrestrial_surface_conditions_response_surface_id;
 
 /* CIGI3 Collision Detection Segment Notification */
 #define CIGI3_PACKET_SIZE_COLLISION_DETECTION_SEGMENT_NOTIFICATION 16
@@ -3170,18 +2434,6 @@ static const true_false_string cigi3_collision_detection_segment_notification_ty
 
 /* CIGI4 Collision Detection Segment Notification */
 #define CIGI4_PACKET_SIZE_COLLISION_DETECTION_SEGMENT_NOTIFICATION 24
-static int hf_cigi4_collision_detection_segment_notification;
-static int hf_cigi4_collision_detection_segment_notification_entity_id;
-static int hf_cigi4_collision_detection_segment_notification_segment_id;
-static int hf_cigi4_collision_detection_segment_notification_type;
-static int hf_cigi4_collision_detection_segment_notification_contacted_entity_id;
-static int hf_cigi4_collision_detection_segment_notification_material_code;
-static int hf_cigi4_collision_detection_segment_notification_intersection_distance;
-
-static const true_false_string cigi4_collision_detection_segment_notification_type_tfs = {
-    "Entity",
-    "Non-entity"
-};
 
 /* CIGI3 Collision Detection Volume Notification */
 #define CIGI3_PACKET_SIZE_COLLISION_DETECTION_VOLUME_NOTIFICATION 16
@@ -3199,17 +2451,6 @@ static const true_false_string cigi3_collision_detection_volume_notification_typ
 
 /* CIGI4 Collision Detection Volume Notification */
 #define CIGI4_PACKET_SIZE_COLLISION_DETECTION_VOLUME_NOTIFICATION 16
-static int hf_cigi4_collision_detection_volume_notification;
-static int hf_cigi4_collision_detection_volume_notification_entity_id;
-static int hf_cigi4_collision_detection_volume_notification_volume_id;
-static int hf_cigi4_collision_detection_volume_notification_type;
-static int hf_cigi4_collision_detection_volume_notification_contacted_entity_id;
-static int hf_cigi4_collision_detection_volume_notification_contacted_volume_id;
-
-static const true_false_string cigi4_collision_detection_volume_notification_type_tfs = {
-    "Entity",
-    "Non-entity"
-};
 
 /* CIGI3 Animation Stop Notification */
 #define CIGI3_PACKET_SIZE_ANIMATION_STOP_NOTIFICATION 8
@@ -3218,8 +2459,6 @@ static int hf_cigi3_animation_stop_notification_entity_id;
 
 /* CIGI4 Animation Stop Notification */
 #define CIGI4_PACKET_SIZE_ANIMATION_STOP_NOTIFICATION 8
-static int hf_cigi4_animation_stop_notification;
-static int hf_cigi4_animation_stop_notification_entity_id;
 
 /* CIGI3 Event Notification */
 #define CIGI3_PACKET_SIZE_EVENT_NOTIFICATION 16
@@ -3231,11 +2470,6 @@ static int hf_cigi3_event_notification_data_3;
 
 /* CIGI4 Event Notification */
 #define CIGI4_PACKET_SIZE_EVENT_NOTIFICATION 24
-static int hf_cigi4_event_notification;
-static int hf_cigi4_event_notification_event_id;
-static int hf_cigi4_event_notification_data_1;
-static int hf_cigi4_event_notification_data_2;
-static int hf_cigi4_event_notification_data_3;
 
 /* CIGI3 Image Generator Message */
 static int hf_cigi3_image_generator_message;
@@ -3243,9 +2477,6 @@ static int hf_cigi3_image_generator_message_id;
 static int hf_cigi3_image_generator_message_message;
 
 /* CIGI4 Image Generator Message */
-static int hf_cigi4_image_generator_message;
-static int hf_cigi4_image_generator_message_id;
-static int hf_cigi4_image_generator_message_message;
 
 /* CIGI3 User-Defined Packets */
 static int hf_cigi3_user_defined;
@@ -3393,15 +2624,7 @@ static value_string_ext cigi4_packet_id_vals_ext = VALUE_STRING_EXT_INIT(cigi4_p
 
 /* CIGI4 IG Control */
 #define CIGI4_PACKET_SIZE_IG_CONTROL 24
-static int hf_cigi4_ig_control;
-static int hf_cigi4_ig_control_db_number;
 static int hf_cigi4_ig_control_flags;
-static int hf_cigi4_ig_control_ig_mode;
-static int hf_cigi4_ig_control_timestamp_valid;
-static int hf_cigi4_ig_control_minor_version;
-static int hf_cigi4_ig_control_host_frame_number;
-static int hf_cigi4_ig_control_timestamp;
-static int hf_cigi4_ig_control_last_ig_frame_number;
 static int hf_cigi4_ig_control_smoothing_enable;
 static int hf_cigi4_ig_control_entity_substitution;
 static int hf_cigi4_ig_control_entity_substitution_enable;
@@ -3409,16 +2632,9 @@ static int hf_cigi4_ig_control_entity_substitution_enable;
 static int ett_cigi4_ig_control_flags;
 static int ett_cigi4_ig_control_entity_substitution;
 
-
-static const value_string cigi4_ig_control_ig_mode_vals[] = {
-    {0, "Reset/Standby"},
-    {1, "Operate"},
-    {2, "Debug"},
-    {0, NULL},
-};
-
-
 /* CIGI4 Entity Position */
+/* Subset of previous (CIGI3) Entity Control packet containing parameters
+ * for entity position and attitude. */
 #define CIGI4_PACKET_SIZE_ENTITY_POSITION 48
 static int hf_cigi4_entity_position;
 static int hf_cigi4_entity_position_entity_id;
@@ -3433,7 +2649,10 @@ static int hf_cigi4_entity_position_lat_xoff;
 static int hf_cigi4_entity_position_lon_yoff;
 static int hf_cigi4_entity_position_alt_zoff;
 
+static int ett_cigi4_entity_position_flags;
 
+/* CIGI Conformal Clamped Entity Position */
+/* Conformal Clamped Entity Control packet renamed. */
 #define CIGI4_PACKET_SIZE_CONFORMAL_CLAMPED_ENTITY_POSITION         32
 static int hf_cigi4_conformal_clamped_entity_position;
 static int hf_cigi4_conformal_clamped_entity_position_entity_id;
@@ -3441,54 +2660,9 @@ static int hf_cigi4_conformal_clamped_entity_position_yaw;
 static int hf_cigi4_conformal_clamped_entity_position_lat;
 static int hf_cigi4_conformal_clamped_entity_position_lon;
 
-
 #define CIGI4_PACKET_SIZE_COMPONENT_CONTROL                         40
-static int hf_cigi4_component_control;
-static int hf_cigi4_component_control_component_id;
-static int hf_cigi4_component_control_instance_id;
-static int hf_cigi4_component_control_component_class;
-static int hf_cigi4_component_control_component_state;
-static int hf_cigi4_component_control_data_1;
-static int hf_cigi4_component_control_data_2;
-static int hf_cigi4_component_control_data_3;
-static int hf_cigi4_component_control_data_4;
-static int hf_cigi4_component_control_data_5;
-static int hf_cigi4_component_control_data_6;
 
 #define CIGI4_PACKET_SIZE_SHORT_COMPONENT_CONTROL                   24
-static int hf_cigi4_short_component_control;
-static int hf_cigi4_short_component_control_component_id;
-static int hf_cigi4_short_component_control_instance_id;
-static int hf_cigi4_short_component_control_component_class;
-static int hf_cigi4_short_component_control_component_state;
-static int hf_cigi4_short_component_control_data_1;
-static int hf_cigi4_short_component_control_data_2;
-
-
-
-/* CIGI4 HAT/HOT Request */
-#define CIGI4_PACKET_SIZE_HAT_HOT_REQUEST    40
-static int hf_cigi4_hat_hot_request;
-static int hf_cigi4_hat_hot_request_hat_hot_id;
-static int hf_cigi4_hat_hot_request_flags;
-static int hf_cigi4_hat_hot_request_type;
-static int hf_cigi4_hat_hot_request_coordinate_system;
-static int hf_cigi4_hat_hot_request_update_period;
-static int hf_cigi4_hat_hot_request_entity_id;
-static int hf_cigi4_hat_hot_request_lat_xoff;
-static int hf_cigi4_hat_hot_request_lon_yoff;
-static int hf_cigi4_hat_hot_request_alt_zoff;
-
-static int ett_cigi4_hat_hot_request_flags;
-
-static const value_string cigi4_hat_hot_request_type_vals[] = {
-    {0, "HAT"},
-    {1, "HOT"},
-    {2, "Extended"},
-    {0, NULL},
-};
-
-
 
 static const value_string cigi4_entity_control_ground_ocean_clamp_vals[] = {
     {0, "No Clamp"},
@@ -4285,10 +3459,10 @@ cigi3_add_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cigi_tree)
 
         /* Add the subtree for the packet */
         if ( packet_id == CIGI3_PACKET_ID_IG_CONTROL && cigi_minor_version == 2 ) {
-            hf_cigi3_packet = hf_cigi3_2_ig_control;
+            hf_cigi3_packet = hf_cigi3_ig_control;
             packet_length = CIGI3_2_PACKET_SIZE_IG_CONTROL;
         } else if ( packet_id == CIGI3_PACKET_ID_IG_CONTROL && cigi_minor_version == 3 ) {
-            hf_cigi3_packet = hf_cigi3_3_ig_control;
+            hf_cigi3_packet = hf_cigi3_ig_control;
             packet_length = CIGI3_3_PACKET_SIZE_IG_CONTROL;
         } else if ( packet_id == CIGI3_PACKET_ID_IG_CONTROL ) {
             hf_cigi3_packet = hf_cigi3_ig_control;
@@ -5383,8 +4557,10 @@ cigi3_add_entity_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 
 /* CIGI4 Entity Control */
 static int
-cigi4_add_entity_control(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_entity_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
+    int offset = 0;
+
     proto_tree_add_item(tree, hf_cigi4_entity_control_entity_state, tvb, offset, 1, cigi_byte_order);
     proto_tree_add_item(tree, hf_cigi4_entity_control_collision_reporting_enable, tvb, offset, 1, cigi_byte_order);
     proto_tree_add_item(tree, hf_cigi4_entity_control_inherit_alpha, tvb, offset, 1, cigi_byte_order);
@@ -5424,8 +4600,10 @@ cigi4_add_entity_control(tvbuff_t* tvb, proto_tree* tree, int offset)
 
 /* CIGI4 Animation Control */
 static int
-cigi4_add_animation_control(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_animation_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void *data _U_)
 {
+    int offset = 0;
+
     proto_tree_add_item(tree, hf_cigi4_animation_control_state, tvb, offset, 1, cigi_byte_order);
     proto_tree_add_item(tree, hf_cigi4_animation_control_frame_position_reset, tvb, offset, 1, cigi_byte_order);
     proto_tree_add_item(tree, hf_cigi4_animation_control_loop_mode, tvb, offset, 1, cigi_byte_order);
@@ -5545,27 +4723,29 @@ cigi3_add_short_component_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 
 /* CIGI4 Short Component Control */
 static int
-cigi4_add_short_component_control(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_short_component_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    proto_tree_add_item(tree, hf_cigi4_short_component_control_component_id, tvb, offset, 2, cigi_byte_order);
+    int offset = 0;
+
+    proto_tree_add_item(tree, hf_cigi3_short_component_control_component_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_short_component_control_component_class, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_short_component_control_component_class, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_short_component_control_component_state, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_short_component_control_component_state, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_short_component_control_instance_id, tvb, offset, 2, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_short_component_control_instance_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
     //reserved
     offset += 6;
 
-    proto_tree_add_item(tree, hf_cigi4_short_component_control_data_1, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_short_component_control_data_1, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_short_component_control_data_2, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_short_component_control_data_2, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
     return offset;
@@ -5616,46 +4796,48 @@ cigi3_add_articulated_part_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 
 /* CIGI4 Articulated Part Control */
 static int
-cigi4_add_articulated_part_control(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_articulated_part_control(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree* tree, void* data _U_)
 {
+    int offset = 0;
+
     proto_tree* field_tree;
     proto_item* tf;
 
-    proto_tree_add_item(tree, hf_cigi4_articulated_part_control_entity_id, tvb, offset, 2, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_articulated_part_control_entity_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_articulated_part_control_part_id, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_articulated_part_control_part_id, tvb, offset, 1, cigi_byte_order);
     offset++;
 
     //enabled Flags
     tf = proto_tree_add_item(tree, hf_cigi4_articulated_part_control_part_enable_flags, tvb, offset, 1, cigi_byte_order);
     field_tree = proto_item_add_subtree(tf, ett_cigi4_articulated_part_control_part_enable_flags);
 
-    proto_tree_add_item(field_tree, hf_cigi4_articulated_part_control_part_enable, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(field_tree, hf_cigi4_articulated_part_control_xoff_enable, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(field_tree, hf_cigi4_articulated_part_control_yoff_enable, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(field_tree, hf_cigi4_articulated_part_control_zoff_enable, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(field_tree, hf_cigi4_articulated_part_control_roll_enable, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(field_tree, hf_cigi4_articulated_part_control_pitch_enable, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(field_tree, hf_cigi4_articulated_part_control_yaw_enable, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(field_tree, hf_cigi3_articulated_part_control_part_enable, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(field_tree, hf_cigi3_articulated_part_control_xoff_enable, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(field_tree, hf_cigi3_articulated_part_control_yoff_enable, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(field_tree, hf_cigi3_articulated_part_control_zoff_enable, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(field_tree, hf_cigi3_articulated_part_control_roll_enable, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(field_tree, hf_cigi3_articulated_part_control_pitch_enable, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(field_tree, hf_cigi3_articulated_part_control_yaw_enable, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_articulated_part_control_xoff, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_articulated_part_control_xoff, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_articulated_part_control_yoff, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_articulated_part_control_yoff, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_articulated_part_control_zoff, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_articulated_part_control_zoff, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_articulated_part_control_roll, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_articulated_part_control_roll, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_articulated_part_control_pitch, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_articulated_part_control_pitch, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_articulated_part_control_yaw, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_articulated_part_control_yaw, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
     return offset;
@@ -5694,37 +4876,39 @@ cigi3_add_short_articulated_part_control(tvbuff_t *tvb, packet_info *pinfo _U_, 
 
 /* CIGI4 Short Articulated Part Control */
 static int
-cigi4_add_short_articulated_part_control(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_short_articulated_part_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
+    int offset = 0;
+
     proto_tree* field_tree;
     proto_item* tf;
 
-    proto_tree_add_item(tree, hf_cigi4_short_articulated_part_control_entity_id, tvb, offset, 2, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_short_articulated_part_control_entity_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_short_articulated_part_control_part_id_1, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_short_articulated_part_control_part_id_1, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_short_articulated_part_control_part_id_2, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_short_articulated_part_control_part_id_2, tvb, offset, 1, cigi_byte_order);
     offset++;
 
     //enabled Flags
     tf = proto_tree_add_item(tree, hf_cigi4_short_articulated_part_control_part_enable_flags, tvb, offset, 1, cigi_byte_order);
     field_tree = proto_item_add_subtree(tf, ett_cigi4_short_articulated_part_control_part_enable_flags);
 
-    proto_tree_add_item(field_tree, hf_cigi4_short_articulated_part_control_dof_select_1, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(field_tree, hf_cigi4_short_articulated_part_control_dof_select_2, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(field_tree, hf_cigi4_short_articulated_part_control_part_enable_1, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(field_tree, hf_cigi4_short_articulated_part_control_part_enable_2, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(field_tree, hf_cigi3_short_articulated_part_control_dof_select_1, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(field_tree, hf_cigi3_short_articulated_part_control_dof_select_2, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(field_tree, hf_cigi3_short_articulated_part_control_part_enable_1, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(field_tree, hf_cigi3_short_articulated_part_control_part_enable_2, tvb, offset, 1, cigi_byte_order);
     offset++;
 
     //reserved
     offset += 3;
 
-    proto_tree_add_item(tree, hf_cigi4_short_articulated_part_control_dof_1, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_short_articulated_part_control_dof_1, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_short_articulated_part_control_dof_2, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_short_articulated_part_control_dof_2, tvb, offset, 4, cigi_byte_order);
     offset += 8;
 
     return offset;
@@ -5772,8 +4956,10 @@ cigi3_add_rate_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 
 /* CIGI4 Velocity Control */
 static int
-cigi4_add_velocity_control(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_velocity_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
+    int offset = 0;
+
     proto_tree* field_tree;
     proto_item* tf;
 
@@ -5842,25 +5028,27 @@ cigi3_add_celestial_sphere_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 
 /* CIGI4 Celestial Sphere Control */
 static int
-cigi4_add_celestial_sphere_control(tvbuff_t *tvb, proto_tree *tree, int offset)
+cigi4_add_celestial_sphere_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
+    int offset = 0;
+
     proto_tree* field_tree;
     proto_item* tf;
 
     //Enabled Flags
     tf = proto_tree_add_item(tree, hf_cigi4_celestial_sphere_control_enable_flags, tvb, offset, 1, cigi_byte_order);
     field_tree = proto_item_add_subtree(tf, ett_cigi4_celestial_sphere_control_flags);
-    proto_tree_add_item(field_tree, hf_cigi4_celestial_sphere_control_ephemeris_enable, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(field_tree, hf_cigi4_celestial_sphere_control_sun_enable, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(field_tree, hf_cigi4_celestial_sphere_control_moon_enable, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(field_tree, hf_cigi4_celestial_sphere_control_star_enable, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(field_tree, hf_cigi4_celestial_sphere_control_date_time_valid, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(field_tree, hf_cigi3_celestial_sphere_control_ephemeris_enable, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(field_tree, hf_cigi3_celestial_sphere_control_sun_enable, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(field_tree, hf_cigi3_celestial_sphere_control_moon_enable, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(field_tree, hf_cigi3_celestial_sphere_control_star_enable, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(field_tree, hf_cigi3_celestial_sphere_control_date_time_valid, tvb, offset, 1, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_celestial_sphere_control_hour, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_celestial_sphere_control_hour, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_celestial_sphere_control_minute, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_celestial_sphere_control_minute, tvb, offset, 1, cigi_byte_order);
     offset++;
 
     proto_tree_add_item(tree, hf_cigi4_celestial_sphere_control_seconds, tvb, offset, 4, cigi_byte_order);
@@ -5869,7 +5057,7 @@ cigi4_add_celestial_sphere_control(tvbuff_t *tvb, proto_tree *tree, int offset)
     proto_tree_add_item(tree, hf_cigi4_celestial_sphere_control_date, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_celestial_sphere_control_star_intensity, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_celestial_sphere_control_star_intensity, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
     //reserved
@@ -5915,32 +5103,34 @@ cigi3_add_atmosphere_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
 /* CIGI4 Atmosphere Control */
 static int
-cigi4_add_atmosphere_control(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_atmosphere_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    proto_tree_add_item(tree, hf_cigi4_atmosphere_control_atmospheric_model_enable, tvb, offset, 1, cigi_byte_order);
+    int offset = 0;
 
-    proto_tree_add_item(tree, hf_cigi4_atmosphere_control_humidity, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_atmosphere_control_atmospheric_model_enable, tvb, offset, 1, cigi_byte_order);
+
+    proto_tree_add_item(tree, hf_cigi3_atmosphere_control_humidity, tvb, offset, 1, cigi_byte_order);
     offset++;
 
     //reserved
     offset += 3;
 
-    proto_tree_add_item(tree, hf_cigi4_atmosphere_control_air_temp, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_atmosphere_control_air_temp, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_atmosphere_control_visibility_range, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_atmosphere_control_visibility_range, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_atmosphere_control_horiz_wind, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_atmosphere_control_horiz_wind, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_atmosphere_control_vert_wind, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_atmosphere_control_vert_wind, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_atmosphere_control_wind_direction, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_atmosphere_control_wind_direction, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_atmosphere_control_barometric_pressure, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_atmosphere_control_barometric_pressure, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
     return offset;
@@ -5990,38 +5180,39 @@ cigi3_add_environmental_region_control(tvbuff_t *tvb, packet_info *pinfo _U_, pr
 
 /* CIGI4 Environmental Region Control */
 static int
-cigi4_add_environmental_region_control(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_environmental_region_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    proto_tree_add_item(tree, hf_cigi4_environmental_region_control_region_state, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_environmental_region_control_merge_weather, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_environmental_region_control_merge_aerosol, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_environmental_region_control_merge_maritime, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_environmental_region_control_merge_terrestrial, tvb, offset, 1, cigi_byte_order);
+    int offset = 0;
+
+    proto_tree_add_item(tree, hf_cigi3_environmental_region_control_region_state, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_environmental_region_control_merge_weather, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_environmental_region_control_merge_aerosol, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_environmental_region_control_merge_maritime, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_environmental_region_control_merge_terrestrial, tvb, offset, 1, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_environmental_region_control_region_id, tvb, offset, 2, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_environmental_region_control_region_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-
-    proto_tree_add_item(tree, hf_cigi4_environmental_region_control_lat, tvb, offset, 8, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_environmental_region_control_lat, tvb, offset, 8, cigi_byte_order);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi4_environmental_region_control_lon, tvb, offset, 8, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_environmental_region_control_lon, tvb, offset, 8, cigi_byte_order);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi4_environmental_region_control_size_x, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_environmental_region_control_size_x, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_environmental_region_control_size_y, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_environmental_region_control_size_y, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_environmental_region_control_corner_radius, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_environmental_region_control_corner_radius, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_environmental_region_control_rotation, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_environmental_region_control_rotation, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_environmental_region_control_transition_perimeter, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_environmental_region_control_transition_perimeter, tvb, offset, 4, cigi_byte_order);
     offset += 8;
 
     return offset;
@@ -6096,64 +5287,66 @@ cigi3_add_weather_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
 /* CIGI4 Weather Control */
 static int
-cigi4_add_weather_control(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_weather_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    proto_tree_add_item(tree, hf_cigi4_weather_control_layer_id, tvb, offset, 1, cigi_byte_order);
+    int offset = 0;
+
+    proto_tree_add_item(tree, hf_cigi3_weather_control_layer_id, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_weather_control_humidity, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_weather_control_humidity, tvb, offset, 1, cigi_byte_order);
     offset++;
 
     //flags
-    proto_tree_add_item(tree, hf_cigi4_weather_control_weather_enable, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_weather_control_scud_enable, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_weather_control_random_winds_enable, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_weather_control_random_lightning_enable, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_weather_control_cloud_type, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_weather_control_weather_enable, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_weather_control_scud_enable, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_weather_control_random_winds_enable, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_weather_control_random_lightning_enable, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_weather_control_cloud_type, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_weather_control_scope, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_weather_control_severity, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_weather_control_scope, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_weather_control_severity, tvb, offset, 1, cigi_byte_order);
     proto_tree_add_item(tree, hf_cigi4_weather_control_top_scud_enable, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_weather_control_entity_region_id, tvb, offset, 2, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_weather_control_entity_region_id, tvb, offset, 2, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_weather_control_air_temp, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_weather_control_air_temp, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_weather_control_visibility_range, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_weather_control_visibility_range, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_weather_control_scud_frequency, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_weather_control_scud_frequency, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_weather_control_coverage, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_weather_control_coverage, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_weather_control_base_elevation, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_weather_control_base_elevation, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_weather_control_thickness, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_weather_control_thickness, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_weather_control_transition_band, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_weather_control_transition_band, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_weather_control_horiz_wind, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_weather_control_horiz_wind, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_weather_control_vert_wind, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_weather_control_vert_wind, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_weather_control_wind_direction, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_weather_control_wind_direction, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_weather_control_barometric_pressure, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_weather_control_barometric_pressure, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_weather_control_aerosol_concentration, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_weather_control_aerosol_concentration, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
     proto_tree_add_item(tree, hf_cigi4_weather_control_top_scud_freq, tvb, offset, 4, cigi_byte_order);
@@ -6196,26 +5389,25 @@ cigi3_add_maritime_surface_conditions_control(tvbuff_t *tvb, packet_info *pinfo 
 
 /* CIGI4 Maritime Surface Conditions Control */
 static int
-cigi4_add_maritime_surface_conditions_control(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_maritime_surface_conditions_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void *data _U_)
 {
-    proto_tree_add_item(tree, hf_cigi4_maritime_surface_conditions_control_wave_id, tvb, offset, 1, cigi_byte_order);
-    offset ++;
+    int offset = 0;
 
-    proto_tree_add_item(tree, hf_cigi4_maritime_surface_conditions_control_surface_conditions_enable, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_maritime_surface_conditions_control_whitecap_enable, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_maritime_surface_conditions_control_scope, tvb, offset, 1, cigi_byte_order);
-    offset++;
-
-    proto_tree_add_item(tree, hf_cigi4_maritime_surface_conditions_control_entity_region_id, tvb, offset, 2, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_maritime_surface_conditions_control_surface_conditions_enable, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_maritime_surface_conditions_control_whitecap_enable, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_maritime_surface_conditions_control_scope, tvb, offset, 1, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_maritime_surface_conditions_control_sea_surface_height, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_maritime_surface_conditions_control_entity_region_id, tvb, offset, 2, cigi_byte_order);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cigi3_maritime_surface_conditions_control_sea_surface_height, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_maritime_surface_conditions_control_surface_water_temp, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_maritime_surface_conditions_control_surface_water_temp, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_maritime_surface_conditions_control_surface_clarity, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_maritime_surface_conditions_control_surface_clarity, tvb, offset, 4, cigi_byte_order);
     offset += 8;
 
     return offset;
@@ -6261,35 +5453,37 @@ cigi3_add_wave_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 
 /* CIGI4 Wave Control */
 static int
-cigi4_add_wave_control(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_wave_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void *data _U_)
 {
-    proto_tree_add_item(tree, hf_cigi4_wave_control_wave_id, tvb, offset, 1, cigi_byte_order);
+    int offset = 0;
+
+    proto_tree_add_item(tree, hf_cigi3_wave_control_wave_id, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_wave_control_wave_enable, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_wave_control_scope, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_wave_control_breaker_type, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_wave_control_wave_enable, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_wave_control_scope, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_wave_control_breaker_type, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_wave_control_entity_region_id, tvb, offset, 2, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_wave_control_entity_region_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_wave_control_height, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_wave_control_height, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_wave_control_wavelength, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_wave_control_wavelength, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_wave_control_period, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_wave_control_period, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_wave_control_direction, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_wave_control_direction, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_wave_control_phase_offset, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_wave_control_phase_offset, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_wave_control_leading, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_wave_control_leading, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
     return offset;
@@ -6320,20 +5514,22 @@ cigi3_add_terrestrial_surface_conditions_control(tvbuff_t *tvb, packet_info *pin
 
 /* CIGI4 Terrestrial Surface Conditions Control */
 static int
-cigi4_add_terrestrial_surface_conditions_control(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_terrestrial_surface_conditions_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    proto_tree_add_item(tree, hf_cigi4_terrestrial_surface_conditions_control_entity_region_id, tvb, offset, 2, cigi_byte_order);
+    int offset = 0;
+
+    proto_tree_add_item(tree, hf_cigi3_terrestrial_surface_conditions_control_entity_region_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_terrestrial_surface_conditions_control_surface_condition_enable, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_terrestrial_surface_conditions_control_scope, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_terrestrial_surface_conditions_control_severity, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_terrestrial_surface_conditions_control_surface_condition_enable, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_terrestrial_surface_conditions_control_scope, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_terrestrial_surface_conditions_control_severity, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_terrestrial_surface_conditions_control_coverage, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_terrestrial_surface_conditions_control_coverage, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_terrestrial_surface_conditions_control_condition_id, tvb, offset, 2, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_terrestrial_surface_conditions_control_surface_condition_id, tvb, offset, 2, cigi_byte_order);
     offset += 8;
 
     return offset;
@@ -6385,50 +5581,52 @@ cigi3_add_view_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 
 /* CIGI4 View Control */
 static int
-cigi4_add_view_control(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_view_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
+    int offset = 0;
+
     proto_tree* field_tree;
     proto_item* tf;
 
-    proto_tree_add_item(tree, hf_cigi4_view_control_group_id, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_view_control_group_id, tvb, offset, 1, cigi_byte_order);
     offset++;
 
     //Flags
     tf = proto_tree_add_item(tree, hf_cigi4_view_control_enable_flags, tvb, offset, 1, cigi_byte_order);
     field_tree = proto_item_add_subtree(tf, ett_cigi4_view_control_enable_flags);
-    proto_tree_add_item(field_tree, hf_cigi4_view_control_xoff_enable, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(field_tree, hf_cigi4_view_control_yoff_enable, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(field_tree, hf_cigi4_view_control_zoff_enable, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(field_tree, hf_cigi4_view_control_roll_enable, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(field_tree, hf_cigi4_view_control_pitch_enable, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(field_tree, hf_cigi4_view_control_yaw_enable, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(field_tree, hf_cigi3_view_control_xoff_enable, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(field_tree, hf_cigi3_view_control_yoff_enable, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(field_tree, hf_cigi3_view_control_zoff_enable, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(field_tree, hf_cigi3_view_control_roll_enable, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(field_tree, hf_cigi3_view_control_pitch_enable, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(field_tree, hf_cigi3_view_control_yaw_enable, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_view_control_view_id, tvb, offset, 2, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_view_control_view_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_view_control_entity_id, tvb, offset, 2, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_view_control_entity_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
     //reserved
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_view_control_xoff, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_view_control_xoff, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_view_control_yoff, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_view_control_yoff, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_view_control_zoff, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_view_control_zoff, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_view_control_roll, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_view_control_roll, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_view_control_pitch, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_view_control_pitch, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_view_control_yaw, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_view_control_yaw, tvb, offset, 4, cigi_byte_order);
     offset += 8;
 
     return offset;
@@ -6474,35 +5672,37 @@ cigi3_add_sensor_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 
 /* CIGI4 Sensor Control */
 static int
-cigi4_add_sensor_control(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_sensor_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    proto_tree_add_item(tree, hf_cigi4_sensor_control_sensor_id, tvb, offset, 1, cigi_byte_order);
+    int offset = 0;
+
+    proto_tree_add_item(tree, hf_cigi3_sensor_control_sensor_id, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_sensor_control_sensor_on_off, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_sensor_control_polarity, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_sensor_control_line_dropout_enable, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_sensor_control_auto_gain, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_sensor_control_track_white_black, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_sensor_control_track_mode, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_sensor_control_sensor_on_off, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_sensor_control_polarity, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_sensor_control_line_dropout_enable, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_sensor_control_auto_gain, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_sensor_control_track_white_black, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_sensor_control_track_mode, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_sensor_control_response_type, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_sensor_control_response_type, tvb, offset, 1, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_sensor_control_view_id, tvb, offset, 2, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_sensor_control_view_id, tvb, offset, 2, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_sensor_control_gain, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_sensor_control_gain, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_sensor_control_level, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_sensor_control_level, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_sensor_control_ac_coupling, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_sensor_control_ac_coupling, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_sensor_control_noise, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_sensor_control_noise, tvb, offset, 4, cigi_byte_order);
     offset += 8;
 
     return offset;
@@ -6538,25 +5738,27 @@ cigi3_add_motion_tracker_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
 /* CIGI4 Motion Tracker Control */
 static int
-cigi4_add_motion_tracker_control(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_motion_tracker_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void *data _U_)
 {
-    proto_tree_add_item(tree, hf_cigi4_motion_tracker_control_tracker_id, tvb, offset, 1, cigi_byte_order);
+    int offset = 0;
+
+    proto_tree_add_item(tree, hf_cigi3_motion_tracker_control_tracker_id, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_motion_tracker_control_tracker_enable, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_motion_tracker_control_boresight_enable, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_motion_tracker_control_x_enable, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_motion_tracker_control_y_enable, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_motion_tracker_control_z_enable, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_motion_tracker_control_roll_enable, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_motion_tracker_control_pitch_enable, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_motion_tracker_control_yaw_enable, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_motion_tracker_control_tracker_enable, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_motion_tracker_control_boresight_enable, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_motion_tracker_control_x_enable, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_motion_tracker_control_y_enable, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_motion_tracker_control_z_enable, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_motion_tracker_control_roll_enable, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_motion_tracker_control_pitch_enable, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_motion_tracker_control_yaw_enable, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_motion_tracker_control_view_group_select, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_motion_tracker_control_view_group_select, tvb, offset, 1, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_motion_tracker_control_view_group_id, tvb, offset, 2, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_motion_tracker_control_view_group_id, tvb, offset, 2, cigi_byte_order);
     offset += 8;
 
     return offset;
@@ -6582,15 +5784,17 @@ cigi3_add_earth_reference_model_definition(tvbuff_t *tvb, packet_info *pinfo _U_
 
 /* CIGI4 Earth Reference Model Definition */
 static int
-cigi4_add_earth_reference_model_definition(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_earth_reference_model_definition(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void *data _U_)
 {
-    proto_tree_add_item(tree, hf_cigi4_earth_reference_model_definition_erm_enable, tvb, offset, 1, cigi_byte_order);
+    int offset = 0;
+
+    proto_tree_add_item(tree, hf_cigi3_earth_reference_model_definition_erm_enable, tvb, offset, 1, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_earth_reference_model_definition_equatorial_radius, tvb, offset, 8, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_earth_reference_model_definition_equatorial_radius, tvb, offset, 8, cigi_byte_order);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi4_earth_reference_model_definition_flattening, tvb, offset, 8, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_earth_reference_model_definition_flattening, tvb, offset, 8, cigi_byte_order);
     offset += 8;
 
     return offset;
@@ -6625,8 +5829,10 @@ cigi3_add_trajectory_definition(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 /* CIGI4 Acceleration Control */
 static int
-cigi4_add_acceleration_control(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_acceleration_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
+    int offset = 0;
+
     proto_tree_add_item(tree, hf_cigi4_acceleration_control_entity_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
@@ -6709,45 +5915,47 @@ cigi3_add_view_definition(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
 /* CIGI4 View Definition */
 static int
-cigi4_add_view_definition(tvbuff_t *tvb, proto_tree *tree, int offset)
+cigi4_add_view_definition(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    proto_tree_add_item(tree, hf_cigi4_view_definition_view_id, tvb, offset, 2, cigi_byte_order);
+    int offset = 0;
+
+    proto_tree_add_item(tree, hf_cigi3_view_definition_view_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_view_definition_group_id, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_view_definition_group_id, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_view_definition_near_enable, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_view_definition_far_enable, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_view_definition_left_enable, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_view_definition_right_enable, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_view_definition_top_enable, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_view_definition_bottom_enable, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_view_definition_mirror_mode, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_view_definition_near_enable, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_view_definition_far_enable, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_view_definition_left_enable, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_view_definition_right_enable, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_view_definition_top_enable, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_view_definition_bottom_enable, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_view_definition_mirror_mode, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_view_definition_pixel_replication, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_view_definition_projection_type, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_view_definition_reorder, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_view_definition_view_type, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_view_definition_pixel_replication, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_view_definition_projection_type, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_view_definition_reorder, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_view_definition_view_type, tvb, offset, 1, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_view_definition_near, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_view_definition_near, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_view_definition_far, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_view_definition_far, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_view_definition_left, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_view_definition_left, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_view_definition_right, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_view_definition_right, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_view_definition_top, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_view_definition_top, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_view_definition_bottom, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_view_definition_bottom, tvb, offset, 4, cigi_byte_order);
     offset += 8;
 
     return offset;
@@ -6794,36 +6002,38 @@ cigi3_add_collision_detection_segment_definition(tvbuff_t *tvb, packet_info *pin
 
 /* CIGI4 Collision Detection Segment Definition */
 static int
-cigi4_add_collision_detection_segment_definition(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_collision_detection_segment_definition(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    proto_tree_add_item(tree, hf_cigi4_collision_detection_segment_definition_segment_id, tvb, offset, 1, cigi_byte_order);
+    int offset = 0;
+
+    proto_tree_add_item(tree, hf_cigi3_collision_detection_segment_definition_segment_id, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_collision_detection_segment_definition_segment_enable, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_collision_detection_segment_definition_segment_enable, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_collision_detection_segment_definition_entity_id, tvb, offset, 2, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_collision_detection_segment_definition_entity_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_collision_detection_segment_definition_x1, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_collision_detection_segment_definition_x1, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_collision_detection_segment_definition_y1, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_collision_detection_segment_definition_y1, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_collision_detection_segment_definition_z1, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_collision_detection_segment_definition_z1, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_collision_detection_segment_definition_x2, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_collision_detection_segment_definition_x2, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_collision_detection_segment_definition_y2, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_collision_detection_segment_definition_y2, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_collision_detection_segment_definition_z2, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_collision_detection_segment_definition_z2, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_collision_detection_segment_definition_material_mask, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_collision_detection_segment_definition_material_mask, tvb, offset, 4, cigi_byte_order);
     offset += 8;
 
     return offset;
@@ -6877,43 +6087,45 @@ cigi3_add_collision_detection_volume_definition(tvbuff_t *tvb, packet_info *pinf
 
 /* CIGI4 Collision Detection Volume Definition */
 static int
-cigi4_add_collision_detection_volume_definition(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_collision_detection_volume_definition(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    proto_tree_add_item(tree, hf_cigi4_collision_detection_volume_definition_volume_id, tvb, offset, 1, cigi_byte_order);
+    int offset = 0;
+
+    proto_tree_add_item(tree, hf_cigi3_collision_detection_volume_definition_volume_id, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_collision_detection_volume_definition_volume_enable, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_collision_detection_volume_definition_volume_type, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_collision_detection_volume_definition_volume_enable, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_collision_detection_volume_definition_volume_type, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_collision_detection_volume_definition_entity_id, tvb, offset, 2, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_collision_detection_volume_definition_entity_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_collision_detection_volume_definition_x, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_collision_detection_volume_definition_x, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_collision_detection_volume_definition_y, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_collision_detection_volume_definition_y, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_collision_detection_volume_definition_z, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_collision_detection_volume_definition_z, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_collision_detection_volume_definition_radius_height, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_collision_detection_volume_definition_radius_height, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_collision_detection_volume_definition_width, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_collision_detection_volume_definition_width, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_collision_detection_volume_definition_depth, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_collision_detection_volume_definition_depth, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_collision_detection_volume_definition_roll, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_collision_detection_volume_definition_roll, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_collision_detection_volume_definition_pitch, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_collision_detection_volume_definition_pitch, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_collision_detection_volume_definition_yaw, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_collision_detection_volume_definition_yaw, tvb, offset, 4, cigi_byte_order);
     offset += 8;
 
     return offset;
@@ -6973,7 +6185,7 @@ cigi3_add_line_of_sight_segment_request(tvbuff_t *tvb, packet_info *pinfo _U_, p
     proto_tree_add_item(tree, hf_cigi3_line_of_sight_segment_request_alpha_threshold, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi3_line_of_sight_segment_request_entity_id, tvb, offset, 2, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_segment_request_source_entity_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
     proto_tree_add_item(tree, hf_cigi3_line_of_sight_segment_request_source_lat_xoff, tvb, offset, 8, cigi_byte_order);
@@ -7012,49 +6224,51 @@ cigi3_add_line_of_sight_segment_request(tvbuff_t *tvb, packet_info *pinfo _U_, p
 
 /* CIGI4 Line of Sight Segment Request */
 static int
-cigi4_add_line_of_sight_segment_request(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_line_of_sight_segment_request(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_segment_request_los_id, tvb, offset, 2, cigi_byte_order);
+    int offset = 0;
+
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_segment_request_los_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_segment_request_source_entity_id, tvb, offset, 2, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_segment_request_source_entity_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_segment_request_type, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_segment_request_source_coord, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_segment_request_destination_coord, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_segment_request_response_coord, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_segment_request_destination_entity_id_valid, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_segment_request_type, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_segment_request_source_coord, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_segment_request_destination_coord, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_segment_request_response_coord, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_2_line_of_sight_segment_request_destination_entity_id_valid, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_segment_request_alpha_threshold, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_segment_request_alpha_threshold, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_segment_request_destination_entity_id, tvb, offset, 2, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_2_line_of_sight_segment_request_destination_entity_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_segment_request_update_period, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_2_line_of_sight_segment_request_update_period, tvb, offset, 1, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_segment_request_source_lat_xoff, tvb, offset, 8, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_segment_request_source_lat_xoff, tvb, offset, 8, cigi_byte_order);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_segment_request_source_lon_yoff, tvb, offset, 8, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_segment_request_source_lon_yoff, tvb, offset, 8, cigi_byte_order);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_segment_request_source_alt_zoff, tvb, offset, 8, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_segment_request_source_alt_zoff, tvb, offset, 8, cigi_byte_order);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_segment_request_destination_lat_xoff, tvb, offset, 8, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_segment_request_destination_lat_xoff, tvb, offset, 8, cigi_byte_order);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_segment_request_destination_lon_yoff, tvb, offset, 8, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_segment_request_destination_lon_yoff, tvb, offset, 8, cigi_byte_order);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_segment_request_destination_alt_zoff, tvb, offset, 8, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_segment_request_destination_alt_zoff, tvb, offset, 8, cigi_byte_order);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_segment_request_material_mask, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_segment_request_material_mask, tvb, offset, 4, cigi_byte_order);
     offset += 8;
 
     return offset;
@@ -7114,47 +6328,49 @@ cigi3_add_line_of_sight_vector_request(tvbuff_t *tvb, packet_info *pinfo _U_, pr
 
 /* CIGI4 Line of Sight Vector Request */
 static int
-cigi4_add_line_of_sight_vector_request(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_line_of_sight_vector_request(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_vector_request_los_id, tvb, offset, 2, cigi_byte_order);
+    int offset = 0;
+
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_vector_request_los_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_vector_request_entity_id, tvb, offset, 2, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_vector_request_entity_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_vector_request_type, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_vector_request_source_coord, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_vector_request_response_coord, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_vector_request_type, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_vector_request_source_coord, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_vector_request_response_coord, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_vector_request_alpha, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_vector_request_alpha, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_vector_request_update_period, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_2_line_of_sight_vector_request_update_period, tvb, offset, 1, cigi_byte_order);
     offset += 6;
 
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_vector_request_azimuth, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_vector_request_azimuth, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_vector_request_elevation, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_vector_request_elevation, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_vector_request_min_range, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_vector_request_min_range, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_vector_request_max_range, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_vector_request_max_range, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_vector_request_source_lat_xoff, tvb, offset, 8, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_vector_request_source_lat_xoff, tvb, offset, 8, cigi_byte_order);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_vector_request_source_lon_yoff, tvb, offset, 8, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_vector_request_source_lon_yoff, tvb, offset, 8, cigi_byte_order);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_vector_request_source_alt_zoff, tvb, offset, 8, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_vector_request_source_alt_zoff, tvb, offset, 8, cigi_byte_order);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_vector_request_material_mask, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_vector_request_material_mask, tvb, offset, 4, cigi_byte_order);
     offset += 8;
 
     return offset;
@@ -7183,17 +6399,19 @@ cigi3_add_position_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
 /* CIGI4 Position Request */
 static int
-cigi4_add_position_request(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_position_request(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    proto_tree_add_item(tree, hf_cigi4_position_request_part_id, tvb, offset, 1, cigi_byte_order);
+    int offset = 0;
+
+    proto_tree_add_item(tree, hf_cigi3_position_request_part_id, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_position_request_update_mode, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_position_request_object_class, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_position_request_coord_system, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_position_request_update_mode, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_position_request_object_class, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_position_request_coord_system, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_position_request_object_id, tvb, offset, 2, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_position_request_object_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
     return offset;
@@ -7225,21 +6443,23 @@ cigi3_add_environmental_conditions_request(tvbuff_t *tvb, packet_info *pinfo _U_
 
 /* CIGI4 Environmental Conditions Request */
 static int
-cigi4_add_environmental_conditions_request(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_environmental_conditions_request(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    proto_tree_add_item(tree, hf_cigi4_environmental_conditions_request_type, tvb, offset, 1, cigi_byte_order);
+    int offset = 0;
+
+    proto_tree_add_item(tree, hf_cigi3_environmental_conditions_request_type, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_environmental_conditions_request_id, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_environmental_conditions_request_id, tvb, offset, 1, cigi_byte_order);
     offset += 3;
 
-    proto_tree_add_item(tree, hf_cigi4_environmental_conditions_request_lat, tvb, offset, 8, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_environmental_conditions_request_lat, tvb, offset, 8, cigi_byte_order);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi4_environmental_conditions_request_lon, tvb, offset, 8, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_environmental_conditions_request_lon, tvb, offset, 8, cigi_byte_order);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi4_environmental_conditions_request_alt, tvb, offset, 8, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_environmental_conditions_request_alt, tvb, offset, 8, cigi_byte_order);
     offset += 8;
 
     return offset;
@@ -7309,54 +6529,56 @@ cigi3_3_add_symbol_surface_definition(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 
 /* CIGI4 Symbol Surface Definition */
 static int
-cigi4_add_symbol_surface_definition(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_symbol_surface_definition(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    proto_tree_add_item(tree, hf_cigi4_symbol_surface_definition_surface_id, tvb, offset, 2, cigi_byte_order);
+    int offset = 0;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_surface_definition_surface_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_symbol_surface_definition_entity_view_id, tvb, offset, 2, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_surface_definition_entity_view_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_symbol_surface_definition_surface_state, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_symbol_surface_definition_attach_type, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_symbol_surface_definition_billboard, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_symbol_surface_definition_perspective_growth_enable, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_surface_definition_surface_state, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_surface_definition_attach_type, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_surface_definition_billboard, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_surface_definition_perspective_growth_enable, tvb, offset, 1, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_symbol_surface_definition_xoff_left, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_surface_definition_xoff_left, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_symbol_surface_definition_yoff_right, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_surface_definition_yoff_right, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_symbol_surface_definition_zoff_top, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_surface_definition_zoff_top, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_symbol_surface_definition_yaw_bottom, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_surface_definition_yaw_bottom, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_symbol_surface_definition_pitch, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_surface_definition_pitch, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_symbol_surface_definition_roll, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_surface_definition_roll, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_symbol_surface_definition_width, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_surface_definition_width, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_symbol_surface_definition_height, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_surface_definition_height, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_symbol_surface_definition_min_u, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_surface_definition_min_u, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_symbol_surface_definition_max_u, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_surface_definition_max_u, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_symbol_surface_definition_min_v, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_surface_definition_min_v, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_symbol_surface_definition_max_v, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_surface_definition_max_v, tvb, offset, 4, cigi_byte_order);
     offset += 8;
 
     return offset;
@@ -7398,33 +6620,32 @@ cigi3_3_add_symbol_text_definition(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 /* CIGI4 Symbol Text Definition */
 static int
-cigi4_add_symbol_text_definition(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_symbol_text_definition(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    uint8_t packet_size = 0;
+    int offset = 0;
 
-    packet_size = tvb_get_uint8(tvb, offset - 4);
-
-    /* A symbol text definition packet cannot be less than 16 bytes. */
-    if (packet_size < 16)
-        return -1;
-
-    proto_tree_add_item(tree, hf_cigi4_symbol_text_definition_alignment, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_symbol_text_definition_orientation, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_text_definition_alignment, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_text_definition_orientation, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_symbol_text_definition_font_ident, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_text_definition_font_ident, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_symbol_text_definition_symbol_id, tvb, offset, 2, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_text_definition_symbol_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_symbol_text_definition_font_size, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_text_definition_font_size, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_symbol_text_definition_text, tvb, offset, packet_size - 12, cigi_byte_order);
-    offset += packet_size - 12;
+    if (tvb_reported_length_remaining(tvb, offset) < 2) {
+        proto_tree_add_expert_format(tree, pinfo, &ei_cigi_invalid_len, tvb, 0,
+            tvb_reported_length(tvb), "Insufficient room for symbol text definition");
+    } else {
+        proto_tree_add_item(tree, hf_cigi3_3_symbol_text_definition_text, tvb, offset,
+            tvb_reported_length_remaining(tvb, offset), cigi_byte_order);
+    }
 
-    return offset;
+    return tvb_reported_length(tvb);
 }
 
 /* CIGI3_3 Symbol Circle Definition */
@@ -7486,58 +6707,59 @@ cigi3_3_add_symbol_circle_definition(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 
 /* CIGI4 Symbol Circle Definition */
 static int
-cigi4_add_symbol_circle_definition(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_symbol_circle_definition(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
+    int offset = 0;
+
     proto_tree* field_tree;
     proto_item* tf;
 
-    uint8_t packet_size = 0;
-    int ncircles, c;
+    int ncircles, c, c_field;
 
-    packet_size = tvb_get_uint8(tvb, offset - 4);
-
-    /* A symbol text definition packet cannot be less than 16 bytes. */
-    if (packet_size < 16)
-        return -1;
-
-    ncircles = (packet_size - 24) / 24;
-
-    proto_tree_add_item(tree, hf_cigi4_symbol_circle_definition_symbol_id, tvb, offset, 2, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_circle_definition_symbol_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_symbol_circle_definition_stipple_pattern, tvb, offset, 2, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_circle_definition_stipple_pattern, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_symbol_circle_definition_drawing_style, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_circle_definition_drawing_style, tvb, offset, 1, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_symbol_circle_definition_line_width, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_circle_definition_line_width, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_symbol_circle_definition_stipple_pattern_length, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_circle_definition_stipple_pattern_length, tvb, offset, 4, cigi_byte_order);
     offset += 8;
 
+    ncircles = tvb_reported_length_remaining(tvb, offset) / 24;
+
     for (c = 0; c < ncircles; c++) {
-        tf = proto_tree_add_item(tree, hf_cigi4_symbol_circle_definition_circles, tvb, offset, 1, cigi_byte_order);
+        tf = proto_tree_add_item(tree, hf_cigi4_symbol_circle_definition_circles, tvb, offset, 24, cigi_byte_order);
         proto_item_append_text(tf, " %u", c);
         field_tree = proto_item_add_subtree(tf, ett_cigi4_symbol_circle_definition_circles);
 
-        proto_tree_add_item(field_tree, hf_cigi4_symbol_circle_definition_center_u[c], tvb, offset, 4, cigi_byte_order);
+        /* XXX: The length of tvb is determined by a 2 octet packet length value and
+         * thus there can be more circles than fields that are declared (unlike
+         * CIGI 3). Make sure we don't have a memory error.
+         */
+        c_field = c % array_length(hf_cigi3_3_symbol_circle_definition_center_u);
+
+        proto_tree_add_item(field_tree, hf_cigi3_3_symbol_circle_definition_center_u[c_field], tvb, offset, 4, cigi_byte_order);
         offset += 4;
 
-        proto_tree_add_item(field_tree, hf_cigi4_symbol_circle_definition_center_v[c], tvb, offset, 4, cigi_byte_order);
+        proto_tree_add_item(field_tree, hf_cigi3_3_symbol_circle_definition_center_v[c_field], tvb, offset, 4, cigi_byte_order);
         offset += 4;
 
-        proto_tree_add_item(field_tree, hf_cigi4_symbol_circle_definition_radius[c], tvb, offset, 4, cigi_byte_order);
+        proto_tree_add_item(field_tree, hf_cigi3_3_symbol_circle_definition_radius[c_field], tvb, offset, 4, cigi_byte_order);
         offset += 4;
 
-        proto_tree_add_item(field_tree, hf_cigi4_symbol_circle_definition_inner_radius[c], tvb, offset, 4, cigi_byte_order);
+        proto_tree_add_item(field_tree, hf_cigi3_3_symbol_circle_definition_inner_radius[c_field], tvb, offset, 4, cigi_byte_order);
         offset += 4;
 
-        proto_tree_add_item(field_tree, hf_cigi4_symbol_circle_definition_start_angle[c], tvb, offset, 4, cigi_byte_order);
+        proto_tree_add_item(field_tree, hf_cigi3_3_symbol_circle_definition_start_angle[c_field], tvb, offset, 4, cigi_byte_order);
         offset += 4;
 
-        proto_tree_add_item(field_tree, hf_cigi4_symbol_circle_definition_end_angle[c], tvb, offset, 4, cigi_byte_order);
+        proto_tree_add_item(field_tree, hf_cigi3_3_symbol_circle_definition_end_angle[c_field], tvb, offset, 4, cigi_byte_order);
         offset += 4;
     }
 
@@ -7550,7 +6772,7 @@ cigi3_3_add_symbol_line_definition(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 {
     int offset = 0;
 
-    int nvertices,v;
+    int nvertices, v;
 
     if (cigi_minor_version < 3) {
         return offset;
@@ -7591,21 +6813,14 @@ cigi3_3_add_symbol_line_definition(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 
 /* CIGI4 Symbol Polygon Definition */
 static int
-cigi4_add_symbol_polygon_definition(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_symbol_polygon_definition(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree* tree, void *data _U_)
 {
+    int offset = 0;
+
     proto_tree* field_tree;
     proto_item* tf;
 
-    uint8_t packet_size = 0;
-    int nvertices, v;
-
-    packet_size = tvb_get_uint8(tvb, offset - 4);
-
-    /* A symbol text definition packet cannot be less than 16 bytes. */
-    if (packet_size < 16)
-        return -1;
-
-    nvertices = (packet_size - 24) / 8;
+    int nvertices, v, v_field;
 
     proto_tree_add_item(tree, hf_cigi4_symbol_polygon_definition_symbol_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -7622,15 +6837,23 @@ cigi4_add_symbol_polygon_definition(tvbuff_t* tvb, proto_tree* tree, int offset)
     proto_tree_add_item(tree, hf_cigi4_symbol_polygon_definition_stipple_pattern_length, tvb, offset, 4, cigi_byte_order);
     offset += 8;
 
+    nvertices = tvb_reported_length_remaining(tvb, offset) / 8;
+
     for (v = 0; v < nvertices; v++) {
-        tf = proto_tree_add_item(tree, hf_cigi4_symbol_polygon_definition_vertices, tvb, offset, 1, cigi_byte_order);
+        tf = proto_tree_add_item(tree, hf_cigi4_symbol_polygon_definition_vertices, tvb, offset, 8, cigi_byte_order);
         proto_item_append_text(tf, "[%u]", v);
         field_tree = proto_item_add_subtree(tf, ett_cigi4_symbol_polygon_definition_vertices);
 
-        proto_tree_add_item(field_tree, hf_cigi4_symbol_polygon_definition_vertex_u[v], tvb, offset, 4, cigi_byte_order);
+        /* XXX: The length of tvb is determined by a 2 octet packet length value and
+         * thus there can be more vertices than fields that are declared (unlike
+         * CIGI 3). Make sure we don't have a memory error.
+         */
+        v_field = v % array_length(hf_cigi4_symbol_polygon_definition_vertex_u);
+
+        proto_tree_add_item(field_tree, hf_cigi4_symbol_polygon_definition_vertex_u[v_field], tvb, offset, 4, cigi_byte_order);
         offset += 4;
 
-        proto_tree_add_item(field_tree, hf_cigi4_symbol_polygon_definition_vertex_v[v], tvb, offset, 4, cigi_byte_order);
+        proto_tree_add_item(field_tree, hf_cigi4_symbol_polygon_definition_vertex_v[v_field], tvb, offset, 4, cigi_byte_order);
         offset += 4;
     }
 
@@ -7661,15 +6884,17 @@ cigi3_3_add_symbol_clone(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 
 /* CIGI4 Symbol Clone */
 static int
-cigi4_add_symbol_clone(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_symbol_clone(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    proto_tree_add_item(tree, hf_cigi4_symbol_clone_symbol_id, tvb, offset, 2, cigi_byte_order);
+    int offset = 0;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_clone_symbol_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_symbol_clone_source_id, tvb, offset, 2, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_clone_source_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_symbol_clone_source_type, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_clone_source_type, tvb, offset, 1, cigi_byte_order);
     offset += 8;
 
     return offset;
@@ -7741,57 +6966,59 @@ cigi3_3_add_symbol_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
 /* CIGI4 Symbol Control */
 static int
-cigi4_add_symbol_control(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_symbol_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    proto_tree_add_item(tree, hf_cigi4_symbol_control_symbol_id, tvb, offset, 2, cigi_byte_order);
+    int offset = 0;
+
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_control_symbol_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_symbol_control_parent_symbol_ident, tvb, offset, 2, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_control_parent_symbol_ident, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_symbol_control_symbol_state, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_symbol_control_attach_state, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_symbol_control_flash_control, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_symbol_control_inherit_color, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_control_symbol_state, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_control_attach_state, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_control_flash_control, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_control_inherit_color, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_symbol_control_layer, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_control_layer, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_symbol_control_flash_duty_cycle, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_control_flash_duty_cycle, tvb, offset, 1, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_symbol_control_surface_ident, tvb, offset, 2, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_control_surface_ident, tvb, offset, 2, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_symbol_control_flash_period, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_control_flash_period, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_symbol_control_position_u, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_control_position_u, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_symbol_control_position_v, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_control_position_v, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_symbol_control_rotation, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_control_rotation, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_symbol_control_red, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_control_red, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_symbol_control_green, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_control_green, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_symbol_control_blue, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_control_blue, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_symbol_control_alpha, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_control_alpha, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_symbol_control_scale_u, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_control_scale_u, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_symbol_control_scale_v, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_control_scale_v, tvb, offset, 4, cigi_byte_order);
     offset += 8;
 
     return offset;
@@ -7903,27 +7130,29 @@ cigi3_3_add_short_symbol_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
 /* CIGI4 Short Symbol Control */
 static int
-cigi4_add_short_symbol_control(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_short_symbol_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    proto_tree_add_item(tree, hf_cigi4_short_symbol_control_symbol_id, tvb, offset, 2, cigi_byte_order);
+    int offset = 0;
+
+    proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_symbol_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_short_symbol_control_attribute_select1, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_attribute_select1, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_short_symbol_control_attribute_select2, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_attribute_select2, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_short_symbol_control_symbol_state, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_short_symbol_control_attach_state, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_short_symbol_control_flash_control, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_short_symbol_control_inherit_color, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_symbol_state, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_attach_state, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_flash_control, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_inherit_color, tvb, offset, 1, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_short_symbol_control_attribute_value1, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_attribute_value1, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_short_symbol_control_attribute_value2, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_attribute_value2, tvb, offset, 4, cigi_byte_order);
     offset += 8;
 
     return offset;
@@ -7931,21 +7160,14 @@ cigi4_add_short_symbol_control(tvbuff_t* tvb, proto_tree* tree, int offset)
 
 /* CIGI4 Symbol Textured Circle */
 static int
-cigi4_add_symbol_circle_textured(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_symbol_circle_textured(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree* tree, void* data _U_)
 {
     proto_tree* field_tree;
     proto_item* tf;
 
-    uint8_t packet_size = 0;
-    int ncircles, c;
+    int offset = 0;
 
-    packet_size = tvb_get_uint8(tvb, offset - 4);
-
-    /* A symbol text definition packet cannot be less than 16 bytes. */
-    if (packet_size < 16)
-        return -1;
-
-    ncircles = (packet_size - 16) / 40;
+    int ncircles, c, c_field;
 
     proto_tree_add_item(tree, hf_cigi4_symbol_circle_textured_definition_symbol_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -7957,39 +7179,47 @@ cigi4_add_symbol_circle_textured(tvbuff_t* tvb, proto_tree* tree, int offset)
     proto_tree_add_item(tree, hf_cigi4_symbol_circle_textured_definition_wrap, tvb, offset, 1, cigi_byte_order);
     offset += 8;
 
+    ncircles = tvb_reported_length_remaining(tvb, offset) / 40;
+
     for (c = 0; c < ncircles; c++) {
         tf = proto_tree_add_item(tree, hf_cigi4_symbol_circle_textured_definition_circles, tvb, offset, 1, cigi_byte_order);
         proto_item_append_text(tf, " %u", c);
         field_tree = proto_item_add_subtree(tf, ett_cigi4_symbol_circle_textured_definition_circles);
 
-        proto_tree_add_item(field_tree, hf_cigi4_symbol_circle_textured_definition_center_u[c], tvb, offset, 4, cigi_byte_order);
+        /* XXX: The length of tvb is determined by a 2 octet packet length value and
+         * thus there can be more circles than fields that are declared (unlike
+         * CIGI 3). Make sure we don't have a memory error.
+         */
+        c_field = c % array_length(hf_cigi4_symbol_circle_textured_definition_center_u);
+
+        proto_tree_add_item(field_tree, hf_cigi4_symbol_circle_textured_definition_center_u[c_field], tvb, offset, 4, cigi_byte_order);
         offset += 4;
 
-        proto_tree_add_item(field_tree, hf_cigi4_symbol_circle_textured_definition_center_v[c], tvb, offset, 4, cigi_byte_order);
+        proto_tree_add_item(field_tree, hf_cigi4_symbol_circle_textured_definition_center_v[c_field], tvb, offset, 4, cigi_byte_order);
         offset += 4;
 
-        proto_tree_add_item(field_tree, hf_cigi4_symbol_circle_textured_definition_radius[c], tvb, offset, 4, cigi_byte_order);
+        proto_tree_add_item(field_tree, hf_cigi4_symbol_circle_textured_definition_radius[c_field], tvb, offset, 4, cigi_byte_order);
         offset += 4;
 
-        proto_tree_add_item(field_tree, hf_cigi4_symbol_circle_textured_definition_inner_radius[c], tvb, offset, 4, cigi_byte_order);
+        proto_tree_add_item(field_tree, hf_cigi4_symbol_circle_textured_definition_inner_radius[c_field], tvb, offset, 4, cigi_byte_order);
         offset += 4;
 
-        proto_tree_add_item(field_tree, hf_cigi4_symbol_circle_textured_definition_start_angle[c], tvb, offset, 4, cigi_byte_order);
+        proto_tree_add_item(field_tree, hf_cigi4_symbol_circle_textured_definition_start_angle[c_field], tvb, offset, 4, cigi_byte_order);
         offset += 4;
 
-        proto_tree_add_item(field_tree, hf_cigi4_symbol_circle_textured_definition_end_angle[c], tvb, offset, 4, cigi_byte_order);
+        proto_tree_add_item(field_tree, hf_cigi4_symbol_circle_textured_definition_end_angle[c_field], tvb, offset, 4, cigi_byte_order);
         offset += 4;
 
-        proto_tree_add_item(field_tree, hf_cigi4_symbol_circle_textured_definition_texture_center_u[c], tvb, offset, 4, cigi_byte_order);
+        proto_tree_add_item(field_tree, hf_cigi4_symbol_circle_textured_definition_texture_center_u[c_field], tvb, offset, 4, cigi_byte_order);
         offset += 4;
 
-        proto_tree_add_item(field_tree, hf_cigi4_symbol_circle_textured_definition_texture_center_v[c], tvb, offset, 4, cigi_byte_order);
+        proto_tree_add_item(field_tree, hf_cigi4_symbol_circle_textured_definition_texture_center_v[c_field], tvb, offset, 4, cigi_byte_order);
         offset += 4;
 
-        proto_tree_add_item(field_tree, hf_cigi4_symbol_circle_textured_definition_texture_radius[c], tvb, offset, 4, cigi_byte_order);
-            offset += 4;
+        proto_tree_add_item(field_tree, hf_cigi4_symbol_circle_textured_definition_texture_radius[c_field], tvb, offset, 4, cigi_byte_order);
+        offset += 4;
 
-        proto_tree_add_item(field_tree, hf_cigi4_symbol_circle_textured_definition_texture_rotation[c], tvb, offset, 4, cigi_byte_order);
+        proto_tree_add_item(field_tree, hf_cigi4_symbol_circle_textured_definition_texture_rotation[c_field], tvb, offset, 4, cigi_byte_order);
         offset += 4;
     }
 
@@ -7998,21 +7228,14 @@ cigi4_add_symbol_circle_textured(tvbuff_t* tvb, proto_tree* tree, int offset)
 
 /* CIGI4 Symbol Textured Polygon */
 static int
-cigi4_add_symbol_polygon_textured(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_symbol_polygon_textured(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
     proto_tree* field_tree;
     proto_item* tf;
 
-    uint8_t packet_size = 0;
-    int nvertices, v;
+    int offset = 0;
 
-    packet_size = tvb_get_uint8(tvb, offset - 4);
-
-    /* A symbol text definition packet cannot be less than 16 bytes. */
-    if (packet_size < 16)
-        return -1;
-
-    nvertices = (packet_size - 16) / 16;
+    int nvertices, v, v_field;
 
     proto_tree_add_item(tree, hf_cigi4_symbol_polygon_textured_definition_symbol_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
@@ -8024,21 +7247,29 @@ cigi4_add_symbol_polygon_textured(tvbuff_t* tvb, proto_tree* tree, int offset)
     proto_tree_add_item(tree, hf_cigi4_symbol_polygon_textured_definition_wrap, tvb, offset, 1, cigi_byte_order);
     offset += 8;
 
+    nvertices = tvb_reported_length_remaining(tvb, offset) / 16;
+
     for (v = 0; v < nvertices; v++) {
         tf = proto_tree_add_item(tree, hf_cigi4_symbol_polygon_textured_definition_vertices, tvb, offset, 1, cigi_byte_order);
         proto_item_append_text(tf, " %u", v);
         field_tree = proto_item_add_subtree(tf, ett_cigi4_symbol_polygon_textured_definition_vertices);
 
-        proto_tree_add_item(field_tree, hf_cigi4_symbol_polygon_textured_definition_vertex_u[v], tvb, offset, 4, cigi_byte_order);
+        /* XXX: The length of tvb is determined by a 2 octet packet length value and
+         * thus there can be more vertices than fields that are declared (unlike
+         * CIGI 3). Make sure we don't have a memory error.
+         */
+        v_field = v % array_length(hf_cigi4_symbol_polygon_textured_definition_vertex_u);
+
+        proto_tree_add_item(field_tree, hf_cigi4_symbol_polygon_textured_definition_vertex_u[v_field], tvb, offset, 4, cigi_byte_order);
         offset += 4;
 
-        proto_tree_add_item(field_tree, hf_cigi4_symbol_polygon_textured_definition_vertex_v[v], tvb, offset, 4, cigi_byte_order);
+        proto_tree_add_item(field_tree, hf_cigi4_symbol_polygon_textured_definition_vertex_v[v_field], tvb, offset, 4, cigi_byte_order);
         offset += 4;
 
-        proto_tree_add_item(field_tree, hf_cigi4_symbol_polygon_textured_definition_texture_center_u[v], tvb, offset, 4, cigi_byte_order);
+        proto_tree_add_item(field_tree, hf_cigi4_symbol_polygon_textured_definition_texture_center_u[v_field], tvb, offset, 4, cigi_byte_order);
         offset += 4;
 
-        proto_tree_add_item(field_tree, hf_cigi4_symbol_polygon_textured_definition_texture_center_v[v], tvb, offset, 4, cigi_byte_order);
+        proto_tree_add_item(field_tree, hf_cigi4_symbol_polygon_textured_definition_texture_center_v[v_field], tvb, offset, 4, cigi_byte_order);
         offset += 4;
     }
 
@@ -8095,13 +7326,18 @@ cigi3_add_start_of_frame(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 static int
 cigi3_add_hat_hot_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
+    proto_tree* field_tree;
+    proto_item* tf;
+
     int offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_hat_hot_response_hat_hot_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi3_hat_hot_response_valid, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi3_hat_hot_response_type, tvb, offset, 1, cigi_byte_order);
+    tf = proto_tree_add_item(tree, hf_cigi4_hat_hot_response_flags, tvb, offset, 1, cigi_byte_order);
+    field_tree = proto_item_add_subtree(tf, ett_cigi4_hat_hot_response_flags);
+    proto_tree_add_item(field_tree, hf_cigi3_hat_hot_response_valid, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(field_tree, hf_cigi3_hat_hot_response_type, tvb, offset, 1, cigi_byte_order);
     if (cigi_minor_version >= 2) {
         proto_tree_add_item(tree, hf_cigi3_2_hat_hot_response_host_frame_number_lsn, tvb, offset, 1, cigi_byte_order);
     }
@@ -8115,22 +7351,24 @@ cigi3_add_hat_hot_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
 /* CIGI4 HAT/HOT Response */
 static int
-cigi4_add_hat_hot_response(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_hat_hot_response(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
     proto_tree* field_tree;
     proto_item* tf;
 
+    int offset = 0;
+
     tf = proto_tree_add_item(tree, hf_cigi4_hat_hot_response_flags, tvb, offset, 1, cigi_byte_order);
     field_tree = proto_item_add_subtree(tf, ett_cigi4_hat_hot_response_flags);
-    proto_tree_add_item(field_tree, hf_cigi4_hat_hot_response_valid, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(field_tree, hf_cigi4_hat_hot_response_type, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(field_tree, hf_cigi4_hat_hot_response_host_frame_number_lsn, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(field_tree, hf_cigi3_hat_hot_response_valid, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(field_tree, hf_cigi3_hat_hot_response_type, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(field_tree, hf_cigi3_2_hat_hot_response_host_frame_number_lsn, tvb, offset, 1, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_hat_hot_response_hat_hot_id, tvb, offset, 2, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_hat_hot_response_hat_hot_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_hat_hot_response_height, tvb, offset, 8, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_hat_hot_response_height, tvb, offset, 8, cigi_byte_order);
     offset += 8;
 
     return offset;
@@ -8141,14 +7379,19 @@ cigi4_add_hat_hot_response(tvbuff_t* tvb, proto_tree* tree, int offset)
 static int
 cigi3_add_hat_hot_extended_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
+    proto_tree* field_tree;
+    proto_item* tf;
+
     int offset = 0;
 
     proto_tree_add_item(tree, hf_cigi3_hat_hot_extended_response_hat_hot_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi3_hat_hot_extended_response_valid, tvb, offset, 1, cigi_byte_order);
+    tf = proto_tree_add_item(tree, hf_cigi4_hat_hot_extended_response_flags, tvb, offset, 1, cigi_byte_order);
+    field_tree = proto_item_add_subtree(tf, ett_cigi4_hat_hot_extended_response_flags);
+    proto_tree_add_item(field_tree, hf_cigi3_hat_hot_extended_response_valid, tvb, offset, 1, cigi_byte_order);
     if (cigi_minor_version >= 2) {
-        proto_tree_add_item(tree, hf_cigi3_2_hat_hot_extended_response_host_frame_number_lsn, tvb, offset, 1, cigi_byte_order);
+        proto_tree_add_item(field_tree, hf_cigi3_2_hat_hot_extended_response_host_frame_number_lsn, tvb, offset, 1, cigi_byte_order);
     }
     offset += 4;
 
@@ -8172,33 +7415,35 @@ cigi3_add_hat_hot_extended_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 
 /* CIGI4 HAT/HOT Extended Response */
 static int
-cigi4_add_hat_hot_extended_response(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_hat_hot_extended_response(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void *data _U_)
 {
     proto_tree* field_tree;
     proto_item* tf;
 
+    int offset = 0;
+
     tf = proto_tree_add_item(tree, hf_cigi4_hat_hot_extended_response_flags, tvb, offset, 1, cigi_byte_order);
     field_tree = proto_item_add_subtree(tf, ett_cigi4_hat_hot_extended_response_flags);
-    proto_tree_add_item(field_tree, hf_cigi4_hat_hot_extended_response_valid, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(field_tree, hf_cigi4_hat_hot_extended_response_host_frame_number_lsn, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(field_tree, hf_cigi3_hat_hot_extended_response_valid, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(field_tree, hf_cigi3_2_hat_hot_extended_response_host_frame_number_lsn, tvb, offset, 1, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_hat_hot_extended_response_hat_hot_id, tvb, offset, 2, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_hat_hot_extended_response_hat_hot_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_hat_hot_extended_response_hat, tvb, offset, 8, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_hat_hot_extended_response_hat, tvb, offset, 8, cigi_byte_order);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi4_hat_hot_extended_response_hot, tvb, offset, 8, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_hat_hot_extended_response_hot, tvb, offset, 8, cigi_byte_order);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi4_hat_hot_extended_response_material_code, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_hat_hot_extended_response_material_code, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_hat_hot_extended_response_normal_vector_azimuth, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_hat_hot_extended_response_normal_vector_azimuth, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_hat_hot_extended_response_normal_vector_elevation, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_hat_hot_extended_response_normal_vector_elevation, tvb, offset, 4, cigi_byte_order);
     offset += 8;
 
     return offset;
@@ -8236,24 +7481,26 @@ cigi3_add_line_of_sight_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
 /* CIGI4 Line of Sight Response */
 static int
-cigi4_add_line_of_sight_response(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_line_of_sight_response(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_response_los_id, tvb, offset, 2, cigi_byte_order);
+    int offset = 0;
+
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_response_los_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_response_entity_id, tvb, offset, 2, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_response_entity_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_response_valid, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_response_entity_id_valid, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_response_visible, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_response_host_frame_number_lsn, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_response_valid, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_response_entity_id_valid, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_response_visible, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_2_line_of_sight_response_host_frame_number_lsn, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_response_count, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_response_count, tvb, offset, 1, cigi_byte_order);
     offset += 7;
 
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_response_range, tvb, offset, 8, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_response_range, tvb, offset, 8, cigi_byte_order);
     offset += 8;
 
     return offset;
@@ -8323,55 +7570,57 @@ cigi3_add_line_of_sight_extended_response(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 /* CIGI4 Line of Sight Extended Response */
 static int
-cigi4_add_line_of_sight_extended_response(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_line_of_sight_extended_response(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_extended_response_los_id, tvb, offset, 2, cigi_byte_order);
+    int offset = 0;
+
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_extended_response_los_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_extended_response_entity_id, tvb, offset, 2, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_extended_response_entity_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_extended_response_valid, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_extended_response_entity_id_valid, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_extended_response_range_valid, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_extended_response_visible, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_extended_response_host_frame_number_lsn, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_extended_response_valid, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_extended_response_entity_id_valid, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_extended_response_range_valid, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_extended_response_visible, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_2_line_of_sight_extended_response_host_frame_number_lsn, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_extended_response_response_count, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_extended_response_response_count, tvb, offset, 1, cigi_byte_order);
     offset += 7;
 
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_extended_response_range, tvb, offset, 8, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_extended_response_range, tvb, offset, 8, cigi_byte_order);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_extended_response_lat_xoff, tvb, offset, 8, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_extended_response_lat_xoff, tvb, offset, 8, cigi_byte_order);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_extended_response_lon_yoff, tvb, offset, 8, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_extended_response_lon_yoff, tvb, offset, 8, cigi_byte_order);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_extended_response_alt_zoff, tvb, offset, 8, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_extended_response_alt_zoff, tvb, offset, 8, cigi_byte_order);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_extended_response_red, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_extended_response_red, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_extended_response_green, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_extended_response_green, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_extended_response_blue, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_extended_response_blue, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_extended_response_alpha, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_extended_response_alpha, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_extended_response_material_code, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_extended_response_material_code, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_extended_response_normal_vector_azimuth, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_extended_response_normal_vector_azimuth, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_line_of_sight_extended_response_normal_vector_elevation, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_line_of_sight_extended_response_normal_vector_elevation, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
     return offset;
@@ -8412,30 +7661,32 @@ cigi3_add_sensor_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
 /* CIGI4 Sensor Response */
 static int
-cigi4_add_sensor_response(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_sensor_response(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void *data _U_)
 {
-    proto_tree_add_item(tree, hf_cigi4_sensor_response_sensor_id, tvb, offset, 1, cigi_byte_order);
+    int offset = 0;
+
+    proto_tree_add_item(tree, hf_cigi3_sensor_response_sensor_id, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_sensor_response_sensor_status, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_sensor_response_sensor_status, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_sensor_response_view_id, tvb, offset, 2, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_sensor_response_view_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_sensor_response_gate_x_size, tvb, offset, 2, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_sensor_response_gate_x_size, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_sensor_response_gate_y_size, tvb, offset, 2, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_sensor_response_gate_y_size, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_sensor_response_gate_x_pos, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_sensor_response_gate_x_pos, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_sensor_response_gate_y_pos, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_sensor_response_gate_y_pos, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_sensor_response_frame_ctr, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_sensor_response_frame_ctr, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
     return offset;
@@ -8489,43 +7740,45 @@ cigi3_add_sensor_extended_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 
 /* CIGI4 Sensor Extended Response */
 static int
-cigi4_add_sensor_extended_response(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_sensor_extended_response(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    proto_tree_add_item(tree, hf_cigi4_sensor_extended_response_view_id, tvb, offset, 2, cigi_byte_order);
+    int offset = 0;
+
+    proto_tree_add_item(tree, hf_cigi3_sensor_extended_response_view_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_sensor_extended_response_entity_id, tvb, offset, 2, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_sensor_extended_response_entity_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_sensor_extended_response_sensor_id, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_sensor_extended_response_sensor_id, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_sensor_extended_response_sensor_status, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_sensor_extended_response_entity_id_valid, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_sensor_extended_response_sensor_status, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_sensor_extended_response_entity_id_valid, tvb, offset, 1, cigi_byte_order);
     offset += 3;
 
-    proto_tree_add_item(tree, hf_cigi4_sensor_extended_response_gate_x_size, tvb, offset, 2, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_sensor_extended_response_gate_x_size, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_sensor_extended_response_gate_y_size, tvb, offset, 2, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_sensor_extended_response_gate_y_size, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_sensor_extended_response_gate_x_pos, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_sensor_extended_response_gate_x_pos, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_sensor_extended_response_gate_y_pos, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_sensor_extended_response_gate_y_pos, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_sensor_extended_response_frame_ctr, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_sensor_extended_response_frame_ctr, tvb, offset, 4, cigi_byte_order);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi4_sensor_extended_response_track_lat, tvb, offset, 8, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_sensor_extended_response_track_lat, tvb, offset, 8, cigi_byte_order);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi4_sensor_extended_response_track_lon, tvb, offset, 8, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_sensor_extended_response_track_lon, tvb, offset, 8, cigi_byte_order);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi4_sensor_extended_response_track_alt, tvb, offset, 8, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_sensor_extended_response_track_alt, tvb, offset, 8, cigi_byte_order);
     offset += 8;
 
     return offset;
@@ -8570,34 +7823,36 @@ cigi3_add_position_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 
 /* CIGI4 Position Response */
 static int
-cigi4_add_position_response(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_position_response(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void *data _U_)
 {
-    proto_tree_add_item(tree, hf_cigi4_position_response_part_id, tvb, offset, 1, cigi_byte_order);
+    int offset = 0;
+
+    proto_tree_add_item(tree, hf_cigi3_position_response_part_id, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_position_response_object_class, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(tree, hf_cigi4_position_response_coord_system, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_position_response_object_class, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_position_response_coord_system, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_position_response_object_id, tvb, offset, 2, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_position_response_object_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_position_response_lat_xoff, tvb, offset, 8, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_position_response_lat_xoff, tvb, offset, 8, cigi_byte_order);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi4_position_response_lon_yoff, tvb, offset, 8, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_position_response_lon_yoff, tvb, offset, 8, cigi_byte_order);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi4_position_response_alt_zoff, tvb, offset, 8, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_position_response_alt_zoff, tvb, offset, 8, cigi_byte_order);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi4_position_response_roll, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_position_response_roll, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_position_response_pitch, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_position_response_pitch, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_position_response_yaw, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_position_response_yaw, tvb, offset, 4, cigi_byte_order);
     offset += 8;
 
     return offset;
@@ -8638,30 +7893,32 @@ cigi3_add_weather_conditions_response(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 
 /* CIGI4 Weather Conditions Response */
 static int
-cigi4_add_weather_conditions_response(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_weather_conditions_response(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void *data _U_)
 {
-    proto_tree_add_item(tree, hf_cigi4_weather_conditions_response_request_id, tvb, offset, 1, cigi_byte_order);
+    int offset = 0;
+
+    proto_tree_add_item(tree, hf_cigi3_weather_conditions_response_request_id, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_weather_conditions_response_humidity, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_weather_conditions_response_humidity, tvb, offset, 1, cigi_byte_order);
     offset += 3;
 
-    proto_tree_add_item(tree, hf_cigi4_weather_conditions_response_air_temp, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_weather_conditions_response_air_temp, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_weather_conditions_response_visibility_range, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_weather_conditions_response_visibility_range, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_weather_conditions_response_horiz_speed, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_weather_conditions_response_horiz_speed, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_weather_conditions_response_vert_speed, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_weather_conditions_response_vert_speed, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_weather_conditions_response_wind_direction, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_weather_conditions_response_wind_direction, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_weather_conditions_response_barometric_pressure, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_weather_conditions_response_barometric_pressure, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
     return offset;
@@ -8687,15 +7944,17 @@ cigi3_add_aerosol_concentration_response(tvbuff_t *tvb, packet_info *pinfo _U_, 
 
 /* CIGI4 Aerosol Concentration Response */
 static int
-cigi4_add_aerosol_concentration_response(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_aerosol_concentration_response(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void *data _U_)
 {
-    proto_tree_add_item(tree, hf_cigi4_aerosol_concentration_response_request_id, tvb, offset, 1, cigi_byte_order);
+    int offset = 0;
+
+    proto_tree_add_item(tree, hf_cigi3_aerosol_concentration_response_request_id, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_aerosol_concentration_response_layer_id, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_aerosol_concentration_response_layer_id, tvb, offset, 1, cigi_byte_order);
     offset += 3;
 
-    proto_tree_add_item(tree, hf_cigi4_aerosol_concentration_response_aerosol_concentration, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_aerosol_concentration_response_aerosol_concentration, tvb, offset, 4, cigi_byte_order);
     offset += 8;
 
     return offset;
@@ -8724,18 +7983,20 @@ cigi3_add_maritime_surface_conditions_response(tvbuff_t *tvb, packet_info *pinfo
 
 /* CIGI4 Maritime Surface Conditions Response */
 static int
-cigi4_add_maritime_surface_conditions_response(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_maritime_surface_conditions_response(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void *data _U_)
 {
-    proto_tree_add_item(tree, hf_cigi4_maritime_surface_conditions_response_request_id, tvb, offset, 1, cigi_byte_order);
+    int offset = 0;
+
+    proto_tree_add_item(tree, hf_cigi3_maritime_surface_conditions_response_request_id, tvb, offset, 1, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_maritime_surface_conditions_response_sea_surface_height, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_maritime_surface_conditions_response_sea_surface_height, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_maritime_surface_conditions_response_surface_water_temp, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_maritime_surface_conditions_response_surface_water_temp, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_maritime_surface_conditions_response_surface_clarity, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_maritime_surface_conditions_response_surface_clarity, tvb, offset, 4, cigi_byte_order);
     offset += 8;
 
     return offset;
@@ -8758,12 +8019,14 @@ cigi3_add_terrestrial_surface_conditions_response(tvbuff_t *tvb, packet_info *pi
 
 /* CIGI4 Terrestrial Surface Conditions Response */
 static int
-cigi4_add_terrestrial_surface_conditions_response(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_terrestrial_surface_conditions_response(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    proto_tree_add_item(tree, hf_cigi4_terrestrial_surface_conditions_response_request_id, tvb, offset, 1, cigi_byte_order);
+    int offset = 0;
+
+    proto_tree_add_item(tree, hf_cigi3_terrestrial_surface_conditions_response_request_id, tvb, offset, 1, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_terrestrial_surface_conditions_response_surface_id, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_terrestrial_surface_conditions_response_surface_id, tvb, offset, 4, cigi_byte_order);
     offset += 8;
 
     return offset;
@@ -8798,24 +8061,26 @@ cigi3_add_collision_detection_segment_notification(tvbuff_t *tvb, packet_info *p
 
 /* CIGI4 Collision Detection Segment Notification */
 static int
-cigi4_add_collision_detection_segment_notification(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_collision_detection_segment_notification(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    proto_tree_add_item(tree, hf_cigi4_collision_detection_segment_notification_entity_id, tvb, offset, 2, cigi_byte_order);
+    int offset = 0;
+
+    proto_tree_add_item(tree, hf_cigi3_collision_detection_segment_notification_entity_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_collision_detection_segment_notification_contacted_entity_id, tvb, offset, 2, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_collision_detection_segment_notification_contacted_entity_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_collision_detection_segment_notification_segment_id, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_collision_detection_segment_notification_segment_id, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_collision_detection_segment_notification_type, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_collision_detection_segment_notification_type, tvb, offset, 1, cigi_byte_order);
     offset += 3;
 
-    proto_tree_add_item(tree, hf_cigi4_collision_detection_segment_notification_material_code, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_collision_detection_segment_notification_material_code, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_collision_detection_segment_notification_intersection_distance, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_collision_detection_segment_notification_intersection_distance, tvb, offset, 4, cigi_byte_order);
     offset += 8;
 
     return offset;
@@ -8847,21 +8112,23 @@ cigi3_add_collision_detection_volume_notification(tvbuff_t *tvb, packet_info *pi
 
 /* CIGI4 Collision Detection Volume Notification */
 static int
-cigi4_add_collision_detection_volume_notification(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_collision_detection_volume_notification(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    proto_tree_add_item(tree, hf_cigi4_collision_detection_volume_notification_entity_id, tvb, offset, 2, cigi_byte_order);
+    int offset = 0;
+
+    proto_tree_add_item(tree, hf_cigi3_collision_detection_volume_notification_entity_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_collision_detection_volume_notification_contacted_entity_id, tvb, offset, 2, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_collision_detection_volume_notification_contacted_entity_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_collision_detection_volume_notification_volume_id, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_collision_detection_volume_notification_volume_id, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_collision_detection_volume_notification_type, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_collision_detection_volume_notification_type, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_collision_detection_volume_notification_contacted_volume_id, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_collision_detection_volume_notification_contacted_volume_id, tvb, offset, 1, cigi_byte_order);
     offset += 6;
 
     return offset;
@@ -8881,9 +8148,11 @@ cigi3_add_animation_stop_notification(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 
 /* CIGI4 Animation Stop Notification */
 static int
-cigi4_add_animation_stop_notification(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_animation_stop_notification(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void *data _U_)
 {
-    proto_tree_add_item(tree, hf_cigi4_animation_stop_notification_entity_id, tvb, offset, 2, cigi_byte_order);
+    int offset = 0;
+
+    proto_tree_add_item(tree, hf_cigi3_animation_stop_notification_entity_id, tvb, offset, 2, cigi_byte_order);
     offset += 4;
 
     return offset;
@@ -8912,18 +8181,20 @@ cigi3_add_event_notification(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
 /* CIGI4 Event Notification */
 static int
-cigi4_add_event_notification(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_event_notification(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void *data _U_)
 {
-    proto_tree_add_item(tree, hf_cigi4_event_notification_event_id, tvb, offset, 2, cigi_byte_order);
+    int offset = 0;
+
+    proto_tree_add_item(tree, hf_cigi3_event_notification_event_id, tvb, offset, 2, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_event_notification_data_1, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_event_notification_data_1, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_event_notification_data_2, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_event_notification_data_2, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_event_notification_data_3, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_event_notification_data_3, tvb, offset, 4, cigi_byte_order);
     offset += 8;
 
     return offset;
@@ -8933,71 +8204,41 @@ cigi4_add_event_notification(tvbuff_t* tvb, proto_tree* tree, int offset)
 static int
 cigi3_add_image_generator_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int packet_size = (int)tvb_reported_length(tvb);
+    int offset = 0;
 
-    proto_tree_add_item(tree, hf_cigi3_image_generator_message_id, tvb, 0, 2, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_image_generator_message_id, tvb, offset, 2, cigi_byte_order);
+    offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi3_image_generator_message_message, tvb, 2, packet_size - 2, cigi_byte_order);
+    if (tvb_reported_length_remaining(tvb, offset) < 2) {
+        proto_tree_add_expert_format(tree, pinfo, &ei_cigi_invalid_len, tvb, 0,
+            tvb_reported_length(tvb), "Insufficient room for image generator message");
+    } else {
+        proto_tree_add_item(tree, hf_cigi3_image_generator_message_message, tvb,
+            offset, tvb_reported_length_remaining(tvb, offset), cigi_byte_order);
+    }
 
-    return packet_size;
+    return (int)tvb_reported_length(tvb);
 }
 
 /* CIGI4 Image Generator Message */
 static int
-cigi4_add_image_generator_message(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_image_generator_message(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void *data _U_)
 {
-    uint8_t packet_size = 0;
+    int offset = 0;
 
-    packet_size = tvb_get_uint8(tvb, offset - 4);
-
-    /* An image generator packet cannot be less than 4 bytes ( because every cigi packet
-     * has a packet id (2 byte) and a packet size (2 byte) ). */
-    if (packet_size < 8)
-        return -1;
-
-    proto_tree_add_item(tree, hf_cigi4_image_generator_message_id, tvb, offset, 2, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_image_generator_message_id, tvb, offset, 2, cigi_byte_order);
+    // 2 bytes Reserved (padding to multiple of 4)
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_image_generator_message_message, tvb, offset, packet_size - 8, cigi_byte_order);
-    offset += packet_size - 8;
+    if (tvb_reported_length_remaining(tvb, offset) < 2) {
+        proto_tree_add_expert_format(tree, pinfo, &ei_cigi_invalid_len, tvb, 0,
+            tvb_reported_length(tvb), "Insufficient room for image generator message");
+    } else {
+        proto_tree_add_item(tree, hf_cigi3_image_generator_message_message, tvb,
+            offset, tvb_reported_length_remaining(tvb, offset), cigi_byte_order);
+    }
 
-    return offset;
-}
-
-/* CIGI4 locally Defined Message */
-static int
-cigi_add_locally_defined(tvbuff_t* tvb, proto_tree* tree, int offset) {
-    uint8_t packet_size = 0;
-
-    packet_size = tvb_get_uint8(tvb, offset - 4);
-
-    /* An image generator packet cannot be less than 4 bytes ( because every cigi packet
-     * has a packet id (2 byte) and a packet size (2 byte) ). */
-    if (packet_size < 8)
-        return -1;
-
-    proto_tree_add_item(tree, hf_cigi_data, tvb, offset, packet_size - 4, ENC_NA);
-    offset += packet_size - 4;
-
-    return offset;
-}
-
-/* CIGI4 Registered Message */
-static int
-cigi_add_registered(tvbuff_t* tvb, proto_tree* tree, int offset) {
-    uint8_t packet_size = 0;
-
-    packet_size = tvb_get_uint8(tvb, offset - 4);
-
-    /* An image generator packet cannot be less than 4 bytes ( because every cigi packet
-     * has a packet id (2 byte) and a packet size (2 byte) ). */
-    if (packet_size < 8)
-        return -1;
-
-    proto_tree_add_item(tree, hf_cigi_data, tvb, offset, packet_size - 4, ENC_NA);
-    offset += packet_size - 4;
-
-    return offset;
+    return (int)tvb_reported_length(tvb);
 }
 
 /* Create the tree for CIGI 4 */
@@ -9053,7 +8294,7 @@ cigi4_add_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cigi_tree)
 
         /* Add the subtree for the packet */
         if ( packet_id == CIGI4_PACKET_ID_IG_CONTROL ) {
-            hf_cigi4_packet = hf_cigi4_ig_control;
+            hf_cigi4_packet = hf_cigi3_ig_control;
             packet_length = CIGI4_PACKET_SIZE_IG_CONTROL;
         } else if ( packet_id == CIGI4_PACKET_ID_ENTITY_POSITION ) {
             hf_cigi4_packet = hf_cigi4_entity_position;
@@ -9062,95 +8303,101 @@ cigi4_add_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cigi_tree)
             hf_cigi4_packet = hf_cigi4_conformal_clamped_entity_position;
             packet_length = CIGI4_PACKET_SIZE_CONFORMAL_CLAMPED_ENTITY_POSITION;
         } else if ( packet_id == CIGI4_PACKET_ID_COMPONENT_CONTROL ) {
-            hf_cigi4_packet = hf_cigi4_component_control;
+            hf_cigi4_packet = hf_cigi3_component_control;
             packet_length = CIGI4_PACKET_SIZE_COMPONENT_CONTROL;
         } else if ( packet_id == CIGI4_PACKET_ID_SHORT_COMPONENT_CONTROL ) {
-            hf_cigi4_packet = hf_cigi4_short_component_control;
+            hf_cigi4_packet = hf_cigi3_short_component_control;
             packet_length = CIGI4_PACKET_SIZE_SHORT_COMPONENT_CONTROL;
         } else if ( packet_id == CIGI4_PACKET_ID_ARTICULATED_PART_CONTROL ) {
-            hf_cigi4_packet = hf_cigi4_articulated_part_control;
+            hf_cigi4_packet = hf_cigi3_articulated_part_control;
             packet_length = CIGI4_PACKET_SIZE_ARTICULATED_PART_CONTROL;
         } else if ( packet_id == CIGI4_PACKET_ID_SHORT_ARTICULATED_PART_CONTROL ) {
-            hf_cigi4_packet = hf_cigi4_short_articulated_part_control;
+            hf_cigi4_packet = hf_cigi3_short_articulated_part_control;
             packet_length = CIGI4_PACKET_SIZE_SHORT_ARTICULATED_PART_CONTROL;
         } else if ( packet_id == CIGI4_PACKET_ID_VELOCITY_CONTROL ) {
             hf_cigi4_packet = hf_cigi4_velocity_control;
             packet_length = CIGI4_PACKET_SIZE_VELOCITY_CONTROL;
         }  else if ( packet_id == CIGI4_PACKET_ID_CELESTIAL_SPHERE_CONTROL ) {
-            hf_cigi4_packet = hf_cigi4_celestial_sphere_control;
+            hf_cigi4_packet = hf_cigi3_celestial_sphere_control;
             packet_length = CIGI4_PACKET_SIZE_CELESTIAL_SPHERE_CONTROL;
         } else if ( packet_id == CIGI4_PACKET_ID_ATMOSPHERE_CONTROL ) {
-            hf_cigi4_packet = hf_cigi4_atmosphere_control;
+            hf_cigi4_packet = hf_cigi3_atmosphere_control;
             packet_length = CIGI4_PACKET_SIZE_ATMOSPHERE_CONTROL;
         } else if ( packet_id == CIGI4_PACKET_ID_ENVIRONMENTAL_REGION_CONTROL ) {
-            hf_cigi4_packet = hf_cigi4_environmental_region_control;
+            hf_cigi4_packet = hf_cigi3_environmental_region_control;
             packet_length = CIGI4_PACKET_SIZE_ENVIRONMENTAL_REGION_CONTROL;
         } else if ( packet_id == CIGI4_PACKET_ID_WEATHER_CONTROL ) {
-            hf_cigi4_packet = hf_cigi4_weather_control;
+            hf_cigi4_packet = hf_cigi3_weather_control;
             packet_length = CIGI4_PACKET_SIZE_WEATHER_CONTROL;
         } else if ( packet_id == CIGI4_PACKET_ID_MARITIME_SURFACE_CONDITIONS_CONTROL ) {
-            hf_cigi4_packet = hf_cigi4_maritime_surface_conditions_control;
+            hf_cigi4_packet = hf_cigi3_maritime_surface_conditions_control;
             packet_length = CIGI4_PACKET_SIZE_MARITIME_SURFACE_CONDITIONS_CONTROL;
         } else if ( packet_id == CIGI4_PACKET_ID_WAVE_CONTROL ) {
-            hf_cigi4_packet = hf_cigi4_wave_control;
+            hf_cigi4_packet = hf_cigi3_wave_control;
             packet_length = CIGI4_PACKET_SIZE_WAVE_CONTROL;
         } else if ( packet_id == CIGI4_PACKET_ID_TERRESTRIAL_SURFACE_CONDITIONS_CONTROL ) {
-            hf_cigi4_packet = hf_cigi4_terrestrial_surface_conditions_control;
+            hf_cigi4_packet = hf_cigi3_terrestrial_surface_conditions_control;
             packet_length = CIGI4_PACKET_SIZE_TERRESTRIAL_SURFACE_CONDITIONS_CONTROL;
         } else if ( packet_id == CIGI4_PACKET_ID_VIEW_CONTROL ) {
-            hf_cigi4_packet = hf_cigi4_view_control;
+            hf_cigi4_packet = hf_cigi3_view_control;
             packet_length = CIGI4_PACKET_SIZE_VIEW_CONTROL;
         } else if (packet_id == CIGI4_PACKET_ID_SENSOR_CONTROL) {
-            hf_cigi4_packet = hf_cigi4_sensor_control;
+            hf_cigi4_packet = hf_cigi3_sensor_control;
             packet_length = CIGI4_PACKET_SIZE_SENSOR_CONTROL;
         } else if ( packet_id == CIGI4_PACKET_ID_MOTION_TRACKER_CONTROL ) {
-            hf_cigi4_packet = hf_cigi4_motion_tracker_control;
+            hf_cigi4_packet = hf_cigi3_motion_tracker_control;
             packet_length = CIGI4_PACKET_SIZE_MOTION_TRACKER_CONTROL;
         } else if ( packet_id == CIGI4_PACKET_ID_EARTH_REFERENCE_MODEL_DEFINITION ) {
-            hf_cigi4_packet = hf_cigi4_earth_reference_model_definition;
+            hf_cigi4_packet = hf_cigi3_earth_reference_model_definition;
             packet_length = CIGI4_PACKET_SIZE_EARTH_REFERENCE_MODEL_DEFINITION;
         } else if ( packet_id == CIGI4_PACKET_ID_ACCELERATION_CONTROL ) {
             hf_cigi4_packet = hf_cigi4_acceleration_control;
             packet_length = CIGI4_PACKET_SIZE_ACCELERATION_CONTROL;
         } else if ( packet_id == CIGI4_PACKET_ID_VIEW_DEFINITION ) {
-            hf_cigi4_packet = hf_cigi4_view_definition;
+            hf_cigi4_packet = hf_cigi3_view_definition;
             packet_length = CIGI4_PACKET_SIZE_VIEW_DEFINITION;
         } else if ( packet_id == CIGI4_PACKET_ID_COLLISION_DETECTION_SEGMENT_DEFINITION ) {
-            hf_cigi4_packet = hf_cigi4_collision_detection_segment_definition;
+            hf_cigi4_packet = hf_cigi3_collision_detection_segment_definition;
             packet_length = CIGI4_PACKET_SIZE_COLLISION_DETECTION_SEGMENT_DEFINITION;
         } else if ( packet_id == CIGI4_PACKET_ID_COLLISION_DETECTION_VOLUME_DEFINITION ) {
-            hf_cigi4_packet = hf_cigi4_collision_detection_volume_definition;
+            hf_cigi4_packet = hf_cigi3_collision_detection_volume_definition;
             packet_length = CIGI4_PACKET_SIZE_COLLISION_DETECTION_VOLUME_DEFINITION;
         } else if ( packet_id == CIGI4_PACKET_ID_HAT_HOT_REQUEST ) {
-            hf_cigi4_packet = hf_cigi4_hat_hot_request;
+            hf_cigi4_packet = hf_cigi3_hat_hot_request;
             packet_length = CIGI4_PACKET_SIZE_HAT_HOT_REQUEST;
         } else if ( packet_id == CIGI4_PACKET_ID_LINE_OF_SIGHT_SEGMENT_REQUEST ) {
-            hf_cigi4_packet = hf_cigi4_line_of_sight_segment_request;
+            hf_cigi4_packet = hf_cigi3_line_of_sight_segment_request;
             packet_length = CIGI4_PACKET_SIZE_LINE_OF_SIGHT_SEGMENT_REQUEST;
         } else if ( packet_id == CIGI4_PACKET_ID_LINE_OF_SIGHT_VECTOR_REQUEST ) {
-            hf_cigi4_packet = hf_cigi4_line_of_sight_vector_request;
+            hf_cigi4_packet = hf_cigi3_line_of_sight_vector_request;
             packet_length = CIGI4_PACKET_SIZE_LINE_OF_SIGHT_VECTOR_REQUEST;
         } else if ( packet_id == CIGI4_PACKET_ID_POSITION_REQUEST ) {
-            hf_cigi4_packet = hf_cigi4_position_request;
+            hf_cigi4_packet = hf_cigi3_position_request;
             packet_length = CIGI4_PACKET_SIZE_POSITION_REQUEST;
         } else if ( packet_id == CIGI4_PACKET_ID_ENVIRONMENTAL_CONDITIONS_REQUEST ) {
-            hf_cigi4_packet = hf_cigi4_environmental_conditions_request;
+            hf_cigi4_packet = hf_cigi3_environmental_conditions_request;
             packet_length = CIGI4_PACKET_SIZE_ENVIRONMENTAL_CONDITIONS_REQUEST;
         } else if ( packet_id == CIGI4_PACKET_ID_SYMBOL_SURFACE_DEFINITION ) {
-            hf_cigi4_packet = hf_cigi4_symbol_surface_definition;
+            hf_cigi4_packet = hf_cigi3_3_symbol_surface_definition;
             packet_length = CIGI4_PACKET_SIZE_SYMBOL_SURFACE_DEFINITION;
         } else if ( packet_id == CIGI4_PACKET_ID_SYMBOL_TEXT_DEFINITION ){
-            hf_cigi4_packet = hf_cigi4_symbol_text_definition;
+            hf_cigi4_packet = hf_cigi3_3_symbol_text_definition;
             packet_length = packet_size;
         } else if ( packet_id == CIGI4_PACKET_ID_SYMBOL_CIRCLE_DEFINITION ){
-            hf_cigi4_packet = hf_cigi4_symbol_circle_definition;
+            hf_cigi4_packet = hf_cigi3_3_symbol_circle_definition;
             packet_length = packet_size;
         } else if ( packet_id == CIGI4_PACKET_ID_SYMBOL_POLYGON_DEFINITION){
             hf_cigi4_packet = hf_cigi4_symbol_polygon_definition;
             packet_length = packet_size;
         } else if (packet_id == CIGI4_PACKET_ID_SYMBOL_CLONE) {
-            hf_cigi4_packet = hf_cigi4_symbol_clone;
+            hf_cigi4_packet = hf_cigi3_3_symbol_clone;
             packet_length = CIGI4_PACKET_SIZE_SYMBOL_CLONE;
+        } else if (packet_id == CIGI4_PACKET_ID_SYMBOL_CONTROL) {
+            hf_cigi4_packet = hf_cigi3_3_symbol_control;
+            packet_length = CIGI4_PACKET_SIZE_SYMBOL_CONTROL;
+        } else if (packet_id == CIGI4_PACKET_ID_SHORT_SYMBOL_CONTROL) {
+            hf_cigi4_packet = hf_cigi3_3_short_symbol_control;
+            packet_length = CIGI4_PACKET_SIZE_SHORT_SYMBOL_CONTROL;
         } else if (packet_id == CIGI4_PACKET_ID_SYMBOL_CIRCLE_TEXTURED_DEFINITION) {
             hf_cigi4_packet = hf_cigi4_symbol_circle_textured_definition;
             packet_length = packet_size;
@@ -9167,55 +8414,55 @@ cigi4_add_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cigi_tree)
             hf_cigi4_packet = hf_cigi4_start_of_frame;
             packet_length = CIGI4_PACKET_SIZE_START_OF_FRAME;
         } else if ( packet_id == CIGI4_PACKET_ID_HAT_HOT_RESPONSE ) {
-            hf_cigi4_packet = hf_cigi4_hat_hot_response;
+            hf_cigi4_packet = hf_cigi3_hat_hot_response;
             packet_length = CIGI4_PACKET_SIZE_HAT_HOT_RESPONSE;
         } else if ( packet_id == CIGI4_PACKET_ID_HAT_HOT_EXTENDED_RESPONSE ) {
-            hf_cigi4_packet = hf_cigi4_hat_hot_extended_response;
+            hf_cigi4_packet = hf_cigi3_hat_hot_extended_response;
             packet_length = CIGI4_PACKET_SIZE_HAT_HOT_EXTENDED_RESPONSE;
         } else if ( packet_id == CIGI4_PACKET_ID_LINE_OF_SIGHT_RESPONSE ) {
-            hf_cigi4_packet = hf_cigi4_line_of_sight_response;
+            hf_cigi4_packet = hf_cigi3_line_of_sight_response;
             packet_length = CIGI4_PACKET_SIZE_LINE_OF_SIGHT_RESPONSE;
         } else if ( packet_id == CIGI4_PACKET_ID_LINE_OF_SIGHT_RESPONSE ) {
-            hf_cigi4_packet = hf_cigi4_line_of_sight_response;
+            hf_cigi4_packet = hf_cigi3_line_of_sight_response;
             packet_length = CIGI4_PACKET_SIZE_LINE_OF_SIGHT_RESPONSE;
         } else if ( packet_id == CIGI4_PACKET_ID_LINE_OF_SIGHT_EXTENDED_RESPONSE ) {
-            hf_cigi4_packet = hf_cigi4_line_of_sight_extended_response;
+            hf_cigi4_packet = hf_cigi3_line_of_sight_extended_response;
             packet_length = CIGI4_PACKET_SIZE_LINE_OF_SIGHT_EXTENDED_RESPONSE;
         } else if ( packet_id == CIGI4_PACKET_ID_SENSOR_RESPONSE ) {
-            hf_cigi4_packet = hf_cigi4_sensor_response;
+            hf_cigi4_packet = hf_cigi3_sensor_response;
             packet_length = CIGI4_PACKET_SIZE_SENSOR_RESPONSE;
         } else if ( packet_id == CIGI4_PACKET_ID_SENSOR_EXTENDED_RESPONSE ) {
-            hf_cigi4_packet = hf_cigi4_sensor_extended_response;
+            hf_cigi4_packet = hf_cigi3_sensor_extended_response;
             packet_length = CIGI4_PACKET_SIZE_SENSOR_EXTENDED_RESPONSE;
         } else if ( packet_id == CIGI4_PACKET_ID_POSITION_RESPONSE ) {
-            hf_cigi4_packet = hf_cigi4_position_response;
+            hf_cigi4_packet = hf_cigi3_position_response;
             packet_length = CIGI4_PACKET_SIZE_POSITION_RESPONSE;
         } else if ( packet_id == CIGI4_PACKET_ID_WEATHER_CONDITIONS_RESPONSE ) {
-            hf_cigi4_packet = hf_cigi4_weather_conditions_response;
+            hf_cigi4_packet = hf_cigi3_weather_conditions_response;
             packet_length = CIGI4_PACKET_SIZE_WEATHER_CONDITIONS_RESPONSE;
         } else if ( packet_id == CIGI4_PACKET_ID_AEROSOL_CONCENTRATION_RESPONSE ) {
-            hf_cigi4_packet = hf_cigi4_aerosol_concentration_response;
+            hf_cigi4_packet = hf_cigi3_aerosol_concentration_response;
             packet_length = CIGI4_PACKET_SIZE_AEROSOL_CONCENTRATION_RESPONSE;
         } else if ( packet_id == CIGI4_PACKET_ID_MARITIME_SURFACE_CONDITIONS_RESPONSE ) {
-            hf_cigi4_packet = hf_cigi4_maritime_surface_conditions_response;
+            hf_cigi4_packet = hf_cigi3_maritime_surface_conditions_response;
             packet_length = CIGI4_PACKET_SIZE_MARITIME_SURFACE_CONDITIONS_RESPONSE;
         } else if ( packet_id == CIGI4_PACKET_ID_TERRESTRIAL_SURFACE_CONDITIONS_RESPONSE ) {
-            hf_cigi4_packet = hf_cigi4_terrestrial_surface_conditions_response;
+            hf_cigi4_packet = hf_cigi3_terrestrial_surface_conditions_response;
             packet_length = CIGI4_PACKET_SIZE_TERRESTRIAL_SURFACE_CONDITIONS_RESPONSE;
         } else if ( packet_id == CIGI4_PACKET_ID_COLLISION_DETECTION_SEGMENT_NOTIFICATION ) {
-            hf_cigi4_packet = hf_cigi4_collision_detection_segment_notification;
+            hf_cigi4_packet = hf_cigi3_collision_detection_segment_notification;
             packet_length = CIGI4_PACKET_SIZE_COLLISION_DETECTION_SEGMENT_NOTIFICATION;
         } else if ( packet_id == CIGI4_PACKET_ID_COLLISION_DETECTION_VOLUME_NOTIFICATION ) {
-            hf_cigi4_packet = hf_cigi4_collision_detection_volume_notification;
+            hf_cigi4_packet = hf_cigi3_collision_detection_volume_notification;
             packet_length = CIGI4_PACKET_SIZE_COLLISION_DETECTION_VOLUME_NOTIFICATION;
         } else if ( packet_id == CIGI4_PACKET_ID_ANIMATION_STOP_NOTIFICATION ) {
-            hf_cigi4_packet = hf_cigi4_animation_stop_notification;
+            hf_cigi4_packet = hf_cigi3_animation_stop_notification;
             packet_length = CIGI4_PACKET_SIZE_ANIMATION_STOP_NOTIFICATION;
         } else if ( packet_id == CIGI4_PACKET_ID_EVENT_NOTIFICATION ) {
-            hf_cigi4_packet = hf_cigi4_event_notification;
+            hf_cigi4_packet = hf_cigi3_event_notification;
             packet_length = CIGI4_PACKET_SIZE_EVENT_NOTIFICATION;
         } else if ( packet_id == CIGI4_PACKET_ID_IMAGE_GENERATOR_MESSAGE ) {
-            hf_cigi4_packet = hf_cigi4_image_generator_message;
+            hf_cigi4_packet = hf_cigi3_image_generator_message;
             packet_length = packet_size;
         } else if ( packet_id >= CIGI4_PACKET_ID_LOCALLY_DEFINED_MIN && packet_id <=  CIGI4_PACKET_ID_LOCALLY_DEFINED_MAX) {
             hf_cigi4_packet = hf_cigi4_locally_defined;
@@ -9250,125 +8497,14 @@ cigi4_add_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cigi_tree)
          * to dissect normally then add an expert info and abort afterwards below. */
         next_tvb = tvb_new_subset_length(tvb, offset, packet_length - 4);
 
-        if ( packet_id == CIGI4_PACKET_ID_IG_CONTROL ) {
-            offset = cigi4_add_ig_control(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_ENTITY_POSITION ) {
-            offset = cigi4_add_entity_position(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_CONFORMAL_CLAMPED_ENTITY_POSITION ) {
-            offset = cigi4_add_conformal_clamped_entity_position(tvb, cigi_packet_tree, offset);
-        }  else if ( packet_id == CIGI4_PACKET_ID_COMPONENT_CONTROL ) {
-            offset = cigi4_add_component_control(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_SHORT_COMPONENT_CONTROL ) {
-            offset = cigi4_add_short_component_control(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_ARTICULATED_PART_CONTROL ) {
-            offset = cigi4_add_articulated_part_control(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_SHORT_ARTICULATED_PART_CONTROL ) {
-            offset = cigi4_add_short_articulated_part_control(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_VELOCITY_CONTROL ) {
-            offset = cigi4_add_velocity_control(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_CELESTIAL_SPHERE_CONTROL ) {
-            offset = cigi4_add_celestial_sphere_control(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_ATMOSPHERE_CONTROL ) {
-            offset = cigi4_add_atmosphere_control(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_ENVIRONMENTAL_REGION_CONTROL ) {
-            offset = cigi4_add_environmental_region_control(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_WEATHER_CONTROL ) {
-            offset = cigi4_add_weather_control(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_MARITIME_SURFACE_CONDITIONS_CONTROL ) {
-            offset = cigi4_add_maritime_surface_conditions_control(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_WAVE_CONTROL ) {
-            offset = cigi4_add_wave_control(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_TERRESTRIAL_SURFACE_CONDITIONS_CONTROL ) {
-            offset = cigi4_add_terrestrial_surface_conditions_control(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_VIEW_CONTROL ) {
-            offset = cigi4_add_view_control(tvb, cigi_packet_tree, offset);
-        } else if (packet_id == CIGI4_PACKET_ID_SENSOR_CONTROL) {
-            offset = cigi4_add_sensor_control(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_MOTION_TRACKER_CONTROL ) {
-            offset = cigi4_add_motion_tracker_control(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_EARTH_REFERENCE_MODEL_DEFINITION ) {
-            offset = cigi4_add_earth_reference_model_definition(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_ACCELERATION_CONTROL ) {
-            offset = cigi4_add_acceleration_control(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_VIEW_DEFINITION ) {
-            offset = cigi4_add_view_definition(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_COLLISION_DETECTION_SEGMENT_DEFINITION ) {
-            offset = cigi4_add_collision_detection_segment_definition(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_COLLISION_DETECTION_VOLUME_DEFINITION ) {
-            offset = cigi4_add_collision_detection_volume_definition(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_HAT_HOT_REQUEST ) {
-            offset = cigi4_add_hat_hot_request(tvb, cigi_packet_tree, offset);
-        } else if (packet_id == CIGI4_PACKET_ID_LINE_OF_SIGHT_SEGMENT_REQUEST) {
-            offset = cigi4_add_line_of_sight_segment_request(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_LINE_OF_SIGHT_VECTOR_REQUEST ) {
-            offset = cigi4_add_line_of_sight_vector_request(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_POSITION_REQUEST ) {
-            offset = cigi4_add_position_request(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_ENVIRONMENTAL_CONDITIONS_REQUEST ) {
-            offset = cigi4_add_environmental_conditions_request(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_SYMBOL_SURFACE_DEFINITION ) {
-            offset = cigi4_add_symbol_surface_definition(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_SYMBOL_TEXT_DEFINITION ) {
-            offset = cigi4_add_symbol_text_definition(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_SYMBOL_CIRCLE_DEFINITION ) {
-            offset = cigi4_add_symbol_circle_definition(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_SYMBOL_POLYGON_DEFINITION ) {
-            offset = cigi4_add_symbol_polygon_definition(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_SYMBOL_CLONE ) {
-            offset = cigi4_add_symbol_clone(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_SYMBOL_CONTROL ) {
-            offset = cigi4_add_symbol_control(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_SHORT_SYMBOL_CONTROL ) {
-            offset = cigi4_add_short_symbol_control(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_SYMBOL_CIRCLE_TEXTURED_DEFINITION) {
-            offset = cigi4_add_symbol_circle_textured(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_SYMBOL_POLYGON_TEXTURED_DEFINITION) {
-            offset = cigi4_add_symbol_polygon_textured(tvb, cigi_packet_tree, offset);
-        } else if (packet_id == CIGI4_PACKET_ID_ENTITY_CONTROL) {
-            offset = cigi4_add_entity_control(tvb, cigi_packet_tree, offset);
-        } else if (packet_id == CIGI4_PACKET_ID_ANIMATION_CONTROL) {
-            offset = cigi4_add_animation_control(tvb, cigi_packet_tree, offset);
-        } else if (packet_id == CIGI4_PACKET_ID_START_OF_FRAME) {
-            offset = cigi4_add_start_of_frame(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_HAT_HOT_RESPONSE ) {
-            offset = cigi4_add_hat_hot_response(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_HAT_HOT_EXTENDED_RESPONSE ) {
-            offset = cigi4_add_hat_hot_extended_response(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_LINE_OF_SIGHT_RESPONSE ) {
-            offset = cigi4_add_line_of_sight_response(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_LINE_OF_SIGHT_EXTENDED_RESPONSE ) {
-            offset = cigi4_add_line_of_sight_extended_response(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_SENSOR_RESPONSE ) {
-            offset = cigi4_add_sensor_response(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_SENSOR_EXTENDED_RESPONSE ) {
-            offset = cigi4_add_sensor_extended_response(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_POSITION_RESPONSE ) {
-            offset = cigi4_add_position_response(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_WEATHER_CONDITIONS_RESPONSE ) {
-            offset = cigi4_add_weather_conditions_response(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_AEROSOL_CONCENTRATION_RESPONSE ) {
-            offset = cigi4_add_aerosol_concentration_response(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_MARITIME_SURFACE_CONDITIONS_RESPONSE ) {
-            offset = cigi4_add_maritime_surface_conditions_response(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_TERRESTRIAL_SURFACE_CONDITIONS_RESPONSE ) {
-            offset = cigi4_add_terrestrial_surface_conditions_response(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_COLLISION_DETECTION_SEGMENT_NOTIFICATION ) {
-            offset = cigi4_add_collision_detection_segment_notification(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_COLLISION_DETECTION_VOLUME_NOTIFICATION ) {
-            offset = cigi4_add_collision_detection_volume_notification(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_ANIMATION_STOP_NOTIFICATION ) {
-            offset = cigi4_add_animation_stop_notification(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_EVENT_NOTIFICATION ) {
-            offset = cigi4_add_event_notification(tvb, cigi_packet_tree, offset);
-        } else if ( packet_id == CIGI4_PACKET_ID_IMAGE_GENERATOR_MESSAGE ) {
-            offset = cigi4_add_image_generator_message(tvb, cigi_packet_tree, offset);
-        } else if (packet_id >= CIGI4_PACKET_ID_LOCALLY_DEFINED_MIN && packet_id <= CIGI4_PACKET_ID_LOCALLY_DEFINED_MAX) {
-            offset = cigi_add_locally_defined(tvb, cigi_packet_tree, offset);
-        } else if (packet_id >= CIGI4_PACKET_ID_REGISTERED_MIN && packet_id <= CIGI4_PACKET_ID_REGISTERED_MAX) {
-            offset = cigi_add_registered(tvb, cigi_packet_tree, offset);
-        } else {
-            offset = cigi_add_data(next_tvb, cigi_packet_tree, 0);
+        int dissected = dissector_try_uint_new(cigi4_packet_id_table, packet_id,
+            next_tvb, pinfo, cigi_packet_tree, false, NULL);
+
+        if (dissected == 0) {
+            dissected = cigi_add_data(next_tvb, cigi_packet_tree, 0);
         }
+
+        offset += dissected;
 
         if (offset-init_offset != packet_length) {
             proto_tree_add_expert(cigi_packet_tree, pinfo, &ei_cigi_invalid_len, tvb, init_offset, offset-init_offset);
@@ -9379,15 +8515,17 @@ cigi4_add_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cigi_tree)
 
 /* CIGI4 IG Control */
 static int
-cigi4_add_ig_control(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_ig_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
+    int offset = 0;
+
     proto_tree* field_tree;
     proto_item* tf;
 
     proto_tree_add_item(tree, hf_cigi_version, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_ig_control_db_number, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_ig_control_db_number, tvb, offset, 1, cigi_byte_order);
     offset++;
 
     tf = proto_tree_add_item(tree, hf_cigi4_ig_control_entity_substitution, tvb, offset, 1, cigi_byte_order);
@@ -9397,19 +8535,19 @@ cigi4_add_ig_control(tvbuff_t* tvb, proto_tree* tree, int offset)
 
     tf = proto_tree_add_item(tree, hf_cigi4_ig_control_flags, tvb, offset, 1, cigi_byte_order);
     field_tree = proto_item_add_subtree(tf, ett_cigi4_ig_control_flags);
-    proto_tree_add_item(field_tree, hf_cigi4_ig_control_ig_mode, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(field_tree, hf_cigi4_ig_control_timestamp_valid, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(field_tree, hf_cigi3_ig_control_ig_mode, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(field_tree, hf_cigi3_ig_control_timestamp_valid, tvb, offset, 1, cigi_byte_order);
     proto_tree_add_item(field_tree, hf_cigi4_ig_control_smoothing_enable, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(field_tree, hf_cigi4_ig_control_minor_version, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(field_tree, hf_cigi3_2_ig_control_minor_version, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_ig_control_host_frame_number, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_2_ig_control_host_frame_number, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_ig_control_last_ig_frame_number, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_2_ig_control_last_ig_frame_number, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_ig_control_timestamp, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_ig_control_timestamp, tvb, offset, 4, cigi_byte_order);
     offset += 8;
 
     return offset;
@@ -9417,10 +8555,12 @@ cigi4_add_ig_control(tvbuff_t* tvb, proto_tree* tree, int offset)
 
 /* CIGI4 Start of Frame */
 static int
-cigi4_add_start_of_frame(tvbuff_t *tvb, proto_tree *tree, int offset)
+cigi4_add_start_of_frame(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree, void* data _U_)
 {
     proto_tree* field_tree;
     proto_item* tf;
+
+    int offset = 0;
 
     proto_tree_add_item(tree, hf_cigi_version, tvb, offset, 1, cigi_byte_order);
     offset++;
@@ -9456,15 +8596,17 @@ cigi4_add_start_of_frame(tvbuff_t *tvb, proto_tree *tree, int offset)
     return offset;
 }
 
-/* CIGI Entity position */
+/* CIGI Entity Position */
 static int
-cigi4_add_entity_position(tvbuff_t *tvb, proto_tree *tree, int offset)
+cigi4_add_entity_position(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
+    int offset = 0;
+
     proto_tree* field_tree;
     proto_item* tf;
 
     tf = proto_tree_add_item(tree, hf_cigi4_entity_position_flags, tvb, offset, 1, cigi_byte_order);
-    field_tree = proto_item_add_subtree(tf, ett_cigi4_ig_control_flags);
+    field_tree = proto_item_add_subtree(tf, ett_cigi4_entity_position_flags);
     proto_tree_add_item(field_tree, hf_cigi4_entity_position_attach_state, tvb, offset, 1, cigi_byte_order);
     proto_tree_add_item(field_tree, hf_cigi4_entity_position_ground_ocean_clamp, tvb, offset, 1, cigi_byte_order);
     offset += 2;
@@ -9475,22 +8617,22 @@ cigi4_add_entity_position(tvbuff_t *tvb, proto_tree *tree, int offset)
     proto_tree_add_item(tree, hf_cigi4_entity_position_parent_id, tvb, offset, 2, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi3_entity_control_roll, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi4_entity_position_roll, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi3_entity_control_pitch, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi4_entity_position_pitch, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi3_entity_control_yaw, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi4_entity_position_yaw, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi3_entity_control_lat_xoff, tvb, offset, 8, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi4_entity_position_lat_xoff, tvb, offset, 8, cigi_byte_order);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi3_entity_control_lon_yoff, tvb, offset, 8, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi4_entity_position_lon_yoff, tvb, offset, 8, cigi_byte_order);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi3_entity_control_alt_zoff, tvb, offset, 8, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi4_entity_position_alt_zoff, tvb, offset, 8, cigi_byte_order);
     offset += 8;
 
     return offset;
@@ -9499,7 +8641,9 @@ cigi4_add_entity_position(tvbuff_t *tvb, proto_tree *tree, int offset)
 
 /* CIGI Conformal Clamped Entity Position */
 static int
-cigi4_add_conformal_clamped_entity_position(tvbuff_t* tvb, proto_tree* tree, int offset) {
+cigi4_add_conformal_clamped_entity_position(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_) {
+    int offset = 0;
+
     proto_tree_add_item(tree, hf_cigi4_conformal_clamped_entity_position_entity_id, tvb, offset, 2, cigi_byte_order);
     offset += 4;
 
@@ -9515,42 +8659,43 @@ cigi4_add_conformal_clamped_entity_position(tvbuff_t* tvb, proto_tree* tree, int
     return offset;
 }
 
-
 /* CIGI4 Component Control */
 static int
-cigi4_add_component_control(tvbuff_t* tvb, proto_tree* tree, int offset)
+cigi4_add_component_control(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
 {
-    proto_tree_add_item(tree, hf_cigi4_component_control_component_id, tvb, offset, 2, cigi_byte_order);
+    int offset = 0;
+
+    proto_tree_add_item(tree, hf_cigi3_component_control_component_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_component_control_component_class, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_3_component_control_component_class, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_component_control_component_state, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_component_control_component_state, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_component_control_instance_id, tvb, offset, 2, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_component_control_instance_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
     //reserved
     offset += 6;
 
-    proto_tree_add_item(tree, hf_cigi4_component_control_data_1, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_component_control_data_1, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_component_control_data_2, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_component_control_data_2, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_component_control_data_3, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_component_control_data_3, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_component_control_data_4, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_component_control_data_4, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_component_control_data_5, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_component_control_data_5, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi4_component_control_data_6, tvb, offset, 4, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_component_control_data_6, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
     return offset;
@@ -9559,38 +8704,40 @@ cigi4_add_component_control(tvbuff_t* tvb, proto_tree* tree, int offset)
 
 /* CIGI4 HAT/HOT Request */
 static int
-cigi4_add_hat_hot_request(tvbuff_t *tvb, proto_tree *tree, int offset)
+cigi4_add_hat_hot_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
+    int offset = 0;
+
     proto_tree* field_tree;
     proto_item* tf;
 
-    proto_tree_add_item(tree, hf_cigi4_hat_hot_request_hat_hot_id, tvb, offset, 2, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_hat_hot_request_hat_hot_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi4_hat_hot_request_entity_id, tvb, offset, 2, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_hat_hot_request_entity_id, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
     //subtree
     tf = proto_tree_add_item(tree, hf_cigi4_hat_hot_request_flags, tvb, offset, 1, cigi_byte_order);
     field_tree = proto_item_add_subtree(tf, ett_cigi4_hat_hot_request_flags);
-    proto_tree_add_item(field_tree, hf_cigi4_hat_hot_request_type, tvb, offset, 1, cigi_byte_order);
-    proto_tree_add_item(field_tree, hf_cigi4_hat_hot_request_coordinate_system, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(field_tree, hf_cigi3_hat_hot_request_type, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(field_tree, hf_cigi3_hat_hot_request_coordinate_system, tvb, offset, 1, cigi_byte_order);
     offset++;
 
-    proto_tree_add_item(tree, hf_cigi4_hat_hot_request_update_period, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_2_hat_hot_request_update_period, tvb, offset, 1, cigi_byte_order);
     offset++;
 
     //reserved
     offset += 6;
 
 
-    proto_tree_add_item(tree, hf_cigi4_hat_hot_request_lat_xoff, tvb, offset, 8, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_hat_hot_request_lat_xoff, tvb, offset, 8, cigi_byte_order);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi4_hat_hot_request_lon_yoff, tvb, offset, 8, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_hat_hot_request_lon_yoff, tvb, offset, 8, cigi_byte_order);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_cigi4_hat_hot_request_alt_zoff, tvb, offset, 8, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_hat_hot_request_alt_zoff, tvb, offset, 8, cigi_byte_order);
     offset += 8;
 
     return offset;
@@ -9678,7 +8825,7 @@ proto_register_cigi(void)
         /* CIGI4 */
         { &hf_cigi4_packet_id,
             { "Packet ID", "cigi.packet_id",
-                FT_UINT16, BASE_HEX, NULL, 0x0,
+                FT_UINT16, BASE_HEX|BASE_EXT_STRING, &cigi4_packet_id_vals_ext, 0x0,
                 "Identifies the packet's ID", HFILL }
         },
         { &hf_cigi4_packet_size,
@@ -9757,11 +8904,6 @@ proto_register_cigi(void)
         },
 
         /* CIGI3_2 IG Control */
-        { &hf_cigi3_2_ig_control,
-            { "IG Control", "cigi.ig_control",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "IG Control Packet", HFILL }
-        },
         { &hf_cigi3_2_ig_control_minor_version,
             { "Minor Version", "cigi.ig_control.minor_version",
                 FT_UINT8, BASE_DEC, NULL, 0xF0,
@@ -9779,11 +8921,6 @@ proto_register_cigi(void)
         },
 
         /* CIGI3_3 IG Control */
-        { &hf_cigi3_3_ig_control,
-            { "IG Control", "cigi.ig_control",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "IG Control Packet", HFILL }
-        },
         { &hf_cigi3_3_ig_control_extrapolation_enable,
             { "Extrapolation/Interpolation Enable", "cigi.ig_control.extrapolation_enable",
                 FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x08,
@@ -9791,16 +8928,6 @@ proto_register_cigi(void)
         },
 
         /* CIGI4 IG Control */
-        { &hf_cigi4_ig_control,
-            { "IG Control", "cigi.ig_control",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "IG Control Packet", HFILL }
-        },
-        { &hf_cigi4_ig_control_db_number,
-            { "Database Number", "cigi.ig_control.db_number",
-                FT_INT8, BASE_DEC, NULL, 0x0,
-                "Used to initiate a database load on the IG", HFILL }
-        },
         { &hf_cigi4_ig_control_entity_substitution,
             { "Substitution", "cigi.ig_control.substitution",
                 FT_UINT8, BASE_HEX, NULL, 0x0,
@@ -9816,43 +8943,13 @@ proto_register_cigi(void)
                 FT_UINT8, BASE_HEX, NULL, 0x0,
                 NULL, HFILL }
         },
-        { &hf_cigi4_ig_control_ig_mode,
-            { "IG Mode", "cigi.ig_control.ig_mode",
-                FT_UINT8, BASE_DEC, VALS(cigi4_ig_control_ig_mode_vals), 0x03,
-                "Dictates the IG's operational mode", HFILL }
-        },
-        { &hf_cigi4_ig_control_timestamp_valid,
-            { "Timestamp Valid", "cigi.ig_control.timestamp_valid",
-                FT_BOOLEAN, 8, TFS(&tfs_valid_invalid), 0x04,
-                "Indicates whether the timestamp contains a valid value", HFILL }
-        },
         { &hf_cigi4_ig_control_smoothing_enable,
             { "Smoothing Enable", "cigi.ig_control.smoothing_enable",
                 FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x08,
                 "Indicates whether any dead reckoning is enabled.", HFILL }
         },
-        { &hf_cigi4_ig_control_minor_version,
-            { "Minor Version", "cigi.ig_control.minor_version",
-                FT_UINT8, BASE_DEC, NULL, 0xF0,
-                "Indicates the minor version of the CIGI interface", HFILL }
-        },
-        { &hf_cigi4_ig_control_host_frame_number,
-            { "Host Frame Number", "cigi.ig_control.host_frame_number",
-                FT_UINT32, BASE_DEC, NULL, 0x0,
-                "Uniquely identifies the host data frame", HFILL }
-        },
-        { &hf_cigi4_ig_control_last_ig_frame_number,
-            { "Last IG Frame Number", "cigi.ig_control.last_ig_frame_number",
-                FT_UINT32, BASE_DEC, NULL, 0x0,
-                "Identifies the last IG data frame", HFILL }
-        },
-        { &hf_cigi4_ig_control_timestamp,
-            { "Timestamp", "cigi.ig_control.timestamp",
-                FT_UINT32, BASE_DEC, NULL, 0x0,
-                "Indicates the number of 10 microsecond \"ticks\" since some initial reference time", HFILL }
-        },
 
-            /* CIGI4 Entity Position */
+        /* CIGI4 Entity Position */
         { &hf_cigi4_entity_position,
             { "Entity Position", "cigi.entity_position",
                 FT_NONE, BASE_NONE, NULL, 0x0,
@@ -9914,25 +9011,7 @@ proto_register_cigi(void)
                 "Specifies the entity's altitude or the distance from the parent's reference point along its parent's Z axis", HFILL }
         },
 
-#if 0
-        { &hf_cigi3_3_ig_control_host_frame_number,
-            { "Host Frame Number", "cigi.ig_control.host_frame_number",
-                FT_UINT32, BASE_DEC, NULL, 0x0,
-                "Uniquely identifies a data frame on the host", HFILL }
-        },
-        { &hf_cigi3_3_ig_control_timestamp,
-            { "Timestamp (microseconds)", "cigi.ig_control.timestamp",
-                FT_UINT32, BASE_DEC, NULL, 0x0,
-                "Indicates the number of 10 microsecond \"ticks\" since some initial reference time", HFILL }
-        },
-        { &hf_cigi3_3_ig_control_last_ig_frame_number,
-            { "IG Frame Number", "cigi.ig_control.last_ig_frame_number",
-                FT_UINT32, BASE_DEC, NULL, 0x0,
-                "Contains the value of the IG Frame Number parameter in the last Start of Frame packet received from the IG", HFILL }
-        },
-#endif
-
-           /* CIGI2 Entity Control */
+        /* CIGI2 Entity Control */
         { &hf_cigi2_entity_control,
             { "Entity Control", "cigi.entity_control",
                 FT_NONE, BASE_NONE, NULL, 0x0,
@@ -10269,7 +9348,7 @@ proto_register_cigi(void)
                 "Specifies the entity's geodetic longitude", HFILL }
         },
 
-        /* CIGI4 Conformal Clamped Entity Control */
+        /* CIGI4 Conformal Clamped Entity Position */
         { &hf_cigi4_conformal_clamped_entity_position,
             { "Conformal Clamped Entity Control", "cigi.conformal_clamped_entity_position",
                 FT_NONE, BASE_NONE, NULL, 0x0,
@@ -10398,61 +9477,6 @@ proto_register_cigi(void)
         },
 
         /* CIGI4 Component Control */
-        { &hf_cigi4_component_control,
-            { "Component Control", "cigi.component_control",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "Component Control Packet", HFILL }
-        },
-        { &hf_cigi4_component_control_component_id,
-            { "Component ID", "cigi.component_control.component_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Identifies the component to which the data in this packet should be applied", HFILL }
-        },
-        { &hf_cigi4_component_control_instance_id,
-            { "Instance ID", "cigi.component_control.instance_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Identifies the object to which the component belongs", HFILL }
-        },
-        { &hf_cigi4_component_control_component_class,
-            { "Component Class", "cigi.component_control.component_class",
-                FT_UINT8, BASE_DEC, VALS(cigi3_3_component_control_component_class_vals), 0x3f,
-                "Identifies the type of object to which the Instance ID parameter refers", HFILL }
-        },
-        { &hf_cigi4_component_control_component_state,
-            { "Component State", "cigi.component_control.component_state",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Specifies a discrete state for the component", HFILL }
-        },
-        { &hf_cigi4_component_control_data_1,
-            { "Component Data 1", "cigi.component_control.data_1",
-                FT_BYTES, BASE_NONE, NULL, 0x0,
-                "User-defined component data", HFILL }
-        },
-        { &hf_cigi4_component_control_data_2,
-            { "Component Data 2", "cigi.component_control.data_2",
-                FT_BYTES, BASE_NONE, NULL, 0x0,
-                "User-defined component data", HFILL }
-        },
-        { &hf_cigi4_component_control_data_3,
-            { "Component Data 3", "cigi.component_control.data_3",
-                FT_BYTES, BASE_NONE, NULL, 0x0,
-                "User-defined component data", HFILL }
-        },
-        { &hf_cigi4_component_control_data_4,
-            { "Component Data 4", "cigi.component_control.data_4",
-                FT_BYTES, BASE_NONE, NULL, 0x0,
-                "User-defined component data", HFILL }
-        },
-        { &hf_cigi4_component_control_data_5,
-            { "Component Data 5", "cigi.component_control.data_5",
-                FT_BYTES, BASE_NONE, NULL, 0x0,
-                "User-defined component data", HFILL }
-        },
-        { &hf_cigi4_component_control_data_6,
-            { "Component Data 6", "cigi.component_control.data_6",
-                FT_BYTES, BASE_NONE, NULL, 0x0,
-                "User-defined component data", HFILL }
-        },
 
         /* CIGI3 Short Component Control */
         { &hf_cigi3_short_component_control,
@@ -10499,41 +9523,7 @@ proto_register_cigi(void)
         },
 
         /* CIGI4 Short Component Control */
-        { &hf_cigi4_short_component_control,
-            { "Short Component Control", "cigi.short_component_control",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "Short Component Control Packet", HFILL }
-        },
-        { &hf_cigi4_short_component_control_component_id,
-            { "Component ID", "cigi.short_component_control.component_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Identifies the component to which the data in this packet should be applied", HFILL }
-        },
-        { &hf_cigi4_short_component_control_instance_id,
-            { "Instance ID", "cigi.short_component_control.instance_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Identifies the object to which the component belongs", HFILL }
-        },
-        { &hf_cigi4_short_component_control_component_class,
-            { "Component Class", "cigi.short_component_control.component_class",
-                FT_UINT8, BASE_DEC, VALS(cigi3_3_short_component_control_component_class_vals), 0x3f,
-                "Identifies the type of object to which the Instance ID parameter refers", HFILL }
-        },
-        { &hf_cigi4_short_component_control_component_state,
-            { "Component State", "cigi.short_component_control.component_state",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Specifies a discrete state for the component", HFILL }
-        },
-        { &hf_cigi4_short_component_control_data_1,
-            { "Component Data 1", "cigi.short_component_control.data_1",
-                FT_BYTES, BASE_NONE, NULL, 0x0,
-                "User-defined component data", HFILL }
-        },
-        { &hf_cigi4_short_component_control_data_2,
-            { "Component Data 2", "cigi.short_component_control.data_2",
-                FT_BYTES, BASE_NONE, NULL, 0x0,
-                "User-defined component data", HFILL }
-        },
+
         /* CIGI2 Articulated Parts Control */
         { &hf_cigi2_articulated_parts_control,
             { "Articulated Parts Control", "cigi.art_part_control",
@@ -10700,86 +9690,6 @@ proto_register_cigi(void)
 
 
         /* CIGI4 Articulated Part Control */
-        { &hf_cigi4_articulated_part_control,
-            { "Articulated Part Control", "cigi.art_part_control",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "Articulated Part Control Packet", HFILL }
-        },
-        { &hf_cigi4_articulated_part_control_entity_id,
-            { "Entity ID", "cigi.art_part_control.entity_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Specifies the entity to which the articulated part belongs", HFILL }
-        },
-        { &hf_cigi4_articulated_part_control_part_id,
-            { "Articulated Part ID", "cigi.art_part_control.part_id",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Specifies the articulated part to which the data in this packet should be applied", HFILL }
-        },
-        { &hf_cigi4_articulated_part_control_part_enable,
-            { "Articulated Part Enable", "cigi.art_part_control.part_enable",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01,
-                "Determines whether the articulated part submodel should be enabled or disabled within the scene graph", HFILL }
-        },
-        { &hf_cigi4_articulated_part_control_xoff_enable,
-            { "X Offset Enable", "cigi.art_part_control.xoff_enable",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x02,
-                "Determines whether the X Offset parameter of the current packet should be applied to the articulated part", HFILL }
-        },
-        { &hf_cigi4_articulated_part_control_yoff_enable,
-            { "Y Offset Enable", "cigi.art_part_control.yoff_enable",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x04,
-                "Determines whether the Y Offset parameter of the current packet should be applied to the articulated part", HFILL }
-        },
-        { &hf_cigi4_articulated_part_control_zoff_enable,
-            { "Z Offset Enable", "cigi.art_part_control.zoff_enable",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x08,
-                "Determines whether the Z Offset parameter of the current packet should be applied to the articulated part", HFILL }
-        },
-        { &hf_cigi4_articulated_part_control_roll_enable,
-            { "Roll Enable", "cigi.art_part_control.roll_enable",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x10,
-                "Determines whether the Roll parameter of the current packet should be applied to the articulated part", HFILL }
-        },
-        { &hf_cigi4_articulated_part_control_pitch_enable,
-            { "Pitch Enable", "cigi.art_part_control.pitch_enable",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x20,
-                "Determines whether the Pitch parameter of the current packet should be applied to the articulated part", HFILL }
-        },
-        { &hf_cigi4_articulated_part_control_yaw_enable,
-            { "Yaw Enable", "cigi.art_part_control.yaw_enable",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x40,
-                "Determines whether the Yaw parameter of the current packet should be applied to the articulated part", HFILL }
-        },
-        { &hf_cigi4_articulated_part_control_xoff,
-            { "X Offset (m)", "cigi.art_part_control.xoff",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the distance of the articulated part along its X axis", HFILL }
-        },
-        { &hf_cigi4_articulated_part_control_yoff,
-            { "Y Offset (m)", "cigi.art_part_control.yoff",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the distance of the articulated part along its Y axis", HFILL }
-        },
-        { &hf_cigi4_articulated_part_control_zoff,
-            { "Z Offset (m)", "cigi.art_part_control.zoff",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the distance of the articulated part along its Z axis", HFILL }
-        },
-        { &hf_cigi4_articulated_part_control_roll,
-            { "Roll (degrees)", "cigi.art_part_control.roll",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the angle of rotation of the articulated part submodel about its X axis after yaw and pitch have been applied", HFILL }
-        },
-        { &hf_cigi4_articulated_part_control_pitch,
-            { "Pitch (degrees)", "cigi.art_part_control.pitch",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the angle of rotation of the articulated part submodel about its Y axis after yaw has been applied", HFILL }
-        },
-        { &hf_cigi4_articulated_part_control_yaw,
-            { "Yaw (degrees)", "cigi.art_part_control.yaw",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the angle of rotation of the articulated part about its Z axis", HFILL }
-        },
 
         /* CIGI3 Short Articulated Part Control */
         { &hf_cigi3_short_articulated_part_control,
@@ -10834,60 +9744,10 @@ proto_register_cigi(void)
         },
 
         /* CIGI4 Short Articulated Part Control */
-        { &hf_cigi4_short_articulated_part_control,
-            { "Short Articulated Part Control", "cigi.short_art_part_control",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "Short Articulated Part Control Packet", HFILL }
-        },
-        { &hf_cigi4_short_articulated_part_control_entity_id,
-            { "Entity ID", "cigi.short_art_part_control.entity_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Specifies the entity to which the articulated part(s) belongs", HFILL }
-        },
-        { &hf_cigi4_short_articulated_part_control_part_id_1,
-            { "Articulated Part ID 1", "cigi.short_art_part_control.part_id_1",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Specifies an articulated part to which the data in this packet should be applied", HFILL }
-        },
         { &hf_cigi4_short_articulated_part_control_part_enable_flags,
             { "Request Flags", "cigi.short_art_part_control.flags",
                 FT_UINT8, BASE_HEX, NULL, 0x0,
                 NULL, HFILL }
-        },
-        { &hf_cigi4_short_articulated_part_control_part_id_2,
-            { "Articulated Part ID 2", "cigi.short_art_part_control.part_id_2",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Specifies an articulated part to which the data in this packet should be applied", HFILL }
-        },
-        { &hf_cigi4_short_articulated_part_control_dof_select_1,
-            { "DOF Select 1", "cigi.short_art_part_control.dof_select_1",
-                FT_UINT8, BASE_DEC, VALS(cigi4_short_articulated_part_control_dof_select_vals), 0x07,
-                "Specifies the degree of freedom to which the value of DOF 1 is applied", HFILL }
-        },
-        { &hf_cigi4_short_articulated_part_control_dof_select_2,
-            { "DOF Select 2", "cigi.short_art_part_control.dof_select_2",
-                FT_UINT8, BASE_DEC, VALS(cigi4_short_articulated_part_control_dof_select_vals), 0x38,
-                "Specifies the degree of freedom to which the value of DOF 2 is applied", HFILL }
-        },
-        { &hf_cigi4_short_articulated_part_control_part_enable_1,
-            { "Articulated Part Enable 1", "cigi.short_art_part_control.part_enable_1",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x40,
-                "Determines whether the articulated part submodel specified by Articulated Part ID 1 should be enabled or disabled within the scene graph", HFILL }
-        },
-        { &hf_cigi4_short_articulated_part_control_part_enable_2,
-            { "Articulated Part Enable 2", "cigi.short_art_part_control.part_enable_2",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x80,
-                "Determines whether the articulated part submodel specified by Articulated Part ID 2 should be enabled or disabled within the scene graph", HFILL }
-        },
-        { &hf_cigi4_short_articulated_part_control_dof_1,
-            { "DOF 1", "cigi.short_art_part_control.dof_1",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies either an offset or an angular position for the part identified by Articulated Part ID 1", HFILL }
-        },
-        { &hf_cigi4_short_articulated_part_control_dof_2,
-            { "DOF 2", "cigi.short_art_part_control.dof_2",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies either an offset or an angular position for the part identified by Articulated Part ID 2", HFILL }
         },
 
         /* CIGI2 Rate Control */
@@ -11110,68 +9970,22 @@ proto_register_cigi(void)
                 "Specifies the intensity of the star field within the sky model", HFILL }
         },
 
-
-
-        /* CIGI3 Celestial Sphere Control */
-        { &hf_cigi4_celestial_sphere_control,
-            { "Celestial Sphere Control", "cigi.celestial_sphere_control",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "Celestial Sphere Control Packet", HFILL }
-        },
-        { &hf_cigi4_celestial_sphere_control_hour,
-            { "Hour (h)", "cigi.celestial_sphere_control.hour",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Specifies the current hour of the day within the simulation", HFILL }
-        },
-        { &hf_cigi4_celestial_sphere_control_minute,
-            { "Minute (min)", "cigi.celestial_sphere_control.minute",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Specifies the current minute of the day within the simulation", HFILL }
-        },
+        /* CIGI4 Celestial Sphere Control */
         { &hf_cigi4_celestial_sphere_control_enable_flags,
             { "Flags", "cigi.rate_control.flags",
                 FT_UINT8, BASE_HEX, NULL, 0x0,
                 NULL, HFILL }
-        },
-        { &hf_cigi4_celestial_sphere_control_ephemeris_enable,
-            { "Ephemeris Model Enable", "cigi.celestial_sphere_control.ephemeris_enable",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01,
-                "Controls whether the time of day is static or continuous", HFILL }
-        },
-        { &hf_cigi4_celestial_sphere_control_sun_enable,
-            { "Sun Enable", "cigi.celestial_sphere_control.sun_enable",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x02,
-                "Specifies whether the sun is enabled in the sky model", HFILL }
-        },
-        { &hf_cigi4_celestial_sphere_control_moon_enable,
-            { "Moon Enable", "cigi.celestial_sphere_control.moon_enable",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x04,
-                "Specifies whether the moon is enabled in the sky model", HFILL }
-        },
-        { &hf_cigi4_celestial_sphere_control_star_enable,
-            { "Star Field Enable", "cigi.celestial_sphere_control.star_enable",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x08,
-                "Specifies whether the start field is enabled in the sky model", HFILL }
-        },
-        { &hf_cigi4_celestial_sphere_control_date_time_valid,
-            { "Date/Time Valid", "cigi.celestial_sphere_control.date_time_valid",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x10,
-                "Specifies whether the Hour, Minute, and Date parameters are valid", HFILL }
         },
         { &hf_cigi4_celestial_sphere_control_seconds,
             { "Second (sec)", "cigi.celestial_sphere_control.seconds",
                 FT_UINT32, BASE_DEC, NULL, 0x0,
                 "Specifies the current date within the simulation", HFILL }
         },
+        /* The CIGI4 spec shows the date in the opposite order from CIGI3. */
         { &hf_cigi4_celestial_sphere_control_date,
-            { "Date (MMDDYYYY)", "cigi.celestial_sphere_control.date",
+            { "Date (YYYYMMDD)", "cigi.celestial_sphere_control.date",
                 FT_UINT32, BASE_DEC, NULL, 0x0,
                 "Specifies the current date within the simulation", HFILL }
-        },
-        { &hf_cigi4_celestial_sphere_control_star_intensity,
-            { "Star Field Intensity (%)", "cigi.celestial_sphere_control.star_intensity",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the intensity of the star field within the sky model", HFILL }
         },
 
         /* CIGI3 Atmosphere Control */
@@ -11222,51 +10036,6 @@ proto_register_cigi(void)
         },
 
         /* CIGI4 Atmosphere Control */
-        {&hf_cigi4_atmosphere_control,
-            { "Atmosphere Control", "cigi.atmosphere_control",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "Atmosphere Control Packet", HFILL }
-        },
-        { &hf_cigi4_atmosphere_control_atmospheric_model_enable,
-            { "Atmospheric Model Enable", "cigi.atmosphere_control.atmospheric_model_enable",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01,
-                "Specifies whether the IG should use an atmospheric model to determine spectral radiances for sensor applications", HFILL }
-        },
-        { &hf_cigi4_atmosphere_control_humidity,
-            { "Global Humidity (%)", "cigi.atmosphere_control.humidity",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Specifies the global humidity of the environment", HFILL }
-        },
-        { &hf_cigi4_atmosphere_control_air_temp,
-            { "Global Air Temperature (degrees C)", "cigi.atmosphere_control.air_temp",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the global air temperature of the environment", HFILL }
-        },
-        { &hf_cigi4_atmosphere_control_visibility_range,
-            { "Global Visibility Range (m)", "cigi.atmosphere_control.visibility_range",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the global visibility range through the atmosphere", HFILL }
-        },
-        { &hf_cigi4_atmosphere_control_horiz_wind,
-            { "Global Horizontal Wind Speed (m/s)", "cigi.atmosphere_control.horiz_wind",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the global wind speed parallel to the ellipsoid-tangential reference plane", HFILL }
-        },
-        { &hf_cigi4_atmosphere_control_vert_wind,
-            { "Global Vertical Wind Speed (m/s)", "cigi.atmosphere_control.vert_wind",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the global vertical wind speed", HFILL }
-        },
-        { &hf_cigi4_atmosphere_control_wind_direction,
-            { "Global Wind Direction (degrees)", "cigi.atmosphere_control.wind_direction",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the global wind direction", HFILL }
-        },
-        { &hf_cigi4_atmosphere_control_barometric_pressure,
-            { "Global Barometric Pressure (mb or hPa)", "cigi.atmosphere_control.barometric_pressure",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the global atmospheric pressure", HFILL }
-        },
 
         /* CIGI2 Environmental Control */
         { &hf_cigi2_environment_control,
@@ -11409,76 +10178,6 @@ proto_register_cigi(void)
 
 
         /* CIGI4 Environmental Region Control */
-        { &hf_cigi4_environmental_region_control,
-            { "Environmental Region Control", "cigi.env_region_control",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "Environmental Region Control Packet", HFILL }
-        },
-        { &hf_cigi4_environmental_region_control_region_id,
-            { "Region ID", "cigi.env_region_control.region_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Specifies the environmental region to which the data in this packet will be applied", HFILL }
-        },
-        { &hf_cigi4_environmental_region_control_region_state,
-            { "Region State", "cigi.env_region_control.region_state",
-                FT_UINT8, BASE_DEC, VALS(cigi4_environmental_region_control_region_state_vals), 0x03,
-                "Specifies whether the region should be active or destroyed", HFILL }
-        },
-        { &hf_cigi4_environmental_region_control_merge_weather,
-            { "Merge Weather Properties", "cigi.env_region_control.merge_weather",
-                FT_BOOLEAN, 8, TFS(&cigi4_environmental_region_control_merge_properties_tfs), 0x04,
-                "Specifies whether atmospheric conditions within this region should be merged with those of other regions within areas of overlap", HFILL }
-        },
-        { &hf_cigi4_environmental_region_control_merge_aerosol,
-            { "Merge Aerosol Concentrations", "cigi.env_region_control.merge_aerosol",
-                FT_BOOLEAN, 8, TFS(&cigi4_environmental_region_control_merge_properties_tfs), 0x08,
-                "Specifies whether the concentrations of aerosols found within this region should be merged with those of other regions within areas of overlap", HFILL }
-        },
-        { &hf_cigi4_environmental_region_control_merge_maritime,
-            { "Merge Maritime Surface Conditions", "cigi.env_region_control.merge_maritime",
-                FT_BOOLEAN, 8, TFS(&cigi4_environmental_region_control_merge_properties_tfs), 0x10,
-                "Specifies whether the maritime surface conditions found within this region should be merged with those of other regions within areas of overlap", HFILL }
-        },
-        { &hf_cigi4_environmental_region_control_merge_terrestrial,
-            { "Merge Terrestrial Surface Conditions", "cigi.env_region_control.merge_terrestrial",
-                FT_BOOLEAN, 8, TFS(&cigi4_environmental_region_control_merge_properties_tfs), 0x20,
-                "Specifies whether the terrestrial surface conditions found within this region should be merged with those of other regions within areas of overlap", HFILL }
-        },
-        { &hf_cigi4_environmental_region_control_lat,
-            { "Latitude (degrees)", "cigi.env_region_control.lat",
-                FT_DOUBLE, BASE_NONE, NULL, 0x0,
-                "Specifies the geodetic latitude of the center of the rounded rectangle", HFILL }
-        },
-        { &hf_cigi4_environmental_region_control_lon,
-            { "Longitude (degrees)", "cigi.env_region_control.lon",
-                FT_DOUBLE, BASE_NONE, NULL, 0x0,
-                "Specifies the geodetic longitude of the center of the rounded rectangle", HFILL }
-        },
-        { &hf_cigi4_environmental_region_control_size_x,
-            { "Size X (m)", "cigi.env_region_control.size_x",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the length of the environmental region along its X axis at the geoid surface", HFILL }
-        },
-        { &hf_cigi4_environmental_region_control_size_y,
-            { "Size Y (m)", "cigi.env_region_control.size_y",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the length of the environmental region along its Y axis at the geoid surface", HFILL }
-        },
-        { &hf_cigi4_environmental_region_control_corner_radius,
-            { "Corner Radius (m)", "cigi.env_region_control.corner_radius",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the radius of the corner of the rounded rectangle", HFILL }
-        },
-        { &hf_cigi4_environmental_region_control_rotation,
-            { "Rotation (degrees)", "cigi.env_region_control.rotation",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the yaw angle of the rounded rectangle", HFILL }
-        },
-        { &hf_cigi4_environmental_region_control_transition_perimeter,
-            { "Transition Perimeter (m)", "cigi.env_region_control.transition_perimeter",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the width of the transition perimeter around the environmental region", HFILL }
-        },
 
         /* CIGI2 Weather Control */
         { &hf_cigi2_weather_control,
@@ -11681,130 +10380,15 @@ proto_register_cigi(void)
 
 
         /* CIGI4 Weather Control */
-        { &hf_cigi4_weather_control,
-            { "Weather Control", "cigi.weather_control",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "Weather Control Packet", HFILL }
-        },
-        { &hf_cigi4_weather_control_entity_region_id,
-            { "Entity ID/Region ID", "cigi.weather_control.entity_region_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Specifies the entity to which the weather attributes in this packet are applied", HFILL }
-        },
-        { &hf_cigi4_weather_control_layer_id,
-            { "Layer ID", "cigi.weather_control.layer_id",
-                FT_UINT8, BASE_DEC, VALS(cigi4_weather_control_layer_id_vals), 0x0,
-                "Specifies the weather layer to which the data in this packet are applied", HFILL }
-        },
         { &hf_cigi4_weather_control_flags,
             { "Request Flags", "cigi.weather_control.flags",
                 FT_UINT16, BASE_HEX, NULL, 0x0,
                 NULL, HFILL }
         },
-        { &hf_cigi4_weather_control_humidity,
-            { "Humidity (%)", "cigi.weather_control.humidity",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Specifies the humidity within the weather layer", HFILL }
-        },
-        { &hf_cigi4_weather_control_weather_enable,
-            { "Weather Enable", "cigi.weather_control.weather_enable",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01,
-                "Specifies whether a weather layer and its atmospheric effects are enabled", HFILL }
-        },
-        { &hf_cigi4_weather_control_scud_enable,
-            { "Scud Enable", "cigi.weather_control.scud_enable",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x02,
-                "Specifies whether weather layer produces scud effects within its transition bands", HFILL }
-        },
-        { &hf_cigi4_weather_control_random_winds_enable,
-            { "Random Winds Enable", "cigi.weather_control.random_winds_enable",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x04,
-                "Specifies whether a random frequency and duration should be applied to the local wind effects", HFILL }
-        },
-        { &hf_cigi4_weather_control_random_lightning_enable,
-            { "Random Lightning Enable", "cigi.weather_control.random_lightning_enable",
-                FT_UINT8, BASE_DEC, NULL, 0x08,
-                "Specifies whether the weather layer exhibits random lightning effects", HFILL }
-        },
-        { &hf_cigi4_weather_control_cloud_type,
-            { "Cloud Type", "cigi.weather_control.cloud_type",
-                FT_UINT8, BASE_DEC, VALS(cigi4_weather_control_cloud_type_vals), 0xf0,
-                "Specifies the type of clouds contained within the weather layer", HFILL }
-        },
-        { &hf_cigi4_weather_control_scope,
-            { "Scope", "cigi.weather_control.scope",
-                FT_UINT8, BASE_DEC, VALS(cigi4_weather_control_scope_vals), 0x03,
-                "Specifies whether the weather is global, regional, or assigned to an entity", HFILL }
-        },
-        { &hf_cigi4_weather_control_severity,
-            { "Severity", "cigi.weather_control.severity",
-                FT_UINT8, BASE_DEC, NULL, 0x1c,
-                "Specifies the severity of the weather layer", HFILL }
-        },
         { &hf_cigi4_weather_control_top_scud_enable,
             { "Top Scud Enable", "cigi.weather_control.top_scud_enable",
                 FT_UINT8, BASE_DEC, NULL, 0x20,
                 "Specifies whether the weather layer produces scud effects", HFILL }
-        },
-        { &hf_cigi4_weather_control_air_temp,
-            { "Air Temperature (degrees C)", "cigi.weather_control.air_temp",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the temperature within the weather layer", HFILL }
-        },
-        { &hf_cigi4_weather_control_visibility_range,
-            { "Visibility Range (m)", "cigi.weather_control.visibility_range",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the visibility range through the weather layer", HFILL }
-        },
-        { &hf_cigi4_weather_control_scud_frequency,
-            { "Scud Frequency (%)", "cigi.weather_control.scud_frequency",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the frequency of scud within the transition bands above and/or below a cloud or fog layer", HFILL }
-        },
-        { &hf_cigi4_weather_control_coverage,
-            { "Coverage (%)", "cigi.weather_control.coverage",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the amount of area coverage for the weather layer", HFILL }
-        },
-        { &hf_cigi4_weather_control_base_elevation,
-            { "Base Elevation (m)", "cigi.weather_control.base_elevation",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the altitude of the base of the weather layer", HFILL }
-        },
-        { &hf_cigi4_weather_control_thickness,
-            { "Thickness (m)", "cigi.weather_control.thickness",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the vertical thickness of the weather layer", HFILL }
-        },
-        { &hf_cigi4_weather_control_transition_band,
-            { "Transition Band (m)", "cigi.weather_control.transition_band",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the height of a vertical transition band both above and below the weather layer", HFILL }
-        },
-        { &hf_cigi4_weather_control_horiz_wind,
-            { "Horizontal Wind Speed (m/s)", "cigi.weather_control.horiz_wind",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the local wind speed parallel to the ellipsoid-tangential reference plane", HFILL }
-        },
-        { &hf_cigi4_weather_control_vert_wind,
-            { "Vertical Wind Speed (m/s)", "cigi.weather_control.vert_wind",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the local vertical wind speed", HFILL }
-        },
-        { &hf_cigi4_weather_control_wind_direction,
-            { "Wind Direction (degrees)", "cigi.weather_control.wind_direction",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the local wind direction", HFILL }
-        },
-        { &hf_cigi4_weather_control_barometric_pressure,
-            { "Barometric Pressure (mb or hPa)", "cigi.weather_control.barometric_pressure",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the atmospheric pressure within the weather layer", HFILL }
-        },
-        { &hf_cigi4_weather_control_aerosol_concentration,
-            { "Aerosol Concentration (g/m^3)", "cigi.weather_control.aerosol_concentration",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the concentration of water, smoke, dust, or other particles suspended in the air", HFILL }
         },
         { &hf_cigi4_weather_control_top_scud_freq,
             { "Top Scud Frequency (%)", "cigi.weather_control.top_scud_frequency",
@@ -11861,51 +10445,6 @@ proto_register_cigi(void)
 
 
         /* CIGI4 Maritime Surface Conditions Control */
-        { &hf_cigi4_maritime_surface_conditions_control,
-            { "Maritime Surface Conditions Control", "cigi.maritime_surface_conditions_control",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "Maritime Surface Conditions Control Packet", HFILL }
-        },
-        { &hf_cigi4_maritime_surface_conditions_control_wave_id,
-            { "Maritime Surface Conditions Wave ID", "cigi.maritime_surface_conditions_wave_id",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "Specifies the wave to which the attributes in this packet are applied", HFILL }
-        },
-        { &hf_cigi4_maritime_surface_conditions_control_entity_region_id,
-            { "Entity ID/Region ID", "cigi.maritime_surface_conditions_control.entity_region_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Specifies the entity to which the surface attributes in this packet are applied or specifies the region to which the surface attributes are confined", HFILL }
-        },
-        { &hf_cigi4_maritime_surface_conditions_control_surface_conditions_enable,
-            { "Surface Conditions Enable", "cigi.maritime_surface_conditions_control.surface_conditions_enable",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01,
-                "Determines the state of the specified surface conditions", HFILL }
-        },
-        { &hf_cigi4_maritime_surface_conditions_control_whitecap_enable,
-            { "Whitecap Enable", "cigi.maritime_surface_conditions_control.whitecap_enable",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x02,
-                "Determines whether whitecaps are enabled", HFILL }
-        },
-        { &hf_cigi4_maritime_surface_conditions_control_scope,
-            { "Scope", "cigi.maritime_surface_conditions_control.scope",
-                FT_UINT8, BASE_DEC, VALS(cigi4_maritime_surface_conditions_control_scope_vals), 0x0c,
-                "Specifies whether this packet is applied globally, applied to region, or assigned to an entity", HFILL }
-        },
-        { &hf_cigi4_maritime_surface_conditions_control_sea_surface_height,
-            { "Sea Surface Height (m)", "cigi.maritime_surface_conditions_control.sea_surface_height",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the height of the water above MSL at equilibrium", HFILL }
-        },
-        { &hf_cigi4_maritime_surface_conditions_control_surface_water_temp,
-            { "Surface Water Temperature (degrees C)", "cigi.maritime_surface_conditions_control.surface_water_temp",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the water temperature at the surface", HFILL }
-        },
-        { &hf_cigi4_maritime_surface_conditions_control_surface_clarity,
-            { "Surface Clarity (%)", "cigi.maritime_surface_conditions_control.surface_clarity",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the clarity of the water at its surface", HFILL }
-        },
 
         /* CIGI3 Wave Control */
         { &hf_cigi3_wave_control,
@@ -11970,68 +10509,8 @@ proto_register_cigi(void)
         },
 
         /* CIGI4 Wave Control */
-        { &hf_cigi4_wave_control,
-            { "Wave Control", "cigi.wave_control",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "Wave Control Packet", HFILL }
-        },
-        { &hf_cigi4_wave_control_entity_region_id,
-            { "Entity ID/Region ID", "cigi.wave_control.entity_region_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Specifies the surface entity for which the wave is defined or specifies the environmental region for which the wave is defined", HFILL }
-        },
-        { &hf_cigi4_wave_control_wave_id,
-            { "Wave ID", "cigi.wave_control.wave_id",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Specifies the wave to which the attributes in this packet are applied", HFILL }
-        },
-        { &hf_cigi4_wave_control_wave_enable,
-            { "Wave Enable", "cigi.wave_control.wave_enable",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01,
-                "Determines whether the wave is enabled or disabled", HFILL }
-        },
-        { &hf_cigi4_wave_control_scope,
-            { "Scope", "cigi.wave_control.scope",
-                FT_UINT8, BASE_DEC, VALS(cigi4_wave_control_scope_vals), 0x06,
-                "Specifies whether the wave is defined for global, regional, or entity-controlled maritime surface conditions", HFILL }
-        },
-        { &hf_cigi4_wave_control_breaker_type,
-            { "Breaker Type", "cigi.wave_control.breaker_type",
-                FT_UINT8, BASE_DEC, VALS(cigi4_wave_control_breaker_type_vals), 0x18,
-                "Specifies the type of breaker within the surf zone", HFILL }
-        },
-        { &hf_cigi4_wave_control_height,
-            { "Wave Height (m)", "cigi.wave_control.height",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the average vertical distance from trough to crest produced by the wave", HFILL }
-        },
-        { &hf_cigi4_wave_control_wavelength,
-            { "Wavelength (m)", "cigi.wave_control.wavelength",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the distance from a particular phase on a wave to the same phase on an adjacent wave", HFILL }
-        },
-        { &hf_cigi4_wave_control_period,
-            { "Period (s)", "cigi.wave_control.period",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the time required for one complete oscillation of the wave", HFILL }
-        },
-        { &hf_cigi4_wave_control_direction,
-            { "Direction (degrees)", "cigi.wave_control.direction",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the direction in which the wave propagates", HFILL }
-        },
-        { &hf_cigi4_wave_control_phase_offset,
-            { "Phase Offset (degrees)", "cigi.wave_control.phase_offset",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies a phase offset for the wave", HFILL }
-        },
-        { &hf_cigi4_wave_control_leading,
-            { "Leading (degrees)", "cigi.wave_control.leading",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the phase angle at which the crest occurs", HFILL }
-        },
 
-        /* Terrestrial Surface Conditions Control */
+        /* CIGI3 Terrestrial Surface Conditions Control */
         { &hf_cigi3_terrestrial_surface_conditions_control,
             { "Terrestrial Surface Conditions Control", "cigi.terrestrial_surface_conditions_control",
                 FT_NONE, BASE_NONE, NULL, 0x0,
@@ -12068,49 +10547,7 @@ proto_register_cigi(void)
                 "Determines the degree of coverage of the specified surface contaminant", HFILL }
         },
 
-
-        /* Terrestrial Surface Conditions Control */
-        { &hf_cigi4_terrestrial_surface_conditions_control,
-            { "Terrestrial Surface Conditions Control", "cigi.terrestrial_surface_conditions_control",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "Terrestrial Surface Conditions Control Packet", HFILL }
-        },
-        { &hf_cigi4_terrestrial_surface_conditions_control_entity_region_id,
-            { "Entity ID/Region ID", "cigi.terrestrial_surface_conditions_control.entity_region_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Specifies the environmental entity to which the surface condition attributes in this packet are applied", HFILL }
-        },
-        { &hf_cigi4_terrestrial_surface_conditions_control_surface_condition_id,
-            { "Surface Condition ID", "cigi.terrestrial_surface_conditions_control.surface_condition_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Identifies a surface condition or contaminant", HFILL }
-        },
-        { &hf_cigi4_terrestrial_surface_conditions_control_surface_condition_enable,
-            { "Surface Condition Enable", "cigi.terrestrial_surface_conditions_control.surface_condition_enable",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01,
-                "Specifies whether the surface condition attribute identified by the Surface Condition ID parameter should be enabled", HFILL }
-        },
-        { &hf_cigi4_terrestrial_surface_conditions_control_scope,
-            { "Scope", "cigi.terrestrial_surface_conditions_control.scope",
-                FT_UINT8, BASE_DEC, VALS(cigi4_terrestrial_surface_conditions_control_scope_vals), 0x06,
-                "Determines whether the specified surface conditions are applied globally, regionally, or to an environmental entity", HFILL }
-        },
-        { &hf_cigi4_terrestrial_surface_conditions_control_severity,
-            { "Severity (0-31)", "cigi.terrestrial_surface_conditions_control.severity",
-                FT_UINT8, BASE_DEC, NULL, 0xf8,
-                "determines the degree of severity for the specified surface contaminant(s)", HFILL }
-        },
-        { &hf_cigi4_terrestrial_surface_conditions_control_coverage,
-            { "Coverage (%)", "cigi.terrestrial_surface_conditions_control.coverage",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Determines the degree of coverage for the specified surface contaminant(s)", HFILL }
-        },
-        { &hf_cigi4_terrestrial_surface_conditions_control_condition_id,
-            { "Condition ID", "cigi.terrestrial_surface_conditions_control.condition_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Determines a surface condition or contaminant", HFILL }
-        },
-
+        /* CIGI4 Terrestrial Surface Conditions Control */
 
         /* CIGI2 View Control */
         { &hf_cigi2_view_control,
@@ -12278,90 +10715,10 @@ proto_register_cigi(void)
 
 
         /* CIGI4 View Control */
-        { &hf_cigi4_view_control,
-            { "View Control", "cigi.view_control",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "View Control Packet", HFILL }
-        },
-        { &hf_cigi4_view_control_view_id,
-            { "View ID", "cigi.view_control.view_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Specifies the view to which the contents of this packet should be applied", HFILL }
-        },
-        { &hf_cigi4_view_control_group_id,
-            { "Group ID", "cigi.view_control.group_id",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Specifies the view group to which the contents of this packet are applied", HFILL }
-        },
         { &hf_cigi4_view_control_enable_flags,
             { "Request Flags", "cigi.view_control.flags",
                 FT_UINT8, BASE_HEX, NULL, 0x0,
                 NULL, HFILL }
-        },
-        { &hf_cigi4_view_control_xoff_enable,
-            { "X Offset Enable", "cigi.view_control.xoff_enable",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01,
-                "Determines whether the X Offset parameter should be applied to the specified view or view group", HFILL }
-        },
-        { &hf_cigi4_view_control_yoff_enable,
-            { "Y Offset Enable", "cigi.view_control.yoff_enable",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x02,
-                "Determines whether the Y Offset parameter should be applied to the specified view or view group", HFILL }
-        },
-        { &hf_cigi4_view_control_zoff_enable,
-            { "Z Offset Enable", "cigi.view_control.zoff_enable",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x04,
-                "Determines whether the Z Offset parameter should be applied to the specified view or view group", HFILL }
-        },
-        { &hf_cigi4_view_control_roll_enable,
-            { "Roll Enable", "cigi.view_control.roll_enable",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x08,
-                "Determines whether the Roll parameter should be applied to the specified view or view group", HFILL }
-        },
-        { &hf_cigi4_view_control_pitch_enable,
-            { "Pitch Enable", "cigi.view_control.pitch_enable",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x10,
-                "Determines whether the Pitch parameter should be applied to the specified view or view group", HFILL }
-        },
-        { &hf_cigi4_view_control_yaw_enable,
-            { "Yaw Enable", "cigi.view_control.yaw_enable",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x20,
-                "Determines whether the Yaw parameter should be applied to the specified view or view group", HFILL }
-        },
-        { &hf_cigi4_view_control_entity_id,
-            { "Entity ID", "cigi.view_control.entity_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Specifies the entity to which the view or view group should be attached", HFILL }
-        },
-        { &hf_cigi4_view_control_xoff,
-            { "X Offset (m)", "cigi.view_control.xoff",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the position of the view eyepoint along the X axis of the entity specified by the Entity ID parameter", HFILL }
-        },
-        { &hf_cigi4_view_control_yoff,
-            { "Y Offset (m)", "cigi.view_control.yoff",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the position of the view eyepoint along the Y axis of the entity specified by the Entity ID parameter", HFILL }
-        },
-        { &hf_cigi4_view_control_zoff,
-            { "Z Offset (m)", "cigi.view_control.zoff",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the position of the view eyepoint along the Z axis of the entity specified by the Entity ID parameter", HFILL }
-        },
-        { &hf_cigi4_view_control_roll,
-            { "Roll (degrees)", "cigi.view_control.roll",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the angle of rotation of the view or view group about its X axis after yaw and pitch have been applied", HFILL }
-        },
-        { &hf_cigi4_view_control_pitch,
-            { "Pitch (degrees)", "cigi.view_control.pitch",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the angle of rotation of the view or view group about its Y axis after yaw has been applied", HFILL }
-        },
-        { &hf_cigi4_view_control_yaw,
-            { "Yaw (degrees)", "cigi.view_control.yaw",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the angle of rotation of the view or view group about its Z axis", HFILL }
         },
 
         /* CIGI2 Sensor Control */
@@ -12505,76 +10862,6 @@ proto_register_cigi(void)
 
 
         /* CIGI4 Sensor Control */
-        { &hf_cigi4_sensor_control,
-            { "Sensor Control", "cigi.sensor_control",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "Sensor Control Packet", HFILL }
-        },
-        { &hf_cigi4_sensor_control_view_id,
-            { "View ID", "cigi.sensor_control.view_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Identifies the view to which the specified sensor is assigned", HFILL }
-        },
-        { &hf_cigi4_sensor_control_sensor_id,
-            { "Sensor ID", "cigi.sensor_control.sensor_id",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Specifies the sensor to which the data in this packet are applied", HFILL }
-        },
-        { &hf_cigi4_sensor_control_sensor_on_off,
-            { "Sensor On/Off", "cigi.sensor_control.sensor_on_off",
-                FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x01,
-                "Specifies whether the sensor is turned on or off", HFILL }
-        },
-        { &hf_cigi4_sensor_control_polarity,
-            { "Polarity", "cigi.sensor_control.polarity",
-                FT_BOOLEAN, 8, TFS(&cigi4_sensor_control_polarity_tfs), 0x02,
-                "Specifies whether the sensor shows white hot or black hot", HFILL }
-        },
-        { &hf_cigi4_sensor_control_line_dropout_enable,
-            { "Line-by-Line Dropout Enable", "cigi.sensor_control.line_dropout_enable",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x04,
-                "Specifies whether line-by-line dropout is enabled", HFILL }
-        },
-        { &hf_cigi4_sensor_control_auto_gain,
-            { "Automatic Gain", "cigi.sensor_control.auto_gain",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x08,
-                "Specifies whether the sensor automatically adjusts the gain value to optimize the brightness and contrast of the sensor display", HFILL }
-        },
-        { &hf_cigi4_sensor_control_track_white_black,
-            { "Track White/Black", "cigi.sensor_control.track_white_black",
-                FT_BOOLEAN, 8, TFS(&black_white_tfs), 0x10,
-                "Specifies whether the sensor tracks white or black", HFILL }
-        },
-        { &hf_cigi4_sensor_control_track_mode,
-            { "Track Mode", "cigi.sensor_control.track_mode",
-                FT_UINT8, BASE_DEC, VALS(cigi4_sensor_control_track_mode_vals), 0xe0,
-                "Specifies which track mode the sensor should use", HFILL }
-        },
-        { &hf_cigi4_sensor_control_response_type,
-            { "Response Type", "cigi.sensor_control.response_type",
-                FT_BOOLEAN, 8, TFS(&extended_normal_tfs), 0x01,
-                "Specifies whether the IG should return a Sensor Response packet or a Sensor Extended Response packet", HFILL }
-        },
-        { &hf_cigi4_sensor_control_gain,
-            { "Gain", "cigi.sensor_control.gain",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the contrast for the sensor display", HFILL }
-        },
-        { &hf_cigi4_sensor_control_level,
-            { "Level", "cigi.sensor_control.level",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the brightness for the sensor display", HFILL }
-        },
-        { &hf_cigi4_sensor_control_ac_coupling,
-            { "AC Coupling (microseconds)", "cigi.sensor_control.ac_coupling",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the AC coupling decay constant for the sensor display", HFILL }
-        },
-        { &hf_cigi4_sensor_control_noise,
-            { "Noise", "cigi.sensor_control.noise",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the amount of detector noise for the sensor", HFILL }
-        },
 
         /* CIGI3 Motion Tracker Control */
         { &hf_cigi3_motion_tracker_control,
@@ -12639,66 +10926,6 @@ proto_register_cigi(void)
         },
 
         /* CIGI4 Motion Tracker Control */
-        { &hf_cigi4_motion_tracker_control,
-            { "Motion Tracker Control", "cigi.motion_tracker_control",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "Motion Tracker Control Packet", HFILL }
-        },
-        { &hf_cigi4_motion_tracker_control_view_group_id,
-            { "View/View Group ID", "cigi.motion_tracker_control.view_group_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Specifies the view or view group to which the tracking device is attached", HFILL }
-        },
-        { &hf_cigi4_motion_tracker_control_tracker_id,
-            { "Tracker ID", "cigi.motion_tracker_control.tracker_id",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Specifies the tracker whose state the data in this packet represents", HFILL }
-        },
-        { &hf_cigi4_motion_tracker_control_tracker_enable,
-            { "Tracker Enable", "cigi.motion_tracker_control.tracker_enable",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01,
-                "Specifies whether the tracking device is enabled", HFILL }
-        },
-        { &hf_cigi4_motion_tracker_control_boresight_enable,
-            { "Boresight Enable", "cigi.motion_tracker_control.boresight_enable",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x02,
-                "Sets the boresight state of the external tracking device", HFILL }
-        },
-        { &hf_cigi4_motion_tracker_control_x_enable,
-            { "X Enable", "cigi.motion_tracker_control.x_enable",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x04,
-                "Used to enable or disable the X-axis position of the motion tracker", HFILL }
-        },
-        { &hf_cigi4_motion_tracker_control_y_enable,
-            { "Y Enable", "cigi.motion_tracker_control.y_enable",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x08,
-                "Used to enable or disable the Y-axis position of the motion tracker", HFILL }
-        },
-        { &hf_cigi4_motion_tracker_control_z_enable,
-            { "Z Enable", "cigi.motion_tracker_control.z_enable",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x10,
-                "Used to enable or disable the Z-axis position of the motion tracker", HFILL }
-        },
-        { &hf_cigi4_motion_tracker_control_roll_enable,
-            { "Roll Enable", "cigi.motion_tracker_control.roll_enable",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x20,
-                "Used to enable or disable the roll of the motion tracker", HFILL }
-        },
-        { &hf_cigi4_motion_tracker_control_pitch_enable,
-            { "Pitch Enable", "cigi.motion_tracker_control.pitch_enable",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x40,
-                "Used to enable or disable the pitch of the motion tracker", HFILL }
-        },
-        { &hf_cigi4_motion_tracker_control_yaw_enable,
-            { "Yaw Enable", "cigi.motion_tracker_control.yaw_enable",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x80,
-                "Used to enable or disable the yaw of the motion tracker", HFILL }
-        },
-        { &hf_cigi4_motion_tracker_control_view_group_select,
-            { "View/View Group Select", "cigi.motion_tracker_control.view_group_select",
-                FT_BOOLEAN, 8, TFS(&cigi4_motion_tracker_control_view_group_select_tfs), 0x01,
-                "Specifies whether the tracking device is attached to a single view or a view group", HFILL }
-        },
 
         /* CIGI3 Earth Reference Model Definition */
         { &hf_cigi3_earth_reference_model_definition,
@@ -12723,26 +10950,6 @@ proto_register_cigi(void)
         },
 
         /* CIGI4 Earth Reference Model Definition */
-        { &hf_cigi4_earth_reference_model_definition,
-            { "Earth Reference Model Definition", "cigi.earth_ref_model_def",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "Earth Reference Model Definition Packet", HFILL }
-        },
-        { &hf_cigi4_earth_reference_model_definition_erm_enable,
-            { "Custom ERM Enable", "cigi.earth_ref_model_def.erm_enable",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01,
-                "Specifies whether the IG should use the Earth Reference Model defined by this packet", HFILL }
-        },
-        { &hf_cigi4_earth_reference_model_definition_equatorial_radius,
-            { "Equatorial Radius (m)", "cigi.earth_ref_model_def.equatorial_radius",
-                FT_DOUBLE, BASE_NONE, NULL, 0x0,
-                "Specifies the semi-major axis of the ellipsoid", HFILL }
-        },
-        { &hf_cigi4_earth_reference_model_definition_flattening,
-            { "Flattening (m)", "cigi.earth_ref_model_def.flattening",
-                FT_DOUBLE, BASE_NONE, NULL, 0x0,
-                "Specifies the flattening of the ellipsoid", HFILL }
-        },
 
         /* CIGI2 Trajectory Definition */
         { &hf_cigi2_trajectory_definition,
@@ -12808,7 +11015,6 @@ proto_register_cigi(void)
                 "Specifies the maximum velocity the entity can sustain", HFILL }
         },
 
-
         /* CIGI4 Acceleration Control */
         { &hf_cigi4_acceleration_control,
             { "Trajectory Definition", "cigi.acceleration_control",
@@ -12820,13 +11026,11 @@ proto_register_cigi(void)
                 FT_UINT16, BASE_DEC, NULL, 0x0,
                 "Identifies the entity for which the trajectory is defined", HFILL }
         },
-
         { &hf_cigi4_acceleration_control_articulated_part_id,
             { "Articulated Part ID", "cigi.acceleration_control.part_id",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
                 "Specifies the articulated part to which the acceleration may be applied", HFILL }
         },
-
         { &hf_cigi4_acceleration_control_apply_to_part,
             { "Apply to Articulated Part", "cigi.acceleration_control.apply_to_part",
                 FT_BOOLEAN, 8, NULL, 0x01,
@@ -12837,7 +11041,6 @@ proto_register_cigi(void)
                 FT_BOOLEAN, 8, TFS(&local_worldparent_tfs), 0x02,
                 "Indicates the reference coordinate system to which the linear and angular accelerations may be applied", HFILL }
         },
-
         { &hf_cigi4_acceleration_control_acceleration_x,
             { "Acceleration X (m/s^2)", "cigi.acceleration_control.acceleration_x",
                 FT_FLOAT, BASE_NONE, NULL, 0x0,
@@ -12868,6 +11071,7 @@ proto_register_cigi(void)
                 FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the angle of rotation of the articulated part submodel about its Z axis after yaw and pitch have been applied", HFILL }
         },
+
         /* CIGI2 Special Effect Definition */
         { &hf_cigi2_special_effect_definition,
             { "Special Effect Definition", "cigi.special_effect_def",
@@ -13149,108 +11353,7 @@ proto_register_cigi(void)
                 "Specifies the bottom half-angle of the view frustum", HFILL }
         },
 
-
         /* CIGI4 View Definition */
-        { &hf_cigi4_view_definition,
-            { "View Definition", "cigi.view_def",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "View Definition Packet", HFILL }
-        },
-        { &hf_cigi4_view_definition_view_id,
-            { "View ID", "cigi.view_def.view_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Specifies the view to which the data in this packet will be applied", HFILL }
-        },
-        { &hf_cigi4_view_definition_group_id,
-            { "Group ID", "cigi.view_def.group_id",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Specifies the group to which the view is to be assigned", HFILL }
-        },
-        { &hf_cigi4_view_definition_near_enable,
-            { "Near Enable", "cigi.view_def.near_enable",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01,
-                "Specifies whether the near clipping plane will be set to the value of the Near parameter within this packet", HFILL }
-        },
-        { &hf_cigi4_view_definition_far_enable,
-            { "Far Enable", "cigi.view_def.far_enable",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x02,
-                "Specifies whether the far clipping plane will be set to the value of the Far parameter within this packet", HFILL }
-        },
-        { &hf_cigi4_view_definition_left_enable,
-            { "Left Enable", "cigi.view_def.left_enable",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x04,
-                "Specifies whether the left half-angle of the view frustum will be set according to the value of the Left parameter within this packet", HFILL }
-        },
-        { &hf_cigi4_view_definition_right_enable,
-            { "Right Enable", "cigi.view_def.right_enable",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x08,
-                "Specifies whether the right half-angle of the view frustum will be set according to the value of the Right parameter within this packet", HFILL }
-        },
-        { &hf_cigi4_view_definition_top_enable,
-            { "Top Enable", "cigi.view_def.top_enable",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x10,
-                "Specifies whether the top half-angle of the view frustum will be set according to the value of the Top parameter within this packet", HFILL }
-        },
-        { &hf_cigi4_view_definition_bottom_enable,
-            { "Bottom Enable", "cigi.view_def.bottom_enable",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x20,
-                "Specifies whether the bottom half-angle of the view frustum will be set according to the value of the Bottom parameter within this packet", HFILL }
-        },
-        { &hf_cigi4_view_definition_mirror_mode,
-            { "Mirror Mode", "cigi.view_def.mirror_mode",
-                FT_UINT8, BASE_DEC, VALS(cigi4_view_definition_mirror_mode_vals), 0xc0,
-                "Specifies the mirroring function to be performed on the view", HFILL }
-        },
-        { &hf_cigi4_view_definition_pixel_replication,
-            { "Pixel Replication Mode", "cigi.view_def.pixel_replication",
-                FT_UINT8, BASE_DEC, VALS(cigi4_view_definition_pixel_replication_vals), 0x07,
-                "Specifies the pixel replication function to be performed on the view", HFILL }
-        },
-        { &hf_cigi4_view_definition_projection_type,
-            { "Projection Type", "cigi.view_def.projection_type",
-                FT_BOOLEAN, 8, TFS(&cigi4_view_definition_projection_type_tfs), 0x08,
-                "Specifies whether the view projection should be perspective or orthographic parallel", HFILL }
-        },
-        { &hf_cigi4_view_definition_reorder,
-            { "Reorder", "cigi.view_def.reorder",
-                FT_BOOLEAN, 8, TFS(&cigi4_view_definition_reorder_tfs), 0x10,
-                "Specifies whether the view should be moved to the top of any overlapping views", HFILL }
-        },
-        { &hf_cigi4_view_definition_view_type,
-            { "View Type", "cigi.view_def.view_type",
-                FT_UINT8, BASE_DEC, NULL, 0xe0,
-                "Specifies an IG-defined type for the indicated view", HFILL }
-        },
-        { &hf_cigi4_view_definition_near,
-            { "Near (m)", "cigi.view_def.near",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the position of the view's near clipping plane", HFILL }
-        },
-        { &hf_cigi4_view_definition_far,
-            { "Far (m)", "cigi.view_def.far",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the position of the view's far clipping plane", HFILL }
-        },
-        { &hf_cigi4_view_definition_left,
-            { "Left (degrees)", "cigi.view_def.left",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the left half-angle of the view frustum", HFILL }
-        },
-        { &hf_cigi4_view_definition_right,
-            { "Right (degrees)", "cigi.view_def.right",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the right half-angle of the view frustum", HFILL }
-        },
-        { &hf_cigi4_view_definition_top,
-            { "Top (degrees)", "cigi.view_def.top",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the top half-angle of the view frustum", HFILL }
-        },
-        { &hf_cigi4_view_definition_bottom,
-            { "Bottom (degrees)", "cigi.view_def.bottom",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the bottom half-angle of the view frustum", HFILL }
-        },
 
         /* CIGI2 Collision Detection Segment Definition */
         { &hf_cigi2_collision_detection_segment_definition,
@@ -13366,63 +11469,7 @@ proto_register_cigi(void)
                 "Specifies the environmental and cultural features to be included in or excluded from consideration for collision testing", HFILL }
         },
 
-
         /* CIGI4 Collision Detection Segment Definition */
-        { &hf_cigi4_collision_detection_segment_definition,
-            { "Collision Detection Segment Definition", "cigi.coll_det_seg_def",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "Collision Detection Segment Definition Packet", HFILL }
-        },
-        { &hf_cigi4_collision_detection_segment_definition_entity_id,
-            { "Entity ID", "cigi.coll_det_seg_def.entity_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Specifies the entity for which the segment is defined", HFILL }
-        },
-        { &hf_cigi4_collision_detection_segment_definition_segment_id,
-            { "Segment ID", "cigi.coll_det_seg_def.segment_id",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Specifies the ID of the segment", HFILL }
-        },
-        { &hf_cigi4_collision_detection_segment_definition_segment_enable,
-            { "Segment Enable", "cigi.coll_det_seg_def.segment_enable",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01,
-                "Specifies whether the segment is enabled or disabled", HFILL }
-        },
-        { &hf_cigi4_collision_detection_segment_definition_x1,
-            { "X1 (m)", "cigi.coll_det_seg_def.x1",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the X offset of one endpoint of the collision segment", HFILL }
-        },
-        { &hf_cigi4_collision_detection_segment_definition_y1,
-            { "Y1 (m)", "cigi.coll_det_seg_def.y1",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the Y offset of one endpoint of the collision segment", HFILL }
-        },
-        { &hf_cigi4_collision_detection_segment_definition_z1,
-            { "Z1 (m)", "cigi.coll_det_seg_def.z1",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the Z offset of one endpoint of the collision segment", HFILL }
-        },
-        { &hf_cigi4_collision_detection_segment_definition_x2,
-            { "X2 (m)", "cigi.coll_det_seg_def.x2",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the X offset of one endpoint of the collision segment", HFILL }
-        },
-        { &hf_cigi4_collision_detection_segment_definition_y2,
-            { "Y2 (m)", "cigi.coll_det_seg_def.y2",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the Y offset of one endpoint of the collision segment", HFILL }
-        },
-        { &hf_cigi4_collision_detection_segment_definition_z2,
-            { "Z2 (m)", "cigi.coll_det_seg_def.z2",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the Z offset of one endpoint of the collision segment", HFILL }
-        },
-        { &hf_cigi4_collision_detection_segment_definition_material_mask,
-            { "Material Mask", "cigi.coll_det_seg_def.material_mask",
-                FT_UINT32, BASE_DEC, NULL, 0x0,
-                "Specifies the environmental and cultural features to be included in or excluded from consideration for collision testing", HFILL }
-        },
 
         /* CIGI2 Collision Detection Volume Definition */
         { &hf_cigi2_collision_detection_volume_definition,
@@ -13548,78 +11595,7 @@ proto_register_cigi(void)
                 "Specifies the yaw of the cuboid with respect to the entity's coordinate system", HFILL }
         },
 
-
         /* CIGI4 Collision Detection Volume Definition */
-        { &hf_cigi4_collision_detection_volume_definition,
-            { "Collision Detection Volume Definition", "cigi.coll_det_vol_def",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "Collision Detection Volume Definition Packet", HFILL }
-        },
-        { &hf_cigi4_collision_detection_volume_definition_entity_id,
-            { "Entity ID", "cigi.coll_det_vol_def.entity_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Specifies the entity for which the volume is defined", HFILL }
-        },
-        { &hf_cigi4_collision_detection_volume_definition_volume_id,
-            { "Volume ID", "cigi.coll_det_vol_def.volume_id",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Specifies the ID of the volume", HFILL }
-        },
-        { &hf_cigi4_collision_detection_volume_definition_volume_enable,
-            { "Volume Enable", "cigi.coll_det_vol_def.volume_enable",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01,
-                "Specifies whether the volume is enabled or disabled", HFILL }
-        },
-        { &hf_cigi4_collision_detection_volume_definition_volume_type,
-            { "Volume Type", "cigi.coll_det_vol_def.volume_type",
-                FT_BOOLEAN, 8, TFS(&cigi4_collision_detection_volume_definition_volume_type_tfs), 0x02,
-                "Specified whether the volume is spherical or cuboid", HFILL }
-        },
-        { &hf_cigi4_collision_detection_volume_definition_x,
-            { "X (m)", "cigi.coll_det_vol_def.x",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the X offset of the center of the volume", HFILL }
-        },
-        { &hf_cigi4_collision_detection_volume_definition_y,
-            { "Y (m)", "cigi.coll_det_vol_def.y",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the Y offset of the center of the volume", HFILL }
-        },
-        { &hf_cigi4_collision_detection_volume_definition_z,
-            { "Z (m)", "cigi.coll_det_vol_def.z",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the Z offset of the center of the volume", HFILL }
-        },
-        { &hf_cigi4_collision_detection_volume_definition_radius_height,
-            { "Radius (m)/Height (m)", "cigi.coll_det_vol_def.radius_height",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the radius of the sphere or specifies the length of the cuboid along its Z axis", HFILL }
-        },
-        { &hf_cigi4_collision_detection_volume_definition_width,
-            { "Width (m)", "cigi.coll_det_vol_def.width",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the length of the cuboid along its Y axis", HFILL }
-        },
-        { &hf_cigi4_collision_detection_volume_definition_depth,
-            { "Depth (m)", "cigi.coll_det_vol_def.depth",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the length of the cuboid along its X axis", HFILL }
-        },
-        { &hf_cigi4_collision_detection_volume_definition_roll,
-            { "Roll (degrees)", "cigi.coll_det_vol_def.roll",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the roll of the cuboid with respect to the entity's coordinate system", HFILL }
-        },
-        { &hf_cigi4_collision_detection_volume_definition_pitch,
-            { "Pitch (degrees)", "cigi.coll_det_vol_def.pitch",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the pitch of the cuboid with respect to the entity's coordinate system", HFILL }
-        },
-        { &hf_cigi4_collision_detection_volume_definition_yaw,
-            { "Yaw (degrees)", "cigi.coll_det_vol_def.yaw",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the yaw of the cuboid with respect to the entity's coordinate system", HFILL }
-        },
 
         /* CIGI2 Height Above Terrain Request */
         { &hf_cigi2_height_above_terrain_request,
@@ -13809,57 +11785,11 @@ proto_register_cigi(void)
         },
 
         /* CIGI4 HAT/HOT Request */
-        { &hf_cigi4_hat_hot_request,
-            { "HAT/HOT Request", "cigi.hat_hot_request",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "HAT/HOT Request Packet", HFILL }
-        },
-        { &hf_cigi4_hat_hot_request_hat_hot_id,
-            { "HAT/HOT ID", "cigi.hat_hot_request.hat_hot_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Identifies the HAT/HOT request", HFILL }
-        },
         { &hf_cigi4_hat_hot_request_flags,
             { "Request Flags", "cigi.hat_hot_request.flags",
                 FT_UINT8, BASE_HEX, NULL, 0x0,
                 NULL, HFILL }
         },
-        { &hf_cigi4_hat_hot_request_type,
-            { "Request Type", "cigi.hat_hot_request.type",
-                FT_UINT8, BASE_DEC, VALS(cigi4_hat_hot_request_type_vals), 0x03,
-                "Determines the type of response packet the IG should return for this packet", HFILL }
-        },
-        { &hf_cigi4_hat_hot_request_coordinate_system,
-            { "Coordinate System", "cigi.hat_hot_request.coordinate_system",
-                FT_BOOLEAN, 8, TFS(&entity_geodetic_tfs), 0x04,
-                "Specifies the coordinate system within which the test point is defined", HFILL }
-        },
-        { &hf_cigi4_hat_hot_request_update_period,
-            { "Update Period", "cigi.hat_hot_request.update_period",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Specifies interval between successive responses to this request. A zero indicates one responses a value n > 0 the IG should respond every nth frame", HFILL }
-        },
-        { &hf_cigi4_hat_hot_request_entity_id,
-            { "Entity ID", "cigi.hat_hot_request.entity_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Specifies the entity relative to which the test point is defined", HFILL }
-        },
-        { &hf_cigi4_hat_hot_request_lat_xoff,
-            { "Latitude (degrees)/X Offset (m)", "cigi.hat_hot_request.lat_xoff",
-                FT_DOUBLE, BASE_NONE, NULL, 0x0,
-                "Specifies the latitude from which the HAT/HOT request is being made or specifies the X offset of the point from which the HAT/HOT request is being made", HFILL }
-        },
-        { &hf_cigi4_hat_hot_request_lon_yoff,
-            { "Longitude (degrees)/Y Offset (m)", "cigi.hat_hot_request.lon_yoff",
-                FT_DOUBLE, BASE_NONE, NULL, 0x0,
-                "Specifies the longitude from which the HAT/HOT request is being made or specifies the Y offset of the point from which the HAT/HOT request is being made", HFILL }
-        },
-        { &hf_cigi4_hat_hot_request_alt_zoff,
-            { "Altitude (m)/Z Offset (m)", "cigi.hat_hot_request.alt_zoff",
-                FT_DOUBLE, BASE_NONE, NULL, 0x0,
-                "Specifies the altitude from which the HAT/HOT request is being made or specifies the Z offset of the point from which the HAT/HOT request is being made", HFILL }
-        },
-
 
         /* CIGI3 Line of Sight Segment Request */
         { &hf_cigi3_line_of_sight_segment_request,
@@ -13897,8 +11827,8 @@ proto_register_cigi(void)
                 FT_UINT8, BASE_DEC, NULL, 0x0,
                 "Specifies the minimum alpha value a surface may have for an LOS response to be generated", HFILL }
         },
-        { &hf_cigi3_line_of_sight_segment_request_entity_id,
-            { "Entity ID", "cigi.los_segment_request.entity_id",
+        { &hf_cigi3_line_of_sight_segment_request_source_entity_id,
+            { "Source Entity ID", "cigi.los_segment_request.source_entity_id",
                 FT_UINT16, BASE_DEC, NULL, 0x0,
                 "Specifies the entity relative to which the test segment endpoints are defined", HFILL }
         },
@@ -13956,96 +11886,6 @@ proto_register_cigi(void)
         },
 
         /* CIGI4 Line of Sight Segment Request */
-        { &hf_cigi4_line_of_sight_segment_request,
-            { "Line of Sight Segment Request", "cigi.los_segment_request",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "Line of Sight Segment Request Packet", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_segment_request_los_id,
-            { "LOS ID", "cigi.los_segment_request.los_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Identifies the LOS request", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_segment_request_type,
-            { "Request Type", "cigi.los_segment_request.type",
-                FT_BOOLEAN, 8, TFS(&extended_normal_tfs), 0x01,
-                "Determines what type of response the IG should return for this request", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_segment_request_source_coord,
-            { "Source Point Coordinate System", "cigi.los_segment_request.source_coord",
-                FT_BOOLEAN, 8, TFS(&entity_geodetic_tfs), 0x02,
-                "Indicates the coordinate system relative to which the test segment source endpoint is specified", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_segment_request_destination_coord,
-            { "Destination Point Coordinate System", "cigi.los_segment_request.destination_coord",
-                FT_BOOLEAN, 8, TFS(&entity_geodetic_tfs), 0x04,
-                "Indicates the coordinate system relative to which the test segment destination endpoint is specified", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_segment_request_response_coord,
-            { "Response Coordinate System", "cigi.los_segment_request.response_coord",
-                FT_BOOLEAN, 8, TFS(&entity_geodetic_tfs), 0x08,
-                "Specifies the coordinate system to be used in the response", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_segment_request_destination_entity_id_valid,
-            { "Destination Entity ID Valid", "cigi.los_segment_request.destination_entity_id_valid",
-                FT_BOOLEAN, 8, TFS(&tfs_valid_invalid), 0x10,
-                "Destination Entity ID is valid.", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_segment_request_alpha_threshold,
-            { "Alpha Threshold", "cigi.los_segment_request.alpha_threshold",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Specifies the minimum alpha value a surface may have for an LOS response to be generated", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_segment_request_source_entity_id,
-            { "Entity ID", "cigi.los_segment_request.source_entity_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Specifies the entity relative to which the test segment endpoints are defined", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_segment_request_source_lat_xoff,
-            { "Source Latitude (degrees)/Source X Offset (m)", "cigi.los_segment_request.source_lat_xoff",
-                FT_DOUBLE, BASE_NONE, NULL, 0x0,
-                "Specifies the latitude of the source endpoint of the LOS test segment or specifies the X offset of the source endpoint of the LOS test segment", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_segment_request_source_lon_yoff,
-            { "Source Longitude (degrees)/Source Y Offset (m)", "cigi.los_segment_request.source_lon_yoff",
-                FT_DOUBLE, BASE_NONE, NULL, 0x0,
-                "Specifies the longitude of the source endpoint of the LOS test segment or specifies the Y offset of the source endpoint of the LOS test segment", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_segment_request_source_alt_zoff,
-            { "Source Altitude (m)/Source Z Offset (m)", "cigi.los_segment_request.source_alt_zoff",
-                FT_DOUBLE, BASE_NONE, NULL, 0x0,
-                "Specifies the altitude of the source endpoint of the LOS test segment or specifies the Z offset of the source endpoint of the LOS test segment", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_segment_request_destination_lat_xoff,
-            { "Destination Latitude (degrees)/ Destination X Offset (m)", "cigi.los_segment_request.destination_lat_xoff",
-                FT_DOUBLE, BASE_NONE, NULL, 0x0,
-                "Specifies the latitude of the destination endpoint of the LOS test segment or specifies the X offset of the destination endpoint of the LOS test segment", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_segment_request_destination_lon_yoff,
-            { "Destination Longitude (degrees)/Destination Y Offset (m)", "cigi.los_segment_request.destination_lon_yoff",
-                FT_DOUBLE, BASE_NONE, NULL, 0x0,
-                "Specifies the longitude of the destination endpoint of the LOS test segment or specifies the Y offset of the destination endpoint of the LOS test segment", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_segment_request_destination_alt_zoff,
-            { "Destination Altitude (m)/ Destination Z Offset (m)", "cigi.los_segment_request.destination_alt_zoff",
-                FT_DOUBLE, BASE_NONE, NULL, 0x0,
-                "Specifies the altitude of the destination endpoint of the LOS test segment or specifies the Z offset of the destination endpoint of the LOS test segment", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_segment_request_material_mask,
-            { "Material Mask", "cigi.los_segment_request.material_mask",
-                FT_UINT32, BASE_DEC, NULL, 0x0,
-                "Specifies the environmental and cultural features to be included in or excluded from consideration for the LOS segment testing", HFILL }
-        },
-        {&hf_cigi4_line_of_sight_segment_request_update_period,
-            { "Update Period", "cigi.los_segment_request.update_period",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Specifies interval between successive responses to this request. A zero indicates one responses a value n > 0 the IG should respond every nth frame", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_segment_request_destination_entity_id,
-            { "Destination Entity ID", "cigi.los_segment_request.destination_entity_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Indicates the entity with respect to which the Destination X Offset, Y Offset, and Destination Z Offset parameters are specified", HFILL }
-        },
 
         /* CIGI3 Line of Sight Vector Request */
         { &hf_cigi3_line_of_sight_vector_request,
@@ -14133,86 +11973,7 @@ proto_register_cigi(void)
 
 
         /* CIGI4 Line of Sight Vector Request */
-        { &hf_cigi4_line_of_sight_vector_request,
-            { "Line of Sight Vector Request", "cigi.los_vector_request",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "Line of Sight Vector Request Packet", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_vector_request_los_id,
-            { "LOS ID", "cigi.los_vector_request.los_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Identifies the LOS request", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_vector_request_type,
-            { "Request Type", "cigi.los_vector_request.type",
-                FT_BOOLEAN, 8, TFS(&extended_normal_tfs), 0x01,
-                "Determines what type of response the IG should return for this request", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_vector_request_source_coord,
-            { "Source Point Coordinate System", "cigi.los_vector_request.source_coord",
-                FT_BOOLEAN, 8, TFS(&entity_geodetic_tfs), 0x02,
-                "Indicates the coordinate system relative to which the test vector source point is specified", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_vector_request_response_coord,
-            { "Response Coordinate System", "cigi.los_vector_request.response_coord",
-                FT_BOOLEAN, 8, TFS(&entity_geodetic_tfs), 0x04,
-                "Specifies the coordinate system to be used in the response", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_vector_request_alpha,
-            { "Alpha Threshold", "cigi.los_vector_request.alpha",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Specifies the minimum alpha value a surface may have for an LOS response to be generated", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_vector_request_entity_id,
-            { "Entity ID", "cigi.los_vector_request.entity_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Specifies the entity relative to which the test segment endpoints are defined", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_vector_request_azimuth,
-            { "Azimuth (degrees)", "cigi.los_vector_request.azimuth",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the horizontal angle of the LOS test vector", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_vector_request_elevation,
-            { "Elevation (degrees)", "cigi.los_vector_request.elevation",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the vertical angle of the LOS test vector", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_vector_request_min_range,
-            { "Minimum Range (m)", "cigi.los_vector_request.min_range",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the minimum range along the LOS test vector at which intersection testing should occur", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_vector_request_max_range,
-            { "Maximum Range (m)", "cigi.los_vector_request.max_range",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the maximum range along the LOS test vector at which intersection testing should occur", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_vector_request_source_lat_xoff,
-            { "Source Latitude (degrees)/Source X Offset (m)", "cigi.los_vector_request.source_lat_xoff",
-                FT_DOUBLE, BASE_NONE, NULL, 0x0,
-                "Specifies the latitude of the source point of the LOS test vector", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_vector_request_source_lon_yoff,
-            { "Source Longitude (degrees)/Source Y Offset (m)", "cigi.los_vector_request.source_lon_yoff",
-                FT_DOUBLE, BASE_NONE, NULL, 0x0,
-                "Specifies the longitude of the source point of the LOS test vector", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_vector_request_source_alt_zoff,
-            { "Source Altitude (m)/Source Z Offset (m)", "cigi.los_vector_request.source_alt_zoff",
-                FT_DOUBLE, BASE_NONE, NULL, 0x0,
-                "Specifies the altitude of the source point of the LOS test vector or specifies the Z offset of the source point of the LOS test vector", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_vector_request_material_mask,
-            { "Material Mask", "cigi.los_vector_request.material_mask",
-                FT_UINT32, BASE_DEC, NULL, 0x0,
-                "Specifies the environmental and cultural features to be included in LOS segment testing", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_vector_request_update_period,
-            { "Update Period", "cigi.los_vector_request.update_period",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Specifies interval between successive responses to this request. A zero indicates one responses a value n > 0 the IG should respond every nth frame", HFILL }
-        },
+
         /* CIGI3 Position Request */
         { &hf_cigi3_position_request,
             { "Position Request", "cigi.pos_request",
@@ -14246,36 +12007,6 @@ proto_register_cigi(void)
         },
 
         /* CIGI4 Position Request */
-        { &hf_cigi4_position_request,
-            { "Position Request", "cigi.pos_request",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "Position Request Packet", HFILL }
-        },
-        { &hf_cigi4_position_request_object_id,
-            { "Object ID", "cigi.pos_request.object_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Identifies the entity, view, view group, or motion tracking device whose position is being requested", HFILL }
-        },
-        { &hf_cigi4_position_request_part_id,
-            { "Articulated Part ID", "cigi.pos_request.part_id",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Identifies the articulated part whose position is being requested", HFILL }
-        },
-        { &hf_cigi4_position_request_update_mode,
-            { "Update Mode", "cigi.pos_request.update_mode",
-                FT_BOOLEAN, 8, TFS(&cigi4_position_request_update_mode_tfs), 0x01,
-                "Specifies whether the IG should report the position of the requested object each frame", HFILL }
-        },
-        { &hf_cigi4_position_request_object_class,
-            { "Object Class", "cigi.pos_request.object_class",
-                FT_UINT8, BASE_DEC, VALS(cigi4_position_request_object_class_vals), 0x0e,
-                "Specifies the type of object whose position is being requested", HFILL }
-        },
-        { &hf_cigi4_position_request_coord_system,
-            { "Coordinate System", "cigi.pos_request.coord_system",
-                FT_UINT8, BASE_DEC, VALS(cigi4_position_request_coord_system_vals), 0x30,
-                "Specifies the desired coordinate system relative to which the position and orientation should be given", HFILL }
-        },
 
         /* CIGI3 Environmental Conditions Request */
         { &hf_cigi3_environmental_conditions_request,
@@ -14310,36 +12041,6 @@ proto_register_cigi(void)
         },
 
         /* CIGI4 Environmental Conditions Request */
-        { &hf_cigi4_environmental_conditions_request,
-            { "Environmental Conditions Request", "cigi.env_cond_request",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "Environmental Conditions Request Packet", HFILL }
-        },
-        { &hf_cigi4_environmental_conditions_request_type,
-            { "Request Type", "cigi.env_cond_request.type",
-                FT_UINT8, BASE_DEC, VALS(cigi4_environmental_conditions_request_type_vals), 0x0f,
-                "Specifies the desired response type for the request", HFILL }
-        },
-        { &hf_cigi4_environmental_conditions_request_id,
-            { "Request ID", "cigi.env_cond_request.id",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Identifies the environmental conditions request", HFILL }
-        },
-        { &hf_cigi4_environmental_conditions_request_lat,
-            { "Latitude (degrees)", "cigi.env_cond_request.lat",
-                FT_DOUBLE, BASE_NONE, NULL, 0x0,
-                "Specifies the geodetic latitude at which the environmental state is requested", HFILL }
-        },
-        { &hf_cigi4_environmental_conditions_request_lon,
-            { "Longitude (degrees)", "cigi.env_cond_request.lon",
-                FT_DOUBLE, BASE_NONE, NULL, 0x0,
-                "Specifies the geodetic longitude at which the environmental state is requested", HFILL }
-        },
-        { &hf_cigi4_environmental_conditions_request_alt,
-            { "Altitude (m)", "cigi.env_cond_request.alt",
-                FT_DOUBLE, BASE_NONE, NULL, 0x0,
-                "Specifies the geodetic altitude at which the environmental state is requested", HFILL }
-        },
 
         /* CIGI3_3 Symbol Surface Definition */
         { &hf_cigi3_3_symbol_surface_definition,
@@ -14440,101 +12141,6 @@ proto_register_cigi(void)
 
 
         /* CIGI4 Symbol Surface Definition */
-        { &hf_cigi4_symbol_surface_definition,
-            { "Symbol Surface Definition", "cigi.symbl_srfc_def",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "Symbol Surface Definition Packet", HFILL }
-        },
-        { &hf_cigi4_symbol_surface_definition_surface_id,
-            { "Surface ID", "cigi.symbl_srfc_def.surface_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Identifies the symbol surface to which this packet is applied", HFILL }
-        },
-        { &hf_cigi4_symbol_surface_definition_surface_state,
-            { "Surface State", "cigi.symbl_srfc_def.surface_state",
-                FT_BOOLEAN, 8, TFS(&cigi4_symbol_surface_definition_surface_state_tfs), 0x01,
-                "Specifies whether the symbol surface should be active or destroyed", HFILL }
-        },
-        { &hf_cigi4_symbol_surface_definition_attach_type,
-            { "Attach Type", "cigi.symbl_srfc_def.attach_type",
-                FT_BOOLEAN, 8, TFS(&cigi4_symbol_surface_definition_attach_type_tfs), 0x02,
-                "Specifies whether the surface should be attached to an entity or view", HFILL }
-        },
-        { &hf_cigi4_symbol_surface_definition_billboard,
-            { "Billboard", "cigi.symbl_srfc_def.billboard",
-                FT_BOOLEAN, 8, TFS(&cigi4_symbol_surface_definition_billboard_tfs), 0x04,
-                "Specifies whether the surface is treated as a billboard", HFILL }
-        },
-        { &hf_cigi4_symbol_surface_definition_perspective_growth_enable,
-            { "Perspective Growth Enable", "cigi.symbl_srfc_def.perspective_growth_enable",
-                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x08,
-                "Specifies whether the surface appears to maintain a constant size or has perspective growth", HFILL }
-        },
-        { &hf_cigi4_symbol_surface_definition_entity_view_id,
-            { "Entity ID/View ID", "cigi.symbl_srfc_def.entity_view_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Specifies the entity or view to which this symbol surface is attached", HFILL }
-        },
-        { &hf_cigi4_symbol_surface_definition_xoff_left,
-            { "X Offset (m)/Left", "cigi.symbl_srfc_def.xoff_left",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the x offset or leftmost boundary for the symbol surface", HFILL }
-        },
-        { &hf_cigi4_symbol_surface_definition_yoff_right,
-            { "Y Offset (m)/Right", "cigi.symbl_srfc_def.yoff_right",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the y offset or rightmost boundary for the symbol surface", HFILL }
-        },
-        { &hf_cigi4_symbol_surface_definition_zoff_top,
-            { "Z Offset (m)/Top", "cigi.symbl_srfc_def.zoff_top",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the z offset or topmost boundary for the symbol surface", HFILL }
-        },
-        { &hf_cigi4_symbol_surface_definition_yaw_bottom,
-            { "Yaw (degrees)/Bottom", "cigi.symbl_srfc_def.yaw_bottom",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the rotation about the surface's Z axis or bottommost boundary for the symbol surface", HFILL }
-        },
-        { &hf_cigi4_symbol_surface_definition_pitch,
-            { "Pitch (degrees)", "cigi.symbl_srfc_def.pitch",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the rotation about the surface's Y axis", HFILL }
-        },
-        { &hf_cigi4_symbol_surface_definition_roll,
-            { "Roll (degrees)", "cigi.symbl_srfc_def.roll",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the rotation about the surface's X axis", HFILL }
-        },
-        { &hf_cigi4_symbol_surface_definition_width,
-            { "Width (m/degrees)", "cigi.symbl_srfc_def.width",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the width of the symbol surface", HFILL }
-        },
-        { &hf_cigi4_symbol_surface_definition_height,
-            { "Height (m/degrees)", "cigi.symbl_srfc_def.height",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the height of the symbol surface", HFILL }
-        },
-        { &hf_cigi4_symbol_surface_definition_min_u,
-            { "Min U (surface horizontal units)", "cigi.symbl_srfc_def.min_u",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the minimum U coordinate of the symbol surface's viewable area", HFILL }
-        },
-        { &hf_cigi4_symbol_surface_definition_max_u,
-            { "Max U (surface horizontal units)", "cigi.symbl_srfc_def.max_u",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the maximum U coordinate of the symbol surface's viewable area", HFILL }
-        },
-        { &hf_cigi4_symbol_surface_definition_min_v,
-            { "Min V (surface vertical units)", "cigi.symbl_srfc_def.min_v",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the minimum V coordinate of the symbol surface's viewable area", HFILL }
-        },
-        { &hf_cigi4_symbol_surface_definition_max_v,
-            { "Max V (surface vertical units)", "cigi.symbl_srfc_def.max_v",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the maximum V coordinate of the symbol surface's viewable area", HFILL }
-        },
 
         /* CIGI3_3 Symbol Text Definition */
         { &hf_cigi3_3_symbol_text_definition,
@@ -14569,46 +12175,11 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_3_symbol_text_definition_text,
             { "Text", "cigi.symbol_text_def.text",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_STRINGZPAD, BASE_NONE, NULL, 0x0,
                 "Symbol text", HFILL }
         },
 
         /* CIGI4 Symbol Text Definition */
-        { &hf_cigi4_symbol_text_definition,
-            { "Symbol Text Definition", "cigi.symbol_text_def",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "Symbol Text Definition Packet", HFILL }
-        },
-        { &hf_cigi4_symbol_text_definition_symbol_id,
-            { "Symbol ID", "cigi.symbol_text_def.symbol_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Specifies the identifier of the symbol that is being defined", HFILL }
-        },
-        { &hf_cigi4_symbol_text_definition_alignment,
-            { "Alignment", "cigi.symbol_text_def.alignment",
-                FT_UINT8, BASE_DEC, VALS(cigi4_symbol_text_definition_alignment_vals), 0x0f,
-                "Specifies the position of the symbol's reference point", HFILL }
-        },
-        { &hf_cigi4_symbol_text_definition_orientation,
-            { "Orientation", "cigi.symbol_text_def.orientation",
-                FT_UINT8, BASE_DEC, VALS(cigi4_symbol_text_definition_orientation_vals), 0x30,
-                "Specifies the orientation of the text", HFILL }
-        },
-        { &hf_cigi4_symbol_text_definition_font_ident,
-            { "Font ID", "cigi.symbol_text_def.font_ident",
-                FT_UINT8, BASE_DEC, VALS(cigi4_symbol_text_definition_font_ident_vals), 0x0,
-                "Specifies the font to be used", HFILL }
-        },
-        { &hf_cigi4_symbol_text_definition_font_size,
-            { "Font Size", "cigi.symbol_text_def.font_size",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the font size", HFILL }
-        },
-        { &hf_cigi4_symbol_text_definition_text,
-            { "Text", "cigi.symbol_text_def.text",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
-                "Symbol text", HFILL }
-        },
 
         /* CIGI3_3 Symbol Circle Definition */
         { &hf_cigi3_3_symbol_circle_definition,
@@ -14913,311 +12484,6 @@ proto_register_cigi(void)
         },
 
         /* CIGI4 Symbol Circle Definition */
-        { &hf_cigi4_symbol_circle_definition,
-            { "Symbol Circle Definition", "cigi.symbol_circle_def",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "Symbol Circle Definition Packet", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_symbol_id,
-            { "Symbol ID", "cigi.symbol_circle_def.symbol_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Specifies the identifier of the symbol that is being defined", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_drawing_style,
-            { "Drawing Style", "cigi.symbol_circle_def.drawing_style",
-                FT_BOOLEAN, 8, TFS(&cigi4_symbol_circle_definition_drawing_style_tfs), 0x01,
-                "Specifies whether the circles and arcs are curved lines or filled areas", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_stipple_pattern,
-            { "Stipple Pattern", "cigi.symbol_circle_def.stipple_pattern",
-                FT_UINT16, BASE_HEX, NULL, 0x0,
-                "Specifies the dash pattern used", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_line_width,
-            { "Line Width (scaled symbol surface units)", "cigi.symbol_circle_def.line_width",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the thickness of the line", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_stipple_pattern_length,
-            { "Stipple Pattern Length (scaled symbol surface units)", "cigi.symbol_circle_def.stipple_pattern_length",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the length of one complete repetition of the stipple pattern", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_circles,
-            { "Circle", "cigi.symbol_circle_def.circle",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                NULL, HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_center_u[0],
-            { "Center U 1 (scaled symbol surface units)", "cigi.symbol_circle_def.center_u1",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the u position of the center", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_center_v[0],
-            { "Center V 1 (scaled symbol surface units)", "cigi.symbol_circle_def.center_v1",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the v position of the center", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_radius[0],
-            { "Radius 1 (scaled symbol surface units)", "cigi.symbol_circle_def.radius1",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the radius", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_inner_radius[0],
-            { "Inner Radius 1 (scaled symbol surface units)", "cigi.symbol_circle_def.inner_radius1",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the inner radius", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_start_angle[0],
-            { "Start Angle 1 (degrees)", "cigi.symbol_circle_def.start_angle1",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the start angle", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_end_angle[0],
-            { "End Angle 1 (degrees)", "cigi.symbol_circle_def.end_angle1",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the end angle", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_center_u[1],
-            { "Center U 2 (scaled symbol surface units)", "cigi.symbol_circle_def.center_u2",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the u position of the center", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_center_v[1],
-            { "Center V 2 (scaled symbol surface units)", "cigi.symbol_circle_def.center_v2",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the v position of the center", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_radius[1],
-            { "Radius 2 (scaled symbol surface units)", "cigi.symbol_circle_def.radius2",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the radius", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_inner_radius[1],
-            { "Inner Radius 2 (scaled symbol surface units)", "cigi.symbol_circle_def.inner_radius2",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the inner radius", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_start_angle[1],
-            { "Start Angle 2 (degrees)", "cigi.symbol_circle_def.start_angle2",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the start angle", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_end_angle[1],
-            { "End Angle 2 (degrees)", "cigi.symbol_circle_def.end_angle2",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the end angle", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_center_u[2],
-            { "Center U 3 (scaled symbol surface units)", "cigi.symbol_circle_def.center_u3",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the u position of the center", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_center_v[2],
-            { "Center V 3 (scaled symbol surface units)", "cigi.symbol_circle_def.center_v3",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the v position of the center", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_radius[2],
-            { "Radius 3 (scaled symbol surface units)", "cigi.symbol_circle_def.radius3",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the radius", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_inner_radius[2],
-            { "Inner Radius 3 (scaled symbol surface units)", "cigi.symbol_circle_def.inner_radius3",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the inner radius", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_start_angle[2],
-            { "Start Angle 3 (degrees)", "cigi.symbol_circle_def.start_angle3",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the start angle", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_end_angle[2],
-            { "End Angle 3 (degrees)", "cigi.symbol_circle_def.end_angle3",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the end angle", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_center_u[3],
-            { "Center U 4 (scaled symbol surface units)", "cigi.symbol_circle_def.center_u4",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the u position of the center", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_center_v[3],
-            { "Center V 4 (scaled symbol surface units)", "cigi.symbol_circle_def.center_v4",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the v position of the center", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_radius[3],
-            { "Radius 4 (scaled symbol surface units)", "cigi.symbol_circle_def.radius4",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the radius", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_inner_radius[3],
-            { "Inner Radius 4 (scaled symbol surface units)", "cigi.symbol_circle_def.inner_radius4",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the inner radius", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_start_angle[3],
-            { "Start Angle 4 (degrees)", "cigi.symbol_circle_def.start_angle4",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the start angle", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_end_angle[3],
-            { "End Angle 4 (degrees)", "cigi.symbol_circle_def.end_angle4",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the end angle", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_center_u[4],
-            { "Center U 5 (scaled symbol surface units)", "cigi.symbol_circle_def.center_u5",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the u position of the center", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_center_v[4],
-            { "Center V 5 (scaled symbol surface units)", "cigi.symbol_circle_def.center_v5",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the v position of the center", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_radius[4],
-            { "Radius 5 (scaled symbol surface units)", "cigi.symbol_circle_def.radius5",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the radius", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_inner_radius[4],
-            { "Inner Radius 5 (scaled symbol surface units)", "cigi.symbol_circle_def.inner_radius5",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the inner radius", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_start_angle[4],
-            { "Start Angle 5 (degrees)", "cigi.symbol_circle_def.start_angle5",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the start angle", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_end_angle[4],
-            { "End Angle 5 (degrees)", "cigi.symbol_circle_def.end_angle5",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the end angle", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_center_u[5],
-            { "Center U 6 (scaled symbol surface units)", "cigi.symbol_circle_def.center_u6",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the u position of the center", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_center_v[5],
-            { "Center V 6 (scaled symbol surface units)", "cigi.symbol_circle_def.center_v6",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the v position of the center", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_radius[5],
-            { "Radius 6 (scaled symbol surface units)", "cigi.symbol_circle_def.radius6",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the radius", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_inner_radius[5],
-            { "Inner Radius 6 (scaled symbol surface units)", "cigi.symbol_circle_def.inner_radius6",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the inner radius", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_start_angle[5],
-            { "Start Angle 6 (degrees)", "cigi.symbol_circle_def.start_angle6",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the start angle", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_end_angle[5],
-            { "End Angle 6 (degrees)", "cigi.symbol_circle_def.end_angle6",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the end angle", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_center_u[6],
-            { "Center U 7 (scaled symbol surface units)", "cigi.symbol_circle_def.center_u7",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the u position of the center", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_center_v[6],
-            { "Center V 7 (scaled symbol surface units)", "cigi.symbol_circle_def.center_v7",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the v position of the center", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_radius[6],
-            { "Radius 7 (scaled symbol surface units)", "cigi.symbol_circle_def.radius7",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the radius", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_inner_radius[6],
-            { "Inner Radius 7 (scaled symbol surface units)", "cigi.symbol_circle_def.inner_radius7",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the inner radius", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_start_angle[6],
-            { "Start Angle 7 (degrees)", "cigi.symbol_circle_def.start_angle7",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the start angle", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_end_angle[6],
-            { "End Angle 7 (degrees)", "cigi.symbol_circle_def.end_angle7",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the end angle", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_center_u[7],
-            { "Center U 8 (scaled symbol surface units)", "cigi.symbol_circle_def.center_u8",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the u position of the center", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_center_v[7],
-            { "Center V 8 (scaled symbol surface units)", "cigi.symbol_circle_def.center_v8",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the v position of the center", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_radius[7],
-            { "Radius 8 (scaled symbol surface units)", "cigi.symbol_circle_def.radius8",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the radius", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_inner_radius[7],
-            { "Inner Radius 8 (scaled symbol surface units)", "cigi.symbol_circle_def.inner_radius8",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the inner radius", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_start_angle[7],
-            { "Start Angle 8 (degrees)", "cigi.symbol_circle_def.start_angle8",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the start angle", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_end_angle[7],
-            { "End Angle 8 (degrees)", "cigi.symbol_circle_def.end_angle8",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the end angle", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_center_u[8],
-            { "Center U 9 (scaled symbol surface units)", "cigi.symbol_circle_def.center_u9",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the u position of the center", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_center_v[8],
-            { "Center V 9 (scaled symbol surface units)", "cigi.symbol_circle_def.center_v9",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the v position of the center", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_radius[8],
-            { "Radius 9 (scaled symbol surface units)", "cigi.symbol_circle_def.radius9",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the radius", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_inner_radius[8],
-            { "Inner Radius 9 (scaled symbol surface units)", "cigi.symbol_circle_def.inner_radius9",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the inner radius", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_start_angle[8],
-            { "Start Angle 9 (degrees)", "cigi.symbol_circle_def.start_angle9",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the start angle", HFILL }
-        },
-        { &hf_cigi4_symbol_circle_definition_end_angle[8],
-            { "End Angle 9 (degrees)", "cigi.symbol_circle_def.end_angle9",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the end angle", HFILL }
-        },
 
         /* CIGI3_3 Symbol Line Definition */
         { &hf_cigi3_3_symbol_line_definition,
@@ -15893,26 +13159,6 @@ proto_register_cigi(void)
 
 
         /* CIGI4 Symbol Clone */
-        { &hf_cigi4_symbol_clone,
-            { "Symbol Clone", "cigi.symbol_clone",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "Symbol Clone Packet", HFILL }
-        },
-        { &hf_cigi4_symbol_clone_symbol_id,
-            { "Symbol ID", "cigi.symbol_clone.symbol_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Specifies the identifier of the symbol that is being defined", HFILL }
-        },
-        { &hf_cigi4_symbol_clone_source_type,
-            { "Source Type", "cigi.symbol_clone.source_type",
-                FT_BOOLEAN, 8, TFS(&cigi4_symbol_clone_source_type_tfs), 0x04,
-                "Identifies the source as an existing symbol or symbol template", HFILL }
-        },
-        { &hf_cigi4_symbol_clone_source_id,
-            { "Source ID", "cigi.symbol_clone.source_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Identifies the symbol to copy or template to instantiate", HFILL }
-        },
 
         /* CIGI3_3 Symbol Control */
         { &hf_cigi3_3_symbol_control,
@@ -16017,106 +13263,6 @@ proto_register_cigi(void)
         },
 
         /* CIGI4 Symbol Control */
-        { &hf_cigi4_symbol_control,
-            { "Symbol Control", "cigi.symbol_control",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "Symbol Control Packet", HFILL }
-        },
-        { &hf_cigi4_symbol_control_symbol_id,
-            { "Symbol ID", "cigi.symbol_control.symbol_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Specifies the symbol to which this packet is applied", HFILL }
-        },
-        { &hf_cigi4_symbol_control_symbol_state,
-            { "Symbol State", "cigi.symbol_control.symbol_state",
-                FT_UINT8, BASE_DEC, VALS(cigi4_symbol_control_symbol_state_vals), 0x03,
-                "Specifies whether the symbol should be hidden, visible, or destroyed", HFILL }
-        },
-        { &hf_cigi4_symbol_control_attach_state,
-            { "Attach State", "cigi.symbol_control.attach_state",
-                FT_BOOLEAN, 8, TFS(&attach_detach_tfs), 0x04,
-                "Specifies whether this symbol should be attached to another", HFILL }
-        },
-        { &hf_cigi4_symbol_control_flash_control,
-            { "Flash Control", "cigi.symbol_control.flash_control",
-                FT_BOOLEAN, 8, TFS(&cigi4_symbol_control_flash_control_tfs), 0x08,
-                "Specifies whether the flash cycle is continued or restarted", HFILL }
-        },
-        { &hf_cigi4_symbol_control_inherit_color,
-            { "Inherit Color", "cigi.symbol_control.inherit_color",
-                FT_BOOLEAN, 8, TFS(&inherited_not_inherited_tfs), 0x10,
-                "Specifies whether the symbol inherits color from a parent symbol", HFILL }
-        },
-        { &hf_cigi4_symbol_control_parent_symbol_ident,
-            { "Parent Symbol ID", "cigi.symbol_control.parent_symbol_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Specifies the parent for the symbol", HFILL }
-        },
-        { &hf_cigi4_symbol_control_surface_ident,
-            { "Surface ID", "cigi.symbol_control.surface_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Specifies the symbol surface for the symbol", HFILL }
-        },
-        { &hf_cigi4_symbol_control_layer,
-            { "Layer", "cigi.symbol_control.layer",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Specifies the layer for the symbol", HFILL }
-        },
-        { &hf_cigi4_symbol_control_flash_duty_cycle,
-            { "Flash Duty Cycle (%)", "cigi.symbol_control.flash_duty_cycle",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Specifies the duty cycle for a flashing symbol", HFILL }
-        },
-        { &hf_cigi4_symbol_control_flash_period,
-            { "Flash Period (seconds)", "cigi.symbol_control.flash_period",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the duration of a single flash cycle", HFILL }
-        },
-        { &hf_cigi4_symbol_control_position_u,
-            { "Position U (scaled symbol surface units)", "cigi.symbol_control.position_u",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the u position", HFILL }
-        },
-        { &hf_cigi4_symbol_control_position_v,
-            { "Position V (scaled symbol surface units)", "cigi.symbol_control.position_v",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the v position", HFILL }
-        },
-        { &hf_cigi4_symbol_control_rotation,
-            { "Rotation (degrees)", "cigi.symbol_control.rotation",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the rotation", HFILL }
-        },
-        { &hf_cigi4_symbol_control_red,
-            { "Red", "cigi.symbol_control.red",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Specifies the red color component", HFILL }
-        },
-        { &hf_cigi4_symbol_control_green,
-            { "Green", "cigi.symbol_control.green",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Specifies the green color component", HFILL }
-        },
-        { &hf_cigi4_symbol_control_blue,
-            { "Blue", "cigi.symbol_control.blue",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Specifies the blue color component", HFILL }
-        },
-        { &hf_cigi4_symbol_control_alpha,
-            { "Alpha", "cigi.symbol_control.alpha",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Specifies the alpha color component", HFILL }
-        },
-        { &hf_cigi4_symbol_control_scale_u,
-            { "Scale U", "cigi.symbol_control.scale_u",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the u scaling factor", HFILL }
-        },
-        { &hf_cigi4_symbol_control_scale_v,
-            { "Scale V", "cigi.symbol_control.scale_v",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the v scaling factor", HFILL }
-        },
 
         /* CIGI3_3 Short Symbol Control */
         { &hf_cigi3_3_short_symbol_control,
@@ -16221,56 +13367,6 @@ proto_register_cigi(void)
         },
 
         /* CIGI4 Short Symbol Control */
-        { &hf_cigi4_short_symbol_control,
-            { "Short Symbol Control", "cigi.short_symbol_control",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "Short Symbol Control Packet", HFILL }
-        },
-        { &hf_cigi4_short_symbol_control_symbol_id,
-            { "Symbol ID", "cigi.short_symbol_control.symbol_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Specifies the symbol to which this packet is applied", HFILL }
-        },
-        { &hf_cigi4_short_symbol_control_symbol_state,
-            { "Symbol State", "cigi.short_symbol_control.symbol_state",
-                FT_UINT8, BASE_DEC, VALS(cigi3_3_symbol_control_symbol_state_vals), 0x03,
-                "Specifies whether the symbol should be hidden, visible, or destroyed", HFILL }
-        },
-        { &hf_cigi4_short_symbol_control_attach_state,
-            { "Attach State", "cigi.short_symbol_control.attach_state",
-                FT_BOOLEAN, 8, TFS(&attach_detach_tfs), 0x04,
-                "Specifies whether this symbol should be attached to another", HFILL }
-        },
-        { &hf_cigi4_short_symbol_control_flash_control,
-            { "Flash Control", "cigi.short_symbol_control.flash_control",
-                FT_BOOLEAN, 8, TFS(&cigi3_3_symbol_control_flash_control_tfs), 0x08,
-                "Specifies whether the flash cycle is continued or restarted", HFILL }
-        },
-        { &hf_cigi4_short_symbol_control_inherit_color,
-            { "Inherit Color", "cigi.short_symbol_control.inherit_color",
-                FT_BOOLEAN, 8, TFS(&inherited_not_inherited_tfs), 0x10,
-                "Specifies whether the symbol inherits color from a parent symbol", HFILL }
-        },
-        { &hf_cigi4_short_symbol_control_attribute_select1,
-            { "Attribute Select 1", "cigi.short_symbol_control.attribute_select1",
-                FT_UINT8, BASE_DEC, VALS(cigi4_short_symbol_control_attribute_select_vals), 0x0,
-                "Identifies the attribute whose value is specified in Attribute Value 1", HFILL }
-        },
-        { &hf_cigi4_short_symbol_control_attribute_select2,
-            { "Attribute Select 2", "cigi.short_symbol_control.attribute_select2",
-                FT_UINT8, BASE_DEC, VALS(cigi4_short_symbol_control_attribute_select_vals), 0x0,
-                "Identifies the attribute whose value is specified in Attribute Value 2", HFILL }
-        },
-        { &hf_cigi4_short_symbol_control_attribute_value1,
-            { "Value 1", "cigi.short_symbol_control.value1_uint",
-                FT_UINT32, BASE_DEC, NULL, 0x0,
-                "Specifies the value for attribute 1", HFILL }
-        },
-        { &hf_cigi4_short_symbol_control_attribute_value2,
-            { "Value 2", "cigi.short_symbol_control.value2_uint",
-                FT_UINT32, BASE_DEC, NULL, 0x0,
-                "Specifies the value for attribute 2", HFILL }
-        },
 
         /* CIGI4 Symbol Circle Textured Definition */
         { &hf_cigi4_symbol_circle_textured_definition,
@@ -17601,42 +14697,11 @@ proto_register_cigi(void)
         },
 
         /* CIGI4 HAT/HOT Response */
-        { &hf_cigi4_hat_hot_response,
-            { "HAT/HOT Response", "cigi.hat_hot_response",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "HAT/HOT Response Packet", HFILL }
-        },
-        { &hf_cigi4_hat_hot_response_hat_hot_id,
-            { "HAT/HOT ID", "cigi.hat_hot_response.hat_hot_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Identifies the HAT or HOT response", HFILL }
-        },
         { &hf_cigi4_hat_hot_response_flags,
             { "Request Flags", "cigi.hat_hot_response.flags",
                 FT_UINT8, BASE_HEX, NULL, 0x0,
                 NULL, HFILL }
         },
-        { &hf_cigi4_hat_hot_response_valid,
-            { "Valid", "cigi.hat_hot_response.valid",
-                FT_BOOLEAN, 8, TFS(&tfs_valid_invalid), 0x01,
-                "Indicates whether the Height parameter contains a valid number", HFILL }
-        },
-        { &hf_cigi4_hat_hot_response_type,
-            { "Response Type", "cigi.hat_hot_response.type",
-                FT_BOOLEAN, 8, TFS(&cigi3_hat_hot_response_type_tfs), 0x02,
-                "Indicates whether the Height parameter represent Height Above Terrain or Height Of Terrain", HFILL }
-        },
-        { &hf_cigi4_hat_hot_response_host_frame_number_lsn,
-            { "Host Frame Number LSN", "cigi.hat_hot_response.host_frame_number_lsn",
-                FT_UINT8, BASE_DEC, NULL, 0xf0,
-                "Least significant nibble of the host frame number parameter of the last IG Control packet received before the HAT or HOT is calculated", HFILL }
-        },
-        { &hf_cigi4_hat_hot_response_height,
-            { "Height", "cigi.hat_hot_response.height",
-                FT_DOUBLE, BASE_NONE, NULL, 0x0,
-                "Contains the requested height", HFILL }
-        },
-
 
         /* CIGI3 HAT/HOT Extended Response */
         { &hf_cigi3_hat_hot_extended_response,
@@ -17688,55 +14753,10 @@ proto_register_cigi(void)
         },
 
         /* CIGI4 HAT/HOT Extended Response */
-        { &hf_cigi4_hat_hot_extended_response,
-            { "HAT/HOT Extended Response", "cigi.hat_hot_ext_response",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "HAT/HOT Extended Response Packet", HFILL }
-        },
-        { &hf_cigi4_hat_hot_extended_response_hat_hot_id,
-            { "HAT/HOT ID", "cigi.hat_hot_ext_response.hat_hot_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Identifies the HAT/HOT response", HFILL }
-        },
         { &hf_cigi4_hat_hot_extended_response_flags,
             { "Request Flags", "cigi.hat_hot_extended_response.flags",
                 FT_UINT8, BASE_HEX, NULL, 0x0,
                 NULL, HFILL }
-        },
-        { &hf_cigi4_hat_hot_extended_response_valid,
-            { "Valid", "cigi.hat_hot_ext_response.valid",
-                FT_BOOLEAN, 8, TFS(&tfs_valid_invalid), 0x01,
-                "Indicates whether the remaining parameters in this packet contain valid numbers", HFILL }
-        },
-        { &hf_cigi4_hat_hot_extended_response_host_frame_number_lsn,
-            { "Host Frame Number LSN", "cigi.hat_hot_ext_response.host_frame_number_lsn",
-                FT_UINT8, BASE_DEC, NULL, 0xf0,
-                "Least significant nibble of the host frame number parameter of the last IG Control packet received before the HAT or HOT is calculated", HFILL }
-        },
-        { &hf_cigi4_hat_hot_extended_response_hat,
-            { "HAT", "cigi.hat_hot_ext_response.hat",
-                FT_DOUBLE, BASE_NONE, NULL, 0x0,
-                "Indicates the height of the test point above the terrain", HFILL }
-        },
-        { &hf_cigi4_hat_hot_extended_response_hot,
-            { "HOT", "cigi.hat_hot_ext_response.hot",
-                FT_DOUBLE, BASE_NONE, NULL, 0x0,
-                "Indicates the height of terrain above or below the test point", HFILL }
-        },
-        { &hf_cigi4_hat_hot_extended_response_material_code,
-            { "Material Code", "cigi.hat_hot_ext_response.material_code",
-                FT_UINT32, BASE_DEC, NULL, 0x0,
-                "Indicates the material code of the terrain surface at the point of intersection with the HAT/HOT test vector", HFILL }
-        },
-        { &hf_cigi4_hat_hot_extended_response_normal_vector_azimuth,
-            { "Normal Vector Azimuth (degrees)", "cigi.hat_hot_ext_response.normal_vector_azimuth",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Indicates the azimuth of the normal unit vector of the surface intersected by the HAT/HOT test vector", HFILL }
-        },
-        { &hf_cigi4_hat_hot_extended_response_normal_vector_elevation,
-            { "Normal Vector Elevation (degrees)", "cigi.hat_hot_ext_response.normal_vector_elevation",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Indicates the elevation of the normal unit vector of the surface intersected by the HAT/HOT test vector", HFILL }
         },
 
         /* CIGI2 Line of Sight Response */
@@ -17836,51 +14856,6 @@ proto_register_cigi(void)
         },
 
         /* CIGI4 Line of Sight Response */
-        { &hf_cigi4_line_of_sight_response,
-            { "Line of Sight Response", "cigi.los_response",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "Line of Sight Response Packet", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_response_los_id,
-            { "LOS ID", "cigi.los_response.los_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Identifies the LOS response", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_response_valid,
-            { "Valid", "cigi.los_response.valid",
-                FT_BOOLEAN, 8, TFS(&tfs_valid_invalid), 0x01,
-                "Indicates whether the Range parameter is valid", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_response_entity_id_valid,
-            { "Entity ID Valid", "cigi.los_response.entity_id_valid",
-                FT_BOOLEAN, 8, TFS(&tfs_valid_invalid), 0x02,
-                "Indicates whether the LOS test vector or segment intersects with an entity or a non-entity", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_response_visible,
-            { "Visible", "cigi.los_response.visible",
-                FT_BOOLEAN, 8, TFS(&visible_occluded_tfs), 0x04,
-                "Indicates whether the destination point is visible from the source point", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_response_host_frame_number_lsn,
-            { "Host Frame Number LSN", "cigi.los_response.host_frame_number_lsn",
-                FT_UINT8, BASE_DEC, NULL, 0xf0,
-                "Least significant nibble of the host frame number parameter of the last IG Control packet received before the HAT or HOT is calculated", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_response_count,
-            { "Response Count", "cigi.los_response.count",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Indicates the total number of Line of Sight Response packets the IG will return for the corresponding request", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_response_entity_id,
-            { "Entity ID", "cigi.los_response.entity_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Indicates the entity with which an LOS test vector or segment intersects", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_response_range,
-            { "Range (m)", "cigi.los_response.range",
-                FT_DOUBLE, BASE_NONE, NULL, 0x0,
-                "Indicates the distance along the LOS test segment or vector from the source point to the point of intersection with a polygon surface", HFILL }
-        },
 
         /* CIGI3 Line of Sight Extended Response */
         { &hf_cigi3_line_of_sight_extended_response,
@@ -17992,106 +14967,6 @@ proto_register_cigi(void)
         },
 
         /* CIGI4 Line of Sight Extended Response */
-        { &hf_cigi4_line_of_sight_extended_response,
-            { "Line of Sight Extended Response", "cigi.3_2_los_ext_response",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "Line of Sight Extended Response Packet", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_extended_response_los_id,
-            { "LOS ID", "cigi.3_2_los_ext_response.los_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Identifies the LOS response", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_extended_response_valid,
-            { "Valid", "cigi.3_2_los_ext_response.valid",
-                FT_BOOLEAN, 8, TFS(&tfs_valid_invalid), 0x01,
-                "Indicates whether this packet contains valid data", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_extended_response_entity_id_valid,
-            { "Entity ID Valid", "cigi.3_2_los_ext_response.entity_id_valid",
-                FT_BOOLEAN, 8, TFS(&tfs_valid_invalid), 0x02,
-                "Indicates whether the LOS test vector or segment intersects with an entity", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_extended_response_range_valid,
-            { "Range Valid", "cigi.3_2_los_ext_response.range_valid",
-                FT_BOOLEAN, 8, TFS(&tfs_valid_invalid), 0x04,
-                "Indicates whether the Range parameter is valid", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_extended_response_visible,
-            { "Visible", "cigi.3_2_los_ext_response.visible",
-                FT_BOOLEAN, 8, TFS(&visible_occluded_tfs), 0x08,
-                "Indicates whether the destination point is visible from the source point", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_extended_response_host_frame_number_lsn,
-            { "Host Frame Number LSN", "cigi.3_2_los_ext_response.host_frame_number_lsn",
-                FT_UINT8, BASE_DEC, NULL, 0xf0,
-                "Least significant nibble of the host frame number parameter of the last IG Control packet received before the HAT or HOT is calculated", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_extended_response_response_count,
-            { "Response Count", "cigi.3_2_los_ext_response.response_count",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Indicates the total number of Line of Sight Extended Response packets the IG will return for the corresponding request", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_extended_response_entity_id,
-            { "Entity ID", "cigi.3_2_los_ext_response.entity_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Indicates the entity with which a LOS test vector or segment intersects", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_extended_response_range,
-            { "Range (m)", "cigi.3_2_los_ext_response.range",
-                FT_DOUBLE, BASE_NONE, NULL, 0x0,
-                "Indicates the distance along the LOS test segment or vector from the source point to the point of intersection with an object", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_extended_response_lat_xoff,
-            { "Latitude (degrees)/X Offset (m)", "cigi.3_2_los_ext_response.lat_xoff",
-                FT_DOUBLE, BASE_NONE, NULL, 0x0,
-                "Indicates the geodetic latitude of the point of intersection along the LOS test segment or vector or specifies the offset of the point of intersection of the LOS test segment or vector along the intersected entity's X axis", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_extended_response_lon_yoff,
-            { "Longitude (degrees)/Y Offset (m)", "cigi.3_2_los_ext_response.lon_yoff",
-                FT_DOUBLE, BASE_NONE, NULL, 0x0,
-                "Indicates the geodetic longitude of the point of intersection along the LOS test segment or vector or specifies the offset of the point of intersection of the LOS test segment or vector along the intersected entity's Y axis", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_extended_response_alt_zoff,
-            { "Altitude (m)/Z Offset(m)", "cigi.3_2_los_ext_response.alt_zoff",
-                FT_DOUBLE, BASE_NONE, NULL, 0x0,
-                "Indicates the geodetic altitude of the point of intersection along the LOS test segment or vector or specifies the offset of the point of intersection of the LOS test segment or vector along the intersected entity's Z axis", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_extended_response_red,
-            { "Red", "cigi.3_2_los_ext_response.red",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Indicates the red color component of the surface at the point of intersection", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_extended_response_green,
-            { "Green", "cigi.3_2_los_ext_response.green",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Indicates the green color component of the surface at the point of intersection", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_extended_response_blue,
-            { "Blue", "cigi.3_2_los_ext_response.blue",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Indicates the blue color component of the surface at the point of intersection", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_extended_response_alpha,
-            { "Alpha", "cigi.3_2_los_ext_response.alpha",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Indicates the alpha component of the surface at the point of intersection", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_extended_response_material_code,
-            { "Material Code", "cigi.3_2_los_ext_response.material_code",
-                FT_UINT32, BASE_DEC, NULL, 0x0,
-                "Indicates the material code of the surface intersected by the LOS test segment of vector", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_extended_response_normal_vector_azimuth,
-            { "Normal Vector Azimuth (degrees)", "cigi.3_2_los_ext_response.normal_vector_azimuth",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Indicates the azimuth of a unit vector normal to the surface intersected by the LOS test segment or vector", HFILL }
-        },
-        { &hf_cigi4_line_of_sight_extended_response_normal_vector_elevation,
-            { "Normal Vector Elevation (degrees)", "cigi.3_2_los_ext_response.normal_vector_elevation",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Indicates the elevation of a unit vector normal to the surface intersected by the LOS test segment or vector", HFILL }
-        },
 
         /* CIGI2 Collision Detection Segment Response */
         { &hf_cigi2_collision_detection_segment_response,
@@ -18231,51 +15106,6 @@ proto_register_cigi(void)
 
 
         /* CIGI4 Sensor Response */
-        { &hf_cigi4_sensor_response,
-            { "Sensor Response", "cigi.sensor_response",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "Sensor Response Packet", HFILL }
-        },
-        { &hf_cigi4_sensor_response_view_id,
-            { "View ID", "cigi.sensor_response.view_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Specifies the view that represents the sensor display", HFILL }
-        },
-        { &hf_cigi4_sensor_response_sensor_id,
-            { "Sensor ID", "cigi.sensor_response.sensor_id",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Specifies the sensor to which the data in this packet apply", HFILL }
-        },
-        { &hf_cigi4_sensor_response_sensor_status,
-            { "Sensor Status", "cigi.sensor_response.sensor_status",
-                FT_UINT8, BASE_DEC, VALS(cigi4_sensor_response_sensor_status_vals), 0x03,
-                "Indicates the current tracking state of the sensor", HFILL }
-        },
-        { &hf_cigi4_sensor_response_gate_x_size,
-            { "Gate X Size (pixels or raster lines)", "cigi.sensor_response.gate_x_size",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Specifies the gate symbol size along the view's X axis", HFILL }
-        },
-        { &hf_cigi4_sensor_response_gate_y_size,
-            { "Gate Y Size (pixels or raster lines)", "cigi.sensor_response.gate_y_size",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Specifies the gate symbol size along the view's Y axis", HFILL }
-        },
-        { &hf_cigi4_sensor_response_gate_x_pos,
-            { "Gate X Position (degrees)", "cigi.sensor_response.gate_x_pos",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the gate symbol's position along the view's X axis", HFILL }
-        },
-        { &hf_cigi4_sensor_response_gate_y_pos,
-            { "Gate Y Position (degrees)", "cigi.sensor_response.gate_y_pos",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the gate symbol's position along the view's Y axis", HFILL }
-        },
-        { &hf_cigi4_sensor_response_frame_ctr,
-            { "Frame Counter", "cigi.sensor_response.frame_ctr",
-                FT_UINT32, BASE_DEC, NULL, 0x0,
-                "Indicates the IG's frame counter at the time that the IG calculates the gate and line-of-sight intersection data", HFILL }
-        },
 
         /* CIGI3 Sensor Extended Response */
         { &hf_cigi3_sensor_extended_response,
@@ -18351,76 +15181,6 @@ proto_register_cigi(void)
 
 
         /* CIGI4 Sensor Extended Response */
-        { &hf_cigi4_sensor_extended_response,
-            { "Sensor Extended Response", "cigi.sensor_ext_response",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "Sensor Extended Response Packet", HFILL }
-        },
-        { &hf_cigi4_sensor_extended_response_view_id,
-            { "View ID", "cigi.sensor_ext_response.view_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Specifies the view that represents the sensor display", HFILL }
-        },
-        { &hf_cigi4_sensor_extended_response_sensor_id,
-            { "Sensor ID", "cigi.sensor_ext_response.sensor_id",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Specifies the sensor to which the data in this packet apply", HFILL }
-        },
-        { &hf_cigi4_sensor_extended_response_sensor_status,
-            { "Sensor Status", "cigi.sensor_ext_response.sensor_status",
-                FT_UINT8, BASE_DEC, VALS(cigi4_sensor_extended_response_sensor_status_vals), 0x03,
-                "Indicates the current tracking state of the sensor", HFILL }
-        },
-        { &hf_cigi4_sensor_extended_response_entity_id_valid,
-            { "Entity ID Valid", "cigi.sensor_ext_response.entity_id_valid",
-                FT_BOOLEAN, 8, TFS(&tfs_valid_invalid), 0x04,
-                "Indicates whether the target is an entity or a non-entity object", HFILL }
-        },
-        { &hf_cigi4_sensor_extended_response_entity_id,
-            { "Entity ID", "cigi.sensor_ext_response.entity_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Indicates the entity ID of the target", HFILL }
-        },
-        { &hf_cigi4_sensor_extended_response_gate_x_size,
-            { "Gate X Size (pixels or raster lines)", "cigi.sensor_ext_response.gate_x_size",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Specifies the gate symbol size along the view's X axis", HFILL }
-        },
-        { &hf_cigi4_sensor_extended_response_gate_y_size,
-            { "Gate Y Size (pixels or raster lines)", "cigi.sensor_ext_response.gate_y_size",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Specifies the gate symbol size along the view's Y axis", HFILL }
-        },
-        { &hf_cigi4_sensor_extended_response_gate_x_pos,
-            { "Gate X Position (degrees)", "cigi.sensor_ext_response.gate_x_pos",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the gate symbol's position along the view's X axis", HFILL }
-        },
-        { &hf_cigi4_sensor_extended_response_gate_y_pos,
-            { "Gate Y Position (degrees)", "cigi.sensor_ext_response.gate_y_pos",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Specifies the gate symbol's position along the view's Y axis", HFILL }
-        },
-        { &hf_cigi4_sensor_extended_response_frame_ctr,
-            { "Frame Counter", "cigi.sensor_ext_response.frame_ctr",
-                FT_UINT32, BASE_DEC, NULL, 0x0,
-                "Indicates the IG's frame counter at the time that the IG calculates the gate and line-of-sight intersection data", HFILL }
-        },
-        { &hf_cigi4_sensor_extended_response_track_lat,
-            { "Track Point Latitude (degrees)", "cigi.sensor_ext_response.track_lat",
-                FT_DOUBLE, BASE_NONE, NULL, 0x0,
-                "Indicates the geodetic latitude of the point being tracked by the sensor", HFILL }
-        },
-        { &hf_cigi4_sensor_extended_response_track_lon,
-            { "Track Point Longitude (degrees)", "cigi.sensor_ext_response.track_lon",
-                FT_DOUBLE, BASE_NONE, NULL, 0x0,
-                "Indicates the geodetic longitude of the point being tracked by the sensor", HFILL }
-        },
-        { &hf_cigi4_sensor_extended_response_track_alt,
-            { "Track Point Altitude (m)", "cigi.sensor_ext_response.track_alt",
-                FT_DOUBLE, BASE_NONE, NULL, 0x0,
-                "Indicates the geodetic altitude of the point being tracked by the sensor", HFILL }
-        },
 
         /* CIGI2 Height of Terrain Response */
         { &hf_cigi2_height_of_terrain_response,
@@ -18535,61 +15295,7 @@ proto_register_cigi(void)
 
 
         /* CIGI4 Position Response */
-        { &hf_cigi4_position_response,
-            { "Position Response", "cigi.pos_response",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "Position Response Packet", HFILL }
-        },
-        { &hf_cigi4_position_response_object_id,
-            { "Object ID", "cigi.pos_response.object_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Identifies the entity, view, view group, or motion tracking device whose position is being reported", HFILL }
-        },
-        { &hf_cigi4_position_response_part_id,
-            { "Articulated Part ID", "cigi.pos_response.part_id",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Identifies the articulated part whose position is being reported", HFILL }
-        },
-        { &hf_cigi4_position_response_object_class,
-            { "Object Class", "cigi.pos_response.object_class",
-                FT_UINT8, BASE_DEC, VALS(cigi4_position_response_object_class_vals), 0x07,
-                "Indicates the type of object whose position is being reported", HFILL }
-        },
-        { &hf_cigi4_position_response_coord_system,
-            { "Coordinate System", "cigi.pos_response.coord_system",
-                FT_UINT8, BASE_DEC, VALS(cigi4_position_response_coord_system_vals), 0x18,
-                "Indicates the coordinate system in which the position and orientation are specified", HFILL }
-        },
-        { &hf_cigi4_position_response_lat_xoff,
-            { "Latitude (degrees)/X Offset (m)", "cigi.pos_response.lat_xoff",
-                FT_DOUBLE, BASE_NONE, NULL, 0x0,
-                "Indicates the geodetic latitude of the entity, articulated part, view, or view group or indicates the X offset from the parent entity's origin to the child entity, articulated part, view or view group", HFILL }
-        },
-        { &hf_cigi4_position_response_lon_yoff,
-            { "Longitude (degrees)/Y Offset (m)", "cigi.pos_response.lon_yoff",
-                FT_DOUBLE, BASE_NONE, NULL, 0x0,
-                "Indicates the geodetic longitude of the entity, articulated part, view, or view group or indicates the Y offset from the parent entity's origin to the child entity, articulated part, view, or view group", HFILL }
-        },
-        { &hf_cigi4_position_response_alt_zoff,
-            { "Altitude (m)/Z Offset (m)", "cigi.pos_response.alt_zoff",
-                FT_DOUBLE, BASE_NONE, NULL, 0x0,
-                "Indicates the geodetic altitude of the entity, articulated part, view, or view group or indicates the Z offset from the parent entity's origin to the child entity, articulated part, view, or view group", HFILL }
-        },
-        { &hf_cigi4_position_response_roll,
-            { "Roll (degrees)", "cigi.pos_response.roll",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Indicates the roll angle of the specified entity, articulated part, view, or view group", HFILL }
-        },
-        { &hf_cigi4_position_response_pitch,
-            { "Pitch (degrees)", "cigi.pos_response.pitch",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Indicates the pitch angle of the specified entity, articulated part, view, or view group", HFILL }
-        },
-        { &hf_cigi4_position_response_yaw,
-            { "Yaw (degrees)", "cigi.pos_response.yaw",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Indicates the yaw angle of the specified entity, articulated part, view, or view group", HFILL }
-        },
+
         /* CIGI3 Weather Conditions Response */
         { &hf_cigi3_weather_conditions_response,
             { "Weather Conditions Response", "cigi.wea_cond_response",
@@ -18638,51 +15344,6 @@ proto_register_cigi(void)
         },
 
         /* CIGI4 Weather Conditions Response */
-        { &hf_cigi4_weather_conditions_response,
-            { "Weather Conditions Response", "cigi.wea_cond_response",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "Weather Conditions Response Packet", HFILL }
-        },
-        { &hf_cigi4_weather_conditions_response_request_id,
-            { "Request ID", "cigi.wea_cond_response.request_id",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Identifies the environmental conditions request to which this response packet corresponds", HFILL }
-        },
-        { &hf_cigi4_weather_conditions_response_humidity,
-            { "Humidity (%)", "cigi.wea_cond_response.humidity",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Indicates the humidity at the request location", HFILL }
-        },
-        { &hf_cigi4_weather_conditions_response_air_temp,
-            { "Air Temperature (degrees C)", "cigi.wea_cond_response.air_temp",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Indicates the air temperature at the requested location", HFILL }
-        },
-        { &hf_cigi4_weather_conditions_response_visibility_range,
-            { "Visibility Range (m)", "cigi.wea_cond_response.visibility_range",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Indicates the visibility range at the requested location", HFILL }
-        },
-        { &hf_cigi4_weather_conditions_response_horiz_speed,
-            { "Horizontal Wind Speed (m/s)", "cigi.wea_cond_response.horiz_speed",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Indicates the local wind speed parallel to the ellipsoid-tangential reference plane", HFILL }
-        },
-        { &hf_cigi4_weather_conditions_response_vert_speed,
-            { "Vertical Wind Speed (m/s)", "cigi.wea_cond_response.vert_speed",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Indicates the local vertical wind speed", HFILL }
-        },
-        { &hf_cigi4_weather_conditions_response_wind_direction,
-            { "Wind Direction (degrees)", "cigi.wea_cond_response.wind_direction",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Indicates the local wind direction", HFILL }
-        },
-        { &hf_cigi4_weather_conditions_response_barometric_pressure,
-            { "Barometric Pressure (mb or hPa)", "cigi.wea_cond_response.barometric_pressure",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Indicates the atmospheric pressure at the requested location", HFILL }
-        },
 
         /* CIGI3 Aerosol Concentration Response */
         { &hf_cigi3_aerosol_concentration_response,
@@ -18707,26 +15368,6 @@ proto_register_cigi(void)
         },
 
         /* CIGI4 Aerosol Concentration Response */
-        { &hf_cigi4_aerosol_concentration_response,
-            { "Aerosol Concentration Response", "cigi.aerosol_concentration_response",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "Aerosol Concentration Response Packet", HFILL }
-        },
-        { &hf_cigi4_aerosol_concentration_response_request_id,
-            { "Request ID", "cigi.aerosol_concentration_response.request_id",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Identifies the environmental conditions request to which this response packet corresponds", HFILL }
-        },
-        { &hf_cigi4_aerosol_concentration_response_layer_id,
-            { "Layer ID", "cigi.aerosol_concentration_response.layer_id",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Identifies the weather layer whose aerosol concentration is being described", HFILL }
-        },
-        { &hf_cigi4_aerosol_concentration_response_aerosol_concentration,
-            { "Aerosol Concentration (g/m^3)", "cigi.aerosol_concentration_response.aerosol_concentration",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Identifies the concentration of airborne particles", HFILL }
-        },
 
         /* CIGI3 Maritime Surface Conditions Response */
         { &hf_cigi3_maritime_surface_conditions_response,
@@ -18756,31 +15397,6 @@ proto_register_cigi(void)
         },
 
         /* CIGI4 Maritime Surface Conditions Response */
-        { &hf_cigi4_maritime_surface_conditions_response,
-            { "Maritime Surface Conditions Response", "cigi.maritime_surface_conditions_response",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "Maritime Surface Conditions Response Packet", HFILL }
-        },
-        { &hf_cigi4_maritime_surface_conditions_response_request_id,
-            { "Request ID", "cigi.maritime_surface_conditions_response.request_id",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Identifies the environmental conditions request to which this response packet corresponds", HFILL }
-        },
-        { &hf_cigi4_maritime_surface_conditions_response_sea_surface_height,
-            { "Sea Surface Height (m)", "cigi.maritime_surface_conditions_response.sea_surface_height",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Indicates the height of the sea surface at equilibrium", HFILL }
-        },
-        { &hf_cigi4_maritime_surface_conditions_response_surface_water_temp,
-            { "Surface Water Temperature (degrees C)", "cigi.maritime_surface_conditions_response.surface_water_temp",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Indicates the water temperature at the sea surface", HFILL }
-        },
-        { &hf_cigi4_maritime_surface_conditions_response_surface_clarity,
-            { "Surface Clarity (%)", "cigi.maritime_surface_conditions_response.surface_clarity",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Indicates the clarity of the water at its surface", HFILL }
-        },
 
         /* CIGI3 Terrestrial Surface Conditions Response */
         { &hf_cigi3_terrestrial_surface_conditions_response,
@@ -18800,21 +15416,6 @@ proto_register_cigi(void)
         },
 
         /* CIGI4 Terrestrial Surface Conditions Response */
-        { &hf_cigi4_terrestrial_surface_conditions_response,
-            { "Terrestrial Surface Conditions Response", "cigi.terr_surface_cond_response",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "Terrestrial Surface Conditions Response Packet", HFILL }
-        },
-        { &hf_cigi4_terrestrial_surface_conditions_response_request_id,
-            { "Request ID", "cigi.terr_surface_cond_response.request_id",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Identifies the environmental conditions request to which this response packet corresponds", HFILL }
-        },
-        { &hf_cigi4_terrestrial_surface_conditions_response_surface_id,
-            { "Surface Condition ID", "cigi.terr_surface_cond_response.surface_id",
-                FT_UINT32, BASE_DEC, NULL, 0x0,
-                "Indicates the presence of a specific surface condition or contaminant at the test point", HFILL }
-        },
 
         /* CIGI3 Collision Detection Segment Notification */
         { &hf_cigi3_collision_detection_segment_notification,
@@ -18854,41 +15455,6 @@ proto_register_cigi(void)
         },
 
         /* CIGI4 Collision Detection Segment Notification */
-        { &hf_cigi4_collision_detection_segment_notification,
-            { "Collision Detection Segment Notification", "cigi.coll_det_seg_notification",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "Collision Detection Segment Notification Packet", HFILL }
-        },
-        { &hf_cigi4_collision_detection_segment_notification_entity_id,
-            { "Entity ID", "cigi.coll_det_seg_notification.entity_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Indicates the entity to which the collision detection segment belongs", HFILL }
-        },
-        { &hf_cigi4_collision_detection_segment_notification_segment_id,
-            { "Segment ID", "cigi.coll_det_seg_notification.segment_id",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Indicates the ID of the collision detection segment along which the collision occurred", HFILL }
-        },
-        { &hf_cigi4_collision_detection_segment_notification_type,
-            { "Collision Type", "cigi.coll_det_seg_notification.type",
-                FT_BOOLEAN, 8, TFS(&cigi4_collision_detection_segment_notification_type_tfs), 0x01,
-                "Indicates whether the collision occurred with another entity or with a non-entity object", HFILL }
-        },
-        { &hf_cigi4_collision_detection_segment_notification_contacted_entity_id,
-            { "Contacted Entity ID", "cigi.coll_det_seg_notification.contacted_entity_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Indicates the entity with which the collision occurred", HFILL }
-        },
-        { &hf_cigi4_collision_detection_segment_notification_material_code,
-            { "Material Code", "cigi.coll_det_seg_notification.material_code",
-                FT_UINT32, BASE_DEC, NULL, 0x0,
-                "Indicates the material code of the surface at the point of collision", HFILL }
-        },
-        { &hf_cigi4_collision_detection_segment_notification_intersection_distance,
-            { "Intersection Distance (m)", "cigi.coll_det_seg_notification.intersection_distance",
-                FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Indicates the distance along the collision test vector from the source endpoint to the point of intersection", HFILL }
-        },
 
         /* CIGI3 Collision Detection Volume Notification */
         { &hf_cigi3_collision_detection_volume_notification,
@@ -18923,36 +15489,6 @@ proto_register_cigi(void)
         },
 
         /* CIGI4 Collision Detection Volume Notification */
-        { &hf_cigi4_collision_detection_volume_notification,
-            { "Collision Detection Volume Notification", "cigi.coll_det_vol_notification",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "Collision Detection Volume Notification Packet", HFILL }
-        },
-        { &hf_cigi4_collision_detection_volume_notification_entity_id,
-            { "Entity ID", "cigi.coll_det_vol_notification.entity_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Indicates the entity to which the collision detection volume belongs", HFILL }
-        },
-        { &hf_cigi4_collision_detection_volume_notification_volume_id,
-            { "Volume ID", "cigi.coll_det_vol_notification.volume_id",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Indicates the ID of the collision detection volume within which the collision occurred", HFILL }
-        },
-        { &hf_cigi4_collision_detection_volume_notification_type,
-            { "Collision Type", "cigi.coll_det_vol_notification.type",
-                FT_BOOLEAN, 8, TFS(&cigi4_collision_detection_volume_notification_type_tfs), 0x01,
-                "Indicates whether the collision occurred with another entity or with a non-entity object", HFILL }
-        },
-        { &hf_cigi4_collision_detection_volume_notification_contacted_entity_id,
-            { "Contacted Entity ID", "cigi.coll_det_vol_notification.contacted_entity_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Indicates the entity with which the collision occurred", HFILL }
-        },
-        { &hf_cigi4_collision_detection_volume_notification_contacted_volume_id,
-            { "Contacted Volume ID", "cigi.coll_det_vol_notification.contacted_volume_id",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Indicates the ID of the collision detection volume with which the collision occurred", HFILL }
-        },
 
         /* CIGI3 Animation Stop Notification */
         { &hf_cigi3_animation_stop_notification,
@@ -18967,16 +15503,6 @@ proto_register_cigi(void)
         },
 
         /* CIGI4 Animation Stop Notification */
-        { &hf_cigi4_animation_stop_notification,
-            { "Animation Stop Notification", "cigi.animation_stop_notification",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "Animation Stop Notification Packet", HFILL }
-        },
-        { &hf_cigi4_animation_stop_notification_entity_id,
-            { "Entity ID", "cigi.animation_stop_notification.entity_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Indicates the entity ID of the animation that has stopped", HFILL }
-        },
 
         /* CIGI3 Event Notification */
         { &hf_cigi3_event_notification,
@@ -19006,31 +15532,6 @@ proto_register_cigi(void)
         },
 
         /* CIGI4 Event Notification */
-        { &hf_cigi4_event_notification,
-            { "Event Notification", "cigi.event_notification",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "Event Notification Packet", HFILL }
-        },
-        { &hf_cigi4_event_notification_event_id,
-            { "Event ID", "cigi.event_notification.event_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Indicates which event has occurred", HFILL }
-        },
-        { &hf_cigi4_event_notification_data_1,
-            { "Event Data 1", "cigi.event_notification.data_1",
-                FT_BYTES, BASE_NONE, NULL, 0x0,
-                "Used for user-defined event data", HFILL }
-        },
-        { &hf_cigi4_event_notification_data_2,
-            { "Event Data 2", "cigi.event_notification.data_2",
-                FT_BYTES, BASE_NONE, NULL, 0x0,
-                "Used for user-defined event data", HFILL }
-        },
-        { &hf_cigi4_event_notification_data_3,
-            { "Event Data 3", "cigi.event_notification.data_3",
-                FT_BYTES, BASE_NONE, NULL, 0x0,
-                "Used for user-defined event data", HFILL }
-        },
 
         /* CIGI2 Image Generator Message */
         { &hf_cigi2_image_generator_message,
@@ -19045,7 +15546,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_image_generator_message_message,
             { "Message", "cigi.image_generator_message.message",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_STRINGZPAD, BASE_NONE, NULL, 0x0,
                 "Image generator message", HFILL }
         },
 
@@ -19062,26 +15563,11 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_image_generator_message_message,
             { "Message", "cigi.image_generator_message.message",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_STRINGZPAD, BASE_NONE, NULL, 0x0,
                 "Message string", HFILL }
         },
 
         /* CIGI4 Image Generator Message */
-        { &hf_cigi4_image_generator_message,
-            { "Image Generator Message", "cigi.image_generator_message",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "Image Generator Message Packet", HFILL }
-        },
-        { &hf_cigi4_image_generator_message_id,
-            { "Message ID", "cigi.image_generator_message.message_id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Specifies a numerical identifier for the message", HFILL }
-        },
-        { &hf_cigi4_image_generator_message_message,
-            { "Message", "cigi.image_generator_message.message",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
-                "Message string", HFILL }
-        },
 
         /* CIGI2 User Definable */
         { &hf_cigi2_user_definable,
@@ -19142,6 +15628,7 @@ proto_register_cigi(void)
         &ett_cigi4_start_of_frame_ig_condition_flags,
         &ett_cigi4_ig_control_entity_substitution,
         &ett_cigi4_ig_control_flags,
+        &ett_cigi4_entity_position_flags,
         &ett_cigi4_hat_hot_request_flags,
         &ett_cigi4_hat_hot_response_flags,
         &ett_cigi4_hat_hot_extended_response_flags,
@@ -19181,6 +15668,9 @@ proto_register_cigi(void)
 
     cigi3_packet_id_table = register_dissector_table("cigi3.packet_id", "CIGI3 Packet ID",
             proto_cigi, FT_UINT8, BASE_DEC);
+
+    cigi4_packet_id_table = register_dissector_table("cigi4.packet_id", "CIGI4 Packet ID",
+        proto_cigi, FT_UINT16, BASE_HEX);
 }
 
 /* This function is also called by preferences whenever "Apply" is pressed
@@ -19327,6 +15817,120 @@ proto_reg_handoff_cigi(void)
             create_dissector_handle(cigi3_3_add_symbol_control, proto_cigi));
         dissector_add_uint("cigi3.packet_id", CIGI3_PACKET_ID_SHORT_SYMBOL_CONTROL,
             create_dissector_handle(cigi3_3_add_short_symbol_control, proto_cigi));
+
+        // CIGI 4 packet ID types
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_IG_CONTROL,
+            create_dissector_handle(cigi4_add_ig_control, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_ENTITY_POSITION,
+            create_dissector_handle(cigi4_add_entity_position, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_CONFORMAL_CLAMPED_ENTITY_POSITION,
+            create_dissector_handle(cigi4_add_conformal_clamped_entity_position, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_COMPONENT_CONTROL,
+            create_dissector_handle(cigi4_add_component_control, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_SHORT_COMPONENT_CONTROL,
+            create_dissector_handle(cigi4_add_short_component_control, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_ARTICULATED_PART_CONTROL,
+            create_dissector_handle(cigi4_add_articulated_part_control, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_SHORT_ARTICULATED_PART_CONTROL,
+            create_dissector_handle(cigi4_add_short_articulated_part_control, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_VELOCITY_CONTROL,
+            create_dissector_handle(cigi4_add_velocity_control, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_CELESTIAL_SPHERE_CONTROL,
+            create_dissector_handle(cigi4_add_celestial_sphere_control, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_ATMOSPHERE_CONTROL,
+            create_dissector_handle(cigi4_add_atmosphere_control, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_ENVIRONMENTAL_REGION_CONTROL,
+            create_dissector_handle(cigi4_add_environmental_region_control, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_WEATHER_CONTROL,
+            create_dissector_handle(cigi4_add_weather_control, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_MARITIME_SURFACE_CONDITIONS_CONTROL,
+            create_dissector_handle(cigi4_add_maritime_surface_conditions_control, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_WAVE_CONTROL,
+            create_dissector_handle(cigi4_add_wave_control, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_TERRESTRIAL_SURFACE_CONDITIONS_CONTROL,
+            create_dissector_handle(cigi4_add_terrestrial_surface_conditions_control, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_VIEW_CONTROL,
+            create_dissector_handle(cigi4_add_view_control, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_SENSOR_CONTROL,
+            create_dissector_handle(cigi4_add_sensor_control, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_MOTION_TRACKER_CONTROL,
+            create_dissector_handle(cigi4_add_motion_tracker_control, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_EARTH_REFERENCE_MODEL_DEFINITION,
+            create_dissector_handle(cigi4_add_earth_reference_model_definition, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_ACCELERATION_CONTROL,
+            create_dissector_handle(cigi4_add_acceleration_control, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_VIEW_DEFINITION,
+            create_dissector_handle(cigi4_add_view_definition, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_COLLISION_DETECTION_SEGMENT_DEFINITION,
+            create_dissector_handle(cigi4_add_collision_detection_segment_definition, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_COLLISION_DETECTION_VOLUME_DEFINITION,
+            create_dissector_handle(cigi4_add_collision_detection_volume_definition, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_HAT_HOT_REQUEST,
+            create_dissector_handle(cigi4_add_hat_hot_request, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_LINE_OF_SIGHT_SEGMENT_REQUEST,
+            create_dissector_handle(cigi4_add_line_of_sight_segment_request, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_LINE_OF_SIGHT_VECTOR_REQUEST,
+            create_dissector_handle(cigi4_add_line_of_sight_vector_request, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_POSITION_REQUEST,
+            create_dissector_handle(cigi4_add_position_request, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_ENVIRONMENTAL_CONDITIONS_REQUEST,
+            create_dissector_handle(cigi4_add_environmental_conditions_request, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_SYMBOL_SURFACE_DEFINITION,
+            create_dissector_handle(cigi4_add_symbol_surface_definition, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_SYMBOL_TEXT_DEFINITION,
+            create_dissector_handle(cigi4_add_symbol_text_definition, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_SYMBOL_CIRCLE_DEFINITION,
+            create_dissector_handle(cigi4_add_symbol_circle_definition, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_SYMBOL_POLYGON_DEFINITION,
+            create_dissector_handle(cigi4_add_symbol_polygon_definition, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_SYMBOL_CLONE,
+            create_dissector_handle(cigi4_add_symbol_clone, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_SYMBOL_CONTROL,
+            create_dissector_handle(cigi4_add_symbol_control, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_SHORT_SYMBOL_CONTROL,
+            create_dissector_handle(cigi4_add_short_symbol_control, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_SYMBOL_CIRCLE_TEXTURED_DEFINITION,
+            create_dissector_handle(cigi4_add_symbol_circle_textured, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_SYMBOL_POLYGON_TEXTURED_DEFINITION,
+            create_dissector_handle(cigi4_add_symbol_polygon_textured, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_ENTITY_CONTROL,
+            create_dissector_handle(cigi4_add_entity_control, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_ANIMATION_CONTROL,
+            create_dissector_handle(cigi4_add_animation_control, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_START_OF_FRAME,
+            create_dissector_handle(cigi4_add_start_of_frame, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_HAT_HOT_RESPONSE,
+            create_dissector_handle(cigi4_add_hat_hot_response, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_HAT_HOT_EXTENDED_RESPONSE,
+            create_dissector_handle(cigi4_add_hat_hot_extended_response, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_LINE_OF_SIGHT_RESPONSE,
+            create_dissector_handle(cigi4_add_line_of_sight_response, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_LINE_OF_SIGHT_EXTENDED_RESPONSE,
+            create_dissector_handle(cigi4_add_line_of_sight_extended_response, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_SENSOR_RESPONSE,
+            create_dissector_handle(cigi4_add_sensor_response, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_SENSOR_EXTENDED_RESPONSE,
+            create_dissector_handle(cigi4_add_sensor_extended_response, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_POSITION_RESPONSE,
+            create_dissector_handle(cigi4_add_position_response, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_WEATHER_CONDITIONS_RESPONSE,
+            create_dissector_handle(cigi4_add_weather_conditions_response, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_AEROSOL_CONCENTRATION_RESPONSE,
+            create_dissector_handle(cigi4_add_aerosol_concentration_response, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_MARITIME_SURFACE_CONDITIONS_RESPONSE,
+            create_dissector_handle(cigi4_add_maritime_surface_conditions_response, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_TERRESTRIAL_SURFACE_CONDITIONS_RESPONSE,
+            create_dissector_handle(cigi4_add_terrestrial_surface_conditions_response, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_COLLISION_DETECTION_SEGMENT_NOTIFICATION,
+            create_dissector_handle(cigi4_add_collision_detection_segment_notification, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_COLLISION_DETECTION_VOLUME_NOTIFICATION,
+            create_dissector_handle(cigi4_add_collision_detection_volume_notification, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_ANIMATION_STOP_NOTIFICATION,
+            create_dissector_handle(cigi4_add_animation_stop_notification, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_EVENT_NOTIFICATION,
+            create_dissector_handle(cigi4_add_event_notification, proto_cigi));
+        dissector_add_uint("cigi4.packet_id", CIGI4_PACKET_ID_IMAGE_GENERATOR_MESSAGE,
+            create_dissector_handle(cigi4_add_image_generator_message, proto_cigi));
 
         inited = true;
     }
