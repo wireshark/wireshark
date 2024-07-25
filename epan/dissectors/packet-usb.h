@@ -252,6 +252,12 @@ typedef struct _usb_tap_data_t {
 #define ENDPOINT_TYPE_INTERRUPT         3
 #define ENDPOINT_TYPE_NOT_SET         255
 
+/* wMaxPacketSize */
+#define USB_MPS_EP_SIZE(max_packet_size) ((max_packet_size) & 0x07FF)
+#define USB_MPS_ADDNL(max_packet_size)   (((max_packet_size) & 0x1800) >> 11)
+#define USB_MPS(ep_size, addnl)          (((addnl) << 11) | (ep_size))
+#define USB_MPS_TPL(max_packet_size) \
+    ((USB_MPS_ADDNL(max_packet_size) + 1) * USB_MPS_EP_SIZE(max_packet_size))
 
 #define USB_SETUP_GET_STATUS             0
 #define USB_SETUP_CLEAR_FEATURE          1

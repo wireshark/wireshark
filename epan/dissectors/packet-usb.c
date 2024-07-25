@@ -2628,17 +2628,19 @@ unsigned int
 sanitize_usb_max_packet_size(uint8_t ep_type, usb_speed_t speed,
                              unsigned int max_packet_size)
 {
-    unsigned int sanitized = max_packet_size;
+    unsigned int sanitized_ep_size = USB_MPS_EP_SIZE(max_packet_size);
+    unsigned int sanitized_adtnl = USB_MPS_ADDNL(max_packet_size);
     switch (speed) {
     case USB_SPEED_LOW:
+        sanitized_adtnl = 0;
         switch (ep_type) {
             case ENDPOINT_TYPE_CONTROL:
                 /* 8 is the only allowed value */
-                sanitized = 8;
+                sanitized_ep_size = 8;
                 break;
             case ENDPOINT_TYPE_INTERRUPT:
                 if (max_packet_size > 8)
-                    sanitized = 8;
+                    sanitized_ep_size = 8;
                 break;
             default:
                 /* Not allowed */
@@ -2646,26 +2648,27 @@ sanitize_usb_max_packet_size(uint8_t ep_type, usb_speed_t speed,
         }
         break;
     case USB_SPEED_FULL:
+        sanitized_adtnl = 0;
         switch (ep_type) {
         case ENDPOINT_TYPE_CONTROL:
         case ENDPOINT_TYPE_BULK:
             /* Allowed values are: 8, 16, 32 and 64 */
             if (max_packet_size > 32)
-                sanitized = 64;
+                sanitized_ep_size = 64;
             else if (max_packet_size > 16)
-                sanitized = 32;
+                sanitized_ep_size = 32;
             else if (max_packet_size > 8)
-                sanitized = 16;
+                sanitized_ep_size = 16;
             else
-                sanitized = 8;
+                sanitized_ep_size = 8;
             break;
         case ENDPOINT_TYPE_INTERRUPT:
             if (max_packet_size > 64)
-                sanitized = 64;
+                sanitized_ep_size = 64;
             break;
         case ENDPOINT_TYPE_ISOCHRONOUS:
             if (max_packet_size > 1023)
-                sanitized = 1023;
+                sanitized_ep_size = 1023;
             break;
         default:
             break;
@@ -2674,17 +2677,26 @@ sanitize_usb_max_packet_size(uint8_t ep_type, usb_speed_t speed,
     case USB_SPEED_HIGH:
         switch (ep_type) {
         case ENDPOINT_TYPE_CONTROL:
+            sanitized_adtnl = 0;
             /* 64 is the only allowed value */
-            sanitized = 64;
+            sanitized_ep_size = 64;
             break;
         case ENDPOINT_TYPE_BULK:
+            sanitized_adtnl = 0;
             /* 512 is the only allowed value */
-            sanitized = 512;
+            sanitized_ep_size = 512;
             break;
         case ENDPOINT_TYPE_INTERRUPT:
         case ENDPOINT_TYPE_ISOCHRONOUS:
+            /* If endpoint max packet size is out of range for high-bandwidth
+             * endpoint, treat the endpoint as a standard one.
+             */
+            if ((sanitized_adtnl > 2) ||
+                ((sanitized_adtnl == 2) && (max_packet_size < 683)) ||
+                ((sanitized_adtnl == 1) && (max_packet_size < 513)))
+                sanitized_adtnl = 0;
             if (max_packet_size > 1024)
-                sanitized = 1024;
+                sanitized_ep_size = 1024;
             break;
         default:
             break;
@@ -2695,7 +2707,20 @@ sanitize_usb_max_packet_size(uint8_t ep_type, usb_speed_t speed,
         break;
     }
 
-    return sanitized;
+    return USB_MPS(sanitized_ep_size, sanitized_adtnl);
+}
+
+static char *usb_max_packet_size_str(unsigned int max_packet_size)
+{
+    unsigned int ep_size = USB_MPS_EP_SIZE(max_packet_size);
+    unsigned int addnl = USB_MPS_ADDNL(max_packet_size);
+
+    if (addnl == 1 || addnl == 2) {
+        return wmem_strdup_printf(wmem_packet_scope(), "%u * %u = %u",
+                                  addnl + 1, ep_size, (addnl + 1) * ep_size);
+    } else {
+        return wmem_strdup_printf(wmem_packet_scope(), "%u", ep_size);
+    }
 }
 
 int
@@ -2716,6 +2741,7 @@ dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree,
     uint8_t           ep_type;
     uint8_t           len;
     uint32_t          max_packet_size;
+    char             *max_packet_size_str;
     unsigned int      sanitized_max_packet_size;
     usb_trans_info_t *usb_trans_info = NULL;
     conversation_t   *conversation   = NULL;
@@ -2785,18 +2811,21 @@ dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree,
     offset += 1;
 
     /* wMaxPacketSize */
-    ep_pktsize_item = proto_tree_add_item(tree, hf_usb_wMaxPacketSize, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    max_packet_size = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
+    max_packet_size_str = usb_max_packet_size_str(max_packet_size);
+    ep_pktsize_item = proto_tree_add_uint_format_value(tree, hf_usb_wMaxPacketSize,
+        tvb, offset, 2, max_packet_size, "%s", max_packet_size_str);
     ep_pktsize_tree = proto_item_add_subtree(ep_pktsize_item, ett_endpoint_wMaxPacketSize);
     if ((ep_type == ENDPOINT_TYPE_INTERRUPT) || (ep_type == ENDPOINT_TYPE_ISOCHRONOUS)) {
         proto_tree_add_item(ep_pktsize_tree, hf_usb_wMaxPacketSize_slots, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     }
-    proto_tree_add_item_ret_uint(ep_pktsize_tree, hf_usb_wMaxPacketSize_size, tvb, offset, 2, ENC_LITTLE_ENDIAN, &max_packet_size);
+    proto_tree_add_item(ep_pktsize_tree, hf_usb_wMaxPacketSize_size, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     sanitized_max_packet_size = sanitize_usb_max_packet_size(ep_type, speed, max_packet_size);
     if (sanitized_max_packet_size != max_packet_size) {
         expert_add_info_format(pinfo, ep_pktsize_item, &ei_usb_invalid_max_packet_size,
-            "%s %s endpoint max packet size cannot be %u, using %d instead.",
+            "%s %s endpoint max packet size cannot be %s, using %s instead.",
             try_val_to_str(speed, usb_speed_vals), try_val_to_str(ep_type, usb_bmAttributes_transfer_vals),
-            max_packet_size, sanitized_max_packet_size);
+            max_packet_size_str, usb_max_packet_size_str(sanitized_max_packet_size));
         max_packet_size = sanitized_max_packet_size;
     }
     offset+=2;
@@ -6819,7 +6848,7 @@ proto_register_usb(void)
 
         { &hf_usb_wMaxPacketSize_size,
           { "Maximum Packet Size", "usb.wMaxPacketSize.size",
-            FT_UINT16, BASE_DEC, NULL, 0x03FF,
+            FT_UINT16, BASE_DEC, NULL, 0x07FF,
             NULL, HFILL }},
 
         { &hf_usb_wMaxPacketSize_slots,
