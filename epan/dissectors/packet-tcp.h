@@ -238,7 +238,7 @@ typedef struct _mptcp_meta_flow_t {
 
 	uint8_t static_flags;	/* remember which fields are set */
 
-	/* flags exchanged between hosts during 3WHS. Gives checksum/extensiblity/hmac information */
+	/* flags exchanged between hosts during 3WHS. Gives checksum/extensibility/hmac information */
 	uint8_t flags;
 	uint64_t base_dsn;	/* first data seq number (used by relative sequence numbers) seen. */
 	uint64_t nextseq;	/* highest seen nextseq */

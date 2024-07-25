@@ -3053,7 +3053,7 @@ ieee802154_decrypt_payload(tvbuff_t *tvb, unsigned mhr_len, packet_info *pinfo, 
         decrypt_info.status = &status;
         decrypt_info.key = NULL; /* payload function will fill that in */
 
-        if (ptr2)  // if this pointer is not null that mean we foound trel
+        if (ptr2)  // if this pointer is not null that mean we found trel
             payload_tvb = decrypt_ieee802154_payload(tvb, mhr_len, pinfo, NULL, packet, &decrypt_info,
                 ieee802154_set_trel_key, dissect_ieee802154_decrypt);
         else

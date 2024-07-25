@@ -1376,7 +1376,7 @@
 #define ZBEE_MFG_POLY_CONTROL               "Poly-Control APS"
 #define ZBEE_MFG_EASTFIELD_LIGHT            "Eastfield Lighting Co., Ltd Shenzhen"
 #define ZBEE_MFG_IP_DATATEL                 "IP Datatel, Inc."
-#define ZBEE_MFG_LUMI_UNITED_TECH           "Lumi United Techology, Ltd Shenzhen"
+#define ZBEE_MFG_LUMI_UNITED_TECH           "Lumi United Technology, Ltd Shenzhen"
 #define ZBEE_MFG_SENGLED_OPTOELEC           "Sengled Optoelectronics Corp"
 #define ZBEE_MFG_REMOTE_SOLUTION            "Remote Solution Co., Ltd."
 #define ZBEE_MFG_ABB_GENWAY_XIAMEN          "ABB Genway Xiamen Electrical Equipment Co., Ltd."

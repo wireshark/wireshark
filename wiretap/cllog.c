@@ -459,7 +459,7 @@ static bool parseColumnHeaderFields( cCLLog_logFileInfo_t *pInfo, char *pColLine
         if( strcmp( pFieldStart, "Length" ) == 0 )     { pInfo->parseFieldFunc[ fieldNo ] = parseFieldLength; resultFlag = true; }
         if( strcmp( pFieldStart, "Data" ) == 0 )       { pInfo->parseFieldFunc[ fieldNo ] = parseFieldData; resultFlag = true; }
 
-        /* Set start of next field to end of privious + 1 */
+        /* Set start of next field to end of previous + 1 */
         pFieldStart = pFieldEnd + 1;
     }
 

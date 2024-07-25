@@ -1131,7 +1131,7 @@ dissect_payload_header(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
     ti = proto_tree_add_int(payload_tree, hf_bundle_payload_length, tvb, offset, sdnv_length, payload_length);
     if (payload_length < 0) {
         expert_add_info(pinfo, ti, &ei_bundle_payload_length);
-        /* Force quiting */
+        /* Force quitting */
         *lastheader = true;
         return offset;
     }
@@ -1149,7 +1149,7 @@ dissect_payload_header(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
 
         offset = dissect_admin_record(payload_block_tree, tvb, pinfo, offset, payload_length, &success);
         if (!success) {
-            /* Force quiting */
+            /* Force quitting */
             *lastheader = true;
             return offset;
         }

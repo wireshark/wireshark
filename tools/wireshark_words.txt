@@ -80,6 +80,7 @@ amperes
 amsdu
 amsterdam
 anacap
+analysed
 analysing
 analyzers
 analyzes
@@ -493,6 +494,7 @@ datagram
 datagrams
 dataitem
 datalen
+dataln
 datarate
 dataset
 datastate
@@ -528,6 +530,7 @@ dechunk
 decimals
 declarator
 decnet
+decnum
 decompressed
 decompressing
 decompressor
@@ -693,16 +696,19 @@ durations
 düsseldorf
 dword
 dwords
+dyntatom
 e2node
 eapol
 earcfn
 earfcn
+eastat
 ebcdic
 ecdhe
 ecdsa
 econet
 ecpri
 ed137a
+ed137b
 editcap
 edonkey
 eeprom
@@ -806,6 +812,7 @@ expansions
 extapp
 extattr
 extcap
+extcaps
 extcopy
 extensibility
 extensible
@@ -943,6 +950,7 @@ golomb
 goodput
 google
 gopname
+goroutines
 gostr
 gpointer
 gprscdr
@@ -982,6 +990,7 @@ hellman
 heuristic
 heuristicly
 heuristics
+hexnum
 hfarr
 hfill,
 hfindex
@@ -1147,6 +1156,7 @@ ipprim
 ipsec
 ipseckey
 ipset
+ipsilon
 iptables
 iptrace
 ipv4addr
@@ -1180,7 +1190,9 @@ jetds
 jminfo
 joiners
 jsonraw
+jtids
 jupmngr
+k12text
 k12xx
 kademlia
 kasme
@@ -1227,10 +1239,12 @@ lexer
 lexpos
 lfsck
 libcap
+libdir
 libgcrypt
 libiconv
 libndr
 libnl
+libosmocore
 libpcap
 libscap
 libsmi
@@ -1471,6 +1485,9 @@ neighbour
 neighbouring
 neighbours
 nessie
+nested2party
+nested3party
+nested4party
 netboot
 netfilter
 netflow
@@ -1640,6 +1657,8 @@ osmux
 ospf6
 othersat
 outhdr
+overlay1mask
+overlay2mask
 overridable
 p2pstar
 pacch
@@ -1762,6 +1781,8 @@ prefs
 preloaded
 prepay
 prepend
+prepost
+preprocess
 preprocessor
 preshared
 prespecified
@@ -2109,6 +2130,7 @@ sdjournal
 sdkflags
 sdram
 sdusize
+secchan
 sectigo
 sectorization
 sectorized
@@ -2270,8 +2292,10 @@ strbuf
 strcmp
 strdup
 streamid
+strfunc
 stringz
 stringzpad
+strtoul
 struct
 structs
 stype
@@ -2353,6 +2377,7 @@ syncookie
 syniverse
 synphasor
 syntaxes
+synthesiser
 sysdig
 sysex
 sysframe
@@ -2722,6 +2747,7 @@ version6
 version7
 versioned
 versioning
+vfinforecord
 vhdset
 viavi
 virtex
@@ -2765,6 +2791,7 @@ winget
 winpcap
 winspool
 wiphy
+wirelen
 wireshark
 wiretap
 wisun
@@ -2776,6 +2803,7 @@ wowlan
 wpcap
 wrepl
 writable
+writecap
 wsbuglink
 wsbuild
 wscale
@@ -2802,11 +2830,17 @@ xhtml
 xinerama
 xinput
 xmlns
+xoffset
 xprint
 xproto
 xselinux
 xsltproc
+xtest
 xtreme
+yyextra
+yyscanner
+yyterminate
+yytext
 z3950
 zbncp
 zeroes

@@ -12317,7 +12317,7 @@ static const value_string zbee_zcl_appl_ctrl_appl_status_names[] = {
     { ZBEE_ZCL_APPL_CTRL_ID_STATUS_PAUSE,                       "Pause" },
     { ZBEE_ZCL_APPL_CTRL_ID_STATUS_END_PRG,                     "End Programmed" },
     { ZBEE_ZCL_APPL_CTRL_ID_STATUS_FAILURE,                     "Failure" },
-    { ZBEE_ZCL_APPL_CTRL_ID_STATUS_PRG_INTERRUPTED,             "Programme Interrupted" },
+    { ZBEE_ZCL_APPL_CTRL_ID_STATUS_PRG_INTERRUPTED,             "Programming Interrupted" },
     { ZBEE_ZCL_APPL_CTRL_ID_STATUS_IDLE,                        "Idle" },
     { ZBEE_ZCL_APPL_CTRL_ID_STATUS_RINSE_HOLD,                  "Raise Hold" },
     { ZBEE_ZCL_APPL_CTRL_ID_STATUS_SERVICE,                     "Service" },

@@ -1438,7 +1438,7 @@ VALUE_STRING_ARRAY(zbee_zcl_price_tariff_charging_scheme_names);
 #define ZBEE_ZCL_PRICE_BILLING_PERIOD_DURATION_TIMEBASE     0x0F
 #define ZBEE_ZCL_PRICE_BILLING_PERIOD_DURATION_CONTROL      0xF0
 
-/* Billign Period Tariff Type */
+/* Billing Period Tariff Type */
 #define ZBEE_ZCL_PRICE_BILLING_PERIOD_TARIFF_TYPE 0x0F
 
 /* Consolidated Bill Trailing Digit */

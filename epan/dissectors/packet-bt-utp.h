@@ -19,7 +19,7 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/* bittorent is the only protocol on uTP, so extern not WS_DLL_PUBLIC */
+/* bittorrent is the only protocol on uTP, so extern not WS_DLL_PUBLIC */
 extern void
 utp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                  bool proto_desegment, unsigned fixed_len,
