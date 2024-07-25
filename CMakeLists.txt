@@ -1755,7 +1755,7 @@ add_subdirectory( wsutil )
 
 # doc/ must be added after DATAFILE_DIR is set so that the guides can be
 # copied there for running from the build directory
-add_subdirectory( doc EXCLUDE_FROM_ALL )
+add_subdirectory( doc )
 
 if(BUILD_wireshark AND QT_FOUND)
 	add_subdirectory( ui/qt )

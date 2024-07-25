@@ -96,9 +96,10 @@ if(ASCIIDOCTOR_FOUND)
 	ASCIIDOCTOR2ROFFMAN(4 ${MAN4_SOURCE_FILES})
 	ASCIIDOCTOR2HTMLMAN(${MAN1_SOURCE_FILES} ${MAN4_SOURCE_FILES})
 
-	add_custom_target(manpages DEPENDS
-		${MAN1_INSTALL_FILES}
-		${MAN4_INSTALL_FILES}
+	add_custom_target(manpages
+		DEPENDS
+			${MAN1_INSTALL_FILES}
+			${MAN4_INSTALL_FILES}
 	)
 	set_target_properties(manpages PROPERTIES FOLDER "Documentation")
 endif()
@@ -140,14 +141,12 @@ if(ASCIIDOCTOR_FOUND)
 	add_custom_target(faq_html DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/faq.html)
 	set_doc_target_properties(faq_html)
 
-	add_custom_target(faq)
+	add_custom_target(faq DEPENDS faq_html)
 	set_doc_target_properties(faq)
-	add_dependencies (faq faq_html)
 endif()
 
 
-add_custom_target(
-	docs ALL
+add_custom_target(docs
 	DEPENDS
 		${HTML_INSTALL_FILES}
 )
@@ -493,21 +492,26 @@ if(ASCIIDOCTOR_FOUND)
 	ASCIIDOCTOR2DOCBOOK(wsug_src/user-guide.adoc ${ASCIIDOC_CONF_FILES} ${WSUG_SOURCE} ${WSUG_BUILT_DEPS})
 	add_custom_target(user_guide_docbook DEPENDS generate_user-guide.xml)
 	set_doc_target_properties(user_guide_docbook)
+	set_target_properties(user_guide_docbook PROPERTIES EXCLUDE_FROM_ALL True)
 
 	ASCIIDOCTOR2DOCBOOK(wsdg_src/developer-guide.adoc ${ASCIIDOC_CONF_FILES} ${WSDG_SOURCE} ${WSDG_BUILT_DEPS})
 	add_custom_target(developer_guide_docbook DEPENDS generate_developer-guide.xml)
 	set_doc_target_properties(developer_guide_docbook)
+	set_target_properties(developer_guide_docbook PROPERTIES EXCLUDE_FROM_ALL True)
 
 	# Top-level guide targets.
 
 	add_custom_target(user_guides DEPENDS user_guide_docbook)
 	set_doc_target_properties(user_guides)
+	set_target_properties(user_guides PROPERTIES EXCLUDE_FROM_ALL True)
 
 	add_custom_target(developer_guides DEPENDS developer_guide_docbook)
 	set_doc_target_properties(developer_guides)
+	set_target_properties(developer_guides PROPERTIES EXCLUDE_FROM_ALL True)
 
 	add_custom_target(all_guides DEPENDS user_guides developer_guides )
 	set_doc_target_properties(all_guides)
+	set_target_properties(all_guides PROPERTIES EXCLUDE_FROM_ALL True)
 endif()
 
 # User's Guide chain.
@@ -527,13 +531,13 @@ if(ASCIIDOCTOR_FOUND AND XSLTPROC_EXECUTABLE)
 		user-guide.xml
 		WSUG_GRAPHICS
 	)
-	add_custom_target(
-		user_guide_html
+	add_custom_target(user_guide_html
 		DEPENDS
 			wsug_html/index.html
 			wsug_html_chunked/index.html
 	)
 	set_doc_target_properties(user_guide_html)
+	set_target_properties(user_guide_html PROPERTIES EXCLUDE_FROM_ALL True)
 	add_dependencies(user_guides user_guide_html)
 	# Copy the WSUG to the build directory so that when running
 	# from the build directory ui/help_url.c will find the local file.
@@ -555,24 +559,24 @@ endif()
 if(ASCIIDOCTOR_FOUND AND ASCIIDOCTOR_PDF_EXECUTABLE)
 	ASCIIDOCTOR2PDF(${WSUG_TITLE} wsug_src/user-guide.adoc ${WSUG_SOURCE} ${WSUG_BUILT_DEPS})
 
-	add_custom_target(
-		user_guide_pdf
+	add_custom_target(user_guide_pdf
 		DEPENDS
 			"${WSUG_TITLE}.pdf"
 	)
 	set_doc_target_properties(user_guide_pdf)
+	set_target_properties(user_guide_pdf PROPERTIES EXCLUDE_FROM_ALL True)
 	add_dependencies(user_guides user_guide_pdf)
 endif()
 
 if(ASCIIDOCTOR_FOUND AND ASCIIDOCTOR_EPUB_EXECUTABLE)
 	ASCIIDOCTOR2EPUB(${WSUG_TITLE} wsug_src/user-guide.adoc ${WSUG_SOURCE} ${WSUG_BUILT_DEPS})
 
-	add_custom_target(
-		user_guide_epub
+	add_custom_target(user_guide_epub
 		DEPENDS
 			"${WSUG_TITLE}.epub"
 	)
 	set_doc_target_properties(user_guide_epub)
+	set_target_properties(user_guide_epub PROPERTIES EXCLUDE_FROM_ALL True)
 	add_dependencies(user_guides user_guide_epub)
 endif()
 
@@ -593,37 +597,37 @@ if(ASCIIDOCTOR_FOUND AND XSLTPROC_EXECUTABLE)
 		developer-guide.xml
 		WSDG_GRAPHICS
 	)
-	add_custom_target(
-		developer_guide_html
+	add_custom_target(developer_guide_html
 		DEPENDS
 			wsdg_html/index.html
 			wsdg_html_chunked/index.html
 	)
 	set_doc_target_properties(developer_guide_html)
+	set_target_properties(developer_guide_html PROPERTIES EXCLUDE_FROM_ALL True)
 	add_dependencies(developer_guides developer_guide_html)
 endif()
 
 if(ASCIIDOCTOR_FOUND AND ASCIIDOCTOR_PDF_EXECUTABLE)
 	ASCIIDOCTOR2PDF(${WSDG_TITLE} wsdg_src/developer-guide.adoc ${WSDG_SOURCE} ${WSDG_BUILT_DEPS})
 
-	add_custom_target(
-		developer_guide_pdf
+	add_custom_target(developer_guide_pdf
 		DEPENDS
 			"${WSDG_TITLE}.pdf"
 	)
 	set_doc_target_properties(developer_guide_pdf)
+	set_target_properties(developer_guide_pdf PROPERTIES EXCLUDE_FROM_ALL True)
 	add_dependencies(developer_guides developer_guide_pdf)
 endif()
 
 if(ASCIIDOCTOR_FOUND AND ASCIIDOCTOR_EPUB_EXECUTABLE)
 	ASCIIDOCTOR2EPUB(${WSDG_TITLE} wsdg_src/developer-guide.adoc ${WSDG_SOURCE} ${WSDG_BUILT_DEPS})
 
-	add_custom_target(
-		developer_guide_epub
+	add_custom_target(developer_guide_epub
 		DEPENDS
 			"${WSDG_TITLE}.epub"
 	)
 	set_doc_target_properties(developer_guide_epub)
+	set_target_properties(developer_guide_epub PROPERTIES EXCLUDE_FROM_ALL True)
 	add_dependencies(developer_guides developer_guide_epub)
 endif()
 
