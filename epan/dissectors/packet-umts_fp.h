@@ -9,8 +9,6 @@
  */
 
 
-#include <glib.h>
-
 /* Channel types */
 #define CHANNEL_UNKNOWN           0
 #define CHANNEL_RACH_FDD          1

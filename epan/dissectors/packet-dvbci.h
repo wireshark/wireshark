@@ -12,7 +12,6 @@
 #ifndef __PACKET_DVBCI_H__
 #define __PACKET_DVBCI_H__
 
-#include <glib.h>
 #include <epan/packet_info.h>
 #include <epan/value_string.h>
 

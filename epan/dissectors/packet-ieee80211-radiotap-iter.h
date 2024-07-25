@@ -12,7 +12,6 @@
 
 #define RADIOTAP_SUPPORT_OVERRIDES
 
-#include <glib.h>
 #include "packet-ieee80211-radiotap-defs.h"
 
 /* Radiotap header iteration

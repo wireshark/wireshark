@@ -13,7 +13,6 @@
 #ifndef __PACKET_RDPUDP_H__
 #define __PACKET_RDPUDP_H__
 
-#include <glib.h>
 #include <epan/packet.h>
 
 extern int proto_rdpudp;

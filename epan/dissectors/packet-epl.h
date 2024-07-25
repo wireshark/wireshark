@@ -13,7 +13,6 @@
 #ifndef __EPL_H_
 #define __EPL_H_
 
-#include <glib.h>
 #include <epan/address.h>
 #include <epan/wmem_scopes.h>
 #include <epan/range.h>

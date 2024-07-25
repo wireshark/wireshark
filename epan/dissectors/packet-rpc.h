@@ -12,7 +12,6 @@
 #ifndef __PACKET_RPC_H__
 #define __PACKET_RPC_H__
 
-#include <glib.h>
 #include <epan/packet.h>
 #include "ws_symbol_export.h"
 

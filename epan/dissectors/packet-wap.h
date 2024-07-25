@@ -16,7 +16,6 @@
 #ifndef __PACKET_WAP_H__
 #define __PACKET_WAP_H__
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
 

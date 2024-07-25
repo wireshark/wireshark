@@ -11,8 +11,6 @@
 #ifndef __TO_STR_H__
 #define __TO_STR_H__
 
-#include <glib.h>
-
 #include "wsutil/nstime.h"
 #include <wsutil/inet_cidr.h>
 #include <epan/proto.h>

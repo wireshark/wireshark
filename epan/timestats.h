@@ -12,7 +12,6 @@
 #ifndef __TIMESTATS_H__
 #define __TIMESTATS_H__
 
-#include <glib.h>
 #include "epan/packet_info.h"
 #include "wsutil/nstime.h"
 

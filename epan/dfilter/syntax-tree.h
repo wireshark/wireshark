@@ -11,7 +11,6 @@
 
 #include <stdio.h>
 #include <inttypes.h>
-#include <glib.h>
 
 #include <wsutil/ws_assert.h>
 #include <wsutil/wslog.h>

@@ -25,8 +25,6 @@
 
 #include <stdarg.h>
 
-#include <glib.h>
-
 #include <epan/wmem_scopes.h>
 
 #include "wsutil/inet_cidr.h"

@@ -11,7 +11,6 @@
 #define __PACKET_LAPDM_H__
 
 #include <stdbool.h>
-#include <glib.h>
 
 /* See GSM TS 04.06 */
 enum lapdm_hdr_type {

@@ -11,7 +11,6 @@
 #ifndef __VALUE_STRING_H__
 #define __VALUE_STRING_H__
 
-#include <glib.h>
 #include <stdint.h>
 
 #include "ws_symbol_export.h"

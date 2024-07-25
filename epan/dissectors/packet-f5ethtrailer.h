@@ -52,8 +52,6 @@
 #ifndef _PACKETH_F5ETHTRAILER_H_
 #define _PACKETH_F5ETHTRAILER_H_
 
-#include <glib.h>
-
 #define F5ETH_TAP_TMM_MAX   UINT16_MAX
 #define F5ETH_TAP_TMM_BITS  16
 #define F5ETH_TAP_SLOT_MAX  UINT16_MAX

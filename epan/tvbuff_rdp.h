@@ -14,7 +14,6 @@
 #ifndef __TVBUFF_RDP_H__
 #define __TVBUFF_RDP_H__
 
-#include <glib.h>
 #include <epan/wmem_scopes.h>
 #include <epan/tvbuff.h>
 

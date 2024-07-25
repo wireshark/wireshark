@@ -11,7 +11,6 @@
 #ifndef PACKET_KNXIP_H
 #define PACKET_KNXIP_H
 
-#include <glib.h>
 #include <epan/expert.h>
 #include "packet-knxip_decrypt.h"
 

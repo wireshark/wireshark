@@ -16,8 +16,6 @@
 
 #include <stdio.h>
 
-#include <glib.h>
-
 #ifdef _WIN32
 #include <windows.h>
 #include <psapi.h>

@@ -13,7 +13,6 @@
 #ifndef __PTVCURSOR_H__
 #define __PTVCURSOR_H__
 
-#include <glib.h>
 #include <epan/packet.h>
 #include "ws_symbol_export.h"
 

@@ -13,7 +13,6 @@
 #ifndef __PACKET_MPEG_DESCRIPTOR_H_
 #define __PACKET_MPEG_DESCRIPTOR_H_
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/value_string.h>
 

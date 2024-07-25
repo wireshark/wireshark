@@ -15,8 +15,6 @@
 #include "ws_symbol_export.h"
 #include "ws_attributes.h"
 
-#include <glib.h>
-
 #include <epan/tvbuff.h>
 #include <epan/packet_info.h>
 

@@ -12,7 +12,6 @@
 #ifndef PACKET_PW_COMMON_H
 #define PACKET_PW_COMMON_H
 
-#include <glib.h>
 #include <epan/packet.h>
 
 #define PWC_SIZEOF_CW 4

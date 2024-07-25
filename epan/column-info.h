@@ -13,7 +13,6 @@
 #ifndef __COLUMN_INFO_H__
 #define __COLUMN_INFO_H__
 
-#include <glib.h>
 #include <epan/column-utils.h>
 
 #ifdef __cplusplus

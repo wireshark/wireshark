@@ -13,8 +13,6 @@
 #ifndef __PACKET_FTDI_FT_H__
 #define __PACKET_FTDI_FT_H__
 
-#include <glib.h>
-
 typedef enum {
     FTDI_CHIP_UNKNOWN,
     FTDI_CHIP_FT8U232AM,

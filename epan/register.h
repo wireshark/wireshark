@@ -12,8 +12,6 @@
 #ifndef __REGISTER_H__
 #define __REGISTER_H__
 
-#include <glib.h>
-
 typedef enum {
     RA_NONE,              /* For initialization */
     RA_DISSECTORS,        /* Initializing dissectors */

@@ -11,7 +11,6 @@
 #ifndef __STATS_TREE_H
 #define __STATS_TREE_H
 
-#include <glib.h>
 #include <epan/epan.h>
 #include <epan/packet_info.h>
 #include <epan/tap.h>

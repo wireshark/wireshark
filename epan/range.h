@@ -14,7 +14,6 @@
 #ifndef __RANGE_H__
 #define __RANGE_H__
 
-#include <glib.h>
 #include "ws_symbol_export.h"
 #include <epan/wmem_scopes.h>
 

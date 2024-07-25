@@ -52,7 +52,6 @@
 #define _TVB_PARSE_H_
 
 #include <epan/tvbuff.h>
-#include <glib.h>
 #include "ws_symbol_export.h"
 
 typedef struct _tvbparse_elem_t tvbparse_elem_t;

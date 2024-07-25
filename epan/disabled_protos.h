@@ -16,7 +16,6 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#include <glib.h>
 #include <ws_symbol_export.h>
 
 /*

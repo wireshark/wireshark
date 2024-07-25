@@ -19,7 +19,6 @@
 #ifndef __PACKET_JXTA_H__
 #define __PACKET_JXTA_H__
 
-#include <glib.h>
 #include <epan/address.h>
 
 /**
