@@ -26,6 +26,7 @@
 #include <epan/tap.h>
 #include <epan/srt_table.h>
 #include <proto.h>
+#include <unit_strings.h>
 
 #include "packet-gsm_a_common.h"
 #include "packet-gsm_map.h"
@@ -9952,12 +9953,12 @@ void proto_register_gtpv2(void)
         },
         {&hf_gtpv2_ambr_up,
          {"AMBR Uplink (Aggregate Maximum Bit Rate for Uplink)", "gtpv2.ambr_up",
-          FT_UINT32, BASE_DEC, NULL, 0x0,
+          FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_kbps, 0x0,
           NULL, HFILL}
         },
         {&hf_gtpv2_ambr_down,
-         {"AMBR Downlink(Aggregate Maximum Bit Rate for Downlink)", "gtpv2.ambr_down",
-          FT_UINT32, BASE_DEC, NULL, 0x0,
+         {"AMBR Downlink (Aggregate Maximum Bit Rate for Downlink)", "gtpv2.ambr_down",
+          FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_kbps, 0x0,
           NULL, HFILL}
         },
         {&hf_gtpv2_ebi,
@@ -10820,22 +10821,22 @@ void proto_register_gtpv2(void)
         },
         {&hf_gtpv2_bearer_qos_mbr_up,
          {"Maximum Bit Rate For Uplink", "gtpv2.bearer_qos_mbr_up",
-          FT_UINT64, BASE_DEC, NULL, 0x0,
+          FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_kbps, 0x0,
           NULL, HFILL}
         },
         {&hf_gtpv2_bearer_qos_mbr_down,
          {"Maximum Bit Rate For Downlink", "gtpv2.bearer_qos_mbr_down",
-          FT_UINT64, BASE_DEC, NULL, 0x0,
+          FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_kbps, 0x0,
           NULL, HFILL}
         },
         {&hf_gtpv2_bearer_qos_gbr_up,
          {"Guaranteed Bit Rate For Uplink", "gtpv2.bearer_qos_gbr_up",
-          FT_UINT64, BASE_DEC, NULL, 0x0,
+          FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_kbps, 0x0,
           NULL, HFILL}
         },
         {&hf_gtpv2_bearer_qos_gbr_down,
          {"Guaranteed Bit Rate For Downlink", "gtpv2.bearer_qos_gbr_down",
-          FT_UINT64, BASE_DEC, NULL, 0x0,
+          FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_kbps, 0x0,
           NULL, HFILL}
         },
         {&hf_gtpv2_flow_qos_label_qci,
