@@ -923,6 +923,18 @@ dissect_pgsql(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     conversation = find_or_create_conversation(pinfo);
     conn_data = (pgsql_conn_data_t *)conversation_get_proto_data(conversation, proto_pgsql);
 
+    bool fe = (pinfo->match_uint == pinfo->destport);
+
+    if (fe && tvb_get_uint8(tvb, 0) == 0x16 &&
+        (!conn_data || wmem_tree_lookup32_le(conn_data->state_tree, pinfo->num) == NULL))
+    {
+        /* This is the first message in the conversation, and it looks
+         * like a TLS handshake. Assume the client is performing
+         * "direct SSL" negotiation.
+         */
+        tls_set_appdata_dissector(tls_handle, pinfo, pgsql_handle);
+    }
+
     if (!tvb_ascii_isprint(tvb, 0, 1) && tvb_get_uint8(tvb, 0) != '\0') {
         /* Doesn't look like the start of a PostgreSQL packet. Have we
          * seen Postgres yet?
@@ -941,8 +953,6 @@ dissect_pgsql(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
          * so we don't send it to tcp_dissect_pdus()?
          */
     }
-
-    bool fe = (pinfo->match_uint == pinfo->destport);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PGSQL");
     col_set_str(pinfo->cinfo, COL_INFO,
