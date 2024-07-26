@@ -424,8 +424,7 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %endif
 
 %defattr(-,root,root)
-# Should we install release-notes.txt instead?
-%doc AUTHORS COPYING release-notes.html README.md
+%doc AUTHORS COPYING README.md
 %if %{with guides}
 %exclude %{_datadir}/doc/wireshark/wsdg_html_chunked
 %endif
