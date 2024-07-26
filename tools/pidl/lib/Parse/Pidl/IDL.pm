@@ -2647,23 +2647,29 @@ sub parse_file($$)
 	undef $/;
 	my $cpp = $ENV{CPP};
 	my $options = "";
-	if (! defined $cpp) {
-		if (defined $ENV{CC}) {
-			$cpp = "$ENV{CC}";
-			$options = "-E";
-		} else {
-			#
-			# If cc is Clang-based don't use cpp, as
-			# at least some versions of Clang, cpp
-			# doesn't strip // comments, but cc -E
-			# does.
-			#
-			my $cc_version = `cc --version`;
-			if ($cc_version =~ /clang/) {
-				$cpp = "cc";
-				$options = "-E"
+	my $os=($^O)
+	if $os = "win"{
+
+	}else{
+		if (! defined $cpp) {
+			if (defined $ENV{CC}) {
+				$cpp = "$ENV{CC}";
+				$options = "-E";
 			} else {
-				$cpp = "cpp";
+				#
+				# If cc is Clang-based don't use cpp, as
+				# at least some versions of Clang, cpp
+				# doesn't strip // comments, but cc -E
+				# does.
+				#
+
+				my $cc_version = `cc --version`;
+				if ($cc_version =~ /clang/) {
+					$cpp = "cc";
+					$options = "-E"
+				} else {
+					$cpp = "cpp";
+				}
 			}
 		}
 	}
