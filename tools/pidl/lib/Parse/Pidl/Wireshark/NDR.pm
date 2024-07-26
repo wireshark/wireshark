@@ -1181,7 +1181,6 @@ sub Parse($$$$$)
 	$self->{res}->{headers} = "\n";
 	$self->{res}->{headers} .= "#include \"config.h\"\n";
 
-	$self->{res}->{headers} .= "#include <glib.h>\n";
 	$self->{res}->{headers} .= "#include <string.h>\n";
 	$self->{res}->{headers} .= "#include <epan/packet.h>\n\n";
 
