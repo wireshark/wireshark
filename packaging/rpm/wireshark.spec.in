@@ -369,6 +369,7 @@ development of Wireshark scripts and plugins.
 %if %{with guides}
 %cmake_install --component UserGuide
 %cmake_install --component DeveloperGuide
+%cmake_install --component ReleaseNotes
 %endif
 
 # If we're being installed in an unusual prefix tell the loader where
@@ -423,7 +424,8 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %endif
 
 %defattr(-,root,root)
-%doc AUTHORS COPYING NEWS README.md
+# Should we install release-notes.txt instead?
+%doc AUTHORS COPYING release-notes.html README.md
 %if %{with guides}
 %exclude %{_datadir}/doc/wireshark/wsdg_html_chunked
 %endif

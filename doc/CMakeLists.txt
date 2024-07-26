@@ -176,6 +176,7 @@ if(ASCIIDOCTOR_FOUND)
 			${CMAKE_CURRENT_BINARY_DIR}/release-notes.html
 		DESTINATION
 			${CMAKE_INSTALL_DOCDIR}
+		COMPONENT "ReleaseNotes"
 	)
 endif()
 
