@@ -4623,6 +4623,9 @@ proto_reg_handoff_ber(void)
     ber_update_oids();
 
     dissector_add_uint("wtap_encap", WTAP_ENCAP_BER, ber_file_handle);
+
+    dissector_add_string("media_type.suffix", "ber", ber_handle); /* RFC 6839 */
+    dissector_add_string("media_type.suffix", "der", ber_handle); /* RFC 6839 */
 }
 
 /*

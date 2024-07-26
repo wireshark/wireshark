@@ -1820,6 +1820,7 @@ void
 proto_reg_handoff_xml(void)
 {
     wmem_map_foreach(media_types, add_dissector_media, NULL);
+    dissector_add_string("media_type.suffix", "xml", xml_handle); /* RFC 7303 9.6 */
     dissector_add_uint_range_with_preference("tcp.port", "", xml_handle);
     dissector_add_uint_range_with_preference("udp.port", XML_UDP_PORT_RANGE, xml_handle);
 

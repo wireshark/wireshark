@@ -28,15 +28,36 @@ static int proto_media;
 static int hf_media_type;
 static int ett_media;
 static heur_dissector_list_t heur_subdissector_list;
+static dissector_table_t media_type_suffix_table;
 
 static int
-dissect_media(tvbuff_t *tvb, packet_info *pinfo , proto_tree *tree, void* data)
+dissect_media(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     int bytes;
     proto_item *ti;
     proto_tree *media_tree = 0;
     media_content_info_t *content_info = (media_content_info_t *)data;
     heur_dtbl_entry_t *hdtbl_entry;
+    char* suffix;
+
+    /* XXX - Should we move the other media_type table here, and have
+     * dissectors always call this dissector instead of invoking the table,
+     * similar to the Ethertype dissector?
+     * It would make Decode As with Media Types easier.
+     */
+
+    /*
+     * RFC 6838 4.2 Naming Requirements
+     * "Characters after last plus always specify a structured syntax suffix"
+     */
+    if (pinfo->match_string &&
+        (suffix = strrchr(pinfo->match_string, '+'))) {
+
+        if ((bytes = dissector_try_string_new(media_type_suffix_table,
+                suffix + 1, tvb, pinfo, tree, true, data)) > 0) {
+            return bytes;
+        }
+    }
 
     if (dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, &hdtbl_entry, data)) {
         return tvb_reported_length(tvb);
@@ -99,6 +120,15 @@ proto_register_media(void)
      * is disabled, so it cannot itself be disabled.
      */
     proto_set_cant_toggle(proto_media);
+
+    /*
+     * https://www.iana.org/assignments/media-type-structured-suffix/media-type-structured-suffix.xhtml
+     * Structured Suffixes ("zzz" in "xxx/yyy+zzz") can be used as fallback
+     * when the exact media type is not registered.
+     */
+    media_type_suffix_table = register_dissector_table("media_type.suffix",
+        "Internet media type structured suffix",
+        proto_media, FT_STRING, STRING_CASE_INSENSITIVE);
 }
 
 /*

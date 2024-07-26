@@ -8254,6 +8254,9 @@ proto_reg_handoff_wbxml(void)
 	/* Same as application/vnd.nokia.syncset+wbxml */
 	dissector_add_string("media_type",
 			     "application/x-prov.syncset+wbxml", wbxml_handle);
+
+	/* RFC 6839 */
+	dissector_add_string("media_type.suffix", "wbxml", wbxml_handle);
 }
 
 /*

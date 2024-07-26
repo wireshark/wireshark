@@ -1374,6 +1374,7 @@ void proto_reg_handoff_cose(void) {
     handle_cbor = find_dissector("cbor");
 
     dissector_add_string("media_type", "application/cose", handle_cose_msg_tagged);
+    dissector_add_string("media_type.suffix", "cose", handle_cose_msg_tagged);
     // RFC 8152 tags and names (Table 26)
     register_msg_dissector(handle_cose_sign, handle_cose_sign_media_type, 98, "application/cose; cose-type=\"cose-sign\"");
     register_msg_dissector(handle_cose_sign1, handle_cose_sign1_media_type, 18, "application/cose; cose-type=\"cose-sign1\"");
