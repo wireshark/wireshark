@@ -883,7 +883,7 @@ Allowed-Rate-Information-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 }
 
 Allowed-Rate			::= INTEGER (1..maxNrOfTFs)
--- ì1î: TFI 0, ì2î: TFI 1, ì3î: TFI 2, ...
+-- ‚Äú1‚Äù: TFI 0, ‚Äú2‚Äù: TFI 1, ‚Äú3‚Äù: TFI 2, ...
 
 AllowedQueuingTime			::= INTEGER (1..60)
 -- seconds
@@ -2023,7 +2023,7 @@ DCH-ENH-Information ::= SEQUENCE {
 	pO2-SRB					PowerOffset,
 	dl-FET-Mode				DL-FET-Mode,
 	dCH-ENH-Concat			DCH-ENH-Concat		OPTIONAL
--- This IE shall be present if dl-FET-Mode is equal to ìfullî --,
+-- This IE shall be present if dl-FET-Mode is equal to ‚Äúfull‚Äù --,
 	iE-Extensions			ProtocolExtensionContainer { { DCH-ENH-Information-ExtIEs } }	OPTIONAL,
 	...
 }
@@ -2036,7 +2036,7 @@ DCH-ENH-Information-to-Modify ::= SEQUENCE {
 	pO-SRB					PowerOffset			OPTIONAL,
 	dl-FET-Mode				DL-FET-Mode			OPTIONAL,
 	dCH-ENH-Concat			DCH-ENH-Concat		OPTIONAL
--- This IE shall be present if dl-FET-Mode is equal to ìfullî --,
+-- This IE shall be present if dl-FET-Mode is equal to ‚Äúfull‚Äù --,
 	iE-Extensions			ProtocolExtensionContainer { { DCH-ENH-Information-to-Modify-ExtIEs } }	OPTIONAL,
 	...
 }
@@ -2317,7 +2317,7 @@ DGANSSCorrections ::= SEQUENCE {
 	dGANSS-Information				SEQUENCE (SIZE (1..maxSgnType)) OF SEQUENCE {
 		gANSS-SignalId					GANSS-Signal-ID												OPTIONAL,
 		gANSS-StatusHealth				GANSS-StatusHealth,
--- The following IE shall be present if the StatusHealth IE value is not equal to ìno dataî or ìinvalid dataî 
+-- The following IE shall be present if the StatusHealth IE value is not equal to ‚Äúno data‚Äù or ‚Äúinvalid data‚Äù 
 		dGANSS-SignalInformation		SEQUENCE (SIZE (1..maxGANSSSat)) OF SEQUENCE {
 			satId							INTEGER(0..63),
 			gANSS-iod						BIT STRING (SIZE (10)),
@@ -2461,20 +2461,20 @@ DL-DPCH-TimingAdjustment ::= ENUMERATED {
 
 DL-Power				::= INTEGER (-350..150)
 -- Value = DL-Power / 10
--- Unit dB, Range ñ35dB .. +15dB, Step 0.1dB
+-- Unit dB, Range ‚Äì35dB .. +15dB, Step 0.1dB
 
 DL-PowerBalancing-Information ::= SEQUENCE {
 	powerAdjustmentType					PowerAdjustmentType,
     dLReferencePower					DL-Power							OPTIONAL,
-	-- This IE shall be present if Power Adjustment Type IE equals to ëCommoní
+	-- This IE shall be present if Power Adjustment Type IE equals to ‚ÄòCommon‚Äô
 	dLReferencePowerList				DL-ReferencePowerInformationList	OPTIONAL,
-	-- This IE shall be present if Power Adjustment Type IE equals to ëIndividualí
+	-- This IE shall be present if Power Adjustment Type IE equals to ‚ÄòIndividual‚Äô
 	maxAdjustmentStep					MaxAdjustmentStep					OPTIONAL,
-	-- This IE shall be present if Power Adjustment Type IE equals to ëCommoní or ëIndividualí
+	-- This IE shall be present if Power Adjustment Type IE equals to ‚ÄòCommon‚Äô or ‚ÄòIndividual‚Äô
 	adjustmentPeriod					AdjustmentPeriod					OPTIONAL,
-	-- This IE shall be present if Power Adjustment Type IE equals to ëCommoní or ëIndividualí
+	-- This IE shall be present if Power Adjustment Type IE equals to ‚ÄòCommon‚Äô or ‚ÄòIndividual‚Äô
 	adjustmentRatio						ScaledAdjustmentRatio				OPTIONAL,
-	-- This IE shall be present if Power Adjustment Type IE equals to ëCommoní or ëIndividualí
+	-- This IE shall be present if Power Adjustment Type IE equals to ‚ÄòCommon‚Äô or ‚ÄòIndividual‚Äô
 	iE-Extensions						ProtocolExtensionContainer { { DL-PowerBalancing-Information-ExtIEs } } OPTIONAL,
 	...
 }
@@ -2933,7 +2933,7 @@ EDCH-FDD-Information-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-E-DCH-PowerOffset-for-SchedulingInfo		CRITICALITY ignore	EXTENSION E-DCH-PowerOffset-for-SchedulingInfo	PRESENCE optional}|
 	{ ID id-SixteenQAM-UL-Operation-Indicator			CRITICALITY reject	EXTENSION SixteenQAM-UL-Operation-Indicator		PRESENCE optional}|
 	{ ID id-E-AGCH-Table-Choice							CRITICALITY ignore	EXTENSION E-AGCH-Table-Choice			PRESENCE conditional}|
-	-- The IE shall be present if the SixteenQAM UL Operation Indicator IE is set to ìActivateîó
+	-- The IE shall be present if the SixteenQAM UL Operation Indicator IE is set to ‚ÄúActivate‚Äù‚Äî
 	{ ID id-SixtyfourQAM-UL-Operation-Indicator			CRITICALITY reject	EXTENSION SixtyfourQAM-UL-Operation-Indicator	PRESENCE optional}|
 	{ ID id-UL-MIMO-Information							CRITICALITY reject	EXTENSION UL-MIMO-Information			PRESENCE optional}|
 	{ ID id-UPH-Filtering-Measurement-Forwarding-Request	CRITICALITY reject	EXTENSION UPH-Filtering-Measurement-Forwarding-Request	PRESENCE optional},
@@ -2990,7 +2990,7 @@ EDCH-FDD-Information-To-Modify-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 { ID id-E-DCH-MACdPDUSizeFormat						CRITICALITY reject	EXTENSION E-DCH-MACdPDUSizeFormat			PRESENCE optional}|
 { ID id-E-DCH-DL-Control-Channel-Grant-Information	CRITICALITY ignore	EXTENSION E-DCH-DL-Control-Channel-Grant-Information	PRESENCE optional}|
 { ID id-E-AGCH-Table-Choice							CRITICALITY ignore	EXTENSION E-AGCH-Table-Choice			PRESENCE conditional}|
--- The IE shall be present if the SixteenQAM UL Operation Indicator IE is set to ìActivateîó
+-- The IE shall be present if the SixteenQAM UL Operation Indicator IE is set to ‚ÄúActivate‚Äù‚Äî
 { ID id-SixtyfourQAM-UL-Operation-Indicator			CRITICALITY reject	EXTENSION SixtyfourQAM-UL-Operation-Indicator		PRESENCE optional}|
 { ID id-UL-MIMO-Information							CRITICALITY reject	EXTENSION UL-MIMO-Information			PRESENCE optional}|
 { ID id-Fast-TTI-switching-Mode-synchronized		CRITICALITY reject	EXTENSION Fast-TTI-switching-Mode-synchronized		PRESENCE optional}|
@@ -4974,7 +4974,7 @@ GANSS-GenericDataInfoReqItem-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 	{ID id-GANSS-AddNavigationModelsReq	CRITICALITY ignore	EXTENSION GANSS-AddNavigationModelsReq			PRESENCE optional}|
 	{ID id-GANSS-AddUTCModelsReq		CRITICALITY ignore	EXTENSION GANSS-AddUTCModelsReq						PRESENCE optional}|
 	{ID id-GANSS-AuxInfoReq				CRITICALITY ignore	EXTENSION GANSS-AuxInfoReq							PRESENCE optional}|
-	-- The following IE shall be present if ëGANSS-IDí in ëGANSS-GenericDataInfoReqItemí is ë0í (SBAS)
+	-- The following IE shall be present if ‚ÄòGANSS-ID‚Äô in ‚ÄòGANSS-GenericDataInfoReqItem‚Äô is ‚Äò0‚Äô (SBAS)
 	{ID id-GANSS-SBAS-ID				CRITICALITY	ignore	EXTENSION GANSS-SBAS-ID						PRESENCE optional}|
 	{ID id-DBDS-CorrectionsReq			CRITICALITY ignore	EXTENSION DBDS-CorrectionsReq				PRESENCE optional}|
 	{ID id-BDS-IonosphericGridModelReq	CRITICALITY ignore	EXTENSION BDS-IonosphericGridModelReq		PRESENCE optional},
@@ -5002,7 +5002,7 @@ GANSS-Generic-DataItem-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-GANSS-Additional-Navigation-Models		CRITICALITY ignore	EXTENSION GANSS-Additional-Navigation-Models	PRESENCE optional}|
 	{ ID id-GANSS-Additional-UTC-Models				CRITICALITY ignore	EXTENSION GANSS-Additional-UTC-Models		PRESENCE optional}|
 	{ ID id-GANSS-Auxiliary-Information				CRITICALITY ignore	EXTENSION GANSS-Auxiliary-Information		PRESENCE optional}|
-	-- The following element shall be present if ëGANSS-IDí in ëGANSS-Generic-DataItemí is ë0í (ëSBASí)
+	-- The following element shall be present if ‚ÄòGANSS-ID‚Äô in ‚ÄòGANSS-Generic-DataItem‚Äô is ‚Äò0‚Äô (‚ÄòSBAS‚Äô)
 	{ ID id-GANSS-SBAS-ID							CRITICALITY ignore	EXTENSION GANSS-SBAS-ID			PRESENCE optional}|
 	{ ID id-DBDS-Corrections						CRITICALITY ignore	EXTENSION DBDS-Corrections		PRESENCE optional}|
 	{ ID id-BDS-Ionospheric-Grid-Model				CRITICALITY ignore	EXTENSION BDS-Ionospheric-Grid-Model		PRESENCE optional},
@@ -5193,7 +5193,7 @@ GANSS-NavModel-NAVKeplerianSet-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 }
 
 GANSS-NavModel-SBASecef ::= SEQUENCE {
-	-- the following IE shall be present if ëGANSS-SBASclockModelí in ëGANSS-AddClockModelsí is not included in ëGanss-Sat-Info-AddNavListí
+	-- the following IE shall be present if ‚ÄòGANSS-SBASclockModel‚Äô in ‚ÄòGANSS-AddClockModels‚Äô is not included in ‚ÄòGanss-Sat-Info-AddNavList‚Äô
 	sbasTo					BIT STRING (SIZE (13))												OPTIONAL,
 	sbasAccuracy			BIT STRING (SIZE (4)),
 	sbasXg					BIT STRING (SIZE (30)),
@@ -5317,7 +5317,7 @@ GANSS-SAT-Info-Almanac-BDS ::= SEQUENCE {
 	bdsAlmA0				BIT STRING (SIZE (11)),
 	bdsAlmA1				BIT STRING (SIZE (11)),
 	bdsSvHealth				BIT STRING (SIZE(9))	OPTIONAL,
--- Mondatory if the IE ìSat IDî is between 0 and 29 and not needed otherwise
+-- Mondatory if the IE ‚ÄúSat ID‚Äù is between 0 and 29 and not needed otherwise
 	iE-Extensions			ProtocolExtensionContainer { { GANSS-SAT-Info-Almanac-BDS-ExtIEs } } OPTIONAL,
 	...
 }
@@ -5663,7 +5663,7 @@ GeographicalCoordinate-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 GERAN-Cell-Capability ::= BIT STRING (SIZE (16))
 -- First bit: A/Gb mode --
 -- Second bit: Iu mode --
--- Note: undefined bits are considered as a spare bit and spare bits shall be set to 0 by the transmitter and shall be ignored by the receiver. ñ
+-- Note: undefined bits are considered as a spare bit and spare bits shall be set to 0 by the transmitter and shall be ignored by the receiver. ‚Äì
 
 GERAN-Classmark ::= OCTET STRING
 	-- GERAN Classmark as defined in (38) --
@@ -5760,7 +5760,7 @@ GPSInformation ::= SEQUENCE (SIZE (1..maxNoGPSTypes)) OF
 		iE-Extensions			ProtocolExtensionContainer { { GPSInformation-ExtIEs} }		OPTIONAL,
 		...
 	}
--- This IE shall be present if the Information Type IE indicates ëGPS Informationí
+-- This IE shall be present if the Information Type IE indicates ‚ÄòGPS Information‚Äô
 
 GPSInformation-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 	...
@@ -5886,7 +5886,7 @@ Guaranteed-Rate-Information-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 }
 
 Guaranteed-Rate	 ::= INTEGER (1..maxNrOfTFs)
--- ì1î: TFI 0, ì2î: TFI 1, ì3î: TFI 2, ...
+-- ‚Äú1‚Äù: TFI 0, ‚Äú2‚Äù: TFI 1, ‚Äú3‚Äù: TFI 2, ...
 
 -- H
 
@@ -6078,7 +6078,7 @@ HS-DSCH-Secondary-Serving-Information-To-Modify-ExtIEs RNSAP-PROTOCOL-EXTENSION 
 {ID id-Single-Stream-MIMO-Mode-Indicator			CRITICALITY reject	EXTENSION Single-Stream-MIMO-Mode-Indicator		PRESENCE optional}|
 {ID id-DiversityMode								CRITICALITY reject	EXTENSION DiversityMode						PRESENCE optional}|
 {ID id-TransmitDiversityIndicator					CRITICALITY reject	EXTENSION TransmitDiversityIndicator			PRESENCE optional}|
--- This IE shall be present if Diversity Mode IE is present and is not set to ìnoneî
+-- This IE shall be present if Diversity Mode IE is present and is not set to ‚Äúnone‚Äù
 {ID id-NonCellSpecificTxDiversity					CRITICALITY reject	EXTENSION NonCellSpecificTxDiversity			PRESENCE optional}|
 {ID id-power-offset-for-S-CPICH-for-MIMO-Request-Indicator	CRITICALITY ignore	EXTENSION PowerOffsetForSecondaryCPICHforMIMORequestIndicator		PRESENCE optional}|
 {ID id-OrdinalNumberOfFrequency						CRITICALITY reject	EXTENSION OrdinalNumberOfFrequency			PRESENCE optional}|
@@ -6999,15 +6999,15 @@ InformationType ::= SEQUENCE {
 	...
 }
 
--- The GPS Information IE shall be present if the Information Exchange Type IE indicates ëGPS Informationí
+-- The GPS Information IE shall be present if the Information Exchange Type IE indicates ‚ÄòGPS Information‚Äô
 -- For information exchange on the Iur-g interface, only the Cell Capacity Class is used.
 
 InformationType-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
--- The following IE shall be present if the Information Type Item IE indicates ëGANSS Informationí
+-- The following IE shall be present if the Information Type Item IE indicates ‚ÄòGANSS Information‚Äô
 	{ ID id-GANSS-Information						CRITICALITY ignore	EXTENSION GANSS-Information			PRESENCE conditional}|
--- The following IE shall be present if the Information Type Item IE indicates ëDGANSS Correctionsí
+-- The following IE shall be present if the Information Type Item IE indicates ‚ÄòDGANSS Corrections‚Äô
 	{ ID id-DGANSS-Corrections-Req					CRITICALITY ignore	EXTENSION DGANSS-Corrections-Req			PRESENCE conditional}|
--- The following IE shall be present if the Information Type Item IE indicates ëMBMS RLC Sequence Numberí
+-- The following IE shall be present if the Information Type Item IE indicates ‚ÄòMBMS RLC Sequence Number‚Äô
 	{ ID id-MBMS-RLC-Sequence-Number-Information	CRITICALITY ignore	EXTENSION MBMS-RLC-Sequence-Number-Information	PRESENCE conditional},
 	...
 }
@@ -7246,7 +7246,7 @@ LABased-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 LAI-List ::= SEQUENCE (SIZE (1..maxNrOfLAIs)) OF
 	LAI
 
-LAC ::= OCTET STRING (SIZE (2)) --(EXCEPT (ë0000íH|íFFFEíH))
+LAC ::= OCTET STRING (SIZE (2)) --(EXCEPT (‚Äò0000‚ÄôH|‚ÄôFFFE‚ÄôH))
 
 LAI ::= SEQUENCE {
 		pLMN-Identity		PLMN-Identity,
@@ -7408,7 +7408,7 @@ MaximumAllowedULTxPower ::= INTEGER (-50..33)
 Max-Bits-MACe-PDU-non-scheduled ::= INTEGER(1..maxNrOfBits-MACe-PDU-non-scheduled)
 
 MaxNrDLPhysicalchannels ::= INTEGER (1..224)
--- 1.28Mcps TDD 97 ñ 224 are unused
+-- 1.28Mcps TDD 97 ‚Äì 224 are unused
 
 MaxNrDLPhysicalchannels768 ::= INTEGER (1..448)
 
@@ -7745,7 +7745,7 @@ MidambleShiftShort ::=				INTEGER (0..5)
 MidambleShiftLCR ::= SEQUENCE {
 	midambleAllocationMode		MidambleAllocationMode,
 	midambleShift				MidambleShiftLong		OPTIONAL,
-	-- The IE shall be present if the Midamble Allocation Mode IE is set to ìUE specific midambleî.
+	-- The IE shall be present if the Midamble Allocation Mode IE is set to ‚ÄúUE specific midamble‚Äù.
 midambleConfigurationLCR	MidambleConfigurationLCR,
 	iE-Extensions				ProtocolExtensionContainer { {MidambleShiftLCR-ExtIEs} }		OPTIONAL,
 	...
@@ -8316,11 +8316,11 @@ Neighbouring-FDD-CellInformationItem-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-SNA-Information						CRITICALITY ignore	EXTENSION SNA-Information					PRESENCE optional}|
 	{ ID id-FrequencyBandIndicator				CRITICALITY ignore	EXTENSION FrequencyBandIndicator			PRESENCE optional}|
 	{ ID id-Max-UE-DTX-Cycle					CRITICALITY ignore	EXTENSION Max-UE-DTX-Cycle					PRESENCE conditional}|
-	-- This IE shall be present if the the fifteenth bit Continuous Packet Connectivity DTX-DRX Support Indicator in the Cell Capability Container FDD IE is set to the value ì1î.
+	-- This IE shall be present if the the fifteenth bit Continuous Packet Connectivity DTX-DRX Support Indicator in the Cell Capability Container FDD IE is set to the value ‚Äú1‚Äù.
 	{ ID id-Multiple-PLMN-List					CRITICALITY ignore	EXTENSION Multiple-PLMN-List				PRESENCE optional}|
 	{ ID id-Secondary-Serving-Cell-List 		CRITICALITY ignore	EXTENSION Secondary-Serving-Cell-List		PRESENCE optional}|
 	{ ID id-Dual-Band-Secondary-Serving-Cell-List	CRITICALITY ignore	EXTENSION Secondary-Serving-Cell-List		PRESENCE optional}|
--- This IE shall be present if the twenty-eighth bit Dual Band Support Indicator in the Cell Capability Container FDD IE is set to the value ì1î.
+-- This IE shall be present if the twenty-eighth bit Dual Band Support Indicator in the Cell Capability Container FDD IE is set to the value ‚Äú1‚Äù.
 	{ ID id-CellCapabilityContainerExtension-FDD	CRITICALITY ignore	EXTENSION CellCapabilityContainerExtension-FDD	PRESENCE optional}|
 	{ ID id-CellListValidityIndicator			CRITICALITY ignore	EXTENSION CellListValidityIndicator			PRESENCE optional}|
 	{ ID id-MultipleFrequencyBandsIndicatorList	CRITICALITY ignore	EXTENSION MultipleFrequencyBandsIndicatorList	PRESENCE optional},
@@ -8797,7 +8797,7 @@ PreferredFrequencyLayerInfo-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 
 
 PrimaryCPICH-Power ::= INTEGER (-100..500)
--- step 0.1 (Range ñ10.0..50.0) Unit is dBm
+-- step 0.1 (Range ‚Äì10.0..50.0) Unit is dBm
 
 PrimaryCPICH-EcNo ::= INTEGER (-30..30)
 
@@ -9494,7 +9494,7 @@ Secondary-Serving-Cell-List-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
---ìmaxNrOfHSDSCH-1î represents the maximum number of possible secondary serving cells for a Multi Cell/Dual-Band capable cell when it applies to the range of ìPossible-Secondary-Serving-Cell-Listî.
+--‚ÄúmaxNrOfHSDSCH-1‚Äù represents the maximum number of possible secondary serving cells for a Multi Cell/Dual-Band capable cell when it applies to the range of ‚ÄúPossible-Secondary-Serving-Cell-List‚Äù.
 
 Possible-Secondary-Serving-Cell-List ::= SEQUENCE (SIZE (1..maxNrOfHSDSCH-1)) OF Possible-Secondary-Serving-Cell
 
@@ -9855,7 +9855,7 @@ TAC ::= OCTET STRING (SIZE (2))
 TargetID ::= CGI
 
 TDD-AckNack-Power-Offset ::= INTEGER (-7..8,...)
--- Unit dB, Range ñ7dB .. +8dB, Step 1dB
+-- Unit dB, Range ‚Äì7dB .. +8dB, Step 1dB
 
 TDD-ChannelisationCode ::= ENUMERATED {
 	chCode1div1,
@@ -10140,7 +10140,7 @@ TFCI-SignallingMode ::= ENUMERATED {
 	normal,
 	not-Used-split
 }
--- The value ìNot Usedî shall not be used by the SRNC. The procedure shall be rejected by the DRNC if the value ìNot Usedî is received.
+-- The value ‚ÄúNot Used‚Äù shall not be used by the SRNC. The procedure shall be rejected by the DRNC if the value ‚ÄúNot Used‚Äù is received.
 
 TGD ::= INTEGER (0|15..269)
 -- 0 = Undefined, only one transmission gap in the transmission gap pattern sequence 
@@ -10223,9 +10223,9 @@ Transmission-Gap-Pattern-Sequence-Information ::= SEQUENCE (SIZE (1..maxTGPS)) O
 			-- This IE shall never be included in the SEQUENCE. If received it shall be ignored
 		uL-DL-mode			UL-DL-mode,
 		downlink-Compressed-Mode-Method		Downlink-Compressed-Mode-Method		OPTIONAL,
-			-- This IE shall be present if the value of the UL/DL mode IE is ìDL onlyî or ìUL/DLî
+			-- This IE shall be present if the value of the UL/DL mode IE is ‚ÄúDL only‚Äù or ‚ÄúUL/DL‚Äù
 		uplink-Compressed-Mode-Method		Uplink-Compressed-Mode-Method		OPTIONAL,
-			-- This IE shall be present if the value of the UL/DL mode IE is ìUL onlyî or ìUL/DLî
+			-- This IE shall be present if the value of the UL/DL mode IE is ‚ÄúUL only‚Äù or ‚ÄúUL/DL‚Äù
 		dL-FrameType		DL-FrameType,
 		delta-SIR1			DeltaSIR,
 		delta-SIR-after1	DeltaSIR,
@@ -10450,7 +10450,7 @@ TFCS-TFCSList ::= SEQUENCE (SIZE (1..maxNrOfTFCs)) OF
 	SEQUENCE {
 		cTFC				TFCS-CTFC,
 		tFC-Beta		TransportFormatCombination-Beta	OPTIONAL,
-		-- The IE shall be present if the TFCS concerns a UL DPCH [FDD ñ or PRACH channel in FDD]
+		-- The IE shall be present if the TFCS concerns a UL DPCH [FDD ‚Äì or PRACH channel in FDD]
 		iE-Extensions		ProtocolExtensionContainer { { TFCS-TFCSList-ExtIEs} }		OPTIONAL,
 	...
 }
@@ -10513,7 +10513,7 @@ TransportFormatSet-ModeDP ::= CHOICE {
 
 TDD-TransportFormatSet-ModeDP ::= SEQUENCE {
 	transmissionTimeIntervalInformation		TransmissionTimeIntervalInformation		OPTIONAL,
-	-- This IE shall be present if the ìTransmission Time Intervalî of the ìSemi-static Transport Format Informationî is ìdynamicî. Otherwise it is absent.
+	-- This IE shall be present if the ‚ÄúTransmission Time Interval‚Äù of the ‚ÄúSemi-static Transport Format Information‚Äù is ‚Äúdynamic‚Äù. Otherwise it is absent.
 	iE-Extensions							ProtocolExtensionContainer { {TDD-TransportFormatSet-ModeDP-ExtIEs} } OPTIONAL,
 	...
 	}
@@ -10548,7 +10548,7 @@ TransportFormatSet-Semi-staticPart ::= SEQUENCE {
 	transmissionTime 		TransmissionTimeIntervalSemiStatic,
 	channelCoding			ChannelCodingType,
 	codingRate			CodingRate				OPTIONAL
-	-- This IE shall be present if channelCoding is ëconvolutionalí or ëturboí --,
+	-- This IE shall be present if channelCoding is ‚Äòconvolutional‚Äô or ‚Äòturbo‚Äô --,
 	rateMatcingAttribute		RateMatchingAttribute,
 	cRC-Size			CRC-Size,
 	mode				TransportFormatSet-ModeSSP,

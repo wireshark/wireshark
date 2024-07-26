@@ -8152,12 +8152,11 @@ def asn2wrs_main():
         if (ectx.srcdir): fn = ectx.srcdir + '/' + fn
         # Read ASN.1 definition, trying one of the common encodings.
         data = open(fn, "rb").read()
-        for encoding in ('utf-8', 'windows-1252'):
-            try:
-                data = data.decode(encoding)
-                break
-            except Exception:
-                warnings.warn_explicit("Decoding %s as %s failed, trying next." % (fn, encoding), UserWarning, '', 0)
+        try:
+            data = data.decode('utf-8')
+        except UnicodeDecodeError:
+            warnings.warn_explicit(f"Decoding {fn} as UTF-8 failed.", UnicodeWarning, '', 0)
+            sys.exit(3)
         # Py2 compat, name.translate in eth_output_hf_arr fails with unicode
         if not isinstance(data, str):
             data = data.encode('utf-8')

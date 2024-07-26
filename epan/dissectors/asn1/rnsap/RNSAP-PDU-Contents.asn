@@ -1213,7 +1213,7 @@ RL-InformationItem-RL-SetupRqstFDD ::= SEQUENCE {
 	primaryCPICH-EcNo				PrimaryCPICH-EcNo			OPTIONAL,
 	not-Used-sSDT-CellID			NULL			OPTIONAL,
 	transmitDiversityIndicator		TransmitDiversityIndicator		OPTIONAL,
-	-- This IE shall be present unless Diversity Mode IE in UL DPCH Information group is ìnoneî
+	-- This IE shall be present unless Diversity Mode IE in UL DPCH Information group is ‚Äúnone‚Äù
 	iE-Extensions					ProtocolExtensionContainer { {RL-InformationItem-RL-SetupRqstFDD-ExtIEs} } OPTIONAL,
 	...
 }
@@ -1649,7 +1649,7 @@ RL-InformationResponse-RL-SetupRspTDD ::= SEQUENCE {
 	cellParameterID				CellParameterID		OPTIONAL,
 	syncCase					SyncCase			OPTIONAL,
 	sCH-TimeSlot				SCH-TimeSlot		OPTIONAL,
-	-- This IE shall be present if Sync Case IE is equal to ìCase2î. --
+	-- This IE shall be present if Sync Case IE is equal to ‚ÄúCase2‚Äù. --
 	sCTD-Indicator				SCTD-Indicator	OPTIONAL,
 	pCCPCH-Power				PCCPCH-Power,
 	timingAdvanceApplied		TimingAdvanceApplied,
@@ -2013,7 +2013,7 @@ RL-InformationResponse-RL-SetupRspTDD768 ::= SEQUENCE {
 	cellParameterID				CellParameterID		OPTIONAL,
 	syncCase					SyncCase			OPTIONAL,
 	sCH-TimeSlot				SCH-TimeSlot		OPTIONAL,
-	-- This IE shall be present if Sync Case IE is equal to ìCase2î. --
+	-- This IE shall be present if Sync Case IE is equal to ‚ÄúCase2‚Äù. --
 	sCTD-Indicator				SCTD-Indicator	OPTIONAL,
 	pCCPCH-Power				PCCPCH-Power,
 	timingAdvanceApplied		TimingAdvanceApplied,
@@ -2192,7 +2192,7 @@ UnsuccessfulRL-InformationResponse-RL-SetupFailureFDD ::= SEQUENCE {
 
 UnsuccessfulRL-InformationResponse-RL-SetupFailureFDD-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-Max-UE-DTX-Cycle		CRITICALITY ignore		EXTENSION Max-UE-DTX-Cycle				PRESENCE conditional },
-	-- This IE shall be present if the Cause IE is set to ìContinuous Packet Connectivity UE DTX Cycle not Availableî.
+	-- This IE shall be present if the Cause IE is set to ‚ÄúContinuous Packet Connectivity UE DTX Cycle not Available‚Äù.
 	...
 }
 
@@ -3618,7 +3618,7 @@ RL-Information-RL-ReconfPrepFDD ::= SEQUENCE {
 	not-Used-sSDT-Indication			NULL		OPTIONAL,
 	not-Used-sSDT-CellIdentity			NULL		OPTIONAL,
 	transmitDiversityIndicator		TransmitDiversityIndicator		OPTIONAL,
-	-- This IE shall be present if Diversity Mode IE is present in UL DPCH Information IE and is not equal to ìnoneî
+	-- This IE shall be present if Diversity Mode IE is present in UL DPCH Information IE and is not equal to ‚Äúnone‚Äù
 	iE-Extensions					ProtocolExtensionContainer { {RL-Information-RL-ReconfPrepFDD-ExtIEs} } OPTIONAL,
 	...
 }
@@ -4742,7 +4742,7 @@ RL-ReconfigurationFailure-RL-ReconfFail ::= SEQUENCE {
 
 RL-ReconfigurationFailure-RL-ReconfFailure-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-Max-UE-DTX-Cycle		CRITICALITY ignore		EXTENSION Max-UE-DTX-Cycle				PRESENCE conditional },
-	-- This IE shall be present if the Cause IE is set to ìContinuous Packet Connectivity UE DTX Cycle not Availableî.
+	-- This IE shall be present if the Cause IE is set to ‚ÄúContinuous Packet Connectivity UE DTX Cycle not Available‚Äù.
 	...
 }
 
@@ -5540,16 +5540,16 @@ DL-PowerControlRequest ::= SEQUENCE {
 DL-PowerControlRequest-IEs RNSAP-PROTOCOL-IES ::= {
 	{ ID id-PowerAdjustmentType	CRITICALITY ignore	TYPE PowerAdjustmentType	PRESENCE mandatory} |
 	{ ID id-DLReferencePower	CRITICALITY ignore	TYPE DL-Power	PRESENCE conditional} |
-	-- This IE shall be present if Power Adjustment Type IE equals to ëCommoní
+	-- This IE shall be present if Power Adjustment Type IE equals to ‚ÄòCommon‚Äô
 	{ ID id-InnerLoopDLPCStatus	CRITICALITY ignore	TYPE InnerLoopDLPCStatus	PRESENCE optional } |
 	{ ID id-DLReferencePowerList-DL-PC-Rqst	CRITICALITY ignore	TYPE DL-ReferencePowerInformationList-DL-PC-Rqst	PRESENCE conditional} |
-	-- This IE shall be present if Power Adjustment Type IE equals to ëIndividualí
+	-- This IE shall be present if Power Adjustment Type IE equals to ‚ÄòIndividual‚Äô
 	{ ID id-MaxAdjustmentStep	CRITICALITY ignore	TYPE MaxAdjustmentStep	PRESENCE conditional } |
-	-- This IE shall be present if Power Adjustment Type IE equals to ëCommoní or ëIndividualí
+	-- This IE shall be present if Power Adjustment Type IE equals to ‚ÄòCommon‚Äô or ‚ÄòIndividual‚Äô
 	{ ID id-AdjustmentPeriod	CRITICALITY ignore	TYPE AdjustmentPeriod	PRESENCE conditional }|
-	-- This IE shall be present if Power Adjustment Type IE equals to ëCommoní or ëIndividualí
+	-- This IE shall be present if Power Adjustment Type IE equals to ‚ÄòCommon‚Äô or ‚ÄòIndividual‚Äô
 	{ ID id-AdjustmentRatio	CRITICALITY ignore	TYPE ScaledAdjustmentRatio	PRESENCE conditional },
-	-- This IE shall be present if Power Adjustment Type IE equals to ëCommoní or ëIndividualí
+	-- This IE shall be present if Power Adjustment Type IE equals to ‚ÄòCommon‚Äô or ‚ÄòIndividual‚Äô
 	...
 }
 
@@ -8410,7 +8410,7 @@ EnhancedRelocationRequest-IEs RNSAP-PROTOCOL-IES ::= {
 	{ ID id-Cause										CRITICALITY reject	TYPE Cause								PRESENCE mandatory}|
 	{ ID id-Permanent-NAS-UE-Identity					CRITICALITY reject	TYPE Permanent-NAS-UE-Identity			PRESENCE mandatory}|
 	{ ID id-SRNC-ID										CRITICALITY reject	TYPE RNC-ID								PRESENCE optional}|
-	-- This IE shall be present if the Relocation type IE is set to ìUE involved in relocation of SRNSî --
+	-- This IE shall be present if the Relocation type IE is set to ‚ÄúUE involved in relocation of SRNS‚Äù --
 	{ ID id-Extended-SRNC-ID							CRITICALITY reject	TYPE Extended-RNC-ID					PRESENCE optional}|
 	{ ID id-S-RNTI										CRITICALITY reject	TYPE S-RNTI								PRESENCE mandatory}|
 	{ ID id-RANAP-EnhancedRelocationInformationRequest	CRITICALITY reject	TYPE RANAP-EnhancedRelocationInformationRequest	PRESENCE mandatory},

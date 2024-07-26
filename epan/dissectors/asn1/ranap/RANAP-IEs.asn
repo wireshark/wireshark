@@ -1207,8 +1207,8 @@ LoadValue	::= INTEGER (0..100)
 LocationRelatedDataRequestType	::= SEQUENCE {
 	requestedLocationRelatedDataType			RequestedLocationRelatedDataType,
 	requestedGPSAssistanceData					RequestedGPSAssistanceData	OPTIONAL,
-	-- This IE shall be present if the Requested Location Related Data Type IE is set to ‘Dedicated Assistance Data for Assisted GPS’ or
-	-- `Dedicated Assistance Data for Assisted GPS and GANSS’
+	-- This IE shall be present if the Requested Location Related Data Type IE is set to â€˜Dedicated Assistance Data for Assisted GPSâ€™ or
+	-- `Dedicated Assistance Data for Assisted GPS and GANSSâ€™
 	...
 }
 

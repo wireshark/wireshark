@@ -802,7 +802,7 @@ RelocationRequestExtensions RANAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-CSG-Membership-Status			CRITICALITY ignore	EXTENSION CSG-Membership-Status			PRESENCE optional}|
 -- Extension for Release 10 to enable offload at Iu-PS for UTRAN --
 	{ ID id-MSISDN							CRITICALITY ignore	EXTENSION MSISDN						PRESENCE optional}|
--- Extension for Release 11 to support rSRVCC in case of network sharing –
+-- Extension for Release 11 to support rSRVCC in case of network sharing â€“
 	{ ID id-AnchorPLMN-ID					CRITICALITY ignore	EXTENSION PLMNidentity					PRESENCE optional}|
 	{ ID id-PowerSavingIndicator			CRITICALITY ignore	EXTENSION PowerSavingIndicator			PRESENCE optional}|
 -- Extension for Release 14 to support QoE function --
@@ -1590,7 +1590,7 @@ EnhancedRelocationCompleteRequestExtensions RANAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-ChosenEncryptionAlgorithm			CRITICALITY ignore	EXTENSION ChosenEncryptionAlgorithm					PRESENCE optional}|
 -- Extension for Release 9 to enable the CN to handle potential UE NAS QoS issues related to higher bitrates --
 	{ ID id-HigherBitratesThan16MbpsFlag		CRITICALITY ignore	EXTENSION HigherBitratesThan16MbpsFlag				PRESENCE optional}|
--- Extensions for Release 11 to enable enhanced relocation from RNC to hybrid cell –
+-- Extensions for Release 11 to enable enhanced relocation from RNC to hybrid cell â€“
 	{ ID id-CSG-Id								CRITICALITY reject	EXTENSION CSG-Id										PRESENCE optional}|
 	{ ID id-Cell-Access-Mode					CRITICALITY reject	EXTENSION Cell-Access-Mode								PRESENCE optional}|
 -- Extension for Release 11 to support BBAI --
@@ -1665,7 +1665,7 @@ EnhancedRelocationCompleteResponseExtensions RANAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-UE-AggregateMaximumBitRate		CRITICALITY ignore	EXTENSION UE-AggregateMaximumBitRate	PRESENCE optional}|
 -- Extension for Release 10 to enable Offload at Iu-ps for UTRAN --
 	{ ID id-MSISDN							CRITICALITY ignore	EXTENSION MSISDN						PRESENCE optional}|
--- Extension for Release 11 to enable ehnahced relocation from RNC to hybrid cell –
+-- Extension for Release 11 to enable ehnahced relocation from RNC to hybrid cell â€“
 	{ ID id-CSG-Membership-Status			CRITICALITY ignore	EXTENSION CSG-Membership-Status			PRESENCE optional},
 	...
 }
@@ -2586,7 +2586,7 @@ RANAP-EnhancedRelocationInformationRequestExtensions RANAP-PROTOCOL-EXTENSION ::
 	{ ID id-RABParametersList				CRITICALITY reject	EXTENSION RABParametersList						PRESENCE optional} |
 	{ ID id-CSG-Id							CRITICALITY reject	EXTENSION CSG-Id								PRESENCE optional} |
 	{ ID id-CSG-Membership-Status			CRITICALITY reject	EXTENSION CSG-Membership-Status					PRESENCE optional} |
--- Extension for Release 11 to support rSRVCC in case of network sharing –
+-- Extension for Release 11 to support rSRVCC in case of network sharing â€“
 	{ ID id-AnchorPLMN-ID					CRITICALITY ignore	EXTENSION PLMNidentity							PRESENCE optional},
 	...
 }
@@ -2729,7 +2729,7 @@ LocationRelatedDataRequest ::= SEQUENCE {
 
 LocationRelatedDataRequestIEs RANAP-PROTOCOL-IES ::= {
 	{ ID id-LocationRelatedDataRequestType		CRITICALITY reject	TYPE LocationRelatedDataRequestType		PRESENCE optional	},
-	-- This IE is mandatory for UTRAN, optional for GERAN Iu Mode –-
+	-- This IE is mandatory for UTRAN, optional for GERAN Iu Mode â€“-
 	...
 }
 
@@ -2738,7 +2738,7 @@ LocationRelatedDataRequestExtensions RANAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-LocationRelatedDataRequestTypeSpecificToGERANIuMode		CRITICALITY reject	EXTENSION LocationRelatedDataRequestTypeSpecificToGERANIuMode		PRESENCE optional	}|
 	-- The previous extension is optional for GERAN Iu Mode only, not applicable for UTRAN --
 	-- Extension for Release 7 to request GANSS Assistance Data. This IE shall be present if the Requested Location Related Data Type IE is set to
-	-- ‘Dedicated Assistance Data for Assisted GANSS’ or `Dedicated Assistance Data for Assisted GPS and GANSS’--
+	-- â€˜Dedicated Assistance Data for Assisted GANSSâ€™ or `Dedicated Assistance Data for Assisted GPS and GANSSâ€™--
 	{ ID id-RequestedGANSSAssistanceData							CRITICALITY reject	EXTENSION RequestedGANSSAssistanceData							PRESENCE conditional	},
 	...
 }

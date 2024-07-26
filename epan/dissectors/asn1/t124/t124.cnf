@@ -97,27 +97,9 @@ TransportAddress
 
 
 #.TF_RENAME
-ISDNConnection/circuitTypes		ISDNCircuitTypes
-ISDNConnection/circuitTypes/_item	ISDNCircuitTypes_item
-ISDNConnection/highLayerCompatibility 	ISDNHighLayerCompatibility
-PSDNConnection/networkAddress	      	PSDNNetworkAddress
-ConferenceTerminateRequest/reason	TerminateRequestReason
-ConferenceTerminateIndication/reason	TerminateIndicationReason
-ConferenceEjectUserRequest/reason		EjectUserRequestReason
-RosterUpdateIndication/nodeInformation/nodeRecordList/refresh NodeRefresh
-RosterUpdateIndication/applicationInformation/_item/applicationRecordList/refresh ApplicationRefresh
-RosterUpdateIndication/applicationInformation/_item/applicationRecordList/update ApplicationUpdate
-RosterUpdateIndication/applicationInformation/_item/applicationRecordList/update/_item ApplicationUpdateItem
 ConferenceQueryResponse/result	QueryResponseResult
 ConferenceJoinResponse/result	JoinResponseResult
 ConferenceInviteResponse/result	InviteResponseResult
-ConferenceAddResponse/result	AddResponseResult
-ConferenceLockResponse/result	LockResponseResult
-ConferenceUnlockResponse/result	UnlockResponseResult
-ConferenceTerminateResponse/result	TerminateResponseResult
-ConferenceEjectUserResponse/result	EjectUserResponseResult
-ConferenceTransferResponse/result	TransferResponseResult
-RegistryAllocateHandleResponse/result	AllocateHandleResponseResult
 
 #.FN_BODY ConnectData/connectPDU VAL_PTR = &next_tvb
     tvbuff_t	*next_tvb = NULL;

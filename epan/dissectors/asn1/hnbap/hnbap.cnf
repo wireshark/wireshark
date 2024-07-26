@@ -33,9 +33,6 @@ GeographicalLocation/geographicalCoordinates geographical_location_geographical_
 HNB-Location-Information/geographicalCoordinates hnb_location_information_geographical_coordinates
 MacroCoverageInformation/cellIdentity macroCellID
 
-#.FIELD_ATTR
-acroCoverageInformation/cellIdentity ABBREV=cellIdentity.macroCellID
-
 #.OMIT_ASSIGNMENT
 Presence
 ProtocolIE-ContainerList
