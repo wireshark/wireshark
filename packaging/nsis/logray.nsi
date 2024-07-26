@@ -67,9 +67,9 @@ BrandingText "Logray${U+00ae} Installer"
 ; is usually not associated with an appropriate text editor. We should use extension "txt"
 ; for a text file or "html" for an html README file.
 !define MUI_FINISHPAGE_TITLE_3LINES
-!define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\NEWS.txt"
-!define MUI_FINISHPAGE_SHOWREADME_TEXT "Show News"
-!define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
+; !define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\NEWS.txt"
+; !define MUI_FINISHPAGE_SHOWREADME_TEXT "Show News"
+; !define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
 ; NSIS runs as Administrator and will run Logray as Administrator
 ; if these are enabled.
 ;!define MUI_FINISHPAGE_RUN "$INSTDIR\${PROGRAM_NAME_PATH}"
@@ -447,7 +447,7 @@ File "${STAGING_DIR}\libwsutil.dll"
 !include logray-manifest.nsh
 
 File "${STAGING_DIR}\COPYING.txt"
-File "${STAGING_DIR}\NEWS.txt"
+; File "${STAGING_DIR}\NEWS.txt"
 File "${STAGING_DIR}\README.txt"
 File "${STAGING_DIR}\wka"
 File "${STAGING_DIR}\pdml2html.xsl"
@@ -1173,7 +1173,6 @@ Delete "$INSTDIR\*.manifest"
 ; previous versions installed this file
 Delete "$INSTDIR\AUTHORS-SHORT-FORMAT"
 Delete "$INSTDIR\README*"
-Delete "$INSTDIR\NEWS.txt"
 Delete "$INSTDIR\manuf"
 Delete "$INSTDIR\wka"
 Delete "$INSTDIR\services"

@@ -190,9 +190,6 @@ if(ASCIIDOCTOR_EXECUTABLE)
         )
     endfunction()
 
-    # news: release-notes.txt
-    #         ${CMAKE_COMMAND} -E copy_if_different release-notes.txt ../NEWS
-
     FIND_PROGRAM(ASCIIDOCTOR_PDF_EXECUTABLE
         NAMES
             asciidoctorj

@@ -128,15 +128,6 @@ if(ASCIIDOCTOR_FOUND)
 	)
 	set_target_properties(release_notes PROPERTIES FOLDER "Documentation")
 
-	add_custom_target(news
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different
-			${CMAKE_CURRENT_BINARY_DIR}/release-notes.txt
-			${CMAKE_SOURCE_DIR}/NEWS
-		DEPENDS
-			release_notes_txt
-	)
-	set_target_properties(news PROPERTIES FOLDER "Documentation")
-
 	ASCIIDOCTOR2HTML(faq.adoc)
 	add_custom_target(faq_html DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/faq.html)
 	set_doc_target_properties(faq_html)

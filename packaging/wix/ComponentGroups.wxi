@@ -30,9 +30,6 @@
         <Component Id="cmpCOPYING_txt" Guid="*">
           <File Id="filCOPYING_txt" KeyPath="yes" Source="$(var.Staging.Dir)\COPYING.txt" />
         </Component>
-        <Component Id="cmpNEWS_txt" Guid="*">
-          <File Id="filNEWS_txt" KeyPath="yes" Source="$(var.Staging.Dir)\NEWS.txt" />
-        </Component>
         <Component Id="cmpREADME_txt" Guid="*">
           <File Id="filREADME_txt" KeyPath="yes" Source="$(var.Staging.Dir)\README.txt" />
         </Component>
@@ -74,7 +71,6 @@
         <ComponentRef Id="cmpLibwireshark_dll" />
         <ComponentRef Id="cmpLibwsutil_dll" />
         <ComponentRef Id="cmpCOPYING_txt" />
-        <ComponentRef Id="cmpNEWS_txt" />
         <ComponentRef Id="cmpREADME_txt" />
         <ComponentRef Id="cmpWka" />
         <ComponentRef Id="cmpPdml2html_xsl" />

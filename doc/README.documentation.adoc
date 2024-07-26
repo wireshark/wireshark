@@ -6,7 +6,7 @@ This directory contains the source files needed to build the:
 
 - Wireshark User’s Guide
 - Wireshark Developer’s Guide
-- Release notes (NEWS)
+- Release notes
 - Lua Reference
 
 To build everything, build the `all_guides` target, e.g. `ninja
