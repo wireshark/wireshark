@@ -363,10 +363,10 @@ dissect_zabbix_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         ADD_ZABBIX_T_FLAGS(ZABBIX_T_AGENT | ZABBIX_T_PASSIVE | ZABBIX_T_LEGACY);
         if (CONV_IS_ZABBIX_REQUEST(zabbix_info, pinfo)) {
             proto_item_set_text(ti, "Zabbix Server/proxy request for passive agent checks");
-            col_add_fstr(pinfo->cinfo, COL_INFO, "Zabbix Server/proxy request for passive agent checks");
+            col_set_str(pinfo->cinfo, COL_INFO, "Zabbix Server/proxy request for passive agent checks");
         } else if (CONV_IS_ZABBIX_RESPONSE(zabbix_info, pinfo)) {
             proto_item_set_text(ti, "Zabbix Agent response for passive checks");
-            col_add_fstr(pinfo->cinfo, COL_INFO, "Zabbix Agent response for passive checks");
+            col_set_str(pinfo->cinfo, COL_INFO, "Zabbix Agent response for passive checks");
         }
         /* Make a copy of the data string for later error message lookup use */
         passive_agent_data_str = wmem_strndup(pinfo->pool, json_str, (size_t)datalen);
@@ -477,7 +477,7 @@ dissect_zabbix_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
             /* Passive agent checks since Zabbix 7.0 */
             ADD_ZABBIX_T_FLAGS(ZABBIX_T_AGENT | ZABBIX_T_PASSIVE);
             proto_item_set_text(ti, "Zabbix Server/proxy request for passive agent checks");
-            col_add_fstr(pinfo->cinfo, COL_INFO, "Zabbix Server/proxy request for passive agent checks");
+            col_set_str(pinfo->cinfo, COL_INFO, "Zabbix Server/proxy request for passive agent checks");
         }
         else if (strcmp(request_type, "sender data") == 0) {
             /* Sender/trapper */
@@ -508,7 +508,7 @@ dissect_zabbix_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                 /* This is Zabbix server connecting to passive proxy */
                 ADD_ZABBIX_T_FLAGS(ZABBIX_T_PROXY | ZABBIX_T_DATA | ZABBIX_T_PASSIVE);
                 proto_item_set_text(ti, "Zabbix Proxy data request to passive proxy");
-                col_add_fstr(pinfo->cinfo, COL_INFO, "Zabbix Proxy data request to passive proxy");
+                col_set_str(pinfo->cinfo, COL_INFO, "Zabbix Proxy data request to passive proxy");
             }
             else if (proxy_name) {
                 /* This is an active proxy connecting to server */
@@ -527,7 +527,7 @@ dissect_zabbix_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                 /* This is Zabbix 6.4+ server connecting to passive proxy */
                 ADD_ZABBIX_T_FLAGS(ZABBIX_T_PROXY | ZABBIX_T_CONFIG | ZABBIX_T_PASSIVE);
                 proto_item_set_text(ti, "Zabbix Proxy config request to passive proxy");
-                col_add_fstr(pinfo->cinfo, COL_INFO, "Zabbix Proxy config request to passive proxy");
+                col_set_str(pinfo->cinfo, COL_INFO, "Zabbix Proxy config request to passive proxy");
             }
             else if (proxy_name) {
                 /* This is an active proxy connecting to server */
@@ -543,7 +543,7 @@ dissect_zabbix_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
             /* Zabbix server connecting to passive proxy, only '{"request":"proxy tasks"}' */
             ADD_ZABBIX_T_FLAGS(ZABBIX_T_PROXY | ZABBIX_T_TASKS | ZABBIX_T_PASSIVE);
             proto_item_set_text(ti, "Zabbix Proxy tasks request to passive proxy");
-            col_add_fstr(pinfo->cinfo, COL_INFO, "Zabbix Proxy tasks request to passive proxy");
+            col_set_str(pinfo->cinfo, COL_INFO, "Zabbix Proxy tasks request to passive proxy");
         }
         else if (strcmp(request_type, "proxy heartbeat") == 0) {
             /* Heartbeat from active proxy, not used in Zabbix 6.4+ */
@@ -575,7 +575,7 @@ dissect_zabbix_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         if (IS_ZABBIX_T_FLAGS(ZABBIX_T_PASSIVE)) {
             /* There is no proxy name anywhere to use */
             proto_item_set_text(ti, "Zabbix Passive proxy config");
-            col_add_fstr(pinfo->cinfo, COL_INFO, "Zabbix Passive proxy config");
+            col_set_str(pinfo->cinfo, COL_INFO, "Zabbix Passive proxy config");
         }
         else {
             /* Active proxy */
@@ -670,7 +670,7 @@ dissect_zabbix_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         /* This looks like passive agent response in Zabbix 7.0+ */
         ADD_ZABBIX_T_FLAGS(ZABBIX_T_AGENT | ZABBIX_T_PASSIVE);
         proto_item_set_text(ti, "Zabbix Agent response for passive checks");
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Zabbix Agent response for passive checks");
+        col_set_str(pinfo->cinfo, COL_INFO, "Zabbix Agent response for passive checks");
     }
     else if (data_object || data_array || tokens->size == 0) {
         /* No other match above, let's assume this is server sending incremental
@@ -688,7 +688,7 @@ dissect_zabbix_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         if (IS_ZABBIX_T_FLAGS(ZABBIX_T_PASSIVE)) {
             /* There is no proxy name anywhere to use */
             proto_item_set_text(ti, "Zabbix Passive proxy config");
-            col_add_fstr(pinfo->cinfo, COL_INFO, "Zabbix Passive proxy config");
+            col_set_str(pinfo->cinfo, COL_INFO, "Zabbix Passive proxy config");
         }
         else {
             proxy_name = zabbix_info->host_name;
@@ -703,18 +703,18 @@ dissect_zabbix_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         /* Config or data responses from passive proxy */
         if (IS_ZABBIX_T_FLAGS(ZABBIX_T_PROXY | ZABBIX_T_CONFIG | ZABBIX_T_PASSIVE)) {
             proto_item_set_text(ti, "Zabbix Passive proxy response for config push");
-            col_add_fstr(pinfo->cinfo, COL_INFO, "Zabbix Passive proxy response for config push");
+            col_set_str(pinfo->cinfo, COL_INFO, "Zabbix Passive proxy response for config push");
         }
         else if (IS_ZABBIX_T_FLAGS(ZABBIX_T_PROXY | ZABBIX_T_DATA | ZABBIX_T_PASSIVE)) {
             proto_item_set_text(ti, "Zabbix Passive proxy data response");
-            col_add_fstr(pinfo->cinfo, COL_INFO, "Zabbix Passive proxy data response");
+            col_set_str(pinfo->cinfo, COL_INFO, "Zabbix Passive proxy data response");
         }
     }
     else if (version) {
         /* Tasks response from passive proxy */
         if (IS_ZABBIX_T_FLAGS(ZABBIX_T_PROXY | ZABBIX_T_TASKS | ZABBIX_T_PASSIVE)) {
             proto_item_set_text(ti, "Zabbix Passive proxy response for tasks request");
-            col_add_fstr(pinfo->cinfo, COL_INFO, "Zabbix Passive proxy response for tasks request");
+            col_set_str(pinfo->cinfo, COL_INFO, "Zabbix Passive proxy response for tasks request");
         }
     }
 

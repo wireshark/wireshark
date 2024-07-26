@@ -53,8 +53,7 @@ dissect_fortinet_sso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     int offset = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FSSO");
-    col_clear(pinfo->cinfo, COL_INFO);
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Fortinet Single Sign-On");
+    col_set_str(pinfo->cinfo, COL_INFO, "Fortinet Single Sign-On");
 
     ti = proto_tree_add_item(tree, proto_fortinet_sso, tvb, 0, -1, ENC_NA);
     fsso_tree = proto_item_add_subtree(ti, ett_fortinet_sso);

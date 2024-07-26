@@ -484,28 +484,28 @@ static unsigned get_uci_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offse
 static void dissect_core_device_reset_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                          proto_tree *payload_tree)
 {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Core Device Reset Cmd");
+    col_set_str(pinfo->cinfo, COL_INFO, "Core Device Reset Cmd");
     proto_tree_add_item(payload_tree, hf_uci_reset_config, tvb, offset, 1, ENC_NA);
 }
 
 static void dissect_core_device_reset_rsp(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                          proto_tree *payload_tree)
 {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Core Device Reset Rsp");
+    col_set_str(pinfo->cinfo, COL_INFO, "Core Device Reset Rsp");
     proto_tree_add_item(payload_tree, hf_uci_status, tvb, offset, 1, ENC_NA);
 }
 
 static void dissect_core_device_status_ntf(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                           proto_tree *payload_tree)
 {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Core Device Status Ntf");
+    col_set_str(pinfo->cinfo, COL_INFO, "Core Device Status Ntf");
     proto_tree_add_item(payload_tree, hf_uci_device_state, tvb, offset, 1, ENC_NA);
 }
 
 static void dissect_core_get_device_info_cmd(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo,
                                             proto_tree *payload_tree _U_)
 {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Core Get Device Info Cmd");
+    col_set_str(pinfo->cinfo, COL_INFO, "Core Get Device Info Cmd");
 }
 
 static void dissect_core_get_device_info_rsp(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -518,7 +518,7 @@ static void dissect_core_get_device_info_rsp(tvbuff_t *tvb, int offset, packet_i
         NULL
     };
 
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Core Get Device Info Rsp");
+    col_set_str(pinfo->cinfo, COL_INFO, "Core Get Device Info Rsp");
     proto_tree_add_item(payload_tree, hf_uci_status, tvb, offset, 1, ENC_NA);
     offset += 1;
     proto_tree_add_bitmask(payload_tree, tvb, offset,
@@ -546,13 +546,13 @@ static void dissect_core_get_device_info_rsp(tvbuff_t *tvb, int offset, packet_i
 static void dissect_core_get_caps_info_cmd(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo,
                                           proto_tree *payload_tree _U_)
 {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Core Get Caps Info Cmd");
+    col_set_str(pinfo->cinfo, COL_INFO, "Core Get Caps Info Cmd");
 }
 
 static void dissect_core_get_caps_info_rsp(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                           proto_tree *payload_tree)
 {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Core Get Caps Info Rsp");
+    col_set_str(pinfo->cinfo, COL_INFO, "Core Get Caps Info Rsp");
     proto_tree_add_item(payload_tree, hf_uci_status, tvb, offset, 1, ENC_NA);
     offset += 1;
 
@@ -589,7 +589,7 @@ static void dissect_core_get_caps_info_rsp(tvbuff_t *tvb, int offset, packet_inf
 static void dissect_core_get_config_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                        proto_tree *payload_tree)
 {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Core Get Config Cmd");
+    col_set_str(pinfo->cinfo, COL_INFO, "Core Get Config Cmd");
 
     int parameters_count = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(payload_tree, hf_uci_parameters_count, tvb, offset, 1, ENC_NA);
@@ -653,7 +653,7 @@ static void dissect_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
 static void dissect_core_get_config_rsp(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                        proto_tree *payload_tree)
 {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Core Get Config Rsp");
+    col_set_str(pinfo->cinfo, COL_INFO, "Core Get Config Rsp");
     proto_tree_add_item(payload_tree, hf_uci_status, tvb, offset, 1, ENC_NA);
     offset += 1;
 
@@ -663,14 +663,14 @@ static void dissect_core_get_config_rsp(tvbuff_t *tvb, int offset, packet_info *
 static void dissect_core_set_config_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                        proto_tree *payload_tree)
 {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Core Set Config Cmd");
+    col_set_str(pinfo->cinfo, COL_INFO, "Core Set Config Cmd");
     dissect_parameters(tvb, offset, pinfo, payload_tree);
 }
 
 static void dissect_core_set_config_rsp(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                        proto_tree *payload_tree)
 {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Core Set Config Rsp");
+    col_set_str(pinfo->cinfo, COL_INFO, "Core Set Config Rsp");
     proto_tree_add_item(payload_tree, hf_uci_status, tvb, offset, 1, ENC_NA);
     offset += 1;
 
@@ -705,7 +705,7 @@ static void dissect_core_set_config_rsp(tvbuff_t *tvb, int offset, packet_info *
 static void dissect_core_generic_error_ntf(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                           proto_tree *payload_tree)
 {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Core Generic Error Ntf");
+    col_set_str(pinfo->cinfo, COL_INFO, "Core Generic Error Ntf");
     proto_tree_add_item(payload_tree, hf_uci_status, tvb, offset, 1, ENC_NA);
 }
 
@@ -774,7 +774,7 @@ static void dissect_uci_core_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static void dissect_session_init_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                     proto_tree *payload_tree)
 {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Session Init Cmd");
+    col_set_str(pinfo->cinfo, COL_INFO, "Session Init Cmd");
     proto_tree_add_item(payload_tree, hf_uci_session_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     proto_tree_add_item(payload_tree, hf_uci_session_type, tvb, offset, 1, ENC_NA);
@@ -783,28 +783,28 @@ static void dissect_session_init_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 static void dissect_session_init_rsp(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                     proto_tree *payload_tree)
 {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Session Init Rsp");
+    col_set_str(pinfo->cinfo, COL_INFO, "Session Init Rsp");
     proto_tree_add_item(payload_tree, hf_uci_status, tvb, offset, 1, ENC_NA);
 }
 
 static void dissect_session_deinit_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                       proto_tree *payload_tree)
 {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Session Deinit Cmd");
+    col_set_str(pinfo->cinfo, COL_INFO, "Session Deinit Cmd");
     proto_tree_add_item(payload_tree, hf_uci_session_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 }
 
 static void dissect_session_deinit_rsp(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                       proto_tree *payload_tree)
 {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Session Deinit Rsp");
+    col_set_str(pinfo->cinfo, COL_INFO, "Session Deinit Rsp");
     proto_tree_add_item(payload_tree, hf_uci_status, tvb, offset, 1, ENC_NA);
 }
 
 static void dissect_session_status_ntf(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                       proto_tree *payload_tree)
 {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Session Status Ntf");
+    col_set_str(pinfo->cinfo, COL_INFO, "Session Status Ntf");
     proto_tree_add_item(payload_tree, hf_uci_session_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     proto_tree_add_item(payload_tree, hf_uci_session_state, tvb, offset, 1, ENC_NA);
@@ -850,7 +850,7 @@ static void dissect_app_config_parameters(tvbuff_t *tvb, int offset, packet_info
 static void dissect_session_set_app_config_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                               proto_tree *payload_tree)
 {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Session Set App Config Cmd");
+    col_set_str(pinfo->cinfo, COL_INFO, "Session Set App Config Cmd");
     proto_tree_add_item(payload_tree, hf_uci_session_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     dissect_app_config_parameters(tvb, offset, pinfo, payload_tree);
@@ -859,7 +859,7 @@ static void dissect_session_set_app_config_cmd(tvbuff_t *tvb, int offset, packet
 static void dissect_session_set_app_config_rsp(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                               proto_tree *payload_tree)
 {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Session Set App Config Rsp");
+    col_set_str(pinfo->cinfo, COL_INFO, "Session Set App Config Rsp");
     proto_tree_add_item(payload_tree, hf_uci_status, tvb, offset, 1, ENC_NA);
     offset += 1;
 
@@ -894,7 +894,7 @@ static void dissect_session_set_app_config_rsp(tvbuff_t *tvb, int offset, packet
 static void dissect_session_get_app_config_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                               proto_tree *payload_tree)
 {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Session Get App Config Cmd");
+    col_set_str(pinfo->cinfo, COL_INFO, "Session Get App Config Cmd");
     proto_tree_add_item(payload_tree, hf_uci_session_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
 
@@ -928,7 +928,7 @@ static void dissect_session_get_app_config_cmd(tvbuff_t *tvb, int offset, packet
 static void dissect_session_get_app_config_rsp(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                               proto_tree *payload_tree)
 {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Session Get App Config Rsp");
+    col_set_str(pinfo->cinfo, COL_INFO, "Session Get App Config Rsp");
     proto_tree_add_item(payload_tree, hf_uci_status, tvb, offset, 1, ENC_NA);
     offset += 1;
     dissect_app_config_parameters(tvb, offset, pinfo, payload_tree);
@@ -937,13 +937,13 @@ static void dissect_session_get_app_config_rsp(tvbuff_t *tvb, int offset, packet
 static void dissect_session_get_count_cmd(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo,
                                          proto_tree *payload_tree _U_)
 {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Session Get Count Cmd");
+    col_set_str(pinfo->cinfo, COL_INFO, "Session Get Count Cmd");
 }
 
 static void dissect_session_get_count_rsp(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                          proto_tree *payload_tree)
 {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Session Get Count Rsp");
+    col_set_str(pinfo->cinfo, COL_INFO, "Session Get Count Rsp");
     proto_tree_add_item(payload_tree, hf_uci_status, tvb, offset, 1, ENC_NA);
     offset += 1;
     proto_tree_add_item(payload_tree, hf_uci_session_count, tvb, offset, 1, ENC_NA);
@@ -952,14 +952,14 @@ static void dissect_session_get_count_rsp(tvbuff_t *tvb, int offset, packet_info
 static void dissect_session_get_state_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                          proto_tree *payload_tree)
 {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Session Get State Cmd");
+    col_set_str(pinfo->cinfo, COL_INFO, "Session Get State Cmd");
     proto_tree_add_item(payload_tree, hf_uci_session_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 }
 
 static void dissect_session_get_state_rsp(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                          proto_tree *payload_tree)
 {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Session Get State Rsp");
+    col_set_str(pinfo->cinfo, COL_INFO, "Session Get State Rsp");
     proto_tree_add_item(payload_tree, hf_uci_status, tvb, offset, 1, ENC_NA);
     offset += 1;
     proto_tree_add_item(payload_tree, hf_uci_session_state, tvb, offset, 1, ENC_NA);
@@ -968,7 +968,7 @@ static void dissect_session_get_state_rsp(tvbuff_t *tvb, int offset, packet_info
 static void dissect_session_update_controller_multicast_list_cmd(
     tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *payload_tree)
 {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Session Update Controller Multicast List Cmd");
+    col_set_str(pinfo->cinfo, COL_INFO, "Session Update Controller Multicast List Cmd");
     proto_tree_add_item(payload_tree, hf_uci_session_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     proto_tree_add_item(payload_tree, hf_uci_update_controller_multicast_list_action,
@@ -1005,14 +1005,14 @@ static void dissect_session_update_controller_multicast_list_cmd(
 static void dissect_session_update_controller_multicast_list_rsp(
     tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *payload_tree)
 {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Session Update Controller Multicast List Rsp");
+    col_set_str(pinfo->cinfo, COL_INFO, "Session Update Controller Multicast List Rsp");
     proto_tree_add_item(payload_tree, hf_uci_status, tvb, offset, 1, ENC_NA);
 }
 
 static void dissect_session_update_controller_multicast_list_ntf(
     tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *payload_tree)
 {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Session Update Controller Multicast List Ntf");
+    col_set_str(pinfo->cinfo, COL_INFO, "Session Update Controller Multicast List Ntf");
     proto_tree_add_item(payload_tree, hf_uci_session_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     proto_tree_add_item(payload_tree, hf_uci_remaining_multicast_list_size,
@@ -1130,21 +1130,21 @@ static void dissect_uci_session_config_pdu(tvbuff_t *tvb, int offset, packet_inf
 static void dissect_range_start_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                    proto_tree *payload_tree)
 {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Range Start Cmd");
+    col_set_str(pinfo->cinfo, COL_INFO, "Range Start Cmd");
     proto_tree_add_item(payload_tree, hf_uci_session_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 }
 
 static void dissect_range_start_rsp(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                    proto_tree *payload_tree)
 {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Range Start Rsp");
+    col_set_str(pinfo->cinfo, COL_INFO, "Range Start Rsp");
     proto_tree_add_item(payload_tree, hf_uci_status, tvb, offset, 1, ENC_NA);
 }
 
 static void dissect_range_data_ntf(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                   proto_tree *payload_tree)
 {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Range Data Ntf");
+    col_set_str(pinfo->cinfo, COL_INFO, "Range Data Ntf");
     proto_tree_add_item(payload_tree, hf_uci_sequence_number, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     proto_tree_add_item(payload_tree, hf_uci_session_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -1254,28 +1254,28 @@ static void dissect_range_data_ntf(tvbuff_t *tvb, int offset, packet_info *pinfo
 static void dissect_range_stop_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                   proto_tree *payload_tree)
 {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Range Stop Cmd");
+    col_set_str(pinfo->cinfo, COL_INFO, "Range Stop Cmd");
     proto_tree_add_item(payload_tree, hf_uci_session_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 }
 
 static void dissect_range_stop_rsp(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                   proto_tree *payload_tree)
 {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Range Stop Rsp");
+    col_set_str(pinfo->cinfo, COL_INFO, "Range Stop Rsp");
     proto_tree_add_item(payload_tree, hf_uci_status, tvb, offset, 1, ENC_NA);
 }
 
 static void dissect_range_get_ranging_count_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                                proto_tree *payload_tree)
 {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Range Get Ranging Count Cmd");
+    col_set_str(pinfo->cinfo, COL_INFO, "Range Get Ranging Count Cmd");
     proto_tree_add_item(payload_tree, hf_uci_session_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 }
 
 static void dissect_range_get_ranging_count_rsp(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                                proto_tree *payload_tree)
 {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Range Get Ranging Count Rsp");
+    col_set_str(pinfo->cinfo, COL_INFO, "Range Get Ranging Count Rsp");
     proto_tree_add_item(payload_tree, hf_uci_status, tvb, offset, 1, ENC_NA);
     offset += 1;
     proto_tree_add_item(payload_tree, hf_uci_ranging_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);

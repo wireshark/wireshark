@@ -150,7 +150,7 @@ dissect_udt(tvbuff_t *tvb, packet_info* pinfo, proto_tree *parent_tree,
 				     get_sqn(udt_conv, tvb_get_ntohl(tvb, 16)));
 			break;
 		case UDT_PACKET_TYPE_ACK2:
-			col_add_fstr(pinfo->cinfo, COL_INFO, "UDT type: ack2");
+			col_set_str(pinfo->cinfo, COL_INFO, "UDT type: ack2");
 			break;
 		case UDT_PACKET_TYPE_NAK: {
 			wmem_strbuf_t *nakstr = wmem_strbuf_new(pinfo->pool, "");

@@ -103,7 +103,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         p_item = proto_tree_add_uint(main_tree, hf_role, tvb, offset, 0, 0x02);
         proto_item_set_generated(p_item);
 
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Client");
+        col_set_str(pinfo->cinfo, COL_INFO, "Client");
 
         if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
             wireshark_interface_id = pinfo->rec->rec_header.packet_header.interface_id;
@@ -278,7 +278,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         p_item = proto_tree_add_string(main_tree, hf_service, tvb, offset, 0, service);
         proto_item_set_generated(p_item);
 
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Server");
+        col_set_str(pinfo->cinfo, COL_INFO, "Server");
 
         if (!service) {
             col_append_fstr(pinfo->cinfo, COL_INFO, " Unknown service");

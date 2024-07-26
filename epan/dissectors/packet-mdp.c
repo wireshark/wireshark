@@ -62,8 +62,7 @@ dissect_mdp(tvbuff_t *mdp_tvb, packet_info *pinfo, proto_tree *tree, void *data 
     int offset = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MDP");
-    col_clear(pinfo->cinfo, COL_INFO);
-    col_add_fstr(pinfo->cinfo, COL_INFO, "MDP");
+    col_set_str(pinfo->cinfo, COL_INFO, "MDP");
 
     mdp_item = proto_tree_add_item(tree, proto_mdp, mdp_tvb, 0, -1, ENC_NA);
     mdp_tree = proto_item_add_subtree(mdp_item, ett_mdp);

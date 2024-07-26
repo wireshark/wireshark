@@ -134,7 +134,7 @@ dissect_gopher(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         }
         col_add_fstr(pinfo->cinfo, COL_INFO, "Request: %s", request);
     } else {
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Response");
+        col_set_str(pinfo->cinfo, COL_INFO, "Response");
     }
 
     if (tree) {

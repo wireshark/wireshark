@@ -445,35 +445,35 @@ dissect_tetra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 			col_add_fstr(pinfo->cinfo, COL_INFO, "Tetra-UNITDATA-REQ, Carrier: %d",
 					carriernumber);
 		else
-			col_add_fstr(pinfo->cinfo, COL_INFO, "Tetra-UNITDATA-REQ");
+			col_set_str(pinfo->cinfo, COL_INFO, "Tetra-UNITDATA-REQ");
 		break;
 	case 2:
 		if(include_carrier_number)
 			col_add_fstr(pinfo->cinfo, COL_INFO, "Tetra-UNITDATA-IND, Carrier: %d",
 					carriernumber);
 		else
-			col_add_fstr(pinfo->cinfo, COL_INFO, "Tetra-UNITDATA-IND");
+			col_set_str(pinfo->cinfo, COL_INFO, "Tetra-UNITDATA-IND");
 		break;
 	case 3:
 		if(include_carrier_number)
 			col_add_fstr(pinfo->cinfo, COL_INFO, "MAC-Timer, Carrier: %d",
 					carriernumber);
 		else
-			col_add_fstr(pinfo->cinfo, COL_INFO, "MAC-Timer");
+			col_set_str(pinfo->cinfo, COL_INFO, "MAC-Timer");
 		break;
 	case 127:
 		if(include_carrier_number)
 			col_add_fstr(pinfo->cinfo, COL_INFO, "Tetra-UNITDATA-IND Done, Carrier: %d",
 					carriernumber);
 		else
-			col_add_fstr(pinfo->cinfo, COL_INFO, "Tetra-UNITDATA-IND Done");
+			col_set_str(pinfo->cinfo, COL_INFO, "Tetra-UNITDATA-IND Done");
 		break;
 	case 128:
 		if(include_carrier_number)
 			col_add_fstr(pinfo->cinfo, COL_INFO, "Tetra-UNITDATA-REQ Done, Carrier: %d",
 					carriernumber);
 	  else
-			col_add_fstr(pinfo->cinfo, COL_INFO, "Tetra-UNITDATA-REQ Done");
+			col_set_str(pinfo->cinfo, COL_INFO, "Tetra-UNITDATA-REQ Done");
 		break;
 	default:
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown command: %d", type);

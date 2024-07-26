@@ -526,7 +526,7 @@ dissect_autosar_nm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
       offset = g_autosar_nm_pos_sni + 1;
   }
 
-  col_add_fstr(pinfo->cinfo, COL_INFO, "NM (");
+  col_set_str(pinfo->cinfo, COL_INFO, "NM (");
   if (g_autosar_nm_pos_cbv != byte_pos_off) {
       col_append_fstr(pinfo->cinfo, COL_INFO, "CBV: 0x%02x", ctrl_bit_vector);
       proto_item_append_text(ti, ", Control Bit Vector: 0x%02x", ctrl_bit_vector);

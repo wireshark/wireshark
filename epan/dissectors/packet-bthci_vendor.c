@@ -402,7 +402,7 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     case P2P_DIR_SENT:
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI_CMD_BROADCOM");
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Sent Broadcom ");
+        col_set_str(pinfo->cinfo, COL_INFO, "Sent Broadcom ");
 
         opcode_item = proto_tree_add_item(main_tree, hf_broadcom_opcode, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         opcode_tree = proto_item_add_subtree(opcode_item, ett_broadcom_opcode);
@@ -800,7 +800,7 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         break;
     case P2P_DIR_RECV:
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI_EVT_BROADCOM");
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Rcvd Broadcom ");
+        col_set_str(pinfo->cinfo, COL_INFO, "Rcvd Broadcom ");
 
         event_code = tvb_get_uint8(tvb, offset);
         description = val_to_str_ext(event_code, &bthci_evt_evt_code_vals_ext, "Unknown 0x%08x");
@@ -1911,7 +1911,7 @@ dissect_bthci_vendor_intel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
     case P2P_DIR_SENT:
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI_CMD_INTEL");
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Sent Intel ");
+        col_set_str(pinfo->cinfo, COL_INFO, "Sent Intel ");
 
         opcode_item = proto_tree_add_item(main_tree, hf_intel_opcode, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         opcode_tree = proto_item_add_subtree(opcode_item, ett_intel_opcode);
@@ -2117,7 +2117,7 @@ dissect_bthci_vendor_intel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         break;
     case P2P_DIR_RECV:
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI_EVT_INTEL");
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Rcvd Intel ");
+        col_set_str(pinfo->cinfo, COL_INFO, "Rcvd Intel ");
 
         event_code = tvb_get_uint8(tvb, offset);
 

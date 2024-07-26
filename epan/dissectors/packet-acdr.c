@@ -1201,7 +1201,7 @@ dissect_acdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     pinfo->current_proto = "acdr";
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "AC DR");
-    col_add_fstr(pinfo->cinfo, COL_INFO, "AC DEBUG Packet");
+    col_set_str(pinfo->cinfo, COL_INFO, "AC DEBUG Packet");
 
     create_acdr_tree(tree, pinfo, tvb);
 
@@ -1253,7 +1253,7 @@ dissect_acdr_tls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     //dissector wasn't found
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "TLS");
     col_clear(pinfo->cinfo, COL_INFO);
-    col_add_fstr(pinfo->cinfo, COL_INFO, "TLS raw data");
+    col_set_str(pinfo->cinfo, COL_INFO, "TLS raw data");
     call_data_dissector(tvb, pinfo, tree);
 
     return tvb_captured_length(tvb);

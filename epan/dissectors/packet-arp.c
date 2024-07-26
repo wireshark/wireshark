@@ -1623,7 +1623,7 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
       break;
 
     case ARPOP_DRARPERROR:
-      col_add_fstr(pinfo->cinfo, COL_INFO, "DRARP Error");
+      col_set_str(pinfo->cinfo, COL_INFO, "DRARP Error");
       break;
 
     case ARPOP_IREPLY:
@@ -1633,7 +1633,7 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
       break;
 
     case ATMARPOP_NAK:
-      col_add_fstr(pinfo->cinfo, COL_INFO, "ARP NAK");
+      col_set_str(pinfo->cinfo, COL_INFO, "ARP NAK");
       break;
 
     case ARPOP_MARS_REQUEST:

@@ -338,7 +338,7 @@ dissect_gcsna(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *dat
 
     /*Add the protocol name to display*/
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "gcsna");
-    col_add_fstr(pinfo->cinfo, COL_INFO, "[gcsna]");
+    col_set_str(pinfo->cinfo, COL_INFO, "[gcsna]");
 
     item = proto_tree_add_item(tree, hf_gcsna_msghdr, tvb, 0, -1, ENC_NA);
     gcsna_msghdr_tree_start = proto_item_add_subtree(item, ett_gcsna_msghdr);

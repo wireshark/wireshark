@@ -173,7 +173,7 @@ dissect_i2c_linux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	if (is_event) {
 		addr = 0;
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "I2C Event");
-		col_add_fstr(pinfo->cinfo, COL_DEF_DST, "----");
+		col_set_str(pinfo->cinfo, COL_DEF_DST, "----");
 		col_add_str(pinfo->cinfo, COL_INFO,
 				i2c_linux_get_event_desc(flags));
 	} else {

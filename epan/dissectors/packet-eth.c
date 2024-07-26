@@ -423,6 +423,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
   /* a facility for not duplicating long code */
   bool              needs_dissector_with_data = false;
 
+  /* Rotating buffer */
   ehdr_num++;
   if(ehdr_num>=4){
      ehdr_num=0;

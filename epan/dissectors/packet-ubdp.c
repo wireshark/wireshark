@@ -173,8 +173,7 @@ dissect_ubdp(tvbuff_t *ubdp_tvb, packet_info *pinfo, proto_tree *tree, void *dat
     const char *uModel;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "UBDP");
-    col_clear(pinfo->cinfo, COL_INFO);
-    col_add_fstr(pinfo->cinfo, COL_INFO, "UBDP");
+    col_set_str(pinfo->cinfo, COL_INFO, "UBDP");
 
     ubdp_item = proto_tree_add_item(tree, proto_ubdp, ubdp_tvb, 0, -1, ENC_NA);
     ubdp_tree = proto_item_add_subtree(ubdp_item, ett_ubdp);

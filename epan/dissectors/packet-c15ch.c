@@ -4733,8 +4733,7 @@ static int dissect_c15ch_encap_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     }
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, C15_LABEL);
-    col_clear(pinfo->cinfo, COL_INFO);
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Type: ISUP");
+    col_set_str(pinfo->cinfo, COL_INFO, "Type: ISUP");
 
     return tvb_reported_length(tvb);
 }

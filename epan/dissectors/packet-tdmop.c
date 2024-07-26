@@ -92,7 +92,7 @@ static int dissect_tdmop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     col_clear(pinfo->cinfo, COL_INFO);
     if (flags & TDMOP_FLAG_LOST_REQUEST)
     {
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Lost Request");
+        col_set_str(pinfo->cinfo, COL_INFO, "Lost Request");
     }
 
     ti = proto_tree_add_item(tree, proto_tdmop, tvb, 0, -1, ENC_NA);

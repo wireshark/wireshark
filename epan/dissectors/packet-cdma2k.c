@@ -4551,7 +4551,7 @@ dissect_cdma2k(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     /*Add the protocol name to display*/
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "CDMA2K");
-    col_add_fstr(pinfo->cinfo, COL_INFO, "[CDMA2K]");
+    col_set_str(pinfo->cinfo, COL_INFO, "[CDMA2K]");
 
     item = proto_tree_add_item(tree, hf_cdma2k_msghdr, tvb, 0, -1, ENC_NA);
     cdma2k_msghdr_tree_start =  proto_item_add_subtree(item, ett_cdma2k_msghdr);

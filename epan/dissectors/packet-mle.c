@@ -813,7 +813,7 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     /* This can cause a lot of problems so remove it by default */
     if (!mic_ok && mle_mic_ok) {
         call_data_dissector(payload_tvb, pinfo, tree);
-        col_add_fstr(pinfo->cinfo, COL_INFO, "MIC Failed");
+        col_set_str(pinfo->cinfo, COL_INFO, "MIC Failed");
         return tvb_captured_length(tvb);
     }
 

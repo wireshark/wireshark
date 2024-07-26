@@ -466,7 +466,7 @@ dissect_uasp_bulk(tvbuff_t *tvb,
     else
         return 0;
 
-    col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "UASP");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "UASP");
     col_clear(pinfo->cinfo, COL_INFO);
 
     ti = proto_tree_add_protocol_format(parent_tree, proto_uasp, tvb, 0, -1,

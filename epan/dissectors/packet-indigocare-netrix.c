@@ -161,7 +161,7 @@ dissect_netrix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *da
 		col_clear(pinfo->cinfo, COL_INFO);
 		ti = proto_tree_add_item(tree, proto_netrix, tvb, 0, -1, ENC_NA);
 		netrix_tree = proto_item_add_subtree(ti, ett_netrix);
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Ack");
+		col_set_str(pinfo->cinfo, COL_INFO, "Ack");
 		proto_tree_add_item(netrix_tree, hf_netrix_ack_type, tvb, 0, 1, ENC_NA);
 		return 1;
 	}

@@ -226,7 +226,7 @@ static void _dissect_uasip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
             if (noesip_enabled)
             {
-                col_add_fstr(pinfo->cinfo, COL_INFO, "NACK");
+                col_set_str(pinfo->cinfo, COL_INFO, "NACK");
             }
             else
             {

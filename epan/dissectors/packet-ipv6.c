@@ -3612,7 +3612,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             plen = jumbo_plen;
         } else {
             /* IPv6 length zero is invalid if there is a hop-by-hop header without jumbo option */
-            col_add_fstr(pinfo->cinfo, COL_INFO, "Invalid IPv6 payload length");
+            col_set_str(pinfo->cinfo, COL_INFO, "Invalid IPv6 payload length");
             expert_add_info(pinfo, ti_ipv6_plen, &ei_ipv6_opt_jumbo_missing);
         }
     }

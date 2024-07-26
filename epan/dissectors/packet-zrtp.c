@@ -510,7 +510,7 @@ dissect_Confirm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree, int pa
   unsigned int data_offset = 24;
   int          linelen;
 
-  col_add_fstr(pinfo->cinfo, COL_INFO, (part == 1) ? "Confirm1 Packet" : "Confirm2 Packet");
+  col_set_str(pinfo->cinfo, COL_INFO, (part == 1) ? "Confirm1 Packet" : "Confirm2 Packet");
 
   proto_tree_add_item(zrtp_tree, hf_zrtp_msg_hmac, tvb, data_offset+0, 8, ENC_NA);
   proto_tree_add_item(zrtp_tree, hf_zrtp_msg_cfb, tvb, data_offset+8, 16, ENC_NA);
@@ -537,7 +537,7 @@ dissect_DHPart(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree, int par
   unsigned int data_offset = 56;
   int          linelen, pvr_len;
 
-  col_add_fstr(pinfo->cinfo, COL_INFO, (part == 1) ? "DHPart1 Packet" : "DHPart2 Packet");
+  col_set_str(pinfo->cinfo, COL_INFO, (part == 1) ? "DHPart1 Packet" : "DHPart2 Packet");
 
   proto_tree_add_item(zrtp_tree, hf_zrtp_msg_hash_image, tvb, msg_offset+12, 32, ENC_NA);
   proto_tree_add_item(zrtp_tree, hf_zrtp_msg_rs1ID,      tvb, data_offset+0,  8, ENC_NA);

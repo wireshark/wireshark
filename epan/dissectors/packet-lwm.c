@@ -246,7 +246,7 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         lwm_tree = proto_item_add_subtree(ti_proto, ett_lwm);
     }
 
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Lightweight Mesh");
+    col_set_str(pinfo->cinfo, COL_INFO, "Lightweight Mesh");
 
     /*--------------------------------------------------*/
     /*                                                  */

@@ -1386,7 +1386,7 @@ dissect_cfdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     }else{
         proto_tree  *cfdp_file_data_header_tree;
 
-        col_add_fstr(pinfo->cinfo, COL_INFO, "File Data PDU");
+        col_set_str(pinfo->cinfo, COL_INFO, "File Data PDU");
 
         cfdp_file_data_header_tree = proto_tree_add_subtree(cfdp_tree, tvb, offset, cfdp_packet_data_length,
                                                             ett_cfdp_file_data_header, NULL, "CFDP File Data");
@@ -1520,7 +1520,7 @@ dissect_cfdp_as_subtree(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, in
     }else{
         proto_tree  *cfdp_file_data_header_tree;
 
-        col_add_fstr(pinfo->cinfo, COL_INFO, "File Data PDU");
+        col_set_str(pinfo->cinfo, COL_INFO, "File Data PDU");
 
         cfdp_file_data_header_tree = proto_tree_add_subtree(cfdp_tree, tvb, offset, cfdp_data_len,
                                                             ett_cfdp_file_data_header, NULL, "CFDP File Data");

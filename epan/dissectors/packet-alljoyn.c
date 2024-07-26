@@ -915,7 +915,7 @@ parse_arg(tvbuff_t      *tvb,
             int           packet_length        = (int)tvb_reported_length(tvb);
 
             if(*signature == NULL || *signature_length < 1) {
-                col_add_fstr(pinfo->cinfo, COL_INFO, "BAD DATA: An array argument needs a signature.");
+                col_set_str(pinfo->cinfo, COL_INFO, "BAD DATA: An array argument needs a signature.");
                 return tvb_reported_length(tvb);
             }
 

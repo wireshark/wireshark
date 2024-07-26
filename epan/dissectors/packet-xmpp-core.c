@@ -546,7 +546,7 @@ xmpp_failure(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t
 
     xmpp_element_t *fail_condition, *text;
 
-    col_add_fstr(pinfo->cinfo, COL_INFO, "FAILURE ");
+    col_set_str(pinfo->cinfo, COL_INFO, "FAILURE ");
 
     fail_item = proto_tree_add_item(tree, hf_xmpp_failure, tvb, packet->offset, packet->length, ENC_BIG_ENDIAN);
     fail_tree = proto_item_add_subtree(fail_item, ett_xmpp_failure);
@@ -581,7 +581,7 @@ xmpp_failure_text(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_elem
 void
 xmpp_xml_header(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, xmpp_element_t *packet)
 {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "XML ");
+    col_set_str(pinfo->cinfo, COL_INFO, "XML ");
     proto_tree_add_string(tree, hf_xmpp_xml_header_version, tvb, packet->offset, packet->length, "1.0");
 }
 
@@ -602,7 +602,7 @@ xmpp_stream(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t 
 
     };
 
-    col_add_fstr(pinfo->cinfo, COL_INFO, "STREAM ");
+    col_set_str(pinfo->cinfo, COL_INFO, "STREAM ");
 
     stream_item = proto_tree_add_item(tree, hf_xmpp_stream, tvb, packet->offset, packet->length, ENC_BIG_ENDIAN);
     stream_tree = proto_item_add_subtree(stream_item, ett_xmpp_stream);
@@ -623,7 +623,7 @@ xmpp_stream_close(proto_tree *tree, tvbuff_t *tvb, packet_info* pinfo)
     if((elem = tvbparse_get(tt,want_stream_end_tag))!=NULL)
     {
         proto_tree_add_item(tree, hf_xmpp_stream_end, tvb, elem->offset, elem->len, ENC_NA);
-        col_add_fstr(pinfo->cinfo, COL_INFO, "STREAM END");
+        col_set_str(pinfo->cinfo, COL_INFO, "STREAM END");
 
         return true;
     }
@@ -644,7 +644,7 @@ xmpp_features(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_
         ENC_BIG_ENDIAN);
     features_tree = proto_item_add_subtree(features_item, ett_xmpp_features);
 
-    col_add_fstr(pinfo->cinfo, COL_INFO, "FEATURES ");
+    col_set_str(pinfo->cinfo, COL_INFO, "FEATURES ");
 
     xmpp_display_attrs(features_tree, packet, pinfo, tvb, NULL, 0);
     xmpp_display_elems(features_tree, packet, pinfo, tvb, elems_info, array_length(elems_info));
@@ -680,7 +680,7 @@ xmpp_starttls(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
         {"xmlns", &hf_xmpp_xmlns, true, true, NULL, NULL},
     };
 
-    col_add_fstr(pinfo->cinfo, COL_INFO, "STARTTLS ");
+    col_set_str(pinfo->cinfo, COL_INFO, "STARTTLS ");
 
     tls_item = proto_tree_add_item(tree, hf_xmpp_starttls, tvb, packet->offset, packet->length, ENC_BIG_ENDIAN);
     tls_tree = proto_item_add_subtree(tls_item, ett_xmpp_starttls);
@@ -708,7 +708,7 @@ xmpp_proceed(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
         {"xmlns", &hf_xmpp_xmlns, true, true, NULL, NULL},
     };
 
-    col_add_fstr(pinfo->cinfo, COL_INFO, "PROCEED ");
+    col_set_str(pinfo->cinfo, COL_INFO, "PROCEED ");
 
     proceed_item = proto_tree_add_item(tree, hf_xmpp_proceed, tvb, packet->offset, packet->length, ENC_BIG_ENDIAN);
     proceed_tree = proto_item_add_subtree(proceed_item, ett_xmpp_proceed);

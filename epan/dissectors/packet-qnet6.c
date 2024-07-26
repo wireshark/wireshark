@@ -1635,7 +1635,7 @@ dissect_qnet6_lr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int * p
         }
       break;
     default:
-      col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown LR Type");
+      col_set_str(pinfo->cinfo, COL_INFO, "Unknown LR Type");
     }
 
   return *poffset - lr_start;
@@ -1691,16 +1691,16 @@ dissect_qnet6_nr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int * p
   switch (type)
     {
     case QNX_NR_PING_REQ:
-      col_add_fstr(pinfo->cinfo, COL_INFO, "Network Resolver Ping Request");
+      col_set_str(pinfo->cinfo, COL_INFO, "Network Resolver Ping Request");
       break;
     case QNX_NR_PING_ANS:
-      col_add_fstr(pinfo->cinfo, COL_INFO, "Network Resolver Ping Reply");
+      col_set_str(pinfo->cinfo, COL_INFO, "Network Resolver Ping Reply");
       /*
        * ping request/reply there is no further data
        */
       break;
     case QNX_NR_REMOTE_REQ:
-      col_add_fstr(pinfo->cinfo, COL_INFO, "Network Resolver Remote Request");
+      col_set_str(pinfo->cinfo, COL_INFO, "Network Resolver Remote Request");
       name_len = tvb_get_uint8(tvb, *poffset);
       proto_tree_add_item(stree, hf_qnet6_nr_remote_req_len, tvb, (*poffset)++, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item(stree, hf_qnet6_nr_remote_req_id, tvb, *poffset, 2, encoding);
@@ -1710,7 +1710,7 @@ dissect_qnet6_nr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int * p
       *poffset += rlen;
       break;
     case QNX_NR_REMOTE_ANS:
-      col_add_fstr(pinfo->cinfo, COL_INFO, "Network Resolver Remote Reply");
+      col_set_str(pinfo->cinfo, COL_INFO, "Network Resolver Remote Reply");
       proto_tree_add_item(stree, hf_qnet6_nr_remote_rep_spare, tvb, (*poffset)++, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item(stree, hf_qnet6_nr_remote_rep_id, tvb, *poffset, 2, encoding);
       *poffset += 2;
@@ -1718,7 +1718,7 @@ dissect_qnet6_nr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int * p
       *poffset += 4;
       break;
     case QNX_NR_REMOTE_ERROR:
-      col_add_fstr(pinfo->cinfo, COL_INFO, "Network Resolver Remote Error");
+      col_set_str(pinfo->cinfo, COL_INFO, "Network Resolver Remote Error");
       proto_tree_add_item(stree, hf_qnet6_nr_remote_rep_spare, tvb, (*poffset)++, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item(stree, hf_qnet6_nr_remote_rep_id, tvb, *poffset, 2, encoding);
       *poffset += 2;
@@ -1726,7 +1726,7 @@ dissect_qnet6_nr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int * p
       *poffset += 4;
       break;
     default:
-      col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown type");
+      col_set_str(pinfo->cinfo, COL_INFO, "Unknown type");
       break;
     }
 
@@ -3296,7 +3296,7 @@ dissect_qnet6_qos(uint8_t qtype, tvbuff_t * tvb, packet_info * pinfo, proto_tree
   proto_tree *stree;
   int         rlen, name_start;
 
-  col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "QNET_QOS");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "QNET_QOS");
 
   switch (qtype)
     {
@@ -3322,20 +3322,20 @@ dissect_qnet6_qos(uint8_t qtype, tvbuff_t * tvb, packet_info * pinfo, proto_tree
       qos_tcs_init_addtree(tvb, stree, poffset, encoding, hf_qnet6_qos_tcs_dst_name_off, hf_qnet6_qos_tcs_dst_name_generated, rlen, name_start);
       qos_tcs_init_addtree(tvb, stree, poffset, encoding, hf_qnet6_qos_tcs_dst_domain_off, hf_qnet6_qos_tcs_dst_domain_generated, rlen, name_start);
 
-      col_add_fstr(pinfo->cinfo, COL_INFO, "Qos TCS_INIT Message");
+      col_set_str(pinfo->cinfo, COL_INFO, "Qos TCS_INIT Message");
 
       break;
     case QNET_L4_TYPE_TCS_REM_UP:
-      col_add_fstr(pinfo->cinfo, COL_INFO, "Qos TCS_REM_UP Message");
+      col_set_str(pinfo->cinfo, COL_INFO, "Qos TCS_REM_UP Message");
       break;
     case QNET_L4_TYPE_TCS_UP:
-      col_add_fstr(pinfo->cinfo, COL_INFO, "Qos TCS_UP Message");
+      col_set_str(pinfo->cinfo, COL_INFO, "Qos TCS_UP Message");
       break;
     case QNET_L4_TYPE_TCS_DOWN:
-      col_add_fstr(pinfo->cinfo, COL_INFO, "Qos TCS_DOWN Message");
+      col_set_str(pinfo->cinfo, COL_INFO, "Qos TCS_DOWN Message");
       break;
     case QNET_L4_TYPE_TCS_REM_DOWN:
-      col_add_fstr(pinfo->cinfo, COL_INFO, "Qos TCS_REM_DOWN Message");
+      col_set_str(pinfo->cinfo, COL_INFO, "Qos TCS_REM_DOWN Message");
       break;
     default:
       break;
@@ -4063,7 +4063,7 @@ dissect_qnet6(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * dat
   qtype = tvb_get_uint8(tvb, offset);
   proto_tree_add_item(qnet6_tree, hf_qnet6_l4_type, tvb, offset++, 1, ENC_BIG_ENDIAN);
 
-  col_add_str(pinfo->cinfo, COL_INFO, val_to_str(qtype, qnet6_type_vals, "Unknown LWL4 Type %u packets"));
+  col_set_str(pinfo->cinfo, COL_INFO, val_to_str(qtype, qnet6_type_vals, "Unknown LWL4 Type %u packets"));
   /*
    * flags
    */
