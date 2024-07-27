@@ -744,7 +744,7 @@ peektagged_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 
     /* calculate and fill in packet time stamp */
     t = (((uint64_t) timestamp.upper) << 32) + timestamp.lower;
-    if (!nsfiletime_to_nstime(&rec->ts, t)) {
+    if (!filetime_ns_to_nstime(&rec->ts, t)) {
         *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup("peektagged: time stamp outside supported range");
         return -1;

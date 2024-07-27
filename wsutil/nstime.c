@@ -254,7 +254,7 @@ filetime_to_nstime(nstime_t *nstime, uint64_t filetime)
 }
 
 /*
- * function: nsfiletime_to_nstime
+ * function: filetime_ns_to_nstime
  * converts a Windows FILETIME-like value, but given in nanoseconds
  * rather than 10ths of microseconds, to an nstime_t
  * returns true if the conversion succeeds, false if it doesn't
@@ -262,7 +262,7 @@ filetime_to_nstime(nstime_t *nstime, uint64_t filetime)
  * underflows time_t)
  */
 bool
-nsfiletime_to_nstime(nstime_t *nstime, uint64_t nsfiletime)
+filetime_ns_to_nstime(nstime_t *nstime, uint64_t nsfiletime)
 {
     uint64_t ftsecs;
     int nsecs;
