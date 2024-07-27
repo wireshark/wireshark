@@ -5112,7 +5112,7 @@ dissect_zbncp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
                     conversation_add_proto_data(conversation, zbncp_frame, (void *)zbncp_ctx_str);
                 }
 
-                col_append_fstr(pinfo->cinfo, COL_INFO, ", first fragment");
+                col_append_str(pinfo->cinfo, COL_INFO, ", first fragment");
             }
         }
         else /* It's fragmentation frame */
@@ -5137,11 +5137,11 @@ dissect_zbncp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
 
             if (ZBNCP_GET_PACKET_FLAGS_LAST_FRAG_BIT(flags))
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, ", last fragment");
+                col_append_str(pinfo->cinfo, COL_INFO, ", last fragment");
             }
             else
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, ", fragment");
+                col_append_str(pinfo->cinfo, COL_INFO, ", fragment");
             }
         }
     }

@@ -5882,7 +5882,7 @@ dissect_fp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         for (i=1; i < p_conv_data->num_dch_in_flow; i++) {
             col_append_fstr(pinfo->cinfo, COL_INFO, ",%u", p_conv_data->dch_ids_in_flow_list[i]);
         }
-        col_append_fstr(pinfo->cinfo, COL_INFO, ") ");
+        col_append_str(pinfo->cinfo, COL_INFO, ") ");
     }
     proto_item_append_text(ti, " (%s)",
                            val_to_str_const(p_fp_info->channel,

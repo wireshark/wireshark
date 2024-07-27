@@ -1377,7 +1377,7 @@ static int dissect_zb_direct_permit_join(tvbuff_t    *tvb,
         }
         else
         {
-            col_append_fstr(pinfo->cinfo, COL_INFO, ": close");
+            col_append_str(pinfo->cinfo, COL_INFO, ": close");
         }
     }
 
@@ -1492,7 +1492,7 @@ static int dissect_zb_direct_identify(tvbuff_t    *tvb,
         }
         else
         {
-            col_append_fstr(pinfo->cinfo, COL_INFO, ": stop");
+            col_append_str(pinfo->cinfo, COL_INFO, ": stop");
         }
     }
 

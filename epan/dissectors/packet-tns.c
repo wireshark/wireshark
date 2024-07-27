@@ -602,7 +602,7 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 			if (!PINFO_FD_VISITED(pinfo)) {
 				tns_conv_info_t *tns_info = tns_get_conv_info(pinfo);
 				if ((uint32_t)remaining == tns_info->pending_connect_data) {
-					col_append_fstr(pinfo->cinfo, COL_INFO, ", Connect Data");
+					col_append_str(pinfo->cinfo, COL_INFO, ", Connect Data");
 					proto_tree_add_item(data_tree, hf_tns_connect_data, tvb,
 						offset, -1, ENC_ASCII);
 					p_add_proto_data(wmem_file_scope(), pinfo, proto_tns, 0,
@@ -612,7 +612,7 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 				}
 			} else {
 				if (p_get_proto_data(wmem_file_scope(), pinfo, proto_tns, 0) != NULL) {
-					col_append_fstr(pinfo->cinfo, COL_INFO, ", Connect Data");
+					col_append_str(pinfo->cinfo, COL_INFO, ", Connect Data");
 					proto_tree_add_item(data_tree, hf_tns_connect_data, tvb,
 						offset, -1, ENC_ASCII);
 					return;

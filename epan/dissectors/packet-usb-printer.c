@@ -76,7 +76,7 @@ static int dissect_usb_printer_ctl(
                 usb_printer_req, "Invalid"));
 
     if (is_request) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " request");
+        col_append_str(pinfo->cinfo, COL_INFO, " request");
 
         bReq = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(tree, hf_usb_printer_req,
@@ -99,7 +99,7 @@ static int dissect_usb_printer_ctl(
         }
     }
     else {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " response");
+        col_append_str(pinfo->cinfo, COL_INFO, " response");
 
         if (usb_trans_info->setup.request == REQ_GET_DEV_ID) {
             /*

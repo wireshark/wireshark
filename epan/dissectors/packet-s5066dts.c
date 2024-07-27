@@ -789,7 +789,7 @@ static int dissect_s5066dts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     switch (eow_type)
     {
         case S5066_EOW_RESERVED:
-            col_append_fstr(pinfo->cinfo, COL_INFO, " EowType=RESERVED");
+            col_append_str(pinfo->cinfo, COL_INFO, " EowType=RESERVED");
             break;
         case S5066_EOW_DRC_REQUEST: /* Data Rate Change Request */
         case S5066_EOW_DRC_RESPONSE: /* Data Rate Change Response */
@@ -808,7 +808,7 @@ static int dissect_s5066dts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         case 12: /* Unspecified/User Defined */
         case 13: /* Unspecified/User Defined */
         case 14: /* Unspecified/User Defined */
-            col_append_fstr(pinfo->cinfo, COL_INFO, " EowType=UNSPECIFIED");
+            col_append_str(pinfo->cinfo, COL_INFO, " EowType=UNSPECIFIED");
             break;
         case S5066_EOW_HFTRP_TOKEN:
             col_append_fstr(pinfo->cinfo, COL_INFO, " EowType=%d (%s:%s)", eow_type,

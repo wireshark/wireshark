@@ -315,7 +315,7 @@ dissect_sstp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     }
 
   } else {
-    col_append_fstr(pinfo->cinfo, COL_INFO, "Type: DATA; ");
+    col_append_str(pinfo->cinfo, COL_INFO, "Type: DATA; ");
     /* our work here is done, since sstp encapsulates ppp, we hand the remaining buffer
        over to the ppp dissector for further analysis */
     tvb_next = tvb_new_subset_remaining(tvb, SSTP_OFFSET_DATA);

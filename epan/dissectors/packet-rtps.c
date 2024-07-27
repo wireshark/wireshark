@@ -13238,9 +13238,9 @@ static void dissect_RTPS_DATA_FRAG_kind(tvbuff_t *tvb, packet_info *pinfo, int o
         if (frag_index_in_submessage == 0) {
           generate_status_info(pinfo, wid, status_info);
           if (frag_msg) { /* Reassembled */
-            col_append_fstr(pinfo->cinfo, COL_INFO, " [Reassembled]");
+            col_append_str(pinfo->cinfo, COL_INFO, " [Reassembled]");
           } else { /* Not last packet of reassembled Short Message */
-            col_append_fstr(pinfo->cinfo, COL_INFO," [RTPS fragment]");
+            col_append_str(pinfo->cinfo, COL_INFO," [RTPS fragment]");
           }
         }
 

@@ -2262,7 +2262,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         case FT_PADDING:{
             uint32_t pad_len;
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", PADDING");
+            col_append_str(pinfo->cinfo, COL_INFO, ", PADDING");
 
             /* A padding frame consists of a single zero octet, but for brevity
              * sake let's combine multiple zeroes into a single field. */
@@ -2274,7 +2274,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         }
         break;
         case FT_PING:{
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", PING");
+            col_append_str(pinfo->cinfo, COL_INFO, ", PING");
         }
         break;
         case FT_ACK:
@@ -2286,18 +2286,18 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
 
             switch(frame_type){
                 case FT_ACK:
-                    col_append_fstr(pinfo->cinfo, COL_INFO, ", ACK");
+                    col_append_str(pinfo->cinfo, COL_INFO, ", ACK");
                 break;
                 case FT_ACK_ECN:
-                    col_append_fstr(pinfo->cinfo, COL_INFO, ", ACK_ECN");
+                    col_append_str(pinfo->cinfo, COL_INFO, ", ACK_ECN");
                 break;
                 case FT_MP_ACK:
-                    col_append_fstr(pinfo->cinfo, COL_INFO, ", MP_ACK");
+                    col_append_str(pinfo->cinfo, COL_INFO, ", MP_ACK");
                     proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_ack_path_identifier, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
                     offset += lenvar;
                 break;
                 case FT_MP_ACK_ECN:
-                    col_append_fstr(pinfo->cinfo, COL_INFO, ", MP_ACK_ECN");
+                    col_append_str(pinfo->cinfo, COL_INFO, ", MP_ACK_ECN");
                     proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_ack_path_identifier, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
                     offset += lenvar;
                 break;
@@ -2345,7 +2345,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             uint64_t stream_id, error_code;
             int32_t len_streamid = 0, len_finalsize = 0, len_error_code = 0;
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", RS");
+            col_append_str(pinfo->cinfo, COL_INFO, ", RS");
 
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_rsts_stream_id, tvb, offset, -1, ENC_VARINT_QUIC, &stream_id, &len_streamid);
             offset += len_streamid;
@@ -2367,7 +2367,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             uint64_t stream_id, error_code;
             int32_t len_error_code = 0;
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", SS");
+            col_append_str(pinfo->cinfo, COL_INFO, ", SS");
 
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_ss_stream_id, tvb, offset, -1, ENC_VARINT_QUIC, &stream_id, &len_streamid);
             offset += len_streamid;
@@ -2384,7 +2384,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         case FT_CRYPTO: {
             uint64_t crypto_offset, crypto_length;
             int32_t lenvar;
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", CRYPTO");
+            col_append_str(pinfo->cinfo, COL_INFO, ", CRYPTO");
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_crypto_offset, tvb, offset, -1, ENC_VARINT_QUIC, &crypto_offset, &lenvar);
             offset += lenvar;
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_crypto_length, tvb, offset, -1, ENC_VARINT_QUIC, &crypto_length, &lenvar);
@@ -2404,7 +2404,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             uint64_t token_length;
             int32_t lenvar;
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", NT");
+            col_append_str(pinfo->cinfo, COL_INFO, ", NT");
 
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_nt_length, tvb, offset, -1, ENC_VARINT_QUIC, &token_length, &lenvar);
             offset += lenvar;
@@ -2426,7 +2426,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
 
             offset -= 1;
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", STREAM");
+            col_append_str(pinfo->cinfo, COL_INFO, ", STREAM");
 
             ftflags_tree = proto_item_add_subtree(ti_ftflags, ett_quic_ftflags);
             proto_tree_add_item(ftflags_tree, hf_quic_stream_fin, tvb, offset, 1, ENC_NA);
@@ -2489,7 +2489,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         case FT_MAX_DATA:{
             int32_t len_maximumdata;
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", MD");
+            col_append_str(pinfo->cinfo, COL_INFO, ", MD");
 
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_md_maximum_data, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_maximumdata);
             offset += len_maximumdata;
@@ -2499,7 +2499,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             int32_t len_streamid, len_maximumstreamdata;
             uint64_t stream_id;
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", MSD");
+            col_append_str(pinfo->cinfo, COL_INFO, ", MSD");
 
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_msd_stream_id, tvb, offset, -1, ENC_VARINT_QUIC, &stream_id, &len_streamid);
             offset += len_streamid;
@@ -2515,7 +2515,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         case FT_MAX_STREAMS_UNI:{
             int32_t len_streamid;
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", MS");
+            col_append_str(pinfo->cinfo, COL_INFO, ", MS");
 
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_ms_max_streams, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_streamid);
             offset += len_streamid;
@@ -2524,7 +2524,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         case FT_DATA_BLOCKED:{
             int32_t len_offset;
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", DB");
+            col_append_str(pinfo->cinfo, COL_INFO, ", DB");
 
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_db_stream_data_limit, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_offset);
             offset += len_offset;
@@ -2534,7 +2534,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             int32_t len_streamid, len_offset;
             uint64_t stream_id;
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", SDB");
+            col_append_str(pinfo->cinfo, COL_INFO, ", SDB");
 
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_sdb_stream_id, tvb, offset, -1, ENC_VARINT_QUIC, &stream_id, &len_streamid);
             offset += len_streamid;
@@ -2550,7 +2550,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         case FT_STREAMS_BLOCKED_UNI:{
             int32_t len_streamid;
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", SB");
+            col_append_str(pinfo->cinfo, COL_INFO, ", SB");
 
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_sb_stream_limit, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_streamid);
             offset += len_streamid;
@@ -2567,10 +2567,10 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
 
             switch(frame_type){
                 case FT_NEW_CONNECTION_ID:
-                    col_append_fstr(pinfo->cinfo, COL_INFO, ", NCI");
+                    col_append_str(pinfo->cinfo, COL_INFO, ", NCI");
                  break;
                 case FT_MP_NEW_CONNECTION_ID:
-                    col_append_fstr(pinfo->cinfo, COL_INFO, ", MP_NCI");
+                    col_append_str(pinfo->cinfo, COL_INFO, ", MP_NCI");
                     proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_nci_path_identifier, tvb, offset, -1, ENC_VARINT_QUIC, &path_id, &lenvar);
                     offset += lenvar;
                  break;
@@ -2616,10 +2616,10 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
 
             switch(frame_type){
                 case FT_RETIRE_CONNECTION_ID:
-                    col_append_fstr(pinfo->cinfo, COL_INFO, ", RC");
+                    col_append_str(pinfo->cinfo, COL_INFO, ", RC");
                 break;
                 case FT_MP_RETIRE_CONNECTION_ID:
-                    col_append_fstr(pinfo->cinfo, COL_INFO, ", MP_RC");
+                    col_append_str(pinfo->cinfo, COL_INFO, ", MP_RC");
                     proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_rc_path_identifier, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
                     offset += lenvar;
                 break;
@@ -2630,14 +2630,14 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         }
         break;
         case FT_PATH_CHALLENGE:{
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", PC");
+            col_append_str(pinfo->cinfo, COL_INFO, ", PC");
 
             proto_tree_add_item(ft_tree, hf_quic_path_challenge_data, tvb, offset, 8, ENC_NA);
             offset += 8;
         }
         break;
         case FT_PATH_RESPONSE:{
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", PR");
+            col_append_str(pinfo->cinfo, COL_INFO, ", PR");
 
             proto_tree_add_item(ft_tree, hf_quic_path_response_data, tvb, offset, 8, ENC_NA);
             offset += 8;
@@ -2653,11 +2653,11 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
 
             if ( frame_type == FT_PATH_ABANDON) {
                 int32_t lenvar;
-                col_append_fstr(pinfo->cinfo, COL_INFO, ", PA");
+                col_append_str(pinfo->cinfo, COL_INFO, ", PA");
                 proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_pa_path_identifier, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
                 offset += lenvar;
             } else {
-                col_append_fstr(pinfo->cinfo, COL_INFO, ", CC");
+                col_append_str(pinfo->cinfo, COL_INFO, ", CC");
             }
             if (frame_type == FT_CONNECTION_CLOSE_TPT) {
                 proto_tree_add_item_ret_varint(ft_tree, hf_quic_cc_error_code, tvb, offset, -1, ENC_VARINT_QUIC, &error_code, &len_error_code);
@@ -2695,13 +2695,13 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         }
         break;
         case FT_HANDSHAKE_DONE:
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", DONE");
+            col_append_str(pinfo->cinfo, COL_INFO, ", DONE");
         break;
         case FT_DATAGRAM:
         case FT_DATAGRAM_LENGTH:{
             int32_t dg_length;
             uint64_t length;
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", DG");
+            col_append_str(pinfo->cinfo, COL_INFO, ", DG");
             if (frame_type == FT_DATAGRAM_LENGTH) {
 
                 proto_tree_add_item_ret_varint(ft_tree, hf_quic_dg_length, tvb, offset, -1, ENC_VARINT_QUIC, &length, &dg_length);
@@ -2715,12 +2715,12 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         break;
         case FT_IMMEDIATE_ACK_DRAFT05:
         case FT_IMMEDIATE_ACK:
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", IA");
+            col_append_str(pinfo->cinfo, COL_INFO, ", IA");
         break;
         case FT_ACK_FREQUENCY:{
             int32_t length;
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", AF");
+            col_append_str(pinfo->cinfo, COL_INFO, ", AF");
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_af_sequence_number, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
             offset += (uint32_t)length;
 
@@ -2737,7 +2737,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         case FT_TIME_STAMP:{
             int32_t length;
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", TS");
+            col_append_str(pinfo->cinfo, COL_INFO, ", TS");
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_ts, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
             offset += (uint32_t)length;
 
@@ -2748,7 +2748,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         case FT_PATH_AVAILABLE:{
             int32_t length;
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", PS");
+            col_append_str(pinfo->cinfo, COL_INFO, ", PS");
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_ps_path_identifier, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
             offset += (uint32_t)length;
 
@@ -2772,7 +2772,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
              * set a expert info if MP is not supported (similar with other
              * MP frames.)
              */
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", MP");
+            col_append_str(pinfo->cinfo, COL_INFO, ", MP");
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_maximum_paths, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
             offset += (uint32_t)length;
         }
@@ -2780,7 +2780,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         case FT_MAX_PATH_ID:{
             int32_t length;
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", MPI");
+            col_append_str(pinfo->cinfo, COL_INFO, ", MPI");
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_mp_maximum_path_identifier, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
             offset += (uint32_t)length;
         }

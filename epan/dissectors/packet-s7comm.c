@@ -6723,7 +6723,7 @@ s7comm_decode_ud(tvbuff_t *tvb,
     if (function == S7COMM_SERV_MODETRANS) {
         /* Mode transition indication needs a separate handling */
         proto_item_append_text(param_tree, ": ->(Mode transition indication)");
-        col_append_fstr(pinfo->cinfo, COL_INFO, " Function:[Mode transition indication]");
+        col_append_str(pinfo->cinfo, COL_INFO, " Function:[Mode transition indication]");
         proto_tree_add_item(param_tree, hf_s7comm_modetrans_param_unknown1, tvb, offset_temp, 4, ENC_BIG_ENDIAN);
         offset_temp += 4;
         mode = tvb_get_uint8(tvb, offset_temp);
@@ -6749,7 +6749,7 @@ s7comm_decode_ud(tvbuff_t *tvb,
     if (varspec_syntax_id == S7COMM_SYNTAXID_PBC_ID) {
         /* When the R_ID occurs here, it's USEND and needs a separate handling */
         proto_item_append_text(param_tree, ": (Indication) ->(USEND)");
-        col_append_fstr(pinfo->cinfo, COL_INFO, " Function:[Indication] -> [USEND]");
+        col_append_str(pinfo->cinfo, COL_INFO, " Function:[Indication] -> [USEND]");
         proto_tree_add_item(param_tree, hf_s7comm_pbc_unknown, tvb, offset_temp, 1, ENC_BIG_ENDIAN);
         offset_temp += 1;
         proto_tree_add_item_ret_uint(param_tree, hf_s7comm_pbc_usend_r_id, tvb, offset_temp, 4, ENC_BIG_ENDIAN, &r_id);

@@ -730,13 +730,13 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
                 proto_item_set_text(temp_ti,
                     "Locomotive direction and speed: Forward, 0x%02" PRIx64,
                     direction_and_speed & 0x7F);
-                col_append_fstr(pinfo->cinfo, COL_INFO, ", Forward");
+                col_append_str(pinfo->cinfo, COL_INFO, ", Forward");
             }
             else {
                 proto_item_set_text(temp_ti,
                     "Locomotive direction and speed: Reverse, 0x%02" PRIx64,
                     direction_and_speed & 0x7F);
-                col_append_fstr(pinfo->cinfo, COL_INFO, ", Reverse");
+                col_append_str(pinfo->cinfo, COL_INFO, ", Reverse");
             }
             col_append_fstr(pinfo->cinfo, COL_INFO, ", Speed=0x%02" PRIx64,
                 direction_and_speed & 0x7F);
@@ -1081,7 +1081,7 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         case Z21_LAN_X_CV_POM_ACCESSORY_WRITE_BYTE:
         case Z21_LAN_X_CV_POM_ACCESSORY_WRITE_BIT:
         case Z21_LAN_X_CV_POM_ACCESSORY_READ_BYTE:
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", *** TO BE COMPLETED ***");
+            col_append_str(pinfo->cinfo, COL_INFO, ", *** TO BE COMPLETED ***");
             break;
         case Z21_LAN_X_DCC_READ_REGISTER:
             temp_uint = tvb_get_uint8(tvb, offset);

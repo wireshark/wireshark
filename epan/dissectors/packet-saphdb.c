@@ -1087,7 +1087,7 @@ dissect_saphdb_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 			proto_tree_add_item(segment_tree, hf_saphdb_segment_reserved, tvb, offset, 11, ENC_NA);
 			offset += 11;
 			length += 11;
-			col_append_fstr(pinfo->cinfo, COL_INFO, ")");
+			col_append_str(pinfo->cinfo, COL_INFO, ")");
 
 			break;
 	}

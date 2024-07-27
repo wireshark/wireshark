@@ -1710,7 +1710,7 @@ dissect_uds_subfunction(tvbuff_t *tvb, packet_info *pinfo, proto_tree *uds_tree,
         proto_tree_add_item_ret_boolean(subfunction_tree, hf_uds_suppress_pos_rsp_msg_ind, tvb, offset, 1, ENC_NA, &suppress);
 
         if (suppress) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "   (Reply suppressed)");
+            col_append_str(pinfo->cinfo, COL_INFO, "   (Reply suppressed)");
         }
     }
     offset += 1;
