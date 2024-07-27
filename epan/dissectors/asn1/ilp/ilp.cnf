@@ -29,7 +29,7 @@ CellGlobalIdEUTRA/cellIdentity eutra_cellIdentity
 #.FIELD_ATTR
 SETId/min  ABBREV=minsi
 LocationDataLCI/latitude ABBREV=locationdatalci.latitude
-LocationDataLCI/latitude ABBREV=locationdatalci.longitude
+LocationDataLCI/longitude ABBREV=locationdatalci.longitude
 LocationDataLCI/altitude ABBREV=locationdatalci.altitude
 CellGlobalIdEUTRA/cellIdentity ABBREV=cellglobalideutra.cellIdentity
 
