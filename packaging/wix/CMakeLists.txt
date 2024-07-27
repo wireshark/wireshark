@@ -336,7 +336,5 @@ set(CLEAN_FILES
 	RadiusDict.wxs
 	Diameter.wxs
 	QtTranslation.wxs
-	#NEWS.txt
-	#user-guide.chm
 	wireshark-${VERSION}-${WIRESHARK_TARGET_PLATFORM}.msi
 )
