@@ -5697,11 +5697,11 @@ extern value_string_ext NT_errors_ext;
 extern value_string_ext ms_country_codes_ext;
 
 WS_DLL_PUBLIC
-int dissect_nt_64bit_time(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date);
+proto_item *dissect_nttime(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date, const unsigned encoding);
 WS_DLL_PUBLIC
-int dissect_nt_64bit_time_opt(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date, bool onesec_resolution);
+proto_item *dissect_nttime_hyper(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date, const unsigned encoding);
 WS_DLL_PUBLIC
-int dissect_nt_64bit_time_ex(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date, proto_item **createdItem, bool onesec_resolution);
+proto_item *dissect_nttime_hyper_1sec(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date, const unsigned encoding);
 
 /*
  *  SIDs and RIDs

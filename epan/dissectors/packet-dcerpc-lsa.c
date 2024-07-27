@@ -3550,7 +3550,7 @@ lsarpc_dissect_element_lsa_ModificationInfo_modified_id(tvbuff_t *tvb _U_, int o
 static int
 lsarpc_dissect_element_lsa_ModificationInfo_db_create_time(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_ModificationInfo_db_create_time);
+	offset = dissect_ndr_nt_NTTIME_hyper(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_ModificationInfo_db_create_time);
 
 	return offset;
 }
@@ -5426,7 +5426,7 @@ lsarpc_dissect_enum_lsa_TrustAuthType(tvbuff_t *tvb _U_, int offset _U_, packet_
 static int
 lsarpc_dissect_element_lsa_TrustDomainInfoBuffer_last_update_time(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_TrustDomainInfoBuffer_last_update_time);
+	offset = dissect_ndr_nt_NTTIME_hyper(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_TrustDomainInfoBuffer_last_update_time);
 
 	return offset;
 }
@@ -7678,7 +7678,7 @@ lsarpc_dissect_element_lsa_ForestTrustRecord_type(tvbuff_t *tvb _U_, int offset 
 static int
 lsarpc_dissect_element_lsa_ForestTrustRecord_time(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_ForestTrustRecord_time);
+	offset = dissect_ndr_nt_NTTIME_hyper(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_ForestTrustRecord_time);
 
 	return offset;
 }
@@ -8219,7 +8219,7 @@ lsarpc_dissect_element_lsa_ForestTrustRecord2_type(tvbuff_t *tvb _U_, int offset
 static int
 lsarpc_dissect_element_lsa_ForestTrustRecord2_time(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_ForestTrustRecord2_time);
+	offset = dissect_ndr_nt_NTTIME_hyper(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_ForestTrustRecord2_time);
 
 	return offset;
 }
@@ -10654,7 +10654,7 @@ lsarpc_dissect_element_lsa_QuerySecret_new_mtime(tvbuff_t *tvb _U_, int offset _
 static int
 lsarpc_dissect_element_lsa_QuerySecret_new_mtime_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_QuerySecret_new_mtime);
+	offset = dissect_ndr_nt_NTTIME_hyper(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_QuerySecret_new_mtime);
 
 	return offset;
 }
@@ -10686,7 +10686,7 @@ lsarpc_dissect_element_lsa_QuerySecret_old_mtime(tvbuff_t *tvb _U_, int offset _
 static int
 lsarpc_dissect_element_lsa_QuerySecret_old_mtime_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_QuerySecret_old_mtime);
+	offset = dissect_ndr_nt_NTTIME_hyper(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_QuerySecret_old_mtime);
 
 	return offset;
 }

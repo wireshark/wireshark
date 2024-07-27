@@ -5988,7 +5988,7 @@ drsuapi_dissect_element_DsReplicaMetaData_version(tvbuff_t *tvb _U_, int offset 
 static int
 drsuapi_dissect_element_DsReplicaMetaData_originating_change_time(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_drsuapi_DsReplicaMetaData_originating_change_time);
+	offset = dissect_ndr_nt_NTTIME_1sec(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_drsuapi_DsReplicaMetaData_originating_change_time);
 
 	return offset;
 }
@@ -6479,7 +6479,7 @@ drsuapi_dissect_element_DsReplicaLinkedAttribute_flags(tvbuff_t *tvb _U_, int of
 static int
 drsuapi_dissect_element_DsReplicaLinkedAttribute_originating_add_time(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_drsuapi_DsReplicaLinkedAttribute_originating_add_time);
+	offset = dissect_ndr_nt_NTTIME_1sec(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_drsuapi_DsReplicaLinkedAttribute_originating_add_time);
 
 	return offset;
 }
@@ -15558,7 +15558,7 @@ drsuapi_dissect_element_DsReplicaConnection04_bind_guid(tvbuff_t *tvb _U_, int o
 static int
 drsuapi_dissect_element_DsReplicaConnection04_bind_time(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_drsuapi_DsReplicaConnection04_bind_time);
+	offset = dissect_ndr_nt_NTTIME_1sec(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_drsuapi_DsReplicaConnection04_bind_time);
 
 	return offset;
 }

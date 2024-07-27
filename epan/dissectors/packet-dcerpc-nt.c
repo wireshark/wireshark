@@ -432,14 +432,11 @@ dissect_ndr_lsa_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 	return offset;
 }
 
-/* This function is used to dissect a DCERPC encoded 64 bit time value.
-   XXX it should be fixed both here and in dissect_nt_64bit_time so
-   it can handle both BIG and LITTLE endian encodings
- */
+/* This function is used to dissect a DCERPC encoded 64 bit time value. */
 int
 dissect_ndr_nt_NTTIME (tvbuff_t *tvb, int offset,
 			packet_info *pinfo _U_, proto_tree *tree,
-			dcerpc_info *di, uint8_t *drep _U_, int hf_index)
+			dcerpc_info *di, uint8_t *drep, int hf_index)
 {
 	if(di->conformant_run){
 		/*just a run to handle conformant arrays, nothing to dissect */
@@ -448,14 +445,16 @@ dissect_ndr_nt_NTTIME (tvbuff_t *tvb, int offset,
 
 	ALIGN_TO_4_BYTES;
 
-	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_index);
+	dissect_nttime(tvb, tree, offset, hf_index,
+	    (drep[0] & DREP_LITTLE_ENDIAN) ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
+	offset += 8;
 	return offset;
 }
 
 int
 dissect_ndr_nt_NTTIME_hyper (tvbuff_t *tvb, int offset,
 			packet_info *pinfo _U_, proto_tree *tree,
-			dcerpc_info *di, uint8_t *drep _U_, int hf_index, bool onesec_resolution)
+			dcerpc_info *di, uint8_t *drep _U_, int hf_index)
 {
 	if(di->conformant_run){
 		/*just a run to handle conformant arrays, nothing to dissect */
@@ -464,7 +463,27 @@ dissect_ndr_nt_NTTIME_hyper (tvbuff_t *tvb, int offset,
 
 	ALIGN_TO_8_BYTES;
 
-	offset = dissect_nt_64bit_time_opt(tvb, tree, offset, hf_index, onesec_resolution);
+	dissect_nttime_hyper(tvb, tree, offset, hf_index,
+	    (drep[0] & DREP_LITTLE_ENDIAN) ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
+	offset += 8;
+	return offset;
+}
+
+int
+dissect_ndr_nt_NTTIME_1sec (tvbuff_t *tvb, int offset,
+			packet_info *pinfo _U_, proto_tree *tree,
+			dcerpc_info *di, uint8_t *drep, int hf_index)
+{
+	if(di->conformant_run){
+		/*just a run to handle conformant arrays, nothing to dissect */
+		return offset;
+	}
+
+	ALIGN_TO_8_BYTES;
+
+	dissect_nttime_hyper_1sec(tvb, tree, offset, hf_index,
+	    (drep[0] & DREP_LITTLE_ENDIAN) ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
+	offset += 8;
 	return offset;
 }
 

@@ -8399,7 +8399,7 @@ samr_dissect_element_ValidatePasswordInfo_fields_present(tvbuff_t *tvb _U_, int 
 static int
 samr_dissect_element_ValidatePasswordInfo_last_password_change(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_ValidatePasswordInfo_last_password_change);
+	offset = dissect_ndr_nt_NTTIME_hyper(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_ValidatePasswordInfo_last_password_change);
 
 	return offset;
 }
@@ -8407,7 +8407,7 @@ samr_dissect_element_ValidatePasswordInfo_last_password_change(tvbuff_t *tvb _U_
 static int
 samr_dissect_element_ValidatePasswordInfo_bad_password_time(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_ValidatePasswordInfo_bad_password_time);
+	offset = dissect_ndr_nt_NTTIME_hyper(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_ValidatePasswordInfo_bad_password_time);
 
 	return offset;
 }
@@ -8415,7 +8415,7 @@ samr_dissect_element_ValidatePasswordInfo_bad_password_time(tvbuff_t *tvb _U_, i
 static int
 samr_dissect_element_ValidatePasswordInfo_lockout_time(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_ValidatePasswordInfo_lockout_time);
+	offset = dissect_ndr_nt_NTTIME_hyper(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_ValidatePasswordInfo_lockout_time);
 
 	return offset;
 }

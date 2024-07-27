@@ -1240,101 +1240,86 @@ value_string_ext ms_country_codes_ext = VALUE_STRING_EXT_INIT(ms_country_codes);
  /*module_t* module;*/
  /*pref_t* sid_display_hex;*/
 
-/*
- * Translate an 8-byte FILETIME value, given as the upper and lower 32 bits,
- * to an "nstime_t".
- * A FILETIME is a 64-bit integer, giving the time since Jan 1, 1601,
- * midnight "UTC", in 100ns units.
- * Return true if the conversion succeeds, false otherwise.
- *
- * According to the Samba code, it appears to be kludge-GMT (at least for
- * file listings). This means it's the GMT you get by taking a local time
- * and adding the server time zone offset.  This is NOT the same as GMT in
- * some cases.   However, we don't know the server time zone, so we don't
- * do that adjustment.
- *
- * This code is based on the Samba code:
- *
- *	Unix SMB/Netbios implementation.
- *	Version 1.9.
- *	time handling functions
- *	Copyright (C) Andrew Tridgell 1992-1998
- */
-static bool
-nt_time_to_nstime(uint32_t filetime_high, uint32_t filetime_low, nstime_t *tv, bool onesec_resolution)
+static proto_item *
+add_nttime(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date,
+	   uint64_t filetime)
 {
-	uint64_t d;
-
-	if (filetime_high == 0)
-		return false;
-
-	d = ((uint64_t)filetime_high << 32) | filetime_low;
-
-	if (onesec_resolution) {
-		d *= 10000000;
-	}
-
-	return filetime_to_nstime(tv, d);
-}
-
-int
-dissect_nt_64bit_time_opt(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date, bool onesec_resolution _U_)
-{
-	return dissect_nt_64bit_time_ex(tvb, tree, offset, hf_date, NULL, false);
-}
-
-int
-dissect_nt_64bit_time_ex(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date, proto_item **createdItem, bool onesec_resolution)
-{
-	uint32_t filetime_high, filetime_low;
+	proto_item *item;
 	nstime_t ts;
 
-	/* XXX there seems also to be another special time value which is fairly common :
-	   0x40000000 00000000
-	   the meaning of this one is yet unknown
-	*/
-	if (tree) {
-		proto_item *item = NULL;
-		filetime_low = tvb_get_letohl(tvb, offset);
-		filetime_high = tvb_get_letohl(tvb, offset + 4);
-		if (filetime_low == 0 && filetime_high == 0) {
-			ts.secs = 0;
-			ts.nsecs = 0;
-			item = proto_tree_add_time_format_value(tree, hf_date, tvb, offset, 8,
-			    &ts, "No time specified (0)");
-		} else if(filetime_low==0 && filetime_high==0x80000000){
-			ts.secs = filetime_low;
-			ts.nsecs = filetime_high;
-			item = proto_tree_add_time_format_value(tree, hf_date, tvb, offset, 8,
-			    &ts, "Infinity (relative time)");
-		} else if(filetime_low==0xffffffff && filetime_high==0x7fffffff){
-			ts.secs = filetime_low;
-			ts.nsecs = filetime_high;
-			item = proto_tree_add_time_format_value(tree, hf_date, tvb, offset, 8,
-			    &ts, "Infinity (absolute time)");
+	if (filetime == 0) {
+		ts.secs = 0;
+		ts.nsecs = 0;
+		item = proto_tree_add_time_format_value(tree, hf_date, tvb, offset, 8,
+		    &ts, "No time specified (0)");
+	} else if (filetime == UINT64_C(0x8000000000000000)) {
+		ts.secs = 0;
+		ts.nsecs = 0x80000000;
+		item = proto_tree_add_time_format_value(tree, hf_date, tvb, offset, 8,
+		    &ts, "Infinity (relative time)");
+	} else if (filetime == UINT64_C(0x7fffffffffffffff)) {
+		ts.secs = 0xffffffff;
+		ts.nsecs = 0x7fffffff;
+		item = proto_tree_add_time_format_value(tree, hf_date, tvb, offset, 8,
+		    &ts, "Infinity (absolute time)");
+	} else {
+		if (filetime_to_nstime(&ts, filetime)) {
+			item = proto_tree_add_time(tree, hf_date, tvb,
+			    offset, 8, &ts);
 		} else {
-			if (nt_time_to_nstime(filetime_high, filetime_low, &ts, onesec_resolution)) {
-				proto_tree_add_time(tree, hf_date, tvb,
-				    offset, 8, &ts);
-			} else {
-				item = proto_tree_add_time_format_value(tree, hf_date, tvb, offset, 8,
-				    &ts, "Time can't be converted");
-			}
-		}
-		if (createdItem != NULL)
-		{
-			*createdItem = item;
+			item = proto_tree_add_time_format_value(tree, hf_date, tvb, offset, 8,
+			    &ts, "Time can't be converted");
 		}
 	}
-
-	offset += 8;
-	return offset;
+	return item;
 }
 
-int
-dissect_nt_64bit_time(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date)
+proto_item *
+dissect_nttime(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date, const unsigned encoding)
 {
-	return dissect_nt_64bit_time_opt(tvb, tree, offset, hf_date, false);
+	if (tree) {
+		uint32_t filetime_high, filetime_low;
+		uint64_t filetime;
+
+		filetime_low = tvb_get_uint32(tvb, offset, encoding);
+		filetime_high = tvb_get_uint32(tvb, offset + 4, encoding);
+		filetime =  ((uint64_t)filetime_high << 32) | filetime_low;
+		return add_nttime(tvb, tree, offset, hf_date, filetime);
+	}
+	return NULL;
+}
+
+proto_item *
+dissect_nttime_hyper(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date, const unsigned encoding)
+{
+	if (tree) {
+		uint64_t filetime;
+
+		filetime = tvb_get_uint64(tvb, offset, encoding);
+		return add_nttime(tvb, tree, offset, hf_date, filetime);
+	}
+	return NULL;
+}
+
+proto_item *
+dissect_nttime_hyper_1sec(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date, const unsigned encoding)
+{
+	if (tree) {
+		uint64_t ftsecs;
+		nstime_t ts;
+
+		ftsecs = tvb_get_uint64(tvb, offset, encoding);
+		if (filetime_1sec_to_nstime(&ts, ftsecs)) {
+			return proto_tree_add_time(tree, hf_date, tvb,
+			    offset, 8, &ts);
+		} else {
+			ts.secs = ftsecs;
+			ts.nsecs = 0;
+			return proto_tree_add_time_format_value(tree, hf_date, tvb, offset, 8,
+			    &ts, "Time can't be converted");
+		}
+	}
+	return NULL;
 }
 
 /* Well-known SIDs defined in

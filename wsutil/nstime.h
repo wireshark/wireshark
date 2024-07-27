@@ -123,6 +123,11 @@ WS_DLL_PUBLIC bool filetime_to_nstime(nstime_t *nstime, uint64_t filetime);
     false on failure */
 WS_DLL_PUBLIC bool nsfiletime_to_nstime(nstime_t *nstime, uint64_t nsfiletime);
 
+/** converts time like Windows FILETIME, but expressed in seconds
+    rather than tenths of microseconds, to nstime, returns true on success,
+    false on failure */
+WS_DLL_PUBLIC bool filetime_1sec_to_nstime(nstime_t *nstime, uint64_t filetime);
+
 typedef enum {
     ISO8601_DATETIME,       /** e.g. 2014-07-04T12:34:56.789+00:00 */
     ISO8601_DATETIME_BASIC, /** ISO8601 Basic format, i.e. no - : separators */

@@ -819,7 +819,8 @@ dissect_RSVD2_VHDSET_QUERY_INFORMATION(tvbuff_t *tvb, proto_tree *parent_tree, i
             proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_padding, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
 
-            offset = dissect_nt_64bit_time(tvb, gfi_sub_tree, offset, hf_svhdx_tunnel_vhdset_snapshot_creation_time);
+            dissect_nttime(tvb, gfi_sub_tree, offset, hf_svhdx_tunnel_vhdset_snapshot_creation_time, ENC_LITTLE_ENDIAN);
+            offset += 8;
 
             proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_snapshot_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;

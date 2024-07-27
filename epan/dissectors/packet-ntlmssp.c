@@ -1547,7 +1547,7 @@ dissect_ntlmssp_target_info_list(tvbuff_t *_tvb, packet_info *pinfo, proto_tree 
       break;
 
       case NTLM_TARGET_INFO_TIMESTAMP:
-        dissect_nt_64bit_time(tvb, target_info_tree, content_offset, *hf_array_p[item_type]);
+        dissect_nttime(tvb, target_info_tree, content_offset, *hf_array_p[item_type], ENC_LITTLE_ENDIAN);
         break;
 
       case NTLM_TARGET_INFO_RESTRICTIONS:
@@ -1599,8 +1599,9 @@ dissect_ntlmv2_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
   proto_tree_add_item(ntlmv2_tree, hf_ntlmssp_ntlmv2_response_z, tvb, offset, 6, ENC_NA);
   offset += 6;
 
-  offset = dissect_nt_64bit_time(
-    tvb, ntlmv2_tree, offset, hf_ntlmssp_ntlmv2_response_time);
+  dissect_nttime(
+    tvb, ntlmv2_tree, offset, hf_ntlmssp_ntlmv2_response_time, ENC_LITTLE_ENDIAN);
+  offset += 8;
   proto_tree_add_item(
     ntlmv2_tree, hf_ntlmssp_ntlmv2_response_chal, tvb,
     offset, 8, ENC_NA);

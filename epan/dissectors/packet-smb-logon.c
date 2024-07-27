@@ -479,8 +479,9 @@ dissect_announce_change(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 			    ENC_LITTLE_ENDIAN);
 			offset += 8;
 
-			offset = dissect_nt_64bit_time(tvb, info_tree, offset,
-			    hf_nt_date_time);
+			dissect_nttime(tvb, info_tree, offset,
+			    hf_nt_date_time, ENC_LITTLE_ENDIAN);
+			offset += 8;
 
 			info_count--;
 		}

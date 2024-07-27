@@ -835,8 +835,8 @@ proto_item* parseDouble(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_,
 
 proto_item* parseDateTime(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int *pOffset, int hfIndex)
 {
-    proto_item *item = NULL;
-    *pOffset = dissect_nt_64bit_time_ex(tvb, tree, *pOffset, hfIndex, &item, false);
+    proto_item *item = dissect_nttime(tvb, tree, *pOffset, hfIndex, ENC_LITTLE_ENDIAN);
+    *pOffset += 8;
     return item;
 }
 

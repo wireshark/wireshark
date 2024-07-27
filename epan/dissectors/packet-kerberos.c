@@ -5197,7 +5197,8 @@ dissect_krb5_PAC_CLIENT_INFO_TYPE(proto_tree *parent_tree, tvbuff_t *tvb, int of
 	tree = proto_item_add_subtree(item, ett_krb_pac_client_info_type);
 
 	/* clientid */
-	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_krb_pac_clientid);
+	dissect_nttime(tvb, tree, offset, hf_krb_pac_clientid, ENC_LITTLE_ENDIAN);
+	offset+=8;
 
 	/* name length */
 	namelen=tvb_get_letohs(tvb, offset);

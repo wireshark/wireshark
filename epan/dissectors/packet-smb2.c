@@ -2778,16 +2778,20 @@ dissect_smb2_file_all_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pa
 	}
 
 	/* create time */
-	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_create_timestamp);
+	dissect_nttime(tvb, tree, offset, hf_smb2_create_timestamp, ENC_LITTLE_ENDIAN);
+	offset += 8;
 
 	/* last access */
-	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_access_timestamp);
+	dissect_nttime(tvb, tree, offset, hf_smb2_last_access_timestamp, ENC_LITTLE_ENDIAN);
+	offset += 8;
 
 	/* last write */
-	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_write_timestamp);
+	dissect_nttime(tvb, tree, offset, hf_smb2_last_write_timestamp, ENC_LITTLE_ENDIAN);
+	offset += 8;
 
 	/* last change */
-	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_change_timestamp);
+	dissect_nttime(tvb, tree, offset, hf_smb2_last_change_timestamp, ENC_LITTLE_ENDIAN);
+	offset += 8;
 
 	/* File Attributes */
 	offset = dissect_fscc_file_attr(tvb, tree, offset, NULL);
@@ -2946,16 +2950,20 @@ dissect_smb2_file_basic_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	}
 
 	/* create time */
-	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_create_timestamp);
+	dissect_nttime(tvb, tree, offset, hf_smb2_create_timestamp, ENC_LITTLE_ENDIAN);
+	offset += 8;
 
 	/* last access */
-	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_access_timestamp);
+	dissect_nttime(tvb, tree, offset, hf_smb2_last_access_timestamp, ENC_LITTLE_ENDIAN);
+	offset += 8;
 
 	/* last write */
-	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_write_timestamp);
+	dissect_nttime(tvb, tree, offset, hf_smb2_last_write_timestamp, ENC_LITTLE_ENDIAN);
+	offset += 8;
 
 	/* last change */
-	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_change_timestamp);
+	dissect_nttime(tvb, tree, offset, hf_smb2_last_change_timestamp, ENC_LITTLE_ENDIAN);
+	offset += 8;
 
 	/* File Attributes */
 	offset = dissect_fscc_file_attr(tvb, tree, offset, NULL);
@@ -4766,16 +4774,20 @@ static void dissect_smb2_file_directory_info(tvbuff_t *tvb, packet_info *pinfo, 
 		offset += 4;
 
 		/* create time */
-		offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_create_timestamp);
+		dissect_nttime(tvb, tree, offset, hf_smb2_create_timestamp, ENC_LITTLE_ENDIAN);
+		offset += 8;
 
 		/* last access */
-		offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_access_timestamp);
+		dissect_nttime(tvb, tree, offset, hf_smb2_last_access_timestamp, ENC_LITTLE_ENDIAN);
+		offset += 8;
 
 		/* last write */
-		offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_write_timestamp);
+		dissect_nttime(tvb, tree, offset, hf_smb2_last_write_timestamp, ENC_LITTLE_ENDIAN);
+		offset += 8;
 
 		/* last change */
-		offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_change_timestamp);
+		dissect_nttime(tvb, tree, offset, hf_smb2_last_change_timestamp, ENC_LITTLE_ENDIAN);
+		offset += 8;
 
 		/* end of file */
 		proto_tree_add_item(tree, hf_smb2_end_of_file, tvb, offset, 8, ENC_LITTLE_ENDIAN);
@@ -4846,16 +4858,20 @@ static void dissect_smb2_full_directory_info(tvbuff_t *tvb, packet_info *pinfo, 
 		offset += 4;
 
 		/* create time */
-		offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_create_timestamp);
+		dissect_nttime(tvb, tree, offset, hf_smb2_create_timestamp, ENC_LITTLE_ENDIAN);
+		offset += 8;
 
 		/* last access */
-		offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_access_timestamp);
+		dissect_nttime(tvb, tree, offset, hf_smb2_last_access_timestamp, ENC_LITTLE_ENDIAN);
+		offset += 8;
 
 		/* last write */
-		offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_write_timestamp);
+		dissect_nttime(tvb, tree, offset, hf_smb2_last_write_timestamp, ENC_LITTLE_ENDIAN);
+		offset += 8;
 
 		/* last change */
-		offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_change_timestamp);
+		dissect_nttime(tvb, tree, offset, hf_smb2_last_change_timestamp, ENC_LITTLE_ENDIAN);
+		offset += 8;
 
 		/* end of file */
 		proto_tree_add_item(tree, hf_smb2_end_of_file, tvb, offset, 8, ENC_LITTLE_ENDIAN);
@@ -4934,16 +4950,20 @@ static void dissect_smb2_both_directory_info(tvbuff_t *tvb, packet_info *pinfo, 
 		offset += 4;
 
 		/* create time */
-		offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_create_timestamp);
+		dissect_nttime(tvb, tree, offset, hf_smb2_create_timestamp, ENC_LITTLE_ENDIAN);
+		offset += 8;
 
 		/* last access */
-		offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_access_timestamp);
+		dissect_nttime(tvb, tree, offset, hf_smb2_last_access_timestamp, ENC_LITTLE_ENDIAN);
+		offset += 8;
 
 		/* last write */
-		offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_write_timestamp);
+		dissect_nttime(tvb, tree, offset, hf_smb2_last_write_timestamp, ENC_LITTLE_ENDIAN);
+		offset += 8;
 
 		/* last change */
-		offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_change_timestamp);
+		dissect_nttime(tvb, tree, offset, hf_smb2_last_change_timestamp, ENC_LITTLE_ENDIAN);
+		offset += 8;
 
 		/* end of file */
 		proto_tree_add_item(tree, hf_smb2_end_of_file, tvb, offset, 8, ENC_LITTLE_ENDIAN);
@@ -5094,16 +5114,20 @@ static void dissect_smb2_id_both_directory_info(tvbuff_t *tvb, packet_info *pinf
 		offset += 4;
 
 		/* create time */
-		offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_create_timestamp);
+		dissect_nttime(tvb, tree, offset, hf_smb2_create_timestamp, ENC_LITTLE_ENDIAN);
+		offset += 8;
 
 		/* last access */
-		offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_access_timestamp);
+		dissect_nttime(tvb, tree, offset, hf_smb2_last_access_timestamp, ENC_LITTLE_ENDIAN);
+		offset += 8;
 
 		/* last write */
-		offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_write_timestamp);
+		dissect_nttime(tvb, tree, offset, hf_smb2_last_write_timestamp, ENC_LITTLE_ENDIAN);
+		offset += 8;
 
 		/* last change */
-		offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_change_timestamp);
+		dissect_nttime(tvb, tree, offset, hf_smb2_last_change_timestamp, ENC_LITTLE_ENDIAN);
+		offset += 8;
 
 		/* end of file */
 		proto_tree_add_item(tree, hf_smb2_end_of_file, tvb, offset, 8, ENC_LITTLE_ENDIAN);
@@ -5206,16 +5230,20 @@ static void dissect_smb2_id_full_directory_info(tvbuff_t *tvb, packet_info *pinf
 		offset += 4;
 
 		/* create time */
-		offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_create_timestamp);
+		dissect_nttime(tvb, tree, offset, hf_smb2_create_timestamp, ENC_LITTLE_ENDIAN);
+		offset += 8;
 
 		/* last access */
-		offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_access_timestamp);
+		dissect_nttime(tvb, tree, offset, hf_smb2_last_access_timestamp, ENC_LITTLE_ENDIAN);
+		offset += 8;
 
 		/* last write */
-		offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_write_timestamp);
+		dissect_nttime(tvb, tree, offset, hf_smb2_last_write_timestamp, ENC_LITTLE_ENDIAN);
+		offset += 8;
 
 		/* last change */
-		offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_change_timestamp);
+		dissect_nttime(tvb, tree, offset, hf_smb2_last_change_timestamp, ENC_LITTLE_ENDIAN);
+		offset += 8;
 
 		/* end of file */
 		proto_tree_add_item(tree, hf_smb2_end_of_file, tvb, offset, 8, ENC_LITTLE_ENDIAN);
@@ -5277,16 +5305,20 @@ static void dissect_smb2_id_full_directory_info(tvbuff_t *tvb, packet_info *pinf
 static int dissect_smb2_posix_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_)
 {
 	/* create time */
-	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_create_timestamp);
+	dissect_nttime(tvb, tree, offset, hf_smb2_create_timestamp, ENC_LITTLE_ENDIAN);
+	offset += 8;
 
 	/* last access */
-	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_access_timestamp);
+	dissect_nttime(tvb, tree, offset, hf_smb2_last_access_timestamp, ENC_LITTLE_ENDIAN);
+	offset += 8;
 
 	/* last write */
-	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_write_timestamp);
+	dissect_nttime(tvb, tree, offset, hf_smb2_last_write_timestamp, ENC_LITTLE_ENDIAN);
+	offset += 8;
 
 	/* last change */
-	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_change_timestamp);
+	dissect_nttime(tvb, tree, offset, hf_smb2_last_change_timestamp, ENC_LITTLE_ENDIAN);
+	offset += 8;
 
 	/* end of file */
 	proto_tree_add_item(tree, hf_smb2_end_of_file, tvb, offset, 8, ENC_LITTLE_ENDIAN);
@@ -5815,11 +5847,11 @@ dissect_smb2_negotiate_protocol_response(tvbuff_t *tvb, packet_info *pinfo, prot
 	offset += 4;
 
 	/* current time */
-	dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_current_time);
+	dissect_nttime(tvb, tree, offset, hf_smb2_current_time, ENC_LITTLE_ENDIAN);
 	offset += 8;
 
 	/* boot time */
-	dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_boot_time);
+	dissect_nttime(tvb, tree, offset, hf_smb2_boot_time, ENC_LITTLE_ENDIAN);
 	offset += 8;
 
 	/* security blob offset/length */
@@ -6482,16 +6514,20 @@ dissect_smb2_close_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	offset += 4;
 
 	/* create time */
-	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_create_timestamp);
+	dissect_nttime(tvb, tree, offset, hf_smb2_create_timestamp, ENC_LITTLE_ENDIAN);
+	offset += 8;
 
 	/* last access */
-	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_access_timestamp);
+	dissect_nttime(tvb, tree, offset, hf_smb2_last_access_timestamp, ENC_LITTLE_ENDIAN);
+	offset += 8;
 
 	/* last write */
-	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_write_timestamp);
+	dissect_nttime(tvb, tree, offset, hf_smb2_last_write_timestamp, ENC_LITTLE_ENDIAN);
+	offset += 8;
 
 	/* last change */
-	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_change_timestamp);
+	dissect_nttime(tvb, tree, offset, hf_smb2_last_change_timestamp, ENC_LITTLE_ENDIAN);
+	offset += 8;
 
 	/* allocation size */
 	proto_tree_add_item(tree, hf_smb2_allocation_size, tvb, offset, 8, ENC_LITTLE_ENDIAN);
@@ -8780,7 +8816,7 @@ dissect_smb2_TWrp_buffer_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 		proto_item_append_text(item, ": Timestamp");
 	}
 	add_timestamp_to_info_col(tvb, pinfo, si, 0);
-	dissect_nt_64bit_time(tvb, tree, 0, hf_smb2_twrp_timestamp);
+	dissect_nttime(tvb, tree, 0, hf_smb2_twrp_timestamp, ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -8983,7 +9019,7 @@ dissect_smb2_MxAc_buffer_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 		proto_item_append_text(item, ": Timestamp");
 	}
 
-	dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_mxac_timestamp);
+	dissect_nttime(tvb, tree, offset, hf_smb2_mxac_timestamp, ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -9775,16 +9811,20 @@ dissect_smb2_create_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	offset += 4;
 
 	/* create time */
-	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_create_timestamp);
+	dissect_nttime(tvb, tree, offset, hf_smb2_create_timestamp, ENC_LITTLE_ENDIAN);
+	offset += 8;
 
 	/* last access */
-	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_access_timestamp);
+	dissect_nttime(tvb, tree, offset, hf_smb2_last_access_timestamp, ENC_LITTLE_ENDIAN);
+	offset += 8;
 
 	/* last write */
-	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_write_timestamp);
+	dissect_nttime(tvb, tree, offset, hf_smb2_last_write_timestamp, ENC_LITTLE_ENDIAN);
+	offset += 8;
 
 	/* last change */
-	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_change_timestamp);
+	dissect_nttime(tvb, tree, offset, hf_smb2_last_change_timestamp, ENC_LITTLE_ENDIAN);
+	offset += 8;
 
 	/* allocation size */
 	proto_tree_add_item(tree, hf_smb2_allocation_size, tvb, offset, 8, ENC_LITTLE_ENDIAN);
