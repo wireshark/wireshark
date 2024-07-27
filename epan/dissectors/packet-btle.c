@@ -1980,6 +1980,750 @@ static const btle_context_t * get_btle_context(packet_info *pinfo,
 }
 
 static int
+dissect_btle_adv(tvbuff_t *tvb,
+                 packet_info *pinfo,
+                 proto_tree *btle_tree,
+                 const btle_context_t *btle_context,
+                 uint32_t adapter_id,
+                 uint32_t interface_id,
+                 uint32_t access_address,
+                 uint32_t frame_number)
+{
+    proto_item           *sub_item;
+    proto_tree           *sub_tree;
+    int                   offset = 0;
+    uint32_t              length;
+    tvbuff_t              *next_tvb;
+    uint8_t               *dst_bd_addr;
+    uint8_t               *src_bd_addr;
+    static const uint8_t   broadcast_addr[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+    connection_info_t     *connection_info = NULL;
+    wmem_tree_t           *wmem_tree;
+    wmem_tree_key_t        key[5], ae_had_key[4];
+
+    uint32_t               connection_access_address;
+
+    proto_item            *item;
+    unsigned               item_value;
+
+    proto_item  *advertising_header_item;
+    proto_tree  *advertising_header_tree;
+    proto_item  *link_layer_data_item;
+    proto_tree  *link_layer_data_tree;
+    uint8_t      header, pdu_type;
+    bool         ch_sel_valid = false, tx_add_valid = false, rx_add_valid = false;
+    bool         is_periodic_adv = false;
+
+    src_bd_addr = (uint8_t *) wmem_alloc(pinfo->pool, 6);
+    dst_bd_addr = (uint8_t *) wmem_alloc(pinfo->pool, 6);
+
+    key[0].length = 1;
+    key[0].key = &interface_id;
+    key[1].length = 1;
+    key[1].key = &adapter_id;
+    key[2].length = 1;
+    key[2].key = &access_address;
+    key[3].length = 0;
+    key[3].key = NULL;
+
+    wmem_tree = (wmem_tree_t *) wmem_tree_lookup32_array(connection_info_tree, key);
+    if (!wmem_tree) {
+        /* Check periodic advertising tree */
+        wmem_tree = (wmem_tree_t *) wmem_tree_lookup32_array(periodic_adv_info_tree, key);
+        if (wmem_tree) {
+            is_periodic_adv = true;
+        }
+    }
+
+    if (wmem_tree) {
+        connection_info = (connection_info_t *) wmem_tree_lookup32_le(wmem_tree, pinfo->num);
+        if (connection_info) {
+            set_address(&pinfo->net_src, AT_ETHER, 6, connection_info->central_bd_addr);
+            copy_address_shallow(&pinfo->dl_src, &pinfo->net_src);
+            copy_address_shallow(&pinfo->src, &pinfo->net_src);
+            memcpy(src_bd_addr, connection_info->central_bd_addr, 6);
+        }
+    }
+
+    advertising_header_item = proto_tree_add_item(btle_tree, hf_advertising_header, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    advertising_header_tree = proto_item_add_subtree(advertising_header_item, ett_advertising_header);
+
+    header = tvb_get_uint8(tvb, offset);
+    pdu_type = header & 0x0F;
+
+    switch (pdu_type) {
+    case 0x00: /* ADV_IND */
+        ch_sel_valid = true;
+        /* Fallthrough */
+    case 0x02: /* ADV_NONCONN_IND */
+    case 0x06: /* ADV_SCAN_IND */
+    case 0x04: /* SCAN_RSP */
+        tx_add_valid = true;
+        break;
+    case 0x07: /* ADV_EXT_IND / AUX_ADV_IND / AUX_SYNC_IND / AUX_CHAIN_IND / AUX_SCAN_RSP */
+    case 0x08: /* AUX_CONNECT_RSP */
+    {
+        /* 0 + header, 1 = len, 2 = ext_len/adv-mode, 3 = flags */
+        uint8_t ext_header_flags = tvb_get_uint8(tvb, offset + 3);
+
+        ch_sel_valid = false;
+        tx_add_valid = (ext_header_flags & 0x01) != 0;
+        rx_add_valid = (ext_header_flags & 0x02) != 0;
+        break;
+    }
+    case 0x01: /* ADV_DIRECT_IND */
+    case 0x05: /* CONNECT_IND or AUX_CONNECT_REQ */
+        if (btle_context && btle_context->channel >= 37) {
+            /* CONNECT_IND */
+            ch_sel_valid = true;
+        }
+        /* Fallthrough */
+    case 0x03: /* SCAN_REQ or AUX_SCAN_REQ */
+        tx_add_valid = true;
+        rx_add_valid = true;
+        break;
+    }
+
+    proto_item_append_text(advertising_header_item, " (PDU Type: %s", adv_pdu_type_str_get(btle_context, pdu_type, is_periodic_adv));
+    item = proto_tree_add_item(advertising_header_tree, hf_advertising_header_pdu_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_item_append_text(item, " %s", adv_pdu_type_str_get(btle_context, pdu_type, is_periodic_adv));
+    proto_tree_add_item(advertising_header_tree, hf_advertising_header_rfu_1, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+
+    if (ch_sel_valid) {
+        proto_item_append_text(advertising_header_item, ", ChSel: %s",
+                                tfs_get_string(header & 0x20, &tfs_ch_sel));
+        proto_tree_add_item(advertising_header_tree, hf_advertising_header_ch_sel, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    } else {
+        proto_tree_add_item(advertising_header_tree, hf_advertising_header_rfu_2, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    }
+
+    if (tx_add_valid) {
+        proto_item_append_text(advertising_header_item, ", TxAdd: %s",
+                                tfs_get_string(header & 0x40, &tfs_random_public));
+        proto_tree_add_item(advertising_header_tree, hf_advertising_header_randomized_tx, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    } else {
+        proto_tree_add_item(advertising_header_tree, hf_advertising_header_rfu_3, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    }
+
+    if (rx_add_valid) {
+        proto_item_append_text(advertising_header_item, ", RxAdd: %s",
+                                tfs_get_string(header & 0x80, &tfs_random_public));
+        proto_tree_add_item(advertising_header_tree, hf_advertising_header_randomized_rx, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    } else {
+        proto_tree_add_item(advertising_header_tree, hf_advertising_header_rfu_4, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    }
+
+    proto_item_append_text(advertising_header_item, ")");
+
+    col_set_str(pinfo->cinfo, COL_INFO, adv_pdu_type_str_get(btle_context, pdu_type, is_periodic_adv));
+
+    offset += 1;
+
+    proto_tree_add_item(advertising_header_tree, hf_advertising_header_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    item = proto_tree_add_item_ret_uint(btle_tree, hf_length, tvb, offset, 1, ENC_LITTLE_ENDIAN, &length);
+    proto_item_set_hidden(item);
+    offset += 1;
+
+    switch (pdu_type) {
+    case 0x00: /* ADV_IND */
+    case 0x02: /* ADV_NONCONN_IND */
+    case 0x06: /* ADV_SCAN_IND */
+        offset = dissect_bd_addr(hf_advertising_address, pinfo, btle_tree, tvb, offset, true, interface_id, adapter_id, src_bd_addr);
+
+        set_address(&pinfo->net_src, AT_ETHER, 6, src_bd_addr);
+        copy_address_shallow(&pinfo->dl_src, &pinfo->net_src);
+        copy_address_shallow(&pinfo->src, &pinfo->net_src);
+
+        set_address(&pinfo->net_dst, AT_ETHER, 6, broadcast_addr);
+        copy_address_shallow(&pinfo->dl_dst, &pinfo->net_dst);
+        copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
+
+        if (!pinfo->fd->visited) {
+            address *addr;
+
+            addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_src, sizeof(address));
+            addr->data =  wmem_memdup(wmem_file_scope(), pinfo->dl_src.data, pinfo->dl_src.len);
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_bluetooth, BLUETOOTH_DATA_SRC, addr);
+
+            addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_dst, sizeof(address));
+            addr->data =  wmem_memdup(wmem_file_scope(), pinfo->dl_dst.data, pinfo->dl_dst.len);
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_bluetooth, BLUETOOTH_DATA_DST, addr);
+        }
+
+        if (tvb_reported_length_remaining(tvb, offset) > 3) {
+            next_tvb = tvb_new_subset_length(tvb, offset, tvb_reported_length_remaining(tvb, offset) - 3);
+            dissect_ad_eir(next_tvb, interface_id, adapter_id, frame_number, src_bd_addr, pinfo, btle_tree);
+        }
+
+        offset += tvb_reported_length_remaining(tvb, offset) - 3;
+
+        break;
+    case 0x01: /* ADV_DIRECT_IND */
+        offset = dissect_bd_addr(hf_advertising_address, pinfo, btle_tree, tvb, offset, true, interface_id, adapter_id, src_bd_addr);
+        offset = dissect_bd_addr(hf_target_addresss, pinfo, btle_tree, tvb, offset, false, interface_id, adapter_id, dst_bd_addr);
+
+        set_address(&pinfo->net_src, AT_ETHER, 6, src_bd_addr);
+        copy_address_shallow(&pinfo->dl_src, &pinfo->net_src);
+        copy_address_shallow(&pinfo->src, &pinfo->net_src);
+
+        set_address(&pinfo->net_dst, AT_ETHER, 6, dst_bd_addr);
+        copy_address_shallow(&pinfo->dl_dst, &pinfo->net_dst);
+        copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
+
+        if (!pinfo->fd->visited) {
+            address *addr;
+
+            addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_src, sizeof(address));
+            addr->data =  wmem_memdup(wmem_file_scope(), pinfo->dl_src.data, pinfo->dl_src.len);
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_bluetooth, BLUETOOTH_DATA_SRC, addr);
+
+            addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_dst, sizeof(address));
+            addr->data =  wmem_memdup(wmem_file_scope(), pinfo->dl_dst.data, pinfo->dl_dst.len);
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_bluetooth, BLUETOOTH_DATA_DST, addr);
+        }
+
+        break;
+    case 0x03: /* SCAN_REQ */
+        offset = dissect_bd_addr(hf_scanning_address, pinfo, btle_tree, tvb, offset, true, interface_id, adapter_id, src_bd_addr);
+        offset = dissect_bd_addr(hf_advertising_address, pinfo, btle_tree, tvb, offset, false, interface_id, adapter_id, dst_bd_addr);
+
+        set_address(&pinfo->net_src, AT_ETHER, 6, src_bd_addr);
+        copy_address_shallow(&pinfo->dl_src, &pinfo->net_src);
+        copy_address_shallow(&pinfo->src, &pinfo->net_src);
+
+        set_address(&pinfo->net_dst, AT_ETHER, 6, dst_bd_addr);
+        copy_address_shallow(&pinfo->dl_dst, &pinfo->net_dst);
+        copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
+
+        if (!pinfo->fd->visited) {
+            address *addr;
+
+            addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_src, sizeof(address));
+            addr->data =  wmem_memdup(wmem_file_scope(), pinfo->dl_src.data, pinfo->dl_src.len);
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_bluetooth, BLUETOOTH_DATA_SRC, addr);
+
+            addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_dst, sizeof(address));
+            addr->data =  wmem_memdup(wmem_file_scope(), pinfo->dl_dst.data, pinfo->dl_dst.len);
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_bluetooth, BLUETOOTH_DATA_DST, addr);
+        }
+
+        break;
+    case 0x04: /* SCAN_RSP */
+        offset = dissect_bd_addr(hf_advertising_address, pinfo, btle_tree, tvb, offset, true, interface_id, adapter_id, src_bd_addr);
+
+        set_address(&pinfo->net_src, AT_ETHER, 6, src_bd_addr);
+        copy_address_shallow(&pinfo->dl_src, &pinfo->net_src);
+        copy_address_shallow(&pinfo->src, &pinfo->net_src);
+
+        set_address(&pinfo->net_dst, AT_ETHER, 6, broadcast_addr);
+        copy_address_shallow(&pinfo->dl_dst, &pinfo->net_dst);
+        copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
+
+        if (!pinfo->fd->visited) {
+            address *addr;
+
+            addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_src, sizeof(address));
+            addr->data =  wmem_memdup(wmem_file_scope(), pinfo->dl_src.data, pinfo->dl_src.len);
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_bluetooth, BLUETOOTH_DATA_SRC, addr);
+
+            addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_dst, sizeof(address));
+            addr->data =  wmem_memdup(wmem_file_scope(), pinfo->dl_dst.data, pinfo->dl_dst.len);
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_bluetooth, BLUETOOTH_DATA_DST, addr);
+        }
+
+        sub_item = proto_tree_add_item(btle_tree, hf_scan_response_data, tvb, offset, tvb_reported_length_remaining(tvb, offset) - 3, ENC_NA);
+        sub_tree = proto_item_add_subtree(sub_item, ett_scan_response_data);
+
+        if (tvb_reported_length_remaining(tvb, offset) > 3) {
+            next_tvb = tvb_new_subset_length(tvb, offset, tvb_reported_length_remaining(tvb, offset) - 3);
+            dissect_ad_eir(next_tvb, interface_id, adapter_id, frame_number, src_bd_addr, pinfo, sub_tree);
+        }
+
+        offset += tvb_reported_length_remaining(tvb, offset) - 3;
+
+        break;
+    case 0x05: /* CONNECT_IND */
+    {
+        uint32_t connect_ind_crc_init;
+
+        offset = dissect_bd_addr(hf_initiator_addresss, pinfo, btle_tree, tvb, offset, false, interface_id, adapter_id, src_bd_addr);
+        offset = dissect_bd_addr(hf_advertising_address, pinfo, btle_tree, tvb, offset, true, interface_id, adapter_id, dst_bd_addr);
+
+        set_address(&pinfo->net_src, AT_ETHER, 6, src_bd_addr);
+        copy_address_shallow(&pinfo->dl_src, &pinfo->net_src);
+        copy_address_shallow(&pinfo->src, &pinfo->net_src);
+
+        set_address(&pinfo->net_dst, AT_ETHER, 6, dst_bd_addr);
+        copy_address_shallow(&pinfo->dl_dst, &pinfo->net_dst);
+        copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
+
+        if (!pinfo->fd->visited) {
+            address *addr;
+
+            addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_src, sizeof(address));
+            addr->data =  wmem_memdup(wmem_file_scope(), pinfo->dl_src.data, pinfo->dl_src.len);
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_bluetooth, BLUETOOTH_DATA_SRC, addr);
+
+            addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_dst, sizeof(address));
+            addr->data =  wmem_memdup(wmem_file_scope(), pinfo->dl_dst.data, pinfo->dl_dst.len);
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_bluetooth, BLUETOOTH_DATA_DST, addr);
+        }
+
+        link_layer_data_item = proto_tree_add_item(btle_tree, hf_link_layer_data, tvb, offset, 22, ENC_NA);
+        link_layer_data_tree = proto_item_add_subtree(link_layer_data_item, ett_link_layer_data);
+
+        proto_tree_add_item(link_layer_data_tree, hf_link_layer_data_access_address, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        connection_access_address = tvb_get_letohl(tvb, offset);
+        offset += 4;
+
+        proto_tree_add_item_ret_uint(link_layer_data_tree, hf_link_layer_data_crc_init, tvb, offset, 3, ENC_LITTLE_ENDIAN, &connect_ind_crc_init);
+        offset += 3;
+
+        item = proto_tree_add_item_ret_uint(link_layer_data_tree, hf_link_layer_data_window_size, tvb, offset, 1, ENC_LITTLE_ENDIAN, &item_value);
+        proto_item_append_text(item, " (%g msec)", item_value*1.25);
+        offset += 1;
+
+        item = proto_tree_add_item_ret_uint(link_layer_data_tree, hf_link_layer_data_window_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN, &item_value);
+        proto_item_append_text(item, " (%g msec)", item_value*1.25);
+        offset += 2;
+
+        item = proto_tree_add_item_ret_uint(link_layer_data_tree, hf_link_layer_data_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN, &item_value);
+        proto_item_append_text(item, " (%g msec)", item_value*1.25);
+        offset += 2;
+
+        proto_tree_add_item(link_layer_data_tree, hf_link_layer_data_latency, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        item = proto_tree_add_item_ret_uint(link_layer_data_tree, hf_link_layer_data_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN, &item_value);
+        proto_item_append_text(item, " (%u msec)", item_value*10);
+        offset += 2;
+
+        sub_item = proto_tree_add_item(link_layer_data_tree, hf_link_layer_data_channel_map, tvb, offset, 5, ENC_NA);
+        sub_tree = proto_item_add_subtree(sub_item, ett_channel_map);
+
+        call_dissector(btcommon_le_channel_map_handle, tvb_new_subset_length(tvb, offset, 5), pinfo, sub_tree);
+        offset += 5;
+
+        proto_tree_add_item(link_layer_data_tree, hf_link_layer_data_hop, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(link_layer_data_tree, hf_link_layer_data_sleep_clock_accuracy, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset += 1;
+
+        if (!pinfo->fd->visited) {
+            connection_parameter_info_t *connection_parameter_info;
+
+            key[0].length = 1;
+            key[0].key = &interface_id;
+            key[1].length = 1;
+            key[1].key = &adapter_id;
+            key[2].length = 1;
+            key[2].key = &connection_access_address;
+            key[3].length = 1;
+            key[3].key = &frame_number;
+            key[4].length = 0;
+            key[4].key = NULL;
+
+            connection_info = wmem_new0(wmem_file_scope(), connection_info_t);
+            connection_info->interface_id   = interface_id;
+            connection_info->adapter_id     = adapter_id;
+            connection_info->access_address = connection_access_address;
+            connection_info->crc_init       = connect_ind_crc_init;
+
+            memcpy(connection_info->central_bd_addr, src_bd_addr, 6);
+            memcpy(connection_info->peripheral_bd_addr,  dst_bd_addr, 6);
+
+            /* We don't create control procedure context trees for BTLE_DIR_UNKNOWN,
+                * as the direction must be known for request/response matching. */
+            connection_info->direction_info[BTLE_DIR_CENTRAL_PERIPHERAL].control_procs =
+                    wmem_tree_new(wmem_file_scope());
+            connection_info->direction_info[BTLE_DIR_PERIPHERAL_CENTRAL].control_procs =
+                    wmem_tree_new(wmem_file_scope());
+
+            wmem_tree_insert32_array(connection_info_tree, key, connection_info);
+
+            connection_parameter_info = wmem_new0(wmem_file_scope(), connection_parameter_info_t);
+            connection_parameter_info->parameters_frame = pinfo->num;
+
+            key[3].length = 1;
+            key[3].key = &pinfo->num;
+            wmem_tree_insert32_array(connection_parameter_info_tree, key, connection_parameter_info);
+        }
+
+        break;
+    }
+    case 0x07: /* ADV_EXT_IND / AUX_ADV_IND / AUX_SYNC_IND / AUX_CHAIN_IND / AUX_SCAN_RSP */
+    case 0x08: /* AUX_CONNECT_RSP */
+    {
+        uint8_t tmp, ext_header_len, flags, acad_len;
+        proto_item  *ext_header_item, *ext_flags_item;
+        proto_tree  *ext_header_tree, *ext_flags_tree;
+        uint32_t adi;
+        bool adi_present = false;
+        bool aux_pointer_present = false;
+
+        tmp = tvb_get_uint8(tvb, offset);
+        ext_header_len = acad_len = tmp & 0x3F;
+
+        ext_header_item = proto_tree_add_item(btle_tree, hf_extended_advertising_header, tvb, offset, ext_header_len + 1, ENC_NA);
+        ext_header_tree = proto_item_add_subtree(ext_header_item, ett_extended_advertising_header);
+
+        proto_tree_add_item(ext_header_tree, hf_extended_advertising_header_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(ext_header_tree, hf_extended_advertising_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset += 1;
+
+        if (ext_header_len > 0) {
+            ext_flags_item = proto_tree_add_item(ext_header_tree, hf_extended_advertising_flags, tvb, offset, 1, ENC_NA);
+            ext_flags_tree = proto_item_add_subtree(ext_flags_item, ett_extended_advertising_flags);
+
+            proto_tree_add_bitmask_list(ext_flags_tree, tvb, offset, 1, hfx_extended_advertising_flags, ENC_NA);
+            flags = tvb_get_uint8(tvb, offset);
+            offset += 1;
+
+            acad_len -= 1;
+        } else {
+            flags = 0;
+        }
+
+        if (flags & 0x01) {
+            /* Advertiser Address */
+            offset = dissect_bd_addr(hf_advertising_address, pinfo, ext_header_tree, tvb, offset, true, interface_id, adapter_id, src_bd_addr);
+            set_address(&pinfo->net_src, AT_ETHER, 6, src_bd_addr);
+            copy_address_shallow(&pinfo->dl_src, &pinfo->net_src);
+            copy_address_shallow(&pinfo->src, &pinfo->net_src);
+
+            acad_len -= 6;
+        } else if (!connection_info) {
+            const char * anon_str = "Anonymous";
+            clear_address(&pinfo->dl_src);
+            set_address(&pinfo->net_src, AT_STRINGZ, sizeof(*anon_str), anon_str);
+            copy_address_shallow(&pinfo->src, &pinfo->net_src);
+        }
+
+        if (flags & 0x02) {
+            /* Target Address */
+            offset = dissect_bd_addr(hf_target_addresss, pinfo, ext_header_tree, tvb, offset, false, interface_id, adapter_id, dst_bd_addr);
+            set_address(&pinfo->net_dst, AT_ETHER, 6, dst_bd_addr);
+            copy_address_shallow(&pinfo->dl_dst, &pinfo->net_dst);
+            copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
+
+            acad_len -= 6;
+        } else {
+            set_address(&pinfo->net_dst, AT_ETHER, 6, broadcast_addr);
+            copy_address_shallow(&pinfo->dl_dst, &pinfo->net_dst);
+            copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
+        }
+
+        if (flags & 0x04) {
+            uint32_t cte_time;
+
+            /* CTE Info */
+            sub_item = proto_tree_add_item(ext_header_tree, hf_extended_advertising_cte_info, tvb, offset, 1, ENC_NA);
+            sub_tree = proto_item_add_subtree(sub_item, ett_extended_advertising_cte_info);
+
+            item = proto_tree_add_item_ret_uint(sub_tree, hf_extended_advertising_cte_info_time, tvb, offset, 1, ENC_LITTLE_ENDIAN, &cte_time);
+            proto_item_append_text(item, " (%u usec)", cte_time * 8);
+            proto_tree_add_item(sub_tree, hf_extended_advertising_cte_info_rfu, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(sub_tree, hf_extended_advertising_cte_info_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+
+            acad_len -= 1;
+        }
+
+        if (flags & 0x08) {
+            /* AdvDataInfo */
+            sub_item = proto_tree_add_item_ret_uint(ext_header_tree, hf_extended_advertising_data_info, tvb, offset, 2, ENC_LITTLE_ENDIAN, &adi);
+            sub_tree = proto_item_add_subtree(sub_item, ett_extended_advertising_data_info);
+
+            proto_tree_add_item(sub_tree, hf_extended_advertising_data_info_did, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(sub_tree, hf_extended_advertising_data_info_sid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            adi_present = true;
+
+            acad_len -= 2;
+        }
+
+        if (flags & 0x10) {
+            uint32_t aux_offset;
+
+            /* Aux Pointer */
+            sub_item = proto_tree_add_item(ext_header_tree, hf_extended_advertising_aux_ptr, tvb, offset, 3, ENC_NA);
+            sub_tree = proto_item_add_subtree(sub_item, ett_extended_advertising_aux_pointer);
+
+            proto_tree_add_item(sub_tree, hf_extended_advertising_aux_ptr_channel, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(sub_tree, hf_extended_advertising_aux_ptr_ca, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(sub_tree, hf_extended_advertising_aux_ptr_offset_units, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            tmp = tvb_get_uint8(tvb, offset);
+            offset += 1;
+
+            item = proto_tree_add_item_ret_uint(sub_tree, hf_extended_advertising_aux_ptr_aux_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN, &aux_offset);
+            proto_tree_add_item(sub_tree, hf_extended_advertising_aux_ptr_aux_phy, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(item, " (%u usec)", aux_offset * ((tmp & 0x80) != 0 ? 300 : 30));
+            offset += 2;
+            aux_pointer_present = true;
+
+            acad_len -= 3;
+        }
+
+        if (flags & 0x20) {
+            uint32_t sync_offset, interval;
+            proto_item  *sync_info_item;
+            proto_tree  *sync_info_tree;
+            int reserved_offset;
+            uint16_t sf;
+
+            /* Sync Info */
+            sync_info_item = proto_tree_add_item(ext_header_tree, hf_extended_advertising_sync_info, tvb, offset, 18, ENC_NA);
+            sync_info_tree = proto_item_add_subtree(sync_info_item, ett_extended_advertising_sync_info);
+
+            if (!pinfo->fd->visited) {
+                connection_parameter_info_t *connection_parameter_info;
+
+                connection_access_address = tvb_get_uint32(tvb, offset + 9, ENC_LITTLE_ENDIAN);
+
+                key[0].length = 1;
+                key[0].key = &interface_id;
+                key[1].length = 1;
+                key[1].key = &adapter_id;
+                key[2].length = 1;
+                key[2].key = &connection_access_address;
+                key[3].length = 1;
+                key[3].key = &frame_number;
+                key[4].length = 0;
+                key[4].key = NULL;
+
+                connection_info = wmem_new0(wmem_file_scope(), connection_info_t);
+                connection_info->interface_id   = interface_id;
+                connection_info->adapter_id     = adapter_id;
+                connection_info->access_address = connection_access_address;
+
+                if (flags & 0x01)
+                    memcpy(connection_info->central_bd_addr, src_bd_addr, 6);
+
+                /* We don't create control procedure context trees for BTLE_DIR_UNKNOWN,
+                    * as the direction must be known for request/response matching. */
+                connection_info->direction_info[BTLE_DIR_CENTRAL_PERIPHERAL].control_procs =
+                    wmem_tree_new(wmem_file_scope());
+                connection_info->direction_info[BTLE_DIR_PERIPHERAL_CENTRAL].control_procs =
+                    wmem_tree_new(wmem_file_scope());
+
+                wmem_tree_insert32_array(periodic_adv_info_tree, key, connection_info);
+
+                connection_parameter_info = wmem_new0(wmem_file_scope(), connection_parameter_info_t);
+                connection_parameter_info->parameters_frame = pinfo->num;
+
+                key[3].length = 1;
+                key[3].key = &pinfo->num;
+                wmem_tree_insert32_array(connection_parameter_info_tree, key, connection_parameter_info);
+            }
+
+            sf = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
+
+            item = proto_tree_add_item_ret_uint(sync_info_tree, hf_extended_advertising_sync_info_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN, &sync_offset);
+            proto_tree_add_item(sync_info_tree, hf_extended_advertising_sync_info_offset_units, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(sync_info_tree, hf_extended_advertising_sync_info_offset_adjust, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(sync_info_tree, hf_extended_advertising_sync_info_reserved, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            if (sync_offset > 0) {
+                proto_item_append_text(item, " (%u usec)", sync_offset * ((sf & 0x2000) != 0 ? 300 : 30) + ((sf & 0x4000) != 0 ? 2457600 : 0));
+            } else {
+                proto_item_append_text(item, " Cannot be represented");
+            }
+            offset += 2;
+
+            item = proto_tree_add_item_ret_uint(sync_info_tree, hf_extended_advertising_sync_info_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN, &interval);
+            proto_item_append_text(item, " (%g msec)", interval * 1.25);
+            offset += 2;
+
+            sub_item = proto_tree_add_item(sync_info_tree, hf_extended_advertising_sync_info_channel_map, tvb, offset, 5, ENC_NA);
+            sub_tree = proto_item_add_subtree(sub_item, ett_channel_map);
+
+            call_dissector_with_data(btcommon_le_channel_map_handle, tvb_new_subset_length(tvb, offset, 5), pinfo, sub_tree, &reserved_offset);
+            proto_tree_add_item(sync_info_tree, hf_extended_advertising_sync_info_sleep_clock_accuracy, tvb, offset + reserved_offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 5;
+
+            proto_tree_add_item(sync_info_tree, hf_extended_advertising_sync_info_access_address, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+
+            proto_tree_add_item(sync_info_tree, hf_extended_advertising_sync_info_crc_init, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+            offset += 3;
+
+            proto_tree_add_item(sync_info_tree, hf_extended_advertising_sync_info_event_counter, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            acad_len -= 18;
+        }
+
+        if (flags & 0x40) {
+            /* Tx Power */
+            proto_tree_add_item(ext_header_tree, hf_extended_advertising_tx_power, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+
+            acad_len -= 1;
+        }
+
+        if (acad_len > 0) {
+            sub_item = proto_tree_add_item(ext_header_tree, hf_extended_advertising_header_acad, tvb, offset, acad_len, ENC_NA);
+            sub_tree = proto_item_add_subtree(sub_item, ett_extended_advertising_acad);
+
+            /* Additional Controller Advertising Data */
+            next_tvb = tvb_new_subset_length(tvb, offset, acad_len);
+            dissect_ad_eir(next_tvb, interface_id, adapter_id, frame_number, src_bd_addr, pinfo, sub_tree);
+
+            offset += acad_len;
+        }
+        if (tvb_reported_length_remaining(tvb, offset) > 3) {
+            bool ad_processed = false;
+            if (btle_context && pdu_type == 0x07 && btle_context->aux_pdu_type_valid) {
+                bool ad_reassembled = false;
+                ae_had_info_t *ae_had_info = NULL;
+
+                switch (btle_context->aux_pdu_type) {
+                    case 0x00:  /* AUX_ADV_IND */
+                    case 0x02:  /* AUX_SYNC_IND */
+                    case 0x03:  /* AUX_SCAN_RSP */
+                        if (aux_pointer_present) {
+                            /* Beginning of new sequence of fragments */
+                            if (!pinfo->fd->visited && adi_present) {
+                                ae_had_info = wmem_new0(wmem_file_scope(), ae_had_info_t);
+                                ae_had_info->first_frame_num=pinfo->num;
+
+                                if (flags & 0x01) {
+                                    /* Copy Advertiser Address to reassemble AUX_CHAIN_IND */
+                                    copy_address_wmem(wmem_file_scope(), &ae_had_info->adv_addr, &pinfo->src);
+                                }
+
+                                ae_had_key[0].length = 1;
+                                ae_had_key[0].key = &interface_id;
+                                ae_had_key[1].length = 1;
+                                ae_had_key[1].key = &adapter_id;
+                                ae_had_key[2].length = 1;
+                                ae_had_key[2].key = &adi;
+                                ae_had_key[3].length = 0;
+                                ae_had_key[3].key = NULL;
+
+                                wmem_tree_insert32_array(adi_to_first_frame_tree, ae_had_key, ae_had_info);
+
+                                fragment_add_seq(&btle_ea_host_advertising_data_reassembly_table,
+                                    tvb, offset, pinfo,
+                                    ae_had_info->first_frame_num, NULL,
+                                    ae_had_info->fragment_counter,
+                                    tvb_captured_length_remaining(tvb, offset) - 3,
+                                    !ad_reassembled, 0);
+
+                                ae_had_info->fragment_counter++;
+                            }
+                            ad_processed = true;
+                        }
+                        break;
+                    case 0x01:  /* AUX_CHAIN_IND */
+                        if (!aux_pointer_present) {
+                            /* Final fragment */
+                            ad_reassembled = true;
+                        }
+                        if (!pinfo->fd->visited && adi_present) {
+
+                            ae_had_key[0].length = 1;
+                            ae_had_key[0].key = &interface_id;
+                            ae_had_key[1].length = 1;
+                            ae_had_key[1].key = &adapter_id;
+                            ae_had_key[2].length = 1;
+                            ae_had_key[2].key = &adi;
+                            ae_had_key[3].length = 0;
+                            ae_had_key[3].key = NULL;
+
+                            ae_had_info = (ae_had_info_t *) wmem_tree_lookup32_array(adi_to_first_frame_tree, ae_had_key);
+
+                            if (ae_had_info != NULL) {
+                                if (!(flags & 0x01) && (ae_had_info->adv_addr.len > 0)) {
+                                    /* Copy Advertiser Address from AUX_ADV_IND if not present. */
+                                    copy_address_shallow(&pinfo->src, &ae_had_info->adv_addr);
+                                }
+
+                                fragment_add_seq(&btle_ea_host_advertising_data_reassembly_table,
+                                    tvb, offset, pinfo,
+                                    ae_had_info->first_frame_num, NULL,
+                                    ae_had_info->fragment_counter,
+                                    tvb_captured_length_remaining(tvb, offset) - 3,
+                                    !ad_reassembled, 0);
+
+                                ae_had_info->fragment_counter++;
+                                if (ad_reassembled == true) {
+                                    p_add_proto_data(wmem_file_scope(), pinfo, proto_btle, (uint32_t)(pinfo->curr_layer_num) << 8, ae_had_info);
+                                }
+                            }
+                        }
+                        ad_processed = true;
+                        break;
+                    default:
+                        /* This field is 2 bits long, no special action needed */
+                        break;
+                }
+                if (ad_processed) {
+                    if (pinfo->fd->visited) {
+                        /* Host Advertising Data fragment */
+                        proto_tree_add_item(btle_tree, hf_extended_advertising_had_fragment, tvb, offset, tvb_captured_length_remaining(tvb, offset) - 3, ENC_NA);
+                        if (ad_reassembled) {
+                            fragment_head *fd_head = NULL;
+                            tvbuff_t *assembled_tvb = NULL;
+
+                            ae_had_info = (ae_had_info_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_btle, (uint32_t)(pinfo->curr_layer_num) << 8);
+                            if (ae_had_info != NULL) {
+                                col_append_str(pinfo->cinfo, COL_INFO, " (EA HAD Reassembled)");
+
+                                if (!(flags & 0x01) && (ae_had_info->adv_addr.len > 0)) {
+                                    /* Copy Advertiser Address from AUX_ADV_IND if not present. */
+                                    copy_address_shallow(&pinfo->src, &ae_had_info->adv_addr);
+                                }
+
+                                fd_head = fragment_get(&btle_ea_host_advertising_data_reassembly_table, pinfo, ae_had_info->first_frame_num, NULL);
+                                assembled_tvb = process_reassembled_data(
+                                    tvb, offset, pinfo,
+                                    "Reassembled Host Advertising Data", fd_head,
+                                    &btle_ea_host_advertising_data_frag_items,
+                                    NULL, btle_tree);
+
+                                if (assembled_tvb) {
+                                    dissect_ad_eir(assembled_tvb, interface_id, adapter_id, frame_number, src_bd_addr, pinfo, btle_tree);
+                                }
+                            }
+                        }
+                        else {
+                            col_append_str(pinfo->cinfo, COL_INFO, " (EA HAD Fragment)");
+                        }
+                        offset += tvb_captured_length_remaining(tvb, offset) - 3;
+                    }
+                }
+            }
+
+            if (tvb_reported_length_remaining(tvb, offset) > 3) {
+                /* Host Advertising Data */
+                next_tvb = tvb_new_subset_length(tvb, offset, tvb_reported_length_remaining(tvb, offset) - 3);
+
+                if (btle_context && btle_context->aux_pdu_type_valid && btle_context->aux_pdu_type == 3) {
+                    /* AUX_SCAN_RSP */
+                    sub_item = proto_tree_add_item(btle_tree, hf_scan_response_data, tvb, offset, tvb_reported_length_remaining(tvb, offset) - 3, ENC_NA);
+                    sub_tree = proto_item_add_subtree(sub_item, ett_scan_response_data);
+
+                    dissect_ad_eir(next_tvb, interface_id, adapter_id, frame_number, src_bd_addr, pinfo, sub_tree);
+                }
+                else {
+                    dissect_ad_eir(next_tvb, interface_id, adapter_id, frame_number, src_bd_addr, pinfo, btle_tree);
+                }
+
+                offset += tvb_reported_length_remaining(tvb, offset) - 3;
+            }
+        }
+        break;
+    }
+    default:
+        if (tvb_reported_length_remaining(tvb, offset) > 3) {
+            proto_tree_add_expert(btle_tree, pinfo, &ei_unknown_data, tvb, offset, tvb_reported_length_remaining(tvb, offset) - 3);
+            offset += tvb_reported_length_remaining(tvb, offset) - 3;
+        }
+    }
+
+    return offset;
+}
+
+static int
 dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item           *btle_item;
@@ -1989,12 +2733,10 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     int                   offset = 0;
     uint32_t              access_address, length;
     tvbuff_t              *next_tvb;
-    uint8_t               *dst_bd_addr;
-    uint8_t               *src_bd_addr;
     static const uint8_t   broadcast_addr[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
     connection_info_t     *connection_info = NULL;
     wmem_tree_t           *wmem_tree;
-    wmem_tree_key_t        key[5], ae_had_key[4];
+    wmem_tree_key_t        key[5];
 
     uint32_t               connection_access_address;
     uint32_t               frame_number;
@@ -2009,9 +2751,6 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                                                           data,
                                                           &adapter_id,
                                                           &interface_id);
-
-    src_bd_addr = (uint8_t *) wmem_alloc(pinfo->pool, 6);
-    dst_bd_addr = (uint8_t *) wmem_alloc(pinfo->pool, 6);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "LE LL");
 
@@ -2056,716 +2795,16 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     }
 
     if (btle_pdu_type == BTLE_PDU_TYPE_ADVERTISING) {
-        proto_item  *advertising_header_item;
-        proto_tree  *advertising_header_tree;
-        proto_item  *link_layer_data_item;
-        proto_tree  *link_layer_data_tree;
-        uint8_t      header, pdu_type;
-        bool         ch_sel_valid = false, tx_add_valid = false, rx_add_valid = false;
-        bool         is_periodic_adv = false;
-
-        key[0].length = 1;
-        key[0].key = &interface_id;
-        key[1].length = 1;
-        key[1].key = &adapter_id;
-        key[2].length = 1;
-        key[2].key = &access_address;
-        key[3].length = 0;
-        key[3].key = NULL;
-
-        wmem_tree = (wmem_tree_t *) wmem_tree_lookup32_array(connection_info_tree, key);
-        if (!wmem_tree) {
-            /* Check periodic advertising tree */
-            wmem_tree = (wmem_tree_t *) wmem_tree_lookup32_array(periodic_adv_info_tree, key);
-            if (wmem_tree) {
-                is_periodic_adv = true;
-            }
-        }
-
-        if (wmem_tree) {
-            connection_info = (connection_info_t *) wmem_tree_lookup32_le(wmem_tree, pinfo->num);
-            if (connection_info) {
-                set_address(&pinfo->net_src, AT_ETHER, 6, connection_info->central_bd_addr);
-                copy_address_shallow(&pinfo->dl_src, &pinfo->net_src);
-                copy_address_shallow(&pinfo->src, &pinfo->net_src);
-                memcpy(src_bd_addr, connection_info->central_bd_addr, 6);
-            }
-        }
-
-        advertising_header_item = proto_tree_add_item(btle_tree, hf_advertising_header, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        advertising_header_tree = proto_item_add_subtree(advertising_header_item, ett_advertising_header);
-
-        header = tvb_get_uint8(tvb, offset);
-        pdu_type = header & 0x0F;
-
-        switch (pdu_type) {
-        case 0x00: /* ADV_IND */
-            ch_sel_valid = true;
-            /* Fallthrough */
-        case 0x02: /* ADV_NONCONN_IND */
-        case 0x06: /* ADV_SCAN_IND */
-        case 0x04: /* SCAN_RSP */
-            tx_add_valid = true;
-            break;
-        case 0x07: /* ADV_EXT_IND / AUX_ADV_IND / AUX_SYNC_IND / AUX_CHAIN_IND / AUX_SCAN_RSP */
-        case 0x08: /* AUX_CONNECT_RSP */
-        {
-            /* 0 + header, 1 = len, 2 = ext_len/adv-mode, 3 = flags */
-            uint8_t ext_header_flags = tvb_get_uint8(tvb, offset + 3);
-
-            ch_sel_valid = false;
-            tx_add_valid = (ext_header_flags & 0x01) != 0;
-            rx_add_valid = (ext_header_flags & 0x02) != 0;
-            break;
-        }
-        case 0x01: /* ADV_DIRECT_IND */
-        case 0x05: /* CONNECT_IND or AUX_CONNECT_REQ */
-            if (btle_context && btle_context->channel >= 37) {
-                /* CONNECT_IND */
-                ch_sel_valid = true;
-            }
-            /* Fallthrough */
-        case 0x03: /* SCAN_REQ or AUX_SCAN_REQ */
-            tx_add_valid = true;
-            rx_add_valid = true;
-            break;
-        }
-
-        proto_item_append_text(advertising_header_item, " (PDU Type: %s", adv_pdu_type_str_get(btle_context, pdu_type, is_periodic_adv));
-        item = proto_tree_add_item(advertising_header_tree, hf_advertising_header_pdu_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        proto_item_append_text(item, " %s", adv_pdu_type_str_get(btle_context, pdu_type, is_periodic_adv));
-        proto_tree_add_item(advertising_header_tree, hf_advertising_header_rfu_1, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-
-        if (ch_sel_valid) {
-            proto_item_append_text(advertising_header_item, ", ChSel: %s",
-                                   tfs_get_string(header & 0x20, &tfs_ch_sel));
-            proto_tree_add_item(advertising_header_tree, hf_advertising_header_ch_sel, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        } else {
-            proto_tree_add_item(advertising_header_tree, hf_advertising_header_rfu_2, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        }
-
-        if (tx_add_valid) {
-            proto_item_append_text(advertising_header_item, ", TxAdd: %s",
-                                   tfs_get_string(header & 0x40, &tfs_random_public));
-            proto_tree_add_item(advertising_header_tree, hf_advertising_header_randomized_tx, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        } else {
-            proto_tree_add_item(advertising_header_tree, hf_advertising_header_rfu_3, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        }
-
-        if (rx_add_valid) {
-            proto_item_append_text(advertising_header_item, ", RxAdd: %s",
-                                   tfs_get_string(header & 0x80, &tfs_random_public));
-            proto_tree_add_item(advertising_header_tree, hf_advertising_header_randomized_rx, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        } else {
-            proto_tree_add_item(advertising_header_tree, hf_advertising_header_rfu_4, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        }
-
-        proto_item_append_text(advertising_header_item, ")");
-
-        col_set_str(pinfo->cinfo, COL_INFO, adv_pdu_type_str_get(btle_context, pdu_type, is_periodic_adv));
-
-        offset += 1;
-
-        proto_tree_add_item(advertising_header_tree, hf_advertising_header_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        item = proto_tree_add_item_ret_uint(btle_tree, hf_length, tvb, offset, 1, ENC_LITTLE_ENDIAN, &length);
-        proto_item_set_hidden(item);
-        offset += 1;
-
-        switch (pdu_type) {
-        case 0x00: /* ADV_IND */
-        case 0x02: /* ADV_NONCONN_IND */
-        case 0x06: /* ADV_SCAN_IND */
-            offset = dissect_bd_addr(hf_advertising_address, pinfo, btle_tree, tvb, offset, true, interface_id, adapter_id, src_bd_addr);
-
-            set_address(&pinfo->net_src, AT_ETHER, 6, src_bd_addr);
-            copy_address_shallow(&pinfo->dl_src, &pinfo->net_src);
-            copy_address_shallow(&pinfo->src, &pinfo->net_src);
-
-            set_address(&pinfo->net_dst, AT_ETHER, 6, broadcast_addr);
-            copy_address_shallow(&pinfo->dl_dst, &pinfo->net_dst);
-            copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
-
-            if (!pinfo->fd->visited) {
-                address *addr;
-
-                addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_src, sizeof(address));
-                addr->data =  wmem_memdup(wmem_file_scope(), pinfo->dl_src.data, pinfo->dl_src.len);
-                p_add_proto_data(wmem_file_scope(), pinfo, proto_bluetooth, BLUETOOTH_DATA_SRC, addr);
-
-                addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_dst, sizeof(address));
-                addr->data =  wmem_memdup(wmem_file_scope(), pinfo->dl_dst.data, pinfo->dl_dst.len);
-                p_add_proto_data(wmem_file_scope(), pinfo, proto_bluetooth, BLUETOOTH_DATA_DST, addr);
-            }
-
-            if (tvb_reported_length_remaining(tvb, offset) > 3) {
-                next_tvb = tvb_new_subset_length(tvb, offset, tvb_reported_length_remaining(tvb, offset) - 3);
-                dissect_ad_eir(next_tvb, interface_id, adapter_id, frame_number, src_bd_addr, pinfo, btle_tree);
-            }
-
-            offset += tvb_reported_length_remaining(tvb, offset) - 3;
-
-            break;
-        case 0x01: /* ADV_DIRECT_IND */
-            offset = dissect_bd_addr(hf_advertising_address, pinfo, btle_tree, tvb, offset, true, interface_id, adapter_id, src_bd_addr);
-            offset = dissect_bd_addr(hf_target_addresss, pinfo, btle_tree, tvb, offset, false, interface_id, adapter_id, dst_bd_addr);
-
-            set_address(&pinfo->net_src, AT_ETHER, 6, src_bd_addr);
-            copy_address_shallow(&pinfo->dl_src, &pinfo->net_src);
-            copy_address_shallow(&pinfo->src, &pinfo->net_src);
-
-            set_address(&pinfo->net_dst, AT_ETHER, 6, dst_bd_addr);
-            copy_address_shallow(&pinfo->dl_dst, &pinfo->net_dst);
-            copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
-
-            if (!pinfo->fd->visited) {
-                address *addr;
-
-                addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_src, sizeof(address));
-                addr->data =  wmem_memdup(wmem_file_scope(), pinfo->dl_src.data, pinfo->dl_src.len);
-                p_add_proto_data(wmem_file_scope(), pinfo, proto_bluetooth, BLUETOOTH_DATA_SRC, addr);
-
-                addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_dst, sizeof(address));
-                addr->data =  wmem_memdup(wmem_file_scope(), pinfo->dl_dst.data, pinfo->dl_dst.len);
-                p_add_proto_data(wmem_file_scope(), pinfo, proto_bluetooth, BLUETOOTH_DATA_DST, addr);
-            }
-
-            break;
-        case 0x03: /* SCAN_REQ */
-            offset = dissect_bd_addr(hf_scanning_address, pinfo, btle_tree, tvb, offset, true, interface_id, adapter_id, src_bd_addr);
-            offset = dissect_bd_addr(hf_advertising_address, pinfo, btle_tree, tvb, offset, false, interface_id, adapter_id, dst_bd_addr);
-
-            set_address(&pinfo->net_src, AT_ETHER, 6, src_bd_addr);
-            copy_address_shallow(&pinfo->dl_src, &pinfo->net_src);
-            copy_address_shallow(&pinfo->src, &pinfo->net_src);
-
-            set_address(&pinfo->net_dst, AT_ETHER, 6, dst_bd_addr);
-            copy_address_shallow(&pinfo->dl_dst, &pinfo->net_dst);
-            copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
-
-            if (!pinfo->fd->visited) {
-                address *addr;
-
-                addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_src, sizeof(address));
-                addr->data =  wmem_memdup(wmem_file_scope(), pinfo->dl_src.data, pinfo->dl_src.len);
-                p_add_proto_data(wmem_file_scope(), pinfo, proto_bluetooth, BLUETOOTH_DATA_SRC, addr);
-
-                addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_dst, sizeof(address));
-                addr->data =  wmem_memdup(wmem_file_scope(), pinfo->dl_dst.data, pinfo->dl_dst.len);
-                p_add_proto_data(wmem_file_scope(), pinfo, proto_bluetooth, BLUETOOTH_DATA_DST, addr);
-            }
-
-            break;
-        case 0x04: /* SCAN_RSP */
-            offset = dissect_bd_addr(hf_advertising_address, pinfo, btle_tree, tvb, offset, true, interface_id, adapter_id, src_bd_addr);
-
-            set_address(&pinfo->net_src, AT_ETHER, 6, src_bd_addr);
-            copy_address_shallow(&pinfo->dl_src, &pinfo->net_src);
-            copy_address_shallow(&pinfo->src, &pinfo->net_src);
-
-            set_address(&pinfo->net_dst, AT_ETHER, 6, broadcast_addr);
-            copy_address_shallow(&pinfo->dl_dst, &pinfo->net_dst);
-            copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
-
-            if (!pinfo->fd->visited) {
-                address *addr;
-
-                addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_src, sizeof(address));
-                addr->data =  wmem_memdup(wmem_file_scope(), pinfo->dl_src.data, pinfo->dl_src.len);
-                p_add_proto_data(wmem_file_scope(), pinfo, proto_bluetooth, BLUETOOTH_DATA_SRC, addr);
-
-                addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_dst, sizeof(address));
-                addr->data =  wmem_memdup(wmem_file_scope(), pinfo->dl_dst.data, pinfo->dl_dst.len);
-                p_add_proto_data(wmem_file_scope(), pinfo, proto_bluetooth, BLUETOOTH_DATA_DST, addr);
-            }
-
-            sub_item = proto_tree_add_item(btle_tree, hf_scan_response_data, tvb, offset, tvb_reported_length_remaining(tvb, offset) - 3, ENC_NA);
-            sub_tree = proto_item_add_subtree(sub_item, ett_scan_response_data);
-
-            if (tvb_reported_length_remaining(tvb, offset) > 3) {
-                next_tvb = tvb_new_subset_length(tvb, offset, tvb_reported_length_remaining(tvb, offset) - 3);
-                dissect_ad_eir(next_tvb, interface_id, adapter_id, frame_number, src_bd_addr, pinfo, sub_tree);
-            }
-
-            offset += tvb_reported_length_remaining(tvb, offset) - 3;
-
-            break;
-        case 0x05: /* CONNECT_IND */
-        {
-            uint32_t connect_ind_crc_init;
-
-            offset = dissect_bd_addr(hf_initiator_addresss, pinfo, btle_tree, tvb, offset, false, interface_id, adapter_id, src_bd_addr);
-            offset = dissect_bd_addr(hf_advertising_address, pinfo, btle_tree, tvb, offset, true, interface_id, adapter_id, dst_bd_addr);
-
-            set_address(&pinfo->net_src, AT_ETHER, 6, src_bd_addr);
-            copy_address_shallow(&pinfo->dl_src, &pinfo->net_src);
-            copy_address_shallow(&pinfo->src, &pinfo->net_src);
-
-            set_address(&pinfo->net_dst, AT_ETHER, 6, dst_bd_addr);
-            copy_address_shallow(&pinfo->dl_dst, &pinfo->net_dst);
-            copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
-
-            if (!pinfo->fd->visited) {
-                address *addr;
-
-                addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_src, sizeof(address));
-                addr->data =  wmem_memdup(wmem_file_scope(), pinfo->dl_src.data, pinfo->dl_src.len);
-                p_add_proto_data(wmem_file_scope(), pinfo, proto_bluetooth, BLUETOOTH_DATA_SRC, addr);
-
-                addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_dst, sizeof(address));
-                addr->data =  wmem_memdup(wmem_file_scope(), pinfo->dl_dst.data, pinfo->dl_dst.len);
-                p_add_proto_data(wmem_file_scope(), pinfo, proto_bluetooth, BLUETOOTH_DATA_DST, addr);
-            }
-
-            link_layer_data_item = proto_tree_add_item(btle_tree, hf_link_layer_data, tvb, offset, 22, ENC_NA);
-            link_layer_data_tree = proto_item_add_subtree(link_layer_data_item, ett_link_layer_data);
-
-            proto_tree_add_item(link_layer_data_tree, hf_link_layer_data_access_address, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-            connection_access_address = tvb_get_letohl(tvb, offset);
-            offset += 4;
-
-            proto_tree_add_item_ret_uint(link_layer_data_tree, hf_link_layer_data_crc_init, tvb, offset, 3, ENC_LITTLE_ENDIAN, &connect_ind_crc_init);
-            offset += 3;
-
-            item = proto_tree_add_item_ret_uint(link_layer_data_tree, hf_link_layer_data_window_size, tvb, offset, 1, ENC_LITTLE_ENDIAN, &item_value);
-            proto_item_append_text(item, " (%g msec)", item_value*1.25);
-            offset += 1;
-
-            item = proto_tree_add_item_ret_uint(link_layer_data_tree, hf_link_layer_data_window_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN, &item_value);
-            proto_item_append_text(item, " (%g msec)", item_value*1.25);
-            offset += 2;
-
-            item = proto_tree_add_item_ret_uint(link_layer_data_tree, hf_link_layer_data_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN, &item_value);
-            proto_item_append_text(item, " (%g msec)", item_value*1.25);
-            offset += 2;
-
-            proto_tree_add_item(link_layer_data_tree, hf_link_layer_data_latency, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            offset += 2;
-
-            item = proto_tree_add_item_ret_uint(link_layer_data_tree, hf_link_layer_data_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN, &item_value);
-            proto_item_append_text(item, " (%u msec)", item_value*10);
-            offset += 2;
-
-            sub_item = proto_tree_add_item(link_layer_data_tree, hf_link_layer_data_channel_map, tvb, offset, 5, ENC_NA);
-            sub_tree = proto_item_add_subtree(sub_item, ett_channel_map);
-
-            call_dissector(btcommon_le_channel_map_handle, tvb_new_subset_length(tvb, offset, 5), pinfo, sub_tree);
-            offset += 5;
-
-            proto_tree_add_item(link_layer_data_tree, hf_link_layer_data_hop, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(link_layer_data_tree, hf_link_layer_data_sleep_clock_accuracy, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            offset += 1;
-
-            if (!pinfo->fd->visited) {
-                connection_parameter_info_t *connection_parameter_info;
-
-                key[0].length = 1;
-                key[0].key = &interface_id;
-                key[1].length = 1;
-                key[1].key = &adapter_id;
-                key[2].length = 1;
-                key[2].key = &connection_access_address;
-                key[3].length = 1;
-                key[3].key = &frame_number;
-                key[4].length = 0;
-                key[4].key = NULL;
-
-                connection_info = wmem_new0(wmem_file_scope(), connection_info_t);
-                connection_info->interface_id   = interface_id;
-                connection_info->adapter_id     = adapter_id;
-                connection_info->access_address = connection_access_address;
-                connection_info->crc_init       = connect_ind_crc_init;
-
-                memcpy(connection_info->central_bd_addr, src_bd_addr, 6);
-                memcpy(connection_info->peripheral_bd_addr,  dst_bd_addr, 6);
-
-                /* We don't create control procedure context trees for BTLE_DIR_UNKNOWN,
-                 * as the direction must be known for request/response matching. */
-                connection_info->direction_info[BTLE_DIR_CENTRAL_PERIPHERAL].control_procs =
-                        wmem_tree_new(wmem_file_scope());
-                connection_info->direction_info[BTLE_DIR_PERIPHERAL_CENTRAL].control_procs =
-                        wmem_tree_new(wmem_file_scope());
-
-                wmem_tree_insert32_array(connection_info_tree, key, connection_info);
-
-                connection_parameter_info = wmem_new0(wmem_file_scope(), connection_parameter_info_t);
-                connection_parameter_info->parameters_frame = pinfo->num;
-
-                key[3].length = 1;
-                key[3].key = &pinfo->num;
-                wmem_tree_insert32_array(connection_parameter_info_tree, key, connection_parameter_info);
-            }
-
-            break;
-        }
-        case 0x07: /* ADV_EXT_IND / AUX_ADV_IND / AUX_SYNC_IND / AUX_CHAIN_IND / AUX_SCAN_RSP */
-        case 0x08: /* AUX_CONNECT_RSP */
-        {
-            uint8_t tmp, ext_header_len, flags, acad_len;
-            proto_item  *ext_header_item, *ext_flags_item;
-            proto_tree  *ext_header_tree, *ext_flags_tree;
-            uint32_t adi;
-            bool adi_present = false;
-            bool aux_pointer_present = false;
-
-            tmp = tvb_get_uint8(tvb, offset);
-            ext_header_len = acad_len = tmp & 0x3F;
-
-            ext_header_item = proto_tree_add_item(btle_tree, hf_extended_advertising_header, tvb, offset, ext_header_len + 1, ENC_NA);
-            ext_header_tree = proto_item_add_subtree(ext_header_item, ett_extended_advertising_header);
-
-            proto_tree_add_item(ext_header_tree, hf_extended_advertising_header_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(ext_header_tree, hf_extended_advertising_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            offset += 1;
-
-            if (ext_header_len > 0) {
-                ext_flags_item = proto_tree_add_item(ext_header_tree, hf_extended_advertising_flags, tvb, offset, 1, ENC_NA);
-                ext_flags_tree = proto_item_add_subtree(ext_flags_item, ett_extended_advertising_flags);
-
-                proto_tree_add_bitmask_list(ext_flags_tree, tvb, offset, 1, hfx_extended_advertising_flags, ENC_NA);
-                flags = tvb_get_uint8(tvb, offset);
-                offset += 1;
-
-                acad_len -= 1;
-            } else {
-                flags = 0;
-            }
-
-            if (flags & 0x01) {
-                /* Advertiser Address */
-                offset = dissect_bd_addr(hf_advertising_address, pinfo, ext_header_tree, tvb, offset, true, interface_id, adapter_id, src_bd_addr);
-                set_address(&pinfo->net_src, AT_ETHER, 6, src_bd_addr);
-                copy_address_shallow(&pinfo->dl_src, &pinfo->net_src);
-                copy_address_shallow(&pinfo->src, &pinfo->net_src);
-
-                acad_len -= 6;
-            } else if (!connection_info) {
-                const char * anon_str = "Anonymous";
-                clear_address(&pinfo->dl_src);
-                set_address(&pinfo->net_src, AT_STRINGZ, sizeof(*anon_str), anon_str);
-                copy_address_shallow(&pinfo->src, &pinfo->net_src);
-            }
-
-            if (flags & 0x02) {
-                /* Target Address */
-                offset = dissect_bd_addr(hf_target_addresss, pinfo, ext_header_tree, tvb, offset, false, interface_id, adapter_id, dst_bd_addr);
-                set_address(&pinfo->net_dst, AT_ETHER, 6, dst_bd_addr);
-                copy_address_shallow(&pinfo->dl_dst, &pinfo->net_dst);
-                copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
-
-                acad_len -= 6;
-            } else {
-                set_address(&pinfo->net_dst, AT_ETHER, 6, broadcast_addr);
-                copy_address_shallow(&pinfo->dl_dst, &pinfo->net_dst);
-                copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
-            }
-
-            if (flags & 0x04) {
-                uint32_t cte_time;
-
-                /* CTE Info */
-                sub_item = proto_tree_add_item(ext_header_tree, hf_extended_advertising_cte_info, tvb, offset, 1, ENC_NA);
-                sub_tree = proto_item_add_subtree(sub_item, ett_extended_advertising_cte_info);
-
-                item = proto_tree_add_item_ret_uint(sub_tree, hf_extended_advertising_cte_info_time, tvb, offset, 1, ENC_LITTLE_ENDIAN, &cte_time);
-                proto_item_append_text(item, " (%u usec)", cte_time * 8);
-                proto_tree_add_item(sub_tree, hf_extended_advertising_cte_info_rfu, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-                proto_tree_add_item(sub_tree, hf_extended_advertising_cte_info_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-                offset += 1;
-
-                acad_len -= 1;
-            }
-
-            if (flags & 0x08) {
-                /* AdvDataInfo */
-                sub_item = proto_tree_add_item_ret_uint(ext_header_tree, hf_extended_advertising_data_info, tvb, offset, 2, ENC_LITTLE_ENDIAN, &adi);
-                sub_tree = proto_item_add_subtree(sub_item, ett_extended_advertising_data_info);
-
-                proto_tree_add_item(sub_tree, hf_extended_advertising_data_info_did, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                proto_tree_add_item(sub_tree, hf_extended_advertising_data_info_sid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                offset += 2;
-                adi_present = true;
-
-                acad_len -= 2;
-            }
-
-            if (flags & 0x10) {
-                uint32_t aux_offset;
-
-                /* Aux Pointer */
-                sub_item = proto_tree_add_item(ext_header_tree, hf_extended_advertising_aux_ptr, tvb, offset, 3, ENC_NA);
-                sub_tree = proto_item_add_subtree(sub_item, ett_extended_advertising_aux_pointer);
-
-                proto_tree_add_item(sub_tree, hf_extended_advertising_aux_ptr_channel, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-                proto_tree_add_item(sub_tree, hf_extended_advertising_aux_ptr_ca, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-                proto_tree_add_item(sub_tree, hf_extended_advertising_aux_ptr_offset_units, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-                tmp = tvb_get_uint8(tvb, offset);
-                offset += 1;
-
-                item = proto_tree_add_item_ret_uint(sub_tree, hf_extended_advertising_aux_ptr_aux_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN, &aux_offset);
-                proto_tree_add_item(sub_tree, hf_extended_advertising_aux_ptr_aux_phy, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                proto_item_append_text(item, " (%u usec)", aux_offset * ((tmp & 0x80) != 0 ? 300 : 30));
-                offset += 2;
-                aux_pointer_present = true;
-
-                acad_len -= 3;
-            }
-
-            if (flags & 0x20) {
-                uint32_t sync_offset, interval;
-                proto_item  *sync_info_item;
-                proto_tree  *sync_info_tree;
-                int reserved_offset;
-                uint16_t sf;
-
-                /* Sync Info */
-                sync_info_item = proto_tree_add_item(ext_header_tree, hf_extended_advertising_sync_info, tvb, offset, 18, ENC_NA);
-                sync_info_tree = proto_item_add_subtree(sync_info_item, ett_extended_advertising_sync_info);
-
-                if (!pinfo->fd->visited) {
-                    connection_parameter_info_t *connection_parameter_info;
-
-                    connection_access_address = tvb_get_uint32(tvb, offset + 9, ENC_LITTLE_ENDIAN);
-
-                    key[0].length = 1;
-                    key[0].key = &interface_id;
-                    key[1].length = 1;
-                    key[1].key = &adapter_id;
-                    key[2].length = 1;
-                    key[2].key = &connection_access_address;
-                    key[3].length = 1;
-                    key[3].key = &frame_number;
-                    key[4].length = 0;
-                    key[4].key = NULL;
-
-                    connection_info = wmem_new0(wmem_file_scope(), connection_info_t);
-                    connection_info->interface_id   = interface_id;
-                    connection_info->adapter_id     = adapter_id;
-                    connection_info->access_address = connection_access_address;
-
-                    if (flags & 0x01)
-                        memcpy(connection_info->central_bd_addr, src_bd_addr, 6);
-
-                    /* We don't create control procedure context trees for BTLE_DIR_UNKNOWN,
-                     * as the direction must be known for request/response matching. */
-                    connection_info->direction_info[BTLE_DIR_CENTRAL_PERIPHERAL].control_procs =
-                        wmem_tree_new(wmem_file_scope());
-                    connection_info->direction_info[BTLE_DIR_PERIPHERAL_CENTRAL].control_procs =
-                        wmem_tree_new(wmem_file_scope());
-
-                    wmem_tree_insert32_array(periodic_adv_info_tree, key, connection_info);
-
-                    connection_parameter_info = wmem_new0(wmem_file_scope(), connection_parameter_info_t);
-                    connection_parameter_info->parameters_frame = pinfo->num;
-
-                    key[3].length = 1;
-                    key[3].key = &pinfo->num;
-                    wmem_tree_insert32_array(connection_parameter_info_tree, key, connection_parameter_info);
-                }
-
-                sf = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
-
-                item = proto_tree_add_item_ret_uint(sync_info_tree, hf_extended_advertising_sync_info_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN, &sync_offset);
-                proto_tree_add_item(sync_info_tree, hf_extended_advertising_sync_info_offset_units, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                proto_tree_add_item(sync_info_tree, hf_extended_advertising_sync_info_offset_adjust, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                proto_tree_add_item(sync_info_tree, hf_extended_advertising_sync_info_reserved, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                if (sync_offset > 0) {
-                    proto_item_append_text(item, " (%u usec)", sync_offset * ((sf & 0x2000) != 0 ? 300 : 30) + ((sf & 0x4000) != 0 ? 2457600 : 0));
-                } else {
-                    proto_item_append_text(item, " Cannot be represented");
-                }
-                offset += 2;
-
-                item = proto_tree_add_item_ret_uint(sync_info_tree, hf_extended_advertising_sync_info_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN, &interval);
-                proto_item_append_text(item, " (%g msec)", interval * 1.25);
-                offset += 2;
-
-                sub_item = proto_tree_add_item(sync_info_tree, hf_extended_advertising_sync_info_channel_map, tvb, offset, 5, ENC_NA);
-                sub_tree = proto_item_add_subtree(sub_item, ett_channel_map);
-
-                call_dissector_with_data(btcommon_le_channel_map_handle, tvb_new_subset_length(tvb, offset, 5), pinfo, sub_tree, &reserved_offset);
-                proto_tree_add_item(sync_info_tree, hf_extended_advertising_sync_info_sleep_clock_accuracy, tvb, offset + reserved_offset, 1, ENC_LITTLE_ENDIAN);
-                offset += 5;
-
-                proto_tree_add_item(sync_info_tree, hf_extended_advertising_sync_info_access_address, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-                offset += 4;
-
-                proto_tree_add_item(sync_info_tree, hf_extended_advertising_sync_info_crc_init, tvb, offset, 3, ENC_LITTLE_ENDIAN);
-                offset += 3;
-
-                proto_tree_add_item(sync_info_tree, hf_extended_advertising_sync_info_event_counter, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                offset += 2;
-
-                acad_len -= 18;
-            }
-
-            if (flags & 0x40) {
-                /* Tx Power */
-                proto_tree_add_item(ext_header_tree, hf_extended_advertising_tx_power, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-                offset += 1;
-
-                acad_len -= 1;
-            }
-
-            if (acad_len > 0) {
-                sub_item = proto_tree_add_item(ext_header_tree, hf_extended_advertising_header_acad, tvb, offset, acad_len, ENC_NA);
-                sub_tree = proto_item_add_subtree(sub_item, ett_extended_advertising_acad);
-
-                /* Additional Controller Advertising Data */
-                next_tvb = tvb_new_subset_length(tvb, offset, acad_len);
-                dissect_ad_eir(next_tvb, interface_id, adapter_id, frame_number, src_bd_addr, pinfo, sub_tree);
-
-                offset += acad_len;
-            }
-            if (tvb_reported_length_remaining(tvb, offset) > 3) {
-                bool ad_processed = false;
-                if (btle_context && pdu_type == 0x07 && btle_context->aux_pdu_type_valid) {
-                    bool ad_reassembled = false;
-                    ae_had_info_t *ae_had_info = NULL;
-
-                    switch (btle_context->aux_pdu_type) {
-                        case 0x00:  /* AUX_ADV_IND */
-                        case 0x02:  /* AUX_SYNC_IND */
-                        case 0x03:  /* AUX_SCAN_RSP */
-                            if (aux_pointer_present) {
-                                /* Beginning of new sequence of fragments */
-                                if (!pinfo->fd->visited && adi_present) {
-                                    ae_had_info = wmem_new0(wmem_file_scope(), ae_had_info_t);
-                                    ae_had_info->first_frame_num=pinfo->num;
-
-                                    if (flags & 0x01) {
-                                        /* Copy Advertiser Address to reassemble AUX_CHAIN_IND */
-                                        copy_address_wmem(wmem_file_scope(), &ae_had_info->adv_addr, &pinfo->src);
-                                    }
-
-                                    ae_had_key[0].length = 1;
-                                    ae_had_key[0].key = &interface_id;
-                                    ae_had_key[1].length = 1;
-                                    ae_had_key[1].key = &adapter_id;
-                                    ae_had_key[2].length = 1;
-                                    ae_had_key[2].key = &adi;
-                                    ae_had_key[3].length = 0;
-                                    ae_had_key[3].key = NULL;
-
-                                    wmem_tree_insert32_array(adi_to_first_frame_tree, ae_had_key, ae_had_info);
-
-                                    fragment_add_seq(&btle_ea_host_advertising_data_reassembly_table,
-                                        tvb, offset, pinfo,
-                                        ae_had_info->first_frame_num, NULL,
-                                        ae_had_info->fragment_counter,
-                                        tvb_captured_length_remaining(tvb, offset) - 3,
-                                        !ad_reassembled, 0);
-
-                                    ae_had_info->fragment_counter++;
-                                }
-                                ad_processed = true;
-                            }
-                            break;
-                        case 0x01:  /* AUX_CHAIN_IND */
-                            if (!aux_pointer_present) {
-                                /* Final fragment */
-                                ad_reassembled = true;
-                            }
-                            if (!pinfo->fd->visited && adi_present) {
-
-                                ae_had_key[0].length = 1;
-                                ae_had_key[0].key = &interface_id;
-                                ae_had_key[1].length = 1;
-                                ae_had_key[1].key = &adapter_id;
-                                ae_had_key[2].length = 1;
-                                ae_had_key[2].key = &adi;
-                                ae_had_key[3].length = 0;
-                                ae_had_key[3].key = NULL;
-
-                                ae_had_info = (ae_had_info_t *) wmem_tree_lookup32_array(adi_to_first_frame_tree, ae_had_key);
-
-                                if (ae_had_info != NULL) {
-                                    if (!(flags & 0x01) && (ae_had_info->adv_addr.len > 0)) {
-                                        /* Copy Advertiser Address from AUX_ADV_IND if not present. */
-                                        copy_address_shallow(&pinfo->src, &ae_had_info->adv_addr);
-                                    }
-
-                                    fragment_add_seq(&btle_ea_host_advertising_data_reassembly_table,
-                                        tvb, offset, pinfo,
-                                        ae_had_info->first_frame_num, NULL,
-                                        ae_had_info->fragment_counter,
-                                        tvb_captured_length_remaining(tvb, offset) - 3,
-                                        !ad_reassembled, 0);
-
-                                    ae_had_info->fragment_counter++;
-                                    if (ad_reassembled == true) {
-                                        p_add_proto_data(wmem_file_scope(), pinfo, proto_btle, (uint32_t)(pinfo->curr_layer_num) << 8, ae_had_info);
-                                    }
-                                }
-                            }
-                            ad_processed = true;
-                            break;
-                        default:
-                            /* This field is 2 bits long, no special action needed */
-                            break;
-                    }
-                    if (ad_processed) {
-                        if (pinfo->fd->visited) {
-                            /* Host Advertising Data fragment */
-                            proto_tree_add_item(btle_tree, hf_extended_advertising_had_fragment, tvb, offset, tvb_captured_length_remaining(tvb, offset) - 3, ENC_NA);
-                            if (ad_reassembled) {
-                                fragment_head *fd_head = NULL;
-                                tvbuff_t *assembled_tvb = NULL;
-
-                                ae_had_info = (ae_had_info_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_btle, (uint32_t)(pinfo->curr_layer_num) << 8);
-                                if (ae_had_info != NULL) {
-                                    col_append_str(pinfo->cinfo, COL_INFO, " (EA HAD Reassembled)");
-
-                                    if (!(flags & 0x01) && (ae_had_info->adv_addr.len > 0)) {
-                                        /* Copy Advertiser Address from AUX_ADV_IND if not present. */
-                                        copy_address_shallow(&pinfo->src, &ae_had_info->adv_addr);
-                                    }
-
-                                    fd_head = fragment_get(&btle_ea_host_advertising_data_reassembly_table, pinfo, ae_had_info->first_frame_num, NULL);
-                                    assembled_tvb = process_reassembled_data(
-                                        tvb, offset, pinfo,
-                                        "Reassembled Host Advertising Data", fd_head,
-                                        &btle_ea_host_advertising_data_frag_items,
-                                        NULL, btle_tree);
-
-                                    if (assembled_tvb) {
-                                        dissect_ad_eir(assembled_tvb, interface_id, adapter_id, frame_number, src_bd_addr, pinfo, btle_tree);
-                                    }
-                                }
-                            }
-                            else {
-                                col_append_str(pinfo->cinfo, COL_INFO, " (EA HAD Fragment)");
-                            }
-                            offset += tvb_captured_length_remaining(tvb, offset) - 3;
-                        }
-                    }
-                }
-
-                if (tvb_reported_length_remaining(tvb, offset) > 3) {
-                    /* Host Advertising Data */
-                    next_tvb = tvb_new_subset_length(tvb, offset, tvb_reported_length_remaining(tvb, offset) - 3);
-
-                    if (btle_context && btle_context->aux_pdu_type_valid && btle_context->aux_pdu_type == 3) {
-                        /* AUX_SCAN_RSP */
-                        sub_item = proto_tree_add_item(btle_tree, hf_scan_response_data, tvb, offset, tvb_reported_length_remaining(tvb, offset) - 3, ENC_NA);
-                        sub_tree = proto_item_add_subtree(sub_item, ett_scan_response_data);
-
-                        dissect_ad_eir(next_tvb, interface_id, adapter_id, frame_number, src_bd_addr, pinfo, sub_tree);
-                    }
-                    else {
-                        dissect_ad_eir(next_tvb, interface_id, adapter_id, frame_number, src_bd_addr, pinfo, btle_tree);
-                    }
-
-                    offset += tvb_reported_length_remaining(tvb, offset) - 3;
-                }
-            }
-            break;
-        }
-        default:
-            if (tvb_reported_length_remaining(tvb, offset) > 3) {
-                proto_tree_add_expert(btle_tree, pinfo, &ei_unknown_data, tvb, offset, tvb_reported_length_remaining(tvb, offset) - 3);
-                offset += tvb_reported_length_remaining(tvb, offset) - 3;
-            }
-        }
+        next_tvb = tvb_new_subset_remaining(tvb, offset);
+        length = dissect_btle_adv(next_tvb,
+                                  pinfo,
+                                  btle_tree,
+                                  btle_context,
+                                  adapter_id,
+                                  interface_id,
+                                  access_address,
+                                  frame_number) - 2;
+        offset += length + 2;
     } else if (btle_pdu_type == BTLE_PDU_TYPE_DATA || btle_pdu_type == BTLE_PDU_TYPE_CONNECTEDISO) {
         proto_item  *data_header_item, *seq_item, *control_proc_item;
         proto_tree  *data_header_tree;
