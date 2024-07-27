@@ -12256,27 +12256,23 @@ dissect_smb_standard_8byte_timestamps(tvbuff_t *tvb,
 	/* create time */
 	CHECK_BYTE_COUNT_SUBR(8);
 	dissect_nttime(tvb, tree, offset, hf_smb_create_time, ENC_LITTLE_ENDIAN);
-	offset += 8;
-	*bcp -= 8;
+	COUNT_BYTES_SUBR(8);
 
 	/* access time */
 	CHECK_BYTE_COUNT_SUBR(8);
 	dissect_nttime(tvb, tree, offset, hf_smb_access_time, ENC_LITTLE_ENDIAN);
-	offset += 8;
-	*bcp -= 8;
+	COUNT_BYTES_SUBR(8);
 
 	/* last write time */
 	CHECK_BYTE_COUNT_SUBR(8);
 	dissect_nttime(tvb, tree, offset,
 		hf_smb_last_write_time, ENC_LITTLE_ENDIAN);
-	offset += 8;
-	*bcp -= 8;
+	COUNT_BYTES_SUBR(8);
 
 	/* last change time */
 	CHECK_BYTE_COUNT_SUBR(8);
 	dissect_nttime(tvb, tree, offset, hf_smb_change_time, ENC_LITTLE_ENDIAN);
-	offset += 8;
-	*bcp -= 8;
+	COUNT_BYTES_SUBR(8);
 
 	*trunc = false;
 	return offset;
@@ -12962,20 +12958,17 @@ dissect_4_2_16_12(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	/* Last status change */
 	CHECK_BYTE_COUNT_SUBR(8);
 	dissect_nttime(tvb, tree, offset, hf_smb_unix_file_last_status, ENC_LITTLE_ENDIAN);
-	offset += 8;
-	*bcp -= 8;
+	COUNT_BYTES_SUBR(8);
 
 	/* Last access time */
 	CHECK_BYTE_COUNT_SUBR(8);
 	dissect_nttime(tvb, tree, offset, hf_smb_unix_file_last_access, ENC_LITTLE_ENDIAN);
-	offset += 8;
-	*bcp -= 8;
+	COUNT_BYTES_SUBR(8);
 
 	/* Last modification time */
 	CHECK_BYTE_COUNT_SUBR(8);
 	dissect_nttime(tvb, tree, offset, hf_smb_unix_file_last_change, ENC_LITTLE_ENDIAN);
-	offset += 8;
-	*bcp -= 8;
+	COUNT_BYTES_SUBR(8);
 
 	/* File owner uid */
 	CHECK_BYTE_COUNT_SUBR(8);
@@ -13294,20 +13287,17 @@ dissect_qspi_unix_info2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	/* Last status change */
 	CHECK_BYTE_COUNT_SUBR(8);
 	dissect_nttime(tvb, tree, offset, hf_smb_unix_file_last_status, ENC_LITTLE_ENDIAN);
-	offset += 8;
-	*bcp -= 8;
+	COUNT_BYTES_SUBR(8);
 
 	/* Last access time */
 	CHECK_BYTE_COUNT_SUBR(8);
 	dissect_nttime(tvb, tree, offset, hf_smb_unix_file_last_access, ENC_LITTLE_ENDIAN);
-	offset += 8;
-	*bcp -= 8;
+	COUNT_BYTES_SUBR(8);
 
 	/* Last modification time */
 	CHECK_BYTE_COUNT_SUBR(8);
 	dissect_nttime(tvb, tree, offset, hf_smb_unix_file_last_change, ENC_LITTLE_ENDIAN);
-	offset += 8;
-	*bcp -= 8;
+	COUNT_BYTES_SUBR(8);
 
 	/* File owner uid */
 	CHECK_BYTE_COUNT_SUBR(8);
@@ -13352,8 +13342,7 @@ dissect_qspi_unix_info2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	/* Creation time */
 	CHECK_BYTE_COUNT_SUBR(8);
 	dissect_nttime(tvb, tree, offset, hf_smb_unix_file_creation_time, ENC_LITTLE_ENDIAN);
-	offset += 8;
-	*bcp -= 8;
+	COUNT_BYTES_SUBR(8);
 
 	/* File flags */
 	CHECK_BYTE_COUNT_SUBR(4);
@@ -15934,8 +15923,7 @@ dissect_qfsi_FS_VOLUME_INFO(tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree 
 	CHECK_BYTE_COUNT_TRANS_SUBR(8);
 	dissect_nttime(tvb, tree, offset,
 		hf_smb_create_time, ENC_LITTLE_ENDIAN);
-	offset += 8;
-	*bcp -= 8;
+	COUNT_BYTES_TRANS_SUBR(8);
 
 	/* volume serial number */
 	CHECK_BYTE_COUNT_TRANS_SUBR(4);
@@ -16346,18 +16334,15 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		/* Create time */
 		CHECK_BYTE_COUNT_TRANS_SUBR(8);
 		dissect_nttime(tvb, tree, offset, hf_smb_create_time, ENC_LITTLE_ENDIAN);
-		offset += 8;
-		*bcp -= 8;
+		COUNT_BYTES_TRANS_SUBR(8);
 		/* Modify Time */
 		CHECK_BYTE_COUNT_TRANS_SUBR(8);
 		dissect_nttime(tvb, tree, offset, hf_smb_modify_time, ENC_LITTLE_ENDIAN);
-		offset += 8;
-		*bcp -= 8;
+		COUNT_BYTES_TRANS_SUBR(8);
 		/* Backup Time */
 		CHECK_BYTE_COUNT_TRANS_SUBR(8);
 		dissect_nttime(tvb, tree, offset, hf_smb_backup_time, ENC_LITTLE_ENDIAN);
-		offset += 8;
-		*bcp -= 8;
+		CHECK_BYTE_COUNT_TRANS_SUBR(8);
 		/* Allocation blocks */
 		CHECK_BYTE_COUNT_TRANS_SUBR(4);
 		proto_tree_add_item(tree, hf_smb_mac_alloc_block_count, tvb,
