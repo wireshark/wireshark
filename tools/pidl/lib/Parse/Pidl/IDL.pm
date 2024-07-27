@@ -2647,8 +2647,7 @@ sub parse_file($$)
 	undef $/;
 	my $cpp = $ENV{CPP};
 	my $options = "";
-	my $os=($^O)
-	if $os = "win"{
+	if ($^O eq "MSWin32") {
 
 	}else{
 		if (! defined $cpp) {
