@@ -259,7 +259,9 @@ struct _hid_field {
 typedef struct _report_descriptor report_descriptor_t;
 
 struct _report_descriptor {
-    usb_conv_info_t         usb_info;
+    uint16_t                bus_id;
+    uint16_t                device_address;
+    uint8_t                 interface;
 
     int                     desc_length;
     uint8_t                *desc_body;
@@ -3901,11 +3903,11 @@ err:
 
 
 static bool
-is_correct_interface(usb_conv_info_t *info1, usb_conv_info_t *info2)
+is_correct_interface(usb_conv_info_t *usb_info, report_descriptor_t *report)
 {
-    return (info1->bus_id == info2->bus_id) &&
-           (info1->device_address == info2->device_address) &&
-           (info1->interfaceNum == info2->interfaceNum);
+    return (usb_info->bus_id == report->bus_id) &&
+           (usb_info->device_address == report->device_address) &&
+           (usb_info->interfaceNum == report->interface);
 }
 
 /* Returns the report descriptor */
@@ -3925,7 +3927,7 @@ get_report_descriptor(packet_info *pinfo _U_, usb_conv_info_t *usb_info)
 
     report_descriptor_t *data = NULL;
     data = (report_descriptor_t*) wmem_tree_lookup32_array_le(report_descriptors, key);
-    if (data && is_correct_interface(usb_info, &data->usb_info))
+    if (data && is_correct_interface(usb_info, data))
         return data;
 
     return NULL;
@@ -3935,9 +3937,9 @@ get_report_descriptor(packet_info *pinfo _U_, usb_conv_info_t *usb_info)
 static void
 insert_report_descriptor(packet_info *pinfo, report_descriptor_t *data)
 {
-    uint32_t bus_id = data->usb_info.bus_id;
-    uint32_t device_address = data->usb_info.device_address;
-    uint32_t interface = data->usb_info.interfaceNum;
+    uint32_t bus_id = data->bus_id;
+    uint32_t device_address = data->device_address;
+    uint32_t interface = data->interface;
     wmem_tree_key_t key[] = {
         {1, &bus_id},
         {1, &device_address},
@@ -4444,7 +4446,9 @@ dissect_usb_hid_get_report_descriptor(packet_info *pinfo _U_, proto_tree *parent
         wmem_allocator_t *scope = wmem_file_scope();
         report_descriptor_t *data = wmem_new0(scope, report_descriptor_t);
 
-        data->usb_info = *usb_conv_info;
+        data->bus_id = usb_conv_info->bus_id;
+        data->device_address = usb_conv_info->device_address;
+        data->interface = usb_conv_info->interfaceNum;
         data->desc_length = offset - old_offset;
         data->desc_body = (uint8_t*) tvb_memdup(scope, tvb, old_offset, data->desc_length);
 
