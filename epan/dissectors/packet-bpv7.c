@@ -1790,7 +1790,7 @@ static int dissect_status_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     proto_tree_add_cbor_eid(tree_status, hf_status_rep_subj_src_nodeid, hf_status_rep_subj_src_uri, pinfo, tvb, &offset, subj_eid);
     status_field_ix++;
 
-    bp_creation_ts_t subj_ts;
+    bp_creation_ts_t subj_ts = {0};
     dissect_cbor_timestamp(tree_status, hf_status_rep_subj_ts, pinfo, tvb, &offset, &subj_ts);
     status_field_ix++;
 
