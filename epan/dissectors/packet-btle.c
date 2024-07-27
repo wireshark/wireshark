@@ -1986,8 +1986,7 @@ dissect_btle_adv(tvbuff_t *tvb,
                  const btle_context_t *btle_context,
                  uint32_t adapter_id,
                  uint32_t interface_id,
-                 uint32_t access_address,
-                 uint32_t frame_number)
+                 uint32_t access_address)
 {
     proto_item           *sub_item;
     proto_tree           *sub_tree;
@@ -2152,7 +2151,7 @@ dissect_btle_adv(tvbuff_t *tvb,
 
         if (tvb_reported_length_remaining(tvb, offset) > 3) {
             next_tvb = tvb_new_subset_length(tvb, offset, tvb_reported_length_remaining(tvb, offset) - 3);
-            dissect_ad_eir(next_tvb, interface_id, adapter_id, frame_number, src_bd_addr, pinfo, btle_tree);
+            dissect_ad_eir(next_tvb, interface_id, adapter_id, pinfo->num, src_bd_addr, pinfo, btle_tree);
         }
 
         offset += tvb_reported_length_remaining(tvb, offset) - 3;
@@ -2236,7 +2235,7 @@ dissect_btle_adv(tvbuff_t *tvb,
 
         if (tvb_reported_length_remaining(tvb, offset) > 3) {
             next_tvb = tvb_new_subset_length(tvb, offset, tvb_reported_length_remaining(tvb, offset) - 3);
-            dissect_ad_eir(next_tvb, interface_id, adapter_id, frame_number, src_bd_addr, pinfo, sub_tree);
+            dissect_ad_eir(next_tvb, interface_id, adapter_id, pinfo->num, src_bd_addr, pinfo, sub_tree);
         }
 
         offset += tvb_reported_length_remaining(tvb, offset) - 3;
@@ -2318,7 +2317,7 @@ dissect_btle_adv(tvbuff_t *tvb,
             key[2].length = 1;
             key[2].key = &connection_access_address;
             key[3].length = 1;
-            key[3].key = &frame_number;
+            key[3].key = &pinfo->num;
             key[4].length = 0;
             key[4].key = NULL;
 
@@ -2486,7 +2485,7 @@ dissect_btle_adv(tvbuff_t *tvb,
                 key[2].length = 1;
                 key[2].key = &connection_access_address;
                 key[3].length = 1;
-                key[3].key = &frame_number;
+                key[3].key = &pinfo->num;
                 key[4].length = 0;
                 key[4].key = NULL;
 
@@ -2565,7 +2564,7 @@ dissect_btle_adv(tvbuff_t *tvb,
 
             /* Additional Controller Advertising Data */
             next_tvb = tvb_new_subset_length(tvb, offset, acad_len);
-            dissect_ad_eir(next_tvb, interface_id, adapter_id, frame_number, src_bd_addr, pinfo, sub_tree);
+            dissect_ad_eir(next_tvb, interface_id, adapter_id, pinfo->num, src_bd_addr, pinfo, sub_tree);
 
             offset += acad_len;
         }
@@ -2681,7 +2680,7 @@ dissect_btle_adv(tvbuff_t *tvb,
                                     NULL, btle_tree);
 
                                 if (assembled_tvb) {
-                                    dissect_ad_eir(assembled_tvb, interface_id, adapter_id, frame_number, src_bd_addr, pinfo, btle_tree);
+                                    dissect_ad_eir(assembled_tvb, interface_id, adapter_id, pinfo->num, src_bd_addr, pinfo, btle_tree);
                                 }
                             }
                         }
@@ -2702,10 +2701,10 @@ dissect_btle_adv(tvbuff_t *tvb,
                     sub_item = proto_tree_add_item(btle_tree, hf_scan_response_data, tvb, offset, tvb_reported_length_remaining(tvb, offset) - 3, ENC_NA);
                     sub_tree = proto_item_add_subtree(sub_item, ett_scan_response_data);
 
-                    dissect_ad_eir(next_tvb, interface_id, adapter_id, frame_number, src_bd_addr, pinfo, sub_tree);
+                    dissect_ad_eir(next_tvb, interface_id, adapter_id, pinfo->num, src_bd_addr, pinfo, sub_tree);
                 }
                 else {
-                    dissect_ad_eir(next_tvb, interface_id, adapter_id, frame_number, src_bd_addr, pinfo, btle_tree);
+                    dissect_ad_eir(next_tvb, interface_id, adapter_id, pinfo->num, src_bd_addr, pinfo, btle_tree);
                 }
 
                 offset += tvb_reported_length_remaining(tvb, offset) - 3;
@@ -2802,8 +2801,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                                   btle_context,
                                   adapter_id,
                                   interface_id,
-                                  access_address,
-                                  frame_number) - 2;
+                                  access_address) - 2;
         offset += length + 2;
     } else if (btle_pdu_type == BTLE_PDU_TYPE_DATA || btle_pdu_type == BTLE_PDU_TYPE_CONNECTEDISO) {
         proto_item  *data_header_item, *seq_item, *control_proc_item;
