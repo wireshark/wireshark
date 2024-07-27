@@ -27,9 +27,8 @@ See the https://www.wireshark.org/docs/wsdg_html_chunked/ChToolsDocumentationToo
 
 The User’s and Developer’s Guides were originally written in DocBook and
 were later converted to https://asciidoc.org/[AsciiDoc]. We subsequently
-switched from AsciiDoc to Asciidoctor. As a result we currently use
-https://asciidoctor.org/docs/migration/[compat mode], but may switch
-to Asciidoctor’s modern markup at a later date.
+switched from AsciiDoc to Asciidoctor.
+We currently use Asciidoctor’s modern (>= 1.5.0) syntax.
 
 Please use the following conventions when writing documentation:
 
