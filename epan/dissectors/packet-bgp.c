@@ -7445,7 +7445,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                 labnum = decode_MPLS_stack(tvb, offset + 1, stack_strbuf);
 
                 offset += (1 + labnum * 3);
-                if (plen <= (labnum * 3*8)) {
+                if (plen < (labnum * 3*8)) {
                     proto_tree_add_expert_format(tree, pinfo, &ei_bgp_prefix_length_invalid, tvb, start_offset, 1,
                                         "%s Labeled IPv4 prefix length %u invalid",
                                         tag, plen);
@@ -7603,7 +7603,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                 labnum = decode_MPLS_stack(tvb, offset + 1, stack_strbuf);
 
                 offset += (1 + labnum * 3);
-                if (plen <= (labnum * 3*8)) {
+                if (plen < (labnum * 3*8 + 8*8)) {
                     proto_tree_add_expert_format(tree, pinfo, &ei_bgp_prefix_length_invalid, tvb, start_offset, 1,
                                         "%s Labeled VPN IPv4 prefix length %u invalid",
                                         tag, plen);
@@ -7693,7 +7693,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                 labnum = decode_MPLS_stack(tvb, offset + 1, stack_strbuf);
 
                 offset += (1 + labnum * 3);
-                if (plen <= (labnum * 3*8)) {
+                if (plen < (labnum * 3*8)) {
                     proto_tree_add_expert_format(tree, pinfo, &ei_bgp_prefix_length_invalid, tvb, start_offset, 1,
                                         "%s Labeled IPv6 prefix length %u invalid", tag, plen);
                     return -1;
@@ -7802,7 +7802,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                 labnum = decode_MPLS_stack(tvb, offset + 1, stack_strbuf);
 
                 offset += (1 + labnum * 3);
-                if (plen <= (labnum * 3*8)) {
+                if (plen < (labnum * 3*8 + 8*8)) {
                     proto_tree_add_expert_format(tree, pinfo, &ei_bgp_prefix_length_invalid, tvb, start_offset, 1,
                                         "%s Labeled VPN IPv6 prefix length %u invalid", tag, plen);
                     return -1;
