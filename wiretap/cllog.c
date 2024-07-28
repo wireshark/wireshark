@@ -229,7 +229,18 @@ static bool parseFieldTS(cCLLog_logFileInfo_t *pInfo, char *pField, cCLLog_messa
 
     /* Strip the delimiters from the time strings */
     uint8_t msgTimeStrippedLen = stripTimeStamp(pInfo, timeStampCopy);
+    if (msgTimeStrippedLen > TIME_STAMP_STRING_STRIPPED_MAX_LENGTH - 1) {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = g_strdup("cllog: time stamp incorrectly formatted");
+        return false;
+    }
+
     uint8_t headerTimeStrippedLen = stripTimeStamp(pInfo, timeStampHeaderCopy);
+    if (headerTimeStrippedLen > TIME_STAMP_STRING_STRIPPED_MAX_LENGTH - 1) {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = g_strdup("cllog: header time stamp incorrectly formatted");
+        return false;
+    }
 
     /* Set time string (YYYYMMDDhhmmsskkk) to the epoch */
     char timeStampStringFull[TIME_STAMP_STRING_STRIPPED_MAX_LENGTH] = "19700101000000000";
