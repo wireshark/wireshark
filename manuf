@@ -45,23 +45,23 @@
 
 # https://standards-oui.ieee.org/cid/cid.csv:
 #   Content-Length: 16672
-#   Last-Modified: Sun, 21 Jul 2024 08:00:51 GMT
+#   Last-Modified: Sun, 28 Jul 2024 08:00:45 GMT
 
 # https://standards-oui.ieee.org/iab/iab.csv:
 #   Content-Length: 381908
-#   Last-Modified: Sun, 21 Jul 2024 08:00:58 GMT
+#   Last-Modified: Sun, 28 Jul 2024 08:00:54 GMT
 
 # https://standards-oui.ieee.org/oui/oui.csv:
-#   Content-Length: 3372302
-#   Last-Modified: Sun, 21 Jul 2024 08:01:21 GMT
+#   Content-Length: 3377108
+#   Last-Modified: Sun, 28 Jul 2024 08:01:14 GMT
 
 # https://standards-oui.ieee.org/oui28/mam.csv:
-#   Content-Length: 608108
-#   Last-Modified: Sun, 21 Jul 2024 08:01:05 GMT
+#   Content-Length: 610245
+#   Last-Modified: Sun, 28 Jul 2024 08:00:58 GMT
 
 # https://standards-oui.ieee.org/oui36/oui36.csv:
-#   Content-Length: 557084
-#   Last-Modified: Sun, 21 Jul 2024 08:01:16 GMT
+#   Content-Length: 558042
+#   Last-Modified: Sun, 28 Jul 2024 08:01:09 GMT
 
 00:00:00	00:00:00	Officially Xerox, but 0:0:0:0:0:0 is more common
 00:00:01	Xerox	Xerox Corporation
@@ -17549,6 +17549,7 @@
 04:54:53	Apple	Apple, Inc.
 04:55:CA	BriViewX	BriView (Xiamen) Corp.
 04:56:04	GioneeCo	Gionee Communication Equipment Co.,Ltd.
+04:56:65	NokiaSha	Nokia Shanghai Bell Co., Ltd.
 04:56:E5	IntelCor	Intel Corporate
 04:57:2F	SertelEl	Sertel Electronics UK Ltd
 04:57:47	GoPro
@@ -19519,6 +19520,7 @@
 14:59:C0	Netgear
 14:59:C3	Creative	Creative Chips GmbH
 14:5A:05	Apple	Apple, Inc.
+14:5A:41	CloudNet	Cloud Network Technology Singapore Pte. Ltd.
 14:5A:83	Logi-D	Logi-D inc
 14:5A:FC	LiteonTe	Liteon Technology Corporation
 14:5B:B9	ConMet
@@ -22067,6 +22069,7 @@
 2C:0B:97	XiaomiCo	Xiaomi Communications Co Ltd
 2C:0B:AB	HuaweiTe	Huawei Technologies Co.,Ltd
 2C:0B:E9	Cisco	Cisco Systems, Inc
+2C:0D:27	HuaweiDe	Huawei Device Co., Ltd.
 2C:0D:A7	IntelCor	Intel Corporate
 2C:0E:3D	SamsungE	Samsung Electro-Mechanics(Thailand)
 2C:10:C1	Nintendo	Nintendo Co., Ltd.
@@ -22741,6 +22744,7 @@
 30:57:8E	eero	eero inc.
 30:57:AC	Irlab	Irlab Ltd.
 30:58:90	Frontier	Frontier Silicon Ltd
+30:58:EB	zte	zte corporation
 30:59:5B	streamno	streamnow AG
 30:59:B7	Microsof	Microsoft
 30:5A:3A	ASUSTekC	ASUSTek COMPUTER INC.
@@ -22998,6 +23002,7 @@
 34:04:9E:D0:00:00/28	uikismar	uikismart
 34:04:9E:E0:00:00/28	NDSatCom	ND SatCom GmbH
 34:07:4F	AccelSto	AccelStor, Inc.
+34:07:AC	PronyxTr	Pronyx Trading Llc
 34:07:FB	Ericsson	Ericsson AB
 34:08:04	D-Link	D-Link Corporation
 34:08:BC	Apple	Apple, Inc.
@@ -23250,6 +23255,7 @@
 34:9F:7B	Canon	Canon Inc.
 34:A1:83	AWare	AWare, Inc
 34:A2:A2	HuaweiTe	Huawei Technologies Co.,Ltd
+34:A3:4E	NevadaNa	NevadaNano
 34:A3:95	Apple	Apple, Inc.
 34:A3:BF	Terewave	Terewave. Inc.
 34:A5:5D	Technoso	Technosoft International Srl
@@ -23407,6 +23413,7 @@
 34:E5:EC	PaloAlto	Palo Alto Networks
 34:E6:AD	IntelCor	Intel Corporate
 34:E6:D7	Dell	Dell Inc.
+34:E6:E6	LGInnote	LG Innotek
 34:E7:0B	HANNetwo	HAN Networks Co., Ltd
 34:E7:1C	Shenzhen	Shenzhen YOUHUA Technology Co., Ltd
 34:E8:94	Tp-LinkT	Tp-Link Technologies Co.,Ltd.
@@ -24104,6 +24111,7 @@
 3C:47:9B	Theissen	Theissen Training Systems, Inc.
 3C:49:37	ASSMANNE	ASSMANN Electronic GmbH
 3C:4A:92	HewlettP	Hewlett Packard
+3C:4A:C9	HuaweiDe	Huawei Device Co., Ltd.
 3C:4C:69	Infinity	Infinity System S.L.
 3C:4C:D0	CeragonN	Ceragon Networks
 3C:4D:BE	Apple	Apple, Inc.
@@ -24118,6 +24126,7 @@
 3C:55:DB	Shenzhen	Shenzhen Skyworth Digital Technology CO., Ltd
 3C:57:31	Cisco	Cisco Systems, Inc
 3C:57:4F	ChinaMob	China Mobile Group Device Co.,Ltd.
+3C:57:65	Unionman	Unionman Technology Co.,Ltd
 3C:57:6C	SamsungE	Samsung Electronics Co.,Ltd
 3C:57:BD	KesslerC	Kessler Crane Inc.
 3C:57:D5	FiveCo
@@ -25038,7 +25047,7 @@
 40:D8:55:12:50:00/36	Scandyna	Scandyna A/S
 40:D8:55:12:60:00/36	Tti	Tti Ltd
 40:D8:55:12:70:00/36	Lightsta	Lightstar
-40:D8:55:12:80:00/36	Akse	Akse srl
+40:D8:55:12:80:00/36	AKSE	AKSE srl
 40:D8:55:12:90:00/36	DspDesig	Dsp Design
 40:D8:55:12:A0:00/36	JadpodCo	Jadpod Communication Company Limited
 40:D8:55:12:B0:00/36	MangoDSP	Mango DSP, Inc.
@@ -25341,6 +25350,7 @@
 44:03:A7	Cisco	Cisco Systems, Inc
 44:04:44	Guangdon	Guangdong Oppo Mobile Telecommunications Corp.,Ltd
 44:05:3F	Sagemcom	Sagemcom Broadband SAS
+44:05:B8	HuaweiDe	Huawei Device Co., Ltd.
 44:05:E8	twareLAB
 44:07:0B	Google	Google, Inc.
 44:09:B8	SalcompS	Salcomp (Shenzhen) CO., LTD.
@@ -25536,6 +25546,7 @@
 44:87:FC	Elitegro	Elitegroup Computer Systems Co.,Ltd.
 44:88:16	Cisco	Cisco Systems, Inc
 44:88:CB	CamcoTec	Camco Technologies NV
+44:89:6D	Tellesco	Tellescom Industria E Comercio Em Telecomunicacao
 44:8A:5B	Micro-St	Micro-Star INT'L CO., LTD.
 44:8C:00	RealmeCh	Realme Chongqing Mobile Telecommunications Corp.,Ltd.
 44:8C:52	KTIS	KTIS CO., Ltd
@@ -25609,6 +25620,7 @@
 44:B3:2D	Tp-LinkT	Tp-Link Technologies Co.,Ltd.
 44:B3:82	Kuang-ch	Kuang-chi Institute of Advanced Technology
 44:B4:12	Sius	Sius Ag
+44:B4:23	HanwhaVi	Hanwha Vision Vietnam Company Limited
 44:B4:33	tide	tide.co.,ltd
 44:B4:62	Flextron	Flextronics Tech.(Ind) Pvt Ltd
 44:B4:B2	AmazonTe	Amazon Technologies Inc.
@@ -25889,13 +25901,19 @@
 48:5E:0E	IEEERegi	IEEE Registration Authority
 48:5E:0E:00:00:00/28	Shenzhen	Shenzhen C & D Electronics Co., Ltd.
 48:5E:0E:10:00:00/28	Dongguan	Dongguan YEHUO Technology Co.,LTD
+48:5E:0E:20:00:00/28	Shenzhen	Shenzhen Shouchuang Micro Technology Co., Ltd
 48:5E:0E:30:00:00/28	Shenzhen	Shenzhen Anycon Electronics Technology Co.,Ltd
 48:5E:0E:40:00:00/28	MHEElect	MHE Electronics
 48:5E:0E:50:00:00/28	GlobalXt	GlobalXtreme
+48:5E:0E:60:00:00/28	SernetSu	Sernet (Suzhou) Technologies Corporation
 48:5E:0E:70:00:00/28	Shanghai	Shanghai B&A automation.net
 48:5E:0E:80:00:00/28	Itfc
+48:5E:0E:90:00:00/28	CnergeeT	Cnergee Technologies Private Limited
+48:5E:0E:A0:00:00/28	Aignep	Aignep Spa
 48:5E:0E:B0:00:00/28	VitalOri	Vital Oricraft Flows Technology Co., Ltd.
+48:5E:0E:C0:00:00/28	TransomP	Transom Post OpCo LLC dba Bose Professional
 48:5E:0E:D0:00:00/28	HuaqinTe	Huaqin Technology Co.,Ltd
+48:5E:0E:E0:00:00/28	EloomSys	Eloom System
 48:5F:08	Tp-LinkT	Tp-Link Technologies Co.,Ltd.
 48:5F:2D	AmazonTe	Amazon Technologies Inc.
 48:5F:99	CloudNet	Cloud Network Technology (Samoa) Limited
@@ -26033,6 +26051,7 @@
 48:B2:5D	HuaweiTe	Huawei Technologies Co.,Ltd
 48:B3:13	Idesco	Idesco Oy
 48:B4:23	AmazonTe	Amazon Technologies Inc.
+48:B4:24	eero	eero inc.
 48:B4:C3	HewlettP	Hewlett Packard Enterprise
 48:B5:A7	GloryHor	Glory Horse Industries Ltd.
 48:B6:20	ROLI	ROLI Ltd.
@@ -26659,6 +26678,7 @@
 4C:F2:02	XiaomiCo	Xiaomi Communications Co Ltd
 4C:F2:BF	Cambridg	Cambridge Industries(Group) Co.,Ltd.
 4C:F4:5B	BlueClov	Blue Clover Devices
+4C:F4:75	HuaweiDe	Huawei Device Co., Ltd.
 4C:F5:5B	HuaweiTe	Huawei Technologies Co.,Ltd
 4C:F5:A0	Scalable	Scalable Network Technologies Inc
 4C:F5:DC	Hangzhou	Hangzhou Hikvision Digital Technology Co.,Ltd.
@@ -27846,6 +27866,7 @@
 58:B5:68	Securita	Securitas Direct España, Sau
 58:B6:23	BeijingX	Beijing Xiaomi Mobile Software Co., Ltd
 58:B6:33	RuckusWi	Ruckus Wireless
+58:B8:58	SzDjiTec	Sz Dji Technology Co.,Ltd
 58:B9:61	SOLEMEle	SOLEM Electronique
 58:B9:65	Apple	Apple, Inc.
 58:B9:E1	Crystalf	Crystalfontz America, Inc.
@@ -28318,6 +28339,7 @@
 5C:BD:9A	HuaweiDe	Huawei Device Co., Ltd.
 5C:BD:9E	Hongkong	Hongkong Miracle Eagle Technology(Group) Limited
 5C:BE:05	Ispec
+5C:BE:69	OraimoTe	Oraimo Technology Limited
 5C:C0:A0	HuaweiTe	Huawei Technologies Co.,Ltd
 5C:C1:D7	SamsungE	Samsung Electronics Co.,Ltd
 5C:C1:F2	HuaweiTe	Huawei Technologies Co.,Ltd
@@ -29446,6 +29468,7 @@
 68:69:75	AnglerLa	Angler Labs Inc
 68:69:CA	Hitachi	Hitachi, Ltd.
 68:69:F2	ComApsro	ComAp s.r.o.
+68:6B:6A	PhytiumT	Phytium Technology Co.,Ltd.
 68:6C:E6	Microsof	Microsoft Corporation
 68:6D:BC	Hangzhou	Hangzhou Hikvision Digital Technology Co.,Ltd.
 68:6E:23	Wi3	Wi3 Inc.
@@ -29500,6 +29523,7 @@
 68:86:E7	Orbotix	Orbotix, Inc.
 68:87:1C	Motorola	Motorola Mobility LLC, a Lenovo Company
 68:87:6B	INQMobil	INQ Mobile Limited
+68:87:BD	zte	zte corporation
 68:87:C6	Cisco	Cisco Systems, Inc
 68:88:A1	Universa	Universal Electronics, Inc.
 68:89:75	nuoxc
@@ -30454,6 +30478,7 @@
 70:98:83	Shenzhen	Shenzhen Kayan Electronics., Ltd.
 70:99:1C	Shenzhen	Shenzhen Honesty Electronics Co.,Ltd
 70:9A:0B	ItalianI	Italian Institute of Technology
+70:9A:C4	HuaweiDe	Huawei Device Co., Ltd.
 70:9B:A5	Shenzhen	Shenzhen Y&D Electronics Co.,LTD.
 70:9B:FC	Bryton	Bryton Inc.
 70:9C:45	HuaweiTe	Huawei Technologies Co.,Ltd
@@ -30644,7 +30669,7 @@
 70:B3:D5:09:70:00/36	AvantTec	Avant Technologies
 70:B3:D5:09:80:00/36	AlcodexT	Alcodex Technologies Private Limited
 70:B3:D5:09:90:00/36	Schwer+K	Schwer+Kopka GmbH
-70:B3:D5:09:A0:00/36	Akse	Akse srl
+70:B3:D5:09:A0:00/36	AKSE	AKSE srl
 70:B3:D5:09:B0:00/36	Jacarta	Jacarta Ltd
 70:B3:D5:09:C0:00/36	Cardinal	Cardinal Kinetic
 70:B3:D5:09:D0:00/36	PuSund	PuS GmbH und Co. KG
@@ -30786,7 +30811,7 @@
 70:B3:D5:12:50:00/36	Securoly	Securolytics, Inc.
 70:B3:D5:12:60:00/36	AddSecur	AddSecure Smart Grids
 70:B3:D5:12:70:00/36	Vitec
-70:B3:D5:12:80:00/36	Akse	Akse srl
+70:B3:D5:12:80:00/36	AKSE	AKSE srl
 70:B3:D5:12:90:00/36	Microlin	OOO "Microlink-Svyaz"
 70:B3:D5:12:A0:00/36	Elvyssro	Elvys s.r.o
 70:B3:D5:12:B0:00/36	RICElect	RIC Electronics
@@ -31973,7 +31998,7 @@
 70:B3:D5:5C:90:00/36	ICTKHold	ICTK Holdings
 70:B3:D5:5C:A0:00/36	ACDElekr	ACD Elekronik GmbH
 70:B3:D5:5C:B0:00/36	ECoCoMS	ECoCoMS Ltd.
-70:B3:D5:5C:C0:00/36	Akse	Akse srl
+70:B3:D5:5C:C0:00/36	AKSE	AKSE srl
 70:B3:D5:5C:D0:00/36	MVTVideo	MVT Video Technologies R + H Maedler GbR
 70:B3:D5:5C:E0:00/36	IPDevice	IP Devices
 70:B3:D5:5C:F0:00/36	PROELTSI	PROEL TSI s.r.l.
@@ -34782,6 +34807,7 @@
 74:27:3C	ChangYan	ChangYang Technology (Nanjing) Co., LTD
 74:27:EA	Elitegro	Elitegroup Computer Systems Co.,Ltd.
 74:28:57	Mayfield	Mayfield Robotics
+74:28:69	HuaweiDe	Huawei Device Co., Ltd.
 74:29:72	JuniperN	Juniper Networks
 74:29:AF	HonHaiPr	Hon Hai Precision Ind. Co.,Ltd.
 74:2A:8A	shenzhen	shenzhen worldelite electronics co., LTD
@@ -37888,6 +37914,7 @@
 8C:1F:64:25:E0:00/36	R2Sonic	R2Sonic, LLC
 8C:1F:64:25:F0:00/36	Acuris	Acuris Inc
 8C:1F:64:26:00:00/36	E-alarms
+8C:1F:64:26:10:00/36	TargaSys	TargaSystem S.r.L.
 8C:1F:64:26:30:00/36	EPCPower	EPC Power Corporation
 8C:1F:64:26:40:00/36	BRVossIn	BR. Voss Ingenjörsfirma AB
 8C:1F:64:26:70:00/36	KarlDUNG	Karl DUNGS GmbH & Co. KG
@@ -37918,6 +37945,7 @@
 8C:1F:64:2A:60:00/36	Radiatio	Radiation Solutions Inc.
 8C:1F:64:2A:80:00/36	SHALARMS	SHALARM SECURITY Co.,LTD
 8C:1F:64:2A:90:00/36	ElbitAme	Elbit Systems of America, LLC
+8C:1F:64:2A:C0:00/36	Dco	Dco Systems Ltd
 8C:1F:64:2B:10:00/36	U-Mei-Da	U -Mei-Dah Int'L Enterprise Co.,Ltd.
 8C:1F:64:2B:60:00/36	StercomP	Stercom Power Solutions GmbH
 8C:1F:64:2B:80:00/36	Veinland	Veinland GmbH
@@ -37949,6 +37977,7 @@
 8C:1F:64:2F:20:00/36	EnlessWi	Enless Wireless
 8C:1F:64:2F:50:00/36	FloridaR	Florida R&D Associates LLC
 8C:1F:64:2F:90:00/36	TSSsro	TSS COMPANY s.r.o.
+8C:1F:64:2F:A0:00/36	Rfengine	Rfengine Co., Ltd.
 8C:1F:64:2F:B0:00/36	MBconnec	MB connect line GmbH Fernwartungssysteme
 8C:1F:64:2F:C0:00/36	Unimar	Unimar, Inc.
 8C:1F:64:2F:D0:00/36	Enestone	Enestone Corporation
@@ -38050,6 +38079,7 @@
 8C:1F:64:3B:B0:00/36	ClausalC	Clausal Computing Oy
 8C:1F:64:3B:D0:00/36	Oriux
 8C:1F:64:3C:10:00/36	SuzhouLi	Suzhou Lianshichuangzhi Technology Co., Ltd
+8C:1F:64:3C:20:00/36	SamuelCo	Samuel Cosgrove
 8C:1F:64:3C:40:00/36	NavSysTe	NavSys Technology Inc.
 8C:1F:64:3C:50:00/36	StratisI	Stratis IOT
 8C:1F:64:3C:60:00/36	Wavestre	Wavestream Corp
@@ -38120,6 +38150,7 @@
 8C:1F:64:47:40:00/36	Audiobyt	Audiobyte S.R.L.
 8C:1F:64:47:50:00/36	AlpineQu	Alpine Quantum Technologies GmbH
 8C:1F:64:47:60:00/36	ClairGlo	Clair Global Corporation
+8C:1F:64:47:90:00/36	AKSE	AKSE srl
 8C:1F:64:47:A0:00/36	MissingL	Missing Link Electronics, Inc.
 8C:1F:64:47:D0:00/36	EbNeuro	Eb Neuro Spa
 8C:1F:64:47:E0:00/36	NovantaI	Novanta IMS
@@ -38270,6 +38301,7 @@
 8C:1F:64:5B:E0:00/36	Benchmar	Benchmark Electronics BV
 8C:1F:64:5C:30:00/36	R3Vox	R3Vox Ltd
 8C:1F:64:5C:40:00/36	Cooltera	Cooltera Limited
+8C:1F:64:5C:60:00/36	WithInte	Systems With Intelligence Inc.
 8C:1F:64:5C:90:00/36	AbbottDi	Abbott Diagnostics Technologies AS
 8C:1F:64:5C:B0:00/36	dinosys
 8C:1F:64:5C:D0:00/36	MahindrM	Mahindr & Mahindra
@@ -38423,6 +38455,7 @@
 8C:1F:64:71:20:00/36	NexionDa	Nexion Data Systems P/L
 8C:1F:64:71:50:00/36	Internet	Internet Protocolo Logica Sl
 8C:1F:64:71:80:00/36	Abb
+8C:1F:64:71:A0:00/36	ChellIns	Chell Instruments Ltd
 8C:1F:64:71:B0:00/36	Adasky	Adasky Ltd.
 8C:1F:64:71:D0:00/36	Epigonsp	Epigon spol. s r.o.
 8C:1F:64:72:10:00/36	MSMilind	M/S Milind Ramachandra Rajwade
@@ -38462,6 +38495,7 @@
 8C:1F:64:76:80:00/36	mapnagro	mapna group
 8C:1F:64:76:90:00/36	Vonamic	Vonamic GmbH
 8C:1F:64:76:A0:00/36	DorletSa	Dorlet Sau
+8C:1F:64:76:C0:00/36	GuanShow	Guan Show Technologe Co., Ltd.
 8C:1F:64:77:40:00/36	navXperi	navXperience GmbH
 8C:1F:64:77:50:00/36	BectonDi	Becton Dickinson
 8C:1F:64:77:70:00/36	Sicon	Sicon srl
@@ -38933,6 +38967,7 @@
 8C:1F:64:BA:60:00/36	FMCTechn	FMC Technologies Measurement Solutions Inc
 8C:1F:64:BA:80:00/36	AvMapsrl	AvMap srlu
 8C:1F:64:BA:A0:00/36	MineVisi	Mine Vision Systems
+8C:1F:64:BA:B0:00/36	Ycn
 8C:1F:64:BA:E0:00/36	TielineR	Tieline Research Pty Ltd
 8C:1F:64:BB:10:00/36	TransitS	Transit Solutions, LLC.
 8C:1F:64:BB:20:00/36	GrupoEpe	Grupo Epelsa S.L.
@@ -39018,6 +39053,7 @@
 8C:1F:64:C5:00:00/36	Spacee
 8C:1F:64:C5:10:00/36	EPCEnerg	EPC Energy Inc
 8C:1F:64:C5:20:00/36	Invendis	Invendis Technologies India Pvt Ltd
+8C:1F:64:C5:30:00/36	Clockwor	Clockwork Dog
 8C:1F:64:C5:40:00/36	FirstMod	First Mode
 8C:1F:64:C5:60:00/36	Eridan
 8C:1F:64:C5:70:00/36	Strategi	Strategic Robotic Systems
@@ -39479,6 +39515,7 @@
 8C:4C:DC	PlanexCo	Planex Communications Inc.
 8C:4D:B9	Unmonday	Unmonday Ltd
 8C:4D:EA	Cerio	Cerio Corporation
+8C:4F:00	Espressi	Espressif Inc.
 8C:51:05	Shenzhen	Shenzhen ireadygo Information Technology CO.,LTD.
 8C:51:09	IEEERegi	IEEE Registration Authority
 8C:51:09:00:00:00/28	TianJinJ	TianJin JointOptic Technology Co., LTD.
@@ -40402,6 +40439,7 @@
 94:32:C1	HonorDev	Honor Device Co., Ltd.
 94:33:D8	Cisco	Cisco Systems, Inc
 94:33:DD	Taco	Taco Inc
+94:34:2F	ItelMobi	Itel Mobile Limited
 94:34:69	SiliconL	Silicon Laboratories
 94:35:0A	SamsungE	Samsung Electronics Co.,Ltd
 94:35:89	HuaweiTe	Huawei Technologies Co.,Ltd
@@ -40639,6 +40677,7 @@
 94:CE:0F	HuaweiDe	Huawei Device Co., Ltd.
 94:CE:2C	Sony	Sony Corporation
 94:CE:31	CTS	CTS Limited
+94:CF:B0	HuaweiDe	Huawei Device Co., Ltd.
 94:D0:0D	HuaweiTe	Huawei Technologies Co.,Ltd
 94:D0:19	Cydle	Cydle Corp.
 94:D0:29	Guangdon	Guangdong Oppo Mobile Telecommunications Corp.,Ltd
@@ -41748,6 +41787,7 @@ A0:22:52	AstraWir	Astra Wireless Technology FZ-LLC
 A0:22:DE	vivoMobi	vivo Mobile Communication Co., Ltd.
 A0:23:1B	TeleComp	TeleComp R&D Corp.
 A0:23:9F	Cisco	Cisco Systems, Inc
+A0:24:42	Shenzhen	Shenzhenshi Xinzhongxin Technology Co.Ltd
 A0:24:F9	ChengduI	Chengdu InnovaTest Technology Co., Ltd
 A0:25:D7	HewlettP	Hewlett Packard Enterprise
 A0:27:B6	SamsungE	Samsung Electronics Co.,Ltd
@@ -44062,6 +44102,7 @@ B4:9E:80	SichuanC	Sichuan Changhong Electric Ltd.
 B4:9E:AC	ImagikIn	Imagik Int'l Corp
 B4:9E:E6	Shenzhen	Shenzhen Technology Co Ltd
 B4:9F:4D	Fiberhom	Fiberhome Telecommunication Technologies Co.,LTD
+B4:A1:0A	HuaweiDe	Huawei Device Co., Ltd.
 B4:A2:5C	CambiumN	Cambium Networks Limited
 B4:A2:EB	IEEERegi	IEEE Registration Authority
 B4:A2:EB:00:00:00/28	QKMTechn	QKM Technology(Dongguan)Co.,Ltd
@@ -44126,6 +44167,7 @@ B4:B8:8D	Thuh	Thuh Company
 B4:B9:E6	eero	eero inc.
 B4:BA:02	Agatel	Agatel Ltd
 B4:BA:12	ChinaMob	China Mobile (Hangzhou) Information Technology Co.,Ltd.
+B4:BA:6A	TecnoMob	Tecno Mobile Limited
 B4:BA:9D	SkyUk	Sky Uk Limited
 B4:BC:7C	TexasIns	Texas Instruments
 B4:BF:F6	SamsungE	Samsung Electronics Co.,Ltd
@@ -44420,6 +44462,7 @@ B8:8F:14	Analytic	Analytica GmbH
 B8:8F:27	RealmeCh	Realme Chongqing Mobile Telecommunications Corp.,Ltd.
 B8:8F:B4	JabilCir	Jabil Circuit Italia S.R.L
 B8:90:47	Apple	Apple, Inc.
+B8:91:65	Zhejiang	Zhejiang Tmall Technology Co., Ltd.
 B8:91:C9	Handream	Handreamnet
 B8:92:1D	BgT&A	Bg T&A
 B8:94:36	HuaweiTe	Huawei Technologies Co.,Ltd
@@ -44964,6 +45007,7 @@ BC:C7:DA	EardaTec	Earda Technologies co Ltd
 BC:C8:10	CiscoSPV	Cisco SPVTG
 BC:CA:B5	ARRISGro	ARRIS Group, Inc.
 BC:CD:45	Voismart
+BC:CD:7F	HuaweiDe	Huawei Device Co., Ltd.
 BC:CE:25	Nintendo	Nintendo Co.,Ltd
 BC:CF:4F	ZyxelCom	Zyxel Communications Corporation
 BC:CF:CC	HTC	HTC Corporation
@@ -45592,6 +45636,7 @@ C4:4E:AC	Shenzhen	Shenzhen Shiningworth Technology Co., Ltd.
 C4:4F:33	Espressi	Espressif Inc.
 C4:4F:5F	HuaweiDe	Huawei Device Co., Ltd.
 C4:4F:96	AlpsAlpi	Alps Alpine
+C4:4F:D5	Vantiva-	Vantiva - Connected Home
 C4:50:06	SamsungE	Samsung Electronics Co.,Ltd
 C4:50:9C	Vantiva-	Vantiva - Connected Home
 C4:51:8D	Shenzhen	Shenzhen YOUHUA Technology Co., Ltd
@@ -45959,6 +46004,20 @@ C4:FE:5B	Guangdon	Guangdong Oppo Mobile Telecommunications Corp.,Ltd
 C4:FE:E2	AMICCOME	AMICCOM Electronics Corporation
 C4:FF:1F	HuaweiTe	Huawei Technologies Co.,Ltd
 C4:FF:22	HuaweiDe	Huawei Device Co., Ltd.
+C4:FF:84	IEEERegi	IEEE Registration Authority
+C4:FF:84:00:00:00/28	ZhuhaiNi	Zhuhai Ninestar Information Technology Co., Ltd.
+C4:FF:84:20:00:00/28	ShenZhen	ShenZhen BoQiao Technologies CO.,LTD.
+C4:FF:84:30:00:00/28	Cloudhop	Cloudhop Inc
+C4:FF:84:40:00:00/28	Malhotra	Malhotra Electronics Private Limited
+C4:FF:84:50:00:00/28	EasternA	Eastern Acoustic Works
+C4:FF:84:60:00:00/28	LensTech	Lens Technology (Xiangtan) Co.,Ltd
+C4:FF:84:70:00:00/28	NEKMAMMe	NEKMA M.Mesek P.Mesek B.Mesek
+C4:FF:84:80:00:00/28	Ibm
+C4:FF:84:90:00:00/28	AtlasCop	Atlas Copco
+C4:FF:84:A0:00:00/28	Openeye
+C4:FF:84:B0:00:00/28	ElarabyF	Elaraby Company For Engineering Industries
+C4:FF:84:C0:00:00/28	KSBSEKGa	KSB SE & Co. KGaA
+C4:FF:84:D0:00:00/28	Aosaishi	Aosaishi (Hong Kong) Co.,Limited
 C4:FF:BC	IEEERegi	IEEE Registration Authority
 C4:FF:BC:00:00:00/28	Danego	Danego BV
 C4:FF:BC:10:00:00/28	Visatech	Visatech C0., Ltd.
@@ -46370,6 +46429,7 @@ C8:D7:B0	SamsungE	Samsung Electronics Co.,Ltd
 C8:D8:84	Universa	Universal Electronics, Inc.
 C8:D9:D2	HewlettP	Hewlett Packard
 C8:DB:26	Logitech
+C8:DD:6A	Ohsung
 C8:DD:C9	LenovoMo	Lenovo Mobile Communication Technology Ltd.
 C8:DE:41	SkyUk	Sky Uk Limited
 C8:DE:51	IntegraO	IntegraOptics
@@ -47343,6 +47403,7 @@ D0:C0:50	Apple	Apple, Inc.
 D0:C0:BF	ActionsM	Actions Microelectronics Co., Ltd
 D0:C1:93	Skybell	Skybell, Inc
 D0:C1:B1	SamsungE	Samsung Electronics Co.,Ltd
+D0:C1:B5	Dell	Dell Inc.
 D0:C2:4E	SamsungE	Samsung Electronics Co.,Ltd
 D0:C2:82	Cisco	Cisco Systems, Inc
 D0:C3:1E	JUNGJINE	JUNGJIN Electronics Co.,Ltd
@@ -47374,6 +47435,7 @@ D0:C8:57:D0:00:00/28	Iflytek	Iflytek Co.,Ltd.
 D0:C8:57:E0:00:00/28	E-T-AEle	E-T-A Elektrotechnische Apparate GmbH
 D0:C9:01	GlaElect	Gla Electronics Pvt Ltd
 D0:C9:07	Private
+D0:CB:DD	eero	eero inc.
 D0:CD:E1	Scientec	Scientech Electronics
 D0:CE:C0	XiaomiCo	Xiaomi Communications Co Ltd
 D0:CE:C9	HanChang	Han Chang
@@ -47446,6 +47508,7 @@ D0:F7:3B	HelmutMa	Helmut Mauell GmbH Werk Weida
 D0:F7:6E	Shenzhen	Shenzhen YOUHUA Technology Co., Ltd
 D0:F8:65	ItelMobi	Itel Mobile Limited
 D0:F8:8C	Motorola	Motorola (Wuhan) Mobility Technologies Communication Co., Ltd.
+D0:F8:E7	Shenzhen	Shenzhen Shutong Space Technology Co., Ltd
 D0:F9:28	zte	zte corporation
 D0:F9:9B	zte	zte corporation
 D0:FA:1D	Qihoo360	Qihoo 360 Technology Co.,Ltd
@@ -49267,6 +49330,7 @@ E4:4F:29	MALighti	MA Lighting Technology GmbH
 E4:4F:5F	EDSElekt	EDS Elektronik Destek San.Tic.Ltd.Sti
 E4:50:9A	HWCommun	HW Communications Ltd
 E4:50:EB	Apple	Apple, Inc.
+E4:51:A9	NanjingX	Nanjing Xinlian Electronics Co., Ltd
 E4:52:1E	TexasIns	Texas Instruments
 E4:54:E5	HuaweiDe	Huawei Device Co., Ltd.
 E4:54:E8	Dell	Dell Inc.
@@ -49417,6 +49481,7 @@ E4:B0:63	Espressi	Espressif Inc.
 E4:B2:24	HuaweiTe	Huawei Technologies Co.,Ltd
 E4:B2:FB	Apple	Apple, Inc.
 E4:B3:18	IntelCor	Intel Corporate
+E4:B3:23	Espressi	Espressif Inc.
 E4:B5:03	RealmeCh	Realme Chongqing Mobile Telecommunications Corp.,Ltd.
 E4:B5:55	HuaweiDe	Huawei Device Co., Ltd.
 E4:B6:33	WuxiStar	Wuxi Stars Microsystem Technology Co., Ltd
@@ -49524,6 +49589,7 @@ E8:06:90	Espressi	Espressif Inc.
 E8:07:34	Champion	Champion Optical Network Engineering, LLC
 E8:07:BF	Shenzhen	Shenzhen Boomtech Industry Co.,Ltd
 E8:08:8B	HuaweiTe	Huawei Technologies Co.,Ltd
+E8:08:AF	zte	zte corporation
 E8:09:45	Integrat	Integrated Device Technology (Malaysia) Sdn. Bhd.
 E8:09:59	Guoguang	Guoguang Electric Co.,Ltd
 E8:0A:B9	Cisco	Cisco Systems, Inc
@@ -50389,6 +50455,7 @@ F0:1C:2D	JuniperN	Juniper Networks
 F0:1D:2D	Cisco	Cisco Systems, Inc
 F0:1D:BC	Microsof	Microsoft Corporation
 F0:1E:34	ORICOTec	ORICO Technologies Co., Ltd
+F0:1E:AC	Rentokil	Rentokil Initial
 F0:1F:AF	Dell	Dell Inc.
 F0:1F:C7	Apple	Apple, Inc.
 F0:20:FF	IntelCor	Intel Corporate
@@ -50679,6 +50746,7 @@ F0:B9:68	ItelMobi	Itel Mobile Limited
 F0:BC:C8	MaxID	MaxID (Pty) Ltd
 F0:BC:C9	Pfu	Pfu Limited
 F0:BD:2E	H+SPolat	H+S Polatis Ltd
+F0:BD:EE	HuaweiDe	Huawei Device Co., Ltd.
 F0:BD:F1	Sipod	Sipod Inc.
 F0:BE:25	Dongguan	Dongguan Cannice Precision Manufacturing Co., Ltd.
 F0:BF:97	Sony	Sony Corporation
@@ -51856,6 +51924,7 @@ FC:3F:A6	eero	eero inc.
 FC:3F:AB	HenanLan	Henan Lanxin Technology Co., Ltd
 FC:3F:DB	HewlettP	Hewlett Packard
 FC:40:09	zte	zte corporation
+FC:41:16	Google	Google, Inc.
 FC:42:03	SamsungE	Samsung Electronics Co.,Ltd
 FC:42:65	Zhejiang	Zhejiang Tmall Technology Co., Ltd.
 FC:44:63	Universa	Universal Audio, Inc
