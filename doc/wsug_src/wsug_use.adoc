@@ -871,6 +871,7 @@ image::images/ws-main-toolbar.png[{screenshot-attrs}]
 |image:images/toolbar/zoom-out.png[{toolbar-icon-attrs}]         |btn:[Zoom Out]|menu:View[Zoom Out]| Zoom out of the packet data (decrease the font size).
 |image:images/toolbar/zoom-original.png[{toolbar-icon-attrs}]    |btn:[Normal Size]|menu:View[Normal Size]| Set zoom level back to 100%.
 |image:images/toolbar/x-resize-columns.png[{toolbar-icon-attrs}] |btn:[Resize Columns]|menu:View[Resize Columns]| Resize columns, so the content fits into them.
+|image:images/toolbar/x-reset-layout_2.png[{toolbar-icon-attrs}] |btn:[Reset Layout]|menu:View[Reset Layout]| Reset layout to default size.
 // --
 //|image:images/toolbar/stock_colorselector_24.png[{toolbar-icon-attrs}]|btn:[Coloring Rules...]|menu:View[Coloring Rules...]| This item brings up a dialog box that allows you to color packets in the packet list pane according to filter expressions you choose. It can be very useful for spotting certain types of packets. More detail on this subject is provided in <<ChCustColorizationSection>>.
 |===
