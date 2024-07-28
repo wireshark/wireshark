@@ -1334,6 +1334,10 @@ static int dtls13_get_record_number_xor_mask(SslDecoder *dec, const uint8_t *cip
     return 0;
   }
 
+  if (!dec->sn_evp) {
+    return -1;
+  }
+
   if (dec->cipher_suite->enc == ENC_AES || dec->cipher_suite->enc == ENC_AES256) {
     if (gcry_cipher_encrypt(dec->sn_evp, mask, DTLS13_RECORD_NUMBER_MASK_SZ,
                             ciphertext, DTLS13_RECORD_NUMBER_MASK_SZ) != 0) {
