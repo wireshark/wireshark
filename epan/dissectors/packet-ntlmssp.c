@@ -2343,7 +2343,9 @@ decrypt_data_payload(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
       decrypted_payloads = g_slist_prepend(decrypted_payloads,
                                            packet_ntlmssp_info->decrypted_payload);
       if (key != NULL) {
-        g_hash_table_insert(hash_packet, key, packet_ntlmssp_info);
+        uint8_t *perm_key = g_new(uint8_t, NTLMSSP_KEY_LEN);
+        memcpy(perm_key, key, NTLMSSP_KEY_LEN);
+        g_hash_table_insert(hash_packet, perm_key, packet_ntlmssp_info);
       }
 
       /* Do the decryption of the payload */
@@ -2801,7 +2803,7 @@ header_hash(gconstpointer pointer)
 static gboolean
 header_equal(gconstpointer pointer1, gconstpointer pointer2)
 {
-  if (!memcmp(pointer1, pointer2, 16)) {
+  if (!memcmp(pointer1, pointer2, NTLMSSP_KEY_LEN)) {
     return TRUE;
   }
   else {
@@ -2812,7 +2814,7 @@ header_equal(gconstpointer pointer1, gconstpointer pointer2)
 static void
 ntlmssp_init_protocol(void)
 {
-  hash_packet = g_hash_table_new(header_hash, header_equal);
+  hash_packet = g_hash_table_new_full(header_hash, header_equal, g_free, NULL);
 }
 
 static void
