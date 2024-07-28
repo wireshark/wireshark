@@ -51,7 +51,7 @@ static int exported_pdu_tap;
 /* Place TCP summary in proto tree */
 static bool tcp_summary_in_tree = true;
 
-static inline uint64_t KEEP_32MSB_OF_GUINT64(uint64_t nb) {
+static inline uint64_t keep_32msb_of_uint64(uint64_t nb) {
     return (nb >> 32) << 32;
 }
 
@@ -1744,7 +1744,7 @@ mptcp_convert_dsn(uint64_t dsn, mptcp_meta_flow_t *meta, enum mptcp_dsn_conversi
     }
 
     if(conv == DSN_CONV_32_TO_64) {
-        *result = KEEP_32MSB_OF_GUINT64(meta->base_dsn) | dsn;
+        *result = keep_32msb_of_uint64(meta->base_dsn) | dsn;
     }
 
     if(relative) {
