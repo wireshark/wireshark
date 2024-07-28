@@ -2940,7 +2940,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                     if (stored_setup_info->add_hidden == true) {
                         proto_item_set_hidden(item);
                     }
-                } else if (stored_setup_info->hf_type == SDP_TRACE_ID_HF_TYPE_GUINT32) {
+                } else if (stored_setup_info->hf_type == SDP_TRACE_ID_HF_TYPE_UINT32) {
                     item = proto_tree_add_uint(sdp_tree, stored_setup_info->hf_id, tvb, 0, 0, stored_setup_info->trace_id.num);
                     proto_item_set_generated(item);
                     if (stored_setup_info->add_hidden == true) {

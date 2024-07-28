@@ -3109,7 +3109,7 @@ dissect_megaco_LocalRemotedescriptor(tvbuff_t *tvb, proto_tree *megaco_mediadesc
     if ((context != 0) && (context < 0xfffffffe)) {
         setup_info = (sdp_setup_info_t){
             .hf_id = hf_megaco_Context,
-            .hf_type = SDP_TRACE_ID_HF_TYPE_GUINT32,
+            .hf_type = SDP_TRACE_ID_HF_TYPE_UINT32,
             .trace_id.num = context,
         };
         if (!sip_hide_generated_call_ids) {

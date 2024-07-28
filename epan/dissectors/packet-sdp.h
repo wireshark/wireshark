@@ -29,7 +29,7 @@ enum sdp_exchange_type
 enum sdp_trace_id_hf_type
 {
     SDP_TRACE_ID_HF_TYPE_STR = 0, /* */
-    SDP_TRACE_ID_HF_TYPE_GUINT32 /* */
+    SDP_TRACE_ID_HF_TYPE_UINT32 /* */
 };
 
 /*

@@ -1164,7 +1164,7 @@ rtp_add_setup_info_if_no_duplicate(sdp_setup_info_t *setup_info, wmem_array_t *s
             if (strcmp(stored_setup_info->trace_id.str, setup_info->trace_id.str) == 0) {
                 return; /* Do not store the call id */
             }
-        } else if ((stored_setup_info->hf_type == SDP_TRACE_ID_HF_TYPE_GUINT32) && (setup_info->hf_type == SDP_TRACE_ID_HF_TYPE_GUINT32)) {
+        } else if ((stored_setup_info->hf_type == SDP_TRACE_ID_HF_TYPE_UINT32) && (setup_info->hf_type == SDP_TRACE_ID_HF_TYPE_UINT32)) {
             if (stored_setup_info->trace_id.num == setup_info->trace_id.num) {
                 return; /* Do not store the call id */
             }
@@ -3043,7 +3043,7 @@ show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             if (stored_setup_info->add_hidden == true) {
                                 proto_item_set_hidden(item);
                             }
-                        } else if (stored_setup_info->hf_type == SDP_TRACE_ID_HF_TYPE_GUINT32) {
+                        } else if (stored_setup_info->hf_type == SDP_TRACE_ID_HF_TYPE_UINT32) {
                             item = proto_tree_add_uint(rtp_setup_tree, stored_setup_info->hf_id, tvb, 0, 0, stored_setup_info->trace_id.num);
                             proto_item_set_generated(item);
                             if (stored_setup_info->add_hidden == true) {

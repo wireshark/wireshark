@@ -582,7 +582,7 @@ static void dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	tvbuff_t *next_tvb;
 	const char *verb_name = "";
 	mgcp_info_t* mi = wmem_new0(pinfo->pool, mgcp_info_t);
-	sdp_setup_info_t setup_info = { .hf_id = 0, .hf_type = SDP_TRACE_ID_HF_TYPE_GUINT32 };
+	sdp_setup_info_t setup_info = { .hf_id = 0, .hf_type = SDP_TRACE_ID_HF_TYPE_UINT32 };
 	media_content_info_t content_info = { MEDIA_CONTAINER_SIP_DATA, NULL, NULL, &setup_info };
 
 	mi->mgcp_type = MGCP_OTHERS;
