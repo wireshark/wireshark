@@ -3330,8 +3330,12 @@ dissect_gtpv2_rai(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offs
     lac = tvb_get_ntohs(tvb, *offset);
     proto_tree_add_item(tree, hf_gtpv2_rai_lac, tvb, *offset, 2, ENC_BIG_ENDIAN);
     *offset += 2;
-    rac = tvb_get_ntohs(tvb, *offset);
-    proto_tree_add_item(tree, hf_gtpv2_rai_rac, tvb, *offset, 2, ENC_BIG_ENDIAN);
+    /* 3GPP 29.274 8.21.3 RAI Field
+     * "Only Octet c+5 contains the RAC. Octet c+6 is coded as all 1's (11111111)."
+     * (We could, here and in GTP, check that the other octet is all 1's.)
+     */
+    rac = tvb_get_uint8(tvb, *offset);
+    proto_tree_add_item(tree, hf_gtpv2_rai_rac, tvb, *offset, 1, ENC_BIG_ENDIAN);
     *offset += 2;
     str = wmem_strdup_printf(pinfo->pool, "%s, LAC 0x%x, RAC 0x%x",
         mcc_mnc_str,
@@ -10941,7 +10945,7 @@ void proto_register_gtpv2(void)
         },
         { &hf_gtpv2_rai_rac,
           {"Routing Area Code", "gtpv2.rai_rac",
-           FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
+           FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
            NULL, HFILL}
         },
         { &hf_gtpv2_tai_tac,
