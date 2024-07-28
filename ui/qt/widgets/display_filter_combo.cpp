@@ -91,15 +91,27 @@ DisplayFilterCombo::DisplayFilterCombo(QWidget *parent) :
     // Ugly cast required (?)
     // https://stackoverflow.com/questions/16794695/connecting-overloaded-signals-and-slots-in-qt-5
     connect(this, static_cast<void (DisplayFilterCombo::*)(int)>(&DisplayFilterCombo::activated), this, &DisplayFilterCombo::onActivated);
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+    connect(cur_model, &QAbstractItemModel::rowsAboutToBeInserted, this, &DisplayFilterCombo::rowsAboutToBeInserted);
+    connect(cur_model, &QAbstractItemModel::rowsInserted, this, &DisplayFilterCombo::rowsInserted);
+#endif
 }
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
-void DisplayFilterCombo::showEvent(QShowEvent *e)
+void DisplayFilterCombo::rowsAboutToBeInserted(const QModelIndex&, int, int)
 {
-    // Qt < 5.15 doesn't have a QComboBox placeholderText, so make sure the
-    // entry starts out cleared.
-    clearEditText();
-    QComboBox::showEvent(e);
+    // If the current text is blank but we're inserting a row, that means
+    // it is being added programmatically from the model, and we want to
+    // clear it afterwards and show the placeholder text instead.
+    clear_state_ = (currentText() == QString());
+}
+
+void DisplayFilterCombo::rowsInserted(const QModelIndex&, int, int)
+{
+    if (clear_state_) {
+        clearEditText();
+    }
 }
 #endif
 
