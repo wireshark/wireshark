@@ -79,18 +79,18 @@ epan/dissectors/dcerpc/*-stamp
 
 # Doc #
 ########
-doc/*.html
-doc/*.[14]
-doc/ws.css
-docbook/developer-guide*.xml
-docbook/user-guide*.xml
-docbook/*-guide-*.pdf
-docbook/ws?g_html/
-docbook/ws?g_html_chunked/
-docbook/release-notes-*.pdf
-docbook/release-notes.txt
-docbook/wsluarm
-docbook/wsluarm_src/
+doc/man_pages/*.html
+doc/man_pages/*.[14]
+doc/developer-guide*.xml
+doc/user-guide*.xml
+doc/*-guide-*.pdf
+doc/ws?g_html/
+doc/ws?g_html_chunked/
+doc/release-notes-*.pdf
+doc/release-notes.html
+doc/release-notes.txt
+doc/wsluarm
+doc/wsluarm_src/
 wsar_html/
 wsar_html.zip
 
