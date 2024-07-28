@@ -44,8 +44,7 @@ Lua tables. (you can do so, but it's not advisable)
 Both of the scripts above are given the C-source files to search through
 by the make process, generated from the lists in epan/wslua/CMakeLists.txt.
 Naturally if you add new source files, you need to add them to the list in
-epan/wslua/CMakeLists.txt. You also have to add the module name into
-doc/user-guide.xml and doc/wsluarm.xml, and the source files into
+epan/wslua/CMakeLists.txt. You also have to add the source files into
 doc/CMakeLists.txt, to get it to be generated in the user guide.
 
 Due to those documentation and registration scripts, you MUST follow some very
@@ -284,9 +283,8 @@ file as that WSLUA_MODULE comment.  You'll also note the documentation
 includes a sub-section for 'Non Method Functions', which it auto-generated
 from anything with a 'WSLUA_FUNCTION' macro (as opposed to class member
 functions, which use the 'WSLUA_METHOD' and 'WSLUA_CONSTRUCTOR' macros). Also,
-to make new wslua files generate documentation, it is not sufficient to just
-add this macro to a new file and add the file to the CMakeLists.txt; you also
-have to add the module name into doc/user-guide.xml, and doc/wsluarm.xml.
+to make new wslua files generate documentation, add this macro to a new file
+and add the file to the doc/CMakeLists.txt.
 
 
 WSLUA_CONTINUE_MODULE - like WSLUA_MODULE, except used at the top of a .c file

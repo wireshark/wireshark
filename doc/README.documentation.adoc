@@ -90,5 +90,4 @@ _attributes.adoc_. The User’s Guide and Developer’s Guide are split
 across several files, and only the top-level _user-guide.adoc_ and
 _developer-guide.adoc_ include _attributes.adoc_. As a result,
 some markup will be incomplete. You can work around this somewhat by
-adding some attributes such as `compat-mode experimental` to your Live
-Preview settings.
+adding the `experimental` attribute to your Live Preview settings.
