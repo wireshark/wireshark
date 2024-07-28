@@ -244,6 +244,15 @@ static int dissect_encoded_value(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
   proto_item   *struct_ti;
   proto_tree   *struct_tree;
 
+  if (!try_val_to_str(type, payload_types)) {
+    /* The type is used to determine the length of the value; if it's unknown
+     * then we can't dissect any further. (In particular, this keeps from
+     * looping repeatedly on invalid arrays.)
+     */
+    expert_add_info(pinfo, ti, &ei_monero_type_unknown);
+    return tvb_reported_length(tvb);
+  }
+
   // array of values
   if (type & MONERO_PAYLOAD_ARRAY) {
     get_varint(tvb, offset, &length, &size);
@@ -339,6 +348,7 @@ static int dissect_encoded_value(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
     default:
       expert_add_info(pinfo, ti, &ei_monero_type_unknown);
+      offset = tvb_reported_length(tvb);
       break;
   }
 
