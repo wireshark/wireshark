@@ -14136,10 +14136,6 @@ a:hover {
         <translation>Réinitialiser la mise en page</translation>
     </message>
     <message>
-        <source>Reset appearance layout to default size</source>
-        <translation>Réinitialiser la disposition de l&apos;apparence à la taille par défaut</translation>
-    </message>
-    <message>
         <source>Seconds Since First Captured Packet</source>
         <translation>Secondes depuis le premier paquet capturé</translation>
     </message>
@@ -14506,6 +14502,10 @@ a:hover {
     <message>
         <source>Normal Size</source>
         <translation>Taille Normale</translation>
+    </message>
+    <message>
+        <source>Reset layout to default size</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Resize Columns</source>

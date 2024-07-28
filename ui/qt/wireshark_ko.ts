@@ -14146,10 +14146,6 @@ a:hover {
         <translation>레이아웃 초기화</translation>
     </message>
     <message>
-        <source>Reset appearance layout to default size</source>
-        <translation>외관 레이아웃을 기본 크기로 초기화</translation>
-    </message>
-    <message>
         <source>Seconds Since First Captured Packet</source>
         <translation>최초로 캡처된 패킷부터 지난 초 단위 시간</translation>
     </message>
@@ -14516,6 +14512,10 @@ a:hover {
     <message>
         <source>Normal Size</source>
         <translation>보통 크기</translation>
+    </message>
+    <message>
+        <source>Reset layout to default size</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Resize Columns</source>

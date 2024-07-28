@@ -14146,10 +14146,6 @@ a:üzerine gelin{
         <translation>Düzeni Sıfırla</translation>
     </message>
     <message>
-        <source>Reset appearance layout to default size</source>
-        <translation>Görünüm düzenini varsayılan boyuta sıfırla</translation>
-    </message>
-    <message>
         <source>Seconds Since First Captured Packet</source>
         <translation>İlk Yakalanan Paketten Beri Saniye</translation>
     </message>
@@ -14516,6 +14512,10 @@ a:üzerine gelin{
     <message>
         <source>Normal Size</source>
         <translation>Normal Boyut</translation>
+    </message>
+    <message>
+        <source>Reset layout to default size</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Resize Columns</source>

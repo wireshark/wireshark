@@ -4522,27 +4522,27 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Move to top left</source>
-        <translation type="unfinished"></translation>
+        <translation>Sposta in alto a sinistra</translation>
     </message>
     <message>
         <source>Move to top center</source>
-        <translation type="unfinished"></translation>
+        <translation>Sposta in alto al centro</translation>
     </message>
     <message>
         <source>Move to top right</source>
-        <translation type="unfinished"></translation>
+        <translation>Sposta in alto a destra</translation>
     </message>
     <message>
         <source>Move to bottom left</source>
-        <translation type="unfinished"></translation>
+        <translation>Sposta in basso a sinistra</translation>
     </message>
     <message>
         <source>Move to bottom center</source>
-        <translation type="unfinished"></translation>
+        <translation>Sposta in basso al centro</translation>
     </message>
     <message>
         <source>Move to bottom right</source>
-        <translation type="unfinished"></translation>
+        <translation>Sposta in basso a destra</translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>
@@ -14177,10 +14177,6 @@ a:hover {
         <translation>Ripristina disposizione</translation>
     </message>
     <message>
-        <source>Reset appearance layout to default size</source>
-        <translation>Ripristina la disposizione dell&apos;aspetto alla dimensione predefinita</translation>
-    </message>
-    <message>
         <source>Seconds Since First Captured Packet</source>
         <translation>Secondi dal primo pacchetto catturato</translation>
     </message>
@@ -14547,6 +14543,10 @@ a:hover {
     <message>
         <source>Normal Size</source>
         <translation>Dimensione normale</translation>
+    </message>
+    <message>
+        <source>Reset layout to default size</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Resize Columns</source>

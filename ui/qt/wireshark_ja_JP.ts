@@ -14149,10 +14149,6 @@ a:hover {
         <translation>レイアウトをリセット</translation>
     </message>
     <message>
-        <source>Reset appearance layout to default size</source>
-        <translation>外観のレイアウトをデフォルトのサイズにリセットします</translation>
-    </message>
-    <message>
         <source>Seconds Since First Captured Packet</source>
         <translation>最初にキャプチャしたパケットからの経過時間</translation>
     </message>
@@ -14519,6 +14515,10 @@ a:hover {
     <message>
         <source>Normal Size</source>
         <translation>標準サイズ</translation>
+    </message>
+    <message>
+        <source>Reset layout to default size</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Resize Columns</source>

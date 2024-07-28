@@ -14216,10 +14216,6 @@ a:hover {
         <translation>Сбросить разметку</translation>
     </message>
     <message>
-        <source>Reset appearance layout to default size</source>
-        <translation>Сбросить внешний вид разметки к размеру по умолчанию</translation>
-    </message>
-    <message>
         <source>Seconds Since First Captured Packet</source>
         <translation>Количество секунд с момента захвата первого пакета</translation>
     </message>
@@ -14586,6 +14582,10 @@ a:hover {
     <message>
         <source>Normal Size</source>
         <translation>Обычный размер</translation>
+    </message>
+    <message>
+        <source>Reset layout to default size</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Resize Columns</source>

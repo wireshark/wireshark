@@ -14203,10 +14203,6 @@ a:hover {
         <translation>Resetuj wygląd</translation>
     </message>
     <message>
-        <source>Reset appearance layout to default size</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Seconds Since First Captured Packet</source>
         <translation type="unfinished"></translation>
     </message>
@@ -14573,6 +14569,10 @@ a:hover {
     <message>
         <source>Normal Size</source>
         <translation>Normalny rozmiar</translation>
+    </message>
+    <message>
+        <source>Reset layout to default size</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Resize Columns</source>

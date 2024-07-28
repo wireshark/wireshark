@@ -14081,10 +14081,6 @@ a:hover {
         <translation>重置布局</translation>
     </message>
     <message>
-        <source>Reset appearance layout to default size</source>
-        <translation>重置外观布局为默认尺寸</translation>
-    </message>
-    <message>
         <source>Seconds Since First Captured Packet</source>
         <translation type="unfinished"></translation>
     </message>
@@ -14451,6 +14447,10 @@ a:hover {
     <message>
         <source>Normal Size</source>
         <translation>普通大小</translation>
+    </message>
+    <message>
+        <source>Reset layout to default size</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Resize Columns</source>
