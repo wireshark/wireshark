@@ -1269,7 +1269,7 @@ void WiresharkMainWindow::setMenusForSelectedPacket()
         another_is_time_ref = have_time_ref && rows.count() <= 1 &&
                 !(capture_file_.capFile()->ref_time_count == 1 && frame_selected && current_frame->ref_time);
 
-        if (capture_file_.capFile()->edt && ! multi_selection)
+        if (capture_file_.capFile()->edt && ! multi_selection && frame_selected)
         {
             proto_get_frame_protocols(capture_file_.capFile()->edt->pi.layers,
                                       &is_ip, &is_tcp, &is_udp, &is_sctp,
@@ -1293,6 +1293,10 @@ void WiresharkMainWindow::setMenusForSelectedPacket()
                 } else {
                     follow_action->setEnabled(is_frame);
                 }
+            }
+        } else {
+            foreach (FollowStreamAction *follow_action, main_ui_->menuFollow->findChildren<FollowStreamAction *>()) {
+                follow_action->setEnabled(false);
             }
         }
     }
