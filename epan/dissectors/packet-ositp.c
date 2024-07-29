@@ -1104,7 +1104,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, uint8_t li, uint8_t tpdu,
     col_append_fstr(pinfo->cinfo, COL_INFO, " [COTP fragment, %u byte%s]",
         fragment_length, plurality(fragment_length, "", "s"));
   } else {
-    col_append_fstr(pinfo->cinfo, COL_INFO, " EOT");
+    col_append_str(pinfo->cinfo, COL_INFO, " EOT");
   }
 
   if (cotp_reassemble) {

@@ -358,7 +358,7 @@ def find_macros(filename):
 
 
 def is_dissector_file(filename):
-    p = re.compile(r'.*packet-.*\.c')
+    p = re.compile(r'.*(packet|file)-.*\.c')
     return p.match(filename)
 
 def findDissectorFilesInFolder(folder):

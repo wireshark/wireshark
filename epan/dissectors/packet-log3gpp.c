@@ -660,8 +660,7 @@ dissect_log3gpp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
 
         if (!is_hex_data)
         {
-            col_add_fstr(pinfo->cinfo, COL_INFO,
-                "%s",
+            col_add_str(pinfo->cinfo, COL_INFO,
                 tvb_get_string_enc(pinfo->pool, tvb, offset, tvb_reported_length(tvb) - offset, ENC_UTF_8 | ENC_NA));
         }
         else

@@ -1375,7 +1375,7 @@ dissect_rtcp_asfb_ms( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *
     {
         rtcp_ms_vsr_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ms_vsr, &item, "MS Video Source Request");
 
-        col_append_fstr(pinfo->cinfo, COL_INFO,"( MS-VSR )");
+        col_append_str(pinfo->cinfo, COL_INFO, "( MS-VSR )");
 
         item = proto_tree_add_item( rtcp_ms_vsr_tree, hf_rtcp_psfb_ms_msi, tvb, offset, 4, ENC_BIG_ENDIAN );
         msi = tvb_get_ntohl (tvb, offset);
@@ -1468,7 +1468,7 @@ dissect_rtcp_asfb_ms( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *
     {
         /* MS Dominant Speaker History */
         rtcp_ms_ds_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ms_ds, NULL, "MS Dominant Speaker History");
-        col_append_fstr(pinfo->cinfo, COL_INFO,"( MS-DSH )");
+        col_append_str(pinfo->cinfo, COL_INFO, "( MS-DSH )");
         while (length-- && tvb_captured_length_remaining (tvb, offset) >= 4)
         {
             item = proto_tree_add_item( rtcp_ms_ds_tree, hf_rtcp_psfb_ms_msi, tvb, offset, 4, ENC_BIG_ENDIAN );
@@ -4155,7 +4155,7 @@ dissect_rtcp_profile_specific_extensions (packet_info *pinfo, tvbuff_t *tvb, pro
      * So we use a FT_UINT16 dissector table. If that ever proves
      * insufficient, we could try a FT_NONE payload table.
      */
-    col_append_fstr(pinfo->cinfo, COL_INFO, "(");
+    col_append_str(pinfo->cinfo, COL_INFO, "(");
     while (remaining) {
         extension_type = tvb_get_ntohs(tvb, offset);
         next_tvb = tvb_new_subset_length(tvb, offset, remaining);
@@ -4171,7 +4171,7 @@ dissect_rtcp_profile_specific_extensions (packet_info *pinfo, tvbuff_t *tvb, pro
         offset += bytes_consumed;
         remaining -= bytes_consumed;
     }
-    col_append_fstr(pinfo->cinfo, COL_INFO, ") ");
+    col_append_str(pinfo->cinfo, COL_INFO, ") ");
 }
 
 static int

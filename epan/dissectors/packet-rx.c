@@ -177,11 +177,7 @@ dissect_rx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 	int old_offset=offset;
 
 	col_add_fstr(pinfo->cinfo, COL_INFO,
-			"RESPONSE  "
-			"Seq: %lu  "
-			"Call: %lu  "
-			"Source Port: %s  "
-			"Destination Port: %s  ",
+			"RESPONSE  Seq: %lu  Call: %lu  Source Port: %s  Destination Port: %s  ",
 			(unsigned long)seq,
 			(unsigned long)callnumber,
 			udp_port_to_display(pinfo->pool, pinfo->srcport),

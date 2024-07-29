@@ -833,10 +833,10 @@ raknet_dissect_ACK(tvbuff_t *tvb, packet_info *pinfo,
     uint32_t i;
 
     if (*(bool*)data) {
-        col_add_str(pinfo->cinfo, COL_INFO, "ACK");
+        col_set_str(pinfo->cinfo, COL_INFO, "ACK");
     }
     else {
-        col_add_str(pinfo->cinfo, COL_INFO, "NAK");
+        col_set_str(pinfo->cinfo, COL_INFO, "NAK");
     }
 
     proto_tree_add_item_ret_uint(tree, hf_raknet_NACK_record_count, tvb,

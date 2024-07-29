@@ -114,9 +114,8 @@ static void _dissect_uaudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += 1;
 
     /* print in "INFO" column the type of UAUDP message */
-    col_add_fstr(pinfo->cinfo,
+    col_add_str(pinfo->cinfo,
                 COL_INFO,
-                "%s",
                 val_to_str_ext(opcode, &uaudp_opcode_str_ext, "unknown (0x%02x)"));
 
     uaudp_item = proto_tree_add_protocol_format(tree, proto_uaudp, tvb, 0, tvb_reported_length(tvb),

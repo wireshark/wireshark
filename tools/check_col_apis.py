@@ -5,12 +5,8 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-# Scan dissectors for calls to val_to_str() and friends,
-# checking for appropriate format specifier strings in
-# 'unknown' arg.
-# TODO:
-# - more detailed format specifier checking (check letter, that there is only 1)
-# - scan conformance (.cnf) files for ASN1 dissectors?
+# Scan dissectors for calls to col_[set|add|append]_[f]str
+# to check that most appropriate API is being used
 
 import os
 import re
@@ -65,7 +61,6 @@ def isGeneratedFile(filename):
     return False
 
 
-
 def removeComments(code_string):
     code_string = re.sub(re.compile(r"/\*.*?\*/",re.DOTALL ) ,"" ,code_string) # C-style comment
     code_string = re.sub(re.compile(r"//.*?\n" ) ,"" ,code_string)             # C++-style comment
@@ -100,8 +95,86 @@ def findDissectorFilesInFolder(folder, recursive=False):
 warnings_found = 0
 errors_found = 0
 
+class ColCall:
+    def __init__(self, file, line_number, name, last_args, generated, verbose):
+        self.filename = file
+        self.line_number = line_number
+        self.name = name
+        self.last_args = last_args
+        self.generated = generated
+        self.verbose = verbose
+
+    def issue_prefix(self):
+        generated = '(GENERATED) ' if self.generated else ''
+        return self.filename + ':' + generated + str(self.line_number) + ' : called ' + self.name + ' with ' + self.last_args
+
+    def check(self):
+        global warnings_found
+
+        self.last_args = self.last_args.replace('\\\"', "'")
+        self.last_args = self.last_args.strip()
+
+        # Empty string never a good idea
+        if self.last_args == r'""':
+            if self.name.find('append') == -1:
+                print('Warning:', self.issue_prefix(), '- if want to clear column, use col_clear() instead')
+                warnings_found += 1
+            else:
+                # TODO: pointless if appending, but unlikely to see
+                pass
+
+        # This is never a good idea..
+        if self.last_args.startswith(r'"%s"'):
+            print('Warning:', self.issue_prefix(), "- what are you trying to do - don't need fstr API?")
+            warnings_found += 1
+
+        # String should be static, or at least persist
+        if self.name == 'col_set_str':
+            # Literal strings are safe, as well as some other patterns..
+            if self.last_args.startswith('"'):
+                return
+            elif self.last_args.startswith('val_to_str_const') or self.last_args.startswith('val_to_str_ext_const'):
+                return
+            # TODO: substitute macros to avoid some special cases..
+            elif self.last_args.startswith('PSNAME') or self.last_args.startswith('PNAME') or self.last_args.startswith('PROTO_SHORT_NAME'):
+                return
+            # TODO; match ternary test with both outcomes being literal strings?
+            else:
+                if self.verbose:
+                    # Not easy/possible to judge lifetime of string..
+                    print('Note:', self.issue_prefix(), '- is this OK??')
+
+
+        if self.name == 'col_add_str':
+            # If literal string, could have used col_set_str instead?
+            self.last_args = self.last_args.replace('\\\"', "'")
+            self.last_args = self.last_args.strip()
+            if self.last_args.startswith('"'):
+                print('Warning:', self.issue_prefix(), '- could call col_set_str() instead?')
+                warnings_found += 1
+            elif self.last_args.startswith('val_to_str_const'):
+                print('Warning:', self.issue_prefix(), '- const so could use col_set_str() instead')
+                warnings_found += 1
+            elif self.last_args.startswith('val_to_str_ext_const'):
+                print('Warning:', self.issue_prefix(), '- const so could use col_set_str() instead')
+                warnings_found += 1
+
+        if self.name == 'col_append_str':
+            pass
+        if self.name == 'col_add_fstr' or self.name == 'col_append_fstr':
+            # Look at format string
+            self.last_args = self.last_args.replace('\\\"', "'")
+            m = re.search(r'"(.*?)"', self.last_args)
+            if m:
+                # Should contain at least one format specifier!
+                format_string = m.group(1)
+                if format_string.find('%') == -1:
+                    print('Warning:', self.issue_prefix(), 'with no format specifiers  - "' + format_string + '"')
+                    warnings_found += 1
+
+
 # Check the given dissector file.
-def checkFile(filename, generated):
+def checkFile(filename, generated, verbose=False):
     global warnings_found
     global errors_found
 
@@ -111,48 +184,33 @@ def checkFile(filename, generated):
         return
 
     with open(filename, 'r', encoding="utf8") as f:
-        contents = f.read()
+        full_contents = f.read()
 
         # Remove comments so as not to trip up RE.
-        contents = removeComments(contents)
+        contents = removeComments(full_contents)
 
-        matches =   re.finditer(r'(?<!try_)(?<!char_)(?<!bytes)(r?val_to_str(?:_ext|)(?:_const|))\(.*?,.*?,\s*(".*?\")\s*\)', contents)
+        # Look for all calls in this file
+        matches = re.finditer(r'(col_set_str|col_add_str|col_add_fstr|col_append_str|col_append_fstr)\((.*?)\)\s*\;', contents, re.MULTILINE|re.DOTALL)
+        col_calls = []
+
         for m in matches:
-            function = m.group(1)
-            format_string = m.group(2)
+            args = m.group(2)
 
-            # Ignore what appears to be a macro.
-            if format_string.find('#') != -1:
-                continue
+            line_number = -1
+            # May fail to find there were comments inside call...
+            match_offset = full_contents.find(m.group(0))
+            if match_offset != -1:
+                line_number = len(full_contents[0:match_offset].splitlines())
 
-            if function.endswith('_const'):
-                # These ones shouldn't have a specifier - its an error if they do.
-                # TODO: I suppose it could be escaped, but haven't seen this...
-                if format_string.find('%') != -1:
-                    # This is an error as format specifier would show in app
-                    print('Error:', filename, "  ", m.group(0),
-                          '   - should not have specifiers in unknown string',
-                          '(GENERATED)' if generated else '')
-                    errors_found += 1
-            else:
-                # These ones need to have a specifier, and it should be suitable for an int
-                count = format_string.count('%')
-                if count == 0:
-                    print('Warning:', filename, "  ", m.group(0),
-                          '   - should have suitable format specifier in unknown string (or use _const()?)',
-                          '(GENERATED)' if generated else '')
-                    warnings_found += 1
-                elif count > 1:
-                    print('Warning:', filename, "  ", m.group(0),
-                          '   - has more than one specifier?',
-                          '(GENERATED)' if generated else '')
-                # TODO: check allowed specifiers (d, u, x, ?) and modifiers (0-9*) in re ?
-                if format_string.find('%s') != -1:
-                    # This is an error as this likely causes a crash
-                    print('Error:', filename, "  ", m.group(0),
-                          '    - inappropriate format specifier in unknown string',
-                          '(GENERATED)' if generated else '')
-                    errors_found += 1
+            # Match first 2 args plus remainer
+            args_m = re.match(r'(.*?),\s*(.*?),\s*(.*)', args)
+            if args_m:
+                col_calls.append(ColCall(filename, line_number, m.group(1), last_args=args_m.group(3),
+                                         generated=generated, verbose=verbose))
+
+        # Check them all
+        for call in col_calls:
+            call.check()
 
 
 
@@ -168,8 +226,9 @@ parser.add_argument('--commits', action='store',
                     help='last N commits to check')
 parser.add_argument('--open', action='store_true',
                     help='check open files')
-parser.add_argument('--generated', action='store_true',
-                    help='check generated files')
+parser.add_argument('--verbose', action='store_true',
+                    help='show extra info')
+
 
 args = parser.parse_args()
 
@@ -231,9 +290,8 @@ else:
 for f in files:
     if should_exit:
         exit(1)
-    generated = isGeneratedFile(f)
-    if args.generated or not generated:
-        checkFile(f, generated)
+
+    checkFile(f, isGeneratedFile(f), verbose=args.verbose)
 
 
 # Show summary.

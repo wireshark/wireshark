@@ -5709,9 +5709,9 @@ dissect_acn_dmx_discovery_pdu(uint32_t protocol_id, tvbuff_t *tvb, packet_info *
         ++current_universe_idx;
       }
       if(data_offset + (sizeof(uint16_t)*current_universe_idx) != end_offset)
-        col_append_fstr(pinfo->cinfo,COL_INFO,"...");
+        col_append_str(pinfo->cinfo,COL_INFO, "...");
       else if(current_universe_idx == 0)
-        col_append_fstr(pinfo->cinfo,COL_INFO,"none");
+        col_append_str(pinfo->cinfo,COL_INFO, "none");
 
       col_append_fstr(pinfo->cinfo,COL_INFO, "]");
 

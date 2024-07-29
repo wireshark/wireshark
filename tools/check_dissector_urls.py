@@ -217,7 +217,7 @@ args = parser.parse_args()
 
 
 def is_dissector_file(filename):
-    p = re.compile(r'epan/dissectors/packet-.*\.c')
+    p = re.compile(r'.*(packet|file)-.*\.c')
     return p.match(filename)
 
 

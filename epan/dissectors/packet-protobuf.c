@@ -1504,7 +1504,7 @@ dissect_protobuf_message(tvbuff_t *tvb, unsigned offset, unsigned length, packet
 
     if (is_top_level) {
         if (col_get_text(pinfo->cinfo, COL_PROTOCOL) && strlen(col_get_text(pinfo->cinfo, COL_PROTOCOL))) {
-            col_append_fstr(pinfo->cinfo, COL_PROTOCOL, "/");
+            col_append_str(pinfo->cinfo, COL_PROTOCOL, "/");
         }
         else {
             col_clear(pinfo->cinfo, COL_PROTOCOL);

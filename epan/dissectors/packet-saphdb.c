@@ -1124,7 +1124,7 @@ dissect_saphdb_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 	uint32_t offset = 0;
 
 	/* Add the protocol to the column */
-	col_add_str(pinfo->cinfo, COL_PROTOCOL, "SAPHDB");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SAPHDB");
 	/* Clear out stuff in the info column */
 	col_clear(pinfo->cinfo,COL_INFO);
 
@@ -1143,7 +1143,7 @@ dissect_saphdb_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 		if (tvb_reported_length(tvb) == 14) {
 			proto_tree_add_item(saphdb_tree, hf_saphdb_initialization_request, tvb, offset, 14, ENC_NA);
 			offset += 14;
-			col_add_str(pinfo->cinfo, COL_INFO, "Initialization Request");
+			col_set_str(pinfo->cinfo, COL_INFO, "Initialization Request");
 
 		/* Initialization Reply message */
 		} else if (tvb_reported_length(tvb) == 8) {
@@ -1163,7 +1163,7 @@ dissect_saphdb_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 			proto_tree_add_item(initialization_reply_tree, hf_saphdb_initialization_reply_protocol_version_minor, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset += 2;
 
-			col_add_str(pinfo->cinfo, COL_INFO, "Initialization Reply");
+			col_set_str(pinfo->cinfo, COL_INFO, "Initialization Reply");
 
 		/* All other message types */
 		} else if (tvb_reported_length(tvb) >= SAPHDB_HEADER_LEN) {
