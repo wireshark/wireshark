@@ -123,11 +123,10 @@ static char*
 nettrace_parse_address(char* curr_pos, char* next_pos, bool is_src_addr, exported_pdu_info_t *exported_pdu_info)
 {
 	unsigned port=0;
-	char transp_str[5];
-	char ip_addr_str[WS_INET6_ADDRSTRLEN];
 	ws_in6_addr ip6_addr;
 	uint32_t ip4_addr;
 	char *err; //for strtol function
+	char saved_next_char;
 
 	GMatchInfo *match_info;
 	static GRegex *regex = NULL;
@@ -155,30 +154,30 @@ nettrace_parse_address(char* curr_pos, char* next_pos, bool is_src_addr, exporte
 	 }
 
 	/* curr_pos pointing to first char of "address" */
-
+	/* Ensure we don't overrun the intended input.  The input will always
+	 * be a mutable buffer, so modifying it is safe. */
+	saved_next_char = *next_pos;
+	*next_pos = '\0'; /* Insert a NUL terminator. */
 	g_regex_match (regex, curr_pos, 0, &match_info);
 
 	if (g_match_info_matches (match_info)) {
 		matched_ipaddress = g_match_info_fetch_named(match_info, "ipaddress"); //will be empty string if no ipv4 or ipv6
 		matched_port = g_match_info_fetch_named(match_info, "port"); //will be empty string if port not in trace
+		if (matched_port != NULL) {
+			port = (unsigned) strtol(matched_port, &err, 10);
+			g_free(matched_port);
+		}
 		matched_transport = g_match_info_fetch_named(match_info, "transport"); //will be empty string if transport not in trace
 	} else {
+		g_match_info_free(match_info);
+		*next_pos = saved_next_char;
 		return next_pos;
 	}
 
 	g_match_info_free(match_info);
+	*next_pos = saved_next_char;
 
-	if (matched_ipaddress != NULL && strlen(matched_ipaddress)) {
-		(void) g_strlcpy(ip_addr_str, matched_ipaddress, strlen(matched_ipaddress)+1);
-	}
-	if (matched_port != NULL && strlen(matched_port)) {
-		port = (unsigned) strtol(matched_port, &err, 10);
-	}
-	if (matched_transport != NULL && strlen(matched_transport)) {
-		(void) g_strlcpy(transp_str, matched_transport, strlen(matched_transport)+1);
-	}
-
-	if (ws_inet_pton6(ip_addr_str, &ip6_addr)) {
+	if (ws_inet_pton6(matched_ipaddress, &ip6_addr)) {
 		if (is_src_addr) {
 			exported_pdu_info->presence_flags |= EXP_PDU_TAG_IP6_SRC_BIT;
 			memcpy(exported_pdu_info->src_ip, ip6_addr.bytes, EXP_PDU_TAG_IPV6_LEN);
@@ -188,7 +187,7 @@ nettrace_parse_address(char* curr_pos, char* next_pos, bool is_src_addr, exporte
 			memcpy(exported_pdu_info->dst_ip, ip6_addr.bytes, EXP_PDU_TAG_IPV6_LEN);
 		}
 	}
-	else if (ws_inet_pton4(ip_addr_str, &ip4_addr)) {
+	else if (ws_inet_pton4(matched_ipaddress, &ip4_addr)) {
 		if (is_src_addr) {
 			exported_pdu_info->presence_flags |= EXP_PDU_TAG_IP_SRC_BIT;
 			memcpy(exported_pdu_info->src_ip, &ip4_addr, EXP_PDU_TAG_IPV4_LEN);
@@ -202,13 +201,13 @@ nettrace_parse_address(char* curr_pos, char* next_pos, bool is_src_addr, exporte
 	if (port > 0) {
 		/* Only add port_type once */
 		if (exported_pdu_info->ptype == EXP_PDU_PT_NONE) {
-			if (g_ascii_strncasecmp(transp_str, "udp", 3) == 0) {
+			if (g_ascii_strncasecmp(matched_transport, "udp", 3) == 0) {
 				exported_pdu_info->ptype = EXP_PDU_PT_UDP;
 			}
-			else if (g_ascii_strncasecmp(transp_str, "tcp", 3) == 0) {
+			else if (g_ascii_strncasecmp(matched_transport, "tcp", 3) == 0) {
 				exported_pdu_info->ptype = EXP_PDU_PT_TCP;
 			}
-			else if (g_ascii_strncasecmp(transp_str, "sctp", 4) == 0) {
+			else if (g_ascii_strncasecmp(matched_transport, "sctp", 4) == 0) {
 				exported_pdu_info->ptype = EXP_PDU_PT_SCTP;
 			}
 		}
@@ -221,6 +220,8 @@ nettrace_parse_address(char* curr_pos, char* next_pos, bool is_src_addr, exporte
 			exported_pdu_info->dst_port = port;
 		}
 	}
+	g_free(matched_ipaddress);
+	g_free(matched_transport);
 	return next_pos;
 }
 
